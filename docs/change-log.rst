@@ -4,6 +4,292 @@
 
 .. contents::
 
+Trusted Firmware-A - version 1.5
+================================
+
+New features
+------------
+
+-  Added new firmware support to enable RAS (Reliability, Availability, and
+   Serviceability) functionality.
+
+   -  Secure Partition Manager (SPM): A Secure Partition is a software execution
+      environment instantiated in S-EL0 that can be used to implement simple
+      management and security services. The SPM is the firmware component that
+      is responsible for managing a Secure Partition.
+
+   -  SDEI dispatcher: Support for interrupt-based SDEI events and all
+      interfaces as defined by the SDEI specification v1.0, see
+      `SDEI Specification`_
+
+   -  Exception Handling Framework (EHF): Framework that allows dispatching of
+      EL3 interrupts to their registered handlers which are registered based on
+      their priorities. Facilitates firmware-first error handling policy where
+      asynchronous exceptions may be routed to EL3.
+
+      Integrated the TSPD with EHF.
+
+-  Updated PSCI support:
+
+   -  Implemented PSCI v1.1 optional features `MEM_PROTECT` and `SYSTEM_RESET2`.
+      The supported PSCI version was updated to v1.1.
+
+   -  Improved PSCI STAT timestamp collection, including moving accounting for
+      retention states to be inside the locks and fixing handling of wrap-around
+      when calculating residency in AArch32 execution state.
+
+   -  Added optional handler for early suspend that executes when suspending to
+      a power-down state and with data caches enabled.
+
+      This may provide a performance improvement on platforms where it is safe
+      to perform some or all of the platform actions from `pwr_domain_suspend`
+      with the data caches enabled.
+
+-  Enabled build option, BL2_AT_EL3, for BL2 to allow execution at EL3 without
+   any dependency on TF BL1.
+
+   This allows platforms which already have a non-TF Boot ROM to directly load
+   and execute BL2 and subsequent BL stages without need for BL1. This was not
+   previously possible because BL2 executes at S-EL1 and cannot jump straight to
+   EL3.
+
+-  Implemented support for SMCCC v1.1, including `SMCCC_VERSION` and
+   `SMCCC_ARCH_FEATURES`.
+
+   Additionally, added support for `SMCCC_VERSION` in PSCI features to enable
+   discovery of the SMCCC version via PSCI feature call.
+
+-  Added Dynamic Configuration framework which enables each of the boot loader
+   stages to be dynamically configured at runtime if required by the platform.
+   The boot loader stage may optionally specify a firmware configuration file
+   and/or hardware configuration file that can then be shared with the next boot
+   loader stage.
+
+   Introduced a new BL handover interface that essentially allows passing of 4
+   arguments between the different BL stages.
+
+   Updated cert_create and fip_tool to support the dynamic configuration files.
+   The COT also updated to support these new files.
+
+-  Code hygiene changes and alignment with MISRA guideline:
+
+   -  Fix use of undefined macros.
+
+   -  Achieved compliance with Mandatory MISRA coding rules.
+
+   -  Achieved compliance for following Required MISRA rules for the default
+      build configurations on FVP and Juno platforms : 7.3, 8.3, 8.4, 8.5 and
+      8.8.
+
+-  Added support for Armv8.2-A architectural features:
+
+   -  Updated translation table set-up to set the CnP (Common not Private) bit
+      for secure page tables so that multiple PEs in the same Inner Shareable
+      domain can use the same translation table entries for a given stage of
+      translation in a particular translation regime.
+
+   -  Extended the supported values of ID_AA64MMFR0_EL1.PARange to include the
+      52-bit Physical Address range.
+
+   -  Added support for the Scalable Vector Extension to allow Normal world
+      software to access SVE functionality but disable access to SVE, SIMD and
+      floating point functionality from the Secure world in order to prevent
+      corruption of the Z-registers.
+
+-  Added support for Armv8.4-A architectural feature Activity Monitor Unit (AMU)
+    extensions.
+
+   In addition to the v8.4 architectural extension, AMU support on Cortex-A75
+   was implemented.
+
+-  Enhanced OP-TEE support to enable use of pageable OP-TEE image. The Arm
+   standard platforms are updated to load up to 3 images for OP-TEE; header,
+   pager image and paged image.
+
+   The chain of trust is extended to support the additional images.
+
+-  Enhancements to the translation table library:
+
+   -  Introduced APIs to get and set the memory attributes of a region.
+
+   -  Added support to manage both priviledge levels in translation regimes that
+      describe translations for 2 Exception levels, specifically the EL1&0
+      translation regime, and extended the memory map region attributes to
+      include specifying Non-privileged access.
+
+   -  Added support to specify the granularity of the mappings of each region,
+      for instance a 2MB region can be specified to be mapped with 4KB page
+      tables instead of a 2MB block.
+
+   -  Disabled the higher VA range to avoid unpredictable behaviour if there is
+      an attempt to access addresses in the higher VA range.
+
+   -  Added helpers for Device and Normal memory MAIR encodings that align with
+      the Arm Architecture Reference Manual for Armv8-A (Arm DDI0487B.b).
+
+   -  Code hygiene including fixing type length and signedness of constants,
+      refactoring of function to enable the MMU, removing all instances where
+      the virtual address space is hardcoded and added comments that document
+      alignment needed between memory attributes and attributes specified in
+      TCR_ELx.
+
+-  Updated GIC support:
+
+   -  Introduce new APIs for GICv2 and GICv3 that provide the capability to
+      specify interrupt properties rather than list of interrupt numbers alone.
+      The Arm platforms and other upstream platforms are migrated to use
+      interrupt properties.
+
+   -  Added helpers to save / restore the GICv3 context, specifically the
+      Distributor and Redistributor contexts and architectural parts of the ITS
+      power management. The Distributor and Redistributor helpers also support
+      the implementation-defined part of GIC-500 and GIC-600.
+
+      Updated the Arm FVP platform to save / restore the GICv3 context on system
+      suspend / resume as an example of how to use the helpers.
+
+      Introduced a new TZC secured DDR carve-out for use by Arm platforms for
+      storing EL3 runtime data such as the GICv3 register context.
+
+-  Added support for Armv7-A architecture via build option ARM_ARCH_MAJOR=7.
+   This includes following features:
+
+   -  Updates GICv2 driver to manage GICv1 with security extensions.
+
+   -  Software implementation for 32bit division.
+
+   -  Enabled use of generic timer for platforms that do not set
+      ARM_CORTEX_Ax=yes.
+
+   -  Support for Armv7-A Virtualization extensions [DDI0406C_C].
+
+   -  Support for both Armv7-A platforms that only have 32-bit addressing and
+      Armv7-A platforms that support large page addressing.
+
+   -  Included support for following Armv7 CPUs: Cortex-A12, Cortex-A17,
+      Cortex-A7, Cortex-A5, Cortex-A9, Cortex-A15.
+
+   -  Added support in QEMU for Armv7-A/Cortex-A15.
+
+-  Enhancements to Firmware Update feature:
+
+   -  Updated the FWU documentation to describe the additional images needed for
+      Firmware update, and how they are used for both the Juno platform and the
+      Arm FVP platforms.
+
+-  Enhancements to Trusted Board Boot feature:
+
+   -  Added support to cert_create tool for RSA PKCS1# v1.5 and SHA384, SHA512
+      and SHA256.
+
+   -  For Arm platforms added support to use ECDSA keys.
+
+   -  Enhanced the mbed TLS wrapper layer to include support for both RSA and
+      ECDSA to enable runtime selection between RSA and ECDSA keys.
+
+-  Added support for secure interrupt handling in AArch32 sp_min, hardcoded to
+   only handle FIQs.
+
+-  Added support to allow a platform to load images from multiple boot sources,
+   for example from a second flash drive.
+
+-  Added a logging framework that allows platforms to reduce the logging level
+   at runtime and additionally the prefix string can be defined by the platform.
+
+-  Further improvements to register initialisation:
+
+   -   Control register PMCR_EL0 / PMCR is set to prohibit cycle counting in the
+       secure world. This register is added to the list of registers that are
+       saved and restored during world switch.
+
+   -   When EL3 is running in AArch32 execution state, the Non-secure version of
+       SCTLR is explicitly initialised during the warmboot flow rather than
+       relying on the hardware to set the correct reset values.
+
+-  Enhanced support for Arm platforms:
+
+   -  Introduced driver for Shared-Data-Structure (SDS) framework which is used
+      for communication between SCP and the AP CPU, replacing Boot-Over_MHU
+      (BOM) protocol.
+
+      The Juno platform is migrated to use SDS with the SCMI support added in
+      v1.3 and is set as default.
+
+      The driver can be found in the plat/arm/css/drivers folder.
+
+   -  Improved memory usage by only mapping TSP memory region when the TSPD has
+      been included in the build. This reduces the memory footprint and avoids
+      unnecessary memory being mapped.
+
+   -  Updated support for multi-threading CPUs for FVP platforms - always check
+      the MT field in MPDIR and access the bit fields accordingly.
+
+   -  Support building for platforms that model DynamIQ configuration by
+      implementing all CPUs in a single cluster.
+
+   -  Improved nor flash driver, for instance clearing status registers before
+      sending commands. Driver can be found plat/arm/board/common folder.
+
+-  Enhancements to QEMU platform:
+
+   -  Added support for TBB.
+
+   -  Added support for using OP-TEE pageable image.
+
+   -  Added support for LOAD_IMAGE_V2.
+
+   -  Migrated to use translation table library v2 by default.
+
+   -  Added support for SEPARATE_CODE_AND_RODATA.
+
+-  Applied workarounds CVE-2017-5715 on Arm Cortex-A57, -A72, -A73 and -A75, and
+   for Armv7-A CPUs Cortex-A9, -A15 and -A17.
+
+-  Applied errata workaround for Arm Cortex-A57: 859972.
+
+-  Applied errata workaround for Arm Cortex-A72: 859971.
+
+-  Added support for Poplar 96Board platform.
+
+-  Added support for Raspberry Pi 3 platform.
+
+-  Added Call Frame Information (CFI) assembler directives to the vector entries
+   which enables debuggers to display the backtrace of functions that triggered
+   a synchronous abort.
+
+-  Added ability to build dtb.
+
+-  Added support for pre-tool (cert_create and fiptool) image processing
+   enabling compression of the image files before processing by cert_create and
+   fiptool.
+
+   This can reduce fip size and may also speed up loading of images.  The image
+   verification will also get faster because certificates are generated based on
+   compressed images.
+
+   Imported zlib 1.2.11 to implement gunzip() for data compression.
+
+-  Enhancements to fiptool:
+
+   -  Enabled the fiptool to be built using Visual Studio.
+
+   -  Added padding bytes at the end of the last image in the fip to be
+      facilitate transfer by DMA.
+
+Issues resolved since last release
+----------------------------------
+
+-  TF-A can be built with optimisations disabled (-O0).
+
+-  Memory layout updated to enable Trusted Board Boot on Juno platform when
+   running TF-A in AArch32 execution mode (resolving `tf-issue#501`_).
+
+Known Issues
+------------
+
+-  DTB creation not supported when building on a windows host. This step in the
+   build process is skipped when running on a windows host.
+
 Trusted Firmware-A - version 1.4
 ================================
 
@@ -141,7 +427,7 @@ New features
 
    -  Added version 2 of translation table library that allows different
       translation tables to be modified by using different 'contexts'. Version 1
-      of the transalation table library only allows the current EL's translation
+      of the translation table library only allows the current EL's translation
       tables to be modified.
 
       Version 2 of the translation table also added support for dynamic
@@ -285,7 +571,7 @@ Known Issues
 
 -  Trusted Board Boot currently does not work on Juno when running Trusted
    Firmware in AArch32 execution state due to error when loading the sp_min to
-   memory becasue of lack of free space available. See `tf-issue#501`_ for more
+   memory because of lack of free space available. See `tf-issue#501`_ for more
    details.
 
 -  The errata workaround for A53 errata 843419 is only available from binutils
@@ -1361,6 +1647,7 @@ releases of TF-A.
 
 *Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.*
 
+.. _SDEI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
 .. _PSCI Integration Guide: psci-lib-integration-guide.rst
 .. _Developer Certificate of Origin: ../dco.txt
 .. _Contribution Guide: ../contributing.rst
