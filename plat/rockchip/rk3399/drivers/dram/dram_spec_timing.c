@@ -1314,5 +1314,8 @@ void dram_get_parameter(struct timing_related_config *timing_config,
 	case LPDDR4:
 		lpddr4_get_parameter(timing_config, pdram_timing);
 		break;
+	default:
+		/* Do nothing in default case */
+		break;
 	}
 }

@@ -190,6 +190,8 @@ void plat_ic_set_interrupt_priority(unsigned int id, unsigned int priority)
 
 int plat_ic_has_interrupt_type(unsigned int type)
 {
+	int has_interrupt_type = 0;
+
 	switch (type) {
 #if GICV2_G0_FOR_EL3
 	case INTR_TYPE_EL3:
@@ -197,10 +199,14 @@ int plat_ic_has_interrupt_type(unsigned int type)
 	case INTR_TYPE_S_EL1:
 #endif
 	case INTR_TYPE_NS:
-		return 1;
+		has_interrupt_type = 1;
+		break;
 	default:
-		return 0;
+		/* Do nothing in default case */
+		break;
 	}
+
+	return has_interrupt_type;
 }
 
 void plat_ic_set_interrupt_type(unsigned int id, unsigned int type)
@@ -221,6 +227,7 @@ void plat_ic_set_interrupt_type(unsigned int id, unsigned int type)
 		break;
 	default:
 		assert(0);
+		break;
 	}
 
 	gicv2_set_interrupt_type(id, gicv2_type);
@@ -260,6 +267,7 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 		break;
 	default:
 		assert(0);
+		break;
 	}
 
 	gicv2_set_spi_routing(id, proc_num);

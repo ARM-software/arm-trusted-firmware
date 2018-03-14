@@ -305,6 +305,9 @@ int arm_bl2_handle_post_image_load(unsigned int image_id)
 		}
 		break;
 #endif
+	default:
+		/* Do nothing in default case */
+		break;
 	}
 
 	return err;

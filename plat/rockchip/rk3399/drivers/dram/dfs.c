@@ -207,6 +207,9 @@ static void sdram_timing_cfg_init(struct timing_related_config *ptiming_config,
 		ptiming_config->rdbi = 0;
 		ptiming_config->wdbi = 0;
 		break;
+	default:
+		/* Do nothing in default case */
+		break;
 	}
 	ptiming_config->dramds = drv_config->dram_side_drv;
 	ptiming_config->dramodt = drv_config->dram_side_dq_odt;

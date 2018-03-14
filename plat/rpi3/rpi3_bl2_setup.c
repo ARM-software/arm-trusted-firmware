@@ -83,6 +83,9 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		bl_mem_params->ep_info.spsr = rpi3_get_spsr_for_bl33_entry();
 		break;
 
+	default:
+		/* Do nothing in default case */
+		break;
 	}
 
 	return err;

@@ -48,6 +48,9 @@ unsigned int zynqmp_get_uart_clk(void)
 		return 25000000;
 	case ZYNQMP_CSU_VERSION_QEMU:
 		return 133000000;
+	default:
+		/* Do nothing in default case */
+		break;
 	}
 
 	return 100000000;
@@ -187,6 +190,9 @@ static void zynqmp_print_platform_name(void)
 	case ZYNQMP_CSU_VERSION_SILICON:
 		label = "silicon";
 		break;
+	default:
+		/* Do nothing in default case */
+		break;
 	}
 
 	NOTICE("ATF running on XCZU%s/%s v%d/RTL%d.%d at 0x%x%s\n",
@@ -258,6 +264,9 @@ unsigned int plat_get_syscnt_freq2(void)
 		return 4000000;
 	case ZYNQMP_CSU_VERSION_QEMU:
 		return 50000000;
+	default:
+		/* Do nothing in default case */
+		break;
 	}
 
 	return mmio_read_32(IOU_SCNTRS_BASEFREQ);

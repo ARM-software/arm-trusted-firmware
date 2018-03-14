@@ -59,13 +59,11 @@ uint64_t sip_smc_handler(uint32_t smc_fid,
 	case SIP_SVC_UID:
 		/* Return UID to the caller */
 		SMC_UUID_RET(handle, rk_sip_svc_uid);
-		break;
 
 	case SIP_SVC_VERSION:
 		/* Return the version of current implementation */
 		SMC_RET2(handle, RK_SIP_SVC_VERSION_MAJOR,
 			RK_SIP_SVC_VERSION_MINOR);
-		break;
 
 	default:
 		return rockchip_plat_sip_handler(smc_fid, x1, x2, x3, x4,

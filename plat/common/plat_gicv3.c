@@ -247,6 +247,7 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 		break;
 	default:
 		assert(0);
+		break;
 	}
 
 	gicv3_set_spi_routing(id, irm, mpidr);

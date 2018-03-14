@@ -85,6 +85,7 @@ void bl2_el3_plat_arch_setup(void)
 		break;
 	default:
 		plat_error_handler(-ENOTSUP);
+		break;
 	}
 
 	if (!skip_scp) {

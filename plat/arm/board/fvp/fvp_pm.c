@@ -324,13 +324,11 @@ static int fvp_node_hw_state(u_register_t target_cpu,
 	if (psysr == PSYSR_INVALID)
 		return PSCI_E_INVALID_PARAMS;
 
-	switch (power_level) {
-	case ARM_PWR_LVL0:
+	if (power_level == ARM_PWR_LVL0) {
 		ret = (psysr & PSYSR_AFF_L0) ? HW_ON : HW_OFF;
-		break;
-	case ARM_PWR_LVL1:
+	} else {
+		/* power_level == ARM_PWR_LVL1 */
 		ret = (psysr & PSYSR_AFF_L1) ? HW_ON : HW_OFF;
-		break;
 	}
 
 	return ret;

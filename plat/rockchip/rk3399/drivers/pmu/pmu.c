@@ -310,6 +310,7 @@ static int pmu_set_power_domain(uint32_t pd_id, uint32_t pd_state)
 		pmu_bus_idle_req(BUS_ID_PERIHP, state);
 		break;
 	default:
+		/* Do nothing in default case */
 		break;
 	}
 
@@ -647,12 +648,8 @@ int rockchip_soc_cores_pwr_dm_off(void)
 int rockchip_soc_hlvl_pwr_dm_off(uint32_t lvl,
 				 plat_local_state_t lvl_state)
 {
-	switch (lvl) {
-	case MPIDR_AFFLVL1:
+	if (lvl == MPIDR_AFFLVL1) {
 		clst_pwr_domain_suspend(lvl_state);
-		break;
-	default:
-		break;
 	}
 
 	return PSCI_E_SUCCESS;
@@ -675,12 +672,8 @@ int rockchip_soc_cores_pwr_dm_suspend(void)
 
 int rockchip_soc_hlvl_pwr_dm_suspend(uint32_t lvl, plat_local_state_t lvl_state)
 {
-	switch (lvl) {
-	case MPIDR_AFFLVL1:
+	if (lvl == MPIDR_AFFLVL1) {
 		clst_pwr_domain_suspend(lvl_state);
-		break;
-	default:
-		break;
 	}
 
 	return PSCI_E_SUCCESS;
@@ -698,12 +691,8 @@ int rockchip_soc_cores_pwr_dm_on_finish(void)
 int rockchip_soc_hlvl_pwr_dm_on_finish(uint32_t lvl,
 				       plat_local_state_t lvl_state)
 {
-	switch (lvl) {
-	case MPIDR_AFFLVL1:
+	if (lvl == MPIDR_AFFLVL1) {
 		clst_pwr_domain_resume(lvl_state);
-		break;
-	default:
-		break;
 	}
 
 	return PSCI_E_SUCCESS;
@@ -721,11 +710,8 @@ int rockchip_soc_cores_pwr_dm_resume(void)
 
 int rockchip_soc_hlvl_pwr_dm_resume(uint32_t lvl, plat_local_state_t lvl_state)
 {
-	switch (lvl) {
-	case MPIDR_AFFLVL1:
+	if (lvl == MPIDR_AFFLVL1) {
 		clst_pwr_domain_resume(lvl_state);
-	default:
-		break;
 	}
 
 	return PSCI_E_SUCCESS;
