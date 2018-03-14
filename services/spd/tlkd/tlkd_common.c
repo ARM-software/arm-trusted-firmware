@@ -49,6 +49,7 @@ uint64_t tlkd_va_translate(uintptr_t va, int type)
 		break;
 	default:
 		assert(0);
+		break;
 	}
 
 	/* get the (NS/S) physical address */

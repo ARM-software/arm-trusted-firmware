@@ -916,7 +916,6 @@ uint64_t sdei_smc_handler(uint32_t smc_fid,
 		ret = sdei_version();
 		SDEI_LOG("< VER:%lx\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_EVENT_REGISTER:
 		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
@@ -925,32 +924,27 @@ uint64_t sdei_smc_handler(uint32_t smc_fid,
 		ret = sdei_event_register(x1, x2, x3, x4, x5);
 		SDEI_LOG("< REG:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_EVENT_ENABLE:
 		SDEI_LOG("> ENABLE(n:%d)\n", (int) x1);
 		ret = sdei_event_enable(x1);
 		SDEI_LOG("< ENABLE:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_EVENT_DISABLE:
 		SDEI_LOG("> DISABLE(n:%d)\n", (int) x1);
 		ret = sdei_event_disable(x1);
 		SDEI_LOG("< DISABLE:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_EVENT_CONTEXT:
 		SDEI_LOG("> CTX(p:%d):%lx\n", (int) x1, read_mpidr_el1());
 		ret = sdei_event_context(handle, x1);
 		SDEI_LOG("< CTX:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_EVENT_COMPLETE_AND_RESUME:
 		resume = 1;
-		/* Fall through */
 
 	case SDEI_EVENT_COMPLETE:
 		SDEI_LOG("> COMPLETE(r:%d sta/ep:%lx):%lx\n", resume, x1,
@@ -969,92 +963,81 @@ uint64_t sdei_smc_handler(uint32_t smc_fid,
 			SMC_RET1(handle, ret);
 
 		SMC_RET0(handle);
-		break;
 
 	case SDEI_EVENT_STATUS:
 		SDEI_LOG("> STAT(n:%d)\n", (int) x1);
 		ret = sdei_event_status(x1);
 		SDEI_LOG("< STAT:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_EVENT_GET_INFO:
 		SDEI_LOG("> INFO(n:%d, %d)\n", (int) x1, (int) x2);
 		ret = sdei_event_get_info(x1, x2);
 		SDEI_LOG("< INFO:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_EVENT_UNREGISTER:
 		SDEI_LOG("> UNREG(n:%d)\n", (int) x1);
 		ret = sdei_event_unregister(x1);
 		SDEI_LOG("< UNREG:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_PE_UNMASK:
 		SDEI_LOG("> UNMASK:%lx\n", read_mpidr_el1());
 		sdei_pe_unmask();
 		SDEI_LOG("< UNMASK:%d\n", 0);
 		SMC_RET1(handle, 0);
-		break;
 
 	case SDEI_PE_MASK:
 		SDEI_LOG("> MASK:%lx\n", read_mpidr_el1());
 		ret = sdei_pe_mask();
 		SDEI_LOG("< MASK:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_INTERRUPT_BIND:
 		SDEI_LOG("> BIND(%d)\n", (int) x1);
 		ret = sdei_interrupt_bind(x1);
 		SDEI_LOG("< BIND:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_INTERRUPT_RELEASE:
 		SDEI_LOG("> REL(%d)\n", (int) x1);
 		ret = sdei_interrupt_release(x1);
 		SDEI_LOG("< REL:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_SHARED_RESET:
 		SDEI_LOG("> S_RESET():%lx\n", read_mpidr_el1());
 		ret = sdei_shared_reset();
 		SDEI_LOG("< S_RESET:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_PRIVATE_RESET:
 		SDEI_LOG("> P_RESET():%lx\n", read_mpidr_el1());
 		ret = sdei_private_reset();
 		SDEI_LOG("< P_RESET:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_EVENT_ROUTING_SET:
 		SDEI_LOG("> ROUTE_SET(n:%d f:%lx aff:%lx)\n", (int) x1, x2, x3);
 		ret = sdei_event_routing_set(x1, x2, x3);
 		SDEI_LOG("< ROUTE_SET:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_FEATURES:
 		SDEI_LOG("> FTRS(f:%lx)\n", x1);
 		ret = sdei_features(x1);
 		SDEI_LOG("< FTRS:%lx\n", ret);
 		SMC_RET1(handle, ret);
-		break;
 
 	case SDEI_EVENT_SIGNAL:
 		SDEI_LOG("> SIGNAL(e:%lx t:%lx)\n", x1, x2);
 		ret = sdei_signal(x1, x2);
 		SDEI_LOG("< SIGNAL:%ld\n", ret);
 		SMC_RET1(handle, ret);
-		break;
+
 	default:
+		/* Do nothing in default case */
 		break;
 	}
 
