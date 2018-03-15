@@ -145,6 +145,7 @@ const mmap_region_t plat_arm_secure_partition_mmap[] = {
 const mmap_region_t plat_arm_mmap[] = {
 #ifdef AARCH32
 	ARM_MAP_SHARED_RAM,
+	ARM_V2M_MAP_MEM_PROTECT,
 #endif
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
