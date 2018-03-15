@@ -178,19 +178,22 @@ func plat_is_my_cpu_primary
 	ret
 endfunc plat_is_my_cpu_primary
 
-	/* -----------------------------------------------------
+	/* ---------------------------------------------------------------------
 	 * unsigned int plat_arm_calc_core_pos(u_register_t mpidr)
 	 *
 	 * Function to calculate the core position on FVP.
 	 *
-	 * (ClusterId * FVP_MAX_CPUS_PER_CLUSTER) +
+	 * (ClusterId * FVP_MAX_CPUS_PER_CLUSTER * FVP_MAX_PE_PER_CPU) +
 	 * (CPUId * FVP_MAX_PE_PER_CPU) +
 	 * ThreadId
-	 * -----------------------------------------------------
+	 *
+	 * which can be simplified as:
+	 *
+	 * ((ClusterId * FVP_MAX_CPUS_PER_CLUSTER + CPUId) * FVP_MAX_PE_PER_CPU)
+	 * + ThreadId
+	 * ---------------------------------------------------------------------
 	 */
 func plat_arm_calc_core_pos
-	mov	x3, x0
-
 	/*
 	 * Check for MT bit in MPIDR. If not set, shift MPIDR to left to make it
 	 * look as if in a multi-threaded implementation.
@@ -205,9 +208,9 @@ func plat_arm_calc_core_pos
 	ubfx	x2, x3, #MPIDR_AFF2_SHIFT, #MPIDR_AFFINITY_BITS
 
 	/* Compute linear position */
-	mov	x4, #FVP_MAX_PE_PER_CPU
-	madd	x0, x1, x4, x0
-	mov	x5, #FVP_MAX_CPUS_PER_CLUSTER
-	madd	x0, x2, x5, x0
+	mov	x4, #FVP_MAX_CPUS_PER_CLUSTER
+	madd	x1, x2, x4, x1
+	mov	x5, #FVP_MAX_PE_PER_CPU
+	madd	x0, x1, x5, x0
 	ret
 endfunc plat_arm_calc_core_pos
