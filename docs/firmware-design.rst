@@ -77,10 +77,56 @@ one or more of these memory regions.
 
 The sections below provide the following details:
 
+-  dynamic configuration of Boot Loader stages
 -  initialization and execution of the first three stages during cold boot
 -  specification of the EL3 Runtime Software (BL31 for AArch64 and BL32 for
    AArch32) entrypoint requirements for use by alternative Trusted Boot
    Firmware in place of the provided BL1 and BL2
+
+Dynamic Configuration during cold boot
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Each of the Boot Loader stages may be dynamically configured if required by the
+platform. The Boot Loader stage may optionally specify a firmware
+configuration file and/or hardware configuration file as listed below:
+
+-  HW_CONFIG - The hardware configuration file. Can be shared by all Boot Loader
+   stages and also by the Normal World Rich OS.
+-  TB_FW_CONFIG - Trusted Boot Firmware configuration file. Shared between BL1
+   and BL2.
+-  SOC_FW_CONFIG - SoC Firmware configuration file. Used by BL31.
+-  TOS_FW_CONFIG - Trusted OS Firmware configuration file. Used by Trusted OS
+   (BL32).
+-  NT_FW_CONFIG - Non Trusted Firmware configuration file. Used by Non-trusted
+   firmware (BL33).
+
+The Arm development platforms use the Flattened Device Tree format for the
+dynamic configuration files.
+
+Each Boot Loader stage can pass up to 4 arguments via registers to the next
+stage.  BL2 passes the list of the next images to execute to the *EL3 Runtime
+Software* (BL31 for AArch64 and BL32 for AArch32) via `arg0`. All the other
+arguments are platform defined. The Arm development platforms use the following
+convention:
+
+-  BL1 passes the address of a meminfo_t structure to BL2 via ``arg1``. This
+   structure contains the memory layout available to BL2.
+-  When dynamic configuration files are present, the firmware configuration for
+   the next Boot Loader stage is populated in the first available argument and
+   the generic hardware configuration is passed the next available argument.
+   For example,
+
+   -  If TB_FW_CONFIG is loaded by BL1, then its address is passed in ``arg0``
+      to BL2.
+   -  If HW_CONFIG is loaded by BL1, then its address is passed in ``arg2`` to
+      BL2. Note, ``arg1`` is already used for meminfo_t.
+   -  If SOC_FW_CONFIG is loaded by BL2, then its address is passed in ``arg1``
+      to BL31. Note, ``arg0`` is used to pass the list of executable images.
+   -  Similarly, if HW_CONFIG is loaded by BL1 or BL2, then its address is
+      passed in ``arg2`` to BL31.
+   -  For other BL3x images, if the firmware configuration file is loaded by
+      BL2, then its address is passed in ``arg0`` and if HW_CONFIG is loaded
+      then its address is passed in ``arg1``.
 
 BL1
 ~~~
@@ -261,6 +307,9 @@ On ARM platforms, BL1 performs the following platform initializations:
 -  Enable the MMU and map the memory it needs to access.
 -  Configure any required platform storage to load the next bootloader image
    (BL2).
+-  If the BL1 dynamic configuration file, ``TB_FW_CONFIG``, is available, then
+   load it to the platform defined address and make it available to BL2 via
+   ``arg0``.
 
 Firmware Update detection and execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -287,10 +336,10 @@ In the normal boot flow, BL1 execution continues as follows:
 
        "Booting Trusted Firmware"
 
-#. BL1 determines the amount of free trusted SRAM memory available by
-   calculating the extent of its own data section, which also resides in
-   trusted SRAM. BL1 loads a BL2 raw binary image from platform storage, at a
-   platform-specific base address. If the BL2 image file is not present or if
+#. BL1 loads a BL2 raw binary image from platform storage, at a
+   platform-specific base address. Prior to the load, BL1 invokes
+   ``bl1_plat_handle_pre_image_load()`` which allows the platform to update or
+   use the image information. If the BL2 image file is not present or if
    there is not enough free trusted SRAM the following error message is
    printed:
 
@@ -298,17 +347,14 @@ In the normal boot flow, BL1 execution continues as follows:
 
        "Failed to load BL2 firmware."
 
-   BL1 calculates the amount of Trusted SRAM that can be used by the BL2
-   image. The exact load location of the image is provided as a base address
-   in the platform header. Further description of the memory layout can be
-   found later in this document.
+#. BL1 invokes ``bl1_plat_handle_post_image_load()`` which again is intended
+   for platforms to take further action after image load. This function must
+   populate the necessary arguments for BL2, which may also include the memory
+   layout. Further description of the memory layout can be found later
+   in this document.
 
 #. BL1 passes control to the BL2 image at Secure EL1 (for AArch64) or at
    Secure SVC mode (for AArch32), starting from its load address.
-
-#. BL1 also passes information about the amount of trusted SRAM used and
-   available for use. This information is populated at a platform-specific
-   memory address.
 
 BL2
 ~~~
@@ -344,6 +390,8 @@ On ARM platforms, BL2 performs the following platform initializations:
    EL3 Runtime Software and populate it.
 -  Define the extents of memory available for loading each subsequent
    bootloader image.
+-  If BL1 has passed TB_FW_CONFIG dynamic configuration file in ``arg0``,
+   then parse it.
 
 Image loading in BL2
 ^^^^^^^^^^^^^^^^^^^^
@@ -355,6 +403,12 @@ generic code loads the images based on the list of loadable images provided
 by the platform. BL2 passes the list of executable images provided by the
 platform to the next handover BL image. By default, this flag is disabled for
 AArch64 and the AArch32 build is supported only if this flag is enabled.
+
+The list of loadable images provided by the platform may also contain
+dynamic configuration files. The files are loaded and can be parsed as
+needed in the ``bl2_plat_handle_post_image_load()`` function. These
+configuration files can be passed to next Boot Loader stages as arguments
+by updating the corresponding entrypoint information in this function.
 
 SCP\_BL2 (System Control Processor Firmware) image load
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1791,32 +1845,44 @@ layout of the other images in Trusted SRAM.
                | BL1 (ro) |
     0x00000000 +----------+
 
-**FVP with TSP in Trusted DRAM:**
+**FVP with TSP in Trusted DRAM with TB_FW_CONFIG and HW_CONFIG :**
 
 ::
 
-               Trusted DRAM
-    0x08000000 +----------+
-               |  BL32   |
-    0x06000000 +----------+
+                     DRAM
+    0xffffffff +--------------+
+               :              :
+               |--------------|
+               |  HW_CONFIG   |
+    0x83000000 |--------------|  (non-secure)
+               |              |
+    0x80000000 +--------------+
 
-               Trusted SRAM
-    0x04040000 +----------+  loaded by BL2  ------------------
-               | BL1 (rw) |  <<<<<<<<<<<<<  |  BL31 NOBITS   |
-               |----------|  <<<<<<<<<<<<<  |----------------|
-               |          |  <<<<<<<<<<<<<  | BL31 PROGBITS  |
-               |----------|                 ------------------
-               |   BL2    |
-               |----------|
-               |          |
-    0x04001000 +----------+
-               |  Shared  |
-    0x04000000 +----------+
+                Trusted DRAM
+    0x08000000 +--------------+
+               |     BL32     |
+    0x06000000 +--------------+
 
-               Trusted ROM
-    0x04000000 +----------+
-               | BL1 (ro) |
-    0x00000000 +----------+
+                 Trusted SRAM
+    0x04040000 +--------------+  loaded by BL2  ------------------
+               |   BL1 (rw)   |  <<<<<<<<<<<<<  |  BL31 NOBITS   |
+               |--------------|  <<<<<<<<<<<<<  |----------------|
+               |              |  <<<<<<<<<<<<<  | BL31 PROGBITS  |
+               |--------------|                 ------------------
+               |     BL2      |
+               |--------------|
+               |              |
+               |--------------|
+               | TB_FW_CONFIG |
+               |--------------|
+    0x04001000 +--------------+
+               |    Shared    |
+    0x04000000 +--------------+
+
+                 Trusted ROM
+    0x04000000 +--------------+
+               |   BL1 (ro)   |
+    0x00000000 +--------------+
 
 **FVP with TSP in TZC-Secured DRAM:**
 
@@ -1824,7 +1890,7 @@ layout of the other images in Trusted SRAM.
 
                    DRAM
     0xffffffff +----------+
-               |  BL32   |  (secure)
+               |  BL32    |  (secure)
     0xff000000 +----------+
                |          |
                :          :  (non-secure)
@@ -1881,7 +1947,7 @@ layout of the other images in Trusted SRAM.
 
                    DRAM
     0xFFE00000 +----------+
-               |  BL32   |  (secure)
+               |  BL32    |  (secure)
     0xFF000000 |----------|
                |          |
                :          :  (non-secure)
@@ -2663,7 +2729,7 @@ References
 
 --------------
 
-*Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.*
 
 .. _Reset Design: ./reset-design.rst
 .. _Porting Guide: ./porting-guide.rst
