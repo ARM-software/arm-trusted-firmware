@@ -18,8 +18,8 @@ used by Non-secure world applications to access these services. A Trusted OS
 fulfils the requirements of a security service as described above.
 
 Management services are typically implemented at the highest level of privilege
-in the system (i.e. EL3 in Arm Trusted Firmware). The service requirements are
-fulfilled by the execution environment provided by Arm Trusted Firmware.
+in the system, i.e. EL3 in Trusted Firmware-A (TF-A). The service requirements are
+fulfilled by the execution environment provided by TF-A.
 
 The following diagram illustrates the corresponding software stack:
 
@@ -41,10 +41,10 @@ Introduction
 A **Secure Partition** is a software execution environment instantiated in
 S-EL0 that can be used to implement simple management and security services.
 Since S-EL0 is an unprivileged Exception Level, a Secure Partition relies on
-privileged firmware (i.e. Arm Trusted Firmware) to be granted access to system
-and processor resources. Essentially, it is a software sandbox in the Secure
-world that runs under the control of privileged software, provides one or more
-services and accesses the following system resources:
+privileged firmware (i.e. TF-A) to be granted access to system and processor
+resources. Essentially, it is a software sandbox in the Secure world that runs
+under the control of privileged software, provides one or more services and
+accesses the following system resources:
 
 - Memory and device regions in the system address map.
 
@@ -52,25 +52,24 @@ services and accesses the following system resources:
 
 - A range of synchronous exceptions (e.g. SMC function identifiers).
 
-Note that currently the Arm Trusted Firmware only supports handling one Secure
-Partition.
+Note that currently TF-A only supports handling one Secure Partition.
 
-A Secure Partition enables Arm Trusted Firmware to implement only the essential
-secure services in EL3 and instantiate the rest in a partition in S-EL0.
+A Secure Partition enables TF-A to implement only the essential secure
+services in EL3 and instantiate the rest in a partition in S-EL0.
 Furthermore, multiple Secure Partitions can be used to isolate unrelated
 services from each other.
 
 The following diagram illustrates the place of a Secure Partition in a typical
-ARMv8-A software stack. A single or multiple Secure Partitions provide secure
+Armv8-A software stack. A single or multiple Secure Partitions provide secure
 services to software components in the Non-secure world and other Secure
 Partitions.
 
 |Image 2|
 
-The Arm Trusted Firmware build system is responsible for including the Secure
-Partition image in the FIP. During boot, BL2 includes support to authenticate
-and load the Secure Partition image. A BL31 component called **Secure Partition
-Manager (SPM)** is responsible for managing the partition. This is semantically
+The TF-A build system is responsible for including the Secure Partition image
+in the FIP. During boot, BL2 includes support to authenticate and load the
+Secure Partition image. A BL31 component called **Secure Partition Manager
+(SPM)** is responsible for managing the partition. This is semantically
 similar to a hypervisor managing a virtual machine.
 
 The SPM is responsible for the following actions during boot:
@@ -105,8 +104,8 @@ made in the current implementation of this software architecture. Subsequent
 revisions of the implementation will include a richer set of features that
 enable a more flexible architecture.
 
-Building Arm Trusted Firmware with Secure Partition support
------------------------------------------------------------
+Building TF-A with Secure Partition support
+-------------------------------------------
 
 SPM is supported on the Arm FVP exclusively at the moment. The current
 implementation supports inclusion of only a single Secure Partition in which a
@@ -125,7 +124,7 @@ the UEFI specification (see the PI v1.6 Volume 4: Management Mode Core
 Interface). This will be referred to as the *Standalone MM Secure Partition* in
 the rest of this document.
 
-To enable SPM support in the TF, the source code must be compiled with the build
+To enable SPM support in TF-A, the source code must be compiled with the build
 flag ``ENABLE_SPM=1``. On Arm platforms the build option ``ARM_BL31_IN_DRAM``
 can be used to select the location of BL31, both SRAM and DRAM are supported.
 Also, the location of the binary that contains the BL32 image
@@ -134,7 +133,7 @@ Also, the location of the binary that contains the BL32 image
 First, build the Standalone MM Secure Partition. To build it, refer to the
 `instructions in the EDK2 repository`_.
 
-Then build TF with SPM support and include the Standalone MM Secure Partition
+Then build TF-A with SPM support and include the Standalone MM Secure Partition
 image in the FIP:
 
 ::
@@ -145,10 +144,10 @@ image in the FIP:
 Describing Secure Partition resources
 -------------------------------------
 
-Arm Trusted Firmware exports a porting interface that enables a platform to
-specify the system resources required by the Secure Partition. Some instructions
-are given below. However, this interface is under development and it may change
-as new features are implemented.
+TF-A exports a porting interface that enables a platform to specify the system
+resources required by the Secure Partition. Some instructions are given below.
+However, this interface is under development and it may change as new features
+are implemented.
 
 - A Secure Partition is considered a BL32 image, so the same defines that apply
   to BL32 images apply to a Secure Partition: ``BL32_BASE`` and ``BL32_LIMIT``.
@@ -176,9 +175,9 @@ For an example of all the changes in context, you may refer to commit
 Accessing Secure Partition services
 -----------------------------------
 
-The `SMC Calling Convention`_ (*ARM DEN 0028B*) describes SMCs as a conduit for
+The `SMC Calling Convention`_ (*Arm DEN 0028B*) describes SMCs as a conduit for
 accessing services implemented in the Secure world. The ``MM_COMMUNICATE``
-interface defined in the `Management Mode Interface Specification`_ (*ARM DEN
+interface defined in the `Management Mode Interface Specification`_ (*Arm DEN
 0060A*) is used to invoke a Secure Partition service as a Fast Call.
 
 The mechanism used to identify a service within the partition depends on the
@@ -208,11 +207,11 @@ e.g. ACPI table or device tree. It is possible for the Non-secure world to
 exchange data with a partition only if it has been populated in this shared
 memory area. The shared memory area is implemented as per the guidelines
 specified in Section 3.2.3 of the `Management Mode Interface Specification`_
-(*ARM DEN 0060A*).
+(*Arm DEN 0060A*).
 
 The format of data structures used to encapsulate data in the shared memory is
 agreed between the Non-secure world and the Secure Partition. For example, in
-the `Management Mode Interface specification`_ (*ARM DEN 0060A*), Section 4
+the `Management Mode Interface specification`_ (*Arm DEN 0060A*), Section 4
 describes that the communication buffer shared between the Non-secure world and
 the Management Mode (MM) in the Secure world must be of the type
 ``EFI_MM_COMMUNICATE_HEADER``. This data structure is defined in *Volume 4:
@@ -246,7 +245,7 @@ interfaces are not accessible from the Non-secure world.
 Conduit
 ^^^^^^^
 
-The `SMC Calling Convention`_ (*ARM DEN 0028B*) specification describes the SMC
+The `SMC Calling Convention`_ (*Arm DEN 0028B*) specification describes the SMC
 and HVC conduits for accessing firmware services and their availability
 depending on the implemented Exception levels. In S-EL0, the Supervisor Call
 exception (SVC) is the only architectural mechanism available for unprivileged
@@ -254,16 +253,16 @@ software to make a request for an operation implemented in privileged software.
 Hence, the SVC conduit must be used by the Secure Partition to access interfaces
 implemented by the SPM.
 
-A SVC causes an exception to be taken to S-EL1. Arm Trusted Firmware assumes
-ownership of S-EL1 and installs a simple exception vector table in S-EL1 that
-relays a SVC request from a Secure Partition as a SMC request to the SPM in EL3.
-Upon servicing the SMC request, Arm Trusted Firmware returns control directly to
-S-EL0 through an ERET instruction.
+A SVC causes an exception to be taken to S-EL1. TF-A assumes ownership of S-EL1
+and installs a simple exception vector table in S-EL1 that relays a SVC request
+from a Secure Partition as a SMC request to the SPM in EL3. Upon servicing the
+SMC request, Arm Trusted Firmware returns control directly to S-EL0 through an
+ERET instruction.
 
 Calling conventions
 ^^^^^^^^^^^^^^^^^^^
 
-The `SMC Calling Convention`_ (*ARM DEN 0028B*) specification describes the
+The `SMC Calling Convention`_ (*Arm DEN 0028B*) specification describes the
 32-bit and 64-bit calling conventions for the SMC and HVC conduits. The SVC
 conduit introduces the concept of SVC32 and SVC64 calling conventions. The SVC32
 and SVC64 calling conventions are equivalent to the 32-bit (SMC32) and the
@@ -285,8 +284,8 @@ Communication initiated by Secure Partition
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A request is initiated from the Secure Partition by executing a SVC instruction.
-An ERET instruction is used by Arm Trusted Firmware to return to S-EL0 with the
-result of the request.
+An ERET instruction is used by TF-A to return to S-EL0 with the result of the
+request.
 
 For instance, a request to perform privileged operations on behalf of a
 partition (e.g.  management of memory attributes in the translation tables for
@@ -296,7 +295,7 @@ Interfaces
 ^^^^^^^^^^
 
 The current implementation reserves function IDs for Fast Calls in the Standard
-Secure Service calls range (see `SMC Calling Convention`_ (*ARM DEN 0028B*)
+Secure Service calls range (see `SMC Calling Convention`_ (*Arm DEN 0028B*)
 specification) for each API exported by the SPM. This section defines the
 function prototypes for each function ID. The function IDs specify whether one
 or both of the SVC32 and SVC64 calling conventions can be used to invoke the
@@ -461,7 +460,7 @@ This transition into S-EL0 is special since it is not in response to a previous
 request through a SVC instruction. This is the first entry into S-EL0. The
 general purpose register usage at the time of entry will be as specified in the
 "Return State" column of Table 3-1 in Section 3.1 "Register use in AArch64 SMC
-calls" of the `SMC Calling Convention`_ (*ARM DEN 0028B*) specification. In
+calls" of the `SMC Calling Convention`_ (*Arm DEN 0028B*) specification. In
 addition, certain other restrictions will be applied as described below.
 
 1. ``SP_EL0``
@@ -601,7 +600,7 @@ address map from a Secure Partition. This is done by mapping these regions in
 the Secure EL1&0 Translation regime with appropriate memory attributes.
 Attributes refer to memory type, permission, cacheability and shareability
 attributes used in the Translation tables. The definitions of these attributes
-and their usage can be found in the `ARMv8 ARM`_ (*ARM DDI 0487*).
+and their usage can be found in the `Armv8-A ARM`_ (*Arm DDI 0487*).
 
 All memory required by the Secure Partition is allocated upfront in the SPM,
 even before handing over to the Secure Partition for the first time. The initial
@@ -813,9 +812,9 @@ Error Codes
 
 --------------
 
-*Copyright (c) 2017, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.*
 
-.. _ARMv8 ARM: https://developer.arm.com/docs/ddi0487/latest/arm-architecture-reference-manual-armv8-for-armv8-a-architecture-profile
+.. _Armv8-A ARM: https://developer.arm.com/docs/ddi0487/latest/arm-architecture-reference-manual-armv8-for-armv8-a-architecture-profile
 .. _instructions in the EDK2 repository: https://github.com/tianocore/edk2-staging/blob/AArch64StandaloneMm/HowtoBuild.MD
 .. _Management Mode Interface Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0060a/DEN0060A_ARM_MM_Interface_Specification.pdf
 .. _SDEI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf

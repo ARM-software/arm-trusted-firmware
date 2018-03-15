@@ -1,5 +1,5 @@
-ARM Trusted Firmware - Firmware Update Design Guide
-===================================================
+Trusted Firmware-A - Firmware Update design guide
+=================================================
 
 
 .. section-numbering::
@@ -21,9 +21,9 @@ is corrupt or missing; it therefore may be used as a recovery mode. It may also
 be complemented by other, higher level firmware update software.
 
 FWU implements a specific part of the Trusted Board Boot Requirements (TBBR)
-specification, ARM DEN0006C-1. It should be used in conjunction with the
+specification, Arm DEN0006C-1. It should be used in conjunction with the
 `Trusted Board Boot`_ design document, which describes the image authentication
-parts of the Trusted Firmware (TF) TBBR implementation.
+parts of the Trusted Firmware-A (TF-A) TBBR implementation.
 
 Scope
 ~~~~~
@@ -63,11 +63,11 @@ The primary requirements of the FWU feature are:
    it needs, and to enable platform specific FWU functionality. See the
    `Porting Guide`_ for details of this interface.
 
-TF uses abbreviated image terminology for FWU images like for other TF images.
-An overview of this terminology can be found `here`_.
+TF-A uses abbreviated image terminology for FWU images like for other TF-A
+images. An overview of this terminology can be found `here`_.
 
-The following diagram shows the FWU boot flow for ARM development platforms.
-ARM CSS platforms like Juno have a System Control Processor (SCP), and these
+The following diagram shows the FWU boot flow for Arm development platforms.
+Arm CSS platforms like Juno have a System Control Processor (SCP), and these
 use all defined FWU images. Other platforms may use a subset of these.
 
 |Flow Diagram|
@@ -193,8 +193,8 @@ BL1\_SMC\_RUN\_IMAGE
         if (ep_info not EL3) synchronous exception
 
 This SMC passes execution control to an EL3 image described by the provided
-``entry_point_info_t`` structure. In the normal TF boot flow, BL2 invokes this SMC
-for BL1 to pass execution control to BL31.
+``entry_point_info_t`` structure. In the normal TF-A boot flow, BL2 invokes
+this SMC for BL1 to pass execution control to BL31.
 
 FWU\_SMC\_IMAGE\_COPY
 ~~~~~~~~~~~~~~~~~~~~~
@@ -400,7 +400,7 @@ This is only allowed if the image is not being executed.
 
 --------------
 
-*Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2015-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _Trusted Board Boot: ./trusted-board-boot.rst
 .. _Porting Guide: ./porting-guide.rst

@@ -1,4 +1,4 @@
-PSCI Library Integration guide for ARMv8-A AArch32 systems
+PSCI Library Integration guide for Armv8-A AArch32 systems
 ==========================================================
 
 
@@ -8,7 +8,7 @@ PSCI Library Integration guide for ARMv8-A AArch32 systems
 .. contents::
 
 This document describes the PSCI library interface with a focus on how to
-integrate with a suitable Trusted OS for an ARMv8-A AArch32 system. The PSCI
+integrate with a suitable Trusted OS for an Armv8-A AArch32 system. The PSCI
 Library implements the PSCI Standard as described in `PSCI spec`_ and is meant
 to be integrated with EL3 Runtime Software which invokes the PSCI Library
 interface appropriately. **EL3 Runtime Software** refers to software executing
@@ -17,9 +17,10 @@ Monitor mode in AArch32, and provides runtime services to the non-secure world.
 The runtime service request is made via SMC (Secure Monitor Call) and the call
 must adhere to `SMCCC`_. In AArch32, EL3 Runtime Software may additionally
 include Trusted OS functionality. A minimal AArch32 Secure Payload, SP-MIN, is
-provided in ARM Trusted Firmware to illustrate the usage and integration of the
-PSCI library. The description of PSCI library interface and its integration
-with EL3 Runtime Software in this document is targeted towards AArch32 systems.
+provided in Trusted Firmware-A (TF-A) to illustrate the usage and integration
+of the PSCI library. The description of PSCI library interface and its
+integration with EL3 Runtime Software in this document is targeted towards
+AArch32 systems.
 
 Generic call sequence for PSCI Library interface (AArch32)
 ----------------------------------------------------------
@@ -315,7 +316,7 @@ Software must provide an SMC handling framework capable of MP adhering to
 
 The EL3 Runtime Software must also export cache maintenance primitives
 and some helper utilities for assert, print and memory operations as listed
-below. The ARM Trusted Firmware source tree provides implementations for all
+below. The TF-A source tree provides implementations for all
 these functions but the EL3 Runtime Software may use its own implementation.
 
 **Functions : assert(), memcpy(), memset**
@@ -355,10 +356,10 @@ failure that cannot be recovered from. This function **must not** return.
 **Function : tf\_printf()**
 
 This is printf-compatible function, but unlike printf, it does not return any
-value. The ARM Trusted Firmware source tree provides an implementation which
+value. The TF-A source tree provides an implementation which
 is optimized for stack usage and supports only a subset of format specifiers.
 The details of the format specifiers supported can be found in the
-``tf_printf.c`` file in ARM Trusted Firmware source tree.
+``tf_printf.c`` file in the TF-A source tree.
 
 CPU Context management API
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -537,7 +538,8 @@ CPU operations
 ~~~~~~~~~~~~~~
 
 The CPU operations (cpu\_ops) framework implement power down sequence specific
-to the CPU and the details of which can be found in the ``CPU specific operations framework`` section of `Firmware Design`_. The ARM Trusted Firmware
+to the CPU and the details of which can be found in the
+``CPU specific operations framework`` section of `Firmware Design`_. The TF-A
 tree implements the ``cpu_ops`` for various supported CPUs and the EL3 Runtime
 Software needs to include the required ``cpu_ops`` in its build. The start and
 end of the ``cpu_ops`` descriptors must be exported by the EL3 Runtime Software
@@ -550,7 +552,7 @@ workarounds.
 
 --------------
 
-*Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2016-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _PSCI spec: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _SMCCC: https://silver.arm.com/download/ARM_and_AMBA_Architecture/AR570-DA-80002-r0p0-00rel0/ARM_DEN0028A_SMC_Calling_Convention.pdf

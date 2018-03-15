@@ -24,7 +24,7 @@ This API should return the priority of the interrupt the PE is currently
 servicing. This must be be called only after an interrupt has already been
 acknowledged via. ``plat_ic_acknowledge_interrupt``.
 
-In the case of ARM standard platforms using GIC, the *Running Priority Register*
+In the case of Arm standard platforms using GIC, the *Running Priority Register*
 is read to determine the priority of the interrupt.
 
 Function: int plat_ic_is_spi(unsigned int id); [optional]
@@ -77,7 +77,7 @@ Function: unsigned int plat_ic_get_interrupt_active(unsigned int id); [optional]
 This API should return the *active* status of the interrupt ID specified by the
 first parameter, ``id``.
 
-In case of ARM standard platforms using GIC, the implementation of the API reads
+In case of Arm standard platforms using GIC, the implementation of the API reads
 the GIC *Set Active Register* to read and return the active status of the
 interrupt.
 
@@ -92,7 +92,7 @@ Function: void plat_ic_enable_interrupt(unsigned int id); [optional]
 This API should enable the interrupt ID specified by the first parameter,
 ``id``. PEs in the system are expected to receive only enabled interrupts.
 
-In case of ARM standard platforms using GIC, the implementation of the API
+In case of Arm standard platforms using GIC, the implementation of the API
 inserts barrier to make memory updates visible before enabling interrupt, and
 then writes to GIC *Set Enable Register* to enable the interrupt.
 
@@ -107,7 +107,7 @@ Function: void plat_ic_disable_interrupt(unsigned int id); [optional]
 This API should disable the interrupt ID specified by the first parameter,
 ``id``. PEs in the system are not expected to receive disabled interrupts.
 
-In case of ARM standard platforms using GIC, the implementation of the API
+In case of Arm standard platforms using GIC, the implementation of the API
 writes to GIC *Clear Enable Register* to disable the interrupt, and inserts
 barrier to make memory updates visible afterwards.
 
@@ -123,7 +123,7 @@ Function: void plat_ic_set_interrupt_priority(unsigned int id, unsigned int prio
 This API should set the priority of the interrupt specified by first parameter
 ``id`` to the value set by the second parameter ``priority``.
 
-In case of ARM standard platforms using GIC, the implementation of the API
+In case of Arm standard platforms using GIC, the implementation of the API
 writes to GIC *Priority Register* set interrupt priority.
 
 Function: int plat_ic_has_interrupt_type(unsigned int type); [optional]
@@ -138,10 +138,10 @@ This API should return whether the platform supports a given interrupt type. The
 parameter ``type`` shall be one of ``INTR_TYPE_EL3``, ``INTR_TYPE_S_EL1``, or
 ``INTR_TYPE_NS``.
 
-In case of ARM standard platforms using GICv3, the implementation of the API
+In case of Arm standard platforms using GICv3, the implementation of the API
 returns ``1`` for all interrupt types.
 
-In case of ARM standard platforms using GICv2, the API always return ``1`` for
+In case of Arm standard platforms using GICv2, the API always return ``1`` for
 ``INTR_TYPE_NS``. Return value for other types depends on the value of build
 option ``GICV2_G0_FOR_EL3``:
 
@@ -180,7 +180,7 @@ one of:
 
 - ``INTR_TYPE_EL3``: interrupt is meant to be consumed by EL3.
 
-In case of ARM standard platforms using GIC, the implementation of the API
+In case of Arm standard platforms using GIC, the implementation of the API
 writes to the GIC *Group Register* and *Group Modifier Register* (only GICv3) to
 assign the interrupt to the right group.
 
@@ -213,7 +213,7 @@ This API should raise an EL3 SGI. The first parameter, ``sgi_num``, specifies
 the ID of the SGI. The second parameter, ``target``, must be the MPIDR of the
 target PE.
 
-In case of ARM standard platforms using GIC, the implementation of the API
+In case of Arm standard platforms using GIC, the implementation of the API
 inserts barrier to make memory updates visible before raising SGI, then writes
 to appropriate *SGI Register* in order to raise the EL3 SGI.
 
@@ -239,7 +239,7 @@ The ``routing_mode`` parameter can be one of:
 - ``INTR_ROUTING_MODE_PE`` means the interrupt is routed to the PE whose MPIDR
   value is specified by the parameter ``mpidr``.
 
-In case of ARM standard platforms using GIC, the implementation of the API
+In case of Arm standard platforms using GIC, the implementation of the API
 writes to the GIC *Target Register* (GICv2) or *Route Register* (GICv3) to set
 the routing.
 
@@ -254,7 +254,7 @@ Function: void plat_ic_set_interrupt_pending(unsigned int id); [optional]
 This API should set the interrupt specified by first parameter ``id`` to
 *Pending*.
 
-In case of ARM standard platforms using GIC, the implementation of the API
+In case of Arm standard platforms using GIC, the implementation of the API
 inserts barrier to make memory updates visible before setting interrupt pending,
 and writes to the GIC *Set Pending Register* to set the interrupt pending
 status.
@@ -270,7 +270,7 @@ Function: void plat_ic_clear_interrupt_pending(unsigned int id); [optional]
 This API should clear the *Pending* status of the interrupt specified by first
 parameter ``id``.
 
-In case of ARM standard platforms using GIC, the implementation of the API
+In case of Arm standard platforms using GIC, the implementation of the API
 writes to the GIC *Clear Pending Register* to clear the interrupt pending
 status, and inserts barrier to make memory updates visible afterwards.
 
@@ -287,7 +287,7 @@ controller such that only interrupts of higher priority than the supplied one
 may be signalled to the PE. The API should return the current priority value
 that it's overwriting.
 
-In case of ARM standard platforms using GIC, the implementation of the API
+In case of Arm standard platforms using GIC, the implementation of the API
 inserts to order memory updates before updating mask, then writes to the GIC
 *Priority Mask Register*, and make sure memory updates are visible before
 potential trigger due to mask update.
@@ -305,9 +305,9 @@ obtained by the acknowledging the interrupt (read using
 ``plat_ic_acknowledge_interrupt()``). If the interrupt ID is invalid, this API
 should return ``INTR_ID_UNAVAILABLE``.
 
-In case of ARM standard platforms using GIC, the implementation of the API
+In case of Arm standard platforms using GIC, the implementation of the API
 masks out the interrupt ID field from the acknowledged value from GIC.
 
 ----
 
-*Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.*

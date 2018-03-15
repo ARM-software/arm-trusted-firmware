@@ -11,7 +11,7 @@ How to build
 Code Locations
 --------------
 
--  ARM Trusted Firmware:
+-  Trusted Firmware-A:
    `link <https://github.com/ARM-software/arm-trusted-firmware>`__
 
 -  OP-TEE:
@@ -73,7 +73,7 @@ Build Procedure
        export EDK2_DIR=${BUILD_PATH}/edk2
        EDK2_OUTPUT_DIR=${EDK2_DIR}/Build/HiKey960/${BUILD_OPTION}_${AARCH64_TOOLCHAIN}
        cd ${EDK2_DIR}
-       # Build UEFI & ARM Trust Firmware
+       # Build UEFI & Trusted Firmware-A
        ${UEFI_TOOLS_DIR}/uefi-build.sh -b ${BUILD_OPTION} -a ../arm-trusted-firmware -s ../optee_os hikey960
 
 -  Generate l-loader.bin and partition table.

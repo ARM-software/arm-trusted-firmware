@@ -1,5 +1,5 @@
-ARM Trusted Firmware Design
-===========================
+Trusted Firmware-A design
+=========================
 
 
 .. section-numbering::
@@ -7,30 +7,27 @@ ARM Trusted Firmware Design
 
 .. contents::
 
-The ARM Trusted Firmware implements a subset of the Trusted Board Boot
-Requirements (TBBR) Platform Design Document (PDD) [1]_ for ARM reference
+Trusted Firmware-A (TF-A) implements a subset of the Trusted Board Boot
+Requirements (TBBR) Platform Design Document (PDD) [1]_ for Arm reference
 platforms. The TBB sequence starts when the platform is powered on and runs up
 to the stage where it hands-off control to firmware running in the normal
 world in DRAM. This is the cold boot path.
 
-The ARM Trusted Firmware also implements the Power State Coordination Interface
-PDD [2]_ as a runtime service. PSCI is the interface from normal world software
-to firmware implementing power management use-cases (for example, secondary CPU
-boot, hotplug and idle). Normal world software can access ARM Trusted Firmware
-runtime services via the ARM SMC (Secure Monitor Call) instruction. The SMC
-instruction must be used as mandated by the SMC Calling Convention [3]_.
+TF-A also implements the Power State Coordination Interface PDD [2]_ as a
+runtime service. PSCI is the interface from normal world software to firmware
+implementing power management use-cases (for example, secondary CPU boot,
+hotplug and idle). Normal world software can access TF-A runtime services via
+the Arm SMC (Secure Monitor Call) instruction. The SMC instruction must be
+used as mandated by the SMC Calling Convention [3]_.
 
-The ARM Trusted Firmware implements a framework for configuring and managing
-interrupts generated in either security state. The details of the interrupt
-management framework and its design can be found in ARM Trusted Firmware
-Interrupt Management Design guide [4]_.
+TF-A implements a framework for configuring and managing interrupts generated
+in either security state. The details of the interrupt management framework
+and its design can be found in TF-A Interrupt Management Design guide [4]_.
 
-The ARM Trusted Firmware also implements a library for setting up and managing
-the translation tables. The details of this library can be found in
-`Xlat_tables design`_.
+TF-A also implements a library for setting up and managing the translation
+tables. The details of this library can be found in `Xlat_tables design`_.
 
-The ARM Trusted Firmware can be built to support either AArch64 or AArch32
-execution state.
+TF-A can be built to support either AArch64 or AArch32 execution state.
 
 Cold boot
 ---------
@@ -46,9 +43,8 @@ the primary CPU has performed enough initialization to boot them.
 Refer to the `Reset Design`_ for more information on the effect of the
 ``COLD_BOOT_SINGLE_CPU`` platform build option.
 
-The cold boot path in this implementation of the ARM Trusted Firmware,
-depends on the execution state.
-For AArch64, it is divided into five steps (in order of execution):
+The cold boot path in this implementation of TF-A depends on the execution
+state. For AArch64, it is divided into five steps (in order of execution):
 
 -  Boot Loader stage 1 (BL1) *AP Trusted ROM*
 -  Boot Loader stage 2 (BL2) *Trusted Boot Firmware*
@@ -63,7 +59,7 @@ For AArch32, it is divided into four steps (in order of execution):
 -  Boot Loader stage 3-2 (BL32) *EL3 Runtime Software*
 -  Boot Loader stage 3-3 (BL33) *Non-trusted Firmware*
 
-ARM development platforms (Fixed Virtual Platforms (FVPs) and Juno) implement a
+Arm development platforms (Fixed Virtual Platforms (FVPs) and Juno) implement a
 combination of the following types of memory regions. Each bootloader stage uses
 one or more of these memory regions.
 
@@ -135,7 +131,7 @@ This stage begins execution from the platform's reset vector at EL3. The reset
 address is platform dependent but it is usually located in a Trusted ROM area.
 The BL1 data section is copied to trusted SRAM at runtime.
 
-On the ARM development platforms, BL1 code starts execution from the reset
+On the Arm development platforms, BL1 code starts execution from the reset
 vector defined by the constant ``BL1_RO_BASE``. The BL1 data section is copied
 to the top of trusted SRAM as defined by the constant ``BL1_RW_BASE``.
 
@@ -205,7 +201,7 @@ BL1 performs minimal architectural initialization as follows.
        0x1b : Undefined mode
        0x1f : System mode
 
-   The ``plat_report_exception()`` implementation on the ARM FVP port programs
+   The ``plat_report_exception()`` implementation on the Arm FVP port programs
    the Versatile Express System LED register in the following format to
    indicate the occurence of an unexpected exception:
 
@@ -299,7 +295,7 @@ BL1 performs minimal architectural initialization as follows.
 Platform initialization
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-On ARM platforms, BL1 performs the following platform initializations:
+On Arm platforms, BL1 performs the following platform initializations:
 
 -  Enable the Trusted Watchdog.
 -  Initialize the console.
@@ -368,18 +364,18 @@ Architectural initialization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For AArch64, BL2 performs the minimal architectural initialization required
-for subsequent stages of the ARM Trusted Firmware and normal world software.
-EL1 and EL0 are given access to Floating Point and Advanced SIMD registers
-by clearing the ``CPACR.FPEN`` bits.
+for subsequent stages of TF-A and normal world software. EL1 and EL0 are given
+access to Floating Point and Advanced SIMD registers by clearing the
+``CPACR.FPEN`` bits.
 
 For AArch32, the minimal architectural initialization required for subsequent
-stages of the ARM Trusted Firmware and normal world software is taken care of
-in BL1 as both BL1 and BL2 execute at PL1.
+stages of TF-A and normal world software is taken care of in BL1 as both BL1
+and BL2 execute at PL1.
 
 Platform initialization
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-On ARM platforms, BL2 performs the following platform initializations:
+On Arm platforms, BL2 performs the following platform initializations:
 
 -  Initialize the console.
 -  Configure any required platform storage to allow loading further bootloader
@@ -416,7 +412,7 @@ SCP\_BL2 (System Control Processor Firmware) image load
 Some systems have a separate System Control Processor (SCP) for power, clock,
 reset and system control. BL2 loads the optional SCP\_BL2 image from platform
 storage into a platform-specific region of secure memory. The subsequent
-handling of SCP\_BL2 is platform specific. For example, on the Juno ARM
+handling of SCP\_BL2 is platform specific. For example, on the Juno Arm
 development platform port the image is transferred into SCP's internal memory
 using the Boot Over MHU (BOM) protocol after being loaded in the trusted SRAM
 memory. The SCP executes SCP\_BL2 and signals to the Application Processor (AP)
@@ -475,11 +471,11 @@ BL2 execution continues as follows:
 Running BL2 at EL3 execution level
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some platforms have a non-TF Boot ROM that expects the next boot stage
-to execute at EL3. On these platforms, TF BL1 is a waste of memory
-as its only purpose is to ensure TF BL2 is entered at S-EL1. To avoid
+Some platforms have a non-TF-A Boot ROM that expects the next boot stage
+to execute at EL3. On these platforms, TF-A BL1 is a waste of memory
+as its only purpose is to ensure TF-A BL2 is entered at S-EL1. To avoid
 this waste, a special mode enables BL2 to execute at EL3, which allows
-a non-TF Boot ROM to load and jump directly to BL2. This mode is selected
+a non-TF-A Boot ROM to load and jump directly to BL2. This mode is selected
 when the build flag BL2_AT_EL3 is enabled. The main differences in this
 mode are:
 
@@ -566,7 +562,7 @@ Platform initialization
 BL31 performs detailed platform initialization, which enables normal world
 software to function correctly.
 
-On ARM platforms, this consists of the following:
+On Arm platforms, this consists of the following:
 
 -  Initialize the console.
 -  Configure the Interconnect to enable hardware coherency.
@@ -622,9 +618,9 @@ Using alternative Trusted Boot Firmware in place of BL1 & BL2 (AArch64 only)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Some platforms have existing implementations of Trusted Boot Firmware that
-would like to use ARM Trusted Firmware BL31 for the EL3 Runtime Software. To
-enable this firmware architecture it is important to provide a fully documented
-and stable interface between the Trusted Boot Firmware and BL31.
+would like to use TF-A BL31 for the EL3 Runtime Software. To enable this
+firmware architecture it is important to provide a fully documented and stable
+interface between the Trusted Boot Firmware and BL31.
 
 Future changes to the BL31 interface will be done in a backwards compatible
 way, and this enables these firmware components to be independently enhanced/
@@ -650,7 +646,7 @@ platform code in BL31:
 
 ::
 
-    X0 : Reserved for common Trusted Firmware information
+    X0 : Reserved for common TF-A information
     X1 : Platform specific information
 
 BL31 zero-init sections (e.g. ``.bss``) should not contain valid data on entry,
@@ -665,10 +661,10 @@ used by the common BL31 code.
 
 The convention is that ``X0`` conveys information regarding the BL31, BL32 and
 BL33 images from the Trusted Boot firmware and ``X1`` can be used for other
-platform specific purpose. This convention allows platforms which use ARM
-Trusted Firmware's BL1 and BL2 images to transfer additional platform specific
-information from Secure Boot without conflicting with future evolution of the
-Trusted Firmware using ``X0`` to pass a ``bl31_params`` structure.
+platform specific purpose. This convention allows platforms which use TF-A's
+BL1 and BL2 images to transfer additional platform specific information from
+Secure Boot without conflicting with future evolution of TF-A using ``X0`` to
+pass a ``bl31_params`` structure.
 
 BL31 common and SPD initialization code depends on image and entrypoint
 information about BL33 and BL32, which is provided via BL31 platform APIs.
@@ -680,8 +676,8 @@ Cold boot Initialization parameters. This data may need to be cleaned out of
 the CPU caches if it is provided by an earlier boot stage and then accessed by
 BL31 platform code before the caches are enabled.
 
-ARM Trusted Firmware's BL2 implementation passes a ``bl31_params`` structure in
-``X0`` and the ARM development platforms interpret this in the BL31 platform
+TF-A's BL2 implementation passes a ``bl31_params`` structure in
+``X0`` and the Arm development platforms interpret this in the BL31 platform
 code.
 
 MMU, Data caches & Coherency
@@ -722,12 +718,11 @@ to simplify this action.
 Required CPU state for BL31 Warm boot initialization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When requesting a CPU power-on, or suspending a running CPU, ARM Trusted
-Firmware provides the platform power management code with a Warm boot
-initialization entry-point, to be invoked by the CPU immediately after the
-reset handler. On entry to the Warm boot initialization function the calling
-CPU must be in AArch64 EL3, little-endian data access and all interrupt sources
-masked:
+When requesting a CPU power-on, or suspending a running CPU, TF-A provides
+the platform power management code with a Warm boot initialization
+entry-point, to be invoked by the CPU immediately after the reset handler.
+On entry to the Warm boot initialization function the calling CPU must be in
+AArch64 EL3, little-endian data access and all interrupt sources masked:
 
 ::
 
@@ -769,7 +764,7 @@ platform code in AArch32 EL3 Runtime Software:
 
 ::
 
-    R0 : Reserved for common Trusted Firmware information
+    R0 : Reserved for common TF-A information
     R1 : Platform specific information
 
 Use of the R0 and R1 parameters
@@ -778,10 +773,9 @@ Use of the R0 and R1 parameters
 The parameters are platform specific and the convention is that ``R0`` conveys
 information regarding the BL3x images from the Trusted Boot firmware and ``R1``
 can be used for other platform specific purpose. This convention allows
-platforms which use ARM Trusted Firmware's BL1 and BL2 images to transfer
-additional platform specific information from Secure Boot without conflicting
-with future evolution of the Trusted Firmware using ``R0`` to pass a ``bl_params``
-structure.
+platforms which use TF-A's BL1 and BL2 images to transfer additional platform
+specific information from Secure Boot without conflicting with future
+evolution of TF-A using ``R0`` to pass a ``bl_params`` structure.
 
 The AArch32 EL3 Runtime Software is responsible for entry into BL33. This
 information can be obtained in a platform defined manner, e.g. compiled into
@@ -791,7 +785,7 @@ via the Cold boot Initialization parameters. This data may need to be cleaned
 out of the CPU caches if it is provided by an earlier boot stage and then
 accessed by AArch32 EL3 Runtime Software before the caches are enabled.
 
-When using AArch32 EL3 Runtime Software, the ARM development platforms pass a
+When using AArch32 EL3 Runtime Software, the Arm development platforms pass a
 ``bl_params`` structure in ``R0`` from BL2 to be interpreted by AArch32 EL3 Runtime
 Software platform code.
 
@@ -814,9 +808,9 @@ Required CPU state for warm boot initialization
 
 When requesting a CPU power-on, or suspending a running CPU, AArch32 EL3
 Runtime Software must ensure execution of a warm boot initialization entrypoint.
-If ARM Trusted Firmware BL1 is used and the PROGRAMMABLE\_RESET\_ADDRESS build
-flag is false, then AArch32 EL3 Runtime Software must ensure that BL1 branches
-to the warm boot entrypoint by arranging for the BL1 platform function,
+If TF-A BL1 is used and the PROGRAMMABLE\_RESET\_ADDRESS build flag is false,
+then AArch32 EL3 Runtime Software must ensure that BL1 branches to the warm
+boot entrypoint by arranging for the BL1 platform function,
 plat\_get\_my\_entrypoint(), to return a non-zero value.
 
 In this case, the warm boot entrypoint must be in AArch32 EL3, little-endian
@@ -827,7 +821,7 @@ data access and all interrupt sources masked:
     PSTATE.AIF = 0x7
     SCTLR.EE = 0
 
-The warm boot entrypoint may be implemented by using the ARM Trusted Firmware
+The warm boot entrypoint may be implemented by using TF-A
 ``psci_warmboot_entrypoint()`` function. In that case, the platform must fulfil
 the pre-requisites mentioned in the `PSCI Library integration guide`_.
 
@@ -860,7 +854,7 @@ not all been instantiated in the current implementation.
 
    This service is for management of the entire system. The Power State
    Coordination Interface (`PSCI`_) is the first set of standard service calls
-   defined by ARM (see PSCI section later).
+   defined by Arm (see PSCI section later).
 
 #. Secure-EL1 Payload Dispatcher service
 
@@ -874,12 +868,12 @@ not all been instantiated in the current implementation.
    The interface between the EL3 Runtime Software and the Secure-EL1 Payload is
    not defined by the `SMCCC`_ or any other standard. As a result, each
    Secure-EL1 Payload requires a specific Secure Monitor that runs as a runtime
-   service - within ARM Trusted Firmware this service is referred to as the
-   Secure-EL1 Payload Dispatcher (SPD).
+   service - within TF-A this service is referred to as the Secure-EL1 Payload
+   Dispatcher (SPD).
 
-   ARM Trusted Firmware provides a Test Secure-EL1 Payload (TSP) and its
-   associated Dispatcher (TSPD). Details of SPD design and TSP/TSPD operation
-   are described in the "Secure-EL1 Payloads and Dispatchers" section below.
+   TF-A provides a Test Secure-EL1 Payload (TSP) and its associated Dispatcher
+   (TSPD). Details of SPD design and TSP/TSPD operation are described in the
+   "Secure-EL1 Payloads and Dispatchers" section below.
 
 #. CPU implementation service
 
@@ -887,7 +881,7 @@ not all been instantiated in the current implementation.
    services for a given platform e.g. access to processor errata workarounds.
    This service is currently unimplemented.
 
-Additional services for ARM Architecture, SiP and OEM calls can be implemented.
+Additional services for Arm Architecture, SiP and OEM calls can be implemented.
 Each implemented service handles a range of SMC function identifiers as
 described in the `SMCCC`_.
 
@@ -1060,10 +1054,10 @@ registered with the generic PSCI code to be supported.
 \*\*Note : These PSCI APIs require appropriate Secure Payload Dispatcher
 hooks to be registered with the generic PSCI code to be supported.
 
-The PSCI implementation in ARM Trusted Firmware is a library which can be
-integrated with AArch64 or AArch32 EL3 Runtime Software for ARMv8-A systems.
-A guide to integrating PSCI library with AArch32 EL3 Runtime Software
-can be found `here`_.
+The PSCI implementation in TF-A is a library which can be integrated with
+AArch64 or AArch32 EL3 Runtime Software for Armv8-A systems. A guide to
+integrating PSCI library with AArch32 EL3 Runtime Software can be found
+`here`_.
 
 Secure-EL1 Payloads and Dispatchers
 -----------------------------------
@@ -1072,20 +1066,20 @@ On a production system that includes a Trusted OS running in Secure-EL1/EL0,
 the Trusted OS is coupled with a companion runtime service in the BL31
 firmware. This service is responsible for the initialisation of the Trusted
 OS and all communications with it. The Trusted OS is the BL32 stage of the
-boot flow in ARM Trusted Firmware. The firmware will attempt to locate, load
-and execute a BL32 image.
+boot flow in TF-A. The firmware will attempt to locate, load and execute a
+BL32 image.
 
-ARM Trusted Firmware uses a more general term for the BL32 software that runs
-at Secure-EL1 - the *Secure-EL1 Payload* - as it is not always a Trusted OS.
+TF-A uses a more general term for the BL32 software that runs at Secure-EL1 -
+the *Secure-EL1 Payload* - as it is not always a Trusted OS.
 
-The ARM Trusted Firmware provides a Test Secure-EL1 Payload (TSP) and a Test
-Secure-EL1 Payload Dispatcher (TSPD) service as an example of how a Trusted OS
-is supported on a production system using the Runtime Services Framework. On
-such a system, the Test BL32 image and service are replaced by the Trusted OS
-and its dispatcher service. The ARM Trusted Firmware build system expects that
-the dispatcher will define the build flag ``NEED_BL32`` to enable it to include
-the BL32 in the build either as a binary or to compile from source depending
-on whether the ``BL32`` build option is specified or not.
+TF-A provides a Test Secure-EL1 Payload (TSP) and a Test Secure-EL1 Payload
+Dispatcher (TSPD) service as an example of how a Trusted OS is supported on a
+production system using the Runtime Services Framework. On such a system, the
+Test BL32 image and service are replaced by the Trusted OS and its dispatcher
+service. The TF-A build system expects that the dispatcher will define the
+build flag ``NEED_BL32`` to enable it to include the BL32 in the build either
+as a binary or to compile from source depending on whether the ``BL32`` build
+option is specified or not.
 
 The TSP runs in Secure-EL1. It is designed to demonstrate synchronous
 communication with the normal-world software running in EL1/EL2. Communication
@@ -1133,8 +1127,8 @@ prototype:
 
 and is registered using the ``bl31_register_bl32_init()`` function.
 
-Trusted Firmware supports two approaches for the SPD to pass control to BL32
-before returning through EL3 and running the non-trusted firmware (BL33):
+TF-A supports two approaches for the SPD to pass control to BL32 before
+returning through EL3 and running the non-trusted firmware (BL33):
 
 #. In the BL32 setup function, use ``bl31_set_next_image_type()`` to
    request that the exit from ``bl31_main()`` is to the BL32 entrypoint in
@@ -1153,8 +1147,8 @@ before returning through EL3 and running the non-trusted firmware (BL33):
    ``bl31_register_bl32_init()`` which provides a SPD-defined mechanism to
    invoke a 'world-switch synchronous call' to Secure-EL1 to run the BL32
    entrypoint.
-   NOTE: The Test SPD service included with the Trusted Firmware provides one
-   implementation of such a mechanism.
+   NOTE: The Test SPD service included with TF-A provides one implementation
+   of such a mechanism.
 
    On completion BL32 returns control to BL31 via a SMC, and on receipt the
    SPD service handler invokes the synchronous call return mechanism to return
@@ -1260,11 +1254,11 @@ The sample crash output is shown below.
 Guidelines for Reset Handlers
 -----------------------------
 
-Trusted Firmware implements a framework that allows CPU and platform ports to
-perform actions very early after a CPU is released from reset in both the cold
-and warm boot paths. This is done by calling the ``reset_handler()`` function in
-both the BL1 and BL31 images. It in turn calls the platform and CPU specific
-reset handling functions.
+TF-A implements a framework that allows CPU and platform ports to perform
+actions very early after a CPU is released from reset in both the cold and warm
+boot paths. This is done by calling the ``reset_handler()`` function in both
+the BL1 and BL31 images. It in turn calls the platform and CPU specific reset
+handling functions.
 
 Details for implementing a CPU specific reset handler can be found in
 Section 8. Details for implementing a platform specific reset handler can be
@@ -1330,11 +1324,11 @@ There are two ways to specify secure interrupt configuration:
 CPU specific operations framework
 ---------------------------------
 
-Certain aspects of the ARMv8 architecture are implementation defined,
-that is, certain behaviours are not architecturally defined, but must be defined
-and documented by individual processor implementations. The ARM Trusted
-Firmware implements a framework which categorises the common implementation
-defined behaviours and allows a processor to export its implementation of that
+Certain aspects of the Armv8-A architecture are implementation defined,
+that is, certain behaviours are not architecturally defined, but must be
+defined and documented by individual processor implementations. TF-A
+implements a framework which categorises the common implementation defined
+behaviours and allows a processor to export its implementation of that
 behaviour. The categories are:
 
 #. Processor specific reset sequence.
@@ -1437,11 +1431,11 @@ expected by the crash reporting framework.
 CPU errata status reporting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Errata workarounds for CPUs supported in ARM Trusted Firmware are applied during
-both cold and warm boots, shortly after reset. Individual Errata workarounds are
-enabled as build options. Some errata workarounds have potential run-time
-implications; therefore some are enabled by default, others not. Platform ports
-shall override build options to enable or disable errata as appropriate. The CPU
+Errata workarounds for CPUs supported in TF-A are applied during both cold and
+warm boots, shortly after reset. Individual Errata workarounds are enabled as
+build options. Some errata workarounds have potential run-time implications;
+therefore some are enabled by default, others not. Platform ports shall
+override build options to enable or disable errata as appropriate. The CPU
 drivers take care of applying errata workarounds that are enabled and applicable
 to a given CPU. Refer to the section titled *CPU Errata Workarounds* in `CPUBM`_
 for more information.
@@ -1475,9 +1469,9 @@ macro, the errata reporting function, if it exists, must be named
 ``cpux_errata_report``. This function will always be called with MMU enabled; it
 must follow AAPCS and may use stack.
 
-In a debug build of ARM Trusted Firmware, on a CPU that comes out of reset, both
-BL1 and the run time firmware (BL31 in AArch64, and BL32 in AArch32) will invoke
-errata status reporting function, if one exists, for that type of CPU.
+In a debug build of TF-A, on a CPU that comes out of reset, both BL1 and the
+runtime firmware (BL31 in AArch64, and BL32 in AArch32) will invoke errata
+status reporting function, if one exists, for that type of CPU.
 
 To report the status of each errata workaround, the function shall use the
 assembler macro ``report_errata``, passing it:
@@ -1493,9 +1487,9 @@ assembler macro ``report_errata``, passing it:
 The errata status reporting function will be called once per CPU type/errata
 combination during the software's active life time.
 
-It's expected that whenever an errata workaround is submitted to ARM Trusted
-Firmware, the errata reporting function is appropriately extended to report its
-status as well.
+It's expected that whenever an errata workaround is submitted to TF-A, the
+errata reporting function is appropriately extended to report its status as
+well.
 
 Reporting the status of errata workaround is for informational purpose only; it
 has no functional significance.
@@ -1516,22 +1510,22 @@ Each bootloader image can be divided in 2 parts:
    In the ELF terminology, they are called ``NOBITS`` sections.
 
 All PROGBITS sections are grouped together at the beginning of the image,
-followed by all NOBITS sections. This is true for all Trusted Firmware images
-and it is governed by the linker scripts. This ensures that the raw binary
-images are as small as possible. If a NOBITS section was inserted in between
-PROGBITS sections then the resulting binary file would contain zero bytes in
-place of this NOBITS section, making the image unnecessarily bigger. Smaller
-images allow faster loading from the FIP to the main memory.
+followed by all NOBITS sections. This is true for all TF-A images and it is
+governed by the linker scripts. This ensures that the raw binary images are
+as small as possible. If a NOBITS section was inserted in between PROGBITS
+sections then the resulting binary file would contain zero bytes in place of
+this NOBITS section, making the image unnecessarily bigger. Smaller images
+allow faster loading from the FIP to the main memory.
 
 Linker scripts and symbols
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each bootloader stage image layout is described by its own linker script. The
 linker scripts export some symbols into the program symbol table. Their values
-correspond to particular addresses. The trusted firmware code can refer to these
-symbols to figure out the image memory layout.
+correspond to particular addresses. TF-A code can refer to these symbols to
+figure out the image memory layout.
 
-Linker symbols follow the following naming convention in the trusted firmware.
+Linker symbols follow the following naming convention in TF-A.
 
 -  ``__<SECTION>_START__``
 
@@ -1564,10 +1558,10 @@ Linker symbols follow the following naming convention in the trusted firmware.
    rounding up due to some alignment constraint. In other words,
    ``__<SECTION>_UNALIGNED_SIZE__ = __<SECTION>_UNALIGNED_END__ - __<SECTION>_START__``.
 
-Some of the linker symbols are mandatory as the trusted firmware code relies on
-them to be defined. They are listed in the following subsections. Some of them
-must be provided for each bootloader stage and some are specific to a given
-bootloader stage.
+Some of the linker symbols are mandatory as TF-A code relies on them to be
+defined. They are listed in the following subsections. Some of them must be
+provided for each bootloader stage and some are specific to a given bootloader
+stage.
 
 The linker scripts define some extra, optional symbols. They are not actually
 used by any code but they help in understanding the bootloader images' memory
@@ -1622,12 +1616,11 @@ The following additional linker symbols are defined for BL1:
 How to choose the right base addresses for each bootloader stage image
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There is currently no support for dynamic image loading in the Trusted Firmware.
-This means that all bootloader images need to be linked against their ultimate
-runtime locations and the base addresses of each image must be chosen carefully
-such that images don't overlap each other in an undesired way. As the code
-grows, the base addresses might need adjustments to cope with the new memory
-layout.
+There is currently no support for dynamic image loading in TF-A. This means
+that all bootloader images need to be linked against their ultimate runtime
+locations and the base addresses of each image must be chosen carefully such
+that images don't overlap each other in an undesired way. As the code grows,
+the base addresses might need adjustments to cope with the new memory layout.
 
 The memory layout is completely specific to the platform and so there is no
 general recipe for choosing the right base addresses for each bootloader image.
@@ -1655,13 +1648,13 @@ Additionally, if the platform memory layout implies some image overlaying like
 on FVP, BL31 and TSP need to know the limit address that their PROGBITS
 sections must not overstep. The platform code must provide those.
 
-When LOAD\_IMAGE\_V2 is disabled, Trusted Firmware provides a mechanism to
-verify at boot time that the memory to load a new image is free to prevent
-overwriting a previously loaded image. For this mechanism to work, the platform
-must specify the memory available in the system as regions, where each region
-consists of base address, total size and the free area within it (as defined
-in the ``meminfo_t`` structure). Trusted Firmware retrieves these memory regions
-by calling the corresponding platform API:
+When LOAD\_IMAGE\_V2 is disabled, TF-A provides a mechanism to verify at boot
+time that the memory to load a new image is free to prevent overwriting a
+previously loaded image. For this mechanism to work, the platform must specify
+the memory available in the system as regions, where each region consists of
+base address, total size and the free area within it (as defined in the
+``meminfo_t`` structure). TF-A retrieves these memory regions by calling the
+corresponding platform API:
 
 -  ``meminfo_t *bl1_plat_sec_mem_layout(void)``
 -  ``meminfo_t *bl2_plat_sec_mem_layout(void)``
@@ -1685,7 +1678,7 @@ corresponding processor (e.g. the SCP BL2 image).
 
 To reduce fragmentation and simplify the tracking of free memory, all the free
 memory within a region is always located in one single buffer defined by its
-base address and size. Trusted Firmware implements a top/bottom load approach:
+base address and size. TF-A implements a top/bottom load approach:
 after a new image is loaded, it checks how much memory remains free above and
 below the image. The smallest area is marked as unavailable, while the larger
 area becomes the new free memory buffer. Platforms should take this behaviour
@@ -1725,10 +1718,10 @@ And the following diagram is an example of an image loaded in the top part:
                |          |
                +----------+
 
-When LOAD\_IMAGE\_V2 is enabled, Trusted Firmware does not provide any mechanism
-to verify at boot time that the memory to load a new image is free to prevent
-overwriting a previously loaded image. The platform must specify the memory
-available in the system for all the relevant BL images to be loaded.
+When LOAD\_IMAGE\_V2 is enabled, TF-A does not provide any mechanism to verify
+at boot time that the memory to load a new image is free to prevent overwriting
+a previously loaded image. The platform must specify the memory available in
+the system for all the relevant BL images to be loaded.
 
 For example, in the case of BL1 loading BL2, ``bl1_plat_sec_mem_layout()`` will
 return the region defined by the platform where BL1 intends to load BL2. The
@@ -1736,10 +1729,10 @@ return the region defined by the platform where BL1 intends to load BL2. The
 base and maximum image size provided by the platforms. Platforms must take
 this behaviour into account when defining the base/size for each of the images.
 
-Memory layout on ARM development platforms
+Memory layout on Arm development platforms
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The following list describes the memory layout on the ARM development platforms:
+The following list describes the memory layout on the Arm development platforms:
 
 -  A 4KB page of shared memory is used for communication between Trusted
    Firmware and the platform's power controller. This is located at the base of
@@ -1799,14 +1792,13 @@ mechanism at boot time are defined as follows (shown per API):
 
    This region is an exact copy of the region defined by
    ``bl2_plat_sec_mem_layout()``. Being a disconnected copy means that all the
-   changes made to this region by the Trusted Firmware will not be propagated.
-   This approach is valid because the SCP BL2 image is loaded temporarily
-   while it is being transferred to the SCP, so this memory is reused
-   afterwards.
+   changes made to this region by the TF-A will not be propagated. This
+   approach is valid because the SCP BL2 image is loaded temporarily while it
+   is being transferred to the SCP, so this memory is reused afterwards.
 
 -  ``void bl2_plat_get_bl32_meminfo(meminfo_t *bl32_meminfo)``
 
-   This region depends on the location of the BL32 image. Currently, ARM
+   This region depends on the location of the BL32 image. Currently, Arm
    platforms support three different locations (detailed below): Trusted SRAM,
    Trusted DRAM and the TZC-Secured DRAM.
 
@@ -1980,11 +1972,11 @@ Firmware Image Package (FIP)
 ----------------------------
 
 Using a Firmware Image Package (FIP) allows for packing bootloader images (and
-potentially other payloads) into a single archive that can be loaded by the ARM
-Trusted Firmware from non-volatile platform storage. A driver to load images
-from a FIP has been added to the storage layer and allows a package to be read
-from supported platform storage. A tool to create Firmware Image Packages is
-also provided and described below.
+potentially other payloads) into a single archive that can be loaded by TF-A
+from non-volatile platform storage. A driver to load images from a FIP has
+been added to the storage layer and allows a package to be read from supported
+platform storage. A tool to create Firmware Image Packages is also provided
+and described below.
 
 Firmware Image Package layout
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2019,7 +2011,7 @@ retrieved.
 
 The ToC header and entry formats are described in the header file
 ``include/tools_share/firmware_image_package.h``. This file is used by both the
-tool and the ARM Trusted firmware.
+tool and TF-A.
 
 The ToC header has the following fields:
 
@@ -2049,10 +2041,10 @@ A ToC entry has the following fields:
 Firmware Image Package creation tool
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The FIP creation tool can be used to pack specified images into a binary package
-that can be loaded by the ARM Trusted Firmware from platform storage. The tool
-currently only supports packing bootloader images. Additional image definitions
-can be added to the tool as required.
+The FIP creation tool can be used to pack specified images into a binary
+package that can be loaded by TF-A from platform storage. The tool currently
+only supports packing bootloader images. Additional image definitions can be
+added to the tool as required.
 
 The tool can be found in ``tools/fiptool``.
 
@@ -2060,38 +2052,37 @@ Loading from a Firmware Image Package (FIP)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Firmware Image Package (FIP) driver can load images from a binary package on
-non-volatile platform storage. For the ARM development platforms, this is
+non-volatile platform storage. For the Arm development platforms, this is
 currently NOR FLASH.
 
 Bootloader images are loaded according to the platform policy as specified by
-the function ``plat_get_image_source()``. For the ARM development platforms, this
+the function ``plat_get_image_source()``. For the Arm development platforms, this
 means the platform will attempt to load images from a Firmware Image Package
 located at the start of NOR FLASH0.
 
-The ARM development platforms' policy is to only allow loading of a known set of
+The Arm development platforms' policy is to only allow loading of a known set of
 images. The platform policy can be modified to allow additional images.
 
-Use of coherent memory in Trusted Firmware
-------------------------------------------
+Use of coherent memory in TF-A
+------------------------------
 
 There might be loss of coherency when physical memory with mismatched
 shareability, cacheability and memory attributes is accessed by multiple CPUs
-(refer to section B2.9 of `ARM ARM`_ for more details). This possibility occurs
-in Trusted Firmware during power up/down sequences when coherency, MMU and
-caches are turned on/off incrementally.
+(refer to section B2.9 of `Arm ARM`_ for more details). This possibility occurs
+in TF-A during power up/down sequences when coherency, MMU and caches are
+turned on/off incrementally.
 
-Trusted Firmware defines coherent memory as a region of memory with Device
-nGnRE attributes in the translation tables. The translation granule size in
-Trusted Firmware is 4KB. This is the smallest possible size of the coherent
-memory region.
+TF-A defines coherent memory as a region of memory with Device nGnRE attributes
+in the translation tables. The translation granule size in TF-A is 4KB. This
+is the smallest possible size of the coherent memory region.
 
 By default, all data structures which are susceptible to accesses with
 mismatched attributes from various CPUs are allocated in a coherent memory
 region (refer to section 2.1 of `Porting Guide`_). The coherent memory region
 accesses are Outer Shareable, non-cacheable and they can be accessed
 with the Device nGnRE attributes when the MMU is turned on. Hence, at the
-expense of at least an extra page of memory, Trusted Firmware is able to work
-around coherency issues due to mismatched memory attributes.
+expense of at least an extra page of memory, TF-A is able to work around
+coherency issues due to mismatched memory attributes.
 
 The alternative to the above approach is to allocate the susceptible data
 structures in Normal WriteBack WriteAllocate Inner shareable memory. This
@@ -2099,12 +2090,12 @@ approach requires the data structures to be designed so that it is possible to
 work around the issue of mismatched memory attributes by performing software
 cache maintenance on them.
 
-Disabling the use of coherent memory in Trusted Firmware
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Disabling the use of coherent memory in TF-A
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It might be desirable to avoid the cost of allocating coherent memory on
-platforms which are memory constrained. Trusted Firmware enables inclusion of
-coherent memory in firmware images through the build flag ``USE_COHERENT_MEM``.
+platforms which are memory constrained. TF-A enables inclusion of coherent
+memory in firmware images through the build flag ``USE_COHERENT_MEM``.
 This flag is enabled by default. It can be disabled to choose the second
 approach described above.
 
@@ -2116,9 +2107,8 @@ Coherent memory usage in PSCI implementation
 
 The ``psci_non_cpu_pd_nodes`` data structure stores the platform's power domain
 tree information for state management of power domains. By default, this data
-structure is allocated in the coherent memory region in the Trusted Firmware
-because it can be accessed by multple CPUs, either with caches enabled or
-disabled.
+structure is allocated in the coherent memory region in TF-A because it can be
+accessed by multple CPUs, either with caches enabled or disabled.
 
 .. code:: c
 
@@ -2271,7 +2261,7 @@ operation on Lock\_N, the corresponding ``bakery_info_t`` in both CPU0 and CPU1
 ``bakery_lock`` section need to be fetched and appropriate cache operations need
 to be performed for each access.
 
-On ARM Platforms, bakery locks are used in psci (``psci_locks``) and power controller
+On Arm Platforms, bakery locks are used in psci (``psci_locks``) and power controller
 driver (``arm_lock``).
 
 Non Functional Impact of removing coherent memory
@@ -2292,7 +2282,7 @@ The implementation has been optimized to minimize this additional overhead.
 Measurements indicate that when bakery locks are allocated in Normal memory, the
 minimum latency of acquiring a lock is on an average 3-4 micro seconds whereas
 in Device memory the same is 2 micro seconds. The measurements were done on the
-Juno ARM development platform.
+Juno Arm development platform.
 
 As mentioned earlier, almost a page of memory can be saved by disabling
 ``USE_COHERENT_MEM``. Each platform needs to consider these trade-offs to decide
@@ -2304,7 +2294,7 @@ optionally define macro ``PLAT_PERCPU_BAKERY_LOCK_SIZE`` (see the
 Isolating code and read-only data on separate memory pages
 ----------------------------------------------------------
 
-In the ARMv8 VMSA, translation table entries include fields that define the
+In the Armv8-A VMSA, translation table entries include fields that define the
 properties of the target memory region, such as its access permissions. The
 smallest unit of memory that can be addressed by a translation table entry is
 a memory page. Therefore, if software needs to set different permissions on two
@@ -2379,7 +2369,7 @@ With this more condensed memory layout, the separation of read-only data will
 add zero or one page to the memory footprint of each BL image. Each platform
 should consider the trade-off between memory footprint and security.
 
-This build flag is disabled by default, minimising memory footprint. On ARM
+This build flag is disabled by default, minimising memory footprint. On Arm
 platforms, it is enabled.
 
 Publish and Subscribe Framework
@@ -2433,11 +2423,10 @@ PE only; it won't cause handlers to execute on a different PE.
 Note that publishing an event on a PE blocks until all the subscribed handlers
 finish executing on the PE.
 
-ARM Trusted Firmware generic code publishes and subscribes to some events
-within. Platform ports are discouraged from subscribing to them. These events
-may be withdrawn, renamed, or have their semantics altered in the future.
-Platforms may however register, publish, and subscribe to platform-specific
-events.
+TF-A generic code publishes and subscribes to some events within. Platform
+ports are discouraged from subscribing to them. These events may be withdrawn,
+renamed, or have their semantics altered in the future. Platforms may however
+register, publish, and subscribe to platform-specific events.
 
 Publish and Subscribe Example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2473,9 +2462,9 @@ Performance Measurement Framework
 ---------------------------------
 
 The Performance Measurement Framework (PMF) facilitates collection of
-timestamps by registered services and provides interfaces to retrieve
-them from within the ARM Trusted Firmware. A platform can choose to
-expose appropriate SMCs to retrieve these collected timestamps.
+timestamps by registered services and provides interfaces to retrieve them
+from within TF-A. A platform can choose to expose appropriate SMCs to
+retrieve these collected timestamps.
 
 By default, the global physical counter is used for the timestamp
 value and is read via ``CNTPCT_EL0``. The framework allows to retrieve
@@ -2520,9 +2509,8 @@ timestamps in a PMF specific linker section at build time.
 Additionally, it defines necessary functions to capture and
 retrieve a particular timestamp for the given service at runtime.
 
-The macro ``PMF_REGISTER_SERVICE()`` only enables capturing PMF
-timestamps from within ARM Trusted Firmware. In order to retrieve
-timestamps from outside of ARM Trusted Firmware, the
+The macro ``PMF_REGISTER_SERVICE()`` only enables capturing PMF timestamps
+from within TF-A. In order to retrieve timestamps from outside of TF-A, the
 ``PMF_REGISTER_SERVICE_SMC()`` macro must be used instead. This macro
 accepts the same set of arguments as the ``PMF_REGISTER_SERVICE()``
 macro but additionally supports retrieving timestamps using SMCs.
@@ -2552,13 +2540,13 @@ and store it at the determined address for later retrieval.
 Retrieving a timestamp
 ~~~~~~~~~~~~~~~~~~~~~~
 
-From within ARM Trusted Firmware, timestamps for individual CPUs can
-be retrieved using either ``PMF_GET_TIMESTAMP_BY_MPIDR()`` or
-``PMF_GET_TIMESTAMP_BY_INDEX()`` macros. These macros accept the CPU's MPIDR
-value, or its ordinal position, respectively.
+From within TF-A, timestamps for individual CPUs can be retrieved using either
+``PMF_GET_TIMESTAMP_BY_MPIDR()`` or ``PMF_GET_TIMESTAMP_BY_INDEX()`` macros.
+These macros accept the CPU's MPIDR value, or its ordinal position
+respectively.
 
-From outside ARM Trusted Firmware, timestamps for individual CPUs can be
-retrieved by calling into ``pmf_smc_handler()``.
+From outside TF-A, timestamps for individual CPUs can be retrieved by calling
+into ``pmf_smc_handler()``.
 
 .. code:: c
 
@@ -2600,32 +2588,31 @@ PMF code structure
 
 #. ``pmf_helpers.h`` is an internal header used by ``pmf.h``.
 
-ARMv8 Architecture Extensions
------------------------------
+Armv8-A Architecture Extensions
+-------------------------------
 
-ARM Trusted Firmware makes use of ARMv8 Architecture Extensions where
-applicable. This section lists the usage of Architecture Extensions, and build
-flags controlling them.
+TF-A makes use of Armv8-A Architecture Extensions where applicable. This
+section lists the usage of Architecture Extensions, and build flags
+controlling them.
 
 In general, and unless individually mentioned, the build options
 ``ARM_ARCH_MAJOR`` and ``ARM_ARCH_MINOR`` selects the Architecture Extension to
-target when building ARM Trusted Firmware. Subsequent ARM Architecture
-Extensions are backward compatible with previous versions.
+target when building TF-A. Subsequent Arm Architecture Extensions are backward
+compatible with previous versions.
 
 The build system only requires that ``ARM_ARCH_MAJOR`` and ``ARM_ARCH_MINOR`` have a
 valid numeric value. These build options only control whether or not
-Architecture Extension-specific code is included in the build. Otherwise, ARM
-Trusted Firmware targets the base ARMv8.0 architecture; i.e. as if
-``ARM_ARCH_MAJOR`` == 8 and ``ARM_ARCH_MINOR`` == 0, which are also their respective
-default values.
+Architecture Extension-specific code is included in the build. Otherwise, TF-A
+targets the base Armv8.0-A architecture; i.e. as if ``ARM_ARCH_MAJOR`` == 8
+and ``ARM_ARCH_MINOR`` == 0, which are also their respective default values.
 
 See also the *Summary of build options* in `User Guide`_.
 
 For details on the Architecture Extension and available features, please refer
 to the respective Architecture Extension Supplement.
 
-ARMv8.1
-~~~~~~~
+Armv8.1-A
+~~~~~~~~~
 
 This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` >= 8, or when
 ``ARM_ARCH_MAJOR`` == 8 and ``ARM_ARCH_MINOR`` >= 1.
@@ -2633,8 +2620,8 @@ This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` >= 8, or when
 -  The Compare and Swap instruction is used to implement spinlocks. Otherwise,
    the load-/store-exclusive instruction pair is used.
 
-ARMv8.2
-~~~~~~~
+Armv8.2-A
+~~~~~~~~~
 
 This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` == 8 and
 ``ARM_ARCH_MINOR`` >= 2.
@@ -2644,23 +2631,22 @@ This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` == 8 and
    translation table entries for a given stage of translation for a particular
    translation regime.
 
-ARMv7
-~~~~~
+Armv7-A
+~~~~~~~
 
 This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` == 7.
 
-There are several ARMv7 extensions available. Obviously the TrustZone
-extension is mandatory to support the ARM Trusted Firmware bootloader
-and runtime services.
+There are several Armv7-A extensions available. Obviously the TrustZone
+extension is mandatory to support the TF-A bootloader and runtime services.
 
-Platform implementing an ARMv7 system can to define from its target
+Platform implementing an Armv7-A system can to define from its target
 Cortex-A architecture through ``ARM_CORTEX_A<X> = yes`` in their
 ``plaform.mk`` script. For example ``ARM_CORTEX_A15=yes`` for a
 Cortex-A15 target.
 
 Platform can also set ``ARM_WITH_NEON=yes`` to enable neon support.
 Note that using neon at runtime has constraints on non secure wolrd context.
-The trusted firmware does not yet provide VFP context management.
+TF-A does not yet provide VFP context management.
 
 Directive ``ARM_CORTEX_A<x>`` and ``ARM_WITH_NEON`` are used to set
 the toolchain  target architecture directive.
@@ -2676,9 +2662,9 @@ I.e:
 Code Structure
 --------------
 
-Trusted Firmware code is logically divided between the three boot loader
-stages mentioned in the previous sections. The code is also divided into the
-following categories (present as directories in the source code):
+TF-A code is logically divided between the three boot loader stages mentioned
+in the previous sections. The code is also divided into the following
+categories (present as directories in the source code):
 
 -  **Platform specific.** Choice of architecture specific code depends upon
    the platform.
@@ -2708,8 +2694,8 @@ categories. Based upon the above, the code layout looks like this:
 
 The build system provides a non configurable build option IMAGE\_BLx for each
 boot loader stage (where x = BL stage). e.g. for BL1 , IMAGE\_BL1 will be
-defined by the build system. This enables the Trusted Firmware to compile
-certain code only for specific boot loader stages
+defined by the build system. This enables TF-A to compile certain code only
+for specific boot loader stages
 
 All assembler files have the ``.S`` extension. The linker source files for each
 boot stage have the extension ``.ld.S``. These are processed by GCC to create the
@@ -2721,15 +2707,15 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 References
 ----------
 
-.. [#] Trusted Board Boot Requirements CLIENT PDD (ARM DEN0006C-1). Available
-       under NDA through your ARM account representative.
+.. [#] Trusted Board Boot Requirements CLIENT PDD (Arm DEN0006C-1). Available
+       under NDA through your Arm account representative.
 .. [#] `Power State Coordination Interface PDD`_
 .. [#] `SMC Calling Convention PDD`_
-.. [#] `ARM Trusted Firmware Interrupt Management Design guide`_.
+.. [#] `TF-A Interrupt Management Design guide`_.
 
 --------------
 
-*Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _Reset Design: ./reset-design.rst
 .. _Porting Guide: ./porting-guide.rst
@@ -2743,10 +2729,10 @@ References
 .. _here: ./psci-lib-integration-guide.rst
 .. _cpu-specific-build-macros.rst: ./cpu-specific-build-macros.rst
 .. _CPUBM: ./cpu-specific-build-macros.rst
-.. _ARM ARM: http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0487a.e/index.html
+.. _Arm ARM: http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0487a.e/index.html
 .. _User Guide: ./user-guide.rst
 .. _SMC Calling Convention PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
-.. _ARM Trusted Firmware Interrupt Management Design guide: ./interrupt-framework-design.rst
+.. _TF-A Interrupt Management Design guide: ./interrupt-framework-design.rst
 .. _Xlat_tables design: xlat-tables-lib-v2-design.rst
 
 .. |Image 1| image:: diagrams/rt-svc-descs-layout.png?raw=true

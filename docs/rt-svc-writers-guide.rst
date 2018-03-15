@@ -1,5 +1,5 @@
-EL3 Runtime Service Writers Guide for ARM Trusted Firmware
-==========================================================
+Trusted Firmware-A EL3 runtime service writer's guide
+=====================================================
 
 
 .. section-numbering::
@@ -13,7 +13,7 @@ Introduction
 ------------
 
 This document describes how to add a runtime service to the EL3 Runtime
-Firmware component of ARM Trusted Firmware (BL31).
+Firmware component of Trusted Firmware-A (TF-A), BL31.
 
 Software executing in the normal world and in the trusted world at exception
 levels lower than EL3 will request runtime services using the Secure Monitor
@@ -27,7 +27,7 @@ example a subset of the Function IDs are designated as "OEM Calls" (see `SMCCC`_
 for full details). The EL3 runtime services framework in BL31 enables the
 independent implementation of services for each group, which are then compiled
 into the BL31 image. This simplifies the integration of common software from
-ARM to support `PSCI`_, Secure Monitor for a Trusted OS and SoC specific
+Arm to support `PSCI`_, Secure Monitor for a Trusted OS and SoC specific
 software. The common runtime services framework ensures that SMC Functions are
 dispatched to their respective service implementation - the `Firmware Design`_
 provides details of how this is achieved.
@@ -53,7 +53,7 @@ legacy 32-bit software that predates the `SMCCC`_.
 ::
 
     Type       OEN     Service
-    Fast        0      ARM Architecture calls
+    Fast        0      Arm Architecture calls
     Fast        1      CPU Service calls
     Fast        2      SiP Service calls
     Fast        3      OEM Service calls
@@ -62,7 +62,7 @@ legacy 32-bit software that predates the `SMCCC`_.
     Fast      48-49    Trusted Application calls
     Fast      50-63    Trusted OS calls
 
-    Yielding   0- 1    Reserved for existing ARMv7 calls
+    Yielding   0- 1    Reserved for existing Armv7-A calls
     Yielding   2-63    Trusted OS Standard Calls
 
 *Table 1: Service types and their corresponding Owning Entity Numbers*
@@ -72,7 +72,7 @@ range as they need - it is not necessary to coordinate with other entities of
 the same type. For example, two SoC providers can use the same Function ID
 within the SiP Service calls OEN range to mean different things - as these
 calls should be specific to the SoC. The Standard Runtime Calls OEN is used for
-services defined by ARM standards, such as `PSCI`_.
+services defined by Arm standards, such as `PSCI`_.
 
 The SMC Function ID also indicates whether the call has followed the SMC32
 calling convention, where all parameters are 32-bit, or the SMC64 calling
@@ -87,7 +87,7 @@ handler will be responsible for all SMC Functions within a given service type.
 Getting started
 ---------------
 
-ARM Trusted Firmware has a `services`_ directory in the source tree under which
+TF-A has a `services`_ directory in the source tree under which
 each owning entity can place the implementation of its runtime service. The
 `PSCI`_ implementation is located here in the `lib/psci`_ directory.
 
@@ -250,8 +250,7 @@ The handler is responsible for:
    UID and Revision Details for each service documented in section 6 of the
    `SMCCC`_.
 
-   The ARM Trusted Firmware expects owning entities to follow this
-   recommendation.
+   TF-A expects owning entities to follow this recommendation.
 
 #. Returning the result to the caller. The `SMCCC`_ allows for up to 256 bits
    of return value in SMC64 using X0-X3 and 128 bits in SMC32 using W0-W3. The
@@ -286,8 +285,8 @@ service which perform independent functions.
 In this situation it may be valuable to introduce a second level framework to
 enable independent implementation of sub-services. Such a framework might look
 very similar to the current runtime services framework, but using a different
-part of the SMC Function ID to identify the sub-service. Trusted Firmware does
-not provide such a framework at present.
+part of the SMC Function ID to identify the sub-service. TF-A does not provide
+such a framework at present.
 
 Secure-EL1 Payload Dispatcher service (SPD)
 -------------------------------------------
@@ -304,7 +303,7 @@ provide this information....
 
 --------------
 
-*Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _SMCCC: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf

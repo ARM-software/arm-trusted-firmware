@@ -1,7 +1,7 @@
-ARM Trusted Firmware Maintainers
-================================
+Trusted Firmware-A maintainers
+==============================
 
-ARM Trusted Firmware is an ARM maintained project. All contributions are
+Trusted Firmware-A (TF-A) is an Arm maintained project. All contributions are
 ultimately merged by the maintainers listed below. Technical ownership of some
 parts of the codebase is delegated to the sub-maintainers listed below. An
 acknowledgement from these sub-maintainers may be required before the
@@ -123,8 +123,8 @@ Files:
 -  docs/plat/xilinx-zynqmp.rst
 -  plat/xilinx/\*
 
-ARMv7 architecture sub-maintainer
----------------------------------
+Armv7-A architecture sub-maintainer
+-----------------------------------
 
 Etienne Carriere (etienne.carriere@linaro.org, `etienne-lms`_)
 

@@ -28,5 +28,5 @@ should then be set to the size of that block.
 Supported platforms
 ===================
 
-Out of all the platforms supported by the ARM Trusted Firmware, Trusty is
+Out of all the platforms supported by Trusted Firmware-A, Trusty is only
 verified and supported by NVIDIA's Tegra SoCs.

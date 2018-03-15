@@ -8,13 +8,13 @@ Software Delegated Exception Interface
 .. contents::
     :depth: 2
 
-This document provides an overview of the SDEI dispatcher implementation in ARM
-Trusted Firmware.
+This document provides an overview of the SDEI dispatcher implementation in
+Trusted Firmware-A (TF-A).
 
 Introduction
 ------------
 
-`Software Delegated Exception Interface`_ (SDEI) is an ARM specification for
+`Software Delegated Exception Interface`_ (SDEI) is an Arm specification for
 Non-secure world to register handlers with firmware to receive notifications
 about system events. Firmware will first receive the system events by way of
 asynchronous exceptions and, in response, arranges for the registered handler to
@@ -52,8 +52,8 @@ SDEI events can be explicitly dispatched in response to other asynchronous
 exceptions. See `Explicit dispatch of events`_.
 
 The remainder of this document only discusses the design and implementation of
-SDEI dispatcher in ARM Trusted Firmware, and assumes that the reader is familiar
-with the SDEI specification, the interfaces, and their requirements.
+SDEI dispatcher in TF-A, and assumes that the reader is familiar with the SDEI
+specification, the interfaces, and their requirements.
 
 .. [#std-event] Except event 0, which is defined by the SDEI specification as a
                 standard event.
@@ -314,7 +314,7 @@ Note on writing SDEI event handlers
 -----------------------------------
 
 *This section pertains to SDEI event handlers in general, not just when using
-ARM Trusted Firmware SDEI dispatcher.*
+the TF-A SDEI dispatcher.*
 
 The SDEI specification requires that event handlers preserve the contents of all
 registers except ``x0`` to ``x17``. This has significance if event handler is
@@ -364,7 +364,7 @@ implemented in assembly, following a similar pattern as below:
 
 ----
 
-*Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _SDEI specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
 .. _SDEI porting requirements: porting-guide.rst#sdei-porting-requirements

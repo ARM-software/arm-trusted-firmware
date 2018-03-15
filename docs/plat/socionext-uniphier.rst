@@ -1,19 +1,19 @@
-ARM Trusted Firmware for Socionext UniPhier SoCs
-================================================
+Trusted Firmware-A for Socionext UniPhier SoCs
+==============================================
 
 
-Socionext UniPhier ARMv8-A SoCs use ARM Trusted Firmware as the secure world
-firmware, supporting BL2 and BL31.
+Socionext UniPhier Armv8-A SoCs use Trusted Firmware-A (TF-A) as the secure
+world firmware, supporting BL2 and BL31.
 
 UniPhier SoC family implements its internal boot ROM, which loads 64KB [1]_
 image from a non-volatile storage to the on-chip SRAM, and jumps over to it.
-ARM Trusted Firmware provides a special mode, BL2-AT-EL3, which enables BL2 to
-execute at EL3. It is useful for platforms with non-TF boot ROM, like UniPhier.
-Here, a problem is BL2 does not fit in the 64KB limit if `Trusted Board Boot`_
-(TBB) is enabled. To solve this issue, Socionext provides a first stage loader
+TF-A provides a special mode, BL2-AT-EL3, which enables BL2 to execute at EL3.
+It is useful for platforms with non-TF-A boot ROM, like UniPhier. Here, a
+problem is BL2 does not fit in the 64KB limit if `Trusted Board Boot`_ (TBB)
+is enabled. To solve this issue, Socionext provides a first stage loader
 called `UniPhier BL`_. This loader runs in the on-chip SRAM, initializes the
 DRAM, expands BL2 there, and hands the control over to it. Therefore, all images
-of ARM Trusted Firmware run in DRAM.
+of TF-A run in DRAM.
 
 The UniPhier platform works with/without TBB. See below for the build process
 of each case. The image authentication for the UniPhier platform fully
@@ -46,7 +46,7 @@ Boot Flow
 
    This runs in the DRAM. It extracts more images such as BL31, BL33 (optionally
    SCP_BL2, BL32 as well) from Firmware Image Package (FIP). If TBB is enabled,
-   they are all authenticated by the standard mechanism of ARM Trusted Firmware.
+   they are all authenticated by the standard mechanism of TF-A.
    After loading all the images, it jumps to the BL31 entry.
 
 4. BL31, BL32, and BL33

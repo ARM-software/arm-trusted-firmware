@@ -8,7 +8,7 @@ To build and execute OP-TEE follow the instructions at
 
 --------------
 
-*Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _OP-TEE OS: https://github.com/OP-TEE/build
 .. _OP-TEE build.git: https://github.com/OP-TEE/build

@@ -1,5 +1,5 @@
-Arm Trusted Firmware for Raspberry Pi 3
-=======================================
+Trusted Firmware-A for Raspberry Pi 3
+=====================================
 
 .. section-numbering::
     :suffix: .
@@ -7,16 +7,16 @@ Arm Trusted Firmware for Raspberry Pi 3
 .. contents::
 
 The `Raspberry Pi 3`_ is an inexpensive single-board computer that contains four
-Cortex-A53 cores, which makes it possible to have a port of the Arm Trusted
-Firmware.
+Arm Cortex-A53 cores, which makes it possible to have a port of Trusted
+Firmware-A (TF-A).
 
-The following instructions explain how to use this port of the Trusted Firmware
-with the default distribution of `Raspbian`_ because that's the distribution
-officially supported by the Raspberry Pi Foundation. At the moment of writing
-this, the officially supported kernel is a AArch32 kernel. This doesn't mean
-that this port of the Trusted Firmware can't boot a AArch64 kernel. The `Linux
-tree fork`_ maintained by the Foundation can be compiled for AArch64 by
-following the steps in `AArch64 kernel build instructions`_.
+The following instructions explain how to use this port of the TF-A with the
+default distribution of `Raspbian`_ because that's the distribution officially
+supported by the Raspberry Pi Foundation. At the moment of writing this, the
+officially supported kernel is a AArch32 kernel. This doesn't mean that this
+port of TF-A can't boot a AArch64 kernel. The `Linux tree fork`_ maintained by
+the Foundation can be compiled for AArch64 by following the steps in
+`AArch64 kernel build instructions`_.
 
 **IMPORTANT NOTE**: This port isn't secure. All of the memory used is DRAM,
 which is available from both the Non-secure and Secure worlds. This port
@@ -46,15 +46,15 @@ The rules are simple:
   the cores are powered on at the same time and start at address **0x0**.
 
 This means that we can use the default AArch32 kernel provided in the official
-`Raspbian`_ distribution by renaming it to ``kernel8.img``, while the Trusted
-Firmware and anything else we need is in ``armstub8.bin``. This way we can
-forget about the default bootstrap code. When using a AArch64 kernel, it is only
-needed to make sure that the name on the SD card is ``kernel8.img``.
+`Raspbian`_ distribution by renaming it to ``kernel8.img``, while TF-A and
+anything else we need is in ``armstub8.bin``. This way we can forget about the
+default bootstrap code. When using a AArch64 kernel, it is only needed to make
+sure that the name on the SD card is ``kernel8.img``.
 
 Ideally, we want to load the kernel and have all cores available, which means
 that we need to make the secondary cores work in the way the kernel expects, as
 explained in `Secondary cores`_. In practice, a small bootstrap is needed
-between the Trusted Firmware and the kernel.
+between TF-A and the kernel.
 
 To get the most out of a AArch32 kernel, we want to boot it in Hypervisor mode
 in AArch32. This means that BL33 can't be in EL2 in AArch64 mode. The
@@ -66,7 +66,7 @@ Placement of images
 
 The file ``armstub8.bin`` contains BL1 and the FIP. It is needed to add padding
 between them so that the addresses they are loaded to match the ones specified
-when compiling the Trusted Firmware.
+when compiling TF-A.
 
 The device tree block is loaded by the VideoCore loader from an appropriate
 file, but we can specify the address it is loaded to in ``config.txt``.
@@ -87,8 +87,8 @@ There are no similar restrictions for AArch64 kernels, as specified in the file
 ``Documentation/arm64/booting.txt``.
 
 This means that we need to avoid the first 128 MiB of RAM when placing the
-Trusted Firmware images (and specially the first 32 MiB, as they are directly
-used to place the uncompressed AArch32 kernel image. This way, both AArch32 and
+TF-A images (and specially the first 32 MiB, as they are directly used to
+place the uncompressed AArch32 kernel image. This way, both AArch32 and
 AArch64 kernels can be placed at the same address.
 
 In the end, the images look like the following diagram when placed in memory.
@@ -143,18 +143,17 @@ different mappings than the Arm cores in which the I/O addresses don't overlap
 the DRAM. The memory reserved to be used by the VideoCore is always placed at
 the end of the DRAM, so this space isn't wasted.
 
-Considering the 128 MiB allocated to the GPU and the 16 MiB allocated for the
-Trusted Firmware, there are 880 MiB available for Linux.
+Considering the 128 MiB allocated to the GPU and the 16 MiB allocated for
+TF-A, there are 880 MiB available for Linux.
 
 Boot sequence
 ~~~~~~~~~~~~~
 
-The boot sequence of the Trusted Firmware is the usual one except when booting
-a AArch32 kernel. In that case, BL33 is booted in AArch32 Hypervisor mode so
-that it can jump to the kernel in the same mode and let it take over that
-privilege level. If BL33 was running in EL2 in AArch64 (as in the default
-bootflow of the Trusted Firmware) it could only jump to the kernel in AArch32 in
-Supervisor mode.
+The boot sequence of TF-A is the usual one except when booting an AArch32
+kernel. In that case, BL33 is booted in AArch32 Hypervisor mode so that it
+can jump to the kernel in the same mode and let it take over that privilege
+level. If BL33 was running in EL2 in AArch64 (as in the default bootflow of
+TF-A) it could only jump to the kernel in AArch32 in Supervisor mode.
 
 The `Linux kernel tree`_ has instructions on how to jump to the Linux kernel
 in ``Documentation/arm/Booting`` and ``Documentation/arm64/booting.txt``. The
@@ -168,9 +167,9 @@ use mailboxes to trap the secondary cores until they are ready to jump to the
 kernel. This mailbox is located at a different address in the AArch32 default
 kernel than in the AArch64 kernel.
 
-Also, this port of the Trusted Firmware has another Trusted Mailbox in Shared BL
-RAM. During cold boot, all secondary cores wait in a loop until they are given
-given an address to jump to in this Mailbox (``bl31_warm_entrypoint``).
+Also, this port of TF-A has another Trusted Mailbox in Shared BL RAM. During
+cold boot, all secondary cores wait in a loop until they are given given an
+address to jump to in this Mailbox (``bl31_warm_entrypoint``).
 
 Once BL31 has finished and the primary core has jumped to the BL33 payload, it
 has to call ``PSCI_CPU_ON`` to release the secondary CPUs from the wait loop.
@@ -188,11 +187,10 @@ To boot a AArch32 kernel, both AArch64 and AArch32 toolchains are required. The
 AArch32 toolchain is needed for the AArch32 bootstrap needed to load a 32-bit
 kernel.
 
-First, clone and compile `Raspberry Pi 3 Arm Trusted Firmware bootstrap`_.
-Choose the one needed for the architecture of your kernel.
+First, clone and compile `Raspberry Pi 3 TF-A bootstrap`_. Choose the one
+needed for the architecture of your kernel.
 
-Then compile the Arm Trusted Firmware. For a AArch32 kernel, use the following
-command line:
+Then compile TF-A. For a AArch32 kernel, use the following command line:
 
 .. code:: shell
 
@@ -219,8 +217,8 @@ by ``debug`` if you set the build option ``DEBUG=1``):
     cat bl1.pad.bin build/rpi3/release/fip.bin > armstub8.bin
 
 The resulting file, ``armstub8.bin``, contains BL1 and the FIP in the place they
-need to be for the Trusted Firmware to boot correctly. Now, follow the
-instructions in `Setup SD card`_.
+need to be for TF-A to boot correctly. Now, follow the instructions in
+`Setup SD card`_.
 
 The following build options are supported:
 
@@ -235,17 +233,17 @@ The following build options are supported:
   is reserved by the command line passed to the kernel.
 
 - ``RPI3_BL33_IN_AARCH32``: This port can load a AArch64 or AArch32 BL33 image.
-  By default this option is 0, which means that the Trusted Firmware will jump
-  to BL33 in EL2 in AArch64 mode. If set to 1, it will jump to BL33 in
-  Hypervisor in AArch32 mode.
+  By default this option is 0, which means that TF-A will jump to BL33 in EL2
+  in AArch64 mode. If set to 1, it will jump to BL33 in Hypervisor in AArch32
+  mode.
 
 The following is not currently supported:
 
-- AArch32 for the Trusted Firmware itself.
+- AArch32 for TF-A itself.
 
 - ``EL3_PAYLOAD_BASE``: The reason is that you can already load anything to any
   address by changing the file ``armstub8.bin``, so there's no point in using
-  the Trusted Firmware in this case.
+  TF-A in this case.
 
 - ``LOAD_IMAGE_V2=0``: Only version 2 is supported.
 
@@ -307,16 +305,16 @@ untouched). They have been tested with the image available in 2017-09-07.
 1. Insert the SD card and open the ``boot`` partition.
 
 2. Rename ``kernel7.img`` to ``kernel8.img``. This tricks the VideoCore
-   bootloader into booting the Arm cores in AArch64 mode, like the Trusted
-   Firmware needs, even though the kernel is not compiled for AArch64.
+   bootloader into booting the Arm cores in AArch64 mode, like TF-A needs,
+   even though the kernel is not compiled for AArch64.
 
 3. Copy ``armstub8.bin`` here. When ``kernel8.img`` is available, The VideoCore
    bootloader will look for a file called ``armstub8.bin`` and load it at
    address **0x0** instead of a predefined one.
 
 4. Open ``cmdline.txt`` and add ``memmap=256M$16M`` to prevent the kernel from
-   using the memory needed by the Trusted Firmware. If you want to enable the
-   serial port "Mini UART", make sure that this file also contains
+   using the memory needed by TF-A. If you want to enable the serial port
+   "Mini UART", make sure that this file also contains
    ``console=serial0,115200 console=tty1``.
 
    Note that the 16 MiB reserved this way won't be available for Linux, the same
@@ -359,6 +357,6 @@ HDMI output won't show any text during boot.
 .. _Linux kernel tree: https://github.com/torvalds/linux
 .. _Linux tree fork: https://github.com/raspberrypi/linux
 .. _Raspberry Pi 3: https://www.raspberrypi.org/products/raspberry-pi-3-model-b/
-.. _Raspberry Pi 3 Arm Trusted Firmware bootstrap: https://github.com/AntonioND/rpi3-arm-tf-bootstrap
+.. _Raspberry Pi 3 TF-A bootstrap: https://github.com/AntonioND/rpi3-arm-tf-bootstrap
 .. _Raspberry Pi 3 documentation: https://www.raspberrypi.org/documentation/
 .. _Raspbian: https://www.raspberrypi.org/downloads/raspbian/

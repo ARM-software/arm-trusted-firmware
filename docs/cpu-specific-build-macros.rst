@@ -1,4 +1,4 @@
-ARM CPU Specific Build Macros
+Arm CPU Specific Build Macros
 =============================
 
 
@@ -14,8 +14,8 @@ for a specific CPU on a platform.
 Security Vulnerability Workarounds
 ----------------------------------
 
-ARM Trusted Firmware exports a series of build flags which control which
-security vulnerability workarounds should be applied at runtime.
+TF-A exports a series of build flags which control which security
+vulnerability workarounds should be applied at runtime.
 
 -  ``WORKAROUND_CVE_2017_5715``: Enables the security workaround for
    `CVE-2017-5715`_. Defaults to 1.
@@ -23,10 +23,9 @@ security vulnerability workarounds should be applied at runtime.
 CPU Errata Workarounds
 ----------------------
 
-ARM Trusted Firmware exports a series of build flags which control the
-errata workarounds that are applied to each CPU by the reset handler. The
-errata details can be found in the CPU specific errata documents published
-by ARM:
+TF-A exports a series of build flags which control the errata workarounds that
+are applied to each CPU by the reset handler. The errata details can be found
+in the CPU specific errata documents published by Arm:
 
 -  `Cortex-A53 MPCore Software Developers Errata Notice`_
 -  `Cortex-A57 MPCore Software Developers Errata Notice`_
@@ -135,8 +134,8 @@ architecture that can be enabled by the platform as desired.
 -  ``A53_DISABLE_NON_TEMPORAL_HINT``: This flag disables the cache non-temporal
    hint. The LDNP/STNP instructions as implemented on Cortex-A53 do not behave
    in a way most programmers expect, and will most probably result in a
-   significant speed degradation to any code that employs them. The ARMv8-A
-   architecture (see ARM DDI 0487A.h, section D3.4.3) allows cores to ignore
+   significant speed degradation to any code that employs them. The Armv8-A
+   architecture (see Arm DDI 0487A.h, section D3.4.3) allows cores to ignore
    the non-temporal hint and treat LDNP/STNP as LDP/STP instead. Enabling this
    flag enforces this behaviour. This needs to be enabled only for revisions
    <= r0p3 of the CPU and is enabled by default.
@@ -149,7 +148,7 @@ architecture that can be enabled by the platform as desired.
 
 --------------
 
-*Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _CVE-2017-5715: http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=2017-5715
 .. _Cortex-A53 MPCore Software Developers Errata Notice: http://infocenter.arm.com/help/topic/com.arm.doc.epm048406/Cortex_A53_MPCore_Software_Developers_Errata_Notice.pdf
