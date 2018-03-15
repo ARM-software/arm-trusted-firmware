@@ -83,6 +83,15 @@ Files:
 
 -  plat/mediatek/\*
 
+NXP Layerscape platform sub-maintainer
+--------------------------------------
+Jiafei Pan (jiafei.pan@nxp.com, `qoriq-open-source`_)
+
+Files:
+
+-  docs/plat/ls1043a.rst
+-  plat/layerscape/\*
+
 Raspberry Pi 3 platform sub-maintainer
 --------------------------------------
 
@@ -141,3 +150,4 @@ Etienne Carriere (etienne.carriere@linaro.org, `etienne-lms`_)
 .. _sivadur: https://github.com/sivadur
 .. _rockchip-linux: https://github.com/rockchip-linux
 .. _etienne-lms: https://github.com/etienne-lms
+.. _qoriq-open-source: https://github.com/qoriq-open-source
