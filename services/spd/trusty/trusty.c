@@ -451,7 +451,7 @@ static int32_t trusty_setup(void)
 		uint32_t spsr;
 
 		ns_ep_info = bl31_plat_get_next_image_ep_info(NON_SECURE);
-		if (!ep_info) {
+		if (ns_ep_info == NULL) {
 			NOTICE("Trusty: non-secure image missing.\n");
 			return -1;
 		}
