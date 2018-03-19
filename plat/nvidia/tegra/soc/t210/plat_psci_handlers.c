@@ -381,8 +381,8 @@ int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 
 			/* Copy the firmware to BPMP's internal RAM */
 			(void)memcpy((void *)(uintptr_t)TEGRA_IRAM_BASE,
-				(const void *)plat_params->sc7entry_fw_base,
-				plat_params->sc7entry_fw_size);
+				(const void *)(plat_params->sc7entry_fw_base + SC7ENTRY_FW_HEADER_SIZE_BYTES),
+				plat_params->sc7entry_fw_size - SC7ENTRY_FW_HEADER_SIZE_BYTES);
 
 			/* Power on the BPMP and execute from IRAM base */
 			tegra_fc_bpmp_on(TEGRA_IRAM_BASE);
