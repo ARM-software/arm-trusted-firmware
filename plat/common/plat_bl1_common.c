@@ -68,8 +68,7 @@ __dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved)
 int bl1_plat_mem_check(uintptr_t mem_base, unsigned int mem_size,
 		unsigned int flags)
 {
-	assert(0);
-	return -ENOMEM;
+	panic();
 }
 
 /*

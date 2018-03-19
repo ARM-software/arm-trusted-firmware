@@ -68,9 +68,6 @@
 # define VERBOSE(...)
 #endif
 
-void __dead2 do_panic(void);
-#define panic()	do_panic()
-
 /* Function called when stack protection check code detects a corrupted stack */
 void __dead2 __stack_chk_fail(void);
 
@@ -80,6 +77,16 @@ int tf_snprintf(char *s, size_t n, const char *fmt, ...) __printflike(3, 4);
 void tf_vprintf(const char *fmt, va_list args);
 void tf_string_print(const char *str);
 void tf_log_set_max_level(unsigned int log_level);
+
+void __dead2 do_panic(void);
+#if LOG_LEVEL >= LOG_LEVEL_INFO
+#define panic() do {                                                \
+    tf_printf("PANIC: %s:%d\n", __FILE__, __LINE__);  \
+    do_panic();                                                     \
+} while (0)
+#else
+#define panic()	do_panic()
+#endif
 
 #endif /* __ASSEMBLY__ */
 #endif /* __DEBUG_H__ */

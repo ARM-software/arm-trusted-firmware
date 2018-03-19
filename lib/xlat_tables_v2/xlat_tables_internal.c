@@ -67,9 +67,7 @@ static int xlat_table_get_index(xlat_ctx_t *ctx, const uint64_t *table)
 	 * Maybe we were asked to get the index of the base level table, which
 	 * should never happen.
 	 */
-	assert(0);
-
-	return -1;
+	panic();
 }
 
 /* Returns a pointer to an empty translation table. */
@@ -750,8 +748,7 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 	ret = mmap_add_region_check(ctx, mm);
 	if (ret != 0) {
 		ERROR("mmap_add_region_check() failed. error %d\n", ret);
-		assert(0);
-		return;
+		panic();
 	}
 
 	/*
@@ -1404,9 +1401,7 @@ static uint64_t *find_xlat_table_entry(uintptr_t virtual_addr,
 	 * This shouldn't be reached, the translation table walk should end at
 	 * most at level XLAT_TABLE_LEVEL_MAX and return from inside the loop.
 	 */
-	assert(0);
-
-	return NULL;
+	panic();
 }
 
 

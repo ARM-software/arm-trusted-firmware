@@ -458,8 +458,7 @@ void gicv2_set_interrupt_type(unsigned int id, unsigned int type)
 		gicd_clr_igroupr(driver_data->gicd_base, id);
 		break;
 	default:
-		assert(0);
-		break;
+		panic();
 	}
 	spin_unlock(&gic_lock);
 }

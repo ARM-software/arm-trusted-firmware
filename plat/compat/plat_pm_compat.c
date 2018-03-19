@@ -6,6 +6,7 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
+#include <debug.h>
 #include <errno.h>
 #include <platform.h>
 #include <psci.h>
@@ -122,7 +123,7 @@ void get_sys_suspend_power_state_compat(psci_power_state_t *req_state)
 	set_psci_power_state_compat(power_state);
 
 	if (parse_power_state(power_state, req_state) != PSCI_E_SUCCESS)
-		assert(0);
+		panic();
 }
 
 /*******************************************************************************

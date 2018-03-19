@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <context_mgmt.h>
+#include <debug.h>
 #include <string.h>
 #include "tlkd_private.h"
 
@@ -48,8 +49,7 @@ uint64_t tlkd_va_translate(uintptr_t va, int type)
 		ats12e0w(va);
 		break;
 	default:
-		assert(0);
-		break;
+		panic();
 	}
 
 	/* get the (NS/S) physical address */
@@ -160,5 +160,5 @@ void tlkd_synchronous_sp_exit(tlk_context_t *tlk_ctx, uint64_t ret)
 	tlkd_exit_sp(tlk_ctx->c_rt_ctx, ret);
 
 	/* Should never reach here */
-	assert(0);
+	panic();
 }

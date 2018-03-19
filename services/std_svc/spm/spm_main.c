@@ -94,7 +94,7 @@ static void __dead2 spm_synchronous_sp_exit(
 	spm_secure_partition_exit(sp_ctx_ptr->c_rt_ctx, ret);
 
 	/* Should never reach here */
-	assert(0);
+	panic();
 }
 
 /*******************************************************************************
@@ -374,7 +374,6 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 				 * runtime context.
 				 */
 				spm_synchronous_sp_exit(&sp_ctx, x1);
-				assert(0);
 			}
 
 			/* Release the Secure Partition context */
