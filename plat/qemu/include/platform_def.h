@@ -75,7 +75,7 @@
 #define NS_DRAM0_SIZE			0x3de00000
 
 #define SEC_SRAM_BASE			0x0e000000
-#define SEC_SRAM_SIZE			0x00040000
+#define SEC_SRAM_SIZE			0x00060000
 
 #define SEC_DRAM_BASE			0x0e100000
 #define SEC_DRAM_SIZE			0x00f00000
@@ -123,7 +123,7 @@
  * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
  * size plus a little space for growth.
  */
-#define BL2_BASE			(BL31_BASE - 0x1D000)
+#define BL2_BASE			(BL31_BASE - 0x25000)
 #define BL2_LIMIT			BL31_BASE
 
 /*

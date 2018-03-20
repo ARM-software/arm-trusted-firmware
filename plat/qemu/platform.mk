@@ -168,6 +168,10 @@ $(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2))
 endif
 
 SEPARATE_CODE_AND_RODATA := 1
+ENABLE_STACK_PROTECTOR	 := 0
+ifneq ($(ENABLE_STACK_PROTECTOR), 0)
+	PLAT_BL_COMMON_SOURCES += plat/qemu/qemu_stack_protector.c
+endif
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:= 	0
