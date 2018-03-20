@@ -239,7 +239,7 @@ Arm licensees may contact Arm directly via their partner managers.
 .. _SMC Calling Convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
 .. _System Control and Management Interface: SCMI_
 .. _SCMI: http://infocenter.arm.com/help/topic/com.arm.doc.den0056a/DEN0056A_System_Control_and_Management_Interface.pdf
-.. _Software Delegated Exception Interface (SDEI): SDEI
+.. _Software Delegated Exception Interface (SDEI): SDEI_
 .. _SDEI: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
 .. _Juno Arm Development Platform: http://www.arm.com/products/tools/development-boards/versatile-express/juno-arm-development-platform.php
 .. _Arm FVP website: FVP_
