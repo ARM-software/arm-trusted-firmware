@@ -1319,10 +1319,14 @@ void wdt_register_restore(void)
 {
 	int i;
 
-	for (i = 0; i < 2; i++) {
+	for (i = 1; i >= 0; i--) {
 		mmio_write_32(WDT0_BASE + i * 4, store_wdt0[i]);
 		mmio_write_32(WDT1_BASE + i * 4, store_wdt1[i]);
 	}
+
+	/* write 0x76 to cnt_restart to keep watchdog alive */
+	mmio_write_32(WDT0_BASE + 0x0c, 0x76);
+	mmio_write_32(WDT1_BASE + 0x0c, 0x76);
 }
 
 int rockchip_soc_sys_pwr_dm_suspend(void)
@@ -1383,6 +1387,7 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 	}
 	mmio_setbits_32(PMU_BASE + PMU_PWRDN_CON, BIT(PMU_SCU_B_PWRDWN_EN));
 
+	wdt_register_save();
 	secure_watchdog_disable();
 
 	/*
@@ -1398,7 +1403,6 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 	suspend_uart();
 	grf_register_save();
 	cru_register_save();
-	wdt_register_save();
 	sram_save();
 	plat_rockchip_save_gpio();
 
@@ -1411,7 +1415,6 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	uint32_t status = 0;
 
 	plat_rockchip_restore_gpio();
-	wdt_register_restore();
 	cru_register_restore();
 	grf_register_restore();
 	resume_uart();
@@ -1426,6 +1429,7 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	secure_watchdog_enable();
 	secure_sgrf_init();
 	secure_sgrf_ddr_rgn_init();
+	wdt_register_restore();
 
 	/* restore clk_ddrc_bpll_src_en gate */
 	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(3),
