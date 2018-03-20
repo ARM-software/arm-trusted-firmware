@@ -38,7 +38,7 @@ running the FVP models is a dual-core processor running at 2GHz with 12GB of
 RAM. For best performance, use a machine with a quad-core processor running at
 2.6GHz with 16GB of RAM.
 
-The software has been tested on Ubuntu 14.04 LTS (64-bit). Packages used for
+The software has been tested on Ubuntu 16.04 LTS (64-bit). Packages used for
 building the software were installed from that distribution unless otherwise
 specified.
 
@@ -867,9 +867,12 @@ must be in compliance with the Linux style guide, and to assist with this check
 the project Makefile contains two targets, which both utilise the
 ``checkpatch.pl`` script that ships with the Linux source tree.
 
-To check the entire source tree, you must first download a copy of
-``checkpatch.pl`` (or the full Linux source), set the ``CHECKPATCH`` environment
-variable to point to the script and build the target checkcodebase:
+To check the entire source tree, you must first download copies of
+``checkpatch.pl``, ``spelling.txt`` and ``const_structs.checkpatch`` available
+in the `Linux master tree`_ scripts directory, then set the ``CHECKPATCH``
+environment variable to point to ``checkpatch.pl`` (with the other 2 files in
+the same directory) and build the target 
+checkcodebase:
 
 ::
 
@@ -1149,9 +1152,14 @@ a single FIP binary. It assumes that a `Linaro Release`_ has been installed.
 Note: Pre-built binaries for AArch32 are available from Linaro Release 16.12
 onwards. Before that release, pre-built binaries are only available for AArch64.
 
-Note: follow the full instructions for one platform before switching to a
+Note: Follow the full instructions for one platform before switching to a
 different one. Mixing instructions for different platforms may result in
 corrupted binaries.
+
+Note: The uboot image downloaded by the Linaro workspace script does not always
+match the uboot image packaged as BL33 in the corresponding fip file. It is
+recommended to use the version that is packaged in the fip file using the
+instructions below.
 
 #. Clean the working directory
 
@@ -1177,11 +1185,11 @@ corrupted binaries.
    current working directory. The SCP\_BL2 image corresponds to
    ``scp-fw.bin`` and BL33 corresponds to ``nt-fw.bin``.
 
-   Note: the fiptool will complain if the images to be unpacked already
+   Note: The fiptool will complain if the images to be unpacked already
    exist in the current directory. If that is the case, either delete those
    files or use the ``--force`` option to overwrite.
 
-   Note for AArch32, the instructions below assume that nt-fw.bin is a custom
+   Note: For AArch32, the instructions below assume that nt-fw.bin is a custom
    Normal world boot loader that supports AArch32.
 
 #. Build TF-A images and create a new FIP for FVP
@@ -1924,6 +1932,7 @@ wakeup interrupt from RTC.
 .. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/w/docs/303/juno
 .. _Arm Platforms Portal: https://community.arm.com/dev-platforms/
 .. _Development Studio 5 (DS-5): http://www.arm.com/products/tools/software-tools/ds-5/index.php
+.. _Linux master tree: <https://github.com/torvalds/linux/tree/master/>
 .. _Dia: https://wiki.gnome.org/Apps/Dia/Download
 .. _here: psci-lib-integration-guide.rst
 .. _Trusted Board Boot: trusted-board-boot.rst
