@@ -24,7 +24,8 @@ typedef struct psci_stat {
  * Following is used to keep track of the last cpu
  * that goes to power down in non cpu power domains.
  */
-static int last_cpu_in_non_cpu_pd[PSCI_NUM_NON_CPU_PWR_DOMAINS] = {-1};
+static int last_cpu_in_non_cpu_pd[PSCI_NUM_NON_CPU_PWR_DOMAINS] = {
+		[0 ... PSCI_NUM_NON_CPU_PWR_DOMAINS-1] = -1};
 
 /*
  * Following are used to store PSCI STAT values for
@@ -129,6 +130,10 @@ void psci_stats_update_pwr_up(unsigned int end_pwrlvl,
 	 * prior to this CPU powering on.
 	 */
 	parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
+	/* Return early if this is the first power up. */
+	if (last_cpu_in_non_cpu_pd[parent_idx] == -1)
+		return;
+
 	for (lvl = PSCI_CPU_PWR_LVL + 1; lvl <= end_pwrlvl; lvl++) {
 		local_state = state_info->pwr_domain_state[lvl];
 		if (is_local_state_run(local_state)) {
