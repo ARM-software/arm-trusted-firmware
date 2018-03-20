@@ -275,13 +275,6 @@ endif
 endif
 
 ################################################################################
-# Include libraries' Makefile that are used in all BL
-################################################################################
-
-include lib/stack_protector/stack_protector.mk
-
-
-################################################################################
 # Include the platform specific Makefile after the SPD Makefile (the platform
 # makefile may use all previous definitions in this file)
 ################################################################################
@@ -439,6 +432,12 @@ endif
 ifneq (${FIP_ALIGN},0)
 FIP_ARGS += --align ${FIP_ALIGN}
 endif
+
+################################################################################
+# Include libraries' Makefile that are used in all BL
+################################################################################
+
+include lib/stack_protector/stack_protector.mk
 
 ################################################################################
 # Auxiliary tools (fiptool, cert_create, etc)
