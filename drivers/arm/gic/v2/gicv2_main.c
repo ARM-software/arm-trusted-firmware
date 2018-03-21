@@ -593,3 +593,12 @@ unsigned int gicv2_set_pmr(unsigned int mask)
 
 	return old_mask;
 }
+
+/*******************************************************************************
+ * This function updates single interrupt configuration to be level/edge
+ * triggered
+ ******************************************************************************/
+void gicv2_interrupt_set_cfg(unsigned int id, unsigned int cfg)
+{
+	gicd_set_icfgr(driver_data->gicd_base, id, cfg);
+}
