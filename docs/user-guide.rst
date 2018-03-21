@@ -246,6 +246,12 @@ Common build options
 - ``BL2_AT_EL3``: This is an optional build option that enables the use of
    BL2 at EL3 execution level.
 
+- ``BL2_IN_XIP_MEM``: In some use-cases BL2 will be stored in eXecute In Place
+   (XIP) memory, like BL1. In these use-cases, it is necessary to initialize
+   the RW sections in RAM, while leaving the RO sections in place. This option
+   enable this use-case. For now, this option is only supported when BL2_AT_EL3
+   is set to '1'.
+
 -  ``BL31``: This is an optional build option which specifies the path to
    BL31 image for the ``fip`` target. In this case, the BL31 in TF-A will not
    be built.

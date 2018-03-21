@@ -30,6 +30,10 @@ BASE_COMMIT			:= origin/master
 # Execute BL2 at EL3
 BL2_AT_EL3			:= 0
 
+# BL2 image is stored in XIP memory, for now, this option is only supported
+# when BL2_AT_EL3 is 1.
+BL2_IN_XIP_MEM			:= 0
+
 # By default, consider that the platform may release several CPUs out of reset.
 # The platform Makefile is free to override this value.
 COLD_BOOT_SINGLE_CPU		:= 0

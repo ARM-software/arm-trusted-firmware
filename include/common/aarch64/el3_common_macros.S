@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -294,7 +294,7 @@
 		bl	zeromem
 #endif
 
-#ifdef IMAGE_BL1
+#if defined(IMAGE_BL1) || (defined(IMAGE_BL2) && BL2_IN_XIP_MEM)
 		ldr	x0, =__DATA_RAM_START__
 		ldr	x1, =__DATA_ROM_START__
 		ldr	x2, =__DATA_SIZE__

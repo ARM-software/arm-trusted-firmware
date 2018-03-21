@@ -7,6 +7,20 @@
 #ifndef __BL2_PRIVATE_H__
 #define __BL2_PRIVATE_H__
 
+#if BL2_IN_XIP_MEM
+/*******************************************************************************
+ * Declarations of linker defined symbols which will tell us where BL2 lives
+ * in Trusted ROM and RAM
+ ******************************************************************************/
+extern uintptr_t __BL2_ROM_END__;
+#define BL2_ROM_END (uintptr_t)(&__BL2_ROM_END__)
+
+extern uintptr_t __BL2_RAM_START__;
+extern uintptr_t __BL2_RAM_END__;
+#define BL2_RAM_BASE (uintptr_t)(&__BL2_RAM_START__)
+#define BL2_RAM_LIMIT (uintptr_t)(&__BL2_RAM_END__)
+#endif
+
 /******************************************
  * Forward declarations
  *****************************************/

@@ -12,15 +12,26 @@ OUTPUT_ARCH(PLATFORM_LINKER_ARCH)
 ENTRY(bl2_entrypoint)
 
 MEMORY {
+#if BL2_IN_XIP_MEM
+    ROM (rx): ORIGIN = BL2_RO_BASE, LENGTH = BL2_RO_LIMIT - BL2_RO_BASE
+    RAM (rwx): ORIGIN = BL2_RW_BASE, LENGTH = BL2_RW_LIMIT - BL2_RW_BASE
+#else
     RAM (rwx): ORIGIN = BL2_BASE, LENGTH = BL2_LIMIT - BL2_BASE
+#endif
 }
 
 
 SECTIONS
 {
+#if BL2_IN_XIP_MEM
+    . = BL2_RO_BASE;
+    ASSERT(. == ALIGN(PAGE_SIZE),
+           "BL2_RO_BASE address is not aligned on a page boundary.")
+#else
     . = BL2_BASE;
     ASSERT(. == ALIGN(PAGE_SIZE),
            "BL2_BASE address is not aligned on a page boundary.")
+#endif
 
 #if SEPARATE_CODE_AND_RODATA
     .text . : {
@@ -33,7 +44,11 @@ SECTIONS
         *(.vectors)
         . = NEXT(PAGE_SIZE);
         __TEXT_END__ = .;
+#if BL2_IN_XIP_MEM
+     } >ROM
+#else
      } >RAM
+#endif
 
     .rodata . : {
         __RODATA_START__ = .;
@@ -56,7 +71,11 @@ SECTIONS
 
         . = NEXT(PAGE_SIZE);
         __RODATA_END__ = .;
+#if BL2_IN_XIP_MEM
+    } >ROM
+#else
     } >RAM
+#endif
 
     ASSERT(__TEXT_RESIDENT_END__ - __TEXT_RESIDENT_START__ <= PAGE_SIZE,
           "Resident part of BL2 has exceeded its limit.")
@@ -95,11 +114,21 @@ SECTIONS
         . = NEXT(PAGE_SIZE);
 
         __RO_END__ = .;
+#if BL2_IN_XIP_MEM
+    } >ROM
+#else
     } >RAM
+#endif
 #endif
 
     ASSERT(__CPU_OPS_END__ > __CPU_OPS_START__,
           "cpu_ops not defined for this platform.")
+
+#if BL2_IN_XIP_MEM
+    . = BL2_RW_BASE;
+    ASSERT(BL2_RW_BASE == ALIGN(PAGE_SIZE),
+           "BL2_RW_BASE address is not aligned on a page boundary.")
+#endif
 
     /*
      * Define a linker symbol to mark start of the RW memory area for this
@@ -113,10 +142,14 @@ SECTIONS
      * section can be placed independently of the main .data section.
      */
     .data . : {
-        __DATA_START__ = .;
+        __DATA_RAM_START__ = .;
         *(.data*)
-        __DATA_END__ = .;
+        __DATA_RAM_END__ = .;
+#if BL2_IN_XIP_MEM
+    } >RAM AT>ROM
+#else
     } >RAM
+#endif
 
     stacks (NOLOAD) : {
         __STACKS_START__ = .;
@@ -174,12 +207,32 @@ SECTIONS
     __RW_END__ = .;
     __BL2_END__ = .;
 
+#if BL2_IN_XIP_MEM
+    __BL2_RAM_START__ = ADDR(.data);
+    __BL2_RAM_END__ = .;
+
+    __DATA_ROM_START__ = LOADADDR(.data);
+    __DATA_SIZE__ = SIZEOF(.data);
+
+    /*
+     * The .data section is the last PROGBITS section so its end marks the end
+     * of BL2's RO content in XIP memory..
+     */
+    __BL2_ROM_END__ =  __DATA_ROM_START__ + __DATA_SIZE__;
+    ASSERT(__BL2_ROM_END__ <= BL2_RO_LIMIT,
+           "BL2's RO content has exceeded its limit.")
+#endif
     __BSS_SIZE__ = SIZEOF(.bss);
+
 
 #if USE_COHERENT_MEM
     __COHERENT_RAM_UNALIGNED_SIZE__ =
         __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
 #endif
 
+#if BL2_IN_XIP_MEM
+    ASSERT(. <= BL2_RW_LIMIT, "BL2's RW content has exceeded its limit.")
+#else
     ASSERT(. <= BL2_LIMIT, "BL2 image has exceeded its limit.")
+#endif
 }
