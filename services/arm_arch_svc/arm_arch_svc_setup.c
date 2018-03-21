@@ -8,8 +8,8 @@
 #include <debug.h>
 #include <errata_report.h>
 #include <runtime_svc.h>
-#include <smcc.h>
-#include <smcc_helpers.h>
+#include <smccc.h>
+#include <smccc_helpers.h>
 #include <workaround_cve_2017_5715.h>
 
 static int32_t smccc_version(void)

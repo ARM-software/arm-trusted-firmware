@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #include <debug.h>
 #include <platform.h>
 #include <pmf.h>
-#include <smcc_helpers.h>
+#include <smccc_helpers.h>
 
 /*
  * This function is responsible for handling all PMF SMC calls.

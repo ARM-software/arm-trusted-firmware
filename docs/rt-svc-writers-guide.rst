@@ -108,7 +108,7 @@ initialization and call handler functions.
    is also used for diagnostic purposes
 
 -  ``_start`` and ``_end`` values must be based on the ``OEN_*`` values defined in
-   `smcc.h`_
+   `smccc.h`_
 
 -  ``_type`` must be one of ``SMC_TYPE_FAST`` or ``SMC_TYPE_YIELD``
 
@@ -311,5 +311,5 @@ provide this information....
 .. _services: ../services
 .. _lib/psci: ../lib/psci
 .. _runtime\_svc.h: ../include/common/runtime_svc.h
-.. _smcc.h: ../include/lib/smcc.h
+.. _smccc.h: ../include/lib/smccc.h
 .. _std\_svc\_setup.c: ../services/std_svc/std_svc_setup.c

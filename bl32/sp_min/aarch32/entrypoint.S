@@ -10,8 +10,8 @@
 #include <context.h>
 #include <el3_common_macros.S>
 #include <runtime_svc.h>
-#include <smcc_helpers.h>
-#include <smcc_macros.S>
+#include <smccc_helpers.h>
+#include <smccc_macros.S>
 #include <xlat_tables_defs.h>
 
 	.globl	sp_min_vector_table
@@ -164,7 +164,7 @@ func sp_min_handle_smc
 	/* On SMC entry, `sp` points to `smc_ctx_t`. Save `lr`. */
 	str	lr, [sp, #SMC_CTX_LR_MON]
 
-	smcc_save_gp_mode_regs
+	smccc_save_gp_mode_regs
 
 	clrex_on_monitor_entry
 
@@ -222,7 +222,7 @@ func sp_min_handle_fiq
 	/* On SMC entry, `sp` points to `smc_ctx_t`. Save `lr`. */
 	str	lr, [sp, #SMC_CTX_LR_MON]
 
-	smcc_save_gp_mode_regs
+	smccc_save_gp_mode_regs
 
 	clrex_on_monitor_entry
 

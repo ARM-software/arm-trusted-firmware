@@ -261,7 +261,7 @@ argument) determines the PSCI API to be called. The ``x1`` to ``x4`` (2nd to 5th
 arguments), are the values of the registers r1 - r4 (in AArch32) or x1 - x4
 (in AArch64) when the SMC is received. These are the arguments to PSCI API as
 described in `PSCI spec`_. The 'flags' (8th argument) is a bit field parameter
-and is detailed in 'smcc.h' header. It includes whether the call is from the
+and is detailed in 'smccc.h' header. It includes whether the call is from the
 secure or non-secure world. The ``cookie`` (6th argument) and the ``handle``
 (7th argument) are not used and are reserved for future use.
 

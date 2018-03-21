@@ -15,7 +15,7 @@
 #include <errno.h>
 #include <platform.h>
 #include <platform_def.h>
-#include <smcc_helpers.h>
+#include <smccc_helpers.h>
 #include <string.h>
 #include <utils.h>
 #include "bl1_private.h"

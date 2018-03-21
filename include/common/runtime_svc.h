@@ -8,7 +8,7 @@
 #define __RUNTIME_SVC_H__
 
 #include <bl_common.h>		/* to include exception types */
-#include <smcc_helpers.h>	/* to include SMCC definitions */
+#include <smccc_helpers.h>	/* to include SMCCC definitions */
 
 
 /*******************************************************************************

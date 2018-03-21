@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,7 +17,7 @@
 #include <platform_sp_min.h>
 #include <psci.h>
 #include <runtime_svc.h>
-#include <smcc_helpers.h>
+#include <smccc_helpers.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -32,7 +32,7 @@ static void *sp_min_cpu_ctx_ptr[PLATFORM_CORE_COUNT];
 static smc_ctx_t sp_min_smc_context[PLATFORM_CORE_COUNT];
 
 /******************************************************************************
- * Define the smcc helper library API's
+ * Define the smccc helper library API's
  *****************************************************************************/
 void *smc_get_ctx(unsigned int security_state)
 {
