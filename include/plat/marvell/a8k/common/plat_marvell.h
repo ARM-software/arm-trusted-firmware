@@ -94,6 +94,14 @@ void marvell_psci_arch_init(int ap_idx);
 void plat_marvell_system_reset(void);
 
 /*
+ * Miscellaneous platform SMC routines
+ */
+#ifdef MVEBU_PMU_IRQ_WA
+void mvebu_pmu_interrupt_enable(void);
+void mvebu_pmu_interrupt_disable(void);
+#endif
+
+/*
  * Optional functions required in Marvell standard platforms
  */
 void plat_marvell_io_setup(void);
