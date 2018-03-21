@@ -14,8 +14,8 @@
 #include <platform.h>
 #include <runtime_svc.h>
 #include <secure_partition.h>
-#include <smcc.h>
-#include <smcc_helpers.h>
+#include <smccc.h>
+#include <smccc_helpers.h>
 #include <spinlock.h>
 #include <spm_svc.h>
 #include <utils.h>

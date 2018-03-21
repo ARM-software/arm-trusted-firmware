@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -218,7 +218,7 @@ unexpected_sync_exception:
 smc_handler:
 	/* -----------------------------------------------------
 	 * Save the GP registers x0-x29.
-	 * TODO: Revisit to store only SMCC specified registers.
+	 * TODO: Revisit to store only SMCCC specified registers.
 	 * -----------------------------------------------------
 	 */
 	bl	save_gp_registers

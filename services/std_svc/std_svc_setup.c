@@ -12,7 +12,7 @@
 #include <runtime_instr.h>
 #include <runtime_svc.h>
 #include <sdei.h>
-#include <smcc_helpers.h>
+#include <smccc_helpers.h>
 #include <spm_svc.h>
 #include <std_svc.h>
 #include <stdint.h>

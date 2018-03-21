@@ -12,7 +12,7 @@
 #include <platform.h>
 #include <pmf.h>
 #include <runtime_instr.h>
-#include <smcc.h>
+#include <smccc.h>
 #include <string.h>
 #include "psci_private.h"
 
