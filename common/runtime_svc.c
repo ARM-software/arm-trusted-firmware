@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,8 +19,6 @@
  * 'rt_svc_descs_indices' array. This gives the index of the descriptor in the
  * 'rt_svc_descs' array which contains the SMC handler.
  ******************************************************************************/
-#define RT_SVC_DESCS_START	((uintptr_t) (&__RT_SVC_DESCS_START__))
-#define RT_SVC_DESCS_END	((uintptr_t) (&__RT_SVC_DESCS_END__))
 uint8_t rt_svc_descs_indices[MAX_RT_SVCS];
 static rt_svc_desc_t *rt_svc_descs;
 

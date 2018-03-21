@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,11 +12,10 @@
 #include <limits.h>
 #include <stdint.h>
 #include <string.h>
+#include <utils_def.h>
 
-extern uintptr_t __PARSER_LIB_DESCS_START__;
-extern uintptr_t __PARSER_LIB_DESCS_END__;
-#define PARSER_LIB_DESCS_START	((uintptr_t) (&__PARSER_LIB_DESCS_START__))
-#define PARSER_LIB_DESCS_END	((uintptr_t) (&__PARSER_LIB_DESCS_END__))
+IMPORT_SYM(uintptr_t, __PARSER_LIB_DESCS_START__,	PARSER_LIB_DESCS_START);
+IMPORT_SYM(uintptr_t, __PARSER_LIB_DESCS_END__,		PARSER_LIB_DESCS_END);
 static unsigned int parser_lib_indices[IMG_MAX_TYPES];
 static img_parser_lib_desc_t *parser_lib_descs;
 

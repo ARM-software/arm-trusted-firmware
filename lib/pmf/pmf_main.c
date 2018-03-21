@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 #include <platform.h>
 #include <pmf.h>
 #include <string.h>
+#include <utils_def.h>
 
 /*******************************************************************************
  * The 'pmf_svc_descs' array holds the PMF service descriptors exported by
@@ -21,16 +22,12 @@
  * index of the descriptor in the 'pmf_svc_descs' array  which contains the
  * service function pointers.
  ******************************************************************************/
-extern uintptr_t __PMF_SVC_DESCS_START__;
-extern uintptr_t __PMF_SVC_DESCS_END__;
-#define PMF_SVC_DESCS_START		((uintptr_t)(&__PMF_SVC_DESCS_START__))
-#define PMF_SVC_DESCS_END		((uintptr_t)(&__PMF_SVC_DESCS_END__))
-extern void *__PERCPU_TIMESTAMP_SIZE__;
-#define PMF_PERCPU_TIMESTAMP_SIZE	((uintptr_t)&__PERCPU_TIMESTAMP_SIZE__)
-extern uintptr_t __PMF_TIMESTAMP_START__;
-#define PMF_TIMESTAMP_ARRAY_START	((uintptr_t)&__PMF_TIMESTAMP_START__)
-extern uintptr_t __PMF_TIMESTAMP_END__;
-#define PMF_TIMESTAMP_ARRAY_END		((uintptr_t)&__PMF_TIMESTAMP_END__)
+
+IMPORT_SYM(uintptr_t, __PMF_SVC_DESCS_START__,		PMF_SVC_DESCS_START);
+IMPORT_SYM(uintptr_t, __PMF_SVC_DESCS_END__,		PMF_SVC_DESCS_END);
+IMPORT_SYM(uintptr_t, __PERCPU_TIMESTAMP_SIZE__,	PMF_PERCPU_TIMESTAMP_SIZE);
+IMPORT_SYM(intptr_t,  __PMF_TIMESTAMP_START__,		PMF_TIMESTAMP_ARRAY_START);
+IMPORT_SYM(uintptr_t, __PMF_TIMESTAMP_END__,		PMF_TIMESTAMP_ARRAY_END);
 
 #define PMF_SVC_DESCS_MAX		10
 

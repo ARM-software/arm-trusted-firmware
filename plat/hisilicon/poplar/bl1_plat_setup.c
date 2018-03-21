@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,13 +22,6 @@
 #include "../../bl1/bl1_private.h"
 #include "hi3798cv200.h"
 #include "plat_private.h"
-
-/* Symbols from link script for conherent section */
-extern unsigned long __COHERENT_RAM_START__;
-extern unsigned long __COHERENT_RAM_END__;
-
-#define BL1_COHERENT_RAM_BASE	(unsigned long)(&__COHERENT_RAM_START__)
-#define BL1_COHERENT_RAM_LIMIT	(unsigned long)(&__COHERENT_RAM_END__)
 
 /* Data structure which holds the extents of the trusted RAM for BL1 */
 static meminfo_t bl1_tzram_layout;
@@ -92,8 +85,8 @@ void bl1_plat_arch_setup(void)
 			       bl1_tzram_layout.total_size,
 			       BL1_RO_BASE, /* l-loader and BL1 ROM */
 			       BL1_RO_LIMIT,
-			       BL1_COHERENT_RAM_BASE,
-			       BL1_COHERENT_RAM_LIMIT);
+			       BL_COHERENT_RAM_BASE,
+			       BL_COHERENT_RAM_END);
 }
 
 void bl1_platform_setup(void)

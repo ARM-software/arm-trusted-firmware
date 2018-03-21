@@ -23,23 +23,6 @@
 #include "hikey_def.h"
 #include "hikey_private.h"
 
-/*
- * Declarations of linker defined symbols which will help us find the layout
- * of trusted RAM
- */
-extern unsigned long __COHERENT_RAM_START__;
-extern unsigned long __COHERENT_RAM_END__;
-
-/*
- * The next 2 constants identify the extents of the coherent memory region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols refer to
- * page-aligned addresses.
- */
-#define BL1_COHERENT_RAM_BASE (unsigned long)(&__COHERENT_RAM_START__)
-#define BL1_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
-
 /* Data structure which holds the extents of the trusted RAM for BL1 */
 static meminfo_t bl1_tzram_layout;
 
@@ -103,8 +86,8 @@ void bl1_plat_arch_setup(void)
 			   bl1_tzram_layout.total_size,
 			   BL1_RO_BASE,
 			   BL1_RO_LIMIT,
-			   BL1_COHERENT_RAM_BASE,
-			   BL1_COHERENT_RAM_LIMIT);
+			   BL_COHERENT_RAM_BASE,
+			   BL_COHERENT_RAM_END);
 }
 
 /*

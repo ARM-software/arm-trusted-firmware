@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -74,33 +74,13 @@
  * page of it with the right memory attributes.
  */
 #if SEPARATE_CODE_AND_RODATA
-#define BL_CODE_BASE		(unsigned long)(&__TEXT_START__)
-#define BL_CODE_END		(unsigned long)(&__TEXT_END__)
-#define BL_RO_DATA_BASE		(unsigned long)(&__RODATA_START__)
-#define BL_RO_DATA_END		(unsigned long)(&__RODATA_END__)
 
 #define BL1_CODE_END		BL_CODE_END
-#define BL1_RO_DATA_BASE	(unsigned long)(&__RODATA_START__)
+#define BL1_RO_DATA_BASE	BL_RO_DATA_BASE
 #define BL1_RO_DATA_END		round_up(BL1_ROM_END, PAGE_SIZE)
 #else
-#define BL_CODE_BASE		(unsigned long)(&__RO_START__)
-#define BL_CODE_END		(unsigned long)(&__RO_END__)
 #define BL_RO_DATA_BASE		0
 #define BL_RO_DATA_END		0
-
 #define BL1_CODE_END		round_up(BL1_ROM_END, PAGE_SIZE)
-#define BL1_RO_DATA_BASE	0
-#define BL1_RO_DATA_END		0
 #endif /* SEPARATE_CODE_AND_RODATA */
-
-/*
- * The next 2 constants identify the extents of the coherent memory region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __COHERENT_RAM_START__ and __COHERENT_RAM_END__ linker symbols refer to
- * page-aligned addresses.
- */
-#define BL_COHERENT_RAM_BASE	(unsigned long)(&__COHERENT_RAM_START__)
-#define BL_COHERENT_RAM_END	(unsigned long)(&__COHERENT_RAM_END__)
-
 #endif /* __COMMON_DEF_H__ */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -98,5 +98,22 @@
 #define ARM_ARCH_AT_LEAST(_maj, _min) \
 	((ARM_ARCH_MAJOR > _maj) || \
 	 ((ARM_ARCH_MAJOR == _maj) && (ARM_ARCH_MINOR >= _min)))
+
+/*
+ * Import an assembly or linker symbol as a C expression with the specified
+ * type
+ */
+#define IMPORT_SYM(type, sym, name) \
+	extern char sym[];\
+	static const __attribute__((unused)) type name = (type) sym;
+
+/*
+ * When the symbol is used to hold a pointer, its alignment can be asserted
+ * with this macro. For example, if there is a linker symbol that is going to
+ * be used as a 64-bit pointer, the value of the linker symbol must also be
+ * aligned to 64 bit. This macro makes sure this is the case.
+ */
+#define ASSERT_SYM_PTR_ALIGN(sym) assert(((size_t)(sym) % __alignof__(*(sym))) == 0)
+
 
 #endif /* __UTILS_DEF_H__ */

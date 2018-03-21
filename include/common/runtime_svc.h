@@ -122,8 +122,8 @@ CASSERT(RT_SVC_DESC_HANDLE == __builtin_offsetof(rt_svc_desc_t, handle), \
 void runtime_svc_init(void);
 uintptr_t handle_runtime_svc(uint32_t smc_fid, void *cookie, void *handle,
 						unsigned int flags);
-extern uintptr_t __RT_SVC_DESCS_START__;
-extern uintptr_t __RT_SVC_DESCS_END__;
+IMPORT_SYM(uintptr_t, __RT_SVC_DESCS_START__,		RT_SVC_DESCS_START);
+IMPORT_SYM(uintptr_t, __RT_SVC_DESCS_END__,		RT_SVC_DESCS_END);
 void init_crash_reporting(void);
 
 extern uint8_t rt_svc_descs_indices[MAX_RT_SVCS];

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,21 +8,17 @@
 #define __SPM_SHIM_PRIVATE__
 
 #include <types.h>
+#include <utils_def.h>
 
 /* Assembly source */
-extern uintptr_t spm_shim_exceptions_ptr;
+IMPORT_SYM(uintptr_t, spm_shim_exceptions_ptr,		SPM_SHIM_EXCEPTIONS_PTR);
 
 /* Linker symbols */
-extern uintptr_t __SPM_SHIM_EXCEPTIONS_START__;
-extern uintptr_t __SPM_SHIM_EXCEPTIONS_END__;
+IMPORT_SYM(uintptr_t, __SPM_SHIM_EXCEPTIONS_START__,	SPM_SHIM_EXCEPTIONS_START);
+IMPORT_SYM(uintptr_t, __SPM_SHIM_EXCEPTIONS_END__,	SPM_SHIM_EXCEPTIONS_END);
 
 /* Definitions */
-#define SPM_SHIM_EXCEPTIONS_PTR		(uintptr_t)(&spm_shim_exceptions_ptr)
 
-#define SPM_SHIM_EXCEPTIONS_START	\
-	(uintptr_t)(&__SPM_SHIM_EXCEPTIONS_START__)
-#define SPM_SHIM_EXCEPTIONS_END		\
-	(uintptr_t)(&__SPM_SHIM_EXCEPTIONS_END__)
 #define SPM_SHIM_EXCEPTIONS_SIZE	\
 	(SPM_SHIM_EXCEPTIONS_END - SPM_SHIM_EXCEPTIONS_START)
 
