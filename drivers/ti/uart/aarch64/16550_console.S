@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,10 +17,11 @@
 	.globl console_16550_core_init
 	.globl console_16550_core_putc
 	.globl console_16550_core_getc
+	.globl console_16550_core_flush
 
 	.globl console_16550_putc
 	.globl console_16550_getc
-
+	.globl console_16550_flush
 
 	/* -----------------------------------------------
 	 * int console_16550_core_init(uintptr_t base_addr,
@@ -119,6 +120,7 @@ endfunc console_16550_register
 	.equ console_core_init,console_16550_core_init
 	.equ console_core_putc,console_16550_core_putc
 	.equ console_core_getc,console_16550_core_getc
+	.equ console_core_flush,console_16550_core_flush
 #endif
 
 	/* --------------------------------------------------------
@@ -222,8 +224,7 @@ func console_16550_getc
 endfunc console_16550_getc
 
 	/* ---------------------------------------------
-	 * int console_core_flush(uintptr_t base_addr)
-	 * DEPRECATED: Not used with MULTI_CONSOLE_API!
+	 * int console_16550_core_flush(uintptr_t base_addr)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - console base address
@@ -231,8 +232,36 @@ endfunc console_16550_getc
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
-func console_core_flush
-	/* Placeholder */
+func console_16550_core_flush
+#if ENABLE_ASSERTIONS
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
+
+	/* Loop until the transmit FIFO is empty */
+1:	ldr	w1, [x0, #UARTLSR]
+	and	w1, w1, #(UARTLSR_TEMT | UARTLSR_THRE)
+	cmp	w1, #(UARTLSR_TEMT | UARTLSR_THRE)
+	b.ne	1b
+
 	mov	w0, #0
 	ret
-endfunc console_core_flush
+endfunc console_16550_core_flush
+
+	/* ---------------------------------------------
+	 * int console_16550_flush(console_pl011_t *console)
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * In : x0 - pointer to console_t structure
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : x0, x1
+	 * ---------------------------------------------
+	 */
+func console_16550_flush
+#if ENABLE_ASSERTIONS
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
+	ldr	x0, [x0, #CONSOLE_T_16550_BASE]
+	b	console_16550_core_flush
+endfunc console_16550_flush
