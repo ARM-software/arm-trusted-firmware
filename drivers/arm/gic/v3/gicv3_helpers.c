@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -232,12 +232,15 @@ void gicr_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri)
  */
 void gicr_set_icfgr0(uintptr_t base, unsigned int id, unsigned int cfg)
 {
-	unsigned bit_num = id & ((1 << ICFGR_SHIFT) - 1);
+	/* Interrupt configuration is a 2-bit field */
+	unsigned int bit_num = id & ((1 << ICFGR_SHIFT) - 1);
+	unsigned int bit_shift = bit_num << 1;
+
 	uint32_t reg_val = gicr_read_icfgr0(base);
 
 	/* Clear the field, and insert required configuration */
-	reg_val &= ~(GIC_CFG_MASK << bit_num);
-	reg_val |= ((cfg & GIC_CFG_MASK) << bit_num);
+	reg_val &= ~(GIC_CFG_MASK << bit_shift);
+	reg_val |= ((cfg & GIC_CFG_MASK) << bit_shift);
 
 	gicr_write_icfgr0(base, reg_val);
 }
@@ -248,12 +251,15 @@ void gicr_set_icfgr0(uintptr_t base, unsigned int id, unsigned int cfg)
  */
 void gicr_set_icfgr1(uintptr_t base, unsigned int id, unsigned int cfg)
 {
-	unsigned bit_num = id & ((1 << ICFGR_SHIFT) - 1);
+	/* Interrupt configuration is a 2-bit field */
+	unsigned int bit_num = id & ((1 << ICFGR_SHIFT) - 1);
+	unsigned int bit_shift = bit_num << 1;
+
 	uint32_t reg_val = gicr_read_icfgr1(base);
 
 	/* Clear the field, and insert required configuration */
-	reg_val &= ~(GIC_CFG_MASK << bit_num);
-	reg_val |= ((cfg & GIC_CFG_MASK) << bit_num);
+	reg_val &= ~(GIC_CFG_MASK << bit_shift);
+	reg_val |= ((cfg & GIC_CFG_MASK) << bit_shift);
 
 	gicr_write_icfgr1(base, reg_val);
 }
