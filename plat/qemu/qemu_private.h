@@ -34,4 +34,7 @@ unsigned int plat_qemu_calc_core_pos(u_register_t mpidr);
 int dt_add_psci_node(void *fdt);
 int dt_add_psci_cpu_enable_methods(void *fdt);
 
+void qemu_console_init(void);
+void qemu_crash_console_init(void);
+
 #endif /*__QEMU_PRIVATE_H*/

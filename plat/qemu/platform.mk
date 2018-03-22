@@ -47,8 +47,9 @@ $(eval $(call assert_boolean,ARM_XLAT_TABLES_LIB_V1))
 $(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
 
 
-PLAT_BL_COMMON_SOURCES	:=	plat/qemu/qemu_common.c			\
-				drivers/arm/pl011/${ARCH}/pl011_console.S
+PLAT_BL_COMMON_SOURCES	:=	plat/qemu/qemu_common.c			  \
+				plat/qemu/qemu_console.c		  \
+				drivers/arm/pl011/${ARCH}/pl011_console.S \
 
 ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
 PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/xlat_tables_common.c		\
@@ -168,6 +169,7 @@ $(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2))
 endif
 
 SEPARATE_CODE_AND_RODATA := 1
+MULTI_CONSOLE_API	 := 1
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:= 	0

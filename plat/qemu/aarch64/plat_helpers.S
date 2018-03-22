@@ -14,11 +14,12 @@
 	.globl	platform_mem_init
 	.globl	plat_qemu_calc_core_pos
 	.globl	plat_crash_console_init
+#if MULTI_CONSOLE_API
 	.globl	plat_crash_console_putc
+#endif /* MULTI_CONSOLE_API */
 	.globl  plat_secondary_cold_boot_setup
 	.globl  plat_get_my_entrypoint
 	.globl  plat_is_my_cpu_primary
-
 
 func plat_my_core_pos
 	mrs	x0, mpidr_el1
@@ -96,10 +97,7 @@ endfunc platform_mem_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-	mov_imm	x0, PLAT_QEMU_CRASH_UART_BASE
-	mov_imm	x1, PLAT_QEMU_CRASH_UART_CLK_IN_HZ
-	mov_imm	x2, PLAT_QEMU_CONSOLE_BAUDRATE
-	b	console_core_init
+	b	qemu_crash_console_init
 endfunc plat_crash_console_init
 
 	/* ---------------------------------------------
@@ -109,9 +107,10 @@ endfunc plat_crash_console_init
 	 * Clobber list : x1, x2
 	 * ---------------------------------------------
 	 */
+#if !MULTI_CONSOLE_API
 func plat_crash_console_putc
 	mov_imm	x1, PLAT_QEMU_CRASH_UART_BASE
 	b	console_core_putc
 endfunc plat_crash_console_putc
-
+#endif /* MULTI_CONSOLE_API */
 
