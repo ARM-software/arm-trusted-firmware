@@ -14,12 +14,12 @@
 #include <errno.h>
 #include <gicv2.h>
 #include <hi6220.h>
+#include <hikey_def.h>
 #include <hisi_ipc.h>
 #include <hisi_pwrc.h>
 #include <mmio.h>
 #include <platform_def.h>
 
-#include "hikey_def.h"
 #include "hikey_private.h"
 
 /*

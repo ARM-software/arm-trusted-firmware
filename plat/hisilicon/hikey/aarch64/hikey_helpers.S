@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch.h>
 #include <asm_macros.S>
-#include "../hikey_def.h"
+#include <hikey_def.h>
 
 	.globl	plat_my_core_pos
 	.globl	platform_mem_init
