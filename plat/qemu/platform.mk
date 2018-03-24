@@ -169,7 +169,12 @@ $(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2))
 endif
 
 SEPARATE_CODE_AND_RODATA := 1
-MULTI_CONSOLE_API	 := 1
+
+# Use MULTI_CONSOLE_API by default only on AArch64
+# as it is not yet supported on AArch32
+ifeq ($(ARCH),aarch64)
+MULTI_CONSOLE_API	:= 1
+endif
 
 # Disable the PSCI platform compatibility layer
 ENABLE_PLAT_COMPAT	:= 	0

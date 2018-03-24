@@ -66,6 +66,8 @@ int console_flush(void);
 /* REMOVED on AArch64 -- use console_<driver>_register() instead! */
 int console_init(uintptr_t base_addr,
 		 unsigned int uart_clk, unsigned int baud_rate);
+int console_core_init(uintptr_t base_addr,
+		      unsigned int uart_clk, unsigned int baud_rate);
 void console_uninit(void);
 #endif
 

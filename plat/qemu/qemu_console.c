@@ -7,8 +7,10 @@
 #include <pl011.h>
 #include <platform_def.h>
 
+#if MULTI_CONSOLE_API
 static console_pl011_t console;
 static console_pl011_t crash_console;
+#endif /* MULTI_CONSOLE_API */
 
 void qemu_console_init(void)
 {
