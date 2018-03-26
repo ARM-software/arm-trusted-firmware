@@ -103,3 +103,52 @@ int crypto_mod_verify_hash(void *data_ptr, unsigned int data_len,
 	return crypto_lib_desc.verify_hash(data_ptr, data_len,
 					   digest_info_ptr, digest_info_len);
 }
+
+/*
+ * Initilaize context of the hash function
+ *
+ * Parameters:
+ *
+ *   algo: Hash algorithm
+ *   ctx: Context to be initialized
+ */
+int crypto_hash_init(enum hash_algo algo, void **ctx)
+{
+	return crypto_lib_desc.hash_init(algo, ctx);
+}
+
+/*
+ * Calculate hash of chunk of data
+ *
+ * Parameters:
+ *
+ *   algo: Hash algorithm
+ *   ctx: Context to be initialized
+ *   data_ptr, data_len: data to be hashed
+ */
+int crypto_hash_update(enum hash_algo algo, void *ctx, void *data_ptr,
+		       unsigned int data_len)
+{
+	assert(data_ptr != NULL);
+	assert(data_len != 0);
+	assert(ctx != NULL);
+	return crypto_lib_desc.hash_update(algo, ctx, data_ptr, data_len);
+}
+
+/*
+ * Return hash of the chunks added via hash_update function
+ *
+ * Parameters:
+ *
+ *   algo: Hash algorithm
+ *   ctx: Context to be initialized
+ *   hash_ptr, hash_len: Calculated hash 
+ */
+int crypto_hash_final(enum hash_algo algo, void *ctx, void *hash_ptr,
+		      unsigned int hash_len)
+{
+	assert(hash_ptr != NULL);
+	assert(hash_len != 0);
+	assert(ctx != NULL);
+	return crypto_lib_desc.hash_final(algo, ctx, hash_ptr, hash_len);
+}
