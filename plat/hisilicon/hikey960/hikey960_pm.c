@@ -9,6 +9,7 @@
 #include <cci.h>
 #include <console.h>
 #include <debug.h>
+#include <delay_timer.h>
 #include <gicv2.h>
 #include <hi3660.h>
 #include <hi3660_crg.h>
@@ -114,6 +115,9 @@ void hikey960_pwr_domain_off(const psci_power_state_t *target_state)
 
 static void __dead2 hikey960_system_reset(void)
 {
+	dsb();
+	isb();
+	mdelay(2000);
 	mmio_write_32(SCTRL_SCPEREN1_REG,
 		      SCPEREN1_WAIT_DDR_SELFREFRESH_DONE_BYPASS);
 	mmio_write_32(SCTRL_SCSYSSTAT_REG, 0xdeadbeef);
