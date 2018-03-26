@@ -208,3 +208,11 @@ endif
 
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
+
+# FVP being a development platform, enable capability to disable Authentication
+# dynamically if TRUSTED_BOARD_BOOT and LOAD_IMAGE_V2 is set.
+ifeq (${TRUSTED_BOARD_BOOT}, 1)
+    ifeq (${LOAD_IMAGE_V2}, 1)
+        DYN_DISABLE_AUTH	:=	1
+    endif
+endif

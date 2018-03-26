@@ -64,6 +64,51 @@ int arm_dyn_get_hwconfig_info(void *dtb, int node,
 }
 
 /*******************************************************************************
+ * Helper to read the `disable_auth` property in config DTB. This function
+ * expects the following properties to be present in the config DTB.
+ *	name : disable_auth		size : 1 cell
+ *
+ * Arguments:
+ *	void *dtb		 - pointer to the TB_FW_CONFIG in memory
+ *	int node		 - The node offset to appropriate node in the
+ *				   DTB.
+ *	uint64_t *disable_auth	 - The value of `disable_auth` property on
+ *				   successful read. Must be 0 or 1.
+ *
+ * Returns 0 on success and -1 on error.
+ ******************************************************************************/
+int arm_dyn_get_disable_auth(void *dtb, int node, uint32_t *disable_auth)
+{
+	int err;
+
+	assert(dtb != NULL);
+	assert(disable_auth != NULL);
+
+	/* Check if the pointer to DT is correct */
+	assert(fdt_check_header(dtb) == 0);
+
+	/* Assert the node offset point to "arm,tb_fw" compatible property */
+	assert(node == fdt_node_offset_by_compatible(dtb, -1, "arm,tb_fw"));
+
+	/* Locate the disable_auth cell and read the value */
+	err = fdtw_read_cells(dtb, node, "disable_auth", 1, disable_auth);
+	if (err < 0) {
+		WARN("Read cell failed for `disable_auth`\n");
+		return -1;
+	}
+
+	/* Check if the value is boolean */
+	if (*disable_auth != 0 && *disable_auth != 1) {
+		WARN("Invalid value for `disable_auth` cell %d\n", *disable_auth);
+		return -1;
+	}
+
+	VERBOSE("Dyn cfg: `disable_auth` cell found with value = %d\n",
+					*disable_auth);
+	return 0;
+}
+
+/*******************************************************************************
  * Validate the tb_fw_config is a valid DTB file and returns the node offset
  * to "arm,tb_fw" property.
  * Arguments:

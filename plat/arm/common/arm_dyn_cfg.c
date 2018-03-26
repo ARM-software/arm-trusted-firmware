@@ -54,6 +54,24 @@ void arm_load_tb_fw_config(void)
 
 	INFO("BL1: TB_FW_CONFIG loaded at address = %p\n",
 			(void *) config_base);
+
+#if TRUSTED_BOARD_BOOT && defined(DYN_DISABLE_AUTH)
+	int tb_fw_node;
+	uint32_t disable_auth = 0;
+
+	err = arm_dyn_tb_fw_cfg_init((void *)config_base, &tb_fw_node);
+	if (err < 0) {
+		WARN("Invalid TB_FW_CONFIG loaded\n");
+		return;
+	}
+
+	err = arm_dyn_get_disable_auth((void *)config_base, tb_fw_node, &disable_auth);
+	if (err < 0)
+		return;
+
+	if (disable_auth == 1)
+		dyn_disable_auth();
+#endif
 }
 
 /*
@@ -104,6 +122,18 @@ void arm_bl2_dyn_cfg_init(void)
 
 	/* Remove the IMAGE_ATTRIB_SKIP_LOADING attribute from HW_CONFIG node */
 	hw_cfg_mem_params->image_info.h.attr &= ~IMAGE_ATTRIB_SKIP_LOADING;
+
+#if TRUSTED_BOARD_BOOT && defined(DYN_DISABLE_AUTH)
+	uint32_t disable_auth = 0;
+
+	err = arm_dyn_get_disable_auth((void *)tb_fw_cfg_dtb, tb_fw_node,
+					&disable_auth);
+	if (err < 0)
+		return;
+
+	if (disable_auth == 1)
+		dyn_disable_auth();
+#endif
 }
 
 #endif /* LOAD_IMAGE_V2 */
