@@ -24,4 +24,10 @@
 #define CORTEX_ARES_AMU_NR_COUNTERS	U(5)
 #define CORTEX_ARES_AMU_GROUP0_MASK	U(0x1f)
 
+/* Instruction patching registers */
+#define CPUPSELR_EL3	S3_6_C15_C8_0
+#define CPUPCR_EL3	S3_6_C15_C8_1
+#define CPUPOR_EL3	S3_6_C15_C8_2
+#define CPUPMR_EL3	S3_6_C15_C8_3
+
 #endif /* __CORTEX_ARES_H__ */
