@@ -278,8 +278,8 @@
 		 * an earlier boot loader stage.
 		 * -------------------------------------------------------------
 		 */
-		adr	x0, __RW_START__
-		adr	x1, __RW_END__
+		ldr	x0, =__RW_START__
+		ldr	x1, =__RW_END__
 		sub	x1, x1, x0
 		bl	inv_dcache_range
 #endif
