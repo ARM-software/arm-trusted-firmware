@@ -9,7 +9,6 @@
 
 #if MULTI_CONSOLE_API
 static console_pl011_t console;
-static console_pl011_t crash_console;
 #endif /* MULTI_CONSOLE_API */
 
 void qemu_console_init(void)
@@ -18,6 +17,9 @@ void qemu_console_init(void)
 	(void)console_pl011_register(PLAT_QEMU_BOOT_UART_BASE,
 			       PLAT_QEMU_BOOT_UART_CLK_IN_HZ,
 			       PLAT_QEMU_CONSOLE_BAUDRATE, &console);
+
+	console_set_scope(&console.console, CONSOLE_FLAG_BOOT |
+			  CONSOLE_FLAG_RUNTIME);
 #else
 	console_init(PLAT_QEMU_BOOT_UART_BASE,
 		     PLAT_QEMU_BOOT_UART_CLK_IN_HZ,
@@ -25,15 +27,3 @@ void qemu_console_init(void)
 #endif /* MULTI_CONSOLE_API */
 }
 
-void qemu_crash_console_init(void)
-{
-#if MULTI_CONSOLE_API
-	(void)console_pl011_register(PLAT_QEMU_CRASH_UART_BASE,
-			       PLAT_QEMU_CRASH_UART_CLK_IN_HZ,
-			       PLAT_QEMU_CONSOLE_BAUDRATE, &crash_console);
-#else
-	console_core_init(PLAT_QEMU_CRASH_UART_BASE,
-			  PLAT_QEMU_CRASH_UART_CLK_IN_HZ,
-			  PLAT_QEMU_CONSOLE_BAUDRATE);
-#endif /* MULTI_CONSOLE_API */
-}
