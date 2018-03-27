@@ -247,6 +247,11 @@ The following is not currently supported:
 
 - ``LOAD_IMAGE_V2=0``: Only version 2 is supported.
 
+- ``MULTI_CONSOLE_API=0``: The multi console API must be enabled. Note that the
+  crash console uses the internal 16550 driver functions directly in order to be
+  able to print error messages during early crashes before setting up the
+  multi console API.
+
 AArch64 kernel build instructions
 ---------------------------------
 
@@ -300,7 +305,7 @@ Setup SD card
 
 The instructions assume that you have an SD card with a fresh install of
 `Raspbian`_ (or that, at least, the ``boot`` partition is untouched, or nearly
-untouched). They have been tested with the image available in 2017-09-07.
+untouched). They have been tested with the image available in 2018-03-13.
 
 1. Insert the SD card and open the ``boot`` partition.
 

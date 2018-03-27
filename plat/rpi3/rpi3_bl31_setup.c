@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
 #include <bl_common.h>
-#include <console.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <xlat_mmu_helpers.h>
@@ -58,8 +57,7 @@ void bl31_early_platform_setup(void *from_bl2,
 			       void *plat_params_from_bl2)
 {
 	/* Initialize the console to provide early debug support */
-	console_init(PLAT_RPI3_UART_BASE, PLAT_RPI3_UART_CLK_IN_HZ,
-		     PLAT_RPI3_UART_BAUDRATE);
+	rpi3_console_init();
 
 #if RESET_TO_BL31
 
@@ -158,11 +156,4 @@ void bl31_platform_setup(void)
 #endif /* RESET_TO_BL31 */
 
 	return;
-}
-
-void bl31_plat_runtime_setup(void)
-{
-	/* Initialize the runtime console */
-	console_init(PLAT_RPI3_UART_BASE, PLAT_RPI3_UART_CLK_IN_HZ,
-		     PLAT_RPI3_UART_BAUDRATE);
 }

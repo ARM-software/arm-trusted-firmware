@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,6 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <console.h>
 #include <debug.h>
 #include <desc_image_load.h>
 #include <platform_def.h>
@@ -27,8 +26,7 @@ static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 void bl2_early_platform_setup(meminfo_t *mem_layout)
 {
 	/* Initialize the console to provide early debug support */
-	console_init(PLAT_RPI3_UART_BASE, PLAT_RPI3_UART_CLK_IN_HZ,
-		     PLAT_RPI3_UART_BAUDRATE);
+	rpi3_console_init();
 
 	/* Setup the BL2 memory layout */
 	bl2_tzram_layout = *mem_layout;
@@ -40,7 +38,7 @@ void bl2_platform_setup(void)
 {
 	/*
 	 * This is where a TrustZone address space controller and other
-	 * security related peripherals, would be configured.
+	 * security related peripherals would be configured.
 	 */
 }
 

@@ -1,14 +1,16 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch_helpers.h>
 #include <bl_common.h>
+#include <console.h>
 #include <debug.h>
 #include <interrupt_mgmt.h>
 #include <platform_def.h>
+#include <uart_16550.h>
 #include <xlat_tables_v2.h>
 
 #include "rpi3_hw.h"
@@ -67,6 +69,30 @@ static const mmap_region_t plat_rpi3_mmap[] = {
 	{0}
 };
 #endif
+
+/*******************************************************************************
+ * Function that sets up the console
+ ******************************************************************************/
+static console_16550_t rpi3_console;
+
+void rpi3_console_init(void)
+{
+	int rc = console_16550_register(PLAT_RPI3_UART_BASE,
+					PLAT_RPI3_UART_CLK_IN_HZ,
+					PLAT_RPI3_UART_BAUDRATE,
+					&rpi3_console);
+	if (rc == 0) {
+		/*
+		 * The crash console doesn't use the multi console API, it uses
+		 * the core console functions directly. It is safe to call panic
+		 * and let it print debug information.
+		 */
+		panic();
+	}
+
+	console_set_scope(&rpi3_console.console,
+			  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
+}
 
 /*******************************************************************************
  * Function that sets up the translation tables.
