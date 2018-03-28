@@ -230,6 +230,7 @@ CPU_OPS_SIZE = .
 
 	/* Check whether errata applies */
 	mov	x0, \_rev_var
+	/* Shall clobber: x0-x7 */
 	bl	check_errata_\_id
 
 	.ifeq \_chosen
