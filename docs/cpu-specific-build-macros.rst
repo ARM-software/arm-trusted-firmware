@@ -18,7 +18,11 @@ TF-A exports a series of build flags which control which security
 vulnerability workarounds should be applied at runtime.
 
 -  ``WORKAROUND_CVE_2017_5715``: Enables the security workaround for
-   `CVE-2017-5715`_. Defaults to 1.
+   `CVE-2017-5715`_. This flag can be set to 0 by the platform if none
+   of the PEs in the system need the workaround. Setting this flag to 0 provides
+   no performance benefit for non-affected platforms, it just helps to comply
+   with the recommendation in the spec regarding workaround discovery.
+   Defaults to 1.
 
 CPU Errata Workarounds
 ----------------------
