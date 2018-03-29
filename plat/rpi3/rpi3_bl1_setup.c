@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,6 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <bl_common.h>
-#include <console.h>
 #include <platform_def.h>
 #include <xlat_mmu_helpers.h>
 #include <xlat_tables_defs.h>
@@ -29,8 +28,7 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
 void bl1_early_platform_setup(void)
 {
 	/* Initialize the console to provide early debug support */
-	console_init(PLAT_RPI3_UART_BASE, PLAT_RPI3_UART_CLK_IN_HZ,
-		     PLAT_RPI3_UART_BAUDRATE);
+	rpi3_console_init();
 
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_tzram_layout.total_base = BL_RAM_BASE;

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -81,6 +81,9 @@ USE_COHERENT_MEM		:= 1
 # Enable new version of image loading
 LOAD_IMAGE_V2			:= 1
 
+# Use multi console API
+MULTI_CONSOLE_API		:= 1
+
 # Platform build flags
 # --------------------
 
@@ -108,6 +111,10 @@ $(eval $(call add_define,RPI3_BL33_IN_AARCH32))
 
 ifneq (${LOAD_IMAGE_V2}, 1)
   $(error Error: rpi3 needs LOAD_IMAGE_V2=1)
+endif
+
+ifneq (${MULTI_CONSOLE_API}, 1)
+  $(error Error: rpi3 needs MULTI_CONSOLE_API=1)
 endif
 
 ifeq (${ARCH},aarch32)
