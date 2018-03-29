@@ -123,6 +123,16 @@ static ext_t tbb_ext[] = {
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH
 	},
+	[SOC_FW_CONFIG_HASH_EXT] = {
+		.oid = SOC_FW_CONFIG_HASH_OID,
+		.opt = "soc-fw-config",
+		.help_msg = "SoC Firmware Config file",
+		.sn = "SocFirmwareConfigHash",
+		.ln = "SoC Firmware Config hash",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
 	[TRUSTED_OS_FW_CONTENT_CERT_PK_EXT] = {
 		.oid = TRUSTED_OS_FW_CONTENT_CERT_PK_OID,
 		.sn = "TrustedOSFirmwareContentCertPK",
@@ -160,6 +170,16 @@ static ext_t tbb_ext[] = {
 		.type = EXT_TYPE_HASH,
 		.optional = 1
 	},
+	[TRUSTED_OS_FW_CONFIG_HASH_EXT] = {
+		.oid = TRUSTED_OS_FW_CONFIG_HASH_OID,
+		.opt = "tos-fw-config",
+		.help_msg = "Trusted OS Firmware Config file",
+		.sn = "TrustedOSFirmwareConfigHash",
+		.ln = "Trusted OS Firmware Config hash",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
 	[NON_TRUSTED_FW_CONTENT_CERT_PK_EXT] = {
 		.oid = NON_TRUSTED_FW_CONTENT_CERT_PK_OID,
 		.sn = "NonTrustedFirmwareContentCertPK",
@@ -176,6 +196,16 @@ static ext_t tbb_ext[] = {
 		.ln = "Non-Trusted World hash (SHA256)",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH
+	},
+	[NON_TRUSTED_FW_CONFIG_HASH_EXT] = {
+		.oid = NON_TRUSTED_FW_CONFIG_HASH_OID,
+		.opt = "nt-fw-config",
+		.help_msg = "Non Trusted OS Firmware Config file",
+		.sn = "NonTrustedOSFirmwareConfigHash",
+		.ln = "Non-Trusted OS Firmware Config hash",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
 	},
 	[SCP_FWU_CFG_HASH_EXT] = {
 		.oid = SCP_FWU_CFG_HASH_OID,
