@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <context_mgmt.h>
+#include <debug.h>
 #include <string.h>
 #include <utils.h>
 #include "opteed_private.h"
@@ -105,5 +106,5 @@ void opteed_synchronous_sp_exit(optee_context_t *optee_ctx, uint64_t ret)
 	opteed_exit_sp(optee_ctx->c_rt_ctx, ret);
 
 	/* Should never reach here */
-	assert(0);
+	panic();
 }

@@ -320,8 +320,7 @@ static int dw_set_ios(int clk, int width)
 		mmio_write_32(dw_params.reg_base + DWMMC_CTYPE, CTYPE_8BIT);
 		break;
 	default:
-		assert(0);
-		break;
+		panic();
 	}
 	dw_set_clk(clk);
 	return 0;

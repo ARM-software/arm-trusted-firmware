@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <assert.h>
+#include <debug.h>
 #include <gic_common.h>
 #include <gicv2.h>
 #include <interrupt_mgmt.h>
@@ -226,8 +227,7 @@ void plat_ic_set_interrupt_type(unsigned int id, unsigned int type)
 		gicv2_type = GICV2_INTR_GROUP1;
 		break;
 	default:
-		assert(0);
-		break;
+		panic();
 	}
 
 	gicv2_set_interrupt_type(id, gicv2_type);
@@ -247,7 +247,7 @@ void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target)
 
 	gicv2_raise_sgi(sgi_num, id);
 #else
-	assert(0);
+	panic();
 #endif
 }
 
@@ -266,8 +266,7 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 		proc_num = -1;
 		break;
 	default:
-		assert(0);
-		break;
+		panic();
 	}
 
 	gicv2_set_spi_routing(id, proc_num);

@@ -149,7 +149,7 @@ static int qemu_pwr_domain_on(u_register_t mpidr)
  ******************************************************************************/
 void qemu_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	assert(0);
+	panic();
 }
 
 /*******************************************************************************
@@ -158,7 +158,7 @@ void qemu_pwr_domain_off(const psci_power_state_t *target_state)
  ******************************************************************************/
 void qemu_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
-	assert(0);
+	panic();
 }
 
 /*******************************************************************************
@@ -185,7 +185,7 @@ void qemu_pwr_domain_on_finish(const psci_power_state_t *target_state)
  ******************************************************************************/
 void qemu_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 {
-	assert(0);
+	panic();
 }
 
 /*******************************************************************************

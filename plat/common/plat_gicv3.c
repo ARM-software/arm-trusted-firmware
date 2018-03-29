@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <cassert.h>
+#include <debug.h>
 #include <gic_common.h>
 #include <gicv3.h>
 #include <interrupt_mgmt.h>
@@ -246,8 +247,7 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 		irm = GICV3_IRM_ANY;
 		break;
 	default:
-		assert(0);
-		break;
+		panic();
 	}
 
 	gicv3_set_spi_routing(id, irm, mpidr);

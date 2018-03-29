@@ -270,8 +270,7 @@ static int ufs_prepare_cmd(utp_utrd_t *utrd, uint8_t op, uint8_t lun,
 		upiu->cdb[8] = lba_cnt & 0xff;
 		break;
 	default:
-		assert(0);
-		break;
+		panic();
 	}
 	if (hd->dd == DD_IN)
 		flush_dcache_range(buf, length);
@@ -359,8 +358,7 @@ static int ufs_prepare_query(utp_utrd_t *utrd, uint8_t op, uint8_t idn,
 		memcpy((void *)&query_upiu->ts.attr.value, (void *)buf, length);
 		break;
 	default:
-		assert(0);
-		break;
+		panic();
 	}
 	flush_dcache_range((uintptr_t)utrd, sizeof(utp_utrd_t));
 	flush_dcache_range((uintptr_t)utrd->header, UFS_DESC_SIZE);

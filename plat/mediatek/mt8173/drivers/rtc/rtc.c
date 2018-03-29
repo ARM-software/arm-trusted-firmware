@@ -71,8 +71,8 @@ void rtc_bbpu_power_down(void)
 	if (Writeif_unlock()) {
 		RTC_Write(RTC_BBPU, bbpu);
 		if (!Write_trigger())
-			assert(0);
+			panic();
 	} else {
-		assert(0);
+		panic();
 	}
 }

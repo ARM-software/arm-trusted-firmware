@@ -1003,8 +1003,7 @@ void gicv3_set_interrupt_type(unsigned int id, unsigned int proc_num,
 		grpmod = 0;
 		break;
 	default:
-		assert(0);
-		break;
+		panic();
 	}
 
 	if (id < MIN_SPI_ID) {

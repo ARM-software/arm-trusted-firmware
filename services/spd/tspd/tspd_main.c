@@ -600,8 +600,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 	case TSP_FID_ABORT:
 		/* ABORT should only be invoked by normal world */
 		if (!ns) {
-			assert(0);
-			break;
+			panic();
 		}
 
 		assert(handle == cm_get_context(NON_SECURE));
@@ -632,8 +631,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 	case TSP_FID_RESUME:
 		/* RESUME should be invoked only by normal world */
 		if (!ns) {
-			assert(0);
-			break;
+			panic();
 		}
 
 		/*

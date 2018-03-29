@@ -106,7 +106,7 @@ void tspd_synchronous_sp_exit(tsp_context_t *tsp_ctx, uint64_t ret)
 	tspd_exit_sp(tsp_ctx->c_rt_ctx, ret);
 
 	/* Should never reach here */
-	assert(0);
+	panic();
 }
 
 /*******************************************************************************

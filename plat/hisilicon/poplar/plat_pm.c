@@ -63,12 +63,12 @@ static int poplar_pwr_domain_on(u_register_t mpidr)
 
 static void poplar_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	assert(0);
+	panic();
 }
 
 static void poplar_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
-	assert(0);
+	panic();
 }
 
 static void poplar_pwr_domain_on_finish(const psci_power_state_t *target_state)
@@ -86,7 +86,7 @@ static void poplar_pwr_domain_on_finish(const psci_power_state_t *target_state)
 static void poplar_pwr_domain_suspend_finish(
 		const psci_power_state_t *target_state)
 {
-	assert(0);
+	panic();
 }
 
 static void __dead2 poplar_system_off(void)

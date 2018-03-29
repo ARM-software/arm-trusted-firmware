@@ -90,8 +90,7 @@ register_t bl1_fwu_smc_handler(unsigned int smc_fid,
 		break;
 
 	default:
-		assert(0);
-		break;
+		panic();
 	}
 
 	SMC_RET1(handle, SMC_UNK);
@@ -693,7 +692,7 @@ __dead2 static void bl1_fwu_done(void *client_cookie, void *reserved)
 	 * Call platform done function.
 	 */
 	bl1_plat_fwu_done(client_cookie, reserved);
-	assert(0);
+	panic();
 }
 
 /*******************************************************************************
@@ -747,8 +746,7 @@ static int bl1_fwu_image_reset(unsigned int image_id, unsigned int flags)
 
 	case IMAGE_STATE_EXECUTED:
 	default:
-		assert(0);
-		break;
+		panic();
 	}
 
 	return 0;

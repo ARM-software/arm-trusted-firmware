@@ -6,6 +6,7 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
+#include <debug.h>
 #include <pubsub.h>
 #include <sve.h>
 
@@ -74,7 +75,7 @@ void sve_enable(int el2_unused)
 	/*
 	 * CTX_INCLUDE_FPREGS is not supported on SVE enabled systems.
 	 */
-	assert(0);
+	panic();
 #endif
 	/*
 	 * Update CPTR_EL3 to enable access to SVE functionality for the
