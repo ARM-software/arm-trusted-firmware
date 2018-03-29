@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,15 +11,11 @@
 #include <types.h>
 #include <utils_def.h>
 
-/* Linker symbols */
-extern uintptr_t __SP_IMAGE_XLAT_TABLES_START__;
-extern uintptr_t __SP_IMAGE_XLAT_TABLES_END__;
+/* Import linker symbols */
+IMPORT_SYM(uintptr_t, __SP_IMAGE_XLAT_TABLES_START__,	SP_IMAGE_XLAT_TABLES_START);
+IMPORT_SYM(uintptr_t, __SP_IMAGE_XLAT_TABLES_END__,	SP_IMAGE_XLAT_TABLES_END);
 
 /* Definitions */
-#define SP_IMAGE_XLAT_TABLES_START	\
-	(uintptr_t)(&__SP_IMAGE_XLAT_TABLES_START__)
-#define SP_IMAGE_XLAT_TABLES_END	\
-	(uintptr_t)(&__SP_IMAGE_XLAT_TABLES_END__)
 #define SP_IMAGE_XLAT_TABLES_SIZE	\
 	(SP_IMAGE_XLAT_TABLES_END - SP_IMAGE_XLAT_TABLES_START)
 

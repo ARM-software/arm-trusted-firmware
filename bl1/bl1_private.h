@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,18 +8,16 @@
 #define __BL1_PRIVATE_H__
 
 #include <types.h>
+#include <utils_def.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will tell us where BL1 lives
  * in Trusted ROM and RAM
  ******************************************************************************/
-extern uintptr_t __BL1_ROM_END__;
-#define BL1_ROM_END (uintptr_t)(&__BL1_ROM_END__)
+IMPORT_SYM(uintptr_t, __BL1_ROM_END__,   BL1_ROM_END);
 
-extern uintptr_t __BL1_RAM_START__;
-extern uintptr_t __BL1_RAM_END__;
-#define BL1_RAM_BASE (uintptr_t)(&__BL1_RAM_START__)
-#define BL1_RAM_LIMIT (uintptr_t)(&__BL1_RAM_END__)
+IMPORT_SYM(uintptr_t, __BL1_RAM_START__, BL1_RAM_BASE);
+IMPORT_SYM(uintptr_t, __BL1_RAM_END__,   BL1_RAM_LIMIT);
 
 /******************************************
  * Function prototypes

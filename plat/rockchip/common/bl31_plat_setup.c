@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,21 +17,14 @@
 #include <platform_def.h>
 #include <uart_16550.h>
 
-/*******************************************************************************
- * Declarations of linker defined symbols which will help us find the layout
- * of trusted SRAM
- ******************************************************************************/
-unsigned long __RO_START__;
-unsigned long __RO_END__;
-
 /*
  * The next 2 constants identify the extents of the code & RO data region.
  * These addresses are used by the MMU setup code and therefore they must be
  * page-aligned.  It is the responsibility of the linker script to ensure that
  * __RO_START__ and __RO_END__ linker symbols refer to page-aligned addresses.
  */
-#define BL31_RO_BASE (unsigned long)(&__RO_START__)
-#define BL31_RO_LIMIT (unsigned long)(&__RO_END__)
+IMPORT_SYM(unsigned long, __RO_START__,	BL31_RO_BASE);
+IMPORT_SYM(unsigned long, __RO_END__,	BL31_RO_LIMIT);
 
 static entry_point_info_t bl32_ep_info;
 static entry_point_info_t bl33_ep_info;
