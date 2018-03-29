@@ -414,10 +414,12 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 		case PSCI_SYSTEM_OFF:
 			psci_system_off();
 			/* We should never return from psci_system_off() */
+			break;
 
 		case PSCI_SYSTEM_RESET:
 			psci_system_reset();
 			/* We should never return from psci_system_reset() */
+			break;
 
 		case PSCI_FEATURES:
 			return psci_features(x1);

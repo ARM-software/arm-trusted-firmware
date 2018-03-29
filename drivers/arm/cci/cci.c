@@ -83,22 +83,25 @@ static unsigned int read_cci_part_number(uintptr_t base)
  */
 static int get_slave_ports(unsigned int part_num)
 {
-	/* Macro to match CCI products */
-#define RET_ON_MATCH(product) \
-	case CCI ## product ## _PART_NUM: \
-		return CCI ## product ## _SLAVE_PORTS
+	int num_slave_ports = -1;
 
 	switch (part_num) {
 
-	RET_ON_MATCH(400);
-	RET_ON_MATCH(500);
-	RET_ON_MATCH(550);
-
+	case CCI400_PART_NUM:
+		num_slave_ports = CCI400_SLAVE_PORTS;
+		break;
+	case CCI500_PART_NUM:
+		num_slave_ports = CCI500_SLAVE_PORTS;
+		break;
+	case CCI550_PART_NUM:
+		num_slave_ports = CCI550_SLAVE_PORTS;
+		break;
 	default:
-		return -1;
+		/* Do nothing in default case */
+		break;
 	}
 
-#undef RET_ON_MATCH
+	return num_slave_ports;
 }
 #endif /* ENABLE_ASSERTIONS */
 

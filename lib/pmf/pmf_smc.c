@@ -30,8 +30,7 @@ uintptr_t pmf_smc_handler(unsigned int smc_fid,
 		x2 = (uint32_t)x2;
 		x3 = (uint32_t)x3;
 
-		switch (smc_fid) {
-		case PMF_SMC_GET_TIMESTAMP_32:
+		if (smc_fid == PMF_SMC_GET_TIMESTAMP_32) {
 			/*
 			 * Return error code and the captured
 			 * time-stamp to the caller.
@@ -41,13 +40,9 @@ uintptr_t pmf_smc_handler(unsigned int smc_fid,
 			rc = pmf_get_timestamp_smc(x1, x2, x3, &ts_value);
 			SMC_RET3(handle, rc, (uint32_t)ts_value,
 					(uint32_t)(ts_value >> 32));
-
-		default:
-			break;
 		}
 	} else {
-		switch (smc_fid) {
-		case PMF_SMC_GET_TIMESTAMP_64:
+		if (smc_fid == PMF_SMC_GET_TIMESTAMP_64) {
 			/*
 			 * Return error code and the captured
 			 * time-stamp to the caller.
@@ -56,9 +51,6 @@ uintptr_t pmf_smc_handler(unsigned int smc_fid,
 			 */
 			rc = pmf_get_timestamp_smc(x1, x2, x3, &ts_value);
 			SMC_RET2(handle, rc, ts_value);
-
-		default:
-			break;
 		}
 	}
 

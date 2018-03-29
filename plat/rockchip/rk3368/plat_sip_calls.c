@@ -19,9 +19,6 @@ uint64_t rockchip_plat_sip_handler(uint32_t smc_fid,
 				   void *handle,
 				   uint64_t flags)
 {
-	switch (smc_fid) {
-	default:
-		ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
-		SMC_RET1(handle, SMC_UNK);
-	}
+	ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
+	SMC_RET1(handle, SMC_UNK);
 }

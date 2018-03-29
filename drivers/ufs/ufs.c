@@ -271,6 +271,7 @@ static int ufs_prepare_cmd(utp_utrd_t *utrd, uint8_t op, uint8_t lun,
 		break;
 	default:
 		assert(0);
+		break;
 	}
 	if (hd->dd == DD_IN)
 		flush_dcache_range(buf, length);
@@ -359,6 +360,7 @@ static int ufs_prepare_query(utp_utrd_t *utrd, uint8_t op, uint8_t idn,
 		break;
 	default:
 		assert(0);
+		break;
 	}
 	flush_dcache_range((uintptr_t)utrd, sizeof(utp_utrd_t));
 	flush_dcache_range((uintptr_t)utrd->header, UFS_DESC_SIZE);
@@ -511,6 +513,9 @@ static void ufs_query(uint8_t op, uint8_t idn, uint8_t index, uint8_t sel,
 	case QUERY_WRITE_ATTR:
 		assert(((buf & 3) == 0) && (size != 0));
 		break;
+	default:
+		/* Do nothing in default case */
+		break;
 	}
 	get_utrd(&utrd);
 	ufs_prepare_query(&utrd, op, idn, index, sel, buf, size);
@@ -532,6 +537,9 @@ static void ufs_query(uint8_t op, uint8_t idn, uint8_t index, uint8_t sel,
 		memcpy((void *)buf,
 		       (void *)(utrd.resp_upiu + sizeof(query_resp_upiu_t)),
 		       size);
+		break;
+	default:
+		/* Do nothing in default case */
 		break;
 	}
 	(void)result;

@@ -350,6 +350,7 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 		 * context.
 		 */
 		tlkd_synchronous_sp_exit(&tlk_ctx, x1);
+		break;
 
 	/*
 	 * These function IDs are used only by TLK to indicate it has
@@ -375,6 +376,7 @@ uint64_t tlkd_smc_handler(uint32_t smc_fid,
 		 * return value to the caller
 		 */
 		tlkd_synchronous_sp_exit(&tlk_ctx, x1);
+		break;
 
 	/*
 	 * Return the number of service function IDs implemented to

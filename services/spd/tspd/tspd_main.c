@@ -435,6 +435,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		 * context.
 		 */
 		tspd_synchronous_sp_exit(tsp_ctx, x1);
+		break;
 #endif
 	/*
 	 * This function ID is used only by the SP to indicate it has finished
@@ -475,6 +476,7 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 		 * return value to the caller
 		 */
 		tspd_synchronous_sp_exit(tsp_ctx, x1);
+		break;
 
 		/*
 		 * Request from non-secure client to perform an
@@ -591,7 +593,6 @@ uint64_t tspd_smc_handler(uint32_t smc_fid,
 			SMC_RET3(ns_cpu_context, x1, x2, x3);
 		}
 
-		break;
 	/*
 	 * Request from the non-secure world to abort a preempted Yielding SMC
 	 * Call.

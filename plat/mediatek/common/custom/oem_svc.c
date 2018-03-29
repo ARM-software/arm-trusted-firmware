@@ -41,15 +41,8 @@ uint64_t oem_smc_handler(uint32_t smc_fid,
 			void *handle,
 			uint64_t flags)
 {
-	uint64_t rc;
-
-	switch (smc_fid) {
-	default:
-		rc = SMC_UNK;
-		WARN("Unimplemented OEM Call: 0x%x\n", smc_fid);
-	}
-
-	SMC_RET1(handle, rc);
+	WARN("Unimplemented OEM Call: 0x%x\n", smc_fid);
+	SMC_RET1(handle, SMC_UNK);
 }
 
 /*

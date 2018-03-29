@@ -311,6 +311,7 @@ uint64_t opteed_smc_handler(uint32_t smc_fid,
 		 * OPTEE. Jump back to the original C runtime context.
 		 */
 		opteed_synchronous_sp_exit(optee_ctx, x1);
+		break;
 
 
 	/*
@@ -345,6 +346,7 @@ uint64_t opteed_smc_handler(uint32_t smc_fid,
 		 * return value to the caller
 		 */
 		opteed_synchronous_sp_exit(optee_ctx, x1);
+		break;
 
 	/*
 	 * OPTEE is returning from a call or being preempted from a call, in

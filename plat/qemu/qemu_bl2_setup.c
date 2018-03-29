@@ -287,6 +287,9 @@ static int qemu_bl2_handle_post_image_load(unsigned int image_id)
 		bl_mem_params->ep_info.args.arg0 = 0xffff & read_mpidr();
 		bl_mem_params->ep_info.spsr = qemu_get_spsr_for_bl33_entry();
 		break;
+	default:
+		/* Do nothing in default case */
+		break;
 	}
 
 	return err;
