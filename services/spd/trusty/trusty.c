@@ -352,32 +352,32 @@ static void trusty_cpu_resume(uint32_t on)
 	}
 }
 
-static int32_t trusty_cpu_off_handler(u_register_t unused)
+static int32_t trusty_cpu_off_handler(u_register_t max_off_lvl)
 {
-	trusty_cpu_suspend(1);
+	trusty_cpu_suspend(max_off_lvl);
 
 	return 0;
 }
 
-static void trusty_cpu_on_finish_handler(u_register_t unused)
+static void trusty_cpu_on_finish_handler(u_register_t max_off_lvl)
 {
 	struct trusty_cpu_ctx *ctx = get_trusty_ctx();
 
 	if (ctx->saved_sp == NULL) {
 		(void)trusty_init();
 	} else {
-		trusty_cpu_resume(1);
+		trusty_cpu_resume(max_off_lvl);
 	}
 }
 
-static void trusty_cpu_suspend_handler(u_register_t unused)
+static void trusty_cpu_suspend_handler(u_register_t max_off_lvl)
 {
-	trusty_cpu_suspend(0);
+	trusty_cpu_suspend(max_off_lvl);
 }
 
-static void trusty_cpu_suspend_finish_handler(u_register_t unused)
+static void trusty_cpu_suspend_finish_handler(u_register_t max_off_lvl)
 {
-	trusty_cpu_resume(0);
+	trusty_cpu_resume(max_off_lvl);
 }
 
 static const spd_pm_ops_t trusty_pm = {
