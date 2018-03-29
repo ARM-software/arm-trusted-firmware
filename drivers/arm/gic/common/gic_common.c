@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -302,12 +302,15 @@ void gicd_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri)
 
 void gicd_set_icfgr(uintptr_t base, unsigned int id, unsigned int cfg)
 {
-	unsigned bit_num = id & ((1 << ICFGR_SHIFT) - 1);
+	/* Interrupt configuration is a 2-bit field */
+	unsigned int bit_num = id & ((1 << ICFGR_SHIFT) - 1);
+	unsigned int bit_shift = bit_num << 1;
+
 	uint32_t reg_val = gicd_read_icfgr(base, id);
 
 	/* Clear the field, and insert required configuration */
-	reg_val &= ~(GIC_CFG_MASK << bit_num);
-	reg_val |= ((cfg & GIC_CFG_MASK) << bit_num);
+	reg_val &= ~(GIC_CFG_MASK << bit_shift);
+	reg_val |= ((cfg & GIC_CFG_MASK) << bit_shift);
 
 	gicd_write_icfgr(base, id, reg_val);
 }

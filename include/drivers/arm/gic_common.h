@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,9 +29,9 @@
 /* Constant to indicate a spurious interrupt in all GIC versions */
 #define GIC_SPURIOUS_INTERRUPT		1023
 
-/* Interrupt configurations */
-#define GIC_INTR_CFG_LEVEL		0
-#define GIC_INTR_CFG_EDGE		1
+/* Interrupt configurations: 2-bit fields with LSB reserved */
+#define GIC_INTR_CFG_LEVEL		(0 << 1)
+#define GIC_INTR_CFG_EDGE		(1 << 1)
 
 /* Constants to categorise priorities */
 #define GIC_HIGHEST_SEC_PRIORITY	0x0
