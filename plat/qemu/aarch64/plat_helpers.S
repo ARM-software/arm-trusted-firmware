@@ -14,9 +14,8 @@
 	.globl	platform_mem_init
 	.globl	plat_qemu_calc_core_pos
 	.globl	plat_crash_console_init
-#if MULTI_CONSOLE_API
 	.globl	plat_crash_console_putc
-#endif /* MULTI_CONSOLE_API */
+	.globl	plat_crash_console_flush
 	.globl  plat_secondary_cold_boot_setup
 	.globl  plat_get_my_entrypoint
 	.globl  plat_is_my_cpu_primary
@@ -97,7 +96,10 @@ endfunc platform_mem_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-	b	qemu_crash_console_init
+	mov_imm x0, PLAT_QEMU_CRASH_UART_BASE
+	mov_imm x1, PLAT_QEMU_CRASH_UART_CLK_IN_HZ
+	mov_imm x2, PLAT_QEMU_CONSOLE_BAUDRATE
+	b	console_pl011_core_init
 endfunc plat_crash_console_init
 
 	/* ---------------------------------------------
@@ -107,10 +109,21 @@ endfunc plat_crash_console_init
 	 * Clobber list : x1, x2
 	 * ---------------------------------------------
 	 */
-#if !MULTI_CONSOLE_API
 func plat_crash_console_putc
 	mov_imm	x1, PLAT_QEMU_CRASH_UART_BASE
-	b	console_core_putc
+	b	console_pl011_core_putc
 endfunc plat_crash_console_putc
-#endif /* MULTI_CONSOLE_API */
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_flush(int c)
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : x0, x1
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_flush
+	mov_imm	x0, PLAT_QEMU_CRASH_UART_BASE
+	b	console_pl011_core_flush
+endfunc plat_crash_console_flush
 
