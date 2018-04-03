@@ -18,6 +18,12 @@
 #define SCMI_PROTO_MSG_ATTR_MSG_LEN		8
 #define SCMI_PROTO_MSG_ATTR_RESP_LEN		12
 
+#define SCMI_AP_CORE_RESET_ADDR_SET_MSG_LEN	16
+#define SCMI_AP_CORE_RESET_ADDR_SET_RESP_LEN	8
+
+#define SCMI_AP_CORE_RESET_ADDR_GET_MSG_LEN	4
+#define SCMI_AP_CORE_RESET_ADDR_GET_RESP_LEN	20
+
 #define SCMI_PWR_STATE_SET_MSG_LEN		16
 #define SCMI_PWR_STATE_SET_RESP_LEN		8
 
@@ -111,6 +117,11 @@
 #define SCMI_PAYLOAD_RET_VAL3(payld_arr, val1, val2, val3)	do {	\
 		SCMI_PAYLOAD_RET_VAL2(payld_arr, val1, val2);		\
 		(val3) = mmio_read_32((uintptr_t)&payld_arr[2]);	\
+	} while (0)
+
+#define SCMI_PAYLOAD_RET_VAL4(payld_arr, val1, val2, val3, val4)	do {	\
+		SCMI_PAYLOAD_RET_VAL3(payld_arr, val1, val2, val3);		\
+		(val4) = mmio_read_32((uintptr_t)&payld_arr[3]);		\
 	} while (0)
 
 /*
