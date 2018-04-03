@@ -54,6 +54,11 @@
 #define MISCREG_PFCFG			U(0x200C)
 
 /*******************************************************************************
+ * Tegra General Purpose Centralised DMA constants
+ ******************************************************************************/
+#define TEGRA_GPCDMA_BASE		U(0x02610000)
+
+/*******************************************************************************
  * Tegra Memory Controller constants
  ******************************************************************************/
 #define TEGRA_MC_STREAMID_BASE		U(0x02C00000)
@@ -248,6 +253,8 @@
 #define TEGRA_GPU_RESET_GPU_SET_OFFSET  U(0x1C)
 #define  GPU_RESET_BIT			(U(1) << 0)
 #define  GPU_SET_BIT			(U(1) << 0)
+#define TEGRA_GPCDMA_RST_SET_REG_OFFSET	U(0x6A0004)
+#define TEGRA_GPCDMA_RST_CLR_REG_OFFSET	U(0x6A0008)
 
 /*******************************************************************************
  * XUSB STREAMIDs
