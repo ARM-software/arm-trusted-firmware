@@ -341,6 +341,9 @@ int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 			tegra_se_save_tzram();
 		}
 
+		/* de-init the interface */
+		tegra_bpmp_suspend();
+
 		/*
 		 * The CPU needs to load the System suspend entry firmware
 		 * if nothing is running on the BPMP.
@@ -451,6 +454,9 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 		} else {
 			entrypoint = tegra_pmc_read_32(PMC_SCRATCH39);
 			tegra_fc_bpmp_on(entrypoint);
+
+			/* initialise the interface */
+			tegra_bpmp_resume();
 		}
 
 		/* sc7entry-fw is part of TZDRAM area */
