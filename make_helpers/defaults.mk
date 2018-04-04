@@ -124,6 +124,9 @@ PROGRAMMABLE_RESET_ADDRESS	:= 0
 # Original format.
 PSCI_EXTENDED_STATE_ID		:= 0
 
+# Enable RAS support
+RAS_EXTENSION			:= 0
+
 # By default, BL1 acts as the reset handler, not BL31
 RESET_TO_BL31			:= 0
 

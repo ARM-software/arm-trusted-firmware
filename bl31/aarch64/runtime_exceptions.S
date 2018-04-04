@@ -37,6 +37,50 @@
 	.globl	serror_aarch32
 
 	/*
+	 * Macro that prepares entry to EL3 upon taking an exception.
+	 *
+	 * With RAS_EXTENSION, this macro synchronizes pending errors with an ESB
+	 * instruction. When an error is thus synchronized, the handling is
+	 * delegated to platform EA handler.
+	 *
+	 * Without RAS_EXTENSION, this macro just saves x30, and unmasks
+	 * Asynchronous External Aborts.
+	 */
+	.macro check_and_unmask_ea
+#if RAS_EXTENSION
+	/* Synchronize pending External Aborts */
+	esb
+
+	/* Unmask the SError interrupt */
+	msr	daifclr, #DAIF_ABT_BIT
+
+	/*
+	 * Explicitly save x30 so as to free up a register and to enable
+	 * branching
+	 */
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+
+	/* Check for SErrors synchronized by the ESB instruction */
+	mrs	x30, DISR_EL1
+	tbz	x30, #DISR_A_BIT, 1f
+
+	/* Save GP registers and restore them afterwards */
+	bl	save_gp_registers
+	mov	x0, #ERROR_EA_ESB
+	mrs	x1, DISR_EL1
+	bl	delegate_ea
+	bl	restore_gp_registers
+
+1:
+#else
+	/* Unmask the SError interrupt */
+	msr	daifclr, #DAIF_ABT_BIT
+
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+#endif
+	.endm
+
+	/*
 	 * Handle External Abort by delegating to the platform's EA handler.
 	 * Once the platform handler returns, the macro exits EL3 and returns to
 	 * where the abort was taken from.
@@ -63,11 +107,6 @@
 	 * ---------------------------------------------------------------------
 	 */
 	.macro	handle_sync_exception
-	/* Enable the SError interrupt */
-	msr	daifclr, #DAIF_ABT_BIT
-
-	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	/*
 	 * Read the timestamp value and store it in per-cpu data. The value
@@ -117,12 +156,7 @@
 	 * ---------------------------------------------------------------------
 	 */
 	.macro	handle_interrupt_exception label
-	/* Enable the SError interrupt */
-	msr	daifclr, #DAIF_ABT_BIT
-
-	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	bl	save_gp_registers
-
 	/* Save the EL3 system registers needed to return from this exception */
 	mrs	x0, spsr_el3
 	mrs	x1, elr_el3
@@ -256,14 +290,17 @@ vector_entry sync_exception_aarch64
 	 * to a valid cpu context where the general purpose and system register
 	 * state can be saved.
 	 */
+	check_and_unmask_ea
 	handle_sync_exception
 	check_vector_size sync_exception_aarch64
 
 vector_entry irq_aarch64
+	check_and_unmask_ea
 	handle_interrupt_exception irq_aarch64
 	check_vector_size irq_aarch64
 
 vector_entry fiq_aarch64
+	check_and_unmask_ea
 	handle_interrupt_exception fiq_aarch64
 	check_vector_size fiq_aarch64
 
@@ -289,14 +326,17 @@ vector_entry sync_exception_aarch32
 	 * to a valid cpu context where the general purpose and system register
 	 * state can be saved.
 	 */
+	check_and_unmask_ea
 	handle_sync_exception
 	check_vector_size sync_exception_aarch32
 
 vector_entry irq_aarch32
+	check_and_unmask_ea
 	handle_interrupt_exception irq_aarch32
 	check_vector_size irq_aarch32
 
 vector_entry fiq_aarch32
+	check_and_unmask_ea
 	handle_interrupt_exception fiq_aarch32
 	check_vector_size fiq_aarch32
 

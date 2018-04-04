@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -191,5 +191,11 @@
 	\_name:
 	.space	SPINLOCK_ASM_SIZE
 	.endm
+
+#if RAS_EXTENSION
+	.macro esb
+	.inst	0xd503221f
+	.endm
+#endif
 
 #endif /* __ASM_MACROS_S__ */

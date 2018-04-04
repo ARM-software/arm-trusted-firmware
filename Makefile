@@ -388,6 +388,13 @@ ifneq (${SMCCC_MAJOR_VERSION},1)
     endif
 endif
 
+# For RAS_EXTENSION, require that EAs are handled in EL3 first
+ifeq ($(RAS_EXTENSION),1)
+    ifneq ($(HANDLE_EA_EL3_FIRST),1)
+        $(error For RAS_EXTENSION, HANDLE_EA_EL3_FIRST must also be 1)
+    endif
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -525,6 +532,7 @@ $(eval $(call assert_boolean,NS_TIMER_SWITCH))
 $(eval $(call assert_boolean,PL011_GENERIC_UART))
 $(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))
+$(eval $(call assert_boolean,RAS_EXTENSION))
 $(eval $(call assert_boolean,RESET_TO_BL31))
 $(eval $(call assert_boolean,SAVE_KEYS))
 $(eval $(call assert_boolean,SEPARATE_CODE_AND_RODATA))
@@ -574,6 +582,7 @@ $(eval $(call add_define,PL011_GENERIC_UART))
 $(eval $(call add_define,PLAT_${PLAT}))
 $(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
+$(eval $(call add_define,RAS_EXTENSION))
 $(eval $(call add_define,RESET_TO_BL31))
 $(eval $(call add_define,SEPARATE_CODE_AND_RODATA))
 $(eval $(call add_define,SMCCC_MAJOR_VERSION))

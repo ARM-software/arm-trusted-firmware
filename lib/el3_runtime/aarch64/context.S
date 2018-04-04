@@ -364,6 +364,16 @@ endfunc restore_gp_registers
 func restore_gp_registers_eret
 	bl	restore_gp_registers
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+
+#if IMAGE_BL31 && RAS_EXTENSION
+	/*
+	 * Issue Error Synchronization Barrier to synchronize SErrors before
+	 * exiting EL3. We're running with EAs unmasked, so any synchronized
+	 * errors would be taken immediately; therefore no need to inspect
+	 * DISR_EL1 register.
+	 */
+	esb
+#endif
 	eret
 endfunc	restore_gp_registers_eret
 
