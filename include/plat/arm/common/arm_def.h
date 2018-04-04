@@ -317,7 +317,7 @@
  * and limit. Leave enough space of BL2 meminfo.
  */
 #define ARM_TB_FW_CONFIG_BASE		ARM_BL_RAM_BASE + sizeof(meminfo_t)
-#define ARM_TB_FW_CONFIG_LIMIT		BL2_LIMIT
+#define ARM_TB_FW_CONFIG_LIMIT		BL2_BASE
 
 /*******************************************************************************
  * BL1 specific defines.

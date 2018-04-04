@@ -11,31 +11,57 @@
 #include <libfdt.h>
 #include <plat_arm.h>
 
+
+typedef struct config_load_info_prop {
+	unsigned int config_id;
+	const char *config_addr;
+	const char *config_max_size;
+} config_load_info_prop_t;
+
+static const config_load_info_prop_t prop_names[] = {
+	{HW_CONFIG_ID, "hw_config_addr", "hw_config_max_size"},
+	{SOC_FW_CONFIG_ID, "soc_fw_config_addr", "soc_fw_config_max_size"},
+	{TOS_FW_CONFIG_ID, "tos_fw_config_addr", "tos_fw_config_max_size"},
+	{NT_FW_CONFIG_ID, "nt_fw_config_addr", "nt_fw_config_max_size"}
+};
+
 /*******************************************************************************
- * Helper to read the `hw_config` property in config DTB. This function
- * expects the following properties to be present in the config DTB.
- *	name : hw_config_addr		size : 2 cells
- *	name : hw_config_max_size	size : 1 cell
+ * Helper to read the load information corresponding to the `config_id` in
+ * TB_FW_CONFIG. This function expects the following properties to be defined :
+ *	<config>_addr		size : 2 cells
+ *	<config>_max_size	size : 1 cell
  *
  * Arguments:
  *	void *dtb		 - pointer to the TB_FW_CONFIG in memory
  *	int node		 - The node offset to appropriate node in the
  *					 DTB.
- *	uint64_t *hw_config_addr - Returns the `hw_config` load address if read
+ *	unsigned int config_id	 - The configuration id
+ *	uint64_t *config_addr	 - Returns the `config` load address if read
  *					 is successful.
- *	uint32_t *hw_config_size - Returns the `hw_config` size if read is
+ *	uint32_t *config_size	 - Returns the `config` size if read is
  *					 successful.
  *
  * Returns 0 on success and -1 on error.
  ******************************************************************************/
-int arm_dyn_get_hwconfig_info(void *dtb, int node,
-		uint64_t *hw_config_addr, uint32_t *hw_config_size)
+int arm_dyn_get_config_load_info(void *dtb, int node, unsigned int config_id,
+		uint64_t *config_addr, uint32_t *config_size)
 {
 	int err;
+	unsigned int i;
 
 	assert(dtb != NULL);
-	assert(hw_config_addr != NULL);
-	assert(hw_config_size != NULL);
+	assert(config_addr != NULL);
+	assert(config_size != NULL);
+
+	for (i = 0; i < ARRAY_SIZE(prop_names); i++) {
+		if (prop_names[i].config_id == config_id)
+			break;
+	}
+
+	if (i == ARRAY_SIZE(prop_names)) {
+		WARN("Invalid config id %d\n", config_id);
+		return -1;
+	}
 
 	/* Check if the pointer to DT is correct */
 	assert(fdt_check_header(dtb) == 0);
@@ -43,22 +69,22 @@ int arm_dyn_get_hwconfig_info(void *dtb, int node,
 	/* Assert the node offset point to "arm,tb_fw" compatible property */
 	assert(node == fdt_node_offset_by_compatible(dtb, -1, "arm,tb_fw"));
 
-	err = fdtw_read_cells(dtb, node, "hw_config_addr", 2,
-				(void *) hw_config_addr);
+	err = fdtw_read_cells(dtb, node, prop_names[i].config_addr, 2,
+				(void *) config_addr);
 	if (err < 0) {
-		WARN("Read cell failed for hw_config_addr\n");
+		WARN("Read cell failed for %s\n", prop_names[i].config_addr);
 		return -1;
 	}
 
-	err = fdtw_read_cells(dtb, node, "hw_config_max_size", 1,
-				(void *) hw_config_size);
+	err = fdtw_read_cells(dtb, node, prop_names[i].config_max_size, 1,
+				(void *) config_size);
 	if (err < 0) {
-		WARN("Read cell failed for hw_config_max_size\n");
+		WARN("Read cell failed for %s\n", prop_names[i].config_max_size);
 		return -1;
 	}
 
-	VERBOSE("Dyn cfg: Read hw_config address from TB_FW_CONFIG 0x%p %p\n",
-				hw_config_addr, hw_config_size);
+	VERBOSE("Dyn cfg: Read config_id %d load info from TB_FW_CONFIG 0x%llx 0x%x\n",
+				config_id, (unsigned long long)*config_addr, *config_size);
 
 	return 0;
 }
@@ -98,7 +124,7 @@ int arm_dyn_get_disable_auth(void *dtb, int node, uint32_t *disable_auth)
 	}
 
 	/* Check if the value is boolean */
-	if (*disable_auth != 0 && *disable_auth != 1) {
+	if ((*disable_auth != 0U) && (*disable_auth != 1U)) {
 		WARN("Invalid value for `disable_auth` cell %d\n", *disable_auth);
 		return -1;
 	}
