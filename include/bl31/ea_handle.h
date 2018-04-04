@@ -15,4 +15,7 @@
 /* Synchronous External Abort received at Synchronous exception vector */
 #define ERROR_EA_SYNC		1
 
+/* External Abort synchronized by ESB instruction */
+#define ERROR_EA_ESB		2
+
 #endif /* __EA_HANDLE_H__ */

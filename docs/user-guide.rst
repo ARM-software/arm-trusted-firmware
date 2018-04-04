@@ -525,6 +525,15 @@ Common build options
    smc function id. When this option is enabled on Arm platforms, the
    option ``ARM_RECOM_STATE_ID_ENC`` needs to be set to 1 as well.
 
+-  ``RAS_EXTENSION``: When set to ``1``, enable Armv8.2 RAS features. RAS features
+   are an optional extension for pre-Armv8.2 CPUs, but are mandatory for Armv8.2
+   or later CPUs.
+
+   When ``RAS_EXTENSION`` is set to ``1``, ``HANDLE_EA_EL3_FIRST`` must also be
+   set to ``1``.
+
+   This option is disabled by default.
+
 -  ``RESET_TO_BL31``: Enable BL31 entrypoint as the CPU reset vector instead
    of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1
    entrypoint) or 1 (CPU reset to BL31 entrypoint).

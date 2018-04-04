@@ -711,4 +711,10 @@
 #define AMCGCR_EL0_CG1NC_LENGTH	U(8)
 #define AMCGCR_EL0_CG1NC_MASK	U(0xff)
 
+/*******************************************************************************
+ * RAS system registers
+ *******************************************************************************/
+#define DISR_EL1		S3_0_C12_C1_1
+#define DISR_A_BIT		31
+
 #endif /* __ARCH_H__ */
