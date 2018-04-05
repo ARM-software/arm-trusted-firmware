@@ -104,15 +104,20 @@ func plat_is_my_cpu_primary
 	bx	lr
 endfunc plat_is_my_cpu_primary
 
-	/* -----------------------------------------------------
+	/* ---------------------------------------------------------------------
 	 * unsigned int plat_arm_calc_core_pos(u_register_t mpidr)
 	 *
 	 * Function to calculate the core position on FVP.
 	 *
-	 * (ClusterId * FVP_MAX_CPUS_PER_CLUSTER) +
+	 * (ClusterId * FVP_MAX_CPUS_PER_CLUSTER * FVP_MAX_PE_PER_CPU) +
 	 * (CPUId * FVP_MAX_PE_PER_CPU) +
 	 * ThreadId
-	 * -----------------------------------------------------
+	 *
+	 * which can be simplified as:
+	 *
+	 * ((ClusterId * FVP_MAX_CPUS_PER_CLUSTER + CPUId) * FVP_MAX_PE_PER_CPU)
+	 * + ThreadId
+	 * ---------------------------------------------------------------------
 	 */
 func plat_arm_calc_core_pos
 	mov	r3, r0
@@ -125,14 +130,15 @@ func plat_arm_calc_core_pos
 	lsleq	r3, r0, #MPIDR_AFFINITY_BITS
 
 	/* Extract individual affinity fields from MPIDR */
-	mov	r2, #FVP_MAX_PE_PER_CPU
 	ubfx	r0, r3, #MPIDR_AFF0_SHIFT, #MPIDR_AFFINITY_BITS
 	ubfx	r1, r3, #MPIDR_AFF1_SHIFT, #MPIDR_AFFINITY_BITS
-	mla	r0, r1, r2, r0
-
-	mov	r1, #FVP_MAX_CPUS_PER_CLUSTER
 	ubfx	r2, r3, #MPIDR_AFF2_SHIFT, #MPIDR_AFFINITY_BITS
-	mla	r0, r1, r2, r0
+
+	/* Compute linear position */
+	mov	r3, #FVP_MAX_CPUS_PER_CLUSTER
+	mla	r1, r2, r3, r1
+	mov	r3, #FVP_MAX_PE_PER_CPU
+	mla	r0, r1, r3, r0
 
 	bx	lr
 endfunc plat_arm_calc_core_pos
