@@ -22,4 +22,11 @@
  ******************************************************************************/
 #define CORTEX_A73_L2MERRSR_EL1		S3_1_C15_C2_3   /* Instruction def. */
 
+/*******************************************************************************
+ * CPU implementation defined register specific definitions.
+ ******************************************************************************/
+#define CORTEX_A73_IMP_DEF_REG1		S3_0_C15_C0_0
+
+#define CORTEX_A73_IMP_DEF_REG1_DISABLE_LOAD_PASS_STORE	(1 << 3)
+
 #endif /* __CORTEX_A73_H__ */

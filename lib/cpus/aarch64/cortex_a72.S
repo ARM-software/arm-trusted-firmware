@@ -110,6 +110,15 @@ func check_errata_cve_2017_5715
 	ret
 endfunc check_errata_cve_2017_5715
 
+func check_errata_cve_2018_3639
+#if WORKAROUND_CVE_2018_3639
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2018_3639
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A72.
 	 * -------------------------------------------------
@@ -129,6 +138,14 @@ func cortex_a72_reset_func
 	adr	x0, wa_cve_2017_5715_mmu_vbar
 	msr	vbar_el3, x0
 1:
+#endif
+
+#if WORKAROUND_CVE_2018_3639
+	mrs	x0, CORTEX_A72_CPUACTLR_EL1
+	orr	x0, x0, #CORTEX_A72_CPUACTLR_EL1_DIS_LOAD_PASS_STORE
+	msr	CORTEX_A72_CPUACTLR_EL1, x0
+	isb
+	dsb	sy
 #endif
 
 	/* ---------------------------------------------
@@ -265,6 +282,7 @@ func cortex_a72_errata_report
 	 */
 	report_errata ERRATA_A72_859971, cortex_a72, 859971
 	report_errata WORKAROUND_CVE_2017_5715, cortex_a72, cve_2017_5715
+	report_errata WORKAROUND_CVE_2018_3639, cortex_a72, cve_2018_3639
 
 	ldp	x8, x30, [sp], #16
 	ret

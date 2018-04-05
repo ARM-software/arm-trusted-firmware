@@ -43,6 +43,13 @@ func cortex_a73_reset_func
 1:
 #endif
 
+#if WORKAROUND_CVE_2018_3639
+	mrs	x0, CORTEX_A73_IMP_DEF_REG1
+	orr	x0, x0, #CORTEX_A73_IMP_DEF_REG1_DISABLE_LOAD_PASS_STORE
+	msr	CORTEX_A73_IMP_DEF_REG1, x0
+	isb
+#endif
+
 	/* ---------------------------------------------
 	 * Enable the SMP bit.
 	 * Clobbers : x0
@@ -129,6 +136,15 @@ func check_errata_cve_2017_5715
 	ret
 endfunc check_errata_cve_2017_5715
 
+func check_errata_cve_2018_3639
+#if WORKAROUND_CVE_2018_3639
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2018_3639
+
 #if REPORT_ERRATA
 /*
  * Errata printing function for Cortex A75. Must follow AAPCS.
@@ -144,6 +160,7 @@ func cortex_a73_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata WORKAROUND_CVE_2017_5715, cortex_a73, cve_2017_5715
+	report_errata WORKAROUND_CVE_2018_3639, cortex_a73, cve_2018_3639
 
 	ldp	x8, x30, [sp], #16
 	ret
