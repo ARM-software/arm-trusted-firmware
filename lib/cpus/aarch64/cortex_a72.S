@@ -126,7 +126,7 @@ func cortex_a72_reset_func
 
 #if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
 	cpu_check_csv2	x0, 1f
-	adr	x0, workaround_mmu_runtime_exceptions
+	adr	x0, wa_cve_2017_5715_mmu_vbar
 	msr	vbar_el3, x0
 1:
 #endif

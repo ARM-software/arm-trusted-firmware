@@ -285,7 +285,7 @@ endfunc print_errata_status
 #endif
 
 /*
- * int check_workaround_cve_2017_5715(void);
+ * int check_wa_cve_2017_5715(void);
  *
  * This function returns:
  *  - ERRATA_APPLIES when firmware mitigation is required.
@@ -296,8 +296,8 @@ endfunc print_errata_status
  * NOTE: Must be called only after cpu_ops have been initialized
  *       in per-CPU data.
  */
-	.globl	check_workaround_cve_2017_5715
-func check_workaround_cve_2017_5715
+	.globl	check_wa_cve_2017_5715
+func check_wa_cve_2017_5715
 	mrs	x0, tpidr_el3
 #if ENABLE_ASSERTIONS
 	cmp	x0, #0
@@ -315,4 +315,4 @@ func check_workaround_cve_2017_5715
 1:
 	mov	x0, #ERRATA_NOT_APPLIES
 	ret
-endfunc check_workaround_cve_2017_5715
+endfunc check_wa_cve_2017_5715

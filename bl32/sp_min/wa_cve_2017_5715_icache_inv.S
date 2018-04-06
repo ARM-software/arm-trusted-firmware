@@ -6,9 +6,9 @@
 
 #include <asm_macros.S>
 
-	.globl	workaround_icache_inv_runtime_exceptions
+	.globl	wa_cve_2017_5715_icache_inv_vbar
 
-vector_base workaround_icache_inv_runtime_exceptions
+vector_base wa_cve_2017_5715_icache_inv_vbar
 	/* We encode the exception entry in the bottom 3 bits of SP */
 	add	sp, sp, #1	/* Reset: 0b111 */
 	add	sp, sp, #1	/* Undef: 0b110 */
