@@ -217,11 +217,37 @@ platform port to define additional platform porting constants in
 -  **#define : BL2\_BASE**
 
    Defines the base address in secure RAM where BL1 loads the BL2 binary image.
-   Must be aligned on a page-size boundary.
+   Must be aligned on a page-size boundary. This constant is not applicable
+   when BL2_IN_XIP_MEM is set to '1'.
 
 -  **#define : BL2\_LIMIT**
 
    Defines the maximum address in secure RAM that the BL2 image can occupy.
+   This constant is not applicable when BL2_IN_XIP_MEM is set to '1'.
+
+-  **#define : BL2\_RO\_BASE**
+
+   Defines the base address in secure XIP memory where BL2 RO section originally
+   lives. Must be aligned on a page-size boundary. This constant is only needed
+   when BL2_IN_XIP_MEM is set to '1'.
+
+-  **#define : BL2\_RO\_LIMIT**
+
+   Defines the maximum address in secure XIP memory that BL2's actual content
+   (i.e. excluding any data section allocated at runtime) can occupy. This
+   constant is only needed when BL2_IN_XIP_MEM is set to '1'.
+
+-  **#define : BL2\_RW\_BASE**
+
+   Defines the base address in secure RAM where BL2's read-write data will live
+   at runtime. Must be aligned on a page-size boundary. This constant is only
+   needed when BL2_IN_XIP_MEM is set to '1'.
+
+-  **#define : BL2\_RW\_LIMIT**
+
+   Defines the maximum address in secure RAM that BL2's read-write data can
+   occupy at runtime. This constant is only needed when BL2_IN_XIP_MEM is set
+   to '1'.
 
 -  **#define : BL31\_BASE**
 
