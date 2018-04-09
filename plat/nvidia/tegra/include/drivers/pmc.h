@@ -14,6 +14,7 @@
 #include <tegra_def.h>
 
 #define PMC_CONFIG				U(0x0)
+#define PMC_IO_DPD_SAMPLE			U(0x20)
 #define PMC_DPD_ENABLE_0			U(0x24)
 #define PMC_PWRGATE_STATUS			U(0x38)
 #define PMC_PWRGATE_TOGGLE			U(0x30)
@@ -22,6 +23,7 @@
 #define PMC_CRYPTO_OP_0				U(0xf4)
 #define  PMC_TOGGLE_START			U(0x100)
 #define PMC_SCRATCH39				U(0x138)
+#define PMC_SCRATCH41 				U(0x140)
 #define PMC_SECURE_SCRATCH6			U(0x224)
 #define PMC_SECURE_SCRATCH7			U(0x228)
 #define PMC_SECURE_DISABLE2			U(0x2c4)
@@ -53,6 +55,7 @@ void tegra_pmc_cpu_on(int32_t cpu);
 void tegra_pmc_cpu_setup(uint64_t reset_addr);
 bool tegra_pmc_is_last_on_cpu(void);
 void tegra_pmc_lock_cpu_vectors(void);
+void tegra_pmc_resume(void);
 __dead2 void tegra_pmc_system_reset(void);
 
 #endif /* PMC_H */

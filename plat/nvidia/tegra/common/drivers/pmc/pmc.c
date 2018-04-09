@@ -123,6 +123,20 @@ bool tegra_pmc_is_last_on_cpu(void)
 }
 
 /*******************************************************************************
+ * Handler to be called on exiting System suspend. Right now only DPD registers
+ * are cleared.
+ ******************************************************************************/
+void tegra_pmc_resume(void)
+{
+
+	/* Clear DPD sample */
+	mmio_write_32((TEGRA_PMC_BASE + PMC_IO_DPD_SAMPLE), 0x0);
+
+	/* Clear DPD Enable */
+	mmio_write_32((TEGRA_PMC_BASE + PMC_DPD_ENABLE_0), 0x0);
+}
+
+/*******************************************************************************
  * Restart the system
  ******************************************************************************/
 __dead2 void tegra_pmc_system_reset(void)

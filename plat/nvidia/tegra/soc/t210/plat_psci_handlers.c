@@ -495,6 +495,12 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	 */
 	tegra_fc_lock_active_cluster();
 
+	/*
+         * Resume PMC hardware block for Tegra210 platforms supporting sc7entry-fw
+         */
+	if (!tegra_chipid_is_t210_b01() && (plat_params->sc7entry_fw_base != 0U))
+		tegra_pmc_resume();
+
 	return PSCI_E_SUCCESS;
 }
 
