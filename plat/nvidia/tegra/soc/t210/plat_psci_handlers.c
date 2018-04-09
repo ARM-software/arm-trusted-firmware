@@ -394,6 +394,15 @@ int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 			 */
 			tegra_reset_all_dma_masters();
 
+			/*
+			 * Mark PMC as accessible to the non-secure world
+			 * to allow the COP to execute System Suspend
+			 * sequence
+			 */
+			val = mmio_read_32(TEGRA_MISC_BASE + APB_SLAVE_SECURITY_ENABLE);
+			val &= ~PMC_SECURITY_EN_BIT;
+			mmio_write_32(TEGRA_MISC_BASE + APB_SLAVE_SECURITY_ENABLE, val);
+
 			/* clean up IRAM of any cruft */
 			zeromem((void *)(uintptr_t)TEGRA_IRAM_BASE,
 					TEGRA_IRAM_A_SIZE);
@@ -480,12 +489,14 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 			tegra_bpmp_resume();
 		}
 
-		/* sc7entry-fw is part of TZDRAM area */
 		if (plat_params->sc7entry_fw_base != 0U) {
+			/* sc7entry-fw is part of TZDRAM area */
 			offset = plat_params->tzdram_base - plat_params->sc7entry_fw_base;
 			tegra_memctrl_tzdram_setup(plat_params->sc7entry_fw_base,
 				plat_params->tzdram_size + offset);
+		}
 
+		if (!tegra_chipid_is_t210_b01()) {
 			/* restrict PMC access to secure world */
 			val = mmio_read_32(TEGRA_MISC_BASE + APB_SLAVE_SECURITY_ENABLE);
 			val |= PMC_SECURITY_EN_BIT;
