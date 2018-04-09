@@ -130,6 +130,7 @@
 typedef struct tzc_dmc500_driver_data {
 	uintptr_t dmc_base[MAX_DMC_COUNT];
 	int dmc_count;
+	unsigned int sys_if_count;
 } tzc_dmc500_driver_data_t;
 
 void tzc_dmc500_driver_init(const tzc_dmc500_driver_data_t *plat_driver_data);
