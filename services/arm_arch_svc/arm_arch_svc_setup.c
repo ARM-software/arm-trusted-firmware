@@ -19,19 +19,16 @@ static int32_t smccc_version(void)
 
 static int32_t smccc_arch_features(u_register_t arg)
 {
-	int ret;
-
 	switch (arg) {
 	case SMCCC_VERSION:
 	case SMCCC_ARCH_FEATURES:
 		return SMC_OK;
+#if WORKAROUND_CVE_2017_5715
 	case SMCCC_ARCH_WORKAROUND_1:
-		ret = check_workaround_cve_2017_5715();
-		if (ret == ERRATA_APPLIES)
-			return 0;
-		else if (ret == ERRATA_NOT_APPLIES)
+		if (check_workaround_cve_2017_5715() == ERRATA_NOT_APPLIES)
 			return 1;
-		return -1; /* ERRATA_MISSING */
+		return 0; /* ERRATA_APPLIES || ERRATA_MISSING */
+#endif
 	default:
 		return SMC_UNK;
 	}
