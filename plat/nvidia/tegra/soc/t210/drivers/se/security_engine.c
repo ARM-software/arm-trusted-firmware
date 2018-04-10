@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2017, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2017-2020, NVIDIA CORPORATION.  All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,8 +20,8 @@
  * Constants and Macros
  ******************************************************************************/
 
-#define TIMEOUT_100MS	100U	// Timeout in 100ms
-#define RNG_AES_KEY_INDEX   1
+#define TIMEOUT_100MS		100U	/* Timeout in 100ms */
+#define RNG_AES_KEY_INDEX	1
 
 /*******************************************************************************
  * Data structure and global variables
@@ -68,14 +68,12 @@
  * #--------------------------------#
  */
 
-/* Known pattern data */
-static const uint32_t se_ctx_known_pattern_data[SE_CTX_KNOWN_PATTERN_SIZE_WORDS] = {
+/* Known pattern data for T210 */
+static const uint8_t se_ctx_known_pattern_data[SE_CTX_KNOWN_PATTERN_SIZE] = {
 	/* 128 bit AES block */
-	0x0C0D0E0F,
-	0x08090A0B,
-	0x04050607,
-	0x00010203,
-};
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+	0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
+	};
 
 /* SE input and output linked list buffers */
 static tegra_se_io_lst_t se1_src_ll_buf;
@@ -84,6 +82,9 @@ static tegra_se_io_lst_t se1_dst_ll_buf;
 /* SE2 input and output linked list buffers */
 static tegra_se_io_lst_t se2_src_ll_buf;
 static tegra_se_io_lst_t se2_dst_ll_buf;
+
+/* SE1 context buffer, 132 blocks */
+static __aligned(64) uint8_t se1_ctx_buf[SE_CTX_DRBG_BUFER_SIZE];
 
 /* SE1 security engine device handle */
 static tegra_se_dev_t se_dev_1 = {
@@ -97,10 +98,10 @@ static tegra_se_dev_t se_dev_1 = {
 	/* Setup DST buffers for SE operations */
 	.dst_ll_buf = &se1_dst_ll_buf,
 	/* Setup context save destination */
-	.ctx_save_buf = (uint32_t *)(TEGRA_TZRAM_CARVEOUT_BASE),
+	.ctx_save_buf = (uint32_t *)&se1_ctx_buf
 };
 
-/* SE2 security engine device handle */
+/* SE2 security engine device handle (T210B01 only) */
 static tegra_se_dev_t se_dev_2 = {
 	.se_num = 2,
 	/* Setup base address for se */
@@ -112,7 +113,7 @@ static tegra_se_dev_t se_dev_2 = {
 	/* Setup DST buffers for SE operations */
 	.dst_ll_buf = &se2_dst_ll_buf,
 	/* Setup context save destination */
-	.ctx_save_buf = (uint32_t *)(TEGRA_TZRAM_CARVEOUT_BASE + 0x1000),
+	.ctx_save_buf = (uint32_t *)(TEGRA_TZRAM_CARVEOUT_BASE + 0x1000)
 };
 
 static bool ecid_valid;
@@ -202,18 +203,6 @@ static int32_t tegra_se_operation_complete(const tegra_se_dev_t *se_dev)
 }
 
 /*
- * Returns true if the SE engine is configured to perform SE context save in
- * hardware.
- */
-static inline bool tegra_se_atomic_save_enabled(const tegra_se_dev_t *se_dev)
-{
-	uint32_t val;
-
-	val = tegra_se_read_32(se_dev, SE_CTX_SAVE_AUTO_REG_OFFSET);
-	return (SE_CTX_SAVE_AUTO_ENABLE(val) == SE_CTX_SAVE_AUTO_EN);
-}
-
-/*
  * Wait for SE engine to be idle and clear pending interrupts before
  * starting the next SE operation.
  */
@@ -222,6 +211,9 @@ static int32_t tegra_se_operation_prepare(const tegra_se_dev_t *se_dev)
 	int32_t ret = 0;
 	uint32_t val = 0;
 	uint32_t timeout;
+
+	/* disable SE interrupt to prevent interrupt issued by SE operation */
+	tegra_se_write_32(se_dev, SE_INT_ENABLE_REG_OFFSET, 0U);
 
 	/* Wait for previous operation to finish */
 	val = tegra_se_read_32(se_dev, SE_STATUS_OFFSET);
@@ -629,19 +621,19 @@ static int tegra_se_lp_rsakeytable_context_save(tegra_se_dev_t *se_dev)
 {
 	uint32_t val = 0;
 	int ret = 0;
-	/* First the modulus and then the exponent must be
+	/* For T210, First the modulus and then exponent must be
 	 * encrypted and saved. This is repeated for SLOT 0
 	 * and SLOT 1. Hence the order:
-	 * SLOT 0 exponent : RSA_KEY_INDEX : 0
 	 * SLOT 0 modulus : RSA_KEY_INDEX : 1
-	 * SLOT 1 exponent : RSA_KEY_INDEX : 2
+	 * SLOT 0 exponent : RSA_KEY_INDEX : 0
 	 * SLOT 1 modulus : RSA_KEY_INDEX : 3
+	 * SLOT 1 exponent : RSA_KEY_INDEX : 2
 	 */
 	const unsigned int key_index_mod[TEGRA_SE_RSA_KEYSLOT_COUNT][2] = {
 		/* RSA key slot 0 */
-		{SE_RSA_KEY_INDEX_SLOT0_EXP, SE_RSA_KEY_INDEX_SLOT0_MOD},
+		{SE_RSA_KEY_INDEX_SLOT0_MOD, SE_RSA_KEY_INDEX_SLOT0_EXP},
 		/* RSA key slot 1 */
-		{SE_RSA_KEY_INDEX_SLOT1_EXP, SE_RSA_KEY_INDEX_SLOT1_MOD},
+		{SE_RSA_KEY_INDEX_SLOT1_MOD, SE_RSA_KEY_INDEX_SLOT1_EXP},
 	};
 
 	se_dev->dst_ll_buf->last_buff_num = 0;
@@ -876,8 +868,8 @@ static int tegra_se_context_save_sw(tegra_se_dev_t *se_dev)
 
 	/* Write lp context buffer address into PMC scratch register */
 	if (se_dev->se_num == 1) {
-		/* SE context address */
-		mmio_write_32((uint64_t)TEGRA_PMC_BASE + PMC_SECURE_SCRATCH117_OFFSET,
+		/* SE context address, support T210 only */
+		mmio_write_32((uint64_t)TEGRA_PMC_BASE + PMC_SCRATCH43_REG_OFFSET,
 				((uint64_t)(se_dev->ctx_save_buf)));
 	} else if (se_dev->se_num == 2) {
 		/* SE2 & PKA1 context address */
@@ -909,7 +901,10 @@ void tegra_se_init(void)
 
 	/* Generate random SRK to initialize DRBG */
 	tegra_se_generate_srk(&se_dev_1);
-	tegra_se_generate_srk(&se_dev_2);
+
+	if (tegra_chipid_is_t210_b01()) {
+		tegra_se_generate_srk(&se_dev_2);
+	}
 
 	/* determine if ECID is valid */
 	val = mmio_read_32(TEGRA_FUSE_BASE + FUSE_JTAG_SECUREID_VALID);
@@ -931,6 +926,18 @@ static void tegra_se_enable_clocks(void)
 	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEVICES_W);
 	val &= ~ENTROPY_RESET_BIT;
 	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEVICES_W, val);
+
+	if (!tegra_chipid_is_t210_b01()) {
+
+		/*
+		 * T210 SE clock source is turned off in kernel, to simplify
+		 * SE clock source setting, we switch SE clock source to
+		 * CLK_M, SE_CLK_DIVISOR = 0. T210 B01 SE clock source is
+		 * always on, so don't need this setting.
+		 */
+		mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_RST_CTL_CLK_SRC_SE,
+			      SE_CLK_SRC_CLK_M);
+	}
 
 	/* Enable SE clock */
 	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_V);
@@ -975,43 +982,25 @@ int32_t tegra_se_suspend(void)
 
 	tegra_se_enable_clocks();
 
-	if (tegra_se_atomic_save_enabled(&se_dev_2) &&
-			tegra_se_atomic_save_enabled(&se_dev_1)) {
-		/* Atomic context save se2 and pka1 */
+	if (tegra_chipid_is_t210_b01()) {
+		/* It is T210 B01, Atomic context save se2 and pka1 */
 		INFO("%s: SE2/PKA1 atomic context save\n", __func__);
-		if (ret == 0) {
-			ret = tegra_se_context_save_atomic(&se_dev_2);
+		ret = tegra_se_context_save_atomic(&se_dev_2);
+		if (ret != 0) {
+			ERROR("%s: SE2 ctx save failed (%d)\n", __func__, ret);
 		}
 
-		/* Atomic context save se */
-		if (ret == 0) {
-			INFO("%s: SE1 atomic context save\n", __func__);
-			ret = tegra_se_context_save_atomic(&se_dev_1);
-		}
-
-		if (ret == 0) {
-			INFO("%s: SE atomic context save done\n", __func__);
-		}
-	} else if (!tegra_se_atomic_save_enabled(&se_dev_2) &&
-			!tegra_se_atomic_save_enabled(&se_dev_1)) {
-		/* SW context save se2 and pka1 */
-		INFO("%s: SE2/PKA1 legacy(SW) context save\n", __func__);
-		if (ret == 0) {
-			ret = tegra_se_context_save_sw(&se_dev_2);
-		}
-
-		/* SW context save se */
-		if (ret == 0) {
-			INFO("%s: SE1 legacy(SW) context save\n", __func__);
-			ret = tegra_se_context_save_sw(&se_dev_1);
-		}
-
-		if (ret == 0) {
-			INFO("%s: SE SW context save done\n", __func__);
+		ret = tegra_se_context_save_atomic(&se_dev_1);
+		if (ret != 0) {
+			ERROR("%s: SE1 ctx save failed (%d)\n", __func__, ret);
 		}
 	} else {
-		ERROR("%s: One SE set for atomic CTX save, the other is not\n",
-			 __func__);
+		/* It is T210, SW context save se */
+		INFO("%s: SE1 legacy(SW) context save\n", __func__);
+		ret = tegra_se_context_save_sw(&se_dev_1);
+		if (ret != 0) {
+			ERROR("%s: SE1 ctx save failed (%d)\n", __func__, ret);
+		}
 	}
 
 	tegra_se_disable_clocks();
@@ -1080,5 +1069,8 @@ static void tegra_se_warm_boot_resume(const tegra_se_dev_t *se_dev)
 void tegra_se_resume(void)
 {
 	tegra_se_warm_boot_resume(&se_dev_1);
-	tegra_se_warm_boot_resume(&se_dev_2);
+
+	if (tegra_chipid_is_t210_b01()) {
+		tegra_se_warm_boot_resume(&se_dev_2);
+	}
 }

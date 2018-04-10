@@ -174,9 +174,7 @@ void plat_early_platform_setup(void)
 	}
 
 	/* Initialize security engine driver */
-	if (tegra_chipid_is_t210_b01()) {
-		tegra_se_init();
-	}
+	tegra_se_init();
 }
 
 /* Secure IRQs for Tegra186 */
