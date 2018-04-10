@@ -25,6 +25,7 @@
 
 /* Pointer to the tzc_dmc500_driver_data structure populated by the platform */
 static const tzc_dmc500_driver_data_t *g_driver_data;
+static unsigned int g_sys_if_count;
 
 #define verify_region_attr(region, attr)	\
 		((g_conf_regions[(region)].sec_attr ==			\
@@ -88,7 +89,7 @@ void tzc_dmc500_config_complete(void)
 
 	for (dmc_inst = 0; dmc_inst < g_driver_data->dmc_count; dmc_inst++) {
 		assert(DMC_INST_BASE_ADDR(dmc_inst));
-		for (sys_if = 0; sys_if < MAX_SYS_IF_COUNT; sys_if++)
+		for (sys_if = 0; sys_if < g_sys_if_count; sys_if++)
 			_tzc_dmc500_write_flush_control(
 					DMC_INST_SI_BASE(dmc_inst, sys_if));
 	}
@@ -119,7 +120,7 @@ int tzc_dmc500_verify_complete(void)
 		for (dmc_inst = 0; dmc_inst < g_driver_data->dmc_count;
 								dmc_inst++) {
 			assert(DMC_INST_BASE_ADDR(dmc_inst));
-			for (sys_if = 0; sys_if < MAX_SYS_IF_COUNT;
+			for (sys_if = 0; sys_if < g_sys_if_count;
 							sys_if++) {
 				attr = _tzc_dmc500_read_region_attr_0(
 					DMC_INST_SI_BASE(dmc_inst, sys_if),
@@ -154,7 +155,7 @@ void tzc_dmc500_configure_region0(tzc_region_attributes_t sec_attr,
 	/* Configure region_0 in all DMC instances */
 	for (dmc_inst = 0; dmc_inst < g_driver_data->dmc_count; dmc_inst++) {
 		assert(DMC_INST_BASE_ADDR(dmc_inst));
-		for (sys_if = 0; sys_if < MAX_SYS_IF_COUNT; sys_if++)
+		for (sys_if = 0; sys_if < g_sys_if_count; sys_if++)
 			_tzc_dmc500_configure_region0(
 					DMC_INST_SI_BASE(dmc_inst, sys_if),
 					sec_attr, nsaid_permissions);
@@ -195,7 +196,7 @@ void tzc_dmc500_configure_region(int region_no,
 
 	for (dmc_inst = 0; dmc_inst < g_driver_data->dmc_count; dmc_inst++) {
 		assert(DMC_INST_BASE_ADDR(dmc_inst));
-		for (sys_if = 0; sys_if < MAX_SYS_IF_COUNT; sys_if++)
+		for (sys_if = 0; sys_if < g_sys_if_count; sys_if++)
 			_tzc_dmc500_configure_region(
 					DMC_INST_SI_BASE(dmc_inst, sys_if),
 					TZC_DMC500_REGION_ATTR_F_EN_MASK,
@@ -272,4 +273,13 @@ void tzc_dmc500_driver_init(const tzc_dmc500_driver_data_t *plat_driver_data)
 	/* Validates the information passed by platform */
 	validate_plat_driver_data(plat_driver_data);
 	g_driver_data = plat_driver_data;
+
+	/* Check valid system interface count */
+	assert(g_driver_data->sys_if_count <= MAX_SYS_IF_COUNT);
+
+	g_sys_if_count = g_driver_data->sys_if_count;
+
+	/* If interface count is not present then assume max */
+	if (g_sys_if_count == 0U)
+		g_sys_if_count = MAX_SYS_IF_COUNT;
 }
