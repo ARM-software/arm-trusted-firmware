@@ -735,7 +735,8 @@ static int mmap_add_region_check(xlat_ctx_t *ctx, const mmap_region_t *mm)
 void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 {
 	mmap_region_t *mm_cursor = ctx->mmap;
-	mmap_region_t *mm_last = mm_cursor + ctx->mmap_num;
+	const mmap_region_t *mm_end = ctx->mmap + ctx->mmap_num;
+	mmap_region_t *mm_last;
 	unsigned long long end_pa = mm->base_pa + mm->size - 1;
 	uintptr_t end_va = mm->base_va + mm->size - 1;
 	int ret;
@@ -786,6 +787,21 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 	       && (mm_cursor->size < mm->size))
 		++mm_cursor;
 
+	/*
+	 * Find the last entry marker in the mmap
+	 */
+	mm_last = ctx->mmap;
+	while ((mm_last->size != 0U) && (mm_last < mm_end)) {
+		++mm_last;
+	}
+
+	/*
+	 * Check if we have enough space in the memory mapping table.
+	 * This shouldn't happen as we have checked in mmap_add_region_check
+	 * that there is free space.
+	 */
+	assert(mm_last->size == 0U);
+
 	/* Make room for new region by moving other regions up by one place */
 	memmove(mm_cursor + 1, mm_cursor,
 		(uintptr_t)mm_last - (uintptr_t)mm_cursor);
@@ -795,7 +811,7 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 	 * This shouldn't happen as we have checked in mmap_add_region_check
 	 * that there is free space.
 	 */
-	assert(mm_last->size == 0);
+	assert(mm_end->size == 0U);
 
 	*mm_cursor = *mm;
 
