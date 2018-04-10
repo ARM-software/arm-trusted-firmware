@@ -12,5 +12,7 @@ Socionext Inc.
 
 Xilinx, Inc.
 
+NXP Semiconductors
+
 Individuals
 -----------
