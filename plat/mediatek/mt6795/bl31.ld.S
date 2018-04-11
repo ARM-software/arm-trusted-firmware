@@ -59,7 +59,7 @@ SECTIONS
          * executable.  No RW data from the next section must creep in.
          * Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __RO_END__ = .;
     } >RAM
 
@@ -161,7 +161,7 @@ SECTIONS
          * as device memory.  No other unexpected data must creep in.
          * Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __COHERENT_RAM_END__ = .;
     } >RAM2
 #endif

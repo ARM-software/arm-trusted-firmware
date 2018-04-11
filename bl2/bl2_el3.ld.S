@@ -42,7 +42,7 @@ SECTIONS
 	__TEXT_RESIDENT_END__ = .;
         *(.text*)
         *(.vectors)
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __TEXT_END__ = .;
 #if BL2_IN_XIP_MEM
      } >ROM
@@ -69,7 +69,7 @@ SECTIONS
         KEEP(*(cpu_ops))
         __CPU_OPS_END__ = .;
 
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __RODATA_END__ = .;
 #if BL2_IN_XIP_MEM
     } >ROM
@@ -111,7 +111,7 @@ SECTIONS
          * read-only, executable.  No RW data from the next section must
          * creep in.  Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
 
         __RO_END__ = .;
 #if BL2_IN_XIP_MEM
@@ -195,7 +195,7 @@ SECTIONS
          * as device memory.  No other unexpected data must creep in.
          * Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __COHERENT_RAM_END__ = .;
     } >RAM
 #endif

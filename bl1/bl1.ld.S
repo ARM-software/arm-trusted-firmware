@@ -28,7 +28,7 @@ SECTIONS
         *bl1_entrypoint.o(.text*)
         *(.text*)
         *(.vectors)
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __TEXT_END__ = .;
      } >ROM
 
@@ -152,7 +152,7 @@ SECTIONS
          * as device memory.  No other unexpected data must creep in.
          * Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __COHERENT_RAM_END__ = .;
     } >RAM
 #endif

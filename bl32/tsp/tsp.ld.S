@@ -29,14 +29,14 @@ SECTIONS
         *tsp_entrypoint.o(.text*)
         *(.text*)
         *(.vectors)
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __TEXT_END__ = .;
     } >RAM
 
     .rodata . : {
         __RODATA_START__ = .;
         *(.rodata*)
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __RODATA_END__ = .;
     } >RAM
 #else
@@ -52,7 +52,7 @@ SECTIONS
          * read-only, executable.  No RW data from the next section must
          * creep in.  Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __RO_END__ = .;
     } >RAM
 #endif
@@ -117,7 +117,7 @@ SECTIONS
          * as device memory.  No other unexpected data must creep in.
          * Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __COHERENT_RAM_END__ = .;
     } >RAM
 #endif
