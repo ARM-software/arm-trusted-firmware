@@ -94,10 +94,10 @@ static void __dead2 ls1043_system_reset(void)
 static int ls1043_pwr_domain_on(u_register_t mpidr)
 {
 	int core_pos = plat_core_pos_by_mpidr(mpidr);
-	uint32_t core_mask = 1 << core_pos;
-	uint32_t brr;
+	uint32_t core_mask, brr;
 
 	assert(core_pos >= 0 && core_pos < PLATFORM_CORE_COUNT);
+	core_mask = 1 << core_pos;
 
 	/* set warm boot entry */
 	mmio_write_32(LS_SCFG_BASE + LS_SCFG_SCRATCHRW0_OFFSET,
