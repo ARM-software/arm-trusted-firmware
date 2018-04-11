@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -30,6 +30,13 @@ PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/juno/${ARCH}/juno_helpers.S
 JUNO_AARCH32_EL3_RUNTIME	:=	0
 $(eval $(call assert_boolean,JUNO_AARCH32_EL3_RUNTIME))
 $(eval $(call add_define,JUNO_AARCH32_EL3_RUNTIME))
+
+# Flag to enable support for TZMP1 on JUNO
+JUNO_TZMP1		:=	0
+$(eval $(call assert_boolean,JUNO_TZMP1))
+ifeq (${JUNO_TZMP1}, 1)
+$(eval $(call add_define,JUNO_TZMP1))
+endif
 
 ifeq (${JUNO_AARCH32_EL3_RUNTIME}, 1)
 # Include BL32 in FIP

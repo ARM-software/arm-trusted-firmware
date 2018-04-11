@@ -11,6 +11,7 @@
 #include <cassert.h>
 #include <cpu_data.h>
 #include <stdint.h>
+#include <tzc_common.h>
 #include <utils_def.h>
 
 /*******************************************************************************
@@ -20,6 +21,43 @@ struct bl31_params;
 struct meminfo;
 struct image_info;
 struct bl_params;
+
+typedef struct arm_tzc_regions_info {
+	unsigned long long base;
+	unsigned long long end;
+	tzc_region_attributes_t sec_attr;
+	unsigned int nsaid_permissions;
+} arm_tzc_regions_info_t;
+
+/*******************************************************************************
+ * Default mapping definition of the TrustZone Controller for ARM standard
+ * platforms.
+ * Configure:
+ *   - Region 0 with no access;
+ *   - Region 1 with secure access only;
+ *   - the remaining DRAM regions access from the given Non-Secure masters.
+ ******************************************************************************/
+#if ENABLE_SPM
+#define ARM_TZC_REGIONS_DEF						\
+	{ARM_AP_TZC_DRAM1_BASE, ARM_EL3_TZC_DRAM1_END,			\
+		TZC_REGION_S_RDWR, 0},					\
+	{ARM_NS_DRAM1_BASE, ARM_NS_DRAM1_END, ARM_TZC_NS_DRAM_S_ACCESS, \
+		PLAT_ARM_TZC_NS_DEV_ACCESS}, 				\
+	{ARM_DRAM2_BASE, ARM_DRAM2_END, ARM_TZC_NS_DRAM_S_ACCESS,	\
+		PLAT_ARM_TZC_NS_DEV_ACCESS},				\
+	{ARM_SP_IMAGE_NS_BUF_BASE, (ARM_SP_IMAGE_NS_BUF_BASE +		\
+		ARM_SP_IMAGE_NS_BUF_SIZE) - 1, TZC_REGION_S_NONE,	\
+		PLAT_ARM_TZC_NS_DEV_ACCESS}
+
+#else
+#define ARM_TZC_REGIONS_DEF						\
+	{ARM_AP_TZC_DRAM1_BASE, ARM_EL3_TZC_DRAM1_END,			\
+		TZC_REGION_S_RDWR, 0},					\
+	{ARM_NS_DRAM1_BASE, ARM_NS_DRAM1_END, ARM_TZC_NS_DRAM_S_ACCESS, \
+		PLAT_ARM_TZC_NS_DEV_ACCESS},	 			\
+	{ARM_DRAM2_BASE, ARM_DRAM2_END, ARM_TZC_NS_DRAM_S_ACCESS,	\
+		PLAT_ARM_TZC_NS_DEV_ACCESS}
+#endif
 
 #define ARM_CASSERT_MMAP						\
 	CASSERT((ARRAY_SIZE(plat_arm_mmap) + ARM_BL_REGIONS)		\
@@ -110,9 +148,10 @@ void arm_setup_page_tables(uintptr_t total_base,
 void arm_io_setup(void);
 
 /* Security utility functions */
-void arm_tzc400_setup(void);
+void arm_tzc400_setup(const arm_tzc_regions_info_t *tzc_regions);
 struct tzc_dmc500_driver_data;
-void arm_tzc_dmc500_setup(struct tzc_dmc500_driver_data *plat_driver_data);
+void arm_tzc_dmc500_setup(struct tzc_dmc500_driver_data *plat_driver_data,
+			const arm_tzc_regions_info_t *tzc_regions);
 
 /* Systimer utility function */
 void arm_configure_sys_timer(void);
