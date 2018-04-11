@@ -10,6 +10,7 @@
 #include <errno.h>
 #include <hi6220.h>
 #include <hi6553.h>
+#include <hisi_sram_map.h>
 #include <mmio.h>
 #include <sp804_delay_timer.h>
 
@@ -1137,20 +1138,24 @@ static int dienum_det_and_rowcol_cfg(void)
 		mmio_write_32((0xf7128000 + 0x064), 0x132);
 		mmio_write_32((0xf7120000 + 0x100), 0x1600);
 		mmio_write_32((0xf7120000 + 0x104), 0x71040004);
+		mmio_write_32(MEMORY_AXI_DDR_CAPACITY_ADDR, 0x40000000);
 		break;
 	case 0x1c:
 		mmio_write_32((0xf7128000 + 0x060), 0x142);
 		mmio_write_32((0xf7128000 + 0x064), 0x142);
 		mmio_write_32((0xf7120000 + 0x100), 0x1700);
 		mmio_write_32((0xf7120000 + 0x104), 0x71040004);
+		mmio_write_32(MEMORY_AXI_DDR_CAPACITY_ADDR, 0x80000000);
 		break;
 	case 0x58:
 		mmio_write_32((0xf7128000 + 0x060), 0x133);
 		mmio_write_32((0xf7128000 + 0x064), 0x133);
 		mmio_write_32((0xf7120000 + 0x100), 0x1700);
 		mmio_write_32((0xf7120000 + 0x104), 0x71040004);
+		mmio_write_32(MEMORY_AXI_DDR_CAPACITY_ADDR, 0x80000000);
 		break;
 	default:
+		mmio_write_32(MEMORY_AXI_DDR_CAPACITY_ADDR, 0x80000000);
 		break;
 	}
 	if (!data)
@@ -1213,24 +1218,107 @@ void ddr_phy_reset(void)
 	mmio_write_32(0xf7030344, 0xa000);
 }
 
+void lpddrx_save_ddl_para_bypass(uint32_t *ddr_ddl_para, unsigned int index)
+{
+	uint32_t value;
+	uint32_t cnt = index;
+	uint32_t i;
+
+	for (i = 0; i < 4; i++) {
+		value = mmio_read_32(0xf712c000 + 0x22c + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x23c + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x240 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x640 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+	}
+}
+
+void lpddrx_save_ddl_para_mission(uint32_t *ddr_ddl_para, unsigned int index)
+{
+	uint32_t value;
+	uint32_t cnt = index;
+	uint32_t i;
+
+	value = mmio_read_32(0xf712c000 + 0x140);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x144);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x148);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x14c);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x150);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x1d4);
+	ddr_ddl_para[cnt++] = value;
+	for (i = 0; i < 4; i++) {
+		value = mmio_read_32(0xf712c000 + 0x210 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x214 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x218 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x21c + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x220 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x224 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x228 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x22c + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x230 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x234 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x238 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x23c + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x240 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x640 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+	}
+	value = mmio_read_32(0xf712c000 + 0x168);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x24c + 0 * 0x80);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x24c + 2 * 0x80);
+	ddr_ddl_para[cnt++] = value;
+}
+
 int lpddr3_freq_init(int freq)
 {
 	set_ddrc_150mhz();
+	lpddrx_save_ddl_para_bypass((uint32_t *)MEMORY_AXI_DDR_DDL_ADDR, 0);
 	if (freq > DDR_FREQ_150M) {
 		ddr_phy_reset();
 		set_ddrc_266mhz();
+		lpddrx_save_ddl_para_bypass((uint32_t *)MEMORY_AXI_DDR_DDL_ADDR,
+					    16);
 	}
 	if (freq > DDR_FREQ_266M) {
 		ddr_phy_reset();
 		set_ddrc_400mhz();
+		lpddrx_save_ddl_para_bypass((uint32_t *)MEMORY_AXI_DDR_DDL_ADDR,
+					    16 * 2);
 	}
 	if (freq > DDR_FREQ_400M) {
 		ddr_phy_reset();
 		set_ddrc_533mhz();
+		lpddrx_save_ddl_para_mission((uint32_t *)MEMORY_AXI_DDR_DDL_ADDR,
+					     16 * 3);
 	}
 	if (freq > DDR_FREQ_533M) {
 		ddr_phy_reset();
 		set_ddrc_800mhz();
+		lpddrx_save_ddl_para_mission((uint32_t *)MEMORY_AXI_DDR_DDL_ADDR,
+					     16 * 3 + 61);
 	}
 	return 0;
 }
