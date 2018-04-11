@@ -306,7 +306,7 @@ void bl2_platform_setup(void)
 	hikey_hi6553_init();
 
 	dsb();
-	hikey_ddr_init();
+	hikey_ddr_init(DDR_FREQ_800M);
 	hikey_security_setup();
 
 	/* Clear SRAM since it'll be used by MCU right now. */
