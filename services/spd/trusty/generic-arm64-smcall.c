@@ -12,6 +12,15 @@
 
 #include "generic-arm64-smcall.h"
 
+#ifndef PLAT_ARM_GICD_BASE
+#ifdef GICD_BASE
+#define PLAT_ARM_GICD_BASE GICD_BASE
+#define PLAT_ARM_GICC_BASE GICC_BASE
+#else
+#error PLAT_ARM_GICD_BASE or GICD_BASE must be defined
+#endif
+#endif
+
 int trusty_disable_serial_debug;
 
 struct dputc_state {
