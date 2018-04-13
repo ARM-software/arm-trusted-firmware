@@ -304,14 +304,12 @@ void bl2_platform_setup(void)
 	hikey_gpio_init();
 	hikey_pmussi_init();
 	hikey_hi6553_init();
-
-	dsb();
-	hikey_ddr_init();
-	hikey_security_setup();
-
 	/* Clear SRAM since it'll be used by MCU right now. */
 	memset((void *)SRAM_BASE, 0, SRAM_SIZE);
-	clean_dcache_range(SRAM_BASE, SRAM_SIZE);
+
+	dsb();
+	hikey_ddr_init(DDR_FREQ_800M);
+	hikey_security_setup();
 
 	hikey_boardid_init();
 	init_acpu_dvfs();
@@ -320,6 +318,9 @@ void bl2_platform_setup(void)
 	hikey_jumper_init();
 
 	hikey_mmc_pll_init();
+
+	/* Clean SRAM before MCU used */
+	clean_dcache_range(SRAM_BASE, SRAM_SIZE);
 
 	reset_dwmmc_clk();
 	memset(&params, 0, sizeof(dw_mmc_params_t));

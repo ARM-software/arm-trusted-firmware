@@ -5,17 +5,16 @@
  */
 
 #include <arch_helpers.h>
+#include <assert.h>
 #include <debug.h>
 #include <errno.h>
 #include <hi6220.h>
 #include <hi6553.h>
+#include <hisi_sram_map.h>
 #include <mmio.h>
 #include <sp804_delay_timer.h>
 
-enum {
-	DDR_FREQ_533M = 0,
-	DDR_FREQ_800M,
-};
+#include "hikey_private.h"
 
 static void init_pll(void)
 {
@@ -24,7 +23,6 @@ static void init_pll(void)
 	data = mmio_read_32((0xf7032000 + 0x000));
 	data |= 0x1;
 	mmio_write_32((0xf7032000 + 0x000), data);
-	dsb();
 	do {
 		data = mmio_read_32((0xf7032000 + 0x000));
 	} while (!(data & (1 << 28)));
@@ -33,22 +31,45 @@ static void init_pll(void)
 	data &= ~0x007;
 	data |= 0x004;
 	mmio_write_32((0xf7800000 + 0x000), data);
-	dsb();
 	do {
 		data = mmio_read_32((0xf7800000 + 0x014));
 		data &= 0x007;
 	} while (data != 0x004);
 
 	mmio_write_32(PERI_SC_PERIPH_CTRL14, 0x2101);
-	data = mmio_read_32(PERI_SC_PERIPH_STAT1);
+	dsb();
+	isb();
+	udelay(10);
+	mmio_write_32(PERI_SC_PERIPH_CTRL14, 0x2001);
+	dsb();
+	isb();
+	udelay(10);
+	mmio_write_32(PERI_SC_PERIPH_CTRL14, 0x2201);
+	dsb();
+	isb();
+	udelay(10);
 	mmio_write_32(0xf7032000 + 0x02c, 0x5110103e);
+	dsb();
+	isb();
+	udelay(10);
 	data = mmio_read_32(0xf7032000 + 0x050);
 	data |= 1 << 28;
 	mmio_write_32(0xf7032000 + 0x050, data);
+	dsb();
+	isb();
+	udelay(10);
 	mmio_write_32(PERI_SC_PERIPH_CTRL14, 0x2101);
-	mdelay(1);
-	data = mmio_read_32(PERI_SC_PERIPH_STAT1);
-	NOTICE("syspll frequency:%dHz\n", data);
+	dsb();
+	isb();
+	udelay(10);
+	mmio_write_32(PERI_SC_PERIPH_CTRL14, 0x2001);
+	dsb();
+	isb();
+	udelay(10);
+	mmio_write_32(PERI_SC_PERIPH_CTRL14, 0x2201);
+	dsb();
+	isb();
+	udelay(10);
 }
 
 static void init_freq(void)
@@ -215,7 +236,7 @@ int cat_533mhz_800mhz(void)
 
 	data = mmio_read_32((0xf712c000 + 0x1c8));
 	data &= 0xfffff0f0;
-	data |= 0x100f0f;
+	data |= 0x100f01;
 	mmio_write_32((0xf712c000 + 0x1c8), data);
 
 	for (i = 0; i < 0x20; i++) {
@@ -244,7 +265,7 @@ int cat_533mhz_800mhz(void)
 		} while (data & 1);
 
 		data = mmio_read_32((0xf712c000 + 0x008));
-		if (!(data & 0x400)) {
+		if ((data & 0x400) == 0) {
 			mdelay(10);
 			return 0;
 		}
@@ -489,7 +510,334 @@ static void ddrx_wdet(void)
 		INFO("wdet rbs av fail\n");
 }
 
-static void set_ddrc_533mhz(void)
+void set_ddrc_150mhz(void)
+{
+	unsigned int data;
+
+	mmio_write_32((0xf7032000 + 0x580), 0x1);
+	mmio_write_32((0xf7032000 + 0x5a8), 0x7);
+	data = mmio_read_32((0xf7032000 + 0x104));
+	data &= 0xfffffcff;
+	mmio_write_32((0xf7032000 + 0x104), data);
+
+	mmio_write_32((0xf7030000 + 0x050), 0x31);
+	mmio_write_32((0xf7030000 + 0x240), 0x5ffff);
+	mmio_write_32((0xf7030000 + 0x344), 0xf5ff);
+	mmio_write_32((0xf712c000 + 0x00c), 0x80000f0f);
+	mmio_write_32((0xf712c000 + 0x00c), 0xf0f);
+	mmio_write_32((0xf712c000 + 0x018), 0x7);
+	mmio_write_32((0xf712c000 + 0x090), 0x7200000);
+	mmio_write_32((0xf712c000 + 0x258), 0x720);
+	mmio_write_32((0xf712c000 + 0x2d8), 0x720);
+	mmio_write_32((0xf712c000 + 0x358), 0x720);
+	mmio_write_32((0xf712c000 + 0x3d8), 0x720);
+	mmio_write_32((0xf712c000 + 0x018), 0x7);
+	mmio_write_32((0xf712c000 + 0x0b0), 0xf00000f);
+	mmio_write_32((0xf712c000 + 0x0b4), 0xf);
+	mmio_write_32((0xf712c000 + 0x088), 0x3fff801);
+	mmio_write_32((0xf712c000 + 0x070), 0x8940000);
+
+	data = mmio_read_32((0xf712c000 + 0x078));
+	data |= 4;
+	mmio_write_32((0xf712c000 + 0x078), data);
+	mmio_write_32((0xf712c000 + 0x01c), 0x8000080);
+	data = mmio_read_32((0xf712c000 + 0x020));
+	data &= 0xfffffffe;
+	mmio_write_32((0xf712c000 + 0x020), data);
+	mmio_write_32((0xf712c000 + 0x1d4), 0xc0000);
+	mmio_write_32((0xf712c000 + 0x010), 0x500000f);
+	mmio_write_32((0xf712c000 + 0x014), 0x10);
+	data = mmio_read_32((0xf712c000 + 0x1e4));
+	data &= 0xffffff00;
+	mmio_write_32((0xf712c000 + 0x1e4), data);
+	mmio_write_32((0xf712c000 + 0x030), 0x30c82355);
+	mmio_write_32((0xf712c000 + 0x034), 0x62112bb);
+	mmio_write_32((0xf712c000 + 0x038), 0x20041022);
+	mmio_write_32((0xf712c000 + 0x03c), 0x63177497);
+	mmio_write_32((0xf712c000 + 0x040), 0x3008407);
+	mmio_write_32((0xf712c000 + 0x064), 0x10483);
+	mmio_write_32((0xf712c000 + 0x068), 0xff0a0000);
+	data = mmio_read_32((0xf712c000 + 0x070));
+	data &= 0xffff0000;
+	data |= 0x184;
+	mmio_write_32((0xf712c000 + 0x070), data);
+	data = mmio_read_32((0xf712c000 + 0x048));
+	data &= 0xbfffffff;
+	mmio_write_32((0xf712c000 + 0x048), data);
+	data = mmio_read_32((0xf712c000 + 0x020));
+	data &= ~0x10;
+	mmio_write_32((0xf712c000 + 0x020), data);
+	data = mmio_read_32((0xf712c000 + 0x080));
+	data &= ~0x2000;
+	mmio_write_32((0xf712c000 + 0x080), data);
+	mmio_write_32((0xf712c000 + 0x270), 0x3);
+	mmio_write_32((0xf712c000 + 0x2f0), 0x3);
+	mmio_write_32((0xf712c000 + 0x370), 0x3);
+	mmio_write_32((0xf712c000 + 0x3f0), 0x3);
+	mmio_write_32((0xf712c000 + 0x048), 0x90420880);
+
+	mmio_write_32((0xf7128000 + 0x040), 0x0);
+	mmio_write_32((0xf712c000 + 0x004), 0x146d);
+	mmio_write_32((0xf7128000 + 0x050), 0x100123);
+	mmio_write_32((0xf7128000 + 0x060), 0x133);
+	mmio_write_32((0xf7128000 + 0x064), 0x133);
+	mmio_write_32((0xf7128000 + 0x200), 0xa1000);
+
+	mmio_write_32((0xf7128000 + 0x100), 0xb3290d08);
+	mmio_write_32((0xf7128000 + 0x104), 0x9621821);
+	mmio_write_32((0xf7128000 + 0x108), 0x45009023);
+	mmio_write_32((0xf7128000 + 0x10c), 0xaf44c145);
+	mmio_write_32((0xf7128000 + 0x110), 0x10b00000);
+	mmio_write_32((0xf7128000 + 0x114), 0x11080806);
+	mmio_write_32((0xf7128000 + 0x118), 0x44);
+	do {
+		data = mmio_read_32((0xf712c000 + 0x004));
+	} while (data & 1);
+	data = mmio_read_32((0xf712c000 + 0x008));
+	if (data & 8) {
+		NOTICE("fail to init ddr3 rank0\n");
+		return;
+	}
+
+	data = mmio_read_32((0xf712c000 + 0x048));
+	data |= 1;
+	mmio_write_32((0xf712c000 + 0x048), data);
+	mmio_write_32((0xf712c000 + 0x004), 0x21);
+	do {
+		data = mmio_read_32((0xf712c000 + 0x004));
+	} while (data & 1);
+
+	data = mmio_read_32((0xf712c000 + 0x008));
+	if (data & 0x8)
+		NOTICE("ddr3 rank1 init failure\n");
+	else
+		INFO("ddr3 rank1 init pass\n");
+
+	data = mmio_read_32((0xf712c000 + 0x048));
+	data &= ~0xf;
+	mmio_write_32((0xf712c000 + 0x048), data);
+	INFO("succeed to set ddrc 150mhz\n");
+}
+
+void set_ddrc_266mhz(void)
+{
+	unsigned int data;
+
+	mmio_write_32((0xf7032000 + 0x580), 0x3);
+	mmio_write_32((0xf7032000 + 0x5a8), 0x1003);
+	data = mmio_read_32((0xf7032000 + 0x104));
+	data &= 0xfffffcff;
+	mmio_write_32((0xf7032000 + 0x104), data);
+
+	mmio_write_32((0xf7030000 + 0x050), 0x31);
+	mmio_write_32((0xf7030000 + 0x240), 0x5ffff);
+	mmio_write_32((0xf7030000 + 0x344), 0xf5ff);
+	mmio_write_32((0xf712c000 + 0x00c), 0x80000f0f);
+	mmio_write_32((0xf712c000 + 0x00c), 0xf0f);
+	mmio_write_32((0xf712c000 + 0x018), 0x7);
+	mmio_write_32((0xf712c000 + 0x090), 0x7200000);
+	mmio_write_32((0xf712c000 + 0x258), 0x720);
+	mmio_write_32((0xf712c000 + 0x2d8), 0x720);
+	mmio_write_32((0xf712c000 + 0x358), 0x720);
+	mmio_write_32((0xf712c000 + 0x3d8), 0x720);
+	mmio_write_32((0xf712c000 + 0x018), 0x7);
+	mmio_write_32((0xf712c000 + 0x0b0), 0xf00000f);
+	mmio_write_32((0xf712c000 + 0x0b4), 0xf);
+	mmio_write_32((0xf712c000 + 0x088), 0x3fff801);
+	mmio_write_32((0xf712c000 + 0x070), 0x8940000);
+
+	data = mmio_read_32((0xf712c000 + 0x078));
+	data |= 4;
+	mmio_write_32((0xf712c000 + 0x078), data);
+	mmio_write_32((0xf712c000 + 0x01c), 0x8000080);
+	data = mmio_read_32((0xf712c000 + 0x020));
+	data &= 0xfffffffe;
+	mmio_write_32((0xf712c000 + 0x020), data);
+	mmio_write_32((0xf712c000 + 0x1d4), 0xc0000);
+	mmio_write_32((0xf712c000 + 0x010), 0x500000f);
+	mmio_write_32((0xf712c000 + 0x014), 0x10);
+	data = mmio_read_32((0xf712c000 + 0x1e4));
+	data &= 0xffffff00;
+	mmio_write_32((0xf712c000 + 0x1e4), data);
+	mmio_write_32((0xf712c000 + 0x030), 0x510d4455);
+	mmio_write_32((0xf712c000 + 0x034), 0x8391ebb);
+	mmio_write_32((0xf712c000 + 0x038), 0x2005103c);
+	mmio_write_32((0xf712c000 + 0x03c), 0x6329950b);
+	mmio_write_32((0xf712c000 + 0x040), 0x300858c);
+	mmio_write_32((0xf712c000 + 0x064), 0x10483);
+	mmio_write_32((0xf712c000 + 0x068), 0xff0a0000);
+	data = mmio_read_32((0xf712c000 + 0x070));
+	data &= 0xffff0000;
+	data |= 0x184;
+	mmio_write_32((0xf712c000 + 0x070), data);
+	data = mmio_read_32((0xf712c000 + 0x048));
+	data &= 0xbfffffff;
+	mmio_write_32((0xf712c000 + 0x048), data);
+	data = mmio_read_32((0xf712c000 + 0x020));
+	data &= ~0x10;
+	mmio_write_32((0xf712c000 + 0x020), data);
+	data = mmio_read_32((0xf712c000 + 0x080));
+	data &= ~0x2000;
+	mmio_write_32((0xf712c000 + 0x080), data);
+	mmio_write_32((0xf712c000 + 0x270), 0x3);
+	mmio_write_32((0xf712c000 + 0x2f0), 0x3);
+	mmio_write_32((0xf712c000 + 0x370), 0x3);
+	mmio_write_32((0xf712c000 + 0x3f0), 0x3);
+	mmio_write_32((0xf712c000 + 0x048), 0x90420880);
+
+	mmio_write_32((0xf7128000 + 0x040), 0x0);
+	mmio_write_32((0xf712c000 + 0x004), 0x146d);
+	mmio_write_32((0xf7128000 + 0x050), 0x100123);
+	mmio_write_32((0xf7128000 + 0x060), 0x133);
+	mmio_write_32((0xf7128000 + 0x064), 0x133);
+	mmio_write_32((0xf7128000 + 0x200), 0xa1000);
+
+	mmio_write_32((0xf7128000 + 0x100), 0xb441d50d);
+	mmio_write_32((0xf7128000 + 0x104), 0xf721839);
+	mmio_write_32((0xf7128000 + 0x108), 0x5500f03f);
+	mmio_write_32((0xf7128000 + 0x10c), 0xaf486145);
+	mmio_write_32((0xf7128000 + 0x110), 0x10b00000);
+	mmio_write_32((0xf7128000 + 0x114), 0x12080d06);
+	mmio_write_32((0xf7128000 + 0x118), 0x44);
+	do {
+		data = mmio_read_32((0xf712c000 + 0x004));
+	} while (data & 1);
+	data = mmio_read_32((0xf712c000 + 0x008));
+	if (data & 8) {
+		NOTICE("fail to init ddr3 rank0\n");
+		return;
+	}
+
+	data = mmio_read_32((0xf712c000 + 0x048));
+	data |= 1;
+	mmio_write_32((0xf712c000 + 0x048), data);
+	mmio_write_32((0xf712c000 + 0x004), 0x21);
+	do {
+		data = mmio_read_32((0xf712c000 + 0x004));
+	} while (data & 1);
+
+	data = mmio_read_32((0xf712c000 + 0x008));
+	if (data & 0x8)
+		NOTICE("ddr3 rank1 init failure\n");
+	else
+		INFO("ddr3 rank1 init pass\n");
+
+	data = mmio_read_32((0xf712c000 + 0x048));
+	data &= ~0xf;
+	mmio_write_32((0xf712c000 + 0x048), data);
+	INFO("succeed to set ddrc 266mhz\n");
+}
+
+void set_ddrc_400mhz(void)
+{
+	unsigned int data;
+
+	mmio_write_32((0xf7032000 + 0x580), 0x2);
+	mmio_write_32((0xf7032000 + 0x5a8), 0x1003);
+	data = mmio_read_32((0xf7032000 + 0x104));
+	data &= 0xfffffcff;
+	mmio_write_32((0xf7032000 + 0x104), data);
+
+	mmio_write_32((0xf7030000 + 0x050), 0x31);
+	mmio_write_32((0xf7030000 + 0x240), 0x5ffff);
+	mmio_write_32((0xf7030000 + 0x344), 0xf5ff);
+	mmio_write_32((0xf712c000 + 0x00c), 0x80000f0f);
+	mmio_write_32((0xf712c000 + 0x00c), 0xf0f);
+	mmio_write_32((0xf712c000 + 0x018), 0x7);
+	mmio_write_32((0xf712c000 + 0x090), 0x7200000);
+	mmio_write_32((0xf712c000 + 0x258), 0x720);
+	mmio_write_32((0xf712c000 + 0x2d8), 0x720);
+	mmio_write_32((0xf712c000 + 0x358), 0x720);
+	mmio_write_32((0xf712c000 + 0x3d8), 0x720);
+	mmio_write_32((0xf712c000 + 0x018), 0x7);
+	mmio_write_32((0xf712c000 + 0x0b0), 0xf00000f);
+	mmio_write_32((0xf712c000 + 0x0b4), 0xf);
+	mmio_write_32((0xf712c000 + 0x088), 0x3fff801);
+	mmio_write_32((0xf712c000 + 0x070), 0x8940000);
+
+	data = mmio_read_32((0xf712c000 + 0x078));
+	data |= 4;
+	mmio_write_32((0xf712c000 + 0x078), data);
+	mmio_write_32((0xf712c000 + 0x01c), 0x8000080);
+	data = mmio_read_32((0xf712c000 + 0x020));
+	data &= 0xfffffffe;
+	mmio_write_32((0xf712c000 + 0x020), data);
+	mmio_write_32((0xf712c000 + 0x1d4), 0xc0000);
+	mmio_write_32((0xf712c000 + 0x010), 0x500000f);
+	mmio_write_32((0xf712c000 + 0x014), 0x10);
+	data = mmio_read_32((0xf712c000 + 0x1e4));
+	data &= 0xffffff00;
+	mmio_write_32((0xf712c000 + 0x1e4), data);
+	mmio_write_32((0xf712c000 + 0x030), 0x75525655);
+	mmio_write_32((0xf712c000 + 0x034), 0xa552abb);
+	mmio_write_32((0xf712c000 + 0x038), 0x20071059);
+	mmio_write_32((0xf712c000 + 0x03c), 0x633e8591);
+	mmio_write_32((0xf712c000 + 0x040), 0x3008691);
+	mmio_write_32((0xf712c000 + 0x064), 0x10483);
+	mmio_write_32((0xf712c000 + 0x068), 0xff0a0000);
+	data = mmio_read_32((0xf712c000 + 0x070));
+	data &= 0xffff0000;
+	data |= 0x184;
+	mmio_write_32((0xf712c000 + 0x070), data);
+	data = mmio_read_32((0xf712c000 + 0x048));
+	data &= 0xbfffffff;
+	mmio_write_32((0xf712c000 + 0x048), data);
+	data = mmio_read_32((0xf712c000 + 0x020));
+	data &= ~0x10;
+	mmio_write_32((0xf712c000 + 0x020), data);
+	data = mmio_read_32((0xf712c000 + 0x080));
+	data &= ~0x2000;
+	mmio_write_32((0xf712c000 + 0x080), data);
+	mmio_write_32((0xf712c000 + 0x270), 0x3);
+	mmio_write_32((0xf712c000 + 0x2f0), 0x3);
+	mmio_write_32((0xf712c000 + 0x370), 0x3);
+	mmio_write_32((0xf712c000 + 0x3f0), 0x3);
+	mmio_write_32((0xf712c000 + 0x048), 0x90420880);
+
+	mmio_write_32((0xf7128000 + 0x040), 0x0);
+	mmio_write_32((0xf712c000 + 0x004), 0x146d);
+	mmio_write_32((0xf7128000 + 0x050), 0x100123);
+	mmio_write_32((0xf7128000 + 0x060), 0x133);
+	mmio_write_32((0xf7128000 + 0x064), 0x133);
+	mmio_write_32((0xf7128000 + 0x200), 0xa1000);
+
+	mmio_write_32((0xf7128000 + 0x100), 0xb55a9d12);
+	mmio_write_32((0xf7128000 + 0x104), 0x17721855);
+	mmio_write_32((0xf7128000 + 0x108), 0x7501505f);
+	mmio_write_32((0xf7128000 + 0x10c), 0xaf4ca245);
+	mmio_write_32((0xf7128000 + 0x110), 0x10b00000);
+	mmio_write_32((0xf7128000 + 0x114), 0x13081306);
+	mmio_write_32((0xf7128000 + 0x118), 0x44);
+	do {
+		data = mmio_read_32((0xf712c000 + 0x004));
+	} while (data & 1);
+	data = mmio_read_32((0xf712c000 + 0x008));
+	if (data & 8) {
+		NOTICE("fail to init ddr3 rank0\n");
+		return;
+	}
+
+	data = mmio_read_32((0xf712c000 + 0x048));
+	data |= 1;
+	mmio_write_32((0xf712c000 + 0x048), data);
+	mmio_write_32((0xf712c000 + 0x004), 0x21);
+	do {
+		data = mmio_read_32((0xf712c000 + 0x004));
+	} while (data & 1);
+
+	data = mmio_read_32((0xf712c000 + 0x008));
+	if (data & 0x8)
+		NOTICE("ddr3 rank1 init failure\n");
+	else
+		INFO("ddr3 rank1 init pass\n");
+
+	data = mmio_read_32((0xf712c000 + 0x048));
+	data &= ~0xf;
+	mmio_write_32((0xf712c000 + 0x048), data);
+	INFO("succeed to set ddrc 400mhz\n");
+}
+
+void set_ddrc_533mhz(void)
 {
 	unsigned int data;
 
@@ -502,6 +850,7 @@ static void set_ddrc_533mhz(void)
 	mmio_write_32((0xf7030000 + 0x050), 0x30);
 	mmio_write_32((0xf7030000 + 0x240), 0x5ffff);
 	mmio_write_32((0xf7030000 + 0x344), 0xf5ff);
+	mmio_write_32((0xf712c000 + 0x00c), 0x400);
 	mmio_write_32((0xf712c000 + 0x00c), 0x400);
 	mmio_write_32((0xf712c000 + 0x018), 0x7);
 	mmio_write_32((0xf712c000 + 0x090), 0x6400000);
@@ -564,10 +913,53 @@ static void set_ddrc_533mhz(void)
 		NOTICE("failed to init lpddr3 rank0 dram phy\n");
 		return;
 	}
-	NOTICE("succeed to init lpddr3 rank0 dram phy\n");
+	cat_533mhz_800mhz();
+
+	mmio_write_32((0xf712c000 + 0x004), 0xf1);
+	mmio_write_32((0xf7128000 + 0x050), 0x100123);
+	mmio_write_32((0xf7128000 + 0x060), 0x133);
+	mmio_write_32((0xf7128000 + 0x064), 0x133);
+	mmio_write_32((0xf7128000 + 0x200), 0xa1000);
+
+	mmio_write_32((0xf7128000 + 0x100), 0xb77b6718);
+	mmio_write_32((0xf7128000 + 0x104), 0x1e82a071);
+	mmio_write_32((0xf7128000 + 0x108), 0x9501c07e);
+	mmio_write_32((0xf7128000 + 0x10c), 0xaf50c255);
+	mmio_write_32((0xf7128000 + 0x110), 0x10b00000);
+	mmio_write_32((0xf7128000 + 0x114), 0x13181908);
+	mmio_write_32((0xf7128000 + 0x118), 0x44);
+	do {
+		data = mmio_read_32((0xf712c000 + 0x004));
+	} while (data & 1);
+	data = mmio_read_32((0xf712c000 + 0x008));
+	if (data & 0x7fe) {
+		NOTICE("fail to init ddr3 rank0\n");
+		return;
+	}
+	ddrx_rdet();
+	ddrx_wdet();
+
+	data = mmio_read_32((0xf712c000 + 0x048));
+	data |= 1;
+	mmio_write_32((0xf712c000 + 0x048), data);
+	mmio_write_32((0xf712c000 + 0x004), 0x21);
+	do {
+		data = mmio_read_32((0xf712c000 + 0x004));
+	} while (data & 1);
+
+	data = mmio_read_32((0xf712c000 + 0x008));
+	if (data & 0x7fe)
+		NOTICE("ddr3 rank1 init failure\n");
+	else
+		INFO("ddr3 rank1 init pass\n");
+
+	data = mmio_read_32((0xf712c000 + 0x048));
+	data &= ~0xf;
+	mmio_write_32((0xf712c000 + 0x048), data);
+	INFO("succeed to set ddrc 533mhz\n");
 }
 
-static void set_ddrc_800mhz(void)
+void set_ddrc_800mhz(void)
 {
 	unsigned int data;
 
@@ -580,6 +972,7 @@ static void set_ddrc_800mhz(void)
 	mmio_write_32((0xf7030000 + 0x050), 0x30);
 	mmio_write_32((0xf7030000 + 0x240), 0x5ffff);
 	mmio_write_32((0xf7030000 + 0x344), 0xf5ff);
+	mmio_write_32((0xf712c000 + 0x00c), 0x400);
 	mmio_write_32((0xf712c000 + 0x00c), 0x400);
 	mmio_write_32((0xf712c000 + 0x018), 0x7);
 	mmio_write_32((0xf712c000 + 0x090), 0x5400000);
@@ -642,9 +1035,53 @@ static void set_ddrc_800mhz(void)
 		WARN("failed to init lpddr3 rank0 dram phy\n");
 		return;
 	}
+	cat_533mhz_800mhz();
+
+	mmio_write_32((0xf712c000 + 0x004), 0xf1);
+	mmio_write_32((0xf7128000 + 0x050), 0x100023);
+	mmio_write_32((0xf7128000 + 0x060), 0x133);
+	mmio_write_32((0xf7128000 + 0x064), 0x133);
+	mmio_write_32((0xf7128000 + 0x200), 0xa1000);
+
+	mmio_write_32((0xf7128000 + 0x100), 0x755a9d12);
+	mmio_write_32((0xf7128000 + 0x104), 0x1753b055);
+	mmio_write_32((0xf7128000 + 0x108), 0x7401505f);
+	mmio_write_32((0xf7128000 + 0x10c), 0x578ca244);
+	mmio_write_32((0xf7128000 + 0x110), 0x10700000);
+	mmio_write_32((0xf7128000 + 0x114), 0x13141306);
+	mmio_write_32((0xf7128000 + 0x118), 0x44);
+	do {
+		data = mmio_read_32((0xf712c000 + 0x004));
+	} while (data & 1);
+	data = mmio_read_32((0xf712c000 + 0x008));
+	if (data & 0x7fe) {
+		NOTICE("fail to init ddr3 rank0\n");
+		return;
+	}
+	ddrx_rdet();
+	ddrx_wdet();
+
+	data = mmio_read_32((0xf712c000 + 0x048));
+	data |= 1;
+	mmio_write_32((0xf712c000 + 0x048), data);
+	mmio_write_32((0xf712c000 + 0x004), 0x21);
+	do {
+		data = mmio_read_32((0xf712c000 + 0x004));
+	} while (data & 1);
+
+	data = mmio_read_32((0xf712c000 + 0x008));
+	if (data & 0x7fe)
+		NOTICE("ddr3 rank1 init failure\n");
+	else
+		INFO("ddr3 rank1 init pass\n");
+
+	data = mmio_read_32((0xf712c000 + 0x048));
+	data &= ~0xf;
+	mmio_write_32((0xf712c000 + 0x048), data);
+	INFO("succeed to set ddrc 800mhz\n");
 }
 
-static void ddrc_common_init(int ddr800)
+static void ddrc_common_init(int freq)
 {
 	unsigned int data;
 
@@ -653,11 +1090,10 @@ static void ddrc_common_init(int ddr800)
 	mmio_write_32((0xf7120000 + 0x104), 0x71040004);
 	mmio_write_32((0xf7121400 + 0x104), 0xf);
 	mmio_write_32((0xf7121800 + 0x104), 0xf);
-	mmio_write_32((0xf7121800 + 0x104), 0xf);
 	mmio_write_32((0xf7121c00 + 0x104), 0xf);
 	mmio_write_32((0xf7122000 + 0x104), 0xf);
 	mmio_write_32((0xf7128000 + 0x02c), 0x6);
-	mmio_write_32((0xf7128000 + 0x020), 0x1);
+	mmio_write_32((0xf7128000 + 0x020), 0x30003);
 	mmio_write_32((0xf7128000 + 0x028), 0x310201);
 	mmio_write_32((0xf712c000 + 0x1e4), 0xfe007600);
 	mmio_write_32((0xf7128000 + 0x01c), 0xaf001);
@@ -668,10 +1104,10 @@ static void ddrc_common_init(int ddr800)
 	mmio_write_32((0xf7128000 + 0x280), data);
 	mmio_write_32((0xf7128000 + 0x244), 0x3);
 
-	if (ddr800)
-		mmio_write_32((0xf7128000 + 0x240), 167 * 400000 / 1024);
+	if (freq == DDR_FREQ_800M)
+		mmio_write_32((0xf7128000 + 0x240), 167 * (freq / 2) / 1024);
 	else
-		mmio_write_32((0xf7128000 + 0x240), 167 * 533000 / 1024);
+		mmio_write_32((0xf7128000 + 0x240), 167 * freq / 1024);
 
 	data = mmio_read_32((0xf712c000 + 0x080));
 	data &= 0xffff;
@@ -702,20 +1138,24 @@ static int dienum_det_and_rowcol_cfg(void)
 		mmio_write_32((0xf7128000 + 0x064), 0x132);
 		mmio_write_32((0xf7120000 + 0x100), 0x1600);
 		mmio_write_32((0xf7120000 + 0x104), 0x71040004);
+		mmio_write_32(MEMORY_AXI_DDR_CAPACITY_ADDR, 0x40000000);
 		break;
 	case 0x1c:
 		mmio_write_32((0xf7128000 + 0x060), 0x142);
 		mmio_write_32((0xf7128000 + 0x064), 0x142);
 		mmio_write_32((0xf7120000 + 0x100), 0x1700);
 		mmio_write_32((0xf7120000 + 0x104), 0x71040004);
+		mmio_write_32(MEMORY_AXI_DDR_CAPACITY_ADDR, 0x80000000);
 		break;
 	case 0x58:
 		mmio_write_32((0xf7128000 + 0x060), 0x133);
 		mmio_write_32((0xf7128000 + 0x064), 0x133);
 		mmio_write_32((0xf7120000 + 0x100), 0x1700);
 		mmio_write_32((0xf7120000 + 0x104), 0x71040004);
+		mmio_write_32(MEMORY_AXI_DDR_CAPACITY_ADDR, 0x80000000);
 		break;
 	default:
+		mmio_write_32(MEMORY_AXI_DDR_CAPACITY_ADDR, 0x80000000);
 		break;
 	}
 	if (!data)
@@ -772,73 +1212,114 @@ static int detect_ddr_chip_info(void)
 	return data;
 }
 
+void ddr_phy_reset(void)
+{
+	mmio_write_32(0xf7030340, 0xa000);
+	mmio_write_32(0xf7030344, 0xa000);
+}
+
+void lpddrx_save_ddl_para_bypass(uint32_t *ddr_ddl_para, unsigned int index)
+{
+	uint32_t value;
+	uint32_t cnt = index;
+	uint32_t i;
+
+	for (i = 0; i < 4; i++) {
+		value = mmio_read_32(0xf712c000 + 0x22c + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x23c + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x240 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x640 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+	}
+}
+
+void lpddrx_save_ddl_para_mission(uint32_t *ddr_ddl_para, unsigned int index)
+{
+	uint32_t value;
+	uint32_t cnt = index;
+	uint32_t i;
+
+	value = mmio_read_32(0xf712c000 + 0x140);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x144);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x148);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x14c);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x150);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x1d4);
+	ddr_ddl_para[cnt++] = value;
+	for (i = 0; i < 4; i++) {
+		value = mmio_read_32(0xf712c000 + 0x210 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x214 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x218 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x21c + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x220 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x224 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x228 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x22c + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x230 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x234 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x238 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x23c + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x240 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+		value = mmio_read_32(0xf712c000 + 0x640 + i * 0x80);
+		ddr_ddl_para[cnt++] = value;
+	}
+	value = mmio_read_32(0xf712c000 + 0x168);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x24c + 0 * 0x80);
+	ddr_ddl_para[cnt++] = value;
+	value = mmio_read_32(0xf712c000 + 0x24c + 2 * 0x80);
+	ddr_ddl_para[cnt++] = value;
+}
+
 int lpddr3_freq_init(int freq)
 {
-	unsigned int data;
-
-	if (freq == DDR_FREQ_800M) {
-		set_ddrc_800mhz();
-		INFO("%s, set ddrc 800mhz\n", __func__);
-	} else {
+	set_ddrc_150mhz();
+	lpddrx_save_ddl_para_bypass((uint32_t *)MEMORY_AXI_DDR_DDL_ADDR, 0);
+	if (freq > DDR_FREQ_150M) {
+		ddr_phy_reset();
+		set_ddrc_266mhz();
+		lpddrx_save_ddl_para_bypass((uint32_t *)MEMORY_AXI_DDR_DDL_ADDR,
+					    16);
+	}
+	if (freq > DDR_FREQ_266M) {
+		ddr_phy_reset();
+		set_ddrc_400mhz();
+		lpddrx_save_ddl_para_bypass((uint32_t *)MEMORY_AXI_DDR_DDL_ADDR,
+					    16 * 2);
+	}
+	if (freq > DDR_FREQ_400M) {
+		ddr_phy_reset();
 		set_ddrc_533mhz();
-		INFO("%s, set ddrc 533mhz\n", __func__);
+		lpddrx_save_ddl_para_mission((uint32_t *)MEMORY_AXI_DDR_DDL_ADDR,
+					     16 * 3);
 	}
-
-	mmio_write_32((0xf712c000 + 0x004), 0xf1);
-	if (freq == DDR_FREQ_800M)
-		mmio_write_32((0xf7128000 + 0x050), 0x100023);
-	else
-		mmio_write_32((0xf7128000 + 0x050), 0x100123);
-	mmio_write_32((0xf7128000 + 0x060), 0x133);
-	mmio_write_32((0xf7128000 + 0x064), 0x133);
-	mmio_write_32((0xf7128000 + 0x200), 0xa1000);
-
-	if (freq == DDR_FREQ_800M) {
-		mmio_write_32((0xf7128000 + 0x100), 0x755a9d12);
-		mmio_write_32((0xf7128000 + 0x104), 0x1753b055);
-		mmio_write_32((0xf7128000 + 0x108), 0x7401505f);
-		mmio_write_32((0xf7128000 + 0x10c), 0x578ca244);
-		mmio_write_32((0xf7128000 + 0x110), 0x10700000);
-		mmio_write_32((0xf7128000 + 0x114), 0x13141306);
-	} else {
-		mmio_write_32((0xf7128000 + 0x100), 0xb77b6718);
-		mmio_write_32((0xf7128000 + 0x104), 0x1e82a071);
-		mmio_write_32((0xf7128000 + 0x108), 0x9501c07e);
-		mmio_write_32((0xf7128000 + 0x10c), 0xaf50c255);
-		mmio_write_32((0xf7128000 + 0x110), 0x10b00000);
-		mmio_write_32((0xf7128000 + 0x114), 0x13181908);
+	if (freq > DDR_FREQ_533M) {
+		ddr_phy_reset();
+		set_ddrc_800mhz();
+		lpddrx_save_ddl_para_mission((uint32_t *)MEMORY_AXI_DDR_DDL_ADDR,
+					     16 * 3 + 61);
 	}
-	mmio_write_32((0xf7128000 + 0x118), 0x44);
-	do {
-		data = mmio_read_32((0xf712c000 + 0x004));
-	} while (data & 1);
-
-	data = mmio_read_32((0xf712c000 + 0x008));
-	if (data & 0x7fe) {
-		NOTICE("fail to init ddr3 rank0\n");
-		return -EFAULT;
-	}
-	INFO("init ddr3 rank0\n");
-	ddrx_rdet();
-	ddrx_wdet();
-
-	data = mmio_read_32((0xf712c000 + 0x048));
-	data |= 1;
-	mmio_write_32((0xf712c000 + 0x048), data);
-	mmio_write_32((0xf712c000 + 0x004), 0x21);
-	do {
-		data = mmio_read_32((0xf712c000 + 0x004));
-	} while (data & 1);
-
-	data = mmio_read_32((0xf712c000 + 0x008));
-	if (data & 0x7fe)
-		NOTICE("ddr3 rank1 init failure\n");
-	else
-		INFO("ddr3 rank1 init pass\n");
-
-	data = mmio_read_32((0xf712c000 + 0x048));
-	data &= ~0xf;
-	mmio_write_32((0xf712c000 + 0x048), data);
 	return 0;
 }
 
@@ -855,7 +1336,7 @@ static void init_ddr(int freq)
 	data |= 1;
 	mmio_write_32((0xf7032000 + 0x010), data);
 
-	udelay(100);
+	udelay(300);
 	do {
 		data = mmio_read_32((0xf7032000 + 0x030));
 		data &= 3 << 28;
@@ -923,38 +1404,40 @@ static void init_ddrc_qos(void)
 	mmio_write_32((0xf7124000 + 0x0d0), 0x3020100);
 }
 
-static void ddr_phy_reset(void)
-{
-	mmio_write_32(0xf7030340, 0xa000);
-	mmio_write_32(0xf7030344, 0xa000);
-}
-
-void hikey_ddr_init(void)
+void hikey_ddr_init(unsigned int ddr_freq)
 {
 	uint32_t data;
 
+	assert((ddr_freq == DDR_FREQ_150M) || (ddr_freq == DDR_FREQ_266M) ||
+	       (ddr_freq == DDR_FREQ_400M) || (ddr_freq == DDR_FREQ_533M) ||
+	       (ddr_freq == DDR_FREQ_800M));
 	init_pll();
 	init_freq();
 
-	/*
-	 * Init DDR with 533MHz. Otherwise, DDR initialization
-	 * may fail on 800MHz on some boards.
-	 */
-	ddr_phy_reset();
-	init_ddr(DDR_FREQ_533M);
-	/* Init DDR with 800MHz. */
-	ddr_phy_reset();
-	init_ddr(DDR_FREQ_800M);
+	init_ddr(ddr_freq);
 
-
-	ddrc_common_init(1);
+	ddrc_common_init(ddr_freq);
 	dienum_det_and_rowcol_cfg();
 	detect_ddr_chip_info();
 
-	data = mmio_read_32(0xf7032000 + 0x010);
-	data &= ~0x1;
-	mmio_write_32(0xf7032000 + 0x010, data);
-	data = mmio_read_32(0xf7032000 + 0x010);
+	if ((ddr_freq == DDR_FREQ_400M) || (ddr_freq == DDR_FREQ_800M)) {
+		data = mmio_read_32(0xf7032000 + 0x010);
+		data &= ~0x1;
+		mmio_write_32(0xf7032000 + 0x010, data);
+	} else if ((ddr_freq == DDR_FREQ_266M) || (ddr_freq == DDR_FREQ_533M)) {
+		data = mmio_read_32(0xf7032000 + 0x030);
+		data &= ~0x1;
+		mmio_write_32(0xf7032000 + 0x030, data);
+	} else {
+		data = mmio_read_32(0xf7032000 + 0x010);
+		data &= ~0x1;
+		mmio_write_32(0xf7032000 + 0x010, data);
+		data = mmio_read_32(0xf7032000 + 0x030);
+		data &= ~0x1;
+		mmio_write_32(0xf7032000 + 0x030, data);
+	}
+	dsb();
+	isb();
 
 	/*
 	 * Test memory access. Do not use address 0x0 because the compiler

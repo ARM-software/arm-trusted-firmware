@@ -12,6 +12,14 @@
 #define RANDOM_MAX		0x7fffffffffffffff
 #define RANDOM_MAGIC		0x9a4dbeaf
 
+enum {
+	DDR_FREQ_150M = 150 * 1000,
+	DDR_FREQ_266M = 266 * 1000,
+	DDR_FREQ_400M = 400 * 1000,
+	DDR_FREQ_533M = 533 * 1000,
+	DDR_FREQ_800M = 800 * 1000
+};
+
 struct random_serial_num {
 	uint64_t	magic;
 	uint64_t	data;
@@ -34,7 +42,7 @@ void hikey_init_mmu_el3(unsigned long total_base,
 			unsigned long coh_start,
 			unsigned long coh_limit);
 
-void hikey_ddr_init(void);
+void hikey_ddr_init(unsigned int ddr_freq);
 void hikey_io_setup(void);
 
 void hikey_sp804_init(void);
