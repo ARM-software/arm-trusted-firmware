@@ -198,6 +198,8 @@ endfunc cpu_get_rev_var
  * Compare the CPU's revision-variant (x0) with a given value (x1), for errata
  * application purposes. If the revision-variant is less than or same as a given
  * value, indicates that errata applies; otherwise not.
+ *
+ * Shall clobber: x0-x3
  */
 	.globl	cpu_rev_var_ls
 func cpu_rev_var_ls
@@ -212,6 +214,8 @@ endfunc cpu_rev_var_ls
  * Compare the CPU's revision-variant (x0) with a given value (x1), for errata
  * application purposes. If the revision-variant is higher than or same as a
  * given value, indicates that errata applies; otherwise not.
+ *
+ * Shall clobber: x0-x3
  */
 	.globl	cpu_rev_var_hs
 func cpu_rev_var_hs
