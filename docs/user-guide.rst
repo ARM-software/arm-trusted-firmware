@@ -62,8 +62,8 @@ given Linaro Release. Also, these `Linaro instructions`_ provide further
 guidance and a script, which can be used to download Linaro deliverables
 automatically.
 
-Optionally, TF-A can be built using clang or Arm Compiler 6.
-See instructions below on how to switch the default compiler.
+Optionally, TF-A can be built using clang version 4.0 or newer or Arm
+Compiler 6. See instructions below on how to switch the default compiler.
 
 In addition, the following optional packages and tools may be needed:
 
