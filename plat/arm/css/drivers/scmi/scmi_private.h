@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -111,12 +111,6 @@
 #define SCMI_PAYLOAD_RET_VAL3(payld_arr, val1, val2, val3)	do {	\
 		SCMI_PAYLOAD_RET_VAL2(payld_arr, val1, val2);		\
 		(val3) = mmio_read_32((uintptr_t)&payld_arr[2]);	\
-	} while (0)
-
-/* Helper macro to ring doorbell */
-#define SCMI_RING_DOORBELL(addr, modify_mask, preserve_mask)	do {	\
-		uint32_t db = mmio_read_32(addr) & (preserve_mask);	\
-		mmio_write_32(addr, db | (modify_mask));		\
 	} while (0)
 
 /*

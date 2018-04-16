@@ -10,7 +10,7 @@
 #include <debug.h>
 #include <platform.h>
 #include <stdint.h>
-#include "../scpi/css_mhu.h"
+#include "../mhu/css_mhu.h"
 #include "../scpi/css_scpi.h"
 #include "css_scp.h"
 

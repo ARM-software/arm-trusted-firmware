@@ -13,6 +13,7 @@
 #include <platform.h>
 #include <string.h>
 #include "../scmi/scmi.h"
+#include "../mhu/css_mhu_doorbell.h"
 #include "css_scp.h"
 
 /*
@@ -302,6 +303,7 @@ scmi_channel_plat_info_t plat_css_scmi_plat_info = {
 		.db_reg_addr = PLAT_CSS_MHU_BASE + CSS_SCMI_MHU_DB_REG_OFF,
 		.db_preserve_mask = 0xfffffffe,
 		.db_modify_mask = 0x1,
+		.ring_doorbell = &mhu_ring_doorbell,
 };
 
 void plat_arm_pwrc_setup(void)

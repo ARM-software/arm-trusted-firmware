@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -96,6 +96,10 @@ typedef struct scmi_channel_plat_info {
 	uint32_t db_preserve_mask;
 	/* The bit mask that need to be set to ring doorbell */
 	uint32_t db_modify_mask;
+	/* The handler for ringing doorbell */
+	void (*ring_doorbell)(struct scmi_channel_plat_info *plat_info);
+	/* cookie is unused now. But added for future enhancements. */
+	void *cookie;
 } scmi_channel_plat_info_t;
 
 /*
