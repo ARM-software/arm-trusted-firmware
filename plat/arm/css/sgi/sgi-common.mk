@@ -45,6 +45,7 @@ $(eval $(call add_define,SGI_PLAT))
 override CSS_LOAD_SCP_IMAGES	:=	0
 override NEED_BL2U		:=	no
 override ARM_BL31_IN_DRAM	:=	1
+override ARM_PLAT_MT		:=	1
 
 # System coherency is managed in hardware
 HW_ASSISTED_COHERENCY	:=	1
