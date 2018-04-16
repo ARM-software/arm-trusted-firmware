@@ -207,4 +207,5 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
 /*
  * Register crypto library descriptor
  */
-REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash);
+REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash,
+		    NULL, NULL, NULL);

@@ -16,6 +16,13 @@ enum crypto_ret_value {
 	CRYPTO_ERR_UNKNOWN
 };
 
+/* List of hash algorithms */
+enum hash_algo {
+	SHA1 = 0,
+	SHA256,
+	SHA512
+};
+
 /*
  * Cryptographic library descriptor
  */
@@ -37,6 +44,17 @@ typedef struct crypto_lib_desc_s {
 	/* Verify a hash. Return one of the 'enum crypto_ret_value' options */
 	int (*verify_hash)(void *data_ptr, unsigned int data_len,
 			   void *digest_info_ptr, unsigned int digest_info_len);
+
+	/* Initilaize the context for hash function */
+	int (*hash_init)(enum hash_algo algo, void **ctx);
+
+	/* Add chunk of data to be hashed */
+	int (*hash_update)(enum hash_algo algo, void *ctx,
+			   void *data_ptr, unsigned int data_len);
+
+	/* Place the final digest in hash_ptr */
+	int (*hash_final)(enum hash_algo algo, void *ctx, void *hash_ptr,
+			  unsigned int hash_len);
 } crypto_lib_desc_t;
 
 /* Public functions */
@@ -47,14 +65,23 @@ int crypto_mod_verify_signature(void *data_ptr, unsigned int data_len,
 				void *pk_ptr, unsigned int pk_len);
 int crypto_mod_verify_hash(void *data_ptr, unsigned int data_len,
 			   void *digest_info_ptr, unsigned int digest_info_len);
+int crypto_hash_init(enum hash_algo algo, void **ctx);
+int crypto_hash_update(enum hash_algo algo, void *ctx,
+		       void *data_ptr, unsigned int data_len);
+int crypto_hash_final(enum hash_algo algo, void *ctx, void *hash_ptr,
+		      unsigned int hash_len);
 
 /* Macro to register a cryptographic library */
-#define REGISTER_CRYPTO_LIB(_name, _init, _verify_signature, _verify_hash) \
+#define REGISTER_CRYPTO_LIB(_name, _init, _verify_signature, _verify_hash, \
+			    _hash_init, _hash_update, _hash_final) \
 	const crypto_lib_desc_t crypto_lib_desc = { \
 		.name = _name, \
 		.init = _init, \
 		.verify_signature = _verify_signature, \
-		.verify_hash = _verify_hash \
+		.verify_hash = _verify_hash, \
+		.hash_init = _hash_init, \
+		.hash_update = _hash_update, \
+		.hash_final = _hash_final \
 	}
 
 extern const crypto_lib_desc_t crypto_lib_desc;
