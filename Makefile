@@ -85,7 +85,13 @@ $(eval $(call add_define,DEBUG))
 ifneq (${DEBUG}, 0)
         BUILD_TYPE	:=	debug
         TF_CFLAGS	+= 	-g
-        ASFLAGS		+= 	-g -Wa,--gdwarf-2
+
+        ifneq ($(findstring clang,$(notdir $(CC))),)
+             ASFLAGS		+= 	-g
+        else
+             ASFLAGS		+= 	-g -Wa,--gdwarf-2
+        endif
+
         # Use LOG_LEVEL_INFO by default for debug builds
         LOG_LEVEL	:=	40
 else
@@ -144,10 +150,12 @@ ifeq ($(notdir $(CC)),armclang)
 TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi $(march32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi -march=armv8-a
 LD			=	$(LINKER)
+AS			=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
 else ifneq ($(findstring clang,$(notdir $(CC))),)
 TF_CFLAGS_aarch32	=	$(target32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-elf
 LD			=	$(LINKER)
+AS			=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
 else
 TF_CFLAGS_aarch32	=	$(march32-directive)
 TF_CFLAGS_aarch64	=	-march=armv8-a
