@@ -76,7 +76,7 @@ ARM_INSTANTIATE_LOCK;
  * Helper function to suspend a CPU power domain and its parent power domains
  * if applicable.
  */
-void css_scp_suspend(const psci_power_state_t *target_state)
+void css_scp_suspend(const struct psci_power_state *target_state)
 {
 	int lvl, ret;
 	uint32_t scmi_pwr_state = 0;

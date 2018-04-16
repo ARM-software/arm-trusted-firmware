@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <arm_dyn_cfg_helpers.h>
 #include <assert.h>
 #include <desc_image_load.h>
 #include <fdt_wrappers.h>

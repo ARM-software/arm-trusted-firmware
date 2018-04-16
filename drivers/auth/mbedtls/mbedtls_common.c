@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include <mbedtls/memory_buffer_alloc.h>
 #include <mbedtls/platform.h>
 #include <mbedtls_config.h>
+#include <mbedtls_common.h>
 
 /*
  * mbed TLS heap

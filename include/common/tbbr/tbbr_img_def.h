@@ -75,4 +75,7 @@
 /* NT_FW_CONFIG */
 #define NT_FW_CONFIG_ID		27
 
+/* Define size of the array */
+#define MAX_NUMBER_IDS			28
+
 #endif /* __TBBR_IMG_DEF_H__ */
