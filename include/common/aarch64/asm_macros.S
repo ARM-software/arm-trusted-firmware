@@ -88,16 +88,26 @@
 	.endm
 
 	/*
+	 * Add the bytes until fill the full exception vector, whose size is always
+	 * 32 instructions. If there are more than 32 instructions in the
+	 * exception vector then an error is emitted.
+	 */
+	.macro end_vector_entry label
+	.cfi_endproc
+	.fill	\label + (32 * 4) - .
+	.endm
+
+	/*
 	 * This macro verifies that the given vector doesn't exceed the
 	 * architectural limit of 32 instructions. This is meant to be placed
 	 * immediately after the last instruction in the vector. It takes the
 	 * vector entry as the parameter
 	 */
 	.macro check_vector_size since
-	  .cfi_endproc
-	  .if (. - \since) > (32 * 4)
-	    .error "Vector exceeds 32 instructions"
-	  .endif
+#if ERROR_DEPRECATED
+      .error "check_vector_size must not be used. Use end_vector_entry instead"
+#endif
+	end_vector_entry \since
 	.endm
 
 #if ENABLE_PLAT_COMPAT

@@ -23,19 +23,19 @@ vector_base spm_shim_exceptions_ptr, .spm_shim_exceptions
 	 */
 vector_entry SynchronousExceptionSP0, .spm_shim_exceptions
 	b	.
-	check_vector_size SynchronousExceptionSP0
+end_vector_entry SynchronousExceptionSP0
 
 vector_entry IrqSP0, .spm_shim_exceptions
 	b	.
-	check_vector_size IrqSP0
+end_vector_entry IrqSP0
 
 vector_entry FiqSP0, .spm_shim_exceptions
 	b	.
-	check_vector_size FiqSP0
+end_vector_entry FiqSP0
 
 vector_entry SErrorSP0, .spm_shim_exceptions
 	b	.
-	check_vector_size SErrorSP0
+end_vector_entry SErrorSP0
 
 	/* -----------------------------------------------------
 	 * Current EL with SPx: 0x200 - 0x400
@@ -43,19 +43,19 @@ vector_entry SErrorSP0, .spm_shim_exceptions
 	 */
 vector_entry SynchronousExceptionSPx, .spm_shim_exceptions
 	b	.
-	check_vector_size SynchronousExceptionSPx
+end_vector_entry SynchronousExceptionSPx
 
 vector_entry IrqSPx, .spm_shim_exceptions
 	b	.
-	check_vector_size IrqSPx
+end_vector_entry IrqSPx
 
 vector_entry FiqSPx, .spm_shim_exceptions
 	b	.
-	check_vector_size FiqSPx
+end_vector_entry FiqSPx
 
 vector_entry SErrorSPx, .spm_shim_exceptions
 	b	.
-	check_vector_size SErrorSPx
+end_vector_entry SErrorSPx
 
 	/* -----------------------------------------------------
 	 * Lower EL using AArch64 : 0x400 - 0x600. No exceptions
@@ -93,19 +93,19 @@ do_smc:
 handle_sys_trap:
 panic:
 	b	panic
-	check_vector_size SynchronousExceptionA64
+end_vector_entry SynchronousExceptionA64
 
 vector_entry IrqA64, .spm_shim_exceptions
 	b	.
-	check_vector_size IrqA64
+end_vector_entry IrqA64
 
 vector_entry FiqA64, .spm_shim_exceptions
 	b	.
-	check_vector_size FiqA64
+end_vector_entry FiqA64
 
 vector_entry SErrorA64, .spm_shim_exceptions
 	b	.
-	check_vector_size SErrorA64
+end_vector_entry SErrorA64
 
 	/* -----------------------------------------------------
 	 * Lower EL using AArch32 : 0x600 - 0x800
@@ -113,16 +113,16 @@ vector_entry SErrorA64, .spm_shim_exceptions
 	 */
 vector_entry SynchronousExceptionA32, .spm_shim_exceptions
 	b	.
-	check_vector_size SynchronousExceptionA32
+end_vector_entry SynchronousExceptionA32
 
 vector_entry IrqA32, .spm_shim_exceptions
 	b	.
-	check_vector_size IrqA32
+end_vector_entry IrqA32
 
 vector_entry FiqA32, .spm_shim_exceptions
 	b	.
-	check_vector_size FiqA32
+end_vector_entry FiqA32
 
 vector_entry SErrorA32, .spm_shim_exceptions
 	b	.
-	check_vector_size SErrorA32
+end_vector_entry SErrorA32

@@ -233,7 +233,7 @@ vector_base runtime_exceptions
 vector_entry sync_exception_sp_el0
 	/* We don't expect any synchronous exceptions from EL3 */
 	b	report_unhandled_exception
-	check_vector_size sync_exception_sp_el0
+end_vector_entry sync_exception_sp_el0
 
 vector_entry irq_sp_el0
 	/*
@@ -241,17 +241,17 @@ vector_entry irq_sp_el0
 	 * error. Loop infinitely.
 	 */
 	b	report_unhandled_interrupt
-	check_vector_size irq_sp_el0
+end_vector_entry irq_sp_el0
 
 
 vector_entry fiq_sp_el0
 	b	report_unhandled_interrupt
-	check_vector_size fiq_sp_el0
+end_vector_entry fiq_sp_el0
 
 
 vector_entry serror_sp_el0
 	b	report_unhandled_exception
-	check_vector_size serror_sp_el0
+end_vector_entry serror_sp_el0
 
 	/* ---------------------------------------------------------------------
 	 * Current EL with SP_ELx: 0x200 - 0x400
@@ -265,19 +265,19 @@ vector_entry sync_exception_sp_elx
 	 * corrupted.
 	 */
 	b	report_unhandled_exception
-	check_vector_size sync_exception_sp_elx
+end_vector_entry sync_exception_sp_elx
 
 vector_entry irq_sp_elx
 	b	report_unhandled_interrupt
-	check_vector_size irq_sp_elx
+end_vector_entry irq_sp_elx
 
 vector_entry fiq_sp_elx
 	b	report_unhandled_interrupt
-	check_vector_size fiq_sp_elx
+end_vector_entry fiq_sp_elx
 
 vector_entry serror_sp_elx
 	b	report_unhandled_exception
-	check_vector_size serror_sp_elx
+end_vector_entry serror_sp_elx
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch64 : 0x400 - 0x600
@@ -292,17 +292,17 @@ vector_entry sync_exception_aarch64
 	 */
 	check_and_unmask_ea
 	handle_sync_exception
-	check_vector_size sync_exception_aarch64
+end_vector_entry sync_exception_aarch64
 
 vector_entry irq_aarch64
 	check_and_unmask_ea
 	handle_interrupt_exception irq_aarch64
-	check_vector_size irq_aarch64
+end_vector_entry irq_aarch64
 
 vector_entry fiq_aarch64
 	check_and_unmask_ea
 	handle_interrupt_exception fiq_aarch64
-	check_vector_size fiq_aarch64
+end_vector_entry fiq_aarch64
 
 vector_entry serror_aarch64
 	msr	daifclr, #DAIF_ABT_BIT
@@ -313,7 +313,7 @@ vector_entry serror_aarch64
 	 */
 	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	handle_ea #ERROR_EA_ASYNC
-	check_vector_size serror_aarch64
+end_vector_entry serror_aarch64
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch32 : 0x600 - 0x800
@@ -328,17 +328,17 @@ vector_entry sync_exception_aarch32
 	 */
 	check_and_unmask_ea
 	handle_sync_exception
-	check_vector_size sync_exception_aarch32
+end_vector_entry sync_exception_aarch32
 
 vector_entry irq_aarch32
 	check_and_unmask_ea
 	handle_interrupt_exception irq_aarch32
-	check_vector_size irq_aarch32
+end_vector_entry irq_aarch32
 
 vector_entry fiq_aarch32
 	check_and_unmask_ea
 	handle_interrupt_exception fiq_aarch32
-	check_vector_size fiq_aarch32
+end_vector_entry fiq_aarch32
 
 vector_entry serror_aarch32
 	msr	daifclr, #DAIF_ABT_BIT
@@ -349,7 +349,7 @@ vector_entry serror_aarch32
 	 */
 	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	handle_ea #ERROR_EA_ASYNC
-	check_vector_size serror_aarch32
+end_vector_entry serror_aarch32
 
 
 	/* ---------------------------------------------------------------------

@@ -114,19 +114,19 @@ aarch32_stub:
 	.word	EMIT_BPIALL
 	.word	EMIT_SMC
 
-	check_vector_size bpiall_sync_exception_sp_el0
+end_vector_entry bpiall_sync_exception_sp_el0
 
 vector_entry bpiall_irq_sp_el0
 	b	irq_sp_el0
-	check_vector_size bpiall_irq_sp_el0
+end_vector_entry bpiall_irq_sp_el0
 
 vector_entry bpiall_fiq_sp_el0
 	b	fiq_sp_el0
-	check_vector_size bpiall_fiq_sp_el0
+end_vector_entry bpiall_fiq_sp_el0
 
 vector_entry bpiall_serror_sp_el0
 	b	serror_sp_el0
-	check_vector_size bpiall_serror_sp_el0
+end_vector_entry bpiall_serror_sp_el0
 
 	/* ---------------------------------------------------------------------
 	 * Current EL with SP_ELx: 0x200 - 0x400
@@ -134,19 +134,19 @@ vector_entry bpiall_serror_sp_el0
 	 */
 vector_entry bpiall_sync_exception_sp_elx
 	b	sync_exception_sp_elx
-	check_vector_size bpiall_sync_exception_sp_elx
+end_vector_entry bpiall_sync_exception_sp_elx
 
 vector_entry bpiall_irq_sp_elx
 	b	irq_sp_elx
-	check_vector_size bpiall_irq_sp_elx
+end_vector_entry bpiall_irq_sp_elx
 
 vector_entry bpiall_fiq_sp_elx
 	b	fiq_sp_elx
-	check_vector_size bpiall_fiq_sp_elx
+end_vector_entry bpiall_fiq_sp_elx
 
 vector_entry bpiall_serror_sp_elx
 	b	serror_sp_elx
-	check_vector_size bpiall_serror_sp_elx
+end_vector_entry bpiall_serror_sp_elx
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch64 : 0x400 - 0x600
@@ -154,19 +154,19 @@ vector_entry bpiall_serror_sp_elx
 	 */
 vector_entry bpiall_sync_exception_aarch64
 	apply_cve_2017_5715_wa 1
-	check_vector_size bpiall_sync_exception_aarch64
+end_vector_entry bpiall_sync_exception_aarch64
 
 vector_entry bpiall_irq_aarch64
 	apply_cve_2017_5715_wa 2
-	check_vector_size bpiall_irq_aarch64
+end_vector_entry bpiall_irq_aarch64
 
 vector_entry bpiall_fiq_aarch64
 	apply_cve_2017_5715_wa 4
-	check_vector_size bpiall_fiq_aarch64
+end_vector_entry bpiall_fiq_aarch64
 
 vector_entry bpiall_serror_aarch64
 	apply_cve_2017_5715_wa 8
-	check_vector_size bpiall_serror_aarch64
+end_vector_entry bpiall_serror_aarch64
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch32 : 0x600 - 0x800
@@ -174,19 +174,19 @@ vector_entry bpiall_serror_aarch64
 	 */
 vector_entry bpiall_sync_exception_aarch32
 	apply_cve_2017_5715_wa 1
-	check_vector_size bpiall_sync_exception_aarch32
+end_vector_entry bpiall_sync_exception_aarch32
 
 vector_entry bpiall_irq_aarch32
 	apply_cve_2017_5715_wa 2
-	check_vector_size bpiall_irq_aarch32
+end_vector_entry bpiall_irq_aarch32
 
 vector_entry bpiall_fiq_aarch32
 	apply_cve_2017_5715_wa 4
-	check_vector_size bpiall_fiq_aarch32
+end_vector_entry bpiall_fiq_aarch32
 
 vector_entry bpiall_serror_aarch32
 	apply_cve_2017_5715_wa 8
-	check_vector_size bpiall_serror_aarch32
+end_vector_entry bpiall_serror_aarch32
 
 	/* ---------------------------------------------------------------------
 	 * This vector table is used while the workaround is executing.  It
@@ -203,19 +203,19 @@ vector_base wa_cve_2017_5715_bpiall_ret_vbar
 	 */
 vector_entry bpiall_ret_sync_exception_sp_el0
 	b	report_unhandled_exception
-	check_vector_size bpiall_ret_sync_exception_sp_el0
+end_vector_entry bpiall_ret_sync_exception_sp_el0
 
 vector_entry bpiall_ret_irq_sp_el0
 	b	report_unhandled_interrupt
-	check_vector_size bpiall_ret_irq_sp_el0
+end_vector_entry bpiall_ret_irq_sp_el0
 
 vector_entry bpiall_ret_fiq_sp_el0
 	b	report_unhandled_interrupt
-	check_vector_size bpiall_ret_fiq_sp_el0
+end_vector_entry bpiall_ret_fiq_sp_el0
 
 vector_entry bpiall_ret_serror_sp_el0
 	b	report_unhandled_exception
-	check_vector_size bpiall_ret_serror_sp_el0
+end_vector_entry bpiall_ret_serror_sp_el0
 
 	/* ---------------------------------------------------------------------
 	 * Current EL with SP_ELx: 0x200 - 0x400 (UNUSED)
@@ -223,19 +223,19 @@ vector_entry bpiall_ret_serror_sp_el0
 	 */
 vector_entry bpiall_ret_sync_exception_sp_elx
 	b	report_unhandled_exception
-	check_vector_size bpiall_ret_sync_exception_sp_elx
+end_vector_entry bpiall_ret_sync_exception_sp_elx
 
 vector_entry bpiall_ret_irq_sp_elx
 	b	report_unhandled_interrupt
-	check_vector_size bpiall_ret_irq_sp_elx
+end_vector_entry bpiall_ret_irq_sp_elx
 
 vector_entry bpiall_ret_fiq_sp_elx
 	b	report_unhandled_interrupt
-	check_vector_size bpiall_ret_fiq_sp_elx
+end_vector_entry bpiall_ret_fiq_sp_elx
 
 vector_entry bpiall_ret_serror_sp_elx
 	b	report_unhandled_exception
-	check_vector_size bpiall_ret_serror_sp_elx
+end_vector_entry bpiall_ret_serror_sp_elx
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch64 : 0x400 - 0x600 (UNUSED)
@@ -243,19 +243,19 @@ vector_entry bpiall_ret_serror_sp_elx
 	 */
 vector_entry bpiall_ret_sync_exception_aarch64
 	b	report_unhandled_exception
-	check_vector_size bpiall_ret_sync_exception_aarch64
+end_vector_entry bpiall_ret_sync_exception_aarch64
 
 vector_entry bpiall_ret_irq_aarch64
 	b	report_unhandled_interrupt
-	check_vector_size bpiall_ret_irq_aarch64
+end_vector_entry bpiall_ret_irq_aarch64
 
 vector_entry bpiall_ret_fiq_aarch64
 	b	report_unhandled_interrupt
-	check_vector_size bpiall_ret_fiq_aarch64
+end_vector_entry bpiall_ret_fiq_aarch64
 
 vector_entry bpiall_ret_serror_aarch64
 	b	report_unhandled_exception
-	check_vector_size bpiall_ret_serror_aarch64
+end_vector_entry bpiall_ret_serror_aarch64
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch32 : 0x600 - 0x800
@@ -324,7 +324,7 @@ vector_entry bpiall_ret_sync_exception_aarch32
 1:
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	b	sync_exception_aarch64
-	check_vector_size bpiall_ret_sync_exception_aarch32
+end_vector_entry bpiall_ret_sync_exception_aarch32
 
 vector_entry bpiall_ret_irq_aarch32
 	b	report_unhandled_interrupt
@@ -346,12 +346,12 @@ bpiall_ret_fiq:
 bpiall_ret_serror:
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	b	serror_aarch64
-	check_vector_size bpiall_ret_irq_aarch32
+end_vector_entry bpiall_ret_irq_aarch32
 
 vector_entry bpiall_ret_fiq_aarch32
 	b	report_unhandled_interrupt
-	check_vector_size bpiall_ret_fiq_aarch32
+end_vector_entry bpiall_ret_fiq_aarch32
 
 vector_entry bpiall_ret_serror_aarch32
 	b	report_unhandled_exception
-	check_vector_size bpiall_ret_serror_aarch32
+end_vector_entry bpiall_ret_serror_aarch32
