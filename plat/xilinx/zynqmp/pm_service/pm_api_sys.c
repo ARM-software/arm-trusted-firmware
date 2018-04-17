@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,9 @@
 
 #include <arch_helpers.h>
 #include <platform.h>
+#include "pm_api_clock.h"
+#include "pm_api_ioctl.h"
+#include "pm_api_pinctrl.h"
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_common.h"
@@ -544,4 +547,530 @@ void pm_get_callbackdata(uint32_t *data, size_t count)
 {
 	pm_ipi_buff_read_callb(data, count);
 	pm_ipi_irq_clear(primary_proc);
+}
+
+/**
+ * pm_pinctrl_request() - Request Pin from firmware
+ * @pin		Pin number to request
+ *
+ * This function requests pin from firmware.
+ *
+ * @return	Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_pinctrl_request(unsigned int pin)
+{
+	return PM_RET_SUCCESS;
+}
+
+/**
+ * pm_pinctrl_release() - Release Pin from firmware
+ * @pin		Pin number to release
+ *
+ * This function releases pin from firmware.
+ *
+ * @return	Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_pinctrl_release(unsigned int pin)
+{
+	return PM_RET_SUCCESS;
+}
+
+/**
+ * pm_pinctrl_get_function() - Read function id set for the given pin
+ * @pin		Pin number
+ * @nid		Node ID of function currently set for given pin
+ *
+ * This function provides the function currently set for the given pin.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pinctrl_get_function(unsigned int pin,
+					   enum pm_node_id *nid)
+{
+	return pm_api_pinctrl_get_function(pin, nid);
+}
+
+/**
+ * pm_pinctrl_set_function() - Set function id set for the given pin
+ * @pin		Pin number
+ * @nid		Node ID of function to set for given pin
+ *
+ * This function provides the function currently set for the given pin.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pinctrl_set_function(unsigned int pin,
+					   enum pm_node_id nid)
+{
+	return pm_api_pinctrl_set_function(pin, (unsigned int)nid);
+}
+
+/**
+ * pm_pinctrl_get_config() - Read value of requested config param for given pin
+ * @pin		Pin number
+ * @param	Parameter values to be read
+ * @value	Buffer for configuration Parameter value
+ *
+ * This function provides the configuration parameter value for the given pin.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pinctrl_get_config(unsigned int pin,
+					 unsigned int param,
+					 unsigned int *value)
+{
+	return pm_api_pinctrl_get_config(pin, param, value);
+}
+
+/**
+ * pm_pinctrl_set_config() - Read value of requested config param for given pin
+ * @pin		Pin number
+ * @param	Parameter to set
+ * @value	Parameter value to set
+ *
+ * This function provides the configuration parameter value for the given pin.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pinctrl_set_config(unsigned int pin,
+					 unsigned int param,
+					 unsigned int value)
+{
+	return pm_api_pinctrl_set_config(pin, param, value);
+}
+
+/**
+ * pm_ioctl() -  PM IOCTL API for device control and configs
+ * @node_id	Node ID of the device
+ * @ioctl_id	ID of the requested IOCTL
+ * @arg1	Argument 1 to requested IOCTL call
+ * @arg2	Argument 2 to requested IOCTL call
+ * @out		Returned output value
+ *
+ * This function calls IOCTL to firmware for device control and configuration.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_ioctl(enum pm_node_id nid,
+			    unsigned int ioctl_id,
+			    unsigned int arg1,
+			    unsigned int arg2,
+			    unsigned int *value)
+{
+	return pm_api_ioctl(nid, ioctl_id, arg1, arg2, value);
+}
+
+/**
+ * pm_clock_get_name() - PM call to request a clock's name
+ * @clock_id	Clock ID
+ * @name	Name of clock (max 16 bytes)
+ *
+ * This function is used by master to get nmae of clock specified
+ * by given clock ID.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_clock_get_name(unsigned int clock_id, char *name)
+{
+	return pm_api_clock_get_name(clock_id, name);
+}
+
+/**
+ * pm_clock_get_topology() - PM call to request a clock's topology
+ * @clock_id	Clock ID
+ * @index	Topology index for next toplogy node
+ * @topology	Buffer to store nodes in topology and flags
+ *
+ * This function is used by master to get topology information for the
+ * clock specified by given clock ID. Each response would return 3
+ * topology nodes. To get next nodes, caller needs to call this API with
+ * index of next node. Index starts from 0.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_clock_get_topology(unsigned int clock_id,
+						unsigned int index,
+						uint32_t *topology)
+{
+	return pm_api_clock_get_topology(clock_id, index, topology);
+}
+
+/**
+ * pm_clock_get_fixedfactor_params() - PM call to request a clock's fixed factor
+ *				 parameters for fixed clock
+ * @clock_id	Clock ID
+ * @mul		Multiplication value
+ * @div		Divisor value
+ *
+ * This function is used by master to get fixed factor parameers for the
+ * fixed clock. This API is application only for the fixed clock.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_clock_get_fixedfactor_params(unsigned int clock_id,
+							  uint32_t *mul,
+							  uint32_t *div)
+{
+	return pm_api_clock_get_fixedfactor_params(clock_id, mul, div);
+}
+
+/**
+ * pm_clock_get_parents() - PM call to request a clock's first 3 parents
+ * @clock_id	Clock ID
+ * @index	Index of next parent
+ * @parents	Parents of the given clock
+ *
+ * This function is used by master to get clock's parents information.
+ * This API will return 3 parents with a single response. To get other
+ * parents, master should call same API in loop with new parent index
+ * till error is returned.
+ *
+ * E.g First call should have index 0 which will return parents 0, 1 and
+ * 2. Next call, index should be 3 which will return parent 3,4 and 5 and
+ * so on.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_clock_get_parents(unsigned int clock_id,
+					       unsigned int index,
+					       uint32_t *parents)
+{
+	return pm_api_clock_get_parents(clock_id, index, parents);
+}
+
+/**
+ * pm_clock_get_attributes() - PM call to request a clock's attributes
+ * @clock_id	Clock ID
+ * @attr	Clock attributes
+ *
+ * This function is used by master to get clock's attributes
+ * (e.g. valid, clock type, etc).
+ *
+ * @return	Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_clock_get_attributes(unsigned int clock_id,
+						  uint32_t *attr)
+{
+	return pm_api_clock_get_attributes(clock_id, attr);
+}
+
+/**
+ * pm_clock_enable() - Enable the clock for given id
+ * @clock_id: Id of the clock to be enabled
+ *
+ * This function is used by master to enable the clock
+ * including peripherals and PLL clocks.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+
+enum pm_ret_status pm_clock_enable(unsigned int clock_id)
+{
+	return pm_api_clock_enable(clock_id);
+}
+
+/**
+ * pm_clock_disable - Disable the clock for given id
+ * @clock_id: Id of the clock to be disable
+ *
+ * This function is used by master to disable the clock
+ * including peripherals and PLL clocks.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+
+enum pm_ret_status pm_clock_disable(unsigned int clock_id)
+{
+	return pm_api_clock_disable(clock_id);
+}
+
+/**
+ * pm_clock_getstate - Get the clock state for given id
+ * @clock_id: Id of the clock to be queried
+ * @state: 1/0 (Enabled/Disabled)
+ *
+ * This function is used by master to get the state of clock
+ * including peripherals and PLL clocks.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_getstate(unsigned int clock_id,
+				     unsigned int *state)
+{
+	return pm_api_clock_getstate(clock_id, state);
+}
+
+/**
+ * pm_clock_setdivider - Set the clock divider for given id
+ * @clock_id: Id of the clock
+ * @divider: divider value
+ *
+ * This function is used by master to set divider for any clock
+ * to achieve desired rate.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_setdivider(unsigned int clock_id,
+				       unsigned int divider)
+{
+	return pm_api_clock_setdivider(clock_id, divider);
+}
+
+/**
+ * pm_clock_getdivider - Get the clock divider for given id
+ * @clock_id: Id of the clock
+ * @divider: divider value
+ *
+ * This function is used by master to get divider values
+ * for any clock.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_getdivider(unsigned int clock_id,
+				       unsigned int *divider)
+{
+	return pm_api_clock_getdivider(clock_id, divider);
+}
+
+/**
+ * pm_clock_setrate - Set the clock rate for given id
+ * @clock_id: Id of the clock
+ * @rate: rate value in hz
+ *
+ * This function is used by master to set rate for any clock.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_setrate(unsigned int clock_id,
+				    uint64_t rate)
+{
+	return pm_api_clock_setrate(clock_id, rate);
+}
+
+/**
+ * pm_clock_getrate - Get the clock rate for given id
+ * @clock_id: Id of the clock
+ * @rate: rate value in hz
+ *
+ * This function is used by master to get rate
+ * for any clock.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_getrate(unsigned int clock_id,
+				    uint64_t *rate)
+{
+	return pm_api_clock_getrate(clock_id, rate);
+}
+
+/**
+ * pm_clock_setparent - Set the clock parent for given id
+ * @clock_id: Id of the clock
+ * @parent_id: parent id
+ *
+ * This function is used by master to set parent for any clock.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_setparent(unsigned int clock_id,
+				      unsigned int parent_id)
+{
+	return pm_api_clock_setparent(clock_id, parent_id);
+}
+
+/**
+ * pm_clock_getparent - Get the clock parent for given id
+ * @clock_id: Id of the clock
+ * @parent_id: parent id
+ *
+ * This function is used by master to get parent index
+ * for any clock.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_getparent(unsigned int clock_id,
+				      unsigned int *parent_id)
+{
+	return pm_api_clock_getparent(clock_id, parent_id);
+}
+
+/**
+ * pm_pinctrl_get_num_pins - PM call to request number of pins
+ * @npins: Number of pins
+ *
+ * This function is used by master to get number of pins
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+static enum pm_ret_status pm_pinctrl_get_num_pins(uint32_t *npins)
+{
+	return pm_api_pinctrl_get_num_pins(npins);
+}
+
+/**
+ * pm_pinctrl_get_num_functions - PM call to request number of functions
+ * @nfuncs: Number of functions
+ *
+ * This function is used by master to get number of functions
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+static enum pm_ret_status pm_pinctrl_get_num_functions(uint32_t *nfuncs)
+{
+	return pm_api_pinctrl_get_num_functions(nfuncs);
+}
+
+/**
+ * pm_pinctrl_get_num_function_groups - PM call to request number of
+ *					function groups
+ * @fid: Id of function
+ * @ngroups: Number of function groups
+ *
+ * This function is used by master to get number of function groups specified
+ * by given function Id
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+static enum pm_ret_status pm_pinctrl_get_num_function_groups(unsigned int fid,
+							     uint32_t *ngroups)
+{
+	return pm_api_pinctrl_get_num_func_groups(fid, ngroups);
+}
+
+/**
+ * pm_pinctrl_get_function_name - PM call to request function name
+ * @fid: Id of function
+ * @name: Name of function
+ *
+ * This function is used by master to get name of function specified
+ * by given function Id
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+static enum pm_ret_status pm_pinctrl_get_function_name(unsigned int fid,
+						       char *name)
+{
+	return pm_api_pinctrl_get_function_name(fid, name);
+}
+
+/**
+ * pm_pinctrl_get_function_groups - PM call to request function groups
+ * @fid: Id of function
+ * @index: Index of next function groups
+ * @groups: Function groups
+ *
+ * This function is used by master to get function groups specified
+ * by given function Id. This API will return 6 function groups with
+ * a single response. To get other function groups, master should call
+ * same API in loop with new function groups index till error is returned.
+ *
+ * E.g First call should have index 0 which will return function groups
+ * 0, 1, 2, 3, 4 and 5. Next call, index should be 6 which will return
+ * function groups 6, 7, 8, 9, 10 and 11 and so on.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+static enum pm_ret_status pm_pinctrl_get_function_groups(unsigned int fid,
+							 unsigned int index,
+							 uint16_t *groups)
+{
+	return pm_api_pinctrl_get_function_groups(fid, index, groups);
+}
+
+/**
+ * pm_pinctrl_get_pin_groups - PM call to request pin groups
+ * @pin_id: Id of pin
+ * @index: Index of next pin groups
+ * @groups: pin groups
+ *
+ * This function is used by master to get pin groups specified
+ * by given pin Id. This API will return 6 pin groups with
+ * a single response. To get other pin groups, master should call
+ * same API in loop with new pin groups index till error is returned.
+ *
+ * E.g First call should have index 0 which will return pin groups
+ * 0, 1, 2, 3, 4 and 5. Next call, index should be 6 which will return
+ * pin groups 6, 7, 8, 9, 10 and 11 and so on.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+static enum pm_ret_status pm_pinctrl_get_pin_groups(unsigned int pin_id,
+						    unsigned int index,
+						    uint16_t *groups)
+{
+	return pm_api_pinctrl_get_pin_groups(pin_id, index, groups);
+}
+
+/**
+ * pm_query_data() -  PM API for querying firmware data
+ * @arg1	Argument 1 to requested IOCTL call
+ * @arg2	Argument 2 to requested IOCTL call
+ * @arg3	Argument 3 to requested IOCTL call
+ * @arg4	Argument 4 to requested IOCTL call
+ * @data	Returned output data
+ *
+ * This function returns requested data.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_query_data(enum pm_query_id qid,
+				 unsigned int arg1,
+				 unsigned int arg2,
+				 unsigned int arg3,
+				 unsigned int *data)
+{
+	enum pm_ret_status ret;
+
+	switch (qid) {
+	case PM_QID_CLOCK_GET_NAME:
+		ret = pm_clock_get_name(arg1, (char *)data);
+		break;
+	case PM_QID_CLOCK_GET_TOPOLOGY:
+		ret = pm_clock_get_topology(arg1, arg2, &data[1]);
+		data[0] = (unsigned int)ret;
+		break;
+	case PM_QID_CLOCK_GET_FIXEDFACTOR_PARAMS:
+		ret = pm_clock_get_fixedfactor_params(arg1, &data[1], &data[2]);
+		data[0] = (unsigned int)ret;
+		break;
+	case PM_QID_CLOCK_GET_PARENTS:
+		ret = pm_clock_get_parents(arg1, arg2, &data[1]);
+		data[0] = (unsigned int)ret;
+		break;
+	case PM_QID_CLOCK_GET_ATTRIBUTES:
+		ret = pm_clock_get_attributes(arg1, &data[1]);
+		data[0] = (unsigned int)ret;
+		break;
+	case PM_QID_PINCTRL_GET_NUM_PINS:
+		ret = pm_pinctrl_get_num_pins(&data[1]);
+		data[0] = (unsigned int)ret;
+		break;
+	case PM_QID_PINCTRL_GET_NUM_FUNCTIONS:
+		ret = pm_pinctrl_get_num_functions(&data[1]);
+		data[0] = (unsigned int)ret;
+		break;
+	case PM_QID_PINCTRL_GET_NUM_FUNCTION_GROUPS:
+		ret = pm_pinctrl_get_num_function_groups(arg1, &data[1]);
+		data[0] = (unsigned int)ret;
+		break;
+	case PM_QID_PINCTRL_GET_FUNCTION_NAME:
+		ret = pm_pinctrl_get_function_name(arg1, (char *)data);
+		break;
+	case PM_QID_PINCTRL_GET_FUNCTION_GROUPS:
+		ret = pm_pinctrl_get_function_groups(arg1, arg2,
+						     (uint16_t *)&data[1]);
+		data[0] = (unsigned int)ret;
+		break;
+	case PM_QID_PINCTRL_GET_PIN_GROUPS:
+		ret = pm_pinctrl_get_pin_groups(arg1, arg2,
+						(uint16_t *)&data[1]);
+		data[0] = (unsigned int)ret;
+		break;
+	default:
+		ret = PM_RET_ERROR_ARGS;
+		WARN("Unimplemented query service call: 0x%x\n", qid);
+		break;
+	}
+
+	return ret;
 }

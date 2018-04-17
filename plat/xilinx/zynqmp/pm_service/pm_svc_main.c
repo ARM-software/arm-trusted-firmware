@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,7 @@
 #include "pm_ipi.h"
 
 #define PM_GET_CALLBACK_DATA	0xa01
+#define PM_GET_TRUSTZONE_VERSION	0xa03
 
 /* 0 - UP, !0 - DOWN */
 static int32_t pm_down = !0;
@@ -247,6 +248,118 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 			 (uint64_t)result[0] | ((uint64_t)result[1] << 32),
 			 (uint64_t)result[2] | ((uint64_t)result[3] << 32));
 	}
+
+	case PM_PINCTRL_REQUEST:
+		ret = pm_pinctrl_request(pm_arg[0]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_PINCTRL_RELEASE:
+		ret = pm_pinctrl_release(pm_arg[0]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_PINCTRL_GET_FUNCTION:
+	{
+		uint32_t value = 0;
+
+		ret = pm_pinctrl_get_function(pm_arg[0], &value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	case PM_PINCTRL_SET_FUNCTION:
+		ret = pm_pinctrl_set_function(pm_arg[0], pm_arg[1]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_PINCTRL_CONFIG_PARAM_GET:
+	{
+		uint32_t value;
+
+		ret = pm_pinctrl_get_config(pm_arg[0], pm_arg[1], &value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	case PM_PINCTRL_CONFIG_PARAM_SET:
+		ret = pm_pinctrl_set_config(pm_arg[0], pm_arg[1], pm_arg[2]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_IOCTL:
+	{
+		uint32_t value;
+
+		ret = pm_ioctl(pm_arg[0], pm_arg[1], pm_arg[2],
+			       pm_arg[3], &value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	case PM_QUERY_DATA:
+	{
+		uint32_t data[4] = { 0 };
+
+		ret = pm_query_data(pm_arg[0], pm_arg[1], pm_arg[2],
+				    pm_arg[3], data);
+		SMC_RET2(handle, (uint64_t)data[0]  | ((uint64_t)data[1] << 32),
+			 (uint64_t)data[2] | ((uint64_t)data[3] << 32));
+	}
+
+	case PM_CLOCK_ENABLE:
+		ret = pm_clock_enable(pm_arg[0]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_CLOCK_DISABLE:
+		ret = pm_clock_disable(pm_arg[0]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_CLOCK_GETSTATE:
+	{
+		uint32_t value;
+
+		ret = pm_clock_getstate(pm_arg[0], &value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	case PM_CLOCK_SETDIVIDER:
+		ret = pm_clock_setdivider(pm_arg[0], pm_arg[1]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_CLOCK_GETDIVIDER:
+	{
+		uint32_t value;
+
+		ret = pm_clock_getdivider(pm_arg[0], &value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	case PM_CLOCK_SETRATE:
+		ret = pm_clock_setrate(pm_arg[0],
+		       ((uint64_t)pm_arg[2]) << 32 | pm_arg[1]);
+
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_CLOCK_GETRATE:
+	{
+		uint64_t value;
+
+		ret = pm_clock_getrate(pm_arg[0], &value);
+		SMC_RET2(handle, (uint64_t)ret |
+				  (((uint64_t)value & 0xFFFFFFFFU) << 32U),
+			 (value >> 32U) & 0xFFFFFFFFU);
+
+	}
+
+	case PM_CLOCK_SETPARENT:
+		ret = pm_clock_setparent(pm_arg[0], pm_arg[1]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_CLOCK_GETPARENT:
+	{
+		uint32_t value;
+
+		ret = pm_clock_getparent(pm_arg[0], &value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	case PM_GET_TRUSTZONE_VERSION:
+		SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS |
+			 ((uint64_t)ZYNQMP_TZ_VERSION << 32));
 
 	default:
 		WARN("Unimplemented PM Service Call: 0x%x\n", smc_fid);

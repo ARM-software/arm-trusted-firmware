@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,21 @@
 
 #include <stdint.h>
 #include "pm_defs.h"
+
+enum pm_query_id {
+	PM_QID_INVALID,
+	PM_QID_CLOCK_GET_NAME,
+	PM_QID_CLOCK_GET_TOPOLOGY,
+	PM_QID_CLOCK_GET_FIXEDFACTOR_PARAMS,
+	PM_QID_CLOCK_GET_PARENTS,
+	PM_QID_CLOCK_GET_ATTRIBUTES,
+	PM_QID_PINCTRL_GET_NUM_PINS,
+	PM_QID_PINCTRL_GET_NUM_FUNCTIONS,
+	PM_QID_PINCTRL_GET_NUM_FUNCTION_GROUPS,
+	PM_QID_PINCTRL_GET_FUNCTION_NAME,
+	PM_QID_PINCTRL_GET_FUNCTION_GROUPS,
+	PM_QID_PINCTRL_GET_PIN_GROUPS,
+};
 
 /**********************************************************
  * System-level API function declarations
@@ -93,5 +108,42 @@ enum pm_ret_status pm_fpga_get_status(unsigned int *value);
 
 enum pm_ret_status pm_get_chipid(uint32_t *value);
 void pm_get_callbackdata(uint32_t *data, size_t count);
-
+enum pm_ret_status pm_pinctrl_request(unsigned int pin);
+enum pm_ret_status pm_pinctrl_release(unsigned int pin);
+enum pm_ret_status pm_pinctrl_get_function(unsigned int pin,
+					   enum pm_node_id *nid);
+enum pm_ret_status pm_pinctrl_set_function(unsigned int pin,
+					   enum pm_node_id nid);
+enum pm_ret_status pm_pinctrl_get_config(unsigned int pin,
+					 unsigned int param,
+					 unsigned int *value);
+enum pm_ret_status pm_pinctrl_set_config(unsigned int pin,
+					 unsigned int param,
+					 unsigned int value);
+enum pm_ret_status pm_ioctl(enum pm_node_id nid,
+			    unsigned int ioctl_id,
+			    unsigned int arg1,
+			    unsigned int arg2,
+			    unsigned int *value);
+enum pm_ret_status pm_clock_enable(unsigned int clock_id);
+enum pm_ret_status pm_clock_disable(unsigned int clock_id);
+enum pm_ret_status pm_clock_getstate(unsigned int clock_id,
+				     unsigned int *state);
+enum pm_ret_status pm_clock_setdivider(unsigned int clock_id,
+				       unsigned int divider);
+enum pm_ret_status pm_clock_getdivider(unsigned int clock_id,
+				       unsigned int *divider);
+enum pm_ret_status pm_clock_setrate(unsigned int clock_id,
+				    uint64_t rate);
+enum pm_ret_status pm_clock_getrate(unsigned int clock_id,
+				    uint64_t *rate);
+enum pm_ret_status pm_clock_setparent(unsigned int clock_id,
+				      unsigned int parent_id);
+enum pm_ret_status pm_clock_getparent(unsigned int clock_id,
+				      unsigned int *parent_id);
+enum pm_ret_status pm_query_data(enum pm_query_id qid,
+				 unsigned int arg1,
+				 unsigned int arg2,
+				 unsigned int arg3,
+				 unsigned int *data);
 #endif /* _PM_API_SYS_H_ */

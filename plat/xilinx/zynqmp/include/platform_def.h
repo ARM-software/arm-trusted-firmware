@@ -34,8 +34,13 @@
  * little space for growth.
  */
 #ifndef ZYNQMP_ATF_MEM_BASE
+#if !DEBUG
 # define BL31_BASE			0xfffea000
 # define BL31_LIMIT			0xffffffff
+#else
+# define BL31_BASE			0x1000
+# define BL31_LIMIT			0x7ffff
+#endif
 #else
 # define BL31_BASE			(ZYNQMP_ATF_MEM_BASE)
 # define BL31_LIMIT			(ZYNQMP_ATF_MEM_BASE + ZYNQMP_ATF_MEM_SIZE - 1)
