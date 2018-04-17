@@ -35,7 +35,7 @@ static secure_partition_context_t sp_ctx;
  * Replace the S-EL1 re-entry information with S-EL0 re-entry
  * information
  ******************************************************************************/
-void spm_setup_next_eret_into_sel0(cpu_context_t *secure_context)
+static void spm_setup_next_eret_into_sel0(const cpu_context_t *secure_context)
 {
 	assert(secure_context == cm_get_context(SECURE));
 
@@ -83,14 +83,14 @@ static uint64_t spm_synchronous_sp_entry(secure_partition_context_t *sp_ctx_ptr)
  *    as the generic smc entry routine should have saved those.
  ******************************************************************************/
 static void __dead2 spm_synchronous_sp_exit(
-			secure_partition_context_t *sp_ctx_ptr, uint64_t ret)
+		const secure_partition_context_t *sp_ctx_ptr, uint64_t ret)
 {
 	assert(sp_ctx_ptr != NULL);
 	/* Save the Secure EL1 system register context */
 	assert(cm_get_context(SECURE) == &sp_ctx_ptr->cpu_ctx);
 	cm_el1_sysregs_context_save(SECURE);
 
-	assert(sp_ctx_ptr->c_rt_ctx != 0);
+	assert(sp_ctx_ptr->c_rt_ctx != 0U);
 	spm_secure_partition_exit(sp_ctx_ptr->c_rt_ctx, ret);
 
 	/* Should never reach here */
@@ -104,7 +104,7 @@ static void __dead2 spm_synchronous_sp_exit(
  * used. This function performs a synchronous entry into the Secure partition.
  * The SP passes control back to this routine through a SMC.
  ******************************************************************************/
-int32_t spm_init(void)
+static int32_t spm_init(void)
 {
 	entry_point_info_t *secure_partition_ep_info;
 	uint64_t rc;
@@ -116,7 +116,7 @@ int32_t spm_init(void)
 	 * absence is a critical failure.
 	 */
 	secure_partition_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
-	assert(secure_partition_ep_info);
+	assert(secure_partition_ep_info != NULL);
 
 	/*
 	 * Initialise the common context and then overlay the S-EL0 specific
@@ -155,15 +155,15 @@ void spm_init_sp_ep_state(struct entry_point_info *sp_ep_info,
 {
 	uint32_t ep_attr;
 
-	assert(sp_ep_info);
-	assert(pc);
-	assert(sp_ctx_ptr);
+	assert(sp_ep_info != NULL);
+	assert(pc != 0U);
+	assert(sp_ctx_ptr != NULL);
 
 	cm_set_context(&sp_ctx_ptr->cpu_ctx, SECURE);
 
 	/* initialise an entrypoint to set up the CPU context */
 	ep_attr = SECURE | EP_ST_ENABLE;
-	if (read_sctlr_el3() & SCTLR_EE_BIT)
+	if ((read_sctlr_el3() & SCTLR_EE_BIT) != 0U)
 		ep_attr |= EP_EE_BIG;
 	SET_PARAM_HEAD(sp_ep_info, PARAM_EP, VERSION_1, ep_attr);
 
@@ -192,7 +192,7 @@ int32_t spm_setup(void)
 	 * absence is a critical failure.
 	 */
 	secure_partition_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
-	if (!secure_partition_ep_info) {
+	if (secure_partition_ep_info == NULL) {
 		WARN("No SPM provided by BL2 boot loader, Booting device"
 			" without SPM initialization. SMCs destined for SPM"
 			" will return SMC_UNK\n");
@@ -204,7 +204,7 @@ int32_t spm_setup(void)
 	 * signalling failure initializing the service. We bail out without
 	 * registering any handlers
 	 */
-	if (!secure_partition_ep_info->pc) {
+	if (secure_partition_ep_info->pc == 0U) {
 		return 1;
 	}
 
@@ -231,9 +231,9 @@ int32_t spm_setup(void)
  * The other fields are left as 0 because they are ignored by the function
  * change_mem_attributes().
  */
-static mmap_attr_t smc_attr_to_mmap_attr(unsigned int attributes)
+static unsigned int smc_attr_to_mmap_attr(unsigned int attributes)
 {
-	mmap_attr_t tf_attr = 0;
+	unsigned int tf_attr = 0U;
 
 	unsigned int access = (attributes & SP_MEMORY_ATTRIBUTES_ACCESS_MASK)
 			      >> SP_MEMORY_ATTRIBUTES_ACCESS_SHIFT;
@@ -262,11 +262,11 @@ static mmap_attr_t smc_attr_to_mmap_attr(unsigned int attributes)
  * This function converts attributes from the Trusted Firmware format into the
  * SMC interface format.
  */
-static int smc_mmap_to_smc_attr(mmap_attr_t attr)
+static unsigned int smc_mmap_to_smc_attr(unsigned int attr)
 {
-	int smc_attr = 0;
+	unsigned int smc_attr = 0U;
 
-	int data_access;
+	unsigned int data_access;
 
 	if ((attr & MT_USER) == 0) {
 		/* No access from EL0. */
@@ -283,28 +283,29 @@ static int smc_mmap_to_smc_attr(mmap_attr_t attr)
 	smc_attr |= (data_access & SP_MEMORY_ATTRIBUTES_ACCESS_MASK)
 		    << SP_MEMORY_ATTRIBUTES_ACCESS_SHIFT;
 
-	if (attr & MT_EXECUTE_NEVER) {
+	if ((attr & MT_EXECUTE_NEVER) != 0U) {
 		smc_attr |= SP_MEMORY_ATTRIBUTES_NON_EXEC;
 	}
 
 	return smc_attr;
 }
 
-static int spm_memory_attributes_get_smc_handler(uintptr_t base_va)
+static int32_t spm_memory_attributes_get_smc_handler(uintptr_t base_va)
 {
+	uint32_t attributes;
+
 	spin_lock(&mem_attr_smc_lock);
 
-	mmap_attr_t attributes;
 	int rc = get_mem_attributes(secure_partition_xlat_ctx_handle,
 				     base_va, &attributes);
 
 	spin_unlock(&mem_attr_smc_lock);
 
 	/* Convert error codes of get_mem_attributes() into SPM ones. */
-	assert(rc == 0 || rc == -EINVAL);
+	assert((rc == 0) || (rc == -EINVAL));
 
 	if (rc == 0) {
-		return smc_mmap_to_smc_attr(attributes);
+		return (int32_t) smc_mmap_to_smc_attr(attributes);
 	} else {
 		return SPM_INVALID_PARAMETER;
 	}
@@ -316,7 +317,7 @@ static int spm_memory_attributes_set_smc_handler(u_register_t page_address,
 {
 	uintptr_t base_va = (uintptr_t) page_address;
 	size_t size = (size_t) (pages_count * PAGE_SIZE);
-	unsigned int attributes = (unsigned int) smc_attributes;
+	uint32_t attributes = (uint32_t) smc_attributes;
 
 	INFO("  Start address  : 0x%lx\n", base_va);
 	INFO("  Number of pages: %i (%zi bytes)\n", (int) pages_count, size);
@@ -330,7 +331,7 @@ static int spm_memory_attributes_set_smc_handler(u_register_t page_address,
 	spin_unlock(&mem_attr_smc_lock);
 
 	/* Convert error codes of change_mem_attributes() into SPM ones. */
-	assert(ret == 0 || ret == -EINVAL);
+	assert((ret == 0) || (ret == -EINVAL));
 
 	return (ret == 0) ? SPM_SUCCESS : SPM_INVALID_PARAMETER;
 }
@@ -389,7 +390,7 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 
 			/* Get a reference to the non-secure context */
 			ns_cpu_context = cm_get_context(NON_SECURE);
-			assert(ns_cpu_context);
+			assert(ns_cpu_context != NULL);
 
 			/* Restore non-secure state */
 			cm_el1_sysregs_context_restore(NON_SECURE);
@@ -435,17 +436,17 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 			uint64_t comm_size_address = x3;
 
 			/* Cookie. Reserved for future use. It must be zero. */
-			if (mm_cookie != 0) {
+			if (mm_cookie != 0U) {
 				ERROR("MM_COMMUNICATE: cookie is not zero\n");
 				SMC_RET1(handle, SPM_INVALID_PARAMETER);
 			}
 
-			if (comm_buffer_address == 0) {
+			if (comm_buffer_address == 0U) {
 				ERROR("MM_COMMUNICATE: comm_buffer_address is zero\n");
 				SMC_RET1(handle, SPM_INVALID_PARAMETER);
 			}
 
-			if (comm_size_address != 0) {
+			if (comm_size_address != 0U) {
 				VERBOSE("MM_COMMUNICATE: comm_size_address is not 0 as recommended.\n");
 			}
 

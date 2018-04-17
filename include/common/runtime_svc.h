@@ -102,15 +102,15 @@ CASSERT(RT_SVC_DESC_HANDLE == __builtin_offsetof(rt_svc_desc_t, handle), \
  * oen is used to access an entry in the 'rt_svc_descs_indices' array. The entry
  * contains the index of the service descriptor in the 'rt_svc_descs' array.
  */
-#define get_unique_oen(oen, call_type)	((oen & FUNCID_OEN_MASK) |	\
-					((call_type & FUNCID_TYPE_MASK) \
-					 << FUNCID_OEN_WIDTH))
+#define get_unique_oen(oen, call_type)				\
+	(((uint32_t)(oen) & FUNCID_OEN_MASK) |			\
+	(((uint32_t)(call_type) & FUNCID_TYPE_MASK) << FUNCID_OEN_WIDTH))
 
 /*
  * This macro generates the unique owning entity number from the SMC Function
- * ID.  This unique oen is used to access an entry in the
- * 'rt_svc_descs_indices' array to invoke the corresponding runtime service
- * handler during SMC handling.
+ * ID. This unique oen is used to access an entry in the 'rt_svc_descs_indices'
+ * array to invoke the corresponding runtime service handler during SMC
+ * handling.
  */
 #define get_unique_oen_from_smc_fid(fid)		\
 	get_unique_oen(((fid) >> FUNCID_OEN_SHIFT),	\

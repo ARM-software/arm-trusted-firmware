@@ -299,7 +299,7 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx,
  * executing.
  */
 int change_mem_attributes(xlat_ctx_t *ctx, uintptr_t base_va, size_t size,
-			mmap_attr_t attr);
+			  uint32_t attr);
 
 /*
  * Query the memory attributes of a memory page in a set of translation tables.
@@ -317,7 +317,7 @@ int change_mem_attributes(xlat_ctx_t *ctx, uintptr_t base_va, size_t size,
  *   Output parameter where to store the attributes of the targeted memory page.
  */
 int get_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va,
-		mmap_attr_t *attributes);
+		       uint32_t *attributes);
 
 #endif /*__ASSEMBLY__*/
 #endif /* __XLAT_TABLES_V2_H__ */
