@@ -8,7 +8,7 @@
 #include <debug.h>
 #include <gic_v3.h>
 
-uintptr_t gicv3_get_rdist(uintptr_t gicr_base, uint64_t mpidr)
+uintptr_t gicv3_get_rdist(uintptr_t gicr_base, u_register_t mpidr)
 {
 	uint32_t  cpu_aff, gicr_aff;
 	uint64_t  gicr_typer;

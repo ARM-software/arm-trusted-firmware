@@ -19,14 +19,14 @@ DEFINE_SVC_UUID(mtk_sip_svc_uid,
 		0x8f, 0x95, 0x05, 0x00, 0x0f, 0x3d);
 
 #pragma weak mediatek_plat_sip_handler
-uint64_t mediatek_plat_sip_handler(uint32_t smc_fid,
-				uint64_t x1,
-				uint64_t x2,
-				uint64_t x3,
-				uint64_t x4,
+uintptr_t mediatek_plat_sip_handler(uint32_t smc_fid,
+				u_register_t x1,
+				u_register_t x2,
+				u_register_t x3,
+				u_register_t x4,
 				void *cookie,
 				void *handle,
-				uint64_t flags)
+				u_register_t flags)
 {
 	ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
 	SMC_RET1(handle, SMC_UNK);
@@ -34,14 +34,14 @@ uint64_t mediatek_plat_sip_handler(uint32_t smc_fid,
 
 /*
  * This function handles Mediatek defined SiP Calls */
-uint64_t mediatek_sip_handler(uint32_t smc_fid,
-			uint64_t x1,
-			uint64_t x2,
-			uint64_t x3,
-			uint64_t x4,
+uintptr_t mediatek_sip_handler(uint32_t smc_fid,
+			u_register_t x1,
+			u_register_t x2,
+			u_register_t x3,
+			u_register_t x4,
 			void *cookie,
 			void *handle,
-			uint64_t flags)
+			u_register_t flags)
 {
 	uint32_t ns;
 
@@ -85,14 +85,14 @@ uint64_t mediatek_sip_handler(uint32_t smc_fid,
 /*
  * This function is responsible for handling all SiP calls from the NS world
  */
-uint64_t sip_smc_handler(uint32_t smc_fid,
-			 uint64_t x1,
-			 uint64_t x2,
-			 uint64_t x3,
-			 uint64_t x4,
+uintptr_t sip_smc_handler(uint32_t smc_fid,
+			 u_register_t x1,
+			 u_register_t x2,
+			 u_register_t x3,
+			 u_register_t x4,
 			 void *cookie,
 			 void *handle,
-			 uint64_t flags)
+			 u_register_t flags)
 {
 	switch (smc_fid) {
 	case SIP_SVC_CALL_COUNT:

@@ -18,14 +18,14 @@ DEFINE_SVC_UUID(rk_sip_svc_uid,
 		0x8f, 0x88, 0xee, 0x74, 0x7b, 0x72);
 
 #pragma weak rockchip_plat_sip_handler
-uint64_t rockchip_plat_sip_handler(uint32_t smc_fid,
-				   uint64_t x1,
-				   uint64_t x2,
-				   uint64_t x3,
-				   uint64_t x4,
-				   void *cookie,
-				   void *handle,
-				   uint64_t flags)
+uintptr_t rockchip_plat_sip_handler(uint32_t smc_fid,
+				    u_register_t x1,
+				    u_register_t x2,
+				    u_register_t x3,
+				    u_register_t x4,
+				    void *cookie,
+				    void *handle,
+				    u_register_t flags)
 {
 	ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
 	SMC_RET1(handle, SMC_UNK);
@@ -34,14 +34,14 @@ uint64_t rockchip_plat_sip_handler(uint32_t smc_fid,
 /*
  * This function is responsible for handling all SiP calls from the NS world
  */
-uint64_t sip_smc_handler(uint32_t smc_fid,
-			 uint64_t x1,
-			 uint64_t x2,
-			 uint64_t x3,
-			 uint64_t x4,
-			 void *cookie,
-			 void *handle,
-			 uint64_t flags)
+uintptr_t sip_smc_handler(uint32_t smc_fid,
+			  u_register_t x1,
+			  u_register_t x2,
+			  u_register_t x3,
+			  u_register_t x4,
+			  void *cookie,
+			  void *handle,
+			  u_register_t flags)
 {
 	uint32_t ns;
 

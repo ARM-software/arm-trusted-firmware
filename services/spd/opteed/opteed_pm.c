@@ -16,7 +16,7 @@
  * The target cpu is being turned on. Allow the OPTEED/OPTEE to perform any
  * actions needed. Nothing at the moment.
  ******************************************************************************/
-static void opteed_cpu_on_handler(uint64_t target_cpu)
+static void opteed_cpu_on_handler(u_register_t target_cpu)
 {
 }
 
@@ -24,7 +24,7 @@ static void opteed_cpu_on_handler(uint64_t target_cpu)
  * This cpu is being turned off. Allow the OPTEED/OPTEE to perform any actions
  * needed
  ******************************************************************************/
-static int32_t opteed_cpu_off_handler(uint64_t unused)
+static int32_t opteed_cpu_off_handler(u_register_t unused)
 {
 	int32_t rc = 0;
 	uint32_t linear_id = plat_my_core_pos();
@@ -57,7 +57,7 @@ static int32_t opteed_cpu_off_handler(uint64_t unused)
  * This cpu is being suspended. S-EL1 state must have been saved in the
  * resident cpu (mpidr format) if it is a UP/UP migratable OPTEE.
  ******************************************************************************/
-static void opteed_cpu_suspend_handler(uint64_t max_off_pwrlvl)
+static void opteed_cpu_suspend_handler(u_register_t max_off_pwrlvl)
 {
 	int32_t rc = 0;
 	uint32_t linear_id = plat_my_core_pos();
@@ -87,7 +87,7 @@ static void opteed_cpu_suspend_handler(uint64_t max_off_pwrlvl)
  * after initialising minimal architectural state that guarantees safe
  * execution.
  ******************************************************************************/
-static void opteed_cpu_on_finish_handler(uint64_t unused)
+static void opteed_cpu_on_finish_handler(u_register_t unused)
 {
 	int32_t rc = 0;
 	uint32_t linear_id = plat_my_core_pos();
@@ -123,7 +123,7 @@ static void opteed_cpu_on_finish_handler(uint64_t unused)
  * completed the preceding suspend call. Use that context to program an entry
  * into OPTEE to allow it to do any remaining book keeping
  ******************************************************************************/
-static void opteed_cpu_suspend_finish_handler(uint64_t max_off_pwrlvl)
+static void opteed_cpu_suspend_finish_handler(u_register_t max_off_pwrlvl)
 {
 	int32_t rc = 0;
 	uint32_t linear_id = plat_my_core_pos();
@@ -154,7 +154,7 @@ static void opteed_cpu_suspend_finish_handler(uint64_t max_off_pwrlvl)
  * Return the type of OPTEE the OPTEED is dealing with. Report the current
  * resident cpu (mpidr format) if it is a UP/UP migratable OPTEE.
  ******************************************************************************/
-static int32_t opteed_cpu_migrate_info(uint64_t *resident_cpu)
+static int32_t opteed_cpu_migrate_info(u_register_t *resident_cpu)
 {
 	return OPTEE_MIGRATE_INFO;
 }

@@ -212,14 +212,14 @@ static uint64_t trusty_fiq_exit(void *handle, uint64_t x1, uint64_t x2, uint64_t
 	SMC_RET0(handle);
 }
 
-static uint64_t trusty_smc_handler(uint32_t smc_fid,
-			 uint64_t x1,
-			 uint64_t x2,
-			 uint64_t x3,
-			 uint64_t x4,
+static uintptr_t trusty_smc_handler(uint32_t smc_fid,
+			 u_register_t x1,
+			 u_register_t x2,
+			 u_register_t x3,
+			 u_register_t x4,
 			 void *cookie,
 			 void *handle,
-			 uint64_t flags)
+			 u_register_t flags)
 {
 	struct args ret;
 	uint32_t vmid = 0;
@@ -347,14 +347,14 @@ static void trusty_cpu_resume(uint32_t on)
 	}
 }
 
-static int32_t trusty_cpu_off_handler(uint64_t unused)
+static int32_t trusty_cpu_off_handler(u_register_t unused)
 {
 	trusty_cpu_suspend(1);
 
 	return 0;
 }
 
-static void trusty_cpu_on_finish_handler(uint64_t unused)
+static void trusty_cpu_on_finish_handler(u_register_t unused)
 {
 	struct trusty_cpu_ctx *ctx = get_trusty_ctx();
 
@@ -365,12 +365,12 @@ static void trusty_cpu_on_finish_handler(uint64_t unused)
 	}
 }
 
-static void trusty_cpu_suspend_handler(uint64_t unused)
+static void trusty_cpu_suspend_handler(u_register_t unused)
 {
 	trusty_cpu_suspend(0);
 }
 
-static void trusty_cpu_suspend_finish_handler(uint64_t unused)
+static void trusty_cpu_suspend_finish_handler(u_register_t unused)
 {
 	trusty_cpu_resume(0);
 }

@@ -22,7 +22,7 @@ extern tlk_context_t tlk_ctx;
  * Return the type of payload TLKD is dealing with. Report the current
  * resident cpu (mpidr format) if it is a UP/UP migratable payload.
  ******************************************************************************/
-static int32_t cpu_migrate_info(uint64_t *resident_cpu)
+static int32_t cpu_migrate_info(u_register_t *resident_cpu)
 {
 	/* the payload runs only on CPU0 */
 	*resident_cpu = MPIDR_CPU0;
@@ -35,7 +35,7 @@ static int32_t cpu_migrate_info(uint64_t *resident_cpu)
  * This cpu is being suspended. Inform TLK of the SYSTEM_SUSPEND event, so
  * that it can pass this information to its Trusted Apps.
  ******************************************************************************/
-static void cpu_suspend_handler(uint64_t suspend_level)
+static void cpu_suspend_handler(u_register_t suspend_level)
 {
 	gp_regs_t *gp_regs;
 	int cpu = read_mpidr() & MPIDR_CPU_MASK;
@@ -67,7 +67,7 @@ static void cpu_suspend_handler(uint64_t suspend_level)
  * This cpu is being resumed. Inform TLK of the SYSTEM_SUSPEND exit, so
  * that it can pass this information to its Trusted Apps.
  ******************************************************************************/
-static void cpu_resume_handler(uint64_t suspend_level)
+static void cpu_resume_handler(u_register_t suspend_level)
 {
 	gp_regs_t *gp_regs;
 	int cpu = read_mpidr() & MPIDR_CPU_MASK;

@@ -32,14 +32,14 @@ static int32_t oem_svc_setup(void)
 /*******************************************************************************
  * OEM top level handler for servicing SMCs.
  ******************************************************************************/
-uint64_t oem_smc_handler(uint32_t smc_fid,
-			uint64_t x1,
-			uint64_t x2,
-			uint64_t x3,
-			uint64_t x4,
+uintptr_t oem_smc_handler(uint32_t smc_fid,
+			u_register_t x1,
+			u_register_t x2,
+			u_register_t x3,
+			u_register_t x4,
 			void *cookie,
 			void *handle,
-			uint64_t flags)
+			u_register_t flags)
 {
 	WARN("Unimplemented OEM Call: 0x%x\n", smc_fid);
 	SMC_RET1(handle, SMC_UNK);
@@ -49,14 +49,14 @@ uint64_t oem_smc_handler(uint32_t smc_fid,
  * Top-level OEM Service SMC handler. This handler will in turn dispatch
  * calls to related SMC handler
  */
-uint64_t oem_svc_smc_handler(uint32_t smc_fid,
-			 uint64_t x1,
-			 uint64_t x2,
-			 uint64_t x3,
-			 uint64_t x4,
+uintptr_t oem_svc_smc_handler(uint32_t smc_fid,
+			 u_register_t x1,
+			 u_register_t x2,
+			 u_register_t x3,
+			 u_register_t x4,
 			 void *cookie,
 			 void *handle,
-			 uint64_t flags)
+			 u_register_t flags)
 {
 	/*
 	 * Dispatch OEM calls to OEM Common handler and return its return value
