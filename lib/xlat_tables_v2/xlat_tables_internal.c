@@ -115,8 +115,8 @@ static uint64_t *xlat_table_get_empty(xlat_ctx_t *ctx)
 /*
  * Returns a block/page table descriptor for the given level and attributes.
  */
-static uint64_t xlat_desc(const xlat_ctx_t *ctx, mmap_attr_t attr,
-		   unsigned long long addr_pa, int level)
+static uint64_t xlat_desc(const xlat_ctx_t *ctx, uint32_t attr,
+			  unsigned long long addr_pa, int level)
 {
 	uint64_t desc;
 	int mem_type;
@@ -561,7 +561,8 @@ static uintptr_t xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 		if (action == ACTION_WRITE_BLOCK_ENTRY) {
 
 			table_base[table_idx] =
-				xlat_desc(ctx, mm->attr, table_idx_pa, level);
+				xlat_desc(ctx, (uint32_t)mm->attr, table_idx_pa,
+					  level);
 
 		} else if (action == ACTION_CREATE_NEW_TABLE) {
 
@@ -1427,7 +1428,7 @@ static uint64_t *find_xlat_table_entry(uintptr_t virtual_addr,
 
 
 static int get_mem_attributes_internal(const xlat_ctx_t *ctx, uintptr_t base_va,
-		mmap_attr_t *attributes, uint64_t **table_entry,
+		uint32_t *attributes, uint64_t **table_entry,
 		unsigned long long *addr_pa, int *table_level)
 {
 	uint64_t *entry;
@@ -1518,7 +1519,7 @@ static int get_mem_attributes_internal(const xlat_ctx_t *ctx, uintptr_t base_va,
 
 
 int get_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va,
-		mmap_attr_t *attributes)
+		       uint32_t *attributes)
 {
 	return get_mem_attributes_internal(ctx, base_va, attributes,
 					   NULL, NULL, NULL);
@@ -1528,7 +1529,7 @@ int get_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va,
 int change_mem_attributes(xlat_ctx_t *ctx,
 			uintptr_t base_va,
 			size_t size,
-			mmap_attr_t attr)
+			uint32_t attr)
 {
 	/* Note: This implementation isn't optimized. */
 
@@ -1625,7 +1626,7 @@ int change_mem_attributes(xlat_ctx_t *ctx,
 
 	for (int i = 0; i < pages_count; ++i) {
 
-		mmap_attr_t old_attr, new_attr;
+		uint32_t old_attr, new_attr;
 		uint64_t *entry;
 		int level;
 		unsigned long long addr_pa;

@@ -76,8 +76,8 @@
 #define SMC_FROM_SECURE		(U(0) << 0)
 #define SMC_FROM_NON_SECURE	(U(1) << 0)
 
-#define is_caller_non_secure(_f)	(!!(_f & SMC_FROM_NON_SECURE))
-#define is_caller_secure(_f)		(!(is_caller_non_secure(_f)))
+#define is_caller_non_secure(_f)	(((_f) & SMC_FROM_NON_SECURE) != U(0))
+#define is_caller_secure(_f)		(!is_caller_non_secure(_f))
 
 /* The macro below is used to identify a Standard Service SMC call */
 #define is_std_svc_call(_fid)		((((_fid) >> FUNCID_OEN_SHIFT) & \
