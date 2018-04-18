@@ -53,7 +53,7 @@ struct args {
 	uint64_t	r7;
 };
 
-struct trusty_cpu_ctx trusty_cpu_ctx[PLATFORM_CORE_COUNT];
+static struct trusty_cpu_ctx trusty_cpu_ctx[PLATFORM_CORE_COUNT];
 
 struct args trusty_init_context_stack(void **sp, void *new_stack);
 struct args trusty_context_switch_helper(void **sp, void *smc_params);

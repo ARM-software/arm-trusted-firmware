@@ -179,7 +179,7 @@ static uint64_t tspd_ns_interrupt_handler(uint32_t id,
  * (aarch32/aarch64) if not already known and initialises the context for entry
  * into the SP for its initialisation.
  ******************************************************************************/
-int32_t tspd_setup(void)
+static int32_t tspd_setup(void)
 {
 	entry_point_info_t *tsp_ep_info;
 	uint32_t linear_id;
@@ -273,7 +273,7 @@ int32_t tspd_init(void)
  * will also return any information that the secure payload needs to do the
  * work assigned to it.
  ******************************************************************************/
-uint64_t tspd_smc_handler(uint32_t smc_fid,
+static uint64_t tspd_smc_handler(uint32_t smc_fid,
 			 uint64_t x1,
 			 uint64_t x2,
 			 uint64_t x3,

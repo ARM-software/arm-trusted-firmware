@@ -90,7 +90,7 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
  * (aarch32/aarch64) if not already known and initialises the context for entry
  * into OPTEE for its initialization.
  ******************************************************************************/
-int32_t opteed_setup(void)
+static int32_t opteed_setup(void)
 {
 	entry_point_info_t *optee_ep_info;
 	uint32_t linear_id;
@@ -187,7 +187,7 @@ static int32_t opteed_init(void)
  * state. Lastly it will also return any information that OPTEE needs to do
  * the work assigned to it.
  ******************************************************************************/
-uint64_t opteed_smc_handler(uint32_t smc_fid,
+static uint64_t opteed_smc_handler(uint32_t smc_fid,
 			 uint64_t x1,
 			 uint64_t x2,
 			 uint64_t x3,
