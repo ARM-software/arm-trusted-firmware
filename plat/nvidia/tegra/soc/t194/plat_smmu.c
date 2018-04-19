@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -139,6 +139,7 @@ static __attribute__((aligned(16))) smmu_regs_t tegra194_smmu_context[] = {
 	mc_make_sid_security_cfg(NVENCSRD1),
 	mc_make_sid_security_cfg(NVENC1SRD1),
 	mc_make_sid_security_cfg(ISPRA1),
+	mc_make_sid_security_cfg(PCIE0R1),
 	mc_make_sid_security_cfg(MIU0R),
 	mc_make_sid_security_cfg(MIU0W),
 	mc_make_sid_security_cfg(MIU1R),
@@ -262,6 +263,7 @@ static __attribute__((aligned(16))) smmu_regs_t tegra194_smmu_context[] = {
 	mc_make_sid_override_cfg(NVENCSRD1),
 	mc_make_sid_override_cfg(NVENC1SRD1),
 	mc_make_sid_override_cfg(ISPRA1),
+	mc_make_sid_override_cfg(PCIE0R1),
 	mc_make_sid_override_cfg(MIU0R),
 	mc_make_sid_override_cfg(MIU0W),
 	mc_make_sid_override_cfg(MIU1R),
