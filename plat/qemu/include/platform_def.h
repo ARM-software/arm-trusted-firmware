@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -218,6 +218,30 @@
 #define QEMU_IRQ_SEC_SGI_5		13
 #define QEMU_IRQ_SEC_SGI_6		14
 #define QEMU_IRQ_SEC_SGI_7		15
+
+/******************************************************************************
+ * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0
+ * interrupts.
+ *****************************************************************************/
+#define PLATFORM_G1S_PROPS(grp)						\
+	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY,	\
+					   grp, GIC_INTR_CFG_EDGE),	\
+	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_1, GIC_HIGHEST_SEC_PRIORITY,	\
+					   grp, GIC_INTR_CFG_EDGE),	\
+	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_2, GIC_HIGHEST_SEC_PRIORITY,	\
+					   grp, GIC_INTR_CFG_EDGE),	\
+	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_3, GIC_HIGHEST_SEC_PRIORITY,	\
+					   grp, GIC_INTR_CFG_EDGE),	\
+	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_4, GIC_HIGHEST_SEC_PRIORITY,	\
+					   grp, GIC_INTR_CFG_EDGE),	\
+	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_5, GIC_HIGHEST_SEC_PRIORITY,	\
+					   grp, GIC_INTR_CFG_EDGE),	\
+	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY,	\
+					   grp, GIC_INTR_CFG_EDGE),	\
+	INTR_PROP_DESC(QEMU_IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY,	\
+					   grp, GIC_INTR_CFG_EDGE)
+
+#define PLATFORM_G0_PROPS(grp)
 
 /*
  * DT related constants

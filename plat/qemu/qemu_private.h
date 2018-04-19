@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,5 +32,8 @@ int dt_add_psci_node(void *fdt);
 int dt_add_psci_cpu_enable_methods(void *fdt);
 
 void qemu_console_init(void);
+
+void plat_qemu_gic_init(void);
+void qemu_pwr_gic_on_finish(void);
 
 #endif /* QEMU_PRIVATE_H */
