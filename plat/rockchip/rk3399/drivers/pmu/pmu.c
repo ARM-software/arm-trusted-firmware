@@ -836,6 +836,7 @@ static void sys_slp_config(void)
 		      BIT_WITH_WMSK(PMU_CLR_GIC2_CORE_L_HW));
 
 	slp_mode_cfg = BIT(PMU_PWR_MODE_EN) |
+		       BIT(PMU_WKUP_RST_EN) |
 		       BIT(PMU_INPUT_CLAMP_EN) |
 		       BIT(PMU_POWER_OFF_REQ_CFG) |
 		       BIT(PMU_CPU0_PD_EN) |
@@ -853,7 +854,6 @@ static void sys_slp_config(void)
 		       BIT(PMU_DDRIO0_RET_DE_REQ) |
 		       BIT(PMU_DDRIO1_RET_EN) |
 		       BIT(PMU_DDRIO1_RET_DE_REQ) |
-		       BIT(PMU_DDRIO_RET_HW_DE_REQ) |
 		       BIT(PMU_CENTER_PD_EN) |
 		       BIT(PMU_PERILP_PD_EN) |
 		       BIT(PMU_CLK_PERILP_SRC_GATE_EN) |
