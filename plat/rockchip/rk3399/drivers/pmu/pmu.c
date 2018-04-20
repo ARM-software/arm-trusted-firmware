@@ -1064,12 +1064,6 @@ static void resume_gpio(void)
 	}
 }
 
-static void m0_configure_suspend(void)
-{
-	/* set PARAM to M0_FUNC_SUSPEND */
-	mmio_write_32(M0_PARAM_ADDR + PARAM_M0_FUNC, M0_FUNC_SUSPEND);
-}
-
 void sram_save(void)
 {
 	size_t text_size = (char *)&__bl31_sram_text_real_end -
@@ -1344,7 +1338,7 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 	set_pmu_rsthold();
 	sys_slp_config();
 
-	m0_configure_suspend();
+	m0_configure_execute_addr(M0PMU_BINCODE_BASE);
 	m0_start();
 
 	pmu_sgrf_rst_hld();

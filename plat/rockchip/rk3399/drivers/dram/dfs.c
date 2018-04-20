@@ -1964,9 +1964,6 @@ uint32_t dram_set_odt_pd(uint32_t arg0, uint32_t arg1, uint32_t arg2)
 
 static void m0_configure_ddr(struct pll_div pll_div, uint32_t ddr_index)
 {
-	/* set PARAM to M0_FUNC_DRAM */
-	mmio_write_32(M0_PARAM_ADDR + PARAM_M0_FUNC, M0_FUNC_DRAM);
-
 	mmio_write_32(M0_PARAM_ADDR + PARAM_DPLL_CON0, FBDIV(pll_div.fbdiv));
 	mmio_write_32(M0_PARAM_ADDR + PARAM_DPLL_CON1,
 		      POSTDIV2(pll_div.postdiv2) | POSTDIV1(pll_div.postdiv1) |
@@ -1976,6 +1973,7 @@ static void m0_configure_ddr(struct pll_div pll_div, uint32_t ddr_index)
 
 	mmio_write_32(M0_PARAM_ADDR + PARAM_FREQ_SELECT, ddr_index << 4);
 	dmbst();
+	m0_configure_execute_addr(M0_BINCODE_BASE);
 }
 
 static uint32_t prepare_ddr_timing(uint32_t mhz)

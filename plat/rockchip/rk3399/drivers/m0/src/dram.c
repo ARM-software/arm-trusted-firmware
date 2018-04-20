@@ -55,7 +55,7 @@ static void ddr_set_pll(void)
 	mmio_write_32(CRU_BASE + CRU_DPLL_CON3, PLL_MODE(PLL_NORMAL_MODE));
 }
 
-void handle_dram(void)
+__attribute__((noreturn)) void main(void)
 {
 	mmio_setbits_32(PHY_REG(0, 927), (1 << 22));
 	mmio_setbits_32(PHY_REG(1, 927), (1 << 22));
@@ -76,4 +76,9 @@ void handle_dram(void)
 	deidle_port();
 	mmio_clrbits_32(PHY_REG(0, 927), (1 << 22));
 	mmio_clrbits_32(PHY_REG(1, 927), (1 << 22));
+
+	mmio_write_32(PARAM_ADDR + PARAM_M0_DONE, M0_DONE_FLAG);
+
+	for (;;)
+		__asm__ volatile ("wfi");
 }

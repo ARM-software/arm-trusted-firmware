@@ -21,14 +21,6 @@ void m0_init(void)
 	mmio_write_32(SGRF_BASE + SGRF_PMU_CON(0), WMSK_BIT(7));
 	mmio_write_32(SGRF_BASE + SGRF_SOC_CON(6), WMSK_BIT(12));
 
-	/* set the execute address for M0 */
-	mmio_write_32(SGRF_BASE + SGRF_PMU_CON(3),
-		      BITS_WITH_WMASK((M0_BINCODE_BASE >> 12) & 0xffff,
-				      0xffff, 0));
-	mmio_write_32(SGRF_BASE + SGRF_PMU_CON(7),
-		      BITS_WITH_WMASK((M0_BINCODE_BASE >> 28) & 0xf,
-				      0xf, 0));
-
 	/* document is wrong, PMU_CRU_GATEDIS_CON0 do not need set MASK BIT */
 	mmio_setbits_32(PMUCRU_BASE + PMUCRU_GATEDIS_CON0, 0x02);
 
@@ -44,6 +36,17 @@ void m0_init(void)
 		      BIT_WITH_WMSK(15) | BITS_WITH_WMASK(0x0, 0x1f, 8));
 
 	mmio_write_32(PMUCRU_BASE + PMUCRU_CLKGATE_CON2, WMSK_BIT(5));
+}
+
+void m0_configure_execute_addr(uintptr_t addr)
+{
+	/* set the execute address for M0 */
+	mmio_write_32(SGRF_BASE + SGRF_PMU_CON(3),
+		      BITS_WITH_WMASK((addr >> 12) & 0xffff,
+				      0xffff, 0));
+	mmio_write_32(SGRF_BASE + SGRF_PMU_CON(7),
+		      BITS_WITH_WMASK((addr >> 28) & 0xf,
+				      0xf, 0));
 }
 
 void m0_start(void)

@@ -7,7 +7,7 @@
 #include "rk3399_mcu.h"
 
 /* Stack configuration */
-#define STACK_SIZE	0x00000100
+#define STACK_SIZE	0x00000040
 __attribute__ ((section(".co_stack")))
 unsigned long pstack[STACK_SIZE];
 

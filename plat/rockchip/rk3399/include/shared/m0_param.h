@@ -7,13 +7,6 @@
 #ifndef __M0_PARAM_H__
 #define __M0_PARAM_H__
 
-#ifndef __LINKER__
-enum {
-	M0_FUNC_SUSPEND = 0,
-	M0_FUNC_DRAM	= 1,
-};
-#endif /* __LINKER__ */
-
 #define PARAM_ADDR		0xc0
 
 #define PARAM_M0_FUNC		0x00
