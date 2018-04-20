@@ -119,6 +119,13 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 		ret = tegra_bpmp_init();
 		if (ret != 0U) {
 
+			/*
+			 * flag to indicate that BPMP firmware is not
+			 * available and the CPU has to handle entry/exit
+			 * for all power states
+			 */
+			tegra_bpmp_available = false;
+
 			/* Cluster idle not allowed */
 			target = PSCI_LOCAL_STATE_RUN;
 
@@ -130,13 +137,6 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 			/* check if cluster idle state has been enabled */
 			val = mmio_read_32(TEGRA_CL_DVFS_BASE + DVFS_DFLL_CTRL);
 			if (val == ENABLE_CLOSED_LOOP) {
-				/*
-				 * flag to indicate that BPMP firmware is not
-				 * available and the CPU has to handle entry/exit
-				 * for all power states
-				 */
-				tegra_bpmp_available = false;
-
 				/*
 				 * Acquire the cluster idle lock to stop
 				 * other CPUs from powering up.
@@ -216,6 +216,15 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		assert(stateid_afflvl0 == PSTATE_ID_CORE_POWERDN);
 
 		if (!tegra_bpmp_available) {
+
+			/*
+			 * When disabled, DFLL loses its state. Enable
+			 * open loop state for the DFLL as we dont want
+			 * garbage values being written to the pmic
+			 * when we enter cluster idle state.
+			 */
+			mmio_write_32(TEGRA_CL_DVFS_BASE + DVFS_DFLL_CTRL,
+				      ENABLE_OPEN_LOOP);
 
 			/* Find if the platform uses OVR2/MAX77621 PMIC */
 			cfg = mmio_read_32(TEGRA_CL_DVFS_BASE + DVFS_DFLL_OUTPUT_CFG);
@@ -481,7 +490,18 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 				val = mmio_read_32(TEGRA_MISC_BASE + PINMUX_AUX_DVFS_PWM);
 				val &= ~PINMUX_PWM_TRISTATE;
 				mmio_write_32(TEGRA_MISC_BASE + PINMUX_AUX_DVFS_PWM, val);
+
+				/* make sure the setting took effect */
+				val = mmio_read_32(TEGRA_MISC_BASE + PINMUX_AUX_DVFS_PWM);
+				assert((val & PINMUX_PWM_TRISTATE) == 0U);
 			}
+
+			/*
+			 * Restore operation mode for the DFLL ring
+			 * oscillator
+			 */
+			mmio_write_32(TEGRA_CL_DVFS_BASE + DVFS_DFLL_CTRL,
+				      ENABLE_CLOSED_LOOP);
 
 			/* release cluster idle lock */
 			tegra_fc_ccplex_pgexit_unlock();
