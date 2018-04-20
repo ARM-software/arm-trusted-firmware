@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -146,18 +146,37 @@ void tegra_get_sys_suspend_power_state(psci_power_state_t *req_state)
  ******************************************************************************/
 void tegra_cpu_standby(plat_local_state_t cpu_state)
 {
+	u_register_t saved_scr_el3;
+
 	(void)cpu_state;
 
 	/* Tegra SoC specific handler */
 	if (tegra_soc_cpu_standby(cpu_state) != PSCI_E_SUCCESS)
 		ERROR("%s failed\n", __func__);
 
+	saved_scr_el3 = read_scr_el3();
+
+	/*
+	 * As per ARM ARM D1.17.2, any physical IRQ interrupt received by the
+	 * PE will be treated as a wake-up event, if SCR_EL3.IRQ is set to '1',
+	 * irrespective of the value of the PSTATE.I bit value.
+	 */
+	write_scr_el3(saved_scr_el3 | SCR_IRQ_BIT);
+
 	/*
 	 * Enter standby state
-	 * dsb is good practice before using wfi to enter low power states
+	 *
+	 * dsb & isb is good practice before using wfi to enter low power states
 	 */
 	dsb();
+	isb();
 	wfi();
+
+	/*
+	 * Restore saved scr_el3 that has IRQ bit cleared as we don't want EL3
+	 * handling any further interrupts
+	 */
+	write_scr_el3(saved_scr_el3);
 }
 
 /*******************************************************************************
