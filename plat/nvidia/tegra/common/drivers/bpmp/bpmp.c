@@ -175,6 +175,11 @@ int tegra_bpmp_init(void)
 
 		} else {
 			ERROR("BPMP not powered on\n");
+
+			/* bpmp is not present in the system */
+			bpmp_init_state = BPMP_NOT_PRESENT;
+
+			/* communication timed out */
 			ret = -ETIMEDOUT;
 		}
 	}
@@ -185,8 +190,11 @@ int tegra_bpmp_init(void)
 void tegra_bpmp_suspend(void)
 {
 	/* freeze the interface */
-	bpmp_init_state = BPMP_SUSPEND_ENTRY;
-	flush_dcache_range((uint64_t)&bpmp_init_state, sizeof(bpmp_init_state));
+	if (bpmp_init_state == BPMP_INIT_COMPLETE) {
+		bpmp_init_state = BPMP_SUSPEND_ENTRY;
+		flush_dcache_range((uint64_t)&bpmp_init_state,
+				   sizeof(bpmp_init_state));
+	}
 }
 
 void tegra_bpmp_resume(void)
