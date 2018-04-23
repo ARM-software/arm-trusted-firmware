@@ -1368,7 +1368,7 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 	mmio_setbits_32(PMU_BASE + PMU_PWRDN_CON, BIT(PMU_SCU_B_PWRDWN_EN));
 
 	wdt_register_save();
-	secure_watchdog_disable();
+	secure_watchdog_gate();
 
 	/*
 	 * Disabling PLLs/PWM/DVFS is approaching WFI which is
@@ -1397,6 +1397,7 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	plat_rockchip_restore_gpio();
 	cru_register_restore();
 	grf_register_restore();
+	wdt_register_restore();
 	resume_uart();
 	resume_apio();
 	resume_gpio();
@@ -1406,10 +1407,8 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	udelay(300);
 	enable_dvfs_plls();
 
-	secure_watchdog_enable();
 	secure_sgrf_init();
 	secure_sgrf_ddr_rgn_init();
-	wdt_register_restore();
 
 	/* restore clk_ddrc_bpll_src_en gate */
 	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(3),
@@ -1460,12 +1459,10 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 		udelay(1);
 	}
 
-	pmu_sgrf_rst_hld_release();
 	pmu_scu_b_pwrup();
 	pmu_power_domains_resume();
 
 	restore_abpll();
-	restore_pmu_rsthold();
 	clr_hw_idle(BIT(PMU_CLR_CENTER1) |
 				BIT(PMU_CLR_ALIVE) |
 				BIT(PMU_CLR_MSCH0) |

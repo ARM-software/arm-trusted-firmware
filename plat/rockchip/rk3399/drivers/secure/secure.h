@@ -95,8 +95,8 @@
 #define PCLK_WDT_CM0_GATE_SHIFT		10
 
 /* export secure operating APIs */
-void secure_watchdog_disable(void);
-void secure_watchdog_enable(void);
+void secure_watchdog_gate(void);
+__pmusramfunc void secure_watchdog_ungate(void);
 void secure_timer_init(void);
 void secure_sgrf_init(void);
 void secure_sgrf_ddr_rgn_init(void);

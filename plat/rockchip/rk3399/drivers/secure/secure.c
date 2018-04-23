@@ -77,7 +77,7 @@ static void sgrf_ddr_rgn_config(uint32_t rgn,
 		      BIT_WITH_WMSK(rgn));
 }
 
-void secure_watchdog_disable(void)
+void secure_watchdog_gate(void)
 {
 	/**
 	 * Disable CA53 and CM0 wdt pclk
@@ -89,7 +89,7 @@ void secure_watchdog_disable(void)
 		      BIT_WITH_WMSK(PCLK_WDT_CM0_GATE_SHIFT));
 }
 
-void secure_watchdog_enable(void)
+__pmusramfunc void secure_watchdog_ungate(void)
 {
 	/**
 	 * Enable CA53 and CM0 wdt pclk
