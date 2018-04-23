@@ -103,10 +103,14 @@ Building TF-A
 
        export CROSS_COMPILE=<path-to-aarch32-gcc>/bin/arm-linux-gnueabihf-
 
-   It is possible to build TF-A using clang or Arm Compiler 6. To do so
-   ``CC`` needs to point to the clang or armclang binary. Only the compiler
-   is switched; the assembler and linker need to be provided by the GNU
-   toolchain, thus ``CROSS_COMPILE`` should be set as described above.
+   It is possible to build TF-A using Clang or Arm Compiler 6. To do so
+   ``CC`` needs to point to the clang or armclang binary, which will
+   also select the clang or armclang assembler. Be aware that the
+   GNU linker is used by default.  In case of being needed the linker
+   can be overriden using the ``LD`` variable. Clang linker version 6 is
+   known to work with TF-A.
+
+   In both cases ``CROSS_COMPILE`` should be set as described above.
 
    Arm Compiler 6 will be selected when the base name of the path assigned
    to ``CC`` matches the string 'armclang'.
