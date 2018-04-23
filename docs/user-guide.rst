@@ -573,6 +573,11 @@ Common build options
    pages" section in `Firmware Design`_. This flag is disabled by default and
    affects all BL images.
 
+-  ``SMCCC_MAJOR_VERSION``: Numeric value that indicates the major version of
+   the SMC Calling Convention that the Trusted Firmware supports. The only two
+   allowed values are 1 and 2, and it defaults to 1. The minor version is
+   determined using this value.
+
 -  ``SPD``: Choose a Secure Payload Dispatcher component to be built into TF-A.
    This build option is only valid if ``ARCH=aarch64``. The value should be
    the path to the directory containing the SPD source, relative to

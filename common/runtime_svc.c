@@ -26,8 +26,10 @@ static rt_svc_desc_t *rt_svc_descs;
 					/ sizeof(rt_svc_desc_t))
 
 /*******************************************************************************
- * Function to invoke the registered `handle` corresponding to the smc_fid.
+ * Function to invoke the registered `handle` corresponding to the smc_fid in
+ * AArch32 mode.
  ******************************************************************************/
+#if SMCCC_MAJOR_VERSION == 1
 uintptr_t handle_runtime_svc(uint32_t smc_fid,
 			     void *cookie,
 			     void *handle,
@@ -53,6 +55,7 @@ uintptr_t handle_runtime_svc(uint32_t smc_fid,
 	return rt_svc_descs[index].handle(smc_fid, x1, x2, x3, x4, cookie,
 						handle, flags);
 }
+#endif /* SMCCC_MAJOR_VERSION */
 
 /*******************************************************************************
  * Simple routine to sanity check a runtime service descriptor before using it
@@ -68,12 +71,17 @@ static int32_t validate_rt_svc_desc(const rt_svc_desc_t *desc)
 	if (desc->end_oen >= OEN_LIMIT)
 		return -EINVAL;
 
-	if (desc->call_type != SMC_TYPE_FAST &&
-			desc->call_type != SMC_TYPE_YIELD)
+#if SMCCC_MAJOR_VERSION == 1
+	if ((desc->call_type != SMC_TYPE_FAST) &&
+	    (desc->call_type != SMC_TYPE_YIELD))
 		return -EINVAL;
+#elif SMCCC_MAJOR_VERSION == 2
+	if (desc->is_vendor > 1U)
+		return -EINVAL;
+#endif /* SMCCC_MAJOR_VERSION */
 
 	/* A runtime service having no init or handle function doesn't make sense */
-	if (desc->init == NULL && desc->handle == NULL)
+	if ((desc->init == NULL) && (desc->handle == NULL))
 		return -EINVAL;
 
 	return 0;
@@ -96,7 +104,7 @@ void runtime_svc_init(void)
 			(RT_SVC_DECS_NUM < MAX_RT_SVCS));
 
 	/* If no runtime services are implemented then simply bail out */
-	if (RT_SVC_DECS_NUM == 0)
+	if (RT_SVC_DECS_NUM == 0U)
 		return;
 
 	/* Initialise internal variables to invalid state */
@@ -140,11 +148,18 @@ void runtime_svc_init(void)
 		 * descriptor which will handle the SMCs for this owning
 		 * entity range.
 		 */
-		start_idx = get_unique_oen(rt_svc_descs[index].start_oen,
-				service->call_type);
-		assert(start_idx < MAX_RT_SVCS);
-		end_idx = get_unique_oen(rt_svc_descs[index].end_oen,
-				service->call_type);
+#if SMCCC_MAJOR_VERSION == 1
+		start_idx = get_unique_oen(service->start_oen,
+					   service->call_type);
+		end_idx = get_unique_oen(service->end_oen,
+					 service->call_type);
+#elif SMCCC_MAJOR_VERSION == 2
+		start_idx = get_rt_desc_idx(service->start_oen,
+					    service->is_vendor);
+		end_idx = get_rt_desc_idx(service->end_oen,
+					  service->is_vendor);
+#endif
+		assert(start_idx <= end_idx);
 		assert(end_idx < MAX_RT_SVCS);
 		for (; start_idx <= end_idx; start_idx++)
 			rt_svc_descs_indices[start_idx] = index;
