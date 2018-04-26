@@ -51,7 +51,7 @@ static cmd_t cmds[] = {
 
 static image_desc_t *image_desc_head;
 static size_t nr_image_descs;
-static uuid_t uuid_null = { 0 };
+static const uuid_t uuid_null;
 static int verbose;
 
 static void vlog(int prio, const char *msg, va_list ap)
@@ -241,14 +241,15 @@ static void uuid_to_str(char *s, size_t len, const uuid_t *u)
 {
 	assert(len >= (_UUID_STR_LEN + 1));
 
-	snprintf(s, len, "%08X-%04X-%04X-%04X-%04X%04X%04X",
-	    u->time_low,
-	    u->time_mid,
-	    u->time_hi_and_version,
-	    ((uint16_t)u->clock_seq_hi_and_reserved << 8) | u->clock_seq_low,
-	    ((uint16_t)u->node[0] << 8) | u->node[1],
-	    ((uint16_t)u->node[2] << 8) | u->node[3],
-	    ((uint16_t)u->node[4] << 8) | u->node[5]);
+	snprintf(s, len,
+	    "%02X%02X%02X%02X-%02X%02X-%02X%02X-%04X-%04X%04X%04X",
+	    u->time_low[0], u->time_low[1], u->time_low[2], u->time_low[3],
+	    u->time_mid[0], u->time_mid[1],
+	    u->time_hi_and_version[0], u->time_hi_and_version[1],
+	    (u->clock_seq_hi_and_reserved << 8) | u->clock_seq_low,
+	    (u->node[0] << 8) | u->node[1],
+	    (u->node[2] << 8) | u->node[3],
+	    (u->node[4] << 8) | u->node[5]);
 }
 
 static void uuid_from_str(uuid_t *u, const char *s)
@@ -261,10 +262,14 @@ static void uuid_from_str(uuid_t *u, const char *s)
 		log_errx("Invalid UUID: %s", s);
 
 	n = sscanf(s,
-	    "%8x-%4hx-%4hx-%2hhx%2hhx-%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx",
-	    &u->time_low, &u->time_mid, &u->time_hi_and_version,
-	    &u->clock_seq_hi_and_reserved, &u->clock_seq_low, &u->node[0],
-	    &u->node[1], &u->node[2], &u->node[3], &u->node[4], &u->node[5]);
+	    "%2hhx%2hhx%2hhx%2hhx-%2hhx%2hhx-%2hhx%2hhx-%2hhx%2hhx-%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx",
+	    &u->time_low[0], &u->time_low[1], &u->time_low[2], &u->time_low[3],
+	    &u->time_mid[0], &u->time_mid[1],
+	    &u->time_hi_and_version[0], &u->time_hi_and_version[1],
+	    &u->clock_seq_hi_and_reserved, &u->clock_seq_low,
+	    &u->node[0], &u->node[1],
+	    &u->node[2], &u->node[3],
+	    &u->node[4], &u->node[5]);
 	/*
 	 * Given the format specifier above, we expect 11 items to be scanned
 	 * for a properly formatted UUID.
@@ -697,7 +702,7 @@ static int create_cmd(int argc, char *argv[])
 		case 'b': {
 			char name[_UUID_STR_LEN + 1];
 			char filename[PATH_MAX] = { 0 };
-			uuid_t uuid = { 0 };
+			uuid_t uuid = uuid_null;
 			image_desc_t *desc;
 
 			parse_blob_opt(optarg, &uuid,
@@ -794,7 +799,7 @@ static int update_cmd(int argc, char *argv[])
 		case 'b': {
 			char name[_UUID_STR_LEN + 1];
 			char filename[PATH_MAX] = { 0 };
-			uuid_t uuid = { 0 };
+			uuid_t uuid = uuid_null;
 			image_desc_t *desc;
 
 			parse_blob_opt(optarg, &uuid,
@@ -902,7 +907,7 @@ static int unpack_cmd(int argc, char *argv[])
 		case 'b': {
 			char name[_UUID_STR_LEN + 1];
 			char filename[PATH_MAX] = { 0 };
-			uuid_t uuid = { 0 };
+			uuid_t uuid = uuid_null;
 			image_desc_t *desc;
 
 			parse_blob_opt(optarg, &uuid,
@@ -1041,7 +1046,7 @@ static int remove_cmd(int argc, char *argv[])
 			break;
 		case 'b': {
 			char name[_UUID_STR_LEN + 1], filename[PATH_MAX];
-			uuid_t uuid = { 0 };
+			uuid_t uuid = uuid_null;
 			image_desc_t *desc;
 
 			parse_blob_opt(optarg, &uuid,

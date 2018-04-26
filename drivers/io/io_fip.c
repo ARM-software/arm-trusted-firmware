@@ -32,7 +32,7 @@ typedef struct {
 	fip_toc_entry_t entry;
 } file_state_t;
 
-static const uuid_t uuid_null = {0};
+static const uuid_t uuid_null = { {0} };
 static file_state_t current_file = {0};
 static uintptr_t backend_dev_handle;
 static uintptr_t backend_image_spec;

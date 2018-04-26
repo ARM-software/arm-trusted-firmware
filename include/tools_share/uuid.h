@@ -48,9 +48,9 @@
  * A DCE 1.1 compatible source representation of UUIDs.
  */
 struct uuid {
-	uint32_t	time_low;
-	uint16_t	time_mid;
-	uint16_t	time_hi_and_version;
+	uint8_t		time_low[4];
+	uint8_t		time_mid[2];
+	uint8_t		time_hi_and_version[2];
 	uint8_t		clock_seq_hi_and_reserved;
 	uint8_t		clock_seq_low;
 	uint8_t		node[_UUID_NODE_LEN];
