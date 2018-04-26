@@ -46,6 +46,7 @@ void bl2_main(void)
 	/* Load the subsequent bootloader images. */
 	next_bl_ep_info = bl2_load_images();
 
+#if !BL2_AT_EL3
 #ifdef AARCH32
 	/*
 	 * For AArch32 state BL1 and BL2 share the MMU setup.
@@ -55,8 +56,6 @@ void bl2_main(void)
 	disable_mmu_icache_secure();
 #endif /* AARCH32 */
 
-
-#if !BL2_AT_EL3
 	console_flush();
 
 	/*
