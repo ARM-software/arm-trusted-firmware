@@ -127,8 +127,8 @@
  * expected.
  */
 #define ARM_ARCH_AT_LEAST(_maj, _min) \
-	((ARM_ARCH_MAJOR > _maj) || \
-	 ((ARM_ARCH_MAJOR == _maj) && (ARM_ARCH_MINOR >= _min)))
+	((ARM_ARCH_MAJOR > (_maj)) || \
+	 ((ARM_ARCH_MAJOR == (_maj)) && (ARM_ARCH_MINOR >= (_min))))
 
 /*
  * Import an assembly or linker symbol as a C expression with the specified

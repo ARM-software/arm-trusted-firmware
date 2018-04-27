@@ -48,10 +48,15 @@
 #ifdef AARCH32
 /* AArch32 specific translation table API */
 void enable_mmu_secure(unsigned int flags);
+
+void enable_mmu_direct(unsigned int flags);
 #else
 /* AArch64 specific translation table APIs */
 void enable_mmu_el1(unsigned int flags);
 void enable_mmu_el3(unsigned int flags);
+
+void enable_mmu_direct_el1(unsigned int flags);
+void enable_mmu_direct_el3(unsigned int flags);
 #endif /* AARCH32 */
 
 int xlat_arch_is_granule_size_supported(size_t size);

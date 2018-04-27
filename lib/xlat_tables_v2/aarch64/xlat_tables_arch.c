@@ -16,6 +16,8 @@
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
 
+uint32_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
+
 /*
  * Returns 1 if the provided granule size is supported, 0 otherwise.
  */
@@ -183,70 +185,13 @@ int xlat_arch_current_el(void)
 	return el;
 }
 
-/*******************************************************************************
- * Macro generating the code for the function enabling the MMU in the given
- * exception level, assuming that the pagetables have already been created.
- *
- *   _el:		Exception level at which the function will run
- *   _tlbi_fct:		Function to invalidate the TLBs at the current
- *			exception level
- ******************************************************************************/
-#define DEFINE_ENABLE_MMU_EL(_el, _tlbi_fct)				\
-	static void enable_mmu_internal_el##_el(int flags,		\
-						uint64_t mair,		\
-						uint64_t tcr,		\
-						uint64_t ttbr)		\
-	{								\
-		uint32_t sctlr = read_sctlr_el##_el();			\
-		assert((sctlr & SCTLR_M_BIT) == 0);			\
-									\
-		/* Invalidate TLBs at the current exception level */	\
-		_tlbi_fct();						\
-									\
-		write_mair_el##_el(mair);				\
-		write_tcr_el##_el(tcr);					\
-									\
-		/* Set TTBR bits as well */				\
-		if (ARM_ARCH_AT_LEAST(8, 2)) {				\
-			/* Enable CnP bit so as to share page tables */	\
-			/* with all PEs. This is mandatory for */	\
-			/* ARMv8.2 implementations. */			\
-			ttbr |= TTBR_CNP_BIT;				\
-		}							\
-		write_ttbr0_el##_el(ttbr);				\
-									\
-		/* Ensure all translation table writes have drained */	\
-		/* into memory, the TLB invalidation is complete, */	\
-		/* and translation register writes are committed */	\
-		/* before enabling the MMU */				\
-		dsbish();						\
-		isb();							\
-									\
-		sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT;			\
-		if (flags & DISABLE_DCACHE)				\
-			sctlr &= ~SCTLR_C_BIT;				\
-		else							\
-			sctlr |= SCTLR_C_BIT;				\
-									\
-		write_sctlr_el##_el(sctlr);				\
-									\
-		/* Ensure the MMU enable takes effect immediately */	\
-		isb();							\
-	}
-
-/* Define EL1 and EL3 variants of the function enabling the MMU */
-#if IMAGE_EL == 1
-DEFINE_ENABLE_MMU_EL(1, tlbivmalle1)
-#elif IMAGE_EL == 3
-DEFINE_ENABLE_MMU_EL(3, tlbialle3)
-#endif
-
-void enable_mmu_arch(unsigned int flags,
-		uint64_t *base_table,
+void setup_mmu_cfg(unsigned int flags,
+		const uint64_t *base_table,
 		unsigned long long max_pa,
 		uintptr_t max_va)
 {
 	uint64_t mair, ttbr, tcr;
+	uintptr_t virtual_addr_space_size;
 
 	/* Set attributes in the right indices of the MAIR. */
 	mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
@@ -256,27 +201,25 @@ void enable_mmu_arch(unsigned int flags,
 	ttbr = (uint64_t) base_table;
 
 	/*
-	 * Set TCR bits as well.
-	 */
-
-	/*
 	 * Limit the input address ranges and memory region sizes translated
 	 * using TTBR0 to the given virtual address space size.
 	 */
-	assert(max_va < UINTPTR_MAX);
-	uintptr_t virtual_addr_space_size = max_va + 1;
+	assert(max_va < ((uint64_t) UINTPTR_MAX));
+
+	virtual_addr_space_size = max_va + 1;
 	assert(CHECK_VIRT_ADDR_SPACE_SIZE(virtual_addr_space_size));
+
 	/*
 	 * __builtin_ctzll(0) is undefined but here we are guaranteed that
 	 * virtual_addr_space_size is in the range [1,UINTPTR_MAX].
 	 */
-	tcr = 64 - __builtin_ctzll(virtual_addr_space_size);
+	tcr = (uint64_t) 64 - __builtin_ctzll(virtual_addr_space_size);
 
 	/*
 	 * Set the cacheability and shareability attributes for memory
 	 * associated with translation table walks.
 	 */
-	if (flags & XLAT_TABLE_NC) {
+	if ((flags & XLAT_TABLE_NC) != 0) {
 		/* Inner & outer non-cacheable non-shareable. */
 		tcr |= TCR_SH_NON_SHAREABLE |
 			TCR_RGN_OUTER_NC | TCR_RGN_INNER_NC;
@@ -299,10 +242,23 @@ void enable_mmu_arch(unsigned int flags,
 	 * translated using TTBR1_EL1.
 	 */
 	tcr |= TCR_EPD1_BIT | (tcr_ps_bits << TCR_EL1_IPS_SHIFT);
-	enable_mmu_internal_el1(flags, mair, tcr, ttbr);
 #elif IMAGE_EL == 3
 	assert(IS_IN_EL(3));
 	tcr |= TCR_EL3_RES1 | (tcr_ps_bits << TCR_EL3_PS_SHIFT);
-	enable_mmu_internal_el3(flags, mair, tcr, ttbr);
 #endif
+
+	mmu_cfg_params[MMU_CFG_MAIR0] = (uint32_t) mair;
+	mmu_cfg_params[MMU_CFG_TCR] = (uint32_t) tcr;
+
+	/* Set TTBR bits as well */
+	if (ARM_ARCH_AT_LEAST(8, 2)) {
+		/*
+		 * Enable CnP bit so as to share page tables with all PEs. This
+		 * is mandatory for ARMv8.2 implementations.
+		 */
+		ttbr |= TTBR_CNP_BIT;
+	}
+
+	mmu_cfg_params[MMU_CFG_TTBR0_LO] = (uint32_t) ttbr;
+	mmu_cfg_params[MMU_CFG_TTBR0_HI] = (uint32_t) (ttbr >> 32);
 }

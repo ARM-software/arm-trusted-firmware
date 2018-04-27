@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +17,8 @@
 #if ARM_ARCH_MAJOR == 7 && !defined(ARMV7_SUPPORTS_LARGE_PAGE_ADDRESSING)
 #error ARMv7 target does not support LPAE MMU descriptors
 #endif
+
+uint32_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
 
 /*
  * Returns 1 if the provided granule size is supported, 0 otherwise.
@@ -109,21 +111,15 @@ int xlat_arch_current_el(void)
  * Function for enabling the MMU in Secure PL1, assuming that the page tables
  * have already been created.
  ******************************************************************************/
-void enable_mmu_arch(unsigned int flags,
-		uint64_t *base_table,
+void setup_mmu_cfg(unsigned int flags,
+		const uint64_t *base_table,
 		unsigned long long max_pa,
 		uintptr_t max_va)
 {
-	u_register_t mair0, ttbcr, sctlr;
+	u_register_t mair0, ttbcr;
 	uint64_t ttbr0;
 
 	assert(IS_IN_SECURE());
-
-	sctlr = read_sctlr();
-	assert((sctlr & SCTLR_M_BIT) == 0);
-
-	/* Invalidate TLBs at the current exception level */
-	tlbiall();
 
 	/* Set attributes in the right indices of the MAIR */
 	mair0 = MAIR0_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
@@ -185,30 +181,9 @@ void enable_mmu_arch(unsigned int flags,
 	ttbr0 |= TTBR_CNP_BIT;
 #endif
 
-	/* Now program the relevant system registers */
-	write_mair0(mair0);
-	write_ttbcr(ttbcr);
-	write64_ttbr0(ttbr0);
-	write64_ttbr1(0);
-
-	/*
-	 * Ensure all translation table writes have drained
-	 * into memory, the TLB invalidation is complete,
-	 * and translation register writes are committed
-	 * before enabling the MMU
-	 */
-	dsbish();
-	isb();
-
-	sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT;
-
-	if (flags & DISABLE_DCACHE)
-		sctlr &= ~SCTLR_C_BIT;
-	else
-		sctlr |= SCTLR_C_BIT;
-
-	write_sctlr(sctlr);
-
-	/* Ensure the MMU enable takes effect immediately */
-	isb();
+	/* Now populate MMU configuration */
+	mmu_cfg_params[MMU_CFG_MAIR0] = mair0;
+	mmu_cfg_params[MMU_CFG_TCR] = ttbcr;
+	mmu_cfg_params[MMU_CFG_TTBR0_LO] = (uint32_t) ttbr0;
+	mmu_cfg_params[MMU_CFG_TTBR0_HI] = ttbr0 >> 32;
 }

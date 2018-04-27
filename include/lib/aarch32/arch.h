@@ -340,7 +340,7 @@
 /*
  * TTBR definitions
  */
-#define TTBR_CNP_BIT		0x1
+#define TTBR_CNP_BIT		U(0x1)
 
 /*
  * CTR definitions
