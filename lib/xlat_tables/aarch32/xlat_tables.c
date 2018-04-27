@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -129,4 +129,9 @@ void enable_mmu_secure(unsigned int flags)
 
 	/* Ensure the MMU enable takes effect immediately */
 	isb();
+}
+
+void enable_mmu_direct(unsigned int flags)
+{
+	enable_mmu_secure(flags);
 }
