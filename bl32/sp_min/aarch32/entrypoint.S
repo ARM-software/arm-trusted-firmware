@@ -298,18 +298,15 @@ func sp_min_warm_entrypoint
 	 * enter coherency (as CPUs already are); and there's no reason to have
 	 * caches disabled either.
 	 */
+#if HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY
+	mov	r0, #0
+#else
 	mov	r0, #DISABLE_DCACHE
+#endif
 	bl	bl32_plat_enable_mmu
 
 #if SP_MIN_WITH_SECURE_FIQ
 	route_fiq_to_sp_min r0
-#endif
-
-#if HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY
-	ldcopr	r0, SCTLR
-	orr	r0, r0, #SCTLR_C_BIT
-	stcopr	r0, SCTLR
-	isb
 #endif
 
 	bl	sp_min_warm_boot
