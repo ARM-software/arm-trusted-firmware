@@ -1315,22 +1315,25 @@ void init_xlat_tables(void)
 
 void enable_mmu_secure(unsigned int flags)
 {
-	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+	setup_mmu_cfg(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
 			tf_xlat_ctx.va_max_address);
+	enable_mmu_direct(flags);
 }
 
 #else
 
 void enable_mmu_el1(unsigned int flags)
 {
-	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+	setup_mmu_cfg(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
 			tf_xlat_ctx.va_max_address);
+	enable_mmu_direct_el1(flags);
 }
 
 void enable_mmu_el3(unsigned int flags)
 {
-	enable_mmu_arch(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+	setup_mmu_cfg(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
 			tf_xlat_ctx.va_max_address);
+	enable_mmu_direct_el3(flags);
 }
 
 #endif /* AARCH32 */

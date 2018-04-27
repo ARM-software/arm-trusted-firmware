@@ -10,6 +10,20 @@
 #include <asm_macros_common.S>
 #include <spinlock.h>
 
+/*
+ * TLBI instruction with type specifier that implements the workaround for
+ * errata 813419 of Cortex-A57.
+ */
+#if ERRATA_A57_813419
+#define TLB_INVALIDATE(_type) \
+	tlbi	_type; \
+	dsb	ish; \
+	tlbi	_type
+#else
+#define TLB_INVALIDATE(_type) \
+	tlbi	_type
+#endif
+
 
 	.macro	func_prologue
 	stp	x29, x30, [sp, #-0x10]!

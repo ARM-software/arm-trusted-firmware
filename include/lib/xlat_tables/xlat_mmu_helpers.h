@@ -41,17 +41,32 @@
  */
 #define XLAT_TABLE_NC			(U(1) << 1)
 
+/* Offsets into mmu_cfg_params array. All parameters are 32 bits wide. */
+#define MMU_CFG_MAIR0		0
+#define MMU_CFG_TCR		1
+#define MMU_CFG_TTBR0_LO	2
+#define MMU_CFG_TTBR0_HI	3
+#define MMU_CFG_PARAM_MAX	4
+
 #ifndef __ASSEMBLY__
 
 #include <sys/types.h>
 
+/* Parameters of register values required when enabling MMU */
+extern uint32_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
+
 #ifdef AARCH32
 /* AArch32 specific translation table API */
 void enable_mmu_secure(unsigned int flags);
+
+void enable_mmu_direct(unsigned int flags);
 #else
 /* AArch64 specific translation table APIs */
 void enable_mmu_el1(unsigned int flags);
 void enable_mmu_el3(unsigned int flags);
+
+void enable_mmu_direct_el1(unsigned int flags);
+void enable_mmu_direct_el3(unsigned int flags);
 #endif /* AARCH32 */
 
 int xlat_arch_is_granule_size_supported(size_t size);

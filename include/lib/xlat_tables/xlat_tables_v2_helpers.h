@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -162,6 +162,8 @@ struct xlat_ctx {
 		.initialized = 0,						\
 	}
 
+#endif /*__ASSEMBLY__*/
+
 #if AARCH64
 
 /*
@@ -186,7 +188,5 @@ struct xlat_ctx {
 #define IMAGE_XLAT_DEFAULT_REGIME EL1_EL0_REGIME
 
 #endif /* AARCH64 */
-
-#endif /*__ASSEMBLY__*/
 
 #endif /* __XLAT_TABLES_V2_HELPERS_H__ */

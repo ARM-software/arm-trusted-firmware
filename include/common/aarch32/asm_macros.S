@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,20 @@
 #include <arch.h>
 #include <asm_macros_common.S>
 #include <spinlock.h>
+
+/*
+ * TLBI instruction with type specifier that implements the workaround for
+ * errata 813419 of Cortex-A57.
+ */
+#if ERRATA_A57_813419
+#define TLB_INVALIDATE(_reg, _coproc) \
+	stcopr	_reg, _coproc; \
+	dsb	ish; \
+	stcopr	_reg, _coproc
+#else
+#define TLB_INVALIDATE(_reg, _coproc) \
+	stcopr	_reg, _coproc
+#endif
 
 #define WORD_SIZE	4
 
