@@ -19,6 +19,7 @@
 #include "pm_ipi.h"
 
 #define PM_GET_CALLBACK_DATA	0xa01
+#define PM_SET_SUSPEND_MODE	0xa02
 #define PM_GET_TRUSTZONE_VERSION	0xa03
 
 /* 0 - UP, !0 - DOWN */
@@ -365,6 +366,10 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	case PM_GET_TRUSTZONE_VERSION:
 		SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS |
 			 ((uint64_t)ZYNQMP_TZ_VERSION << 32));
+
+	case PM_SET_SUSPEND_MODE:
+		ret = pm_set_suspend_mode(pm_arg[0]);
+		SMC_RET1(handle, (uint64_t)ret);
 
 	default:
 		WARN("Unimplemented PM Service Call: 0x%x\n", smc_fid);
