@@ -7,6 +7,7 @@
 #include <arm_def.h>
 #include <assert.h>
 #include <debug.h>
+#include <plat_arm.h>
 #include <platform_def.h>
 #include <tzc_dmc500.h>
 
