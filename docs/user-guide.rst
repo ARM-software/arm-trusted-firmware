@@ -454,6 +454,10 @@ Common build options
    management operations. This option defaults to 0 and if it is enabled,
    then it implies ``WARMBOOT_ENABLE_DCACHE_EARLY`` is also enabled.
 
+   Note that, when ``HW_ASSISTED_COHERENCY`` is enabled, version 2 of
+   translation library (xlat tables v2) must be used; version 1 of translation
+   library is not supported.
+
 -  ``JUNO_AARCH32_EL3_RUNTIME``: This build flag enables you to execute EL3
    runtime software in AArch32 mode, which is required to run AArch32 on Juno.
    By default this flag is set to '0'. Enabling this flag builds BL1 and BL2 in

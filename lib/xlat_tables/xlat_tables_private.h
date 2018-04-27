@@ -11,6 +11,10 @@
 #include <platform_def.h>
 #include <xlat_tables_arch.h>
 
+#if HW_ASSISTED_COHERENCY
+#error xlat tables v2 must be used with HW_ASSISTED_COHERENCY
+#endif
+
 /*
  * If the platform hasn't defined a physical and a virtual address space size
  * default to ADDR_SPACE_SIZE.
