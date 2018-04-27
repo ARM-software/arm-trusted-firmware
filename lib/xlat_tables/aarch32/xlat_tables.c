@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,6 +25,8 @@
 
 static uint64_t base_xlation_table[NUM_BASE_LEVEL_ENTRIES]
 		__aligned(NUM_BASE_LEVEL_ENTRIES * sizeof(uint64_t));
+
+uint32_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
 
 #if ENABLE_ASSERTIONS
 static unsigned long long get_max_supported_pa(void)
@@ -65,9 +67,9 @@ void init_xlat_tables(void)
  * Function for enabling the MMU in Secure PL1, assuming that the
  * page-tables have already been created.
  ******************************************************************************/
-void enable_mmu_secure(unsigned int flags)
+static void setup_mmu_cfg(unsigned int flags)
 {
-	unsigned int mair0, ttbcr, sctlr;
+	unsigned int mair0, ttbcr;
 	uint64_t ttbr0;
 
 	assert(IS_IN_SECURE());
@@ -79,10 +81,6 @@ void enable_mmu_secure(unsigned int flags)
 			ATTR_IWBWA_OWBWA_NTR_INDEX);
 	mair0 |= MAIR0_ATTR_SET(ATTR_NON_CACHEABLE,
 			ATTR_NON_CACHEABLE_INDEX);
-	write_mair0(mair0);
-
-	/* Invalidate TLBs at the current exception level */
-	tlbiall();
 
 	/*
 	 * Set TTBCR bits as well. Set TTBR0 table properties. Disable TTBR1.
@@ -101,32 +99,19 @@ void enable_mmu_secure(unsigned int flags)
 			(32 - __builtin_ctzll(PLAT_VIRT_ADDR_SPACE_SIZE));
 	}
 	ttbcr |= TTBCR_EPD1_BIT;
-	write_ttbcr(ttbcr);
 
 	/* Set TTBR0 bits as well */
 	ttbr0 = (uintptr_t) base_xlation_table;
-	write64_ttbr0(ttbr0);
-	write64_ttbr1(0);
 
-	/*
-	 * Ensure all translation table writes have drained
-	 * into memory, the TLB invalidation is complete,
-	 * and translation register writes are committed
-	 * before enabling the MMU
-	 */
-	dsbish();
-	isb();
+	/* Now populate MMU configuration */
+	mmu_cfg_params[MMU_CFG_MAIR0] = mair0;
+	mmu_cfg_params[MMU_CFG_TCR] = ttbcr;
+	mmu_cfg_params[MMU_CFG_TTBR0_LO] = (uint32_t) ttbr0;
+	mmu_cfg_params[MMU_CFG_TTBR0_HI] = ttbr0 >> 32;
+}
 
-	sctlr = read_sctlr();
-	sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT;
-
-	if (flags & DISABLE_DCACHE)
-		sctlr &= ~SCTLR_C_BIT;
-	else
-		sctlr |= SCTLR_C_BIT;
-
-	write_sctlr(sctlr);
-
-	/* Ensure the MMU enable takes effect immediately */
-	isb();
+void enable_mmu_secure(unsigned int flags)
+{
+	setup_mmu_cfg(flags);
+	enable_mmu_direct(flags);
 }

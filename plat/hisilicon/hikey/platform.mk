@@ -54,6 +54,7 @@ PLAT_INCLUDES		:=	-Iinclude/common/tbbr			\
 				-Iplat/hisilicon/hikey/include
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.S	\
+				lib/aarch64/enable_mmu.S		\
 				lib/aarch64/xlat_tables.c		\
 				plat/hisilicon/hikey/aarch64/hikey_common.c
 

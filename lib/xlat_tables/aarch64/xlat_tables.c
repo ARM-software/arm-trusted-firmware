@@ -27,6 +27,8 @@ static uint64_t base_xlation_table[NUM_BASE_LEVEL_ENTRIES]
 
 static unsigned long long tcr_ps_bits;
 
+uint32_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
+
 static unsigned long long calc_physical_addr_size_bits(
 					unsigned long long max_addr)
 {
@@ -112,85 +114,56 @@ void init_xlat_tables(void)
 	tcr_ps_bits = calc_physical_addr_size_bits(max_pa);
 }
 
-/*******************************************************************************
- * Macro generating the code for the function enabling the MMU in the given
- * exception level, assuming that the pagetables have already been created.
- *
- *   _el:		Exception level at which the function will run
- *   _tcr_extra:	Extra bits to set in the TCR register. This mask will
- *			be OR'ed with the default TCR value.
- *   _tlbi_fct:		Function to invalidate the TLBs at the current
- *			exception level
- ******************************************************************************/
-#define DEFINE_ENABLE_MMU_EL(_el, _tcr_extra, _tlbi_fct)		\
-	void enable_mmu_el##_el(unsigned int flags)				\
-	{								\
-		uint64_t mair, tcr, ttbr;				\
-		uint32_t sctlr;						\
-									\
-		assert(IS_IN_EL(_el));					\
-		assert((read_sctlr_el##_el() & SCTLR_M_BIT) == 0);	\
-									\
-		/* Set attributes in the right indices of the MAIR */	\
-		mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);	\
-		mair |= MAIR_ATTR_SET(ATTR_IWBWA_OWBWA_NTR,		\
-				ATTR_IWBWA_OWBWA_NTR_INDEX);		\
-		mair |= MAIR_ATTR_SET(ATTR_NON_CACHEABLE,		\
-				ATTR_NON_CACHEABLE_INDEX);		\
-		write_mair_el##_el(mair);				\
-									\
-		/* Invalidate TLBs at the current exception level */	\
-		_tlbi_fct();						\
-									\
-		/* Set TCR bits as well. */				\
-		/* Set T0SZ to (64 - width of virtual address space) */	\
-		if (flags & XLAT_TABLE_NC) {				\
-			/* Inner & outer non-cacheable non-shareable. */\
-			tcr = TCR_SH_NON_SHAREABLE |			\
-				TCR_RGN_OUTER_NC | TCR_RGN_INNER_NC |	\
-				(64 - __builtin_ctzll(PLAT_VIRT_ADDR_SPACE_SIZE));\
-		} else {						\
-			/* Inner & outer WBWA & shareable. */		\
-			tcr = TCR_SH_INNER_SHAREABLE |			\
-				TCR_RGN_OUTER_WBA | TCR_RGN_INNER_WBA |	\
-				(64 - __builtin_ctzll(PLAT_VIRT_ADDR_SPACE_SIZE));\
-		}							\
-		tcr |= _tcr_extra;					\
-		write_tcr_el##_el(tcr);					\
-									\
-		/* Set TTBR bits as well */				\
-		ttbr = (uint64_t) base_xlation_table;			\
-		write_ttbr0_el##_el(ttbr);				\
-									\
-		/* Ensure all translation table writes have drained */	\
-		/* into memory, the TLB invalidation is complete, */	\
-		/* and translation register writes are committed */	\
-		/* before enabling the MMU */				\
-		dsbish();						\
-		isb();							\
-									\
-		sctlr = read_sctlr_el##_el();				\
-		sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT;			\
-									\
-		if (flags & DISABLE_DCACHE)				\
-			sctlr &= ~SCTLR_C_BIT;				\
-		else							\
-			sctlr |= SCTLR_C_BIT;				\
-									\
-		write_sctlr_el##_el(sctlr);				\
-									\
-		/* Ensure the MMU enable takes effect immediately */	\
-		isb();							\
-	}
+static void setup_mmu_internal(unsigned int flags, uint64_t tcr_extra,
+		uintptr_t tlbi_fct)
+{
+	uint64_t mair, tcr;
 
-/* Define EL1 and EL3 variants of the function enabling the MMU */
-DEFINE_ENABLE_MMU_EL(1,
-		/*
-		 * TCR_EL1.EPD1: Disable translation table walk for addresses
-		 * that are translated using TTBR1_EL1.
-		 */
-		TCR_EPD1_BIT | (tcr_ps_bits << TCR_EL1_IPS_SHIFT),
-		tlbivmalle1)
-DEFINE_ENABLE_MMU_EL(3,
-		TCR_EL3_RES1 | (tcr_ps_bits << TCR_EL3_PS_SHIFT),
-		tlbialle3)
+	/* Set attributes in the right indices of the MAIR */
+	mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
+	mair |= MAIR_ATTR_SET(ATTR_IWBWA_OWBWA_NTR, ATTR_IWBWA_OWBWA_NTR_INDEX);
+	mair |= MAIR_ATTR_SET(ATTR_NON_CACHEABLE, ATTR_NON_CACHEABLE_INDEX);
+	mmu_cfg_params[MMU_CFG_MAIR0] = mair;
+
+	/*
+	 * Set TCR bits as well. Set T0SZ to (64 - width of virtual address
+	 * space).
+	 */
+	if (flags & XLAT_TABLE_NC) {
+		/* Inner & outer non-cacheable non-shareable. */
+		tcr = (TCR_SH_NON_SHAREABLE | TCR_RGN_OUTER_NC | TCR_RGN_INNER_NC |
+				(64 - __builtin_ctzll(PLAT_VIRT_ADDR_SPACE_SIZE)));
+	} else {
+		/* Inner & outer WBWA & shareable. */
+		tcr = (TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA | TCR_RGN_INNER_WBA |
+				(64 - __builtin_ctzll(PLAT_VIRT_ADDR_SPACE_SIZE)));
+	}
+	tcr |= tcr_extra;
+	mmu_cfg_params[MMU_CFG_TCR] = tcr;
+
+	/* Set TTBR bits as well */
+	mmu_cfg_params[MMU_CFG_TTBR0_LO] = (uint32_t) (uintptr_t) base_xlation_table;
+	mmu_cfg_params[MMU_CFG_TTBR0_HI] = ((uintptr_t) base_xlation_table) >> 32;
+}
+
+void enable_mmu_el1(unsigned int flags)
+{
+	assert(IS_IN_EL(1));
+
+	assert((read_sctlr_el1() & SCTLR_M_BIT) == 0);
+	setup_mmu_internal(flags,
+			TCR_EPD1_BIT | (tcr_ps_bits << TCR_EL1_IPS_SHIFT),
+			(uintptr_t) tlbivmalle1);
+	enable_mmu_direct_el1(flags);
+}
+
+void enable_mmu_el3(unsigned int flags)
+{
+	assert(IS_IN_EL(3));
+
+	assert((read_sctlr_el3() & SCTLR_M_BIT) == 0);
+	setup_mmu_internal(flags,
+			TCR_EL3_RES1 | (tcr_ps_bits << TCR_EL3_PS_SHIFT),
+			(uintptr_t) tlbialle3);
+	enable_mmu_direct_el3(flags);
+}

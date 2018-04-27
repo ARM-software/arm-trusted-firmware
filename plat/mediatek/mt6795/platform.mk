@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -26,7 +26,8 @@ PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
 				-Iinclude/common/tbbr/					\
 				${OEMS_INCLUDES}
 
-PLAT_BL_COMMON_SOURCES	:=	lib/aarch64/xlat_tables.c			\
+PLAT_BL_COMMON_SOURCES	:=	lib/aarch64/enable_mmu.S			\
+				lib/aarch64/xlat_tables.c			\
 				plat/common/plat_gic.c
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -67,6 +67,7 @@ PLAT_INCLUDES	:=	-Iplat/hisilicon/poplar/include		\
 			-Iinclude/drivers/io
 
 PLAT_BL_COMMON_SOURCES	:=						\
+		lib/aarch64/enable_mmu.S				\
 		lib/aarch64/xlat_tables.c				\
 		drivers/delay_timer/generic_delay_timer.c		\
 		drivers/arm/gic/common/gic_common.c			\

@@ -48,6 +48,7 @@ PLAT_INCLUDES		:=	-Iinclude/common/tbbr			\
 PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.S	\
 				drivers/delay_timer/delay_timer.c	\
 				drivers/delay_timer/generic_delay_timer.c \
+				lib/aarch64/enable_mmu.S		\
 				lib/aarch64/xlat_tables.c		\
 				plat/hisilicon/hikey960/aarch64/hikey960_common.c \
 				plat/hisilicon/hikey960/hikey960_boardid.c

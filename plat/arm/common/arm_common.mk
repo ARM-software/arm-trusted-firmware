@@ -145,6 +145,7 @@ PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/${ARCH}/arm_helpers.S		\
 
 ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
 PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/xlat_tables_common.c		\
+				lib/xlat_tables/${ARCH}/enable_mmu.S		\
 				lib/xlat_tables/${ARCH}/xlat_tables.c
 else
 include lib/xlat_tables_v2/xlat_tables.mk
