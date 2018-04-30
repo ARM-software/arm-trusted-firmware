@@ -15,12 +15,25 @@
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_ipi.h"
+#if ZYNQMP_WDT_RESTART
+#include <arch_helpers.h>
+#include <gicv2.h>
+#include <mmio.h>
+#include <platform.h>
+#include <spinlock.h>
+#endif
 
 #define PM_SET_SUSPEND_MODE	0xa02
 #define PM_GET_TRUSTZONE_VERSION	0xa03
 
 /* !0 - UP, 0 - DOWN */
 static int32_t pm_up = 0;
+
+#if ZYNQMP_WDT_RESTART
+static spinlock_t inc_lock;
+static int active_cores = 0;
+#endif
+
 
 /**
  * pm_context - Structure which contains data for power management
@@ -32,6 +45,142 @@ static struct {
 	uint32_t api_version;
 	uint32_t payload[PAYLOAD_ARG_CNT];
 } pm_ctx;
+
+#if ZYNQMP_WDT_RESTART
+/**
+ * trigger_wdt_restart() - Trigger warm restart event to APU cores
+ *
+ * This function triggers SGI for all active APU CPUs. SGI handler then
+ * power down CPU and call system reset.
+ */
+static void trigger_wdt_restart(void)
+{
+	uint32_t core_count = 0;
+	uint32_t core_status[3];
+	uint32_t target_cpu_list = 0;
+	int i;
+
+	for (i = 0; i < 4; i++) {
+		pm_get_node_status(NODE_APU_0 + i, core_status);
+		if (core_status[0] == 1) {
+			core_count++;
+			target_cpu_list |= (1 << i);
+		}
+	}
+
+	spin_lock(&inc_lock);
+	active_cores = core_count;
+	spin_unlock(&inc_lock);
+
+	INFO("Active Cores: %d\n", active_cores);
+
+	/* trigger SGI to active cores */
+	gicv2_raise_sgi(ARM_IRQ_SEC_SGI_7, target_cpu_list);
+}
+
+/**
+ * ttc_fiq_handler() - TTC Handler for timer event
+ * @id         number of the highest priority pending interrupt of the type
+ *             that this handler was registered for
+ * @flags      security state, bit[0]
+ * @handler    pointer to 'cpu_context' structure of the current CPU for the
+ *             security state specified in the 'flags' parameter
+ * @cookie     unused
+ *
+ * Function registered as INTR_TYPE_EL3 interrupt handler
+ *
+ * When WDT event is received in PMU, PMU needs to notify master to do cleanup
+ * if required. PMU sets up timer and starts timer to overflow in zero time upon
+ * WDT event. ATF handles this timer event and takes necessary action required
+ * for warm restart.
+ *
+ * In presence of non-secure software layers (EL1/2) sets the interrupt
+ * at registered entrance in GIC and informs that PMU responsed or demands
+ * action.
+ */
+static uint64_t ttc_fiq_handler(uint32_t id, uint32_t flags, void *handle,
+                               void *cookie)
+{
+	INFO("BL31: Got TTC FIQ\n");
+
+	/* Clear TTC interrupt by reading interrupt register */
+	mmio_read_32(TTC3_INTR_REGISTER_1);
+
+	/* Disable the timer interrupts */
+	mmio_write_32(TTC3_INTR_ENABLE_1, 0);
+
+	trigger_wdt_restart();
+
+	return 0;
+}
+
+/**
+ * zynqmp_sgi7_irq() - Handler for SGI7 IRQ
+ * @id         number of the highest priority pending interrupt of the type
+ *             that this handler was registered for
+ * @flags      security state, bit[0]
+ * @handler    pointer to 'cpu_context' structure of the current CPU for the
+ *             security state specified in the 'flags' parameter
+ * @cookie     unused
+ *
+ * Function registered as INTR_TYPE_EL3 interrupt handler
+ *
+ * On receiving WDT event from PMU, ATF generates SGI7 to all running CPUs.
+ * In response to SGI7 interrupt, each CPUs do clean up if required and last
+ * running CPU calls system restart.
+ */
+static uint64_t __unused __dead2 zynqmp_sgi7_irq(uint32_t id, uint32_t flags,
+                                                void *handle, void *cookie)
+{
+	int i;
+	/* enter wfi and stay there */
+	INFO("Entering wfi\n");
+
+	spin_lock(&inc_lock);
+	active_cores--;
+
+	for (i = 0; i < 4; i++) {
+		mmio_write_32(BASE_GICD_BASE + GICD_CPENDSGIR + 4 * i,
+				0xffffffff);
+	}
+
+	spin_unlock(&inc_lock);
+
+	if (active_cores == 0) {
+		pm_system_shutdown(PMF_SHUTDOWN_TYPE_RESET,
+				PMF_SHUTDOWN_SUBTYPE_SUBSYSTEM);
+	}
+
+	/* enter wfi and stay there */
+	while (1)
+		wfi();
+}
+
+/**
+ * pm_wdt_restart_setup() - Setup warm restart interrupts
+ *
+ * This function sets up handler for SGI7 and TTC interrupts
+ * used for warm restart.
+ */
+static int pm_wdt_restart_setup(void)
+{
+	int ret;
+
+	/* register IRQ handler for SGI7 */
+	ret = request_intr_type_el3(ARM_IRQ_SEC_SGI_7, zynqmp_sgi7_irq);
+	if (ret) {
+		WARN("BL31: registering SGI7 interrupt failed\n");
+		goto err;
+	}
+
+	ret = request_intr_type_el3(IRQ_TTC3_1, ttc_fiq_handler);
+	if (ret)
+		WARN("BL31: registering TTC3 interrupt failed\n");
+
+err:
+	return ret;
+}
+#endif
 
 /**
  * pm_setup() - PM service setup
@@ -51,6 +200,12 @@ int pm_setup(void)
 	int status, ret;
 
 	status = pm_ipi_init(primary_proc);
+
+#if ZYNQMP_WDT_RESTART
+	status = pm_wdt_restart_setup();
+	if (status)
+		WARN("BL31: warm-restart setup failed\n");
+#endif
 
 	if (status >= 0) {
 		INFO("BL31: PM Service Init Complete: API v%d.%d\n",
