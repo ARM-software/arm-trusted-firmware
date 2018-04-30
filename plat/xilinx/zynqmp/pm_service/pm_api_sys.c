@@ -539,6 +539,33 @@ enum pm_ret_status pm_get_chipid(uint32_t *value)
 }
 
 /**
+ * pm_secure_rsaaes() - Load the secure images.
+ *
+ * This function provides access to the xilsecure library to load
+ * the authenticated, encrypted, and authenicated/encrypted images.
+ *
+ * address_low: lower 32-bit Linear memory space address
+ *
+ * address_high: higher 32-bit Linear memory space address
+ *
+ * size:	Number of 32bit words
+ *
+ * @return      Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_secure_rsaaes(uint32_t address_low,
+				uint32_t address_high,
+				uint32_t size,
+				uint32_t flags)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD5(payload, PM_SECURE_RSA_AES, address_high, address_low,
+			 size, flags);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
  * pm_get_callbackdata() - Read from IPI response buffer
  * @data - array of PAYLOAD_ARG_CNT elements
  *
