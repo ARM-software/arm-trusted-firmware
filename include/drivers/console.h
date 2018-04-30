@@ -50,7 +50,12 @@ typedef struct console {
  */
 /* Remove a single console_t instance from the console list. */
 int console_unregister(console_t *console);
-/* Set scope mask of a console that determines in what states it is active. */
+/* Returns 1 if this console is already registered, 0 if not */
+int console_is_registered(console_t *console);
+/*
+ * Set scope mask of a console that determines in what states it is active.
+ * By default they are registered with (CONSOLE_FLAG_BOOT|CONSOLE_FLAG_CRASH).
+ */
 void console_set_scope(console_t *console, unsigned int scope);
 
 /* Switch to a new global console state (CONSOLE_FLAG_BOOT/RUNTIME/CRASH). */

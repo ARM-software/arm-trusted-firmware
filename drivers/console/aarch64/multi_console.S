@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,8 @@
 
 	.globl	console_register
 	.globl	console_unregister
-	.globl  console_set_scope
+	.globl	console_is_registered
+	.globl	console_set_scope
 	.globl	console_switch_state
 	.globl	console_putc
 	.globl	console_getc
@@ -38,13 +39,15 @@
 	 * persistent memory (e.g. the data section).
 	 * In : x0 - address of console_t structure
 	 * Out: x0 - Always 1 (for easier tail calling)
-	 * Clobber list: x0, x1, x14
+	 * Clobber list: x0, x1, x14, x15
 	 * -----------------------------------------------
 	 */
 func console_register
 #if ENABLE_ASSERTIONS
+	/* Assert that x0 isn't a NULL pointer */
 	cmp	x0, #0
 	ASM_ASSERT(ne)
+	/* Assert that the struct isn't in the stack */
 	adrp	x1, __STACKS_START__
 	add	x1, x1, :lo12:__STACKS_START__
 	cmp	x0, x1
@@ -54,6 +57,14 @@ func console_register
 	cmp	x0, x1
 	ASM_ASSERT(hs)
 not_on_stack:
+	/* Assert that this struct isn't in the list */
+	mov	x1, x0 /* Preserve x0 and x30 */
+	mov	x15, x30
+	bl	console_is_registered
+	cmp	x0, #0
+	ASM_ASSERT(eq)
+	mov	x30, x15
+	mov	x0, x1
 #endif /* ENABLE_ASSERTIONS */
 	adrp	x14, console_list
 	ldr	x1, [x14, :lo12:console_list]	/* X1 = first struct in list */
@@ -73,6 +84,11 @@ endfunc console_register
 	 * -----------------------------------------------
 	 */
 func console_unregister
+#if ENABLE_ASSERTIONS
+	/* Assert that x0 isn't a NULL pointer */
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
 	adrp	x14, console_list
 	add	x14, x14, :lo12:console_list	/* X14 = ptr to first struct */
 	ldr	x1, [x14]			/* X1 = first struct */
@@ -94,6 +110,37 @@ unregister_not_found:
 	mov	x0, #0				/* return NULL if not found */
 	ret
 endfunc console_unregister
+
+	/* -----------------------------------------------
+	 * int console_is_registered(console_t *console)
+	 * Function to detect if a specific console is
+	 * registered or not.
+	 * In: x0 - address of console_t struct to remove
+	 * Out: x0 - 1 if it is registered, 0 if not.
+	 * Clobber list: x0, x14
+	 * -----------------------------------------------
+	 */
+func console_is_registered
+#if ENABLE_ASSERTIONS
+	/* Assert that x0 isn't a NULL pointer */
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
+	adrp	x14, console_list
+	ldr	x14, [x14, :lo12:console_list]	/* X14 = first console struct */
+check_registered_loop:
+	cbz	x14, console_not_registered /* Check if end of list */
+	cmp	x0, x14		/* Check if the pointers are different */
+	b.eq	console_registered
+	ldr	x14, [x14, #CONSOLE_T_NEXT]	/* Get pointer to next struct */
+	b	check_registered_loop
+console_not_registered:
+	mov	x0, #0
+	ret
+console_registered:
+	mov	x0, #1
+	ret
+endfunc console_is_registered
 
 	/* -----------------------------------------------
 	 * void console_switch_state(unsigned int new_state)
