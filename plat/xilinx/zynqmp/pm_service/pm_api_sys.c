@@ -19,6 +19,19 @@
 #include "pm_common.h"
 #include "pm_ipi.h"
 
+/* default shutdown/reboot scope is system(2) */
+static unsigned int pm_shutdown_scope = PMF_SHUTDOWN_SUBTYPE_SYSTEM;
+
+/**
+ * pm_get_shutdown_scope() - Get the currently set shutdown scope
+ *
+ * @return	Shutdown scope value
+ */
+unsigned int pm_get_shutdown_scope(void)
+{
+	return pm_shutdown_scope;
+}
+
 /**
  * Assigning of argument values into array elements.
  */
@@ -215,13 +228,20 @@ enum pm_ret_status pm_set_wakeup_source(enum pm_node_id target,
 
 /**
  * pm_system_shutdown() - PM call to request a system shutdown or restart
- * @restart	Shutdown or restart? 0 for shutdown, 1 for restart
+ * @type	Shutdown or restart? 0=shutdown, 1=restart, 2=setscope
+ * @subtype	Scope: 0=APU-subsystem, 1=PS, 2=system
  *
  * @return	Returns status, either success or error+reason
  */
 enum pm_ret_status pm_system_shutdown(unsigned int type, unsigned int subtype)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	if (type == PMF_SHUTDOWN_TYPE_SETSCOPE_ONLY) {
+		/* Setting scope for subsequent PSCI reboot or shutdown */
+		pm_shutdown_scope = subtype;
+		return PM_RET_SUCCESS;
+	}
 
 	PM_PACK_PAYLOAD3(payload, PM_SYSTEM_SHUTDOWN, type, subtype);
 	return pm_ipi_send(primary_proc, payload);
