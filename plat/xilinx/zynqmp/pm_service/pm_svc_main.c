@@ -381,6 +381,16 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 				       pm_arg[3]);
 		SMC_RET1(handle, (uint64_t)ret);
 
+	case PM_SECURE_IMAGE:
+	{
+		uint32_t result[2];
+
+		ret = pm_secure_image(pm_arg[0], pm_arg[1], pm_arg[2],
+				      pm_arg[3], &result[0]);
+		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)result[0] << 32),
+			 result[1]);
+	}
+
 	default:
 		WARN("Unimplemented PM Service Call: 0x%x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);

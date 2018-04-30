@@ -1152,3 +1152,17 @@ enum pm_ret_status pm_rsa_core(uint32_t address_high,
 				 size, flags);
 	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
+
+enum pm_ret_status pm_secure_image(uint32_t address_low,
+				   uint32_t address_high,
+				   uint32_t key_lo,
+				   uint32_t key_hi,
+				   uint32_t *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD5(payload, PM_SECURE_IMAGE, address_high, address_low,
+			 key_hi, key_lo);
+	return pm_ipi_send_sync(primary_proc, payload, value, 2);
+}
