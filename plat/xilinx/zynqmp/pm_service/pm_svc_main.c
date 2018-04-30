@@ -53,9 +53,6 @@ int pm_setup(void)
 {
 	int status, ret;
 
-	if (!zynqmp_is_pmu_up())
-		return -ENODEV;
-
 	status = pm_ipi_init(primary_proc);
 
 	if (status >= 0) {

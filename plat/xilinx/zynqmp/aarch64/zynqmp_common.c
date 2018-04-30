@@ -289,57 +289,22 @@ static void zynqmp_print_platform_name(void)
 		break;
 	}
 
-	NOTICE("ATF running on XCZU%s/%s v%d/RTL%d.%d at 0x%x%s\n",
+	NOTICE("ATF running on XCZU%s/%s v%d/RTL%d.%d at 0x%x\n",
 	       zynqmp_print_silicon_idcode(), label, zynqmp_get_ps_ver(),
-	       (rtl & 0xf0) >> 4, rtl & 0xf, BL31_BASE,
-	       zynqmp_is_pmu_up() ? ", with PMU firmware" : "");
+	       (rtl & 0xf0) >> 4, rtl & 0xf, BL31_BASE);
 }
 #else
 static inline void zynqmp_print_platform_name(void) { }
 #endif
 
-/*
- * Indicator for PMUFW discovery:
- *   0 = No FW found
- *   non-zero = FW is present
- */
-static int zynqmp_pmufw_present;
-
-/*
- * zynqmp_discover_pmufw - Discover presence of PMUFW
- *
- * Discover the presence of PMUFW and store it for later run-time queries
- * through zynqmp_is_pmu_up.
- * NOTE: This discovery method is fragile and will break if:
- *  - setting FW_PRESENT is done by PMUFW itself and could be left out in PMUFW
- *    (be it by error or intentionally)
- *  - XPPU/XMPU may restrict ATF's access to the PMU address space
- */
-static int zynqmp_discover_pmufw(void)
-{
-	zynqmp_pmufw_present = mmio_read_32(PMU_GLOBAL_CNTRL);
-	zynqmp_pmufw_present &= PMU_GLOBAL_CNTRL_FW_IS_PRESENT;
-
-	return !!zynqmp_pmufw_present;
-}
-
-/*
- * zynqmp_is_pmu_up - Find if PMU firmware is up and running
- *
- * Return 0 if firmware is not available, non 0 otherwise
- */
-int zynqmp_is_pmu_up(void)
-{
-	return zynqmp_pmufw_present;
-}
-
 unsigned int zynqmp_get_bootmode(void)
 {
 	uint32_t r;
+	unsigned int ret;
 
-	if (zynqmp_is_pmu_up())
-		pm_mmio_read(CRL_APB_BOOT_MODE_USER, &r);
-	else
+	ret = pm_mmio_read(CRL_APB_BOOT_MODE_USER, &r);
+
+	if (ret != PM_RET_SUCCESS)
 		r = mmio_read_32(CRL_APB_BOOT_MODE_USER);
 
 	return r & CRL_APB_BOOT_MODE_MASK;
@@ -347,7 +312,6 @@ unsigned int zynqmp_get_bootmode(void)
 
 void zynqmp_config_setup(void)
 {
-	zynqmp_discover_pmufw();
 	zynqmp_print_platform_name();
 	generic_delay_timer_init();
 }
