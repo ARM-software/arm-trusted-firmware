@@ -22,8 +22,8 @@
 #define PM_SET_SUSPEND_MODE	0xa02
 #define PM_GET_TRUSTZONE_VERSION	0xa03
 
-/* 0 - UP, !0 - DOWN */
-static int32_t pm_down = !0;
+/* !0 - UP, 0 - DOWN */
+static int32_t pm_up = 0;
 
 /**
  * pm_context - Structure which contains data for power management
@@ -67,7 +67,7 @@ int pm_setup(void)
 		ret = status;
 	}
 
-	pm_down = status;
+	pm_up = !status;
 
 	return ret;
 }
@@ -96,7 +96,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	uint32_t pm_arg[4];
 
 	/* Handle case where PM wasn't initialized properly */
-	if (pm_down)
+	if (!pm_up)
 		SMC_RET1(handle, SMC_UNK);
 
 	pm_arg[0] = (uint32_t)x1;
