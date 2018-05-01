@@ -34,10 +34,10 @@ $(eval $(call add_define,POPLAR_RECOVERY))
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
 # in the FIP if the platform requires.
 ifneq ($(BL32_EXTRA1),)
-$(eval $(call FIP_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
 endif
 ifneq ($(BL32_EXTRA2),)
-$(eval $(call FIP_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
 endif
 
 NEED_BL33			:= yes
