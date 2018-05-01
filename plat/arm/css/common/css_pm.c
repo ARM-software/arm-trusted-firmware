@@ -264,11 +264,23 @@ static int css_validate_power_state(unsigned int power_state,
 	rc = arm_validate_power_state(power_state, req_state);
 
 	/*
+	 * Ensure that we don't overrun the pwr_domain_state array in the case
+	 * where the platform supported max power level is less than the system
+	 * power level
+	 */
+
+#if (PLAT_MAX_PWR_LVL == CSS_SYSTEM_PWR_DMN_LVL)
+
+	/*
 	 * Ensure that the system power domain level is never suspended
 	 * via PSCI CPU SUSPEND API. Currently system suspend is only
 	 * supported via PSCI SYSTEM SUSPEND API.
 	 */
-	req_state->pwr_domain_state[CSS_SYSTEM_PWR_DMN_LVL] = ARM_LOCAL_STATE_RUN;
+
+	req_state->pwr_domain_state[CSS_SYSTEM_PWR_DMN_LVL] =
+							ARM_LOCAL_STATE_RUN;
+#endif
+
 	return rc;
 }
 
