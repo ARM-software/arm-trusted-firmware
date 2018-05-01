@@ -1138,3 +1138,29 @@ enum pm_ret_status pm_query_data(enum pm_query_id qid,
 
 	return ret;
 }
+
+enum pm_ret_status pm_sha_hash(uint32_t address_high,
+				    uint32_t address_low,
+				    uint32_t size,
+				    uint32_t flags)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD5(payload, PM_SECURE_SHA, address_high, address_low,
+				 size, flags);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+enum pm_ret_status pm_rsa_core(uint32_t address_high,
+				    uint32_t address_low,
+				    uint32_t size,
+				    uint32_t flags)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD5(payload, PM_SECURE_RSA, address_high, address_low,
+				 size, flags);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}

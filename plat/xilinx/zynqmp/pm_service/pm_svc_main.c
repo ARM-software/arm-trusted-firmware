@@ -387,6 +387,16 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		ret = pm_set_suspend_mode(pm_arg[0]);
 		SMC_RET1(handle, (uint64_t)ret);
 
+	case PM_SECURE_SHA:
+		ret = pm_sha_hash(pm_arg[0], pm_arg[1], pm_arg[2],
+				pm_arg[3]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_SECURE_RSA:
+		ret = pm_rsa_core(pm_arg[0], pm_arg[1], pm_arg[2],
+				       pm_arg[3]);
+		SMC_RET1(handle, (uint64_t)ret);
+
 	default:
 		WARN("Unimplemented PM Service Call: 0x%x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
