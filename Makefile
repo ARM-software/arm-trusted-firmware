@@ -378,6 +378,16 @@ ifeq ($(BL2_AT_EL3)-$(BL2_IN_XIP_MEM),0-1)
 $(error "BL2_IN_XIP_MEM is only supported when BL2_AT_EL3 is enabled")
 endif
 
+# SMC Calling Convention checks
+ifneq (${SMCCC_MAJOR_VERSION},1)
+    ifneq (${SPD},none)
+        $(error "SMC Calling Convention 1.X must be used with SPDs")
+    endif
+    ifeq (${ARCH},aarch32)
+        $(error "Only SMCCC 1.X is supported in AArch32 mode.")
+    endif
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -527,6 +537,7 @@ $(eval $(call assert_boolean,BL2_IN_XIP_MEM))
 
 $(eval $(call assert_numeric,ARM_ARCH_MAJOR))
 $(eval $(call assert_numeric,ARM_ARCH_MINOR))
+$(eval $(call assert_numeric,SMCCC_MAJOR_VERSION))
 
 ################################################################################
 # Add definitions to the cpp preprocessor based on the current build options.
@@ -563,6 +574,7 @@ $(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
 $(eval $(call add_define,RESET_TO_BL31))
 $(eval $(call add_define,SEPARATE_CODE_AND_RODATA))
+$(eval $(call add_define,SMCCC_MAJOR_VERSION))
 $(eval $(call add_define,SPD_${SPD}))
 $(eval $(call add_define,SPIN_ON_BL1_EXIT))
 $(eval $(call add_define,TRUSTED_BOARD_BOOT))

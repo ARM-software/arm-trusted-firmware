@@ -11,6 +11,7 @@
 #include <interrupt_mgmt.h>
 #include <platform_def.h>
 #include <runtime_svc.h>
+#include <smccc.h>
 
 	.globl	runtime_exceptions
 
@@ -289,6 +290,37 @@ vector_entry serror_aarch32
 
 
 	/* ---------------------------------------------------------------------
+	 * This macro takes an argument in x16 that is the index in the
+	 * 'rt_svc_descs_indices' array, checks that the value in the array is
+	 * valid, and loads in x15 the pointer to the handler of that service.
+	 * ---------------------------------------------------------------------
+	 */
+	.macro	load_rt_svc_desc_pointer
+	/* Load descriptor index from array of indices */
+	adr	x14, rt_svc_descs_indices
+	ldrb	w15, [x14, x16]
+
+#if SMCCC_MAJOR_VERSION == 1
+	/* Any index greater than 127 is invalid. Check bit 7. */
+	tbnz	w15, 7, smc_unknown
+#elif SMCCC_MAJOR_VERSION == 2
+	/* Verify that the top 3 bits of the loaded index are 0 (w15 <= 31) */
+	cmp	w15, #31
+	b.hi	smc_unknown
+#endif /* SMCCC_MAJOR_VERSION */
+
+	/*
+	 * Get the descriptor using the index
+	 * x11 = (base + off), w15 = index
+	 *
+	 * handler = (base + off) + (index << log2(size))
+	 */
+	adr	x11, (__RT_SVC_DESCS_START__ + RT_SVC_DESC_HANDLE)
+	lsl	w10, w15, #RT_SVC_SIZE_LOG2
+	ldr	x15, [x11, w10, uxtw]
+	.endm
+
+	/* ---------------------------------------------------------------------
 	 * The following code handles secure monitor calls.
 	 * Depending upon the execution state from where the SMC has been
 	 * invoked, it frees some general purpose registers to perform the
@@ -311,23 +343,53 @@ smc_handler64:
 	 * now). x6 will point to the context structure (SP_EL3) and x7 will
 	 * contain flags we need to pass to the handler.
 	 *
-	 * Save x4-x29 and sp_el0.  Refer to SMCCC v1.1.
+	 * Save x4-x29 and sp_el0.
 	 */
 	save_x4_to_x29_sp_el0
 
 	mov	x5, xzr
 	mov	x6, sp
 
+#if SMCCC_MAJOR_VERSION == 1
+
 	/* Get the unique owning entity number */
 	ubfx	x16, x0, #FUNCID_OEN_SHIFT, #FUNCID_OEN_WIDTH
 	ubfx	x15, x0, #FUNCID_TYPE_SHIFT, #FUNCID_TYPE_WIDTH
 	orr	x16, x16, x15, lsl #FUNCID_OEN_WIDTH
 
-	adr	x11, (__RT_SVC_DESCS_START__ + RT_SVC_DESC_HANDLE)
+	load_rt_svc_desc_pointer
 
-	/* Load descriptor index from array of indices */
-	adr	x14, rt_svc_descs_indices
-	ldrb	w15, [x14, x16]
+#elif SMCCC_MAJOR_VERSION == 2
+
+	/* Bit 31 must be set */
+	tbz	x0, #FUNCID_TYPE_SHIFT, smc_unknown
+
+	/*
+	 * Check MSB of namespace to decide between compatibility/vendor and
+	 * SPCI/SPRT
+	 */
+	tbz	x0, #(FUNCID_NAMESPACE_SHIFT + 1), compat_or_vendor
+
+	/* Namespaces SPRT and SPCI currently unimplemented */
+	b	smc_unknown
+
+compat_or_vendor:
+
+	/* Namespace is b'00 (compatibility) or b'01 (vendor) */
+
+	/*
+	 * Add the LSB of the namespace (bit [28]) to the OEN [27:24] to create
+	 * a 5-bit index into the rt_svc_descs_indices array.
+	 *
+	 * The low 16 entries of the rt_svc_descs_indices array correspond to
+	 * OENs of the compatibility namespace and the top 16 entries of the
+	 * array are assigned to the vendor namespace descriptor.
+	 */
+	ubfx	x16, x0, #FUNCID_OEN_SHIFT, #(FUNCID_OEN_WIDTH + 1)
+
+	load_rt_svc_desc_pointer
+
+#endif /* SMCCC_MAJOR_VERSION */
 
 	/*
 	 * Restore the saved C runtime stack value which will become the new
@@ -336,23 +398,8 @@ smc_handler64:
 	 */
 	ldr	x12, [x6, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
 
-	/*
-	 * Any index greater than 127 is invalid. Check bit 7 for
-	 * a valid index
-	 */
-	tbnz	w15, 7, smc_unknown
-
 	/* Switch to SP_EL0 */
 	msr	spsel, #0
-
-	/*
-	 * Get the descriptor using the index
-	 * x11 = (base + off), x15 = index
-	 *
-	 * handler = (base + off) + (index << log2(size))
-	 */
-	lsl	w10, w15, #RT_SVC_SIZE_LOG2
-	ldr	x15, [x11, w10, uxtw]
 
 	/*
 	 * Save the SPSR_EL3, ELR_EL3, & SCR_EL3 in case there is a world
