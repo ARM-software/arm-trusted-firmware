@@ -35,38 +35,47 @@
 # define REPORT_ERRATA	0
 #endif
 
-	/*
-	 * Define the offsets to the fields in cpu_ops structure.
-	 */
-	.struct 0
-CPU_MIDR: /* cpu_ops midr */
-	.space  4
-/* Reset fn is needed during reset */
-#if defined(IMAGE_AT_EL3)
-CPU_RESET_FUNC: /* cpu_ops reset_func */
-	.space  4
+
+	.equ	CPU_MIDR_SIZE, CPU_WORD_SIZE
+	.equ	CPU_RESET_FUNC_SIZE, CPU_WORD_SIZE
+	.equ	CPU_PWR_DWN_OPS_SIZE, CPU_WORD_SIZE * CPU_MAX_PWR_DWN_OPS
+	.equ	CPU_ERRATA_FUNC_SIZE, CPU_WORD_SIZE
+	.equ	CPU_ERRATA_LOCK_SIZE, CPU_WORD_SIZE
+	.equ	CPU_ERRATA_PRINTED_SIZE, CPU_WORD_SIZE
+
+#ifndef IMAGE_AT_EL3
+	.equ	CPU_RESET_FUNC_SIZE, 0
 #endif
-#ifdef IMAGE_BL32 /* The power down core and cluster is needed only in BL32 */
-CPU_PWR_DWN_OPS: /* cpu_ops power down functions */
-	.space  (4 * CPU_MAX_PWR_DWN_OPS)
+
+/* The power down core and cluster is needed only in BL32 */
+#ifndef IMAGE_BL32
+	.equ	CPU_PWR_DWN_OPS_SIZE, 0
 #endif
+
+/* Fields required to print errata status  */
+#if !REPORT_ERRATA
+	.equ	CPU_ERRATA_FUNC_SIZE, 0
+#endif
+
+/* Only BL32 requires mutual exclusion and printed flag. */
+#if !(REPORT_ERRATA && defined(IMAGE_BL32))
+	.equ	CPU_ERRATA_LOCK_SIZE, 0
+	.equ	CPU_ERRATA_PRINTED_SIZE, 0
+#endif
+
 
 /*
- * Fields required to print errata status. Only in BL32 that the printing
- * require mutual exclusion and printed flag.
+ * Define the offsets to the fields in cpu_ops structure.
+ * Every offset is defined based on the offset and size of the previous
+ * field.
  */
-#if REPORT_ERRATA
-CPU_ERRATA_FUNC: /* CPU errata status printing function */
-	.space  4
-#if defined(IMAGE_BL32)
-CPU_ERRATA_LOCK:
-	.space	4
-CPU_ERRATA_PRINTED:
-	.space	4
-#endif
-#endif
-
-CPU_OPS_SIZE = .
+	.equ	CPU_MIDR, 0
+	.equ	CPU_RESET_FUNC, CPU_MIDR + CPU_MIDR_SIZE
+	.equ	CPU_PWR_DWN_OPS, CPU_RESET_FUNC + CPU_RESET_FUNC_SIZE
+	.equ	CPU_ERRATA_FUNC, CPU_PWR_DWN_OPS + CPU_PWR_DWN_OPS_SIZE
+	.equ	CPU_ERRATA_LOCK, CPU_ERRATA_FUNC + CPU_ERRATA_FUNC_SIZE
+	.equ	CPU_ERRATA_PRINTED, CPU_ERRATA_LOCK + CPU_ERRATA_LOCK_SIZE
+	.equ	CPU_OPS_SIZE, CPU_ERRATA_PRINTED + CPU_ERRATA_PRINTED_SIZE
 
 	/*
 	 * Write given expressions as words
