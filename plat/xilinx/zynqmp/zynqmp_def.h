@@ -174,6 +174,11 @@
 
 #define ZYNQMP_CSU_VERSION_OFFSET	0x44
 
+/* Efuse */
+#define EFUSE_BASEADDR		0xFFCC0000
+#define EFUSE_IPDISABLE_OFFSET	0x1018
+#define EFUSE_IPDISABLE_VERSION	0x1FFU
+
 /* Access control register defines */
 #define ACTLR_EL3_L2ACTLR_BIT	(1 << 6)
 #define ACTLR_EL3_CPUACTLR_BIT	(1 << 0)

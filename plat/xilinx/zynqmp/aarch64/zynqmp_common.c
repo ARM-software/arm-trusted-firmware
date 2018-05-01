@@ -60,6 +60,7 @@ unsigned int zynqmp_get_uart_clk(void)
 #if LOG_LEVEL >= LOG_LEVEL_NOTICE
 static const struct {
 	unsigned int id;
+	unsigned int ver;
 	char *name;
 } zynqmp_devices[] = {
 	{
@@ -67,32 +68,87 @@ static const struct {
 		.name = "3EG",
 	},
 	{
+		.id = 0x10,
+		.ver = 0x2c,
+		.name = "3CG",
+	},
+	{
 		.id = 0x11,
 		.name = "2EG",
+	},
+	{
+		.id = 0x11,
+		.ver = 0x2c,
+		.name = "2CG",
 	},
 	{
 		.id = 0x20,
 		.name = "5EV",
 	},
 	{
+		.id = 0x20,
+		.ver = 0x100,
+		.name = "5EG",
+	},
+	{
+		.id = 0x20,
+		.ver = 0x12c,
+		.name = "5CG",
+	},
+	{
 		.id = 0x21,
 		.name = "4EV",
+	},
+	{
+		.id = 0x21,
+		.ver = 0x100,
+		.name = "4EG",
+	},
+	{
+		.id = 0x21,
+		.ver = 0x12c,
+		.name = "4CG",
 	},
 	{
 		.id = 0x30,
 		.name = "7EV",
 	},
 	{
+		.id = 0x30,
+		.ver = 0x100,
+		.name = "7EG",
+	},
+	{
+		.id = 0x30,
+		.ver = 0x12c,
+		.name = "7CG",
+	},
+	{
 		.id = 0x38,
 		.name = "9EG",
+	},
+	{
+		.id = 0x38,
+		.ver = 0x2c,
+		.name = "9CG",
 	},
 	{
 		.id = 0x39,
 		.name = "6EG",
 	},
 	{
+		.id = 0x39,
+		.ver = 0x2c,
+		.name = "6CG",
+	},
+	{
 		.id = 0x40,
 		.name = "11EG",
+	},
+	{ /* For testing purpose only */
+		.id = 0x50,
+		.ver = 0x2c,
+		.name = "15CG",
 	},
 	{
 		.id = 0x50,
@@ -144,13 +200,26 @@ static unsigned int zynqmp_get_silicon_id(void)
 	return id;
 }
 
+static unsigned int zynqmp_get_silicon_id2(void)
+{
+	uint32_t id;
+
+	id = mmio_read_32(EFUSE_BASEADDR + EFUSE_IPDISABLE_OFFSET);
+	id &= EFUSE_IPDISABLE_VERSION;
+
+	return id;
+}
+
 static char *zynqmp_get_silicon_idcode_name(void)
 {
-	unsigned int id;
+	unsigned int id, ver;
+	size_t i;
 
 	id = zynqmp_get_silicon_id();
-	for (size_t i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
-		if (zynqmp_devices[i].id == id)
+	ver = zynqmp_get_silicon_id2();
+
+	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
+		if (zynqmp_devices[i].id == id && zynqmp_devices[i].ver == ver)
 			return zynqmp_devices[i].name;
 	}
 	return "UNKN";
