@@ -155,7 +155,7 @@ static uint64_t xlat_desc(const xlat_ctx_t *ctx, uint32_t attr,
 		}
 	} else {
 		assert(ctx->xlat_regime == EL3_REGIME);
-		desc |= LOWER_ATTRS(AP_NO_ACCESS_UNPRIVILEGED);
+		desc |= LOWER_ATTRS(AP_ONE_VA_RANGE_RES1);
 	}
 
 	/*

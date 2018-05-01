@@ -107,10 +107,8 @@
  * Permissions bits, and does not define an AP[0] bit.
  *
  * AP[1] is valid only for a stage 1 translation that supports two VA ranges
- * (i.e. in the ARMv8A.0 architecture, that is the S-EL1&0 regime).
- *
- * AP[1] is RES0 for stage 1 translations that support only one VA range
- * (e.g. EL3).
+ * (i.e. in the ARMv8A.0 architecture, that is the S-EL1&0 regime). It is RES1
+ * when stage 1 translations can only support one VA range.
  */
 #define AP2_SHIFT			U(0x7)
 #define AP2_RO				U(0x1)
@@ -119,6 +117,7 @@
 #define AP1_SHIFT			U(0x6)
 #define AP1_ACCESS_UNPRIVILEGED		U(0x1)
 #define AP1_NO_ACCESS_UNPRIVILEGED	U(0x0)
+#define AP1_RES1			U(0x1)
 
 /*
  * The following definitions must all be passed to the LOWER_ATTRS() macro to
@@ -128,6 +127,7 @@
 #define AP_RW				(AP2_RW << 5)
 #define AP_ACCESS_UNPRIVILEGED		(AP1_ACCESS_UNPRIVILEGED    << 4)
 #define AP_NO_ACCESS_UNPRIVILEGED	(AP1_NO_ACCESS_UNPRIVILEGED << 4)
+#define AP_ONE_VA_RANGE_RES1		(AP1_RES1 << 4)
 #define NS				(U(0x1) << 3)
 #define ATTR_NON_CACHEABLE_INDEX	U(0x2)
 #define ATTR_DEVICE_INDEX		U(0x1)

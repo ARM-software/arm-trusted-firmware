@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -41,6 +41,7 @@ static unsigned long long xlat_max_pa;
 static uintptr_t xlat_max_va;
 
 static uint64_t execute_never_mask;
+static uint64_t ap1_mask;
 
 /*
  * Array of all memory regions stored in order of ascending base address.
@@ -195,6 +196,7 @@ static uint64_t mmap_desc(mmap_attr_t attr, unsigned long long addr_pa,
 	desc |= (attr & MT_NS) ? LOWER_ATTRS(NS) : 0;
 	desc |= (attr & MT_RW) ? LOWER_ATTRS(AP_RW) : LOWER_ATTRS(AP_RO);
 	desc |= LOWER_ATTRS(ACCESS_FLAG);
+	desc |= ap1_mask;
 
 	/*
 	 * Deduce shareability domain and executability of the memory region
@@ -381,7 +383,17 @@ void init_xlation_table(uintptr_t base_va, uint64_t *table,
 			unsigned int level, uintptr_t *max_va,
 			unsigned long long *max_pa)
 {
-	execute_never_mask = xlat_arch_get_xn_desc(xlat_arch_current_el());
+	int el = xlat_arch_current_el();
+
+	execute_never_mask = xlat_arch_get_xn_desc(el);
+
+	if (el == 3) {
+		ap1_mask = LOWER_ATTRS(AP_ONE_VA_RANGE_RES1);
+	} else {
+		assert(el == 1);
+		ap1_mask = 0;
+	}
+
 	init_xlation_table_inner(mmap, base_va, table, level);
 	*max_va = xlat_max_va;
 	*max_pa = xlat_max_pa;
