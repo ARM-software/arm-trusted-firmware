@@ -190,12 +190,12 @@ void gicv3_distif_init(void)
 			CTLR_ARE_S_BIT | CTLR_ARE_NS_BIT, RWP_TRUE);
 
 	/* Set the default attribute of all SPIs */
-	gicv3_spis_configure_defaults(gicv3_driver_data->gicd_base);
+	gicv3_spis_config_defaults(gicv3_driver_data->gicd_base);
 
 #if !ERROR_DEPRECATED
 	if (gicv3_driver_data->interrupt_props != NULL) {
 #endif
-		bitmap = gicv3_secure_spis_configure_props(
+		bitmap = gicv3_secure_spis_config_props(
 				gicv3_driver_data->gicd_base,
 				gicv3_driver_data->interrupt_props,
 				gicv3_driver_data->interrupt_props_num);
@@ -213,7 +213,7 @@ void gicv3_distif_init(void)
 
 		/* Configure the G1S SPIs */
 		if (gicv3_driver_data->g1s_interrupt_array) {
-			gicv3_secure_spis_configure(gicv3_driver_data->gicd_base,
+			gicv3_secure_spis_config(gicv3_driver_data->gicd_base,
 					gicv3_driver_data->g1s_interrupt_num,
 					gicv3_driver_data->g1s_interrupt_array,
 					INTR_GROUP1S);
@@ -222,7 +222,7 @@ void gicv3_distif_init(void)
 
 		/* Configure the G0 SPIs */
 		if (gicv3_driver_data->g0_interrupt_array) {
-			gicv3_secure_spis_configure(gicv3_driver_data->gicd_base,
+			gicv3_secure_spis_config(gicv3_driver_data->gicd_base,
 					gicv3_driver_data->g0_interrupt_num,
 					gicv3_driver_data->g0_interrupt_array,
 					INTR_GROUP0);
@@ -263,12 +263,12 @@ void gicv3_rdistif_init(unsigned int proc_num)
 	gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
 
 	/* Set the default attribute of all SGIs and PPIs */
-	gicv3_ppi_sgi_configure_defaults(gicr_base);
+	gicv3_ppi_sgi_config_defaults(gicr_base);
 
 #if !ERROR_DEPRECATED
 	if (gicv3_driver_data->interrupt_props != NULL) {
 #endif
-		bitmap = gicv3_secure_ppi_sgi_configure_props(gicr_base,
+		bitmap = gicv3_secure_ppi_sgi_config_props(gicr_base,
 				gicv3_driver_data->interrupt_props,
 				gicv3_driver_data->interrupt_props_num);
 #if !ERROR_DEPRECATED
@@ -285,7 +285,7 @@ void gicv3_rdistif_init(unsigned int proc_num)
 
 		/* Configure the G1S SGIs/PPIs */
 		if (gicv3_driver_data->g1s_interrupt_array) {
-			gicv3_secure_ppi_sgi_configure(gicr_base,
+			gicv3_secure_ppi_sgi_config(gicr_base,
 					gicv3_driver_data->g1s_interrupt_num,
 					gicv3_driver_data->g1s_interrupt_array,
 					INTR_GROUP1S);
@@ -294,7 +294,7 @@ void gicv3_rdistif_init(unsigned int proc_num)
 
 		/* Configure the G0 SGIs/PPIs */
 		if (gicv3_driver_data->g0_interrupt_array) {
-			gicv3_secure_ppi_sgi_configure(gicr_base,
+			gicv3_secure_ppi_sgi_config(gicr_base,
 					gicv3_driver_data->g0_interrupt_num,
 					gicv3_driver_data->g0_interrupt_array,
 					INTR_GROUP0);
