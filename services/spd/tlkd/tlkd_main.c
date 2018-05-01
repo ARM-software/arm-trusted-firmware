@@ -44,14 +44,14 @@ DEFINE_SVC_UUID(tlk_uuid,
 		0xbd11e9c9, 0x2bba, 0x52ee, 0xb1, 0x72,
 		0x46, 0x1f, 0xba, 0x97, 0x7f, 0x63);
 
-int32_t tlkd_init(void);
+static int32_t tlkd_init(void);
 
 /*******************************************************************************
  * Secure Payload Dispatcher setup. The SPD finds out the SP entrypoint and type
  * (aarch32/aarch64) if not already known and initialises the context for entry
  * into the SP for its initialisation.
  ******************************************************************************/
-int32_t tlkd_setup(void)
+static int32_t tlkd_setup(void)
 {
 	entry_point_info_t *tlk_ep_info;
 
@@ -100,7 +100,7 @@ int32_t tlkd_setup(void)
  * used. This function performs a synchronous entry into the Secure payload.
  * The SP passes control back to this routine through a SMC.
  ******************************************************************************/
-int32_t tlkd_init(void)
+static int32_t tlkd_init(void)
 {
 	entry_point_info_t *tlk_entry_point;
 
@@ -133,14 +133,14 @@ int32_t tlkd_init(void)
  * will also return any information that the secure payload needs to do the
  * work assigned to it.
  ******************************************************************************/
-uint64_t tlkd_smc_handler(uint32_t smc_fid,
-			 uint64_t x1,
-			 uint64_t x2,
-			 uint64_t x3,
-			 uint64_t x4,
+static uintptr_t tlkd_smc_handler(uint32_t smc_fid,
+			 u_register_t x1,
+			 u_register_t x2,
+			 u_register_t x3,
+			 u_register_t x4,
 			 void *cookie,
 			 void *handle,
-			 uint64_t flags)
+			 u_register_t flags)
 {
 	cpu_context_t *ns_cpu_context;
 	gp_regs_t *gp_regs;

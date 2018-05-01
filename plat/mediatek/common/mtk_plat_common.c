@@ -19,10 +19,10 @@
 struct atf_arg_t gteearg;
 
 void clean_top_32b_of_param(uint32_t smc_fid,
-				uint64_t *px1,
-				uint64_t *px2,
-				uint64_t *px3,
-				uint64_t *px4)
+				u_register_t *px1,
+				u_register_t *px2,
+				u_register_t *px3,
+				u_register_t *px4)
 {
 	/* if parameters from SMC32. Clean top 32 bits */
 	if (0 == (smc_fid & SMC_AARCH64_BIT)) {

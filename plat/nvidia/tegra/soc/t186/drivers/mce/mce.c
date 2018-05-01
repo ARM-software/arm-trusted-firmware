@@ -382,7 +382,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		break;
 
 	default:
-		ERROR("unknown MCE command (%lu)\n", cmd);
+		ERROR("unknown MCE command (%llu)\n", cmd);
 		ret = EINVAL;
 		break;
 	}

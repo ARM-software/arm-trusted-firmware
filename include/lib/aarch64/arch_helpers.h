@@ -18,15 +18,15 @@
  *********************************************************************/
 
 #define _DEFINE_SYSREG_READ_FUNC(_name, _reg_name)		\
-static inline uint64_t read_ ## _name(void)			\
+static inline u_register_t read_ ## _name(void)			\
 {								\
-	uint64_t v;						\
+	u_register_t v;						\
 	__asm__ volatile ("mrs %0, " #_reg_name : "=r" (v));	\
 	return v;						\
 }
 
 #define _DEFINE_SYSREG_WRITE_FUNC(_name, _reg_name)			\
-static inline void write_ ## _name(uint64_t v)				\
+static inline void write_ ## _name(u_register_t v)			\
 {									\
 	__asm__ volatile ("msr " #_reg_name ", %0" : : "r" (v));	\
 }

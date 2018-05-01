@@ -48,10 +48,10 @@ struct mtk_bl_param_t {
 /* Declarations for mtk_plat_common.c */
 uint32_t plat_get_spsr_for_bl32_entry(void);
 uint32_t plat_get_spsr_for_bl33_entry(void);
-void clean_top_32b_of_param(uint32_t smc_fid, uint64_t *x1,
-				uint64_t *x2,
-				uint64_t *x3,
-				uint64_t *x4);
+void clean_top_32b_of_param(uint32_t smc_fid, u_register_t *x1,
+				u_register_t *x2,
+				u_register_t *x3,
+				u_register_t *x4);
 void bl31_prepare_kernel_entry(uint64_t k32_64);
 void enable_ns_access_to_cpuectlr(void);
 void boot_to_kernel(uint64_t x1, uint64_t x2, uint64_t x3, uint64_t x4);
