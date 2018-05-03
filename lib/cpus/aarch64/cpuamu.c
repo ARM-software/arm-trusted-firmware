@@ -10,12 +10,12 @@
 
 #define CPUAMU_NR_COUNTERS	5U
 
-struct amu_ctx {
+struct cpuamu_ctx {
 	uint64_t cnts[CPUAMU_NR_COUNTERS];
 	unsigned int mask;
 };
 
-static struct amu_ctx amu_ctxs[PLATFORM_CORE_COUNT];
+static struct cpuamu_ctx amu_ctxs[PLATFORM_CORE_COUNT];
 
 int midr_match(unsigned int cpu_midr)
 {
@@ -29,7 +29,7 @@ int midr_match(unsigned int cpu_midr)
 
 void cpuamu_context_save(unsigned int nr_counters)
 {
-	struct amu_ctx *ctx = &amu_ctxs[plat_my_core_pos()];
+	struct cpuamu_ctx *ctx = &amu_ctxs[plat_my_core_pos()];
 	unsigned int i;
 
 	assert(nr_counters <= CPUAMU_NR_COUNTERS);
@@ -48,7 +48,7 @@ void cpuamu_context_save(unsigned int nr_counters)
 
 void cpuamu_context_restore(unsigned int nr_counters)
 {
-	struct amu_ctx *ctx = &amu_ctxs[plat_my_core_pos()];
+	struct cpuamu_ctx *ctx = &amu_ctxs[plat_my_core_pos()];
 	unsigned int i;
 
 	assert(nr_counters <= CPUAMU_NR_COUNTERS);
