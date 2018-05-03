@@ -90,7 +90,6 @@ ifneq (${DEBUG}, 0)
         LOG_LEVEL	:=	40
 else
         BUILD_TYPE	:=	release
-        $(eval $(call add_define,NDEBUG))
         # Use LOG_LEVEL_NOTICE by default for release builds
         LOG_LEVEL	:=	20
 endif
