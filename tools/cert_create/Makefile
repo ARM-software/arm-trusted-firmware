@@ -86,5 +86,5 @@ clean:
 	$(call SHELL_DELETE_ALL, src/build_msg.o ${OBJECTS})
 
 realclean: clean
-	$(call SHELL_DELETE, ${BINARY})
+	$(call SHELL_DELETE,${BINARY})
 
