@@ -169,7 +169,10 @@ static void free_image_desc(image_desc_t *desc)
 	free(desc->name);
 	free(desc->cmdline_name);
 	free(desc->action_arg);
-	free(desc->image);
+	if (desc->image) {
+		free(desc->image->buffer);
+		free(desc->image);
+	}
 	free(desc);
 }
 
