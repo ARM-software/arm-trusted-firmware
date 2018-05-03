@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -57,13 +57,13 @@ static unsigned long long calc_physical_addr_size_bits(
 }
 
 #if ENABLE_ASSERTIONS
-/* Physical Address ranges supported in the AArch64 Memory Model */
+/*
+ * Physical Address ranges supported in the AArch64 Memory Model. Value 0b110 is
+ * supported in ARMv8.2 onwards.
+ */
 static const unsigned int pa_range_bits_arr[] = {
 	PARANGE_0000, PARANGE_0001, PARANGE_0010, PARANGE_0011, PARANGE_0100,
-	PARANGE_0101,
-#if ARM_ARCH_AT_LEAST(8, 2)
-	PARANGE_0110,
-#endif
+	PARANGE_0101, PARANGE_0110
 };
 
 static unsigned long long get_max_supported_pa(void)
