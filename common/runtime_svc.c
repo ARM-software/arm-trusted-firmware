@@ -36,7 +36,6 @@ uintptr_t handle_runtime_svc(uint32_t smc_fid,
 	u_register_t x1, x2, x3, x4;
 	int index;
 	unsigned int idx;
-	const rt_svc_desc_t *rt_svc_descs;
 
 	assert(handle);
 	idx = get_unique_oen_from_smc_fid(smc_fid);
