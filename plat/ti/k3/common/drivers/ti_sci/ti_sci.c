@@ -562,6 +562,562 @@ int ti_sci_device_get_resets(uint32_t id, uint32_t *reset_state)
 }
 
 /**
+ * ti_sci_clock_set_state() - Set clock state helper
+ *
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request,
+ *		Each device has its own set of clock inputs, This indexes
+ *		which clock input to modify
+ * @flags:	Header flags as needed
+ * @state:	State to request for the clock
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_set_state(uint32_t dev_id, uint8_t clk_id,
+			   uint32_t flags, uint8_t state)
+{
+	struct ti_sci_msg_req_set_clock_state req;
+	struct ti_sci_msg_hdr resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_STATE,
+				    flags | TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.dev_id = dev_id;
+	req.clk_id = clk_id;
+	req.request_state = state;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	if (!ti_sci_is_response_ack(&resp))
+		return -ENODEV;
+
+	return 0;
+}
+
+/**
+ * ti_sci_clock_get_state() - Get clock state helper
+ *
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request.
+ *		Each device has its own set of clock inputs. This indexes
+ *		which clock input to modify.
+ * @programmed_state:	State requested for clock to move to
+ * @current_state:	State that the clock is currently in
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_get_state(uint32_t dev_id, uint8_t clk_id,
+			   uint8_t *programmed_state,
+			   uint8_t *current_state)
+{
+	struct ti_sci_msg_req_get_clock_state req;
+	struct ti_sci_msg_resp_get_clock_state resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	if (!programmed_state && !current_state)
+		return -EINVAL;
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_STATE,
+				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.dev_id = dev_id;
+	req.clk_id = clk_id;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	if (!ti_sci_is_response_ack(&resp))
+		return -ENODEV;
+
+	if (programmed_state)
+		*programmed_state = resp.programmed_state;
+	if (current_state)
+		*current_state = resp.current_state;
+
+	return 0;
+}
+
+/**
+ * ti_sci_clock_get() - Get control of a clock from TI SCI
+
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request.
+ *		Each device has its own set of clock inputs. This indexes
+ *		which clock input to modify.
+ * @needs_ssc: 'true' iff Spread Spectrum clock is desired
+ * @can_change_freq: 'true' iff frequency change is desired
+ * @enable_input_term: 'true' iff input termination is desired
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_get(uint32_t dev_id, uint8_t clk_id,
+		     bool needs_ssc, bool can_change_freq,
+		     bool enable_input_term)
+{
+	uint32_t flags = 0;
+
+	flags |= needs_ssc ? MSG_FLAG_CLOCK_ALLOW_SSC : 0;
+	flags |= can_change_freq ? MSG_FLAG_CLOCK_ALLOW_FREQ_CHANGE : 0;
+	flags |= enable_input_term ? MSG_FLAG_CLOCK_INPUT_TERM : 0;
+
+	return ti_sci_clock_set_state(dev_id, clk_id, flags,
+				      MSG_CLOCK_SW_STATE_REQ);
+}
+
+/**
+ * ti_sci_clock_idle() - Idle a clock which is in our control
+
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request.
+ *		Each device has its own set of clock inputs. This indexes
+ *		which clock input to modify.
+ *
+ * NOTE: This clock must have been requested by get_clock previously.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_idle(uint32_t dev_id, uint8_t clk_id)
+{
+	return ti_sci_clock_set_state(dev_id, clk_id, 0,
+				      MSG_CLOCK_SW_STATE_UNREQ);
+}
+
+/**
+ * ti_sci_clock_put() - Release a clock from our control
+ *
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request.
+ *		Each device has its own set of clock inputs. This indexes
+ *		which clock input to modify.
+ *
+ * NOTE: This clock must have been requested by get_clock previously.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_put(uint32_t dev_id, uint8_t clk_id)
+{
+	return ti_sci_clock_set_state(dev_id, clk_id, 0,
+				      MSG_CLOCK_SW_STATE_AUTO);
+}
+
+/**
+ * ti_sci_clock_is_auto() - Is the clock being auto managed
+ *
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request.
+ *		Each device has its own set of clock inputs. This indexes
+ *		which clock input to modify.
+ * @req_state: state indicating if the clock is auto managed
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_is_auto(uint32_t dev_id, uint8_t clk_id, bool *req_state)
+{
+	uint8_t state = 0;
+	int ret;
+
+	if (!req_state)
+		return -EINVAL;
+
+	ret = ti_sci_clock_get_state(dev_id, clk_id, &state, NULL);
+	if (ret)
+		return ret;
+
+	*req_state = (state == MSG_CLOCK_SW_STATE_AUTO);
+
+	return 0;
+}
+
+/**
+ * ti_sci_clock_is_on() - Is the clock ON
+ *
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request.
+ *		Each device has its own set of clock inputs. This indexes
+ *		which clock input to modify.
+ * @req_state: state indicating if the clock is managed by us and enabled
+ * @curr_state: state indicating if the clock is ready for operation
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_is_on(uint32_t dev_id, uint8_t clk_id,
+		       bool *req_state, bool *curr_state)
+{
+	uint8_t c_state = 0, r_state = 0;
+	int ret;
+
+	if (!req_state && !curr_state)
+		return -EINVAL;
+
+	ret = ti_sci_clock_get_state(dev_id, clk_id, &r_state, &c_state);
+	if (ret)
+		return ret;
+
+	if (req_state)
+		*req_state = (r_state == MSG_CLOCK_SW_STATE_REQ);
+	if (curr_state)
+		*curr_state = (c_state == MSG_CLOCK_HW_STATE_READY);
+
+	return 0;
+}
+
+/**
+ * ti_sci_clock_is_off() - Is the clock OFF
+ *
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request.
+ *		Each device has its own set of clock inputs. This indexes
+ *		which clock input to modify.
+ * @req_state: state indicating if the clock is managed by us and disabled
+ * @curr_state: state indicating if the clock is NOT ready for operation
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_is_off(uint32_t dev_id, uint8_t clk_id,
+			bool *req_state, bool *curr_state)
+{
+	uint8_t c_state = 0, r_state = 0;
+	int ret;
+
+	if (!req_state && !curr_state)
+		return -EINVAL;
+
+	ret = ti_sci_clock_get_state(dev_id, clk_id, &r_state, &c_state);
+	if (ret)
+		return ret;
+
+	if (req_state)
+		*req_state = (r_state == MSG_CLOCK_SW_STATE_UNREQ);
+	if (curr_state)
+		*curr_state = (c_state == MSG_CLOCK_HW_STATE_NOT_READY);
+
+	return 0;
+}
+
+/**
+ * ti_sci_clock_set_parent() - Set the clock source of a specific device clock
+ *
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request.
+ *		Each device has its own set of clock inputs. This indexes
+ *		which clock input to modify.
+ * @parent_id:	Parent clock identifier to set
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_set_parent(uint32_t dev_id, uint8_t clk_id, uint8_t parent_id)
+{
+	struct ti_sci_msg_req_set_clock_parent req;
+	struct ti_sci_msg_hdr resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_PARENT,
+				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.dev_id = dev_id;
+	req.clk_id = clk_id;
+	req.parent_id = parent_id;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	if (!ti_sci_is_response_ack(&resp))
+		return -ENODEV;
+
+	return 0;
+}
+
+/**
+ * ti_sci_clock_get_parent() - Get current parent clock source
+ *
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request.
+ *		Each device has its own set of clock inputs. This indexes
+ *		which clock input to modify.
+ * @parent_id:	Current clock parent
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_get_parent(uint32_t dev_id, uint8_t clk_id, uint8_t *parent_id)
+{
+	struct ti_sci_msg_req_get_clock_parent req;
+	struct ti_sci_msg_resp_get_clock_parent resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_PARENT,
+				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.dev_id = dev_id;
+	req.clk_id = clk_id;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	if (!ti_sci_is_response_ack(&resp))
+		return -ENODEV;
+
+	*parent_id = resp.parent_id;
+
+	return 0;
+}
+
+/**
+ * ti_sci_clock_get_num_parents() - Get num parents of the current clk source
+ *
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request.
+ *		Each device has its own set of clock inputs. This indexes
+ *		which clock input to modify.
+ * @num_parents: Returns he number of parents to the current clock.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_get_num_parents(uint32_t dev_id, uint8_t clk_id,
+				 uint8_t *num_parents)
+{
+	struct ti_sci_msg_req_get_clock_num_parents req;
+	struct ti_sci_msg_resp_get_clock_num_parents resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_NUM_CLOCK_PARENTS,
+				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.dev_id = dev_id;
+	req.clk_id = clk_id;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	if (!ti_sci_is_response_ack(&resp))
+		return -ENODEV;
+
+	*num_parents = resp.num_parents;
+
+	return 0;
+}
+
+/**
+ * ti_sci_clock_get_match_freq() - Find a good match for frequency
+ *
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request.
+ *		Each device has its own set of clock inputs. This indexes
+ *		which clock input to modify.
+ * @min_freq:	The minimum allowable frequency in Hz. This is the minimum
+ *		allowable programmed frequency and does not account for clock
+ *		tolerances and jitter.
+ * @target_freq: The target clock frequency in Hz. A frequency will be
+ *		processed as close to this target frequency as possible.
+ * @max_freq:	The maximum allowable frequency in Hz. This is the maximum
+ *		allowable programmed frequency and does not account for clock
+ *		tolerances and jitter.
+ * @match_freq:	Frequency match in Hz response.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_get_match_freq(uint32_t dev_id, uint8_t clk_id,
+				uint64_t min_freq, uint64_t target_freq,
+				uint64_t max_freq, uint64_t *match_freq)
+{
+	struct ti_sci_msg_req_query_clock_freq req;
+	struct ti_sci_msg_resp_query_clock_freq resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_QUERY_CLOCK_FREQ,
+				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.dev_id = dev_id;
+	req.clk_id = clk_id;
+	req.min_freq_hz = min_freq;
+	req.target_freq_hz = target_freq;
+	req.max_freq_hz = max_freq;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	if (!ti_sci_is_response_ack(&resp))
+		return -ENODEV;
+
+	*match_freq = resp.freq_hz;
+
+	return 0;
+}
+
+/**
+ * ti_sci_clock_set_freq() - Set a frequency for clock
+ *
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request.
+ *		Each device has its own set of clock inputs. This indexes
+ *		which clock input to modify.
+ * @min_freq:	The minimum allowable frequency in Hz. This is the minimum
+ *		allowable programmed frequency and does not account for clock
+ *		tolerances and jitter.
+ * @target_freq: The target clock frequency in Hz. A frequency will be
+ *		processed as close to this target frequency as possible.
+ * @max_freq:	The maximum allowable frequency in Hz. This is the maximum
+ *		allowable programmed frequency and does not account for clock
+ *		tolerances and jitter.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_set_freq(uint32_t dev_id, uint8_t clk_id, uint64_t min_freq,
+			  uint64_t target_freq, uint64_t max_freq)
+{
+	struct ti_sci_msg_req_set_clock_freq req;
+	struct ti_sci_msg_hdr resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_FREQ,
+				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+	req.dev_id = dev_id;
+	req.clk_id = clk_id;
+	req.min_freq_hz = min_freq;
+	req.target_freq_hz = target_freq;
+	req.max_freq_hz = max_freq;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	if (!ti_sci_is_response_ack(&resp))
+		return -ENODEV;
+
+	return 0;
+}
+
+/**
+ * ti_sci_clock_get_freq() - Get current frequency
+ *
+ * @dev_id:	Device identifier this request is for
+ * @clk_id:	Clock identifier for the device for this request.
+ *		Each device has its own set of clock inputs. This indexes
+ *		which clock input to modify.
+ * @freq:	Currently frequency in Hz
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_clock_get_freq(uint32_t dev_id, uint8_t clk_id, uint64_t *freq)
+{
+	struct ti_sci_msg_req_get_clock_freq req;
+	struct ti_sci_msg_resp_get_clock_freq resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_FREQ,
+				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.dev_id = dev_id;
+	req.clk_id = clk_id;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	if (!ti_sci_is_response_ack(&resp))
+		return -ENODEV;
+
+	*freq = resp.freq_hz;
+
+	return 0;
+}
+
+/**
  * ti_sci_init() - Basic initialization
  *
  * Return: 0 if all goes well, else appropriate error message
