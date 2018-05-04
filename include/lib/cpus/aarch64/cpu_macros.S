@@ -159,21 +159,8 @@
 	.quad \_extra1
 	.quad \_extra2
 #ifdef IMAGE_BL31
-1:
 	/* Insert list of functions */
 	fill_constants CPU_MAX_PWR_DWN_OPS, \_power_down_ops
-2:
-	/*
-	 * Error if no or more than CPU_MAX_PWR_DWN_OPS were specified in the
-	 * list
-	 */
-	.ifeq 2b - 1b
-	  .error "At least one power down function must be specified"
-	.else
-	  .iflt 2b - 1b - (CPU_MAX_PWR_DWN_OPS * CPU_WORD_SIZE)
-	    .error "More than CPU_MAX_PWR_DWN_OPS functions specified"
-	  .endif
-	.endif
 #endif
 
 #if REPORT_ERRATA
