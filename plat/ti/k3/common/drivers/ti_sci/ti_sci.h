@@ -162,6 +162,43 @@ int ti_sci_clock_get_freq(uint32_t dev_id, uint8_t clk_id, uint64_t *freq);
 int ti_sci_core_reboot(void);
 
 /**
+ * Processor control operations
+ *
+ * - ti_sci_proc_request - Command to request a physical processor control
+ * - ti_sci_proc_release - Command to release a physical processor control
+ * - ti_sci_proc_handover - Command to handover a physical processor control to
+ *                          a host in the processor's access control list.
+ *              @host_id: Host ID to get the control of the processor
+ * - ti_sci_proc_set_boot_cfg - Command to set the processor boot configuration flags
+ *              @config_flags_set: Configuration flags to be set
+ *              @config_flags_clear: Configuration flags to be cleared.
+ * - ti_sci_proc_set_boot_ctrl - Command to set the processor boot control flags
+ *              @control_flags_set: Control flags to be set
+ *              @control_flags_clear: Control flags to be cleared
+ * - ti_sci_proc_auth_boot_image - Command to authenticate and load the image
+ *                                 and then set the processor configuration flags.
+ *              @cert_addr: Memory address at which payload image certificate is located.
+ * - ti_sci_proc_get_boot_status - Command to get the processor boot status
+ *
+ * NOTE: for all these functions, the following are generic in nature:
+ * @proc_id:	Processor ID
+ * Returns 0 for successful request, else returns corresponding error message.
+ */
+int ti_sci_proc_request(uint8_t proc_id);
+int ti_sci_proc_release(uint8_t proc_id);
+int ti_sci_proc_handover(uint8_t proc_id, uint8_t host_id);
+int ti_sci_proc_set_boot_cfg(uint8_t proc_id, uint64_t bootvector,
+			     uint32_t config_flags_set,
+			     uint32_t config_flags_clear);
+int ti_sci_proc_set_boot_ctrl(uint8_t proc_id, uint32_t control_flags_set,
+			      uint32_t control_flags_clear);
+int ti_sci_proc_auth_boot_image(uint8_t proc_id, uint64_t cert_addr);
+int ti_sci_proc_get_boot_status(uint8_t proc_id, uint64_t *bv,
+				uint32_t *cfg_flags,
+				uint32_t *ctrl_flags,
+				uint32_t *sts_flags);
+
+/**
  * ti_sci_init() - Basic initialization
  *
  * Return: 0 if all goes good, else appropriate error message.
