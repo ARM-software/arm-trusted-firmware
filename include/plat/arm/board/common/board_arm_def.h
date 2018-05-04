@@ -94,7 +94,11 @@
  * PLAT_ARM_MAX_BL31_SIZE is calculated using the current BL31 debug size plus a
  * little space for growth.
  */
-#define PLAT_ARM_MAX_BL31_SIZE		0x20000
+#if ENABLE_SPM
+# define PLAT_ARM_MAX_BL31_SIZE		0x21000
+#else
+# define PLAT_ARM_MAX_BL31_SIZE		0x20000
+#endif
 
 #ifdef AARCH32
 /*
