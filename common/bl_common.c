@@ -155,7 +155,7 @@ static void dump_load_info(uintptr_t image_load_addr,
 #endif /* LOAD_IMAGE_V2 */
 
 /* Generic function to return the size of an image */
-size_t image_size(unsigned int image_id)
+size_t get_image_size(unsigned int image_id)
 {
 	uintptr_t dev_handle;
 	uintptr_t image_handle;
