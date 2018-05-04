@@ -153,6 +153,15 @@ int ti_sci_clock_set_freq(uint32_t dev_id, uint8_t clk_id,
 int ti_sci_clock_get_freq(uint32_t dev_id, uint8_t clk_id, uint64_t *freq);
 
 /**
+ * Core control operations
+ *
+ * - ti_sci_core_reboot() - Command to request system reset
+ *
+ * Return: 0 if all went well, else returns appropriate error value.
+ */
+int ti_sci_core_reboot(void);
+
+/**
  * ti_sci_init() - Basic initialization
  *
  * Return: 0 if all goes good, else appropriate error message.
