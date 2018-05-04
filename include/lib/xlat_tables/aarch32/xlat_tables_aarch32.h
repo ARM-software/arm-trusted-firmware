@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -66,7 +66,7 @@
  * valid. Therefore, the caller is expected to check it is the case using the
  * CHECK_VIRT_ADDR_SPACE_SIZE() macro first.
  */
-#define GET_XLAT_TABLE_LEVEL_BASE(virt_addr_space_size)			\
-	(((virt_addr_space_size) > (ULL(1) << L1_XLAT_ADDRESS_SHIFT)) ? 1 : 2)
+#define GET_XLAT_TABLE_LEVEL_BASE(_virt_addr_space_size)			\
+	(((_virt_addr_space_size) > (ULL(1) << L1_XLAT_ADDRESS_SHIFT)) ? 1 : 2)
 
 #endif /* __XLAT_TABLES_AARCH32_H__ */

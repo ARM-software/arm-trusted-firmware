@@ -65,8 +65,8 @@
 
 #endif
 
-#define psci_lock_init(non_cpu_pd_node, idx)			\
-	((non_cpu_pd_node)[(idx)].lock_index = (idx))
+#define psci_lock_init(_non_cpu_pd_node, _idx)			\
+	((_non_cpu_pd_node)[(_idx)].lock_index = (_idx))
 
 /*
  * The PSCI capability which are provided by the generic code but does not
@@ -96,35 +96,35 @@
 /*
  * Helper macros to get/set the fields of PSCI per-cpu data.
  */
-#define psci_set_aff_info_state(aff_state) \
-		set_cpu_data(psci_svc_cpu_data.aff_info_state, aff_state)
+#define psci_set_aff_info_state(_aff_state) \
+		set_cpu_data(psci_svc_cpu_data.aff_info_state, _aff_state)
 #define psci_get_aff_info_state() \
 		get_cpu_data(psci_svc_cpu_data.aff_info_state)
-#define psci_get_aff_info_state_by_idx(idx) \
-		get_cpu_data_by_index(idx, psci_svc_cpu_data.aff_info_state)
-#define psci_set_aff_info_state_by_idx(idx, aff_state) \
-		set_cpu_data_by_index(idx, psci_svc_cpu_data.aff_info_state,\
-					aff_state)
+#define psci_get_aff_info_state_by_idx(_idx) \
+		get_cpu_data_by_index(_idx, psci_svc_cpu_data.aff_info_state)
+#define psci_set_aff_info_state_by_idx(_idx, _aff_state) \
+		set_cpu_data_by_index(_idx, psci_svc_cpu_data.aff_info_state,\
+					_aff_state)
 #define psci_get_suspend_pwrlvl() \
 		get_cpu_data(psci_svc_cpu_data.target_pwrlvl)
-#define psci_set_suspend_pwrlvl(target_lvl) \
-		set_cpu_data(psci_svc_cpu_data.target_pwrlvl, target_lvl)
-#define psci_set_cpu_local_state(state) \
-		set_cpu_data(psci_svc_cpu_data.local_state, state)
+#define psci_set_suspend_pwrlvl(_target_lvl) \
+		set_cpu_data(psci_svc_cpu_data.target_pwrlvl, _target_lvl)
+#define psci_set_cpu_local_state(_state) \
+		set_cpu_data(psci_svc_cpu_data.local_state, _state)
 #define psci_get_cpu_local_state() \
 		get_cpu_data(psci_svc_cpu_data.local_state)
-#define psci_get_cpu_local_state_by_idx(idx) \
-		get_cpu_data_by_index(idx, psci_svc_cpu_data.local_state)
+#define psci_get_cpu_local_state_by_idx(_idx) \
+		get_cpu_data_by_index(_idx, psci_svc_cpu_data.local_state)
 
 /*
  * Helper macros for the CPU level spinlocks
  */
-#define psci_spin_lock_cpu(idx)	spin_lock(&psci_cpu_pd_nodes[idx].cpu_lock)
-#define psci_spin_unlock_cpu(idx) spin_unlock(&psci_cpu_pd_nodes[idx].cpu_lock)
+#define psci_spin_lock_cpu(_idx) spin_lock(&psci_cpu_pd_nodes[_idx].cpu_lock)
+#define psci_spin_unlock_cpu(_idx) spin_unlock(&psci_cpu_pd_nodes[_idx].cpu_lock)
 
 /* Helper macro to identify a CPU standby request in PSCI Suspend call */
-#define is_cpu_standby_req(is_power_down_state, retn_lvl) \
-		(((!(is_power_down_state)) && ((retn_lvl) == 0)) ? 1 : 0)
+#define is_cpu_standby_req(_is_power_down_state, _retn_lvl) \
+		(((!(_is_power_down_state)) && ((_retn_lvl) == 0)) ? 1 : 0)
 
 /*******************************************************************************
  * The following two data structures implement the power domain tree. The tree

@@ -8,8 +8,8 @@
 #include <smmu_v3.h>
 
 /* Test for pending invalidate */
-#define INVAL_PENDING(base)	\
-	smmuv3_read_s_init(base) & SMMU_S_INIT_INV_ALL_MASK
+#define INVAL_PENDING(_base)	\
+	smmuv3_read_s_init(_base) & SMMU_S_INIT_INV_ALL_MASK
 
 static inline uint32_t smmuv3_read_s_idr1(uintptr_t base)
 {

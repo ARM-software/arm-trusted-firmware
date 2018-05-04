@@ -34,9 +34,9 @@
  * accesses regardless of status of address translation.
  */
 
-#define assert_bakery_entry_valid(entry, bakery) do {	\
-	assert(bakery);					\
-	assert(entry < BAKERY_LOCK_MAX_CPUS);		\
+#define assert_bakery_entry_valid(_entry, _bakery) do {	\
+	assert(_bakery);					\
+	assert(_entry < BAKERY_LOCK_MAX_CPUS);		\
 } while (0)
 
 /* Obtain a ticket for a given CPU */
