@@ -14,6 +14,7 @@
 #include <platform_def.h>
 #include <k3_gicv3.h>
 #include <string.h>
+#include <ti_sci.h>
 
 /* Table of regions to map using the MMU */
 const mmap_region_t plat_arm_mmap[] = {
@@ -121,6 +122,8 @@ void bl31_platform_setup(void)
 {
 	k3_gic_driver_init(K3_GICD_BASE, K3_GICR_BASE);
 	k3_gic_init();
+
+	ti_sci_init();
 }
 
 void platform_mem_init(void)
