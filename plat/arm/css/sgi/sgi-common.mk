@@ -19,7 +19,6 @@ ENT_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v3/gicv3_helpers.c	\
 				plat/common/plat_gicv3.c		\
 				plat/arm/common/arm_gicv3.c		\
-				${CSS_ENT_BASE}/sgi_gic_config.c	\
 				drivers/arm/gic/v3/gic600.c
 
 
