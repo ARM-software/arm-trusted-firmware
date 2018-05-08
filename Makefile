@@ -653,6 +653,8 @@ ifeq (${ERROR_DEPRECATED},0)
     CPPFLAGS		+= 	-Wno-error=deprecated-declarations -Wno-error=cpp
 endif
 
+$(eval $(call MAKE_LIB_DIR))
+
 # Expand build macros for the different images
 ifeq (${NEED_BL1},yes)
 $(eval $(call MAKE_BL,1))
