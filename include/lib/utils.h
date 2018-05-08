@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,6 +29,18 @@ typedef struct mem_region {
  */
 void clear_mem_regions(mem_region_t *tbl, size_t nregions);
 
+/*
+ * zero_normalmem all the regions defined in region. It dynamically
+ * maps chunks of 'chunk_size' in 'va' virtual address and clears them.
+ * For this reason memory regions must be multiple of chunk_size and
+ * must be aligned to it as well. chunk_size and va can be selected
+ * in a way that they minimize the number of entries used in the
+ * translation tables.
+ */
+void clear_map_dyn_mem_regions(mem_region_t *region,
+			       size_t nregions,
+			       uintptr_t va,
+			       size_t chunk_size);
 
 /*
  * checks that a region (addr + nbytes-1) of memory is totally covered by

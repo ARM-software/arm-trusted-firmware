@@ -412,13 +412,7 @@ plat_psci_ops_t plat_arm_psci_pm_ops = {
 	 */
 	.get_sys_suspend_power_state = fvp_get_sys_suspend_power_state,
 #endif
-#if !RESET_TO_BL31 && !RESET_TO_SP_MIN
-	/*
-	 * mem_protect is not supported in RESET_TO_BL31 and RESET_TO_SP_MIN,
-	 * as that would require mapping in all of NS DRAM into BL31 or BL32.
-	 */
 	.mem_protect_chk	= arm_psci_mem_protect_chk,
 	.read_mem_protect	= arm_psci_read_mem_protect,
 	.write_mem_protect	= arm_nor_psci_write_mem_protect,
-#endif
 };

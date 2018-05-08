@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -73,6 +73,9 @@ const mmap_region_t plat_arm_mmap[] = {
 const mmap_region_t plat_arm_mmap[] = {
 #ifdef AARCH32
 	ARM_MAP_SHARED_RAM,
+#ifdef PLAT_ARM_MEM_PROT_ADDR
+	ARM_V2M_MAP_MEM_PROTECT,
+#endif
 #endif
 	V2M_MAP_IOFPGA,
 	CSS_MAP_DEVICE,

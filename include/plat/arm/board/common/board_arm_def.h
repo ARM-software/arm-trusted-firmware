@@ -30,7 +30,11 @@
 #elif defined(IMAGE_BL2U)
 # define PLATFORM_STACK_SIZE 0x200
 #elif defined(IMAGE_BL31)
+#ifdef PLAT_XLAT_TABLES_DYNAMIC
+# define PLATFORM_STACK_SIZE 0x800
+#else
 # define PLATFORM_STACK_SIZE 0x400
+#endif
 #elif defined(IMAGE_BL32)
 # define PLATFORM_STACK_SIZE 0x440
 #endif
@@ -59,11 +63,11 @@
 #  define PLAT_SP_IMAGE_MMAP_REGIONS	7
 #  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	10
 # else
-#  define PLAT_ARM_MMAP_ENTRIES		7
+#  define PLAT_ARM_MMAP_ENTRIES		8
 #  define MAX_XLAT_TABLES		5
 # endif
 #elif defined(IMAGE_BL32)
-# define PLAT_ARM_MMAP_ENTRIES		7
+# define PLAT_ARM_MMAP_ENTRIES		8
 # define MAX_XLAT_TABLES		5
 #else
 # define PLAT_ARM_MMAP_ENTRIES		11

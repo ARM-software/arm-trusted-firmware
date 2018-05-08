@@ -162,6 +162,11 @@ void sp_min_platform_setup(void)
 	 */
 #if RESET_TO_SP_MIN
 	plat_arm_security_setup();
+
+#if defined(PLAT_ARM_MEM_PROT_ADDR)
+	arm_nor_psci_do_dyn_mem_protect();
+#endif /* PLAT_ARM_MEM_PROT_ADDR */
+
 #endif
 
 	/* Enable and initialize the System level generic timer */

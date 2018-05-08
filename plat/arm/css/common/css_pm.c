@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -303,11 +303,8 @@ plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.translate_power_state_by_mpidr = css_translate_power_state_by_mpidr,
 	.get_node_hw_state	= css_node_hw_state,
 	.get_sys_suspend_power_state = css_get_sys_suspend_power_state,
-/*
- * mem_protect is not supported in RESET_TO_BL31 and RESET_TO_SP_MIN,
- * as that would require mapping in all of NS DRAM into BL31 or BL32.
- */
-#if defined(PLAT_ARM_MEM_PROT_ADDR) && !RESET_TO_BL31 && !RESET_TO_SP_MIN
+
+#if defined(PLAT_ARM_MEM_PROT_ADDR)
 	.mem_protect_chk	= arm_psci_mem_protect_chk,
 	.read_mem_protect	= arm_psci_read_mem_protect,
 	.write_mem_protect	= arm_nor_psci_write_mem_protect,

@@ -7,6 +7,18 @@
 #ifndef __PLATFORM_DEF_H__
 #define __PLATFORM_DEF_H__
 
+/* Enable the dynamic translation tables library. */
+#ifdef AARCH32
+# if defined(IMAGE_BL32) && RESET_TO_SP_MIN
+#  define PLAT_XLAT_TABLES_DYNAMIC     1
+# endif
+#else
+# if defined(IMAGE_BL31) && RESET_TO_BL31
+#  define PLAT_XLAT_TABLES_DYNAMIC     1
+# endif
+#endif /* AARCH32 */
+
+
 #include <arm_def.h>
 #include <board_arm_def.h>
 #include <board_css_def.h>
@@ -43,6 +55,9 @@
 
 /* Use the bypass address */
 #define PLAT_ARM_TRUSTED_ROM_BASE	V2M_FLASH0_BASE + BL1_ROM_BYPASS_OFFSET
+
+/* virtual address used by dynamic mem_protect for chunk_base */
+#define PLAT_ARM_MEM_PROTEC_VA_FRAME	0xc0000000
 
 /*
  * Actual ROM size on Juno is 64 KB, but TBB currently requires at least 80 KB
@@ -90,7 +105,7 @@
 #endif
 
 #ifdef IMAGE_BL32
-# define PLAT_ARM_MMAP_ENTRIES		5
+# define PLAT_ARM_MMAP_ENTRIES		6
 # define MAX_XLAT_TABLES		4
 #endif
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,6 +39,59 @@ void clear_mem_regions(mem_region_t *tbl, size_t nregions)
 		tbl++;
 	}
 }
+
+#if defined(PLAT_XLAT_TABLES_DYNAMIC)
+/*
+ * zero_normalmem all the regions defined in regions.
+ * It assumes that MMU is enabled and the memory is Normal memory.
+ * regions must be a valid pointer to a memory mem_region_t array,
+ * nregions is the size of the array. va is the virtual address
+ * where we want to map the physical pages that are going to
+ * be cleared, and chunk is the amount of memory mapped and
+ * cleared in every iteration.
+ */
+void clear_map_dyn_mem_regions(mem_region_t *regions,
+			       size_t nregions,
+			       uintptr_t va,
+			       size_t chunk)
+{
+	uintptr_t begin;
+	int r;
+	size_t size;
+	const mmap_attr_t attr = MT_MEMORY|MT_RW|MT_NS;
+
+	assert(regions != NULL);
+	assert(nregions > 0 && chunk > 0);
+
+	for ( ; nregions--; regions++) {
+		begin = regions->base;
+		size = regions->nbytes;
+		if ((begin & (chunk-1)) != 0 || (size & (chunk-1)) != 0) {
+			INFO("PSCI: Not correctly aligned region\n");
+			panic();
+		}
+
+		while (size > 0) {
+			r = mmap_add_dynamic_region(begin, va, chunk, attr);
+			if (r != 0) {
+				INFO("PSCI: mmap_add_dynamic_region failed with %d\n", r);
+				panic();
+			}
+
+			zero_normalmem((void *) va, chunk);
+
+			r = mmap_remove_dynamic_region(va, chunk);
+			if (r != 0) {
+				INFO("PSCI: mmap_remove_dynamic_region failed with %d\n", r);
+				panic();
+			}
+
+			begin += chunk;
+			size -= chunk;
+		}
+	}
+}
+#endif
 
 /*
  * This function checks that a region (addr + nbytes-1) of memory is totally

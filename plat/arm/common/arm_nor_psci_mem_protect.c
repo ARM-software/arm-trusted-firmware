@@ -12,10 +12,22 @@
 #include <psci.h>
 #include <utils.h>
 
+
+/*
+ * DRAM1 is used also to load the NS boot loader. For this reason we
+ * cannot clear the full DRAM1, because in that case we would clear
+ * the NS images (especially for RESET_TO_BL31 and RESET_TO_SPMIN cases).
+ * For this reason we reserve 64 MB for the NS images and protect the RAM
+ * until the end of DRAM1.
+ * We limit the size of DRAM2 to 1 GB to avoid big delays while booting
+ */
+#define DRAM1_NS_IMAGE_LIMIT  (PLAT_ARM_NS_IMAGE_OFFSET + (32 << TWO_MB_SHIFT))
+#define DRAM1_PROTECTED_SIZE  (ARM_NS_DRAM1_END+1u - DRAM1_NS_IMAGE_LIMIT)
+
 static mem_region_t arm_ram_ranges[] = {
-	{ARM_NS_DRAM1_BASE, ARM_NS_DRAM1_SIZE},
+	{DRAM1_NS_IMAGE_LIMIT, DRAM1_PROTECTED_SIZE},
 #ifdef AARCH64
-	{ARM_DRAM2_BASE, ARM_DRAM2_SIZE},
+	{ARM_DRAM2_BASE, 1u << ONE_GB_SHIFT},
 #endif
 };
 
@@ -29,7 +41,7 @@ int arm_psci_read_mem_protect(int *enabled)
 	int tmp;
 
 	tmp = *(int *) PLAT_ARM_MEM_PROT_ADDR;
-	*enabled = (tmp == 1);
+	*enabled = (tmp == 1) ? 1 : 0;
 	return 0;
 }
 
@@ -46,7 +58,7 @@ int arm_nor_psci_write_mem_protect(int val)
 		return -1;
 	}
 
-	if (enable) {
+	if (enable != 0) {
 		/*
 		 * If we want to write a value different than 0
 		 * then we have to erase the full block because
@@ -71,15 +83,47 @@ int arm_nor_psci_write_mem_protect(int val)
  * Function used for required psci operations performed when
  * system boots
  ******************************************************************************/
-void arm_nor_psci_do_mem_protect(void)
+/*
+ * PLAT_MEM_PROTECT_VA_FRAME is a address specifically
+ * selected in a way that is not needed an additional
+ * translation table for memprotect. It happens because
+ * we use a chunk of size 2MB and it means that it can
+ * be mapped in a level 2 table and the level 2 table
+ * for 0xc0000000 is already used and the entry for
+ * 0xc0000000 is not used.
+ */
+#if defined(PLAT_XLAT_TABLES_DYNAMIC)
+void arm_nor_psci_do_dyn_mem_protect(void)
 {
 	int enable;
 
 	arm_psci_read_mem_protect(&enable);
-	if (!enable)
+	if (enable == 0)
 		return;
-	INFO("PSCI: Overwritting non secure memory\n");
-	clear_mem_regions(arm_ram_ranges, ARRAY_SIZE(arm_ram_ranges));
+
+	INFO("PSCI: Overwriting non secure memory\n");
+	clear_map_dyn_mem_regions(arm_ram_ranges,
+				  ARRAY_SIZE(arm_ram_ranges),
+				  PLAT_ARM_MEM_PROTEC_VA_FRAME,
+				  1 << TWO_MB_SHIFT);
+}
+#endif
+
+/*******************************************************************************
+ * Function used for required psci operations performed when
+ * system boots and dynamic memory is not used.
+ ******************************************************************************/
+void arm_nor_psci_do_static_mem_protect(void)
+{
+	int enable;
+
+	arm_psci_read_mem_protect(&enable);
+	if (enable == 0)
+		return;
+
+	INFO("PSCI: Overwriting non secure memory\n");
+	clear_mem_regions(arm_ram_ranges,
+			  ARRAY_SIZE(arm_ram_ranges));
 	arm_nor_psci_write_mem_protect(0);
 }
 
