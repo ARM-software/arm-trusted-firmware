@@ -16,14 +16,14 @@
  */
 const unsigned char sgi_pd_tree_desc[] = {
 	PLAT_ARM_CLUSTER_COUNT,
-	CSS_SGI_MAX_CORES_PER_CLUSTER,
-	CSS_SGI_MAX_CORES_PER_CLUSTER
+	CSS_SGI_MAX_CPUS_PER_CLUSTER,
+	CSS_SGI_MAX_CPUS_PER_CLUSTER
 };
 
 /* Topology configuration for sgi platform */
 const css_topology_t sgi_topology = {
 	.power_tree = sgi_pd_tree_desc,
-	.plat_cluster_core_count = CSS_SGI_MAX_CORES_PER_CLUSTER
+	.plat_cluster_core_count = CSS_SGI_MAX_CPUS_PER_CLUSTER
 };
 
 /*******************************************************************************

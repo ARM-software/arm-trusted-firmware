@@ -6,6 +6,7 @@
 
 #include <plat_arm.h>
 #include <platform.h>
+#include <assert.h>
 
 #if ARM_PLAT_MT
 #pragma weak plat_arm_get_cpu_pe_count
@@ -19,9 +20,12 @@
  *****************************************************************************/
 int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
-	if (arm_check_mpidr(mpidr) == 0)
+	if (arm_check_mpidr(mpidr) == 0) {
+#if ARM_PLAT_MT
+		assert((read_mpidr_el1() & MPIDR_MT_MASK) != 0);
+#endif
 		return plat_arm_calc_core_pos(mpidr);
-
+	}
 	return -1;
 }
 

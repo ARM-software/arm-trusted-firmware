@@ -14,12 +14,14 @@
 #include <css_def.h>
 #include <soc_css_def.h>
 
-#define CSS_SGI_MAX_CORES_PER_CLUSTER	4
+#define CSS_SGI_MAX_CPUS_PER_CLUSTER	4
 
 /* CPU topology */
 #define PLAT_ARM_CLUSTER_COUNT		2
+#define CSS_SGI_MAX_PE_PER_CPU		1
 #define PLATFORM_CORE_COUNT		(PLAT_ARM_CLUSTER_COUNT *	\
-					CSS_SGI_MAX_CORES_PER_CLUSTER)
+					CSS_SGI_MAX_CPUS_PER_CLUSTER * \
+					CSS_SGI_MAX_PE_PER_CPU)
 
 #if ARM_BOARD_OPTIMISE_MEM
 
