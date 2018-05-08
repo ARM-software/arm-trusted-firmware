@@ -45,7 +45,7 @@ CHECKCODE_ARGS		:=	--no-patch
 # Do not check the coding style on imported library files or documentation files
 INC_LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					include/lib/libfdt		\
-					include/lib/stdlib,		\
+					include/lib/libc,		\
 					$(wildcard include/lib/*)))
 INC_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					include/lib,			\
@@ -53,7 +53,7 @@ INC_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					lib/compiler-rt			\
 					lib/libfdt%			\
-					lib/stdlib,			\
+					lib/libc,			\
 					$(wildcard lib/*)))
 ROOT_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					lib				\
@@ -182,7 +182,7 @@ DTC_FLAGS		+=	-I dts -O dtb
 # Common sources and include directories
 ################################################################################
 include lib/compiler-rt/compiler-rt.mk
-include lib/stdlib/stdlib.mk
+include lib/libc/libc.mk
 
 BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				common/tf_log.c				\
@@ -195,8 +195,7 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				plat/common/plat_log_common.c		\
 				plat/common/${ARCH}/plat_common.c	\
 				plat/common/${ARCH}/platform_helpers.S	\
-				${COMPILER_RT_SRCS}			\
-				${STDLIB_SRCS}
+				${COMPILER_RT_SRCS}
 
 INCLUDES		+=	-Iinclude/bl1				\
 				-Iinclude/bl2				\
@@ -654,6 +653,7 @@ ifeq (${ERROR_DEPRECATED},0)
 endif
 
 $(eval $(call MAKE_LIB_DIR))
+$(eval $(call MAKE_LIB,c))
 
 # Expand build macros for the different images
 ifeq (${NEED_BL1},yes)
@@ -730,7 +730,7 @@ realclean distclean:
 checkcodebase:		locate-checkpatch
 	@echo "  CHECKING STYLE"
 	@if test -d .git ; then						\
-		git ls-files | grep -E -v 'libfdt|stdlib|docs|\.md' |	\
+		git ls-files | grep -E -v 'libfdt|libc|docs|\.md' |	\
 		while read GIT_FILE ;					\
 		do ${CHECKPATCH} ${CHECKCODE_ARGS} -f $$GIT_FILE ;	\
 		done ;							\
@@ -738,7 +738,7 @@ checkcodebase:		locate-checkpatch
 		 find . -type f -not -iwholename "*.git*"		\
 		 -not -iwholename "*build*"				\
 		 -not -iwholename "*libfdt*"				\
-		 -not -iwholename "*stdlib*"				\
+		 -not -iwholename "*libc*"				\
 		 -not -iwholename "*docs*"				\
 		 -not -iwholename "*.md"				\
 		 -exec ${CHECKPATCH} ${CHECKCODE_ARGS} -f {} \; ;	\
