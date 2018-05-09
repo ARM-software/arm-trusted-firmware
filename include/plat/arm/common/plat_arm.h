@@ -59,9 +59,11 @@ typedef struct arm_tzc_regions_info {
 		PLAT_ARM_TZC_NS_DEV_ACCESS}
 #endif
 
-#define ARM_CASSERT_MMAP						\
-	CASSERT((ARRAY_SIZE(plat_arm_mmap) + ARM_BL_REGIONS)		\
-		<= MAX_MMAP_REGIONS,					\
+#define ARM_CASSERT_MMAP						  \
+	CASSERT((ARRAY_SIZE(plat_arm_mmap) - 1) <= PLAT_ARM_MMAP_ENTRIES, \
+		assert_plat_arm_mmap_mismatch);				  \
+	CASSERT((PLAT_ARM_MMAP_ENTRIES + ARM_BL_REGIONS)		  \
+		<= MAX_MMAP_REGIONS,					  \
 		assert_max_mmap_regions);
 
 /*
