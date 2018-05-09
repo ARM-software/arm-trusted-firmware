@@ -67,18 +67,18 @@ typedef struct structure_header {
 	uint32_t reg[2];
 } struct_header_t;
 
-#define GET_SDS_HEADER_ID(header)			\
-	((((struct_header_t *)(header))->reg[0]) & SDS_HEADER_ID_MASK)
-#define GET_SDS_HEADER_VERSION(header)			\
-	(((((struct_header_t *)(header))->reg[0]) >> SDS_HEADER_MINOR_VERSION_SHIFT)\
+#define GET_SDS_HEADER_ID(_header)			\
+	((((struct_header_t *)(_header))->reg[0]) & SDS_HEADER_ID_MASK)
+#define GET_SDS_HEADER_VERSION(_header)			\
+	(((((struct_header_t *)(_header))->reg[0]) >> SDS_HEADER_MINOR_VERSION_SHIFT)\
 	& SDS_HEADER_VERSION_MASK)
-#define GET_SDS_HEADER_STRUCT_SIZE(header)		\
-	(((((struct_header_t *)(header))->reg[1]) >> SDS_HEADER_STRUCT_SIZE_SHIFT)\
+#define GET_SDS_HEADER_STRUCT_SIZE(_header)		\
+	(((((struct_header_t *)(_header))->reg[1]) >> SDS_HEADER_STRUCT_SIZE_SHIFT)\
 	& SDS_HEADER_STRUCT_SIZE_MASK)
-#define IS_SDS_HEADER_VALID(header)			\
-	((((struct_header_t *)(header))->reg[1]) & SDS_HEADER_VALID_MASK)
-#define GET_SDS_STRUCT_FIELD(header, field_offset)	\
-	((((uint8_t *)(header)) + sizeof(struct_header_t)) + (field_offset))
+#define IS_SDS_HEADER_VALID(_header)			\
+	((((struct_header_t *)(_header))->reg[1]) & SDS_HEADER_VALID_MASK)
+#define GET_SDS_STRUCT_FIELD(_header, _field_offset)	\
+	((((uint8_t *)(_header)) + sizeof(struct_header_t)) + (_field_offset))
 
 /* Region Descriptor describing the SDS Memory Region */
 typedef struct region_descriptor {
