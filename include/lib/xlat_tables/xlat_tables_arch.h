@@ -21,8 +21,8 @@
  * limits. Not that these limits are different for AArch32 and AArch64.
  */
 #define CHECK_VIRT_ADDR_SPACE_SIZE(size)			\
-	(((size) >= MIN_VIRT_ADDR_SPACE_SIZE) &&		\
-	((size) <= MAX_VIRT_ADDR_SPACE_SIZE) &&			\
+	(((unsigned long long)(size) >= MIN_VIRT_ADDR_SPACE_SIZE) &&		\
+	((unsigned long long)(size) <= MAX_VIRT_ADDR_SPACE_SIZE) &&		\
 	IS_POWER_OF_TWO(size))
 
 /*
