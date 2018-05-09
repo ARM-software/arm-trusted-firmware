@@ -53,18 +53,18 @@ CASSERT((PLAT_PERCPU_BAKERY_LOCK_SIZE & (CACHE_WRITEBACK_GRANULE - 1)) == 0, \
 IMPORT_SYM(uintptr_t, __PERCPU_BAKERY_LOCK_SIZE__, PERCPU_BAKERY_LOCK_SIZE);
 #endif
 
-#define get_bakery_info(cpu_ix, lock)	\
-	(bakery_info_t *)((uintptr_t)lock + cpu_ix * PERCPU_BAKERY_LOCK_SIZE)
+#define get_bakery_info(_cpu_ix, _lock)	\
+	(bakery_info_t *)((uintptr_t)_lock + _cpu_ix * PERCPU_BAKERY_LOCK_SIZE)
 
-#define write_cache_op(addr, cached)	\
+#define write_cache_op(_addr, _cached)	\
 				do {	\
-					(cached ? dccvac((uintptr_t)addr) :\
-						dcivac((uintptr_t)addr));\
+					(_cached ? dccvac((uintptr_t)_addr) :\
+						dcivac((uintptr_t)_addr));\
 						dsbish();\
 				} while (0)
 
-#define read_cache_op(addr, cached)	if (cached) \
-					    dccivac((uintptr_t)addr)
+#define read_cache_op(_addr, _cached)	if (_cached) \
+					    dccivac((uintptr_t)_addr)
 
 /* Helper function to check if the lock is acquired */
 static inline int is_lock_acquired(const bakery_info_t *my_bakery_info,
