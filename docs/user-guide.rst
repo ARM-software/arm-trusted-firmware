@@ -1204,6 +1204,10 @@ match the uboot image packaged as BL33 in the corresponding fip file. It is
 recommended to use the version that is packaged in the fip file using the
 instructions below.
 
+Note: For the FVP, the kernel FDT is packaged in FIP during build and loaded
+by the firmware at runtime. See `Obtaining the Flattened Device Trees`_
+section for more info on selecting the right FDT to use.
+
 #. Clean the working directory
 
    ::
@@ -1662,52 +1666,59 @@ Obtaining the Flattened Device Trees
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Depending on the FVP configuration and Linux configuration used, different
-FDT files are required. FDTs for the Foundation and Base FVPs can be found in
-the TF-A source directory under ``fdts/``. The Foundation FVP has a subset of
-the Base FVP components. For example, the Foundation FVP lacks CLCD and MMC
-support, and has only one CPU cluster.
+FDT files are required. FDT source files for the Foundation and Base FVPs can
+be found in the TF-A source directory under ``fdts/``. The Foundation FVP has
+a subset of the Base FVP components. For example, the Foundation FVP lacks
+CLCD and MMC support, and has only one CPU cluster.
 
 Note: It is not recommended to use the FDTs built along the kernel because not
 all FDTs are available from there.
 
--  ``fvp-base-gicv2-psci.dtb``
+The dynamic configuration capability is enabled in the firmware for FVPs.
+This means that the firmware can authenticate and load the FDT if present in
+FIP. A default FDT is packaged into FIP during the build based on
+the build configuration. This can be overridden by using the ``FVP_HW_CONFIG``
+or ``FVP_HW_CONFIG_DTS`` build options (refer to the
+`Arm FVP platform specific build options`_ section for detail on the options).
+
+-  ``fvp-base-gicv2-psci.dts``
 
    For use with models such as the Cortex-A57-A53 Base FVPs without shifted
    affinities and with Base memory map configuration.
 
--  ``fvp-base-gicv2-psci-aarch32.dtb``
+-  ``fvp-base-gicv2-psci-aarch32.dts``
 
    For use with models such as the Cortex-A32 Base FVPs without shifted
    affinities and running Linux in AArch32 state with Base memory map
    configuration.
 
--  ``fvp-base-gicv3-psci.dtb``
+-  ``fvp-base-gicv3-psci.dts``
 
    For use with models such as the Cortex-A57-A53 Base FVPs without shifted
    affinities and with Base memory map configuration and Linux GICv3 support.
 
--  ``fvp-base-gicv3-psci-1t.dtb``
+-  ``fvp-base-gicv3-psci-1t.dts``
 
    For use with models such as the AEMv8-RevC Base FVP with shifted affinities,
    single threaded CPUs, Base memory map configuration and Linux GICv3 support.
 
--  ``fvp-base-gicv3-psci-dynamiq.dtb``
+-  ``fvp-base-gicv3-psci-dynamiq.dts``
 
    For use with models as the Cortex-A55-A75 Base FVPs with shifted affinities,
    single cluster, single threaded CPUs, Base memory map configuration and Linux
    GICv3 support.
 
--  ``fvp-base-gicv3-psci-aarch32.dtb``
+-  ``fvp-base-gicv3-psci-aarch32.dts``
 
    For use with models such as the Cortex-A32 Base FVPs without shifted
    affinities and running Linux in AArch32 state with Base memory map
    configuration and Linux GICv3 support.
 
--  ``fvp-foundation-gicv2-psci.dtb``
+-  ``fvp-foundation-gicv2-psci.dts``
 
    For use with Foundation FVP with Base memory map configuration.
 
--  ``fvp-foundation-gicv3-psci.dtb``
+-  ``fvp-foundation-gicv3-psci.dts``
 
    (Default) For use with Foundation FVP with Base memory map configuration
    and Linux GICv3 support.
@@ -1728,7 +1739,6 @@ The following ``Foundation_Platform`` parameters should be used to boot Linux wi
     --gicv3                                         \
     --data="<path-to>/<bl1-binary>"@0x0             \
     --data="<path-to>/<FIP-binary>"@0x08000000      \
-    --data="<path-to>/<fdt>"@0x82000000             \
     --data="<path-to>/<kernel-binary>"@0x80080000   \
     --data="<path-to>/<ramdisk-binary>"@0x84000000
 
@@ -1736,7 +1746,8 @@ Notes:
 
 -  BL1 is loaded at the start of the Trusted ROM.
 -  The Firmware Image Package is loaded at the start of NOR FLASH0.
--  The Linux kernel image and device tree are loaded in DRAM.
+-  The firmware loads the FDT packaged in FIP to the DRAM. The FDT load address
+   is specified via the ``hw_config_addr`` property in `TB_FW_CONFIG for FVP`_.
 -  The default use-case for the Foundation FVP is to use the ``--gicv3`` option
    and enable the GICv3 device in the model. Note that without this option,
    the Foundation FVP defaults to legacy (Versatile Express) memory map which
@@ -1765,7 +1776,6 @@ with 8 CPUs using the AArch64 build of TF-A.
     -C cache_state_modelled=1                                   \
     -C bp.secureflashloader.fname="<path-to>/<bl1-binary>"      \
     -C bp.flashloader0.fname="<path-to>/<FIP-binary>"           \
-    --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000           \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
     --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
@@ -1794,7 +1804,6 @@ with 8 CPUs using the AArch32 build of TF-A.
     -C cluster1.cpu3.CONFIG64=0                                 \
     -C bp.secureflashloader.fname="<path-to>/<bl1-binary>"      \
     -C bp.flashloader0.fname="<path-to>/<FIP-binary>"           \
-    --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000           \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
     --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
@@ -1813,7 +1822,6 @@ boot Linux with 8 CPUs using the AArch64 build of TF-A.
     -C cache_state_modelled=1                                   \
     -C bp.secureflashloader.fname="<path-to>/<bl1-binary>"      \
     -C bp.flashloader0.fname="<path-to>/<FIP-binary>"           \
-    --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000           \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
     --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
@@ -1832,7 +1840,6 @@ boot Linux with 4 CPUs using the AArch32 build of TF-A.
     -C cache_state_modelled=1                                   \
     -C bp.secureflashloader.fname="<path-to>/<bl1-binary>"      \
     -C bp.flashloader0.fname="<path-to>/<FIP-binary>"           \
-    --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000           \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
     --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
@@ -1872,7 +1879,9 @@ Notes:
    ``--data="<path-to><bl31|bl32|bl33-binary>"@<base-address-of-binary>``
    parameter is needed to load the individual bootloader images in memory.
    BL32 image is only needed if BL31 has been built to expect a Secure-EL1
-   Payload.
+   Payload. For the same reason, the FDT needs to be compiled from the DT source
+   and loaded via the ``--data cluster0.cpu0="<path-to>/<fdt>"@0x82000000``
+   parameter.
 
 -  The ``-C cluster<X>.cpu<Y>.RVBAR=@<base-address-of-bl31>`` parameter, where
    X and Y are the cluster and CPU numbers respectively, is used to set the
@@ -2030,6 +2039,7 @@ wakeup interrupt from RTC.
 .. _Dia: https://wiki.gnome.org/Apps/Dia/Download
 .. _here: psci-lib-integration-guide.rst
 .. _Trusted Board Boot: trusted-board-boot.rst
+.. _TB_FW_CONFIG for FVP: ../plat/arm/board/fvp/fdts/fvp_tb_fw_config.dts
 .. _Secure-EL1 Payloads and Dispatchers: firmware-design.rst#user-content-secure-el1-payloads-and-dispatchers
 .. _Firmware Update: firmware-update.rst
 .. _Firmware Design: firmware-design.rst
