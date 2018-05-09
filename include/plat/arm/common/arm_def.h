@@ -245,10 +245,16 @@
  * The number of regions like RO(code), coherent and data required by
  * different BL stages which need to be mapped in the MMU.
  */
-#if USE_COHERENT_MEM
-#define ARM_BL_REGIONS			3
+#if ENABLE_SPM && defined(IMAGE_BL31)
+# if USE_COHERENT_MEM
+#  define ARM_BL_REGIONS		5
+# else
+#  define ARM_BL_REGIONS		4
+# endif
+#elif USE_COHERENT_MEM
+# define ARM_BL_REGIONS			4
 #else
-#define ARM_BL_REGIONS			2
+# define ARM_BL_REGIONS			3
 #endif
 
 #define MAX_MMAP_REGIONS		(PLAT_ARM_MMAP_ENTRIES +	\
