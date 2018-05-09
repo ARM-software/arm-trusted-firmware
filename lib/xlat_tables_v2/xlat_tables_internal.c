@@ -1066,18 +1066,19 @@ static void xlat_desc_print(const xlat_ctx_t *ctx, uint64_t desc)
 
 	if (xlat_regime == EL3_REGIME) {
 		/* For EL3, the AP[2] bit is all what matters */
-		tf_printf((desc & LOWER_ATTRS(AP_RO)) ? ro_str : rw_str);
+		tf_printf("%s", (desc & LOWER_ATTRS(AP_RO)) ? ro_str : rw_str);
 	} else {
 		const char *ap_str = (desc & LOWER_ATTRS(AP_RO)) ? ro_str : rw_str;
-		tf_printf(ap_str);
-		tf_printf(priv_str);
+		tf_printf("%s", ap_str);
+		tf_printf("%s", priv_str);
 		/*
 		 * EL0 can only have the same permissions as EL1 or no
 		 * permissions at all.
 		 */
-		tf_printf((desc & LOWER_ATTRS(AP_ACCESS_UNPRIVILEGED))
+		tf_printf("%s",
+			  (desc & LOWER_ATTRS(AP_ACCESS_UNPRIVILEGED))
 			  ? ap_str : no_access_str);
-		tf_printf(user_str);
+		tf_printf("%s", user_str);
 	}
 
 	const char *xn_str = "-XN";
@@ -1085,14 +1086,14 @@ static void xlat_desc_print(const xlat_ctx_t *ctx, uint64_t desc)
 
 	if (xlat_regime == EL3_REGIME) {
 		/* For EL3, the XN bit is all what matters */
-		tf_printf(LOWER_ATTRS(XN) & desc ? xn_str : exec_str);
+		tf_printf("%s", LOWER_ATTRS(XN) & desc ? xn_str : exec_str);
 	} else {
 		/* For EL0 and EL1, we need to know who has which rights */
-		tf_printf(LOWER_ATTRS(PXN) & desc ? xn_str : exec_str);
-		tf_printf(priv_str);
+		tf_printf("%s", LOWER_ATTRS(PXN) & desc ? xn_str : exec_str);
+		tf_printf("%s", priv_str);
 
-		tf_printf(LOWER_ATTRS(UXN) & desc ? xn_str : exec_str);
-		tf_printf(user_str);
+		tf_printf("%s", LOWER_ATTRS(UXN) & desc ? xn_str : exec_str);
+		tf_printf("%s", user_str);
 	}
 
 	tf_printf(LOWER_ATTRS(NS) & desc ? "-NS" : "-S");
