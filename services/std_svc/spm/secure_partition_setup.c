@@ -236,12 +236,14 @@ void secure_partition_setup(void)
 			SPM_SHIM_EXCEPTIONS_PTR);
 
 	/*
-	 * FPEN: Forbid the Secure Partition to access FP/SIMD registers.
+	 * FPEN: Allow the Secure Partition to access FP/SIMD registers.
+	 * Note that SPM will not do any saving/restoring of these registers on
+	 * behalf of the SP. This falls under the SP's responsibility.
 	 * TTA: Enable access to trace registers.
 	 * ZEN (v8.2): Trap SVE instructions and access to SVE registers.
 	 */
 	write_ctx_reg(get_sysregs_ctx(ctx), CTX_CPACR_EL1,
-			CPACR_EL1_FPEN(CPACR_EL1_FP_TRAP_ALL));
+			CPACR_EL1_FPEN(CPACR_EL1_FP_TRAP_NONE));
 
 	/*
 	 * Prepare information in buffer shared between EL3 and S-EL0
