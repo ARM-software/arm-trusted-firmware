@@ -190,14 +190,14 @@ typedef struct tsp_context {
 } tsp_context_t;
 
 /* Helper macros to store and retrieve tsp args from tsp_context */
-#define store_tsp_args(tsp_ctx, x1, x2)		do {\
-				tsp_ctx->saved_tsp_args[0] = x1;\
-				tsp_ctx->saved_tsp_args[1] = x2;\
+#define store_tsp_args(_tsp_ctx, _x1, _x2)		do {\
+				_tsp_ctx->saved_tsp_args[0] = _x1;\
+				_tsp_ctx->saved_tsp_args[1] = _x2;\
 			} while (0)
 
-#define get_tsp_args(tsp_ctx, x1, x2)	do {\
-				x1 = tsp_ctx->saved_tsp_args[0];\
-				x2 = tsp_ctx->saved_tsp_args[1];\
+#define get_tsp_args(_tsp_ctx, _x1, _x2)	do {\
+				_x1 = _tsp_ctx->saved_tsp_args[0];\
+				_x2 = _tsp_ctx->saved_tsp_args[1];\
 			} while (0)
 
 /* TSPD power management handlers */
