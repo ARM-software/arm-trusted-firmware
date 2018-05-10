@@ -56,6 +56,9 @@
 /* Use the bypass address */
 #define PLAT_ARM_TRUSTED_ROM_BASE	V2M_FLASH0_BASE + BL1_ROM_BYPASS_OFFSET
 
+#define NSRAM_BASE			0x2e000000
+#define NSRAM_SIZE			0x00008000	/* 32KB */
+
 /* virtual address used by dynamic mem_protect for chunk_base */
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	0xc0000000
 

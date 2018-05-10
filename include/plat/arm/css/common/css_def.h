@@ -22,9 +22,6 @@
 #define CSS_DEVICE_BASE			0x20000000
 #define CSS_DEVICE_SIZE			0x0e000000
 
-#define NSRAM_BASE			0x2e000000
-#define NSRAM_SIZE			0x00008000
-
 /* System Security Control Registers */
 #define SSC_REG_BASE			0x2a420000
 #define SSC_GPRETN			(SSC_REG_BASE + 0x030)
