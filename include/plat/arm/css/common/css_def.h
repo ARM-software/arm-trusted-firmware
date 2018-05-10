@@ -99,7 +99,7 @@
 #define CSS_MAP_NSRAM			MAP_REGION_FLAT(		\
 						NSRAM_BASE,	\
 						NSRAM_SIZE,	\
-						MT_DEVICE | MT_RW | MT_SECURE)
+						MT_DEVICE | MT_RW | MT_NS)
 
 /* Platform ID address */
 #define SSC_VERSION_OFFSET			0x040
