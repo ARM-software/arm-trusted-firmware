@@ -151,11 +151,15 @@ TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi $(march32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi -march=armv8-a
 LD			=	$(LINKER)
 AS			=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
+CPP			=	$(CC) -E $(TF_CFLAGS_$(ARCH))
+PP			=	$(CC) -E $(TF_CFLAGS_$(ARCH))
 else ifneq ($(findstring clang,$(notdir $(CC))),)
 TF_CFLAGS_aarch32	=	$(target32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-elf
 LD			=	$(LINKER)
 AS			=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
+CPP			=	$(CC) -E
+PP			=	$(CC) -E
 else
 TF_CFLAGS_aarch32	=	$(march32-directive)
 TF_CFLAGS_aarch64	=	-march=armv8-a
