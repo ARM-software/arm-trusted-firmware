@@ -30,7 +30,8 @@ BL1_SOURCES		+=	${INTERCONNECT_SOURCES}			\
 				${CSS_ENT_BASE}/sgi_bl1_setup.c	\
 				${CSS_ENT_BASE}/sgi_plat_config.c
 
-BL2_SOURCES		+=	${CSS_ENT_BASE}/sgi_security.c
+BL2_SOURCES		+=	${CSS_ENT_BASE}/sgi_security.c		\
+				${CSS_ENT_BASE}/sgi_image_load.c
 
 BL31_SOURCES		+=	${ENT_CPU_SOURCES}			\
 				${INTERCONNECT_SOURCES}			\
