@@ -32,6 +32,15 @@ SECTIONS
         __TEXT_END__ = .;
      } >ROM
 
+     /* .ARM.extab and .ARM.exidx are only added because Clang need them */
+     .ARM.extab . : {
+        *(.ARM.extab* .gnu.linkonce.armextab.*)
+     } >ROM
+
+     .ARM.exidx . : {
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+     } >ROM
+
     .rodata . : {
         __RODATA_START__ = .;
         *(.rodata*)
