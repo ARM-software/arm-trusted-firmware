@@ -104,6 +104,11 @@ SEPARATE_CODE_AND_RODATA	:=	1
 # Enable new version of image loading on ARM platforms
 LOAD_IMAGE_V2			:=	1
 
+# Use the multi console API, which is only available for AArch64 for now
+ifeq (${ARCH}, aarch64)
+  MULTI_CONSOLE_API		:=	1
+endif
+
 # Use generic OID definition (tbbr_oid.h)
 USE_TBBR_DEFS			:=	1
 
@@ -120,7 +125,8 @@ PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/aarch64
 endif
 
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/${ARCH}/arm_helpers.S		\
-				plat/arm/common/arm_common.c
+				plat/arm/common/arm_common.c			\
+				plat/arm/common/arm_console.c
 
 ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
 PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/xlat_tables_common.c		\

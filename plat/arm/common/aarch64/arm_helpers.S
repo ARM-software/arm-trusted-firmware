@@ -8,9 +8,9 @@
 
 	.weak	plat_arm_calc_core_pos
 	.weak	plat_my_core_pos
-	.globl	plat_crash_console_init
-	.globl	plat_crash_console_putc
-	.globl	plat_crash_console_flush
+	.weak	plat_crash_console_init
+	.weak	plat_crash_console_putc
+	.weak	plat_crash_console_flush
 	.globl	platform_mem_init
 
 
@@ -50,7 +50,7 @@ func plat_crash_console_init
 	mov_imm	x0, PLAT_ARM_CRASH_UART_BASE
 	mov_imm	x1, PLAT_ARM_CRASH_UART_CLK_IN_HZ
 	mov_imm	x2, ARM_CONSOLE_BAUDRATE
-	b	console_core_init
+	b	console_pl011_core_init
 endfunc plat_crash_console_init
 
 	/* ---------------------------------------------
@@ -62,7 +62,7 @@ endfunc plat_crash_console_init
 	 */
 func plat_crash_console_putc
 	mov_imm	x1, PLAT_ARM_CRASH_UART_BASE
-	b	console_core_putc
+	b	console_pl011_core_putc
 endfunc plat_crash_console_putc
 
 	/* ---------------------------------------------
@@ -75,7 +75,7 @@ endfunc plat_crash_console_putc
 	 */
 func plat_crash_console_flush
 	mov_imm	x0, PLAT_ARM_CRASH_UART_BASE
-	b	console_core_flush
+	b	console_pl011_core_flush
 endfunc plat_crash_console_flush
 
 	/* ---------------------------------------------------------------------
