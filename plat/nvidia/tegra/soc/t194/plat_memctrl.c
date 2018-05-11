@@ -138,7 +138,11 @@ const static uint32_t tegra194_streamid_override_regs[] = {
 	MC_STREAMID_OVERRIDE_CFG_MIU2R,
 	MC_STREAMID_OVERRIDE_CFG_MIU2W,
 	MC_STREAMID_OVERRIDE_CFG_MIU3R,
-	MC_STREAMID_OVERRIDE_CFG_MIU3W
+	MC_STREAMID_OVERRIDE_CFG_MIU3W,
+	MC_STREAMID_OVERRIDE_CFG_MIU4R,
+	MC_STREAMID_OVERRIDE_CFG_MIU4W,
+	MC_STREAMID_OVERRIDE_CFG_MIU5R,
+	MC_STREAMID_OVERRIDE_CFG_MIU5W
 };
 
 /*******************************************************************************
@@ -268,7 +272,11 @@ const static mc_streamid_security_cfg_t tegra194_streamid_sec_cfgs[] = {
 	mc_make_sec_cfg(MIU2R, NON_SECURE, OVERRIDE, DISABLE),
 	mc_make_sec_cfg(MIU2W, NON_SECURE, OVERRIDE, DISABLE),
 	mc_make_sec_cfg(MIU3R, NON_SECURE, OVERRIDE, DISABLE),
-	mc_make_sec_cfg(MIU3W, NON_SECURE, OVERRIDE, DISABLE)
+	mc_make_sec_cfg(MIU3W, NON_SECURE, OVERRIDE, DISABLE),
+	mc_make_sec_cfg(MIU4R, NON_SECURE, OVERRIDE, DISABLE),
+	mc_make_sec_cfg(MIU4W, NON_SECURE, OVERRIDE, DISABLE),
+	mc_make_sec_cfg(MIU5R, NON_SECURE, OVERRIDE, DISABLE),
+	mc_make_sec_cfg(MIU5W, NON_SECURE, OVERRIDE, DISABLE)
 };
 
 /*******************************************************************************
