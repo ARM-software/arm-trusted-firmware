@@ -590,7 +590,7 @@ Common build options
    firmware images have been loaded in memory, and the MMU and caches are
    turned off. Refer to the "Debugging options" section for more details.
 
-- ``SP_MIN_WITH_SECURE_FIQ``: Boolean flag to indicate the SP_MIN handles
+-  ``SP_MIN_WITH_SECURE_FIQ``: Boolean flag to indicate the SP_MIN handles
    secure interrupts (caught through the FIQ line). Platforms can enable
    this directive if they need to handle such interruption. When enabled,
    the FIQ are handled in monitor mode and non secure world is not allowed
@@ -677,6 +677,15 @@ Arm development platform specific build options
    platform setup hook at BL1 and disabled in the BL1 prepare exit hook. The
    Trusted Watchdog may be disabled at build time for testing or development
    purposes.
+
+-  ``ARM_LINUX_KERNEL_AS_BL33``: The Linux kernel expects registers x0-x3 to
+   have specific values at boot. This boolean option allows the Trusted Firmware
+   to have a Linux kernel image as BL33 by preparing the registers to these
+   values before jumping to BL33. This option defaults to 0 (disabled). For now,
+   it  only supports AArch64 kernels. ``RESET_TO_BL31`` must be 1 when using it.
+   If this option is set to 1, ``ARM_PRELOADED_DTB_BASE`` must be set to the
+   location of a device tree blob (DTB) already loaded in memory.  The Linux
+   Image address must be specified using the ``PRELOADED_BL33_BASE`` option.
 
 -  ``ARM_RECOM_STATE_ID_ENC``: The PSCI1.0 specification recommends an encoding
    for the construction of composite state-ID in the power-state parameter.

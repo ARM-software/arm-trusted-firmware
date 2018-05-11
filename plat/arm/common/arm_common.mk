@@ -80,6 +80,27 @@ ARM_XLAT_TABLES_LIB_V1		:=	0
 $(eval $(call assert_boolean,ARM_XLAT_TABLES_LIB_V1))
 $(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
 
+# Don't have the Linux kernel as a BL33 image by default
+ARM_LINUX_KERNEL_AS_BL33	:=	0
+$(eval $(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33))
+$(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
+
+ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
+  ifneq (${ARCH},aarch64)
+    $(error "ARM_LINUX_KERNEL_AS_BL33 is only available in AArch64.")
+  endif
+  ifneq (${RESET_TO_BL31},1)
+    $(error "ARM_LINUX_KERNEL_AS_BL33 is only available if RESET_TO_BL31=1.")
+  endif
+  ifndef PRELOADED_BL33_BASE
+    $(error "PRELOADED_BL33_BASE must be set if ARM_LINUX_KERNEL_AS_BL33 is used.")
+  endif
+  ifndef ARM_PRELOADED_DTB_BASE
+    $(error "ARM_PRELOADED_DTB_BASE must be set if ARM_LINUX_KERNEL_AS_BL33 is used.")
+  endif
+  $(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
+endif
+
 # Use an implementation of SHA-256 with a smaller memory footprint but reduced
 # speed.
 $(eval $(call add_define,MBEDTLS_SHA256_SMALLER))
