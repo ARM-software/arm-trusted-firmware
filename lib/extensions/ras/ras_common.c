@@ -114,9 +114,10 @@ static int ras_interrupt_handler(uint32_t intr_raw, uint32_t flags,
 		panic();
 	}
 
-
-	ret = selected->err_record->probe(selected->err_record, &probe_data);
-	assert(ret != 0);
+	if (selected->err_record->probe) {
+		ret = selected->err_record->probe(selected->err_record, &probe_data);
+		assert(ret != 0);
+	}
 
 	/* Call error handler for the record group */
 	assert(selected->err_record->handler != NULL);
