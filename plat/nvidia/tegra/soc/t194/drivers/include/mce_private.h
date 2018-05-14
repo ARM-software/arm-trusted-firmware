@@ -45,10 +45,6 @@
 
 /* declarations for NVG handler functions */
 uint64_t nvg_get_version(void);
-int32_t nvg_enable_power_perf_mode(void);
-int32_t nvg_disable_power_perf_mode(void);
-int32_t nvg_enable_power_saver_modes(void);
-int32_t nvg_disable_power_saver_modes(void);
 void nvg_set_wake_time(uint32_t wake_time);
 void nvg_update_cstate_info(uint32_t cluster, uint32_t ccplex,
 		uint32_t system, uint32_t wake_mask, uint8_t update_wake_mask);
@@ -57,19 +53,20 @@ uint64_t nvg_get_cstate_stat_query_value(void);
 int32_t nvg_is_sc7_allowed(void);
 int32_t nvg_online_core(uint32_t core);
 int32_t nvg_update_ccplex_gsc(uint32_t gsc_idx);
-int32_t nvg_roc_clean_cache(void);
-int32_t nvg_roc_flush_cache(void);
 int32_t nvg_roc_clean_cache_trbits(void);
 int32_t nvg_enter_cstate(uint32_t state, uint32_t wake_time);
+int32_t nvg_roc_clean_cache_trbits(void);
+void nvg_enable_strict_checking_mode(void);
+void nvg_system_shutdown(void);
+void nvg_system_reboot(void);
+
+/* declarations for assembly functions */
 void nvg_set_request_data(uint64_t req, uint64_t data);
 void nvg_set_request(uint64_t req);
 uint64_t nvg_get_result(void);
 uint64_t nvg_cache_clean(void);
 uint64_t nvg_cache_clean_inval(void);
 uint64_t nvg_cache_inval_all(void);
-void nvg_enable_strict_checking_mode(void);
-void nvg_system_shutdown(void);
-void nvg_system_reboot(void);
 
 /* MCE helper functions */
 void mce_enable_strict_checking(void);
