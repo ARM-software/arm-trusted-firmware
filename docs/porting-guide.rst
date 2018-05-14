@@ -1974,12 +1974,12 @@ setup just prior to BL31 exit during cold boot. The default weak
 implementation of this function will invoke ``console_switch_state()`` to switch
 console output to consoles marked for use in the ``runtime`` state.
 
-Function : bl31\_get\_next\_image\_info() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function : bl31\_plat\_get\_next\_image\_ep\_info() [mandatory]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    Argument : unsigned int
+    Argument : uint32_t
     Return   : entry_point_info *
 
 This function may execute with the MMU and data caches enabled if the platform
