@@ -69,7 +69,7 @@ typedef enum {
 static void *scmi_handle;
 
 /* The SCMI channel global object */
-static scmi_channel_t scmi_channel;
+static scmi_channel_t channel;
 
 ARM_INSTANTIATE_LOCK;
 
@@ -308,9 +308,9 @@ scmi_channel_plat_info_t plat_css_scmi_plat_info = {
 
 void plat_arm_pwrc_setup(void)
 {
-	scmi_channel.info = &plat_css_scmi_plat_info;
-	scmi_channel.lock = ARM_LOCK_GET_INSTANCE;
-	scmi_handle = scmi_init(&scmi_channel);
+	channel.info = &plat_css_scmi_plat_info;
+	channel.lock = ARM_LOCK_GET_INSTANCE;
+	scmi_handle = scmi_init(&channel);
 	if (scmi_handle == NULL) {
 		ERROR("SCMI Initialization failed\n");
 		panic();
