@@ -7,6 +7,7 @@
 #include <arch_helpers.h>
 #include <arm_def.h>
 #include <bl_common.h>
+#include <console.h>
 #include <generic_delay_timer.h>
 #include <plat_arm.h>
 #include <platform_def.h>
@@ -35,8 +36,8 @@ void bl2u_platform_setup(void)
 void arm_bl2u_early_platform_setup(meminfo_t *mem_layout, void *plat_info)
 {
 	/* Initialize the console to provide early debug support */
-	arm_console_boot_init();
-
+	console_init(PLAT_ARM_BOOT_UART_BASE, PLAT_ARM_BOOT_UART_CLK_IN_HZ,
+			ARM_CONSOLE_BAUDRATE);
 	generic_delay_timer_init();
 }
 

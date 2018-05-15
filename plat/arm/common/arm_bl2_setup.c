@@ -8,6 +8,7 @@
 #include <arm_def.h>
 #include <assert.h>
 #include <bl_common.h>
+#include <console.h>
 #include <debug.h>
 #include <desc_image_load.h>
 #include <generic_delay_timer.h>
@@ -183,7 +184,8 @@ struct entry_point_info *bl2_plat_get_bl31_ep_info(void)
 void arm_bl2_early_platform_setup(uintptr_t tb_fw_config, meminfo_t *mem_layout)
 {
 	/* Initialize the console to provide early debug support */
-	arm_console_boot_init();
+	console_init(PLAT_ARM_BOOT_UART_BASE, PLAT_ARM_BOOT_UART_CLK_IN_HZ,
+			ARM_CONSOLE_BAUDRATE);
 
 	/* Setup the BL2 memory layout */
 	bl2_tzram_layout = *mem_layout;

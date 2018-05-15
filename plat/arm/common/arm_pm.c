@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include <arm_def.h>
 #include <arm_gic.h>
 #include <assert.h>
+#include <console.h>
 #include <errno.h>
 #include <plat_arm.h>
 #include <platform.h>
@@ -159,12 +160,6 @@ void arm_system_pwr_domain_save(void)
 	plat_arm_gic_save();
 
 	/*
-	 * Unregister console now so that it is not registered for a second
-	 * time during resume.
-	 */
-	arm_console_runtime_end();
-
-	/*
 	 * All the other peripheral which are configured by ARM TF are
 	 * re-initialized on resume from system suspend. Hence we
 	 * don't save their state here.
@@ -179,8 +174,8 @@ void arm_system_pwr_domain_save(void)
  *****************************************************************************/
 void arm_system_pwr_domain_resume(void)
 {
-	/* Initialize the console */
-	arm_console_runtime_init();
+	console_init(PLAT_ARM_BL31_RUN_UART_BASE, PLAT_ARM_BL31_RUN_UART_CLK_IN_HZ,
+						ARM_CONSOLE_BAUDRATE);
 
 	/* Assert system power domain is available on the platform */
 	assert(PLAT_MAX_PWR_LVL >= ARM_PWR_LVL2);
