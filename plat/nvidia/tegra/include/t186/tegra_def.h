@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -278,5 +279,11 @@
  ******************************************************************************/
 #define TEGRA_TZRAM_BASE		U(0x30000000)
 #define TEGRA_TZRAM_SIZE		U(0x40000)
+
+/*******************************************************************************
+ * Tegra DRAM memory base address
+ ******************************************************************************/
+#define TEGRA_DRAM_BASE			ULL(0x80000000)
+#define TEGRA_DRAM_END			ULL(0x27FFFFFFF)
 
 #endif /* TEGRA_DEF_H */

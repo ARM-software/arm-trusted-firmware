@@ -18,12 +18,6 @@
 #include <tegra_gic.h>
 
 /*******************************************************************************
- * Tegra DRAM memory base address
- ******************************************************************************/
-#define TEGRA_DRAM_BASE		ULL(0x80000000)
-#define TEGRA_DRAM_END		ULL(0x27FFFFFFF)
-
-/*******************************************************************************
  * Implementation defined ACTLR_EL1 bit definitions
  ******************************************************************************/
 #define ACTLR_EL1_PMSTATE_MASK		(ULL(0xF) << 0)
