@@ -34,7 +34,7 @@
  * Address of the entrypoint vector table in OPTEE. It is
  * initialised once on the primary core after a cold boot.
  ******************************************************************************/
-optee_vectors_t *optee_vectors;
+optee_vectors_t *optee_vector_table;
 
 /*******************************************************************************
  * Array to keep track of per-cpu OPTEE state
@@ -71,7 +71,7 @@ static uint64_t opteed_sel1_interrupt_handler(uint32_t id,
 	optee_ctx = &opteed_sp_context[linear_id];
 	assert(&optee_ctx->cpu_ctx == cm_get_context(SECURE));
 
-	cm_set_elr_el3(SECURE, (uint64_t)&optee_vectors->fiq_entry);
+	cm_set_elr_el3(SECURE, (uint64_t)&optee_vector_table->fiq_entry);
 	cm_el1_sysregs_context_restore(SECURE);
 	cm_set_next_eret_context(SECURE);
 
@@ -236,10 +236,10 @@ uint64_t opteed_smc_handler(uint32_t smc_fid,
 		 */
 		if (GET_SMC_TYPE(smc_fid) == SMC_TYPE_FAST) {
 			cm_set_elr_el3(SECURE, (uint64_t)
-					&optee_vectors->fast_smc_entry);
+					&optee_vector_table->fast_smc_entry);
 		} else {
 			cm_set_elr_el3(SECURE, (uint64_t)
-					&optee_vectors->yield_smc_entry);
+					&optee_vector_table->yield_smc_entry);
 		}
 
 		cm_el1_sysregs_context_restore(SECURE);
@@ -279,10 +279,10 @@ uint64_t opteed_smc_handler(uint32_t smc_fid,
 		 * Stash the OPTEE entry points information. This is done
 		 * only once on the primary cpu
 		 */
-		assert(optee_vectors == NULL);
-		optee_vectors = (optee_vectors_t *) x1;
+		assert(optee_vector_table == NULL);
+		optee_vector_table = (optee_vectors_t *) x1;
 
-		if (optee_vectors) {
+		if (optee_vector_table) {
 			set_optee_pstate(optee_ctx->state, OPTEE_PSTATE_ON);
 
 			/*

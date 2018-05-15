@@ -154,7 +154,7 @@ void opteed_init_optee_ep_state(struct entry_point_info *optee_ep,
 
 extern optee_context_t opteed_sp_context[OPTEED_CORE_COUNT];
 extern uint32_t opteed_rw;
-extern struct optee_vectors *optee_vectors;
+extern struct optee_vectors *optee_vector_table;
 #endif /*__ASSEMBLY__*/
 
 #endif /* __OPTEED_PRIVATE_H__ */
