@@ -65,7 +65,7 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 	uint32_t scr_el3, pmcr_el0;
 	el3_state_t *state;
 	gp_regs_t *gp_regs;
-	unsigned long sctlr_elx;
+	unsigned long sctlr_elx, actlr_elx;
 
 	assert(ctx);
 
@@ -177,6 +177,16 @@ static void cm_init_context_common(cpu_context_t *ctx, const entry_point_info_t 
 	 * are not part of the stored cpu_context.
 	 */
 	write_ctx_reg(get_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_elx);
+
+	/*
+	 * Base the context ACTLR_EL1 on the current value, as it is
+	 * implementation defined. The context restore process will write
+	 * the value from the context to the actual register and can cause
+	 * problems for processor cores that don't expect certain bits to
+	 * be zero.
+	 */
+	actlr_elx = read_actlr_el1();
+	write_ctx_reg((get_sysregs_ctx(ctx)), (CTX_ACTLR_EL1), (actlr_elx));
 
 	if (security_state == SECURE) {
 		/*
