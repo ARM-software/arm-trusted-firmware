@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -215,6 +215,7 @@
 
 /* SCR definitions */
 #define SCR_RES1_BITS		((U(1) << 4) | (U(1) << 5))
+#define SCR_FIEN_BIT		(U(1) << 21)
 #define SCR_TWE_BIT		(U(1) << 13)
 #define SCR_TWI_BIT		(U(1) << 12)
 #define SCR_ST_BIT		(U(1) << 11)
@@ -528,6 +529,12 @@
 #define EC_AARCH64_FP			U(0x2c)
 #define EC_SERROR			U(0x2f)
 
+/*
+ * External Abort bit in Instruction and Data Aborts synchronous exception
+ * syndromes.
+ */
+#define ESR_ISS_EABORT_EA_BIT		U(9)
+
 #define EC_BITS(x)			(((x) >> ESR_EC_SHIFT) & ESR_EC_MASK)
 
 /* Reset bit inside the Reset management register for EL3 (RMR_EL3) */
@@ -704,5 +711,24 @@
 #define AMCGCR_EL0_CG1NC_SHIFT	U(8)
 #define AMCGCR_EL0_CG1NC_LENGTH	U(8)
 #define AMCGCR_EL0_CG1NC_MASK	U(0xff)
+
+/*******************************************************************************
+ * RAS system registers
+ *******************************************************************************/
+#define DISR_EL1		S3_0_C12_C1_1
+#define DISR_A_BIT		31
+
+#define ERRIDR_EL1		S3_0_C5_C3_0
+#define ERRIDR_MASK		0xffff
+
+#define ERRSELR_EL1		S3_0_C5_C3_1
+
+/* System register access to Standard Error Record registers */
+#define ERXFR_EL1		S3_0_C5_C4_0
+#define ERXCTLR_EL1		S3_0_C5_C4_1
+#define ERXSTATUS_EL1		S3_0_C5_C4_2
+#define ERXADDR_EL1		S3_0_C5_C4_3
+#define ERXMISC0_EL1		S3_0_C5_C4_4
+#define ERXMISC1_EL1		S3_0_C5_C4_5
 
 #endif /* __ARCH_H__ */

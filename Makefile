@@ -387,6 +387,20 @@ ifneq (${SMCCC_MAJOR_VERSION},1)
     endif
 endif
 
+# For RAS_EXTENSION, require that EAs are handled in EL3 first
+ifeq ($(RAS_EXTENSION),1)
+    ifneq ($(HANDLE_EA_EL3_FIRST),1)
+        $(error For RAS_EXTENSION, HANDLE_EA_EL3_FIRST must also be 1)
+    endif
+endif
+
+# When FAULT_INJECTION_SUPPORT is used, require that RAS_EXTENSION is enabled
+ifeq ($(FAULT_INJECTION_SUPPORT),1)
+    ifneq ($(RAS_EXTENSION),1)
+        $(error For FAULT_INJECTION_SUPPORT, RAS_EXTENSION must also be 1)
+    endif
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -514,8 +528,10 @@ $(eval $(call assert_boolean,ENABLE_SPE_FOR_LOWER_ELS))
 $(eval $(call assert_boolean,ENABLE_SPM))
 $(eval $(call assert_boolean,ENABLE_SVE_FOR_NS))
 $(eval $(call assert_boolean,ERROR_DEPRECATED))
+$(eval $(call assert_boolean,FAULT_INJECTION_SUPPORT))
 $(eval $(call assert_boolean,GENERATE_COT))
 $(eval $(call assert_boolean,GICV2_G0_FOR_EL3))
+$(eval $(call assert_boolean,HANDLE_EA_EL3_FIRST))
 $(eval $(call assert_boolean,HW_ASSISTED_COHERENCY))
 $(eval $(call assert_boolean,LOAD_IMAGE_V2))
 $(eval $(call assert_boolean,MULTI_CONSOLE_API))
@@ -523,6 +539,7 @@ $(eval $(call assert_boolean,NS_TIMER_SWITCH))
 $(eval $(call assert_boolean,PL011_GENERIC_UART))
 $(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))
+$(eval $(call assert_boolean,RAS_EXTENSION))
 $(eval $(call assert_boolean,RESET_TO_BL31))
 $(eval $(call assert_boolean,SAVE_KEYS))
 $(eval $(call assert_boolean,SEPARATE_CODE_AND_RODATA))
@@ -561,7 +578,9 @@ $(eval $(call add_define,ENABLE_SPE_FOR_LOWER_ELS))
 $(eval $(call add_define,ENABLE_SPM))
 $(eval $(call add_define,ENABLE_SVE_FOR_NS))
 $(eval $(call add_define,ERROR_DEPRECATED))
+$(eval $(call add_define,FAULT_INJECTION_SUPPORT))
 $(eval $(call add_define,GICV2_G0_FOR_EL3))
+$(eval $(call add_define,HANDLE_EA_EL3_FIRST))
 $(eval $(call add_define,HW_ASSISTED_COHERENCY))
 $(eval $(call add_define,LOAD_IMAGE_V2))
 $(eval $(call add_define,LOG_LEVEL))
@@ -571,6 +590,7 @@ $(eval $(call add_define,PL011_GENERIC_UART))
 $(eval $(call add_define,PLAT_${PLAT}))
 $(eval $(call add_define,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call add_define,PSCI_EXTENDED_STATE_ID))
+$(eval $(call add_define,RAS_EXTENSION))
 $(eval $(call add_define,RESET_TO_BL31))
 $(eval $(call add_define,SEPARATE_CODE_AND_RODATA))
 $(eval $(call add_define,SMCCC_MAJOR_VERSION))

@@ -390,6 +390,14 @@ Common build options
    handled at EL3, and a panic will result. This is supported only for AArch64
    builds.
 
+-  ``FAULT_INJECTION_SUPPORT``: ARMv8.4 externsions introduced support for fault
+   injection from lower ELs, and this build option enables lower ELs to use
+   Error Records accessed via System Registers to inject faults. This is
+   applicable only to AArch64 builds.
+
+   This feature is intended for testing purposes only, and is advisable to keep
+   disabled for production images.
+
 -  ``FIP_NAME``: This is an optional build option which specifies the FIP
    filename for the ``fip`` target. Default is ``fip.bin``.
 
@@ -530,6 +538,15 @@ Common build options
    and it governs the return value of PSCI\_FEATURES API for CPU\_SUSPEND
    smc function id. When this option is enabled on Arm platforms, the
    option ``ARM_RECOM_STATE_ID_ENC`` needs to be set to 1 as well.
+
+-  ``RAS_EXTENSION``: When set to ``1``, enable Armv8.2 RAS features. RAS features
+   are an optional extension for pre-Armv8.2 CPUs, but are mandatory for Armv8.2
+   or later CPUs.
+
+   When ``RAS_EXTENSION`` is set to ``1``, ``HANDLE_EA_EL3_FIRST`` must also be
+   set to ``1``.
+
+   This option is disabled by default.
 
 -  ``RESET_TO_BL31``: Enable BL31 entrypoint as the CPU reset vector instead
    of the BL1 entrypoint. It can take the value 0 (CPU reset to BL1

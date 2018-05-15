@@ -8,6 +8,7 @@
 #include <asm_macros.S>
 #include <context.h>
 #include <cpu_data.h>
+#include <ea_handle.h>
 #include <interrupt_mgmt.h>
 #include <platform_def.h>
 #include <runtime_svc.h>
@@ -35,17 +36,77 @@
 	.globl	fiq_aarch32
 	.globl	serror_aarch32
 
+	/*
+	 * Macro that prepares entry to EL3 upon taking an exception.
+	 *
+	 * With RAS_EXTENSION, this macro synchronizes pending errors with an ESB
+	 * instruction. When an error is thus synchronized, the handling is
+	 * delegated to platform EA handler.
+	 *
+	 * Without RAS_EXTENSION, this macro just saves x30, and unmasks
+	 * Asynchronous External Aborts.
+	 */
+	.macro check_and_unmask_ea
+#if RAS_EXTENSION
+	/* Synchronize pending External Aborts */
+	esb
+
+	/* Unmask the SError interrupt */
+	msr	daifclr, #DAIF_ABT_BIT
+
+	/*
+	 * Explicitly save x30 so as to free up a register and to enable
+	 * branching
+	 */
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+
+	/* Check for SErrors synchronized by the ESB instruction */
+	mrs	x30, DISR_EL1
+	tbz	x30, #DISR_A_BIT, 1f
+
+	/* Save GP registers and restore them afterwards */
+	bl	save_gp_registers
+	mov	x0, #ERROR_EA_ESB
+	mrs	x1, DISR_EL1
+	bl	delegate_ea
+	bl	restore_gp_registers
+
+1:
+#else
+	/* Unmask the SError interrupt */
+	msr	daifclr, #DAIF_ABT_BIT
+
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+#endif
+	.endm
+
+	/*
+	 * Handle External Abort by delegating to the platform's EA handler.
+	 * Once the platform handler returns, the macro exits EL3 and returns to
+	 * where the abort was taken from.
+	 *
+	 * This macro assumes that x30 is available for use.
+	 *
+	 * 'abort_type' is a constant passed to the platform handler, indicating
+	 * the cause of the External Abort.
+	 */
+	.macro handle_ea abort_type
+	/* Save GP registers */
+	bl	save_gp_registers
+
+	/* Setup exception class and syndrome arguments for platform handler */
+	mov	x0, \abort_type
+	mrs	x1, esr_el3
+	adr	x30, el3_exit
+	b	delegate_ea
+	.endm
+
 	/* ---------------------------------------------------------------------
 	 * This macro handles Synchronous exceptions.
 	 * Only SMC exceptions are supported.
 	 * ---------------------------------------------------------------------
 	 */
 	.macro	handle_sync_exception
-	/* Enable the SError interrupt */
-	msr	daifclr, #DAIF_ABT_BIT
-
-	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	/*
 	 * Read the timestamp value and store it in per-cpu data. The value
@@ -69,6 +130,20 @@
 	cmp	x30, #EC_AARCH64_SMC
 	b.eq	smc_handler64
 
+	/* Check for I/D aborts from lower EL */
+	cmp	x30, #EC_IABORT_LOWER_EL
+	b.eq	1f
+
+	cmp	x30, #EC_DABORT_LOWER_EL
+	b.ne	2f
+
+1:
+	/* Test for EA bit in the instruction syndrome */
+	mrs	x30, esr_el3
+	tbz	x30, #ESR_ISS_EABORT_EA_BIT, 2f
+	handle_ea #ERROR_EA_SYNC
+
+2:
 	/* Other kinds of synchronous exceptions are not handled */
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	b	report_unhandled_exception
@@ -81,12 +156,7 @@
 	 * ---------------------------------------------------------------------
 	 */
 	.macro	handle_interrupt_exception label
-	/* Enable the SError interrupt */
-	msr	daifclr, #DAIF_ABT_BIT
-
-	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	bl	save_gp_registers
-
 	/* Save the EL3 system registers needed to return from this exception */
 	mrs	x0, spsr_el3
 	mrs	x1, elr_el3
@@ -151,25 +221,6 @@ interrupt_exit_\label:
 	/* Return from exception, possibly in a different security state */
 	b	el3_exit
 
-	.endm
-
-
-	.macro save_x4_to_x29_sp_el0
-	stp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
-	stp	x6, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X6]
-	stp	x8, x9, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X8]
-	stp	x10, x11, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X10]
-	stp	x12, x13, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X12]
-	stp	x14, x15, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X14]
-	stp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
-	stp	x18, x19, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
-	stp	x20, x21, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X20]
-	stp	x22, x23, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X22]
-	stp	x24, x25, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X24]
-	stp	x26, x27, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X26]
-	stp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
-	mrs	x18, sp_el0
-	str	x18, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_SP_EL0]
 	.endm
 
 
@@ -239,23 +290,29 @@ vector_entry sync_exception_aarch64
 	 * to a valid cpu context where the general purpose and system register
 	 * state can be saved.
 	 */
+	check_and_unmask_ea
 	handle_sync_exception
 	check_vector_size sync_exception_aarch64
 
 vector_entry irq_aarch64
+	check_and_unmask_ea
 	handle_interrupt_exception irq_aarch64
 	check_vector_size irq_aarch64
 
 vector_entry fiq_aarch64
+	check_and_unmask_ea
 	handle_interrupt_exception fiq_aarch64
 	check_vector_size fiq_aarch64
 
 vector_entry serror_aarch64
+	msr	daifclr, #DAIF_ABT_BIT
+
 	/*
-	 * SError exceptions from lower ELs are not currently supported.
-	 * Report their occurrence.
+	 * Explicitly save x30 so as to free up a register and to enable
+	 * branching
 	 */
-	b	report_unhandled_exception
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	handle_ea #ERROR_EA_ASYNC
 	check_vector_size serror_aarch64
 
 	/* ---------------------------------------------------------------------
@@ -269,23 +326,29 @@ vector_entry sync_exception_aarch32
 	 * to a valid cpu context where the general purpose and system register
 	 * state can be saved.
 	 */
+	check_and_unmask_ea
 	handle_sync_exception
 	check_vector_size sync_exception_aarch32
 
 vector_entry irq_aarch32
+	check_and_unmask_ea
 	handle_interrupt_exception irq_aarch32
 	check_vector_size irq_aarch32
 
 vector_entry fiq_aarch32
+	check_and_unmask_ea
 	handle_interrupt_exception fiq_aarch32
 	check_vector_size fiq_aarch32
 
 vector_entry serror_aarch32
+	msr	daifclr, #DAIF_ABT_BIT
+
 	/*
-	 * SError exceptions from lower ELs are not currently supported.
-	 * Report their occurrence.
+	 * Explicitly save x30 so as to free up a register and to enable
+	 * branching
 	 */
-	b	report_unhandled_exception
+	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
+	handle_ea #ERROR_EA_ASYNC
 	check_vector_size serror_aarch32
 
 
@@ -345,7 +408,21 @@ smc_handler64:
 	 *
 	 * Save x4-x29 and sp_el0.
 	 */
-	save_x4_to_x29_sp_el0
+	stp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
+	stp	x6, x7, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X6]
+	stp	x8, x9, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X8]
+	stp	x10, x11, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X10]
+	stp	x12, x13, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X12]
+	stp	x14, x15, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X14]
+	stp	x16, x17, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X16]
+	stp	x18, x19, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X18]
+	stp	x20, x21, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X20]
+	stp	x22, x23, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X22]
+	stp	x24, x25, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X24]
+	stp	x26, x27, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X26]
+	stp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
+	mrs	x18, sp_el0
+	str	x18, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_SP_EL0]
 
 	mov	x5, xzr
 	mov	x6, sp
@@ -431,14 +508,12 @@ compat_or_vendor:
 
 smc_unknown:
 	/*
-	 * Here we restore x4-x18 regardless of where we came from. AArch32
-	 * callers will find the registers contents unchanged, but AArch64
-	 * callers will find the registers modified (with stale earlier NS
-	 * content). Either way, we aren't leaking any secure information
-	 * through them.
+	 * Unknown SMC call. Populate return value with SMC_UNK, restore
+	 * GP registers, and return to caller.
 	 */
 	mov	x0, #SMC_UNK
-	b	restore_gp_registers_callee_eret
+	str	x0, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
+	b	restore_gp_registers_eret
 
 smc_prohibited:
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
@@ -450,3 +525,62 @@ rt_svc_fw_critical_error:
 	msr	spsel, #1
 	no_ret	report_unhandled_exception
 endfunc smc_handler
+
+/*
+ * Delegate External Abort handling to platform's EA handler. This function
+ * assumes that all GP registers have been saved by the caller.
+ *
+ * x0: EA reason
+ * x1: EA syndrome
+ */
+func delegate_ea
+	/* Save EL3 state */
+	mrs	x2, spsr_el3
+	mrs	x3, elr_el3
+	stp	x2, x3, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
+
+	/*
+	 * Save ESR as handling might involve lower ELs, and returning back to
+	 * EL3 from there would trample the original ESR.
+	 */
+	mrs	x4, scr_el3
+	mrs	x5, esr_el3
+	stp	x4, x5, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+
+	/*
+	 * Setup rest of arguments, and call platform External Abort handler.
+	 *
+	 * x0: EA reason (already in place)
+	 * x1: Exception syndrome (already in place).
+	 * x2: Cookie (unused for now).
+	 * x3: Context pointer.
+	 * x4: Flags (security state from SCR for now).
+	 */
+	mov	x2, xzr
+	mov	x3, sp
+	ubfx	x4, x4, #0, #1
+
+	/* Switch to runtime stack */
+	ldr	x5, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
+	msr	spsel, #0
+	mov	sp, x5
+
+	mov	x29, x30
+	bl	plat_ea_handler
+	mov	x30, x29
+
+	/* Make SP point to context */
+	msr	spsel, #1
+
+	/* Restore EL3 state */
+	ldp	x1, x2, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
+	msr	spsr_el3, x1
+	msr	elr_el3, x2
+
+	/* Restore ESR_EL3 and SCR_EL3 */
+	ldp	x3, x4, [sp, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
+	msr	scr_el3, x3
+	msr	esr_el3, x4
+
+	ret
+endfunc delegate_ea

@@ -8,6 +8,9 @@
 #include <assert.h>
 #include <console.h>
 #include <platform.h>
+#if RAS_EXTENSION
+#include <ras.h>
+#endif
 #include <xlat_mmu_helpers.h>
 
 /*
@@ -27,6 +30,8 @@
 #pragma weak plat_sdei_handle_masked_trigger
 #pragma weak plat_sdei_validate_entry_point
 #endif
+
+#pragma weak plat_ea_handler
 
 void bl31_plat_enable_mmu(uint32_t flags)
 {
@@ -105,3 +110,20 @@ int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
 	return 0;
 }
 #endif
+
+/* RAS functions common to AArch64 ARM platforms */
+void plat_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
+		void *handle, uint64_t flags)
+{
+#if RAS_EXTENSION
+	/* Call RAS EA handler */
+	int handled = ras_ea_handler(ea_reason, syndrome, cookie, handle, flags);
+	if (handled != 0)
+		return;
+#endif
+
+	ERROR("Unhandled External Abort received on 0x%lx at EL3!\n",
+			read_mpidr_el1());
+	ERROR(" exception reason=%u syndrome=0x%lx\n", ea_reason, syndrome);
+	panic();
+}

@@ -76,6 +76,9 @@ EL3_EXCEPTION_HANDLING		:= 0
 # Build flag to treat usage of deprecated platform and framework APIs as error.
 ERROR_DEPRECATED		:= 0
 
+# Fault injection support
+FAULT_INJECTION_SUPPORT		:= 0
+
 # Byte alignment that each component in FIP is aligned to
 FIP_ALIGN			:= 0
 
@@ -91,6 +94,10 @@ GENERATE_COT			:= 0
 # Hint platform interrupt control layer that Group 0 interrupts are for EL3. By
 # default, they are for Secure EL1.
 GICV2_G0_FOR_EL3		:= 0
+
+# Route External Aborts to EL3. Disabled by default; External Aborts are handled
+# by lower ELs.
+HANDLE_EA_EL3_FIRST		:= 0
 
 # Whether system coherency is managed in hardware, without explicit software
 # operations.
@@ -119,6 +126,9 @@ PROGRAMMABLE_RESET_ADDRESS	:= 0
 # Flag used to choose the power state format viz Extended State-ID or the
 # Original format.
 PSCI_EXTENDED_STATE_ID		:= 0
+
+# Enable RAS support
+RAS_EXTENSION			:= 0
 
 # By default, BL1 acts as the reset handler, not BL31
 RESET_TO_BL31			:= 0
