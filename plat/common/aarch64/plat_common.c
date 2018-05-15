@@ -124,6 +124,6 @@ void plat_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 
 	ERROR("Unhandled External Abort received on 0x%lx at EL3!\n",
 			read_mpidr_el1());
-	ERROR(" exception reason=%u syndrome=0x%lx\n", ea_reason, syndrome);
+	ERROR(" exception reason=%u syndrome=0x%llx\n", ea_reason, syndrome);
 	panic();
 }
