@@ -18,6 +18,9 @@
 /* Special constant to specify that CPU has no reset function */
 #define CPU_NO_RESET_FUNC		0
 
+#define CPU_NO_EXTRA1_FUNC		0
+#define CPU_NO_EXTRA2_FUNC		0
+
 /* Word size for 64-bit CPUs */
 #define CPU_WORD_SIZE			8
 
@@ -47,6 +50,8 @@ CPU_RESET_FUNC: /* cpu_ops reset_func */
 	.space  8
 #endif
 CPU_EXTRA1_FUNC:
+	.space	8
+CPU_EXTRA2_FUNC:
 	.space	8
 #ifdef IMAGE_BL31 /* The power down core and cluster is needed only in BL31 */
 CPU_PWR_DWN_OPS: /* cpu_ops power down functions */
@@ -119,6 +124,10 @@ CPU_OPS_SIZE = .
 	 *	This is a placeholder for future per CPU operations.  Currently,
 	 *	some CPUs use this entry to set a test function to determine if
 	 *	the workaround for CVE-2017-5715 needs to be applied or not.
+	 * _extra2:
+	 *	This is a placeholder for future per CPU operations.  Currently
+	 *	some CPUs use this entry to set a function to disable the
+	 *	workaround for CVE-2018-3639.
 	 * _power_down_ops:
 	 *	Comma-separated list of functions to perform power-down
 	 *	operatios on the CPU. At least one, and up to
@@ -129,7 +138,7 @@ CPU_OPS_SIZE = .
 	 *	used to handle power down at subsequent levels
 	 */
 	.macro declare_cpu_ops_base _name:req, _midr:req, _resetfunc:req, \
-		_extra1:req, _power_down_ops:vararg
+		_extra1:req, _extra2:req, _power_down_ops:vararg
 	.section cpu_ops, "a"
 	.align 3
 	.type cpu_ops_\_name, %object
@@ -138,6 +147,7 @@ CPU_OPS_SIZE = .
 	.quad \_resetfunc
 #endif
 	.quad \_extra1
+	.quad \_extra2
 #ifdef IMAGE_BL31
 1:
 	/* Insert list of functions */
@@ -196,14 +206,15 @@ CPU_OPS_SIZE = .
 
 	.macro declare_cpu_ops _name:req, _midr:req, _resetfunc:req, \
 		_power_down_ops:vararg
-		declare_cpu_ops_base \_name, \_midr, \_resetfunc, 0, \
+		declare_cpu_ops_base \_name, \_midr, \_resetfunc, 0, 0, \
 			\_power_down_ops
 	.endm
 
-	.macro declare_cpu_ops_workaround_cve_2017_5715 _name:req, _midr:req, \
-		_resetfunc:req, _extra1:req, _power_down_ops:vararg
+	.macro declare_cpu_ops_wa _name:req, _midr:req, \
+		_resetfunc:req, _extra1:req, _extra2:req, \
+		_power_down_ops:vararg
 		declare_cpu_ops_base \_name, \_midr, \_resetfunc, \
-			\_extra1, \_power_down_ops
+			\_extra1, \_extra2, \_power_down_ops
 	.endm
 
 #if REPORT_ERRATA

@@ -316,3 +316,27 @@ func check_wa_cve_2017_5715
 	mov	x0, #ERRATA_NOT_APPLIES
 	ret
 endfunc check_wa_cve_2017_5715
+
+/*
+ * void *wa_cve_2018_3639_get_disable_ptr(void);
+ *
+ * Returns a function pointer which is used to disable mitigation
+ * for CVE-2018-3639.
+ * The function pointer is only returned on cores that employ
+ * dynamic mitigation.  If the core uses static mitigation or is
+ * unaffected by CVE-2018-3639 this function returns NULL.
+ *
+ * NOTE: Must be called only after cpu_ops have been initialized
+ *       in per-CPU data.
+ */
+	.globl	wa_cve_2018_3639_get_disable_ptr
+func wa_cve_2018_3639_get_disable_ptr
+	mrs	x0, tpidr_el3
+#if ENABLE_ASSERTIONS
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
+	ldr	x0, [x0, #CPU_DATA_CPU_OPS_PTR]
+	ldr	x0, [x0, #CPU_EXTRA2_FUNC]
+	ret
+endfunc wa_cve_2018_3639_get_disable_ptr

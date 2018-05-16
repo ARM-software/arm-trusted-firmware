@@ -573,8 +573,9 @@ func cortex_a57_cpu_reg_dump
 	ret
 endfunc cortex_a57_cpu_reg_dump
 
-declare_cpu_ops_workaround_cve_2017_5715 cortex_a57, CORTEX_A57_MIDR, \
+declare_cpu_ops_wa cortex_a57, CORTEX_A57_MIDR, \
 	cortex_a57_reset_func, \
 	check_errata_cve_2017_5715, \
+	CPU_NO_EXTRA2_FUNC, \
 	cortex_a57_core_pwr_dwn, \
 	cortex_a57_cluster_pwr_dwn

@@ -11,6 +11,7 @@
 #include <smccc.h>
 #include <smccc_helpers.h>
 #include <wa_cve_2017_5715.h>
+#include <wa_cve_2018_3639.h>
 
 static int32_t smccc_version(void)
 {
@@ -31,7 +32,24 @@ static int32_t smccc_arch_features(u_register_t arg)
 #endif
 #if WORKAROUND_CVE_2018_3639
 	case SMCCC_ARCH_WORKAROUND_2:
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
+		/*
+		 * On a platform where at least one CPU requires
+		 * dynamic mitigation but others are either unaffected
+		 * or permanently mitigated, report the latter as not
+		 * needing dynamic mitigation.
+		 */
+		if (wa_cve_2018_3639_get_disable_ptr() == NULL)
+			return 1;
+		/*
+		 * If we get here, this CPU requires dynamic mitigation
+		 * so report it as such.
+		 */
+		return 0;
+#else
+		/* Either the CPUs are unaffected or permanently mitigated */
 		return SMCCC_ARCH_NOT_REQUIRED;
+#endif
 #endif
 	default:
 		return SMC_UNK;

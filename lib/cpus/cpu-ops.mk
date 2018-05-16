@@ -18,6 +18,7 @@ A57_DISABLE_NON_TEMPORAL_HINT	?=1
 
 WORKAROUND_CVE_2017_5715	?=1
 WORKAROUND_CVE_2018_3639	?=1
+DYNAMIC_WORKAROUND_CVE_2018_3639	?=0
 
 # Process SKIP_A57_L1_FLUSH_PWR_DWN flag
 $(eval $(call assert_boolean,SKIP_A57_L1_FLUSH_PWR_DWN))
@@ -38,6 +39,15 @@ $(eval $(call add_define,WORKAROUND_CVE_2017_5715))
 # Process WORKAROUND_CVE_2018_3639 flag
 $(eval $(call assert_boolean,WORKAROUND_CVE_2018_3639))
 $(eval $(call add_define,WORKAROUND_CVE_2018_3639))
+
+$(eval $(call assert_boolean,DYNAMIC_WORKAROUND_CVE_2018_3639))
+$(eval $(call add_define,DYNAMIC_WORKAROUND_CVE_2018_3639))
+
+ifneq (${DYNAMIC_WORKAROUND_CVE_2018_3639},0)
+    ifeq (${WORKAROUND_CVE_2018_3639},0)
+        $(error "Error: WORKAROUND_CVE_2018_3639 must be 1 if DYNAMIC_WORKAROUND_CVE_2018_3639 is 1")
+    endif
+endif
 
 # CPU Errata Build flags.
 # These should be enabled by the platform if the erratum workaround needs to be
