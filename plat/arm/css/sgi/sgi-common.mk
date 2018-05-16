@@ -40,6 +40,10 @@ BL31_SOURCES		+=	${ENT_CPU_SOURCES}			\
 				${CSS_ENT_BASE}/sgi_topology.c	\
 				${CSS_ENT_BASE}/sgi_plat_config.c
 
+ifeq (${RAS_EXTENSION},1)
+BL31_SOURCES		+=	${CSS_ENT_BASE}/sgi_ras.c
+endif
+
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES		+=	${CSS_ENT_BASE}/fdts/${PLAT}_tb_fw_config.dts
 TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
