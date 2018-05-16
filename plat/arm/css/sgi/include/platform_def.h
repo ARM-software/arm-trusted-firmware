@@ -86,6 +86,18 @@
 #define PLAT_ARM_GICC_BASE		0x2C000000
 #define PLAT_ARM_GICR_BASE		0x300C0000
 
+#if RAS_EXTENSION
+/* Allocate 128KB for CPER buffers */
+#define PLAT_SP_BUF_BASE		ULL(0x20000)
+
+#define PLAT_ARM_SP_IMAGE_STACK_BASE	(ARM_SP_IMAGE_NS_BUF_BASE +	\
+					 ARM_SP_IMAGE_NS_BUF_SIZE +	\
+					 PLAT_SP_BUF_BASE)
+#else
+#define PLAT_ARM_SP_IMAGE_STACK_BASE	(ARM_SP_IMAGE_NS_BUF_BASE +	\
+					 ARM_SP_IMAGE_NS_BUF_SIZE)
+#endif /* RAS_EXTENSION */
+
 /* Platform ID address */
 #define SSC_VERSION                     (SSC_REG_BASE + SSC_VERSION_OFFSET)
 #ifndef __ASSEMBLY__
