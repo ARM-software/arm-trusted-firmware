@@ -8,6 +8,16 @@ ENABLE_PLAT_COMPAT		:=	0
 
 CSS_ENT_BASE			:=	plat/arm/css/sgi
 
+RAS_EXTENSION			:=	0
+
+ENABLE_SPM			:=	0
+
+SDEI_SUPPORT			:=	0
+
+EL3_EXCEPTION_HANDLING		:=	0
+
+HANDLE_EA_EL3_FIRST		:=	0
+
 INTERCONNECT_SOURCES	:=	${CSS_ENT_BASE}/sgi_interconnect.c
 
 PLAT_INCLUDES		+=	-I${CSS_ENT_BASE}/include
