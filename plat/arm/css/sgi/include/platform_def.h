@@ -8,6 +8,7 @@
 #define PLATFORM_DEF_H
 
 #include <arm_def.h>
+#include <arm_spm_def.h>
 #include <board_arm_def.h>
 #include <board_css_def.h>
 #include <common_def.h>

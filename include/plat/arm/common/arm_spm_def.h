@@ -7,7 +7,6 @@
 #define __ARM_SPM_DEF_H__
 
 #include <arm_def.h>
-#include <platform_def.h>
 #include <utils_def.h>
 #include <xlat_tables_defs.h>
 
