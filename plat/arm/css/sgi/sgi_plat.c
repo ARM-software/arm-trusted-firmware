@@ -10,6 +10,7 @@
 #include <ccn.h>
 #include <debug.h>
 #include <plat_arm.h>
+#include <platform_def.h>
 #include <platform.h>
 #include <secure_partition.h>
 #include "../../../../bl1/bl1_private.h"
@@ -83,6 +84,7 @@ const mmap_region_t plat_arm_secure_partition_mmap[] = {
 	PLAT_ARM_SECURE_MAP_DEVICE,
 	ARM_SP_IMAGE_MMAP,
 	ARM_SP_IMAGE_NS_BUF_MMAP,
+	ARM_SP_CPER_BUF_MMAP,
 	ARM_SP_IMAGE_RW_MMAP,
 	ARM_SPM_BUF_EL0_MMAP,
 	{0}

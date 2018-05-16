@@ -32,6 +32,47 @@ typedef struct mm_communicate_header {
 	uint8_t		data[8];
 } mm_communicate_header_t;
 
+struct sgi_ras_ev_map sgi575_ras_map[] = {
+
+	/* DMC620 error overflow interrupt*/
+	{SP_DMC_ERROR_OVERFLOW_EVENT_AARCH64, SGI_SDEI_DS_EVENT_1, 33},
+
+	/* DMC620 error ECC error interrupt*/
+	{SP_DMC_ERROR_ECC_EVENT_AARCH64, SGI_SDEI_DS_EVENT_0, 35},
+};
+
+#define SGI575_RAS_MAP_SIZE	ARRAY_SIZE(sgi575_ras_map)
+
+struct err_record_info sgi_err_records[] = {
+	{
+		.handler = &sgi_ras_intr_handler,
+	},
+};
+
+struct ras_interrupt sgi_ras_interrupts[] = {
+	{
+		.intr_number = 33,
+		.err_record = &sgi_err_records[0],
+	},
+	{
+		.intr_number = 35,
+		.err_record = &sgi_err_records[0],
+	}
+};
+
+REGISTER_ERR_RECORD_INFO(sgi_err_records);
+REGISTER_RAS_INTERRUPTS(sgi_ras_interrupts);
+
+static struct sgi_ras_ev_map *plat_sgi_get_ras_ev_map(void)
+{
+	return sgi575_ras_map;
+}
+
+static int plat_sgi_get_ras_ev_map_size(void)
+{
+	return SGI575_RAS_MAP_SIZE;
+}
+
 /*
  * Find event mapping for a given interrupt number: On success, returns pointer
  * to the event mapping. On error, returns NULL.
