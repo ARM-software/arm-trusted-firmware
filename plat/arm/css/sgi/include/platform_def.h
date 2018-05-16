@@ -86,6 +86,12 @@
 #define PLAT_ARM_GICC_BASE		0x2C000000
 #define PLAT_ARM_GICR_BASE		0x300C0000
 
+/* Map the secure region for access from S-EL0 */
+#define PLAT_ARM_SECURE_MAP_DEVICE	MAP_REGION_FLAT(	\
+					SOC_CSS_DEVICE_BASE,	\
+					SOC_CSS_DEVICE_SIZE,	\
+					MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
+
 #if RAS_EXTENSION
 /* Allocate 128KB for CPER buffers */
 #define PLAT_SP_BUF_BASE		ULL(0x20000)
