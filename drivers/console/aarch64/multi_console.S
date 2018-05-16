@@ -200,7 +200,7 @@ putc_loop:
 	cbz	x14, putc_done
 	adrp	x1, console_state
 	ldrb	w1, [x1, :lo12:console_state]
-	ldr	x2, [x14, #CONSOLE_T_FLAGS]
+	ldr	w2, [x14, #CONSOLE_T_FLAGS]
 	tst	w1, w2
 	b.eq	putc_continue
 	ldr	x2, [x14, #CONSOLE_T_PUTC]
@@ -246,7 +246,7 @@ getc_try_again:
 getc_loop:
 	adrp	x0, console_state
 	ldrb	w0, [x0, :lo12:console_state]
-	ldr	x1, [x14, #CONSOLE_T_FLAGS]
+	ldr	w1, [x14, #CONSOLE_T_FLAGS]
 	tst	w0, w1
 	b.eq	getc_continue
 	ldr	x1, [x14, #CONSOLE_T_GETC]
@@ -287,7 +287,7 @@ flush_loop:
 	cbz	x14, flush_done
 	adrp	x1, console_state
 	ldrb	w1, [x1, :lo12:console_state]
-	ldr	x2, [x14, #CONSOLE_T_FLAGS]
+	ldr	w2, [x14, #CONSOLE_T_FLAGS]
 	tst	w1, w2
 	b.eq	flush_continue
 	ldr	x1, [x14, #CONSOLE_T_FLUSH]
