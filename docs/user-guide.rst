@@ -607,7 +607,7 @@ Common build options
    firmware images have been loaded in memory, and the MMU and caches are
    turned off. Refer to the "Debugging options" section for more details.
 
-- ``SP_MIN_WITH_SECURE_FIQ``: Boolean flag to indicate the SP_MIN handles
+-  ``SP_MIN_WITH_SECURE_FIQ``: Boolean flag to indicate the SP_MIN handles
    secure interrupts (caught through the FIQ line). Platforms can enable
    this directive if they need to handle such interruption. When enabled,
    the FIQ are handled in monitor mode and non secure world is not allowed
@@ -694,6 +694,15 @@ Arm development platform specific build options
    platform setup hook at BL1 and disabled in the BL1 prepare exit hook. The
    Trusted Watchdog may be disabled at build time for testing or development
    purposes.
+
+-  ``ARM_LINUX_KERNEL_AS_BL33``: The Linux kernel expects registers x0-x3 to
+   have specific values at boot. This boolean option allows the Trusted Firmware
+   to have a Linux kernel image as BL33 by preparing the registers to these
+   values before jumping to BL33. This option defaults to 0 (disabled). For now,
+   it  only supports AArch64 kernels. ``RESET_TO_BL31`` must be 1 when using it.
+   If this option is set to 1, ``ARM_PRELOADED_DTB_BASE`` must be set to the
+   location of a device tree blob (DTB) already loaded in memory.  The Linux
+   Image address must be specified using the ``PRELOADED_BL33_BASE`` option.
 
 -  ``ARM_RECOM_STATE_ID_ENC``: The PSCI1.0 specification recommends an encoding
    for the construction of composite state-ID in the power-state parameter.
@@ -1492,41 +1501,92 @@ without a BL33 and prepare to jump to a BL33 image loaded at address
 
     make PRELOADED_BL33_BASE=0x80000000 PLAT=fvp all fip
 
-Boot of a preloaded bootwrapped kernel image on Base FVP
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Boot of a preloaded kernel image on Base FVP
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The following example uses the AArch64 boot wrapper. This simplifies normal
-world booting while also making use of TF-A features. It can be obtained from
-its repository with:
+The following example uses a simplified boot flow by directly jumping from the
+TF-A to the Linux kernel, which will use a ramdisk as filesystem. This can be
+useful if both the kernel and the device tree blob (DTB) are already present in
+memory (like in FVP).
 
-::
-
-    git clone git://git.kernel.org/pub/scm/linux/kernel/git/mark/boot-wrapper-aarch64.git
-
-After compiling it, an ELF file is generated. It can be loaded with the
-following command:
+For example, if the kernel is loaded at ``0x80080000`` and the DTB is loaded at
+address ``0x82000000``, the firmware can be built like this:
 
 ::
 
-    <path-to>/FVP_Base_AEMv8A-AEMv8A              \
-        -C bp.secureflashloader.fname=bl1.bin     \
-        -C bp.flashloader0.fname=fip.bin          \
-        -a cluster0.cpu0=<bootwrapped-kernel.elf> \
-        --start cluster0.cpu0=0x0
+    CROSS_COMPILE=aarch64-linux-gnu-  \
+    make PLAT=fvp DEBUG=1             \
+    RESET_TO_BL31=1                   \
+    ARM_LINUX_KERNEL_AS_BL33=1        \
+    PRELOADED_BL33_BASE=0x80080000    \
+    ARM_PRELOADED_DTB_BASE=0x82000000 \
+    all fip
 
-The ``-a cluster0.cpu0=<bootwrapped-kernel.elf>`` option loads the ELF file. It
-also sets the PC register to the ELF entry point address, which is not the
-desired behaviour, so the ``--start cluster0.cpu0=0x0`` option forces the PC back
-to 0x0 (the BL1 entry point address) on CPU #0. The ``PRELOADED_BL33_BASE`` define
-used when compiling the FIP must match the ELF entry point.
+Now, it is needed to modify the DTB so that the kernel knows the address of the
+ramdisk. The following script generates a patched DTB from the provided one,
+assuming that the ramdisk is loaded at address ``0x84000000``. Note that this
+script assumes that the user is using a ramdisk image prepared for U-Boot, like
+the ones provided by Linaro. If using a ramdisk without this header,the ``0x40``
+offset in ``INITRD_START`` has to be removed.
 
-Boot of a preloaded bootwrapped kernel image on Juno
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code:: bash
 
-The procedure to obtain and compile the boot wrapper is very similar to the case
-of the FVP. The execution must be stopped at the end of bl2\_main(), and the
-loading method explained above in the EL3 payload boot flow section may be used
-to load the ELF file over JTAG on Juno.
+    #!/bin/bash
+
+    # Path to the input DTB
+    KERNEL_DTB=<path-to>/<fdt>
+    # Path to the output DTB
+    PATCHED_KERNEL_DTB=<path-to>/<patched-fdt>
+    # Base address of the ramdisk
+    INITRD_BASE=0x84000000
+    # Path to the ramdisk
+    INITRD=<path-to>/<ramdisk.img>
+
+    # Skip uboot header (64 bytes)
+    INITRD_START=$(printf "0x%x" $((${INITRD_BASE} + 0x40)) )
+    INITRD_SIZE=$(stat -Lc %s ${INITRD})
+    INITRD_END=$(printf "0x%x" $((${INITRD_BASE} + ${INITRD_SIZE})) )
+
+    CHOSEN_NODE=$(echo                                        \
+    "/ {                                                      \
+            chosen {                                          \
+                    linux,initrd-start = <${INITRD_START}>;   \
+                    linux,initrd-end = <${INITRD_END}>;       \
+            };                                                \
+    };")
+
+    echo $(dtc -O dts -I dtb ${KERNEL_DTB}) ${CHOSEN_NODE} |  \
+            dtc -O dtb -o ${PATCHED_KERNEL_DTB} -
+
+And the FVP binary can be run with the following command:
+
+::
+
+    <path-to>/FVP_Base_AEMv8A-AEMv8A                            \
+    -C pctl.startup=0.0.0.0                                     \
+    -C bp.secure_memory=1                                       \
+    -C cluster0.NUM_CORES=4                                     \
+    -C cluster1.NUM_CORES=4                                     \
+    -C cache_state_modelled=1                                   \
+    -C cluster0.cpu0.RVBAR=0x04020000                           \
+    -C cluster0.cpu1.RVBAR=0x04020000                           \
+    -C cluster0.cpu2.RVBAR=0x04020000                           \
+    -C cluster0.cpu3.RVBAR=0x04020000                           \
+    -C cluster1.cpu0.RVBAR=0x04020000                           \
+    -C cluster1.cpu1.RVBAR=0x04020000                           \
+    -C cluster1.cpu2.RVBAR=0x04020000                           \
+    -C cluster1.cpu3.RVBAR=0x04020000                           \
+    --data cluster0.cpu0="<path-to>/bl31.bin"@0x04020000        \
+    --data cluster0.cpu0="<path-to>/<patched-fdt>"@0x82000000   \
+    --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
+    --data cluster0.cpu0="<path-to>/<ramdisk.img>"@0x84000000
+
+Boot of a preloaded kernel image on Juno
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Trusted Firmware must be compiled in a similar way as for FVP explained
+above. The process to load binaries to memory is the one explained in
+`Booting an EL3 payload on Juno`_.
 
 Running the software on FVP
 ---------------------------
