@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,17 +25,6 @@
 /* Video Memory base and size (live values) */
 static uint64_t video_mem_base;
 static uint64_t video_mem_size_mb;
-
-/*
- * The following platform setup functions are weakly defined. They
- * provide typical implementations that will be overridden by a SoC.
- */
-#pragma weak plat_memctrl_tzdram_setup
-
-void plat_memctrl_tzdram_setup(uint64_t phys_base, uint64_t size_in_bytes)
-{
-	; /* do nothing */
-}
 
 /*
  * Init Memory controller during boot.
