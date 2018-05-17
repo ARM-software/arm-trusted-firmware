@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -139,8 +139,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 	  SET_STATIC_PARAM_HEAD(image_info, PARAM_EP, VERSION_2, image_info_t,
 				0),
 	  .image_info.image_base = NS_IMAGE_OFFSET,
-	  .image_info.image_max_size = NS_DRAM0_BASE + NS_DRAM0_SIZE -
-				       NS_IMAGE_OFFSET,
+	  .image_info.image_max_size = NS_IMAGE_MAX_SIZE,
 # endif /* !PRELOADED_BL33_BASE */
 
 	  .next_handoff_image_id = INVALID_IMAGE_ID,
