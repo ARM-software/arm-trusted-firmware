@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,32 +25,6 @@
 #define TEGRA_SIP_NEW_VIDEOMEM_REGION		0x82000003
 #define TEGRA_SIP_FIQ_NS_ENTRYPOINT		0x82000005
 #define TEGRA_SIP_FIQ_NS_GET_CONTEXT		0x82000006
-
-/*******************************************************************************
- * SoC specific SiP handler
- ******************************************************************************/
-#pragma weak plat_sip_handler
-int32_t plat_sip_handler(uint32_t smc_fid,
-		     uint64_t x1,
-		     uint64_t x2,
-		     uint64_t x3,
-		     uint64_t x4,
-		     const void *cookie,
-		     void *handle,
-		     uint64_t flags)
-{
-	/* unused parameters */
-	(void)smc_fid;
-	(void)x1;
-	(void)x2;
-	(void)x3;
-	(void)x4;
-	(void)cookie;
-	(void)handle;
-	(void)flags;
-
-	return -ENOTSUP;
-}
 
 /*******************************************************************************
  * This function is responsible for handling all SiP calls
