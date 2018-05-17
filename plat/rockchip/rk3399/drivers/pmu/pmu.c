@@ -836,6 +836,7 @@ static void sys_slp_config(void)
 		      BIT_WITH_WMSK(PMU_CLR_GIC2_CORE_L_HW));
 
 	slp_mode_cfg = BIT(PMU_PWR_MODE_EN) |
+		       BIT(PMU_WKUP_RST_EN) |
 		       BIT(PMU_INPUT_CLAMP_EN) |
 		       BIT(PMU_POWER_OFF_REQ_CFG) |
 		       BIT(PMU_CPU0_PD_EN) |
@@ -853,7 +854,6 @@ static void sys_slp_config(void)
 		       BIT(PMU_DDRIO0_RET_DE_REQ) |
 		       BIT(PMU_DDRIO1_RET_EN) |
 		       BIT(PMU_DDRIO1_RET_DE_REQ) |
-		       BIT(PMU_DDRIO_RET_HW_DE_REQ) |
 		       BIT(PMU_CENTER_PD_EN) |
 		       BIT(PMU_PERILP_PD_EN) |
 		       BIT(PMU_CLK_PERILP_SRC_GATE_EN) |
@@ -1062,12 +1062,6 @@ static void resume_gpio(void)
 		gpio_set_direction(suspend_gpio[i].index, GPIO_DIR_OUT);
 		udelay(1);
 	}
-}
-
-static void m0_configure_suspend(void)
-{
-	/* set PARAM to M0_FUNC_SUSPEND */
-	mmio_write_32(M0_PARAM_ADDR + PARAM_M0_FUNC, M0_FUNC_SUSPEND);
 }
 
 void sram_save(void)
@@ -1344,7 +1338,7 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 	set_pmu_rsthold();
 	sys_slp_config();
 
-	m0_configure_suspend();
+	m0_configure_execute_addr(M0PMU_BINCODE_BASE);
 	m0_start();
 
 	pmu_sgrf_rst_hld();
@@ -1374,7 +1368,7 @@ int rockchip_soc_sys_pwr_dm_suspend(void)
 	mmio_setbits_32(PMU_BASE + PMU_PWRDN_CON, BIT(PMU_SCU_B_PWRDWN_EN));
 
 	wdt_register_save();
-	secure_watchdog_disable();
+	secure_watchdog_gate();
 
 	/*
 	 * Disabling PLLs/PWM/DVFS is approaching WFI which is
@@ -1403,6 +1397,7 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	plat_rockchip_restore_gpio();
 	cru_register_restore();
 	grf_register_restore();
+	wdt_register_restore();
 	resume_uart();
 	resume_apio();
 	resume_gpio();
@@ -1412,10 +1407,8 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 	udelay(300);
 	enable_dvfs_plls();
 
-	secure_watchdog_enable();
 	secure_sgrf_init();
 	secure_sgrf_ddr_rgn_init();
-	wdt_register_restore();
 
 	/* restore clk_ddrc_bpll_src_en gate */
 	mmio_write_32(CRU_BASE + CRU_CLKGATE_CON(3),
@@ -1466,12 +1459,10 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 		udelay(1);
 	}
 
-	pmu_sgrf_rst_hld_release();
 	pmu_scu_b_pwrup();
 	pmu_power_domains_resume();
 
 	restore_abpll();
-	restore_pmu_rsthold();
 	clr_hw_idle(BIT(PMU_CLR_CENTER1) |
 				BIT(PMU_CLR_ALIVE) |
 				BIT(PMU_CLR_MSCH0) |

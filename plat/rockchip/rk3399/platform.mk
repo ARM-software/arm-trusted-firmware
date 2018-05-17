@@ -82,12 +82,15 @@ BUILD_M0		:=	${BUILD_PLAT}/m0
 RK3399M0FW=${BUILD_M0}/${PLAT_M0}.bin
 $(eval $(call add_define,RK3399M0FW))
 
+RK3399M0PMUFW=${BUILD_M0}/${PLAT_M0}pmu.bin
+$(eval $(call add_define,RK3399M0PMUFW))
+
 HDCPFW=${RK_PLAT_SOC}/drivers/dp/hdcp.bin
 $(eval $(call add_define,HDCPFW))
 
 # CCACHE_EXTRAFILES is needed because ccache doesn't handle .incbin
 export CCACHE_EXTRAFILES
-${BUILD_PLAT}/bl31/pmu_fw.o: CCACHE_EXTRAFILES=$(RK3399M0FW)
+${BUILD_PLAT}/bl31/pmu_fw.o: CCACHE_EXTRAFILES=$(RK3399M0FW):$(RK3399M0PMUFW)
 ${RK_PLAT_SOC}/drivers/pmu/pmu_fw.c: $(RK3399M0FW)
 
 ${BUILD_PLAT}/bl31/cdn_dp.o: CCACHE_EXTRAFILES=$(HDCPFW)
