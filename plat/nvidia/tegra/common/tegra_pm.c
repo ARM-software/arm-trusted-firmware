@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,97 +27,6 @@
 
 extern uint64_t tegra_bl31_phys_base;
 extern uint64_t tegra_sec_entry_point;
-
-/*
- * The following platform setup functions are weakly defined. They
- * provide typical implementations that will be overridden by a SoC.
- */
-#pragma weak tegra_soc_pwr_domain_suspend_pwrdown_early
-#pragma weak tegra_soc_cpu_standby
-#pragma weak tegra_soc_pwr_domain_suspend
-#pragma weak tegra_soc_pwr_domain_on
-#pragma weak tegra_soc_pwr_domain_off
-#pragma weak tegra_soc_pwr_domain_on_finish
-#pragma weak tegra_soc_pwr_domain_power_down_wfi
-#pragma weak tegra_soc_prepare_system_reset
-#pragma weak tegra_soc_prepare_system_off
-#pragma weak tegra_soc_get_target_pwr_state
-
-int32_t tegra_soc_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_state)
-{
-	return PSCI_E_NOT_SUPPORTED;
-}
-
-int32_t tegra_soc_cpu_standby(plat_local_state_t cpu_state)
-{
-	(void)cpu_state;
-	return PSCI_E_SUCCESS;
-}
-
-int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
-{
-	(void)target_state;
-	return PSCI_E_NOT_SUPPORTED;
-}
-
-int32_t tegra_soc_pwr_domain_on(u_register_t mpidr)
-{
-	(void)mpidr;
-	return PSCI_E_SUCCESS;
-}
-
-int32_t tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
-{
-	(void)target_state;
-	return PSCI_E_SUCCESS;
-}
-
-int32_t tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
-{
-	(void)target_state;
-	return PSCI_E_SUCCESS;
-}
-
-int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
-{
-	(void)target_state;
-	return PSCI_E_SUCCESS;
-}
-
-int32_t tegra_soc_prepare_system_reset(void)
-{
-	return PSCI_E_SUCCESS;
-}
-
-__dead2 void tegra_soc_prepare_system_off(void)
-{
-	ERROR("Tegra System Off: operation not handled.\n");
-	panic();
-}
-
-plat_local_state_t tegra_soc_get_target_pwr_state(uint32_t lvl,
-					     const plat_local_state_t *states,
-					     uint32_t ncpu)
-{
-	plat_local_state_t target = PLAT_MAX_OFF_STATE, temp;
-	uint32_t num_cpu = ncpu;
-	const plat_local_state_t *local_state = states;
-
-	(void)lvl;
-
-	assert(ncpu != 0U);
-
-	do {
-		temp = *local_state;
-		if ((temp < target)) {
-			target = temp;
-		}
-		--num_cpu;
-		local_state++;
-	} while (num_cpu != 0U);
-
-	return target;
-}
 
 /*******************************************************************************
  * This handler is called by the PSCI implementation during the `SYSTEM_SUSPEND`

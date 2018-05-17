@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -81,6 +82,12 @@ int32_t tegra_soc_validate_power_state(uint32_t power_state,
 	}
 
 	return ret;
+}
+
+int32_t tegra_soc_cpu_standby(plat_local_state_t cpu_state)
+{
+	(void)cpu_state;
+	return PSCI_E_SUCCESS;
 }
 
 int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
@@ -287,6 +294,11 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 	}
 
 	return PSCI_E_SUCCESS;
+}
+
+int32_t tegra_soc_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_state)
+{
+	return PSCI_E_NOT_SUPPORTED;
 }
 
 int32_t tegra_soc_pwr_domain_on(u_register_t mpidr)

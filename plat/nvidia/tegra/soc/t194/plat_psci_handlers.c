@@ -342,6 +342,11 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 	return PSCI_E_SUCCESS;
 }
 
+int32_t tegra_soc_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_state)
+{
+	return PSCI_E_NOT_SUPPORTED;
+}
+
 int32_t tegra_soc_pwr_domain_on(u_register_t mpidr)
 {
 	uint64_t target_cpu = mpidr & MPIDR_CPU_MASK;
