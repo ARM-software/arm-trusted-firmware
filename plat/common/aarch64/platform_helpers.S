@@ -21,6 +21,7 @@
 	.weak	bl32_plat_enable_mmu
 
 	.weak	plat_handle_uncontainable_ea
+	.weak	plat_handle_double_fault
 
 #if !ENABLE_PLAT_COMPAT
 	.globl	platform_get_core_pos
@@ -200,3 +201,14 @@ endfunc bl32_plat_enable_mmu
 func plat_handle_uncontainable_ea
 	b	report_unhandled_exception
 endfunc plat_handle_uncontainable_ea
+
+	/* -----------------------------------------------------
+	 * Platform handler for Double Fault.
+	 *
+	 * x0: EA reason
+	 * x1: EA syndrome
+	 * -----------------------------------------------------
+	 */
+func plat_handle_double_fault
+	b	report_unhandled_exception
+endfunc plat_handle_double_fault

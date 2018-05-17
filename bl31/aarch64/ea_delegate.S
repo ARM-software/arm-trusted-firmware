@@ -5,6 +5,7 @@
  */
 
 
+#include <assert_macros.S>
 #include <asm_macros.S>
 #include <assert_macros.S>
 #include <context.h>
@@ -179,6 +180,15 @@ endfunc delegate_async_ea
  * x1: EA syndrome
  */
 func ea_proceed
+	/*
+	 * If the ESR loaded earlier is not zero, we were processing an EA
+	 * already, and this is a double fault.
+	 */
+	ldr	x5, [sp, #CTX_EL3STATE_OFFSET + CTX_ESR_EL3]
+	cbz	x5, 1f
+	no_ret	plat_handle_double_fault
+
+1:
 	/* Save EL3 state */
 	mrs	x2, spsr_el3
 	mrs	x3, elr_el3
@@ -216,7 +226,6 @@ func ea_proceed
 	mov	x28, sp
 #endif
 	bl	plat_ea_handler
-	mov	x30, x29
 
 #if ENABLE_ASSERTIONS
 	/*
@@ -232,7 +241,7 @@ func ea_proceed
 	/* Make SP point to context */
 	msr	spsel, #1
 
-	/* Restore EL3 state */
+	/* Restore EL3 state and ESR */
 	ldp	x1, x2, [sp, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
 	msr	spsr_el3, x1
 	msr	elr_el3, x2
@@ -242,5 +251,13 @@ func ea_proceed
 	msr	scr_el3, x3
 	msr	esr_el3, x4
 
-	ret
+#if ENABLE_ASSERTIONS
+	cmp	x4, xzr
+	ASM_ASSERT(ne)
+#endif
+
+	/* Clear ESR storage */
+	str	xzr, [sp, #CTX_EL3STATE_OFFSET + CTX_ESR_EL3]
+
+	ret	x29
 endfunc ea_proceed
