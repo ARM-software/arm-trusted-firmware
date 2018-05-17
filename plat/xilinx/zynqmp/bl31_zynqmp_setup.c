@@ -77,7 +77,10 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 						  DISABLE_ALL_EXCEPTIONS);
 	} else {
 		/* use parameters from FSBL */
-		fsbl_atf_handover(&bl32_image_ep_info, &bl33_image_ep_info);
+		enum fsbl_handoff ret = fsbl_atf_handover(&bl32_image_ep_info,
+							  &bl33_image_ep_info);
+		if (ret != FSBL_HANDOFF_SUCCESS)
+			panic();
 	}
 
 	NOTICE("BL31: Secure code at 0x%lx\n", bl32_image_ep_info.pc);

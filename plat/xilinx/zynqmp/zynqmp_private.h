@@ -18,7 +18,14 @@ int zynqmp_is_pmu_up(void);
 unsigned int zynqmp_get_bootmode(void);
 
 /* For FSBL handover */
-void fsbl_atf_handover(entry_point_info_t *bl32_image_ep_info,
+enum fsbl_handoff {
+	FSBL_HANDOFF_SUCCESS = 0,
+	FSBL_HANDOFF_NO_STRUCT,
+	FSBL_HANDOFF_INVAL_STRUCT,
+	FSBL_HANDOFF_TOO_MANY_PARTS,
+};
+
+enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32_image_ep_info,
 		       entry_point_info_t *bl33_image_ep_info);
 
 #endif /* __ZYNQMP_PRIVATE_H__ */
