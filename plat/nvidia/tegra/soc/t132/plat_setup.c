@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -120,4 +121,36 @@ void plat_gic_setup(void)
 {
 	tegra_gic_setup(NULL, 0);
 	tegra_gic_init();
+}
+
+/*******************************************************************************
+ * Return pointer to the BL31 params from previous bootloader
+ ******************************************************************************/
+struct tegra_bl31_params *plat_get_bl31_params(void)
+{
+	return NULL;
+}
+
+/*******************************************************************************
+ * Return pointer to the BL31 platform params from previous bootloader
+ ******************************************************************************/
+plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
+{
+	return NULL;
+}
+
+/*******************************************************************************
+ * Handler for early platform setup
+ ******************************************************************************/
+void plat_early_platform_setup(void)
+{
+	; /* do nothing */
+}
+
+/*******************************************************************************
+ * Handler for late platform setup
+ ******************************************************************************/
+void plat_late_platform_setup(void)
+{
+	; /* do nothing */
 }
