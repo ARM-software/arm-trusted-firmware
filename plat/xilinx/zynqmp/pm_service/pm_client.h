@@ -20,6 +20,7 @@ void pm_client_suspend(const struct pm_proc *proc, unsigned int state);
 void pm_client_abort_suspend(void);
 void pm_client_wakeup(const struct pm_proc *proc);
 enum pm_ret_status set_ocm_retention(void);
+enum pm_ret_status pm_set_suspend_mode(uint32_t mode);
 
 /* Global variables to be set in pm_client.c */
 extern const struct pm_proc *primary_proc;

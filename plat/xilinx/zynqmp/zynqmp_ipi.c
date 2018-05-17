@@ -84,7 +84,7 @@ const static struct zynqmp_ipi_config zynqmp_ipi_table[] = {
 	{
 		.ipi_bit_mask = 0x20000,
 		.ipi_reg_base = 0xFF331000,
-		.secure_only = IPI_SECURE_MASK,
+		.secure_only = 0,
 	},
 	/* PMU2 IPI */
 	{

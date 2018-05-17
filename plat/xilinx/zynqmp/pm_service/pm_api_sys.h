@@ -76,7 +76,9 @@ enum pm_ret_status pm_set_max_latency(enum pm_node_id nid,
 /* Miscellaneous API functions */
 enum pm_ret_status pm_get_api_version(unsigned int *version);
 enum pm_ret_status pm_set_configuration(unsigned int phys_addr);
-enum pm_ret_status pm_get_node_status(enum pm_node_id node);
+enum pm_ret_status pm_init_finalize(void);
+enum pm_ret_status pm_get_node_status(enum pm_node_id node,
+				      uint32_t *ret_buff);
 enum pm_ret_status pm_register_notifier(enum pm_node_id nid,
 					unsigned int event,
 					unsigned int wake,
@@ -107,7 +109,11 @@ enum pm_ret_status pm_fpga_load(uint32_t address_low,
 enum pm_ret_status pm_fpga_get_status(unsigned int *value);
 
 enum pm_ret_status pm_get_chipid(uint32_t *value);
-void pm_get_callbackdata(uint32_t *data, size_t count);
+enum pm_ret_status pm_secure_rsaaes(uint32_t address_high,
+				    uint32_t address_low,
+				    uint32_t size,
+				    uint32_t flags);
+unsigned int pm_get_shutdown_scope(void);
 enum pm_ret_status pm_pinctrl_request(unsigned int pin);
 enum pm_ret_status pm_pinctrl_release(unsigned int pin);
 enum pm_ret_status pm_pinctrl_get_function(unsigned int pin,
@@ -146,4 +152,17 @@ enum pm_ret_status pm_query_data(enum pm_query_id qid,
 				 unsigned int arg2,
 				 unsigned int arg3,
 				 unsigned int *data);
+enum pm_ret_status pm_sha_hash(uint32_t address_high,
+				    uint32_t address_low,
+				    uint32_t size,
+				    uint32_t flags);
+enum pm_ret_status pm_rsa_core(uint32_t address_high,
+				    uint32_t address_low,
+				    uint32_t size,
+				    uint32_t flags);
+enum pm_ret_status pm_secure_image(uint32_t address_low,
+				   uint32_t address_high,
+				   uint32_t key_lo,
+				   uint32_t key_hi,
+				   uint32_t *value);
 #endif /* _PM_API_SYS_H_ */

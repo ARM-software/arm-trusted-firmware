@@ -62,7 +62,7 @@ enum pm_api_id {
 	PM_RESET_GET_STATUS,
 	PM_MMIO_WRITE,
 	PM_MMIO_READ,
-	PM_INIT,
+	PM_INIT_FINALIZE,
 	PM_FPGA_LOAD,
 	PM_FPGA_GET_STATUS,
 	PM_GET_CHIPID,
@@ -88,6 +88,7 @@ enum pm_api_id {
 	PM_CLOCK_GETRATE,
 	PM_CLOCK_SETPARENT,
 	PM_CLOCK_GETPARENT,
+	PM_SECURE_IMAGE,
 	PM_API_MAX
 };
 
@@ -141,7 +142,7 @@ enum pm_node_id {
 	NODE_GPIO,
 	NODE_CAN_0,
 	NODE_CAN_1,
-	NODE_AFI,
+	NODE_EXTERN,
 	NODE_APLL,
 	NODE_VPLL,
 	NODE_DPLL,
@@ -239,11 +240,22 @@ enum pm_boot_status {
 	PM_BOOT_ERROR,
 };
 
+/**
+ * @PMF_SHUTDOWN_TYPE_SHUTDOWN:		shutdown
+ * @PMF_SHUTDOWN_TYPE_RESET:		reset/reboot
+ * @PMF_SHUTDOWN_TYPE_SETSCOPE_ONLY:	set the shutdown/reboot scope
+ */
 enum pm_shutdown_type {
 	PMF_SHUTDOWN_TYPE_SHUTDOWN,
 	PMF_SHUTDOWN_TYPE_RESET,
+	PMF_SHUTDOWN_TYPE_SETSCOPE_ONLY,
 };
 
+/**
+ * @PMF_SHUTDOWN_SUBTYPE_SUBSYSTEM:	shutdown/reboot APU subsystem only
+ * @PMF_SHUTDOWN_SUBTYPE_PS_ONLY:	shutdown/reboot entire PS (but not PL)
+ * @PMF_SHUTDOWN_SUBTYPE_SYSTEM:	shutdown/reboot entire system
+ */
 enum pm_shutdown_subtype {
 	PMF_SHUTDOWN_SUBTYPE_SUBSYSTEM,
 	PMF_SHUTDOWN_SUBTYPE_PS_ONLY,

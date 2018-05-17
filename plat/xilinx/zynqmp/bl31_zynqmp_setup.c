@@ -36,6 +36,19 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 }
 
 /*
+ * Set the build time defaults. We want to do this when doing a JTAG boot
+ * or if we can't find any other config data.
+ */
+static inline void bl31_set_default_config(void)
+{
+	bl32_image_ep_info.pc = BL32_BASE;
+	bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
+	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
+	bl33_image_ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
+					  DISABLE_ALL_EXCEPTIONS);
+}
+
+/*
  * Perform any BL31 specific platform actions. Here is an opportunity to copy
  * parameters passed by the calling EL (S-EL1 in BL2 & S-EL3 in BL1) before they
  * are lost (potentially). This needs to be done before the MMU is initialized
@@ -69,15 +82,15 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
 	if (zynqmp_get_bootmode() == ZYNQMP_BOOTMODE_JTAG) {
-		/* use build time defaults in JTAG boot mode */
-		bl32_image_ep_info.pc = BL32_BASE;
-		bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
-		bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
-		bl33_image_ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
-						  DISABLE_ALL_EXCEPTIONS);
+		bl31_set_default_config();
 	} else {
 		/* use parameters from FSBL */
-		fsbl_atf_handover(&bl32_image_ep_info, &bl33_image_ep_info);
+		enum fsbl_handoff ret = fsbl_atf_handover(&bl32_image_ep_info,
+							  &bl33_image_ep_info);
+		if (ret == FSBL_HANDOFF_NO_STRUCT)
+			bl31_set_default_config();
+		else if (ret != FSBL_HANDOFF_SUCCESS)
+			panic();
 	}
 
 	NOTICE("BL31: Secure code at 0x%lx\n", bl32_image_ep_info.pc);
@@ -103,6 +116,39 @@ static void zynqmp_testing_setup(void)
 }
 #endif
 
+#if ZYNQMP_WDT_RESTART
+static interrupt_type_handler_t type_el3_interrupt_table[MAX_INTR_EL3];
+
+int request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
+{
+	/* Validate 'handler' and 'id' parameters */
+	if (!handler || id >= MAX_INTR_EL3)
+		return -EINVAL;
+
+	/* Check if a handler has already been registered */
+	if (type_el3_interrupt_table[id])
+		return -EALREADY;
+
+	type_el3_interrupt_table[id] = handler;
+
+	return 0;
+}
+
+static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
+					  void *handle, void *cookie)
+{
+	uint32_t intr_id;
+	interrupt_type_handler_t handler;
+
+	intr_id = plat_ic_get_pending_interrupt_id();
+	handler = type_el3_interrupt_table[intr_id];
+	if (handler != NULL)
+		handler(intr_id, flags, handle, cookie);
+
+	return 0;
+}
+#endif
+
 void bl31_platform_setup(void)
 {
 	/* Initialize the gic cpu and distributor interfaces */
@@ -113,6 +159,16 @@ void bl31_platform_setup(void)
 
 void bl31_plat_runtime_setup(void)
 {
+#if ZYNQMP_WDT_RESTART
+	uint64_t flags = 0;
+	uint64_t rc;
+
+	set_interrupt_rm_flag(flags, NON_SECURE);
+	rc = register_interrupt_type_handler(INTR_TYPE_EL3,
+					     rdo_el3_interrupt_handler, flags);
+	if (rc)
+		panic();
+#endif
 }
 
 /*

@@ -19,6 +19,19 @@
 #include "pm_common.h"
 #include "pm_ipi.h"
 
+/* default shutdown/reboot scope is system(2) */
+static unsigned int pm_shutdown_scope = PMF_SHUTDOWN_SUBTYPE_SYSTEM;
+
+/**
+ * pm_get_shutdown_scope() - Get the currently set shutdown scope
+ *
+ * @return	Shutdown scope value
+ */
+unsigned int pm_get_shutdown_scope(void)
+{
+	return pm_shutdown_scope;
+}
+
 /**
  * Assigning of argument values into array elements.
  */
@@ -130,10 +143,7 @@ enum pm_ret_status pm_req_wakeup(enum pm_node_id target,
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
 	uint64_t encoded_address;
-	const struct pm_proc *proc = pm_get_proc_by_node(target);
 
-	/* invoke APU-specific code for waking up another APU core */
-	pm_client_wakeup(proc);
 
 	/* encode set Address into 1st bit of address */
 	encoded_address = address;
@@ -218,7 +228,8 @@ enum pm_ret_status pm_set_wakeup_source(enum pm_node_id target,
 
 /**
  * pm_system_shutdown() - PM call to request a system shutdown or restart
- * @restart	Shutdown or restart? 0 for shutdown, 1 for restart
+ * @type	Shutdown or restart? 0=shutdown, 1=restart, 2=setscope
+ * @subtype	Scope: 0=APU-subsystem, 1=PS, 2=system
  *
  * @return	Returns status, either success or error+reason
  */
@@ -226,8 +237,14 @@ enum pm_ret_status pm_system_shutdown(unsigned int type, unsigned int subtype)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
+	if (type == PMF_SHUTDOWN_TYPE_SETSCOPE_ONLY) {
+		/* Setting scope for subsequent PSCI reboot or shutdown */
+		pm_shutdown_scope = subtype;
+		return PM_RET_SUCCESS;
+	}
+
 	PM_PACK_PAYLOAD3(payload, PM_SYSTEM_SHUTDOWN, type, subtype);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_non_blocking(primary_proc, payload);
 }
 
 /* APIs for managing PM slaves: */
@@ -342,18 +359,38 @@ enum pm_ret_status pm_set_configuration(unsigned int phys_addr)
 }
 
 /**
- * pm_get_node_status() - PM call to request a node's current power state
- * @nid		Node id of the slave
+ * pm_init_finalize() - Call to notify PMU firmware that master has power
+ *			management enabled and that it has finished its
+ *			initialization
+ *
+ * @return	Status returned by the PMU firmware
+ */
+enum pm_ret_status pm_init_finalize(void)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD1(payload, PM_INIT_FINALIZE);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_get_node_status() - PM call to request a node's current status
+ * @nid		Node id
+ * @ret_buff	Buffer for the return values:
+ *		[0] - Current power state of the node
+ *		[1] - Current requirements for the node (slave nodes only)
+ *		[2] - Current usage status for the node (slave nodes only)
  *
  * @return	Returns status, either success or error+reason
  */
-enum pm_ret_status pm_get_node_status(enum pm_node_id nid)
+enum pm_ret_status pm_get_node_status(enum pm_node_id nid,
+				      uint32_t *ret_buff)
 {
-	/* TODO: Add power state argument!! */
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	PM_PACK_PAYLOAD2(payload, PM_GET_NODE_STATUS, nid);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_sync(primary_proc, payload, ret_buff, 3);
 }
 
 /**
@@ -501,7 +538,7 @@ enum pm_ret_status pm_fpga_load(uint32_t address_low,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD5(payload, PM_FPGA_LOAD, address_high, address_low,
 						size, flags);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
@@ -538,15 +575,30 @@ enum pm_ret_status pm_get_chipid(uint32_t *value)
 }
 
 /**
- * pm_get_callbackdata() - Read from IPI response buffer
- * @data - array of PAYLOAD_ARG_CNT elements
+ * pm_secure_rsaaes() - Load the secure images.
  *
- * Read value from ipi buffer response buffer.
+ * This function provides access to the xilsecure library to load
+ * the authenticated, encrypted, and authenicated/encrypted images.
+ *
+ * address_low: lower 32-bit Linear memory space address
+ *
+ * address_high: higher 32-bit Linear memory space address
+ *
+ * size:	Number of 32bit words
+ *
+ * @return      Returns status, either success or error+reason
  */
-void pm_get_callbackdata(uint32_t *data, size_t count)
+enum pm_ret_status pm_secure_rsaaes(uint32_t address_low,
+				uint32_t address_high,
+				uint32_t size,
+				uint32_t flags)
 {
-	pm_ipi_buff_read_callb(data, count);
-	pm_ipi_irq_clear(primary_proc);
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD5(payload, PM_SECURE_RSA_AES, address_high, address_low,
+			 size, flags);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
@@ -1073,4 +1125,44 @@ enum pm_ret_status pm_query_data(enum pm_query_id qid,
 	}
 
 	return ret;
+}
+
+enum pm_ret_status pm_sha_hash(uint32_t address_high,
+				    uint32_t address_low,
+				    uint32_t size,
+				    uint32_t flags)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD5(payload, PM_SECURE_SHA, address_high, address_low,
+				 size, flags);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+enum pm_ret_status pm_rsa_core(uint32_t address_high,
+				    uint32_t address_low,
+				    uint32_t size,
+				    uint32_t flags)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD5(payload, PM_SECURE_RSA, address_high, address_low,
+				 size, flags);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+enum pm_ret_status pm_secure_image(uint32_t address_low,
+				   uint32_t address_high,
+				   uint32_t key_lo,
+				   uint32_t key_hi,
+				   uint32_t *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD5(payload, PM_SECURE_IMAGE, address_high, address_low,
+			 key_hi, key_lo);
+	return pm_ipi_send_sync(primary_proc, payload, value, 2);
 }

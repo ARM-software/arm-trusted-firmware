@@ -8,8 +8,11 @@
 #include <generic_delay_timer.h>
 #include <mmio.h>
 #include <platform.h>
+#include <stdbool.h>
+#include <string.h>
 #include <xlat_tables.h>
 #include "../zynqmp_private.h"
+#include "pm_api_sys.h"
 
 /*
  * Table of regions to map using the MMU.
@@ -59,39 +62,102 @@ unsigned int zynqmp_get_uart_clk(void)
 #if LOG_LEVEL >= LOG_LEVEL_NOTICE
 static const struct {
 	unsigned int id;
+	unsigned int ver;
 	char *name;
+	bool evexists;
 } zynqmp_devices[] = {
 	{
 		.id = 0x10,
 		.name = "3EG",
 	},
 	{
+		.id = 0x10,
+		.ver = 0x2c,
+		.name = "3CG",
+	},
+	{
 		.id = 0x11,
 		.name = "2EG",
 	},
 	{
+		.id = 0x11,
+		.ver = 0x2c,
+		.name = "2CG",
+	},
+	{
 		.id = 0x20,
 		.name = "5EV",
+		.evexists = true,
+	},
+	{
+		.id = 0x20,
+		.ver = 0x100,
+		.name = "5EG",
+		.evexists = true,
+	},
+	{
+		.id = 0x20,
+		.ver = 0x12c,
+		.name = "5CG",
 	},
 	{
 		.id = 0x21,
 		.name = "4EV",
+		.evexists = true,
+	},
+	{
+		.id = 0x21,
+		.ver = 0x100,
+		.name = "4EG",
+		.evexists = true,
+	},
+	{
+		.id = 0x21,
+		.ver = 0x12c,
+		.name = "4CG",
 	},
 	{
 		.id = 0x30,
 		.name = "7EV",
+		.evexists = true,
+	},
+	{
+		.id = 0x30,
+		.ver = 0x100,
+		.name = "7EG",
+		.evexists = true,
+	},
+	{
+		.id = 0x30,
+		.ver = 0x12c,
+		.name = "7CG",
 	},
 	{
 		.id = 0x38,
 		.name = "9EG",
 	},
 	{
+		.id = 0x38,
+		.ver = 0x2c,
+		.name = "9CG",
+	},
+	{
 		.id = 0x39,
 		.name = "6EG",
 	},
 	{
+		.id = 0x39,
+		.ver = 0x2c,
+		.name = "6CG",
+	},
+	{
 		.id = 0x40,
 		.name = "11EG",
+	},
+	{ /* For testing purpose only */
+		.id = 0x50,
+		.ver = 0x2c,
+		.name = "15CG",
 	},
 	{
 		.id = 0x50,
@@ -105,30 +171,75 @@ static const struct {
 		.id = 0x59,
 		.name = "17EG",
 	},
+	{
+		.id = 0x60,
+		.name = "28DR",
+	},
+	{
+		.id = 0x61,
+		.name = "21DR",
+	},
+	{
+		.id = 0x62,
+		.name = "29DR",
+	},
+	{
+		.id = 0x63,
+		.name = "23DR",
+	},
+	{
+		.id = 0x64,
+		.name = "27DR",
+	},
+	{
+		.id = 0x65,
+		.name = "25DR",
+	},
 };
 
-static unsigned int zynqmp_get_silicon_id(void)
-{
-	uint32_t id;
-
-	id = mmio_read_32(ZYNQMP_CSU_BASEADDR + ZYNQMP_CSU_IDCODE_OFFSET);
-
-	id &= ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK | ZYNQMP_CSU_IDCODE_SVD_MASK;
-	id >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
-
-	return id;
-}
+#define ZYNQMP_PL_STATUS_BIT	9
+#define ZYNQMP_PL_STATUS_MASK	BIT(ZYNQMP_PL_STATUS_BIT)
+#define ZYNQMP_CSU_VERSION_MASK	~(ZYNQMP_PL_STATUS_MASK)
 
 static char *zynqmp_get_silicon_idcode_name(void)
 {
-	unsigned int id;
+	uint32_t id, ver, chipid[2];
+	size_t i, j, len;
+	enum pm_ret_status ret;
+	const char *name = "EG/EV";
 
-	id = zynqmp_get_silicon_id();
-	for (size_t i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
-		if (zynqmp_devices[i].id == id)
-			return zynqmp_devices[i].name;
+	ret = pm_get_chipid(chipid);
+	if (ret)
+		return "UNKN";
+
+	id = chipid[0] & (ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
+			  ZYNQMP_CSU_IDCODE_SVD_MASK);
+	id >>= ZYNQMP_CSU_IDCODE_SVD_SHIFT;
+	ver = chipid[1] >> ZYNQMP_EFUSE_IPDISABLE_SHIFT;
+
+	for (i = 0; i < ARRAY_SIZE(zynqmp_devices); i++) {
+		if (zynqmp_devices[i].id == id &&
+		    zynqmp_devices[i].ver == (ver & ZYNQMP_CSU_VERSION_MASK))
+			break;
 	}
-	return "UNKN";
+
+	if (i >= ARRAY_SIZE(zynqmp_devices))
+		return "UNKN";
+
+	if (!zynqmp_devices[i].evexists)
+		return zynqmp_devices[i].name;
+
+	if (ver & ZYNQMP_PL_STATUS_MASK)
+		return zynqmp_devices[i].name;
+
+	len = strlen(zynqmp_devices[i].name) - 2;
+	for (j = 0; j < strlen(name); j++) {
+		zynqmp_devices[i].name[len] = name[j];
+		len++;
+	}
+	zynqmp_devices[i].name[len] = '\0';
+
+	return zynqmp_devices[i].name;
 }
 
 static unsigned int zynqmp_get_rtl_ver(void)
@@ -195,60 +306,29 @@ static void zynqmp_print_platform_name(void)
 		break;
 	}
 
-	NOTICE("ATF running on XCZU%s/%s v%d/RTL%d.%d at 0x%x%s\n",
+	NOTICE("ATF running on XCZU%s/%s v%d/RTL%d.%d at 0x%x\n",
 	       zynqmp_print_silicon_idcode(), label, zynqmp_get_ps_ver(),
-	       (rtl & 0xf0) >> 4, rtl & 0xf, BL31_BASE,
-	       zynqmp_is_pmu_up() ? ", with PMU firmware" : "");
+	       (rtl & 0xf0) >> 4, rtl & 0xf, BL31_BASE);
 }
 #else
 static inline void zynqmp_print_platform_name(void) { }
 #endif
 
-/*
- * Indicator for PMUFW discovery:
- *   0 = No FW found
- *   non-zero = FW is present
- */
-static int zynqmp_pmufw_present;
-
-/*
- * zynqmp_discover_pmufw - Discover presence of PMUFW
- *
- * Discover the presence of PMUFW and store it for later run-time queries
- * through zynqmp_is_pmu_up.
- * NOTE: This discovery method is fragile and will break if:
- *  - setting FW_PRESENT is done by PMUFW itself and could be left out in PMUFW
- *    (be it by error or intentionally)
- *  - XPPU/XMPU may restrict ATF's access to the PMU address space
- */
-static int zynqmp_discover_pmufw(void)
-{
-	zynqmp_pmufw_present = mmio_read_32(PMU_GLOBAL_CNTRL);
-	zynqmp_pmufw_present &= PMU_GLOBAL_CNTRL_FW_IS_PRESENT;
-
-	return !!zynqmp_pmufw_present;
-}
-
-/*
- * zynqmp_is_pmu_up - Find if PMU firmware is up and running
- *
- * Return 0 if firmware is not available, non 0 otherwise
- */
-int zynqmp_is_pmu_up(void)
-{
-	return zynqmp_pmufw_present;
-}
-
 unsigned int zynqmp_get_bootmode(void)
 {
-	uint32_t r = mmio_read_32(CRL_APB_BOOT_MODE_USER);
+	uint32_t r;
+	unsigned int ret;
+
+	ret = pm_mmio_read(CRL_APB_BOOT_MODE_USER, &r);
+
+	if (ret != PM_RET_SUCCESS)
+		r = mmio_read_32(CRL_APB_BOOT_MODE_USER);
 
 	return r & CRL_APB_BOOT_MODE_MASK;
 }
 
 void zynqmp_config_setup(void)
 {
-	zynqmp_discover_pmufw();
 	zynqmp_print_platform_name();
 	generic_delay_timer_init();
 }

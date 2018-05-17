@@ -9,6 +9,7 @@ override PROGRAMMABLE_RESET_ADDRESS := 1
 PSCI_EXTENDED_STATE_ID := 1
 A53_DISABLE_NON_TEMPORAL_HINT := 0
 SEPARATE_CODE_AND_RODATA := 1
+ZYNQMP_WDT_RESTART := 0
 override RESET_TO_BL31 := 1
 
 # Do not enable SVE
@@ -40,6 +41,10 @@ endif
 
 ZYNQMP_CONSOLE	?=	cadence
 $(eval $(call add_define_val,ZYNQMP_CONSOLE,ZYNQMP_CONSOLE_ID_${ZYNQMP_CONSOLE}))
+
+ifdef ZYNQMP_WDT_RESTART
+$(eval $(call add_define,ZYNQMP_WDT_RESTART))
+endif
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iinclude/plat/arm/common/aarch64/		\
