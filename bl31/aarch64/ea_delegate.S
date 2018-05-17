@@ -9,6 +9,7 @@
 #include <assert_macros.S>
 #include <context.h>
 #include <ea_handle.h>
+#include <ras_arch.h>
 
 
 	.globl	handle_lower_el_ea_esb
@@ -70,7 +71,7 @@ func enter_lower_el_sync_ea
 	mov	x0, #ERROR_EA_SYNC
 	mrs	x1, esr_el3
 	adr	x30, el3_exit
-	b	ea_proceed
+	b	delegate_sync_ea
 
 2:
 	/* Synchronous exceptions other than the above are assumed to be EA */
@@ -100,8 +101,74 @@ func enter_lower_el_async_ea
 	mov	x0, #ERROR_EA_ASYNC
 	mrs	x1, esr_el3
 	adr	x30, el3_exit
-	b	ea_proceed
+	b	delegate_async_ea
 endfunc enter_lower_el_async_ea
+
+
+/*
+ * Prelude for Synchronous External Abort handling. This function assumes that
+ * all GP registers have been saved by the caller.
+ *
+ * x0: EA reason
+ * x1: EA syndrome
+ */
+func delegate_sync_ea
+#if RAS_EXTENSION
+	/*
+	 * Check for Uncontainable error type. If so, route to the platform
+	 * fatal error handler rather than the generic EA one.
+	 */
+	ubfx    x2, x1, #EABORT_SET_SHIFT, #EABORT_SET_WIDTH
+	cmp     x2, #ERROR_STATUS_SET_UC
+	b.ne    1f
+
+	/* Check fault status code */
+	ubfx    x3, x1, #EABORT_DFSC_SHIFT, #EABORT_DFSC_WIDTH
+	cmp     x3, #SYNC_EA_FSC
+	b.ne    1f
+
+	no_ret  plat_handle_uncontainable_ea
+1:
+#endif
+
+	b       ea_proceed
+endfunc delegate_sync_ea
+
+
+/*
+ * Prelude for Asynchronous External Abort handling. This function assumes that
+ * all GP registers have been saved by the caller.
+ *
+ * x0: EA reason
+ * x1: EA syndrome
+ */
+func delegate_async_ea
+#if RAS_EXTENSION
+	/*
+	 * Check for Implementation Defined Syndrome. If so, skip checking
+	 * Uncontainable error type from the syndrome as the format is unknown.
+	 */
+	tbnz	x1, #SERROR_IDS_BIT, 1f
+
+	/*
+	 * Check for Uncontainable error type. If so, route to the platform
+	 * fatal error handler rather than the generic EA one.
+	 */
+	ubfx	x2, x1, #EABORT_AET_SHIFT, #EABORT_AET_WIDTH
+	cmp	x2, #ERROR_STATUS_UET_UC
+	b.ne	1f
+
+	/* Check DFSC for SError type */
+	ubfx	x3, x1, #EABORT_DFSC_SHIFT, #EABORT_DFSC_WIDTH
+	cmp	x3, #DFSC_SERROR
+	b.ne	1f
+
+	no_ret	plat_handle_uncontainable_ea
+1:
+#endif
+
+	b	ea_proceed
+endfunc delegate_async_ea
 
 
 /*
