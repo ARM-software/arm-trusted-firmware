@@ -221,10 +221,10 @@ __dead2 void tegra_system_reset(void)
 	/* per-SoC system reset handler */
 	(void)tegra_soc_prepare_system_reset();
 
-	/*
-	 * Program the PMC in order to restart the system.
-	 */
-	tegra_pmc_system_reset();
+	/* wait for the system to reset */
+	for (;;) {
+		;
+	}
 }
 
 /*******************************************************************************

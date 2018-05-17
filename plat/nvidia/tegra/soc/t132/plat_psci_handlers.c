@@ -193,6 +193,11 @@ int tegra_soc_prepare_system_reset(void)
 	/* Wait 1 ms to make sure clock source/device logic is stabilized. */
 	mdelay(1);
 
+	/*
+	 * Program the PMC in order to restart the system.
+	 */
+	tegra_pmc_system_reset();
+
 	return PSCI_E_SUCCESS;
 }
 
