@@ -34,13 +34,17 @@
 
 typedef struct console {
 	struct console *next;
+	/*
+	 * Only the low 32 bits are used. The type is u_register_t to align the
+	 * fields of the struct to 64 bits in AArch64 and 32 bits in AArch32
+	 */
 	u_register_t flags;
 	int (*putc)(int character, struct console *console);
 	int (*getc)(struct console *console);
 	int (*flush)(struct console *console);
 	/* Additional private driver data may follow here. */
 } console_t;
-#include <console_assertions.h>	/* offset macro assertions for console_t */
+#include <console_assertions.h> /* offset macro assertions for console_t */
 
 /*
  * NOTE: There is no publicly accessible console_register() function. Consoles
