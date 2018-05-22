@@ -306,12 +306,15 @@ BUILD_MESSAGE_TIMESTAMP ?= __TIME__", "__DATE__
 
 .PHONY: libraries
 
-
-# MAKE_LIB_DIR macro defines the target for the directory where
+# MAKE_LIB_DIRS macro defines the target for the directory where
 # libraries are created
-define MAKE_LIB_DIR
+define MAKE_LIB_DIRS
         $(eval LIB_DIR    := ${BUILD_PLAT}/lib)
-	$(eval $(call MAKE_PREREQ_DIR,${LIB_DIR},${BUILD_PLAT}))
+        $(eval ROMLIB_DIR    := ${BUILD_PLAT}/romlib)
+        $(eval LIBWRAPPER_DIR := ${BUILD_PLAT}/libwrapper)
+        $(eval $(call MAKE_PREREQ_DIR,${LIB_DIR},${BUILD_PLAT}))
+        $(eval $(call MAKE_PREREQ_DIR,${ROMLIB_DIR},${BUILD_PLAT}))
+        $(eval $(call MAKE_PREREQ_DIR,${LIBWRAPPER_DIR},${BUILD_PLAT}))
 endef
 
 # MAKE_LIB macro defines the targets and options to build each BL image.
@@ -320,6 +323,7 @@ endef
 define MAKE_LIB
         $(eval BUILD_DIR  := ${BUILD_PLAT}/lib$(1))
         $(eval LIB_DIR    := ${BUILD_PLAT}/lib)
+        $(eval ROMLIB_DIR    := ${BUILD_PLAT}/romlib)
         $(eval SOURCES    := $(LIB$(call uppercase,$(1))_SRCS))
         $(eval OBJS       := $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_OBJS,$(SOURCES))))
 
@@ -327,10 +331,14 @@ $(eval $(call MAKE_PREREQ_DIR,${BUILD_DIR},${BUILD_PLAT}))
 $(eval $(call MAKE_LIB_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
 
 .PHONY : lib${1}_dirs
-lib${1}_dirs: | ${BUILD_DIR} ${LIB_DIR}
+lib${1}_dirs: | ${BUILD_DIR} ${LIB_DIR}  ${ROMLIB_DIR} ${LIBWRAPPER_DIR}
 libraries: ${LIB_DIR}/lib$(1).a
 LDPATHS = -L${LIB_DIR}
 LDLIBS += -l$(1)
+
+ifeq ($(USE_ROMLIB),1)
+LDLIBS := -lwrappers -lc
+endif
 
 all: ${LIB_DIR}/lib$(1).a
 
@@ -377,6 +385,10 @@ bl${1}_dirs: | ${OBJ_DIRS}
 
 $(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
 $(eval $(call MAKE_LD,$(LINKERFILE),$(BL_LINKERFILE),$(1)))
+
+ifeq ($(USE_ROMLIB),1)
+$(ELF): romlib.bin
+endif
 
 $(ELF): $(OBJS) $(LINKERFILE) | bl$(1)_dirs libraries $(BL_LIBS)
 	@echo "  LD      $$@"
