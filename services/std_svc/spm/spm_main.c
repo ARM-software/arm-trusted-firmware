@@ -26,12 +26,12 @@
 /*******************************************************************************
  * Secure Partition context information.
  ******************************************************************************/
-static secure_partition_context_t sp_ctx;
+static sp_context_t sp_ctx;
 
 /*******************************************************************************
  * This function takes an SP context pointer and prepares the CPU to enter.
  ******************************************************************************/
-static void spm_sp_prepare_enter(secure_partition_context_t *sp_ctx)
+static void spm_sp_prepare_enter(sp_context_t *sp_ctx)
 {
 	assert(sp_ctx != NULL);
 
@@ -50,7 +50,7 @@ static void spm_sp_prepare_enter(secure_partition_context_t *sp_ctx)
 /*******************************************************************************
  * Enter SP after preparing it with spm_sp_prepare_enter().
  ******************************************************************************/
-static uint64_t spm_sp_enter(secure_partition_context_t *sp_ctx)
+static uint64_t spm_sp_enter(sp_context_t *sp_ctx)
 {
 	/* Enter Secure Partition */
 	return spm_secure_partition_enter(&sp_ctx->c_rt_ctx);
@@ -62,7 +62,7 @@ static uint64_t spm_sp_enter(secure_partition_context_t *sp_ctx)
 static int32_t spm_init(void)
 {
 	uint64_t rc = 0;
-	secure_partition_context_t *ctx;
+	sp_context_t *ctx;
 
 	INFO("Secure Partition init...\n");
 
@@ -86,7 +86,7 @@ static int32_t spm_init(void)
  ******************************************************************************/
 int32_t spm_setup(void)
 {
-	secure_partition_context_t *ctx;
+	sp_context_t *ctx;
 
 	/* Disable MMU at EL1 (initialized by BL2) */
 	disable_mmu_icache_el1();
@@ -99,7 +99,7 @@ int32_t spm_setup(void)
 	/* Assign translation tables context. */
 	ctx->xlat_ctx_handle = spm_get_sp_xlat_context();
 
-	secure_partition_setup(ctx);
+	spm_sp_setup(ctx);
 
 	/* Register init function for deferred init.  */
 	bl31_register_bl32_init(&spm_init);

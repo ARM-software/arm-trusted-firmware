@@ -21,7 +21,7 @@
 #include "spm_shim_private.h"
 
 /* Setup context of the Secure Partition */
-void secure_partition_setup(secure_partition_context_t *sp_ctx)
+void spm_sp_setup(sp_context_t *sp_ctx)
 {
 	cpu_context_t *ctx = &(sp_ctx->cpu_ctx);
 

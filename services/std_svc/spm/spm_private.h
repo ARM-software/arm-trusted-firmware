@@ -35,25 +35,25 @@
 #include <stdint.h>
 #include <xlat_tables_v2.h>
 
-typedef struct secure_partition_context {
+typedef struct sp_context {
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
 	xlat_ctx_t *xlat_ctx_handle;
 	unsigned int sp_init_in_progress;
 	spinlock_t lock;
-} secure_partition_context_t;
+} sp_context_t;
 
 /* Assembly helpers */
 uint64_t spm_secure_partition_enter(uint64_t *c_rt_ctx);
 void __dead2 spm_secure_partition_exit(uint64_t c_rt_ctx, uint64_t ret);
 
-void secure_partition_setup(secure_partition_context_t *sp_ctx);
+void spm_sp_setup(sp_context_t *sp_ctx);
 
 xlat_ctx_t *spm_get_sp_xlat_context(void);
 
-int32_t spm_memory_attributes_get_smc_handler(secure_partition_context_t *sp_ctx,
+int32_t spm_memory_attributes_get_smc_handler(sp_context_t *sp_ctx,
 					      uintptr_t base_va);
-int spm_memory_attributes_set_smc_handler(secure_partition_context_t *sp_ctx,
+int spm_memory_attributes_set_smc_handler(sp_context_t *sp_ctx,
 					  u_register_t page_address,
 					  u_register_t pages_count,
 					  u_register_t smc_attributes);

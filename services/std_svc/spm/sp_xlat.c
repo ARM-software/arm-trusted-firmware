@@ -105,7 +105,7 @@ static unsigned int smc_mmap_to_smc_attr(unsigned int attr)
 	return smc_attr;
 }
 
-int32_t spm_memory_attributes_get_smc_handler(secure_partition_context_t *sp_ctx,
+int32_t spm_memory_attributes_get_smc_handler(sp_context_t *sp_ctx,
 					      uintptr_t base_va)
 {
 	uint32_t attributes;
@@ -127,7 +127,7 @@ int32_t spm_memory_attributes_get_smc_handler(secure_partition_context_t *sp_ctx
 	}
 }
 
-int spm_memory_attributes_set_smc_handler(secure_partition_context_t *sp_ctx,
+int spm_memory_attributes_set_smc_handler(sp_context_t *sp_ctx,
 					  u_register_t page_address,
 					  u_register_t pages_count,
 					  u_register_t smc_attributes)
