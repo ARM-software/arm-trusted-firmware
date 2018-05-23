@@ -162,6 +162,88 @@ int32_t spm_setup(void)
 }
 
 /*******************************************************************************
+ * MM_COMMUNICATE handler
+ ******************************************************************************/
+static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
+			       uint64_t comm_buffer_address,
+			       uint64_t comm_size_address, void *handle)
+{
+	sp_context_t *ctx = &sp_ctx;
+
+	/* Cookie. Reserved for future use. It must be zero. */
+	if (mm_cookie != 0U) {
+		ERROR("MM_COMMUNICATE: cookie is not zero\n");
+		SMC_RET1(handle, SPM_INVALID_PARAMETER);
+	}
+
+	if (comm_buffer_address == 0U) {
+		ERROR("MM_COMMUNICATE: comm_buffer_address is zero\n");
+		SMC_RET1(handle, SPM_INVALID_PARAMETER);
+	}
+
+	if (comm_size_address != 0U) {
+		VERBOSE("MM_COMMUNICATE: comm_size_address is not 0 as recommended.\n");
+	}
+
+	/* Save the Normal world context */
+	cm_el1_sysregs_context_save(NON_SECURE);
+
+	/* Wait until the Secure Partition is IDLE and set it to BUSY. */
+	sp_state_wait_switch(ctx, SP_STATE_IDLE, SP_STATE_BUSY);
+
+	/* Jump to the Secure Partition. */
+	spm_sp_prepare_enter(ctx);
+
+	SMC_RET4(&(ctx->cpu_ctx), smc_fid, comm_buffer_address,
+		 comm_size_address, plat_my_core_pos());
+}
+
+/*******************************************************************************
+ * SP_EVENT_COMPLETE_AARCH64 handler
+ ******************************************************************************/
+static uint64_t sp_event_complete(uint64_t x1)
+{
+	sp_context_t *ctx = &sp_ctx;
+
+	/* Save secure state */
+	cm_el1_sysregs_context_save(SECURE);
+
+	if (ctx->state == SP_STATE_RESET) {
+		/*
+		 * SPM reports completion. The SPM must have initiated the
+		 * original request through a synchronous entry into the secure
+		 * partition. Jump back to the original C runtime context.
+		 */
+		spm_secure_partition_exit(ctx->c_rt_ctx, x1);
+
+		/* spm_secure_partition_exit doesn't return */
+	}
+
+	/*
+	 * This is the result from the Secure partition of an earlier request.
+	 * Copy the result into the non-secure context and return to the
+	 * non-secure state.
+	 */
+
+	/* Mark Secure Partition as idle */
+	assert(ctx->state == SP_STATE_BUSY);
+
+	sp_state_set(ctx, SP_STATE_IDLE);
+
+	/* Get a reference to the non-secure context */
+	cpu_context_t *ns_cpu_context = cm_get_context(NON_SECURE);
+
+	assert(ns_cpu_context != NULL);
+
+	/* Restore non-secure state */
+	cm_el1_sysregs_context_restore(NON_SECURE);
+	cm_set_next_eret_context(NON_SECURE);
+
+	/* Return to non-secure world */
+	SMC_RET1(ns_cpu_context, x1);
+}
+
+/*******************************************************************************
  * Secure Partition Manager SMC handler.
  ******************************************************************************/
 uint64_t spm_smc_handler(uint32_t smc_fid,
@@ -173,7 +255,6 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 			 void *handle,
 			 uint64_t flags)
 {
-	cpu_context_t *ns_cpu_context;
 	unsigned int ns;
 
 	/* Determine which security state this SMC originated from */
@@ -194,43 +275,7 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 			SMC_RET1(handle, SPM_VERSION_COMPILED);
 
 		case SP_EVENT_COMPLETE_AARCH64:
-			/* Save secure state */
-			cm_el1_sysregs_context_save(SECURE);
-
-			if (sp_ctx.state == SP_STATE_RESET) {
-				/*
-				 * SPM reports completion. The SPM must have
-				 * initiated the original request through a
-				 * synchronous entry into the secure
-				 * partition. Jump back to the original C
-				 * runtime context.
-				 */
-				spm_secure_partition_exit(sp_ctx.c_rt_ctx, x1);
-
-				/* spm_secure_partition_exit doesn't return */
-			}
-
-			/* Mark Secure Partition as idle */
-			assert(sp_ctx.state == SP_STATE_BUSY);
-
-			sp_state_set(&sp_ctx, SP_STATE_IDLE);
-
-			/*
-			 * This is the result from the Secure partition of an
-			 * earlier request. Copy the result into the non-secure
-			 * context and return to the non-secure state.
-			 */
-
-			/* Get a reference to the non-secure context */
-			ns_cpu_context = cm_get_context(NON_SECURE);
-			assert(ns_cpu_context != NULL);
-
-			/* Restore non-secure state */
-			cm_el1_sysregs_context_restore(NON_SECURE);
-			cm_set_next_eret_context(NON_SECURE);
-
-			/* Return to normal world */
-			SMC_RET1(ns_cpu_context, x1);
+			return sp_event_complete(x1);
 
 		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
 			INFO("Received SP_MEMORY_ATTRIBUTES_GET_AARCH64 SMC\n");
@@ -267,44 +312,7 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 
 		case MM_COMMUNICATE_AARCH32:
 		case MM_COMMUNICATE_AARCH64:
-		{
-			uint64_t mm_cookie = x1;
-			uint64_t comm_buffer_address = x2;
-			uint64_t comm_size_address = x3;
-
-			/* Cookie. Reserved for future use. It must be zero. */
-			if (mm_cookie != 0U) {
-				ERROR("MM_COMMUNICATE: cookie is not zero\n");
-				SMC_RET1(handle, SPM_INVALID_PARAMETER);
-			}
-
-			if (comm_buffer_address == 0U) {
-				ERROR("MM_COMMUNICATE: comm_buffer_address is zero\n");
-				SMC_RET1(handle, SPM_INVALID_PARAMETER);
-			}
-
-			if (comm_size_address != 0U) {
-				VERBOSE("MM_COMMUNICATE: comm_size_address is not 0 as recommended.\n");
-			}
-
-			/* Save the Normal world context */
-			cm_el1_sysregs_context_save(NON_SECURE);
-
-			/*
-			 * Wait until the state of the Secure Partition is IDLE
-			 * and set it to BUSY
-			 */
-			sp_state_wait_switch(&sp_ctx,
-					     SP_STATE_IDLE, SP_STATE_BUSY);
-
-			/* Jump to the Secure Partition. */
-
-			spm_sp_prepare_enter(&sp_ctx);
-
-			SMC_RET4(&(sp_ctx.cpu_ctx), smc_fid,
-				 comm_buffer_address, comm_size_address,
-				 plat_my_core_pos());
-		}
+			return mm_communicate(smc_fid, x1, x2, x3, handle);
 
 		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
 		case SP_MEMORY_ATTRIBUTES_SET_AARCH64:
