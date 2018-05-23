@@ -29,6 +29,58 @@
 static sp_context_t sp_ctx;
 
 /*******************************************************************************
+ * Set state of a Secure Partition context.
+ ******************************************************************************/
+void sp_state_set(sp_context_t *sp_ptr, sp_state_t state)
+{
+	spin_lock(&(sp_ptr->state_lock));
+	sp_ptr->state = state;
+	spin_unlock(&(sp_ptr->state_lock));
+}
+
+/*******************************************************************************
+ * Wait until the state of a Secure Partition is the specified one and change it
+ * to the desired state.
+ ******************************************************************************/
+void sp_state_wait_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to)
+{
+	int success = 0;
+
+	while (success == 0) {
+		spin_lock(&(sp_ptr->state_lock));
+
+		if (sp_ptr->state == from) {
+			sp_ptr->state = to;
+
+			success = 1;
+		}
+
+		spin_unlock(&(sp_ptr->state_lock));
+	}
+}
+
+/*******************************************************************************
+ * Check if the state of a Secure Partition is the specified one and, if so,
+ * change it to the desired state. Returns 0 on success, -1 on error.
+ ******************************************************************************/
+int sp_state_try_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to)
+{
+	int ret = -1;
+
+	spin_lock(&(sp_ptr->state_lock));
+
+	if (sp_ptr->state == from) {
+		sp_ptr->state = to;
+
+		ret = 0;
+	}
+
+	spin_unlock(&(sp_ptr->state_lock));
+
+	return ret;
+}
+
+/*******************************************************************************
  * This function takes an SP context pointer and prepares the CPU to enter.
  ******************************************************************************/
 static void spm_sp_prepare_enter(sp_context_t *sp_ctx)
@@ -68,13 +120,13 @@ static int32_t spm_init(void)
 
 	ctx = &sp_ctx;
 
-	ctx->sp_init_in_progress = 1;
+	ctx->state = SP_STATE_RESET;
 
 	spm_sp_prepare_enter(ctx);
 	rc |= spm_sp_enter(ctx);
 	assert(rc == 0);
 
-	ctx->sp_init_in_progress = 0;
+	ctx->state = SP_STATE_IDLE;
 
 	INFO("Secure Partition initialized.\n");
 
@@ -145,7 +197,7 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 			/* Save secure state */
 			cm_el1_sysregs_context_save(SECURE);
 
-			if (sp_ctx.sp_init_in_progress == 1) {
+			if (sp_ctx.state == SP_STATE_RESET) {
 				/*
 				 * SPM reports completion. The SPM must have
 				 * initiated the original request through a
@@ -158,8 +210,10 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 				/* spm_secure_partition_exit doesn't return */
 			}
 
-			/* Release the Secure Partition context */
-			spin_unlock(&(sp_ctx.lock));
+			/* Mark Secure Partition as idle */
+			assert(sp_ctx.state == SP_STATE_BUSY);
+
+			sp_state_set(&sp_ctx, SP_STATE_IDLE);
 
 			/*
 			 * This is the result from the Secure partition of an
@@ -181,7 +235,7 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
 			INFO("Received SP_MEMORY_ATTRIBUTES_GET_AARCH64 SMC\n");
 
-			if (sp_ctx.sp_init_in_progress == 0) {
+			if (sp_ctx.state != SP_STATE_RESET) {
 				WARN("SP_MEMORY_ATTRIBUTES_GET_AARCH64 is available at boot time only\n");
 				SMC_RET1(handle, SPM_NOT_SUPPORTED);
 			}
@@ -192,7 +246,7 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 		case SP_MEMORY_ATTRIBUTES_SET_AARCH64:
 			INFO("Received SP_MEMORY_ATTRIBUTES_SET_AARCH64 SMC\n");
 
-			if (sp_ctx.sp_init_in_progress == 0) {
+			if (sp_ctx.state != SP_STATE_RESET) {
 				WARN("SP_MEMORY_ATTRIBUTES_SET_AARCH64 is available at boot time only\n");
 				SMC_RET1(handle, SPM_NOT_SUPPORTED);
 			}
@@ -236,8 +290,12 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 			/* Save the Normal world context */
 			cm_el1_sysregs_context_save(NON_SECURE);
 
-			/* Lock the Secure Partition context. */
-			spin_lock(&sp_ctx.lock);
+			/*
+			 * Wait until the state of the Secure Partition is IDLE
+			 * and set it to BUSY
+			 */
+			sp_state_wait_switch(&sp_ctx,
+					     SP_STATE_IDLE, SP_STATE_BUSY);
 
 			/* Jump to the Secure Partition. */
 

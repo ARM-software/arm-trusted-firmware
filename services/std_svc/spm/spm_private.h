@@ -35,12 +35,19 @@
 #include <stdint.h>
 #include <xlat_tables_v2.h>
 
+typedef enum secure_partition_state {
+	SP_STATE_RESET = 0,
+	SP_STATE_IDLE,
+	SP_STATE_BUSY
+} sp_state_t;
+
 typedef struct sp_context {
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
 	xlat_ctx_t *xlat_ctx_handle;
-	unsigned int sp_init_in_progress;
-	spinlock_t lock;
+
+	sp_state_t state;
+	spinlock_t state_lock;
 } sp_context_t;
 
 /* Assembly helpers */
