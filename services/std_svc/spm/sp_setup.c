@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,46 +15,28 @@
 #include <platform.h>
 #include <secure_partition.h>
 #include <string.h>
-#include <types.h>
 #include <xlat_tables_v2.h>
 
 #include "spm_private.h"
 #include "spm_shim_private.h"
 
-/* Place translation tables by default along with the ones used by BL31. */
-#ifndef PLAT_SP_IMAGE_XLAT_SECTION_NAME
-#define PLAT_SP_IMAGE_XLAT_SECTION_NAME	"xlat_table"
-#endif
-
-/* Allocate and initialise the translation context for the secure partition. */
-REGISTER_XLAT_CONTEXT2(secure_partition,
-			PLAT_SP_IMAGE_MMAP_REGIONS,
-			PLAT_SP_IMAGE_MAX_XLAT_TABLES,
-			PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE,
-			EL1_EL0_REGIME, PLAT_SP_IMAGE_XLAT_SECTION_NAME);
-
-/* Export a handle on the secure partition translation context */
-xlat_ctx_t *secure_partition_xlat_ctx_handle = &secure_partition_xlat_ctx;
-
 /* Setup context of the Secure Partition */
-void secure_partition_setup(void)
+void secure_partition_setup(secure_partition_context_t *sp_ctx)
 {
-	VERBOSE("S-EL1/S-EL0 context setup start...\n");
+	cpu_context_t *ctx = &(sp_ctx->cpu_ctx);
 
-	cpu_context_t *ctx = cm_get_context(SECURE);
+	/*
+	 * Initialize CPU context
+	 * ----------------------
+	 */
 
-	/* Make sure that we got a Secure context. */
-	assert(ctx != NULL);
+	entry_point_info_t ep_info = {0};
 
-	/* Assert we are in Secure state. */
-	assert((read_scr_el3() & SCR_NS_BIT) == 0);
+	SET_PARAM_HEAD(&ep_info, PARAM_EP, VERSION_1, SECURE | EP_ST_ENABLE);
+	ep_info.pc = BL32_BASE;
+	ep_info.spsr = SPSR_64(MODE_EL0, MODE_SP_EL0, DISABLE_ALL_EXCEPTIONS);
 
-	/* Disable MMU at EL1. */
-	disable_mmu_icache_el1();
-
-	/* Invalidate TLBs at EL1. */
-	tlbivmalle1();
-	dsbish();
+	cm_setup_context(ctx, &ep_info);
 
 	/*
 	 * General-Purpose registers
@@ -143,13 +125,13 @@ void secure_partition_setup(void)
 		MAP_REGION_FLAT(SPM_SHIM_EXCEPTIONS_START,
 				SPM_SHIM_EXCEPTIONS_SIZE,
 				MT_CODE | MT_SECURE | MT_PRIVILEGED);
-	mmap_add_region_ctx(&secure_partition_xlat_ctx,
+	mmap_add_region_ctx(sp_ctx->xlat_ctx_handle,
 			    &sel1_exception_vectors);
 
-	mmap_add_ctx(&secure_partition_xlat_ctx,
+	mmap_add_ctx(sp_ctx->xlat_ctx_handle,
 		     plat_get_secure_partition_mmap(NULL));
 
-	init_xlat_tables_ctx(&secure_partition_xlat_ctx);
+	init_xlat_tables_ctx(sp_ctx->xlat_ctx_handle);
 
 	/*
 	 * MMU-related registers
@@ -222,9 +204,12 @@ void secure_partition_setup(void)
 
 	write_ctx_reg(get_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_el1);
 
+	uint64_t *xlat_base =
+			((xlat_ctx_t *)sp_ctx->xlat_ctx_handle)->base_table;
+
 	/* Point TTBR0_EL1 at the tables of the context created for the SP. */
 	write_ctx_reg(get_sysregs_ctx(ctx), CTX_TTBR0_EL1,
-			(u_register_t)secure_partition_base_xlat_table);
+			(u_register_t)xlat_base);
 
 	/*
 	 * Setup other system registers
@@ -312,6 +297,4 @@ void secure_partition_setup(void)
 		if (plat_my_core_pos() == sp_mp_info[index].linear_id)
 			sp_mp_info[index].flags |= MP_INFO_FLAG_PRIMARY_CPU;
 	}
-
-	VERBOSE("S-EL1/S-EL0 context setup end.\n");
 }

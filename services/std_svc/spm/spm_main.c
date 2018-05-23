@@ -22,9 +22,28 @@
 #include <xlat_tables_v2.h>
 
 #include "spm_private.h"
+#include "spm_shim_private.h"
+
+/* Place translation tables by default along with the ones used by BL31. */
+#ifndef PLAT_SP_IMAGE_XLAT_SECTION_NAME
+#define PLAT_SP_IMAGE_XLAT_SECTION_NAME	"xlat_table"
+#endif
+
+/* Allocate and initialise the translation context for the secure partitions. */
+REGISTER_XLAT_CONTEXT2(sp,
+		       PLAT_SP_IMAGE_MMAP_REGIONS,
+		       PLAT_SP_IMAGE_MAX_XLAT_TABLES,
+		       PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE,
+		       EL1_EL0_REGIME, PLAT_SP_IMAGE_XLAT_SECTION_NAME);
 
 /* Lock used for SP_MEMORY_ATTRIBUTES_GET and SP_MEMORY_ATTRIBUTES_SET */
 static spinlock_t mem_attr_smc_lock;
+
+/* Get handle of Secure Partition translation context */
+xlat_ctx_t *spm_get_sp_xlat_context(void)
+{
+	return &sp_xlat_ctx;
+};
 
 /*******************************************************************************
  * Secure Partition context information.
@@ -32,193 +51,82 @@ static spinlock_t mem_attr_smc_lock;
 static secure_partition_context_t sp_ctx;
 
 /*******************************************************************************
- * Replace the S-EL1 re-entry information with S-EL0 re-entry
- * information
+ * This function takes an SP context pointer and prepares the CPU to enter.
  ******************************************************************************/
-static void spm_setup_next_eret_into_sel0(const cpu_context_t *secure_context)
+static void spm_sp_prepare_enter(secure_partition_context_t *sp_ctx)
 {
-	assert(secure_context == cm_get_context(SECURE));
+	assert(sp_ctx != NULL);
 
-	cm_set_elr_spsr_el3(SECURE, read_elr_el1(), read_spsr_el1());
-}
+	/* Assign the context of the SP to this CPU */
+	cm_set_context(&(sp_ctx->cpu_ctx), SECURE);
 
-/*******************************************************************************
- * This function takes an SP context pointer and:
- * 1. Applies the S-EL1 system register context from sp_ctx->cpu_ctx.
- * 2. Saves the current C runtime state (callee-saved registers) on the stack
- *    frame and saves a reference to this state.
- * 3. Calls el3_exit() so that the EL3 system and general purpose registers
- *    from the sp_ctx->cpu_ctx are used to enter the secure partition image.
- ******************************************************************************/
-static uint64_t spm_synchronous_sp_entry(secure_partition_context_t *sp_ctx_ptr)
-{
-	uint64_t rc;
-
-	assert(sp_ctx_ptr != NULL);
-	assert(sp_ctx_ptr->c_rt_ctx == 0);
-	assert(cm_get_context(SECURE) == &sp_ctx_ptr->cpu_ctx);
-
-	/* Apply the Secure EL1 system register context and switch to it */
+	/* Restore the context assigned above */
 	cm_el1_sysregs_context_restore(SECURE);
 	cm_set_next_eret_context(SECURE);
 
-	VERBOSE("%s: We're about to enter the Secure partition...\n", __func__);
-
-	rc = spm_secure_partition_enter(&sp_ctx_ptr->c_rt_ctx);
-#if ENABLE_ASSERTIONS
-	sp_ctx_ptr->c_rt_ctx = 0;
-#endif
-
-	return rc;
+	/* Invalidate TLBs at EL1. */
+	tlbivmalle1();
+	dsbish();
 }
 
-
 /*******************************************************************************
- * This function takes a Secure partition context pointer and:
- * 1. Saves the S-EL1 system register context to sp_ctx->cpu_ctx.
- * 2. Restores the current C runtime state (callee saved registers) from the
- *    stack frame using the reference to this state saved in
- *    spm_secure_partition_enter().
- * 3. It does not need to save any general purpose or EL3 system register state
- *    as the generic smc entry routine should have saved those.
+ * Enter SP after preparing it with spm_sp_prepare_enter().
  ******************************************************************************/
-static void __dead2 spm_synchronous_sp_exit(
-		const secure_partition_context_t *sp_ctx_ptr, uint64_t ret)
+static uint64_t spm_sp_enter(secure_partition_context_t *sp_ctx)
 {
-	assert(sp_ctx_ptr != NULL);
-	/* Save the Secure EL1 system register context */
-	assert(cm_get_context(SECURE) == &sp_ctx_ptr->cpu_ctx);
-	cm_el1_sysregs_context_save(SECURE);
-
-	assert(sp_ctx_ptr->c_rt_ctx != 0U);
-	spm_secure_partition_exit(sp_ctx_ptr->c_rt_ctx, ret);
-
-	/* Should never reach here */
-	assert(0);
+	/* Enter Secure Partition */
+	return spm_secure_partition_enter(&sp_ctx->c_rt_ctx);
 }
 
 /*******************************************************************************
- * This function passes control to the Secure Partition image (BL32) for the
- * first time on the primary cpu after a cold boot. It assumes that a valid
- * secure context has already been created by spm_setup() which can be directly
- * used. This function performs a synchronous entry into the Secure partition.
- * The SP passes control back to this routine through a SMC.
+ * Jump to each Secure Partition for the first time.
  ******************************************************************************/
 static int32_t spm_init(void)
 {
-	entry_point_info_t *secure_partition_ep_info;
-	uint64_t rc;
+	uint64_t rc = 0;
+	secure_partition_context_t *ctx;
 
-	VERBOSE("%s entry\n", __func__);
+	INFO("Secure Partition init...\n");
 
-	/*
-	 * Get information about the Secure Partition (BL32) image. Its
-	 * absence is a critical failure.
-	 */
-	secure_partition_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
-	assert(secure_partition_ep_info != NULL);
+	ctx = &sp_ctx;
 
-	/*
-	 * Initialise the common context and then overlay the S-EL0 specific
-	 * context on top of it.
-	 */
-	cm_init_my_context(secure_partition_ep_info);
-	secure_partition_setup();
+	ctx->sp_init_in_progress = 1;
 
-	/*
-	 * Make all CPUs use the same secure context.
-	 */
-	for (unsigned int i = 0; i < PLATFORM_CORE_COUNT; i++) {
-		cm_set_context_by_index(i, &sp_ctx.cpu_ctx, SECURE);
-	}
-
-	/*
-	 * Arrange for an entry into the secure partition.
-	 */
-	sp_ctx.sp_init_in_progress = 1;
-	rc = spm_synchronous_sp_entry(&sp_ctx);
+	spm_sp_prepare_enter(ctx);
+	rc |= spm_sp_enter(ctx);
 	assert(rc == 0);
-	sp_ctx.sp_init_in_progress = 0;
-	VERBOSE("SP_MEMORY_ATTRIBUTES_SET_AARCH64 availability has been revoked\n");
+
+	ctx->sp_init_in_progress = 0;
+
+	INFO("Secure Partition initialized.\n");
 
 	return rc;
 }
 
 /*******************************************************************************
- * Given a secure partition entrypoint info pointer, entry point PC & pointer to
- * a context data structure, this function will initialize the SPM context and
- * entry point info for the secure partition.
- ******************************************************************************/
-void spm_init_sp_ep_state(struct entry_point_info *sp_ep_info,
-			  uint64_t pc,
-			  secure_partition_context_t *sp_ctx_ptr)
-{
-	uint32_t ep_attr;
-
-	assert(sp_ep_info != NULL);
-	assert(pc != 0U);
-	assert(sp_ctx_ptr != NULL);
-
-	cm_set_context(&sp_ctx_ptr->cpu_ctx, SECURE);
-
-	/* initialise an entrypoint to set up the CPU context */
-	ep_attr = SECURE | EP_ST_ENABLE;
-	if ((read_sctlr_el3() & SCTLR_EE_BIT) != 0U)
-		ep_attr |= EP_EE_BIG;
-	SET_PARAM_HEAD(sp_ep_info, PARAM_EP, VERSION_1, ep_attr);
-
-	sp_ep_info->pc = pc;
-	/* The secure partition runs in S-EL0. */
-	sp_ep_info->spsr = SPSR_64(MODE_EL0,
-				   MODE_SP_EL0,
-				   DISABLE_ALL_EXCEPTIONS);
-
-	zeromem(&sp_ep_info->args, sizeof(sp_ep_info->args));
-}
-
-/*******************************************************************************
- * Secure Partition Manager setup. The SPM finds out the SP entrypoint if not
- * already known and initialises the context for entry into the SP for its
- * initialisation.
+ * Initialize contexts of all Secure Partitions.
  ******************************************************************************/
 int32_t spm_setup(void)
 {
-	entry_point_info_t *secure_partition_ep_info;
+	secure_partition_context_t *ctx;
 
-	VERBOSE("%s entry\n", __func__);
+	/* Disable MMU at EL1 (initialized by BL2) */
+	disable_mmu_icache_el1();
 
-	/*
-	 * Get information about the Secure Partition (BL32) image. Its
-	 * absence is a critical failure.
-	 */
-	secure_partition_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
-	if (secure_partition_ep_info == NULL) {
-		WARN("No SPM provided by BL2 boot loader, Booting device"
-			" without SPM initialization. SMCs destined for SPM"
-			" will return SMC_UNK\n");
-		return 1;
-	}
+	/* Initialize context of the SP */
+	INFO("Secure Partition context setup start...\n");
 
-	/*
-	 * If there's no valid entry point for SP, we return a non-zero value
-	 * signalling failure initializing the service. We bail out without
-	 * registering any handlers
-	 */
-	if (secure_partition_ep_info->pc == 0U) {
-		return 1;
-	}
+	ctx = &sp_ctx;
 
-	spm_init_sp_ep_state(secure_partition_ep_info,
-			      secure_partition_ep_info->pc,
-			      &sp_ctx);
+	/* Assign translation tables context. */
+	ctx->xlat_ctx_handle = spm_get_sp_xlat_context();
 
-	/*
-	 * All SPM initialization done. Now register our init function with
-	 * BL31 for deferred invocation
-	 */
+	secure_partition_setup(ctx);
+
+	/* Register init function for deferred init.  */
 	bl31_register_bl32_init(&spm_init);
 
-	VERBOSE("%s exit\n", __func__);
+	INFO("Secure Partition setup done.\n");
 
 	return 0;
 }
@@ -290,13 +198,15 @@ static unsigned int smc_mmap_to_smc_attr(unsigned int attr)
 	return smc_attr;
 }
 
-static int32_t spm_memory_attributes_get_smc_handler(uintptr_t base_va)
+static int32_t spm_memory_attributes_get_smc_handler(
+					secure_partition_context_t *sp_ctx,
+					uintptr_t base_va)
 {
 	uint32_t attributes;
 
 	spin_lock(&mem_attr_smc_lock);
 
-	int rc = get_mem_attributes(secure_partition_xlat_ctx_handle,
+	int rc = get_mem_attributes(sp_ctx->xlat_ctx_handle,
 				     base_va, &attributes);
 
 	spin_unlock(&mem_attr_smc_lock);
@@ -311,7 +221,9 @@ static int32_t spm_memory_attributes_get_smc_handler(uintptr_t base_va)
 	}
 }
 
-static int spm_memory_attributes_set_smc_handler(u_register_t page_address,
+static int spm_memory_attributes_set_smc_handler(
+					secure_partition_context_t *sp_ctx,
+					u_register_t page_address,
 					u_register_t pages_count,
 					u_register_t smc_attributes)
 {
@@ -325,8 +237,9 @@ static int spm_memory_attributes_set_smc_handler(u_register_t page_address,
 
 	spin_lock(&mem_attr_smc_lock);
 
-	int ret = change_mem_attributes(secure_partition_xlat_ctx_handle,
-			base_va, size, smc_attr_to_mmap_attr(attributes));
+	int ret = change_mem_attributes(sp_ctx->xlat_ctx_handle,
+					base_va, size,
+					smc_attr_to_mmap_attr(attributes));
 
 	spin_unlock(&mem_attr_smc_lock);
 
@@ -336,7 +249,9 @@ static int spm_memory_attributes_set_smc_handler(u_register_t page_address,
 	return (ret == 0) ? SPM_SUCCESS : SPM_INVALID_PARAMETER;
 }
 
-
+/*******************************************************************************
+ * Secure Partition Manager SMC handler.
+ ******************************************************************************/
 uint64_t spm_smc_handler(uint32_t smc_fid,
 			 uint64_t x1,
 			 uint64_t x2,
@@ -356,17 +271,21 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 
 		/* Handle SMCs from Secure world. */
 
+		assert(handle == cm_get_context(SECURE));
+
+		/* Make next ERET jump to S-EL0 instead of S-EL1. */
+		cm_set_elr_spsr_el3(SECURE, read_elr_el1(), read_spsr_el1());
+
 		switch (smc_fid) {
 
 		case SPM_VERSION_AARCH32:
 			SMC_RET1(handle, SPM_VERSION_COMPILED);
 
 		case SP_EVENT_COMPLETE_AARCH64:
-			assert(handle == cm_get_context(SECURE));
+			/* Save secure state */
 			cm_el1_sysregs_context_save(SECURE);
-			spm_setup_next_eret_into_sel0(handle);
 
-			if (sp_ctx.sp_init_in_progress) {
+			if (sp_ctx.sp_init_in_progress == 1) {
 				/*
 				 * SPM reports completion. The SPM must have
 				 * initiated the original request through a
@@ -374,18 +293,18 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 				 * partition. Jump back to the original C
 				 * runtime context.
 				 */
-				spm_synchronous_sp_exit(&sp_ctx, x1);
-				assert(0);
+				spm_secure_partition_exit(sp_ctx.c_rt_ctx, x1);
+
+				/* spm_secure_partition_exit doesn't return */
 			}
 
 			/* Release the Secure Partition context */
-			spin_unlock(&sp_ctx.lock);
+			spin_unlock(&(sp_ctx.lock));
 
 			/*
 			 * This is the result from the Secure partition of an
 			 * earlier request. Copy the result into the non-secure
-			 * context, save the secure state and return to the
-			 * non-secure state.
+			 * context and return to the non-secure state.
 			 */
 
 			/* Get a reference to the non-secure context */
@@ -402,20 +321,24 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
 			INFO("Received SP_MEMORY_ATTRIBUTES_GET_AARCH64 SMC\n");
 
-			if (!sp_ctx.sp_init_in_progress) {
+			if (sp_ctx.sp_init_in_progress == 0) {
 				WARN("SP_MEMORY_ATTRIBUTES_GET_AARCH64 is available at boot time only\n");
 				SMC_RET1(handle, SPM_NOT_SUPPORTED);
 			}
-			SMC_RET1(handle, spm_memory_attributes_get_smc_handler(x1));
+			SMC_RET1(handle,
+				 spm_memory_attributes_get_smc_handler(
+					 &sp_ctx, x1));
 
 		case SP_MEMORY_ATTRIBUTES_SET_AARCH64:
 			INFO("Received SP_MEMORY_ATTRIBUTES_SET_AARCH64 SMC\n");
 
-			if (!sp_ctx.sp_init_in_progress) {
+			if (sp_ctx.sp_init_in_progress == 0) {
 				WARN("SP_MEMORY_ATTRIBUTES_SET_AARCH64 is available at boot time only\n");
 				SMC_RET1(handle, SPM_NOT_SUPPORTED);
 			}
-			SMC_RET1(handle, spm_memory_attributes_set_smc_handler(x1, x2, x3));
+			SMC_RET1(handle,
+				 spm_memory_attributes_set_smc_handler(
+					&sp_ctx, x1, x2, x3));
 		default:
 			break;
 		}
@@ -456,16 +379,13 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 			/* Lock the Secure Partition context. */
 			spin_lock(&sp_ctx.lock);
 
-			/*
-			 * Restore the secure world context and prepare for
-			 * entry in S-EL0
-			 */
-			assert(&sp_ctx.cpu_ctx == cm_get_context(SECURE));
-			cm_el1_sysregs_context_restore(SECURE);
-			cm_set_next_eret_context(SECURE);
+			/* Jump to the Secure Partition. */
 
-			SMC_RET4(&sp_ctx.cpu_ctx, smc_fid, comm_buffer_address,
-				 comm_size_address, plat_my_core_pos());
+			spm_sp_prepare_enter(&sp_ctx);
+
+			SMC_RET4(&(sp_ctx.cpu_ctx), smc_fid,
+				 comm_buffer_address, comm_size_address,
+				 plat_my_core_pos());
 		}
 
 		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:

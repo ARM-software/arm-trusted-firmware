@@ -55,8 +55,4 @@ typedef struct secure_partition_boot_info {
 	secure_partition_mp_info_t	*mp_info;
 } secure_partition_boot_info_t;
 
-/* Setup function for secure partitions context. */
-
-void secure_partition_setup(void);
-
 #endif /* __SECURE_PARTITION_H__ */

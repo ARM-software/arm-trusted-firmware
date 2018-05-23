@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,30 +29,26 @@
 #define SP_C_RT_CTX_SIZE	0x60
 #define SP_C_RT_CTX_ENTRIES	(SP_C_RT_CTX_SIZE >> DWORD_SHIFT)
 
-
 #ifndef __ASSEMBLY__
 
 #include <spinlock.h>
 #include <stdint.h>
 #include <xlat_tables_v2.h>
 
-/* Handle on the Secure partition translation context */
-extern xlat_ctx_t *secure_partition_xlat_ctx_handle;
-
-struct entry_point_info;
-
 typedef struct secure_partition_context {
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
+	xlat_ctx_t *xlat_ctx_handle;
 	unsigned int sp_init_in_progress;
 	spinlock_t lock;
 } secure_partition_context_t;
 
+/* Assembly helpers */
 uint64_t spm_secure_partition_enter(uint64_t *c_rt_ctx);
 void __dead2 spm_secure_partition_exit(uint64_t c_rt_ctx, uint64_t ret);
-void spm_init_sp_ep_state(struct entry_point_info *sp_ep_info,
-			  uint64_t pc,
-			  secure_partition_context_t *sp_ctx_ptr);
+
+void secure_partition_setup(secure_partition_context_t *sp_ctx);
+
 #endif /* __ASSEMBLY__ */
 
 #endif /* __SPM_PRIVATE_H__ */
