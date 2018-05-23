@@ -91,6 +91,15 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		    VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
 	    .next_handoff_image_id = INVALID_IMAGE_ID,
     },
+	/* Fill SOC_FW_CONFIG related information */
+    {
+	    .image_id = SOC_FW_CONFIG_ID,
+	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
+		    VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
+	    SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
+		    VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
+	    .next_handoff_image_id = INVALID_IMAGE_ID,
+    },
 # ifdef BL32_BASE
 	/* Fill BL32 related information */
     {
@@ -144,6 +153,16 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 #endif
 	    .next_handoff_image_id = INVALID_IMAGE_ID,
     },
+
+	/* Fill TOS_FW_CONFIG related information */
+    {
+	    .image_id = TOS_FW_CONFIG_ID,
+	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
+		    VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
+	    SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
+		    VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
+	    .next_handoff_image_id = INVALID_IMAGE_ID,
+    },
 # endif /* BL32_BASE */
 
 	/* Fill BL33 related information */
@@ -165,6 +184,15 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 	    .image_info.image_max_size = ARM_DRAM1_SIZE,
 # endif /* PRELOADED_BL33_BASE */
 
+	    .next_handoff_image_id = INVALID_IMAGE_ID,
+    },
+	/* Fill NT_FW_CONFIG related information */
+    {
+	    .image_id = NT_FW_CONFIG_ID,
+	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
+		    VERSION_2, entry_point_info_t, NON_SECURE | NON_EXECUTABLE),
+	    SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
+		    VERSION_2, image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
 	    .next_handoff_image_id = INVALID_IMAGE_ID,
     }
 #endif /* EL3_PAYLOAD_BASE */

@@ -58,6 +58,10 @@ DEBUG				:= 0
 # Build platform
 DEFAULT_PLAT			:= fvp
 
+# Enable capability to disable authentication dynamically. Only meant for
+# development platforms.
+DYN_DISABLE_AUTH		:= 0
+
 # Flag to enable Performance Measurement Framework
 ENABLE_PMF			:= 0
 

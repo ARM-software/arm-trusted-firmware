@@ -323,6 +323,11 @@ Common build options
 -  ``DEBUG``: Chooses between a debug and release build. It can take either 0
    (release) or 1 (debug) as values. 0 is the default.
 
+-  ``DYN_DISABLE_AUTH``: Enables the capability to disable Trusted Board Boot
+   authentication. This option is only meant to be enabled for development
+   platforms. Both TRUSTED_BOARD_BOOT and the LOAD_IMAGE_V2 flags need to be
+   set if this flag has to be enabled. 0 is the default.
+
 -  ``EL3_PAYLOAD_BASE``: This option enables booting an EL3 payload instead of
    the normal boot flow. It must specify the entry point address of the EL3
    payload. Please refer to the "Booting an EL3 payload" section for more

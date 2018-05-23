@@ -233,6 +233,14 @@ void reserve_mem(uintptr_t *free_base, size_t *free_size,
 
 #endif /* LOAD_IMAGE_V2 */
 
+#if TRUSTED_BOARD_BOOT && defined(DYN_DISABLE_AUTH)
+/*
+ * API to dynamically disable authentication. Only meant for development
+ * systems.
+ */
+void dyn_disable_auth(void);
+#endif
+
 extern const char build_message[];
 extern const char version_string[];
 

@@ -166,11 +166,30 @@ BL31_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
 # Add the FDT_SOURCES and options for Dynamic Config (only for Unix env)
 ifdef UNIX_MK
 FVP_HW_CONFIG_DTS	:=	fdts/${FVP_DT_PREFIX}.dts
-FDT_SOURCES		+=	plat/arm/board/fvp/fdts/${PLAT}_tb_fw_config.dts
+FDT_SOURCES		+=	$(addprefix plat/arm/board/fvp/fdts/,	\
+					${PLAT}_tb_fw_config.dts	\
+					${PLAT}_soc_fw_config.dts	\
+					${PLAT}_nt_fw_config.dts	\
+				)
+
 FVP_TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
+FVP_SOC_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_soc_fw_config.dtb
+FVP_NT_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_nt_fw_config.dtb
+
+ifeq (${SPD},tspd)
+FDT_SOURCES		+=	plat/arm/board/fvp/fdts/${PLAT}_tsp_fw_config.dts
+FVP_TOS_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_tsp_fw_config.dtb
+
+# Add the TOS_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${FVP_TOS_FW_CONFIG},--tos-fw-config))
+endif
 
 # Add the TB_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_TB_FW_CONFIG},--tb-fw-config))
+# Add the SOC_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${FVP_SOC_FW_CONFIG},--soc-fw-config))
+# Add the NT_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${FVP_NT_FW_CONFIG},--nt-fw-config))
 
 FDT_SOURCES		+=	${FVP_HW_CONFIG_DTS}
 $(eval FVP_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(FVP_HW_CONFIG_DTS)))
@@ -208,3 +227,11 @@ endif
 
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
+
+# FVP being a development platform, enable capability to disable Authentication
+# dynamically if TRUSTED_BOARD_BOOT and LOAD_IMAGE_V2 is set.
+ifeq (${TRUSTED_BOARD_BOOT}, 1)
+    ifeq (${LOAD_IMAGE_V2}, 1)
+        DYN_DISABLE_AUTH	:=	1
+    endif
+endif

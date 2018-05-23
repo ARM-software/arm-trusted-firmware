@@ -63,6 +63,18 @@ static const io_uuid_spec_t hw_config_uuid_spec = {
 	.uuid = UUID_HW_CONFIG,
 };
 
+static const io_uuid_spec_t soc_fw_config_uuid_spec = {
+	.uuid = UUID_SOC_FW_CONFIG,
+};
+
+static const io_uuid_spec_t tos_fw_config_uuid_spec = {
+	.uuid = UUID_TOS_FW_CONFIG,
+};
+
+static const io_uuid_spec_t nt_fw_config_uuid_spec = {
+	.uuid = UUID_NT_FW_CONFIG,
+};
+
 #if TRUSTED_BOARD_BOOT
 static const io_uuid_spec_t tb_fw_cert_uuid_spec = {
 	.uuid = UUID_TRUSTED_BOOT_FW_CERT,
@@ -165,6 +177,21 @@ static const struct plat_io_policy policies[] = {
 	[HW_CONFIG_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&hw_config_uuid_spec,
+		open_fip
+	},
+	[SOC_FW_CONFIG_ID] = {
+			&fip_dev_handle,
+			(uintptr_t)&soc_fw_config_uuid_spec,
+			open_fip
+	},
+	[TOS_FW_CONFIG_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&tos_fw_config_uuid_spec,
+		open_fip
+	},
+	[NT_FW_CONFIG_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&nt_fw_config_uuid_spec,
 		open_fip
 	},
 #if TRUSTED_BOARD_BOOT

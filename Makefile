@@ -401,6 +401,16 @@ ifeq ($(FAULT_INJECTION_SUPPORT),1)
     endif
 endif
 
+# DYN_DISABLE_AUTH can be set only when TRUSTED_BOARD_BOOT=1 and LOAD_IMAGE_V2=1
+ifeq ($(DYN_DISABLE_AUTH), 1)
+    ifeq (${TRUSTED_BOARD_BOOT}, 0)
+        $(error "TRUSTED_BOARD_BOOT must be enabled for DYN_DISABLE_AUTH to be set.")
+    endif
+    ifeq (${LOAD_IMAGE_V2}, 0)
+        $(error "DYN_DISABLE_AUTH is only supported for LOAD_IMAGE_V2.")
+    endif
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -517,6 +527,7 @@ $(eval $(call assert_boolean,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
 $(eval $(call assert_boolean,DEBUG))
 $(eval $(call assert_boolean,DISABLE_PEDANTIC))
+$(eval $(call assert_boolean,DYN_DISABLE_AUTH))
 $(eval $(call assert_boolean,EL3_EXCEPTION_HANDLING))
 $(eval $(call assert_boolean,ENABLE_AMU))
 $(eval $(call assert_boolean,ENABLE_ASSERTIONS))
@@ -618,6 +629,11 @@ ifeq (${ARCH},aarch32)
         $(eval $(call add_define,AARCH32))
 else
         $(eval $(call add_define,AARCH64))
+endif
+
+# Define the DYN_DISABLE_AUTH flag only if set.
+ifeq (${DYN_DISABLE_AUTH},1)
+$(eval $(call add_define,DYN_DISABLE_AUTH))
 endif
 
 ################################################################################

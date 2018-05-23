@@ -78,6 +78,21 @@ toc_entry_t toc_entries[] = {
 		.uuid = UUID_TB_FW_CONFIG,
 		.cmdline_name = "tb-fw-config"
 	},
+	{
+		.name = "SOC_FW_CONFIG",
+		.uuid = UUID_SOC_FW_CONFIG,
+		.cmdline_name = "soc-fw-config"
+	},
+	{
+		.name = "TOS_FW_CONFIG",
+		.uuid = UUID_TOS_FW_CONFIG,
+		.cmdline_name = "tos-fw-config"
+	},
+	{
+		.name = "NT_FW_CONFIG",
+		.uuid = UUID_NT_FW_CONFIG,
+		.cmdline_name = "nt-fw-config"
+	},
 	/* Key Certificates */
 	{
 		.name = "Root Of Trust key certificate",

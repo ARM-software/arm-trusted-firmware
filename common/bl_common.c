@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,6 +16,35 @@
 #include <string.h>
 #include <utils.h>
 #include <xlat_tables_defs.h>
+
+#if TRUSTED_BOARD_BOOT
+# ifdef DYN_DISABLE_AUTH
+static int disable_auth;
+
+/******************************************************************************
+ * API to dynamically disable authentication. Only meant for development
+ * systems. This is only invoked if DYN_DISABLE_AUTH is defined. This
+ * capability is restricted to LOAD_IMAGE_V2.
+ *****************************************************************************/
+void dyn_disable_auth(void)
+{
+	INFO("Disabling authentication of images dynamically\n");
+	disable_auth = 1;
+}
+# endif /* DYN_DISABLE_AUTH */
+
+/******************************************************************************
+ * Function to determine whether the authentication is disabled dynamically.
+ *****************************************************************************/
+static int dyn_is_auth_disabled(void)
+{
+# ifdef DYN_DISABLE_AUTH
+	return disable_auth;
+# else
+	return 0;
+# endif
+}
+#endif /* TRUSTED_BOARD_BOOT */
 
 uintptr_t page_align(uintptr_t value, unsigned dir)
 {
@@ -287,14 +316,16 @@ static int load_auth_image_internal(unsigned int image_id,
 	int rc;
 
 #if TRUSTED_BOARD_BOOT
-	unsigned int parent_id;
+	if (dyn_is_auth_disabled() == 0) {
+		unsigned int parent_id;
 
-	/* Use recursion to authenticate parent images */
-	rc = auth_mod_get_parent_id(image_id, &parent_id);
-	if (rc == 0) {
-		rc = load_auth_image_internal(parent_id, image_data, 1);
-		if (rc != 0) {
-			return rc;
+		/* Use recursion to authenticate parent images */
+		rc = auth_mod_get_parent_id(image_id, &parent_id);
+		if (rc == 0) {
+			rc = load_auth_image_internal(parent_id, image_data, 1);
+			if (rc != 0) {
+				return rc;
+			}
 		}
 	}
 #endif /* TRUSTED_BOARD_BOOT */
@@ -306,17 +337,19 @@ static int load_auth_image_internal(unsigned int image_id,
 	}
 
 #if TRUSTED_BOARD_BOOT
-	/* Authenticate it */
-	rc = auth_mod_verify_img(image_id,
-				 (void *)image_data->image_base,
-				 image_data->image_size);
-	if (rc != 0) {
-		/* Authentication error, zero memory and flush it right away. */
-		zero_normalmem((void *)image_data->image_base,
-		       image_data->image_size);
-		flush_dcache_range(image_data->image_base,
-				   image_data->image_size);
-		return -EAUTH;
+	if (dyn_is_auth_disabled() == 0) {
+		/* Authenticate it */
+		rc = auth_mod_verify_img(image_id,
+					 (void *)image_data->image_base,
+					 image_data->image_size);
+		if (rc != 0) {
+			/* Authentication error, zero memory and flush it right away. */
+			zero_normalmem((void *)image_data->image_base,
+			       image_data->image_size);
+			flush_dcache_range(image_data->image_base,
+					   image_data->image_size);
+			return -EAUTH;
+		}
 	}
 #endif /* TRUSTED_BOARD_BOOT */
 

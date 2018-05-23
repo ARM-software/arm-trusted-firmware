@@ -207,14 +207,21 @@ void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_
 }
 
 /*
- * Perform ARM standard platform setup.
+ * Perform  BL2 preload setup. Currently we initialise the dynamic
+ * configuration here.
  */
-void arm_bl2_platform_setup(void)
+void bl2_plat_preload_setup(void)
 {
 #if LOAD_IMAGE_V2
 	arm_bl2_dyn_cfg_init();
 #endif
+}
 
+/*
+ * Perform ARM standard platform setup.
+ */
+void arm_bl2_platform_setup(void)
+{
 	/* Initialize the secure environment */
 	plat_arm_security_setup();
 
