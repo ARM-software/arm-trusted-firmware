@@ -285,9 +285,18 @@ void bl31_plat_runtime_setup(void)
 void arm_bl31_plat_arch_setup(void)
 {
 
+#define ARM_MAP_BL_ROMLIB	MAP_REGION_FLAT(			\
+					BL31_BASE,			\
+					BL31_END - BL31_BASE,		\
+					MT_MEMORY | MT_RW | MT_SECURE)
+
 	const mmap_region_t bl_regions[] = {
 		MAP_BL31_TOTAL,
 		ARM_MAP_BL_RO,
+#if USE_ROMLIB
+		ARM_MAP_ROMLIB_CODE,
+		ARM_MAP_ROMLIB_DATA,
+#endif
 #if USE_COHERENT_MEM
 		ARM_MAP_BL_COHERENT_RAM,
 #endif
@@ -297,6 +306,8 @@ void arm_bl31_plat_arch_setup(void)
 	arm_setup_page_tables(bl_regions, plat_arm_get_mmap());
 
 	enable_mmu_el3(0);
+
+	arm_setup_romlib();
 }
 
 void bl31_plat_arch_setup(void)

@@ -67,6 +67,8 @@
  * in debug mode. We can test TBB on Juno bypassing the ROM and using 128 KB of
  * flash
  */
+#define PLAT_ARM_MAX_ROMLIB_RO_SIZE	0
+
 #if TRUSTED_BOARD_BOOT
 #define PLAT_ARM_TRUSTED_ROM_SIZE	0x00020000
 #else
@@ -120,6 +122,15 @@
 # define PLAT_ARM_MAX_BL1_RW_SIZE	0xB000
 #else
 # define PLAT_ARM_MAX_BL1_RW_SIZE	0x6000
+#endif
+
+/*
+ * PLAT_ARM_MAX_ROMLIB_RW_SIZE is define to use a full page
+ */
+#if USE_ROMLIB
+#define PLAT_ARM_MAX_ROMLIB_RW_SIZE	0x1000
+#else
+#define PLAT_ARM_MAX_ROMLIB_RW_SIZE	0
 #endif
 
 /*

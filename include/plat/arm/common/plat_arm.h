@@ -72,6 +72,8 @@ typedef struct arm_tzc_regions_info {
 void arm_setup_page_tables(const mmap_region_t bl_regions[],
 			   const mmap_region_t plat_regions[]);
 
+void arm_setup_romlib(void);
+
 #if defined(IMAGE_BL31) || (defined(AARCH32) && defined(IMAGE_BL32))
 /*
  * Use this macro to instantiate lock before it is used in below
