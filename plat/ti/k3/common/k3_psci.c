@@ -9,7 +9,10 @@
 #include <debug.h>
 #include <k3_gicv3.h>
 #include <psci.h>
+#include <platform.h>
 #include <stdbool.h>
+
+#include <ti_sci.h>
 
 #define STUB() ERROR("stub %s called\n", __func__)
 
@@ -33,9 +36,40 @@ static void k3_cpu_standby(plat_local_state_t cpu_state)
 
 static int k3_pwr_domain_on(u_register_t mpidr)
 {
-	sev();
+	int core_id, proc, device, ret;
 
-	/* TODO: Indicate to System firmware about powering up */
+	core_id = plat_core_pos_by_mpidr(mpidr);
+	if (core_id < 0) {
+		ERROR("Could not get target core id: %d\n", core_id);
+		return PSCI_E_INTERN_FAIL;
+	}
+
+	proc = PLAT_PROC_START_ID + core_id;
+	device = PLAT_PROC_DEVICE_START_ID + core_id;
+
+	ret = ti_sci_proc_request(proc);
+	if (ret) {
+		ERROR("Request for processor failed: %d\n", ret);
+		return PSCI_E_INTERN_FAIL;
+	}
+
+	ret = ti_sci_proc_set_boot_cfg(proc, k3_sec_entrypoint, 0, 0);
+	if (ret) {
+		ERROR("Request to set core boot address failed: %d\n", ret);
+		return PSCI_E_INTERN_FAIL;
+	}
+
+	ret = ti_sci_device_get(device);
+	if (ret) {
+		ERROR("Request to start core failed: %d\n", ret);
+		return PSCI_E_INTERN_FAIL;
+	}
+
+	ret = ti_sci_proc_release(proc);
+	if (ret) {
+		/* this is not fatal */
+		WARN("Could not release processor control: %d\n", ret);
+	}
 
 	return PSCI_E_SUCCESS;
 }
