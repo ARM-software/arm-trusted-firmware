@@ -126,8 +126,7 @@ the rest of this document.
 
 To enable SPM support in TF-A, the source code must be compiled with the build
 flag ``ENABLE_SPM=1``. On Arm platforms the build option ``ARM_BL31_IN_DRAM``
-can be used to select the location of BL31, both SRAM and DRAM are supported.
-Also, the location of the binary that contains the BL32 image
+must be set to 1. Also, the location of the binary that contains the BL32 image
 (``BL32=path/to/image.bin``) must be specified.
 
 First, build the Standalone MM Secure Partition. To build it, refer to the
@@ -139,7 +138,7 @@ image in the FIP:
 ::
 
     BL32=path/to/standalone/mm/sp BL33=path/to/bl33.bin \
-    make PLAT=fvp ENABLE_SPM=1 fip all
+    make PLAT=fvp ENABLE_SPM=1 ARM_BL31_IN_DRAM=1 fip all
 
 Describing Secure Partition resources
 -------------------------------------

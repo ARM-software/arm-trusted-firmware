@@ -206,5 +206,11 @@ ifneq (${BL2_AT_EL3}, 0)
     override BL1_SOURCES =
 endif
 
+ifeq (${ENABLE_SPM},1)
+ifneq (${ARM_BL31_IN_DRAM},1)
+        $(error "Error: SPM needs BL31 to be located in DRAM.")
+endif
+endif
+
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
