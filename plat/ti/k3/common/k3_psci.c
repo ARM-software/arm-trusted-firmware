@@ -92,8 +92,8 @@ void k3_pwr_domain_on_finish(const psci_power_state_t *target_state)
 
 static void __dead2 k3_system_reset(void)
 {
-	/* TODO: Indicate to System firmware about system reset */
-	STUB();
+	/* Send the system reset request to system firmware */
+	ti_sci_core_reboot();
 
 	while (true)
 		wfi();
