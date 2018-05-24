@@ -4,11 +4,23 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
 #include <stdlib.h>
 
-void exit(int v)
+static void (*exitfun)(void);
+
+void exit(int status)
 {
-	ERROR("EXIT\n");
-	panic();
+	if (exitfun)
+		(*exitfun)();
+	for (;;)
+		;
+}
+
+int atexit(void (*fun)(void))
+{
+	if (exitfun)
+		return -1;
+	exitfun = fun;
+
+	return 0;
 }
