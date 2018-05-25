@@ -7,7 +7,6 @@
 #define __COMMON_DEF_H__
 
 #include <bl_common.h>
-#include <platform_def.h>
 
 /******************************************************************************
  * Required platform porting definitions that are expected to be common to

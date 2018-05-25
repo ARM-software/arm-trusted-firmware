@@ -10,7 +10,6 @@
 #include <common_def.h>
 #include <gic_common.h>
 #include <interrupt_props.h>
-#include <platform_def.h>
 #include <tbbr_img_def.h>
 #include <utils_def.h>
 #include <xlat_tables_defs.h>

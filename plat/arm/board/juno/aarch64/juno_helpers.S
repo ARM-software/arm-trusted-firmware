@@ -12,6 +12,7 @@
 #include <cortex_a72.h>
 #include <cpu_macros.S>
 #include <css_def.h>
+#include <platform_def.h>
 #include <v2m_def.h>
 #include "../juno_def.h"
 
