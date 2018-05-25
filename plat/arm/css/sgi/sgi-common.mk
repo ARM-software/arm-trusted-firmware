@@ -69,6 +69,11 @@ HW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}.dtb
 # Add the HW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${HW_CONFIG},--hw-config))
 
+ifneq (${RESET_TO_BL31},0)
+  $(error "Using BL31 as the reset vector is not supported on ${PLATFORM} platform. \
+  Please set RESET_TO_BL31 to 0.")
+endif
+
 $(eval $(call add_define,SGI_PLAT))
 
 override CSS_LOAD_SCP_IMAGES	:=	0
