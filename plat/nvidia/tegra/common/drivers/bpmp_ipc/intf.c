@@ -316,7 +316,7 @@ int tegra_bpmp_ipc_enable_clock(uint32_t clk_id)
 	/* prepare the MRQ_CLK command */
 	req.cmd_and_id = make_mrq_clk_cmd(CMD_CLK_ENABLE, clk_id);
 
-	ret = tegra_bpmp_ipc_send_req_atomic(MRQ_CLK, &req, sizeof(req),
+	ret = tegra_bpmp_ipc_send_req_atomic(MRQ_CLK, &req, (uint32_t)sizeof(req),
 			NULL, 0);
 	if (ret != 0) {
 		ERROR("%s: failed for module %d with error %d\n", __func__,
@@ -339,7 +339,7 @@ int tegra_bpmp_ipc_disable_clock(uint32_t clk_id)
 	/* prepare the MRQ_CLK command */
 	req.cmd_and_id = make_mrq_clk_cmd(CMD_CLK_DISABLE, clk_id);
 
-	ret = tegra_bpmp_ipc_send_req_atomic(MRQ_CLK, &req, sizeof(req),
+	ret = tegra_bpmp_ipc_send_req_atomic(MRQ_CLK, &req, (uint32_t)sizeof(req),
 			NULL, 0);
 	if (ret != 0) {
 		ERROR("%s: failed for module %d with error %d\n", __func__,
