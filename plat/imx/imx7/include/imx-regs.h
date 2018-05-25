@@ -1,0 +1,52 @@
+/*
+ * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef __REGS_H__
+#define __REGS_H__
+
+/* Define the processor memory map */
+
+#define OCRAM_S_ALIAS_BASE		0x00000000	/* CM4 Alias Code */
+#define ROM_HIGH_BASE			0x00008000	/* ROM high 64k */
+#define ROM_HIGH_PROT_BASE		0x00017000	/* ROM high 64k protected */
+#define CAAM_BASE			0x00020000	/* CAAM block base address */
+#define OCRAM_S_BASE			0x00180000	/* OCRAM_S  */
+#define ROM_LOW_BASE			0x007f8000	/* ROM low 64k */
+#define OCRAM_BASE			0x00900000	/* OCRAM base */
+#define CM4_ALIAS_CODE_BASE		0x04000000	/* CM4 alias code */
+#define TCM_BASE			0x1fff0000	/* TCM */
+#define BOOTROM_CP_BASE			0x20020000	/* Boot ROM (all 96KB) */
+#define CM4_ALIAS_SYSTEM_BASE		0x20100000	/* CM4 Alias system */
+#define EIM_BASE			0x28000000	/* EIM */
+
+/* Peripherals like GPIO live in the AIPS range */
+#define AIPS1_BASE			0x30000000	/* AIPS1 */
+#define AIPS2_BASE			0x30400000	/* AIPS2 */
+#define AIPS3_BASE			0x30800000	/* AIPS3 */
+#define AIPS4_BASE			0x30c00000	/* AIPS4 */
+
+/* ARM peripherals like GIC */
+#define ARM_PERIPHERAL_GIC_BASE		0x31000000	/* GIC */
+
+/* Configuration ports */
+#define GPV0_BASE			0x32000000	/* Main config port */
+#define GPV1_BASE			0x32100000	/* Wakeup config port */
+#define GPV2_BASE			0x32200000	/* Per_s config port */
+#define GPV3_BASE			0x32300000	/* Per_m config port */
+#define GPV4_BASE			0x32400000	/* Enet config port */
+#define GPV5_BASE			0x32500000	/* Display config port */
+#define GPV6_BASE			0x32600000	/* M4 conig port */
+
+/* MMAP peripherals - like APBH DMA */
+#define APBH_DMA_BASE			0x33000000	/* APBH DMA block */
+
+/* QSPI RX BUFFERS */
+#define QSPI_RX_BUFFER_BASE		0x34000000	/* QSPI RX buffers */
+
+/* QSPI1 FLASH */
+#define QSPI_FLASH_BASE			0x60000000	/* QSPI1 flash */
+
+#endif /* __REGS_H__ */
