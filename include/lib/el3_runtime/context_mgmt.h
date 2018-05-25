@@ -7,11 +7,11 @@
 #ifndef __CM_H__
 #define __CM_H__
 
-#ifndef AARCH32
 #include <arch.h>
 #include <assert.h>
+#include <context.h>
+#include <context_mgmt.h>
 #include <stdint.h>
-#endif
 
 /*******************************************************************************
  * Forward declarations
@@ -32,6 +32,7 @@ void cm_set_context(void *context, uint32_t security_state);
 void cm_init_my_context(const struct entry_point_info *ep);
 void cm_init_context_by_index(unsigned int cpu_idx,
 			      const struct entry_point_info *ep);
+void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep);
 void cm_prepare_el3_exit(uint32_t security_state);
 
 #ifndef AARCH32

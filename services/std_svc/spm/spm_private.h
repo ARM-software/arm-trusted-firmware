@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,30 +29,42 @@
 #define SP_C_RT_CTX_SIZE	0x60
 #define SP_C_RT_CTX_ENTRIES	(SP_C_RT_CTX_SIZE >> DWORD_SHIFT)
 
-
 #ifndef __ASSEMBLY__
 
 #include <spinlock.h>
 #include <stdint.h>
 #include <xlat_tables_v2.h>
 
-/* Handle on the Secure partition translation context */
-extern xlat_ctx_t *secure_partition_xlat_ctx_handle;
+typedef enum secure_partition_state {
+	SP_STATE_RESET = 0,
+	SP_STATE_IDLE,
+	SP_STATE_BUSY
+} sp_state_t;
 
-struct entry_point_info;
-
-typedef struct secure_partition_context {
+typedef struct sp_context {
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
-	unsigned int sp_init_in_progress;
-	spinlock_t lock;
-} secure_partition_context_t;
+	xlat_ctx_t *xlat_ctx_handle;
 
+	sp_state_t state;
+	spinlock_t state_lock;
+} sp_context_t;
+
+/* Assembly helpers */
 uint64_t spm_secure_partition_enter(uint64_t *c_rt_ctx);
 void __dead2 spm_secure_partition_exit(uint64_t c_rt_ctx, uint64_t ret);
-void spm_init_sp_ep_state(struct entry_point_info *sp_ep_info,
-			  uint64_t pc,
-			  secure_partition_context_t *sp_ctx_ptr);
+
+void spm_sp_setup(sp_context_t *sp_ctx);
+
+xlat_ctx_t *spm_get_sp_xlat_context(void);
+
+int32_t spm_memory_attributes_get_smc_handler(sp_context_t *sp_ctx,
+					      uintptr_t base_va);
+int spm_memory_attributes_set_smc_handler(sp_context_t *sp_ctx,
+					  u_register_t page_address,
+					  u_register_t pages_count,
+					  u_register_t smc_attributes);
+
 #endif /* __ASSEMBLY__ */
 
 #endif /* __SPM_PRIVATE_H__ */

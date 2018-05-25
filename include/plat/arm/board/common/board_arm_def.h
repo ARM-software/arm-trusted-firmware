@@ -30,7 +30,9 @@
 #elif defined(IMAGE_BL2U)
 # define PLATFORM_STACK_SIZE 0x200
 #elif defined(IMAGE_BL31)
-#ifdef PLAT_XLAT_TABLES_DYNAMIC
+#if ENABLE_SPM
+# define PLATFORM_STACK_SIZE 0x500
+#elif PLAT_XLAT_TABLES_DYNAMIC
 # define PLATFORM_STACK_SIZE 0x800
 #else
 # define PLATFORM_STACK_SIZE 0x400
@@ -94,7 +96,11 @@
  * PLAT_ARM_MAX_BL31_SIZE is calculated using the current BL31 debug size plus a
  * little space for growth.
  */
-#define PLAT_ARM_MAX_BL31_SIZE		0x20000
+#if ENABLE_SPM
+# define PLAT_ARM_MAX_BL31_SIZE		0x40000
+#else
+# define PLAT_ARM_MAX_BL31_SIZE		0x20000
+#endif
 
 #ifdef AARCH32
 /*
