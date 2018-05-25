@@ -39,11 +39,6 @@ BL31_SOURCES		+=	plat/arm/css/drivers/scp/css_pm_scmi.c		\
 				plat/arm/css/drivers/mhu/css_mhu_doorbell.c
 endif
 
-ifneq (${RESET_TO_BL31},0)
-  $(error "Using BL31 as the reset vector is not supported on CSS platforms. \
-  Please set RESET_TO_BL31 to 0.")
-endif
-
 # Process CSS_LOAD_SCP_IMAGES flag
 $(eval $(call assert_boolean,CSS_LOAD_SCP_IMAGES))
 $(eval $(call add_define,CSS_LOAD_SCP_IMAGES))
