@@ -15,6 +15,7 @@
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
+#include <se.h>
 #include <tegra_platform.h>
 
 #include "se_private.h"
@@ -54,7 +55,7 @@ static bool tegra_se_is_operation_complete(void)
 	 */
 	do {
 		val = tegra_se_read_32(CTX_SAVE_AUTO_STATUS);
-		se_is_busy = !!(val & CTX_SAVE_AUTO_SE_BUSY);
+		se_is_busy = ((val & CTX_SAVE_AUTO_SE_BUSY) != 0U);
 
 		/* sleep until SE finishes */
 		if (se_is_busy) {
@@ -186,7 +187,8 @@ int32_t tegra_se_suspend(void)
 	assert(tegra_bpmp_ipc_init() == 0);
 
 	/* Enable SE clock before SE context save */
-	tegra_bpmp_ipc_enable_clock(TEGRA_CLK_SE);
+	ret = tegra_bpmp_ipc_enable_clock(TEGRA_CLK_SE);
+	assert(ret == 0);
 
 	/* save SE registers */
 	se_regs[0] = mmio_read_32(TEGRA_SE0_BASE + SE0_MUTEX_WATCHDOG_NS_LIMIT);
@@ -201,7 +203,8 @@ int32_t tegra_se_suspend(void)
 	}
 
 	/* Disable SE clock after SE context save */
-	tegra_bpmp_ipc_disable_clock(TEGRA_CLK_SE);
+	ret = tegra_bpmp_ipc_disable_clock(TEGRA_CLK_SE);
+	assert(ret == 0);
 
 	return ret;
 }
@@ -211,11 +214,14 @@ int32_t tegra_se_suspend(void)
  */
 void tegra_se_resume(void)
 {
+	int32_t ret = 0;
+
 	/* initialise communication channel with BPMP */
 	assert(tegra_bpmp_ipc_init() == 0);
 
 	/* Enable SE clock before SE context restore */
-	tegra_bpmp_ipc_enable_clock(TEGRA_CLK_SE);
+	ret = tegra_bpmp_ipc_enable_clock(TEGRA_CLK_SE);
+	assert(ret == 0);
 
 	/*
 	 * When TZ takes over after System Resume, TZ should first reconfigure
@@ -229,5 +235,6 @@ void tegra_se_resume(void)
 	mmio_write_32(TEGRA_PKA1_BASE + PKA1_MUTEX_WATCHDOG_NS_LIMIT, se_regs[3]);
 
 	/* Disable SE clock after SE context restore */
-	tegra_bpmp_ipc_disable_clock(TEGRA_CLK_SE);
+	ret = tegra_bpmp_ipc_disable_clock(TEGRA_CLK_SE);
+	assert(ret == 0);
 }
