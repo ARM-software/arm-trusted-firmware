@@ -12,7 +12,7 @@
 #include <platform_def.h>
 #include <xlat_mmu_helpers.h>
 #include <xlat_tables_defs.h>
-
+#include <aips.h>
 #include "warp7_private.h"
 
 int bl2_plat_handle_post_image_load(unsigned int image_id)
@@ -33,6 +33,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 				  u_register_t arg3, u_register_t arg4)
 {
 	/* Initialize the AIPS */
+	aips_init();
 
 	/* Initialize clocks, regulators, pin-muxes etc */
 
