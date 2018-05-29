@@ -115,6 +115,13 @@ int psci_cpu_on_start(u_register_t target_cpu,
 	}
 
 	/*
+	 * Store the re-entry information for the non-secure world here
+	 * before the core that needs it is started, this way we will not
+	 * need a lock to prevent a race to for this data.
+	 */
+	cm_init_context_by_index(target_idx, ep);
+
+	/*
 	 * Perform generic, architecture and platform specific handling.
 	 */
 	/*
@@ -124,11 +131,7 @@ int psci_cpu_on_start(u_register_t target_cpu,
 	 */
 	rc = psci_plat_pm_ops->pwr_domain_on(target_cpu);
 	assert(rc == PSCI_E_SUCCESS || rc == PSCI_E_INTERN_FAIL);
-
-	if (rc == PSCI_E_SUCCESS)
-		/* Store the re-entry information for the non-secure world. */
-		cm_init_context_by_index(target_idx, ep);
-	else {
+	if (rc != PSCI_E_SUCCESS) {
 		/* Restore the state on error. */
 		psci_set_aff_info_state_by_idx(target_idx, AFF_STATE_OFF);
 		flush_cpu_data_by_index(target_idx, psci_svc_cpu_data.aff_info_state);
@@ -168,15 +171,6 @@ void psci_cpu_on_finish(unsigned int cpu_idx,
 	 * to run in the non-secure address space.
 	 */
 	psci_arch_setup();
-
-	/*
-	 * Lock the CPU spin lock to make sure that the context initialization
-	 * is done. Since the lock is only used in this function to create
-	 * a synchronization point with cpu_on_start(), it can be released
-	 * immediately.
-	 */
-	psci_spin_lock_cpu(cpu_idx);
-	psci_spin_unlock_cpu(cpu_idx);
 
 	/* Ensure we have been explicitly woken up by another cpu */
 	assert(psci_get_aff_info_state() == AFF_STATE_ON_PENDING);
