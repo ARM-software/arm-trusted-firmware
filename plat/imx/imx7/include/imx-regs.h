@@ -51,5 +51,6 @@
 
 /* AIPS1 block addresses */
 #define AIPSTZ_CONFIG_OFFSET		0x001f0000
+#define CCM_BASE			(AIPS1_BASE + 0x380000)
 
 #endif /* __REGS_H__ */
