@@ -9,13 +9,13 @@
 #include <asm_macros.S>
 #include <context.h>
 
-	.globl	workaround_bpiall_vbar0_runtime_exceptions
+	.globl	wa_cve_2017_5715_bpiall_vbar
 
 #define EMIT_BPIALL		0xee070fd5
 #define EMIT_SMC		0xe1600070
 #define ESR_EL3_A64_SMC0	0x5e000000
 
-	.macro	enter_workaround _from_vector
+	.macro	apply_cve_2017_5715_wa _from_vector
 	/*
 	 * Save register state to enable a call to AArch32 S-EL1 and return
 	 * Identify the original calling vector in w2 (==_from_vector)
@@ -66,7 +66,7 @@
 	movz	w8, SPSR_MODE32(MODE32_svc, SPSR_T_ARM, SPSR_E_LITTLE, SPSR_AIF_MASK)
 
 	/* Switch EL3 exception vectors while the workaround is executing. */
-	adr	x9, workaround_bpiall_vbar1_runtime_exceptions
+	adr	x9, wa_cve_2017_5715_bpiall_ret_vbar
 
 	/* Setup SCTLR_EL1 with MMU off and I$ on */
 	ldr	x10, stub_sel1_sctlr
@@ -93,13 +93,13 @@
 	 * is not enabled, the existing runtime exception vector table is used.
 	 * ---------------------------------------------------------------------
 	 */
-vector_base workaround_bpiall_vbar0_runtime_exceptions
+vector_base wa_cve_2017_5715_bpiall_vbar
 
 	/* ---------------------------------------------------------------------
 	 * Current EL with SP_EL0 : 0x0 - 0x200
 	 * ---------------------------------------------------------------------
 	 */
-vector_entry workaround_bpiall_vbar0_sync_exception_sp_el0
+vector_entry bpiall_sync_exception_sp_el0
 	b	sync_exception_sp_el0
 	nop	/* to force 8 byte alignment for the following stub */
 
@@ -114,79 +114,79 @@ aarch32_stub:
 	.word	EMIT_BPIALL
 	.word	EMIT_SMC
 
-	check_vector_size workaround_bpiall_vbar0_sync_exception_sp_el0
+	check_vector_size bpiall_sync_exception_sp_el0
 
-vector_entry workaround_bpiall_vbar0_irq_sp_el0
+vector_entry bpiall_irq_sp_el0
 	b	irq_sp_el0
-	check_vector_size workaround_bpiall_vbar0_irq_sp_el0
+	check_vector_size bpiall_irq_sp_el0
 
-vector_entry workaround_bpiall_vbar0_fiq_sp_el0
+vector_entry bpiall_fiq_sp_el0
 	b	fiq_sp_el0
-	check_vector_size workaround_bpiall_vbar0_fiq_sp_el0
+	check_vector_size bpiall_fiq_sp_el0
 
-vector_entry workaround_bpiall_vbar0_serror_sp_el0
+vector_entry bpiall_serror_sp_el0
 	b	serror_sp_el0
-	check_vector_size workaround_bpiall_vbar0_serror_sp_el0
+	check_vector_size bpiall_serror_sp_el0
 
 	/* ---------------------------------------------------------------------
 	 * Current EL with SP_ELx: 0x200 - 0x400
 	 * ---------------------------------------------------------------------
 	 */
-vector_entry workaround_bpiall_vbar0_sync_exception_sp_elx
+vector_entry bpiall_sync_exception_sp_elx
 	b	sync_exception_sp_elx
-	check_vector_size workaround_bpiall_vbar0_sync_exception_sp_elx
+	check_vector_size bpiall_sync_exception_sp_elx
 
-vector_entry workaround_bpiall_vbar0_irq_sp_elx
+vector_entry bpiall_irq_sp_elx
 	b	irq_sp_elx
-	check_vector_size workaround_bpiall_vbar0_irq_sp_elx
+	check_vector_size bpiall_irq_sp_elx
 
-vector_entry workaround_bpiall_vbar0_fiq_sp_elx
+vector_entry bpiall_fiq_sp_elx
 	b	fiq_sp_elx
-	check_vector_size workaround_bpiall_vbar0_fiq_sp_elx
+	check_vector_size bpiall_fiq_sp_elx
 
-vector_entry workaround_bpiall_vbar0_serror_sp_elx
+vector_entry bpiall_serror_sp_elx
 	b	serror_sp_elx
-	check_vector_size workaround_bpiall_vbar0_serror_sp_elx
+	check_vector_size bpiall_serror_sp_elx
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch64 : 0x400 - 0x600
 	 * ---------------------------------------------------------------------
 	 */
-vector_entry workaround_bpiall_vbar0_sync_exception_aarch64
-	enter_workaround 1
-	check_vector_size workaround_bpiall_vbar0_sync_exception_aarch64
+vector_entry bpiall_sync_exception_aarch64
+	apply_cve_2017_5715_wa 1
+	check_vector_size bpiall_sync_exception_aarch64
 
-vector_entry workaround_bpiall_vbar0_irq_aarch64
-	enter_workaround 2
-	check_vector_size workaround_bpiall_vbar0_irq_aarch64
+vector_entry bpiall_irq_aarch64
+	apply_cve_2017_5715_wa 2
+	check_vector_size bpiall_irq_aarch64
 
-vector_entry workaround_bpiall_vbar0_fiq_aarch64
-	enter_workaround 4
-	check_vector_size workaround_bpiall_vbar0_fiq_aarch64
+vector_entry bpiall_fiq_aarch64
+	apply_cve_2017_5715_wa 4
+	check_vector_size bpiall_fiq_aarch64
 
-vector_entry workaround_bpiall_vbar0_serror_aarch64
-	enter_workaround 8
-	check_vector_size workaround_bpiall_vbar0_serror_aarch64
+vector_entry bpiall_serror_aarch64
+	apply_cve_2017_5715_wa 8
+	check_vector_size bpiall_serror_aarch64
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch32 : 0x600 - 0x800
 	 * ---------------------------------------------------------------------
 	 */
-vector_entry workaround_bpiall_vbar0_sync_exception_aarch32
-	enter_workaround 1
-	check_vector_size workaround_bpiall_vbar0_sync_exception_aarch32
+vector_entry bpiall_sync_exception_aarch32
+	apply_cve_2017_5715_wa 1
+	check_vector_size bpiall_sync_exception_aarch32
 
-vector_entry workaround_bpiall_vbar0_irq_aarch32
-	enter_workaround 2
-	check_vector_size workaround_bpiall_vbar0_irq_aarch32
+vector_entry bpiall_irq_aarch32
+	apply_cve_2017_5715_wa 2
+	check_vector_size bpiall_irq_aarch32
 
-vector_entry workaround_bpiall_vbar0_fiq_aarch32
-	enter_workaround 4
-	check_vector_size workaround_bpiall_vbar0_fiq_aarch32
+vector_entry bpiall_fiq_aarch32
+	apply_cve_2017_5715_wa 4
+	check_vector_size bpiall_fiq_aarch32
 
-vector_entry workaround_bpiall_vbar0_serror_aarch32
-	enter_workaround 8
-	check_vector_size workaround_bpiall_vbar0_serror_aarch32
+vector_entry bpiall_serror_aarch32
+	apply_cve_2017_5715_wa 8
+	check_vector_size bpiall_serror_aarch32
 
 	/* ---------------------------------------------------------------------
 	 * This vector table is used while the workaround is executing.  It
@@ -195,73 +195,73 @@ vector_entry workaround_bpiall_vbar0_serror_aarch32
 	 * EL3 state before proceeding with the normal runtime exception vector.
 	 * ---------------------------------------------------------------------
 	 */
-vector_base workaround_bpiall_vbar1_runtime_exceptions
+vector_base wa_cve_2017_5715_bpiall_ret_vbar
 
 	/* ---------------------------------------------------------------------
 	 * Current EL with SP_EL0 : 0x0 - 0x200 (UNUSED)
 	 * ---------------------------------------------------------------------
 	 */
-vector_entry workaround_bpiall_vbar1_sync_exception_sp_el0
+vector_entry bpiall_ret_sync_exception_sp_el0
 	b	report_unhandled_exception
-	check_vector_size workaround_bpiall_vbar1_sync_exception_sp_el0
+	check_vector_size bpiall_ret_sync_exception_sp_el0
 
-vector_entry workaround_bpiall_vbar1_irq_sp_el0
+vector_entry bpiall_ret_irq_sp_el0
 	b	report_unhandled_interrupt
-	check_vector_size workaround_bpiall_vbar1_irq_sp_el0
+	check_vector_size bpiall_ret_irq_sp_el0
 
-vector_entry workaround_bpiall_vbar1_fiq_sp_el0
+vector_entry bpiall_ret_fiq_sp_el0
 	b	report_unhandled_interrupt
-	check_vector_size workaround_bpiall_vbar1_fiq_sp_el0
+	check_vector_size bpiall_ret_fiq_sp_el0
 
-vector_entry workaround_bpiall_vbar1_serror_sp_el0
+vector_entry bpiall_ret_serror_sp_el0
 	b	report_unhandled_exception
-	check_vector_size workaround_bpiall_vbar1_serror_sp_el0
+	check_vector_size bpiall_ret_serror_sp_el0
 
 	/* ---------------------------------------------------------------------
 	 * Current EL with SP_ELx: 0x200 - 0x400 (UNUSED)
 	 * ---------------------------------------------------------------------
 	 */
-vector_entry workaround_bpiall_vbar1_sync_exception_sp_elx
+vector_entry bpiall_ret_sync_exception_sp_elx
 	b	report_unhandled_exception
-	check_vector_size workaround_bpiall_vbar1_sync_exception_sp_elx
+	check_vector_size bpiall_ret_sync_exception_sp_elx
 
-vector_entry workaround_bpiall_vbar1_irq_sp_elx
+vector_entry bpiall_ret_irq_sp_elx
 	b	report_unhandled_interrupt
-	check_vector_size workaround_bpiall_vbar1_irq_sp_elx
+	check_vector_size bpiall_ret_irq_sp_elx
 
-vector_entry workaround_bpiall_vbar1_fiq_sp_elx
+vector_entry bpiall_ret_fiq_sp_elx
 	b	report_unhandled_interrupt
-	check_vector_size workaround_bpiall_vbar1_fiq_sp_elx
+	check_vector_size bpiall_ret_fiq_sp_elx
 
-vector_entry workaround_bpiall_vbar1_serror_sp_elx
+vector_entry bpiall_ret_serror_sp_elx
 	b	report_unhandled_exception
-	check_vector_size workaround_bpiall_vbar1_serror_sp_elx
+	check_vector_size bpiall_ret_serror_sp_elx
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch64 : 0x400 - 0x600 (UNUSED)
 	 * ---------------------------------------------------------------------
 	 */
-vector_entry workaround_bpiall_vbar1_sync_exception_aarch64
+vector_entry bpiall_ret_sync_exception_aarch64
 	b	report_unhandled_exception
-	check_vector_size workaround_bpiall_vbar1_sync_exception_aarch64
+	check_vector_size bpiall_ret_sync_exception_aarch64
 
-vector_entry workaround_bpiall_vbar1_irq_aarch64
+vector_entry bpiall_ret_irq_aarch64
 	b	report_unhandled_interrupt
-	check_vector_size workaround_bpiall_vbar1_irq_aarch64
+	check_vector_size bpiall_ret_irq_aarch64
 
-vector_entry workaround_bpiall_vbar1_fiq_aarch64
+vector_entry bpiall_ret_fiq_aarch64
 	b	report_unhandled_interrupt
-	check_vector_size workaround_bpiall_vbar1_fiq_aarch64
+	check_vector_size bpiall_ret_fiq_aarch64
 
-vector_entry workaround_bpiall_vbar1_serror_aarch64
+vector_entry bpiall_ret_serror_aarch64
 	b	report_unhandled_exception
-	check_vector_size workaround_bpiall_vbar1_serror_aarch64
+	check_vector_size bpiall_ret_serror_aarch64
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch32 : 0x600 - 0x800
 	 * ---------------------------------------------------------------------
 	 */
-vector_entry workaround_bpiall_vbar1_sync_exception_aarch32
+vector_entry bpiall_ret_sync_exception_aarch32
 	/*
 	 * w2 indicates which SEL1 stub was run and thus which original vector was used
 	 * w3-w6 contain saved system register state (esr_el3 in w3)
@@ -281,7 +281,7 @@ vector_entry workaround_bpiall_vbar1_sync_exception_aarch32
 	 * to workaround entry table in preparation for subsequent
 	 * Sync/IRQ/FIQ/SError exceptions.
 	 */
-	adr	x0, workaround_bpiall_vbar0_runtime_exceptions
+	adr	x0, wa_cve_2017_5715_bpiall_vbar
 	msr	vbar_el3, x0
 
 	/*
@@ -324,34 +324,34 @@ vector_entry workaround_bpiall_vbar1_sync_exception_aarch32
 1:
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	b	sync_exception_aarch64
-	check_vector_size workaround_bpiall_vbar1_sync_exception_aarch32
+	check_vector_size bpiall_ret_sync_exception_aarch32
 
-vector_entry workaround_bpiall_vbar1_irq_aarch32
+vector_entry bpiall_ret_irq_aarch32
 	b	report_unhandled_interrupt
 
 	/*
 	 * Post-workaround fan-out for non-sync exceptions
 	 */
 workaround_not_sync:
-	tbnz	w2, #3, workaround_bpiall_vbar1_serror
-	tbnz	w2, #2, workaround_bpiall_vbar1_fiq
+	tbnz	w2, #3, bpiall_ret_serror
+	tbnz	w2, #2, bpiall_ret_fiq
 	/* IRQ */
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	b	irq_aarch64
 
-workaround_bpiall_vbar1_fiq:
+bpiall_ret_fiq:
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	b	fiq_aarch64
 
-workaround_bpiall_vbar1_serror:
+bpiall_ret_serror:
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
 	b	serror_aarch64
-	check_vector_size workaround_bpiall_vbar1_irq_aarch32
+	check_vector_size bpiall_ret_irq_aarch32
 
-vector_entry workaround_bpiall_vbar1_fiq_aarch32
+vector_entry bpiall_ret_fiq_aarch32
 	b	report_unhandled_interrupt
-	check_vector_size workaround_bpiall_vbar1_fiq_aarch32
+	check_vector_size bpiall_ret_fiq_aarch32
 
-vector_entry workaround_bpiall_vbar1_serror_aarch32
+vector_entry bpiall_ret_serror_aarch32
 	b	report_unhandled_exception
-	check_vector_size workaround_bpiall_vbar1_serror_aarch32
+	check_vector_size bpiall_ret_serror_aarch32

@@ -337,6 +337,15 @@ func check_errata_cve_2017_5715
 	ret
 endfunc check_errata_cve_2017_5715
 
+func check_errata_cve_2018_3639
+#if WORKAROUND_CVE_2018_3639
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2018_3639
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A57.
 	 * Shall clobber: x0-x19
@@ -393,8 +402,16 @@ func cortex_a57_reset_func
 #endif
 
 #if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
-	adr	x0, workaround_mmu_runtime_exceptions
+	adr	x0, wa_cve_2017_5715_mmu_vbar
 	msr	vbar_el3, x0
+#endif
+
+#if WORKAROUND_CVE_2018_3639
+	mrs	x0, CORTEX_A57_CPUACTLR_EL1
+	orr	x0, x0, #CORTEX_A57_CPUACTLR_EL1_DIS_LOAD_PASS_STORE
+	msr	CORTEX_A57_CPUACTLR_EL1, x0
+	isb
+	dsb	sy
 #endif
 
 	/* ---------------------------------------------
@@ -528,6 +545,7 @@ func cortex_a57_errata_report
 	report_errata ERRATA_A57_833471, cortex_a57, 833471
 	report_errata ERRATA_A57_859972, cortex_a57, 859972
 	report_errata WORKAROUND_CVE_2017_5715, cortex_a57, cve_2017_5715
+	report_errata WORKAROUND_CVE_2018_3639, cortex_a57, cve_2018_3639
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -555,8 +573,9 @@ func cortex_a57_cpu_reg_dump
 	ret
 endfunc cortex_a57_cpu_reg_dump
 
-declare_cpu_ops_workaround_cve_2017_5715 cortex_a57, CORTEX_A57_MIDR, \
+declare_cpu_ops_wa cortex_a57, CORTEX_A57_MIDR, \
 	cortex_a57_reset_func, \
 	check_errata_cve_2017_5715, \
+	CPU_NO_EXTRA2_FUNC, \
 	cortex_a57_core_pwr_dwn, \
 	cortex_a57_cluster_pwr_dwn

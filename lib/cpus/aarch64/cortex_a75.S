@@ -13,9 +13,16 @@
 func cortex_a75_reset_func
 #if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
 	cpu_check_csv2	x0, 1f
-	adr	x0, workaround_bpiall_vbar0_runtime_exceptions
+	adr	x0, wa_cve_2017_5715_bpiall_vbar
 	msr	vbar_el3, x0
 1:
+#endif
+
+#if WORKAROUND_CVE_2018_3639
+	mrs	x0, CORTEX_A75_CPUACTLR_EL1
+	orr	x0, x0, #CORTEX_A75_CPUACTLR_EL1_DISABLE_LOAD_PASS_STORE
+	msr	CORTEX_A75_CPUACTLR_EL1, x0
+	isb
 #endif
 
 #if ENABLE_AMU
@@ -57,6 +64,15 @@ func check_errata_cve_2017_5715
 	ret
 endfunc check_errata_cve_2017_5715
 
+func check_errata_cve_2018_3639
+#if WORKAROUND_CVE_2018_3639
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2018_3639
+
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------
@@ -88,6 +104,7 @@ func cortex_a75_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata WORKAROUND_CVE_2017_5715, cortex_a75, cve_2017_5715
+	report_errata WORKAROUND_CVE_2018_3639, cortex_a75, cve_2018_3639
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -113,7 +130,8 @@ func cortex_a75_cpu_reg_dump
 	ret
 endfunc cortex_a75_cpu_reg_dump
 
-declare_cpu_ops_workaround_cve_2017_5715 cortex_a75, CORTEX_A75_MIDR, \
+declare_cpu_ops_wa cortex_a75, CORTEX_A75_MIDR, \
 	cortex_a75_reset_func, \
 	check_errata_cve_2017_5715, \
+	CPU_NO_EXTRA2_FUNC, \
 	cortex_a75_core_pwr_dwn

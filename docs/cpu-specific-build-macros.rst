@@ -24,6 +24,17 @@ vulnerability workarounds should be applied at runtime.
    with the recommendation in the spec regarding workaround discovery.
    Defaults to 1.
 
+-  ``WORKAROUND_CVE_2018_3639``: Enables the security workaround for
+   `CVE-2018-3639`_. Defaults to 1. The TF-A project recommends to keep
+   the default value of 1 even on platforms that are unaffected by
+   CVE-2018-3639, in order to comply with the recommendation in the spec
+   regarding workaround discovery.
+
+-  ``DYNAMIC_WORKAROUND_CVE_2018_3639``: Enables dynamic mitigation for
+   `CVE-2018-3639`_. This build option should be set to 1 if the target
+   platform contains at least 1 CPU that requires dynamic mitigation.
+   Defaults to 0.
+
 CPU Errata Workarounds
 ----------------------
 

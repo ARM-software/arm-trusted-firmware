@@ -404,6 +404,15 @@ func el3_exit
 	msr	spsr_el3, x16
 	msr	elr_el3, x17
 
+#if IMAGE_BL31 && DYNAMIC_WORKAROUND_CVE_2018_3639
+	/* Restore mitigation state as it was on entry to EL3 */
+	ldr	x17, [sp, #CTX_CVE_2018_3639_OFFSET + CTX_CVE_2018_3639_DISABLE]
+	cmp	x17, xzr
+	beq	1f
+	blr	x17
+#endif
+
+1:
 	/* Restore saved general purpose registers and return */
 	b	restore_gp_registers_eret
 endfunc el3_exit
