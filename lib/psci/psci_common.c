@@ -55,10 +55,10 @@ __section("tzfw_coherent_mem")
 #endif
 ;
 
-/* Lock for PSCI state coordination */
-DEFINE_PSCI_LOCK(psci_locks[PSCI_NUM_NON_CPU_PWR_DOMAINS]);
-
 cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
+
+/* Lock for PSCI state coordination */
+DEFINE_PSCI_LOCK(psci_locks[PSCI_NUM_PWR_DOMAINS]);
 
 /*******************************************************************************
  * Pointer to functions exported by the platform to complete power mgmt. ops

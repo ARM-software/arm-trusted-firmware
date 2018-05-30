@@ -46,6 +46,7 @@ int psci_cpu_on_start(u_register_t target_cpu,
 {
 	int rc;
 	unsigned int target_idx = plat_core_pos_by_mpidr(target_cpu);
+	cpu_pd_node_t *cpu_pd_node = &psci_cpu_pd_nodes[target_idx];
 	aff_info_state_t target_aff_state;
 
 	/* Calling function must supply valid input arguments */
@@ -60,7 +61,7 @@ int psci_cpu_on_start(u_register_t target_cpu,
 			psci_plat_pm_ops->pwr_domain_on_finish);
 
 	/* Protect against multiple CPUs trying to turn ON the same target CPU */
-	psci_spin_lock_cpu(target_idx);
+	psci_lock_get(cpu_pd_node);
 
 	/*
 	 * Generic management: Ensure that the cpu is off to be
@@ -138,7 +139,7 @@ int psci_cpu_on_start(u_register_t target_cpu,
 	}
 
 exit:
-	psci_spin_unlock_cpu(target_idx);
+	psci_lock_release(cpu_pd_node);
 	return rc;
 }
 
