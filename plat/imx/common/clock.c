@@ -50,3 +50,35 @@ void mxc_clock_gate_enable(unsigned int id, bool enable)
 
 	mmio_write_32(addr, CCM_CCGR_SETTING0_DOM_CLK_ALWAYS);
 }
+
+void clock_enable_uart(unsigned int uart_id, uint32_t uart_clk_en_bits)
+{
+	unsigned int ccm_trgt_id = CCM_TRT_ID_UART1_CLK_ROOT + uart_id;
+	unsigned int ccm_ccgr_id = CCM_CCGR_ID_UART1 + uart_id;
+
+	/* Check for error */
+	if (uart_id > MXC_MAX_UART_NUM)
+		return;
+
+	/* Set target register values */
+	mxc_clock_target_set(ccm_trgt_id, uart_clk_en_bits);
+
+	/* Enable the clock gate */
+	mxc_clock_gate_enable(ccm_ccgr_id, true);
+}
+
+void clock_disable_uart(unsigned int uart_id)
+{
+	unsigned int ccm_trgt_id = CCM_TRT_ID_UART1_CLK_ROOT + uart_id;
+	unsigned int ccm_ccgr_id = CCM_CCGR_ID_UART1 + uart_id;
+
+	/* Check for error */
+	if (uart_id > MXC_MAX_UART_NUM)
+		return;
+
+	/* Disable the clock gate */
+	mxc_clock_gate_enable(ccm_ccgr_id, false);
+
+	/* Clear the target */
+	mxc_clock_target_clr(ccm_trgt_id, 0xFFFFFFFF);
+}
