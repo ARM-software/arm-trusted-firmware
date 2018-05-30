@@ -984,4 +984,7 @@ struct ccm {
 
 void clock_init(void);
 
+void clock_enable_uart(unsigned int uart_id, uint32_t uart_clk_en_bits);
+void clock_disable_uart(unsigned int uart_id);
+
 #endif /* __CLOCK_H__ */
