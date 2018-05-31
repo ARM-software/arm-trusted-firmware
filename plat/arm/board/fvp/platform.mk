@@ -206,6 +206,9 @@ ENABLE_PLAT_COMPAT	:= 	0
 # Enable Activity Monitor Unit extensions by default
 ENABLE_AMU			:=	1
 
+# Enable dynamic mitigation support by default
+DYNAMIC_WORKAROUND_CVE_2018_3639	:=	1
+
 ifeq (${ENABLE_AMU},1)
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a75_pubsub.c	\
 				lib/cpus/aarch64/cortex_ares_pubsub.c	\
