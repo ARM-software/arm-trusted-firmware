@@ -12,10 +12,11 @@
 	.globl	wa_cve_2017_5715_mmu_vbar
 
 #define ESR_EL3_A64_SMC0	0x5e000000
+#define ESR_EL3_A32_SMC0	0x4e000000
 
 vector_base wa_cve_2017_5715_mmu_vbar
 
-	.macro	apply_cve_2017_5715_wa _is_sync_exception
+	.macro	apply_cve_2017_5715_wa _is_sync_exception _esr_el3_val
 	stp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
 	mrs	x1, sctlr_el3
 	/* Disable MMU */
@@ -32,7 +33,7 @@ vector_base wa_cve_2017_5715_mmu_vbar
 	 */
 
 	/*
-	 * Ensure SMC is coming from A64 state on #0
+	 * Ensure SMC is coming from A64/A32 state on #0
 	 * with W0 = SMCCC_ARCH_WORKAROUND_1
 	 *
 	 * This sequence evaluates as:
@@ -43,7 +44,7 @@ vector_base wa_cve_2017_5715_mmu_vbar
 		orr	w1, wzr, #SMCCC_ARCH_WORKAROUND_1
 		cmp	w0, w1
 		mrs	x0, esr_el3
-		mov_imm	w1, ESR_EL3_A64_SMC0
+		mov_imm	w1, \_esr_el3_val
 		ccmp	w0, w1, #0, eq
 		/* Static predictor will predict a fall through */
 		bne	1f
@@ -104,22 +105,22 @@ vector_entry mmu_serror_sp_elx
 	 * ---------------------------------------------------------------------
 	 */
 vector_entry mmu_sync_exception_aarch64
-	apply_cve_2017_5715_wa _is_sync_exception=1
+	apply_cve_2017_5715_wa _is_sync_exception=1 _esr_el3_val=ESR_EL3_A64_SMC0
 	b	sync_exception_aarch64
 	check_vector_size mmu_sync_exception_aarch64
 
 vector_entry mmu_irq_aarch64
-	apply_cve_2017_5715_wa _is_sync_exception=0
+	apply_cve_2017_5715_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A64_SMC0
 	b	irq_aarch64
 	check_vector_size mmu_irq_aarch64
 
 vector_entry mmu_fiq_aarch64
-	apply_cve_2017_5715_wa _is_sync_exception=0
+	apply_cve_2017_5715_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A64_SMC0
 	b	fiq_aarch64
 	check_vector_size mmu_fiq_aarch64
 
 vector_entry mmu_serror_aarch64
-	apply_cve_2017_5715_wa _is_sync_exception=0
+	apply_cve_2017_5715_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A64_SMC0
 	b	serror_aarch64
 	check_vector_size mmu_serror_aarch64
 
@@ -128,21 +129,21 @@ vector_entry mmu_serror_aarch64
 	 * ---------------------------------------------------------------------
 	 */
 vector_entry mmu_sync_exception_aarch32
-	apply_cve_2017_5715_wa _is_sync_exception=1
+	apply_cve_2017_5715_wa _is_sync_exception=1 _esr_el3_val=ESR_EL3_A32_SMC0
 	b	sync_exception_aarch32
 	check_vector_size mmu_sync_exception_aarch32
 
 vector_entry mmu_irq_aarch32
-	apply_cve_2017_5715_wa _is_sync_exception=0
+	apply_cve_2017_5715_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A32_SMC0
 	b	irq_aarch32
 	check_vector_size mmu_irq_aarch32
 
 vector_entry mmu_fiq_aarch32
-	apply_cve_2017_5715_wa _is_sync_exception=0
+	apply_cve_2017_5715_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A32_SMC0
 	b	fiq_aarch32
 	check_vector_size mmu_fiq_aarch32
 
 vector_entry mmu_serror_aarch32
-	apply_cve_2017_5715_wa _is_sync_exception=0
+	apply_cve_2017_5715_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A32_SMC0
 	b	serror_aarch32
 	check_vector_size mmu_serror_aarch32
