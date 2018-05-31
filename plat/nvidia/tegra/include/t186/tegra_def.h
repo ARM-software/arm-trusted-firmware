@@ -213,6 +213,14 @@
 #define  RNG_MUTEX_WATCHDOG_NS_LIMIT	U(0xFE0)
 
 /*******************************************************************************
+ * Tegra HSP doorbell #0 constants
+ ******************************************************************************/
+#define TEGRA_HSP_DBELL_BASE		U(0x03C90000)
+#define HSP_DBELL_1_ENABLE		U(0x104)
+#define HSP_DBELL_3_TRIGGER		U(0x300)
+#define HSP_DBELL_3_ENABLE		U(0x304)
+
+/*******************************************************************************
  * Tegra Clock and Reset Controller constants
  ******************************************************************************/
 #define TEGRA_CAR_RESET_BASE		U(0x05000000)
@@ -279,6 +287,13 @@
  ******************************************************************************/
 #define TEGRA_TZRAM_BASE		U(0x30000000)
 #define TEGRA_TZRAM_SIZE		U(0x40000)
+
+/*******************************************************************************
+ * Tegra CCPLEX-BPMP IPC constants
+ ******************************************************************************/
+#define TEGRA_BPMP_IPC_TX_PHYS_BASE	U(0x3004C000)
+#define TEGRA_BPMP_IPC_RX_PHYS_BASE	U(0x3004D000)
+#define TEGRA_BPMP_IPC_CH_MAP_SIZE	U(0x1000) /* 4KB */
 
 /*******************************************************************************
  * Tegra DRAM memory base address
