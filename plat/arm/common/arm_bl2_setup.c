@@ -46,7 +46,7 @@ CASSERT(BL2_BASE >= (ARM_BL_RAM_BASE + BL1_MEMINFO_OFFSET), assert_bl2_base_over
 
 #if LOAD_IMAGE_V2
 
-#pragma weak bl2_plat_handle_post_image_load
+#pragma weak arm_bl2_handle_post_image_load
 
 #else /* LOAD_IMAGE_V2 */
 

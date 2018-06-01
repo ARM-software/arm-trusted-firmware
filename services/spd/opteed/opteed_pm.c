@@ -30,11 +30,11 @@ static int32_t opteed_cpu_off_handler(u_register_t unused)
 	uint32_t linear_id = plat_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 
-	assert(optee_vectors);
+	assert(optee_vector_table);
 	assert(get_optee_pstate(optee_ctx->state) == OPTEE_PSTATE_ON);
 
 	/* Program the entry point and enter OPTEE */
-	cm_set_elr_el3(SECURE, (uint64_t) &optee_vectors->cpu_off_entry);
+	cm_set_elr_el3(SECURE, (uint64_t) &optee_vector_table->cpu_off_entry);
 	rc = opteed_synchronous_sp_entry(optee_ctx);
 
 	/*
@@ -63,11 +63,11 @@ static void opteed_cpu_suspend_handler(u_register_t max_off_pwrlvl)
 	uint32_t linear_id = plat_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 
-	assert(optee_vectors);
+	assert(optee_vector_table);
 	assert(get_optee_pstate(optee_ctx->state) == OPTEE_PSTATE_ON);
 
 	/* Program the entry point and enter OPTEE */
-	cm_set_elr_el3(SECURE, (uint64_t) &optee_vectors->cpu_suspend_entry);
+	cm_set_elr_el3(SECURE, (uint64_t) &optee_vector_table->cpu_suspend_entry);
 	rc = opteed_synchronous_sp_entry(optee_ctx);
 
 	/*
@@ -94,11 +94,11 @@ static void opteed_cpu_on_finish_handler(u_register_t unused)
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 	entry_point_info_t optee_on_entrypoint;
 
-	assert(optee_vectors);
+	assert(optee_vector_table);
 	assert(get_optee_pstate(optee_ctx->state) == OPTEE_PSTATE_OFF);
 
 	opteed_init_optee_ep_state(&optee_on_entrypoint, opteed_rw,
-				(uint64_t)&optee_vectors->cpu_on_entry,
+				(uint64_t)&optee_vector_table->cpu_on_entry,
 				0, 0, 0, optee_ctx);
 
 	/* Initialise this cpu's secure context */
@@ -129,14 +129,14 @@ static void opteed_cpu_suspend_finish_handler(u_register_t max_off_pwrlvl)
 	uint32_t linear_id = plat_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 
-	assert(optee_vectors);
+	assert(optee_vector_table);
 	assert(get_optee_pstate(optee_ctx->state) == OPTEE_PSTATE_SUSPEND);
 
 	/* Program the entry point, max_off_pwrlvl and enter the SP */
 	write_ctx_reg(get_gpregs_ctx(&optee_ctx->cpu_ctx),
 		      CTX_GPREG_X0,
 		      max_off_pwrlvl);
-	cm_set_elr_el3(SECURE, (uint64_t) &optee_vectors->cpu_resume_entry);
+	cm_set_elr_el3(SECURE, (uint64_t) &optee_vector_table->cpu_resume_entry);
 	rc = opteed_synchronous_sp_entry(optee_ctx);
 
 	/*
@@ -168,11 +168,11 @@ static void opteed_system_off(void)
 	uint32_t linear_id = plat_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 
-	assert(optee_vectors);
+	assert(optee_vector_table);
 	assert(get_optee_pstate(optee_ctx->state) == OPTEE_PSTATE_ON);
 
 	/* Program the entry point */
-	cm_set_elr_el3(SECURE, (uint64_t) &optee_vectors->system_off_entry);
+	cm_set_elr_el3(SECURE, (uint64_t) &optee_vector_table->system_off_entry);
 
 	/* Enter OPTEE. We do not care about the return value because we
 	 * must continue the shutdown anyway */
@@ -188,11 +188,11 @@ static void opteed_system_reset(void)
 	uint32_t linear_id = plat_my_core_pos();
 	optee_context_t *optee_ctx = &opteed_sp_context[linear_id];
 
-	assert(optee_vectors);
+	assert(optee_vector_table);
 	assert(get_optee_pstate(optee_ctx->state) == OPTEE_PSTATE_ON);
 
 	/* Program the entry point */
-	cm_set_elr_el3(SECURE, (uint64_t) &optee_vectors->system_reset_entry);
+	cm_set_elr_el3(SECURE, (uint64_t) &optee_vector_table->system_reset_entry);
 
 	/* Enter OPTEE. We do not care about the return value because we
 	 * must continue the reset anyway */
