@@ -317,7 +317,7 @@
  * and limit. Leave enough space of BL2 meminfo.
  */
 #define ARM_TB_FW_CONFIG_BASE		ARM_BL_RAM_BASE + sizeof(meminfo_t)
-#define ARM_TB_FW_CONFIG_LIMIT		BL2_BASE
+#define ARM_TB_FW_CONFIG_LIMIT		ARM_BL_RAM_BASE + PAGE_SIZE
 
 /*******************************************************************************
  * BL1 specific defines.
@@ -338,32 +338,18 @@
 /*******************************************************************************
  * BL2 specific defines.
  ******************************************************************************/
-#if ARM_BL31_IN_DRAM
+#if BL2_AT_EL3
+/* Put BL2 in the middle of the Trusted SRAM */
+#define BL2_BASE			(ARM_TRUSTED_SRAM_BASE + \
+						(PLAT_ARM_TRUSTED_SRAM_SIZE >> 1))
+#define BL2_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
+
+#else
 /*
- * For AArch64 BL31 is loaded in the DRAM.
  * Put BL2 just below BL1.
  */
 #define BL2_BASE			(BL1_RW_BASE - PLAT_ARM_MAX_BL2_SIZE)
 #define BL2_LIMIT			BL1_RW_BASE
-
-#elif BL2_AT_EL3
-
-#define BL2_BASE			ARM_BL_RAM_BASE
-#define BL2_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
-
-#elif defined(AARCH32) || JUNO_AARCH32_EL3_RUNTIME
-/*
- * Put BL2 just below BL32.
- */
-#define BL2_BASE			(BL32_BASE - PLAT_ARM_MAX_BL2_SIZE)
-#define BL2_LIMIT			BL32_BASE
-
-#else
-/*
- * Put BL2 just below BL31.
- */
-#define BL2_BASE			(BL31_BASE - PLAT_ARM_MAX_BL2_SIZE)
-#define BL2_LIMIT			BL31_BASE
 #endif
 
 /*******************************************************************************
@@ -384,13 +370,10 @@
 						(PLAT_ARM_TRUSTED_SRAM_SIZE >> 1))
 #define BL31_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 #else
-/*
- * Put BL31 at the top of the Trusted SRAM.
- */
-#define BL31_BASE			(ARM_BL_RAM_BASE +		\
-						ARM_BL_RAM_SIZE -	\
-						PLAT_ARM_MAX_BL31_SIZE)
-#define BL31_PROGBITS_LIMIT		BL1_RW_BASE
+/* Put BL31 below BL2 in the Trusted SRAM.*/
+#define BL31_BASE			((ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)\
+						- PLAT_ARM_MAX_BL31_SIZE)
+#define BL31_PROGBITS_LIMIT		BL2_BASE
 #define BL31_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 #endif
 
@@ -399,15 +382,17 @@
  * BL32 specific defines for EL3 runtime in AArch32 mode
  ******************************************************************************/
 # if RESET_TO_SP_MIN && !JUNO_AARCH32_EL3_RUNTIME
-/* SP_MIN is the only BL image in SRAM. Allocate the whole of SRAM to BL32 */
-#  define BL32_BASE			ARM_BL_RAM_BASE
+/*
+ * SP_MIN is the only BL image in SRAM. Allocate the whole of SRAM (excluding
+ * the page reserved for fw_configs) to BL32
+ */
+#  define BL32_BASE			ARM_TB_FW_CONFIG_LIMIT
 #  define BL32_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 # else
-/* Put BL32 at the top of the Trusted SRAM.*/
-#  define BL32_BASE			(ARM_BL_RAM_BASE +		\
-						ARM_BL_RAM_SIZE -	\
-						PLAT_ARM_MAX_BL32_SIZE)
-#  define BL32_PROGBITS_LIMIT		BL1_RW_BASE
+/* Put BL32 below BL2 in the Trusted SRAM.*/
+#  define BL32_BASE			((ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)\
+						- PLAT_ARM_MAX_BL32_SIZE)
+#  define BL32_PROGBITS_LIMIT		BL2_BASE
 #  define BL32_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 # endif /* RESET_TO_SP_MIN && !JUNO_AARCH32_EL3_RUNTIME */
 
@@ -438,8 +423,8 @@
 # elif ARM_TSP_RAM_LOCATION_ID == ARM_TRUSTED_SRAM_ID
 #  define TSP_SEC_MEM_BASE		ARM_BL_RAM_BASE
 #  define TSP_SEC_MEM_SIZE		ARM_BL_RAM_SIZE
-#  define TSP_PROGBITS_LIMIT		BL2_BASE
-#  define BL32_BASE			ARM_BL_RAM_BASE
+#  define TSP_PROGBITS_LIMIT		BL31_BASE
+#  define BL32_BASE			ARM_TB_FW_CONFIG_LIMIT
 #  define BL32_LIMIT			BL31_BASE
 # elif ARM_TSP_RAM_LOCATION_ID == ARM_TRUSTED_DRAM_ID
 #  define TSP_SEC_MEM_BASE		PLAT_ARM_TRUSTED_DRAM_BASE

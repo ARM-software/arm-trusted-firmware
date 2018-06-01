@@ -158,14 +158,14 @@
 /*
  * Load address of SCP_BL2 in CSS platform ports
  * SCP_BL2 is loaded to the same place as BL31 but it shouldn't overwrite BL1
- * rw data.  Once SCP_BL2 is transferred to the SCP, it is discarded and BL31
- * is loaded over the top.
+ * rw data or BL2.  Once SCP_BL2 is transferred to the SCP, it is discarded and
+ * BL31 is loaded over the top.
  */
-#define SCP_BL2_BASE			(BL1_RW_BASE - PLAT_CSS_MAX_SCP_BL2_SIZE)
-#define SCP_BL2_LIMIT			BL1_RW_BASE
+#define SCP_BL2_BASE			(BL2_BASE - PLAT_CSS_MAX_SCP_BL2_SIZE)
+#define SCP_BL2_LIMIT			BL2_BASE
 
-#define SCP_BL2U_BASE			(BL1_RW_BASE - PLAT_CSS_MAX_SCP_BL2U_SIZE)
-#define SCP_BL2U_LIMIT			BL1_RW_BASE
+#define SCP_BL2U_BASE			(BL2_BASE - PLAT_CSS_MAX_SCP_BL2U_SIZE)
+#define SCP_BL2U_LIMIT			BL2_BASE
 #endif /* CSS_LOAD_SCP_IMAGES */
 
 /* Load address of Non-Secure Image for CSS platform ports */

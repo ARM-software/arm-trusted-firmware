@@ -93,21 +93,19 @@
 #endif
 
 /*
- * PLAT_ARM_MAX_BL31_SIZE is calculated using the current BL31 debug size plus a
- * little space for growth.
+ * Since BL31 NOBITS overlays BL2 and BL1-RW, PLAT_ARM_MAX_BL31_SIZE is
+ * calculated using the current BL31 PROGBITS debug size plus the sizes of
+ * BL2 and BL1-RW
  */
-#if ENABLE_SPM
-# define PLAT_ARM_MAX_BL31_SIZE		0x40000
-#else
-# define PLAT_ARM_MAX_BL31_SIZE		0x20000
-#endif
+#define PLAT_ARM_MAX_BL31_SIZE		0x3B000
 
 #ifdef AARCH32
 /*
- * PLAT_ARM_MAX_BL32_SIZE is calculated for SP_MIN as the AArch32 Secure
- * Payload.
+ * Since BL32 NOBITS overlays BL2 and BL1-RW, PLAT_ARM_MAX_BL32_SIZE is
+ * calculated using the current SP_MIN PROGBITS debug size plus the sizes of
+ * BL2 and BL1-RW
  */
-# define PLAT_ARM_MAX_BL32_SIZE		0x1D000
+# define PLAT_ARM_MAX_BL32_SIZE		0x3B000
 #endif
 
 #endif /* ARM_BOARD_OPTIMISE_MEM */

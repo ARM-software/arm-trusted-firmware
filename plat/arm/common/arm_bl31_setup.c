@@ -25,6 +25,11 @@
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
 
+/*
+ * Check that BL31_BASE is above ARM_TB_FW_CONFIG_LIMIT. The reserved page
+ * is required for SOC_FW_CONFIG/TOS_FW_CONFIG passed from BL2.
+ */
+CASSERT(BL31_BASE >= ARM_TB_FW_CONFIG_LIMIT, assert_bl31_base_overflows);
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak bl31_early_platform_setup2
