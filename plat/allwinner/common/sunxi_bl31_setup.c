@@ -64,6 +64,8 @@ void bl31_platform_setup(void)
 	gicv2_pcpu_distif_init();
 	gicv2_cpuif_enable();
 
+	sunxi_security_setup();
+
 	INFO("BL31: Platform setup done\n");
 }
 

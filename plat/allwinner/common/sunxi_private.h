@@ -12,4 +12,6 @@ void sunxi_cpu_off(unsigned int cluster, unsigned int core);
 void sunxi_cpu_on(unsigned int cluster, unsigned int core);
 void sunxi_disable_secondary_cpus(unsigned int primary_cpu);
 
+void sunxi_security_setup(void);
+
 #endif /* __SUNXI_PRIVATE_H__ */
