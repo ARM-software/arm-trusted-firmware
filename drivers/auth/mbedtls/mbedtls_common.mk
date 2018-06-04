@@ -13,8 +13,8 @@ ifeq (${MBEDTLS_DIR},)
   $(error Error: MBEDTLS_DIR not set)
 endif
 
-INCLUDES		+=	-I${MBEDTLS_DIR}/include		\
-				-Iinclude/drivers/auth/mbedtls
+MBEDTLS_INC		=	-I${MBEDTLS_DIR}/include
+INCLUDES		+=     -Iinclude/drivers/auth/mbedtls
 
 # Specify mbed TLS configuration file
 MBEDTLS_CONFIG_FILE	:=	"<mbedtls_config.h>"
