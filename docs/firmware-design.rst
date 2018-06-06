@@ -516,8 +516,8 @@ This functionality can be tested with FVP loading the image directly
 in memory and changing the address where the system jumps at reset.
 For example:
 
-	-C cluster0.cpu0.RVBAR=0x4014000
-	--data cluster0.cpu0=bl2.bin@0x4014000
+	-C cluster0.cpu0.RVBAR=0x4020000
+	--data cluster0.cpu0=bl2.bin@0x4020000
 
 With this configuration, FVP is like a platform of the first case,
 where the Boot ROM jumps always to the same address. For simplification,
@@ -1743,17 +1743,20 @@ The following list describes the memory layout on the Arm development platforms:
    this is also used for the MHU payload when passing messages to and from the
    SCP.
 
+-  Another 4 KB page is reserved for passing memory layout between BL1 and BL2
+   and also the dynamic firmware configurations.
+
 -  On FVP, BL1 is originally sitting in the Trusted ROM at address ``0x0``. On
    Juno, BL1 resides in flash memory at address ``0x0BEC0000``. BL1 read-write
    data are relocated to the top of Trusted SRAM at runtime.
 
+-  BL2 is loaded below BL1 RW
+
 -  EL3 Runtime Software, BL31 for AArch64 and BL32 for AArch32 (e.g. SP\_MIN),
    is loaded at the top of the Trusted SRAM, such that its NOBITS sections will
-   overwrite BL1 R/W data. This implies that BL1 global variables remain valid
-   only until execution reaches the EL3 Runtime Software entry point during a
-   cold boot.
-
--  BL2 is loaded below EL3 Runtime Software.
+   overwrite BL1 R/W data and BL2. This implies that BL1 global variables
+   remain valid only until execution reaches the EL3 Runtime Software entry
+   point during a cold boot.
 
 -  On Juno, SCP\_BL2 is loaded temporarily into the EL3 Runtime Software memory
    region and transfered to the SCP before being overwritten by EL3 Runtime
@@ -1766,9 +1769,8 @@ The following list describes the memory layout on the Arm development platforms:
    -  Secure region of DRAM (top 16MB of DRAM configured by the TrustZone
       controller)
 
-   When BL32 (for AArch64) is loaded into Trusted SRAM, its NOBITS sections
-   are allowed to overlay BL2. This memory layout is designed to give the
-   BL32 image as much memory as possible when it is loaded into Trusted SRAM.
+   When BL32 (for AArch64) is loaded into Trusted SRAM, it is loaded below
+   BL31.
 
 When LOAD\_IMAGE\_V2 is disabled the memory regions for the overlap detection
 mechanism at boot time are defined as follows (shown per API):
@@ -1814,21 +1816,32 @@ an example.
 Note: Loading the BL32 image in TZC secured DRAM doesn't change the memory
 layout of the other images in Trusted SRAM.
 
-**FVP with TSP in Trusted SRAM (default option):**
+**FVP with TSP in Trusted SRAM with firmware configs :**
 (These diagrams only cover the AArch64 case)
 
 ::
 
+                   DRAM
+    0xffffffff +----------+
+               :          :
+               |----------|
+               |HW_CONFIG |
+    0x83000000 |----------|  (non-secure)
+               |          |
+    0x80000000 +----------+
+
                Trusted SRAM
-    0x04040000 +----------+  loaded by BL2  ------------------
-               | BL1 (rw) |  <<<<<<<<<<<<<  |  BL31 NOBITS   |
+    0x04040000 +----------+  loaded by BL2  +----------------+
+               | BL1 (rw) |  <<<<<<<<<<<<<  |                |
+               |----------|  <<<<<<<<<<<<<  |  BL31 NOBITS   |
+               |   BL2    |  <<<<<<<<<<<<<  |                |
                |----------|  <<<<<<<<<<<<<  |----------------|
                |          |  <<<<<<<<<<<<<  | BL31 PROGBITS  |
-               |----------|                 ------------------
-               |   BL2    |  <<<<<<<<<<<<<  |  BL32 NOBITS   |
-               |----------|  <<<<<<<<<<<<<  |----------------|
-               |          |  <<<<<<<<<<<<<  | BL32 PROGBITS  |
-    0x04001000 +----------+                 ------------------
+               |          |  <<<<<<<<<<<<<  |----------------|
+               |          |  <<<<<<<<<<<<<  |     BL32       |
+    0x04002000 +----------+                 +----------------+
+               |fw_configs|
+    0x04001000 +----------+
                |  Shared  |
     0x04000000 +----------+
 
@@ -1837,7 +1850,7 @@ layout of the other images in Trusted SRAM.
                | BL1 (ro) |
     0x00000000 +----------+
 
-**FVP with TSP in Trusted DRAM with TB_FW_CONFIG and HW_CONFIG :**
+**FVP with TSP in Trusted DRAM with firmware configs (default option):**
 
 ::
 
@@ -1856,17 +1869,15 @@ layout of the other images in Trusted SRAM.
     0x06000000 +--------------+
 
                  Trusted SRAM
-    0x04040000 +--------------+  loaded by BL2  ------------------
-               |   BL1 (rw)   |  <<<<<<<<<<<<<  |  BL31 NOBITS   |
+    0x04040000 +--------------+  loaded by BL2  +----------------+
+               |   BL1 (rw)   |  <<<<<<<<<<<<<  |                |
+               |--------------|  <<<<<<<<<<<<<  |  BL31 NOBITS   |
+               |     BL2      |  <<<<<<<<<<<<<  |                |
                |--------------|  <<<<<<<<<<<<<  |----------------|
                |              |  <<<<<<<<<<<<<  | BL31 PROGBITS  |
-               |--------------|                 ------------------
-               |     BL2      |
-               |--------------|
-               |              |
-               |--------------|
-               | TB_FW_CONFIG |
-               |--------------|
+               |              |                 +----------------+
+               +--------------+
+               |  fw_configs  |
     0x04001000 +--------------+
                |    Shared    |
     0x04000000 +--------------+
@@ -1876,7 +1887,7 @@ layout of the other images in Trusted SRAM.
                |   BL1 (ro)   |
     0x00000000 +--------------+
 
-**FVP with TSP in TZC-Secured DRAM:**
+**FVP with TSP in TZC-Secured DRAM with firmware configs :**
 
 ::
 
@@ -1885,19 +1896,22 @@ layout of the other images in Trusted SRAM.
                |  BL32    |  (secure)
     0xff000000 +----------+
                |          |
-               :          :  (non-secure)
+               |----------|
+               |HW_CONFIG |
+    0x83000000 |----------|  (non-secure)
                |          |
     0x80000000 +----------+
 
                Trusted SRAM
-    0x04040000 +----------+  loaded by BL2  ------------------
-               | BL1 (rw) |  <<<<<<<<<<<<<  |  BL31 NOBITS   |
+    0x04040000 +----------+  loaded by BL2  +----------------+
+               | BL1 (rw) |  <<<<<<<<<<<<<  |                |
+               |----------|  <<<<<<<<<<<<<  |  BL31 NOBITS   |
+               |   BL2    |  <<<<<<<<<<<<<  |                |
                |----------|  <<<<<<<<<<<<<  |----------------|
                |          |  <<<<<<<<<<<<<  | BL31 PROGBITS  |
-               |----------|                 ------------------
-               |   BL2    |
-               |----------|
-               |          |
+               |          |                 +----------------+
+    0x04002000 +----------+
+               |fw_configs|
     0x04001000 +----------+
                |  Shared  |
     0x04000000 +----------+
@@ -1907,7 +1921,7 @@ layout of the other images in Trusted SRAM.
                | BL1 (ro) |
     0x00000000 +----------+
 
-**Juno with BL32 in Trusted SRAM (default option):**
+**Juno with BL32 in Trusted SRAM :**
 
 ::
 
@@ -1921,19 +1935,21 @@ layout of the other images in Trusted SRAM.
     0x08000000 +----------+                  BL31 is loaded
                                              after SCP_BL2 has
                Trusted SRAM                  been sent to SCP
-    0x04040000 +----------+  loaded by BL2  ------------------
-               | BL1 (rw) |  <<<<<<<<<<<<<  |  BL31 NOBITS   |
+    0x04040000 +----------+  loaded by BL2  +----------------+
+               | BL1 (rw) |  <<<<<<<<<<<<<  |                |
+               |----------|  <<<<<<<<<<<<<  |  BL31 NOBITS   |
+               |   BL2    |  <<<<<<<<<<<<<  |                |
                |----------|  <<<<<<<<<<<<<  |----------------|
                | SCP_BL2  |  <<<<<<<<<<<<<  | BL31 PROGBITS  |
-               |----------|                 ------------------
-               |   BL2    |  <<<<<<<<<<<<<  |  BL32 NOBITS   |
                |----------|  <<<<<<<<<<<<<  |----------------|
-               |          |  <<<<<<<<<<<<<  | BL32 PROGBITS  |
-    0x04001000 +----------+                 ------------------
+               |          |  <<<<<<<<<<<<<  |     BL32       |
+               |          |                 +----------------+
+               |          |
+    0x04001000 +----------+
                |   MHU    |
     0x04000000 +----------+
 
-**Juno with BL32 in TZC-secured DRAM:**
+**Juno with BL32 in TZC-secured DRAM :**
 
 ::
 
@@ -1956,14 +1972,13 @@ layout of the other images in Trusted SRAM.
     0x08000000 +----------+                  BL31 is loaded
                                              after SCP_BL2 has
                Trusted SRAM                  been sent to SCP
-    0x04040000 +----------+  loaded by BL2  ------------------
-               | BL1 (rw) |  <<<<<<<<<<<<<  |  BL31 NOBITS   |
+    0x04040000 +----------+  loaded by BL2  +----------------+
+               | BL1 (rw) |  <<<<<<<<<<<<<  |                |
+               |----------|  <<<<<<<<<<<<<  |  BL31 NOBITS   |
+               |   BL2    |  <<<<<<<<<<<<<  |                |
                |----------|  <<<<<<<<<<<<<  |----------------|
                | SCP_BL2  |  <<<<<<<<<<<<<  | BL31 PROGBITS  |
-               |----------|                 ------------------
-               |   BL2    |
-               |----------|
-               |          |
+               |----------|                 +----------------+
     0x04001000 +----------+
                |   MHU    |
     0x04000000 +----------+
