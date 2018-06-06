@@ -243,10 +243,10 @@ Common build options
 -  ``BL2U``: This is an optional build option which specifies the path to
    BL2U image. In this case, the BL2U in TF-A will not be built.
 
-- ``BL2_AT_EL3``: This is an optional build option that enables the use of
+-  ``BL2_AT_EL3``: This is an optional build option that enables the use of
    BL2 at EL3 execution level.
 
-- ``BL2_IN_XIP_MEM``: In some use-cases BL2 will be stored in eXecute In Place
+-  ``BL2_IN_XIP_MEM``: In some use-cases BL2 will be stored in eXecute In Place
    (XIP) memory, like BL1. In these use-cases, it is necessary to initialize
    the RW sections in RAM, while leaving the RO sections in place. This option
    enable this use-case. For now, this option is only supported when BL2_AT_EL3
@@ -264,10 +264,10 @@ Common build options
    BL32 image for the ``fip`` target. In this case, the BL32 in TF-A will not
    be built.
 
-- ``BL32_EXTRA1``: This is an optional build option which specifies the path to
+-  ``BL32_EXTRA1``: This is an optional build option which specifies the path to
    Trusted OS Extra1 image for the  ``fip`` target.
 
-- ``BL32_EXTRA2``: This is an optional build option which specifies the path to
+-  ``BL32_EXTRA2``: This is an optional build option which specifies the path to
    Trusted OS Extra2 image for the ``fip`` target.
 
 -  ``BL32_KEY``: This option is used when ``GENERATE_COT=1``. It specifies the
@@ -323,10 +323,10 @@ Common build options
 -  ``DEBUG``: Chooses between a debug and release build. It can take either 0
    (release) or 1 (debug) as values. 0 is the default.
 
--  ``DYN_DISABLE_AUTH``: Enables the capability to disable Trusted Board Boot
-   authentication. This option is only meant to be enabled for development
-   platforms. Both TRUSTED_BOARD_BOOT and the LOAD_IMAGE_V2 flags need to be
-   set if this flag has to be enabled. 0 is the default.
+-  ``DYN_DISABLE_AUTH``: Provides the capability to dynamically disable Trusted
+   Board Boot authentication at runtime. This option is meant to be enabled only
+   for development platforms. Both TRUSTED_BOARD_BOOT and LOAD_IMAGE_V2 flags
+   must be set if this flag has to be enabled. 0 is the default.
 
 -  ``EL3_PAYLOAD_BASE``: This option enables booting an EL3 payload instead of
    the normal boot flow. It must specify the entry point address of the EL3
@@ -743,8 +743,8 @@ Arm development platform specific build options
 
    -  ``tsram`` : Trusted SRAM (default option when TBB is not enabled)
    -  ``tdram`` : Trusted DRAM (if available)
-   -  ``dram``  : Secure region in DRAM (default option when TBB is enabled,
-                  configured by the TrustZone controller)
+   -  ``dram`` : Secure region in DRAM (default option when TBB is enabled,
+      configured by the TrustZone controller)
 
 -  ``ARM_XLAT_TABLES_LIB_V1``: boolean option to compile TF-A with version 1
    of the translation tables library instead of version 2. It is set to 0 by
@@ -919,8 +919,7 @@ To check the entire source tree, you must first download copies of
 ``checkpatch.pl``, ``spelling.txt`` and ``const_structs.checkpatch`` available
 in the `Linux master tree`_ scripts directory, then set the ``CHECKPATCH``
 environment variable to point to ``checkpatch.pl`` (with the other 2 files in
-the same directory) and build the target 
-checkcodebase:
+the same directory) and build the target checkcodebase:
 
 ::
 
