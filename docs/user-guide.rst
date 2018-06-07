@@ -1928,7 +1928,7 @@ with 8 CPUs using the AArch32 build of TF-A.
     -C cluster1.cpu1.RVBAR=0x04001000                            \
     -C cluster1.cpu2.RVBAR=0x04001000                            \
     -C cluster1.cpu3.RVBAR=0x04001000                            \
-    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04001000    \
+    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04002000    \
     --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000    \
     --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000            \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000  \
@@ -1959,7 +1959,7 @@ boot Linux with 8 CPUs using the AArch64 build of TF-A.
     -C cluster1.cpu2.RVBARADDR=0x04020000                        \
     -C cluster1.cpu3.RVBARADDR=0x04020000                        \
     --data cluster0.cpu0="<path-to>/<bl31-binary>"@0x04020000    \
-    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04001000    \
+    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04002000    \
     --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000    \
     --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000            \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000  \
@@ -1982,7 +1982,7 @@ boot Linux with 4 CPUs using the AArch32 build of TF-A.
     -C cluster0.cpu1.RVBARADDR=0x04001000                       \
     -C cluster0.cpu2.RVBARADDR=0x04001000                       \
     -C cluster0.cpu3.RVBARADDR=0x04001000                       \
-    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04001000   \
+    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04002000   \
     --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000   \
     --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000           \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \

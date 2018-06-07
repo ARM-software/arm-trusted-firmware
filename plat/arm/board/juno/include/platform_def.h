@@ -139,22 +139,21 @@
 #endif
 
 /*
- * PLAT_ARM_MAX_BL31_SIZE is calculated using the current BL31 debug size plus a
- * little space for growth.
- * SCP_BL2 image is loaded into the space BL31 -> BL1_RW_BASE.
- * For TBB use case, PLAT_ARM_MAX_BL1_RW_SIZE has been increased and therefore
- * PLAT_ARM_MAX_BL31_SIZE has been increased to ensure SCP_BL2 has the same
- * space available.
+ * Since BL31 NOBITS overlays BL2 and BL1-RW, PLAT_ARM_MAX_BL31_SIZE is
+ * calculated using the current BL31 PROGBITS debug size plus the sizes of
+ * BL2 and BL1-RW.  SCP_BL2 image is loaded into the space BL31 -> BL2_BASE.
+ * Hence the BL31 PROGBITS size should be >= PLAT_CSS_MAX_SCP_BL2_SIZE.
  */
-#define PLAT_ARM_MAX_BL31_SIZE		0x1E000
+#define PLAT_ARM_MAX_BL31_SIZE		0x3E000
 
 #if JUNO_AARCH32_EL3_RUNTIME
 /*
- * PLAT_ARM_MAX_BL32_SIZE is calculated for SP_MIN as the AArch32 Secure
- * Payload. We also need to take care of SCP_BL2 size as well, as the SCP_BL2
- * is loaded into the space BL32 -> BL1_RW_BASE
+ * Since BL32 NOBITS overlays BL2 and BL1-RW, PLAT_ARM_MAX_BL32_SIZE is
+ * calculated using the current BL32 PROGBITS debug size plus the sizes of
+ * BL2 and BL1-RW.  SCP_BL2 image is loaded into the space BL32 -> BL2_BASE.
+ * Hence the BL32 PROGBITS size should be >= PLAT_CSS_MAX_SCP_BL2_SIZE.
  */
-# define PLAT_ARM_MAX_BL32_SIZE		0x1E000
+#define PLAT_ARM_MAX_BL32_SIZE		0x3E000
 #endif
 
 /*

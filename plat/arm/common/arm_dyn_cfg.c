@@ -143,8 +143,8 @@ void arm_bl2_dyn_cfg_init(void)
 			if (check_uptr_overflow(image_base, image_size) != 0)
 				continue;
 
-			/* Ensure the configs don't overlap with BL2 */
-			if ((image_base > BL2_BASE) || ((image_base + image_size) > BL2_BASE))
+			/* Ensure the configs don't overlap with BL31 */
+			if ((image_base > BL31_BASE) || ((image_base + image_size) > BL31_BASE))
 				continue;
 
 			/* Ensure the configs are loaded in a valid address */
