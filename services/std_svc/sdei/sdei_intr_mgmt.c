@@ -39,6 +39,11 @@ typedef struct sdei_dispatch_context {
 	/* Exception state registers */
 	uint64_t elr_el3;
 	uint64_t spsr_el3;
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
+	/* CVE-2018-3639 mitigation state */
+	uint64_t disable_cve_2018_3639;
+#endif
 } sdei_dispatch_context_t;
 
 /* Per-CPU SDEI state data */
@@ -170,6 +175,18 @@ static void save_event_ctx(sdei_ev_map_t *map, void *tgt_ctx, int sec_state,
 	memcpy(disp_ctx->x, tgt_gpregs, sizeof(disp_ctx->x));
 	disp_ctx->spsr_el3 = read_ctx_reg(tgt_el3, CTX_SPSR_EL3);
 	disp_ctx->elr_el3 = read_ctx_reg(tgt_el3, CTX_ELR_EL3);
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
+	cve_2018_3639_t *tgt_cve_2018_3639;
+	tgt_cve_2018_3639 = get_cve_2018_3639_ctx(tgt_ctx);
+
+	/* Save CVE-2018-3639 mitigation state */
+	disp_ctx->disable_cve_2018_3639 = read_ctx_reg(tgt_cve_2018_3639,
+		CTX_CVE_2018_3639_DISABLE);
+
+	/* Force SDEI handler to execute with mitigation enabled by default */
+	write_ctx_reg(tgt_cve_2018_3639, CTX_CVE_2018_3639_DISABLE, 0);
+#endif
 }
 
 static void restore_event_ctx(sdei_dispatch_context_t *disp_ctx, void *tgt_ctx)
@@ -188,6 +205,15 @@ static void restore_event_ctx(sdei_dispatch_context_t *disp_ctx, void *tgt_ctx)
 	memcpy(tgt_gpregs, disp_ctx->x, sizeof(disp_ctx->x));
 	write_ctx_reg(tgt_el3, CTX_SPSR_EL3, disp_ctx->spsr_el3);
 	write_ctx_reg(tgt_el3, CTX_ELR_EL3, disp_ctx->elr_el3);
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
+	cve_2018_3639_t *tgt_cve_2018_3639;
+	tgt_cve_2018_3639 = get_cve_2018_3639_ctx(tgt_ctx);
+
+	/* Restore CVE-2018-3639 mitigation state */
+	write_ctx_reg(tgt_cve_2018_3639, CTX_CVE_2018_3639_DISABLE,
+		disp_ctx->disable_cve_2018_3639);
+#endif
 }
 
 static void save_secure_context(void)
