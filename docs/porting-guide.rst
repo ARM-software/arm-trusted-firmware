@@ -1055,7 +1055,7 @@ next image. This function is currently invoked in BL2 to flush this information
 to the next BL image, when LOAD\_IMAGE\_V2 is enabled.
 
 Function : plat\_log\_get\_prefix()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -1066,8 +1066,30 @@ This function defines the prefix string corresponding to the `log_level` to be
 prepended to all the log output from TF-A. The `log_level` (argument) will
 correspond to one of the standard log levels defined in debug.h. The platform
 can override the common implementation to define a different prefix string for
-the log output.  The implementation should be robust to future changes that
+the log output. The implementation should be robust to future changes that
 increase the number of log levels.
+
+Function : plat\_get\_mbedtls\_heap()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Arguments : void **heap_addr, size_t *heap_size
+    Return   : int
+
+This function is invoked during Mbed TLS library initialisation to get
+a heap, by means of a starting address and a size. This heap will then be used
+internally by the Mbed TLS library. The heap is requested from the current
+BL stage, i.e. the current BL image inside which Mbed TLS is used.
+
+The default implementation allocates a new heap every time Mbed TLS gets
+initialised. This means that a new heap is statically allocated inside
+every image (i.e. every BL stage) that utilises Mbed TLS. In the default
+implementation, this function returns the address and size of this default
+heap. However, by overriding the default implementation, platforms have the ability
+to optimise memory usage.
+
+On success it returns 0 and a negative error code otherwise.
 
 Modifications specific to a Boot Loader stage
 ---------------------------------------------

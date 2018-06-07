@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -93,6 +93,18 @@
 /* System headers required to build mbed TLS with the current configuration */
 #include <stdlib.h>
 #include "mbedtls/check_config.h"
+#endif
+
+/*
+ * Determine Mbed TLS heap size
+ * 13312 = 13*1024
+ * 7168 = 7*1024
+ */
+#if (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA) \
+	|| (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA)
+#define TF_MBEDTLS_HEAP_SIZE		U(13312)
+#elif (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA)
+#define TF_MBEDTLS_HEAP_SIZE		U(7168)
 #endif
 
 #endif /* __MBEDTLS_CONFIG_H__ */

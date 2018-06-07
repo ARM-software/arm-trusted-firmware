@@ -103,6 +103,7 @@ void plat_panic_handler(void) __dead2;
 const char *plat_log_get_prefix(unsigned int log_level);
 void bl2_plat_preload_setup(void);
 int plat_try_next_boot_source(void);
+int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size);
 
 /*******************************************************************************
  * Mandatory BL1 functions
