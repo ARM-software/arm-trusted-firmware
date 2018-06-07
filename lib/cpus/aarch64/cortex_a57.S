@@ -404,6 +404,7 @@ func cortex_a57_reset_func
 #if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
 	adr	x0, wa_cve_2017_5715_mmu_vbar
 	msr	vbar_el3, x0
+	/* isb will be performed before returning from this function */
 #endif
 
 #if WORKAROUND_CVE_2018_3639
