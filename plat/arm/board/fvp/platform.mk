@@ -216,6 +216,10 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a75_pubsub.c	\
 				lib/cpus/aarch64/cpuamu_helpers.S
 endif
 
+ifeq (${RAS_EXTENSION},1)
+BL31_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_ras.c
+endif
+
 ifneq (${ENABLE_STACK_PROTECTOR},0)
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/board/fvp/fvp_stack_protector.c
 endif
