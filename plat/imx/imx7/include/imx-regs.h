@@ -49,4 +49,7 @@
 /* QSPI1 FLASH */
 #define QSPI_FLASH_BASE			0x60000000	/* QSPI1 flash */
 
+/* AIPS1 block addresses */
+#define AIPSTZ_CONFIG_OFFSET		0x001f0000
+
 #endif /* __REGS_H__ */
