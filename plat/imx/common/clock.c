@@ -83,6 +83,14 @@ void clock_disable_uart(unsigned int uart_id)
 	mxc_clock_target_clr(ccm_trgt_id, 0xFFFFFFFF);
 }
 
+static void clock_uart_init(void)
+{
+	unsigned int i;
+
+	for (i = 0; i < MXC_MAX_UART_NUM; i++)
+		clock_disable_uart(i);
+}
+
 void clock_init(void)
 {
 	/*
@@ -96,4 +104,7 @@ void clock_init(void)
 	 * objective should be to enable what we need for ATF/OPTEE without
 	 * breaking any existing upstream code in Linux and u-boot.
 	 */
+
+	/* Initialize UART clocks */
+	clock_uart_init();
 }
