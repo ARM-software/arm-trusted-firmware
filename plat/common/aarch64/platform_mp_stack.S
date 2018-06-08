@@ -13,11 +13,13 @@
 #if ENABLE_PLAT_COMPAT
 	.globl	plat_get_my_stack
 	.globl	plat_set_my_stack
+	.weak	plat_inv_my_stack
 	.weak	platform_get_stack
 	.weak	platform_set_stack
 #else
 	.weak	plat_get_my_stack
 	.weak	plat_set_my_stack
+	.weak	plat_inv_my_stack
 	.globl	platform_get_stack
 	.globl	platform_set_stack
 #endif /* __ENABLE_PLAT_COMPAT__ */
@@ -56,6 +58,22 @@ func plat_set_my_stack
 	mrs	x0, mpidr_el1
 	b	platform_set_stack
 endfunc plat_set_my_stack
+
+	/* -----------------------------------------------------
+	 * void plat_inv_my_stack ()
+	 *
+	 * For the current CPU, this function invalid the stack
+	 * pointer to a stack allocated in normal memory.
+	 * -----------------------------------------------------
+	 */
+func plat_inv_my_stack
+	mov x9, x30 // lr
+	mrs x0, mpidr_el1
+	bl  platform_get_stack
+	sub x0, x0, x1
+	bl  inv_dcache_range
+	ret x9
+endfunc plat_inv_my_stack
 
 	/* -----------------------------------------------------
 	 * unsigned long platform_get_stack (unsigned long mpidr)
@@ -160,6 +178,21 @@ func plat_set_my_stack
 	mov	sp, x0
 	ret	x9
 endfunc plat_set_my_stack
+
+	/* -----------------------------------------------------
+	 * void plat_inv_my_stack ()
+	 *
+	 * For the current CPU, this function invalid the stack
+	 * pointer to a stack allocated in normal memory.
+	 * -----------------------------------------------------
+	 */
+func plat_inv_my_stack
+	mov	x9, x30 // lr
+	bl 	plat_get_my_stack
+	sub	x0, x0, x1
+	bl	inv_dcache_range
+	ret	x9
+endfunc plat_inv_my_stack
 
 #endif /*__ENABLE_PLAT_COMPAT__*/
 

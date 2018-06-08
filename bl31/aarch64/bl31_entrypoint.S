@@ -155,6 +155,39 @@ func bl31_warm_entrypoint
 		_exception_vectors=runtime_exceptions
 
 	/*
+	 * On the warm boot path, when we use HW_ASSISTED_COHERENCY options
+	 * We have to invalid DCache of stack before we use it
+	 * Becasue, when last core power down, the stack content maybe still
+	 *  valid in uncore level DCache(such as L3 DCache)
+	 * At some situation, we may meet memory corruption if we don't invalid it
+	 * Say:
+	 * -> the core prepare power down
+	 * -> WFI
+	 * -> HW flush cache to uncore level(e.g. L3)
+	 * -> power down
+	 * -> (...idle...)
+	 * -> wake up
+	 * -> run to here set the stack <-
+	 * -> later use, write stack (e.g. call function, bl)
+	 * -> {Placeholder A}
+	 * -> return, read stack {Placeholder B}
+	 * Sometimes, if the stack memory stay in uncore level DCache till
+	 * at {Placeholder A} (NOTES: We write the stack memory already).
+	 * So, at this time, We have two copy of stack content
+	 * - First, uncore level DCache copy, its corruption data
+	 * - Second, the main memory copy, its flesh
+	 * Meanwhile, if the uncore level DCache needs replacement
+	 *  and, unfortunately, the stack corruption data just flush out
+	 * OOPS, when we get to pop from stack and return function
+	 * exception will be meet at {Placeholder B}
+	 *
+	 * and, before we enable DCache, we must make sure invalid the stack
+	 */
+#if HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY
+	bl	plat_inv_my_stack
+#endif
+
+	/*
 	 * We're about to enable MMU and participate in PSCI state coordination.
 	 *
 	 * The PSCI implementation invokes platform routines that enable CPUs to
