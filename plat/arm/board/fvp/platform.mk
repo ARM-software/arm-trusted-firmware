@@ -114,7 +114,9 @@ FVP_CPU_LIBS		+=	lib/cpus/aarch64/cortex_a35.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
 				lib/cpus/aarch64/cortex_a73.S			\
-				lib/cpus/aarch64/cortex_a75.S
+				lib/cpus/aarch64/cortex_a75.S			\
+				lib/cpus/aarch64/cortex_a76.S			\
+				lib/cpus/aarch64/cortex_ares.S
 else
 FVP_CPU_LIBS		+=	lib/cpus/aarch32/cortex_a32.S
 endif
@@ -204,8 +206,12 @@ ENABLE_PLAT_COMPAT	:= 	0
 # Enable Activity Monitor Unit extensions by default
 ENABLE_AMU			:=	1
 
+# Enable dynamic mitigation support by default
+DYNAMIC_WORKAROUND_CVE_2018_3639	:=	1
+
 ifeq (${ENABLE_AMU},1)
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a75_pubsub.c	\
+				lib/cpus/aarch64/cortex_ares_pubsub.c	\
 				lib/cpus/aarch64/cpuamu.c		\
 				lib/cpus/aarch64/cpuamu_helpers.S
 endif

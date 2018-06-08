@@ -271,6 +271,7 @@ typedef struct cpu_context {
 #endif
 #define get_sysregs_ctx(h)	(&((cpu_context_t *) h)->sysregs_ctx)
 #define get_gpregs_ctx(h)	(&((cpu_context_t *) h)->gpregs_ctx)
+#define get_cve_2018_3639_ctx(h)	(&((cpu_context_t *) h)->cve_2018_3639_ctx)
 
 /*
  * Compile time assertions related to the 'cpu_context' structure to
