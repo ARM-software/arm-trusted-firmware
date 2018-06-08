@@ -10,6 +10,7 @@
 
 	.weak	plat_get_my_stack
 	.weak	plat_set_my_stack
+	.weak	plat_inv_my_stack
 
 	/* -----------------------------------------------------
 	 * uintptr_t plat_get_my_stack (u_register_t mpidr)
@@ -37,6 +38,21 @@ func plat_set_my_stack
 	mov	sp, r0
 	bx	r4
 endfunc plat_set_my_stack
+
+	/* -----------------------------------------------------
+	 * void plat_inv_my_stack ()
+	 *
+	 * For the current CPU, this function invalid the stack
+	 * pointer to a stack allocated in normal memory.
+	 * -----------------------------------------------------
+	 */
+func plat_inv_my_stack
+	mov	r4, lr
+	get_my_mp_stack platform_normal_stacks, PLATFORM_STACK_SIZE
+	sub	r0, r0, r1
+	bl	inv_dcache_range
+	bx	r4
+endfunc plat_inv_my_stack
 
 	/* -----------------------------------------------------
 	 * Per-cpu stacks in normal memory. Each cpu gets a
