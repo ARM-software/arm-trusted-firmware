@@ -120,3 +120,17 @@ endif
 ifeq (${ARCH},aarch32)
   $(error Error: AArch32 not supported on rpi3)
 endif
+
+ifeq (${SPD},opteed)
+BL2_SOURCES	+=							\
+		lib/optee/optee_utils.c
+endif
+
+# Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
+# in the FIP if the platform requires.
+ifneq ($(BL32_EXTRA1),)
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
+endif
+ifneq ($(BL32_EXTRA2),)
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
+endif

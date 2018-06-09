@@ -181,6 +181,13 @@
 #define BL32_DRAM_BASE			SEC_DRAM0_BASE
 #define BL32_DRAM_LIMIT			(SEC_DRAM0_BASE + SEC_DRAM0_SIZE)
 
+#ifdef SPD_opteed
+/* Load pageable part of OP-TEE at end of allocated DRAM space for BL32 */
+#define RPI3_OPTEE_PAGEABLE_LOAD_SIZE	0x080000 /* 512KB */
+#define RPI3_OPTEE_PAGEABLE_LOAD_BASE	(BL32_DRAM_LIMIT - \
+					 RPI3_OPTEE_PAGEABLE_LOAD_SIZE)
+#endif
+
 #define SEC_SRAM_ID			0
 #define SEC_DRAM_ID			1
 
