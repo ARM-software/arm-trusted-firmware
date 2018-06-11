@@ -33,15 +33,10 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	entry_point_info_t ep_info = {0};
 
 	SET_PARAM_HEAD(&ep_info, PARAM_EP, VERSION_1, SECURE | EP_ST_ENABLE);
+
+	/* Setup entrypoint and SPSR */
 	ep_info.pc = BL32_BASE;
 	ep_info.spsr = SPSR_64(MODE_EL0, MODE_SP_EL0, DISABLE_ALL_EXCEPTIONS);
-
-	cm_setup_context(ctx, &ep_info);
-
-	/*
-	 * General-Purpose registers
-	 * -------------------------
-	 */
 
 	/*
 	 * X0: Virtual address of a buffer shared between EL3 and Secure EL0.
@@ -55,12 +50,14 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	 *
 	 * X3: cookie value (Implementation Defined)
 	 *
-	 * X4 to X30 = 0 (already done by cm_init_my_context())
+	 * X4 to X7 = 0
 	 */
-	write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X0, PLAT_SPM_BUF_BASE);
-	write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X1, PLAT_SPM_BUF_SIZE);
-	write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X2, PLAT_SPM_COOKIE_0);
-	write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X3, PLAT_SPM_COOKIE_1);
+	ep_info.args.arg0 = PLAT_SPM_BUF_BASE;
+	ep_info.args.arg1 = PLAT_SPM_BUF_SIZE;
+	ep_info.args.arg2 = PLAT_SPM_COOKIE_0;
+	ep_info.args.arg3 = PLAT_SPM_COOKIE_1;
+
+	cm_setup_context(ctx, &ep_info);
 
 	/*
 	 * SP_EL0: A non-zero value will indicate to the SP that the SPM has
