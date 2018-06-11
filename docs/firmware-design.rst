@@ -516,8 +516,8 @@ This functionality can be tested with FVP loading the image directly
 in memory and changing the address where the system jumps at reset.
 For example:
 
-	-C cluster0.cpu0.RVBAR=0x4020000
-	--data cluster0.cpu0=bl2.bin@0x4020000
+	-C cluster0.cpu0.RVBAR=0x4022000
+	--data cluster0.cpu0=bl2.bin@0x4022000
 
 With this configuration, FVP is like a platform of the first case,
 where the Boot ROM jumps always to the same address. For simplification,

@@ -339,9 +339,9 @@
  * BL2 specific defines.
  ******************************************************************************/
 #if BL2_AT_EL3
-/* Put BL2 in the middle of the Trusted SRAM */
+/* Put BL2 towards the middle of the Trusted SRAM */
 #define BL2_BASE			(ARM_TRUSTED_SRAM_BASE + \
-						(PLAT_ARM_TRUSTED_SRAM_SIZE >> 1))
+						(PLAT_ARM_TRUSTED_SRAM_SIZE >> 1) + 0x2000)
 #define BL2_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 
 #else
@@ -374,7 +374,15 @@
 #define BL31_BASE			((ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)\
 						- PLAT_ARM_MAX_BL31_SIZE)
 #define BL31_PROGBITS_LIMIT		BL2_BASE
+/*
+ * For BL2_AT_EL3 make sure the BL31 can grow up until BL2_BASE. This is
+ * because in the BL2_AT_EL3 configuration, BL2 is always resident.
+ */
+#if BL2_AT_EL3
+#define BL31_LIMIT			BL2_BASE
+#else
 #define BL31_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
+#endif
 #endif
 
 #if defined(AARCH32) || JUNO_AARCH32_EL3_RUNTIME
