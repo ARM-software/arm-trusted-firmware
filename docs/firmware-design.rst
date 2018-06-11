@@ -306,6 +306,8 @@ On Arm platforms, BL1 performs the following platform initializations:
 -  If the BL1 dynamic configuration file, ``TB_FW_CONFIG``, is available, then
    load it to the platform defined address and make it available to BL2 via
    ``arg0``.
+-  Configure the system timer and program the `CNTFRQ_EL0` for use by NS-BL1U
+   and NS-BL2U firmware update images.
 
 Firmware Update detection and execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

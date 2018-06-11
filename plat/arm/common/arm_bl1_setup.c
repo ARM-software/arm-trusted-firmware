@@ -118,6 +118,12 @@ void arm_bl1_platform_setup(void)
 #if LOAD_IMAGE_V2
 	arm_load_tb_fw_config();
 #endif
+	/*
+	 * Allow access to the System counter timer module and program
+	 * counter frequency for non secure images during FWU
+	 */
+	arm_configure_sys_timer();
+	write_cntfrq_el0(plat_get_syscnt_freq2());
 }
 
 void bl1_platform_setup(void)
