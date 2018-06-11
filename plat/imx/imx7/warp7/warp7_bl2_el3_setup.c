@@ -131,6 +131,9 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	/* Init UART, storage and friends */
 	console_init(PLAT_WARP7_BOOT_UART_BASE, PLAT_WARP7_BOOT_UART_CLK_IN_HZ,
 		     PLAT_WARP7_CONSOLE_BAUDRATE);
+
+	/* Open handles to persistent storage */
+	plat_warp7_io_setup();
 }
 
 /*
