@@ -14,5 +14,7 @@ Xilinx, Inc.
 
 NXP Semiconductors
 
+Cavium, Inc.
+
 Individuals
 -----------
