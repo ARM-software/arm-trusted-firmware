@@ -1,0 +1,139 @@
+CAVIUM
+======
+
+ARM Trusted Firmware interface to BL33 image
+============================================
+
+This document purpose is to describe ATF ABI for BL33 (non-secure Firmware). It
+is necessary to understand in what state platform is left when execution is
+handled to non-secure world.
+
+
+Registers
+---------
+Booting non-secure BL33 firmware is performed on primary core and ATF currently
+uses CPU0 as primary core. While handling execution to BL33, CPU0 registers
+state is as follows:
+
+General purpose registers:
+ -> x0 - Primary CPU ID
+ -> x1 - FDT base address
+
+SPSR_EL2 is set to 0x3C9 what can be decoded as:
+ -> Use SP_ELX (not SP_EL0)
+ -> Execution mode is EL2
+ -> Mode AArch64
+ -> Mask all (DAIF) exceptions
+ -> Rest of fields set to 0
+
+
+Memory
+------
+Some memory regions are marked as secure and hence unavailable for non-secure
+world. Every attempt to write to secure region will be ignored, while attempt to
+read from it, may cause synchronous exception. Below table is valid for all
+currently supported platforms.
+
+  Nr   |     Memory range      |  Attribute
+-------|------------------------------------
+  1    |    0x0 - 0x100000     |   SECURE
+--------------------------------------------
+  2    |  0x100000 - RAM_END   | NON-SECURE
+
+
+BL33 image is loaded at address 0x500000 and FDT blob (described below) from BDK
+is placed in memory at the end of BL33 image.
+
+Device tree blob mentioned above is gathered from BDK. No changes are made to
+this image are made inside ATF codebase. This DTB consist of two part:
+ - BDK portion
+   Comprises different board architectural configuration. It's _flat_ device
+   tree, consisting of one node "cavium,bdk" with multiple properties.
+ - OS portion
+   Follows standard device tree format and may be used to boot OS from BL33
+   firmware.
+Device tree blob from BDK is further explained at [1]
+
+
+Device visibility
+-----------------
+Some devices are made non enumerable through ECAM in NS world. Below is list of
+such devices for T81 and T83 targets:
+
+* T81
+ -> SMMU 0
+ -> GIC
+ -> GTI
+ -> MIO_PTP
+ -> DAP
+ -> FUS
+ -> FUSF
+ -> L2C
+ -> SGP
+ -> KEY
+ -> BOOT_BUS
+ -> UAA (0..3)
+ -> PEM (0..2)
+
+* T83
+ -> SMMU(0..1)
+ -> GIC
+ -> GTI
+ -> MPI
+ -> MIO_PTP
+ -> UAA (0..3)
+ -> PEM (0..3)
+
+Some devices are hidden from non-secure world conditionally.
+
+ -> SATA(N), BGX(N) - are invisible in NS world only if GSER(N) is not
+    configured to proper function (e.g not SATA, not BGX)
+ -> TWSI(N) - invisible in NS world when dts entry (in "cavium/bdk" node)
+    "BMC-BOOT-TWSI-CONFIG" points to BUS(N) as boot bus
+ -> LMC(N) - invisible in NS world when LMC(N) not present
+
+
+"Secure" devices configuration
+------------------------------
+When some devices are marked as secure and hence made non-enumerable via ECAM in
+NS world, some basic initialization must be performed in ATF. This paragraph
+describes state of such devices when execution is handled to BL33 firmware.
+
+* SMMU
+ - All IO units are mapped to non-secure domain instead of case when we boot
+   from eMMC device, because then SMMU is configured to allow MMC access to
+   secure memory (in order to allow loading firmware images there)
+ - SMMU accesses from every device bypass translation (reset state)
+ - MSI-X registered and enabled
+
+* GICv3
+ - Thunder-specific configuration for two-node platform:
+   * Multisocket, single-root mode with root set to NODE0
+ - Implemented ERRATUM GIC-28835 for T83 pass 1.0
+ - Registered following g0 EL3 interrupts for CPU0:
+   * THUNDER_IRQ_SEC_PHY_TIMER
+   * THUNDER_IRQ_GPIO_PWR_S
+   * THUNDER_IRQ_GTI_WDOG
+   Distributors, redistributors and cpu interfaces configured accordingly
+
+* PEM
+ - MSI-X registered and enabled
+
+* GTI
+ - MSI-X registered and enabled
+
+* UAA
+ - MSI-X registered and enabled
+
+* TWSI (only if bus is equal to bmc_boot_twsi_bus)
+ - MSI-X registered and enabled
+
+* GPIO (only if it's configured as gpio_shutdown_ctl_in)
+ - MSI-X registered and enabled
+
+* Rest of secure devices (not listed above) are left in their reset state - they
+  aren't configured in ATF.
+
+
+-------------------------------
+[1]: http://mawiki.caveonetworks.com/wiki/Thunder/BDK/Configuration#Cavium_Software_Configuration

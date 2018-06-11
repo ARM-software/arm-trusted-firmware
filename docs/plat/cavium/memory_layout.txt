@@ -1,0 +1,45 @@
+CAVIUM
+======
+
+ARM Trusted Firmware memory layout for Cavium's platforms
+=========================================================
+
+This document purpose is to describe ATF binaries memory layout - namely base
+addresses and sizes. Described is memory look after loading binaries from
+non-volatile memory to RAM. For more information about how images are placed
+inside flash please refer to Cavium's flash layout document [1].
+
+
+
+(...) MAX_RAM_ADDR
+|
+|  NS DMA memory
+|
+-- MAX_RAM_ADDR - 0x100000
+|
+|
+|  _BL33_ non-trusted firmware
+|
+|
+-- 0x100000 (0x200000 on T83)
+|
+|  Secure memory area
+|
+|  FDT provided from earlier firmware stages (BDK)
+|
+|
+-- 0xE0000
+|
+|
+|  _BL31_ EL3 runtime firmware
+|
+|
+-- 0x50000 (or less if SPD is compiled in)
+|
+|  Secure memory area
+|
+-- 0x0
+
+
+------------------------------
+[1]: http://mawiki.caveonetworks.com/wiki/Thunder/BDK/Configuration#SPI.2FeMMC_Flash_Layout
