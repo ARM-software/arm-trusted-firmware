@@ -142,4 +142,15 @@
 #define FVP_NSAID_HDLCD0		2
 #define FVP_NSAID_CLCD			7
 
+/*******************************************************************************
+ * Memprotect definitions
+ ******************************************************************************/
+/* PSCI memory protect definitions:
+ * This variable is stored in a non-secure flash because some ARM reference
+ * platforms do not have secure NVRAM. Real systems that provided MEM_PROTECT
+ * support must use a secure NVRAM to store the PSCI MEM_PROTECT definitions.
+ */
+#define PLAT_ARM_MEM_PROT_ADDR		(V2M_FLASH0_BASE + \
+					 V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
+
 #endif /* __FVP_DEF_H__ */
