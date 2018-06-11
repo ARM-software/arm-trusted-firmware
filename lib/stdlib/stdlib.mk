@@ -17,6 +17,7 @@ STDLIB_SRCS	:=	$(addprefix lib/stdlib/,	\
 			strcmp.c			\
 			strlen.c			\
 			strncmp.c			\
+			strncpy.c			\
 			strnlen.c			\
 			strtol.c			\
 			subr_prf.c			\
