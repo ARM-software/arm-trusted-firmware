@@ -9,6 +9,9 @@ Cortex-A35, and Cortex-M4 based solutions for advanced graphics,
 imaging, machine vision, audio, voice, video, and safety-critical
 applications.
 
+The i.MX8QM is with 2 Cortex-A72 ARM core, 4 Cortex-A53 ARM core
+and 1 Cortex-M4 system controller.
+
 The i.MX8QX is with 4 Cortex-A35 ARM core and 1 Cortex-M4 system
 controller.
 
@@ -39,6 +42,7 @@ Build Procedure
 
        CROSS_COMPILE=aarch64-linux-gnu- make PLAT=<Target_SoC> bl31
 
+   Target_SoC should be "imx8qm" for i.MX8QM SoC.
    Target_SoC should be "imx8qx" for i.MX8QX SoC.
 
 Deploy TF-A Images
