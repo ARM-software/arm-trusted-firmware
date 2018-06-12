@@ -21,6 +21,12 @@
 #define UART1_CLK_SELECT (CCM_TARGET_ROOT_ENABLE |\
 			  CCM_TRGT_MUX_UART1_CLK_ROOT_OSC_24M)
 
+static uint32_t warp7_get_spsr_for_bl32_entry(void)
+{
+	return SPSR_MODE32(MODE32_svc, SPSR_T_ARM, SPSR_E_LITTLE,
+			   DISABLE_ALL_EXCEPTIONS);
+}
+
 int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	return 0;
