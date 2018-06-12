@@ -735,7 +735,7 @@ static int mmap_add_region_check(xlat_ctx_t *ctx, const mmap_region_t *mm)
 
 void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 {
-	mmap_region_t *mm_cursor = ctx->mmap;
+	mmap_region_t *mm_cursor = ctx->mmap, *mm_destination;
 	const mmap_region_t *mm_end = ctx->mmap + ctx->mmap_num;
 	mmap_region_t *mm_last;
 	unsigned long long end_pa = mm->base_pa + mm->size - 1;
@@ -802,9 +802,10 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 	 * that there is free space.
 	 */
 	assert(mm_last->size == 0U);
-
+	
 	/* Make room for new region by moving other regions up by one place */
-	memmove(mm_cursor + 1, mm_cursor,
+	mm_destination = mm_cursor + 1;
+	memmove(mm_destination, mm_cursor,
 		(uintptr_t)mm_last - (uintptr_t)mm_cursor);
 
 	/*
