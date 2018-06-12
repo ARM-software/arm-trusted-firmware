@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -467,6 +468,17 @@ func cortex_a57_reset_func
 	msr	CORTEX_A57_CPUACTLR_EL1, x0
 	isb
 	dsb	sy
+#endif
+
+#if A57_ENABLE_NONCACHEABLE_LOAD_FWD
+	/* ---------------------------------------------
+	 * Enable higher performance non-cacheable load
+	 * forwarding
+	 * ---------------------------------------------
+	 */
+	mrs	x0, CORTEX_A57_CPUACTLR_EL1
+	orr	x0, x0, #CORTEX_A57_CPUACTLR_EL1_EN_NC_LOAD_FWD
+	msr	CORTEX_A57_CPUACTLR_EL1, x0
 #endif
 
 	/* ---------------------------------------------

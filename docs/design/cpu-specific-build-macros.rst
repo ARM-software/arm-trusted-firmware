@@ -324,6 +324,13 @@ architecture that can be enabled by the platform as desired.
    as recommended in section "4.7 Non-Temporal Loads/Stores" of the
    `Cortex-A57 Software Optimization Guide`_.
 
+- ''A57_ENABLE_NON_CACHEABLE_LOAD_FWD'': This flag enables non-cacheable
+   streaming enhancement feature for Cortex-A57 CPUs. Platforms can set
+   this bit only if their memory system meets the requirement that cache
+   line fill requests from the Cortex-A57 processor are atomic. Each
+   Cortex-A57 based platform must make its own decision on whether to use
+   the optimization. This flag is disabled by default.
+
 -  ``NEOVERSE_N1_EXTERNAL_LLC``: This flag indicates that an external last
    level cache(LLC) is present in the system, and that the DataSource field
    on the master CHI interface indicates when data is returned from the LLC.

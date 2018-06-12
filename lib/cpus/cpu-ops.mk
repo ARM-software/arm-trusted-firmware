@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -16,6 +17,10 @@ A53_DISABLE_NON_TEMPORAL_HINT	?=1
 # It is enabled by default.
 A57_DISABLE_NON_TEMPORAL_HINT	?=1
 
+# Flag to enable higher performance non-cacheable load forwarding.
+# It is disabled by default.
+A57_ENABLE_NONCACHEABLE_LOAD_FWD	?= 0
+
 WORKAROUND_CVE_2017_5715	?=1
 WORKAROUND_CVE_2018_3639	?=1
 DYNAMIC_WORKAROUND_CVE_2018_3639	?=0
@@ -23,6 +28,10 @@ DYNAMIC_WORKAROUND_CVE_2018_3639	?=0
 # Flag to indicate internal or external Last level cache
 # By default internal
 NEOVERSE_N1_EXTERNAL_LLC	?=0
+
+# Process A57_ENABLE_NONCACHEABLE_LOAD_FWD flag
+$(eval $(call assert_boolean,A57_ENABLE_NONCACHEABLE_LOAD_FWD))
+$(eval $(call add_define,A57_ENABLE_NONCACHEABLE_LOAD_FWD))
 
 # Process SKIP_A57_L1_FLUSH_PWR_DWN flag
 $(eval $(call assert_boolean,SKIP_A57_L1_FLUSH_PWR_DWN))
