@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -64,3 +65,6 @@ ERRATA_A57_826977		:=	1
 ERRATA_A57_828024		:=	1
 ERRATA_A57_829520		:=	1
 ERRATA_A57_833471		:=	1
+
+# Enable higher performance Non-cacheable load forwarding
+A57_ENABLE_NONCACHEABLE_LOAD_FWD	:=	1
