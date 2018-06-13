@@ -10,6 +10,7 @@
 #include <console.h>
 #include <debug.h>
 #include <desc_image_load.h>
+#include <optee_utils.h>
 #include <platform_def.h>
 #include <xlat_mmu_helpers.h>
 #include <xlat_tables_defs.h>
@@ -27,9 +28,59 @@ static uint32_t warp7_get_spsr_for_bl32_entry(void)
 			   DISABLE_ALL_EXCEPTIONS);
 }
 
+#ifndef AARCH32_SP_OPTEE
+#error "Must build with OPTEE support included"
+#endif
+
 int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
-	return 0;
+	int err = 0;
+	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
+	bl_mem_params_node_t *hw_cfg_mem_params = NULL;
+
+	bl_mem_params_node_t *pager_mem_params = NULL;
+	bl_mem_params_node_t *paged_mem_params = NULL;
+
+	assert(bl_mem_params);
+
+	switch (image_id) {
+	case BL32_IMAGE_ID:
+		pager_mem_params = get_bl_mem_params_node(BL32_EXTRA1_IMAGE_ID);
+		assert(pager_mem_params);
+
+		paged_mem_params = get_bl_mem_params_node(BL32_EXTRA2_IMAGE_ID);
+		assert(paged_mem_params);
+
+		err = parse_optee_header(&bl_mem_params->ep_info,
+					 &pager_mem_params->image_info,
+					 &paged_mem_params->image_info);
+		if (err != 0)
+			WARN("OPTEE header parse error.\n");
+
+		/*
+		 * When ATF loads the DTB the address of the DTB is passed in
+		 * arg2, if an hw config image is present use the base address
+		 * as DTB address an pass it as arg2
+		 */
+		hw_cfg_mem_params = get_bl_mem_params_node(HW_CONFIG_ID);
+
+		bl_mem_params->ep_info.args.arg0 =
+					bl_mem_params->ep_info.args.arg1;
+		bl_mem_params->ep_info.args.arg1 = 0;
+		if (hw_cfg_mem_params)
+			bl_mem_params->ep_info.args.arg2 =
+					hw_cfg_mem_params->image_info.image_base;
+		else
+			bl_mem_params->ep_info.args.arg2 = 0;
+		bl_mem_params->ep_info.args.arg3 = 0;
+		bl_mem_params->ep_info.spsr = warp7_get_spsr_for_bl32_entry();
+		break;
+	default:
+		/* Do nothing in default case */
+		break;
+	}
+
+	return err;
 }
 
 void bl2_el3_plat_arch_setup(void)
