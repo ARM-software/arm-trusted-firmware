@@ -122,7 +122,7 @@ secure platform!
     0x10000000 +-----------------+
                |   Secure SRAM   | BL2, BL31
     0x10100000 +-----------------+
-               |   Secure DRAM   |
+               |   Secure DRAM   | BL32 (Secure payload)
     0x10300000 +-----------------+
                | Non-secure DRAM | BL33
     0x11000000 +-----------------+
@@ -236,6 +236,12 @@ The following build options are supported:
   By default this option is 0, which means that TF-A will jump to BL33 in EL2
   in AArch64 mode. If set to 1, it will jump to BL33 in Hypervisor in AArch32
   mode.
+
+- ``BL32``: This port can load and run OP-TEE. The OP-TEE image is optional.
+  Please use the code from `here <https://github.com/OP-TEE/optee_os>`__.
+  Build the Trusted Firmware with option ``BL32=tee-header_v2.bin
+  BL32_EXTRA1=tee-pager_v2.bin  BL32_EXTRA2=tee-pageable_v2.bin``
+  to put the binaries into the FIP.
 
 The following is not currently supported:
 
