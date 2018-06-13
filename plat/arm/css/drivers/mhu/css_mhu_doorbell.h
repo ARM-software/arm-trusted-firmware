@@ -18,8 +18,8 @@
 #define MHU_V2_ACCESS_REQ_OFFSET		0xF88
 #define MHU_V2_ACCESS_READY_OFFSET		0xF8C
 
-#define SENDER_REG_STAT(CHANNEL)	(0x20 * (CHANNEL))
-#define SENDER_REG_SET(CHANNEL)		(0x20 * (CHANNEL)) + 0xC
+#define SENDER_REG_STAT(_channel)	(0x20 * (_channel))
+#define SENDER_REG_SET(_channel)	((0x20 * (_channel)) + 0xC)
 
 /* Helper macro to ring doorbell */
 #define MHU_RING_DOORBELL(addr, modify_mask, preserve_mask)	do {	\

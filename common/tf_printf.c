@@ -15,13 +15,13 @@
  * The tf_printf implementation for all BL stages
  ***********************************************************/
 
-#define get_num_va_args(args, lcount) \
-	(((lcount) > 1) ? va_arg(args, long long int) :	\
-	((lcount) ? va_arg(args, long int) : va_arg(args, int)))
+#define get_num_va_args(_args, _lcount) \
+	(((_lcount) > 1) ? va_arg(_args, long long int) :	\
+	((_lcount) ? va_arg(_args, long int) : va_arg(_args, int)))
 
-#define get_unum_va_args(args, lcount) \
-	(((lcount) > 1) ? va_arg(args, unsigned long long int) :	\
-	((lcount) ? va_arg(args, unsigned long int) : va_arg(args, unsigned int)))
+#define get_unum_va_args(_args, _lcount) \
+	(((_lcount) > 1) ? va_arg(_args, unsigned long long int) :	\
+	((_lcount) ? va_arg(_args, unsigned long int) : va_arg(_args, unsigned int)))
 
 void tf_string_print(const char *str)
 {

@@ -207,7 +207,7 @@ typedef struct bl31_params {
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-size_t image_size(unsigned int image_id);
+size_t get_image_size(unsigned int image_id);
 
 int is_mem_free(uintptr_t free_base, size_t free_size,
 		uintptr_t addr, size_t size);

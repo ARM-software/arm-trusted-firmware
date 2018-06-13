@@ -54,7 +54,7 @@ static inline void _tzc400_write_gate_keeper(uintptr_t base, unsigned int val)
 /*
  * Get the open status information for all filter units.
  */
-#define get_gate_keeper_os(base)	((_tzc400_read_gate_keeper(base) >>	\
+#define get_gate_keeper_os(_base)	((_tzc400_read_gate_keeper(_base) >>  \
 					GATE_KEEPER_OS_SHIFT) &		\
 					GATE_KEEPER_OS_MASK)
 

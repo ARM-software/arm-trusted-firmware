@@ -60,14 +60,14 @@
  * Helper macro to create an SCMI message header given protocol, message id
  * and token.
  */
-#define SCMI_MSG_CREATE(protocol, msg_id, token)				\
-	((((protocol) & SCMI_MSG_PROTO_ID_MASK) << SCMI_MSG_PROTO_ID_SHIFT) |	\
-	(((msg_id) & SCMI_MSG_ID_MASK) << SCMI_MSG_ID_SHIFT) |			\
-	(((token) & SCMI_MSG_TOKEN_MASK) << SCMI_MSG_TOKEN_SHIFT))
+#define SCMI_MSG_CREATE(_protocol, _msg_id, _token)				\
+	((((_protocol) & SCMI_MSG_PROTO_ID_MASK) << SCMI_MSG_PROTO_ID_SHIFT) |	\
+	(((_msg_id) & SCMI_MSG_ID_MASK) << SCMI_MSG_ID_SHIFT) |			\
+	(((_token) & SCMI_MSG_TOKEN_MASK) << SCMI_MSG_TOKEN_SHIFT))
 
 /* Helper macro to get the token from a SCMI message header */
-#define SCMI_MSG_GET_TOKEN(msg)				\
-	(((msg) >> SCMI_MSG_TOKEN_SHIFT) & SCMI_MSG_TOKEN_MASK)
+#define SCMI_MSG_GET_TOKEN(_msg)				\
+	(((_msg) >> SCMI_MSG_TOKEN_SHIFT) & SCMI_MSG_TOKEN_MASK)
 
 /* SCMI Channel Status bit fields */
 #define SCMI_CH_STATUS_RES0_MASK	0xFFFFFFFE

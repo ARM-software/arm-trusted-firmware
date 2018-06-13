@@ -36,21 +36,21 @@
 #define SCMI_PWR_STATE_MAX_PWR_LVL_WIDTH	4
 #define SCMI_PWR_STATE_MAX_PWR_LVL_MASK		\
 				((1 << SCMI_PWR_STATE_MAX_PWR_LVL_WIDTH) - 1)
-#define SCMI_SET_PWR_STATE_MAX_PWR_LVL(pwr_state, max_lvl)		\
-		(pwr_state) |= ((max_lvl) & SCMI_PWR_STATE_MAX_PWR_LVL_MASK)	\
+#define SCMI_SET_PWR_STATE_MAX_PWR_LVL(_power_state, _max_level)		\
+		(_power_state) |= ((_max_level) & SCMI_PWR_STATE_MAX_PWR_LVL_MASK)\
 				<< SCMI_PWR_STATE_MAX_PWR_LVL_SHIFT
-#define SCMI_GET_PWR_STATE_MAX_PWR_LVL(pwr_state)		\
-		(((pwr_state) >> SCMI_PWR_STATE_MAX_PWR_LVL_SHIFT)	\
+#define SCMI_GET_PWR_STATE_MAX_PWR_LVL(_power_state)		\
+		(((_power_state) >> SCMI_PWR_STATE_MAX_PWR_LVL_SHIFT)	\
 				& SCMI_PWR_STATE_MAX_PWR_LVL_MASK)
 
 #define SCMI_PWR_STATE_LVL_WIDTH		4
 #define SCMI_PWR_STATE_LVL_MASK			\
 				((1 << SCMI_PWR_STATE_LVL_WIDTH) - 1)
-#define SCMI_SET_PWR_STATE_LVL(pwr_state, lvl, lvl_state)		\
-		(pwr_state) |= ((lvl_state) & SCMI_PWR_STATE_LVL_MASK)	\
-				<< (SCMI_PWR_STATE_LVL_WIDTH * (lvl))
-#define SCMI_GET_PWR_STATE_LVL(pwr_state, lvl)		\
-		(((pwr_state) >> (SCMI_PWR_STATE_LVL_WIDTH * (lvl))) &	\
+#define SCMI_SET_PWR_STATE_LVL(_power_state, _level, _level_state)		\
+		(_power_state) |= ((_level_state) & SCMI_PWR_STATE_LVL_MASK)	\
+				<< (SCMI_PWR_STATE_LVL_WIDTH * (_level))
+#define SCMI_GET_PWR_STATE_LVL(_power_state, _level)		\
+		(((_power_state) >> (SCMI_PWR_STATE_LVL_WIDTH * (_level))) &	\
 				SCMI_PWR_STATE_LVL_MASK)
 
 /*
@@ -69,7 +69,7 @@ typedef enum {
 static void *scmi_handle;
 
 /* The SCMI channel global object */
-static scmi_channel_t scmi_channel;
+static scmi_channel_t channel;
 
 ARM_INSTANTIATE_LOCK;
 
@@ -308,9 +308,9 @@ scmi_channel_plat_info_t plat_css_scmi_plat_info = {
 
 void plat_arm_pwrc_setup(void)
 {
-	scmi_channel.info = &plat_css_scmi_plat_info;
-	scmi_channel.lock = ARM_LOCK_GET_INSTANCE;
-	scmi_handle = scmi_init(&scmi_channel);
+	channel.info = &plat_css_scmi_plat_info;
+	channel.lock = ARM_LOCK_GET_INSTANCE;
+	scmi_handle = scmi_init(&channel);
 	if (scmi_handle == NULL) {
 		ERROR("SCMI Initialization failed\n");
 		panic();
