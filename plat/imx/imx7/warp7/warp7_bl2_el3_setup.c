@@ -87,6 +87,18 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		bl_mem_params->ep_info.args.arg3 = 0;
 		bl_mem_params->ep_info.spsr = warp7_get_spsr_for_bl32_entry();
 		break;
+
+	case BL33_IMAGE_ID:
+		/* AArch32 only core: OP-TEE expects NSec EP in register LR */
+		pager_mem_params = get_bl_mem_params_node(BL32_IMAGE_ID);
+		assert(pager_mem_params);
+		pager_mem_params->ep_info.lr_svc = bl_mem_params->ep_info.pc;
+
+		/* BL33 expects to receive the primary CPU MPID (through r0) */
+		bl_mem_params->ep_info.args.arg0 = 0xffff & read_mpidr();
+		bl_mem_params->ep_info.spsr = warp7_get_spsr_for_bl33_entry();
+		break;
+
 	default:
 		/* Do nothing in default case */
 		break;
