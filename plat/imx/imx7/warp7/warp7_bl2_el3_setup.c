@@ -134,6 +134,14 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 
 	/* Open handles to persistent storage */
 	plat_warp7_io_setup();
+
+	/* Print out the expected memory map */
+	VERBOSE("\tOPTEE      0x%08x-0x%08x\n", WARP7_OPTEE_BASE, WARP7_OPTEE_LIMIT);
+	VERBOSE("\tATF/BL2    0x%08x-0x%08x\n", BL2_RAM_BASE, BL2_RAM_LIMIT);
+	VERBOSE("\tSHRAM      0x%08x-0x%08x\n", SHARED_RAM_BASE, SHARED_RAM_LIMIT);
+	VERBOSE("\tFIP        0x%08x-0x%08x\n", WARP7_FIP_BASE, WARP7_FIP_LIMIT);
+	VERBOSE("\tDTB        0x%08x-0x%08x\n", WARP7_DTB_BASE, WARP7_DTB_LIMIT);
+	VERBOSE("\tUBOOT/BL33 0x%08x-0x%08x\n", WARP7_UBOOT_BASE, WARP7_UBOOT_LIMIT);
 }
 
 /*
