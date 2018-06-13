@@ -33,6 +33,13 @@ static uint32_t warp7_get_spsr_for_bl32_entry(void)
 			   DISABLE_ALL_EXCEPTIONS);
 }
 
+static uint32_t warp7_get_spsr_for_bl33_entry(void)
+{
+	return SPSR_MODE32(MODE32_svc,
+			   plat_get_ns_image_entrypoint() & 0x1,
+			   SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS);
+}
+
 #ifndef AARCH32_SP_OPTEE
 #error "Must build with OPTEE support included"
 #endif
