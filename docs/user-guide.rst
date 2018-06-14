@@ -486,8 +486,8 @@ Common build options
    ::
 
        0  (LOG_LEVEL_NONE)
-       10 (LOG_LEVEL_NOTICE)
-       20 (LOG_LEVEL_ERROR)
+       10 (LOG_LEVEL_ERROR)
+       20 (LOG_LEVEL_NOTICE)
        30 (LOG_LEVEL_WARNING)
        40 (LOG_LEVEL_INFO)
        50 (LOG_LEVEL_VERBOSE)
