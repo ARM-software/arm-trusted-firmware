@@ -4,4 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+ifeq (${RCAR_LSI},${RCAR_E3})
 BL2_SOURCES += drivers/staging/renesas/rcar/ddr/ddr_a/ddr_init_e3.c
+else
+BL2_SOURCES += drivers/staging/renesas/rcar/ddr/ddr_a/ddr_init_d3.c
+endif
