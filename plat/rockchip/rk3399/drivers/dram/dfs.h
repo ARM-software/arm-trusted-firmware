@@ -7,6 +7,8 @@
 #ifndef __SOC_ROCKCHIP_RK3399_DFS_H__
 #define __SOC_ROCKCHIP_RK3399_DFS_H__
 
+#include <stdint.h>
+
 struct rk3399_sdram_default_config {
 	unsigned char bl;
 	/* 1:auto precharge, 0:never auto precharge */
