@@ -33,15 +33,10 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	entry_point_info_t ep_info = {0};
 
 	SET_PARAM_HEAD(&ep_info, PARAM_EP, VERSION_1, SECURE | EP_ST_ENABLE);
+
+	/* Setup entrypoint and SPSR */
 	ep_info.pc = BL32_BASE;
 	ep_info.spsr = SPSR_64(MODE_EL0, MODE_SP_EL0, DISABLE_ALL_EXCEPTIONS);
-
-	cm_setup_context(ctx, &ep_info);
-
-	/*
-	 * General-Purpose registers
-	 * -------------------------
-	 */
 
 	/*
 	 * X0: Virtual address of a buffer shared between EL3 and Secure EL0.
@@ -55,12 +50,14 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	 *
 	 * X3: cookie value (Implementation Defined)
 	 *
-	 * X4 to X30 = 0 (already done by cm_init_my_context())
+	 * X4 to X7 = 0
 	 */
-	write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X0, PLAT_SPM_BUF_BASE);
-	write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X1, PLAT_SPM_BUF_SIZE);
-	write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X2, PLAT_SPM_COOKIE_0);
-	write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_X3, PLAT_SPM_COOKIE_1);
+	ep_info.args.arg0 = PLAT_SPM_BUF_BASE;
+	ep_info.args.arg1 = PLAT_SPM_BUF_SIZE;
+	ep_info.args.arg2 = PLAT_SPM_COOKIE_0;
+	ep_info.args.arg3 = PLAT_SPM_COOKIE_1;
+
+	cm_setup_context(ctx, &ep_info);
 
 	/*
 	 * SP_EL0: A non-zero value will indicate to the SP that the SPM has
@@ -78,45 +75,18 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 #if ENABLE_ASSERTIONS
 
 	/* Get max granularity supported by the platform. */
+	unsigned int max_granule = xlat_arch_get_max_supported_granule_size();
 
-	u_register_t id_aa64mmfr0_el1 = read_id_aa64mmfr0_el1();
+	VERBOSE("Max translation granule size supported: %u KiB\n",
+		max_granule / 1024U);
 
-	int tgran64_supported =
-		((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN64_SHIFT) &
-		 ID_AA64MMFR0_EL1_TGRAN64_MASK) ==
-		 ID_AA64MMFR0_EL1_TGRAN64_SUPPORTED;
-
-	int tgran16_supported =
-		((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN16_SHIFT) &
-		 ID_AA64MMFR0_EL1_TGRAN16_MASK) ==
-		 ID_AA64MMFR0_EL1_TGRAN16_SUPPORTED;
-
-	int tgran4_supported =
-		((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN4_SHIFT) &
-		 ID_AA64MMFR0_EL1_TGRAN4_MASK) ==
-		 ID_AA64MMFR0_EL1_TGRAN4_SUPPORTED;
-
-	uintptr_t max_granule_size;
-
-	if (tgran64_supported) {
-		max_granule_size = 64 * 1024;
-	} else if (tgran16_supported) {
-		max_granule_size = 16 * 1024;
-	} else {
-		assert(tgran4_supported);
-		max_granule_size = 4 * 1024;
-	}
-
-	VERBOSE("Max translation granule supported: %lu KiB\n",
-		max_granule_size / 1024);
-
-	uintptr_t max_granule_size_mask = max_granule_size - 1;
+	unsigned int max_granule_mask = max_granule - 1U;
 
 	/* Base must be aligned to the max granularity */
-	assert((ARM_SP_IMAGE_NS_BUF_BASE & max_granule_size_mask) == 0);
+	assert((ARM_SP_IMAGE_NS_BUF_BASE & max_granule_mask) == 0);
 
 	/* Size must be a multiple of the max granularity */
-	assert((ARM_SP_IMAGE_NS_BUF_SIZE & max_granule_size_mask) == 0);
+	assert((ARM_SP_IMAGE_NS_BUF_SIZE & max_granule_mask) == 0);
 
 #endif /* ENABLE_ASSERTIONS */
 

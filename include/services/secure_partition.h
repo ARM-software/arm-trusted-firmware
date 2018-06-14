@@ -7,17 +7,8 @@
 #ifndef __SECURE_PARTITION_H__
 #define __SECURE_PARTITION_H__
 
-#include <bl_common.h>
 #include <types.h>
 #include <utils_def.h>
-
-/* Import linker symbols */
-IMPORT_SYM(uintptr_t, __SP_IMAGE_XLAT_TABLES_START__,	SP_IMAGE_XLAT_TABLES_START);
-IMPORT_SYM(uintptr_t, __SP_IMAGE_XLAT_TABLES_END__,	SP_IMAGE_XLAT_TABLES_END);
-
-/* Definitions */
-#define SP_IMAGE_XLAT_TABLES_SIZE	\
-	(SP_IMAGE_XLAT_TABLES_END - SP_IMAGE_XLAT_TABLES_START)
 
 /*
  * Flags used by the secure_partition_mp_info structure to describe the

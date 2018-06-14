@@ -16,6 +16,42 @@
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
 
+/*
+ * Returns 1 if the provided granule size is supported, 0 otherwise.
+ */
+int xlat_arch_is_granule_size_supported(size_t size)
+{
+	u_register_t id_aa64mmfr0_el1 = read_id_aa64mmfr0_el1();
+
+	if (size == (4U * 1024U)) {
+		return ((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN4_SHIFT) &
+			 ID_AA64MMFR0_EL1_TGRAN4_MASK) ==
+			 ID_AA64MMFR0_EL1_TGRAN4_SUPPORTED;
+	} else if (size == (16U * 1024U)) {
+		return ((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN16_SHIFT) &
+			 ID_AA64MMFR0_EL1_TGRAN16_MASK) ==
+			 ID_AA64MMFR0_EL1_TGRAN16_SUPPORTED;
+	} else if (size == (64U * 1024U)) {
+		return ((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN64_SHIFT) &
+			 ID_AA64MMFR0_EL1_TGRAN64_MASK) ==
+			 ID_AA64MMFR0_EL1_TGRAN64_SUPPORTED;
+	}
+
+	return 0;
+}
+
+size_t xlat_arch_get_max_supported_granule_size(void)
+{
+	if (xlat_arch_is_granule_size_supported(64U * 1024U)) {
+		return 64U * 1024U;
+	} else if (xlat_arch_is_granule_size_supported(16U * 1024U)) {
+		return 16U * 1024U;
+	} else {
+		assert(xlat_arch_is_granule_size_supported(4U * 1024U));
+		return 4U * 1024U;
+	}
+}
+
 unsigned long long tcr_physical_addr_size_bits(unsigned long long max_addr)
 {
 	/* Physical address can't exceed 48 bits */

@@ -221,13 +221,6 @@ SECTIONS
      * tables library.
      */
     xlat_table (NOLOAD) : {
-#if ENABLE_SPM
-        __SP_IMAGE_XLAT_TABLES_START__ = .;
-        *secure_partition*.o(xlat_table)
-        /* Make sure that the rest of the page is empty. */
-        . = NEXT(PAGE_SIZE);
-        __SP_IMAGE_XLAT_TABLES_END__ = .;
-#endif
         *(xlat_table)
     } >RAM
 

@@ -18,6 +18,23 @@
 #error ARMv7 target does not support LPAE MMU descriptors
 #endif
 
+/*
+ * Returns 1 if the provided granule size is supported, 0 otherwise.
+ */
+int xlat_arch_is_granule_size_supported(size_t size)
+{
+	/*
+	 * The Trusted Firmware uses long descriptor translation table format,
+	 * which supports 4 KiB pages only.
+	 */
+	return (size == (4U * 1024U));
+}
+
+size_t xlat_arch_get_max_supported_granule_size(void)
+{
+	return 4U * 1024U;
+}
+
 #if ENABLE_ASSERTIONS
 unsigned long long xlat_arch_get_max_supported_pa(void)
 {
