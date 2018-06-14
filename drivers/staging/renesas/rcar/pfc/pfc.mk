@@ -28,6 +28,9 @@ else ifdef RCAR_LSI_CUT_COMPAT
   ifeq (${RCAR_LSI},${RCAR_E3})
     BL2_SOURCES += drivers/staging/renesas/rcar/pfc/E3/pfc_init_e3.c
   endif
+  ifeq (${RCAR_LSI},${RCAR_D3})
+    BL2_SOURCES += drivers/staging/renesas/rcar/pfc/D3/pfc_init_d3.c
+  endif
 else
   ifeq (${RCAR_LSI},${RCAR_H3})
     ifeq (${LSI_CUT},10)
@@ -50,6 +53,9 @@ else
   endif
   ifeq (${RCAR_LSI},${RCAR_E3})
     BL2_SOURCES += drivers/staging/renesas/rcar/pfc/E3/pfc_init_e3.c
+  endif
+  ifeq (${RCAR_LSI},${RCAR_D3})
+    BL2_SOURCES += drivers/staging/renesas/rcar/pfc/D3/pfc_init_d3.c
   endif
 endif
 
