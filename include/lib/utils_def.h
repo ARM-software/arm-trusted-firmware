@@ -16,7 +16,14 @@
 
 #define SIZE_FROM_LOG2_WORDS(n)		(4 << (n))
 
-#define BIT(nr)				(ULL(1) << (nr))
+#define BIT_32(nr)			(U(1) << (nr))
+#define BIT_64(nr)			(ULL(1) << (nr))
+
+#ifdef AARCH32
+#define BIT				BIT_32
+#else
+#define BIT				BIT_64
+#endif
 
 /*
  * Create a contiguous bitmask starting at bit position @l and ending at
