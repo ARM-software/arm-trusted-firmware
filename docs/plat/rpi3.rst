@@ -134,7 +134,7 @@ secure platform!
     0x40000000 +-----------------+
 
 The area between **0x10000000** and **0x11000000** has to be protected so that
-the kernel doesn't use it. That is done by adding ``memmap=256M$16M`` to the
+the kernel doesn't use it. That is done by adding ``memmap=16M$256M`` to the
 command line passed to the kernel. See the `Setup SD card`_ instructions to see
 how to do it.
 
@@ -317,7 +317,7 @@ untouched). They have been tested with the image available in 2018-03-13.
    bootloader will look for a file called ``armstub8.bin`` and load it at
    address **0x0** instead of a predefined one.
 
-4. Open ``cmdline.txt`` and add ``memmap=256M$16M`` to prevent the kernel from
+4. Open ``cmdline.txt`` and add ``memmap=16M$256M`` to prevent the kernel from
    using the memory needed by TF-A. If you want to enable the serial port
    "Mini UART", make sure that this file also contains
    ``console=serial0,115200 console=tty1``.
