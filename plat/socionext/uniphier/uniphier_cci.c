@@ -13,7 +13,7 @@
 
 #define UNIPHIER_CCI500_BASE	0x5FD00000
 
-static const int uniphier_cci_map[] = {0, 1};
+static const int uniphier_cci_map[] = {1, 0};
 
 static void __uniphier_cci_init(void)
 {
