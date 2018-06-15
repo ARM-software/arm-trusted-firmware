@@ -125,6 +125,9 @@ void bl31_platform_setup(void)
 
 	/* Allow access to the System counter timer module */
 	sq_configure_sys_timer();
+
+	/* Initialize power controller before setting up topology */
+	plat_sq_pwrc_setup();
 }
 
 void bl31_plat_runtime_setup(void)

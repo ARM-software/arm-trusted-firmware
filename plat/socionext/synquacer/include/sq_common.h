@@ -10,6 +10,8 @@
 #include <sys/types.h>
 #include <xlat_tables_v2.h>
 
+void plat_sq_pwrc_setup(void);
+
 void plat_sq_interconnect_init(void);
 void plat_sq_interconnect_enter_coherency(void);
 void plat_sq_interconnect_exit_coherency(void);
