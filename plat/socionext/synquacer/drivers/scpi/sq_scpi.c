@@ -168,3 +168,49 @@ uint32_t scpi_sys_power_state(scpi_system_state_t system_state)
 
 	return response.status;
 }
+
+uint32_t scpi_get_draminfo(struct draminfo *info)
+{
+	scpi_cmd_t *cmd;
+	struct {
+		scpi_cmd_t	cmd;
+		struct draminfo	info;
+	} response;
+	uint32_t mhu_status;
+
+	scpi_secure_message_start();
+
+	/* Populate the command header */
+	cmd		= SCPI_CMD_HEADER_AP_TO_SCP;
+	cmd->id		= SCPI_CMD_GET_DRAMINFO;
+	cmd->set	= SCPI_SET_EXTENDED;
+	cmd->sender	= 0;
+	cmd->size	= 0;
+
+	scpi_secure_message_send(0);
+
+	mhu_status = mhu_secure_message_wait();
+
+	/* Expect an SCPI message, reject any other protocol */
+	if (mhu_status != (1 << SCPI_MHU_SLOT_ID)) {
+		ERROR("MHU: Unexpected protocol (MHU status: 0x%x)\n",
+			mhu_status);
+		panic();
+	}
+
+	/*
+	 * Ensure that any read to the SCPI payload area is done after reading
+	 * the MHU register. If these 2 reads were reordered then the CPU would
+	 * read invalid payload data
+	 */
+	dmbld();
+
+	memcpy(&response, (void *)SCPI_SHARED_MEM_SCP_TO_AP, sizeof(response));
+
+	scpi_secure_message_end();
+
+	if (response.cmd.status == SCP_OK)
+		*info = response.info;
+
+	return response.cmd.status;
+}

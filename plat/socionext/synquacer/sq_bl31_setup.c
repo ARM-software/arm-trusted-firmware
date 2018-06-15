@@ -132,6 +132,9 @@ void bl31_platform_setup(void)
 
 void bl31_plat_runtime_setup(void)
 {
+	struct draminfo *di = (struct draminfo *)(unsigned long)DRAMINFO_BASE;
+
+	scpi_get_draminfo(di);
 }
 
 void bl31_plat_arch_setup(void)

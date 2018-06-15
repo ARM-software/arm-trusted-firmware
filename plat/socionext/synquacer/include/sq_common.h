@@ -10,6 +10,19 @@
 #include <sys/types.h>
 #include <xlat_tables_v2.h>
 
+struct draminfo {
+	uint32_t	num_regions;
+	uint32_t	reserved;
+	uint64_t	base1;
+	uint64_t	size1;
+	uint64_t	base2;
+	uint64_t	size2;
+	uint64_t	base3;
+	uint64_t	size3;
+};
+
+uint32_t scpi_get_draminfo(struct draminfo *info);
+
 void plat_sq_pwrc_setup(void);
 
 void plat_sq_interconnect_init(void);
