@@ -14,6 +14,9 @@
 	.global	platform_mem_init
 	.global	plat_is_my_cpu_primary
 	.global plat_secondary_cold_boot_setup
+	.global	plat_crash_console_init
+	.global	plat_crash_console_putc
+	.global	plat_crash_console_flush
 
 /*
  * unsigned int sq_calc_core_pos(u_register_t mpidr)
@@ -69,3 +72,39 @@ func plat_is_my_cpu_primary
 	cset	w0, eq
 	ret	x9
 endfunc plat_is_my_cpu_primary
+
+/*
+ * int plat_crash_console_init(void)
+ * Function to initialize the crash console
+ * without a C Runtime to print crash report.
+ * Clobber list : x0, x1, x2
+ */
+func plat_crash_console_init
+	mov_imm x0, PLAT_SQ_BOOT_UART_BASE
+	mov_imm x1, PLAT_SQ_BOOT_UART_CLK_IN_HZ
+	mov_imm x2, SQ_CONSOLE_BAUDRATE
+	b	console_pl011_core_init
+endfunc plat_crash_console_init
+
+/*
+ * int plat_crash_console_putc(int c)
+ * Function to print a character on the crash
+ * console without a C Runtime.
+ * Clobber list : x1, x2
+ */
+func plat_crash_console_putc
+	mov_imm	x1, PLAT_SQ_BOOT_UART_BASE
+	b	console_pl011_core_putc
+endfunc plat_crash_console_putc
+
+/*
+ * int plat_crash_console_flush(int c)
+ * Function to force a write of all buffered
+ * data that hasn't been output.
+ * Out : return -1 on error else return 0.
+ * Clobber list : x0, x1
+ */
+func plat_crash_console_flush
+	mov_imm	x0, PLAT_SQ_BOOT_UART_BASE
+	b	console_pl011_core_flush
+endfunc plat_crash_console_flush
