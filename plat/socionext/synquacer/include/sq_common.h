@@ -15,4 +15,10 @@ void plat_sq_interconnect_exit_coherency(void);
 
 unsigned int sq_calc_core_pos(u_register_t mpidr);
 
+void sq_gic_driver_init(void);
+void sq_gic_init(void);
+void sq_gic_cpuif_enable(void);
+void sq_gic_cpuif_disable(void);
+void sq_gic_pcpu_init(void);
+
 #endif /* __SQ_COMMON_H__ */

@@ -99,6 +99,10 @@ void bl31_platform_setup(void)
 	/* Initialize the CCN interconnect */
 	plat_sq_interconnect_init();
 	plat_sq_interconnect_enter_coherency();
+
+	/* Initialize the GIC driver, cpu and distributor interfaces */
+	sq_gic_driver_init();
+	sq_gic_init();
 }
 
 void bl31_plat_runtime_setup(void)
