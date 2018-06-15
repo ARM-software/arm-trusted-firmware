@@ -11,6 +11,7 @@
 #include <bl_common.h>
 #include <pl011.h>
 #include <debug.h>
+#include <sq_common.h>
 
 static console_pl011_t console;
 static entry_point_info_t bl32_image_ep_info;
@@ -95,6 +96,9 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 
 void bl31_platform_setup(void)
 {
+	/* Initialize the CCN interconnect */
+	plat_sq_interconnect_init();
+	plat_sq_interconnect_enter_coherency();
 }
 
 void bl31_plat_runtime_setup(void)

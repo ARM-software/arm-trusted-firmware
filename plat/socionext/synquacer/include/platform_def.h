@@ -24,6 +24,21 @@
 #define BL31_SIZE			0x00080000
 #define BL31_LIMIT			(BL31_BASE + BL31_SIZE)
 
+#define PLAT_SQ_CCN_BASE		0x32000000
+#define PLAT_SQ_CLUSTER_TO_CCN_ID_MAP					\
+					0,	/* Cluster 0 */		\
+					18,	/* Cluster 1 */		\
+					11,	/* Cluster 2 */		\
+					29,	/* Cluster 3 */		\
+					35,	/* Cluster 4 */		\
+					17,	/* Cluster 5 */		\
+					12,	/* Cluster 6 */		\
+					30,	/* Cluster 7 */		\
+					14,	/* Cluster 8 */		\
+					32,	/* Cluster 9 */		\
+					15,	/* Cluster 10 */	\
+					33	/* Cluster 11 */
+
 /* UART related constants */
 #define PLAT_SQ_BOOT_UART_BASE		0x2A400000
 #define PLAT_SQ_BOOT_UART_CLK_IN_HZ	62500000
