@@ -35,7 +35,7 @@
 #include <stdint.h>
 #include <xlat_tables_v2.h>
 
-typedef enum secure_partition_state {
+typedef enum sp_state {
 	SP_STATE_RESET = 0,
 	SP_STATE_IDLE,
 	SP_STATE_BUSY
