@@ -16,6 +16,7 @@
 #include <xlat_tables_defs.h>
 #include <aips.h>
 #include <clock.h>
+#include <csu.h>
 #include <mxc_console.h>
 #include "warp7_private.h"
 
@@ -123,6 +124,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 
 	/* Initialize the AIPS */
 	aips_init();
+	csu_init();
 
 	/* Initialize clocks, regulators, pin-muxes etc */
 	clock_init();
