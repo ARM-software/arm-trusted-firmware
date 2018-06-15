@@ -133,6 +133,13 @@ void bl31_plat_runtime_setup(void)
 
 void bl31_plat_arch_setup(void)
 {
+	sq_mmap_setup(BL31_BASE, BL31_SIZE, NULL);
+	enable_mmu_el3(XLAT_TABLE_NC);
+}
+
+void bl31_plat_enable_mmu(uint32_t flags)
+{
+	enable_mmu_el3(flags | XLAT_TABLE_NC);
 }
 
 unsigned int plat_get_syscnt_freq2(void)
