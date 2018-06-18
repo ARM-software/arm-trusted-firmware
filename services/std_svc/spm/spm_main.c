@@ -81,10 +81,13 @@ int sp_state_try_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to)
 }
 
 /*******************************************************************************
- * This function takes an SP context pointer and prepares the CPU to enter.
+ * This function takes an SP context pointer and performs a synchronous entry
+ * into it.
  ******************************************************************************/
-static void spm_sp_prepare_enter(sp_context_t *sp_ctx)
+static uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx)
 {
+	uint64_t rc;
+
 	assert(sp_ctx != NULL);
 
 	/* Assign the context of the SP to this CPU */
@@ -97,15 +100,32 @@ static void spm_sp_prepare_enter(sp_context_t *sp_ctx)
 	/* Invalidate TLBs at EL1. */
 	tlbivmalle1();
 	dsbish();
+
+	/* Enter Secure Partition */
+	rc = spm_secure_partition_enter(&sp_ctx->c_rt_ctx);
+
+	/* Save secure state */
+	cm_el1_sysregs_context_save(SECURE);
+
+	return rc;
 }
 
 /*******************************************************************************
- * Enter SP after preparing it with spm_sp_prepare_enter().
+ * This function returns to the place where spm_sp_synchronous_entry() was
+ * called originally.
  ******************************************************************************/
-static uint64_t spm_sp_enter(sp_context_t *sp_ctx)
+__dead2 static void spm_sp_synchronous_exit(uint64_t rc)
 {
-	/* Enter Secure Partition */
-	return spm_secure_partition_enter(&sp_ctx->c_rt_ctx);
+	sp_context_t *ctx = &sp_ctx;
+
+	/*
+	 * The SPM must have initiated the original request through a
+	 * synchronous entry into the secure partition. Jump back to the
+	 * original C runtime context with the value of rc in x0;
+	 */
+	spm_secure_partition_exit(ctx->c_rt_ctx, rc);
+
+	panic();
 }
 
 /*******************************************************************************
@@ -113,7 +133,7 @@ static uint64_t spm_sp_enter(sp_context_t *sp_ctx)
  ******************************************************************************/
 static int32_t spm_init(void)
 {
-	uint64_t rc = 0;
+	uint64_t rc;
 	sp_context_t *ctx;
 
 	INFO("Secure Partition init...\n");
@@ -122,8 +142,7 @@ static int32_t spm_init(void)
 
 	ctx->state = SP_STATE_RESET;
 
-	spm_sp_prepare_enter(ctx);
-	rc |= spm_sp_enter(ctx);
+	rc = spm_sp_synchronous_entry(ctx);
 	assert(rc == 0);
 
 	ctx->state = SP_STATE_IDLE;
@@ -168,6 +187,7 @@ static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
 			       uint64_t comm_buffer_address,
 			       uint64_t comm_size_address, void *handle)
 {
+	uint64_t rc;
 	sp_context_t *ctx = &sp_ctx;
 
 	/* Cookie. Reserved for future use. It must be zero. */
@@ -188,59 +208,29 @@ static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
 	/* Save the Normal world context */
 	cm_el1_sysregs_context_save(NON_SECURE);
 
-	/* Wait until the Secure Partition is IDLE and set it to BUSY. */
+	/* Wait until the Secure Partition is idle and set it to busy. */
 	sp_state_wait_switch(ctx, SP_STATE_IDLE, SP_STATE_BUSY);
 
+	/* Set values for registers on SP entry */
+	cpu_context_t *cpu_ctx = &(ctx->cpu_ctx);
+
+	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X0, smc_fid);
+	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X1, comm_buffer_address);
+	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X2, comm_size_address);
+	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X3, plat_my_core_pos());
+
 	/* Jump to the Secure Partition. */
-	spm_sp_prepare_enter(ctx);
+	rc = spm_sp_synchronous_entry(ctx);
 
-	SMC_RET4(&(ctx->cpu_ctx), smc_fid, comm_buffer_address,
-		 comm_size_address, plat_my_core_pos());
-}
-
-/*******************************************************************************
- * SP_EVENT_COMPLETE_AARCH64 handler
- ******************************************************************************/
-static uint64_t sp_event_complete(uint64_t x1)
-{
-	sp_context_t *ctx = &sp_ctx;
-
-	/* Save secure state */
-	cm_el1_sysregs_context_save(SECURE);
-
-	if (ctx->state == SP_STATE_RESET) {
-		/*
-		 * SPM reports completion. The SPM must have initiated the
-		 * original request through a synchronous entry into the secure
-		 * partition. Jump back to the original C runtime context.
-		 */
-		spm_secure_partition_exit(ctx->c_rt_ctx, x1);
-
-		/* spm_secure_partition_exit doesn't return */
-	}
-
-	/*
-	 * This is the result from the Secure partition of an earlier request.
-	 * Copy the result into the non-secure context and return to the
-	 * non-secure state.
-	 */
-
-	/* Mark Secure Partition as idle */
+	/* Flag Secure Partition as idle. */
 	assert(ctx->state == SP_STATE_BUSY);
-
 	sp_state_set(ctx, SP_STATE_IDLE);
-
-	/* Get a reference to the non-secure context */
-	cpu_context_t *ns_cpu_context = cm_get_context(NON_SECURE);
-
-	assert(ns_cpu_context != NULL);
 
 	/* Restore non-secure state */
 	cm_el1_sysregs_context_restore(NON_SECURE);
 	cm_set_next_eret_context(NON_SECURE);
 
-	/* Return to non-secure world */
-	SMC_RET1(ns_cpu_context, x1);
+	SMC_RET1(handle, rc);
 }
 
 /*******************************************************************************
@@ -275,7 +265,7 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 			SMC_RET1(handle, SPM_VERSION_COMPILED);
 
 		case SP_EVENT_COMPLETE_AARCH64:
-			return sp_event_complete(x1);
+			spm_sp_synchronous_exit(x1);
 
 		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
 			INFO("Received SP_MEMORY_ATTRIBUTES_GET_AARCH64 SMC\n");
@@ -304,6 +294,8 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 	} else {
 
 		/* Handle SMCs from Non-secure world. */
+
+		assert(handle == cm_get_context(NON_SECURE));
 
 		switch (smc_fid) {
 
