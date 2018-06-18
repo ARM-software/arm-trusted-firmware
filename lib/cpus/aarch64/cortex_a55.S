@@ -12,10 +12,26 @@
 #include <plat_macros.S>
 
 	/* ---------------------------------------------
+	 * Disable L1 data cache and unified L2/L3 cache
+	 * ---------------------------------------------
+	 */
+func cortex_a55_disable_dcache
+	mrs	x1, sctlr_el3
+	bic	x1, x1, #SCTLR_C_BIT
+	msr	sctlr_el3, x1
+	isb
+	ret
+endfunc cortex_a55_disable_dcache
+	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------
 	 */
 func cortex_a55_core_pwr_dwn
+#if !HW_ASSISTED_COHERENCY
+	mov x18, x30
+	bl  cortex_a55_disable_dcache
+	mov	x30, x18
+#endif
 	/* ---------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------
