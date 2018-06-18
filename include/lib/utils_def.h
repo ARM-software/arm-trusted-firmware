@@ -16,7 +16,31 @@
 
 #define SIZE_FROM_LOG2_WORDS(n)		(4 << (n))
 
-#define BIT(nr)				(ULL(1) << (nr))
+#define BIT_32(nr)			(U(1) << (nr))
+#define BIT_64(nr)			(ULL(1) << (nr))
+
+#ifdef AARCH32
+#define BIT				BIT_32
+#else
+#define BIT				BIT_64
+#endif
+
+/*
+ * Create a contiguous bitmask starting at bit position @l and ending at
+ * position @h. For example
+ * GENMASK_64(39, 21) gives us the 64bit vector 0x000000ffffe00000.
+ */
+#define GENMASK_32(h, l) \
+	(((~UINT32_C(0)) << (l)) & (~UINT32_C(0) >> (32 - 1 - (h))))
+
+#define GENMASK_64(h, l) \
+	(((~UINT64_C(0)) << (l)) & (~UINT64_C(0) >> (64 - 1 - (h))))
+
+#ifdef AARCH32
+#define GENMASK				GENMASK_32
+#else
+#define GENMASK				GENMASK_64
+#endif
 
 /*
  * This variant of div_round_up can be used in macro definition but should not
