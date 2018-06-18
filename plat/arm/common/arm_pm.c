@@ -14,8 +14,9 @@
 #include <platform_def.h>
 #include <psci.h>
 
-/* Allow ARM Standard platforms to override this function */
+/* Allow ARM Standard platforms to override these functions */
 #pragma weak plat_arm_psci_override_pm_ops
+#pragma weak plat_arm_program_trusted_mailbox
 
 /* Standard ARM platforms are expected to export plat_arm_psci_pm_ops */
 extern plat_psci_ops_t plat_arm_psci_pm_ops;
@@ -192,11 +193,11 @@ void arm_system_pwr_domain_resume(void)
 }
 
 /*******************************************************************************
- * Private function to program the mailbox for a cpu before it is released
+ * ARM platform function to program the mailbox for a cpu before it is released
  * from reset. This function assumes that the Trusted mail box base is within
  * the ARM_SHARED_RAM region
  ******************************************************************************/
-void arm_program_trusted_mailbox(uintptr_t address)
+void plat_arm_program_trusted_mailbox(uintptr_t address)
 {
 	uintptr_t *mailbox = (void *) PLAT_ARM_TRUSTED_MAILBOX_BASE;
 
@@ -221,6 +222,6 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 	*psci_ops = plat_arm_psci_override_pm_ops(&plat_arm_psci_pm_ops);
 
 	/* Setup mailbox with entry point. */
-	arm_program_trusted_mailbox(sec_entrypoint);
+	plat_arm_program_trusted_mailbox(sec_entrypoint);
 	return 0;
 }

@@ -171,7 +171,6 @@ int arm_validate_psci_entrypoint(uintptr_t entrypoint);
 int arm_validate_ns_entrypoint(uintptr_t entrypoint);
 void arm_system_pwr_domain_save(void);
 void arm_system_pwr_domain_resume(void);
-void arm_program_trusted_mailbox(uintptr_t address);
 int arm_psci_read_mem_protect(int *enabled);
 int arm_nor_psci_write_mem_protect(int val);
 void arm_nor_psci_do_static_mem_protect(void);
@@ -250,6 +249,7 @@ void plat_arm_pwrc_setup(void);
 void plat_arm_interconnect_init(void);
 void plat_arm_interconnect_enter_coherency(void);
 void plat_arm_interconnect_exit_coherency(void);
+void plat_arm_program_trusted_mailbox(uintptr_t address);
 
 #if ARM_PLAT_MT
 unsigned int plat_arm_get_cpu_pe_count(u_register_t mpidr);

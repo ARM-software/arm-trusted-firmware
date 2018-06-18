@@ -166,7 +166,7 @@ BL1_SOURCES		+=	drivers/arm/sp805/sp805.c			\
 				plat/arm/common/arm_err.c			\
 				plat/arm/common/arm_io_storage.c
 ifdef EL3_PAYLOAD_BASE
-# Need the arm_program_trusted_mailbox() function to release secondary CPUs from
+# Need the plat_arm_program_trusted_mailbox() function to release secondary CPUs from
 # their holding pen
 BL1_SOURCES		+=	plat/arm/common/arm_pm.c
 endif
