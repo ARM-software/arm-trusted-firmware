@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -596,6 +597,10 @@
 #define CNTP_CTL_ENABLE_MASK    U(1)
 #define CNTP_CTL_IMASK_MASK     U(1)
 #define CNTP_CTL_ISTATUS_MASK   U(1)
+
+/* Physical timer control macros */
+#define CNTP_CTL_ENABLE_BIT	(U(1) << CNTP_CTL_ENABLE_SHIFT)
+#define CNTP_CTL_IMASK_BIT	(U(1) << CNTP_CTL_IMASK_SHIFT)
 
 /* Exception Syndrome register bits and bobs */
 #define ESR_EC_SHIFT			U(26)
