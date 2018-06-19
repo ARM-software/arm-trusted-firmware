@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -50,24 +51,32 @@ int plat_sip_handler(uint32_t smc_fid,
 	if (!ns)
 		SMC_RET1(handle, SMC_UNK);
 
-	switch (smc_fid) {
-	case TEGRA_SIP_PMC_COMMANDS:
-
+	if (smc_fid == TEGRA_SIP_PMC_COMMANDS) {
 		/* check the address is within PMC range and is 4byte aligned */
 		if ((x2 >= TEGRA_PMC_SIZE) || (x2 & 0x3))
 			return -EINVAL;
 
-		/* pmc_secure_scratch registers are not accessible */
-		if (((x2 >= PMC_SECURE_SCRATCH0) && (x2 <= PMC_SECURE_SCRATCH5)) ||
-		    ((x2 >= PMC_SECURE_SCRATCH6) && (x2 <= PMC_SECURE_SCRATCH7)) ||
-		    ((x2 >= PMC_SECURE_SCRATCH8) && (x2 <= PMC_SECURE_SCRATCH79)) ||
-		    ((x2 >= PMC_SECURE_SCRATCH80) && (x2 <= PMC_SECURE_SCRATCH119)))
-				return -EFAULT;
-
+		switch (x2) {
+		/* Black listed PMC registers */
+		case PMC_SCRATCH1:
+		case PMC_SCRATCH31 ... PMC_SCRATCH33:
+		case PMC_SCRATCH40:
+		case PMC_SCRATCH42:
+		case PMC_SCRATCH43 ... PMC_SCRATCH48:
+		case PMC_SCRATCH50 ... PMC_SCRATCH51:
+		case PMC_SCRATCH56 ... PMC_SCRATCH57:
 		/* PMC secure-only registers are not accessible */
-		if ((x2 == PMC_DPD_ENABLE_0) || (x2 == PMC_FUSE_CONTROL_0) ||
-		    (x2 == PMC_CRYPTO_OP_0))
+		case PMC_DPD_ENABLE_0:
+		case PMC_FUSE_CONTROL_0:
+		case PMC_CRYPTO_OP_0:
+		case PMC_TSC_MULT_0:
+		case PMC_STICKY_BIT:
+			ERROR("%s: error offset=0x%llx\n", __func__, x2);
 			return -EFAULT;
+		default:
+			/* Valid register */
+			break;
+		}
 
 		/* Perform PMC read/write */
 		if (x1 == PMC_READ) {
@@ -78,13 +87,9 @@ int plat_sip_handler(uint32_t smc_fid,
 		} else {
 			return -EINVAL;
 		}
-
-		break;
-
-	default:
+	} else {
 		ERROR("%s: unsupported function ID\n", __func__);
 		return -ENOTSUP;
 	}
-
 	return 0;
 }
