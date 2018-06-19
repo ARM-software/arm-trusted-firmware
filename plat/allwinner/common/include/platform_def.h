@@ -42,4 +42,10 @@
 #define PLATFORM_MMAP_REGIONS		4
 #define PLATFORM_STACK_SIZE		(0x1000 / PLATFORM_CORE_COUNT)
 
+#ifndef SPD_none
+#ifndef BL32_BASE
+#define BL32_BASE			SUNXI_DRAM_BASE
+#endif
+#endif
+
 #endif /* __PLATFORM_DEF_H__ */
