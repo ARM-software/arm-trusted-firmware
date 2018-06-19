@@ -102,6 +102,16 @@ Files:
 -  docs/plat/ls1043a.rst
 -  plat/layerscape/\*
 
+NXP i.MX 8 platform sub-maintainer
+--------------------------------------
+
+Anson Huang (Anson.Huang@nxp.com, `Anson-Huang`_)
+
+Files:
+
+-  docs/plat/imx8.rst
+-  plat/imx/\*
+
 Raspberry Pi 3 platform sub-maintainer
 --------------------------------------
 
