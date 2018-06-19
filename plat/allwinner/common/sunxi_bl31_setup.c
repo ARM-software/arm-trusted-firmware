@@ -18,6 +18,7 @@
 
 #include "sunxi_private.h"
 
+static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
 
 static console_16550_t console;
@@ -33,6 +34,13 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/* Initialize the debug console as soon as possible */
 	console_16550_register(SUNXI_UART0_BASE, SUNXI_UART0_CLK_IN_HZ,
 			       SUNXI_UART0_BAUDRATE, &console);
+
+#ifdef BL32_BASE
+	/* Populate entry point information for BL32 */
+	SET_PARAM_HEAD(&bl32_image_ep_info, PARAM_EP, VERSION_1, 0);
+	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
+	bl32_image_ep_info.pc = BL32_BASE;
+#endif
 
 	/* Populate entry point information for BL33 */
 	SET_PARAM_HEAD(&bl33_image_ep_info, PARAM_EP, VERSION_1, 0);
@@ -72,7 +80,12 @@ void bl31_platform_setup(void)
 entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
 	assert(sec_state_is_valid(type) != 0);
-	assert(type == NON_SECURE);
 
-	return &bl33_image_ep_info;
+	if (type == NON_SECURE)
+		return &bl33_image_ep_info;
+
+	if ((type == SECURE) && bl32_image_ep_info.pc)
+		return &bl32_image_ep_info;
+
+	return NULL;
 }
