@@ -27,3 +27,13 @@ To build:
     make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sun50i_a64 DEBUG=1 bl31
 
 .. _U-Boot documentation: http://git.denx.de/?p=u-boot.git;f=board/sunxi/README.sunxi64;hb=HEAD
+
+Trusted OS dispatcher
+=====================
+
+One can boot Trusted OS(OP-TEE OS, bl32 image) along side bl31 image on Allwinner A64.
+
+In order to include the 'opteed' dispatcher in the image, pass 'SPD=opteed' on the command line
+while compiling the bl31 image and make sure the loader (SPL) loads the Trusted OS binary to
+the beginning of DRAM (0x40000000).
+
