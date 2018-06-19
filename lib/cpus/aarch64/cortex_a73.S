@@ -40,6 +40,7 @@ func cortex_a73_reset_func
 	cpu_check_csv2	x0, 1f
 	adr	x0, wa_cve_2017_5715_bpiall_vbar
 	msr	vbar_el3, x0
+	/* isb will be performed before returning from this function */
 1:
 #endif
 
