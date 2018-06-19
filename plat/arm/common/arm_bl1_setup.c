@@ -9,7 +9,6 @@
 #include <arm_xlat_tables.h>
 #include <bl1.h>
 #include <bl_common.h>
-#include <console.h>
 #include <plat_arm.h>
 #include <platform.h>
 #include <platform_def.h>
@@ -45,8 +44,7 @@ void arm_bl1_early_platform_setup(void)
 #endif
 
 	/* Initialize the console to provide early debug support */
-	console_init(PLAT_ARM_BOOT_UART_BASE, PLAT_ARM_BOOT_UART_CLK_IN_HZ,
-			ARM_CONSOLE_BAUDRATE);
+	arm_console_boot_init();
 
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_tzram_layout.total_base = ARM_BL_RAM_BASE;

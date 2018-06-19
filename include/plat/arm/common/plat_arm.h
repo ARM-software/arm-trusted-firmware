@@ -155,6 +155,12 @@ struct tzc_dmc500_driver_data;
 void arm_tzc_dmc500_setup(struct tzc_dmc500_driver_data *plat_driver_data,
 			const arm_tzc_regions_info_t *tzc_regions);
 
+/* Console utility functions */
+void arm_console_boot_init(void);
+void arm_console_boot_end(void);
+void arm_console_runtime_init(void);
+void arm_console_runtime_end(void);
+
 /* Systimer utility function */
 void arm_configure_sys_timer(void);
 

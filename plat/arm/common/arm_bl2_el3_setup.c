@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <console.h>
 #include <generic_delay_timer.h>
 #include <plat_arm.h>
 #include <platform.h>
@@ -21,8 +20,7 @@ static meminfo_t bl2_el3_tzram_layout;
 void arm_bl2_el3_early_platform_setup(void)
 {
 	/* Initialize the console to provide early debug support */
-	console_init(PLAT_ARM_BOOT_UART_BASE, PLAT_ARM_BOOT_UART_CLK_IN_HZ,
-			ARM_CONSOLE_BAUDRATE);
+	arm_console_boot_init();
 
 	/*
 	 * Allow BL2 to see the whole Trusted RAM. This is determined
