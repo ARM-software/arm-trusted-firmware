@@ -784,8 +784,8 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 	       && mm_cursor->size)
 		++mm_cursor;
 
-	while ((mm_cursor->base_va + mm_cursor->size - 1 == end_va)
-	       && (mm_cursor->size < mm->size))
+	while ((mm_cursor->base_va + mm_cursor->size - 1 == end_va) &&
+	       (mm_cursor->size != 0U) && (mm_cursor->size < mm->size))
 		++mm_cursor;
 
 	/*
