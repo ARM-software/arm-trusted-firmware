@@ -78,8 +78,7 @@ void arm_bl31_early_platform_setup(bl31_params_t *from_bl2, uintptr_t soc_fw_con
 #endif
 {
 	/* Initialize the console to provide early debug support */
-	console_init(PLAT_ARM_BOOT_UART_BASE, PLAT_ARM_BOOT_UART_CLK_IN_HZ,
-			ARM_CONSOLE_BAUDRATE);
+	arm_console_boot_init();
 
 #if RESET_TO_BL31
 	/* There are no parameters from BL2 if BL31 is a reset vector */
@@ -249,12 +248,18 @@ void arm_bl31_platform_setup(void)
 /*******************************************************************************
  * Perform any BL31 platform runtime setup prior to BL31 exit common to ARM
  * standard platforms
+ * Perform BL31 platform setup
  ******************************************************************************/
 void arm_bl31_plat_runtime_setup(void)
 {
+#if MULTI_CONSOLE_API
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
+#else
+	console_uninit();
+#endif
+
 	/* Initialize the runtime console */
-	console_init(PLAT_ARM_BL31_RUN_UART_BASE, PLAT_ARM_BL31_RUN_UART_CLK_IN_HZ,
-			ARM_CONSOLE_BAUDRATE);
+	arm_console_runtime_init();
 }
 
 void bl31_platform_setup(void)

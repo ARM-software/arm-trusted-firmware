@@ -107,7 +107,8 @@ int bl1_plat_handle_post_image_load(unsigned int image_id)
 #if LOAD_IMAGE_V2
 	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->total_base;
 #else
-	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->free_base;
+	bl2_tzram_layout = (meminfo_t *) round_up(bl1_tzram_layout->free_base,
+						  sizeof(uint64_t));
 #endif /* LOAD_IMAGE_V2 */
 
 #if !ERROR_DEPRECATED
