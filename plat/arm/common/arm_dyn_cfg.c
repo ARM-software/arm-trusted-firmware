@@ -61,8 +61,8 @@ void arm_load_tb_fw_config(void)
 
 	err = arm_dyn_tb_fw_cfg_init((void *)config_base, &tb_fw_node);
 	if (err < 0) {
-		WARN("Invalid TB_FW_CONFIG loaded\n");
-		return;
+		ERROR("Invalid TB_FW_CONFIG loaded\n");
+		panic();
 	}
 
 	err = arm_dyn_get_disable_auth((void *)config_base, tb_fw_node, &disable_auth);
