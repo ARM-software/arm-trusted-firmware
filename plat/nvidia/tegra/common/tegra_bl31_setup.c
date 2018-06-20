@@ -35,8 +35,6 @@
 /* length of Trusty's input parameters (in bytes) */
 #define TRUSTY_PARAMS_LEN_BYTES	(4096*2)
 
-extern void memcpy16(void *dest, const void *src, unsigned int length);
-
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
  * of trusted SRAM
@@ -102,7 +100,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	struct tegra_bl31_params *arg_from_bl2 = (struct tegra_bl31_params *) arg0;
 	plat_params_from_bl2_t *plat_params = (plat_params_from_bl2_t *)arg1;
-	image_info_t bl32_img_info = { {0} };
 	int32_t ret;
 
 	/*
@@ -195,42 +192,14 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
 			(uint32_t)plat_bl31_params_from_bl2.tzdram_size);
 
+#if RELOCATE_BL32_IMAGE
 	/*
 	 * The previous bootloader might not have placed the BL32 image
-	 * inside the TZDRAM. We check the BL32 image info to find out
-	 * the base/PC values and relocate the image if necessary.
+	 * inside the TZDRAM. Platform handler to allow relocation of BL32
+	 * image to TZDRAM memory. This behavior might change per platform.
 	 */
-	if (arg_from_bl2->bl32_image_info != NULL) {
-
-		uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
-		bl32_img_info = *arg_from_bl2->bl32_image_info;
-
-		/* Relocate BL32 if it resides outside of the TZDRAM */
-		tzdram_start = plat_bl31_params_from_bl2.tzdram_base;
-		tzdram_end = plat_bl31_params_from_bl2.tzdram_base +
-				plat_bl31_params_from_bl2.tzdram_size;
-		bl32_start = bl32_img_info.image_base;
-		bl32_end = bl32_img_info.image_base + bl32_img_info.image_size;
-
-		assert(tzdram_end > tzdram_start);
-		assert(bl32_end > bl32_start);
-		assert(bl32_image_ep_info.pc > tzdram_start);
-		assert(bl32_image_ep_info.pc < tzdram_end);
-
-		/* relocate BL32 */
-		if ((bl32_start >= tzdram_end) || (bl32_end <= tzdram_start)) {
-
-			INFO("Relocate BL32 to TZDRAM\n");
-
-			(void)memcpy16((void *)(uintptr_t)bl32_image_ep_info.pc,
-				 (void *)(uintptr_t)bl32_start,
-				 bl32_img_info.image_size);
-
-			/* clean up non-secure intermediate buffer */
-			zeromem((void *)(uintptr_t)bl32_start,
-				bl32_img_info.image_size);
-		}
-	}
+	plat_relocate_bl32_image(arg_from_bl2->bl32_image_info);
+#endif
 
 	/*
 	 * Add timestamp for platform early setup exit.

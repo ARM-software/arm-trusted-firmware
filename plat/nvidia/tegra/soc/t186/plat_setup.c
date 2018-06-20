@@ -12,6 +12,7 @@
 #include <bl31/interrupt_mgmt.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <common/ep_info.h>
 #include <common/interrupt_props.h>
 #include <context.h>
 #include <cortex_a57.h>
@@ -20,6 +21,7 @@
 #include <drivers/arm/gicv2.h>
 #include <drivers/console.h>
 #include <lib/el3_runtime/context_mgmt.h>
+#include <lib/utils.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
@@ -27,6 +29,8 @@
 #include <tegra_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
+
+extern void memcpy16(void *dest, const void *src, unsigned int length);
 
 /*******************************************************************************
  * Tegra186 CPU numbers in cluster #0
@@ -285,4 +289,40 @@ int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
 	}
 
 	return ret;
+}
+
+void plat_relocate_bl32_image(const image_info_t *bl32_img_info)
+{
+	const plat_params_from_bl2_t *plat_bl31_params = plat_get_bl31_plat_params();
+	const entry_point_info_t *bl32_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
+	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
+
+	if ((bl32_img_info != NULL)  && (bl32_ep_info != NULL)) {
+
+		/* Relocate BL32 if it resides outside of the TZDRAM */
+		tzdram_start = plat_bl31_params->tzdram_base;
+		tzdram_end = plat_bl31_params->tzdram_base +
+				plat_bl31_params->tzdram_size;
+		bl32_start = bl32_img_info->image_base;
+		bl32_end = bl32_img_info->image_base + bl32_img_info->image_size;
+
+		assert(tzdram_end > tzdram_start);
+		assert(bl32_end > bl32_start);
+		assert(bl32_ep_info->pc > tzdram_start);
+		assert(bl32_ep_info->pc < tzdram_end);
+
+		/* relocate BL32 */
+		if ((bl32_start >= tzdram_end) || (bl32_end <= tzdram_start)) {
+
+			INFO("Relocate BL32 to TZDRAM\n");
+
+			(void)memcpy16((void *)(uintptr_t)bl32_ep_info->pc,
+				(void *)(uintptr_t)bl32_start,
+				bl32_img_info->image_size);
+
+			/* clean up non-secure intermediate buffer */
+			zeromem((void *)(uintptr_t)bl32_start,
+				bl32_img_info->image_size);
+		}
+	}
 }

@@ -77,6 +77,7 @@ struct tegra_bl31_params *plat_get_bl31_params(void);
 plat_params_from_bl2_t *plat_get_bl31_plat_params(void);
 void plat_early_platform_setup(void);
 void plat_late_platform_setup(void);
+void plat_relocate_bl32_image(const image_info_t *bl32_img_info);
 
 /* Declarations for plat_secondary.c */
 void plat_secondary_setup(void);

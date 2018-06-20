@@ -18,6 +18,8 @@ PROGRAMMABLE_RESET_ADDRESS		:= 1
 
 COLD_BOOT_SINGLE_CPU			:= 1
 
+RELOCATE_BL32_IMAGE			:= 1
+
 # platform settings
 TZDRAM_BASE				:= 0x30000000
 $(eval $(call add_define,TZDRAM_BASE))
