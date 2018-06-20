@@ -99,6 +99,10 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
 				      VERSION_2, image_info_t,
 				      IMAGE_ATTRIB_SKIP_LOADING),
+#ifdef SPD_opteed
+		.image_info.image_base = RPI3_OPTEE_PAGEABLE_LOAD_BASE,
+		.image_info.image_max_size = RPI3_OPTEE_PAGEABLE_LOAD_SIZE,
+#endif
 		.next_handoff_image_id = INVALID_IMAGE_ID,
 	},
 # endif /* BL32_BASE */

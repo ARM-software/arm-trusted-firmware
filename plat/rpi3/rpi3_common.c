@@ -34,6 +34,13 @@
 #define MAP_BL32_MEM	MAP_REGION_FLAT(BL32_MEM_BASE, BL32_MEM_SIZE,	\
 					MT_MEMORY | MT_RW | MT_SECURE)
 
+#ifdef SPD_opteed
+#define MAP_OPTEE_PAGEABLE	MAP_REGION_FLAT(		\
+				RPI3_OPTEE_PAGEABLE_LOAD_BASE,	\
+				RPI3_OPTEE_PAGEABLE_LOAD_SIZE,	\
+				MT_MEMORY | MT_RW | MT_SECURE)
+#endif
+
 /*
  * Table of regions for various BL stages to map using the MMU.
  */
@@ -42,6 +49,9 @@ static const mmap_region_t plat_rpi3_mmap[] = {
 	MAP_SHARED_RAM,
 	MAP_DEVICE0,
 	MAP_FIP,
+#ifdef SPD_opteed
+	MAP_OPTEE_PAGEABLE,
+#endif
 	{0}
 };
 #endif
@@ -189,4 +199,14 @@ unsigned int plat_get_syscnt_freq2(void)
 uint32_t plat_ic_get_pending_interrupt_type(void)
 {
 	return INTR_TYPE_INVAL;
+}
+
+uint32_t plat_interrupt_type_to_line(uint32_t type,
+				     uint32_t security_state)
+{
+	/* It is not expected to receive an interrupt route to EL3.
+	 * Hence panic() to flag error.
+	 */
+	ERROR("Interrupt not expected to be routed to EL3");
+	panic();
 }
