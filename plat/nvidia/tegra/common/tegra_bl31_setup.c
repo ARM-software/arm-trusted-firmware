@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -102,7 +103,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	struct tegra_bl31_params *arg_from_bl2 = (struct tegra_bl31_params *) arg0;
 	plat_params_from_bl2_t *plat_params = (plat_params_from_bl2_t *)arg1;
 	image_info_t bl32_img_info = { {0} };
-	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
 	int32_t ret;
 
 	/*
@@ -163,20 +163,17 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 * location to store the boot profiler logs. Sanity check the
 	 * address and initialise the profiler library, if it looks ok.
 	 */
-	if (plat_params->boot_profiler_shmem_base != 0ULL) {
+	ret = bl31_check_ns_address(plat_params->boot_profiler_shmem_base,
+			PROFILER_SIZE_BYTES);
+	if (ret == (int32_t)0) {
 
-		ret = bl31_check_ns_address(plat_params->boot_profiler_shmem_base,
-				PROFILER_SIZE_BYTES);
-		if (ret == (int32_t)0) {
+		/* store the membase for the profiler lib */
+		plat_bl31_params_from_bl2.boot_profiler_shmem_base =
+			plat_params->boot_profiler_shmem_base;
 
-			/* store the membase for the profiler lib */
-			plat_bl31_params_from_bl2.boot_profiler_shmem_base =
-				plat_params->boot_profiler_shmem_base;
-
-			/* initialise the profiler library */
-			boot_profiler_init(plat_params->boot_profiler_shmem_base,
-					   TEGRA_TMRUS_BASE);
-		}
+		/* initialise the profiler library */
+		boot_profiler_init(plat_params->boot_profiler_shmem_base,
+				   TEGRA_TMRUS_BASE);
 	}
 
 	/*
@@ -205,6 +202,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 */
 	if (arg_from_bl2->bl32_image_info != NULL) {
 
+		uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
 		bl32_img_info = *arg_from_bl2->bl32_image_info;
 
 		/* Relocate BL32 if it resides outside of the TZDRAM */
