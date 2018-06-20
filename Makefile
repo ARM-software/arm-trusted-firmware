@@ -198,7 +198,8 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				${COMPILER_RT_SRCS}			\
 				${STDLIB_SRCS}
 
-INCLUDES		+=	-Iinclude/bl1				\
+INCLUDES		+=	-Iinclude				\
+				-Iinclude/bl1				\
 				-Iinclude/bl2				\
 				-Iinclude/bl2u				\
 				-Iinclude/bl31				\

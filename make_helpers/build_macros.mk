@@ -372,11 +372,14 @@ endef
 define MAKE_DTB
 
 $(eval DOBJ := $(addprefix $(1)/,$(call SOURCES_TO_DTBS,$(2))))
+$(eval DPRE := $(addprefix $(1)/,$(patsubst %.dts,%.pre.dts,$(notdir $(2)))))
 $(eval DEP := $(patsubst %.dtb,%.d,$(DOBJ)))
 
 $(DOBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | fdt_dirs
+	@echo "  CPP     $$<"
+	$$(Q)$$(CPP) $$(CPPFLAGS) -x assembler-with-cpp -o $(DPRE) $$<
 	@echo "  DTC     $$<"
-	$$(Q)$$(DTC) $$(DTC_FLAGS) -d $(DEP) -o $$@ $$<
+	$$(Q)$$(DTC) $$(DTC_FLAGS) -i fdts -d $(DEP) -o $$@ $(DPRE)
 
 -include $(DEP)
 
