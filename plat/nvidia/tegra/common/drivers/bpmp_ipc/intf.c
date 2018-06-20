@@ -175,44 +175,39 @@ static int32_t tegra_bpmp_ipc_send_req_atomic(uint32_t mrq, void *p_out,
 	if ((p_out == NULL) || (size_out > IVC_DATA_SZ_BYTES) ||
 	    (frame == NULL)) {
 		ERROR("%s: invalid parameters, exiting\n", __func__);
-		ret = -EINVAL;
+		return -EINVAL;
 	}
 
-	if (ret == 0) {
+	/* prepare the command frame */
+	frame->mrq = mrq;
+	frame->flags = FLAG_DO_ACK;
+	p_fdata = frame->data;
+	(void)memcpy(p_fdata, p_out, (size_t)size_out);
 
-		/* prepare the command frame */
-		frame->mrq = mrq;
-		frame->flags = FLAG_DO_ACK;
-		p_fdata = frame->data;
-		(void)memcpy(p_fdata, p_out, (size_t)size_out);
+	/* signal the slave */
+	tegra_bpmp_signal_slave();
 
-		/* signal the slave */
-		tegra_bpmp_signal_slave();
+	/* wait for slave to ack */
+	ret = tegra_bpmp_wait_for_slave_ack();
+	if (ret < 0) {
+		ERROR("%s: wait for slave failed (%d)\n", __func__, ret);
+		return ret;
+	}
 
-		/* wait for slave to ack */
-		ret = tegra_bpmp_wait_for_slave_ack();
-		if (ret != 0) {
-			ERROR("failed waiting for the slave to ack\n");
+	/* retrieve the response frame */
+	if ((size_in <= IVC_DATA_SZ_BYTES) && (p_in != NULL)) {
+
+		f_in = tegra_bpmp_get_cur_in_frame();
+		if (f_in != NULL) {
+			ERROR("Failed to get next input frame!\n");
+		} else {
+			(void)memcpy(p_in, p_fdata, (size_t)size_in);
 		}
+	}
 
-		/* retrieve the response frame */
-		if ((size_in <= IVC_DATA_SZ_BYTES) && (p_in != NULL) &&
-		    (ret == 0)) {
-
-			f_in = tegra_bpmp_get_cur_in_frame();
-			if (f_in != NULL) {
-				ERROR("Failed to get next input frame!\n");
-			} else {
-				(void)memcpy(p_in, p_fdata, (size_t)size_in);
-			}
-		}
-
-		if (ret == 0) {
-			ret = tegra_bpmp_free_master();
-			if (ret != 0) {
-				ERROR("Failed to free master\n");
-			}
-		}
+	ret = tegra_bpmp_free_master();
+	if (ret < 0) {
+		ERROR("%s: free master failed (%d)\n", __func__, ret);
 	}
 
 	return ret;
