@@ -132,6 +132,16 @@ Files:
 
 -  plat/rockchip/\*
 
+Texas Instruments platform sub-maintainer
+-----------------------------------------
+
+Andrew F. Davis (afd@ti.com, `glneo`_)
+
+Files:
+
+- docs/plat/ti-k3.rst
+- plat/ti/\*
+
 UniPhier platform sub-maintainer
 --------------------------------
 
@@ -167,6 +177,7 @@ Etienne Carriere (etienne.carriere@linaro.org, `etienne-lms`_)
 .. _masahir0y: https://github.com/masahir0y
 .. _mtk09422: https://github.com/mtk09422
 .. _TonyXie06: https://github.com/TonyXie06
+.. _glneo: https://github.com/glneo
 .. _sivadur: https://github.com/sivadur
 .. _rockchip-linux: https://github.com/rockchip-linux
 .. _etienne-lms: https://github.com/etienne-lms

@@ -183,6 +183,7 @@ This release also contains the following platform support:
 -  Raspberry Pi 3 board
 -  RockChip RK3328, RK3368 and RK3399 SoCs
 -  Socionext UniPhier SoC family
+-  Texas Instruments K3 SoCs
 -  Xilinx Zynq UltraScale + MPSoC
 
 Still to come
