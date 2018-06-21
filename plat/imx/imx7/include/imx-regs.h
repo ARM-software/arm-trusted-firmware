@@ -60,4 +60,7 @@
 #define MXC_MAX_CSU_REGS		0x40
 #define CSU_BASE			(AIPS1_BASE + 0x3E0000)
 
+/* IO Mux block base */
+#define MXC_IO_MUXC_BASE		(AIPS1_BASE + 0x330000)
+
 #endif /* __REGS_H__ */
