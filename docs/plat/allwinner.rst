@@ -4,9 +4,11 @@ Trusted Firmware-A for Allwinner ARMv8 SoCs
 Trusted Firmware-A (TF-A) implements the EL3 firmware layer for Allwinner
 SoCs with ARMv8 cores. Only BL31 is used to provide proper EL3 setup and
 PSCI runtime services.
+
 U-Boot's SPL acts as a loader, loading both BL31 and BL33 (typically U-Boot).
 Loading is done from SD card, eMMC or SPI flash, also via an USB debug
 interface (FEL).
+
 BL31 lives in SRAM A2, which is documented to be accessible from secure
 world only.
 
