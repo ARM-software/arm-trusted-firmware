@@ -1087,13 +1087,13 @@ static void xlat_desc_print(const xlat_ctx_t *ctx, uint64_t desc)
 
 	if (xlat_regime == EL3_REGIME) {
 		/* For EL3, the XN bit is all what matters */
-		tf_printf("%s", LOWER_ATTRS(XN) & desc ? xn_str : exec_str);
+		tf_printf("%s", (UPPER_ATTRS(XN) & desc) ? xn_str : exec_str);
 	} else {
 		/* For EL0 and EL1, we need to know who has which rights */
-		tf_printf("%s", LOWER_ATTRS(PXN) & desc ? xn_str : exec_str);
+		tf_printf("%s", (UPPER_ATTRS(PXN) & desc) ? xn_str : exec_str);
 		tf_printf("%s", priv_str);
 
-		tf_printf("%s", LOWER_ATTRS(UXN) & desc ? xn_str : exec_str);
+		tf_printf("%s", (UPPER_ATTRS(UXN) & desc) ? xn_str : exec_str);
 		tf_printf("%s", user_str);
 	}
 
