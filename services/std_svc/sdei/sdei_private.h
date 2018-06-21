@@ -8,6 +8,7 @@
 #define __SDEI_PRIVATE_H__
 
 #include <arch_helpers.h>
+#include <context_mgmt.h>
 #include <debug.h>
 #include <errno.h>
 #include <interrupt_mgmt.h>
@@ -159,7 +160,11 @@ static inline int is_secure_sgi(unsigned int intr)
  */
 static inline unsigned int sdei_client_el(void)
 {
-	return read_scr_el3() & SCR_HCE_BIT ? MODE_EL2 : MODE_EL1;
+	cpu_context_t *ns_ctx = cm_get_context(NON_SECURE);
+	el3_state_t *el3_ctx = get_el3state_ctx(ns_ctx);
+
+	return read_ctx_reg(el3_ctx, CTX_SPSR_EL3) & SCR_HCE_BIT ? MODE_EL2 :
+		MODE_EL1;
 }
 
 static inline unsigned int sdei_event_priority(sdei_ev_map_t *map)

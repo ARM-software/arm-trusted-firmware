@@ -10,7 +10,6 @@
 #include <bl_common.h>
 #include <cassert.h>
 #include <context.h>
-#include <context_mgmt.h>
 #include <debug.h>
 #include <ehf.h>
 #include <interrupt_mgmt.h>
