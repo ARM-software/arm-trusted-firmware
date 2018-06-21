@@ -67,6 +67,15 @@ int thunder_timers_init(void);
 void cavium_console_init(void);
 void cavium_console_unregister(void);
 
+#define MAX_INTRS 5
+
+typedef uint64_t (*interrupt_handler_t)(uint32_t id,
+					uint32_t flags,
+					void *cookie);
+
+int32_t thunder_register_el3_interrupt_handler(uint32_t id,
+					       interrupt_handler_t handler);
+
 int spi_nor_init(void);
 int spi_nor_rw_data(int write, unsigned long addr, int size, void *buf, int buf_size);
 int spi_nor_erase_sect(uint32_t addr);

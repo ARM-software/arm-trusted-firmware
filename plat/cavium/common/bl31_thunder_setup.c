@@ -181,6 +181,83 @@ static void thunder_configure_mmc_security(void)
 	CSR_WRITE_PA(0, CAVM_SMMUX_SSDRX(0, ssd_idx), val);
 }
 
+
+typedef struct intr_desc {
+	uint32_t id;
+	interrupt_handler_t handler;
+} intr_desc_t;
+
+static intr_desc_t intr_descs[MAX_INTRS];
+
+static uint64_t
+thunder_handle_irq_el3(uint32_t id, uint32_t flags, void *handle, void *cookie)
+{
+	uint32_t idx;
+	uint64_t rc = 0;
+
+	if (id == INTR_ID_UNAVAILABLE)
+		id = plat_ic_acknowledge_interrupt();
+
+	for (idx = 0; idx < MAX_INTRS; idx++) {
+		if (intr_descs[idx].id == id) {
+			rc = intr_descs[idx].handler(id, flags, cookie);
+			break;
+		}
+	}
+
+	if (idx == MAX_INTRS)
+		printf("Handler not found!\n");
+
+	plat_ic_end_of_interrupt(id);
+
+	return rc;
+}
+
+static void thunder_el3_irq_init(void)
+{
+	uint32_t flags;
+	int32_t rc;
+
+	flags = 0;
+	set_interrupt_rm_flag(flags, SECURE);
+	set_interrupt_rm_flag(flags, NON_SECURE);
+
+	rc = register_interrupt_type_handler(INTR_TYPE_EL3,
+					     thunder_handle_irq_el3,
+					     flags);
+	if (rc)
+		ERROR("error %d on registering secure handler\n", rc);
+}
+
+int32_t thunder_register_el3_interrupt_handler(uint32_t id,
+					       interrupt_handler_t handler)
+{
+	uint32_t idx;
+
+	/* Validate the 'handler' parameter */
+	if (!handler)
+		return -EINVAL;
+
+	/* Setup our IRQ handler */
+	thunder_el3_irq_init();
+
+	/* Check if a handler for this id is already been registered */
+	for (idx = 0; idx < MAX_INTRS; idx++) {
+		if (intr_descs[idx].id == id)
+			return -EALREADY;
+
+		if (!intr_descs[idx].handler) {
+			/* Save the handler */
+			intr_descs[idx].handler = handler;
+			intr_descs[idx].id  = id;
+
+			return 0;
+		}
+	}
+
+	return -E2BIG;
+}
+
 /*******************************************************************************
  * Initialize the gic, configure the CLCD and zero out variables needed by the
  * secondaries to boot up correctly.
