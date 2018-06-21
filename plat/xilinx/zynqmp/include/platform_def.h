@@ -34,7 +34,7 @@
  * little space for growth.
  */
 #ifndef ZYNQMP_ATF_MEM_BASE
-#if !DEBUG
+#if !DEBUG && defined(SPD_none)
 # define BL31_BASE			0xfffea000
 # define BL31_LIMIT			0xffffffff
 #else
