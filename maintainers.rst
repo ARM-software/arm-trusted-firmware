@@ -132,6 +132,16 @@ Files:
 
 -  plat/rockchip/\*
 
+Synquacer platform sub-maintainer
+---------------------------------
+
+Sumit Garg (sumit.garg@linaro.org, `b49020`_)
+
+Files:
+
+- docs/plat/synquacer.rst
+- plat/socionext/synquacer/\*
+
 Texas Instruments platform sub-maintainer
 -----------------------------------------
 
@@ -183,3 +193,4 @@ Etienne Carriere (etienne.carriere@linaro.org, `etienne-lms`_)
 .. _etienne-lms: https://github.com/etienne-lms
 .. _qoriq-open-source: https://github.com/qoriq-open-source
 .. _Andre-ARM: https://github.com/Andre-ARM
+.. _b49020: https://github.com/b49020

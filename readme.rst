@@ -182,7 +182,7 @@ This release also contains the following platform support:
 -  QEMU emulator
 -  Raspberry Pi 3 board
 -  RockChip RK3328, RK3368 and RK3399 SoCs
--  Socionext UniPhier SoC family
+-  Socionext UniPhier SoC family and SynQuacer SC2A11 SoCs
 -  Texas Instruments K3 SoCs
 -  Xilinx Zynq UltraScale + MPSoC
 
