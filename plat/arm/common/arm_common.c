@@ -160,6 +160,9 @@ void arm_configure_sys_timer(void)
 {
 	unsigned int reg_val;
 
+	/* Read the frequency of the system counter */
+	unsigned int freq_val = plat_get_syscnt_freq2();
+
 #if ARM_CONFIG_CNTACR
 	reg_val = (1 << CNTACR_RPCT_SHIFT) | (1 << CNTACR_RVCT_SHIFT);
 	reg_val |= (1 << CNTACR_RFRQ_SHIFT) | (1 << CNTACR_RVOFF_SHIFT);
@@ -169,6 +172,23 @@ void arm_configure_sys_timer(void)
 
 	reg_val = (1 << CNTNSAR_NS_SHIFT(PLAT_ARM_NSTIMER_FRAME_ID));
 	mmio_write_32(ARM_SYS_TIMCTL_BASE + CNTNSAR, reg_val);
+
+	/*
+	 * Initialize CNTFRQ register in CNTCTLBase frame. The CNTFRQ
+	 * system register initialized during psci_arch_setup() is different
+	 * from this and has to be updated independently.
+	 */
+	mmio_write_32(ARM_SYS_TIMCTL_BASE + CNTCTLBASE_CNTFRQ, freq_val);
+
+#ifdef PLAT_juno
+	/*
+	 * Initialize CNTFRQ register in Non-secure CNTBase frame.
+	 * This is only required for Juno, because it doesn't follow ARM ARM
+	 * in that the value updated in CNTFRQ is not reflected in CNTBASE_CNTFRQ.
+	 * Hence update the value manually.
+	 */
+	mmio_write_32(ARM_SYS_CNT_BASE_NS + CNTBASE_CNTFRQ, freq_val);
+#endif
 }
 #endif /* ARM_SYS_TIMCTL_BASE */
 

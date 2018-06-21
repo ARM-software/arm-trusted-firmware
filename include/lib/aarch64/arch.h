@@ -554,6 +554,7 @@
  * Definitions of register offsets and fields in the CNTCTLBase Frame of the
  * system level implementation of the Generic Timer.
  ******************************************************************************/
+#define CNTCTLBASE_CNTFRQ	U(0x0)
 #define CNTNSAR			U(0x4)
 #define CNTNSAR_NS_SHIFT(x)	(x)
 
@@ -564,6 +565,12 @@
 #define CNTACR_RVOFF_SHIFT	U(0x3)
 #define CNTACR_RWVT_SHIFT	U(0x4)
 #define CNTACR_RWPT_SHIFT	U(0x5)
+
+/*******************************************************************************
+ * Definitions of register offsets in the CNTBaseN Frame of the
+ * system level implementation of the Generic Timer.
+ ******************************************************************************/
+#define CNTBASE_CNTFRQ		U(0x10)
 
 /* PMCR_EL0 definitions */
 #define PMCR_EL0_RESET_VAL	U(0x0)
