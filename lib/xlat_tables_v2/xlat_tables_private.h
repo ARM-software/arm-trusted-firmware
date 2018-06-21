@@ -12,27 +12,26 @@
 
 #if PLAT_XLAT_TABLES_DYNAMIC
 /*
- * Shifts and masks to access fields of an mmap_attr_t
+ * Private shifts and masks to access fields of an mmap attribute
  */
 /* Dynamic or static */
-#define MT_DYN_SHIFT		30 /* 31 would cause undefined behaviours */
+#define MT_DYN_SHIFT		U(31)
 
 /*
  * Memory mapping private attributes
  *
- * Private attributes not exposed in the mmap_attr_t enum.
+ * Private attributes not exposed in the public header.
  */
-typedef enum  {
-	/*
-	 * Regions mapped before the MMU can't be unmapped dynamically (they are
-	 * static) and regions mapped with MMU enabled can be unmapped. This
-	 * behaviour can't be overridden.
-	 *
-	 * Static regions can overlap each other, dynamic regions can't.
-	 */
-	MT_STATIC	= 0 << MT_DYN_SHIFT,
-	MT_DYNAMIC	= 1 << MT_DYN_SHIFT
-} mmap_priv_attr_t;
+
+/*
+ * Regions mapped before the MMU can't be unmapped dynamically (they are
+ * static) and regions mapped with MMU enabled can be unmapped. This
+ * behaviour can't be overridden.
+ *
+ * Static regions can overlap each other, dynamic regions can't.
+ */
+#define MT_STATIC	(U(0) << MT_DYN_SHIFT)
+#define MT_DYNAMIC	(U(1) << MT_DYN_SHIFT)
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 

@@ -58,7 +58,7 @@ void clear_map_dyn_mem_regions(mem_region_t *regions,
 	uintptr_t begin;
 	int r;
 	size_t size;
-	const mmap_attr_t attr = MT_MEMORY|MT_RW|MT_NS;
+	const unsigned int attr = MT_MEMORY | MT_RW | MT_NS;
 
 	assert(regions != NULL);
 	assert(nregions > 0 && chunk > 0);

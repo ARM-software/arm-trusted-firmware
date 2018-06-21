@@ -66,7 +66,7 @@ void print_mmap(void)
 }
 
 void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
-			size_t size, mmap_attr_t attr)
+		     size_t size, unsigned int attr)
 {
 	mmap_region_t *mm = mmap;
 	mmap_region_t *mm_last = mm + ARRAY_SIZE(mmap) - 1;
@@ -178,8 +178,8 @@ void mmap_add(const mmap_region_t *mm)
 	}
 }
 
-static uint64_t mmap_desc(mmap_attr_t attr, unsigned long long addr_pa,
-							unsigned int level)
+static uint64_t mmap_desc(unsigned int attr, unsigned long long addr_pa,
+			  unsigned int level)
 {
 	uint64_t desc;
 	int mem_type;
@@ -264,7 +264,7 @@ static uint64_t mmap_desc(mmap_attr_t attr, unsigned long long addr_pa,
  * value pointed by attr should be ignored by the caller.
  */
 static int mmap_region_attr(mmap_region_t *mm, uintptr_t base_va,
-					size_t size, mmap_attr_t *attr)
+			    size_t size, unsigned int *attr)
 {
 	/* Don't assume that the area is contained in the first region */
 	int ret = -1;
@@ -348,7 +348,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 			 * there are partially overlapping regions. On success,
 			 * it will return the innermost region's attributes.
 			 */
-			mmap_attr_t attr;
+			unsigned int attr;
 			int r = mmap_region_attr(mm, base_va, level_size, &attr);
 
 			if (!r) {

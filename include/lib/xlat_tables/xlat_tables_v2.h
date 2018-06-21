@@ -47,7 +47,7 @@
 	_MAP_REGION_FULL_SPEC(_pa, _va, _sz, _attr, _gr)
 
 /*
- * Shifts and masks to access fields of an mmap_attr_t
+ * Shifts and masks to access fields of an mmap attribute
  */
 #define MT_TYPE_MASK		U(0x7)
 #define MT_TYPE(_attr)		((_attr) & MT_TYPE_MASK)
@@ -57,57 +57,56 @@
 #define MT_SEC_SHIFT		U(4)
 /* Access permissions for instruction execution (EXECUTE/EXECUTE_NEVER) */
 #define MT_EXECUTE_SHIFT	U(5)
-/*
- * In the EL1&0 translation regime, mark the region as User (EL0) or
- * Privileged (EL1). In the EL3 translation regime this has no effect.
- */
+/* In the EL1&0 translation regime, User (EL0) or Privileged (EL1). */
 #define MT_USER_SHIFT		U(6)
 /* All other bits are reserved */
 
 /*
  * Memory mapping attributes
  */
-typedef enum  {
-	/*
-	 * Memory types supported.
-	 * These are organised so that, going down the list, the memory types
-	 * are getting weaker; conversely going up the list the memory types are
-	 * getting stronger.
-	 */
-	MT_DEVICE,
-	MT_NON_CACHEABLE,
-	MT_MEMORY,
-	/* Values up to 7 are reserved to add new memory types in the future */
 
-	MT_RO		= U(0) << MT_PERM_SHIFT,
-	MT_RW		= U(1) << MT_PERM_SHIFT,
+/*
+ * Memory types supported.
+ * These are organised so that, going down the list, the memory types are
+ * getting weaker; conversely going up the list the memory types are getting
+ * stronger.
+ */
+#define MT_DEVICE		U(0)
+#define MT_NON_CACHEABLE	U(1)
+#define MT_MEMORY		U(2)
+/* Values up to 7 are reserved to add new memory types in the future */
 
-	MT_SECURE	= U(0) << MT_SEC_SHIFT,
-	MT_NS		= U(1) << MT_SEC_SHIFT,
+#define MT_RO			(U(0) << MT_PERM_SHIFT)
+#define MT_RW			(U(1) << MT_PERM_SHIFT)
 
-	/*
-	 * Access permissions for instruction execution are only relevant for
-	 * normal read-only memory, i.e. MT_MEMORY | MT_RO. They are ignored
-	 * (and potentially overridden) otherwise:
-	 *  - Device memory is always marked as execute-never.
-	 *  - Read-write normal memory is always marked as execute-never.
-	 */
-	MT_EXECUTE		= U(0) << MT_EXECUTE_SHIFT,
-	MT_EXECUTE_NEVER	= U(1) << MT_EXECUTE_SHIFT,
+#define MT_SECURE		(U(0) << MT_SEC_SHIFT)
+#define MT_NS			(U(1) << MT_SEC_SHIFT)
 
-	/*
-	 * When mapping a region at EL0 or EL1, this attribute will be used to
-	 * determine if a User mapping (EL0) will be created or a Privileged
-	 * mapping (EL1).
-	 */
-	MT_USER				= U(1) << MT_USER_SHIFT,
-	MT_PRIVILEGED			= U(0) << MT_USER_SHIFT,
-} mmap_attr_t;
+/*
+ * Access permissions for instruction execution are only relevant for normal
+ * read-only memory, i.e. MT_MEMORY | MT_RO. They are ignored (and potentially
+ * overridden) otherwise:
+ *  - Device memory is always marked as execute-never.
+ *  - Read-write normal memory is always marked as execute-never.
+ */
+#define MT_EXECUTE		(U(0) << MT_EXECUTE_SHIFT)
+#define MT_EXECUTE_NEVER	(U(1) << MT_EXECUTE_SHIFT)
+
+/*
+ * When mapping a region at EL0 or EL1, this attribute will be used to determine
+ * if a User mapping (EL0) will be created or a Privileged mapping (EL1).
+ */
+#define MT_USER			(U(1) << MT_USER_SHIFT)
+#define MT_PRIVILEGED		(U(0) << MT_USER_SHIFT)
 
 /* Compound attributes for most common usages */
-#define MT_CODE		(MT_MEMORY | MT_RO | MT_EXECUTE)
-#define MT_RO_DATA	(MT_MEMORY | MT_RO | MT_EXECUTE_NEVER)
-#define MT_RW_DATA	(MT_MEMORY | MT_RW | MT_EXECUTE_NEVER)
+#define MT_CODE			(MT_MEMORY | MT_RO | MT_EXECUTE)
+#define MT_RO_DATA		(MT_MEMORY | MT_RO | MT_EXECUTE_NEVER)
+#define MT_RW_DATA		(MT_MEMORY | MT_RW | MT_EXECUTE_NEVER)
+
+#if !ERROR_DEPRECATED
+typedef unsigned int mmap_attr_t;
+#endif
 
 /*
  * Structure for specifying a single region of memory.
@@ -116,7 +115,7 @@ typedef struct mmap_region {
 	unsigned long long	base_pa;
 	uintptr_t		base_va;
 	size_t			size;
-	mmap_attr_t		attr;
+	unsigned int		attr;
 	/* Desired granularity. See the MAP_REGION2() macro for more details. */
 	size_t			granularity;
 } mmap_region_t;
@@ -213,7 +212,7 @@ void init_xlat_tables_ctx(xlat_ctx_t *ctx);
  * removed afterwards.
  */
 void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
-				size_t size, mmap_attr_t attr);
+		     size_t size, unsigned int attr);
 void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm);
 
 /*
@@ -238,7 +237,7 @@ void mmap_add_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm);
  *    EPERM: It overlaps another region in an invalid way.
  */
 int mmap_add_dynamic_region(unsigned long long base_pa, uintptr_t base_va,
-				size_t size, mmap_attr_t attr);
+			    size_t size, unsigned int attr);
 int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm);
 
 /*
