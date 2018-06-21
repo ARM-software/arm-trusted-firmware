@@ -181,6 +181,35 @@ int32_t spm_setup(void)
 }
 
 /*******************************************************************************
+ * Function to perform a call to a Secure Partition.
+ ******************************************************************************/
+uint64_t spm_sp_call(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3)
+{
+	uint64_t rc;
+	sp_context_t *sp_ptr = &sp_ctx;
+
+	/* Wait until the Secure Partition is idle and set it to busy. */
+	sp_state_wait_switch(sp_ptr, SP_STATE_IDLE, SP_STATE_BUSY);
+
+	/* Set values for registers on SP entry */
+	cpu_context_t *cpu_ctx = &(sp_ptr->cpu_ctx);
+
+	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X0, smc_fid);
+	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X1, x1);
+	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X2, x2);
+	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X3, x3);
+
+	/* Jump to the Secure Partition. */
+	rc = spm_sp_synchronous_entry(sp_ptr);
+
+	/* Flag Secure Partition as idle. */
+	assert(sp_ptr->state == SP_STATE_BUSY);
+	sp_state_set(sp_ptr, SP_STATE_IDLE);
+
+	return rc;
+}
+
+/*******************************************************************************
  * MM_COMMUNICATE handler
  ******************************************************************************/
 static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
@@ -188,7 +217,6 @@ static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
 			       uint64_t comm_size_address, void *handle)
 {
 	uint64_t rc;
-	sp_context_t *ctx = &sp_ctx;
 
 	/* Cookie. Reserved for future use. It must be zero. */
 	if (mm_cookie != 0U) {
@@ -208,23 +236,8 @@ static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
 	/* Save the Normal world context */
 	cm_el1_sysregs_context_save(NON_SECURE);
 
-	/* Wait until the Secure Partition is idle and set it to busy. */
-	sp_state_wait_switch(ctx, SP_STATE_IDLE, SP_STATE_BUSY);
-
-	/* Set values for registers on SP entry */
-	cpu_context_t *cpu_ctx = &(ctx->cpu_ctx);
-
-	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X0, smc_fid);
-	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X1, comm_buffer_address);
-	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X2, comm_size_address);
-	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X3, plat_my_core_pos());
-
-	/* Jump to the Secure Partition. */
-	rc = spm_sp_synchronous_entry(ctx);
-
-	/* Flag Secure Partition as idle. */
-	assert(ctx->state == SP_STATE_BUSY);
-	sp_state_set(ctx, SP_STATE_IDLE);
+	rc = spm_sp_call(smc_fid, comm_buffer_address, comm_size_address,
+			 plat_my_core_pos());
 
 	/* Restore non-secure state */
 	cm_el1_sysregs_context_restore(NON_SECURE);

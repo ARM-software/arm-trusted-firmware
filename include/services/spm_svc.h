@@ -74,6 +74,9 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 			 void *handle,
 			 uint64_t flags);
 
+/* Helper to enter a Secure Partition */
+uint64_t spm_sp_call(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3);
+
 #endif /* __ASSEMBLY__ */
 
 #endif /* __SPM_SVC_H__ */
