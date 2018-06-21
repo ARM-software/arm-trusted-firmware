@@ -273,6 +273,8 @@ void bl31_platform_setup()
 	thunder_gic_driver_init();
 	thunder_gic_init();
 
+	sata_ipm_quirk();
+
 	/* Intialize the power controller */
 	thunder_pwrc_setup();
 

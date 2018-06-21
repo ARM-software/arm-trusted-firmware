@@ -46,7 +46,8 @@ BL31_SOURCES		+=	drivers/arm/gic/common/gic_common.c		\
 				plat/cavium/common/params_setup.c		\
 				plat/cavium/common/thunder_security.c           \
 				plat/cavium/common/thunder_gti.c		\
-				plat/cavium/common/thunder_svc.c
+				plat/cavium/common/thunder_svc.c		\
+				plat/cavium/common/thunder_sata.c
 
 ENABLE_PLAT_COMPAT	:=	0
 

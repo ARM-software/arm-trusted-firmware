@@ -76,6 +76,8 @@ typedef uint64_t (*interrupt_handler_t)(uint32_t id,
 int32_t thunder_register_el3_interrupt_handler(uint32_t id,
 					       interrupt_handler_t handler);
 
+void sata_ipm_quirk(void);
+
 int spi_nor_init(void);
 int spi_nor_rw_data(int write, unsigned long addr, int size, void *buf, int buf_size);
 int spi_nor_erase_sect(uint32_t addr);
