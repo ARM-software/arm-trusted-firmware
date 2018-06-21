@@ -290,6 +290,7 @@ define MAKE_BL
         $(eval DUMP       := $(call IMG_DUMP,$(1)))
         $(eval BIN        := $(call IMG_BIN,$(1)))
         $(eval BL_LINKERFILE := $(BL$(call uppercase,$(1))_LINKERFILE))
+        $(eval BL_LIBS    := $(BL$(call uppercase,$(1))_LIBS))
         # We use sort only to get a list of unique object directory names.
         # ordering is not relevant but sort removes duplicates.
         $(eval TEMP_OBJ_DIRS := $(sort $(dir ${OBJS} ${LINKERFILE})))
@@ -312,7 +313,7 @@ bl${1}_dirs: | ${OBJ_DIRS}
 $(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
 $(eval $(call MAKE_LD,$(LINKERFILE),$(BL_LINKERFILE),$(1)))
 
-$(ELF): $(OBJS) $(LINKERFILE) | bl$(1)_dirs
+$(ELF): $(OBJS) $(LINKERFILE) | bl$(1)_dirs $(BL_LIBS)
 	@echo "  LD      $$@"
 ifdef MAKE_BUILD_STRINGS
 	$(call MAKE_BUILD_STRINGS, $(BUILD_DIR)/build_message.o)
@@ -322,7 +323,7 @@ else
 		$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -xc -c - -o $(BUILD_DIR)/build_message.o
 endif
 	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) -Map=$(MAPFILE) \
-		--script $(LINKERFILE) $(BUILD_DIR)/build_message.o $(OBJS) $(LDLIBS)
+		--script $(LINKERFILE) $(BUILD_DIR)/build_message.o $(OBJS) $(LDLIBS) $(BL_LIBS)
 
 $(DUMP): $(ELF)
 	@echo "  OD      $$@"
