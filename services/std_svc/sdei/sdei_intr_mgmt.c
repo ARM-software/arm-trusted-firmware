@@ -601,7 +601,7 @@ int sdei_dispatch_event(int ev_num)
 	return 0;
 }
 
-static void end_sdei_explicit_dispatch(struct jmpbuf *buffer)
+static void end_sdei_synchronous_dispatch(struct jmpbuf *buffer)
 {
 	longjmp(buffer);
 }
@@ -679,7 +679,7 @@ int sdei_event_complete(int resume, uint64_t pc)
 	}
 
 	/* End the outstanding dispatch */
-	end_sdei_explicit_dispatch(disp_ctx->dispatch_jmp);
+	end_sdei_synchronous_dispatch(disp_ctx->dispatch_jmp);
 
 	return 0;
 }
