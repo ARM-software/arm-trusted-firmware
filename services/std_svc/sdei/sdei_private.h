@@ -164,7 +164,7 @@ static inline unsigned int sdei_client_el(void)
 	cpu_context_t *ns_ctx = cm_get_context(NON_SECURE);
 	el3_state_t *el3_ctx = get_el3state_ctx(ns_ctx);
 
-	return read_ctx_reg(el3_ctx, CTX_SPSR_EL3) & SCR_HCE_BIT ? MODE_EL2 :
+	return read_ctx_reg(el3_ctx, CTX_SCR_EL3) & SCR_HCE_BIT ? MODE_EL2 :
 		MODE_EL1;
 }
 
