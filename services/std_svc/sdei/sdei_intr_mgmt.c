@@ -505,7 +505,7 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 	 * the event handling completed, EOI the corresponding
 	 * interrupt.
 	 */
-	if ((map->ev_num != SDEI_EVENT_0) && is_map_bound(map)) {
+	if ((map->ev_num != SDEI_EVENT_0) && !is_map_bound(map)) {
 		ERROR("Invalid SDEI mapping: ev=%u\n", map->ev_num);
 		panic();
 	}
