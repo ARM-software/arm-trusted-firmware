@@ -57,12 +57,31 @@
  * does not equal SMC_UNK. This is to ensure that the caller won't mistake the
  * returned UUID in x0 for an invalid SMC error return
  */
+#if !ERROR_DEPRECATED
 #define DEFINE_SVC_UUID(_name, _tl, _tm, _th, _cl, _ch, \
 		_n0, _n1, _n2, _n3, _n4, _n5) \
 	CASSERT((uint32_t)(_tl) != (uint32_t) SMC_UNK, invalid_svc_uuid);\
 	static const uuid_t _name = { \
 		_tl, _tm, _th, _cl, _ch, \
 		{ _n0, _n1, _n2, _n3, _n4, _n5 } \
+	}
+#endif
+
+
+#define DEFINE_SVC_UUID2(_name, _tl, _tm, _th, _cl, _ch,		\
+		_n0, _n1, _n2, _n3, _n4, _n5)				\
+	CASSERT((uint32_t)(_tl) != (uint32_t) SMC_UNK, invalid_svc_uuid);\
+	static const uuid_t _name = {					\
+		{(_tl >> 24) & 0xFF,					\
+		 (_tl >> 16) & 0xFF,					\
+		 (_tl >> 8)  & 0xFF,					\
+		 (_tl & 0xFF)},						\
+		{(_tm >> 8) & 0xFF,					\
+		 (_tm  & 0xFF)},					\
+		{(_th >> 8) & 0xFF,					\
+		 (_th & 0xFF)},						\
+		_cl, _ch,						\
+		{ _n0, _n1, _n2, _n3, _n4, _n5 }			\
 	}
 
 #endif /*__ASSEMBLY__*/
