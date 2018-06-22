@@ -8,7 +8,6 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <cassert.h>
-#include <context_mgmt.h>
 #include <debug.h>
 #include <ehf.h>
 #include <interrupt_mgmt.h>
@@ -32,9 +31,8 @@
 /* Structure to store information about an outstanding dispatch */
 typedef struct sdei_dispatch_context {
 	sdei_ev_map_t *map;
-	unsigned int sec_state;
-	unsigned int intr_raw;
 	uint64_t x[SDEI_SAVED_GPREGS];
+	struct jmpbuf *dispatch_jmp;
 
 	/* Exception state registers */
 	uint64_t elr_el3;
@@ -154,8 +152,8 @@ static sdei_dispatch_context_t *get_outstanding_dispatch(void)
 	return &state->dispatch_stack[state->stack_top - 1];
 }
 
-static void save_event_ctx(sdei_ev_map_t *map, void *tgt_ctx, int sec_state,
-		unsigned int intr_raw)
+static sdei_dispatch_context_t *save_event_ctx(sdei_ev_map_t *map,
+		void *tgt_ctx)
 {
 	sdei_dispatch_context_t *disp_ctx;
 	gp_regs_t *tgt_gpregs;
@@ -167,26 +165,14 @@ static void save_event_ctx(sdei_ev_map_t *map, void *tgt_ctx, int sec_state,
 
 	disp_ctx = push_dispatch();
 	assert(disp_ctx);
-	disp_ctx->sec_state = sec_state;
 	disp_ctx->map = map;
-	disp_ctx->intr_raw = intr_raw;
 
 	/* Save general purpose and exception registers */
 	memcpy(disp_ctx->x, tgt_gpregs, sizeof(disp_ctx->x));
 	disp_ctx->spsr_el3 = read_ctx_reg(tgt_el3, CTX_SPSR_EL3);
 	disp_ctx->elr_el3 = read_ctx_reg(tgt_el3, CTX_ELR_EL3);
 
-#if DYNAMIC_WORKAROUND_CVE_2018_3639
-	cve_2018_3639_t *tgt_cve_2018_3639;
-	tgt_cve_2018_3639 = get_cve_2018_3639_ctx(tgt_ctx);
-
-	/* Save CVE-2018-3639 mitigation state */
-	disp_ctx->disable_cve_2018_3639 = read_ctx_reg(tgt_cve_2018_3639,
-		CTX_CVE_2018_3639_DISABLE);
-
-	/* Force SDEI handler to execute with mitigation enabled by default */
-	write_ctx_reg(tgt_cve_2018_3639, CTX_CVE_2018_3639_DISABLE, 0);
-#endif
+	return disp_ctx;
 }
 
 static void restore_event_ctx(sdei_dispatch_context_t *disp_ctx, void *tgt_ctx)
@@ -250,13 +236,12 @@ static cpu_context_t *restore_and_resume_ns_context(void)
  * SDEI client.
  */
 static void setup_ns_dispatch(sdei_ev_map_t *map, sdei_entry_t *se,
-		cpu_context_t *ctx, int sec_state_to_resume,
-		unsigned int intr_raw)
+		cpu_context_t *ctx, struct jmpbuf *dispatch_jmp)
 {
-	el3_state_t *el3_ctx = get_el3state_ctx(ctx);
+	sdei_dispatch_context_t *disp_ctx;
 
 	/* Push the event and context */
-	save_event_ctx(map, ctx, sec_state_to_resume, intr_raw);
+	disp_ctx = save_event_ctx(map, ctx);
 
 	/*
 	 * Setup handler arguments:
@@ -268,8 +253,8 @@ static void setup_ns_dispatch(sdei_ev_map_t *map, sdei_entry_t *se,
 	 */
 	SMC_SET_GP(ctx, CTX_GPREG_X0, map->ev_num);
 	SMC_SET_GP(ctx, CTX_GPREG_X1, se->arg);
-	SMC_SET_GP(ctx, CTX_GPREG_X2, read_ctx_reg(el3_ctx, CTX_ELR_EL3));
-	SMC_SET_GP(ctx, CTX_GPREG_X3, read_ctx_reg(el3_ctx, CTX_SPSR_EL3));
+	SMC_SET_GP(ctx, CTX_GPREG_X2, disp_ctx->elr_el3);
+	SMC_SET_GP(ctx, CTX_GPREG_X3, disp_ctx->spsr_el3);
 
 	/*
 	 * Prepare for ERET:
@@ -280,6 +265,20 @@ static void setup_ns_dispatch(sdei_ev_map_t *map, sdei_entry_t *se,
 	cm_set_elr_spsr_el3(NON_SECURE, (uintptr_t) se->ep,
 			SPSR_64(sdei_client_el(), MODE_SP_ELX,
 				DISABLE_ALL_EXCEPTIONS));
+
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
+	cve_2018_3639_t *tgt_cve_2018_3639;
+	tgt_cve_2018_3639 = get_cve_2018_3639_ctx(ctx);
+
+	/* Save CVE-2018-3639 mitigation state */
+	disp_ctx->disable_cve_2018_3639 = read_ctx_reg(tgt_cve_2018_3639,
+		CTX_CVE_2018_3639_DISABLE);
+
+	/* Force SDEI handler to execute with mitigation enabled by default */
+	write_ctx_reg(tgt_cve_2018_3639, CTX_CVE_2018_3639_DISABLE, 0);
+#endif
+
+	disp_ctx->dispatch_jmp = dispatch_jmp;
 }
 
 /* Handle a triggered SDEI interrupt while events were masked on this PE */
@@ -349,6 +348,7 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 	unsigned int sec_state;
 	sdei_cpu_state_t *state;
 	uint32_t intr;
+	struct jmpbuf dispatch_jmp;
 
 	/*
 	 * To handle an event, the following conditions must be true:
@@ -482,29 +482,60 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 		ctx = restore_and_resume_ns_context();
 	}
 
-	setup_ns_dispatch(map, se, ctx, sec_state, intr_raw);
+	/* Synchronously dispatch event */
+	setup_ns_dispatch(map, se, ctx, &dispatch_jmp);
+	begin_sdei_synchronous_dispatch(&dispatch_jmp);
 
 	/*
-	 * End of interrupt is done in sdei_event_complete, when the client
-	 * signals completion.
+	 * We reach here when client completes the event.
+	 *
+	 * If the cause of dispatch originally interrupted the Secure world, and
+	 * if Non-secure world wasn't allowed to preempt Secure execution,
+	 * resume Secure.
+	 *
+	 * No need to save the Non-secure context ahead of a world switch: the
+	 * Non-secure context was fully saved before dispatch, and has been
+	 * returned to its pre-dispatch state.
 	 */
+	if ((sec_state == SECURE) && (ehf_is_ns_preemption_allowed() == 0))
+		restore_and_resume_secure_context();
+
+	/*
+	 * The event was dispatched after receiving SDEI interrupt. With
+	 * the event handling completed, EOI the corresponding
+	 * interrupt.
+	 */
+	if ((map->ev_num != SDEI_EVENT_0) && is_map_bound(map)) {
+		ERROR("Invalid SDEI mapping: ev=%u\n", map->ev_num);
+		panic();
+	}
+	plat_ic_end_of_interrupt(intr_raw);
+
+	if (is_event_shared(map))
+		sdei_map_unlock(map);
+
 	return 0;
 }
 
-/* Explicitly dispatch the given SDEI event */
-int sdei_dispatch_event(int ev_num, unsigned int preempted_sec_state)
+/*
+ * Explicitly dispatch the given SDEI event.
+ *
+ * When calling this API, the caller must be prepared for the SDEI dispatcher to
+ * restore and make Non-secure context as active. This call returns only after
+ * the client has completed the dispatch. Then, the Non-secure context will be
+ * active, and the following ERET will return to Non-secure.
+ *
+ * Should the caller require re-entry to Secure, it must restore the Secure
+ * context and program registers for ERET.
+ */
+int sdei_dispatch_event(int ev_num)
 {
 	sdei_entry_t *se;
 	sdei_ev_map_t *map;
-	cpu_context_t *ctx;
+	cpu_context_t *ns_ctx;
 	sdei_dispatch_context_t *disp_ctx;
 	sdei_cpu_state_t *state;
-
-	/* Validate preempted security state */
-	if ((preempted_sec_state != SECURE) &&
-			(preempted_sec_state != NON_SECURE)) {
-		return -1;
-	}
+	struct jmpbuf dispatch_jmp;
 
 	/* Can't dispatch if events are masked on this PE */
 	state = sdei_get_this_pe_state();
@@ -520,15 +551,8 @@ int sdei_dispatch_event(int ev_num, unsigned int preempted_sec_state)
 	if (!map)
 		return -1;
 
-	/*
-	 * Statically-bound or dynamic maps are dispatched only as a result of
-	 * interrupt, and not upon explicit request.
-	 */
-	if (is_map_dynamic(map) || is_map_bound(map))
-		return -1;
-
-	/* The event must be private */
-	if (is_event_shared(map))
+	/* Only explicit events can be dispatched */
+	if (!is_map_explicit(map))
 		return -1;
 
 	/* Examine state of dispatch stack */
@@ -557,19 +581,29 @@ int sdei_dispatch_event(int ev_num, unsigned int preempted_sec_state)
 	ehf_activate_priority(sdei_event_priority(map));
 
 	/*
-	 * We assume the current context is SECURE, and that it's already been
-	 * saved.
+	 * Prepare for NS dispatch by restoring the Non-secure context and
+	 * marking that as active.
 	 */
-	ctx = restore_and_resume_ns_context();
+	ns_ctx = restore_and_resume_ns_context();
+
+	/* Dispatch event synchronously */
+	setup_ns_dispatch(map, se, ns_ctx, &dispatch_jmp);
+	begin_sdei_synchronous_dispatch(&dispatch_jmp);
 
 	/*
-	 * The caller has effectively terminated execution. Record to resume the
-	 * preempted context later when the event completes or
-	 * complete-and-resumes.
+	 * We reach here when client completes the event.
+	 *
+	 * Deactivate the priority level that was activated at the time of
+	 * explicit dispatch.
 	 */
-	setup_ns_dispatch(map, se, ctx, preempted_sec_state, 0);
+	ehf_deactivate_priority(sdei_event_priority(map));
 
 	return 0;
+}
+
+static void end_sdei_explicit_dispatch(struct jmpbuf *buffer)
+{
+	longjmp(buffer);
 }
 
 int sdei_event_complete(int resume, uint64_t pc)
@@ -644,38 +678,8 @@ int sdei_event_complete(int resume, uint64_t pc)
 		}
 	}
 
-	/*
-	 * If the cause of dispatch originally interrupted the Secure world, and
-	 * if Non-secure world wasn't allowed to preempt Secure execution,
-	 * resume Secure.
-	 *
-	 * No need to save the Non-secure context ahead of a world switch: the
-	 * Non-secure context was fully saved before dispatch, and has been
-	 * returned to its pre-dispatch state.
-	 */
-	if ((disp_ctx->sec_state == SECURE) &&
-			(ehf_is_ns_preemption_allowed() == 0)) {
-		restore_and_resume_secure_context();
-	}
-
-	if ((map->ev_num == SDEI_EVENT_0) || is_map_bound(map)) {
-		/*
-		 * The event was dispatched after receiving SDEI interrupt. With
-		 * the event handling completed, EOI the corresponding
-		 * interrupt.
-		 */
-		plat_ic_end_of_interrupt(disp_ctx->intr_raw);
-	} else {
-		/*
-		 * An unbound event must have been dispatched explicitly.
-		 * Deactivate the priority level that was activated at the time
-		 * of explicit dispatch.
-		 */
-		ehf_deactivate_priority(sdei_event_priority(map));
-	}
-
-	if (is_event_shared(map))
-		sdei_map_unlock(map);
+	/* End the outstanding dispatch */
+	end_sdei_explicit_dispatch(disp_ctx->dispatch_jmp);
 
 	return 0;
 }

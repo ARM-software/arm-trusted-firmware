@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,6 +52,7 @@
 #define _SDEI_MAPF_SIGNALABLE_SHIFT	3
 #define _SDEI_MAPF_PRIVATE_SHIFT	4
 #define _SDEI_MAPF_CRITICAL_SHIFT	5
+#define _SDEI_MAPF_EXPLICIT_SHIFT	6
 
 /* SDEI event 0 */
 #define SDEI_EVENT_0	0
@@ -81,9 +82,12 @@
  */
 #define SDEI_MAPF_DYNAMIC	BIT(_SDEI_MAPF_DYNAMIC_SHIFT)
 #define SDEI_MAPF_BOUND		BIT(_SDEI_MAPF_BOUND_SHIFT)
+#define SDEI_MAPF_EXPLICIT	BIT(_SDEI_MAPF_EXPLICIT_SHIFT)
 
 #define SDEI_MAPF_SIGNALABLE	BIT(_SDEI_MAPF_SIGNALABLE_SHIFT)
 #define SDEI_MAPF_PRIVATE	BIT(_SDEI_MAPF_PRIVATE_SHIFT)
+
+#define SDEI_MAPF_NORMAL	0
 #define SDEI_MAPF_CRITICAL	BIT(_SDEI_MAPF_CRITICAL_SHIFT)
 
 /* Indices of private and shared mappings */
@@ -113,6 +117,9 @@
 
 #define SDEI_DEFINE_EVENT_0(_intr) \
 	SDEI_PRIVATE_EVENT(SDEI_EVENT_0, _intr, SDEI_MAPF_SIGNALABLE)
+
+#define SDEI_EXPLICIT_EVENT(_event, _pri) \
+	SDEI_EVENT_MAP(_event, 0, _pri | SDEI_MAPF_EXPLICIT | SDEI_MAPF_PRIVATE)
 
 /*
  * Declare shared and private entries for each core. Also declare a global
@@ -176,6 +183,6 @@ uint64_t sdei_smc_handler(uint32_t smc_fid,
 void sdei_init(void);
 
 /* Public API to dispatch an event to Normal world */
-int sdei_dispatch_event(int ev_num, unsigned int preempted_sec_state);
+int sdei_dispatch_event(int ev_num);
 
 #endif /* __SDEI_H__ */

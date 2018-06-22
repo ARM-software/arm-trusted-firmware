@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,6 @@
 #include <bl_common.h>
 #include <cassert.h>
 #include <context.h>
-#include <context_mgmt.h>
 #include <debug.h>
 #include <ehf.h>
 #include <interrupt_mgmt.h>
@@ -111,6 +110,9 @@ void sdei_class_init(sdei_class_t class)
 
 		/* No shared mapping should have signalable property */
 		assert(!is_event_signalable(map));
+
+		/* Shared mappings can't be explicit */
+		assert(!is_map_explicit(map));
 #endif
 
 		/* Skip initializing the wrong priority */
@@ -162,6 +164,16 @@ void sdei_class_init(sdei_class_t class)
 
 		/* Make sure it's a private event */
 		assert(is_event_private(map));
+
+		/*
+		 * Other than priority, explicit events can only have explicit
+		 * and private flags set.
+		 */
+		if (is_map_explicit(map)) {
+			assert((map->map_flags | SDEI_MAPF_CRITICAL) ==
+					(SDEI_MAPF_EXPLICIT | SDEI_MAPF_PRIVATE
+					| SDEI_MAPF_CRITICAL));
+		}
 #endif
 
 		/* Skip initializing the wrong priority */
@@ -174,6 +186,12 @@ void sdei_class_init(sdei_class_t class)
 				assert(map->intr == SDEI_DYN_IRQ);
 				assert(is_event_normal(map));
 				num_dyn_priv_slots++;
+			} else if (is_map_explicit(map)) {
+				/*
+				 * Explicit mappings don't have a backing
+				 * SDEI interrupt, but verify that anyway.
+				 */
+				assert(map->intr == SDEI_DYN_IRQ);
 			} else {
 				/*
 				 * Private mappings must be bound to private

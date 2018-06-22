@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,11 +8,13 @@
 #define __SDEI_PRIVATE_H__
 
 #include <arch_helpers.h>
+#include <context_mgmt.h>
 #include <debug.h>
 #include <errno.h>
 #include <interrupt_mgmt.h>
 #include <platform.h>
 #include <sdei.h>
+#include <setjmp.h>
 #include <spinlock.h>
 #include <stdbool.h>
 #include <types.h>
@@ -137,6 +139,11 @@ static inline void set_map_bound(sdei_ev_map_t *map)
 	map->map_flags |= BIT(_SDEI_MAPF_BOUND_SHIFT);
 }
 
+static inline int is_map_explicit(sdei_ev_map_t *map)
+{
+	return ((map->map_flags & BIT(_SDEI_MAPF_EXPLICIT_SHIFT)) != 0);
+}
+
 static inline void clr_map_bound(sdei_ev_map_t *map)
 {
 	map->map_flags &= ~(BIT(_SDEI_MAPF_BOUND_SHIFT));
@@ -154,7 +161,11 @@ static inline int is_secure_sgi(unsigned int intr)
  */
 static inline unsigned int sdei_client_el(void)
 {
-	return read_scr_el3() & SCR_HCE_BIT ? MODE_EL2 : MODE_EL1;
+	cpu_context_t *ns_ctx = cm_get_context(NON_SECURE);
+	el3_state_t *el3_ctx = get_el3state_ctx(ns_ctx);
+
+	return read_ctx_reg(el3_ctx, CTX_SPSR_EL3) & SCR_HCE_BIT ? MODE_EL2 :
+		MODE_EL1;
 }
 
 static inline unsigned int sdei_event_priority(sdei_ev_map_t *map)
@@ -230,5 +241,6 @@ unsigned int sdei_pe_mask(void);
 int sdei_intr_handler(uint32_t intr, uint32_t flags, void *handle,
 		void *cookie);
 bool can_sdei_state_trans(sdei_entry_t *se, sdei_action_t act);
+void begin_sdei_synchronous_dispatch(struct jmpbuf *buffer);
 
 #endif /* __SDEI_PRIVATE_H__ */
