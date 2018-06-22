@@ -79,9 +79,9 @@ The region attributes specify the type of memory (for example device or cached
 normal memory) as well as the memory access permissions (read-only or
 read-write, executable or not, secure or non-secure, and so on). In the case of
 the EL1&0 translation regime, the attributes also specify whether the region is
-a User region (EL0) or Privileged region (EL1). See the ``mmap_attr_t``
-enumeration type in `xlat\_tables\_v2.h`_. Note that for the EL1&0 translation
-regime the Execute Never attribute is set simultaneously for both EL1 and EL0.
+a User region (EL0) or Privileged region (EL1). See the ``MT_xxx`` definitions
+in `xlat\_tables\_v2.h`_. Note that for the EL1&0 translation regime the Execute
+Never attribute is set simultaneously for both EL1 and EL0.
 
 The granularity controls the translation table level to go down to when mapping
 the region. For example, assuming the MMU has been configured to use a 4KB
