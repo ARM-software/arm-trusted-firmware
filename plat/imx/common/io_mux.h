@@ -7,6 +7,8 @@
 #ifndef __IO_MUX_H__
 #define __IO_MUX_H__
 
+#include <stdint.h>
+
 /*
  * i.MX 7Solo Applications Processor Reference Manual, Rev. 0.1, 08/2016
  * Section 8.2.7 IOMUXC Memory Map/Register Definition
@@ -554,5 +556,11 @@
 #define IOMUXC_USB_OTG1_ID_SELECT_INPUT_OFFSET		0x0734
 #define IOMUXC_SD3_CD_B_SELECT_INPUT_OFFSET		0x0738
 #define IOMUXC_SD3_WP_SELECT_INPUT_OFFSET		0x073C
+
+
+/* Pad mux/feature set routines */
+
+void io_muxc_set_pad_alt_function(uint32_t pad_mux_offset, uint32_t alt_function);
+void io_muxc_set_pad_features(uint32_t pad_feature_offset, uint32_t pad_features);
 
 #endif /* __IO_MUX_H__ */
