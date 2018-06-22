@@ -13,7 +13,7 @@
 		hw_config_addr = <0x0 0x82000000>;
 		hw_config_max_size = <0x01000000>;
 		/* Disable authentication for development */
-		disable_auth = <0x1>;
+		disable_auth = <0x0>;
 		/*
 		 * Load SoC and TOS firmware configs at the base of
 		 * non shared SRAM. The runtime checks ensure we don't
