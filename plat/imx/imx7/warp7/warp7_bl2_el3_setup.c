@@ -164,6 +164,9 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	clock_init();
 	clock_enable_uart(0, uart_en_bits);
 
+	/* Setup pin-muxes */
+	warp7_setup_pinmux();
+
 	/* Init UART, storage and friends */
 	console_init(PLAT_WARP7_BOOT_UART_BASE, PLAT_WARP7_BOOT_UART_CLK_IN_HZ,
 		     PLAT_WARP7_CONSOLE_BAUDRATE);
