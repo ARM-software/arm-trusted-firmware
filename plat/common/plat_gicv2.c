@@ -226,7 +226,7 @@ void plat_ic_set_interrupt_type(unsigned int id, unsigned int type)
 		gicv2_type = GICV2_INTR_GROUP1;
 		break;
 	default:
-		assert(false);
+		assert(0); /* Unreachable */
 		break;
 	}
 
@@ -266,7 +266,7 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 		proc_num = -1;
 		break;
 	default:
-		assert(false);
+		assert(0); /* Unreachable */
 		break;
 	}
 

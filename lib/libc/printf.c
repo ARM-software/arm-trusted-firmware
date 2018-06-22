@@ -166,6 +166,7 @@ loop:
 					padn = (padn * 10) + (ch - '0');
 					fmt++;
 				}
+				assert(0); /* Unreachable */
 			default:
 				/* Exit on any other format specifier */
 				return -1;

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include <debug.h>
 #include <platform.h>
 #include <stdarg.h>
@@ -117,6 +118,7 @@ int snprintf(char *s, size_t n, const char *fmt, ...)
 				ERROR("snprintf: specifier with ASCII code '%d' not supported.",
 				      *fmt);
 				plat_panic_handler();
+				assert(0); /* Unreachable */
 			}
 			fmt++;
 			continue;
