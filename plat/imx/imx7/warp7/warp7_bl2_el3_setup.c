@@ -17,6 +17,7 @@
 #include <aips.h>
 #include <clock.h>
 #include <csu.h>
+#include <io_mux.h>
 #include <mxc_console.h>
 #include "warp7_private.h"
 
@@ -111,6 +112,39 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 void bl2_el3_plat_arch_setup(void)
 {
 	/* Setup the MMU here */
+}
+
+#define WARP7_UART1_TX_MUX \
+	IOMUXC_SW_MUX_CTL_PAD_UART1_TX_DATA_ALT0_UART1_TX_DATA
+
+#define WARP7_UART1_TX_FEATURES \
+	(IOMUXC_SW_PAD_CTL_PAD_UART1_TX_DATA_PS_3_100K_PU	| \
+	 IOMUXC_SW_PAD_CTL_PAD_UART1_TX_DATA_PE_EN		| \
+	 IOMUXC_SW_PAD_CTL_PAD_UART1_TX_DATA_HYS_EN		| \
+	 IOMUXC_SW_PAD_CTL_PAD_UART1_TX_DATA_DSE_1_X4)
+
+#define WARP7_UART1_RX_MUX \
+	IOMUXC_SW_MUX_CTL_PAD_UART1_RX_DATA_ALT0_UART1_RX_DATA
+
+#define WARP7_UART1_RX_FEATURES \
+	(IOMUXC_SW_PAD_CTL_PAD_UART1_RX_DATA_PS_3_100K_PU	| \
+	 IOMUXC_SW_PAD_CTL_PAD_UART1_RX_DATA_PE_EN		| \
+	 IOMUXC_SW_PAD_CTL_PAD_UART1_RX_DATA_HYS_EN		| \
+	 IOMUXC_SW_PAD_CTL_PAD_UART1_RX_DATA_DSE_1_X4)
+
+static void warp7_setup_pinmux(void)
+{
+	/* Configure UART1 TX */
+	io_muxc_set_pad_alt_function(IOMUXC_SW_MUX_CTL_PAD_UART1_TX_DATA_OFFSET,
+				     WARP7_UART1_TX_MUX);
+	io_muxc_set_pad_features(IOMUXC_SW_PAD_CTL_PAD_UART1_TX_DATA_OFFSET,
+				 WARP7_UART1_TX_FEATURES);
+
+	/* Configure UART1 RX */
+	io_muxc_set_pad_alt_function(IOMUXC_SW_MUX_CTL_PAD_UART1_RX_DATA_OFFSET,
+				     WARP7_UART1_RX_MUX);
+	io_muxc_set_pad_features(IOMUXC_SW_PAD_CTL_PAD_UART1_RX_DATA_OFFSET,
+				 WARP7_UART1_RX_FEATURES);
 }
 
 /*
