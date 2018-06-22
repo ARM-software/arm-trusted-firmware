@@ -1661,6 +1661,7 @@ Function : bl2\_plat\_preload\_setup [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
+
     Argument : void
     Return   : void
 
@@ -1674,6 +1675,7 @@ Function : plat\_try\_next\_boot\_source() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
+
     Argument : void
     Return   : int
 
@@ -1704,6 +1706,7 @@ Function : bl2\_el3\_early\_platform\_setup() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
+
 	Argument : u_register_t, u_register_t, u_register_t, u_register_t
 	Return   : void
 
@@ -1726,6 +1729,7 @@ Function : bl2\_el3\_plat\_arch\_setup() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
+
 	Argument : void
 	Return   : void
 
@@ -1741,6 +1745,7 @@ Function : bl2\_el3\_plat\_prepare\_exit() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
+
 	Argument : void
 	Return   : void
 
