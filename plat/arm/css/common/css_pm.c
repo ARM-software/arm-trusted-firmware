@@ -96,7 +96,7 @@ static void css_pwr_domain_on_finisher_common(
 void css_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	/* Assert that the system power domain need not be initialized */
-	assert(CSS_SYSTEM_PWR_STATE(target_state) == ARM_LOCAL_STATE_RUN);
+	assert(css_system_pwr_state(target_state) == ARM_LOCAL_STATE_RUN);
 
 	/* Program the gic per-cpu distributor or re-distributor interface */
 	plat_arm_gic_pcpu_init();
@@ -149,7 +149,7 @@ void css_pwr_domain_suspend(const psci_power_state_t *target_state)
 	css_power_down_common(target_state);
 
 	/* Perform system domain state saving if issuing system suspend */
-	if (CSS_SYSTEM_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF) {
+	if (css_system_pwr_state(target_state) == ARM_LOCAL_STATE_OFF) {
 		arm_system_pwr_domain_save();
 
 		/* Power off the Redistributor after having saved its context */
@@ -174,7 +174,7 @@ void css_pwr_domain_suspend_finish(
 		return;
 
 	/* Perform system domain restore if woken up from system suspend */
-	if (CSS_SYSTEM_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF)
+	if (css_system_pwr_state(target_state) == ARM_LOCAL_STATE_OFF)
 		/*
 		 * At this point, the Distributor must be powered on to be ready
 		 * to have its state restored. The Redistributor will be powered
@@ -264,11 +264,23 @@ static int css_validate_power_state(unsigned int power_state,
 	rc = arm_validate_power_state(power_state, req_state);
 
 	/*
+	 * Ensure that we don't overrun the pwr_domain_state array in the case
+	 * where the platform supported max power level is less than the system
+	 * power level
+	 */
+
+#if (PLAT_MAX_PWR_LVL == CSS_SYSTEM_PWR_DMN_LVL)
+
+	/*
 	 * Ensure that the system power domain level is never suspended
 	 * via PSCI CPU SUSPEND API. Currently system suspend is only
 	 * supported via PSCI SYSTEM SUSPEND API.
 	 */
-	req_state->pwr_domain_state[CSS_SYSTEM_PWR_DMN_LVL] = ARM_LOCAL_STATE_RUN;
+
+	req_state->pwr_domain_state[CSS_SYSTEM_PWR_DMN_LVL] =
+							ARM_LOCAL_STATE_RUN;
+#endif
+
 	return rc;
 }
 

@@ -25,7 +25,7 @@ void css_scp_suspend(const struct psci_power_state *target_state)
 	uint32_t system_state = scpi_power_on;
 
 	/* Check if power down at system power domain level is requested */
-	if (CSS_SYSTEM_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF)
+	if (css_system_pwr_state(target_state) == ARM_LOCAL_STATE_OFF)
 		system_state = scpi_power_retention;
 
 	/* Cluster is to be turned off, so disable coherency */
