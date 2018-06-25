@@ -160,7 +160,7 @@ Masahiro Yamada (yamada.masahiro@socionext.com, `masahir0y`_)
 Files:
 
 - docs/plat/socionext-uniphier.rst
-- plat/socionext/\*
+- plat/socionext/uniphier/\*
 
 Xilinx platform sub-maintainer
 ------------------------------
