@@ -19,6 +19,7 @@
 #include <csu.h>
 #include <io_mux.h>
 #include <mxc_console.h>
+#include <snvs.h>
 #include "warp7_private.h"
 
 #define UART1_CLK_SELECT (CCM_TARGET_ROOT_ENABLE |\

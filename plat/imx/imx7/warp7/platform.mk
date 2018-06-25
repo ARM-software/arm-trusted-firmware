@@ -42,6 +42,7 @@ BL2_SOURCES		+=	common/desc_image_load.c			\
 				plat/imx/common/clock.c				\
 				plat/imx/common/csu.c				\
 				plat/imx/common/io_mux.c			\
+				plat/imx/common/snvs.c				\
 				plat/imx/imx7/warp7/aarch32/warp7_helpers.S	\
 				plat/imx/imx7/warp7/warp7_bl2_el3_setup.c	\
 				plat/imx/imx7/warp7/warp7_bl2_mem_params_desc.c \
