@@ -63,4 +63,7 @@
 /* IO Mux block base */
 #define MXC_IO_MUXC_BASE		(AIPS1_BASE + 0x330000)
 
+/* SNVS base */
+#define SNVS_BASE			(AIPS1_BASE + 0x370000)
+
 #endif /* __REGS_H__ */
