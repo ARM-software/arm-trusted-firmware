@@ -9,6 +9,7 @@
 
 /* The power domain tree descriptor */
 static unsigned char power_domain_tree_desc[] = {
+	PLATFORM_SYSTEM_COUNT,
 	PLATFORM_CLUSTER_COUNT,
 	K3_CLUSTER0_CORE_COUNT,
 #if K3_CLUSTER1_MSMC_PORT != UNUSED

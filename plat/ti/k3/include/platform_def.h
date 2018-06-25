@@ -62,9 +62,10 @@
 
 #define PLATFORM_CLUSTER_OFFSET		K3_CLUSTER0_MSMC_PORT
 
-#define PLAT_NUM_PWR_DOMAINS		(PLATFORM_CLUSTER_COUNT + \
+#define PLAT_NUM_PWR_DOMAINS		(PLATFORM_SYSTEM_COUNT + \
+					PLATFORM_CLUSTER_COUNT + \
 					PLATFORM_CORE_COUNT)
-#define PLAT_MAX_PWR_LVL		MPIDR_AFFLVL1
+#define PLAT_MAX_PWR_LVL		MPIDR_AFFLVL2
 
 /*******************************************************************************
  * Memory layout constants
