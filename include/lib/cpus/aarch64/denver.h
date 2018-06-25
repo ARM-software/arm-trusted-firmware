@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,12 @@
 
 /* CPU state ids - implementation defined */
 #define DENVER_CPU_STATE_POWER_DOWN	U(0x3)
+
+/* Core power management states */
+#define DENVER_CPU_PMSTATE_C1		U(0x1)
+#define DENVER_CPU_PMSTATE_C6		U(0x6)
+#define DENVER_CPU_PMSTATE_C7		U(0x7)
+#define DENVER_CPU_PMSTATE_MASK		U(0xF)
 
 #ifndef __ASSEMBLY__
 

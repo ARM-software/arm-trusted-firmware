@@ -237,6 +237,15 @@ func denver_reset_func
 #endif
 
 	/* ----------------------------------------------------
+	 * Reset ACTLR.PMSTATE to C1 state
+	 * ----------------------------------------------------
+	 */
+	mrs	x0, actlr_el1
+	bic	x0, x0, #DENVER_CPU_PMSTATE_MASK
+	orr	x0, x0, #DENVER_CPU_PMSTATE_C1
+	msr	actlr_el1, x0
+
+	/* ----------------------------------------------------
 	 * Enable dynamic code optimizer (DCO)
 	 * ----------------------------------------------------
 	 */
