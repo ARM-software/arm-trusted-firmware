@@ -27,18 +27,6 @@
 
 #define psci_dsbish()
 
-/*
- * On systems where participant CPUs are cache-coherent, we can use spinlocks
- * instead of bakery locks.
- */
-#define DEFINE_PSCI_LOCK(_name)		spinlock_t _name
-#define DECLARE_PSCI_LOCK(_name)	extern DEFINE_PSCI_LOCK(_name)
-
-#define psci_lock_get(non_cpu_pd_node)				\
-	spin_lock(&psci_locks[(non_cpu_pd_node)->lock_index])
-#define psci_lock_release(non_cpu_pd_node)			\
-	spin_unlock(&psci_locks[(non_cpu_pd_node)->lock_index])
-
 #else
 
 /*
@@ -51,9 +39,10 @@
 
 #define psci_dsbish()				dsbish()
 
+#endif
+
 /*
- * Use bakery locks for state coordination as not all PSCI participants are
- * cache coherent.
+ * Use bakery locks for state coordination.
  */
 #define DEFINE_PSCI_LOCK(_name)		DEFINE_BAKERY_LOCK(_name)
 #define DECLARE_PSCI_LOCK(_name)	DECLARE_BAKERY_LOCK(_name)
@@ -62,8 +51,6 @@
 	bakery_lock_get(&psci_locks[(non_cpu_pd_node)->lock_index])
 #define psci_lock_release(non_cpu_pd_node)			\
 	bakery_lock_release(&psci_locks[(non_cpu_pd_node)->lock_index])
-
-#endif
 
 #define psci_lock_init(_non_cpu_pd_node, _idx)			\
 	((_non_cpu_pd_node)[(_idx)].lock_index = (_idx))
