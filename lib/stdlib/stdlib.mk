@@ -18,6 +18,7 @@ STDLIB_SRCS	:=	$(addprefix lib/stdlib/,	\
 			strlen.c			\
 			strncmp.c			\
 			strnlen.c			\
+			strtol.c			\
 			subr_prf.c			\
 			timingsafe_bcmp.c)
 
