@@ -13,6 +13,7 @@
 #include <debug.h>
 #include <platform_def.h>
 #include <platform.h>
+#include <sp_res_desc.h>
 #include <string.h>
 #include <xlat_tables_v2.h>
 
@@ -34,7 +35,7 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	SET_PARAM_HEAD(&ep_info, PARAM_EP, VERSION_1, SECURE | EP_ST_ENABLE);
 
 	/* Setup entrypoint and SPSR */
-	ep_info.pc = BL32_BASE;
+	ep_info.pc = sp_ctx->rd.attribute.entrypoint;
 	ep_info.spsr = SPSR_64(MODE_EL0, MODE_SP_EL0, DISABLE_ALL_EXCEPTIONS);
 
 	/*
