@@ -33,6 +33,7 @@ BL2_SOURCES		+=	common/desc_image_load.c			\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_storage.c				\
 				drivers/nxp/uart/mxc_console.c                  \
+				drivers/nxp/uart/mxc_crash_console.S		\
 				lib/aarch32/arm32_aeabi_divmod.c		\
 				lib/aarch32/arm32_aeabi_divmod_a32.S		\
 				lib/cpus/aarch32/cortex_a7.S			\
