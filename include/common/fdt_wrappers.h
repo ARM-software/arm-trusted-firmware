@@ -14,6 +14,8 @@
 
 int fdtw_read_cells(const void *dtb, int node, const char *prop,
 		unsigned int cells, void *value);
+int fdtw_read_array(const void *dtb, int node, const char *prop,
+		unsigned int cells, void *value);
 int fdtw_read_string(const void *dtb, int node, const char *prop,
 		char *str, size_t size);
 int fdtw_write_inplace_cells(void *dtb, int node, const char *prop,
