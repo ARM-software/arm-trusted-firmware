@@ -291,13 +291,16 @@ int32_t plat_core_pos_by_mpidr(u_register_t mpidr)
 	return ret;
 }
 
+/*******************************************************************************
+ * Handler to relocate BL32 image to TZDRAM
+ ******************************************************************************/
 void plat_relocate_bl32_image(const image_info_t *bl32_img_info)
 {
 	const plat_params_from_bl2_t *plat_bl31_params = plat_get_bl31_plat_params();
 	const entry_point_info_t *bl32_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
 	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
 
-	if ((bl32_img_info != NULL)  && (bl32_ep_info != NULL)) {
+	if ((bl32_img_info != NULL) && (bl32_ep_info != NULL)) {
 
 		/* Relocate BL32 if it resides outside of the TZDRAM */
 		tzdram_start = plat_bl31_params->tzdram_base;
@@ -325,4 +328,12 @@ void plat_relocate_bl32_image(const image_info_t *bl32_img_info)
 				bl32_img_info->image_size);
 		}
 	}
+}
+
+/*******************************************************************************
+ * Handler to indicate support for System Suspend
+ ******************************************************************************/
+bool plat_supports_system_suspend(void)
+{
+	return true;
 }

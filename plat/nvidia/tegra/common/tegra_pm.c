@@ -259,7 +259,7 @@ int32_t tegra_validate_ns_entrypoint(uintptr_t entrypoint)
 /*******************************************************************************
  * Export the platform handlers to enable psci to invoke them
  ******************************************************************************/
-static const plat_psci_ops_t tegra_plat_psci_ops = {
+static plat_psci_ops_t tegra_plat_psci_ops = {
 	.cpu_standby			= tegra_cpu_standby,
 	.pwr_domain_on			= tegra_pwr_domain_on,
 	.pwr_domain_off			= tegra_pwr_domain_off,
@@ -294,6 +294,14 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 	 * Reset hardware settings.
 	 */
 	(void)tegra_soc_pwr_domain_on_finish(&target_state);
+
+	/*
+	 * Disable System Suspend if the platform does not
+	 * support it
+	 */
+	if (!plat_supports_system_suspend()) {
+		tegra_plat_psci_ops.get_sys_suspend_power_state = NULL;
+	}
 
 	/*
 	 * Initialize PSCI ops struct

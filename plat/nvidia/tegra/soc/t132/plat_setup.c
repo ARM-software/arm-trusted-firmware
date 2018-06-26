@@ -154,3 +154,11 @@ void plat_late_platform_setup(void)
 {
 	; /* do nothing */
 }
+
+/*******************************************************************************
+ * Handler to indicate support for System Suspend
+ ******************************************************************************/
+bool plat_supports_system_suspend(void)
+{
+	return true;
+}
