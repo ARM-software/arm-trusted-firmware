@@ -81,7 +81,7 @@ static int32_t validate_rt_svc_desc(const rt_svc_desc_t *desc)
 #endif /* SMCCC_MAJOR_VERSION */
 
 	/* A runtime service having no init or handle function doesn't make sense */
-	if ((desc->init == NULL) && (desc->handle == NULL))
+	if ((desc->init == NULL) || (desc->handle == NULL))
 		return -EINVAL;
 
 	return 0;
