@@ -20,7 +20,6 @@
  * 'rt_svc_descs' array which contains the SMC handler.
  ******************************************************************************/
 uint8_t rt_svc_descs_indices[MAX_RT_SVCS];
-static rt_svc_desc_t *rt_svc_descs;
 
 #define RT_SVC_DECS_NUM		((RT_SVC_DESCS_END - RT_SVC_DESCS_START)\
 					/ sizeof(rt_svc_desc_t))
@@ -98,6 +97,7 @@ void runtime_svc_init(void)
 {
 	int rc = 0;
 	unsigned int index, start_idx, end_idx;
+	rt_svc_desc_t *rt_svc_descs;
 
 	/* Assert the number of descriptors detected are less than maximum indices */
 	assert((RT_SVC_DESCS_END >= RT_SVC_DESCS_START) &&
