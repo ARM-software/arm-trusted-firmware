@@ -1997,6 +1997,25 @@ state. This function must return a pointer to the ``entry_point_info`` structure
 (that was copied during ``bl31_early_platform_setup()``) if the image exists. It
 should return NULL otherwise.
 
+Function : bl31_plat_enable_mmu [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : uint32_t
+    Return   : void
+
+This function enables the MMU. The boot code calls this function with MMU and
+caches disabled. This function should program necessary registers to enable
+translation, and upon return, the MMU on the calling PE must be enabled.
+
+The function must honor flags passed in the first argument. These flags are
+defined by the translation library, and can be found in the file
+``include/lib/xlat_tables/xlat_mmu_helpers.h``.
+
+On DynamIQ systems, this function must not use stack while enabling MMU, which
+is how the function in xlat table library version 2 is implementated.
+
 Function : plat\_get\_syscnt\_freq2() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

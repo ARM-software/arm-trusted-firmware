@@ -81,7 +81,7 @@ int xlat_arch_current_el(void);
 unsigned long long xlat_arch_get_max_supported_pa(void);
 
 /* Enable MMU and configure it to use the specified translation tables. */
-void enable_mmu_arch(unsigned int flags, uint64_t *base_table,
+void setup_mmu_cfg(unsigned int flags, const uint64_t *base_table,
 		unsigned long long max_pa, uintptr_t max_va);
 
 /*

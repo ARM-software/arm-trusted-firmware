@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -247,39 +247,11 @@ func tsp_cpu_on_entry
 	bl	plat_set_my_stack
 
 	/* --------------------------------------------
-	 * Enable the MMU with the DCache disabled. It
-	 * is safe to use stacks allocated in normal
-	 * memory as a result. All memory accesses are
-	 * marked nGnRnE when the MMU is disabled. So
-	 * all the stack writes will make it to memory.
-	 * All memory accesses are marked Non-cacheable
-	 * when the MMU is enabled but D$ is disabled.
-	 * So used stack memory is guaranteed to be
-	 * visible immediately after the MMU is enabled
-	 * Enabling the DCache at the same time as the
-	 * MMU can lead to speculatively fetched and
-	 * possibly stale stack memory being read from
-	 * other caches. This can lead to coherency
-	 * issues.
+	 * Enable MMU and D-caches together.
 	 * --------------------------------------------
 	 */
-	mov	x0, #DISABLE_DCACHE
+	mov	x0, #0
 	bl	bl32_plat_enable_mmu
-
-	/* ---------------------------------------------
-	 * Enable the Data cache now that the MMU has
-	 * been enabled. The stack has been unwound. It
-	 * will be written first before being read. This
-	 * will invalidate any stale cache lines resi-
-	 * -dent in other caches. We assume that
-	 * interconnect coherency has been enabled for
-	 * this cluster by EL3 firmware.
-	 * ---------------------------------------------
-	 */
-	mrs	x0, sctlr_el1
-	orr	x0, x0, #SCTLR_C_BIT
-	msr	sctlr_el1, x0
-	isb
 
 	/* ---------------------------------------------
 	 * Enter C runtime to perform any remaining

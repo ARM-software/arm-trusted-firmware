@@ -17,6 +17,8 @@
 	.weak	plat_disable_acp
 	.weak	bl1_plat_prepare_exit
 	.weak	plat_panic_handler
+	.weak	bl31_plat_enable_mmu
+	.weak	bl32_plat_enable_mmu
 
 #if !ENABLE_PLAT_COMPAT
 	.globl	platform_get_core_pos
@@ -164,3 +166,23 @@ func plat_panic_handler
 	wfi
 	b	plat_panic_handler
 endfunc plat_panic_handler
+
+	/* -----------------------------------------------------
+	 * void bl31_plat_enable_mmu(uint32_t flags);
+	 *
+	 * Enable MMU in BL31.
+	 * -----------------------------------------------------
+	 */
+func bl31_plat_enable_mmu
+	b	enable_mmu_direct_el3
+endfunc bl31_plat_enable_mmu
+
+	/* -----------------------------------------------------
+	 * void bl32_plat_enable_mmu(uint32_t flags);
+	 *
+	 * Enable MMU in BL32.
+	 * -----------------------------------------------------
+	 */
+func bl32_plat_enable_mmu
+	b	enable_mmu_direct_el1
+endfunc bl32_plat_enable_mmu

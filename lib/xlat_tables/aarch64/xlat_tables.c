@@ -181,6 +181,11 @@ void init_xlat_tables(void)
 									\
 		/* Ensure the MMU enable takes effect immediately */	\
 		isb();							\
+	}								\
+									\
+	void enable_mmu_direct_el##_el(unsigned int flags)		\
+	{								\
+		enable_mmu_el##_el(flags);				\
 	}
 
 /* Define EL1 and EL3 variants of the function enabling the MMU */

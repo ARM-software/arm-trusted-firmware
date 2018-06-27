@@ -170,15 +170,12 @@ func bl31_warm_entrypoint
 	 * enter coherency (as CPUs already are); and there's no reason to have
 	 * caches disabled either.
 	 */
-	mov	x0, #DISABLE_DCACHE
-	bl	bl31_plat_enable_mmu
-
 #if HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY
-	mrs	x0, sctlr_el3
-	orr	x0, x0, #SCTLR_C_BIT
-	msr	sctlr_el3, x0
-	isb
+	mov	x0, xzr
+#else
+	mov	x0, #DISABLE_DCACHE
 #endif
+	bl	bl31_plat_enable_mmu
 
 	bl	psci_warmboot_entrypoint
 

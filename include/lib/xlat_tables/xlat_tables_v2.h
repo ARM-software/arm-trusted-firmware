@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,12 +8,12 @@
 #define __XLAT_TABLES_V2_H__
 
 #include <xlat_tables_defs.h>
+#include <xlat_tables_v2_helpers.h>
 
 #ifndef __ASSEMBLY__
 #include <stddef.h>
 #include <stdint.h>
 #include <xlat_mmu_helpers.h>
-#include <xlat_tables_v2_helpers.h>
 
 /*
  * Default granularity size for an mmap_region_t.
