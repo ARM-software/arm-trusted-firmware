@@ -60,47 +60,36 @@ static void xlat_desc_print(const xlat_ctx_t *ctx, uint64_t desc)
 		tf_printf("DEV");
 	}
 
-	const char *priv_str = "(PRIV)";
-	const char *user_str = "(USER)";
-
-	/*
-	 * Showing Privileged vs Unprivileged only makes sense for EL1&0
-	 * mappings
-	 */
-	const char *ro_str = "-RO";
-	const char *rw_str = "-RW";
-	const char *no_access_str = "-NOACCESS";
-
 	if (xlat_regime == EL3_REGIME) {
-		/* For EL3, the AP[2] bit is all what matters */
-		tf_printf("%s", (desc & LOWER_ATTRS(AP_RO)) ? ro_str : rw_str);
+		/* For EL3 only check the AP[2] and XN bits. */
+		tf_printf((desc & LOWER_ATTRS(AP_RO)) ? "-RO" : "-RW");
+		tf_printf((desc & UPPER_ATTRS(XN)) ? "-XN" : "-EXEC");
 	} else {
-		const char *ap_str = (desc & LOWER_ATTRS(AP_RO)) ? ro_str : rw_str;
-		tf_printf("%s", ap_str);
-		tf_printf("%s", priv_str);
+		assert(xlat_regime == EL1_EL0_REGIME);
 		/*
-		 * EL0 can only have the same permissions as EL1 or no
-		 * permissions at all.
+		 * For EL0 and EL1:
+		 * - In AArch64 PXN and UXN can be set independently but in
+		 *   AArch32 there is no UXN (XN affects both privilege levels).
+		 *   For consistency, we set them simultaneously in both cases.
+		 * - RO and RW permissions must be the same in EL1 and EL0. If
+		 *   EL0 can access that memory region, so can EL1, with the
+		 *   same permissions.
 		 */
-		tf_printf("%s",
-			  (desc & LOWER_ATTRS(AP_ACCESS_UNPRIVILEGED))
-			  ? ap_str : no_access_str);
-		tf_printf("%s", user_str);
-	}
+#if ENABLE_ASSERTIONS
+		uint64_t xn_mask = xlat_arch_regime_get_xn_desc(EL1_EL0_REGIME);
+		uint64_t xn_perm = desc & xn_mask;
 
-	const char *xn_str = "-XN";
-	const char *exec_str = "-EXEC";
-
-	if (xlat_regime == EL3_REGIME) {
-		/* For EL3, the XN bit is all what matters */
-		tf_printf("%s", (UPPER_ATTRS(XN) & desc) ? xn_str : exec_str);
-	} else {
-		/* For EL0 and EL1, we need to know who has which rights */
-		tf_printf("%s", (UPPER_ATTRS(PXN) & desc) ? xn_str : exec_str);
-		tf_printf("%s", priv_str);
-
-		tf_printf("%s", (UPPER_ATTRS(UXN) & desc) ? xn_str : exec_str);
-		tf_printf("%s", user_str);
+		assert((xn_perm == xn_mask) || (xn_perm == 0ULL));
+#endif
+		tf_printf((desc & LOWER_ATTRS(AP_RO)) ? "-RO" : "-RW");
+		/* Only check one of PXN and UXN, the other one is the same. */
+		tf_printf((desc & UPPER_ATTRS(PXN)) ? "-XN" : "-EXEC");
+		/*
+		 * Privileged regions can only be accessed from EL1, user
+		 * regions can be accessed from EL1 and EL0.
+		 */
+		tf_printf((desc & LOWER_ATTRS(AP_ACCESS_UNPRIVILEGED))
+			  ? "-USER" : "-PRIV");
 	}
 
 	tf_printf(LOWER_ATTRS(NS) & desc ? "-NS" : "-S");
