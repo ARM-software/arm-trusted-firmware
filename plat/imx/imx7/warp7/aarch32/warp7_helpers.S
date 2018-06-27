@@ -11,6 +11,7 @@
 
 	.globl	platform_mem_init
 	.globl	plat_get_my_entrypoint
+	.globl	plat_crash_console_init
 
 	/* ---------------------------------------------
 	 * int plat_mem_init(void)
@@ -29,3 +30,9 @@ func plat_get_my_entrypoint
 	bx	lr
 endfunc plat_get_my_entrypoint
 
+func plat_crash_console_init
+	mov_imm	r0, PLAT_WARP7_BOOT_UART_BASE
+	mov_imm	r1, PLAT_WARP7_BOOT_UART_CLK_IN_HZ
+	mov_imm	r2, PLAT_WARP7_CONSOLE_BAUDRATE
+	b	mxc_crash_console_init
+endfunc plat_crash_console_init
