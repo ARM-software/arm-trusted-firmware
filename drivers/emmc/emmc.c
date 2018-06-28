@@ -50,6 +50,7 @@ static void emmc_set_ext_csd(unsigned int ext_cmd, unsigned int value)
 
 	zeromem(&cmd, sizeof(emmc_cmd_t));
 	cmd.cmd_idx = EMMC_CMD6;
+	cmd.resp_type = EMMC_RESPONSE_R1B;
 	cmd.cmd_arg = EXTCSD_WRITE_BYTES | EXTCSD_CMD(ext_cmd) |
 		      EXTCSD_VALUE(value) | 1;
 	ret = ops->send_cmd(&cmd);
@@ -192,6 +193,7 @@ size_t emmc_read_blocks(int lba, uintptr_t buf, size_t size)
 		if (size > EMMC_BLOCK_SIZE) {
 			zeromem(&cmd, sizeof(emmc_cmd_t));
 			cmd.cmd_idx = EMMC_CMD12;
+			cmd.resp_type = EMMC_RESPONSE_R1;
 			ret = ops->send_cmd(&cmd);
 			assert(ret == 0);
 		}
