@@ -48,6 +48,7 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(cvm_access_el3, AP_CVM_ACCESS_EL3)
 #endif
 
 void plat_add_mmio_map(void);
+void thunder_security_setup(void);
 unsigned thunder_get_node_count(void);
 int thunder_dram_is_lmc_enabled(unsigned node, unsigned lmc);
 uint64_t thunder_dram_size_node(unsigned node);

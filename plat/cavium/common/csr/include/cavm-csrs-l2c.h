@@ -28,6 +28,167 @@
 #define CAVM_L2C_BAR_E_L2C_PF_BAR0_SIZE 0x800000ull
 
 /**
+ * Register (RSL) l2c_asc_region#_attr
+ *
+ * Level 2 Cache Address Space Control Region Attributes Registers
+ */
+union cavm_l2c_asc_regionx_attr
+{
+    uint64_t u;
+    struct cavm_l2c_asc_regionx_attr_s
+    {
+#if __BYTE_ORDER == __BIG_ENDIAN /* Word 0 - Big Endian */
+        uint64_t reserved_2_63         : 62;
+        uint64_t s_en                  : 1;  /**< [  1:  1](R/W) Enables secure access to region.
+                                                                 Undefined if both [S_EN] and [NS_EN] are set for the same region. */
+        uint64_t ns_en                 : 1;  /**< [  0:  0](R/W) Enables nonsecure access to region.
+                                                                 Undefined if both [S_EN] and [NS_EN] are set for the same region.
+                                                                 See also DFA_ASC_REGION()_ATTR[NS_EN]. */
+#else /* Word 0 - Little Endian */
+        uint64_t ns_en                 : 1;  /**< [  0:  0](R/W) Enables nonsecure access to region.
+                                                                 Undefined if both [S_EN] and [NS_EN] are set for the same region.
+                                                                 See also DFA_ASC_REGION()_ATTR[NS_EN]. */
+        uint64_t s_en                  : 1;  /**< [  1:  1](R/W) Enables secure access to region.
+                                                                 Undefined if both [S_EN] and [NS_EN] are set for the same region. */
+        uint64_t reserved_2_63         : 62;
+#endif /* Word 0 - End */
+    } s;
+    struct cavm_l2c_asc_regionx_attr_cn81xx
+    {
+#if __BYTE_ORDER == __BIG_ENDIAN /* Word 0 - Big Endian */
+        uint64_t reserved_2_63         : 62;
+        uint64_t s_en                  : 1;  /**< [  1:  1](R/W) Enables secure access to region.
+                                                                 Undefined if both [S_EN] and [NS_EN] are set for the same region. */
+        uint64_t ns_en                 : 1;  /**< [  0:  0](R/W) Enables nonsecure access to region.
+                                                                 Undefined if both [S_EN] and [NS_EN] are set for the same region.
+
+                                                                 Internal:
+                                                                 See also DFA_ASC_REGION()_ATTR[NS_EN]. */
+#else /* Word 0 - Little Endian */
+        uint64_t ns_en                 : 1;  /**< [  0:  0](R/W) Enables nonsecure access to region.
+                                                                 Undefined if both [S_EN] and [NS_EN] are set for the same region.
+
+                                                                 Internal:
+                                                                 See also DFA_ASC_REGION()_ATTR[NS_EN]. */
+        uint64_t s_en                  : 1;  /**< [  1:  1](R/W) Enables secure access to region.
+                                                                 Undefined if both [S_EN] and [NS_EN] are set for the same region. */
+        uint64_t reserved_2_63         : 62;
+#endif /* Word 0 - End */
+    } cn81xx;
+    /* struct cavm_l2c_asc_regionx_attr_s cn88xx; */
+    /* struct cavm_l2c_asc_regionx_attr_cn81xx cn83xx; */
+};
+typedef union cavm_l2c_asc_regionx_attr cavm_l2c_asc_regionx_attr_t;
+
+static inline uint64_t CAVM_L2C_ASC_REGIONX_ATTR(unsigned long a) __attribute__ ((pure, always_inline));
+static inline uint64_t CAVM_L2C_ASC_REGIONX_ATTR(unsigned long a)
+{
+    if (a<=3)
+        return 0x87e080801010ll + 0x40ll * ((a) & 0x3);
+    __cavm_csr_fatal("L2C_ASC_REGIONX_ATTR", 1, a, 0, 0, 0);
+   return 0;
+}
+
+#define typedef_CAVM_L2C_ASC_REGIONX_ATTR(a) cavm_l2c_asc_regionx_attr_t
+#define bustype_CAVM_L2C_ASC_REGIONX_ATTR(a) CSR_TYPE_RSL
+#define basename_CAVM_L2C_ASC_REGIONX_ATTR(a) "L2C_ASC_REGIONX_ATTR"
+#define device_bar_CAVM_L2C_ASC_REGIONX_ATTR(a) 0x0 /* PF_BAR0 */
+#define busnum_CAVM_L2C_ASC_REGIONX_ATTR(a) (a)
+#define arguments_CAVM_L2C_ASC_REGIONX_ATTR(a) (a),-1,-1,-1
+
+/**
+ * Register (RSL) l2c_asc_region#_end
+ *
+ * Level 2 Cache Address Space Control Region End Address Registers
+ */
+union cavm_l2c_asc_regionx_end
+{
+    uint64_t u;
+    struct cavm_l2c_asc_regionx_end_s
+    {
+#if __BYTE_ORDER == __BIG_ENDIAN /* Word 0 - Big Endian */
+        uint64_t reserved_40_63        : 24;
+        uint64_t addr                  : 20; /**< [ 39: 20](R/W) Node-local physical address <39:20> marking the inclusive end of the corresponding ASC
+                                                                 region.
+                                                                 Note that the region includes this address.
+                                                                 Software must ensure that regions do not overlap.
+                                                                 To specify an empty region, clear both the [S_EN] and [NS_EN] fields of
+                                                                 the corresponding L2C_ASC_REGION()_ATTR register. */
+        uint64_t reserved_0_19         : 20;
+#else /* Word 0 - Little Endian */
+        uint64_t reserved_0_19         : 20;
+        uint64_t addr                  : 20; /**< [ 39: 20](R/W) Node-local physical address <39:20> marking the inclusive end of the corresponding ASC
+                                                                 region.
+                                                                 Note that the region includes this address.
+                                                                 Software must ensure that regions do not overlap.
+                                                                 To specify an empty region, clear both the [S_EN] and [NS_EN] fields of
+                                                                 the corresponding L2C_ASC_REGION()_ATTR register. */
+        uint64_t reserved_40_63        : 24;
+#endif /* Word 0 - End */
+    } s;
+    /* struct cavm_l2c_asc_regionx_end_s cn; */
+};
+typedef union cavm_l2c_asc_regionx_end cavm_l2c_asc_regionx_end_t;
+
+static inline uint64_t CAVM_L2C_ASC_REGIONX_END(unsigned long a) __attribute__ ((pure, always_inline));
+static inline uint64_t CAVM_L2C_ASC_REGIONX_END(unsigned long a)
+{
+    if (a<=3)
+        return 0x87e080801008ll + 0x40ll * ((a) & 0x3);
+    __cavm_csr_fatal("L2C_ASC_REGIONX_END", 1, a, 0, 0, 0);
+   return 0;
+}
+
+#define typedef_CAVM_L2C_ASC_REGIONX_END(a) cavm_l2c_asc_regionx_end_t
+#define bustype_CAVM_L2C_ASC_REGIONX_END(a) CSR_TYPE_RSL
+#define basename_CAVM_L2C_ASC_REGIONX_END(a) "L2C_ASC_REGIONX_END"
+#define device_bar_CAVM_L2C_ASC_REGIONX_END(a) 0x0 /* PF_BAR0 */
+#define busnum_CAVM_L2C_ASC_REGIONX_END(a) (a)
+#define arguments_CAVM_L2C_ASC_REGIONX_END(a) (a),-1,-1,-1
+
+/**
+ * Register (RSL) l2c_asc_region#_start
+ *
+ * Level 2 Cache Address Space Control Region Start Address Registers
+ */
+union cavm_l2c_asc_regionx_start
+{
+    uint64_t u;
+    struct cavm_l2c_asc_regionx_start_s
+    {
+#if __BYTE_ORDER == __BIG_ENDIAN /* Word 0 - Big Endian */
+        uint64_t reserved_40_63        : 24;
+        uint64_t addr                  : 20; /**< [ 39: 20](R/W) Node-local physical address <39:20> marking the start of the corresponding ASC region.
+                                                                 Software must ensure that regions do not overlap. */
+        uint64_t reserved_0_19         : 20;
+#else /* Word 0 - Little Endian */
+        uint64_t reserved_0_19         : 20;
+        uint64_t addr                  : 20; /**< [ 39: 20](R/W) Node-local physical address <39:20> marking the start of the corresponding ASC region.
+                                                                 Software must ensure that regions do not overlap. */
+        uint64_t reserved_40_63        : 24;
+#endif /* Word 0 - End */
+    } s;
+    /* struct cavm_l2c_asc_regionx_start_s cn; */
+};
+typedef union cavm_l2c_asc_regionx_start cavm_l2c_asc_regionx_start_t;
+
+static inline uint64_t CAVM_L2C_ASC_REGIONX_START(unsigned long a) __attribute__ ((pure, always_inline));
+static inline uint64_t CAVM_L2C_ASC_REGIONX_START(unsigned long a)
+{
+    if (a<=3)
+        return 0x87e080801000ll + 0x40ll * ((a) & 0x3);
+    __cavm_csr_fatal("L2C_ASC_REGIONX_START", 1, a, 0, 0, 0);
+   return 0;
+}
+
+#define typedef_CAVM_L2C_ASC_REGIONX_START(a) cavm_l2c_asc_regionx_start_t
+#define bustype_CAVM_L2C_ASC_REGIONX_START(a) CSR_TYPE_RSL
+#define basename_CAVM_L2C_ASC_REGIONX_START(a) "L2C_ASC_REGIONX_START"
+#define device_bar_CAVM_L2C_ASC_REGIONX_START(a) 0x0 /* PF_BAR0 */
+#define busnum_CAVM_L2C_ASC_REGIONX_START(a) (a)
+#define arguments_CAVM_L2C_ASC_REGIONX_START(a) (a),-1,-1,-1
+
+/**
  * Register (RSL) l2c_oci_ctl
  *
  * L2C CCPI Control Register
