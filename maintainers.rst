@@ -7,190 +7,168 @@ parts of the codebase is delegated to the sub-maintainers listed below. An
 acknowledgement from these sub-maintainers may be required before the
 maintainers merge a contribution.
 
-Maintainers
------------
+Main maintainers
+----------------
+:M: Dan Handley <dan.handley@arm.com>
+:G: `danh-arm`_
+:M: Dimitris Papastamos <dimitrs.papastamos@arm.com>
+:G: `dp-arm`_
+:M: Soby Mathew <soby.mathew@arm.com>
+:G: `soby-mathew`_
 
-Dan Handley (dan.handley@arm.com, `danh-arm`_)
+Allwinner ARMv8 platform port
+-----------------------------
+:M: Andre Przywara <andre.przywara@arm.com>
+:G: `Andre-ARM`_
+:F: docs/plat/allwinner.rst
+:F: plat/allwinner/
 
-David Cunado (david.cunado@arm.com, `davidcunado-arm`_)
+Armv7-A architecture port
+-------------------------
+:M: Etienne Carriere <etienne.carriere@linaro.org>
+:G: `etienne-lms`_
 
-OPTEE and QEMU platform sub-maintainer
---------------------------------------
+eMMC/UFS drivers
+----------------
+:M: Haojian Zhuang <haojian.zhuang@linaro.org>
+:G: `hzhuang1`_
+:F: drivers/emmc/
+:F: drivers/partition/
+:F: drivers/synopsys/emmc/
+:F: drivers/synopsys/ufs/
+:F: drivers/ufs/
+:F: include/drivers/dw_ufs.h
+:F: include/drivers/emmc.h
+:F: include/drivers/ufs.h
+:F: include/drivers/synopsys/dw_mmc.h
 
-Jens Wiklander (jens.wiklander@linaro.org, `jenswi-linaro`_)
+HiSilicon HiKey and HiKey960 platform ports
+-------------------------------------------
+:M: Haojian Zhuang <haojian.zhuang@linaro.org>
+:G: `hzhuang1`_
+:F: docs/plat/hikey.rst
+:F: docs/plat/hikey960.rst
+:F: plat/hisilicon/hikey/
+:F: plat/hisilicon/hikey960/
 
-Files:
-
--  docs/plat/qemu.rst
--  docs/spd/optee-dispatcher.rst
--  services/spd/opteed/\*
--  plat/qemu/\*
-
-TLK/Trusty SPDs and NVidia platforms sub-maintainer
----------------------------------------------------
-
-Varun Wadekar (vwadekar@nvidia.com, `vwadekar`_)
-
-Files:
-
--  docs/plat/nvidia-tegra.rst
--  docs/spd/tlk-dispatcher.rst
--  docs/spd/trusty-dispatcher.rst
--  include/bl32/payloads/tlk.h
--  include/lib/cpus/aarch64/denver.h
--  lib/cpus/aarch64/denver.S
--  services/spd/tlkd/\*
--  services/spd/trusty/\*
--  plat/nvidia/\*
-
-eMMC/UFS drivers and HiSilicon HiKey and HiKey960 platform sub-maintainer
--------------------------------------------------------------------------
-
-Haojian Zhuang (haojian.zhuang@linaro.org, `hzhuang1`_)
-
-Files:
-
--  docs/plat/hikey.rst
--  docs/plat/hikey960.rst
--  drivers/emmc/\*
--  drivers/partition/\*
--  drivers/synopsys/emmc/\*
--  drivers/synopsys/ufs/\*
--  drivers/ufs/\*
--  include/drivers/dw\_ufs.h
--  include/drivers/emmc.h
--  include/drivers/ufs.h
--  include/drivers/synopsys/dw\_mmc.h
--  plat/hisilicon/hikey/\*
--  plat/hisilicon/hikey960/\*
-
-Allwinner ARMv8 platform sub-maintainer
----------------------------------------
-
-Andre Przywara (andre.przywara@arm.com, `Andre-ARM`_)
-
-Files:
-
--  docs/plat/allwinner.rst
--  plat/allwinner/\*
-
-HiSilicon Poplar platform sub-maintainer
-----------------------------------------
-
-Shawn Guo (shawn.guo@linaro.org, `shawnguo2`_)
-
-Files:
-
--  docs/plat/poplar.rst
--  plat/hisilicon/poplar/\*
-
-MediaTek platform sub-maintainer
---------------------------------
-
-Yidi Lin (林以廸 yidi.lin@mediatek.com, `mtk09422`_)
-
-Files:
-
--  plat/mediatek/\*
-
-NXP QorIQ Layerscape platform sub-maintainer
---------------------------------------
-Jiafei Pan (jiafei.pan@nxp.com, `qoriq-open-source`_)
-
-Files:
-
--  docs/plat/ls1043a.rst
--  plat/layerscape/\*
-
-NXP i.MX 8 platform sub-maintainer
---------------------------------------
-
-Anson Huang (Anson.Huang@nxp.com, `Anson-Huang`_)
-
-Files:
-
--  docs/plat/imx8.rst
--  plat/imx/\*
-
-Raspberry Pi 3 platform sub-maintainer
---------------------------------------
-
-Antonio Niño Díaz (antonio.ninodiaz@arm.com, `antonio-nino-diaz-arm`_)
-
-Files:
-
--  docs/plat/rpi3.rst
--  plat/rpi3/\*
-
-RockChip platform sub-maintainer
---------------------------------
-
-Tony Xie (tony.xie@rock-chips.com, `TonyXie06`_
-or `rockchip-linux`_)
-
-Files:
-
--  plat/rockchip/\*
-
-Synquacer platform sub-maintainer
----------------------------------
-
-Sumit Garg (sumit.garg@linaro.org, `b49020`_)
-
-Files:
-
-- docs/plat/synquacer.rst
-- plat/socionext/synquacer/\*
-
-Texas Instruments platform sub-maintainer
------------------------------------------
-
-Andrew F. Davis (afd@ti.com, `glneo`_)
-
-Files:
-
-- docs/plat/ti-k3.rst
-- plat/ti/\*
-
-UniPhier platform sub-maintainer
---------------------------------
-
-Masahiro Yamada (yamada.masahiro@socionext.com, `masahir0y`_)
-
-Files:
-
-- docs/plat/socionext-uniphier.rst
-- plat/socionext/uniphier/\*
-
-Xilinx platform sub-maintainer
+HiSilicon Poplar platform port
 ------------------------------
+:M: Shawn Guo <shawn.guo@linaro.org>
+:G: `shawnguo2`_
+:F: docs/plat/poplar.rst
+:F: plat/hisilicon/poplar/
 
-Siva Durga Prasad Paladugu (siva.durga.paladugu@xilinx.com, `sivadur`_)
+MediaTek platform ports
+-----------------------
+:M: Yidi Lin (林以廸) <yidi.lin@mediatek.com>
+:G: `mtk09422`_
+:F: plat/mediatek/
 
-Files:
+NVidia platform ports
+---------------------
+:M: Varun Wadekar <vwadekar@nvidia.com>
+:G: `vwadekar`_
+:F: docs/plat/nvidia-tegra.rst
+:F: include/lib/cpus/aarch64/denver.h
+:F: lib/cpus/aarch64/denver.S
+:F: plat/nvidia/
 
--  docs/plat/xilinx-zynqmp.rst
--  plat/xilinx/\*
-
-Armv7-A architecture sub-maintainer
+NXP QorIQ Layerscape platform ports
 -----------------------------------
+:M: Jiafei Pan <jiafei.pan@nxp.com>
+:G: `qoriq-open-source`_
+:F: docs/plat/ls1043a.rst
+:F: plat/layerscape/
 
-Etienne Carriere (etienne.carriere@linaro.org, `etienne-lms`_)
+NXP i.MX 8 platform port
+------------------------
+:M: Anson Huang <Anson.Huang@nxp.com>
+:G: `Anson-Huang`_
+:F: docs/plat/imx8.rst
+:F: plat/imx/
 
+OP-TEE dispatcher
+-----------------
+:M: Jens Wiklander <jens.wiklander@linaro.org>
+:G: `jenswi-linaro`_
+:F: docs/spd/optee-dispatcher.rst
+:F: services/spd/opteed/
+
+QEMU platform port
+------------------
+:M: Jens Wiklander <jens.wiklander@linaro.org>
+:G: `jenswi-linaro`_
+:F: docs/plat/qemu.rst
+:F: plat/qemu/
+
+Raspberry Pi 3 platform port
+----------------------------
+:M: Antonio Niño Díaz <antonio.ninodiaz@arm.com>
+:G: `antonio-nino-diaz-arm`_
+:F: docs/plat/rpi3.rst
+:F: plat/rpi3/
+
+RockChip platform port
+----------------------
+:M: Tony Xie <tony.xie@rock-chips.com>
+:G: `TonyXie06`_
+:G: `rockchip-linux`_
+:F: plat/rockchip/
+
+Synquacer platform port
+-----------------------
+:M: Sumit Garg <sumit.garg@linaro.org>
+:G: `b49020`_
+:F: docs/plat/synquacer.rst
+:F: plat/socionext/synquacer/
+
+Texas Instruments platform port
+-------------------------------
+:M: Andrew F. Davis <afd@ti.com>
+:G: `glneo`_
+:F: docs/plat/ti-k3.rst
+:F: plat/ti/
+
+TLK/Trusty secure payloads
+--------------------------
+:M: Varun Wadekar <vwadekar@nvidia.com>
+:G: `vwadekar`_
+:F: docs/spd/tlk-dispatcher.rst
+:F: docs/spd/trusty-dispatcher.rst
+:F: include/bl32/payloads/tlk.h
+:F: services/spd/tlkd/
+:F: services/spd/trusty/
+
+UniPhier platform port
+----------------------
+:M: Masahiro Yamada <yamada.masahiro@socionext.com>
+:G: `masahir0y`_
+:F: docs/plat/socionext-uniphier.rst
+:F: plat/socionext/uniphier/
+
+Xilinx platform port
+--------------------
+:M: Siva Durga Prasad Paladugu <siva.durga.paladugu@xilinx.com>
+:G: `sivadur`_
+:F: docs/plat/xilinx-zynqmp.rst
+:F: plat/xilinx/
+
+.. _Andre-ARM: https://github.com/Andre-ARM
+.. _Anson-Huang: https://github.com/Anson-Huang
 .. _antonio-nino-diaz-arm: https://github.com/antonio-nino-diaz-arm
+.. _b49020: https://github.com/b49020
 .. _danh-arm: https://github.com/danh-arm
-.. _davidcunado-arm: https://github.com/davidcunado-arm
-.. _jenswi-linaro: https://github.com/jenswi-linaro
-.. _vwadekar: https://github.com/vwadekar
+.. _dp-arm: https://github.com/dp-arm
+.. _etienne-lms: https://github.com/etienne-lms
+.. _glneo: https://github.com/glneo
 .. _hzhuang1: https://github.com/hzhuang1
-.. _shawnguo2: https://github.com/shawnguo2
+.. _jenswi-linaro: https://github.com/jenswi-linaro
 .. _masahir0y: https://github.com/masahir0y
 .. _mtk09422: https://github.com/mtk09422
-.. _TonyXie06: https://github.com/TonyXie06
-.. _glneo: https://github.com/glneo
-.. _sivadur: https://github.com/sivadur
-.. _rockchip-linux: https://github.com/rockchip-linux
-.. _etienne-lms: https://github.com/etienne-lms
 .. _qoriq-open-source: https://github.com/qoriq-open-source
-.. _Andre-ARM: https://github.com/Andre-ARM
-.. _b49020: https://github.com/b49020
+.. _rockchip-linux: https://github.com/rockchip-linux
+.. _shawnguo2: https://github.com/shawnguo2
+.. _sivadur: https://github.com/sivadur
+.. _soby-mathew: https://github.com/soby-mathew
+.. _TonyXie06: https://github.com/TonyXie06
+.. _vwadekar: https://github.com/vwadekar
