@@ -10,8 +10,11 @@
 #include <console.h>
 #include <debug.h>
 #include <desc_image_load.h>
+#include <emmc.h>
+#include <mxc_usdhc.h>
 #include <optee_utils.h>
 #include <platform_def.h>
+#include <utils.h>
 #include <xlat_mmu_helpers.h>
 #include <xlat_tables_defs.h>
 #include <aips.h>
@@ -149,6 +152,17 @@ static void warp7_setup_pinmux(void)
 				 WARP7_UART1_RX_FEATURES);
 }
 
+static void warp7_usdhc_setup(void)
+{
+	mxc_usdhc_params_t params;
+
+	zeromem(&params, sizeof(mxc_usdhc_params_t));
+	params.reg_base = PLAT_WARP7_BOOT_EMMC_BASE;
+	params.clk_rate = 25000000;
+	params.bus_width = EMMC_BUS_WIDTH_8;
+	mxc_usdhc_init(&params);
+}
+
 /*
  * bl2_early_platform_setup()
  * MMU off
@@ -174,6 +188,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	/* Init UART, storage and friends */
 	console_init(PLAT_WARP7_BOOT_UART_BASE, PLAT_WARP7_BOOT_UART_CLK_IN_HZ,
 		     PLAT_WARP7_CONSOLE_BAUDRATE);
+	warp7_usdhc_setup();
 
 	/* Open handles to persistent storage */
 	plat_warp7_io_setup();
