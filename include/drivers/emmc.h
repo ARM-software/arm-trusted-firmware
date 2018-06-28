@@ -41,12 +41,19 @@
 #define OCR_VDD_MIN_2V0			(0x7f << 8)
 #define OCR_VDD_MIN_1V7			(1 << 7)
 
-#define EMMC_RESPONSE_R1		1
-#define EMMC_RESPONSE_R1B		1
-#define EMMC_RESPONSE_R2		4
-#define EMMC_RESPONSE_R3		1
-#define EMMC_RESPONSE_R4		1
-#define EMMC_RESPONSE_R5		1
+#define MMC_RSP_48	(1 << 0)
+#define MMC_RSP_136	(1 << 1)		/* 136 bit response */
+#define MMC_RSP_CRC	(1 << 2)		/* expect valid crc */
+#define MMC_RSP_CMD_IDX	(1 << 3)		/* response contains cmd idx */
+#define MMC_RSP_BUSY	(1 << 4)		/* device may be busy */
+
+/* JEDEC 4.51 chapter 6.12 */
+#define EMMC_RESPONSE_R1	(MMC_RSP_48 | MMC_RSP_CMD_IDX | MMC_RSP_CRC)
+#define EMMC_RESPONSE_R1B	(EMMC_RESPONSE_R1 | MMC_RSP_BUSY)
+#define EMMC_RESPONSE_R2	(MMC_RSP_136 | MMC_RSP_CRC)
+#define EMMC_RESPONSE_R3	(MMC_RSP_48)
+#define EMMC_RESPONSE_R4	(MMC_RSP_48)
+#define EMMC_RESPONSE_R5	(MMC_RSP_48 | MMC_RSP_CRC)
 
 #define EMMC_FIX_RCA			6	/* > 1 */
 #define RCA_SHIFT_OFFSET		16
