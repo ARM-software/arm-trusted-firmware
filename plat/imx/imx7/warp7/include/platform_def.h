@@ -166,6 +166,7 @@
 #define MAX_XLAT_TABLES			6
 #define MAX_IO_DEVICES			2
 #define MAX_IO_HANDLES			3
+#define MAX_IO_BLOCK_DEVICES		1
 
 /* UART defines */
 #define PLAT_WARP7_BOOT_UART_BASE	0x30860000
