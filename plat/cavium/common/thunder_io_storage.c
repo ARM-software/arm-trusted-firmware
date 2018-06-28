@@ -12,6 +12,8 @@
 #include <firmware_image_package.h>
 #include <io_driver.h>
 #include <io_fip.h>
+#include <io_spi.h>
+#include <io_mmc.h>
 #include <io_memmap.h>
 #include <io_storage.h>
 #include <platform_def.h>
@@ -25,6 +27,10 @@
 /* IO devices */
 static const io_dev_connector_t *fip_dev_con;
 static uintptr_t fip_dev_handle;
+static const io_dev_connector_t *spi_dev_con;
+static uintptr_t spi_dev_handle;
+static const io_dev_connector_t *emmc_dev_con;
+static uintptr_t emmc_dev_handle;
 static const io_dev_connector_t *memmap_dev_con;
 static uintptr_t memmap_dev_handle;
 
@@ -204,6 +210,40 @@ static int open_fip(const uintptr_t spec)
 }
 
 
+static int open_spi(const uintptr_t spec)
+{
+	int result;
+	uintptr_t local_image_handle;
+
+	result = io_dev_init(spi_dev_handle, (uintptr_t)NULL);
+	if (result == 0) {
+		result = io_open(spi_dev_handle, spec, &local_image_handle);
+		if (result == 0) {
+			VERBOSE("Using SPI\n");
+			io_close(local_image_handle);
+		}
+	}
+	return result;
+}
+
+
+static int open_emmc(const uintptr_t spec)
+{
+	int result;
+	uintptr_t local_image_handle;
+
+	result = io_dev_init(emmc_dev_handle, (uintptr_t)NULL);
+	if (result == 0) {
+		result = io_open(emmc_dev_handle, spec, &local_image_handle);
+		if (result == 0) {
+			VERBOSE("Using (e)MMC\n");
+			io_close(local_image_handle);
+		}
+	}
+	return result;
+}
+
+
 static int open_memmap(const uintptr_t spec)
 {
 	int result;
@@ -227,12 +267,26 @@ void thunder_io_setup(void)
 	io_result = register_io_dev_fip(&fip_dev_con);
 	assert(io_result == 0);
 
+	io_result = register_io_dev_spi(&spi_dev_con);
+	assert(io_result == 0);
+
+	io_result = register_io_dev_emmc(&emmc_dev_con);
+	assert(io_result == 0);
+
 	io_result = register_io_dev_memmap(&memmap_dev_con);
 	assert(io_result == 0);
 
 	/* Open connections to devices and cache the handles */
 	io_result = io_dev_open(fip_dev_con, (uintptr_t)NULL,
 				&fip_dev_handle);
+	assert(io_result == 0);
+
+	io_result = io_dev_open(spi_dev_con, (uintptr_t)NULL,
+				&spi_dev_handle);
+	assert(io_result == 0);
+
+	io_result = io_dev_open(emmc_dev_con, (uintptr_t)NULL,
+				&emmc_dev_handle);
 	assert(io_result == 0);
 
 	io_result = io_dev_open(memmap_dev_con, (uintptr_t)NULL,
@@ -314,6 +368,16 @@ int plat_get_fip_source(uintptr_t *dev_handle, uintptr_t *image_spec)
 		spec = (uintptr_t)&fip_block_spec;
 		check = open_memmap;
 		medium = "memmap";
+	} else if (boot_medium == 0x5) { /* SPI */
+		handle = spi_dev_handle;
+		spec = (uintptr_t)&fip_block_spec;
+		check = open_spi;
+		medium = "SPI";
+	} else if (boot_medium == 0x02 || boot_medium == 0x03) { /* (e)MMC */
+		handle = emmc_dev_handle;
+		spec = (uintptr_t)&fip_block_spec;
+		check = open_emmc;
+		medium = "MMC";
 	} else {
 		ERROR("Boot medium %d not supported!\n", boot_medium);
 		while(1);

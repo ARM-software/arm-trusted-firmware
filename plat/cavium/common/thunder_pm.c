@@ -209,6 +209,7 @@ void thunder_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
  ******************************************************************************/
 static void __dead2 thunder_system_off(void)
 {
+	thunder_signal_shutdown();
 	ERROR("Thunder System Off: operation not handled.\n");
 	panic();
 }
