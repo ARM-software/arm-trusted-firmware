@@ -991,5 +991,6 @@ void imx_clock_init(void);
 
 void imx_clock_enable_uart(unsigned int uart_id, uint32_t uart_clk_en_bits);
 void imx_clock_disable_uart(unsigned int uart_id);
+void imx_clock_enable_usdhc(unsigned int usdhc_id, uint32_t usdhc_clk_en_bits);
 
 #endif /* __IMX_CLOCK_H__ */
