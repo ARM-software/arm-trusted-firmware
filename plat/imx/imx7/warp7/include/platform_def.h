@@ -98,6 +98,9 @@
 #define WARP7_FIP_BASE			(DRAM_BASE)
 #define WARP7_FIP_LIMIT			(WARP7_FIP_BASE + WARP7_FIP_SIZE)
 
+/* Define FIP image location at 1MB offset */
+#define WARP7_FIP_EMMC_BASE		(1024 * 1024)
+
 /* Define the absolute location of DTB 0x83000000 - 0x83100000 */
 #define WARP7_DTB_SIZE			0x00100000
 #define WARP7_DTB_BASE			(DRAM_BASE + 0x03000000)
