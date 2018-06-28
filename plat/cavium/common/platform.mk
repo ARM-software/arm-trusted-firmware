@@ -32,6 +32,7 @@ BL31_SOURCES		+=	drivers/arm/gic/common/gic_common.c		\
 				drivers/arm/gic/v3/gicv3_helpers.c		\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/cavium/thunder_spi.c			\
+				drivers/timers/timers.c				\
 				lib/cpus/aarch64/thunder.S			\
 				plat/cavium/common/aarch64/thunder_helpers.S	\
 				plat/cavium/common/bl31_thunder_setup.c		\
