@@ -23,6 +23,7 @@ PLAT_INCLUDES		:=	-Idrivers/nxp/uart			\
 				-Iplat/imx/common/			\
 				-Iplat/imx/imx7/warp7/include		\
 				-Idrivers/nxp/timer			\
+				-Idrivers/nxp/usdhc			\
 				-Iplat/imx/imx7/include
 
 # Translation tables library
@@ -31,12 +32,15 @@ include lib/xlat_tables_v2/xlat_tables.mk
 BL2_SOURCES		+=	common/desc_image_load.c			\
 				drivers/console/aarch32/console.S		\
 				drivers/delay_timer/delay_timer.c		\
+				drivers/emmc/emmc.c				\
+				drivers/io/io_block.c				\
 				drivers/io/io_fip.c				\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_storage.c				\
 				drivers/nxp/timer/mxc_gpt.c			\
 				drivers/nxp/uart/mxc_console.c                  \
 				drivers/nxp/uart/mxc_crash_console.S		\
+				drivers/nxp/usdhc/mxc_usdhc.c			\
 				lib/aarch32/arm32_aeabi_divmod.c		\
 				lib/aarch32/arm32_aeabi_divmod_a32.S		\
 				lib/cpus/aarch32/cortex_a7.S			\
