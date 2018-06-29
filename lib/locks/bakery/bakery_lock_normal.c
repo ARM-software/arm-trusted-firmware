@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -77,6 +78,8 @@ static inline void read_cache_op(uintptr_t addr, bool cached)
 {
 	if (cached)
 		dccivac(addr);
+
+	dmbish();
 }
 
 /* Helper function to check if the lock is acquired */
