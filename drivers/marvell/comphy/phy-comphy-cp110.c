@@ -15,77 +15,14 @@
 #include <spinlock.h>
 #include "mvebu.h"
 #include "comphy-cp110.h"
+#include "phy-comphy-cp110.h"
+#include "phy-comphy-common.h"
 
-/* #define DEBUG_COMPHY */
-#ifdef DEBUG_COMPHY
-#define debug(format...) printf(format)
+#if __has_include("phy-porting-layer.h")
+#include "phy-porting-layer.h"
 #else
-#define debug(format, arg...)
+#include "phy-default-porting-layer.h"
 #endif
-
-/* A lane is described by 4 fields:
- *      - bit 1~0 represent comphy polarity invert
- *      - bit 7~2 represent comphy speed
- *      - bit 11~8 represent unit index
- *      - bit 16~12 represent mode
- *      - bit 17 represent comphy indication of clock source
- *      - bit 19-18 represents pcie width (in case of pcie comphy config.)
- *      - bit 31~20 reserved
- */
-
-#define COMPHY_INVERT_OFFSET	0
-#define COMPHY_INVERT_LEN	2
-#define COMPHY_INVERT_MASK	COMPHY_MASK(COMPHY_INVERT_OFFSET, \
-						COMPHY_INVERT_LEN)
-#define COMPHY_SPEED_OFFSET	(COMPHY_INVERT_OFFSET + COMPHY_INVERT_LEN)
-#define COMPHY_SPEED_LEN	6
-#define COMPHY_SPEED_MASK	COMPHY_MASK(COMPHY_SPEED_OFFSET, \
-						COMPHY_SPEED_LEN)
-#define COMPHY_UNIT_ID_OFFSET	(COMPHY_SPEED_OFFSET + COMPHY_SPEED_LEN)
-#define COMPHY_UNIT_ID_LEN	4
-#define COMPHY_UNIT_ID_MASK	COMPHY_MASK(COMPHY_UNIT_ID_OFFSET, \
-						COMPHY_UNIT_ID_LEN)
-#define COMPHY_MODE_OFFSET	(COMPHY_UNIT_ID_OFFSET + COMPHY_UNIT_ID_LEN)
-#define COMPHY_MODE_LEN		5
-#define COMPHY_MODE_MASK	COMPHY_MASK(COMPHY_MODE_OFFSET, COMPHY_MODE_LEN)
-#define COMPHY_CLK_SRC_OFFSET	(COMPHY_MODE_OFFSET + COMPHY_MODE_LEN)
-#define COMPHY_CLK_SRC_LEN	1
-#define COMPHY_CLK_SRC_MASK	COMPHY_MASK(COMPHY_CLK_SRC_OFFSET, \
-						COMPHY_CLK_SRC_LEN)
-#define COMPHY_PCI_WIDTH_OFFSET	(COMPHY_CLK_SRC_OFFSET + COMPHY_CLK_SRC_LEN)
-#define COMPHY_PCI_WIDTH_LEN	3
-#define COMPHY_PCI_WIDTH_MASK	COMPHY_MASK(COMPHY_PCI_WIDTH_OFFSET, \
-						COMPHY_PCI_WIDTH_LEN)
-
-#define COMPHY_MASK(offset, len)	(((1 << (len)) - 1) << (offset))
-
-/* Macro which extracts mode from lane description */
-#define COMPHY_GET_MODE(x)		(((x) & COMPHY_MODE_MASK) >> \
-						COMPHY_MODE_OFFSET)
-/* Macro which extracts unit index from lane description */
-#define COMPHY_GET_ID(x)		(((x) & COMPHY_UNIT_ID_MASK) >> \
-						COMPHY_UNIT_ID_OFFSET)
-/* Macro which extracts speed from lane description */
-#define COMPHY_GET_SPEED(x)		(((x) & COMPHY_SPEED_MASK) >> \
-						COMPHY_SPEED_OFFSET)
-/* Macro which extracts clock source indication from lane description */
-#define COMPHY_GET_CLK_SRC(x)		(((x) & COMPHY_CLK_SRC_MASK) >> \
-						COMPHY_CLK_SRC_OFFSET)
-/* Macro which extracts pcie width indication from lane description */
-#define COMPHY_GET_PCIE_WIDTH(x)	(((x) & COMPHY_PCI_WIDTH_MASK) >> \
-						COMPHY_PCI_WIDTH_OFFSET)
-
-#define COMPHY_SATA_MODE	0x1
-#define COMPHY_SGMII_MODE	0x2	/* SGMII 1G */
-#define COMPHY_HS_SGMII_MODE	0x3	/* SGMII 2.5G */
-#define COMPHY_USB3H_MODE	0x4
-#define COMPHY_USB3D_MODE	0x5
-#define COMPHY_PCIE_MODE	0x6
-#define COMPHY_RXAUI_MODE	0x7
-#define COMPHY_XFI_MODE		0x8
-#define COMPHY_SFI_MODE		0x9
-#define COMPHY_USB3_MODE	0xa
-#define COMPHY_AP_MODE		0xb
 
 /* COMPHY speed macro */
 #define COMPHY_SPEED_1_25G		0 /* SGMII 1G */
@@ -129,21 +66,6 @@
  */
 spinlock_t cp110_mac_reset_lock;
 
-enum reg_width_type {
-	REG_16BIT = 0,
-	REG_32BIT,
-};
-
-enum {
-	COMPHY_LANE0 = 0,
-	COMPHY_LANE1,
-	COMPHY_LANE2,
-	COMPHY_LANE3,
-	COMPHY_LANE4,
-	COMPHY_LANE5,
-	COMPHY_LANE_MAX,
-};
-
 /* These values come from the PCI Express Spec */
 enum pcie_link_width {
 	PCIE_LNK_WIDTH_RESRV	= 0x00,
@@ -157,36 +79,24 @@ enum pcie_link_width {
 	PCIE_LNK_WIDTH_UNKNOWN  = 0xFF,
 };
 
-static inline uint32_t polling_with_timeout(uintptr_t addr,
-					    uint32_t val,
-					    uint32_t mask,
-					    uint32_t usec_timeout,
-					    enum reg_width_type type)
+_Bool rx_trainng_done[AP_NUM][CP_NUM][MAX_LANE_NR] = {0};
+
+static void mvebu_cp110_get_ap_and_cp_nr(uint8_t *ap_nr, uint8_t *cp_nr,
+					 uint64_t comphy_base)
 {
-	uint32_t data;
+#if (AP_NUM == 1)
+	*ap_nr = 0;
+#else
+	*ap_nr = (((comphy_base & ~0xffffff) - MVEBU_AP_IO_BASE(0)) /
+			 AP_IO_OFFSET);
+#endif
 
-	do {
-		udelay(1);
-		if (type == REG_16BIT)
-			data = mmio_read_16(addr) & mask;
-		else
-			data = mmio_read_32(addr) & mask;
-	} while (data != val  && --usec_timeout > 0);
+	*cp_nr = (((comphy_base & ~0xffffff) - MVEBU_AP_IO_BASE(*ap_nr)) /
+		 MVEBU_CP_OFFSET);
 
-	if (usec_timeout == 0)
-		return data;
-
-	return 0;
-}
-
-static inline void reg_set(uintptr_t addr, uint32_t data, uint32_t mask)
-{
-	debug("<atf>: WR to addr = %#010lx, data = %#010x (mask = %#010x) - ",
-	      addr, data, mask);
-	debug("old value = %#010x ==> ", mmio_read_32(addr));
-	mmio_clrsetbits_32(addr, mask, data);
-
-	debug("new val %#010x\n", mmio_read_32(addr));
+	debug("cp_base 0x%llx, ap_io_base 0x%lx, cp_offset 0x%lx\n",
+	       comphy_base, (unsigned long)MVEBU_AP_IO_BASE(*ap_nr),
+	       (unsigned long)MVEBU_CP_OFFSET);
 }
 
 /* Clear PIPE selector - avoid collision with previous configuration */
@@ -413,9 +323,16 @@ static int mvebu_cp110_comphy_sata_power_on(uint64_t comphy_base,
 {
 	uintptr_t hpipe_addr, sd_ip_addr, comphy_addr;
 	uint32_t mask, data;
+	uint8_t ap_nr, cp_nr;
 	int ret = 0;
 
 	debug_enter();
+
+	mvebu_cp110_get_ap_and_cp_nr(&ap_nr, &cp_nr, comphy_base);
+
+	const struct sata_params *sata_static_values =
+			&sata_static_values_tab[ap_nr][cp_nr][comphy_index];
+
 
 	/* configure phy selector for SATA */
 	mvebu_cp110_comphy_set_phy_selector(comphy_base,
@@ -480,13 +397,17 @@ static int mvebu_cp110_comphy_sata_power_on(uint64_t comphy_base,
 	debug("stage: Analog parameters from ETP(HW)\n");
 	/* G1 settings */
 	mask = HPIPE_G1_SET_1_G1_RX_SELMUPI_MASK;
-	data = 0x0 << HPIPE_G1_SET_1_G1_RX_SELMUPI_OFFSET;
+	data = sata_static_values->g1_rx_selmupi <<
+			HPIPE_G1_SET_1_G1_RX_SELMUPI_OFFSET;
 	mask |= HPIPE_G1_SET_1_G1_RX_SELMUPF_MASK;
-	data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPF_OFFSET;
+	data |= sata_static_values->g1_rx_selmupf <<
+			HPIPE_G1_SET_1_G1_RX_SELMUPF_OFFSET;
 	mask |= HPIPE_G1_SET_1_G1_RX_SELMUFI_MASK;
-	data |= 0x0 << HPIPE_G1_SET_1_G1_RX_SELMUFI_OFFSET;
+	data |= sata_static_values->g1_rx_selmufi <<
+			HPIPE_G1_SET_1_G1_RX_SELMUFI_OFFSET;
 	mask |= HPIPE_G1_SET_1_G1_RX_SELMUFF_MASK;
-	data |= 0x3 << HPIPE_G1_SET_1_G1_RX_SELMUFF_OFFSET;
+	data |= sata_static_values->g1_rx_selmuff <<
+			HPIPE_G1_SET_1_G1_RX_SELMUFF_OFFSET;
 	mask |= HPIPE_G1_SET_1_G1_RX_DIGCK_DIV_MASK;
 	data |= 0x1 << HPIPE_G1_SET_1_G1_RX_DIGCK_DIV_OFFSET;
 	reg_set(hpipe_addr + HPIPE_G1_SET_1_REG, data, mask);
@@ -505,26 +426,34 @@ static int mvebu_cp110_comphy_sata_power_on(uint64_t comphy_base,
 
 	/* G2 settings */
 	mask = HPIPE_G2_SET_1_G2_RX_SELMUPI_MASK;
-	data = 0x0 << HPIPE_G2_SET_1_G2_RX_SELMUPI_OFFSET;
+	data = sata_static_values->g2_rx_selmupi <<
+			HPIPE_G2_SET_1_G2_RX_SELMUPI_OFFSET;
 	mask |= HPIPE_G2_SET_1_G2_RX_SELMUPF_MASK;
-	data |= 0x1 << HPIPE_G2_SET_1_G2_RX_SELMUPF_OFFSET;
+	data |= sata_static_values->g2_rx_selmupf <<
+			HPIPE_G2_SET_1_G2_RX_SELMUPF_OFFSET;
 	mask |= HPIPE_G2_SET_1_G2_RX_SELMUFI_MASK;
-	data |= 0x0 << HPIPE_G2_SET_1_G2_RX_SELMUFI_OFFSET;
+	data |= sata_static_values->g2_rx_selmufi <<
+			HPIPE_G2_SET_1_G2_RX_SELMUFI_OFFSET;
 	mask |= HPIPE_G2_SET_1_G2_RX_SELMUFF_MASK;
-	data |= 0x3 << HPIPE_G2_SET_1_G2_RX_SELMUFF_OFFSET;
+	data |= sata_static_values->g2_rx_selmuff <<
+			HPIPE_G2_SET_1_G2_RX_SELMUFF_OFFSET;
 	mask |= HPIPE_G2_SET_1_G2_RX_DIGCK_DIV_MASK;
 	data |= 0x1 << HPIPE_G2_SET_1_G2_RX_DIGCK_DIV_OFFSET;
 	reg_set(hpipe_addr + HPIPE_G2_SET_1_REG, data, mask);
 
 	/* G3 settings */
 	mask = HPIPE_G3_SET_1_G3_RX_SELMUPI_MASK;
-	data = 0x2 << HPIPE_G3_SET_1_G3_RX_SELMUPI_OFFSET;
+	data = sata_static_values->g3_rx_selmupi <<
+			HPIPE_G3_SET_1_G3_RX_SELMUPI_OFFSET;
 	mask |= HPIPE_G3_SET_1_G3_RX_SELMUPF_MASK;
-	data |= 0x2 << HPIPE_G3_SET_1_G3_RX_SELMUPF_OFFSET;
+	data |= sata_static_values->g3_rx_selmupf <<
+			HPIPE_G3_SET_1_G3_RX_SELMUPF_OFFSET;
 	mask |= HPIPE_G3_SET_1_G3_RX_SELMUFI_MASK;
-	data |= 0x3 << HPIPE_G3_SET_1_G3_RX_SELMUFI_OFFSET;
+	data |= sata_static_values->g3_rx_selmufi <<
+			HPIPE_G3_SET_1_G3_RX_SELMUFI_OFFSET;
 	mask |= HPIPE_G3_SET_1_G3_RX_SELMUFF_MASK;
-	data |= 0x3 << HPIPE_G3_SET_1_G3_RX_SELMUFF_OFFSET;
+	data |= sata_static_values->g3_rx_selmuff <<
+			HPIPE_G3_SET_1_G3_RX_SELMUFF_OFFSET;
 	mask |= HPIPE_G3_SET_1_G3_RX_DFE_EN_MASK;
 	data |= 0x1 << HPIPE_G3_SET_1_G3_RX_DFE_EN_OFFSET;
 	mask |= HPIPE_G3_SET_1_G3_RX_DIGCK_DIV_MASK;
@@ -577,9 +506,11 @@ static int mvebu_cp110_comphy_sata_power_on(uint64_t comphy_base,
 
 	/* G3 Setting 3 */
 	mask = HPIPE_G3_FFE_CAP_SEL_MASK;
-	data = 0xf << HPIPE_G3_FFE_CAP_SEL_OFFSET;
+	data = sata_static_values->g3_ffe_cap_sel <<
+			HPIPE_G3_FFE_CAP_SEL_OFFSET;
 	mask |= HPIPE_G3_FFE_RES_SEL_MASK;
-	data |= 0x4 << HPIPE_G3_FFE_RES_SEL_OFFSET;
+	data |= sata_static_values->g3_ffe_res_sel <<
+			HPIPE_G3_FFE_RES_SEL_OFFSET;
 	mask |= HPIPE_G3_FFE_SETTING_FORCE_MASK;
 	data |= 0x1 << HPIPE_G3_FFE_SETTING_FORCE_OFFSET;
 	mask |= HPIPE_G3_FFE_DEG_RES_LEVEL_MASK;
@@ -590,12 +521,12 @@ static int mvebu_cp110_comphy_sata_power_on(uint64_t comphy_base,
 
 	/* G3 Setting 4 */
 	mask = HPIPE_G3_DFE_RES_MASK;
-	data = 0x1 << HPIPE_G3_DFE_RES_OFFSET;
+	data = sata_static_values->g3_dfe_res << HPIPE_G3_DFE_RES_OFFSET;
 	reg_set(hpipe_addr + HPIPE_G3_SETTING_4_REG, data, mask);
 
 	/* Offset Phase Control */
 	mask = HPIPE_OS_PH_OFFSET_MASK;
-	data = 0x61 << HPIPE_OS_PH_OFFSET_OFFSET;
+	data = sata_static_values->align90 << HPIPE_OS_PH_OFFSET_OFFSET;
 	mask |= HPIPE_OS_PH_OFFSET_FORCE_MASK;
 	data |= 0x1 << HPIPE_OS_PH_OFFSET_FORCE_OFFSET;
 	mask |= HPIPE_OS_PH_VALID_MASK;
@@ -610,40 +541,76 @@ static int mvebu_cp110_comphy_sata_power_on(uint64_t comphy_base,
 
 	/* Set G1 TX amplitude and TX post emphasis value */
 	mask = HPIPE_G1_SET_0_G1_TX_AMP_MASK;
-	data = 0x8 << HPIPE_G1_SET_0_G1_TX_AMP_OFFSET;
+	data = sata_static_values->g1_amp << HPIPE_G1_SET_0_G1_TX_AMP_OFFSET;
 	mask |= HPIPE_G1_SET_0_G1_TX_AMP_ADJ_MASK;
-	data |= 0x1 << HPIPE_G1_SET_0_G1_TX_AMP_ADJ_OFFSET;
+	data |= sata_static_values->g1_tx_amp_adj <<
+			HPIPE_G1_SET_0_G1_TX_AMP_ADJ_OFFSET;
 	mask |= HPIPE_G1_SET_0_G1_TX_EMPH1_MASK;
-	data |= 0x1 << HPIPE_G1_SET_0_G1_TX_EMPH1_OFFSET;
+	data |= sata_static_values->g1_emph <<
+			HPIPE_G1_SET_0_G1_TX_EMPH1_OFFSET;
 	mask |= HPIPE_G1_SET_0_G1_TX_EMPH1_EN_MASK;
-	data |= 0x1 << HPIPE_G1_SET_0_G1_TX_EMPH1_EN_OFFSET;
+	data |= sata_static_values->g1_emph_en <<
+			HPIPE_G1_SET_0_G1_TX_EMPH1_EN_OFFSET;
 	reg_set(hpipe_addr + HPIPE_G1_SET_0_REG, data, mask);
+
+	/* Set G1 emph */
+	mask = HPIPE_G1_SET_2_G1_TX_EMPH0_EN_MASK;
+	data = sata_static_values->g1_tx_emph_en <<
+			HPIPE_G1_SET_2_G1_TX_EMPH0_EN_OFFSET;
+	mask |= HPIPE_G1_SET_2_G1_TX_EMPH0_MASK;
+	data |= sata_static_values->g1_tx_emph <<
+			HPIPE_G1_SET_2_G1_TX_EMPH0_OFFSET;
+	reg_set(hpipe_addr + HPIPE_G1_SET_2_REG, data, mask);
 
 	/* Set G2 TX amplitude and TX post emphasis value */
 	mask = HPIPE_G2_SET_0_G2_TX_AMP_MASK;
-	data = 0xa << HPIPE_G2_SET_0_G2_TX_AMP_OFFSET;
+	data = sata_static_values->g2_amp << HPIPE_G2_SET_0_G2_TX_AMP_OFFSET;
 	mask |= HPIPE_G2_SET_0_G2_TX_AMP_ADJ_MASK;
-	data |= 0x1 << HPIPE_G2_SET_0_G2_TX_AMP_ADJ_OFFSET;
+	data |= sata_static_values->g2_tx_amp_adj <<
+			HPIPE_G2_SET_0_G2_TX_AMP_ADJ_OFFSET;
 	mask |= HPIPE_G2_SET_0_G2_TX_EMPH1_MASK;
-	data |= 0x2 << HPIPE_G2_SET_0_G2_TX_EMPH1_OFFSET;
+	data |= sata_static_values->g2_emph <<
+			HPIPE_G2_SET_0_G2_TX_EMPH1_OFFSET;
 	mask |= HPIPE_G2_SET_0_G2_TX_EMPH1_EN_MASK;
-	data |= 0x1 << HPIPE_G2_SET_0_G2_TX_EMPH1_EN_OFFSET;
+	data |= sata_static_values->g2_emph_en <<
+			HPIPE_G2_SET_0_G2_TX_EMPH1_EN_OFFSET;
 	reg_set(hpipe_addr + HPIPE_G2_SET_0_REG, data, mask);
+
+	/* Set G2 emph */
+	mask = HPIPE_G2_SET_2_G2_TX_EMPH0_EN_MASK;
+	data = sata_static_values->g2_tx_emph_en <<
+			HPIPE_G2_SET_2_G2_TX_EMPH0_EN_OFFSET;
+	mask |= HPIPE_G2_SET_2_G2_TX_EMPH0_MASK;
+	data |= sata_static_values->g2_tx_emph <<
+			HPIPE_G2_SET_2_G2_TX_EMPH0_OFFSET;
+	reg_set(hpipe_addr + HPIPE_G2_SET_2_REG, data, mask);
 
 	/* Set G3 TX amplitude and TX post emphasis value */
 	mask = HPIPE_G3_SET_0_G3_TX_AMP_MASK;
-	data = 0x1e << HPIPE_G3_SET_0_G3_TX_AMP_OFFSET;
+	data = sata_static_values->g3_amp << HPIPE_G3_SET_0_G3_TX_AMP_OFFSET;
 	mask |= HPIPE_G3_SET_0_G3_TX_AMP_ADJ_MASK;
-	data |= 0x1 << HPIPE_G3_SET_0_G3_TX_AMP_ADJ_OFFSET;
+	data |= sata_static_values->g3_tx_amp_adj <<
+			HPIPE_G3_SET_0_G3_TX_AMP_ADJ_OFFSET;
 	mask |= HPIPE_G3_SET_0_G3_TX_EMPH1_MASK;
-	data |= 0xe << HPIPE_G3_SET_0_G3_TX_EMPH1_OFFSET;
+	data |= sata_static_values->g3_emph <<
+			HPIPE_G3_SET_0_G3_TX_EMPH1_OFFSET;
 	mask |= HPIPE_G3_SET_0_G3_TX_EMPH1_EN_MASK;
-	data |= 0x1 << HPIPE_G3_SET_0_G3_TX_EMPH1_EN_OFFSET;
+	data |= sata_static_values->g3_emph_en <<
+			HPIPE_G3_SET_0_G3_TX_EMPH1_EN_OFFSET;
 	mask |= HPIPE_G3_SET_0_G3_TX_SLEW_RATE_SEL_MASK;
 	data |= 0x4 << HPIPE_G3_SET_0_G3_TX_SLEW_RATE_SEL_OFFSET;
 	mask |= HPIPE_G3_SET_0_G3_TX_SLEW_CTRL_EN_MASK;
 	data |= 0x0 << HPIPE_G3_SET_0_G3_TX_SLEW_CTRL_EN_OFFSET;
 	reg_set(hpipe_addr + HPIPE_G3_SET_0_REG, data, mask);
+
+	/* Set G3 emph */
+	mask = HPIPE_G3_SET_2_G3_TX_EMPH0_EN_MASK;
+	data = sata_static_values->g3_tx_emph_en <<
+			HPIPE_G3_SET_2_G3_TX_EMPH0_EN_OFFSET;
+	mask |= HPIPE_G3_SET_2_G3_TX_EMPH0_MASK;
+	data |= sata_static_values->g3_tx_emph <<
+			HPIPE_G3_SET_2_G3_TX_EMPH0_OFFSET;
+	reg_set(hpipe_addr + HPIPE_G3_SET_2_REG, data, mask);
 
 	/* SERDES External Configuration 2 register */
 	mask = SD_EXTERNAL_CONFIG2_SSC_ENABLE_MASK;
@@ -779,7 +746,7 @@ static int mvebu_cp110_comphy_sgmii_power_on(uint64_t comphy_base,
 	data = 0x0 << HPIPE_PWR_CTR_DTL_FLOOP_EN_OFFSET;
 	reg_set(hpipe_addr + HPIPE_PWR_CTR_DTL_REG, data, mask);
 
-	/* Set analog parameters from ETP(HW) - for now use the default datas */
+	/* Set analog parameters from ETP(HW) - for now use the default data */
 	debug("stage: Analog parameters from ETP(HW)\n");
 
 	reg_set(hpipe_addr + HPIPE_G1_SET_0_REG,
@@ -835,8 +802,36 @@ static int mvebu_cp110_comphy_xfi_power_on(uint64_t comphy_base,
 	uintptr_t hpipe_addr, sd_ip_addr, comphy_addr, addr;
 	uint32_t mask, data, speed = COMPHY_GET_SPEED(comphy_mode);
 	int ret = 0;
+	uint8_t ap_nr, cp_nr;
 
 	debug_enter();
+
+	mvebu_cp110_get_ap_and_cp_nr(&ap_nr, &cp_nr, comphy_base);
+
+	if (rx_trainng_done[ap_nr][cp_nr][comphy_index]) {
+		debug("Skip %s for comphy[%d][%d][%d], due to rx training\n",
+		       __func__, ap_nr, cp_nr, comphy_index);
+		return 0;
+	}
+
+	const struct xfi_params *xfi_static_values =
+			     &xfi_static_values_tab[ap_nr][cp_nr][comphy_index];
+
+	debug("%s: the ap_nr = %d, cp_nr = %d, comphy_index %d\n",
+	      __func__, ap_nr, cp_nr, comphy_index);
+
+	debug("g1_ffe_cap_sel= 0x%x, g1_ffe_res_sel= 0x%x, g1_dfe_res= 0x%x\n",
+	      xfi_static_values->g1_ffe_cap_sel,
+	      xfi_static_values->g1_ffe_res_sel,
+	      xfi_static_values->g1_dfe_res);
+
+	if (!xfi_static_values->valid) {
+		ERROR("[ap%d][cp[%d][comphy:%d]: Has no valid static params\n",
+		      ap_nr, cp_nr, comphy_index);
+		ERROR("[ap%d][cp[%d][comphy:%d]: porting layer needs update\n",
+		      ap_nr, cp_nr, comphy_index);
+		return -EINVAL;
+	}
 
 	if ((speed != COMPHY_SPEED_5_15625G) &&
 	     (speed != COMPHY_SPEED_10_3125G) &&
@@ -966,16 +961,27 @@ static int mvebu_cp110_comphy_xfi_power_on(uint64_t comphy_base,
 		data = 0x6 << HPIPE_G1_SET_0_G1_TX_EMPH1_OFFSET;
 	} else {
 		mask = HPIPE_G1_SET_0_G1_TX_AMP_MASK;
-		data = 0x1c << HPIPE_G1_SET_0_G1_TX_AMP_OFFSET;
+		data = xfi_static_values->g1_amp <<
+				HPIPE_G1_SET_0_G1_TX_AMP_OFFSET;
 		mask |= HPIPE_G1_SET_0_G1_TX_EMPH1_MASK;
-		data |= 0xe << HPIPE_G1_SET_0_G1_TX_EMPH1_OFFSET;
+		data |= xfi_static_values->g1_emph <<
+				HPIPE_G1_SET_0_G1_TX_EMPH1_OFFSET;
+
+		mask |= HPIPE_G1_SET_0_G1_TX_EMPH1_EN_MASK;
+		data |= xfi_static_values->g1_emph_en <<
+				HPIPE_G1_SET_0_G1_TX_EMPH1_EN_OFFSET;
+		mask |= HPIPE_G1_SET_0_G1_TX_AMP_ADJ_MASK;
+		data |= xfi_static_values->g1_tx_amp_adj <<
+				HPIPE_G1_SET_0_G1_TX_AMP_ADJ_OFFSET;
 	}
 	reg_set(hpipe_addr + HPIPE_G1_SET_0_REG, data, mask);
 	/* Genration 1 setting 2 (G1_Setting_2) */
 	mask = HPIPE_G1_SET_2_G1_TX_EMPH0_MASK;
-	data = 0x0 << HPIPE_G1_SET_2_G1_TX_EMPH0_OFFSET;
+	data = xfi_static_values->g1_tx_emph <<
+				HPIPE_G1_SET_2_G1_TX_EMPH0_OFFSET;
 	mask |= HPIPE_G1_SET_2_G1_TX_EMPH0_EN_MASK;
-	data |= 0x1 << HPIPE_G1_SET_2_G1_TX_EMPH0_EN_OFFSET;
+	data |= xfi_static_values->g1_tx_emph_en <<
+				HPIPE_G1_SET_2_G1_TX_EMPH0_EN_OFFSET;
 	reg_set(hpipe_addr + HPIPE_G1_SET_2_REG, data, mask);
 	/* Transmitter Slew Rate Control register (tx_reg1) */
 	mask = HPIPE_TX_REG1_TX_EMPH_RES_MASK;
@@ -1004,13 +1010,17 @@ static int mvebu_cp110_comphy_xfi_power_on(uint64_t comphy_base,
 		data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPF_OFFSET;
 	} else {
 		mask |= HPIPE_G1_SET_1_G1_RX_SELMUPI_MASK;
-		data |= 0x2 << HPIPE_G1_SET_1_G1_RX_SELMUPI_OFFSET;
+		data |= xfi_static_values->g1_rx_selmupi <<
+				HPIPE_G1_SET_1_G1_RX_SELMUPI_OFFSET;
 		mask |= HPIPE_G1_SET_1_G1_RX_SELMUPF_MASK;
-		data |= 0x2 << HPIPE_G1_SET_1_G1_RX_SELMUPF_OFFSET;
+		data |= xfi_static_values->g1_rx_selmupf <<
+				HPIPE_G1_SET_1_G1_RX_SELMUPF_OFFSET;
 		mask |= HPIPE_G1_SET_1_G1_RX_SELMUFI_MASK;
-		data |= 0x0 << HPIPE_G1_SET_1_G1_RX_SELMUFI_OFFSET;
+		data |= xfi_static_values->g1_rx_selmufi <<
+				HPIPE_G1_SET_1_G1_RX_SELMUFI_OFFSET;
 		mask |= HPIPE_G1_SET_1_G1_RX_SELMUFF_MASK;
-		data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUFF_OFFSET;
+		data |= xfi_static_values->g1_rx_selmuff <<
+				HPIPE_G1_SET_1_G1_RX_SELMUFF_OFFSET;
 		mask |= HPIPE_G1_SET_1_G1_RX_DIGCK_DIV_MASK;
 		data |= 0x3 << HPIPE_G1_SET_1_G1_RX_DIGCK_DIV_OFFSET;
 	}
@@ -1038,8 +1048,43 @@ static int mvebu_cp110_comphy_xfi_power_on(uint64_t comphy_base,
 		data |= 0x4 << HPIPE_G1_SETTINGS_3_G1_FFE_RES_SEL_OFFSET;
 		mask |= HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_MASK;
 		data |= 0x1 << HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_OFFSET;
+		reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
+	} else {
+		mask |= HPIPE_G1_SETTINGS_3_G1_FFE_CAP_SEL_MASK;
+		data |= xfi_static_values->g1_ffe_cap_sel <<
+			HPIPE_G1_SETTINGS_3_G1_FFE_CAP_SEL_OFFSET;
+		mask |= HPIPE_G1_SETTINGS_3_G1_FFE_RES_SEL_MASK;
+		data |= xfi_static_values->g1_ffe_res_sel <<
+			HPIPE_G1_SETTINGS_3_G1_FFE_RES_SEL_OFFSET;
+		mask |= HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_MASK;
+		data |= 0x1 << HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_OFFSET;
+		reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
+
+		/* Use the value from CAL_OS_PH_EXT */
+		mask = HPIPE_CAL_RXCLKALIGN_90_EXT_EN_MASK;
+		data = 1 << HPIPE_CAL_RXCLKALIGN_90_EXT_EN_OFFSET;
+		reg_set(hpipe_addr +
+			HPIPE_RX_CLK_ALIGN90_AND_TX_IDLE_CALIB_CTRL_REG,
+			data, mask);
+
+		/* Update align90 */
+		mask = HPIPE_CAL_OS_PH_EXT_MASK;
+		data = xfi_static_values->align90 << HPIPE_CAL_OS_PH_EXT_OFFSET;
+		reg_set(hpipe_addr +
+			HPIPE_RX_CLK_ALIGN90_AND_TX_IDLE_CALIB_CTRL_REG,
+			data, mask);
+
+		/* Force DFE resolution (use gen table value) */
+		mask = HPIPE_DFE_RES_FORCE_MASK;
+		data = 0x0 << HPIPE_DFE_RES_FORCE_OFFSET;
+		reg_set(hpipe_addr + HPIPE_DFE_REG0, data, mask);
+
+		/* 0x111-G1 DFE_Setting_4 */
+		mask = HPIPE_G1_SETTINGS_4_G1_DFE_RES_MASK;
+		data = xfi_static_values->g1_dfe_res <<
+			HPIPE_G1_SETTINGS_4_G1_DFE_RES_OFFSET;
+		reg_set(hpipe_addr + HPIPE_G1_SETTINGS_4_REG, data, mask);
 	}
-	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
 
 	/* Connfigure RX training timer */
 	mask = HPIPE_RX_TRAIN_TIMER_MASK;
@@ -1949,24 +1994,63 @@ static int mvebu_cp110_comphy_usb3_power_on(uint64_t comphy_base,
 	return ret;
 }
 
-/* This function performs RX training for one Feed Forward Equalization (FFE)
- * value.
- * The RX traiing result is stored in 'Saved DFE values Register' (SAV_F0D).
- *
- * Return '0' on success, error code in  a case of failure.
- */
-static int mvebu_cp110_comphy_test_single_ffe(uint64_t comphy_base,
-					      uint8_t comphy_index,
-					      uint32_t ffe, uint32_t *result)
+int mvebu_cp110_comphy_xfi_rx_training(uint64_t comphy_base,
+					      uint8_t comphy_index)
 {
 	uint32_t mask, data, timeout;
+	uint32_t g1_ffe_cap_sel, g1_ffe_res_sel, align90, g1_dfe_res;
 	uintptr_t hpipe_addr, sd_ip_addr;
+
+	uint8_t ap_nr, cp_nr;
+
+	mvebu_cp110_get_ap_and_cp_nr(&ap_nr, &cp_nr, comphy_base);
 
 	hpipe_addr = HPIPE_ADDR(COMPHY_PIPE_FROM_COMPHY_ADDR(comphy_base),
 				comphy_index);
-
 	sd_ip_addr = SD_ADDR(COMPHY_PIPE_FROM_COMPHY_ADDR(comphy_base),
 			     comphy_index);
+
+	debug_enter();
+
+	debug("stage: RF Reset\n");
+
+	/* Release from hard reset */
+	mask = SD_EXTERNAL_CONFIG1_RESET_IN_MASK;
+	data = 0x0 << SD_EXTERNAL_CONFIG1_RESET_IN_OFFSET;
+	mask |= SD_EXTERNAL_CONFIG1_RESET_CORE_MASK;
+	data |= 0x0 << SD_EXTERNAL_CONFIG1_RESET_CORE_OFFSET;
+	mask |= SD_EXTERNAL_CONFIG1_RF_RESET_IN_MASK;
+	data |= 0x0 << SD_EXTERNAL_CONFIG1_RF_RESET_IN_OFFSET;
+	reg_set(sd_ip_addr + SD_EXTERNAL_CONFIG1_REG, data, mask);
+
+	mask = SD_EXTERNAL_CONFIG1_RESET_IN_MASK;
+	data = 0x1 << SD_EXTERNAL_CONFIG1_RESET_IN_OFFSET;
+	mask |= SD_EXTERNAL_CONFIG1_RESET_CORE_MASK;
+	data |= 0x1 << SD_EXTERNAL_CONFIG1_RESET_CORE_OFFSET;
+	reg_set(sd_ip_addr + SD_EXTERNAL_CONFIG1_REG, data, mask);
+
+	/* Wait 50ms - until band gap and ref clock ready */
+	mdelay(50);
+
+	debug("Preparation for rx_training\n\n");
+
+	/* Use the FFE table */
+	mask = HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_MASK;
+	data = 0 << HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_OFFSET;
+	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
+
+	/* Use auto-calibration value */
+	mask = HPIPE_CAL_RXCLKALIGN_90_EXT_EN_MASK;
+	data = 0 << HPIPE_CAL_RXCLKALIGN_90_EXT_EN_OFFSET;
+	reg_set(hpipe_addr + HPIPE_RX_CLK_ALIGN90_AND_TX_IDLE_CALIB_CTRL_REG,
+		data, mask);
+
+	/* Use Tx/Rx training results */
+	mask = HPIPE_DFE_RES_FORCE_MASK;
+	data = 0 << HPIPE_DFE_RES_FORCE_OFFSET;
+	reg_set(hpipe_addr + HPIPE_DFE_REG0, data, mask);
+
+	debug("PRBS31 loppback\n\n");
 
 	/* Configure PRBS counters */
 	mask = HPIPE_PHY_TEST_PATTERN_SEL_MASK;
@@ -1974,167 +2058,191 @@ static int mvebu_cp110_comphy_test_single_ffe(uint64_t comphy_base,
 	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
 
 	mask = HPIPE_PHY_TEST_DATA_MASK;
-	data = 0x64 << HPIPE_PHY_TEST_DATA_OFFSET;
+	data = 0xc4 << HPIPE_PHY_TEST_DATA_OFFSET;
 	reg_set(hpipe_addr + HPIPE_PHY_TEST_DATA_REG, data, mask);
 
 	mask = HPIPE_PHY_TEST_EN_MASK;
 	data = 0x1 << HPIPE_PHY_TEST_EN_OFFSET;
 	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
 
-	mdelay(50);
+	mdelay(10);
+	debug("Enable TX/RX training\n\n");
 
-	/* Set the FFE value */
-	mask = HPIPE_G1_SETTINGS_3_G1_FFE_RES_SEL_MASK;
-	data = ffe << HPIPE_G1_SETTINGS_3_G1_FFE_RES_SEL_OFFSET;
-	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
-
-	/* Start RX training */
-	mask = SD_EXTERNAL_STATUS_START_RX_TRAINING_MASK;
-	data = 1 << SD_EXTERNAL_STATUS_START_RX_TRAINING_OFFSET;
-	reg_set(sd_ip_addr + SD_EXTERNAL_STATUS_REG, data, mask);
+	mask = HPIPE_TRX_RX_TRAIN_EN_MASK;
+	data = 0x1 << HPIPE_TRX_RX_TRAIN_EN_OFFSET;
+	mask |= HPIPE_TRX_RX_ANA_IF_CLK_ENE_MASK;
+	data |= 0x1 << HPIPE_TRX_RX_ANA_IF_CLK_ENE_OFFSET;
+	mask |= HPIPE_TRX_TX_CTRL_CLK_EN_MASK;
+	data |= 0x1 << HPIPE_TRX_TX_CTRL_CLK_EN_OFFSET;
+	mask |= HPIPE_TRX_UPDATE_THEN_HOLD_MASK;
+	data |= 0x1 << HPIPE_TRX_UPDATE_THEN_HOLD_OFFSET;
+	mask |= HPIPE_TRX_TX_F0T_EO_BASED_MASK;
+	data |= 0x1 << HPIPE_TRX_TX_F0T_EO_BASED_OFFSET;
+	reg_set(hpipe_addr + HPIPE_TRX_TRAIN_CTRL_0_REG, data, mask);
 
 	/* Check the result of RX training */
 	timeout = RX_TRAINING_TIMEOUT;
+	mask = HPIPE_INTERRUPT_TRX_TRAIN_DONE_OFFSET |
+		HPIPE_INTERRUPT_DFE_DONE_INT_OFFSET |
+		HPIPE_INTERRUPT_RX_TRAIN_COMPLETE_INT_MASK;
 	while (timeout) {
-		data = mmio_read_32(sd_ip_addr + SD_EXTERNAL_STATAUS1_REG);
-		if (data & SD_EXTERNAL_STATAUS1_REG_RX_TRAIN_COMP_MASK)
+		data = mmio_read_32(hpipe_addr + HPIPE_INTERRUPT_1_REGISTER);
+		if (data & mask)
 			break;
 		mdelay(1);
 		timeout--;
 	}
 
-	if (timeout == 0)
+	debug("RX training result: interrupt reg 0x%lx = 0x%x\n\n",
+	       hpipe_addr + HPIPE_INTERRUPT_1_REGISTER, data);
+
+	if (timeout == 0 || data & HPIPE_TRX_TRAIN_TIME_OUT_INT_MASK) {
+		ERROR("Rx training timeout...\n");
 		return -ETIMEDOUT;
+	}
 
-	if (data & SD_EXTERNAL_STATAUS1_REG_RX_TRAIN_FAILED_MASK)
+	if (data & HPIPE_TRX_TRAIN_FAILED_MASK) {
+		ERROR("Rx training failed...\n");
 		return -EINVAL;
+	}
 
-	/* Stop RX training */
-	mask = SD_EXTERNAL_STATUS_START_RX_TRAINING_MASK;
-	data = 0 << SD_EXTERNAL_STATUS_START_RX_TRAINING_OFFSET;
-	reg_set(sd_ip_addr + SD_EXTERNAL_STATUS_REG, data, mask);
+	mask = HPIPE_TRX_RX_TRAIN_EN_MASK;
+	data = 0x0 << HPIPE_TRX_RX_TRAIN_EN_OFFSET;
+	reg_set(hpipe_addr + HPIPE_TRX_TRAIN_CTRL_0_REG, data, mask);
 
-	/* Read the result */
-	data = mmio_read_32(hpipe_addr + HPIPE_SAVED_DFE_VALUES_REG);
-	data &= HPIPE_SAVED_DFE_VALUES_SAV_F0D_MASK;
-	data >>= HPIPE_SAVED_DFE_VALUES_SAV_F0D_OFFSET;
-	*result = data;
+	debug("Training done, reading results...\n\n");
 
-	mask = HPIPE_PHY_TEST_RESET_MASK;
-	data = 0x1 << HPIPE_PHY_TEST_RESET_OFFSET;
-	mask |= HPIPE_PHY_TEST_EN_MASK;
-	data |= 0x0 << HPIPE_PHY_TEST_EN_OFFSET;
-	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
+	mask = HPIPE_ADAPTED_FFE_ADAPTED_FFE_RES_MASK;
+	g1_ffe_res_sel = ((mmio_read_32(hpipe_addr +
+			   HPIPE_ADAPTED_FFE_CAPACITOR_COUNTER_CTRL_REG)
+			   & mask) >> HPIPE_ADAPTED_FFE_ADAPTED_FFE_RES_OFFSET);
 
-	mask = HPIPE_PHY_TEST_RESET_MASK;
-	data = 0x0 << HPIPE_PHY_TEST_RESET_OFFSET;
-	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
+	mask = HPIPE_ADAPTED_FFE_ADAPTED_FFE_CAP_MASK;
+	g1_ffe_cap_sel = ((mmio_read_32(hpipe_addr +
+			   HPIPE_ADAPTED_FFE_CAPACITOR_COUNTER_CTRL_REG)
+			   & mask) >> HPIPE_ADAPTED_FFE_ADAPTED_FFE_CAP_OFFSET);
 
-	return 0;
-}
+	mask = HPIPE_DATA_PHASE_ADAPTED_OS_PH_MASK;
+	align90 = ((mmio_read_32(hpipe_addr + HPIPE_DATA_PHASE_OFF_CTRL_REG)
+		    & mask) >> HPIPE_DATA_PHASE_ADAPTED_OS_PH_OFFSET);
 
-/* This function runs complete RX training sequence:
- *	- Run RX training for all possible Feed Forward Equalization values
- *	- Choose the FFE which gives the best result.
- *	- Run RX training again with the best result.
- *
- * Return '0' on success, error code in  a case of failure.
- */
-int mvebu_cp110_comphy_xfi_rx_training(uint64_t comphy_base,
-					      uint8_t comphy_index)
-{
-	uint32_t mask, data, max_rx_train = 0, max_rx_train_index = 0;
-	uintptr_t hpipe_addr;
-	uint32_t rx_train_result;
-	int ret, i;
+	mask = HPIPE_ADAPTED_DFE_RES_MASK;
+	g1_dfe_res = ((mmio_read_32(hpipe_addr +
+		       HPIPE_ADAPTED_DFE_COEFFICIENT_1_REG)
+		       & mask) >> HPIPE_ADAPTED_DFE_RES_OFFSET);
 
-	hpipe_addr = HPIPE_ADDR(COMPHY_PIPE_FROM_COMPHY_ADDR(comphy_base),
-				comphy_index);
+	debug("================================================\n");
+	debug("Switching to static configuration:\n");
+	debug("FFE_RES = 0x%x FFE_CAP = 0x%x align90 = 0x%x g1_dfe_res 0x%x\n",
+	       g1_ffe_res_sel, g1_ffe_cap_sel, align90, g1_dfe_res);
+	debug("Result after training: 0x%lx= 0x%x, 0x%lx= 0x%x, 0x%lx = 0x%x\n",
+	      (hpipe_addr + HPIPE_ADAPTED_FFE_CAPACITOR_COUNTER_CTRL_REG),
+	       mmio_read_32(hpipe_addr +
+			    HPIPE_ADAPTED_FFE_CAPACITOR_COUNTER_CTRL_REG),
+			    (hpipe_addr + HPIPE_DATA_PHASE_OFF_CTRL_REG),
+	       mmio_read_32(hpipe_addr + HPIPE_DATA_PHASE_OFF_CTRL_REG),
+			    (hpipe_addr + HPIPE_ADAPTED_DFE_COEFFICIENT_1_REG),
+	       mmio_read_32(hpipe_addr + HPIPE_ADAPTED_DFE_COEFFICIENT_1_REG));
+	debug("================================================\n");
 
-	debug_enter();
+	/* Update FFE_RES */
+	mask = HPIPE_G1_SETTINGS_3_G1_FFE_RES_SEL_MASK;
+	data = g1_ffe_res_sel << HPIPE_G1_SETTINGS_3_G1_FFE_RES_SEL_OFFSET;
+	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
 
-	/* Configure SQ threshold and CDR lock */
-	mask = HPIPE_SQUELCH_THRESH_IN_MASK;
-	data = 0xc << HPIPE_SQUELCH_THRESH_IN_OFFSET;
-	reg_set(hpipe_addr + HPIPE_SQUELCH_FFE_SETTING_REG, data, mask);
+	/* Update FFE_CAP */
+	mask = HPIPE_G1_SETTINGS_3_G1_FFE_CAP_SEL_MASK;
+	data = g1_ffe_cap_sel << HPIPE_G1_SETTINGS_3_G1_FFE_CAP_SEL_OFFSET;
+	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
 
-	mask = HPIPE_SQ_DEGLITCH_WIDTH_P_MASK;
-	data = 0xf << HPIPE_SQ_DEGLITCH_WIDTH_P_OFFSET;
-	mask |= HPIPE_SQ_DEGLITCH_WIDTH_N_MASK;
-	data |= 0xf << HPIPE_SQ_DEGLITCH_WIDTH_N_OFFSET;
-	mask |= HPIPE_SQ_DEGLITCH_EN_MASK;
-	data |= 0x1 << HPIPE_SQ_DEGLITCH_EN_OFFSET;
-	reg_set(hpipe_addr + HPIPE_SQ_GLITCH_FILTER_CTRL, data, mask);
-
-	mask = HPIPE_CDR_LOCK_DET_EN_MASK;
-	data = 0x1 << HPIPE_CDR_LOCK_DET_EN_OFFSET;
-	reg_set(hpipe_addr + HPIPE_LOOPBACK_REG, data, mask);
-
-	udelay(100);
-
-	/* Determine if we have a cable attached to this comphy, if not,
-	 * we can't perform RX training.
+	/* Bypass the FFE table settings and use the FFE settings directly from
+	 * registers FFE_RES_SEL and FFE_CAP_SEL
 	 */
-	data = mmio_read_32(hpipe_addr + HPIPE_SQUELCH_FFE_SETTING_REG);
-	if (data & HPIPE_SQUELCH_DETECTED_MASK) {
-		ERROR("Squelsh is not detected, can't perform RX training\n");
-		return -EINVAL;
-	}
+	mask = HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_MASK;
+	data = 1 << HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_OFFSET;
+	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
 
-	data = mmio_read_32(hpipe_addr + HPIPE_LOOPBACK_REG);
-	if (!(data & HPIPE_CDR_LOCK_MASK)) {
-		ERROR("CDR is not locked, can't perform RX training\n");
-		return -EINVAL;
-	}
+	/* Use the value from CAL_OS_PH_EXT */
+	mask = HPIPE_CAL_RXCLKALIGN_90_EXT_EN_MASK;
+	data = 1 << HPIPE_CAL_RXCLKALIGN_90_EXT_EN_OFFSET;
+	reg_set(hpipe_addr + HPIPE_RX_CLK_ALIGN90_AND_TX_IDLE_CALIB_CTRL_REG,
+		data, mask);
 
-	/* Do preparations for RX training */
+	/* Update align90 */
+	mask = HPIPE_CAL_OS_PH_EXT_MASK;
+	data = align90 << HPIPE_CAL_OS_PH_EXT_OFFSET;
+	reg_set(hpipe_addr + HPIPE_RX_CLK_ALIGN90_AND_TX_IDLE_CALIB_CTRL_REG,
+		data, mask);
+
+	/* Force DFE resolution (use gen table value) */
 	mask = HPIPE_DFE_RES_FORCE_MASK;
 	data = 0x0 << HPIPE_DFE_RES_FORCE_OFFSET;
 	reg_set(hpipe_addr + HPIPE_DFE_REG0, data, mask);
 
-	mask = HPIPE_G1_SETTINGS_3_G1_FFE_CAP_SEL_MASK;
-	data = 0xf << HPIPE_G1_SETTINGS_3_G1_FFE_CAP_SEL_OFFSET;
-	mask |= HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_MASK;
-	data |= 1 << HPIPE_G1_SETTINGS_3_G1_FFE_SETTING_FORCE_OFFSET;
-	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_3_REG, data, mask);
+	/* 0x111-G1 DFE_Setting_4 */
+	mask = HPIPE_G1_SETTINGS_4_G1_DFE_RES_MASK;
+	data = g1_dfe_res << HPIPE_G1_SETTINGS_4_G1_DFE_RES_OFFSET;
+	reg_set(hpipe_addr + HPIPE_G1_SETTINGS_4_REG, data, mask);
 
-	/* Perform RX training for all possible FFE (Feed Forward
-	 * Equalization, possible values are 0-7).
-	 * We update the best value reached and the FFE which gave this value.
-	 */
-	for (i = 0; i < MAX_NUM_OF_FFE; i++) {
-		rx_train_result = 0;
-		ret = mvebu_cp110_comphy_test_single_ffe(comphy_base,
-							 comphy_index, i,
-							 &rx_train_result);
+	debug("PRBS31 loppback\n\n");
 
-		if ((!ret) && (rx_train_result > max_rx_train)) {
-			max_rx_train = rx_train_result;
-			max_rx_train_index = i;
-		}
-	}
+	mask = HPIPE_PHY_TEST_PT_TESTMODE_MASK;
+	data = 0x1 << HPIPE_PHY_TEST_PT_TESTMODE_OFFSET;
+	reg_set(hpipe_addr + HPIPE_PHY_TEST_OOB_0_REGISTER, data, mask);
 
-	/* If we were able to determine which FFE gives the best value,
-	 * now we need to set it and run RX training again (only for this
-	 * FFE).
-	 */
-	if (max_rx_train) {
-		ret = mvebu_cp110_comphy_test_single_ffe(comphy_base,
-							 comphy_index,
-							 max_rx_train_index,
-							 &rx_train_result);
+	/* Configure PRBS counters */
+	mask = HPIPE_PHY_TEST_PATTERN_SEL_MASK;
+	data = 0xe << HPIPE_PHY_TEST_PATTERN_SEL_OFFSET;
+	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
 
-		if (ret == 0)
-			debug("RX Training passed (FFE = %d, result = 0x%x)\n",
-			       max_rx_train_index, rx_train_result);
-	} else {
-		ERROR("RX Training failed for comphy%d\n", comphy_index);
-		ret = -EINVAL;
-	}
+	mask = HPIPE_PHY_TEST_DATA_MASK;
+	data = 0xc4 << HPIPE_PHY_TEST_DATA_OFFSET;
+	reg_set(hpipe_addr + HPIPE_PHY_TEST_DATA_REG, data, mask);
 
-	debug_exit();
+	mask = HPIPE_PHY_TEST_EN_MASK;
+	data = 0x1 << HPIPE_PHY_TEST_EN_OFFSET;
+	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
 
-	return ret;
+	/* Reset PRBS error counter */
+	mask = HPIPE_PHY_TEST_PATTERN_SEL_MASK;
+	data = 0x1 << HPIPE_PHY_TEST_RESET_OFFSET;
+	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
+
+	mask = HPIPE_PHY_TEST_PATTERN_SEL_MASK;
+	data = 0x0 << HPIPE_PHY_TEST_RESET_OFFSET;
+	reg_set(hpipe_addr + HPIPE_PHY_TEST_CONTROL_REG, data, mask);
+
+	mask = HPIPE_PHY_TEST_PT_TESTMODE_MASK;
+	data = 0x1 << HPIPE_PHY_TEST_PT_TESTMODE_OFFSET;
+	reg_set(hpipe_addr + HPIPE_PHY_TEST_OOB_0_REGISTER, data, mask);
+
+	printf("########################################################\n");
+	printf("# To use trained values update the ATF sources:\n");
+	printf("# plat/marvell/a8k/<board_type>/board/phy-porting-layer.h ");
+	printf("file\n# with new values as below (for appropriate AP nr %d",
+	       ap_nr);
+	printf("and CP nr: %d comphy_index %d\n\n",
+	       cp_nr, comphy_index);
+	printf("static struct xfi_params xfi_static_values_tab[AP_NUM]");
+	printf("[CP_NUM][MAX_LANE_NR] = {\n");
+	printf("\t...\n");
+	printf("\t.g1_ffe_res_sel = 0x%x,\n", g1_ffe_res_sel);
+	printf("\t.g1_ffe_cap_sel = 0x%x,\n", g1_ffe_cap_sel);
+	printf("\t.align90 = 0x%x,\n", align90);
+	printf("\t.g1_dfe_res = 0x%x\n", g1_dfe_res);
+	printf("\t...\n");
+	printf("};\n\n");
+	printf("########################################################\n");
+
+	/* check */
+	debug("PRBS error counter[0x%lx] 0x%x\n\n",
+	      hpipe_addr + HPIPE_PHY_TEST_PRBS_ERROR_COUNTER_1_REG,
+	      mmio_read_32(hpipe_addr +
+			   HPIPE_PHY_TEST_PRBS_ERROR_COUNTER_1_REG));
+
+	rx_trainng_done[ap_nr][cp_nr][comphy_index] = 1;
+
+	return 0;
 }
 
 /* During AP the proper mode is auto-negotiated and the mac, pcs and serdes
@@ -2237,6 +2345,7 @@ int mvebu_cp110_comphy_power_on(uint64_t comphy_base, uint8_t comphy_index,
 		err = mvebu_cp110_comphy_rxaui_power_on(comphy_base,
 							comphy_index,
 							comphy_mode);
+		break;
 	case (COMPHY_USB3H_MODE):
 	case (COMPHY_USB3D_MODE):
 		err = mvebu_cp110_comphy_usb3_power_on(comphy_base,
@@ -2261,8 +2370,17 @@ int mvebu_cp110_comphy_power_off(uint64_t comphy_base, uint8_t comphy_index)
 {
 	uintptr_t sd_ip_addr, comphy_ip_addr;
 	uint32_t mask, data;
+	uint8_t ap_nr, cp_nr;
 
 	debug_enter();
+
+	mvebu_cp110_get_ap_and_cp_nr(&ap_nr, &cp_nr, comphy_base);
+
+	if (rx_trainng_done[ap_nr][cp_nr][comphy_index]) {
+		debug("Skip %s for comphy[%d][%d][%d], due to rx training\n",
+		       __func__, ap_nr, cp_nr, comphy_index);
+		return 0;
+	}
 
 	sd_ip_addr = SD_ADDR(COMPHY_PIPE_FROM_COMPHY_ADDR(comphy_base),
 			     comphy_index);

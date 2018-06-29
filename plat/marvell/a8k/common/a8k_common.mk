@@ -25,6 +25,10 @@ $(eval $(call add_define,BL31_CACHE_DISABLE))
 $(eval $(call add_define,PCI_EP_SUPPORT))
 $(eval $(call assert_boolean,PCI_EP_SUPPORT))
 
+
+AP_NUM			:= 1
+$(eval $(call add_define,AP_NUM))
+
 DOIMAGEPATH		?=	tools/doimage
 DOIMAGETOOL		?=	${DOIMAGEPATH}/doimage
 
