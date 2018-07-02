@@ -129,13 +129,6 @@ CASSERT(SMC_CTX_SIZE == sizeof(smc_ctx_t), assert_smc_ctx_size_mismatch);
 	SMC_RET3(_h, (_r0), (_r1), (_r2));	\
 }
 
-/* Return a UUID in the SMC return registers */
-#define SMC_UUID_RET(_h, _uuid) \
-	SMC_RET4(handle, ((const uint32_t *) &(_uuid))[0], \
-			 ((const uint32_t *) &(_uuid))[1], \
-			 ((const uint32_t *) &(_uuid))[2], \
-			 ((const uint32_t *) &(_uuid))[3])
-
 /*
  * Helper macro to retrieve the SMC parameters from smc_ctx_t.
  */
