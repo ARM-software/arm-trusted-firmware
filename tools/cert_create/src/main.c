@@ -140,8 +140,6 @@ static void print_help(const char *cmd, const struct option *long_opt)
 		i++;
 	}
 	printf("\n");
-
-	exit(0);
 }
 
 static int get_key_alg(const char *key_alg_str)
@@ -334,7 +332,7 @@ int main(int argc, char *argv[])
 			break;
 		case 'h':
 			print_help(argv[0], cmd_opt);
-			break;
+			exit(0);
 		case 'k':
 			save_keys = 1;
 			break;
