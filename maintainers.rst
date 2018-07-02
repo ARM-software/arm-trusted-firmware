@@ -64,6 +64,14 @@ MediaTek platform ports
 :G: `mtk09422`_
 :F: plat/mediatek/
 
+Marvell platform ports and SoC drivers
+--------------------------------------
+:M: Konstantin Porotchkin <kostap@marvell.com>
+:G: `kostapr`_
+:F: docs/plat/marvell/
+:F: plat/marvell/
+:F: drivers/marvell/
+
 NVidia platform ports
 ---------------------
 :M: Varun Wadekar <vwadekar@nvidia.com>
@@ -163,6 +171,7 @@ Xilinx platform port
 .. _glneo: https://github.com/glneo
 .. _hzhuang1: https://github.com/hzhuang1
 .. _jenswi-linaro: https://github.com/jenswi-linaro
+.. _kostapr: https://github.com/kostapr
 .. _masahir0y: https://github.com/masahir0y
 .. _mtk09422: https://github.com/mtk09422
 .. _qoriq-open-source: https://github.com/qoriq-open-source
