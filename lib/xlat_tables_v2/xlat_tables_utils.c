@@ -260,10 +260,7 @@ static uint64_t *find_xlat_table_entry(uintptr_t virtual_addr,
 	uint64_t *table;
 	int entries;
 
-	VERBOSE("%s(%p)\n", __func__, (void *)virtual_addr);
-
 	start_level = GET_XLAT_TABLE_LEVEL_BASE(virt_addr_space_size);
-	VERBOSE("Starting translation table walk from level %i\n", start_level);
 
 	table = xlat_table_base;
 	entries = xlat_table_base_entries;
@@ -275,19 +272,15 @@ static uint64_t *find_xlat_table_entry(uintptr_t virtual_addr,
 		uint64_t desc;
 		uint64_t desc_type;
 
-		VERBOSE("Table address: %p\n", (void *)table);
-
 		idx = XLAT_TABLE_IDX(virtual_addr, level);
-		VERBOSE("Index into level %i table: %i\n", level, idx);
 		if (idx >= entries) {
-			VERBOSE("Invalid address\n");
+			WARN("Missing xlat table entry at address 0x%lx\n",
+			     virtual_addr);
 			return NULL;
 		}
 
 		desc = table[idx];
 		desc_type = desc & DESC_MASK;
-		VERBOSE("Descriptor at level %i: 0x%llx\n", level,
-				(unsigned long long)desc);
 
 		if (desc_type == INVALID_DESC) {
 			VERBOSE("Invalid entry (memory not mapped)\n");
@@ -296,25 +289,20 @@ static uint64_t *find_xlat_table_entry(uintptr_t virtual_addr,
 
 		if (level == XLAT_TABLE_LEVEL_MAX) {
 			/*
-			 * There can't be table entries at the final lookup
+			 * Only page descriptors allowed at the final lookup
 			 * level.
 			 */
 			assert(desc_type == PAGE_DESC);
-			VERBOSE("Descriptor mapping a memory page (size: 0x%llx)\n",
-				(unsigned long long)XLAT_BLOCK_SIZE(XLAT_TABLE_LEVEL_MAX));
 			*out_level = level;
 			return &table[idx];
 		}
 
 		if (desc_type == BLOCK_DESC) {
-			VERBOSE("Descriptor mapping a memory block (size: 0x%llx)\n",
-				(unsigned long long)XLAT_BLOCK_SIZE(level));
 			*out_level = level;
 			return &table[idx];
 		}
 
 		assert(desc_type == TABLE_DESC);
-		VERBOSE("Table descriptor, continuing xlat table walk...\n");
 		table = (uint64_t *)(uintptr_t)(desc & TABLE_ADDR_MASK);
 		entries = XLAT_TABLE_ENTRIES;
 	}
@@ -460,7 +448,7 @@ int change_mem_attributes(xlat_ctx_t *ctx,
 	}
 
 	if (((attr & MT_EXECUTE_NEVER) == 0) && ((attr & MT_RW) != 0)) {
-		WARN("%s() doesn't allow to remap memory as read-write and executable.\n",
+		WARN("%s: Mapping memory as read-write and executable not allowed.\n",
 		     __func__);
 		return -EINVAL;
 	}
@@ -523,9 +511,6 @@ int change_mem_attributes(xlat_ctx_t *ctx,
 	/* Restore original value. */
 	base_va = base_va_original;
 
-	VERBOSE("%s: All pages are mapped, now changing their attributes...\n",
-		__func__);
-
 	for (int i = 0; i < pages_count; ++i) {
 
 		uint32_t old_attr, new_attr;
@@ -536,8 +521,6 @@ int change_mem_attributes(xlat_ctx_t *ctx,
 		get_mem_attributes_internal(ctx, base_va, &old_attr,
 					    &entry, &addr_pa, &level);
 
-		VERBOSE("Old attributes: 0x%x\n", old_attr);
-
 		/*
 		 * From attr, only MT_RO/MT_RW, MT_EXECUTE/MT_EXECUTE_NEVER and
 		 * MT_USER/MT_PRIVILEGED are taken into account. Any other
@@ -545,15 +528,13 @@ int change_mem_attributes(xlat_ctx_t *ctx,
 		 */
 
 		/* Clean the old attributes so that they can be rebuilt. */
-		new_attr = old_attr & ~(MT_RW|MT_EXECUTE_NEVER|MT_USER);
+		new_attr = old_attr & ~(MT_RW | MT_EXECUTE_NEVER | MT_USER);
 
 		/*
 		 * Update attributes, but filter out the ones this function
 		 * isn't allowed to change.
 		 */
-		new_attr |= attr & (MT_RW|MT_EXECUTE_NEVER|MT_USER);
-
-		VERBOSE("New attributes: 0x%x\n", new_attr);
+		new_attr |= attr & (MT_RW | MT_EXECUTE_NEVER | MT_USER);
 
 		/*
 		 * The break-before-make sequence requires writing an invalid
