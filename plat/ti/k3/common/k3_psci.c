@@ -17,12 +17,18 @@ uintptr_t k3_sec_entrypoint;
 
 static void k3_cpu_standby(plat_local_state_t cpu_state)
 {
-	/*
-	 * Enter standby state
-	 * dsb is good practice before using wfi to enter low power states
-	 */
+	unsigned int scr;
+
+	scr = read_scr_el3();
+	/* Enable the Non secure interrupt to wake the CPU */
+	write_scr_el3(scr | SCR_IRQ_BIT | SCR_FIQ_BIT);
+	isb();
+	/* dsb is good practice before using wfi to enter low power states */
 	dsb();
+	/* Enter standby state */
 	wfi();
+	/* Restore SCR */
+	write_scr_el3(scr);
 }
 
 static int k3_pwr_domain_on(u_register_t mpidr)
