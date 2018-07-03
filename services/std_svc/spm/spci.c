@@ -291,6 +291,12 @@ static uint64_t spci_service_request_blocking(void *handle,
 		SMC_RET1(handle, SPCI_BUSY);
 	}
 
+	if (spm_sp_request_increase_if_zero(sp_ctx) == -1) {
+		spin_unlock(&spci_handles_lock);
+
+		SMC_RET1(handle, SPCI_BUSY);
+	}
+
 	/* Prevent this handle from being closed */
 	handle_info->num_active_requests += 1;
 
@@ -348,6 +354,7 @@ static uint64_t spci_service_request_blocking(void *handle,
 	spin_lock(&spci_handles_lock);
 	handle_info->num_active_requests -= 1;
 	spin_unlock(&spci_handles_lock);
+	spm_sp_request_decrease(sp_ctx);
 
 	/* Restore non-secure state */
 	cm_el1_sysregs_context_restore(NON_SECURE);

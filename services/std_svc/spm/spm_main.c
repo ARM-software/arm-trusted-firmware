@@ -47,6 +47,39 @@ sp_context_t *spm_cpu_get_sp_ctx(unsigned int linear_id)
 }
 
 /*******************************************************************************
+ * Functions to keep track of how many requests a Secure Partition has received
+ * and hasn't finished.
+ ******************************************************************************/
+void spm_sp_request_increase(sp_context_t *sp_ctx)
+{
+	spin_lock(&(sp_ctx->request_count_lock));
+	sp_ctx->request_count++;
+	spin_unlock(&(sp_ctx->request_count_lock));
+}
+
+void spm_sp_request_decrease(sp_context_t *sp_ctx)
+{
+	spin_lock(&(sp_ctx->request_count_lock));
+	sp_ctx->request_count--;
+	spin_unlock(&(sp_ctx->request_count_lock));
+}
+
+/* Returns 0 if it was originally 0, -1 otherwise. */
+int spm_sp_request_increase_if_zero(sp_context_t *sp_ctx)
+{
+	int ret = -1;
+
+	spin_lock(&(sp_ctx->request_count_lock));
+	if (sp_ctx->request_count == 0U) {
+		sp_ctx->request_count++;
+		ret = 0U;
+	}
+	spin_unlock(&(sp_ctx->request_count_lock));
+
+	return ret;
+}
+
+/*******************************************************************************
  * This function returns a pointer to the context of the Secure Partition that
  * handles the service specified by an UUID. It returns NULL if the UUID wasn't
  * found.

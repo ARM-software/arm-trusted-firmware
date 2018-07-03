@@ -58,6 +58,9 @@ typedef struct sp_context {
 	sp_state_t state;
 	spinlock_t state_lock;
 
+	unsigned int request_count;
+	spinlock_t request_count_lock;
+
 	/* Base and size of the shared SPM<->SP buffer */
 	uintptr_t spm_sp_buffer_base;
 	size_t spm_sp_buffer_size;
@@ -79,6 +82,11 @@ void spm_sp_setup(sp_context_t *sp_ctx);
 void sp_state_set(sp_context_t *sp_ptr, sp_state_t state);
 void sp_state_wait_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to);
 int sp_state_try_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to);
+
+/* Functions to keep track of the number of active requests per SP */
+void spm_sp_request_increase(sp_context_t *sp_ctx);
+void spm_sp_request_decrease(sp_context_t *sp_ctx);
+int spm_sp_request_increase_if_zero(sp_context_t *sp_ctx);
 
 /* Functions related to the translation tables management */
 xlat_ctx_t *spm_sp_xlat_context_alloc(void);
