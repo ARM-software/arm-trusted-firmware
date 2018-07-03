@@ -109,10 +109,8 @@ struct xlat_ctx {
 	unsigned int initialized;
 
 	/*
-	 * Translation regime managed by this xlat_ctx_t. It takes the values of
-	 * the enumeration xlat_regime_t. The type is "int" to avoid a circular
-	 * dependency on xlat_tables_v2.h, but this member must be treated as
-	 * xlat_regime_t.
+	 * Translation regime managed by this xlat_ctx_t. It should be one of
+	 * the EL*_REGIME defines.
 	 */
 	int xlat_regime;
 };
@@ -157,7 +155,7 @@ struct xlat_ctx {
 		.va_max_address = (_virt_addr_space_size) - 1,			\
 		.pa_max_address = (_phy_addr_space_size) - 1,			\
 		.mmap = _ctx_name##_mmap,					\
-		.mmap_num = _mmap_count,					\
+		.mmap_num = (_mmap_count),					\
 		.base_level = GET_XLAT_TABLE_LEVEL_BASE(_virt_addr_space_size),	\
 		.base_table = _ctx_name##_base_xlat_table,			\
 		.base_table_entries =						\

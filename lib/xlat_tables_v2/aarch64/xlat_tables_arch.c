@@ -7,11 +7,8 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
 #include <cassert.h>
-#include <common_def.h>
 #include <sys/types.h>
-#include <utils.h>
 #include <utils_def.h>
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
@@ -128,7 +125,7 @@ void xlat_arch_tlbi_va(uintptr_t va)
 #endif
 }
 
-void xlat_arch_tlbi_va_regime(uintptr_t va, xlat_regime_t xlat_regime)
+void xlat_arch_tlbi_va_regime(uintptr_t va, int xlat_regime)
 {
 	/*
 	 * Ensure the translation table write has drained into memory before

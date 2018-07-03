@@ -50,7 +50,7 @@
  * S-EL1.
  */
 void xlat_arch_tlbi_va(uintptr_t va);
-void xlat_arch_tlbi_va_regime(uintptr_t va, xlat_regime_t xlat_regime);
+void xlat_arch_tlbi_va_regime(uintptr_t va, int xlat_regime);
 
 /*
  * This function has to be called at the end of any code that uses the function
@@ -59,13 +59,19 @@ void xlat_arch_tlbi_va_regime(uintptr_t va, xlat_regime_t xlat_regime);
 void xlat_arch_tlbi_va_sync(void);
 
 /* Print VA, PA, size and attributes of all regions in the mmap array. */
-void print_mmap(mmap_region_t *const mmap);
+void xlat_mmap_print(mmap_region_t *const mmap);
 
 /*
  * Print the current state of the translation tables by reading them from
  * memory.
  */
 void xlat_tables_print(xlat_ctx_t *ctx);
+
+/*
+ * Returns a block/page table descriptor for the given level and attributes.
+ */
+uint64_t xlat_desc(const xlat_ctx_t *ctx, uint32_t attr,
+		   unsigned long long addr_pa, int level);
 
 /*
  * Architecture-specific initialization code.

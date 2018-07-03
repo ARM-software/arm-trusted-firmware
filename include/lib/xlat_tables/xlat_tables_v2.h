@@ -123,10 +123,8 @@ typedef struct mmap_region {
 /*
  * Translation regimes supported by this library.
  */
-typedef enum xlat_regime {
-	EL1_EL0_REGIME,
-	EL3_REGIME,
-} xlat_regime_t;
+#define EL1_EL0_REGIME		1
+#define EL3_REGIME		3
 
 /*
  * Declare the translation context type.
@@ -161,12 +159,12 @@ typedef struct xlat_ctx xlat_ctx_t;
  *   (resp. PLAT_PHY_ADDR_SPACE_SIZE) for the translation context describing the
  *   BL image currently executing.
  */
-#define REGISTER_XLAT_CONTEXT(_ctx_name, _mmap_count, _xlat_tables_count,	\
-			_virt_addr_space_size, _phy_addr_space_size)		\
-	_REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, _mmap_count,	\
-					 _xlat_tables_count,		\
-					 _virt_addr_space_size,		\
-					 _phy_addr_space_size,		\
+#define REGISTER_XLAT_CONTEXT(_ctx_name, _mmap_count, _xlat_tables_count, \
+			_virt_addr_space_size, _phy_addr_space_size)	\
+	_REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, (_mmap_count),	\
+					 (_xlat_tables_count),		\
+					 (_virt_addr_space_size),	\
+					 (_phy_addr_space_size),	\
 					 IMAGE_XLAT_DEFAULT_REGIME,	\
 					"xlat_table")
 
@@ -175,20 +173,20 @@ typedef struct xlat_ctx xlat_ctx_t;
  *
  * _xlat_regime:
  *   Specify the translation regime managed by this xlat_ctx_t instance. The
- *   values are the one from xlat_regime_t enumeration.
+ *   values are the one from the EL*_REGIME definitions.
  *
  * _section_name:
  *   Specify the name of the section where the translation tables have to be
  *   placed by the linker.
  */
-#define REGISTER_XLAT_CONTEXT2(_ctx_name, _mmap_count, _xlat_tables_count,	\
-			_virt_addr_space_size, _phy_addr_space_size,		\
-			_xlat_regime, _section_name)				\
-	_REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, _mmap_count,	\
-					 _xlat_tables_count,		\
-					 _virt_addr_space_size,		\
-					 _phy_addr_space_size,		\
-					 _xlat_regime, _section_name)
+#define REGISTER_XLAT_CONTEXT2(_ctx_name, _mmap_count, _xlat_tables_count, \
+			_virt_addr_space_size, _phy_addr_space_size,	\
+			_xlat_regime, _section_name)			\
+	_REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, (_mmap_count),	\
+					 (_xlat_tables_count),		\
+					 (_virt_addr_space_size),	\
+					 (_phy_addr_space_size),	\
+					 (_xlat_regime), (_section_name))
 
 /******************************************************************************
  * Generic translation table APIs.
