@@ -22,6 +22,9 @@
 #define CM4_ALIAS_SYSTEM_BASE		0x20100000	/* CM4 Alias system */
 #define EIM_BASE			0x28000000	/* EIM */
 
+/* BootROM absolute base address */
+#define BOOTROM_BASE			0x00000000	/* BootROM */
+
 /* Peripherals like GPIO live in the AIPS range */
 #define AIPS1_BASE			0x30000000	/* AIPS1 */
 #define AIPS2_BASE			0x30400000	/* AIPS2 */
