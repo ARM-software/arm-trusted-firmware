@@ -101,7 +101,7 @@ secure platform!
 
     0x00000000 +-----------------+
                |       ROM       | BL1
-    0x00010000 +-----------------+
+    0x00020000 +-----------------+
                |       FIP       |
     0x00200000 +-----------------+
                |                 |
@@ -213,7 +213,7 @@ by ``debug`` if you set the build option ``DEBUG=1``):
 .. code:: shell
 
     cp build/rpi3/release/bl1.bin bl1.pad.bin
-    truncate --size=65536 bl1.pad.bin
+    truncate --size=131072 bl1.pad.bin
     cat bl1.pad.bin build/rpi3/release/fip.bin > armstub8.bin
 
 The resulting file, ``armstub8.bin``, contains BL1 and the FIP in the place they
