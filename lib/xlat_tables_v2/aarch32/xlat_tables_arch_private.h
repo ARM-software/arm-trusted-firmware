@@ -14,7 +14,7 @@
  * Return the execute-never mask that will prevent instruction fetch at the
  * given translation regime.
  */
-static inline uint64_t xlat_arch_regime_get_xn_desc(xlat_regime_t regime __unused)
+static inline uint64_t xlat_arch_regime_get_xn_desc(int regime __unused)
 {
 	return UPPER_ATTRS(XN);
 }
