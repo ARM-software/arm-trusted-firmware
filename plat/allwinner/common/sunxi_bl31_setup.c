@@ -64,6 +64,22 @@ void bl31_plat_arch_setup(void)
 
 void bl31_platform_setup(void)
 {
+	const char *soc_name;
+	uint16_t soc_id = sunxi_read_soc_id();
+
+	switch (soc_id) {
+	case 0x1689:
+		soc_name = "A64/H64/R18";
+		break;
+	case 0x1718:
+		soc_name = "H5";
+		break;
+	default:
+		soc_name = "unknown";
+		break;
+	}
+	NOTICE("BL31: Detected Allwinner %s SoC (%04x)\n", soc_name, soc_id);
+
 	generic_delay_timer_init();
 
 	/* Configure the interrupt controller */

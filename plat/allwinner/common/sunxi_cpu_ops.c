@@ -18,7 +18,7 @@ static void sunxi_cpu_disable_power(unsigned int cluster, unsigned int core)
 	if (mmio_read_32(SUNXI_CPU_POWER_CLAMP_REG(cluster, core)) == 0xff)
 		return;
 
-	INFO("PSCI: Disabling power to cluster %d core %d\n", cluster, core);
+	VERBOSE("PSCI: Disabling power to cluster %d core %d\n", cluster, core);
 
 	mmio_write_32(SUNXI_CPU_POWER_CLAMP_REG(cluster, core), 0xff);
 }
@@ -28,7 +28,7 @@ static void sunxi_cpu_enable_power(unsigned int cluster, unsigned int core)
 	if (mmio_read_32(SUNXI_CPU_POWER_CLAMP_REG(cluster, core)) == 0)
 		return;
 
-	INFO("PSCI: Enabling power to cluster %d core %d\n", cluster, core);
+	VERBOSE("PSCI: Enabling power to cluster %d core %d\n", cluster, core);
 
 	/* Power enable sequence from original Allwinner sources */
 	mmio_write_32(SUNXI_CPU_POWER_CLAMP_REG(cluster, core), 0xfe);
@@ -40,7 +40,7 @@ static void sunxi_cpu_enable_power(unsigned int cluster, unsigned int core)
 
 void sunxi_cpu_off(unsigned int cluster, unsigned int core)
 {
-	INFO("PSCI: Powering off cluster %d core %d\n", cluster, core);
+	VERBOSE("PSCI: Powering off cluster %d core %d\n", cluster, core);
 
 	/* Deassert DBGPWRDUP */
 	mmio_clrbits_32(SUNXI_CPUCFG_DBG_REG0, BIT(core));
@@ -54,7 +54,7 @@ void sunxi_cpu_off(unsigned int cluster, unsigned int core)
 
 void sunxi_cpu_on(unsigned int cluster, unsigned int core)
 {
-	INFO("PSCI: Powering on cluster %d core %d\n", cluster, core);
+	VERBOSE("PSCI: Powering on cluster %d core %d\n", cluster, core);
 
 	/* Assert CPU core reset */
 	mmio_clrbits_32(SUNXI_CPUCFG_RST_CTRL_REG(cluster), BIT(core));

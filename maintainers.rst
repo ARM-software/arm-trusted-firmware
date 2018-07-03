@@ -20,6 +20,8 @@ Allwinner ARMv8 platform port
 -----------------------------
 :M: Andre Przywara <andre.przywara@arm.com>
 :G: `Andre-ARM`_
+:M: Samuel Holland <samuel@sholland.org>
+:G: `smaeul`_
 :F: docs/plat/allwinner.rst
 :F: plat/allwinner/
 

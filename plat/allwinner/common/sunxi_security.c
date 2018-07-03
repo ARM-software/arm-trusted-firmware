@@ -25,9 +25,9 @@
  */
 void sunxi_security_setup(void)
 {
+#ifdef SUNXI_SPC_BASE
 	int i;
 
-#ifdef SUNXI_SPC_BASE
 	INFO("Configuring SPC Controller\n");
 	/* SPC setup: set all devices to non-secure */
 	for (i = 0; i < 6; i++)

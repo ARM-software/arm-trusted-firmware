@@ -76,8 +76,7 @@ static void __dead2 sunxi_system_reset(void)
 static int sunxi_validate_ns_entrypoint(uintptr_t ns_entrypoint)
 {
 	/* The non-secure entry point must be in DRAM */
-	if (ns_entrypoint >= SUNXI_DRAM_BASE &&
-	    ns_entrypoint < SUNXI_DRAM_BASE + SUNXI_DRAM_SIZE)
+	if (ns_entrypoint >= SUNXI_DRAM_BASE)
 		return PSCI_E_SUCCESS;
 
 	return PSCI_E_INVALID_ADDRESS;
