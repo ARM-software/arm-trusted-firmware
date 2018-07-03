@@ -348,7 +348,7 @@ static uint64_t spci_service_request_blocking(void *handle,
 	}
 
 	/* Jump to the Secure Partition. */
-	rx0 = spm_sp_synchronous_entry(sp_ctx);
+	rx0 = spm_sp_synchronous_entry(sp_ctx, 0);
 
 	/* Verify returned value */
 	if (rx0 != SPRT_PUT_RESPONSE_AARCH64) {
@@ -454,8 +454,14 @@ static uint64_t spci_service_request_start(void *handle,
 	/* Save the Normal world context */
 	cm_el1_sysregs_context_save(NON_SECURE);
 
+	/*
+	 * This request is non-blocking and needs to be interruptible by
+	 * non-secure interrupts. Enable their routing to EL3 during the
+	 * processing of the Secure Partition's service on this core.
+	 */
+
 	/* Jump to the Secure Partition. */
-	uint64_t ret = spm_sp_synchronous_entry(sp_ctx);
+	uint64_t ret = spm_sp_synchronous_entry(sp_ctx, 1);
 
 	/* Verify returned values */
 	if (ret == SPRT_PUT_RESPONSE_AARCH64) {
@@ -480,7 +486,8 @@ static uint64_t spci_service_request_start(void *handle,
 			 */
 			panic();
 		}
-	} else if (ret != SPRT_YIELD_AARCH64) {
+	} else if ((ret != SPRT_YIELD_AARCH64) &&
+		   (ret != SPM_SECURE_PARTITION_PREEMPTED)) {
 		ERROR("SPM: %s: Unexpected x0 value 0x%llx\n", __func__, ret);
 		panic();
 	}
@@ -554,8 +561,14 @@ static uint64_t spci_service_request_resume(void *handle, u_register_t x1,
 	/* Save the Normal world context */
 	cm_el1_sysregs_context_save(NON_SECURE);
 
+	/*
+	 * This request is non-blocking and needs to be interruptible by
+	 * non-secure interrupts. Enable their routing to EL3 during the
+	 * processing of the Secure Partition's service on this core.
+	 */
+
 	/* Jump to the Secure Partition. */
-	uint64_t ret = spm_sp_synchronous_entry(sp_ctx);
+	uint64_t ret = spm_sp_synchronous_entry(sp_ctx, 1);
 
 	/* Verify returned values */
 	if (ret == SPRT_PUT_RESPONSE_AARCH64) {
@@ -580,7 +593,8 @@ static uint64_t spci_service_request_resume(void *handle, u_register_t x1,
 			 */
 			panic();
 		}
-	} else if (ret != SPRT_YIELD_AARCH64) {
+	} else if ((ret != SPRT_YIELD_AARCH64) &&
+		   (ret != SPM_SECURE_PARTITION_PREEMPTED)) {
 		ERROR("SPM: %s: Unexpected x0 value 0x%llx\n", __func__, ret);
 		panic();
 	}

@@ -11,6 +11,7 @@
 #include <debug.h>
 #include <ehf.h>
 #include <errno.h>
+#include <interrupt_mgmt.h>
 #include <platform.h>
 #include <runtime_svc.h>
 #include <smccc.h>
@@ -167,7 +168,7 @@ int sp_state_try_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to)
  * This function takes an SP context pointer and performs a synchronous entry
  * into it.
  ******************************************************************************/
-uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx)
+uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx, int can_preempt)
 {
 	uint64_t rc;
 	unsigned int linear_id = plat_my_core_pos();
@@ -185,6 +186,12 @@ uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx)
 	/* Invalidate TLBs at EL1. */
 	tlbivmalle1();
 	dsbish();
+
+	if (can_preempt == 1) {
+		enable_intr_rm_local(INTR_TYPE_NS, SECURE);
+	} else {
+		disable_intr_rm_local(INTR_TYPE_NS, SECURE);
+	}
 
 	/* Enter Secure Partition */
 	rc = spm_secure_partition_enter(&sp_ctx->c_rt_ctx);
@@ -216,6 +223,20 @@ __dead2 void spm_sp_synchronous_exit(uint64_t rc)
 }
 
 /*******************************************************************************
+ * This function is the handler registered for Non secure interrupts by the SPM.
+ * It validates the interrupt and upon success arranges entry into the normal
+ * world for handling the interrupt.
+ ******************************************************************************/
+static uint64_t spm_ns_interrupt_handler(uint32_t id, uint32_t flags,
+					  void *handle, void *cookie)
+{
+	/* Check the security state when the exception was generated */
+	assert(get_interrupt_src_ss(flags) == SECURE);
+
+	spm_sp_synchronous_exit(SPM_SECURE_PARTITION_PREEMPTED);
+}
+
+/*******************************************************************************
  * Jump to each Secure Partition for the first time.
  ******************************************************************************/
 static int32_t spm_init(void)
@@ -235,7 +256,7 @@ static int32_t spm_init(void)
 
 		ctx->state = SP_STATE_RESET;
 
-		rc = spm_sp_synchronous_entry(ctx);
+		rc = spm_sp_synchronous_entry(ctx, 0);
 		if (rc != SPRT_YIELD_AARCH64) {
 			ERROR("Unexpected return value 0x%llx\n", rc);
 			panic();
@@ -258,10 +279,29 @@ int32_t spm_setup(void)
 	sp_context_t *ctx;
 	void *sp_base, *rd_base;
 	size_t sp_size, rd_size;
+	uint64_t flags = 0U;
 
 	/* Disable MMU at EL1 (initialized by BL2) */
 	disable_mmu_icache_el1();
 
+	/*
+	 * Non-blocking services can be interrupted by Non-secure interrupts.
+	 * Register an interrupt handler for NS interrupts when generated while
+	 * the CPU is in secure state. They are routed to EL3.
+	 */
+	set_interrupt_rm_flag(flags, SECURE);
+
+	uint64_t rc_int = register_interrupt_type_handler(INTR_TYPE_NS,
+				spm_ns_interrupt_handler, flags);
+	if (rc_int) {
+		ERROR("SPM: Failed to register NS interrupt handler with rc = %llx\n",
+		      rc_int);
+		panic();
+	}
+
+	/*
+	 * Setup all Secure Partitions.
+	 */
 	unsigned int i = 0U;
 
 	while (1) {

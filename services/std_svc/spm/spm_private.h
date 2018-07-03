@@ -29,6 +29,9 @@
 #define SP_C_RT_CTX_SIZE	0x60
 #define SP_C_RT_CTX_ENTRIES	(SP_C_RT_CTX_SIZE >> DWORD_SHIFT)
 
+/* Value returned by spm_sp_synchronous_entry() when a partition is preempted */
+#define SPM_SECURE_PARTITION_PREEMPTED	U(0x1234)
+
 #ifndef __ASSEMBLY__
 
 #include <spinlock.h>
@@ -68,7 +71,7 @@ typedef struct sp_context {
 } sp_context_t;
 
 /* Functions used to enter/exit a Secure Partition synchronously */
-uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx);
+uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx, int can_preempt);
 __dead2 void spm_sp_synchronous_exit(uint64_t rc);
 
 /* Assembly helpers */
