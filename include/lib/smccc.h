@@ -84,5 +84,32 @@
 		{ _n0, _n1, _n2, _n3, _n4, _n5 }			\
 	}
 
+/*
+ * Return a UUID in the SMC return registers.
+ *
+ * Acccording to section 5.3 of the SMCCC, UUIDs are returned as a single
+ * 128-bit value using the SMC32 calling convention. This value is mapped to
+ * argument registers x0-x3 on AArch64 (resp. r0-r3 on AArch32). x0 for example
+ * shall hold bytes 0 to 3, with byte 0 in the low-order bits.
+ */
+static inline uint32_t smc_uuid_word(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3)
+{
+	return ((uint32_t) b0) | (((uint32_t) b1) << 8) |
+		(((uint32_t) b2) << 16) | (((uint32_t) b3) << 24);
+}
+
+#define SMC_UUID_RET(_h, _uuid)							\
+	SMC_RET4(handle,							\
+		smc_uuid_word((_uuid).time_low[0], (_uuid).time_low[1],		\
+			      (_uuid).time_low[2], (_uuid).time_low[3]),	\
+		smc_uuid_word((_uuid).time_mid[0], (_uuid).time_mid[1],		\
+			      (_uuid).time_hi_and_version[0],			\
+			      (_uuid).time_hi_and_version[1]),			\
+		smc_uuid_word((_uuid).clock_seq_hi_and_reserved,		\
+			      (_uuid).clock_seq_low, (_uuid).node[0],		\
+			      (_uuid).node[1]),					\
+		smc_uuid_word((_uuid).node[2], (_uuid).node[3],			\
+			      (_uuid).node[4], (_uuid).node[5]))
+
 #endif /*__ASSEMBLY__*/
 #endif /* __SMCCC_H__ */

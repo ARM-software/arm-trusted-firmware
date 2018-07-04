@@ -151,6 +151,7 @@ TF_CFLAGS_aarch32	=	$(march32-directive)
 TF_CFLAGS_aarch64	=	-march=armv8-a
 endif
 
+TF_CFLAGS_aarch32	+=	-mno-unaligned-access
 TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
 
 ASFLAGS_aarch32		=	$(march32-directive)

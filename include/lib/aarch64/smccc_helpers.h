@@ -67,13 +67,6 @@
 #define SMC_SET_EL3(_h, _e, _v)					\
 	write_ctx_reg((get_el3state_ctx(_h)), (_e), (_v))
 
-/* Return a UUID in the SMC return registers */
-#define SMC_UUID_RET(_h, _uuid)					\
-	SMC_RET4(handle, ((const uint32_t *) &(_uuid))[0],	\
-			 ((const uint32_t *) &(_uuid))[1],	\
-			 ((const uint32_t *) &(_uuid))[2],	\
-			 ((const uint32_t *) &(_uuid))[3])
-
 /*
  * Helper macro to retrieve the SMC parameters from cpu_context_t.
  */
