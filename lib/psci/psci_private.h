@@ -12,7 +12,6 @@
 #include <bl_common.h>
 #include <cpu_data.h>
 #include <psci.h>
-#include <spinlock.h>
 
 #if HW_ASSISTED_COHERENCY
 
@@ -27,18 +26,6 @@
 
 #define psci_dsbish()
 
-/*
- * On systems where participant CPUs are cache-coherent, we can use spinlocks
- * instead of bakery locks.
- */
-#define DEFINE_PSCI_LOCK(_name)		spinlock_t _name
-#define DECLARE_PSCI_LOCK(_name)	extern DEFINE_PSCI_LOCK(_name)
-
-#define psci_lock_get(non_cpu_pd_node)				\
-	spin_lock(&psci_locks[(non_cpu_pd_node)->lock_index])
-#define psci_lock_release(non_cpu_pd_node)			\
-	spin_unlock(&psci_locks[(non_cpu_pd_node)->lock_index])
-
 #else
 
 /*
@@ -51,22 +38,21 @@
 
 #define psci_dsbish()				dsbish()
 
+#endif
+
 /*
- * Use bakery locks for state coordination as not all PSCI participants are
- * cache coherent.
+ * Use bakery locks for state coordination.
  */
 #define DEFINE_PSCI_LOCK(_name)		DEFINE_BAKERY_LOCK(_name)
 #define DECLARE_PSCI_LOCK(_name)	DECLARE_BAKERY_LOCK(_name)
 
-#define psci_lock_get(non_cpu_pd_node)				\
-	bakery_lock_get(&psci_locks[(non_cpu_pd_node)->lock_index])
-#define psci_lock_release(non_cpu_pd_node)			\
-	bakery_lock_release(&psci_locks[(non_cpu_pd_node)->lock_index])
+#define psci_lock_get(_pd_node)					\
+	bakery_lock_get(&psci_locks[(_pd_node)->lock_index])
+#define psci_lock_release(_pd_node)				\
+	bakery_lock_release(&psci_locks[(_pd_node)->lock_index])
 
-#endif
-
-#define psci_lock_init(_non_cpu_pd_node, _idx)			\
-	((_non_cpu_pd_node)[(_idx)].lock_index = (_idx))
+#define psci_lock_init(_pd_node, _idx)				\
+	((_pd_node)[(_idx)].lock_index = (_idx))
 
 /*
  * The PSCI capability which are provided by the generic code but does not
@@ -116,12 +102,6 @@
 #define psci_get_cpu_local_state_by_idx(_idx) \
 		get_cpu_data_by_index(_idx, psci_svc_cpu_data.local_state)
 
-/*
- * Helper macros for the CPU level spinlocks
- */
-#define psci_spin_lock_cpu(_idx) spin_lock(&psci_cpu_pd_nodes[_idx].cpu_lock)
-#define psci_spin_unlock_cpu(_idx) spin_unlock(&psci_cpu_pd_nodes[_idx].cpu_lock)
-
 /* Helper macro to identify a CPU standby request in PSCI Suspend call */
 #define is_cpu_standby_req(_is_power_down_state, _retn_lvl) \
 		(((!(_is_power_down_state)) && ((_retn_lvl) == 0)) ? 1 : 0)
@@ -170,13 +150,8 @@ typedef struct cpu_pwr_domain_node {
 	 */
 	unsigned int parent_node;
 
-	/*
-	 * A CPU power domain does not require state coordination like its
-	 * parent power domains. Hence this node does not include a bakery
-	 * lock. A spinlock is required by the CPU_ON handler to prevent a race
-	 * when multiple CPUs try to turn ON the same target CPU.
-	 */
-	spinlock_t cpu_lock;
+	/* For indexing the psci_lock array*/
+	unsigned char lock_index;
 } cpu_pd_node_t;
 
 /*******************************************************************************
@@ -187,8 +162,8 @@ extern non_cpu_pd_node_t psci_non_cpu_pd_nodes[PSCI_NUM_NON_CPU_PWR_DOMAINS];
 extern cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
 extern unsigned int psci_caps;
 
-/* One lock is required per non-CPU power domain node */
-DECLARE_PSCI_LOCK(psci_locks[PSCI_NUM_NON_CPU_PWR_DOMAINS]);
+/* One lock is required per power domain node */
+DECLARE_PSCI_LOCK(psci_locks[PSCI_NUM_PWR_DOMAINS]);
 
 /*******************************************************************************
  * SPD's power management hooks registered with PSCI

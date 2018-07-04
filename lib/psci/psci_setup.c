@@ -45,6 +45,8 @@ static void psci_init_pwr_domain_node(unsigned int node_idx,
 	} else {
 		psci_cpu_data_t *svc_cpu_data;
 
+		psci_lock_init(psci_cpu_pd_nodes, node_idx);
+
 		psci_cpu_pd_nodes[node_idx].parent_node = parent_idx;
 
 		/* Initialize with an invalid mpidr */
