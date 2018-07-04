@@ -8,11 +8,13 @@
 #include <asm_macros.S>
 #include <assert_macros.S>
 #include <platform_def.h>
+#include <hab.h>
 
 	.globl	platform_mem_init
 	.globl	plat_get_my_entrypoint
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
+	.globl	plat_panic_handler
 
 	/* ---------------------------------------------
 	 * int plat_mem_init(void)
@@ -42,3 +44,9 @@ func plat_crash_console_putc
 	mov_imm r1, PLAT_WARP7_BOOT_UART_BASE
 	b	mxc_crash_console_putc
 endfunc plat_crash_console_putc
+
+func plat_panic_handler
+	mov	r3, #HAB_ROM_VECTOR_TABLE_FAILSAFE
+	ldr	r3, [r3, #0]
+	blx	r3
+endfunc plat_panic_handler
