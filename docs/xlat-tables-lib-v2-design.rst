@@ -282,31 +282,49 @@ Implementation details
 Code structure
 ~~~~~~~~~~~~~~
 
-The library is divided into 2 modules:
+The library is divided into 4 modules:
 
-The core module
-    Provides the main functionality of the library.
+- **Core module**
 
-    See `xlat\_tables\_internal.c`_.
+  Provides the main functionality of the library, such as the initialization of
+  translation tables contexts and mapping/unmapping memory regions. This module
+  provides functions such as ``mmap_add_region_ctx`` that let the caller specify
+  the translation tables context affected by them.
 
-The architectural module
-    Provides functions that are dependent on the current execution state
-    (AArch32/AArch64), such as the functions used for TLB invalidation or MMU
-    setup.
+  See `xlat\_tables\_core.c`_.
 
-    See `aarch32/xlat\_tables\_arch.c`_ and `aarch64/xlat\_tables\_arch.c`_.
+- **Active context module**
 
-Core module
-~~~~~~~~~~~
+  Instantiates the context that is used by the current BL image and provides
+  helpers to manipulate it, abstracting it from the rest of the code.
+  This module provides functions such as ``mmap_add_region``, that directly
+  affect the BL image using them.
+
+  See `xlat\_tables\_context.c`_.
+
+- **Utilities module**
+
+  Provides additional functionality like debug print of the current state of the
+  translation tables and helpers to query memory attributes and to modify them.
+
+  See `xlat\_tables\_utils.c`_.
+
+- **Architectural module**
+
+  Provides functions that are dependent on the current execution state
+  (AArch32/AArch64), such as the functions used for TLB invalidation, setup the
+  MMU, or calculate the Physical Address Space size. They do not need a
+  translation context to work on.
+
+  See `aarch32/xlat\_tables\_arch.c`_ and `aarch64/xlat\_tables\_arch.c`_.
 
 From mmap regions to translation tables
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-All the APIs in this module work on a translation context. The translation
-context contains the list of ``mmap_region``, which holds the information of all
-the regions that are mapped at any given time. Whenever there is a request to
-map (resp. unmap) a memory region, it is added to (resp. removed from) the
-``mmap_region`` list.
+A translation context contains a list of ``mmap_region_t``, which holds the
+information of all the regions that are mapped at any given time. Whenever there
+is a request to map (resp. unmap) a memory region, it is added to (resp. removed
+from) the ``mmap_region_t`` list.
 
 The mmap regions list is a conceptual way to represent the memory layout. At
 some point, the library has to convert this information into actual translation
@@ -326,7 +344,7 @@ be added. Changes to the translation tables (as well as the mmap regions list)
 will take effect immediately.
 
 The memory mapping algorithm
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The mapping function is implemented as a recursive algorithm. It is however
 bound by the level of depth of the translation tables (the Armv8-A architecture
@@ -367,7 +385,7 @@ about the sorting algorithm in use.
                       granularity.
 
 TLB maintenance operations
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The library takes care of performing TLB maintenance operations when required.
 For example, when the user requests removing a dynamic region, the library
@@ -391,17 +409,8 @@ descriptor. Given that the TLBs are not architecturally permitted to hold any
 invalid translation table entry [#tlb-no-invalid-entry]_, this means that this
 mapping cannot be cached in the TLBs.
 
-.. [#tlb-reset-ref] See section D4.8 `Translation Lookaside Buffers (TLBs)`, subsection `TLB behavior at reset` in Armv8-A, rev B.a.
-
-.. [#tlb-no-invalid-entry] See section D4.9.1 `General TLB maintenance requirements` in Armv8-A, rev B.a.
-
-Architectural module
-~~~~~~~~~~~~~~~~~~~~
-
-This module contains functions that have different implementations for AArch32
-and AArch64. For example, it provides APIs to perform TLB maintenance operations,
-enable the MMU or calculate the Physical Address Space size. They do not need a
-translation context to work on.
+.. [#tlb-reset-ref] See section D4.9 `Translation Lookaside Buffers (TLBs)`, subsection `TLB behavior at reset` in Armv8-A, rev C.a.
+.. [#tlb-no-invalid-entry] See section D4.10.1 `General TLB maintenance requirements` in Armv8-A, rev C.a.
 
 --------------
 
@@ -410,7 +419,9 @@ translation context to work on.
 .. _lib/xlat\_tables\_v2: ../lib/xlat_tables_v2
 .. _lib/xlat\_tables: ../lib/xlat_tables
 .. _xlat\_tables\_v2.h: ../include/lib/xlat_tables/xlat_tables_v2.h
-.. _xlat\_tables\_internal.c: ../lib/xlat_tables_v2/xlat_tables_internal.c
+.. _xlat\_tables\_context.c: ../lib/xlat_tables_v2/xlat_tables_context.c
+.. _xlat\_tables\_core.c: ../lib/xlat_tables_v2/xlat_tables_core.c
+.. _xlat\_tables\_utils.c: ../lib/xlat_tables_v2/xlat_tables_utils.c
 .. _aarch32/xlat\_tables\_arch.c: ../lib/xlat_tables_v2/aarch32/xlat_tables_arch.c
 .. _aarch64/xlat\_tables\_arch.c: ../lib/xlat_tables_v2/aarch64/xlat_tables_arch.c
 .. _Porting Guide: porting-guide.rst
