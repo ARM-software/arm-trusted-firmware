@@ -66,4 +66,7 @@
 /* SNVS base */
 #define SNVS_BASE			(AIPS1_BASE + 0x370000)
 
+/* GP Timer base */
+#define GPT1_BASE_ADDR			(AIPS1_BASE + 0x2d0000)
+
 #endif /* __REGS_H__ */
