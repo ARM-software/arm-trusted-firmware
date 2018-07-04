@@ -17,6 +17,7 @@
 #include <aips.h>
 #include <clock.h>
 #include <csu.h>
+#include <mxc_gpt.h>
 #include <io_mux.h>
 #include <mxc_console.h>
 #include <snvs.h>
@@ -161,6 +162,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	aips_init();
 	csu_init();
 	snvs_init();
+	mxc_gpt_ops_init(GPT1_BASE_ADDR);
 
 	/* Initialize clocks, regulators, pin-muxes etc */
 	clock_init();
