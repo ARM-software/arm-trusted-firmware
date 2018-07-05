@@ -50,6 +50,11 @@ int is_mmu_enabled_ctx(const xlat_ctx_t *ctx __unused)
 	return (read_sctlr() & SCTLR_M_BIT) != 0;
 }
 
+uint64_t xlat_arch_regime_get_xn_desc(int xlat_regime __unused)
+{
+	return UPPER_ATTRS(XN);
+}
+
 void xlat_arch_tlbi_va(uintptr_t va)
 {
 	/*

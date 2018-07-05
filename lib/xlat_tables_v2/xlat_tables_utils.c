@@ -11,7 +11,6 @@
 #include <platform_def.h>
 #include <types.h>
 #include <utils_def.h>
-#include <xlat_tables_arch_private.h>
 #include <xlat_tables_defs.h>
 #include <xlat_tables_v2.h>
 

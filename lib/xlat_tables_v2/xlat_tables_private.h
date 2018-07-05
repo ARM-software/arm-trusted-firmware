@@ -36,6 +36,12 @@
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 /*
+ * Return the execute-never mask that will prevent instruction fetch at the
+ * given translation regime.
+ */
+uint64_t xlat_arch_regime_get_xn_desc(int xlat_regime);
+
+/*
  * Invalidate all TLB entries that match the given virtual address. This
  * operation applies to all PEs in the same Inner Shareable domain as the PE
  * that executes this function. This functions must be called for every

@@ -113,6 +113,15 @@ int is_mmu_enabled_ctx(const xlat_ctx_t *ctx)
 	}
 }
 
+uint64_t xlat_arch_regime_get_xn_desc(int xlat_regime)
+{
+	if (xlat_regime == EL1_EL0_REGIME) {
+		return UPPER_ATTRS(UXN) | UPPER_ATTRS(PXN);
+	} else {
+		assert(xlat_regime == EL3_REGIME);
+		return UPPER_ATTRS(XN);
+	}
+}
 
 void xlat_arch_tlbi_va(uintptr_t va)
 {
