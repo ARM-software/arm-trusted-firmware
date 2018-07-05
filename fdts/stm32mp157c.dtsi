@@ -1,0 +1,240 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+/*
+ * Copyright (C) STMicroelectronics 2017 - All Rights Reserved
+ * Author: Ludovic Barre <ludovic.barre@st.com> for STMicroelectronics.
+ */
+
+#include <dt-bindings/clock/stm32mp1-clks.h>
+#include <dt-bindings/reset/stm32mp1-resets.h>
+
+/ {
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	aliases {
+		serial0 = &usart1;
+		serial1 = &usart2;
+		serial2 = &usart3;
+		serial3 = &uart4;
+		serial4 = &uart5;
+		serial5 = &usart6;
+		serial6 = &uart7;
+		serial7 = &uart8;
+	};
+
+	clocks {
+		clk_hse: clk-hse {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <24000000>;
+		};
+
+		clk_hsi: clk-hsi {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <64000000>;
+		};
+
+		clk_lse: clk-lse {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <32768>;
+		};
+
+		clk_lsi: clk-lsi {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <32000>;
+		};
+
+		clk_csi: clk-csi {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <4000000>;
+		};
+
+		clk_i2s_ckin: i2s_ckin {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <64000000>;
+		};
+
+		clk_dsi_phy: ck_dsi_phy {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <0>;
+		};
+
+		clk_usbo_48m: ck_usbo_48m {
+			#clock-cells = <0>;
+			compatible = "fixed-clock";
+			clock-frequency = <48000000>;
+		};
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		usart2: serial@4000e000 {
+			compatible = "st,stm32h7-usart";
+			reg = <0x4000e000 0x400>;
+			clocks = <&rcc USART2_K>;
+			status = "disabled";
+		};
+
+		usart3: serial@4000f000 {
+			compatible = "st,stm32h7-usart";
+			reg = <0x4000f000 0x400>;
+			clocks = <&rcc USART3_K>;
+			status = "disabled";
+		};
+
+		uart4: serial@40010000 {
+			compatible = "st,stm32h7-uart";
+			reg = <0x40010000 0x400>;
+			clocks = <&rcc UART4_K>;
+			status = "disabled";
+		};
+
+		uart5: serial@40011000 {
+			compatible = "st,stm32h7-uart";
+			reg = <0x40011000 0x400>;
+			clocks = <&rcc UART5_K>;
+			status = "disabled";
+		};
+
+
+		uart7: serial@40018000 {
+			compatible = "st,stm32h7-uart";
+			reg = <0x40018000 0x400>;
+			clocks = <&rcc UART7_K>;
+			status = "disabled";
+		};
+
+		uart8: serial@40019000 {
+			compatible = "st,stm32h7-uart";
+			reg = <0x40019000 0x400>;
+			clocks = <&rcc UART8_K>;
+			status = "disabled";
+		};
+
+		usart6: serial@44003000 {
+			compatible = "st,stm32h7-usart";
+			reg = <0x44003000 0x400>;
+			clocks = <&rcc USART6_K>;
+			status = "disabled";
+		};
+
+		sdmmc3: sdmmc@48004000 {
+			compatible = "st,stm32-sdmmc2";
+			reg = <0x48004000 0x400>, <0x48005000 0x400>;
+			reg-names = "sdmmc", "delay";
+			clocks = <&rcc SDMMC3_K>;
+			resets = <&rcc SDMMC3_R>;
+			cap-sd-highspeed;
+			cap-mmc-highspeed;
+			max-frequency = <120000000>;
+			status = "disabled";
+		};
+
+		rcc: rcc@50000000 {
+			compatible = "syscon", "st,stm32mp1-rcc";
+			#clock-cells = <1>;
+			#reset-cells = <1>;
+			reg = <0x50000000 0x1000>;
+		};
+
+		rcc_reboot: rcc-reboot@50000000 {
+				compatible = "syscon-reboot";
+				regmap = <&rcc>;
+				offset = <0x404>;
+				mask = <0x1>;
+		};
+
+		rng1: rng@54003000 {
+			compatible = "st,stm32-rng";
+			reg = <0x54003000 0x400>;
+			clocks = <&rcc RNG1_K>;
+			resets = <&rcc RNG1_R>;
+			status = "disabled";
+		};
+
+		fmc_nand: fmc_nand@58002000 {
+			compatible = "st,stm32mp1-fmc";
+			reg = <0x58002000 0x1000>,
+			      <0x80000000 0x40000>,
+			      <0x81000000 0x40000>,
+			      <0x88000000 0x40000>,
+			      <0x89000000 0x40000>;
+			clocks = <&rcc FMC_K>;
+			resets = <&rcc FMC_R>;
+			status = "disabled";
+		};
+
+		qspi: qspi@58003000 {
+			compatible = "st,stm32f469-qspi";
+			reg = <0x58003000 0x1000>, <0x70000000 0x10000000>;
+			clocks = <&rcc QSPI_K>;
+			status = "disabled";
+		};
+
+		sdmmc1: sdmmc@58005000 {
+			compatible = "st,stm32-sdmmc2";
+			reg = <0x58005000 0x1000>, <0x58006000 0x1000>;
+			reg-names = "sdmmc", "delay";
+			clocks = <&rcc SDMMC1_K>;
+			resets = <&rcc SDMMC1_R>;
+			cap-sd-highspeed;
+			cap-mmc-highspeed;
+			max-frequency = <120000000>;
+			status = "disabled";
+		};
+
+		sdmmc2: sdmmc@58007000 {
+			compatible = "st,stm32-sdmmc2";
+			reg = <0x58007000 0x1000>, <0x58008000 0x1000>;
+			reg-names = "sdmmc", "delay";
+			clocks = <&rcc SDMMC2_K>;
+			resets = <&rcc SDMMC2_R>;
+			cap-sd-highspeed;
+			cap-mmc-highspeed;
+			max-frequency = <120000000>;
+			status = "disabled";
+		};
+
+		iwdg2: iwdg@5a002000 {
+			compatible = "st,stm32mp1-iwdg";
+			reg = <0x5a002000 0x400>;
+			clocks = <&rcc IWDG2>, <&rcc CK_LSI>;
+			clock-names = "pclk", "lsi";
+			status = "disabled";
+		};
+
+		usart1: serial@5c000000 {
+			compatible = "st,stm32h7-usart";
+			reg = <0x5c000000 0x400>;
+			clocks = <&rcc USART1_K>;
+			status = "disabled";
+		};
+
+		i2c4: i2c@5c002000 {
+			compatible = "st,stm32f7-i2c";
+			reg = <0x5c002000 0x400>;
+			clocks = <&rcc I2C4_K>;
+			resets = <&rcc I2C4_R>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
+		};
+
+		rtc: rtc@5c004000 {
+			compatible = "st,stm32mp1-rtc";
+			reg = <0x5c004000 0x400>;
+			clocks = <&rcc RTCAPB>, <&rcc RTC>;
+			clock-names = "pclk", "rtc_ck";
+		};
+	};
+};
