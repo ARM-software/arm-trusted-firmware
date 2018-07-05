@@ -9,6 +9,14 @@
 
 #include <stdbool.h>
 
+struct dt_node_info {
+	uint32_t base;
+	int32_t clock;
+	int32_t reset;
+	bool status;
+	bool sec_status;
+};
+
 /*******************************************************************************
  * Function and variable prototypes
  ******************************************************************************/
@@ -22,5 +30,11 @@ uint32_t fdt_read_uint32_default(int node, const char *prop_name,
 int fdt_read_uint32_array(int node, const char *prop_name,
 			  uint32_t *array, uint32_t count);
 int dt_set_pinctrl_config(int node);
+int dt_set_stdout_pinctrl(void);
+void dt_fill_device_info(struct dt_node_info *info, int node);
+int dt_get_node(struct dt_node_info *info, int offset, const char *compat);
+int dt_get_stdout_uart_info(struct dt_node_info *info);
+int dt_get_stdout_node_offset(void);
+const char *dt_get_board_model(void);
 
 #endif /* __STM32MP1_DT_H__ */

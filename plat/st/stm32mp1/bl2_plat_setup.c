@@ -22,6 +22,7 @@
 #include <stm32mp1_context.h>
 #include <stm32mp1_pwr.h>
 #include <stm32mp1_rcc.h>
+#include <stm32mp1_reset.h>
 #include <string.h>
 #include <xlat_tables_v2.h>
 
@@ -38,8 +39,12 @@ void bl2_platform_setup(void)
 
 void bl2_el3_plat_arch_setup(void)
 {
+	int32_t result;
+	struct dt_node_info dt_dev_info;
+	const char *board_model;
 	boot_api_context_t *boot_context =
 		(boot_api_context_t *)stm32mp1_get_boot_ctx_address();
+	uint32_t clk_rate;
 
 	/*
 	 * Disable the backup domain write protection.
@@ -93,6 +98,42 @@ void bl2_el3_plat_arch_setup(void)
 	if (stm32mp1_clk_init() < 0) {
 		panic();
 	}
+
+	result = dt_get_stdout_uart_info(&dt_dev_info);
+
+	if ((result <= 0) ||
+	    (dt_dev_info.status == 0U) ||
+	    (dt_dev_info.clock < 0) ||
+	    (dt_dev_info.reset < 0)) {
+		goto skip_console_init;
+	}
+
+	if (dt_set_stdout_pinctrl() != 0) {
+		goto skip_console_init;
+	}
+
+	if (stm32mp1_clk_enable((unsigned long)dt_dev_info.clock) != 0) {
+		goto skip_console_init;
+	}
+
+	stm32mp1_reset_assert((uint32_t)dt_dev_info.reset);
+	udelay(2);
+	stm32mp1_reset_deassert((uint32_t)dt_dev_info.reset);
+	mdelay(1);
+
+	clk_rate = stm32mp1_clk_get_rate((unsigned long)dt_dev_info.clock);
+
+	if (console_init(dt_dev_info.base, clk_rate,
+			 STM32MP1_UART_BAUDRATE) == 0) {
+		panic();
+	}
+
+	board_model = dt_get_board_model();
+	if (board_model != NULL) {
+		NOTICE("%s\n", board_model);
+	}
+
+skip_console_init:
 
 	if (stm32_save_boot_interface(boot_context->boot_interface_selected,
 				      boot_context->boot_interface_instance) !=

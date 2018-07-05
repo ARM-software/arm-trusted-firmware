@@ -309,3 +309,148 @@ int dt_set_pinctrl_config(int node)
 
 	return 0;
 }
+
+/*******************************************************************************
+ * This function gets the stdout pin configuration information from the DT.
+ * And then calls the sub-function to treat it and set GPIO registers.
+ * Returns 0 if success, and a negative value else.
+ ******************************************************************************/
+int dt_set_stdout_pinctrl(void)
+{
+	int node;
+
+	node = dt_get_stdout_node_offset();
+	if (node < 0) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	return dt_set_pinctrl_config(node);
+}
+
+/*******************************************************************************
+ * This function fills the generic information from a given node.
+ ******************************************************************************/
+void dt_fill_device_info(struct dt_node_info *info, int node)
+{
+	const fdt32_t *cuint;
+
+	cuint = fdt_getprop(fdt, node, "reg", NULL);
+	if (cuint != NULL) {
+		info->base = fdt32_to_cpu(*cuint);
+	} else {
+		info->base = 0;
+	}
+
+	cuint = fdt_getprop(fdt, node, "clocks", NULL);
+	if (cuint != NULL) {
+		cuint++;
+		info->clock = (int)fdt32_to_cpu(*cuint);
+	} else {
+		info->clock = -1;
+	}
+
+	cuint = fdt_getprop(fdt, node, "resets", NULL);
+	if (cuint != NULL) {
+		cuint++;
+		info->reset = (int)fdt32_to_cpu(*cuint);
+	} else {
+		info->reset = -1;
+	}
+
+	info->status = fdt_check_status(node);
+	info->sec_status = fdt_check_secure_status(node);
+}
+
+/*******************************************************************************
+ * This function retrieve the generic information from DT.
+ * Returns node if success, and a negative value else.
+ ******************************************************************************/
+int dt_get_node(struct dt_node_info *info, int offset, const char *compat)
+{
+	int node;
+
+	node = fdt_node_offset_by_compatible(fdt, offset, compat);
+	if (node < 0) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	dt_fill_device_info(info, node);
+
+	return node;
+}
+
+/*******************************************************************************
+ * This function gets the UART instance info of stdout from the DT.
+ * Returns node if success, and a negative value else.
+ ******************************************************************************/
+int dt_get_stdout_uart_info(struct dt_node_info *info)
+{
+	int node;
+
+	node = dt_get_stdout_node_offset();
+	if (node < 0) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	dt_fill_device_info(info, node);
+
+	return node;
+}
+
+/*******************************************************************************
+ * This function gets the stdout path node.
+ * It reads the value indicated inside the device tree.
+ * Returns node if success, and a negative value else.
+ ******************************************************************************/
+int dt_get_stdout_node_offset(void)
+{
+	int node;
+	const char *cchar;
+
+	node = fdt_path_offset(fdt, "/chosen");
+	if (node < 0) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	cchar = fdt_getprop(fdt, node, "stdout-path", NULL);
+	if (cchar == NULL) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	node = -FDT_ERR_NOTFOUND;
+	if (strchr(cchar, (int)':') != NULL) {
+		const char *name;
+		char *str = (char *)cchar;
+		int len = 0;
+
+		while (strncmp(":", str, 1)) {
+			len++;
+			str++;
+		}
+
+		name = fdt_get_alias_namelen(fdt, cchar, len);
+
+		if (name != NULL) {
+			node = fdt_path_offset(fdt, name);
+		}
+	} else {
+		node = fdt_path_offset(fdt, cchar);
+	}
+
+	return node;
+}
+
+/*******************************************************************************
+ * This function retrieves board model from DT
+ * Returns string taken from model node, NULL otherwise
+ ******************************************************************************/
+const char *dt_get_board_model(void)
+{
+	int node = fdt_path_offset(fdt, "/");
+
+	if (node < 0) {
+		return NULL;
+	}
+
+	return (const char *)fdt_getprop(fdt, node, "model", NULL);
+}
