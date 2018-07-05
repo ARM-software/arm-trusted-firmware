@@ -243,6 +243,16 @@ The following build options are supported:
   BL32_EXTRA1=tee-pager_v2.bin  BL32_EXTRA2=tee-pageable_v2.bin``
   to put the binaries into the FIP.
 
+- ``TRUSTED_BOARD_BOOT``: This port supports TBB. Set this option
+  ``TRUSTED_BOARD_BOOT=1`` to enable it. In order to use TBB, you might
+  want to set ``GENERATE_COT=1`` to let the contents of the FIP automatically
+  signed by the build process. The ROT key will be generated and output to
+  ``rot_key.pem`` in the build directory. It is able to set ROT_KEY to
+  your own key in PEM format.
+  Also in order to build, you need to clone mbedtls from
+  `here <https://github.com/ARMmbed/mbedtls>`__.
+  And set MBEDTLS_DIR to mbedtls source directory.
+
 The following is not currently supported:
 
 - AArch32 for TF-A itself.
