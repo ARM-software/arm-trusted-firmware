@@ -173,6 +173,23 @@
 #define PLAT_WARP7_BOOT_UART_CLK_IN_HZ	24000000
 #define PLAT_WARP7_CONSOLE_BAUDRATE	115200
 
+/* MMC defines */
+#ifndef PLAT_WARP7_SD
+#define PLAT_WARP7_SD 3
+#endif
+
+#if PLAT_WARP7_SD == 1
+#define PLAT_WARP7_BOOT_EMMC_BASE	USDHC1_BASE
+#endif /* PLAT_WARP7_SD == 1 */
+
+#if PLAT_WARP7_SD == 2
+#define PLAT_WARP7_BOOT_EMMC_BASE	USDHC2_BASE
+#endif /* PLAT_WARP7_SD == 2 */
+
+#if PLAT_WARP7_SD == 3
+#define PLAT_WARP7_BOOT_EMMC_BASE	USDHC3_BASE
+#endif /* PLAT_WARP7_SD == 3 */
+
 /*
  * GIC related constants
  */
