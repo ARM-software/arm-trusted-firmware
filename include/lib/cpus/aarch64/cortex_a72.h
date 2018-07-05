@@ -38,6 +38,13 @@
 #define CORTEX_A72_CPUACTLR_EL1_DIS_INSTR_PREFETCH		(ULL(1) << 32)
 
 /*******************************************************************************
+ *  L2 Auxiliary Control register specific definitions.
+ ******************************************************************************/
+#define CORTEX_A72_L2ACTLR_EL1					S3_1_C15_C0_0
+
+#define CORTEX_A72_L2ACTLR_ENABLE_UNIQUE_CLEAN			(ULL(1) << 14)
+
+/*******************************************************************************
  * L2 Control register specific definitions.
  ******************************************************************************/
 #define CORTEX_A72_L2CTLR_EL1				S3_1_C11_C0_2
