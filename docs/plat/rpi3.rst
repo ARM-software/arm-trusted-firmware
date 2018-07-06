@@ -101,7 +101,7 @@ secure platform!
 
     0x00000000 +-----------------+
                |       ROM       | BL1
-    0x00010000 +-----------------+
+    0x00020000 +-----------------+
                |       FIP       |
     0x00200000 +-----------------+
                |                 |
@@ -213,7 +213,7 @@ by ``debug`` if you set the build option ``DEBUG=1``):
 .. code:: shell
 
     cp build/rpi3/release/bl1.bin bl1.pad.bin
-    truncate --size=65536 bl1.pad.bin
+    truncate --size=131072 bl1.pad.bin
     cat bl1.pad.bin build/rpi3/release/fip.bin > armstub8.bin
 
 The resulting file, ``armstub8.bin``, contains BL1 and the FIP in the place they
@@ -242,6 +242,16 @@ The following build options are supported:
   Build the Trusted Firmware with option ``BL32=tee-header_v2.bin
   BL32_EXTRA1=tee-pager_v2.bin  BL32_EXTRA2=tee-pageable_v2.bin``
   to put the binaries into the FIP.
+
+- ``TRUSTED_BOARD_BOOT``: This port supports TBB. Set this option
+  ``TRUSTED_BOARD_BOOT=1`` to enable it. In order to use TBB, you might
+  want to set ``GENERATE_COT=1`` to let the contents of the FIP automatically
+  signed by the build process. The ROT key will be generated and output to
+  ``rot_key.pem`` in the build directory. It is able to set ROT_KEY to
+  your own key in PEM format.
+  Also in order to build, you need to clone mbedtls from
+  `here <https://github.com/ARMmbed/mbedtls>`__.
+  And set MBEDTLS_DIR to mbedtls source directory.
 
 The following is not currently supported:
 

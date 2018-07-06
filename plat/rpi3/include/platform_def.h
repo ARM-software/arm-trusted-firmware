@@ -64,11 +64,11 @@
  * there is no Secure RAM in the Raspberry Pi 3.
  */
 #define SEC_ROM_BASE			ULL(0x00000000)
-#define SEC_ROM_SIZE			ULL(0x00010000)
+#define SEC_ROM_SIZE			ULL(0x00020000)
 
 /* FIP placed after ROM to append it to BL1 with very little padding. */
-#define PLAT_RPI3_FIP_BASE		ULL(0x00010000)
-#define PLAT_RPI3_FIP_MAX_SIZE		ULL(0x001F0000)
+#define PLAT_RPI3_FIP_BASE		ULL(0x00020000)
+#define PLAT_RPI3_FIP_MAX_SIZE		ULL(0x001E0000)
 
 /* We have 16M of memory reserved at at 256M */
 #define SEC_SRAM_BASE			ULL(0x10000000)
