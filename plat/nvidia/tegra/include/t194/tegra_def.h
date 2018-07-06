@@ -197,6 +197,14 @@
  * Tegra scratch registers constants
  ******************************************************************************/
 #define TEGRA_SCRATCH_BASE		U(0x0C390000)
+#define  SECURE_SCRATCH_RSV68_LO	U(0x284)
+#define  SECURE_SCRATCH_RSV68_HI	U(0x288)
+#define  SECURE_SCRATCH_RSV69_LO	U(0x28C)
+#define  SECURE_SCRATCH_RSV69_HI	U(0x290)
+#define  SECURE_SCRATCH_RSV70_LO	U(0x294)
+#define  SECURE_SCRATCH_RSV70_HI	U(0x298)
+#define  SECURE_SCRATCH_RSV71_LO	U(0x29C)
+#define  SECURE_SCRATCH_RSV71_HI	U(0x2A0)
 #define  SECURE_SCRATCH_RSV72_LO	U(0x2A4)
 #define  SECURE_SCRATCH_RSV72_HI	U(0x2A8)
 #define  SECURE_SCRATCH_RSV75   	U(0x2BC)

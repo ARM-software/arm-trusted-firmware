@@ -10,9 +10,11 @@
 #include <string.h>
 
 #include <arch_helpers.h>
+#include <bpmp_ipc.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <context.h>
+#include <drivers/delay_timer.h>
 #include <denver.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/psci/psci.h>
@@ -289,9 +291,34 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 	uint8_t stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
 		TEGRA194_STATE_ID_MASK;
+	uint64_t src_len_in_bytes = (uintptr_t)&__BL31_END__ - (uintptr_t)BL31_BASE;
 	uint64_t val;
+	int32_t ret = PSCI_E_SUCCESS;
 
 	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
+		val = params_from_bl2->tzdram_base +
+		      tegra194_get_cpu_reset_handler_size();
+
+		/* initialise communication channel with BPMP */
+		ret = tegra_bpmp_ipc_init();
+		assert(ret == 0);
+
+		/* Enable SE clock before SE context save */
+		ret = tegra_bpmp_ipc_enable_clock(TEGRA_CLK_SE);
+		assert(ret == 0);
+
+		/*
+		 * It is very unlikely that the BL31 image would be
+		 * bigger than 2^32 bytes
+		 */
+		assert(src_len_in_bytes < UINT32_MAX);
+
+		if (tegra_se_calculate_save_sha256(BL31_BASE,
+					(uint32_t)src_len_in_bytes) != 0) {
+			ERROR("Hash calculation failed. Reboot\n");
+			(void)tegra_soc_prepare_system_reset();
+		}
+
 		/*
 		 * The TZRAM loses power when we enter system suspend. To
 		 * allow graceful exit from system suspend, we need to copy
@@ -300,10 +327,14 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		val = params_from_bl2->tzdram_base +
 		      tegra194_get_cpu_reset_handler_size();
 		memcpy((void *)(uintptr_t)val, (void *)(uintptr_t)BL31_BASE,
-		       (uintptr_t)&__BL31_END__ - (uintptr_t)BL31_BASE);
+		       src_len_in_bytes);
+
+		/* Disable SE clock after SE context save */
+		ret = tegra_bpmp_ipc_disable_clock(TEGRA_CLK_SE);
+		assert(ret == 0);
 	}
 
-	return PSCI_E_SUCCESS;
+	return ret;
 }
 
 int32_t tegra_soc_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_state)
