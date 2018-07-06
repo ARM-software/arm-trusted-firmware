@@ -22,6 +22,11 @@ static entry_point_info_t bl33_image_ep_info;
 #pragma weak sp_min_plat_arch_setup
 #pragma weak plat_arm_sp_min_early_platform_setup
 
+#define MAP_BL_SP_MIN_TOTAL	MAP_REGION_FLAT(			\
+					BL32_BASE,			\
+					BL32_END - BL32_BASE,		\
+					MT_MEMORY | MT_RW | MT_SECURE)
+
 /*
  * Check that BL32_BASE is above ARM_TB_FW_CONFIG_LIMIT. The reserved page
  * is required for SOC_FW_CONFIG/TOS_FW_CONFIG passed from BL2.
@@ -196,18 +201,17 @@ void sp_min_plat_runtime_setup(void)
  ******************************************************************************/
 void sp_min_plat_arch_setup(void)
 {
-
-	arm_setup_page_tables(BL32_BASE,
-			      (BL32_END - BL32_BASE),
-			      BL_CODE_BASE,
-			      BL_CODE_END,
-			      BL_RO_DATA_BASE,
-			      BL_RO_DATA_END
+	const mmap_region_t bl_regions[] = {
+		MAP_BL_SP_MIN_TOTAL,
+		ARM_MAP_BL_CODE,
+		ARM_MAP_BL_RO_DATA,
 #if USE_COHERENT_MEM
-			      , BL_COHERENT_RAM_BASE,
-			      BL_COHERENT_RAM_END
+		ARM_MAP_BL_COHERENT_RAM,
 #endif
-			      );
+		{0}
+	};
+
+	arm_setup_page_tables(bl_regions, plat_arm_get_mmap());
 
 	enable_mmu_secure(0);
 }

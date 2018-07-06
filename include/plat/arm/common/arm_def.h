@@ -241,6 +241,25 @@
 						ARM_EL3_TZC_DRAM1_SIZE,	\
 						MT_MEMORY | MT_RW | MT_SECURE)
 
+#if SEPARATE_CODE_AND_RODATA
+#define ARM_MAP_BL_CODE			MAP_REGION_FLAT(			\
+						BL_CODE_BASE,			\
+						BL_CODE_END - BL_CODE_BASE,	\
+						MT_CODE | MT_SECURE)
+#define ARM_MAP_BL_RO_DATA		MAP_REGION_FLAT(			\
+						BL_RO_DATA_BASE,		\
+						BL_RO_DATA_END			\
+							- BL_RO_DATA_BASE,	\
+						MT_RO_DATA | MT_SECURE)
+#endif
+#if USE_COHERENT_MEM
+#define ARM_MAP_BL_COHERENT_RAM		MAP_REGION_FLAT(			\
+						BL_COHERENT_RAM_BASE,		\
+						BL_COHERENT_RAM_END		\
+							- BL_COHERENT_RAM_BASE, \
+						MT_DEVICE | MT_RW | MT_SECURE)
+#endif
+
 /*
  * The number of regions like RO(code), coherent and data required by
  * different BL stages which need to be mapped in the MMU.

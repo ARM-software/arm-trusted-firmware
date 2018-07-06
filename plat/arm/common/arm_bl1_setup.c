@@ -7,6 +7,7 @@
 #include <arch.h>
 #include <arm_def.h>
 #include <arm_xlat_tables.h>
+#include <assert.h>
 #include <bl1.h>
 #include <bl_common.h>
 #include <plat_arm.h>
@@ -23,6 +24,19 @@
 #pragma weak bl1_plat_sec_mem_layout
 #pragma weak bl1_plat_prepare_exit
 
+#define MAP_BL1_TOTAL		MAP_REGION_FLAT(			\
+					bl1_tzram_layout.total_base,	\
+					bl1_tzram_layout.total_size,	\
+					MT_MEMORY | MT_RW | MT_SECURE)
+#define MAP_BL1_CODE		MAP_REGION_FLAT(			\
+					BL_CODE_BASE,			\
+					BL1_CODE_END - BL_CODE_BASE,	\
+					MT_CODE | MT_SECURE)
+#define MAP_BL1_RO_DATA		MAP_REGION_FLAT(			\
+					BL1_RO_DATA_BASE,		\
+					BL1_RO_DATA_END			\
+						- BL_RO_DATA_BASE,	\
+					MT_RO_DATA | MT_SECURE)
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
 static meminfo_t bl1_tzram_layout;
@@ -84,17 +98,19 @@ void bl1_early_platform_setup(void)
  *****************************************************************************/
 void arm_bl1_plat_arch_setup(void)
 {
-	arm_setup_page_tables(bl1_tzram_layout.total_base,
-			      bl1_tzram_layout.total_size,
-			      BL_CODE_BASE,
-			      BL1_CODE_END,
-			      BL1_RO_DATA_BASE,
-			      BL1_RO_DATA_END
 #if USE_COHERENT_MEM
-			      , BL_COHERENT_RAM_BASE,
-			      BL_COHERENT_RAM_END
+	/* ARM platforms dont use coherent memory in BL1 */
+	assert((BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE) == 0U);
 #endif
-			     );
+
+	const mmap_region_t bl_regions[] = {
+		MAP_BL1_TOTAL,
+		MAP_BL1_CODE,
+		MAP_BL1_RO_DATA,
+		{0}
+	};
+
+	arm_setup_page_tables(bl_regions, plat_arm_get_mmap());
 #ifdef AARCH32
 	enable_mmu_secure(0);
 #else

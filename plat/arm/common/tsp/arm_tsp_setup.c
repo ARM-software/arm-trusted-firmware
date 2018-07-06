@@ -5,6 +5,7 @@
  */
 
 #include <arm_def.h>
+#include <assert.h>
 #include <bl_common.h>
 #include <console.h>
 #include <debug.h>
@@ -20,6 +21,10 @@
 #pragma weak tsp_platform_setup
 #pragma weak tsp_plat_arch_setup
 
+#define MAP_BL_TSP_TOTAL	MAP_REGION_FLAT(			\
+					BL32_BASE,			\
+					BL32_END - BL32_BASE,		\
+					MT_MEMORY | MT_RW | MT_SECURE)
 
 /*******************************************************************************
  * Initialize the UART
@@ -69,16 +74,18 @@ void tsp_platform_setup(void)
  ******************************************************************************/
 void tsp_plat_arch_setup(void)
 {
-	arm_setup_page_tables(BL32_BASE,
-			      (BL32_END - BL32_BASE),
-			      BL_CODE_BASE,
-			      BL_CODE_END,
-			      BL_RO_DATA_BASE,
-			      BL_RO_DATA_END
 #if USE_COHERENT_MEM
-			      , BL_COHERENT_RAM_BASE,
-			      BL_COHERENT_RAM_END
+	/* Ensure ARM platforms dont use coherent memory in TSP */
+	assert((BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE) == 0U);
 #endif
-			      );
+
+	const mmap_region_t bl_regions[] = {
+		MAP_BL_TSP_TOTAL,
+		ARM_MAP_BL_CODE,
+		ARM_MAP_BL_RO_DATA,
+		{0}
+	};
+
+	arm_setup_page_tables(bl_regions, plat_arm_get_mmap());
 	enable_mmu_el1(0);
 }

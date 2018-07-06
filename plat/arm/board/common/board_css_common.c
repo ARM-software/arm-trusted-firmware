@@ -53,6 +53,8 @@ const mmap_region_t plat_arm_mmap[] = {
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	CSS_MAP_DEVICE,
+	CSS_MAP_SCP_BL2U,
+	V2M_MAP_IOFPGA,
 	SOC_CSS_MAP_DEVICE,
 	{0}
 };
