@@ -75,7 +75,7 @@ ${BINARY}: ${OBJECTS} Makefile
 	@echo "  LD      $@"
 	@echo 'const char build_msg[] = "Built : "__TIME__", "__DATE__; \
                 const char platform_msg[] = "${PLAT_MSG}";' | \
-                ${CC} -c ${CFLAGS} -xc - -o src/build_msg.o
+                ${HOSTCC} -c ${CFLAGS} -xc - -o src/build_msg.o
 	${Q}${HOSTCC} src/build_msg.o ${OBJECTS} ${LIB_DIR} ${LIB} -o $@
 
 %.o: %.c
