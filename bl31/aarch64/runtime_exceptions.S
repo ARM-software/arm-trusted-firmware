@@ -213,7 +213,7 @@ end_vector_entry fiq_sp_el0
 
 
 vector_entry serror_sp_el0
-	b	report_unhandled_exception
+	no_ret	plat_handle_el3_ea
 end_vector_entry serror_sp_el0
 
 	/* ---------------------------------------------------------------------
@@ -239,7 +239,7 @@ vector_entry fiq_sp_elx
 end_vector_entry fiq_sp_elx
 
 vector_entry serror_sp_elx
-	b	report_unhandled_exception
+	no_ret	plat_handle_el3_ea
 end_vector_entry serror_sp_elx
 
 	/* ---------------------------------------------------------------------

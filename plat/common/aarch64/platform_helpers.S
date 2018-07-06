@@ -22,6 +22,7 @@
 
 	.weak	plat_handle_uncontainable_ea
 	.weak	plat_handle_double_fault
+	.weak	plat_handle_el3_ea
 
 #if !ENABLE_PLAT_COMPAT
 	.globl	platform_get_core_pos
@@ -212,3 +213,11 @@ endfunc plat_handle_uncontainable_ea
 func plat_handle_double_fault
 	b	report_unhandled_exception
 endfunc plat_handle_double_fault
+
+	/* -----------------------------------------------------
+	 * Platform handler for EL3 External Abort.
+	 * -----------------------------------------------------
+	 */
+func plat_handle_el3_ea
+	b	report_unhandled_exception
+endfunc plat_handle_el3_ea
