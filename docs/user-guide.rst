@@ -52,7 +52,7 @@ Install the required packages to build TF-A with the following command:
 
 ::
 
-    sudo apt-get install build-essential gcc make git libssl-dev
+    sudo apt-get install device-tree-compiler build-essential gcc make git libssl-dev
 
 TF-A has been tested with `Linaro Release 17.10`_.
 
