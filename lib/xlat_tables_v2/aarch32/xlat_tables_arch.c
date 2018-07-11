@@ -55,18 +55,7 @@ uint64_t xlat_arch_regime_get_xn_desc(int xlat_regime __unused)
 	return UPPER_ATTRS(XN);
 }
 
-void xlat_arch_tlbi_va(uintptr_t va)
-{
-	/*
-	 * Ensure the translation table write has drained into memory before
-	 * invalidating the TLB entry.
-	 */
-	dsbishst();
-
-	tlbimvaais(TLBI_ADDR(va));
-}
-
-void xlat_arch_tlbi_va_regime(uintptr_t va, int xlat_regime __unused)
+void xlat_arch_tlbi_va(uintptr_t va, int xlat_regime __unused)
 {
 	/*
 	 * Ensure the translation table write has drained into memory before

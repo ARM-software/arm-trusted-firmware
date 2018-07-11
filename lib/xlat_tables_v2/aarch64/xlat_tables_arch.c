@@ -123,18 +123,7 @@ uint64_t xlat_arch_regime_get_xn_desc(int xlat_regime)
 	}
 }
 
-void xlat_arch_tlbi_va(uintptr_t va)
-{
-#if IMAGE_EL == 1
-	assert(IS_IN_EL(1));
-	xlat_arch_tlbi_va_regime(va, EL1_EL0_REGIME);
-#elif IMAGE_EL == 3
-	assert(IS_IN_EL(3));
-	xlat_arch_tlbi_va_regime(va, EL3_REGIME);
-#endif
-}
-
-void xlat_arch_tlbi_va_regime(uintptr_t va, int xlat_regime)
+void xlat_arch_tlbi_va(uintptr_t va, int xlat_regime)
 {
 	/*
 	 * Ensure the translation table write has drained into memory before
