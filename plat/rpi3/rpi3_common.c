@@ -5,6 +5,7 @@
  */
 
 #include <arch_helpers.h>
+#include <assert.h>
 #include <bl_common.h>
 #include <console.h>
 #include <debug.h>
@@ -198,15 +199,21 @@ unsigned int plat_get_syscnt_freq2(void)
 
 uint32_t plat_ic_get_pending_interrupt_type(void)
 {
+	ERROR("rpi3: Interrupt routed to EL3.\n");
 	return INTR_TYPE_INVAL;
 }
 
-uint32_t plat_interrupt_type_to_line(uint32_t type,
-				     uint32_t security_state)
+uint32_t plat_interrupt_type_to_line(uint32_t type, uint32_t security_state)
 {
-	/* It is not expected to receive an interrupt route to EL3.
-	 * Hence panic() to flag error.
-	 */
-	ERROR("Interrupt not expected to be routed to EL3");
-	panic();
+	assert((type == INTR_TYPE_S_EL1) || (type == INTR_TYPE_EL3) ||
+	       (type == INTR_TYPE_NS));
+
+	assert(sec_state_is_valid(security_state));
+
+	/* Non-secure interrupts are signalled on the IRQ line always. */
+	if (type == INTR_TYPE_NS)
+		return __builtin_ctz(SCR_IRQ_BIT);
+
+	/* Secure interrupts are signalled on the FIQ line always. */
+	return  __builtin_ctz(SCR_FIQ_BIT);
 }
