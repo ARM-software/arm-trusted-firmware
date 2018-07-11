@@ -142,7 +142,7 @@ void css_scp_suspend(const struct psci_power_state *target_state)
  * Helper function to turn off a CPU power domain and its parent power domains
  * if applicable.
  */
-void css_scp_off(const psci_power_state_t *target_state)
+void css_scp_off(const struct psci_power_state *target_state)
 {
 	int lvl = 0, ret;
 	uint32_t scmi_pwr_state = 0;
@@ -298,7 +298,7 @@ void __dead2 css_scp_sys_reboot(void)
 	css_scp_system_off(SCMI_SYS_PWR_COLD_RESET);
 }
 
-scmi_channel_plat_info_t plat_css_scmi_plat_info = {
+static scmi_channel_plat_info_t plat_css_scmi_plat_info = {
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE,
 		.db_reg_addr = PLAT_CSS_MHU_BASE + CSS_SCMI_MHU_DB_REG_OFF,
 		.db_preserve_mask = 0xfffffffe,

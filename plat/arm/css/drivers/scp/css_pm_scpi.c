@@ -47,7 +47,7 @@ void css_scp_suspend(const struct psci_power_state *target_state)
  * if applicable. Since SCPI doesn't differentiate between OFF and suspend, we
  * call the suspend helper here.
  */
-void css_scp_off(const psci_power_state_t *target_state)
+void css_scp_off(const struct psci_power_state *target_state)
 {
 	css_scp_suspend(target_state);
 }

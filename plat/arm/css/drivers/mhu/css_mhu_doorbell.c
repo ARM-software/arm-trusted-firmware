@@ -9,7 +9,7 @@
 #include "css_mhu_doorbell.h"
 #include "../scmi/scmi.h"
 
-void mhu_ring_doorbell(scmi_channel_plat_info_t *plat_info)
+void mhu_ring_doorbell(struct scmi_channel_plat_info *plat_info)
 {
 	MHU_RING_DOORBELL(plat_info->db_reg_addr,
 			plat_info->db_modify_mask,
@@ -17,7 +17,7 @@ void mhu_ring_doorbell(scmi_channel_plat_info_t *plat_info)
 	return;
 }
 
-void mhuv2_ring_doorbell(scmi_channel_plat_info_t *plat_info)
+void mhuv2_ring_doorbell(struct scmi_channel_plat_info *plat_info)
 {
 	/* wake receiver */
 	MHU_V2_ACCESS_REQUEST(MHUV2_BASE_ADDR);

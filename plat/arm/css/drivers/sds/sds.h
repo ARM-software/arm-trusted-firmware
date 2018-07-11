@@ -80,7 +80,7 @@ typedef enum {
 } sds_access_mode_t;
 
 int sds_init(void);
-int sds_struct_exists(uint32_t structure_id);
+int sds_struct_exists(unsigned int structure_id);
 int sds_struct_read(uint32_t structure_id, unsigned int fld_off, void *data,
 		size_t size, sds_access_mode_t mode);
 int sds_struct_write(uint32_t structure_id, unsigned int fld_off, void *data,
