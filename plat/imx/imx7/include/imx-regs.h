@@ -80,4 +80,7 @@
 #define USDHC2_BASE			(AIPS1_BASE + 0xb50000)
 #define USDHC3_BASE			(AIPS1_BASE + 0xb60000)
 
+/* Arm optional memory mapped counter module base address */
+#define SYS_CNTCTL_BASE			(AIPS2_BASE + 0x2c0000)
+
 #endif /* __REGS_H__ */
