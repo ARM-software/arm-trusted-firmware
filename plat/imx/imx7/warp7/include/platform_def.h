@@ -203,6 +203,6 @@
 /*
  * System counter
  */
-#define SYS_COUNTER_FREQ_IN_TICKS	((1000 * 1000 * 1000) / 16)
+#define SYS_COUNTER_FREQ_IN_TICKS	8000000		/* 8 MHz */
 
 #endif /* __PLATFORM_DEF_H__ */
