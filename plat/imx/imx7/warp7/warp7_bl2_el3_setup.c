@@ -12,6 +12,7 @@
 #include <desc_image_load.h>
 #include <emmc.h>
 #include <mxc_usdhc.h>
+#include <mmio.h>
 #include <optee_utils.h>
 #include <platform_def.h>
 #include <utils.h>
@@ -167,6 +168,18 @@ static void warp7_usdhc_setup(void)
 	mxc_usdhc_init(&params);
 }
 
+static void warp7_setup_system_counter(void)
+{
+	unsigned long freq = SYS_COUNTER_FREQ_IN_TICKS;
+
+	/* Set the frequency table index to our target frequency */
+	asm volatile("mcr p15, 0, %0, c14, c0, 0" : : "r" (freq));
+
+	/* Enable system counter @ frequency table index 0, halt on debug */
+	mmio_write_32(SYS_CNTCTL_BASE + CNTCR_OFF,
+		      CNTCR_FCREQ(0) | CNTCR_HDBG | CNTCR_EN);
+}
+
 /*
  * bl2_early_platform_setup()
  * MMU off
@@ -187,6 +200,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	clock_init();
 	clock_enable_uart(0, uart_en_bits);
 	clock_enable_usdhc(usdhc_clock_sel, USDHC_CLK_SELECT);
+	warp7_setup_system_counter();
 
 	/* Setup pin-muxes */
 	warp7_setup_pinmux();
