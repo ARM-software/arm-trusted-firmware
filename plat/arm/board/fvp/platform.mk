@@ -116,7 +116,8 @@ FVP_CPU_LIBS		+=	lib/cpus/aarch64/cortex_a35.S			\
 				lib/cpus/aarch64/cortex_a73.S			\
 				lib/cpus/aarch64/cortex_a75.S			\
 				lib/cpus/aarch64/cortex_a76.S			\
-				lib/cpus/aarch64/cortex_ares.S
+				lib/cpus/aarch64/cortex_ares.S			\
+				lib/cpus/aarch64/cortex_deimos.S
 else
 FVP_CPU_LIBS		+=	lib/cpus/aarch32/cortex_a32.S
 endif
