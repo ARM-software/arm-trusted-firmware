@@ -123,7 +123,7 @@ secure platform!
                |   Secure SRAM   | BL2, BL31
     0x10100000 +-----------------+
                |   Secure DRAM   | BL32 (Secure payload)
-    0x10300000 +-----------------+
+    0x10C00000 +-----------------+
                | Non-secure DRAM | BL33
     0x11000000 +-----------------+
                |                 |
