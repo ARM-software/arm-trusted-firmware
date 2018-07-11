@@ -60,10 +60,19 @@ int imx_validate_ns_entrypoint(uintptr_t ns_entrypoint)
 	return PSCI_E_SUCCESS;
 }
 
+void __attribute__((noreturn)) imx_system_off(void)
+{
+	sc_pm_set_sys_power_mode(ipc_handle, SC_PM_PW_MODE_OFF);
+	wfi();
+	ERROR("power off failed.\n");
+	panic();
+}
+
 static const plat_psci_ops_t imx_plat_psci_ops = {
 	.pwr_domain_on = imx_pwr_domain_on,
 	.pwr_domain_on_finish = imx_pwr_domain_on_finish,
 	.validate_ns_entrypoint = imx_validate_ns_entrypoint,
+	.system_off = imx_system_off,
 };
 
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
