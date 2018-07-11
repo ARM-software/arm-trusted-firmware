@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,7 +22,7 @@ SECTIONS
 	*(arm_el3_tzc_dram)
 	__EL3_SEC_DRAM_UNALIGNED_END__ = .;
 
-	. = NEXT(PAGE_SIZE);
+	. = ALIGN(PAGE_SIZE);
 	__EL3_SEC_DRAM_END__ = .;
 	} >EL3_SEC_DRAM
 }

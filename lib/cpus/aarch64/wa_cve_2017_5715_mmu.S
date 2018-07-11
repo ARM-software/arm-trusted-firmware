@@ -66,19 +66,19 @@ vector_base wa_cve_2017_5715_mmu_vbar
 	 */
 vector_entry mmu_sync_exception_sp_el0
 	b	sync_exception_sp_el0
-	check_vector_size mmu_sync_exception_sp_el0
+end_vector_entry mmu_sync_exception_sp_el0
 
 vector_entry mmu_irq_sp_el0
 	b	irq_sp_el0
-	check_vector_size mmu_irq_sp_el0
+end_vector_entry mmu_irq_sp_el0
 
 vector_entry mmu_fiq_sp_el0
 	b	fiq_sp_el0
-	check_vector_size mmu_fiq_sp_el0
+end_vector_entry mmu_fiq_sp_el0
 
 vector_entry mmu_serror_sp_el0
 	b	serror_sp_el0
-	check_vector_size mmu_serror_sp_el0
+end_vector_entry mmu_serror_sp_el0
 
 	/* ---------------------------------------------------------------------
 	 * Current EL with SP_ELx: 0x200 - 0x400
@@ -86,19 +86,19 @@ vector_entry mmu_serror_sp_el0
 	 */
 vector_entry mmu_sync_exception_sp_elx
 	b	sync_exception_sp_elx
-	check_vector_size mmu_sync_exception_sp_elx
+end_vector_entry mmu_sync_exception_sp_elx
 
 vector_entry mmu_irq_sp_elx
 	b	irq_sp_elx
-	check_vector_size mmu_irq_sp_elx
+end_vector_entry mmu_irq_sp_elx
 
 vector_entry mmu_fiq_sp_elx
 	b	fiq_sp_elx
-	check_vector_size mmu_fiq_sp_elx
+end_vector_entry mmu_fiq_sp_elx
 
 vector_entry mmu_serror_sp_elx
 	b	serror_sp_elx
-	check_vector_size mmu_serror_sp_elx
+end_vector_entry mmu_serror_sp_elx
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch64 : 0x400 - 0x600
@@ -107,22 +107,22 @@ vector_entry mmu_serror_sp_elx
 vector_entry mmu_sync_exception_aarch64
 	apply_cve_2017_5715_wa _is_sync_exception=1 _esr_el3_val=ESR_EL3_A64_SMC0
 	b	sync_exception_aarch64
-	check_vector_size mmu_sync_exception_aarch64
+end_vector_entry mmu_sync_exception_aarch64
 
 vector_entry mmu_irq_aarch64
 	apply_cve_2017_5715_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A64_SMC0
 	b	irq_aarch64
-	check_vector_size mmu_irq_aarch64
+end_vector_entry mmu_irq_aarch64
 
 vector_entry mmu_fiq_aarch64
 	apply_cve_2017_5715_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A64_SMC0
 	b	fiq_aarch64
-	check_vector_size mmu_fiq_aarch64
+end_vector_entry mmu_fiq_aarch64
 
 vector_entry mmu_serror_aarch64
 	apply_cve_2017_5715_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A64_SMC0
 	b	serror_aarch64
-	check_vector_size mmu_serror_aarch64
+end_vector_entry mmu_serror_aarch64
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch32 : 0x600 - 0x800
@@ -131,19 +131,19 @@ vector_entry mmu_serror_aarch64
 vector_entry mmu_sync_exception_aarch32
 	apply_cve_2017_5715_wa _is_sync_exception=1 _esr_el3_val=ESR_EL3_A32_SMC0
 	b	sync_exception_aarch32
-	check_vector_size mmu_sync_exception_aarch32
+end_vector_entry mmu_sync_exception_aarch32
 
 vector_entry mmu_irq_aarch32
 	apply_cve_2017_5715_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A32_SMC0
 	b	irq_aarch32
-	check_vector_size mmu_irq_aarch32
+end_vector_entry mmu_irq_aarch32
 
 vector_entry mmu_fiq_aarch32
 	apply_cve_2017_5715_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A32_SMC0
 	b	fiq_aarch32
-	check_vector_size mmu_fiq_aarch32
+end_vector_entry mmu_fiq_aarch32
 
 vector_entry mmu_serror_aarch32
 	apply_cve_2017_5715_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A32_SMC0
 	b	serror_aarch32
-	check_vector_size mmu_serror_aarch32
+end_vector_entry mmu_serror_aarch32

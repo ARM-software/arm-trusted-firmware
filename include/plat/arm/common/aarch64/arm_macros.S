@@ -22,8 +22,7 @@ icc_regs:
 
 /* Registers common to both GICv2 and GICv3 */
 gicd_pend_reg:
-	.asciz "gicd_ispendr regs (Offsets 0x200 - 0x278)\n"	\
-		" Offset:\t\t\tvalue\n"
+	.asciz "gicd_ispendr regs (Offsets 0x200 - 0x278)\n Offset:\t\t\tvalue\n"
 newline:
 	.asciz "\n"
 spacer:

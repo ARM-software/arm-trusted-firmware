@@ -55,19 +55,19 @@ vector_base workaround_bpflush_runtime_exceptions
 	 */
 vector_entry workaround_bpflush_sync_exception_sp_el0
 	b	sync_exception_sp_el0
-	check_vector_size workaround_bpflush_sync_exception_sp_el0
+end_vector_entry workaround_bpflush_sync_exception_sp_el0
 
 vector_entry workaround_bpflush_irq_sp_el0
 	b	irq_sp_el0
-	check_vector_size workaround_bpflush_irq_sp_el0
+end_vector_entry workaround_bpflush_irq_sp_el0
 
 vector_entry workaround_bpflush_fiq_sp_el0
 	b	fiq_sp_el0
-	check_vector_size workaround_bpflush_fiq_sp_el0
+end_vector_entry workaround_bpflush_fiq_sp_el0
 
 vector_entry workaround_bpflush_serror_sp_el0
 	b	serror_sp_el0
-	check_vector_size workaround_bpflush_serror_sp_el0
+end_vector_entry workaround_bpflush_serror_sp_el0
 
 	/* ---------------------------------------------------------------------
 	 * Current EL with SP_ELx: 0x200 - 0x400
@@ -75,19 +75,19 @@ vector_entry workaround_bpflush_serror_sp_el0
 	 */
 vector_entry workaround_bpflush_sync_exception_sp_elx
 	b	sync_exception_sp_elx
-	check_vector_size workaround_bpflush_sync_exception_sp_elx
+end_vector_entry workaround_bpflush_sync_exception_sp_elx
 
 vector_entry workaround_bpflush_irq_sp_elx
 	b	irq_sp_elx
-	check_vector_size workaround_bpflush_irq_sp_elx
+end_vector_entry workaround_bpflush_irq_sp_elx
 
 vector_entry workaround_bpflush_fiq_sp_elx
 	b	fiq_sp_elx
-	check_vector_size workaround_bpflush_fiq_sp_elx
+end_vector_entry workaround_bpflush_fiq_sp_elx
 
 vector_entry workaround_bpflush_serror_sp_elx
 	b	serror_sp_elx
-	check_vector_size workaround_bpflush_serror_sp_elx
+end_vector_entry workaround_bpflush_serror_sp_elx
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch64 : 0x400 - 0x600
@@ -96,22 +96,22 @@ vector_entry workaround_bpflush_serror_sp_elx
 vector_entry workaround_bpflush_sync_exception_aarch64
 	apply_workaround
 	b	sync_exception_aarch64
-	check_vector_size workaround_bpflush_sync_exception_aarch64
+end_vector_entry workaround_bpflush_sync_exception_aarch64
 
 vector_entry workaround_bpflush_irq_aarch64
 	apply_workaround
 	b	irq_aarch64
-	check_vector_size workaround_bpflush_irq_aarch64
+end_vector_entry workaround_bpflush_irq_aarch64
 
 vector_entry workaround_bpflush_fiq_aarch64
 	apply_workaround
 	b	fiq_aarch64
-	check_vector_size workaround_bpflush_fiq_aarch64
+end_vector_entry workaround_bpflush_fiq_aarch64
 
 vector_entry workaround_bpflush_serror_aarch64
 	apply_workaround
 	b	serror_aarch64
-	check_vector_size workaround_bpflush_serror_aarch64
+end_vector_entry workaround_bpflush_serror_aarch64
 
 	/* ---------------------------------------------------------------------
 	 * Lower EL using AArch32 : 0x600 - 0x800
@@ -120,22 +120,22 @@ vector_entry workaround_bpflush_serror_aarch64
 vector_entry workaround_bpflush_sync_exception_aarch32
 	apply_workaround
 	b	sync_exception_aarch32
-	check_vector_size workaround_bpflush_sync_exception_aarch32
+end_vector_entry workaround_bpflush_sync_exception_aarch32
 
 vector_entry workaround_bpflush_irq_aarch32
 	apply_workaround
 	b	irq_aarch32
-	check_vector_size workaround_bpflush_irq_aarch32
+end_vector_entry workaround_bpflush_irq_aarch32
 
 vector_entry workaround_bpflush_fiq_aarch32
 	apply_workaround
 	b	fiq_aarch32
-	check_vector_size workaround_bpflush_fiq_aarch32
+end_vector_entry workaround_bpflush_fiq_aarch32
 
 vector_entry workaround_bpflush_serror_aarch32
 	apply_workaround
 	b	serror_aarch32
-	check_vector_size workaround_bpflush_serror_aarch32
+end_vector_entry workaround_bpflush_serror_aarch32
 
 	.global	denver_disable_dco
 

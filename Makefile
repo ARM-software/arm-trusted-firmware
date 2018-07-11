@@ -85,7 +85,13 @@ $(eval $(call add_define,DEBUG))
 ifneq (${DEBUG}, 0)
         BUILD_TYPE	:=	debug
         TF_CFLAGS	+= 	-g
-        ASFLAGS		+= 	-g -Wa,--gdwarf-2
+
+        ifneq ($(findstring clang,$(notdir $(CC))),)
+             ASFLAGS		+= 	-g
+        else
+             ASFLAGS		+= 	-g -Wa,--gdwarf-2
+        endif
+
         # Use LOG_LEVEL_INFO by default for debug builds
         LOG_LEVEL	:=	40
 else
@@ -119,7 +125,7 @@ CC			:=	${CROSS_COMPILE}gcc
 CPP			:=	${CROSS_COMPILE}cpp
 AS			:=	${CROSS_COMPILE}gcc
 AR			:=	${CROSS_COMPILE}ar
-LD			:=	${CROSS_COMPILE}ld
+LINKER			:=	${CROSS_COMPILE}ld
 OC			:=	${CROSS_COMPILE}objcopy
 OD			:=	${CROSS_COMPILE}objdump
 NM			:=	${CROSS_COMPILE}nm
@@ -128,8 +134,8 @@ DTC			:=	dtc
 
 # Use ${LD}.bfd instead if it exists (as absolute path or together with $PATH).
 ifneq ($(strip $(wildcard ${LD}.bfd) \
-	$(foreach dir,$(subst :, ,${PATH}),$(wildcard ${dir}/${LD}.bfd))),)
-LD			:=	${LD}.bfd
+	$(foreach dir,$(subst :, ,${PATH}),$(wildcard ${dir}/${LINKER}.bfd))),)
+LINKER			:=	${LINKER}.bfd
 endif
 
 ifeq (${ARM_ARCH_MAJOR},7)
@@ -143,12 +149,21 @@ endif
 ifeq ($(notdir $(CC)),armclang)
 TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi $(march32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi -march=armv8-a
+LD			=	$(LINKER)
+AS			=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
+CPP			=	$(CC) -E $(TF_CFLAGS_$(ARCH))
+PP			=	$(CC) -E $(TF_CFLAGS_$(ARCH))
 else ifneq ($(findstring clang,$(notdir $(CC))),)
 TF_CFLAGS_aarch32	=	$(target32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-elf
+LD			=	$(LINKER)
+AS			=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
+CPP			=	$(CC) -E
+PP			=	$(CC) -E
 else
 TF_CFLAGS_aarch32	=	$(march32-directive)
 TF_CFLAGS_aarch64	=	-march=armv8-a
+LD			=	$(LINKER)
 endif
 
 TF_CFLAGS_aarch32	+=	-mno-unaligned-access

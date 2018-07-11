@@ -38,46 +38,56 @@
 # define REPORT_ERRATA	0
 #endif
 
-	/*
-	 * Define the offsets to the fields in cpu_ops structure.
-	 */
-	.struct 0
-CPU_MIDR: /* cpu_ops midr */
-	.space  8
-/* Reset fn is needed in BL at reset vector */
-#if defined(IMAGE_AT_EL3)
-CPU_RESET_FUNC: /* cpu_ops reset_func */
-	.space  8
+
+	.equ	CPU_MIDR_SIZE, CPU_WORD_SIZE
+	.equ	CPU_EXTRA1_FUNC_SIZE, CPU_WORD_SIZE
+	.equ	CPU_EXTRA2_FUNC_SIZE, CPU_WORD_SIZE
+	.equ	CPU_RESET_FUNC_SIZE, CPU_WORD_SIZE
+	.equ	CPU_PWR_DWN_OPS_SIZE, CPU_WORD_SIZE * CPU_MAX_PWR_DWN_OPS
+	.equ	CPU_ERRATA_FUNC_SIZE, CPU_WORD_SIZE
+	.equ	CPU_ERRATA_LOCK_SIZE, CPU_WORD_SIZE
+	.equ	CPU_ERRATA_PRINTED_SIZE, CPU_WORD_SIZE
+	.equ	CPU_REG_DUMP_SIZE, CPU_WORD_SIZE
+
+#ifndef IMAGE_AT_EL3
+	.equ	CPU_RESET_FUNC_SIZE, 0
 #endif
-CPU_EXTRA1_FUNC:
-	.space	8
-CPU_EXTRA2_FUNC:
-	.space	8
-#ifdef IMAGE_BL31 /* The power down core and cluster is needed only in BL31 */
-CPU_PWR_DWN_OPS: /* cpu_ops power down functions */
-	.space  (8 * CPU_MAX_PWR_DWN_OPS)
+
+/* The power down core and cluster is needed only in BL31 */
+#ifndef IMAGE_BL31
+	.equ	CPU_PWR_DWN_OPS_SIZE, 0
+#endif
+
+/* Fields required to print errata status. */
+#if !REPORT_ERRATA
+	.equ	CPU_ERRATA_FUNC_SIZE, 0
+#endif
+
+/* Only BL31 requieres mutual exclusion and printed flag.  */
+#if !(REPORT_ERRATA && defined(IMAGE_BL31))
+	.equ	CPU_ERRATA_LOCK_SIZE, 0
+	.equ	CPU_ERRATA_PRINTED_SIZE, 0
+#endif
+
+#if !defined(IMAGE_BL31) || !CRASH_REPORTING
+	.equ	CPU_REG_DUMP_SIZE, 0
 #endif
 
 /*
- * Fields required to print errata status. Only in BL31 that the printing
- * require mutual exclusion and printed flag.
+ * Define the offsets to the fields in cpu_ops structure.
+ * Every offset is defined based in the offset and size of the previous
+ * field.
  */
-#if REPORT_ERRATA
-CPU_ERRATA_FUNC:
-	.space	8
-#if defined(IMAGE_BL31)
-CPU_ERRATA_LOCK:
-	.space	8
-CPU_ERRATA_PRINTED:
-	.space	8
-#endif
-#endif
-
-#if defined(IMAGE_BL31) && CRASH_REPORTING
-CPU_REG_DUMP: /* cpu specific register dump for crash reporting */
-	.space  8
-#endif
-CPU_OPS_SIZE = .
+	.equ	CPU_MIDR, 0
+	.equ	CPU_RESET_FUNC, CPU_MIDR + CPU_MIDR_SIZE
+	.equ	CPU_EXTRA1_FUNC, CPU_RESET_FUNC + CPU_RESET_FUNC_SIZE
+	.equ	CPU_EXTRA2_FUNC, CPU_EXTRA1_FUNC + CPU_EXTRA1_FUNC_SIZE
+	.equ	CPU_PWR_DWN_OPS, CPU_EXTRA2_FUNC + CPU_EXTRA2_FUNC_SIZE
+	.equ	CPU_ERRATA_FUNC, CPU_PWR_DWN_OPS + CPU_PWR_DWN_OPS_SIZE
+	.equ	CPU_ERRATA_LOCK, CPU_ERRATA_FUNC + CPU_ERRATA_FUNC_SIZE
+	.equ	CPU_ERRATA_PRINTED, CPU_ERRATA_LOCK + CPU_ERRATA_LOCK_SIZE
+	.equ	CPU_REG_DUMP, CPU_ERRATA_PRINTED + CPU_ERRATA_PRINTED_SIZE
+	.equ	CPU_OPS_SIZE, CPU_REG_DUMP + CPU_REG_DUMP_SIZE
 
 	/*
 	 * Write given expressions as quad words
@@ -149,21 +159,8 @@ CPU_OPS_SIZE = .
 	.quad \_extra1
 	.quad \_extra2
 #ifdef IMAGE_BL31
-1:
 	/* Insert list of functions */
 	fill_constants CPU_MAX_PWR_DWN_OPS, \_power_down_ops
-2:
-	/*
-	 * Error if no or more than CPU_MAX_PWR_DWN_OPS were specified in the
-	 * list
-	 */
-	.ifeq 2b - 1b
-	  .error "At least one power down function must be specified"
-	.else
-	  .iflt 2b - 1b - (CPU_MAX_PWR_DWN_OPS * CPU_WORD_SIZE)
-	    .error "More than CPU_MAX_PWR_DWN_OPS functions specified"
-	  .endif
-	.endif
 #endif
 
 #if REPORT_ERRATA

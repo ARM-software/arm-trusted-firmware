@@ -28,14 +28,23 @@ SECTIONS
         *bl2u_entrypoint.o(.text*)
         *(.text*)
         *(.vectors)
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __TEXT_END__ = .;
+     } >RAM
+
+     /* .ARM.extab and .ARM.exidx are only added because Clang need them */
+     .ARM.extab . : {
+        *(.ARM.extab* .gnu.linkonce.armextab.*)
+     } >RAM
+
+     .ARM.exidx . : {
+        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
      } >RAM
 
     .rodata . : {
         __RODATA_START__ = .;
         *(.rodata*)
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __RODATA_END__ = .;
     } >RAM
 #else
@@ -52,7 +61,7 @@ SECTIONS
          * read-only, executable.  No RW data from the next section must
          * creep in.  Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __RO_END__ = .;
     } >RAM
 #endif
@@ -118,7 +127,7 @@ SECTIONS
          * as device memory.  No other unexpected data must creep in.
          * Ensure the rest of the current memory page is unused.
          */
-        . = NEXT(PAGE_SIZE);
+        . = ALIGN(PAGE_SIZE);
         __COHERENT_RAM_END__ = .;
     } >RAM
 #endif
