@@ -66,6 +66,58 @@ void imx_pwr_domain_off(const psci_power_state_t *target_state)
 	tf_printf("turn off core:%d\n", cpu_id);
 }
 
+void imx_domain_suspend(const psci_power_state_t *target_state)
+{
+	u_register_t mpidr = read_mpidr_el1();
+	unsigned int cpu_id = MPIDR_AFFLVL0_VAL(mpidr);
+
+	plat_gic_cpuif_disable();
+
+	sc_pm_set_cpu_resume_addr(ipc_handle, ap_core_index[cpu_id], BL31_BASE);
+	sc_pm_req_cpu_low_power_mode(ipc_handle, ap_core_index[cpu_id],
+		SC_PM_PW_MODE_OFF, SC_PM_WAKE_SRC_GIC);
+}
+
+void imx_domain_suspend_finish(const psci_power_state_t *target_state)
+{
+	u_register_t mpidr = read_mpidr_el1();
+	unsigned int cpu_id = MPIDR_AFFLVL0_VAL(mpidr);
+
+	sc_pm_req_low_power_mode(ipc_handle, ap_core_index[cpu_id],
+		SC_PM_PW_MODE_ON);
+
+	plat_gic_cpuif_enable();
+}
+
+int imx_validate_power_state(unsigned int power_state,
+			 psci_power_state_t *req_state)
+{
+	int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
+
+	if (pwr_lvl > PLAT_MAX_PWR_LVL)
+		return PSCI_E_INVALID_PARAMS;
+
+	/* Sanity check the requested afflvl */
+	if (psci_get_pstate_type(power_state) == PSTATE_TYPE_STANDBY) {
+		if (pwr_lvl != MPIDR_AFFLVL0)
+			return PSCI_E_INVALID_PARAMS;
+		/* power domain in standby state */
+		req_state->pwr_domain_state[pwr_lvl] = PLAT_MAX_RET_STATE;
+
+		return PSCI_E_SUCCESS;
+	}
+
+	return PSCI_E_SUCCESS;
+}
+
+void imx_get_sys_suspend_power_state(psci_power_state_t *req_state)
+{
+	unsigned int i;
+
+	for (i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++)
+		req_state->pwr_domain_state[i] = PLAT_MAX_RET_STATE;
+}
+
 int imx_validate_ns_entrypoint(uintptr_t ns_entrypoint)
 {
 	return PSCI_E_SUCCESS;
@@ -91,6 +143,10 @@ static const plat_psci_ops_t imx_plat_psci_ops = {
 	.pwr_domain_on = imx_pwr_domain_on,
 	.pwr_domain_on_finish = imx_pwr_domain_on_finish,
 	.pwr_domain_off = imx_pwr_domain_off,
+	.pwr_domain_suspend = imx_domain_suspend,
+	.pwr_domain_suspend_finish = imx_domain_suspend_finish,
+	.get_sys_suspend_power_state = imx_get_sys_suspend_power_state,
+	.validate_power_state = imx_validate_power_state,
 	.validate_ns_entrypoint = imx_validate_ns_entrypoint,
 	.system_off = imx_system_off,
 	.system_reset = imx_system_reset,
@@ -101,6 +157,18 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 {
 	imx_mailbox_init(sec_entrypoint);
 	*psci_ops = &imx_plat_psci_ops;
+
+	/* Request low power mode for A35 cluster, only need to do once */
+	sc_pm_req_low_power_mode(ipc_handle, SC_R_A35, SC_PM_PW_MODE_OFF);
+
+	/* Request RUN and LP modes for DDR, system interconnect etc. */
+	sc_pm_req_sys_if_power_mode(ipc_handle, SC_R_A35,
+		SC_PM_SYS_IF_DDR, SC_PM_PW_MODE_ON, SC_PM_PW_MODE_STBY);
+	sc_pm_req_sys_if_power_mode(ipc_handle, SC_R_A35,
+		SC_PM_SYS_IF_MU, SC_PM_PW_MODE_ON, SC_PM_PW_MODE_STBY);
+	sc_pm_req_sys_if_power_mode(ipc_handle, SC_R_A35,
+		SC_PM_SYS_IF_INTERCONNECT, SC_PM_PW_MODE_ON,
+		SC_PM_PW_MODE_STBY);
 
 	return 0;
 }
