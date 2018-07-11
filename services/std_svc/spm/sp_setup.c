@@ -107,38 +107,22 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	 * MMU-related registers
 	 * ---------------------
 	 */
+	xlat_ctx_t *xlat_ctx = sp_ctx->xlat_ctx_handle;
 
-	/* Set attributes in the right indices of the MAIR */
-	u_register_t mair_el1 =
-		MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX) |
-		MAIR_ATTR_SET(ATTR_IWBWA_OWBWA_NTR, ATTR_IWBWA_OWBWA_NTR_INDEX) |
-		MAIR_ATTR_SET(ATTR_NON_CACHEABLE, ATTR_NON_CACHEABLE_INDEX);
+	uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
 
-	write_ctx_reg(get_sysregs_ctx(ctx), CTX_MAIR_EL1, mair_el1);
+	setup_mmu_cfg((uint64_t *)&mmu_cfg_params, 0, xlat_ctx->base_table,
+		      xlat_ctx->pa_max_address, xlat_ctx->va_max_address,
+		      EL1_EL0_REGIME);
 
-	/* Setup TCR_EL1. */
-	u_register_t tcr_ps_bits = tcr_physical_addr_size_bits(PLAT_PHY_ADDR_SPACE_SIZE);
+	write_ctx_reg(get_sysregs_ctx(ctx), CTX_MAIR_EL1,
+		      mmu_cfg_params[MMU_CFG_MAIR]);
 
-	u_register_t tcr_el1 =
-		/* Size of region addressed by TTBR0_EL1 = 2^(64-T0SZ) bytes. */
-		(64 - __builtin_ctzl(PLAT_VIRT_ADDR_SPACE_SIZE))		|
-		/* Inner and outer WBWA, shareable. */
-		TCR_SH_INNER_SHAREABLE | TCR_RGN_OUTER_WBA | TCR_RGN_INNER_WBA	|
-		/* Set the granularity to 4KB. */
-		TCR_TG0_4K							|
-		/* Limit Intermediate Physical Address Size. */
-		tcr_ps_bits << TCR_EL1_IPS_SHIFT				|
-		/* Disable translations using TBBR1_EL1. */
-		TCR_EPD1_BIT
-		/* The remaining fields related to TBBR1_EL1 are left as zero. */
-	;
+	write_ctx_reg(get_sysregs_ctx(ctx), CTX_TCR_EL1,
+		      mmu_cfg_params[MMU_CFG_TCR]);
 
-	tcr_el1 &= ~(
-		/* Enable translations using TBBR0_EL1 */
-		TCR_EPD0_BIT
-	);
-
-	write_ctx_reg(get_sysregs_ctx(ctx), CTX_TCR_EL1, tcr_el1);
+	write_ctx_reg(get_sysregs_ctx(ctx), CTX_TTBR0_EL1,
+		      mmu_cfg_params[MMU_CFG_TTBR0]);
 
 	/* Setup SCTLR_EL1 */
 	u_register_t sctlr_el1 = read_ctx_reg(get_sysregs_ctx(ctx), CTX_SCTLR_EL1);
@@ -173,13 +157,6 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	);
 
 	write_ctx_reg(get_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_el1);
-
-	uint64_t *xlat_base =
-			((xlat_ctx_t *)sp_ctx->xlat_ctx_handle)->base_table;
-
-	/* Point TTBR0_EL1 at the tables of the context created for the SP. */
-	write_ctx_reg(get_sysregs_ctx(ctx), CTX_TTBR0_EL1,
-			(u_register_t)xlat_base);
 
 	/*
 	 * Setup other system registers
