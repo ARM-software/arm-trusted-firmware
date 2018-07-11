@@ -42,13 +42,13 @@
 #define MPIDR_AFFLVL2		U(2)
 #define MPIDR_AFFLVL3		U(3)
 #define MPIDR_AFFLVL0_VAL(mpidr) \
-		((mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK)
+		(((mpidr) >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK)
 #define MPIDR_AFFLVL1_VAL(mpidr) \
-		((mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK)
+		(((mpidr) >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK)
 #define MPIDR_AFFLVL2_VAL(mpidr) \
-		((mpidr >> MPIDR_AFF2_SHIFT) & MPIDR_AFFLVL_MASK)
+		(((mpidr) >> MPIDR_AFF2_SHIFT) & MPIDR_AFFLVL_MASK)
 #define MPIDR_AFFLVL3_VAL(mpidr) \
-		((mpidr >> MPIDR_AFF3_SHIFT) & MPIDR_AFFLVL_MASK)
+		(((mpidr) >> MPIDR_AFF3_SHIFT) & MPIDR_AFFLVL_MASK)
 /*
  * The MPIDR_MAX_AFFLVL count starts from 0. Take care to
  * add one while using this macro to define array sizes.
@@ -164,7 +164,7 @@
 /* ID_PFR1_EL1 definitions */
 #define ID_PFR1_VIRTEXT_SHIFT	U(12)
 #define ID_PFR1_VIRTEXT_MASK	U(0xf)
-#define GET_VIRT_EXT(id)	((id >> ID_PFR1_VIRTEXT_SHIFT) \
+#define GET_VIRT_EXT(id)	(((id) >> ID_PFR1_VIRTEXT_SHIFT) \
 				 & ID_PFR1_VIRTEXT_MASK)
 
 /* SCTLR definitions */
