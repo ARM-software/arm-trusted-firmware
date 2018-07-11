@@ -32,7 +32,7 @@ void bl2u_platform_setup(void)
 	arm_bl2u_platform_setup();
 }
 
-void arm_bl2u_early_platform_setup(meminfo_t *mem_layout, void *plat_info)
+void arm_bl2u_early_platform_setup(struct meminfo *mem_layout, void *plat_info)
 {
 	/* Initialize the console to provide early debug support */
 	arm_console_boot_init();
@@ -46,7 +46,7 @@ void arm_bl2u_early_platform_setup(meminfo_t *mem_layout, void *plat_info)
  * In case of ARM FVP platforms x1 is not used.
  * In both cases, x0 contains the extents of the memory available to BL2U
  ******************************************************************************/
-void bl2u_early_platform_setup(meminfo_t *mem_layout, void *plat_info)
+void bl2u_early_platform_setup(struct meminfo *mem_layout, void *plat_info)
 {
 	arm_bl2u_early_platform_setup(mem_layout, plat_info);
 }
