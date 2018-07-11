@@ -7,6 +7,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
+#include <caam.h>
 #include <console.h>
 #include <debug.h>
 #include <desc_image_load.h>
@@ -212,6 +213,9 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 
 	/* Open handles to persistent storage */
 	plat_warp7_io_setup();
+
+	/* Setup higher-level functionality CAAM, RTC etc */
+	caam_init();
 
 	/* Print out the expected memory map */
 	VERBOSE("\tOPTEE      0x%08x-0x%08x\n", WARP7_OPTEE_BASE, WARP7_OPTEE_LIMIT);
