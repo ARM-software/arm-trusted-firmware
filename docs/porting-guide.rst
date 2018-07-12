@@ -2850,6 +2850,106 @@ you can keep the default implementation here (which calls ``console_flush()``).
 If you're trying to debug crashes in BL1, you can call the console_xx_core_flush
 function exported by some console drivers from here.
 
+Extternal Abort handling and RAS Support
+----------------------------------------
+
+Function : plat_ea_handler
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : int
+    Argument : uint64_t
+    Argument : void *
+    Argument : void *
+    Argument : uint64_t
+    Return   : void
+
+This function is invoked by the RAS framework for the platform to handle an
+External Abort received at EL3. The intention of the function is to attempt to
+resolve the cause of External Abort and return; if that's not possible, to
+initiate orderly shutdown of the system.
+
+The first parameter (``int ea_reason``) indicates the reason for External Abort.
+Its value is one of ``ERROR_EA_*`` constants defined in ``ea_handle.h``.
+
+The second parameter (``uint64_t syndrome``) is the respective syndrome
+presented to EL3 after having received the External Abort. Depending on the
+nature of the abort (as can be inferred from the ``ea_reason`` parameter), this
+can be the content of either ``ESR_EL3`` or ``DISR_EL1``.
+
+The third parameter (``void *cookie``) is unused for now. The fourth parameter
+(``void *handle``) is a pointer to the preempted context. The fifth parameter
+(``uint64_t flags``) indicates the preempted security state. These parameters
+are received from the top-level exception handler.
+
+If ``RAS_EXTENSION`` is set to ``1``, the default implementation of this
+function iterates through RAS handlers registered by the platform. If any of the
+RAS handlers resolve the External Abort, no further action is taken.
+
+If ``RAS_EXTENSION`` is set to ``0``, or if none of the platform RAS handlers
+could resolve the External Abort, the default implementation prints an error
+message, and panics.
+
+Function : plat_handle_uncontainable_ea
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : int
+    Argument : uint64_t
+    Return   : void
+
+This function is invoked by the RAS framework when an External Abort of
+Uncontainable type is received at EL3. Due to the critical nature of
+Uncontainable errors, the intention of this function is to initiate orderly
+shutdown of the system, and is not expected to return.
+
+This function must be implemented in assembly.
+
+The first and second parameters are the same as that of ``plat_ea_handler``.
+
+The default implementation of this function calls
+``report_unhandled_exception``.
+
+Function : plat_handle_double_fault
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : int
+    Argument : uint64_t
+    Return   : void
+
+This function is invoked by the RAS framework when another External Abort is
+received at EL3 while one is already being handled. I.e., a call to
+``plat_ea_handler`` is outstanding. Due to its critical nature, the intention of
+this function is to initiate orderly shutdown of the system, and is not expected
+recover or return.
+
+This function must be implemented in assembly.
+
+The first and second parameters are the same as that of ``plat_ea_handler``.
+
+The default implementation of this function calls
+``report_unhandled_exception``.
+
+Function : plat_handle_el3_ea
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Return   : void
+
+This function is invoked when an External Abort is received while executing in
+EL3. Due to its critical nature, the intention of this function is to initiate
+orderly shutdown of the system, and is not expected recover or return.
+
+This function must be implemented in assembly.
+
+The default implementation of this function calls
+``report_unhandled_exception``.
+
 Build flags
 -----------
 
