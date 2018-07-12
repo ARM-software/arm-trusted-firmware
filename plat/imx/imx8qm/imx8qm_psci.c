@@ -85,6 +85,29 @@ void imx_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	plat_gic_cpuif_enable();
 }
 
+void imx_pwr_domain_off(const psci_power_state_t *target_state)
+{
+	u_register_t mpidr = read_mpidr_el1();
+	unsigned int cluster_id = MPIDR_AFFLVL1_VAL(mpidr);
+	unsigned int cpu_id = MPIDR_AFFLVL0_VAL(mpidr);
+
+	plat_gic_cpuif_disable();
+	if (cluster_id == 0) {
+		sc_pm_req_cpu_low_power_mode(ipc_handle, ap_core_index[cpu_id],
+			SC_PM_PW_MODE_OFF, SC_PM_WAKE_SRC_NONE);
+		if (--a53_cpu_on_number == 0)
+			cci_disable_snoop_dvm_reqs(0);
+	} else {
+		sc_pm_req_cpu_low_power_mode(ipc_handle,
+			ap_core_index[cpu_id + 4],
+			SC_PM_PW_MODE_OFF,
+			SC_PM_WAKE_SRC_NONE);
+		if (--a72_cpu_on_number == 0)
+			cci_disable_snoop_dvm_reqs(1);
+	}
+	tf_printf("turn off cluster:%d core:%d\n", cluster_id, cpu_id);
+}
+
 int imx_validate_ns_entrypoint(uintptr_t ns_entrypoint)
 {
 	return PSCI_E_SUCCESS;
@@ -93,6 +116,7 @@ int imx_validate_ns_entrypoint(uintptr_t ns_entrypoint)
 static const plat_psci_ops_t imx_plat_psci_ops = {
 	.pwr_domain_on = imx_pwr_domain_on,
 	.pwr_domain_on_finish = imx_pwr_domain_on_finish,
+	.pwr_domain_off = imx_pwr_domain_off,
 	.validate_ns_entrypoint = imx_validate_ns_entrypoint,
 	.system_off = imx_system_off,
 	.system_reset = imx_system_reset,
