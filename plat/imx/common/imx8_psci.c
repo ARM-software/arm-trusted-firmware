@@ -19,4 +19,11 @@ void __dead2 imx_system_off(void)
 	panic();
 }
 
+void __dead2 imx_system_reset(void)
+{
+	sc_pm_reset(ipc_handle, SC_PM_RESET_TYPE_BOARD);
+	wfi();
+	ERROR("system reset failed.\n");
+	panic();
+}
 

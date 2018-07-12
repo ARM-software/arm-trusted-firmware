@@ -18,4 +18,5 @@ void plat_gic_cpuif_disable(void);
 void plat_gic_pcpu_init(void);
 
 void __dead2 imx_system_off(void);
+void __dead2 imx_system_reset(void);
 #endif /*__PLAT_IMX8_H__ */
