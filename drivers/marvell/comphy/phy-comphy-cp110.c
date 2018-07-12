@@ -2201,7 +2201,7 @@ int mvebu_cp110_comphy_digital_reset(uint64_t comphy_base,
 	return 0;
 }
 
-int mvebu_cp110_comphy_power_on(uint64_t comphy_base, uint64_t comphy_index,
+int mvebu_cp110_comphy_power_on(uint64_t comphy_base, uint8_t comphy_index,
 				uint64_t comphy_mode)
 {
 	int mode = COMPHY_GET_MODE(comphy_mode);
@@ -2247,7 +2247,7 @@ int mvebu_cp110_comphy_power_on(uint64_t comphy_base, uint64_t comphy_index,
 		err = mvebu_cp110_comphy_ap_power_on(comphy_base, comphy_index);
 		break;
 	default:
-		ERROR("comphy%lld: unsupported comphy mode\n", comphy_index);
+		ERROR("comphy%d: unsupported comphy mode\n", comphy_index);
 		err = -EINVAL;
 		break;
 	}
@@ -2257,7 +2257,7 @@ int mvebu_cp110_comphy_power_on(uint64_t comphy_base, uint64_t comphy_index,
 	return err;
 }
 
-int mvebu_cp110_comphy_power_off(uint64_t comphy_base, uint64_t comphy_index)
+int mvebu_cp110_comphy_power_off(uint64_t comphy_base, uint8_t comphy_index)
 {
 	uintptr_t sd_ip_addr, comphy_ip_addr;
 	uint32_t mask, data;
