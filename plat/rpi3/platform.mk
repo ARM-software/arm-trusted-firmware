@@ -54,6 +54,26 @@ else
     TF_CFLAGS_aarch64	+=	-mtune=cortex-a53
 endif
 
+# Platform Makefile target
+# ------------------------
+
+RPI3_BL1_PAD_BIN	:=	${BUILD_PLAT}/bl1_pad.bin
+RPI3_ARMSTUB8_BIN	:=	${BUILD_PLAT}/armstub8.bin
+
+# Add new default target when compiling this platform
+all: armstub
+
+# This target concatenates BL1 and the FIP so that the base addresses match the
+# ones defined in the memory map
+armstub: bl1 fip
+	@echo "  CAT     $@"
+	${Q}cp ${BUILD_PLAT}/bl1.bin ${RPI3_BL1_PAD_BIN}
+	${Q}truncate --size=131072 ${RPI3_BL1_PAD_BIN}
+	${Q}cat ${RPI3_BL1_PAD_BIN} ${BUILD_PLAT}/fip.bin > ${RPI3_ARMSTUB8_BIN}
+	@${ECHO_BLANK_LINE}
+	@echo "Built $@ successfully"
+	@${ECHO_BLANK_LINE}
+
 # Build config flags
 # ------------------
 
