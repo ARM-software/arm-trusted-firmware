@@ -927,17 +927,12 @@ static void tegra_se_enable_clocks(void)
 	val &= ~ENTROPY_RESET_BIT;
 	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEVICES_W, val);
 
-	if (!tegra_chipid_is_t210_b01()) {
-
-		/*
-		 * T210 SE clock source is turned off in kernel, to simplify
-		 * SE clock source setting, we switch SE clock source to
-		 * CLK_M, SE_CLK_DIVISOR = 0. T210 B01 SE clock source is
-		 * always on, so don't need this setting.
-		 */
-		mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_RST_CTL_CLK_SRC_SE,
-			      SE_CLK_SRC_CLK_M);
-	}
+	/*
+	 * Switch SE clock source to CLK_M, to make sure SE clock
+	 * is on when saving SE context
+	 */
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_RST_CTL_CLK_SRC_SE,
+		SE_CLK_SRC_CLK_M);
 
 	/* Enable SE clock */
 	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_V);
