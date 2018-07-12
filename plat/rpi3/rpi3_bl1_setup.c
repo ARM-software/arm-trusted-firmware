@@ -7,6 +7,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <bl_common.h>
+#include <debug.h>
 #include <platform_def.h>
 #include <xlat_mmu_helpers.h>
 #include <xlat_tables_defs.h>
@@ -56,6 +57,39 @@ void bl1_plat_arch_setup(void)
 
 void bl1_platform_setup(void)
 {
+	uint32_t __unused rev;
+	int __unused rc;
+
+	rc = rpi3_vc_hardware_get_board_revision(&rev);
+
+	if (rc == 0) {
+		const char __unused *model, __unused *info;
+
+		switch (rev) {
+		case 0xA02082:
+			model = "Raspberry Pi 3 Model B";
+			info = "(1GB, Sony, UK)";
+			break;
+		case 0xA22082:
+			model = "Raspberry Pi 3 Model B";
+			info = "(1GB, Embest, China)";
+			break;
+		case 0xA020D3:
+			model = "Raspberry Pi 3 Model B+";
+			info = "(1GB, Sony, UK)";
+			break;
+		default:
+			model = "Unknown";
+			info = "(Unknown)";
+			ERROR("rpi3: Unknown board revision 0x%08x\n", rev);
+			break;
+		}
+
+		NOTICE("rpi3: Detected: %s %s [0x%08x]\n", model, info, rev);
+	} else {
+		ERROR("rpi3: Unable to detect board revision\n");
+	}
+
 	/* Initialise the IO layer and register platform IO devices */
 	plat_rpi3_io_setup();
 }
