@@ -172,29 +172,4 @@ struct xlat_ctx {
 
 #endif /*__ASSEMBLY__*/
 
-#if AARCH64
-
-/*
- * This IMAGE_EL macro must not to be used outside the library, and it is only
- * used in AArch64.
- */
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3)
-# define IMAGE_EL	3
-# define IMAGE_XLAT_DEFAULT_REGIME EL3_REGIME
-#else
-# define IMAGE_EL	1
-# define IMAGE_XLAT_DEFAULT_REGIME EL1_EL0_REGIME
-#endif
-
-#else /* if AARCH32 */
-
-/*
- * The PL1&0 translation regime in AArch32 behaves like the EL1&0 regime in
- * AArch64 except for the XN bits, but we set and unset them at the same time,
- * so there's no difference in practice.
- */
-#define IMAGE_XLAT_DEFAULT_REGIME EL1_EL0_REGIME
-
-#endif /* AARCH64 */
-
 #endif /* __XLAT_TABLES_V2_HELPERS_H__ */

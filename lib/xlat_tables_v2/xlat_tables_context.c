@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include <debug.h>
 #include <platform_def.h>
 #include <xlat_tables_defs.h>
@@ -69,6 +70,17 @@ int mmap_remove_dynamic_region(uintptr_t base_va, size_t size)
 
 void init_xlat_tables(void)
 {
+	assert(tf_xlat_ctx.xlat_regime == EL_REGIME_INVALID);
+
+	int current_el = xlat_arch_current_el();
+
+	if (current_el == 1) {
+		tf_xlat_ctx.xlat_regime = EL1_EL0_REGIME;
+	} else {
+		assert(current_el == 3);
+		tf_xlat_ctx.xlat_regime = EL3_REGIME;
+	}
+
 	init_xlat_tables_ctx(&tf_xlat_ctx);
 }
 
@@ -94,7 +106,7 @@ void init_xlat_tables(void)
 void enable_mmu_secure(unsigned int flags)
 {
 	setup_mmu_cfg(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
-			tf_xlat_ctx.va_max_address);
+		      tf_xlat_ctx.va_max_address, EL1_EL0_REGIME);
 	enable_mmu_direct(flags);
 }
 
@@ -103,14 +115,14 @@ void enable_mmu_secure(unsigned int flags)
 void enable_mmu_el1(unsigned int flags)
 {
 	setup_mmu_cfg(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
-			tf_xlat_ctx.va_max_address);
+		      tf_xlat_ctx.va_max_address, EL1_EL0_REGIME);
 	enable_mmu_direct_el1(flags);
 }
 
 void enable_mmu_el3(unsigned int flags)
 {
 	setup_mmu_cfg(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
-			tf_xlat_ctx.va_max_address);
+		      tf_xlat_ctx.va_max_address, EL3_REGIME);
 	enable_mmu_direct_el3(flags);
 }
 

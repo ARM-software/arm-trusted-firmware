@@ -121,10 +121,12 @@ typedef struct mmap_region {
 } mmap_region_t;
 
 /*
- * Translation regimes supported by this library.
+ * Translation regimes supported by this library. EL_REGIME_INVALID tells the
+ * library to detect it at runtime.
  */
 #define EL1_EL0_REGIME		1
 #define EL3_REGIME		3
+#define EL_REGIME_INVALID	-1
 
 /*
  * Declare the translation context type.
@@ -165,8 +167,7 @@ typedef struct xlat_ctx xlat_ctx_t;
 					 (_xlat_tables_count),		\
 					 (_virt_addr_space_size),	\
 					 (_phy_addr_space_size),	\
-					 IMAGE_XLAT_DEFAULT_REGIME,	\
-					"xlat_table")
+					 EL_REGIME_INVALID, "xlat_table")
 
 /*
  * Same as REGISTER_XLAT_CONTEXT plus the additional parameters:

@@ -180,10 +180,8 @@ int xlat_arch_current_el(void)
 	return el;
 }
 
-void setup_mmu_cfg(unsigned int flags,
-		const uint64_t *base_table,
-		unsigned long long max_pa,
-		uintptr_t max_va)
+void setup_mmu_cfg(unsigned int flags, const uint64_t *base_table,
+		   unsigned long long max_pa, uintptr_t max_va, int xlat_regime)
 {
 	uint64_t mair, ttbr, tcr;
 	uintptr_t virtual_addr_space_size;
@@ -230,17 +228,16 @@ void setup_mmu_cfg(unsigned int flags,
 	 */
 	unsigned long long tcr_ps_bits = tcr_physical_addr_size_bits(max_pa);
 
-#if IMAGE_EL == 1
-	assert(IS_IN_EL(1));
-	/*
-	 * TCR_EL1.EPD1: Disable translation table walk for addresses that are
-	 * translated using TTBR1_EL1.
-	 */
-	tcr |= TCR_EPD1_BIT | (tcr_ps_bits << TCR_EL1_IPS_SHIFT);
-#elif IMAGE_EL == 3
-	assert(IS_IN_EL(3));
-	tcr |= TCR_EL3_RES1 | (tcr_ps_bits << TCR_EL3_PS_SHIFT);
-#endif
+	if (xlat_regime == EL1_EL0_REGIME) {
+		/*
+		 * TCR_EL1.EPD1: Disable translation table walk for addresses
+		 * that are translated using TTBR1_EL1.
+		 */
+		tcr |= TCR_EPD1_BIT | (tcr_ps_bits << TCR_EL1_IPS_SHIFT);
+	} else {
+		assert(xlat_regime == EL3_REGIME);
+		tcr |= TCR_EL3_RES1 | (tcr_ps_bits << TCR_EL3_PS_SHIFT);
+	}
 
 	mmu_cfg_params[MMU_CFG_MAIR0] = (uint32_t) mair;
 	mmu_cfg_params[MMU_CFG_TCR] = (uint32_t) tcr;

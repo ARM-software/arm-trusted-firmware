@@ -97,18 +97,21 @@ int xlat_arch_current_el(void)
 	/*
 	 * If EL3 is in AArch32 mode, all secure PL1 modes (Monitor, System,
 	 * SVC, Abort, UND, IRQ and FIQ modes) execute at EL3.
+	 *
+	 * The PL1&0 translation regime in AArch32 behaves like the EL1&0 regime
+	 * in AArch64 except for the XN bits, but we set and unset them at the
+	 * same time, so there's no difference in practice.
 	 */
-	return 3;
+	return 1;
 }
 
 /*******************************************************************************
  * Function for enabling the MMU in Secure PL1, assuming that the page tables
  * have already been created.
  ******************************************************************************/
-void setup_mmu_cfg(unsigned int flags,
-		const uint64_t *base_table,
-		unsigned long long max_pa,
-		uintptr_t max_va)
+void setup_mmu_cfg(unsigned int flags, const uint64_t *base_table,
+		   unsigned long long max_pa, uintptr_t max_va,
+		   __unused int xlat_regime)
 {
 	u_register_t mair0, ttbcr;
 	uint64_t ttbr0;
