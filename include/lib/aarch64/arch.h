@@ -647,7 +647,13 @@
 #define PAR_F_SHIFT	0
 #define PAR_F_MASK	1
 #define PAR_ADDR_SHIFT	12
-#define PAR_ADDR_MASK	(BIT(40) - 1) /* 40-bits-wide page address */
+/*
+ * Armv8.2 redefines bits 51:48 of register PAR_EL1 to expand the address that
+ * is returned in this register. They are RES0 in previous versions of the
+ * architecture, so it doesn't change the behaviour of the code, and it allows
+ * implementations of Armv8.2 or newer to access all bits.
+ */
+#define PAR_ADDR_MASK	(BIT(52) - ULL(1))
 
 /*******************************************************************************
  * Definitions for system register interface to SPE
