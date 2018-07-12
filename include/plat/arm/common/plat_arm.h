@@ -86,7 +86,7 @@ void arm_setup_page_tables(uintptr_t total_base,
  * Use this macro to instantiate lock before it is used in below
  * arm_lock_xxx() macros
  */
-#define ARM_INSTANTIATE_LOCK	DEFINE_BAKERY_LOCK(arm_lock)
+#define ARM_INSTANTIATE_LOCK	static DEFINE_BAKERY_LOCK(arm_lock)
 #define ARM_LOCK_GET_INSTANCE	(&arm_lock)
 /*
  * These are wrapper macros to the Coherent Memory Bakery Lock API.

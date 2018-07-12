@@ -27,7 +27,7 @@
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
 static meminfo_t bl1_tzram_layout;
 
-meminfo_t *bl1_plat_sec_mem_layout(void)
+struct meminfo *bl1_plat_sec_mem_layout(void)
 {
 	return &bl1_tzram_layout;
 }

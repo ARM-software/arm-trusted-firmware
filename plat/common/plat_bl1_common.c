@@ -34,7 +34,7 @@ unsigned int bl1_plat_get_next_image_id(void)
 }
 
 void bl1_plat_set_ep_info(unsigned int image_id,
-		entry_point_info_t *ep_info)
+		struct entry_point_info *ep_info)
 {
 
 }
@@ -48,7 +48,7 @@ int bl1_plat_handle_pre_image_load(unsigned int image_id)
  * Following is the default definition that always
  * returns BL2 image details.
  */
-image_desc_t *bl1_plat_get_image_desc(unsigned int image_id)
+struct image_desc *bl1_plat_get_image_desc(unsigned int image_id)
 {
 	static image_desc_t bl2_img_desc = BL2_IMAGE_DESC;
 	return &bl2_img_desc;

@@ -28,7 +28,7 @@ void plat_flush_next_bl_params(void)
 /*******************************************************************************
  * This function returns the list of loadable images.
  ******************************************************************************/
-bl_load_info_t *plat_get_bl_image_load_info(void)
+struct bl_load_info *plat_get_bl_image_load_info(void)
 {
 	return get_bl_load_info_from_mem_params_desc();
 }
@@ -36,7 +36,7 @@ bl_load_info_t *plat_get_bl_image_load_info(void)
 /*******************************************************************************
  * This function returns the list of executable images.
  ******************************************************************************/
-bl_params_t *plat_get_next_bl_params(void)
+struct bl_params *plat_get_next_bl_params(void)
 {
 	bl_params_t *next_bl_params = get_next_bl_params_from_mem_params_desc();
 

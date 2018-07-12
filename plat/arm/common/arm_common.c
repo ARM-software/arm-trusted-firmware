@@ -14,8 +14,6 @@
 #include <platform.h>
 #include <secure_partition.h>
 
-extern const mmap_region_t plat_arm_mmap[];
-
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak plat_get_ns_image_entrypoint
 #pragma weak plat_arm_get_mmap

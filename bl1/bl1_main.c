@@ -74,8 +74,8 @@ void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
  * populates a new memory layout for BL2 that ensures that BL1's data sections
  * resident in secure RAM are not visible to BL2.
  ******************************************************************************/
-void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
-			     meminfo_t *bl2_mem_layout)
+void bl1_init_bl2_mem_layout(const struct meminfo *bl1_mem_layout,
+			     struct meminfo *bl2_mem_layout)
 {
 	bl1_calc_bl2_mem_layout(bl1_mem_layout, bl2_mem_layout);
 }

@@ -144,7 +144,7 @@ uint64_t opteed_enter_sp(uint64_t *c_rt_ctx);
 void __dead2 opteed_exit_sp(uint64_t c_rt_ctx, uint64_t ret);
 uint64_t opteed_synchronous_sp_entry(optee_context_t *optee_ctx);
 void __dead2 opteed_synchronous_sp_exit(optee_context_t *optee_ctx, uint64_t ret);
-void opteed_init_optee_ep_state(struct entry_point_info *optee_ep,
+void opteed_init_optee_ep_state(struct entry_point_info *optee_entry_point,
 				uint32_t rw,
 				uint64_t pc,
 				uint64_t pageable_part,

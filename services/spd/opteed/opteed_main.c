@@ -34,7 +34,7 @@
  * Address of the entrypoint vector table in OPTEE. It is
  * initialised once on the primary core after a cold boot.
  ******************************************************************************/
-optee_vectors_t *optee_vector_table;
+struct optee_vectors *optee_vector_table;
 
 /*******************************************************************************
  * Array to keep track of per-cpu OPTEE state
