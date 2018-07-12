@@ -243,6 +243,12 @@ The following build options are supported:
   BL32_EXTRA1=tee-pager_v2.bin  BL32_EXTRA2=tee-pageable_v2.bin``
   to put the binaries into the FIP.
 
+  Note: If OP-TEE is used it may be needed to add the following options to the
+  Linux command line so that the USB driver doesn't use FIQs:
+  ``dwc_otg.fiq_enable=0 dwc_otg.fiq_fsm_enable=0 dwc_otg.nak_holdoff=0``.
+  This will unfortunately reduce the performance of the USB driver. It is needed
+  when using Raspbian, for example.
+
 - ``TRUSTED_BOARD_BOOT``: This port supports TBB. Set this option
   ``TRUSTED_BOARD_BOOT=1`` to enable it. In order to use TBB, you might
   want to set ``GENERATE_COT=1`` to let the contents of the FIP automatically
