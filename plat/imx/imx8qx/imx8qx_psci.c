@@ -64,6 +64,7 @@ static const plat_psci_ops_t imx_plat_psci_ops = {
 	.pwr_domain_on = imx_pwr_domain_on,
 	.pwr_domain_on_finish = imx_pwr_domain_on_finish,
 	.validate_ns_entrypoint = imx_validate_ns_entrypoint,
+	.system_off = imx_system_off,
 };
 
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
