@@ -62,7 +62,7 @@
 
 /*
  * The ARMv8-A architecture allows translation granule sizes of 4KB, 16KB or
- * 64KB. However, TF only supports the 4KB case at the moment.
+ * 64KB. However, only 4KB are supported at the moment.
  */
 #define PAGE_SIZE_SHIFT		FOUR_KB_SHIFT
 #define PAGE_SIZE		(U(1) << PAGE_SIZE_SHIFT)

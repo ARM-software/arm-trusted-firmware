@@ -24,8 +24,8 @@
 int xlat_arch_is_granule_size_supported(size_t size)
 {
 	/*
-	 * The Trusted Firmware uses long descriptor translation table format,
-	 * which supports 4 KiB pages only.
+	 * The library uses the long descriptor translation table format, which
+	 * supports 4 KiB pages only.
 	 */
 	return (size == (4U * 1024U));
 }

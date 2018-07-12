@@ -195,6 +195,10 @@ static uint64_t mmap_desc(unsigned int attr, unsigned long long addr_pa,
 	desc |= (level == XLAT_TABLE_LEVEL_MAX) ? PAGE_DESC : BLOCK_DESC;
 	desc |= (attr & MT_NS) ? LOWER_ATTRS(NS) : 0;
 	desc |= (attr & MT_RW) ? LOWER_ATTRS(AP_RW) : LOWER_ATTRS(AP_RO);
+	/*
+	 * Always set the access flag, as this library assumes access flag
+	 * faults aren't managed.
+	 */
 	desc |= LOWER_ATTRS(ACCESS_FLAG);
 	desc |= ap1_mask;
 
@@ -222,9 +226,10 @@ static uint64_t mmap_desc(unsigned int attr, unsigned long long addr_pa,
 	} else { /* Normal memory */
 		/*
 		 * Always map read-write normal memory as execute-never.
-		 * (Trusted Firmware doesn't self-modify its code, therefore
-		 * R/W memory is reserved for data storage, which must not be
-		 * executable.)
+		 * This library assumes that it is used by software that does
+		 * not self-modify its code, therefore R/W memory is reserved
+		 * for data storage, which must not be executable.
+		 *
 		 * Note that setting the XN bit here is for consistency only.
 		 * The function that enables the MMU sets the SCTLR_ELx.WXN bit,
 		 * which makes any writable memory region to be treated as
