@@ -27,3 +27,20 @@ void __dead2 imx_system_reset(void)
 	panic();
 }
 
+int imx_validate_power_state(unsigned int power_state,
+			 psci_power_state_t *req_state)
+{
+	/* TODO */
+	return PSCI_E_INVALID_PARAMS;
+}
+
+void imx_get_sys_suspend_power_state(psci_power_state_t *req_state)
+{
+	unsigned int i;
+
+	/* CPU & cluster off, system in retention */
+	for (i = MPIDR_AFFLVL0; i < PLAT_MAX_PWR_LVL; i++)
+		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
+	req_state->pwr_domain_state[PLAT_MAX_PWR_LVL] = PLAT_MAX_RET_STATE;
+}
+

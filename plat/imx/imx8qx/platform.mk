@@ -21,6 +21,7 @@ BL31_SOURCES		+=	plat/imx/common/lpuart_console.S	\
 				plat/imx/imx8qx/imx8qx_psci.c		\
 				plat/imx/common/imx8_topology.c		\
 				plat/imx/common/imx8_psci.c		\
+				plat/common/plat_psci_common.c		\
 				lib/xlat_tables/xlat_tables_common.c	\
 				lib/xlat_tables/aarch64/xlat_tables.c	\
 				lib/cpus/aarch64/cortex_a35.S		\
