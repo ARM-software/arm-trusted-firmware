@@ -13,7 +13,7 @@
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
 
-uint32_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
+uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
 
 /*
  * Returns 1 if the provided granule size is supported, 0 otherwise.
@@ -183,15 +183,13 @@ int xlat_arch_current_el(void)
 void setup_mmu_cfg(unsigned int flags, const uint64_t *base_table,
 		   unsigned long long max_pa, uintptr_t max_va, int xlat_regime)
 {
-	uint64_t mair, ttbr, tcr;
+	uint64_t mair, ttbr0, tcr;
 	uintptr_t virtual_addr_space_size;
 
 	/* Set attributes in the right indices of the MAIR. */
 	mair = MAIR_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
 	mair |= MAIR_ATTR_SET(ATTR_IWBWA_OWBWA_NTR, ATTR_IWBWA_OWBWA_NTR_INDEX);
 	mair |= MAIR_ATTR_SET(ATTR_NON_CACHEABLE, ATTR_NON_CACHEABLE_INDEX);
-
-	ttbr = (uint64_t) base_table;
 
 	/*
 	 * Limit the input address ranges and memory region sizes translated
@@ -239,18 +237,18 @@ void setup_mmu_cfg(unsigned int flags, const uint64_t *base_table,
 		tcr |= TCR_EL3_RES1 | (tcr_ps_bits << TCR_EL3_PS_SHIFT);
 	}
 
-	mmu_cfg_params[MMU_CFG_MAIR0] = (uint32_t) mair;
-	mmu_cfg_params[MMU_CFG_TCR] = (uint32_t) tcr;
-
 	/* Set TTBR bits as well */
-	if (ARM_ARCH_AT_LEAST(8, 2)) {
-		/*
-		 * Enable CnP bit so as to share page tables with all PEs. This
-		 * is mandatory for ARMv8.2 implementations.
-		 */
-		ttbr |= TTBR_CNP_BIT;
-	}
+	ttbr0 = (uint64_t) base_table;
 
-	mmu_cfg_params[MMU_CFG_TTBR0_LO] = (uint32_t) ttbr;
-	mmu_cfg_params[MMU_CFG_TTBR0_HI] = (uint32_t) (ttbr >> 32);
+#if ARM_ARCH_AT_LEAST(8, 2)
+	/*
+	 * Enable CnP bit so as to share page tables with all PEs. This
+	 * is mandatory for ARMv8.2 implementations.
+	 */
+	ttbr0 |= TTBR_CNP_BIT;
+#endif
+
+	mmu_cfg_params[MMU_CFG_MAIR] = mair;
+	mmu_cfg_params[MMU_CFG_TCR] = tcr;
+	mmu_cfg_params[MMU_CFG_TTBR0] = ttbr0;
 }

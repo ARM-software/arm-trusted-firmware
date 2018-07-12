@@ -16,12 +16,11 @@
 #error "Do not include this header file directly. Include xlat_tables_v2.h instead."
 #endif
 
-/* Offsets into mmu_cfg_params array. All parameters are 32 bits wide. */
-#define MMU_CFG_MAIR0		0
+/* Offsets into mmu_cfg_params array. All parameters are 64 bits wide. */
+#define MMU_CFG_MAIR		0
 #define MMU_CFG_TCR		1
-#define MMU_CFG_TTBR0_LO	2
-#define MMU_CFG_TTBR0_HI	3
-#define MMU_CFG_PARAM_MAX	4
+#define MMU_CFG_TTBR0		2
+#define MMU_CFG_PARAM_MAX	3
 
 #ifndef __ASSEMBLY__
 
@@ -32,7 +31,7 @@
 #include <xlat_tables_defs.h>
 
 /* Parameters of register values required when enabling MMU */
-extern uint32_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
+extern uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
 
 /* Forward declaration */
 struct mmap_region;

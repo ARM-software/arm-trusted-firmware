@@ -24,17 +24,17 @@ func enable_mmu_direct
 	mov	r3, r0
 	ldr	r0, =mmu_cfg_params
 
-	/* MAIR0 */
-	ldr	r1, [r0, #(MMU_CFG_MAIR0 << 2)]
+	/* MAIR0. Only the lower 32 bits are used. */
+	ldr	r1, [r0, #(MMU_CFG_MAIR << 3)]
 	stcopr	r1, MAIR0
 
-	/* TTBCR */
-	ldr	r2, [r0, #(MMU_CFG_TCR << 2)]
+	/* TTBCR. Only the lower 32 bits are used. */
+	ldr	r2, [r0, #(MMU_CFG_TCR << 3)]
 	stcopr	r2, TTBCR
 
 	/* TTBR0 */
-	ldr	r1, [r0, #(MMU_CFG_TTBR0_LO << 2)]
-	ldr	r2, [r0, #(MMU_CFG_TTBR0_HI << 2)]
+	ldr	r1, [r0, #(MMU_CFG_TTBR0 << 3)]
+	ldr	r2, [r0, #((MMU_CFG_TTBR0 << 3) + 4)]
 	stcopr16	r1, r2, TTBR0_64
 
 	/* TTBR1 is unused right now; set it to 0. */

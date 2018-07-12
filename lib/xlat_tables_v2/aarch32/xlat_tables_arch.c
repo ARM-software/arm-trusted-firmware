@@ -18,7 +18,7 @@
 #error ARMv7 target does not support LPAE MMU descriptors
 #endif
 
-uint32_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
+uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
 
 /*
  * Returns 1 if the provided granule size is supported, 0 otherwise.
@@ -113,16 +113,16 @@ void setup_mmu_cfg(unsigned int flags, const uint64_t *base_table,
 		   unsigned long long max_pa, uintptr_t max_va,
 		   __unused int xlat_regime)
 {
-	u_register_t mair0, ttbcr;
-	uint64_t ttbr0;
+	uint64_t mair, ttbr0;
+	uint32_t ttbcr;
 
 	assert(IS_IN_SECURE());
 
 	/* Set attributes in the right indices of the MAIR */
-	mair0 = MAIR0_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
-	mair0 |= MAIR0_ATTR_SET(ATTR_IWBWA_OWBWA_NTR,
+	mair = MAIR0_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
+	mair |= MAIR0_ATTR_SET(ATTR_IWBWA_OWBWA_NTR,
 			ATTR_IWBWA_OWBWA_NTR_INDEX);
-	mair0 |= MAIR0_ATTR_SET(ATTR_NON_CACHEABLE,
+	mair |= MAIR0_ATTR_SET(ATTR_NON_CACHEABLE,
 			ATTR_NON_CACHEABLE_INDEX);
 
 	/*
@@ -170,17 +170,17 @@ void setup_mmu_cfg(unsigned int flags, const uint64_t *base_table,
 
 	/* Set TTBR0 bits as well */
 	ttbr0 = (uint64_t)(uintptr_t) base_table;
+
 #if ARM_ARCH_AT_LEAST(8, 2)
 	/*
-	 * Enable CnP bit so as to share page tables with all PEs.
-	 * Mandatory for ARMv8.2 implementations.
+	 * Enable CnP bit so as to share page tables with all PEs. This
+	 * is mandatory for ARMv8.2 implementations.
 	 */
 	ttbr0 |= TTBR_CNP_BIT;
 #endif
 
 	/* Now populate MMU configuration */
-	mmu_cfg_params[MMU_CFG_MAIR0] = mair0;
-	mmu_cfg_params[MMU_CFG_TCR] = ttbcr;
-	mmu_cfg_params[MMU_CFG_TTBR0_LO] = (uint32_t) ttbr0;
-	mmu_cfg_params[MMU_CFG_TTBR0_HI] = ttbr0 >> 32;
+	mmu_cfg_params[MMU_CFG_MAIR] = mair;
+	mmu_cfg_params[MMU_CFG_TCR] = (uint64_t) ttbcr;
+	mmu_cfg_params[MMU_CFG_TTBR0] = ttbr0;
 }
