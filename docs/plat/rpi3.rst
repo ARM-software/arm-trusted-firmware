@@ -212,6 +212,9 @@ instructions in `Setup SD card`_.
 
 The following build options are supported:
 
+- ``ENABLE_STACK_PROTECTOR``: Disabled by default. It uses the hardware RNG of
+  the board.
+
 - ``PRELOADED_BL33_BASE``: Specially useful because the file ``kernel8.img`` can
   be loaded anywhere by modifying the file ``config.txt``. It doesn't have to
   contain a kernel, it could have any arbitrary payload.

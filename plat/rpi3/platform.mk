@@ -90,6 +90,9 @@ WORKAROUND_CVE_2017_5715	:= 0
 # Disable the PSCI platform compatibility layer by default
 ENABLE_PLAT_COMPAT		:= 0
 
+# Disable stack protector by default
+ENABLE_STACK_PROTECTOR	 	:= 0
+
 # Reset to BL31 isn't supported
 RESET_TO_BL31			:= 0
 
@@ -144,6 +147,11 @@ endif
 
 ifeq (${ARCH},aarch32)
   $(error Error: AArch32 not supported on rpi3)
+endif
+
+ifneq ($(ENABLE_STACK_PROTECTOR), 0)
+PLAT_BL_COMMON_SOURCES	+=	plat/rpi3/rpi3_rng.c			\
+				plat/rpi3/rpi3_stack_protector.c
 endif
 
 ifeq (${SPD},opteed)
