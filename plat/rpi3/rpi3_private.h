@@ -33,6 +33,9 @@ uint32_t rpi3_get_spsr_for_bl33_entry(void);
 /* IO storage utility functions */
 void plat_rpi3_io_setup(void);
 
+/* Hardware RNG functions */
+void rpi3_rng_read(void *buf, size_t len);
+
 /* VideoCore firmware commands */
 int rpi3_vc_hardware_get_board_revision(uint32_t *revision);
 

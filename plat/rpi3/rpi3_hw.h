@@ -59,6 +59,24 @@
 #define RPI3_PM_RSTS_WRCFG_HALT		U(0x00000555)
 
 /*
+ * Hardware random number generator.
+ */
+#define RPI3_IO_RNG_OFFSET		ULL(0x00104000)
+#define RPI3_RNG_BASE			(RPI3_IO_BASE + RPI3_IO_RNG_OFFSET)
+#define RPI3_RNG_CTRL_OFFSET		ULL(0x00000000)
+#define RPI3_RNG_STATUS_OFFSET		ULL(0x00000004)
+#define RPI3_RNG_DATA_OFFSET		ULL(0x00000008)
+#define RPI3_RNG_INT_MASK_OFFSET	ULL(0x00000010)
+/* Enable/disable RNG */
+#define RPI3_RNG_CTRL_ENABLE		U(0x1)
+#define RPI3_RNG_CTRL_DISABLE		U(0x0)
+/* Number of currently available words */
+#define RPI3_RNG_STATUS_NUM_WORDS_SHIFT	U(24)
+#define RPI3_RNG_STATUS_NUM_WORDS_MASK	U(0xFF)
+/* Value to mask interrupts caused by the RNG */
+#define RPI3_RNG_INT_MASK_DISABLE	U(0x1)
+
+/*
  * Serial port (called 'Mini UART' in the BCM docucmentation).
  */
 #define RPI3_IO_MINI_UART_OFFSET	ULL(0x00215040)
