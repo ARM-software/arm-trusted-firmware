@@ -196,7 +196,7 @@
 #define TCPAC_BIT		(U(1) << 31)
 #define TAM_BIT			(U(1) << 30)
 #define TTA_BIT			(U(1) << 20)
-#define TCP11_BIT		(U(1) << 10)
+#define TCP11_BIT		(U(1) << 11)
 #define TCP10_BIT		(U(1) << 10)
 #define HCPTR_RESET_VAL		HCPTR_RES1
 
