@@ -306,6 +306,28 @@ static scmi_channel_plat_info_t plat_css_scmi_plat_info = {
 		.ring_doorbell = &mhu_ring_doorbell,
 };
 
+static int scmi_ap_core_init(scmi_channel_t *ch)
+{
+#if PROGRAMMABLE_RESET_ADDRESS
+	uint32_t version;
+	int ret;
+
+	ret = scmi_proto_version(ch, SCMI_AP_CORE_PROTO_ID, &version);
+	if (ret != SCMI_E_SUCCESS) {
+		WARN("SCMI AP core protocol version message failed\n");
+		return -1;
+	}
+
+	if (!is_scmi_version_compatible(SCMI_AP_CORE_PROTO_VER, version)) {
+		WARN("SCMI AP core protocol version 0x%x incompatible with driver version 0x%x\n",
+			version, SCMI_AP_CORE_PROTO_VER);
+		return -1;
+	}
+	INFO("SCMI AP core protocol version 0x%x detected\n", version);
+#endif
+	return 0;
+}
+
 void plat_arm_pwrc_setup(void)
 {
 	channel.info = &plat_css_scmi_plat_info;
@@ -313,6 +335,10 @@ void plat_arm_pwrc_setup(void)
 	scmi_handle = scmi_init(&channel);
 	if (scmi_handle == NULL) {
 		ERROR("SCMI Initialization failed\n");
+		panic();
+	}
+	if (scmi_ap_core_init(&channel) < 0) {
+		ERROR("SCMI AP core protocol initialization failed\n");
 		panic();
 	}
 }
@@ -386,3 +412,18 @@ int css_system_reset2(int is_vendor, int reset_type, u_register_t cookie)
 	 */
 	return 0;
 }
+
+#if PROGRAMMABLE_RESET_ADDRESS
+void plat_arm_program_trusted_mailbox(uintptr_t address)
+{
+	int ret;
+
+	assert(scmi_handle);
+	ret = scmi_ap_core_set_reset_addr(scmi_handle, address,
+		SCMI_AP_CORE_LOCK_ATTR);
+	if (ret != SCMI_E_SUCCESS) {
+		ERROR("CSS: Failed to program reset address: %d\n", ret);
+		panic();
+	}
+}
+#endif

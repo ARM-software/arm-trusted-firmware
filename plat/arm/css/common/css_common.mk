@@ -32,6 +32,7 @@ BL31_SOURCES		+=	plat/arm/css/drivers/scp/css_pm_scpi.c		\
 				plat/arm/css/drivers/scpi/css_scpi.c
 else
 BL31_SOURCES		+=	plat/arm/css/drivers/scp/css_pm_scmi.c		\
+				plat/arm/css/drivers/scmi/scmi_ap_core_proto.c	\
 				plat/arm/css/drivers/scmi/scmi_common.c		\
 				plat/arm/css/drivers/scmi/scmi_pwr_dmn_proto.c	\
 				plat/arm/css/drivers/scmi/scmi_sys_pwr_proto.c	\

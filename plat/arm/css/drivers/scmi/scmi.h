@@ -12,6 +12,7 @@
 #include <stdint.h>
 
 /* Supported SCMI Protocol Versions */
+#define SCMI_AP_CORE_PROTO_VER			MAKE_SCMI_VERSION(1, 0)
 #define SCMI_PWR_DMN_PROTO_VER			MAKE_SCMI_VERSION(1, 0)
 #define SCMI_SYS_PWR_PROTO_VER			MAKE_SCMI_VERSION(1, 0)
 
@@ -29,6 +30,8 @@
 /* SCMI Protocol identifiers */
 #define SCMI_PWR_DMN_PROTO_ID			0x11
 #define SCMI_SYS_PWR_PROTO_ID			0x12
+/* The AP core protocol is a CSS platform-specific extension */
+#define SCMI_AP_CORE_PROTO_ID			0x90
 
 /* Mandatory messages IDs for all SCMI protocols */
 #define SCMI_PROTO_VERSION_MSG			0x0
@@ -42,6 +45,10 @@
 /* SCMI system power management protocol message IDs */
 #define SCMI_SYS_PWR_STATE_SET_MSG		0x3
 #define SCMI_SYS_PWR_STATE_GET_MSG		0x4
+
+/* SCMI AP core protocol message IDs */
+#define SCMI_AP_CORE_RESET_ADDR_SET_MSG		0x3
+#define SCMI_AP_CORE_RESET_ADDR_GET_MSG		0x4
 
 /* Helper macros for system power management protocol commands */
 
@@ -72,6 +79,13 @@
 #define SCMI_SYS_PWR_WARM_RESET			0x2
 #define SCMI_SYS_PWR_POWER_UP			0x3
 #define SCMI_SYS_PWR_SUSPEND			0x4
+
+/*
+ * Macros to describe the bit-fields of the `attribute` of AP core protocol
+ * AP_CORE_RESET_ADDR set/get messages.
+ */
+#define SCMI_AP_CORE_LOCK_ATTR_SHIFT		0x0
+#define SCMI_AP_CORE_LOCK_ATTR			(1U << SCMI_AP_CORE_LOCK_ATTR_SHIFT)
 
 /* SCMI Error code definitions */
 #define SCMI_E_QUEUED			1
@@ -132,5 +146,9 @@ int scmi_pwr_state_get(void *p, uint32_t domain_id, uint32_t *scmi_pwr_state);
  */
 int scmi_sys_pwr_state_set(void *p, uint32_t flags, uint32_t system_state);
 int scmi_sys_pwr_state_get(void *p, uint32_t *system_state);
+
+/* SCMI AP core configuration protocol commands. */
+int scmi_ap_core_set_reset_addr(void *p, uint64_t reset_addr, uint32_t attr);
+int scmi_ap_core_get_reset_addr(void *p, uint64_t *reset_addr, uint32_t *attr);
 
 #endif	/* __CSS_SCMI_H__ */
