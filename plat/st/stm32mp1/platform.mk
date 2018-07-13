@@ -41,6 +41,7 @@ PLAT_BL_COMMON_SOURCES	+=	${LIBFDT_SRCS}						\
 				drivers/delay_timer/generic_delay_timer.c		\
 				drivers/st/clk/stm32mp1_clk.c				\
 				drivers/st/clk/stm32mp1_clkfunc.c			\
+				drivers/st/gpio/stm32_gpio.c				\
 				drivers/st/reset/stm32mp1_reset.c			\
 				plat/st/stm32mp1/stm32mp1_dt.c				\
 				plat/st/stm32mp1/stm32mp1_helper.S
