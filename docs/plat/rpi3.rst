@@ -216,12 +216,6 @@ The following build options are supported:
   be loaded anywhere by modifying the file ``config.txt``. It doesn't have to
   contain a kernel, it could have any arbitrary payload.
 
-- ``RESET_TO_BL31``: Set to 1 by default. If using a 32-bit kernel like
-  `Raspbian`_, the space used by BL1 can overwritten by the kernel when it is
-  being loaded. Even when using a AArch64 kernel the region used by
-  BL1 isn't protected and the kernel could overwrite it. The space used by BL31
-  is reserved by the command line passed to the kernel.
-
 - ``RPI3_BL33_IN_AARCH32``: This port can load a AArch64 or AArch32 BL33 image.
   By default this option is 0, which means that TF-A will jump to BL33 in EL2
   in AArch64 mode. If set to 1, it will jump to BL33 in Hypervisor in AArch32
@@ -256,8 +250,6 @@ The following is not currently supported:
 - ``EL3_PAYLOAD_BASE``: The reason is that you can already load anything to any
   address by changing the file ``armstub8.bin``, so there's no point in using
   TF-A in this case.
-
-- ``LOAD_IMAGE_V2=0``: Only version 2 is supported.
 
 - ``MULTI_CONSOLE_API=0``: The multi console API must be enabled. Note that the
   crash console uses the internal 16550 driver functions directly in order to be

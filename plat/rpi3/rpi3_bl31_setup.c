@@ -59,39 +59,6 @@ void bl31_early_platform_setup(void *from_bl2,
 	/* Initialize the console to provide early debug support */
 	rpi3_console_init();
 
-#if RESET_TO_BL31
-
-	/* There are no parameters from BL2 if BL31 is a reset vector */
-	assert(from_bl2 == NULL);
-	assert(plat_params_from_bl2 == NULL);
-
-#ifdef BL32_BASE
-	/* Populate entry point information for BL32 */
-	SET_PARAM_HEAD(&bl32_image_ep_info,
-				PARAM_EP,
-				VERSION_1,
-				0);
-	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
-	bl32_image_ep_info.pc = BL32_BASE;
-	bl32_image_ep_info.spsr = rpi3_get_spsr_for_bl32_entry();
-#endif /* BL32_BASE */
-
-	/* Populate entry point information for BL33 */
-	SET_PARAM_HEAD(&bl33_image_ep_info,
-				PARAM_EP,
-				VERSION_1,
-				0);
-	/*
-	 * Tell BL31 where the non-trusted software image
-	 * is located and the entry state information
-	 */
-	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
-
-	bl33_image_ep_info.spsr = rpi3_get_spsr_for_bl33_entry();
-	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
-
-#else /* RESET_TO_BL31 */
-
 	/*
 	 * In debug builds, we pass a special value in 'plat_params_from_bl2'
 	 * to verify platform parameters from BL2 to BL31.
@@ -129,8 +96,6 @@ void bl31_early_platform_setup(void *from_bl2,
 	if (bl33_image_ep_info.pc == 0) {
 		panic();
 	}
-
-#endif /* RESET_TO_BL31 */
 }
 
 void bl31_plat_arch_setup(void)
@@ -148,12 +113,10 @@ void bl31_plat_arch_setup(void)
 
 void bl31_platform_setup(void)
 {
-#if RESET_TO_BL31
 	/*
 	 * Do initial security configuration to allow DRAM/device access
 	 * (if earlier BL has not already done so).
 	 */
-#endif /* RESET_TO_BL31 */
 
 	return;
 }
