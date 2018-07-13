@@ -26,6 +26,7 @@
 #include <io_mux.h>
 #include <mxc_console.h>
 #include <snvs.h>
+#include <wdog.h>
 #include "warp7_private.h"
 
 #define UART1_CLK_SELECT (CCM_TARGET_ROOT_ENABLE |\
@@ -34,6 +35,9 @@
 #define USDHC_CLK_SELECT (CCM_TARGET_ROOT_ENABLE |\
 			  CCM_TRGT_MUX_NAND_USDHC_BUS_CLK_ROOT_AHB |\
 			  CCM_TARGET_POST_PODF(2))
+
+#define WDOG_CLK_SELECT (CCM_TARGET_ROOT_ENABLE |\
+			 CCM_TRGT_MUX_WDOG_CLK_ROOT_OSC_24M)
 
 uintptr_t plat_get_ns_image_entrypoint(void)
 {
@@ -181,6 +185,17 @@ static void warp7_setup_system_counter(void)
 		      CNTCR_FCREQ(0) | CNTCR_HDBG | CNTCR_EN);
 }
 
+static void warp7_setup_wdog_clocks(void)
+{
+	uint32_t wdog_en_bits = (uint32_t)WDOG_CLK_SELECT;
+
+	clock_set_wdog_clk_root_bits(wdog_en_bits);
+	clock_enable_wdog(0);
+	clock_enable_wdog(1);
+	clock_enable_wdog(2);
+	clock_enable_wdog(3);
+}
+
 /*
  * bl2_early_platform_setup()
  * MMU off
@@ -202,6 +217,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	clock_enable_uart(0, uart_en_bits);
 	clock_enable_usdhc(usdhc_clock_sel, USDHC_CLK_SELECT);
 	warp7_setup_system_counter();
+	warp7_setup_wdog_clocks();
 
 	/* Setup pin-muxes */
 	warp7_setup_pinmux();
@@ -216,6 +232,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 
 	/* Setup higher-level functionality CAAM, RTC etc */
 	caam_init();
+	wdog_init();
 
 	/* Print out the expected memory map */
 	VERBOSE("\tOPTEE      0x%08x-0x%08x\n", WARP7_OPTEE_BASE, WARP7_OPTEE_LIMIT);
