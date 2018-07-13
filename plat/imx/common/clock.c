@@ -107,6 +107,48 @@ static void clock_uart_init(void)
 		clock_disable_uart(i);
 }
 
+void clock_enable_wdog(unsigned int wdog_id)
+{
+	unsigned int ccm_ccgr_id = CCM_CCGR_ID_WDOG1 + wdog_id;
+
+	/* Check for error */
+	if (wdog_id > MXC_MAX_WDOG_NUM)
+		return;
+
+	/* Enable the clock gate */
+	mxc_clock_gate_enable(ccm_ccgr_id, true);
+}
+
+void clock_disable_wdog(unsigned int wdog_id)
+{
+	unsigned int ccm_trgt_id = CCM_TRT_ID_WDOG_CLK_ROOT;
+	unsigned int ccm_ccgr_id = CCM_CCGR_ID_WDOG1 + wdog_id;
+
+	/* Check for error */
+	if (wdog_id > MXC_MAX_WDOG_NUM)
+		return;
+
+	/* Disable the clock gate */
+	mxc_clock_gate_enable(ccm_ccgr_id, false);
+
+	/* Clear the target */
+	mxc_clock_target_clr(ccm_trgt_id, 0xFFFFFFFF);
+}
+
+void clock_set_wdog_clk_root_bits(uint32_t wdog_clk_root_en_bits)
+{
+	/* Enable the common clock root just once */
+	mxc_clock_target_set(CCM_TRT_ID_WDOG_CLK_ROOT, wdog_clk_root_en_bits);
+}
+
+static void clock_wdog_init(void)
+{
+	unsigned int i;
+
+	for (i = 0; i < MXC_MAX_WDOG_NUM; i++)
+		clock_disable_wdog(i);
+}
+
 void clock_init(void)
 {
 	/*
@@ -123,4 +165,8 @@ void clock_init(void)
 
 	/* Initialize UART clocks */
 	clock_uart_init();
+
+	/* Watchdog clocks */
+	clock_wdog_init();
+
 }
