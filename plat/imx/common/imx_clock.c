@@ -98,3 +98,37 @@ void imx_clock_enable_usdhc(unsigned int usdhc_id, uint32_t usdhc_clk_en_bits)
 	/* Enable the clock gate */
 	imx_clock_gate_enable(ccm_ccgr_id, true);
 }
+
+void imx_clock_enable_wdog(unsigned int wdog_id)
+{
+	unsigned int ccm_ccgr_id = CCM_CCGR_ID_WDOG1 + wdog_id;
+
+	/* Check for error */
+	if (wdog_id > MXC_MAX_WDOG_NUM)
+		return;
+
+	/* Enable the clock gate */
+	imx_clock_gate_enable(ccm_ccgr_id, true);
+}
+
+void imx_clock_disable_wdog(unsigned int wdog_id)
+{
+	unsigned int ccm_trgt_id = CCM_TRT_ID_WDOG_CLK_ROOT;
+	unsigned int ccm_ccgr_id = CCM_CCGR_ID_WDOG1 + wdog_id;
+
+	/* Check for error */
+	if (wdog_id > MXC_MAX_WDOG_NUM)
+		return;
+
+	/* Disable the clock gate */
+	imx_clock_gate_enable(ccm_ccgr_id, false);
+
+	/* Clear the target */
+	imx_clock_target_clr(ccm_trgt_id, 0xFFFFFFFF);
+}
+
+void imx_clock_set_wdog_clk_root_bits(uint32_t wdog_clk_root_en_bits)
+{
+	/* Enable the common clock root just once */
+	imx_clock_target_set(CCM_TRT_ID_WDOG_CLK_ROOT, wdog_clk_root_en_bits);
+}
