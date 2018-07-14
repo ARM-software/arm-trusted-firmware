@@ -7,8 +7,7 @@ Trusted Firmware-A for Raspberry Pi 3
 .. contents::
 
 The `Raspberry Pi 3`_ is an inexpensive single-board computer that contains four
-Arm Cortex-A53 cores, which makes it possible to have a port of Trusted
-Firmware-A (TF-A).
+Arm Cortex-A53 cores.
 
 The following instructions explain how to use this port of the TF-A with the
 default distribution of `Raspbian`_ because that's the distribution officially
@@ -66,7 +65,7 @@ Placement of images
 
 The file ``armstub8.bin`` contains BL1 and the FIP. It is needed to add padding
 between them so that the addresses they are loaded to match the ones specified
-when compiling TF-A.
+when compiling TF-A. This is done automatically by the build system.
 
 The device tree block is loaded by the VideoCore loader from an appropriate
 file, but we can specify the address it is loaded to in ``config.txt``.
@@ -159,13 +158,23 @@ The `Linux kernel tree`_ has instructions on how to jump to the Linux kernel
 in ``Documentation/arm/Booting`` and ``Documentation/arm64/booting.txt``. The
 bootstrap should take care of this.
 
+This port support a direct boot of the Linux kernel from the firmware (as a BL33
+image). Alternatively, U-Boot or other bootloaders may be used.
+
 Secondary cores
 ~~~~~~~~~~~~~~~
+
+This port of the Trusted Firmware-A supports ``PSCI_CPU_ON``,
+`PSCI_SYSTEM_RESET`` and ``PSCI_SYSTEM_OFF``. The last one doesn't really turn
+the system off, it simply reboots it and asks the VideoCore firmware to keep it
+in a low power mode permanently.
 
 The kernel used by `Raspbian`_ doesn't have support for PSCI, so it is needed to
 use mailboxes to trap the secondary cores until they are ready to jump to the
 kernel. This mailbox is located at a different address in the AArch32 default
 kernel than in the AArch64 kernel.
+
+Kernels with PSCI support can use the PSCI calls instead for a cleaner boot.
 
 Also, this port of TF-A has another Trusted Mailbox in Shared BL RAM. During
 cold boot, all secondary cores wait in a loop until they are given given an
@@ -187,42 +196,37 @@ To boot a AArch32 kernel, both AArch64 and AArch32 toolchains are required. The
 AArch32 toolchain is needed for the AArch32 bootstrap needed to load a 32-bit
 kernel.
 
-First, clone and compile `Raspberry Pi 3 TF-A bootstrap`_. Choose the one
-needed for the architecture of your kernel.
-
-Then compile TF-A. For a AArch32 kernel, use the following command line:
-
-.. code:: shell
-
-    CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
-    RPI3_BL33_IN_AARCH32=1                                      \
-    BL33=../rpi3-arm-tf-bootstrap/aarch32/el2-bootstrap.bin
-
-For a AArch64 kernel, use this other command line:
-
-.. code:: shell
-
-    CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
-    BL33=../rpi3-arm-tf-bootstrap/aarch64/el2-bootstrap.bin
-
 The build system concatenates BL1 and the FIP so that the addresses match the
 ones in the memory map. The resulting file is ``armstub8.bin``, located in the
-build folder (e.g. ``build/rpi3/debug/armstub8.bin``). Now, follow the
-instructions in `Setup SD card`_.
+build folder (e.g. ``build/rpi3/debug/armstub8.bin``). To know how to use this
+file, follow the instructions in `Setup SD card`_.
 
 The following build options are supported:
-
-- ``ENABLE_STACK_PROTECTOR``: Disabled by default. It uses the hardware RNG of
-  the board.
-
-- ``PRELOADED_BL33_BASE``: Specially useful because the file ``kernel8.img`` can
-  be loaded anywhere by modifying the file ``config.txt``. It doesn't have to
-  contain a kernel, it could have any arbitrary payload.
 
 - ``RPI3_BL33_IN_AARCH32``: This port can load a AArch64 or AArch32 BL33 image.
   By default this option is 0, which means that TF-A will jump to BL33 in EL2
   in AArch64 mode. If set to 1, it will jump to BL33 in Hypervisor in AArch32
   mode.
+
+- ``PRELOADED_BL33_BASE``: Used to specify the address of a BL33 binary that has
+  been preloaded by any other system than using the firmware. ``BL33`` isn't
+  needed in the build command line if this option is used. Specially useful
+  because the file ``kernel8.img`` can be loaded anywhere by modifying the file
+  ``config.txt``. It doesn't have to contain a kernel, it could have any
+  arbitrary payload.
+
+- ``RPI3_DIRECT_LINUX_BOOT``: Disabled by default. Set to 1 to enable the direct
+  boot of the Linux kernel from the firmware. Option ``RPI3_PRELOADED_DTB_BASE``
+  is mandatory when the direct Linux kernel boot is used. Options
+  ``PRELOADED_BL33_BASE`` will most likely be needed as well because it is
+  unlikely that the kernel image will fit in the space reserved for BL33 images.
+  This option can be combined with ``RPI3_BL33_IN_AARCH32`` in order to boot a
+  32-bit kernel. The only thing this option does is to set the arguments in
+  registers x0-x3 or r0-r2 as expected by the kernel.
+
+- ``RPI3_PRELOADED_DTB_BASE``: Auxiliary build option needed when using
+  ``RPI3_DIRECT_LINUX_BOOT=1``. This option allows to specify the location of a
+  DTB in memory.
 
 - ``BL32``: This port can load and run OP-TEE. The OP-TEE image is optional.
   Please use the code from `here <https://github.com/OP-TEE/optee_os>`__.
@@ -236,15 +240,16 @@ The following build options are supported:
   This will unfortunately reduce the performance of the USB driver. It is needed
   when using Raspbian, for example.
 
-- ``TRUSTED_BOARD_BOOT``: This port supports TBB. Set this option
-  ``TRUSTED_BOARD_BOOT=1`` to enable it. In order to use TBB, you might
-  want to set ``GENERATE_COT=1`` to let the contents of the FIP automatically
-  signed by the build process. The ROT key will be generated and output to
-  ``rot_key.pem`` in the build directory. It is able to set ROT_KEY to
-  your own key in PEM format.
-  Also in order to build, you need to clone mbedtls from
-  `here <https://github.com/ARMmbed/mbedtls>`__.
-  And set MBEDTLS_DIR to mbedtls source directory.
+- ``TRUSTED_BOARD_BOOT``: This port supports TBB. Set this option to 1 to enable
+  it. In order to use TBB, you might want to set ``GENERATE_COT=1`` to let the
+  contents of the FIP automatically signed by the build process. The ROT key
+  will be generated and output to ``rot_key.pem`` in the build directory. It is
+  able to set ROT_KEY to your own key in PEM format.  Also in order to build,
+  you need to clone mbed TLS from `here <https://github.com/ARMmbed/mbedtls>`__.
+  ``MBEDTLS_DIR`` must point at the mbed TLS source directory.
+
+- ``ENABLE_STACK_PROTECTOR``: Disabled by default. It uses the hardware RNG of
+  the board.
 
 The following is not currently supported:
 
@@ -258,6 +263,60 @@ The following is not currently supported:
   crash console uses the internal 16550 driver functions directly in order to be
   able to print error messages during early crashes before setting up the
   multi console API.
+
+Building the firmware for kernels that don't support PSCI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is the case for the 32-bit image of Raspbian, for example. 64-bit kernels
+always support PSCI, but they may not know that the system understands PSCI due
+to an incorrect DTB file.
+
+First, clone and compile the 32-bit version of the `Raspberry Pi 3 TF-A
+bootstrap`_. Choose the one needed for the architecture of your kernel.
+
+Then compile TF-A. For a 32-bit kernel, use the following command line:
+
+.. code:: shell
+
+    CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
+    RPI3_BL33_IN_AARCH32=1                                      \
+    BL33=../rpi3-arm-tf-bootstrap/aarch32/el2-bootstrap.bin
+
+For a 64-bit kernel, use this other command line:
+
+.. code:: shell
+
+    CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
+    BL33=../rpi3-arm-tf-bootstrap/aarch64/el2-bootstrap.bin
+
+However, enabling PSCI support in a 64-bit kernel is really easy. In the
+repository `Raspberry Pi 3 TF-A bootstrap`_ there is a patch that can be applied
+to the Linux kernel tree maintained by the Raspberry Pi foundation. It modifes
+the DTS to tell the kernel to use PSCI. Once this patch is applied, follow the
+instructions in `AArch64 kernel build instructions`_ to get a working 64-bit
+kernel image and supporting files.
+
+Building the firmware for kernels that support PSCI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For a 64-bit kernel:
+
+.. code:: shell
+
+    CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
+    PRELOADED_BL33_BASE=0x01000000                              \
+    RPI3_PRELOADED_DTB_BASE=0x02000000                          \
+    RPI3_DIRECT_LINUX_BOOT=1
+
+For a 32-bit kernel:
+
+.. code:: shell
+
+    CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
+    PRELOADED_BL33_BASE=0x01000000                              \
+    RPI3_PRELOADED_DTB_BASE=0x02000000                          \
+    RPI3_DIRECT_LINUX_BOOT=1                                    \
+    RPI3_BL33_IN_AARCH32=1
 
 AArch64 kernel build instructions
 ---------------------------------
@@ -275,7 +334,7 @@ allows the user to run 64-bit binaries in addition to 32-bit binaries.
 
 .. code:: shell
 
-    git clone --depth=1 -b rpi-4.14.y https://github.com/raspberrypi/linux
+    git clone --depth=1 -b rpi-4.18.y https://github.com/raspberrypi/linux
     cd linux
 
 2. Configure and compile the kernel. Adapt the number after ``-j`` so that it is
@@ -295,6 +354,7 @@ allows the user to run 64-bit binaries in addition to 32-bit binaries.
 
     cp arch/arm64/boot/Image /path/to/boot/kernel8.img
     cp arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b.dtb /path/to/boot/
+    cp arch/arm64/boot/dts/broadcom/bcm2710-rpi-3-b-plus.dtb /path/to/boot/
 
 4. Install the kernel modules. Replace the path by the corresponding path to the
    filesystem partition of the SD card on your computer.
