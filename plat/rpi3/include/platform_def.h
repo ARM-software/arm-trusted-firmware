@@ -117,9 +117,11 @@
  */
 #define PLAT_RPI3_TRUSTED_MAILBOX_BASE	SHARED_RAM_BASE
 
+/* The secure entry point to be used on warm reset by all CPUs. */
 #define PLAT_RPI3_TM_ENTRYPOINT		PLAT_RPI3_TRUSTED_MAILBOX_BASE
 #define PLAT_RPI3_TM_ENTRYPOINT_SIZE	ULL(8)
 
+/* Hold entries for each CPU. */
 #define PLAT_RPI3_TM_HOLD_BASE		(PLAT_RPI3_TM_ENTRYPOINT + \
 					 PLAT_RPI3_TM_ENTRYPOINT_SIZE)
 #define PLAT_RPI3_TM_HOLD_ENTRY_SIZE	ULL(8)
