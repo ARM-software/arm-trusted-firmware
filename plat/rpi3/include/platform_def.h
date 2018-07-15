@@ -70,16 +70,16 @@
 #define PLAT_RPI3_FIP_BASE		ULL(0x00020000)
 #define PLAT_RPI3_FIP_MAX_SIZE		ULL(0x001E0000)
 
-/* We have 16M of memory reserved at at 256M */
+/* We have 16M of memory reserved starting at 256M */
 #define SEC_SRAM_BASE			ULL(0x10000000)
 #define SEC_SRAM_SIZE			ULL(0x00100000)
 
 #define SEC_DRAM0_BASE			ULL(0x10100000)
-#define SEC_DRAM0_SIZE			ULL(0x00B00000)
-
-#define NS_DRAM0_BASE			ULL(0x10C00000)
-#define NS_DRAM0_SIZE			ULL(0x00400000)
+#define SEC_DRAM0_SIZE			ULL(0x00F00000)
 /* End of reserved memory */
+
+#define NS_DRAM0_BASE			ULL(0x11000000)
+#define NS_DRAM0_SIZE			ULL(0x01000000)
 
 /*
  * BL33 entrypoint.
