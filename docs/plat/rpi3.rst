@@ -107,13 +107,13 @@ secure platform!
                |       ...       |
                |                 |
     0x01000000 +-----------------+
-               |     Kernel      |
+               |       DTB       | (Loaded by the VideoCore)
                +-----------------+
                |                 |
                |       ...       |
                |                 |
     0x02000000 +-----------------+
-               |       DTB       |
+               |     Kernel      | (Loaded by the VideoCore)
                +-----------------+
                |                 |
                |       ...       |
@@ -132,10 +132,10 @@ secure platform!
                |       I/O       |
     0x40000000 +-----------------+
 
-The area between **0x10000000** and **0x11000000** has to be protected so that
-the kernel doesn't use it. That is done by adding ``memmap=16M$256M`` to the
-command line passed to the kernel. See the `Setup SD card`_ instructions to see
-how to do it.
+The area between **0x10000000** and **0x11000000** has to be manually protected
+so that the kernel doesn't use it. That is done by adding ``memmap=16M$256M`` to
+the command line passed to the kernel. See the `Setup SD card`_ instructions to
+see how to do it.
 
 The last 16 MiB of DRAM can only be accessed by the VideoCore, that has
 different mappings than the Arm cores in which the I/O addresses don't overlap
@@ -304,8 +304,8 @@ For a 64-bit kernel:
 .. code:: shell
 
     CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
-    PRELOADED_BL33_BASE=0x01000000                              \
-    RPI3_PRELOADED_DTB_BASE=0x02000000                          \
+    PRELOADED_BL33_BASE=0x02000000                              \
+    RPI3_PRELOADED_DTB_BASE=0x01000000                          \
     RPI3_DIRECT_LINUX_BOOT=1
 
 For a 32-bit kernel:
@@ -313,8 +313,8 @@ For a 32-bit kernel:
 .. code:: shell
 
     CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
-    PRELOADED_BL33_BASE=0x01000000                              \
-    RPI3_PRELOADED_DTB_BASE=0x02000000                          \
+    PRELOADED_BL33_BASE=0x02000000                              \
+    RPI3_PRELOADED_DTB_BASE=0x01000000                          \
     RPI3_DIRECT_LINUX_BOOT=1                                    \
     RPI3_BL33_IN_AARCH32=1
 
@@ -398,8 +398,8 @@ untouched). They have been tested with the image available in 2018-03-13.
 ::
 
     enable_uart=1
-    kernel_address=0x01000000
-    device_tree_address=0x02000000
+    kernel_address=0x02000000
+    device_tree_address=0x01000000
 
 If you connect a serial cable to the Mini UART and your computer, and connect
 to it (for example, with ``screen /dev/ttyUSB0 115200``) you should see some
