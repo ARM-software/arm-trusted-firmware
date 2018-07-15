@@ -13,6 +13,12 @@
 #include "xlat_tables_private.h"
 
 /*
+ * MMU configuration register values for the active translation context. Used
+ * from the MMU assembly helpers.
+ */
+uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
+
+/*
  * Each platform can define the size of its physical and virtual address spaces.
  * If the platform hasn't defined one or both of them, default to
  * ADDR_SPACE_SIZE. The latter is deprecated, though.
@@ -105,7 +111,8 @@ void init_xlat_tables(void)
 
 void enable_mmu_secure(unsigned int flags)
 {
-	setup_mmu_cfg(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+	setup_mmu_cfg((uint64_t *)&mmu_cfg_params, flags,
+		      tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
 		      tf_xlat_ctx.va_max_address, EL1_EL0_REGIME);
 	enable_mmu_direct(flags);
 }
@@ -114,14 +121,16 @@ void enable_mmu_secure(unsigned int flags)
 
 void enable_mmu_el1(unsigned int flags)
 {
-	setup_mmu_cfg(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+	setup_mmu_cfg((uint64_t *)&mmu_cfg_params, flags,
+		      tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
 		      tf_xlat_ctx.va_max_address, EL1_EL0_REGIME);
 	enable_mmu_direct_el1(flags);
 }
 
 void enable_mmu_el3(unsigned int flags)
 {
-	setup_mmu_cfg(flags, tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+	setup_mmu_cfg((uint64_t *)&mmu_cfg_params, flags,
+		      tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
 		      tf_xlat_ctx.va_max_address, EL3_REGIME);
 	enable_mmu_direct_el3(flags);
 }

@@ -18,8 +18,6 @@
 #error ARMv7 target does not support LPAE MMU descriptors
 #endif
 
-uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
-
 /*
  * Returns 1 if the provided granule size is supported, 0 otherwise.
  */
@@ -109,9 +107,9 @@ int xlat_arch_current_el(void)
  * Function for enabling the MMU in Secure PL1, assuming that the page tables
  * have already been created.
  ******************************************************************************/
-void setup_mmu_cfg(unsigned int flags, const uint64_t *base_table,
-		   unsigned long long max_pa, uintptr_t max_va,
-		   __unused int xlat_regime)
+void setup_mmu_cfg(uint64_t *params, unsigned int flags,
+		   const uint64_t *base_table, unsigned long long max_pa,
+		   uintptr_t max_va, __unused int xlat_regime)
 {
 	uint64_t mair, ttbr0;
 	uint32_t ttbcr;
@@ -180,7 +178,7 @@ void setup_mmu_cfg(unsigned int flags, const uint64_t *base_table,
 #endif
 
 	/* Now populate MMU configuration */
-	mmu_cfg_params[MMU_CFG_MAIR] = mair;
-	mmu_cfg_params[MMU_CFG_TCR] = (uint64_t) ttbcr;
-	mmu_cfg_params[MMU_CFG_TTBR0] = ttbr0;
+	params[MMU_CFG_MAIR] = mair;
+	params[MMU_CFG_TCR] = (uint64_t) ttbcr;
+	params[MMU_CFG_TTBR0] = ttbr0;
 }

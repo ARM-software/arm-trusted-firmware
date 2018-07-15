@@ -13,8 +13,6 @@
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
 
-uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
-
 /*
  * Returns 1 if the provided granule size is supported, 0 otherwise.
  */
@@ -180,8 +178,9 @@ int xlat_arch_current_el(void)
 	return el;
 }
 
-void setup_mmu_cfg(unsigned int flags, const uint64_t *base_table,
-		   unsigned long long max_pa, uintptr_t max_va, int xlat_regime)
+void setup_mmu_cfg(uint64_t *params, unsigned int flags,
+		   const uint64_t *base_table, unsigned long long max_pa,
+		   uintptr_t max_va, int xlat_regime)
 {
 	uint64_t mair, ttbr0, tcr;
 	uintptr_t virtual_addr_space_size;
@@ -248,7 +247,7 @@ void setup_mmu_cfg(unsigned int flags, const uint64_t *base_table,
 	ttbr0 |= TTBR_CNP_BIT;
 #endif
 
-	mmu_cfg_params[MMU_CFG_MAIR] = mair;
-	mmu_cfg_params[MMU_CFG_TCR] = tcr;
-	mmu_cfg_params[MMU_CFG_TTBR0] = ttbr0;
+	params[MMU_CFG_MAIR] = mair;
+	params[MMU_CFG_TCR] = tcr;
+	params[MMU_CFG_TTBR0] = ttbr0;
 }
