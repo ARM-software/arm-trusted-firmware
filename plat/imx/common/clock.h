@@ -989,5 +989,8 @@ void clock_disable_uart(unsigned int uart_id);
 void clock_enable_usdhc(unsigned int usdhc_id, uint32_t usdhc_clk_en_bits);
 void clock_set_wdog_clk_root_bits(uint32_t wdog_clk_root_en_bits);
 void clock_enable_wdog(unsigned int wdog_id);
+void clock_enable_usb(unsigned int usb_id);
+void clock_disable_usb(unsigned int usb_id);
+void clock_set_usb_clk_root_bits(uint32_t usb_clk_root_en_bits);
 
 #endif /* __CLOCK_H__ */

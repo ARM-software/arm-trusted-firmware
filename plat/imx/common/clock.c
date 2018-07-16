@@ -149,6 +149,30 @@ static void clock_wdog_init(void)
 		clock_disable_wdog(i);
 }
 
+void clock_enable_usb(unsigned int ccm_ccgr_usb_id)
+{
+	/* Enable the clock gate */
+	mxc_clock_gate_enable(ccm_ccgr_usb_id, true);
+}
+
+void clock_disable_usb(unsigned int ccm_ccgr_usb_id)
+{
+	/* Disable the clock gate */
+	mxc_clock_gate_enable(ccm_ccgr_usb_id, false);
+}
+
+void clock_set_usb_clk_root_bits(uint32_t usb_clk_root_en_bits)
+{
+	/* Enable the common clock root just once */
+	mxc_clock_target_set(CCM_TRT_ID_USB_HSIC_CLK_ROOT, usb_clk_root_en_bits);
+}
+
+static void clock_usb_init(void)
+{
+	/* Disable the clock root */
+	mxc_clock_target_clr(CCM_TRT_ID_USB_HSIC_CLK_ROOT, 0xFFFFFFFF);
+}
+
 void clock_init(void)
 {
 	/*
@@ -168,5 +192,8 @@ void clock_init(void)
 
 	/* Watchdog clocks */
 	clock_wdog_init();
+
+	/* USB clocks */
+	clock_usb_init();
 
 }
