@@ -295,22 +295,20 @@ void prepare_cpu_pwr_dwn(unsigned int power_level);
 
 /* Private exported functions from psci_on.c */
 int psci_cpu_on_start(u_register_t target_cpu,
-		      entry_point_info_t *ep);
+		      const entry_point_info_t *ep);
 
-void psci_cpu_on_finish(unsigned int cpu_idx,
-			psci_power_state_t *state_info);
+void psci_cpu_on_finish(int cpu_idx, const psci_power_state_t *state_info);
 
 /* Private exported functions from psci_off.c */
 int psci_do_cpu_off(unsigned int end_pwrlvl);
 
 /* Private exported functions from psci_suspend.c */
-void psci_cpu_suspend_start(entry_point_info_t *ep,
+void psci_cpu_suspend_start(const entry_point_info_t *ep,
 			unsigned int end_pwrlvl,
 			psci_power_state_t *state_info,
 			unsigned int is_power_down_state);
 
-void psci_cpu_suspend_finish(unsigned int cpu_idx,
-			psci_power_state_t *state_info);
+void psci_cpu_suspend_finish(int cpu_idx, const psci_power_state_t *state_info);
 
 /* Private exported functions from psci_helpers.S */
 void psci_do_pwrdown_cache_maintenance(unsigned int pwr_level);
@@ -319,7 +317,7 @@ void psci_do_pwrup_cache_maintenance(void);
 /* Private exported functions from psci_system_off.c */
 void __dead2 psci_system_off(void);
 void __dead2 psci_system_reset(void);
-int psci_system_reset2(uint32_t reset_type, u_register_t cookie);
+u_register_t psci_system_reset2(uint32_t reset_type, u_register_t cookie);
 
 /* Private exported functions from psci_stat.c */
 void psci_stats_update_pwr_down(unsigned int end_pwrlvl,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,14 +16,14 @@ void __dead2 psci_system_off(void)
 {
 	psci_print_power_domain_map();
 
-	assert(psci_plat_pm_ops->system_off);
+	assert(psci_plat_pm_ops->system_off != NULL);
 
 	/* Notify the Secure Payload Dispatcher */
-	if (psci_spd_pm && psci_spd_pm->svc_system_off) {
+	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_system_off != NULL)) {
 		psci_spd_pm->svc_system_off();
 	}
 
-	console_flush();
+	(void) console_flush();
 
 	/* Call the platform specific hook */
 	psci_plat_pm_ops->system_off();
@@ -35,14 +35,14 @@ void __dead2 psci_system_reset(void)
 {
 	psci_print_power_domain_map();
 
-	assert(psci_plat_pm_ops->system_reset);
+	assert(psci_plat_pm_ops->system_reset != NULL);
 
 	/* Notify the Secure Payload Dispatcher */
-	if (psci_spd_pm && psci_spd_pm->svc_system_reset) {
+	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_system_reset != NULL)) {
 		psci_spd_pm->svc_system_reset();
 	}
 
-	console_flush();
+	(void) console_flush();
 
 	/* Call the platform specific hook */
 	psci_plat_pm_ops->system_reset();
@@ -50,32 +50,34 @@ void __dead2 psci_system_reset(void)
 	/* This function does not return. We should never get here */
 }
 
-int psci_system_reset2(uint32_t reset_type, u_register_t cookie)
+u_register_t psci_system_reset2(uint32_t reset_type, u_register_t cookie)
 {
-	int is_vendor;
+	unsigned int is_vendor;
 
 	psci_print_power_domain_map();
 
-	assert(psci_plat_pm_ops->system_reset2);
+	assert(psci_plat_pm_ops->system_reset2 != NULL);
 
-	is_vendor = (reset_type >> PSCI_RESET2_TYPE_VENDOR_SHIFT) & 1;
-	if (!is_vendor) {
+	is_vendor = (reset_type >> PSCI_RESET2_TYPE_VENDOR_SHIFT) & 1U;
+	if (is_vendor == 0U) {
 		/*
 		 * Only WARM_RESET is allowed for architectural type resets.
 		 */
 		if (reset_type != PSCI_RESET2_SYSTEM_WARM_RESET)
-			return PSCI_E_INVALID_PARAMS;
-		if (psci_plat_pm_ops->write_mem_protect &&
-		    psci_plat_pm_ops->write_mem_protect(0) < 0) {
-			return PSCI_E_NOT_SUPPORTED;
+			return (u_register_t) PSCI_E_INVALID_PARAMS;
+		if ((psci_plat_pm_ops->write_mem_protect != NULL) &&
+		    (psci_plat_pm_ops->write_mem_protect(0) < 0)) {
+			return (u_register_t) PSCI_E_NOT_SUPPORTED;
 		}
 	}
 
 	/* Notify the Secure Payload Dispatcher */
-	if (psci_spd_pm && psci_spd_pm->svc_system_reset) {
+	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_system_reset != NULL)) {
 		psci_spd_pm->svc_system_reset();
 	}
-	console_flush();
+	(void) console_flush();
 
-	return psci_plat_pm_ops->system_reset2(is_vendor, reset_type, cookie);
+	return (u_register_t)
+		psci_plat_pm_ops->system_reset2((int) is_vendor, reset_type,
+						cookie);
 }
