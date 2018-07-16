@@ -196,29 +196,19 @@ Then compile TF-A. For a AArch32 kernel, use the following command line:
 
     CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
     RPI3_BL33_IN_AARCH32=1                                      \
-    BL33=../rpi3-arm-tf-bootstrap/aarch32/el2-bootstrap.bin     \
-    all fip
+    BL33=../rpi3-arm-tf-bootstrap/aarch32/el2-bootstrap.bin
 
 For a AArch64 kernel, use this other command line:
 
 .. code:: shell
 
     CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
-    BL33=../rpi3-arm-tf-bootstrap/aarch64/el2-bootstrap.bin     \
-    all fip
+    BL33=../rpi3-arm-tf-bootstrap/aarch64/el2-bootstrap.bin
 
-Then, join BL1 and the FIP with the following instructions (replace ``release``
-by ``debug`` if you set the build option ``DEBUG=1``):
-
-.. code:: shell
-
-    cp build/rpi3/release/bl1.bin bl1.pad.bin
-    truncate --size=131072 bl1.pad.bin
-    cat bl1.pad.bin build/rpi3/release/fip.bin > armstub8.bin
-
-The resulting file, ``armstub8.bin``, contains BL1 and the FIP in the place they
-need to be for TF-A to boot correctly. Now, follow the instructions in
-`Setup SD card`_.
+The build system concatenates BL1 and the FIP so that the addresses match the
+ones in the memory map. The resulting file is ``armstub8.bin``, located in the
+build folder (e.g. ``build/rpi3/debug/armstub8.bin``). Now, follow the
+instructions in `Setup SD card`_.
 
 The following build options are supported:
 
