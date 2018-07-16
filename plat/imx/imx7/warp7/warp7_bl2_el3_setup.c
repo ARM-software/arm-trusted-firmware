@@ -39,6 +39,9 @@
 #define WDOG_CLK_SELECT (CCM_TARGET_ROOT_ENABLE |\
 			 CCM_TRGT_MUX_WDOG_CLK_ROOT_OSC_24M)
 
+#define USB_CLK_SELECT (CCM_TARGET_ROOT_ENABLE |\
+			CCM_TRGT_MUX_USB_HSIC_CLK_ROOT_SYS_PLL)
+
 uintptr_t plat_get_ns_image_entrypoint(void)
 {
 	return WARP7_UBOOT_BASE;
@@ -196,6 +199,16 @@ static void warp7_setup_wdog_clocks(void)
 	clock_enable_wdog(3);
 }
 
+static void warp7_setup_usb_clocks(void)
+{
+	uint32_t usb_en_bits = (uint32_t)USB_CLK_SELECT;
+
+	clock_set_usb_clk_root_bits(usb_en_bits);
+	clock_enable_usb(CCM_CCGR_ID_USB_IPG);
+	clock_enable_usb(CCM_CCGR_ID_USB_PHY_480MCLK);
+	clock_enable_usb(CCM_CCGR_ID_USB_OTG1_PHY);
+	clock_enable_usb(CCM_CCGR_ID_USB_OTG2_PHY);
+}
 /*
  * bl2_early_platform_setup()
  * MMU off
@@ -218,6 +231,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	clock_enable_usdhc(usdhc_clock_sel, USDHC_CLK_SELECT);
 	warp7_setup_system_counter();
 	warp7_setup_wdog_clocks();
+	warp7_setup_usb_clocks();
 
 	/* Setup pin-muxes */
 	warp7_setup_pinmux();
