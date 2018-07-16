@@ -132,3 +132,21 @@ void clock_set_wdog_clk_root_bits(uint32_t wdog_clk_root_en_bits)
 	/* Enable the common clock root just once */
 	mxc_clock_target_set(CCM_TRT_ID_WDOG_CLK_ROOT, wdog_clk_root_en_bits);
 }
+
+void clock_enable_usb(unsigned int ccm_ccgr_usb_id)
+{
+	/* Enable the clock gate */
+	mxc_clock_gate_enable(ccm_ccgr_usb_id, true);
+}
+
+void clock_disable_usb(unsigned int ccm_ccgr_usb_id)
+{
+	/* Disable the clock gate */
+	mxc_clock_gate_enable(ccm_ccgr_usb_id, false);
+}
+
+void clock_set_usb_clk_root_bits(uint32_t usb_clk_root_en_bits)
+{
+	/* Enable the common clock root just once */
+	mxc_clock_target_set(CCM_TRT_ID_USB_HSIC_CLK_ROOT, usb_clk_root_en_bits);
+}
