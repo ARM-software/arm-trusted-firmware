@@ -328,6 +328,7 @@ void bl2_platform_setup(void)
 	hikey960_tzc_init();
 	hikey960_peri_init();
 	hikey960_pinmux_init();
+	hikey960_gpio_init();
 	hikey960_init_ufs();
 	hikey960_io_setup();
 }

@@ -8,6 +8,7 @@
 #include <delay_timer.h>
 #include <hi3660.h>
 #include <mmio.h>
+#include <pl061_gpio.h>
 
 #include "hikey960_private.h"
 
@@ -438,4 +439,35 @@ void hikey960_pinmux_init(void)
 	mmio_write_32(IOCG_006_REG, 2 << 4);
 	/* GPIO213 - PCIE_CLKREQ_N */
 	mmio_write_32(IOMG_AO_033_REG, 1);
+}
+
+void hikey960_gpio_init(void)
+{
+	pl061_gpio_init();
+	pl061_gpio_register(GPIO0_BASE, 0);
+	pl061_gpio_register(GPIO1_BASE, 1);
+	pl061_gpio_register(GPIO2_BASE, 2);
+	pl061_gpio_register(GPIO3_BASE, 3);
+	pl061_gpio_register(GPIO4_BASE, 4);
+	pl061_gpio_register(GPIO5_BASE, 5);
+	pl061_gpio_register(GPIO6_BASE, 6);
+	pl061_gpio_register(GPIO7_BASE, 7);
+	pl061_gpio_register(GPIO8_BASE, 8);
+	pl061_gpio_register(GPIO9_BASE, 9);
+	pl061_gpio_register(GPIO10_BASE, 10);
+	pl061_gpio_register(GPIO11_BASE, 11);
+	pl061_gpio_register(GPIO12_BASE, 12);
+	pl061_gpio_register(GPIO13_BASE, 13);
+	pl061_gpio_register(GPIO14_BASE, 14);
+	pl061_gpio_register(GPIO15_BASE, 15);
+	pl061_gpio_register(GPIO16_BASE, 16);
+	pl061_gpio_register(GPIO17_BASE, 17);
+	pl061_gpio_register(GPIO18_BASE, 18);
+	pl061_gpio_register(GPIO19_BASE, 19);
+	pl061_gpio_register(GPIO20_BASE, 20);
+	pl061_gpio_register(GPIO21_BASE, 21);
+
+	/* PCIE_PERST_N output low */
+	gpio_set_direction(89, GPIO_DIR_OUT);
+	gpio_set_value(89, GPIO_LEVEL_LOW);
 }

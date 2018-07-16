@@ -211,6 +211,7 @@ void bl1_platform_setup(void)
 	hikey960_peri_init();
 	hikey960_ufs_init();
 	hikey960_pinmux_init();
+	hikey960_gpio_init();
 	hikey960_io_setup();
 }
 
