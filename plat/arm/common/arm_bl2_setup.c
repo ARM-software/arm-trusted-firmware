@@ -245,8 +245,7 @@ void arm_bl2_plat_arch_setup(void)
 
 	const mmap_region_t bl_regions[] = {
 		MAP_BL2_TOTAL,
-		ARM_MAP_BL_CODE,
-		ARM_MAP_BL_RO_DATA,
+		ARM_MAP_BL_RO,
 		{0}
 	};
 

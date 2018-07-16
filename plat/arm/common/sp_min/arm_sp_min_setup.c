@@ -203,8 +203,7 @@ void sp_min_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
 		MAP_BL_SP_MIN_TOTAL,
-		ARM_MAP_BL_CODE,
-		ARM_MAP_BL_RO_DATA,
+		ARM_MAP_BL_RO,
 #if USE_COHERENT_MEM
 		ARM_MAP_BL_COHERENT_RAM,
 #endif

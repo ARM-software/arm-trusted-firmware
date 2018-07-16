@@ -28,15 +28,26 @@
 					bl1_tzram_layout.total_base,	\
 					bl1_tzram_layout.total_size,	\
 					MT_MEMORY | MT_RW | MT_SECURE)
-#define MAP_BL1_CODE		MAP_REGION_FLAT(			\
+/*
+ * If SEPARATE_CODE_AND_RODATA=1 we define a region for each section
+ * otherwise one region is defined containing both
+ */
+#if SEPARATE_CODE_AND_RODATA
+#define MAP_BL1_RO		MAP_REGION_FLAT(			\
 					BL_CODE_BASE,			\
 					BL1_CODE_END - BL_CODE_BASE,	\
-					MT_CODE | MT_SECURE)
-#define MAP_BL1_RO_DATA		MAP_REGION_FLAT(			\
+					MT_CODE | MT_SECURE),		\
+				MAP_REGION_FLAT(			\
 					BL1_RO_DATA_BASE,		\
 					BL1_RO_DATA_END			\
 						- BL_RO_DATA_BASE,	\
 					MT_RO_DATA | MT_SECURE)
+#else
+#define MAP_BL1_RO		MAP_REGION_FLAT(			\
+					BL_CODE_BASE,			\
+					BL1_CODE_END - BL_CODE_BASE,	\
+					MT_CODE | MT_SECURE)
+#endif
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
 static meminfo_t bl1_tzram_layout;
@@ -105,8 +116,7 @@ void arm_bl1_plat_arch_setup(void)
 
 	const mmap_region_t bl_regions[] = {
 		MAP_BL1_TOTAL,
-		MAP_BL1_CODE,
-		MAP_BL1_RO_DATA,
+		MAP_BL1_RO,
 		{0}
 	};
 
