@@ -18,6 +18,7 @@
 #include <platform_def.h>
 #include <stm32mp1_clk.h>
 #include <stm32mp1_dt.h>
+#include <stm32mp1_pmic.h>
 #include <stm32mp1_private.h>
 #include <stm32mp1_context.h>
 #include <stm32mp1_pwr.h>
@@ -34,6 +35,10 @@ void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 
 void bl2_platform_setup(void)
 {
+	if (dt_check_pmic()) {
+		initialize_pmic();
+	}
+
 	INFO("BL2 runs SP_MIN setup\n");
 }
 
