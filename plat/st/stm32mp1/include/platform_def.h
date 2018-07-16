@@ -18,7 +18,11 @@
  ******************************************************************************/
 
 /* Size of cacheable stacks */
+#if defined(IMAGE_BL32)
+#define PLATFORM_STACK_SIZE		0x600
+#else
 #define PLATFORM_STACK_SIZE		0xC00
+#endif
 
 /* SSBL = second stage boot loader */
 #define BL33_IMAGE_NAME			"ssbl"
