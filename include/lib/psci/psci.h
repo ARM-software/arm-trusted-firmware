@@ -344,7 +344,7 @@ int psci_affinity_info(u_register_t target_affinity,
 		       unsigned int lowest_affinity_level);
 int psci_migrate(u_register_t target_cpu);
 int psci_migrate_info_type(void);
-long psci_migrate_info_up_cpu(void);
+u_register_t psci_migrate_info_up_cpu(void);
 int psci_node_hw_state(u_register_t target_cpu,
 		       unsigned int power_level);
 int psci_features(unsigned int psci_fid);

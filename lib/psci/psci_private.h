@@ -267,15 +267,13 @@ void psci_get_target_local_pwr_states(unsigned int end_pwrlvl,
 				      psci_power_state_t *target_state);
 int psci_validate_entry_point(entry_point_info_t *ep,
 			uintptr_t entrypoint, u_register_t context_id);
-void psci_get_parent_pwr_domain_nodes(unsigned int cpu_idx,
+void psci_get_parent_pwr_domain_nodes(int cpu_idx,
 				      unsigned int end_lvl,
-				      unsigned int node_index[]);
+				      unsigned int *node_index);
 void psci_do_state_coordination(unsigned int end_pwrlvl,
 				psci_power_state_t *state_info);
-void psci_acquire_pwr_domain_locks(unsigned int end_pwrlvl,
-				   unsigned int cpu_idx);
-void psci_release_pwr_domain_locks(unsigned int end_pwrlvl,
-				   unsigned int cpu_idx);
+void psci_acquire_pwr_domain_locks(unsigned int end_pwrlvl, int cpu_idx);
+void psci_release_pwr_domain_locks(unsigned int end_pwrlvl, int cpu_idx);
 int psci_validate_suspend_req(const psci_power_state_t *state_info,
 			      unsigned int is_power_down_state);
 unsigned int psci_find_max_off_lvl(const psci_power_state_t *state_info);

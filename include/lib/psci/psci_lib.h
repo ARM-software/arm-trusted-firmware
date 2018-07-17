@@ -58,17 +58,17 @@ typedef struct psci_lib_args {
 		.h.type = (uint8_t)PARAM_PSCI_LIB_ARGS,		\
 		.h.version = (uint8_t)VERSION_1,		\
 		.h.size = (uint16_t)sizeof(_name),		\
-		.h.attr = 0,					\
+		.h.attr = 0U,					\
 		.mailbox_ep = (_entry)				\
 	}
 
 /* Helper macro to verify the pointer to psci_lib_args_t structure */
-#define VERIFY_PSCI_LIB_ARGS_V1(_p)	((_p)			\
+#define VERIFY_PSCI_LIB_ARGS_V1(_p)	(((_p) != NULL)		\
 		&& ((_p)->h.type == PARAM_PSCI_LIB_ARGS)	\
 		&& ((_p)->h.version == VERSION_1)		\
 		&& ((_p)->h.size == sizeof(*(_p)))		\
 		&& ((_p)->h.attr == 0)				\
-		&& ((_p)->mailbox_ep))
+		&& ((_p)->mailbox_ep != NULL))
 
 /******************************************************************************
  * PSCI Library Interfaces
