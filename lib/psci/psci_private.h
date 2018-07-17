@@ -8,65 +8,12 @@
 #define PSCI_PRIVATE_H
 
 #include <arch.h>
+#include <arch_helpers.h>
 #include <bakery_lock.h>
 #include <bl_common.h>
 #include <cpu_data.h>
 #include <psci.h>
 #include <spinlock.h>
-
-#if HW_ASSISTED_COHERENCY
-
-/*
- * On systems with hardware-assisted coherency, make PSCI cache operations NOP,
- * as PSCI participants are cache-coherent, and there's no need for explicit
- * cache maintenance operations or barriers to coordinate their state.
- */
-#define psci_flush_dcache_range(addr, size)
-#define psci_flush_cpu_data(member)
-#define psci_inv_cpu_data(member)
-
-#define psci_dsbish()
-
-/*
- * On systems where participant CPUs are cache-coherent, we can use spinlocks
- * instead of bakery locks.
- */
-#define DEFINE_PSCI_LOCK(_name)		spinlock_t _name
-#define DECLARE_PSCI_LOCK(_name)	extern DEFINE_PSCI_LOCK(_name)
-
-#define psci_lock_get(non_cpu_pd_node)				\
-	spin_lock(&psci_locks[(non_cpu_pd_node)->lock_index])
-#define psci_lock_release(non_cpu_pd_node)			\
-	spin_unlock(&psci_locks[(non_cpu_pd_node)->lock_index])
-
-#else
-
-/*
- * If not all PSCI participants are cache-coherent, perform cache maintenance
- * and issue barriers wherever required to coordinate state.
- */
-#define psci_flush_dcache_range(addr, size)	flush_dcache_range(addr, size)
-#define psci_flush_cpu_data(member)		flush_cpu_data(member)
-#define psci_inv_cpu_data(member)		inv_cpu_data(member)
-
-#define psci_dsbish()				dsbish()
-
-/*
- * Use bakery locks for state coordination as not all PSCI participants are
- * cache coherent.
- */
-#define DEFINE_PSCI_LOCK(_name)		DEFINE_BAKERY_LOCK(_name)
-#define DECLARE_PSCI_LOCK(_name)	DECLARE_BAKERY_LOCK(_name)
-
-#define psci_lock_get(non_cpu_pd_node)				\
-	bakery_lock_get(&psci_locks[(non_cpu_pd_node)->lock_index])
-#define psci_lock_release(non_cpu_pd_node)			\
-	bakery_lock_release(&psci_locks[(non_cpu_pd_node)->lock_index])
-
-#endif
-
-#define psci_lock_init(_non_cpu_pd_node, _idx)			\
-	((_non_cpu_pd_node)[(_idx)].lock_index = (_idx))
 
 /*
  * The PSCI capability which are provided by the generic code but does not
@@ -206,15 +153,101 @@ typedef struct cpu_pwr_domain_node {
 } cpu_pd_node_t;
 
 /*******************************************************************************
+ * The following are helpers and declarations of locks.
+ ******************************************************************************/
+#if HW_ASSISTED_COHERENCY
+/*
+ * On systems where participant CPUs are cache-coherent, we can use spinlocks
+ * instead of bakery locks.
+ */
+#define DEFINE_PSCI_LOCK(_name)		spinlock_t _name
+#define DECLARE_PSCI_LOCK(_name)	extern DEFINE_PSCI_LOCK(_name)
+
+/* One lock is required per non-CPU power domain node */
+DECLARE_PSCI_LOCK(psci_locks[PSCI_NUM_NON_CPU_PWR_DOMAINS]);
+
+/*
+ * On systems with hardware-assisted coherency, make PSCI cache operations NOP,
+ * as PSCI participants are cache-coherent, and there's no need for explicit
+ * cache maintenance operations or barriers to coordinate their state.
+ */
+static inline void psci_flush_dcache_range(uintptr_t __unused addr,
+					   size_t __unused size)
+{
+	/* Empty */
+}
+
+#define psci_flush_cpu_data(member)
+#define psci_inv_cpu_data(member)
+
+static inline void psci_dsbish(void)
+{
+	/* Empty */
+}
+
+static inline void psci_lock_get(non_cpu_pd_node_t *non_cpu_pd_node)
+{
+	spin_lock(&psci_locks[non_cpu_pd_node->lock_index]);
+}
+
+static inline void psci_lock_release(non_cpu_pd_node_t *non_cpu_pd_node)
+{
+	spin_unlock(&psci_locks[non_cpu_pd_node->lock_index]);
+}
+
+#else /* if HW_ASSISTED_COHERENCY == 0 */
+/*
+ * Use bakery locks for state coordination as not all PSCI participants are
+ * cache coherent.
+ */
+#define DEFINE_PSCI_LOCK(_name)		DEFINE_BAKERY_LOCK(_name)
+#define DECLARE_PSCI_LOCK(_name)	DECLARE_BAKERY_LOCK(_name)
+
+/* One lock is required per non-CPU power domain node */
+DECLARE_PSCI_LOCK(psci_locks[PSCI_NUM_NON_CPU_PWR_DOMAINS]);
+
+/*
+ * If not all PSCI participants are cache-coherent, perform cache maintenance
+ * and issue barriers wherever required to coordinate state.
+ */
+static inline void psci_flush_dcache_range(uintptr_t addr, size_t size)
+{
+	flush_dcache_range(addr, size);
+}
+
+#define psci_flush_cpu_data(member)		flush_cpu_data(member)
+#define psci_inv_cpu_data(member)		inv_cpu_data(member)
+
+static inline void psci_dsbish(void)
+{
+	dsbish();
+}
+
+static inline void psci_lock_get(non_cpu_pd_node_t *non_cpu_pd_node)
+{
+	bakery_lock_get(&psci_locks[non_cpu_pd_node->lock_index]);
+}
+
+static inline void psci_lock_release(non_cpu_pd_node_t *non_cpu_pd_node)
+{
+	bakery_lock_release(&psci_locks[non_cpu_pd_node->lock_index]);
+}
+
+#endif /* HW_ASSISTED_COHERENCY */
+
+static inline void psci_lock_init(non_cpu_pd_node_t *non_cpu_pd_node,
+				  unsigned char idx)
+{
+	non_cpu_pd_node[idx].lock_index = idx;
+}
+
+/*******************************************************************************
  * Data prototypes
  ******************************************************************************/
 extern const plat_psci_ops_t *psci_plat_pm_ops;
 extern non_cpu_pd_node_t psci_non_cpu_pd_nodes[PSCI_NUM_NON_CPU_PWR_DOMAINS];
 extern cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
 extern unsigned int psci_caps;
-
-/* One lock is required per non-CPU power domain node */
-DECLARE_PSCI_LOCK(psci_locks[PSCI_NUM_NON_CPU_PWR_DOMAINS]);
 
 /*******************************************************************************
  * SPD's power management hooks registered with PSCI
