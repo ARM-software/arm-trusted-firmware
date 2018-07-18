@@ -5,6 +5,7 @@
  */
 
 #include <arch.h>
+#include <arch_helpers.h>
 #include <assert.h>
 #include <cci.h>
 #include <debug.h>
@@ -142,6 +143,12 @@ void cci_enable_snoop_dvm_reqs(unsigned int master_id)
 		      SLAVE_IFACE_OFFSET(slave_if_id) + SNOOP_CTRL_REG,
 		      DVM_EN_BIT | SNOOP_EN_BIT);
 
+	/*
+	 * Wait for the completion of the write to the Snoop Control Register
+	 * before testing the change_pending bit
+	 */
+	dmbish();
+
 	/* Wait for the dust to settle down */
 	while (mmio_read_32(cci_base + STATUS_REG) & CHANGE_PENDING_BIT)
 		;
@@ -162,6 +169,12 @@ void cci_disable_snoop_dvm_reqs(unsigned int master_id)
 	mmio_write_32(cci_base +
 		      SLAVE_IFACE_OFFSET(slave_if_id) + SNOOP_CTRL_REG,
 		      ~(DVM_EN_BIT | SNOOP_EN_BIT));
+
+	/*
+	 * Wait for the completion of the write to the Snoop Control Register
+	 * before testing the change_pending bit
+	 */
+	dmbish();
 
 	/* Wait for the dust to settle down */
 	while (mmio_read_32(cci_base + STATUS_REG) & CHANGE_PENDING_BIT)
