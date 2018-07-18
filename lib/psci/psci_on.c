@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,19 @@
 #include <pubsub_events.h>
 #include <stddef.h>
 #include "psci_private.h"
+
+/*
+ * Helper functions for the CPU level spinlocks
+ */
+static inline void psci_spin_lock_cpu(int idx)
+{
+	spin_lock(&psci_cpu_pd_nodes[idx].cpu_lock);
+}
+
+static inline void psci_spin_unlock_cpu(int idx)
+{
+	spin_unlock(&psci_cpu_pd_nodes[idx].cpu_lock);
+}
 
 /*******************************************************************************
  * This function checks whether a cpu which has been requested to be turned on

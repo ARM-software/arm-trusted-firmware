@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PSCI_PRIVATE_H__
-#define __PSCI_PRIVATE_H__
+#ifndef PSCI_PRIVATE_H
+#define PSCI_PRIVATE_H
 
 #include <arch.h>
 #include <bakery_lock.h>
@@ -94,37 +94,63 @@
 			define_psci_cap(PSCI_MEM_CHK_RANGE_AARCH64))
 
 /*
- * Helper macros to get/set the fields of PSCI per-cpu data.
+ * Helper functions to get/set the fields of PSCI per-cpu data.
  */
-#define psci_set_aff_info_state(_aff_state) \
-		set_cpu_data(psci_svc_cpu_data.aff_info_state, _aff_state)
-#define psci_get_aff_info_state() \
-		get_cpu_data(psci_svc_cpu_data.aff_info_state)
-#define psci_get_aff_info_state_by_idx(_idx) \
-		get_cpu_data_by_index(_idx, psci_svc_cpu_data.aff_info_state)
-#define psci_set_aff_info_state_by_idx(_idx, _aff_state) \
-		set_cpu_data_by_index(_idx, psci_svc_cpu_data.aff_info_state,\
-					_aff_state)
-#define psci_get_suspend_pwrlvl() \
-		get_cpu_data(psci_svc_cpu_data.target_pwrlvl)
-#define psci_set_suspend_pwrlvl(_target_lvl) \
-		set_cpu_data(psci_svc_cpu_data.target_pwrlvl, _target_lvl)
-#define psci_set_cpu_local_state(_state) \
-		set_cpu_data(psci_svc_cpu_data.local_state, _state)
-#define psci_get_cpu_local_state() \
-		get_cpu_data(psci_svc_cpu_data.local_state)
-#define psci_get_cpu_local_state_by_idx(_idx) \
-		get_cpu_data_by_index(_idx, psci_svc_cpu_data.local_state)
+static inline void psci_set_aff_info_state(aff_info_state_t aff_state)
+{
+	set_cpu_data(psci_svc_cpu_data.aff_info_state, aff_state);
+}
 
-/*
- * Helper macros for the CPU level spinlocks
- */
-#define psci_spin_lock_cpu(_idx) spin_lock(&psci_cpu_pd_nodes[_idx].cpu_lock)
-#define psci_spin_unlock_cpu(_idx) spin_unlock(&psci_cpu_pd_nodes[_idx].cpu_lock)
+static inline aff_info_state_t psci_get_aff_info_state(void)
+{
+	return get_cpu_data(psci_svc_cpu_data.aff_info_state);
+}
 
-/* Helper macro to identify a CPU standby request in PSCI Suspend call */
-#define is_cpu_standby_req(_is_power_down_state, _retn_lvl) \
-		(((!(_is_power_down_state)) && ((_retn_lvl) == 0)) ? 1 : 0)
+static inline aff_info_state_t psci_get_aff_info_state_by_idx(int idx)
+{
+	return get_cpu_data_by_index((unsigned int)idx,
+				     psci_svc_cpu_data.aff_info_state);
+}
+
+static inline void psci_set_aff_info_state_by_idx(int idx,
+						  aff_info_state_t aff_state)
+{
+	set_cpu_data_by_index((unsigned int)idx,
+			      psci_svc_cpu_data.aff_info_state, aff_state);
+}
+
+static inline unsigned int psci_get_suspend_pwrlvl(void)
+{
+	return get_cpu_data(psci_svc_cpu_data.target_pwrlvl);
+}
+
+static inline void psci_set_suspend_pwrlvl(unsigned int target_lvl)
+{
+	set_cpu_data(psci_svc_cpu_data.target_pwrlvl, target_lvl);
+}
+
+static inline void psci_set_cpu_local_state(plat_local_state_t state)
+{
+	set_cpu_data(psci_svc_cpu_data.local_state, state);
+}
+
+static inline plat_local_state_t psci_get_cpu_local_state(void)
+{
+	return get_cpu_data(psci_svc_cpu_data.local_state);
+}
+
+static inline plat_local_state_t psci_get_cpu_local_state_by_idx(int idx)
+{
+	return get_cpu_data_by_index((unsigned int)idx,
+				     psci_svc_cpu_data.local_state);
+}
+
+/* Helper function to identify a CPU standby request in PSCI Suspend call */
+static inline int is_cpu_standby_req(unsigned int is_power_down_state,
+				     unsigned int retn_lvl)
+{
+	return ((is_power_down_state == 0U) && (retn_lvl == 0U)) ? 1 : 0;
+}
 
 /*******************************************************************************
  * The following two data structures implement the power domain tree. The tree
@@ -276,4 +302,4 @@ u_register_t psci_stat_count(u_register_t target_cpu,
 int psci_mem_protect(unsigned int enable);
 int psci_mem_chk_range(uintptr_t base, u_register_t length);
 
-#endif /* __PSCI_PRIVATE_H__ */
+#endif /* PSCI_PRIVATE_H */

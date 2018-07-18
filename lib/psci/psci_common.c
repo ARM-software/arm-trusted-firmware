@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -93,11 +93,19 @@ typedef enum plat_local_state_type {
 	STATE_TYPE_OFF
 } plat_local_state_type_t;
 
-/* The macro used to categorize plat_local_state. */
-#define find_local_state_type(plat_local_state)					\
-		((plat_local_state) ? ((plat_local_state > PLAT_MAX_RET_STATE)	\
-		? STATE_TYPE_OFF : STATE_TYPE_RETN)				\
-		: STATE_TYPE_RUN)
+/* Function used to categorize plat_local_state. */
+static plat_local_state_type_t find_local_state_type(plat_local_state_t state)
+{
+	if (state != 0U) {
+		if (state > PLAT_MAX_RET_STATE) {
+			return STATE_TYPE_OFF;
+		} else {
+			return STATE_TYPE_RETN;
+		}
+	} else {
+		return STATE_TYPE_RUN;
+	}
+}
 
 /******************************************************************************
  * Check that the maximum retention level supported by the platform is less
