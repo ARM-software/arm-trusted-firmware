@@ -1,0 +1,139 @@
+CAVIUM
+======
+
+ARM Trusted Firmware CAVIUM SMC interface
+=========================================
+
+This document purpose is to describe Cavium-specific SMC runtime services, which
+creates runtime interface for non-secure firmware/OS. Describing standard ARM
+PSCI services is out of the scope of this paper. More information about these
+can be found at [PSCI]. To read more about SMCs, there is specification called
+[SMC Calling Convention][SMCCC].
+
+
+Version 0.1
+-----------
+As for version 0.1, following Cavium's services are available:
+
+1. THUNDERX_SVC_CALL_COUNT
+
+  * SMC_FID: 0x4300ff00
+  * Input registers values:
+    - x0: SMC_FID
+  * Return value (x0):
+    - Number of implemented Service Calls
+  * Description:
+    This call returns number of currently implemented Cavium's runtime services.
+
+2. THUNDERX_SVC_UID
+
+  * SMC FID: 0x4300ff01
+  * Input registers values:
+    - x0: SMC_FID
+  * Return value (x0):
+    - Cavium OEM Service UUID
+  * Description:
+    This call returns Cavium OEM Service UUID
+
+3. THUNDERX_SVC_VERSION
+
+  * SMC FID: 0x4300ff03
+  * Input registers values:
+    - x0: SMC_FID
+  * Return value:
+    - x0: SMC version 32-bit major number
+    - x1: SMC version 32-bit minor number
+  * Description:
+    This call returns major and minor version numbers of current Cavium runtime
+    services implementation. Different major revision values indicates possibly
+    incompatible SMC APIs. For two revisions, A and B, for which the major
+    revision values are identical, if the minor revision value of revision B is
+    greater than the minor revision value of revision A, then every SMC in the
+    affected range that works in revision A must also work in revision B.
+    Major revision number is incremented when:
+    * Any SMC call is removed
+    * Updates which aren't backward compatible are made
+    Minor revision number is incremented when:
+    * Any SMC call is added
+    * Backwards compatible changes are made to existing function arguments
+
+4. THUNDERX_NOR_READ
+
+  * SMC FID: 0x43000111
+  * Input registers values:
+    - x0: SMC_FID
+    - x1: Offset within SPI device to read data from
+    - x2: Size (in bytes) of data to read
+    - x3: Address of caller's buffer to read data into
+  * Return value (x0):
+    - Number of bytes successfully read
+    - Error code in case of failure
+  * Description:
+    This call allows to read specified by caller amount of data from SPI flash
+    to caller's buffer.
+
+5. THUNDERX_NOR_WRITE
+
+  * SMC FID: 0x43000112
+  * Input registers values:
+    - x0: SMC_FID
+    - x1: Offset within SPI device to which data will be written
+    - x2: Size (in bytes) of data to write
+    - x3: Address of caller's buffer to write data from
+  * Return value (x0):
+    - Number of bytes successfully written
+    - Error code in case of failure
+  * Description:
+    This call allows to write specified by caller amount of data to SPI flash
+    from caller's buffer. It's caller responsibility to provide valid and big
+    enough buffer.
+
+6. THUNDERX_NOR_ERASE
+
+  * SMC FID: 0x43000113
+  * Input registers values:
+    - x0: SMC_FID
+    - x1: Offset within SPI device where sector will be erased
+  * Return value (x0):
+    - 0 in case of success
+    - Error code in case of failure
+  * Description:
+    This call allows to erase one sector of data from SPI flash beggining at
+    specified by caller offset.
+
+7. THUNDERX_DRAM_SIZE
+
+  * SMC FID: 0x43000301
+  * Input registers values:
+    - x0: SMC_FID
+    - x1: Number of NUMA node to check size of DRAM
+  * Return value (x0):
+    - Return size of DRAM in bytes
+  * Description:
+    This call returns size of DRAM in bytes for specified by caller NUMA node.
+
+8. THUNDERX_NODE_COUNT
+
+  * SMC FID: 0x43000601
+  * Input registers values:
+    - x0: SMC_FID
+  * Return value (x0):
+    - Number of NUMA nodes available in system
+  * Description:
+    This call returns number of NUMA nodes in system.
+
+9. THUNDERX_PUTC
+
+  * SMC FID: 0x43000a01
+  * Input registers values:
+    - x0: SMC_FID
+    - x1: character to print
+  * Return value: N/A
+  * Description:
+    This call allows to put single character on console. It's especially useful
+    for debug purposes.
+
+- - - - - - - - - - - - - - - - - - - - -
+
+[PSCI]:    http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
+[SMCCC]:   http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
