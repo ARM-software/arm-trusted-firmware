@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PMF_H__
-#define __PMF_H__
+#ifndef PMF_H
+#define PMF_H
 
 #include <cassert.h>
 #include <pmf_helpers.h>
@@ -31,8 +31,8 @@
  * Flags passed to PMF_GET_TIMESTAMP_XXX
  * and PMF_CAPTURE_TIMESTAMP
  */
-#define PMF_CACHE_MAINT		(1 << 0)
-#define PMF_NO_CACHE_MAINT	0
+#define PMF_CACHE_MAINT		(U(1) << 0)
+#define PMF_NO_CACHE_MAINT	U(0)
 
 /*
  * Defines for PMF SMC function ids.
@@ -68,7 +68,7 @@
 #define PMF_CAPTURE_TIMESTAMP(_name, _tid, _flags)			\
 	do {								\
 		unsigned long long ts = read_cntpct_el0();		\
-		if ((_flags) & PMF_CACHE_MAINT)				\
+		if (((_flags) & PMF_CACHE_MAINT) != 0U)			\
 			pmf_capture_timestamp_with_cache_maint_ ## _name((_tid), ts);\
 		else							\
 			pmf_capture_timestamp_ ## _name((_tid), ts);	\
@@ -78,7 +78,7 @@
 	do {								\
 		(_tsval) = read_cntpct_el0();				\
 		CASSERT(sizeof(_tsval) == sizeof(unsigned long long), invalid_tsval_size);\
-		if ((_flags) & PMF_CACHE_MAINT)				\
+		if (((_flags) & PMF_CACHE_MAINT) != 0U)			\
 			pmf_capture_timestamp_with_cache_maint_ ## _name((_tid), (_tsval));\
 		else							\
 			pmf_capture_timestamp_ ## _name((_tid), (_tsval));\
@@ -87,7 +87,7 @@
 #define PMF_WRITE_TIMESTAMP(_name, _tid, _flags, _wrval)		\
 	do {								\
 		CASSERT(sizeof(_wrval) == sizeof(unsigned long long), invalid_wrval_size);\
-		if ((_flags) & PMF_CACHE_MAINT)				\
+		if (((_flags) & PMF_CACHE_MAINT) != 0U)			\
 			pmf_capture_timestamp_with_cache_maint_ ## _name((_tid), (_wrval));\
 		else							\
 			pmf_capture_timestamp_ ## _name((_tid), (_wrval));\
@@ -173,4 +173,4 @@ uintptr_t pmf_smc_handler(unsigned int smc_fid,
 		void *handle,
 		u_register_t flags);
 
-#endif /* __PMF_H__ */
+#endif /* PMF_H */

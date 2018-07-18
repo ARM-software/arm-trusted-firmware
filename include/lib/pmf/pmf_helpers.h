@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PMF_HELPERS_H__
-#define __PMF_HELPERS_H__
+#ifndef PMF_HELPERS_H
+#define PMF_HELPERS_H
 
 #include <arch_helpers.h>
 #include <assert.h>
@@ -77,9 +77,9 @@ typedef struct pmf_svc_desc {
 		CASSERT(_flags, select_proper_config);			\
 		PMF_VALIDATE_TID(_name, tid);				\
 		uintptr_t base_addr = (uintptr_t) pmf_ts_mem_ ## _name;	\
-		if ((_flags) & PMF_STORE_ENABLE)			\
+		if (((_flags) & PMF_STORE_ENABLE) != 0)			\
 			__pmf_store_timestamp(base_addr, tid, ts);	\
-		if ((_flags) & PMF_DUMP_ENABLE)				\
+		if (((_flags) & PMF_DUMP_ENABLE) != 0)			\
 			__pmf_dump_timestamp(tid, ts);			\
 	}								\
 	void pmf_capture_timestamp_with_cache_maint_ ## _name(		\
@@ -92,9 +92,9 @@ typedef struct pmf_svc_desc {
 		CASSERT(_flags, select_proper_config);			\
 		PMF_VALIDATE_TID(_name, tid);				\
 		uintptr_t base_addr = (uintptr_t) pmf_ts_mem_ ## _name;	\
-		if ((_flags) & PMF_STORE_ENABLE)			\
+		if (((_flags) & PMF_STORE_ENABLE) != 0)			\
 			__pmf_store_timestamp_with_cache_maint(base_addr, tid, ts);\
-		if ((_flags) & PMF_DUMP_ENABLE)				\
+		if (((_flags) & PMF_DUMP_ENABLE) != 0)			\
 			__pmf_dump_timestamp(tid, ts);			\
 	}
 
@@ -159,4 +159,4 @@ unsigned long long __pmf_get_timestamp(uintptr_t base_addr,
 		unsigned int tid,
 		unsigned int cpuid,
 		unsigned int flags);
-#endif /* __PMF_HELPERS_H__ */
+#endif /* PMF_HELPERS_H */
