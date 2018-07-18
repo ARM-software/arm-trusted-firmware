@@ -51,14 +51,14 @@ int arm_psci_read_mem_protect(int *enabled)
  ******************************************************************************/
 int arm_nor_psci_write_mem_protect(int val)
 {
-	int enable = (val != 0);
+	int enable = (val != 0) ? 1 : 0;
 
 	if (nor_unlock(PLAT_ARM_MEM_PROT_ADDR) != 0) {
 		ERROR("unlocking memory protect variable\n");
 		return -1;
 	}
 
-	if (enable != 0) {
+	if (enable == 1) {
 		/*
 		 * If we want to write a value different than 0
 		 * then we have to erase the full block because
@@ -117,14 +117,14 @@ void arm_nor_psci_do_static_mem_protect(void)
 {
 	int enable;
 
-	arm_psci_read_mem_protect(&enable);
+	(void) arm_psci_read_mem_protect(&enable);
 	if (enable == 0)
 		return;
 
 	INFO("PSCI: Overwriting non secure memory\n");
 	clear_mem_regions(arm_ram_ranges,
 			  ARRAY_SIZE(arm_ram_ranges));
-	arm_nor_psci_write_mem_protect(0);
+	(void) arm_nor_psci_write_mem_protect(0);
 }
 
 /*******************************************************************************

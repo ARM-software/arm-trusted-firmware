@@ -67,7 +67,7 @@ static u_register_t calc_stat_residency(unsigned long long pwrupts,
 void plat_psci_stat_accounting_start(
 	__unused const psci_power_state_t *state_info)
 {
-	assert(state_info);
+	assert(state_info != NULL);
 	PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_ENTER_LOW_PWR,
 		PMF_NO_CACHE_MAINT);
 }
@@ -80,7 +80,7 @@ void plat_psci_stat_accounting_start(
 void plat_psci_stat_accounting_stop(
 	__unused const psci_power_state_t *state_info)
 {
-	assert(state_info);
+	assert(state_info != NULL);
 	PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_EXIT_LOW_PWR,
 		PMF_NO_CACHE_MAINT);
 }
@@ -97,12 +97,12 @@ u_register_t plat_psci_stat_get_residency(unsigned int lvl,
 	unsigned long long pwrup_ts = 0, pwrdn_ts = 0;
 	unsigned int pmf_flags;
 
-	assert(lvl >= PSCI_CPU_PWR_LVL && lvl <= PLAT_MAX_PWR_LVL);
-	assert(state_info);
-	assert(last_cpu_idx >= 0 && last_cpu_idx <= PLATFORM_CORE_COUNT);
+	assert((lvl >= PSCI_CPU_PWR_LVL) && (lvl <= PLAT_MAX_PWR_LVL));
+	assert(state_info != NULL);
+	assert(last_cpu_idx <= PLATFORM_CORE_COUNT);
 
 	if (lvl == PSCI_CPU_PWR_LVL)
-		assert(last_cpu_idx == plat_my_core_pos());
+		assert((unsigned int)last_cpu_idx == plat_my_core_pos());
 
 	/*
 	 * If power down is requested, then timestamp capture will
@@ -110,10 +110,10 @@ u_register_t plat_psci_stat_get_residency(unsigned int lvl,
 	 * when reading the timestamp.
 	 */
 	state = state_info->pwr_domain_state[PSCI_CPU_PWR_LVL];
-	if (is_local_state_off(state)) {
+	if (is_local_state_off(state) != 0) {
 		pmf_flags = PMF_CACHE_MAINT;
 	} else {
-		assert(is_local_state_retn(state));
+		assert(is_local_state_retn(state) == 1);
 		pmf_flags = PMF_NO_CACHE_MAINT;
 	}
 
@@ -150,14 +150,18 @@ plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
 					     unsigned int ncpu)
 {
 	plat_local_state_t target = PLAT_MAX_OFF_STATE, temp;
+	const plat_local_state_t *st = states;
+	unsigned int n = ncpu;
 
-	assert(ncpu);
+	assert(ncpu > 0U);
 
 	do {
-		temp = *states++;
+		temp = *st;
+		st++;
 		if (temp < target)
 			target = temp;
-	} while (--ncpu);
+		n--;
+	} while (n > 0U);
 
 	return target;
 }
