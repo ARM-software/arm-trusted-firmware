@@ -31,20 +31,20 @@
  * + loader +
  * ++++++++++  0xF980_1000
  * + BL1_RO +
- * ++++++++++  0xF981_0000
+ * ++++++++++  0xF981_8000
  * + BL1_RW +
  * ++++++++++  0xF989_8000
  */
 #define BL1_RO_BASE			(XG2RAM0_BASE + BL1_XG2RAM0_OFFSET)
-#define BL1_RO_LIMIT			(XG2RAM0_BASE + 0x10000)
-#define BL1_RW_BASE			(BL1_RO_LIMIT)	/* 0xf981_0000 */
-#define BL1_RW_SIZE			(0x00088000)
+#define BL1_RO_LIMIT			(XG2RAM0_BASE + 0x18000)
+#define BL1_RW_BASE			(BL1_RO_LIMIT)	/* 0xf981_8000 */
+#define BL1_RW_SIZE			(0x00080000)
 #define BL1_RW_LIMIT			(0xF9898000)
 
 /*
  * Non-Secure BL1U specific defines.
  */
-#define NS_BL1U_BASE			(0xf9818000)
+#define NS_BL1U_BASE			(0xf9828000)
 #define NS_BL1U_SIZE			(0x00010000)
 #define NS_BL1U_LIMIT			(NS_BL1U_BASE + NS_BL1U_SIZE)
 
