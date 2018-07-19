@@ -292,5 +292,6 @@ void plat_arm_sp_min_early_platform_setup(u_register_t arg0, u_register_t arg1,
 /* global variables */
 extern plat_psci_ops_t plat_arm_psci_pm_ops;
 extern const mmap_region_t plat_arm_mmap[];
+extern const unsigned int arm_pm_idle_states[];
 
 #endif /* __PLAT_ARM_H__ */
