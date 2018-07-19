@@ -372,7 +372,6 @@ static int fip_file_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 	uintptr_t backend_handle;
 
 	assert(entity != NULL);
-	assert(buffer != (uintptr_t)NULL);
 	assert(length_read != NULL);
 	assert(entity->info != (uintptr_t)NULL);
 
