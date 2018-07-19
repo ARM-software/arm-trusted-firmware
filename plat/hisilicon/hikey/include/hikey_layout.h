@@ -58,10 +58,10 @@
  * + loader +
  * ++++++++++ 0xF980_1000
  * +  BL2   +
- * ++++++++++ 0xF981_8000
+ * ++++++++++ 0xF983_0000
  */
 #define BL2_BASE			(BL1_RO_BASE)		/* 0xf980_1000 */
-#define BL2_LIMIT			(0xF9818000)		/* 0xf981_8000 */
+#define BL2_LIMIT			(0xF9830000)		/* 0xf983_0000 */
 
 /*
  * SCP_BL2 specific defines.
