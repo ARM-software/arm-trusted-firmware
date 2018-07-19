@@ -51,6 +51,7 @@ BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S	\
 				${SOC_DIR}/drivers/mce/ari.c		\
 				${SOC_DIR}/drivers/mce/nvg.c		\
 				${SOC_DIR}/drivers/mce/aarch64/nvg_helpers.S \
+				$(SOC_DIR)/drivers/se/se.c \
 				${SOC_DIR}/plat_memctrl.c		\
 				${SOC_DIR}/plat_psci_handlers.c		\
 				${SOC_DIR}/plat_setup.c			\

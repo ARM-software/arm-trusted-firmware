@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2017, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2017-2020, NVIDIA CORPORATION.  All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -55,5 +55,6 @@ void tegra_se_init(void);
 int tegra_se_suspend(void);
 void tegra_se_resume(void);
 int tegra_se_save_tzram(void);
+int32_t tegra_se_save_sha256_hash(uint64_t bl31_base, uint32_t src_len_inbyte);
 
 #endif /* SECURITY_ENGINE_H */
