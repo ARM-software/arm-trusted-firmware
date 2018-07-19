@@ -11,7 +11,6 @@
 #include <platform_def.h>
 #include <types.h>
 #include <utils_def.h>
-#include <xlat_tables_arch_private.h>
 #include <xlat_tables_defs.h>
 #include <xlat_tables_v2.h>
 
@@ -544,7 +543,7 @@ int change_mem_attributes(xlat_ctx_t *ctx,
 		*entry = INVALID_DESC;
 
 		/* Invalidate any cached copy of this mapping in the TLBs. */
-		xlat_arch_tlbi_va_regime(base_va, ctx->xlat_regime);
+		xlat_arch_tlbi_va(base_va, ctx->xlat_regime);
 
 		/* Ensure completion of the invalidation. */
 		xlat_arch_tlbi_va_sync();

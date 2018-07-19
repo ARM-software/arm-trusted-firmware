@@ -16,13 +16,6 @@
 #error "Do not include this header file directly. Include xlat_tables_v2.h instead."
 #endif
 
-/* Offsets into mmu_cfg_params array. All parameters are 32 bits wide. */
-#define MMU_CFG_MAIR0		0
-#define MMU_CFG_TCR		1
-#define MMU_CFG_TTBR0_LO	2
-#define MMU_CFG_TTBR0_HI	3
-#define MMU_CFG_PARAM_MAX	4
-
 #ifndef __ASSEMBLY__
 
 #include <cassert.h>
@@ -30,9 +23,6 @@
 #include <stddef.h>
 #include <xlat_tables_arch.h>
 #include <xlat_tables_defs.h>
-
-/* Parameters of register values required when enabling MMU */
-extern uint32_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
 
 /* Forward declaration */
 struct mmap_region;
@@ -171,30 +161,5 @@ struct xlat_ctx {
 	}
 
 #endif /*__ASSEMBLY__*/
-
-#if AARCH64
-
-/*
- * This IMAGE_EL macro must not to be used outside the library, and it is only
- * used in AArch64.
- */
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3)
-# define IMAGE_EL	3
-# define IMAGE_XLAT_DEFAULT_REGIME EL3_REGIME
-#else
-# define IMAGE_EL	1
-# define IMAGE_XLAT_DEFAULT_REGIME EL1_EL0_REGIME
-#endif
-
-#else /* if AARCH32 */
-
-/*
- * The PL1&0 translation regime in AArch32 behaves like the EL1&0 regime in
- * AArch64 except for the XN bits, but we set and unset them at the same time,
- * so there's no difference in practice.
- */
-#define IMAGE_XLAT_DEFAULT_REGIME EL1_EL0_REGIME
-
-#endif /* AARCH64 */
 
 #endif /* __XLAT_TABLES_V2_HELPERS_H__ */

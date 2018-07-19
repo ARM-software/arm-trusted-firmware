@@ -18,16 +18,14 @@
 #error ARMv7 target does not support LPAE MMU descriptors
 #endif
 
-uint32_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
-
 /*
  * Returns 1 if the provided granule size is supported, 0 otherwise.
  */
 int xlat_arch_is_granule_size_supported(size_t size)
 {
 	/*
-	 * The Trusted Firmware uses long descriptor translation table format,
-	 * which supports 4 KiB pages only.
+	 * The library uses the long descriptor translation table format, which
+	 * supports 4 KiB pages only.
 	 */
 	return (size == (4U * 1024U));
 }
@@ -50,18 +48,12 @@ int is_mmu_enabled_ctx(const xlat_ctx_t *ctx __unused)
 	return (read_sctlr() & SCTLR_M_BIT) != 0;
 }
 
-void xlat_arch_tlbi_va(uintptr_t va)
+uint64_t xlat_arch_regime_get_xn_desc(int xlat_regime __unused)
 {
-	/*
-	 * Ensure the translation table write has drained into memory before
-	 * invalidating the TLB entry.
-	 */
-	dsbishst();
-
-	tlbimvaais(TLBI_ADDR(va));
+	return UPPER_ATTRS(XN);
 }
 
-void xlat_arch_tlbi_va_regime(uintptr_t va, int xlat_regime __unused)
+void xlat_arch_tlbi_va(uintptr_t va, int xlat_regime __unused)
 {
 	/*
 	 * Ensure the translation table write has drained into memory before
@@ -103,29 +95,32 @@ int xlat_arch_current_el(void)
 	/*
 	 * If EL3 is in AArch32 mode, all secure PL1 modes (Monitor, System,
 	 * SVC, Abort, UND, IRQ and FIQ modes) execute at EL3.
+	 *
+	 * The PL1&0 translation regime in AArch32 behaves like the EL1&0 regime
+	 * in AArch64 except for the XN bits, but we set and unset them at the
+	 * same time, so there's no difference in practice.
 	 */
-	return 3;
+	return 1;
 }
 
 /*******************************************************************************
  * Function for enabling the MMU in Secure PL1, assuming that the page tables
  * have already been created.
  ******************************************************************************/
-void setup_mmu_cfg(unsigned int flags,
-		const uint64_t *base_table,
-		unsigned long long max_pa,
-		uintptr_t max_va)
+void setup_mmu_cfg(uint64_t *params, unsigned int flags,
+		   const uint64_t *base_table, unsigned long long max_pa,
+		   uintptr_t max_va, __unused int xlat_regime)
 {
-	u_register_t mair0, ttbcr;
-	uint64_t ttbr0;
+	uint64_t mair, ttbr0;
+	uint32_t ttbcr;
 
 	assert(IS_IN_SECURE());
 
 	/* Set attributes in the right indices of the MAIR */
-	mair0 = MAIR0_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
-	mair0 |= MAIR0_ATTR_SET(ATTR_IWBWA_OWBWA_NTR,
+	mair = MAIR0_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
+	mair |= MAIR0_ATTR_SET(ATTR_IWBWA_OWBWA_NTR,
 			ATTR_IWBWA_OWBWA_NTR_INDEX);
-	mair0 |= MAIR0_ATTR_SET(ATTR_NON_CACHEABLE,
+	mair |= MAIR0_ATTR_SET(ATTR_NON_CACHEABLE,
 			ATTR_NON_CACHEABLE_INDEX);
 
 	/*
@@ -173,17 +168,17 @@ void setup_mmu_cfg(unsigned int flags,
 
 	/* Set TTBR0 bits as well */
 	ttbr0 = (uint64_t)(uintptr_t) base_table;
+
 #if ARM_ARCH_AT_LEAST(8, 2)
 	/*
-	 * Enable CnP bit so as to share page tables with all PEs.
-	 * Mandatory for ARMv8.2 implementations.
+	 * Enable CnP bit so as to share page tables with all PEs. This
+	 * is mandatory for ARMv8.2 implementations.
 	 */
 	ttbr0 |= TTBR_CNP_BIT;
 #endif
 
 	/* Now populate MMU configuration */
-	mmu_cfg_params[MMU_CFG_MAIR0] = mair0;
-	mmu_cfg_params[MMU_CFG_TCR] = ttbcr;
-	mmu_cfg_params[MMU_CFG_TTBR0_LO] = (uint32_t) ttbr0;
-	mmu_cfg_params[MMU_CFG_TTBR0_HI] = ttbr0 >> 32;
+	params[MMU_CFG_MAIR] = mair;
+	params[MMU_CFG_TCR] = (uint64_t) ttbcr;
+	params[MMU_CFG_TTBR0] = ttbr0;
 }

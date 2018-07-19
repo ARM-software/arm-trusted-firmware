@@ -10,5 +10,3 @@ XLAT_TABLES_LIB_SRCS	:=	$(addprefix lib/xlat_tables_v2/,	\
 				xlat_tables_context.c			\
 				xlat_tables_core.c			\
 				xlat_tables_utils.c)
-
-INCLUDES		+=	-Ilib/xlat_tables_v2/${ARCH}

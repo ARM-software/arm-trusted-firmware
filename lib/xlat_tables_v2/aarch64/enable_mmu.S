@@ -43,17 +43,15 @@
 		ldr	x0, =mmu_cfg_params
 
 		/* MAIR */
-		ldr	w1, [x0, #(MMU_CFG_MAIR0 << 2)]
+		ldr	x1, [x0, #(MMU_CFG_MAIR << 3)]
 		_msr	mair, \el, x1
 
 		/* TCR */
-		ldr	w2, [x0, #(MMU_CFG_TCR << 2)]
+		ldr	x2, [x0, #(MMU_CFG_TCR << 3)]
 		_msr	tcr, \el, x2
 
 		/* TTBR */
-		ldr	w3, [x0, #(MMU_CFG_TTBR0_LO << 2)]
-		ldr	w4, [x0, #(MMU_CFG_TTBR0_HI << 2)]
-		orr	x3, x3, x4, lsl #32
+		ldr	x3, [x0, #(MMU_CFG_TTBR0 << 3)]
 		_msr	ttbr0, \el, x3
 
 		/*

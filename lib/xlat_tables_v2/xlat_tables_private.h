@@ -36,21 +36,23 @@
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 /*
+ * Return the execute-never mask that will prevent instruction fetch at the
+ * given translation regime.
+ */
+uint64_t xlat_arch_regime_get_xn_desc(int xlat_regime);
+
+/*
  * Invalidate all TLB entries that match the given virtual address. This
  * operation applies to all PEs in the same Inner Shareable domain as the PE
  * that executes this function. This functions must be called for every
- * translation table entry that is modified.
- *
- * xlat_arch_tlbi_va() applies the invalidation to the exception level of the
- * current translation regime, whereas xlat_arch_tlbi_va_regime() applies it to
- * the given translation regime.
+ * translation table entry that is modified. It only affects the specified
+ * translation regime.
  *
  * Note, however, that it is architecturally UNDEFINED to invalidate TLB entries
  * pertaining to a higher exception level, e.g. invalidating EL3 entries from
  * S-EL1.
  */
-void xlat_arch_tlbi_va(uintptr_t va);
-void xlat_arch_tlbi_va_regime(uintptr_t va, int xlat_regime);
+void xlat_arch_tlbi_va(uintptr_t va, int xlat_regime);
 
 /*
  * This function has to be called at the end of any code that uses the function
@@ -85,10 +87,6 @@ int xlat_arch_current_el(void);
  * This value depends on the execution state (AArch32/AArch64).
  */
 unsigned long long xlat_arch_get_max_supported_pa(void);
-
-/* Enable MMU and configure it to use the specified translation tables. */
-void setup_mmu_cfg(unsigned int flags, const uint64_t *base_table,
-		unsigned long long max_pa, uintptr_t max_va);
 
 /*
  * Return 1 if the MMU of the translation regime managed by the given xlat_ctx_t
