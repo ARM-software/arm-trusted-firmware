@@ -18,6 +18,10 @@ ERRATA_A53_855873		:= 1
 # Libraries
 include lib/xlat_tables_v2/xlat_tables.mk
 
+ifeq (${SPD},opteed)
+TF_CFLAGS_aarch64	+=	-DBL32_BASE=0xfc000000
+endif
+
 PLAT_PATH		:=	plat/socionext/synquacer
 PLAT_INCLUDES		:=	-I$(PLAT_PATH)/include		\
 				-I$(PLAT_PATH)/drivers/scpi	\

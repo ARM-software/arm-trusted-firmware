@@ -70,15 +70,31 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	assert(from_bl2 == NULL);
 	assert(plat_params_from_bl2 == NULL);
 
+	/* Initialize power controller before setting up topology */
+	plat_sq_pwrc_setup();
+
 #ifdef BL32_BASE
-	/* Populate entry point information for BL32 */
-	SET_PARAM_HEAD(&bl32_image_ep_info,
-				PARAM_EP,
-				VERSION_1,
-				0);
-	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
-	bl32_image_ep_info.pc = BL32_BASE;
-	bl32_image_ep_info.spsr = sq_get_spsr_for_bl32_entry();
+	struct draminfo di = {0};
+
+	scpi_get_draminfo(&di);
+
+	/*
+	 * Check if OP-TEE has been loaded in Secure RAM allocated
+	 * from DRAM1 region
+	 */
+	if ((di.base1 + di.size1) <= BL32_BASE) {
+		NOTICE("OP-TEE has been loaded by SCP firmware\n");
+		/* Populate entry point information for BL32 */
+		SET_PARAM_HEAD(&bl32_image_ep_info,
+					PARAM_EP,
+					VERSION_1,
+					0);
+		SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
+		bl32_image_ep_info.pc = BL32_BASE;
+		bl32_image_ep_info.spsr = sq_get_spsr_for_bl32_entry();
+	} else {
+		NOTICE("OP-TEE has not been loaded by SCP firmware\n");
+	}
 #endif /* BL32_BASE */
 
 	/* Populate entry point information for BL33 */
@@ -125,9 +141,6 @@ void bl31_platform_setup(void)
 
 	/* Allow access to the System counter timer module */
 	sq_configure_sys_timer();
-
-	/* Initialize power controller before setting up topology */
-	plat_sq_pwrc_setup();
 }
 
 void bl31_plat_runtime_setup(void)
