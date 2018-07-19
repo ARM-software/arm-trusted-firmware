@@ -15,11 +15,6 @@
 
 #include "rpi3_hw.h"
 
-/*
- * The secure entry point to be used on warm reset.
- */
-static uintptr_t secure_entrypoint;
-
 /* Make composite power state parameter till power level 0 */
 #if PSCI_EXTENDED_STATE_ID
 
@@ -220,10 +215,9 @@ static const plat_psci_ops_t plat_rpi3_psci_pm_ops = {
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const plat_psci_ops_t **psci_ops)
 {
-	uintptr_t *mailbox = (void *)PLAT_RPI3_TRUSTED_MAILBOX_BASE;
+	uintptr_t *entrypoint = (void *) PLAT_RPI3_TM_ENTRYPOINT;
 
-	*mailbox = sec_entrypoint;
-	secure_entrypoint = (uintptr_t)sec_entrypoint;
+	*entrypoint = sec_entrypoint;
 	*psci_ops = &plat_rpi3_psci_pm_ops;
 
 	return 0;

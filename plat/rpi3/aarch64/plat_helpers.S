@@ -175,9 +175,5 @@ func plat_reset_handler
 	mov	w1, #0x80000000
 	str	wzr, [x0, #RPI3_INTC_CONTROL_OFFSET]
 	str	w1, [x0, #RPI3_INTC_PRESCALER_OFFSET]
-
-	/* wire mailbox 3 to the FIQ line */
-	mov	w1, RPI3_INTC_MBOX_CONTROL_SLOT3_FIQ
-	str	w1, [x0, #RPI3_INTC_MBOX_CONTROL_OFFSET]
 	ret
 endfunc plat_reset_handler

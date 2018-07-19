@@ -90,8 +90,11 @@ WORKAROUND_CVE_2017_5715	:= 0
 # Disable the PSCI platform compatibility layer by default
 ENABLE_PLAT_COMPAT		:= 0
 
-# Enable reset to BL31 by default
-RESET_TO_BL31			:= 1
+# Disable stack protector by default
+ENABLE_STACK_PROTECTOR	 	:= 0
+
+# Reset to BL31 isn't supported
+RESET_TO_BL31			:= 0
 
 # Have different sections for code and rodata
 SEPARATE_CODE_AND_RODATA	:= 1
@@ -111,6 +114,9 @@ MULTI_CONSOLE_API		:= 1
 # BL33 images are in AArch64 by default
 RPI3_BL33_IN_AARCH32		:= 0
 
+# Assume that BL33 isn't the Linux kernel by default
+RPI3_DIRECT_LINUX_BOOT		:= 0
+
 # BL32 location
 RPI3_BL32_RAM_LOCATION	:= tdram
 ifeq (${RPI3_BL32_RAM_LOCATION}, tsram)
@@ -126,9 +132,17 @@ endif
 
 $(eval $(call add_define,RPI3_BL32_RAM_LOCATION_ID))
 $(eval $(call add_define,RPI3_BL33_IN_AARCH32))
+$(eval $(call add_define,RPI3_DIRECT_LINUX_BOOT))
+$(eval $(call add_define,RPI3_PRELOADED_DTB_BASE))
 
 # Verify build config
 # -------------------
+#
+ifneq (${RPI3_DIRECT_LINUX_BOOT}, 0)
+  ifndef RPI3_PRELOADED_DTB_BASE
+    $(error Error: RPI3_PRELOADED_DTB_BASE needed if RPI3_DIRECT_LINUX_BOOT=1)
+  endif
+endif
 
 ifneq (${LOAD_IMAGE_V2}, 1)
   $(error Error: rpi3 needs LOAD_IMAGE_V2=1)
@@ -138,8 +152,17 @@ ifneq (${MULTI_CONSOLE_API}, 1)
   $(error Error: rpi3 needs MULTI_CONSOLE_API=1)
 endif
 
+ifneq (${RESET_TO_BL31}, 0)
+  $(error Error: rpi3 needs RESET_TO_BL31=0)
+endif
+
 ifeq (${ARCH},aarch32)
   $(error Error: AArch32 not supported on rpi3)
+endif
+
+ifneq ($(ENABLE_STACK_PROTECTOR), 0)
+PLAT_BL_COMMON_SOURCES	+=	plat/rpi3/rpi3_rng.c			\
+				plat/rpi3/rpi3_stack_protector.c
 endif
 
 ifeq (${SPD},opteed)
