@@ -28,7 +28,7 @@
 #  define PLATFORM_STACK_SIZE 0x400
 # endif
 #elif defined(IMAGE_BL2U)
-# define PLATFORM_STACK_SIZE 0x200
+# define PLATFORM_STACK_SIZE 0x400
 #elif defined(IMAGE_BL31)
 #if ENABLE_SPM
 # define PLATFORM_STACK_SIZE 0x500
