@@ -22,14 +22,14 @@
 #ifdef PLAT_NUM_PWR_DOMAINS
 #define PSCI_NUM_PWR_DOMAINS	PLAT_NUM_PWR_DOMAINS
 #else
-#define PSCI_NUM_PWR_DOMAINS	(U(2) * PLATFORM_CORE_COUNT)
+#define PSCI_NUM_PWR_DOMAINS	(2 * PLATFORM_CORE_COUNT)
 #endif
 
 #define PSCI_NUM_NON_CPU_PWR_DOMAINS	(PSCI_NUM_PWR_DOMAINS - \
 					 PLATFORM_CORE_COUNT)
 
 /* This is the power level corresponding to a CPU */
-#define PSCI_CPU_PWR_LVL	(0)
+#define PSCI_CPU_PWR_LVL	U(0)
 
 /*
  * The maximum power level supported by PSCI. Since PSCI CPU_SUSPEND
@@ -89,9 +89,9 @@
 /*******************************************************************************
  * PSCI Migrate and friends
  ******************************************************************************/
-#define PSCI_TOS_UP_MIG_CAP	U(0)
-#define PSCI_TOS_NOT_UP_MIG_CAP	U(1)
-#define PSCI_TOS_NOT_PRESENT_MP	U(2)
+#define PSCI_TOS_UP_MIG_CAP	0
+#define PSCI_TOS_NOT_UP_MIG_CAP	1
+#define PSCI_TOS_NOT_PRESENT_MP	2
 
 /*******************************************************************************
  * PSCI CPU_SUSPEND 'power_state' parameter specific defines
@@ -163,10 +163,10 @@
 /*
  * SYSTEM_RESET2 macros
  */
-#define PSCI_RESET2_TYPE_VENDOR_SHIFT	31
-#define PSCI_RESET2_TYPE_VENDOR		(1U << PSCI_RESET2_TYPE_VENDOR_SHIFT)
-#define PSCI_RESET2_TYPE_ARCH		(0U << PSCI_RESET2_TYPE_VENDOR_SHIFT)
-#define PSCI_RESET2_SYSTEM_WARM_RESET	(PSCI_RESET2_TYPE_ARCH | 0)
+#define PSCI_RESET2_TYPE_VENDOR_SHIFT	U(31)
+#define PSCI_RESET2_TYPE_VENDOR		(U(1) << PSCI_RESET2_TYPE_VENDOR_SHIFT)
+#define PSCI_RESET2_TYPE_ARCH		(U(0) << PSCI_RESET2_TYPE_VENDOR_SHIFT)
+#define PSCI_RESET2_SYSTEM_WARM_RESET	(PSCI_RESET2_TYPE_ARCH | U(0))
 
 #ifndef __ASSEMBLY__
 
@@ -214,11 +214,9 @@ typedef enum {
  * specified CPU. The definitions of these states can be found in Section 5.15.3
  * of PSCI specification (ARM DEN 0022C).
  */
-typedef enum {
-	HW_ON = U(0),
-	HW_OFF = U(1),
-	HW_STANDBY = U(2)
-} node_hw_state_t;
+#define HW_ON		0
+#define HW_OFF		1
+#define HW_STANDBY	2
 
 /*
  * Macro to represent invalid affinity level within PSCI.
@@ -231,7 +229,7 @@ typedef enum {
 typedef uint8_t plat_local_state_t;
 
 /* The local state macro used to represent RUN state. */
-#define PSCI_LOCAL_STATE_RUN  	U(0)
+#define PSCI_LOCAL_STATE_RUN	U(0)
 
 /*
  * Function to test whether the plat_local_state is RUN state
@@ -288,7 +286,7 @@ typedef struct psci_cpu_data {
 	 * Highest power level which takes part in a power management
 	 * operation.
 	 */
-	unsigned char target_pwrlvl;
+	unsigned int target_pwrlvl;
 
 	/* The local power state of this CPU */
 	plat_local_state_t local_state;

@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLATFORM_DEF_H__
-#define __PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
 
 #include <common_def.h>
+#include <utils_def.h>
 
 /* CPU topology */
 #define PLAT_MAX_CORES_PER_CLUSTER	2
@@ -15,9 +16,9 @@
 #define PLATFORM_CORE_COUNT		(PLAT_CLUSTER_COUNT *	\
 					 PLAT_MAX_CORES_PER_CLUSTER)
 
-#define PLAT_MAX_PWR_LVL		1
-#define PLAT_MAX_RET_STATE		1
-#define PLAT_MAX_OFF_STATE		2
+#define PLAT_MAX_PWR_LVL		U(1)
+#define PLAT_MAX_RET_STATE		U(1)
+#define PLAT_MAX_OFF_STATE		U(2)
 
 #define SQ_LOCAL_STATE_RUN		0
 #define SQ_LOCAL_STATE_RET		1
@@ -78,4 +79,4 @@
 
 #define PLAT_SQ_GPIO_BASE		0x51000000
 
-#endif /* __PLATFORM_DEF_H__ */
+#endif /* PLATFORM_DEF_H */

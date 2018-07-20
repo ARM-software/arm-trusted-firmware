@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLATFORM_DEF_H__
-#define __PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
 
 #include <common_def.h>
 #include <tbbr/tbbr_img_def.h>
@@ -23,10 +23,10 @@
 #define PLATFORM_CORE_COUNT		\
 	((UNIPHIER_MAX_CPUS_PER_CLUSTER) * (UNIPHIER_CLUSTER_COUNT))
 
-#define PLAT_MAX_PWR_LVL		1
+#define PLAT_MAX_PWR_LVL		U(1)
 
-#define PLAT_MAX_OFF_STATE		2
-#define PLAT_MAX_RET_STATE		1
+#define PLAT_MAX_OFF_STATE		U(2)
+#define PLAT_MAX_RET_STATE		U(1)
 
 #define BL2_BASE			ULL(0x80000000)
 #define BL2_LIMIT			ULL(0x80080000)
@@ -59,4 +59,4 @@
 #define TSP_SEC_MEM_SIZE		((BL32_LIMIT) - (BL32_BASE))
 #define TSP_IRQ_SEC_PHY_TIMER		29
 
-#endif /* __PLATFORM_DEF_H__ */
+#endif /* PLATFORM_DEF_H */

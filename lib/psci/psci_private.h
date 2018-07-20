@@ -111,7 +111,7 @@ typedef struct non_cpu_pwr_domain_node {
 	 * Index of the first CPU power domain node level 0 which has this node
 	 * as its parent.
 	 */
-	unsigned int cpu_start_idx;
+	int cpu_start_idx;
 
 	/*
 	 * Number of CPU power domains which are siblings of the domain indexed

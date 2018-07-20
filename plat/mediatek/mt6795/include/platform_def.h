@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLATFORM_DEF_H__
-#define __PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
+
+#include <utils_def.h>
 
 #define PLAT_PRIMARY_CPU  0x0
 
@@ -146,7 +148,7 @@
 #if ENABLE_PLAT_COMPAT
 #define PLATFORM_MAX_AFFLVL     MPIDR_AFFLVL2
 #else
-#define PLAT_MAX_PWR_LVL        2 /* MPIDR_AFFLVL2 */
+#define PLAT_MAX_PWR_LVL        U(2) /* MPIDR_AFFLVL2 */
 #endif
 
 #define PLATFORM_CACHE_LINE_SIZE      64
@@ -239,4 +241,4 @@
 #define PAGE_SIZE_2MB               (1 << PAGE_SIZE_2MB_SHIFT)
 #define PAGE_SIZE_2MB_SHIFT         TWO_MB_SHIFT
 
-#endif /* __PLATFORM_DEF_H__ */
+#endif /* PLATFORM_DEF_H */

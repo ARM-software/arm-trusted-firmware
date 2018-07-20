@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __ARM_DEF_H__
-#define __ARM_DEF_H__
+#ifndef ARM_DEF_H
+#define ARM_DEF_H
 
 #include <arch.h>
 #include <common_def.h>
@@ -40,12 +40,12 @@
  *  within the power-state parameter.
  */
 /* Local power state for power domains in Run state. */
-#define ARM_LOCAL_STATE_RUN	0
+#define ARM_LOCAL_STATE_RUN	U(0)
 /* Local power state for retention. Valid only for CPU power domains */
-#define ARM_LOCAL_STATE_RET	1
+#define ARM_LOCAL_STATE_RET	U(1)
 /* Local power state for OFF/power-down. Valid for CPU and cluster power
    domains */
-#define ARM_LOCAL_STATE_OFF	2
+#define ARM_LOCAL_STATE_OFF	U(2)
 
 /* Memory location options for TSP */
 #define ARM_TRUSTED_SRAM_ID		0
@@ -509,4 +509,4 @@
 	SDEI_SHARED_EVENT(ARM_SDEI_DS_EVENT_1, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC), \
 	SDEI_SHARED_EVENT(ARM_SDEI_DS_EVENT_2, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC)
 
-#endif /* __ARM_DEF_H__ */
+#endif /* ARM_DEF_H */

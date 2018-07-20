@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __ARCH_H__
-#define __ARCH_H__
+#ifndef ARCH_H
+#define ARCH_H
 
 #include <utils_def.h>
 
@@ -37,10 +37,10 @@
 #define MPIDR_AFF3_SHIFT	U(32)
 #define MPIDR_AFFINITY_MASK	ULL(0xff00ffffff)
 #define MPIDR_AFFLVL_SHIFT	U(3)
-#define MPIDR_AFFLVL0		ULL(0x0)
-#define MPIDR_AFFLVL1		ULL(0x1)
-#define MPIDR_AFFLVL2		ULL(0x2)
-#define MPIDR_AFFLVL3		ULL(0x3)
+#define MPIDR_AFFLVL0		U(0x0)
+#define MPIDR_AFFLVL1		U(0x1)
+#define MPIDR_AFFLVL2		U(0x2)
+#define MPIDR_AFFLVL3		U(0x3)
 #define MPIDR_AFFLVL0_VAL(mpidr) \
 		(((mpidr) >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK)
 #define MPIDR_AFFLVL1_VAL(mpidr) \
@@ -739,4 +739,4 @@
 #define ERXMISC0_EL1		S3_0_C5_C4_4
 #define ERXMISC1_EL1		S3_0_C5_C4_5
 
-#endif /* __ARCH_H__ */
+#endif /* ARCH_H */

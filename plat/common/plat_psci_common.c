@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,7 +16,7 @@
 #pragma weak plat_psci_stat_get_residency
 
 /* Ticks elapsed in one second by a signal of 1 MHz */
-#define MHZ_TICKS_PER_SEC 1000000
+#define MHZ_TICKS_PER_SEC 1000000U
 
 /* Maximum time-stamp value read from architectural counters */
 #ifdef AARCH32
@@ -49,7 +49,7 @@ static u_register_t calc_stat_residency(unsigned long long pwrupts,
 	 * convert time-stamp into microseconds.
 	 */
 	residency_div = read_cntfrq_el0() / MHZ_TICKS_PER_SEC;
-	assert(residency_div);
+	assert(residency_div > 0U);
 
 	if (pwrupts < pwrdnts)
 		res = MAX_TS - pwrdnts + pwrupts;

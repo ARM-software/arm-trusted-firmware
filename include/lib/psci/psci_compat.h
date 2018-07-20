@@ -1,14 +1,15 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PSCI_COMPAT_H__
-#define __PSCI_COMPAT_H__
+#ifndef PSCI_COMPAT_H
+#define PSCI_COMPAT_H
 
 #include <arch.h>
 #include <platform_def.h>
+#include <utils_def.h>
 
 #ifndef __ASSEMBLY__
 /*
@@ -25,10 +26,10 @@
 #define PSCI_AFF_ABSENT		0x0
 #define PSCI_AFF_PRESENT	0x1
 
-#define PSCI_STATE_ON		0x0
-#define PSCI_STATE_OFF		0x1
-#define PSCI_STATE_ON_PENDING	0x2
-#define PSCI_STATE_SUSPEND	0x3
+#define PSCI_STATE_ON		U(0x0)
+#define PSCI_STATE_OFF		U(0x1)
+#define PSCI_STATE_ON_PENDING	U(0x2)
+#define PSCI_STATE_SUSPEND	U(0x3)
 
 /*
  * Using the compatibility platform interfaces means that the local states
@@ -38,8 +39,8 @@
  * involved. Hence if we assume 3 generic states viz, run, standby and
  * power down, we can assign 1 and 2 to standby and power down respectively.
  */
-#define PLAT_MAX_RET_STATE	1
-#define PLAT_MAX_OFF_STATE	2
+#define PLAT_MAX_RET_STATE	U(1)
+#define PLAT_MAX_OFF_STATE	U(2)
 
 /*
  * Macro to represent invalid affinity level within PSCI.
@@ -89,4 +90,4 @@ unsigned int psci_get_max_phys_off_afflvl(void);
 int psci_get_suspend_afflvl(void);
 
 #endif /* ____ASSEMBLY__ */
-#endif /* __PSCI_COMPAT_H__ */
+#endif /* PSCI_COMPAT_H */

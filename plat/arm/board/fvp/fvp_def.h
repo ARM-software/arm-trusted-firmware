@@ -4,8 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __FVP_DEF_H__
-#define __FVP_DEF_H__
+#ifndef FVP_DEF_H
+#define FVP_DEF_H
+
+#include <utils_def.h>
 
 #ifndef FVP_CLUSTER_COUNT
 #define FVP_CLUSTER_COUNT		2
@@ -153,4 +155,4 @@
 #define PLAT_ARM_MEM_PROT_ADDR		(V2M_FLASH0_BASE + \
 					 V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
 
-#endif /* __FVP_DEF_H__ */
+#endif /* FVP_DEF_H */

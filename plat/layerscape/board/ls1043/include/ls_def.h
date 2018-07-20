@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __LS_DEF_H__
-#define __LS_DEF_H__
+#ifndef LS_DEF_H
+#define LS_DEF_H
 
 #include <arch.h>
 #include <common_def.h>
@@ -36,14 +36,14 @@
  *  within the power-state parameter.
  */
 /* Local power state for power domains in Run state. */
-#define LS_LOCAL_STATE_RUN	0
+#define LS_LOCAL_STATE_RUN	U(0)
 /* Local power state for retention. Valid only for CPU power domains */
-#define LS_LOCAL_STATE_RET	1
+#define LS_LOCAL_STATE_RET	U(1)
 /*
  * Local power state for OFF/power-down. Valid for CPU and cluster power
  * domains
  */
-#define LS_LOCAL_STATE_OFF	2
+#define LS_LOCAL_STATE_OFF	U(2)
 
 #define LS_MAP_NS_DRAM		MAP_REGION_FLAT( \
 					(LS_NS_DRAM_BASE), \
@@ -104,4 +104,4 @@
  */
 #define PLAT_PERCPU_BAKERY_LOCK_SIZE		(1 * CACHE_WRITEBACK_GRANULE)
 
-#endif /* __LS_DEF_H__ */
+#endif /* LS_DEF_H */

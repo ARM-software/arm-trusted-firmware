@@ -4,8 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __BOARD_DEF_H__
-#define __BOARD_DEF_H__
+#ifndef BOARD_DEF_H
+#define BOARD_DEF_H
+
+#include <utils_def.h>
 
 /* The ports must be in order and contiguous */
 #define K3_CLUSTER0_CORE_COUNT		2
@@ -27,7 +29,7 @@
 #define SEC_SRAM_BASE			0x70000000 /* Base of MSMC SRAM */
 #define SEC_SRAM_SIZE			0x00020000 /* 128k */
 
-#define PLAT_MAX_OFF_STATE		2
-#define PLAT_MAX_RET_STATE		1
+#define PLAT_MAX_OFF_STATE		U(2)
+#define PLAT_MAX_RET_STATE		U(1)
 
-#endif /* __BOARD_DEF_H__ */
+#endif /* BOARD_DEF_H */
