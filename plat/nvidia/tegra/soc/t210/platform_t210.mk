@@ -46,7 +46,6 @@ A57_DISABLE_NON_TEMPORAL_HINT	:=	1
 ERRATA_A57_826974		:=	1
 ERRATA_A57_826977		:=	1
 ERRATA_A57_828024		:=	1
-ERRATA_A57_829520		:=	1
 ERRATA_A57_833471		:=	1
 
 # Enable workarounds for selected Cortex-A53 erratas.
