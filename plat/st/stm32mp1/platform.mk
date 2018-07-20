@@ -43,6 +43,7 @@ PLAT_BL_COMMON_SOURCES	+=	${LIBFDT_SRCS}						\
 				drivers/st/clk/stm32mp1_clkfunc.c			\
 				drivers/st/gpio/stm32_gpio.c				\
 				drivers/st/reset/stm32mp1_reset.c			\
+				plat/st/stm32mp1/stm32mp1_context.c			\
 				plat/st/stm32mp1/stm32mp1_dt.c				\
 				plat/st/stm32mp1/stm32mp1_helper.S
 

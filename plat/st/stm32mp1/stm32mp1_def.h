@@ -158,6 +158,19 @@ enum ddr_type {
 #define STM32MP1_EMMC_HIGH_SPEED_MAX_FREQ	52000000	/*52 MHz*/
 
 /*******************************************************************************
+ * STM32MP1 TAMP
+ ******************************************************************************/
+#define TAMP_BASE			U(0x5C00A000)
+#define TAMP_BKP_REGISTER_BASE		(TAMP_BASE + U(0x100))
+
+#if !(defined(__LINKER__) || defined(__ASSEMBLY__))
+static inline uint32_t tamp_bkpr(uint32_t idx)
+{
+	return TAMP_BKP_REGISTER_BASE + (idx << 2);
+}
+#endif
+
+/*******************************************************************************
  * STM32MP1 DDRCTRL
  ******************************************************************************/
 #define DDRCTRL_BASE			U(0x5A003000)

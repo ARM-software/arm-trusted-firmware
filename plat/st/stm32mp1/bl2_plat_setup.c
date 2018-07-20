@@ -19,6 +19,7 @@
 #include <stm32mp1_clk.h>
 #include <stm32mp1_dt.h>
 #include <stm32mp1_private.h>
+#include <stm32mp1_context.h>
 #include <stm32mp1_pwr.h>
 #include <stm32mp1_rcc.h>
 #include <string.h>
@@ -37,6 +38,9 @@ void bl2_platform_setup(void)
 
 void bl2_el3_plat_arch_setup(void)
 {
+	boot_api_context_t *boot_context =
+		(boot_api_context_t *)stm32mp1_get_boot_ctx_address();
+
 	/*
 	 * Disable the backup domain write protection.
 	 * The protection is enable at each reset by hardware
@@ -88,6 +92,12 @@ void bl2_el3_plat_arch_setup(void)
 
 	if (stm32mp1_clk_init() < 0) {
 		panic();
+	}
+
+	if (stm32_save_boot_interface(boot_context->boot_interface_selected,
+				      boot_context->boot_interface_instance) !=
+	    0) {
+		ERROR("Cannot save boot interface\n");
 	}
 
 	stm32mp1_io_setup();
