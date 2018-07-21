@@ -50,6 +50,7 @@
 #define I2C_UNSTUCK_TRIGGER			0x1
 #define I2C_UNSTUCK_ONGOING			0x2
 #define I2C_UNSTUCK_ERROR			0x4
+
 struct  marvell_i2c_regs {
 	uint32_t slave_address;
 	uint32_t data;
@@ -57,7 +58,7 @@ struct  marvell_i2c_regs {
 	union {
 		uint32_t status;	/* when reading */
 		uint32_t baudrate;	/* when writing */
-	} u;
+	};
 	uint32_t xtnd_slave_addr;
 	uint32_t reserved[2];
 	uint32_t soft_reset;
@@ -69,7 +70,7 @@ static struct marvell_i2c_regs *base;
 
 static int marvell_i2c_lost_arbitration(uint32_t *status)
 {
-	*status = mmio_read_32((uintptr_t)&base->u.status);
+	*status = mmio_read_32((uintptr_t)&base->status);
 	if ((*status == I2C_STATUS_LOST_ARB_DATA_ADDR_TRANSFER) ||
 	    (*status == I2C_STATUS_LOST_ARB_GENERAL_CALL))
 		return -EAGAIN;
@@ -271,7 +272,7 @@ static unsigned int marvell_i2c_bus_speed_set(unsigned int requested_speed)
 	VERBOSE("%s: actual_n = %u, actual_m = %u\n",
 		__func__, actual_n, actual_m);
 	/* Set the baud rate */
-	mmio_write_32((uintptr_t)&base->u.baudrate, (actual_m << 3) | actual_n);
+	mmio_write_32((uintptr_t)&base->baudrate, (actual_m << 3) | actual_n);
 
 	return 0;
 }
