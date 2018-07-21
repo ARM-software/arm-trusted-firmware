@@ -93,6 +93,8 @@ void bl31_platform_setup(void)
 
 	sunxi_security_setup();
 
+	sunxi_pmic_setup();
+
 	INFO("BL31: Platform setup done\n");
 }
 
