@@ -7,6 +7,7 @@
 include lib/xlat_tables_v2/xlat_tables.mk
 
 AW_PLAT			:=	plat/allwinner
+AW_DRIVERS		:=	drivers/allwinner
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common		\
 				-Iinclude/plat/arm/common/aarch64	\
@@ -15,6 +16,7 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common		\
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/console/${ARCH}/console.S	\
 				drivers/ti/uart/${ARCH}/16550_console.S	\
+				${AW_DRIVERS}/sunxi_i2c.c		\
 				${XLAT_TABLES_LIB_SRCS}			\
 				${AW_PLAT}/common/plat_helpers.S	\
 				${AW_PLAT}/common/sunxi_common.c
