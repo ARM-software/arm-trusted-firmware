@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <arch_helpers.h>
 #include <debug.h>
 #include <delay_timer.h>
 #include <errno.h>
@@ -118,4 +119,25 @@ int sunxi_pmic_setup(void)
 		pmic = AXP805;
 
 	return 0;
+}
+
+void __dead2 sunxi_power_down(void)
+{
+	uint8_t val;
+
+	switch (pmic) {
+	case AXP805:
+		val = 0x26; /* Default value for REG 32H */
+		axp_i2c_read(AXP805_ADDR, 0x32, &val);
+		val |= 0x80;
+		axp_i2c_write(AXP805_ADDR, 0x32, val);
+		break;
+	default:
+		break;
+	}
+
+	udelay(1000);
+	ERROR("PSCI: Cannot communicate with PMIC, halting\n");
+	wfi();
+	panic();
 }

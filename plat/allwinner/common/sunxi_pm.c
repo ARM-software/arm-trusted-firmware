@@ -54,9 +54,7 @@ static void __dead2 sunxi_system_off(void)
 	/* Turn off all secondary CPUs */
 	sunxi_disable_secondary_cpus(plat_my_core_pos());
 
-	ERROR("PSCI: Full shutdown not implemented, halting\n");
-	wfi();
-	panic();
+	sunxi_power_down();
 }
 
 static void __dead2 sunxi_system_reset(void)

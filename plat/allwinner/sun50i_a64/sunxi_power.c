@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <arch_helpers.h>
 #include <debug.h>
 
 int sunxi_pmic_setup(void)
@@ -13,4 +14,11 @@ int sunxi_pmic_setup(void)
 	NOTICE("BL31: STUB PMIC setup code called\n");
 
 	return 0;
+}
+
+void __dead2 sunxi_power_down(void)
+{
+	ERROR("PSCI: Full shutdown not implemented, halting\n");
+	wfi();
+	panic();
 }
