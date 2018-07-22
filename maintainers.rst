@@ -24,6 +24,7 @@ Allwinner ARMv8 platform port
 :G: `smaeul`_
 :F: docs/plat/allwinner.rst
 :F: plat/allwinner/
+:F: drivers/allwinner/
 
 Armv7-A architecture port
 -------------------------
