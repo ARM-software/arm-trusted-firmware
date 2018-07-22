@@ -68,7 +68,11 @@ static void mentor_i2c_interrupt_clear(void)
 	uint32_t reg;
 
 	reg = mmio_read_32((uintptr_t)&base->control);
+#ifndef I2C_INTERRUPT_CLEAR_INVERTED
 	reg &= ~(I2C_CONTROL_IFLG);
+#else
+	reg |= I2C_CONTROL_IFLG;
+#endif
 	mmio_write_32((uintptr_t)&base->control, reg);
 	/* Wait for 1 us for the clear to take effect */
 	udelay(1);
