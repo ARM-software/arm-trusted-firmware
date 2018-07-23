@@ -97,6 +97,19 @@ NXP QorIQ Layerscape platform ports
 :F: docs/plat/ls1043a.rst
 :F: plat/layerscape/
 
+NXP i.MX 7 WaRP7 platform port and SoC drivers
+----------------------------------------------
+:M: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+:G: `bryanodonoghue`_
+:M: Jun Nie <jun.nie@linaro.org>
+:G: `niej`_
+:F: docs/plat/warp7.rst
+:F: plat/imx/common/
+:F: plat/imx/imx7/
+:F: drivers/imx/timer/
+:F: drivers/imx/uart/
+:F: drivers/imx/usdhc/
+
 NXP i.MX 8 platform port
 ------------------------
 :M: Anson Huang <Anson.Huang@nxp.com>
@@ -185,6 +198,7 @@ Xilinx platform port
 .. _Andre-ARM: https://github.com/Andre-ARM
 .. _Anson-Huang: https://github.com/Anson-Huang
 .. _antonio-nino-diaz-arm: https://github.com/antonio-nino-diaz-arm
+.. _bryanodonoghue: https://github.com/bryanodonoghue
 .. _b49020: https://github.com/b49020
 .. _danh-arm: https://github.com/danh-arm
 .. _dp-arm: https://github.com/dp-arm
@@ -192,6 +206,7 @@ Xilinx platform port
 .. _glneo: https://github.com/glneo
 .. _hzhuang1: https://github.com/hzhuang1
 .. _jenswi-linaro: https://github.com/jenswi-linaro
+.. _niej: https://github.com/niej
 .. _kostapr: https://github.com/kostapr
 .. _masahir0y: https://github.com/masahir0y
 .. _mtk09422: https://github.com/mtk09422
