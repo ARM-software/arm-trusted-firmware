@@ -97,6 +97,14 @@ NXP i.MX 8 platform port
 :F: docs/plat/imx8.rst
 :F: plat/imx/imx8/
 
+NXP i.MX 7 WaRP7 platform port
+------------------------------
+:M: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+:G: `bryanodonoghue`_
+:F: docs/plat/warp7.rst
+:F: plat/imx/common/
+:F: plat/imx/imx7/
+
 OP-TEE dispatcher
 -----------------
 :M: Jens Wiklander <jens.wiklander@linaro.org>
@@ -166,6 +174,7 @@ Xilinx platform port
 .. _Andre-ARM: https://github.com/Andre-ARM
 .. _Anson-Huang: https://github.com/Anson-Huang
 .. _antonio-nino-diaz-arm: https://github.com/antonio-nino-diaz-arm
+.. _bryanodonoghue: https://github.com/bryanodonoghue
 .. _b49020: https://github.com/b49020
 .. _danh-arm: https://github.com/danh-arm
 .. _dp-arm: https://github.com/dp-arm
