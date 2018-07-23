@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -29,5 +29,10 @@ BL2_SOURCES		+=	bl2/${ARCH}/bl2_el3_entrypoint.S	\
 				bl2/${ARCH}/bl2_el3_exceptions.S	\
 				lib/cpus/${ARCH}/cpu_helpers.S		\
 				lib/cpus/errata_report.c
+
+ifeq (${ARCH},aarch64)
+BL2_SOURCES		+=	lib/cpus/aarch64/dsu_helpers.S
+endif
+
 BL2_LINKERFILE		:=	bl2/bl2_el3.ld.S
 endif

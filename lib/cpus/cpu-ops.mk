@@ -123,6 +123,11 @@ ERRATA_A72_859971	?=0
 # only to r0p0 and r1p0 of the Ares cpu.
 ERRATA_ARES_1043202	?=1
 
+# Flag to apply DSU erratum 936184. This erratum applies to DSUs containing
+# the ACP interface and revision < r2p0. Applying the workaround results in
+# higher DSU power consumption on idle.
+ERRATA_DSU_936184	?=0
+
 # Process ERRATA_A53_826319 flag
 $(eval $(call assert_boolean,ERRATA_A53_826319))
 $(eval $(call add_define,ERRATA_A53_826319))
@@ -186,6 +191,10 @@ $(eval $(call add_define,ERRATA_A72_859971))
 # Process ERRATA_ARES_1043202 flag
 $(eval $(call assert_boolean,ERRATA_ARES_1043202))
 $(eval $(call add_define,ERRATA_ARES_1043202))
+
+# Process ERRATA_DSU_936184 flag
+$(eval $(call assert_boolean,ERRATA_DSU_936184))
+$(eval $(call add_define,ERRATA_DSU_936184))
 
 # Errata build flags
 ifneq (${ERRATA_A53_843419},0)

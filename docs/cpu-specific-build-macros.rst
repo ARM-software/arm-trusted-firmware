@@ -68,10 +68,10 @@ In the current implementation, a platform which has more than 1 variant
 with different revisions of a processor has no runtime mechanism available
 for it to specify which errata workarounds should be enabled or not.
 
-The value of the build flags are 0 by default, that is, disabled. Any other
-value will enable it.
+The value of the build flags is 0 by default, that is, disabled. A value of 1
+will enable it.
 
-For Cortex-A53, following errata build flags are defined :
+For Cortex-A53, the following errata build flags are defined :
 
 -  ``ERRATA_A53_826319``: This applies errata 826319 workaround to Cortex-A53
    CPU. This needs to be enabled only for revision <= r0p2 of the CPU.
@@ -97,7 +97,7 @@ For Cortex-A53, following errata build flags are defined :
    Earlier revisions of the CPU have other errata which require the same
    workaround in software, so they should be covered anyway.
 
-For Cortex-A57, following errata build flags are defined :
+For Cortex-A57, the following errata build flags are defined :
 
 -  ``ERRATA_A57_806969``: This applies errata 806969 workaround to Cortex-A57
    CPU. This needs to be enabled only for revision r0p0 of the CPU.
@@ -127,10 +127,32 @@ For Cortex-A57, following errata build flags are defined :
    CPU. This needs to be enabled only for revision <= r1p3 of the CPU.
 
 
-For Cortex-A72, following errata build flags are defined :
+For Cortex-A72, the following errata build flags are defined :
 
 -  ``ERRATA_A72_859971``: This applies errata 859971 workaround to Cortex-A72
    CPU. This needs to be enabled only for revision <= r0p3 of the CPU.
+
+DSU Errata Workarounds
+----------------------
+
+Similar to CPU errata, TF-A also implements workarounds for DSU (DynamIQ
+Shared Unit) errata. The DSU errata details can be found in the respective Arm
+documentation:
+
+- `Arm DSU Software Developers Errata Notice`_.
+
+Each erratum is identified by an ``ID``, as defined in the DSU errata notice
+document. Thus, the build flags which enable/disable the errata workarounds
+have the format ``ERRATA_DSU_<ID>``. The implementation and application logic
+of DSU errata workarounds are similar to `CPU errata workarounds`_.
+
+For DSU errata, the following build flags are defined:
+
+-  ``ERRATA_DSU_936184``: This applies errata 936184 workaround for the
+   affected DSU configurations. This errata applies only for those DSUs that
+   contain the ACP interface **and** the DSU revision is older than r2p0 (on
+   r2p0 it is fixed). However, please note that this workaround results in
+   increased DSU power consumption on idle.
 
 CPU Specific optimizations
 --------------------------
@@ -171,3 +193,4 @@ architecture that can be enabled by the platform as desired.
 .. _Cortex-A72 MPCore Software Developers Errata Notice: http://infocenter.arm.com/help/topic/com.arm.doc.epm012079/index.html
 .. _Firmware Design guide: firmware-design.rst
 .. _Cortex-A57 Software Optimization Guide: http://infocenter.arm.com/help/topic/com.arm.doc.uan0015b/Cortex_A57_Software_Optimization_Guide_external.pdf
+.. _Arm DSU Software Developers Errata Notice: http://infocenter.arm.com/help/topic/com.arm.doc.epm138168/index.html

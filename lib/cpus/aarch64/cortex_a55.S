@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,14 @@
 #include <cortex_a55.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+
+func cortex_a55_reset_func
+	mov	x19, x30
+#if ERRATA_DSU_936184
+	bl	errata_dsu_936184_wa
+#endif
+	ret	x19
+endfunc cortex_a55_reset_func
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -26,6 +34,26 @@ func cortex_a55_core_pwr_dwn
 	isb
 	ret
 endfunc cortex_a55_core_pwr_dwn
+
+#if REPORT_ERRATA
+/*
+ * Errata printing function for Cortex A55. Must follow AAPCS & can use stack.
+ */
+func cortex_a55_errata_report
+	stp	x8, x30, [sp, #-16]!
+	bl	cpu_get_rev_var
+	mov	x8, x0
+
+	/*
+	 * Report all errata. The revision variant information is at x8, where
+	 * "report_errata" is expecting it and it doesn't corrupt it.
+	 */
+	report_errata ERRATA_DSU_936184, cortex_a55, dsu_936184
+
+	ldp	x8, x30, [sp], #16
+	ret
+endfunc cortex_a55_errata_report
+#endif
 
 	/* ---------------------------------------------
 	 * This function provides cortex_a55 specific
@@ -47,5 +75,5 @@ func cortex_a55_cpu_reg_dump
 endfunc cortex_a55_cpu_reg_dump
 
 declare_cpu_ops cortex_a55, CORTEX_A55_MIDR, \
-	CPU_NO_RESET_FUNC, \
+	cortex_a55_reset_func, \
 	cortex_a55_core_pwr_dwn
