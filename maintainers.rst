@@ -95,7 +95,7 @@ NXP i.MX 8 platform port
 :M: Anson Huang <Anson.Huang@nxp.com>
 :G: `Anson-Huang`_
 :F: docs/plat/imx8.rst
-:F: plat/imx/
+:F: plat/nxp/imx8/
 
 OP-TEE dispatcher
 -----------------
