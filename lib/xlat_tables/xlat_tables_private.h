@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __XLAT_TABLES_PRIVATE_H__
-#define __XLAT_TABLES_PRIVATE_H__
+#ifndef XLAT_TABLES_PRIVATE_H
+#define XLAT_TABLES_PRIVATE_H
 
 #include <cassert.h>
 #include <platform_def.h>
@@ -44,17 +44,17 @@ CASSERT(CHECK_PHY_ADDR_SPACE_SIZE(PLAT_PHY_ADDR_SPACE_SIZE),
 void print_mmap(void);
 
 /* Returns the current Exception Level. The returned EL must be 1 or higher. */
-int xlat_arch_current_el(void);
+unsigned int xlat_arch_current_el(void);
 
 /*
  * Returns the bit mask that has to be ORed to the rest of a translation table
  * descriptor so that execution of code is prohibited at the given Exception
  * Level.
  */
-uint64_t xlat_arch_get_xn_desc(int el);
+uint64_t xlat_arch_get_xn_desc(unsigned int el);
 
 void init_xlation_table(uintptr_t base_va, uint64_t *table,
 			unsigned int level, uintptr_t *max_va,
 			unsigned long long *max_pa);
 
-#endif /* __XLAT_TABLES_PRIVATE_H__ */
+#endif /* XLAT_TABLES_PRIVATE_H */

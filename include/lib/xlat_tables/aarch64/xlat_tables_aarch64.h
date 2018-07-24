@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __XLAT_TABLES_AARCH64_H__
-#define __XLAT_TABLES_AARCH64_H__
+#ifndef XLAT_TABLES_AARCH64_H
+#define XLAT_TABLES_AARCH64_H
 
 #include <arch.h>
 #include <utils_def.h>
@@ -30,9 +30,9 @@ unsigned long long tcr_physical_addr_size_bits(unsigned long long max_addr);
  * The define below specifies the first table level that allows block
  * descriptors.
  */
-#if PAGE_SIZE == (4 * 1024)
+#if PAGE_SIZE == PAGE_SIZE_4KB
 # define MIN_LVL_BLOCK_DESC	U(1)
-#elif PAGE_SIZE == (16 * 1024) || PAGE_SIZE == (64 * 1024)
+#elif (PAGE_SIZE == PAGE_SIZE_16KB) || (PAGE_SIZE == PAGE_SIZE_64KB)
 # define MIN_LVL_BLOCK_DESC	U(2)
 #endif
 
@@ -50,8 +50,8 @@ unsigned long long tcr_physical_addr_size_bits(unsigned long long max_addr);
  * information:
  * Page 1730: 'Input address size', 'For all translation stages'.
  */
-#define MIN_VIRT_ADDR_SPACE_SIZE	(ULL(1) << (64 - TCR_TxSZ_MAX))
-#define MAX_VIRT_ADDR_SPACE_SIZE	(ULL(1) << (64 - TCR_TxSZ_MIN))
+#define MIN_VIRT_ADDR_SPACE_SIZE	(ULL(1) << (U(64) - TCR_TxSZ_MAX))
+#define MAX_VIRT_ADDR_SPACE_SIZE	(ULL(1) << (U(64) - TCR_TxSZ_MIN))
 
 /*
  * Here we calculate the initial lookup level from the value of the given
@@ -74,10 +74,10 @@ unsigned long long tcr_physical_addr_size_bits(unsigned long long max_addr);
  * valid. Therefore, the caller is expected to check it is the case using the
  * CHECK_VIRT_ADDR_SPACE_SIZE() macro first.
  */
-#define GET_XLAT_TABLE_LEVEL_BASE(_virt_addr_space_size)				\
-	(((_virt_addr_space_size) > (ULL(1) << L0_XLAT_ADDRESS_SHIFT))		\
-	? 0									\
-	 : (((_virt_addr_space_size) > (ULL(1) << L1_XLAT_ADDRESS_SHIFT))	\
-	 ? 1 : 2))
+#define GET_XLAT_TABLE_LEVEL_BASE(_virt_addr_space_sz)		\
+	(((_virt_addr_space_sz) > (ULL(1) << L0_XLAT_ADDRESS_SHIFT))	\
+	? 0U								\
+	 : (((_virt_addr_space_sz) > (ULL(1) << L1_XLAT_ADDRESS_SHIFT))	\
+	 ? 1U : 2U))
 
-#endif /* __XLAT_TABLES_AARCH64_H__ */
+#endif /* XLAT_TABLES_AARCH64_H */

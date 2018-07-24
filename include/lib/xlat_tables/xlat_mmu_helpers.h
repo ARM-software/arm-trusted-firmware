@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __XLAT_MMU_HELPERS_H__
-#define __XLAT_MMU_HELPERS_H__
+#ifndef XLAT_MMU_HELPERS_H
+#define XLAT_MMU_HELPERS_H
 
 /*
  * The following flags are passed to enable_mmu_xxx() to override the default
@@ -52,6 +52,7 @@
 
 #ifndef __ASSEMBLY__
 
+#include <stdint.h>
 #include <sys/types.h>
 
 /*
@@ -82,4 +83,4 @@ size_t xlat_arch_get_max_supported_granule_size(void);
 
 #endif /* __ASSEMBLY__ */
 
-#endif /* __XLAT_MMU_HELPERS_H__ */
+#endif /* XLAT_MMU_HELPERS_H */

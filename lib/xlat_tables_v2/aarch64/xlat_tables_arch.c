@@ -20,58 +20,58 @@ int xlat_arch_is_granule_size_supported(size_t size)
 {
 	u_register_t id_aa64mmfr0_el1 = read_id_aa64mmfr0_el1();
 
-	if (size == (4U * 1024U)) {
-		return ((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN4_SHIFT) &
+	if (size == PAGE_SIZE_4KB) {
+		return (((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN4_SHIFT) &
 			 ID_AA64MMFR0_EL1_TGRAN4_MASK) ==
-			 ID_AA64MMFR0_EL1_TGRAN4_SUPPORTED;
-	} else if (size == (16U * 1024U)) {
-		return ((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN16_SHIFT) &
+			 ID_AA64MMFR0_EL1_TGRAN4_SUPPORTED) ? 1 : 0;
+	} else if (size == PAGE_SIZE_16KB) {
+		return (((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN16_SHIFT) &
 			 ID_AA64MMFR0_EL1_TGRAN16_MASK) ==
-			 ID_AA64MMFR0_EL1_TGRAN16_SUPPORTED;
-	} else if (size == (64U * 1024U)) {
-		return ((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN64_SHIFT) &
+			 ID_AA64MMFR0_EL1_TGRAN16_SUPPORTED) ? 1 : 0;
+	} else if (size == PAGE_SIZE_64KB) {
+		return (((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN64_SHIFT) &
 			 ID_AA64MMFR0_EL1_TGRAN64_MASK) ==
-			 ID_AA64MMFR0_EL1_TGRAN64_SUPPORTED;
+			 ID_AA64MMFR0_EL1_TGRAN64_SUPPORTED) ? 1 : 0;
+	} else {
+		return 0;
 	}
-
-	return 0;
 }
 
 size_t xlat_arch_get_max_supported_granule_size(void)
 {
-	if (xlat_arch_is_granule_size_supported(64U * 1024U)) {
-		return 64U * 1024U;
-	} else if (xlat_arch_is_granule_size_supported(16U * 1024U)) {
-		return 16U * 1024U;
+	if (xlat_arch_is_granule_size_supported(PAGE_SIZE_64KB) != 0) {
+		return PAGE_SIZE_64KB;
+	} else if (xlat_arch_is_granule_size_supported(PAGE_SIZE_16KB) != 0) {
+		return PAGE_SIZE_16KB;
 	} else {
-		assert(xlat_arch_is_granule_size_supported(4U * 1024U));
-		return 4U * 1024U;
+		assert(xlat_arch_is_granule_size_supported(PAGE_SIZE_4KB) != 0);
+		return PAGE_SIZE_4KB;
 	}
 }
 
 unsigned long long tcr_physical_addr_size_bits(unsigned long long max_addr)
 {
 	/* Physical address can't exceed 48 bits */
-	assert((max_addr & ADDR_MASK_48_TO_63) == 0);
+	assert((max_addr & ADDR_MASK_48_TO_63) == 0U);
 
 	/* 48 bits address */
-	if (max_addr & ADDR_MASK_44_TO_47)
+	if ((max_addr & ADDR_MASK_44_TO_47) != 0U)
 		return TCR_PS_BITS_256TB;
 
 	/* 44 bits address */
-	if (max_addr & ADDR_MASK_42_TO_43)
+	if ((max_addr & ADDR_MASK_42_TO_43) != 0U)
 		return TCR_PS_BITS_16TB;
 
 	/* 42 bits address */
-	if (max_addr & ADDR_MASK_40_TO_41)
+	if ((max_addr & ADDR_MASK_40_TO_41) != 0U)
 		return TCR_PS_BITS_4TB;
 
 	/* 40 bits address */
-	if (max_addr & ADDR_MASK_36_TO_39)
+	if ((max_addr & ADDR_MASK_36_TO_39) != 0U)
 		return TCR_PS_BITS_1TB;
 
 	/* 36 bits address */
-	if (max_addr & ADDR_MASK_32_TO_35)
+	if ((max_addr & ADDR_MASK_32_TO_35) != 0U)
 		return TCR_PS_BITS_64GB;
 
 	return TCR_PS_BITS_4GB;
@@ -102,12 +102,12 @@ unsigned long long xlat_arch_get_max_supported_pa(void)
 int is_mmu_enabled_ctx(const xlat_ctx_t *ctx)
 {
 	if (ctx->xlat_regime == EL1_EL0_REGIME) {
-		assert(xlat_arch_current_el() >= 1);
-		return (read_sctlr_el1() & SCTLR_M_BIT) != 0;
+		assert(xlat_arch_current_el() >= 1U);
+		return ((read_sctlr_el1() & SCTLR_M_BIT) != 0U) ? 1 : 0;
 	} else {
 		assert(ctx->xlat_regime == EL3_REGIME);
-		assert(xlat_arch_current_el() >= 3);
-		return (read_sctlr_el3() & SCTLR_M_BIT) != 0;
+		assert(xlat_arch_current_el() >= 3U);
+		return ((read_sctlr_el3() & SCTLR_M_BIT) != 0U) ? 1 : 0;
 	}
 }
 
@@ -137,11 +137,11 @@ void xlat_arch_tlbi_va(uintptr_t va, int xlat_regime)
 	 * exception level (see section D4.9.2 of the ARM ARM rev B.a).
 	 */
 	if (xlat_regime == EL1_EL0_REGIME) {
-		assert(xlat_arch_current_el() >= 1);
+		assert(xlat_arch_current_el() >= 1U);
 		tlbivaae1is(TLBI_ADDR(va));
 	} else {
 		assert(xlat_regime == EL3_REGIME);
-		assert(xlat_arch_current_el() >= 3);
+		assert(xlat_arch_current_el() >= 3U);
 		tlbivae3is(TLBI_ADDR(va));
 	}
 }
@@ -169,11 +169,11 @@ void xlat_arch_tlbi_va_sync(void)
 	isb();
 }
 
-int xlat_arch_current_el(void)
+unsigned int xlat_arch_current_el(void)
 {
-	int el = GET_EL(read_CurrentEl());
+	unsigned int el = (unsigned int)GET_EL(read_CurrentEl());
 
-	assert(el > 0);
+	assert(el > 0U);
 
 	return el;
 }
@@ -194,22 +194,24 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 	 * Limit the input address ranges and memory region sizes translated
 	 * using TTBR0 to the given virtual address space size.
 	 */
-	assert(max_va < ((uint64_t) UINTPTR_MAX));
+	assert(max_va < ((uint64_t)UINTPTR_MAX));
 
-	virtual_addr_space_size = max_va + 1;
+	virtual_addr_space_size = (uintptr_t)max_va + 1U;
 	assert(CHECK_VIRT_ADDR_SPACE_SIZE(virtual_addr_space_size));
 
 	/*
 	 * __builtin_ctzll(0) is undefined but here we are guaranteed that
 	 * virtual_addr_space_size is in the range [1,UINTPTR_MAX].
 	 */
-	tcr = (uint64_t) 64 - __builtin_ctzll(virtual_addr_space_size);
+	int t0sz = 64 - __builtin_ctzll(virtual_addr_space_size);
+
+	tcr = (uint64_t) t0sz;
 
 	/*
 	 * Set the cacheability and shareability attributes for memory
 	 * associated with translation table walks.
 	 */
-	if ((flags & XLAT_TABLE_NC) != 0) {
+	if ((flags & XLAT_TABLE_NC) != 0U) {
 		/* Inner & outer non-cacheable non-shareable. */
 		tcr |= TCR_SH_NON_SHAREABLE |
 			TCR_RGN_OUTER_NC | TCR_RGN_INNER_NC;

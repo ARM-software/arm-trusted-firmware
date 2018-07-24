@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __XLAT_TABLES_H__
-#define __XLAT_TABLES_H__
+#ifndef XLAT_TABLES_H
+#define XLAT_TABLES_H
 
 #include <xlat_tables_defs.h>
 
@@ -92,4 +92,4 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 void mmap_add(const mmap_region_t *mm);
 
 #endif /*__ASSEMBLY__*/
-#endif /* __XLAT_TABLES_H__ */
+#endif /* XLAT_TABLES_H */

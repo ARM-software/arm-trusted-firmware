@@ -14,7 +14,7 @@
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
 
-#if ARM_ARCH_MAJOR == 7 && !defined(ARMV7_SUPPORTS_LARGE_PAGE_ADDRESSING)
+#if (ARM_ARCH_MAJOR == 7) && !defined(ARMV7_SUPPORTS_LARGE_PAGE_ADDRESSING)
 #error ARMv7 target does not support LPAE MMU descriptors
 #endif
 
@@ -27,12 +27,12 @@ int xlat_arch_is_granule_size_supported(size_t size)
 	 * The library uses the long descriptor translation table format, which
 	 * supports 4 KiB pages only.
 	 */
-	return (size == (4U * 1024U));
+	return (size == PAGE_SIZE_4KB) ? 1 : 0;
 }
 
 size_t xlat_arch_get_max_supported_granule_size(void)
 {
-	return 4U * 1024U;
+	return PAGE_SIZE_4KB;
 }
 
 #if ENABLE_ASSERTIONS
@@ -90,7 +90,7 @@ void xlat_arch_tlbi_va_sync(void)
 	isb();
 }
 
-int xlat_arch_current_el(void)
+unsigned int xlat_arch_current_el(void)
 {
 	/*
 	 * If EL3 is in AArch32 mode, all secure PL1 modes (Monitor, System,
@@ -100,7 +100,7 @@ int xlat_arch_current_el(void)
 	 * in AArch64 except for the XN bits, but we set and unset them at the
 	 * same time, so there's no difference in practice.
 	 */
-	return 1;
+	return 1U;
 }
 
 /*******************************************************************************
@@ -143,20 +143,23 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 	 * 32 bits.
 	 */
 	if (max_va != UINT32_MAX) {
-		uintptr_t virtual_addr_space_size = max_va + 1;
+		uintptr_t virtual_addr_space_size = max_va + 1U;
+
 		assert(CHECK_VIRT_ADDR_SPACE_SIZE(virtual_addr_space_size));
 		/*
 		 * __builtin_ctzll(0) is undefined but here we are guaranteed
 		 * that virtual_addr_space_size is in the range [1, UINT32_MAX].
 		 */
-		ttbcr |= 32 - __builtin_ctzll(virtual_addr_space_size);
+		int t0sz = 32 - __builtin_ctzll(virtual_addr_space_size);
+
+		ttbcr |= (uint32_t) t0sz;
 	}
 
 	/*
 	 * Set the cacheability and shareability attributes for memory
 	 * associated with translation table walks using TTBR0.
 	 */
-	if (flags & XLAT_TABLE_NC) {
+	if ((flags & XLAT_TABLE_NC) != 0U) {
 		/* Inner & outer non-cacheable non-shareable. */
 		ttbcr |= TTBCR_SH0_NON_SHAREABLE | TTBCR_RGN0_OUTER_NC |
 			TTBCR_RGN0_INNER_NC;

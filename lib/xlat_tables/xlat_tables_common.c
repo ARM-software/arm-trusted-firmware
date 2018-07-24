@@ -32,6 +32,7 @@
 #endif
 
 #define UNSET_DESC	~0ULL
+#define MT_UNKNOWN	~0U
 
 static uint64_t xlat_tables[MAX_XLAT_TABLES][XLAT_TABLE_ENTRIES]
 			__aligned(XLAT_TABLE_SIZE) __section("xlat_table");
@@ -55,7 +56,7 @@ void print_mmap(void)
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 	debug_print("mmap:\n");
 	mmap_region_t *mm = mmap;
-	while (mm->size) {
+	while (mm->size != 0U) {
 		debug_print(" VA:%p  PA:0x%llx  size:0x%zx  attr:0x%x\n",
 				(void *)mm->base_va, mm->base_pa,
 				mm->size, mm->attr);
@@ -69,46 +70,47 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 		     size_t size, unsigned int attr)
 {
 	mmap_region_t *mm = mmap;
-	mmap_region_t *mm_last = mm + ARRAY_SIZE(mmap) - 1;
-	unsigned long long end_pa = base_pa + size - 1;
-	uintptr_t end_va = base_va + size - 1;
+	const mmap_region_t *mm_last = mm + ARRAY_SIZE(mmap) - 1U;
+	unsigned long long end_pa = base_pa + size - 1U;
+	uintptr_t end_va = base_va + size - 1U;
 
 	assert(IS_PAGE_ALIGNED(base_pa));
 	assert(IS_PAGE_ALIGNED(base_va));
 	assert(IS_PAGE_ALIGNED(size));
 
-	if (!size)
+	if (size == 0U)
 		return;
 
 	assert(base_pa < end_pa); /* Check for overflows */
 	assert(base_va < end_va);
 
 	assert((base_va + (uintptr_t)size - (uintptr_t)1) <=
-					(PLAT_VIRT_ADDR_SPACE_SIZE - 1));
+					(PLAT_VIRT_ADDR_SPACE_SIZE - 1U));
 	assert((base_pa + (unsigned long long)size - 1ULL) <=
-					(PLAT_PHY_ADDR_SPACE_SIZE - 1));
+					(PLAT_PHY_ADDR_SPACE_SIZE - 1U));
 
 #if ENABLE_ASSERTIONS
 
 	/* Check for PAs and VAs overlaps with all other regions */
 	for (mm = mmap; mm->size; ++mm) {
 
-		uintptr_t mm_end_va = mm->base_va + mm->size - 1;
+		uintptr_t mm_end_va = mm->base_va + mm->size - 1U;
 
 		/*
 		 * Check if one of the regions is completely inside the other
 		 * one.
 		 */
 		int fully_overlapped_va =
-			((base_va >= mm->base_va) && (end_va <= mm_end_va)) ||
-			((mm->base_va >= base_va) && (mm_end_va <= end_va));
+			(((base_va >= mm->base_va) && (end_va <= mm_end_va)) ||
+			((mm->base_va >= base_va) && (mm_end_va <= end_va)))
+			? 1 : 0;
 
 		/*
 		 * Full VA overlaps are only allowed if both regions are
 		 * identity mapped (zero offset) or have the same VA to PA
 		 * offset. Also, make sure that it's not the exact same area.
 		 */
-		if (fully_overlapped_va) {
+		if (fully_overlapped_va == 1) {
 			assert((mm->base_va - mm->base_pa) ==
 			       (base_va - base_pa));
 			assert((base_va != mm->base_va) || (size != mm->size));
@@ -122,12 +124,12 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 			unsigned long long mm_end_pa =
 						     mm->base_pa + mm->size - 1;
 
-			int separated_pa =
-				(end_pa < mm->base_pa) || (base_pa > mm_end_pa);
-			int separated_va =
-				(end_va < mm->base_va) || (base_va > mm_end_va);
+			int separated_pa = ((end_pa < mm->base_pa) ||
+				(base_pa > mm_end_pa)) ? 1 : 0;
+			int separated_va = ((end_va < mm->base_va) ||
+				(base_va > mm_end_va)) ? 1 : 0;
 
-			assert(separated_va && separated_pa);
+			assert((separated_va == 1) && (separated_pa == 1));
 		}
 	}
 
@@ -136,7 +138,7 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 #endif /* ENABLE_ASSERTIONS */
 
 	/* Find correct place in mmap to insert new region */
-	while (mm->base_va < base_va && mm->size)
+	while ((mm->base_va < base_va) && (mm->size != 0U))
 		++mm;
 
 	/*
@@ -154,10 +156,10 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 		++mm;
 
 	/* Make room for new region by moving other regions up by one place */
-	memmove(mm + 1, mm, (uintptr_t)mm_last - (uintptr_t)mm);
+	(void)memmove(mm + 1, mm, (uintptr_t)mm_last - (uintptr_t)mm);
 
 	/* Check we haven't lost the empty sentinal from the end of the array */
-	assert(mm_last->size == 0);
+	assert(mm_last->size == 0U);
 
 	mm->base_pa = base_pa;
 	mm->base_va = base_va;
@@ -172,9 +174,12 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 
 void mmap_add(const mmap_region_t *mm)
 {
-	while (mm->size) {
-		mmap_add_region(mm->base_pa, mm->base_va, mm->size, mm->attr);
-		++mm;
+	const mmap_region_t *mm_cursor = mm;
+
+	while (mm_cursor->size != 0U) {
+		mmap_add_region(mm_cursor->base_pa, mm_cursor->base_va,
+				mm_cursor->size, mm_cursor->attr);
+		mm_cursor++;
 	}
 }
 
@@ -185,7 +190,7 @@ static uint64_t mmap_desc(unsigned int attr, unsigned long long addr_pa,
 	int mem_type;
 
 	/* Make sure that the granularity is fine enough to map this address. */
-	assert((addr_pa & XLAT_BLOCK_MASK(level)) == 0);
+	assert((addr_pa & XLAT_BLOCK_MASK(level)) == 0U);
 
 	desc = addr_pa;
 	/*
@@ -193,8 +198,8 @@ static uint64_t mmap_desc(unsigned int attr, unsigned long long addr_pa,
 	 * rest.
 	 */
 	desc |= (level == XLAT_TABLE_LEVEL_MAX) ? PAGE_DESC : BLOCK_DESC;
-	desc |= (attr & MT_NS) ? LOWER_ATTRS(NS) : 0;
-	desc |= (attr & MT_RW) ? LOWER_ATTRS(AP_RW) : LOWER_ATTRS(AP_RO);
+	desc |= ((attr & MT_NS) != 0U) ? LOWER_ATTRS(NS) : 0U;
+	desc |= ((attr & MT_RW) != 0U) ? LOWER_ATTRS(AP_RW) : LOWER_ATTRS(AP_RO);
 	/*
 	 * Always set the access flag, as this library assumes access flag
 	 * faults aren't managed.
@@ -239,7 +244,7 @@ static uint64_t mmap_desc(unsigned int attr, unsigned long long addr_pa,
 		 * For read-only memory, rely on the MT_EXECUTE/MT_EXECUTE_NEVER
 		 * attribute to figure out the value of the XN bit.
 		 */
-		if ((attr & MT_RW) || (attr & MT_EXECUTE_NEVER)) {
+		if (((attr & MT_RW) != 0U) || ((attr & MT_EXECUTE_NEVER) != 0U)) {
 			desc |= execute_never_mask;
 		}
 
@@ -253,9 +258,9 @@ static uint64_t mmap_desc(unsigned int attr, unsigned long long addr_pa,
 
 	debug_print((mem_type == MT_MEMORY) ? "MEM" :
 		((mem_type == MT_NON_CACHEABLE) ? "NC" : "DEV"));
-	debug_print(attr & MT_RW ? "-RW" : "-RO");
-	debug_print(attr & MT_NS ? "-NS" : "-S");
-	debug_print(attr & MT_EXECUTE_NEVER ? "-XN" : "-EXEC");
+	debug_print(((attr & MT_RW) != 0U) ? "-RW" : "-RO");
+	debug_print(((attr & MT_NS) != 0U) ? "-NS" : "-S");
+	debug_print(((attr & MT_EXECUTE_NEVER) != 0U) ? "-XN" : "-EXEC");
 	return desc;
 }
 
@@ -265,14 +270,14 @@ static uint64_t mmap_desc(unsigned int attr, unsigned long long addr_pa,
  *
  * On success, this function returns 0.
  * If there are partial overlaps (meaning that a smaller size is needed) or if
- * the region can't be found in the given area, it returns -1. In this case the
- * value pointed by attr should be ignored by the caller.
+ * the region can't be found in the given area, it returns MT_UNKNOWN. In this
+ * case the value pointed by attr should be ignored by the caller.
  */
-static int mmap_region_attr(mmap_region_t *mm, uintptr_t base_va,
-			    size_t size, unsigned int *attr)
+static unsigned int mmap_region_attr(const mmap_region_t *mm, uintptr_t base_va,
+				     size_t size, unsigned int *attr)
 {
 	/* Don't assume that the area is contained in the first region */
-	int ret = -1;
+	unsigned int ret = MT_UNKNOWN;
 
 	/*
 	 * Get attributes from last (innermost) region that contains the
@@ -289,26 +294,26 @@ static int mmap_region_attr(mmap_region_t *mm, uintptr_t base_va,
 	 * in region 2. The loop shouldn't stop at region 2 as inner regions
 	 * have priority over outer regions, it should stop at region 5.
 	 */
-	for (;; ++mm) {
+	for ( ; ; ++mm) {
 
-		if (!mm->size)
+		if (mm->size == 0U)
 			return ret; /* Reached end of list */
 
-		if (mm->base_va > base_va + size - 1)
+		if (mm->base_va > (base_va + size - 1U))
 			return ret; /* Next region is after area so end */
 
-		if (mm->base_va + mm->size - 1 < base_va)
+		if ((mm->base_va + mm->size - 1U) < base_va)
 			continue; /* Next region has already been overtaken */
 
-		if (!ret && mm->attr == *attr)
+		if ((ret == 0U) && (mm->attr == *attr))
 			continue; /* Region doesn't override attribs so skip */
 
-		if (mm->base_va > base_va ||
-			mm->base_va + mm->size - 1 < base_va + size - 1)
-			return -1; /* Region doesn't fully cover our area */
+		if ((mm->base_va > base_va) ||
+			((mm->base_va + mm->size - 1U) < (base_va + size - 1U)))
+			return MT_UNKNOWN; /* Region doesn't fully cover area */
 
 		*attr = mm->attr;
-		ret = 0;
+		ret = 0U;
 	}
 	return ret;
 }
@@ -318,7 +323,8 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 					uint64_t *table,
 					unsigned int level)
 {
-	assert(level >= XLAT_TABLE_LEVEL_MIN && level <= XLAT_TABLE_LEVEL_MAX);
+	assert((level >= XLAT_TABLE_LEVEL_MIN) &&
+	       (level <= XLAT_TABLE_LEVEL_MAX));
 
 	unsigned int level_size_shift =
 		       L0_XLAT_ADDRESS_SHIFT - level * XLAT_TABLE_ENTRIES_SHIFT;
@@ -331,10 +337,10 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 	do  {
 		uint64_t desc = UNSET_DESC;
 
-		if (!mm->size) {
+		if (mm->size == 0U) {
 			/* Done mapping regions; finish zeroing the table */
 			desc = INVALID_DESC;
-		} else if (mm->base_va + mm->size - 1 < base_va) {
+		} else if ((mm->base_va + mm->size - 1U) < base_va) {
 			/* This area is after the region so get next region */
 			++mm;
 			continue;
@@ -343,7 +349,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 		debug_print("%s VA:%p size:0x%llx ", get_level_spacer(level),
 			(void *)base_va, (unsigned long long)level_size);
 
-		if (mm->base_va > base_va + level_size - 1) {
+		if (mm->base_va > (base_va + level_size - 1U)) {
 			/* Next region is after this area. Nothing to map yet */
 			desc = INVALID_DESC;
 		/* Make sure that the current level allows block descriptors */
@@ -354,9 +360,10 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 			 * it will return the innermost region's attributes.
 			 */
 			unsigned int attr;
-			int r = mmap_region_attr(mm, base_va, level_size, &attr);
+			unsigned int r = mmap_region_attr(mm, base_va,
+							  level_size, &attr);
 
-			if (!r) {
+			if (r == 0U) {
 				desc = mmap_desc(attr,
 					base_va - mm->base_va + mm->base_pa,
 					level);
@@ -365,13 +372,15 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 
 		if (desc == UNSET_DESC) {
 			/* Area not covered by a region so need finer table */
-			uint64_t *new_table = xlat_tables[next_xlat++];
+			uint64_t *new_table = xlat_tables[next_xlat];
+
+			next_xlat++;
 			assert(next_xlat <= MAX_XLAT_TABLES);
 			desc = TABLE_DESC | (uintptr_t)new_table;
 
 			/* Recurse to fill in new table */
 			mm = init_xlation_table_inner(mm, base_va,
-						new_table, level+1);
+						new_table, level + 1U);
 		}
 
 		debug_print("\n");
@@ -379,7 +388,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 		*table++ = desc;
 		base_va += level_size;
 	} while ((base_va & level_index_mask) &&
-		 (base_va - 1 < PLAT_VIRT_ADDR_SPACE_SIZE - 1));
+		 ((base_va - 1U) < (PLAT_VIRT_ADDR_SPACE_SIZE - 1U)));
 
 	return mm;
 }
@@ -388,15 +397,15 @@ void init_xlation_table(uintptr_t base_va, uint64_t *table,
 			unsigned int level, uintptr_t *max_va,
 			unsigned long long *max_pa)
 {
-	int el = xlat_arch_current_el();
+	unsigned int el = xlat_arch_current_el();
 
 	execute_never_mask = xlat_arch_get_xn_desc(el);
 
-	if (el == 3) {
+	if (el == 3U) {
 		ap1_mask = LOWER_ATTRS(AP_ONE_VA_RANGE_RES1);
 	} else {
-		assert(el == 1);
-		ap1_mask = 0;
+		assert(el == 1U);
+		ap1_mask = 0ULL;
 	}
 
 	init_xlation_table_inner(mmap, base_va, table, level);
