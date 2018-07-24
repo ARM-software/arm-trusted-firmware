@@ -37,10 +37,12 @@ PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 PLAT_BL_COMMON_SOURCES	+=	lib/cpus/aarch32/cortex_a7.S
 
 PLAT_BL_COMMON_SOURCES	+=	${LIBFDT_SRCS}						\
+				drivers/arm/tzc/tzc400.c				\
 				drivers/delay_timer/delay_timer.c			\
 				drivers/delay_timer/generic_delay_timer.c		\
 				drivers/st/clk/stm32mp1_clk.c				\
 				drivers/st/clk/stm32mp1_clkfunc.c			\
+				drivers/st/ddr/stm32mp1_ddr_helpers.c			\
 				drivers/st/gpio/stm32_gpio.c				\
 				drivers/st/pmic/stm32_i2c.c				\
 				drivers/st/pmic/stm32mp1_pmic.c				\
@@ -48,12 +50,16 @@ PLAT_BL_COMMON_SOURCES	+=	${LIBFDT_SRCS}						\
 				drivers/st/reset/stm32mp1_reset.c			\
 				plat/st/stm32mp1/stm32mp1_context.c			\
 				plat/st/stm32mp1/stm32mp1_dt.c				\
-				plat/st/stm32mp1/stm32mp1_helper.S
+				plat/st/stm32mp1/stm32mp1_helper.S			\
+				plat/st/stm32mp1/stm32mp1_security.c
 
 BL2_SOURCES		+=	drivers/io/io_dummy.c					\
 				drivers/io/io_storage.c					\
 				plat/st/stm32mp1/bl2_io_storage.c			\
 				plat/st/stm32mp1/bl2_plat_setup.c
+
+BL2_SOURCES		+=	drivers/st/ddr/stm32mp1_ddr.c				\
+				drivers/st/ddr/stm32mp1_ram.c
 
 BL2_SOURCES		+=	common/desc_image_load.c				\
 				plat/st/stm32mp1/plat_bl2_mem_params_desc.c		\

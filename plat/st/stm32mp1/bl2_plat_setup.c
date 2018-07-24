@@ -22,6 +22,7 @@
 #include <stm32mp1_private.h>
 #include <stm32mp1_context.h>
 #include <stm32mp1_pwr.h>
+#include <stm32mp1_ram.h>
 #include <stm32mp1_rcc.h>
 #include <stm32mp1_reset.h>
 #include <string.h>
@@ -35,8 +36,16 @@ void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 
 void bl2_platform_setup(void)
 {
+	int ret;
+
 	if (dt_check_pmic()) {
 		initialize_pmic();
+	}
+
+	ret = stm32mp1_ddr_probe();
+	if (ret < 0) {
+		ERROR("Invalid DDR init: error %d\n", ret);
+		panic();
 	}
 
 	INFO("BL2 runs SP_MIN setup\n");
@@ -145,6 +154,8 @@ skip_console_init:
 	    0) {
 		ERROR("Cannot save boot interface\n");
 	}
+
+	stm32mp1_arch_security_setup();
 
 	stm32mp1_io_setup();
 }

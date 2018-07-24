@@ -36,10 +36,18 @@
 					MT_SECURE | \
 					MT_EXECUTE_NEVER)
 
+#define MAP_DDR		MAP_REGION_FLAT(STM32MP1_DDR_BASE, \
+					STM32MP1_DDR_MAX_SIZE, \
+					MT_MEMORY | \
+					MT_RW | \
+					MT_SECURE | \
+					MT_EXECUTE_NEVER)
+
 static const mmap_region_t stm32mp1_mmap[] = {
 	MAP_SRAM,
 	MAP_DEVICE1,
 	MAP_DEVICE2,
+	MAP_DDR,
 	{0}
 };
 

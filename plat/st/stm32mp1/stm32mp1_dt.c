@@ -11,7 +11,9 @@
 #include <stm32_gpio.h>
 #include <stm32mp1_clk.h>
 #include <stm32mp1_clkfunc.h>
+#include <stm32mp1_ddr.h>
 #include <stm32mp1_dt.h>
+#include <stm32mp1_ram.h>
 
 #define DT_GPIO_BANK_SHIFT	12
 #define DT_GPIO_BANK_MASK	0x1F000U
@@ -438,6 +440,24 @@ int dt_get_stdout_node_offset(void)
 	}
 
 	return node;
+}
+
+/*******************************************************************************
+ * This function gets DDR size information from the DT.
+ * Returns value in bytes if success, and STM32MP1_DDR_SIZE_DFLT else.
+ ******************************************************************************/
+uint32_t dt_get_ddr_size(void)
+{
+	int node;
+
+	node = fdt_node_offset_by_compatible(fdt, -1, DT_DDR_COMPAT);
+	if (node < 0) {
+		INFO("%s: Cannot read DDR node in DT\n", __func__);
+		return STM32MP1_DDR_SIZE_DFLT;
+	}
+
+	return fdt_read_uint32_default(node, "st,mem-size",
+				       STM32MP1_DDR_SIZE_DFLT);
 }
 
 /*******************************************************************************

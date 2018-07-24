@@ -35,6 +35,7 @@ void dt_fill_device_info(struct dt_node_info *info, int node);
 int dt_get_node(struct dt_node_info *info, int offset, const char *compat);
 int dt_get_stdout_uart_info(struct dt_node_info *info);
 int dt_get_stdout_node_offset(void);
+uint32_t dt_get_ddr_size(void);
 const char *dt_get_board_model(void);
 
 #endif /* __STM32MP1_DT_H__ */
