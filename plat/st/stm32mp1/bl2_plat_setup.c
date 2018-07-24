@@ -16,6 +16,8 @@
 #include <mmio.h>
 #include <platform.h>
 #include <platform_def.h>
+#include <stm32mp1_clk.h>
+#include <stm32mp1_dt.h>
 #include <stm32mp1_private.h>
 #include <stm32mp1_pwr.h>
 #include <stm32mp1_rcc.h>
@@ -75,6 +77,18 @@ void bl2_el3_plat_arch_setup(void)
 	configure_mmu();
 
 	generic_delay_timer_init();
+
+	if (dt_open_and_check() < 0) {
+		panic();
+	}
+
+	if (stm32mp1_clk_probe() < 0) {
+		panic();
+	}
+
+	if (stm32mp1_clk_init() < 0) {
+		panic();
+	}
 
 	stm32mp1_io_setup();
 }
