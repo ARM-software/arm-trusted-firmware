@@ -135,7 +135,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
 		TEGRA194_STATE_ID_MASK;
 
-	if ((stateid_afflvl0 == PSTATE_ID_CORE_POWERDN)) {
+	if (stateid_afflvl0 == PSTATE_ID_CORE_POWERDN) {
 
 		/* Enter CPU powerdown */
 		(void)mce_command_handler((uint64_t)MCE_CMD_ENTER_CSTATE,
