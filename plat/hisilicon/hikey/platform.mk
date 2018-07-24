@@ -134,6 +134,11 @@ AUTH_SOURCES		:=	drivers/auth/auth_mod.c			\
 				drivers/auth/img_parser_mod.c		\
 				drivers/auth/tbbr/tbbr_cot.c
 
+BL1_SOURCES		+=	${AUTH_SOURCES}				\
+				plat/common/tbbr/plat_tbbr.c		\
+				plat/hisilicon/hikey/hikey_tbbr.c	\
+				plat/hisilicon/hikey/hikey_rotpk.S
+
 BL2_SOURCES		+=	${AUTH_SOURCES}				\
 				plat/common/tbbr/plat_tbbr.c		\
 				plat/hisilicon/hikey/hikey_tbbr.c	\
@@ -143,6 +148,7 @@ ROT_KEY		=	$(BUILD_PLAT)/rot_key.pem
 ROTPK_HASH		=	$(BUILD_PLAT)/rotpk_sha256.bin
 
 $(eval $(call add_define_val,ROTPK_HASH,'"$(ROTPK_HASH)"'))
+$(BUILD_PLAT)/bl1/hikey_rotpk.o: $(ROTPK_HASH)
 $(BUILD_PLAT)/bl2/hikey_rotpk.o: $(ROTPK_HASH)
 
 certificates: $(ROT_KEY)
@@ -154,8 +160,6 @@ $(ROTPK_HASH): $(ROT_KEY)
 	@echo "  OPENSSL $@"
 	$(Q)openssl rsa -in $< -pubout -outform DER 2>/dev/null |\
 	openssl dgst -sha256 -binary > $@ 2>/dev/null
-
-override BL1_SOURCES	=
 endif
 
 # Enable workarounds for selected Cortex-A53 errata.
