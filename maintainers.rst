@@ -125,6 +125,16 @@ RockChip platform port
 :G: `rockchip-linux`_
 :F: plat/rockchip/
 
+STM32MP1 platform port
+----------------------
+:M: Yann Gautier <yann.gautier@st.com>
+:G: `Yann-lms`_
+:F: docs/plat/stm32mp1.rst
+:F: fdts/stm32\*
+:F: include/dt-bindings/\*/stm32\*
+:F: plat/st/
+:F: tools/stm32image/
+
 Synquacer platform port
 -----------------------
 :M: Sumit Garg <sumit.garg@linaro.org>
@@ -184,3 +194,4 @@ Xilinx platform port
 .. _soby-mathew: https://github.com/soby-mathew
 .. _TonyXie06: https://github.com/TonyXie06
 .. _vwadekar: https://github.com/vwadekar
+.. _Yann-lms: https://github.com/Yann-lms
