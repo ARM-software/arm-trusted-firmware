@@ -17,7 +17,8 @@ else
 endif
 
 # Platform
-PLAT_INCLUDES		:=	-Iinclude/common/tbbr			\
+PLAT_INCLUDES		:=	-Idrivers/nxp/uart			\
+				-Iinclude/common/tbbr			\
 				-Iinclude/plat/arm/common/		\
 				-Iplat/imx/common/			\
 				-Iplat/imx/imx7/warp7/include		\
@@ -31,6 +32,7 @@ BL2_SOURCES		+=	common/desc_image_load.c			\
 				drivers/io/io_fip.c				\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_storage.c				\
+				drivers/nxp/uart/mxc_console.c                  \
 				lib/aarch32/arm32_aeabi_divmod.c		\
 				lib/aarch32/arm32_aeabi_divmod_a32.S		\
 				lib/cpus/aarch32/cortex_a7.S			\
