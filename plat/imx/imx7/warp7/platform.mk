@@ -46,6 +46,7 @@ BL2_SOURCES		+=	common/desc_image_load.c			\
 				lib/cpus/aarch32/cortex_a7.S			\
 				lib/optee/optee_utils.c				\
 				plat/imx/common/aips.c				\
+				plat/imx/common/caam.c				\
 				plat/imx/common/clock.c				\
 				plat/imx/common/csu.c				\
 				plat/imx/common/io_mux.c			\
