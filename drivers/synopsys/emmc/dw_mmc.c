@@ -261,7 +261,10 @@ static int dw_send_cmd(emmc_cmd_t *cmd)
 		op |= CMD_RESP_EXPECT | CMD_CHECK_RESP_CRC |
 		      CMD_RESP_LEN;
 		break;
+	case EMMC_RESPONSE_R1:
+	case EMMC_RESPONSE_R1B:
 	case EMMC_RESPONSE_R3:
+	case EMMC_RESPONSE_R5:
 		op |= CMD_RESP_EXPECT;
 		break;
 	default:
