@@ -18,10 +18,6 @@
 #pragma weak plat_arm_psci_override_pm_ops
 #pragma weak plat_arm_program_trusted_mailbox
 
-#if ARM_RECOM_STATE_ID_ENC
-extern unsigned int arm_pm_idle_states[];
-#endif /* __ARM_RECOM_STATE_ID_ENC__ */
-
 #if !ARM_RECOM_STATE_ID_ENC
 /*******************************************************************************
  * ARM standard platform handler called to check the validity of the power state
