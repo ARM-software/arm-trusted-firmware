@@ -26,61 +26,34 @@
 
 /*
  * Set up the page tables for the generic and platform-specific memory regions.
- * The extents of the generic memory regions are specified by the function
- * arguments and consist of:
- * - Trusted SRAM seen by the BL image;
+ * The size of the Trusted SRAM seen by the BL image must be specified as well
+ * as an array specifying the generic memory regions which can be;
  * - Code section;
  * - Read-only data section;
  * - Coherent memory region, if applicable.
  */
-void arm_setup_page_tables(uintptr_t total_base,
-			   size_t total_size,
-			   uintptr_t code_start,
-			   uintptr_t code_limit,
-			   uintptr_t rodata_start,
-			   uintptr_t rodata_limit
-#if USE_COHERENT_MEM
-			   ,
-			   uintptr_t coh_start,
-			   uintptr_t coh_limit
-#endif
-			   )
+
+void arm_setup_page_tables(const mmap_region_t bl_regions[],
+			   const mmap_region_t plat_regions[])
 {
+#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
+	const mmap_region_t *regions = bl_regions;
+
+	while (regions->size != 0U) {
+		VERBOSE("Region: 0x%lx - 0x%lx has attributes 0x%x\n",
+				regions->base_va,
+				(regions->base_va + regions->size),
+				regions->attr);
+		regions++;
+	}
+#endif
 	/*
 	 * Map the Trusted SRAM with appropriate memory attributes.
 	 * Subsequent mappings will adjust the attributes for specific regions.
 	 */
-	VERBOSE("Trusted SRAM seen by this BL image: %p - %p\n",
-		(void *) total_base, (void *) (total_base + total_size));
-	mmap_add_region(total_base, total_base,
-			total_size,
-			MT_MEMORY | MT_RW | MT_SECURE);
-
-	/* Re-map the code section */
-	VERBOSE("Code region: %p - %p\n",
-		(void *) code_start, (void *) code_limit);
-	mmap_add_region(code_start, code_start,
-			code_limit - code_start,
-			MT_CODE | MT_SECURE);
-
-	/* Re-map the read-only data section */
-	VERBOSE("Read-only data region: %p - %p\n",
-		(void *) rodata_start, (void *) rodata_limit);
-	mmap_add_region(rodata_start, rodata_start,
-			rodata_limit - rodata_start,
-			MT_RO_DATA | MT_SECURE);
-
-#if USE_COHERENT_MEM
-	/* Re-map the coherent memory region */
-	VERBOSE("Coherent region: %p - %p\n",
-		(void *) coh_start, (void *) coh_limit);
-	mmap_add_region(coh_start, coh_start,
-			coh_limit - coh_start,
-			MT_DEVICE | MT_RW | MT_SECURE);
-#endif
-
+	mmap_add(bl_regions);
 	/* Now (re-)map the platform-specific memory regions */
-	mmap_add(plat_arm_get_mmap());
+	mmap_add(plat_regions);
 
 	/* Create the page tables to reflect the above mappings */
 	init_xlat_tables();

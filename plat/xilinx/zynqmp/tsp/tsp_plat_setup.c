@@ -44,14 +44,19 @@ void tsp_platform_setup(void)
  ******************************************************************************/
 void tsp_plat_arch_setup(void)
 {
-	arm_setup_page_tables(BL32_BASE,
-			      BL32_END - BL32_BASE,
-			      BL_CODE_BASE,
-			      BL_CODE_END,
-			      BL_RO_DATA_BASE,
-			      BL_RO_DATA_END,
-			      BL_COHERENT_RAM_BASE,
-			      BL_COHERENT_RAM_END
-			      );
+	const mmap_region_t bl_regions[] = {
+		MAP_REGION_FLAT(BL32_BASE, BL32_END - BL32_BASE,
+			MT_MEMORY | MT_RW | MT_SECURE),
+		MAP_REGION_FLAT(BL_CODE_BASE, BL_CODE_END - BL_CODE_BASE,
+			MT_CODE | MT_SECURE),
+		MAP_REGION_FLAT(BL_RO_DATA_BASE, BL_RO_DATA_END - BL_RO_DATA_BASE,
+			MT_RO_DATA | MT_SECURE),
+		MAP_REGION_FLAT(BL_COHERENT_RAM_BASE,
+			BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+		{0}
+	};
+
+	arm_setup_page_tables(bl_regions, plat_arm_get_mmap());
 	enable_mmu_el1(0);
 }

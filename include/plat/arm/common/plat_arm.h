@@ -69,17 +69,8 @@ typedef struct arm_tzc_regions_info {
 /*
  * Utility functions common to ARM standard platforms
  */
-void arm_setup_page_tables(uintptr_t total_base,
-			size_t total_size,
-			uintptr_t code_start,
-			uintptr_t code_limit,
-			uintptr_t rodata_start,
-			uintptr_t rodata_limit
-#if USE_COHERENT_MEM
-			, uintptr_t coh_start,
-			uintptr_t coh_limit
-#endif
-);
+void arm_setup_page_tables(const mmap_region_t bl_regions[],
+			   const mmap_region_t plat_regions[]);
 
 #if defined(IMAGE_BL31) || (defined(AARCH32) && defined(IMAGE_BL32))
 /*

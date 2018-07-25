@@ -35,6 +35,11 @@ CASSERT(BL2_BASE >= ARM_TB_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
 #pragma weak bl2_plat_arch_setup
 #pragma weak bl2_plat_sec_mem_layout
 
+#define MAP_BL2_TOTAL		MAP_REGION_FLAT(			\
+					bl2_tzram_layout.total_base,	\
+					bl2_tzram_layout.total_size,	\
+					MT_MEMORY | MT_RW | MT_SECURE)
+
 #if LOAD_IMAGE_V2
 
 #pragma weak bl2_plat_handle_post_image_load
@@ -232,17 +237,20 @@ void bl2_platform_setup(void)
  ******************************************************************************/
 void arm_bl2_plat_arch_setup(void)
 {
-	arm_setup_page_tables(bl2_tzram_layout.total_base,
-			      bl2_tzram_layout.total_size,
-			      BL_CODE_BASE,
-			      BL_CODE_END,
-			      BL_RO_DATA_BASE,
-			      BL_RO_DATA_END
+
 #if USE_COHERENT_MEM
-			      , BL_COHERENT_RAM_BASE,
-			      BL_COHERENT_RAM_END
+	/* Ensure ARM platforms dont use coherent memory in BL2 */
+	assert((BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE) == 0U);
 #endif
-			      );
+
+	const mmap_region_t bl_regions[] = {
+		MAP_BL2_TOTAL,
+		ARM_MAP_BL_CODE,
+		ARM_MAP_BL_RO_DATA,
+		{0}
+	};
+
+	arm_setup_page_tables(bl_regions, plat_arm_get_mmap());
 
 #ifdef AARCH32
 	enable_mmu_secure(0);
