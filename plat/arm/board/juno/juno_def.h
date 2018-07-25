@@ -1,12 +1,13 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __JUNO_DEF_H__
-#define __JUNO_DEF_H__
+#ifndef JUNO_DEF_H
+#define JUNO_DEF_H
 
+#include <utils_def.h>
 
 /*******************************************************************************
  * Juno memory map related constants
@@ -90,4 +91,4 @@
 #define PLAT_ARM_MEM_PROT_ADDR		(V2M_FLASH0_BASE + \
 					 V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
 
-#endif /* __JUNO_DEF_H__ */
+#endif /* JUNO_DEF_H */

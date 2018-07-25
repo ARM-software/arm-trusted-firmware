@@ -1,16 +1,16 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLATFORM_DEF_H__
-#define __PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
 
 #include <gic_common.h>
 #include <interrupt_props.h>
+#include <utils_def.h>
 #include "mt8173_def.h"
-
 
 /*******************************************************************************
  * Platform binary types for linking
@@ -37,9 +37,9 @@
 
 #define PLATFORM_MAX_AFFLVL		MPIDR_AFFLVL2
 #if !ENABLE_PLAT_COMPAT
-#define PLAT_MAX_PWR_LVL		2
-#define PLAT_MAX_RET_STATE		1
-#define PLAT_MAX_OFF_STATE		2
+#define PLAT_MAX_PWR_LVL		U(2)
+#define PLAT_MAX_RET_STATE		U(1)
+#define PLAT_MAX_OFF_STATE		U(2)
 #endif
 #define PLATFORM_SYSTEM_COUNT		1
 #define PLATFORM_CLUSTER_COUNT		2
@@ -137,4 +137,4 @@
 
 #define PLAT_ARM_G0_IRQ_PROPS(grp)
 
-#endif /* __PLATFORM_DEF_H__ */
+#endif /* PLATFORM_DEF_H */

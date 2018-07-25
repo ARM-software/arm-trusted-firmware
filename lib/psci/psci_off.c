@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,14 +40,15 @@ static void psci_set_power_off_state(psci_power_state_t *state_info)
  ******************************************************************************/
 int psci_do_cpu_off(unsigned int end_pwrlvl)
 {
-	int rc = PSCI_E_SUCCESS, idx = plat_my_core_pos();
+	int rc = PSCI_E_SUCCESS;
+	int idx = (int) plat_my_core_pos();
 	psci_power_state_t state_info;
 
 	/*
 	 * This function must only be called on platforms where the
 	 * CPU_OFF platform hooks have been implemented.
 	 */
-	assert(psci_plat_pm_ops->pwr_domain_off);
+	assert(psci_plat_pm_ops->pwr_domain_off != NULL);
 
 	/* Construct the psci_power_state for CPU_OFF */
 	psci_set_power_off_state(&state_info);
@@ -57,17 +58,16 @@ int psci_do_cpu_off(unsigned int end_pwrlvl)
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_pwr_domain_locks(end_pwrlvl,
-				      idx);
+	psci_acquire_pwr_domain_locks(end_pwrlvl, idx);
 
 	/*
 	 * Call the cpu off handler registered by the Secure Payload Dispatcher
 	 * to let it do any bookkeeping. Assume that the SPD always reports an
 	 * E_DENIED error if SP refuse to power down
 	 */
-	if (psci_spd_pm && psci_spd_pm->svc_off) {
+	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_off != NULL)) {
 		rc = psci_spd_pm->svc_off(0);
-		if (rc)
+		if (rc != 0)
 			goto exit;
 	}
 
@@ -120,8 +120,7 @@ exit:
 	 * Release the locks corresponding to each power level in the
 	 * reverse order to which they were acquired.
 	 */
-	psci_release_pwr_domain_locks(end_pwrlvl,
-				      idx);
+	psci_release_pwr_domain_locks(end_pwrlvl, idx);
 
 	/*
 	 * Check if all actions needed to safely power down this cpu have
@@ -154,7 +153,7 @@ exit:
 		    PMF_NO_CACHE_MAINT);
 #endif
 
-		if (psci_plat_pm_ops->pwr_domain_pwr_down_wfi) {
+		if (psci_plat_pm_ops->pwr_domain_pwr_down_wfi != NULL) {
 			/* This function must not return */
 			psci_plat_pm_ops->pwr_domain_pwr_down_wfi(&state_info);
 		} else {

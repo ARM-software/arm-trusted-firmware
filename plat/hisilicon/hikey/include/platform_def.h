@@ -4,14 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLATFORM_DEF_H__
-#define __PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
 
 #include <arch.h>
 #include <common_def.h>
 #include <hikey_def.h>
 #include <hikey_layout.h>		/* BL memory region sizes, etc */
 #include <tbbr_img_def.h>
+#include <utils_def.h>
 
 /* Special value used to verify platform parameters from BL2 to BL3-1 */
 #define HIKEY_BL31_PLAT_PARAM_VAL	0x0f1e2d3c4b5a6978ULL
@@ -34,8 +35,8 @@
 #define PLAT_NUM_PWR_DOMAINS		(PLATFORM_CORE_COUNT + \
 					 PLATFORM_CLUSTER_COUNT + 1)
 
-#define PLAT_MAX_RET_STATE		1
-#define PLAT_MAX_OFF_STATE		2
+#define PLAT_MAX_RET_STATE		U(1)
+#define PLAT_MAX_OFF_STATE		U(2)
 
 #define MAX_IO_DEVICES			3
 #define MAX_IO_HANDLES			4
@@ -79,4 +80,4 @@
 #define CACHE_WRITEBACK_SHIFT		6
 #define CACHE_WRITEBACK_GRANULE		(1 << CACHE_WRITEBACK_SHIFT)
 
-#endif /* __PLATFORM_DEF_H__ */
+#endif /* PLATFORM_DEF_H */

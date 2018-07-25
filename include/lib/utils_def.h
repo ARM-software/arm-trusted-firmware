@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __UTILS_DEF_H__
-#define __UTILS_DEF_H__
+#ifndef UTILS_DEF_H
+#define UTILS_DEF_H
 
 /* Compute the number of elements in the given array */
 #define ARRAY_SIZE(a)				\
@@ -88,31 +88,37 @@
  * Evaluates to 1 if (ptr + inc) overflows, 0 otherwise.
  * Both arguments must be unsigned pointer values (i.e. uintptr_t).
  */
-#define check_uptr_overflow(ptr, inc)		\
-	(((ptr) > UINTPTR_MAX - (inc)) ? 1 : 0)
+#define check_uptr_overflow(_ptr, _inc)		\
+	((_ptr) > (UINTPTR_MAX - (_inc)))
 
 /*
  * Evaluates to 1 if (u32 + inc) overflows, 0 otherwise.
  * Both arguments must be 32-bit unsigned integers (i.e. effectively uint32_t).
  */
-#define check_u32_overflow(u32, inc) \
-	((u32) > (UINT32_MAX - (inc)) ? 1 : 0)
+#define check_u32_overflow(_u32, _inc) \
+	((_u32) > (UINT32_MAX - (_inc)))
 
 /*
- * For those constants to be shared between C and other sources, apply a 'u'
- * or 'ull' suffix to the argument only in C, to avoid undefined or unintended
- * behaviour.
+ * For those constants to be shared between C and other sources, apply a 'U',
+ * 'UL', 'ULL', 'L' or 'LL' suffix to the argument only in C, to avoid
+ * undefined or unintended behaviour.
  *
- * The GNU assembler and linker do not support the 'u' and 'ull' suffix (it
- * causes the build process to fail) therefore the suffix is omitted when used
- * in linker scripts and assembler files.
+ * The GNU assembler and linker do not support these suffixes (it causes the
+ * build process to fail) therefore the suffix is omitted when used in linker
+ * scripts and assembler files.
 */
 #if defined(__LINKER__) || defined(__ASSEMBLY__)
-# define  U(_x)		(_x)
+# define   U(_x)	(_x)
+# define  UL(_x)	(_x)
 # define ULL(_x)	(_x)
+# define   L(_x)	(_x)
+# define  LL(_x)	(_x)
 #else
-# define  U(_x)		(_x##U)
+# define   U(_x)	(_x##U)
+# define  UL(_x)	(_x##UL)
 # define ULL(_x)	(_x##ULL)
+# define   L(_x)	(_x##L)
+# define  LL(_x)	(_x##LL)
 #endif
 
 /* Register size of the current architecture. */
@@ -147,4 +153,4 @@
 #define ASSERT_SYM_PTR_ALIGN(sym) assert(((size_t)(sym) % __alignof__(*(sym))) == 0)
 
 
-#endif /* __UTILS_DEF_H__ */
+#endif /* UTILS_DEF_H */

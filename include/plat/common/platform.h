@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLATFORM_H__
-#define __PLATFORM_H__
+#ifndef PLATFORM_H
+#define PLATFORM_H
 
 #include <psci.h>
 #include <stdint.h>
@@ -401,5 +401,4 @@ unsigned int platform_get_core_pos(unsigned long mpidr) __deprecated;
 
 #endif /* __ENABLE_PLAT_COMPAT__ */
 
-#endif /* __PLATFORM_H__ */
-
+#endif /* PLATFORM_H */

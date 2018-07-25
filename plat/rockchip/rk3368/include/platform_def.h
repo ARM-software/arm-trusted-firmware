@@ -1,15 +1,16 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLATFORM_DEF_H__
-#define __PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
 
 #include <arch.h>
 #include <common_def.h>
 #include <rk3368_def.h>
+#include <utils_def.h>
 
 #define DEBUG_XLAT_TABLE 0
 
@@ -58,13 +59,13 @@
  * This macro defines the deepest retention state possible. A higher state
  * id will represent an invalid or a power down state.
  */
-#define PLAT_MAX_RET_STATE		1
+#define PLAT_MAX_RET_STATE		U(1)
 
 /*
  * This macro defines the deepest power down states possible. Any state ID
  * higher than this is invalid.
  */
-#define PLAT_MAX_OFF_STATE		2
+#define PLAT_MAX_OFF_STATE		U(2)
 
 /*******************************************************************************
  * Platform memory map related constants
@@ -125,4 +126,4 @@
 #define PSRAM_DO_DDR_RESUME	0
 #define PSRAM_CHECK_WAKEUP_CPU	0
 
-#endif /* __PLATFORM_DEF_H__ */
+#endif /* PLATFORM_DEF_H */

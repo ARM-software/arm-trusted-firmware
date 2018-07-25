@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PSCI_H__
-#define __PSCI_H__
+#ifndef PSCI_H
+#define PSCI_H
 
 #include <bakery_lock.h>
 #include <bl_common.h>
@@ -22,14 +22,14 @@
 #ifdef PLAT_NUM_PWR_DOMAINS
 #define PSCI_NUM_PWR_DOMAINS	PLAT_NUM_PWR_DOMAINS
 #else
-#define PSCI_NUM_PWR_DOMAINS	(U(2) * PLATFORM_CORE_COUNT)
+#define PSCI_NUM_PWR_DOMAINS	(2 * PLATFORM_CORE_COUNT)
 #endif
 
 #define PSCI_NUM_NON_CPU_PWR_DOMAINS	(PSCI_NUM_PWR_DOMAINS - \
 					 PLATFORM_CORE_COUNT)
 
 /* This is the power level corresponding to a CPU */
-#define PSCI_CPU_PWR_LVL	(0)
+#define PSCI_CPU_PWR_LVL	U(0)
 
 /*
  * The maximum power level supported by PSCI. Since PSCI CPU_SUSPEND
@@ -71,9 +71,6 @@
 #define PSCI_MEM_CHK_RANGE_AARCH32	U(0x84000014)
 #define PSCI_MEM_CHK_RANGE_AARCH64	U(0xc4000014)
 
-/* Macro to help build the psci capabilities bitfield */
-#define define_psci_cap(x)		(U(1) << (x & U(0x1f)))
-
 /*
  * Number of PSCI calls (above) implemented
  */
@@ -92,9 +89,9 @@
 /*******************************************************************************
  * PSCI Migrate and friends
  ******************************************************************************/
-#define PSCI_TOS_UP_MIG_CAP	U(0)
-#define PSCI_TOS_NOT_UP_MIG_CAP	U(1)
-#define PSCI_TOS_NOT_PRESENT_MP	U(2)
+#define PSCI_TOS_UP_MIG_CAP	0
+#define PSCI_TOS_NOT_UP_MIG_CAP	1
+#define PSCI_TOS_NOT_PRESENT_MP	2
 
 /*******************************************************************************
  * PSCI CPU_SUSPEND 'power_state' parameter specific defines
@@ -123,12 +120,6 @@
 #define PSTATE_TYPE_STANDBY	U(0x0)
 #define PSTATE_TYPE_POWERDOWN	U(0x1)
 #define PSTATE_TYPE_MASK	U(0x1)
-
-#define psci_get_pstate_id(pstate)	(((pstate) >> PSTATE_ID_SHIFT) & \
-					PSTATE_ID_MASK)
-#define psci_get_pstate_type(pstate)	(((pstate) >> PSTATE_TYPE_SHIFT) & \
-					PSTATE_TYPE_MASK)
-#define psci_check_power_state(pstate)	((pstate) & PSTATE_VALID_MASK)
 
 /*******************************************************************************
  * PSCI CPU_FEATURES feature flag specific defines
@@ -172,15 +163,40 @@
 /*
  * SYSTEM_RESET2 macros
  */
-#define PSCI_RESET2_TYPE_VENDOR_SHIFT	31
-#define PSCI_RESET2_TYPE_VENDOR		(1U << PSCI_RESET2_TYPE_VENDOR_SHIFT)
-#define PSCI_RESET2_TYPE_ARCH		(0U << PSCI_RESET2_TYPE_VENDOR_SHIFT)
-#define PSCI_RESET2_SYSTEM_WARM_RESET	(PSCI_RESET2_TYPE_ARCH | 0)
+#define PSCI_RESET2_TYPE_VENDOR_SHIFT	U(31)
+#define PSCI_RESET2_TYPE_VENDOR		(U(1) << PSCI_RESET2_TYPE_VENDOR_SHIFT)
+#define PSCI_RESET2_TYPE_ARCH		(U(0) << PSCI_RESET2_TYPE_VENDOR_SHIFT)
+#define PSCI_RESET2_SYSTEM_WARM_RESET	(PSCI_RESET2_TYPE_ARCH | U(0))
 
 #ifndef __ASSEMBLY__
 
 #include <stdint.h>
 #include <types.h>
+
+/* Function to help build the psci capabilities bitfield */
+
+static inline unsigned int define_psci_cap(unsigned int x)
+{
+	return U(1) << (x & U(0x1f));
+}
+
+
+/* Power state helper functions */
+
+static inline unsigned int psci_get_pstate_id(unsigned int power_state)
+{
+	return ((power_state) >> PSTATE_ID_SHIFT) & PSTATE_ID_MASK;
+}
+
+static inline unsigned int psci_get_pstate_type(unsigned int power_state)
+{
+	return ((power_state) >> PSTATE_TYPE_SHIFT) & PSTATE_TYPE_MASK;
+}
+
+static inline unsigned int psci_check_power_state(unsigned int power_state)
+{
+	return ((power_state) & PSTATE_VALID_MASK);
+}
 
 /*
  * These are the states reported by the PSCI_AFFINITY_INFO API for the specified
@@ -198,11 +214,9 @@ typedef enum {
  * specified CPU. The definitions of these states can be found in Section 5.15.3
  * of PSCI specification (ARM DEN 0022C).
  */
-typedef enum {
-	HW_ON = U(0),
-	HW_OFF = U(1),
-	HW_STANDBY = U(2)
-} node_hw_state_t;
+#define HW_ON		0
+#define HW_OFF		1
+#define HW_STANDBY	2
 
 /*
  * Macro to represent invalid affinity level within PSCI.
@@ -215,27 +229,33 @@ typedef enum {
 typedef uint8_t plat_local_state_t;
 
 /* The local state macro used to represent RUN state. */
-#define PSCI_LOCAL_STATE_RUN  	U(0)
+#define PSCI_LOCAL_STATE_RUN	U(0)
 
 /*
- * Macro to test whether the plat_local_state is RUN state
+ * Function to test whether the plat_local_state is RUN state
  */
-#define is_local_state_run(plat_local_state) \
-			((plat_local_state) == PSCI_LOCAL_STATE_RUN)
+static inline int is_local_state_run(unsigned int plat_local_state)
+{
+	return (plat_local_state == PSCI_LOCAL_STATE_RUN) ? 1 : 0;
+}
 
 /*
- * Macro to test whether the plat_local_state is RETENTION state
+ * Function to test whether the plat_local_state is RETENTION state
  */
-#define is_local_state_retn(plat_local_state) \
-			(((plat_local_state) > PSCI_LOCAL_STATE_RUN) && \
-			((plat_local_state) <= PLAT_MAX_RET_STATE))
+static inline int is_local_state_retn(unsigned int plat_local_state)
+{
+	return ((plat_local_state > PSCI_LOCAL_STATE_RUN) &&
+		(plat_local_state <= PLAT_MAX_RET_STATE)) ? 1 : 0;
+}
 
 /*
- * Macro to test whether the plat_local_state is OFF state
+ * Function to test whether the plat_local_state is OFF state
  */
-#define is_local_state_off(plat_local_state) \
-			(((plat_local_state) > PLAT_MAX_RET_STATE) && \
-			((plat_local_state) <= PLAT_MAX_OFF_STATE))
+static inline int is_local_state_off(unsigned int plat_local_state)
+{
+	return ((plat_local_state > PLAT_MAX_RET_STATE) &&
+		(plat_local_state <= PLAT_MAX_OFF_STATE)) ? 1 : 0;
+}
 
 /*****************************************************************************
  * This data structure defines the representation of the power state parameter
@@ -266,7 +286,7 @@ typedef struct psci_cpu_data {
 	 * Highest power level which takes part in a power management
 	 * operation.
 	 */
-	unsigned char target_pwrlvl;
+	unsigned int target_pwrlvl;
 
 	/* The local power state of this CPU */
 	plat_local_state_t local_state;
@@ -324,7 +344,7 @@ int psci_affinity_info(u_register_t target_affinity,
 		       unsigned int lowest_affinity_level);
 int psci_migrate(u_register_t target_cpu);
 int psci_migrate_info_type(void);
-long psci_migrate_info_up_cpu(void);
+u_register_t psci_migrate_info_up_cpu(void);
 int psci_node_hw_state(u_register_t target_cpu,
 		       unsigned int power_level);
 int psci_features(unsigned int psci_fid);
@@ -339,4 +359,4 @@ void psci_entrypoint(void) __deprecated;
 
 #endif /*__ASSEMBLY__*/
 
-#endif /* __PSCI_H__ */
+#endif /* PSCI_H */

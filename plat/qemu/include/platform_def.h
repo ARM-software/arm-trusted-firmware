@@ -1,15 +1,16 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLATFORM_DEF_H__
-#define __PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
 
 #include <arch.h>
 #include <common_def.h>
 #include <tbbr_img_def.h>
+#include <utils_def.h>
 
 /* Special value used to verify platform parameters from BL2 to BL3-1 */
 #define QEMU_BL31_PLAT_PARAM_VAL	0x0f1e2d3c4b5a6978ULL
@@ -36,13 +37,13 @@
 					PLATFORM_CORE_COUNT)
 #define PLAT_MAX_PWR_LVL		MPIDR_AFFLVL1
 
-#define PLAT_MAX_RET_STATE		1
-#define PLAT_MAX_OFF_STATE		2
+#define PLAT_MAX_RET_STATE		U(1)
+#define PLAT_MAX_OFF_STATE		U(2)
 
 /* Local power state for power domains in Run state. */
-#define PLAT_LOCAL_STATE_RUN		0
+#define PLAT_LOCAL_STATE_RUN		U(0)
 /* Local power state for retention. Valid only for CPU power domains */
-#define PLAT_LOCAL_STATE_RET		1
+#define PLAT_LOCAL_STATE_RET		U(1)
 /*
  * Local power state for OFF/power-down. Valid for CPU and cluster power
  * domains.
@@ -229,4 +230,4 @@
  */
 #define SYS_COUNTER_FREQ_IN_TICKS	((1000 * 1000 * 1000) / 16)
 
-#endif /* __PLATFORM_DEF_H__ */
+#endif /* PLATFORM_DEF_H */

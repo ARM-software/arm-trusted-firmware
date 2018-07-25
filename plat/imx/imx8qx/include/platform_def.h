@@ -4,8 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLATFORM_DEF_H__
-#define __PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
+
+#include <utils_def.h>
 
 #define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
 #define PLATFORM_LINKER_ARCH		aarch64
@@ -20,10 +22,10 @@
 #define PLATFORM_CLUSTER0_CORE_COUNT	4
 #define PLATFORM_CLUSTER1_CORE_COUNT	0
 
-#define PWR_DOMAIN_AT_MAX_LVL           1
-#define PLAT_MAX_PWR_LVL                2
-#define PLAT_MAX_OFF_STATE              2
-#define PLAT_MAX_RET_STATE              1
+#define PWR_DOMAIN_AT_MAX_LVL           U(1)
+#define PLAT_MAX_PWR_LVL                U(2)
+#define PLAT_MAX_OFF_STATE              U(2)
+#define PLAT_MAX_RET_STATE              U(1)
 
 #define BL31_BASE			0x80000000
 #define BL31_LIMIT			0x80020000
@@ -57,4 +59,4 @@
 #define DEBUG_CONSOLE_A35		0
 #define PLAT_IMX8QX			1
 
-#endif /* __PLATFORM_DEF_H__ */
+#endif /* PLATFORM_DEF_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLATFORM_DEF_H__
-#define __PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
 
 #include <arm_def.h>
 #include <board_arm_def.h>
@@ -13,6 +13,7 @@
 #include <common_def.h>
 #include <css_def.h>
 #include <soc_css_def.h>
+#include <utils_def.h>
 
 #define CSS_SGI_MAX_CPUS_PER_CLUSTER	4
 
@@ -57,7 +58,7 @@
 #define PLAT_ARM_NSRAM_BASE		0x06000000
 #define PLAT_ARM_NSRAM_SIZE		0x00080000	/* 512KB */
 
-#define PLAT_MAX_PWR_LVL		1
+#define PLAT_MAX_PWR_LVL		U(1)
 
 #define PLAT_ARM_G1S_IRQS		ARM_G1S_IRQS,			\
 					CSS_IRQ_MHU
@@ -108,4 +109,4 @@
 					 V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
 
 
-#endif /* __PLATFORM_DEF_H__ */
+#endif /* PLATFORM_DEF_H */

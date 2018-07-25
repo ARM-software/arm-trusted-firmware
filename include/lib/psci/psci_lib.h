@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PSCI_LIB_H__
-#define __PSCI_LIB_H__
+#ifndef PSCI_LIB_H
+#define PSCI_LIB_H
 
 #include <ep_info.h>
 
@@ -20,9 +20,9 @@
  ******************************************************************************/
 typedef struct spd_pm_ops {
 	void (*svc_on)(u_register_t target_cpu);
-	int32_t (*svc_off)(u_register_t __unused);
+	int32_t (*svc_off)(u_register_t __unused unused);
 	void (*svc_suspend)(u_register_t max_off_pwrlvl);
-	void (*svc_on_finish)(u_register_t __unused);
+	void (*svc_on_finish)(u_register_t __unused unused);
 	void (*svc_suspend_finish)(u_register_t max_off_pwrlvl);
 	int32_t (*svc_migrate)(u_register_t from_cpu, u_register_t to_cpu);
 	int32_t (*svc_migrate_info)(u_register_t *resident_cpu);
@@ -58,17 +58,17 @@ typedef struct psci_lib_args {
 		.h.type = (uint8_t)PARAM_PSCI_LIB_ARGS,		\
 		.h.version = (uint8_t)VERSION_1,		\
 		.h.size = (uint16_t)sizeof(_name),		\
-		.h.attr = 0,					\
+		.h.attr = 0U,					\
 		.mailbox_ep = (_entry)				\
 	}
 
 /* Helper macro to verify the pointer to psci_lib_args_t structure */
-#define VERIFY_PSCI_LIB_ARGS_V1(_p)	((_p)			\
+#define VERIFY_PSCI_LIB_ARGS_V1(_p)	(((_p) != NULL)		\
 		&& ((_p)->h.type == PARAM_PSCI_LIB_ARGS)	\
 		&& ((_p)->h.version == VERSION_1)		\
 		&& ((_p)->h.size == sizeof(*(_p)))		\
 		&& ((_p)->h.attr == 0)				\
-		&& ((_p)->mailbox_ep))
+		&& ((_p)->mailbox_ep != NULL))
 
 /******************************************************************************
  * PSCI Library Interfaces
@@ -89,5 +89,4 @@ void psci_prepare_next_non_secure_ctx(
 			  entry_point_info_t *next_image_info);
 #endif /* __ASSEMBLY__ */
 
-#endif /* __PSCI_LIB_H */
-
+#endif /* PSCI_LIB_H */
