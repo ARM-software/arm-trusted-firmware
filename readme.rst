@@ -33,15 +33,24 @@ license text is included in those source files.
 -  The stdlib source code is derived from FreeBSD code, which uses various
    BSD licenses, including BSD-3-Clause and BSD-2-Clause.
 
--  The libfdt source code is dual licensed. It is used by this project under
-   the terms of the BSD-2-Clause license.
+-  The libfdt source code is disjunctively dual licensed
+   (GPL-2.0+ OR BSD-2-Clause). It is used by this project under the terms of
+   the BSD-2-Clause license. Any contributions to this code must be made under
+   the terms of both licenses.
 
--  The LLVM compiler-rt source code is dual licensed. It is used by this
-   project under the terms of the NCSA license (also known as the University of
-   Illinois/NCSA Open Source License).
+-  The LLVM compiler-rt source code is disjunctively dual licensed
+   (NCSA OR MIT). It is used by this project under the terms of the NCSA
+   license (also known as the University of Illinois/NCSA Open Source License),
+   which is a permissive license compatible with BSD-3-Clause. Any
+   contributions to this code must be made under the terms of both licenses.
 
 -  The zlib source code is licensed under the Zlib license, which is a
    permissive license compatible with BSD-3-Clause.
+
+-  Some STMicroelectronics platform source code is disjunctively dual licensed
+   (GPL-2.0+ OR BSD-3-Clause). It is used by this project under the terms of the
+   BSD-3-Clause license. Any contributions to this code must be made under the
+   terms of both licenses.
 
 This release
 ------------
