@@ -221,9 +221,10 @@ void gicv2_driver_init(const gicv2_driver_data_t *plat_driver_data)
 	 * enabled. When the secondary CPU boots up, it initializes the
 	 * GICC/GICR interface with the caches disabled. Hence flush the
 	 * driver_data to ensure coherency. This is not required if the
-	 * platform has HW_ASSISTED_COHERENCY enabled.
+	 * platform has HW_ASSISTED_COHERENCY or WARMBOOT_ENABLE_DCACHE_EARLY
+	 * enabled.
 	 */
-#if !HW_ASSISTED_COHERENCY
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
 	flush_dcache_range((uintptr_t) &driver_data, sizeof(driver_data));
 	flush_dcache_range((uintptr_t) driver_data, sizeof(*driver_data));
 #endif
@@ -360,7 +361,7 @@ void gicv2_set_pe_target_mask(unsigned int proc_num)
 	if (driver_data->target_masks[proc_num] == 0) {
 		driver_data->target_masks[proc_num] =
 			gicv2_get_cpuif_id(driver_data->gicd_base);
-#if !HW_ASSISTED_COHERENCY
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
 		/*
 		 * PEs only update their own masks. Primary updates it with
 		 * caches on. But because secondaries does it with caches off,
