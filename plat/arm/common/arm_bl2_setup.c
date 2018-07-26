@@ -42,7 +42,7 @@ CASSERT(BL2_BASE >= ARM_TB_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
 
 #if LOAD_IMAGE_V2
 
-#pragma weak bl2_plat_handle_post_image_load
+#pragma weak arm_bl2_plat_handle_post_image_load
 
 #else /* LOAD_IMAGE_V2 */
 
@@ -323,9 +323,14 @@ int arm_bl2_handle_post_image_load(unsigned int image_id)
  * This function can be used by the platforms to update/use image
  * information for given `image_id`.
  ******************************************************************************/
-int bl2_plat_handle_post_image_load(unsigned int image_id)
+int arm_bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	return arm_bl2_handle_post_image_load(image_id);
+}
+
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	return arm_bl2_plat_handle_post_image_load(image_id);
 }
 
 #else /* LOAD_IMAGE_V2 */
