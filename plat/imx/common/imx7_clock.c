@@ -14,6 +14,14 @@ static void imx7_clock_uart_init(void)
 		imx_clock_disable_uart(i);
 }
 
+static void imx7_clock_wdog_init(void)
+{
+	unsigned int i;
+
+	for (i = 0; i < MXC_MAX_WDOG_NUM; i++)
+		imx_clock_disable_wdog(i);
+}
+
 void imx_clock_init(void)
 {
 	/*
@@ -30,4 +38,7 @@ void imx_clock_init(void)
 
 	/* Initialize UART clocks */
 	imx7_clock_uart_init();
+
+	/* Watchdog clocks */
+	imx7_clock_wdog_init();
 }
