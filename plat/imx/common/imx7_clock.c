@@ -22,6 +22,12 @@ static void imx7_clock_wdog_init(void)
 		imx_clock_disable_wdog(i);
 }
 
+static void imx7_clock_usb_init(void)
+{
+	/* Disable the clock root */
+	imx_clock_target_clr(CCM_TRT_ID_USB_HSIC_CLK_ROOT, 0xFFFFFFFF);
+}
+
 void imx_clock_init(void)
 {
 	/*
@@ -40,5 +46,10 @@ void imx_clock_init(void)
 	imx7_clock_uart_init();
 
 	/* Watchdog clocks */
+
 	imx7_clock_wdog_init();
+
+	/* USB clocks */
+	imx7_clock_usb_init();
+
 }
