@@ -32,6 +32,7 @@ void hikey960_regulator_enable(void);
 void hikey960_tzc_init(void);
 void hikey960_peri_init(void);
 void hikey960_pinmux_init(void);
+void hikey960_gpio_init(void);
 void set_retention_ticks(unsigned int val);
 void clr_retention_ticks(unsigned int val);
 void clr_ex(void);
