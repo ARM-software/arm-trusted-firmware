@@ -7,7 +7,6 @@
 #define __ARM_SPM_DEF_H__
 
 #include <arm_def.h>
-#include <platform_def.h>
 #include <utils_def.h>
 #include <xlat_tables_defs.h>
 
@@ -73,12 +72,11 @@
 
 /*
  * RW memory, which uses the remaining Trusted DRAM. Placed after the memory
- * shared between Secure and Non-secure worlds. First there is the stack memory
- * for all CPUs and then there is the common heap memory. Both are mapped with
- * RW permissions.
+ * shared between Secure and Non-secure worlds, or after the platform specific
+ * buffers, if defined. First there is the stack memory for all CPUs and then
+ * there is the common heap memory. Both are mapped with RW permissions.
  */
-#define PLAT_SP_IMAGE_STACK_BASE	(ARM_SP_IMAGE_NS_BUF_BASE +		\
-						ARM_SP_IMAGE_NS_BUF_SIZE)
+#define PLAT_SP_IMAGE_STACK_BASE	PLAT_ARM_SP_IMAGE_STACK_BASE
 #define PLAT_SP_IMAGE_STACK_PCPU_SIZE	ULL(0x2000)
 #define ARM_SP_IMAGE_STACK_TOTAL_SIZE	(PLATFORM_CORE_COUNT *			\
 					 PLAT_SP_IMAGE_STACK_PCPU_SIZE)

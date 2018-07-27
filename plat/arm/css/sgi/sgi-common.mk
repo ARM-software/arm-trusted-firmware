@@ -8,6 +8,16 @@ ENABLE_PLAT_COMPAT		:=	0
 
 CSS_ENT_BASE			:=	plat/arm/css/sgi
 
+RAS_EXTENSION			:=	0
+
+ENABLE_SPM			:=	0
+
+SDEI_SUPPORT			:=	0
+
+EL3_EXCEPTION_HANDLING		:=	0
+
+HANDLE_EA_EL3_FIRST		:=	0
+
 INTERCONNECT_SOURCES	:=	${CSS_ENT_BASE}/sgi_interconnect.c
 
 PLAT_INCLUDES		+=	-I${CSS_ENT_BASE}/include
@@ -39,6 +49,10 @@ BL31_SOURCES		+=	${ENT_CPU_SOURCES}			\
 				${CSS_ENT_BASE}/sgi_bl31_setup.c	\
 				${CSS_ENT_BASE}/sgi_topology.c	\
 				${CSS_ENT_BASE}/sgi_plat_config.c
+
+ifeq (${RAS_EXTENSION},1)
+BL31_SOURCES		+=	${CSS_ENT_BASE}/sgi_ras.c
+endif
 
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES		+=	${CSS_ENT_BASE}/fdts/${PLAT}_tb_fw_config.dts
