@@ -14,6 +14,14 @@ static void clock_uart_init(void)
 		clock_disable_uart(i);
 }
 
+static void clock_wdog_init(void)
+{
+	unsigned int i;
+
+	for (i = 0; i < MXC_MAX_WDOG_NUM; i++)
+		clock_disable_wdog(i);
+}
+
 void clock_init(void)
 {
 	/*
@@ -30,4 +38,8 @@ void clock_init(void)
 
 	/* Initialize UART clocks */
 	clock_uart_init();
+
+	/* Watchdog clocks */
+	clock_wdog_init();
+
 }
