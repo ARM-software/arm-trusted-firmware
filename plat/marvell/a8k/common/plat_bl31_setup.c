@@ -5,7 +5,7 @@
  * https://spdx.org/licenses
  */
 
-#include <a8k_common.h>
+#include <armada_common.h>
 #include <ap_setup.h>
 #include <cp110_setup.h>
 #include <debug.h>

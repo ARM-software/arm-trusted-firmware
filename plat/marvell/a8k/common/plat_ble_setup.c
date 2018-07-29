@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#include <a8k_common.h>
 #include <ap_setup.h>
+#include <armada_common.h>
 #include <aro.h>
 #include <ccu.h>
 #include <cp110_setup.h>

@@ -5,7 +5,7 @@
  * https://spdx.org/licenses
  */
 
-#include <a8k_common.h>
+#include <armada_common.h>
 #include <assert.h>
 #include <bakery_lock.h>
 #include <debug.h>

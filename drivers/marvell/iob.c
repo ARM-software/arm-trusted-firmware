@@ -7,7 +7,7 @@
 
 /* IOW unit device driver for Marvell CP110 and CP115 SoCs */
 
-#include <a8k_common.h>
+#include <armada_common.h>
 #include <arch_helpers.h>
 #include <debug.h>
 #include <iob.h>

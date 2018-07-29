@@ -5,9 +5,10 @@
  * https://spdx.org/licenses
  */
 
-#include <a8k_common.h>
+#include <armada_common.h>
 #include <delay_timer.h>
 #include <mmio.h>
+
 /*
  * If bootrom is currently at BLE there's no need to include the memory
  * maps structure at this point

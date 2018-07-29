@@ -7,7 +7,7 @@
 
 /* IO Window unit device driver for Marvell AP807, AP807 and AP810 SoCs */
 
-#include <a8k_common.h>
+#include <armada_common.h>
 #include <debug.h>
 #include <io_win.h>
 #include <mmio.h>

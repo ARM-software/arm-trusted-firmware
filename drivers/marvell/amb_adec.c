@@ -7,7 +7,7 @@
 
 /* AXI to M-Bridge decoding unit driver for Marvell Armada 8K and 8K+ SoCs */
 
-#include <a8k_common.h>
+#include <armada_common.h>
 #include <debug.h>
 #include <mmio.h>
 #include <mvebu.h>
