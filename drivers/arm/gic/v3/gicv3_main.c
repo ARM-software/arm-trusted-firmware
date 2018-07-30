@@ -147,9 +147,10 @@ void gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 	 * enabled. When the secondary CPU boots up, it initializes the
 	 * GICC/GICR interface with the caches disabled. Hence flush the
 	 * driver data to ensure coherency. This is not required if the
-	 * platform has HW_ASSISTED_COHERENCY enabled.
+	 * platform has HW_ASSISTED_COHERENCY or WARMBOOT_ENABLE_DCACHE_EARLY
+	 * enabled.
 	 */
-#if !HW_ASSISTED_COHERENCY
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
 	flush_dcache_range((uintptr_t) &gicv3_driver_data,
 			sizeof(gicv3_driver_data));
 	flush_dcache_range((uintptr_t) gicv3_driver_data,
