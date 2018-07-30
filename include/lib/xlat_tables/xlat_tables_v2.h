@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __XLAT_TABLES_V2_H__
-#define __XLAT_TABLES_V2_H__
+#ifndef XLAT_TABLES_V2_H
+#define XLAT_TABLES_V2_H
 
 #include <xlat_tables_defs.h>
 #include <xlat_tables_v2_helpers.h>
@@ -27,7 +27,7 @@
 
 /* Helper macro to define an mmap_region_t. */
 #define MAP_REGION(_pa, _va, _sz, _attr)	\
-	_MAP_REGION_FULL_SPEC(_pa, _va, _sz, _attr, REGION_DEFAULT_GRANULARITY)
+	MAP_REGION_FULL_SPEC(_pa, _va, _sz, _attr, REGION_DEFAULT_GRANULARITY)
 
 /* Helper macro to define an mmap_region_t with an identity mapping. */
 #define MAP_REGION_FLAT(_adr, _sz, _attr)			\
@@ -44,7 +44,7 @@
  * equivalent to the MAP_REGION() macro.
  */
 #define MAP_REGION2(_pa, _va, _sz, _attr, _gr)			\
-	_MAP_REGION_FULL_SPEC(_pa, _va, _sz, _attr, _gr)
+	MAP_REGION_FULL_SPEC(_pa, _va, _sz, _attr, _gr)
 
 /*
  * Shifts and masks to access fields of an mmap attribute
@@ -163,7 +163,7 @@ typedef struct xlat_ctx xlat_ctx_t;
  */
 #define REGISTER_XLAT_CONTEXT(_ctx_name, _mmap_count, _xlat_tables_count, \
 			_virt_addr_space_size, _phy_addr_space_size)	\
-	_REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, (_mmap_count),	\
+	REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, (_mmap_count),	\
 					 (_xlat_tables_count),		\
 					 (_virt_addr_space_size),	\
 					 (_phy_addr_space_size),	\
@@ -183,7 +183,7 @@ typedef struct xlat_ctx xlat_ctx_t;
 #define REGISTER_XLAT_CONTEXT2(_ctx_name, _mmap_count, _xlat_tables_count, \
 			_virt_addr_space_size, _phy_addr_space_size,	\
 			_xlat_regime, _section_name)			\
-	_REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, (_mmap_count),	\
+	REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, (_mmap_count),	\
 					 (_xlat_tables_count),		\
 					 (_virt_addr_space_size),	\
 					 (_phy_addr_space_size),	\
@@ -296,7 +296,7 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx,
  * translation tables are not modified by any other code while this function is
  * executing.
  */
-int change_mem_attributes(xlat_ctx_t *ctx, uintptr_t base_va, size_t size,
+int change_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va, size_t size,
 			  uint32_t attr);
 
 /*
@@ -318,4 +318,4 @@ int get_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va,
 		       uint32_t *attributes);
 
 #endif /*__ASSEMBLY__*/
-#endif /* __XLAT_TABLES_V2_H__ */
+#endif /* XLAT_TABLES_V2_H */

@@ -217,8 +217,8 @@
  */
 #define ADDR_SPACE_SIZE			(ULL(1) << 32)
 
-#define MAX_MMAP_REGIONS		U(8)
-#define MAX_XLAT_TABLES			U(4)
+#define MAX_MMAP_REGIONS		8
+#define MAX_XLAT_TABLES			4
 
 #define MAX_IO_DEVICES			U(3)
 #define MAX_IO_HANDLES			U(4)

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __XLAT_TABLES_AARCH32_H__
-#define __XLAT_TABLES_AARCH32_H__
+#ifndef XLAT_TABLES_AARCH32_H
+#define XLAT_TABLES_AARCH32_H
 
 #include <arch.h>
 #include <utils_def.h>
@@ -24,7 +24,7 @@
  * The define below specifies the first table level that allows block
  * descriptors.
  */
-#if PAGE_SIZE != (4 * 1024)
+#if PAGE_SIZE != PAGE_SIZE_4KB
 #error "Invalid granule size. AArch32 supports 4KB pages only."
 #endif
 
@@ -43,8 +43,8 @@
  * [1] See the ARMv8-A Architecture Reference Manual (DDI 0487A.j) for more
  * information, Section G4.6.5
  */
-#define MIN_VIRT_ADDR_SPACE_SIZE	(ULL(1) << (32 - TTBCR_TxSZ_MAX))
-#define MAX_VIRT_ADDR_SPACE_SIZE	(ULL(1) << (32 - TTBCR_TxSZ_MIN))
+#define MIN_VIRT_ADDR_SPACE_SIZE	(ULL(1) << (U(32) - TTBCR_TxSZ_MAX))
+#define MAX_VIRT_ADDR_SPACE_SIZE	(ULL(1) << (U(32) - TTBCR_TxSZ_MIN))
 
 /*
  * Here we calculate the initial lookup level from the value of the given
@@ -66,7 +66,8 @@
  * valid. Therefore, the caller is expected to check it is the case using the
  * CHECK_VIRT_ADDR_SPACE_SIZE() macro first.
  */
-#define GET_XLAT_TABLE_LEVEL_BASE(_virt_addr_space_size)			\
-	(((_virt_addr_space_size) > (ULL(1) << L1_XLAT_ADDRESS_SHIFT)) ? 1 : 2)
+#define GET_XLAT_TABLE_LEVEL_BASE(_virt_addr_space_sz)			\
+	(((_virt_addr_space_sz) > (ULL(1) << L1_XLAT_ADDRESS_SHIFT)) ?	\
+	 U(1) : U(2))
 
-#endif /* __XLAT_TABLES_AARCH32_H__ */
+#endif /* XLAT_TABLES_AARCH32_H */

@@ -78,12 +78,12 @@ void init_xlat_tables(void)
 {
 	assert(tf_xlat_ctx.xlat_regime == EL_REGIME_INVALID);
 
-	int current_el = xlat_arch_current_el();
+	unsigned int current_el = xlat_arch_current_el();
 
-	if (current_el == 1) {
+	if (current_el == 1U) {
 		tf_xlat_ctx.xlat_regime = EL1_EL0_REGIME;
 	} else {
-		assert(current_el == 3);
+		assert(current_el == 3U);
 		tf_xlat_ctx.xlat_regime = EL3_REGIME;
 	}
 

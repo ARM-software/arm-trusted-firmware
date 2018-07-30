@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __XLAT_TABLES_PRIVATE_H__
-#define __XLAT_TABLES_PRIVATE_H__
+#ifndef XLAT_TABLES_PRIVATE_H
+#define XLAT_TABLES_PRIVATE_H
 
 #include <platform_def.h>
 #include <xlat_tables_defs.h>
@@ -35,6 +35,8 @@
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
+extern uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
+
 /*
  * Return the execute-never mask that will prevent instruction fetch at the
  * given translation regime.
@@ -61,7 +63,7 @@ void xlat_arch_tlbi_va(uintptr_t va, int xlat_regime);
 void xlat_arch_tlbi_va_sync(void);
 
 /* Print VA, PA, size and attributes of all regions in the mmap array. */
-void xlat_mmap_print(mmap_region_t *const mmap);
+void xlat_mmap_print(const mmap_region_t *mmap);
 
 /*
  * Print the current state of the translation tables by reading them from
@@ -73,14 +75,14 @@ void xlat_tables_print(xlat_ctx_t *ctx);
  * Returns a block/page table descriptor for the given level and attributes.
  */
 uint64_t xlat_desc(const xlat_ctx_t *ctx, uint32_t attr,
-		   unsigned long long addr_pa, int level);
+		   unsigned long long addr_pa, unsigned int level);
 
 /*
  * Architecture-specific initialization code.
  */
 
 /* Returns the current Exception Level. The returned EL must be 1 or higher. */
-int xlat_arch_current_el(void);
+unsigned int xlat_arch_current_el(void);
 
 /*
  * Return the maximum physical address supported by the hardware.
@@ -94,4 +96,4 @@ unsigned long long xlat_arch_get_max_supported_pa(void);
  */
 int is_mmu_enabled_ctx(const xlat_ctx_t *ctx);
 
-#endif /* __XLAT_TABLES_PRIVATE_H__ */
+#endif /* XLAT_TABLES_PRIVATE_H */

@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __XLAT_TABLES_ARCH_H__
-#define __XLAT_TABLES_ARCH_H__
+#ifndef XLAT_TABLES_ARCH_H
+#define XLAT_TABLES_ARCH_H
 
 #ifdef AARCH32
 #include "aarch32/xlat_tables_aarch32.h"
@@ -21,8 +21,8 @@
  * limits. Not that these limits are different for AArch32 and AArch64.
  */
 #define CHECK_VIRT_ADDR_SPACE_SIZE(size)			\
-	(((unsigned long long)(size) >= MIN_VIRT_ADDR_SPACE_SIZE) &&		\
-	((unsigned long long)(size) <= MAX_VIRT_ADDR_SPACE_SIZE) &&		\
+	(((unsigned long long)(size) >= MIN_VIRT_ADDR_SPACE_SIZE) &&	\
+	((unsigned long long)(size) <= MAX_VIRT_ADDR_SPACE_SIZE) &&	\
 	IS_POWER_OF_TWO(size))
 
 /*
@@ -40,4 +40,4 @@
 	((addr_space_size) >>						\
 		XLAT_ADDR_SHIFT(GET_XLAT_TABLE_LEVEL_BASE(addr_space_size)))
 
-#endif /* __XLAT_TABLES_ARCH_H__ */
+#endif /* XLAT_TABLES_ARCH_H */

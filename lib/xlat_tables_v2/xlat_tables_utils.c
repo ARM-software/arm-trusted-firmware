@@ -18,7 +18,7 @@
 
 #if LOG_LEVEL < LOG_LEVEL_VERBOSE
 
-void xlat_mmap_print(__unused mmap_region_t *const mmap)
+void xlat_mmap_print(__unused const mmap_region_t *mmap)
 {
 	/* Empty */
 }
@@ -30,7 +30,7 @@ void xlat_tables_print(__unused xlat_ctx_t *ctx)
 
 #else /* if LOG_LEVEL >= LOG_LEVEL_VERBOSE */
 
-void xlat_mmap_print(mmap_region_t *const mmap)
+void xlat_mmap_print(const mmap_region_t *mmap)
 {
 	tf_printf("mmap:\n");
 	const mmap_region_t *mm = mmap;
@@ -47,7 +47,7 @@ void xlat_mmap_print(mmap_region_t *const mmap)
 /* Print the attributes of the specified block descriptor. */
 static void xlat_desc_print(const xlat_ctx_t *ctx, uint64_t desc)
 {
-	int mem_type_index = ATTR_INDEX_GET(desc);
+	uint64_t mem_type_index = ATTR_INDEX_GET(desc);
 	int xlat_regime = ctx->xlat_regime;
 
 	if (mem_type_index == ATTR_IWBWA_OWBWA_NTR_INDEX) {
@@ -61,8 +61,8 @@ static void xlat_desc_print(const xlat_ctx_t *ctx, uint64_t desc)
 
 	if (xlat_regime == EL3_REGIME) {
 		/* For EL3 only check the AP[2] and XN bits. */
-		tf_printf((desc & LOWER_ATTRS(AP_RO)) ? "-RO" : "-RW");
-		tf_printf((desc & UPPER_ATTRS(XN)) ? "-XN" : "-EXEC");
+		tf_printf(((desc & LOWER_ATTRS(AP_RO)) != 0ULL) ? "-RO" : "-RW");
+		tf_printf(((desc & UPPER_ATTRS(XN)) != 0ULL) ? "-XN" : "-EXEC");
 	} else {
 		assert(xlat_regime == EL1_EL0_REGIME);
 		/*
@@ -80,18 +80,18 @@ static void xlat_desc_print(const xlat_ctx_t *ctx, uint64_t desc)
 
 		assert((xn_perm == xn_mask) || (xn_perm == 0ULL));
 #endif
-		tf_printf((desc & LOWER_ATTRS(AP_RO)) ? "-RO" : "-RW");
+		tf_printf(((desc & LOWER_ATTRS(AP_RO)) != 0ULL) ? "-RO" : "-RW");
 		/* Only check one of PXN and UXN, the other one is the same. */
-		tf_printf((desc & UPPER_ATTRS(PXN)) ? "-XN" : "-EXEC");
+		tf_printf(((desc & UPPER_ATTRS(PXN)) != 0ULL) ? "-XN" : "-EXEC");
 		/*
 		 * Privileged regions can only be accessed from EL1, user
 		 * regions can be accessed from EL1 and EL0.
 		 */
-		tf_printf((desc & LOWER_ATTRS(AP_ACCESS_UNPRIVILEGED))
+		tf_printf(((desc & LOWER_ATTRS(AP_ACCESS_UNPRIVILEGED)) != 0ULL)
 			  ? "-USER" : "-PRIV");
 	}
 
-	tf_printf(LOWER_ATTRS(NS) & desc ? "-NS" : "-S");
+	tf_printf(((LOWER_ATTRS(NS) & desc) != 0ULL) ? "-NS" : "-S");
 }
 
 static const char * const level_spacers[] = {
@@ -108,17 +108,15 @@ static const char *invalid_descriptors_ommited =
  * Recursive function that reads the translation tables passed as an argument
  * and prints their status.
  */
-static void xlat_tables_print_internal(xlat_ctx_t *ctx,
-		const uintptr_t table_base_va,
-		uint64_t *const table_base, const int table_entries,
-		const unsigned int level)
+static void xlat_tables_print_internal(xlat_ctx_t *ctx, uintptr_t table_base_va,
+		const uint64_t *table_base, unsigned int table_entries,
+		unsigned int level)
 {
 	assert(level <= XLAT_TABLE_LEVEL_MAX);
 
 	uint64_t desc;
 	uintptr_t table_idx_va = table_base_va;
-	int table_idx = 0;
-
+	unsigned int table_idx = 0U;
 	size_t level_size = XLAT_BLOCK_SIZE(level);
 
 	/*
@@ -136,9 +134,9 @@ static void xlat_tables_print_internal(xlat_ctx_t *ctx,
 		if ((desc & DESC_MASK) == INVALID_DESC) {
 
 			if (invalid_row_count == 0) {
-				tf_printf("%sVA:%p size:0x%zx\n",
+				tf_printf("%sVA:0x%lx size:0x%zx\n",
 					  level_spacers[level],
-					  (void *)table_idx_va, level_size);
+					  table_idx_va, level_size);
 			}
 			invalid_row_count++;
 
@@ -164,20 +162,20 @@ static void xlat_tables_print_internal(xlat_ctx_t *ctx,
 				 * but instead points to the next translation
 				 * table in the translation table walk.
 				 */
-				tf_printf("%sVA:%p size:0x%zx\n",
+				tf_printf("%sVA:0x%lx size:0x%zx\n",
 					  level_spacers[level],
-					  (void *)table_idx_va, level_size);
+					  table_idx_va, level_size);
 
 				uintptr_t addr_inner = desc & TABLE_ADDR_MASK;
 
 				xlat_tables_print_internal(ctx, table_idx_va,
 					(uint64_t *)addr_inner,
-					XLAT_TABLE_ENTRIES, level + 1);
+					XLAT_TABLE_ENTRIES, level + 1U);
 			} else {
-				tf_printf("%sVA:%p PA:0x%llx size:0x%zx ",
+				tf_printf("%sVA:0x%lx PA:0x%llx size:0x%zx ",
 					  level_spacers[level],
-					  (void *)table_idx_va,
-					  (unsigned long long)(desc & TABLE_ADDR_MASK),
+					  table_idx_va,
+					  (uint64_t)(desc & TABLE_ADDR_MASK),
 					  level_size);
 				xlat_desc_print(ctx, desc);
 				tf_printf("\n");
@@ -197,6 +195,8 @@ static void xlat_tables_print_internal(xlat_ctx_t *ctx,
 void xlat_tables_print(xlat_ctx_t *ctx)
 {
 	const char *xlat_regime_str;
+	int used_page_tables;
+
 	if (ctx->xlat_regime == EL1_EL0_REGIME) {
 		xlat_regime_str = "1&0";
 	} else {
@@ -206,29 +206,28 @@ void xlat_tables_print(xlat_ctx_t *ctx)
 	VERBOSE("Translation tables state:\n");
 	VERBOSE("  Xlat regime:     EL%s\n", xlat_regime_str);
 	VERBOSE("  Max allowed PA:  0x%llx\n", ctx->pa_max_address);
-	VERBOSE("  Max allowed VA:  %p\n", (void *) ctx->va_max_address);
+	VERBOSE("  Max allowed VA:  0x%lx\n", ctx->va_max_address);
 	VERBOSE("  Max mapped PA:   0x%llx\n", ctx->max_pa);
-	VERBOSE("  Max mapped VA:   %p\n", (void *) ctx->max_va);
+	VERBOSE("  Max mapped VA:   0x%lx\n", ctx->max_va);
 
-	VERBOSE("  Initial lookup level: %i\n", ctx->base_level);
-	VERBOSE("  Entries @initial lookup level: %i\n",
+	VERBOSE("  Initial lookup level: %u\n", ctx->base_level);
+	VERBOSE("  Entries @initial lookup level: %u\n",
 		ctx->base_table_entries);
 
-	int used_page_tables;
 #if PLAT_XLAT_TABLES_DYNAMIC
 	used_page_tables = 0;
-	for (unsigned int i = 0; i < ctx->tables_num; ++i) {
+	for (int i = 0; i < ctx->tables_num; ++i) {
 		if (ctx->tables_mapped_regions[i] != 0)
 			++used_page_tables;
 	}
 #else
 	used_page_tables = ctx->next_table;
 #endif
-	VERBOSE("  Used %i sub-tables out of %i (spare: %i)\n",
+	VERBOSE("  Used %d sub-tables out of %d (spare: %d)\n",
 		used_page_tables, ctx->tables_num,
 		ctx->tables_num - used_page_tables);
 
-	xlat_tables_print_internal(ctx, 0, ctx->base_table,
+	xlat_tables_print_internal(ctx, 0U, ctx->base_table,
 				   ctx->base_table_entries, ctx->base_level);
 }
 
@@ -251,13 +250,13 @@ void xlat_tables_print(xlat_ctx_t *ctx)
  */
 static uint64_t *find_xlat_table_entry(uintptr_t virtual_addr,
 				       void *xlat_table_base,
-				       int xlat_table_base_entries,
+				       unsigned int xlat_table_base_entries,
 				       unsigned long long virt_addr_space_size,
-				       int *out_level)
+				       unsigned int *out_level)
 {
 	unsigned int start_level;
 	uint64_t *table;
-	int entries;
+	unsigned int entries;
 
 	start_level = GET_XLAT_TABLE_LEVEL_BASE(virt_addr_space_size);
 
@@ -267,9 +266,7 @@ static uint64_t *find_xlat_table_entry(uintptr_t virtual_addr,
 	for (unsigned int level = start_level;
 	     level <= XLAT_TABLE_LEVEL_MAX;
 	     ++level) {
-		int idx;
-		uint64_t desc;
-		uint64_t desc_type;
+		uint64_t idx, desc, desc_type;
 
 		idx = XLAT_TABLE_IDX(virtual_addr, level);
 		if (idx >= entries) {
@@ -318,22 +315,23 @@ static uint64_t *find_xlat_table_entry(uintptr_t virtual_addr,
 
 static int get_mem_attributes_internal(const xlat_ctx_t *ctx, uintptr_t base_va,
 		uint32_t *attributes, uint64_t **table_entry,
-		unsigned long long *addr_pa, int *table_level)
+		unsigned long long *addr_pa, unsigned int *table_level)
 {
 	uint64_t *entry;
 	uint64_t desc;
-	int level;
+	unsigned int level;
 	unsigned long long virt_addr_space_size;
 
 	/*
 	 * Sanity-check arguments.
 	 */
 	assert(ctx != NULL);
-	assert(ctx->initialized);
-	assert(ctx->xlat_regime == EL1_EL0_REGIME || ctx->xlat_regime == EL3_REGIME);
+	assert(ctx->initialized != 0);
+	assert((ctx->xlat_regime == EL1_EL0_REGIME) ||
+	       (ctx->xlat_regime == EL3_REGIME));
 
-	virt_addr_space_size = (unsigned long long)ctx->va_max_address + 1;
-	assert(virt_addr_space_size > 0);
+	virt_addr_space_size = (unsigned long long)ctx->va_max_address + 1ULL;
+	assert(virt_addr_space_size > 0U);
 
 	entry = find_xlat_table_entry(base_va,
 				ctx->base_table,
@@ -341,7 +339,7 @@ static int get_mem_attributes_internal(const xlat_ctx_t *ctx, uintptr_t base_va,
 				virt_addr_space_size,
 				&level);
 	if (entry == NULL) {
-		WARN("Address %p is not mapped.\n", (void *)base_va);
+		WARN("Address 0x%lx is not mapped.\n", base_va);
 		return -EINVAL;
 	}
 
@@ -366,9 +364,9 @@ static int get_mem_attributes_internal(const xlat_ctx_t *ctx, uintptr_t base_va,
 #endif /* LOG_LEVEL >= LOG_LEVEL_VERBOSE */
 
 	assert(attributes != NULL);
-	*attributes = 0;
+	*attributes = 0U;
 
-	int attr_index = (desc >> ATTR_INDEX_SHIFT) & ATTR_INDEX_MASK;
+	uint64_t attr_index = (desc >> ATTR_INDEX_SHIFT) & ATTR_INDEX_MASK;
 
 	if (attr_index == ATTR_IWBWA_OWBWA_NTR_INDEX) {
 		*attributes |= MT_MEMORY;
@@ -379,20 +377,21 @@ static int get_mem_attributes_internal(const xlat_ctx_t *ctx, uintptr_t base_va,
 		*attributes |= MT_DEVICE;
 	}
 
-	int ap2_bit = (desc >> AP2_SHIFT) & 1;
+	uint64_t ap2_bit = (desc >> AP2_SHIFT) & 1U;
 
 	if (ap2_bit == AP2_RW)
 		*attributes |= MT_RW;
 
 	if (ctx->xlat_regime == EL1_EL0_REGIME) {
-		int ap1_bit = (desc >> AP1_SHIFT) & 1;
+		uint64_t ap1_bit = (desc >> AP1_SHIFT) & 1U;
+
 		if (ap1_bit == AP1_ACCESS_UNPRIVILEGED)
 			*attributes |= MT_USER;
 	}
 
-	int ns_bit = (desc >> NS_SHIFT) & 1;
+	uint64_t ns_bit = (desc >> NS_SHIFT) & 1U;
 
-	if (ns_bit == 1)
+	if (ns_bit == 1U)
 		*attributes |= MT_NS;
 
 	uint64_t xn_mask = xlat_arch_regime_get_xn_desc(ctx->xlat_regime);
@@ -400,7 +399,7 @@ static int get_mem_attributes_internal(const xlat_ctx_t *ctx, uintptr_t base_va,
 	if ((desc & xn_mask) == xn_mask) {
 		*attributes |= MT_EXECUTE_NEVER;
 	} else {
-		assert((desc & xn_mask) == 0);
+		assert((desc & xn_mask) == 0U);
 	}
 
 	return 0;
@@ -415,7 +414,7 @@ int get_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va,
 }
 
 
-int change_mem_attributes(xlat_ctx_t *ctx,
+int change_mem_attributes(const xlat_ctx_t *ctx,
 			uintptr_t base_va,
 			size_t size,
 			uint32_t attr)
@@ -423,49 +422,49 @@ int change_mem_attributes(xlat_ctx_t *ctx,
 	/* Note: This implementation isn't optimized. */
 
 	assert(ctx != NULL);
-	assert(ctx->initialized);
+	assert(ctx->initialized != 0);
 
 	unsigned long long virt_addr_space_size =
-		(unsigned long long)ctx->va_max_address + 1;
-	assert(virt_addr_space_size > 0);
+		(unsigned long long)ctx->va_max_address + 1U;
+	assert(virt_addr_space_size > 0U);
 
 	if (!IS_PAGE_ALIGNED(base_va)) {
-		WARN("%s: Address %p is not aligned on a page boundary.\n",
-		     __func__, (void *)base_va);
+		WARN("%s: Address 0x%lx is not aligned on a page boundary.\n",
+		     __func__, base_va);
 		return -EINVAL;
 	}
 
-	if (size == 0) {
+	if (size == 0U) {
 		WARN("%s: Size is 0.\n", __func__);
 		return -EINVAL;
 	}
 
-	if ((size % PAGE_SIZE) != 0) {
+	if ((size % PAGE_SIZE) != 0U) {
 		WARN("%s: Size 0x%zx is not a multiple of a page size.\n",
 		     __func__, size);
 		return -EINVAL;
 	}
 
-	if (((attr & MT_EXECUTE_NEVER) == 0) && ((attr & MT_RW) != 0)) {
+	if (((attr & MT_EXECUTE_NEVER) == 0U) && ((attr & MT_RW) != 0U)) {
 		WARN("%s: Mapping memory as read-write and executable not allowed.\n",
 		     __func__);
 		return -EINVAL;
 	}
 
-	int pages_count = size / PAGE_SIZE;
+	size_t pages_count = size / PAGE_SIZE;
 
-	VERBOSE("Changing memory attributes of %i pages starting from address %p...\n",
-		pages_count, (void *)base_va);
+	VERBOSE("Changing memory attributes of %zu pages starting from address 0x%lx...\n",
+		pages_count, base_va);
 
 	uintptr_t base_va_original = base_va;
 
 	/*
 	 * Sanity checks.
 	 */
-	for (int i = 0; i < pages_count; ++i) {
-		uint64_t *entry;
-		uint64_t desc;
-		int level;
+	for (size_t i = 0U; i < pages_count; ++i) {
+		const uint64_t *entry;
+		uint64_t desc, attr_index;
+		unsigned int level;
 
 		entry = find_xlat_table_entry(base_va,
 					      ctx->base_table,
@@ -473,7 +472,7 @@ int change_mem_attributes(xlat_ctx_t *ctx,
 					      virt_addr_space_size,
 					      &level);
 		if (entry == NULL) {
-			WARN("Address %p is not mapped.\n", (void *)base_va);
+			WARN("Address 0x%lx is not mapped.\n", base_va);
 			return -EINVAL;
 		}
 
@@ -485,8 +484,8 @@ int change_mem_attributes(xlat_ctx_t *ctx,
 		 */
 		if (((desc & DESC_MASK) != PAGE_DESC) ||
 			(level != XLAT_TABLE_LEVEL_MAX)) {
-			WARN("Address %p is not mapped at the right granularity.\n",
-			     (void *)base_va);
+			WARN("Address 0x%lx is not mapped at the right granularity.\n",
+			     base_va);
 			WARN("Granularity is 0x%llx, should be 0x%x.\n",
 			     (unsigned long long)XLAT_BLOCK_SIZE(level), PAGE_SIZE);
 			return -EINVAL;
@@ -495,11 +494,11 @@ int change_mem_attributes(xlat_ctx_t *ctx,
 		/*
 		 * If the region type is device, it shouldn't be executable.
 		 */
-		int attr_index = (desc >> ATTR_INDEX_SHIFT) & ATTR_INDEX_MASK;
+		attr_index = (desc >> ATTR_INDEX_SHIFT) & ATTR_INDEX_MASK;
 		if (attr_index == ATTR_DEVICE_INDEX) {
-			if ((attr & MT_EXECUTE_NEVER) == 0) {
-				WARN("Setting device memory as executable at address %p.",
-				     (void *)base_va);
+			if ((attr & MT_EXECUTE_NEVER) == 0U) {
+				WARN("Setting device memory as executable at address 0x%lx.",
+				     base_va);
 				return -EINVAL;
 			}
 		}
@@ -510,14 +509,14 @@ int change_mem_attributes(xlat_ctx_t *ctx,
 	/* Restore original value. */
 	base_va = base_va_original;
 
-	for (int i = 0; i < pages_count; ++i) {
+	for (unsigned int i = 0U; i < pages_count; ++i) {
 
-		uint32_t old_attr, new_attr;
-		uint64_t *entry;
-		int level;
-		unsigned long long addr_pa;
+		uint32_t old_attr = 0U, new_attr;
+		uint64_t *entry = NULL;
+		unsigned int level = 0U;
+		unsigned long long addr_pa = 0ULL;
 
-		get_mem_attributes_internal(ctx, base_va, &old_attr,
+		(void) get_mem_attributes_internal(ctx, base_va, &old_attr,
 					    &entry, &addr_pa, &level);
 
 		/*
