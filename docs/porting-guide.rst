@@ -1075,21 +1075,22 @@ Function : plat\_get\_mbedtls\_heap()
 ::
 
     Arguments : void **heap_addr, size_t *heap_size
-    Return   : int
+    Return    : int
 
 This function is invoked during Mbed TLS library initialisation to get
 a heap, by means of a starting address and a size. This heap will then be used
-internally by the Mbed TLS library. The heap is requested from the current
-BL stage, i.e. the current BL image inside which Mbed TLS is used.
+internally by the Mbed TLS library. The heap is requested from the current BL
+stage, i.e. the current BL image inside which Mbed TLS is used.
 
-The default implementation allocates a new heap every time Mbed TLS gets
-initialised. This means that a new heap is statically allocated inside
-every image (i.e. every BL stage) that utilises Mbed TLS. In the default
-implementation, this function returns the address and size of this default
-heap. However, by overriding the default implementation, platforms have the ability
-to optimise memory usage.
+In the default implementation a heap is statically allocated inside every image
+(i.e. every BL stage) that utilises Mbed TLS. So, in this case, the function
+simply returns the address and size of this "pre-allocated" heap. However, by
+overriding the default implementation, platforms have the potential to optimise
+memory usage. For example, on some Arm platforms, the Mbed TLS heap is shared
+between BL1 and BL2 stages and, thus, the necessary space is not reserved
+twice.
 
-On success it returns 0 and a negative error code otherwise.
+On success the function should return 0 and a negative error code otherwise.
 
 Modifications specific to a Boot Loader stage
 ---------------------------------------------

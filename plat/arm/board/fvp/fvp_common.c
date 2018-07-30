@@ -15,6 +15,7 @@
 #include <gicv2.h>
 #include <mmio.h>
 #include <plat_arm.h>
+#include <platform.h>
 #include <secure_partition.h>
 #include <v2m_def.h>
 #include "../fvp_def.h"
@@ -49,7 +50,6 @@ arm_config_t arm_config;
 #define MAP_DEVICE2	MAP_REGION_FLAT(DEVICE2_BASE,			\
 					DEVICE2_SIZE,			\
 					MT_DEVICE | MT_RW | MT_SECURE)
-
 
 /*
  * Table of memory regions for various BL stages to map using the MMU.
@@ -92,7 +92,10 @@ const mmap_region_t plat_arm_mmap[] = {
 #if TRUSTED_BOARD_BOOT
 	/* To access the Root of Trust Public Key registers. */
 	MAP_DEVICE2,
-#endif
+#if LOAD_IMAGE_V2 && !BL2_AT_EL3
+	ARM_MAP_BL1_RW,
+#endif /* LOAD_IMAGE_V2 && !BL2_AT_EL3 */
+#endif /* TRUSTED_BOARD_BOOT */
 #if ENABLE_SPM
 	ARM_SP_IMAGE_MMAP,
 #endif
@@ -395,3 +398,13 @@ void fvp_interconnect_disable(void)
 	}
 #endif
 }
+
+#if TRUSTED_BOARD_BOOT && LOAD_IMAGE_V2
+int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
+{
+	assert(heap_addr != NULL);
+	assert(heap_size != NULL);
+
+	return arm_get_mbedtls_heap(heap_addr, heap_size);
+}
+#endif
