@@ -39,9 +39,9 @@ typedef struct console {
 	 * fields of the struct to 64 bits in AArch64 and 32 bits in AArch32
 	 */
 	u_register_t flags;
-	int (*putc)(int character, struct console *console);
-	int (*getc)(struct console *console);
-	int (*flush)(struct console *console);
+	int (*const putc)(int character, struct console *console);
+	int (*const getc)(struct console *console);
+	int (*const flush)(struct console *console);
 	/* Additional private driver data may follow here. */
 } console_t;
 #include <console_assertions.h> /* offset macro assertions for console_t */
