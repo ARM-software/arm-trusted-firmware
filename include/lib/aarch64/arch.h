@@ -117,6 +117,8 @@
 #define ID_AA64PFR0_SVE_SHIFT	U(32)
 #define ID_AA64PFR0_SVE_MASK	ULL(0xf)
 #define ID_AA64PFR0_SVE_LENGTH	U(4)
+#define ID_AA64PFR0_MPAM_SHIFT	U(40)
+#define ID_AA64PFR0_MPAM_MASK	ULL(0xf)
 #define ID_AA64PFR0_CSV2_SHIFT	U(56)
 #define ID_AA64PFR0_CSV2_MASK	ULL(0xf)
 #define ID_AA64PFR0_CSV2_LENGTH	U(4)
@@ -658,6 +660,14 @@
 #define PMBLIMITR_EL1		S3_0_C9_C10_0
 
 /*******************************************************************************
+ * Definitions for system register interface to MPAM
+ ******************************************************************************/
+#define MPAMIDR_EL1		S3_0_C10_C4_4
+#define MPAM2_EL2		S3_4_C10_C5_0
+#define MPAMHCR_EL2		S3_4_C10_C4_0
+#define MPAM3_EL3		S3_6_C10_C5_0
+
+/*******************************************************************************
  * Definitions for system register interface to AMU for ARMv8.4 onwards
  ******************************************************************************/
 #define AMCR_EL0		S3_3_C13_C2_0
@@ -721,6 +731,11 @@
 #define AMCGCR_EL0_CG1NC_SHIFT	U(8)
 #define AMCGCR_EL0_CG1NC_LENGTH	U(8)
 #define AMCGCR_EL0_CG1NC_MASK	U(0xff)
+
+/* MPAM register definitions */
+#define MPAM3_EL3_MPAMEN_BIT		(ULL(1) << 63)
+
+#define MPAMIDR_HAS_HCR_BIT		(ULL(1) << 17)
 
 /*******************************************************************************
  * RAS system registers

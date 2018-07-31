@@ -350,6 +350,17 @@ Common build options
    that is only required for the assertion and does not fit in the assertion
    itself.
 
+-  ``ENABLE_MPAM_FOR_LOWER_ELS``: Boolean option to enable lower ELs to use MPAM
+   feature. MPAM is an optional Armv8.4 extension that enables various memory
+   system components and resources to define partitions; software running at
+   various ELs can assign themselves to desired partition to control their
+   performance aspects.
+
+   When this option is set to ``1``, EL3 allows lower ELs to access their own
+   MPAM registers without trapping into EL3. This option doesn't make use of
+   partitioning in EL3, however. Platform initialisation code should configure
+   and use partitions in EL3 as required. This option defaults to ``0``.
+
 -  ``ENABLE_PMF``: Boolean option to enable support for optional Performance
    Measurement Framework(PMF). Default is 0.
 
