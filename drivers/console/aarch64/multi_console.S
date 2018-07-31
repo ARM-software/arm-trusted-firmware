@@ -39,10 +39,11 @@
 	 * persistent memory (e.g. the data section).
 	 * In : x0 - address of console_t structure
 	 * Out: x0 - Always 1 (for easier tail calling)
-	 * Clobber list: x0, x1, x14, x15
+	 * Clobber list: x0, x1
 	 * -----------------------------------------------
 	 */
 func console_register
+	stp	x21, x30, [sp, #-16]!
 #if ENABLE_ASSERTIONS
 	/* Assert that x0 isn't a NULL pointer */
 	cmp	x0, #0
@@ -59,18 +60,17 @@ func console_register
 not_on_stack:
 	/* Assert that this struct isn't in the list */
 	mov	x1, x0 /* Preserve x0 and x30 */
-	mov	x15, x30
 	bl	console_is_registered
 	cmp	x0, #0
 	ASM_ASSERT(eq)
-	mov	x30, x15
 	mov	x0, x1
 #endif /* ENABLE_ASSERTIONS */
-	adrp	x14, console_list
-	ldr	x1, [x14, :lo12:console_list]	/* X1 = first struct in list */
-	str	x0, [x14, :lo12:console_list]	/* list head = new console */
+	adrp	x21, console_list
+	ldr	x1, [x21, :lo12:console_list]	/* X1 = first struct in list */
+	str	x0, [x21, :lo12:console_list]	/* list head = new console */
 	str	x1, [x0, #CONSOLE_T_NEXT]	/* new console next ptr = X1 */
 	mov	x0, #1
+	ldp	x21, x30, [sp], #16
 	ret
 endfunc console_register
 
@@ -80,7 +80,7 @@ endfunc console_register
 	 * of currently active consoles and remove it.
 	 * In: x0 - address of console_t struct to remove
 	 * Out: x0 - removed address, or NULL if not found
-	 * Clobber list: x0, x1, x14
+	 * Clobber list: x0, x1
 	 * -----------------------------------------------
 	 */
 func console_unregister
@@ -89,25 +89,28 @@ func console_unregister
 	cmp	x0, #0
 	ASM_ASSERT(ne)
 #endif /* ENABLE_ASSERTIONS */
-	adrp	x14, console_list
-	add	x14, x14, :lo12:console_list	/* X14 = ptr to first struct */
-	ldr	x1, [x14]			/* X1 = first struct */
+	stp	x21, xzr, [sp, #-16]!
+	adrp	x21, console_list
+	add	x21, x21, :lo12:console_list	/* X21 = ptr to first struct */
+	ldr	x1, [x21]			/* X1 = first struct */
 
 unregister_loop:
 	cbz	x1, unregister_not_found
 	cmp	x0, x1
 	b.eq	unregister_found
-	ldr	x14, [x14]			/* X14 = next ptr of struct */
-	ldr	x1, [x14]			/* X1 = next struct */
+	ldr	x21, [x21]			/* X21 = next ptr of struct */
+	ldr	x1, [x21]			/* X1 = next struct */
 	b	unregister_loop
 
 unregister_found:
 	ldr	x1, [x1]			/* X1 = next struct */
-	str	x1, [x14]			/* prev->next = cur->next */
+	str	x1, [x21]			/* prev->next = cur->next */
+	ldp	x21, xzr, [sp], #16
 	ret
 
 unregister_not_found:
 	mov	x0, #0				/* return NULL if not found */
+	ldp	x21, xzr, [sp], #16
 	ret
 endfunc console_unregister
 
@@ -117,7 +120,7 @@ endfunc console_unregister
 	 * registered or not.
 	 * In: x0 - address of console_t struct to remove
 	 * Out: x0 - 1 if it is registered, 0 if not.
-	 * Clobber list: x0, x14
+	 * Clobber list: x0
 	 * -----------------------------------------------
 	 */
 func console_is_registered
@@ -126,19 +129,22 @@ func console_is_registered
 	cmp	x0, #0
 	ASM_ASSERT(ne)
 #endif /* ENABLE_ASSERTIONS */
-	adrp	x14, console_list
-	ldr	x14, [x14, :lo12:console_list]	/* X14 = first console struct */
+	stp	x21, xzr, [sp, #-16]!
+	adrp	x21, console_list
+	ldr	x21, [x21, :lo12:console_list]	/* X21 = first console struct */
 check_registered_loop:
-	cbz	x14, console_not_registered /* Check if end of list */
-	cmp	x0, x14		/* Check if the pointers are different */
+	cbz	x21, console_not_registered /* Check if end of list */
+	cmp	x0, x21		/* Check if the pointers are different */
 	b.eq	console_registered
-	ldr	x14, [x14, #CONSOLE_T_NEXT]	/* Get pointer to next struct */
+	ldr	x21, [x21, #CONSOLE_T_NEXT]	/* Get pointer to next struct */
 	b	check_registered_loop
 console_not_registered:
 	mov	x0, #0
+	ldp	x21, xzr, [sp], #16
 	ret
 console_registered:
 	mov	x0, #1
+	ldp	x21, xzr, [sp], #16
 	ret
 endfunc console_is_registered
 
@@ -186,38 +192,41 @@ endfunc console_set_scope
 	 * In : x0 - character to be printed
 	 * Out: x0 - printed character on success, or < 0
 	             if at least one console had an error
-	 * Clobber list : x0, x1, x2, x12, x13, x14, x15
+	 * Clobber list : x0, x1, x2
 	 * ---------------------------------------------
 	 */
 func console_putc
-	mov	x15, x30
-	mov	w13, #ERROR_NO_VALID_CONSOLE	/* W13 = current return value */
-	mov	w12, w0				/* W12 = character to print */
-	adrp	x14, console_list
-	ldr	x14, [x14, :lo12:console_list]	/* X14 = first console struct */
+	stp	x21, x30, [sp, #-16]!
+	stp	x19, x20, [sp, #-16]!
+	mov	w20, #ERROR_NO_VALID_CONSOLE	/* W20 = current return value */
+	mov	w19, w0				/* W19 = character to print */
+	adrp	x21, console_list
+	ldr	x21, [x21, :lo12:console_list]	/* X21 = first console struct */
 
 putc_loop:
-	cbz	x14, putc_done
+	cbz	x21, putc_done
 	adrp	x1, console_state
 	ldrb	w1, [x1, :lo12:console_state]
-	ldr	w2, [x14, #CONSOLE_T_FLAGS]
+	ldr	w2, [x21, #CONSOLE_T_FLAGS]
 	tst	w1, w2
 	b.eq	putc_continue
-	ldr	x2, [x14, #CONSOLE_T_PUTC]
+	ldr	x2, [x21, #CONSOLE_T_PUTC]
 	cbz	x2, putc_continue
-	mov	w0, w12
-	mov	x1, x14
+	mov	w0, w19
+	mov	x1, x21
 	blr	x2
-	cmp	w13, #ERROR_NO_VALID_CONSOLE	/* update W13 if it's NOVALID */
+	cmp	w20, #ERROR_NO_VALID_CONSOLE	/* update W20 if it's NOVALID */
 	ccmp	w0, #0, #0x8, ne		/* else update it if W0 < 0 */
-	csel	w13, w0, w13, lt
+	csel	w20, w0, w20, lt
 putc_continue:
-	ldr	x14, [x14]			/* X14 = next struct */
+	ldr	x21, [x21]			/* X21 = next struct */
 	b	putc_loop
 
 putc_done:
-	mov	w0, w13
-	ret	x15
+	mov	w0, w20
+	ldp	x19, x20, [sp], #16
+	ldp	x21, x30, [sp], #16
+	ret
 endfunc console_putc
 
 	/* ---------------------------------------------
@@ -230,42 +239,47 @@ endfunc console_putc
 	 * if all active consoles report real errors
 	 * (other than just not having a char available).
 	 * Out : x0 - read character, or < 0 on error
-	 * Clobber list : x0, x1, x13, x14, x15
+	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
 func console_getc
-	mov	x15, x30
+	stp	x30, xzr, [sp, #-16]!
+	stp	x20, x21, [sp, #-16]!
 getc_try_again:
-	mov	w13, #ERROR_NO_VALID_CONSOLE	/* W13 = current return value */
-	adrp	x14, console_list
-	ldr	x14, [x14, :lo12:console_list]	/* X14 = first console struct */
-	cbnz	x14, getc_loop
-	mov	w0, w13				/* If no consoles registered */
-	ret	x15				/* return immediately. */
+	mov	w20, #ERROR_NO_VALID_CONSOLE	/* W20 = current return value */
+	adrp	x21, console_list
+	ldr	x21, [x21, :lo12:console_list]	/* X21 = first console struct */
+	cbnz	x21, getc_loop
+	mov	w0, w20				/* If no consoles registered */
+	ldp	x20, x21, [sp], #16
+	ldp	x30, xzr, [sp], #16
+	ret					/* return immediately. */
 
 getc_loop:
 	adrp	x0, console_state
 	ldrb	w0, [x0, :lo12:console_state]
-	ldr	w1, [x14, #CONSOLE_T_FLAGS]
+	ldr	w1, [x21, #CONSOLE_T_FLAGS]
 	tst	w0, w1
 	b.eq	getc_continue
-	ldr	x1, [x14, #CONSOLE_T_GETC]
+	ldr	x1, [x21, #CONSOLE_T_GETC]
 	cbz	x1, getc_continue
-	mov	x0, x14
+	mov	x0, x21
 	blr	x1
 	cmp	w0, #0				/* if X0 >= 0: return */
 	b.ge	getc_found
-	cmp	w13, #ERROR_NO_PENDING_CHAR	/* may update W13 (NOCHAR has */
-	csel	w13, w13, w0, eq		/* precedence vs real errors) */
+	cmp	w20, #ERROR_NO_PENDING_CHAR	/* may update W20 (NOCHAR has */
+	csel	w20, w20, w0, eq		/* precedence vs real errors) */
 getc_continue:
-	ldr	x14, [x14]			/* X14 = next struct */
-	cbnz	x14, getc_loop
-	cmp	w13, #ERROR_NO_PENDING_CHAR	/* Keep scanning if at least */
+	ldr	x21, [x21]			/* X21 = next struct */
+	cbnz	x21, getc_loop
+	cmp	w20, #ERROR_NO_PENDING_CHAR	/* Keep scanning if at least */
 	b.eq	getc_try_again			/* one console returns NOCHAR */
-	mov	w0, w13
+	mov	w0, w20
 
 getc_found:
-	ret	x15
+	ldp	x20, x21, [sp], #16
+	ldp	x30, xzr, [sp], #16
+	ret
 endfunc console_getc
 
 	/* ---------------------------------------------
@@ -274,34 +288,37 @@ endfunc console_getc
 	 * data that hasn't been output. Calls all
 	 * console's flush() handlers in succession.
 	 * Out: x0 - 0 on success, < 0 if at least one error
-	 * Clobber list : x0, x1, x2, x3, x4, x5, x13, x14, x15
+	 * Clobber list : x0, x1, x2
 	 * ---------------------------------------------
 	 */
 func console_flush
-	mov	x15, x30
-	mov	w13, #ERROR_NO_VALID_CONSOLE	/* W13 = current return value */
-	adrp	x14, console_list
-	ldr	x14, [x14, :lo12:console_list]	/* X14 = first console struct */
+	stp	x30, xzr, [sp, #-16]!
+	stp	x20, x21, [sp, #-16]!
+	mov	w20, #ERROR_NO_VALID_CONSOLE	/* W20 = current return value */
+	adrp	x21, console_list
+	ldr	x21, [x21, :lo12:console_list]	/* X21 = first console struct */
 
 flush_loop:
-	cbz	x14, flush_done
+	cbz	x21, flush_done
 	adrp	x1, console_state
 	ldrb	w1, [x1, :lo12:console_state]
-	ldr	w2, [x14, #CONSOLE_T_FLAGS]
+	ldr	w2, [x21, #CONSOLE_T_FLAGS]
 	tst	w1, w2
 	b.eq	flush_continue
-	ldr	x1, [x14, #CONSOLE_T_FLUSH]
+	ldr	x1, [x21, #CONSOLE_T_FLUSH]
 	cbz	x1, flush_continue
-	mov	x0, x14
+	mov	x0, x21
 	blr	x1
-	cmp	w13, #ERROR_NO_VALID_CONSOLE	/* update W13 if it's NOVALID */
+	cmp	w20, #ERROR_NO_VALID_CONSOLE	/* update W20 if it's NOVALID */
 	ccmp	w0, #0, #0x8, ne		/* else update it if W0 < 0 */
-	csel	w13, w0, w13, lt
+	csel	w20, w0, w20, lt
 flush_continue:
-	ldr	x14, [x14]			/* X14 = next struct */
+	ldr	x21, [x21]			/* X21 = next struct */
 	b	flush_loop
 
 flush_done:
-	mov	w0, w13
-	ret	x15
+	mov	w0, w20
+	ldp	x20, x21, [sp], #16
+	ldp	x30, xzr, [sp], #16
+	ret
 endfunc console_flush
