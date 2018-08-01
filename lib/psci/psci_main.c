@@ -82,7 +82,7 @@ int psci_cpu_suspend(unsigned int power_state,
 	}
 
 	/* Fast path for CPU standby.*/
-	if (is_cpu_standby_req(is_power_down_state, target_pwrlvl) != 0) {
+	if (is_cpu_standby_req(is_power_down_state, target_pwrlvl)) {
 		if  (psci_plat_pm_ops->cpu_standby == NULL)
 			return PSCI_E_INVALID_PARAMS;
 
