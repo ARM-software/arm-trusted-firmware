@@ -57,14 +57,14 @@ static uint64_t trusty_get_reg_base(uint32_t reg)
 	}
 }
 
-static uint64_t trusty_generic_platform_smc(uint32_t smc_fid,
-			 uint64_t x1,
-			 uint64_t x2,
-			 uint64_t x3,
-			 uint64_t x4,
+static uintptr_t trusty_generic_platform_smc(uint32_t smc_fid,
+			 u_register_t x1,
+			 u_register_t x2,
+			 u_register_t x3,
+			 u_register_t x4,
 			 void *cookie,
 			 void *handle,
-			 uint64_t flags)
+			 u_register_t flags)
 {
 	switch (smc_fid) {
 	case SMC_FC_DEBUG_PUTC:
