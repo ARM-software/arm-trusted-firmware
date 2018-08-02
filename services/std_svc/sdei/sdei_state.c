@@ -10,13 +10,13 @@
 #include "sdei_private.h"
 
 /* Aliases for SDEI handler states: 'R'unning, 'E'nabled, and re'G'istered */
-#define r_		0
+#define r_		0U
 #define R_		(1u << SDEI_STATF_RUNNING)
 
-#define e_		0
+#define e_		0U
 #define E_		(1u << SDEI_STATF_ENABLED)
 
-#define g_		0
+#define g_		0U
 #define G_		(1u << SDEI_STATF_REGISTERED)
 
 /* All possible composite handler states */
@@ -29,7 +29,7 @@
 #define REg_		(R_ | E_ | g_)
 #define REG_		(R_ | E_ | G_)
 
-#define MAX_STATES	(REG_ + 1)
+#define MAX_STATES	(REG_ + 1u)
 
 /* Invalid state */
 #define	SDEI_STATE_INVALID	((sdei_state_t) (-1))
