@@ -13,28 +13,29 @@
  */
 int ser_probe_memmap(uintptr_t base, unsigned int size_num_k, int *probe_data)
 {
-	int num_records, num_group_regs, i;
+	unsigned int num_records, num_group_regs, i;
 	uint64_t gsr;
 
-	assert(base != 0);
+	assert(base != 0UL);
 
 	/* Only 4K supported for now */
 	assert(size_num_k == STD_ERR_NODE_SIZE_NUM_K);
 
-	num_records = (mmio_read_32(ERR_DEVID(base, size_num_k)) & ERR_DEVID_MASK);
+	num_records = (unsigned int)
+		(mmio_read_32(ERR_DEVID(base, size_num_k)) & ERR_DEVID_MASK);
 
 	/* A group register shows error status for 2^6 error records */
-	num_group_regs = (num_records >> 6) + 1;
+	num_group_regs = (num_records >> 6U) + 1U;
 
 	/* Iterate through group registers to find a record in error */
 	for (i = 0; i < num_group_regs; i++) {
 		gsr = mmio_read_64(ERR_GSR(base, size_num_k, i));
-		if (gsr == 0)
+		if (gsr == 0ULL)
 			continue;
 
 		/* Return the index of the record in error */
 		if (probe_data != NULL)
-			*probe_data = ((i << 6) + __builtin_ctz(gsr));
+			*probe_data = (((int) (i << 6U)) + __builtin_ctzll(gsr));
 
 		return 1;
 	}
@@ -49,13 +50,14 @@ int ser_probe_memmap(uintptr_t base, unsigned int size_num_k, int *probe_data)
  */
 int ser_probe_sysreg(unsigned int idx_start, unsigned int num_idx, int *probe_data)
 {
-	int i;
+	unsigned int i;
 	uint64_t status;
-	unsigned int max_idx __unused = read_erridr_el1() & ERRIDR_MASK;
+	unsigned int max_idx __unused =
+		((unsigned int) read_erridr_el1()) & ERRIDR_MASK;
 
 	assert(idx_start < max_idx);
-	assert(check_u32_overflow(idx_start, num_idx) == 0);
-	assert((idx_start + num_idx - 1) < max_idx);
+	assert(check_u32_overflow(idx_start, num_idx));
+	assert((idx_start + num_idx - 1U) < max_idx);
 
 	for (i = 0; i < num_idx; i++) {
 		/* Select the error record */
@@ -65,9 +67,9 @@ int ser_probe_sysreg(unsigned int idx_start, unsigned int num_idx, int *probe_da
 		status = read_erxstatus_el1();
 
 		/* Check for valid field in status */
-		if (ERR_STATUS_GET_FIELD(status, V)) {
+		if (ERR_STATUS_GET_FIELD(status, V) != 0U) {
 			if (probe_data != NULL)
-				*probe_data = i;
+				*probe_data = (int) i;
 			return 1;
 		}
 	}
