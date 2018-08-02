@@ -43,11 +43,22 @@
 #define AVS_EN_CTRL_REG			(MVEBU_AP_GEN_MGMT_BASE + 0x130)
 #define AVS_ENABLE_OFFSET		(0)
 #define AVS_SOFT_RESET_OFFSET		(2)
-#define AVS_LOW_VDD_LIMIT_OFFSET	(4)
-#define AVS_HIGH_VDD_LIMIT_OFFSET	(12)
 #define AVS_TARGET_DELTA_OFFSET		(21)
-#define AVS_VDD_LOW_LIMIT_MASK	        (0xFF << AVS_LOW_VDD_LIMIT_OFFSET)
-#define AVS_VDD_HIGH_LIMIT_MASK	        (0xFF << AVS_HIGH_VDD_LIMIT_OFFSET)
+
+#ifndef MVEBU_SOC_AP807
+	/* AP806 SVC bits */
+	#define AVS_LOW_VDD_LIMIT_OFFSET	(4)
+	#define AVS_HIGH_VDD_LIMIT_OFFSET	(12)
+	#define AVS_VDD_LOW_LIMIT_MASK	(0xFF << AVS_LOW_VDD_LIMIT_OFFSET)
+	#define AVS_VDD_HIGH_LIMIT_MASK	(0xFF << AVS_HIGH_VDD_LIMIT_OFFSET)
+#else
+	/* AP807 SVC bits */
+	#define AVS_LOW_VDD_LIMIT_OFFSET	(3)
+	#define AVS_HIGH_VDD_LIMIT_OFFSET	(13)
+	#define AVS_VDD_LOW_LIMIT_MASK	(0x3FF << AVS_LOW_VDD_LIMIT_OFFSET)
+	#define AVS_VDD_HIGH_LIMIT_MASK	(0x3FF << AVS_HIGH_VDD_LIMIT_OFFSET)
+#endif
+
 /* VDD limit is 0.9V for A70x0 @ CPU frequency < 1600MHz */
 #define AVS_A7K_LOW_CLK_VALUE		((0x80 << AVS_TARGET_DELTA_OFFSET) | \
 					 (0x1A << AVS_HIGH_VDD_LIMIT_OFFSET) | \
@@ -84,11 +95,6 @@
 #define AP807_CPU_ARO_SEL_PLL_MASK	(0x1 << AP807_CPU_ARO_SEL_PLL_OFFSET)
 
 /*
- * - AVS work points in the LD0 eFuse:
- *	SVC1 work point:     LD0[88:81]
- *	SVC2 work point:     LD0[96:89]
- *	SVC3 work point:     LD0[104:97]
- *	SVC4 work point:     LD0[112:105]
  * - Identification information in the LD-0 eFuse:
  *	DRO:           LD0[74:65] - Not used by the SW
  *	Revision:      LD0[78:75] - Not used by the SW
@@ -114,11 +120,30 @@
 #define EFUSE_AP_LD0_SWREV_OFFS		50		/* LD0[115:113] */
 #define EFUSE_AP_LD0_SWREV_MASK		0x7
 
-#define EFUSE_AP_LD0_SVC1_OFFS		18		/* LD0[88:81] */
-#define EFUSE_AP_LD0_SVC2_OFFS		26		/* LD0[96:89] */
-#define EFUSE_AP_LD0_SVC3_OFFS		34		/* LD0[104:97] */
+#ifndef MVEBU_SOC_AP807
+	/* AP806 AVS work points in the LD0 eFuse
+	 * SVC1 work point:     LD0[88:81]
+	 * SVC2 work point:     LD0[96:89]
+	 * SVC3 work point:     LD0[104:97]
+	 * SVC4 work point:     LD0[112:105]
+	 */
+	#define EFUSE_AP_LD0_SVC1_OFFS		18	/* LD0[88:81] */
+	#define EFUSE_AP_LD0_SVC2_OFFS		26	/* LD0[96:89] */
+	#define EFUSE_AP_LD0_SVC3_OFFS		34	/* LD0[104:97] */
+	#define EFUSE_AP_LD0_WP_MASK		0xFF
+#else
+	/* AP807 AVS work points in the LD0 eFuse
+	 * SVC1 work point:     LD0[91:81]
+	 * SVC2 work point:     LD0[102:92]
+	 * SVC3 work point:     LD0[113:103]
+	 */
+	#define EFUSE_AP_LD0_SVC1_OFFS		17	/* LD0[91:81] */
+	#define EFUSE_AP_LD0_SVC2_OFFS		28	/* LD0[102:92] */
+	#define EFUSE_AP_LD0_SVC3_OFFS		39	/* LD0[113:103] */
+	#define EFUSE_AP_LD0_WP_MASK		0x3FF
+#endif
+
 #define EFUSE_AP_LD0_SVC4_OFFS		42		/* LD0[112:105] */
-#define EFUSE_AP_LD0_WP_MASK		0xFF
 
 #define EFUSE_AP_LD0_CLUSTER_DOWN_OFFS	4
 
@@ -233,16 +258,8 @@ static void ble_plat_svc_config(void)
 	uint32_t reg_val, avs_workpoint, freq_pidi_mode;
 	uint64_t efuse;
 	uint32_t device_id, single_cluster;
-	uint8_t  svc[4], perr[4], i, sw_ver;
-
-	/* Due to a bug in A3900 device_id skip SVC config
-	 * TODO: add SVC config once it is decided for a3900
-	 */
-	if (ble_get_ap_type() == CHIP_ID_AP807) {
-		NOTICE("SVC: SVC is not supported on AP807\n");
-		ble_plat_avs_config();
-		return;
-	}
+	uint16_t  svc[4], perr[4], i, sw_ver;
+	unsigned int ap_type;
 
 	/* Set access to LD0 */
 	reg_val = mmio_read_32(MVEBU_AP_EFUSE_SRV_CTRL_REG);
@@ -276,9 +293,19 @@ static void ble_plat_svc_config(void)
 	svc[0] = (efuse >> EFUSE_AP_LD0_SVC1_OFFS) & EFUSE_AP_LD0_WP_MASK;
 	svc[1] = (efuse >> EFUSE_AP_LD0_SVC2_OFFS) & EFUSE_AP_LD0_WP_MASK;
 	svc[2] = (efuse >> EFUSE_AP_LD0_SVC3_OFFS) & EFUSE_AP_LD0_WP_MASK;
-	svc[3] = (efuse >> EFUSE_AP_LD0_SVC4_OFFS) & EFUSE_AP_LD0_WP_MASK;
-	INFO("SVC: Efuse WP: [0]=0x%x, [1]=0x%x, [2]=0x%x, [3]=0x%x\n",
-		svc[0], svc[1], svc[2], svc[3]);
+
+	/* Fetch AP type to distinguish between AP806 and AP807 */
+	ap_type = ble_get_ap_type();
+
+	if (ap_type != CHIP_ID_AP807) {
+		svc[3] = (efuse >> EFUSE_AP_LD0_SVC4_OFFS)
+			 & EFUSE_AP_LD0_WP_MASK;
+		INFO("SVC: Efuse WP: [0]=0x%x, [1]=0x%x, [2]=0x%x, [3]=0x%x\n",
+		     svc[0], svc[1], svc[2], svc[3]);
+	} else {
+		INFO("SVC: Efuse WP: [0]=0x%x, [1]=0x%x, [2]=0x%x\n",
+		     svc[0], svc[1], svc[2]);
+	}
 
 	/* Validate parity of SVC workpoint values */
 	for (i = 0; i < 4; i++) {
@@ -385,6 +412,26 @@ static void ble_plat_svc_config(void)
 				avs_workpoint = 0;
 			break;
 		}
+	} else if (device_id == MVEBU_3900_DEV_ID) {
+		NOTICE("SVC: DEV ID: %s, FREQ Mode: 0x%x\n",
+		       "3900", freq_pidi_mode);
+		switch (freq_pidi_mode) {
+		case CPU_1600_DDR_1200_RCLK_1200:
+			if (perr[0])
+				goto perror;
+			avs_workpoint = svc[0];
+			break;
+		case CPU_1300_DDR_800_RCLK_800:
+			if (perr[1])
+				goto perror;
+			avs_workpoint = svc[1];
+			break;
+		default:
+			if (perr[0])
+				goto perror;
+			avs_workpoint = svc[0];
+			break;
+		}
 	} else {
 		ERROR("SVC: Unsupported Device ID 0x%x\n", device_id);
 		return;
@@ -397,7 +444,8 @@ static void ble_plat_svc_config(void)
 	}
 
 	/* Remove parity bit */
-	avs_workpoint &= 0x7F;
+	if (ap_type != CHIP_ID_AP807)
+		avs_workpoint &= 0x7F;
 
 	reg_val  = mmio_read_32(AVS_EN_CTRL_REG);
 	NOTICE("SVC: AVS work point changed from 0x%x to 0x%x\n",
