@@ -7,9 +7,11 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <platform_def.h>
+#include <cortex_a75.h>
 
 	.globl	plat_is_my_cpu_primary
 	.globl	plat_arm_calc_core_pos
+	.globl	plat_reset_handler
 
 	/* -----------------------------------------------------
 	 * unsigned int plat_is_my_cpu_primary (void);
@@ -65,3 +67,41 @@ func plat_arm_calc_core_pos
 	madd    x0, x1, x5, x0
 	ret
 endfunc plat_arm_calc_core_pos
+
+	/* ------------------------------------------------------
+	 * Helper macro that reads the part number of the current
+	 * CPU and jumps to the given label if it matches the CPU
+	 * MIDR provided.
+	 *
+	 * Clobbers x0.
+	 * -----------------------------------------------------
+	 */
+	.macro  jump_if_cpu_midr _cpu_midr, _label
+	mrs	x0, midr_el1
+	ubfx	x0, x0, MIDR_PN_SHIFT, #12
+	cmp	w0, #((\_cpu_midr >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
+	b.eq	\_label
+	.endm
+
+	/* -----------------------------------------------------
+	 * void plat_reset_handler(void);
+	 *
+	 * Determine the CPU MIDR and disable power down bit for
+	 * that CPU.
+	 * -----------------------------------------------------
+	 */
+func plat_reset_handler
+	jump_if_cpu_midr CORTEX_A75_MIDR, A75
+	ret
+
+	/* -----------------------------------------------------
+	 * Disable CPU power down bit in power control register
+	 * -----------------------------------------------------
+	 */
+A75:
+	mrs	x0, CORTEX_A75_CPUPWRCTLR_EL1
+	bic	x0, x0, #CORTEX_A75_CORE_PWRDN_EN_MASK
+	msr	CORTEX_A75_CPUPWRCTLR_EL1, x0
+	isb
+	ret
+endfunc plat_reset_handler
