@@ -481,7 +481,7 @@ static int mmc_enumerate(unsigned int clk, unsigned int bus_width)
 	return mmc_set_ios(clk, bus_width);
 }
 
-size_t mmc_read_blocks(unsigned int lba, uintptr_t buf, size_t size)
+size_t mmc_read_blocks(int lba, uintptr_t buf, size_t size)
 {
 	int ret;
 	unsigned int cmd_idx, cmd_arg;
@@ -548,7 +548,7 @@ size_t mmc_read_blocks(unsigned int lba, uintptr_t buf, size_t size)
 	return size;
 }
 
-size_t mmc_write_blocks(unsigned int lba, const uintptr_t buf, size_t size)
+size_t mmc_write_blocks(int lba, const uintptr_t buf, size_t size)
 {
 	int ret;
 	unsigned int cmd_idx, cmd_arg;
@@ -615,7 +615,7 @@ size_t mmc_write_blocks(unsigned int lba, const uintptr_t buf, size_t size)
 	return size;
 }
 
-size_t mmc_erase_blocks(unsigned int lba, size_t size)
+size_t mmc_erase_blocks(int lba, size_t size)
 {
 	int ret;
 
@@ -661,7 +661,7 @@ static inline void mmc_rpmb_disable(void)
 			PART_CFG_BOOT_PARTITION1_ENABLE);
 }
 
-size_t mmc_rpmb_read_blocks(unsigned int lba, uintptr_t buf, size_t size)
+size_t mmc_rpmb_read_blocks(int lba, uintptr_t buf, size_t size)
 {
 	size_t size_read;
 
@@ -672,7 +672,7 @@ size_t mmc_rpmb_read_blocks(unsigned int lba, uintptr_t buf, size_t size)
 	return size_read;
 }
 
-size_t mmc_rpmb_write_blocks(unsigned int lba, const uintptr_t buf, size_t size)
+size_t mmc_rpmb_write_blocks(int lba, const uintptr_t buf, size_t size)
 {
 	size_t size_written;
 
@@ -683,7 +683,7 @@ size_t mmc_rpmb_write_blocks(unsigned int lba, const uintptr_t buf, size_t size)
 	return size_written;
 }
 
-size_t mmc_rpmb_erase_blocks(unsigned int lba, size_t size)
+size_t mmc_rpmb_erase_blocks(int lba, size_t size)
 {
 	size_t size_erased;
 
