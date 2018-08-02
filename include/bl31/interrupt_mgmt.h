@@ -61,10 +61,10 @@
 #define INTR_RM_FROM_SEC_SHIFT		SECURE		/* BIT[0] */
 #define INTR_RM_FROM_NS_SHIFT		NON_SECURE	/* BIT[1] */
 #define INTR_RM_FROM_FLAG_MASK		U(1)
-#define get_interrupt_rm_flag(flag, ss)	(((flag >> INTR_RM_FLAGS_SHIFT) >> ss) \
-					 & INTR_RM_FROM_FLAG_MASK)
-#define set_interrupt_rm_flag(flag, ss)	(flag |= U(1) << ss)
-#define clr_interrupt_rm_flag(flag, ss)	(flag &= ~(U(1) << ss))
+#define get_interrupt_rm_flag(flag, ss) \
+	((((flag) >> INTR_RM_FLAGS_SHIFT) >> (ss)) & INTR_RM_FROM_FLAG_MASK)
+#define set_interrupt_rm_flag(flag, ss)	((flag) |= U(1) << (ss))
+#define clr_interrupt_rm_flag(flag, ss)	((flag) &= ~(U(1) << (ss)))
 
 
 /*******************************************************************************
