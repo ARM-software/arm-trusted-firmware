@@ -24,7 +24,7 @@
 static const struct mmc_ops *ops;
 static unsigned int mmc_ocr_value;
 static struct mmc_csd_emmc mmc_csd;
-static unsigned char mmc_ext_csd[512] __aligned(4);
+static unsigned char mmc_ext_csd[512] __aligned(16);
 static unsigned int mmc_flags;
 static struct mmc_device_info *mmc_dev_info;
 static unsigned int rca;
