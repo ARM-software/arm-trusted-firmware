@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <cassert.h>
 #include <platform_def.h>
-#include <utils.h>
+#include <stdbool.h>
 #include <utils_def.h>
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
@@ -19,15 +19,15 @@
 #endif
 
 /*
- * Returns 1 if the provided granule size is supported, 0 otherwise.
+ * Returns true if the provided granule size is supported, false otherwise.
  */
-int xlat_arch_is_granule_size_supported(size_t size)
+bool xlat_arch_is_granule_size_supported(size_t size)
 {
 	/*
 	 * The library uses the long descriptor translation table format, which
 	 * supports 4 KiB pages only.
 	 */
-	return (size == PAGE_SIZE_4KB) ? 1 : 0;
+	return size == PAGE_SIZE_4KB;
 }
 
 size_t xlat_arch_get_max_supported_granule_size(void)
@@ -43,7 +43,7 @@ unsigned long long xlat_arch_get_max_supported_pa(void)
 }
 #endif /* ENABLE_ASSERTIONS*/
 
-int is_mmu_enabled_ctx(const xlat_ctx_t *ctx __unused)
+bool is_mmu_enabled_ctx(const xlat_ctx_t *ctx __unused)
 {
 	return (read_sctlr() & SCTLR_M_BIT) != 0;
 }

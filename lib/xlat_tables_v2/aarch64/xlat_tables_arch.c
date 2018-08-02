@@ -8,30 +8,31 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <cassert.h>
+#include <stdbool.h>
 #include <sys/types.h>
 #include <utils_def.h>
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"
 
 /*
- * Returns 1 if the provided granule size is supported, 0 otherwise.
+ * Returns true if the provided granule size is supported, false otherwise.
  */
-int xlat_arch_is_granule_size_supported(size_t size)
+bool xlat_arch_is_granule_size_supported(size_t size)
 {
 	u_register_t id_aa64mmfr0_el1 = read_id_aa64mmfr0_el1();
 
 	if (size == PAGE_SIZE_4KB) {
-		return (((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN4_SHIFT) &
+		return ((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN4_SHIFT) &
 			 ID_AA64MMFR0_EL1_TGRAN4_MASK) ==
-			 ID_AA64MMFR0_EL1_TGRAN4_SUPPORTED) ? 1 : 0;
+			 ID_AA64MMFR0_EL1_TGRAN4_SUPPORTED;
 	} else if (size == PAGE_SIZE_16KB) {
-		return (((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN16_SHIFT) &
+		return ((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN16_SHIFT) &
 			 ID_AA64MMFR0_EL1_TGRAN16_MASK) ==
-			 ID_AA64MMFR0_EL1_TGRAN16_SUPPORTED) ? 1 : 0;
+			 ID_AA64MMFR0_EL1_TGRAN16_SUPPORTED;
 	} else if (size == PAGE_SIZE_64KB) {
-		return (((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN64_SHIFT) &
+		return ((id_aa64mmfr0_el1 >> ID_AA64MMFR0_EL1_TGRAN64_SHIFT) &
 			 ID_AA64MMFR0_EL1_TGRAN64_MASK) ==
-			 ID_AA64MMFR0_EL1_TGRAN64_SUPPORTED) ? 1 : 0;
+			 ID_AA64MMFR0_EL1_TGRAN64_SUPPORTED;
 	} else {
 		return 0;
 	}
@@ -39,12 +40,12 @@ int xlat_arch_is_granule_size_supported(size_t size)
 
 size_t xlat_arch_get_max_supported_granule_size(void)
 {
-	if (xlat_arch_is_granule_size_supported(PAGE_SIZE_64KB) != 0) {
+	if (xlat_arch_is_granule_size_supported(PAGE_SIZE_64KB)) {
 		return PAGE_SIZE_64KB;
-	} else if (xlat_arch_is_granule_size_supported(PAGE_SIZE_16KB) != 0) {
+	} else if (xlat_arch_is_granule_size_supported(PAGE_SIZE_16KB)) {
 		return PAGE_SIZE_16KB;
 	} else {
-		assert(xlat_arch_is_granule_size_supported(PAGE_SIZE_4KB) != 0);
+		assert(xlat_arch_is_granule_size_supported(PAGE_SIZE_4KB));
 		return PAGE_SIZE_4KB;
 	}
 }
@@ -99,15 +100,15 @@ unsigned long long xlat_arch_get_max_supported_pa(void)
 }
 #endif /* ENABLE_ASSERTIONS*/
 
-int is_mmu_enabled_ctx(const xlat_ctx_t *ctx)
+bool is_mmu_enabled_ctx(const xlat_ctx_t *ctx)
 {
 	if (ctx->xlat_regime == EL1_EL0_REGIME) {
 		assert(xlat_arch_current_el() >= 1U);
-		return ((read_sctlr_el1() & SCTLR_M_BIT) != 0U) ? 1 : 0;
+		return (read_sctlr_el1() & SCTLR_M_BIT) != 0U;
 	} else {
 		assert(ctx->xlat_regime == EL3_REGIME);
 		assert(xlat_arch_current_el() >= 3U);
-		return ((read_sctlr_el3() & SCTLR_M_BIT) != 0U) ? 1 : 0;
+		return (read_sctlr_el3() & SCTLR_M_BIT) != 0U;
 	}
 }
 

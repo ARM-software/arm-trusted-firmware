@@ -11,6 +11,7 @@
 #include <common_def.h>
 #include <debug.h>
 #include <platform_def.h>
+#include <stdbool.h>
 #include <string.h>
 #include <types.h>
 #include <utils.h>
@@ -100,17 +101,16 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 		 * Check if one of the regions is completely inside the other
 		 * one.
 		 */
-		int fully_overlapped_va =
-			(((base_va >= mm->base_va) && (end_va <= mm_end_va)) ||
-			((mm->base_va >= base_va) && (mm_end_va <= end_va)))
-			? 1 : 0;
+		bool fully_overlapped_va =
+			((base_va >= mm->base_va) && (end_va <= mm_end_va)) ||
+			((mm->base_va >= base_va) && (mm_end_va <= end_va));
 
 		/*
 		 * Full VA overlaps are only allowed if both regions are
 		 * identity mapped (zero offset) or have the same VA to PA
 		 * offset. Also, make sure that it's not the exact same area.
 		 */
-		if (fully_overlapped_va == 1) {
+		if (fully_overlapped_va) {
 			assert((mm->base_va - mm->base_pa) ==
 			       (base_va - base_pa));
 			assert((base_va != mm->base_va) || (size != mm->size));
@@ -124,12 +124,12 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 			unsigned long long mm_end_pa =
 						     mm->base_pa + mm->size - 1;
 
-			int separated_pa = ((end_pa < mm->base_pa) ||
-				(base_pa > mm_end_pa)) ? 1 : 0;
-			int separated_va = ((end_va < mm->base_va) ||
-				(base_va > mm_end_va)) ? 1 : 0;
+			bool separated_pa = (end_pa < mm->base_pa) ||
+				(base_pa > mm_end_pa);
+			bool separated_va = (end_va < mm->base_va) ||
+				(base_va > mm_end_va);
 
-			assert((separated_va == 1) && (separated_pa == 1));
+			assert(separated_va && separated_pa);
 		}
 	}
 

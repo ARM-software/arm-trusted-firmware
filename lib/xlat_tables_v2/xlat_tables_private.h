@@ -8,6 +8,7 @@
 #define XLAT_TABLES_PRIVATE_H
 
 #include <platform_def.h>
+#include <stdbool.h>
 #include <xlat_tables_defs.h>
 
 #if PLAT_XLAT_TABLES_DYNAMIC
@@ -91,9 +92,9 @@ unsigned int xlat_arch_current_el(void);
 unsigned long long xlat_arch_get_max_supported_pa(void);
 
 /*
- * Return 1 if the MMU of the translation regime managed by the given xlat_ctx_t
- * is enabled, 0 otherwise.
+ * Returns true if the MMU of the translation regime managed by the given
+ * xlat_ctx_t is enabled, false otherwise.
  */
-int is_mmu_enabled_ctx(const xlat_ctx_t *ctx);
+bool is_mmu_enabled_ctx(const xlat_ctx_t *ctx);
 
 #endif /* XLAT_TABLES_PRIVATE_H */

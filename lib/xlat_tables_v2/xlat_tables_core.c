@@ -9,6 +9,7 @@
 #include <debug.h>
 #include <errno.h>
 #include <platform_def.h>
+#include <stdbool.h>
 #include <string.h>
 #include <types.h>
 #include <utils_def.h>
@@ -39,7 +40,7 @@ static int xlat_table_get_index(const xlat_ctx_t *ctx, const uint64_t *table)
 	 * Maybe we were asked to get the index of the base level table, which
 	 * should never happen.
 	 */
-	assert(0);
+	assert(false);
 
 	return -1;
 }
@@ -73,10 +74,9 @@ static void xlat_table_dec_regions_count(const xlat_ctx_t *ctx,
 }
 
 /* Returns 0 if the specified table isn't empty, otherwise 1. */
-static int xlat_table_is_empty(const xlat_ctx_t *ctx, const uint64_t *table)
+static bool xlat_table_is_empty(const xlat_ctx_t *ctx, const uint64_t *table)
 {
-	return (ctx->tables_mapped_regions[xlat_table_get_index(ctx, table)] == 0)
-		? 1 : 0;
+	return ctx->tables_mapped_regions[xlat_table_get_index(ctx, table)] == 0;
 }
 
 #else /* PLAT_XLAT_TABLES_DYNAMIC */
@@ -333,7 +333,7 @@ static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 			/*
 			 * If the subtable is now empty, remove its reference.
 			 */
-			if (xlat_table_is_empty(ctx, subtable) != 0) {
+			if (xlat_table_is_empty(ctx, subtable)) {
 				table_base[table_idx] = INVALID_DESC;
 				xlat_arch_tlbi_va(table_idx_va,
 						  ctx->xlat_regime);
@@ -650,12 +650,11 @@ static int mmap_add_region_check(const xlat_ctx_t *ctx, const mmap_region_t *mm)
 		 * Check if one of the regions is completely inside the other
 		 * one.
 		 */
-		int fully_overlapped_va =
-			(((base_va >= mm_cursor->base_va) &&
+		bool fully_overlapped_va =
+			((base_va >= mm_cursor->base_va) &&
 					(end_va <= mm_cursor_end_va)) ||
-			 ((mm_cursor->base_va >= base_va) &&
-						(mm_cursor_end_va <= end_va)))
-			? 1 : 0;
+			((mm_cursor->base_va >= base_va) &&
+						(mm_cursor_end_va <= end_va));
 
 		/*
 		 * Full VA overlaps are only allowed if both regions are
@@ -663,7 +662,7 @@ static int mmap_add_region_check(const xlat_ctx_t *ctx, const mmap_region_t *mm)
 		 * offset. Also, make sure that it's not the exact same area.
 		 * This can only be done with static regions.
 		 */
-		if (fully_overlapped_va != 0) {
+		if (fully_overlapped_va) {
 
 #if PLAT_XLAT_TABLES_DYNAMIC
 			if (((mm->attr & MT_DYNAMIC) != 0U) ||
@@ -688,12 +687,12 @@ static int mmap_add_region_check(const xlat_ctx_t *ctx, const mmap_region_t *mm)
 			unsigned long long mm_cursor_end_pa =
 				     mm_cursor->base_pa + mm_cursor->size - 1U;
 
-			int separated_pa = ((end_pa < mm_cursor->base_pa) ||
-				(base_pa > mm_cursor_end_pa)) ? 1 : 0;
-			int separated_va = ((end_va < mm_cursor->base_va) ||
-				(base_va > mm_cursor_end_va)) ? 1 : 0;
+			bool separated_pa = (end_pa < mm_cursor->base_pa) ||
+				(base_pa > mm_cursor_end_pa);
+			bool separated_va = (end_va < mm_cursor->base_va) ||
+				(base_va > mm_cursor_end_va);
 
-			if ((separated_va == 0) || (separated_pa == 0))
+			if (!separated_va || !separated_pa)
 				return -EPERM;
 		}
 	}
@@ -715,12 +714,12 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 		return;
 
 	/* Static regions must be added before initializing the xlat tables. */
-	assert(ctx->initialized == 0);
+	assert(!ctx->initialized);
 
 	ret = mmap_add_region_check(ctx, mm);
 	if (ret != 0) {
 		ERROR("mmap_add_region_check() failed. error %d\n", ret);
-		assert(0);
+		assert(false);
 		return;
 	}
 
@@ -856,7 +855,7 @@ int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 	 * Update the translation tables if the xlat tables are initialized. If
 	 * not, this region will be mapped when they are initialized.
 	 */
-	if (ctx->initialized != 0) {
+	if (ctx->initialized) {
 		end_va = xlat_tables_map_region(ctx, mm_cursor,
 				0U, ctx->base_table, ctx->base_table_entries,
 				ctx->base_level);
@@ -948,7 +947,7 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx, uintptr_t base_va,
 		update_max_pa_needed = 1;
 
 	/* Update the translation tables if needed */
-	if (ctx->initialized != 0) {
+	if (ctx->initialized) {
 		xlat_tables_unmap_region(ctx, mm, 0U, ctx->base_table,
 					 ctx->base_table_entries,
 					 ctx->base_level);
@@ -987,10 +986,10 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx, uintptr_t base_va,
 void init_xlat_tables_ctx(xlat_ctx_t *ctx)
 {
 	assert(ctx != NULL);
-	assert(ctx->initialized == 0);
+	assert(!ctx->initialized);
 	assert((ctx->xlat_regime == EL3_REGIME) ||
 	       (ctx->xlat_regime == EL1_EL0_REGIME));
-	assert(is_mmu_enabled_ctx(ctx) == 0);
+	assert(!is_mmu_enabled_ctx(ctx));
 
 	mmap_region_t *mm = ctx->mmap;
 
@@ -1028,7 +1027,7 @@ void init_xlat_tables_ctx(xlat_ctx_t *ctx)
 	assert(ctx->max_va <= ctx->va_max_address);
 	assert(ctx->max_pa <= ctx->pa_max_address);
 
-	ctx->initialized = 1;
+	ctx->initialized = true;
 
 	xlat_tables_print(ctx);
 }
