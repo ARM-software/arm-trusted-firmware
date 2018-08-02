@@ -363,8 +363,6 @@ static int mmc_reset_to_idle(void)
 {
 	int ret;
 
-	mdelay(1);
-
 	/* CMD0: reset to IDLE */
 	ret = mmc_send_cmd(MMC_CMD(0), 0, 0, NULL);
 	if (ret != 0) {
@@ -413,14 +411,16 @@ static int mmc_enumerate(unsigned int clk, unsigned int bus_width)
 
 	mmc_reset_to_idle();
 
-	/* CMD8: Send Interface Condition Command */
-	ret = mmc_send_cmd(MMC_CMD(8), VHS_2_7_3_6_V | CMD8_CHECK_PATTERN,
-			   MMC_RESPONSE_R(7), &resp_data[0]);
-
-	if ((ret == 0) && ((resp_data[0] & 0xffU) == CMD8_CHECK_PATTERN)) {
-		ret = sd_send_op_cond();
-	} else {
+	if (mmc_dev_info->mmc_dev_type == MMC_IS_EMMC) {
 		ret = mmc_send_op_cond();
+	} else {
+		/* CMD8: Send Interface Condition Command */
+		ret = mmc_send_cmd(MMC_CMD(8), VHS_2_7_3_6_V | CMD8_CHECK_PATTERN,
+				   MMC_RESPONSE_R(7), &resp_data[0]);
+
+		if ((ret == 0) && ((resp_data[0] & 0xffU) == CMD8_CHECK_PATTERN)) {
+			ret = sd_send_op_cond();
+		}
 	}
 	if (ret != 0) {
 		return ret;
