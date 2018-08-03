@@ -9,6 +9,7 @@
 #include <debug.h>
 #include <errno.h>
 #include <platform_def.h>
+#include <stdbool.h>
 #include <types.h>
 #include <utils_def.h>
 #include <xlat_tables_defs.h>
@@ -307,7 +308,7 @@ static uint64_t *find_xlat_table_entry(uintptr_t virtual_addr,
 	 * This shouldn't be reached, the translation table walk should end at
 	 * most at level XLAT_TABLE_LEVEL_MAX and return from inside the loop.
 	 */
-	assert(0);
+	assert(false);
 
 	return NULL;
 }
@@ -326,7 +327,7 @@ static int get_mem_attributes_internal(const xlat_ctx_t *ctx, uintptr_t base_va,
 	 * Sanity-check arguments.
 	 */
 	assert(ctx != NULL);
-	assert(ctx->initialized != 0);
+	assert(ctx->initialized);
 	assert((ctx->xlat_regime == EL1_EL0_REGIME) ||
 	       (ctx->xlat_regime == EL3_REGIME));
 
@@ -422,7 +423,7 @@ int change_mem_attributes(const xlat_ctx_t *ctx,
 	/* Note: This implementation isn't optimized. */
 
 	assert(ctx != NULL);
-	assert(ctx->initialized != 0);
+	assert(ctx->initialized);
 
 	unsigned long long virt_addr_space_size =
 		(unsigned long long)ctx->va_max_address + 1U;

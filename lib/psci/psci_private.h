@@ -14,6 +14,7 @@
 #include <cpu_data.h>
 #include <psci.h>
 #include <spinlock.h>
+#include <stdbool.h>
 
 /*
  * The PSCI capability which are provided by the generic code but does not
@@ -93,10 +94,10 @@ static inline plat_local_state_t psci_get_cpu_local_state_by_idx(int idx)
 }
 
 /* Helper function to identify a CPU standby request in PSCI Suspend call */
-static inline int is_cpu_standby_req(unsigned int is_power_down_state,
-				     unsigned int retn_lvl)
+static inline bool is_cpu_standby_req(unsigned int is_power_down_state,
+				      unsigned int retn_lvl)
 {
-	return ((is_power_down_state == 0U) && (retn_lvl == 0U)) ? 1 : 0;
+	return (is_power_down_state == 0U) && (retn_lvl == 0U);
 }
 
 /*******************************************************************************

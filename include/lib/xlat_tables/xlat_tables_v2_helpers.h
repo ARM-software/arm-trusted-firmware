@@ -20,6 +20,7 @@
 
 #include <cassert.h>
 #include <platform_def.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <xlat_tables_arch.h>
 #include <xlat_tables_defs.h>
@@ -95,8 +96,8 @@ struct xlat_ctx {
 	/* Level of the base translation table. */
 	unsigned int base_level;
 
-	/* Set to 1 when the translation tables are initialized. */
-	int initialized;
+	/* Set to true when the translation tables are initialized. */
+	bool initialized;
 
 	/*
 	 * Translation regime managed by this xlat_ctx_t. It should be one of
@@ -157,7 +158,7 @@ struct xlat_ctx {
 		.max_pa = 0U,						\
 		.max_va = 0U,						\
 		.next_table = 0,					\
-		.initialized = 0,					\
+		.initialized = false,					\
 	}
 
 #endif /*__ASSEMBLY__*/

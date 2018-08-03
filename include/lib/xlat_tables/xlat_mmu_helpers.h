@@ -52,6 +52,7 @@
 
 #ifndef __ASSEMBLY__
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -78,7 +79,7 @@ void enable_mmu_direct_el1(unsigned int flags);
 void enable_mmu_direct_el3(unsigned int flags);
 #endif /* AARCH32 */
 
-int xlat_arch_is_granule_size_supported(size_t size);
+bool xlat_arch_is_granule_size_supported(size_t size);
 size_t xlat_arch_get_max_supported_granule_size(void);
 
 #endif /* __ASSEMBLY__ */
