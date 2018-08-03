@@ -84,6 +84,41 @@ typedef struct mc_streamid_security_cfg {
 		.override_enable = OVERRIDE_ ## access \
 	}
 
+typedef struct mc_regs {
+	uint32_t reg;
+	uint32_t val;
+} mc_regs_t;
+
+#define mc_make_sid_override_cfg(name) \
+	{ \
+		.reg = TEGRA_MC_STREAMID_BASE + MC_STREAMID_OVERRIDE_CFG_ ## name, \
+		.val = 0x00000000U, \
+	}
+
+#define mc_make_sid_security_cfg(name) \
+	{ \
+		.reg = TEGRA_MC_STREAMID_BASE + MC_STREAMID_OVERRIDE_TO_SECURITY_CFG(MC_STREAMID_OVERRIDE_CFG_ ## name), \
+		.val = 0x00000000U, \
+	}
+
+#define mc_smmu_bypass_cfg \
+	{ \
+		.reg = TEGRA_MC_BASE + MC_SMMU_BYPASS_CONFIG, \
+		.val = 0x00000000U, \
+	}
+
+#define _START_OF_TABLE_ \
+	{ \
+		.reg = 0xCAFE05C7U, \
+		.val = 0x00000000U, \
+	}
+
+#define _END_OF_TABLE_ \
+	{ \
+		.reg = 0xFFFFFFFFU, \
+		.val = 0xFFFFFFFFU, \
+	}
+
 /*******************************************************************************
  * Structure to hold Memory Controller's Configuration settings
  ******************************************************************************/
@@ -96,6 +131,7 @@ typedef struct tegra_mc_settings {
 	uint32_t num_txn_override_cfgs;
 	void (*reconfig_mss_clients)(void);
 	void (*set_txn_overrides)(void);
+	mc_regs_t* (*get_mc_system_suspend_ctx)(void);
 } tegra_mc_settings_t;
 
 static inline uint32_t tegra_mc_read_32(uint32_t off)
@@ -164,6 +200,13 @@ static inline void tegra_mc_streamid_write_32(uint32_t off, uint32_t val)
  * Implemented by SoCs under tegra/soc/txxx
  ******************************************************************************/
 tegra_mc_settings_t *tegra_get_mc_settings(void);
+
+/*******************************************************************************
+ * Handler to save MC settings before "System Suspend" to TZDRAM
+ *
+ * Implemented by Tegra common memctrl_v2 driver under common/drivers/memctrl
+ ******************************************************************************/
+void tegra_mc_save_context(uint64_t mc_ctx_addr);
 
 /*******************************************************************************
  * Handler to program the scratch registers with TZDRAM settings for the

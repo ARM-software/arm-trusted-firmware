@@ -20,6 +20,7 @@
 #include <lib/psci/psci.h>
 #include <mce.h>
 #include <mce_private.h>
+#include <memctrl_v2.h>
 #include <plat/common/platform.h>
 #include <se.h>
 #include <smmu.h>
@@ -118,7 +119,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	const plat_local_state_t *pwr_domain_state;
 	uint8_t stateid_afflvl0, stateid_afflvl2;
 	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
-	uint64_t smmu_ctx_base;
+	uint64_t mc_ctx_base;
 	uint32_t val;
 	mce_cstate_info_t sc7_cstate_info = {
 		.cluster = (uint32_t)TEGRA_NVG_CLUSTER_CC6,
@@ -151,10 +152,10 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		val = mmio_read_32(TEGRA_MISC_BASE + MISCREG_PFCFG);
 		mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SECURE_BOOTP_FCFG, val);
 
-		/* save SMMU context */
-		smmu_ctx_base = params_from_bl2->tzdram_base +
-				tegra194_get_smmu_ctx_offset();
-		tegra_smmu_save_context((uintptr_t)smmu_ctx_base);
+		/* save MC context */
+		mc_ctx_base = params_from_bl2->tzdram_base +
+				tegra194_get_mc_ctx_offset();
+		tegra_mc_save_context((uintptr_t)mc_ctx_base);
 
 		/*
 		 * Suspend SE, RNG1 and PKA1 only on silcon and fpga,
