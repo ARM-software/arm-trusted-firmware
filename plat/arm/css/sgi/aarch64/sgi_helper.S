@@ -7,28 +7,10 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <platform_def.h>
+#include <cortex_a75.h>
 
-	.globl	plat_is_my_cpu_primary
 	.globl	plat_arm_calc_core_pos
-
-	/* -----------------------------------------------------
-	 * unsigned int plat_is_my_cpu_primary (void);
-	 *
-	 * Find out whether the current cpu is the primary
-	 * cpu (applicable only after a cold boot)
-	 * -----------------------------------------------------
-	 */
-func plat_is_my_cpu_primary
-	mov	x9, x30
-	bl	plat_my_core_pos
-	ldr	x1, =SGI_BOOT_CFG_ADDR
-	ldr	x1, [x1]
-	ubfx	x1, x1, #PLAT_CSS_PRIMARY_CPU_SHIFT, \
-			#PLAT_CSS_PRIMARY_CPU_BIT_WIDTH
-	cmp	x0, x1
-	cset	w0, eq
-	ret	x9
-endfunc plat_is_my_cpu_primary
+	.globl	plat_reset_handler
 
 	/* -----------------------------------------------------
 	 * unsigned int plat_arm_calc_core_pos(u_register_t mpidr)
@@ -65,3 +47,41 @@ func plat_arm_calc_core_pos
 	madd    x0, x1, x5, x0
 	ret
 endfunc plat_arm_calc_core_pos
+
+	/* ------------------------------------------------------
+	 * Helper macro that reads the part number of the current
+	 * CPU and jumps to the given label if it matches the CPU
+	 * MIDR provided.
+	 *
+	 * Clobbers x0.
+	 * -----------------------------------------------------
+	 */
+	.macro  jump_if_cpu_midr _cpu_midr, _label
+	mrs	x0, midr_el1
+	ubfx	x0, x0, MIDR_PN_SHIFT, #12
+	cmp	w0, #((\_cpu_midr >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
+	b.eq	\_label
+	.endm
+
+	/* -----------------------------------------------------
+	 * void plat_reset_handler(void);
+	 *
+	 * Determine the CPU MIDR and disable power down bit for
+	 * that CPU.
+	 * -----------------------------------------------------
+	 */
+func plat_reset_handler
+	jump_if_cpu_midr CORTEX_A75_MIDR, A75
+	ret
+
+	/* -----------------------------------------------------
+	 * Disable CPU power down bit in power control register
+	 * -----------------------------------------------------
+	 */
+A75:
+	mrs	x0, CORTEX_A75_CPUPWRCTLR_EL1
+	bic	x0, x0, #CORTEX_A75_CORE_PWRDN_EN_MASK
+	msr	CORTEX_A75_CPUPWRCTLR_EL1, x0
+	isb
+	ret
+endfunc plat_reset_handler

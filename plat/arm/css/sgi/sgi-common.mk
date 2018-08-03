@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+CSS_USE_SCMI_SDS_DRIVER		:=	1
+
 ENABLE_PLAT_COMPAT		:=	0
 
 CSS_ENT_BASE			:=	plat/arm/css/sgi
