@@ -473,12 +473,12 @@ static int mmc_enumerate(unsigned int clk, unsigned int bus_width)
 		}
 	} while (ret != MMC_STATE_TRAN);
 
-	ret = mmc_fill_device_info();
+	ret = mmc_set_ios(clk, bus_width);
 	if (ret != 0) {
 		return ret;
 	}
 
-	return mmc_set_ios(clk, bus_width);
+	return mmc_fill_device_info();
 }
 
 size_t mmc_read_blocks(int lba, uintptr_t buf, size_t size)
