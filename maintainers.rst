@@ -34,13 +34,11 @@ eMMC/UFS drivers
 ----------------
 :M: Haojian Zhuang <haojian.zhuang@linaro.org>
 :G: `hzhuang1`_
-:F: drivers/emmc/
 :F: drivers/partition/
 :F: drivers/synopsys/emmc/
 :F: drivers/synopsys/ufs/
 :F: drivers/ufs/
 :F: include/drivers/dw_ufs.h
-:F: include/drivers/emmc.h
 :F: include/drivers/ufs.h
 :F: include/drivers/synopsys/dw_mmc.h
 
