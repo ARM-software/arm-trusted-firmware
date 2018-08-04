@@ -7,7 +7,6 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <debug.h>
-#include <emmc.h>
 #include <errno.h>
 #include <firmware_image_package.h>
 #include <io_block.h>
@@ -15,6 +14,7 @@
 #include <io_fip.h>
 #include <io_memmap.h>
 #include <io_storage.h>
+#include <mmc.h>
 #include <mmio.h>
 #include <platform_def.h>
 #include <semihosting.h>	/* For FOPEN_MODE_... */
@@ -59,10 +59,10 @@ static const io_block_dev_spec_t emmc_dev_spec = {
 	},
 #endif
 	.ops		= {
-		.read	= emmc_read_blocks,
-		.write	= emmc_write_blocks,
+		.read	= mmc_read_blocks,
+		.write	= mmc_write_blocks,
 	},
-	.block_size	= EMMC_BLOCK_SIZE,
+	.block_size	= MMC_BLOCK_SIZE,
 };
 
 static const io_uuid_spec_t bl31_uuid_spec = {

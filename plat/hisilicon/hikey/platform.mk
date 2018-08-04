@@ -65,7 +65,7 @@ BL1_SOURCES		+=	bl1/tbbr/tbbr_img_desc.c		\
 				drivers/io/io_block.c			\
 				drivers/io/io_fip.c			\
 				drivers/io/io_storage.c			\
-				drivers/emmc/emmc.c			\
+				drivers/mmc/mmc.c			\
 				drivers/synopsys/emmc/dw_mmc.c		\
 				lib/cpus/aarch64/cortex_a53.S		\
 				plat/hisilicon/hikey/aarch64/hikey_helpers.S \
@@ -81,7 +81,7 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 				drivers/io/io_block.c			\
 				drivers/io/io_fip.c			\
 				drivers/io/io_storage.c			\
-				drivers/emmc/emmc.c			\
+				drivers/mmc/mmc.c			\
 				drivers/synopsys/emmc/dw_mmc.c		\
 				lib/cpus/aarch64/cortex_a53.S		\
 				plat/hisilicon/hikey/aarch64/hikey_helpers.S \
