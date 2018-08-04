@@ -10,9 +10,9 @@
 #include <console.h>
 #include <debug.h>
 #include <dw_mmc.h>
-#include <emmc.h>
 #include <errno.h>
 #include <generic_delay_timer.h>
+#include <mmc.h>
 #include <mmio.h>
 #include <pl061_gpio.h>
 #include <platform.h>
@@ -92,6 +92,7 @@ void bl1_plat_arch_setup(void)
 void bl1_platform_setup(void)
 {
 	int i;
+	struct mmc_device_info info;
 #if !POPLAR_RECOVERY
 	dw_mmc_params_t params = EMMC_INIT_PARAMS(POPLAR_EMMC_DESC_BASE);
 #endif
@@ -105,7 +106,8 @@ void bl1_platform_setup(void)
 #if !POPLAR_RECOVERY
 	/* SoC-specific emmc register are initialized/configured by bootrom */
 	INFO("BL1: initializing emmc\n");
-	dw_mmc_init(&params);
+	info.mmc_dev_type = MMC_IS_EMMC;
+	dw_mmc_init(&params, &info);
 #endif
 
 	plat_io_setup();

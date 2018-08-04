@@ -67,11 +67,11 @@
 
 #define EMMC_DESC_SIZE			U(0x00100000) /* 1MB */
 #define EMMC_INIT_PARAMS(base)				\
-	{	.bus_width = EMMC_BUS_WIDTH_8,		\
+	{	.bus_width = MMC_BUS_WIDTH_8,		\
 		.clk_rate = 25 * 1000 * 1000,		\
 		.desc_base = (base),	\
 		.desc_size = EMMC_DESC_SIZE,		\
-		.flags =  EMMC_FLAG_CMD23,		\
+		.flags =  MMC_FLAG_CMD23,		\
 		.reg_base = REG_BASE_MCI,		\
 	}
 
