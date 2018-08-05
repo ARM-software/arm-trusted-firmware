@@ -90,6 +90,16 @@ void init_xlat_tables(void)
 	init_xlat_tables_ctx(&tf_xlat_ctx);
 }
 
+int xlat_get_mem_attributes(uintptr_t base_va, uint32_t *attr)
+{
+	return xlat_get_mem_attributes_ctx(&tf_xlat_ctx, base_va, attr);
+}
+
+int xlat_change_mem_attributes(uintptr_t base_va, size_t size, uint32_t attr)
+{
+	return xlat_change_mem_attributes_ctx(&tf_xlat_ctx, base_va, size, attr);
+}
+
 /*
  * If dynamic allocation of new regions is disabled then by the time we call the
  * function enabling the MMU, we'll have registered all the memory regions to
