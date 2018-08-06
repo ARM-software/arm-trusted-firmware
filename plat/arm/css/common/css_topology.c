@@ -23,6 +23,12 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 	if (arm_check_mpidr(mpidr) == 0) {
 #if ARM_PLAT_MT
 		assert((read_mpidr_el1() & MPIDR_MT_MASK) != 0);
+
+		/*
+		 * The DTB files don't provide the MT bit in the mpidr argument
+		 * so set it manually before calculating core position
+		 */
+		mpidr |= MPIDR_MT_MASK;
 #endif
 		return plat_arm_calc_core_pos(mpidr);
 	}
