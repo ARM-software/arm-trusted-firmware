@@ -134,12 +134,16 @@ BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 
 
 BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
+				lib/utils/mem_region.c				\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\
 				plat/arm/board/fvp/fvp_bl2_setup.c		\
 				plat/arm/board/fvp/fvp_io_storage.c		\
 				plat/arm/board/fvp/fvp_trusted_boot.c		\
+				plat/arm/common/arm_nor_psci_mem_protect.c	\
 				${FVP_SECURITY_SOURCES}
+
+
 
 ifeq (${BL2_AT_EL3},1)
 BL2_SOURCES		+=	plat/arm/board/fvp/${ARCH}/fvp_helpers.S	\
@@ -156,11 +160,14 @@ BL2U_SOURCES		+=	plat/arm/board/fvp/fvp_bl2u_setup.c		\
 				${FVP_SECURITY_SOURCES}
 
 BL31_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
+				lib/utils/mem_region.c				\
 				plat/arm/board/fvp/fvp_bl31_setup.c		\
 				plat/arm/board/fvp/fvp_pm.c			\
 				plat/arm/board/fvp/fvp_topology.c		\
 				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
 				plat/arm/board/fvp/drivers/pwrc/fvp_pwrc.c	\
+				plat/arm/board/common/drivers/norflash/norflash.c \
+				plat/arm/common/arm_nor_psci_mem_protect.c	\
 				${FVP_CPU_LIBS}					\
 				${FVP_GIC_SOURCES}				\
 				${FVP_INTERCONNECT_SOURCES}			\
