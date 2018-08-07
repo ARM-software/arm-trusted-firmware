@@ -539,7 +539,9 @@ int xlat_change_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
 		 * before writing the new descriptor.
 		 */
 		*entry = INVALID_DESC;
-
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+		dccvac((uintptr_t)entry);
+#endif
 		/* Invalidate any cached copy of this mapping in the TLBs. */
 		xlat_arch_tlbi_va(base_va, ctx->xlat_regime);
 
@@ -548,7 +550,9 @@ int xlat_change_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
 
 		/* Write new descriptor */
 		*entry = xlat_desc(ctx, new_attr, addr_pa, level);
-
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+		dccvac((uintptr_t)entry);
+#endif
 		base_va += PAGE_SIZE;
 	}
 
