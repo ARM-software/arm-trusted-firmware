@@ -74,7 +74,7 @@ void configure_mmu(void)
 	mmap_add(stm32mp1_mmap);
 	init_xlat_tables();
 
-	enable_mmu_secure(0);
+	enable_mmu_svc_mon(0);
 }
 
 uintptr_t plat_get_ns_image_entrypoint(void)
