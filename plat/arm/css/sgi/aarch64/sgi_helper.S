@@ -8,6 +8,7 @@
 #include <asm_macros.S>
 #include <platform_def.h>
 #include <cortex_a75.h>
+#include <cortex_ares.h>
 #include <cpu_macros.S>
 
 	.globl	plat_arm_calc_core_pos
@@ -58,6 +59,7 @@ endfunc plat_arm_calc_core_pos
 	 */
 func plat_reset_handler
 	jump_if_cpu_midr CORTEX_A75_MIDR, A75
+	jump_if_cpu_midr CORTEX_ARES_MIDR, ARES
 	ret
 
 	/* -----------------------------------------------------
@@ -68,6 +70,13 @@ A75:
 	mrs	x0, CORTEX_A75_CPUPWRCTLR_EL1
 	bic	x0, x0, #CORTEX_A75_CORE_PWRDN_EN_MASK
 	msr	CORTEX_A75_CPUPWRCTLR_EL1, x0
+	isb
+	ret
+
+ARES:
+	mrs	x0, CORTEX_ARES_CPUPWRCTLR_EL1
+	bic	x0, x0, #CORTEX_ARES_CORE_PWRDN_EN_MASK
+	msr	CORTEX_ARES_CPUPWRCTLR_EL1, x0
 	isb
 	ret
 endfunc plat_reset_handler
