@@ -67,15 +67,24 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 
 #ifdef AARCH32
 /* AArch32 specific translation table API */
+#if !ERROR_DEPRECATED
 void enable_mmu_secure(unsigned int flags);
-
 void enable_mmu_direct(unsigned int flags);
+#endif
+
+void enable_mmu_svc_mon(unsigned int flags);
+void enable_mmu_hyp(unsigned int flags);
+
+void enable_mmu_direct_svc_mon(unsigned int flags);
+void enable_mmu_direct_hyp(unsigned int flags);
 #else
 /* AArch64 specific translation table APIs */
 void enable_mmu_el1(unsigned int flags);
+void enable_mmu_el2(unsigned int flags);
 void enable_mmu_el3(unsigned int flags);
 
 void enable_mmu_direct_el1(unsigned int flags);
+void enable_mmu_direct_el2(unsigned int flags);
 void enable_mmu_direct_el3(unsigned int flags);
 #endif /* AARCH32 */
 

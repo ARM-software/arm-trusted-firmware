@@ -313,6 +313,28 @@
 #define TTBCR_T0SZ_SHIFT	U(0)
 #define TTBCR_T0SZ_MASK		U(0x7)
 
+/*
+ * HTCR definitions
+ */
+#define HTCR_RES1			((U(1) << 31) | (U(1) << 23))
+
+#define HTCR_SH0_NON_SHAREABLE		(U(0x0) << 12)
+#define HTCR_SH0_OUTER_SHAREABLE	(U(0x2) << 12)
+#define HTCR_SH0_INNER_SHAREABLE	(U(0x3) << 12)
+
+#define HTCR_RGN0_OUTER_NC	(U(0x0) << 10)
+#define HTCR_RGN0_OUTER_WBA	(U(0x1) << 10)
+#define HTCR_RGN0_OUTER_WT	(U(0x2) << 10)
+#define HTCR_RGN0_OUTER_WBNA	(U(0x3) << 10)
+
+#define HTCR_RGN0_INNER_NC	(U(0x0) << 8)
+#define HTCR_RGN0_INNER_WBA	(U(0x1) << 8)
+#define HTCR_RGN0_INNER_WT	(U(0x2) << 8)
+#define HTCR_RGN0_INNER_WBNA	(U(0x3) << 8)
+
+#define HTCR_T0SZ_SHIFT		U(0)
+#define HTCR_T0SZ_MASK		U(0x7)
+
 #define MODE_RW_SHIFT		U(0x4)
 #define MODE_RW_MASK		U(0x1)
 #define MODE_RW_32		U(0x1)
@@ -433,6 +455,7 @@
 #define TLBIMVA		p15, 0, c8, c7, 1
 #define TLBIMVAA	p15, 0, c8, c7, 3
 #define TLBIMVAAIS	p15, 0, c8, c3, 3
+#define TLBIMVAHIS	p15, 4, c8, c3, 1
 #define BPIALLIS	p15, 0, c7, c1, 6
 #define BPIALL		p15, 0, c7, c5, 6
 #define ICIALLU		p15, 0, c7, c5, 0
@@ -448,6 +471,8 @@
 #define CLIDR		p15, 1, c0, c0, 1
 #define CSSELR		p15, 2, c0, c0, 0
 #define CCSIDR		p15, 1, c0, c0, 0
+#define HTCR		p15, 4, c2, c0, 2
+#define HMAIR0		p15, 4, c10, c2, 0
 #define DBGOSDLR	p14, 0, c1, c3, 4
 
 /* Debug register defines. The format is: coproc, opt1, CRn, CRm, opt2 */
@@ -487,6 +512,7 @@
 #define CNTVOFF_64	p15, 4, c14
 #define VTTBR_64	p15, 6, c2
 #define CNTPCT_64	p15, 0, c14
+#define HTTBR_64	p15, 4, c2
 
 /* 64 bit GICv3 CPU Interface system register defines. The format is: coproc, opt1, CRm */
 #define ICC_SGI1R_EL1_64	p15, 0, c12

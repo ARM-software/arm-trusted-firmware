@@ -116,7 +116,7 @@ func smc_handler
 
 	/* Turn on the MMU */
 	mov	r0, #DISABLE_DCACHE
-	bl	enable_mmu_secure
+	bl	enable_mmu_svc_mon
 
 	/* Enable the data cache. */
 	ldcopr	r9, SCTLR

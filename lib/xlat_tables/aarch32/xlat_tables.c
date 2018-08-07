@@ -65,7 +65,19 @@ void init_xlat_tables(void)
  * Function for enabling the MMU in Secure PL1, assuming that the
  * page-tables have already been created.
  ******************************************************************************/
+#if !ERROR_DEPRECATED
 void enable_mmu_secure(unsigned int flags)
+{
+	enable_mmu_svc_mon(flags);
+}
+
+void enable_mmu_direct(unsigned int flags)
+{
+	enable_mmu_direct_svc_mon(flags);
+}
+#endif
+
+void enable_mmu_svc_mon(unsigned int flags)
 {
 	unsigned int mair0, ttbcr, sctlr;
 	uint64_t ttbr0;
@@ -131,7 +143,7 @@ void enable_mmu_secure(unsigned int flags)
 	isb();
 }
 
-void enable_mmu_direct(unsigned int flags)
+void enable_mmu_direct_svc_mon(unsigned int flags)
 {
-	enable_mmu_secure(flags);
+	enable_mmu_svc_mon(flags);
 }

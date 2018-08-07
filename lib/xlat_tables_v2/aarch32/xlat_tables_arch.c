@@ -43,22 +43,38 @@ unsigned long long xlat_arch_get_max_supported_pa(void)
 }
 #endif /* ENABLE_ASSERTIONS*/
 
-bool is_mmu_enabled_ctx(const xlat_ctx_t *ctx __unused)
+bool is_mmu_enabled_ctx(const xlat_ctx_t *ctx)
 {
-	return (read_sctlr() & SCTLR_M_BIT) != 0;
+	if (ctx->xlat_regime == EL1_EL0_REGIME) {
+		assert(xlat_arch_current_el() == 1U);
+		return (read_sctlr() & SCTLR_M_BIT) != 0U;
+	} else {
+		assert(ctx->xlat_regime == EL2_REGIME);
+		assert(xlat_arch_current_el() == 2U);
+		return (read_hsctlr() & HSCTLR_M_BIT) != 0U;
+	}
 }
 
 bool is_dcache_enabled(void)
 {
-	return (read_sctlr() & SCTLR_C_BIT) != 0;
+	if (IS_IN_EL2()) {
+		return (read_hsctlr() & HSCTLR_C_BIT) != 0U;
+	} else {
+		return (read_sctlr() & SCTLR_C_BIT) != 0U;
+	}
 }
 
-uint64_t xlat_arch_regime_get_xn_desc(int xlat_regime __unused)
+uint64_t xlat_arch_regime_get_xn_desc(int xlat_regime)
 {
-	return UPPER_ATTRS(XN);
+	if (xlat_regime == EL1_EL0_REGIME) {
+		return UPPER_ATTRS(XN) | UPPER_ATTRS(PXN);
+	} else {
+		assert(xlat_regime == EL2_REGIME);
+		return UPPER_ATTRS(XN);
+	}
 }
 
-void xlat_arch_tlbi_va(uintptr_t va, int xlat_regime __unused)
+void xlat_arch_tlbi_va(uintptr_t va, int xlat_regime)
 {
 	/*
 	 * Ensure the translation table write has drained into memory before
@@ -66,7 +82,12 @@ void xlat_arch_tlbi_va(uintptr_t va, int xlat_regime __unused)
 	 */
 	dsbishst();
 
-	tlbimvaais(TLBI_ADDR(va));
+	if (xlat_regime == EL1_EL0_REGIME) {
+		tlbimvaais(TLBI_ADDR(va));
+	} else {
+		assert(xlat_regime == EL2_REGIME);
+		tlbimvahis(TLBI_ADDR(va));
+	}
 }
 
 void xlat_arch_tlbi_va_sync(void)
@@ -97,19 +118,25 @@ void xlat_arch_tlbi_va_sync(void)
 
 unsigned int xlat_arch_current_el(void)
 {
-	/*
-	 * If EL3 is in AArch32 mode, all secure PL1 modes (Monitor, System,
-	 * SVC, Abort, UND, IRQ and FIQ modes) execute at EL3.
-	 *
-	 * The PL1&0 translation regime in AArch32 behaves like the EL1&0 regime
-	 * in AArch64 except for the XN bits, but we set and unset them at the
-	 * same time, so there's no difference in practice.
-	 */
-	return 1U;
+	if (IS_IN_HYP()) {
+		return 2U;
+	} else {
+		assert(IS_IN_SVC() || IS_IN_MON());
+		/*
+		 * If EL3 is in AArch32 mode, all secure PL1 modes (Monitor,
+		 * System, SVC, Abort, UND, IRQ and FIQ modes) execute at EL3.
+		 *
+		 * The PL1&0 translation regime in AArch32 behaves like the
+		 * EL1&0 regime in AArch64 except for the XN bits, but we set
+		 * and unset them at the same time, so there's no difference in
+		 * practice.
+		 */
+		return 1U;
+	}
 }
 
 /*******************************************************************************
- * Function for enabling the MMU in Secure PL1, assuming that the page tables
+ * Function for enabling the MMU in PL1 or PL2, assuming that the page tables
  * have already been created.
  ******************************************************************************/
 void setup_mmu_cfg(uint64_t *params, unsigned int flags,
@@ -119,8 +146,6 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 	uint64_t mair, ttbr0;
 	uint32_t ttbcr;
 
-	assert(IS_IN_SECURE());
-
 	/* Set attributes in the right indices of the MAIR */
 	mair = MAIR0_ATTR_SET(ATTR_DEVICE, ATTR_DEVICE_INDEX);
 	mair |= MAIR0_ATTR_SET(ATTR_IWBWA_OWBWA_NTR,
@@ -129,18 +154,32 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 			ATTR_NON_CACHEABLE_INDEX);
 
 	/*
-	 * Configure the control register for stage 1 of the PL1&0 translation
-	 * regime.
+	 * Configure the control register for stage 1 of the PL1&0 or EL2
+	 * translation regimes.
 	 */
 
 	/* Use the Long-descriptor translation table format. */
 	ttbcr = TTBCR_EAE_BIT;
 
-	/*
-	 * Disable translation table walk for addresses that are translated
-	 * using TTBR1. Therefore, only TTBR0 is used.
-	 */
-	ttbcr |= TTBCR_EPD1_BIT;
+	if (xlat_regime == EL1_EL0_REGIME) {
+		assert(IS_IN_SVC() || IS_IN_MON());
+		/*
+		 * Disable translation table walk for addresses that are
+		 * translated using TTBR1. Therefore, only TTBR0 is used.
+		 */
+		ttbcr |= TTBCR_EPD1_BIT;
+	} else {
+		assert(xlat_regime == EL2_REGIME);
+		assert(IS_IN_HYP());
+
+		/*
+		 * Set HTCR bits as well. Set HTTBR table properties
+		 * as Inner & outer WBWA & shareable.
+		 */
+		ttbcr |= HTCR_RES1 |
+			 HTCR_SH0_INNER_SHAREABLE | HTCR_RGN0_OUTER_WBA |
+			 HTCR_RGN0_INNER_WBA;
+	}
 
 	/*
 	 * Limit the input address ranges and memory region sizes translated

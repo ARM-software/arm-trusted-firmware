@@ -142,7 +142,8 @@ uint64_t xlat_desc(const xlat_ctx_t *ctx, uint32_t attr,
 			desc |= LOWER_ATTRS(AP_NO_ACCESS_UNPRIVILEGED);
 		}
 	} else {
-		assert(ctx->xlat_regime == EL3_REGIME);
+		assert((ctx->xlat_regime == EL2_REGIME) ||
+		       (ctx->xlat_regime == EL3_REGIME));
 		desc |= LOWER_ATTRS(AP_ONE_VA_RANGE_RES1);
 	}
 
@@ -1016,6 +1017,7 @@ void init_xlat_tables_ctx(xlat_ctx_t *ctx)
 	assert(ctx != NULL);
 	assert(!ctx->initialized);
 	assert((ctx->xlat_regime == EL3_REGIME) ||
+	       (ctx->xlat_regime == EL2_REGIME) ||
 	       (ctx->xlat_regime == EL1_EL0_REGIME));
 	assert(!is_mmu_enabled_ctx(ctx));
 
