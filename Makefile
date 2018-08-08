@@ -166,6 +166,14 @@ TF_CFLAGS_aarch64	=	-march=armv8-a
 LD			=	$(LINKER)
 endif
 
+ifeq (${AARCH32_INSTRUCTION_SET},A32)
+TF_CFLAGS_aarch32	+=	-marm
+else ifeq (${AARCH32_INSTRUCTION_SET},T32)
+TF_CFLAGS_aarch32	+=	-mthumb
+else
+$(error Error: Unknown AArch32 instruction set ${AARCH32_INSTRUCTION_SET})
+endif
+
 TF_CFLAGS_aarch32	+=	-mno-unaligned-access
 TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
 

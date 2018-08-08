@@ -10,6 +10,9 @@
 # poised to handle dependencies, as all build variables would have a default
 # value by then.
 
+# Use T32 by default
+AARCH32_INSTRUCTION_SET		:= T32
+
 # The AArch32 Secure Payload to be built as BL32 image
 AARCH32_SP			:= none
 
