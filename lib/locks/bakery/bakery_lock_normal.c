@@ -204,7 +204,12 @@ void bakery_lock_get(bakery_lock_t *lock)
 				== bakery_ticket_number(their_bakery_info->lock_data));
 		}
 	}
-	/* Lock acquired */
+
+	/*
+	 * Lock acquired. Ensure that any reads from a shared resource in the
+	 * critical section read values after the lock is acquired.
+	 */
+	dmbld();
 }
 
 void bakery_lock_release(bakery_lock_t *lock)
@@ -220,6 +225,12 @@ void bakery_lock_release(bakery_lock_t *lock)
 
 	assert(is_lock_acquired(my_bakery_info, is_cached));
 
+	/*
+	 * Ensure that other observers see any stores in the critical section
+	 * before releasing the lock. Release the lock by resetting ticket.
+	 * Then signal other waiting contenders.
+	 */
+	dmbst();
 	my_bakery_info->lock_data = 0;
 	write_cache_op(my_bakery_info, is_cached);
 	sev();
