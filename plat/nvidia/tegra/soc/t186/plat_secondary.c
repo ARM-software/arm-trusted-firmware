@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,9 +15,6 @@
 #include <tegra186_private.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
-
-#define MISCREG_AA64_RST_LOW		0x2004U
-#define MISCREG_AA64_RST_HIGH		0x2008U
 
 #define SCRATCH_SECURE_RSV1_SCRATCH_0	0x658U
 #define SCRATCH_SECURE_RSV1_SCRATCH_1	0x65CU
@@ -51,16 +49,9 @@ void plat_secondary_setup(void)
 	addr_low = (uint32_t)params_from_bl2->tzdram_base | CPU_RESET_MODE_AA64;
 	addr_high = (uint32_t)((params_from_bl2->tzdram_base >> 32U) & 0x7ffU);
 
-	/* write lower 32 bits first, then the upper 11 bits */
-	mmio_write_32(TEGRA_MISC_BASE + MISCREG_AA64_RST_LOW, addr_low);
-	mmio_write_32(TEGRA_MISC_BASE + MISCREG_AA64_RST_HIGH, addr_high);
-
 	/* save reset vector to be used during SYSTEM_SUSPEND exit */
 	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_RESET_VECTOR_LO,
 			addr_low);
 	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_RESET_VECTOR_HI,
 			addr_high);
-
-	/* update reset vector address to the CCPLEX */
-	(void)mce_update_reset_vector();
 }

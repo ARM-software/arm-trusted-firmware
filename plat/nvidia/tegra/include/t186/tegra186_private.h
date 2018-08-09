@@ -11,6 +11,5 @@ void tegra186_cpu_reset_handler(void);
 uint64_t tegra186_get_cpu_reset_handler_base(void);
 uint64_t tegra186_get_cpu_reset_handler_size(void);
 uint64_t tegra186_get_mc_ctx_offset(void);
-void tegra186_set_system_suspend_entry(void);
 
 #endif /* TEGRA186_PRIVATE_H */
