@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,14 +29,14 @@ static void trusty_dputc(char ch, int secure)
 	s->linebuf[s->l++] = ch;
 	if (s->l == sizeof(s->linebuf) || ch == '\n') {
 		if (secure)
-			printf("secure os: ");
+			tf_printf("secure os: ");
 		else
-			printf("non-secure os: ");
+			tf_printf("non-secure os: ");
 		for (i = 0; i < s->l; i++) {
 			putchar(s->linebuf[i]);
 		}
 		if (ch != '\n') {
-			printf(" <...>\n");
+			tf_printf(" <...>\n");
 		}
 		s->l = 0;
 	}

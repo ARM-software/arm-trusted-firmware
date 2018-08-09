@@ -1344,7 +1344,7 @@ int stm32mp1_clk_init(void)
 	for (i = (enum stm32mp1_pll_id)0; i < _PLL_NB; i++) {
 		char name[12];
 
-		sprintf(name, "st,pll@%d", i);
+		tf_snprintf(name, sizeof(name), "st,pll@%d", i);
 		plloff[i] = fdt_rcc_subnode_offset(name);
 
 		if (!fdt_check_node(plloff[i])) {
