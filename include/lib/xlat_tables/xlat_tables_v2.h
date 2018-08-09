@@ -296,14 +296,15 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx,
  * translation tables are not modified by any other code while this function is
  * executing.
  */
-int change_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va, size_t size,
-			  uint32_t attr);
+int xlat_change_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
+				   size_t size, uint32_t attr);
+int xlat_change_mem_attributes(uintptr_t base_va, size_t size, uint32_t attr);
 
 /*
  * Query the memory attributes of a memory page in a set of translation tables.
  *
  * Return 0 on success, a negative error code on error.
- * On success, the attributes are stored into *attributes.
+ * On success, the attributes are stored into *attr.
  *
  * ctx
  *   Translation context to work on.
@@ -311,11 +312,12 @@ int change_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va, size_t size,
  *   Virtual address of the page to get the attributes of.
  *   There are no alignment restrictions on this address. The attributes of the
  *   memory page it lies within are returned.
- * attributes
+ * attr
  *   Output parameter where to store the attributes of the targeted memory page.
  */
-int get_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va,
-		       uint32_t *attributes);
+int xlat_get_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
+				uint32_t *attr);
+int xlat_get_mem_attributes(uintptr_t base_va, uint32_t *attr);
 
 #endif /*__ASSEMBLY__*/
 #endif /* XLAT_TABLES_V2_H */

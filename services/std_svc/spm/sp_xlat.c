@@ -44,7 +44,7 @@ xlat_ctx_t *spm_get_sp_xlat_context(void)
  * converts an attributes value from the SMC format to the mmap_attr_t format by
  * setting MT_RW/MT_RO, MT_USER/MT_PRIVILEGED and MT_EXECUTE/MT_EXECUTE_NEVER.
  * The other fields are left as 0 because they are ignored by the function
- * change_mem_attributes().
+ * xlat_change_mem_attributes_ctx().
  */
 static unsigned int smc_attr_to_mmap_attr(unsigned int attributes)
 {
@@ -112,12 +112,12 @@ int32_t spm_memory_attributes_get_smc_handler(sp_context_t *sp_ctx,
 
 	spin_lock(&mem_attr_smc_lock);
 
-	int rc = get_mem_attributes(sp_ctx->xlat_ctx_handle,
+	int rc = xlat_get_mem_attributes_ctx(sp_ctx->xlat_ctx_handle,
 				     base_va, &attributes);
 
 	spin_unlock(&mem_attr_smc_lock);
 
-	/* Convert error codes of get_mem_attributes() into SPM ones. */
+	/* Convert error codes of xlat_get_mem_attributes_ctx() into SPM. */
 	assert((rc == 0) || (rc == -EINVAL));
 
 	if (rc == 0) {
@@ -142,13 +142,13 @@ int spm_memory_attributes_set_smc_handler(sp_context_t *sp_ctx,
 
 	spin_lock(&mem_attr_smc_lock);
 
-	int ret = change_mem_attributes(sp_ctx->xlat_ctx_handle,
+	int ret = xlat_change_mem_attributes_ctx(sp_ctx->xlat_ctx_handle,
 					base_va, size,
 					smc_attr_to_mmap_attr(attributes));
 
 	spin_unlock(&mem_attr_smc_lock);
 
-	/* Convert error codes of change_mem_attributes() into SPM ones. */
+	/* Convert error codes of xlat_change_mem_attributes_ctx() into SPM. */
 	assert((ret == 0) || (ret == -EINVAL));
 
 	return (ret == 0) ? SPM_SUCCESS : SPM_INVALID_PARAMETER;

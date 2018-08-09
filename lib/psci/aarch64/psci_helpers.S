@@ -115,28 +115,6 @@ func psci_do_pwrup_cache_maintenance
 	msr	sctlr_el3, x0
 	isb
 
-#if PLAT_XLAT_TABLES_DYNAMIC
-	/* ---------------------------------------------
-	 * During warm boot the MMU is enabled with data
-	 * cache disabled, then the interconnect is set
-	 * up and finally the data cache is enabled.
-	 *
-	 * During this period, if another CPU modifies
-	 * the translation tables, the MMU table walker
-	 * may read the old entries. This is only a
-	 * problem for dynamic regions, the warm boot
-	 * code isn't affected because it is static.
-	 *
-	 * Invalidate all TLB entries loaded while the
-	 * CPU wasn't coherent with the rest of the
-	 * system.
-	 * ---------------------------------------------
-	 */
-	tlbi	alle3
-	dsb	ish
-	isb
-#endif
-
 	ldp	x29, x30, [sp], #16
 	ret
 endfunc psci_do_pwrup_cache_maintenance

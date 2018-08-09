@@ -314,8 +314,8 @@ static uint64_t *find_xlat_table_entry(uintptr_t virtual_addr,
 }
 
 
-static int get_mem_attributes_internal(const xlat_ctx_t *ctx, uintptr_t base_va,
-		uint32_t *attributes, uint64_t **table_entry,
+static int xlat_get_mem_attributes_internal(const xlat_ctx_t *ctx,
+		uintptr_t base_va, uint32_t *attributes, uint64_t **table_entry,
 		unsigned long long *addr_pa, unsigned int *table_level)
 {
 	uint64_t *entry;
@@ -407,18 +407,16 @@ static int get_mem_attributes_internal(const xlat_ctx_t *ctx, uintptr_t base_va,
 }
 
 
-int get_mem_attributes(const xlat_ctx_t *ctx, uintptr_t base_va,
-		       uint32_t *attributes)
+int xlat_get_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
+				uint32_t *attr)
 {
-	return get_mem_attributes_internal(ctx, base_va, attributes,
-					   NULL, NULL, NULL);
+	return xlat_get_mem_attributes_internal(ctx, base_va, attr,
+				NULL, NULL, NULL);
 }
 
 
-int change_mem_attributes(const xlat_ctx_t *ctx,
-			uintptr_t base_va,
-			size_t size,
-			uint32_t attr)
+int xlat_change_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
+				   size_t size, uint32_t attr)
 {
 	/* Note: This implementation isn't optimized. */
 
@@ -517,7 +515,7 @@ int change_mem_attributes(const xlat_ctx_t *ctx,
 		unsigned int level = 0U;
 		unsigned long long addr_pa = 0ULL;
 
-		(void) get_mem_attributes_internal(ctx, base_va, &old_attr,
+		(void) xlat_get_mem_attributes_internal(ctx, base_va, &old_attr,
 					    &entry, &addr_pa, &level);
 
 		/*
@@ -541,7 +539,9 @@ int change_mem_attributes(const xlat_ctx_t *ctx,
 		 * before writing the new descriptor.
 		 */
 		*entry = INVALID_DESC;
-
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+		dccvac((uintptr_t)entry);
+#endif
 		/* Invalidate any cached copy of this mapping in the TLBs. */
 		xlat_arch_tlbi_va(base_va, ctx->xlat_regime);
 
@@ -550,7 +550,9 @@ int change_mem_attributes(const xlat_ctx_t *ctx,
 
 		/* Write new descriptor */
 		*entry = xlat_desc(ctx, new_attr, addr_pa, level);
-
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+		dccvac((uintptr_t)entry);
+#endif
 		base_va += PAGE_SIZE;
 	}
 

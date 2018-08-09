@@ -18,6 +18,13 @@
 
 #include "xlat_tables_private.h"
 
+/* Helper function that cleans the data cache only if it is enabled. */
+static inline void xlat_clean_dcache_range(uintptr_t addr, size_t size)
+{
+	if (is_dcache_enabled())
+		clean_dcache_range(addr, size);
+}
+
 #if PLAT_XLAT_TABLES_DYNAMIC
 
 /*
@@ -329,7 +336,10 @@ static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 			xlat_tables_unmap_region(ctx, mm, table_idx_va,
 						 subtable, XLAT_TABLE_ENTRIES,
 						 level + 1U);
-
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+			xlat_clean_dcache_range((uintptr_t)subtable,
+				XLAT_TABLE_ENTRIES * sizeof(uint64_t));
+#endif
 			/*
 			 * If the subtable is now empty, remove its reference.
 			 */
@@ -563,6 +573,10 @@ static uintptr_t xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 			end_va = xlat_tables_map_region(ctx, mm, table_idx_va,
 					       subtable, XLAT_TABLE_ENTRIES,
 					       level + 1U);
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+			xlat_clean_dcache_range((uintptr_t)subtable,
+				XLAT_TABLE_ENTRIES * sizeof(uint64_t));
+#endif
 			if (end_va !=
 				(table_idx_va + XLAT_BLOCK_SIZE(level) - 1U))
 				return end_va;
@@ -575,6 +589,10 @@ static uintptr_t xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 			end_va = xlat_tables_map_region(ctx, mm, table_idx_va,
 					       subtable, XLAT_TABLE_ENTRIES,
 					       level + 1U);
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+			xlat_clean_dcache_range((uintptr_t)subtable,
+				XLAT_TABLE_ENTRIES * sizeof(uint64_t));
+#endif
 			if (end_va !=
 				(table_idx_va + XLAT_BLOCK_SIZE(level) - 1U))
 				return end_va;
@@ -859,7 +877,10 @@ int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 		end_va = xlat_tables_map_region(ctx, mm_cursor,
 				0U, ctx->base_table, ctx->base_table_entries,
 				ctx->base_level);
-
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+		xlat_clean_dcache_range((uintptr_t)ctx->base_table,
+				   ctx->base_table_entries * sizeof(uint64_t));
+#endif
 		/* Failed to map, remove mmap entry, unmap and return error. */
 		if (end_va != (mm_cursor->base_va + mm_cursor->size - 1U)) {
 			(void)memmove(mm_cursor, mm_cursor + 1U,
@@ -885,7 +906,10 @@ int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 			xlat_tables_unmap_region(ctx, &unmap_mm, 0U,
 				ctx->base_table, ctx->base_table_entries,
 				ctx->base_level);
-
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+			xlat_clean_dcache_range((uintptr_t)ctx->base_table,
+				ctx->base_table_entries * sizeof(uint64_t));
+#endif
 			return -ENOMEM;
 		}
 
@@ -951,6 +975,10 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx, uintptr_t base_va,
 		xlat_tables_unmap_region(ctx, mm, 0U, ctx->base_table,
 					 ctx->base_table_entries,
 					 ctx->base_level);
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+		xlat_clean_dcache_range((uintptr_t)ctx->base_table,
+			ctx->base_table_entries * sizeof(uint64_t));
+#endif
 		xlat_arch_tlbi_va_sync();
 	}
 
@@ -1012,7 +1040,10 @@ void init_xlat_tables_ctx(xlat_ctx_t *ctx)
 		uintptr_t end_va = xlat_tables_map_region(ctx, mm, 0U,
 				ctx->base_table, ctx->base_table_entries,
 				ctx->base_level);
-
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+		xlat_clean_dcache_range((uintptr_t)ctx->base_table,
+				   ctx->base_table_entries * sizeof(uint64_t));
+#endif
 		if (end_va != (mm->base_va + mm->size - 1U)) {
 			ERROR("Not enough memory to map region:\n"
 			      " VA:0x%lx  PA:0x%llx  size:0x%zx  attr:0x%x\n",
