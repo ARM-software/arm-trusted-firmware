@@ -24,7 +24,7 @@
 static const struct mmc_ops *ops;
 static unsigned int mmc_ocr_value;
 static struct mmc_csd_emmc mmc_csd;
-static unsigned char mmc_ext_csd[512] __aligned(4);
+static unsigned char mmc_ext_csd[512] __aligned(16);
 static unsigned int mmc_flags;
 static struct mmc_device_info *mmc_dev_info;
 static unsigned int rca;
@@ -363,8 +363,6 @@ static int mmc_reset_to_idle(void)
 {
 	int ret;
 
-	mdelay(1);
-
 	/* CMD0: reset to IDLE */
 	ret = mmc_send_cmd(MMC_CMD(0), 0, 0, NULL);
 	if (ret != 0) {
@@ -413,14 +411,16 @@ static int mmc_enumerate(unsigned int clk, unsigned int bus_width)
 
 	mmc_reset_to_idle();
 
-	/* CMD8: Send Interface Condition Command */
-	ret = mmc_send_cmd(MMC_CMD(8), VHS_2_7_3_6_V | CMD8_CHECK_PATTERN,
-			   MMC_RESPONSE_R(7), &resp_data[0]);
-
-	if ((ret == 0) && ((resp_data[0] & 0xffU) == CMD8_CHECK_PATTERN)) {
-		ret = sd_send_op_cond();
-	} else {
+	if (mmc_dev_info->mmc_dev_type == MMC_IS_EMMC) {
 		ret = mmc_send_op_cond();
+	} else {
+		/* CMD8: Send Interface Condition Command */
+		ret = mmc_send_cmd(MMC_CMD(8), VHS_2_7_3_6_V | CMD8_CHECK_PATTERN,
+				   MMC_RESPONSE_R(7), &resp_data[0]);
+
+		if ((ret == 0) && ((resp_data[0] & 0xffU) == CMD8_CHECK_PATTERN)) {
+			ret = sd_send_op_cond();
+		}
 	}
 	if (ret != 0) {
 		return ret;
@@ -473,15 +473,15 @@ static int mmc_enumerate(unsigned int clk, unsigned int bus_width)
 		}
 	} while (ret != MMC_STATE_TRAN);
 
-	ret = mmc_fill_device_info();
+	ret = mmc_set_ios(clk, bus_width);
 	if (ret != 0) {
 		return ret;
 	}
 
-	return mmc_set_ios(clk, bus_width);
+	return mmc_fill_device_info();
 }
 
-size_t mmc_read_blocks(unsigned int lba, uintptr_t buf, size_t size)
+size_t mmc_read_blocks(int lba, uintptr_t buf, size_t size)
 {
 	int ret;
 	unsigned int cmd_idx, cmd_arg;
@@ -548,7 +548,7 @@ size_t mmc_read_blocks(unsigned int lba, uintptr_t buf, size_t size)
 	return size;
 }
 
-size_t mmc_write_blocks(unsigned int lba, const uintptr_t buf, size_t size)
+size_t mmc_write_blocks(int lba, const uintptr_t buf, size_t size)
 {
 	int ret;
 	unsigned int cmd_idx, cmd_arg;
@@ -615,7 +615,7 @@ size_t mmc_write_blocks(unsigned int lba, const uintptr_t buf, size_t size)
 	return size;
 }
 
-size_t mmc_erase_blocks(unsigned int lba, size_t size)
+size_t mmc_erase_blocks(int lba, size_t size)
 {
 	int ret;
 
@@ -661,7 +661,7 @@ static inline void mmc_rpmb_disable(void)
 			PART_CFG_BOOT_PARTITION1_ENABLE);
 }
 
-size_t mmc_rpmb_read_blocks(unsigned int lba, uintptr_t buf, size_t size)
+size_t mmc_rpmb_read_blocks(int lba, uintptr_t buf, size_t size)
 {
 	size_t size_read;
 
@@ -672,7 +672,7 @@ size_t mmc_rpmb_read_blocks(unsigned int lba, uintptr_t buf, size_t size)
 	return size_read;
 }
 
-size_t mmc_rpmb_write_blocks(unsigned int lba, const uintptr_t buf, size_t size)
+size_t mmc_rpmb_write_blocks(int lba, const uintptr_t buf, size_t size)
 {
 	size_t size_written;
 
@@ -683,7 +683,7 @@ size_t mmc_rpmb_write_blocks(unsigned int lba, const uintptr_t buf, size_t size)
 	return size_written;
 }
 
-size_t mmc_rpmb_erase_blocks(unsigned int lba, size_t size)
+size_t mmc_rpmb_erase_blocks(int lba, size_t size)
 {
 	size_t size_erased;
 

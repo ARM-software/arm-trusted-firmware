@@ -11,11 +11,11 @@
 #include <debug.h>
 #include <desc_image_load.h>
 #include <dw_mmc.h>
-#include <emmc.h>
 #include <errno.h>
 #include <hi6220.h>
 #include <hisi_mcu.h>
 #include <hisi_sram_map.h>
+#include <mmc.h>
 #include <mmio.h>
 #ifdef SPD_opteed
 #include <optee_utils.h>
@@ -299,6 +299,7 @@ void bl2_el3_plat_arch_setup(void)
 void bl2_platform_setup(void)
 {
 	dw_mmc_params_t params;
+	struct mmc_device_info info;
 
 	hikey_sp804_init();
 	hikey_gpio_init();
@@ -328,9 +329,10 @@ void bl2_platform_setup(void)
 	params.desc_base = HIKEY_MMC_DESC_BASE;
 	params.desc_size = 1 << 20;
 	params.clk_rate = 24 * 1000 * 1000;
-	params.bus_width = EMMC_BUS_WIDTH_8;
-	params.flags = EMMC_FLAG_CMD23;
-	dw_mmc_init(&params);
+	params.bus_width = MMC_BUS_WIDTH_8;
+	params.flags = MMC_FLAG_CMD23;
+	info.mmc_dev_type = MMC_IS_EMMC;
+	dw_mmc_init(&params, &info);
 
 	hikey_io_setup();
 }

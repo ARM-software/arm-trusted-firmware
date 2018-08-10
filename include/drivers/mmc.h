@@ -208,13 +208,12 @@ struct mmc_device_info {
 	enum mmc_device_type	mmc_dev_type;	/* Type of MMC */
 };
 
-size_t mmc_read_blocks(unsigned int lba, uintptr_t buf, size_t size);
-size_t mmc_write_blocks(unsigned int lba, const uintptr_t buf, size_t size);
-size_t mmc_erase_blocks(unsigned int lba, size_t size);
-size_t mmc_rpmb_read_blocks(unsigned int lba, uintptr_t buf, size_t size);
-size_t mmc_rpmb_write_blocks(unsigned int lba, const uintptr_t buf,
-			     size_t size);
-size_t mmc_rpmb_erase_blocks(unsigned int lba, size_t size);
+size_t mmc_read_blocks(int lba, uintptr_t buf, size_t size);
+size_t mmc_write_blocks(int lba, const uintptr_t buf, size_t size);
+size_t mmc_erase_blocks(int lba, size_t size);
+size_t mmc_rpmb_read_blocks(int lba, uintptr_t buf, size_t size);
+size_t mmc_rpmb_write_blocks(int lba, const uintptr_t buf, size_t size);
+size_t mmc_rpmb_erase_blocks(int lba, size_t size);
 int mmc_init(const struct mmc_ops *ops_ptr, unsigned int clk,
 	     unsigned int width, unsigned int flags,
 	     struct mmc_device_info *device_info);
