@@ -179,6 +179,8 @@ void plat_early_platform_setup(void)
 
 /* Secure IRQs for Tegra186 */
 static const interrupt_prop_t tegra210_interrupt_props[] = {
+	INTR_PROP_DESC(TEGRA210_TIMER1_IRQ, GIC_HIGHEST_SEC_PRIORITY,
+			GICV2_INTR_GROUP0, GIC_INTR_CFG_EDGE),
 	INTR_PROP_DESC(TEGRA210_WDT_CPU_LEGACY_FIQ, GIC_HIGHEST_SEC_PRIORITY,
 			GICV2_INTR_GROUP0, GIC_INTR_CFG_EDGE),
 };
