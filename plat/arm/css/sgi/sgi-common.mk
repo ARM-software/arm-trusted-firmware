@@ -22,8 +22,6 @@ INTERCONNECT_SOURCES	:=	${CSS_ENT_BASE}/sgi_interconnect.c
 
 PLAT_INCLUDES		+=	-I${CSS_ENT_BASE}/include
 
-ENT_CPU_SOURCES		:=	lib/cpus/aarch64/cortex_a75.S
-
 ENT_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v3/gicv3_main.c		\
 				drivers/arm/gic/v3/gicv3_helpers.c	\
@@ -36,15 +34,13 @@ PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/sgi_plat.c	\
 				${CSS_ENT_BASE}/aarch64/sgi_helper.S
 
 BL1_SOURCES		+=	${INTERCONNECT_SOURCES}			\
-				${ENT_CPU_SOURCES}			\
 				${CSS_ENT_BASE}/sgi_bl1_setup.c	\
 				${CSS_ENT_BASE}/sgi_plat_config.c
 
 BL2_SOURCES		+=	${CSS_ENT_BASE}/sgi_security.c		\
 				${CSS_ENT_BASE}/sgi_image_load.c
 
-BL31_SOURCES		+=	${ENT_CPU_SOURCES}			\
-				${INTERCONNECT_SOURCES}			\
+BL31_SOURCES		+=	${INTERCONNECT_SOURCES}			\
 				${ENT_GIC_SOURCES}			\
 				${CSS_ENT_BASE}/sgi_bl31_setup.c	\
 				${CSS_ENT_BASE}/sgi_topology.c	\
