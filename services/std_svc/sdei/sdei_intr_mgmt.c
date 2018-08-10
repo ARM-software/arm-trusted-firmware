@@ -507,9 +507,6 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 	}
 	plat_ic_end_of_interrupt(intr_raw);
 
-	if (is_event_shared(map))
-		sdei_map_unlock(map);
-
 	return 0;
 }
 
@@ -624,6 +621,9 @@ int sdei_event_complete(bool resume, uint64_t pc)
 	assert(map != NULL);
 	se = get_event_entry(map);
 
+	if (is_event_shared(map))
+		sdei_map_lock(map);
+
 	act = resume ? DO_COMPLETE_RESUME : DO_COMPLETE;
 	if (!can_sdei_state_trans(se, act)) {
 		if (is_event_shared(map))
@@ -631,14 +631,14 @@ int sdei_event_complete(bool resume, uint64_t pc)
 		return SDEI_EDENY;
 	}
 
+	if (is_event_shared(map))
+		sdei_map_unlock(map);
+
 	/* Having done sanity checks, pop dispatch */
 	(void) pop_dispatch();
 
 	SDEI_LOG("EOI:%lx, %d spsr:%lx elr:%lx\n", read_mpidr_el1(),
 			map->ev_num, read_spsr_el3(), read_elr_el3());
-
-	if (is_event_shared(map))
-		sdei_map_lock(map);
 
 	/*
 	 * Restore Non-secure to how it was originally interrupted. Once done,
