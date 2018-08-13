@@ -221,7 +221,7 @@ static int mmc_fill_device_info(void)
 	unsigned int speed_idx;
 	unsigned int nb_blocks;
 	unsigned int freq_unit;
-	int ret;
+	int ret = 0;
 	struct mmc_csd_sd_v2 *csd_sd_v2;
 
 	switch (mmc_dev_info->mmc_dev_type) {
