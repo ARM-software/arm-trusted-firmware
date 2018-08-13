@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
  * Copyright (c) 2001 David E. O'Brien
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,11 +31,15 @@
  * $NetBSD: endian.h,v 1.7 1999/08/21 05:53:51 simonb Exp $
  * $FreeBSD$
  */
+/*
+ * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * All rights reserved.
+ */
 
-#ifndef _MACHINE_ENDIAN_H_
-#define	_MACHINE_ENDIAN_H_
+#ifndef AARCH64_ENDIAN_H
+#define AARCH64_ENDIAN_H
 
-#include <sys/_types.h>
+#include <stdint.h>
 
 /*
  * Definitions for byte order, according to byte significance from low
@@ -59,38 +65,38 @@
 #define	__htonl(x)        (__bswap32(x))
 #define	__htons(x)        (__bswap16(x))
 
-static __inline __uint64_t
-__bswap64(__uint64_t x)
+static __inline uint64_t
+__bswap64(uint64_t x)
 {
-	__uint64_t ret;
+	uint64_t ret;
 
 	__asm __volatile("rev %0, %1\n"
 			 : "=&r" (ret), "+r" (x));
-	
+
 	return (ret);
 }
 
-static __inline __uint32_t
-__bswap32_var(__uint32_t v)
+static __inline uint32_t
+__bswap32_var(uint32_t v)
 {
-	__uint32_t ret;
+	uint32_t ret;
 
 	__asm __volatile("rev32 %x0, %x1\n"
 			 : "=&r" (ret), "+r" (v));
-	
+
 	return (ret);
 }
 
-static __inline __uint16_t
-__bswap16_var(__uint16_t v)
+static __inline uint16_t
+__bswap16_var(uint16_t v)
 {
-	__uint32_t ret;
+	uint32_t ret;
 
 	__asm __volatile("rev16 %w0, %w1\n"
 			 : "=&r" (ret), "+r" (v));
 
-	return ((__uint16_t)ret);
-}		
+	return ((uint16_t)ret);
+}
 
 #ifdef __OPTIMIZE__
 
@@ -105,13 +111,13 @@ __bswap16_var(__uint16_t v)
      (((x) & 0x00ff) << 8))
 
 #define	__bswap16(x)	\
-    ((__uint16_t)(__builtin_constant_p(x) ?	\
-     __bswap16_constant((__uint16_t)(x)) :	\
+    ((uint16_t)(__builtin_constant_p(x) ?	\
+     __bswap16_constant((uint16_t)(x)) :	\
      __bswap16_var(x)))
 
 #define	__bswap32(x)	\
-    ((__uint32_t)(__builtin_constant_p(x) ? 	\
-     __bswap32_constant((__uint32_t)(x)) :	\
+    ((uint32_t)(__builtin_constant_p(x) ? 	\
+     __bswap32_constant((uint32_t)(x)) :	\
      __bswap32_var(x)))
 
 #else
@@ -119,4 +125,4 @@ __bswap16_var(__uint16_t v)
 #define	__bswap32(x)	__bswap32_var(x)
 
 #endif /* __OPTIMIZE__ */
-#endif /* !_MACHINE_ENDIAN_H_ */
+#endif /* AARCH64_ENDIAN_H */

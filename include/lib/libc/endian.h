@@ -27,34 +27,18 @@
  *
  * $FreeBSD$
  */
+/*
+ * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * All rights reserved.
+ */
 
-#ifndef _SYS_ENDIAN_H_
-#define _SYS_ENDIAN_H_
+#ifndef ENDIAN_H
+#define ENDIAN_H
 
-#include <sys/cdefs.h>
-#include <sys/_types.h>
-#include <machine/endian.h>
+#include <cdefs.h>
+#include <stdint.h>
+#include <endian_.h>
 
-#ifndef _UINT8_T_DECLARED
-typedef	__uint8_t	uint8_t;
-#define	_UINT8_T_DECLARED
-#endif
- 
-#ifndef _UINT16_T_DECLARED
-typedef	__uint16_t	uint16_t;
-#define	_UINT16_T_DECLARED
-#endif
- 
-#ifndef _UINT32_T_DECLARED
-typedef	__uint32_t	uint32_t;
-#define	_UINT32_T_DECLARED
-#endif
- 
-#ifndef _UINT64_T_DECLARED
-typedef	__uint64_t	uint64_t;
-#define	_UINT64_T_DECLARED
-#endif
- 
 /*
  * General byte order swapping functions.
  */
@@ -204,4 +188,4 @@ le64enc(void *pp, uint64_t u)
 	le32enc(p + 4, (uint32_t)(u >> 32));
 }
 
-#endif	/* _SYS_ENDIAN_H_ */
+#endif /* SYS_ENDIAN_H */

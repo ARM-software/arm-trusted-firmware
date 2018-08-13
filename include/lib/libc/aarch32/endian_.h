@@ -31,11 +31,15 @@
  * $NetBSD: endian.h,v 1.7 1999/08/21 05:53:51 simonb Exp $
  * $FreeBSD$
  */
+/*
+ * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * All rights reserved.
+ */
 
-#ifndef _ENDIAN_H_
-#define	_ENDIAN_H_
+#ifndef AARCH32_ENDIAN_H
+#define AARCH32_ENDIAN_H
 
-#include <sys/_types.h>
+#include <stdint.h>
 
 /*
  * Definitions for byte order, according to byte significance from low
@@ -61,10 +65,10 @@
 #ifdef __ARMEB__
 #define _QUAD_HIGHWORD 0
 #define _QUAD_LOWWORD 1
-#define __ntohl(x)	((__uint32_t)(x))
-#define __ntohs(x)	((__uint16_t)(x))
-#define __htonl(x)	((__uint32_t)(x))
-#define __htons(x)	((__uint16_t)(x))
+#define __ntohl(x)	((uint32_t)(x))
+#define __ntohs(x)	((uint16_t)(x))
+#define __htonl(x)	((uint32_t)(x))
+#define __htons(x)	((uint16_t)(x))
 #else
 #define _QUAD_HIGHWORD  1
 #define _QUAD_LOWWORD 0
@@ -74,20 +78,20 @@
 #define __htons(x)        (__bswap16(x))
 #endif /* __ARMEB__ */
 
-static __inline __uint64_t
-__bswap64(__uint64_t _x)
+static __inline uint64_t
+__bswap64(uint64_t _x)
 {
 
 	return ((_x >> 56) | ((_x >> 40) & 0xff00) | ((_x >> 24) & 0xff0000) |
-	    ((_x >> 8) & 0xff000000) | ((_x << 8) & ((__uint64_t)0xff << 32)) |
-	    ((_x << 24) & ((__uint64_t)0xff << 40)) |
-	    ((_x << 40) & ((__uint64_t)0xff << 48)) | ((_x << 56)));
+	    ((_x >> 8) & 0xff000000) | ((_x << 8) & ((uint64_t)0xff << 32)) |
+	    ((_x << 24) & ((uint64_t)0xff << 40)) |
+	    ((_x << 40) & ((uint64_t)0xff << 48)) | ((_x << 56)));
 }
 
-static __inline __uint32_t
-__bswap32_var(__uint32_t v)
+static __inline uint32_t
+__bswap32_var(uint32_t v)
 {
-	__uint32_t t1;
+	uint32_t t1;
 
 	__asm __volatile("eor %1, %0, %0, ror #16\n"
 	    		"bic %1, %1, #0x00ff0000\n"
@@ -98,10 +102,10 @@ __bswap32_var(__uint32_t v)
 	return (v);
 }
 
-static __inline __uint16_t
-__bswap16_var(__uint16_t v)
+static __inline uint16_t
+__bswap16_var(uint16_t v)
 {
-	__uint32_t ret = v & 0xffff;
+	uint32_t ret = v & 0xffff;
 
 	__asm __volatile(
 	    "mov    %0, %0, ror #8\n"
@@ -109,7 +113,7 @@ __bswap16_var(__uint16_t v)
 	    "bic    %0, %0, %0, lsl #16"
 	    : "+r" (ret));
 
-	return ((__uint16_t)ret);
+	return ((uint16_t)ret);
 }
 
 #ifdef __OPTIMIZE__
@@ -125,12 +129,12 @@ __bswap16_var(__uint16_t v)
      (((x) & 0x00ff) << 8))
 
 #define __bswap16(x)	\
-    ((__uint16_t)(__builtin_constant_p(x) ?	\
+    ((uint16_t)(__builtin_constant_p(x) ?	\
      __bswap16_constant(x) :			\
      __bswap16_var(x)))
 
 #define __bswap32(x)	\
-    ((__uint32_t)(__builtin_constant_p(x) ? 	\
+    ((uint32_t)(__builtin_constant_p(x) ? 	\
      __bswap32_constant(x) :			\
      __bswap32_var(x)))
 
@@ -139,4 +143,4 @@ __bswap16_var(__uint16_t v)
 #define __bswap32(x)	__bswap32_var(x)
 
 #endif /* __OPTIMIZE__ */
-#endif /* !_ENDIAN_H_ */
+#endif /* AARCH32_ENDIAN_H */
