@@ -147,7 +147,7 @@ void cci_enable_snoop_dvm_reqs(unsigned int master_id)
 	 * Wait for the completion of the write to the Snoop Control Register
 	 * before testing the change_pending bit
 	 */
-	dmbish();
+	dsbish();
 
 	/* Wait for the dust to settle down */
 	while (mmio_read_32(cci_base + STATUS_REG) & CHANGE_PENDING_BIT)
@@ -174,7 +174,7 @@ void cci_disable_snoop_dvm_reqs(unsigned int master_id)
 	 * Wait for the completion of the write to the Snoop Control Register
 	 * before testing the change_pending bit
 	 */
-	dmbish();
+	dsbish();
 
 	/* Wait for the dust to settle down */
 	while (mmio_read_32(cci_base + STATUS_REG) & CHANGE_PENDING_BIT)
