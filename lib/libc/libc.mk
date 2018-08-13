@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-STDLIB_SRCS	:=	$(addprefix lib/stdlib/,	\
+LIBC_SRCS	:=	$(addprefix lib/libc/,	\
 			abort.c				\
 			assert.c			\
 			exit.c				\
@@ -21,5 +21,5 @@ STDLIB_SRCS	:=	$(addprefix lib/stdlib/,	\
 			subr_prf.c			\
 			timingsafe_bcmp.c)
 
-INCLUDES	+=	-Iinclude/lib/stdlib		\
-			-Iinclude/lib/stdlib/sys
+INCLUDES	+=	-Iinclude/lib/libc		\
+			-Iinclude/lib/libc/sys

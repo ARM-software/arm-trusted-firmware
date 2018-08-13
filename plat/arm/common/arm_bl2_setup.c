@@ -246,6 +246,10 @@ void arm_bl2_plat_arch_setup(void)
 	const mmap_region_t bl_regions[] = {
 		MAP_BL2_TOTAL,
 		ARM_MAP_BL_RO,
+#if USE_ROMLIB
+		ARM_MAP_ROMLIB_CODE,
+		ARM_MAP_ROMLIB_DATA,
+#endif
 		{0}
 	};
 
@@ -256,6 +260,8 @@ void arm_bl2_plat_arch_setup(void)
 #else
 	enable_mmu_el1(0);
 #endif
+
+	arm_setup_romlib();
 }
 
 void bl2_plat_arch_setup(void)

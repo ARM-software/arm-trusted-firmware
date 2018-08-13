@@ -17,6 +17,7 @@
 #include <platform_def.h>
 #include <stdint.h>
 
+
 /*******************************************************************************
  * This function is responsible to:
  * Load SCP_BL2U if platform has defined SCP_BL2U_BASE

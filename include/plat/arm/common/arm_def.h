@@ -268,6 +268,17 @@
 							- BL_COHERENT_RAM_BASE, \
 						MT_DEVICE | MT_RW | MT_SECURE)
 #endif
+#if USE_ROMLIB
+#define ARM_MAP_ROMLIB_CODE		MAP_REGION_FLAT(			\
+						ROMLIB_RO_BASE,			\
+						ROMLIB_RO_LIMIT	- ROMLIB_RO_BASE,\
+						MT_CODE | MT_SECURE)
+
+#define ARM_MAP_ROMLIB_DATA		MAP_REGION_FLAT(			\
+						ROMLIB_RW_BASE,			\
+						ROMLIB_RW_END	- ROMLIB_RW_BASE,\
+						MT_MEMORY | MT_RW | MT_SECURE)
+#endif
 
 /*
  * The max number of regions like RO(code), coherent and data required by
@@ -346,14 +357,23 @@
  ******************************************************************************/
 #define BL1_RO_BASE			PLAT_ARM_TRUSTED_ROM_BASE
 #define BL1_RO_LIMIT			(PLAT_ARM_TRUSTED_ROM_BASE	\
-					 + PLAT_ARM_TRUSTED_ROM_SIZE)
+					 + (PLAT_ARM_TRUSTED_ROM_SIZE - \
+					    PLAT_ARM_MAX_ROMLIB_RO_SIZE))
 /*
  * Put BL1 RW at the top of the Trusted SRAM.
  */
 #define BL1_RW_BASE			(ARM_BL_RAM_BASE +		\
 						ARM_BL_RAM_SIZE -	\
-						PLAT_ARM_MAX_BL1_RW_SIZE)
-#define BL1_RW_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
+						(PLAT_ARM_MAX_BL1_RW_SIZE +\
+						 PLAT_ARM_MAX_ROMLIB_RW_SIZE))
+#define BL1_RW_LIMIT			(ARM_BL_RAM_BASE + 		\
+					    (ARM_BL_RAM_SIZE - PLAT_ARM_MAX_ROMLIB_RW_SIZE))
+
+#define ROMLIB_RO_BASE			BL1_RO_LIMIT
+#define ROMLIB_RO_LIMIT			(PLAT_ARM_TRUSTED_ROM_BASE + PLAT_ARM_TRUSTED_ROM_SIZE)
+
+#define ROMLIB_RW_BASE			(BL1_RW_BASE + PLAT_ARM_MAX_BL1_RW_SIZE)
+#define ROMLIB_RW_END			(ROMLIB_RW_BASE + PLAT_ARM_MAX_ROMLIB_RW_SIZE)
 
 /*******************************************************************************
  * BL2 specific defines.

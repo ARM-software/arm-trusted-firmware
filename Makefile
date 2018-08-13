@@ -45,7 +45,7 @@ CHECKCODE_ARGS		:=	--no-patch
 # Do not check the coding style on imported library files or documentation files
 INC_LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					include/lib/libfdt		\
-					include/lib/stdlib,		\
+					include/lib/libc,		\
 					$(wildcard include/lib/*)))
 INC_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					include/lib,			\
@@ -53,7 +53,7 @@ INC_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					lib/compiler-rt			\
 					lib/libfdt%			\
-					lib/stdlib,			\
+					lib/libc,			\
 					$(wildcard lib/*)))
 ROOT_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					lib				\
@@ -172,7 +172,7 @@ TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
 ASFLAGS_aarch32		=	$(march32-directive)
 ASFLAGS_aarch64		=	-march=armv8-a
 
-CPPFLAGS		=	${DEFINES} ${INCLUDES} -nostdinc		\
+CPPFLAGS		=	${DEFINES} ${INCLUDES} ${MBEDTLS_INC} -nostdinc		\
 				-Wmissing-include-dirs -Werror
 ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
 				-D__ASSEMBLY__ -ffreestanding 			\
@@ -198,7 +198,7 @@ DTC_FLAGS		+=	-I dts -O dtb
 # Common sources and include directories
 ################################################################################
 include lib/compiler-rt/compiler-rt.mk
-include lib/stdlib/stdlib.mk
+include lib/libc/libc.mk
 
 BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				common/tf_log.c				\
@@ -211,8 +211,7 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				plat/common/plat_log_common.c		\
 				plat/common/${ARCH}/plat_common.c	\
 				plat/common/${ARCH}/platform_helpers.S	\
-				${COMPILER_RT_SRCS}			\
-				${STDLIB_SRCS}
+				${COMPILER_RT_SRCS}
 
 INCLUDES		+=	-Iinclude				\
 				-Iinclude/bl1				\
@@ -506,6 +505,9 @@ CRTTOOL			?=	${CRTTOOLPATH}/cert_create${BIN_EXT}
 FIPTOOLPATH		?=	tools/fiptool
 FIPTOOL			?=	${FIPTOOLPATH}/fiptool${BIN_EXT}
 
+# Variables for use with ROMLIB
+ROMLIBPATH		?=	lib/romlib
+
 ################################################################################
 # Include BL specific makefiles
 ################################################################################
@@ -574,6 +576,7 @@ $(eval $(call assert_boolean,SEPARATE_CODE_AND_RODATA))
 $(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
 $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
 $(eval $(call assert_boolean,USE_COHERENT_MEM))
+$(eval $(call assert_boolean,USE_ROMLIB))
 $(eval $(call assert_boolean,USE_TBBR_DEFS))
 $(eval $(call assert_boolean,WARMBOOT_ENABLE_DCACHE_EARLY))
 $(eval $(call assert_boolean,BL2_AT_EL3))
@@ -626,6 +629,7 @@ $(eval $(call add_define,SPD_${SPD}))
 $(eval $(call add_define,SPIN_ON_BL1_EXIT))
 $(eval $(call add_define,TRUSTED_BOARD_BOOT))
 $(eval $(call add_define,USE_COHERENT_MEM))
+$(eval $(call add_define,USE_ROMLIB))
 $(eval $(call add_define,USE_TBBR_DEFS))
 $(eval $(call add_define,WARMBOOT_ENABLE_DCACHE_EARLY))
 $(eval $(call add_define,BL2_AT_EL3))
@@ -669,6 +673,9 @@ msg_start:
 ifeq (${ERROR_DEPRECATED},0)
     CPPFLAGS		+= 	-Wno-error=deprecated-declarations -Wno-error=cpp
 endif
+
+$(eval $(call MAKE_LIB_DIRS))
+$(eval $(call MAKE_LIB,c))
 
 # Expand build macros for the different images
 ifeq (${NEED_BL1},yes)
@@ -734,6 +741,7 @@ clean:
 	$(call SHELL_REMOVE_DIR,${BUILD_PLAT})
 	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	${Q}${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
 realclean distclean:
 	@echo "  REALCLEAN"
@@ -741,11 +749,12 @@ realclean distclean:
 	$(call SHELL_DELETE_ALL, ${CURDIR}/cscope.*)
 	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	${Q}${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
 checkcodebase:		locate-checkpatch
 	@echo "  CHECKING STYLE"
 	@if test -d .git ; then						\
-		git ls-files | grep -E -v 'libfdt|stdlib|docs|\.md' |	\
+		git ls-files | grep -E -v 'libfdt|libc|docs|\.md' |	\
 		while read GIT_FILE ;					\
 		do ${CHECKPATCH} ${CHECKCODE_ARGS} -f $$GIT_FILE ;	\
 		done ;							\
@@ -753,7 +762,7 @@ checkcodebase:		locate-checkpatch
 		 find . -type f -not -iwholename "*.git*"		\
 		 -not -iwholename "*build*"				\
 		 -not -iwholename "*libfdt*"				\
-		 -not -iwholename "*stdlib*"				\
+		 -not -iwholename "*libc*"				\
 		 -not -iwholename "*docs*"				\
 		 -not -iwholename "*.md"				\
 		 -exec ${CHECKPATCH} ${CHECKCODE_ARGS} -f {} \; ;	\
@@ -818,6 +827,10 @@ fwu_fip: ${BUILD_PLAT}/${FWU_FIP_NAME}
 .PHONY: ${FIPTOOL}
 ${FIPTOOL}:
 	${Q}${MAKE} CPPFLAGS="-DVERSION='\"${VERSION_STRING}\"'" --no-print-directory -C ${FIPTOOLPATH}
+
+.PHONY: libraries
+romlib.bin: libraries
+	${Q}${MAKE} BUILD_PLAT=${BUILD_PLAT} INCLUDES='${INCLUDES}' DEFINES='${DEFINES}' --no-print-directory -C ${ROMLIBPATH} all
 
 cscope:
 	@echo "  CSCOPE"

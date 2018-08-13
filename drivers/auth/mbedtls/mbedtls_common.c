@@ -5,6 +5,7 @@
  */
 
 #include <debug.h>
+#include <stdlib.h>
 
 /* mbed TLS headers */
 #include <mbedtls/memory_buffer_alloc.h>
@@ -23,6 +24,12 @@
 #endif
 static unsigned char heap[MBEDTLS_HEAP_SIZE];
 
+static void cleanup(void)
+{
+	ERROR("EXIT from BL2\n");
+	panic();
+}
+
 /*
  * mbed TLS initialization function
  */
@@ -31,6 +38,9 @@ void mbedtls_init(void)
 	static int ready;
 
 	if (!ready) {
+		if (atexit(cleanup))
+			panic();
+
 		/* Initialize the mbed TLS heap */
 		mbedtls_memory_buffer_alloc_init(heap, MBEDTLS_HEAP_SIZE);
 

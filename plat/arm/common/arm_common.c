@@ -10,8 +10,9 @@
 #include <debug.h>
 #include <mmio.h>
 #include <plat_arm.h>
-#include <platform_def.h>
 #include <platform.h>
+#include <platform_def.h>
+#include <romlib.h>
 #include <secure_partition.h>
 
 /* Weak definitions may be overridden in specific ARM standard platform */
@@ -23,6 +24,15 @@
 #if ERROR_DEPRECATED
 #pragma weak plat_get_syscnt_freq2
 #endif
+
+
+void arm_setup_romlib(void)
+{
+#if USE_ROMLIB
+	if (!rom_lib_init(ROMLIB_VERSION))
+		panic();
+#endif
+}
 
 /*
  * Set up the page tables for the generic and platform-specific memory regions.

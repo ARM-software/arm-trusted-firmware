@@ -132,8 +132,7 @@ BL2_SOURCES		+=	drivers/io/io_semihosting.c		\
 				plat/qemu/qemu_io_storage.c		\
 				plat/qemu/${ARCH}/plat_helpers.S	\
 				plat/qemu/qemu_bl2_setup.c		\
-				plat/qemu/dt.c				\
-				$(LIBFDT_SRCS)
+				plat/qemu/dt.c
 ifeq (${LOAD_IMAGE_V2},1)
 BL2_SOURCES		+=	plat/qemu/qemu_bl2_mem_params_desc.c	\
 				plat/qemu/qemu_image_load.c		\

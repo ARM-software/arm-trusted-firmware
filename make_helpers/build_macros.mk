@@ -189,6 +189,24 @@ GZIP_SUFFIX := .gz
 
 MAKE_DEP = -Wp,-MD,$(DEP) -MT $$@ -MP
 
+
+# MAKE_C_LIB builds a C source file and generates the dependency file
+#   $(1) = output directory
+#   $(2) = source file (%.c)
+#   $(3) = library name
+define MAKE_C_LIB
+$(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
+$(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
+
+$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | lib$(3)_dirs
+	@echo "  CC      $$<"
+	$$(Q)$$(CC) $$(TF_CFLAGS) $$(CFLAGS) $(MAKE_DEP) -c $$< -o $$@
+
+-include $(DEP)
+
+endef
+
+
 # MAKE_C builds a C source file and generates the dependency file
 #   $(1) = output directory
 #   $(2) = source file (%.c)
@@ -243,6 +261,18 @@ $(1): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
 
 endef
 
+# MAKE_LIB_OBJS builds both C source files
+#   $(1) = output directory
+#   $(2) = list of source files
+#   $(3) = name of the library
+define MAKE_LIB_OBJS
+        $(eval C_OBJS := $(filter %.c,$(2)))
+        $(eval REMAIN := $(filter-out %.c,$(2)))
+        $(eval $(foreach obj,$(C_OBJS),$(call MAKE_C_LIB,$(1),$(obj),$(3))))
+
+        $(and $(REMAIN),$(error Unexpected source files present: $(REMAIN)))
+endef
+
 
 # MAKE_OBJS builds both C and assembly source files
 #   $(1) = output directory
@@ -273,6 +303,49 @@ endef
 # synchronize timestamps across multiple projects.
 # This must be set to a C string (including quotes where applicable).
 BUILD_MESSAGE_TIMESTAMP ?= __TIME__", "__DATE__
+
+.PHONY: libraries
+
+# MAKE_LIB_DIRS macro defines the target for the directory where
+# libraries are created
+define MAKE_LIB_DIRS
+        $(eval LIB_DIR    := ${BUILD_PLAT}/lib)
+        $(eval ROMLIB_DIR    := ${BUILD_PLAT}/romlib)
+        $(eval LIBWRAPPER_DIR := ${BUILD_PLAT}/libwrapper)
+        $(eval $(call MAKE_PREREQ_DIR,${LIB_DIR},${BUILD_PLAT}))
+        $(eval $(call MAKE_PREREQ_DIR,${ROMLIB_DIR},${BUILD_PLAT}))
+        $(eval $(call MAKE_PREREQ_DIR,${LIBWRAPPER_DIR},${BUILD_PLAT}))
+endef
+
+# MAKE_LIB macro defines the targets and options to build each BL image.
+# Arguments:
+#   $(1) = Library name
+define MAKE_LIB
+        $(eval BUILD_DIR  := ${BUILD_PLAT}/lib$(1))
+        $(eval LIB_DIR    := ${BUILD_PLAT}/lib)
+        $(eval ROMLIB_DIR    := ${BUILD_PLAT}/romlib)
+        $(eval SOURCES    := $(LIB$(call uppercase,$(1))_SRCS))
+        $(eval OBJS       := $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_OBJS,$(SOURCES))))
+
+$(eval $(call MAKE_PREREQ_DIR,${BUILD_DIR},${BUILD_PLAT}))
+$(eval $(call MAKE_LIB_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
+
+.PHONY : lib${1}_dirs
+lib${1}_dirs: | ${BUILD_DIR} ${LIB_DIR}  ${ROMLIB_DIR} ${LIBWRAPPER_DIR}
+libraries: ${LIB_DIR}/lib$(1).a
+LDPATHS = -L${LIB_DIR}
+LDLIBS += -l$(1)
+
+ifeq ($(USE_ROMLIB),1)
+LDLIBS := -lwrappers -lc
+endif
+
+all: ${LIB_DIR}/lib$(1).a
+
+${LIB_DIR}/lib$(1).a: $(OBJS)
+	@echo "  AR      $$@"
+	$$(Q)$$(AR) cr $$@ $$?
+endef
 
 # MAKE_BL macro defines the targets and options to build each BL image.
 # Arguments:
@@ -313,7 +386,11 @@ bl${1}_dirs: | ${OBJ_DIRS}
 $(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
 $(eval $(call MAKE_LD,$(LINKERFILE),$(BL_LINKERFILE),$(1)))
 
-$(ELF): $(OBJS) $(LINKERFILE) | bl$(1)_dirs $(BL_LIBS)
+ifeq ($(USE_ROMLIB),1)
+$(ELF): romlib.bin
+endif
+
+$(ELF): $(OBJS) $(LINKERFILE) | bl$(1)_dirs libraries $(BL_LIBS)
 	@echo "  LD      $$@"
 ifdef MAKE_BUILD_STRINGS
 	$(call MAKE_BUILD_STRINGS, $(BUILD_DIR)/build_message.o)
@@ -323,7 +400,8 @@ else
 		$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -xc -c - -o $(BUILD_DIR)/build_message.o
 endif
 	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) -Map=$(MAPFILE) \
-		--script $(LINKERFILE) $(BUILD_DIR)/build_message.o $(OBJS) $(LDLIBS) $(BL_LIBS)
+		--script $(LINKERFILE) $(BUILD_DIR)/build_message.o \
+		$(OBJS) $(LDPATHS) $(LDLIBS) $(BL_LIBS)
 
 $(DUMP): $(ELF)
 	@echo "  OD      $$@"
