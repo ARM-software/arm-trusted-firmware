@@ -209,30 +209,48 @@
 
 #ifndef __ASSEMBLY__
 
+#include <arch_helpers.h>
 #include <gic_common.h>
 #include <interrupt_props.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <utils_def.h>
 
-#define gicv3_is_intr_id_special_identifier(id)	\
-	(((id) >= PENDING_G1S_INTID) && ((id) <= GIC_SPURIOUS_INTERRUPT))
+static inline bool gicv3_is_intr_id_special_identifier(unsigned int id)
+{
+	return (id >= PENDING_G1S_INTID) && (id <= GIC_SPURIOUS_INTERRUPT);
+}
 
 /*******************************************************************************
  * Helper GICv3 macros for SEL1
  ******************************************************************************/
-#define gicv3_acknowledge_interrupt_sel1()	read_icc_iar1_el1() &\
-							IAR1_EL1_INTID_MASK
-#define gicv3_get_pending_interrupt_id_sel1()	read_icc_hppir1_el1() &\
-							HPPIR1_EL1_INTID_MASK
-#define gicv3_end_of_interrupt_sel1(id)		write_icc_eoir1_el1(id)
+static inline uint32_t gicv3_acknowledge_interrupt_sel1(void)
+{
+	return (uint32_t)read_icc_iar1_el1() & IAR1_EL1_INTID_MASK;
+}
 
+static inline uint32_t gicv3_get_pending_interrupt_id_sel1(void)
+{
+	return (uint32_t)read_icc_hppir1_el1() & HPPIR1_EL1_INTID_MASK;
+}
+
+static inline void gicv3_end_of_interrupt_sel1(unsigned int id)
+{
+	write_icc_eoir1_el1(id);
+}
 
 /*******************************************************************************
  * Helper GICv3 macros for EL3
  ******************************************************************************/
-#define gicv3_acknowledge_interrupt()		read_icc_iar0_el1() &\
-							IAR0_EL1_INTID_MASK
-#define gicv3_end_of_interrupt(id)		write_icc_eoir0_el1(id)
+static inline uint32_t gicv3_acknowledge_interrupt(void)
+{
+	return (uint32_t)read_icc_iar0_el1() & IAR0_EL1_INTID_MASK;
+}
+
+static inline void gicv3_end_of_interrupt(unsigned int id)
+{
+	return write_icc_eoir0_el1(id);
+}
 
 /*
  * This macro returns the total number of GICD registers corresponding to

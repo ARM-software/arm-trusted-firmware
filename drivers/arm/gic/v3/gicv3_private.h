@@ -27,20 +27,28 @@
  * GICD_IROUTER. Bits[31:24] in the MPIDR are cleared as they are not relevant
  * to GICv3.
  */
-#define gicd_irouter_val_from_mpidr(_mpidr, _irm)		\
-	((_mpidr & ~(0xff << 24)) |			\
-	 (_irm & IROUTER_IRM_MASK) << IROUTER_IRM_SHIFT)
+static inline u_register_t gicd_irouter_val_from_mpidr(u_register_t mpidr,
+						       unsigned int irm)
+{
+	return (mpidr & ~(U(0xff) << 24)) |
+		((irm & IROUTER_IRM_MASK) << IROUTER_IRM_SHIFT);
+}
 
 /*
  * Macro to convert a GICR_TYPER affinity value into a MPIDR value. Bits[31:24]
  * are zeroes.
  */
 #ifdef AARCH32
-#define mpidr_from_gicr_typer(_typer_val)	(((_typer_val) >> 32) & 0xffffff)
+static inline u_register_t mpidr_from_gicr_typer(uint64_t typer_val)
+{
+	return (((typer_val) >> 32) & U(0xffffff));
+}
 #else
-#define mpidr_from_gicr_typer(_typer_val)				 \
-	(((((_typer_val) >> 56) & MPIDR_AFFLVL_MASK) << MPIDR_AFF3_SHIFT) | \
-	 (((_typer_val) >> 32) & 0xffffff))
+static inline u_register_t mpidr_from_gicr_typer(uint64_t typer_val)
+{
+	return (((typer_val >> 56) & MPIDR_AFFLVL_MASK) << MPIDR_AFF3_SHIFT) |
+		((typer_val >> 32) & U(0xffffff));
+}
 #endif
 
 /*******************************************************************************
