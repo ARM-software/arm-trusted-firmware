@@ -60,8 +60,8 @@ static void xlat_desc_print(const xlat_ctx_t *ctx, uint64_t desc)
 		tf_printf("DEV");
 	}
 
-	if (xlat_regime == EL3_REGIME) {
-		/* For EL3 only check the AP[2] and XN bits. */
+	if ((xlat_regime == EL3_REGIME) || (xlat_regime == EL2_REGIME)) {
+		/* For EL3 and EL2 only check the AP[2] and XN bits. */
 		tf_printf(((desc & LOWER_ATTRS(AP_RO)) != 0ULL) ? "-RO" : "-RW");
 		tf_printf(((desc & UPPER_ATTRS(XN)) != 0ULL) ? "-XN" : "-EXEC");
 	} else {
@@ -200,6 +200,8 @@ void xlat_tables_print(xlat_ctx_t *ctx)
 
 	if (ctx->xlat_regime == EL1_EL0_REGIME) {
 		xlat_regime_str = "1&0";
+	} else if (ctx->xlat_regime == EL2_REGIME) {
+		xlat_regime_str = "2";
 	} else {
 		assert(ctx->xlat_regime == EL3_REGIME);
 		xlat_regime_str = "3";
@@ -329,6 +331,7 @@ static int xlat_get_mem_attributes_internal(const xlat_ctx_t *ctx,
 	assert(ctx != NULL);
 	assert(ctx->initialized);
 	assert((ctx->xlat_regime == EL1_EL0_REGIME) ||
+	       (ctx->xlat_regime == EL2_REGIME) ||
 	       (ctx->xlat_regime == EL3_REGIME));
 
 	virt_addr_space_size = (unsigned long long)ctx->va_max_address + 1ULL;

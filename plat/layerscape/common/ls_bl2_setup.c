@@ -53,7 +53,7 @@ void ls_bl2_plat_arch_setup(void)
 			      );
 
 #ifdef AARCH32
-	enable_mmu_secure(0);
+	enable_mmu_svc_mon(0);
 #else
 	enable_mmu_el1(0);
 #endif

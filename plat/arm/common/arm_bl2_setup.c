@@ -252,7 +252,7 @@ void arm_bl2_plat_arch_setup(void)
 	arm_setup_page_tables(bl_regions, plat_arm_get_mmap());
 
 #ifdef AARCH32
-	enable_mmu_secure(0);
+	enable_mmu_svc_mon(0);
 #else
 	enable_mmu_el1(0);
 #endif

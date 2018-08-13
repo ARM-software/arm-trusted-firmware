@@ -9,6 +9,7 @@
 #include <xlat_tables_v2.h>
 
 	.global	enable_mmu_direct_el1
+	.global	enable_mmu_direct_el2
 	.global	enable_mmu_direct_el3
 
 	/* Macros to read and write to system register for a given EL. */
@@ -20,6 +21,19 @@
 	mrs	\gp_reg, \reg_name\()_el\()\el
 	.endm
 
+	.macro tlbi_invalidate_all el
+	.if \el == 1
+		TLB_INVALIDATE(vmalle1)
+	.elseif \el == 2
+		TLB_INVALIDATE(alle2)
+	.elseif \el == 3
+		TLB_INVALIDATE(alle3)
+	.else
+		.error "EL must be 1, 2 or 3"
+	.endif
+	.endm
+
+	/* void enable_mmu_direct_el<x>(unsigned int flags) */
 	.macro define_mmu_enable_func el
 	func enable_mmu_direct_\()el\el
 #if ENABLE_ASSERTIONS
@@ -27,17 +41,8 @@
 		tst	x1, #SCTLR_M_BIT
 		ASM_ASSERT(eq)
 #endif
-
-		/* Invalidate TLB entries */
-		.if \el == 1
-		TLB_INVALIDATE(vmalle1)
-		.else
-		.if \el == 3
-		TLB_INVALIDATE(alle3)
-		.else
-		.error "EL must be 1 or 3"
-		.endif
-		.endif
+		/* Invalidate all TLB entries */
+		tlbi_invalidate_all \el
 
 		mov	x7, x0
 		ldr	x0, =mmu_cfg_params
@@ -86,4 +91,5 @@
 	 *  enable_mmu_direct_el3
 	 */
 	define_mmu_enable_func 1
+	define_mmu_enable_func 2
 	define_mmu_enable_func 3

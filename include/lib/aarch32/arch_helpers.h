@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -300,6 +300,7 @@ DEFINE_TLBIOP_FUNC(allis, TLBIALLIS)
 DEFINE_TLBIOP_PARAM_FUNC(mva, TLBIMVA)
 DEFINE_TLBIOP_PARAM_FUNC(mvaa, TLBIMVAA)
 DEFINE_TLBIOP_PARAM_FUNC(mvaais, TLBIMVAAIS)
+DEFINE_TLBIOP_PARAM_FUNC(mvahis, TLBIMVAHIS)
 
 /*
  * BPI operation prototypes.
@@ -320,6 +321,10 @@ DEFINE_DCOP_PARAM_FUNC(cvac, DCCMVAC)
 #define IS_IN_SECURE() \
 	(GET_NS_BIT(read_scr()) == 0)
 
+#define IS_IN_HYP()	(GET_M32(read_cpsr()) == MODE32_hyp)
+#define IS_IN_SVC()	(GET_M32(read_cpsr()) == MODE32_svc)
+#define IS_IN_MON()	(GET_M32(read_cpsr()) == MODE32_mon)
+#define IS_IN_EL2()	IS_IN_HYP()
  /*
   * If EL3 is AArch32, then secure PL1 and monitor mode correspond to EL3
   */

@@ -82,6 +82,8 @@ void init_xlat_tables(void)
 
 	if (current_el == 1U) {
 		tf_xlat_ctx.xlat_regime = EL1_EL0_REGIME;
+	} else if (current_el == 2U) {
+		tf_xlat_ctx.xlat_regime = EL2_REGIME;
 	} else {
 		assert(current_el == 3U);
 		tf_xlat_ctx.xlat_regime = EL3_REGIME;
@@ -119,12 +121,32 @@ int xlat_change_mem_attributes(uintptr_t base_va, size_t size, uint32_t attr)
 
 #ifdef AARCH32
 
+#if !ERROR_DEPRECATED
 void enable_mmu_secure(unsigned int flags)
+{
+	enable_mmu_svc_mon(flags);
+}
+
+void enable_mmu_direct(unsigned int flags)
+{
+	enable_mmu_direct_svc_mon(flags);
+}
+#endif
+
+void enable_mmu_svc_mon(unsigned int flags)
 {
 	setup_mmu_cfg((uint64_t *)&mmu_cfg_params, flags,
 		      tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
 		      tf_xlat_ctx.va_max_address, EL1_EL0_REGIME);
-	enable_mmu_direct(flags);
+	enable_mmu_direct_svc_mon(flags);
+}
+
+void enable_mmu_hyp(unsigned int flags)
+{
+	setup_mmu_cfg((uint64_t *)&mmu_cfg_params, flags,
+		      tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+		      tf_xlat_ctx.va_max_address, EL2_REGIME);
+	enable_mmu_direct_hyp(flags);
 }
 
 #else
@@ -135,6 +157,14 @@ void enable_mmu_el1(unsigned int flags)
 		      tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
 		      tf_xlat_ctx.va_max_address, EL1_EL0_REGIME);
 	enable_mmu_direct_el1(flags);
+}
+
+void enable_mmu_el2(unsigned int flags)
+{
+	setup_mmu_cfg((uint64_t *)&mmu_cfg_params, flags,
+		      tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+		      tf_xlat_ctx.va_max_address, EL2_REGIME);
+	enable_mmu_direct_el2(flags);
 }
 
 void enable_mmu_el3(unsigned int flags)

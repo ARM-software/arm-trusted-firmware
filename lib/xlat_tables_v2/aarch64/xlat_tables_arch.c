@@ -105,6 +105,9 @@ bool is_mmu_enabled_ctx(const xlat_ctx_t *ctx)
 	if (ctx->xlat_regime == EL1_EL0_REGIME) {
 		assert(xlat_arch_current_el() >= 1U);
 		return (read_sctlr_el1() & SCTLR_M_BIT) != 0U;
+	} else if (ctx->xlat_regime == EL2_REGIME) {
+		assert(xlat_arch_current_el() >= 2U);
+		return (read_sctlr_el2() & SCTLR_M_BIT) != 0U;
 	} else {
 		assert(ctx->xlat_regime == EL3_REGIME);
 		assert(xlat_arch_current_el() >= 3U);
@@ -118,6 +121,8 @@ bool is_dcache_enabled(void)
 
 	if (el == 1U) {
 		return (read_sctlr_el1() & SCTLR_C_BIT) != 0U;
+	} else if (el == 2U) {
+		return (read_sctlr_el2() & SCTLR_C_BIT) != 0U;
 	} else {
 		return (read_sctlr_el3() & SCTLR_C_BIT) != 0U;
 	}
@@ -128,7 +133,8 @@ uint64_t xlat_arch_regime_get_xn_desc(int xlat_regime)
 	if (xlat_regime == EL1_EL0_REGIME) {
 		return UPPER_ATTRS(UXN) | UPPER_ATTRS(PXN);
 	} else {
-		assert(xlat_regime == EL3_REGIME);
+		assert((xlat_regime == EL2_REGIME) ||
+		       (xlat_regime == EL3_REGIME));
 		return UPPER_ATTRS(XN);
 	}
 }
@@ -151,6 +157,9 @@ void xlat_arch_tlbi_va(uintptr_t va, int xlat_regime)
 	if (xlat_regime == EL1_EL0_REGIME) {
 		assert(xlat_arch_current_el() >= 1U);
 		tlbivaae1is(TLBI_ADDR(va));
+	} else if (xlat_regime == EL2_REGIME) {
+		assert(xlat_arch_current_el() >= 2U);
+		tlbivae2is(TLBI_ADDR(va));
 	} else {
 		assert(xlat_regime == EL3_REGIME);
 		assert(xlat_arch_current_el() >= 3U);
@@ -245,6 +254,8 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 		 * that are translated using TTBR1_EL1.
 		 */
 		tcr |= TCR_EPD1_BIT | (tcr_ps_bits << TCR_EL1_IPS_SHIFT);
+	} else if (xlat_regime == EL2_REGIME) {
+		tcr |= TCR_EL2_RES1 | (tcr_ps_bits << TCR_EL2_PS_SHIFT);
 	} else {
 		assert(xlat_regime == EL3_REGIME);
 		tcr |= TCR_EL3_RES1 | (tcr_ps_bits << TCR_EL3_PS_SHIFT);

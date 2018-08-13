@@ -125,6 +125,7 @@ typedef struct mmap_region {
  * library to detect it at runtime.
  */
 #define EL1_EL0_REGIME		1
+#define EL2_REGIME		2
 #define EL3_REGIME		3
 #define EL_REGIME_INVALID	-1
 

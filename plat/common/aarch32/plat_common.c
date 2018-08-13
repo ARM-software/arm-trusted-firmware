@@ -17,5 +17,5 @@
 
 void bl32_plat_enable_mmu(uint32_t flags)
 {
-	enable_mmu_secure(flags);
+	enable_mmu_svc_mon(flags);
 }
