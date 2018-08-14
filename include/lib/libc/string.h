@@ -8,8 +8,8 @@
  * All rights reserved.
  */
 
-#ifndef _STRING_H
-#define _STRING_H
+#ifndef STRING_H
+#define STRING_H
 
 #include <string_.h>
 
@@ -17,27 +17,15 @@
 #define NULL ((void *) 0)
 #endif
 
-extern void *memcpy(void * restrict s1, const void * restrict s2, size_t n);
-extern void *memmove(void *s1, const void *s2, size_t n);
-extern char *strcpy(char * restrict s1, const char * restrict s2);
-extern char *strncpy(char * restrict s1, const char * restrict s2, size_t n);
-extern char *strcat(char * restrict s1, const char * restrict s2);
-extern char *strncat(char * restrict s1, const char * restrict s2, size_t n);
-extern int memcmp(const void *s1, const void *s2, size_t n);
-extern int strcmp(const char *s1, const char *s2);
-extern int strcoll(const char *s1, const char *s2);
-extern int strncmp(const char *s1, const char *s2, size_t n);
-extern size_t strxfrm(char * restrict s1, const char * restrict s2, size_t n);
-extern void *memchr(const void *s, int c, size_t n);
-extern char *strchr(const char *s, int c);
-extern size_t strcspn(const char *s1, const char *s2);
-extern char *strpbrk(const char *s1, const char *s2);
-extern char *strrchr(const char *s, int c);
-extern size_t strspn(const char *s1, const char *s2);
-extern char *strstr(const char *s1, const char *s2);
-extern char *strtok(char * restrict s1, const char * restrict s2);
-extern void *memset(void *s, int c, size_t n);
-extern char *strerror(int errnum);
-extern size_t strlen(const char *s);
+void *memcpy(void *dst, const void *src, size_t len);
+void *memmove(void *dst, const void *src, size_t len);
+int memcmp(const void *s1, const void *s2, size_t len);
+int strcmp(const char *s1, const char *s2);
+int strncmp(const char *s1, const char *s2, size_t n);
+void *memchr(const void *src, int c, size_t len);
+char *strchr(const char *s, int c);
+void *memset(void *dst, int val, size_t count);
+size_t strlen(const char *s);
+size_t strnlen(const char *s, size_t maxlen);
 
-#endif
+#endif /* STRING_H */

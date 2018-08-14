@@ -8,12 +8,12 @@
  * All rights reserved.
  */
 
-#ifndef _LIMITS_H
-#define _LIMITS_H
+#ifndef LIMITS_H
+#define LIMITS_H
 
 #include <limits_.h>
 
 #define CHAR_BIT   8
 #define MB_LEN_MAX 1
 
-#endif
+#endif /* LIMITS_H */

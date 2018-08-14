@@ -8,8 +8,8 @@
  * All rights reserved.
  */
 
-#ifndef _STDDEF_H
-#define _STDDEF_H
+#ifndef STDDEF_H
+#define STDDEF_H
 
 #include <stddef_.h>
 
@@ -17,6 +17,6 @@
 #define NULL ((void *) 0)
 #endif
 
-#define offsetof(st, m) ((size_t)&(((st *)0)->m))
+#define offsetof(st, m) __builtin_offsetof(st, m)
 
-#endif
+#endif /* STDDEF_H */

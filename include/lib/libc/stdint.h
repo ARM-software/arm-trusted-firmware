@@ -8,9 +8,9 @@
  * All rights reserved.
  */
 
-#ifndef _STDINT_H_
-#define _STDINT_H_
+#ifndef STDINT_H
+#define STDINT_H
 
 #include <stdint_.h>
 
-#endif
+#endif /* STDINT_H */
