@@ -33,9 +33,7 @@ ENT_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
 PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/sgi_plat.c	\
 				${CSS_ENT_BASE}/aarch64/sgi_helper.S
 
-BL1_SOURCES		+=	${INTERCONNECT_SOURCES}			\
-				${CSS_ENT_BASE}/sgi_bl1_setup.c	\
-				${CSS_ENT_BASE}/sgi_plat_config.c
+BL1_SOURCES		+=	${INTERCONNECT_SOURCES}
 
 BL2_SOURCES		+=	${CSS_ENT_BASE}/sgi_security.c		\
 				${CSS_ENT_BASE}/sgi_image_load.c
@@ -43,8 +41,7 @@ BL2_SOURCES		+=	${CSS_ENT_BASE}/sgi_security.c		\
 BL31_SOURCES		+=	${INTERCONNECT_SOURCES}			\
 				${ENT_GIC_SOURCES}			\
 				${CSS_ENT_BASE}/sgi_bl31_setup.c	\
-				${CSS_ENT_BASE}/sgi_topology.c	\
-				${CSS_ENT_BASE}/sgi_plat_config.c
+				${CSS_ENT_BASE}/sgi_topology.c
 
 ifeq (${RAS_EXTENSION},1)
 BL31_SOURCES		+=	${CSS_ENT_BASE}/sgi_ras.c
