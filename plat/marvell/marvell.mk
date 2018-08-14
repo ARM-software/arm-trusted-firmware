@@ -48,6 +48,7 @@ mrvl_clean:
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${DOIMAGEPATH} clean
 
 ${DOIMAGETOOL}: mrvl_clean
+	@$(DOIMAGE_LIBS_CHECK)
 	${Q}${MAKE} --no-print-directory -C ${DOIMAGEPATH} WTMI_IMG=$(WTMI_IMG)
 
 
