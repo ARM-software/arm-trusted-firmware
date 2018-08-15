@@ -109,7 +109,7 @@ static int mmc_set_ext_csd(unsigned int ext_cmd, unsigned int value)
 	ret = mmc_send_cmd(MMC_CMD(6),
 			   EXTCSD_WRITE_BYTES | EXTCSD_CMD(ext_cmd) |
 			   EXTCSD_VALUE(value) | EXTCSD_CMD_SET_NORMAL,
-			   0, NULL);
+			   MMC_RESPONSE_R1B, NULL);
 	if (ret != 0) {
 		return ret;
 	}
@@ -539,7 +539,7 @@ size_t mmc_read_blocks(int lba, uintptr_t buf, size_t size)
 	} while ((ret != MMC_STATE_TRAN) && (ret != MMC_STATE_DATA));
 
 	if (!is_cmd23_enabled() && (size > MMC_BLOCK_SIZE)) {
-		ret = mmc_send_cmd(MMC_CMD(12), 0, 0, NULL);
+		ret = mmc_send_cmd(MMC_CMD(12), 0, MMC_RESPONSE_R1B, NULL);
 		if (ret != 0) {
 			return 0;
 		}
@@ -606,7 +606,7 @@ size_t mmc_write_blocks(int lba, const uintptr_t buf, size_t size)
 	} while ((ret != MMC_STATE_TRAN) && (ret != MMC_STATE_RCV));
 
 	if (!is_cmd23_enabled() && (size > MMC_BLOCK_SIZE)) {
-		ret = mmc_send_cmd(MMC_CMD(12), 0, 0, NULL);
+		ret = mmc_send_cmd(MMC_CMD(12), 0, MMC_RESPONSE_R1B, NULL);
 		if (ret != 0) {
 			return 0;
 		}
