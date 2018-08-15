@@ -8,6 +8,17 @@
 #include <platform.h>
 #include <stdarg.h>
 
+static void string_print(char **s, size_t n, size_t *chars_printed,
+			 const char *str)
+{
+	while (*str) {
+		if (*chars_printed < n)
+			*(*s)++ = *str;
+		(*chars_printed)++;
+		str++;
+	}
+}
+
 static void unsigned_dec_print(char **s, size_t n, size_t *chars_printed,
 			       unsigned int unum)
 {
@@ -32,6 +43,7 @@ static void unsigned_dec_print(char **s, size_t n, size_t *chars_printed,
  * The following type specifiers are supported:
  *
  * %d or %i - signed decimal format
+ * %s - string format
  * %u - unsigned decimal format
  *
  * The function panics on all other formats specifiers.
@@ -45,6 +57,7 @@ int tf_snprintf(char *s, size_t n, const char *fmt, ...)
 	va_list args;
 	int num;
 	unsigned int unum;
+	char *str;
 	size_t chars_printed = 0;
 
 	if (n == 1) {
@@ -78,6 +91,10 @@ int tf_snprintf(char *s, size_t n, const char *fmt, ...)
 				}
 
 				unsigned_dec_print(&s, n, &chars_printed, unum);
+				break;
+			case 's':
+				str = va_arg(args, char *);
+				string_print(&s, n, &chars_printed, str);
 				break;
 			case 'u':
 				unum = va_arg(args, unsigned int);

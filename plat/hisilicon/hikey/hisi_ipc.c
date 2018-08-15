@@ -1,16 +1,16 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch_helpers.h>
+#include <debug.h>
 #include <hisi_ipc.h>
 #include <hisi_sram_map.h>
 #include <mmio.h>
 #include <platform_def.h>
 #include <stdarg.h>
-#include <stdio.h>
 #include <string.h>
 
 static int ipc_init;
@@ -63,7 +63,7 @@ int hisi_cpus_powered_off_besides_curr(unsigned int cpu)
 static void hisi_ipc_send(unsigned int ipc_num)
 {
 	if (!ipc_init) {
-		printf("error ipc base is null!!!\n");
+		tf_printf("error ipc base is null!!!\n");
 		return;
 	}
 
