@@ -333,7 +333,7 @@ static int sd_send_op_cond(void)
 		}
 
 		/* ACMD41: SD_SEND_OP_COND */
-		ret = mmc_send_cmd(MMC_ACMD(41), OCR_HCS, MMC_RESPONSE_R(3),
+		ret = mmc_send_cmd(MMC_ACMD(41), OCR_HCS, MMC_RESPONSE_R3,
 				   &resp_data[0]);
 		if (ret != 0) {
 			return ret;
@@ -384,7 +384,7 @@ static int mmc_send_op_cond(void)
 	for (n = 0; n < SEND_OP_COND_MAX_RETRIES; n++) {
 		ret = mmc_send_cmd(MMC_CMD(1), OCR_SECTOR_MODE |
 				   OCR_VDD_MIN_2V7 | OCR_VDD_MIN_1V7,
-				   MMC_RESPONSE_R(3), &resp_data[0]);
+				   MMC_RESPONSE_R3, &resp_data[0]);
 		if (ret != 0) {
 			return ret;
 		}
