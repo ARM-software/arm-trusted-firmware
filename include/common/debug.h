@@ -90,10 +90,10 @@ void __dead2 do_panic(void);
 void __dead2 __stack_chk_fail(void);
 
 void tf_log(const char *fmt, ...) __printflike(1, 2);
-void tf_printf(const char *fmt, ...) __printflike(1, 2);
+int tf_printf(const char *fmt, ...) __printflike(1, 2);
 int tf_snprintf(char *s, size_t n, const char *fmt, ...) __printflike(3, 4);
-void tf_vprintf(const char *fmt, va_list args);
-void tf_string_print(const char *str);
+int tf_vprintf(const char *fmt, va_list args);
+int tf_string_print(const char *str);
 void tf_log_set_max_level(unsigned int log_level);
 
 #endif /* __ASSEMBLY__ */

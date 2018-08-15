@@ -23,20 +23,26 @@
 	(((_lcount) > 1) ? va_arg(_args, unsigned long long int) :	\
 	((_lcount) ? va_arg(_args, unsigned long int) : va_arg(_args, unsigned int)))
 
-void tf_string_print(const char *str)
+int tf_string_print(const char *str)
 {
+	int count = 0;
+
 	assert(str);
 
-	while (*str)
+	while (*str) {
 		putchar(*str++);
+		count++;
+	}
+
+	return count;
 }
 
-static void unsigned_num_print(unsigned long long int unum, unsigned int radix,
-			       char padc, int padn)
+static int unsigned_num_print(unsigned long long int unum, unsigned int radix,
+			      char padc, int padn)
 {
 	/* Just need enough space to store 64 bit decimal integer */
 	unsigned char num_buf[20];
-	int i = 0, rem;
+	int i = 0, rem, count = 0;
 
 	do {
 		rem = unum % radix;
@@ -49,11 +55,16 @@ static void unsigned_num_print(unsigned long long int unum, unsigned int radix,
 	if (padn > 0) {
 		while (i < padn--) {
 			putchar(padc);
+			count++;
 		}
 	}
 
-	while (--i >= 0)
+	while (--i >= 0) {
 		putchar(num_buf[i]);
+		count++;
+	}
+
+	return count;
 }
 
 /*******************************************************************
@@ -76,7 +87,7 @@ static void unsigned_num_print(unsigned long long int unum, unsigned int radix,
  * The print exits on all other formats specifiers other than valid
  * combinations of the above specifiers.
  *******************************************************************/
-void tf_vprintf(const char *fmt, va_list args)
+int tf_vprintf(const char *fmt, va_list args)
 {
 	int l_count;
 	long long int num;
@@ -84,6 +95,7 @@ void tf_vprintf(const char *fmt, va_list args)
 	char *str;
 	char padc = 0; /* Padding character */
 	int padn; /* Number of characters to pad */
+	int count = 0; /* Number of printed characters */
 
 	while (*fmt) {
 		l_count = 0;
@@ -104,24 +116,27 @@ loop:
 				} else
 					unum = (unsigned long long int)num;
 
-				unsigned_num_print(unum, 10, padc, padn);
+				count += unsigned_num_print(unum, 10,
+							    padc, padn);
 				break;
 			case 's':
 				str = va_arg(args, char *);
-				tf_string_print(str);
+				count += tf_string_print(str);
 				break;
 			case 'p':
 				unum = (uintptr_t)va_arg(args, void *);
 				if (unum) {
-					tf_string_print("0x");
+					count += tf_string_print("0x");
 					padn -= 2;
 				}
 
-				unsigned_num_print(unum, 16, padc, padn);
+				count += unsigned_num_print(unum, 16,
+							    padc, padn);
 				break;
 			case 'x':
 				unum = get_unum_va_args(args, l_count);
-				unsigned_num_print(unum, 16, padc, padn);
+				count += unsigned_num_print(unum, 16,
+							    padc, padn);
 				break;
 			case 'z':
 				if (sizeof(size_t) == 8)
@@ -135,7 +150,8 @@ loop:
 				goto loop;
 			case 'u':
 				unum = get_unum_va_args(args, l_count);
-				unsigned_num_print(unum, 10, padc, padn);
+				count += unsigned_num_print(unum, 10,
+							    padc, padn);
 				break;
 			case '0':
 				padc = '0';
@@ -152,20 +168,26 @@ loop:
 				}
 			default:
 				/* Exit on any other format specifier */
-				return;
+				return -1;
 			}
 			fmt++;
 			continue;
 		}
 		putchar(*fmt++);
+		count++;
 	}
+
+	return count;
 }
 
-void tf_printf(const char *fmt, ...)
+int tf_printf(const char *fmt, ...)
 {
+	int count;
 	va_list va;
 
 	va_start(va, fmt);
-	tf_vprintf(fmt, va);
+	count = tf_vprintf(fmt, va);
 	va_end(va);
+
+	return count;
 }
