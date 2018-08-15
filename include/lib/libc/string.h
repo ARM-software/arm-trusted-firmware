@@ -3,11 +3,15 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+/*
+ * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * All rights reserved.
+ */
 
 #ifndef _STRING_H
 #define _STRING_H
 
-#include <arch/string.h>
+#include <string_.h>
 
 #ifndef NULL
 #define NULL ((void *) 0)

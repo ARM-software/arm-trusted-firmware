@@ -3,11 +3,15 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+/*
+ * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * All rights reserved.
+ */
 
 #ifndef _STDLIB_H
 #define _STDLIB_H
 
-#include <arch/stdlib.h>
+#include <stdlib_.h>
 
 #ifndef NULL
 #define NULL ((void *) 0)

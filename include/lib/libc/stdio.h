@@ -3,11 +3,15 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+/*
+ * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * All rights reserved.
+ */
 
 #ifndef _STDIO_H
 #define _STDIO_H
 
-#include <arch/stdio.h>
+#include <stdio_.h>
 
 #ifndef FOPEN_MAX
 #define FOPEN_MAX 12

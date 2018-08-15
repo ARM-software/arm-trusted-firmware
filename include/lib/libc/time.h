@@ -3,11 +3,15 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+/*
+ * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * All rights reserved.
+ */
 
 #ifndef _TIME_H
 #define _TIME_H
 
-#include <arch/time.h>
+#include <time_.h>
 
 #ifndef NULL
 #define NULL ((void *) 0)

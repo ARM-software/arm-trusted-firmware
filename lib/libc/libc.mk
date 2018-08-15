@@ -24,4 +24,4 @@ LIBC_SRCS	:=	$(addprefix lib/libc/,	\
 			subr_prf.c)
 
 INCLUDES	+=	-Iinclude/lib/libc		\
-			-Iinclude/lib/libc/sys
+			-Iinclude/lib/libc/$(ARCH)	\
