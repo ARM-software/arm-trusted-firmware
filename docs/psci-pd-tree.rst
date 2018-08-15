@@ -1,5 +1,5 @@
-PSCI Library Integration guide for Armv8-A AArch32 systems
-==========================================================
+PSCI Power Domain Tree design
+=============================
 
 
 .. section-numbering::
