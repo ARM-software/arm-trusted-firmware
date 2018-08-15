@@ -1,13 +1,10 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <arch.h>
-#include <arch_helpers.h>
 #include <assert.h>
 #include <debug.h>
-#include <limits.h>
 #include <stdarg.h>
 #include <stdint.h>
 
@@ -23,7 +20,7 @@
 	(((_lcount) > 1) ? va_arg(_args, unsigned long long int) :	\
 	((_lcount) ? va_arg(_args, unsigned long int) : va_arg(_args, unsigned int)))
 
-int tf_string_print(const char *str)
+static int string_print(const char *str)
 {
 	int count = 0;
 
@@ -87,7 +84,7 @@ static int unsigned_num_print(unsigned long long int unum, unsigned int radix,
  * The print exits on all other formats specifiers other than valid
  * combinations of the above specifiers.
  *******************************************************************/
-int tf_vprintf(const char *fmt, va_list args)
+int vprintf(const char *fmt, va_list args)
 {
 	int l_count;
 	long long int num;
@@ -121,12 +118,12 @@ loop:
 				break;
 			case 's':
 				str = va_arg(args, char *);
-				count += tf_string_print(str);
+				count += string_print(str);
 				break;
 			case 'p':
 				unum = (uintptr_t)va_arg(args, void *);
 				if (unum) {
-					count += tf_string_print("0x");
+					count += string_print("0x");
 					padn -= 2;
 				}
 
@@ -180,13 +177,13 @@ loop:
 	return count;
 }
 
-int tf_printf(const char *fmt, ...)
+int printf(const char *fmt, ...)
 {
 	int count;
 	va_list va;
 
 	va_start(va, fmt);
-	count = tf_vprintf(fmt, va);
+	count = vprintf(fmt, va);
 	va_end(va);
 
 	return count;

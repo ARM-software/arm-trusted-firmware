@@ -16,12 +16,12 @@ LIBC_SRCS	:=	$(addprefix lib/libc/,	\
 			printf.c			\
 			putchar.c			\
 			puts.c				\
+			snprintf.c			\
 			strchr.c			\
 			strcmp.c			\
 			strlen.c			\
 			strncmp.c			\
-			strnlen.c			\
-			subr_prf.c)
+			strnlen.c)
 
 INCLUDES	+=	-Iinclude/lib/libc		\
 			-Iinclude/lib/libc/$(ARCH)	\

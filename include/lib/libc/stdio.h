@@ -11,6 +11,7 @@
 #ifndef STDIO_H
 #define STDIO_H
 
+#include <cdefs.h>
 #include <stdio_.h>
 
 #ifndef NULL
@@ -19,14 +20,11 @@
 
 #define EOF            -1
 
-int printf(const char *fmt, ...);
-int snprintf(char *s, size_t n, const char *fmt, ...);
-int sprintf(char *s, const char *fmt, ...);
-int sscanf(const char *s, const char *fmt, ...);
+int printf(const char *fmt, ...) __printflike(1, 2);
+int snprintf(char *s, size_t n, const char *fmt, ...) __printflike(3, 4);
 
 #ifdef STDARG_H
-int vsnprintf(char *s, size_t n, const char *fmt, va_list arg);
-int vsprintf(char *s, const char *fmt, va_list arg);
+int vprintf(const char *fmt, va_list args);
 #endif
 
 int putchar(int c);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,11 +36,11 @@ void tf_log(const char *fmt, ...)
 
 	prefix_str = plat_log_get_prefix(log_level);
 
-	if (prefix_str != NULL)
-		tf_string_print(prefix_str);
+	while (*prefix_str)
+		putchar(*prefix_str++);
 
 	va_start(args, fmt);
-	tf_vprintf(fmt+1, args);
+	vprintf(fmt + 1, args);
 	va_end(args);
 }
 

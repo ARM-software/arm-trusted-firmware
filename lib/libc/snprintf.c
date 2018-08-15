@@ -52,7 +52,7 @@ static void unsigned_dec_print(char **s, size_t n, size_t *chars_printed,
  * buffer was big enough. If it returns a value lower than n, the
  * whole string has been written.
  *******************************************************************/
-int tf_snprintf(char *s, size_t n, const char *fmt, ...)
+int snprintf(char *s, size_t n, const char *fmt, ...)
 {
 	va_list args;
 	int num;
@@ -102,7 +102,7 @@ int tf_snprintf(char *s, size_t n, const char *fmt, ...)
 				break;
 			default:
 				/* Panic on any other format specifier. */
-				ERROR("tf_snprintf: specifier with ASCII code '%d' not supported.",
+				ERROR("snprintf: specifier with ASCII code '%d' not supported.",
 				      *fmt);
 				plat_panic_handler();
 			}

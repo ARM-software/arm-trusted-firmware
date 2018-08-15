@@ -319,7 +319,7 @@ and some helper utilities for assert, print and memory operations as listed
 below. The TF-A source tree provides implementations for all
 these functions but the EL3 Runtime Software may use its own implementation.
 
-**Functions : assert(), memcpy(), memset**
+**Functions : assert(), memcpy(), memset(), printf()**
 
 These must be implemented as described in ISO C Standard.
 
@@ -352,14 +352,6 @@ This function invalidates (flushes) the data cache for memory at address
 
 This function will be called by the PSCI library on encountering a critical
 failure that cannot be recovered from. This function **must not** return.
-
-**Function : tf\_printf()**
-
-This is printf-compatible function, but unlike printf, it does not return any
-value. The TF-A source tree provides an implementation which
-is optimized for stack usage and supports only a subset of format specifiers.
-The details of the format specifiers supported can be found in the
-``tf_printf.c`` file in the TF-A source tree.
 
 CPU Context management API
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
