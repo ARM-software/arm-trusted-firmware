@@ -8,7 +8,11 @@ LIBC_SRCS	:=	$(addprefix lib/libc/,	\
 			abort.c				\
 			assert.c			\
 			exit.c				\
-			mem.c				\
+			memchr.c			\
+			memcmp.c			\
+			memcpy.c			\
+			memmove.c			\
+			memset.c			\
 			printf.c			\
 			putchar.c			\
 			puts.c				\
