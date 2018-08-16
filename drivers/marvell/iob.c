@@ -52,8 +52,8 @@ static void iob_win_check(struct addr_map_win *win, uint32_t win_num)
 		win->base_addr = ALIGN_UP(win->base_addr, IOB_WIN_ALIGNMENT);
 		ERROR("Window %d: base address unaligned to 0x%x\n",
 		      win_num, IOB_WIN_ALIGNMENT);
-		tf_printf("Align up the base address to 0x%llx\n",
-			  win->base_addr);
+		printf("Align up the base address to 0x%llx\n",
+		       win->base_addr);
 	}
 
 	/* size parameter validity check */
@@ -61,7 +61,7 @@ static void iob_win_check(struct addr_map_win *win, uint32_t win_num)
 		win->win_size = ALIGN_UP(win->win_size, IOB_WIN_ALIGNMENT);
 		ERROR("Window %d: window size unaligned to 0x%x\n", win_num,
 		      IOB_WIN_ALIGNMENT);
-		tf_printf("Aligning size to 0x%llx\n", win->win_size);
+		printf("Aligning size to 0x%llx\n", win->win_size);
 	}
 }
 
@@ -96,8 +96,8 @@ static void dump_iob(void)
 		"PEX0 ", "NAND ", "RUNIT", "MCI1 " };
 
 	/* Dump all IOB windows */
-	tf_printf("bank  id target  start              end\n");
-	tf_printf("----------------------------------------------------\n");
+	printf("bank  id target  start              end\n");
+	printf("----------------------------------------------------\n");
 	for (win_id = 0; win_id < MVEBU_IOB_MAX_WINS; win_id++) {
 		win_cr = mmio_read_32(IOB_WIN_CR_OFFSET(win_id));
 		if (win_cr & WIN_ENABLE_BIT) {
@@ -114,9 +114,9 @@ static void dump_iob(void)
 				 */
 				end = start + (16 << 20);
 			}
-			tf_printf("iob   %02d %s   0x%016llx 0x%016llx\n",
-				  win_id, iob_target_name[target_id],
-				  start, end);
+			printf("iob   %02d %s   0x%016llx 0x%016llx\n",
+			       win_id, iob_target_name[target_id],
+			       start, end);
 		}
 	}
 }

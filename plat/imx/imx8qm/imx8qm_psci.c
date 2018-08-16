@@ -35,7 +35,7 @@ int imx_pwr_domain_on(u_register_t mpidr)
 	cluster_id = MPIDR_AFFLVL1_VAL(mpidr);
 	cpu_id = MPIDR_AFFLVL0_VAL(mpidr);
 
-	tf_printf("imx_pwr_domain_on cluster_id %d, cpu_id %d\n", cluster_id, cpu_id);
+	printf("imx_pwr_domain_on cluster_id %d, cpu_id %d\n", cluster_id, cpu_id);
 
 	if (cluster_id == 0) {
 		sc_pm_set_resource_power_mode(ipc_handle, SC_R_A53,
@@ -94,7 +94,7 @@ void imx_pwr_domain_off(const psci_power_state_t *target_state)
 		SC_PM_WAKE_SRC_NONE);
 	if (CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE)
 		cci_disable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(mpidr));
-	tf_printf("turn off cluster:%d core:%d\n", cluster_id, cpu_id);
+	printf("turn off cluster:%d core:%d\n", cluster_id, cpu_id);
 }
 
 void imx_domain_suspend(const psci_power_state_t *target_state)

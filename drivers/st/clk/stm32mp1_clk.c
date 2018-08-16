@@ -17,6 +17,7 @@
 #include <mmio.h>
 #include <platform.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stm32mp1_clk.h>
 #include <stm32mp1_clkfunc.h>
 #include <stm32mp1_dt.h>
@@ -1344,7 +1345,7 @@ int stm32mp1_clk_init(void)
 	for (i = (enum stm32mp1_pll_id)0; i < _PLL_NB; i++) {
 		char name[12];
 
-		tf_snprintf(name, sizeof(name), "st,pll@%d", i);
+		snprintf(name, sizeof(name), "st,pll@%d", i);
 		plloff[i] = fdt_rcc_subnode_offset(name);
 
 		if (!fdt_check_node(plloff[i])) {

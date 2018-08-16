@@ -9,7 +9,7 @@
 #include <stdint.h>
 
 /***********************************************************
- * The tf_printf implementation for all BL stages
+ * The printf implementation for all BL stages
  ***********************************************************/
 
 #define get_num_va_args(_args, _lcount) \

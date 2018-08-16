@@ -96,8 +96,8 @@ static void dump_amb_adec(void)
 	uint32_t size, size_count;
 
 	/* Dump all AMB windows */
-	tf_printf("bank  attribute     base          size\n");
-	tf_printf("--------------------------------------------\n");
+	printf("bank  attribute     base          size\n");
+	printf("--------------------------------------------\n");
 	for (win_id = 0; win_id < AMB_MAX_WIN_ID; win_id++) {
 		ctrl = mmio_read_32(AMB_WIN_CR_OFFSET(win_id));
 		if (ctrl & WIN_ENABLE_BIT) {
@@ -105,8 +105,8 @@ static void dump_amb_adec(void)
 			attr = (ctrl >> AMB_ATTR_OFFSET) & AMB_ATTR_MASK;
 			size_count = (ctrl >> AMB_SIZE_OFFSET) & AMB_SIZE_MASK;
 			size = (size_count + 1) * AMB_WIN_ALIGNMENT_64K;
-			tf_printf("amb   0x%04x        0x%08x    0x%08x\n",
-				  attr, base, size);
+			printf("amb   0x%04x        0x%08x    0x%08x\n",
+			       attr, base, size);
 		}
 	}
 }

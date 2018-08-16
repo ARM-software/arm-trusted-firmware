@@ -11,6 +11,7 @@
 #include <mbr.h>
 #include <partition.h>
 #include <platform.h>
+#include <stdio.h>
 #include <string.h>
 
 static uint8_t mbr_sector[PARTITION_BLOCK_SIZE];
@@ -24,7 +25,7 @@ static void dump_entries(int num)
 
 	VERBOSE("Partition table with %d entries:\n", num);
 	for (i = 0; i < num; i++) {
-		len = tf_snprintf(name, EFI_NAMELEN, "%s", list.list[i].name);
+		len = snprintf(name, EFI_NAMELEN, "%s", list.list[i].name);
 		for (j = 0; j < EFI_NAMELEN - len - 1; j++) {
 			name[len + j] = ' ';
 		}

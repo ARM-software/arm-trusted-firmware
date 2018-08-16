@@ -20,7 +20,7 @@
 
 /* common defines */
 #define WIN_ENABLE_BIT			(0x1)
-/* Physical address of the base of the window = {AddrLow[19:0],20’h0} */
+/* Physical address of the base of the window = {AddrLow[19:0],20'h0} */
 #define ADDRESS_SHIFT			(20 - 4)
 #define ADDRESS_MASK			(0xFFFFFFF0)
 #define CCU_WIN_ALIGNMENT		(0x100000)
@@ -40,8 +40,8 @@ static void dump_ccu(int ap_index)
 	uint64_t start, end;
 
 	/* Dump all AP windows */
-	tf_printf("\tbank  target     start              end\n");
-	tf_printf("\t----------------------------------------------------\n");
+	printf("\tbank  target     start              end\n");
+	printf("\t----------------------------------------------------\n");
 	for (win_id = 0; win_id < MVEBU_CCU_MAX_WINS; win_id++) {
 		win_cr = mmio_read_32(CCU_WIN_CR_OFFSET(ap_index, win_id));
 		if (win_cr & WIN_ENABLE_BIT) {
@@ -53,13 +53,13 @@ static void dump_ccu(int ap_index)
 							      win_id));
 			start = ((uint64_t)alr << ADDRESS_SHIFT);
 			end = (((uint64_t)ahr + 0x10) << ADDRESS_SHIFT);
-			tf_printf("\tccu    %02x     0x%016llx 0x%016llx\n",
-				  target_id, start, end);
+			printf("\tccu    %02x     0x%016llx 0x%016llx\n",
+			       target_id, start, end);
 		}
 	}
 	win_cr = mmio_read_32(CCU_WIN_GCR_OFFSET(ap_index));
 	target_id = (win_cr >> CCU_GCR_TARGET_OFFSET) & CCU_GCR_TARGET_MASK;
-	tf_printf("\tccu   GCR %d - all other transactions\n", target_id);
+	printf("\tccu   GCR %d - all other transactions\n", target_id);
 }
 #endif
 

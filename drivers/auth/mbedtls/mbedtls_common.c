@@ -6,6 +6,7 @@
 
 #include <debug.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 /* mbed TLS headers */
 #include <mbedtls/memory_buffer_alloc.h>
@@ -45,10 +46,8 @@ void mbedtls_init(void)
 		mbedtls_memory_buffer_alloc_init(heap, MBEDTLS_HEAP_SIZE);
 
 #ifdef MBEDTLS_PLATFORM_SNPRINTF_ALT
-		/* Use reduced version of snprintf to save space. */
-		mbedtls_platform_set_snprintf(tf_snprintf);
+		mbedtls_platform_set_snprintf(snprintf);
 #endif
-
 		ready = 1;
 	}
 }

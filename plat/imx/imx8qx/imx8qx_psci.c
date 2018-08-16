@@ -25,7 +25,7 @@ int imx_pwr_domain_on(u_register_t mpidr)
 
 	cpu_id = MPIDR_AFFLVL0_VAL(mpidr);
 
-	tf_printf("imx_pwr_domain_on cpu_id %d\n", cpu_id);
+	printf("imx_pwr_domain_on cpu_id %d\n", cpu_id);
 
 	if (sc_pm_set_resource_power_mode(ipc_handle, ap_core_index[cpu_id],
 	    SC_PM_PW_MODE_ON) != SC_ERR_NONE) {
@@ -61,7 +61,7 @@ void imx_pwr_domain_off(const psci_power_state_t *target_state)
 	plat_gic_cpuif_disable();
 	sc_pm_req_cpu_low_power_mode(ipc_handle, ap_core_index[cpu_id],
 		SC_PM_PW_MODE_OFF, SC_PM_WAKE_SRC_NONE);
-	tf_printf("turn off core:%d\n", cpu_id);
+	printf("turn off core:%d\n", cpu_id);
 }
 
 void imx_domain_suspend(const psci_power_state_t *target_state)
