@@ -10,8 +10,8 @@
 #include <errno.h>
 #include <platform_def.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
-#include <types.h>
 #include <utils_def.h>
 #include <xlat_tables_defs.h>
 #include <xlat_tables_v2.h>

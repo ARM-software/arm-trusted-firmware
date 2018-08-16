@@ -28,6 +28,7 @@
 /* length of Trusty's input parameters (in bytes) */
 #define TRUSTY_PARAMS_LEN_BYTES	(4096*2)
 
+extern void memcpy16(void *dest, const void *src, unsigned int length);
 extern void zeromem16(void *mem, unsigned int length);
 
 /*******************************************************************************

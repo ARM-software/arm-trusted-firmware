@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #ifndef __ARM_GIC_H__
 #define __ARM_GIC_H__
 
+#include <cdefs.h>
 #include <stdint.h>
 
 /*******************************************************************************

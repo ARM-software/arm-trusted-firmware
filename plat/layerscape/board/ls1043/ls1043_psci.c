@@ -5,15 +5,15 @@
  */
 
 #include <arch_helpers.h>
-#include <debug.h>
-#include <errno.h>
 #include <assert.h>
+#include <debug.h>
+#include <delay_timer.h>
+#include <endian.h>
+#include <errno.h>
+#include <gicv2.h>
+#include <mmio.h>
 #include <platform.h>
 #include <psci.h>
-#include <mmio.h>
-#include <sys/endian.h>
-#include <gicv2.h>
-#include <delay_timer.h>
 #include "platform_def.h"
 
 #define LS_SCFG_BASE			0x01570000

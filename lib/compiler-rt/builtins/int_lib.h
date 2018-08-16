@@ -14,7 +14,7 @@
  */
 
 /*
- * Portions copyright (c) 2017, ARM Limited and Contributors.
+ * Portions copyright (c) 2017-2018, ARM Limited and Contributors.
  * All rights reserved.
  */
 
@@ -63,9 +63,8 @@
  * Kernel and boot environment can't use normal headers,
  * so use the equivalent system headers.
  */
-#  include <sys/limits.h>
-#  include <sys/stdint.h>
-#  include <sys/types.h>
+#  include <limits.h>
+#  include <stdint.h>
 
 /* Include the commonly used internal type definitions. */
 #include "int_types.h"

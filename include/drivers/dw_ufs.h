@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #ifndef __DW_UFS_H__
 #define __DW_UFS_H__
 
-#include <sys/types.h>
+#include <stdint.h>
 
 /* Bus Throtting */
 #define BUSTHRTL				0xC0

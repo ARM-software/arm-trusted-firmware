@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <types.h>
+#include <stdint.h>
 
 #define MU_ATR0_OFFSET1		0x0
 #define MU_ARR0_OFFSET1		0x10

@@ -10,7 +10,7 @@
 #include <errno.h>
 #include <platform_def.h>
 #include <stdbool.h>
-#include <types.h>
+#include <stdint.h>
 #include <utils_def.h>
 #include <xlat_tables_defs.h>
 #include <xlat_tables_v2.h>

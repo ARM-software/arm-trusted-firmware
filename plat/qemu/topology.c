@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch.h>
 #include <platform_def.h>
-#include <sys/types.h>
+#include <stdint.h>
 #include "qemu_private.h"
 
 /* The power domain tree descriptor */

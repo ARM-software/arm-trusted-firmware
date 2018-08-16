@@ -12,8 +12,8 @@
 #include <debug.h>
 #include <platform_def.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
-#include <types.h>
 #include <utils.h>
 #include <xlat_tables.h>
 #include "xlat_tables_private.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,6 @@
 #include <cassert.h>
 #include <platform_def.h>
 #include <stdint.h>
-#include <sys/cdefs.h> /* for CASSERT() */
 
 /* All group 0 counters */
 #define AMU_GROUP0_COUNTERS_MASK	0xf

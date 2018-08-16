@@ -26,6 +26,7 @@
 #define LOG_LEVEL_VERBOSE		50
 
 #ifndef __ASSEMBLY__
+#include <cdefs.h>
 #include <stdarg.h>
 #include <stdio.h>
 

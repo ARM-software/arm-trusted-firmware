@@ -7,7 +7,7 @@
 #ifndef __BL1_PRIVATE_H__
 #define __BL1_PRIVATE_H__
 
-#include <types.h>
+#include <stdint.h>
 #include <utils_def.h>
 
 /*******************************************************************************

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,8 @@
 #include <string.h>
 #include <t18x_ari.h>
 #include <tegra_private.h>
+
+extern void memcpy16(void *dest, const void *src, unsigned int length);
 
 extern void prepare_cpu_pwr_dwn(void);
 extern void tegra186_cpu_reset_handler(void);

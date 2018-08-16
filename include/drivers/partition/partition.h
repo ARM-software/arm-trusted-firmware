@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,7 +8,7 @@
 #define __PARTITION_H__
 
 #include <cassert.h>
-#include <types.h>
+#include <stdint.h>
 
 #if !PLAT_PARTITION_MAX_ENTRIES
 # define PLAT_PARTITION_MAX_ENTRIES	128

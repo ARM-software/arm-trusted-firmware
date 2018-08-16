@@ -7,7 +7,7 @@
 #ifndef __SQ_COMMON_H__
 #define __SQ_COMMON_H__
 
-#include <sys/types.h>
+#include <stdint.h>
 #include <xlat_tables_v2.h>
 
 struct draminfo {

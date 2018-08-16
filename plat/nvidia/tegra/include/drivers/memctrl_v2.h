@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,7 +11,7 @@
 
 #ifndef __ASSEMBLY__
 
-#include <sys/types.h>
+#include <stdint.h>
 
 /*******************************************************************************
  * StreamID to indicate no SMMU translations (requests to be steered on the

@@ -171,7 +171,6 @@
 #ifndef __ASSEMBLY__
 
 #include <stdint.h>
-#include <types.h>
 
 /* Function to help build the psci capabilities bitfield */
 

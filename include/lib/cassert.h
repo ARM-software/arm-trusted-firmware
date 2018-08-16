@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef __CASSERT_H__
 #define __CASSERT_H__
+
+#include <cdefs.h>
 
 /*******************************************************************************
  * Macro to flag a compile time assertion. It uses the preprocessor to generate

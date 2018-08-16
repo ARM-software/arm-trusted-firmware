@@ -17,7 +17,7 @@
  */
 #if !(defined(__LINKER__) || defined(__ASSEMBLY__))
 
-#include <types.h>
+#include <stdint.h>
 
 typedef struct mem_region {
 	uintptr_t base;

@@ -7,8 +7,8 @@
 #ifndef __PLAT_LS_H__
 #define __PLAT_LS_H__
 
-#include <sys/types.h>
 #include <cpu_data.h>
+#include <stdint.h>
 
 /* BL1 utility functions */
 void ls_bl1_platform_setup(void);

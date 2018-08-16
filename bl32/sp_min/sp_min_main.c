@@ -21,8 +21,8 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <std_svc.h>
+#include <stdint.h>
 #include <string.h>
-#include <types.h>
 #include <utils.h>
 #include "sp_min_private.h"
 

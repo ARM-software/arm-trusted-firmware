@@ -17,7 +17,7 @@
 #include <setjmp.h>
 #include <spinlock.h>
 #include <stdbool.h>
-#include <types.h>
+#include <stdint.h>
 #include <utils_def.h>
 
 #ifdef AARCH32

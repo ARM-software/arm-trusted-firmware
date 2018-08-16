@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,7 +9,7 @@
 #include <io/io_block.h>
 #include <mmio.h>
 #include <platform_def.h>
-#include <sys/types.h>
+#include <stdint.h>
 #include <utils_def.h>
 
 #include "uniphier.h"

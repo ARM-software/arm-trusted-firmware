@@ -36,7 +36,7 @@
 
 #ifndef __ASSEMBLY__
 
-#include <types.h>
+#include <stdint.h>
 
 /***************************************************************************
  * This structure provides version information and the size of the

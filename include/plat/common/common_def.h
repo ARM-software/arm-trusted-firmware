@@ -8,6 +8,7 @@
 
 #include <bl_common.h>
 #include <platform_def.h>
+#include <xlat_tables_defs.h>
 
 /******************************************************************************
  * Required platform porting definitions that are expected to be common to

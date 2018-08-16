@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <sys/types.h>
+#include <stdint.h>
 #include <utils.h>
 
 #include "rpi3_private.h"
