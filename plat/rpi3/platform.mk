@@ -5,8 +5,6 @@
 #
 
 PLAT_INCLUDES		:=	-Iinclude/common/tbbr			\
-				-Iinclude/plat/arm/common/		\
-				-Iinclude/plat/arm/common/aarch64/	\
 				-Iplat/rpi3/include
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/console/aarch64/console.S	\
