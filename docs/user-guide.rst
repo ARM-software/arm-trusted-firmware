@@ -67,8 +67,9 @@ Compiler 6. See instructions below on how to switch the default compiler.
 
 In addition, the following optional packages and tools may be needed:
 
--  ``device-tree-compiler`` package if you need to rebuild the Flattened Device
-   Tree (FDT) source files (``.dts`` files) provided with this software.
+-  ``device-tree-compiler`` (dtc) package if you need to rebuild the Flattened Device
+   Tree (FDT) source files (``.dts`` files) provided with this software. The
+   version of dtc must be 1.4.6 or above.
 
 -  For debugging, Arm `Development Studio 5 (DS-5)`_.
 
