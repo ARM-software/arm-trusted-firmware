@@ -24,8 +24,12 @@ static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
  * in x0. This memory layout is sitting at the base of the free trusted SRAM.
  * Copy it to a safe location before its reclaimed by later BL2 functionality.
  ******************************************************************************/
-void bl2_early_platform_setup(meminfo_t *mem_layout)
+
+void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+			       u_register_t arg2, u_register_t arg3)
 {
+	meminfo_t *mem_layout = (meminfo_t *) arg1;
+
 	/* Initialize the console to provide early debug support */
 	rpi3_console_init();
 

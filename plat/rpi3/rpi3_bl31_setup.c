@@ -53,23 +53,21 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
  * tables. BL2 has flushed this information to memory, so we are guaranteed
  * to pick up good data.
  ******************************************************************************/
-void bl31_early_platform_setup(void *from_bl2,
-			       void *plat_params_from_bl2)
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+				u_register_t arg2, u_register_t arg3)
+
 {
 	/* Initialize the console to provide early debug support */
 	rpi3_console_init();
 
 	/*
-	 * In debug builds, we pass a special value in 'plat_params_from_bl2'
-	 * to verify platform parameters from BL2 to BL31.
-	 * In release builds, it's not used.
+	 * In debug builds, a special value is passed in 'arg1' to verify
+	 * platform parameters from BL2 to BL31. Not used in release builds.
 	 */
-	assert(((uintptr_t)plat_params_from_bl2) == RPI3_BL31_PLAT_PARAM_VAL);
+	assert(arg1 == RPI3_BL31_PLAT_PARAM_VAL);
 
-	/*
-	 * Check params passed from BL2 should not be NULL,
-	 */
-	bl_params_t *params_from_bl2 = (bl_params_t *)from_bl2;
+	/* Check that params passed from BL2 are not NULL. */
+	bl_params_t *params_from_bl2 = (bl_params_t *) arg0;
 
 	assert(params_from_bl2 != NULL);
 	assert(params_from_bl2->h.type == PARAM_BL_PARAMS);

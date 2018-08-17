@@ -35,7 +35,7 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 				plat/rpi3/rpi3_io_storage.c
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
-				plat/common/aarch64/plat_psci_common.c	\
+				plat/common/plat_psci_common.c		\
 				plat/rpi3/aarch64/plat_helpers.S	\
 				plat/rpi3/rpi3_bl31_setup.c		\
 				plat/rpi3/rpi3_pm.c			\
