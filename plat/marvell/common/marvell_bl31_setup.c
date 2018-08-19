@@ -35,7 +35,7 @@ static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
 
 /* Weak definitions may be overridden in specific ARM standard platform */
-#pragma weak bl31_early_platform_setup
+#pragma weak bl31_early_platform_setup2
 #pragma weak bl31_platform_setup
 #pragma weak bl31_plat_arch_setup
 #pragma weak bl31_plat_get_next_image_ep_info
@@ -69,7 +69,9 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
  *****************************************************************************
  */
 void marvell_bl31_early_platform_setup(bl31_params_t *from_bl2,
-				void *plat_params_from_bl2)
+				       uintptr_t soc_fw_config,
+				       uintptr_t hw_config,
+				       void *plat_params_from_bl2)
 {
 	/* Initialize the console to provide early debug support */
 	console_init(PLAT_MARVELL_BOOT_UART_BASE,
@@ -130,10 +132,12 @@ void marvell_bl31_early_platform_setup(bl31_params_t *from_bl2,
 #endif
 }
 
-void bl31_early_platform_setup(bl31_params_t *from_bl2,
-				void *plat_params_from_bl2)
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+				u_register_t arg2, u_register_t arg3)
+
 {
-	marvell_bl31_early_platform_setup(from_bl2, plat_params_from_bl2);
+	marvell_bl31_early_platform_setup((void *)arg0, arg1, arg2,
+					  (void *)arg3);
 
 #ifdef USE_CCI
 	/*
