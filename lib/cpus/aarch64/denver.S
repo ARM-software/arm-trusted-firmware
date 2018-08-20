@@ -189,6 +189,25 @@ func denver_disable_dco
 	ret
 endfunc denver_disable_dco
 
+func check_errata_cve_2017_5715
+	mov	x0, #ERRATA_MISSING
+#if WORKAROUND_CVE_2017_5715
+	/*
+	 * Check if the CPU supports the special instruction
+	 * required to flush the indirect branch predictor and
+	 * RSB. Support for this operation can be determined by
+	 * comparing bits 19:16 of ID_AFR0_EL1 with 0b0001.
+	 */
+	mrs	x1, id_afr0_el1
+	mov	x2, #0x10000
+	and	x1, x1, x2
+	cbz	x1, 1f
+	mov	x0, #ERRATA_APPLIES
+1:
+#endif
+	ret
+endfunc check_errata_cve_2017_5715
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Denver.
 	 * -------------------------------------------------
@@ -248,6 +267,27 @@ func denver_cluster_pwr_dwn
 	ret
 endfunc denver_cluster_pwr_dwn
 
+#if REPORT_ERRATA
+	/*
+	 * Errata printing function for Denver. Must follow AAPCS.
+	 */
+func denver_errata_report
+	stp	x8, x30, [sp, #-16]!
+
+	bl	cpu_get_rev_var
+	mov	x8, x0
+
+	/*
+	 * Report all errata. The revision-variant information is passed to
+	 * checking functions of each errata.
+	 */
+	report_errata WORKAROUND_CVE_2017_5715, denver, cve_2017_5715
+
+	ldp	x8, x30, [sp], #16
+	ret
+endfunc denver_errata_report
+#endif
+
 	/* ---------------------------------------------
 	 * This function provides Denver specific
 	 * register information for crash reporting.
@@ -267,27 +307,37 @@ func denver_cpu_reg_dump
 	ret
 endfunc denver_cpu_reg_dump
 
-declare_cpu_ops denver, DENVER_MIDR_PN0, \
+declare_cpu_ops_wa denver, DENVER_MIDR_PN0, \
 	denver_reset_func, \
+	check_errata_cve_2017_5715, \
+	CPU_NO_EXTRA2_FUNC, \
 	denver_core_pwr_dwn, \
 	denver_cluster_pwr_dwn
 
-declare_cpu_ops denver, DENVER_MIDR_PN1, \
+declare_cpu_ops_wa denver, DENVER_MIDR_PN1, \
 	denver_reset_func, \
+	check_errata_cve_2017_5715, \
+	CPU_NO_EXTRA2_FUNC, \
 	denver_core_pwr_dwn, \
 	denver_cluster_pwr_dwn
 
-declare_cpu_ops denver, DENVER_MIDR_PN2, \
+declare_cpu_ops_wa denver, DENVER_MIDR_PN2, \
 	denver_reset_func, \
+	check_errata_cve_2017_5715, \
+	CPU_NO_EXTRA2_FUNC, \
 	denver_core_pwr_dwn, \
 	denver_cluster_pwr_dwn
 
-declare_cpu_ops denver, DENVER_MIDR_PN3, \
+declare_cpu_ops_wa denver, DENVER_MIDR_PN3, \
 	denver_reset_func, \
+	check_errata_cve_2017_5715, \
+	CPU_NO_EXTRA2_FUNC, \
 	denver_core_pwr_dwn, \
 	denver_cluster_pwr_dwn
 
-declare_cpu_ops denver, DENVER_MIDR_PN4, \
+declare_cpu_ops_wa denver, DENVER_MIDR_PN4, \
 	denver_reset_func, \
+	check_errata_cve_2017_5715, \
+	CPU_NO_EXTRA2_FUNC, \
 	denver_core_pwr_dwn, \
 	denver_cluster_pwr_dwn
