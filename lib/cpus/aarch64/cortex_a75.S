@@ -11,6 +11,7 @@
 #include <cpu_macros.S>
 
 func cortex_a75_reset_func
+	mov	x19, x30
 #if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
 	cpu_check_csv2	x0, 1f
 	adr	x0, wa_cve_2017_5715_bpiall_vbar
@@ -24,6 +25,10 @@ func cortex_a75_reset_func
 	orr	x0, x0, #CORTEX_A75_CPUACTLR_EL1_DISABLE_LOAD_PASS_STORE
 	msr	CORTEX_A75_CPUACTLR_EL1, x0
 	isb
+#endif
+
+#if ERRATA_DSU_936184
+	bl	errata_dsu_936184_wa
 #endif
 
 #if ENABLE_AMU
@@ -49,7 +54,7 @@ func cortex_a75_reset_func
 	msr	CPUAMCNTENSET_EL0, x0
 	isb
 #endif
-	ret
+	ret	x19
 endfunc cortex_a75_reset_func
 
 func check_errata_cve_2017_5715
@@ -106,6 +111,7 @@ func cortex_a75_errata_report
 	 */
 	report_errata WORKAROUND_CVE_2017_5715, cortex_a75, cve_2017_5715
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a75, cve_2018_3639
+	report_errata ERRATA_DSU_936184, cortex_a75, dsu_936184
 
 	ldp	x8, x30, [sp], #16
 	ret

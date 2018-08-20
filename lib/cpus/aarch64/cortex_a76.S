@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -207,6 +207,7 @@ func cortex_a76_disable_wa_cve_2018_3639
 endfunc cortex_a76_disable_wa_cve_2018_3639
 
 func cortex_a76_reset_func
+	mov	x19, x30
 #if WORKAROUND_CVE_2018_3639
 	mrs	x0, CORTEX_A76_CPUACTLR2_EL1
 	orr	x0, x0, #CORTEX_A76_CPUACTLR2_EL1_DISABLE_LOAD_PASS_STORE
@@ -224,7 +225,11 @@ func cortex_a76_reset_func
 	msr	vbar_el3, x0
 	isb
 #endif
-	ret
+
+#if ERRATA_DSU_936184
+	bl	errata_dsu_936184_wa
+#endif
+	ret	x19
 endfunc cortex_a76_reset_func
 
 	/* ---------------------------------------------
@@ -258,6 +263,7 @@ func cortex_a76_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a76, cve_2018_3639
+	report_errata ERRATA_DSU_936184, cortex_a76, dsu_936184
 
 	ldp	x8, x30, [sp], #16
 	ret

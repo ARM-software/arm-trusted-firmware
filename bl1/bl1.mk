@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -17,7 +17,8 @@ BL1_SOURCES		+=	bl1/bl1_main.c				\
 				${MBEDTLS_SOURCES}
 
 ifeq (${ARCH},aarch64)
-BL1_SOURCES		+=	lib/el3_runtime/aarch64/context.S
+BL1_SOURCES		+=	lib/cpus/aarch64/dsu_helpers.S		\
+				lib/el3_runtime/aarch64/context.S
 endif
 
 ifeq (${TRUSTED_BOARD_BOOT},1)
