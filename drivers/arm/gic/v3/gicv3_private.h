@@ -173,14 +173,14 @@ static inline void gicd_set_ctlr(uintptr_t base,
 /*******************************************************************************
  * GIC Redistributor interface accessors
  ******************************************************************************/
-static inline unsigned long long gicr_read_ctlr(uintptr_t base)
+static inline uint32_t gicr_read_ctlr(uintptr_t base)
 {
-	return mmio_read_64(base + GICR_CTLR);
+	return mmio_read_32(base + GICR_CTLR);
 }
 
-static inline void gicr_write_ctlr(uintptr_t base, uint64_t val)
+static inline void gicr_write_ctlr(uintptr_t base, uint32_t val)
 {
-	mmio_write_64(base + GICR_CTLR, val);
+	mmio_write_32(base + GICR_CTLR, val);
 }
 
 static inline unsigned long long gicr_read_typer(uintptr_t base)
@@ -321,24 +321,24 @@ static inline void gicr_write_icfgr1(uintptr_t base, unsigned int val)
 	mmio_write_32(base + GICR_ICFGR1, val);
 }
 
-static inline unsigned int gicr_read_propbaser(uintptr_t base)
+static inline uint64_t gicr_read_propbaser(uintptr_t base)
 {
-	return mmio_read_32(base + GICR_PROPBASER);
+	return mmio_read_64(base + GICR_PROPBASER);
 }
 
-static inline void gicr_write_propbaser(uintptr_t base, unsigned int val)
+static inline void gicr_write_propbaser(uintptr_t base, uint64_t val)
 {
-	mmio_write_32(base + GICR_PROPBASER, val);
+	mmio_write_64(base + GICR_PROPBASER, val);
 }
 
-static inline unsigned int gicr_read_pendbaser(uintptr_t base)
+static inline uint64_t gicr_read_pendbaser(uintptr_t base)
 {
-	return mmio_read_32(base + GICR_PENDBASER);
+	return mmio_read_64(base + GICR_PENDBASER);
 }
 
-static inline void gicr_write_pendbaser(uintptr_t base, unsigned int val)
+static inline void gicr_write_pendbaser(uintptr_t base, uint64_t val)
 {
-	mmio_write_32(base + GICR_PENDBASER, val);
+	mmio_write_64(base + GICR_PENDBASER, val);
 }
 
 /*******************************************************************************
@@ -361,7 +361,7 @@ static inline uint64_t gits_read_cbaser(uintptr_t base)
 
 static inline void gits_write_cbaser(uintptr_t base, uint64_t val)
 {
-	mmio_write_32(base + GITS_CBASER, val);
+	mmio_write_64(base + GITS_CBASER, val);
 }
 
 static inline uint64_t gits_read_cwriter(uintptr_t base)
@@ -371,7 +371,7 @@ static inline uint64_t gits_read_cwriter(uintptr_t base)
 
 static inline void gits_write_cwriter(uintptr_t base, uint64_t val)
 {
-	mmio_write_32(base + GITS_CWRITER, val);
+	mmio_write_64(base + GITS_CWRITER, val);
 }
 
 static inline uint64_t gits_read_baser(uintptr_t base, unsigned int its_table_id)
