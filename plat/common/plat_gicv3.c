@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 #include <gicv3.h>
 #include <interrupt_mgmt.h>
 #include <platform.h>
+#include <stdbool.h>
 
 #ifdef IMAGE_BL31
 
@@ -54,7 +55,7 @@ uint32_t plat_ic_get_pending_interrupt_id(void)
 
 	assert(IS_IN_EL3());
 	irqnr = gicv3_get_pending_interrupt_id();
-	return (gicv3_is_intr_id_special_identifier(irqnr)) ?
+	return gicv3_is_intr_id_special_identifier(irqnr) ?
 				INTR_ID_UNAVAILABLE : irqnr;
 }
 
@@ -73,20 +74,27 @@ uint32_t plat_ic_get_pending_interrupt_id(void)
 uint32_t plat_ic_get_pending_interrupt_type(void)
 {
 	unsigned int irqnr;
+	uint32_t type;
 
 	assert(IS_IN_EL3());
 	irqnr = gicv3_get_pending_interrupt_type();
 
 	switch (irqnr) {
 	case PENDING_G1S_INTID:
-		return INTR_TYPE_S_EL1;
+		type = INTR_TYPE_S_EL1;
+		break;
 	case PENDING_G1NS_INTID:
-		return INTR_TYPE_NS;
+		type = INTR_TYPE_NS;
+		break;
 	case GIC_SPURIOUS_INTERRUPT:
-		return INTR_TYPE_INVAL;
+		type = INTR_TYPE_INVAL;
+		break;
 	default:
-		return INTR_TYPE_EL3;
+		type = INTR_TYPE_EL3;
+		break;
 	}
+
+	return type;
 }
 
 /*
@@ -132,9 +140,9 @@ void plat_ic_end_of_interrupt(uint32_t id)
 uint32_t plat_interrupt_type_to_line(uint32_t type,
 				uint32_t security_state)
 {
-	assert(type == INTR_TYPE_S_EL1 ||
-	       type == INTR_TYPE_EL3 ||
-	       type == INTR_TYPE_NS);
+	assert((type == INTR_TYPE_S_EL1) ||
+	       (type == INTR_TYPE_EL3) ||
+	       (type == INTR_TYPE_NS));
 
 	assert(sec_state_is_valid(security_state));
 	assert(IS_IN_EL3());
@@ -227,9 +235,10 @@ void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target)
 	assert(plat_core_pos_by_mpidr(target) >= 0);
 
 	/* Verify that this is a secure EL3 SGI */
-	assert(plat_ic_get_interrupt_type(sgi_num) == INTR_TYPE_EL3);
+	assert(plat_ic_get_interrupt_type((unsigned int)sgi_num) ==
+					  INTR_TYPE_EL3);
 
-	gicv3_raise_secure_g0_sgi(sgi_num, target);
+	gicv3_raise_secure_g0_sgi((unsigned int)sgi_num, target);
 }
 
 void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
@@ -246,7 +255,7 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 		irm = GICV3_IRM_ANY;
 		break;
 	default:
-		assert(0);
+		assert(false);
 		break;
 	}
 
@@ -274,10 +283,10 @@ unsigned int plat_ic_set_priority_mask(unsigned int mask)
 
 unsigned int plat_ic_get_interrupt_id(unsigned int raw)
 {
-	unsigned int id = (raw & INT_ID_MASK);
+	unsigned int id = raw & INT_ID_MASK;
 
-	return (gicv3_is_intr_id_special_identifier(id) ?
-			INTR_ID_UNAVAILABLE : id);
+	return gicv3_is_intr_id_special_identifier(id) ?
+			INTR_ID_UNAVAILABLE : id;
 }
 #endif
 #ifdef IMAGE_BL32
