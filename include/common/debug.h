@@ -83,6 +83,12 @@
 # define VERBOSE(...)	no_tf_log(LOG_MARKER_VERBOSE __VA_ARGS__)
 #endif
 
+#if ENABLE_BACKTRACE
+void backtrace(const char *cookie);
+#else
+#define backtrace(x)
+#endif
+
 void __dead2 do_panic(void);
 #define panic()	do_panic()
 

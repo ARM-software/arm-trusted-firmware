@@ -355,6 +355,16 @@ Common build options
    that is only required for the assertion and does not fit in the assertion
    itself.
 
+-  ``ENABLE_BACKTRACE``: This option controls whether to enables backtrace
+   dumps or not. It is supported in both AArch64 and AArch32. However, in
+   AArch32 the format of the frame records are not defined in the AAPCS and they
+   are defined by the implementation. This implementation of backtrace only
+   supports the format used by GCC when T32 interworking is disabled. For this
+   reason enabling this option in AArch32 will force the compiler to only
+   generate A32 code. This option is enabled by default only in AArch64 debug
+   builds, but this behaviour can be overriden in each platform's Makefile or in
+   the build command line.
+
 -  ``ENABLE_MPAM_FOR_LOWER_ELS``: Boolean option to enable lower ELs to use MPAM
    feature. MPAM is an optional Armv8.4 extension that enables various memory
    system components and resources to define partitions; software running at

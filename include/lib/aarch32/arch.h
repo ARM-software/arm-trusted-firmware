@@ -473,6 +473,8 @@
 #define CCSIDR		p15, 1, c0, c0, 0
 #define HTCR		p15, 4, c2, c0, 2
 #define HMAIR0		p15, 4, c10, c2, 0
+#define ATS1CPR		p15, 0, c7, c8, 0
+#define ATS1HR		p15, 4, c7, c8, 0
 #define DBGOSDLR	p14, 0, c1, c3, 4
 
 /* Debug register defines. The format is: coproc, opt1, CRn, CRm, opt2 */
@@ -513,6 +515,7 @@
 #define VTTBR_64	p15, 6, c2
 #define CNTPCT_64	p15, 0, c14
 #define HTTBR_64	p15, 4, c2
+#define PAR_64		p15, 0, c7
 
 /* 64 bit GICv3 CPU Interface system register defines. The format is: coproc, opt1, CRm */
 #define ICC_SGI1R_EL1_64	p15, 0, c12
@@ -568,6 +571,12 @@
 
 #define MAKE_MAIR_NORMAL_MEMORY(inner, outer)	\
 		((inner) | ((outer) << MAIR_NORM_OUTER_SHIFT))
+
+/* PAR fields */
+#define PAR_F_SHIFT	U(0)
+#define PAR_F_MASK	ULL(0x1)
+#define PAR_ADDR_SHIFT	U(12)
+#define PAR_ADDR_MASK	(BIT(40) - ULL(1)) /* 40-bits-wide page address */
 
 /*******************************************************************************
  * Definitions for system register interface to AMU for ARMv8.4 onwards
