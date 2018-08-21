@@ -129,7 +129,7 @@ void gicv3_rdistif_mark_core_asleep(uintptr_t gicr_base);
  */
 static inline void gicd_wait_for_pending_write(uintptr_t gicd_base)
 {
-	while (gicd_read_ctlr(gicd_base) & GICD_CTLR_RWP_BIT)
+	while ((gicd_read_ctlr(gicd_base) & GICD_CTLR_RWP_BIT) != 0U)
 		;
 }
 
@@ -157,7 +157,7 @@ static inline void gicd_clr_ctlr(uintptr_t base,
 				 unsigned int rwp)
 {
 	gicd_write_ctlr(base, gicd_read_ctlr(base) & ~bitmap);
-	if (rwp)
+	if (rwp != 0U)
 		gicd_wait_for_pending_write(base);
 }
 
@@ -166,7 +166,7 @@ static inline void gicd_set_ctlr(uintptr_t base,
 				 unsigned int rwp)
 {
 	gicd_write_ctlr(base, gicd_read_ctlr(base) | bitmap);
-	if (rwp)
+	if (rwp != 0U)
 		gicd_wait_for_pending_write(base);
 }
 
@@ -207,13 +207,13 @@ static inline void gicr_write_waker(uintptr_t base, unsigned int val)
  */
 static inline void gicr_wait_for_pending_write(uintptr_t gicr_base)
 {
-	while (gicr_read_ctlr(gicr_base) & GICR_CTLR_RWP_BIT)
+	while ((gicr_read_ctlr(gicr_base) & GICR_CTLR_RWP_BIT) != 0U)
 		;
 }
 
 static inline void gicr_wait_for_upstream_pending_write(uintptr_t gicr_base)
 {
-	while (gicr_read_ctlr(gicr_base) & GICR_CTLR_UWP_BIT)
+	while ((gicr_read_ctlr(gicr_base) & GICR_CTLR_UWP_BIT) != 0U)
 		;
 }
 
@@ -376,14 +376,14 @@ static inline void gits_write_cwriter(uintptr_t base, uint64_t val)
 
 static inline uint64_t gits_read_baser(uintptr_t base, unsigned int its_table_id)
 {
-	assert(its_table_id < 8);
-	return mmio_read_64(base + GITS_BASER + (8 * its_table_id));
+	assert(its_table_id < 8U);
+	return mmio_read_64(base + GITS_BASER + (8U * its_table_id));
 }
 
 static inline void gits_write_baser(uintptr_t base, unsigned int its_table_id, uint64_t val)
 {
-	assert(its_table_id < 8);
-	mmio_write_64(base + GITS_BASER + (8 * its_table_id), val);
+	assert(its_table_id < 8U);
+	mmio_write_64(base + GITS_BASER + (8U * its_table_id), val);
 }
 
 /*
@@ -391,8 +391,8 @@ static inline void gits_write_baser(uintptr_t base, unsigned int its_table_id, u
  */
 static inline void gits_wait_for_quiescent_bit(uintptr_t gits_base)
 {
-	assert(!(gits_read_ctlr(gits_base) & GITS_CTLR_ENABLED_BIT));
-	while ((gits_read_ctlr(gits_base) & GITS_CTLR_QUIESCENT_BIT) == 0)
+	assert((gits_read_ctlr(gits_base) & GITS_CTLR_ENABLED_BIT) == 0U);
+	while ((gits_read_ctlr(gits_base) & GITS_CTLR_QUIESCENT_BIT) == 0U)
 		;
 }
 

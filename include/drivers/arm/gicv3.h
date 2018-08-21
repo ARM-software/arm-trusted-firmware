@@ -420,7 +420,7 @@ void gicv3_set_interrupt_priority(unsigned int id, unsigned int proc_num,
 		unsigned int priority);
 void gicv3_set_interrupt_type(unsigned int id, unsigned int proc_num,
 		unsigned int type);
-void gicv3_raise_secure_g0_sgi(int sgi_num, u_register_t target);
+void gicv3_raise_secure_g0_sgi(unsigned int sgi_num, u_register_t target);
 void gicv3_set_spi_routing(unsigned int id, unsigned int irm,
 		u_register_t mpidr);
 void gicv3_set_interrupt_pending(unsigned int id, unsigned int proc_num);
