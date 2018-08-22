@@ -7,7 +7,7 @@
 #ifndef __SECURE_PARTITION_H__
 #define __SECURE_PARTITION_H__
 
-#include <types.h>
+#include <stdint.h>
 #include <utils_def.h>
 
 /*

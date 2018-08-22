@@ -202,8 +202,6 @@ include lib/libc/libc.mk
 
 BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				common/tf_log.c				\
-				common/tf_printf.c			\
-				common/tf_snprintf.c			\
 				common/${ARCH}/debug.S			\
 				lib/${ARCH}/cache_helpers.S		\
 				lib/${ARCH}/misc_helpers.S		\
@@ -212,6 +210,10 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				plat/common/${ARCH}/plat_common.c	\
 				plat/common/${ARCH}/platform_helpers.S	\
 				${COMPILER_RT_SRCS}
+
+ifeq ($(notdir $(CC)),armclang)
+BL_COMMON_SOURCES	+=	lib/${ARCH}/armclang_printf.S
+endif
 
 INCLUDES		+=	-Iinclude				\
 				-Iinclude/bl1				\
@@ -240,7 +242,6 @@ INCLUDES		+=	-Iinclude				\
 				${PLAT_INCLUDES}			\
 				${SPD_INCLUDES}				\
 				-Iinclude/tools_share
-
 
 ################################################################################
 # Generic definitions

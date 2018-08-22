@@ -9,7 +9,7 @@
 
 #include <cdefs.h>
 #include <psci.h>
-#include <types.h>
+#include <stdint.h>
 
 /* System power domain at level 2, as currently implemented by CSS platforms */
 #define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2

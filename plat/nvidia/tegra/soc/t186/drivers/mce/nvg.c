@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,9 +8,9 @@
 #include <arch_helpers.h>
 #include <debug.h>
 #include <denver.h>
+#include <errno.h>
 #include <mce_private.h>
 #include <mmio.h>
-#include <sys/errno.h>
 #include <t18x_ari.h>
 
 int32_t nvg_enter_cstate(uint32_t ari_base, uint32_t state, uint32_t wake_time)

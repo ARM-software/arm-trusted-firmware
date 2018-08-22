@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
  * Copyright (c) 2001 David E. O'Brien
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,57 +32,69 @@
  * $FreeBSD$
  */
 /*
- * Portions copyright (c) 2017, ARM Limited and Contributors.
+ * Portions copyright (c) 2018, ARM Limited and Contributors.
  * All rights reserved.
  */
 
-#ifndef _MACHINE_ENDIAN_H_
-#define	_MACHINE_ENDIAN_H_
+#ifndef AARCH32_ENDIAN_H
+#define AARCH32_ENDIAN_H
 
-#include <sys/_types.h>
+#include <stdint.h>
 
 /*
  * Definitions for byte order, according to byte significance from low
  * address to high.
  */
-#define	_LITTLE_ENDIAN  1234    /* LSB first: i386, vax */
-#define	_BIG_ENDIAN     4321    /* MSB first: 68000, ibm, net */
-#define	_PDP_ENDIAN     3412    /* LSB first in word, MSW first in long */
+#define _LITTLE_ENDIAN  1234    /* LSB first: i386, vax */
+#define _BIG_ENDIAN     4321    /* MSB first: 68000, ibm, net */
+#define _PDP_ENDIAN     3412    /* LSB first in word, MSW first in long */
 
+#ifdef __ARMEB__
+#define _BYTE_ORDER	_BIG_ENDIAN
+#else
 #define	_BYTE_ORDER	_LITTLE_ENDIAN
+#endif /* __ARMEB__ */
 
 #if __BSD_VISIBLE
-#define	LITTLE_ENDIAN   _LITTLE_ENDIAN
-#define	BIG_ENDIAN      _BIG_ENDIAN
-#define	PDP_ENDIAN      _PDP_ENDIAN
-#define	BYTE_ORDER      _BYTE_ORDER
+#define LITTLE_ENDIAN   _LITTLE_ENDIAN
+#define BIG_ENDIAN      _BIG_ENDIAN
+#define PDP_ENDIAN      _PDP_ENDIAN
+#define BYTE_ORDER      _BYTE_ORDER
 #endif
 
-#define	_QUAD_HIGHWORD  1
-#define	_QUAD_LOWWORD 0
-#define	__ntohl(x)        (__bswap32(x))
-#define	__ntohs(x)        (__bswap16(x))
-#define	__htonl(x)        (__bswap32(x))
-#define	__htons(x)        (__bswap16(x))
+#ifdef __ARMEB__
+#define _QUAD_HIGHWORD 0
+#define _QUAD_LOWWORD 1
+#define __ntohl(x)	((uint32_t)(x))
+#define __ntohs(x)	((uint16_t)(x))
+#define __htonl(x)	((uint32_t)(x))
+#define __htons(x)	((uint16_t)(x))
+#else
+#define _QUAD_HIGHWORD  1
+#define _QUAD_LOWWORD 0
+#define __ntohl(x)        (__bswap32(x))
+#define __ntohs(x)        (__bswap16(x))
+#define __htonl(x)        (__bswap32(x))
+#define __htons(x)        (__bswap16(x))
+#endif /* __ARMEB__ */
 
-#ifdef AARCH32
-static __inline __uint64_t
-__bswap64(__uint64_t _x)
+static __inline uint64_t
+__bswap64(uint64_t _x)
 {
 
 	return ((_x >> 56) | ((_x >> 40) & 0xff00) | ((_x >> 24) & 0xff0000) |
-	    ((_x >> 8) & 0xff000000) | ((_x << 8) & ((__uint64_t)0xff << 32)) |
-	    ((_x << 24) & ((__uint64_t)0xff << 40)) |
-	    ((_x << 40) & ((__uint64_t)0xff << 48)) | ((_x << 56)));
+	    ((_x >> 8) & 0xff000000) | ((_x << 8) & ((uint64_t)0xff << 32)) |
+	    ((_x << 24) & ((uint64_t)0xff << 40)) |
+	    ((_x << 40) & ((uint64_t)0xff << 48)) | ((_x << 56)));
 }
 
-static __inline __uint32_t
-__bswap32_var(__uint32_t v)
+static __inline uint32_t
+__bswap32_var(uint32_t v)
 {
-	__uint32_t t1;
+	uint32_t t1;
 
 	__asm __volatile("eor %1, %0, %0, ror #16\n"
-			"bic %1, %1, #0x00ff0000\n"
+	    		"bic %1, %1, #0x00ff0000\n"
 			"mov %0, %0, ror #8\n"
 			"eor %0, %0, %1, lsr #8\n"
 			 : "+r" (v), "=r" (t1));
@@ -88,10 +102,10 @@ __bswap32_var(__uint32_t v)
 	return (v);
 }
 
-static __inline __uint16_t
-__bswap16_var(__uint16_t v)
+static __inline uint16_t
+__bswap16_var(uint16_t v)
 {
-	__uint32_t ret = v & 0xffff;
+	uint32_t ret = v & 0xffff;
 
 	__asm __volatile(
 	    "mov    %0, %0, ror #8\n"
@@ -99,70 +113,34 @@ __bswap16_var(__uint16_t v)
 	    "bic    %0, %0, %0, lsl #16"
 	    : "+r" (ret));
 
-	return ((__uint16_t)ret);
+	return ((uint16_t)ret);
 }
-#elif defined AARCH64
-static __inline __uint64_t
-__bswap64(__uint64_t x)
-{
-	__uint64_t ret;
-
-	__asm __volatile("rev %0, %1\n"
-			 : "=&r" (ret), "+r" (x));
-	
-	return (ret);
-}
-
-static __inline __uint32_t
-__bswap32_var(__uint32_t v)
-{
-	__uint32_t ret;
-
-	__asm __volatile("rev32 %x0, %x1\n"
-			 : "=&r" (ret), "+r" (v));
-	
-	return (ret);
-}
-
-static __inline __uint16_t
-__bswap16_var(__uint16_t v)
-{
-	__uint32_t ret;
-
-	__asm __volatile("rev16 %w0, %w1\n"
-			 : "=&r" (ret), "+r" (v));
-
-	return ((__uint16_t)ret);
-}		
-#else
-#error "Only AArch32 or AArch64 supported"
-#endif /* AARCH32 */
 
 #ifdef __OPTIMIZE__
 
-#define	__bswap32_constant(x)	\
+#define __bswap32_constant(x)	\
     ((((x) & 0xff000000U) >> 24) |	\
      (((x) & 0x00ff0000U) >>  8) |	\
      (((x) & 0x0000ff00U) <<  8) |	\
      (((x) & 0x000000ffU) << 24))
 
-#define	__bswap16_constant(x)	\
+#define __bswap16_constant(x)	\
     ((((x) & 0xff00) >> 8) |		\
      (((x) & 0x00ff) << 8))
 
-#define	__bswap16(x)	\
-    ((__uint16_t)(__builtin_constant_p(x) ?	\
+#define __bswap16(x)	\
+    ((uint16_t)(__builtin_constant_p(x) ?	\
      __bswap16_constant(x) :			\
      __bswap16_var(x)))
 
-#define	__bswap32(x)	\
-    ((__uint32_t)(__builtin_constant_p(x) ? 	\
+#define __bswap32(x)	\
+    ((uint32_t)(__builtin_constant_p(x) ? 	\
      __bswap32_constant(x) :			\
      __bswap32_var(x)))
 
 #else
-#define	__bswap16(x)	__bswap16_var(x)
-#define	__bswap32(x)	__bswap32_var(x)
+#define __bswap16(x)	__bswap16_var(x)
+#define __bswap32(x)	__bswap32_var(x)
 
 #endif /* __OPTIMIZE__ */
-#endif /* !_MACHINE_ENDIAN_H_ */
+#endif /* AARCH32_ENDIAN_H */

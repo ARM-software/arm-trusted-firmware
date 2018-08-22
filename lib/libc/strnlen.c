@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-2-Clause-FreeBSD
+ *
  * Copyright (c) 2009 David Schultz <das@FreeBSD.org>
  * All rights reserved.
  *
@@ -25,10 +27,9 @@
  */
 
 /*
- * Portions copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * All rights reserved.
  */
-
-#include <sys/cdefs.h>
 
 #include <string.h>
 

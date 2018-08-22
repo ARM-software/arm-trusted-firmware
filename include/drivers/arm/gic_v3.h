@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,8 +17,6 @@
 
 #include <mmio.h>
 #include <stdint.h>
-#include <types.h>
-
 
 /* GICv3 Re-distributor interface registers & shifts */
 #define GICR_PCPUBASE_SHIFT	0x11

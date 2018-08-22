@@ -10,7 +10,7 @@
 #include <bl_common.h>
 #include <common_def.h>
 #include <platform_def.h>
-#include <sys/types.h>
+#include <stdint.h>
 #include <utils.h>
 #include <xlat_tables.h>
 #include <xlat_tables_arch.h>

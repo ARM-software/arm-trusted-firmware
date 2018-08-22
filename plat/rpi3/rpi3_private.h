@@ -7,7 +7,7 @@
 #ifndef __RPI3_PRIVATE_H__
 #define __RPI3_PRIVATE_H__
 
-#include <sys/types.h>
+#include <stdint.h>
 
 /*******************************************************************************
  * Function and variable prototypes

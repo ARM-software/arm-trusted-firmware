@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <cassert.h>
 #include <stdbool.h>
-#include <sys/types.h>
+#include <stdint.h>
 #include <utils_def.h>
 #include <xlat_tables_v2.h>
 #include "../xlat_tables_private.h"

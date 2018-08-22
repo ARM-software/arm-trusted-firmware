@@ -10,7 +10,8 @@
 #include <ep_info.h>
 
 #ifndef __ASSEMBLY__
-#include <types.h>
+#include <cdefs.h>
+#include <stdint.h>
 
 /*******************************************************************************
  * Optional structure populated by the Secure Payload Dispatcher to be given a

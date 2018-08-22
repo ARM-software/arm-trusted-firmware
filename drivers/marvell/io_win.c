@@ -158,8 +158,8 @@ static void dump_io_win(int ap_index)
 	uint64_t start, end;
 
 	/* Dump all IO windows */
-	tf_printf("\tbank  target     start              end\n");
-	tf_printf("\t----------------------------------------------------\n");
+	printf("\tbank  target     start              end\n");
+	printf("\t----------------------------------------------------\n");
 	for (win_id = 0; win_id < MVEBU_IO_WIN_MAX_WINS; win_id++) {
 		alr = mmio_read_32(IO_WIN_ALR_OFFSET(ap_index, win_id));
 		if (alr & WIN_ENABLE_BIT) {
@@ -169,13 +169,13 @@ static void dump_io_win(int ap_index)
 								win_id));
 			start = ((uint64_t)alr << ADDRESS_SHIFT);
 			end = (((uint64_t)ahr + 0x10) << ADDRESS_SHIFT);
-			tf_printf("\tio-win %d     0x%016llx 0x%016llx\n",
-				  trgt_id, start, end);
+			printf("\tio-win %d     0x%016llx 0x%016llx\n",
+			       trgt_id, start, end);
 		}
 	}
-	tf_printf("\tio-win gcr is %x\n",
-		  mmio_read_32(MVEBU_IO_WIN_BASE(ap_index) +
-		MVEBU_IO_WIN_GCR_OFFSET));
+	printf("\tio-win gcr is %x\n",
+	       mmio_read_32(MVEBU_IO_WIN_BASE(ap_index) +
+	       MVEBU_IO_WIN_GCR_OFFSET));
 }
 #endif
 

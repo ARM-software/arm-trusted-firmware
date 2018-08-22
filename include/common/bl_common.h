@@ -61,7 +61,6 @@
 #include <cassert.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <types.h>
 #include <utils_def.h> /* To retain compatibility */
 
 

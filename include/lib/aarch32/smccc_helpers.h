@@ -26,7 +26,7 @@
 
 #ifndef __ASSEMBLY__
 #include <cassert.h>
-#include <types.h>
+#include <stdint.h>
 
 /*
  * The generic structure to save arguments and callee saved registers during

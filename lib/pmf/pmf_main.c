@@ -178,7 +178,7 @@ int pmf_get_timestamp_smc(unsigned int tid,
  */
 void __pmf_dump_timestamp(unsigned int tid, unsigned long long ts)
 {
-	tf_printf("PMF:cpu %u	tid %u	ts %llu\n",
+	printf("PMF:cpu %u	tid %u	ts %llu\n",
 		plat_my_core_pos(), tid, ts);
 }
 

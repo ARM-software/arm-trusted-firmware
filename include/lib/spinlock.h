@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,7 +9,7 @@
 
 #ifndef __ASSEMBLY__
 
-#include <types.h>
+#include <stdint.h>
 
 typedef struct spinlock {
 	volatile uint32_t lock;

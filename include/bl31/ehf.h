@@ -9,6 +9,7 @@
 
 #ifndef __ASSEMBLY__
 
+#include <cdefs.h>
 #include <stdint.h>
 #include <utils_def.h>
 

@@ -10,7 +10,7 @@
 #include <arch.h>	/* for additional register definitions */
 #include <cdefs.h>	/* For __dead2 */
 #include <stdint.h>
-#include <sys/types.h>
+#include <string.h>
 
 /**********************************************************************
  * Macros which create inline functions to read or write CPU system

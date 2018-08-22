@@ -52,7 +52,7 @@
 
 #ifndef __ASSEMBLY__
 
-#include <types.h>
+#include <stdint.h>
 
 typedef struct {
 	console_t console;

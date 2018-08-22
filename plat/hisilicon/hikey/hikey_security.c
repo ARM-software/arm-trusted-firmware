@@ -8,7 +8,7 @@
 #include <debug.h>
 #include <platform_def.h>
 #include <stdint.h>
-#include <strings.h>
+#include <string.h>
 #include <utils_def.h>
 #include "hikey_private.h"
 

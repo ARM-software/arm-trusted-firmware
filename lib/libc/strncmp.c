@@ -1,4 +1,6 @@
-/*
+/*-
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
  * Copyright (c) 1989, 1993
  *	The Regents of the University of California.  All rights reserved.
  *
@@ -10,7 +12,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 4. Neither the name of the University nor the names of its contributors
+ * 3. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -28,11 +30,10 @@
  */
 
 /*
- * Portions copyright (c) 2014, ARM Limited and Contributors.
+ * Portions copyright (c) 2018, ARM Limited and Contributors.
  * All rights reserved.
  */
 
-#include <sys/cdefs.h>
 #include <string.h>
 
 int
@@ -40,7 +41,7 @@ strncmp(const char *s1, const char *s2, size_t n)
 {
 
 	if (n == 0)
-		return 0;
+		return (0);
 	do {
 		if (*s1 != *s2++)
 			return (*(const unsigned char *)s1 -
@@ -48,5 +49,5 @@ strncmp(const char *s1, const char *s2, size_t n)
 		if (*s1++ == '\0')
 			break;
 	} while (--n != 0);
-	return 0;
+	return (0);
 }

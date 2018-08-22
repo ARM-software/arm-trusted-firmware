@@ -9,8 +9,6 @@
 
 #include <psci.h>
 #include <stdint.h>
-#include <types.h>
-
 
 /*******************************************************************************
  * Forward declarations

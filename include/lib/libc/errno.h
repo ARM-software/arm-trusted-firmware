@@ -1,4 +1,6 @@
 /*-
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
  * Copyright (c) 1982, 1986, 1989, 1993
  *	The Regents of the University of California.  All rights reserved.
  * (c) UNIX System Laboratories, Inc.
@@ -15,7 +17,7 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 4. Neither the name of the University nor the names of its contributors
+ * 3. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -34,17 +36,13 @@
  *	@(#)errno.h	8.5 (Berkeley) 1/21/94
  * $FreeBSD$
  */
+/*
+ * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * All rights reserved.
+ */
 
-#ifndef _SYS_ERRNO_H_
-#define _SYS_ERRNO_H_
-
-#ifndef _KERNEL
-#include <sys/cdefs.h>
-__BEGIN_DECLS
-int *	__error(void);
-__END_DECLS
-#define	errno		(* __error())
-#endif
+#ifndef ERRNO_H
+#define ERRNO_H
 
 #define	EPERM		1		/* Operation not permitted */
 #define	ENOENT		2		/* No such file or directory */
@@ -61,9 +59,7 @@ __END_DECLS
 #define	ENOMEM		12		/* Cannot allocate memory */
 #define	EACCES		13		/* Permission denied */
 #define	EFAULT		14		/* Bad address */
-#ifndef _POSIX_SOURCE
 #define	ENOTBLK		15		/* Block device required */
-#endif
 #define	EBUSY		16		/* Device busy */
 #define	EEXIST		17		/* File exists */
 #define	EXDEV		18		/* Cross-device link */
@@ -74,9 +70,7 @@ __END_DECLS
 #define	ENFILE		23		/* Too many open files in system */
 #define	EMFILE		24		/* Too many open files */
 #define	ENOTTY		25		/* Inappropriate ioctl for device */
-#ifndef _POSIX_SOURCE
 #define	ETXTBSY		26		/* Text file busy */
-#endif
 #define	EFBIG		27		/* File too large */
 #define	ENOSPC		28		/* No space left on device */
 #define	ESPIPE		29		/* Illegal seek */
@@ -90,7 +84,6 @@ __END_DECLS
 
 /* non-blocking and interrupt i/o */
 #define	EAGAIN		35		/* Resource temporarily unavailable */
-#ifndef _POSIX_SOURCE
 #define	EWOULDBLOCK	EAGAIN		/* Operation would block */
 #define	EINPROGRESS	36		/* Operation now in progress */
 #define	EALREADY	37		/* Operation already in progress */
@@ -125,18 +118,14 @@ __END_DECLS
 #define	ECONNREFUSED	61		/* Connection refused */
 
 #define	ELOOP		62		/* Too many levels of symbolic links */
-#endif /* _POSIX_SOURCE */
 #define	ENAMETOOLONG	63		/* File name too long */
 
 /* should be rearranged */
-#ifndef _POSIX_SOURCE
 #define	EHOSTDOWN	64		/* Host is down */
 #define	EHOSTUNREACH	65		/* No route to host */
-#endif /* _POSIX_SOURCE */
 #define	ENOTEMPTY	66		/* Directory not empty */
 
 /* quotas & mush */
-#ifndef _POSIX_SOURCE
 #define	EPROCLIM	67		/* Too many processes */
 #define	EUSERS		68		/* Too many users */
 #define	EDQUOT		69		/* Disc quota exceeded */
@@ -149,12 +138,10 @@ __END_DECLS
 #define	EPROGUNAVAIL	74		/* RPC prog. not avail */
 #define	EPROGMISMATCH	75		/* Program version wrong */
 #define	EPROCUNAVAIL	76		/* Bad procedure for program */
-#endif /* _POSIX_SOURCE */
 
 #define	ENOLCK		77		/* No locks available */
 #define	ENOSYS		78		/* Function not implemented */
 
-#ifndef _POSIX_SOURCE
 #define	EFTYPE		79		/* Inappropriate file type or format */
 #define	EAUTH		80		/* Authentication error */
 #define	ENEEDAUTH	81		/* Need authenticator */
@@ -166,28 +153,17 @@ __END_DECLS
 #define	ENOATTR		87		/* Attribute not found */
 
 #define	EDOOFUS		88		/* Programming error */
-#endif /* _POSIX_SOURCE */
 
 #define	EBADMSG		89		/* Bad message */
 #define	EMULTIHOP	90		/* Multihop attempted */
 #define	ENOLINK		91		/* Link has been severed */
 #define	EPROTO		92		/* Protocol error */
 
-#ifndef _POSIX_SOURCE
 #define	ENOTCAPABLE	93		/* Capabilities insufficient */
 #define	ECAPMODE	94		/* Not permitted in capability mode */
-#endif /* _POSIX_SOURCE */
+#define	ENOTRECOVERABLE	95		/* State not recoverable */
+#define	EOWNERDEAD	96		/* Previous owner died */
 
-#ifndef _POSIX_SOURCE
-#define	ELAST		94		/* Must be equal largest errno */
-#endif /* _POSIX_SOURCE */
+#define	ELAST		96		/* Must be equal largest errno */
 
-#ifdef _KERNEL
-/* pseudo-errors returned inside kernel to modify return to process */
-#define	ERESTART	(-1)		/* restart syscall */
-#define	EJUSTRETURN	(-2)		/* don't modify regs, just return */
-#define	ENOIOCTL	(-3)		/* ioctl not handled by this layer */
-#define	EDIRIOCTL	(-4)		/* do direct ioctl in GEOM */
-#endif
-
-#endif
+#endif /* ERRNO_H */

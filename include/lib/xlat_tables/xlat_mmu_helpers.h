@@ -54,7 +54,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <sys/types.h>
+#include <string.h>
 
 /*
  * Return the values that the MMU configuration registers must contain for the

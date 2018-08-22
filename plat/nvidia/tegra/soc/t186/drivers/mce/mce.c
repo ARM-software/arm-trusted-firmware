@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,11 +12,11 @@
 #include <context_mgmt.h>
 #include <debug.h>
 #include <denver.h>
+#include <errno.h>
 #include <mce.h>
 #include <mce_private.h>
 #include <mmio.h>
 #include <string.h>
-#include <sys/errno.h>
 #include <t18x_ari.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>

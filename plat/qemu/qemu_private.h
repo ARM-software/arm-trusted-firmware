@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,9 +7,8 @@
 #ifndef __QEMU_PRIVATE_H
 #define __QEMU_PRIVATE_H
 
-#include <sys/types.h>
+#include <stdint.h>
 
-#include <xlat_tables_defs.h>
 #include "../../bl1/bl1_private.h"
 
 void qemu_configure_mmu_secure(unsigned long total_base,

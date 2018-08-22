@@ -12,8 +12,8 @@
 #include <debug.h>
 #include <platform_def.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <string.h>
-#include <types.h>
 #include <utils.h>
 #include <xlat_tables.h>
 #include "xlat_tables_private.h"
@@ -27,7 +27,7 @@
 			(((level) == U(0)) ? LVL0_SPACER : \
 			(((level) == U(1)) ? LVL1_SPACER : \
 			(((level) == U(2)) ? LVL2_SPACER : LVL3_SPACER)))
-#define debug_print(...) tf_printf(__VA_ARGS__)
+#define debug_print(...) printf(__VA_ARGS__)
 #else
 #define debug_print(...) ((void)0)
 #endif

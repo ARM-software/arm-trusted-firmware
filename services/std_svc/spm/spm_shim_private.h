@@ -7,7 +7,7 @@
 #ifndef __SPM_SHIM_PRIVATE__
 #define __SPM_SHIM_PRIVATE__
 
-#include <types.h>
+#include <stdint.h>
 #include <utils_def.h>
 
 /* Assembly source */

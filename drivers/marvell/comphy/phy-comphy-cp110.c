@@ -18,7 +18,7 @@
 
 /* #define DEBUG_COMPHY */
 #ifdef DEBUG_COMPHY
-#define debug(format...) tf_printf(format)
+#define debug(format...) printf(format)
 #else
 #define debug(format, arg...)
 #endif

@@ -212,7 +212,6 @@
 #include <gic_common.h>
 #include <interrupt_props.h>
 #include <stdint.h>
-#include <types.h>
 #include <utils_def.h>
 
 #define gicv3_is_intr_id_special_identifier(id)	\

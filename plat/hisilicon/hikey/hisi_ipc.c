@@ -11,6 +11,7 @@
 #include <mmio.h>
 #include <platform_def.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <string.h>
 
 static int ipc_init;
@@ -63,7 +64,7 @@ int hisi_cpus_powered_off_besides_curr(unsigned int cpu)
 static void hisi_ipc_send(unsigned int ipc_num)
 {
 	if (!ipc_init) {
-		tf_printf("error ipc base is null!!!\n");
+		printf("error ipc base is null!!!\n");
 		return;
 	}
 

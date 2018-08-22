@@ -2982,32 +2982,13 @@ contains those C library definitions required by the local implementation. If
 more functionality is required, the needed library functions will need to be
 added to the local implementation.
 
-Versions of `FreeBSD`_ headers can be found in ``include/lib/stdlib``. Some of
-these headers have been cut down in order to simplify the implementation. In
-order to minimize changes to the header files, the `FreeBSD`_ layout has been
-maintained. The generic C library definitions can be found in
-``include/lib/stdlib`` with more system and machine specific declarations in
-``include/lib/stdlib/sys`` and ``include/lib/stdlib/machine``.
+Some C headers have been obtained from `FreeBSD`_ and `SCC`_, while others have
+been written specifically for TF-A. Fome implementation files have been obtained
+from `FreeBSD`_, others have been written specifically for TF-A as well. The
+files can be found in ``include/lib/libc`` and ``lib/libc``.
 
-The local C library implementations can be found in ``lib/stdlib``. In order to
-extend the C library these files may need to be modified. It is recommended to
-use a release version of `FreeBSD`_ as a starting point.
-
-The C library header files in the `FreeBSD`_ source tree are located in the
-``include`` and ``sys/sys`` directories. `FreeBSD`_ machine specific definitions
-can be found in the ``sys/<machine-type>`` directories. These files define things
-like 'the size of a pointer' and 'the range of an integer'. Since an AArch64
-port for `FreeBSD`_ does not yet exist, the machine specific definitions are
-based on existing machine types with similar properties (for example SPARC64).
-
-Where possible, C library function implementations were taken from `FreeBSD`_
-as found in the ``lib/libc`` directory.
-
-A copy of the `FreeBSD`_ sources can be downloaded with ``git``.
-
-::
-
-    git clone git://github.com/freebsd/freebsd.git -b origin/release/9.2.0
+SCC can be found in `http://www.simple-cc.org/`_. A copy of the `FreeBSD`_
+sources can be obtained from `http://github.com/freebsd/freebsd`_.
 
 Storage abstraction layer
 -------------------------
@@ -3082,3 +3063,4 @@ amount of open resources per driver.
 .. _Arm Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html
 .. _3.0 (GICv3): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0069b/index.html
 .. _FreeBSD: http://www.freebsd.org
+.. _SCC: http://www.simple-cc.org/

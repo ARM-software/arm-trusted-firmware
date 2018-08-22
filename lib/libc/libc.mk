@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,18 +8,20 @@ LIBC_SRCS	:=	$(addprefix lib/libc/,	\
 			abort.c				\
 			assert.c			\
 			exit.c				\
-			mem.c				\
+			memchr.c			\
+			memcmp.c			\
+			memcpy.c			\
+			memmove.c			\
+			memset.c			\
 			printf.c			\
 			putchar.c			\
 			puts.c				\
-			sscanf.c			\
+			snprintf.c			\
 			strchr.c			\
 			strcmp.c			\
 			strlen.c			\
 			strncmp.c			\
-			strnlen.c			\
-			subr_prf.c			\
-			timingsafe_bcmp.c)
+			strnlen.c)
 
 INCLUDES	+=	-Iinclude/lib/libc		\
-			-Iinclude/lib/libc/sys
+			-Iinclude/lib/libc/$(ARCH)	\

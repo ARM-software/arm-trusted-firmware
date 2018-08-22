@@ -9,7 +9,7 @@
 
 /* Includes */
 
-#include <types.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
   #define   __I     volatile             /*!< Defines 'read only' permissions                 */

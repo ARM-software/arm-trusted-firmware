@@ -30,8 +30,9 @@ described in the `Contributing Guidelines`_.
 This project contains code from other projects as listed below. The original
 license text is included in those source files.
 
--  The stdlib source code is derived from FreeBSD code, which uses various
-   BSD licenses, including BSD-3-Clause and BSD-2-Clause.
+-  The libc source code is derived from `FreeBSD`_ and `SCC`_. FreeBSD uses
+   various BSD licenses, including BSD-3-Clause and BSD-2-Clause. The SCC code
+   is used under the BSD-3-Clause license with the author's permission.
 
 -  The libfdt source code is disjunctively dual licensed
    (GPL-2.0+ OR BSD-2-Clause). It is used by this project under the terms of
@@ -275,3 +276,5 @@ Arm licensees may contact Arm directly via their partner managers.
 .. _Change Log: ./docs/change-log.rst
 .. _User Guide: ./docs/user-guide.rst
 .. _Porting Guide: ./docs/porting-guide.rst
+.. _FreeBSD: http://www.freebsd.org
+.. _SCC: http://www.simple-cc.org/

@@ -6,6 +6,7 @@
 
 #include <debug.h>
 #include <runtime_svc.h>
+#include <stdio.h>
 
 #include "generic-arm64-smcall.h"
 
@@ -29,14 +30,14 @@ static void trusty_dputc(char ch, int secure)
 	s->linebuf[s->l++] = ch;
 	if (s->l == sizeof(s->linebuf) || ch == '\n') {
 		if (secure)
-			tf_printf("secure os: ");
+			printf("secure os: ");
 		else
-			tf_printf("non-secure os: ");
+			printf("non-secure os: ");
 		for (i = 0; i < s->l; i++) {
 			putchar(s->linebuf[i]);
 		}
 		if (ch != '\n') {
-			tf_printf(" <...>\n");
+			printf(" <...>\n");
 		}
 		s->l = 0;
 	}

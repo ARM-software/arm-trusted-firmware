@@ -8,7 +8,7 @@
 #define __UNIPHIER_H__
 
 #include <stdint.h>
-#include <types.h>
+#include <string.h>
 
 unsigned int uniphier_get_soc_type(void);
 unsigned int uniphier_get_soc_model(void);

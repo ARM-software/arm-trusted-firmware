@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,8 @@
 #define SCRATCH_SECURE_RSV1_SCRATCH_1	0x65C
 
 #define CPU_RESET_MODE_AA64		1
+
+extern void memcpy16(void *dest, const void *src, unsigned int length);
 
 extern uint64_t tegra_bl31_phys_base;
 extern uint64_t __tegra186_cpu_reset_handler_end;

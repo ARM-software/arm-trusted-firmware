@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __DEBUG_H__
-#define __DEBUG_H__
+#ifndef DEBUG_H
+#define DEBUG_H
 
 /*
  * The log output macros print output to the console. These macros produce
@@ -26,6 +26,7 @@
 #define LOG_LEVEL_VERBOSE		50
 
 #ifndef __ASSEMBLY__
+#include <cdefs.h>
 #include <stdarg.h>
 #include <stdio.h>
 
@@ -89,11 +90,7 @@ void __dead2 do_panic(void);
 void __dead2 __stack_chk_fail(void);
 
 void tf_log(const char *fmt, ...) __printflike(1, 2);
-void tf_printf(const char *fmt, ...) __printflike(1, 2);
-int tf_snprintf(char *s, size_t n, const char *fmt, ...) __printflike(3, 4);
-void tf_vprintf(const char *fmt, va_list args);
-void tf_string_print(const char *str);
 void tf_log_set_max_level(unsigned int log_level);
 
 #endif /* __ASSEMBLY__ */
-#endif /* __DEBUG_H__ */
+#endif /* DEBUG_H */

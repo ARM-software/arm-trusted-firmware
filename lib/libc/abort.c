@@ -7,10 +7,7 @@
 #include <debug.h>
 #include <stdlib.h>
 
-/*
- * This is a basic implementation. This could be improved.
- */
-void abort (void)
+void abort(void)
 {
 	ERROR("ABORT\n");
 	panic();

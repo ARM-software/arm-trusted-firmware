@@ -153,8 +153,8 @@ static void dump_gwin(int ap_index)
 	uint32_t win_num;
 
 	/* Dump all GWIN windows */
-	tf_printf("\tbank  target     start              end\n");
-	tf_printf("\t----------------------------------------------------\n");
+	printf("\tbank  target     start              end\n");
+	printf("\t----------------------------------------------------\n");
 	for (win_num = 0; win_num < MVEBU_GWIN_MAX_WINS; win_num++) {
 		uint32_t cr;
 		uint64_t alr, ahr;
@@ -166,8 +166,8 @@ static void dump_gwin(int ap_index)
 			alr = (alr >> ADDRESS_LSHIFT) << ADDRESS_RSHIFT;
 			ahr = mmio_read_32(GWIN_AHR_OFFSET(ap_index, win_num));
 			ahr = (ahr >> ADDRESS_LSHIFT) << ADDRESS_RSHIFT;
-			tf_printf("\tgwin   %d     0x%016llx 0x%016llx\n",
-				  (cr >> 8) & 0xF, alr, ahr);
+			printf("\tgwin   %d     0x%016llx 0x%016llx\n",
+			       (cr >> 8) & 0xF, alr, ahr);
 		}
 	}
 }
