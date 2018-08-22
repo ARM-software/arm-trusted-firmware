@@ -11,28 +11,28 @@
  * Size of nodes implementing Standard Error Records - currently only 4k is
  * supported.
  */
-#define STD_ERR_NODE_SIZE_NUM_K		4
+#define STD_ERR_NODE_SIZE_NUM_K		4U
 
 /*
  * Individual register offsets within an error record in Standard Error Record
  * format when error records are accessed through memory-mapped registers.
  */
-#define ERR_FR(n)	(0x0 + (64 * (n)))
-#define ERR_CTLR(n)	(0x8 + (64 * (n)))
-#define ERR_STATUS(n)	(0x10 + (64 * (n)))
-#define ERR_ADDR(n)	(0x18 + (64 * (n)))
-#define ERR_MISC0(n)	(0x20 + (64 * (n)))
-#define ERR_MISC1(n)	(0x28 + (64 * (n)))
+#define ERR_FR(n)	(0x0ULL + (64ULL * (n)))
+#define ERR_CTLR(n)	(0x8ULL + (64ULL * (n)))
+#define ERR_STATUS(n)	(0x10ULL + (64ULL * (n)))
+#define ERR_ADDR(n)	(0x18ULL + (64ULL * (n)))
+#define ERR_MISC0(n)	(0x20ULL + (64ULL * (n)))
+#define ERR_MISC1(n)	(0x28ULL + (64ULL * (n)))
 
 /* Group Status Register (ERR_STATUS) offset */
 #define ERR_GSR(base, size_num_k, n) \
-	((base) + (0x380 * (size_num_k)) + (8 * (n)))
+	((base) + (0x380ULL * (size_num_k)) + (8ULL * (n)))
 
 /* Management register offsets */
 #define ERR_DEVID(base, size_num_k) \
-	((base) + ((0x400 * (size_num_k)) - 0x100) + 0xc8)
+	((base) + ((0x400ULL * (size_num_k)) - 0x100ULL) + 0xc8ULL)
 
-#define ERR_DEVID_MASK	0xffff
+#define ERR_DEVID_MASK	0xffffUL
 
 /* Standard Error Record status register fields */
 #define ERR_STATUS_AV_SHIFT	31
@@ -244,7 +244,8 @@ static inline uint64_t ser_get_misc1(uintptr_t base, unsigned int idx)
  */
 static inline void ser_sys_select_record(unsigned int idx)
 {
-	unsigned int max_idx __unused = read_erridr_el1() & ERRIDR_MASK;
+	unsigned int max_idx __unused =
+		(unsigned int) read_erridr_el1() & ERRIDR_MASK;
 
 	assert(idx < max_idx);
 

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SDEI_PRIVATE_H__
-#define __SDEI_PRIVATE_H__
+#ifndef SDEI_PRIVATE_H
+#define SDEI_PRIVATE_H
 
 #include <arch_helpers.h>
 #include <context_mgmt.h>
@@ -36,12 +36,12 @@
 #define SDEI_LOG(...)	VERBOSE("SDEI: " __VA_ARGS__)
 
 /* SDEI handler unregistered state. This is the default state. */
-#define SDEI_STATE_UNREGISTERED		0
+#define SDEI_STATE_UNREGISTERED		0U
 
 /* SDE event status values in bit position */
-#define SDEI_STATF_REGISTERED		0
-#define SDEI_STATF_ENABLED		1
-#define SDEI_STATF_RUNNING		2
+#define SDEI_STATF_REGISTERED		0U
+#define SDEI_STATF_ENABLED		1U
+#define SDEI_STATF_RUNNING		2U
 
 /* SDEI SMC error codes */
 #define	SDEI_EINVAL	(-2)
@@ -62,18 +62,18 @@
 #define SDEI_INFO_EV_ROUTING_MODE	3
 #define SDEI_INFO_EV_ROUTING_AFF	4
 
-#define SDEI_PRIVATE_MAPPING()	(&sdei_global_mappings[_SDEI_MAP_IDX_PRIV])
-#define SDEI_SHARED_MAPPING()	(&sdei_global_mappings[_SDEI_MAP_IDX_SHRD])
+#define SDEI_PRIVATE_MAPPING()	(&sdei_global_mappings[SDEI_MAP_IDX_PRIV_])
+#define SDEI_SHARED_MAPPING()	(&sdei_global_mappings[SDEI_MAP_IDX_SHRD_])
 
 #define for_each_mapping_type(_i, _mapping) \
-	for (_i = 0, _mapping = &sdei_global_mappings[i]; \
-			_i < _SDEI_MAP_IDX_MAX; \
-			_i++, _mapping = &sdei_global_mappings[i])
+	for ((_i) = 0, (_mapping) = &sdei_global_mappings[(_i)]; \
+			(_i) < SDEI_MAP_IDX_MAX_; \
+			(_i)++, (_mapping) = &sdei_global_mappings[(_i)])
 
 #define iterate_mapping(_mapping, _i, _map) \
-	for (_map = (_mapping)->map, _i = 0; \
-			_i < (_mapping)->num_maps; \
-			_i++, _map++)
+	for ((_map) = (_mapping)->map, (_i) = 0; \
+			(_i) < (_mapping)->num_maps; \
+			(_i)++, (_map)++)
 
 #define for_each_private_map(_i, _map) \
 	iterate_mapping(SDEI_PRIVATE_MAPPING(), _i, _map)
@@ -82,45 +82,45 @@
 	iterate_mapping(SDEI_SHARED_MAPPING(), _i, _map)
 
 /* SDEI_FEATURES */
-#define SDEI_FEATURE_BIND_SLOTS		0
-#define BIND_SLOTS_MASK			0xffff
-#define FEATURES_SHARED_SLOTS_SHIFT	16
-#define FEATURES_PRIVATE_SLOTS_SHIFT	0
+#define SDEI_FEATURE_BIND_SLOTS		0U
+#define BIND_SLOTS_MASK			0xffffU
+#define FEATURES_SHARED_SLOTS_SHIFT	16U
+#define FEATURES_PRIVATE_SLOTS_SHIFT	0U
 #define FEATURE_BIND_SLOTS(_priv, _shrd) \
-	((((_priv) & BIND_SLOTS_MASK) << FEATURES_PRIVATE_SLOTS_SHIFT) | \
-	 (((_shrd) & BIND_SLOTS_MASK) << FEATURES_SHARED_SLOTS_SHIFT))
+	(((((uint64_t) (_priv)) & BIND_SLOTS_MASK) << FEATURES_PRIVATE_SLOTS_SHIFT) | \
+	 ((((uint64_t) (_shrd)) & BIND_SLOTS_MASK) << FEATURES_SHARED_SLOTS_SHIFT))
 
 #define GET_EV_STATE(_e, _s)	get_ev_state_bit(_e, SDEI_STATF_##_s)
 #define SET_EV_STATE(_e, _s)	clr_ev_state_bit(_e->state, SDEI_STATF_##_s)
 
-static inline int is_event_private(sdei_ev_map_t *map)
+static inline bool is_event_private(sdei_ev_map_t *map)
 {
-	return ((map->map_flags & BIT(_SDEI_MAPF_PRIVATE_SHIFT)) != 0);
+	return ((map->map_flags & BIT_32(SDEI_MAPF_PRIVATE_SHIFT_)) != 0U);
 }
 
-static inline int is_event_shared(sdei_ev_map_t *map)
+static inline bool is_event_shared(sdei_ev_map_t *map)
 {
 	return !is_event_private(map);
 }
 
-static inline int is_event_critical(sdei_ev_map_t *map)
+static inline bool is_event_critical(sdei_ev_map_t *map)
 {
-	return ((map->map_flags & BIT(_SDEI_MAPF_CRITICAL_SHIFT)) != 0);
+	return ((map->map_flags & BIT_32(SDEI_MAPF_CRITICAL_SHIFT_)) != 0U);
 }
 
-static inline int is_event_normal(sdei_ev_map_t *map)
+static inline bool is_event_normal(sdei_ev_map_t *map)
 {
 	return !is_event_critical(map);
 }
 
-static inline int is_event_signalable(sdei_ev_map_t *map)
+static inline bool is_event_signalable(sdei_ev_map_t *map)
 {
-	return ((map->map_flags & BIT(_SDEI_MAPF_SIGNALABLE_SHIFT)) != 0);
+	return ((map->map_flags & BIT_32(SDEI_MAPF_SIGNALABLE_SHIFT_)) != 0U);
 }
 
-static inline int is_map_dynamic(sdei_ev_map_t *map)
+static inline bool is_map_dynamic(sdei_ev_map_t *map)
 {
-	return ((map->map_flags & BIT(_SDEI_MAPF_DYNAMIC_SHIFT)) != 0);
+	return ((map->map_flags & BIT_32(SDEI_MAPF_DYNAMIC_SHIFT_)) != 0U);
 }
 
 /*
@@ -129,29 +129,29 @@ static inline int is_map_dynamic(sdei_ev_map_t *map)
  * called on them. This can be used on both static or dynamic events to check
  * for an associated interrupt.
  */
-static inline int is_map_bound(sdei_ev_map_t *map)
+static inline bool is_map_bound(sdei_ev_map_t *map)
 {
-	return ((map->map_flags & BIT(_SDEI_MAPF_BOUND_SHIFT)) != 0);
+	return ((map->map_flags & BIT_32(SDEI_MAPF_BOUND_SHIFT_)) != 0U);
 }
 
 static inline void set_map_bound(sdei_ev_map_t *map)
 {
-	map->map_flags |= BIT(_SDEI_MAPF_BOUND_SHIFT);
+	map->map_flags |= BIT_32(SDEI_MAPF_BOUND_SHIFT_);
 }
 
-static inline int is_map_explicit(sdei_ev_map_t *map)
+static inline bool is_map_explicit(sdei_ev_map_t *map)
 {
-	return ((map->map_flags & BIT(_SDEI_MAPF_EXPLICIT_SHIFT)) != 0);
+	return ((map->map_flags & BIT_32(SDEI_MAPF_EXPLICIT_SHIFT_)) != 0U);
 }
 
 static inline void clr_map_bound(sdei_ev_map_t *map)
 {
-	map->map_flags &= ~(BIT(_SDEI_MAPF_BOUND_SHIFT));
+	map->map_flags &= ~BIT_32(SDEI_MAPF_BOUND_SHIFT_);
 }
 
-static inline int is_secure_sgi(unsigned int intr)
+static inline bool is_secure_sgi(unsigned int intr)
 {
-	return (plat_ic_is_sgi(intr) &&
+	return ((plat_ic_is_sgi(intr) != 0) &&
 			(plat_ic_get_interrupt_type(intr) == INTR_TYPE_EL3));
 }
 
@@ -164,24 +164,24 @@ static inline unsigned int sdei_client_el(void)
 	cpu_context_t *ns_ctx = cm_get_context(NON_SECURE);
 	el3_state_t *el3_ctx = get_el3state_ctx(ns_ctx);
 
-	return read_ctx_reg(el3_ctx, CTX_SCR_EL3) & SCR_HCE_BIT ? MODE_EL2 :
-		MODE_EL1;
+	return ((read_ctx_reg(el3_ctx, CTX_SCR_EL3) & SCR_HCE_BIT) != 0U) ?
+		MODE_EL2 : MODE_EL1;
 }
 
 static inline unsigned int sdei_event_priority(sdei_ev_map_t *map)
 {
-	return is_event_critical(map) ? PLAT_SDEI_CRITICAL_PRI :
-		PLAT_SDEI_NORMAL_PRI;
+	return (unsigned int) (is_event_critical(map) ? PLAT_SDEI_CRITICAL_PRI :
+			PLAT_SDEI_NORMAL_PRI);
 }
 
-static inline int get_ev_state_bit(sdei_entry_t *se, unsigned int bit_no)
+static inline bool get_ev_state_bit(sdei_entry_t *se, unsigned int bit_no)
 {
-	return ((se->state & BIT(bit_no)) != 0);
+	return ((se->state & BIT_32(bit_no)) != 0U);
 }
 
 static inline void clr_ev_state_bit(sdei_entry_t *se, unsigned int bit_no)
 {
-	se->state &= ~BIT(bit_no);
+	se->state &= ~BIT_32(bit_no);
 }
 
 /* SDEI actions for state transition */
@@ -228,19 +228,19 @@ extern sdei_entry_t sdei_shared_event_table[];
 
 void init_sdei_state(void);
 
-sdei_ev_map_t *find_event_map_by_intr(int intr_num, int shared);
+sdei_ev_map_t *find_event_map_by_intr(unsigned int intr_num, bool shared);
 sdei_ev_map_t *find_event_map(int ev_num);
 sdei_entry_t *get_event_entry(sdei_ev_map_t *map);
 
-int sdei_event_context(void *handle, unsigned int param);
-int sdei_event_complete(int resume, uint64_t arg);
+int64_t sdei_event_context(void *handle, unsigned int param);
+int sdei_event_complete(bool resume, uint64_t pc);
 
 void sdei_pe_unmask(void);
-unsigned int sdei_pe_mask(void);
+int64_t sdei_pe_mask(void);
 
-int sdei_intr_handler(uint32_t intr, uint32_t flags, void *handle,
+int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 		void *cookie);
 bool can_sdei_state_trans(sdei_entry_t *se, sdei_action_t act);
 void begin_sdei_synchronous_dispatch(struct jmpbuf *buffer);
 
-#endif /* __SDEI_PRIVATE_H__ */
+#endif /* SDEI_PRIVATE_H */

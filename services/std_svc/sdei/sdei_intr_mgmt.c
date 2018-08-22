@@ -16,17 +16,14 @@
 #include <string.h>
 #include "sdei_private.h"
 
-#define PE_MASKED	1
-#define PE_NOT_MASKED	0
-
 /* x0-x17 GPREGS context */
-#define SDEI_SAVED_GPREGS	18
+#define SDEI_SAVED_GPREGS	18U
 
 /* Maximum preemption nesting levels: Critical priority and Normal priority */
-#define MAX_EVENT_NESTING	2
+#define MAX_EVENT_NESTING	2U
 
 /* Per-CPU SDEI state access macro */
-#define sdei_get_this_pe_state()	(&sdei_cpu_state[plat_my_core_pos()])
+#define sdei_get_this_pe_state()	(&cpu_state[plat_my_core_pos()])
 
 /* Structure to store information about an outstanding dispatch */
 typedef struct sdei_dispatch_context {
@@ -48,31 +45,33 @@ typedef struct sdei_dispatch_context {
 typedef struct sdei_cpu_state {
 	sdei_dispatch_context_t dispatch_stack[MAX_EVENT_NESTING];
 	unsigned short stack_top; /* Empty ascending */
-	unsigned int pe_masked:1;
-	unsigned int pending_enables:1;
+	bool pe_masked;
+	bool pending_enables;
 } sdei_cpu_state_t;
 
 /* SDEI states for all cores in the system */
-static sdei_cpu_state_t sdei_cpu_state[PLATFORM_CORE_COUNT];
+static sdei_cpu_state_t cpu_state[PLATFORM_CORE_COUNT];
 
-unsigned int sdei_pe_mask(void)
+int64_t sdei_pe_mask(void)
 {
-	unsigned int ret;
+	int64_t ret = 0;
 	sdei_cpu_state_t *state = sdei_get_this_pe_state();
 
 	/*
 	 * Return value indicates whether this call had any effect in the mask
 	 * status of this PE.
 	 */
-	ret = (state->pe_masked ^ PE_MASKED);
-	state->pe_masked = PE_MASKED;
+	if (!state->pe_masked) {
+		state->pe_masked = true;
+		ret = 1;
+	}
 
 	return ret;
 }
 
 void sdei_pe_unmask(void)
 {
-	int i;
+	unsigned int i;
 	sdei_ev_map_t *map;
 	sdei_entry_t *se;
 	sdei_cpu_state_t *state = sdei_get_this_pe_state();
@@ -95,8 +94,7 @@ void sdei_pe_unmask(void)
 			se = get_event_entry(map);
 
 			sdei_map_lock(map);
-			if (is_map_bound(map) &&
-					GET_EV_STATE(se, ENABLED) &&
+			if (is_map_bound(map) && GET_EV_STATE(se, ENABLED) &&
 					(se->reg_flags == SDEI_REGF_RM_PE) &&
 					(se->affinity == my_mpidr)) {
 				plat_ic_enable_interrupt(map->intr);
@@ -105,8 +103,8 @@ void sdei_pe_unmask(void)
 		}
 	}
 
-	state->pending_enables = 0;
-	state->pe_masked = PE_NOT_MASKED;
+	state->pending_enables = false;
+	state->pe_masked = false;
 }
 
 /* Push a dispatch context to the dispatch stack */
@@ -129,7 +127,7 @@ static sdei_dispatch_context_t *pop_dispatch(void)
 {
 	sdei_cpu_state_t *state = sdei_get_this_pe_state();
 
-	if (state->stack_top == 0)
+	if (state->stack_top == 0U)
 		return NULL;
 
 	assert(state->stack_top <= MAX_EVENT_NESTING);
@@ -144,27 +142,27 @@ static sdei_dispatch_context_t *get_outstanding_dispatch(void)
 {
 	sdei_cpu_state_t *state = sdei_get_this_pe_state();
 
-	if (state->stack_top == 0)
+	if (state->stack_top == 0U)
 		return NULL;
 
 	assert(state->stack_top <= MAX_EVENT_NESTING);
 
-	return &state->dispatch_stack[state->stack_top - 1];
+	return &state->dispatch_stack[state->stack_top - 1U];
 }
 
 static sdei_dispatch_context_t *save_event_ctx(sdei_ev_map_t *map,
 		void *tgt_ctx)
 {
 	sdei_dispatch_context_t *disp_ctx;
-	gp_regs_t *tgt_gpregs;
-	el3_state_t *tgt_el3;
+	const gp_regs_t *tgt_gpregs;
+	const el3_state_t *tgt_el3;
 
-	assert(tgt_ctx);
+	assert(tgt_ctx != NULL);
 	tgt_gpregs = get_gpregs_ctx(tgt_ctx);
 	tgt_el3 = get_el3state_ctx(tgt_ctx);
 
 	disp_ctx = push_dispatch();
-	assert(disp_ctx);
+	assert(disp_ctx != NULL);
 	disp_ctx->map = map;
 
 	/* Save general purpose and exception registers */
@@ -175,12 +173,12 @@ static sdei_dispatch_context_t *save_event_ctx(sdei_ev_map_t *map,
 	return disp_ctx;
 }
 
-static void restore_event_ctx(sdei_dispatch_context_t *disp_ctx, void *tgt_ctx)
+static void restore_event_ctx(const sdei_dispatch_context_t *disp_ctx, void *tgt_ctx)
 {
 	gp_regs_t *tgt_gpregs;
 	el3_state_t *tgt_el3;
 
-	assert(tgt_ctx);
+	assert(tgt_ctx != NULL);
 	tgt_gpregs = get_gpregs_ctx(tgt_ctx);
 	tgt_el3 = get_el3state_ctx(tgt_ctx);
 
@@ -226,7 +224,7 @@ static cpu_context_t *restore_and_resume_ns_context(void)
 	cm_set_next_eret_context(NON_SECURE);
 
 	ns_ctx = cm_get_context(NON_SECURE);
-	assert(ns_ctx);
+	assert(ns_ctx != NULL);
 
 	return ns_ctx;
 }
@@ -251,7 +249,7 @@ static void setup_ns_dispatch(sdei_ev_map_t *map, sdei_entry_t *se,
 	 * - x2: Interrupted PC
 	 * - x3: Interrupted SPSR
 	 */
-	SMC_SET_GP(ctx, CTX_GPREG_X0, map->ev_num);
+	SMC_SET_GP(ctx, CTX_GPREG_X0, (uint64_t) map->ev_num);
 	SMC_SET_GP(ctx, CTX_GPREG_X1, se->arg);
 	SMC_SET_GP(ctx, CTX_GPREG_X2, disp_ctx->elr_el3);
 	SMC_SET_GP(ctx, CTX_GPREG_X3, disp_ctx->spsr_el3);
@@ -286,7 +284,7 @@ static void handle_masked_trigger(sdei_ev_map_t *map, sdei_entry_t *se,
 		sdei_cpu_state_t *state, unsigned int intr_raw)
 {
 	uint64_t my_mpidr __unused = (read_mpidr_el1() & MPIDR_AFFINITY_MASK);
-	int disable = 0;
+	bool disable = false;
 
 	/* Nothing to do for event 0 */
 	if (map->ev_num == SDEI_EVENT_0)
@@ -297,18 +295,17 @@ static void handle_masked_trigger(sdei_ev_map_t *map, sdei_entry_t *se,
 	 * this CPU, we disable interrupt, leave the interrupt pending, and do
 	 * EOI.
 	 */
-	if (is_event_private(map)) {
-		disable = 1;
-	} else if (se->reg_flags == SDEI_REGF_RM_PE) {
+	if (is_event_private(map) || (se->reg_flags == SDEI_REGF_RM_PE))
+		disable = true;
+
+	if (se->reg_flags == SDEI_REGF_RM_PE)
 		assert(se->affinity == my_mpidr);
-		disable = 1;
-	}
 
 	if (disable) {
 		plat_ic_disable_interrupt(map->intr);
 		plat_ic_set_interrupt_pending(map->intr);
 		plat_ic_end_of_interrupt(intr_raw);
-		state->pending_enables = 1;
+		state->pending_enables = true;
 
 		return;
 	}
@@ -321,7 +318,7 @@ static void handle_masked_trigger(sdei_ev_map_t *map, sdei_entry_t *se,
 	 * Therefore, we set the interrupt back pending so as to give other
 	 * suitable PEs a chance of handling it.
 	 */
-	assert(plat_ic_is_spi(map->intr));
+	assert(plat_ic_is_spi(map->intr) != 0);
 	plat_ic_set_interrupt_pending(map->intr);
 
 	/*
@@ -344,11 +341,12 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 	sdei_entry_t *se;
 	cpu_context_t *ctx;
 	sdei_ev_map_t *map;
-	sdei_dispatch_context_t *disp_ctx;
+	const sdei_dispatch_context_t *disp_ctx;
 	unsigned int sec_state;
 	sdei_cpu_state_t *state;
 	uint32_t intr;
 	struct jmpbuf dispatch_jmp;
+	const uint64_t mpidr = read_mpidr_el1();
 
 	/*
 	 * To handle an event, the following conditions must be true:
@@ -374,8 +372,8 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 	 * this interrupt
 	 */
 	intr = plat_ic_get_interrupt_id(intr_raw);
-	map = find_event_map_by_intr(intr, plat_ic_is_spi(intr));
-	if (!map) {
+	map = find_event_map_by_intr(intr, (plat_ic_is_spi(intr) != 0));
+	if (map == NULL) {
 		ERROR("No SDEI map for interrupt %u\n", intr);
 		panic();
 	}
@@ -389,13 +387,13 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 	se = get_event_entry(map);
 	state = sdei_get_this_pe_state();
 
-	if (state->pe_masked == PE_MASKED) {
+	if (state->pe_masked) {
 		/*
 		 * Interrupts received while this PE was masked can't be
 		 * dispatched.
 		 */
-		SDEI_LOG("interrupt %u on %lx while PE masked\n", map->intr,
-				read_mpidr_el1());
+		SDEI_LOG("interrupt %u on %llx while PE masked\n", map->intr,
+				mpidr);
 		if (is_event_shared(map))
 			sdei_map_lock(map);
 
@@ -416,8 +414,7 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 
 	/* Assert shared event routed to this PE had been configured so */
 	if (is_event_shared(map) && (se->reg_flags == SDEI_REGF_RM_PE)) {
-		assert(se->affinity ==
-				(read_mpidr_el1() & MPIDR_AFFINITY_MASK));
+		assert(se->affinity == (mpidr & MPIDR_AFFINITY_MASK));
 	}
 
 	if (!can_sdei_state_trans(se, DO_DISPATCH)) {
@@ -451,7 +448,7 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 		 * dispatch, assert the latter is a Normal dispatch. Critical
 		 * events can preempt an outstanding Normal event dispatch.
 		 */
-		if (disp_ctx)
+		if (disp_ctx != NULL)
 			assert(is_event_normal(disp_ctx->map));
 	} else {
 		/*
@@ -467,9 +464,8 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 	if (is_event_shared(map))
 		sdei_map_unlock(map);
 
-	SDEI_LOG("ACK %lx, ev:%d ss:%d spsr:%lx ELR:%lx\n", read_mpidr_el1(),
-			map->ev_num, sec_state, read_spsr_el3(),
-			read_elr_el3());
+	SDEI_LOG("ACK %llx, ev:%d ss:%d spsr:%lx ELR:%lx\n", mpidr, map->ev_num,
+			sec_state, read_spsr_el3(), read_elr_el3());
 
 	ctx = handle;
 
@@ -497,7 +493,7 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 	 * Non-secure context was fully saved before dispatch, and has been
 	 * returned to its pre-dispatch state.
 	 */
-	if ((sec_state == SECURE) && (ehf_is_ns_preemption_allowed() == 0))
+	if ((sec_state == SECURE) && (ehf_is_ns_preemption_allowed() == 0U))
 		restore_and_resume_secure_context();
 
 	/*
@@ -510,9 +506,6 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 		panic();
 	}
 	plat_ic_end_of_interrupt(intr_raw);
-
-	if (is_event_shared(map))
-		sdei_map_unlock(map);
 
 	return 0;
 }
@@ -539,7 +532,7 @@ int sdei_dispatch_event(int ev_num)
 
 	/* Can't dispatch if events are masked on this PE */
 	state = sdei_get_this_pe_state();
-	if (state->pe_masked == PE_MASKED)
+	if (state->pe_masked)
 		return -1;
 
 	/* Event 0 can't be dispatched */
@@ -548,7 +541,7 @@ int sdei_dispatch_event(int ev_num)
 
 	/* Locate mapping corresponding to this event */
 	map = find_event_map(ev_num);
-	if (!map)
+	if (map == NULL)
 		return -1;
 
 	/* Only explicit events can be dispatched */
@@ -557,7 +550,7 @@ int sdei_dispatch_event(int ev_num)
 
 	/* Examine state of dispatch stack */
 	disp_ctx = get_outstanding_dispatch();
-	if (disp_ctx) {
+	if (disp_ctx != NULL) {
 		/*
 		 * There's an outstanding dispatch. If the outstanding dispatch
 		 * is critical, no more dispatches are possible.
@@ -606,7 +599,7 @@ static void end_sdei_synchronous_dispatch(struct jmpbuf *buffer)
 	longjmp(buffer);
 }
 
-int sdei_event_complete(int resume, uint64_t pc)
+int sdei_event_complete(bool resume, uint64_t pc)
 {
 	sdei_dispatch_context_t *disp_ctx;
 	sdei_entry_t *se;
@@ -617,7 +610,7 @@ int sdei_event_complete(int resume, uint64_t pc)
 
 	/* Return error if called without an active event */
 	disp_ctx = get_outstanding_dispatch();
-	if (!disp_ctx)
+	if (disp_ctx == NULL)
 		return SDEI_EDENY;
 
 	/* Validate resumption point */
@@ -625,8 +618,11 @@ int sdei_event_complete(int resume, uint64_t pc)
 		return SDEI_EDENY;
 
 	map = disp_ctx->map;
-	assert(map);
+	assert(map != NULL);
 	se = get_event_entry(map);
+
+	if (is_event_shared(map))
+		sdei_map_lock(map);
 
 	act = resume ? DO_COMPLETE_RESUME : DO_COMPLETE;
 	if (!can_sdei_state_trans(se, act)) {
@@ -635,14 +631,14 @@ int sdei_event_complete(int resume, uint64_t pc)
 		return SDEI_EDENY;
 	}
 
+	if (is_event_shared(map))
+		sdei_map_unlock(map);
+
 	/* Having done sanity checks, pop dispatch */
-	pop_dispatch();
+	(void) pop_dispatch();
 
 	SDEI_LOG("EOI:%lx, %d spsr:%lx elr:%lx\n", read_mpidr_el1(),
 			map->ev_num, read_spsr_el3(), read_elr_el3());
-
-	if (is_event_shared(map))
-		sdei_map_lock(map);
 
 	/*
 	 * Restore Non-secure to how it was originally interrupted. Once done,
@@ -684,7 +680,7 @@ int sdei_event_complete(int resume, uint64_t pc)
 	return 0;
 }
 
-int sdei_event_context(void *handle, unsigned int param)
+int64_t sdei_event_context(void *handle, unsigned int param)
 {
 	sdei_dispatch_context_t *disp_ctx;
 
@@ -693,10 +689,10 @@ int sdei_event_context(void *handle, unsigned int param)
 
 	/* Get outstanding dispatch on this CPU */
 	disp_ctx = get_outstanding_dispatch();
-	if (!disp_ctx)
+	if (disp_ctx == NULL)
 		return SDEI_EDENY;
 
-	assert(disp_ctx->map);
+	assert(disp_ctx->map != NULL);
 
 	if (!can_sdei_state_trans(get_event_entry(disp_ctx->map), DO_CONTEXT))
 		return SDEI_EDENY;
@@ -706,5 +702,5 @@ int sdei_event_context(void *handle, unsigned int param)
 	 * which can complete the event
 	 */
 
-	return disp_ctx->x[param];
+	return (int64_t) disp_ctx->x[param];
 }

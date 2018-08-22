@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,7 +23,7 @@
 #define SET_PARAM_HEAD(_p, _type, _ver, _attr) do { \
 	(_p)->h.type = (uint8_t)(_type); \
 	(_p)->h.version = (uint8_t)(_ver); \
-	(_p)->h.size = (uint16_t)sizeof(*_p); \
+	(_p)->h.size = (uint16_t)sizeof(*(_p)); \
 	(_p)->h.attr = (uint32_t)(_attr) ; \
 	} while (0)
 

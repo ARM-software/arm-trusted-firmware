@@ -61,10 +61,10 @@
 #define INTR_RM_FROM_SEC_SHIFT		SECURE		/* BIT[0] */
 #define INTR_RM_FROM_NS_SHIFT		NON_SECURE	/* BIT[1] */
 #define INTR_RM_FROM_FLAG_MASK		U(1)
-#define get_interrupt_rm_flag(flag, ss)	(((flag >> INTR_RM_FLAGS_SHIFT) >> ss) \
-					 & INTR_RM_FROM_FLAG_MASK)
-#define set_interrupt_rm_flag(flag, ss)	(flag |= U(1) << ss)
-#define clr_interrupt_rm_flag(flag, ss)	(flag &= ~(U(1) << ss))
+#define get_interrupt_rm_flag(flag, ss) \
+	((((flag) >> INTR_RM_FLAGS_SHIFT) >> (ss)) & INTR_RM_FROM_FLAG_MASK)
+#define set_interrupt_rm_flag(flag, ss)	((flag) |= U(1) << (ss))
+#define clr_interrupt_rm_flag(flag, ss)	((flag) &= ~(U(1) << (ss)))
 
 
 /*******************************************************************************
@@ -101,9 +101,9 @@
  ******************************************************************************/
 #define INTR_SRC_SS_FLAG_SHIFT		U(0)		/* BIT[0] */
 #define INTR_SRC_SS_FLAG_MASK		U(1)
-#define set_interrupt_src_ss(flag, val)	(flag |= val << INTR_SRC_SS_FLAG_SHIFT)
-#define clr_interrupt_src_ss(flag)	(flag &= ~(U(1) << INTR_SRC_SS_FLAG_SHIFT))
-#define get_interrupt_src_ss(flag)	((flag >> INTR_SRC_SS_FLAG_SHIFT) & \
+#define set_interrupt_src_ss(flag, val)	((flag) |= (val) << INTR_SRC_SS_FLAG_SHIFT)
+#define clr_interrupt_src_ss(flag)	((flag) &= ~(U(1) << INTR_SRC_SS_FLAG_SHIFT))
+#define get_interrupt_src_ss(flag)	(((flag) >> INTR_SRC_SS_FLAG_SHIFT) & \
 					 INTR_SRC_SS_FLAG_MASK)
 
 #ifndef __ASSEMBLY__

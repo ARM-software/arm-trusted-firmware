@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __RAS_COMMON__
-#define __RAS_COMMON__
+#ifndef RAS_COMMON
+#define RAS_COMMON
 
-#define ERR_HANDLER_VERSION	1
+#define ERR_HANDLER_VERSION	1U
 
 /* Error record access mechanism */
 #define ERR_ACCESS_SYSREG	0
@@ -20,18 +20,18 @@
  * are declared. Only then would ARRAY_SIZE() yield a meaningful value.
  */
 #define REGISTER_ERR_RECORD_INFO(_records) \
-	const struct err_record_mapping err_record_mapping = { \
-		.err_records = _records, \
+	const struct err_record_mapping err_record_mappings = { \
+		.err_records = (_records), \
 		.num_err_records = ARRAY_SIZE(_records), \
 	}
 
 /* Error record info iterator */
 #define for_each_err_record_info(_i, _info) \
-	for (_i = 0, _info = err_record_mapping.err_records; \
-		_i < err_record_mapping.num_err_records; \
-		_i++, _info++)
+	for ((_i) = 0, (_info) = err_record_mappings.err_records; \
+		(_i) < err_record_mappings.num_err_records; \
+		(_i)++, (_info)++)
 
-#define _ERR_RECORD_COMMON(_probe, _handler, _aux) \
+#define ERR_RECORD_COMMON_(_probe, _handler, _aux) \
 	.probe = _probe, \
 	.handler = _handler, \
 	.aux_data = _aux,
@@ -42,7 +42,7 @@
 		.sysreg.idx_start = _idx_start, \
 		.sysreg.num_idx = _num_idx, \
 		.access = ERR_ACCESS_SYSREG, \
-		_ERR_RECORD_COMMON(_probe, _handler, _aux) \
+		ERR_RECORD_COMMON_(_probe, _handler, _aux) \
 	}
 
 #define ERR_RECORD_MEMMAP_V1(_base_addr, _size_num_k, _probe, _handler, _aux) \
@@ -51,7 +51,7 @@
 		.memmap.base_addr = _base_addr, \
 		.memmap.size_num_k = _size_num_k, \
 		.access = ERR_ACCESS_MEMMAP, \
-		_ERR_RECORD_COMMON(_probe, _handler, _aux) \
+		ERR_RECORD_COMMON_(_probe, _handler, _aux) \
 	}
 
 /*
@@ -63,8 +63,8 @@
  * array is expected to be sorted in the increasing order of interrupt number.
  */
 #define REGISTER_RAS_INTERRUPTS(_array) \
-	const struct ras_interrupt_mapping ras_interrupt_mapping = { \
-		.intrs = _array, \
+	const struct ras_interrupt_mapping ras_interrupt_mappings = { \
+		.intrs = (_array), \
 		.num_intrs = ARRAY_SIZE(_array), \
 	}
 
@@ -165,8 +165,8 @@ struct ras_interrupt_mapping {
 	size_t num_intrs;
 };
 
-extern const struct err_record_mapping err_record_mapping;
-extern const struct ras_interrupt_mapping ras_interrupt_mapping;
+extern const struct err_record_mapping err_record_mappings;
+extern const struct ras_interrupt_mapping ras_interrupt_mappings;
 
 
 /*
@@ -196,4 +196,4 @@ int ras_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 void ras_init(void);
 
 #endif /* __ASSEMBLY__ */
-#endif /* __RAS_COMMON__ */
+#endif /* RAS_COMMON */

@@ -7,6 +7,8 @@
 #ifndef __GIC_COMMON_H__
 #define __GIC_COMMON_H__
 
+#include <utils_def.h>
+
 /*******************************************************************************
  * GIC Distributor interface general definitions
  ******************************************************************************/
@@ -34,10 +36,10 @@
 #define GIC_INTR_CFG_EDGE		(1 << 1)
 
 /* Constants to categorise priorities */
-#define GIC_HIGHEST_SEC_PRIORITY	0x0
-#define GIC_LOWEST_SEC_PRIORITY		0x7f
-#define GIC_HIGHEST_NS_PRIORITY		0x80
-#define GIC_LOWEST_NS_PRIORITY		0xfe /* 0xff would disable all interrupts */
+#define GIC_HIGHEST_SEC_PRIORITY	U(0x00)
+#define GIC_LOWEST_SEC_PRIORITY		U(0x7f)
+#define GIC_HIGHEST_NS_PRIORITY		U(0x80)
+#define GIC_LOWEST_NS_PRIORITY		U(0xfe) /* 0xff would disable all interrupts */
 
 /*******************************************************************************
  * GIC Distributor interface register offsets that are common to GICv3 & GICv2
