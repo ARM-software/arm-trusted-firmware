@@ -12,6 +12,7 @@
 #include <context.h>
 #include <context_mgmt.h>
 #include <interrupt_mgmt.h>
+#include <mpam.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <pubsub_events.h>
@@ -243,6 +244,10 @@ static void enable_extensions_nonsecure(int el2_unused)
 
 #if ENABLE_SVE_FOR_NS
 	sve_enable(el2_unused);
+#endif
+
+#if ENABLE_MPAM_FOR_LOWER_ELS
+	mpam_enable(el2_unused);
 #endif
 #endif
 }
