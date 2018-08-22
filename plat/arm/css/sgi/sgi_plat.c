@@ -6,6 +6,7 @@
 
 #include <arm_def.h>
 #include <arm_spm_def.h>
+#include <assert.h>
 #include <bl_common.h>
 #include <ccn.h>
 #include <debug.h>
@@ -63,6 +64,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #endif
 #if ENABLE_SPM
 	ARM_SP_IMAGE_MMAP,
+#endif
+#if TRUSTED_BOARD_BOOT && LOAD_IMAGE_V2 && !BL2_AT_EL3
+	ARM_MAP_BL1_RW,
 #endif
 	{0}
 };
@@ -143,3 +147,13 @@ const struct secure_partition_boot_info *plat_get_secure_partition_boot_info(
 	return &plat_arm_secure_partition_boot_info;
 }
 #endif /* ENABLE_SPM && defined(IMAGE_BL31) */
+
+#if TRUSTED_BOARD_BOOT && LOAD_IMAGE_V2
+int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
+{
+	assert(heap_addr != NULL);
+	assert(heap_size != NULL);
+
+	return arm_get_mbedtls_heap(heap_addr, heap_size);
+}
+#endif
