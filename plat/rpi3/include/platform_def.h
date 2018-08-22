@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -215,7 +215,8 @@
 /*
  * Other memory-related defines.
  */
-#define ADDR_SPACE_SIZE			(ULL(1) << 32)
+#define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 32)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 32)
 
 #define MAX_MMAP_REGIONS		8
 #define MAX_XLAT_TABLES			4
