@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -12,13 +12,7 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/pl011/${ARCH}/pl011_console.S		\
 
 BL1_SOURCES		+=	plat/arm/board/common/drivers/norflash/norflash.c
 
-BL2_SOURCES		+=	lib/utils/mem_region.c					\
-				plat/arm/common/arm_nor_psci_mem_protect.c		\
-				plat/arm/board/common/drivers/norflash/norflash.c
-
-BL31_SOURCES		+=	lib/utils/mem_region.c					\
-				plat/arm/board/common/drivers/norflash/norflash.c	\
-				plat/arm/common/arm_nor_psci_mem_protect.c
+BL2_SOURCES		+=	plat/arm/board/common/drivers/norflash/norflash.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
   ifneq (${ARM_CRYPTOCELL_INTEG}, 1)
