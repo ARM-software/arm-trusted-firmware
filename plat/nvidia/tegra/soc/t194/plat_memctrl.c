@@ -15,12 +15,15 @@
  * Array to hold stream_id override config register offsets
  ******************************************************************************/
 const static uint32_t tegra194_streamid_override_regs[] = {
+	MC_STREAMID_OVERRIDE_CFG_PTCR,
 	MC_STREAMID_OVERRIDE_CFG_HDAR,
 	MC_STREAMID_OVERRIDE_CFG_HOST1XDMAR,
 	MC_STREAMID_OVERRIDE_CFG_NVENCSRD,
 	MC_STREAMID_OVERRIDE_CFG_SATAR,
+	MC_STREAMID_OVERRIDE_CFG_MPCORER,
 	MC_STREAMID_OVERRIDE_CFG_NVENCSWR,
 	MC_STREAMID_OVERRIDE_CFG_HDAW,
+	MC_STREAMID_OVERRIDE_CFG_MPCOREW,
 	MC_STREAMID_OVERRIDE_CFG_SATAW,
 	MC_STREAMID_OVERRIDE_CFG_ISPRA,
 	MC_STREAMID_OVERRIDE_CFG_ISPFALR,
@@ -131,6 +134,9 @@ const static uint32_t tegra194_streamid_override_regs[] = {
 	MC_STREAMID_OVERRIDE_CFG_NVENC1SRD1,
 	MC_STREAMID_OVERRIDE_CFG_ISPRA1,
 	MC_STREAMID_OVERRIDE_CFG_PCIE0R1,
+	MC_STREAMID_OVERRIDE_CFG_NVDEC1SRD,
+	MC_STREAMID_OVERRIDE_CFG_NVDEC1SRD1,
+	MC_STREAMID_OVERRIDE_CFG_NVDEC1SWR,
 	MC_STREAMID_OVERRIDE_CFG_MIU0R,
 	MC_STREAMID_OVERRIDE_CFG_MIU0W,
 	MC_STREAMID_OVERRIDE_CFG_MIU1R,
@@ -142,19 +148,26 @@ const static uint32_t tegra194_streamid_override_regs[] = {
 	MC_STREAMID_OVERRIDE_CFG_MIU4R,
 	MC_STREAMID_OVERRIDE_CFG_MIU4W,
 	MC_STREAMID_OVERRIDE_CFG_MIU5R,
-	MC_STREAMID_OVERRIDE_CFG_MIU5W
+	MC_STREAMID_OVERRIDE_CFG_MIU5W,
+	MC_STREAMID_OVERRIDE_CFG_MIU6R,
+	MC_STREAMID_OVERRIDE_CFG_MIU6W,
+	MC_STREAMID_OVERRIDE_CFG_MIU7R,
+	MC_STREAMID_OVERRIDE_CFG_MIU7W
 };
 
 /*******************************************************************************
  * Array to hold the security configs for stream IDs
  ******************************************************************************/
 const static mc_streamid_security_cfg_t tegra194_streamid_sec_cfgs[] = {
+	mc_make_sec_cfg(PTCR, NON_SECURE, OVERRIDE, DISABLE),
 	mc_make_sec_cfg(HDAR, NON_SECURE, OVERRIDE, DISABLE),
 	mc_make_sec_cfg(HOST1XDMAR, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(NVENCSRD, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(SATAR, NON_SECURE, OVERRIDE, DISABLE),
+	mc_make_sec_cfg(MPCORER, NON_SECURE, OVERRIDE, DISABLE),
 	mc_make_sec_cfg(NVENCSWR, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(HDAW, NON_SECURE, OVERRIDE, DISABLE),
+	mc_make_sec_cfg(MPCOREW, NON_SECURE, OVERRIDE, DISABLE),
 	mc_make_sec_cfg(SATAW, NON_SECURE, OVERRIDE, DISABLE),
 	mc_make_sec_cfg(ISPRA, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(ISPFALR, NON_SECURE, NO_OVERRIDE, ENABLE),
@@ -265,6 +278,9 @@ const static mc_streamid_security_cfg_t tegra194_streamid_sec_cfgs[] = {
 	mc_make_sec_cfg(NVENC1SRD1, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(ISPRA1, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(PCIE0R1, NON_SECURE, OVERRIDE, DISABLE),
+	mc_make_sec_cfg(NVDEC1SRD, NON_SECURE, NO_OVERRIDE, DISABLE),
+	mc_make_sec_cfg(NVDEC1SRD1, NON_SECURE, NO_OVERRIDE, DISABLE),
+	mc_make_sec_cfg(NVDEC1SWR, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(MIU0R, NON_SECURE, OVERRIDE, DISABLE),
 	mc_make_sec_cfg(MIU0W, NON_SECURE, OVERRIDE, DISABLE),
 	mc_make_sec_cfg(MIU1R, NON_SECURE, OVERRIDE, DISABLE),
@@ -276,7 +292,11 @@ const static mc_streamid_security_cfg_t tegra194_streamid_sec_cfgs[] = {
 	mc_make_sec_cfg(MIU4R, NON_SECURE, OVERRIDE, DISABLE),
 	mc_make_sec_cfg(MIU4W, NON_SECURE, OVERRIDE, DISABLE),
 	mc_make_sec_cfg(MIU5R, NON_SECURE, OVERRIDE, DISABLE),
-	mc_make_sec_cfg(MIU5W, NON_SECURE, OVERRIDE, DISABLE)
+	mc_make_sec_cfg(MIU5W, NON_SECURE, OVERRIDE, DISABLE),
+	mc_make_sec_cfg(MIU6R, NON_SECURE, OVERRIDE, DISABLE),
+	mc_make_sec_cfg(MIU6W, NON_SECURE, OVERRIDE, DISABLE),
+	mc_make_sec_cfg(MIU7R, NON_SECURE, OVERRIDE, DISABLE),
+	mc_make_sec_cfg(MIU7W, NON_SECURE, OVERRIDE, DISABLE)
 };
 
 /*******************************************************************************
