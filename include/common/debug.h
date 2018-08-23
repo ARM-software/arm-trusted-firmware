@@ -27,7 +27,9 @@
 
 #ifndef __ASSEMBLY__
 #include <cdefs.h>
+#include <console.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 
 /*
@@ -90,7 +92,13 @@ void backtrace(const char *cookie);
 #endif
 
 void __dead2 do_panic(void);
-#define panic()	do_panic()
+
+#define panic()				\
+	do {				\
+		backtrace(__func__);	\
+		(void)console_flush();	\
+		do_panic();		\
+	} while (false)
 
 /* Function called when stack protection check code detects a corrupted stack */
 void __dead2 __stack_chk_fail(void);
