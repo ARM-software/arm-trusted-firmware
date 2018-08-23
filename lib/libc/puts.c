@@ -10,9 +10,10 @@ int puts(const char *s)
 {
 	int count = 0;
 
-	while (*s) {
-		if (putchar(*s++) == EOF)
+	while (*s != '\0') {
+		if (putchar(*s) == EOF)
 			return EOF;
+		s++;
 		count++;
 	}
 

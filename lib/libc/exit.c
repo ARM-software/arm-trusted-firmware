@@ -10,7 +10,7 @@ static void (*exitfun)(void);
 
 void exit(int status)
 {
-	if (exitfun)
+	if (exitfun != NULL)
 		(*exitfun)();
 	for (;;)
 		;
@@ -18,7 +18,7 @@ void exit(int status)
 
 int atexit(void (*fun)(void))
 {
-	if (exitfun)
+	if (exitfun != NULL)
 		return -1;
 	exitfun = fun;
 

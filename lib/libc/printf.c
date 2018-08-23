@@ -6,28 +6,27 @@
 #include <assert.h>
 #include <debug.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdint.h>
 
-/***********************************************************
- * The printf implementation for all BL stages
- ***********************************************************/
+#define get_num_va_args(_args, _lcount)				\
+	(((_lcount) > 1)  ? va_arg(_args, long long int) :	\
+	(((_lcount) == 1) ? va_arg(_args, long int) :		\
+			    va_arg(_args, int)))
 
-#define get_num_va_args(_args, _lcount) \
-	(((_lcount) > 1) ? va_arg(_args, long long int) :	\
-	((_lcount) ? va_arg(_args, long int) : va_arg(_args, int)))
-
-#define get_unum_va_args(_args, _lcount) \
-	(((_lcount) > 1) ? va_arg(_args, unsigned long long int) :	\
-	((_lcount) ? va_arg(_args, unsigned long int) : va_arg(_args, unsigned int)))
+#define get_unum_va_args(_args, _lcount)				\
+	(((_lcount) > 1)  ? va_arg(_args, unsigned long long int) :	\
+	(((_lcount) == 1) ? va_arg(_args, unsigned long int) :		\
+			    va_arg(_args, unsigned int)))
 
 static int string_print(const char *str)
 {
 	int count = 0;
 
-	assert(str);
+	assert(str != NULL);
 
-	while (*str) {
-		putchar(*str++);
+	for ( ; *str != '\0'; str++) {
+		(void)putchar(*str);
 		count++;
 	}
 
@@ -38,26 +37,30 @@ static int unsigned_num_print(unsigned long long int unum, unsigned int radix,
 			      char padc, int padn)
 {
 	/* Just need enough space to store 64 bit decimal integer */
-	unsigned char num_buf[20];
-	int i = 0, rem, count = 0;
+	char num_buf[20];
+	int i = 0, count = 0;
+	unsigned int rem;
 
 	do {
 		rem = unum % radix;
 		if (rem < 0xa)
-			num_buf[i++] = '0' + rem;
+			num_buf[i] = '0' + rem;
 		else
-			num_buf[i++] = 'a' + (rem - 0xa);
-	} while (unum /= radix);
+			num_buf[i] = 'a' + (rem - 0xa);
+		i++;
+		unum /= radix;
+	} while (unum > 0U);
 
 	if (padn > 0) {
-		while (i < padn--) {
-			putchar(padc);
+		while (i < padn) {
+			(void)putchar(padc);
 			count++;
+			padn--;
 		}
 	}
 
 	while (--i >= 0) {
-		putchar(num_buf[i]);
+		(void)putchar(num_buf[i]);
 		count++;
 	}
 
@@ -90,11 +93,11 @@ int vprintf(const char *fmt, va_list args)
 	long long int num;
 	unsigned long long int unum;
 	char *str;
-	char padc = 0; /* Padding character */
+	char padc = '\0'; /* Padding character */
 	int padn; /* Number of characters to pad */
 	int count = 0; /* Number of printed characters */
 
-	while (*fmt) {
+	while (*fmt != '\0') {
 		l_count = 0;
 		padn = 0;
 
@@ -107,7 +110,7 @@ loop:
 			case 'd':
 				num = get_num_va_args(args, l_count);
 				if (num < 0) {
-					putchar('-');
+					(void)putchar('-');
 					unum = (unsigned long long int)-num;
 					padn--;
 				} else
@@ -122,7 +125,7 @@ loop:
 				break;
 			case 'p':
 				unum = (uintptr_t)va_arg(args, void *);
-				if (unum) {
+				if (unum > 0U) {
 					count += string_print("0x");
 					padn -= 2;
 				}
@@ -136,7 +139,7 @@ loop:
 							    padc, padn);
 				break;
 			case 'z':
-				if (sizeof(size_t) == 8)
+				if (sizeof(size_t) == 8U)
 					l_count = 2;
 
 				fmt++;
@@ -155,9 +158,9 @@ loop:
 				padn = 0;
 				fmt++;
 
-				while (1) {
+				for (;;) {
 					char ch = *fmt;
-					if (ch < '0' || ch > '9') {
+					if ((ch < '0') || (ch > '9')) {
 						goto loop;
 					}
 					padn = (padn * 10) + (ch - '0');
@@ -170,7 +173,8 @@ loop:
 			fmt++;
 			continue;
 		}
-		putchar(*fmt++);
+		(void)putchar(*fmt);
+		fmt++;
 		count++;
 	}
 
