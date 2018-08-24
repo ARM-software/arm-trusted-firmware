@@ -19,8 +19,8 @@
  ******************************************************************************/
 
 /* Constants to indicate the status of the RWP bit */
-#define RWP_TRUE		1
-#define RWP_FALSE		0
+#define RWP_TRUE		U(1)
+#define RWP_FALSE		U(0)
 
 /*
  * Macro to convert an mpidr to a value suitable for programming into a
