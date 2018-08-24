@@ -5,14 +5,13 @@
  */
 
 #include <assert.h>
+#include <bl_common.h>
 #include <console.h>
 #include <mmio.h>
 #include <gicv2.h>
 #include "ls_16550.h"
 #include "plat_ls.h"
 #include "soc.h"
-
-#define BL31_END (uintptr_t)(&__BL31_END__)
 
 /*
  * Placeholder variables for copying the arguments that have been passed to
@@ -168,7 +167,7 @@ void ls_bl31_platform_setup(void)
 
 	/* Enable and initialize the System level generic timer */
 	mmio_write_32(LS1043_SYS_CNTCTL_BASE + CNTCR_OFF,
-			CNTCR_FCREQ(0) | CNTCR_EN);
+			CNTCR_FCREQ(0U) | CNTCR_EN);
 
 	VERBOSE("Leave arm_bl31_platform_setup\n");
 }

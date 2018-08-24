@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,6 @@
 #include <errno.h>
 #include <interrupt_mgmt.h>
 #include <platform.h>
-#include <stdio.h>
 
 /*******************************************************************************
  * Local structure and corresponding array to keep track of the state of the
@@ -47,8 +46,8 @@ static intr_type_desc_t intr_type_descs[MAX_INTR_TYPES];
  ******************************************************************************/
 static int32_t validate_interrupt_type(uint32_t type)
 {
-	if (type == INTR_TYPE_S_EL1 || type == INTR_TYPE_NS ||
-			type == INTR_TYPE_EL3)
+	if ((type == INTR_TYPE_S_EL1) || (type == INTR_TYPE_NS) ||
+	    (type == INTR_TYPE_EL3))
 		return 0;
 
 	return -EINVAL;
@@ -59,17 +58,16 @@ static int32_t validate_interrupt_type(uint32_t type)
  ******************************************************************************/
 static int32_t validate_routing_model(uint32_t type, uint32_t flags)
 {
-	flags >>= INTR_RM_FLAGS_SHIFT;
-	flags &= INTR_RM_FLAGS_MASK;
+	uint32_t rm_flags = (flags >> INTR_RM_FLAGS_SHIFT) & INTR_RM_FLAGS_MASK;
 
 	if (type == INTR_TYPE_S_EL1)
-		return validate_sel1_interrupt_rm(flags);
+		return validate_sel1_interrupt_rm(rm_flags);
 
 	if (type == INTR_TYPE_NS)
-		return validate_ns_interrupt_rm(flags);
+		return validate_ns_interrupt_rm(rm_flags);
 
 	if (type == INTR_TYPE_EL3)
-		return validate_el3_interrupt_rm(flags);
+		return validate_el3_interrupt_rm(rm_flags);
 
 	return -EINVAL;
 }
@@ -106,10 +104,12 @@ static void set_scr_el3_from_rm(uint32_t type,
 	bit_pos = plat_interrupt_type_to_line(type, security_state);
 	intr_type_descs[type].scr_el3[security_state] = flag << bit_pos;
 
-	/* Update scr_el3 only if there is a context available. If not, it
+	/*
+	 * Update scr_el3 only if there is a context available. If not, it
 	 * will be updated later during context initialization which will obtain
-	 * the scr_el3 value to be used via get_scr_el3_from_routing_model() */
-	if (cm_get_context(security_state))
+	 * the scr_el3 value to be used via get_scr_el3_from_routing_model()
+	 */
+	if (cm_get_context(security_state) != NULL)
 		cm_write_scr_el3_bit(security_state, bit_pos, flag);
 }
 
@@ -124,11 +124,11 @@ int32_t set_routing_model(uint32_t type, uint32_t flags)
 	int32_t rc;
 
 	rc = validate_interrupt_type(type);
-	if (rc)
+	if (rc != 0)
 		return rc;
 
 	rc = validate_routing_model(type, flags);
-	if (rc)
+	if (rc != 0)
 		return rc;
 
 	/* Update the routing model in internal data structures */
@@ -149,7 +149,7 @@ int disable_intr_rm_local(uint32_t type, uint32_t security_state)
 {
 	uint32_t bit_pos, flag;
 
-	assert(intr_type_descs[type].handler);
+	assert(intr_type_descs[type].handler != NULL);
 
 	flag = get_interrupt_rm_flag(INTR_DEFAULT_RM, security_state);
 
@@ -167,7 +167,7 @@ int enable_intr_rm_local(uint32_t type, uint32_t security_state)
 {
 	uint32_t bit_pos, flag;
 
-	assert(intr_type_descs[type].handler);
+	assert(intr_type_descs[type].handler != NULL);
 
 	flag = get_interrupt_rm_flag(intr_type_descs[type].flags,
 				security_state);
@@ -190,19 +190,19 @@ int32_t register_interrupt_type_handler(uint32_t type,
 	int32_t rc;
 
 	/* Validate the 'handler' parameter */
-	if (!handler)
+	if (handler == NULL)
 		return -EINVAL;
 
 	/* Validate the 'flags' parameter */
-	if (flags & INTR_TYPE_FLAGS_MASK)
+	if ((flags & INTR_TYPE_FLAGS_MASK) != 0U)
 		return -EINVAL;
 
 	/* Check if a handler has already been registered */
-	if (intr_type_descs[type].handler)
+	if (intr_type_descs[type].handler != NULL)
 		return -EALREADY;
 
 	rc = set_routing_model(type, flags);
-	if (rc)
+	if (rc != 0)
 		return rc;
 
 	/* Save the handler */
@@ -218,7 +218,7 @@ int32_t register_interrupt_type_handler(uint32_t type,
  ******************************************************************************/
 interrupt_type_handler_t get_interrupt_type_handler(uint32_t type)
 {
-	if (validate_interrupt_type(type))
+	if (validate_interrupt_type(type) != 0)
 		return NULL;
 
 	return intr_type_descs[type].handler;

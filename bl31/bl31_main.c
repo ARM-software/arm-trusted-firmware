@@ -103,9 +103,14 @@ void bl31_main(void)
 	/*
 	 * If SPD had registerd an init hook, invoke it.
 	 */
-	if (bl32_init) {
+	if (bl32_init != NULL) {
 		INFO("BL31: Initializing BL32\n");
-		(*bl32_init)();
+
+		int32_t rc = (*bl32_init)();
+
+		if (rc != 0) {
+			ERROR("BL31: BL32 initialization failed (rc = %d)", rc);
+		}
 	}
 	/*
 	 * We are ready to enter the next EL. Prepare entry into the image
@@ -167,7 +172,7 @@ void bl31_prepare_next_image_entry(void)
 
 	/* Program EL3 registers to enable entry into the next EL */
 	next_image_info = bl31_plat_get_next_image_ep_info(image_type);
-	assert(next_image_info);
+	assert(next_image_info != NULL);
 	assert(image_type == GET_SECURITY_STATE(next_image_info->h.attr));
 
 	INFO("BL31: Preparing for EL3 exit to %s world\n",

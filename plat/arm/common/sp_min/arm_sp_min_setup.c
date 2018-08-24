@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <bl_common.h>
 #include <console.h>
 #include <debug.h>
 #include <mmio.h>
@@ -12,8 +13,6 @@
 #include <platform.h>
 #include <platform_def.h>
 #include <platform_sp_min.h>
-
-#define BL32_END (uintptr_t)(&__BL32_END__)
 
 static entry_point_info_t bl33_image_ep_info;
 
@@ -181,7 +180,7 @@ void sp_min_platform_setup(void)
 
 	/* Enable and initialize the System level generic timer */
 	mmio_write_32(ARM_SYS_CNTCTL_BASE + CNTCR_OFF,
-			CNTCR_FCREQ(0) | CNTCR_EN);
+			CNTCR_FCREQ(0U) | CNTCR_EN);
 
 	/* Allow access to the System counter timer module */
 	arm_configure_sys_timer();

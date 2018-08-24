@@ -34,6 +34,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	fvp_interconnect_enable();
 
 	/* On FVP RevC, intialize SMMUv3 */
-	if (arm_config.flags & ARM_CONFIG_FVP_HAS_SMMUV3)
+	if ((arm_config.flags & ARM_CONFIG_FVP_HAS_SMMUV3) != 0U)
 		smmuv3_init(PLAT_FVP_SMMUV3_BASE);
 }
