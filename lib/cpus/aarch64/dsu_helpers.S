@@ -8,15 +8,19 @@
 #include <dsu_def.h>
 #include <errata_report.h>
 
-/*
- * DSU erratum 936184
- * Check the DSU variant, revision and configuration to determine if the
- * erratum applies. This erratum was fixed in r2p0.
+/* -----------------------------------------------------------------------
+ * DSU erratum 936184 check function
+ * Checks the DSU variant, revision and configuration to determine if
+ * the erratum applies. Erratum applies if ACP interface is present
+ * in the DSU and revision-variant < r2p0.
+ *
+ * The erratum was fixed in r2p0.
  *
  * This function is called from both assembly and C environment. So it
  * follows AAPCS.
  *
  * Clobbers: x0-x3
+ * -----------------------------------------------------------------------
  */
 	.globl	check_errata_dsu_936184
 	.globl	errata_dsu_936184_wa
@@ -25,7 +29,7 @@ func check_errata_dsu_936184
 	mov	x2, #ERRATA_NOT_APPLIES
 	mov	x3, #ERRATA_APPLIES
 
-	/* Erratum applies only if ACP interface is present in DSU */
+	/* Erratum applies only if DSU has the ACP interface */
 	mov	x0, x2
 	mrs	x1, CLUSTERCFR_EL1
 	ubfx	x1, x1, #CLUSTERCFR_ACP_SHIFT, #1
@@ -44,8 +48,14 @@ func check_errata_dsu_936184
 	ret
 endfunc check_errata_dsu_936184
 
+/* --------------------------------------------------
+ * Errata Workaround for DSU erratum #936184.
+ *
+ * Can clobber only: x0-x17
+ * --------------------------------------------------
+ */
 func errata_dsu_936184_wa
-	mov	x20, x30
+	mov	x17, x30
 	bl	check_errata_dsu_936184
 	cbz	x0, 1f
 
@@ -56,5 +66,5 @@ func errata_dsu_936184_wa
 	msr	CLUSTERACTLR_EL1, x0
 	isb
 1:
-	ret	x20
+	ret	x17
 endfunc errata_dsu_936184_wa
