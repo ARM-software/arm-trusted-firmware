@@ -110,7 +110,7 @@ void arm_bl2_dyn_cfg_init(void)
 		return;
 	}
 
-	err = arm_dyn_tb_fw_cfg_init((void *)tb_fw_cfg_dtb, &tb_fw_node);
+	err = arm_dyn_tb_fw_cfg_init(tb_fw_cfg_dtb, &tb_fw_node);
 	if (err < 0) {
 		ERROR("Invalid TB_FW_CONFIG passed from BL1\n");
 		panic();
@@ -125,7 +125,7 @@ void arm_bl2_dyn_cfg_init(void)
 			continue;
 		}
 
-		err = arm_dyn_get_config_load_info((void *)tb_fw_cfg_dtb, tb_fw_node,
+		err = arm_dyn_get_config_load_info(tb_fw_cfg_dtb, tb_fw_node,
 				config_ids[i], &image_base, &image_size);
 		if (err < 0) {
 			VERBOSE("Couldn't find config_id %d load info in TB_FW_CONFIG\n",
@@ -171,7 +171,7 @@ void arm_bl2_dyn_cfg_init(void)
 #if TRUSTED_BOARD_BOOT && defined(DYN_DISABLE_AUTH)
 	uint32_t disable_auth = 0;
 
-	err = arm_dyn_get_disable_auth((void *)tb_fw_cfg_dtb, tb_fw_node,
+	err = arm_dyn_get_disable_auth(tb_fw_cfg_dtb, tb_fw_node,
 					&disable_auth);
 	if (err < 0)
 		return;
