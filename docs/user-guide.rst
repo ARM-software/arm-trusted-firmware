@@ -371,6 +371,10 @@ Common build options
    partitioning in EL3, however. Platform initialisation code should configure
    and use partitions in EL3 as required. This option defaults to ``0``.
 
+-  ``ENABLE_PIE``: Boolean option to enable Position Independent Executable(PIE)
+   support within generic code in TF-A. This option is currently only supported
+   in BL31. Default is 0.
+
 -  ``ENABLE_PMF``: Boolean option to enable support for optional Performance
    Measurement Framework(PMF). Default is 0.
 
