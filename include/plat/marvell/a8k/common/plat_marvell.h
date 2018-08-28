@@ -67,8 +67,10 @@ uint32_t marvell_get_spsr_for_bl32_entry(void);
 uint32_t marvell_get_spsr_for_bl33_entry(void);
 
 /* BL31 utility functions */
-void marvell_bl31_early_platform_setup(bl31_params_t *from_bl2,
-				void *plat_params_from_bl2);
+void marvell_bl31_early_platform_setup(struct bl31_params *from_bl2,
+				       uintptr_t soc_fw_config,
+				       uintptr_t hw_config,
+				       void *plat_params_from_bl2);
 void marvell_bl31_platform_setup(void);
 void marvell_bl31_plat_runtime_setup(void);
 void marvell_bl31_plat_arch_setup(void);
