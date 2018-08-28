@@ -20,6 +20,14 @@
 /* CPU state ids - implementation defined */
 #define DENVER_CPU_STATE_POWER_DOWN	U(0x3)
 
+/* Speculative store buffering */
+#define DENVER_CPU_DIS_SSB_EL3		(U(1) << 11)
+#define DENVER_PN4_CPU_DIS_SSB_EL3	(U(1) << 18)
+
+/* Speculative memory disambiguation */
+#define DENVER_CPU_DIS_MD_EL3		(U(1) << 9)
+#define DENVER_PN4_CPU_DIS_MD_EL3	(U(1) << 17)
+
 /* Core power management states */
 #define DENVER_CPU_PMSTATE_C1		U(0x1)
 #define DENVER_CPU_PMSTATE_C6		U(0x6)

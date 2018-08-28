@@ -211,6 +211,15 @@ func check_errata_cve_2017_5715
 	ret
 endfunc check_errata_cve_2017_5715
 
+func check_errata_cve_2018_3639
+#if WORKAROUND_CVE_2018_3639
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2018_3639
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Denver.
 	 * -------------------------------------------------
@@ -234,6 +243,25 @@ func denver_reset_func
 	mrs	x2, vbar_el3
 	csel	x0, x1, x2, ne
 	msr	vbar_el3, x0
+#endif
+
+#if WORKAROUND_CVE_2018_3639
+	/*
+	 * Denver CPUs with DENVER_MIDR_PN3 or earlier, use different
+	 * bits in the ACTLR_EL3 register to disable speculative
+	 * store buffer and memory disambiguation.
+	 */
+	mrs	x0, midr_el1
+	mov_imm	x1, DENVER_MIDR_PN4
+	cmp	x0, x1
+	mrs	x0, actlr_el3
+	mov	x1, #(DENVER_CPU_DIS_MD_EL3 | DENVER_CPU_DIS_SSB_EL3)
+	mov	x2, #(DENVER_PN4_CPU_DIS_MD_EL3 | DENVER_PN4_CPU_DIS_SSB_EL3)
+	csel	x3, x1, x2, ne
+	orr	x0, x0, x3
+	msr	actlr_el3, x0
+	isb
+	dsb	sy
 #endif
 
 	/* ----------------------------------------------------
@@ -294,6 +322,7 @@ func denver_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata WORKAROUND_CVE_2017_5715, denver, cve_2017_5715
+	report_errata WORKAROUND_CVE_2018_3639, denver, cve_2018_3639
 
 	ldp	x8, x30, [sp], #16
 	ret
