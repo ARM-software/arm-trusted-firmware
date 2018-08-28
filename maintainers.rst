@@ -128,7 +128,9 @@ STM32MP1 platform port
 :M: Yann Gautier <yann.gautier@st.com>
 :G: `Yann-lms`_
 :F: docs/plat/stm32mp1.rst
+:F: drivers/st/
 :F: fdts/stm32\*
+:F: include/drivers/st/
 :F: include/dt-bindings/\*/stm32\*
 :F: plat/st/
 :F: tools/stm32image/
