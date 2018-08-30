@@ -471,8 +471,10 @@ Common build options
    .. __: `platform-interrupt-controller-API.rst`
    .. __: `interrupt-framework-design.rst`
 
--  ``HANDLE_EA_EL3_FIRST``: When defined External Aborts and SError Interrupts
-   will be always trapped in EL3 i.e. in BL31 at runtime.
+-  ``HANDLE_EA_EL3_FIRST``: When set to ``1``, External Aborts and SError
+   Interrupts will be always trapped in EL3 i.e. in BL31 at runtime. When set to
+   ``0`` (default), these exceptions will be trapped in the current exception
+   level (or in EL1 if the current exception level is EL0).
 
 -  ``HW_ASSISTED_COHERENCY``: On most Arm systems to-date, platform-specific
    software operations are required for CPUs to enter and exit coherency.
