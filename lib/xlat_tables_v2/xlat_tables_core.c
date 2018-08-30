@@ -1012,7 +1012,7 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx, uintptr_t base_va,
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
-void init_xlat_tables_ctx(xlat_ctx_t *ctx)
+void __init init_xlat_tables_ctx(xlat_ctx_t *ctx)
 {
 	assert(ctx != NULL);
 	assert(!ctx->initialized);
