@@ -16,8 +16,6 @@
 #include <platform.h>
 #include <ras.h>
 
-#define BL31_END (uintptr_t)(&__BL31_END__)
-
 /*
  * Placeholder variables for copying the arguments that have been passed to
  * BL31 from BL2.
@@ -152,7 +150,7 @@ void arm_bl31_early_platform_setup(bl31_params_t *from_bl2, uintptr_t soc_fw_con
 	 * Copy BL33 and BL32 (if present), entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
-	while (bl_params) {
+	while (bl_params != NULL) {
 		if (bl_params->image_id == BL32_IMAGE_ID)
 			bl32_image_ep_info = *bl_params->ep_info;
 
@@ -162,7 +160,7 @@ void arm_bl31_early_platform_setup(bl31_params_t *from_bl2, uintptr_t soc_fw_con
 		bl_params = bl_params->next_params_info;
 	}
 
-	if (bl33_image_ep_info.pc == 0)
+	if (bl33_image_ep_info.pc == 0U)
 		panic();
 
 # else /* LOAD_IMAGE_V2 */
@@ -175,8 +173,8 @@ void arm_bl31_early_platform_setup(bl31_params_t *from_bl2, uintptr_t soc_fw_con
 	assert(from_bl2->h.version >= VERSION_1);
 
 	/* Dynamic Config is not supported for LOAD_IMAGE_V1 */
-	assert(soc_fw_config == 0);
-	assert(hw_config == 0);
+	assert(soc_fw_config == 0U);
+	assert(hw_config == 0U);
 
 	/*
 	 * Copy BL32 (if populated by BL2) and BL33 entry point information.
@@ -236,7 +234,7 @@ void arm_bl31_platform_setup(void)
 
 	/* Enable and initialize the System level generic timer */
 	mmio_write_32(ARM_SYS_CNTCTL_BASE + CNTCR_OFF,
-			CNTCR_FCREQ(0) | CNTCR_EN);
+			CNTCR_FCREQ(0U) | CNTCR_EN);
 
 	/* Allow access to the System counter timer module */
 	arm_configure_sys_timer();

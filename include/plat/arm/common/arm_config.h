@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,19 +9,21 @@
 #include <stdint.h>
 #include <utils_def.h>
 
-enum arm_config_flags {
-	/* Whether Base memory map is in use */
-	ARM_CONFIG_BASE_MMAP		= BIT(1),
-	/* Whether TZC should be configured */
-	ARM_CONFIG_HAS_TZC		= BIT(2),
-	/* FVP model has shifted affinity */
-	ARM_CONFIG_FVP_SHIFTED_AFF	= BIT(3),
-	/* FVP model has SMMUv3 affinity */
-	ARM_CONFIG_FVP_HAS_SMMUV3	= BIT(4),
-	/* FVP model has CCI (400 or 500/550) devices */
-	ARM_CONFIG_FVP_HAS_CCI400	= BIT(5),
-	ARM_CONFIG_FVP_HAS_CCI5XX	= BIT(6),
-};
+/* Whether Base memory map is in use */
+#define ARM_CONFIG_BASE_MMAP		BIT(1)
+
+/* Whether TZC should be configured */
+#define ARM_CONFIG_HAS_TZC		BIT(2)
+
+/* FVP model has shifted affinity */
+#define ARM_CONFIG_FVP_SHIFTED_AFF	BIT(3)
+
+/* FVP model has SMMUv3 affinity */
+#define ARM_CONFIG_FVP_HAS_SMMUV3	BIT(4)
+
+/* FVP model has CCI (400 or 500/550) devices */
+#define ARM_CONFIG_FVP_HAS_CCI400	BIT(5)
+#define ARM_CONFIG_FVP_HAS_CCI5XX	BIT(6)
 
 typedef struct arm_config {
 	unsigned long flags;

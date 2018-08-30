@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,7 +17,6 @@
 
 #include "uniphier.h"
 
-#define BL31_END		(unsigned long)(&__BL31_END__)
 #define BL31_SIZE		((BL31_END) - (BL31_BASE))
 
 static entry_point_info_t bl32_image_ep_info;
@@ -70,7 +69,7 @@ void bl31_platform_setup(void)
 
 	/* Enable and initialize the System level generic timer */
 	mmio_write_32(UNIPHIER_SYS_CNTCTL_BASE + CNTCR_OFF,
-			CNTCR_FCREQ(0) | CNTCR_EN);
+			CNTCR_FCREQ(0U) | CNTCR_EN);
 }
 
 void bl31_plat_arch_setup(void)

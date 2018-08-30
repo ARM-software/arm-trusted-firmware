@@ -14,7 +14,7 @@
 #include <utils_def.h>
 
 /* Valid priorities set bit 0 of the priority handler. */
-#define EHF_PRI_VALID_	(((uintptr_t) 1) << 0)
+#define EHF_PRI_VALID_	BIT(0)
 
 /* Marker for no handler registered for a valid priority */
 #define EHF_NO_HANDLER_	(0U | EHF_PRI_VALID_)

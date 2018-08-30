@@ -8,6 +8,7 @@
 #define __INTERRUPT_MGMT_H__
 
 #include <arch.h>
+#include <utils_def.h>
 
 /*******************************************************************************
  * Constants for the types of interrupts recognised by the IM framework
@@ -66,34 +67,6 @@
 #define set_interrupt_rm_flag(flag, ss)	((flag) |= U(1) << (ss))
 #define clr_interrupt_rm_flag(flag, ss)	((flag) &= ~(U(1) << (ss)))
 
-
-/*******************************************************************************
- * Macros to validate the routing model bits in the 'flags' for a type
- * of interrupt. If the model does not match one of the valid masks
- * -EINVAL is returned.
- ******************************************************************************/
-#define validate_sel1_interrupt_rm(x)	((x) == INTR_SEL1_VALID_RM0 ? 0 : \
-					 ((x) == INTR_SEL1_VALID_RM1 ? 0 :\
-					  -EINVAL))
-
-#define validate_ns_interrupt_rm(x)	((x) == INTR_NS_VALID_RM0 ? 0 : \
-					 ((x) == INTR_NS_VALID_RM1 ? 0 :\
-					  -EINVAL))
-
-#if EL3_EXCEPTION_HANDLING
-/*
- * With EL3 exception handling, EL3 interrupts are always routed to EL3 from
- * both Secure and Non-secure, and therefore INTR_EL3_VALID_RM1 is the only
- * valid routing model.
- */
-#define validate_el3_interrupt_rm(x)	((x) == INTR_EL3_VALID_RM1 ? 0 : \
-					 -EINVAL)
-#else
-#define validate_el3_interrupt_rm(x)	((x) == INTR_EL3_VALID_RM0 ? 0 : \
-					 ((x) == INTR_EL3_VALID_RM1 ? 0 :\
-					  -EINVAL))
-#endif
-
 /*******************************************************************************
  * Macros to set the 'flags' parameter passed to an interrupt type handler. Only
  * the flag to indicate the security state when the exception was generated is
@@ -108,9 +81,51 @@
 
 #ifndef __ASSEMBLY__
 
+#include <errno.h>
 #include <stdint.h>
 
-/* Prototype for defining a handler for an interrupt type */
+/*******************************************************************************
+ * Helpers to validate the routing model bits in the 'flags' for a type
+ * of interrupt. If the model does not match one of the valid masks
+ * -EINVAL is returned.
+ ******************************************************************************/
+static inline int32_t validate_sel1_interrupt_rm(uint32_t x)
+{
+	if ((x == INTR_SEL1_VALID_RM0) || (x == INTR_SEL1_VALID_RM1))
+		return 0;
+
+	return -EINVAL;
+}
+
+static inline int32_t validate_ns_interrupt_rm(uint32_t x)
+{
+	if ((x == INTR_NS_VALID_RM0) || (x == INTR_NS_VALID_RM1))
+		return 0;
+
+	return -EINVAL;
+}
+
+static inline int32_t validate_el3_interrupt_rm(uint32_t x)
+{
+#if EL3_EXCEPTION_HANDLING
+	/*
+	 * With EL3 exception handling, EL3 interrupts are always routed to EL3
+	 * from both Secure and Non-secure, and therefore INTR_EL3_VALID_RM1 is
+	 * the only valid routing model.
+	 */
+	if (x == INTR_EL3_VALID_RM1)
+		return 0;
+#else
+	if ((x == INTR_EL3_VALID_RM0) || (x == INTR_EL3_VALID_RM1))
+		return 0;
+#endif
+
+	return -EINVAL;
+}
+
+/*******************************************************************************
+ * Prototype for defining a handler for an interrupt type
+ ******************************************************************************/
 typedef uint64_t (*interrupt_type_handler_t)(uint32_t id,
 					     uint32_t flags,
 					     void *handle,
