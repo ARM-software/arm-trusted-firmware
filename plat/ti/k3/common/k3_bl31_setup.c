@@ -14,6 +14,7 @@
 #include <platform_def.h>
 #include <k3_gicv3.h>
 #include <string.h>
+#include <ti_sci.h>
 
 /* Table of regions to map using the MMU */
 const mmap_region_t plat_arm_mmap[] = {
@@ -21,6 +22,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	MAP_REGION_FLAT(K3_USART_BASE_ADDRESS, K3_USART_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(K3_GICD_BASE, K3_GICD_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(K3_GICR_BASE, K3_GICR_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(SEC_PROXY_RT_BASE, SEC_PROXY_RT_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(SEC_PROXY_SCFG_BASE, SEC_PROXY_SCFG_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(SEC_PROXY_DATA_BASE, SEC_PROXY_DATA_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	{ /* sentinel */ }
 };
 
@@ -118,6 +122,8 @@ void bl31_platform_setup(void)
 {
 	k3_gic_driver_init(K3_GICD_BASE, K3_GICR_BASE);
 	k3_gic_init();
+
+	ti_sci_init();
 }
 
 void platform_mem_init(void)

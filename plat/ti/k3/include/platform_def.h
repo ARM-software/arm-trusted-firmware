@@ -106,7 +106,7 @@
  * runtime memory used, choose the smallest value needed to register the
  * required regions for each BL stage.
  */
-#define MAX_MMAP_REGIONS	8
+#define MAX_MMAP_REGIONS	11
 
 /*
  * Defines the total size of the address space in bytes. For example, for a 32
@@ -192,5 +192,18 @@
 #define K3_GICD_SIZE  0x10000
 #define K3_GICR_BASE  0x01880000
 #define K3_GICR_SIZE  0x100000
+
+#define SEC_PROXY_DATA_BASE	0x32C00000
+#define SEC_PROXY_DATA_SIZE	0x80000
+#define SEC_PROXY_SCFG_BASE	0x32800000
+#define SEC_PROXY_SCFG_SIZE	0x80000
+#define SEC_PROXY_RT_BASE	0x32400000
+#define SEC_PROXY_RT_SIZE	0x80000
+
+#define SEC_PROXY_TIMEOUT_US		1000000
+#define SEC_PROXY_MAX_MESSAGE_SIZE	56
+
+#define TI_SCI_HOST_ID			10
+#define TI_SCI_MAX_MESSAGE_SIZE		52
 
 #endif /* __PLATFORM_DEF_H__ */

@@ -36,6 +36,8 @@ PLAT_INCLUDES		+=	\
 				-I${PLAT_PATH}/include			\
 				-Iinclude/plat/arm/common/		\
 				-Iinclude/plat/arm/common/aarch64/	\
+				-I${PLAT_PATH}/common/drivers/sec_proxy	\
+				-I${PLAT_PATH}/common/drivers/ti_sci	\
 
 K3_CONSOLE_SOURCES	+=	\
 				drivers/console/aarch64/console.S	\
@@ -53,6 +55,12 @@ K3_PSCI_SOURCES		+=	\
 				plat/common/plat_psci_common.c		\
 				${PLAT_PATH}/common/k3_psci.c		\
 
+K3_SEC_PROXY_SOURCES	+=	\
+				${PLAT_PATH}/common/drivers/sec_proxy/sec_proxy.c \
+
+K3_TI_SCI_SOURCES	+=	\
+				${PLAT_PATH}/common/drivers/ti_sci/ti_sci.c \
+
 PLAT_BL_COMMON_SOURCES	+=	\
 				plat/arm/common/arm_common.c		\
 				lib/cpus/aarch64/cortex_a53.S		\
@@ -65,3 +73,5 @@ BL31_SOURCES		+=	\
 				${PLAT_PATH}/common/k3_topology.c	\
 				${K3_GIC_SOURCES}			\
 				${K3_PSCI_SOURCES}			\
+				${K3_SEC_PROXY_SOURCES}			\
+				${K3_TI_SCI_SOURCES}			\
