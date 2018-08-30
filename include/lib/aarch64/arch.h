@@ -753,7 +753,7 @@
 #define ERXCTLR_EL1		S3_0_C5_C4_1
 #define ERXSTATUS_EL1		S3_0_C5_C4_2
 #define ERXADDR_EL1		S3_0_C5_C4_3
-#define ERXMISC0_EL1		S3_0_C5_C4_4
-#define ERXMISC1_EL1		S3_0_C5_C4_5
+#define ERXMISC0_EL1		S3_0_C5_C5_0
+#define ERXMISC1_EL1		S3_0_C5_C5_1
 
 #endif /* ARCH_H */
