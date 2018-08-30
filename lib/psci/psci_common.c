@@ -267,7 +267,7 @@ static plat_local_state_t *psci_get_req_local_pwr_states(unsigned int pwrlvl,
 static plat_local_state_t get_non_cpu_pd_node_local_state(
 		unsigned int parent_idx)
 {
-#if !(USE_COHERENT_MEM || HW_ASSISTED_COHERENCY)
+#if !(USE_COHERENT_MEM || HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
 	flush_dcache_range(
 			(uintptr_t) &psci_non_cpu_pd_nodes[parent_idx],
 			sizeof(psci_non_cpu_pd_nodes[parent_idx]));
@@ -283,7 +283,7 @@ static void set_non_cpu_pd_node_local_state(unsigned int parent_idx,
 		plat_local_state_t state)
 {
 	psci_non_cpu_pd_nodes[parent_idx].local_state = state;
-#if !(USE_COHERENT_MEM || HW_ASSISTED_COHERENCY)
+#if !(USE_COHERENT_MEM || HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
 	flush_dcache_range(
 			(uintptr_t) &psci_non_cpu_pd_nodes[parent_idx],
 			sizeof(psci_non_cpu_pd_nodes[parent_idx]));
