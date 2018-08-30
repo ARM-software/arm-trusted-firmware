@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include <gicv2.h>
 #include <interrupt_mgmt.h>
 #include <platform.h>
+#include <stdbool.h>
 
 /*
  * The following platform GIC functions are weakly defined. They
@@ -101,7 +102,7 @@ uint32_t plat_ic_get_interrupt_type(uint32_t id)
 	type = gicv2_get_interrupt_group(id);
 
 	/* Assume that all secure interrupts are S-EL1 interrupts */
-	return type == GICV2_INTR_GROUP1 ? INTR_TYPE_NS :
+	return (type == GICV2_INTR_GROUP1) ? INTR_TYPE_NS :
 #if GICV2_G0_FOR_EL3
 		INTR_TYPE_EL3;
 #else
@@ -130,9 +131,8 @@ void plat_ic_end_of_interrupt(uint32_t id)
 uint32_t plat_interrupt_type_to_line(uint32_t type,
 				uint32_t security_state)
 {
-	assert(type == INTR_TYPE_S_EL1 ||
-		       type == INTR_TYPE_EL3 ||
-		       type == INTR_TYPE_NS);
+	assert((type == INTR_TYPE_S_EL1) || (type == INTR_TYPE_EL3) ||
+	       (type == INTR_TYPE_NS));
 
 	assert(sec_state_is_valid(security_state));
 
@@ -144,8 +144,8 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 	 * Secure interrupts are signaled using the IRQ line if the FIQ is
 	 * not enabled else they are signaled using the FIQ line.
 	 */
-	return ((gicv2_is_fiq_enabled()) ? __builtin_ctz(SCR_FIQ_BIT) :
-						__builtin_ctz(SCR_IRQ_BIT));
+	return ((gicv2_is_fiq_enabled() != 0U) ? __builtin_ctz(SCR_FIQ_BIT) :
+						 __builtin_ctz(SCR_IRQ_BIT));
 }
 
 unsigned int plat_ic_get_running_priority(void)
@@ -211,7 +211,7 @@ int plat_ic_has_interrupt_type(unsigned int type)
 
 void plat_ic_set_interrupt_type(unsigned int id, unsigned int type)
 {
-	int gicv2_type = 0;
+	unsigned int gicv2_type = 0U;
 
 	/* Map canonical interrupt type to GICv2 type */
 	switch (type) {
@@ -226,7 +226,7 @@ void plat_ic_set_interrupt_type(unsigned int id, unsigned int type)
 		gicv2_type = GICV2_INTR_GROUP1;
 		break;
 	default:
-		assert(0);
+		assert(false);
 		break;
 	}
 
@@ -247,7 +247,7 @@ void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target)
 
 	gicv2_raise_sgi(sgi_num, id);
 #else
-	assert(0);
+	assert(false);
 #endif
 }
 
@@ -266,7 +266,7 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 		proc_num = -1;
 		break;
 	default:
-		assert(0);
+		assert(false);
 		break;
 	}
 

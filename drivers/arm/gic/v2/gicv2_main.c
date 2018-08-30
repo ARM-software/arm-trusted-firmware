@@ -12,6 +12,8 @@
 #include <gicv2.h>
 #include <interrupt_props.h>
 #include <spinlock.h>
+#include <stdbool.h>
+
 #include "../common/gic_common_private.h"
 #include "gicv2_private.h"
 
@@ -32,8 +34,8 @@ void gicv2_cpuif_enable(void)
 {
 	unsigned int val;
 
-	assert(driver_data);
-	assert(driver_data->gicc_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicc_base != 0U);
 
 	/*
 	 * Enable the Group 0 interrupts, FIQEn and disable Group 0/1
@@ -55,8 +57,8 @@ void gicv2_cpuif_disable(void)
 {
 	unsigned int val;
 
-	assert(driver_data);
-	assert(driver_data->gicc_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicc_base != 0U);
 
 	/* Disable secure, non-secure interrupts and disable their bypass */
 	val = gicc_read_ctlr(driver_data->gicc_base);
@@ -74,8 +76,8 @@ void gicv2_pcpu_distif_init(void)
 {
 	unsigned int ctlr;
 
-	assert(driver_data);
-	assert(driver_data->gicd_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicd_base != 0U);
 
 #if !ERROR_DEPRECATED
 	if (driver_data->interrupt_props != NULL) {
@@ -101,7 +103,7 @@ void gicv2_pcpu_distif_init(void)
 
 	/* Enable G0 interrupts if not already */
 	ctlr = gicd_read_ctlr(driver_data->gicd_base);
-	if ((ctlr & CTLR_ENABLE_G0_BIT) == 0) {
+	if ((ctlr & CTLR_ENABLE_G0_BIT) == 0U) {
 		gicd_write_ctlr(driver_data->gicd_base,
 				ctlr | CTLR_ENABLE_G0_BIT);
 	}
@@ -116,8 +118,8 @@ void gicv2_distif_init(void)
 {
 	unsigned int ctlr;
 
-	assert(driver_data);
-	assert(driver_data->gicd_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicd_base != 0U);
 
 	/* Disable the distributor before going further */
 	ctlr = gicd_read_ctlr(driver_data->gicd_base);
@@ -162,9 +164,10 @@ void gicv2_distif_init(void)
 void gicv2_driver_init(const gicv2_driver_data_t *plat_driver_data)
 {
 	unsigned int gic_version;
-	assert(plat_driver_data);
-	assert(plat_driver_data->gicd_base);
-	assert(plat_driver_data->gicc_base);
+
+	assert(plat_driver_data != NULL);
+	assert(plat_driver_data->gicd_base != 0U);
+	assert(plat_driver_data->gicc_base != 0U);
 
 #if !ERROR_DEPRECATED
 	if (plat_driver_data->interrupt_props == NULL) {
@@ -212,7 +215,8 @@ void gicv2_driver_init(const gicv2_driver_data_t *plat_driver_data)
 	 * - interrupt priority drop.
 	 * - interrupt signal bypass.
 	 */
-	assert(gic_version == ARCH_REV_GICV2 || gic_version == ARCH_REV_GICV1);
+	assert((gic_version == ARCH_REV_GICV2) ||
+	       (gic_version == ARCH_REV_GICV1));
 
 	driver_data = plat_driver_data;
 
@@ -238,11 +242,11 @@ unsigned int gicv2_is_fiq_enabled(void)
 {
 	unsigned int gicc_ctlr;
 
-	assert(driver_data);
-	assert(driver_data->gicc_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicc_base != 0U);
 
 	gicc_ctlr = gicc_read_ctlr(driver_data->gicc_base);
-	return (gicc_ctlr >> FIQ_EN_SHIFT) & 0x1;
+	return (gicc_ctlr >> FIQ_EN_SHIFT) & 0x1U;
 }
 
 /*******************************************************************************
@@ -255,8 +259,8 @@ unsigned int gicv2_is_fiq_enabled(void)
  ******************************************************************************/
 unsigned int gicv2_get_pending_interrupt_type(void)
 {
-	assert(driver_data);
-	assert(driver_data->gicc_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicc_base != 0U);
 
 	return gicc_read_hppir(driver_data->gicc_base) & INT_ID_MASK;
 }
@@ -270,8 +274,8 @@ unsigned int gicv2_get_pending_interrupt_id(void)
 {
 	unsigned int id;
 
-	assert(driver_data);
-	assert(driver_data->gicc_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicc_base != 0U);
 
 	id = gicc_read_hppir(driver_data->gicc_base) & INT_ID_MASK;
 
@@ -292,8 +296,8 @@ unsigned int gicv2_get_pending_interrupt_id(void)
  ******************************************************************************/
 unsigned int gicv2_acknowledge_interrupt(void)
 {
-	assert(driver_data);
-	assert(driver_data->gicc_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicc_base != 0U);
 
 	return gicc_read_IAR(driver_data->gicc_base);
 }
@@ -304,8 +308,8 @@ unsigned int gicv2_acknowledge_interrupt(void)
  ******************************************************************************/
 void gicv2_end_of_interrupt(unsigned int id)
 {
-	assert(driver_data);
-	assert(driver_data->gicc_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicc_base != 0U);
 
 	gicc_write_EOIR(driver_data->gicc_base, id);
 }
@@ -318,8 +322,8 @@ void gicv2_end_of_interrupt(unsigned int id)
  ******************************************************************************/
 unsigned int gicv2_get_interrupt_group(unsigned int id)
 {
-	assert(driver_data);
-	assert(driver_data->gicd_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicd_base != 0U);
 
 	return gicd_get_igroupr(driver_data->gicd_base, id);
 }
@@ -330,8 +334,8 @@ unsigned int gicv2_get_interrupt_group(unsigned int id)
  ******************************************************************************/
 unsigned int gicv2_get_running_priority(void)
 {
-	assert(driver_data);
-	assert(driver_data->gicc_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicc_base != 0U);
 
 	return gicc_read_rpr(driver_data->gicc_base);
 }
@@ -344,21 +348,21 @@ unsigned int gicv2_get_running_priority(void)
  ******************************************************************************/
 void gicv2_set_pe_target_mask(unsigned int proc_num)
 {
-	assert(driver_data);
-	assert(driver_data->gicd_base);
-	assert(driver_data->target_masks);
-	assert(proc_num < GICV2_MAX_TARGET_PE);
-	assert(proc_num < driver_data->target_masks_num);
+	assert(driver_data != NULL);
+	assert(driver_data->gicd_base != 0U);
+	assert(driver_data->target_masks != NULL);
+	assert((unsigned int)proc_num < GICV2_MAX_TARGET_PE);
+	assert((unsigned int)proc_num < driver_data->target_masks_num);
 
 	/* Return if the target mask is already populated */
-	if (driver_data->target_masks[proc_num])
+	if (driver_data->target_masks[proc_num] != 0U)
 		return;
 
 	/*
 	 * Update target register corresponding to this CPU and flush for it to
 	 * be visible to other CPUs.
 	 */
-	if (driver_data->target_masks[proc_num] == 0) {
+	if (driver_data->target_masks[proc_num] == 0U) {
 		driver_data->target_masks[proc_num] =
 			gicv2_get_cpuif_id(driver_data->gicd_base);
 #if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
@@ -382,8 +386,8 @@ void gicv2_set_pe_target_mask(unsigned int proc_num)
  ******************************************************************************/
 unsigned int gicv2_get_interrupt_active(unsigned int id)
 {
-	assert(driver_data);
-	assert(driver_data->gicd_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicd_base != 0U);
 	assert(id <= MAX_SPI_ID);
 
 	return gicd_get_isactiver(driver_data->gicd_base, id);
@@ -394,8 +398,8 @@ unsigned int gicv2_get_interrupt_active(unsigned int id)
  ******************************************************************************/
 void gicv2_enable_interrupt(unsigned int id)
 {
-	assert(driver_data);
-	assert(driver_data->gicd_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicd_base != 0U);
 	assert(id <= MAX_SPI_ID);
 
 	/*
@@ -411,8 +415,8 @@ void gicv2_enable_interrupt(unsigned int id)
  ******************************************************************************/
 void gicv2_disable_interrupt(unsigned int id)
 {
-	assert(driver_data);
-	assert(driver_data->gicd_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicd_base != 0U);
 	assert(id <= MAX_SPI_ID);
 
 	/*
@@ -429,8 +433,8 @@ void gicv2_disable_interrupt(unsigned int id)
  ******************************************************************************/
 void gicv2_set_interrupt_priority(unsigned int id, unsigned int priority)
 {
-	assert(driver_data);
-	assert(driver_data->gicd_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicd_base != 0U);
 	assert(id <= MAX_SPI_ID);
 
 	gicd_set_ipriorityr(driver_data->gicd_base, id, priority);
@@ -442,8 +446,8 @@ void gicv2_set_interrupt_priority(unsigned int id, unsigned int priority)
  ******************************************************************************/
 void gicv2_set_interrupt_type(unsigned int id, unsigned int type)
 {
-	assert(driver_data);
-	assert(driver_data->gicd_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicd_base != 0U);
 	assert(id <= MAX_SPI_ID);
 
 	/* Serialize read-modify-write to Distributor registers */
@@ -456,7 +460,7 @@ void gicv2_set_interrupt_type(unsigned int id, unsigned int type)
 		gicd_clr_igroupr(driver_data->gicd_base, id);
 		break;
 	default:
-		assert(0);
+		assert(false);
 		break;
 	}
 	spin_unlock(&gic_lock);
@@ -472,20 +476,20 @@ void gicv2_raise_sgi(int sgi_num, int proc_num)
 {
 	unsigned int sgir_val, target;
 
-	assert(driver_data);
-	assert(proc_num < GICV2_MAX_TARGET_PE);
-	assert(driver_data->gicd_base);
+	assert(driver_data != NULL);
+	assert((unsigned int)proc_num < GICV2_MAX_TARGET_PE);
+	assert(driver_data->gicd_base != 0U);
 
 	/*
 	 * Target masks array must have been supplied, and the core position
 	 * should be valid.
 	 */
-	assert(driver_data->target_masks);
-	assert(proc_num < driver_data->target_masks_num);
+	assert(driver_data->target_masks != NULL);
+	assert((unsigned int)proc_num < driver_data->target_masks_num);
 
 	/* Don't raise SGI if the mask hasn't been populated */
 	target = driver_data->target_masks[proc_num];
-	assert(target != 0);
+	assert(target != 0U);
 
 	sgir_val = GICV2_SGIR_VALUE(SGIR_TGT_SPECIFIC, target, sgi_num);
 
@@ -505,20 +509,20 @@ void gicv2_raise_sgi(int sgi_num, int proc_num)
  ******************************************************************************/
 void gicv2_set_spi_routing(unsigned int id, int proc_num)
 {
-	int target;
+	unsigned int target;
 
-	assert(driver_data);
-	assert(driver_data->gicd_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicd_base != 0U);
 
-	assert(id >= MIN_SPI_ID && id <= MAX_SPI_ID);
+	assert((id >= MIN_SPI_ID) && (id <= MAX_SPI_ID));
 
 	/*
 	 * Target masks array must have been supplied, and the core position
 	 * should be valid.
 	 */
-	assert(driver_data->target_masks);
-	assert(proc_num < GICV2_MAX_TARGET_PE);
-	assert(proc_num < driver_data->target_masks_num);
+	assert(driver_data->target_masks != NULL);
+	assert((unsigned int)proc_num < GICV2_MAX_TARGET_PE);
+	assert((unsigned int)proc_num < driver_data->target_masks_num);
 
 	if (proc_num < 0) {
 		/* Target all PEs */
@@ -526,7 +530,7 @@ void gicv2_set_spi_routing(unsigned int id, int proc_num)
 	} else {
 		/* Don't route interrupt if the mask hasn't been populated */
 		target = driver_data->target_masks[proc_num];
-		assert(target != 0);
+		assert(target != 0U);
 	}
 
 	gicd_set_itargetsr(driver_data->gicd_base, id, target);
@@ -537,8 +541,8 @@ void gicv2_set_spi_routing(unsigned int id, int proc_num)
  ******************************************************************************/
 void gicv2_clear_interrupt_pending(unsigned int id)
 {
-	assert(driver_data);
-	assert(driver_data->gicd_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicd_base != 0U);
 
 	/* SGIs can't be cleared pending */
 	assert(id >= MIN_PPI_ID);
@@ -556,8 +560,8 @@ void gicv2_clear_interrupt_pending(unsigned int id)
  ******************************************************************************/
 void gicv2_set_interrupt_pending(unsigned int id)
 {
-	assert(driver_data);
-	assert(driver_data->gicd_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicd_base != 0U);
 
 	/* SGIs can't be cleared pending */
 	assert(id >= MIN_PPI_ID);
@@ -578,8 +582,8 @@ unsigned int gicv2_set_pmr(unsigned int mask)
 {
 	unsigned int old_mask;
 
-	assert(driver_data);
-	assert(driver_data->gicc_base);
+	assert(driver_data != NULL);
+	assert(driver_data->gicc_base != 0U);
 
 	old_mask = gicc_read_pmr(driver_data->gicc_base);
 

@@ -11,35 +11,35 @@
  * GICv3 miscellaneous definitions
  ******************************************************************************/
 /* Interrupt group definitions */
-#define INTR_GROUP1S		0
-#define INTR_GROUP0		1
-#define INTR_GROUP1NS		2
+#define INTR_GROUP1S		U(0)
+#define INTR_GROUP0		U(1)
+#define INTR_GROUP1NS		U(2)
 
 /* Interrupt IDs reported by the HPPIR and IAR registers */
-#define PENDING_G1S_INTID	1020
-#define PENDING_G1NS_INTID	1021
+#define PENDING_G1S_INTID	U(1020)
+#define PENDING_G1NS_INTID	U(1021)
 
 /* Constant to categorize LPI interrupt */
-#define MIN_LPI_ID		8192
+#define MIN_LPI_ID		U(8192)
 
 /* GICv3 can only target up to 16 PEs with SGI */
-#define GICV3_MAX_SGI_TARGETS	16
+#define GICV3_MAX_SGI_TARGETS	U(16)
 
 /*******************************************************************************
  * GICv3 specific Distributor interface register offsets and constants.
  ******************************************************************************/
-#define GICD_STATUSR		0x10
-#define GICD_SETSPI_NSR		0x40
-#define GICD_CLRSPI_NSR		0x48
-#define GICD_SETSPI_SR		0x50
-#define GICD_CLRSPI_SR		0x50
-#define GICD_IGRPMODR		0xd00
+#define GICD_STATUSR		U(0x10)
+#define GICD_SETSPI_NSR		U(0x40)
+#define GICD_CLRSPI_NSR		U(0x48)
+#define GICD_SETSPI_SR		U(0x50)
+#define GICD_CLRSPI_SR		U(0x50)
+#define GICD_IGRPMODR		U(0xd00)
 /*
  * GICD_IROUTER<n> register is at 0x6000 + 8n, where n is the interrupt id and
  * n >= 32, making the effective offset as 0x6100.
  */
-#define GICD_IROUTER		0x6000
-#define GICD_PIDR2_GICV3	0xffe8
+#define GICD_IROUTER		U(0x6000)
+#define GICD_PIDR2_GICV3	U(0xffe8)
 
 #define IGRPMODR_SHIFT		5
 
@@ -52,29 +52,29 @@
 #define CTLR_E1NWF_SHIFT		7
 #define GICD_CTLR_RWP_SHIFT		31
 
-#define CTLR_ENABLE_G1NS_MASK		0x1
-#define CTLR_ENABLE_G1S_MASK		0x1
-#define CTLR_ARE_S_MASK			0x1
-#define CTLR_ARE_NS_MASK		0x1
-#define CTLR_DS_MASK			0x1
-#define CTLR_E1NWF_MASK			0x1
-#define GICD_CTLR_RWP_MASK		0x1
+#define CTLR_ENABLE_G1NS_MASK		U(0x1)
+#define CTLR_ENABLE_G1S_MASK		U(0x1)
+#define CTLR_ARE_S_MASK			U(0x1)
+#define CTLR_ARE_NS_MASK		U(0x1)
+#define CTLR_DS_MASK			U(0x1)
+#define CTLR_E1NWF_MASK			U(0x1)
+#define GICD_CTLR_RWP_MASK		U(0x1)
 
-#define CTLR_ENABLE_G1NS_BIT		(1 << CTLR_ENABLE_G1NS_SHIFT)
-#define CTLR_ENABLE_G1S_BIT		(1 << CTLR_ENABLE_G1S_SHIFT)
-#define CTLR_ARE_S_BIT			(1 << CTLR_ARE_S_SHIFT)
-#define CTLR_ARE_NS_BIT			(1 << CTLR_ARE_NS_SHIFT)
-#define CTLR_DS_BIT			(1 << CTLR_DS_SHIFT)
-#define CTLR_E1NWF_BIT			(1 << CTLR_E1NWF_SHIFT)
-#define GICD_CTLR_RWP_BIT		(1 << GICD_CTLR_RWP_SHIFT)
+#define CTLR_ENABLE_G1NS_BIT		BIT_32(CTLR_ENABLE_G1NS_SHIFT)
+#define CTLR_ENABLE_G1S_BIT		BIT_32(CTLR_ENABLE_G1S_SHIFT)
+#define CTLR_ARE_S_BIT			BIT_32(CTLR_ARE_S_SHIFT)
+#define CTLR_ARE_NS_BIT			BIT_32(CTLR_ARE_NS_SHIFT)
+#define CTLR_DS_BIT			BIT_32(CTLR_DS_SHIFT)
+#define CTLR_E1NWF_BIT			BIT_32(CTLR_E1NWF_SHIFT)
+#define GICD_CTLR_RWP_BIT		BIT_32(GICD_CTLR_RWP_SHIFT)
 
 /* GICD_IROUTER shifts and masks */
 #define IROUTER_SHIFT		0
 #define IROUTER_IRM_SHIFT	31
-#define IROUTER_IRM_MASK	0x1
+#define IROUTER_IRM_MASK	U(0x1)
 
-#define GICV3_IRM_PE		0
-#define GICV3_IRM_ANY		1
+#define GICV3_IRM_PE		U(0)
+#define GICV3_IRM_ANY		U(1)
 
 #define NUM_OF_DIST_REGS	30
 
@@ -82,54 +82,54 @@
  * GICv3 Re-distributor interface registers & constants
  ******************************************************************************/
 #define GICR_PCPUBASE_SHIFT	0x11
-#define GICR_SGIBASE_OFFSET	(1 << 0x10)	/* 64 KB */
-#define GICR_CTLR		0x0
-#define GICR_TYPER		0x08
-#define GICR_WAKER		0x14
-#define GICR_PROPBASER		0x70
-#define GICR_PENDBASER		0x78
-#define GICR_IGROUPR0		(GICR_SGIBASE_OFFSET + 0x80)
-#define GICR_ISENABLER0		(GICR_SGIBASE_OFFSET + 0x100)
-#define GICR_ICENABLER0		(GICR_SGIBASE_OFFSET + 0x180)
-#define GICR_ISPENDR0		(GICR_SGIBASE_OFFSET + 0x200)
-#define GICR_ICPENDR0		(GICR_SGIBASE_OFFSET + 0x280)
-#define GICR_ISACTIVER0		(GICR_SGIBASE_OFFSET + 0x300)
-#define GICR_ICACTIVER0		(GICR_SGIBASE_OFFSET + 0x380)
-#define GICR_IPRIORITYR		(GICR_SGIBASE_OFFSET + 0x400)
-#define GICR_ICFGR0		(GICR_SGIBASE_OFFSET + 0xc00)
-#define GICR_ICFGR1		(GICR_SGIBASE_OFFSET + 0xc04)
-#define GICR_IGRPMODR0		(GICR_SGIBASE_OFFSET + 0xd00)
-#define GICR_NSACR		(GICR_SGIBASE_OFFSET + 0xe00)
+#define GICR_SGIBASE_OFFSET	U(65536)	/* 64 KB */
+#define GICR_CTLR		U(0x0)
+#define GICR_TYPER		U(0x08)
+#define GICR_WAKER		U(0x14)
+#define GICR_PROPBASER		U(0x70)
+#define GICR_PENDBASER		U(0x78)
+#define GICR_IGROUPR0		(GICR_SGIBASE_OFFSET + U(0x80))
+#define GICR_ISENABLER0		(GICR_SGIBASE_OFFSET + U(0x100))
+#define GICR_ICENABLER0		(GICR_SGIBASE_OFFSET + U(0x180))
+#define GICR_ISPENDR0		(GICR_SGIBASE_OFFSET + U(0x200))
+#define GICR_ICPENDR0		(GICR_SGIBASE_OFFSET + U(0x280))
+#define GICR_ISACTIVER0		(GICR_SGIBASE_OFFSET + U(0x300))
+#define GICR_ICACTIVER0		(GICR_SGIBASE_OFFSET + U(0x380))
+#define GICR_IPRIORITYR		(GICR_SGIBASE_OFFSET + U(0x400))
+#define GICR_ICFGR0		(GICR_SGIBASE_OFFSET + U(0xc00))
+#define GICR_ICFGR1		(GICR_SGIBASE_OFFSET + U(0xc04))
+#define GICR_IGRPMODR0		(GICR_SGIBASE_OFFSET + U(0xd00))
+#define GICR_NSACR		(GICR_SGIBASE_OFFSET + U(0xe00))
 
 /* GICR_CTLR bit definitions */
 #define GICR_CTLR_UWP_SHIFT	31
-#define GICR_CTLR_UWP_MASK	0x1
-#define GICR_CTLR_UWP_BIT	(1U << GICR_CTLR_UWP_SHIFT)
+#define GICR_CTLR_UWP_MASK	U(0x1)
+#define GICR_CTLR_UWP_BIT	BIT_32(GICR_CTLR_UWP_SHIFT)
 #define GICR_CTLR_RWP_SHIFT	3
-#define GICR_CTLR_RWP_MASK	0x1
-#define GICR_CTLR_RWP_BIT	(1U << GICR_CTLR_RWP_SHIFT)
-#define GICR_CTLR_EN_LPIS_BIT	(1U << 0)
+#define GICR_CTLR_RWP_MASK	U(0x1)
+#define GICR_CTLR_RWP_BIT	BIT_32(GICR_CTLR_RWP_SHIFT)
+#define GICR_CTLR_EN_LPIS_BIT	BIT_32(0)
 
 /* GICR_WAKER bit definitions */
 #define WAKER_CA_SHIFT		2
 #define WAKER_PS_SHIFT		1
 
-#define WAKER_CA_MASK		0x1
-#define WAKER_PS_MASK		0x1
+#define WAKER_CA_MASK		U(0x1)
+#define WAKER_PS_MASK		U(0x1)
 
-#define WAKER_CA_BIT		(1 << WAKER_CA_SHIFT)
-#define WAKER_PS_BIT		(1 << WAKER_PS_SHIFT)
+#define WAKER_CA_BIT		BIT_32(WAKER_CA_SHIFT)
+#define WAKER_PS_BIT		BIT_32(WAKER_PS_SHIFT)
 
 /* GICR_TYPER bit definitions */
 #define TYPER_AFF_VAL_SHIFT	32
 #define TYPER_PROC_NUM_SHIFT	8
 #define TYPER_LAST_SHIFT	4
 
-#define TYPER_AFF_VAL_MASK	0xffffffff
-#define TYPER_PROC_NUM_MASK	0xffff
-#define TYPER_LAST_MASK		0x1
+#define TYPER_AFF_VAL_MASK	U(0xffffffff)
+#define TYPER_PROC_NUM_MASK	U(0xffff)
+#define TYPER_LAST_MASK		U(0x1)
 
-#define TYPER_LAST_BIT		(1 << TYPER_LAST_SHIFT)
+#define TYPER_LAST_BIT		BIT_32(TYPER_LAST_SHIFT)
 
 #define NUM_OF_REDIST_REGS	30
 
@@ -137,102 +137,120 @@
  * GICv3 CPU interface registers & constants
  ******************************************************************************/
 /* ICC_SRE bit definitions*/
-#define ICC_SRE_EN_BIT		(1 << 3)
-#define ICC_SRE_DIB_BIT		(1 << 2)
-#define ICC_SRE_DFB_BIT		(1 << 1)
-#define ICC_SRE_SRE_BIT		(1 << 0)
+#define ICC_SRE_EN_BIT		BIT_32(3)
+#define ICC_SRE_DIB_BIT		BIT_32(2)
+#define ICC_SRE_DFB_BIT		BIT_32(1)
+#define ICC_SRE_SRE_BIT		BIT_32(0)
 
 /* ICC_IGRPEN1_EL3 bit definitions */
 #define IGRPEN1_EL3_ENABLE_G1NS_SHIFT	0
 #define IGRPEN1_EL3_ENABLE_G1S_SHIFT	1
 
-#define IGRPEN1_EL3_ENABLE_G1NS_BIT	(1 << IGRPEN1_EL3_ENABLE_G1NS_SHIFT)
-#define IGRPEN1_EL3_ENABLE_G1S_BIT	(1 << IGRPEN1_EL3_ENABLE_G1S_SHIFT)
+#define IGRPEN1_EL3_ENABLE_G1NS_BIT	BIT_32(IGRPEN1_EL3_ENABLE_G1NS_SHIFT)
+#define IGRPEN1_EL3_ENABLE_G1S_BIT	BIT_32(IGRPEN1_EL3_ENABLE_G1S_SHIFT)
 
 /* ICC_IGRPEN0_EL1 bit definitions */
 #define IGRPEN1_EL1_ENABLE_G0_SHIFT	0
-#define IGRPEN1_EL1_ENABLE_G0_BIT	(1 << IGRPEN1_EL1_ENABLE_G0_SHIFT)
+#define IGRPEN1_EL1_ENABLE_G0_BIT	BIT_32(IGRPEN1_EL1_ENABLE_G0_SHIFT)
 
 /* ICC_HPPIR0_EL1 bit definitions */
 #define HPPIR0_EL1_INTID_SHIFT		0
-#define HPPIR0_EL1_INTID_MASK		0xffffff
+#define HPPIR0_EL1_INTID_MASK		U(0xffffff)
 
 /* ICC_HPPIR1_EL1 bit definitions */
 #define HPPIR1_EL1_INTID_SHIFT		0
-#define HPPIR1_EL1_INTID_MASK		0xffffff
+#define HPPIR1_EL1_INTID_MASK		U(0xffffff)
 
 /* ICC_IAR0_EL1 bit definitions */
 #define IAR0_EL1_INTID_SHIFT		0
-#define IAR0_EL1_INTID_MASK		0xffffff
+#define IAR0_EL1_INTID_MASK		U(0xffffff)
 
 /* ICC_IAR1_EL1 bit definitions */
 #define IAR1_EL1_INTID_SHIFT		0
-#define IAR1_EL1_INTID_MASK		0xffffff
+#define IAR1_EL1_INTID_MASK		U(0xffffff)
 
 /* ICC SGI macros */
-#define SGIR_TGT_MASK			0xffff
+#define SGIR_TGT_MASK			ULL(0xffff)
 #define SGIR_AFF1_SHIFT			16
 #define SGIR_INTID_SHIFT		24
-#define SGIR_INTID_MASK			0xf
+#define SGIR_INTID_MASK			ULL(0xf)
 #define SGIR_AFF2_SHIFT			32
 #define SGIR_IRM_SHIFT			40
-#define SGIR_IRM_MASK			0x1
+#define SGIR_IRM_MASK			ULL(0x1)
 #define SGIR_AFF3_SHIFT			48
-#define SGIR_AFF_MASK			0xf
+#define SGIR_AFF_MASK			ULL(0xf)
 
-#define SGIR_IRM_TO_AFF			0
+#define SGIR_IRM_TO_AFF			U(0)
 
-#define GICV3_SGIR_VALUE(aff3, aff2, aff1, intid, irm, tgt) \
-	((((uint64_t) (aff3) & SGIR_AFF_MASK) << SGIR_AFF3_SHIFT) | \
-	 (((uint64_t) (irm) & SGIR_IRM_MASK) << SGIR_IRM_SHIFT) | \
-	 (((uint64_t) (aff2) & SGIR_AFF_MASK) << SGIR_AFF2_SHIFT) | \
-	 (((intid) & SGIR_INTID_MASK) << SGIR_INTID_SHIFT) | \
-	 (((aff1) & SGIR_AFF_MASK) << SGIR_AFF1_SHIFT) | \
-	 ((tgt) & SGIR_TGT_MASK))
+#define GICV3_SGIR_VALUE(_aff3, _aff2, _aff1, _intid, _irm, _tgt)	\
+	((((uint64_t) (_aff3) & SGIR_AFF_MASK) << SGIR_AFF3_SHIFT) |	\
+	 (((uint64_t) (_irm) & SGIR_IRM_MASK) << SGIR_IRM_SHIFT) |	\
+	 (((uint64_t) (_aff2) & SGIR_AFF_MASK) << SGIR_AFF2_SHIFT) |	\
+	 (((_intid) & SGIR_INTID_MASK) << SGIR_INTID_SHIFT) |		\
+	 (((_aff1) & SGIR_AFF_MASK) << SGIR_AFF1_SHIFT) |		\
+	 ((_tgt) & SGIR_TGT_MASK))
 
 /*****************************************************************************
  * GICv3 ITS registers and constants
  *****************************************************************************/
 
-#define GITS_CTLR			0x0
-#define GITS_IIDR			0x4
-#define GITS_TYPER			0x8
-#define GITS_CBASER			0x80
-#define GITS_CWRITER			0x88
-#define GITS_CREADR			0x90
-#define GITS_BASER			0x100
+#define GITS_CTLR			U(0x0)
+#define GITS_IIDR			U(0x4)
+#define GITS_TYPER			U(0x8)
+#define GITS_CBASER			U(0x80)
+#define GITS_CWRITER			U(0x88)
+#define GITS_CREADR			U(0x90)
+#define GITS_BASER			U(0x100)
 
 /* GITS_CTLR bit definitions */
-#define GITS_CTLR_ENABLED_BIT		1
+#define GITS_CTLR_ENABLED_BIT		BIT_32(0)
 #define GITS_CTLR_QUIESCENT_SHIFT	31
-#define GITS_CTLR_QUIESCENT_BIT		(1U << GITS_CTLR_QUIESCENT_SHIFT)
+#define GITS_CTLR_QUIESCENT_BIT		BIT_32(GITS_CTLR_QUIESCENT_SHIFT)
 
 #ifndef __ASSEMBLY__
 
+#include <arch_helpers.h>
 #include <gic_common.h>
 #include <interrupt_props.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <utils_def.h>
 
-#define gicv3_is_intr_id_special_identifier(id)	\
-	(((id) >= PENDING_G1S_INTID) && ((id) <= GIC_SPURIOUS_INTERRUPT))
+static inline bool gicv3_is_intr_id_special_identifier(unsigned int id)
+{
+	return (id >= PENDING_G1S_INTID) && (id <= GIC_SPURIOUS_INTERRUPT);
+}
 
 /*******************************************************************************
  * Helper GICv3 macros for SEL1
  ******************************************************************************/
-#define gicv3_acknowledge_interrupt_sel1()	read_icc_iar1_el1() &\
-							IAR1_EL1_INTID_MASK
-#define gicv3_get_pending_interrupt_id_sel1()	read_icc_hppir1_el1() &\
-							HPPIR1_EL1_INTID_MASK
-#define gicv3_end_of_interrupt_sel1(id)		write_icc_eoir1_el1(id)
+static inline uint32_t gicv3_acknowledge_interrupt_sel1(void)
+{
+	return (uint32_t)read_icc_iar1_el1() & IAR1_EL1_INTID_MASK;
+}
 
+static inline uint32_t gicv3_get_pending_interrupt_id_sel1(void)
+{
+	return (uint32_t)read_icc_hppir1_el1() & HPPIR1_EL1_INTID_MASK;
+}
+
+static inline void gicv3_end_of_interrupt_sel1(unsigned int id)
+{
+	write_icc_eoir1_el1(id);
+}
 
 /*******************************************************************************
  * Helper GICv3 macros for EL3
  ******************************************************************************/
-#define gicv3_acknowledge_interrupt()		read_icc_iar0_el1() &\
-							IAR0_EL1_INTID_MASK
-#define gicv3_end_of_interrupt(id)		write_icc_eoir0_el1(id)
+static inline uint32_t gicv3_acknowledge_interrupt(void)
+{
+	return (uint32_t)read_icc_iar0_el1() & IAR0_EL1_INTID_MASK;
+}
+
+static inline void gicv3_end_of_interrupt(unsigned int id)
+{
+	return write_icc_eoir0_el1(id);
+}
 
 /*
  * This macro returns the total number of GICD registers corresponding to
@@ -245,7 +263,7 @@
 	DIV_ROUND_UP_2EVAL(TOTAL_PCPU_INTR_NUM, (1 << reg_name ## _SHIFT))
 
 /* Interrupt ID mask for HPPIR, AHPPIR, IAR and AIAR CPU Interface registers */
-#define INT_ID_MASK	0xffffff
+#define INT_ID_MASK	U(0xffffff)
 
 /*******************************************************************************
  * This structure describes some of the implementation defined attributes of the
@@ -402,7 +420,7 @@ void gicv3_set_interrupt_priority(unsigned int id, unsigned int proc_num,
 		unsigned int priority);
 void gicv3_set_interrupt_type(unsigned int id, unsigned int proc_num,
 		unsigned int type);
-void gicv3_raise_secure_g0_sgi(int sgi_num, u_register_t target);
+void gicv3_raise_secure_g0_sgi(unsigned int sgi_num, u_register_t target);
 void gicv3_set_spi_routing(unsigned int id, unsigned int irm,
 		u_register_t mpidr);
 void gicv3_set_interrupt_pending(unsigned int id, unsigned int proc_num);

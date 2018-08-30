@@ -50,7 +50,9 @@ static inline unsigned int gicd_get_itargetsr(uintptr_t base, unsigned int id)
 static inline void gicd_set_itargetsr(uintptr_t base, unsigned int id,
 		unsigned int target)
 {
-	mmio_write_8(base + GICD_ITARGETSR + id, target & GIC_TARGET_CPU_MASK);
+	uint8_t val = target & GIC_TARGET_CPU_MASK;
+
+	mmio_write_8(base + GICD_ITARGETSR + id, val);
 }
 
 static inline void gicd_write_sgir(uintptr_t base, unsigned int val)

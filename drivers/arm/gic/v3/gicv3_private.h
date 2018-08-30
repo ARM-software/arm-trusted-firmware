@@ -19,28 +19,36 @@
  ******************************************************************************/
 
 /* Constants to indicate the status of the RWP bit */
-#define RWP_TRUE		1
-#define RWP_FALSE		0
+#define RWP_TRUE		U(1)
+#define RWP_FALSE		U(0)
 
 /*
  * Macro to convert an mpidr to a value suitable for programming into a
  * GICD_IROUTER. Bits[31:24] in the MPIDR are cleared as they are not relevant
  * to GICv3.
  */
-#define gicd_irouter_val_from_mpidr(_mpidr, _irm)		\
-	((_mpidr & ~(0xff << 24)) |			\
-	 (_irm & IROUTER_IRM_MASK) << IROUTER_IRM_SHIFT)
+static inline u_register_t gicd_irouter_val_from_mpidr(u_register_t mpidr,
+						       unsigned int irm)
+{
+	return (mpidr & ~(U(0xff) << 24)) |
+		((irm & IROUTER_IRM_MASK) << IROUTER_IRM_SHIFT);
+}
 
 /*
  * Macro to convert a GICR_TYPER affinity value into a MPIDR value. Bits[31:24]
  * are zeroes.
  */
 #ifdef AARCH32
-#define mpidr_from_gicr_typer(_typer_val)	(((_typer_val) >> 32) & 0xffffff)
+static inline u_register_t mpidr_from_gicr_typer(uint64_t typer_val)
+{
+	return (((typer_val) >> 32) & U(0xffffff));
+}
 #else
-#define mpidr_from_gicr_typer(_typer_val)				 \
-	(((((_typer_val) >> 56) & MPIDR_AFFLVL_MASK) << MPIDR_AFF3_SHIFT) | \
-	 (((_typer_val) >> 32) & 0xffffff))
+static inline u_register_t mpidr_from_gicr_typer(uint64_t typer_val)
+{
+	return (((typer_val >> 56) & MPIDR_AFFLVL_MASK) << MPIDR_AFF3_SHIFT) |
+		((typer_val >> 32) & U(0xffffff));
+}
 #endif
 
 /*******************************************************************************
@@ -121,7 +129,7 @@ void gicv3_rdistif_mark_core_asleep(uintptr_t gicr_base);
  */
 static inline void gicd_wait_for_pending_write(uintptr_t gicd_base)
 {
-	while (gicd_read_ctlr(gicd_base) & GICD_CTLR_RWP_BIT)
+	while ((gicd_read_ctlr(gicd_base) & GICD_CTLR_RWP_BIT) != 0U)
 		;
 }
 
@@ -149,7 +157,7 @@ static inline void gicd_clr_ctlr(uintptr_t base,
 				 unsigned int rwp)
 {
 	gicd_write_ctlr(base, gicd_read_ctlr(base) & ~bitmap);
-	if (rwp)
+	if (rwp != 0U)
 		gicd_wait_for_pending_write(base);
 }
 
@@ -158,21 +166,21 @@ static inline void gicd_set_ctlr(uintptr_t base,
 				 unsigned int rwp)
 {
 	gicd_write_ctlr(base, gicd_read_ctlr(base) | bitmap);
-	if (rwp)
+	if (rwp != 0U)
 		gicd_wait_for_pending_write(base);
 }
 
 /*******************************************************************************
  * GIC Redistributor interface accessors
  ******************************************************************************/
-static inline unsigned long long gicr_read_ctlr(uintptr_t base)
+static inline uint32_t gicr_read_ctlr(uintptr_t base)
 {
-	return mmio_read_64(base + GICR_CTLR);
+	return mmio_read_32(base + GICR_CTLR);
 }
 
-static inline void gicr_write_ctlr(uintptr_t base, uint64_t val)
+static inline void gicr_write_ctlr(uintptr_t base, uint32_t val)
 {
-	mmio_write_64(base + GICR_CTLR, val);
+	mmio_write_32(base + GICR_CTLR, val);
 }
 
 static inline unsigned long long gicr_read_typer(uintptr_t base)
@@ -199,13 +207,13 @@ static inline void gicr_write_waker(uintptr_t base, unsigned int val)
  */
 static inline void gicr_wait_for_pending_write(uintptr_t gicr_base)
 {
-	while (gicr_read_ctlr(gicr_base) & GICR_CTLR_RWP_BIT)
+	while ((gicr_read_ctlr(gicr_base) & GICR_CTLR_RWP_BIT) != 0U)
 		;
 }
 
 static inline void gicr_wait_for_upstream_pending_write(uintptr_t gicr_base)
 {
-	while (gicr_read_ctlr(gicr_base) & GICR_CTLR_UWP_BIT)
+	while ((gicr_read_ctlr(gicr_base) & GICR_CTLR_UWP_BIT) != 0U)
 		;
 }
 
@@ -313,24 +321,24 @@ static inline void gicr_write_icfgr1(uintptr_t base, unsigned int val)
 	mmio_write_32(base + GICR_ICFGR1, val);
 }
 
-static inline unsigned int gicr_read_propbaser(uintptr_t base)
+static inline uint64_t gicr_read_propbaser(uintptr_t base)
 {
-	return mmio_read_32(base + GICR_PROPBASER);
+	return mmio_read_64(base + GICR_PROPBASER);
 }
 
-static inline void gicr_write_propbaser(uintptr_t base, unsigned int val)
+static inline void gicr_write_propbaser(uintptr_t base, uint64_t val)
 {
-	mmio_write_32(base + GICR_PROPBASER, val);
+	mmio_write_64(base + GICR_PROPBASER, val);
 }
 
-static inline unsigned int gicr_read_pendbaser(uintptr_t base)
+static inline uint64_t gicr_read_pendbaser(uintptr_t base)
 {
-	return mmio_read_32(base + GICR_PENDBASER);
+	return mmio_read_64(base + GICR_PENDBASER);
 }
 
-static inline void gicr_write_pendbaser(uintptr_t base, unsigned int val)
+static inline void gicr_write_pendbaser(uintptr_t base, uint64_t val)
 {
-	mmio_write_32(base + GICR_PENDBASER, val);
+	mmio_write_64(base + GICR_PENDBASER, val);
 }
 
 /*******************************************************************************
@@ -353,7 +361,7 @@ static inline uint64_t gits_read_cbaser(uintptr_t base)
 
 static inline void gits_write_cbaser(uintptr_t base, uint64_t val)
 {
-	mmio_write_32(base + GITS_CBASER, val);
+	mmio_write_64(base + GITS_CBASER, val);
 }
 
 static inline uint64_t gits_read_cwriter(uintptr_t base)
@@ -363,19 +371,19 @@ static inline uint64_t gits_read_cwriter(uintptr_t base)
 
 static inline void gits_write_cwriter(uintptr_t base, uint64_t val)
 {
-	mmio_write_32(base + GITS_CWRITER, val);
+	mmio_write_64(base + GITS_CWRITER, val);
 }
 
 static inline uint64_t gits_read_baser(uintptr_t base, unsigned int its_table_id)
 {
-	assert(its_table_id < 8);
-	return mmio_read_64(base + GITS_BASER + (8 * its_table_id));
+	assert(its_table_id < 8U);
+	return mmio_read_64(base + GITS_BASER + (8U * its_table_id));
 }
 
 static inline void gits_write_baser(uintptr_t base, unsigned int its_table_id, uint64_t val)
 {
-	assert(its_table_id < 8);
-	mmio_write_64(base + GITS_BASER + (8 * its_table_id), val);
+	assert(its_table_id < 8U);
+	mmio_write_64(base + GITS_BASER + (8U * its_table_id), val);
 }
 
 /*
@@ -383,8 +391,8 @@ static inline void gits_write_baser(uintptr_t base, unsigned int its_table_id, u
  */
 static inline void gits_wait_for_quiescent_bit(uintptr_t gits_base)
 {
-	assert(!(gits_read_ctlr(gits_base) & GITS_CTLR_ENABLED_BIT));
-	while ((gits_read_ctlr(gits_base) & GITS_CTLR_QUIESCENT_BIT) == 0)
+	assert((gits_read_ctlr(gits_base) & GITS_CTLR_ENABLED_BIT) == 0U);
+	while ((gits_read_ctlr(gits_base) & GITS_CTLR_QUIESCENT_BIT) == 0U)
 		;
 }
 
