@@ -7,6 +7,8 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
+#include <utils_def.h>
+
 /*
  * The log output macros print output to the console. These macros produce
  * compiled log output only if the LOG_LEVEL defined in the makefile (or the
@@ -18,12 +20,12 @@
  * WARN("Warning %s.\n", "message") -> WARNING: Warning message.
  */
 
-#define LOG_LEVEL_NONE			0
-#define LOG_LEVEL_ERROR			10
-#define LOG_LEVEL_NOTICE		20
-#define LOG_LEVEL_WARNING		30
-#define LOG_LEVEL_INFO			40
-#define LOG_LEVEL_VERBOSE		50
+#define LOG_LEVEL_NONE			U(0)
+#define LOG_LEVEL_ERROR			U(10)
+#define LOG_LEVEL_NOTICE		U(20)
+#define LOG_LEVEL_WARNING		U(30)
+#define LOG_LEVEL_INFO			U(40)
+#define LOG_LEVEL_VERBOSE		U(50)
 
 #ifndef __ASSEMBLY__
 #include <cdefs.h>
@@ -50,10 +52,10 @@
  */
 #define no_tf_log(fmt, ...)				\
 	do {						\
-		if (0) {				\
+		if (false) {				\
 			tf_log(fmt, ##__VA_ARGS__);	\
 		}					\
-	} while (0)
+	} while (false)
 
 #if LOG_LEVEL >= LOG_LEVEL_NOTICE
 # define NOTICE(...)	tf_log(LOG_MARKER_NOTICE __VA_ARGS__)

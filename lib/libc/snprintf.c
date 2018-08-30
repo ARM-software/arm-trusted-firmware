@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,9 +11,12 @@
 static void string_print(char **s, size_t n, size_t *chars_printed,
 			 const char *str)
 {
-	while (*str) {
-		if (*chars_printed < n)
-			*(*s)++ = *str;
+	while (*str != '\0') {
+		if (*chars_printed < n) {
+			*(*s) = *str;
+			(*s)++;
+		}
+
 		(*chars_printed)++;
 		str++;
 	}
@@ -23,17 +26,22 @@ static void unsigned_dec_print(char **s, size_t n, size_t *chars_printed,
 			       unsigned int unum)
 {
 	/* Enough for a 32-bit unsigned decimal integer (4294967295). */
-	unsigned char num_buf[10];
-	int i = 0, rem;
+	char num_buf[10];
+	int i = 0;
+	unsigned int rem;
 
 	do {
-		rem = unum % 10;
+		rem = unum % 10U;
 		num_buf[i++] = '0' + rem;
-	} while (unum /= 10);
+		unum /= 10U;
+	} while (unum > 0U);
 
 	while (--i >= 0) {
-		if (*chars_printed < n)
-			*(*s)++ = num_buf[i];
+		if (*chars_printed < n) {
+			*(*s) = num_buf[i];
+			(*s)++;
+		}
+
 		(*chars_printed)++;
 	}
 }
@@ -58,19 +66,21 @@ int snprintf(char *s, size_t n, const char *fmt, ...)
 	int num;
 	unsigned int unum;
 	char *str;
-	size_t chars_printed = 0;
+	size_t chars_printed = 0U;
 
-	if (n == 1) {
+	if (n == 0U) {
+		/* There isn't space for anything. */
+	} else if (n == 1U) {
 		/* Buffer is too small to actually write anything else. */
 		*s = '\0';
-		n = 0;
-	} else if (n >= 2) {
+		n = 0U;
+	} else {
 		/* Reserve space for the terminator character. */
 		n--;
 	}
 
 	va_start(args, fmt);
-	while (*fmt) {
+	while (*fmt != '\0') {
 
 		if (*fmt == '%') {
 			fmt++;
@@ -81,8 +91,10 @@ int snprintf(char *s, size_t n, const char *fmt, ...)
 				num = va_arg(args, int);
 
 				if (num < 0) {
-					if (chars_printed < n)
-						*s++ = '-';
+					if (chars_printed < n) {
+						*s = '-';
+						s++;
+					}
 					chars_printed++;
 
 					unum = (unsigned int)-num;
@@ -110,16 +122,19 @@ int snprintf(char *s, size_t n, const char *fmt, ...)
 			continue;
 		}
 
-		if (chars_printed < n)
-			*s++ = *fmt;
+		if (chars_printed < n) {
+			*s = *fmt;
+			s++;
+		}
+
 		fmt++;
 		chars_printed++;
 	}
 
 	va_end(args);
 
-	if (n > 0)
+	if (n > 0U)
 		*s = '\0';
 
-	return chars_printed;
+	return (int)chars_printed;
 }
