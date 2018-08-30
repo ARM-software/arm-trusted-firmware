@@ -27,7 +27,9 @@
 
 #ifndef __ASSEMBLY__
 #include <cdefs.h>
+#include <console.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 
 /*
@@ -83,8 +85,20 @@
 # define VERBOSE(...)	no_tf_log(LOG_MARKER_VERBOSE __VA_ARGS__)
 #endif
 
+#if ENABLE_BACKTRACE
+void backtrace(const char *cookie);
+#else
+#define backtrace(x)
+#endif
+
 void __dead2 do_panic(void);
-#define panic()	do_panic()
+
+#define panic()				\
+	do {				\
+		backtrace(__func__);	\
+		(void)console_flush();	\
+		do_panic();		\
+	} while (false)
 
 /* Function called when stack protection check code detects a corrupted stack */
 void __dead2 __stack_chk_fail(void);

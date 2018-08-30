@@ -155,7 +155,9 @@ DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e1r)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e1w)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e0r)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e0w)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s1e1r)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s1e2r)
+DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s1e3r)
 
 void flush_dcache_range(uintptr_t addr, size_t size);
 void clean_dcache_range(uintptr_t addr, size_t size);
@@ -353,6 +355,12 @@ DEFINE_RENAME_SYSREG_READ_FUNC(erxmisc1_el1, ERXMISC1_EL1)
 
 #define IS_IN_EL1() IS_IN_EL(1)
 #define IS_IN_EL3() IS_IN_EL(3)
+#define IS_IN_EL3() IS_IN_EL(3)
+
+static inline unsigned int get_current_el(void)
+{
+	return GET_EL(read_CurrentEl());
+}
 
 /*
  * Check if an EL is implemented from AA64PFR0 register fields. 'el' argument

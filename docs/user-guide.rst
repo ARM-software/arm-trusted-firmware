@@ -75,7 +75,7 @@ In addition, the following optional packages and tools may be needed:
 
 -  To create and modify the diagram files included in the documentation, `Dia`_.
    This tool can be found in most Linux distributions. Inkscape is needed to
-   generate the actual *.png files.
+   generate the actual \*.png files.
 
 Getting the TF-A source code
 ----------------------------
@@ -211,6 +211,10 @@ performed.
 
 Common build options
 ^^^^^^^^^^^^^^^^^^^^
+
+-  ``AARCH32_INSTRUCTION_SET``: Choose the AArch32 instruction set that the
+   compiler should use. Valid values are T32 and A32. It defaults to T32 due to
+   code having a smaller resulting size.
 
 -  ``AARCH32_SP`` : Choose the AArch32 Secure Payload component to be built as
    as the BL32 image when ``ARCH=aarch32``. The value should be the path to the
@@ -350,6 +354,16 @@ Common build options
    independently of ``DEBUG``. It can also be used to hide any auxiliary code
    that is only required for the assertion and does not fit in the assertion
    itself.
+
+-  ``ENABLE_BACKTRACE``: This option controls whether to enables backtrace
+   dumps or not. It is supported in both AArch64 and AArch32. However, in
+   AArch32 the format of the frame records are not defined in the AAPCS and they
+   are defined by the implementation. This implementation of backtrace only
+   supports the format used by GCC when T32 interworking is disabled. For this
+   reason enabling this option in AArch32 will force the compiler to only
+   generate A32 code. This option is enabled by default only in AArch64 debug
+   builds, but this behaviour can be overriden in each platform's Makefile or in
+   the build command line.
 
 -  ``ENABLE_MPAM_FOR_LOWER_ELS``: Boolean option to enable lower ELs to use MPAM
    feature. MPAM is an optional Armv8.4 extension that enables various memory

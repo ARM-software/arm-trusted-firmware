@@ -20,19 +20,23 @@
 void __assert(const char *file, unsigned int line, const char *assertion)
 {
 	printf("ASSERT: %s:%d:%s\n", file, line, assertion);
-	console_flush();
+	backtrace("assert");
+	(void)console_flush();
 	plat_panic_handler();
 }
 #elif PLAT_LOG_LEVEL_ASSERT >= LOG_LEVEL_INFO
 void __assert(const char *file, unsigned int line)
 {
 	printf("ASSERT: %s:%d\n", file, line);
-	console_flush();
+	backtrace("assert");
+	(void)console_flush();
 	plat_panic_handler();
 }
 #else
 void __assert(void)
 {
+	backtrace("assert");
+	(void)console_flush();
 	plat_panic_handler();
 }
 #endif
