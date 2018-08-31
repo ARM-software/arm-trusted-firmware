@@ -16,7 +16,7 @@
  * boot flow as the core comes up in aarch64 and to enter the BL32 image a warm
  * reset in aarch32 state is required.
  ******************************************************************************/
-int bl2_plat_handle_post_image_load(unsigned int image_id)
+int arm_bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	int err = arm_bl2_handle_post_image_load(image_id);
 
