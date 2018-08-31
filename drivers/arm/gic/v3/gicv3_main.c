@@ -484,7 +484,7 @@ unsigned int gicv3_get_interrupt_type(unsigned int id,
 		return INTR_GROUP1NS;
 
 	if (id < MIN_SPI_ID) {
-		assert(gicv3_driver_data->rdistif_base_addrs != 0U);
+		assert(gicv3_driver_data->rdistif_base_addrs != NULL);
 		gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
 		igroup = gicr_get_igroupr0(gicr_base, id);
 		grpmodr = gicr_get_igrpmodr0(gicr_base, id);
