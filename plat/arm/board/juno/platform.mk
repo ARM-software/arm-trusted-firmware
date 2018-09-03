@@ -22,7 +22,12 @@ ifneq (${ENABLE_STACK_PROTECTOR}, 0)
 JUNO_SECURITY_SOURCES	+=	plat/arm/board/juno/juno_stack_protector.c
 endif
 
-PLAT_INCLUDES		:=	-Iplat/arm/board/juno/include
+# Select SCMI/SDS drivers instead of SCPI/BOM driver for communicating with the
+# SCP during power management operations and for SCP RAM Firmware transfer.
+CSS_USE_SCMI_SDS_DRIVER		:=	1
+
+PLAT_INCLUDES		:=	-Iplat/arm/board/juno/include		\
+				-Iplat/arm/css/drivers/sds
 
 PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/juno/${ARCH}/juno_helpers.S
 
@@ -55,11 +60,13 @@ ifeq (${ARCH},aarch64)
 BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
+				plat/arm/board/juno/juno_err.c		\
 				plat/arm/board/juno/juno_bl1_setup.c	\
 				${JUNO_INTERCONNECT_SOURCES}		\
 				${JUNO_SECURITY_SOURCES}
 
 BL2_SOURCES		+=	lib/utils/mem_region.c			\
+				plat/arm/board/juno/juno_err.c		\
 				plat/arm/board/juno/juno_bl2_setup.c	\
 				plat/arm/common/arm_nor_psci_mem_protect.c \
 				${JUNO_SECURITY_SOURCES}
@@ -76,6 +83,11 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				${JUNO_GIC_SOURCES}			\
 				${JUNO_INTERCONNECT_SOURCES}		\
 				${JUNO_SECURITY_SOURCES}
+
+ifeq (${CSS_USE_SCMI_SDS_DRIVER},1)
+BL1_SOURCES		+=	plat/arm/css/drivers/sds/sds.c
+endif
+
 endif
 
 # Errata workarounds for Cortex-A53:
@@ -111,10 +123,6 @@ ARM_BOARD_OPTIMISE_MEM		:=	1
 
 # Do not enable SVE
 ENABLE_SVE_FOR_NS		:=	0
-
-# Select SCMI/SDS drivers instead of SCPI/BOM driver for communicating with the
-# SCP during power management operations and for SCP RAM Firmware transfer.
-CSS_USE_SCMI_SDS_DRIVER		:=	1
 
 include plat/arm/board/common/board_css.mk
 include plat/arm/common/arm_common.mk

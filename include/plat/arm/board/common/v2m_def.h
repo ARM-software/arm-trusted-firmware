@@ -32,6 +32,9 @@
 #define V2M_FUNC_SHUTDOWN		0x08
 #define V2M_FUNC_REBOOT			0x09
 
+/* NVFLAGS in the V2M motherboard which is preserved after a watchdog reset */
+ #define V2M_SYS_NVFLAGS_ADDR		(V2M_SYSREGS_BASE + V2M_SYS_NVFLAGS)
+
 /*
  * V2M sysled bit definitions. The values written to this
  * register are defined in arch.h & runtime_svc.h. Only
