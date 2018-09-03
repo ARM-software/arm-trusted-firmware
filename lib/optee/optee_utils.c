@@ -25,14 +25,15 @@ typedef struct optee_image {
 
 #define OPTEE_PAGER_IMAGE_ID		0
 #define OPTEE_PAGED_IMAGE_ID		1
-#define OPTEE_MAX_IMAGE_NUM		2
+
+#define OPTEE_MAX_NUM_IMAGES		2u
 
 #define TEE_MAGIC_NUM_OPTEE		0x4554504f
 /*
  * magic: header magic number.
  * version: OPTEE header version:
- * 	1 - not supported
- * 	2 - supported
+ *		1 - not supported
+ *		2 - supported
  * arch: OPTEE os architecture type: 0 - AARCH32, 1 - AARCH64.
  * flags: unused currently.
  * nb_images: number of images.
@@ -53,14 +54,20 @@ typedef struct optee_header {
  ******************************************************************************/
 static inline int tee_validate_header(optee_header_t *header)
 {
+	int valid = 0;
+
 	if ((header->magic == TEE_MAGIC_NUM_OPTEE) &&
-		(header->version == 2) &&
-		(header->nb_images <= OPTEE_MAX_IMAGE_NUM)) {
-		return 1;
+		(header->version == 2u) &&
+		(header->nb_images > 0u) &&
+		(header->nb_images <= OPTEE_MAX_NUM_IMAGES)) {
+		valid = 1;
 	}
 
-	WARN("Not a known TEE, use default loading options.\n");
-	return 0;
+	else {
+		WARN("Not a known TEE, use default loading options.\n");
+	}
+
+	return valid;
 }
 
 /*******************************************************************************
