@@ -2307,6 +2307,21 @@ static unsigned int pm_clock_type(unsigned int clock_id)
 }
 
 /**
+ * pm_api_clock_get_num_clocks() - PM call to request number of clocks
+ * @nclocks	Number of clocks
+ *
+ * This function is used by master to get number of clocks.
+ *
+ * @return	Returns success.
+ */
+enum pm_ret_status pm_api_clock_get_num_clocks(unsigned int *nclocks)
+{
+	*nclocks = CLK_MAX;
+
+	return PM_RET_SUCCESS;
+}
+
+/**
  * pm_api_clock_get_name() - PM call to request a clock's name
  * @clock_id	Clock ID
  * @name	Name of clock (max 16 bytes)
