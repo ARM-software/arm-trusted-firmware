@@ -25,7 +25,6 @@
 #define CLK_TOPOLOGY_NODE_OFFSET	U(16)
 #define CLK_TOPOLOGY_PAYLOAD_LEN	U(12)
 #define CLK_PARENTS_PAYLOAD_LEN		U(12)
-#define CLK_INIT_ENABLE_SHIFT		U(1)
 #define CLK_TYPE_SHIFT			U(2)
 #define CLK_CLKFLAGS_SHIFT		U(8)
 #define CLK_TYPEFLAGS_SHIFT		U(24)
@@ -337,7 +336,8 @@ static struct pm_clock_node acpu_nodes[] = {
 		.width = PERIPH_GATE_WIDTH,
 		.clkflags = CLK_SET_RATE_PARENT |
 			    CLK_IGNORE_UNUSED |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC |
+			    CLK_IS_CRITICAL,
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -496,7 +496,7 @@ static struct pm_clock_node ddr_nodes[] = {
 		.type = TYPE_DIV1,
 		.offset = 8,
 		.width = 6,
-		.clkflags = CLK_IS_BASIC,
+		.clkflags = CLK_IS_BASIC | CLK_IS_CRITICAL,
 		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -2242,12 +2242,6 @@ static struct pm_ext_clock ext_clocks[] = {
 /* Array of clock which are invalid for this variant */
 static uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB};
 
-/* Array of clocks which needs to be enabled at init */
-static uint32_t pm_clk_init_enable_list[] = {
-	CLK_ACPU,
-	CLK_DDR_REF,
-};
-
 /**
  * pm_clock_valid - Check if clock is valid or not
  * @clock_id	Id of the clock to be queried
@@ -2269,26 +2263,6 @@ static bool pm_clock_valid(unsigned int clock_id)
 			return 0;
 
 	return 1;
-}
-
-/**
- * pm_clock_init_enable - Check if clock needs to be enabled at init
- * @clock_id	Id of the clock to be queried
- *
- * This function is used to check if given clock needs to be enabled
- * at boot up or not. Some clocks needs to be enabled at init.
- *
- * Return: Returns 1 if clock needs to be enabled at boot up else 0.
- */
-static unsigned int pm_clock_init_enable(unsigned int clock_id)
-{
-	unsigned int i;
-
-	for (i = 0; i < ARRAY_SIZE(pm_clk_init_enable_list); i++)
-		if (pm_clk_init_enable_list[i] == clock_id)
-			return 1;
-
-	return 0;
 }
 
 /**
@@ -2507,9 +2481,6 @@ enum pm_ret_status pm_api_clock_get_attributes(unsigned int clock_id,
 
 	/* Clock valid bit */
 	*attr = pm_clock_valid(clock_id);
-
-	/* If clock needs to be enabled during init */
-	*attr |= (pm_clock_init_enable(clock_id) << CLK_INIT_ENABLE_SHIFT);
 
 	/* Clock type (Output/External) */
 	*attr |= (pm_clock_type(clock_id) << CLK_TYPE_SHIFT);
