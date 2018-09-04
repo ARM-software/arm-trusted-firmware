@@ -205,3 +205,6 @@ ifneq (${ARCH},aarch32)
 else
     override ENABLE_SVE_FOR_NS	:= 0
 endif
+
+# By default, enable early wakeup detection during CPU suspend entry
+ENABLE_EARLY_WAKEUP_DETECTION	?= 1

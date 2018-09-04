@@ -152,7 +152,6 @@ void psci_cpu_suspend_start(const entry_point_info_t *ep,
 			    psci_power_state_t *state_info,
 			    unsigned int is_power_down_state)
 {
-	int skip_wfi = 0;
 	int idx = (int) plat_my_core_pos();
 
 	/*
@@ -170,15 +169,17 @@ void psci_cpu_suspend_start(const entry_point_info_t *ep,
 	psci_acquire_pwr_domain_locks(end_pwrlvl,
 				      idx);
 
+#if ENABLE_EARLY_WAKEUP_DETECTION
 	/*
 	 * We check if there are any pending interrupts after the delay
 	 * introduced by lock contention to increase the chances of early
 	 * detection that a wake-up interrupt has fired.
 	 */
 	if (read_isr_el1() != 0U) {
-		skip_wfi = 1;
-		goto exit;
+		psci_release_pwr_domain_locks(end_pwrlvl, idx);
+		return;
 	}
+#endif
 
 	/*
 	 * This function is passed the requested state info and
@@ -207,15 +208,12 @@ void psci_cpu_suspend_start(const entry_point_info_t *ep,
 	plat_psci_stat_accounting_start(state_info);
 #endif
 
-exit:
 	/*
 	 * Release the locks corresponding to each power level in the
 	 * reverse order to which they were acquired.
 	 */
 	psci_release_pwr_domain_locks(end_pwrlvl,
 				  idx);
-	if (skip_wfi == 1)
-		return;
 
 	if (is_power_down_state != 0U) {
 #if ENABLE_RUNTIME_INSTRUMENTATION

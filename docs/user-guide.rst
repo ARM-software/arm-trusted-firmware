@@ -365,6 +365,10 @@ Common build options
    builds, but this behaviour can be overriden in each platform's Makefile or in
    the build command line.
 
+-  ``ENABLE_EARLY_WAKEUP_DETECTION``: Boolean option to control the early wake
+   up interrupt detection for the CPU suspend path. Default is ``1``. Disabling
+   this option allows platforms to enter CPU suspend without aborting it midway.
+
 -  ``ENABLE_MPAM_FOR_LOWER_ELS``: Boolean option to enable lower ELs to use MPAM
    feature. MPAM is an optional Armv8.4 extension that enables various memory
    system components and resources to define partitions; software running at
