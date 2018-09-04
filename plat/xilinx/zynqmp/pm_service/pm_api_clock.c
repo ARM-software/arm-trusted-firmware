@@ -2627,10 +2627,11 @@ enum pm_ret_status pm_api_clock_enable(unsigned int clock_id)
 	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
-	if (ISPLL(clock_id))
-		ret = pm_api_pll_bypass_and_reset(clock_id,
-						  CLK_PLL_RESET_PULSE);
-	else
+	/*
+	 * PLL type clock should not enable explicitly.
+	 * It is done by FSBL on boot-up and by PMUFW whenever required.
+	 */
+	if (!ISPLL(clock_id))
 		ret = pm_api_clk_enable_disable(clock_id, 1);
 
 	return ret;
@@ -2656,10 +2657,11 @@ enum pm_ret_status pm_api_clock_disable(unsigned int clock_id)
 	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
-	if (ISPLL(clock_id))
-		ret = pm_api_pll_bypass_and_reset(clock_id,
-						  CLK_PLL_RESET_ASSERT);
-	else
+	/*
+	 * PLL type clock should not be disabled explicitly.
+	 * It is done by PMUFW if required.
+	 */
+	if (!ISPLL(clock_id))
 		ret = pm_api_clk_enable_disable(clock_id, 0);
 
 	return ret;
@@ -2807,8 +2809,13 @@ static enum pm_ret_status pm_api_pll_set_divider(unsigned int clock_id,
 					  unsigned int divider)
 {
 	unsigned int reg = clocks[clock_id].control_reg;
+	enum pm_ret_status ret;
 
-	return pm_mmio_write(reg, PLL_FBDIV_MASK, divider << PLL_FBDIV_SHIFT);
+	pm_api_pll_bypass_and_reset(clock_id, CLK_PLL_RESET_ASSERT);
+	ret = pm_mmio_write(reg, PLL_FBDIV_MASK, divider << PLL_FBDIV_SHIFT);
+	pm_api_pll_bypass_and_reset(clock_id, CLK_PLL_RESET_RELEASE);
+
+	return ret;
 }
 
 /**
