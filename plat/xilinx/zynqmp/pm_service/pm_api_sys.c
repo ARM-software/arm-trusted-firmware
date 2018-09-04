@@ -602,6 +602,30 @@ enum pm_ret_status pm_secure_rsaaes(uint32_t address_low,
 }
 
 /**
+ * pm_aes_engine() - Aes data blob encryption/decryption
+ * This function provides access to the xilsecure library to
+ * encrypt/decrypt data blobs.
+ *
+ * address_low: lower 32-bit address of the AesParams structure
+ *
+ * address_high: higher 32-bit address of the AesParams structure
+ *
+ * value:        Returned output value
+ *
+ * @return       Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_aes_engine(uint32_t address_high,
+				 uint32_t address_low,
+				 uint32_t *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD3(payload, PM_SECURE_AES, address_high, address_low);
+	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+}
+
+/**
  * pm_pinctrl_request() - Request Pin from firmware
  * @pin		Pin number to request
  *

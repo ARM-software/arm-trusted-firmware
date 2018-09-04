@@ -172,5 +172,8 @@ enum pm_ret_status pm_fpga_read(uint32_t reg_numframes,
 				uint32_t address_high,
 				uint32_t readback_type,
 				uint32_t *value);
+enum pm_ret_status pm_aes_engine(uint32_t address_high,
+				 uint32_t address_low,
+				 uint32_t  *value);
 
 #endif /* _PM_API_SYS_H_ */
