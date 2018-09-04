@@ -472,6 +472,40 @@ static enum pm_ret_status pm_ioctl_read_pggs(unsigned int index,
 }
 
 /**
+ * pm_ioctl_ulpi_reset() - Ioctl function for performing ULPI reset
+ *
+ * This function peerforms the ULPI reset sequence for resetting
+ * the ULPI transceiver.
+ *
+ * @return      Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_ulpi_reset(void)
+{
+	enum pm_ret_status ret;
+
+	ret = pm_mmio_write(CRL_APB_BOOT_PIN_CTRL, CRL_APB_BOOT_PIN_MASK,
+			    ZYNQMP_ULPI_RESET_VAL_HIGH);
+	if (ret != PM_RET_SUCCESS)
+		return ret;
+
+	/* Drive ULPI assert for atleast 1ms */
+	mdelay(1);
+
+	ret = pm_mmio_write(CRL_APB_BOOT_PIN_CTRL, CRL_APB_BOOT_PIN_MASK,
+			    ZYNQMP_ULPI_RESET_VAL_LOW);
+	if (ret != PM_RET_SUCCESS)
+		return ret;
+
+	/* Drive ULPI de-assert for atleast 1ms */
+	mdelay(1);
+
+	ret = pm_mmio_write(CRL_APB_BOOT_PIN_CTRL, CRL_APB_BOOT_PIN_MASK,
+			    ZYNQMP_ULPI_RESET_VAL_HIGH);
+
+	return ret;
+}
+
+/**
  * pm_api_ioctl() -  PM IOCTL API for device control and configs
  * @node_id	Node ID of the device
  * @ioctl_id	ID of the requested IOCTL
@@ -539,6 +573,9 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 		break;
 	case IOCTL_READ_PGGS:
 		ret = pm_ioctl_read_pggs(arg1, value);
+		break;
+	case IOCTL_ULPI_RESET:
+		ret = pm_ioctl_ulpi_reset();
 		break;
 	default:
 		ret = PM_RET_ERROR_NOTSUPPORTED;

@@ -32,6 +32,8 @@ enum {
 	IOCTL_READ_GGS,
 	IOCTL_WRITE_PGGS,
 	IOCTL_READ_PGGS,
+	/* IOCTL for ULPI reset */
+	IOCTL_ULPI_RESET,
 };
 
 //RPU operation mode
