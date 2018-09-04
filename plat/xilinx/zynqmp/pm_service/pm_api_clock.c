@@ -2022,12 +2022,11 @@ static struct pm_clock clocks[] = {
 	},
 	[CLK_WDT] = {
 		.name = "wdt",
-		.control_reg = IOU_SLCR_WDT_CLK_SEL,
+		.control_reg = FPD_SLCR_WDT_CLK_SEL,
 		.status_reg = 0,
 		.parents = &((int32_t []) {
 			CLK_TOPSW_LSBUS,
 			EXT_CLK_SWDT0 | CLK_EXTERNAL_PARENT,
-			EXT_CLK_SWDT1 | CLK_EXTERNAL_PARENT,
 			CLK_NA_PARENT
 		}),
 		.nodes = &wdt_nodes,
