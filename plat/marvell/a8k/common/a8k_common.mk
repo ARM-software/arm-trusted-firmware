@@ -76,7 +76,8 @@ MARVELL_DRV		:= 	$(MARVELL_DRV_BASE)/io_win.c	\
 				$(MARVELL_DRV_BASE)/amb_adec.c	\
 				$(MARVELL_DRV_BASE)/ccu.c	\
 				$(MARVELL_DRV_BASE)/cache_llc.c	\
-				$(MARVELL_DRV_BASE)/comphy/phy-comphy-cp110.c
+				$(MARVELL_DRV_BASE)/comphy/phy-comphy-cp110.c \
+				$(MARVELL_DRV_BASE)/mc_trustzone/mc_trustzone.c
 
 BL31_PORTING_SOURCES	:=	$(PLAT_FAMILY_BASE)/$(PLAT)/board/marvell_plat_config.c
 

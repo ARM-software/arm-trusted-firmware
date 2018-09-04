@@ -442,7 +442,7 @@ static int marvell_i2c_unstuck(int ret)
 void i2c_init(void *i2c_base)
 {
 	/* For I2C speed and slave address, now we do not set them since
-	 * we just provide the working speed and slave address in plat_def.h
+	 * we just provide the working speed and slave address in mvebu_def.h
 	 * for i2c_init
 	 */
 	base = (struct marvell_i2c_regs *)i2c_base;

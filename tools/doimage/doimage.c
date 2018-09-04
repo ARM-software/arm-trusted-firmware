@@ -768,7 +768,7 @@ int parse_sec_config_file(char *filename)
 	/* CSK index option */
 	if (config_lookup_int(&sec_cfg, "csk_key_index",
 			      &cfg_int32) != CONFIG_TRUE) {
-		fprintf(stderr, "Error obtaining \"flash_id\" element. "
+		fprintf(stderr, "Error obtaining \"flash_id\" element. ");
 		fprintf(stderr, "Using default - 0x0\n");
 		cfg_int32 = 0;
 	}

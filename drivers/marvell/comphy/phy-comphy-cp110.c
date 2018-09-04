@@ -481,8 +481,8 @@ static int mvebu_cp110_comphy_sata_power_on(uint64_t comphy_base,
 	/* G1 settings */
 	mask = HPIPE_G1_SET_1_G1_RX_SELMUPI_MASK;
 	data = 0x0 << HPIPE_G1_SET_1_G1_RX_SELMUPI_OFFSET;
-	mask |= HPIPE_G1_SET_1_G1_RX_SELMUPP_MASK;
-	data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPP_OFFSET;
+	mask |= HPIPE_G1_SET_1_G1_RX_SELMUPF_MASK;
+	data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPF_OFFSET;
 	mask |= HPIPE_G1_SET_1_G1_RX_SELMUFI_MASK;
 	data |= 0x0 << HPIPE_G1_SET_1_G1_RX_SELMUFI_OFFSET;
 	mask |= HPIPE_G1_SET_1_G1_RX_SELMUFF_MASK;
@@ -506,8 +506,8 @@ static int mvebu_cp110_comphy_sata_power_on(uint64_t comphy_base,
 	/* G2 settings */
 	mask = HPIPE_G2_SET_1_G2_RX_SELMUPI_MASK;
 	data = 0x0 << HPIPE_G2_SET_1_G2_RX_SELMUPI_OFFSET;
-	mask |= HPIPE_G2_SET_1_G2_RX_SELMUPP_MASK;
-	data |= 0x1 << HPIPE_G2_SET_1_G2_RX_SELMUPP_OFFSET;
+	mask |= HPIPE_G2_SET_1_G2_RX_SELMUPF_MASK;
+	data |= 0x1 << HPIPE_G2_SET_1_G2_RX_SELMUPF_OFFSET;
 	mask |= HPIPE_G2_SET_1_G2_RX_SELMUFI_MASK;
 	data |= 0x0 << HPIPE_G2_SET_1_G2_RX_SELMUFI_OFFSET;
 	mask |= HPIPE_G2_SET_1_G2_RX_SELMUFF_MASK;
@@ -1000,13 +1000,13 @@ static int mvebu_cp110_comphy_xfi_power_on(uint64_t comphy_base,
 	if (speed == COMPHY_SPEED_5_15625G) {
 		mask |= HPIPE_G1_SET_1_G1_RX_SELMUPI_MASK;
 		data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPI_OFFSET;
-		mask |= HPIPE_G1_SET_1_G1_RX_SELMUPP_MASK;
-		data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPP_OFFSET;
+		mask |= HPIPE_G1_SET_1_G1_RX_SELMUPF_MASK;
+		data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPF_OFFSET;
 	} else {
 		mask |= HPIPE_G1_SET_1_G1_RX_SELMUPI_MASK;
 		data |= 0x2 << HPIPE_G1_SET_1_G1_RX_SELMUPI_OFFSET;
-		mask |= HPIPE_G1_SET_1_G1_RX_SELMUPP_MASK;
-		data |= 0x2 << HPIPE_G1_SET_1_G1_RX_SELMUPP_OFFSET;
+		mask |= HPIPE_G1_SET_1_G1_RX_SELMUPF_MASK;
+		data |= 0x2 << HPIPE_G1_SET_1_G1_RX_SELMUPF_OFFSET;
 		mask |= HPIPE_G1_SET_1_G1_RX_SELMUFI_MASK;
 		data |= 0x0 << HPIPE_G1_SET_1_G1_RX_SELMUFI_OFFSET;
 		mask |= HPIPE_G1_SET_1_G1_RX_SELMUFF_MASK;
@@ -1504,8 +1504,8 @@ static int mvebu_cp110_comphy_pcie_power_on(uint64_t comphy_base,
 	/* Genration 2 setting 1*/
 	mask = HPIPE_G2_SET_1_G2_RX_SELMUPI_MASK;
 	data = 0x0 << HPIPE_G2_SET_1_G2_RX_SELMUPI_OFFSET;
-	mask |= HPIPE_G2_SET_1_G2_RX_SELMUPP_MASK;
-	data |= 0x1 << HPIPE_G2_SET_1_G2_RX_SELMUPP_OFFSET;
+	mask |= HPIPE_G2_SET_1_G2_RX_SELMUPF_MASK;
+	data |= 0x1 << HPIPE_G2_SET_1_G2_RX_SELMUPF_OFFSET;
 	mask |= HPIPE_G2_SET_1_G2_RX_SELMUFI_MASK;
 	data |= 0x0 << HPIPE_G2_SET_1_G2_RX_SELMUFI_OFFSET;
 	reg_set(hpipe_addr + HPIPE_G2_SET_1_REG, data, mask);
@@ -1741,8 +1741,8 @@ static int mvebu_cp110_comphy_rxaui_power_on(uint64_t comphy_base,
 	/* 0xE-G1_Setting_1 */
 	mask = HPIPE_G1_SET_1_G1_RX_SELMUPI_MASK;
 	data = 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPI_OFFSET;
-	mask |= HPIPE_G1_SET_1_G1_RX_SELMUPP_MASK;
-	data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPP_OFFSET;
+	mask |= HPIPE_G1_SET_1_G1_RX_SELMUPF_MASK;
+	data |= 0x1 << HPIPE_G1_SET_1_G1_RX_SELMUPF_OFFSET;
 	mask |= HPIPE_G1_SET_1_G1_RX_DFE_EN_MASK;
 	data |= 0x1 << HPIPE_G1_SET_1_G1_RX_DFE_EN_OFFSET;
 	reg_set(hpipe_addr + HPIPE_G1_SET_1_REG, data, mask);
@@ -2201,7 +2201,7 @@ int mvebu_cp110_comphy_digital_reset(uint64_t comphy_base,
 	return 0;
 }
 
-int mvebu_cp110_comphy_power_on(uint64_t comphy_base, uint64_t comphy_index,
+int mvebu_cp110_comphy_power_on(uint64_t comphy_base, uint8_t comphy_index,
 				uint64_t comphy_mode)
 {
 	int mode = COMPHY_GET_MODE(comphy_mode);
@@ -2247,7 +2247,7 @@ int mvebu_cp110_comphy_power_on(uint64_t comphy_base, uint64_t comphy_index,
 		err = mvebu_cp110_comphy_ap_power_on(comphy_base, comphy_index);
 		break;
 	default:
-		ERROR("comphy%lld: unsupported comphy mode\n", comphy_index);
+		ERROR("comphy%d: unsupported comphy mode\n", comphy_index);
 		err = -EINVAL;
 		break;
 	}
@@ -2257,7 +2257,7 @@ int mvebu_cp110_comphy_power_on(uint64_t comphy_base, uint64_t comphy_index,
 	return err;
 }
 
-int mvebu_cp110_comphy_power_off(uint64_t comphy_base, uint64_t comphy_index)
+int mvebu_cp110_comphy_power_off(uint64_t comphy_base, uint8_t comphy_index)
 {
 	uintptr_t sd_ip_addr, comphy_ip_addr;
 	uint32_t mask, data;

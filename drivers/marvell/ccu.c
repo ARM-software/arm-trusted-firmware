@@ -7,7 +7,7 @@
 
 /* CCU unit device driver for Marvell AP807, AP807 and AP810 SoCs */
 
-#include <a8k_common.h>
+#include <armada_common.h>
 #include <ccu.h>
 #include <debug.h>
 #include <mmio.h>

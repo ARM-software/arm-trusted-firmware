@@ -341,10 +341,6 @@ static void cp110_rtc_init(uintptr_t base)
 		mmio_write_32(base + MVEBU_RTC_TEST_CONFIG_REG, 0);
 		mdelay(500);
 
-		/* Reset Time register */
-		mmio_write_32(base + MVEBU_RTC_TIME_REG, 0);
-		udelay(62);
-
 		/* Reset Status register */
 		mmio_write_32(base + MVEBU_RTC_STATUS_REG,
 			      (MVEBU_RTC_STATUS_ALARM1_MASK |
@@ -360,10 +356,6 @@ static void cp110_rtc_init(uintptr_t base)
 		/* Setup nominal register access timing */
 		mmio_write_32(base + MVEBU_RTC_CCR_REG,
 			      MVEBU_RTC_NOMINAL_TIMING);
-
-		/* Reset Time register */
-		mmio_write_32(base + MVEBU_RTC_TIME_REG, 0);
-		udelay(10);
 
 		/* Reset Status register */
 		mmio_write_32(base + MVEBU_RTC_STATUS_REG,

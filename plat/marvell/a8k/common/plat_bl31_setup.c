@@ -5,12 +5,13 @@
  * https://spdx.org/licenses
  */
 
-#include <a8k_common.h>
+#include <armada_common.h>
 #include <ap_setup.h>
 #include <cp110_setup.h>
 #include <debug.h>
 #include <marvell_plat_priv.h>
 #include <marvell_pm.h>
+#include <mc_trustzone/mc_trustzone.h>
 #include <mmio.h>
 #include <mci.h>
 #include <plat_marvell.h>
@@ -75,6 +76,24 @@ _Bool is_pm_fw_running(void)
 	return pm_fw_running;
 }
 
+/* For TrusTzone we treat the "target" field of addr_map_win
+ * struct as attribute
+ */
+static const struct addr_map_win tz_map[] = {
+	{PLAT_MARVELL_ATF_BASE, 0x200000, TZ_PERM_ABORT}
+};
+
+/* Configure MC TrustZone regions */
+static void marvell_bl31_security_setup(void)
+{
+	int tz_nr, win_id;
+
+	tz_nr = ARRAY_SIZE(tz_map);
+
+	for (win_id = 0; win_id < tz_nr; win_id++)
+		tz_enable_win(MVEBU_AP0, tz_map, win_id);
+}
+
 /* This function overruns the same function in marvell_bl31_setup.c */
 void bl31_plat_arch_setup(void)
 {
@@ -116,4 +135,6 @@ void bl31_plat_arch_setup(void)
 
 	/* Configure GPIO */
 	marvell_gpio_config();
+
+	marvell_bl31_security_setup();
 }

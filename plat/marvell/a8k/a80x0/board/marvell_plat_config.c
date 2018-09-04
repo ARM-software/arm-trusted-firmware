@@ -5,7 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#include <a8k_common.h>
+#include <armada_common.h>
+
 /*
  * If bootrom is currently at BLE there's no need to include the memory
  * maps structure at this point
@@ -85,7 +86,9 @@ struct addr_map_win iob_memory_map_cp0[] = {
 	/* PEX2_X1 window */
 	{0x00000000f8000000,	0x1000000,	PEX2_TID},
 	/* PEX0_X4 window */
-	{0x00000000f6000000,	0x1000000,	PEX0_TID}
+	{0x00000000f6000000,	0x1000000,	PEX0_TID},
+	{0x00000000c0000000,	0x30000000,	PEX0_TID},
+	{0x0000000800000000,	0x100000000,	PEX0_TID},
 };
 
 struct addr_map_win iob_memory_map_cp1[] = {
@@ -129,6 +132,8 @@ struct addr_map_win ccu_memory_map[] = {
 	{0x00000000f2000000,	0x4000000,  IO_0_TID}, /* IO window */
 #else
 	{0x00000000f2000000,	0xe000000,  IO_0_TID}, /* IO window */
+	{0x00000000c0000000,	0x30000000,  IO_0_TID}, /* IO window */
+	{0x0000000800000000,	0x100000000,  IO_0_TID}, /* IO window */
 #endif
 };
 
