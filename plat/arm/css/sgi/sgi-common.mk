@@ -47,19 +47,6 @@ ifeq (${RAS_EXTENSION},1)
 BL31_SOURCES		+=	${CSS_ENT_BASE}/sgi_ras.c
 endif
 
-# Add the FDT_SOURCES and options for Dynamic Config
-FDT_SOURCES		+=	${CSS_ENT_BASE}/fdts/${PLAT}_tb_fw_config.dts
-TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
-
-# Add the TB_FW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config))
-
-FDT_SOURCES		+=	${CSS_ENT_BASE}/fdts/${PLAT}.dts
-HW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}.dtb
-
-# Add the HW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_PAYLOAD,${HW_CONFIG},--hw-config))
-
 ifneq (${RESET_TO_BL31},0)
   $(error "Using BL31 as the reset vector is not supported on ${PLATFORM} platform. \
   Please set RESET_TO_BL31 to 0.")
