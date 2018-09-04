@@ -453,6 +453,48 @@ static enum pm_ret_status pm_ioctl_write_pggs(unsigned int index,
 }
 
 /**
+ * pm_ioctl_afi() - Ioctl function for writing afi values
+ *
+ * @index 	AFI register index
+ * @value	Register value to be written
+ *
+ *
+ * @return      Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_afi(unsigned int index,
+					      unsigned int value)
+{
+	unsigned int mask;
+	unsigned int regarr[] = {0xFD360000,
+				0xFD360014,
+				0xFD370000,
+				0xFD370014,
+				0xFD380000,
+				0xFD380014,
+				0xFD390000,
+				0xFD390014,
+				0xFD3a0000,
+				0xFD3a0014,
+				0xFD3b0000,
+				0xFD3b0014,
+				0xFF9b0000,
+				0xFF9b0014,
+				0xFD615000,
+				0xFF419000,
+				};
+
+	if (index >= ARRAY_SIZE(regarr))
+		return PM_RET_ERROR_ARGS;
+
+	if (index < AFIFM6_WRCTRL)
+		mask = FABRIC_WIDTH;
+	else
+		mask = 0xf00;
+
+	return pm_mmio_write(regarr[index], mask, value);
+}
+
+/**
  * pm_ioctl_read_pggs() - Ioctl function for reading persistent
  *			  global general storage (pggs)
  * @index	PGGS register index
@@ -593,6 +635,9 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 		break;
 	case IOCTL_SET_BOOT_HEALTH_STATUS:
 		ret = pm_ioctl_set_boot_health_status(arg1);
+		break;
+	case IOCTL_AFI:
+		ret = pm_ioctl_afi(arg1, arg2);
 		break;
 	default:
 		ret = PM_RET_ERROR_NOTSUPPORTED;
