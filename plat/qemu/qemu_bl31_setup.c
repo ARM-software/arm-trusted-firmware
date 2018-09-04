@@ -36,8 +36,8 @@ static entry_point_info_t bl33_image_ep_info;
  * tables. BL2 has flushed this information to memory, so we are guaranteed
  * to pick up good data.
  ******************************************************************************/
-void bl31_early_platform_setup(void *from_bl2,
-			       void *plat_params_from_bl2)
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+				u_register_t arg2, u_register_t arg3)
 {
 	/* Initialize the console to provide early debug support */
 	qemu_console_init();
@@ -45,7 +45,7 @@ void bl31_early_platform_setup(void *from_bl2,
 	/*
 	 * Check params passed from BL2
 	 */
-	bl_params_t *params_from_bl2 = (bl_params_t *)from_bl2;
+	bl_params_t *params_from_bl2 = (bl_params_t *)arg0;
 
 	assert(params_from_bl2);
 	assert(params_from_bl2->h.type == PARAM_BL_PARAMS);

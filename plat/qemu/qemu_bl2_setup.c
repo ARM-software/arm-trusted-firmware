@@ -117,10 +117,11 @@ struct entry_point_info *bl2_plat_get_bl31_ep_info(void)
 }
 #endif /* !LOAD_IMAGE_V2 */
 
-
-
-void bl2_early_platform_setup(meminfo_t *mem_layout)
+void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+			       u_register_t arg2, u_register_t arg3)
 {
+	meminfo_t *mem_layout = (void *)arg1;
+
 	/* Initialize the console to provide early debug support */
 	qemu_console_init();
 
