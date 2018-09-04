@@ -34,6 +34,8 @@ enum {
 	IOCTL_READ_PGGS,
 	/* IOCTL for ULPI reset */
 	IOCTL_ULPI_RESET,
+	/* Set healthy bit value */
+	IOCTL_SET_BOOT_HEALTH_STATUS,
 };
 
 //RPU operation mode

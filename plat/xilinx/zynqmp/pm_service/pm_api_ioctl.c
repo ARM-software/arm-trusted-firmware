@@ -506,6 +506,20 @@ static enum pm_ret_status pm_ioctl_ulpi_reset(void)
 }
 
 /**
+ * pm_ioctl_set_boot_health_status() - Ioctl for setting healthy boot status
+ *
+ * This function sets healthy bit value to indicate boot health status
+ * to firmware.
+ *
+ * @return      Returns status, either success or error+reason
+ */
+static enum pm_ret_status pm_ioctl_set_boot_health_status(unsigned int value)
+{
+	return pm_mmio_write(PM_BOOT_HEALTH_STATUS_REG,
+			     PM_BOOT_HEALTH_STATUS_MASK, value);
+}
+
+/**
  * pm_api_ioctl() -  PM IOCTL API for device control and configs
  * @node_id	Node ID of the device
  * @ioctl_id	ID of the requested IOCTL
@@ -576,6 +590,9 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 		break;
 	case IOCTL_ULPI_RESET:
 		ret = pm_ioctl_ulpi_reset();
+		break;
+	case IOCTL_SET_BOOT_HEALTH_STATUS:
+		ret = pm_ioctl_set_boot_health_status(arg1);
 		break;
 	default:
 		ret = PM_RET_ERROR_NOTSUPPORTED;
