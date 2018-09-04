@@ -450,17 +450,24 @@ endef
 #   $(2) = input dts
 define MAKE_DTB
 
+# List of DTB file(s) to generate, based on DTS file basename list
 $(eval DOBJ := $(addprefix $(1)/,$(call SOURCES_TO_DTBS,$(2))))
+# List of the pre-compiled DTS file(s)
 $(eval DPRE := $(addprefix $(1)/,$(patsubst %.dts,%.pre.dts,$(notdir $(2)))))
-$(eval DEP := $(patsubst %.dtb,%.d,$(DOBJ)))
+# Dependencies of the pre-compiled DTS file(s) on its source and included files
+$(eval DTSDEP := $(patsubst %.dtb,%.o.d,$(DOBJ)))
+# Dependencies of the DT compilation on its pre-compiled DTS
+$(eval DTBDEP := $(patsubst %.dtb,%.d,$(DOBJ)))
 
 $(DOBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | fdt_dirs
 	@echo "  CPP     $$<"
-	$$(Q)$$(CPP) $$(CPPFLAGS) -x assembler-with-cpp -o $(DPRE) $$<
+	$(eval DTBS       := $(addprefix $(1)/,$(call SOURCES_TO_DTBS,$(2))))
+	$$(Q)$$(CPP) $$(CPPFLAGS) -x assembler-with-cpp -MT $(DTBS) -MMD -MF $(DTSDEP) -o $(DPRE) $$<
 	@echo "  DTC     $$<"
-	$$(Q)$$(DTC) $$(DTC_FLAGS) -i fdts -d $(DEP) -o $$@ $(DPRE)
+	$$(Q)$$(DTC) $$(DTC_FLAGS) -i fdts -d $(DTBDEP) -o $$@ $(DPRE)
 
--include $(DEP)
+-include $(DTBDEP)
+-include $(DTSDEP)
 
 endef
 
