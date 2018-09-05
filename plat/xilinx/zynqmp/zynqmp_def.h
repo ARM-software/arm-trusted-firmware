@@ -48,6 +48,7 @@
 #define CRL_APB_BOOT_MODE_USER		(CRL_APB_BASE + 0x200)
 #define CRL_APB_RESET_CTRL		(CRL_APB_BASE + 0x218)
 #define CRL_APB_RST_LPD_TOP		(CRL_APB_BASE + 0x23C)
+#define CRL_APB_BOOT_PIN_CTRL		(CRL_APB_BASE + U(0x250))
 #define CRL_APB_CLK_BASE		U(0xFF5E0020)
 
 #define CRL_APB_RPU_AMBA_RESET		(U(1) << 2)
@@ -56,7 +57,15 @@
 #define CRL_APB_RESET_CTRL_SOFT_RESET	(U(1) << 4)
 
 #define CRL_APB_BOOT_MODE_MASK		(U(0xf) << 0)
+#define CRL_APB_BOOT_PIN_MASK		(U(0xf0f) << 0)
+#define CRL_APB_BOOT_DRIVE_PIN_1_SHIFT	U(9)
+#define CRL_APB_BOOT_ENABLE_PIN_1_SHIFT	U(1)
+#define CRL_APB_BOOT_ENABLE_PIN_1	(U(0x1) << CRL_APB_BOOT_ENABLE_PIN_1_SHIFT)
+#define CRL_APB_BOOT_DRIVE_PIN_1	(U(0x1) << CRL_APB_BOOT_DRIVE_PIN_1_SHIFT)
 #define ZYNQMP_BOOTMODE_JTAG		U(0)
+#define ZYNQMP_ULPI_RESET_VAL_HIGH	(CRL_APB_BOOT_ENABLE_PIN_1 | \
+					 CRL_APB_BOOT_DRIVE_PIN_1)
+#define ZYNQMP_ULPI_RESET_VAL_LOW	CRL_APB_BOOT_ENABLE_PIN_1
 
 /* system counter registers and bitfields */
 #define IOU_SCNTRS_BASE			0xFF260000
@@ -148,8 +157,6 @@
 #define ZYNQMP_SILICON_VER_MASK		0xF000
 #define ZYNQMP_SILICON_VER_SHIFT	12
 #define ZYNQMP_CSU_VERSION_SILICON	0
-#define ZYNQMP_CSU_VERSION_EP108	1
-#define ZYNQMP_CSU_VERSION_VELOCE	2
 #define ZYNQMP_CSU_VERSION_QEMU		3
 
 #define ZYNQMP_RTL_VER_MASK		0xFF0
@@ -192,6 +199,7 @@
 #define ACTLR_EL3_L2ACTLR_BIT	(1 << 6)
 #define ACTLR_EL3_CPUACTLR_BIT	(1 << 0)
 
+#define FPD_SLCR_BASEADDR		U(0xFD610000)
 #define IOU_SLCR_BASEADDR		U(0xFF180000)
 
 #define ZYNQMP_RPU_GLBL_CNTL			U(0xFF9A0000)
@@ -316,7 +324,7 @@
 #define CRL_APB_TIMESTAMP_REF_CTRL	(CRL_APB_CLK_BASE + 0x108)
 #define IOU_SLCR_GEM_CLK_CTRL		(IOU_SLCR_BASEADDR + 0x308)
 #define IOU_SLCR_CAN_MIO_CTRL		(IOU_SLCR_BASEADDR + 0x304)
-#define IOU_SLCR_WDT_CLK_SEL		(IOU_SLCR_BASEADDR + 0x300)
+#define FPD_SLCR_WDT_CLK_SEL		(FPD_SLCR_BASEADDR + 0x100)
 
 /* Global general storage register base address */
 #define GGS_BASEADDR		(0xFFD80030U)
@@ -325,5 +333,13 @@
 /* Persistent global general storage register base address */
 #define PGGS_BASEADDR		(0xFFD80050U)
 #define PGGS_NUM_REGS		U(4)
+
+/* Warm restart boot health status register and mask */
+#define PM_BOOT_HEALTH_STATUS_REG		(GGS_BASEADDR + U(0x10))
+#define PM_BOOT_HEALTH_STATUS_MASK		U(0x01)
+
+/*AFI registers */
+#define  AFIFM6_WRCTRL		U(13)
+#define  FABRIC_WIDTH		U(3)
 
 #endif /* __ZYNQMP_DEF_H__ */

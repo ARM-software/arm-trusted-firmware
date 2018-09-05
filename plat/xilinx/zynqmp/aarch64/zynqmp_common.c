@@ -44,19 +44,10 @@ unsigned int zynqmp_get_uart_clk(void)
 {
 	unsigned int ver = zynqmp_get_silicon_ver();
 
-	switch (ver) {
-	case ZYNQMP_CSU_VERSION_VELOCE:
-		return 48000;
-	case ZYNQMP_CSU_VERSION_EP108:
-		return 25000000;
-	case ZYNQMP_CSU_VERSION_QEMU:
+	if (ver == ZYNQMP_CSU_VERSION_QEMU)
 		return 133000000;
-	default:
-		/* Do nothing in default case */
-		break;
-	}
-
-	return 100000000;
+	else
+		return 100000000;
 }
 
 #if LOG_LEVEL >= LOG_LEVEL_NOTICE
@@ -298,12 +289,6 @@ static void zynqmp_print_platform_name(void)
 	char *label = "Unknown";
 
 	switch (ver) {
-	case ZYNQMP_CSU_VERSION_VELOCE:
-		label = "VELOCE";
-		break;
-	case ZYNQMP_CSU_VERSION_EP108:
-		label = "EP108";
-		break;
 	case ZYNQMP_CSU_VERSION_QEMU:
 		label = "QEMU";
 		break;
@@ -346,17 +331,8 @@ unsigned int plat_get_syscnt_freq2(void)
 {
 	unsigned int ver = zynqmp_get_silicon_ver();
 
-	switch (ver) {
-	case ZYNQMP_CSU_VERSION_VELOCE:
-		return 10000;
-	case ZYNQMP_CSU_VERSION_EP108:
-		return 4000000;
-	case ZYNQMP_CSU_VERSION_QEMU:
+	if (ver == ZYNQMP_CSU_VERSION_QEMU)
 		return 50000000;
-	default:
-		/* Do nothing in default case */
-		break;
-	}
-
-	return mmio_read_32(IOU_SCNTRS_BASEFREQ);
+	else
+		return mmio_read_32(IOU_SCNTRS_BASEFREQ);
 }

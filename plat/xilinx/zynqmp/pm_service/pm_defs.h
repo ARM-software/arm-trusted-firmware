@@ -89,6 +89,9 @@ enum pm_api_id {
 	PM_CLOCK_SETPARENT,
 	PM_CLOCK_GETPARENT,
 	PM_SECURE_IMAGE,
+	/* FPGA PL Readback */
+	PM_FPGA_READ,
+	PM_SECURE_AES,
 	PM_API_MAX
 };
 

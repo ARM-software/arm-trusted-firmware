@@ -25,7 +25,6 @@
 #define CLK_TOPOLOGY_NODE_OFFSET	U(16)
 #define CLK_TOPOLOGY_PAYLOAD_LEN	U(12)
 #define CLK_PARENTS_PAYLOAD_LEN		U(12)
-#define CLK_INIT_ENABLE_SHIFT		U(1)
 #define CLK_TYPE_SHIFT			U(2)
 #define CLK_CLKFLAGS_SHIFT		U(8)
 #define CLK_TYPEFLAGS_SHIFT		U(24)
@@ -337,7 +336,8 @@ static struct pm_clock_node acpu_nodes[] = {
 		.width = PERIPH_GATE_WIDTH,
 		.clkflags = CLK_SET_RATE_PARENT |
 			    CLK_IGNORE_UNUSED |
-			    CLK_IS_BASIC,
+			    CLK_IS_BASIC |
+			    CLK_IS_CRITICAL,
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -496,7 +496,7 @@ static struct pm_clock_node ddr_nodes[] = {
 		.type = TYPE_DIV1,
 		.offset = 8,
 		.width = 6,
-		.clkflags = CLK_IS_BASIC,
+		.clkflags = CLK_IS_BASIC | CLK_IS_CRITICAL,
 		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -2022,12 +2022,11 @@ static struct pm_clock clocks[] = {
 	},
 	[CLK_WDT] = {
 		.name = "wdt",
-		.control_reg = IOU_SLCR_WDT_CLK_SEL,
+		.control_reg = FPD_SLCR_WDT_CLK_SEL,
 		.status_reg = 0,
 		.parents = &((int32_t []) {
 			CLK_TOPSW_LSBUS,
 			EXT_CLK_SWDT0 | CLK_EXTERNAL_PARENT,
-			EXT_CLK_SWDT1 | CLK_EXTERNAL_PARENT,
 			CLK_NA_PARENT
 		}),
 		.nodes = &wdt_nodes,
@@ -2243,12 +2242,6 @@ static struct pm_ext_clock ext_clocks[] = {
 /* Array of clock which are invalid for this variant */
 static uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB};
 
-/* Array of clocks which needs to be enabled at init */
-static uint32_t pm_clk_init_enable_list[] = {
-	CLK_ACPU,
-	CLK_DDR_REF,
-};
-
 /**
  * pm_clock_valid - Check if clock is valid or not
  * @clock_id	Id of the clock to be queried
@@ -2270,26 +2263,6 @@ static bool pm_clock_valid(unsigned int clock_id)
 			return 0;
 
 	return 1;
-}
-
-/**
- * pm_clock_init_enable - Check if clock needs to be enabled at init
- * @clock_id	Id of the clock to be queried
- *
- * This function is used to check if given clock needs to be enabled
- * at boot up or not. Some clocks needs to be enabled at init.
- *
- * Return: Returns 1 if clock needs to be enabled at boot up else 0.
- */
-static unsigned int pm_clock_init_enable(unsigned int clock_id)
-{
-	unsigned int i;
-
-	for (i = 0; i < ARRAY_SIZE(pm_clk_init_enable_list); i++)
-		if (pm_clk_init_enable_list[i] == clock_id)
-			return 1;
-
-	return 0;
 }
 
 /**
@@ -2509,9 +2482,6 @@ enum pm_ret_status pm_api_clock_get_attributes(unsigned int clock_id,
 	/* Clock valid bit */
 	*attr = pm_clock_valid(clock_id);
 
-	/* If clock needs to be enabled during init */
-	*attr |= (pm_clock_init_enable(clock_id) << CLK_INIT_ENABLE_SHIFT);
-
 	/* Clock type (Output/External) */
 	*attr |= (pm_clock_type(clock_id) << CLK_TYPE_SHIFT);
 
@@ -2657,10 +2627,11 @@ enum pm_ret_status pm_api_clock_enable(unsigned int clock_id)
 	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
-	if (ISPLL(clock_id))
-		ret = pm_api_pll_bypass_and_reset(clock_id,
-						  CLK_PLL_RESET_PULSE);
-	else
+	/*
+	 * PLL type clock should not enable explicitly.
+	 * It is done by FSBL on boot-up and by PMUFW whenever required.
+	 */
+	if (!ISPLL(clock_id))
 		ret = pm_api_clk_enable_disable(clock_id, 1);
 
 	return ret;
@@ -2686,10 +2657,11 @@ enum pm_ret_status pm_api_clock_disable(unsigned int clock_id)
 	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
-	if (ISPLL(clock_id))
-		ret = pm_api_pll_bypass_and_reset(clock_id,
-						  CLK_PLL_RESET_ASSERT);
-	else
+	/*
+	 * PLL type clock should not be disabled explicitly.
+	 * It is done by PMUFW if required.
+	 */
+	if (!ISPLL(clock_id))
 		ret = pm_api_clk_enable_disable(clock_id, 0);
 
 	return ret;
@@ -2837,8 +2809,13 @@ static enum pm_ret_status pm_api_pll_set_divider(unsigned int clock_id,
 					  unsigned int divider)
 {
 	unsigned int reg = clocks[clock_id].control_reg;
+	enum pm_ret_status ret;
 
-	return pm_mmio_write(reg, PLL_FBDIV_MASK, divider << PLL_FBDIV_SHIFT);
+	pm_api_pll_bypass_and_reset(clock_id, CLK_PLL_RESET_ASSERT);
+	ret = pm_mmio_write(reg, PLL_FBDIV_MASK, divider << PLL_FBDIV_SHIFT);
+	pm_api_pll_bypass_and_reset(clock_id, CLK_PLL_RESET_RELEASE);
+
+	return ret;
 }
 
 /**
@@ -2988,7 +2965,7 @@ enum pm_ret_status pm_api_clock_getrate(unsigned int clock_id,
 /**
  * pm_api_clock_setparent - Set the clock parent for given id
  * @clock_id	Id of the clock
- * @parent_id	parent id
+ * @parent_idx	parent index
  *
  * This function is used by master to set parent for any clock.
  *
@@ -3039,7 +3016,7 @@ enum pm_ret_status pm_api_clock_setparent(unsigned int clock_id,
 /**
  * pm_api_clock_getparent - Get the clock parent for given id
  * @clock_id	Id of the clock
- * @parent_id	parent id
+ * @parent_idx	parent index
  *
  * This function is used by master to get parent index
  * for any clock.
