@@ -210,7 +210,12 @@ DEFINE_SYSOP_FUNC(sev)
 DEFINE_SYSOP_TYPE_FUNC(dsb, sy)
 DEFINE_SYSOP_TYPE_FUNC(dmb, sy)
 DEFINE_SYSOP_TYPE_FUNC(dmb, st)
+
+/* dmb ld is not valid for armv7/thumb machines */
+#if ARM_ARCH_MAJOR != 7
 DEFINE_SYSOP_TYPE_FUNC(dmb, ld)
+#endif
+
 DEFINE_SYSOP_TYPE_FUNC(dsb, ish)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ishst)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ish)
@@ -322,6 +327,11 @@ DEFINE_DCOP_PARAM_FUNC(cvac, DCCMVAC)
 /* Previously defined accessor functions with incomplete register names  */
 #define dsb()			dsbsy()
 #define dmb()			dmbsy()
+
+/* dmb ld is not valid for armv7/thumb machines, so alias it to dmb */
+#if ARM_ARCH_MAJOR == 7
+#define	dmbld()			dmb()
+#endif
 
 #define IS_IN_SECURE() \
 	(GET_NS_BIT(read_scr()) == 0)

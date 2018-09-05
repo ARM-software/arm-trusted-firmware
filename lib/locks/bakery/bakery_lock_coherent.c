@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -133,7 +133,12 @@ void bakery_lock_get(bakery_lock_t *bakery)
 				bakery_ticket_number(bakery->lock_data[they]));
 		}
 	}
-	/* Lock acquired */
+
+	/*
+	 * Lock acquired. Ensure that any reads from a shared resource in the
+	 * critical section read values after the lock is acquired.
+	 */
+	dmbld();
 }
 
 
@@ -146,9 +151,11 @@ void bakery_lock_release(bakery_lock_t *bakery)
 	assert(bakery_ticket_number(bakery->lock_data[me]));
 
 	/*
-	 * Release lock by resetting ticket. Then signal other
-	 * waiting contenders
+	 * Ensure that other observers see any stores in the critical section
+	 * before releasing the lock. Release the lock by resetting ticket.
+	 * Then signal other waiting contenders.
 	 */
+	dmbst();
 	bakery->lock_data[me] = 0;
 	dsb();
 	sev();
