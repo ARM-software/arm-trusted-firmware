@@ -67,3 +67,13 @@ css_plat_config_t *get_plat_config(void)
 	assert(css_plat_info != NULL);
 	return css_plat_info;
 }
+
+#if TRUSTED_BOARD_BOOT && LOAD_IMAGE_V2
+int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
+{
+	assert(heap_addr != NULL);
+	assert(heap_size != NULL);
+
+	return arm_get_mbedtls_heap(heap_addr, heap_size);
+}
+#endif

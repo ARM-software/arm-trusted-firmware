@@ -8,6 +8,9 @@
 #include <assert.h>
 #include <debug.h>
 #include <desc_image_load.h>
+#if TRUSTED_BOARD_BOOT
+#include <mbedtls_config.h>
+#endif
 #include <plat_arm.h>
 #include <platform.h>
 #include <platform_def.h>
@@ -16,8 +19,93 @@
 
 #if LOAD_IMAGE_V2
 
-/* Variable to store the address to TB_FW_CONFIG passed from BL1 */
+/* Variable to store the address of TB_FW_CONFIG file */
 static void *tb_fw_cfg_dtb;
+
+
+#if TRUSTED_BOARD_BOOT
+
+static void *mbedtls_heap_addr;
+static size_t mbedtls_heap_size;
+
+/*
+ * This function is the implementation of the shared Mbed TLS heap between
+ * BL1 and BL2 for Arm platforms. The shared heap address is passed from BL1
+ * to BL2 with a pointer. This pointer resides inside the TB_FW_CONFIG file
+ * which is a DTB.
+ *
+ * This function is placed inside an #if directive for the below reasons:
+ *   - To allocate space for the Mbed TLS heap --only if-- Trusted Board Boot
+ *     is enabled.
+ *   - This implementation requires the DTB to be present so that BL1 has a
+ *     mechanism to pass the pointer to BL2. If LOAD_IMAGE_V2=0 then
+ *     TB_FW_CONFIG is not present, which means that this implementation
+ *     cannot be applied.
+ */
+int arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
+{
+	assert(heap_addr != NULL);
+	assert(heap_size != NULL);
+
+#if defined(IMAGE_BL1) || BL2_AT_EL3
+
+	/* If in BL1 or BL2_AT_EL3 define a heap */
+	static unsigned char heap[TF_MBEDTLS_HEAP_SIZE];
+
+	*heap_addr = heap;
+	*heap_size = sizeof(heap);
+	mbedtls_heap_addr = heap;
+	mbedtls_heap_size = sizeof(heap);
+
+#elif defined(IMAGE_BL2)
+
+	int err;
+
+	/* If in BL2, retrieve the already allocated heap's info from DTB */
+	err = arm_get_dtb_mbedtls_heap_info(tb_fw_cfg_dtb, heap_addr,
+		heap_size);
+	if (err < 0) {
+		ERROR("BL2: unable to retrieve shared Mbed TLS heap "
+			"information from DTB\n");
+		panic();
+	}
+#endif
+
+	return 0;
+}
+
+/*
+ * Puts the shared Mbed TLS heap information to the DTB.
+ * Executed only from BL1.
+ */
+void arm_bl1_set_mbedtls_heap(void)
+{
+	int err;
+
+	/*
+	 * If tb_fw_cfg_dtb==NULL then DTB is not present for the current
+	 * platform. As such, we don't attempt to write to the DTB at all.
+	 *
+	 * If mbedtls_heap_addr==NULL, then it means we are using the default
+	 * heap implementation. As such, BL2 will have its own heap for sure
+	 * and hence there is no need to pass any information to the DTB.
+	 *
+	 * In the latter case, if we still wanted to write in the DTB the heap
+	 * information, we would need to call plat_get_mbedtls_heap to retrieve
+	 * the default heap's address and size.
+	 */
+	if ((tb_fw_cfg_dtb != NULL) && (mbedtls_heap_addr != NULL)) {
+		err = arm_set_dtb_mbedtls_heap_info(tb_fw_cfg_dtb,
+			mbedtls_heap_addr, mbedtls_heap_size);
+		if (err < 0) {
+			ERROR("BL1: unable to write shared Mbed TLS heap "
+				"information to DTB\n");
+			panic();
+		}
+	}
+}
+
+#endif /* TRUSTED_BOARD_BOOT */
 
 /*
  * Helper function to load TB_FW_CONFIG and populate the load information to
@@ -45,7 +133,9 @@ void arm_load_tb_fw_config(void)
 		return;
 	}
 
+	/* At this point we know that a DTB is indeed available */
 	config_base = arm_tb_fw_info.image_info.image_base;
+	tb_fw_cfg_dtb = (void *)config_base;
 
 	/* The BL2 ep_info arg0 is modified to point to TB_FW_CONFIG */
 	image_desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);

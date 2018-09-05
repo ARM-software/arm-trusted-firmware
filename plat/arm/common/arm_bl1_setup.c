@@ -149,7 +149,11 @@ void arm_bl1_platform_setup(void)
 	plat_arm_io_setup();
 #if LOAD_IMAGE_V2
 	arm_load_tb_fw_config();
-#endif
+#if TRUSTED_BOARD_BOOT
+	/* Share the Mbed TLS heap info with other images */
+	arm_bl1_set_mbedtls_heap();
+#endif /* TRUSTED_BOARD_BOOT */
+#endif /* LOAD_IMAGE_V2 */
 	/*
 	 * Allow access to the System counter timer module and program
 	 * counter frequency for non secure images during FWU

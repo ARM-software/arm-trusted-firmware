@@ -242,6 +242,17 @@
 						MT_MEMORY | MT_RW | MT_SECURE)
 
 /*
+ * Mapping for the BL1 RW region. This mapping is needed by BL2 in order to
+ * share the Mbed TLS heap. Since the heap is allocated inside BL1, it resides
+ * in the BL1 RW region. Hence, BL2 needs access to the BL1 RW region in order
+ * to be able to access the heap.
+ */
+#define ARM_MAP_BL1_RW		MAP_REGION_FLAT(	\
+					BL1_RW_BASE,	\
+					BL1_RW_LIMIT - BL1_RW_BASE, \
+					MT_MEMORY | MT_RW | MT_SECURE)
+
+/*
  * If SEPARATE_CODE_AND_RODATA=1 we define a region for each section
  * otherwise one region is defined containing both.
  */
