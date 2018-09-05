@@ -156,11 +156,12 @@ endfunc denver_disable_ext_debug
 	 * ----------------------------------------------------
 	 */
 func denver_enable_dco
-	mrs	x0, mpidr_el1
-	and	x0, x0, #0xF
+	mov	x3, x30
+	bl	plat_my_core_pos
 	mov	x1, #1
 	lsl	x1, x1, x0
 	msr	s3_0_c15_c0_2, x1
+	mov	x30, x3
 	ret
 endfunc denver_enable_dco
 
@@ -170,9 +171,10 @@ endfunc denver_enable_dco
 	 */
 func denver_disable_dco
 
+	mov	x3, x30
+
 	/* turn off background work */
-	mrs	x0, mpidr_el1
-	and	x0, x0, #0xF
+	bl	plat_my_core_pos
 	mov	x1, #1
 	lsl	x1, x1, x0
 	lsl	x2, x1, #16
@@ -186,6 +188,7 @@ func denver_disable_dco
 	and	x2, x2, x1
 	cbnz	x2, 1b
 
+	mov	x30, x3
 	ret
 endfunc denver_disable_dco
 
@@ -207,6 +210,15 @@ func check_errata_cve_2017_5715
 #endif
 	ret
 endfunc check_errata_cve_2017_5715
+
+func check_errata_cve_2018_3639
+#if WORKAROUND_CVE_2018_3639
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_cve_2018_3639
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Denver.
@@ -232,6 +244,34 @@ func denver_reset_func
 	csel	x0, x1, x2, ne
 	msr	vbar_el3, x0
 #endif
+
+#if WORKAROUND_CVE_2018_3639
+	/*
+	 * Denver CPUs with DENVER_MIDR_PN3 or earlier, use different
+	 * bits in the ACTLR_EL3 register to disable speculative
+	 * store buffer and memory disambiguation.
+	 */
+	mrs	x0, midr_el1
+	mov_imm	x1, DENVER_MIDR_PN4
+	cmp	x0, x1
+	mrs	x0, actlr_el3
+	mov	x1, #(DENVER_CPU_DIS_MD_EL3 | DENVER_CPU_DIS_SSB_EL3)
+	mov	x2, #(DENVER_PN4_CPU_DIS_MD_EL3 | DENVER_PN4_CPU_DIS_SSB_EL3)
+	csel	x3, x1, x2, ne
+	orr	x0, x0, x3
+	msr	actlr_el3, x0
+	isb
+	dsb	sy
+#endif
+
+	/* ----------------------------------------------------
+	 * Reset ACTLR.PMSTATE to C1 state
+	 * ----------------------------------------------------
+	 */
+	mrs	x0, actlr_el1
+	bic	x0, x0, #DENVER_CPU_PMSTATE_MASK
+	orr	x0, x0, #DENVER_CPU_PMSTATE_C1
+	msr	actlr_el1, x0
 
 	/* ----------------------------------------------------
 	 * Enable dynamic code optimizer (DCO)
@@ -282,6 +322,7 @@ func denver_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata WORKAROUND_CVE_2017_5715, denver, cve_2017_5715
+	report_errata WORKAROUND_CVE_2018_3639, denver, cve_2018_3639
 
 	ldp	x8, x30, [sp], #16
 	ret
