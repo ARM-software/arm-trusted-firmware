@@ -36,6 +36,20 @@
 #define OCR_VDD_MIN_2V0			GENMASK(14, 8)
 #define OCR_VDD_MIN_1V7			BIT(7)
 
+#define MMC_RSP_48			BIT(0)
+#define MMC_RSP_136			BIT(1)		/* 136 bit response */
+#define MMC_RSP_CRC			BIT(2)		/* expect valid crc */
+#define MMC_RSP_CMD_IDX			BIT(3)		/* response contains cmd idx */
+#define MMC_RSP_BUSY			BIT(4)		/* device may be busy */
+
+/* JEDEC 4.51 chapter 6.12 */
+#define MMC_RESPONSE_R1			(MMC_RSP_48 | MMC_RSP_CMD_IDX | MMC_RSP_CRC)
+#define MMC_RESPONSE_R1B		(MMC_RESPONSE_R1 | MMC_RSP_BUSY)
+#define MMC_RESPONSE_R2			(MMC_RSP_136 | MMC_RSP_CRC)
+#define MMC_RESPONSE_R3			(MMC_RSP_48)
+#define MMC_RESPONSE_R4			(MMC_RSP_48)
+#define MMC_RESPONSE_R5			(MMC_RSP_48 | MMC_RSP_CRC)
+
 #define MMC_RESPONSE_R(_x)		U(_x)
 
 /* Value randomly chosen for eMMC RCA, it should be > 1 */

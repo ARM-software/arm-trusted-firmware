@@ -259,11 +259,14 @@ static int dw_send_cmd(struct mmc_cmd *cmd)
 	switch (cmd->resp_type) {
 	case 0:
 		break;
-	case MMC_RESPONSE_R(2):
+	case MMC_RESPONSE_R2:
 		op |= CMD_RESP_EXPECT | CMD_CHECK_RESP_CRC |
 		      CMD_RESP_LEN;
 		break;
-	case MMC_RESPONSE_R(3):
+	case MMC_RESPONSE_R1:
+	case MMC_RESPONSE_R1B:
+	case MMC_RESPONSE_R3:
+	case MMC_RESPONSE_R5:
 		op |= CMD_RESP_EXPECT;
 		break;
 	default:
