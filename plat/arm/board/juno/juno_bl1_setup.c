@@ -5,14 +5,71 @@
  */
 
 #include <bl_common.h>
+#include <debug.h>
 #include <errno.h>
 #include <plat_arm.h>
 #include <platform.h>
+#include <sds.h>
 #include <sp805.h>
 #include <tbbr_img_def.h>
 #include <v2m_def.h>
 
 void juno_reset_to_aarch32_state(void);
+
+static int is_watchdog_reset(void)
+{
+#if !CSS_USE_SCMI_SDS_DRIVER
+	#define RESET_REASON_WDOG_RESET		(0x2)
+	const uint32_t *reset_flags_ptr = (const uint32_t *)SSC_GPRETN;
+
+	if ((*reset_flags_ptr & RESET_REASON_WDOG_RESET) != 0)
+		return 1;
+
+	return 0;
+#else
+	int ret;
+	uint32_t scp_reset_synd_flags;
+
+	ret = sds_init();
+	if (ret != SDS_OK) {
+		ERROR("SCP SDS initialization failed\n");
+		panic();
+	}
+
+	ret = sds_struct_read(SDS_RESET_SYNDROME_STRUCT_ID,
+					SDS_RESET_SYNDROME_OFFSET,
+					&scp_reset_synd_flags,
+					SDS_RESET_SYNDROME_SIZE,
+					SDS_ACCESS_MODE_NON_CACHED);
+	if (ret != SDS_OK) {
+		ERROR("Getting reset reason from SDS failed\n");
+		panic();
+	}
+
+	/* Check if the WATCHDOG_RESET_BIT is set in the reset syndrome */
+	if (scp_reset_synd_flags & SDS_RESET_SYNDROME_AP_WD_RESET_BIT)
+		return 1;
+
+	return 0;
+#endif
+}
+
+/*******************************************************************************
+ * The following function checks if Firmware update is needed,
+ * by checking if TOC in FIP image is valid or watchdog reset happened.
+ ******************************************************************************/
+int plat_arm_bl1_fwu_needed(void)
+{
+	const uint32_t *nv_flags_ptr = (const uint32_t *)V2M_SYS_NVFLAGS_ADDR;
+
+	/* Check if TOC is invalid or watchdog reset happened. */
+	if ((arm_io_is_toc_valid() != 1) ||
+		(((*nv_flags_ptr == -EAUTH) || (*nv_flags_ptr == -ENOENT))
+		&& is_watchdog_reset()))
+		return 1;
+
+	return 0;
+}
 
 /*******************************************************************************
  * On JUNO update the arg2 with address of SCP_BL2U image info.
