@@ -62,11 +62,15 @@ int arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 	int err;
 
 	/* If in BL2, retrieve the already allocated heap's info from DTB */
-	err = arm_get_dtb_mbedtls_heap_info(tb_fw_cfg_dtb, heap_addr,
-		heap_size);
-	if (err < 0) {
-		ERROR("BL2: unable to retrieve shared Mbed TLS heap "
-			"information from DTB\n");
+	if (tb_fw_cfg_dtb != NULL) {
+		err = arm_get_dtb_mbedtls_heap_info(tb_fw_cfg_dtb, heap_addr,
+			heap_size);
+		if (err < 0) {
+			ERROR("BL2: unable to retrieve shared Mbed TLS heap information from DTB\n");
+			panic();
+		}
+	} else {
+		ERROR("BL2: DTB missing, cannot get Mbed TLS heap\n");
 		panic();
 	}
 #endif
@@ -98,8 +102,7 @@ void arm_bl1_set_mbedtls_heap(void)
 		err = arm_set_dtb_mbedtls_heap_info(tb_fw_cfg_dtb,
 			mbedtls_heap_addr, mbedtls_heap_size);
 		if (err < 0) {
-			ERROR("BL1: unable to write shared Mbed TLS heap "
-				"information to DTB\n");
+			ERROR("BL1: unable to write shared Mbed TLS heap information to DTB\n");
 			panic();
 		}
 	}
