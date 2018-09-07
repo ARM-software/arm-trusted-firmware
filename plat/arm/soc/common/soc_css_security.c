@@ -23,7 +23,7 @@ void soc_css_init_nic400(void)
 
 	/*
 	 * Allow non-secure access to some SOC regions, excluding UART1, which
-	 * remains secure.
+	 * remains secure (unless CSS_NON_SECURE_UART is set).
 	 * Note: This is the NIC-400 device on the SOC
 	 */
 	mmio_write_32(SOC_CSS_NIC400_BASE +
@@ -36,9 +36,15 @@ void soc_css_init_nic400(void)
 		NIC400_ADDR_CTRL_SECURITY_REG(SOC_CSS_NIC400_PL354_SMC), ~0);
 	mmio_write_32(SOC_CSS_NIC400_BASE +
 		NIC400_ADDR_CTRL_SECURITY_REG(SOC_CSS_NIC400_APB4_BRIDGE), ~0);
+#if  CSS_NON_SECURE_UART
+	/* Configure UART for non-secure access */
+	mmio_write_32(SOC_CSS_NIC400_BASE +
+		NIC400_ADDR_CTRL_SECURITY_REG(SOC_CSS_NIC400_BOOTSEC_BRIDGE), ~0);
+#else
 	mmio_write_32(SOC_CSS_NIC400_BASE +
 		NIC400_ADDR_CTRL_SECURITY_REG(SOC_CSS_NIC400_BOOTSEC_BRIDGE),
 		~SOC_CSS_NIC400_BOOTSEC_BRIDGE_UART1);
+#endif /* CSS_NON_SECURE_UART */
 
 }
 
