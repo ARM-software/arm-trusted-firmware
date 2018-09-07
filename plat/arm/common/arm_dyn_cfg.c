@@ -21,6 +21,7 @@
 
 /* Variable to store the address of TB_FW_CONFIG file */
 static void *tb_fw_cfg_dtb;
+static size_t tb_fw_cfg_dtb_size;
 
 
 #if TRUSTED_BOARD_BOOT
@@ -62,11 +63,15 @@ int arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 	int err;
 
 	/* If in BL2, retrieve the already allocated heap's info from DTB */
-	err = arm_get_dtb_mbedtls_heap_info(tb_fw_cfg_dtb, heap_addr,
-		heap_size);
-	if (err < 0) {
-		ERROR("BL2: unable to retrieve shared Mbed TLS heap "
-			"information from DTB\n");
+	if (tb_fw_cfg_dtb != NULL) {
+		err = arm_get_dtb_mbedtls_heap_info(tb_fw_cfg_dtb, heap_addr,
+			heap_size);
+		if (err < 0) {
+			ERROR("BL2: unable to retrieve shared Mbed TLS heap information from DTB\n");
+			panic();
+		}
+	} else {
+		ERROR("BL2: DTB missing, cannot get Mbed TLS heap\n");
 		panic();
 	}
 #endif
@@ -98,10 +103,16 @@ void arm_bl1_set_mbedtls_heap(void)
 		err = arm_set_dtb_mbedtls_heap_info(tb_fw_cfg_dtb,
 			mbedtls_heap_addr, mbedtls_heap_size);
 		if (err < 0) {
-			ERROR("BL1: unable to write shared Mbed TLS heap "
-				"information to DTB\n");
+			ERROR("BL1: unable to write shared Mbed TLS heap information to DTB\n");
 			panic();
 		}
+		/*
+		 * Ensure that the info written to the DTB is visible to other
+		 * images. It's critical because BL2 won't be able to proceed
+		 * without the heap info.
+		 */
+		flush_dcache_range((uintptr_t)tb_fw_cfg_dtb,
+			tb_fw_cfg_dtb_size);
 	}
 }
 
@@ -122,7 +133,8 @@ void arm_load_tb_fw_config(void)
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
 				VERSION_2, image_info_t, 0),
 		.image_info.image_base = ARM_TB_FW_CONFIG_BASE,
-		.image_info.image_max_size = ARM_TB_FW_CONFIG_LIMIT - ARM_TB_FW_CONFIG_BASE,
+		.image_info.image_max_size =
+			ARM_TB_FW_CONFIG_LIMIT - ARM_TB_FW_CONFIG_BASE
 	};
 
 	VERBOSE("BL1: Loading TB_FW_CONFIG\n");
@@ -136,6 +148,7 @@ void arm_load_tb_fw_config(void)
 	/* At this point we know that a DTB is indeed available */
 	config_base = arm_tb_fw_info.image_info.image_base;
 	tb_fw_cfg_dtb = (void *)config_base;
+	tb_fw_cfg_dtb_size = (size_t)arm_tb_fw_info.image_info.image_max_size;
 
 	/* The BL2 ep_info arg0 is modified to point to TB_FW_CONFIG */
 	image_desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
