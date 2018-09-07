@@ -109,7 +109,8 @@ void bl31_main(void)
 		int32_t rc = (*bl32_init)();
 
 		if (rc != 0) {
-			ERROR("BL31: BL32 initialization failed (rc = %d)", rc);
+			WARN("BL31: BL32 initialization failed (rc = %d)\n",
+			     rc);
 		}
 	}
 	/*
