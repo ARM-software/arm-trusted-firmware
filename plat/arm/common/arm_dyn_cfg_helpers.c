@@ -167,8 +167,6 @@ int arm_dyn_tb_fw_cfg_init(void *dtb, int *node)
 	return 0;
 }
 
-
-#if TRUSTED_BOARD_BOOT && LOAD_IMAGE_V2
 /*
  * Reads and returns the Mbed TLS shared heap information from the DTB.
  * This function is supposed to be called *only* when a DTB is present.
@@ -187,8 +185,7 @@ int arm_get_dtb_mbedtls_heap_info(void *dtb, void **heap_addr,
 	/* Verify the DTB is valid and get the root node */
 	err = arm_dyn_tb_fw_cfg_init(dtb, &dtb_root);
 	if (err < 0) {
-		ERROR("%s: Invalid TB_FW_CONFIG. Cannot retrieve Mbed TLS "
-			"heap information from DTB\n", __func__);
+		ERROR("Invalid TB_FW_CONFIG. Cannot retrieve Mbed TLS heap information from DTB\n");
 		return -1;
 	}
 
@@ -196,14 +193,14 @@ int arm_get_dtb_mbedtls_heap_info(void *dtb, void **heap_addr,
 	err = fdtw_read_cells(dtb, dtb_root,
 		DTB_PROP_MBEDTLS_HEAP_ADDR, 2, heap_addr);
 	if (err < 0) {
-		ERROR("%s: error while reading %s from DTB\n", __func__,
+		ERROR("Error while reading %s from DTB\n",
 			DTB_PROP_MBEDTLS_HEAP_ADDR);
 		return -1;
 	}
 	err = fdtw_read_cells(dtb, dtb_root,
 		DTB_PROP_MBEDTLS_HEAP_SIZE, 1, heap_size);
 	if (err < 0) {
-		ERROR("%s: error while reading %s from DTB\n", __func__,
+		ERROR("Error while reading %s from DTB\n",
 			DTB_PROP_MBEDTLS_HEAP_SIZE);
 		return -1;
 	}
@@ -234,8 +231,7 @@ int arm_set_dtb_mbedtls_heap_info(void *dtb, void *heap_addr, size_t heap_size)
 	 */
 	err = arm_dyn_tb_fw_cfg_init(dtb, &dtb_root);
 	if (err < 0) {
-		ERROR("%s: Invalid TB_FW_CONFIG loaded. Unable to get "
-			"root node\n", __func__);
+		ERROR("Invalid TB_FW_CONFIG loaded. Unable to get root node\n");
 		return -1;
 	}
 
@@ -249,19 +245,18 @@ int arm_set_dtb_mbedtls_heap_info(void *dtb, void *heap_addr, size_t heap_size)
 	err = fdtw_write_inplace_cells(dtb, dtb_root,
 		DTB_PROP_MBEDTLS_HEAP_ADDR, 2, &heap_addr);
 	if (err < 0) {
-		ERROR("%s: unable to write DTB property %s\n",
-			__func__, DTB_PROP_MBEDTLS_HEAP_ADDR);
+		ERROR("Unable to write DTB property %s\n",
+			DTB_PROP_MBEDTLS_HEAP_ADDR);
 		return -1;
 	}
 
 	err = fdtw_write_inplace_cells(dtb, dtb_root,
 		DTB_PROP_MBEDTLS_HEAP_SIZE, 1, &heap_size);
 	if (err < 0) {
-		ERROR("%s: unable to write DTB property %s\n",
-			__func__, DTB_PROP_MBEDTLS_HEAP_SIZE);
+		ERROR("Unable to write DTB property %s\n",
+			DTB_PROP_MBEDTLS_HEAP_SIZE);
 		return -1;
 	}
 
 	return 0;
 }
-#endif /* TRUSTED_BOARD_BOOT && LOAD_IMAGE_V2 */
