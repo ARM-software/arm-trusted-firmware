@@ -57,16 +57,16 @@
 		}					\
 	} while (false)
 
-#if LOG_LEVEL >= LOG_LEVEL_NOTICE
-# define NOTICE(...)	tf_log(LOG_MARKER_NOTICE __VA_ARGS__)
-#else
-# define NOTICE(...)	no_tf_log(LOG_MARKER_NOTICE __VA_ARGS__)
-#endif
-
 #if LOG_LEVEL >= LOG_LEVEL_ERROR
 # define ERROR(...)	tf_log(LOG_MARKER_ERROR __VA_ARGS__)
 #else
 # define ERROR(...)	no_tf_log(LOG_MARKER_ERROR __VA_ARGS__)
+#endif
+
+#if LOG_LEVEL >= LOG_LEVEL_NOTICE
+# define NOTICE(...)	tf_log(LOG_MARKER_NOTICE __VA_ARGS__)
+#else
+# define NOTICE(...)	no_tf_log(LOG_MARKER_NOTICE __VA_ARGS__)
 #endif
 
 #if LOG_LEVEL >= LOG_LEVEL_WARNING
