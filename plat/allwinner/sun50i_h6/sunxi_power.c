@@ -28,13 +28,8 @@ static int sunxi_init_r_i2c(void)
 {
 	uint32_t reg;
 
-	/* get currently configured function for pins PL0 and PL1 */
-	reg = mmio_read_32(SUNXI_R_PIO_BASE + 0x00);
-	if ((reg & 0xff) == 0x33) {
-		NOTICE("PMIC: already configured for TWI\n");
-	}
-
 	/* switch pins PL0 and PL1 to I2C */
+	reg = mmio_read_32(SUNXI_R_PIO_BASE + 0x00);
 	mmio_write_32(SUNXI_R_PIO_BASE + 0x00, (reg & ~0xff) | 0x33);
 
 	/* level 2 drive strength */
@@ -47,13 +42,11 @@ static int sunxi_init_r_i2c(void)
 
 	/* assert & de-assert reset of R_I2C */
 	reg = mmio_read_32(SUNXI_R_PRCM_BASE + 0x19c);
-	mmio_write_32(SUNXI_R_PRCM_BASE + 0x19c, 0);
-	reg = mmio_read_32(SUNXI_R_PRCM_BASE + 0x19c);
-	mmio_write_32(SUNXI_R_PRCM_BASE + 0x19c, reg | 0x00010000);
+	mmio_write_32(SUNXI_R_PRCM_BASE + 0x19c, reg & ~BIT(16));
+	mmio_write_32(SUNXI_R_PRCM_BASE + 0x19c, reg | BIT(16));
 
 	/* un-gate R_I2C clock */
-	reg = mmio_read_32(SUNXI_R_PRCM_BASE + 0x19c);
-	mmio_write_32(SUNXI_R_PRCM_BASE + 0x19c, reg | 0x00000001);
+	mmio_write_32(SUNXI_R_PRCM_BASE + 0x19c, reg | BIT(16) | BIT(0));
 
 	/* call mi2cv driver */
 	i2c_init((void *)SUNXI_R_I2C_BASE);
