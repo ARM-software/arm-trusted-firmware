@@ -96,7 +96,7 @@ static int axp805_probe(void)
 	return 0;
 }
 
-int sunxi_pmic_setup(void)
+int sunxi_pmic_setup(uint16_t socid)
 {
 	int ret;
 

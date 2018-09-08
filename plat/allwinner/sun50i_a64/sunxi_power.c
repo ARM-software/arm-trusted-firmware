@@ -8,7 +8,7 @@
 #include <arch_helpers.h>
 #include <debug.h>
 
-int sunxi_pmic_setup(void)
+int sunxi_pmic_setup(uint16_t socid)
 {
 	/* STUB */
 	NOTICE("BL31: STUB PMIC setup code called\n");
