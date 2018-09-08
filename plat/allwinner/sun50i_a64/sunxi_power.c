@@ -119,7 +119,7 @@ static int axp_setbits_8(uint8_t reg, uint8_t set_mask)
 	return rsb_write(AXP803_RT_ADDR, reg, regval);
 }
 
-int sunxi_pmic_setup(uint16_t socid)
+int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 {
 	int ret;
 

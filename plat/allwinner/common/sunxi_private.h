@@ -12,7 +12,7 @@ void sunxi_cpu_off(unsigned int cluster, unsigned int core);
 void sunxi_cpu_on(unsigned int cluster, unsigned int core);
 void sunxi_disable_secondary_cpus(unsigned int primary_cpu);
 
-void sunxi_pmic_setup(uint16_t socid);
+void sunxi_pmic_setup(uint16_t socid, const void *fdt);
 void sunxi_security_setup(void);
 
 void __dead2 sunxi_power_down(void);
