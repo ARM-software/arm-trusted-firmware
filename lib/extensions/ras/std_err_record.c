@@ -56,7 +56,7 @@ int ser_probe_sysreg(unsigned int idx_start, unsigned int num_idx, int *probe_da
 		((unsigned int) read_erridr_el1()) & ERRIDR_MASK;
 
 	assert(idx_start < max_idx);
-	assert(check_u32_overflow(idx_start, num_idx));
+	assert(check_u32_overflow(idx_start, num_idx) == 0);
 	assert((idx_start + num_idx - 1U) < max_idx);
 
 	for (i = 0; i < num_idx; i++) {
