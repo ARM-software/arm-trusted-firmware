@@ -120,10 +120,9 @@ void __dead2 sunxi_power_down(void)
 
 	switch (pmic) {
 	case AXP805:
-		val = 0x26; /* Default value for REG 32H */
+		sunxi_init_r_i2c();
 		axp_i2c_read(AXP805_ADDR, 0x32, &val);
-		val |= 0x80;
-		axp_i2c_write(AXP805_ADDR, 0x32, val);
+		axp_i2c_write(AXP805_ADDR, 0x32, val | 0x80);
 		break;
 	default:
 		break;
