@@ -14,7 +14,7 @@ void sunxi_disable_secondary_cpus(unsigned int primary_cpu);
 
 uint16_t sunxi_read_soc_id(void);
 
-void sunxi_pmic_setup(void);
+void sunxi_pmic_setup(uint16_t socid);
 void sunxi_security_setup(void);
 
 void __dead2 sunxi_power_down(void);
