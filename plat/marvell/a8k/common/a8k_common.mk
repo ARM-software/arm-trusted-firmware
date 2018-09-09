@@ -57,9 +57,9 @@ BLE_PORTING_SOURCES	:=	$(PLAT_FAMILY_BASE)/$(PLAT)/board/dram_port.c \
 
 MARVELL_MOCHI_DRV	+=	$(MARVELL_DRV_BASE)/mochi/cp110_setup.c
 
-BLE_SOURCES		:=	$(PLAT_COMMON_BASE)/plat_ble_setup.c		\
+BLE_SOURCES		:=	drivers/mentor/i2c/mi2cv.c			\
+				$(PLAT_COMMON_BASE)/plat_ble_setup.c		\
 				$(MARVELL_MOCHI_DRV)			       \
-				$(MARVELL_DRV_BASE)/i2c/a8k_i2c.c	 	\
 				$(PLAT_COMMON_BASE)/plat_pm.c		 	\
 				$(MARVELL_DRV_BASE)/thermal.c			\
 				$(PLAT_COMMON_BASE)/plat_thermal.c		\
