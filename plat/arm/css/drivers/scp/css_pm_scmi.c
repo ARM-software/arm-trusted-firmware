@@ -105,8 +105,7 @@ void css_scp_suspend(const struct psci_power_state *target_state)
 	 * If we reach here, then assert that power down at system power domain
 	 * level is running.
 	 */
-	assert(target_state->pwr_domain_state[CSS_SYSTEM_PWR_DMN_LVL] ==
-							ARM_LOCAL_STATE_RUN);
+	assert(css_system_pwr_state(target_state) == ARM_LOCAL_STATE_RUN);
 
 	/* For level 0, specify `scmi_power_state_sleep` as the power state */
 	SCMI_SET_PWR_STATE_LVL(scmi_pwr_state, ARM_PWR_LVL0,
@@ -154,8 +153,7 @@ void css_scp_off(const struct psci_power_state *target_state)
 							ARM_LOCAL_STATE_OFF);
 
 	/* PSCI CPU OFF cannot be used to turn OFF system power domain */
-	assert(target_state->pwr_domain_state[CSS_SYSTEM_PWR_DMN_LVL] ==
-							ARM_LOCAL_STATE_RUN);
+	assert(css_system_pwr_state(target_state) == ARM_LOCAL_STATE_RUN);
 
 	for (; lvl <= PLAT_MAX_PWR_LVL; lvl++) {
 		if (target_state->pwr_domain_state[lvl] == ARM_LOCAL_STATE_RUN)
