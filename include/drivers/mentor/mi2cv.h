@@ -1,14 +1,15 @@
 /*
  * Copyright (C) 2018 Marvell International Ltd.
+ * Copyright (C) 2018 Icenowy Zheng <icenowy@aosc.io>
  *
  * SPDX-License-Identifier:     BSD-3-Clause
  * https://spdx.org/licenses
  */
 
-/* This driver provides I2C support for Marvell A8K and compatible SoCs */
+/* This driver provides support for Mentor Graphics MI2CV IP core */
 
-#ifndef _A8K_I2C_H_
-#define _A8K_I2C_H_
+#ifndef _MI2CV_H_
+#define _MI2CV_H_
 
 #include <stdint.h>
 

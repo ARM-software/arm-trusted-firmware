@@ -7,6 +7,7 @@
 include lib/xlat_tables_v2/xlat_tables.mk
 
 AW_PLAT			:=	plat/allwinner
+AW_DRIVERS		:=	drivers/allwinner
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common		\
 				-Iinclude/plat/arm/common/aarch64	\
@@ -15,6 +16,7 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common		\
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/console/${ARCH}/console.S	\
 				drivers/ti/uart/${ARCH}/16550_console.S	\
+				${AW_DRIVERS}/sunxi_i2c.c		\
 				${XLAT_TABLES_LIB_SRCS}			\
 				${AW_PLAT}/common/plat_helpers.S	\
 				${AW_PLAT}/common/sunxi_common.c
@@ -30,6 +32,7 @@ BL31_SOURCES		+=	drivers/arm/gic/common/gic_common.c	\
 				${AW_PLAT}/common/sunxi_bl31_setup.c	\
 				${AW_PLAT}/common/sunxi_cpu_ops.c	\
 				${AW_PLAT}/common/sunxi_pm.c		\
+				${AW_PLAT}/sun50i_h6/sunxi_power.c	\
 				${AW_PLAT}/common/sunxi_security.c	\
 				${AW_PLAT}/common/sunxi_topology.c
 
