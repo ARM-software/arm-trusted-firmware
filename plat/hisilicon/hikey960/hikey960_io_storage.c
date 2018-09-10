@@ -76,6 +76,44 @@ static const io_uuid_spec_t bl33_uuid_spec = {
 	.uuid = UUID_NON_TRUSTED_FIRMWARE_BL33,
 };
 
+#if TRUSTED_BOARD_BOOT
+static const io_uuid_spec_t trusted_key_cert_uuid_spec = {
+	.uuid = UUID_TRUSTED_KEY_CERT,
+};
+
+static const io_uuid_spec_t scp_fw_key_cert_uuid_spec = {
+	.uuid = UUID_SCP_FW_KEY_CERT,
+};
+
+static const io_uuid_spec_t soc_fw_key_cert_uuid_spec = {
+	.uuid = UUID_SOC_FW_KEY_CERT,
+};
+
+static const io_uuid_spec_t tos_fw_key_cert_uuid_spec = {
+	.uuid = UUID_TRUSTED_OS_FW_KEY_CERT,
+};
+
+static const io_uuid_spec_t nt_fw_key_cert_uuid_spec = {
+	.uuid = UUID_NON_TRUSTED_FW_KEY_CERT,
+};
+
+static const io_uuid_spec_t scp_fw_cert_uuid_spec = {
+	.uuid = UUID_SCP_FW_CONTENT_CERT,
+};
+
+static const io_uuid_spec_t soc_fw_cert_uuid_spec = {
+	.uuid = UUID_SOC_FW_CONTENT_CERT,
+};
+
+static const io_uuid_spec_t tos_fw_cert_uuid_spec = {
+	.uuid = UUID_TRUSTED_OS_FW_CONTENT_CERT,
+};
+
+static const io_uuid_spec_t nt_fw_cert_uuid_spec = {
+	.uuid = UUID_NON_TRUSTED_FW_CONTENT_CERT,
+};
+#endif /* TRUSTED_BOARD_BOOT */
+
 static const struct plat_io_policy policies[] = {
 	[FIP_IMAGE_ID] = {
 		&ufs_dev_handle,
@@ -111,7 +149,54 @@ static const struct plat_io_policy policies[] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl33_uuid_spec,
 		check_fip
-	}
+	},
+#if TRUSTED_BOARD_BOOT
+	[TRUSTED_KEY_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&trusted_key_cert_uuid_spec,
+		check_fip
+	},
+	[SCP_FW_KEY_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&scp_fw_key_cert_uuid_spec,
+		check_fip
+	},
+	[SOC_FW_KEY_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&soc_fw_key_cert_uuid_spec,
+		check_fip
+	},
+	[TRUSTED_OS_FW_KEY_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&tos_fw_key_cert_uuid_spec,
+		check_fip
+	},
+	[NON_TRUSTED_FW_KEY_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&nt_fw_key_cert_uuid_spec,
+		check_fip
+	},
+	[SCP_FW_CONTENT_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&scp_fw_cert_uuid_spec,
+		check_fip
+	},
+	[SOC_FW_CONTENT_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&soc_fw_cert_uuid_spec,
+		check_fip
+	},
+	[TRUSTED_OS_FW_CONTENT_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&tos_fw_cert_uuid_spec,
+		check_fip
+	},
+	[NON_TRUSTED_FW_CONTENT_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&nt_fw_cert_uuid_spec,
+		check_fip
+	},
+#endif /* TRUSTED_BOARD_BOOT */
 };
 
 static int check_ufs(const uintptr_t spec)

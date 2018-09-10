@@ -108,6 +108,46 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
 				plat/hisilicon/hikey960/drivers/ipc/hisi_ipc.c \
 				${HIKEY960_GIC_SOURCES}
 
+ifneq (${TRUSTED_BOARD_BOOT},0)
+
+include drivers/auth/mbedtls/mbedtls_crypto.mk
+include drivers/auth/mbedtls/mbedtls_x509.mk
+
+USE_TBBR_DEFS		:=	1
+
+AUTH_SOURCES		:=	drivers/auth/auth_mod.c			\
+				drivers/auth/crypto_mod.c		\
+				drivers/auth/img_parser_mod.c		\
+				drivers/auth/tbbr/tbbr_cot.c
+
+BL1_SOURCES		+=	${AUTH_SOURCES}				\
+				plat/common/tbbr/plat_tbbr.c		\
+				plat/hisilicon/hikey960/hikey960_tbbr.c	\
+				plat/hisilicon/hikey960/hikey960_rotpk.S
+
+BL2_SOURCES		+=	${AUTH_SOURCES}				\
+				plat/common/tbbr/plat_tbbr.c		\
+				plat/hisilicon/hikey960/hikey960_tbbr.c	\
+				plat/hisilicon/hikey960/hikey960_rotpk.S
+
+ROT_KEY		=	$(BUILD_PLAT)/rot_key.pem
+ROTPK_HASH		=	$(BUILD_PLAT)/rotpk_sha256.bin
+
+$(eval $(call add_define_val,ROTPK_HASH,'"$(ROTPK_HASH)"'))
+$(BUILD_PLAT)/bl1/hikey960_rotpk.o: $(ROTPK_HASH)
+$(BUILD_PLAT)/bl2/hikey960_rotpk.o: $(ROTPK_HASH)
+
+certificates: $(ROT_KEY)
+$(ROT_KEY): | $(BUILD_PLAT)
+	@echo "  OPENSSL $@"
+	$(Q)openssl genrsa 2048 > $@ 2>/dev/null
+
+$(ROTPK_HASH): $(ROT_KEY)
+	@echo "  OPENSSL $@"
+	$(Q)openssl rsa -in $< -pubout -outform DER 2>/dev/null |\
+	openssl dgst -sha256 -binary > $@ 2>/dev/null
+endif
+
 # Enable workarounds for selected Cortex-A53 errata.
 ERRATA_A53_836870		:=	1
 ERRATA_A53_843419		:=	1
