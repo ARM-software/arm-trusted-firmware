@@ -95,7 +95,7 @@ endfunc cortex_ares_core_pwr_dwn
 /*
  * Errata printing function for Cortex-Ares. Must follow AAPCS.
  */
-func cortex_a72_errata_report
+func cortex_ares_errata_report
 	stp	x8, x30, [sp, #-16]!
 
 	bl	cpu_get_rev_var
@@ -109,7 +109,7 @@ func cortex_a72_errata_report
 
 	ldp	x8, x30, [sp], #16
 	ret
-endfunc cortex_a72_errata_report
+endfunc cortex_ares_errata_report
 #endif
 
 	/* ---------------------------------------------
