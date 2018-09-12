@@ -49,7 +49,7 @@ void tf_log(const char *fmt, ...)
 /*
  * The helper function to set the log level dynamically by platform. The
  * maximum log level is determined by `LOG_LEVEL` build flag at compile time
- * and this helper can set a lower log level than the one at compile.
+ * and this helper can set a lower (or equal) log level than the one at compile.
  */
 void tf_log_set_max_level(unsigned int log_level)
 {
@@ -57,6 +57,6 @@ void tf_log_set_max_level(unsigned int log_level)
 	assert((log_level % 10U) == 0U);
 
 	/* Cap log_level to the compile time maximum. */
-	if (log_level < (unsigned int)LOG_LEVEL)
+	if (log_level <= (unsigned int)LOG_LEVEL)
 		max_log_level = log_level;
 }
