@@ -47,6 +47,8 @@ typedef struct plat_params_from_bl2 {
 	uint64_t sc7entry_fw_size;
 	/* System Suspend Entry Firmware base address */
 	uint64_t sc7entry_fw_base;
+	/* Enable dual execution */
+	uint8_t enable_ccplex_lock_step;
 } plat_params_from_bl2_t;
 
 /*******************************************************************************

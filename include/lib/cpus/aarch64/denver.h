@@ -34,6 +34,11 @@
 #define DENVER_CPU_PMSTATE_C7		U(0x7)
 #define DENVER_CPU_PMSTATE_MASK		U(0xF)
 
+/* ACTRL_ELx bits to enable dual execution*/
+#define DENVER_CPU_ENABLE_DUAL_EXEC_EL2 (ULL(1) << 9)
+#define DENVER_CPU_ENABLE_DUAL_EXEC_EL3 (ULL(1) << 9)
+#define DENVER_CPU_ENABLE_DUAL_EXEC_EL1 (U(1) << 4)
+
 #ifndef __ASSEMBLER__
 
 /* Disable Dynamic Code Optimisation */
