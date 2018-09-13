@@ -682,31 +682,34 @@ enum pm_ret_status pm_pinctrl_release(unsigned int pin)
 /**
  * pm_pinctrl_get_function() - Read function id set for the given pin
  * @pin		Pin number
- * @nid		Node ID of function currently set for given pin
+ * @fid		ID of function currently set for given pin
  *
  * This function provides the function currently set for the given pin.
  *
  * @return	Returns status, either success or error+reason
  */
-enum pm_ret_status pm_pinctrl_get_function(unsigned int pin,
-					   enum pm_node_id *nid)
+enum pm_ret_status pm_pinctrl_get_function(unsigned int pin, unsigned int *fid)
 {
-	return pm_api_pinctrl_get_function(pin, nid);
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	PM_PACK_PAYLOAD2(payload, PM_PINCTRL_GET_FUNCTION, pin);
+	return pm_ipi_send_sync(primary_proc, payload, fid, 1);
 }
 
 /**
  * pm_pinctrl_set_function() - Set function id set for the given pin
  * @pin		Pin number
- * @nid		Node ID of function to set for given pin
- *
- * This function provides the function currently set for the given pin.
+ * @fid		ID of function to set for given pin
  *
  * @return	Returns status, either success or error+reason
  */
-enum pm_ret_status pm_pinctrl_set_function(unsigned int pin,
-					   enum pm_node_id nid)
+enum pm_ret_status pm_pinctrl_set_function(unsigned int pin, unsigned int fid)
 {
-	return pm_api_pinctrl_set_function(pin, (unsigned int)nid);
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD3(payload, PM_PINCTRL_SET_FUNCTION, pin, fid);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**

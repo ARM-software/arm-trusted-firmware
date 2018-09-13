@@ -19,9 +19,7 @@
 #include "pm_common.h"
 #include "pm_ipi.h"
 
-#define PINCTRL_FUNCTION_MASK			U(0xFE)
 #define PINCTRL_VOLTAGE_STATUS_MASK		U(0x01)
-#define NFUNCS_PER_PIN				U(13)
 #define PINCTRL_NUM_MIOS			U(78)
 #define MAX_PIN_PER_REG				U(26)
 #define PINCTRL_BANK_ADDR_STEP			U(28)
@@ -45,12 +43,6 @@
 
 #define PINCTRL_REGVAL_TO_PIN_CONFIG(_pin, _val)			\
 	(((_val) >> PINCTRL_PIN_OFFSET(_pin)) & 0x1)
-
-static uint8_t pm_pinctrl_mux[NFUNCS_PER_PIN] = {
-	0x02, 0x04, 0x08, 0x10, 0x18,
-	0x00, 0x20, 0x40, 0x60, 0x80,
-	0xA0, 0xC0, 0xE0
-};
 
 struct pinctrl_function {
 	char name[FUNCTION_NAME_LEN];
@@ -2707,104 +2699,6 @@ enum pm_ret_status pm_api_pinctrl_get_pin_groups(unsigned int pin,
 	}
 
 	return PM_RET_SUCCESS;
-}
-
-/**
- * pm_api_pinctrl_get_function() - Read function id set for the given pin
- * @pin		Pin number
- * @nid		Node ID of function currently set for given pin
- *
- * This function provides the function currently set for the given pin.
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_api_pinctrl_get_function(unsigned int pin,
-					       unsigned int *id)
-{
-	unsigned int i = 0, j = 0;
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	unsigned int ctrlreg, val, gid;
-	uint16_t *grps;
-
-	ctrlreg = IOU_SLCR_BASEADDR + 4U * pin;
-	ret = pm_mmio_read(ctrlreg, &val);
-	if (ret != PM_RET_SUCCESS)
-		return ret;
-
-	val &= PINCTRL_FUNCTION_MASK;
-
-	for (i = 0; i < NFUNCS_PER_PIN; i++)
-		if (val == pm_pinctrl_mux[i])
-			break;
-
-	if (i == NFUNCS_PER_PIN)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	gid = *(*zynqmp_pin_groups[pin].groups + i);
-
-	for (i = 0; i < MAX_FUNCTION; i++) {
-		grps = *pinctrl_functions[i].groups;
-		if (grps == NULL)
-			continue;
-		if (val != pinctrl_functions[i].regval)
-			continue;
-
-		for (j = 0; grps[j] != (uint16_t)END_OF_GROUPS; j++) {
-			if (gid == grps[j]) {
-				*id = i;
-				goto done;
-			}
-		}
-	}
-	if (i == MAX_FUNCTION)
-		ret = PM_RET_ERROR_ARGS;
-done:
-	return ret;
-}
-
-/**
- * pm_api_pinctrl_set_function() - Set function id set for the given pin
- * @pin		Pin number
- * @nid		Node ID of function to set for given pin
- *
- * This function provides the function currently set for the given pin.
- *
- * @return	Returns status, either success or error+reason
- */
-enum pm_ret_status pm_api_pinctrl_set_function(unsigned int pin,
-					       unsigned int fid)
-{
-	int i, j;
-	unsigned int ctrlreg, val;
-	uint16_t *pgrps, *fgrps;
-
-	ctrlreg = IOU_SLCR_BASEADDR + 4U * pin;
-	val = pinctrl_functions[fid].regval;
-
-	for (i = 0; i < NFUNCS_PER_PIN; i++)
-		if (val == pm_pinctrl_mux[i])
-			break;
-
-	if (i == NFUNCS_PER_PIN)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	pgrps = *zynqmp_pin_groups[pin].groups;
-	if (!pgrps)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	fgrps = *pinctrl_functions[fid].groups;
-	if (!fgrps)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	for (i = 0; fgrps[i] != (uint16_t)END_OF_GROUPS; i++)
-		for (j = 0; pgrps[j] != (uint16_t)END_OF_GROUPS; j++)
-			if (fgrps[i] == pgrps[j])
-				goto match;
-
-	return PM_RET_ERROR_NOTSUPPORTED;
-
-match:
-	return pm_mmio_write(ctrlreg, PINCTRL_FUNCTION_MASK, val);
 }
 
 /**
