@@ -459,7 +459,7 @@ int32_t tegra_se_suspend(void)
 	assert(tegra_bpmp_ipc_init() == 0);
 
 	/* Enable SE clock before SE context save */
-	ret = tegra_bpmp_ipc_enable_clock(TEGRA_CLK_SE);
+	ret = tegra_bpmp_ipc_enable_clock(TEGRA194_CLK_SE);
 	assert(ret == 0);
 
 	/* save SE registers */
@@ -475,7 +475,7 @@ int32_t tegra_se_suspend(void)
 	}
 
 	/* Disable SE clock after SE context save */
-	ret = tegra_bpmp_ipc_disable_clock(TEGRA_CLK_SE);
+	ret = tegra_bpmp_ipc_disable_clock(TEGRA194_CLK_SE);
 	assert(ret == 0);
 
 	return ret;
@@ -492,7 +492,7 @@ void tegra_se_resume(void)
 	assert(tegra_bpmp_ipc_init() == 0);
 
 	/* Enable SE clock before SE context restore */
-	ret = tegra_bpmp_ipc_enable_clock(TEGRA_CLK_SE);
+	ret = tegra_bpmp_ipc_enable_clock(TEGRA194_CLK_SE);
 	assert(ret == 0);
 
 	/*
@@ -507,6 +507,6 @@ void tegra_se_resume(void)
 	mmio_write_32(TEGRA_PKA1_BASE + PKA1_MUTEX_WATCHDOG_NS_LIMIT, se_regs[3]);
 
 	/* Disable SE clock after SE context restore */
-	ret = tegra_bpmp_ipc_disable_clock(TEGRA_CLK_SE);
+	ret = tegra_bpmp_ipc_disable_clock(TEGRA194_CLK_SE);
 	assert(ret == 0);
 }

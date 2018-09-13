@@ -19,11 +19,6 @@
 #define TEGRA_RESET_ID_GPCDMA		U(70)
 
 /**
- * Clock identifier for the SE device
- */
-#define TEGRA_CLK_SE        U(124)
-
-/**
  * Function to initialise the IPC with the bpmp
  */
 int32_t tegra_bpmp_ipc_init(void);

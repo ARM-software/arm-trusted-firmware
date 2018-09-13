@@ -294,7 +294,7 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		assert(tegra_bpmp_ipc_init() == 0);
 
 		/* Enable SE clock */
-		ret = tegra_bpmp_ipc_enable_clock(TEGRA_CLK_SE);
+		ret = tegra_bpmp_ipc_enable_clock(TEGRA186_CLK_SE);
 		if (ret != 0) {
 			ERROR("Failed to enable clock\n");
 			return ret;
@@ -319,7 +319,7 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		memcpy16((void *)(uintptr_t)val, (void *)(uintptr_t)BL31_BASE,
 			 (uintptr_t)BL31_END - (uintptr_t)BL31_BASE);
 
-		ret = tegra_bpmp_ipc_disable_clock(TEGRA_CLK_SE);
+		ret = tegra_bpmp_ipc_disable_clock(TEGRA186_CLK_SE);
 		if (ret != 0) {
 			ERROR("Failed to disable clock\n");
 			return ret;

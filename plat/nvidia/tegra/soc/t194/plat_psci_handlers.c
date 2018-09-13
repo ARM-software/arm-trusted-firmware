@@ -304,7 +304,7 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		assert(ret == 0);
 
 		/* Enable SE clock before SE context save */
-		ret = tegra_bpmp_ipc_enable_clock(TEGRA_CLK_SE);
+		ret = tegra_bpmp_ipc_enable_clock(TEGRA194_CLK_SE);
 		assert(ret == 0);
 
 		/*
@@ -330,7 +330,7 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		       src_len_in_bytes);
 
 		/* Disable SE clock after SE context save */
-		ret = tegra_bpmp_ipc_disable_clock(TEGRA_CLK_SE);
+		ret = tegra_bpmp_ipc_disable_clock(TEGRA194_CLK_SE);
 		assert(ret == 0);
 	}
 
