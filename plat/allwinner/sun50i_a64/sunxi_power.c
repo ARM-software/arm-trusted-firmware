@@ -5,6 +5,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <allwinner/sunxi_rsb.h>
 #include <arch_helpers.h>
 #include <debug.h>
 #include <delay_timer.h>
@@ -19,7 +20,11 @@ enum pmic_type {
 	GENERIC_H5,
 	GENERIC_A64,
 	REF_DESIGN_H5,	/* regulators controlled by GPIO pins on port L */
+	AXP803_RSB,	/* PMIC connected via RSB on most A64 boards */
 } pmic;
+
+#define AXP803_HW_ADDR	0x3a3
+#define AXP803_RT_ADDR	0x2d
 
 /*
  * On boards without a proper PMIC we struggle to turn off the system properly.
@@ -76,8 +81,48 @@ void sunxi_turn_off_soc(uint16_t socid)
 	}
 }
 
+static int rsb_init(void)
+{
+	int ret;
+
+	ret = rsb_init_controller();
+	if (ret)
+		return ret;
+
+	ret = rsb_set_bus_speed(SUNXI_OSC24M_CLK_IN_HZ, 400000);
+	if (ret)
+		return ret;
+
+	ret = rsb_set_device_mode(0x7c3e00);
+	if (ret)
+		return ret;
+
+	ret = rsb_set_bus_speed(SUNXI_OSC24M_CLK_IN_HZ, 3000000);
+	if (ret)
+		return ret;
+
+	return rsb_assign_runtime_address(AXP803_HW_ADDR,
+					  AXP803_RT_ADDR);
+}
+
+static int axp_setbits_8(uint8_t reg, uint8_t set_mask)
+{
+	uint8_t regval;
+	int ret;
+
+	ret = rsb_read(AXP803_RT_ADDR, reg);
+	if (ret < 0)
+		return ret;
+
+	regval = ret | set_mask;
+
+	return rsb_write(AXP803_RT_ADDR, reg, regval);
+}
+
 int sunxi_pmic_setup(uint16_t socid)
 {
+	int ret;
+
 	switch (socid) {
 	case SUNXI_SOC_H5:
 		pmic = REF_DESIGN_H5;
@@ -85,6 +130,17 @@ int sunxi_pmic_setup(uint16_t socid)
 		break;
 	case SUNXI_SOC_A64:
 		pmic = GENERIC_A64;
+		ret = platform_init_r_twi(socid, false);
+		if (ret)
+			return ret;
+
+		ret = rsb_init();
+		if (ret)
+			return ret;
+
+		pmic = AXP803_RSB;
+		NOTICE("BL31: PMIC: Detected AXP803 on RSB.\n");
+
 		break;
 	default:
 		NOTICE("BL31: PMIC: No support for Allwinner %x SoC.\n", socid);
@@ -126,6 +182,14 @@ void __dead2 sunxi_power_down(void)
 		/* turn off pin controller now. */
 		mmio_write_32(SUNXI_CCU_BASE + 0x68, 0);
 
+		break;
+	case AXP803_RSB:
+		/* (Re-)init RSB in case the rich OS has disabled it. */
+		platform_init_r_twi(SUNXI_SOC_A64, false);
+		rsb_init();
+
+		/* Set "power disable control" bit */
+		axp_setbits_8(0x32, BIT(7));
 		break;
 	default:
 		break;
