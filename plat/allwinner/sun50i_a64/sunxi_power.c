@@ -10,6 +10,7 @@
 #include <debug.h>
 #include <delay_timer.h>
 #include <errno.h>
+#include <libfdt.h>
 #include <mmio.h>
 #include <platform_def.h>
 #include <sunxi_def.h>
@@ -126,6 +127,52 @@ static int axp_setbits(uint8_t reg, uint8_t set_mask)
 	return rsb_write(AXP803_RT_ADDR, reg, regval);
 }
 
+static bool should_enable_regulator(const void *fdt, int node)
+{
+	if (fdt_getprop(fdt, node, "phandle", NULL) != NULL)
+		return true;
+	if (fdt_getprop(fdt, node, "regulator-always-on", NULL) != NULL)
+		return true;
+	return false;
+}
+
+static void setup_axp803_rails(const void *fdt)
+{
+	int node;
+
+	/* locate the PMIC DT node, bail out if not found */
+	node = fdt_node_offset_by_compatible(fdt, -1, "x-powers,axp803");
+	if (node == -FDT_ERR_NOTFOUND) {
+		WARN("BL31: PMIC: No AXP803 DT node, skipping initial setup.\n");
+		return;
+	}
+
+	if (fdt_getprop(fdt, node, "x-powers,drive-vbus-en", NULL))
+		axp_setbits(0x8f, BIT(4));
+
+	/* descend into the "regulators" subnode */
+	node = fdt_first_subnode(fdt, node);
+
+	/* iterate over all regulators to find used ones */
+	for (node = fdt_first_subnode(fdt, node);
+	     node != -FDT_ERR_NOTFOUND;
+	     node = fdt_next_subnode(fdt, node)) {
+		const char *name;
+		int length;
+
+		/* We only care if it's always on or referenced. */
+		if (!should_enable_regulator(fdt, node))
+			continue;
+
+		name = fdt_get_name(fdt, node, &length);
+		if (!strncmp(name, "dc1sw", length)) {
+			INFO("PMIC: AXP803: Enabling DC1SW\n");
+			axp_setbits(0x12, BIT(7));
+			continue;
+		}
+	}
+}
+
 int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 {
 	int ret;
@@ -147,6 +194,9 @@ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 
 		pmic = AXP803_RSB;
 		NOTICE("BL31: PMIC: Detected AXP803 on RSB.\n");
+
+		if (fdt)
+			setup_axp803_rails(fdt);
 
 		break;
 	default:
