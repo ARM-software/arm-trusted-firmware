@@ -21,7 +21,7 @@
 /* How much memory to reserve as secure for BL32, if configured */
 #define SUNXI_DRAM_SEC_SIZE		(32U << 20)
 
-/* How much DRAM to map */
+/* How much DRAM to map (to map BL33, for fetching the DTB from U-Boot) */
 #define SUNXI_DRAM_MAP_SIZE		(64U << 20)
 
 #define CACHE_WRITEBACK_SHIFT		6
