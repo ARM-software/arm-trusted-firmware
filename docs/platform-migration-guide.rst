@@ -155,6 +155,7 @@ for the ``plat_psci_ops`` structure which is declared as :
         void (*system_reset)(void) __dead2;
         int (*validate_power_state)(unsigned int power_state,
                         psci_power_state_t *req_state);
+        int (*validate_power_operation)(uint32_t smc_fid);
         int (*validate_ns_entrypoint)(unsigned long ns_entrypoint);
         void (*get_sys_suspend_power_state)(
                         psci_power_state_t *req_state);
@@ -573,6 +574,17 @@ call to validate the ``power_state`` parameter of the PSCI API. If the
 ``power_state`` is known to be invalid, the platform must return
 PSCI\_E\_INVALID\_PARAMS as an error, which is propagated back to the Normal
 world PSCI client.
+
+plat\_pm\_ops.validate\_power\_operation()
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This function is called by the PSCI implementation before executing the SMC
+handler; it allows the platform to check if the requested operation can be
+allowed (ie, the platform can hotplug CPU0 or use CPUx to enter system suspend).
+If the operation can be allowed then the platform must return PSCI\_E\_SUCCESS.
+Otherwise PSCI will propagate PSCI\_E\_DENIED back to the Normal world client.
+
+The implementation of this interface is optional for the platform.
 
 plat\_pm\_ops.validate\_ns\_entrypoint()
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
