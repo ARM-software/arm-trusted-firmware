@@ -68,13 +68,13 @@ void bl31_platform_setup(void)
 	uint16_t soc_id = sunxi_read_soc_id();
 
 	switch (soc_id) {
-	case 0x1689:
+	case SUNXI_SOC_A64:
 		soc_name = "A64/H64/R18";
 		break;
-	case 0x1718:
+	case SUNXI_SOC_H5:
 		soc_name = "H5";
 		break;
-	case 0x1728:
+	case SUNXI_SOC_H6:
 		soc_name = "H6";
 		break;
 	default:
