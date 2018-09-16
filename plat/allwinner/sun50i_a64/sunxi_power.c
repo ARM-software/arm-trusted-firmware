@@ -113,6 +113,11 @@ static int rsb_init(void)
 					  AXP803_RT_ADDR);
 }
 
+static int axp_write(uint8_t reg, uint8_t val)
+{
+	return rsb_write(AXP803_RT_ADDR, reg, val);
+}
+
 static int axp_setbits(uint8_t reg, uint8_t set_mask)
 {
 	uint8_t regval;
@@ -136,6 +141,79 @@ static bool should_enable_regulator(const void *fdt, int node)
 	return false;
 }
 
+/*
+ * Retrieve the voltage from a given regulator DTB node.
+ * Both the regulator-{min,max}-microvolt properties must be present and
+ * have the same value. Return that value in millivolts.
+ */
+static int fdt_get_regulator_millivolt(const void *fdt, int node)
+{
+	const fdt32_t *prop;
+	uint32_t min_volt;
+
+	prop = fdt_getprop(fdt, node, "regulator-min-microvolt", NULL);
+	if (prop == NULL)
+		return -EINVAL;
+	min_volt = fdt32_to_cpu(*prop);
+
+	prop = fdt_getprop(fdt, node, "regulator-max-microvolt", NULL);
+	if (prop == NULL)
+		return -EINVAL;
+
+	if (fdt32_to_cpu(*prop) != min_volt)
+		return -EINVAL;
+
+	return min_volt / 1000;
+}
+
+#define NO_SPLIT 0xff
+
+struct axp_regulator {
+	char *dt_name;
+	uint16_t min_volt;
+	uint16_t max_volt;
+	uint16_t step;
+	unsigned char split;
+	unsigned char volt_reg;
+	unsigned char switch_reg;
+	unsigned char switch_bit;
+} regulators[] = {
+	{"dcdc1", 1600, 3400, 100, NO_SPLIT, 0x20, 0xff, 9},
+	{"dcdc5",  800, 1840,  10,       32, 0x24, 0xff, 9},
+	{"dldo1",  700, 3300, 100, NO_SPLIT, 0x15, 0x12, 3},
+	{"dldo2",  700, 4200, 100,       27, 0x16, 0x12, 4},
+	{"dldo3",  700, 3300, 100, NO_SPLIT, 0x17, 0x12, 5},
+	{"fldo1",  700, 1450,  50, NO_SPLIT, 0x1c, 0x13, 2},
+	{}
+};
+
+static int setup_regulator(const void *fdt, int node,
+			   const struct axp_regulator *reg)
+{
+	int mvolt;
+	uint8_t regval;
+
+	if (!should_enable_regulator(fdt, node))
+		return -ENOENT;
+
+	mvolt = fdt_get_regulator_millivolt(fdt, node);
+	if (mvolt < reg->min_volt || mvolt > reg->max_volt)
+		return -EINVAL;
+
+	regval = (mvolt / reg->step) - (reg->min_volt / reg->step);
+	if (regval > reg->split)
+		regval = ((regval - reg->split) / 2) + reg->split;
+
+	axp_write(reg->volt_reg, regval);
+	if (reg->switch_reg < 0xff)
+		axp_setbits(reg->switch_reg, BIT(reg->switch_bit));
+
+	INFO("PMIC: AXP803: %s voltage: %d.%03dV\n", reg->dt_name,
+	     mvolt / 1000, mvolt % 1000);
+
+	return 0;
+}
+
 static void setup_axp803_rails(const void *fdt)
 {
 	int node;
@@ -157,6 +235,7 @@ static void setup_axp803_rails(const void *fdt)
 	for (node = fdt_first_subnode(fdt, node);
 	     node != -FDT_ERR_NOTFOUND;
 	     node = fdt_next_subnode(fdt, node)) {
+		struct axp_regulator *reg;
 		const char *name;
 		int length;
 
@@ -165,6 +244,13 @@ static void setup_axp803_rails(const void *fdt)
 			continue;
 
 		name = fdt_get_name(fdt, node, &length);
+		for (reg = regulators; reg->dt_name; reg++) {
+			if (!strncmp(name, reg->dt_name, length)) {
+				setup_regulator(fdt, node, reg);
+				break;
+			}
+		}
+
 		if (!strncmp(name, "dc1sw", length)) {
 			INFO("PMIC: AXP803: Enabling DC1SW\n");
 			axp_setbits(0x12, BIT(7));
