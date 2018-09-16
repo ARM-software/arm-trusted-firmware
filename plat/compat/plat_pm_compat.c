@@ -135,6 +135,15 @@ static int validate_ns_entrypoint_compat(uintptr_t ns_entrypoint)
 }
 
 /*******************************************************************************
+ * The PSCI compatibility helper for plat_pm_ops_t 'validate_power_operation'
+ * hook.
+ ******************************************************************************/
+static int validate_power_operation_compat(uint32_t smc_fid)
+{
+	return pm_ops->validate_power_operation(smc_fid);
+}
+
+/*******************************************************************************
  * The PSCI compatibility helper for plat_pm_ops_t 'affinst_standby' hook.
  ******************************************************************************/
 static void cpu_standby_compat(plat_local_state_t cpu_state)
@@ -277,6 +286,10 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 	if (pm_ops->validate_ns_entrypoint)
 		compat_psci_ops.validate_ns_entrypoint =
 				validate_ns_entrypoint_compat;
+
+	if (pm_ops->validate_power_operation)
+		compat_psci_ops.validate_power_operation =
+				validate_power_operation_compat;
 
 	if (pm_ops->affinst_standby)
 		compat_psci_ops.cpu_standby = cpu_standby_compat;

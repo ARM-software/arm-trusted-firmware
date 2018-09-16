@@ -44,6 +44,14 @@ int psci_cpu_on(u_register_t target_cpu,
 	return psci_cpu_on_start(target_cpu, &ep);
 }
 
+int psci_op_allowed(uint32_t smc_fid)
+{
+	if (psci_plat_pm_ops->validate_power_operation)
+		return psci_plat_pm_ops->validate_power_operation(smc_fid);
+
+	return PSCI_E_SUCCESS;
+}
+
 unsigned int psci_version(void)
 {
 	return PSCI_MAJOR_VER | PSCI_MINOR_VER;
@@ -380,7 +388,10 @@ u_register_t psci_smc_handler(uint32_t smc_fid,
 	if ((psci_caps & define_psci_cap(smc_fid)) == 0U)
 		return (u_register_t)SMC_UNK;
 
-	if (((smc_fid >> FUNCID_CC_SHIFT) & FUNCID_CC_MASK) == SMC_32) {
+	if (psci_op_allowed(smc_fid) != PSCI_E_SUCCESS)
+		return PSCI_E_DENIED;
+
+        if (((smc_fid >> FUNCID_CC_SHIFT) & FUNCID_CC_MASK) == SMC_32) {
 		/* 32-bit PSCI function, clear top parameter bits */
 
 		uint32_t r1 = (uint32_t)x1;
