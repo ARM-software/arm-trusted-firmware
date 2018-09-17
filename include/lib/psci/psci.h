@@ -311,6 +311,7 @@ typedef struct plat_psci_ops {
 	void (*system_reset)(void) __dead2;
 	int (*validate_power_state)(unsigned int power_state,
 				    psci_power_state_t *req_state);
+	int (*validate_power_operation)(uint32_t smc_fid);
 	int (*validate_ns_entrypoint)(uintptr_t ns_entrypoint);
 	void (*get_sys_suspend_power_state)(
 				    psci_power_state_t *req_state);
@@ -331,6 +332,7 @@ typedef struct plat_psci_ops {
  * Function & Data prototypes
  ******************************************************************************/
 unsigned int psci_version(void);
+int psci_op_allowed(uint32_t smc_fid);
 int psci_cpu_on(u_register_t target_cpu,
 		uintptr_t entrypoint,
 		u_register_t context_id);

@@ -44,6 +44,14 @@ int psci_cpu_on(u_register_t target_cpu,
 	return psci_cpu_on_start(target_cpu, &ep);
 }
 
+int psci_op_allowed(uint32_t smc_fid)
+{
+	if (psci_plat_pm_ops->validate_power_operation == NULL)
+		return PSCI_E_SUCCESS;
+
+	return psci_plat_pm_ops->validate_power_operation(smc_fid);
+}
+
 unsigned int psci_version(void)
 {
 	return PSCI_MAJOR_VER | PSCI_MINOR_VER;
@@ -154,9 +162,14 @@ int psci_system_suspend(uintptr_t entrypoint, u_register_t context_id)
 	int rc;
 	psci_power_state_t state_info;
 	entry_point_info_t ep;
+	uint32_t op = sizeof(context_id) == sizeof(uint32_t) ?
+		PSCI_SYSTEM_SUSPEND_AARCH32 : PSCI_SYSTEM_SUSPEND_AARCH64;
 
 	/* Check if the current CPU is the last ON CPU in the system */
 	if (psci_is_last_on_cpu() == 0U)
+		return PSCI_E_DENIED;
+
+	if (psci_op_allowed(op) == PSCI_E_DENIED)
 		return PSCI_E_DENIED;
 
 	/* Validate the entry point and get the entry_point_info */
