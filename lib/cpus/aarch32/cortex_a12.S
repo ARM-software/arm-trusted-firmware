@@ -69,6 +69,15 @@ func cortex_a12_cluster_pwr_dwn
 	b	cortex_a12_disable_smp
 endfunc cortex_a12_cluster_pwr_dwn
 
+#if REPORT_ERRATA
+/*
+ * Errata printing function for Cortex-A12. Must follow AAPCS.
+ */
+func cortex_a12_errata_report
+	bx	lr
+endfunc cortex_a12_errata_report
+#endif
+
 declare_cpu_ops cortex_a12, CORTEX_A12_MIDR, \
 	cortex_a12_reset_func, \
 	cortex_a12_core_pwr_dwn, \

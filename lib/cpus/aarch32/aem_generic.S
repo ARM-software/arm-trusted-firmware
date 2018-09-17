@@ -40,6 +40,15 @@ func aem_generic_cluster_pwr_dwn
 	b	dcsw_op_all
 endfunc aem_generic_cluster_pwr_dwn
 
+#if REPORT_ERRATA
+/*
+ * Errata printing function for AEM. Must follow AAPCS.
+ */
+func aem_generic_errata_report
+	bx	lr
+endfunc aem_generic_errata_report
+#endif
+
 /* cpu_ops for Base AEM FVP */
 declare_cpu_ops aem_generic, BASE_AEM_MIDR, CPU_NO_RESET_FUNC, \
 	aem_generic_core_pwr_dwn, \

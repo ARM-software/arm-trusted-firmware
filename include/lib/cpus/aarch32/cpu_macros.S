@@ -161,10 +161,9 @@
 	.endif
 
 	/*
-	 * Weakly-bound, optional errata status printing function for CPUs of
+	 * Mandatory errata status printing function for CPUs of
 	 * this class.
 	 */
-	.weak \_name\()_errata_report
 	.word \_name\()_errata_report
 
 #ifdef IMAGE_BL32

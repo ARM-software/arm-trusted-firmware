@@ -27,6 +27,16 @@ func cortex_deimos_core_pwr_dwn
 	ret
 endfunc cortex_deimos_core_pwr_dwn
 
+#if REPORT_ERRATA
+/*
+ * Errata printing function for Cortex Deimos. Must follow AAPCS.
+ */
+func cortex_deimos_errata_report
+	ret
+endfunc cortex_deimos_errata_report
+#endif
+
+
 	/* ---------------------------------------------
 	 * This function provides Cortex-Deimos specific
 	 * register information for crash reporting.

@@ -46,6 +46,15 @@ func aem_generic_cluster_pwr_dwn
 	b	dcsw_op_all
 endfunc aem_generic_cluster_pwr_dwn
 
+#if REPORT_ERRATA
+/*
+ * Errata printing function for AEM. Must follow AAPCS.
+ */
+func aem_generic_errata_report
+	ret
+endfunc aem_generic_errata_report
+#endif
+
 	/* ---------------------------------------------
 	 * This function provides cpu specific
 	 * register information for crash reporting.

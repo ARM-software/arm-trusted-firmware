@@ -114,6 +114,16 @@ func cortex_a35_cluster_pwr_dwn
 	b	cortex_a35_disable_smp
 endfunc cortex_a35_cluster_pwr_dwn
 
+#if REPORT_ERRATA
+/*
+ * Errata printing function for Cortex A35. Must follow AAPCS.
+ */
+func cortex_a35_errata_report
+	ret
+endfunc cortex_a35_errata_report
+#endif
+
+
 	/* ---------------------------------------------
 	 * This function provides cortex_a35 specific
 	 * register information for crash reporting.
