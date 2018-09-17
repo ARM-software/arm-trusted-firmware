@@ -144,6 +144,14 @@ static int validate_power_operation_compat(uint32_t smc_fid)
 }
 
 /*******************************************************************************
+ * The PSCI compatibility helper for plat_pm_ops_t 'migrate_info' hook.
+ ******************************************************************************/
+static int migrate_info_compat(u_register_t *mpidr)
+{
+	return pm_ops->migrate_info(mpidr);
+}
+
+/*******************************************************************************
  * The PSCI compatibility helper for plat_pm_ops_t 'affinst_standby' hook.
  ******************************************************************************/
 static void cpu_standby_compat(plat_local_state_t cpu_state)
@@ -319,6 +327,10 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 	if (pm_ops->get_sys_suspend_power_state)
 		compat_psci_ops.get_sys_suspend_power_state =
 				get_sys_suspend_power_state_compat;
+
+	if (pm_ops->migrate_info)
+		compat_psci_ops.migrate_info =
+				migrate_info_compat;
 
 	*psci_ops = &compat_psci_ops;
 	return 0;

@@ -52,6 +52,23 @@ int psci_op_allowed(uint32_t smc_fid)
 	return psci_plat_pm_ops->validate_power_operation(smc_fid);
 }
 
+int psci_platform_migrate_info(u_register_t *mpidr)
+{
+	int rc;
+
+	if (psci_plat_pm_ops->migrate_info == NULL) {
+		/* no migrate restrictions */
+		return PSCI_TOS_NOT_PRESENT_MP;
+	}
+
+	rc = psci_plat_pm_ops->migrate_info(mpidr);
+
+	assert((rc == PSCI_TOS_UP_MIG_CAP) || (rc == PSCI_TOS_NOT_UP_MIG_CAP) ||
+	       (rc == PSCI_TOS_NOT_PRESENT_MP) || (rc == PSCI_E_NOT_SUPPORTED));
+
+	return rc;
+}
+
 unsigned int psci_version(void)
 {
 	return PSCI_MAJOR_VER | PSCI_MINOR_VER;
@@ -289,8 +306,14 @@ int psci_migrate(u_register_t target_cpu)
 int psci_migrate_info_type(void)
 {
 	u_register_t resident_cpu_mpidr;
+	int rc;
 
-	return psci_spd_migrate_info(&resident_cpu_mpidr);
+	rc = psci_spd_migrate_info(&resident_cpu_mpidr);
+	if ((rc != PSCI_TOS_NOT_UP_MIG_CAP) && (rc != PSCI_TOS_UP_MIG_CAP))
+		return psci_platform_migrate_info(NULL);
+
+	return rc;
+
 }
 
 u_register_t psci_migrate_info_up_cpu(void)
@@ -303,8 +326,14 @@ u_register_t psci_migrate_info_up_cpu(void)
 	 * psci_spd_migrate_info() returns.
 	 */
 	rc = psci_spd_migrate_info(&resident_cpu_mpidr);
-	if ((rc != PSCI_TOS_NOT_UP_MIG_CAP) && (rc != PSCI_TOS_UP_MIG_CAP))
-		return (u_register_t)(register_t) PSCI_E_INVALID_PARAMS;
+	if ((rc != PSCI_TOS_NOT_UP_MIG_CAP) && (rc != PSCI_TOS_UP_MIG_CAP)) {
+		rc = psci_platform_migrate_info(&resident_cpu_mpidr);
+		if ((rc != PSCI_TOS_NOT_UP_MIG_CAP) &&
+		    (rc != PSCI_TOS_UP_MIG_CAP))
+			/* neither the SDP nor the platform have any migration
+			   restrictions: any core can be hotpluged */
+			return (u_register_t)(register_t) PSCI_E_INVALID_PARAMS;
+	}
 
 	return resident_cpu_mpidr;
 }

@@ -79,6 +79,7 @@ typedef struct plat_pm_ops {
 	int (*validate_ns_entrypoint)(unsigned long ns_entrypoint);
 	int (*validate_power_operation)(unsigned int smc_fid);
 	unsigned int (*get_sys_suspend_power_state)(void);
+	int (*migrate_info)(u_register_t *mpidr);
 } plat_pm_ops_t;
 
 /*******************************************************************************
