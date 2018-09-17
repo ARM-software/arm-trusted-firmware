@@ -562,13 +562,13 @@ static struct pm_clock_node gpu_pp1_nodes[] = {
 	},
 };
 
-static struct pm_clock_node gem_nodes[] = {
+static struct pm_clock_node gem_ref_ungated_nodes[] = {
 	GENERIC_MUX,
 	{
 		.type = TYPE_DIV1,
 		.offset = 8,
 		.width = 6,
-		.clkflags = CLK_IS_BASIC,
+		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC,
 		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -577,11 +577,70 @@ static struct pm_clock_node gem_nodes[] = {
 		.type = TYPE_DIV2,
 		.offset = 16,
 		.width = 6,
-		.clkflags = CLK_IS_BASIC,
+		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC,
 		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
+};
+
+static struct pm_clock_node gem0_ref_nodes[] = {
+	{
+		.type = TYPE_MUX,
+		.offset = 1,
+		.width = 1,
+		.clkflags = CLK_SET_RATE_PARENT |
+			    CLK_SET_RATE_NO_REPARENT |
+			    CLK_IS_BASIC,
+		.typeflags = NA_TYPE_FLAGS,
+		.mult = NA_MULT,
+		.div = NA_DIV,
+	},
+};
+
+static struct pm_clock_node gem1_ref_nodes[] = {
+	{
+		.type = TYPE_MUX,
+		.offset = 6,
+		.width = 1,
+		.clkflags = CLK_SET_RATE_PARENT |
+			    CLK_SET_RATE_NO_REPARENT |
+			    CLK_IS_BASIC,
+		.typeflags = NA_TYPE_FLAGS,
+		.mult = NA_MULT,
+		.div = NA_DIV,
+	},
+};
+
+static struct pm_clock_node gem2_ref_nodes[] = {
+	{
+		.type = TYPE_MUX,
+		.offset = 11,
+		.width = 1,
+		.clkflags = CLK_SET_RATE_PARENT |
+			    CLK_SET_RATE_NO_REPARENT |
+			    CLK_IS_BASIC,
+		.typeflags = NA_TYPE_FLAGS,
+		.mult = NA_MULT,
+		.div = NA_DIV,
+	},
+};
+
+static struct pm_clock_node gem3_ref_nodes[] = {
+	{
+		.type = TYPE_MUX,
+		.offset = 16,
+		.width = 1,
+		.clkflags = CLK_SET_RATE_PARENT |
+			    CLK_SET_RATE_NO_REPARENT |
+			    CLK_IS_BASIC,
+		.typeflags = NA_TYPE_FLAGS,
+		.mult = NA_MULT,
+		.div = NA_DIV,
+	},
+};
+
+static struct pm_clock_node gem_tx_nodes[] = {
 	{
 		.type = TYPE_GATE,
 		.offset = 25,
@@ -593,84 +652,12 @@ static struct pm_clock_node gem_nodes[] = {
 	},
 };
 
-static struct pm_clock_node gem0_tx_nodes[] = {
-	{
-		.type = TYPE_MUX,
-		.offset = 1,
-		.width = 1,
-		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC,
-		.typeflags = NA_TYPE_FLAGS,
-		.mult = NA_MULT,
-		.div = NA_DIV,
-	},
+static struct pm_clock_node gem_rx_nodes[] = {
 	{
 		.type = TYPE_GATE,
 		.offset = 26,
 		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_SET_RATE_PARENT | CLK_IS_BASIC,
-		.typeflags = NA_TYPE_FLAGS,
-		.mult = NA_MULT,
-		.div = NA_DIV,
-	},
-};
-
-static struct pm_clock_node gem1_tx_nodes[] = {
-	{
-		.type = TYPE_MUX,
-		.offset = 6,
-		.width = 1,
-		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC,
-		.typeflags = NA_TYPE_FLAGS,
-		.mult = NA_MULT,
-		.div = NA_DIV,
-	},
-	{
-		.type = TYPE_GATE,
-		.offset = 26,
-		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_SET_RATE_PARENT | CLK_IS_BASIC,
-		.typeflags = NA_TYPE_FLAGS,
-		.mult = NA_MULT,
-		.div = NA_DIV,
-	},
-};
-
-static struct pm_clock_node gem2_tx_nodes[] = {
-	{
-		.type = TYPE_MUX,
-		.offset = 11,
-		.width = 1,
-		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC,
-		.typeflags = NA_TYPE_FLAGS,
-		.mult = NA_MULT,
-		.div = NA_DIV,
-	},
-	{
-		.type = TYPE_GATE,
-		.offset = 26,
-		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_SET_RATE_PARENT | CLK_IS_BASIC,
-		.typeflags = NA_TYPE_FLAGS,
-		.mult = NA_MULT,
-		.div = NA_DIV,
-	},
-};
-
-static struct pm_clock_node gem3_tx_nodes[] = {
-	{
-		.type = TYPE_MUX,
-		.offset = 16,
-		.width = 1,
-		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC,
-		.typeflags = NA_TYPE_FLAGS,
-		.mult = NA_MULT,
-		.div = NA_DIV,
-	},
-	{
-		.type = TYPE_GATE,
-		.offset = 26,
-		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_SET_RATE_PARENT | CLK_IS_BASIC,
+		.clkflags = CLK_IS_BASIC,
 		.typeflags = NA_TYPE_FLAGS,
 		.mult = NA_MULT,
 		.div = NA_DIV,
@@ -1442,8 +1429,8 @@ static struct pm_clock clocks[] = {
 		.nodes = &generic_mux_div_unused_gate_nodes,
 		.num_nodes = ARRAY_SIZE(generic_mux_div_unused_gate_nodes),
 	},
-	[CLK_GEM0_REF] = {
-		.name = "gem0_ref",
+	[CLK_GEM0_REF_UNGATED] = {
+		.name = "gem0_ref_ung",
 		.control_reg = CRL_APB_GEM0_REF_CTRL,
 		.status_reg = 0,
 		.parents = &((int32_t []) {
@@ -1453,11 +1440,11 @@ static struct pm_clock clocks[] = {
 			CLK_DPLL_TO_LPD,
 			CLK_NA_PARENT
 		}),
-		.nodes = &gem_nodes,
-		.num_nodes = ARRAY_SIZE(gem_nodes),
+		.nodes = &gem_ref_ungated_nodes,
+		.num_nodes = ARRAY_SIZE(gem_ref_ungated_nodes),
 	},
-	[CLK_GEM1_REF] = {
-		.name = "gem1_ref",
+	[CLK_GEM1_REF_UNGATED] = {
+		.name = "gem1_ref_ung",
 		.control_reg = CRL_APB_GEM1_REF_CTRL,
 		.status_reg = 0,
 		.parents = &((int32_t []) {
@@ -1467,11 +1454,11 @@ static struct pm_clock clocks[] = {
 			CLK_DPLL_TO_LPD,
 			CLK_NA_PARENT
 		}),
-		.nodes = &gem_nodes,
-		.num_nodes = ARRAY_SIZE(gem_nodes),
+		.nodes = &gem_ref_ungated_nodes,
+		.num_nodes = ARRAY_SIZE(gem_ref_ungated_nodes),
 	},
-	[CLK_GEM2_REF] = {
-		.name = "gem2_ref",
+	[CLK_GEM2_REF_UNGATED] = {
+		.name = "gem2_ref_ung",
 		.control_reg = CRL_APB_GEM2_REF_CTRL,
 		.status_reg = 0,
 		.parents = &((int32_t []) {
@@ -1481,11 +1468,11 @@ static struct pm_clock clocks[] = {
 			CLK_DPLL_TO_LPD,
 			CLK_NA_PARENT
 		}),
-		.nodes = &gem_nodes,
-		.num_nodes = ARRAY_SIZE(gem_nodes),
+		.nodes = &gem_ref_ungated_nodes,
+		.num_nodes = ARRAY_SIZE(gem_ref_ungated_nodes),
 	},
-	[CLK_GEM3_REF] = {
-		.name = "gem3_ref",
+	[CLK_GEM3_REF_UNGATED] = {
+		.name = "gem3_ref_ung",
 		.control_reg = CRL_APB_GEM3_REF_CTRL,
 		.status_reg = 0,
 		.parents = &((int32_t []) {
@@ -1495,8 +1482,60 @@ static struct pm_clock clocks[] = {
 			CLK_DPLL_TO_LPD,
 			CLK_NA_PARENT
 		}),
-		.nodes = &gem_nodes,
-		.num_nodes = ARRAY_SIZE(gem_nodes),
+		.nodes = &gem_ref_ungated_nodes,
+		.num_nodes = ARRAY_SIZE(gem_ref_ungated_nodes),
+	},
+	[CLK_GEM0_REF] = {
+		.name = "gem0_ref",
+		.control_reg = IOU_SLCR_GEM_CLK_CTRL,
+		.status_reg = 0,
+		.parents = &((int32_t []) {
+			CLK_GEM0_REF_UNGATED |
+			(PARENT_CLK_NODE3 << CLK_PARENTS_ID_LEN),
+			EXT_CLK_GEM0_TX_EMIO | CLK_EXTERNAL_PARENT,
+			CLK_NA_PARENT
+		}),
+		.nodes = &gem0_ref_nodes,
+		.num_nodes = ARRAY_SIZE(gem0_ref_nodes),
+	},
+	[CLK_GEM1_REF] = {
+		.name = "gem1_ref",
+		.control_reg = IOU_SLCR_GEM_CLK_CTRL,
+		.status_reg = 0,
+		.parents = &((int32_t []) {
+			CLK_GEM1_REF_UNGATED |
+			(PARENT_CLK_NODE3 << CLK_PARENTS_ID_LEN),
+			EXT_CLK_GEM1_TX_EMIO | CLK_EXTERNAL_PARENT,
+			CLK_NA_PARENT
+		}),
+		.nodes = &gem1_ref_nodes,
+		.num_nodes = ARRAY_SIZE(gem1_ref_nodes),
+	},
+	[CLK_GEM2_REF] = {
+		.name = "gem2_ref",
+		.control_reg = IOU_SLCR_GEM_CLK_CTRL,
+		.status_reg = 0,
+		.parents = &((int32_t []) {
+			CLK_GEM2_REF_UNGATED |
+			(PARENT_CLK_NODE3 << CLK_PARENTS_ID_LEN),
+			EXT_CLK_GEM2_TX_EMIO | CLK_EXTERNAL_PARENT,
+			CLK_NA_PARENT
+		}),
+		.nodes = &gem2_ref_nodes,
+		.num_nodes = ARRAY_SIZE(gem2_ref_nodes),
+	},
+	[CLK_GEM3_REF] = {
+		.name = "gem3_ref",
+		.control_reg = IOU_SLCR_GEM_CLK_CTRL,
+		.status_reg = 0,
+		.parents = &((int32_t []) {
+			CLK_GEM3_REF_UNGATED |
+			(PARENT_CLK_NODE3 << CLK_PARENTS_ID_LEN),
+			EXT_CLK_GEM3_TX_EMIO | CLK_EXTERNAL_PARENT,
+			CLK_NA_PARENT
+		}),
+		.nodes = &gem3_ref_nodes,
+		.num_nodes = ARRAY_SIZE(gem3_ref_nodes),
 	},
 	[CLK_USB0_BUS_REF] = {
 		.name = "usb0_bus_ref",
@@ -1960,69 +1999,93 @@ static struct pm_clock clocks[] = {
 		.nodes = &generic_domain_crossing_nodes,
 		.num_nodes = ARRAY_SIZE(generic_domain_crossing_nodes),
 	},
-	/*
-	 * This clock control requires different registers for mux and gate.
-	 * Use control and status registers for the same.
-	 */
 	[CLK_GEM0_TX] = {
 		.name = "gem0_tx",
-		.control_reg = IOU_SLCR_GEM_CLK_CTRL,
-		.status_reg = CRL_APB_GEM0_REF_CTRL,
+		.control_reg = CRL_APB_GEM0_REF_CTRL,
+		.status_reg = 0,
 		.parents = &((int32_t []) {
-			CLK_GEM0_REF | (PARENT_CLK_NODE3 << CLK_PARENTS_ID_LEN),
-			EXT_CLK_GEM0_EMIO | CLK_EXTERNAL_PARENT,
+			CLK_GEM0_REF,
 			CLK_NA_PARENT
 		}),
-		.nodes = &gem0_tx_nodes,
-		.num_nodes = ARRAY_SIZE(gem0_tx_nodes),
+		.nodes = &gem_tx_nodes,
+		.num_nodes = ARRAY_SIZE(gem_tx_nodes),
 	},
-	/*
-	 * This clock control requires different registers for mux and gate.
-	 * Use control and status registers for the same.
-	 */
 	[CLK_GEM1_TX] = {
 		.name = "gem1_tx",
-		.control_reg = IOU_SLCR_GEM_CLK_CTRL,
-		.status_reg = CRL_APB_GEM1_REF_CTRL,
+		.control_reg = CRL_APB_GEM1_REF_CTRL,
+		.status_reg = 0,
 		.parents = &((int32_t []) {
-			CLK_GEM1_REF | (PARENT_CLK_NODE3 << CLK_PARENTS_ID_LEN),
-			EXT_CLK_GEM1_EMIO | CLK_EXTERNAL_PARENT,
+			CLK_GEM1_REF,
 			CLK_NA_PARENT
 		}),
-		.nodes = &gem1_tx_nodes,
-		.num_nodes = ARRAY_SIZE(gem1_tx_nodes),
+		.nodes = &gem_tx_nodes,
+		.num_nodes = ARRAY_SIZE(gem_tx_nodes),
 	},
-	/*
-	 * This clock control requires different registers for mux and gate.
-	 * Use control and status registers for the same.
-	 */
 	[CLK_GEM2_TX] = {
 		.name = "gem2_tx",
-		.control_reg = IOU_SLCR_GEM_CLK_CTRL,
-		.status_reg = CRL_APB_GEM2_REF_CTRL,
+		.control_reg = CRL_APB_GEM2_REF_CTRL,
+		.status_reg = 0,
 		.parents = &((int32_t []) {
-			CLK_GEM2_REF | (PARENT_CLK_NODE3 << CLK_PARENTS_ID_LEN),
-			EXT_CLK_GEM2_EMIO | CLK_EXTERNAL_PARENT,
+			CLK_GEM2_REF,
 			CLK_NA_PARENT
 		}),
-		.nodes = &gem2_tx_nodes,
-		.num_nodes = ARRAY_SIZE(gem2_tx_nodes),
+		.nodes = &gem_tx_nodes,
+		.num_nodes = ARRAY_SIZE(gem_tx_nodes),
 	},
-	/*
-	 * This clock control requires different registers for mux and gate.
-	 * Use control and status registers for the same.
-	 */
 	[CLK_GEM3_TX] = {
 		.name = "gem3_tx",
-		.control_reg = IOU_SLCR_GEM_CLK_CTRL,
-		.status_reg = CRL_APB_GEM3_REF_CTRL,
+		.control_reg = CRL_APB_GEM3_REF_CTRL,
+		.status_reg = 0,
 		.parents = &((int32_t []) {
-			CLK_GEM3_REF | (PARENT_CLK_NODE3 << CLK_PARENTS_ID_LEN),
-			EXT_CLK_GEM3_EMIO | CLK_EXTERNAL_PARENT,
+			CLK_GEM3_REF,
 			CLK_NA_PARENT
 		}),
-		.nodes = &gem3_tx_nodes,
-		.num_nodes = ARRAY_SIZE(gem3_tx_nodes),
+		.nodes = &gem_tx_nodes,
+		.num_nodes = ARRAY_SIZE(gem_tx_nodes),
+	},
+	[CLK_GEM0_RX] = {
+		.name = "gem0_rx",
+		.control_reg = CRL_APB_GEM0_REF_CTRL,
+		.status_reg = 0,
+		.parents = &((int32_t []) {
+			EXT_CLK_GEM0_RX_EMIO | CLK_EXTERNAL_PARENT,
+			CLK_NA_PARENT
+		}),
+		.nodes = &gem_rx_nodes,
+		.num_nodes = ARRAY_SIZE(gem_rx_nodes),
+	},
+	[CLK_GEM1_RX] = {
+		.name = "gem1_rx",
+		.control_reg = CRL_APB_GEM1_REF_CTRL,
+		.status_reg = 0,
+		.parents = &((int32_t []) {
+			EXT_CLK_GEM1_RX_EMIO | CLK_EXTERNAL_PARENT,
+			CLK_NA_PARENT
+		}),
+		.nodes = &gem_rx_nodes,
+		.num_nodes = ARRAY_SIZE(gem_rx_nodes),
+	},
+	[CLK_GEM2_RX] = {
+		.name = "gem2_rx",
+		.control_reg = CRL_APB_GEM2_REF_CTRL,
+		.status_reg = 0,
+		.parents = &((int32_t []) {
+			EXT_CLK_GEM2_RX_EMIO | CLK_EXTERNAL_PARENT,
+			CLK_NA_PARENT
+		}),
+		.nodes = &gem_rx_nodes,
+		.num_nodes = ARRAY_SIZE(gem_rx_nodes),
+	},
+	[CLK_GEM3_RX] = {
+		.name = "gem3_rx",
+		.control_reg = CRL_APB_GEM3_REF_CTRL,
+		.status_reg = 0,
+		.parents = &((int32_t []) {
+			EXT_CLK_GEM3_RX_EMIO | CLK_EXTERNAL_PARENT,
+			CLK_NA_PARENT
+		}),
+		.nodes = &gem_rx_nodes,
+		.num_nodes = ARRAY_SIZE(gem_rx_nodes),
 	},
 	[CLK_ACPU_HALF] = {
 		.name = "acpu_half",
@@ -2159,17 +2222,29 @@ static struct pm_ext_clock ext_clocks[] = {
 	[EXT_CLK_INDEX(EXT_CLK_SWDT1)] = {
 		.name = "swdt1_ext_clk",
 	},
-	[EXT_CLK_INDEX(EXT_CLK_GEM0_EMIO)] = {
-		.name = "gem0_emio_clk",
+	[EXT_CLK_INDEX(EXT_CLK_GEM0_TX_EMIO)] = {
+		.name = "gem0_tx_ext",
 	},
-	[EXT_CLK_INDEX(EXT_CLK_GEM1_EMIO)] = {
-		.name = "gem1_emio_clk",
+	[EXT_CLK_INDEX(EXT_CLK_GEM1_TX_EMIO)] = {
+		.name = "gem1_tx_ext",
 	},
-	[EXT_CLK_INDEX(EXT_CLK_GEM2_EMIO)] = {
-		.name = "gem2_emio_clk",
+	[EXT_CLK_INDEX(EXT_CLK_GEM2_TX_EMIO)] = {
+		.name = "gem2_tx_ext",
 	},
-	[EXT_CLK_INDEX(EXT_CLK_GEM3_EMIO)] = {
-		.name = "gem3_emio_clk",
+	[EXT_CLK_INDEX(EXT_CLK_GEM3_TX_EMIO)] = {
+		.name = "gem3_tx_ext",
+	},
+	[EXT_CLK_INDEX(EXT_CLK_GEM0_RX_EMIO)] = {
+		.name = "gem0_rx_ext",
+	},
+	[EXT_CLK_INDEX(EXT_CLK_GEM1_RX_EMIO)] = {
+		.name = "gem1_rx_ext",
+	},
+	[EXT_CLK_INDEX(EXT_CLK_GEM2_RX_EMIO)] = {
+		.name = "gem2_rx_ext",
+	},
+	[EXT_CLK_INDEX(EXT_CLK_GEM3_RX_EMIO)] = {
+		.name = "gem3_rx_ext",
 	},
 	[EXT_CLK_INDEX(EXT_CLK_MIO50_OR_MIO51)] = {
 		.name = "mio_clk_50_51",
