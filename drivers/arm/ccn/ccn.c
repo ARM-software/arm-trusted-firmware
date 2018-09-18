@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -167,7 +167,7 @@ static unsigned int ccn_get_rn_master_info(uintptr_t periphbase,
  * It compares this with the information provided by the platform to determine
  * the validity of the latter.
  ******************************************************************************/
-static void ccn_validate_plat_params(const ccn_desc_t *plat_desc)
+static void __init ccn_validate_plat_params(const ccn_desc_t *plat_desc)
 {
 	unsigned int master_id, num_rn_masters;
 	rn_info_t info = { {0} };
@@ -208,7 +208,7 @@ static void ccn_validate_plat_params(const ccn_desc_t *plat_desc)
  * simultaneous CCN operations at runtime (only BL31) to add and remove Request
  * nodes from coherency.
  ******************************************************************************/
-void ccn_init(const ccn_desc_t *plat_desc)
+void __init ccn_init(const ccn_desc_t *plat_desc)
 {
 #if ENABLE_ASSERTIONS
 	ccn_validate_plat_params(plat_desc);
