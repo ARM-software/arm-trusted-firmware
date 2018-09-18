@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,7 +34,7 @@ CASSERT(PLAT_ARM_CLUSTER_COUNT == ARRAY_SIZE(master_to_rn_id_map),
 /******************************************************************************
  * Helper function to initialize ARM CCN driver.
  *****************************************************************************/
-void plat_arm_interconnect_init(void)
+void __init plat_arm_interconnect_init(void)
 {
 	ccn_init(&arm_ccn_desc);
 }

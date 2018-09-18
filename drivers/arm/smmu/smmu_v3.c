@@ -4,21 +4,22 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <cdefs.h>
 #include <mmio.h>
 #include <smmu_v3.h>
 #include <stdbool.h>
 
-static inline uint32_t smmuv3_read_s_idr1(uintptr_t base)
+static inline uint32_t __init smmuv3_read_s_idr1(uintptr_t base)
 {
 	return mmio_read_32(base + SMMU_S_IDR1);
 }
 
-static inline uint32_t smmuv3_read_s_init(uintptr_t base)
+static inline uint32_t __init smmuv3_read_s_init(uintptr_t base)
 {
 	return mmio_read_32(base + SMMU_S_INIT);
 }
 
-static inline void smmuv3_write_s_init(uintptr_t base, uint32_t value)
+static inline void __init smmuv3_write_s_init(uintptr_t base, uint32_t value)
 {
 	mmio_write_32(base + SMMU_S_INIT, value);
 }
@@ -34,7 +35,7 @@ static inline bool smmuv3_inval_pending(uintptr_t base)
  *
  * Returns 0 on success, and -1 on failure.
  */
-int smmuv3_init(uintptr_t smmu_base)
+int __init smmuv3_init(uintptr_t smmu_base)
 {
 	uint32_t idr1_reg;
 

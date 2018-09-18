@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,7 +17,7 @@ static uintptr_t cci_base_addr;
 static unsigned int cci_cluster_ix_to_iface[MAX_CLUSTERS];
 
 
-void cci_init(uintptr_t cci_base,
+void __init cci_init(uintptr_t cci_base,
 		int slave_iface3_cluster_ix,
 		int slave_iface4_cluster_ix)
 {
