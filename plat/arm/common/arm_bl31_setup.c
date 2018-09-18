@@ -72,11 +72,13 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
  * we are guaranteed to pick up good data.
  ******************************************************************************/
 #if LOAD_IMAGE_V2
-void arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_config,
-				uintptr_t hw_config, void *plat_params_from_bl2)
+void __init arm_bl31_early_platform_setup(void *from_bl2,
+				uintptr_t soc_fw_config, uintptr_t hw_config,
+				void *plat_params_from_bl2)
 #else
-void arm_bl31_early_platform_setup(bl31_params_t *from_bl2, uintptr_t soc_fw_config,
-				uintptr_t hw_config, void *plat_params_from_bl2)
+void arm_bl31_early_platform_setup(bl31_params_t *from_bl2,
+				uintptr_t soc_fw_config, uintptr_t hw_config,
+				void *plat_params_from_bl2)
 #endif
 {
 	/* Initialize the console to provide early debug support */
@@ -264,7 +266,7 @@ void arm_bl31_plat_runtime_setup(void)
 	arm_console_runtime_init();
 }
 
-void bl31_platform_setup(void)
+void __init bl31_platform_setup(void)
 {
 	arm_bl31_platform_setup();
 }
@@ -280,7 +282,7 @@ void bl31_plat_runtime_setup(void)
  * architectural setup (bl31_arch_setup()) does not do anything platform
  * specific.
  ******************************************************************************/
-void arm_bl31_plat_arch_setup(void)
+void __init arm_bl31_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
 		MAP_BL31_TOTAL,
@@ -302,7 +304,7 @@ void arm_bl31_plat_arch_setup(void)
 	arm_setup_romlib();
 }
 
-void bl31_plat_arch_setup(void)
+void __init bl31_plat_arch_setup(void)
 {
 	arm_bl31_plat_arch_setup();
 }

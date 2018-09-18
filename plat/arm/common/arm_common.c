@@ -43,7 +43,7 @@ void arm_setup_romlib(void)
  * - Coherent memory region, if applicable.
  */
 
-void arm_setup_page_tables(const mmap_region_t bl_regions[],
+void __init arm_setup_page_tables(const mmap_region_t bl_regions[],
 			   const mmap_region_t plat_regions[])
 {
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE

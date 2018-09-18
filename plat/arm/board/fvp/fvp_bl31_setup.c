@@ -10,8 +10,8 @@
 #include <smmu_v3.h>
 #include "fvp_private.h"
 
-void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
-		u_register_t arg2, u_register_t arg3)
+void __init bl31_early_platform_setup2(u_register_t arg0,
+		u_register_t arg1, u_register_t arg2, u_register_t arg3)
 {
 	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
 

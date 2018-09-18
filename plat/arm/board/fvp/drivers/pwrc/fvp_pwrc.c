@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -70,7 +70,7 @@ void fvp_pwrc_write_pcoffr(u_register_t mpidr)
 }
 
 /* Nothing else to do here apart from initializing the lock */
-void plat_arm_pwrc_setup(void)
+void __init plat_arm_pwrc_setup(void)
 {
 	arm_lock_init();
 }
