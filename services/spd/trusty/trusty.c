@@ -322,7 +322,7 @@ static int32_t trusty_init(void)
 	fpregs_context_restore(get_fpregs_ctx(cm_get_context(NON_SECURE)));
 	cm_set_next_eret_context(NON_SECURE);
 
-	return 0;
+	return 1;
 }
 
 static void trusty_cpu_suspend(uint32_t off)
