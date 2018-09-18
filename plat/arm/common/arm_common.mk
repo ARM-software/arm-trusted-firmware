@@ -138,6 +138,14 @@ ARM_CRYPTOCELL_INTEG		:=	0
 $(eval $(call assert_boolean,ARM_CRYPTOCELL_INTEG))
 $(eval $(call add_define,ARM_CRYPTOCELL_INTEG))
 
+# CryptoCell integration relies on coherent buffers for passing data from
+# the AP CPU to the CryptoCell
+ifeq (${ARM_CRYPTOCELL_INTEG},1)
+    ifeq (${USE_COHERENT_MEM},0)
+        $(error "ARM_CRYPTOCELL_INTEG needs USE_COHERENT_MEM to be set.")
+    endif
+endif
+
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
 				-Iinclude/plat/arm/common
 
