@@ -328,7 +328,7 @@ static int scmi_ap_core_init(scmi_channel_t *ch)
 	return 0;
 }
 
-void plat_arm_pwrc_setup(void)
+void __init plat_arm_pwrc_setup(void)
 {
 	channel.info = &plat_css_scmi_plat_info;
 	channel.lock = ARM_LOCK_GET_INSTANCE;

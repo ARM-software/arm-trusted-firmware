@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <cdefs.h>
+
 /*
  * As the SGM platform supports FCM (with automatic interconnect
  * enter/exit), we should not do anything in these interface functions.
@@ -13,7 +15,7 @@
 /******************************************************************************
  * Helper function to initialize ARM interconnect driver.
  *****************************************************************************/
-void plat_arm_interconnect_init(void)
+void __init plat_arm_interconnect_init(void)
 {
 }
 
