@@ -217,6 +217,9 @@ ENABLE_AMU			:=	1
 # Enable dynamic mitigation support by default
 DYNAMIC_WORKAROUND_CVE_2018_3639	:=	1
 
+# Enable reclaiming of BL31 initialisation code for secondary cores stacks for FVP
+RECLAIM_INIT_CODE	:=	1
+
 ifeq (${ENABLE_AMU},1)
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a75_pubsub.c	\
 				lib/cpus/aarch64/cortex_ares_pubsub.c	\

@@ -15,6 +15,8 @@
 #include <plat_arm.h>
 #include <platform.h>
 #include <ras.h>
+#include <utils.h>
+#include <arm_xlat_tables.h>
 
 /*
  * Placeholder variables for copying the arguments that have been passed to
@@ -35,10 +37,20 @@ CASSERT(BL31_BASE >= ARM_TB_FW_CONFIG_LIMIT, assert_bl31_base_overflows);
 #pragma weak bl31_plat_arch_setup
 #pragma weak bl31_plat_get_next_image_ep_info
 
-#define MAP_BL31_TOTAL	MAP_REGION_FLAT(			\
+#define MAP_BL31_TOTAL		MAP_REGION_FLAT(			\
 					BL31_BASE,			\
 					BL31_END - BL31_BASE,		\
 					MT_MEMORY | MT_RW | MT_SECURE)
+#if RECLAIM_INIT_CODE
+IMPORT_SYM(unsigned long, __INIT_CODE_START__, BL_INIT_CODE_BASE);
+IMPORT_SYM(unsigned long, __INIT_CODE_END__, BL_INIT_CODE_END);
+
+#define MAP_BL_INIT_CODE	MAP_REGION_FLAT(			\
+					BL_INIT_CODE_BASE,		\
+					BL_INIT_CODE_END		\
+						- BL_INIT_CODE_BASE,	\
+					MT_CODE | MT_SECURE)
+#endif
 
 /*******************************************************************************
  * Return a pointer to the 'entry_point_info' structure of the next image for the
@@ -264,7 +276,28 @@ void arm_bl31_plat_runtime_setup(void)
 
 	/* Initialize the runtime console */
 	arm_console_runtime_init();
+#if RECLAIM_INIT_CODE
+	arm_free_init_memory();
+#endif
 }
+
+#if RECLAIM_INIT_CODE
+/*
+ * Zero out and make RW memory used to store image boot time code so it can
+ * be reclaimed during runtime
+ */
+void arm_free_init_memory(void)
+{
+	int ret = xlat_change_mem_attributes(BL_INIT_CODE_BASE,
+				BL_INIT_CODE_END - BL_INIT_CODE_BASE,
+				MT_RW_DATA);
+
+	if (ret != 0) {
+		ERROR("Could not reclaim initialization code");
+		panic();
+	}
+}
+#endif
 
 void __init bl31_platform_setup(void)
 {
@@ -286,6 +319,9 @@ void __init arm_bl31_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
 		MAP_BL31_TOTAL,
+#if RECLAIM_INIT_CODE
+		MAP_BL_INIT_CODE,
+#endif
 		ARM_MAP_BL_RO,
 #if USE_ROMLIB
 		ARM_MAP_ROMLIB_CODE,
