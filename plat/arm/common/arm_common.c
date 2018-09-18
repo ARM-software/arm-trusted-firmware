@@ -38,6 +38,7 @@ void arm_setup_romlib(void)
  * as an array specifying the generic memory regions which can be;
  * - Code section;
  * - Read-only data section;
+ * - Init code section, if applicable
  * - Coherent memory region, if applicable.
  */
 

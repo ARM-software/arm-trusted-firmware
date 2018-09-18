@@ -280,7 +280,7 @@
  * The max number of regions like RO(code), coherent and data required by
  * different BL stages which need to be mapped in the MMU.
  */
-# define ARM_BL_REGIONS			4
+#define ARM_BL_REGIONS			5
 
 #define MAX_MMAP_REGIONS		(PLAT_ARM_MMAP_ENTRIES +	\
 					 ARM_BL_REGIONS)

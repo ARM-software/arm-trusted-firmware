@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __ARM_COMMON_LD_S__
-#define __ARM_COMMON_LD_S__
+#ifndef ARM_TZC_DRAM_LD_S__
+#define ARM_TZC_DRAM_LD_S__
 
 #include <xlat_tables_defs.h>
 
@@ -27,4 +27,4 @@ SECTIONS
 	} >EL3_SEC_DRAM
 }
 
-#endif /* __ARM_COMMON_LD_S__ */
+#endif /* ARM_TZC_DRAM_LD_S__ */
