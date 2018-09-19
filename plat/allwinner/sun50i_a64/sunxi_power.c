@@ -210,6 +210,7 @@ static int setup_regulator(const void *fdt, int node,
 static void setup_axp803_rails(const void *fdt)
 {
 	int node;
+	bool dc1sw = false;
 
 	/* locate the PMIC DT node, bail out if not found */
 	node = fdt_node_offset_by_compatible(fdt, -1, "x-powers,axp803");
@@ -241,13 +242,19 @@ static void setup_axp803_rails(const void *fdt)
 		}
 
 		if (!strncmp(name, "dc1sw", length)) {
-			if (!fdt_handle_regulator(fdt, node))
-				continue;
-
-			INFO("PMIC: AXP803: Enabling DC1SW\n");
-			axp_setbits_8(0x12, BIT(7));
+			/* Delay DC1SW enablement to avoid overheating. */
+			if (fdt_handle_regulator(fdt, node))
+				dc1sw = true;
 			continue;
 		}
+	}
+	/*
+	 * If DLDO2 is enabled after DC1SW, the PMIC overheats and shuts
+	 * down. So always enable DC1SW as the very last regulator.
+	 */
+	if (dc1sw) {
+		INFO("PMIC: AXP803: Enabling DC1SW\n");
+		axp_setbits_8(0x12, BIT(7));
 	}
 }
 
