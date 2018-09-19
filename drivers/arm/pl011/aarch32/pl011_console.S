@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <arch.h>
 #include <asm_macros.S>
+#include <assert_macros.S>
+#include <console_macros.S>
 #include <pl011.h>
 
 /*
@@ -13,10 +15,18 @@
  */
 #include "../../../console/aarch32/console.S"
 
-	.globl	console_core_init
-	.globl	console_core_putc
-	.globl	console_core_getc
-	.globl	console_core_flush
+	/*
+	 * "core" functions are low-level implementations that don't require
+	 * writeable memory and are thus safe to call in BL1 crash context.
+	 */
+	.globl	console_pl011_core_init
+	.globl	console_pl011_core_putc
+	.globl	console_pl011_core_getc
+	.globl	console_pl011_core_flush
+
+	.globl	console_pl011_putc
+	.globl	console_pl011_getc
+	.globl	console_pl011_flush
 
 
 	/* -----------------------------------------------
@@ -33,7 +43,7 @@
 	 * Clobber list : r1, r2, r3
 	 * -----------------------------------------------
 	 */
-func console_core_init
+func console_pl011_core_init
 	/* Check the input base address */
 	cmp	r0, #0
 	beq	core_init_fail
@@ -73,7 +83,53 @@ func console_core_init
 core_init_fail:
 	mov	r0, #0
 	bx	lr
-endfunc console_core_init
+endfunc console_pl011_core_init
+
+#if MULTI_CONSOLE_API
+	.globl console_pl011_register
+
+	/* -------------------------------------------------------
+	 * init console_pl011_register(console_pl011_t *console,
+	 *	uintptr_t base, uint32_t clk, uint32_t baud)
+	 * Function to initialize and register a new PL011
+	 * console. Storage passed in for the console struct
+	 * *must* be persistent (i.e. not from the stack).
+	 * In: r0 - UART register base address
+	 *     r1 - UART clock in Hz
+	 *     r2 - Baud rate
+	 *     r3 - pointer to empty console_pl011_t struct
+	 * Out: return 1 on success, 0 on error
+	 * Clobber list : r0, r1, r2
+	 * -------------------------------------------------------
+	 */
+func console_pl011_register
+	push	{r4, lr}
+	mov	r4, r3
+	cmp	r4, #0
+	beq	register_fail
+	str	r0, [r4, #CONSOLE_T_PL011_BASE]
+
+	bl console_pl011_core_init
+	cmp	r0, #0
+	beq	register_fail
+
+	mov	r0, r4
+	pop	{r4, lr}
+	finish_console_register pl011
+
+register_fail:
+	pop	{r4, pc}
+endfunc console_pl011_register
+#else
+	.globl console_core_init
+	.globl console_core_putc
+	.globl console_core_getc
+	.globl console_core_flush
+	.equ console_core_init, console_pl011_core_init
+	.equ console_core_putc, console_pl011_core_putc
+	.equ console_core_getc, console_pl011_core_getc
+	.equ console_core_flush, console_pl011_core_flush
+#endif
 
 	/* --------------------------------------------------------
 	 * int console_core_putc(int c, uintptr_t base_addr)
@@ -85,7 +141,7 @@ endfunc console_core_init
 	 * Clobber list : r2
 	 * --------------------------------------------------------
 	 */
-func console_core_putc
+func console_pl011_core_putc
 	/* Check the input parameter */
 	cmp	r1, #0
 	beq	putc_error
@@ -109,7 +165,26 @@ func console_core_putc
 putc_error:
 	mov	r0, #-1
 	bx	lr
-endfunc console_core_putc
+endfunc console_pl011_core_putc
+
+	/* --------------------------------------------------------
+	 * int console_pl011_putc(int c, console_pl011_t *console)
+	 * Function to output a character over the console. It
+	 * returns the character printed on success or -1 on error.
+	 * In: r0 - character to be printed
+	 *     r1 - pointer to console_t structure
+	 * Out : return -1 on error else return character.
+	 * Clobber list: r2
+	 * -------------------------------------------------------
+	 */
+func console_pl011_putc
+#if ENABLE_ASSERTIONS
+	cmp	r1, #0
+	ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
+	ldr	r1, [r1, #CONSOLE_T_PL011_BASE]
+	b	console_pl011_core_putc
+endfunc console_pl011_putc
 
 	/* ---------------------------------------------
 	 * int console_core_getc(uintptr_t base_addr)
@@ -120,7 +195,7 @@ endfunc console_core_putc
 	 * Clobber list : r0, r1
 	 * ---------------------------------------------
 	 */
-func console_core_getc
+func console_pl011_core_getc
 	cmp	r0, #0
 	beq	getc_error
 1:
@@ -134,7 +209,26 @@ func console_core_getc
 getc_error:
 	mov	r0, #-1
 	bx	lr
-endfunc console_core_getc
+endfunc console_pl011_core_getc
+
+	/* ------------------------------------------------
+	 * int console_pl011_getc(console_pl011_t *console)
+	 * Function to get a character from the console.
+	 * It returns the character grabbed on success
+	 * or -1 if no character is available.
+	 * In : r0 - pointer to console_t structure
+	 * Out: r0 - character if available, else -1
+	 * Clobber list: r0, r1
+	 * ------------------------------------------------
+	 */
+func console_pl011_getc
+#if ENABLE_ASSERTIONS
+	cmp	r0, #0
+	ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
+	ldr	r0, [r0, #CONSOLE_T_PL011_BASE]
+	b	console_pl011_core_getc
+endfunc console_pl011_getc
 
 	/* ---------------------------------------------
 	 * int console_core_flush(uintptr_t base_addr)
@@ -145,7 +239,7 @@ endfunc console_core_getc
 	 * Clobber list : r0, r1
 	 * ---------------------------------------------
 	 */
-func console_core_flush
+func console_pl011_core_flush
 	cmp	r0, #0
 	beq	flush_error
 
@@ -160,4 +254,22 @@ func console_core_flush
 flush_error:
 	mov	r0, #-1
 	bx	lr
-endfunc console_core_flush
+endfunc console_pl011_core_flush
+
+	/* ---------------------------------------------
+	 * int console_pl011_flush(console_pl011_t *console)
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * In : r0 - pointer to console_t structure
+	 * Out : return -1 on error else return 0.
+	 * Clobber list: r0, r1
+	 * ---------------------------------------------
+	 */
+func console_pl011_flush
+#if ENABLE_ASSERTIONS
+	cmp	r0, #0
+	ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
+	ldr	r0, [r0, #CONSOLE_T_PL011_BASE]
+	b	console_pl011_core_flush
+endfunc console_pl011_flush
