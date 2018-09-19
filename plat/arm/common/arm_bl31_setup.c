@@ -282,12 +282,6 @@ void bl31_plat_runtime_setup(void)
  ******************************************************************************/
 void arm_bl31_plat_arch_setup(void)
 {
-
-#define ARM_MAP_BL_ROMLIB	MAP_REGION_FLAT(			\
-					BL31_BASE,			\
-					BL31_END - BL31_BASE,		\
-					MT_MEMORY | MT_RW | MT_SECURE)
-
 	const mmap_region_t bl_regions[] = {
 		MAP_BL31_TOTAL,
 		ARM_MAP_BL_RO,
