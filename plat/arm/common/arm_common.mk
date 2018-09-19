@@ -126,9 +126,7 @@ SEPARATE_CODE_AND_RODATA	:=	1
 LOAD_IMAGE_V2			:=	1
 
 # Use the multi console API, which is only available for AArch64 for now
-ifeq (${ARCH}, aarch64)
-  MULTI_CONSOLE_API		:=	1
-endif
+MULTI_CONSOLE_API		:=	1
 
 # Use generic OID definition (tbbr_oid.h)
 USE_TBBR_DEFS			:=	1
