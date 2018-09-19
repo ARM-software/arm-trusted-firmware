@@ -7,6 +7,8 @@
 #ifndef T194_NVG_H
 #define T194_NVG_H
 
+#include <lib/utils_def.h>
+
 /**
  * t194_nvg.h - Header for the NVIDIA Generic interface (NVG).
  * Official documentation for this interface is included as part
@@ -20,7 +22,7 @@
  */
 enum {
 	TEGRA_NVG_VERSION_MAJOR = U(6),
-	TEGRA_NVG_VERSION_MINOR = U(6)
+	TEGRA_NVG_VERSION_MINOR = U(7)
 };
 
 typedef enum {
@@ -71,6 +73,9 @@ typedef enum {
 	TEGRA_NVG_CHANNEL_DDA_SNOC_GLOBAL_CTRL			= U(77),
 	TEGRA_NVG_CHANNEL_DDA_SNOC_CLIENT_REQ_CTRL		= U(78),
 	TEGRA_NVG_CHANNEL_DDA_SNOC_CLIENT_REPLENTISH_CTRL	= U(79),
+	TEGRA_NVG_CHANNEL_RT_SAFE_MASK				= U(80),
+	TEGRA_NVG_CHANNEL_RT_WINDOW_US				= U(81),
+	TEGRA_NVG_CHANNEL_RT_FWD_PROGRESS_US			= U(82),
 
 	TEGRA_NVG_CHANNEL_LAST_INDEX
 } tegra_nvg_channel_id_t;
@@ -153,7 +158,7 @@ typedef union {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_power_perf_channel_t {
+	struct {
 		uint32_t perf_per_watt	: U(1);
 		uint32_t reserved_31_1	: U(31);
 		uint32_t reserved_63_32	: U(32);
@@ -162,7 +167,7 @@ typedef union {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_power_modes_channel_t {
+	struct {
 		uint32_t low_battery	: U(1);
 		uint32_t reserved_1_1	: U(1);
 		uint32_t battery_save	: U(1);
@@ -182,7 +187,7 @@ typedef union nvg_channel_1_data_u {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_ccplex_cache_control_channel_t {
+	struct {
 		uint32_t gpu_ways	: U(5);
 		uint32_t reserved_7_5	: U(3);
 		uint32_t gpu_only_ways	: U(5);
@@ -203,7 +208,7 @@ typedef union nvg_channel_2_data_u {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_wake_time_channel_t {
+	struct {
 		uint32_t wake_time		: U(32);
 		uint32_t reserved_63_32		: U(32);
 	} bits;
@@ -211,7 +216,7 @@ typedef union {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_cstate_info_channel_t {
+	struct {
 		uint32_t cluster_state			: U(3);
 		uint32_t reserved_6_3			: U(4);
 		uint32_t update_cluster			: U(1);
@@ -242,7 +247,7 @@ typedef union {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_lower_bound_channel_t {
+	struct {
 		uint32_t crossover_value	: U(32);
 		uint32_t reserved_63_32		: U(32);
 	} bits;
@@ -250,7 +255,7 @@ typedef union {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_cstate_stat_query_channel_t {
+	struct {
 		uint32_t unit_id		: U(4);
 		uint32_t reserved_15_4		: U(12);
 		uint32_t stat_id		: U(16);
@@ -260,7 +265,7 @@ typedef union {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_num_cores_channel_t {
+	struct {
 		uint32_t num_cores		: U(4);
 		uint32_t reserved_31_4		: U(28);
 		uint32_t reserved_63_32		: U(32);
@@ -269,7 +274,7 @@ typedef union {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_unique_logical_id_channel_t {
+	struct {
 		uint32_t unique_core_id		: U(3);
 		uint32_t reserved_31_3		: U(29);
 		uint32_t reserved_63_32		: U(32);
@@ -278,7 +283,7 @@ typedef union {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_logical_to_physical_mappings_channel_t {
+	struct {
 		uint32_t lcore0_pcore_id	: U(4);
 		uint32_t lcore1_pcore_id	: U(4);
 		uint32_t lcore2_pcore_id	: U(4);
@@ -306,7 +311,7 @@ typedef union {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_is_sc7_allowed_channel_t {
+	struct {
 		uint32_t is_sc7_allowed		: U(1);
 		uint32_t reserved_31_1		: U(31);
 		uint32_t reserved_63_32		: U(32);
@@ -315,7 +320,7 @@ typedef union {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_core_online_channel_t {
+	struct {
 		uint32_t core_id		: U(4);
 		uint32_t reserved_31_4		: U(28);
 		uint32_t reserved_63_32		: U(32);
@@ -324,7 +329,7 @@ typedef union {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_cc3_control_channel_t {
+	struct {
 		uint32_t freq_req		: U(9);
 		uint32_t reserved_30_9		: U(22);
 		uint32_t enable			: U(1);
@@ -374,7 +379,7 @@ typedef enum {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_update_ccplex_gsc_channel_t {
+	struct {
 		uint32_t gsc_enum	: U(16);
 		uint32_t reserved_31_16 : U(16);
 		uint32_t reserved_63_32 : U(32);
@@ -411,7 +416,7 @@ typedef union {
 
 typedef union {
 	uint64_t flat;
-	struct nvg_hsm_error_ctrl_channel_t {
+	struct {
 		uint32_t uncorr				: U(1);
 		uint32_t corr				: U(1);
 		uint32_t reserved_31_2			: U(30);
