@@ -15,6 +15,7 @@
 #include <delay_timer.h>
 #include <errno.h>
 #include <mentor/mi2cv.h>
+#include <mentor_i2c_plat.h>
 #include <mmio.h>
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE

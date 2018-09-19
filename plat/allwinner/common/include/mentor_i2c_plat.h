@@ -4,10 +4,10 @@
  * SPDX-License-Identifier:     BSD-3-Clause
  * https://spdx.org/licenses
  */
-
 /* This driver provides I2C support for Allwinner sunXi SoCs */
 
-#include <mmio.h>
+#ifndef SUNXI_I2C_H
+#define SUNXI_I2C_H
 
 #define CONFIG_SYS_TCLK			24000000
 #define CONFIG_SYS_I2C_SPEED		100000
@@ -25,4 +25,4 @@ struct  mentor_i2c_regs {
 	uint32_t soft_reset;
 };
 
-#include "../mentor/i2c/mi2cv.c"
+#endif
