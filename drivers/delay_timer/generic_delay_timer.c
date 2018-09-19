@@ -49,9 +49,9 @@ void generic_delay_timer_init(void)
 	unsigned int div  = plat_get_syscnt_freq2();
 
 	/* Reduce multiplier and divider by dividing them repeatedly by 10 */
-	while ((mult % 10 == 0) && (div % 10 == 0)) {
-		mult /= 10;
-		div /= 10;
+	while (((mult % 10U) == 0U) && ((div % 10U) == 0U)) {
+		mult /= 10U;
+		div /= 10U;
 	}
 
 	generic_delay_timer_init_args(mult, div);

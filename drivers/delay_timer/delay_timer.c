@@ -20,20 +20,21 @@ static const timer_ops_t *timer_ops;
  ***********************************************************/
 void udelay(uint32_t usec)
 {
-	assert(timer_ops != NULL &&
-		(timer_ops->clk_mult != 0) &&
-		(timer_ops->clk_div != 0) &&
+	assert((timer_ops != NULL) &&
+		(timer_ops->clk_mult != 0U) &&
+		(timer_ops->clk_div != 0U) &&
 		(timer_ops->get_timer_value != NULL));
 
 	uint32_t start, delta, total_delta;
 
-	assert(usec < UINT32_MAX / timer_ops->clk_div);
+	assert(usec < (UINT32_MAX / timer_ops->clk_div));
 
 	start = timer_ops->get_timer_value();
 
 	/* Add an extra tick to avoid delaying less than requested. */
 	total_delta =
-		div_round_up(usec * timer_ops->clk_div, timer_ops->clk_mult) + 1;
+		div_round_up(usec * timer_ops->clk_div,
+						timer_ops->clk_mult) + 1U;
 
 	do {
 		/*
@@ -51,7 +52,7 @@ void udelay(uint32_t usec)
  ***********************************************************/
 void mdelay(uint32_t msec)
 {
-	udelay(msec*1000);
+	udelay(msec * 1000U);
 }
 
 /***********************************************************
@@ -60,9 +61,9 @@ void mdelay(uint32_t msec)
  ***********************************************************/
 void timer_init(const timer_ops_t *ops_ptr)
 {
-	assert(ops_ptr != NULL  &&
-		(ops_ptr->clk_mult != 0) &&
-		(ops_ptr->clk_div != 0) &&
+	assert((ops_ptr != NULL)  &&
+		(ops_ptr->clk_mult != 0U) &&
+		(ops_ptr->clk_div != 0U) &&
 		(ops_ptr->get_timer_value != NULL));
 
 	timer_ops = ops_ptr;
