@@ -32,7 +32,7 @@ unsigned int psci_caps;
  * Function which initializes the 'psci_non_cpu_pd_nodes' or the
  * 'psci_cpu_pd_nodes' corresponding to the power level.
  ******************************************************************************/
-static void psci_init_pwr_domain_node(unsigned char node_idx,
+static void __init psci_init_pwr_domain_node(unsigned char node_idx,
 					unsigned int parent_idx,
 					unsigned char level)
 {
@@ -80,7 +80,7 @@ static void psci_init_pwr_domain_node(unsigned char node_idx,
  * mapping of the CPUs to indices via plat_core_pos_by_mpidr() and
  * plat_my_core_pos() APIs.
  *******************************************************************************/
-static void psci_update_pwrlvl_limits(void)
+static void __init psci_update_pwrlvl_limits(void)
 {
 	int j, cpu_idx;
 	unsigned int nodes_idx[PLAT_MAX_PWR_LVL] = {0};
@@ -107,7 +107,7 @@ static void psci_update_pwrlvl_limits(void)
  * informs the number of root power domains. The parent nodes of the root nodes
  * will point to an invalid entry(-1).
  ******************************************************************************/
-static void populate_power_domain_tree(const unsigned char *topology)
+static void __init populate_power_domain_tree(const unsigned char *topology)
 {
 	unsigned int i, j = 0U, num_nodes_at_lvl = 1U, num_nodes_at_next_lvl;
 	unsigned int node_index = 0U, num_children;
@@ -184,7 +184,7 @@ static void populate_power_domain_tree(const unsigned char *topology)
  * |   CPU 0   |   CPU 1   |   CPU 2   |   CPU 3  |
  * ------------------------------------------------
  ******************************************************************************/
-int psci_setup(const psci_lib_args_t *lib_args)
+int __init psci_setup(const psci_lib_args_t *lib_args)
 {
 	const unsigned char *topology_tree;
 

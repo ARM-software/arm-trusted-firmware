@@ -36,7 +36,7 @@
  * which will used for programming an entry into a lower EL. The same context
  * will used to save state upon exception entry from that EL.
  ******************************************************************************/
-void cm_init(void)
+void __init cm_init(void)
 {
 	/*
 	 * The context management library has only global data to intialize, but
