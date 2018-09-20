@@ -2076,7 +2076,7 @@ wakeup interrupt from RTC.
 .. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/w/docs/303/juno
 .. _Arm Platforms Portal: https://community.arm.com/dev-platforms/
 .. _Development Studio 5 (DS-5): http://www.arm.com/products/tools/software-tools/ds-5/index.php
-.. _Linux master tree: <https://github.com/torvalds/linux/tree/master/>
+.. _Linux master tree: https://github.com/torvalds/linux/tree/master/
 .. _Dia: https://wiki.gnome.org/Apps/Dia/Download
 .. _here: psci-lib-integration-guide.rst
 .. _Trusted Board Boot: trusted-board-boot.rst
