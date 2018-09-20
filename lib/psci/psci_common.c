@@ -216,7 +216,7 @@ static void psci_set_req_local_pwr_state(unsigned int pwrlvl,
 /******************************************************************************
  * This function initializes the psci_req_local_pwr_states.
  *****************************************************************************/
-void psci_init_req_local_pwr_states(void)
+void __init psci_init_req_local_pwr_states(void)
 {
 	/* Initialize the requested state of all non CPU power domains as OFF */
 	unsigned int pwrlvl;
