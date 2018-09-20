@@ -396,6 +396,10 @@ Common build options
    The default is 1 but is automatically disabled when the target architecture
    is AArch32.
 
+-  ``ENABLE_SPM`` : Boolean option to enable the Secure Partition Manager (SPM).
+   Refer to the `Secure Partition Manager Design guide`_ for more details about
+   this feature. Default is 0.
+
 -  ``ENABLE_SVE_FOR_NS``: Boolean option to enable Scalable Vector Extension
    (SVE) for the Non-secure world only. SVE is an optional architectural feature
    for AArch64. Note that when SVE is enabled for the Non-secure world, access
@@ -2090,3 +2094,4 @@ wakeup interrupt from RTC.
 .. _FVP models: https://developer.arm.com/products/system-design/fixed-virtual-platforms
 .. _Juno Getting Started Guide: http://infocenter.arm.com/help/topic/com.arm.doc.dui0928e/DUI0928E_juno_arm_development_platform_gsg.pdf
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
+.. _Secure Partition Manager Design guide: secure-partition-manager-design.rst
