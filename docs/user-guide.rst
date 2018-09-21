@@ -396,6 +396,10 @@ Common build options
    The default is 1 but is automatically disabled when the target architecture
    is AArch32.
 
+-  ``ENABLE_SPM`` : Boolean option to enable the Secure Partition Manager (SPM).
+   Refer to the `Secure Partition Manager Design guide`_ for more details about
+   this feature. Default is 0.
+
 -  ``ENABLE_SVE_FOR_NS``: Boolean option to enable Scalable Vector Extension
    (SVE) for the Non-secure world only. SVE is an optional architectural feature
    for AArch64. Note that when SVE is enabled for the Non-secure world, access
@@ -2076,7 +2080,7 @@ wakeup interrupt from RTC.
 .. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/w/docs/303/juno
 .. _Arm Platforms Portal: https://community.arm.com/dev-platforms/
 .. _Development Studio 5 (DS-5): http://www.arm.com/products/tools/software-tools/ds-5/index.php
-.. _Linux master tree: <https://github.com/torvalds/linux/tree/master/>
+.. _Linux master tree: https://github.com/torvalds/linux/tree/master/
 .. _Dia: https://wiki.gnome.org/Apps/Dia/Download
 .. _here: psci-lib-integration-guide.rst
 .. _Trusted Board Boot: trusted-board-boot.rst
@@ -2090,3 +2094,4 @@ wakeup interrupt from RTC.
 .. _FVP models: https://developer.arm.com/products/system-design/fixed-virtual-platforms
 .. _Juno Getting Started Guide: http://infocenter.arm.com/help/topic/com.arm.doc.dui0928e/DUI0928E_juno_arm_development_platform_gsg.pdf
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
+.. _Secure Partition Manager Design guide: secure-partition-manager-design.rst
