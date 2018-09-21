@@ -4,6 +4,288 @@
 
 .. contents::
 
+Trusted Firmware-A - version 1.6
+================================
+
+New Features
+------------
+
+-  Addressing Speculation Security Vunerabilities
+
+   -  Implement static workaround for CVE-2018-3639 for AArch32 and AArch64
+
+   -  Add support for dynamic mitigation for CVE-2018-3639
+
+   -  Implement dynamic mitigation for CVE-2018-3639 on Cortex-A76
+
+   -  Ensure SDEI handler executes with CVE-2018-3639 mitigation enabled
+
+-  Introduce RAS handling on AArch64
+
+   -  Some RAS extensions are mandatory for ARMv8.2 CPUs, with others
+      mandatory for ARMv8.4 CPUs however, all extensions are also optional
+      extensions to the base ARMv8.0 architecture.
+
+   -  The ARMv8 RAS Extensions introduced Standard Error Records which are a
+      set of standard registers to configure RAS node policy and allow RAS
+      Nodes to record and expose error information for error handling agents.
+
+   -  Capabilities are provided to support RAS Node enumeration and iteration
+      along with individual interrupt registrations and fault injections
+      support.
+
+   -  Introduce handlers for Uncontainable errors, Double Faults and EL3
+      External Aborts
+
+-  Enable Memory Partitioning And Monitoring (MPAM) for lower EL's
+
+   -  Memory Partitioning And Monitoring is an Armv8.4 feature that enables
+      various memory system components and resources to define partitions.
+      Software running at various ELs can then assign themselves to the
+      desired partition to control their performance aspects.
+
+   -  When ENABLE_MPAM_FOR_LOWER_ELS is set to 1, EL3 allows
+      lower ELs to access their own MPAM registers without trapping to EL3.
+      This patch however, doesn't make use of partitioning in EL3; platform
+      initialisation code should configure and use partitions in EL3 if
+      required.
+
+-  Introduce ROM Lib Feature
+
+   -  Support combining several libraries into a self-called "romlib" image,
+      that may be shared across images to reduce memory footprint. The romlib
+      image is stored in ROM but is accessed through a jump-table that may be
+      stored in read-write memory, allowing for the library code to be patched.
+
+-  Introduce Backtrace Feature
+
+   -  This function displays the backtrace, the current EL and security state
+      to allow a post-processing tool to choose the right binary to interpret
+      the dump.
+
+   -  Print backtrace in assert() and panic() to the console.
+
+-  Code hygiene changes and alignment with MISRA C-2012 guideline with fixes
+   addressing issues complying to the following rules:
+
+   -  MISRA rules 4.9, 5.1, 5.3, 5.7, 8.2-8.5, 8.8, 8.13, 9.3, 10.1,
+      10.3-10.4, 10.8, 11.3, 11.6, 12.1, 14.4, 15.7, 16.1-16.7, 17.7-17.8,
+      20.7, 20.10, 20.12, 21.1, 21.15, 22.7
+
+   -  Clean up the usage of void pointers to access symbols
+
+   -  Increase usage of static qualifier to locally used functions and data
+
+   -  Migrated to use of u_register_t for register read/write to better
+      match AArch32 and AArch64 type sizes
+
+   -  Use int-ll64 for both AArch32 and AArch64 to assist in consistent
+      format strings between architectures
+
+   -  Clean up TF-A libc by removing non arm copyrighted implementations
+      and replacing them with modified FreeBSD and SCC implementations
+
+-  Various changes to support Clang linker and assembler
+
+   -  The clang assembler/preprocessor is used when Clang is selected however,
+      the clang linker is not used because it is unable to link TF-A objects
+      due to immaturity of clang linker functionality at this time.
+
+-  Refactor support API's into Libraries
+
+   -  Evolve libfdt, mbed TLS library and standard C library sources as
+      proper libraries that TF-A may be linked against.
+
+-  CPU Enhancements
+
+   -  Add CPU support for Cortex-Ares and Cortex-A76
+
+   -  Add AMU support for Cortex-Ares
+
+   -  Add initial CPU support for Cortex-Deimos
+
+   -  Add initial CPU support for Cortex-Helios
+
+   -  Implement dynamic mitigation for CVE-2018-3639 on Cortex-A76
+
+   -  Implement Cortex-Ares erratum 1043202 workaround
+
+   -  Implement DSU erratum 936184 workaround
+
+   -  Check presence of fix for errata 843419 in Cortex-A53
+
+   -  Check presence of fix for errata 835769 in Cortex-A53
+
+-  Translation Tables Enhancements
+
+   -  The xlat v2 library has been refactored in order to be reused by
+      different TF components at different EL's including the addition of EL2.
+      Some refactoring to make the code more generic and less specific to TF,
+      in order to reuse the library outside of this project.
+
+-  SPM Enhancements
+
+   -  General cleanups and refactoring to pave the way to multiple partitions
+      support
+
+-  SDEI Enhancements
+
+   -  Allow platforms to define explicit events
+
+   -  Determine client EL from NS context's SCR_EL3
+
+   -  Make dispatches synchronous
+
+   -  Introduce jump primitives for BL31
+
+   -  Mask events after CPU wakeup in SDEI dispatcher to conform to the
+      specification
+
+-  Misc TF-A Core Common Code Enhancements
+
+   -  Add support for eXecute In Place (XIP) memory in BL2
+
+   -  Add support for the SMC Calling Convention 2.0
+
+   -  Introduce External Abort handling on AArch64
+      External Abort routed to EL3 was reported as an unhandled exception
+      and caused a panic. This change enables Arm Trusted Firmware-A to
+      handle External Aborts routed to EL3.
+
+   -  Save value of ACTLR_EL1 implementation-defined register in the CPU
+      context structure rather than forcing it to 0.
+
+   -  Introduce ARM_LINUX_KERNEL_AS_BL33 build option, which allows BL31 to
+      directly jump to a Linux kernel. This makes for a quicker and simpler
+      boot flow, which might be useful in some test environments.
+
+   -  Add dynamic configurations for BL31, BL32 and BL33 enabling support for
+      Chain of Trust (COT).
+
+   -  Make TF UUID RFC 4122 compliant
+
+-  New Platform Support
+
+   -  Arm SGI-575
+
+   -  Arm SGM-775
+
+   -  Allwinner sun50i_64
+
+   -  Allwinner sun50i_h6
+
+   -  NXP ls1043
+
+   -  NXP i.MX8QX
+
+   -  NXP i.MX8QM
+
+   -  TI K3
+
+   -  Socionext Synquacer SC2A11
+
+   -  Marvell Armada 8K
+
+   -  STMicroelectronics STM32MP1
+
+-  Misc Generic Platform Common Code Enhancements
+
+   -  Add MMC framework that supports both eMMC and SD card devices
+
+-  Misc Arm Platform Common Code Enhancements
+
+   -  Demonstrate PSCI MEM_PROTECT from el3_runtime
+
+   -  Provide RAS support
+
+   -  Migrate AArch64 port to the multi console driver. The old API is
+      deprecated and will eventually be removed.
+
+   -  Move BL31 below BL2 to enable BL2 overlay resulting in changes in the
+      layout of BL images in memory to enable more efficient use of available
+      space.
+
+   -  Add cpp build processing for dtb that allows processing device tree
+      with external includes.
+
+   -  Extend FIP io driver to support multiple FIP devices
+
+   -  Add support for SCMI AP core configuration protocol v1.0
+
+   -  Use SCMI AP core protocol to set the warm boot entrypoint
+
+   -  Add support to Mbed TLS drivers for shared heap among different
+      BL images to help optimise memory usage
+
+   -  Enable non-secure access to UART1 through a build option to support
+      a serial debug port for debugger connection
+
+-  Enhancements for Arm Juno Platform
+
+   -  Add support for TrustZone Media Protection 1 (TZMP1)
+
+-  Enhancements for Arm FVP Platform
+
+   -  Dynamic_config: remove the FVP dtb files
+
+   -  Set DYNAMIC_WORKAROUND_CVE_2018_3639=1 on FVP by default
+
+   -  Set the ability to dynamically disable Trusted Boot Board
+      authentication to be off by default with DYN_DISABLE_AUTH
+
+   -  Add librom enhancement support in FVP
+
+   -  Support shared Mbed TLS heap between BL1 and BL2 that allow a
+      reduction in BL2 size for FVP
+
+-  Enhancements for Arm SGI/SGM Platform
+
+   -  Enable ARM_PLAT_MT flag for SGI-575
+
+   -  Add dts files to enable support for dynamic config
+
+   -  Add RAS support
+
+   -  Support shared Mbed TLS heap for SGI and SGM between BL1 and BL2
+
+-  Enhancements for Non Arm Platforms
+
+   -  Raspberry Pi Platform
+
+   -  Hikey Platforms
+
+   -  Xilinx Platforms
+
+   -  QEMU Platform
+
+   -  Rockchip rk3399 Platform
+
+   -  TI Platforms
+
+   -  Socionext Platforms
+
+   -  Allwinner Platforms
+
+   -  NXP Platforms
+
+   -  NVIDIA Tegra Platform
+
+   -  Marvell Platforms
+
+   -  STMicroelectronics STM32MP1 Platform
+
+Issues resolved since last release
+----------------------------------
+
+-  No issues known at 1.5 release resolved in 1.6 release
+
+Known Issues
+------------
+
+-  DTB creation not supported when building on a Windows host. This step in the
+   build process is skipped when running on a Windows host. Known issue from
+   1.5 version.
+
 Trusted Firmware-A - version 1.5
 ================================
 
@@ -287,8 +569,8 @@ Issues resolved since last release
 Known Issues
 ------------
 
--  DTB creation not supported when building on a windows host. This step in the
-   build process is skipped when running on a windows host.
+-  DTB creation not supported when building on a Windows host. This step in the
+   build process is skipped when running on a Windows host.
 
 Trusted Firmware-A - version 1.4
 ================================

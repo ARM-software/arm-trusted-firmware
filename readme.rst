@@ -1,4 +1,4 @@
-Trusted Firmware-A - version 1.5
+Trusted Firmware-A - version 1.6
 ================================
 
 Trusted Firmware-A (TF-A) provides a reference implementation of secure world
@@ -136,6 +136,11 @@ Functionality
 
 -  Support for the GCC, LLVM and Arm Compiler 6 toolchains.
 
+-  Support combining several libraries into a self-called "romlib" image, that
+   may be shared across images to reduce memory footprint. The romlib image
+   is stored in ROM but is accessed through a jump-table that may be stored
+   in read-write memory, allowing for the library code to be patched.
+
 For a full description of functionality and implementation details, please
 see the `Firmware Design`_ and supporting documentation. The `Change Log`_
 provides details of changes made since the last release.
@@ -147,34 +152,35 @@ Various AArch32 and AArch64 builds of this release has been tested on variants
 r0, r1 and r2 of the `Juno Arm Development Platform`_.
 
 Various AArch64 builds of this release have been tested on the following Arm
-Fixed Virtual Platforms (`FVP`_) without shifted affinities, and that do not
+Fixed Virtual Platforms (`FVP`_) without shifted affinities that do not
 support threaded CPU cores (64-bit host machine only):
 
-NOTE: Unless otherwise stated, the FVP Version is 11.2 Build 11.2.33.
+NOTE: Unless otherwise stated, the model version is Version 11.4 Build 37.
 
--  ``Foundation_Platform``
--  ``FVP_Base_AEMv8A-AEMv8A`` (and also Version 9.0, Build 0.8.9005)
+-  ``FVP_Base_Aresx4``
+-  ``FVP_Base_AEMv8A-AEMv8A``
+-  ``FVP_Base_AEMv8A-AEMv8A-AEMv8A-AEMv8A-CCN502``
+-  ``FVP_Base_AEMv8A-AEMv8A``
+-  ``FVP_Base_RevC-2xAEMv8A``
+-  ``FVP_Base_Cortex-A32x4``
 -  ``FVP_Base_Cortex-A35x4``
 -  ``FVP_Base_Cortex-A53x4``
+-  ``FVP_Base_Cortex-A55x4+Cortex-A75x4``
+-  ``FVP_Base_Cortex-A55x4``
 -  ``FVP_Base_Cortex-A57x4-A53x4``
 -  ``FVP_Base_Cortex-A57x4``
 -  ``FVP_Base_Cortex-A72x4-A53x4``
 -  ``FVP_Base_Cortex-A72x4``
 -  ``FVP_Base_Cortex-A73x4-A53x4``
 -  ``FVP_Base_Cortex-A73x4``
+-  ``FVP_Base_Cortex-A75x4``
+-  ``FVP_Base_Cortex-A76x4``
+-  ``FVP_CSS_SGI-575`` (Version 11.3 build 40)
+-  ``Foundation_Platform``
 
-Additionally, various AArch64 builds were tested on the following Arm `FVP`_ s
-with shifted affinities, supporting threaded CPU cores (64-bit host machine
-only).
-
--  ``FVP_Base_Cortex-A55x4-A75x4`` (Version 0.0, build 0.0.4395)
--  ``FVP_Base_Cortex-A55x4`` (Version 0.0, build 0.0.4395)
--  ``FVP_Base_Cortex-A75x4`` (Version 0.0, build 0.0.4395)
--  ``FVP_Base_RevC-2xAEMv8A``
-
-Various AArch32 builds of this release has been tested on the following Arm
-`FVP`_\ s without shifted affinities, and that do not support threaded CPU cores
-(64-bit host machine only):
+The latest version of the AArch32 build of TF-A has been tested on the following
+Arm FVPs without shifted affinities that do not support threaded CPU cores
+(64-bit host machine only).
 
 -  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_Cortex-A32x4``
@@ -182,17 +188,22 @@ Various AArch32 builds of this release has been tested on the following Arm
 The Foundation FVP can be downloaded free of charge. The Base FVPs can be
 licensed from Arm. See the `Arm FVP website`_.
 
-All the above platforms have been tested with `Linaro Release 17.10`_.
+All the above platforms have been tested with `Linaro Release 18.04`_.
 
 This release also contains the following platform support:
 
+-  Allwinner sun50i_64 and sun50i_h6
+-  ARM SGI-575 and SGM-775
 -  HiKey, HiKey960 and Poplar boards
+-  Marvell Amarda 8K
 -  MediaTek MT6795 and MT8173 SoCs
 -  NVidia T132, T186 and T210 SoCs
+-  NXP ls1043, i.MX8QX and i.MX8QM
 -  QEMU emulator
 -  Raspberry Pi 3 board
 -  RockChip RK3328, RK3368 and RK3399 SoCs
 -  Socionext UniPhier SoC family and SynQuacer SC2A11 SoCs
+-  STMicroelectronics STM32MP1
 -  Texas Instruments K3 SoCs
 -  Xilinx Zynq UltraScale + MPSoC
 
@@ -201,7 +212,7 @@ Still to come
 
 -  More platform support.
 
--  Improved dynamic configuration support.
+-  Position independent executable (PIE) support.
 
 -  Ongoing support for new architectural features, CPUs and System IP.
 
@@ -262,7 +273,7 @@ Arm licensees may contact Arm directly via their partner managers.
 .. _Juno Arm Development Platform: http://www.arm.com/products/tools/development-boards/versatile-express/juno-arm-development-platform.php
 .. _Arm FVP website: FVP_
 .. _FVP: https://developer.arm.com/products/system-design/fixed-virtual-platforms
-.. _Linaro Release 17.10: https://community.arm.com/dev-platforms/b/documents/posts/linaro-release-notes-deprecated#LinaroRelease17.10
+.. _Linaro Release 18.04: https://community.arm.com/dev-platforms/b/documents/posts/linaro-release-notes-deprecated#LinaroRelease18.04
 .. _OP-TEE Secure OS: https://github.com/OP-TEE/optee_os
 .. _NVidia Trusted Little Kernel: http://nv-tegra.nvidia.com/gitweb/?p=3rdparty/ote_partner/tlk.git;a=summary
 .. _Trusty Secure OS: https://source.android.com/security/trusty
