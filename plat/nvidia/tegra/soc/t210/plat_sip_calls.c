@@ -88,7 +88,6 @@ int plat_sip_handler(uint32_t smc_fid,
 			return -EINVAL;
 		}
 	} else {
-		ERROR("%s: unsupported function ID\n", __func__);
 		return -ENOTSUP;
 	}
 	return 0;
