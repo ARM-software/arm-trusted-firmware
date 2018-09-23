@@ -293,11 +293,13 @@ ERRATA_A53_855873  := 1
 ERRATA_A57_859972  := 1
 ERRATA_A57_813419  := 1
 
-include drivers/renesas/rcar/ddr/ddr.mk
-include drivers/renesas/rcar/qos/qos.mk
-include drivers/renesas/rcar/pfc/pfc.mk
+include drivers/staging/renesas/rcar/ddr/ddr.mk
+include drivers/staging/renesas/rcar/qos/qos.mk
+include drivers/staging/renesas/rcar/pfc/pfc.mk
 
 PLAT_INCLUDES	:=	-Iinclude/common/tbbr			\
+			-Idrivers/staging/renesas/rcar/ddr	\
+			-Idrivers/staging/renesas/rcar/qos	\
 			-Idrivers/renesas/rcar/iic_dvfs		\
 			-Idrivers/renesas/rcar/board		\
 			-Idrivers/renesas/rcar/avs		\
@@ -307,8 +309,6 @@ PLAT_INCLUDES	:=	-Iinclude/common/tbbr			\
 			-Idrivers/renesas/rcar/emmc		\
 			-Idrivers/renesas/rcar/pwrc		\
 			-Idrivers/renesas/rcar/io		\
-			-Idrivers/renesas/rcar/ddr		\
-			-Idrivers/renesas/rcar/qos		\
 			-Iplat/renesas/rcar/include/registers	\
 			-Iplat/renesas/rcar/include		\
 			-Iplat/renesas/rcar
