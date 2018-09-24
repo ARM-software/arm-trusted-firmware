@@ -15,9 +15,11 @@
 	.globl console_cdns_core_init
 	.globl console_cdns_core_putc
 	.globl console_cdns_core_getc
+	.globl console_cdns_core_flush
 
 	.globl  console_cdns_putc
 	.globl  console_cdns_getc
+	.globl  console_cdns_flush
 
 	/* -----------------------------------------------
 	 * int console_cdns_core_init(uintptr_t base_addr)
@@ -87,6 +89,7 @@ endfunc console_cdns_register
 	.equ console_core_init,console_cdns_core_init
 	.equ console_core_putc,console_cdns_core_putc
 	.equ console_core_getc,console_cdns_core_getc
+	.equ console_core_flush,console_cdns_core_flush
 #endif
 
 	/* --------------------------------------------------------
@@ -188,8 +191,7 @@ func console_cdns_getc
 endfunc console_cdns_getc
 
 	/* ---------------------------------------------
-	 * int console_core_flush(uintptr_t base_addr)
-	 * DEPRECATED: Not used with MULTI_CONSOLE_API!
+	 * int console_cdns_core_flush(uintptr_t base_addr)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - console base address
@@ -197,8 +199,30 @@ endfunc console_cdns_getc
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
-func console_core_flush
+func console_cdns_core_flush
+#if ENABLE_ASSERTIONS
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
 	/* Placeholder */
 	mov	w0, #0
 	ret
-endfunc console_core_flush
+endfunc console_cdns_core_flush
+
+	/* ---------------------------------------------
+	 * int console_cdns_flush(console_pl011_t *console)
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * In : x0 - pointer to console_t structure
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : x0, x1
+	 * ---------------------------------------------
+	 */
+func console_cdns_flush
+#if ENABLE_ASSERTIONS
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
+	ldr	x0, [x0, #CONSOLE_T_CDNS_BASE]
+	b	console_cdns_core_flush
+endfunc console_cdns_flush
