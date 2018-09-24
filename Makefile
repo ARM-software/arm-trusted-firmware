@@ -327,19 +327,6 @@ ifeq (${ARM_ARCH_MAJOR},7)
 include make_helpers/armv7-a-cpus.mk
 endif
 
-# Platform compatibility is not supported in AArch32
-ifneq (${ARCH},aarch32)
-# If the platform has not defined ENABLE_PLAT_COMPAT, then enable it by default
-ifndef ENABLE_PLAT_COMPAT
-ENABLE_PLAT_COMPAT := 1
-endif
-
-# Include the platform compatibility helpers for PSCI
-ifneq (${ENABLE_PLAT_COMPAT}, 0)
-include plat/compat/plat_compat.mk
-endif
-endif
-
 # Include the CPU specific operations makefile, which provides default
 # values for all CPU errata workarounds and CPU specific optimisations.
 # This can be overridden by the platform.
@@ -586,7 +573,6 @@ $(eval $(call assert_boolean,ENABLE_AMU))
 $(eval $(call assert_boolean,ENABLE_ASSERTIONS))
 $(eval $(call assert_boolean,ENABLE_BACKTRACE))
 $(eval $(call assert_boolean,ENABLE_MPAM_FOR_LOWER_ELS))
-$(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
 $(eval $(call assert_boolean,ENABLE_PMF))
 $(eval $(call assert_boolean,ENABLE_PSCI_STAT))
 $(eval $(call assert_boolean,ENABLE_RUNTIME_INSTRUMENTATION))
@@ -639,7 +625,6 @@ $(eval $(call add_define,ENABLE_AMU))
 $(eval $(call add_define,ENABLE_ASSERTIONS))
 $(eval $(call add_define,ENABLE_BACKTRACE))
 $(eval $(call add_define,ENABLE_MPAM_FOR_LOWER_ELS))
-$(eval $(call add_define,ENABLE_PLAT_COMPAT))
 $(eval $(call add_define,ENABLE_PMF))
 $(eval $(call add_define,ENABLE_PSCI_STAT))
 $(eval $(call add_define,ENABLE_RUNTIME_INSTRUMENTATION))

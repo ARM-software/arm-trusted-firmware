@@ -10,9 +10,6 @@
 #include <bakery_lock.h>
 #include <bl_common.h>
 #include <platform_def.h>	/* for PLAT_NUM_PWR_DOMAINS */
-#if ENABLE_PLAT_COMPAT
-#include <psci_compat.h>
-#endif
 #include <psci_lib.h>		/* To maintain compatibility for SPDs */
 #include <utils_def.h>
 

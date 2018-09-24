@@ -40,7 +40,6 @@ void bl31_plat_runtime_setup(void)
 #endif
 }
 
-#if !ENABLE_PLAT_COMPAT
 /*
  * Helper function for platform_get_pos() when platform compatibility is
  * disabled. This is to enable SPDs using the older platform API to continue
@@ -52,8 +51,6 @@ unsigned int platform_core_pos_helper(unsigned long mpidr)
 	assert(idx >= 0);
 	return idx;
 }
-#endif
-
 
 #if !ERROR_DEPRECATED
 unsigned int plat_get_syscnt_freq2(void)

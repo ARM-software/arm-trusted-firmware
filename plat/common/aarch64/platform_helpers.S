@@ -24,7 +24,6 @@
 	.weak	plat_handle_double_fault
 	.weak	plat_handle_el3_ea
 
-#if !ENABLE_PLAT_COMPAT
 	.globl	platform_get_core_pos
 
 #define MPIDR_RES_BIT_MASK	0xff000000
@@ -49,7 +48,6 @@ func_deprecated platform_get_core_pos
 	beq	plat_my_core_pos
 	b	platform_core_pos_helper
 endfunc_deprecated platform_get_core_pos
-#endif
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by

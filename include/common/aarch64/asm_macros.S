@@ -110,23 +110,6 @@
 	end_vector_entry \since
 	.endm
 
-#if ENABLE_PLAT_COMPAT
-	/*
-	 * This macro calculates the base address of an MP stack using the
-	 * platform_get_core_pos() index, the name of the stack storage and
-	 * the size of each stack
-	 * In: X0 = MPIDR of CPU whose stack is wanted
-	 * Out: X0 = physical address of stack base
-	 * Clobber: X30, X1, X2
-	 */
-	.macro get_mp_stack _name, _size
-	bl  platform_get_core_pos
-	ldr x2, =(\_name + \_size)
-	mov x1, #\_size
-	madd x0, x0, x1, x2
-	.endm
-#endif
-
 	/*
 	 * This macro calculates the base address of the current CPU's MP stack
 	 * using the plat_my_core_pos() index, the name of the stack storage
