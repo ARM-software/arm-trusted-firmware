@@ -394,13 +394,9 @@ On Arm platforms, BL2 performs the following platform initializations:
 Image loading in BL2
 ^^^^^^^^^^^^^^^^^^^^
 
-Image loading scheme in BL2 depends on ``LOAD_IMAGE_V2`` build option. If the
-flag is disabled, the BLxx images are loaded, by calling the respective
-load\_blxx() function from BL2 generic code. If the flag is enabled, the BL2
-generic code loads the images based on the list of loadable images provided
-by the platform. BL2 passes the list of executable images provided by the
-platform to the next handover BL image. By default, this flag is disabled for
-AArch64 and the AArch32 build is supported only if this flag is enabled.
+BL2 generic code loads the images based on the list of loadable images
+provided by the platform. BL2 passes the list of executable images
+provided by the platform to the next handover BL image.
 
 The list of loadable images provided by the platform may also contain
 dynamic configuration files. The files are loaded and can be parsed as
@@ -425,10 +421,7 @@ EL3 Runtime Software image load
 
 BL2 loads the EL3 Runtime Software image from platform storage into a platform-
 specific address in trusted SRAM. If there is not enough memory to load the
-image or image is missing it leads to an assertion failure. If ``LOAD_IMAGE_V2``
-is disabled and if image loads successfully, BL2 updates the amount of trusted
-SRAM used and available for use by EL3 Runtime Software. This information is
-populated at a platform-specific memory address.
+image or image is missing it leads to an assertion failure.
 
 AArch64 BL32 (Secure-EL1 Payload) image load
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

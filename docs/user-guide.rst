@@ -334,8 +334,8 @@ Common build options
 
 -  ``DYN_DISABLE_AUTH``: Provides the capability to dynamically disable Trusted
    Board Boot authentication at runtime. This option is meant to be enabled only
-   for development platforms. Both TRUSTED_BOARD_BOOT and LOAD_IMAGE_V2 flags
-   must be set if this flag has to be enabled. 0 is the default.
+   for development platforms. ``TRUSTED_BOARD_BOOT`` flag must be set if this
+   flag has to be enabled. 0 is the default.
 
 -  ``EL3_PAYLOAD_BASE``: This option enables booting an EL3 payload instead of
    the normal boot flow. It must specify the entry point address of the EL3
@@ -513,12 +513,6 @@ Common build options
 
 -  ``LDFLAGS``: Extra user options appended to the linkers' command line in
    addition to the one set by the build system.
-
--  ``LOAD_IMAGE_V2``: Boolean option to enable support for new version (v2) of
-   image loading, which provides more flexibility and scalability around what
-   images are loaded and executed during boot. Default is 0.
-
-   Note: this flag must be enabled for AArch32 builds.
 
 -  ``LOG_LEVEL``: Chooses the log level, which controls the amount of console log
    output compiled into the build. This should be one of the following:

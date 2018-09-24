@@ -104,12 +104,7 @@ int bl1_plat_handle_post_image_load(unsigned int image_id)
 	 * to BL2. BL2 will read the memory layout before using its
 	 * memory for other purposes.
 	 */
-#if LOAD_IMAGE_V2
 	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->total_base;
-#else
-	bl2_tzram_layout = (meminfo_t *) round_up(bl1_tzram_layout->free_base,
-						  sizeof(uint64_t));
-#endif /* LOAD_IMAGE_V2 */
 
 #if !ERROR_DEPRECATED
 	bl1_init_bl2_mem_layout(bl1_tzram_layout, bl2_tzram_layout);

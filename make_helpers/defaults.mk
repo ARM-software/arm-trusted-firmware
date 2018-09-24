@@ -116,9 +116,6 @@ HW_ASSISTED_COHERENCY		:= 0
 # Set the default algorithm for the generation of Trusted Board Boot keys
 KEY_ALG				:= rsa
 
-# Flag to enable new version of image loading
-LOAD_IMAGE_V2			:= 0
-
 # Enable use of the console API allowing multiple consoles to be registered
 # at the same time.
 MULTI_CONSOLE_API		:= 0

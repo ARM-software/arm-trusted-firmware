@@ -17,7 +17,6 @@ struct auth_img_desc_s;
 struct meminfo;
 struct image_info;
 struct entry_point_info;
-struct bl31_params;
 struct image_desc;
 struct bl_load_info;
 struct bl_params;
@@ -176,7 +175,6 @@ void bl2_plat_arch_setup(void);
 void bl2_platform_setup(void);
 struct meminfo *bl2_plat_sec_mem_layout(void);
 
-#if LOAD_IMAGE_V2
 /*
  * This function can be used by the platforms to update/use image
  * information for given `image_id`.
@@ -184,65 +182,6 @@ struct meminfo *bl2_plat_sec_mem_layout(void);
 int bl2_plat_handle_pre_image_load(unsigned int image_id);
 int bl2_plat_handle_post_image_load(unsigned int image_id);
 
-#else /* LOAD_IMAGE_V2 */
-
-/*
- * This function returns a pointer to the shared memory that the platform has
- * kept aside to pass trusted firmware related information that BL31
- * could need
- */
-struct bl31_params *bl2_plat_get_bl31_params(void);
-
-/*
- * This function returns a pointer to the shared memory that the platform
- * has kept to point to entry point information of BL31 to BL2
- */
-struct entry_point_info *bl2_plat_get_bl31_ep_info(void);
-
-/*
- * This function flushes to main memory all the params that are
- * passed to BL31
- */
-void bl2_plat_flush_bl31_params(void);
-
-/*
- * The next 2 functions allow the platform to change the entrypoint information
- * for the mandatory 3rd level BL images, BL31 and BL33. This is done after
- * BL2 has loaded those images into memory but before BL31 is executed.
- */
-void bl2_plat_set_bl31_ep_info(struct image_info *image,
-			       struct entry_point_info *ep);
-
-void bl2_plat_set_bl33_ep_info(struct image_info *image,
-			       struct entry_point_info *ep);
-
-/* Gets the memory layout for BL33 */
-void bl2_plat_get_bl33_meminfo(struct meminfo *mem_info);
-
-/*******************************************************************************
- * Conditionally mandatory BL2 functions: must be implemented if SCP_BL2 image
- * is supported
- ******************************************************************************/
-/* Gets the memory layout for SCP_BL2 */
-void bl2_plat_get_scp_bl2_meminfo(struct meminfo *mem_info);
-
-/*
- * This function is called after loading SCP_BL2 image and it is used to perform
- * any platform-specific actions required to handle the SCP firmware.
- */
-int bl2_plat_handle_scp_bl2(struct image_info *scp_bl2_image_info);
-
-/*******************************************************************************
- * Conditionally mandatory BL2 functions: must be implemented if BL32 image
- * is supported
- ******************************************************************************/
-void bl2_plat_set_bl32_ep_info(struct image_info *image,
-			       struct entry_point_info *ep);
-
-/* Gets the memory layout for BL32 */
-void bl2_plat_get_bl32_meminfo(struct meminfo *mem_info);
-
-#endif /* LOAD_IMAGE_V2 */
 
 /*******************************************************************************
  * Optional BL2 functions (may be overridden)
@@ -284,13 +223,8 @@ int bl2u_plat_handle_scp_bl2u(void);
  * Mandatory BL31 functions
  ******************************************************************************/
 #if !ERROR_DEPRECATED
-#if LOAD_IMAGE_V2
 void bl31_early_platform_setup(void *from_bl2,
 				void *plat_params_from_bl2);
-#else
-void bl31_early_platform_setup(struct bl31_params *from_bl2,
-				void *plat_params_from_bl2);
-#endif
 #endif /* ERROR_DEPRECATED */
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		u_register_t arg2, u_register_t arg3);
@@ -345,7 +279,6 @@ const struct mmap_region *plat_get_secure_partition_mmap(void *cookie);
 const struct secure_partition_boot_info *plat_get_secure_partition_boot_info(
 		void *cookie);
 
-#if LOAD_IMAGE_V2
 /*******************************************************************************
  * Mandatory BL image load functions(may be overridden).
  ******************************************************************************/
@@ -367,8 +300,6 @@ struct bl_params *plat_get_next_bl_params(void);
  * passed to next image.
  */
 void plat_flush_next_bl_params(void);
-
-#endif /* LOAD_IMAGE_V2 */
 
 /*
  * The below function enable Trusted Firmware components like SPDs which

@@ -390,13 +390,6 @@ ifeq (${NEED_BL33},yes)
         endif
 endif
 
-# For AArch32, LOAD_IMAGE_V2 must be enabled.
-ifeq (${ARCH},aarch32)
-    ifeq (${LOAD_IMAGE_V2}, 0)
-        $(error "For AArch32, LOAD_IMAGE_V2 must be enabled.")
-    endif
-endif
-
 # When building for systems with hardware-assisted coherency, there's no need to
 # use USE_COHERENT_MEM. Require that USE_COHERENT_MEM must be set to 0 too.
 ifeq ($(HW_ASSISTED_COHERENCY)-$(USE_COHERENT_MEM),1-1)
@@ -438,13 +431,10 @@ ifeq ($(FAULT_INJECTION_SUPPORT),1)
     endif
 endif
 
-# DYN_DISABLE_AUTH can be set only when TRUSTED_BOARD_BOOT=1 and LOAD_IMAGE_V2=1
+# DYN_DISABLE_AUTH can be set only when TRUSTED_BOARD_BOOT=1
 ifeq ($(DYN_DISABLE_AUTH), 1)
     ifeq (${TRUSTED_BOARD_BOOT}, 0)
         $(error "TRUSTED_BOARD_BOOT must be enabled for DYN_DISABLE_AUTH to be set.")
-    endif
-    ifeq (${LOAD_IMAGE_V2}, 0)
-        $(error "DYN_DISABLE_AUTH is only supported for LOAD_IMAGE_V2.")
     endif
 endif
 
@@ -585,7 +575,6 @@ $(eval $(call assert_boolean,GENERATE_COT))
 $(eval $(call assert_boolean,GICV2_G0_FOR_EL3))
 $(eval $(call assert_boolean,HANDLE_EA_EL3_FIRST))
 $(eval $(call assert_boolean,HW_ASSISTED_COHERENCY))
-$(eval $(call assert_boolean,LOAD_IMAGE_V2))
 $(eval $(call assert_boolean,MULTI_CONSOLE_API))
 $(eval $(call assert_boolean,NS_TIMER_SWITCH))
 $(eval $(call assert_boolean,PL011_GENERIC_UART))
@@ -636,7 +625,6 @@ $(eval $(call add_define,FAULT_INJECTION_SUPPORT))
 $(eval $(call add_define,GICV2_G0_FOR_EL3))
 $(eval $(call add_define,HANDLE_EA_EL3_FIRST))
 $(eval $(call add_define,HW_ASSISTED_COHERENCY))
-$(eval $(call add_define,LOAD_IMAGE_V2))
 $(eval $(call add_define,LOG_LEVEL))
 $(eval $(call add_define,MULTI_CONSOLE_API))
 $(eval $(call add_define,NS_TIMER_SWITCH))
