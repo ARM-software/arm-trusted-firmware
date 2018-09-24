@@ -234,11 +234,6 @@ Common build options
    compiling TF-A. Its value must be a numeric, and defaults to 0. See also,
    *Armv8 Architecture Extensions* in `Firmware Design`_.
 
--  ``ARM_GIC_ARCH``: Choice of Arm GIC architecture version used by the Arm
-   Legacy GIC driver for implementing the platform GIC API. This API is used
-   by the interrupt management framework. Default is 2 (that is, version 2.0).
-   This build option is deprecated.
-
 -  ``ARM_PLAT_MT``: This flag determines whether the Arm platform layer has to
    cater for the multi-threading ``MT`` bit when accessing MPIDR. When this flag
    is set, the functions which deal with MPIDR assume that the ``MT`` bit in
@@ -838,9 +833,6 @@ Arm FVP platform specific build options
    -  ``FVP_GIC600`` : The GIC600 implementation of GICv3 is selected
    -  ``FVP_GICV2`` : The GICv2 only driver is selected
    -  ``FVP_GICV3`` : The GICv3 only driver is selected (default option)
-   -  ``FVP_GICV3_LEGACY``: The Legacy GICv3 driver is selected (deprecated)
-      Note: If TF-A is compiled with this option on FVPs with GICv3 hardware,
-      then it configures the hardware to run in GICv2 emulation mode
 
 -  ``FVP_USE_SP804_TIMER`` : Use the SP804 timer instead of the Generic Timer
    for functions that wait for an arbitrary time length (udelay and mdelay).

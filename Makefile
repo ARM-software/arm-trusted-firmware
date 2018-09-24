@@ -605,7 +605,6 @@ $(eval $(call assert_numeric,SMCCC_MAJOR_VERSION))
 
 $(eval $(call add_define,ARM_ARCH_MAJOR))
 $(eval $(call add_define,ARM_ARCH_MINOR))
-$(eval $(call add_define,ARM_GIC_ARCH))
 $(eval $(call add_define,COLD_BOOT_SINGLE_CPU))
 $(eval $(call add_define,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call add_define,CTX_INCLUDE_FPREGS))

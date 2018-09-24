@@ -23,10 +23,6 @@ ARCH				:= aarch64
 ARM_ARCH_MAJOR			:= 8
 ARM_ARCH_MINOR			:= 0
 
-# Determine the version of ARM GIC architecture to use for interrupt management
-# in EL3. The platform port can change this value if needed.
-ARM_GIC_ARCH			:= 2
-
 # Base commit to perform code check on
 BASE_COMMIT			:= origin/master
 

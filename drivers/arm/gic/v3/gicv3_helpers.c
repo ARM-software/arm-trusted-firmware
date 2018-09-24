@@ -377,56 +377,6 @@ void gicv3_spis_config_defaults(uintptr_t gicd_base)
 		gicd_write_icfgr(gicd_base, index, 0U);
 }
 
-#if !ERROR_DEPRECATED
-/*******************************************************************************
- * Helper function to configure secure G0 and G1S SPIs.
- ******************************************************************************/
-void gicv3_secure_spis_config(uintptr_t gicd_base,
-				     unsigned int num_ints,
-				     const unsigned int *sec_intr_list,
-				     unsigned int int_grp)
-{
-	unsigned int index, irq_num;
-	unsigned long long gic_affinity_val;
-
-	assert((int_grp == INTR_GROUP1S) || (int_grp == INTR_GROUP0));
-	/* If `num_ints` is not 0, ensure that `sec_intr_list` is not NULL */
-	if (num_ints != 0U)
-		assert(sec_intr_list != NULL);
-
-	for (index = 0U; index < num_ints; index++) {
-		irq_num = sec_intr_list[index];
-		if (irq_num >= MIN_SPI_ID) {
-
-			/* Configure this interrupt as a secure interrupt */
-			gicd_clr_igroupr(gicd_base, irq_num);
-
-			/* Configure this interrupt as G0 or a G1S interrupt */
-			if (int_grp == INTR_GROUP1S)
-				gicd_set_igrpmodr(gicd_base, irq_num);
-			else
-				gicd_clr_igrpmodr(gicd_base, irq_num);
-
-			/* Set the priority of this interrupt */
-			gicd_set_ipriorityr(gicd_base,
-					      irq_num,
-					      GIC_HIGHEST_SEC_PRIORITY);
-
-			/* Target SPIs to the primary CPU */
-			gic_affinity_val =
-				gicd_irouter_val_from_mpidr(read_mpidr(), 0U);
-			gicd_write_irouter(gicd_base,
-					   irq_num,
-					   gic_affinity_val);
-
-			/* Enable this interrupt */
-			gicd_set_isenabler(gicd_base, irq_num);
-		}
-	}
-
-}
-#endif
-
 /*******************************************************************************
  * Helper function to configure properties of secure SPIs
  ******************************************************************************/
@@ -511,47 +461,6 @@ void gicv3_ppi_sgi_config_defaults(uintptr_t gicr_base)
 	/* Configure all PPIs as level triggered by default */
 	gicr_write_icfgr1(gicr_base, 0U);
 }
-
-#if !ERROR_DEPRECATED
-/*******************************************************************************
- * Helper function to configure secure G0 and G1S SPIs.
- ******************************************************************************/
-void gicv3_secure_ppi_sgi_config(uintptr_t gicr_base,
-					unsigned int num_ints,
-					const unsigned int *sec_intr_list,
-					unsigned int int_grp)
-{
-	unsigned int index, irq_num;
-
-	assert((int_grp == INTR_GROUP1S) || (int_grp == INTR_GROUP0));
-	/* If `num_ints` is not 0, ensure that `sec_intr_list` is not NULL */
-	if (num_ints != 0U)
-		assert(sec_intr_list != NULL);
-
-	for (index = 0; index < num_ints; index++) {
-		irq_num = sec_intr_list[index];
-		if (irq_num < MIN_SPI_ID) {
-
-			/* Configure this interrupt as a secure interrupt */
-			gicr_clr_igroupr0(gicr_base, irq_num);
-
-			/* Configure this interrupt as G0 or a G1S interrupt */
-			if (int_grp == INTR_GROUP1S)
-				gicr_set_igrpmodr0(gicr_base, irq_num);
-			else
-				gicr_clr_igrpmodr0(gicr_base, irq_num);
-
-			/* Set the priority of this interrupt */
-			gicr_set_ipriorityr(gicr_base,
-					    irq_num,
-					    GIC_HIGHEST_SEC_PRIORITY);
-
-			/* Enable this interrupt */
-			gicr_set_isenabler0(gicr_base, irq_num);
-		}
-	}
-}
-#endif
 
 /*******************************************************************************
  * Helper function to configure properties of secure G0 and G1S PPIs and SGIs.
