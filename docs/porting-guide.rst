@@ -477,13 +477,6 @@ constants must also be defined:
    enabled for a BL image, ``MAX_MMAP_REGIONS`` must be defined to accommodate
    the dynamic regions as well.
 
--  **#define : ADDR\_SPACE\_SIZE**
-
-   Defines the total size of the address space in bytes. For example, for a 32
-   bit address space, this value should be ``(1ULL << 32)``. This definition is
-   now deprecated, platforms should use ``PLAT_PHY_ADDR_SPACE_SIZE`` and
-   ``PLAT_VIRT_ADDR_SPACE_SIZE`` instead.
-
 -  **#define : PLAT\_VIRT\_ADDR\_SPACE\_SIZE**
 
    Defines the total size of the virtual address space in bytes. For example,

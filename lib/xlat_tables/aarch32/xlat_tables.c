@@ -61,22 +61,6 @@ void init_xlat_tables(void)
 	assert((PLAT_PHY_ADDR_SPACE_SIZE - 1U) <= get_max_supported_pa());
 }
 
-/*******************************************************************************
- * Function for enabling the MMU in Secure PL1, assuming that the
- * page-tables have already been created.
- ******************************************************************************/
-#if !ERROR_DEPRECATED
-void enable_mmu_secure(unsigned int flags)
-{
-	enable_mmu_svc_mon(flags);
-}
-
-void enable_mmu_direct(unsigned int flags)
-{
-	enable_mmu_direct_svc_mon(flags);
-}
-#endif
-
 void enable_mmu_svc_mon(unsigned int flags)
 {
 	unsigned int mair0, ttbcr, sctlr;
