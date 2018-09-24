@@ -12,9 +12,6 @@
 	.globl	psci_do_pwrdown_cache_maintenance
 	.globl	psci_do_pwrup_cache_maintenance
 	.globl	psci_power_down_wfi
-#if !ERROR_DEPRECATED
-	.globl psci_entrypoint
-#endif
 
 /* -----------------------------------------------------------------------
  * void psci_do_pwrdown_cache_maintenance(unsigned int power level);

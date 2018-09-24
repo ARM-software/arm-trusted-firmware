@@ -347,12 +347,6 @@ int psci_features(unsigned int psci_fid);
 void __dead2 psci_power_down_wfi(void);
 void psci_arch_setup(void);
 
-/*
- * The below API is deprecated. This is now replaced by bl31_warmboot_entry in
- * AArch64.
- */
-void psci_entrypoint(void) __deprecated;
-
 #endif /*__ASSEMBLY__*/
 
 #endif /* PSCI_H */
