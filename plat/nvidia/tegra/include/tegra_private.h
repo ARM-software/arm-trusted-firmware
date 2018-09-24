@@ -50,6 +50,18 @@ typedef struct irq_sec_cfg {
 	uint32_t type;
 } irq_sec_cfg_t;
 
+/*******************************************************************************
+ * Struct describing parameters passed to bl31
+ ******************************************************************************/
+struct tegra_bl31_params {
+       param_header_t h;
+       image_info_t *bl31_image_info;
+       entry_point_info_t *bl32_ep_info;
+       image_info_t *bl32_image_info;
+       entry_point_info_t *bl33_ep_info;
+       image_info_t *bl33_image_info;
+};
+
 /* Declarations for plat_psci_handlers.c */
 int32_t tegra_soc_validate_power_state(unsigned int power_state,
 		psci_power_state_t *req_state);
@@ -58,7 +70,7 @@ int32_t tegra_soc_validate_power_state(unsigned int power_state,
 const mmap_region_t *plat_get_mmio_map(void);
 uint32_t plat_get_console_from_id(int id);
 void plat_gic_setup(void);
-bl31_params_t *plat_get_bl31_params(void);
+struct tegra_bl31_params *plat_get_bl31_params(void);
 plat_params_from_bl2_t *plat_get_bl31_plat_params(void);
 
 /* Declarations for plat_secondary.c */

@@ -217,13 +217,13 @@ void plat_gic_setup(void)
 /*******************************************************************************
  * Return pointer to the BL31 params from previous bootloader
  ******************************************************************************/
-bl31_params_t *plat_get_bl31_params(void)
+struct tegra_bl31_params *plat_get_bl31_params(void)
 {
 	uint32_t val;
 
 	val = mmio_read_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV53_LO);
 
-	return (bl31_params_t *)(uintptr_t)val;
+	return (struct tegra_bl31_params *)(uintptr_t)val;
 }
 
 /*******************************************************************************

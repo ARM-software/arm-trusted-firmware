@@ -23,13 +23,13 @@
 #include <string.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
+#include <utils.h>
 #include <utils_def.h>
 
 /* length of Trusty's input parameters (in bytes) */
 #define TRUSTY_PARAMS_LEN_BYTES	(4096*2)
 
 extern void memcpy16(void *dest, const void *src, unsigned int length);
-extern void zeromem16(void *mem, unsigned int length);
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout
@@ -72,7 +72,7 @@ void plat_early_platform_setup(void)
 	; /* do nothing */
 }
 
-bl31_params_t *plat_get_bl31_params(void)
+struct tegra_bl31_params *plat_get_bl31_params(void)
 {
 	return NULL;
 }
@@ -112,11 +112,11 @@ plat_params_from_bl2_t *bl31_get_plat_params(void)
  * Perform any BL31 specific platform actions. Populate the BL33 and BL32 image
  * info.
  ******************************************************************************/
-void bl31_early_platform_setup(bl31_params_t *from_bl2,
-				void *plat_params_from_bl2)
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+				u_register_t arg2, u_register_t arg3)
 {
-	plat_params_from_bl2_t *plat_params =
-		(plat_params_from_bl2_t *)plat_params_from_bl2;
+	struct tegra_bl31_params *arg_from_bl2 = (struct tegra_bl31_params *) arg0;
+	plat_params_from_bl2_t *plat_params = (plat_params_from_bl2_t *)arg1;
 	image_info_t bl32_img_info = { {0} };
 	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
 
@@ -126,8 +126,8 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * might use custom ways to get arguments, so provide handlers which
 	 * they can override.
 	 */
-	if (from_bl2 == NULL)
-		from_bl2 = plat_get_bl31_params();
+	if (arg_from_bl2 == NULL)
+		arg_from_bl2 = plat_get_bl31_params();
 	if (plat_params == NULL)
 		plat_params = plat_get_bl31_plat_params();
 
@@ -135,14 +135,14 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * Copy BL3-3, BL3-2 entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
-	assert(from_bl2);
-	assert(from_bl2->bl33_ep_info);
-	bl33_image_ep_info = *from_bl2->bl33_ep_info;
+	assert(arg_from_bl2);
+	assert(arg_from_bl2->bl33_ep_info);
+	bl33_image_ep_info = *arg_from_bl2->bl33_ep_info;
 
-	if (from_bl2->bl32_ep_info) {
-		bl32_image_ep_info = *from_bl2->bl32_ep_info;
-		bl32_mem_size = from_bl2->bl32_ep_info->args.arg0;
-		bl32_boot_params = from_bl2->bl32_ep_info->args.arg2;
+	if (arg_from_bl2->bl32_ep_info) {
+		bl32_image_ep_info = *arg_from_bl2->bl32_ep_info;
+		bl32_mem_size = arg_from_bl2->bl32_ep_info->args.arg0;
+		bl32_boot_params = arg_from_bl2->bl32_ep_info->args.arg2;
 	}
 
 	/*
@@ -191,9 +191,9 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * inside the TZDRAM. We check the BL32 image info to find out
 	 * the base/PC values and relocate the image if necessary.
 	 */
-	if (from_bl2->bl32_image_info) {
+	if (arg_from_bl2->bl32_image_info) {
 
-		bl32_img_info = *from_bl2->bl32_image_info;
+		bl32_img_info = *arg_from_bl2->bl32_image_info;
 
 		/* Relocate BL32 if it resides outside of the TZDRAM */
 		tzdram_start = plat_bl31_params_from_bl2.tzdram_base;
@@ -217,7 +217,7 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 				 bl32_img_info.image_size);
 
 			/* clean up non-secure intermediate buffer */
-			zeromem16((void *)(uintptr_t)bl32_start,
+			zeromem((void *)(uintptr_t)bl32_start,
 				bl32_img_info.image_size);
 		}
 	}
