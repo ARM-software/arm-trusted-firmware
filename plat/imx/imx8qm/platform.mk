@@ -32,10 +32,8 @@ BL31_SOURCES		+=	plat/imx/common/lpuart_console.S	\
 
 include plat/imx/common/sci/sci_api.mk
 
-ENABLE_PLAT_COMPAT	:=	0
 USE_COHERENT_MEM	:=	1
 RESET_TO_BL31		:=	1
-ARM_GIC_ARCH		:=	3
 A53_DISABLE_NON_TEMPORAL_HINT := 0
 MULTI_CONSOLE_API	:=	1
 ERRATA_A72_859971	:=	1
