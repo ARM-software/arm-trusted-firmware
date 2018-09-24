@@ -5,7 +5,6 @@
 #
 
 override RESET_TO_BL31			:= 1
-override ENABLE_PLAT_COMPAT		:= 0
 override MULTI_CONSOLE_API		:= 1
 override PROGRAMMABLE_RESET_ADDRESS	:= 1
 override USE_COHERENT_MEM		:= 1
@@ -28,7 +27,7 @@ PLAT_INCLUDES		:=	-I$(PLAT_PATH)/include		\
 				-I$(PLAT_PATH)/drivers/mhu
 
 PLAT_BL_COMMON_SOURCES	+=	$(PLAT_PATH)/sq_helpers.S		\
-				drivers/arm/pl011/pl011_console.S	\
+				drivers/arm/pl011/aarch64/pl011_console.S \
 				drivers/delay_timer/delay_timer.c	\
 				drivers/delay_timer/generic_delay_timer.c \
 				${XLAT_TABLES_LIB_SRCS}
