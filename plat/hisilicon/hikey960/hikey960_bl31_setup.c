@@ -5,7 +5,6 @@
  */
 
 #include <arch_helpers.h>
-#include <arm_gic.h>
 #include <assert.h>
 #include <bl_common.h>
 #include <cci.h>
@@ -17,6 +16,7 @@
 #include <hi3660.h>
 #include <hisi_ipc.h>
 #include <interrupt_mgmt.h>
+#include <interrupt_props.h>
 #include <platform.h>
 #include <platform_def.h>
 
@@ -49,16 +49,18 @@ static entry_point_info_t bl33_ep_info;
  * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0
  * interrupts.
  *****************************************************************************/
-const unsigned int g0_interrupt_array[] = {
-	IRQ_SEC_PHY_TIMER,
-	IRQ_SEC_SGI_0
+static const interrupt_prop_t g0_interrupt_props[] = {
+	INTR_PROP_DESC(IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY,
+		       GICV2_INTR_GROUP0, GIC_INTR_CFG_LEVEL),
+	INTR_PROP_DESC(IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY,
+		       GICV2_INTR_GROUP0, GIC_INTR_CFG_LEVEL),
 };
 
 const gicv2_driver_data_t hikey960_gic_data = {
 	.gicd_base = GICD_REG_BASE,
 	.gicc_base = GICC_REG_BASE,
-	.g0_interrupt_num = ARRAY_SIZE(g0_interrupt_array),
-	.g0_interrupt_array = g0_interrupt_array,
+	.interrupt_props = g0_interrupt_props,
+	.interrupt_props_num = ARRAY_SIZE(g0_interrupt_props),
 };
 
 static const int cci_map[] = {
@@ -78,10 +80,13 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 	return NULL;
 }
 
-void bl31_early_platform_setup(void *from_bl2,
-			       void *plat_params_from_bl2)
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+				u_register_t arg2, u_register_t arg3)
 {
 	unsigned int id, uart_base;
+	void *from_bl2;
+
+	from_bl2 = (void *) arg0;
 
 	generic_delay_timer_init();
 	hikey960_read_boardid(&id);

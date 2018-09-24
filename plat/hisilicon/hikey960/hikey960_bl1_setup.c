@@ -5,7 +5,6 @@
  */
 
 #include <arch_helpers.h>
-#include <arm_gic.h>
 #include <assert.h>
 #include <bl_common.h>
 #include <console.h>
@@ -16,6 +15,7 @@
 #include <generic_delay_timer.h>
 #include <gicv2.h>
 #include <hi3660.h>
+#include <interrupt_props.h>
 #include <mmio.h>
 #include <platform.h>
 #include <platform_def.h>
@@ -45,43 +45,23 @@ static meminfo_t bl1_tzram_layout;
  * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0
  * interrupts.
  *****************************************************************************/
-const unsigned int g0_interrupt_array[] = {
-	IRQ_SEC_PHY_TIMER,
-	IRQ_SEC_SGI_0
+static const interrupt_prop_t g0_interrupt_props[] = {
+	INTR_PROP_DESC(IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY,
+			GICV2_INTR_GROUP0, GIC_INTR_CFG_LEVEL),
+	INTR_PROP_DESC(IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY,
+			GICV2_INTR_GROUP0, GIC_INTR_CFG_LEVEL),
 };
 
 const gicv2_driver_data_t hikey960_gic_data = {
 	.gicd_base = GICD_REG_BASE,
 	.gicc_base = GICC_REG_BASE,
-	.g0_interrupt_num = ARRAY_SIZE(g0_interrupt_array),
-	.g0_interrupt_array = g0_interrupt_array,
+	.interrupt_props = g0_interrupt_props,
+	.interrupt_props_num = ARRAY_SIZE(g0_interrupt_props),
 };
 
 meminfo_t *bl1_plat_sec_mem_layout(void)
 {
 	return &bl1_tzram_layout;
-}
-
-/*******************************************************************************
- * Function that takes a memory layout into which BL2 has been loaded and
- * populates a new memory layout for BL2 that ensures that BL1's data sections
- * resident in secure RAM are not visible to BL2.
- ******************************************************************************/
-void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
-			     meminfo_t *bl2_mem_layout)
-{
-
-	assert(bl1_mem_layout != NULL);
-	assert(bl2_mem_layout != NULL);
-
-	/*
-	 * Cannot remove BL1 RW data from the scope of memory visible to BL2
-	 * like arm platforms because they overlap in hikey960
-	 */
-	bl2_mem_layout->total_base = BL2_BASE;
-	bl2_mem_layout->total_size = NS_BL1U_LIMIT - BL2_BASE;
-
-	flush_dcache_range((unsigned long)bl2_mem_layout, sizeof(meminfo_t));
 }
 
 /*
