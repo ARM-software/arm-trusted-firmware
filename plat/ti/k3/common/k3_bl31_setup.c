@@ -57,12 +57,12 @@ static uint32_t k3_get_spsr_for_bl33_entry(void)
  * Perform any BL3-1 early platform setup, such as console init and deciding on
  * memory layout.
  ******************************************************************************/
-void bl31_early_platform_setup(bl31_params_t *from_bl2,
-			       void *plat_params_from_bl2)
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+				u_register_t arg2, u_register_t arg3)
 {
 	/* There are no parameters from BL2 if BL31 is a reset vector */
-	assert(from_bl2 == NULL);
-	assert(plat_params_from_bl2 == NULL);
+	assert(arg0 == 0U);
+	assert(arg1 == 0U);
 
 	bl31_console_setup();
 
@@ -93,12 +93,6 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	bl33_image_ep_info.args.arg2 = 0U;
 	bl33_image_ep_info.args.arg3 = 0U;
 #endif
-}
-
-void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
-				u_register_t arg2, u_register_t arg3)
-{
-	bl31_early_platform_setup((void *)arg0, (void *)arg1);
 }
 
 void bl31_plat_arch_setup(void)
