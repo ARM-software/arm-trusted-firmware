@@ -37,28 +37,6 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
 	return &bl1_tzram_layout;
 }
 
-/*******************************************************************************
- * Function that takes a memory layout into which BL2 has been loaded and
- * populates a new memory layout for BL2 that ensures that BL1's data sections
- * resident in secure RAM are not visible to BL2.
- ******************************************************************************/
-void bl1_init_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
-			     meminfo_t *bl2_mem_layout)
-{
-
-	assert(bl1_mem_layout != NULL);
-	assert(bl2_mem_layout != NULL);
-
-	/*
-	 * Cannot remove BL1 RW data from the scope of memory visible to BL2
-	 * like arm platforms because they overlap in hikey
-	 */
-	bl2_mem_layout->total_base = BL2_BASE;
-	bl2_mem_layout->total_size = BL32_SRAM_LIMIT - BL2_BASE;
-
-	flush_dcache_range((unsigned long)bl2_mem_layout, sizeof(meminfo_t));
-}
-
 /*
  * Perform any BL1 specific platform actions.
  */
