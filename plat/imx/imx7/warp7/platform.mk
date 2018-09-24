@@ -68,9 +68,6 @@ BL2_SOURCES		+=	common/desc_image_load.c			\
 
 WORKAROUND_CVE_2017_5715	:= 0
 
-# Disable the PSCI platform compatibility layer by default
-ENABLE_PLAT_COMPAT		:= 0
-
 # Enable reset to BL31 by default
 RESET_TO_BL31			:= 0
 
@@ -86,19 +83,12 @@ SEPARATE_CODE_AND_RODATA	:= 1
 # Use Coherent memory
 USE_COHERENT_MEM		:= 1
 
-# Enable new version of image loading required for AArch32
-LOAD_IMAGE_V2			:= 1
-
 # PLAT_WARP7_UART
 PLAT_WARP7_UART			:=1
 $(eval $(call add_define,PLAT_WARP7_UART))
 
 # Verify build config
 # -------------------
-
-ifneq (${LOAD_IMAGE_V2}, 1)
-  $(error Error: warp7 needs LOAD_IMAGE_V2=1)
-endif
 
 ifeq (${ARCH},aarch64)
   $(error Error: AArch64 not supported on i.mx7)
