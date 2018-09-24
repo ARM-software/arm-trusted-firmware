@@ -12,8 +12,6 @@
 #include <rk3368_def.h>
 #include <utils_def.h>
 
-#define DEBUG_XLAT_TABLE 0
-
 /*******************************************************************************
  * Platform binary types for linking
  ******************************************************************************/
@@ -25,9 +23,7 @@
  ******************************************************************************/
 
 /* Size of cacheable stacks */
-#if DEBUG_XLAT_TABLE
-#define PLATFORM_STACK_SIZE 0x800
-#elif defined(IMAGE_BL1)
+#if defined(IMAGE_BL1)
 #define PLATFORM_STACK_SIZE 0x440
 #elif defined(IMAGE_BL2)
 #define PLATFORM_STACK_SIZE 0x400
@@ -86,7 +82,8 @@
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
-#define ADDR_SPACE_SIZE		(1ULL << 32)
+#define PLAT_VIRT_ADDR_SPACE_SIZE   (1ULL << 32)
+#define PLAT_PHY_ADDR_SPACE_SIZE    (1ULL << 32)
 #define MAX_XLAT_TABLES		8
 #define MAX_MMAP_REGIONS	16
 
@@ -107,13 +104,6 @@
  */
 #define PLAT_RK_GICD_BASE	RK3368_GICD_BASE
 #define PLAT_RK_GICC_BASE	RK3368_GICC_BASE
-
-/*
- * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
- * terminology. On a GICv2 system or mode, the lists will be merged and treated
- * as Group 0 interrupts.
- */
-#define PLAT_RK_G1S_IRQS	RK_G1S_IRQS
 
 #define PLAT_RK_UART_BASE	RK3368_UART2_BASE
 #define PLAT_RK_UART_CLOCK	RK3368_UART_CLOCK

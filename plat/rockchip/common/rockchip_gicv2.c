@@ -6,6 +6,7 @@
 
 #include <bl_common.h>
 #include <gicv2.h>
+#include <interrupt_props.h>
 #include <platform_def.h>
 #include <utils.h>
 
@@ -23,8 +24,8 @@
  * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0
  * interrupts.
  *****************************************************************************/
-const unsigned int g0_interrupt_array[] = {
-	PLAT_RK_G1S_IRQS,
+static const interrupt_prop_t g0_interrupt_props[] = {
+	PLAT_RK_GICV2_G1S_IRQS
 };
 
 /*
@@ -35,8 +36,8 @@ const unsigned int g0_interrupt_array[] = {
 gicv2_driver_data_t rockchip_gic_data = {
 	.gicd_base = PLAT_RK_GICD_BASE,
 	.gicc_base = PLAT_RK_GICC_BASE,
-	.g0_interrupt_num = ARRAY_SIZE(g0_interrupt_array),
-	.g0_interrupt_array = g0_interrupt_array,
+	.interrupt_props = g0_interrupt_props,
+	.interrupt_props_num = ARRAY_SIZE(g0_interrupt_props),
 };
 
 /******************************************************************************

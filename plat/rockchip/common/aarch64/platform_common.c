@@ -5,7 +5,6 @@
  */
 
 #include <arch_helpers.h>
-#include <arm_gic.h>
 #include <bl_common.h>
 #include <cci.h>
 #include <debug.h>

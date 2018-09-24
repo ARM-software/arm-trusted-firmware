@@ -100,6 +100,8 @@
  * terminology. On a GICv2 system or mode, the lists will be merged and treated
  * as Group 0 interrupts.
  */
-#define RK_G1S_IRQS		(RK_IRQ_SEC_PHY_TIMER)
+#define PLAT_RK_GICV2_G1S_IRQS						\
+	INTR_PROP_DESC(RK_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY,	\
+		       GICV2_INTR_GROUP1, GIC_INTR_CFG_LEVEL)
 
 #endif /* __PLAT_DEF_H__ */

@@ -135,7 +135,11 @@
  * terminology. On a GICv2 system or mode, the lists will be merged and treated
  * as Group 0 interrupts.
  */
-#define RK_G1S_IRQS		RK_IRQ_SEC_PHY_TIMER, RK_IRQ_SEC_SGI_6
+#define PLAT_RK_GICV2_G1S_IRQS						\
+	INTR_PROP_DESC(RK_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY,	\
+		       GICV2_INTR_GROUP1, GIC_INTR_CFG_LEVEL),		\
+	INTR_PROP_DESC(RK_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY,	\
+		       GICV2_INTR_GROUP1, GIC_INTR_CFG_LEVEL)
 
 #define SHARE_MEM_BASE          0x100000/* [1MB, 1MB+60K]*/
 #define SHARE_MEM_PAGE_NUM      15

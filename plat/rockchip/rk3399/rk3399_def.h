@@ -54,7 +54,12 @@
  * terminology. On a GICv2 system or mode, the lists will be merged and treated
  * as Group 0 interrupts.
  */
-#define RK3399_G1S_IRQS			ARM_IRQ_SEC_PHY_TIMER
-#define RK3399_G0_IRQS			ARM_IRQ_SEC_SGI_6
+#define PLAT_RK_GICV3_G1S_IRQS						\
+	INTR_PROP_DESC(ARM_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY,	\
+		       INTR_GROUP1S, GIC_INTR_CFG_LEVEL)
+
+#define PLAT_RK_GICV3_G0_IRQS						\
+	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY,	\
+		       INTR_GROUP0, GIC_INTR_CFG_LEVEL)
 
 #endif /* __PLAT_DEF_H__ */
