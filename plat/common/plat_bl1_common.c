@@ -106,11 +106,7 @@ int bl1_plat_handle_post_image_load(unsigned int image_id)
 	 */
 	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->total_base;
 
-#if !ERROR_DEPRECATED
-	bl1_init_bl2_mem_layout(bl1_tzram_layout, bl2_tzram_layout);
-#else
 	bl1_calc_bl2_mem_layout(bl1_tzram_layout, bl2_tzram_layout);
-#endif
 
 	ep_info->args.arg1 = (uintptr_t)bl2_tzram_layout;
 

@@ -48,25 +48,6 @@ void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 	flush_dcache_range((unsigned long)bl2_mem_layout, sizeof(meminfo_t));
 }
 
-#if !ERROR_DEPRECATED
-/*******************************************************************************
- * Compatibility default implementation for deprecated API. This has a weak
- * definition. Platform specific code can override it if it wishes to.
- ******************************************************************************/
-#pragma weak bl1_init_bl2_mem_layout
-
-/*******************************************************************************
- * Function that takes a memory layout into which BL2 has been loaded and
- * populates a new memory layout for BL2 that ensures that BL1's data sections
- * resident in secure RAM are not visible to BL2.
- ******************************************************************************/
-void bl1_init_bl2_mem_layout(const struct meminfo *bl1_mem_layout,
-			     struct meminfo *bl2_mem_layout)
-{
-	bl1_calc_bl2_mem_layout(bl1_mem_layout, bl2_mem_layout);
-}
-#endif
-
 /*******************************************************************************
  * Function to perform late architectural and platform specific initialization.
  * It also queries the platform to load and run next BL image. Only called
