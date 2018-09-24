@@ -4,7 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <arch_helpers.h>
-#include <arm_gic.h>
 #include <assert.h>
 #include <bl_common.h>
 #include <cci.h>
@@ -172,16 +171,15 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
  * BL2 has flushed this information to memory, so we are guaranteed to pick up
  * good data.
  ******************************************************************************/
-void bl31_early_platform_setup(bl31_params_t *from_bl2,
-						 void *plat_params_from_bl2)
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+				u_register_t arg2, u_register_t arg3)
 {
-	struct mtk_bl_param_t *pmtk_bl_param =
-	(struct mtk_bl_param_t *)from_bl2;
+	struct mtk_bl_param_t *pmtk_bl_param = (struct mtk_bl_param_t *)arg0;
 	struct atf_arg_t *teearg;
 	unsigned long long normal_base;
 	unsigned long long atf_base;
 
-	assert(from_bl2 != NULL);
+	assert(pmtk_bl_param != NULL);
 	/*
 	 * Mediatek preloader(i.e, BL2) is in 32 bit state, high 32bits
 	 * of 64 bit GP registers are UNKNOWN if CPU warm reset from 32 bit
@@ -190,8 +188,6 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 */
 	pmtk_bl_param =
 	(struct mtk_bl_param_t *)((uint64_t)pmtk_bl_param & 0x00000000ffffffff);
-	plat_params_from_bl2 =
-	(void *)((uint64_t)plat_params_from_bl2 & 0x00000000ffffffff);
 
 	teearg  = (struct atf_arg_t *)pmtk_bl_param->tee_info_addr;
 
@@ -445,6 +441,6 @@ void bl31_prepare_kernel_entry(uint64_t k32_64)
 	INFO("BL3-1: Next image address = 0x%llx\n",
 		(unsigned long long) next_image_info->pc);
 	INFO("BL3-1: Next image spsr = 0x%x\n", next_image_info->spsr);
-	cm_init_context(read_mpidr_el1(), next_image_info);
+	cm_init_my_context(next_image_info);
 	cm_prepare_el3_exit(image_type);
 }

@@ -56,11 +56,6 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				${MTK_PLAT_SOC}/power_tracer.c			\
 				${MTK_PLAT_SOC}/scu.c
 
-# Flag used by the MTK_platform port to determine the version of ARM GIC
-# architecture to use for interrupt management in EL3.
-ARM_GIC_ARCH		:=	2
-$(eval $(call add_define,ARM_GIC_ARCH))
-
 # Enable workarounds for selected Cortex-A53 erratas.
 ERRATA_A53_826319	:=	1
 ERRATA_A53_836870	:=	1

@@ -5,7 +5,6 @@
  */
 
 #include <arch_helpers.h>
-#include <arm_gic.h>
 #include <assert.h>
 #include <bakery_lock.h>
 #include <cci.h>

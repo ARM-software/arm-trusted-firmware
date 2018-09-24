@@ -36,7 +36,6 @@ func platform_is_primary_cpu
 	ret
 endfunc platform_is_primary_cpu
 
-#if !ENABLE_PLAT_COMPAT
 	/* -----------------------------------------------------
 	 * unsigned int plat_my_core_pos(void);
 	 *
@@ -50,7 +49,6 @@ func plat_my_core_pos
 	add     x0, x1, x0, LSR #6
 	ret
 endfunc plat_my_core_pos
-#endif
 
 	/* ---------------------------------------------
 	 * int plat_crash_console_init(void)

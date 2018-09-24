@@ -26,7 +26,6 @@
 #include <spm_mcdi.h>
 #include <spm_suspend.h>
 
-#if !ENABLE_PLAT_COMPAT
 #define MTK_PWR_LVL0	0
 #define MTK_PWR_LVL1	1
 #define MTK_PWR_LVL2	2
@@ -36,7 +35,6 @@
 #define MTK_CLUSTER_PWR_STATE(state)	(state)->pwr_domain_state[MTK_PWR_LVL1]
 #define MTK_SYSTEM_PWR_STATE(state)	((PLAT_MAX_PWR_LVL > MTK_PWR_LVL1) ?\
 			(state)->pwr_domain_state[MTK_PWR_LVL2] : 0)
-#endif
 
 #if PSCI_EXTENDED_STATE_ID
 /*
@@ -234,59 +232,6 @@ static void mt_platform_restore_context(unsigned long mpidr)
 	mt_cpu_restore(mpidr);
 }
 
-#if ENABLE_PLAT_COMPAT
-/*******************************************************************************
-* Private function which is used to determine if any platform actions
-* should be performed for the specified affinity instance given its
-* state. Nothing needs to be done if the 'state' is not off or if this is not
-* the highest affinity level which will enter the 'state'.
-*******************************************************************************/
-static int32_t plat_do_plat_actions(unsigned int afflvl, unsigned int state)
-{
-	unsigned int max_phys_off_afflvl;
-
-	assert(afflvl <= MPIDR_AFFLVL2);
-
-	if (state != PSCI_STATE_OFF)
-		return -EAGAIN;
-
-	/*
-	 * Find the highest affinity level which will be suspended and postpone
-	 * all the platform specific actions until that level is hit.
-	 */
-	max_phys_off_afflvl = psci_get_max_phys_off_afflvl();
-	assert(max_phys_off_afflvl != PSCI_INVALID_DATA);
-	if (afflvl != max_phys_off_afflvl)
-		return -EAGAIN;
-
-	return 0;
-}
-
-/*******************************************************************************
- * MTK_platform handler called when an affinity instance is about to enter
- * standby.
- ******************************************************************************/
-static void plat_affinst_standby(unsigned int power_state)
-{
-	unsigned int target_afflvl;
-
-	/* Sanity check the requested state */
-	target_afflvl = psci_get_pstate_afflvl(power_state);
-
-	/*
-	 * It's possible to enter standby only on affinity level 0 i.e. a cpu
-	 * on the MTK_platform. Ignore any other affinity level.
-	 */
-	if (target_afflvl == MPIDR_AFFLVL0) {
-		/*
-		 * Enter standby state. dsb is good practice before using wfi
-		 * to enter low power states.
-		 */
-		dsb();
-		wfi();
-	}
-}
-#else
 static void plat_cpu_standby(plat_local_state_t cpu_state)
 {
 	unsigned int scr;
@@ -298,47 +243,11 @@ static void plat_cpu_standby(plat_local_state_t cpu_state)
 	wfi();
 	write_scr_el3(scr);
 }
-#endif
 
 /*******************************************************************************
  * MTK_platform handler called when an affinity instance is about to be turned
  * on. The level and mpidr determine the affinity instance.
  ******************************************************************************/
-#if ENABLE_PLAT_COMPAT
-static int plat_affinst_on(unsigned long mpidr,
-		    unsigned long sec_entrypoint,
-		    unsigned int afflvl,
-		    unsigned int state)
-{
-	int rc = PSCI_E_SUCCESS;
-	unsigned long cpu_id;
-	unsigned long cluster_id;
-	uintptr_t rv;
-
-	/*
-	 * It's possible to turn on only affinity level 0 i.e. a cpu
-	 * on the MTK_platform. Ignore any other affinity level.
-	 */
-	if (afflvl != MPIDR_AFFLVL0)
-		return rc;
-
-	cpu_id = mpidr & MPIDR_CPU_MASK;
-	cluster_id = mpidr & MPIDR_CLUSTER_MASK;
-
-	if (cluster_id)
-		rv = (uintptr_t)&mt8173_mcucfg->mp1_rv_addr[cpu_id].rv_addr_lw;
-	else
-		rv = (uintptr_t)&mt8173_mcucfg->mp0_rv_addr[cpu_id].rv_addr_lw;
-
-	mmio_write_32(rv, sec_entrypoint);
-	INFO("mt_on[%ld:%ld], entry %x\n",
-		cluster_id, cpu_id, mmio_read_32(rv));
-
-	spm_hotplug_on(mpidr);
-
-	return rc;
-}
-#else
 static uintptr_t secure_entrypoint;
 
 static int plat_power_domain_on(unsigned long mpidr)
@@ -363,7 +272,6 @@ static int plat_power_domain_on(unsigned long mpidr)
 	spm_hotplug_on(mpidr);
 	return rc;
 }
-#endif
 
 /*******************************************************************************
  * MTK_platform handler called when an affinity instance is about to be turned
@@ -377,30 +285,6 @@ static int plat_power_domain_on(unsigned long mpidr)
  * dealt with. So do not write & read global variables across calls. It will be
  * wise to do flush a write to the global to prevent unpredictable results.
  ******************************************************************************/
-#if ENABLE_PLAT_COMPAT
-static void plat_affinst_off(unsigned int afflvl, unsigned int state)
-{
-	unsigned long mpidr = read_mpidr_el1();
-
-	/* Determine if any platform actions need to be executed. */
-	if (plat_do_plat_actions(afflvl, state) == -EAGAIN)
-		return;
-
-	/* Prevent interrupts from spuriously waking up this cpu */
-	gicv2_cpuif_disable();
-
-	spm_hotplug_off(mpidr);
-
-	trace_power_flow(mpidr, CPU_DOWN);
-
-	if (afflvl != MPIDR_AFFLVL0) {
-		/* Disable coherency if this cluster is to be turned off */
-		plat_cci_disable();
-
-		trace_power_flow(mpidr, CLUSTER_DOWN);
-	}
-}
-#else
 static void plat_power_domain_off(const psci_power_state_t *state)
 {
 	unsigned long mpidr = read_mpidr_el1();
@@ -419,7 +303,6 @@ static void plat_power_domain_off(const psci_power_state_t *state)
 		trace_power_flow(mpidr, CLUSTER_DOWN);
 	}
 }
-#endif
 
 /*******************************************************************************
  * MTK_platform handler called when an affinity instance is about to be
@@ -433,51 +316,6 @@ static void plat_power_domain_off(const psci_power_state_t *state)
  * dealt with. So do not write & read global variables across calls. It will be
  * wise to do flush a write to the global to prevent unpredictable results.
  ******************************************************************************/
-#if ENABLE_PLAT_COMPAT
-static void plat_affinst_suspend(unsigned long sec_entrypoint,
-			  unsigned int afflvl,
-			  unsigned int state)
-{
-	unsigned long mpidr = read_mpidr_el1();
-	unsigned long cluster_id;
-	unsigned long cpu_id;
-	uintptr_t rv;
-
-	/* Determine if any platform actions need to be executed. */
-	if (plat_do_plat_actions(afflvl, state) == -EAGAIN)
-		return;
-
-	cpu_id = mpidr & MPIDR_CPU_MASK;
-	cluster_id = mpidr & MPIDR_CLUSTER_MASK;
-
-	if (cluster_id)
-		rv = (uintptr_t)&mt8173_mcucfg->mp1_rv_addr[cpu_id].rv_addr_lw;
-	else
-		rv = (uintptr_t)&mt8173_mcucfg->mp0_rv_addr[cpu_id].rv_addr_lw;
-
-	mmio_write_32(rv, sec_entrypoint);
-
-	if (afflvl < MPIDR_AFFLVL2)
-		spm_mcdi_prepare_for_off_state(mpidr, afflvl);
-
-	if (afflvl >= MPIDR_AFFLVL0)
-		mt_platform_save_context(mpidr);
-
-	/* Perform the common cluster specific operations */
-	if (afflvl >= MPIDR_AFFLVL1) {
-		/* Disable coherency if this cluster is to be turned off */
-		plat_cci_disable();
-	}
-
-	if (afflvl >= MPIDR_AFFLVL2) {
-		disable_scu(mpidr);
-		generic_timer_backup();
-		spm_system_suspend();
-		/* Prevent interrupts from spuriously waking up this cpu */
-		gicv2_cpuif_disable();
-	}
-}
-#else
 static void plat_power_domain_suspend(const psci_power_state_t *state)
 {
 	unsigned long mpidr = read_mpidr_el1();
@@ -517,7 +355,6 @@ static void plat_power_domain_suspend(const psci_power_state_t *state)
 		gicv2_cpuif_disable();
 	}
 }
-#endif
 
 /*******************************************************************************
  * MTK_platform handler called when an affinity instance has just been powered
@@ -526,28 +363,6 @@ static void plat_power_domain_suspend(const psci_power_state_t *state)
  * was turned off prior to wakeup and do what's necessary to setup it up
  * correctly.
  ******************************************************************************/
-#if ENABLE_PLAT_COMPAT
-static void plat_affinst_on_finish(unsigned int afflvl, unsigned int state)
-{
-	unsigned long mpidr = read_mpidr_el1();
-
-	/* Determine if any platform actions need to be executed. */
-	if (plat_do_plat_actions(afflvl, state) == -EAGAIN)
-		return;
-
-	/* Perform the common cluster specific operations */
-	if (afflvl >= MPIDR_AFFLVL1) {
-		/* Enable coherency if this cluster was off */
-		plat_cci_enable();
-		trace_power_flow(mpidr, CLUSTER_UP);
-	}
-
-	/* Enable the gic cpu interface */
-	gicv2_cpuif_enable();
-	gicv2_pcpu_distif_init();
-	trace_power_flow(mpidr, CPU_UP);
-}
-#else
 void mtk_system_pwr_domain_resume(void);
 
 static void plat_power_domain_on_finish(const psci_power_state_t *state)
@@ -574,44 +389,12 @@ static void plat_power_domain_on_finish(const psci_power_state_t *state)
 	gicv2_pcpu_distif_init();
 	trace_power_flow(mpidr, CPU_UP);
 }
-#endif
 
 /*******************************************************************************
  * MTK_platform handler called when an affinity instance has just been powered
  * on after having been suspended earlier. The level and mpidr determine the
  * affinity instance.
  ******************************************************************************/
-#if ENABLE_PLAT_COMPAT
-static void plat_affinst_suspend_finish(unsigned int afflvl, unsigned int state)
-{
-	unsigned long mpidr = read_mpidr_el1();
-
-	/* Determine if any platform actions need to be executed. */
-	if (plat_do_plat_actions(afflvl, state) == -EAGAIN)
-		return;
-
-	if (afflvl >= MPIDR_AFFLVL2) {
-		/* Enable the gic cpu interface */
-		plat_arm_gic_init();
-		spm_system_suspend_finish();
-		enable_scu(mpidr);
-	}
-
-	/* Perform the common cluster specific operations */
-	if (afflvl >= MPIDR_AFFLVL1) {
-		/* Enable coherency if this cluster was off */
-		plat_cci_enable();
-	}
-
-	if (afflvl >= MPIDR_AFFLVL0)
-		mt_platform_restore_context(mpidr);
-
-	if (afflvl < MPIDR_AFFLVL2)
-		spm_mcdi_finish_for_on_state(mpidr, afflvl);
-
-	gicv2_pcpu_distif_init();
-}
-#else
 static void plat_power_domain_suspend_finish(const psci_power_state_t *state)
 {
 	unsigned long mpidr = read_mpidr_el1();
@@ -642,15 +425,7 @@ static void plat_power_domain_suspend_finish(const psci_power_state_t *state)
 
 	gicv2_pcpu_distif_init();
 }
-#endif
 
-#if ENABLE_PLAT_COMPAT
-static unsigned int plat_get_sys_suspend_power_state(void)
-{
-	/* StateID: 0, StateType: 1(power down), PowerLevel: 2(system) */
-	return psci_make_powerstate(0, 1, 2);
-}
-#else
 static void plat_get_sys_suspend_power_state(psci_power_state_t *req_state)
 {
 	assert(PLAT_MAX_PWR_LVL >= 2);
@@ -658,7 +433,6 @@ static void plat_get_sys_suspend_power_state(psci_power_state_t *req_state)
 	for (int i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++)
 		req_state->pwr_domain_state[i] = MTK_LOCAL_STATE_OFF;
 }
-#endif
 
 /*******************************************************************************
  * MTK handlers to shutdown/reboot the system
@@ -690,7 +464,6 @@ static void __dead2 plat_system_reset(void)
 	panic();
 }
 
-#if !ENABLE_PLAT_COMPAT
 #if !PSCI_EXTENDED_STATE_ID
 static int plat_validate_power_state(unsigned int power_state,
 					psci_power_state_t *req_state)
@@ -775,34 +548,7 @@ void mtk_system_pwr_domain_resume(void)
 
 	plat_arm_gic_init();
 }
-#endif
 
-#if ENABLE_PLAT_COMPAT
-/*******************************************************************************
- * Export the platform handlers to enable psci to invoke them
- ******************************************************************************/
-static const plat_pm_ops_t plat_plat_pm_ops = {
-	.affinst_standby		= plat_affinst_standby,
-	.affinst_on			= plat_affinst_on,
-	.affinst_off			= plat_affinst_off,
-	.affinst_suspend		= plat_affinst_suspend,
-	.affinst_on_finish		= plat_affinst_on_finish,
-	.affinst_suspend_finish		= plat_affinst_suspend_finish,
-	.system_off			= plat_system_off,
-	.system_reset			= plat_system_reset,
-	.get_sys_suspend_power_state	= plat_get_sys_suspend_power_state,
-};
-
-/*******************************************************************************
- * Export the platform specific power ops & initialize the mtk_platform power
- * controller
- ******************************************************************************/
-int platform_setup_pm(const plat_pm_ops_t **plat_ops)
-{
-	*plat_ops = &plat_plat_pm_ops;
-	return 0;
-}
-#else
 static const plat_psci_ops_t plat_plat_pm_ops = {
 	.cpu_standby			= plat_cpu_standby,
 	.pwr_domain_on			= plat_power_domain_on,
@@ -852,4 +598,3 @@ plat_local_state_t plat_get_target_pwr_state(unsigned int lvl,
 
 	return target;
 }
-#endif

@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <arm_gic.h>
+
 #include <bl_common.h>
 #include <mt8173_def.h>
 #include <utils.h>
