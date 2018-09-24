@@ -85,9 +85,6 @@ ERRATA_A53_855873		:= 1
 
 WORKAROUND_CVE_2017_5715	:= 0
 
-# Disable the PSCI platform compatibility layer by default
-ENABLE_PLAT_COMPAT		:= 0
-
 # Disable stack protector by default
 ENABLE_STACK_PROTECTOR	 	:= 0
 
@@ -99,9 +96,6 @@ SEPARATE_CODE_AND_RODATA	:= 1
 
 # Use Coherent memory
 USE_COHERENT_MEM		:= 1
-
-# Enable new version of image loading
-LOAD_IMAGE_V2			:= 1
 
 # Use multi console API
 MULTI_CONSOLE_API		:= 1
@@ -142,10 +136,6 @@ ifneq (${RPI3_DIRECT_LINUX_BOOT}, 0)
   endif
 endif
 
-ifneq (${LOAD_IMAGE_V2}, 1)
-  $(error Error: rpi3 needs LOAD_IMAGE_V2=1)
-endif
-
 ifneq (${MULTI_CONSOLE_API}, 1)
   $(error Error: rpi3 needs MULTI_CONSOLE_API=1)
 endif
@@ -181,8 +171,6 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
     include drivers/auth/mbedtls/mbedtls_crypto.mk
     include drivers/auth/mbedtls/mbedtls_x509.mk
-
-    USE_TBBR_DEFS	:=	1
 
     AUTH_SOURCES	:=	drivers/auth/auth_mod.c			\
 				drivers/auth/crypto_mod.c		\
