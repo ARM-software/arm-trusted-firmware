@@ -86,16 +86,6 @@
 				TZC_REGION_ATTR_F_EN_SHIFT)
 
 /*
- * Define some macros for backward compatibility with existing tzc400 clients.
- */
-#if !ERROR_DEPRECATED
-#define REG_ATTR_FILTER_BIT(x)			((1 << x)		\
-					<< TZC_REGION_ATTR_F_EN_SHIFT)
-#define REG_ATTR_FILTER_BIT_ALL	(TZC_400_REGION_ATTR_F_EN_MASK <<	\
-					TZC_REGION_ATTR_F_EN_SHIFT)
-#endif /* __ERROR_DEPRECATED__ */
-
-/*
  * All TZC region configuration registers are placed one after another. It
  * depicts size of block of registers for programming each region.
  */
@@ -122,24 +112,6 @@ void tzc400_configure_region(unsigned int filters,
 void tzc400_set_action(tzc_action_t action);
 void tzc400_enable_filters(void);
 void tzc400_disable_filters(void);
-
-/*
- * Deprecated APIs
- */
-static inline void tzc_init(uintptr_t base) __deprecated;
-static inline void tzc_configure_region0(
-			tzc_region_attributes_t sec_attr,
-			unsigned int ns_device_access) __deprecated;
-static inline void tzc_configure_region(
-			  unsigned int filters,
-			  int region,
-			  unsigned long long region_base,
-			  unsigned long long region_top,
-			  tzc_region_attributes_t sec_attr,
-			  unsigned int ns_device_access) __deprecated;
-static inline void tzc_set_action(tzc_action_t action) __deprecated;
-static inline void tzc_enable_filters(void) __deprecated;
-static inline void tzc_disable_filters(void) __deprecated;
 
 static inline void tzc_init(uintptr_t base)
 {
