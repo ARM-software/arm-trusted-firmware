@@ -11,7 +11,7 @@
 #include <marvell_plat_priv.h>
 #include <plat_marvell.h>
 #include <runtime_svc.h>
-#include <smcc.h>
+#include <smccc.h>
 #include "comphy/phy-comphy-cp110.h"
 
 /* #define DEBUG_COMPHY */

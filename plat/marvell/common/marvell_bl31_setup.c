@@ -68,11 +68,14 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
  * we are guaranteed to pick up good data.
  *****************************************************************************
  */
-void marvell_bl31_early_platform_setup(bl31_params_t *from_bl2,
+void marvell_bl31_early_platform_setup(void *from_bl2,
 				       uintptr_t soc_fw_config,
 				       uintptr_t hw_config,
 				       void *plat_params_from_bl2)
 {
+	struct marvell_bl31_params *params_from_bl2 =
+					(struct marvell_bl31_params *)from_bl2;
+
 	/* Initialize the console to provide early debug support */
 	console_init(PLAT_MARVELL_BOOT_UART_BASE,
 		     PLAT_MARVELL_BOOT_UART_CLK_IN_HZ,
@@ -126,9 +129,9 @@ void marvell_bl31_early_platform_setup(bl31_params_t *from_bl2,
 	 * Copy BL32 (if populated by BL2) and BL33 entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
-	if (from_bl2->bl32_ep_info)
-		bl32_image_ep_info = *from_bl2->bl32_ep_info;
-	bl33_image_ep_info = *from_bl2->bl33_ep_info;
+	if (params_from_bl2->bl32_ep_info)
+		bl32_image_ep_info = *params_from_bl2->bl32_ep_info;
+	bl33_image_ep_info = *params_from_bl2->bl33_ep_info;
 #endif
 }
 

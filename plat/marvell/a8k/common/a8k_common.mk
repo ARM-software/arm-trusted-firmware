@@ -97,11 +97,6 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a72.S		       \
 # Add trace functionality for PM
 BL31_SOURCES		+=	$(PLAT_COMMON_BASE)/plat_pm_trace.c
 
-# Disable the PSCI platform compatibility layer (allows porting
-# from Old Platform APIs to the new APIs).
-# It is not needed since Marvell platform already used the new platform APIs.
-ENABLE_PLAT_COMPAT	:= 	0
-
 # Force builds with BL2 image on a80x0 platforms
 ifndef SCP_BL2
  $(error "Error: SCP_BL2 image is mandatory for a8k family")

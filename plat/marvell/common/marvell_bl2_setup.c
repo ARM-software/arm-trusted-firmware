@@ -24,7 +24,7 @@ static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
  *****************************************************************************
  */
 typedef struct bl2_to_bl31_params_mem {
-	bl31_params_t bl31_params;
+	struct marvell_bl31_params bl31_params;
 	image_info_t bl31_image_info;
 	image_info_t bl32_image_info;
 	image_info_t bl33_image_info;
@@ -68,9 +68,9 @@ meminfo_t *bl2_plat_sec_mem_layout(void)
  * before generating params to BL31
  *****************************************************************************
  */
-bl31_params_t *bl2_plat_get_bl31_params(void)
+void *bl2_plat_get_bl31_params(void)
 {
-	bl31_params_t *bl2_to_bl31_params;
+	struct marvell_bl31_params *bl2_to_bl31_params;
 
 	/*
 	 * Initialise the memory for all the arguments that needs to
@@ -109,7 +109,7 @@ bl31_params_t *bl2_plat_get_bl31_params(void)
 	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_image_info, PARAM_IMAGE_BINARY,
 		VERSION_1, 0);
 
-	return bl2_to_bl31_params;
+	return (void *)bl2_to_bl31_params;
 }
 
 /* Flush the TF params and the TF plat params */
@@ -153,8 +153,12 @@ void marvell_bl2_early_platform_setup(meminfo_t *mem_layout)
 	plat_marvell_io_setup();
 }
 
-void bl2_early_platform_setup(meminfo_t *mem_layout)
+
+void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+			       u_register_t arg2, u_register_t arg3)
 {
+	struct meminfo *mem_layout = (struct meminfo *)arg1;
+
 	marvell_bl2_early_platform_setup(mem_layout);
 }
 
