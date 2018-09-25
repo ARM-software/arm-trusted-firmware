@@ -6,7 +6,6 @@
 
 #include <arch_helpers.h>
 #include <arm_def.h>
-#include <arm_gic.h>
 #include <assert.h>
 #include <errno.h>
 #include <plat_arm.h>

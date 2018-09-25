@@ -122,16 +122,10 @@ ENABLE_PMF			:=	1
 # mapping the former as executable and the latter as execute-never.
 SEPARATE_CODE_AND_RODATA	:=	1
 
-# Enable new version of image loading on ARM platforms
-LOAD_IMAGE_V2			:=	1
-
 # Use the multi console API, which is only available for AArch64 for now
 ifeq (${ARCH}, aarch64)
   MULTI_CONSOLE_API		:=	1
 endif
-
-# Use generic OID definition (tbbr_oid.h)
-USE_TBBR_DEFS			:=	1
 
 # Disable ARM Cryptocell by default
 ARM_CRYPTOCELL_INTEG		:=	0
@@ -202,7 +196,6 @@ ifeq (${BL2_AT_EL3},1)
 BL2_SOURCES		+=	plat/arm/common/arm_bl2_el3_setup.c
 endif
 
-ifeq (${LOAD_IMAGE_V2},1)
 # Because BL1/BL2 execute in AArch64 mode but BL32 in AArch32 we need to use
 # the AArch32 descriptors.
 ifeq (${JUNO_AARCH32_EL3_RUNTIME},1)
@@ -214,7 +207,6 @@ BL2_SOURCES		+=	plat/arm/common/arm_image_load.c		\
 				common/desc_image_load.c
 ifeq (${SPD},opteed)
 BL2_SOURCES		+=	lib/optee/optee_utils.c
-endif
 endif
 
 BL2U_SOURCES		+=	drivers/delay_timer/delay_timer.c		\

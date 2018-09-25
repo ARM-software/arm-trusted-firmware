@@ -17,9 +17,8 @@
 #include <string.h>
 #include <tbbr_img_def.h>
 
-#if LOAD_IMAGE_V2
 
-/* Variable to store the address of TB_FW_CONFIG file */
+/* Variable to store the address to TB_FW_CONFIG passed from BL1 */
 static void *tb_fw_cfg_dtb;
 static size_t tb_fw_cfg_dtb_size;
 
@@ -39,9 +38,7 @@ static size_t mbedtls_heap_size;
  *   - To allocate space for the Mbed TLS heap --only if-- Trusted Board Boot
  *     is enabled.
  *   - This implementation requires the DTB to be present so that BL1 has a
- *     mechanism to pass the pointer to BL2. If LOAD_IMAGE_V2=0 then
- *     TB_FW_CONFIG is not present, which means that this implementation
- *     cannot be applied.
+ *     mechanism to pass the pointer to BL2.
  */
 int arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 {
@@ -283,5 +280,3 @@ void arm_bl2_dyn_cfg_init(void)
 		dyn_disable_auth();
 #endif
 }
-
-#endif /* LOAD_IMAGE_V2 */
