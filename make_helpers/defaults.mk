@@ -166,14 +166,14 @@ SPIN_ON_BL1_EXIT		:= 0
 # Flags to build TF with Trusted Boot support
 TRUSTED_BOARD_BOOT		:= 0
 
-# Build option to choose whether Trusted firmware uses Coherent memory or not.
+# Build option to choose whether Trusted Firmware uses Coherent memory or not.
 USE_COHERENT_MEM		:= 1
 
-# Build option to choose wheter Trusted firmware uses library at ROM
-USE_ROMLIB				:= 0
+# Build option to choose whether Trusted Firmware uses library at ROM
+USE_ROMLIB			:= 0
 
 # Use tbbr_oid.h instead of platform_oid.h
-USE_TBBR_DEFS			= $(ERROR_DEPRECATED)
+USE_TBBR_DEFS			:= 1
 
 # Build verbosity
 V				:= 0
