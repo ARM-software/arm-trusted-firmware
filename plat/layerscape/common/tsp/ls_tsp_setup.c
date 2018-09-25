@@ -4,23 +4,26 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <gicv2.h>
 #include <debug.h>
+#include <gicv2.h>
+#include <interrupt_props.h>
+
 #include "ls_16550.h"
 #include "plat_ls.h"
 #include "soc.h"
 
 #define BL32_END (unsigned long)(&__BL32_END__)
 
-const unsigned int g0_interrupt_array1[] = {
-	9
+static const interrupt_prop_t g0_interrupt_props[] = {
+	INTR_PROP_DESC(9, GIC_HIGHEST_SEC_PRIORITY,
+		       GICV2_INTR_GROUP0, GIC_INTR_CFG_LEVEL),
 };
 
 gicv2_driver_data_t ls_gic_data = {
 	.gicd_base = GICD_BASE,
 	.gicc_base = GICC_BASE,
-	.g0_interrupt_num = ARRAY_SIZE(g0_interrupt_array1),
-	.g0_interrupt_array = g0_interrupt_array1,
+	.interrupt_props = g0_interrupt_props,
+	.interrupt_props_num = ARRAY_SIZE(g0_interrupt_props),
 };
 
 /*******************************************************************************
