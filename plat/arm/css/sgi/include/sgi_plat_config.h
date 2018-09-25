@@ -7,7 +7,6 @@
 #ifndef __SGI_PLAT_CONFIG_H__
 #define __SGI_PLAT_CONFIG_H__
 
-#include <arm_gic.h>
 #include <ccn.h>
 #include <gicv3.h>
 
