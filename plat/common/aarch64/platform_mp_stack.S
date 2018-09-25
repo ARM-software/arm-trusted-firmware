@@ -26,44 +26,6 @@
 	 * --------------------------------------------------------------------
 	 */
 
-	/* -------------------------------------------------------
-	 * unsigned long platform_get_stack (unsigned long mpidr)
-	 *
-	 * For the current CPU, this function returns the stack
-	 * pointer for a stack allocated in device memory. The
-	 * 'mpidr' should correspond to that of the current CPU.
-	 * This function is deprecated and plat_get_my_stack()
-	 * should be used instead.
-	 * -------------------------------------------------------
-	 */
-func_deprecated platform_get_stack
-#if ENABLE_ASSERTIONS
-	mrs	x1, mpidr_el1
-	cmp	x0, x1
-	ASM_ASSERT(eq)
-#endif
-	b	plat_get_my_stack
-endfunc_deprecated platform_get_stack
-
-	/* -----------------------------------------------------
-	 * void platform_set_stack (unsigned long mpidr)
-	 *
-	 * For the current CPU, this function sets the stack pointer
-	 * to a stack allocated in normal memory. The
-	 * 'mpidr' should correspond to that of the current CPU.
-	 * This function is deprecated and plat_get_my_stack()
-	 * should be used instead.
-	 * -----------------------------------------------------
-	 */
-func_deprecated platform_set_stack
-#if ENABLE_ASSERTIONS
-	mrs	x1, mpidr_el1
-	cmp	x0, x1
-	ASM_ASSERT(eq)
-#endif
-	b	plat_set_my_stack
-endfunc_deprecated platform_set_stack
-
 	/* -----------------------------------------------------
 	 * uintptr_t plat_get_my_stack ()
 	 *

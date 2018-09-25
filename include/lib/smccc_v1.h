@@ -66,9 +66,6 @@
 #define SMC_32				U(0)
 
 #define SMC_TYPE_FAST			ULL(1)
-#if !ERROR_DEPRECATED
-#define SMC_TYPE_STD			ULL(0)
-#endif
 #define SMC_TYPE_YIELD			ULL(0)
 
 #define SMC_OK				ULL(0)

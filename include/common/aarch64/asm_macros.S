@@ -98,19 +98,6 @@
 	.endm
 
 	/*
-	 * This macro verifies that the given vector doesn't exceed the
-	 * architectural limit of 32 instructions. This is meant to be placed
-	 * immediately after the last instruction in the vector. It takes the
-	 * vector entry as the parameter
-	 */
-	.macro check_vector_size since
-#if ERROR_DEPRECATED
-      .error "check_vector_size must not be used. Use end_vector_entry instead"
-#endif
-	end_vector_entry \since
-	.endm
-
-	/*
 	 * This macro calculates the base address of the current CPU's MP stack
 	 * using the plat_my_core_pos() index, the name of the stack storage
 	 * and the size of each stack

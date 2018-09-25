@@ -245,10 +245,6 @@
 #define MDCR_TPM_BIT		(U(1) << 6)
 #define MDCR_EL3_RESET_VAL	U(0x0)
 
-#if !ERROR_DEPRECATED
-#define MDCR_DEF_VAL		(MDCR_SDD_BIT | MDCR_SPD32(MDCR_SPD32_DISABLE))
-#endif
-
 /* MDCR_EL2 definitions */
 #define MDCR_EL2_TPMS		(U(1) << 14)
 #define MDCR_EL2_E2PB(x)	((x) << 12)

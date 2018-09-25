@@ -37,7 +37,6 @@ struct secure_partition_boot_info;
 /*******************************************************************************
  * Mandatory common functions
  ******************************************************************************/
-unsigned long long plat_get_syscnt_freq(void) __deprecated;
 unsigned int plat_get_syscnt_freq2(void);
 
 int plat_get_image_source(unsigned int image_id,

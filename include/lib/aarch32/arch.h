@@ -126,10 +126,6 @@
 #define SDCR_SPD_ENABLE		U(0x3)
 #define SDCR_RESET_VAL		U(0x0)
 
-#if !ERROR_DEPRECATED
-#define SDCR_DEF_VAL		SDCR_SPD(SDCR_SPD_DISABLE)
-#endif
-
 /* HSCTLR definitions */
 #define HSCTLR_RES1 	((U(1) << 29) | (U(1) << 28) | (U(1) << 23) | \
 			 (U(1) << 22) | (U(1) << 18) | (U(1) << 16) | \
@@ -220,10 +216,6 @@
 #define NSASEDIS_BIT		(U(1) << 15)
 #define NSTRCDIS_BIT		(U(1) << 20)
 /* NOTE: correct typo in the definitions */
-#if !ERROR_DEPRECATED
-#define NASCR_CP11_BIT		(U(1) << 11)
-#define NASCR_CP10_BIT		(U(1) << 10)
-#endif
 #define NSACR_CP11_BIT		(U(1) << 11)
 #define NSACR_CP10_BIT		(U(1) << 10)
 #define NSACR_IMP_DEF_MASK	(U(0x7) << 16)

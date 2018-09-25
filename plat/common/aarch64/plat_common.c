@@ -19,9 +19,6 @@
  * platforms but may also be overridden by a platform if required.
  */
 #pragma weak bl31_plat_runtime_setup
-#if !ERROR_DEPRECATED
-#pragma weak plat_get_syscnt_freq2
-#endif /* ERROR_DEPRECATED */
 
 #if SDEI_SUPPORT
 #pragma weak plat_sdei_handle_masked_trigger
@@ -50,25 +47,6 @@ unsigned int platform_core_pos_helper(unsigned long mpidr)
 	assert(idx >= 0);
 	return idx;
 }
-
-#if !ERROR_DEPRECATED
-unsigned int plat_get_syscnt_freq2(void)
-{
-	WARN("plat_get_syscnt_freq() is deprecated\n");
-	WARN("Please define plat_get_syscnt_freq2()\n");
-	/*
-	 * Suppress deprecated declaration warning in compatibility function
-	 */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-	unsigned long long freq = plat_get_syscnt_freq();
-#pragma GCC diagnostic pop
-
-	assert(freq >> 32 == 0);
-
-	return (unsigned int)freq;
-}
-#endif /* ERROR_DEPRECATED */
 
 #if SDEI_SUPPORT
 /*

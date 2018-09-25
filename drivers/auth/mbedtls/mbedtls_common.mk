@@ -60,16 +60,6 @@ ifeq (${TF_MBEDTLS_KEY_ALG},)
     endif
 endif
 
-# If MBEDTLS_KEY_ALG build flag is defined use it to set TF_MBEDTLS_KEY_ALG for
-# backward compatibility
-ifdef MBEDTLS_KEY_ALG
-    ifeq (${ERROR_DEPRECATED},1)
-        $(error "MBEDTLS_KEY_ALG is deprecated. Please use the new build flag TF_MBEDTLS_KEY_ALG")
-    endif
-    $(warning "MBEDTLS_KEY_ALG is deprecated. Please use the new build flag TF_MBEDTLS_KEY_ALG")
-    TF_MBEDTLS_KEY_ALG	:= ${MBEDTLS_KEY_ALG}
-endif
-
 ifeq (${HASH_ALG}, sha384)
     TF_MBEDTLS_HASH_ALG_ID	:=	TF_MBEDTLS_SHA384
 else ifeq (${HASH_ALG}, sha512)

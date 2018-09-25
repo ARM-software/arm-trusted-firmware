@@ -128,12 +128,3 @@ func psci_power_down_wfi
 	wfi
 	no_ret	plat_panic_handler
 endfunc psci_power_down_wfi
-
-/* -----------------------------------------------------------------------
- * void psci_entrypoint(void);
- * The deprecated entry point for PSCI on warm boot for AArch64.
- * -----------------------------------------------------------------------
- */
-func_deprecated psci_entrypoint
-	b	bl31_warm_entrypoint
-endfunc_deprecated psci_entrypoint

@@ -56,16 +56,6 @@ func smc
 endfunc smc
 
 /* -----------------------------------------------------------------------
- * void zeromem16(void *mem, unsigned int length);
- *
- * Initialise a memory region to 0.
- * The memory address must be 16-byte aligned.
- * NOTE: This function is deprecated and zeromem should be used instead.
- * -----------------------------------------------------------------------
- */
-.equ	zeromem16, zeromem
-
-/* -----------------------------------------------------------------------
  * void zero_normalmem(void *mem, unsigned int length);
  *
  * Initialise a region in normal memory to 0. This functions complies with the
