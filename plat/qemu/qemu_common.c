@@ -131,7 +131,7 @@ static const mmap_region_t plat_qemu_mmap[] = {
 
 /* Define EL1 and EL3 variants of the function initialising the MMU */
 #ifdef AARCH32
-DEFINE_CONFIGURE_MMU_EL(secure)
+DEFINE_CONFIGURE_MMU_EL(svc_mon)
 #else
 DEFINE_CONFIGURE_MMU_EL(el1)
 DEFINE_CONFIGURE_MMU_EL(el3)

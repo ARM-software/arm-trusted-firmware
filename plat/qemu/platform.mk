@@ -25,12 +25,6 @@ endif
 
 include lib/libfdt/libfdt.mk
 
-# Enable new version of image loading on QEMU platforms
-LOAD_IMAGE_V2		:=	1
-ifneq ($(LOAD_IMAGE_V2),1)
-$(error Error: qemu needs LOAD_IMAGE_V2=1)
-endif
-
 ifeq ($(NEED_BL32),yes)
 $(eval $(call add_define,QEMU_LOAD_BL32))
 endif
@@ -67,8 +61,6 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
     include drivers/auth/mbedtls/mbedtls_crypto.mk
     include drivers/auth/mbedtls/mbedtls_x509.mk
-
-    USE_TBBR_DEFS	:=	1
 
     AUTH_SOURCES	:=	drivers/auth/auth_mod.c			\
 				drivers/auth/crypto_mod.c		\
@@ -180,9 +172,6 @@ endif
 ifeq ($(ARCH),aarch64)
 MULTI_CONSOLE_API	:= 1
 endif
-
-# Disable the PSCI platform compatibility layer
-ENABLE_PLAT_COMPAT	:= 	0
 
 BL32_RAM_LOCATION	:=	tdram
 ifeq (${BL32_RAM_LOCATION}, tsram)

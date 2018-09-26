@@ -11,7 +11,7 @@
 
 #include "../../bl1/bl1_private.h"
 
-void qemu_configure_mmu_secure(unsigned long total_base,
+void qemu_configure_mmu_svc_mon(unsigned long total_base,
 			unsigned long total_size,
 			unsigned long code_start, unsigned long code_limit,
 			unsigned long ro_start, unsigned long ro_limit,

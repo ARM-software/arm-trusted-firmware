@@ -5,7 +5,6 @@
  */
 
 #include <arch_helpers.h>
-#include <arm_gic.h>
 #include <assert.h>
 #include <bl_common.h>
 #include <console.h>
@@ -108,9 +107,10 @@ entry_point_info_t *sp_min_plat_get_bl33_ep_info(void)
 		return NULL;
 }
 
-void sp_min_early_platform_setup(void *from_bl2, void *plat_params_from_bl2)
+void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+		u_register_t arg2, u_register_t arg3)
 {
-	bl_params_t *params_from_bl2 = (bl_params_t *)from_bl2;
+	bl_params_t *params_from_bl2 = (bl_params_t *)arg0;
 
 	/* Initialize the console to provide early debug support */
 	console_init(PLAT_QEMU_BOOT_UART_BASE, PLAT_QEMU_BOOT_UART_CLK_IN_HZ,
@@ -142,7 +142,7 @@ void sp_min_early_platform_setup(void *from_bl2, void *plat_params_from_bl2)
 
 void sp_min_plat_arch_setup(void)
 {
-	qemu_configure_mmu_secure(BL32_RO_BASE, BL32_END - BL32_RO_BASE,
+	qemu_configure_mmu_svc_mon(BL32_RO_BASE, BL32_END - BL32_RO_BASE,
 				  BL32_RO_BASE, BL32_RO_LIMIT,
 				  BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_END);
 
