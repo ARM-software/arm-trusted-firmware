@@ -50,8 +50,8 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
  ******************************************************************************/
 unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr)
 {
-	return (((mpidr) & 0x100) ? JUNO_CLUSTER1_CORE_COUNT :\
-				JUNO_CLUSTER0_CORE_COUNT);
+	return (((mpidr & (u_register_t) 0x100) != 0U) ?
+			JUNO_CLUSTER1_CORE_COUNT : JUNO_CLUSTER0_CORE_COUNT);
 }
 
 /*

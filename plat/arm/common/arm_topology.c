@@ -29,12 +29,14 @@ int arm_check_mpidr(u_register_t mpidr)
 	pe_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
 #else
 	valid_mask = ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK);
-	cluster_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
-	cpu_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
+	cluster_id = (unsigned int) ((mpidr >> MPIDR_AFF1_SHIFT) &
+						MPIDR_AFFLVL_MASK);
+	cpu_id = (unsigned int) ((mpidr >> MPIDR_AFF0_SHIFT) &
+						MPIDR_AFFLVL_MASK);
 #endif /* ARM_PLAT_MT */
 
 	mpidr &= MPIDR_AFFINITY_MASK;
-	if (mpidr & valid_mask)
+	if ((mpidr & valid_mask) != 0U)
 		return -1;
 
 	if (cluster_id >= PLAT_ARM_CLUSTER_COUNT)

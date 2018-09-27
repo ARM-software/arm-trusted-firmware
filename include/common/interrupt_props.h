@@ -12,10 +12,10 @@
 /* Create an interrupt property descriptor from various interrupt properties */
 #define INTR_PROP_DESC(num, pri, grp, cfg) \
 	{ \
-		.intr_num = num, \
-		.intr_pri = pri, \
-		.intr_grp = grp, \
-		.intr_cfg = cfg, \
+		.intr_num = (num), \
+		.intr_pri = (pri), \
+		.intr_grp = (grp), \
+		.intr_cfg = (cfg), \
 	}
 
 typedef struct interrupt_prop {
