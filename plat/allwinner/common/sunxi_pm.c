@@ -43,6 +43,16 @@ static void sunxi_pwr_domain_off(const psci_power_state_t *target_state)
 	gicv2_cpuif_disable();
 }
 
+static void __dead2 sunxi_pwr_down_wfi(const psci_power_state_t *target_state)
+{
+	u_register_t mpidr = read_mpidr();
+
+	sunxi_cpu_off(MPIDR_AFFLVL1_VAL(mpidr), MPIDR_AFFLVL0_VAL(mpidr));
+
+	while (1)
+		wfi();
+}
+
 static void sunxi_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	gicv2_pcpu_distif_init();
@@ -83,6 +93,7 @@ static int sunxi_validate_ns_entrypoint(uintptr_t ns_entrypoint)
 static plat_psci_ops_t sunxi_psci_ops = {
 	.pwr_domain_on			= sunxi_pwr_domain_on,
 	.pwr_domain_off			= sunxi_pwr_domain_off,
+	.pwr_domain_pwr_down_wfi	= sunxi_pwr_down_wfi,
 	.pwr_domain_on_finish		= sunxi_pwr_domain_on_finish,
 	.system_off			= sunxi_system_off,
 	.system_reset			= sunxi_system_reset,
