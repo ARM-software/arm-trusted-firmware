@@ -74,11 +74,19 @@ CHECK_PATHS		:=	${ROOT_DIRS_TO_CHECK}			\
 # Verbose flag
 ifeq (${V},0)
         Q:=@
+        ECHO:=@echo
         CHECKCODE_ARGS	+=	--no-summary --terse
 else
         Q:=
+        ECHO:=@\#
 endif
-export Q
+
+ifneq ($(findstring s,$(filter-out --%,$(MAKEFLAGS))),)
+        Q:=@
+        ECHO:=@\#
+endif
+
+export Q ECHO
 
 # Process Debug flag
 $(eval $(call add_define,DEBUG))

@@ -177,7 +177,7 @@ endef
 # GZIP
 define GZIP_RULE
 $(1): $(2)
-	@echo "  GZIP    $$@"
+	$(ECHO) "  GZIP    $$@"
 	$(Q)gzip -n -f -9 $$< --stdout > $$@
 endef
 
@@ -199,7 +199,7 @@ $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | lib$(3)_dirs
-	@echo "  CC      $$<"
+	$$(ECHO) "  CC      $$<"
 	$$(Q)$$(CC) $$(TF_CFLAGS) $$(CFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
@@ -218,7 +218,7 @@ $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 $(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
-	@echo "  CC      $$<"
+	$$(ECHO) "  CC      $$<"
 	$$(Q)$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -D$(IMAGE) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
@@ -237,7 +237,7 @@ $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 $(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
-	@echo "  AS      $$<"
+	$$(ECHO) "  AS      $$<"
 	$$(Q)$$(AS) $$(ASFLAGS) -D$(IMAGE) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
@@ -255,7 +255,7 @@ $(eval DEP := $(1).d)
 $(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
 
 $(1): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
-	@echo "  PP      $$<"
+	$$(ECHO) "  PP      $$<"
 	$$(Q)$$(CPP) $$(CPPFLAGS) -P -D__ASSEMBLY__ -D__LINKER__ $(MAKE_DEP) -D$(IMAGE) -o $$@ $$<
 
 -include $(DEP)
@@ -344,7 +344,7 @@ endif
 all: ${LIB_DIR}/lib$(1).a
 
 ${LIB_DIR}/lib$(1).a: $(OBJS)
-	@echo "  AR      $$@"
+	$$(ECHO) "  AR      $$@"
 	$$(Q)$$(AR) cr $$@ $$?
 endef
 
@@ -392,7 +392,7 @@ $(ELF): romlib.bin
 endif
 
 $(ELF): $(OBJS) $(LINKERFILE) | bl$(1)_dirs libraries $(BL_LIBS)
-	@echo "  LD      $$@"
+	$$(ECHO) "  LD      $$@"
 ifdef MAKE_BUILD_STRINGS
 	$(call MAKE_BUILD_STRINGS, $(BUILD_DIR)/build_message.o)
 else
@@ -405,11 +405,11 @@ endif
 		$(OBJS) $(LDPATHS) $(LDLIBS) $(BL_LIBS)
 
 $(DUMP): $(ELF)
-	@echo "  OD      $$@"
+	$${ECHO} "  OD      $$@"
 	$${Q}$${OD} -dx $$< > $$@
 
 $(BIN): $(ELF)
-	@echo "  BIN     $$@"
+	$${ECHO} "  BIN     $$@"
 	$$(Q)$$(OC) -O binary $$< $$@
 	@${ECHO_BLANK_LINE}
 	@echo "Built $$@ successfully"
@@ -461,10 +461,10 @@ $(eval DTSDEP := $(patsubst %.dtb,%.o.d,$(DOBJ)))
 $(eval DTBDEP := $(patsubst %.dtb,%.d,$(DOBJ)))
 
 $(DOBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | fdt_dirs
-	@echo "  CPP     $$<"
+	$${ECHO} "  CPP     $$<"
 	$(eval DTBS       := $(addprefix $(1)/,$(call SOURCES_TO_DTBS,$(2))))
 	$$(Q)$$(CPP) $$(CPPFLAGS) -x assembler-with-cpp -MT $(DTBS) -MMD -MF $(DTSDEP) -o $(DPRE) $$<
-	@echo "  DTC     $$<"
+	$${ECHO} "  DTC     $$<"
 	$$(Q)$$(DTC) $$(DTC_FLAGS) -i fdts -d $(DTBDEP) -o $$@ $(DPRE)
 
 -include $(DTBDEP)
