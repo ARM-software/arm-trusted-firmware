@@ -92,8 +92,8 @@ void bl1_plat_arch_setup(void)
 void bl1_platform_setup(void)
 {
 	int i;
-	struct mmc_device_info info;
 #if !POPLAR_RECOVERY
+	struct mmc_device_info info;
 	dw_mmc_params_t params = EMMC_INIT_PARAMS(POPLAR_EMMC_DESC_BASE);
 #endif
 

@@ -333,9 +333,9 @@ void bl2_plat_get_bl33_meminfo(meminfo_t *bl33_meminfo)
 
 void bl2_early_platform_setup(meminfo_t *mem_layout)
 {
+#if !POPLAR_RECOVERY
 	struct mmc_device_info info;
 
-#if !POPLAR_RECOVERY
 	dw_mmc_params_t params = EMMC_INIT_PARAMS(POPLAR_EMMC_DESC_BASE);
 #endif
 
