@@ -19,6 +19,7 @@ LIBC_SRCS	:=	$(addprefix lib/libc/,	\
 			snprintf.c			\
 			strchr.c			\
 			strcmp.c			\
+			strlcpy.c			\
 			strlen.c			\
 			strncmp.c			\
 			strnlen.c			\

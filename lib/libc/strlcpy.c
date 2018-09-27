@@ -1,6 +1,8 @@
 /*	$OpenBSD: strlcpy.c,v 1.12 2015/01/15 03:54:12 millert Exp $	*/
 
 /*
+ * SPDX-License-Identifier: ISC
+ *
  * Copyright (c) 1998, 2015 Todd C. Miller <Todd.Miller@courtesan.com>
  *
  * Permission to use, copy, modify, and distribute this software for any
@@ -16,10 +18,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <sys/cdefs.h>
-__FBSDID("$FreeBSD$");
-
-#include <sys/types.h>
+#include <stdint.h>
 #include <string.h>
 
 /*
@@ -28,7 +27,7 @@ __FBSDID("$FreeBSD$");
  * Returns strlen(src); if retval >= dsize, truncation occurred.
  */
 size_t
-strlcpy(char * __restrict dst, const char * __restrict src, size_t dsize)
+strlcpy(char * dst, const char * src, size_t dsize)
 {
 	const char *osrc = src;
 	size_t nleft = dsize;
