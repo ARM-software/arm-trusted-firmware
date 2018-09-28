@@ -1,4 +1,4 @@
-Trusted Firmware-A - version 1.6
+Trusted Firmware-A - version 2.0
 ================================
 
 Trusted Firmware-A (TF-A) provides a reference implementation of secure world
@@ -195,10 +195,10 @@ This release also contains the following platform support:
 -  Allwinner sun50i_64 and sun50i_h6
 -  ARM SGI-575 and SGM-775
 -  HiKey, HiKey960 and Poplar boards
--  Marvell Amarda 8K
+-  Marvell Armada 8K
 -  MediaTek MT6795 and MT8173 SoCs
 -  NVidia T132, T186 and T210 SoCs
--  NXP ls1043, i.MX8QX and i.MX8QM
+-  NXP QorIQ LS1043A, i.MX8QX, i.MX8QM and i.MX7Solo WaRP7
 -  QEMU emulator
 -  Raspberry Pi 3 board
 -  RockChip RK3328, RK3368 and RK3399 SoCs
