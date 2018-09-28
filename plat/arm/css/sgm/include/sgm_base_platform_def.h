@@ -139,13 +139,13 @@
  * PLAT_CSS_MAX_SCP_BL2_SIZE is calculated using the current
  * SCP_BL2 size plus a little space for growth.
  */
-#define PLAT_CSS_MAX_SCP_BL2_SIZE	0x18000
+#define PLAT_CSS_MAX_SCP_BL2_SIZE	0x15000
 
 /*
  * PLAT_CSS_MAX_SCP_BL2U_SIZE is calculated using the current
  * SCP_BL2U size plus a little space for growth.
  */
-#define PLAT_CSS_MAX_SCP_BL2U_SIZE	0x18000
+#define PLAT_CSS_MAX_SCP_BL2U_SIZE	0x15000
 
 /*
  * Most platform porting definitions provided by included headers
