@@ -76,11 +76,6 @@
 #endif /* TRUSTED_BOARD_BOOT */
 
 /*
- * If ARM_BOARD_OPTIMISE_MEM=0 then Juno uses the default, unoptimised values
- * defined for ARM development platforms.
- */
-#if ARM_BOARD_OPTIMISE_MEM
-/*
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
  * plat_arm_mmap array defined for each BL stage.
  */
@@ -172,8 +167,6 @@
  * optimization by fixing the PLAT_LOG_LEVEL_ASSERT to LOG_LEVEL_INFO (40).
  */
 #define PLAT_LOG_LEVEL_ASSERT		40
-
-#endif /* ARM_BOARD_OPTIMISE_MEM */
 
 /* CCI related constants */
 #define PLAT_ARM_CCI_BASE		0x2c090000

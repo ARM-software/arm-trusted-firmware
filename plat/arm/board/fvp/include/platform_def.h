@@ -64,6 +64,74 @@
  */
 #define PLAT_ARM_NS_IMAGE_OFFSET	(ARM_DRAM1_BASE + U(0x8000000))
 
+/*
+ * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
+ * plat_arm_mmap array defined for each BL stage.
+ */
+#if defined(IMAGE_BL31)
+# if ENABLE_SPM
+#  define PLAT_ARM_MMAP_ENTRIES		9
+#  define MAX_XLAT_TABLES		7
+#  define PLAT_SP_IMAGE_MMAP_REGIONS	7
+#  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	10
+# else
+#  define PLAT_ARM_MMAP_ENTRIES		8
+#  define MAX_XLAT_TABLES		5
+# endif
+#elif defined(IMAGE_BL32)
+# define PLAT_ARM_MMAP_ENTRIES		8
+# define MAX_XLAT_TABLES		5
+#elif !USE_ROMLIB
+# define PLAT_ARM_MMAP_ENTRIES		11
+# define MAX_XLAT_TABLES		5
+#else
+# define PLAT_ARM_MMAP_ENTRIES		12
+# define MAX_XLAT_TABLES		6
+#endif
+
+/*
+ * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
+ * plus a little space for growth.
+ */
+#define PLAT_ARM_MAX_BL1_RW_SIZE	0xB000
+
+/*
+ * PLAT_ARM_MAX_ROMLIB_RW_SIZE is define to use a full page
+ */
+
+#if USE_ROMLIB
+#define PLAT_ARM_MAX_ROMLIB_RW_SIZE	0x1000
+#define PLAT_ARM_MAX_ROMLIB_RO_SIZE	0xe000
+#else
+#define PLAT_ARM_MAX_ROMLIB_RW_SIZE	0
+#define PLAT_ARM_MAX_ROMLIB_RO_SIZE	0
+#endif
+
+/*
+ * PLAT_ARM_MAX_BL2_SIZE is calculated using the current BL2 debug size plus a
+ * little space for growth.
+ */
+#if TRUSTED_BOARD_BOOT
+# define PLAT_ARM_MAX_BL2_SIZE		0x1D000
+#else
+# define PLAT_ARM_MAX_BL2_SIZE		0x11000
+#endif
+
+/*
+ * Since BL31 NOBITS overlays BL2 and BL1-RW, PLAT_ARM_MAX_BL31_SIZE is
+ * calculated using the current BL31 PROGBITS debug size plus the sizes of
+ * BL2 and BL1-RW
+ */
+#define PLAT_ARM_MAX_BL31_SIZE		0x3B000
+
+#ifdef AARCH32
+/*
+ * Since BL32 NOBITS overlays BL2 and BL1-RW, PLAT_ARM_MAX_BL32_SIZE is
+ * calculated using the current SP_MIN PROGBITS debug size plus the sizes of
+ * BL2 and BL1-RW
+ */
+# define PLAT_ARM_MAX_BL32_SIZE		0x3B000
+#endif
 
 /*
  * PL011 related constants

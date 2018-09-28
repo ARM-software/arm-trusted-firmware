@@ -43,10 +43,3 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     BL1_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c
     BL2_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c
 endif
-
-# This flag controls whether memory usage needs to be optimised
-ARM_BOARD_OPTIMISE_MEM	?=	0
-
-# Process flags
-$(eval $(call assert_boolean,ARM_BOARD_OPTIMISE_MEM))
-$(eval $(call add_define,ARM_BOARD_OPTIMISE_MEM))
