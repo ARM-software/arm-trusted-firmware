@@ -427,7 +427,7 @@ static int mmc_enumerate(unsigned int clk, unsigned int bus_width)
 	}
 
 	/* CMD2: Card Identification */
-	ret = mmc_send_cmd(MMC_CMD(2), 0, MMC_RESPONSE_R(2), NULL);
+	ret = mmc_send_cmd(MMC_CMD(2), 0, MMC_RESPONSE_R2, NULL);
 	if (ret != 0) {
 		return ret;
 	}
@@ -452,7 +452,7 @@ static int mmc_enumerate(unsigned int clk, unsigned int bus_width)
 
 	/* CMD9: CSD Register */
 	ret = mmc_send_cmd(MMC_CMD(9), rca << RCA_SHIFT_OFFSET,
-			   MMC_RESPONSE_R(2), &resp_data[0]);
+			   MMC_RESPONSE_R2, &resp_data[0]);
 	if (ret != 0) {
 		return ret;
 	}
