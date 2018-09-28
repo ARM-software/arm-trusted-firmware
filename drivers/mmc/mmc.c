@@ -87,7 +87,7 @@ static int mmc_device_state(void)
 		}
 
 		ret = mmc_send_cmd(MMC_CMD(13), rca << RCA_SHIFT_OFFSET,
-				   MMC_RESPONSE_R(1), &resp_data[0]);
+				   MMC_RESPONSE_R1, &resp_data[0]);
 		if (ret != 0) {
 			return ret;
 		}
@@ -138,14 +138,14 @@ static int mmc_sd_switch(unsigned int bus_width)
 
 	/* CMD55: Application Specific Command */
 	ret = mmc_send_cmd(MMC_CMD(55), rca << RCA_SHIFT_OFFSET,
-			   MMC_RESPONSE_R(1), NULL);
+			   MMC_RESPONSE_R5, NULL);
 	if (ret != 0) {
 		return ret;
 	}
 
 	/* ACMD51: SEND_SCR */
 	do {
-		ret = mmc_send_cmd(MMC_ACMD(51), 0, MMC_RESPONSE_R(1), NULL);
+		ret = mmc_send_cmd(MMC_ACMD(51), 0, MMC_RESPONSE_R1, NULL);
 		if ((ret != 0) && (retries == 0)) {
 			ERROR("ACMD51 failed after %d retries (ret=%d)\n",
 			      MMC_DEFAULT_MAX_RETRIES, ret);
@@ -167,13 +167,13 @@ static int mmc_sd_switch(unsigned int bus_width)
 
 	/* CMD55: Application Specific Command */
 	ret = mmc_send_cmd(MMC_CMD(55), rca << RCA_SHIFT_OFFSET,
-			   MMC_RESPONSE_R(1), NULL);
+			   MMC_RESPONSE_R5, NULL);
 	if (ret != 0) {
 		return ret;
 	}
 
 	/* ACMD6: SET_BUS_WIDTH */
-	ret = mmc_send_cmd(MMC_ACMD(6), bus_width_arg, MMC_RESPONSE_R(1), NULL);
+	ret = mmc_send_cmd(MMC_ACMD(6), bus_width_arg, MMC_RESPONSE_R1, NULL);
 	if (ret != 0) {
 		return ret;
 	}
@@ -235,7 +235,7 @@ static int mmc_fill_device_info(void)
 		}
 
 		/* MMC CMD8: SEND_EXT_CSD */
-		ret = mmc_send_cmd(MMC_CMD(8), 0, MMC_RESPONSE_R(1), NULL);
+		ret = mmc_send_cmd(MMC_CMD(8), 0, MMC_RESPONSE_R1, NULL);
 		if (ret != 0) {
 			return ret;
 		}
@@ -327,7 +327,7 @@ static int sd_send_op_cond(void)
 		int ret;
 
 		/* CMD55: Application Specific Command */
-		ret = mmc_send_cmd(MMC_CMD(55), 0, MMC_RESPONSE_R(1), NULL);
+		ret = mmc_send_cmd(MMC_CMD(55), 0, MMC_RESPONSE_R1, NULL);
 		if (ret != 0) {
 			return ret;
 		}
@@ -416,7 +416,7 @@ static int mmc_enumerate(unsigned int clk, unsigned int bus_width)
 	} else {
 		/* CMD8: Send Interface Condition Command */
 		ret = mmc_send_cmd(MMC_CMD(8), VHS_2_7_3_6_V | CMD8_CHECK_PATTERN,
-				   MMC_RESPONSE_R(7), &resp_data[0]);
+				   MMC_RESPONSE_R5, &resp_data[0]);
 
 		if ((ret == 0) && ((resp_data[0] & 0xffU) == CMD8_CHECK_PATTERN)) {
 			ret = sd_send_op_cond();
@@ -436,13 +436,13 @@ static int mmc_enumerate(unsigned int clk, unsigned int bus_width)
 	if (mmc_dev_info->mmc_dev_type == MMC_IS_EMMC) {
 		rca = MMC_FIX_RCA;
 		ret = mmc_send_cmd(MMC_CMD(3), rca << RCA_SHIFT_OFFSET,
-				   MMC_RESPONSE_R(1), NULL);
+				   MMC_RESPONSE_R1, NULL);
 		if (ret != 0) {
 			return ret;
 		}
 	} else {
 		ret = mmc_send_cmd(MMC_CMD(3), 0,
-				   MMC_RESPONSE_R(6), &resp_data[0]);
+				   MMC_RESPONSE_R6, &resp_data[0]);
 		if (ret != 0) {
 			return ret;
 		}
@@ -461,7 +461,7 @@ static int mmc_enumerate(unsigned int clk, unsigned int bus_width)
 
 	/* CMD7: Select Card */
 	ret = mmc_send_cmd(MMC_CMD(7), rca << RCA_SHIFT_OFFSET,
-			   MMC_RESPONSE_R(1), NULL);
+			   MMC_RESPONSE_R1, NULL);
 	if (ret != 0) {
 		return ret;
 	}
@@ -499,7 +499,7 @@ size_t mmc_read_blocks(int lba, uintptr_t buf, size_t size)
 	if (is_cmd23_enabled()) {
 		/* Set block count */
 		ret = mmc_send_cmd(MMC_CMD(23), size / MMC_BLOCK_SIZE,
-				   MMC_RESPONSE_R(1), NULL);
+				   MMC_RESPONSE_R1, NULL);
 		if (ret != 0) {
 			return 0;
 		}
@@ -520,7 +520,7 @@ size_t mmc_read_blocks(int lba, uintptr_t buf, size_t size)
 		cmd_arg = lba;
 	}
 
-	ret = mmc_send_cmd(cmd_idx, cmd_arg, MMC_RESPONSE_R(1), NULL);
+	ret = mmc_send_cmd(cmd_idx, cmd_arg, MMC_RESPONSE_R1, NULL);
 	if (ret != 0) {
 		return 0;
 	}
@@ -567,7 +567,7 @@ size_t mmc_write_blocks(int lba, const uintptr_t buf, size_t size)
 	if (is_cmd23_enabled()) {
 		/* Set block count */
 		ret = mmc_send_cmd(MMC_CMD(23), size / MMC_BLOCK_SIZE,
-				   MMC_RESPONSE_R(1), NULL);
+				   MMC_RESPONSE_R1, NULL);
 		if (ret != 0) {
 			return 0;
 		}
@@ -587,7 +587,7 @@ size_t mmc_write_blocks(int lba, const uintptr_t buf, size_t size)
 		cmd_arg = lba;
 	}
 
-	ret = mmc_send_cmd(cmd_idx, cmd_arg, MMC_RESPONSE_R(1), NULL);
+	ret = mmc_send_cmd(cmd_idx, cmd_arg, MMC_RESPONSE_R1, NULL);
 	if (ret != 0) {
 		return 0;
 	}
@@ -622,18 +622,18 @@ size_t mmc_erase_blocks(int lba, size_t size)
 	assert(ops != NULL);
 	assert((size != 0U) && ((size & MMC_BLOCK_MASK) == 0U));
 
-	ret = mmc_send_cmd(MMC_CMD(35), lba, MMC_RESPONSE_R(1), NULL);
+	ret = mmc_send_cmd(MMC_CMD(35), lba, MMC_RESPONSE_R1, NULL);
 	if (ret != 0) {
 		return 0;
 	}
 
 	ret = mmc_send_cmd(MMC_CMD(36), lba + (size / MMC_BLOCK_SIZE) - 1U,
-			   MMC_RESPONSE_R(1), NULL);
+			   MMC_RESPONSE_R1, NULL);
 	if (ret != 0) {
 		return 0;
 	}
 
-	ret = mmc_send_cmd(MMC_CMD(38), lba, MMC_RESPONSE_R(0x1B), NULL);
+	ret = mmc_send_cmd(MMC_CMD(38), lba, MMC_RESPONSE_R1B, NULL);
 	if (ret != 0) {
 		return 0;
 	}
