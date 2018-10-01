@@ -16,8 +16,7 @@
 gicc_regs:
 	.asciz "gicc_hppir", "gicc_ahppir", "gicc_ctlr", ""
 gicd_pend_reg:
-	.asciz "gicd_ispendr regs (Offsets 0x200 - 0x278)\n"    \
-                " Offset:\t\t\tvalue\n"
+	.asciz "gicd_ispendr regs (Offsets 0x200 - 0x278)\n Offset:\t\t\tvalue\n"
 newline:
 	.asciz "\n"
 spacer:
