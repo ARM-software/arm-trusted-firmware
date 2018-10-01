@@ -19,7 +19,7 @@ static console_pl011_t arm_runtime_console;
 #endif
 
 /* Initialize the console to provide early debug support */
-void arm_console_boot_init(void)
+void __init arm_console_boot_init(void)
 {
 #if MULTI_CONSOLE_API
 	int rc = console_pl011_register(PLAT_ARM_BOOT_UART_BASE,

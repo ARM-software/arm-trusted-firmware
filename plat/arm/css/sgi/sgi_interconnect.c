@@ -17,7 +17,7 @@
 /******************************************************************************
  * Helper function to initialize ARM interconnect driver.
  *****************************************************************************/
-void plat_arm_interconnect_init(void)
+void __init plat_arm_interconnect_init(void)
 {
 }
 

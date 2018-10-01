@@ -227,6 +227,12 @@ void arm_bl1_set_mbedtls_heap(void);
 int arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size);
 
 /*
+ * Free the memory storing initialization code only used during an images boot
+ * time so it can be reclaimed for runtime data
+ */
+void arm_free_init_memory(void);
+
+/*
  * Mandatory functions required in ARM standard platforms
  */
 unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr);

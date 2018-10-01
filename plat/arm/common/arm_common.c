@@ -40,10 +40,11 @@ void arm_setup_romlib(void)
  * as an array specifying the generic memory regions which can be;
  * - Code section;
  * - Read-only data section;
+ * - Init code section, if applicable
  * - Coherent memory region, if applicable.
  */
 
-void arm_setup_page_tables(const mmap_region_t bl_regions[],
+void __init arm_setup_page_tables(const mmap_region_t bl_regions[],
 			   const mmap_region_t plat_regions[])
 {
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE

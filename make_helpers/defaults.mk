@@ -153,6 +153,10 @@ SDEI_SUPPORT            	:= 0
 # platform Makefile is free to override this value.
 SEPARATE_CODE_AND_RODATA	:= 0
 
+# If the BL31 image initialisation code is recalimed after use for the secondary
+# cores stack
+RECLAIM_INIT_CODE		:= 0
+
 # Default to SMCCC Version 1.X
 SMCCC_MAJOR_VERSION		:= 1
 

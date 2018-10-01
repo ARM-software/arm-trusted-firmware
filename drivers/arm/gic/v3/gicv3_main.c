@@ -55,7 +55,7 @@ static spinlock_t gic_lock;
  * This function initialises the ARM GICv3 driver in EL3 with provided platform
  * inputs.
  ******************************************************************************/
-void gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
+void __init gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 {
 	unsigned int gic_version;
 
@@ -166,7 +166,7 @@ void gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
  * This function initialises the GIC distributor interface based upon the data
  * provided by the platform while initialising the driver.
  ******************************************************************************/
-void gicv3_distif_init(void)
+void __init gicv3_distif_init(void)
 {
 	unsigned int bitmap = 0;
 

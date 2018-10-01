@@ -74,7 +74,7 @@ int mmap_remove_dynamic_region(uintptr_t base_va, size_t size)
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
-void init_xlat_tables(void)
+void __init init_xlat_tables(void)
 {
 	assert(tf_xlat_ctx.xlat_regime == EL_REGIME_INVALID);
 

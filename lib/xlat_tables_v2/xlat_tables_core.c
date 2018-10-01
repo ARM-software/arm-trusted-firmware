@@ -815,7 +815,7 @@ void mmap_add_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 {
 	const mmap_region_t *mm_cursor = mm;
 
-	while (mm_cursor->size != 0U) {
+	while (mm_cursor->attr != 0U) {
 		mmap_add_region_ctx(ctx, mm_cursor);
 		mm_cursor++;
 	}
@@ -1012,7 +1012,7 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx, uintptr_t base_va,
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
-void init_xlat_tables_ctx(xlat_ctx_t *ctx)
+void __init init_xlat_tables_ctx(xlat_ctx_t *ctx)
 {
 	assert(ctx != NULL);
 	assert(!ctx->initialized);

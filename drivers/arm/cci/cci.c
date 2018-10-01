@@ -107,7 +107,8 @@ static int get_slave_ports(unsigned int part_num)
 }
 #endif /* ENABLE_ASSERTIONS */
 
-void cci_init(uintptr_t base, const int *map, unsigned int num_cci_masters)
+void __init cci_init(uintptr_t base, const int *map,
+				unsigned int num_cci_masters)
 {
 	assert(map != NULL);
 	assert(base != 0U);

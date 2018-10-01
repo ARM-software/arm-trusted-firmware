@@ -81,7 +81,7 @@ void mhu_secure_message_end(unsigned int slot_id)
 	arm_lock_release();
 }
 
-void mhu_secure_init(void)
+void __init mhu_secure_init(void)
 {
 	arm_lock_init();
 
@@ -93,7 +93,7 @@ void mhu_secure_init(void)
 	assert(mmio_read_32(PLAT_CSS_MHU_BASE + CPU_INTR_S_STAT) == 0);
 }
 
-void plat_arm_pwrc_setup(void)
+void __init plat_arm_pwrc_setup(void)
 {
 	mhu_secure_init();
 }
