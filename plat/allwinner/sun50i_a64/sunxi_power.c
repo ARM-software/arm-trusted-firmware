@@ -18,6 +18,7 @@
 static enum pmic_type {
 	GENERIC_H5,
 	GENERIC_A64,
+	REF_DESIGN_H5,	/* regulators controlled by GPIO pins on port L */
 } pmic;
 
 /*
@@ -79,7 +80,8 @@ int sunxi_pmic_setup(uint16_t socid)
 {
 	switch (socid) {
 	case SUNXI_SOC_H5:
-		pmic = GENERIC_H5;
+		pmic = REF_DESIGN_H5;
+		NOTICE("BL31: PMIC: Defaulting to PortL GPIO according to H5 reference design.\n");
 		break;
 	case SUNXI_SOC_A64:
 		pmic = GENERIC_A64;
@@ -105,6 +107,25 @@ void __dead2 sunxi_power_down(void)
 		sunxi_turn_off_soc(SUNXI_SOC_A64);
 		/* Turn off the pin controller now. */
 		mmio_write_32(SUNXI_CCU_BASE + 0x68, 0);
+		break;
+	case REF_DESIGN_H5:
+		sunxi_turn_off_soc(SUNXI_SOC_H5);
+
+		/*
+		 * Switch PL pins to power off the board:
+		 * - PL5 (VCC_IO) -> high
+		 * - PL8 (PWR-STB = CPU power supply) -> low
+		 * - PL9 (PWR-DRAM) ->low
+		 * - PL10 (power LED) -> low
+		 * Note: Clearing PL8 will reset the board, so keep it up.
+		 */
+		sunxi_set_gpio_out('L', 5, 1);
+		sunxi_set_gpio_out('L', 9, 0);
+		sunxi_set_gpio_out('L', 10, 0);
+
+		/* Turn off pin controller now. */
+		mmio_write_32(SUNXI_CCU_BASE + 0x68, 0);
+
 		break;
 	default:
 		break;
