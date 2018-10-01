@@ -116,7 +116,7 @@ Submitting Changes
 .. _Fork: https://help.github.com/articles/fork-a-repo
 .. _arm-trusted-firmware: https://github.com/ARM-software/arm-trusted-firmware
 .. _Git guidelines: http://git-scm.com/book/ch5-2.html
-.. _Linux coding style: https://www.kernel.org/doc/Documentation/CodingStyle
+.. _Linux coding style: https://github.com/torvalds/linux/blob/master/Documentation/process/coding-style.rst
 .. _User Guide: ./docs/user-guide.rst
 .. _automatically closed: https://help.github.com/articles/closing-issues-via-commit-messages
 .. _Porting Guide: ./docs/porting-guide.rst
