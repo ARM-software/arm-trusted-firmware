@@ -302,8 +302,8 @@ meminfo_t *bl2_plat_sec_mem_layout(void)
 
 static void bl2_advertise_dram_size(uint32_t product)
 {
-	/* Later than H3 Ver.3.0 */
-	if (product == RCAR_PRODUCT_H3) {
+	switch (product) {
+	case RCAR_PRODUCT_H3:
 #if (RCAR_DRAM_LPDDR4_MEMCONF == 0)
 		/* 4GB(1GBx4) */
 		NOTICE("BL2: CH0: 0x400000000 - 0x43fffffff, 1 GiB\n");
@@ -323,9 +323,20 @@ static void bl2_advertise_dram_size(uint32_t product)
 		NOTICE("BL2: CH2: 0x600000000 - 0x67fffffff, 2 GiB\n");
 		NOTICE("BL2: CH3: 0x700000000 - 0x77fffffff, 2 GiB\n");
 #endif /* RCAR_DRAM_LPDDR4_MEMCONF == 0 */
-	}
+		break;
 
-	if (product == RCAR_PRODUCT_E3) {
+	case RCAR_PRODUCT_M3:
+		/* 4GB(2GBx2 2ch split) */
+		NOTICE("BL2: CH0: 0x400000000 - 0x480000000, 2 GiB\n");
+		NOTICE("BL2: CH1: 0x600000000 - 0x680000000, 2 GiB\n");
+		break;
+
+	case RCAR_PRODUCT_M3N:
+		/* 2GB(1GBx2) */
+		NOTICE("BL2: 0x400000000 - 0x480000000, 2 GiB\n");
+		break;
+
+	case RCAR_PRODUCT_E3:
 #if (RCAR_DRAM_DDR3L_MEMCONF == 0)
 		/* 1GB(512MBx2) */
 		NOTICE("BL2: 0x400000000 - 0x43fffffff, 1 GiB\n");
@@ -336,6 +347,7 @@ static void bl2_advertise_dram_size(uint32_t product)
 		/* 4GB(1GBx4) */
 		NOTICE("BL2: 0x400000000 - 0x4ffffffff, 4 GiB\n");
 #endif /* RCAR_DRAM_DDR3L_MEMCONF == 0 */
+		break;
 	}
 }
 
