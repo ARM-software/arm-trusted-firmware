@@ -10,10 +10,12 @@
 #include <bl1.h>
 #include <console.h>
 #include <debug.h>
+#include <libfdt.h>
 #include <mmio.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <string.h>
+#include <xlat_tables_defs.h>
 
 #include "avs_driver.h"
 #include "boot_init_dram.h"
@@ -84,6 +86,32 @@ CASSERT((PARAMS_BASE + sizeof(bl2_to_bl31_params_mem_t) + 0x100)
 	assert_bl31_params_do_not_fit_in_shared_memory);
 
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
+
+/* FDT with DRAM configuration */
+uint64_t fdt_blob[PAGE_SIZE_4KB / sizeof(uint64_t)];
+static void *fdt = (void *)fdt_blob;
+
+static void unsigned_num_print(unsigned long long int unum, unsigned int radix,
+				char *string)
+{
+	/* Just need enough space to store 64 bit decimal integer */
+	char num_buf[20];
+	int i = 0;
+	unsigned int rem;
+
+	do {
+		rem = unum % radix;
+		if (rem < 0xa)
+			num_buf[i] = '0' + rem;
+		else
+			num_buf[i] = 'a' + (rem - 0xa);
+		i++;
+		unum /= radix;
+	} while (unum > 0U);
+
+	while (--i >= 0)
+		*string++ = num_buf[i];
+}
 
 #if (RCAR_LOSSY_ENABLE == 1)
 typedef struct bl2_lossy_info {
@@ -302,8 +330,10 @@ meminfo_t *bl2_plat_sec_mem_layout(void)
 
 static void bl2_advertise_dram_entries(uint64_t dram_config[8])
 {
+	char nodename[32] = { 0 };
 	uint64_t start, size;
-	int chan;
+	uint64_t fdtsize;
+	int ret, node, chan;
 
 	for (chan = 0; chan < 4; chan++) {
 		start = dram_config[2 * chan];
@@ -314,6 +344,54 @@ static void bl2_advertise_dram_entries(uint64_t dram_config[8])
 		NOTICE("BL2: CH%d: %llx - %llx, %lld GiB\n",
 			chan, start, start + size - 1, size >> 30);
 	}
+
+	/*
+	 * We add the DT nodes in reverse order here. The fdt_add_subnode()
+	 * adds the DT node before the first existing DT node, so we have
+	 * to add them in reverse order to get nodes sorted by address in
+	 * the resulting DT.
+	 */
+	for (chan = 3; chan >= 0; chan--) {
+		start = dram_config[2 * chan];
+		size = dram_config[2 * chan + 1];
+		if (!size)
+			continue;
+
+		/*
+		 * Channel 0 is mapped in 32bit space and the first
+		 * 128 MiB are reserved
+		 */
+		if (chan == 0) {
+			start = 0x48000000;
+			size -= 0x8000000;
+		}
+
+		fdtsize = cpu_to_fdt64(size);
+
+		snprintf(nodename, sizeof(nodename), "memory@");
+		unsigned_num_print(start, 16, nodename + strlen(nodename));
+		node = ret = fdt_add_subnode(fdt, 0, nodename);
+		if (ret < 0)
+			goto err;
+
+		ret = fdt_setprop_string(fdt, node, "device_type", "memory");
+		if (ret < 0)
+			goto err;
+
+		ret = fdt_setprop_u64(fdt, node, "reg", start);
+		if (ret < 0)
+			goto err;
+
+		ret = fdt_appendprop(fdt, node, "reg", &fdtsize,
+				     sizeof(fdtsize));
+		if (ret < 0)
+			goto err;
+	}
+
+	return;
+err:
+	NOTICE("BL2: Cannot add memory node to FDT (ret=%i)\n", ret);
+	panic();
 }
 
 static void bl2_advertise_dram_size(uint32_t product)
@@ -591,6 +669,13 @@ lcm_state:
 		rcar_qos_init();
 	}
 
+	/* Set up FDT */
+	ret = fdt_create_empty_tree(fdt, sizeof(fdt_blob));
+	if (ret) {
+		NOTICE("BL2: Cannot allocate FDT for U-Boot (ret=%i)\n", ret);
+		panic();
+	}
+
 	/* Print DRAM layout */
 	bl2_advertise_dram_size(product);
 
@@ -649,6 +734,9 @@ lcm_state:
 	bl2_lossy_setting(2, LOSSY_ST_ADDR2, LOSSY_END_ADDR2,
 			  LOSSY_FMT2, LOSSY_ENA_DIS2);
 #endif
+
+	fdt_pack(fdt);
+	NOTICE("BL2: FDT at %p\n", fdt);
 
 	if (boot_dev == MODEMR_BOOT_DEV_EMMC_25X1 ||
 	    boot_dev == MODEMR_BOOT_DEV_EMMC_50X8)
