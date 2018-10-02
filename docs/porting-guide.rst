@@ -997,8 +997,8 @@ Function : plat\_get\_bl\_image\_load\_info()
     Return   : bl_load_info_t *
 
 This function returns pointer to the list of images that the platform has
-populated to load. This function is currently invoked in BL2 to load the
-BL3xx images, when LOAD\_IMAGE\_V2 is enabled.
+populated to load. This function is invoked in BL2 to load the
+BL3xx images.
 
 Function : plat\_get\_next\_bl\_params()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1010,8 +1010,8 @@ Function : plat\_get\_next\_bl\_params()
 
 This function returns a pointer to the shared memory that the platform has
 kept aside to pass TF-A related information that next BL image needs. This
-function is currently invoked in BL2 to pass this information to the next BL
-image, when LOAD\_IMAGE\_V2 is enabled.
+function is invoked in BL2 to pass this information to the next BL
+image.
 
 Function : plat\_get\_stack\_protector\_canary()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1040,8 +1040,8 @@ Function : plat\_flush\_next\_bl\_params()
     Return   : void
 
 This function flushes to main memory all the image params that are passed to
-next image. This function is currently invoked in BL2 to flush this information
-to the next BL image, when LOAD\_IMAGE\_V2 is enabled.
+next image. This function is invoked in BL2 to flush this information
+to the next BL image.
 
 Function : plat\_log\_get\_prefix()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1108,15 +1108,9 @@ warm boot. For each CPU, BL1 is responsible for the following tasks:
 
        meminfo.total_base = Base address of secure RAM visible to BL2
        meminfo.total_size = Size of secure RAM visible to BL2
-       meminfo.free_base  = Base address of secure RAM available for
-                            allocation to BL2
-       meminfo.free_size  = Size of secure RAM available for allocation to BL2
 
-   By default, BL1 places this ``meminfo`` structure at the beginning of the
-   free memory available for its use. Since BL1 cannot allocate memory
-   dynamically at the moment, its free memory will be available for BL2's use
-   as-is. However, this means that BL2 must read the ``meminfo`` structure
-   before it starts using its free memory (this is discussed in Section 3.2).
+   By default, BL1 places this ``meminfo`` structure at the end of secure
+   memory visible to BL2.
 
    It is possible for the platform to decide where it wants to place the
    ``meminfo`` structure for BL2 or restrict the amount of memory visible to
@@ -1346,66 +1340,33 @@ Boot Loader Stage 2 (BL2)
 
 The BL2 stage is executed only by the primary CPU, which is determined in BL1
 using the ``platform_is_primary_cpu()`` function. BL1 passed control to BL2 at
-``BL2_BASE``. BL2 executes in Secure EL1 and is responsible for:
-
-#. (Optional) Loading the SCP\_BL2 binary image (if present) from platform
-   provided non-volatile storage. To load the SCP\_BL2 image, BL2 makes use of
-   the ``meminfo`` returned by the ``bl2_plat_get_scp_bl2_meminfo()`` function.
-   The platform also defines the address in memory where SCP\_BL2 is loaded
-   through the optional constant ``SCP_BL2_BASE``. BL2 uses this information
-   to determine if there is enough memory to load the SCP\_BL2 image.
-   Subsequent handling of the SCP\_BL2 image is platform-specific and is
-   implemented in the ``bl2_plat_handle_scp_bl2()`` function.
-   If ``SCP_BL2_BASE`` is not defined then this step is not performed.
-
-#. Loading the BL31 binary image into secure RAM from non-volatile storage. To
-   load the BL31 image, BL2 makes use of the ``meminfo`` structure passed to it
-   by BL1. This structure allows BL2 to calculate how much secure RAM is
-   available for its use. The platform also defines the address in secure RAM
-   where BL31 is loaded through the constant ``BL31_BASE``. BL2 uses this
-   information to determine if there is enough memory to load the BL31 image.
-
-#. (Optional) Loading the BL32 binary image (if present) from platform
-   provided non-volatile storage. To load the BL32 image, BL2 makes use of
-   the ``meminfo`` returned by the ``bl2_plat_get_bl32_meminfo()`` function.
-   The platform also defines the address in memory where BL32 is loaded
-   through the optional constant ``BL32_BASE``. BL2 uses this information
-   to determine if there is enough memory to load the BL32 image.
-   If ``BL32_BASE`` is not defined then this and the next step is not performed.
-
-#. (Optional) Arranging to pass control to the BL32 image (if present) that
-   has been pre-loaded at ``BL32_BASE``. BL2 populates an ``entry_point_info``
-   structure in memory provided by the platform with information about how
-   BL31 should pass control to the BL32 image.
-
-#. (Optional) Loading the normal world BL33 binary image (if not loaded by
-   other means) into non-secure DRAM from platform storage and arranging for
-   BL31 to pass control to this image. This address is determined using the
-   ``plat_get_ns_image_entrypoint()`` function described below.
-
-#. BL2 populates an ``entry_point_info`` structure in memory provided by the
-   platform with information about how BL31 should pass control to the
-   other BL images.
+``BL2_BASE``. BL2 executes in Secure EL1 and and invokes
+``plat_get_bl_image_load_info()`` to retrieve the list of images to load from
+non-volatile storage to secure/non-secure RAM. After all the images are loaded
+then BL2 invokes ``plat_get_next_bl_params()`` to get the list of executable
+images to be passed to the next BL image.
 
 The following functions must be implemented by the platform port to enable BL2
 to perform the above tasks.
 
-Function : bl2\_early\_platform\_setup() [mandatory]
+Function : bl2\_early\_platform\_setup2() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    Argument : meminfo *
+    Argument : u_register_t, u_register_t, u_register_t, u_register_t
     Return   : void
 
 This function executes with the MMU and data caches disabled. It is only called
-by the primary CPU. The arguments to this function is the address of the
-``meminfo`` structure populated by BL1.
+by the primary CPU. The 4 arguments are passed by BL1 to BL2 and these arguments
+are platform specific.
 
-The platform may copy the contents of the ``meminfo`` structure into a private
-variable as the original memory may be subsequently overwritten by BL2. The
-copied structure is made available to all BL2 code through the
-``bl2_plat_sec_mem_layout()`` function.
+On Arm standard platforms, the arguments received are :
+
+    arg0 - Points to load address of HW_CONFIG if present
+
+    arg1 - ``meminfo`` structure populated by BL1. The platform copies
+    the contents of ``meminfo`` as it may be subsequently overwritten by BL2.
 
 On Arm standard platforms, this function also:
 
@@ -1451,24 +1412,6 @@ In Arm standard platforms, this function performs security setup, including
 configuration of the TrustZone controller to allow non-secure masters access
 to most of DRAM. Part of DRAM is reserved for secure world use.
 
-Function : bl2\_plat\_sec\_mem\_layout() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : void
-    Return   : meminfo *
-
-This function should only be called on the cold boot path. It may execute with
-the MMU and data caches enabled if the platform port does the necessary
-initialization in ``bl2_plat_arch_setup()``. It is only called by the primary CPU.
-
-The purpose of this function is to return a pointer to a ``meminfo`` structure
-populated with the extents of secure RAM available for BL2 to use. See
-``bl2_early_platform_setup()`` above.
-
-Following functions are optionally used only when LOAD\_IMAGE\_V2 is enabled.
-
 Function : bl2\_plat\_handle\_pre\_image\_load() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1479,7 +1422,7 @@ Function : bl2\_plat\_handle\_pre\_image\_load() [optional]
 
 This function can be used by the platforms to update/use image information
 for given ``image_id``. This function is currently invoked in BL2 before
-loading each image, when LOAD\_IMAGE\_V2 is enabled.
+loading each image.
 
 Function : bl2\_plat\_handle\_post\_image\_load() [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1491,183 +1434,7 @@ Function : bl2\_plat\_handle\_post\_image\_load() [optional]
 
 This function can be used by the platforms to update/use image information
 for given ``image_id``. This function is currently invoked in BL2 after
-loading each image, when LOAD\_IMAGE\_V2 is enabled.
-
-Following functions are required only when LOAD\_IMAGE\_V2 is disabled.
-
-Function : bl2\_plat\_get\_scp\_bl2\_meminfo() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : meminfo *
-    Return   : void
-
-This function is used to get the memory limits where BL2 can load the
-SCP\_BL2 image. The meminfo provided by this is used by load\_image() to
-validate whether the SCP\_BL2 image can be loaded within the given
-memory from the given base.
-
-Function : bl2\_plat\_handle\_scp\_bl2() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : image_info *
-    Return   : int
-
-This function is called after loading SCP\_BL2 image and it is used to perform
-any platform-specific actions required to handle the SCP firmware. Typically it
-transfers the image into SCP memory using a platform-specific protocol and waits
-until SCP executes it and signals to the Application Processor (AP) for BL2
-execution to continue.
-
-This function returns 0 on success, a negative error code otherwise.
-
-Function : bl2\_plat\_get\_bl31\_params() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : void
-    Return   : bl31_params *
-
-BL2 platform code needs to return a pointer to a ``bl31_params`` structure it
-will use for passing information to BL31. The ``bl31_params`` structure carries
-the following information.
-- Header describing the version information for interpreting the bl31\_param
-structure
-- Information about executing the BL33 image in the ``bl33_ep_info`` field
-- Information about executing the BL32 image in the ``bl32_ep_info`` field
-- Information about the type and extents of BL31 image in the
-``bl31_image_info`` field
-- Information about the type and extents of BL32 image in the
-``bl32_image_info`` field
-- Information about the type and extents of BL33 image in the
-``bl33_image_info`` field
-
-The memory pointed by this structure and its sub-structures should be
-accessible from BL31 initialisation code. BL31 might choose to copy the
-necessary content, or maintain the structures until BL33 is initialised.
-
-Funtion : bl2\_plat\_get\_bl31\_ep\_info() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : void
-    Return   : entry_point_info *
-
-BL2 platform code returns a pointer which is used to populate the entry point
-information for BL31 entry point. The location pointed by it should be
-accessible from BL1 while processing the synchronous exception to run to BL31.
-
-In Arm standard platforms this is allocated inside a bl2\_to\_bl31\_params\_mem
-structure in BL2 memory.
-
-Function : bl2\_plat\_set\_bl31\_ep\_info() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : image_info *, entry_point_info *
-    Return   : void
-
-In the normal boot flow, this function is called after loading BL31 image and
-it can be used to overwrite the entry point set by loader and also set the
-security state and SPSR which represents the entry point system state for BL31.
-
-When booting an EL3 payload instead, this function is called after populating
-its entry point address and can be used for the same purpose for the payload
-image. It receives a null pointer as its first argument in this case.
-
-Function : bl2\_plat\_set\_bl32\_ep\_info() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : image_info *, entry_point_info *
-    Return   : void
-
-This function is called after loading BL32 image and it can be used to
-overwrite the entry point set by loader and also set the security state
-and SPSR which represents the entry point system state for BL32.
-
-Function : bl2\_plat\_set\_bl33\_ep\_info() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : image_info *, entry_point_info *
-    Return   : void
-
-This function is called after loading BL33 image and it can be used to
-overwrite the entry point set by loader and also set the security state
-and SPSR which represents the entry point system state for BL33.
-
-In the preloaded BL33 alternative boot flow, this function is called after
-populating its entry point address. It is passed a null pointer as its first
-argument in this case.
-
-Function : bl2\_plat\_get\_bl32\_meminfo() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : meminfo *
-    Return   : void
-
-This function is used to get the memory limits where BL2 can load the
-BL32 image. The meminfo provided by this is used by load\_image() to
-validate whether the BL32 image can be loaded with in the given
-memory from the given base.
-
-Function : bl2\_plat\_get\_bl33\_meminfo() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : meminfo *
-    Return   : void
-
-This function is used to get the memory limits where BL2 can load the
-BL33 image. The meminfo provided by this is used by load\_image() to
-validate whether the BL33 image can be loaded with in the given
-memory from the given base.
-
-This function isn't needed if either ``PRELOADED_BL33_BASE`` or ``EL3_PAYLOAD_BASE``
-build options are used.
-
-Function : bl2\_plat\_flush\_bl31\_params() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : void
-    Return   : void
-
-Once BL2 has populated all the structures that needs to be read by BL1
-and BL31 including the bl31\_params structures and its sub-structures,
-the bl31\_ep\_info structure and any platform specific data. It flushes
-all these data to the main memory so that it is available when we jump to
-later Bootloader stages with MMU off
-
-Function : plat\_get\_ns\_image\_entrypoint() [mandatory]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-::
-
-    Argument : void
-    Return   : uintptr_t
-
-As previously described, BL2 is responsible for arranging for control to be
-passed to a normal world BL image through BL31. This function returns the
-entrypoint of that image, which BL31 uses to jump to it.
-
-BL2 is responsible for loading the normal world BL33 image (e.g. UEFI).
-
-This function isn't needed if either ``PRELOADED_BL33_BASE`` or ``EL3_PAYLOAD_BASE``
-build options are used.
+loading each image.
 
 Function : bl2\_plat\_preload\_setup [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1870,8 +1637,8 @@ CPUs. BL31 executes at EL3 and is responsible for:
    should make no assumptions about the system state when it receives control.
 
 #. Passing control to a normal world BL image, pre-loaded at a platform-
-   specific address by BL2. BL31 uses the ``entry_point_info`` structure that BL2
-   populated in memory to do this.
+   specific address by BL2. On ARM platforms, BL31 uses the ``bl_params`` list
+   populated by BL2 in memory to do this.
 
 #. Providing runtime firmware services. Currently, BL31 only implements a
    subset of the Power State Coordination Interface (PSCI) API as a runtime
@@ -1881,8 +1648,8 @@ CPUs. BL31 executes at EL3 and is responsible for:
 #. Optionally passing control to the BL32 image, pre-loaded at a platform-
    specific address by BL2. BL31 exports a set of apis that allow runtime
    services to specify the security state in which the next image should be
-   executed and run the corresponding image. BL31 uses the ``entry_point_info``
-   structure populated by BL2 to do this.
+   executed and run the corresponding image. On ARM platforms, BL31 uses the
+   ``bl_params`` list populated by BL2 in memory to do this.
 
 If BL31 is a reset vector, It also needs to handle the reset as specified in
 section 2.2 before the tasks described above.
@@ -1890,28 +1657,32 @@ section 2.2 before the tasks described above.
 The following functions must be implemented by the platform port to enable BL31
 to perform the above tasks.
 
-Function : bl31\_early\_platform\_setup() [mandatory]
+Function : bl31\_early\_platform\_setup2() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
-    Argument : bl31_params *, void *
+    Argument : u_register_t, u_register_t, u_register_t, u_register_t
     Return   : void
 
 This function executes with the MMU and data caches disabled. It is only called
-by the primary CPU. The arguments to this function are:
+by the primary CPU. BL2 can pass 4 arguments to BL31 and these arguments are
+platform specific.
 
--  The address of the ``bl31_params`` structure populated by BL2.
--  An opaque pointer that the platform may use as needed.
+In Arm standard platforms, the arguments received are :
 
-The platform can copy the contents of the ``bl31_params`` structure and its
-sub-structures into private variables if the original memory may be
-subsequently overwritten by BL31 and similarly the ``void *`` pointing
-to the platform data also needs to be saved.
+    arg0 - The pointer to the head of `bl_params_t` list
+    which is list of executable images following BL31,
 
-In Arm standard platforms, BL2 passes a pointer to a ``bl31_params`` structure
-in BL2 memory. BL31 copies the information in this pointer to internal data
-structures. It also performs the following:
+    arg1 - Points to load address of SOC_FW_CONFIG if present
+
+    arg2 - Points to load address of HW_CONFIG if present
+
+    arg3 - A special value to verify platform parameters from BL2 to BL31. Not
+    used in release builds.
+
+The function runs through the `bl_param_t` list and extracts the entry point
+information for BL32 and BL33. It also performs the following:
 
 -  Initialize a UART (PL011 console), which enables access to the ``printf``
    family of functions in BL31.

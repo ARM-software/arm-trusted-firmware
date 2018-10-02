@@ -1312,7 +1312,7 @@ section for more info on selecting the right FDT to use.
 
       ::
 
-          make ARCH=aarch64 PLAT=juno LOAD_IMAGE_V2=1 JUNO_AARCH32_EL3_RUNTIME=1 \
+          make ARCH=aarch64 PLAT=juno JUNO_AARCH32_EL3_RUNTIME=1 \
           BL33=<path-to-juno32-oe-uboot>/SOFTWARE/bl33-uboot.bin \
           SCP_BL2=<path-to-juno32-oe-uboot>/SOFTWARE/scp_bl2.bin \
           BL32=<path-to-bl32>/bl32.bin all fip
