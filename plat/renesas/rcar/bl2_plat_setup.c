@@ -300,55 +300,80 @@ meminfo_t *bl2_plat_sec_mem_layout(void)
 	return &bl2_tzram_layout;
 }
 
+static void bl2_advertise_dram_entries(uint64_t dram_config[8])
+{
+	uint64_t start, size;
+	int chan;
+
+	for (chan = 0; chan < 4; chan++) {
+		start = dram_config[2 * chan];
+		size = dram_config[2 * chan + 1];
+		if (!size)
+			continue;
+
+		NOTICE("BL2: CH%d: %llx - %llx, %lld GiB\n",
+			chan, start, start + size - 1, size >> 30);
+	}
+}
+
 static void bl2_advertise_dram_size(uint32_t product)
 {
+	uint64_t dram_config[8] = {
+		[0] = 0x400000000ULL,
+		[2] = 0x500000000ULL,
+		[4] = 0x600000000ULL,
+		[6] = 0x700000000ULL,
+	};
+
 	switch (product) {
 	case RCAR_PRODUCT_H3:
 #if (RCAR_DRAM_LPDDR4_MEMCONF == 0)
 		/* 4GB(1GBx4) */
-		NOTICE("BL2: CH0: 0x400000000 - 0x43fffffff, 1 GiB\n");
-		NOTICE("BL2: CH1: 0x500000000 - 0x53fffffff, 1 GiB\n");
-		NOTICE("BL2: CH2: 0x600000000 - 0x63fffffff, 1 GiB\n");
-		NOTICE("BL2: CH3: 0x700000000 - 0x73fffffff, 1 GiB\n");
+		dram_config[1] = 0x40000000ULL;
+		dram_config[3] = 0x40000000ULL;
+		dram_config[5] = 0x40000000ULL;
+		dram_config[7] = 0x40000000ULL;
 #elif (RCAR_DRAM_LPDDR4_MEMCONF == 1) && \
       (RCAR_DRAM_CHANNEL        == 5) && \
       (RCAR_DRAM_SPLIT          == 2)
 		/* 4GB(2GBx2 2ch split) */
-		NOTICE("BL2: CH0: 0x400000000 - 0x47fffffff, 2 GiB\n");
-		NOTICE("BL2: CH1: 0x500000000 - 0x57fffffff, 2 GiB\n");
+		dram_config[1] = 0x80000000ULL;
+		dram_config[3] = 0x80000000ULL;
 #elif (RCAR_DRAM_LPDDR4_MEMCONF == 1) && (RCAR_DRAM_CHANNEL == 15)
 		/* 8GB(2GBx4: default) */
-		NOTICE("BL2: CH0: 0x400000000 - 0x47fffffff, 2 GiB\n");
-		NOTICE("BL2: CH1: 0x500000000 - 0x57fffffff, 2 GiB\n");
-		NOTICE("BL2: CH2: 0x600000000 - 0x67fffffff, 2 GiB\n");
-		NOTICE("BL2: CH3: 0x700000000 - 0x77fffffff, 2 GiB\n");
+		dram_config[1] = 0x80000000ULL;
+		dram_config[3] = 0x80000000ULL;
+		dram_config[5] = 0x80000000ULL;
+		dram_config[7] = 0x80000000ULL;
 #endif /* RCAR_DRAM_LPDDR4_MEMCONF == 0 */
 		break;
 
 	case RCAR_PRODUCT_M3:
 		/* 4GB(2GBx2 2ch split) */
-		NOTICE("BL2: CH0: 0x400000000 - 0x480000000, 2 GiB\n");
-		NOTICE("BL2: CH1: 0x600000000 - 0x680000000, 2 GiB\n");
+		dram_config[1] = 0x80000000ULL;
+		dram_config[5] = 0x80000000ULL;
 		break;
 
 	case RCAR_PRODUCT_M3N:
 		/* 2GB(1GBx2) */
-		NOTICE("BL2: 0x400000000 - 0x480000000, 2 GiB\n");
+		dram_config[1] = 0x80000000ULL;
 		break;
 
 	case RCAR_PRODUCT_E3:
 #if (RCAR_DRAM_DDR3L_MEMCONF == 0)
 		/* 1GB(512MBx2) */
-		NOTICE("BL2: 0x400000000 - 0x43fffffff, 1 GiB\n");
+		dram_config[1] = 0x40000000ULL;
 #elif (RCAR_DRAM_DDR3L_MEMCONF == 1)
 		/* 2GB(512MBx4) */
-		NOTICE("BL2: 0x400000000 - 0x47fffffff, 2 GiB\n");
+		dram_config[1] = 0x80000000ULL;
 #elif (RCAR_DRAM_DDR3L_MEMCONF == 2)
 		/* 4GB(1GBx4) */
-		NOTICE("BL2: 0x400000000 - 0x4ffffffff, 4 GiB\n");
+		dram_config[1] = 0x100000000ULL;
 #endif /* RCAR_DRAM_DDR3L_MEMCONF == 0 */
 		break;
 	}
+
+	bl2_advertise_dram_entries(dram_config);
 }
 
 void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
