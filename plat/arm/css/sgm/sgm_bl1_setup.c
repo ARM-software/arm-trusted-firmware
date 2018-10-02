@@ -12,10 +12,12 @@
 
 void bl1_early_platform_setup(void)
 {
+
+	/* Initialize the console before anything else */
+	arm_bl1_early_platform_setup();
+
 	/* Initialize the platform configuration structure */
 	plat_config_init();
-
-	arm_bl1_early_platform_setup();
 
 #if !HW_ASSISTED_COHERENCY
 	/*
