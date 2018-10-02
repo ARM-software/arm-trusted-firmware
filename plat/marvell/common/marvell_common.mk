@@ -20,7 +20,7 @@ $(eval $(call add_define,ARO_ENABLE))
 LLC_ENABLE			:= 1
 $(eval $(call add_define,LLC_ENABLE))
 
-PLAT_INCLUDES		+=	-I. -Iinclude/common/tbbr		\
+PLAT_INCLUDES		+=	-I. -Iinclude/common -Iinclude/common/tbbr	\
 				-I$(MARVELL_PLAT_INCLUDE_BASE)/common	\
 				-I$(MARVELL_PLAT_INCLUDE_BASE)/common/aarch64
 
@@ -46,8 +46,12 @@ endif
 BL2_SOURCES		+=	drivers/io/io_fip.c					\
 				drivers/io/io_memmap.c					\
 				drivers/io/io_storage.c					\
+				common/desc_image_load.c				\
 				$(MARVELL_PLAT_BASE)/common/marvell_bl2_setup.c		\
-				$(MARVELL_PLAT_BASE)/common/marvell_io_storage.c
+				$(MARVELL_PLAT_BASE)/common/marvell_io_storage.c	\
+				$(MARVELL_PLAT_BASE)/common/aarch64/marvell_bl2_mem_params_desc.c	\
+				$(MARVELL_PLAT_BASE)/common/marvell_image_load.c
+
 
 BL31_SOURCES		+=	$(MARVELL_PLAT_BASE)/common/marvell_bl31_setup.c	\
 				$(MARVELL_PLAT_BASE)/common/marvell_pm.c		\

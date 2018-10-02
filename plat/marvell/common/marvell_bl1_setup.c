@@ -21,7 +21,6 @@
 #pragma weak bl1_platform_setup
 #pragma weak bl1_plat_sec_mem_layout
 
-
 /* Data structure which holds the extents of the RAM for BL1*/
 static meminfo_t bl1_ram_layout;
 
@@ -35,8 +34,6 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
  */
 void marvell_bl1_early_platform_setup(void)
 {
-	const size_t bl1_size = BL1_RAM_LIMIT - BL1_RAM_BASE;
-
 	/* Initialize the console to provide early debug support */
 	console_init(PLAT_MARVELL_BOOT_UART_BASE,
 		     PLAT_MARVELL_BOOT_UART_CLK_IN_HZ,
@@ -45,14 +42,6 @@ void marvell_bl1_early_platform_setup(void)
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_ram_layout.total_base = MARVELL_BL_RAM_BASE;
 	bl1_ram_layout.total_size = MARVELL_BL_RAM_SIZE;
-
-	/* Calculate how much RAM BL1 is using and how much remains free */
-	bl1_ram_layout.free_base = MARVELL_BL_RAM_BASE;
-	bl1_ram_layout.free_size = MARVELL_BL_RAM_SIZE;
-	reserve_mem(&bl1_ram_layout.free_base,
-		    &bl1_ram_layout.free_size,
-		    BL1_RAM_BASE,
-		    bl1_size);
 }
 
 void bl1_early_platform_setup(void)
