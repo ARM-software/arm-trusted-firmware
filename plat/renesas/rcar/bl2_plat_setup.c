@@ -300,6 +300,42 @@ meminfo_t *bl2_plat_sec_mem_layout(void)
 	return &bl2_tzram_layout;
 }
 
+static void bl2_advertise_dram_size(uint32_t product, uint32_t cut)
+{
+	/* Later than H3 Ver.3.0 */
+	if (product == RCAR_PRODUCT_H3 && cut >= RCAR_CUT_VER30) {
+#if (RCAR_DRAM_LPDDR4_MEMCONF == 0)
+		/* 4GB(1GBx4) */
+		NOTICE("BL2: CH0: 0x400000000 - 0x43fffffff, 1 GiB\n");
+		NOTICE("BL2: CH1: 0x500000000 - 0x53fffffff, 1 GiB\n");
+		NOTICE("BL2: CH2: 0x600000000 - 0x63fffffff, 1 GiB\n");
+		NOTICE("BL2: CH3: 0x700000000 - 0x73fffffff, 1 GiB\n");
+#elif (RCAR_DRAM_LPDDR4_MEMCONF == 1) && \
+      (RCAR_DRAM_CHANNEL        == 5) && \
+      (RCAR_DRAM_SPLIT          == 2)
+		/* 4GB(2GBx2 2ch split) */
+		NOTICE("BL2: CH0: 0x400000000 - 0x47fffffff, 2 GiB\n");
+		NOTICE("BL2: CH1: 0x500000000 - 0x57fffffff, 2 GiB\n");
+#elif (RCAR_DRAM_LPDDR4_MEMCONF == 1) && (RCAR_DRAM_CHANNEL == 15)
+		/* 8GB(2GBx4: default) */
+		NOTICE("BL2: CH0: 0x400000000 - 0x47fffffff, 2 GiB\n");
+		NOTICE("BL2: CH1: 0x500000000 - 0x57fffffff, 2 GiB\n");
+		NOTICE("BL2: CH2: 0x600000000 - 0x67fffffff, 2 GiB\n");
+		NOTICE("BL2: CH3: 0x700000000 - 0x77fffffff, 2 GiB\n");
+#endif /* RCAR_DRAM_LPDDR4_MEMCONF == 0 */
+	}
+
+	if (product == RCAR_PRODUCT_E3) {
+#if (RCAR_DRAM_DDR3L_MEMCONF == 0)
+		/* 1GB(512MBx2) */
+		NOTICE("BL2: 0x400000000 - 0x43fffffff, 1 GiB\n");
+#elif (RCAR_DRAM_DDR3L_MEMCONF == 1)
+		/* 2GB(512MBx4) */
+		NOTICE("BL2: 0x400000000 - 0x47fffffff, 2 GiB\n");
+#endif /* RCAR_DRAM_DDR3L_MEMCONF == 0 */
+	}
+}
+
 void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 				  u_register_t arg3, u_register_t arg4)
 {
@@ -506,32 +542,8 @@ lcm_state:
 	bl2_tzram_layout.total_base = BL31_BASE;
 	bl2_tzram_layout.total_size = BL31_LIMIT - BL31_BASE;
 
-	if (product == RCAR_PRODUCT_H3 && cut >= RCAR_CUT_VER30) {
-#if (RCAR_DRAM_LPDDR4_MEMCONF == 0)
-		NOTICE("BL2: CH0: 0x400000000 - 0x440000000, 1 GiB\n");
-		NOTICE("BL2: CH1: 0x500000000 - 0x540000000, 1 GiB\n");
-		NOTICE("BL2: CH2: 0x600000000 - 0x640000000, 1 GiB\n");
-		NOTICE("BL2: CH3: 0x700000000 - 0x740000000, 1 GiB\n");
-#elif (RCAR_DRAM_LPDDR4_MEMCONF == 1) && \
-      (RCAR_DRAM_CHANNEL        == 5) && \
-      (RCAR_DRAM_SPLIT          == 2)
-		NOTICE("BL2: CH0: 0x400000000 - 0x480000000, 2 GiB\n");
-		NOTICE("BL2: CH1: 0x500000000 - 0x580000000, 2 GiB\n");
-#elif (RCAR_DRAM_LPDDR4_MEMCONF == 1) && (RCAR_DRAM_CHANNEL == 15)
-		NOTICE("BL2: CH0: 0x400000000 - 0x480000000, 2 GiB\n");
-		NOTICE("BL2: CH1: 0x500000000 - 0x580000000, 2 GiB\n");
-		NOTICE("BL2: CH2: 0x600000000 - 0x680000000, 2 GiB\n");
-		NOTICE("BL2: CH3: 0x700000000 - 0x780000000, 2 GiB\n");
-#endif
-	}
-
-	if (product == RCAR_PRODUCT_E3) {
-#if (RCAR_DRAM_DDR3L_MEMCONF == 0)
-		NOTICE("BL2: 0x400000000 - 0x440000000, 1 GiB\n");
-#elif (RCAR_DRAM_DDR3L_MEMCONF == 1)
-		NOTICE("BL2: 0x400000000 - 0x480000000, 2 GiB\n");
-#endif
-	}
+	/* Print DRAM layout */
+	bl2_advertise_dram_size(product, cut);
 
 	if (boot_cpu == MODEMR_BOOT_CPU_CA57 ||
 	    boot_cpu == MODEMR_BOOT_CPU_CA53) {
