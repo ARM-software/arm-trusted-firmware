@@ -300,10 +300,10 @@ meminfo_t *bl2_plat_sec_mem_layout(void)
 	return &bl2_tzram_layout;
 }
 
-static void bl2_advertise_dram_size(uint32_t product, uint32_t cut)
+static void bl2_advertise_dram_size(uint32_t product)
 {
 	/* Later than H3 Ver.3.0 */
-	if (product == RCAR_PRODUCT_H3 && cut >= RCAR_CUT_VER30) {
+	if (product == RCAR_PRODUCT_H3) {
 #if (RCAR_DRAM_LPDDR4_MEMCONF == 0)
 		/* 4GB(1GBx4) */
 		NOTICE("BL2: CH0: 0x400000000 - 0x43fffffff, 1 GiB\n");
@@ -343,7 +343,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 				  u_register_t arg3, u_register_t arg4)
 {
 	uint32_t reg, midr, lcs, boot_dev, boot_cpu, sscg, type, rev;
-	uint32_t cut, product, product_cut, major, minor;
+	uint32_t product, product_cut, major, minor;
 	int32_t ret;
 	const char *str;
 	const char *unknown = "unknown";
@@ -413,7 +413,6 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	reg = mmio_read_32(RCAR_PRR);
 	product_cut = reg & (RCAR_PRODUCT_MASK | RCAR_CUT_MASK);
 	product = reg & RCAR_PRODUCT_MASK;
-	cut = reg & RCAR_CUT_MASK;
 
 	switch (product) {
 	case RCAR_PRODUCT_H3:
@@ -546,7 +545,7 @@ lcm_state:
 	bl2_tzram_layout.total_size = BL31_LIMIT - BL31_BASE;
 
 	/* Print DRAM layout */
-	bl2_advertise_dram_size(product, cut);
+	bl2_advertise_dram_size(product);
 
 	if (boot_cpu == MODEMR_BOOT_CPU_CA57 ||
 	    boot_cpu == MODEMR_BOOT_CPU_CA53) {
