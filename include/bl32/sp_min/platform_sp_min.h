@@ -10,10 +10,6 @@
 /*******************************************************************************
  * Mandatory SP_MIN functions
  ******************************************************************************/
-#if !ERROR_DEPRECATED
-void sp_min_early_platform_setup(void *from_bl2,
-		void *plat_params_from_bl2);
-#endif
 void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		u_register_t arg2, u_register_t arg3);
 void sp_min_platform_setup(void);

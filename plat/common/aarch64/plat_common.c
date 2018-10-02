@@ -19,10 +19,6 @@
  * platforms but may also be overridden by a platform if required.
  */
 #pragma weak bl31_plat_runtime_setup
-#if !ERROR_DEPRECATED
-#pragma weak plat_get_syscnt_freq2
-#pragma weak bl31_early_platform_setup2
-#endif /* ERROR_DEPRECATED */
 
 #if SDEI_SUPPORT
 #pragma weak plat_sdei_handle_masked_trigger
@@ -40,7 +36,6 @@ void bl31_plat_runtime_setup(void)
 #endif
 }
 
-#if !ENABLE_PLAT_COMPAT
 /*
  * Helper function for platform_get_pos() when platform compatibility is
  * disabled. This is to enable SPDs using the older platform API to continue
@@ -52,33 +47,6 @@ unsigned int platform_core_pos_helper(unsigned long mpidr)
 	assert(idx >= 0);
 	return idx;
 }
-#endif
-
-
-#if !ERROR_DEPRECATED
-unsigned int plat_get_syscnt_freq2(void)
-{
-	WARN("plat_get_syscnt_freq() is deprecated\n");
-	WARN("Please define plat_get_syscnt_freq2()\n");
-	/*
-	 * Suppress deprecated declaration warning in compatibility function
-	 */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-	unsigned long long freq = plat_get_syscnt_freq();
-#pragma GCC diagnostic pop
-
-	assert(freq >> 32 == 0);
-
-	return (unsigned int)freq;
-}
-
-void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
-			u_register_t arg2, u_register_t arg3)
-{
-	bl31_early_platform_setup((void *) arg0, (void *)arg1);
-}
-#endif /* ERROR_DEPRECATED */
 
 #if SDEI_SUPPORT
 /*

@@ -327,19 +327,6 @@ ifeq (${ARM_ARCH_MAJOR},7)
 include make_helpers/armv7-a-cpus.mk
 endif
 
-# Platform compatibility is not supported in AArch32
-ifneq (${ARCH},aarch32)
-# If the platform has not defined ENABLE_PLAT_COMPAT, then enable it by default
-ifndef ENABLE_PLAT_COMPAT
-ENABLE_PLAT_COMPAT := 1
-endif
-
-# Include the platform compatibility helpers for PSCI
-ifneq (${ENABLE_PLAT_COMPAT}, 0)
-include plat/compat/plat_compat.mk
-endif
-endif
-
 # Include the CPU specific operations makefile, which provides default
 # values for all CPU errata workarounds and CPU specific optimisations.
 # This can be overridden by the platform.
@@ -403,13 +390,6 @@ ifeq (${NEED_BL33},yes)
         endif
 endif
 
-# For AArch32, LOAD_IMAGE_V2 must be enabled.
-ifeq (${ARCH},aarch32)
-    ifeq (${LOAD_IMAGE_V2}, 0)
-        $(error "For AArch32, LOAD_IMAGE_V2 must be enabled.")
-    endif
-endif
-
 # When building for systems with hardware-assisted coherency, there's no need to
 # use USE_COHERENT_MEM. Require that USE_COHERENT_MEM must be set to 0 too.
 ifeq ($(HW_ASSISTED_COHERENCY)-$(USE_COHERENT_MEM),1-1)
@@ -451,13 +431,10 @@ ifeq ($(FAULT_INJECTION_SUPPORT),1)
     endif
 endif
 
-# DYN_DISABLE_AUTH can be set only when TRUSTED_BOARD_BOOT=1 and LOAD_IMAGE_V2=1
+# DYN_DISABLE_AUTH can be set only when TRUSTED_BOARD_BOOT=1
 ifeq ($(DYN_DISABLE_AUTH), 1)
     ifeq (${TRUSTED_BOARD_BOOT}, 0)
         $(error "TRUSTED_BOARD_BOOT must be enabled for DYN_DISABLE_AUTH to be set.")
-    endif
-    ifeq (${LOAD_IMAGE_V2}, 0)
-        $(error "DYN_DISABLE_AUTH is only supported for LOAD_IMAGE_V2.")
     endif
 endif
 
@@ -586,7 +563,6 @@ $(eval $(call assert_boolean,ENABLE_AMU))
 $(eval $(call assert_boolean,ENABLE_ASSERTIONS))
 $(eval $(call assert_boolean,ENABLE_BACKTRACE))
 $(eval $(call assert_boolean,ENABLE_MPAM_FOR_LOWER_ELS))
-$(eval $(call assert_boolean,ENABLE_PLAT_COMPAT))
 $(eval $(call assert_boolean,ENABLE_PMF))
 $(eval $(call assert_boolean,ENABLE_PSCI_STAT))
 $(eval $(call assert_boolean,ENABLE_RUNTIME_INSTRUMENTATION))
@@ -599,7 +575,6 @@ $(eval $(call assert_boolean,GENERATE_COT))
 $(eval $(call assert_boolean,GICV2_G0_FOR_EL3))
 $(eval $(call assert_boolean,HANDLE_EA_EL3_FIRST))
 $(eval $(call assert_boolean,HW_ASSISTED_COHERENCY))
-$(eval $(call assert_boolean,LOAD_IMAGE_V2))
 $(eval $(call assert_boolean,MULTI_CONSOLE_API))
 $(eval $(call assert_boolean,NS_TIMER_SWITCH))
 $(eval $(call assert_boolean,PL011_GENERIC_UART))
@@ -630,7 +605,6 @@ $(eval $(call assert_numeric,SMCCC_MAJOR_VERSION))
 
 $(eval $(call add_define,ARM_ARCH_MAJOR))
 $(eval $(call add_define,ARM_ARCH_MINOR))
-$(eval $(call add_define,ARM_GIC_ARCH))
 $(eval $(call add_define,COLD_BOOT_SINGLE_CPU))
 $(eval $(call add_define,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call add_define,CTX_INCLUDE_FPREGS))
@@ -639,7 +613,6 @@ $(eval $(call add_define,ENABLE_AMU))
 $(eval $(call add_define,ENABLE_ASSERTIONS))
 $(eval $(call add_define,ENABLE_BACKTRACE))
 $(eval $(call add_define,ENABLE_MPAM_FOR_LOWER_ELS))
-$(eval $(call add_define,ENABLE_PLAT_COMPAT))
 $(eval $(call add_define,ENABLE_PMF))
 $(eval $(call add_define,ENABLE_PSCI_STAT))
 $(eval $(call add_define,ENABLE_RUNTIME_INSTRUMENTATION))
@@ -651,7 +624,6 @@ $(eval $(call add_define,FAULT_INJECTION_SUPPORT))
 $(eval $(call add_define,GICV2_G0_FOR_EL3))
 $(eval $(call add_define,HANDLE_EA_EL3_FIRST))
 $(eval $(call add_define,HW_ASSISTED_COHERENCY))
-$(eval $(call add_define,LOAD_IMAGE_V2))
 $(eval $(call add_define,LOG_LEVEL))
 $(eval $(call add_define,MULTI_CONSOLE_API))
 $(eval $(call add_define,NS_TIMER_SWITCH))

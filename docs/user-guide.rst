@@ -234,11 +234,6 @@ Common build options
    compiling TF-A. Its value must be a numeric, and defaults to 0. See also,
    *Armv8 Architecture Extensions* in `Firmware Design`_.
 
--  ``ARM_GIC_ARCH``: Choice of Arm GIC architecture version used by the Arm
-   Legacy GIC driver for implementing the platform GIC API. This API is used
-   by the interrupt management framework. Default is 2 (that is, version 2.0).
-   This build option is deprecated.
-
 -  ``ARM_PLAT_MT``: This flag determines whether the Arm platform layer has to
    cater for the multi-threading ``MT`` bit when accessing MPIDR. When this flag
    is set, the functions which deal with MPIDR assume that the ``MT`` bit in
@@ -334,8 +329,8 @@ Common build options
 
 -  ``DYN_DISABLE_AUTH``: Provides the capability to dynamically disable Trusted
    Board Boot authentication at runtime. This option is meant to be enabled only
-   for development platforms. Both TRUSTED_BOARD_BOOT and LOAD_IMAGE_V2 flags
-   must be set if this flag has to be enabled. 0 is the default.
+   for development platforms. ``TRUSTED_BOARD_BOOT`` flag must be set if this
+   flag has to be enabled. 0 is the default.
 
 -  ``EL3_PAYLOAD_BASE``: This option enables booting an EL3 payload instead of
    the normal boot flow. It must specify the entry point address of the EL3
@@ -513,12 +508,6 @@ Common build options
 
 -  ``LDFLAGS``: Extra user options appended to the linkers' command line in
    addition to the one set by the build system.
-
--  ``LOAD_IMAGE_V2``: Boolean option to enable support for new version (v2) of
-   image loading, which provides more flexibility and scalability around what
-   images are loaded and executed during boot. Default is 0.
-
-   Note: this flag must be enabled for AArch32 builds.
 
 -  ``LOG_LEVEL``: Chooses the log level, which controls the amount of console log
    output compiled into the build. This should be one of the following:
@@ -844,9 +833,6 @@ Arm FVP platform specific build options
    -  ``FVP_GIC600`` : The GIC600 implementation of GICv3 is selected
    -  ``FVP_GICV2`` : The GICv2 only driver is selected
    -  ``FVP_GICV3`` : The GICv3 only driver is selected (default option)
-   -  ``FVP_GICV3_LEGACY``: The Legacy GICv3 driver is selected (deprecated)
-      Note: If TF-A is compiled with this option on FVPs with GICv3 hardware,
-      then it configures the hardware to run in GICv2 emulation mode
 
 -  ``FVP_USE_SP804_TIMER`` : Use the SP804 timer instead of the Generic Timer
    for functions that wait for an arbitrary time length (udelay and mdelay).
@@ -1085,18 +1071,6 @@ destination. In that case, use -f or --force to continue.
 
 More information about FIP can be found in the `Firmware Design`_ document.
 
-Migrating from fip\_create to fiptool
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The previous version of fiptool was called fip\_create. A compatibility script
-that emulates the basic functionality of the previous fip\_create is provided.
-However, users are strongly encouraged to migrate to fiptool.
-
--  To create a new FIP file, replace "fip\_create" with "fiptool create".
--  To update a FIP file, replace "fip\_create" with "fiptool update".
--  To dump the contents of a FIP file, replace "fip\_create --dump"
-   with "fiptool info".
-
 Building FIP images with support for Trusted Board Boot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1215,12 +1189,12 @@ command:
 
     make PLAT=<platform> [DEBUG=1] [V=1] certtool
 
-For platforms that do not require their own IDs in certificate files,
-the generic 'cert\_create' tool can be built with the following command:
+For platforms that require their own IDs in certificate files, the generic
+'cert\_create' tool can be built with the following command:
 
 ::
 
-    make USE_TBBR_DEFS=1 [DEBUG=1] [V=1] certtool
+    make USE_TBBR_DEFS=0 [DEBUG=1] [V=1] certtool
 
 ``DEBUG=1`` builds the tool in debug mode. ``V=1`` makes the build process more
 verbose. The following command should be used to obtain help about the tool:

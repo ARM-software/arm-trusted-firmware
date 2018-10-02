@@ -12,7 +12,6 @@
 #include <context_mgmt.h>
 #include <debug.h>
 #include <denver.h>
-#include <gic_v2.h>
 #include <interrupt_mgmt.h>
 #include <platform.h>
 #include <tegra_def.h>

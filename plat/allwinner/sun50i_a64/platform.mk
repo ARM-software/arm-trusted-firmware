@@ -42,13 +42,7 @@ ERRATA_A53_835769		:=	1
 ERRATA_A53_843419		:=	1
 ERRATA_A53_855873		:=	1
 
-# Disable the PSCI platform compatibility layer.
-ENABLE_PLAT_COMPAT		:= 	0
-
 MULTI_CONSOLE_API		:=	1
-
-# Prohibit using deprecated interfaces. We rely on this for this platform.
-ERROR_DEPRECATED		:=	1
 
 # The reset vector can be changed for each CPU.
 PROGRAMMABLE_RESET_ADDRESS	:=	1

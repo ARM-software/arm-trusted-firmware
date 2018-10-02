@@ -43,7 +43,7 @@ const mmap_region_t plat_arm_mmap[] = {
 #ifdef SPD_opteed
 	ARM_OPTEE_PAGEABLE_LOAD_MEM,
 #endif
-#if TRUSTED_BOARD_BOOT && LOAD_IMAGE_V2 && !BL2_AT_EL3
+#if TRUSTED_BOARD_BOOT && !BL2_AT_EL3
 	ARM_MAP_BL1_RW,
 #endif
 	{0}

@@ -39,7 +39,7 @@ void bl1_early_platform_setup(void)
  * does not do anything platform specific.
  *****************************************************************************/
 #ifdef AARCH32
-#define QEMU_CONFIGURE_BL1_MMU(...)	qemu_configure_mmu_secure(__VA_ARGS__)
+#define QEMU_CONFIGURE_BL1_MMU(...)	qemu_configure_mmu_svc_mon(__VA_ARGS__)
 #else
 #define QEMU_CONFIGURE_BL1_MMU(...)	qemu_configure_mmu_el3(__VA_ARGS__)
 #endif

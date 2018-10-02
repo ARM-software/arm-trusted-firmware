@@ -10,81 +10,11 @@
 #include <platform_def.h>
 
 	.local	platform_normal_stacks
-#if ENABLE_PLAT_COMPAT
-	.globl	plat_get_my_stack
-	.globl	plat_set_my_stack
-	.weak	platform_get_stack
-	.weak	platform_set_stack
-#else
 	.weak	plat_get_my_stack
 	.weak	plat_set_my_stack
 	.globl	platform_get_stack
 	.globl	platform_set_stack
-#endif /* __ENABLE_PLAT_COMPAT__ */
 
-#if ENABLE_PLAT_COMPAT
-	/* ---------------------------------------------------------------------
-	 * When the compatility layer is enabled, the new platform APIs
-	 * viz plat_get_my_stack() and plat_set_my_stack() need to be
-	 * defined using the previous APIs platform_get_stack() and
-	 * platform_set_stack(). Also we need to provide weak definitions
-	 * of platform_get_stack() and platform_set_stack() for the platforms
-	 * to reuse.
-	 * --------------------------------------------------------------------
-	 */
-
-	/* -----------------------------------------------------
-	 * unsigned long plat_get_my_stack ()
-	 *
-	 * For the current CPU, this function returns the stack
-	 * pointer for a stack allocated in device memory.
-	 * -----------------------------------------------------
-	 */
-func plat_get_my_stack
-	mrs	x0, mpidr_el1
-	b	platform_get_stack
-endfunc plat_get_my_stack
-
-	/* -----------------------------------------------------
-	 * void plat_set_my_stack ()
-	 *
-	 * For the current CPU, this function sets the stack
-	 * pointer to a stack allocated in normal memory.
-	 * -----------------------------------------------------
-	 */
-func plat_set_my_stack
-	mrs	x0, mpidr_el1
-	b	platform_set_stack
-endfunc plat_set_my_stack
-
-	/* -----------------------------------------------------
-	 * unsigned long platform_get_stack (unsigned long mpidr)
-	 *
-	 * For a given CPU, this function returns the stack
-	 * pointer for a stack allocated in device memory.
-	 * -----------------------------------------------------
-	 */
-func platform_get_stack
-	mov x10, x30 // lr
-	get_mp_stack platform_normal_stacks, PLATFORM_STACK_SIZE
-	ret x10
-endfunc platform_get_stack
-
-	/* -----------------------------------------------------
-	 * void platform_set_stack (unsigned long mpidr)
-	 *
-	 * For a given CPU, this function sets the stack pointer
-	 * to a stack allocated in normal memory.
-	 * -----------------------------------------------------
-	 */
-func platform_set_stack
-	mov x9, x30 // lr
-	bl  platform_get_stack
-	mov sp, x0
-	ret x9
-endfunc platform_set_stack
-
-#else
 	/* ---------------------------------------------------------------------
 	 * When the compatility layer is disabled, the new platform APIs
 	 * viz plat_get_my_stack() and plat_set_my_stack() are
@@ -95,44 +25,6 @@ endfunc platform_set_stack
 	 * old platform APIs to continue to work.
 	 * --------------------------------------------------------------------
 	 */
-
-	/* -------------------------------------------------------
-	 * unsigned long platform_get_stack (unsigned long mpidr)
-	 *
-	 * For the current CPU, this function returns the stack
-	 * pointer for a stack allocated in device memory. The
-	 * 'mpidr' should correspond to that of the current CPU.
-	 * This function is deprecated and plat_get_my_stack()
-	 * should be used instead.
-	 * -------------------------------------------------------
-	 */
-func_deprecated platform_get_stack
-#if ENABLE_ASSERTIONS
-	mrs	x1, mpidr_el1
-	cmp	x0, x1
-	ASM_ASSERT(eq)
-#endif
-	b	plat_get_my_stack
-endfunc_deprecated platform_get_stack
-
-	/* -----------------------------------------------------
-	 * void platform_set_stack (unsigned long mpidr)
-	 *
-	 * For the current CPU, this function sets the stack pointer
-	 * to a stack allocated in normal memory. The
-	 * 'mpidr' should correspond to that of the current CPU.
-	 * This function is deprecated and plat_get_my_stack()
-	 * should be used instead.
-	 * -----------------------------------------------------
-	 */
-func_deprecated platform_set_stack
-#if ENABLE_ASSERTIONS
-	mrs	x1, mpidr_el1
-	cmp	x0, x1
-	ASM_ASSERT(eq)
-#endif
-	b	plat_set_my_stack
-endfunc_deprecated platform_set_stack
 
 	/* -----------------------------------------------------
 	 * uintptr_t plat_get_my_stack ()
@@ -160,8 +52,6 @@ func plat_set_my_stack
 	mov	sp, x0
 	ret	x9
 endfunc plat_set_my_stack
-
-#endif /*__ENABLE_PLAT_COMPAT__*/
 
 	/* -----------------------------------------------------
 	 * Per-cpu stacks in normal memory. Each cpu gets a

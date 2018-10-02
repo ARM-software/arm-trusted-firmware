@@ -76,16 +76,6 @@ void arm_bl1_early_platform_setup(void)
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_tzram_layout.total_base = ARM_BL_RAM_BASE;
 	bl1_tzram_layout.total_size = ARM_BL_RAM_SIZE;
-
-#if !LOAD_IMAGE_V2
-	/* Calculate how much RAM BL1 is using and how much remains free */
-	bl1_tzram_layout.free_base = ARM_BL_RAM_BASE;
-	bl1_tzram_layout.free_size = ARM_BL_RAM_SIZE;
-	reserve_mem(&bl1_tzram_layout.free_base,
-		    &bl1_tzram_layout.free_size,
-		    BL1_RAM_BASE,
-		    BL1_RAM_LIMIT - BL1_RAM_BASE);
-#endif /* LOAD_IMAGE_V2 */
 }
 
 void bl1_early_platform_setup(void)
@@ -155,13 +145,12 @@ void arm_bl1_platform_setup(void)
 {
 	/* Initialise the IO layer and register platform IO devices */
 	plat_arm_io_setup();
-#if LOAD_IMAGE_V2
 	arm_load_tb_fw_config();
 #if TRUSTED_BOARD_BOOT
 	/* Share the Mbed TLS heap info with other images */
 	arm_bl1_set_mbedtls_heap();
 #endif /* TRUSTED_BOARD_BOOT */
-#endif /* LOAD_IMAGE_V2 */
+
 	/*
 	 * Allow access to the System counter timer module and program
 	 * counter frequency for non secure images during FWU

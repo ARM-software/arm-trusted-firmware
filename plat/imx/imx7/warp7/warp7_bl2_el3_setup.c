@@ -245,7 +245,7 @@ static void warp7_setup_usb_clocks(void)
 	imx_clock_enable_usb(CCM_CCGR_ID_USB_OTG2_PHY);
 }
 /*
- * bl2_early_platform_setup()
+ * bl2_el3_early_platform_setup()
  * MMU off
  */
 void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,

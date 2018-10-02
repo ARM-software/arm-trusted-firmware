@@ -5,11 +5,9 @@
  */
 
 #include <arch_helpers.h>
-#include <arm_gic.h>
 #include <assert.h>
 #include <bl_common.h>
 #include <debug.h>
-#include <gic_v2.h>
 #include <interrupt_mgmt.h>
 #include <platform.h>
 #include <stdint.h>
@@ -188,14 +186,9 @@ static uint32_t tegra_gic_interrupt_type_to_line(uint32_t type,
 	 * both normal and secure worlds are using ARM GICv2. This parameter
 	 * will be used when the secure world starts using GICv3.
 	 */
-#if ARM_GIC_ARCH == 2
 	return gicv2_interrupt_type_to_line(TEGRA_GICC_BASE, type);
-#else
-#error "Invalid ARM GIC architecture version specified for platform port"
-#endif /* ARM_GIC_ARCH */
 }
 
-#if ARM_GIC_ARCH == 2
 /*******************************************************************************
  * This function returns the type of the highest priority pending interrupt at
  * the GIC cpu interface. INTR_TYPE_INVAL is returned when there is no
@@ -295,10 +288,6 @@ static uint32_t tegra_gic_get_interrupt_type(uint32_t id)
 
 	return ret;
 }
-
-#else
-#error "Invalid ARM GIC architecture version specified for platform port"
-#endif /* ARM_GIC_ARCH */
 
 uint32_t plat_ic_get_pending_interrupt_id(void)
 {

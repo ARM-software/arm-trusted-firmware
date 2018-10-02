@@ -27,13 +27,14 @@ RK_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c		\
 				plat/common/plat_gicv2.c			\
 				${RK_PLAT}/common/rockchip_gicv2.c
 
-PLAT_BL_COMMON_SOURCES	:=	lib/aarch64/xlat_tables.c			\
-				plat/common/aarch64/plat_psci_common.c
+PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/aarch64/xlat_tables.c		\
+				lib/xlat_tables/xlat_tables_common.c		\
+				plat/common/plat_psci_common.c
 
 BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 				drivers/arm/cci/cci.c				\
-				drivers/console/console.S			\
-				drivers/ti/uart/16550_console.S			\
+				drivers/console/aarch64/console.S		\
+				drivers/ti/uart/aarch64/16550_console.S		\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
 				lib/cpus/aarch64/aem_generic.S			\
@@ -48,7 +49,6 @@ BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 				${RK_PLAT_SOC}/drivers/pmu/pmu.c		\
 				${RK_PLAT_SOC}/drivers/soc/soc.c
 
-ENABLE_PLAT_COMPAT 	:=	0
 MULTI_CONSOLE_API	:=	1
 
 include lib/coreboot/coreboot.mk

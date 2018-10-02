@@ -394,13 +394,9 @@ On Arm platforms, BL2 performs the following platform initializations:
 Image loading in BL2
 ^^^^^^^^^^^^^^^^^^^^
 
-Image loading scheme in BL2 depends on ``LOAD_IMAGE_V2`` build option. If the
-flag is disabled, the BLxx images are loaded, by calling the respective
-load\_blxx() function from BL2 generic code. If the flag is enabled, the BL2
-generic code loads the images based on the list of loadable images provided
-by the platform. BL2 passes the list of executable images provided by the
-platform to the next handover BL image. By default, this flag is disabled for
-AArch64 and the AArch32 build is supported only if this flag is enabled.
+BL2 generic code loads the images based on the list of loadable images
+provided by the platform. BL2 passes the list of executable images
+provided by the platform to the next handover BL image.
 
 The list of loadable images provided by the platform may also contain
 dynamic configuration files. The files are loaded and can be parsed as
@@ -425,10 +421,7 @@ EL3 Runtime Software image load
 
 BL2 loads the EL3 Runtime Software image from platform storage into a platform-
 specific address in trusted SRAM. If there is not enough memory to load the
-image or image is missing it leads to an assertion failure. If ``LOAD_IMAGE_V2``
-is disabled and if image loads successfully, BL2 updates the amount of trusted
-SRAM used and available for use by EL3 Runtime Software. This information is
-populated at a platform-specific memory address.
+image or image is missing it leads to an assertion failure.
 
 AArch64 BL32 (Secure-EL1 Payload) image load
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1281,47 +1274,22 @@ interrupts on the platform. To this end, the platform is expected to provide the
 GIC driver (either GICv2 or GICv3, as selected by the platform) with the
 interrupt configuration during the driver initialisation.
 
-There are two ways to specify secure interrupt configuration:
+Secure interrupt configuration are specified in an array of secure interrupt
+properties. In this scheme, in both GICv2 and GICv3 driver data structures, the
+``interrupt_props`` member points to an array of interrupt properties. Each
+element of the array specifies the interrupt number and its configuration, viz.
+priority, group, configuration. Each element of the array shall be populated by
+the macro ``INTR_PROP_DESC()``. The macro takes the following arguments:
 
-#. Array of secure interrupt properties: In this scheme, in both GICv2 and GICv3
-   driver data structures, the ``interrupt_props`` member points to an array of
-   interrupt properties. Each element of the array specifies the interrupt
-   number and its configuration, viz. priority, group, configuration. Each
-   element of the array shall be populated by the macro ``INTR_PROP_DESC()``.
-   The macro takes the following arguments:
+- 10-bit interrupt number,
 
-   -  10-bit interrupt number,
+- 8-bit interrupt priority,
 
-   -  8-bit interrupt priority,
+- Interrupt type (one of ``INTR_TYPE_EL3``, ``INTR_TYPE_S_EL1``,
+  ``INTR_TYPE_NS``),
 
-   -  Interrupt type (one of ``INTR_TYPE_EL3``, ``INTR_TYPE_S_EL1``,
-      ``INTR_TYPE_NS``),
-
-   -  Interrupt configuration (either ``GIC_INTR_CFG_LEVEL`` or
-      ``GIC_INTR_CFG_EDGE``).
-
-#. Array of secure interrupts: In this scheme, the GIC driver is provided an
-   array of secure interrupt numbers. The GIC driver, at the time of
-   initialisation, iterates through the array and assigns each interrupt
-   the appropriate group.
-
-   -  For the GICv2 driver, in ``gicv2_driver_data`` structure, the
-      ``g0_interrupt_array`` member of the should point to the array of
-      interrupts to be assigned to *Group 0*, and the ``g0_interrupt_num``
-      member of the should be set to the number of interrupts in the array.
-
-   -  For the GICv3 driver, in ``gicv3_driver_data`` structure:
-
-      -  The ``g0_interrupt_array`` member of the should point to the array of
-         interrupts to be assigned to *Group 0*, and the ``g0_interrupt_num``
-         member of the should be set to the number of interrupts in the array.
-
-      -  The ``g1s_interrupt_array`` member of the should point to the array of
-         interrupts to be assigned to *Group 1 Secure*, and the
-         ``g1s_interrupt_num`` member of the should be set to the number of
-         interrupts in the array.
-
-   **Note that this scheme is deprecated.**
+- Interrupt configuration (either ``GIC_INTR_CFG_LEVEL`` or
+  ``GIC_INTR_CFG_EDGE``).
 
 CPU specific operations framework
 ---------------------------------

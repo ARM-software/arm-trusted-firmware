@@ -37,7 +37,6 @@ void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 	assert(bl1_mem_layout != NULL);
 	assert(bl2_mem_layout != NULL);
 
-#if LOAD_IMAGE_V2
 	/*
 	 * Remove BL1 RW data from the scope of memory visible to BL2.
 	 * This is assuming BL1 RW data is at the top of bl1_mem_layout.
@@ -45,41 +44,9 @@ void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 	assert(BL1_RW_BASE > bl1_mem_layout->total_base);
 	bl2_mem_layout->total_base = bl1_mem_layout->total_base;
 	bl2_mem_layout->total_size = BL1_RW_BASE - bl1_mem_layout->total_base;
-#else
-	/* Check that BL1's memory is lying outside of the free memory */
-	assert((BL1_RAM_LIMIT <= bl1_mem_layout->free_base) ||
-	       (BL1_RAM_BASE >= bl1_mem_layout->free_base +
-				bl1_mem_layout->free_size));
-
-	/* Remove BL1 RW data from the scope of memory visible to BL2 */
-	*bl2_mem_layout = *bl1_mem_layout;
-	reserve_mem(&bl2_mem_layout->total_base,
-		    &bl2_mem_layout->total_size,
-		    BL1_RAM_BASE,
-		    BL1_RAM_LIMIT - BL1_RAM_BASE);
-#endif /* LOAD_IMAGE_V2 */
 
 	flush_dcache_range((unsigned long)bl2_mem_layout, sizeof(meminfo_t));
 }
-
-#if !ERROR_DEPRECATED
-/*******************************************************************************
- * Compatibility default implementation for deprecated API. This has a weak
- * definition. Platform specific code can override it if it wishes to.
- ******************************************************************************/
-#pragma weak bl1_init_bl2_mem_layout
-
-/*******************************************************************************
- * Function that takes a memory layout into which BL2 has been loaded and
- * populates a new memory layout for BL2 that ensures that BL1's data sections
- * resident in secure RAM are not visible to BL2.
- ******************************************************************************/
-void bl1_init_bl2_mem_layout(const struct meminfo *bl1_mem_layout,
-			     struct meminfo *bl2_mem_layout)
-{
-	bl1_calc_bl2_mem_layout(bl1_mem_layout, bl2_mem_layout);
-}
-#endif
 
 /*******************************************************************************
  * Function to perform late architectural and platform specific initialization.
@@ -183,27 +150,7 @@ static void bl1_load_bl2(void)
 		plat_error_handler(err);
 	}
 
-#if LOAD_IMAGE_V2
 	err = load_auth_image(BL2_IMAGE_ID, image_info);
-#else
-	entry_point_info_t *ep_info;
-	meminfo_t *bl1_tzram_layout;
-
-	/* Get the entry point info */
-	ep_info = &image_desc->ep_info;
-
-	/* Find out how much free trusted ram remains after BL1 load */
-	bl1_tzram_layout = bl1_plat_sec_mem_layout();
-
-	/* Load the BL2 image */
-	err = load_auth_image(bl1_tzram_layout,
-			 BL2_IMAGE_ID,
-			 image_info->image_base,
-			 image_info,
-			 ep_info);
-
-#endif /* LOAD_IMAGE_V2 */
-
 	if (err) {
 		ERROR("Failed to load BL2 firmware.\n");
 		plat_error_handler(err);

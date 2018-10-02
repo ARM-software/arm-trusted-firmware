@@ -48,5 +48,5 @@ ddr_resume:
 #endif
 	bl	sram_restore
 sys_resume:
-	bl	psci_entrypoint
+	bl	bl31_warm_entrypoint
 endfunc pmu_cpuson_entrypoint

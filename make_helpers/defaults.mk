@@ -23,10 +23,6 @@ ARCH				:= aarch64
 ARM_ARCH_MAJOR			:= 8
 ARM_ARCH_MINOR			:= 0
 
-# Determine the version of ARM GIC architecture to use for interrupt management
-# in EL3. The platform port can change this value if needed.
-ARM_GIC_ARCH			:= 2
-
 # Base commit to perform code check on
 BASE_COMMIT			:= origin/master
 
@@ -116,9 +112,6 @@ HW_ASSISTED_COHERENCY		:= 0
 # Set the default algorithm for the generation of Trusted Board Boot keys
 KEY_ALG				:= rsa
 
-# Flag to enable new version of image loading
-LOAD_IMAGE_V2			:= 0
-
 # Enable use of the console API allowing multiple consoles to be registered
 # at the same time.
 MULTI_CONSOLE_API		:= 0
@@ -169,14 +162,14 @@ SPIN_ON_BL1_EXIT		:= 0
 # Flags to build TF with Trusted Boot support
 TRUSTED_BOARD_BOOT		:= 0
 
-# Build option to choose whether Trusted firmware uses Coherent memory or not.
+# Build option to choose whether Trusted Firmware uses Coherent memory or not.
 USE_COHERENT_MEM		:= 1
 
-# Build option to choose wheter Trusted firmware uses library at ROM
-USE_ROMLIB				:= 0
+# Build option to choose whether Trusted Firmware uses library at ROM
+USE_ROMLIB			:= 0
 
 # Use tbbr_oid.h instead of platform_oid.h
-USE_TBBR_DEFS			= $(ERROR_DEPRECATED)
+USE_TBBR_DEFS			:= 1
 
 # Build verbosity
 V				:= 0

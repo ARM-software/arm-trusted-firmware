@@ -62,11 +62,6 @@
 
 #define PLAT_MAX_PWR_LVL		U(1)
 
-#define PLAT_ARM_G1S_IRQS		ARM_G1S_IRQS,			\
-					CSS_IRQ_MHU
-
-#define PLAT_ARM_G0_IRQS		ARM_G0_IRQS
-
 #define PLAT_ARM_G1S_IRQ_PROPS(grp)	CSS_G1S_IRQ_PROPS(grp)
 #define PLAT_ARM_G0_IRQ_PROPS(grp)	ARM_G0_IRQ_PROPS(grp)
 

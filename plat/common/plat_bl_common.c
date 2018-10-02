@@ -40,7 +40,6 @@ void bl2_plat_preload_setup(void)
 {
 }
 
-#if LOAD_IMAGE_V2
 int bl2_plat_handle_pre_image_load(unsigned int image_id)
 {
 	return 0;
@@ -50,27 +49,11 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	return 0;
 }
-#endif
 
 int plat_try_next_boot_source(void)
 {
 	return 0;
 }
-
-#if !ERROR_DEPRECATED
-#pragma weak bl2_early_platform_setup2
-
-/*
- * The following platform API implementation that allow compatibility for
- * the older platform APIs.
- */
-void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
-			u_register_t arg2, u_register_t arg3)
-{
-	bl2_early_platform_setup((void *)arg1);
-}
-#endif
-
 
 #if TRUSTED_BOARD_BOOT
 /*

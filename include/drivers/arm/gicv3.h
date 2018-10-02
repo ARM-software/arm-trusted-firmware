@@ -276,23 +276,6 @@ static inline void gicv3_end_of_interrupt(unsigned int id)
  * The 'gicr_base' field contains the base address of the Re-distributor
  * interface programmer's view.
  *
- * The 'g0_interrupt_array' field is a pointer to an array in which each entry
- * corresponds to an ID of a Group 0 interrupt. This field is ignored when
- * 'interrupt_props' field is used. This field is deprecated.
- *
- * The 'g0_interrupt_num' field contains the number of entries in the
- * 'g0_interrupt_array'. This field is ignored when 'interrupt_props' field is
- * used. This field is deprecated.
- *
- * The 'g1s_interrupt_array' field is a pointer to an array in which each entry
- * corresponds to an ID of a Group 1 interrupt. This field is ignored when
- * 'interrupt_props' field is used. This field is deprecated.
- *
- * The 'g1s_interrupt_num' field contains the number of entries in the
- * 'g1s_interrupt_array'. This field must be 0 if 'interrupt_props' field is
- * used. This field is ignored when 'interrupt_props' field is used. This field
- * is deprecated.
- *
  * The 'interrupt_props' field is a pointer to an array that enumerates secure
  * interrupts and their properties. If this field is not NULL, both
  * 'g0_interrupt_array' and 'g1s_interrupt_array' fields are ignored.
@@ -326,12 +309,6 @@ typedef unsigned int (*mpidr_hash_fn)(u_register_t mpidr);
 typedef struct gicv3_driver_data {
 	uintptr_t gicd_base;
 	uintptr_t gicr_base;
-#if !ERROR_DEPRECATED
-	unsigned int g0_interrupt_num __deprecated;
-	unsigned int g1s_interrupt_num __deprecated;
-	const unsigned int *g0_interrupt_array __deprecated;
-	const unsigned int *g1s_interrupt_array __deprecated;
-#endif
 	const interrupt_prop_t *interrupt_props;
 	unsigned int interrupt_props_num;
 	unsigned int rdistif_num;

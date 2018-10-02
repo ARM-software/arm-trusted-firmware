@@ -4,9 +4,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-# Enable version2 of image loading
-LOAD_IMAGE_V2	:=	1
-
 # Non-TF Boot ROM
 BL2_AT_EL3	:=	1
 
@@ -40,17 +37,16 @@ ifneq ($(BL32_EXTRA2),)
 $(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2))
 endif
 
-ENABLE_PLAT_COMPAT	:=	0
-
 USE_COHERENT_MEM	:=	1
 
 PLAT_INCLUDES		:=	-Iinclude/common/tbbr			\
 				-Iplat/hisilicon/hikey960/include
 
-PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/pl011_console.S	\
+PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/aarch64/pl011_console.S \
 				drivers/delay_timer/delay_timer.c	\
 				drivers/delay_timer/generic_delay_timer.c \
-				lib/aarch64/xlat_tables.c		\
+				lib/xlat_tables/aarch64/xlat_tables.c	\
+				lib/xlat_tables/xlat_tables_common.c	\
 				plat/hisilicon/hikey960/aarch64/hikey960_common.c \
 				plat/hisilicon/hikey960/hikey960_boardid.c
 
@@ -99,7 +95,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
 				lib/cpus/aarch64/cortex_a53.S           \
 				lib/cpus/aarch64/cortex_a72.S		\
 				lib/cpus/aarch64/cortex_a73.S		\
-				plat/common/aarch64/plat_psci_common.c  \
+				plat/common/plat_psci_common.c  \
 				plat/hisilicon/hikey960/aarch64/hikey960_helpers.S \
 				plat/hisilicon/hikey960/hikey960_bl31_setup.c \
 				plat/hisilicon/hikey960/hikey960_pm.c	\
@@ -112,8 +108,6 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
 include drivers/auth/mbedtls/mbedtls_crypto.mk
 include drivers/auth/mbedtls/mbedtls_x509.mk
-
-USE_TBBR_DEFS		:=	1
 
 AUTH_SOURCES		:=	drivers/auth/auth_mod.c			\
 				drivers/auth/crypto_mod.c		\

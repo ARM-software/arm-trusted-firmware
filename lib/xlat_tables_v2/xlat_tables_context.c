@@ -19,24 +19,6 @@
 uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
 
 /*
- * Each platform can define the size of its physical and virtual address spaces.
- * If the platform hasn't defined one or both of them, default to
- * ADDR_SPACE_SIZE. The latter is deprecated, though.
- */
-#if ERROR_DEPRECATED
-# ifdef ADDR_SPACE_SIZE
-#  error "ADDR_SPACE_SIZE is deprecated. Use PLAT_xxx_ADDR_SPACE_SIZE instead."
-# endif
-#elif defined(ADDR_SPACE_SIZE)
-# ifndef PLAT_PHY_ADDR_SPACE_SIZE
-#  define PLAT_PHY_ADDR_SPACE_SIZE	ADDR_SPACE_SIZE
-# endif
-# ifndef PLAT_VIRT_ADDR_SPACE_SIZE
-#  define PLAT_VIRT_ADDR_SPACE_SIZE	ADDR_SPACE_SIZE
-# endif
-#endif
-
-/*
  * Allocate and initialise the default translation context for the BL image
  * currently executing.
  */
@@ -120,18 +102,6 @@ int xlat_change_mem_attributes(uintptr_t base_va, size_t size, uint32_t attr)
 #endif
 
 #ifdef AARCH32
-
-#if !ERROR_DEPRECATED
-void enable_mmu_secure(unsigned int flags)
-{
-	enable_mmu_svc_mon(flags);
-}
-
-void enable_mmu_direct(unsigned int flags)
-{
-	enable_mmu_direct_svc_mon(flags);
-}
-#endif
 
 void enable_mmu_svc_mon(unsigned int flags)
 {

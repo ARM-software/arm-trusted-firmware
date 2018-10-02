@@ -8,7 +8,7 @@
 #define __PLAT_MACROS_S__
 
 #include <cci.h>
-#include <gic_v2.h>
+#include <gicv2.h>
 #include <hi6220.h>
 #include <platform_def.h>
 

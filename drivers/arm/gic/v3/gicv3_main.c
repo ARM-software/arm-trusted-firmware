@@ -67,45 +67,8 @@ void gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 
 	assert(IS_IN_EL3());
 
-#if !ERROR_DEPRECATED
-	if (plat_driver_data->interrupt_props == NULL) {
-		/* Interrupt properties array size must be 0 */
-		assert(plat_driver_data->interrupt_props_num == 0);
-
-		/*
-		 * Suppress deprecated declaration warnings in compatibility
-		 * function
-		 */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
-		/*
-		 * The platform should provide a list of at least one type of
-		 * interrupt.
-		 */
-		assert(plat_driver_data->g0_interrupt_array ||
-				plat_driver_data->g1s_interrupt_array);
-
-		/*
-		 * If there are no interrupts of a particular type, then the
-		 * number of interrupts of that type should be 0 and vice-versa.
-		 */
-		assert(plat_driver_data->g0_interrupt_array ?
-				plat_driver_data->g0_interrupt_num :
-				plat_driver_data->g0_interrupt_num == 0);
-		assert(plat_driver_data->g1s_interrupt_array ?
-				plat_driver_data->g1s_interrupt_num :
-				plat_driver_data->g1s_interrupt_num == 0);
-#pragma GCC diagnostic pop
-
-		WARN("Using deprecated integer interrupt arrays in "
-		     "gicv3_driver_data_t\n");
-		WARN("Please migrate to using interrupt_prop_t arrays\n");
-	}
-#else
 	assert(plat_driver_data->interrupt_props_num > 0 ?
 	       plat_driver_data->interrupt_props != NULL : 1);
-#endif
 
 	/* Check for system register support */
 #ifdef AARCH32
@@ -193,45 +156,10 @@ void gicv3_distif_init(void)
 	/* Set the default attribute of all SPIs */
 	gicv3_spis_config_defaults(gicv3_driver_data->gicd_base);
 
-#if !ERROR_DEPRECATED
-	if (gicv3_driver_data->interrupt_props != NULL) {
-#endif
-		bitmap = gicv3_secure_spis_config_props(
-				gicv3_driver_data->gicd_base,
-				gicv3_driver_data->interrupt_props,
-				gicv3_driver_data->interrupt_props_num);
-#if !ERROR_DEPRECATED
-	} else {
-		/*
-		 * Suppress deprecated declaration warnings in compatibility
-		 * function
-		 */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
-		assert(gicv3_driver_data->g1s_interrupt_array ||
-				gicv3_driver_data->g0_interrupt_array);
-
-		/* Configure the G1S SPIs */
-		if (gicv3_driver_data->g1s_interrupt_array) {
-			gicv3_secure_spis_config(gicv3_driver_data->gicd_base,
-					gicv3_driver_data->g1s_interrupt_num,
-					gicv3_driver_data->g1s_interrupt_array,
-					INTR_GROUP1S);
-			bitmap |= CTLR_ENABLE_G1S_BIT;
-		}
-
-		/* Configure the G0 SPIs */
-		if (gicv3_driver_data->g0_interrupt_array) {
-			gicv3_secure_spis_config(gicv3_driver_data->gicd_base,
-					gicv3_driver_data->g0_interrupt_num,
-					gicv3_driver_data->g0_interrupt_array,
-					INTR_GROUP0);
-			bitmap |= CTLR_ENABLE_G0_BIT;
-		}
-#pragma GCC diagnostic pop
-	}
-#endif
+	bitmap = gicv3_secure_spis_config_props(
+			gicv3_driver_data->gicd_base,
+			gicv3_driver_data->interrupt_props,
+			gicv3_driver_data->interrupt_props_num);
 
 	/* Enable the secure SPIs now that they have been configured */
 	gicd_set_ctlr(gicv3_driver_data->gicd_base, bitmap, RWP_TRUE);
@@ -266,44 +194,9 @@ void gicv3_rdistif_init(unsigned int proc_num)
 	/* Set the default attribute of all SGIs and PPIs */
 	gicv3_ppi_sgi_config_defaults(gicr_base);
 
-#if !ERROR_DEPRECATED
-	if (gicv3_driver_data->interrupt_props != NULL) {
-#endif
-		bitmap = gicv3_secure_ppi_sgi_config_props(gicr_base,
-				gicv3_driver_data->interrupt_props,
-				gicv3_driver_data->interrupt_props_num);
-#if !ERROR_DEPRECATED
-	} else {
-		/*
-		 * Suppress deprecated declaration warnings in compatibility
-		 * function
-		 */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
-		assert(gicv3_driver_data->g1s_interrupt_array ||
-		       gicv3_driver_data->g0_interrupt_array);
-
-		/* Configure the G1S SGIs/PPIs */
-		if (gicv3_driver_data->g1s_interrupt_array) {
-			gicv3_secure_ppi_sgi_config(gicr_base,
-					gicv3_driver_data->g1s_interrupt_num,
-					gicv3_driver_data->g1s_interrupt_array,
-					INTR_GROUP1S);
-			bitmap |= CTLR_ENABLE_G1S_BIT;
-		}
-
-		/* Configure the G0 SGIs/PPIs */
-		if (gicv3_driver_data->g0_interrupt_array) {
-			gicv3_secure_ppi_sgi_config(gicr_base,
-					gicv3_driver_data->g0_interrupt_num,
-					gicv3_driver_data->g0_interrupt_array,
-					INTR_GROUP0);
-			bitmap |= CTLR_ENABLE_G0_BIT;
-		}
-#pragma GCC diagnostic pop
-	}
-#endif
+	bitmap = gicv3_secure_ppi_sgi_config_props(gicr_base,
+			gicv3_driver_data->interrupt_props,
+			gicv3_driver_data->interrupt_props_num);
 
 	/* Enable interrupt groups as required, if not already */
 	if ((ctlr & bitmap) != bitmap)

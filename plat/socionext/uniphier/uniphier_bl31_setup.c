@@ -28,8 +28,13 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 	return type == NON_SECURE ? &bl33_image_ep_info : &bl32_image_ep_info;
 }
 
-void bl31_early_platform_setup(void *from_bl2, void *plat_params_from_bl2)
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+				u_register_t arg2, u_register_t arg3)
 {
+	void *from_bl2;
+
+	from_bl2 = (void *) arg0;
+
 	bl_params_node_t *bl_params = ((bl_params_t *)from_bl2)->head;
 
 	uniphier_console_setup();

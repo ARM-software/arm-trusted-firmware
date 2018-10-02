@@ -88,12 +88,10 @@
 #define BL32_DRAM_BASE			0x03000000
 #define BL32_DRAM_LIMIT			0x04000000
 
-#if LOAD_IMAGE_V2
 #ifdef SPD_opteed
 /* Load pageable part of OP-TEE at end of allocated DRAM space for BL32 */
 #define POPLAR_OPTEE_PAGEABLE_LOAD_SIZE	0x400000 /* 4MB */
 #define POPLAR_OPTEE_PAGEABLE_LOAD_BASE	(BL32_DRAM_LIMIT - POPLAR_OPTEE_PAGEABLE_LOAD_SIZE) /* 0x03C0_0000 */
-#endif
 #endif
 
 #if (POPLAR_TSP_RAM_LOCATION_ID == POPLAR_DRAM_ID)
@@ -122,7 +120,8 @@
 #define PLAT_POPLAR_NS_IMAGE_OFFSET	0x37000000
 
 /* Page table and MMU setup constants */
-#define ADDR_SPACE_SIZE			(1ULL << 32)
+#define PLAT_VIRT_ADDR_SPACE_SIZE   (1ULL << 32)
+#define PLAT_PHY_ADDR_SPACE_SIZE    (1ULL << 32)
 #define MAX_XLAT_TABLES			(4)
 #define MAX_MMAP_REGIONS		(16)
 

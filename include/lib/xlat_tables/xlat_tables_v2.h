@@ -104,10 +104,6 @@
 #define MT_RO_DATA		(MT_MEMORY | MT_RO | MT_EXECUTE_NEVER)
 #define MT_RW_DATA		(MT_MEMORY | MT_RW | MT_EXECUTE_NEVER)
 
-#if !ERROR_DEPRECATED
-typedef unsigned int mmap_attr_t;
-#endif
-
 /*
  * Structure for specifying a single region of memory.
  */

@@ -13,9 +13,6 @@ $(eval $(call add_define,CRASH_REPORTING))
 # enable assert() for release/debug builds
 ENABLE_ASSERTIONS	:=	1
 
-# Disable the PSCI platform compatibility layer
-ENABLE_PLAT_COMPAT	:=	0
-
 # enable dynamic memory mapping
 PLAT_XLAT_TABLES_DYNAMIC :=	1
 $(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))

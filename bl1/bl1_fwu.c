@@ -291,26 +291,11 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 			return -ENOMEM;
 		}
 
-#if LOAD_IMAGE_V2
 		/* Check that the image size to load is within limit */
 		if (image_size > image_desc->image_info.image_max_size) {
 			WARN("BL1-FWU: Image size out of bounds\n");
 			return -ENOMEM;
 		}
-#else
-		/*
-		 * Check the image will fit into the free trusted RAM after BL1
-		 * load.
-		 */
-		const meminfo_t *mem_layout = bl1_plat_sec_mem_layout();
-		if (!is_mem_free(mem_layout->free_base, mem_layout->free_size,
-					image_desc->image_info.image_base,
-					image_size)) {
-			WARN("BL1-FWU: Copy not allowed due to insufficient"
-			     " resources.\n");
-			return -ENOMEM;
-		}
-#endif
 
 		/* Save the given image size. */
 		image_desc->image_info.image_size = image_size;

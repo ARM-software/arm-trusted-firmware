@@ -145,12 +145,6 @@
  * terminology. On a GICv2 system or mode, the lists will be merged and treated
  * as Group 0 interrupts.
  */
-#define PLAT_ARM_G1S_IRQS		ARM_G1S_IRQS,			\
-					FVP_IRQ_TZ_WDOG,		\
-					FVP_IRQ_SEC_SYS_TIMER
-
-#define PLAT_ARM_G0_IRQS		ARM_G0_IRQS
-
 #define PLAT_ARM_G1S_IRQ_PROPS(grp) \
 	ARM_G1S_IRQ_PROPS(grp), \
 	INTR_PROP_DESC(FVP_IRQ_TZ_WDOG, GIC_HIGHEST_SEC_PRIORITY, grp, \

@@ -21,9 +21,7 @@
 
 /* Conditionally provide a weak definition of plat_get_syscnt_freq2 to avoid
  * conflicts with the definition in plat/common. */
-#if ERROR_DEPRECATED
 #pragma weak plat_get_syscnt_freq2
-#endif
 
 
 void arm_setup_romlib(void)

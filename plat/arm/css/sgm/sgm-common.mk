@@ -48,9 +48,6 @@ BL31_SOURCES		+=	$(SGM_CPU_SOURCES)			\
 # sgm uses CCI-500 as Cache Coherent Interconnect
 ARM_CCI_PRODUCT_ID	:=	500
 
-# Disable the PSCI platform compatibility layer
-ENABLE_PLAT_COMPAT	:=	0
-
 # System coherency is managed in hardware
 HW_ASSISTED_COHERENCY	:=	1
 

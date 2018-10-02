@@ -23,14 +23,3 @@ void sp_min_plat_runtime_setup(void)
 	 */
 	console_uninit();
 }
-
-#if !ERROR_DEPRECATED
-
-#pragma weak sp_min_early_platform_setup2
-
-void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
-			u_register_t arg2, u_register_t arg3)
-{
-	sp_min_early_platform_setup((void *)arg0, (void *)arg1);
-}
-#endif

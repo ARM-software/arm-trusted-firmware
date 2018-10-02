@@ -67,11 +67,6 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 
 #ifdef AARCH32
 /* AArch32 specific translation table API */
-#if !ERROR_DEPRECATED
-void enable_mmu_secure(unsigned int flags);
-void enable_mmu_direct(unsigned int flags);
-#endif
-
 void enable_mmu_svc_mon(unsigned int flags);
 void enable_mmu_hyp(unsigned int flags);
 

@@ -12,10 +12,6 @@ Trusted Firmware-A Porting Guide
 Introduction
 ------------
 
-Please note that this document has been updated for the new platform API
-as required by the PSCI v1.0 implementation. Please refer to the
-`Migration Guide`_ for the previous platform API.
-
 Porting Trusted Firmware-A (TF-A) to a new platform involves making some
 mandatory and optional modifications for both the cold and warm boot paths.
 Modifications consist of:
@@ -480,13 +476,6 @@ constants must also be defined:
    required regions for each BL stage. If ``PLAT_XLAT_TABLES_DYNAMIC`` flag is
    enabled for a BL image, ``MAX_MMAP_REGIONS`` must be defined to accommodate
    the dynamic regions as well.
-
--  **#define : ADDR\_SPACE\_SIZE**
-
-   Defines the total size of the address space in bytes. For example, for a 32
-   bit address space, this value should be ``(1ULL << 32)``. This definition is
-   now deprecated, platforms should use ``PLAT_PHY_ADDR_SPACE_SIZE`` and
-   ``PLAT_VIRT_ADDR_SPACE_SIZE`` instead.
 
 -  **#define : PLAT\_VIRT\_ADDR\_SPACE\_SIZE**
 
@@ -2976,12 +2965,6 @@ The default implementation of this function calls
 Build flags
 -----------
 
--  **ENABLE\_PLAT\_COMPAT**
-   All the platforms ports conforming to this API specification should define
-   the build flag ``ENABLE_PLAT_COMPAT`` to 0 as the compatibility layer should
-   be disabled. For more details on compatibility layer, refer
-   `Migration Guide`_.
-
 There are some build flags which can be defined by the platform to control
 inclusion or exclusion of certain BL stages from the FIP image. These flags
 need to be defined in the platform makefile which will get included by the
@@ -3067,7 +3050,6 @@ amount of open resources per driver.
 
 *Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.*
 
-.. _Migration Guide: platform-migration-guide.rst
 .. _include/plat/common/platform.h: ../include/plat/common/platform.h
 .. _include/plat/arm/common/plat\_arm.h: ../include/plat/arm/common/plat_arm.h%5D
 .. _User Guide: user-guide.rst

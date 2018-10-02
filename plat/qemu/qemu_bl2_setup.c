@@ -20,103 +20,6 @@
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 
-#if !LOAD_IMAGE_V2
-/*******************************************************************************
- * This structure represents the superset of information that is passed to
- * BL3-1, e.g. while passing control to it from BL2, bl31_params
- * and other platform specific params
- ******************************************************************************/
-typedef struct bl2_to_bl31_params_mem {
-	bl31_params_t bl31_params;
-	image_info_t bl31_image_info;
-	image_info_t bl32_image_info;
-	image_info_t bl33_image_info;
-	entry_point_info_t bl33_ep_info;
-	entry_point_info_t bl32_ep_info;
-	entry_point_info_t bl31_ep_info;
-} bl2_to_bl31_params_mem_t;
-
-
-static bl2_to_bl31_params_mem_t bl31_params_mem;
-
-
-meminfo_t *bl2_plat_sec_mem_layout(void)
-{
-	return &bl2_tzram_layout;
-}
-
-/*******************************************************************************
- * This function assigns a pointer to the memory that the platform has kept
- * aside to pass platform specific and trusted firmware related information
- * to BL31. This memory is allocated by allocating memory to
- * bl2_to_bl31_params_mem_t structure which is a superset of all the
- * structure whose information is passed to BL31
- * NOTE: This function should be called only once and should be done
- * before generating params to BL31
- ******************************************************************************/
-bl31_params_t *bl2_plat_get_bl31_params(void)
-{
-	bl31_params_t *bl2_to_bl31_params;
-
-	/*
-	 * Initialise the memory for all the arguments that needs to
-	 * be passed to BL3-1
-	 */
-	zeromem(&bl31_params_mem, sizeof(bl2_to_bl31_params_mem_t));
-
-	/* Assign memory for TF related information */
-	bl2_to_bl31_params = &bl31_params_mem.bl31_params;
-	SET_PARAM_HEAD(bl2_to_bl31_params, PARAM_BL31, VERSION_1, 0);
-
-	/* Fill BL3-1 related information */
-	bl2_to_bl31_params->bl31_image_info = &bl31_params_mem.bl31_image_info;
-	SET_PARAM_HEAD(bl2_to_bl31_params->bl31_image_info, PARAM_IMAGE_BINARY,
-		VERSION_1, 0);
-
-	/* Fill BL3-2 related information */
-	bl2_to_bl31_params->bl32_ep_info = &bl31_params_mem.bl32_ep_info;
-	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_ep_info, PARAM_EP,
-		VERSION_1, 0);
-	bl2_to_bl31_params->bl32_image_info = &bl31_params_mem.bl32_image_info;
-	SET_PARAM_HEAD(bl2_to_bl31_params->bl32_image_info, PARAM_IMAGE_BINARY,
-		VERSION_1, 0);
-
-	/* Fill BL3-3 related information */
-	bl2_to_bl31_params->bl33_ep_info = &bl31_params_mem.bl33_ep_info;
-	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_ep_info,
-		PARAM_EP, VERSION_1, 0);
-
-	/* BL3-3 expects to receive the primary CPU MPID (through x0) */
-	bl2_to_bl31_params->bl33_ep_info->args.arg0 = 0xffff & read_mpidr();
-
-	bl2_to_bl31_params->bl33_image_info = &bl31_params_mem.bl33_image_info;
-	SET_PARAM_HEAD(bl2_to_bl31_params->bl33_image_info, PARAM_IMAGE_BINARY,
-		VERSION_1, 0);
-
-	return bl2_to_bl31_params;
-}
-
-/* Flush the TF params and the TF plat params */
-void bl2_plat_flush_bl31_params(void)
-{
-	flush_dcache_range((unsigned long)&bl31_params_mem,
-			sizeof(bl2_to_bl31_params_mem_t));
-}
-
-/*******************************************************************************
- * This function returns a pointer to the shared memory that the platform
- * has kept to point to entry point information of BL31 to BL2
- ******************************************************************************/
-struct entry_point_info *bl2_plat_get_bl31_ep_info(void)
-{
-#if DEBUG
-	bl31_params_mem.bl31_ep_info.args.arg1 = QEMU_BL31_PLAT_PARAM_VAL;
-#endif
-
-	return &bl31_params_mem.bl31_ep_info;
-}
-#endif /* !LOAD_IMAGE_V2 */
-
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 			       u_register_t arg2, u_register_t arg3)
 {
@@ -174,7 +77,7 @@ void bl2_platform_setup(void)
 }
 
 #ifdef AARCH32
-#define QEMU_CONFIGURE_BL2_MMU(...)	qemu_configure_mmu_secure(__VA_ARGS__)
+#define QEMU_CONFIGURE_BL2_MMU(...)	qemu_configure_mmu_svc_mon(__VA_ARGS__)
 #else
 #define QEMU_CONFIGURE_BL2_MMU(...)	qemu_configure_mmu_el1(__VA_ARGS__)
 #endif
@@ -231,7 +134,6 @@ static uint32_t qemu_get_spsr_for_bl33_entry(void)
 	return spsr;
 }
 
-#if LOAD_IMAGE_V2
 static int qemu_bl2_handle_post_image_load(unsigned int image_id)
 {
 	int err = 0;
@@ -304,75 +206,6 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	return qemu_bl2_handle_post_image_load(image_id);
 }
-
-#else /* LOAD_IMAGE_V2 */
-
-/*******************************************************************************
- * Before calling this function BL3-1 is loaded in memory and its entrypoint
- * is set by load_image. This is a placeholder for the platform to change
- * the entrypoint of BL3-1 and set SPSR and security state.
- * On ARM standard platforms we only set the security state of the entrypoint
- ******************************************************************************/
-void bl2_plat_set_bl31_ep_info(image_info_t *bl31_image_info,
-					entry_point_info_t *bl31_ep_info)
-{
-	SET_SECURITY_STATE(bl31_ep_info->h.attr, SECURE);
-	bl31_ep_info->spsr = SPSR_64(MODE_EL3, MODE_SP_ELX,
-					DISABLE_ALL_EXCEPTIONS);
-}
-
-/*******************************************************************************
- * Before calling this function BL3-2 is loaded in memory and its entrypoint
- * is set by load_image. This is a placeholder for the platform to change
- * the entrypoint of BL3-2 and set SPSR and security state.
- * On ARM standard platforms we only set the security state of the entrypoint
- ******************************************************************************/
-void bl2_plat_set_bl32_ep_info(image_info_t *bl32_image_info,
-					entry_point_info_t *bl32_ep_info)
-{
-	SET_SECURITY_STATE(bl32_ep_info->h.attr, SECURE);
-	bl32_ep_info->spsr = qemu_get_spsr_for_bl32_entry();
-}
-
-/*******************************************************************************
- * Before calling this function BL3-3 is loaded in memory and its entrypoint
- * is set by load_image. This is a placeholder for the platform to change
- * the entrypoint of BL3-3 and set SPSR and security state.
- * On ARM standard platforms we only set the security state of the entrypoint
- ******************************************************************************/
-void bl2_plat_set_bl33_ep_info(image_info_t *image,
-					entry_point_info_t *bl33_ep_info)
-{
-
-	SET_SECURITY_STATE(bl33_ep_info->h.attr, NON_SECURE);
-	bl33_ep_info->spsr = qemu_get_spsr_for_bl33_entry();
-}
-
-/*******************************************************************************
- * Populate the extents of memory available for loading BL32
- ******************************************************************************/
-void bl2_plat_get_bl32_meminfo(meminfo_t *bl32_meminfo)
-{
-	/*
-	 * Populate the extents of memory available for loading BL32.
-	 */
-	bl32_meminfo->total_base = BL32_BASE;
-	bl32_meminfo->free_base = BL32_BASE;
-	bl32_meminfo->total_size = (BL32_MEM_BASE + BL32_MEM_SIZE) - BL32_BASE;
-	bl32_meminfo->free_size = (BL32_MEM_BASE + BL32_MEM_SIZE) - BL32_BASE;
-}
-
-/*******************************************************************************
- * Populate the extents of memory available for loading BL33
- ******************************************************************************/
-void bl2_plat_get_bl33_meminfo(meminfo_t *bl33_meminfo)
-{
-	bl33_meminfo->total_base = NS_DRAM0_BASE;
-	bl33_meminfo->total_size = NS_DRAM0_SIZE;
-	bl33_meminfo->free_base = NS_DRAM0_BASE;
-	bl33_meminfo->free_size = NS_DRAM0_SIZE;
-}
-#endif /* !LOAD_IMAGE_V2 */
 
 uintptr_t plat_get_ns_image_entrypoint(void)
 {

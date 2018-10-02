@@ -65,7 +65,6 @@ BL31_SOURCES	+=	${RK_GIC_SOURCES}				\
 			${RK_PLAT_SOC}/drivers/dram/dram_spec_timing.c	\
 			${RK_PLAT_SOC}/drivers/dram/suspend.c
 
-ENABLE_PLAT_COMPAT	:=	0
 MULTI_CONSOLE_API	:=	1
 
 include lib/coreboot/coreboot.mk

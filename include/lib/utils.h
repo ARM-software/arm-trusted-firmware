@@ -7,10 +7,6 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#if !ERROR_DEPRECATED
-#include <utils_def.h>
-#endif
-
 /*
  * C code should be put in this part of the header to avoid breaking ASM files
  * or linker scripts including it.

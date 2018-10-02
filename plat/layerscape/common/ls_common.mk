@@ -13,13 +13,6 @@ LS1043_DISABLE_TRUSTED_WDOG	:=	1
 # mapping the former as executable and the latter as execute-never.
 SEPARATE_CODE_AND_RODATA	:=	1
 
-# Enable new version of image loading on Layerscape platforms
-LOAD_IMAGE_V2			:=	1
-
-# Use generic OID definition (tbbr_oid.h)
-USE_TBBR_DEFS			:=	1
-
-
 COLD_BOOT_SINGLE_CPU		:=	1
 
 PLAT_INCLUDES		+=	-Iinclude/common/tbbr
@@ -54,9 +47,3 @@ BL31_SOURCES		+=	plat/layerscape/common/ls_bl31_setup.c		\
 				plat/layerscape/common/ls_topology.c			\
 				plat/layerscape/common/ns_access.c		\
 				plat/common/plat_psci_common.c
-# Verify build config
-# -------------------
-
-ifneq (${LOAD_IMAGE_V2}, 1)
-  $(error Error: Layerscape needs LOAD_IMAGE_V2=1)
-endif

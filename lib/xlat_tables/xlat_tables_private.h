@@ -15,23 +15,6 @@
 #error xlat tables v2 must be used with HW_ASSISTED_COHERENCY
 #endif
 
-/*
- * If the platform hasn't defined a physical and a virtual address space size
- * default to ADDR_SPACE_SIZE.
- */
-#if ERROR_DEPRECATED
-# ifdef ADDR_SPACE_SIZE
-#  error "ADDR_SPACE_SIZE is deprecated. Use PLAT_xxx_ADDR_SPACE_SIZE instead."
-# endif
-#elif defined(ADDR_SPACE_SIZE)
-# ifndef PLAT_PHY_ADDR_SPACE_SIZE
-#  define PLAT_PHY_ADDR_SPACE_SIZE	ADDR_SPACE_SIZE
-# endif
-# ifndef PLAT_VIRT_ADDR_SPACE_SIZE
-#  define PLAT_VIRT_ADDR_SPACE_SIZE	ADDR_SPACE_SIZE
-# endif
-#endif
-
 CASSERT(CHECK_VIRT_ADDR_SPACE_SIZE(PLAT_VIRT_ADDR_SPACE_SIZE),
 	assert_valid_virt_addr_space_size);
 

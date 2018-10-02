@@ -14,11 +14,7 @@ ifeq (${ARCH},aarch64)
 BL2_SOURCES		+=	common/aarch64/early_exceptions.S
 endif
 
-ifeq (${LOAD_IMAGE_V2},1)
 BL2_SOURCES		+=	bl2/bl2_image_load_v2.c
-else
-BL2_SOURCES		+=	bl2/bl2_image_load.c
-endif
 
 ifeq (${BL2_AT_EL3},0)
 BL2_SOURCES		+=	bl2/${ARCH}/bl2_entrypoint.S

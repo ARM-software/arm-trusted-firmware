@@ -1,23 +1,24 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <gicv2.h>
-#include <plat_arm.h>
+#include <interrupt_props.h>
 #include <platform.h>
 #include <platform_def.h>
 
-const unsigned int g0_interrupt_array[] = {
-	PLAT_ARM_G0_IRQS
+static const interrupt_prop_t g0_interrupt_props[] = {
+	INTR_PROP_DESC(FIQ_SMP_CALL_SGI, GIC_HIGHEST_SEC_PRIORITY,
+		       GICV2_INTR_GROUP0, GIC_INTR_CFG_LEVEL),
 };
 
 gicv2_driver_data_t arm_gic_data = {
 	.gicd_base = BASE_GICD_BASE,
 	.gicc_base = BASE_GICC_BASE,
-	.g0_interrupt_num = ARRAY_SIZE(g0_interrupt_array),
-	.g0_interrupt_array = g0_interrupt_array,
+	.interrupt_props = g0_interrupt_props,
+	.interrupt_props_num = ARRAY_SIZE(g0_interrupt_props),
 };
 
 void plat_mt_gic_driver_init(void)

@@ -24,6 +24,15 @@ extern const mmap_region_t plat_marvell_mmap[];
 		<= MAX_MMAP_REGIONS,					\
 		assert_max_mmap_regions)
 
+struct marvell_bl31_params {
+       param_header_t h;
+       image_info_t *bl31_image_info;
+       entry_point_info_t *bl32_ep_info;
+       image_info_t *bl32_image_info;
+       entry_point_info_t *bl33_ep_info;
+       image_info_t *bl33_image_info;
+};
+
 /*
  * Utility functions common to Marvell standard platforms
  */
@@ -67,7 +76,7 @@ uint32_t marvell_get_spsr_for_bl32_entry(void);
 uint32_t marvell_get_spsr_for_bl33_entry(void);
 
 /* BL31 utility functions */
-void marvell_bl31_early_platform_setup(struct bl31_params *from_bl2,
+void marvell_bl31_early_platform_setup(void *from_bl2,
 				       uintptr_t soc_fw_config,
 				       uintptr_t hw_config,
 				       void *plat_params_from_bl2);

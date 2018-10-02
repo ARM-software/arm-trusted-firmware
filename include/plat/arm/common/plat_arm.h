@@ -17,7 +17,6 @@
 /*******************************************************************************
  * Forward declarations
  ******************************************************************************/
-struct bl31_params;
 struct meminfo;
 struct image_info;
 struct bl_params;
@@ -197,13 +196,8 @@ void arm_bl2u_platform_setup(void);
 void arm_bl2u_plat_arch_setup(void);
 
 /* BL31 utility functions */
-#if LOAD_IMAGE_V2
 void arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_config,
 				uintptr_t hw_config, void *plat_params_from_bl2);
-#else
-void arm_bl31_early_platform_setup(struct bl31_params *from_bl2, uintptr_t soc_fw_config,
-				uintptr_t hw_config, void *plat_params_from_bl2);
-#endif /* LOAD_IMAGE_V2 */
 void arm_bl31_platform_setup(void);
 void arm_bl31_plat_runtime_setup(void);
 void arm_bl31_plat_arch_setup(void);
@@ -252,13 +246,11 @@ void plat_arm_error_handler(int err);
 unsigned int plat_arm_get_cpu_pe_count(u_register_t mpidr);
 #endif
 
-#if LOAD_IMAGE_V2
 /*
  * This function is called after loading SCP_BL2 image and it is used to perform
  * any platform-specific actions required to handle the SCP firmware.
  */
 int plat_arm_bl2_handle_scp_bl2(struct image_info *scp_bl2_image_info);
-#endif
 
 /*
  * Optional functions required in ARM standard platforms

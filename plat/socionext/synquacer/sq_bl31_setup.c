@@ -55,8 +55,8 @@ uint32_t sq_get_spsr_for_bl33_entry(void)
 	return spsr;
 }
 
-void bl31_early_platform_setup(bl31_params_t *from_bl2,
-				void *plat_params_from_bl2)
+void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
+				u_register_t arg2, u_register_t arg3)
 {
 	/* Initialize the console to provide early debug support */
 	(void)console_pl011_register(PLAT_SQ_BOOT_UART_BASE,
@@ -67,8 +67,8 @@ void bl31_early_platform_setup(bl31_params_t *from_bl2,
 			  CONSOLE_FLAG_RUNTIME);
 
 	/* There are no parameters from BL2 if BL31 is a reset vector */
-	assert(from_bl2 == NULL);
-	assert(plat_params_from_bl2 == NULL);
+	assert(arg0 == 0U);
+	assert(arg1 == 0U);
 
 	/* Initialize power controller before setting up topology */
 	plat_sq_pwrc_setup();

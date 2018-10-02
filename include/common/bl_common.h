@@ -107,10 +107,6 @@ IMPORT_SYM(unsigned long, __COHERENT_RAM_END__,		BL_COHERENT_RAM_END);
 typedef struct meminfo {
 	uintptr_t total_base;
 	size_t total_size;
-#if !LOAD_IMAGE_V2
-	uintptr_t free_base;
-	size_t free_size;
-#endif
 } meminfo_t;
 
 /*****************************************************************************
@@ -124,9 +120,7 @@ typedef struct image_info {
 	param_header_t h;
 	uintptr_t image_base;   /* physical address of base of image */
 	uint32_t image_size;    /* bytes read from image file */
-#if LOAD_IMAGE_V2
 	uint32_t image_max_size;
-#endif
 } image_info_t;
 
 /*****************************************************************************
@@ -145,7 +139,6 @@ typedef struct image_desc {
 	entry_point_info_t ep_info;
 } image_desc_t;
 
-#if LOAD_IMAGE_V2
 /* BL image node in the BL image loading sequence */
 typedef struct bl_load_info_node {
 	unsigned int image_id;
@@ -176,33 +169,6 @@ typedef struct bl_params {
 	bl_params_node_t *head;
 } bl_params_t;
 
-#else /* LOAD_IMAGE_V2 */
-
-/*******************************************************************************
- * This structure represents the superset of information that can be passed to
- * BL31 e.g. while passing control to it from BL2. The BL32 parameters will be
- * populated only if BL2 detects its presence. A pointer to a structure of this
- * type should be passed in X0 to BL31's cold boot entrypoint.
- *
- * Use of this structure and the X0 parameter is not mandatory: the BL31
- * platform code can use other mechanisms to provide the necessary information
- * about BL32 and BL33 to the common and SPD code.
- *
- * BL31 image information is mandatory if this structure is used. If either of
- * the optional BL32 and BL33 image information is not provided, this is
- * indicated by the respective image_info pointers being zero.
- ******************************************************************************/
-typedef struct bl31_params {
-	param_header_t h;
-	image_info_t *bl31_image_info;
-	entry_point_info_t *bl32_ep_info;
-	image_info_t *bl32_image_info;
-	entry_point_info_t *bl33_ep_info;
-	image_info_t *bl33_image_info;
-} bl31_params_t;
-
-#endif /* LOAD_IMAGE_V2 */
-
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
@@ -211,26 +177,7 @@ size_t get_image_size(unsigned int image_id);
 int is_mem_free(uintptr_t free_base, size_t free_size,
 		uintptr_t addr, size_t size);
 
-#if LOAD_IMAGE_V2
-
 int load_auth_image(unsigned int image_id, image_info_t *image_data);
-
-#else
-
-int load_image(meminfo_t *mem_layout,
-	       unsigned int image_id,
-	       uintptr_t image_base,
-	       image_info_t *image_data,
-	       entry_point_info_t *entry_point_info);
-int load_auth_image(meminfo_t *mem_layout,
-		    unsigned int image_id,
-		    uintptr_t image_base,
-		    image_info_t *image_data,
-		    entry_point_info_t *entry_point_info);
-void reserve_mem(uintptr_t *free_base, size_t *free_size,
-		uintptr_t addr, size_t size);
-
-#endif /* LOAD_IMAGE_V2 */
 
 #if TRUSTED_BOARD_BOOT && defined(DYN_DISABLE_AUTH)
 /*

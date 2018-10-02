@@ -7,31 +7,6 @@
 #include <platform_def.h>
 #include <psci.h>
 
-#if ENABLE_PLAT_COMPAT
-unsigned int plat_get_aff_count(unsigned int aff_lvl, unsigned long mpidr)
-{
-	/* Report 1 (absent) instance at levels higher that the cluster level */
-	if (aff_lvl > MPIDR_AFFLVL1)
-		return PLATFORM_SYSTEM_COUNT;
-
-	if (aff_lvl == MPIDR_AFFLVL1)
-		return PLATFORM_CLUSTER_COUNT;
-
-	return mpidr & 0x100 ? PLATFORM_CLUSTER1_CORE_COUNT :
-			       PLATFORM_CLUSTER0_CORE_COUNT;
-}
-
-unsigned int plat_get_aff_state(unsigned int aff_lvl, unsigned long mpidr)
-{
-	return aff_lvl <= MPIDR_AFFLVL2 ? PSCI_AFF_PRESENT : PSCI_AFF_ABSENT;
-}
-
-int mt_setup_topology(void)
-{
-	/* [TODO] Make topology configurable via SCC */
-	return 0;
-}
-#else
 
 const unsigned char mtk_power_domain_tree_desc[] = {
 	/* No of root nodes */
@@ -82,4 +57,3 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 
 	return (cpu_id + (cluster_id * 4));
 }
-#endif

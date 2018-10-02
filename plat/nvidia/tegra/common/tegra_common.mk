@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -13,8 +13,7 @@ PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 
 COMMON_DIR		:=	plat/nvidia/tegra/common
 
-BL31_SOURCES		+=	drivers/arm/gic/gic_v2.c			\
-				drivers/console/aarch64/console.S		\
+BL31_SOURCES		+= 	drivers/console/aarch64/console.S		\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/ti/uart/aarch64/16550_console.S		\
 				${COMMON_DIR}/aarch64/tegra_helpers.S		\

@@ -33,7 +33,7 @@ HOSTCC ?= gcc
 
 .PHONY: all clean distclean
 
-all: ${PROJECT} fip_create
+all: ${PROJECT}
 
 ${PROJECT}: ${OBJECTS} Makefile
 	@echo "  LD      $@"
@@ -42,13 +42,9 @@ ${PROJECT}: ${OBJECTS} Makefile
 	@echo "Built $@ successfully"
 	@${ECHO_BLANK_LINE}
 
-fip_create: fip_create.sh
-	${Q}mkdir -p ../fip_create
-	${Q}install -m 755 fip_create.sh ../fip_create/fip_create
-
 %.o: %.c %.h Makefile
 	@echo "  CC      $<"
 	${Q}${HOSTCC} -c ${CPPFLAGS} ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
 
 clean:
-	$(call SHELL_DELETE_ALL, ${PROJECT} ${OBJECTS} fip_create)
+	$(call SHELL_DELETE_ALL, ${PROJECT} ${OBJECTS})

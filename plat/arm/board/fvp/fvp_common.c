@@ -24,7 +24,6 @@
 /* Defines for GIC Driver build time selection */
 #define FVP_GICV2		1
 #define FVP_GICV3		2
-#define FVP_GICV3_LEGACY	3
 
 /*******************************************************************************
  * arm_config holds the characteristics of the differences between the three FVP
@@ -92,9 +91,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #if TRUSTED_BOARD_BOOT
 	/* To access the Root of Trust Public Key registers. */
 	MAP_DEVICE2,
-#if LOAD_IMAGE_V2 && !BL2_AT_EL3
+#if !BL2_AT_EL3
 	ARM_MAP_BL1_RW,
-#endif /* LOAD_IMAGE_V2 && !BL2_AT_EL3 */
+#endif
 #endif /* TRUSTED_BOARD_BOOT */
 #if ENABLE_SPM
 	ARM_SP_IMAGE_MMAP,
@@ -399,7 +398,7 @@ void fvp_interconnect_disable(void)
 #endif
 }
 
-#if TRUSTED_BOARD_BOOT && LOAD_IMAGE_V2
+#if TRUSTED_BOARD_BOOT
 int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 {
 	assert(heap_addr != NULL);
