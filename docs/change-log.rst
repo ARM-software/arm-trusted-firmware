@@ -4,13 +4,52 @@
 
 .. contents::
 
+Trusted Firmware-A - version 2.0
+================================
+
+New Features
+------------
+
+-  Removal of a number of deprecated API's
+
+   -  A new Platform Compatibility Policy document has been created which
+      references a wiki page that maintains a listing of deprecated
+      interfaces and the release after which they will be removed.
+
+   -  All deprecated interfaces except the MULTI_CONSOLE_API have been removed
+      from the code base.
+
+   -  Various Arm and partner platforms have been updated to remove the use of
+      removed API's in this release.
+
+   -  This release is otherwise unchanged from 1.6 release
+
+Issues resolved since last release
+----------------------------------
+
+-  No issues known at 1.6 release resolved in 2.0 release
+
+Known Issues
+------------
+
+-  DTB creation not supported when building on a Windows host. This step in the
+   build process is skipped when running on a Windows host. Known issue from
+   1.6 version.
+
+-  As a result of removal of deprecated interfaces the Nvidia Tegra, Marvell
+   Armada 8K and MediaTek MT6795 platforms do not build in this release.
+   Also MediaTek MT8173, NXP QorIQ LS1043A, NXP i.MX8QX, NXP i.MX8QMa,
+   Rockchip RK3328, Rockchip RK3368 and Rockchip RK3399 platforms have not been
+   confirmed to be working after the removal of the deprecated interfaces
+   although they do build.
+
 Trusted Firmware-A - version 1.6
 ================================
 
 New Features
 ------------
 
--  Addressing Speculation Security Vunerabilities
+-  Addressing Speculation Security Vulnerabilities
 
    -  Implement static workaround for CVE-2018-3639 for AArch32 and AArch64
 
