@@ -332,6 +332,9 @@ static void bl2_advertise_dram_size(uint32_t product, uint32_t cut)
 #elif (RCAR_DRAM_DDR3L_MEMCONF == 1)
 		/* 2GB(512MBx4) */
 		NOTICE("BL2: 0x400000000 - 0x47fffffff, 2 GiB\n");
+#elif (RCAR_DRAM_DDR3L_MEMCONF == 2)
+		/* 4GB(1GBx4) */
+		NOTICE("BL2: 0x400000000 - 0x4ffffffff, 4 GiB\n");
 #endif /* RCAR_DRAM_DDR3L_MEMCONF == 0 */
 	}
 }
