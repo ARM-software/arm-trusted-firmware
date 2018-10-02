@@ -2838,7 +2838,7 @@ amount of open resources per driver.
 .. _Firmware Design: firmware-design.rst
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _plat/arm/board/fvp/fvp\_pm.c: ../plat/arm/board/fvp/fvp_pm.c
-.. _Platform compatibility policy: https://github.com/ARM-software/arm-trusted-firmware/docs/platform-compatibility-policy.rst#2platform-compatibility-policy
+.. _Platform compatibility policy: ./platform-compatibility-policy.rst
 .. _IMF Design Guide: interrupt-framework-design.rst
 .. _Arm Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html
 .. _3.0 (GICv3): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0069b/index.html
