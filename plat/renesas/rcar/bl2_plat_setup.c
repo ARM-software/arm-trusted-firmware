@@ -556,9 +556,6 @@ lcm_state:
 	bl2_tzram_layout.total_base = BL31_BASE;
 	bl2_tzram_layout.total_size = BL31_LIMIT - BL31_BASE;
 
-	/* Print DRAM layout */
-	bl2_advertise_dram_size(product);
-
 	if (boot_cpu == MODEMR_BOOT_CPU_CA57 ||
 	    boot_cpu == MODEMR_BOOT_CPU_CA53) {
 		ret = rcar_dram_init();
@@ -568,6 +565,9 @@ lcm_state:
 		}
 		rcar_qos_init();
 	}
+
+	/* Print DRAM layout */
+	bl2_advertise_dram_size(product);
 
 	if (boot_dev == MODEMR_BOOT_DEV_EMMC_25X1 ||
 	    boot_dev == MODEMR_BOOT_DEV_EMMC_50X8) {
