@@ -50,7 +50,7 @@
 
 #define div_round_up(val, div) __extension__ ({	\
 	__typeof__(div) _div = (div);		\
-	((val) + _div - 1) / _div;		\
+	((val) + _div - (__typeof__(div)) 1) / _div;		\
 })
 
 #define MIN(x, y) __extension__ ({	\
