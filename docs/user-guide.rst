@@ -707,14 +707,6 @@ Arm development platform specific build options
    sets the TSP location to DRAM and ignores the ``ARM_TSP_RAM_LOCATION`` build
    flag.
 
--  ``ARM_BOARD_OPTIMISE_MEM``: Boolean option to enable or disable optimisation
-   of the memory reserved for each image. This affects the maximum size of each
-   BL image as well as the number of allocated memory regions and translation
-   tables. By default this flag is 0, which means it uses the default
-   unoptimised values for these macros. Arm development platforms that wish to
-   optimise memory usage need to set this flag to 1 and must override the
-   related macros.
-
 -  ``ARM_CONFIG_CNTACR``: boolean option to unlock access to the ``CNTBase<N>``
    frame registers by setting the ``CNTCTLBase.CNTACR<N>`` register bits. The
    frame number ``<N>`` is defined by ``PLAT_ARM_NSTIMER_FRAME_ID``, which should
