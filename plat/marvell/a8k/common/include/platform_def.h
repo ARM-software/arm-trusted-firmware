@@ -71,14 +71,6 @@
  * PLAT_MARVELL_FIP_BASE	= 0x4120000
  */
 
-/*
- * Since BL33 is loaded by BL2 (and validated by BL31) to DRAM offset 0,
- * it is allowed to load/copy images to 'NULL' pointers
- */
-#if defined(IMAGE_BL2) || defined(IMAGE_BL31)
-#define PLAT_ALLOW_ZERO_ADDR_COPY
-#endif
-
 #define PLAT_MARVELL_SRAM_BASE			0xFFE1C048
 #define PLAT_MARVELL_SRAM_END			0xFFE78000
 
@@ -199,7 +191,10 @@
 #define TRUSTED_DRAM_BASE			PLAT_MARVELL_TRUSTED_DRAM_BASE
 #define TRUSTED_DRAM_SIZE			PLAT_MARVELL_TRUSTED_DRAM_SIZE
 
+#ifdef BL32
 #define BL32_BASE				TRUSTED_DRAM_BASE
+#define BL32_LIMIT				TRUSTED_DRAM_SIZE
+#endif
 
 #define MVEBU_PMU_IRQ_WA
 

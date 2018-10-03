@@ -73,9 +73,6 @@ void marvell_bl31_early_platform_setup(void *from_bl2,
 				       uintptr_t hw_config,
 				       void *plat_params_from_bl2)
 {
-	struct marvell_bl31_params *params_from_bl2 =
-					(struct marvell_bl31_params *)from_bl2;
-
 	/* Initialize the console to provide early debug support */
 	console_init(PLAT_MARVELL_BOOT_UART_BASE,
 		     PLAT_MARVELL_BOOT_UART_CLK_IN_HZ,
@@ -112,12 +109,6 @@ void marvell_bl31_early_platform_setup(void *from_bl2,
 
 #else
 	/*
-	 * Check params passed from BL2 should not be NULL,
-	 */
-	assert(from_bl2 != NULL);
-	assert(from_bl2->h.type == PARAM_BL31);
-	assert(from_bl2->h.version >= VERSION_1);
-	/*
 	 * In debug builds, we pass a special value in 'plat_params_from_bl2'
 	 * to verify platform parameters from BL2 to BL31.
 	 * In release builds, it's not used.
@@ -126,12 +117,28 @@ void marvell_bl31_early_platform_setup(void *from_bl2,
 		MARVELL_BL31_PLAT_PARAM_VAL);
 
 	/*
-	 * Copy BL32 (if populated by BL2) and BL33 entry point information.
+	 * Check params passed from BL2 should not be NULL,
+	 */
+	bl_params_t *params_from_bl2 = (bl_params_t *)from_bl2;
+	assert(params_from_bl2 != NULL);
+	assert(params_from_bl2->h.type == PARAM_BL_PARAMS);
+	assert(params_from_bl2->h.version >= VERSION_2);
+
+	bl_params_node_t *bl_params = params_from_bl2->head;
+
+	/*
+	 * Copy BL33 and BL32 (if present), entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
-	if (params_from_bl2->bl32_ep_info)
-		bl32_image_ep_info = *params_from_bl2->bl32_ep_info;
-	bl33_image_ep_info = *params_from_bl2->bl33_ep_info;
+	while (bl_params != NULL) {
+		if (bl_params->image_id == BL32_IMAGE_ID)
+			bl32_image_ep_info = *bl_params->ep_info;
+
+		if (bl_params->image_id == BL33_IMAGE_ID)
+			bl33_image_ep_info = *bl_params->ep_info;
+
+		bl_params = bl_params->next_params_info;
+	}
 #endif
 }
 
