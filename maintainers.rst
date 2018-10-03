@@ -34,7 +34,7 @@ Armv7-A architecture port
 Arm System Guidance for Infrastructure / Mobile FVP platforms
 -------------------------------------------------------------
 :M: Nariman Poushin <nariman.poushin@linaro.org>
-:G: `nariman`_
+:G: `npoushin`_
 :F: plat/arm/css/sgi/
 :F: plat/arm/css/sgm/
 :F: plat/arm/board/sgi575/
@@ -211,7 +211,7 @@ Xilinx platform port
 .. _kostapr: https://github.com/kostapr
 .. _masahir0y: https://github.com/masahir0y
 .. _mtk09422: https://github.com/mtk09422
-.. _nariman: https://github.com/npoushin
+.. _npoushin: https://github.com/npoushin
 .. _qoriq-open-source: https://github.com/qoriq-open-source
 .. _rockchip-linux: https://github.com/rockchip-linux
 .. _shawnguo2: https://github.com/shawnguo2
