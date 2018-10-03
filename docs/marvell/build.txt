@@ -63,8 +63,7 @@ Build Instructions
 
 	- BLE_PATH:
 		Points to BLE (Binary ROM extension) sources folder. Only required for A8K builds.
-		The parameter is optional, its default value is "ble".
-		For the BLE source location, check the section "Tools and external components installation"
+		The parameter is optional, its default value is "plat/marvell/a8k/common/ble".
 
 	- MV_DDR_PATH:
 		For A7/8K, use this parameter to point to mv_ddr driver sources to allow BLE build. For A37x0,
@@ -138,7 +137,7 @@ Special Build Flags
 --------------------
 	- PLAT_RECOVERY_IMAGE_ENABLE: When set this option to enable secondary recovery function when build
 		atf. In order to build UART recovery image this operation should be disabled for a70x0 and a80x0
-                because of hardware limitation (boot from secondary image can interrupt UART recovery process).
+		because of hardware limitation (boot from secondary image can interrupt UART recovery process).
 		This MACRO definition is set in plat/marvell/a8k/common/include/platform_def.h file
 
 (for more information about build options, please refer to section 'Summary of build options' in  TF-A user-guide:
@@ -184,14 +183,10 @@ Armada37x0 Builds require installation of 3 components
 (3) Armada3700 tools available at the following repository (use the latest release branch)::
     https://github.com/MarvellEmbeddedProcessors/A3700-utils-marvell.git
 
-Armada70x0 and Armada80x0 Builds require installation of 2 components
----------------------------------------------------------------------
+Armada70x0 and Armada80x0 Builds require installation of an additional component
+--------------------------------------------------------------------------------
 
 (1) DDR initialization library sources (mv_ddr) available at the following repository
     (use the "mv_ddr-armada-atf-mainline" branch)::
     https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
-
-(2) BLE sources available at the following repository (use the "atf-mainline" branch)::
-    https://github.com/MarvellEmbeddedProcessors/ble-marvell.git
-
 

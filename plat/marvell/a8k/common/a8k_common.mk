@@ -106,7 +106,7 @@ endif
 include $(PLAT_COMMON_BASE)/mss/mss_a8k.mk
 
 # BLE (ROM context execution code, AKA binary extension)
-BLE_PATH	?=  ble
+BLE_PATH	?=  $(PLAT_COMMON_BASE)/ble
 
 include ${BLE_PATH}/ble.mk
 $(eval $(call MAKE_BL,e))
