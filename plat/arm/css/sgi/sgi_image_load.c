@@ -39,10 +39,15 @@ static int plat_sgi_append_config_node(void)
 
 	platform_name = (char *)fdt_getprop(fdt, 0, "compatible", NULL);
 
+	if (platform_name == NULL) {
+		ERROR("Invalid HW_CONFIG DTB passed\n");
+		return -1;
+	}
+
 	if (strcmp(platform_name, "arm,sgi575") == 0) {
 		platid = mmio_read_32(SSC_VERSION);
 	} else {
-		WARN("Invalid platform \n");
+		WARN("Invalid platform\n");
 		return -1;
 	}
 
