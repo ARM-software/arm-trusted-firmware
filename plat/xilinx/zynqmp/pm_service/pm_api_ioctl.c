@@ -253,6 +253,7 @@ static enum pm_ret_status pm_ioctl_sd_dll_reset(enum pm_node_id nid,
 		if (type == PM_DLL_RESET_ASSERT)
 			break;
 		mdelay(1);
+		/* Fallthrough */
 	case PM_DLL_RESET_RELEASE:
 		ret = pm_mmio_write(ZYNQMP_SD_DLL_CTRL, mask, 0);
 		break;

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include <cdefs.h>
 #include <cdn_dp.h>
 #include <smccc.h>
@@ -38,6 +39,7 @@ uint64_t dp_hdcp_ctrl(uint64_t type)
 			return hdcp_handler(&key);
 		else
 			return PSCI_E_INVALID_PARAMS;
+		assert(0); /* Unreachable */
 	default:
 		return SMC_UNK;
 	}

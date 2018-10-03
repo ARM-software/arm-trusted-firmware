@@ -592,6 +592,7 @@ static uintptr_t tspd_smc_handler(uint32_t smc_fid,
 
 			SMC_RET3(ns_cpu_context, x1, x2, x3);
 		}
+		assert(0); /* Unreachable */
 
 	/*
 	 * Request from the non-secure world to abort a preempted Yielding SMC

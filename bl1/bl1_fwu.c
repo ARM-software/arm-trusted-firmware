@@ -86,11 +86,9 @@ register_t bl1_fwu_smc_handler(unsigned int smc_fid,
 
 	case FWU_SMC_UPDATE_DONE:
 		bl1_fwu_done((void *)x1, NULL);
-		/* We should never return from bl1_fwu_done() */
-		break;
 
 	default:
-		assert(0);
+		assert(0); /* Unreachable */
 		break;
 	}
 
@@ -732,7 +730,7 @@ static int bl1_fwu_image_reset(unsigned int image_id, unsigned int flags)
 
 	case IMAGE_STATE_EXECUTED:
 	default:
-		assert(0);
+		assert(0); /* Unreachable */
 		break;
 	}
 

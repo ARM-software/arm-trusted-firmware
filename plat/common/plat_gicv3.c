@@ -157,6 +157,7 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 			return __builtin_ctz(SCR_IRQ_BIT);
 		else
 			return __builtin_ctz(SCR_FIQ_BIT);
+		assert(0); /* Unreachable */
 	case INTR_TYPE_NS:
 		/*
 		 * The Non secure interrupts will be signaled as FIQ in S-EL0/1
@@ -166,6 +167,7 @@ uint32_t plat_interrupt_type_to_line(uint32_t type,
 			return __builtin_ctz(SCR_FIQ_BIT);
 		else
 			return __builtin_ctz(SCR_IRQ_BIT);
+		assert(0); /* Unreachable */
 	case INTR_TYPE_EL3:
 		/*
 		 * The EL3 interrupts are signaled as FIQ in both S-EL0/1 and
@@ -255,7 +257,7 @@ void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 		irm = GICV3_IRM_ANY;
 		break;
 	default:
-		assert(false);
+		assert(0); /* Unreachable */
 		break;
 	}
 
