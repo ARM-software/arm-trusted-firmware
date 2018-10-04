@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -22,7 +22,7 @@ OBJECTS := src/cert.o \
            src/tbbr/tbb_ext.o \
            src/tbbr/tbb_key.o
 
-CFLAGS := -Wall -std=c99
+HOSTCCFLAGS := -Wall -std=c99
 
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
@@ -46,9 +46,9 @@ endif
 endif
 
 ifeq (${DEBUG},1)
-  CFLAGS += -g -O0 -DDEBUG -DLOG_LEVEL=40
+  HOSTCCFLAGS += -g -O0 -DDEBUG -DLOG_LEVEL=40
 else
-  CFLAGS += -O2 -DLOG_LEVEL=20
+  HOSTCCFLAGS += -O2 -DLOG_LEVEL=20
 endif
 ifeq (${V},0)
   Q := @
@@ -57,7 +57,7 @@ else
 endif
 
 $(eval $(call add_define,USE_TBBR_DEFS))
-CFLAGS += ${DEFINES}
+HOSTCCFLAGS += ${DEFINES}
 
 # Make soft links and include from local directory otherwise wrong headers
 # could get pulled in from firmware tree.
@@ -72,15 +72,15 @@ HOSTCC ?= gcc
 all: clean ${BINARY}
 
 ${BINARY}: ${OBJECTS} Makefile
-	@echo "  LD      $@"
+	@echo "  HOSTLD  $@"
 	@echo 'const char build_msg[] = "Built : "__TIME__", "__DATE__; \
                 const char platform_msg[] = "${PLAT_MSG}";' | \
-                ${HOSTCC} -c ${CFLAGS} -xc - -o src/build_msg.o
+                ${HOSTCC} -c ${HOSTCCFLAGS} -xc - -o src/build_msg.o
 	${Q}${HOSTCC} src/build_msg.o ${OBJECTS} ${LIB_DIR} ${LIB} -o $@
 
 %.o: %.c
-	@echo "  CC      $<"
-	${Q}${HOSTCC} -c ${CFLAGS} ${INC_DIR} $< -o $@
+	@echo "  HOSTCC  $<"
+	${Q}${HOSTCC} -c ${HOSTCCFLAGS} ${INC_DIR} $< -o $@
 
 clean:
 	$(call SHELL_DELETE_ALL, src/build_msg.o ${OBJECTS})

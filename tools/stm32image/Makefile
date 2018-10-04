@@ -12,11 +12,12 @@ PROJECT := stm32image${BIN_EXT}
 OBJECTS := stm32image.o
 V := 0
 
-CFLAGS := -Wall -Werror -pedantic -std=c99 -D_GNU_SOURCE
+HOSTCCFLAGS := -Wall -Werror -pedantic -std=c99 -D_GNU_SOURCE
+
 ifeq (${DEBUG},1)
-  CFLAGS += -g -O0 -DDEBUG
+  HOSTCCFLAGS += -g -O0 -DDEBUG
 else
-  CFLAGS += -O2
+  HOSTCCFLAGS += -O2
 endif
 
 ifeq (${V},0)
@@ -25,22 +26,22 @@ else
   Q :=
 endif
 
-CC := gcc
+HOSTCC := gcc
 
 .PHONY: all clean distclean
 
 all: ${PROJECT}
 
 ${PROJECT}: ${OBJECTS} Makefile
-	@echo "  LD      $@"
-	${Q}${CC} ${OBJECTS} -o $@
+	@echo "  HOSTLD  $@"
+	${Q}${HOSTCC} ${OBJECTS} -o $@
 	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
 	@${ECHO_BLANK_LINE}
 
 %.o: %.c Makefile
-	@echo "  CC      $<"
-	${Q}${CC} -c ${CFLAGS} $< -o $@
+	@echo "  HOSTCC  $<"
+	${Q}${HOSTCC} -c ${HOSTCCFLAGS} $< -o $@
 
 clean:
 	$(call SHELL_DELETE_ALL, ${PROJECT} ${OBJECTS})

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -13,11 +13,11 @@ OBJECTS := fiptool.o tbbr_config.o
 V ?= 0
 
 override CPPFLAGS += -D_GNU_SOURCE -D_XOPEN_SOURCE=700
-CFLAGS := -Wall -Werror -pedantic -std=c99
+HOSTCCFLAGS := -Wall -Werror -pedantic -std=c99
 ifeq (${DEBUG},1)
-  CFLAGS += -g -O0 -DDEBUG
+  HOSTCCFLAGS += -g -O0 -DDEBUG
 else
-  CFLAGS += -O2
+  HOSTCCFLAGS += -O2
 endif
 LDLIBS := -lcrypto
 
@@ -36,15 +36,15 @@ HOSTCC ?= gcc
 all: ${PROJECT}
 
 ${PROJECT}: ${OBJECTS} Makefile
-	@echo "  LD      $@"
+	@echo "  HOSTLD  $@"
 	${Q}${HOSTCC} ${OBJECTS} -o $@ ${LDLIBS}
 	@${ECHO_BLANK_LINE}
 	@echo "Built $@ successfully"
 	@${ECHO_BLANK_LINE}
 
 %.o: %.c %.h Makefile
-	@echo "  CC      $<"
-	${Q}${HOSTCC} -c ${CPPFLAGS} ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
+	@echo "  HOSTCC  $<"
+	${Q}${HOSTCC} -c ${CPPFLAGS} ${HOSTCCFLAGS} ${INCLUDE_PATHS} $< -o $@
 
 clean:
 	$(call SHELL_DELETE_ALL, ${PROJECT} ${OBJECTS})
