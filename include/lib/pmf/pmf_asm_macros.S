@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,7 +14,7 @@
 	 * for the given service name and local timestamp id.
 	 * Clobbers: x0 - x9
 	 */
-	.macro pmf_calc_timestamp_addr _name _tid
+	.macro pmf_calc_timestamp_addr _name, _tid
 	mov	x9, x30
 	bl	plat_my_core_pos
 	mov	x30, x9

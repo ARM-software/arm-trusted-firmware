@@ -10,19 +10,19 @@
 #include <smccc.h>
 
 /* These are offsets to registers in smc_ctx_t */
-#define SMC_CTX_GPREG_R0	0x0
-#define SMC_CTX_GPREG_R1	0x4
-#define SMC_CTX_GPREG_R2	0x8
-#define SMC_CTX_GPREG_R3	0xC
-#define SMC_CTX_GPREG_R4	0x10
-#define SMC_CTX_GPREG_R5	0x14
-#define SMC_CTX_SP_USR		0x34
-#define SMC_CTX_SPSR_MON	0x78
-#define SMC_CTX_SP_MON		0x7C
-#define SMC_CTX_LR_MON		0x80
-#define SMC_CTX_SCR		0x84
-#define SMC_CTX_PMCR		0x88
-#define SMC_CTX_SIZE		0x90
+#define SMC_CTX_GPREG_R0	U(0x0)
+#define SMC_CTX_GPREG_R1	U(0x4)
+#define SMC_CTX_GPREG_R2	U(0x8)
+#define SMC_CTX_GPREG_R3	U(0xC)
+#define SMC_CTX_GPREG_R4	U(0x10)
+#define SMC_CTX_GPREG_R5	U(0x14)
+#define SMC_CTX_SP_USR		U(0x34)
+#define SMC_CTX_SPSR_MON	U(0x78)
+#define SMC_CTX_SP_MON		U(0x7C)
+#define SMC_CTX_LR_MON		U(0x80)
+#define SMC_CTX_SCR		U(0x84)
+#define SMC_CTX_PMCR		U(0x88)
+#define SMC_CTX_SIZE		U(0x90)
 
 #ifndef __ASSEMBLY__
 #include <cassert.h>
@@ -105,7 +105,7 @@ CASSERT(SMC_CTX_LR_MON == __builtin_offsetof(smc_ctx_t, lr_mon), \
 CASSERT(SMC_CTX_SPSR_MON == __builtin_offsetof(smc_ctx_t, spsr_mon), \
 	assert_smc_ctx_spsr_mon_offset_mismatch);
 
-CASSERT((sizeof(smc_ctx_t) & 0x7) == 0, assert_smc_ctx_not_aligned);
+CASSERT((sizeof(smc_ctx_t) & 0x7U) == 0U, assert_smc_ctx_not_aligned);
 CASSERT(SMC_CTX_SIZE == sizeof(smc_ctx_t), assert_smc_ctx_size_mismatch);
 
 /* Convenience macros to return from SMC handler */

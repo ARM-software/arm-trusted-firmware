@@ -35,12 +35,12 @@ void flush_bl_params_desc(void)
  ******************************************************************************/
 int get_bl_params_node_index(unsigned int image_id)
 {
-	int index;
+	unsigned int index;
 	assert(image_id != INVALID_IMAGE_ID);
 
-	for (index = 0; index < bl_mem_params_desc_num; index++) {
+	for (index = 0U; index < bl_mem_params_desc_num; index++) {
 		if (bl_mem_params_desc_ptr[index].image_id == image_id)
-			return index;
+			return (int)index;
 	}
 
 	return -1;
@@ -72,17 +72,17 @@ bl_mem_params_node_t *get_bl_mem_params_node(unsigned int image_id)
  ******************************************************************************/
 bl_load_info_t *get_bl_load_info_from_mem_params_desc(void)
 {
-	int index = 0;
+	unsigned int index = 0;
 
 	/* If there is no image to start with, return NULL */
-	if (!bl_mem_params_desc_num)
+	if (bl_mem_params_desc_num == 0U)
 		return NULL;
 
 	/* Assign initial data structures */
 	bl_load_info_node_t *bl_node_info =
 		&bl_mem_params_desc_ptr[index].load_node_mem;
 	bl_load_info.head = bl_node_info;
-	SET_PARAM_HEAD(&bl_load_info, PARAM_BL_LOAD_INFO, VERSION_2, 0);
+	SET_PARAM_HEAD(&bl_load_info, PARAM_BL_LOAD_INFO, VERSION_2, 0U);
 
 	/* Go through the image descriptor array and create the list */
 	for (; index < bl_mem_params_desc_num; index++) {
@@ -92,10 +92,10 @@ bl_load_info_t *get_bl_load_info_from_mem_params_desc(void)
 		bl_node_info->image_info = &bl_mem_params_desc_ptr[index].image_info;
 
 		/* Link next image if present */
-		if ((index + 1) < bl_mem_params_desc_num) {
+		if ((index + 1U) < bl_mem_params_desc_num) {
 			/* Get the memory and link the next node */
 			bl_node_info->next_load_info =
-				&bl_mem_params_desc_ptr[index + 1].load_node_mem;
+				&bl_mem_params_desc_ptr[index + 1U].load_node_mem;
 			bl_node_info = bl_node_info->next_load_info;
 		}
 	}
@@ -112,19 +112,19 @@ bl_load_info_t *get_bl_load_info_from_mem_params_desc(void)
  ******************************************************************************/
 bl_params_t *get_next_bl_params_from_mem_params_desc(void)
 {
-	int count;
-	unsigned int img_id = 0;
-	int link_index = 0;
+	unsigned int count;
+	unsigned int img_id = 0U;
+	unsigned int link_index = 0U;
 	bl_params_node_t *bl_current_exec_node = NULL;
 	bl_params_node_t *bl_last_exec_node = NULL;
 	bl_mem_params_node_t *desc_ptr;
 
 	/* If there is no image to start with, return NULL */
-	if (!bl_mem_params_desc_num)
+	if (bl_mem_params_desc_num == 0U)
 		return NULL;
 
 	/* Get the list HEAD */
-	for (count = 0; count < bl_mem_params_desc_num; count++) {
+	for (count = 0U; count < bl_mem_params_desc_num; count++) {
 
 		desc_ptr = &bl_mem_params_desc_ptr[count];
 
@@ -140,13 +140,13 @@ bl_params_t *get_next_bl_params_from_mem_params_desc(void)
 	assert(next_bl_params.head != NULL);
 
 	/* Populate the HEAD information */
-	SET_PARAM_HEAD(&next_bl_params, PARAM_BL_PARAMS, VERSION_2, 0);
+	SET_PARAM_HEAD(&next_bl_params, PARAM_BL_PARAMS, VERSION_2, 0U);
 
 	/*
 	 * Go through the image descriptor array and create the list.
 	 * This bounded loop is to make sure that we are not looping forever.
 	 */
-	for (count = 0 ; count < bl_mem_params_desc_num; count++) {
+	for (count = 0U; count < bl_mem_params_desc_num; count++) {
 
 		desc_ptr = &bl_mem_params_desc_ptr[link_index];
 
@@ -161,7 +161,7 @@ bl_params_t *get_next_bl_params_from_mem_params_desc(void)
 		bl_current_exec_node->image_info = &desc_ptr->image_info;
 		bl_current_exec_node->ep_info = &desc_ptr->ep_info;
 
-		if (bl_last_exec_node) {
+		if (bl_last_exec_node != NULL) {
 			/* Assert if loop detected */
 			assert(bl_last_exec_node->next_params_info == NULL);
 
@@ -179,7 +179,7 @@ bl_params_t *get_next_bl_params_from_mem_params_desc(void)
 
 		/* Get the index for the next hand-off image */
 		link_index = get_bl_params_node_index(img_id);
-		assert((link_index > 0) &&
+		assert((link_index > 0U) &&
 			(link_index < bl_mem_params_desc_num));
 	}
 
@@ -243,17 +243,17 @@ void populate_next_bl_params_config(bl_params_t *bl2_to_next_bl_params)
 		 * overwriting the previous initialisations.
 		 */
 		if (params_node == bl2_to_next_bl_params->head) {
-			if (params_node->ep_info->args.arg1 == 0)
+			if (params_node->ep_info->args.arg1 == 0U)
 				params_node->ep_info->args.arg1 =
 								fw_config_base;
-			if (params_node->ep_info->args.arg2 == 0)
+			if (params_node->ep_info->args.arg2 == 0U)
 				params_node->ep_info->args.arg2 =
 								hw_config_base;
 		} else {
-			if (params_node->ep_info->args.arg0 == 0)
+			if (params_node->ep_info->args.arg0 == 0U)
 				params_node->ep_info->args.arg0 =
 								fw_config_base;
-			if (params_node->ep_info->args.arg1 == 0)
+			if (params_node->ep_info->args.arg1 == 0U)
 				params_node->ep_info->args.arg1 =
 								hw_config_base;
 		}

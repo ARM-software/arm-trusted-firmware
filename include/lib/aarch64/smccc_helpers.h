@@ -11,6 +11,7 @@
 
 #ifndef __ASSEMBLY__
 #include <context.h>
+#include <stdbool.h>
 
 /* Convenience macros to return from SMC handler */
 #define SMC_RET0(_h)	{					\
@@ -77,7 +78,7 @@
 		_x2 = read_ctx_reg(regs, CTX_GPREG_X2);		\
 		_x3 = read_ctx_reg(regs, CTX_GPREG_X3);		\
 		_x4 = read_ctx_reg(regs, CTX_GPREG_X4);		\
-	} while (0)
+	} while (false)
 
 #endif /*__ASSEMBLY__*/
 

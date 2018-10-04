@@ -48,8 +48,8 @@ static int dyn_is_auth_disabled(void)
 uintptr_t page_align(uintptr_t value, unsigned dir)
 {
 	/* Round up the limit to the next page boundary */
-	if (value & (PAGE_SIZE - 1)) {
-		value &= ~(PAGE_SIZE - 1);
+	if ((value & (PAGE_SIZE - 1U)) != 0U) {
+		value &= ~(PAGE_SIZE - 1U);
 		if (dir == UP)
 			value += PAGE_SIZE;
 	}
@@ -106,7 +106,7 @@ size_t get_image_size(unsigned int image_id)
 	uintptr_t dev_handle;
 	uintptr_t image_handle;
 	uintptr_t image_spec;
-	size_t image_size = 0;
+	size_t image_size = 0U;
 	int io_result;
 
 	/* Obtain a reference to the image by querying the platform layer */
@@ -127,7 +127,7 @@ size_t get_image_size(unsigned int image_id)
 
 	/* Find the size of the image */
 	io_result = io_size(image_handle, &image_size);
-	if ((io_result != 0) || (image_size == 0)) {
+	if ((io_result != 0) || (image_size == 0U)) {
 		WARN("Failed to determine the size of the image id=%u (%i)\n",
 			image_id, io_result);
 	}
@@ -182,12 +182,11 @@ static int load_image(unsigned int image_id, image_info_t *image_data)
 		return io_result;
 	}
 
-	INFO("Loading image id=%u at address %p\n", image_id,
-		(void *) image_base);
+	INFO("Loading image id=%u at address 0x%lx\n", image_id, image_base);
 
 	/* Find the size of the image */
 	io_result = io_size(image_handle, &image_size);
-	if ((io_result != 0) || (image_size == 0)) {
+	if ((io_result != 0) || (image_size == 0U)) {
 		WARN("Failed to determine the size of the image id=%u (%i)\n",
 			image_id, io_result);
 		goto exit;
@@ -200,7 +199,11 @@ static int load_image(unsigned int image_id, image_info_t *image_data)
 		goto exit;
 	}
 
-	image_data->image_size = image_size;
+	/*
+	 * image_data->image_max_size is a uint32_t so image_size will always
+	 * fit in image_data->image_size.
+	 */
+	image_data->image_size = (uint32_t)image_size;
 
 	/* We have enough space so load the image now */
 	/* TODO: Consider whether to try to recover/retry a partially successful read */
@@ -210,15 +213,15 @@ static int load_image(unsigned int image_id, image_info_t *image_data)
 		goto exit;
 	}
 
-	INFO("Image id=%u loaded: %p - %p\n", image_id, (void *) image_base,
-	     (void *) (image_base + image_size));
+	INFO("Image id=%u loaded: 0x%lx - 0x%lx\n", image_id, image_base,
+	     (uintptr_t)(image_base + image_size));
 
 exit:
-	io_close(image_handle);
+	(void)io_close(image_handle);
 	/* Ignore improbable/unrecoverable error in 'close' */
 
 	/* TODO: Consider maintaining open device connection from this bootloader stage */
-	io_dev_close(dev_handle);
+	(void)io_dev_close(dev_handle);
 	/* Ignore improbable/unrecoverable error in 'dev_close' */
 
 	return io_result;
@@ -274,7 +277,7 @@ static int load_auth_image_internal(unsigned int image_id,
 	 * the file has been successfully loaded and authenticated and flush
 	 * only for child images, not for the parents (certificates).
 	 */
-	if (!is_parent_image) {
+	if (is_parent_image == 0) {
 		flush_dcache_range(image_data->image_base,
 				   image_data->image_size);
 	}
@@ -296,7 +299,7 @@ int load_auth_image(unsigned int image_id, image_info_t *image_data)
 
 	do {
 		err = load_auth_image_internal(image_id, image_data, 0);
-	} while (err != 0 && plat_try_next_boot_source());
+	} while ((err != 0) && (plat_try_next_boot_source() != 0));
 
 	return err;
 }
@@ -306,7 +309,7 @@ int load_auth_image(unsigned int image_id, image_info_t *image_data)
  ******************************************************************************/
 void print_entry_point_info(const entry_point_info_t *ep_info)
 {
-	INFO("Entry point address = %p\n", (void *)ep_info->pc);
+	INFO("Entry point address = 0x%lx\n", ep_info->pc);
 	INFO("SPSR = 0x%x\n", ep_info->spsr);
 
 #define PRINT_IMAGE_ARG(n)					\
