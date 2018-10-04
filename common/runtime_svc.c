@@ -35,16 +35,16 @@ uintptr_t handle_runtime_svc(uint32_t smc_fid,
 			     unsigned int flags)
 {
 	u_register_t x1, x2, x3, x4;
-	int index;
+	unsigned int index;
 	unsigned int idx;
 	const rt_svc_desc_t *rt_svc_descs;
 
-	assert(handle);
+	assert(handle != NULL);
 	idx = get_unique_oen_from_smc_fid(smc_fid);
 	assert(idx < MAX_RT_SVCS);
 
 	index = rt_svc_descs_indices[idx];
-	if (index < 0 || index >= (int)RT_SVC_DECS_NUM)
+	if (index >= RT_SVC_DECS_NUM)
 		SMC_RET1(handle, SMC_UNK);
 
 	rt_svc_descs = (rt_svc_desc_t *) RT_SVC_DESCS_START;
@@ -96,7 +96,7 @@ static int32_t validate_rt_svc_desc(const rt_svc_desc_t *desc)
 void __init runtime_svc_init(void)
 {
 	int rc = 0;
-	unsigned int index, start_idx, end_idx;
+	uint8_t index, start_idx, end_idx;
 	rt_svc_desc_t *rt_svc_descs;
 
 	/* Assert the number of descriptors detected are less than maximum indices */
@@ -108,10 +108,10 @@ void __init runtime_svc_init(void)
 		return;
 
 	/* Initialise internal variables to invalid state */
-	memset(rt_svc_descs_indices, -1, sizeof(rt_svc_descs_indices));
+	(void)memset(rt_svc_descs_indices, -1, sizeof(rt_svc_descs_indices));
 
 	rt_svc_descs = (rt_svc_desc_t *) RT_SVC_DESCS_START;
-	for (index = 0; index < RT_SVC_DECS_NUM; index++) {
+	for (index = 0U; index < RT_SVC_DECS_NUM; index++) {
 		rt_svc_desc_t *service = &rt_svc_descs[index];
 
 		/*
@@ -120,7 +120,7 @@ void __init runtime_svc_init(void)
 		 * of this service.
 		 */
 		rc = validate_rt_svc_desc(service);
-		if (rc) {
+		if (rc != 0) {
 			ERROR("Invalid runtime service descriptor %p\n",
 				(void *) service);
 			panic();
@@ -133,9 +133,9 @@ void __init runtime_svc_init(void)
 		 * an initialisation routine defined. Call the initialisation
 		 * routine for this runtime service, if it is defined.
 		 */
-		if (service->init) {
+		if (service->init != NULL) {
 			rc = service->init();
-			if (rc) {
+			if (rc != 0) {
 				ERROR("Error initializing runtime service %s\n",
 						service->name);
 				continue;
@@ -149,15 +149,15 @@ void __init runtime_svc_init(void)
 		 * entity range.
 		 */
 #if SMCCC_MAJOR_VERSION == 1
-		start_idx = get_unique_oen(service->start_oen,
-					   service->call_type);
-		end_idx = get_unique_oen(service->end_oen,
-					 service->call_type);
+		start_idx = (uint8_t)get_unique_oen(service->start_oen,
+						    service->call_type);
+		end_idx = (uint8_t)get_unique_oen(service->end_oen,
+						  service->call_type);
 #elif SMCCC_MAJOR_VERSION == 2
-		start_idx = get_rt_desc_idx(service->start_oen,
-					    service->is_vendor);
-		end_idx = get_rt_desc_idx(service->end_oen,
-					  service->is_vendor);
+		start_idx = (uint8_t)get_rt_desc_idx(service->start_oen,
+						     service->is_vendor);
+		end_idx = (uint8_t)get_rt_desc_idx(service->end_oen,
+						   service->is_vendor);
 #endif
 		assert(start_idx <= end_idx);
 		assert(end_idx < MAX_RT_SVCS);

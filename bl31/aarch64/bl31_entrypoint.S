@@ -124,7 +124,7 @@ func bl31_warm_entrypoint
 	 * timestamp collection will need to do cache maintenance prior
 	 * to timestamp update.
 	 */
-	pmf_calc_timestamp_addr rt_instr_svc RT_INSTR_EXIT_HW_LOW_PWR
+	pmf_calc_timestamp_addr rt_instr_svc, RT_INSTR_EXIT_HW_LOW_PWR
 	mrs	x1, cntpct_el0
 	str	x1, [x0]
 #endif
@@ -180,7 +180,7 @@ func bl31_warm_entrypoint
 	bl	psci_warmboot_entrypoint
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
-	pmf_calc_timestamp_addr rt_instr_svc RT_INSTR_EXIT_PSCI
+	pmf_calc_timestamp_addr rt_instr_svc, RT_INSTR_EXIT_PSCI
 	mov	x19, x0
 
 	/*

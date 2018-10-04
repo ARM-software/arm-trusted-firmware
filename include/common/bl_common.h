@@ -11,26 +11,26 @@
 #include <param_header.h>
 #include <utils_def.h>
 
-#define UP	1
-#define DOWN	0
+#define UP	U(1)
+#define DOWN	U(0)
 
 /*******************************************************************************
  * Constants to identify the location of a memory region in a given memory
  * layout.
 ******************************************************************************/
-#define TOP	0x1
-#define BOTTOM	!TOP
+#define TOP	U(0x1)
+#define BOTTOM	U(0x0)
 
 /*
  * The following are used for image state attributes.
  * Image can only be in one of the following state.
  */
-#define IMAGE_STATE_RESET			0
-#define IMAGE_STATE_COPIED			1
-#define IMAGE_STATE_COPYING			2
-#define IMAGE_STATE_AUTHENTICATED		3
-#define IMAGE_STATE_EXECUTED			4
-#define IMAGE_STATE_INTERRUPTED			5
+#define IMAGE_STATE_RESET		U(0)
+#define IMAGE_STATE_COPIED		U(1)
+#define IMAGE_STATE_COPYING		U(2)
+#define IMAGE_STATE_AUTHENTICATED	U(3)
+#define IMAGE_STATE_EXECUTED		U(4)
+#define IMAGE_STATE_INTERRUPTED		U(5)
 
 #define IMAGE_ATTRIB_SKIP_LOADING	U(0x02)
 #define IMAGE_ATTRIB_PLAT_SETUP		U(0x04)
@@ -40,22 +40,22 @@
 /*******************************************************************************
  * Constants to indicate type of exception to the common exception handler.
  ******************************************************************************/
-#define SYNC_EXCEPTION_SP_EL0		0x0
-#define IRQ_SP_EL0			0x1
-#define FIQ_SP_EL0			0x2
-#define SERROR_SP_EL0			0x3
-#define SYNC_EXCEPTION_SP_ELX		0x4
-#define IRQ_SP_ELX			0x5
-#define FIQ_SP_ELX			0x6
-#define SERROR_SP_ELX			0x7
-#define SYNC_EXCEPTION_AARCH64		0x8
-#define IRQ_AARCH64			0x9
-#define FIQ_AARCH64			0xa
-#define SERROR_AARCH64			0xb
-#define SYNC_EXCEPTION_AARCH32		0xc
-#define IRQ_AARCH32			0xd
-#define FIQ_AARCH32			0xe
-#define SERROR_AARCH32			0xf
+#define SYNC_EXCEPTION_SP_EL0		U(0x0)
+#define IRQ_SP_EL0			U(0x1)
+#define FIQ_SP_EL0			U(0x2)
+#define SERROR_SP_EL0			U(0x3)
+#define SYNC_EXCEPTION_SP_ELX		U(0x4)
+#define IRQ_SP_ELX			U(0x5)
+#define FIQ_SP_ELX			U(0x6)
+#define SERROR_SP_ELX			U(0x7)
+#define SYNC_EXCEPTION_AARCH64		U(0x8)
+#define IRQ_AARCH64			U(0x9)
+#define FIQ_AARCH64			U(0xa)
+#define SERROR_AARCH64			U(0xb)
+#define SYNC_EXCEPTION_AARCH32		U(0xc)
+#define IRQ_AARCH32			U(0xd)
+#define FIQ_AARCH32			U(0xe)
+#define SERROR_AARCH32			U(0xf)
 
 #ifndef __ASSEMBLY__
 #include <cassert.h>

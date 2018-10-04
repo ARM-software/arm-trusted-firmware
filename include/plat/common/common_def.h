@@ -8,6 +8,7 @@
 
 #include <bl_common.h>
 #include <platform_def.h>
+#include <utils_def.h>
 #include <xlat_tables_defs.h>
 
 /******************************************************************************
@@ -73,12 +74,12 @@
 #define BL2_RO_DATA_END		round_up(BL2_ROM_END, PAGE_SIZE)
 #endif /* BL2_IN_XIP_MEM */
 #else
-#define BL_RO_DATA_BASE		0
-#define BL_RO_DATA_END		0
+#define BL_RO_DATA_BASE		UL(0)
+#define BL_RO_DATA_END		UL(0)
 #define BL1_CODE_END		round_up(BL1_ROM_END, PAGE_SIZE)
 #if BL2_IN_XIP_MEM
-#define BL2_RO_DATA_BASE	0
-#define BL2_RO_DATA_END		0
+#define BL2_RO_DATA_BASE	UL(0)
+#define BL2_RO_DATA_END		UL(0)
 #define BL2_CODE_END		round_up(BL2_ROM_END, PAGE_SIZE)
 #endif /* BL2_IN_XIP_MEM */
 #endif /* SEPARATE_CODE_AND_RODATA */
