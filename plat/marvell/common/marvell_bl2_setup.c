@@ -105,7 +105,15 @@ int marvell_bl2_handle_post_image_load(unsigned int image_id)
 		bl_mem_params->ep_info.args.arg0 = 0xffff & read_mpidr();
 		bl_mem_params->ep_info.spsr = marvell_get_spsr_for_bl33_entry();
 		break;
-
+#ifdef SCP_BL2_BASE
+	case SCP_BL2_IMAGE_ID:
+		/* The subsequent handling of SCP_BL2 is platform specific */
+		err = bl2_plat_handle_scp_bl2(&bl_mem_params->image_info);
+		if (err) {
+			WARN("Failure in platform-specific handling of SCP_BL2 image.\n");
+		}
+		break;
+#endif
 	default:
 		/* Do nothing in default case */
 		break;
