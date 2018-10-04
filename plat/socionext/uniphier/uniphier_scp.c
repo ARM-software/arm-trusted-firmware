@@ -12,7 +12,9 @@
 #define UNIPHIER_ROM_RSV3		0x5980120c
 
 #define UNIPHIER_STMBE2COM		0x5f800030
+#define UNIPHIER_STMTOBEIRQ		0x5f800060
 #define UNIPHIER_BETOSTMIRQ0PT		0x5f800070
+#define UNIPHIER_BEIRQCLRPT		0x5f800072
 
 #define UNIPHIER_SCP_READY_MAGIC	0x0000b6a5
 
@@ -59,6 +61,10 @@ static void uniphier_scp_send_packet(const uint8_t *packet, int packet_len)
 	}
 
 	mmio_write_8(UNIPHIER_BETOSTMIRQ0PT, 0x55);
+
+	while (!(mmio_read_32(UNIPHIER_STMTOBEIRQ) & BIT(1)))
+		;
+	mmio_write_8(UNIPHIER_BEIRQCLRPT, BIT(1) | BIT(0));
 }
 
 static void uniphier_scp_send_cmd(const uint8_t *cmd, int cmd_len)
