@@ -50,6 +50,10 @@ static int plat_sgi_append_config_node(void)
 		platid = mmio_read_32(SSC_VERSION) & SSC_VERSION_PART_NUM_MASK;
 		platcfg = (mmio_read_32(SSC_VERSION) >> SSC_VERSION_CONFIG_SHIFT)
 				& SSC_VERSION_CONFIG_MASK;
+	} else if (strcmp(platform_name, "arm,sgi-clark") == 0) {
+		platid = mmio_read_32(SID_REG_BASE + SID_SYSTEM_ID_OFFSET)
+				& SID_SYSTEM_ID_PART_NUM_MASK;
+		platcfg = mmio_read_32(SID_REG_BASE + SID_SYSTEM_CFG_OFFSET);
 	} else {
 		WARN("Invalid platform\n");
 		return -1;
