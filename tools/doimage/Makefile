@@ -39,7 +39,7 @@ ${PROJECT}: ${OBJECTS} Makefile
 	@echo "Built $@ successfully"
 	@echo
 
-%.o: %.c %.h Makefile
+%.o: %.c Makefile
 	@echo "  CC      $<"
 	${Q}${CC} -c ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
 

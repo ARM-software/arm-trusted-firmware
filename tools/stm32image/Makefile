@@ -12,8 +12,7 @@ PROJECT := stm32image${BIN_EXT}
 OBJECTS := stm32image.o
 V := 0
 
-override CPPFLAGS += -D_GNU_SOURCE
-CFLAGS := -Wall -Werror -pedantic -std=c99
+CFLAGS := -Wall -Werror -pedantic -std=c99 -D_GNU_SOURCE
 ifeq (${DEBUG},1)
   CFLAGS += -g -O0 -DDEBUG
 else
@@ -39,7 +38,7 @@ ${PROJECT}: ${OBJECTS} Makefile
 	@echo "Built $@ successfully"
 	@${ECHO_BLANK_LINE}
 
-%.o: %.c %.h Makefile
+%.o: %.c Makefile
 	@echo "  CC      $<"
 	${Q}${CC} -c ${CFLAGS} $< -o $@
 
