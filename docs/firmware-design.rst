@@ -2336,6 +2336,29 @@ implement:
 
    SUBSCRIBE_TO_EVENT(foo, foo_handler);
 
+
+Reclaiming the BL31 initialization code
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A significant amount of the code used for the initialization of BL31 is never
+needed again after boot time. In order to reduce the runtime memory
+footprint, the memory used for this code can be reclaimed after initialization
+has finished and be used for runtime data.
+
+The build option ``RECLAIM_INIT_CODE`` can be set to mark this boot time code
+with a ``.text.init.*`` attribute which can be filtered and placed suitably
+within the BL image for later reclaimation by the platform. The platform can
+specify the fiter and the memory region for this init section in BL31 via the
+plat.ld.S linker script. For example, on the FVP, this section is placed
+overlapping the secondary CPU stacks so that after the cold boot is done, this
+memory can be reclaimed for the stacks. The init memory section is initially
+mapped with ``RO``, ``EXECUTE`` attributes. After BL31 initilization has
+completed, the FVP changes the attributes of this section to ``RW``,
+``EXECUTE_NEVER`` allowing it to be used for runtime data. The memory attributes
+are changed within the ``bl31_plat_runtime_setup`` platform hook. The init
+section section can be reclaimed for any data which is accessed after cold
+boot initialization and it is upto the platform to make the decision.
+
 Performance Measurement Framework
 ---------------------------------
 

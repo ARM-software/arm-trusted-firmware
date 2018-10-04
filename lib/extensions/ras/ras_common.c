@@ -128,7 +128,7 @@ static int ras_interrupt_handler(uint32_t intr_raw, uint32_t flags,
 	return 0;
 }
 
-void ras_init(void)
+void __init ras_init(void)
 {
 #if ENABLE_ASSERTIONS
 	/* Check RAS interrupts are sorted */

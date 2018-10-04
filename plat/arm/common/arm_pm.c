@@ -208,7 +208,7 @@ void plat_arm_program_trusted_mailbox(uintptr_t address)
  * The ARM Standard platform definition of platform porting API
  * `plat_setup_psci_ops`.
  ******************************************************************************/
-int plat_setup_psci_ops(uintptr_t sec_entrypoint,
+int __init plat_setup_psci_ops(uintptr_t sec_entrypoint,
 				const plat_psci_ops_t **psci_ops)
 {
 	*psci_ops = plat_arm_psci_override_pm_ops(&plat_arm_psci_pm_ops);

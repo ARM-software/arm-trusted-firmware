@@ -68,7 +68,7 @@ static const gicv3_driver_data_t arm_gic_data __unused = {
 	.mpidr_to_core_pos = arm_gicv3_mpidr_hash
 };
 
-void plat_arm_gic_driver_init(void)
+void __init plat_arm_gic_driver_init(void)
 {
 	/*
 	 * The GICv3 driver is initialized in EL3 and does not need
@@ -85,7 +85,7 @@ void plat_arm_gic_driver_init(void)
 /******************************************************************************
  * ARM common helper to initialize the GIC. Only invoked by BL31
  *****************************************************************************/
-void plat_arm_gic_init(void)
+void __init plat_arm_gic_init(void)
 {
 	gicv3_distif_init();
 	gicv3_rdistif_init(plat_my_core_pos());

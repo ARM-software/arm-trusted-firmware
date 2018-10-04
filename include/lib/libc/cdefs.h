@@ -14,6 +14,15 @@
 #define __unused	__attribute__((__unused__))
 #define __aligned(x)	__attribute__((__aligned__(x)))
 #define __section(x)	__attribute__((__section__(x)))
+#if RECLAIM_INIT_CODE
+/*
+ * Add each function to a section that is unique so the functions can still
+ * be garbage collected
+ */
+#define __init		__section(".text.init." __FILE__ "." __XSTRING(__LINE__))
+#else
+#define __init
+#endif
 
 #define __printflike(fmtarg, firstvararg) \
 		__attribute__((__format__ (__printf__, fmtarg, firstvararg)))

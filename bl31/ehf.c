@@ -451,7 +451,7 @@ static uint64_t ehf_el3_interrupt_handler(uint32_t id, uint32_t flags,
 /*
  * Initialize the EL3 exception handling.
  */
-void ehf_init(void)
+void __init ehf_init(void)
 {
 	unsigned int flags = 0;
 	int ret __unused;

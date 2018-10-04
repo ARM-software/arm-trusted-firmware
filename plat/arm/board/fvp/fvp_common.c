@@ -241,7 +241,7 @@ const struct secure_partition_boot_info *plat_get_secure_partition_boot_info(
  * these platforms. This information is stored in a per-BL array to allow the
  * code to take the correct path.Per BL platform configuration.
  ******************************************************************************/
-void fvp_config_setup(void)
+void __init fvp_config_setup(void)
 {
 	unsigned int rev, hbi, bld, arch, sys_id;
 
@@ -331,7 +331,7 @@ void fvp_config_setup(void)
 }
 
 
-void fvp_interconnect_init(void)
+void __init fvp_interconnect_init(void)
 {
 #if FVP_INTERCONNECT_DRIVER == FVP_CCN
 	if (ccn_get_part0_id(PLAT_ARM_CCN_BASE) != CCN_502_PART0_ID) {

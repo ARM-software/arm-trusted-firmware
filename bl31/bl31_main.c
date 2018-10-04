@@ -57,7 +57,7 @@ uintptr_t get_arm_std_svc_args(unsigned int svc_mask)
 /*******************************************************************************
  * Simple function to initialise all BL31 helper libraries.
  ******************************************************************************/
-void bl31_lib_init(void)
+void __init bl31_lib_init(void)
 {
 	cm_init();
 }
@@ -149,7 +149,7 @@ uint32_t bl31_get_next_image_type(void)
  * This function programs EL3 registers and performs other setup to enable entry
  * into the next image after BL31 at the next ERET.
  ******************************************************************************/
-void bl31_prepare_next_image_entry(void)
+void __init bl31_prepare_next_image_entry(void)
 {
 	entry_point_info_t *next_image_info;
 	uint32_t image_type;
