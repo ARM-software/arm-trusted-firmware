@@ -48,7 +48,7 @@ func plat_crash_console_init
 	ldr	r0, =PLAT_ARM_CRASH_UART_BASE
 	ldr	r1, =PLAT_ARM_CRASH_UART_CLK_IN_HZ
 	ldr	r2, =ARM_CONSOLE_BAUDRATE
-	b	console_core_init
+	b	console_pl011_core_init
 endfunc plat_crash_console_init
 
 	/* ---------------------------------------------
@@ -60,7 +60,7 @@ endfunc plat_crash_console_init
 	 */
 func plat_crash_console_putc
 	ldr	r1, =PLAT_ARM_CRASH_UART_BASE
-	b	console_core_putc
+	b	console_pl011_core_putc
 endfunc plat_crash_console_putc
 
 	/* ---------------------------------------------
@@ -73,5 +73,5 @@ endfunc plat_crash_console_putc
 	 */
 func plat_crash_console_flush
 	ldr	r0, =PLAT_ARM_CRASH_UART_BASE
-	b	console_core_flush
+	b	console_pl011_core_flush
 endfunc plat_crash_console_flush

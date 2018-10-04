@@ -396,12 +396,6 @@ ifeq ($(HW_ASSISTED_COHERENCY)-$(USE_COHERENT_MEM),1-1)
 $(error USE_COHERENT_MEM cannot be enabled with HW_ASSISTED_COHERENCY)
 endif
 
-ifneq ($(MULTI_CONSOLE_API), 0)
-    ifeq (${ARCH},aarch32)
-        $(error "Error: MULTI_CONSOLE_API is not supported for AArch32")
-    endif
-endif
-
 #For now, BL2_IN_XIP_MEM is only supported when BL2_AT_EL3 is 1.
 ifeq ($(BL2_AT_EL3)-$(BL2_IN_XIP_MEM),0-1)
 $(error "BL2_IN_XIP_MEM is only supported when BL2_AT_EL3 is enabled")

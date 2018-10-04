@@ -9,6 +9,7 @@
 #include <console.h>
 #include <debug.h>
 #include <mmio.h>
+#include <pl011.h>
 #include <plat_arm.h>
 #include <platform.h>
 #include <platform_def.h>
@@ -61,8 +62,7 @@ void arm_sp_min_early_platform_setup(void *from_bl2, uintptr_t tos_fw_config,
 			uintptr_t hw_config, void *plat_params_from_bl2)
 {
 	/* Initialize the console to provide early debug support */
-	console_init(PLAT_ARM_BOOT_UART_BASE, PLAT_ARM_BOOT_UART_CLK_IN_HZ,
-				ARM_CONSOLE_BAUDRATE);
+	arm_console_boot_init();
 
 #if RESET_TO_SP_MIN
 	/* There are no parameters from BL2 if SP_MIN is a reset vector */
@@ -152,8 +152,7 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 void arm_sp_min_plat_runtime_setup(void)
 {
 	/* Initialize the runtime console */
-	console_init(PLAT_ARM_SP_MIN_RUN_UART_BASE,
-		PLAT_ARM_SP_MIN_RUN_UART_CLK_IN_HZ, ARM_CONSOLE_BAUDRATE);
+	arm_console_runtime_init();
 }
 
 /*******************************************************************************

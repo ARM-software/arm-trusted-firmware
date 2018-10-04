@@ -123,9 +123,7 @@ ENABLE_PMF			:=	1
 SEPARATE_CODE_AND_RODATA	:=	1
 
 # Use the multi console API, which is only available for AArch64 for now
-ifeq (${ARCH}, aarch64)
-  MULTI_CONSOLE_API		:=	1
-endif
+MULTI_CONSOLE_API		:=	1
 
 # Disable ARM Cryptocell by default
 ARM_CRYPTOCELL_INTEG		:=	0
