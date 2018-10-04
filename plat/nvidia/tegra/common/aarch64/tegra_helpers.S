@@ -140,17 +140,14 @@ endfunc plat_is_my_cpu_primary
 	 * unsigned int plat_my_core_pos(void);
 	 *
 	 * result: CorePos = CoreId + (ClusterId * cpus per cluster)
+	 * Registers clobbered: x0, x8
 	 * ----------------------------------------------------------
 	 */
 func plat_my_core_pos
+	mov	x8, x30
 	mrs	x0, mpidr_el1
-	and	x1, x0, #MPIDR_CPU_MASK
-	and	x0, x0, #MPIDR_CLUSTER_MASK
-	lsr	x0, x0, #MPIDR_AFFINITY_BITS
-	mov	x2, #PLATFORM_MAX_CPUS_PER_CLUSTER
-	mul	x0, x0, x2
-	add	x0, x1, x0
-	ret
+	bl	plat_core_pos_by_mpidr
+	ret	x8
 endfunc plat_my_core_pos
 
 	/* -----------------------------------------------------
