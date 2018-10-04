@@ -288,7 +288,7 @@ INCLUDE_TBBR_MK		:=	1
 
 ifneq (${SPD},none)
 ifeq (${ARCH},aarch32)
-	$(error "Error: SPD is incompatible with AArch32.")
+        $(error "Error: SPD is incompatible with AArch32.")
 endif
 ifdef EL3_PAYLOAD_BASE
         $(warning "SPD and EL3_PAYLOAD_BASE are incompatible build options.")
