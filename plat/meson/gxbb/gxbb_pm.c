@@ -101,12 +101,28 @@ static void gxbb_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	gicv2_cpuif_enable();
 }
 
+static void gxbb_pwr_domain_off(const psci_power_state_t *target_state)
+{
+	u_register_t mpidr = read_mpidr_el1();
+	unsigned int core = plat_gxbb_calc_core_pos(mpidr);
+	uintptr_t addr = GXBB_PSCI_MAILBOX_BASE + 8 + (core << 4);
+
+	mmio_write_32(addr, 0xFFFFFFFF);
+	flush_dcache_range(addr, sizeof(uint32_t));
+
+	gicv2_cpuif_disable();
+
+	scpi_set_css_power_state(mpidr,
+				 SCPI_POWER_OFF, SCPI_POWER_ON, SCPI_POWER_ON);
+}
+
 /*******************************************************************************
  * Platform handlers and setup function.
  ******************************************************************************/
 static const plat_psci_ops_t gxbb_ops = {
 	.pwr_domain_on			= gxbb_pwr_domain_on,
 	.pwr_domain_on_finish		= gxbb_pwr_domain_on_finish,
+	.pwr_domain_off			= gxbb_pwr_domain_off,
 	.system_off			= gxbb_system_off,
 	.system_reset			= gxbb_system_reset,
 };
