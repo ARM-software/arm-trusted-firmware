@@ -29,7 +29,7 @@ int arm_validate_power_state(unsigned int power_state,
 	unsigned int pwr_lvl = psci_get_pstate_pwrlvl(power_state);
 	unsigned int i;
 
-	assert(req_state > 0U);
+	assert(req_state != NULL);
 
 	if (pwr_lvl > PLAT_MAX_PWR_LVL)
 		return PSCI_E_INVALID_PARAMS;
@@ -72,7 +72,7 @@ int arm_validate_power_state(unsigned int power_state,
 	unsigned int state_id;
 	int i;
 
-	assert(req_state);
+	assert(req_state != NULL);
 
 	/*
 	 *  Currently we are using a linear search for finding the matching
@@ -128,7 +128,7 @@ int arm_validate_ns_entrypoint(uintptr_t entrypoint)
 
 int arm_validate_psci_entrypoint(uintptr_t entrypoint)
 {
-	return arm_validate_ns_entrypoint(entrypoint) == 0 ? PSCI_E_SUCCESS :
+	return (arm_validate_ns_entrypoint(entrypoint) == 0) ? PSCI_E_SUCCESS :
 		PSCI_E_INVALID_ADDRESS;
 }
 

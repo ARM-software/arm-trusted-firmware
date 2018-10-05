@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __RUNTIME_SVC_H__
-#define __RUNTIME_SVC_H__
+#ifndef RUNTIME_SVC_H
+#define RUNTIME_SVC_H
 
 #include <bl_common.h>		/* to include exception types */
 #include <cassert.h>
@@ -88,12 +88,12 @@ typedef struct rt_svc_desc {
 #define DECLARE_RT_SVC(_name, _start, _end, _type, _setup, _smch)	\
 	static const rt_svc_desc_t __svc_desc_ ## _name			\
 		__section("rt_svc_descs") __used = {			\
-			.start_oen = _start,				\
-			.end_oen = _end,				\
-			.call_type = _type,				\
+			.start_oen = (_start),				\
+			.end_oen = (_end),				\
+			.call_type = (_type),				\
 			.name = #_name,					\
-			.init = _setup,					\
-			.handle = _smch					\
+			.init = (_setup),				\
+			.handle = (_smch)				\
 		}
 
 #elif SMCCC_MAJOR_VERSION == 2
@@ -101,12 +101,12 @@ typedef struct rt_svc_desc {
 #define DECLARE_RT_SVC(_name, _start, _end, _type, _setup, _smch)	\
 	static const rt_svc_desc_t __svc_desc_ ## _name			\
 		__section("rt_svc_descs") __used = {			\
-			.start_oen = _start,				\
-			.end_oen = _end,				\
+			.start_oen = (_start),				\
+			.end_oen = (_end),				\
 			.is_vendor = 0,					\
 			.name = #_name,					\
-			.init = _setup,					\
-			.handle = _smch,				\
+			.init = (_setup),				\
+			.handle = (_smch),				\
 		};							\
 	CASSERT((_type) == SMC_TYPE_FAST, rt_svc_type_check_ ## _name)
 
@@ -198,4 +198,4 @@ void init_crash_reporting(void);
 extern uint8_t rt_svc_descs_indices[MAX_RT_SVCS];
 
 #endif /*__ASSEMBLY__*/
-#endif /* __RUNTIME_SVC_H__ */
+#endif /* RUNTIME_SVC_H */

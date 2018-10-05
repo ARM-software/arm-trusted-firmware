@@ -97,7 +97,7 @@
 #define ARCH_MODEL			0x1
 
 /* FVP Power controller base address*/
-#define PWRC_BASE			0x1c100000
+#define PWRC_BASE			UL(0x1c100000)
 
 /* FVP SP804 timer frequency is 35 MHz*/
 #define SP804_TIMER_CLKMULT		1

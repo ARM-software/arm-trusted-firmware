@@ -4,36 +4,36 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __FVP_PWRC_H__
-#define __FVP_PWRC_H__
+#ifndef FVP_PWRC_H
+#define FVP_PWRC_H
 
 /* FVP Power controller register offset etc */
-#define PPOFFR_OFF		0x0
-#define PPONR_OFF		0x4
-#define PCOFFR_OFF		0x8
-#define PWKUPR_OFF		0xc
-#define PSYSR_OFF		0x10
+#define PPOFFR_OFF		U(0x0)
+#define PPONR_OFF		U(0x4)
+#define PCOFFR_OFF		U(0x8)
+#define PWKUPR_OFF		U(0xc)
+#define PSYSR_OFF		U(0x10)
 
-#define PWKUPR_WEN		(1ULL << 31)
+#define PWKUPR_WEN		BIT_32(31)
 
-#define PSYSR_AFF_L2		(1 << 31)
-#define PSYSR_AFF_L1		(1 << 30)
-#define PSYSR_AFF_L0		(1 << 29)
-#define PSYSR_WEN		(1 << 28)
-#define PSYSR_PC		(1 << 27)
-#define PSYSR_PP		(1 << 26)
+#define PSYSR_AFF_L2		BIT_32(31)
+#define PSYSR_AFF_L1		BIT_32(30)
+#define PSYSR_AFF_L0		BIT_32(29)
+#define PSYSR_WEN		BIT_32(28)
+#define PSYSR_PC		BIT_32(27)
+#define PSYSR_PP		BIT_32(26)
 
 #define PSYSR_WK_SHIFT		24
 #define PSYSR_WK_WIDTH		0x2
-#define PSYSR_WK_MASK		((1 << PSYSR_WK_WIDTH) - 1)
-#define PSYSR_WK(x)		(x >> PSYSR_WK_SHIFT) & PSYSR_WK_MASK
+#define PSYSR_WK_MASK		((1U << PSYSR_WK_WIDTH) - 1U)
+#define PSYSR_WK(x)		((x) >> PSYSR_WK_SHIFT) & PSYSR_WK_MASK
 
-#define WKUP_COLD		0x0
-#define WKUP_RESET		0x1
-#define WKUP_PPONR		0x2
-#define WKUP_GICREQ		0x3
+#define WKUP_COLD		U(0x0)
+#define WKUP_RESET		U(0x1)
+#define WKUP_PPONR		U(0x2)
+#define WKUP_GICREQ		U(0x3)
 
-#define PSYSR_INVALID		0xffffffff
+#define PSYSR_INVALID		U(0xffffffff)
 
 #ifndef __ASSEMBLY__
 
@@ -50,4 +50,4 @@ unsigned int fvp_pwrc_get_cpu_wkr(u_register_t mpidr);
 
 #endif /*__ASSEMBLY__*/
 
-#endif /* __FVP_PWRC_H__ */
+#endif /* FVP_PWRC_H */
