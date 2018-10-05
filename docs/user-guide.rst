@@ -521,8 +521,8 @@ Common build options
        40 (LOG_LEVEL_INFO)
        50 (LOG_LEVEL_VERBOSE)
 
-   All log output up to and including the log level is compiled into the build.
-   The default value is 40 in debug builds and 20 in release builds.
+   All log output up to and including the selected log level is compiled into
+   the build. The default value is 40 in debug builds and 20 in release builds.
 
 -  ``NON_TRUSTED_WORLD_KEY``: This option is used when ``GENERATE_COT=1``. It
    specifies the file that contains the Non-Trusted World private key in PEM
