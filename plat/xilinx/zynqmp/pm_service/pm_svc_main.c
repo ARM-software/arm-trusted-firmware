@@ -29,8 +29,8 @@
 #define PM_SET_SUSPEND_MODE	0xa02
 #define PM_GET_TRUSTZONE_VERSION	0xa03
 
-/* !0 - UP, 0 - DOWN */
-static int32_t pm_up = 0;
+/* pm_up = !0 - UP, pm_up = 0 - DOWN */
+static int32_t pm_up, ipi_irq_flag;
 
 #if ZYNQMP_WDT_RESTART
 static spinlock_t inc_lock;
@@ -210,6 +210,15 @@ int pm_setup(void)
 
 	status = pm_ipi_init(primary_proc);
 
+	ret = pm_get_api_version(&pm_ctx.api_version);
+	if (pm_ctx.api_version < PM_VERSION) {
+		ERROR("BL31: Platform Management API version error. Expected: "
+		      "v%d.%d - Found: v%d.%d\n", PM_VERSION_MAJOR,
+		      PM_VERSION_MINOR, pm_ctx.api_version >> 16,
+		      pm_ctx.api_version & 0xFFFF);
+		return -EINVAL;
+	}
+
 #if ZYNQMP_WDT_RESTART
 	status = pm_wdt_restart_setup();
 	if (status)
@@ -321,21 +330,20 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_GET_API_VERSION:
 		/* Check is PM API version already verified */
-		if (pm_ctx.api_version == PM_VERSION) {
+		if (pm_ctx.api_version >= PM_VERSION) {
+			if (!ipi_irq_flag) {
+				/*
+				 * Enable IPI IRQ
+				 * assume the rich OS is OK to handle callback IRQs now.
+				 * Even if we were wrong, it would not enable the IRQ in
+				 * the GIC.
+				 */
+				pm_ipi_irq_enable(primary_proc);
+				ipi_irq_flag = 1;
+			}
 			SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS |
-				 ((uint64_t)PM_VERSION << 32));
+				 ((uint64_t)pm_ctx.api_version << 32));
 		}
-
-		ret = pm_get_api_version(&pm_ctx.api_version);
-		/*
-		 * Enable IPI IRQ
-		 * assume the rich OS is OK to handle callback IRQs now.
-		 * Even if we were wrong, it would not enable the IRQ in
-		 * the GIC.
-		 */
-		pm_ipi_irq_enable(primary_proc);
-		SMC_RET1(handle, (uint64_t)ret |
-			 ((uint64_t)pm_ctx.api_version << 32));
 
 	case PM_SET_CONFIGURATION:
 		ret = pm_set_configuration(pm_arg[0]);
