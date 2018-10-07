@@ -4,7 +4,7 @@
 # SPDX-License-Identifier:     BSD-3-Clause
 # https://spdx.org/licenses
 
-include tools/doimage/doimage.mk
+include tools/marvell/doimage/doimage.mk
 
 PLAT_FAMILY		:= a8k
 PLAT_FAMILY_BASE	:= plat/marvell/$(PLAT_FAMILY)
@@ -29,7 +29,7 @@ $(eval $(call assert_boolean,PCI_EP_SUPPORT))
 AP_NUM			:= 1
 $(eval $(call add_define,AP_NUM))
 
-DOIMAGEPATH		?=	tools/doimage
+DOIMAGEPATH		?=	tools/marvell/doimage
 DOIMAGETOOL		?=	${DOIMAGEPATH}/doimage
 
 ROM_BIN_EXT ?= $(BUILD_PLAT)/ble.bin
