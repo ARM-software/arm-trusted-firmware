@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __A8K_COMMON_H__
-#define __A8K_COMMON_H__
+#ifndef __ARMADA_COMMON_H__
+#define __ARMADA_COMMON_H__
 
 #include <amb_adec.h>
 #include <io_win.h>
