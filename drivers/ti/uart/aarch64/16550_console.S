@@ -87,8 +87,9 @@ endfunc console_16550_core_init
 	.globl console_16550_register
 
 	/* -----------------------------------------------
-	 * int console_16550_register(console_16550_t *console,
-		uintptr_t base, uint32_t clk, uint32_t baud)
+	 * int console_16550_register(uintptr_t baseaddr,
+	 *     uint32_t clock, uint32_t baud,
+	 *     console_16550_t *console);
 	 * Function to initialize and register a new 16550
 	 * console. Storage passed in for the console struct
 	 * *must* be persistent (i.e. not from the stack).

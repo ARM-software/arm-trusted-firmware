@@ -54,8 +54,9 @@ endfunc console_cdns_core_init
 	.globl console_cdns_register
 
 	/* -----------------------------------------------
-	 * int console_cdns_register(console_cdns_t *console,
-		uintptr_t base, uint32_t clk, uint32_t baud)
+	 * int console_cdns_register(uint64_t baseaddr,
+	 *     uint32_t clock, uint32_t baud,
+	 *     console_cdns_t *console);
 	 * Function to initialize and register a new CDNS
 	 * console. Storage passed in for the console struct
 	 * *must* be persistent (i.e. not from the stack).
