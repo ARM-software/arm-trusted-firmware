@@ -45,7 +45,7 @@ spacer:
 	 * Clobbers: x0 - x10, sp
 	 * ---------------------------------------------
 	 */
-	.macro arm_print_gic_regs
+	.macro marvell_print_gic_regs
 	/* Check for GICv3 system register access */
 	mrs	x7, id_aa64pfr0_el1
 	ubfx	x7, x7, #ID_AA64PFR0_GIC_SHIFT, #ID_AA64PFR0_GIC_WIDTH

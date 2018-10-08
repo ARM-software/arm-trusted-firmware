@@ -49,6 +49,6 @@ mrvl_clean:
 
 ${DOIMAGETOOL}: mrvl_clean
 	@$(DOIMAGE_LIBS_CHECK)
-	${Q}${MAKE} --no-print-directory -C ${DOIMAGEPATH} WTMI_IMG=$(WTMI_IMG)
+	${Q}${MAKE} --no-print-directory -C ${DOIMAGEPATH} VERSION=$(SUBVERSION) WTMI_IMG=$(WTMI_IMG)
 
 
