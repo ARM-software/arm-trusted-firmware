@@ -176,7 +176,7 @@ void mmap_add(const mmap_region_t *mm)
 {
 	const mmap_region_t *mm_cursor = mm;
 
-	while (mm_cursor->attr != 0U) {
+	while ((mm_cursor->size != 0U) || (mm_cursor->attr != 0U)) {
 		mmap_add_region(mm_cursor->base_pa, mm_cursor->base_va,
 				mm_cursor->size, mm_cursor->attr);
 		mm_cursor++;
