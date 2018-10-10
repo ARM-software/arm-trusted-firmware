@@ -7,11 +7,11 @@
 PROJECT = doimage
 OBJECTS = doimage.o
 
-CFLAGS = -Wall -Werror
+HOSTCCFLAGS = -Wall -Werror
 ifeq (${DEBUG},1)
-  CFLAGS += -g -O0 -DDEBUG
+  HOSTCCFLAGS += -g -O0 -DDEBUG
 else
-  CFLAGS += -O2
+  HOSTCCFLAGS += -O2
 endif
 
 ifeq (${MARVELL_SECURE_BOOT},1)
@@ -19,13 +19,13 @@ DOIMAGE_CC_FLAGS := -DCONFIG_MVEBU_SECURE_BOOT
 DOIMAGE_LD_FLAGS := -lconfig -lmbedtls -lmbedcrypto -lmbedx509
 endif
 
-CFLAGS += ${DOIMAGE_CC_FLAGS}
+HOSTCCFLAGS += ${DOIMAGE_CC_FLAGS}
 
 # Make soft links and include from local directory otherwise wrong headers
 # could get pulled in from firmware tree.
 INCLUDE_PATHS = -I.
 
-CC := gcc
+HOSTCC ?= gcc
 RM := rm -rf
 
 .PHONY: all clean
@@ -33,15 +33,15 @@ RM := rm -rf
 all: ${PROJECT}
 
 ${PROJECT}: ${OBJECTS} Makefile
-	@echo "  LD      $@"
-	${Q}${CC} ${OBJECTS} ${DOIMAGE_LD_FLAGS} -o $@
+	@echo "  HOSTLD  $@"
+	${Q}${HOSTCC} ${OBJECTS} ${DOIMAGE_LD_FLAGS} -o $@
 	@echo
 	@echo "Built $@ successfully"
 	@echo
 
 %.o: %.c Makefile
-	@echo "  CC      $<"
-	${Q}${CC} -c ${CFLAGS} ${INCLUDE_PATHS} $< -o $@
+	@echo "  HOSTCC  $<"
+	${Q}${HOSTCC} -c ${HOSTCCFLAGS} ${INCLUDE_PATHS} $< -o $@
 
 clean:
 	${Q}${RM} ${PROJECT}
