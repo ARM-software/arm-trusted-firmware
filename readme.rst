@@ -193,6 +193,7 @@ All the above platforms have been tested with `Linaro Release 18.04`_.
 This release also contains the following platform support:
 
 -  Allwinner sun50i_64 and sun50i_h6
+-  Amlogic Meson S905 (GXBB)
 -  ARM SGI-575 and SGM-775
 -  HiKey, HiKey960 and Poplar boards
 -  Marvell Armada 8K

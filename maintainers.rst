@@ -26,6 +26,14 @@ Allwinner ARMv8 platform port
 :F: plat/allwinner/
 :F: drivers/allwinner/
 
+Amlogic Meson S905 (GXBB) platform port
+---------------------------------------
+:M: Antonio Niño Díaz <antonio.ninodiaz@arm.com>
+:G: `antonio-nino-diaz-arm`_
+:F: docs/plat/meson-gxbb.rst
+:F: drivers/meson/
+:F: plat/meson/gxbb/
+
 Armv7-A architecture port
 -------------------------
 :M: Etienne Carriere <etienne.carriere@linaro.org>
