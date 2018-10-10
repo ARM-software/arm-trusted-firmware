@@ -1,36 +1,36 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __V2M_DEF_H__
-#define __V2M_DEF_H__
+#ifndef V2M_DEF_H
+#define V2M_DEF_H
 
 #include <arm_xlat_tables.h>
 
 
 /* V2M motherboard system registers & offsets */
-#define V2M_SYSREGS_BASE		0x1c010000
-#define V2M_SYS_ID			0x0
-#define V2M_SYS_SWITCH			0x4
-#define V2M_SYS_LED			0x8
-#define V2M_SYS_NVFLAGS			0x38
-#define V2M_SYS_NVFLAGSSET		0x38
-#define V2M_SYS_NVFLAGSCLR		0x3c
-#define V2M_SYS_CFGDATA			0xa0
-#define V2M_SYS_CFGCTRL			0xa4
-#define V2M_SYS_CFGSTATUS		0xa8
+#define V2M_SYSREGS_BASE		UL(0x1c010000)
+#define V2M_SYS_ID			UL(0x0)
+#define V2M_SYS_SWITCH			UL(0x4)
+#define V2M_SYS_LED			UL(0x8)
+#define V2M_SYS_NVFLAGS			UL(0x38)
+#define V2M_SYS_NVFLAGSSET		UL(0x38)
+#define V2M_SYS_NVFLAGSCLR		UL(0x3c)
+#define V2M_SYS_CFGDATA			UL(0xa0)
+#define V2M_SYS_CFGCTRL			UL(0xa4)
+#define V2M_SYS_CFGSTATUS		UL(0xa8)
 
-#define V2M_CFGCTRL_START		(1 << 31)
-#define V2M_CFGCTRL_RW			(1 << 30)
+#define V2M_CFGCTRL_START		BIT_32(31)
+#define V2M_CFGCTRL_RW			BIT_32(30)
 #define V2M_CFGCTRL_FUNC_SHIFT		20
-#define V2M_CFGCTRL_FUNC(fn)		(fn << V2M_CFGCTRL_FUNC_SHIFT)
-#define V2M_FUNC_CLK_GEN		0x01
-#define V2M_FUNC_TEMP			0x04
-#define V2M_FUNC_DB_RESET		0x05
-#define V2M_FUNC_SCC_CFG		0x06
-#define V2M_FUNC_SHUTDOWN		0x08
-#define V2M_FUNC_REBOOT			0x09
+#define V2M_CFGCTRL_FUNC(fn)		((fn) << V2M_CFGCTRL_FUNC_SHIFT)
+#define V2M_FUNC_CLK_GEN		U(0x01)
+#define V2M_FUNC_TEMP			U(0x04)
+#define V2M_FUNC_DB_RESET		U(0x05)
+#define V2M_FUNC_SCC_CFG		U(0x06)
+#define V2M_FUNC_SHUTDOWN		U(0x08)
+#define V2M_FUNC_REBOOT			U(0x09)
 
 /* NVFLAGS in the V2M motherboard which is preserved after a watchdog reset */
  #define V2M_SYS_NVFLAGS_ADDR		(V2M_SYSREGS_BASE + V2M_SYS_NVFLAGS)
@@ -131,4 +131,4 @@
 						MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
 
 
-#endif /* __V2M_DEF_H__ */
+#endif /* V2M_DEF_H */
