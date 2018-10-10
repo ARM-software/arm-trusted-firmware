@@ -160,7 +160,7 @@ static int imx_usdhc_send_cmd(struct mmc_cmd *cmd)
 		mixctl |= MIXCTRL_DMAEN;
 	}
 
-	if (cmd->resp_type & MMC_RSP_48)
+	if (cmd->resp_type & MMC_RSP_48 && cmd->resp_type != MMC_RESPONSE_R2)
 		xfertype |= XFERTYPE_RSPTYP_48;
 	else if (cmd->resp_type & MMC_RSP_136)
 		xfertype |= XFERTYPE_RSPTYP_136;
