@@ -81,6 +81,7 @@ Marvell platform ports and SoC drivers
 :F: docs/plat/marvell/
 :F: plat/marvell/
 :F: drivers/marvell/
+:F: tools/doimage/
 
 NVidia platform ports
 ---------------------
