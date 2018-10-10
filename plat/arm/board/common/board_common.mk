@@ -4,15 +4,15 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-PLAT_INCLUDES		+=	-Iinclude/plat/arm/board/common/			\
-				-Iinclude/plat/arm/board/common/drivers
+PLAT_INCLUDES		+=	-Iinclude/drivers/cfi/				\
+				-Iinclude/plat/arm/board/common/
 
-PLAT_BL_COMMON_SOURCES	+=	drivers/arm/pl011/${ARCH}/pl011_console.S		\
+PLAT_BL_COMMON_SOURCES	+=	drivers/arm/pl011/${ARCH}/pl011_console.S	\
 				plat/arm/board/common/${ARCH}/board_arm_helpers.S
 
-BL1_SOURCES		+=	plat/arm/board/common/drivers/norflash/norflash.c
+BL1_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c
 
-BL2_SOURCES		+=	plat/arm/board/common/drivers/norflash/norflash.c
+BL2_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
   ifneq (${ARM_CRYPTOCELL_INTEG}, 1)
