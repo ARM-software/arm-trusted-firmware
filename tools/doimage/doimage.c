@@ -216,7 +216,7 @@ void usage(void)
 }
 
 /* globals */
-options_t opts = {
+static options_t opts = {
 	.bin_ext_file = "NA",
 	.sec_cfg_file = "NA",
 	.sec_opts = 0,
@@ -1578,9 +1578,9 @@ error:
 
 int main(int argc, char *argv[])
 {
-	char in_file[MAX_FILENAME+1];
-	char out_file[MAX_FILENAME+1];
-	char ext_file[MAX_FILENAME+1];
+	char in_file[MAX_FILENAME+1] = { 0 };
+	char out_file[MAX_FILENAME+1] = { 0 };
+	char ext_file[MAX_FILENAME+1] = { 0 };
 	FILE *in_fd = NULL;
 	FILE *out_fd = NULL;
 	int parse = 0;
@@ -1590,6 +1590,7 @@ int main(int argc, char *argv[])
 	int image_size;
 	uint8_t *image_buf = NULL;
 	int read;
+	size_t len;
 	uint32_t nand_block_size_kb, mlc_nand;
 
 	/* Create temporary file for building extensions
@@ -1660,13 +1661,19 @@ int main(int argc, char *argv[])
 	if (optind >= argc)
 		usage_err("missing input file name");
 
-	strncpy(in_file, argv[optind], MAX_FILENAME);
+	len = strlen(argv[optind]);
+	if (len > MAX_FILENAME)
+		usage_err("file name too long");
+	memcpy(in_file, argv[optind], len);
 	optind++;
 
 	/* Output file must exist in non parse mode */
-	if (optind < argc)
-		strncpy(out_file, argv[optind], MAX_FILENAME);
-	else if (!parse)
+	if (optind < argc) {
+		len = strlen(argv[optind]);
+		if (len > MAX_FILENAME)
+			usage_err("file name too long");
+		memcpy(out_file, argv[optind], len);
+	} else if (!parse)
 		usage_err("missing output file name");
 
 	/* open the input file */
