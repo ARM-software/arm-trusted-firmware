@@ -17,6 +17,14 @@
  * with a tail call that will include return to the caller.
  * REQUIRES console_t pointer in x0 and a valid return address in x30.
  */
+/*
+ * The USE_FINISH_CONSOLE_REG_2 guard is introduced to allow selection between
+ * the 2 variants of the finish_console_register macro and will be removed
+ * once the deprecated variant is removed.
+ */
+#ifndef USE_FINISH_CONSOLE_REG_2
+#if !ERROR_DEPRECATED
+	/* This version of the macro is deprecated. Use the new version */
 	.macro	finish_console_register _driver
 	/*
 	 * Add these weak definitions so we will automatically write a 0 if the
@@ -39,5 +47,38 @@
 	str	r1, [r0, #CONSOLE_T_FLAGS]
 	b	console_register
 	.endm
+#endif /* ERROR_DEPRECATED */
+#else /* USE_FINISH_CONSOLE_REG_2 */
+	/* The new version of the macro not using weak references */
+	.macro	finish_console_register _driver, putc=0, getc=0, flush=0
+	/*
+	 * If any of the callback is not specified or set as 0, then the
+	 * corresponding callback entry in console_t is set to 0.
+	 */
+	.ifne \putc
+	  ldr	r1, =console_\_driver\()_putc
+	.else
+	  mov	r1, #0
+	.endif
+	str	r1, [r0, #CONSOLE_T_PUTC]
 
+	.ifne \getc
+	  ldr	r1, =console_\_driver\()_getc
+	.else
+	  mov	r1, #0
+	.endif
+	str	r1, [r0, #CONSOLE_T_GETC]
+
+	.ifne \flush
+	  ldr	r1, =console_\_driver\()_flush
+	.else
+	  mov	r1, #0
+	.endif
+	str	r1, [r0, #CONSOLE_T_FLUSH]
+
+	mov	r1, #(CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH)
+	str	r1, [r0, #CONSOLE_T_FLAGS]
+	b	console_register
+	.endm
+#endif /* USE_FINISH_CONSOLE_REG_2 */
 #endif /* __CONSOLE_MACROS_S__ */

@@ -7,6 +7,8 @@
 #include <asm_macros.S>
 #include <assert_macros.S>
 #include <cadence/cdns_uart.h>
+#define USE_FINISH_CONSOLE_REG_2
+#include <console_macros.S>
 
 	/*
 	 * "core" functions are low-level implementations that don't require
@@ -77,7 +79,7 @@ func console_cdns_register
 
 	mov	x0, x6
 	mov	x30, v7
-	finish_console_register cdns
+	finish_console_register cdns putc=1, getc=1, flush=1
 
 register_fail:
 	ret	x7
