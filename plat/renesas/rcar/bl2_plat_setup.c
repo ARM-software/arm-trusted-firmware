@@ -328,6 +328,76 @@ meminfo_t *bl2_plat_sec_mem_layout(void)
 	return &bl2_tzram_layout;
 }
 
+static void bl2_populate_compatible_string(void *fdt)
+{
+	uint32_t board_type;
+	uint32_t board_rev;
+	uint32_t reg;
+	int ret;
+
+	/* Populate compatible string */
+	rcar_get_board_type(&board_type, &board_rev);
+	switch (board_type) {
+	case BOARD_SALVATOR_X:
+		ret = fdt_setprop_string(fdt, 0, "compatible",
+					 "renesas,salvator-x");
+		break;
+	case BOARD_SALVATOR_XS:
+		ret = fdt_setprop_string(fdt, 0, "compatible",
+					 "renesas,salvator-xs");
+		break;
+	case BOARD_STARTER_KIT:
+		ret = fdt_setprop_string(fdt, 0, "compatible",
+					 "renesas,m3ulcb");
+		break;
+	case BOARD_STARTER_KIT_PRE:
+		ret = fdt_setprop_string(fdt, 0, "compatible",
+					 "renesas,h3ulcb");
+		break;
+	case BOARD_EBISU:
+	case BOARD_EBISU_4D:
+		ret = fdt_setprop_string(fdt, 0, "compatible",
+					 "renesas,ebisu");
+		break;
+	default:
+		NOTICE("BL2: Cannot set compatible string, board unsupported\n");
+		panic();
+	}
+
+	if (ret < 0) {
+		NOTICE("BL2: Cannot set compatible string (ret=%i)\n", ret);
+		panic();
+	}
+
+	reg = mmio_read_32(RCAR_PRR);
+	switch (reg & RCAR_PRODUCT_MASK) {
+	case RCAR_PRODUCT_H3:
+		ret = fdt_appendprop_string(fdt, 0, "compatible",
+					    "renesas,r8a7795");
+		break;
+	case RCAR_PRODUCT_M3:
+		ret = fdt_appendprop_string(fdt, 0, "compatible",
+					    "renesas,r8a7796");
+		break;
+	case RCAR_PRODUCT_M3N:
+		ret = fdt_appendprop_string(fdt, 0, "compatible",
+					    "renesas,r8a77965");
+		break;
+	case RCAR_PRODUCT_E3:
+		ret = fdt_appendprop_string(fdt, 0, "compatible",
+					    "renesas,r8a77990");
+		break;
+	default:
+		NOTICE("BL2: Cannot set compatible string, SoC unsupported\n");
+		panic();
+	}
+
+	if (ret < 0) {
+		NOTICE("BL2: Cannot set compatible string (ret=%i)\n", ret);
+		panic();
+	}
+}
+
 static void bl2_advertise_dram_entries(uint64_t dram_config[8])
 {
 	char nodename[32] = { 0 };
@@ -675,6 +745,9 @@ lcm_state:
 		NOTICE("BL2: Cannot allocate FDT for U-Boot (ret=%i)\n", ret);
 		panic();
 	}
+
+	/* Add platform compatible string */
+	bl2_populate_compatible_string(fdt);
 
 	/* Print DRAM layout */
 	bl2_advertise_dram_size(product);
