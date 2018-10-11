@@ -120,12 +120,74 @@ typedef struct bl2_lossy_info {
 	uint32_t b0;
 } bl2_lossy_info_t;
 
+static void bl2_lossy_gen_fdt(uint32_t no, uint64_t start_addr,
+			      uint64_t end_addr, uint32_t format,
+			      uint32_t enable, int fcnlnode)
+{
+	const uint64_t fcnlsize = cpu_to_fdt64(end_addr - start_addr);
+	char nodename[40] = { 0 };
+	int ret, node;
+
+	/* Ignore undefined addresses */
+	if (start_addr == 0 && end_addr == 0)
+		return;
+
+	snprintf(nodename, sizeof(nodename), "lossy-decompression@");
+	unsigned_num_print(start_addr, 16, nodename + strlen(nodename));
+
+	node = ret = fdt_add_subnode(fdt, fcnlnode, nodename);
+	if (ret < 0) {
+		NOTICE("BL2: Cannot create FCNL node (ret=%i)\n", ret);
+		panic();
+	}
+
+	ret = fdt_setprop_string(fdt, node, "compatible",
+				 "renesas,lossy-decompression");
+	if (ret < 0) {
+		NOTICE("BL2: Cannot add FCNL compat string (ret=%i)\n", ret);
+		panic();
+	}
+
+	ret = fdt_appendprop_string(fdt, node, "compatible",
+				    "shared-dma-pool");
+	if (ret < 0) {
+		NOTICE("BL2: Cannot append FCNL compat string (ret=%i)\n", ret);
+		panic();
+	}
+
+	ret = fdt_setprop_u64(fdt, node, "reg", start_addr);
+	if (ret < 0) {
+		NOTICE("BL2: Cannot add FCNL reg prop (ret=%i)\n", ret);
+		panic();
+	}
+
+	ret = fdt_appendprop(fdt, node, "reg", &fcnlsize, sizeof(fcnlsize));
+	if (ret < 0) {
+		NOTICE("BL2: Cannot append FCNL reg size prop (ret=%i)\n", ret);
+		panic();
+	}
+
+	ret = fdt_setprop(fdt, node, "no-map", NULL, 0);
+	if (ret < 0) {
+		NOTICE("BL2: Cannot add FCNL no-map prop (ret=%i)\n", ret);
+		panic();
+	}
+
+	ret = fdt_setprop_u32(fdt, node, "renesas,formats", format);
+	if (ret < 0) {
+		NOTICE("BL2: Cannot add FCNL formats prop (ret=%i)\n", ret);
+		panic();
+	}
+}
+
 static void bl2_lossy_setting(uint32_t no, uint64_t start_addr,
 			      uint64_t end_addr, uint32_t format,
-			      uint32_t enable)
+			      uint32_t enable, int fcnlnode)
 {
 	bl2_lossy_info_t info;
 	uint32_t reg;
+
+	bl2_lossy_gen_fdt(no, start_addr, end_addr, format, enable, fcnlnode);
 
 	reg = format | (start_addr >> 20);
 	mmio_write_32(AXI_DCMPAREACRA0 + 0x8 * no, reg);
@@ -555,6 +617,9 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 #else
 	const char *boot_hyper160 = "HyperFlash(160MHz)";
 #endif
+#if (RCAR_LOSSY_ENABLE == 1)
+	int fcnlnode;
+#endif
 
 	reg = mmio_read_32(RCAR_MODEMR);
 	boot_dev = reg & MODEMR_BOOT_DEV_MASK;
@@ -800,12 +865,20 @@ lcm_state:
 	}
 #if (RCAR_LOSSY_ENABLE == 1)
 	NOTICE("BL2: Lossy Decomp areas\n");
+
+	fcnlnode = fdt_add_subnode(fdt, 0, "reserved-memory");
+	if (fcnlnode < 0) {
+		NOTICE("BL2: Cannot create reserved mem node (ret=%i)\n",
+			fcnlnode);
+		panic();
+	}
+
 	bl2_lossy_setting(0, LOSSY_ST_ADDR0, LOSSY_END_ADDR0,
-			  LOSSY_FMT0, LOSSY_ENA_DIS0);
+			  LOSSY_FMT0, LOSSY_ENA_DIS0, fcnlnode);
 	bl2_lossy_setting(1, LOSSY_ST_ADDR1, LOSSY_END_ADDR1,
-			  LOSSY_FMT1, LOSSY_ENA_DIS1);
+			  LOSSY_FMT1, LOSSY_ENA_DIS1, fcnlnode);
 	bl2_lossy_setting(2, LOSSY_ST_ADDR2, LOSSY_END_ADDR2,
-			  LOSSY_FMT2, LOSSY_ENA_DIS2);
+			  LOSSY_FMT2, LOSSY_ENA_DIS2, fcnlnode);
 #endif
 
 	fdt_pack(fdt);
