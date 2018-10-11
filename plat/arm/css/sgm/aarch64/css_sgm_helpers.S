@@ -9,6 +9,7 @@
 #include <platform_def.h>
 #include <cortex_a75.h>
 #include <cortex_a55.h>
+#include <cpu_macros.S>
 
 	.globl	plat_arm_calc_core_pos
 	.globl	plat_reset_handler
@@ -49,21 +50,6 @@ func plat_arm_calc_core_pos
 	madd	x0, x1, x5, x0
 	ret
 endfunc plat_arm_calc_core_pos
-
-	/* ------------------------------------------------------
-	 * Helper macro that reads the part number of the current
-	 * CPU and jumps to the given label if it matches the CPU
-	 * MIDR provided.
-	 *
-	 * Clobbers x0.
-	 * -----------------------------------------------------
-	 */
-	.macro  jump_if_cpu_midr _cpu_midr, _label
-	mrs	x0, midr_el1
-	ubfx	x0, x0, MIDR_PN_SHIFT, #12
-	cmp	w0, #((\_cpu_midr >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
-	b.eq	\_label
-	.endm
 
 	/* -----------------------------------------------------
 	 * void plat_reset_handler(void);

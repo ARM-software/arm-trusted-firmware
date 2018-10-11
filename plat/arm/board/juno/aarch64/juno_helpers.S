@@ -40,20 +40,6 @@
 	.endm
 
 	/* --------------------------------------------------------------------
-	 * Helper macro that reads the part number of the current CPU and jumps
-	 * to the given label if it matches the CPU MIDR provided.
-	 *
-	 * Clobbers x0.
-	 * --------------------------------------------------------------------
-	 */
-	.macro  jump_if_cpu_midr _cpu_midr, _label
-	mrs	x0, midr_el1
-	ubfx	x0, x0, MIDR_PN_SHIFT, #12
-	cmp     w0, #((\_cpu_midr >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
-	b.eq	\_label
-	.endm
-
-	/* --------------------------------------------------------------------
 	 * Platform reset handler for Juno R0.
 	 *
 	 * Juno R0 has the following topology:
