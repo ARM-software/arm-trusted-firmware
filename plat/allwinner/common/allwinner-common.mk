@@ -52,3 +52,6 @@ SEPARATE_CODE_AND_RODATA	:=	1
 
 # BL31 gets loaded alongside BL33 (U-Boot) by U-Boot's SPL
 RESET_TO_BL31			:=	1
+
+# We are short on memory, so save 3.5KB by not having an extra coherent page.
+USE_COHERENT_MEM		:=	0
