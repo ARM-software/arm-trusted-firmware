@@ -45,6 +45,11 @@ BL31_SOURCES		+=	$(SGM_CPU_SOURCES)			\
 				${CSS_SGM_BASE}/sgm_bl31_setup.c	\
 				${CSS_SGM_BASE}/sgm_plat_config.c
 
+ifneq (${RESET_TO_BL31},0)
+  $(error "Using BL31 as the reset vector is not supported on ${PLATFORM} platform. \
+  Please set RESET_TO_BL31 to 0.")
+endif
+
 # sgm uses CCI-500 as Cache Coherent Interconnect
 ARM_CCI_PRODUCT_ID	:=	500
 
