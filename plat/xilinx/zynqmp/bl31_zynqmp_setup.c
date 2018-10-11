@@ -50,7 +50,7 @@ static inline void bl31_set_default_config(void)
 
 /*
  * Perform any BL31 specific platform actions. Here is an opportunity to copy
- * parameters passed by the calling EL (S-EL1 in BL2 & S-EL3 in BL1) before they
+ * parameters passed by the calling EL (S-EL1 in BL2 & EL3 in BL1) before they
  * are lost (potentially). This needs to be done before the MMU is initialized
  * so that the memory layout can be used while creating page tables.
  */

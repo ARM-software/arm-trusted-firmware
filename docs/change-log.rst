@@ -61,11 +61,11 @@ New Features
 
 -  Introduce RAS handling on AArch64
 
-   -  Some RAS extensions are mandatory for ARMv8.2 CPUs, with others
-      mandatory for ARMv8.4 CPUs however, all extensions are also optional
-      extensions to the base ARMv8.0 architecture.
+   -  Some RAS extensions are mandatory for Armv8.2 CPUs, with others
+      mandatory for Armv8.4 CPUs however, all extensions are also optional
+      extensions to the base Armv8.0 architecture.
 
-   -  The ARMv8 RAS Extensions introduced Standard Error Records which are a
+   -  The Armv8 RAS Extensions introduced Standard Error Records which are a
       set of standard registers to configure RAS node policy and allow RAS
       Nodes to record and expose error information for error handling agents.
 
@@ -126,7 +126,7 @@ New Features
 
 -  Various changes to support Clang linker and assembler
 
-   -  The clang assembler/preprocessor is used when Clang is selected however,
+   -  The clang assembler/preprocessor is used when Clang is selected. However,
       the clang linker is not used because it is unable to link TF-A objects
       due to immaturity of clang linker functionality at this time.
 
@@ -213,11 +213,13 @@ New Features
 
    -  Allwinner sun50i_h6
 
-   -  NXP ls1043
+   -  NXP QorIQ LS1043A
 
    -  NXP i.MX8QX
 
    -  NXP i.MX8QM
+
+   -  NXP i.MX7Solo WaRP7
 
    -  TI K3
 

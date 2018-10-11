@@ -78,7 +78,7 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
 /*******************************************************************************
  * Perform any BL31 early platform setup common to ARM standard platforms.
  * Here is an opportunity to copy parameters passed by the calling EL (S-EL1
- * in BL2 & S-EL3 in BL1) before they are lost (potentially). This needs to be
+ * in BL2 & EL3 in BL1) before they are lost (potentially). This needs to be
  * done before the MMU is initialized so that the memory layout can be used
  * while creating page tables. BL2 has flushed this information to memory, so
  * we are guaranteed to pick up good data.

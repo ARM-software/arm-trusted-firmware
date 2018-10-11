@@ -30,7 +30,7 @@ static entry_point_info_t bl33_image_ep_info;
 
 /*******************************************************************************
  * Perform any BL3-1 early platform setup.  Here is an opportunity to copy
- * parameters passed by the calling EL (S-EL1 in BL2 & S-EL3 in BL1) before
+ * parameters passed by the calling EL (S-EL1 in BL2 & EL3 in BL1) before
  * they are lost (potentially). This needs to be done before the MMU is
  * initialized so that the memory layout can be used while creating page
  * tables. BL2 has flushed this information to memory, so we are guaranteed
