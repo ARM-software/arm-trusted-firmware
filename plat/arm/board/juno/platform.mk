@@ -73,12 +73,12 @@ BL2_SOURCES		+=	lib/utils/mem_region.c			\
 
 BL2U_SOURCES		+=	${JUNO_SECURITY_SOURCES}
 
-BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
+BL31_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c		\
+				lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
 				lib/utils/mem_region.c			\
 				plat/arm/board/juno/juno_topology.c	\
-				plat/arm/board/common/drivers/norflash/norflash.c \
 				plat/arm/common/arm_nor_psci_mem_protect.c \
 				${JUNO_GIC_SOURCES}			\
 				${JUNO_INTERCONNECT_SOURCES}		\

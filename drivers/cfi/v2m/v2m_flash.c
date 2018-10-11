@@ -6,8 +6,15 @@
 
 #include <errno.h>
 #include <mmio.h>
-#include <norflash.h>
+#include <v2m_flash.h>
 
+/*
+ * This file supplies a low level interface to the vexpress NOR flash
+ * memory of juno and fvp. This memory is organized as an interleaved
+ * memory of two chips with a 16 bit word. It means that every 32 bit
+ * access is going to access to two different chips. This is very
+ * important when we send commands or read status of the chips.
+ */
 
 /*
  * DWS ready poll retries. The number of retries in this driver have been
@@ -20,14 +27,6 @@
 
 /* Helper macro to detect end of command */
 #define NOR_CMD_END (NOR_DWS | NOR_DWS << 16l)
-
-/*
- * This file supplies a low level interface to the vexpress NOR flash
- * memory of juno and fvp. This memory is organized as an interleaved
- * memory of two chips with a 16 bit word. It means that every 32 bit
- * access is going to access to two different chips. This is very
- * important when we send commands or read status of the chips
- */
 
 /* Helper macros to access two flash banks in parallel */
 #define NOR_2X16(d)			((d << 16) | (d & 0xffff))

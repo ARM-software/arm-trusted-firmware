@@ -6,12 +6,11 @@
 
 #include <debug.h>
 #include <mmio.h>
-#include <norflash.h>
 #include <plat_arm.h>
 #include <platform_def.h>
 #include <psci.h>
 #include <utils.h>
-
+#include <v2m_flash.h>
 
 /*
  * DRAM1 is used also to load the NS boot loader. For this reason we

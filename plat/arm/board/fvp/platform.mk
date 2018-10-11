@@ -147,13 +147,13 @@ BL2U_SOURCES		+=	plat/arm/board/fvp/fvp_bl2u_setup.c		\
 				${FVP_SECURITY_SOURCES}
 
 BL31_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
+				drivers/cfi/v2m/v2m_flash.c			\
 				lib/utils/mem_region.c				\
 				plat/arm/board/fvp/fvp_bl31_setup.c		\
 				plat/arm/board/fvp/fvp_pm.c			\
 				plat/arm/board/fvp/fvp_topology.c		\
 				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
 				plat/arm/board/fvp/drivers/pwrc/fvp_pwrc.c	\
-				plat/arm/board/common/drivers/norflash/norflash.c \
 				plat/arm/common/arm_nor_psci_mem_protect.c	\
 				${FVP_CPU_LIBS}					\
 				${FVP_GIC_SOURCES}				\

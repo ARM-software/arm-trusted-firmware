@@ -8,10 +8,10 @@
 #include <console.h>
 #include <debug.h>
 #include <errno.h>
-#include <norflash.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <stdint.h>
+#include <v2m_flash.h>
 
 #pragma weak plat_arm_error_handler
 
