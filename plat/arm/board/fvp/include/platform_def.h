@@ -20,7 +20,6 @@
 
 #include <arm_def.h>
 #include <arm_spm_def.h>
-#include <board_arm_def.h>
 #include <common_def.h>
 #include <tzc400.h>
 #include <utils_def.h>
@@ -44,6 +43,8 @@
  * Required ARM standard platform porting definitions
  */
 #define PLAT_ARM_CLUSTER_COUNT		FVP_CLUSTER_COUNT
+
+#define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00040000	/* 256 KB */
 
 #define PLAT_ARM_TRUSTED_ROM_BASE	0x00000000
 #define PLAT_ARM_TRUSTED_ROM_SIZE	0x04000000	/* 64 MB */
@@ -132,6 +133,45 @@
  */
 # define PLAT_ARM_MAX_BL32_SIZE		0x3B000
 #endif
+
+/*
+ * Size of cacheable stacks
+ */
+#if defined(IMAGE_BL1)
+# if TRUSTED_BOARD_BOOT
+#  define PLATFORM_STACK_SIZE 0x1000
+# else
+#  define PLATFORM_STACK_SIZE 0x440
+# endif
+#elif defined(IMAGE_BL2)
+# if TRUSTED_BOARD_BOOT
+#  define PLATFORM_STACK_SIZE 0x1000
+# else
+#  define PLATFORM_STACK_SIZE 0x400
+# endif
+#elif defined(IMAGE_BL2U)
+# define PLATFORM_STACK_SIZE 0x400
+#elif defined(IMAGE_BL31)
+# if ENABLE_SPM
+#  define PLATFORM_STACK_SIZE 0x500
+# elif PLAT_XLAT_TABLES_DYNAMIC
+#  define PLATFORM_STACK_SIZE 0x800
+# else
+#  define PLATFORM_STACK_SIZE 0x400
+# endif
+#elif defined(IMAGE_BL32)
+# define PLATFORM_STACK_SIZE 0x440
+#endif
+
+#define MAX_IO_DEVICES			3
+#define MAX_IO_HANDLES			4
+
+/* Reserve the last block of flash for PSCI MEM PROTECT flag */
+#define PLAT_ARM_FIP_BASE		V2M_FLASH0_BASE
+#define PLAT_ARM_FIP_MAX_SIZE		(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
+
+#define PLAT_ARM_NVM_BASE		V2M_FLASH0_BASE
+#define PLAT_ARM_NVM_SIZE		(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
 
 /*
  * PL011 related constants

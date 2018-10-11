@@ -20,7 +20,6 @@
 
 
 #include <arm_def.h>
-#include <board_arm_def.h>
 #include <board_css_def.h>
 #include <common_def.h>
 #include <css_def.h>
@@ -52,6 +51,8 @@
  * Required ARM standard platform porting definitions
  */
 #define PLAT_ARM_CLUSTER_COUNT		JUNO_CLUSTER_COUNT
+
+#define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00040000	/* 256 KB */
 
 /* Use the bypass address */
 #define PLAT_ARM_TRUSTED_ROM_BASE	V2M_FLASH0_BASE + BL1_ROM_BYPASS_OFFSET
@@ -160,6 +161,33 @@
  * Hence the BL32 PROGBITS size should be >= PLAT_CSS_MAX_SCP_BL2_SIZE.
  */
 #define PLAT_ARM_MAX_BL32_SIZE		0x3E000
+#endif
+
+/*
+ * Size of cacheable stacks
+ */
+#if defined(IMAGE_BL1)
+# if TRUSTED_BOARD_BOOT
+#  define PLATFORM_STACK_SIZE 0x1000
+# else
+#  define PLATFORM_STACK_SIZE 0x440
+# endif
+#elif defined(IMAGE_BL2)
+# if TRUSTED_BOARD_BOOT
+#  define PLATFORM_STACK_SIZE 0x1000
+# else
+#  define PLATFORM_STACK_SIZE 0x400
+# endif
+#elif defined(IMAGE_BL2U)
+# define PLATFORM_STACK_SIZE 0x400
+#elif defined(IMAGE_BL31)
+# if PLAT_XLAT_TABLES_DYNAMIC
+#  define PLATFORM_STACK_SIZE 0x800
+# else
+#  define PLATFORM_STACK_SIZE 0x400
+# endif
+#elif defined(IMAGE_BL32)
+# define PLATFORM_STACK_SIZE 0x440
 #endif
 
 /*

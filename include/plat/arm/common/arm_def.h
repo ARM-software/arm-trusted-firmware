@@ -277,6 +277,13 @@
 #endif
 
 /*
+ * Map mem_protect flash region with read and write permissions
+ */
+#define ARM_V2M_MAP_MEM_PROTECT		MAP_REGION_FLAT(PLAT_ARM_MEM_PROT_ADDR,	\
+						V2M_FLASH_BLOCK_SIZE,		\
+						MT_DEVICE | MT_RW | MT_SECURE)
+
+/*
  * The max number of regions like RO(code), coherent and data required by
  * different BL stages which need to be mapped in the MMU.
  */

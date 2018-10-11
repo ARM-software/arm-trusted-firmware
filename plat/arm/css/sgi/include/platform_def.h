@@ -9,12 +9,12 @@
 
 #include <arm_def.h>
 #include <arm_spm_def.h>
-#include <board_arm_def.h>
 #include <board_css_def.h>
 #include <common_def.h>
 #include <css_def.h>
 #include <soc_css_def.h>
 #include <utils_def.h>
+#include <v2m_def.h>
 #include <xlat_tables_defs.h>
 
 #define CSS_SGI_MAX_CPUS_PER_CLUSTER	4
@@ -25,6 +25,8 @@
 #define PLATFORM_CORE_COUNT		(PLAT_ARM_CLUSTER_COUNT *	\
 					CSS_SGI_MAX_CPUS_PER_CLUSTER * \
 					CSS_SGI_MAX_PE_PER_CPU)
+
+#define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00040000	/* 256 KB */
 
 /*
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
@@ -85,6 +87,34 @@
  * BL2 and BL1-RW
  */
 #define PLAT_ARM_MAX_BL31_SIZE		0x3B000
+
+/*
+ * Size of cacheable stacks
+ */
+#if defined(IMAGE_BL1)
+# if TRUSTED_BOARD_BOOT
+#  define PLATFORM_STACK_SIZE 0x1000
+# else
+#  define PLATFORM_STACK_SIZE 0x440
+# endif
+#elif defined(IMAGE_BL2)
+# if TRUSTED_BOARD_BOOT
+#  define PLATFORM_STACK_SIZE 0x1000
+# else
+#  define PLATFORM_STACK_SIZE 0x400
+# endif
+#elif defined(IMAGE_BL2U)
+# define PLATFORM_STACK_SIZE 0x400
+#elif defined(IMAGE_BL31)
+# if ENABLE_SPM
+#  define PLATFORM_STACK_SIZE 0x500
+# else
+#  define PLATFORM_STACK_SIZE 0x400
+# endif
+#elif defined(IMAGE_BL32)
+# define PLATFORM_STACK_SIZE 0x440
+#endif
+
 
 #define PLAT_ARM_NSTIMER_FRAME_ID	0
 
