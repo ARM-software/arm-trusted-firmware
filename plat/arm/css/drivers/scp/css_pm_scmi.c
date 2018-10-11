@@ -13,7 +13,6 @@
 #include <platform.h>
 #include <string.h>
 #include "../scmi/scmi.h"
-#include "../mhu/css_mhu_doorbell.h"
 #include "css_scp.h"
 
 /*
@@ -298,14 +297,6 @@ void __dead2 css_scp_sys_reboot(void)
 	css_scp_system_off(SCMI_SYS_PWR_COLD_RESET);
 }
 
-static scmi_channel_plat_info_t plat_css_scmi_plat_info = {
-		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE,
-		.db_reg_addr = PLAT_CSS_MHU_BASE + CSS_SCMI_MHU_DB_REG_OFF,
-		.db_preserve_mask = 0xfffffffe,
-		.db_modify_mask = 0x1,
-		.ring_doorbell = &mhu_ring_doorbell,
-};
-
 static int scmi_ap_core_init(scmi_channel_t *ch)
 {
 #if PROGRAMMABLE_RESET_ADDRESS
@@ -330,7 +321,7 @@ static int scmi_ap_core_init(scmi_channel_t *ch)
 
 void __init plat_arm_pwrc_setup(void)
 {
-	channel.info = &plat_css_scmi_plat_info;
+	channel.info = plat_css_get_scmi_info();
 	channel.lock = ARM_SCMI_LOCK_GET_INSTANCE;
 	scmi_handle = scmi_init(&channel);
 	if (scmi_handle == NULL) {
