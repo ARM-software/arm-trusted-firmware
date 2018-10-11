@@ -322,12 +322,14 @@ typedef struct plat_psci_ops {
 	int (*write_mem_protect)(int val);
 	int (*system_reset2)(int is_vendor,
 				int reset_type, u_register_t cookie);
+	int (*migrate_info)(u_register_t *mpidr);
 } plat_psci_ops_t;
 
 /*******************************************************************************
  * Function & Data prototypes
  ******************************************************************************/
 unsigned int psci_version(void);
+int psci_migrate_info(u_register_t *mpidr);
 int psci_cpu_on(u_register_t target_cpu,
 		uintptr_t entrypoint,
 		u_register_t context_id);
