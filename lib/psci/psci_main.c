@@ -167,8 +167,14 @@ int psci_system_suspend(uintptr_t entrypoint, u_register_t context_id)
 	/* Query the psci_power_state for system suspend */
 	psci_query_sys_suspend_pwrstate(&state_info);
 
+	/*
+	 * Check if platform allows suspend to Highest power level
+	 * (System level)
+	 */
+	if (psci_find_target_suspend_lvl(&state_info) < PLAT_MAX_PWR_LVL)
+		return PSCI_E_DENIED;
+
 	/* Ensure that the psci_power_state makes sense */
-	assert(psci_find_target_suspend_lvl(&state_info) == PLAT_MAX_PWR_LVL);
 	assert(psci_validate_suspend_req(&state_info, PSTATE_TYPE_POWERDOWN)
 						== PSCI_E_SUCCESS);
 	assert(is_local_state_off(
