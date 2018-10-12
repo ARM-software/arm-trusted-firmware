@@ -267,7 +267,7 @@ static plat_local_state_t *psci_get_req_local_pwr_states(unsigned int pwrlvl,
 static plat_local_state_t get_non_cpu_pd_node_local_state(
 		unsigned int parent_idx)
 {
-#if !(USE_COHERENT_MEM || HW_ASSISTED_COHERENCY)
+#if !(USE_COHERENT_MEM || HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
 	flush_dcache_range(
 			(uintptr_t) &psci_non_cpu_pd_nodes[parent_idx],
 			sizeof(psci_non_cpu_pd_nodes[parent_idx]));
@@ -283,7 +283,7 @@ static void set_non_cpu_pd_node_local_state(unsigned int parent_idx,
 		plat_local_state_t state)
 {
 	psci_non_cpu_pd_nodes[parent_idx].local_state = state;
-#if !(USE_COHERENT_MEM || HW_ASSISTED_COHERENCY)
+#if !(USE_COHERENT_MEM || HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
 	flush_dcache_range(
 			(uintptr_t) &psci_non_cpu_pd_nodes[parent_idx],
 			sizeof(psci_non_cpu_pd_nodes[parent_idx]));
@@ -948,21 +948,18 @@ void psci_do_pwrdown_sequence(unsigned int power_level)
 	/*
 	 * With hardware-assisted coherency, the CPU drivers only initiate the
 	 * power down sequence, without performing cache-maintenance operations
-	 * in software. Data caches and MMU remain enabled both before and after
-	 * this call.
+	 * in software. Data caches enabled both before and after this call.
 	 */
 	prepare_cpu_pwr_dwn(power_level);
 #else
 	/*
 	 * Without hardware-assisted coherency, the CPU drivers disable data
-	 * caches and MMU, then perform cache-maintenance operations in
-	 * software.
+	 * caches, then perform cache-maintenance operations in software.
 	 *
-	 * We ought to call prepare_cpu_pwr_dwn() to initiate power down
-	 * sequence. We currently have data caches and MMU enabled, but the
-	 * function will return with data caches and MMU disabled. We must
-	 * ensure that the stack memory is flushed out to memory before we start
-	 * popping from it again.
+	 * This also calls prepare_cpu_pwr_dwn() to initiate power down
+	 * sequence, but that function will return with data caches disabled.
+	 * We must ensure that the stack memory is flushed out to memory before
+	 * we start popping from it again.
 	 */
 	psci_do_pwrdown_cache_maintenance(power_level);
 #endif
