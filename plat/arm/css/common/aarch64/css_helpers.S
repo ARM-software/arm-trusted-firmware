@@ -108,7 +108,7 @@ endfunc plat_is_my_cpu_primary
 func plat_is_my_cpu_primary
 	mov	x9, x30
 	bl	plat_my_core_pos
-	ldr	x1, =SCP_BOOT_CFG_ADDR
+	mov_imm	x1, SCP_BOOT_CFG_ADDR
 	ldr	x1, [x1]
 	ubfx	x1, x1, #PLAT_CSS_PRIMARY_CPU_SHIFT, \
 			#PLAT_CSS_PRIMARY_CPU_BIT_WIDTH
