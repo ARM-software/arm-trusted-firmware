@@ -89,8 +89,9 @@ endfunc console_pl011_core_init
 	.globl console_pl011_register
 
 	/* -------------------------------------------------------
-	 * init console_pl011_register(console_pl011_t *console,
-	 *	uintptr_t base, uint32_t clk, uint32_t baud)
+	 * int console_pl011_register(uintptr_t baseaddr,
+	 *     uint32_t clock, uint32_t baud,
+	 *     console_pl011_t *console);
 	 * Function to initialize and register a new PL011
 	 * console. Storage passed in for the console struct
 	 * *must* be persistent (i.e. not from the stack).

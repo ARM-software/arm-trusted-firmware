@@ -19,8 +19,8 @@
 	.globl console_cbmc_flush
 
 	/* -----------------------------------------------
-	 * int console_cbmc_register(console_cbmc_t *console,
-	 *			     uintptr_t base)
+	 * int console_cbmc_register(uintptr_t base,
+	 *                           console_cbmc_t *console);
 	 * Registers a new CBMEM console instance. Reads
 	 * the size field from the buffer header structure
 	 * and stores it in our console_cbmc_t struct, so
