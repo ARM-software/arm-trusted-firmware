@@ -2646,8 +2646,8 @@ you can keep the sample implementation here (which calls ``console_flush()``).
 If you're trying to debug crashes in BL1, you can call the console_xx_core_flush
 function exported by some console drivers from here.
 
-Extternal Abort handling and RAS Support
-----------------------------------------
+External Abort handling and RAS Support
+---------------------------------------
 
 Function : plat_ea_handler
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
