@@ -10,6 +10,7 @@
 #include <plat_arm.h>
 #include <platform.h>
 #include <platform_def.h>
+#include <utils.h>
 
 /******************************************************************************
  * The following functions are defined as weak to allow a platform to override
@@ -33,10 +34,16 @@ static const interrupt_prop_t arm_interrupt_props[] = {
 
 /*
  * We save and restore the GICv3 context on system suspend. Allocate the
- * data in the designated EL3 Secure carve-out memory
+ * data in the designated EL3 Secure carve-out memory. The `volatile`
+ * is used to prevent the compiler from removing the gicv3 contexts even
+ * though the DEFINE_LOAD_SYM_ADDR creates a dummy reference to it.
  */
-static gicv3_redist_ctx_t rdist_ctx __section("arm_el3_tzc_dram");
-static gicv3_dist_ctx_t dist_ctx __section("arm_el3_tzc_dram");
+static volatile gicv3_redist_ctx_t rdist_ctx __section("arm_el3_tzc_dram");
+static volatile gicv3_dist_ctx_t dist_ctx __section("arm_el3_tzc_dram");
+
+/* Define accessor function to get reference to the GICv3 context */
+DEFINE_LOAD_SYM_ADDR(rdist_ctx)
+DEFINE_LOAD_SYM_ADDR(dist_ctx)
 
 /*
  * MPIDR hashing function for translating MPIDRs read from GICR_TYPER register
@@ -134,6 +141,10 @@ void plat_arm_gic_redistif_off(void)
  *****************************************************************************/
 void plat_arm_gic_save(void)
 {
+	gicv3_redist_ctx_t * const rdist_context =
+			(gicv3_redist_ctx_t *)LOAD_ADDR_OF(rdist_ctx);
+	gicv3_dist_ctx_t * const dist_context =
+			(gicv3_dist_ctx_t *)LOAD_ADDR_OF(dist_ctx);
 
 	/*
 	 * If an ITS is available, save its context before
@@ -149,10 +160,10 @@ void plat_arm_gic_save(void)
 	 * we only need to save the context of the CPU that is issuing
 	 * the SYSTEM SUSPEND call, i.e. the current CPU.
 	 */
-	gicv3_rdistif_save(plat_my_core_pos(), &rdist_ctx);
+	gicv3_rdistif_save(plat_my_core_pos(), rdist_context);
 
 	/* Save the GIC Distributor context */
-	gicv3_distif_save(&dist_ctx);
+	gicv3_distif_save(dist_context);
 
 	/*
 	 * From here, all the components of the GIC can be safely powered down
@@ -163,8 +174,13 @@ void plat_arm_gic_save(void)
 
 void plat_arm_gic_resume(void)
 {
+	const gicv3_redist_ctx_t *rdist_context =
+			(gicv3_redist_ctx_t *)LOAD_ADDR_OF(rdist_ctx);
+	const gicv3_dist_ctx_t *dist_context =
+			(gicv3_dist_ctx_t *)LOAD_ADDR_OF(dist_ctx);
+
 	/* Restore the GIC Distributor context */
-	gicv3_distif_init_restore(&dist_ctx);
+	gicv3_distif_init_restore(dist_context);
 
 	/*
 	 * Restore the GIC Redistributor and ITS contexts after the
@@ -172,7 +188,7 @@ void plat_arm_gic_resume(void)
 	 * we only need to restore the context of the CPU that issued
 	 * the SYSTEM SUSPEND call.
 	 */
-	gicv3_rdistif_init_restore(plat_my_core_pos(), &rdist_ctx);
+	gicv3_rdistif_init_restore(plat_my_core_pos(), rdist_context);
 
 	/*
 	 * If an ITS is available, restore its context after

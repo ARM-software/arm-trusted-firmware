@@ -67,6 +67,29 @@ void zero_normalmem(void *mem, u_register_t length);
  *       zeroing.
  */
 void zeromem(void *mem, u_register_t length);
+
+/*
+ * Utility function to return the address of a symbol. By default, the
+ * compiler generates adr/adrp instruction pair to return the reference
+ * to the symbol and this utility is used to override this compiler
+ * generated to code to use `ldr` instruction.
+ *
+ * This helps when Position Independent Executable needs to reference a symbol
+ * which is constant and does not depend on the execute address of the binary.
+ */
+#define DEFINE_LOAD_SYM_ADDR(_name)		\
+static inline u_register_t load_addr_## _name(void)		\
+{								\
+	u_register_t v;						\
+	/* Create a void reference to silence compiler */	\
+	(void) _name;						\
+	__asm__ volatile ("ldr %0, =" #_name : "=r" (v));	\
+	return v;						\
+}
+
+/* Helper to invoke the function defined by DEFINE_LOAD_SYM_ADDR() */
+#define LOAD_ADDR_OF(_name)	(typeof(_name) *) load_addr_## _name()
+
 #endif /* !(defined(__LINKER__) || defined(__ASSEMBLY__)) */
 
 #endif /* __UTILS_H__ */
