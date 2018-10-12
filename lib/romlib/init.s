@@ -5,7 +5,7 @@
  */
 
 	.globl	rom_lib_init
-	.extern	__DATA_RAM_START__, __DATA_ROM_START__, __DATA_SIZE__
+	.extern	__DATA_RAM_START__, __DATA_ROM_START__, __DATA_RAM_END__
 	.extern	memset, memcpy
 
 rom_lib_init:
@@ -16,13 +16,19 @@ rom_lib_init:
 
 1:	stp	x29, x30, [sp, #-16]!
 	adrp	x0, __DATA_RAM_START__
-	ldr	x1,= __DATA_ROM_START__
-	ldr	x2, =__DATA_SIZE__
+	adrp	x1, __DATA_ROM_START__
+	add	x1, x1, :lo12:__DATA_ROM_START__
+	adrp	x2, __DATA_RAM_END__
+	add	x2, x2, :lo12:__DATA_RAM_END__
+	sub	x2, x2, x0
 	bl	memcpy
 
-	ldr	x0, =__BSS_START__
+	adrp	x0,__BSS_START__
+	add	x0, x0, :lo12:__BSS_START__
 	mov	x1, #0
-	ldr	x2, =__BSS_SIZE__
+	adrp	x2, __BSS_END__
+	add	x2, x2, :lo12:__BSS_END__
+	sub	x2, x2, x0
 	bl	memset
 	ldp	x29, x30, [sp], #16
 
