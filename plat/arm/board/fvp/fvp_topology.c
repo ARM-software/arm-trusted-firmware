@@ -16,7 +16,8 @@
 static unsigned char fvp_power_domain_tree_desc[FVP_CLUSTER_COUNT + 2];
 
 
-CASSERT(FVP_CLUSTER_COUNT && FVP_CLUSTER_COUNT <= 256, assert_invalid_fvp_cluster_count);
+CASSERT(((FVP_CLUSTER_COUNT > 0) && (FVP_CLUSTER_COUNT <= 256)),
+			assert_invalid_fvp_cluster_count);
 
 /*******************************************************************************
  * This function dynamically constructs the topology according to
@@ -24,7 +25,7 @@ CASSERT(FVP_CLUSTER_COUNT && FVP_CLUSTER_COUNT <= 256, assert_invalid_fvp_cluste
  ******************************************************************************/
 const unsigned char *plat_get_power_domain_tree_desc(void)
 {
-	unsigned int i;
+	int i;
 
 	/*
 	 * The highest level is the system level. The next level is constituted
@@ -60,7 +61,7 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 	unsigned int clus_id, cpu_id, thread_id;
 
 	/* Validate affinity fields */
-	if (arm_config.flags & ARM_CONFIG_FVP_SHIFTED_AFF) {
+	if ((arm_config.flags & ARM_CONFIG_FVP_SHIFTED_AFF) != 0U) {
 		thread_id = MPIDR_AFFLVL0_VAL(mpidr);
 		cpu_id = MPIDR_AFFLVL1_VAL(mpidr);
 		clus_id = MPIDR_AFFLVL2_VAL(mpidr);
@@ -90,5 +91,5 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 	 * bit set.
 	 */
 	mpidr |= (read_mpidr_el1() & MPIDR_MT_MASK);
-	return plat_arm_calc_core_pos(mpidr);
+	return (int) plat_arm_calc_core_pos(mpidr);
 }
