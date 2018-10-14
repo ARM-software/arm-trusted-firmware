@@ -26,6 +26,8 @@ SECTIONS
     ASSERT(. == ALIGN(PAGE_SIZE),
            "BL31_BASE address is not aligned on a page boundary.")
 
+    __BL31_START__ = .;
+
 #if SEPARATE_CODE_AND_RODATA
     .text . : {
         __TEXT_START__ = .;
@@ -62,6 +64,16 @@ SECTIONS
         __CPU_OPS_START__ = .;
         KEEP(*(cpu_ops))
         __CPU_OPS_END__ = .;
+
+        /*
+         * Keep the .got section in the RO section as the it is patched
+         * prior to enabling the MMU and having the .got in RO is better for
+         * security.
+         */
+        . = ALIGN(16);
+        __GOT_START__ = .;
+        *(.got)
+        __GOT_END__ = .;
 
         /* Place pubsub sections for events */
         . = ALIGN(8);
@@ -152,6 +164,16 @@ SECTIONS
         *(.data*)
         __DATA_END__ = .;
     } >RAM
+
+    . = ALIGN(16);
+    /*
+     * .rela.dyn needs to come after .data for the read-elf utility to parse
+     * this section correctly.
+     */
+    __RELA_START__ = .;
+    .rela.dyn . : {
+    } >RAM
+    __RELA_END__ = .;
 
 #ifdef BL31_PROGBITS_LIMIT
     ASSERT(. <= BL31_PROGBITS_LIMIT, "BL31 progbits has exceeded its limit.")
@@ -264,12 +286,6 @@ SECTIONS
      */
     __RW_END__ = .;
     __BL31_END__ = .;
-
-    __BSS_SIZE__ = SIZEOF(.bss);
-#if USE_COHERENT_MEM
-    __COHERENT_RAM_UNALIGNED_SIZE__ =
-        __COHERENT_RAM_END_UNALIGNED__ - __COHERENT_RAM_START__;
-#endif
 
     ASSERT(. <= BL31_LIMIT, "BL31 image has exceeded its limit.")
 }
