@@ -10,5 +10,7 @@
 uint16_t sunxi_read_soc_id(void);
 int platform_init_r_twi(uint16_t socid, bool use_i2c);
 void sunxi_set_gpio_out(char port, int pin, bool level_high);
+void sunxi_execute_arisc_code(uint32_t *code, size_t size,
+			      int patch_offset, uint16_t param);
 
 #endif
