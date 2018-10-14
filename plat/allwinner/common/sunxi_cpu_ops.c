@@ -9,9 +9,8 @@
 #include <platform_def.h>
 #include <sunxi_mmap.h>
 #include <sunxi_cpucfg.h>
+#include <sunxi_private.h>
 #include <utils_def.h>
-
-#include "sunxi_private.h"
 
 static void sunxi_cpu_disable_power(unsigned int cluster, unsigned int core)
 {

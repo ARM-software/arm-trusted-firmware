@@ -14,9 +14,9 @@
 #include <platform_def.h>
 #include <sunxi_def.h>
 #include <sunxi_mmap.h>
+#include <sunxi_private.h>
 #include <uart_16550.h>
 
-#include "sunxi_private.h"
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;

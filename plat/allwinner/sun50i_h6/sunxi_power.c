@@ -13,6 +13,7 @@
 #include <mentor/mi2cv.h>
 #include <string.h>
 #include <sunxi_mmap.h>
+#include <sunxi_private.h>
 
 #define AXP805_ADDR	0x36
 #define AXP805_ID	0x03
