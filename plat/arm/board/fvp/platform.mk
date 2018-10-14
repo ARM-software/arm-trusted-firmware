@@ -202,7 +202,9 @@ ENABLE_AMU			:=	1
 DYNAMIC_WORKAROUND_CVE_2018_3639	:=	1
 
 # Enable reclaiming of BL31 initialisation code for secondary cores stacks for FVP
+ifneq (${RESET_TO_BL31},1)
 RECLAIM_INIT_CODE	:=	1
+endif
 
 ifeq (${ENABLE_AMU},1)
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a75_pubsub.c	\

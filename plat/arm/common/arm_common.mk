@@ -130,6 +130,11 @@ ARM_CRYPTOCELL_INTEG		:=	0
 $(eval $(call assert_boolean,ARM_CRYPTOCELL_INTEG))
 $(eval $(call add_define,ARM_CRYPTOCELL_INTEG))
 
+# Enable PIE support for RESET_TO_BL31 case
+ifeq (${RESET_TO_BL31},1)
+    ENABLE_PIE			:=	1
+endif
+
 # CryptoCell integration relies on coherent buffers for passing data from
 # the AP CPU to the CryptoCell
 ifeq (${ARM_CRYPTOCELL_INTEG},1)
