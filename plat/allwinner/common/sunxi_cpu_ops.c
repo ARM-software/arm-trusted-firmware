@@ -11,8 +11,6 @@
 #include <sunxi_cpucfg.h>
 #include <utils_def.h>
 
-#include "sunxi_private.h"
-
 static void sunxi_cpu_disable_power(unsigned int cluster, unsigned int core)
 {
 	if (mmio_read_32(SUNXI_CPU_POWER_CLAMP_REG(cluster, core)) == 0xff)

@@ -14,6 +14,7 @@
 #include <platform_def.h>
 #include <sunxi_def.h>
 #include <sunxi_mmap.h>
+#include <sunxi_helpers.h>
 #include <uart_16550.h>
 
 #include "sunxi_private.h"

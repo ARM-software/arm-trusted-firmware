@@ -13,6 +13,7 @@
 #include <platform_def.h>
 #include <sunxi_def.h>
 #include <sunxi_mmap.h>
+#include <sunxi_helpers.h>
 
 enum pmic_type {
 	GENERIC_H5,

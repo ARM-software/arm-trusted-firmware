@@ -10,8 +10,6 @@
 #include <sunxi_def.h>
 #include <xlat_tables_v2.h>
 
-#include "sunxi_private.h"
-
 static mmap_region_t sunxi_mmap[PLATFORM_MMAP_REGIONS + 1] = {
 	MAP_REGION_FLAT(SUNXI_SRAM_BASE, SUNXI_SRAM_SIZE,
 			MT_MEMORY | MT_RW | MT_SECURE),
