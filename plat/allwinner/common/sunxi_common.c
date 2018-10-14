@@ -71,3 +71,32 @@ uint16_t sunxi_read_soc_id(void)
 
 	return reg >> 16;
 }
+
+/*
+ * Configure a given pin to the GPIO-OUT function and sets its level.
+ * The port is given as a capital letter, the pin is the number within
+ * this port group.
+ * So to set pin PC7 to high, use: sunxi_set_gpio_out('C', 7, true);
+ */
+void sunxi_set_gpio_out(char port, int pin, bool level_high)
+{
+	uintptr_t port_base;
+
+	if (port < 'A' || port > 'L')
+		return;
+	if (port == 'L')
+		port_base = SUNXI_R_PIO_BASE;
+	else
+		port_base = SUNXI_PIO_BASE + (port - 'A') * 0x24;
+
+	/* Set the new level first before configuring the pin. */
+	if (level_high)
+		mmio_setbits_32(port_base + 0x10, BIT(pin));
+	else
+		mmio_clrbits_32(port_base + 0x10, BIT(pin));
+
+	/* configure pin as GPIO out (4(3) bits per pin, 1: GPIO out */
+	mmio_clrsetbits_32(port_base + (pin / 8) * 4,
+			   0x7 << ((pin % 8) * 4),
+			   0x1 << ((pin % 8) * 4));
+}
