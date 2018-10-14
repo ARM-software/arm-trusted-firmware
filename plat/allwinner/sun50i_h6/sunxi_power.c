@@ -12,6 +12,8 @@
 #include <mmio.h>
 #include <mentor/mi2cv.h>
 #include <string.h>
+#include <sunxi_def.h>
+#include <sunxi_helpers.h>
 #include <sunxi_mmap.h>
 
 #define AXP805_ADDR	0x36
@@ -23,36 +25,6 @@ enum pmic_type {
 };
 
 enum pmic_type pmic;
-
-static int sunxi_init_r_i2c(void)
-{
-	uint32_t reg;
-
-	/* switch pins PL0 and PL1 to I2C */
-	reg = mmio_read_32(SUNXI_R_PIO_BASE + 0x00);
-	mmio_write_32(SUNXI_R_PIO_BASE + 0x00, (reg & ~0xff) | 0x33);
-
-	/* level 2 drive strength */
-	reg = mmio_read_32(SUNXI_R_PIO_BASE + 0x14);
-	mmio_write_32(SUNXI_R_PIO_BASE + 0x14, (reg & ~0x0f) | 0xa);
-
-	/* set both ports to pull-up */
-	reg = mmio_read_32(SUNXI_R_PIO_BASE + 0x1c);
-	mmio_write_32(SUNXI_R_PIO_BASE + 0x1c, (reg & ~0x0f) | 0x5);
-
-	/* assert & de-assert reset of R_I2C */
-	reg = mmio_read_32(SUNXI_R_PRCM_BASE + 0x19c);
-	mmio_write_32(SUNXI_R_PRCM_BASE + 0x19c, reg & ~BIT(16));
-	mmio_write_32(SUNXI_R_PRCM_BASE + 0x19c, reg | BIT(16));
-
-	/* un-gate R_I2C clock */
-	mmio_write_32(SUNXI_R_PRCM_BASE + 0x19c, reg | BIT(16) | BIT(0));
-
-	/* call mi2cv driver */
-	i2c_init((void *)SUNXI_R_I2C_BASE);
-
-	return 0;
-}
 
 int axp_i2c_read(uint8_t chip, uint8_t reg, uint8_t *val)
 {
@@ -100,7 +72,9 @@ int sunxi_pmic_setup(uint16_t socid)
 {
 	int ret;
 
-	sunxi_init_r_i2c();
+	platform_init_r_twi(SUNXI_SOC_H6, true);
+	/* initialise mi2cv driver */
+	i2c_init((void *)SUNXI_R_I2C_BASE);
 
 	NOTICE("PMIC: Probing AXP805\n");
 	pmic = AXP805;
@@ -120,7 +94,10 @@ void __dead2 sunxi_power_down(void)
 
 	switch (pmic) {
 	case AXP805:
-		sunxi_init_r_i2c();
+		/* Re-initialise after rich OS might have used it. */
+		platform_init_r_twi(SUNXI_SOC_H6, true);
+		/* initialise mi2cv driver */
+		i2c_init((void *)SUNXI_R_I2C_BASE);
 		axp_i2c_read(AXP805_ADDR, 0x32, &val);
 		axp_i2c_write(AXP805_ADDR, 0x32, val | 0x80);
 		break;
