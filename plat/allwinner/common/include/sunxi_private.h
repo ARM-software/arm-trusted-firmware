@@ -19,5 +19,6 @@ void sunxi_security_setup(void);
 
 uint16_t sunxi_read_soc_id(void);
 void sunxi_set_gpio_out(char port, int pin, bool level_high);
+int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb);
 
 #endif /* SUNXI_PRIVATE_H */

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <debug.h>
+#include <errno.h>
 #include <mmio.h>
 #include <platform.h>
 #include <platform_def.h>
@@ -99,4 +101,59 @@ void sunxi_set_gpio_out(char port, int pin, bool level_high)
 	mmio_clrsetbits_32(port_base + (pin / 8) * 4,
 			   0x7 << ((pin % 8) * 4),
 			   0x1 << ((pin % 8) * 4));
+}
+
+int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb)
+{
+	uint32_t pin_func = 0x77;
+	uint32_t device_bit;
+	unsigned int reset_offset = 0xb0;
+
+	switch (socid) {
+	case SUNXI_SOC_H5:
+		if (use_rsb)
+			return -ENODEV;
+		pin_func = 0x22;
+		device_bit = BIT(6);
+		break;
+	case SUNXI_SOC_H6:
+		if (use_rsb)
+			return -ENODEV;
+		pin_func = 0x33;
+		device_bit = BIT(16);
+		reset_offset = 0x19c;
+		break;
+	case SUNXI_SOC_A64:
+		pin_func = use_rsb ? 0x22 : 0x33;
+		device_bit = use_rsb ? BIT(3) : BIT(6);
+		break;
+	default:
+		INFO("R_I2C/RSB on Allwinner 0x%x SoC not supported\n", socid);
+		return -ENODEV;
+	}
+
+	/* un-gate R_PIO clock */
+	if (socid != SUNXI_SOC_H6)
+		mmio_setbits_32(SUNXI_R_PRCM_BASE + 0x28, BIT(0));
+
+	/* switch pins PL0 and PL1 to the desired function */
+	mmio_clrsetbits_32(SUNXI_R_PIO_BASE + 0x00, 0xffU, pin_func);
+
+	/* level 2 drive strength */
+	mmio_clrsetbits_32(SUNXI_R_PIO_BASE + 0x14, 0x0fU, 0xaU);
+
+	/* set both pins to pull-up */
+	mmio_clrsetbits_32(SUNXI_R_PIO_BASE + 0x1c, 0x0fU, 0x5U);
+
+	/* assert, then de-assert reset of I2C/RSB controller */
+	mmio_clrbits_32(SUNXI_R_PRCM_BASE + reset_offset, device_bit);
+	mmio_setbits_32(SUNXI_R_PRCM_BASE + reset_offset, device_bit);
+
+	/* un-gate clock */
+	if (socid != SUNXI_SOC_H6)
+		mmio_setbits_32(SUNXI_R_PRCM_BASE + 0x28, device_bit);
+	else
+		mmio_setbits_32(SUNXI_R_PRCM_BASE + 0x19c, device_bit | BIT(0));
+
+	return 0;
 }
