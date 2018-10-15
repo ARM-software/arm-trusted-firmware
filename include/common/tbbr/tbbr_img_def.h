@@ -77,7 +77,13 @@
 /* NT_FW_CONFIG */
 #define NT_FW_CONFIG_ID			U(27)
 
+/* GPT Partition */
+#define GPT_IMAGE_ID			U(28)
+
+/* Binary with STM32 header */
+#define STM32_IMAGE_ID			U(29)
+
 /* Define size of the array */
-#define MAX_NUMBER_IDS			U(28)
+#define MAX_NUMBER_IDS			U(30)
 
 #endif /* __TBBR_IMG_DEF_H__ */
