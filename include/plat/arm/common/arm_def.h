@@ -53,9 +53,9 @@
 #define ARM_DRAM_ID			2
 
 /* The first 4KB of Trusted SRAM are used as shared memory */
-#define ARM_TRUSTED_SRAM_BASE		0x04000000
+#define ARM_TRUSTED_SRAM_BASE		UL(0x04000000)
 #define ARM_SHARED_RAM_BASE		ARM_TRUSTED_SRAM_BASE
-#define ARM_SHARED_RAM_SIZE		0x00001000	/* 4 KB */
+#define ARM_SHARED_RAM_SIZE		UL(0x00001000)	/* 4 KB */
 
 /* The remaining Trusted SRAM is used to load the BL images */
 #define ARM_BL_RAM_BASE			(ARM_SHARED_RAM_BASE +	\
@@ -68,7 +68,7 @@
  *   - SCP TZC DRAM: If present, DRAM reserved for SCP use
  *   - AP TZC DRAM: The remaining TZC secured DRAM reserved for AP use
  */
-#define ARM_TZC_DRAM1_SIZE		ULL(0x01000000)
+#define ARM_TZC_DRAM1_SIZE		UL(0x01000000)
 
 #define ARM_SCP_TZC_DRAM1_BASE		(ARM_DRAM1_BASE +		\
 					 ARM_DRAM1_SIZE -		\
@@ -84,7 +84,7 @@
  * placed here.
  */
 #define ARM_EL3_TZC_DRAM1_BASE		(ARM_SCP_TZC_DRAM1_BASE - ARM_EL3_TZC_DRAM1_SIZE)
-#define ARM_EL3_TZC_DRAM1_SIZE		ULL(0x00200000) /* 2 MB */
+#define ARM_EL3_TZC_DRAM1_SIZE		UL(0x00200000) /* 2 MB */
 #define ARM_EL3_TZC_DRAM1_END		(ARM_EL3_TZC_DRAM1_BASE +	\
 					ARM_EL3_TZC_DRAM1_SIZE - 1)
 
@@ -122,7 +122,7 @@
 #define ARM_OPTEE_PAGEABLE_LOAD_BASE	(ARM_AP_TZC_DRAM1_BASE + \
 					 ARM_AP_TZC_DRAM1_SIZE - \
 					 ARM_OPTEE_PAGEABLE_LOAD_SIZE)
-#define ARM_OPTEE_PAGEABLE_LOAD_SIZE	0x400000
+#define ARM_OPTEE_PAGEABLE_LOAD_SIZE	UL(0x400000)
 #define ARM_OPTEE_PAGEABLE_LOAD_MEM	MAP_REGION_FLAT(		\
 					ARM_OPTEE_PAGEABLE_LOAD_BASE,	\
 					ARM_OPTEE_PAGEABLE_LOAD_SIZE,	\
@@ -144,12 +144,12 @@
 #define ARM_NS_DRAM1_END		(ARM_NS_DRAM1_BASE +		\
 					 ARM_NS_DRAM1_SIZE - 1)
 
-#define ARM_DRAM1_BASE			ULL(0x80000000)
-#define ARM_DRAM1_SIZE			ULL(0x80000000)
+#define ARM_DRAM1_BASE			UL(0x80000000)
+#define ARM_DRAM1_SIZE			UL(0x80000000)
 #define ARM_DRAM1_END			(ARM_DRAM1_BASE +		\
 					 ARM_DRAM1_SIZE - 1)
 
-#define ARM_DRAM2_BASE			ULL(0x880000000)
+#define ARM_DRAM2_BASE			UL(0x880000000)
 #define ARM_DRAM2_SIZE			PLAT_ARM_DRAM2_SIZE
 #define ARM_DRAM2_END			(ARM_DRAM2_BASE +		\
 					 ARM_DRAM2_SIZE - 1)
@@ -293,16 +293,16 @@
 					 ARM_BL_REGIONS)
 
 /* Memory mapped Generic timer interfaces  */
-#define ARM_SYS_CNTCTL_BASE		0x2a430000
-#define ARM_SYS_CNTREAD_BASE		0x2a800000
-#define ARM_SYS_TIMCTL_BASE		0x2a810000
-#define ARM_SYS_CNT_BASE_S		0x2a820000
-#define ARM_SYS_CNT_BASE_NS		0x2a830000
+#define ARM_SYS_CNTCTL_BASE		UL(0x2a430000)
+#define ARM_SYS_CNTREAD_BASE		UL(0x2a800000)
+#define ARM_SYS_TIMCTL_BASE		UL(0x2a810000)
+#define ARM_SYS_CNT_BASE_S		UL(0x2a820000)
+#define ARM_SYS_CNT_BASE_NS		UL(0x2a830000)
 
 #define ARM_CONSOLE_BAUDRATE		115200
 
 /* Trusted Watchdog constants */
-#define ARM_SP805_TWDG_BASE		0x2a490000
+#define ARM_SP805_TWDG_BASE		UL(0x2a490000)
 #define ARM_SP805_TWDG_CLK_HZ		32768
 /* The TBBR document specifies a watchdog timeout of 256 seconds. SP805
  * asserts reset after two consecutive countdowns (2 x 128 = 256 sec) */
@@ -344,7 +344,7 @@
  * This is known only to the platform as it might have a combination of
  * integrated and external caches.
  */
-#define CACHE_WRITEBACK_GRANULE		(1 << ARM_CACHE_WRITEBACK_SHIFT)
+#define CACHE_WRITEBACK_GRANULE		(U(1) << ARM_CACHE_WRITEBACK_SHIFT)
 
 /*
  * To enable TB_FW_CONFIG to be loaded by BL1, define the corresponding base

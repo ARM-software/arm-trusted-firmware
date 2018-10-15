@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,7 +36,7 @@ static unsigned int g_sys_if_count;
  * Structure for configured regions attributes in DMC500.
  */
 typedef struct tzc_dmc500_regions {
-	tzc_region_attributes_t sec_attr;
+	unsigned int sec_attr;
 	int is_enabled;
 } tzc_dmc500_regions_t;
 
@@ -63,7 +63,7 @@ DEFINE_TZC_COMMON_CONFIGURE_REGION(_dmc500)
 
 static inline unsigned int _tzc_dmc500_read_region_attr_0(
 					uintptr_t dmc_si_base,
-					int region_no)
+					unsigned int region_no)
 {
 	return mmio_read_32(dmc_si_base +
 			TZC_REGION_OFFSET(TZC_DMC500_REGION_SIZE, region_no) +
@@ -144,8 +144,8 @@ int tzc_dmc500_verify_complete(void)
  * and is always enabled; this cannot be changed. This function only changes
  * the access permissions.
  */
-void tzc_dmc500_configure_region0(tzc_region_attributes_t sec_attr,
-					unsigned int nsaid_permissions)
+void tzc_dmc500_configure_region0(unsigned int sec_attr,
+				  unsigned int nsaid_permissions)
 {
 	int dmc_inst, sys_if;
 
@@ -172,17 +172,17 @@ void tzc_dmc500_configure_region0(tzc_region_attributes_t sec_attr,
  * Region 0 is special; it is preferable to use tzc_dmc500_configure_region0
  * for this region (see comment for that function).
  */
-void tzc_dmc500_configure_region(int region_no,
+void tzc_dmc500_configure_region(unsigned int region_no,
 			unsigned long long region_base,
 			unsigned long long region_top,
-			tzc_region_attributes_t sec_attr,
+			unsigned int sec_attr,
 			unsigned int nsaid_permissions)
 {
 	int dmc_inst, sys_if;
 
 	assert(g_driver_data);
 	/* Do range checks on regions. */
-	assert(region_no >= 0 && region_no <= MAX_REGION_VAL);
+	assert((region_no >= 0U) && (region_no <= MAX_REGION_VAL));
 
 	/*
 	 * Do address range check based on DMC-TZ configuration. A 43bit address
@@ -192,7 +192,7 @@ void tzc_dmc500_configure_region(int region_no,
 		(region_base < region_top)));
 
 	/* region_base and (region_top + 1) must be 4KB aligned */
-	assert(((region_base | (region_top + 1)) & (4096 - 1)) == 0);
+	assert(((region_base | (region_top + 1U)) & (4096U - 1U)) == 0U);
 
 	for (dmc_inst = 0; dmc_inst < g_driver_data->dmc_count; dmc_inst++) {
 		assert(DMC_INST_BASE_ADDR(dmc_inst));
@@ -209,7 +209,7 @@ void tzc_dmc500_configure_region(int region_no,
 }
 
 /* Sets the action value for all the DMC instances */
-void tzc_dmc500_set_action(tzc_action_t action)
+void tzc_dmc500_set_action(unsigned int action)
 {
 	int dmc_inst;
 
