@@ -22,7 +22,7 @@
 #define VER_MINOR		1
 #define VER_VARIANT		0
 #define HEADER_VERSION_V1	0x1
-#define TF_BINARY_TYPE		0x0
+#define TF_BINARY_TYPE		0x10
 
 /* Default option : bit0 => no signature */
 #define HEADER_DEFAULT_OPTION	(__cpu_to_le32(0x00000001))

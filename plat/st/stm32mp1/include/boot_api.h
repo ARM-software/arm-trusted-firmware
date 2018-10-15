@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2018, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #define __BOOT_API_H
 
 #include <stdint.h>
+#include <stdio.h>
 
 /*
  * Possible value of boot context field 'boot_interface_sel'
@@ -229,7 +230,9 @@ typedef struct {
 	 */
 	uint8_t ecc_pubk[BOOT_API_ECDSA_PUB_KEY_LEN_IN_BYTES];
 	/* Pad up to 256 byte total size */
-	uint8_t pad[84];
+	uint8_t pad[83];
+	/* Add binary type information */
+	uint8_t binary_type;
 } __packed boot_api_image_header_t;
 
 #endif /* __BOOT_API_H */
