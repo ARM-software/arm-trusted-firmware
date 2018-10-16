@@ -413,7 +413,7 @@ static int32_t trusty_setup(void)
 	/* Get trusty's entry point info */
 	ep_info = bl31_plat_get_next_image_ep_info(SECURE);
 	if (ep_info == NULL) {
-		INFO("Trusty image missing.\n");
+		VERBOSE("Trusty image missing.\n");
 		return -1;
 	}
 
@@ -466,7 +466,7 @@ static int32_t trusty_setup(void)
 					      trusty_fiq_handler,
 					      flags);
 	if (ret != 0) {
-		ERROR("trusty: failed to register fiq handler, ret = %d\n", ret);
+		VERBOSE("trusty: failed to register fiq handler, ret = %d\n", ret);
 	}
 
 	if (aarch32) {
