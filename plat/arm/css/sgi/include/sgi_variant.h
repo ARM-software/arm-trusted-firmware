@@ -12,6 +12,7 @@
 
 /* SID Version values for SGI-Clark */
 #define SGI_CLARK_SID_VER_PART_NUM		0x0786
+#define SGI_CLARK_HELIOS_CONFIG_ID		0x2
 
 /* Structure containing SGI platform variant information */
 typedef struct sgi_platform_info {
