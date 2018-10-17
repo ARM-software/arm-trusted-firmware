@@ -18,6 +18,7 @@
 	.weak	plat_my_core_pos
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
+	.globl	plat_crash_console_flush
 	.globl	platform_mem_init
 	.globl	disable_mmu_dcache
 	.globl	invalidate_tlb_all
@@ -78,6 +79,19 @@ func plat_crash_console_putc
 	mov_imm	x1, PLAT_MARVELL_CRASH_UART_BASE
 	b	console_core_putc
 endfunc plat_crash_console_putc
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_flush()
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : x0, x1
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_flush
+	mov_imm	x0, PLAT_MARVELL_CRASH_UART_BASE
+	b	console_core_flush
+endfunc plat_crash_console_flush
 
 	/* ---------------------------------------------------------------------
 	 * We don't need to carry out any memory initialization on ARM

@@ -100,13 +100,13 @@ endfunc plat_my_core_pos
 	 * Clobber list : x0 - x4
 	 * ---------------------------------------------
 	 */
+	.globl plat_crash_console_init
 func plat_crash_console_init
 	mov_imm	x0, CRASH_CONSOLE_BASE
 	mov_imm	x1, CRASH_CONSOLE_CLK
 	mov_imm	x2, CRASH_CONSOLE_BAUD_RATE
 	mov w3, #0x0
-	b	console_core_init
-
+	b	console_16550_core_init
 endfunc plat_crash_console_init
 
 	/* ---------------------------------------------
@@ -116,7 +116,22 @@ endfunc plat_crash_console_init
 	 * Clobber list : x1, x2
 	 * ---------------------------------------------
 	 */
+	.globl plat_crash_console_putc
 func plat_crash_console_putc
 	mov_imm	x1, CRASH_CONSOLE_BASE
-	b	console_core_putc
+	b	console_16550_core_putc
 endfunc plat_crash_console_putc
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_flush()
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : x0, x1
+	 * ---------------------------------------------
+	 */
+	.globl plat_crash_console_flush
+func plat_crash_console_flush
+	mov_imm	x0, CRASH_CONSOLE_BASE
+	b	console_16550_core_flush
+endfunc plat_crash_console_flush
