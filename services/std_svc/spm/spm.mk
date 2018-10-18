@@ -19,6 +19,7 @@ SPM_SOURCES	:=	$(addprefix services/std_svc/spm/,	\
 			sp_setup.c				\
 			sp_xlat.c				\
 			spci.c					\
+			spm_buffers.c				\
 			spm_main.c				\
 			sprt.c)					\
 			${SPRT_LIB_SOURCES}

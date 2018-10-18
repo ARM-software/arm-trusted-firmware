@@ -104,6 +104,12 @@ void spm_cpu_set_sp_ctx(unsigned int linear_id, sp_context_t *sp_ctx);
 sp_context_t *spm_cpu_get_sp_ctx(unsigned int linear_id);
 sp_context_t *spm_sp_get_by_uuid(const uint32_t (*svc_uuid)[4]);
 
+/* Functions to manipulate response and requests buffers */
+int spm_response_add(uint16_t client_id, uint16_t handle, uint32_t token,
+		     u_register_t x1, u_register_t x2, u_register_t x3);
+int spm_response_get(uint16_t client_id, uint16_t handle, uint32_t token,
+		     u_register_t *x1, u_register_t *x2, u_register_t *x3);
+
 #endif /* __ASSEMBLY__ */
 
 #endif /* SPM_PRIVATE_H */

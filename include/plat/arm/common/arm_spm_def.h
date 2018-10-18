@@ -139,5 +139,6 @@
 #define PLAT_SPM_SERVICES_MAX		U(30)
 
 #define PLAT_SPCI_HANDLES_MAX_NUM	U(20)
+#define PLAT_SPM_RESPONSES_MAX		U(30)
 
 #endif /* ARM_SPM_DEF_H */
