@@ -140,6 +140,15 @@ Raspberry Pi 3 platform port
 :F: docs/plat/rpi3.rst
 :F: plat/rpi3/
 
+Renesas rcar-gen3 platform port
+-------------------------------
+:M: Jorge Ramirez-Ortiz  <jramirez@baylibre.com>
+:G: `ldts`_
+:F: docs/plat/rcar-gen3.rst
+:F: plat/renesas/rcar
+:F: drivers/renesas/rcar
+:F: tools/renesas/rcar_layout_create
+
 RockChip platform port
 ----------------------
 :M: Tony Xie <tony.xie@rock-chips.com>
@@ -208,6 +217,7 @@ Xilinx platform port
 .. _glneo: https://github.com/glneo
 .. _hzhuang1: https://github.com/hzhuang1
 .. _jenswi-linaro: https://github.com/jenswi-linaro
+.. _ldts: https://github.com/ldts
 .. _niej: https://github.com/niej
 .. _kostapr: https://github.com/kostapr
 .. _masahir0y: https://github.com/masahir0y
