@@ -214,5 +214,18 @@
 	bl	errata_print_msg
 	.endm
 #endif
+	/*
+	 * Helper macro that reads the part number of the current CPU and jumps
+	 * to the given label if it matches the CPU MIDR provided.
+	 *
+	 * Clobbers: r0-r1
+	 */
+	.macro  jump_if_cpu_midr _cpu_midr, _label
+	ldcopr	r0, MIDR
+	ubfx	r0, r0, #MIDR_PN_SHIFT, #12
+	ldr	r1, =((\_cpu_midr >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
+	cmp	r0, r1
+	beq	\_label
+	.endm
 
 #endif /* __CPU_MACROS_S__ */
