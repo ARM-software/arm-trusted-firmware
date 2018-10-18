@@ -26,6 +26,7 @@
 
 /* SSBL = second stage boot loader */
 #define BL33_IMAGE_NAME			"ssbl"
+#define BL33_BINARY_TYPE		U(0x0)
 
 #define STM32MP1_PRIMARY_CPU		U(0x0)
 
@@ -39,6 +40,7 @@
 
 #define MAX_IO_DEVICES			4
 #define MAX_IO_HANDLES			4
+#define MAX_IO_BLOCK_DEVICES		1
 
 /*******************************************************************************
  * BL2 specific defines.
