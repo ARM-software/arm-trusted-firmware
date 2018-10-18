@@ -133,9 +133,12 @@ secure platform!
     0x40000000 +-----------------+
 
 The area between **0x10000000** and **0x11000000** has to be manually protected
-so that the kernel doesn't use it. That is done by adding ``memmap=16M$256M`` to
-the command line passed to the kernel. See the `Setup SD card`_ instructions to
-see how to do it.
+so that the kernel doesn't use it. The current port tries to modify the live DTB
+to add a memreserve region that reserves the previously mentioned area.
+
+If this is not possible, the user may manually add ``memmap=16M$256M`` to the
+command line passed to the kernel in ``cmdline.txt``. See the `Setup SD card`_
+instructions to see how to do it. This system is strongly discouraged.
 
 The last 16 MiB of DRAM can only be accessed by the VideoCore, that has
 different mappings than the Arm cores in which the I/O addresses don't overlap
@@ -384,13 +387,8 @@ untouched). They have been tested with the image available in 2018-03-13.
    bootloader will look for a file called ``armstub8.bin`` and load it at
    address **0x0** instead of a predefined one.
 
-4. Open ``cmdline.txt`` and add ``memmap=16M$256M`` to prevent the kernel from
-   using the memory needed by TF-A. If you want to enable the serial port
-   "Mini UART", make sure that this file also contains
+4. To enable the serial port "Mini UART" in Linux, open ``cmdline.txt`` and add
    ``console=serial0,115200 console=tty1``.
-
-   Note that the 16 MiB reserved this way won't be available for Linux, the same
-   way as the memory reserved in DRAM for the GPU isn't available.
 
 5. Open ``config.txt`` and add the following lines at the end (``enable_uart=1``
    is only needed to enable debugging through the Mini UART):

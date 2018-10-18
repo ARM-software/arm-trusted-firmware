@@ -4,12 +4,16 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+include lib/libfdt/libfdt.mk
+include lib/xlat_tables_v2/xlat_tables.mk
+
 PLAT_INCLUDES		:=	-Iinclude/common/tbbr			\
 				-Iplat/rpi3/include
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/console/aarch64/console.S	\
 				drivers/ti/uart/aarch64/16550_console.S	\
-				plat/rpi3/rpi3_common.c
+				plat/rpi3/rpi3_common.c			\
+				${XLAT_TABLES_LIB_SRCS}
 
 BL1_SOURCES		+=	drivers/io/io_fip.c			\
 				drivers/io/io_memmap.c			\
@@ -37,12 +41,8 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				plat/rpi3/aarch64/plat_helpers.S	\
 				plat/rpi3/rpi3_bl31_setup.c		\
 				plat/rpi3/rpi3_pm.c			\
-				plat/rpi3/rpi3_topology.c
-
-# Translation tables library
-include lib/xlat_tables_v2/xlat_tables.mk
-
-PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
+				plat/rpi3/rpi3_topology.c		\
+				${LIBFDT_SRCS}
 
 # Tune compiler for Cortex-A53
 ifeq ($(notdir $(CC)),armclang)
