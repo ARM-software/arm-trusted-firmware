@@ -8,13 +8,13 @@
 #define __SGM_BASE_PLATFORM_DEF_H__
 
 #include <arm_def.h>
-#include <board_arm_def.h>
 #include <board_css_def.h>
 #include <common_def.h>
 #include <css_def.h>
 #include <soc_css_def.h>
 #include <tzc400.h>
 #include <tzc_common.h>
+#include <v2m_def.h>
 
 /* CPU topology */
 #define PLAT_ARM_CLUSTER_COUNT		1
@@ -81,6 +81,8 @@
  * Required platform porting definitions common to all SGM CSS based
  * platforms
  *************************************************************************/
+
+#define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00040000	/* 256 KB */
 
 /* MHU related constants */
 #define PLAT_CSS_MHU_BASE		0x2b1f0000
@@ -203,6 +205,29 @@
  * BL2 and BL1-RW
  */
 #define PLAT_ARM_MAX_BL31_SIZE		0x3B000
+
+/*
+ * Size of cacheable stacks
+ */
+#if defined(IMAGE_BL1)
+# if TRUSTED_BOARD_BOOT
+#  define PLATFORM_STACK_SIZE 0x1000
+# else
+#  define PLATFORM_STACK_SIZE 0x440
+# endif
+#elif defined(IMAGE_BL2)
+# if TRUSTED_BOARD_BOOT
+#  define PLATFORM_STACK_SIZE 0x1000
+# else
+#  define PLATFORM_STACK_SIZE 0x400
+# endif
+#elif defined(IMAGE_BL2U)
+# define PLATFORM_STACK_SIZE 0x400
+#elif defined(IMAGE_BL31)
+# define PLATFORM_STACK_SIZE 0x400
+#elif defined(IMAGE_BL32)
+# define PLATFORM_STACK_SIZE 0x440
+#endif
 
 /*******************************************************************************
  * Memprotect definitions

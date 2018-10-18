@@ -29,7 +29,8 @@ CSS_USE_SCMI_SDS_DRIVER		:=	1
 PLAT_INCLUDES		:=	-Iplat/arm/board/juno/include		\
 				-Iplat/arm/css/drivers/sds
 
-PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/juno/${ARCH}/juno_helpers.S
+PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/juno/${ARCH}/juno_helpers.S \
+				plat/arm/board/juno/juno_common.c
 
 # Flag to enable support for AArch32 state on JUNO
 JUNO_AARCH32_EL3_RUNTIME	:=	0
@@ -123,7 +124,7 @@ SKIP_A57_L1_FLUSH_PWR_DWN	:=	 1
 # Do not enable SVE
 ENABLE_SVE_FOR_NS		:=	0
 
-include plat/arm/board/common/board_css.mk
+include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
 include plat/arm/soc/common/soc_css.mk
 include plat/arm/css/common/css_common.mk
