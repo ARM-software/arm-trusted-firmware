@@ -15,6 +15,11 @@ ENTRY(bl31_entrypoint)
 
 MEMORY {
     RAM (rwx): ORIGIN = BL31_BASE, LENGTH = BL31_LIMIT - BL31_BASE
+#if SEPARATE_NOBITS_REGION
+    NOBITS (rw!a): ORIGIN = BL31_NOBITS_BASE, LENGTH = BL31_NOBITS_LIMIT - BL31_NOBITS_BASE
+#else
+#define NOBITS RAM
+#endif
 }
 
 #ifdef PLAT_EXTRA_LD_SCRIPT
@@ -198,11 +203,28 @@ SECTIONS
     ASSERT(. <= BL31_PROGBITS_LIMIT, "BL31 progbits has exceeded its limit.")
 #endif
 
+#if SEPARATE_NOBITS_REGION
+    /*
+     * Define a linker symbol to mark end of the RW memory area for this
+     * image.
+     */
+    __RW_END__ = .;
+    __BL31_END__ = .;
+
+    ASSERT(. <= BL31_LIMIT, "BL31 image has exceeded its limit.")
+
+    . = BL31_NOBITS_BASE;
+    ASSERT(. == ALIGN(PAGE_SIZE),
+           "BL31 NOBITS base address is not aligned on a page boundary.")
+
+    __NOBITS_START__ = .;
+#endif
+
     stacks (NOLOAD) : {
         __STACKS_START__ = .;
         *(tzfw_normal_stacks)
         __STACKS_END__ = .;
-    } >RAM
+    } >NOBITS
 
     /*
      * The .bss section gets initialised to 0 at runtime.
@@ -262,7 +284,7 @@ SECTIONS
         __PMF_TIMESTAMP_END__ = .;
 #endif /* ENABLE_PMF */
         __BSS_END__ = .;
-    } >RAM
+    } >NOBITS
 
     /*
      * The xlat_table section is for full, aligned page tables (4K).
@@ -272,7 +294,7 @@ SECTIONS
      */
     xlat_table (NOLOAD) : {
         *(xlat_table)
-    } >RAM
+    } >NOBITS
 
 #if USE_COHERENT_MEM
     /*
@@ -298,9 +320,18 @@ SECTIONS
          */
         . = ALIGN(PAGE_SIZE);
         __COHERENT_RAM_END__ = .;
-    } >RAM
+    } >NOBITS
 #endif
 
+#if SEPARATE_NOBITS_REGION
+    /*
+     * Define a linker symbol to mark end of the NOBITS memory area for this
+     * image.
+     */
+    __NOBITS_END__ = .;
+
+    ASSERT(. <= BL31_NOBITS_LIMIT, "BL31 NOBITS region has exceeded its limit.")
+#else
     /*
      * Define a linker symbol to mark end of the RW memory area for this
      * image.
@@ -309,4 +340,5 @@ SECTIONS
     __BL31_END__ = .;
 
     ASSERT(. <= BL31_LIMIT, "BL31 image has exceeded its limit.")
+#endif
 }

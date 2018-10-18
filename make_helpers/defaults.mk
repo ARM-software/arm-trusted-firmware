@@ -171,6 +171,10 @@ SDEI_SUPPORT            	:= 0
 # platform Makefile is free to override this value.
 SEPARATE_CODE_AND_RODATA	:= 0
 
+# Put NOBITS sections (.bss, stacks, page tables, and coherent memory) in a
+# separate memory region, which may be discontiguous from the rest of BL31.
+SEPARATE_NOBITS_REGION		:= 0
+
 # If the BL31 image initialisation code is recalimed after use for the secondary
 # cores stack
 RECLAIM_INIT_CODE		:= 0

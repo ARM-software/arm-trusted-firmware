@@ -382,6 +382,14 @@
 		add	x1, x1, :lo12:__RW_END__
 		sub	x1, x1, x0
 		bl	inv_dcache_range
+#if defined(IMAGE_BL31) && SEPARATE_NOBITS_REGION
+		adrp	x0, __NOBITS_START__
+		add	x0, x0, :lo12:__NOBITS_START__
+		adrp	x1, __NOBITS_END__
+		add	x1, x1, :lo12:__NOBITS_END__
+		sub	x1, x1, x0
+		bl	inv_dcache_range
+#endif
 #endif
 		adrp	x0, __BSS_START__
 		add	x0, x0, :lo12:__BSS_START__
