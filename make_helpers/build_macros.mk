@@ -338,7 +338,7 @@ LDPATHS = -L${LIB_DIR}
 LDLIBS += -l$(1)
 
 ifeq ($(USE_ROMLIB),1)
-LDLIBS := -lwrappers -lc
+LIBWRAPPER = -lwrappers
 endif
 
 all: ${LIB_DIR}/lib$(1).a
@@ -402,7 +402,7 @@ else
 endif
 	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) -Map=$(MAPFILE) \
 		--script $(LINKERFILE) $(BUILD_DIR)/build_message.o \
-		$(OBJS) $(LDPATHS) $(LDLIBS) $(BL_LIBS)
+		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 
 $(DUMP): $(ELF)
 	$${ECHO} "  OD      $$@"

@@ -3,6 +3,10 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
+# Format:
+# index	lib	function	[patch]
+# Add "patch" at the end of the line to patch a function. For example:
+# 14	mbedtls	mbedtls_memory_buffer_alloc_init	patch
 
 0	rom	rom_lib_init
 1	fdt	fdt_getprop_namelen
