@@ -71,7 +71,7 @@ static void *scmi_handle;
 /* The SCMI channel global object */
 static scmi_channel_t channel;
 
-ARM_INSTANTIATE_LOCK;
+ARM_SCMI_INSTANTIATE_LOCK;
 
 /*
  * Helper function to suspend a CPU power domain and its parent power domains
@@ -331,7 +331,7 @@ static int scmi_ap_core_init(scmi_channel_t *ch)
 void __init plat_arm_pwrc_setup(void)
 {
 	channel.info = &plat_css_scmi_plat_info;
-	channel.lock = ARM_LOCK_GET_INSTANCE;
+	channel.lock = ARM_SCMI_LOCK_GET_INSTANCE;
 	scmi_handle = scmi_init(&channel);
 	if (scmi_handle == NULL) {
 		ERROR("SCMI Initialization failed\n");

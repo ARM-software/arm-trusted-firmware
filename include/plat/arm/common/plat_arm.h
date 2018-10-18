@@ -11,6 +11,7 @@
 #include <cassert.h>
 #include <cpu_data.h>
 #include <stdint.h>
+#include <spinlock.h>
 #include <tzc_common.h>
 #include <utils_def.h>
 
@@ -80,6 +81,14 @@ void arm_setup_romlib(void);
  */
 #define ARM_INSTANTIATE_LOCK	static DEFINE_BAKERY_LOCK(arm_lock)
 #define ARM_LOCK_GET_INSTANCE	(&arm_lock)
+
+#if !HW_ASSISTED_COHERENCY
+#define ARM_SCMI_INSTANTIATE_LOCK	DEFINE_BAKERY_LOCK(arm_scmi_lock)
+#else
+#define ARM_SCMI_INSTANTIATE_LOCK	spinlock_t arm_scmi_lock
+#endif
+#define ARM_SCMI_LOCK_GET_INSTANCE	(&arm_scmi_lock)
+
 /*
  * These are wrapper macros to the Coherent Memory Bakery Lock API.
  */
