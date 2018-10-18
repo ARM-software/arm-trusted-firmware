@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -28,6 +28,9 @@ USE_COHERENT_MEM	:=	0
 
 # do not enable SVE
 ENABLE_SVE_FOR_NS	:=	0
+
+# disable early wake up detection during CPU suspend entry
+ENABLE_EARLY_WAKEUP_DETECTION	:= 0
 
 include plat/nvidia/tegra/common/tegra_common.mk
 include ${SOC_DIR}/platform_${TARGET_SOC}.mk
