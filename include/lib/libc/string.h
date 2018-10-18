@@ -27,5 +27,6 @@ char *strchr(const char *s, int c);
 void *memset(void *dst, int val, size_t count);
 size_t strlen(const char *s);
 size_t strnlen(const char *s, size_t maxlen);
+char *strrchr(const char *p, int ch);
 
 #endif /* STRING_H */
