@@ -7,7 +7,6 @@
 #include <arm_config.h>
 #include <arm_def.h>
 #include <arm_spm_def.h>
-#include <arm_xlat_tables.h>
 #include <assert.h>
 #include <cci.h>
 #include <ccn.h>
@@ -18,6 +17,8 @@
 #include <platform.h>
 #include <secure_partition.h>
 #include <v2m_def.h>
+#include <xlat_tables_compat.h>
+
 #include "../fvp_def.h"
 #include "fvp_private.h"
 

@@ -16,7 +16,7 @@
 #include <platform.h>
 #include <ras.h>
 #include <utils.h>
-#include <arm_xlat_tables.h>
+#include <xlat_tables_compat.h>
 
 /*
  * Placeholder variables for copying the arguments that have been passed to

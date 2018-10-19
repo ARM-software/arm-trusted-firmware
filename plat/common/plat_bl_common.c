@@ -13,6 +13,7 @@
 #include <mbedtls_config.h>
 #endif
 #include <platform.h>
+#include <xlat_tables_compat.h>
 
 /*
  * The following platform functions are weakly defined. The Platforms

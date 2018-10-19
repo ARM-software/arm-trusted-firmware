@@ -5,7 +5,6 @@
  */
 #include <arch.h>
 #include <arch_helpers.h>
-#include <arm_xlat_tables.h>
 #include <assert.h>
 #include <debug.h>
 #include <mmio.h>
@@ -14,6 +13,7 @@
 #include <platform_def.h>
 #include <romlib.h>
 #include <secure_partition.h>
+#include <xlat_tables_compat.h>
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak plat_get_ns_image_entrypoint

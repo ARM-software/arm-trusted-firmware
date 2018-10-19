@@ -6,7 +6,6 @@
 
 #include <arch.h>
 #include <arm_def.h>
-#include <arm_xlat_tables.h>
 #include <assert.h>
 #include <bl1.h>
 #include <bl_common.h>
@@ -15,6 +14,8 @@
 #include <platform_def.h>
 #include <sp805.h>
 #include <utils.h>
+#include <xlat_tables_compat.h>
+
 #include "../../../bl1/bl1_private.h"
 
 /* Weak definitions may be overridden in specific ARM standard platform */
