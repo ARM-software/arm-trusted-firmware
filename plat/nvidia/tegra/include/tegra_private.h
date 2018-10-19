@@ -8,8 +8,10 @@
 #define TEGRA_PRIVATE_H
 
 #include <arch.h>
+#include <arch_helpers.h>
 #include <platform_def.h>
 #include <psci.h>
+#include <tegra_gic.h>
 #include <xlat_tables_v2.h>
 
 /*******************************************************************************
@@ -29,26 +31,6 @@ typedef struct plat_params_from_bl2 {
 	/* UART port ID */
 	int uart_id;
 } plat_params_from_bl2_t;
-
-/*******************************************************************************
- * Per-CPU struct describing FIQ state to be stored
- ******************************************************************************/
-typedef struct pcpu_fiq_state {
-	uint64_t elr_el3;
-	uint64_t spsr_el3;
-} pcpu_fiq_state_t;
-
-/*******************************************************************************
- * Struct describing per-FIQ configuration settings
- ******************************************************************************/
-typedef struct irq_sec_cfg {
-	/* IRQ number */
-	unsigned int irq;
-	/* Target CPUs servicing this interrupt */
-	unsigned int target_cpus;
-	/* type = INTR_TYPE_S_EL1 or INTR_TYPE_EL3 */
-	uint32_t type;
-} irq_sec_cfg_t;
 
 /*******************************************************************************
  * Struct describing parameters passed to bl31
@@ -81,10 +63,6 @@ int plat_lock_cpu_vectors(void);
 void tegra_fiq_handler_setup(void);
 int tegra_fiq_get_intr_context(void);
 void tegra_fiq_set_ns_entrypoint(uint64_t entrypoint);
-
-/* Declarations for tegra_gic.c */
-void tegra_gic_cpuif_deactivate(void);
-void tegra_gic_setup(const irq_sec_cfg_t *irq_sec_ptr, uint32_t num_irqs);
 
 /* Declarations for tegra_security.c */
 void tegra_security_setup(void);

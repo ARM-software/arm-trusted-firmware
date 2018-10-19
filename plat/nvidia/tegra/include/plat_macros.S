@@ -7,6 +7,7 @@
 #ifndef PLAT_MACROS_S
 #define PLAT_MACROS_S
 
+#include <gicv2.h>
 #include <tegra_def.h>
 
 .section .rodata.gic_reg_name, "aS"
