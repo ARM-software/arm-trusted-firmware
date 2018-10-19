@@ -208,8 +208,8 @@ static void mvebu_cp110_comphy_set_phy_selector(uint64_t comphy_base,
 			   */
 			if ((mode == COMPHY_SGMII_MODE ||
 			    mode == COMPHY_HS_SGMII_MODE ||
-			    mode == COMPHY_SFI_MODE) &&
-			    COMPHY_GET_ID(comphy_mode) == 1)
+			    mode == COMPHY_SFI_MODE || mode == COMPHY_XFI_MODE)
+			    && COMPHY_GET_ID(comphy_mode) == 1)
 				reg |= COMMON_SELECTOR_COMPHY4_PORT1 <<
 					comphy_offset;
 			else
