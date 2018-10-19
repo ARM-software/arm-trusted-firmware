@@ -123,7 +123,7 @@ void arm_bl1_plat_arch_setup(void)
 		{0}
 	};
 
-	arm_setup_page_tables(bl_regions, plat_arm_get_mmap());
+	setup_page_tables(bl_regions, plat_arm_get_mmap());
 #ifdef AARCH32
 	enable_mmu_svc_mon(0);
 #else
