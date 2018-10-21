@@ -27,7 +27,14 @@ static const struct xfi_params
 			  .g1_rx_selmupf = 0x2, .g1_rx_selmupi = 0x2,
 			  .valid = 0x1 }, /* Comphy2 */
 			{ 0 }, /* Comphy3 */
-			{ 0 }, /* Comphy4 */
+			{ .g1_ffe_res_sel = 0x3, .g1_ffe_cap_sel = 0xf,
+			  .align90 = 0x5f,
+			  .g1_dfe_res = 0x2, .g1_amp = 0x1c, .g1_emph = 0xe,
+			  .g1_emph_en = 0x1, .g1_tx_amp_adj = 0x1,
+			  .g1_tx_emph_en = 0x1, .g1_tx_emph = 0x0,
+			  .g1_rx_selmuff = 0x1, .g1_rx_selmufi = 0x0,
+			  .g1_rx_selmupf = 0x2, .g1_rx_selmupi = 0x2,
+			  .valid = 0x1 }, /* Comphy4 */
 			{ 0 }, /* Comphy5 */
 		},
 
@@ -44,7 +51,14 @@ static const struct xfi_params
 			  .g1_rx_selmupf = 0x2, .g1_rx_selmupi = 0x2,
 			  .valid = 0x1 }, /* Comphy2 */
 			{ 0 }, /* Comphy3 */
-			{ 0 }, /* Comphy4 */
+			{ .g1_ffe_res_sel = 0x3, .g1_ffe_cap_sel = 0xf,
+			  .align90 = 0x5f,
+			  .g1_dfe_res = 0x2, .g1_amp = 0x1c, .g1_emph = 0xe,
+			  .g1_emph_en = 0x1, .g1_tx_amp_adj = 0x1,
+			  .g1_tx_emph_en = 0x1, .g1_tx_emph = 0x0,
+			  .g1_rx_selmuff = 0x1, .g1_rx_selmufi = 0x0,
+			  .g1_rx_selmupf = 0x2, .g1_rx_selmupi = 0x2,
+			  .valid = 0x1 }, /* Comphy4 */
 			{ 0 }, /* Comphy5 */
 		},
 	},
