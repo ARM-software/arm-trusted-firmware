@@ -25,7 +25,7 @@ struct bl_params;
 typedef struct arm_tzc_regions_info {
 	unsigned long long base;
 	unsigned long long end;
-	tzc_region_attributes_t sec_attr;
+	unsigned int sec_attr;
 	unsigned int nsaid_permissions;
 } arm_tzc_regions_info_t;
 

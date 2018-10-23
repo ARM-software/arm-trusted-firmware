@@ -14,12 +14,12 @@
 /*
  * Macros which will be used by common core functions.
  */
-#define TZC_400_REGION_BASE_LOW_0_OFFSET	0x100
-#define TZC_400_REGION_BASE_HIGH_0_OFFSET	0x104
-#define TZC_400_REGION_TOP_LOW_0_OFFSET		0x108
-#define TZC_400_REGION_TOP_HIGH_0_OFFSET	0x10c
-#define TZC_400_REGION_ATTR_0_OFFSET		0x110
-#define TZC_400_REGION_ID_ACCESS_0_OFFSET	0x114
+#define TZC_400_REGION_BASE_LOW_0_OFFSET	U(0x100)
+#define TZC_400_REGION_BASE_HIGH_0_OFFSET	U(0x104)
+#define TZC_400_REGION_TOP_LOW_0_OFFSET		U(0x108)
+#define TZC_400_REGION_TOP_HIGH_0_OFFSET	U(0x10c)
+#define TZC_400_REGION_ATTR_0_OFFSET		U(0x110)
+#define TZC_400_REGION_ID_ACCESS_0_OFFSET	U(0x114)
 
 /*
  * Implementation defined values used to validate inputs later.
@@ -88,10 +88,10 @@ static void _tzc400_set_gate_keeper(uintptr_t base,
 	/* Upper half is current state. Lower half is requested state. */
 	open_status = get_gate_keeper_os(base);
 
-	if (val)
-		open_status |=  (1 << filter);
+	if (val != 0)
+		open_status |=  (1U << filter);
 	else
-		open_status &= ~(1 << filter);
+		open_status &= ~(1U << filter);
 
 	_tzc400_write_gate_keeper(base, (open_status & GATE_KEEPER_OR_MASK) <<
 			      GATE_KEEPER_OR_SHIFT);
@@ -101,9 +101,9 @@ static void _tzc400_set_gate_keeper(uintptr_t base,
 		;
 }
 
-void tzc400_set_action(tzc_action_t action)
+void tzc400_set_action(unsigned int action)
 {
-	assert(tzc400.base);
+	assert(tzc400.base != 0U);
 	assert(action <= TZC_ACTION_ERR_INT);
 
 	/*
@@ -121,7 +121,7 @@ void tzc400_init(uintptr_t base)
 #endif
 	unsigned int tzc400_build;
 
-	assert(base);
+	assert(base != 0U);
 	tzc400.base = base;
 
 #if DEBUG
@@ -134,12 +134,12 @@ void tzc400_init(uintptr_t base)
 
 	/* Save values we will use later. */
 	tzc400_build = _tzc400_read_build_config(tzc400.base);
-	tzc400.num_filters = ((tzc400_build >> BUILD_CONFIG_NF_SHIFT) &
-			   BUILD_CONFIG_NF_MASK) + 1;
-	tzc400.addr_width  = ((tzc400_build >> BUILD_CONFIG_AW_SHIFT) &
-			   BUILD_CONFIG_AW_MASK) + 1;
-	tzc400.num_regions = ((tzc400_build >> BUILD_CONFIG_NR_SHIFT) &
-			   BUILD_CONFIG_NR_MASK) + 1;
+	tzc400.num_filters = (uint8_t)((tzc400_build >> BUILD_CONFIG_NF_SHIFT) &
+					BUILD_CONFIG_NF_MASK) + 1U;
+	tzc400.addr_width  = (uint8_t)((tzc400_build >> BUILD_CONFIG_AW_SHIFT) &
+					BUILD_CONFIG_AW_MASK) + 1U;
+	tzc400.num_regions = (uint8_t)((tzc400_build >> BUILD_CONFIG_NR_SHIFT) &
+					BUILD_CONFIG_NR_MASK) + 1U;
 }
 
 /*
@@ -148,10 +148,10 @@ void tzc400_init(uintptr_t base)
  * to any other region, and is enabled on all filters; this cannot be
  * changed. This function only changes the access permissions.
  */
-void tzc400_configure_region0(tzc_region_attributes_t sec_attr,
+void tzc400_configure_region0(unsigned int sec_attr,
 			   unsigned int ns_device_access)
 {
-	assert(tzc400.base);
+	assert(tzc400.base != 0U);
 	assert(sec_attr <= TZC_REGION_S_RDWR);
 
 	_tzc400_configure_region0(tzc400.base, sec_attr, ns_device_access);
@@ -166,17 +166,17 @@ void tzc400_configure_region0(tzc_region_attributes_t sec_attr,
  * for this region (see comment for that function).
  */
 void tzc400_configure_region(unsigned int filters,
-			  int region,
+			  unsigned int region,
 			  unsigned long long region_base,
 			  unsigned long long region_top,
-			  tzc_region_attributes_t sec_attr,
+			  unsigned int sec_attr,
 			  unsigned int nsaid_permissions)
 {
-	assert(tzc400.base);
+	assert(tzc400.base != 0U);
 
 	/* Do range checks on filters and regions. */
-	assert(((filters >> tzc400.num_filters) == 0) &&
-	       (region >= 0) && (region < tzc400.num_regions));
+	assert(((filters >> tzc400.num_filters) == 0U) &&
+	       (region < tzc400.num_regions));
 
 	/*
 	 * Do address range check based on TZC configuration. A 64bit address is
@@ -186,7 +186,7 @@ void tzc400_configure_region(unsigned int filters,
 		(region_base < region_top)));
 
 	/* region_base and (region_top + 1) must be 4KB aligned */
-	assert(((region_base | (region_top + 1)) & (4096 - 1)) == 0);
+	assert(((region_base | (region_top + 1U)) & (4096U - 1U)) == 0U);
 
 	assert(sec_attr <= TZC_REGION_S_RDWR);
 
@@ -200,11 +200,11 @@ void tzc400_enable_filters(void)
 	unsigned int state;
 	unsigned int filter;
 
-	assert(tzc400.base);
+	assert(tzc400.base != 0U);
 
-	for (filter = 0; filter < tzc400.num_filters; filter++) {
+	for (filter = 0U; filter < tzc400.num_filters; filter++) {
 		state = _tzc400_get_gate_keeper(tzc400.base, filter);
-		if (state) {
+		if (state != 0U) {
 			/*
 			 * The TZC filter is already configured. Changing the
 			 * programmer's view in an active system can cause
@@ -227,7 +227,7 @@ void tzc400_disable_filters(void)
 {
 	unsigned int filter;
 
-	assert(tzc400.base);
+	assert(tzc400.base != 0U);
 
 	/*
 	 * We don't do the same state check as above as the Gatekeepers are
