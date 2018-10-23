@@ -78,12 +78,12 @@ ifeq (${V},0)
         CHECKCODE_ARGS	+=	--no-summary --terse
 else
         Q:=
-        ECHO:=@\#
+        ECHO:=$(ECHO_QUIET)
 endif
 
 ifneq ($(findstring s,$(filter-out --%,$(MAKEFLAGS))),)
         Q:=@
-        ECHO:=@\#
+        ECHO:=$(ECHO_QUIET)
 endif
 
 export Q ECHO
