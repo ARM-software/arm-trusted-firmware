@@ -23,7 +23,12 @@
 
 #define MAP_SHARED_RAM	MAP_REGION_FLAT(SHARED_RAM_BASE,		\
 					SHARED_RAM_SIZE,		\
-					MT_DEVICE  | MT_RW | MT_SECURE)
+					MT_DEVICE | MT_RW | MT_SECURE)
+
+#ifdef RPI3_PRELOADED_DTB_BASE
+#define MAP_NS_DTB	MAP_REGION_FLAT(RPI3_PRELOADED_DTB_BASE, 0x10000, \
+					MT_MEMORY | MT_RW | MT_NS)
+#endif
 
 #define MAP_NS_DRAM0	MAP_REGION_FLAT(NS_DRAM0_BASE, NS_DRAM0_SIZE,	\
 					MT_MEMORY | MT_RW | MT_NS)
@@ -74,6 +79,9 @@ static const mmap_region_t plat_rpi3_mmap[] = {
 static const mmap_region_t plat_rpi3_mmap[] = {
 	MAP_SHARED_RAM,
 	MAP_DEVICE0,
+#ifdef RPI3_PRELOADED_DTB_BASE
+	MAP_NS_DTB,
+#endif
 #ifdef BL32_BASE
 	MAP_BL32_MEM,
 #endif
