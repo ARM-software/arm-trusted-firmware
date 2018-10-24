@@ -1,5 +1,5 @@
-#ifndef _FDT_H
-#define _FDT_H
+#ifndef FDT_H
+#define FDT_H
 /*
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2006 David Gibson, IBM Corporation.
@@ -52,15 +52,7 @@
  *     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/*
- * Portions copyright (c) 2016-2017, ARM Limited and Contributors.
- * All rights reserved.
- */
-
 #ifndef __ASSEMBLY__
-
-#include <libfdt_env.h>
-
 
 struct fdt_header {
 	fdt32_t magic;			 /* magic word FDT_MAGIC */
@@ -88,14 +80,14 @@ struct fdt_reserve_entry {
 
 struct fdt_node_header {
 	fdt32_t tag;
-	char name[];
+	char name[0];
 };
 
 struct fdt_property {
 	fdt32_t tag;
 	fdt32_t len;
 	fdt32_t nameoff;
-	char data[];
+	char data[0];
 };
 
 #endif /* !__ASSEMBLY */
@@ -116,4 +108,4 @@ struct fdt_property {
 #define FDT_V16_SIZE	FDT_V3_SIZE
 #define FDT_V17_SIZE	(FDT_V16_SIZE + sizeof(fdt32_t))
 
-#endif /* _FDT_H */
+#endif /* FDT_H */

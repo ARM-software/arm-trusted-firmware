@@ -21,7 +21,8 @@ LIBC_SRCS	:=	$(addprefix lib/libc/,	\
 			strcmp.c			\
 			strlen.c			\
 			strncmp.c			\
-			strnlen.c)
+			strnlen.c			\
+			strrchr.c)
 
 INCLUDES	+=	-Iinclude/lib/libc		\
 			-Iinclude/lib/libc/$(ARCH)	\
