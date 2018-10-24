@@ -181,8 +181,8 @@ struct axp_regulator {
 	unsigned char switch_reg;
 	unsigned char switch_bit;
 } regulators[] = {
-	{"dcdc1", 1600, 3400, 100, NO_SPLIT, 0x20, 0xff, 9},
-	{"dcdc5",  800, 1840,  10,       32, 0x24, 0xff, 9},
+	{"dcdc1", 1600, 3400, 100, NO_SPLIT, 0x20, 0x10, 0},
+	{"dcdc5",  800, 1840,  10,       32, 0x24, 0x10, 4},
 	{"dldo1",  700, 3300, 100, NO_SPLIT, 0x15, 0x12, 3},
 	{"dldo2",  700, 4200, 100,       27, 0x16, 0x12, 4},
 	{"dldo3",  700, 3300, 100, NO_SPLIT, 0x17, 0x12, 5},
