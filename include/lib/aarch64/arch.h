@@ -218,6 +218,8 @@
 /* SCR definitions */
 #define SCR_RES1_BITS		((U(1) << 4) | (U(1) << 5))
 #define SCR_FIEN_BIT		(U(1) << 21)
+#define SCR_API_BIT		(U(1) << 17)
+#define SCR_APK_BIT		(U(1) << 16)
 #define SCR_TWE_BIT		(U(1) << 13)
 #define SCR_TWI_BIT		(U(1) << 12)
 #define SCR_ST_BIT		(U(1) << 11)
@@ -274,6 +276,8 @@
 #define VTTBR_BADDR_SHIFT	U(0)
 
 /* HCR definitions */
+#define HCR_API_BIT		(ULL(1) << 41)
+#define HCR_APK_BIT		(ULL(1) << 40)
 #define HCR_RW_SHIFT		U(31)
 #define HCR_RW_BIT		(ULL(1) << HCR_RW_SHIFT)
 #define HCR_AMO_BIT		(ULL(1) << 5)

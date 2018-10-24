@@ -70,9 +70,14 @@
 	 *
 	 * SCR_EL3.EA: Set to one to route External Aborts and SError Interrupts
 	 *  to EL3 when executing at any EL.
+	 *
+	 * SCR_EL3.{API,APK}: For Armv8.3 pointer authentication feature,
+	 * disable traps to EL3 when accessing key registers or using pointer
+	 * authentication instructions from lower ELs.
 	 * ---------------------------------------------------------------------
 	 */
-	mov	x0, #((SCR_RESET_VAL | SCR_EA_BIT | SCR_SIF_BIT) \
+	mov_imm	x0, ((SCR_RESET_VAL | SCR_EA_BIT | SCR_SIF_BIT | \
+				SCR_API_BIT | SCR_APK_BIT) \
 			& ~(SCR_TWE_BIT | SCR_TWI_BIT | SCR_SMD_BIT))
 	msr	scr_el3, x0
 

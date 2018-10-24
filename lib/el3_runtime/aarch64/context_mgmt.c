@@ -290,6 +290,7 @@ void cm_prepare_el3_exit(uint32_t security_state)
 	uint32_t sctlr_elx, scr_el3, mdcr_el2;
 	cpu_context_t *ctx = cm_get_context(security_state);
 	int el2_unused = 0;
+	uint64_t hcr_el2 = 0;
 
 	assert(ctx);
 
@@ -309,13 +310,20 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 * EL2 present but unused, need to disable safely.
 			 * SCTLR_EL2 can be ignored in this case.
 			 *
-			 * Initialise all fields in HCR_EL2, except HCR_EL2.RW,
-			 * to zero so that Non-secure operations do not trap to
-			 * EL2.
-			 *
-			 * HCR_EL2.RW: Set this field to match SCR_EL3.RW
+			 * Set EL2 register width appropriately: Set HCR_EL2
+			 * field to match SCR_EL3.RW.
 			 */
-			write_hcr_el2((scr_el3 & SCR_RW_BIT) ? HCR_RW_BIT : 0);
+			if (scr_el3 & SCR_RW_BIT)
+				hcr_el2 |= HCR_RW_BIT;
+
+			/*
+			 * For Armv8.3 pointer authentication feature, disable
+			 * traps to EL2 when accessing key registers or using
+			 * pointer authentication instructions from lower ELs.
+			 */
+			hcr_el2 |= (HCR_API_BIT | HCR_APK_BIT);
+
+			write_hcr_el2(hcr_el2);
 
 			/*
 			 * Initialise CPTR_EL2 setting all fields rather than
