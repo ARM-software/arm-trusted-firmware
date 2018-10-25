@@ -16,6 +16,7 @@
 	.globl	plat_secondary_cold_boot_setup
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
+	.globl	plat_crash_console_flush
 	.globl	platform_mem_init
 	.globl  imx_mailbox_init
 
@@ -106,12 +107,18 @@ func plat_secondary_cold_boot_setup
 endfunc plat_secondary_cold_boot_setup
 
 func plat_crash_console_init
+	mov	x0, #1
 	ret
 endfunc plat_crash_console_init
 
 func plat_crash_console_putc
 	ret
 endfunc plat_crash_console_putc
+
+func plat_crash_console_flush
+	mov	x0, #0
+	ret
+endfunc plat_crash_console_flush
 
 func platform_mem_init
 	ret

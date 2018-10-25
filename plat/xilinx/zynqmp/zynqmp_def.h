@@ -145,13 +145,11 @@
 # error "invalid ZYNQMP_CONSOLE"
 #endif
 
-#define PLAT_ARM_CRASH_UART_BASE	ZYNQMP_UART_BASE
+#define ZYNQMP_CRASH_UART_BASE		ZYNQMP_UART_BASE
 /* impossible to call C routine how it is done now - hardcode any value */
-#define	PLAT_ARM_CRASH_UART_CLK_IN_HZ	100000000 /* FIXME */
-
+#define ZYNQMP_CRASH_UART_CLK_IN_HZ	100000000 /* FIXME */
 /* Must be non zero */
-#define ZYNQMP_UART_BAUDRATE	115200
-#define ARM_CONSOLE_BAUDRATE	ZYNQMP_UART_BAUDRATE
+#define ZYNQMP_UART_BAUDRATE		115200
 
 /* Silicon version detection */
 #define ZYNQMP_SILICON_VER_MASK		0xF000

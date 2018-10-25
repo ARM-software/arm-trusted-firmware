@@ -2554,8 +2554,13 @@ NOTE: This section assumes that your platform is enabling the MULTI_CONSOLE_API
 flag in its platform.mk. Not using this flag is deprecated for new platforms.
 
 BL31 implements a crash reporting mechanism which prints the various registers
-of the CPU to enable quick crash analysis and debugging. By default, the
-definitions in ``plat/common/aarch64/platform\_helpers.S`` will cause the crash
+of the CPU to enable quick crash analysis and debugging. This mechanism relies
+on the platform implementating ``plat_crash_console_init``,
+``plat_crash_console_putc`` and ``plat_crash_console_flush``.
+
+The file ``plat/common/aarch64/crash_console_helpers.S`` contains sample
+implementation of all of them. Platforms may include this file to their
+makefiles in order to benefit from them. By default, they will cause the crash
 output to be routed over the normal console infrastructure and get printed on
 consoles configured to output in crash state. ``console_set_scope()`` can be
 used to control whether a console is used for crash output.
@@ -2565,8 +2570,12 @@ normal boot console can be set up), platforms may want to control crash output
 more explicitly. For these, the following functions can be overridden by
 platform code. They are executed outside of a C environment and without a stack.
 
-Function : plat\_crash\_console\_init
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If this behaviour is not desirable, the platform may implement functions that
+redirect the prints to the console driver (``console_xxx_core_init``, etc). Most
+platforms (including Arm platforms) do this and they can be used as an example.
+
+Function : plat\_crash\_console\_init [mandatory]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -2577,9 +2586,10 @@ This API is used by the crash reporting mechanism to initialize the crash
 console. It must only use the general purpose registers x0 through x7 to do the
 initialization and returns 1 on success.
 
-If you are trying to debug crashes before the console driver would normally get
-registered, you can use this to register a driver from assembly with hardcoded
-parameters. For example, you could register the 16550 driver like this:
+When using the sample implementation, if you are trying to debug crashes before
+the console driver would normally get registered, you can use this to register a
+driver from assembly with hardcoded parameters. For example, you could register
+the 16550 driver like this:
 
 ::
 
@@ -2595,11 +2605,11 @@ parameters. For example, you could register the 16550 driver like this:
         b       console_16550_register  /* tail call, returns 1 on success */
     endfunc plat_crash_console_init
 
-If you're trying to debug crashes in BL1, you can call the console_xxx_core_init
-function exported by some console drivers from here.
+If you're trying to debug crashes in BL1, you can call the
+``console_xxx_core_init`` function exported by some console drivers from here.
 
-Function : plat\_crash\_console\_putc
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function : plat\_crash\_console\_putc [mandatory]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -2612,13 +2622,13 @@ x2 to do its work. The parameter and the return value are in general purpose
 register x0.
 
 If you have registered a normal console driver in ``plat_crash_console_init``,
-you can keep the default implementation here (which calls ``console_putc()``).
+you can keep the sample implementation here (which calls ``console_putc()``).
 
-If you're trying to debug crashes in BL1, you can call the console_xxx_core_putc
-function exported by some console drivers from here.
+If you're trying to debug crashes in BL1, you can call the
+``console_xxx_core_putc`` function exported by some console drivers from here.
 
-Function : plat\_crash\_console\_flush
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Function : plat\_crash\_console\_flush [mandatory]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -2631,7 +2641,7 @@ registers x0 through x5 to do its work. The return value is 0 on successful
 completion; otherwise the return value is -1.
 
 If you have registered a normal console driver in ``plat_crash_console_init``,
-you can keep the default implementation here (which calls ``console_flush()``).
+you can keep the sample implementation here (which calls ``console_flush()``).
 
 If you're trying to debug crashes in BL1, you can call the console_xx_core_flush
 function exported by some console drivers from here.

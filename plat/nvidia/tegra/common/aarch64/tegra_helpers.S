@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,6 +36,7 @@
 	.globl	platform_mem_init
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
+	.globl	plat_crash_console_flush
 	.globl	tegra_secure_entrypoint
 	.globl	plat_reset_handler
 
@@ -239,6 +240,20 @@ func plat_crash_console_putc
 	ldr	x1, [x1]
 	b	console_core_putc
 endfunc plat_crash_console_putc
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_flush()
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : x0, x1
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_flush
+	adr	x0, tegra_console_base
+	ldr	x0, [x0]
+	b	console_core_flush
+endfunc plat_crash_console_flush
 
 	/* ---------------------------------------------------
 	 * Function to handle a platform reset and store

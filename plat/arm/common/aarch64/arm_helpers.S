@@ -8,9 +8,9 @@
 
 	.weak	plat_arm_calc_core_pos
 	.weak	plat_my_core_pos
-	.weak	plat_crash_console_init
-	.weak	plat_crash_console_putc
-	.weak	plat_crash_console_flush
+	.globl	plat_crash_console_init
+	.globl	plat_crash_console_putc
+	.globl	plat_crash_console_flush
 	.globl	platform_mem_init
 
 

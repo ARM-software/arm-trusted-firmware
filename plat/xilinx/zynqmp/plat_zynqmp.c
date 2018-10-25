@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <plat_arm.h>
+#include <platform.h>
+#include "zynqmp_private.h"
 
 int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
@@ -14,5 +15,5 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 	if ((mpidr & MPIDR_CPU_MASK) >= PLATFORM_CORE_COUNT)
 		return -1;
 
-	return plat_arm_calc_core_pos(mpidr);
+	return zynqmp_calc_core_pos(mpidr);
 }

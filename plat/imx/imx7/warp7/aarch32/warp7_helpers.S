@@ -14,6 +14,7 @@
 	.globl	plat_get_my_entrypoint
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
+	.globl	plat_crash_console_flush
 	.globl	plat_panic_handler
 
 	/* ---------------------------------------------
@@ -44,6 +45,12 @@ func plat_crash_console_putc
 	mov_imm r1, PLAT_WARP7_BOOT_UART_BASE
 	b	imx_crash_uart_putc
 endfunc plat_crash_console_putc
+
+func plat_crash_console_flush
+	/* Placeholder */
+	mov	r0, #0
+	bx	lr
+endfunc plat_crash_console_flush
 
 func plat_panic_handler
 	mov	r3, #HAB_ROM_VECTOR_TABLE_FAILSAFE

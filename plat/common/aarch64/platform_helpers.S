@@ -10,9 +10,11 @@
 #include <platform_def.h>
 
 	.weak	plat_report_exception
+#if !ERROR_DEPRECATED
 	.weak	plat_crash_console_init
 	.weak	plat_crash_console_putc
 	.weak	plat_crash_console_flush
+#endif
 	.weak	plat_reset_handler
 	.weak	plat_disable_acp
 	.weak	bl1_plat_prepare_exit
@@ -37,6 +39,7 @@ func plat_report_exception
 	ret
 endfunc plat_report_exception
 
+#if !ERROR_DEPRECATED
 #if MULTI_CONSOLE_API
 	/* -----------------------------------------------------
 	 * int plat_crash_console_init(void)
@@ -109,6 +112,7 @@ func plat_crash_console_flush
 	ret
 endfunc plat_crash_console_flush
 #endif
+#endif /* ERROR_DEPRECATED */
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by

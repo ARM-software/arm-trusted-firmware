@@ -12,6 +12,7 @@
 	.globl	platform_mem_init
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
+	.globl	plat_crash_console_flush
 	.globl	plat_report_exception
 	.globl	plat_reset_handler
 
@@ -59,6 +60,19 @@ func plat_crash_console_putc
 	mov_imm	x1, CRASH_CONSOLE_BASE
 	b	console_core_putc
 endfunc plat_crash_console_putc
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_flush()
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : x0, x1
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_flush
+	mov_imm	x0, CRASH_CONSOLE_BASE
+	b	console_core_flush
+endfunc plat_crash_console_flush
 
 	/* ---------------------------------------------
 	 * void plat_report_exception(unsigned int type)
