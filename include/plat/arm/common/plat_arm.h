@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __PLAT_ARM_H__
-#define __PLAT_ARM_H__
+#ifndef PLAT_ARM_H
+#define PLAT_ARM_H
 
 #include <bakery_lock.h>
 #include <cassert.h>
@@ -292,4 +292,4 @@ extern plat_psci_ops_t plat_arm_psci_pm_ops;
 extern const mmap_region_t plat_arm_mmap[];
 extern const unsigned int arm_pm_idle_states[];
 
-#endif /* __PLAT_ARM_H__ */
+#endif /* PLAT_ARM_H */
