@@ -14,7 +14,9 @@ SGI_CPU_SOURCES		:=	lib/cpus/aarch64/cortex_ares.S
 
 BL1_SOURCES		+=	${SGI_CPU_SOURCES}
 
-BL2_SOURCES		+=	lib/utils/mem_region.c			\
+BL2_SOURCES		+=	${SGICLARKA_BASE}/sgiclarka_security.c	\
+				drivers/arm/tzc/tzc_dmc620.c		\
+				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c
 
 BL31_SOURCES		+=	${SGI_CPU_SOURCES}			\

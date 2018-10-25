@@ -35,8 +35,7 @@ PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/sgi_plat.c	\
 
 BL1_SOURCES		+=	${INTERCONNECT_SOURCES}
 
-BL2_SOURCES		+=	${CSS_ENT_BASE}/sgi_security.c		\
-				${CSS_ENT_BASE}/sgi_image_load.c
+BL2_SOURCES		+=	${CSS_ENT_BASE}/sgi_image_load.c
 
 BL31_SOURCES		+=	${INTERCONNECT_SOURCES}			\
 				${ENT_GIC_SOURCES}			\
