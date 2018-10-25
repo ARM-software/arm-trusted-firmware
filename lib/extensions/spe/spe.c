@@ -8,26 +8,30 @@
 #include <arch_helpers.h>
 #include <pubsub.h>
 #include <spe.h>
+#include <stdbool.h>
 
-/*
- * The assembler does not yet understand the psb csync mnemonic
- * so use the equivalent hint instruction.
- */
-#define psb_csync()	asm volatile("hint #17")
+static inline void psb_csync(void)
+{
+	/*
+	 * The assembler does not yet understand the psb csync mnemonic
+	 * so use the equivalent hint instruction.
+	 */
+	__asm__ volatile("hint #17");
+}
 
-int spe_supported(void)
+bool spe_supported(void)
 {
 	uint64_t features;
 
 	features = read_id_aa64dfr0_el1() >> ID_AA64DFR0_PMS_SHIFT;
-	return (features & ID_AA64DFR0_PMS_MASK) == 1;
+	return (features & ID_AA64DFR0_PMS_MASK) == 1U;
 }
 
-void spe_enable(int el2_unused)
+void spe_enable(bool el2_unused)
 {
 	uint64_t v;
 
-	if (spe_supported() == 0)
+	if (!spe_supported())
 		return;
 
 	if (el2_unused) {
@@ -59,7 +63,7 @@ void spe_disable(void)
 {
 	uint64_t v;
 
-	if (spe_supported() == 0)
+	if (!spe_supported())
 		return;
 
 	/* Drain buffered data */
@@ -75,13 +79,14 @@ void spe_disable(void)
 
 static void *spe_drain_buffers_hook(const void *arg)
 {
-	if (spe_supported() == 0)
+	if (!spe_supported())
 		return (void *)-1;
 
 	/* Drain buffered data */
 	psb_csync();
 	dsbnsh();
-	return 0;
+
+	return (void *)0;
 }
 
 SUBSCRIBE_TO_EVENT(cm_entering_secure_world, spe_drain_buffers_hook);

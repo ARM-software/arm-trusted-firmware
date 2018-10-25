@@ -14,6 +14,7 @@
 #include <platform.h>
 #include <platform_def.h>
 #include <smccc_helpers.h>
+#include <stdbool.h>
 #include <string.h>
 #include <utils.h>
 
@@ -129,7 +130,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
  * When EL2 is implemented but unused `el2_unused` is non-zero, otherwise
  * it is zero.
  ******************************************************************************/
-static void enable_extensions_nonsecure(int el2_unused)
+static void enable_extensions_nonsecure(bool el2_unused)
 {
 #if IMAGE_BL32
 #if ENABLE_AMU
@@ -175,7 +176,7 @@ void cm_prepare_el3_exit(uint32_t security_state)
 {
 	uint32_t hsctlr, scr;
 	cpu_context_t *ctx = cm_get_context(security_state);
-	int el2_unused = 0;
+	bool el2_unused = false;
 
 	assert(ctx);
 
@@ -200,7 +201,7 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			isb();
 		} else if (read_id_pfr1() &
 			(ID_PFR1_VIRTEXT_MASK << ID_PFR1_VIRTEXT_SHIFT)) {
-			el2_unused = 1;
+			el2_unused = true;
 
 			/*
 			 * Set the NS bit to access NS copies of certain banked

@@ -10,6 +10,6 @@
 #include <stdbool.h>
 
 bool mpam_supported(void);
-void mpam_enable(int el2_unused);
+void mpam_enable(bool el2_unused);
 
 #endif /* MPAM_H */

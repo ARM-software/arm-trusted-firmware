@@ -7,21 +7,22 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <pubsub.h>
+#include <stdbool.h>
 #include <sve.h>
 
-int sve_supported(void)
+bool sve_supported(void)
 {
 	uint64_t features;
 
 	features = read_id_aa64pfr0_el1() >> ID_AA64PFR0_SVE_SHIFT;
-	return (features & ID_AA64PFR0_SVE_MASK) == 1;
+	return (features & ID_AA64PFR0_SVE_MASK) == 1U;
 }
 
 static void *disable_sve_hook(const void *arg)
 {
 	uint64_t cptr;
 
-	if (sve_supported() == 0)
+	if (!sve_supported())
 		return (void *)-1;
 
 	/*
@@ -39,14 +40,14 @@ static void *disable_sve_hook(const void *arg)
 	 * No explicit ISB required here as ERET to switch to Secure
 	 * world covers it
 	 */
-	return 0;
+	return (void *)0;
 }
 
 static void *enable_sve_hook(const void *arg)
 {
 	uint64_t cptr;
 
-	if (sve_supported() == 0)
+	if (!sve_supported())
 		return (void *)-1;
 
 	/*
@@ -60,14 +61,14 @@ static void *enable_sve_hook(const void *arg)
 	 * No explicit ISB required here as ERET to switch to Non-secure
 	 * world covers it
 	 */
-	return 0;
+	return (void *)0;
 }
 
-void sve_enable(int el2_unused)
+void sve_enable(bool el2_unused)
 {
 	uint64_t cptr;
 
-	if (sve_supported() == 0)
+	if (!sve_supported())
 		return;
 
 #if CTX_INCLUDE_FPREGS

@@ -16,7 +16,7 @@
 	.globl	cpuamu_write_cpuamcntenclr_el0
 
 /*
- * uint64_t cpuamu_cnt_read(int idx);
+ * uint64_t cpuamu_cnt_read(unsigned int idx);
  *
  * Given `idx`, read the corresponding AMU counter
  * and return it in `x0`.
@@ -41,7 +41,7 @@ func cpuamu_cnt_read
 endfunc cpuamu_cnt_read
 
 /*
- * void cpuamu_cnt_write(int idx, uint64_t val);
+ * void cpuamu_cnt_write(unsigned int idx, uint64_t val);
  *
  * Given `idx`, write `val` to the corresponding AMU counter.
  */
