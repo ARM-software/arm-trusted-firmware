@@ -6,6 +6,7 @@
 
 #include <asm_macros.S>
 #include <cbmem_console.h>
+#define USE_FINISH_CONSOLE_REG_2
 #include <console_macros.S>
 
 /*
@@ -39,7 +40,7 @@ func console_cbmc_register
 	ldr	w2, [x0]
 	str	w2, [x1, #CONSOLE_T_CBMC_SIZE]
 	mov	x0, x1
-	finish_console_register cbmc
+	finish_console_register cbmc putc=1, flush=1
 endfunc console_cbmc_register
 
 	/* -----------------------------------------------

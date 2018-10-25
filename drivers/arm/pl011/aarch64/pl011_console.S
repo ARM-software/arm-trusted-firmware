@@ -6,6 +6,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
+#define USE_FINISH_CONSOLE_REG_2
 #include <console_macros.S>
 #include <pl011.h>
 
@@ -110,7 +111,7 @@ func console_pl011_register
 
 	mov	x0, x6
 	mov	x30, x7
-	finish_console_register pl011
+	finish_console_register pl011 putc=1, getc=1, flush=1
 
 register_fail:
 	ret	x7

@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <asm_macros.S>
+#define USE_FINISH_CONSOLE_REG_2
 #include <console_macros.S>
 
 	/*
@@ -60,8 +61,12 @@ func console_xxx_register
 	 * Keep console_t pointer in x0 for later.
 	 */
 
-	/* Macro to finish up registration and return (needs valid x0 + x30). */
-	finish_console_register xxx
+	/*
+	 * Macro to finish up registration and return (needs valid x0 + x30).
+	 * If any of the argument is unspecified, then the corresponding
+	 * entry in console_t is set to 0.
+	 */
+	finish_console_register xxx putc=1, getc=1, flush=1
 
 	/* Jump here if hardware init fails or parameters are invalid. */
 register_fail:
