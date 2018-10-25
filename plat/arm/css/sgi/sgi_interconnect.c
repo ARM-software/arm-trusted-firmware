@@ -6,7 +6,6 @@
 
 #include <arch_helpers.h>
 #include <debug.h>
-#include <sgi_plat_config.h>
 
 /*
  * For SGI575 which support FCM (with automatic interconnect enter/exit),

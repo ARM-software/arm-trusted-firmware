@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef PLATFORM_DEF_H
-#define PLATFORM_DEF_H
+#ifndef SGI_BASE_PLATFORM_DEF_H
+#define SGI_BASE_PLATFORM_DEF_H
 
 #include <arm_def.h>
 #include <arm_spm_def.h>
@@ -17,11 +17,6 @@
 #include <v2m_def.h>
 #include <xlat_tables_defs.h>
 
-#define CSS_SGI_MAX_CPUS_PER_CLUSTER	4
-
-/* CPU topology */
-#define PLAT_ARM_CLUSTER_COUNT		2
-#define CSS_SGI_MAX_PE_PER_CPU		1
 #define PLATFORM_CORE_COUNT		(PLAT_ARM_CLUSTER_COUNT *	\
 					CSS_SGI_MAX_CPUS_PER_CLUSTER * \
 					CSS_SGI_MAX_PE_PER_CPU)
@@ -117,8 +112,6 @@
 
 
 #define PLAT_ARM_NSTIMER_FRAME_ID	0
-
-#define PLAT_CSS_MHU_BASE		0x45000000
 
 #define PLAT_ARM_TRUSTED_ROM_BASE	0x0
 #define PLAT_ARM_TRUSTED_ROM_SIZE	0x00080000	/* 512KB */
@@ -216,4 +209,4 @@
 					 V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
 
 
-#endif /* PLATFORM_DEF_H */
+#endif /* SGI_BASE_PLATFORM_DEF_H */

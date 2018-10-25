@@ -7,7 +7,6 @@
 #include <bl_common.h>
 #include <debug.h>
 #include <plat_arm.h>
-#include <sgi_plat_config.h>
 #include <sgi_ras.h>
 #include "../../css/drivers/scmi/scmi.h"
 #include "../../css/drivers/mhu/css_mhu_doorbell.h"
@@ -28,9 +27,6 @@ scmi_channel_plat_info_t *plat_css_get_scmi_info()
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
-	/* Initialize the platform configuration structure */
-	plat_config_init();
-
 	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
 }
 
