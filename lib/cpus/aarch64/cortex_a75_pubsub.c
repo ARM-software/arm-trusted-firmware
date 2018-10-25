@@ -12,14 +12,16 @@ static void *cortex_a75_context_save(const void *arg)
 {
 	if (midr_match(CORTEX_A75_MIDR) != 0)
 		cpuamu_context_save(CORTEX_A75_AMU_NR_COUNTERS);
-	return 0;
+
+	return (void *)0;
 }
 
 static void *cortex_a75_context_restore(const void *arg)
 {
 	if (midr_match(CORTEX_A75_MIDR) != 0)
 		cpuamu_context_restore(CORTEX_A75_AMU_NR_COUNTERS);
-	return 0;
+
+	return (void *)0;
 }
 
 SUBSCRIBE_TO_EVENT(psci_suspend_pwrdown_start, cortex_a75_context_save);

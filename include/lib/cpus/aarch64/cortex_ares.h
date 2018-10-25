@@ -4,11 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CORTEX_ARES_H__
-#define __CORTEX_ARES_H__
+#ifndef CORTEX_ARES_H
+#define CORTEX_ARES_H
+
+#include <utils_def.h>
 
 /* Cortex-ARES MIDR for revision 0 */
-#define CORTEX_ARES_MIDR		0x410fd0c0
+#define CORTEX_ARES_MIDR		U(0x410fd0c0)
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
@@ -17,7 +19,7 @@
 #define CORTEX_ARES_CPUECTLR_EL1	S3_0_C15_C1_4
 
 /* Definitions of register field mask in CORTEX_ARES_CPUPWRCTLR_EL1 */
-#define CORTEX_ARES_CORE_PWRDN_EN_MASK	0x1
+#define CORTEX_ARES_CORE_PWRDN_EN_MASK	U(0x1)
 
 #define CORTEX_ARES_ACTLR_AMEN_BIT	(U(1) << 4)
 
@@ -30,4 +32,4 @@
 #define CPUPOR_EL3	S3_6_C15_C8_2
 #define CPUPMR_EL3	S3_6_C15_C8_3
 
-#endif /* __CORTEX_ARES_H__ */
+#endif /* CORTEX_ARES_H */

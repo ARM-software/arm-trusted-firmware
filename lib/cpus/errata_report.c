@@ -12,6 +12,7 @@
 #include <debug.h>
 #include <errata_report.h>
 #include <spinlock.h>
+#include <stdbool.h>
 #include <utils.h>
 
 #ifdef IMAGE_BL1
@@ -35,10 +36,10 @@
  */
 int errata_needs_reporting(spinlock_t *lock, uint32_t *reported)
 {
-	int report_now;
+	bool report_now;
 
 	/* If already reported, return false. */
-	if (*reported)
+	if (*reported != 0U)
 		return 0;
 
 	/*
@@ -46,7 +47,7 @@ int errata_needs_reporting(spinlock_t *lock, uint32_t *reported)
 	 * report status to true.
 	 */
 	spin_lock(lock);
-	report_now = !(*reported);
+	report_now = (*reported == 0U);
 	if (report_now)
 		*reported = 1;
 	spin_unlock(lock);
@@ -75,8 +76,8 @@ void errata_print_msg(unsigned int status, const char *cpu, const char *id)
 
 
 	assert(status < ARRAY_SIZE(errata_status_str));
-	assert(cpu);
-	assert(id);
+	assert(cpu != NULL);
+	assert(id != NULL);
 
 	msg = errata_status_str[status];
 

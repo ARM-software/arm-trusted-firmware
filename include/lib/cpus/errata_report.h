@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __ERRATA_H__
-#define __ERRATA_H__
+#ifndef ERRATA_REPORT_H
+#define ERRATA_REPORT_H
 
 #ifndef __ASSEMBLY__
 
@@ -30,5 +30,4 @@ int errata_needs_reporting(spinlock_t *lock, uint32_t *reported);
 #define ERRATA_APPLIES		1
 #define ERRATA_MISSING		2
 
-#endif /* __ERRATA_H__ */
-
+#endif /* ERRATA_REPORT_H */
