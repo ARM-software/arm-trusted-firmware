@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,13 +15,12 @@
 #include <errno.h>
 #include <generic_delay_timer.h>
 #include <mmio.h>
-#include <plat_arm.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <stddef.h>
 #include <string.h>
 #include "hi3798cv200.h"
 #include "plat_private.h"
-#include "platform_def.h"
 
 /* Memory ranges for code and RO data sections */
 #define BL31_RO_BASE	(unsigned long)(&__RO_START__)
@@ -113,8 +112,8 @@ void bl31_platform_setup(void)
 	generic_delay_timer_init();
 
 	/* Init GIC distributor and CPU interface */
-	plat_arm_gic_driver_init();
-	plat_arm_gic_init();
+	poplar_gic_driver_init();
+	poplar_gic_init();
 
 	/* Init security properties of IP blocks */
 	hisi_tzpc_sec_init();

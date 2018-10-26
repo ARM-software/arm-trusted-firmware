@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,12 +12,11 @@
 #include <context_mgmt.h>
 #include <debug.h>
 #include <mmio.h>
-#include <plat_arm.h>
 #include <platform.h>
+#include <platform_def.h>
 #include <psci.h>
 #include "hi3798cv200.h"
 #include "plat_private.h"
-#include "platform_def.h"
 
 #define REG_PERI_CPU_RVBARADDR		0xF8A80034
 #define REG_PERI_CPU_AARCH_MODE		0xF8A80030
@@ -76,10 +75,10 @@ static void poplar_pwr_domain_on_finish(const psci_power_state_t *target_state)
 					PLAT_MAX_OFF_STATE);
 
 	/* Enable the gic cpu interface */
-	plat_arm_gic_pcpu_init();
+	poplar_gic_pcpu_init();
 
 	/* Program the gic per-cpu distributor or re-distributor interface */
-	plat_arm_gic_cpuif_enable();
+	poplar_gic_cpuif_enable();
 }
 
 static void poplar_pwr_domain_suspend_finish(
