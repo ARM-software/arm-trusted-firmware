@@ -31,15 +31,6 @@ https://git.linaro.org/landing-teams/working/mbl/u-boot.git
     make warp7_bl33_defconfig;
     make u-boot.imx arch=ARM CROSS_COMPILE=arm-linux-gnueabihf-
 
-## TF-A:
-
-https://github.com/ARM-software/arm-trusted-firmware.git
-
-.. code:: shell
-
-    make CROSS_COMPILE=arm-linux-gnueabihf- PLAT=warp7 ARCH=aarch32 ARM_ARCH_MAJOR=7 ARM_CORTEX_A7=yes AARCH32_SP=optee all
-    /path/to/u-boot/tools/mkimage -n /path/to/u-boot/u-boot.cfgout -T imximage -e 0x9df00000 -d ./build/warp7/debug/bl2.bin ./build/warp7/debug/bl2.bin.imx
-
 ## OP-TEE:
 
 https://github.com/OP-TEE/optee_os.git
@@ -48,19 +39,76 @@ https://github.com/OP-TEE/optee_os.git
 
     make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- PLATFORM=imx PLATFORM_FLAVOR=mx7swarp7 ARCH=arm CFG_PAGEABLE_ADDR=0 CFG_DT_ADDR=0x83000000 CFG_NS_ENTRY_ADDR=0x87800000
 
+## TF-A:
+
+https://github.com/ARM-software/arm-trusted-firmware.git
+
+The following commands assume that a directory exits in the top-level TFA build
+directory "fiptool_images". "fiptool_images" contains
+
+- u-boot.bin
+  The binary output from the u-boot instructions above
+
+- tee-header_v2.bin
+- tee-pager_v2.bin
+- tee-pageable_v2.bin
+  Binary outputs from the previous OPTEE build steps
+
+It is also assumed copy of mbedtls is available on the path path ../mbedtls
+  https://github.com/ARMmbed/mbedtls.git
+  At the time of writing HEAD points to 0592ea772aee48ca1e6d9eb84eca8e143033d973
+
+.. code:: shell
+
+    mkdir fiptool_images
+    cp /path/to/optee/out/arm-plat-imx/core/tee-header_v2.bin fiptool_images
+    cp /path/to/optee/out/arm-plat-imx/core/tee-pager_v2.bin fiptool_images
+    cp /path/to/optee/out/arm-plat-imx/core/tee-pageable_v2.bin fiptool_images
+
+    make CROSS_COMPILE=${CROSS_COMPILE} PLAT=warp7 ARCH=aarch32 ARM_ARCH_MAJOR=7 \
+         ARM_CORTEX_A7=yes AARCH32_SP=optee PLAT_WARP7_UART=1 GENERATE_COT=1 \
+         TRUSTED_BOARD_BOOT=1 USE_TBBR_DEFS=1 MBEDTLS_DIR=../mbedtls \
+         NEED_BL32=yes BL32=fiptool_images/tee-header_v2.bin \
+         BL32_EXTRA1=fiptool_images/tee-pager_v2.bin \
+         BL32_EXTRA2=fiptool_images/tee-pageable_v2.bin \
+         BL33=fiptool_images/u-boot.bin certificates all
+
+    /path/to/u-boot/tools/mkimage -n /path/to/u-boot/u-boot.cfgout -T imximage -e 0x9df00000 -d ./build/warp7/debug/bl2.bin ./build/warp7/debug/bl2.bin.imx
 
 ## FIP:
 
 .. code:: shell
 
-    mkdir fiptool_images
     cp /path/to/uboot/u-boot.bin fiptool_images
-    cp /path/to/optee/out/arm-plat-imx/core/tee-header_v2.bin fiptool_images
-    cp /path/to/optee/out/arm-plat-imx/core/tee-pager_v2.bin fiptool_images
-    cp /path/to/optee/out/arm-plat-imx/core/tee-pageable_v2.bin fiptool_images
     cp /path/to/linux/arch/boot/dts/imx7s-warp.dtb fiptool_images
-    tools/fiptool/fiptool create --tos-fw fiptool_images/tee-header_v2.bin --tos-fw-extra1 fiptool_images/tee-pager_v2.bin --tos-fw-extra2 fiptool_images/tee-pageable_v2.bin --nt-fw fiptool_images/u-boot.bin --hw-config fiptool_images/imx7s-warp.dtb warp7.fip
 
+    tools/cert_create/cert_create -n --rot-key "build/warp7/debug/rot_key.pem" \
+               --tfw-nvctr 0 \
+               --ntfw-nvctr 0 \
+               --trusted-key-cert fiptool_images/trusted-key-cert.key-crt \
+               --tb-fw=build/warp7/debug/bl2.bin \
+               --tb-fw-cert fiptool_images/trusted-boot-fw.key-crt\
+               --tos-fw fiptool_images/tee-header_v2.bin \
+               --tos-fw-cert fiptool_images/tee-header_v2.bin.crt \
+               --tos-fw-key-cert fiptool_images/tee-header_v2.bin.key-crt \
+               --tos-fw-extra1 fiptool_images/tee-pager_v2.bin \
+               --tos-fw-extra2 fiptool_images/tee-pageable_v2.bin \
+               --nt-fw fiptool_images/u-boot.bin \
+               --nt-fw-cert fiptool_images/u-boot.bin.crt \
+               --nt-fw-key-cert fiptool_images/u-boot.bin.key-crt \
+               --hw-config fiptool_images/imx7s-warp.dtb
+
+    tools/fiptool/fiptool create --tos-fw fiptool_images/tee-header_v2.bin \
+              --tos-fw-extra1 fiptool_images/tee-pager_v2.bin \
+              --tos-fw-extra2 fiptool_images/tee-pageable_v2.bin \
+              --nt-fw fiptool_images/u-boot.bin \
+              --hw-config fiptool_images/imx7s-warp.dtb \
+              --tos-fw-cert fiptool_images/tee-header_v2.bin.crt \
+              --tos-fw-key-cert fiptool_images/tee-header_v2.bin.key-crt \
+              --nt-fw-cert fiptool_images/u-boot.bin.crt \
+              --nt-fw-key-cert fiptool_images/u-boot.bin.key-crt \
+              --trusted-key-cert fiptool_images/trusted-key-cert.key-crt \
+              --tb-fw-cert fiptool_images/trusted-boot-fw.key-crt warp7.fip
 
 # Deploy Images
 
