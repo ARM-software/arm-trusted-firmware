@@ -6,7 +6,6 @@
 
 #include <arch.h>
 #include <arm_def.h>
-#include <arm_xlat_tables.h>
 #include <assert.h>
 #include <bl1.h>
 #include <bl_common.h>
@@ -15,6 +14,8 @@
 #include <platform_def.h>
 #include <sp805.h>
 #include <utils.h>
+#include <xlat_tables_compat.h>
+
 #include "../../../bl1/bl1_private.h"
 
 /* Weak definitions may be overridden in specific ARM standard platform */
@@ -122,7 +123,7 @@ void arm_bl1_plat_arch_setup(void)
 		{0}
 	};
 
-	arm_setup_page_tables(bl_regions, plat_arm_get_mmap());
+	setup_page_tables(bl_regions, plat_arm_get_mmap());
 #ifdef AARCH32
 	enable_mmu_svc_mon(0);
 #else

@@ -16,7 +16,7 @@
 #include <platform.h>
 #include <ras.h>
 #include <utils.h>
-#include <arm_xlat_tables.h>
+#include <xlat_tables_compat.h>
 
 /*
  * Placeholder variables for copying the arguments that have been passed to
@@ -302,7 +302,7 @@ void __init arm_bl31_plat_arch_setup(void)
 		{0}
 	};
 
-	arm_setup_page_tables(bl_regions, plat_arm_get_mmap());
+	setup_page_tables(bl_regions, plat_arm_get_mmap());
 
 	enable_mmu_el3(0);
 

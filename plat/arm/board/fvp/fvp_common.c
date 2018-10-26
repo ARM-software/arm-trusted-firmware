@@ -7,7 +7,6 @@
 #include <arm_config.h>
 #include <arm_def.h>
 #include <arm_spm_def.h>
-#include <arm_xlat_tables.h>
 #include <assert.h>
 #include <cci.h>
 #include <ccn.h>
@@ -18,6 +17,8 @@
 #include <platform.h>
 #include <secure_partition.h>
 #include <v2m_def.h>
+#include <xlat_tables_compat.h>
+
 #include "../fvp_def.h"
 #include "fvp_private.h"
 
@@ -52,8 +53,8 @@ arm_config_t arm_config;
 
 /*
  * Table of memory regions for various BL stages to map using the MMU.
- * This doesn't include Trusted SRAM as arm_setup_page_tables() already
- * takes care of mapping it.
+ * This doesn't include Trusted SRAM as setup_page_tables() already takes care
+ * of mapping it.
  *
  * The flash needs to be mapped as writable in order to erase the FIP's Table of
  * Contents in case of unrecoverable error (see plat_error_handler()).

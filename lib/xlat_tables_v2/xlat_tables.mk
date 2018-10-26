@@ -10,3 +10,6 @@ XLAT_TABLES_LIB_SRCS	:=	$(addprefix lib/xlat_tables_v2/,	\
 				xlat_tables_context.c			\
 				xlat_tables_core.c			\
 				xlat_tables_utils.c)
+
+XLAT_TABLES_LIB_V2	:=	1
+$(eval $(call add_define,XLAT_TABLES_LIB_V2))

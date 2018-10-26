@@ -8,8 +8,8 @@
 
 /*
  * Table of memory regions for different BL stages to map using the MMU.
- * This doesn't include Trusted SRAM as arm_setup_page_tables() already
- * takes care of mapping it.
+ * This doesn't include Trusted SRAM as setup_page_tables() already takes care
+ * of mapping it.
  */
 #ifdef IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {

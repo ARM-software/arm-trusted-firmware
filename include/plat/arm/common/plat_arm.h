@@ -6,7 +6,6 @@
 #ifndef __PLAT_ARM_H__
 #define __PLAT_ARM_H__
 
-#include <arm_xlat_tables.h>
 #include <bakery_lock.h>
 #include <cassert.h>
 #include <cpu_data.h>
@@ -14,6 +13,7 @@
 #include <spinlock.h>
 #include <tzc_common.h>
 #include <utils_def.h>
+#include <xlat_tables_compat.h>
 
 /*******************************************************************************
  * Forward declarations
@@ -65,12 +65,6 @@ typedef struct arm_tzc_regions_info {
 	CASSERT((PLAT_ARM_MMAP_ENTRIES + ARM_BL_REGIONS)		  \
 		<= MAX_MMAP_REGIONS,					  \
 		assert_max_mmap_regions);
-
-/*
- * Utility functions common to ARM standard platforms
- */
-void arm_setup_page_tables(const mmap_region_t bl_regions[],
-			   const mmap_region_t plat_regions[]);
 
 void arm_setup_romlib(void);
 

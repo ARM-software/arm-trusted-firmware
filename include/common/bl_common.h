@@ -193,6 +193,11 @@ extern const char version_string[];
 void print_entry_point_info(const entry_point_info_t *ep_info);
 uintptr_t page_align(uintptr_t value, unsigned dir);
 
+struct mmap_region;
+
+void setup_page_tables(const struct mmap_region *bl_regions,
+			   const struct mmap_region *plat_regions);
+
 #endif /*__ASSEMBLY__*/
 
 #endif /* __BL_COMMON_H__ */

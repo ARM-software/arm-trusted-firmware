@@ -38,24 +38,12 @@ ifeq (${ARM_ARCH_MAJOR},8)
 PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/${ARCH}
 endif
 
-# Use translation tables library v2 by default
-ARM_XLAT_TABLES_LIB_V1		:=	0
-$(eval $(call assert_boolean,ARM_XLAT_TABLES_LIB_V1))
-$(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
-
-
 PLAT_BL_COMMON_SOURCES	:=	plat/qemu/qemu_common.c			  \
 				plat/qemu/qemu_console.c		  \
 				drivers/arm/pl011/${ARCH}/pl011_console.S \
 
-ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
-PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/xlat_tables_common.c		\
-				lib/xlat_tables/${ARCH}/xlat_tables.c
-else
 include lib/xlat_tables_v2/xlat_tables.mk
-
 PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
-endif
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
