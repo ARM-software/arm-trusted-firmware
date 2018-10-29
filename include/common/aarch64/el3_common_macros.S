@@ -283,26 +283,38 @@
 		 * an earlier boot loader stage.
 		 * -------------------------------------------------------------
 		 */
-		ldr	x0, =__RW_START__
-		ldr	x1, =__RW_END__
+		adrp	x0, __RW_START__
+		add	x0, x0, :lo12:__RW_START__
+		adrp	x1, __RW_END__
+		add	x1, x1, :lo12:__RW_END__
 		sub	x1, x1, x0
 		bl	inv_dcache_range
 #endif
+		adrp	x0, __BSS_START__
+		add	x0, x0, :lo12:__BSS_START__
 
-		ldr	x0, =__BSS_START__
-		ldr	x1, =__BSS_SIZE__
+		adrp	x1, __BSS_END__
+		add	x1, x1, :lo12:__BSS_END__
+		sub	x1, x1, x0
 		bl	zeromem
 
 #if USE_COHERENT_MEM
-		ldr	x0, =__COHERENT_RAM_START__
-		ldr	x1, =__COHERENT_RAM_UNALIGNED_SIZE__
+		adrp	x0, __COHERENT_RAM_START__
+		add	x0, x0, :lo12:__COHERENT_RAM_START__
+		adrp	x1, __COHERENT_RAM_END_UNALIGNED__
+		add	x1, x1, :lo12: __COHERENT_RAM_END_UNALIGNED__
+		sub	x1, x1, x0
 		bl	zeromem
 #endif
 
 #if defined(IMAGE_BL1) || (defined(IMAGE_BL2) && BL2_IN_XIP_MEM)
-		ldr	x0, =__DATA_RAM_START__
-		ldr	x1, =__DATA_ROM_START__
-		ldr	x2, =__DATA_SIZE__
+		adrp	x0, __DATA_RAM_START__
+		add	x0, x0, :lo12:__DATA_RAM_START__
+		adrp	x1, __DATA_ROM_START__
+		add	x1, x1, :lo12:__DATA_ROM_START__
+		adrp	x2, __DATA_RAM_END__
+		add	x2, x2, :lo12:__DATA_RAM_END__
+		sub	x2, x2, x0
 		bl	memcpy16
 #endif
 	.endif /* _init_c_runtime */

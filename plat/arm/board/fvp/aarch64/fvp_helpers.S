@@ -19,7 +19,7 @@
 	.globl	plat_arm_calc_core_pos
 
 	.macro	fvp_choose_gicmmap  param1, param2, x_tmp, w_tmp, res
-	ldr	\x_tmp, =V2M_SYSREGS_BASE + V2M_SYS_ID
+	mov_imm	\x_tmp, V2M_SYSREGS_BASE + V2M_SYS_ID
 	ldr	\w_tmp, [\x_tmp]
 	ubfx	\w_tmp, \w_tmp, #V2M_SYS_ID_BLD_SHIFT, #V2M_SYS_ID_BLD_LENGTH
 	cmp	\w_tmp, #BLD_GIC_VE_MMAP
@@ -48,7 +48,7 @@ func plat_secondary_cold_boot_setup
 	 * ---------------------------------------------
 	 */
 	mrs	x0, mpidr_el1
-	ldr	x1, =PWRC_BASE
+	mov_imm	x1, PWRC_BASE
 	str	w0, [x1, #PPOFFR_OFF]
 
 	/* ---------------------------------------------
@@ -72,8 +72,8 @@ func plat_secondary_cold_boot_setup
 	b	secondary_cold_boot_wait
 
 gicv2_bypass_disable:
-	ldr	x0, =VE_GICC_BASE
-	ldr	x1, =BASE_GICC_BASE
+	mov_imm	x0, VE_GICC_BASE
+	mov_imm	x1, BASE_GICC_BASE
 	fvp_choose_gicmmap	x0, x1, x2, w2, x1
 	mov	w0, #(IRQ_BYP_DIS_GRP1 | FIQ_BYP_DIS_GRP1)
 	orr	w0, w0, #(IRQ_BYP_DIS_GRP0 | FIQ_BYP_DIS_GRP0)
@@ -128,7 +128,7 @@ func plat_get_my_entrypoint
 	 * ---------------------------------------------------------------------
 	 */
 	mrs	x2, mpidr_el1
-	ldr	x1, =PWRC_BASE
+	mov_imm	x1, PWRC_BASE
 	str	w2, [x1, #PSYSR_OFF]
 	ldr	w2, [x1, #PSYSR_OFF]
 	ubfx	w2, w2, #PSYSR_WK_SHIFT, #PSYSR_WK_WIDTH
@@ -171,7 +171,7 @@ endfunc plat_get_my_entrypoint
 	 */
 func plat_is_my_cpu_primary
 	mrs	x0, mpidr_el1
-	ldr	x1, =MPIDR_AFFINITY_MASK
+	mov_imm	x1, MPIDR_AFFINITY_MASK
 	and	x0, x0, x1
 	cmp	x0, #FVP_PRIMARY_CPU
 	cset	w0, eq

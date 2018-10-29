@@ -83,6 +83,7 @@ IMPORT_SYM(unsigned long, __BL2_END__,		BL2_END);
 #elif defined(IMAGE_BL2U)
 IMPORT_SYM(unsigned long, __BL2U_END__,		BL2U_END);
 #elif defined(IMAGE_BL31)
+IMPORT_SYM(unsigned long, __BL31_START__,	BL31_START);
 IMPORT_SYM(unsigned long, __BL31_END__,		BL31_END);
 #elif defined(IMAGE_BL32)
 IMPORT_SYM(unsigned long, __BL32_END__,		BL32_END);

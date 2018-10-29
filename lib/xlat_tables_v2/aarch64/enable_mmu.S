@@ -45,7 +45,8 @@
 		tlbi_invalidate_all \el
 
 		mov	x7, x0
-		ldr	x0, =mmu_cfg_params
+		adrp	x0, mmu_cfg_params
+		add	x0, x0, :lo12:mmu_cfg_params
 
 		/* MAIR */
 		ldr	x1, [x0, #(MMU_CFG_MAIR << 3)]

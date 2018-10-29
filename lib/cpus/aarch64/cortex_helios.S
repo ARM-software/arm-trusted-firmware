@@ -19,6 +19,16 @@ func cortex_helios_cpu_pwr_dwn
 	ret
 endfunc cortex_helios_cpu_pwr_dwn
 
+#if REPORT_ERRATA
+/*
+ * Errata printing function for Cortex Helios. Must follow AAPCS.
+ */
+func cortex_helios_errata_report
+	ret
+endfunc cortex_helios_errata_report
+#endif
+
+
 .section .rodata.cortex_helios_regs, "aS"
 cortex_helios_regs:  /* The ascii list of register names to be reported */
 	.asciz	"cpuectlr_el1", ""

@@ -105,8 +105,9 @@
 	 * Clobber: X30, X1, X2
 	 */
 	.macro get_my_mp_stack _name, _size
-	bl  plat_my_core_pos
-	ldr x2, =(\_name + \_size)
+	bl	plat_my_core_pos
+	adrp	x2, (\_name + \_size)
+	add	x2, x2, :lo12:(\_name + \_size)
 	mov x1, #\_size
 	madd x0, x0, x1, x2
 	.endm
@@ -117,7 +118,8 @@
 	 * Out: X0 = physical address of stack base
 	 */
 	.macro get_up_stack _name, _size
-	ldr x0, =(\_name + \_size)
+	adrp	x0, (\_name + \_size)
+	add	x0, x0, :lo12:(\_name + \_size)
 	.endm
 
 	/*

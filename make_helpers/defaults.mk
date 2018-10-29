@@ -64,6 +64,9 @@ DYN_DISABLE_AUTH		:= 0
 # Build option to enable MPAM for lower ELs
 ENABLE_MPAM_FOR_LOWER_ELS	:= 0
 
+# Flag to Enable Position Independant support (PIE)
+ENABLE_PIE			:= 0
+
 # Flag to enable Performance Measurement Framework
 ENABLE_PMF			:= 0
 
