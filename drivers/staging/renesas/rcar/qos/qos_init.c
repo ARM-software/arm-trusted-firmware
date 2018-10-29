@@ -20,6 +20,7 @@
 #include "M3/qos_init_m3_v11.h"
 #include "M3/qos_init_m3_v30.h"
 #include "M3N/qos_init_m3n_v10.h"
+#include "V3M/qos_init_v3m.h"
 #endif
 #if RCAR_LSI == RCAR_H3		/* H3 */
 #include "H3/qos_init_h3_v10.h"
@@ -38,6 +39,9 @@
 #if RCAR_LSI == RCAR_M3N	/* M3N */
 #include "M3N/qos_init_m3n_v10.h"
 #endif
+#if RCAR_LSI == RCAR_V3M	/* V3M */
+#include "V3M/qos_init_v3m.h"
+#endif
 #if RCAR_LSI == RCAR_E3		/* E3 */
 #include "E3/qos_init_e3_v10.h"
 #endif
@@ -51,6 +55,7 @@
 #define PRR_CUT_MASK		(0x000000FFU)
 #define PRR_PRODUCT_H3		(0x00004F00U)	/* R-Car H3 */
 #define PRR_PRODUCT_M3		(0x00005200U)	/* R-Car M3 */
+#define PRR_PRODUCT_V3M		(0x00005400U)	/* R-Car V3M */
 #define PRR_PRODUCT_M3N		(0x00005500U)	/* R-Car M3N */
 #define PRR_PRODUCT_E3		(0x00005700U)	/* R-Car E3 */
 #define PRR_PRODUCT_D3		(0x00005800U)	/* R-Car D3 */
@@ -60,7 +65,7 @@
 #define PRR_PRODUCT_21		(0x11U)
 #define PRR_PRODUCT_30		(0x20U)
 
-#if (RCAR_LSI != RCAR_E3) && (RCAR_LSI != RCAR_D3)
+#if (RCAR_LSI != RCAR_E3) && (RCAR_LSI != RCAR_D3) && (RCAR_LSI != RCAR_V3M)
 
 #define DRAM_CH_CNT			0x04
 uint32_t qos_init_ddr_ch;
@@ -85,7 +90,7 @@ uint8_t qos_init_ddr_phyvalid;
 void rcar_qos_init(void)
 {
 	uint32_t reg;
-#if (RCAR_LSI != RCAR_E3) && (RCAR_LSI != RCAR_D3)
+#if (RCAR_LSI != RCAR_E3) && (RCAR_LSI != RCAR_D3) && (RCAR_LSI != RCAR_V3M)
 	uint32_t i;
 
 	qos_init_ddr_ch = 0;
@@ -152,6 +157,19 @@ void rcar_qos_init(void)
 		case PRR_PRODUCT_10:
 		default:
 			qos_init_m3n_v10();
+			break;
+		}
+#else
+		PRR_PRODUCT_ERR(reg);
+#endif
+		break;
+	case PRR_PRODUCT_V3M:
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_V3M)
+		switch (reg & PRR_CUT_MASK) {
+		case PRR_PRODUCT_10:
+		case PRR_PRODUCT_20:
+		default:
+			qos_init_v3m();
 			break;
 		}
 #else
@@ -261,6 +279,13 @@ void rcar_qos_init(void)
 		PRR_PRODUCT_ERR(reg);
 	}
 	qos_init_m3n_v10();
+#elif RCAR_LSI == RCAR_V3M	/* V3M */
+	/* V3M Cut 10 or later */
+	if ((PRR_PRODUCT_V3M)
+			!= (reg & (PRR_PRODUCT_MASK))) {
+		PRR_PRODUCT_ERR(reg);
+	}
+	qos_init_v3m();
 #elif RCAR_LSI == RCAR_D3	/* D3 */
 	/* D3 Cut 10 or later */
 	if ((PRR_PRODUCT_D3)
@@ -281,7 +306,7 @@ void rcar_qos_init(void)
 #endif
 }
 
-#if (RCAR_LSI != RCAR_E3) && (RCAR_LSI != RCAR_D3)
+#if (RCAR_LSI != RCAR_E3) && (RCAR_LSI != RCAR_D3) && (RCAR_LSI != RCAR_V3M)
 uint32_t get_refperiod(void)
 {
 	uint32_t refperiod = QOSWT_WTSET0_CYCLE;

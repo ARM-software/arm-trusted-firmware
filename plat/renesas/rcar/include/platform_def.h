@@ -109,10 +109,14 @@
 #define BL2_LIMIT			U(0xE6360000)
 #endif
 
-#define BL2_BASE			U(0xE6304000)
 #if (RCAR_LSI == RCAR_E3) || (RCAR_LSI == RCAR_D3)
+#define BL2_BASE			U(0xE6304000)
 #define BL2_IMAGE_LIMIT			U(0xE6318000)
+#elif (RCAR_LSI == RCAR_V3M)
+#define BL2_BASE			U(0xE6344000)
+#define BL2_IMAGE_LIMIT			U(0xE636E800)
 #else
+#define BL2_BASE			U(0xE6304000)
 #define BL2_IMAGE_LIMIT			U(0xE632E800)
 #endif
 #define RCAR_SYSRAM_SIZE		(BL2_BASE - RCAR_SYSRAM_BASE)

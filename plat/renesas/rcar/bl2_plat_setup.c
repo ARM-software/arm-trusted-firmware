@@ -73,6 +73,9 @@ static void bl2_init_generic_timer(void);
 #elif RCAR_LSI == RCAR_M3N
 #define TARGET_PRODUCT			RCAR_PRODUCT_M3N
 #define TARGET_NAME			"R-Car M3N"
+#elif RCAR_LSI == RCAR_V3M
+#define TARGET_PRODUCT			RCAR_PRODUCT_V3M
+#define TARGET_NAME			"R-Car V3M"
 #elif RCAR_LSI == RCAR_E3
 #define TARGET_PRODUCT			RCAR_PRODUCT_E3
 #define TARGET_NAME			"R-Car E3"
@@ -80,7 +83,7 @@ static void bl2_init_generic_timer(void);
 #define TARGET_PRODUCT			RCAR_PRODUCT_D3
 #define TARGET_NAME			"R-Car D3"
 #elif RCAR_LSI == RCAR_AUTO
-#define TARGET_NAME			"R-Car H3/M3/M3N"
+#define TARGET_NAME			"R-Car H3/M3/M3N/V3M"
 #endif
 
 #if (RCAR_LSI == RCAR_E3)
@@ -431,6 +434,10 @@ static void bl2_populate_compatible_string(void *fdt)
 		ret = fdt_setprop_string(fdt, 0, "compatible",
 					 "renesas,h3ulcb");
 		break;
+	case BOARD_EAGLE:
+		ret = fdt_setprop_string(fdt, 0, "compatible",
+					 "renesas,eagle");
+		break;
 	case BOARD_EBISU:
 	case BOARD_EBISU_4D:
 		ret = fdt_setprop_string(fdt, 0, "compatible",
@@ -463,6 +470,10 @@ static void bl2_populate_compatible_string(void *fdt)
 	case RCAR_PRODUCT_M3N:
 		ret = fdt_appendprop_string(fdt, 0, "compatible",
 					    "renesas,r8a77965");
+		break;
+	case RCAR_PRODUCT_V3M:
+		ret = fdt_appendprop_string(fdt, 0, "compatible",
+					    "renesas,r8a77970");
 		break;
 	case RCAR_PRODUCT_E3:
 		ret = fdt_appendprop_string(fdt, 0, "compatible",
@@ -600,6 +611,11 @@ static void bl2_advertise_dram_size(uint32_t product)
 		dram_config[1] = 0x80000000ULL;
 		break;
 
+	case RCAR_PRODUCT_V3M:
+		/* 1GB(512MBx2) */
+		dram_config[1] = 0x40000000ULL;
+		break;
+
 	case RCAR_PRODUCT_E3:
 #if (RCAR_DRAM_DDR3L_MEMCONF == 0)
 		/* 1GB(512MBx2) */
@@ -637,6 +653,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	const char *product_m3 = "M3";
 	const char *product_e3 = "E3";
 	const char *product_d3 = "D3";
+	const char *product_v3m = "V3M";
 	const char *lcs_secure = "SE";
 	const char *lcs_cm = "CM";
 	const char *lcs_dm = "DM";
@@ -713,6 +730,9 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	case RCAR_PRODUCT_M3N:
 		str = product_m3n;
 		break;
+	case RCAR_PRODUCT_V3M:
+		str = product_v3m;
+		break;
 	case RCAR_PRODUCT_E3:
 		str = product_e3;
 		break;
@@ -760,6 +780,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	case BOARD_STARTER_KIT_PRE:
 	case BOARD_EBISU_4D:
 	case BOARD_DRAAK:
+	case BOARD_EAGLE:
 		break;
 	default:
 		type = BOARD_UNKNOWN;
@@ -972,6 +993,7 @@ void bl2_platform_setup(void)
 
 static void bl2_init_generic_timer(void)
 {
+/* FIXME: V3M 16.666 MHz ? */
 #if RCAR_LSI == RCAR_D3
 	uint32_t reg_cntfid = EXTAL_DRAAK;
 #elif RCAR_LSI == RCAR_E3
