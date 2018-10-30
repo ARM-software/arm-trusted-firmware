@@ -58,7 +58,7 @@ static uintptr_t arm_sip_handler(unsigned int smc_fid,
 
 		/* Validate supplied entry point */
 		pc = (u_register_t) ((x1 << 32) | (uint32_t) x2);
-		if (arm_validate_ns_entrypoint(pc))
+		if (arm_validate_ns_entrypoint(pc) != 0)
 			SMC_RET1(handle, STATE_SW_E_PARAM);
 
 		/*

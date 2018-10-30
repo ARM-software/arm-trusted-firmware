@@ -4,11 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SPE_H__
-#define __SPE_H__
+#ifndef SPE_H
+#define SPE_H
 
-int spe_supported(void);
-void spe_enable(int el2_unused);
+#include <stdbool.h>
+
+bool spe_supported(void);
+void spe_enable(bool el2_unused);
 void spe_disable(void);
 
-#endif /* __SPE_H__ */
+#endif /* SPE_H */

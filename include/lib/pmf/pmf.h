@@ -9,17 +9,18 @@
 
 #include <cassert.h>
 #include <pmf_helpers.h>
+#include <utils_def.h>
 
 /*
  * Constants used for/by PMF services.
  */
-#define PMF_ARM_TIF_IMPL_ID	0x41
+#define PMF_ARM_TIF_IMPL_ID	U(0x41)
 #define PMF_TID_SHIFT		0
-#define PMF_TID_MASK		(0xFF << PMF_TID_SHIFT)
+#define PMF_TID_MASK		(U(0xFF) << PMF_TID_SHIFT)
 #define PMF_SVC_ID_SHIFT	10
-#define PMF_SVC_ID_MASK		(0x3F << PMF_SVC_ID_SHIFT)
+#define PMF_SVC_ID_MASK		(U(0x3F) << PMF_SVC_ID_SHIFT)
 #define PMF_IMPL_ID_SHIFT	24
-#define PMF_IMPL_ID_MASK	(0xFFU << PMF_IMPL_ID_SHIFT)
+#define PMF_IMPL_ID_MASK	(U(0xFF) << PMF_IMPL_ID_SHIFT)
 
 /*
  * Flags passed to PMF_REGISTER_SERVICE
@@ -37,16 +38,16 @@
 /*
  * Defines for PMF SMC function ids.
  */
-#define PMF_SMC_GET_TIMESTAMP_32	0x82000010u
-#define PMF_SMC_GET_TIMESTAMP_64	0xC2000010u
+#define PMF_SMC_GET_TIMESTAMP_32	U(0x82000010)
+#define PMF_SMC_GET_TIMESTAMP_64	U(0xC2000010)
 #define PMF_NUM_SMC_CALLS		2
 
 /*
  * The macros below are used to identify
  * PMF calls from the SMC function ID.
  */
-#define PMF_FID_MASK	0xffe0u
-#define PMF_FID_VALUE	0u
+#define PMF_FID_MASK	U(0xffe0)
+#define PMF_FID_VALUE	U(0)
 #define is_pmf_fid(_fid)	(((_fid) & PMF_FID_MASK) == PMF_FID_VALUE)
 
 /* Following are the supported PMF service IDs */

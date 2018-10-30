@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CPUAMU_H__
-#define __CPUAMU_H__
+#ifndef CPUAMU_H
+#define CPUAMU_H
 
 /*******************************************************************************
  * CPU Activity Monitor Unit register specific definitions.
@@ -32,8 +32,8 @@
 #ifndef __ASSEMBLY__
 #include <stdint.h>
 
-uint64_t cpuamu_cnt_read(int idx);
-void cpuamu_cnt_write(int idx, uint64_t val);
+uint64_t cpuamu_cnt_read(unsigned int idx);
+void cpuamu_cnt_write(unsigned int idx, uint64_t val);
 unsigned int cpuamu_read_cpuamcntenset_el0(void);
 unsigned int cpuamu_read_cpuamcntenclr_el0(void);
 void cpuamu_write_cpuamcntenset_el0(unsigned int mask);
@@ -45,4 +45,4 @@ void cpuamu_context_restore(unsigned int nr_counters);
 
 #endif /* __ASSEMBLY__ */
 
-#endif /* __CPUAMU_H__ */
+#endif /* CPUAMU_H */

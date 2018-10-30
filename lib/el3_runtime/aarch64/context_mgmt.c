@@ -18,6 +18,7 @@
 #include <pubsub_events.h>
 #include <smccc_helpers.h>
 #include <spe.h>
+#include <stdbool.h>
 #include <string.h>
 #include <sve.h>
 #include <utils.h>
@@ -231,7 +232,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
  * When EL2 is implemented but unused `el2_unused` is non-zero, otherwise
  * it is zero.
  ******************************************************************************/
-static void enable_extensions_nonsecure(int el2_unused)
+static void enable_extensions_nonsecure(bool el2_unused)
 {
 #if IMAGE_BL31
 #if ENABLE_SPE_FOR_LOWER_ELS
@@ -289,7 +290,7 @@ void cm_prepare_el3_exit(uint32_t security_state)
 {
 	uint32_t sctlr_elx, scr_el3, mdcr_el2;
 	cpu_context_t *ctx = cm_get_context(security_state);
-	int el2_unused = 0;
+	bool el2_unused = false;
 	uint64_t hcr_el2 = 0;
 
 	assert(ctx);
@@ -304,7 +305,7 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			sctlr_elx |= SCTLR_EL2_RES1;
 			write_sctlr_el2(sctlr_elx);
 		} else if (EL_IMPLEMENTED(2)) {
-			el2_unused = 1;
+			el2_unused = true;
 
 			/*
 			 * EL2 present but unused, need to disable safely.

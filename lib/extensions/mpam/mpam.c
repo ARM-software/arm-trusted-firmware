@@ -16,7 +16,7 @@ bool mpam_supported(void)
 	return ((features & ID_AA64PFR0_MPAM_MASK) != 0U);
 }
 
-void mpam_enable(int el2_unused)
+void mpam_enable(bool el2_unused)
 {
 	if (!mpam_supported())
 		return;
@@ -31,7 +31,7 @@ void mpam_enable(int el2_unused)
 	 * If EL2 is implemented but unused, disable trapping to EL2 when lower
 	 * ELs access their own MPAM registers.
 	 */
-	if (el2_unused != 0) {
+	if (el2_unused) {
 		write_mpam2_el2(0);
 
 		if ((read_mpamidr_el1() & MPAMIDR_HAS_HCR_BIT) != 0U)

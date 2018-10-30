@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CPU_DATA_H__
-#define __CPU_DATA_H__
+#ifndef CPU_DATA_H
+#define CPU_DATA_H
 
 #include <ehf.h>
 #include <platform_def.h>	/* CACHE_WRITEBACK_GRANULE required */
@@ -161,4 +161,4 @@ void init_cpu_ops(void);
 
 
 #endif /* __ASSEMBLY__ */
-#endif /* __CPU_DATA_H__ */
+#endif /* CPU_DATA_H */

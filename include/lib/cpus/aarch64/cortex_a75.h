@@ -4,11 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CORTEX_A75_H__
-#define __CORTEX_A75_H__
+#ifndef CORTEX_A75_H
+#define CORTEX_A75_H
+
+#include <utils_def.h>
 
 /* Cortex-A75 MIDR */
-#define CORTEX_A75_MIDR		0x410fd0a0
+#define CORTEX_A75_MIDR		U(0x410fd0a0)
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
@@ -24,7 +26,7 @@
 #define CORTEX_A75_CPUACTLR_EL1_DISABLE_LOAD_PASS_STORE	(1 << 35)
 
 /* Definitions of register field mask in CORTEX_A75_CPUPWRCTLR_EL1 */
-#define CORTEX_A75_CORE_PWRDN_EN_MASK	0x1
+#define CORTEX_A75_CORE_PWRDN_EN_MASK	U(0x1)
 
 #define CORTEX_A75_ACTLR_AMEN_BIT	(U(1) << 4)
 
@@ -50,4 +52,4 @@ void cortex_a75_amu_write_cpuamcntenset_el0(unsigned int mask);
 void cortex_a75_amu_write_cpuamcntenclr_el0(unsigned int mask);
 #endif /* __ASSEMBLY__ */
 
-#endif /* __CORTEX_A75_H__ */
+#endif /* CORTEX_A75_H */
