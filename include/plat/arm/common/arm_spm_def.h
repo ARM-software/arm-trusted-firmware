@@ -27,6 +27,9 @@
 						ARM_SP_IMAGE_SIZE,		\
 						MT_MEMORY | MT_RW | MT_SECURE)
 #endif
+
+#if SPM_DEPRECATED
+
 #ifdef IMAGE_BL31
 /* SPM Payload memory. Mapped as code in S-EL1 */
 #define ARM_SP_IMAGE_MMAP		MAP_REGION2(				\
@@ -95,6 +98,8 @@
 
 /* Total number of memory regions with distinct properties */
 #define ARM_SP_IMAGE_NUM_MEM_REGIONS	6
+
+#endif /* SPM_DEPRECATED */
 
 /* Cookies passed to the Secure Partition at boot. Not used by ARM platforms. */
 #define PLAT_SPM_COOKIE_0		ULL(0)

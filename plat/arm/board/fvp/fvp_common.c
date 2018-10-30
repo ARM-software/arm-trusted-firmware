@@ -124,13 +124,13 @@ const mmap_region_t plat_arm_mmap[] = {
 	MAP_DEVICE0,
 	MAP_DEVICE1,
 	ARM_V2M_MAP_MEM_PROTECT,
-#if ENABLE_SPM
+#if ENABLE_SPM && SPM_DEPRECATED
 	ARM_SPM_BUF_EL3_MMAP,
 #endif
 	{0}
 };
 
-#if ENABLE_SPM && defined(IMAGE_BL31)
+#if ENABLE_SPM && defined(IMAGE_BL31) && SPM_DEPRECATED
 const mmap_region_t plat_arm_secure_partition_mmap[] = {
 	V2M_MAP_IOFPGA_EL0, /* for the UART */
 	MAP_REGION_FLAT(DEVICE0_BASE,				\
@@ -232,7 +232,6 @@ const struct secure_partition_boot_info *plat_get_secure_partition_boot_info(
 {
 	return &plat_arm_secure_partition_boot_info;
 }
-
 #endif
 
 /*******************************************************************************

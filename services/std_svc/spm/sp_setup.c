@@ -13,7 +13,6 @@
 #include <debug.h>
 #include <platform_def.h>
 #include <platform.h>
-#include <secure_partition.h>
 #include <string.h>
 #include <xlat_tables_v2.h>
 
@@ -39,56 +38,23 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	ep_info.spsr = SPSR_64(MODE_EL0, MODE_SP_EL0, DISABLE_ALL_EXCEPTIONS);
 
 	/*
-	 * X0: Virtual address of a buffer shared between EL3 and Secure EL0.
-	 *     The buffer will be mapped in the Secure EL1 translation regime
-	 *     with Normal IS WBWA attributes and RO data and Execute Never
-	 *     instruction access permissions.
-	 *
-	 * X1: Size of the buffer in bytes
-	 *
+	 * X0: Unused (MBZ).
+	 * X1: Unused (MBZ).
 	 * X2: cookie value (Implementation Defined)
-	 *
 	 * X3: cookie value (Implementation Defined)
-	 *
 	 * X4 to X7 = 0
 	 */
-	ep_info.args.arg0 = PLAT_SPM_BUF_BASE;
-	ep_info.args.arg1 = PLAT_SPM_BUF_SIZE;
+	ep_info.args.arg0 = 0;
+	ep_info.args.arg1 = 0;
 	ep_info.args.arg2 = PLAT_SPM_COOKIE_0;
 	ep_info.args.arg3 = PLAT_SPM_COOKIE_1;
 
 	cm_setup_context(ctx, &ep_info);
 
 	/*
-	 * SP_EL0: A non-zero value will indicate to the SP that the SPM has
-	 * initialized the stack pointer for the current CPU through
-	 * implementation defined means. The value will be 0 otherwise.
-	 */
-	write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_SP_EL0,
-			PLAT_SP_IMAGE_STACK_BASE + PLAT_SP_IMAGE_STACK_PCPU_SIZE);
-
-	/*
 	 * Setup translation tables
 	 * ------------------------
 	 */
-
-#if ENABLE_ASSERTIONS
-
-	/* Get max granularity supported by the platform. */
-	unsigned int max_granule = xlat_arch_get_max_supported_granule_size();
-
-	VERBOSE("Max translation granule size supported: %u KiB\n",
-		max_granule / 1024U);
-
-	unsigned int max_granule_mask = max_granule - 1U;
-
-	/* Base must be aligned to the max granularity */
-	assert((ARM_SP_IMAGE_NS_BUF_BASE & max_granule_mask) == 0);
-
-	/* Size must be a multiple of the max granularity */
-	assert((ARM_SP_IMAGE_NS_BUF_SIZE & max_granule_mask) == 0);
-
-#endif /* ENABLE_ASSERTIONS */
 
 	/* This region contains the exception vectors used at S-EL1. */
 	const mmap_region_t sel1_exception_vectors =

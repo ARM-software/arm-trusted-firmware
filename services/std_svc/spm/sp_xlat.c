@@ -10,7 +10,6 @@
 #include <errno.h>
 #include <platform_def.h>
 #include <platform.h>
-#include <secure_partition.h>
 #include <spm_svc.h>
 #include <xlat_tables_v2.h>
 
