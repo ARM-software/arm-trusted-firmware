@@ -11,7 +11,6 @@
 #include <debug.h>
 #include <ehf.h>
 #include <errno.h>
-#include <mm_svc.h>
 #include <platform.h>
 #include <runtime_svc.h>
 #include <smccc.h>
@@ -201,91 +200,6 @@ int32_t spm_setup(void)
 }
 
 /*******************************************************************************
- * Function to perform a call to a Secure Partition.
- ******************************************************************************/
-uint64_t spm_sp_call(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3)
-{
-	uint64_t rc;
-	sp_context_t *sp_ptr = &sp_ctx;
-
-	/* Wait until the Secure Partition is idle and set it to busy. */
-	sp_state_wait_switch(sp_ptr, SP_STATE_IDLE, SP_STATE_BUSY);
-
-	/* Set values for registers on SP entry */
-	cpu_context_t *cpu_ctx = &(sp_ptr->cpu_ctx);
-
-	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X0, smc_fid);
-	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X1, x1);
-	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X2, x2);
-	write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X3, x3);
-
-	/* Jump to the Secure Partition. */
-	rc = spm_sp_synchronous_entry(sp_ptr);
-
-	/* Flag Secure Partition as idle. */
-	assert(sp_ptr->state == SP_STATE_BUSY);
-	sp_state_set(sp_ptr, SP_STATE_IDLE);
-
-	return rc;
-}
-
-/*******************************************************************************
- * MM_COMMUNICATE handler
- ******************************************************************************/
-static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
-			       uint64_t comm_buffer_address,
-			       uint64_t comm_size_address, void *handle)
-{
-	uint64_t rc;
-
-	/* Cookie. Reserved for future use. It must be zero. */
-	if (mm_cookie != 0U) {
-		ERROR("MM_COMMUNICATE: cookie is not zero\n");
-		SMC_RET1(handle, SPM_INVALID_PARAMETER);
-	}
-
-	if (comm_buffer_address == 0U) {
-		ERROR("MM_COMMUNICATE: comm_buffer_address is zero\n");
-		SMC_RET1(handle, SPM_INVALID_PARAMETER);
-	}
-
-	if (comm_size_address != 0U) {
-		VERBOSE("MM_COMMUNICATE: comm_size_address is not 0 as recommended.\n");
-	}
-
-	/*
-	 * The current secure partition design mandates
-	 * - at any point, only a single core can be
-	 *   executing in the secure partiton.
-	 * - a core cannot be preempted by an interrupt
-	 *   while executing in secure partition.
-	 * Raise the running priority of the core to the
-	 * interrupt level configured for secure partition
-	 * so as to block any interrupt from preempting this
-	 * core.
-	 */
-	ehf_activate_priority(PLAT_SP_PRI);
-
-	/* Save the Normal world context */
-	cm_el1_sysregs_context_save(NON_SECURE);
-
-	rc = spm_sp_call(smc_fid, comm_buffer_address, comm_size_address,
-			 plat_my_core_pos());
-
-	/* Restore non-secure state */
-	cm_el1_sysregs_context_restore(NON_SECURE);
-	cm_set_next_eret_context(NON_SECURE);
-
-	/*
-	 * Exited from secure partition. This core can take
-	 * interrupts now.
-	 */
-	ehf_deactivate_priority(PLAT_SP_PRI);
-
-	SMC_RET1(handle, rc);
-}
-
-/*******************************************************************************
  * Secure Partition Manager SMC handler.
  ******************************************************************************/
 uint64_t spm_smc_handler(uint32_t smc_fid,
@@ -315,9 +229,6 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 
 		case SPM_VERSION_AARCH32:
 			SMC_RET1(handle, SPM_VERSION_COMPILED);
-
-		case SP_EVENT_COMPLETE_AARCH64:
-			spm_sp_synchronous_exit(x1);
 
 		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
 			INFO("Received SP_MEMORY_ATTRIBUTES_GET_AARCH64 SMC\n");
@@ -350,13 +261,6 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 		assert(handle == cm_get_context(NON_SECURE));
 
 		switch (smc_fid) {
-
-		case MM_VERSION_AARCH32:
-			SMC_RET1(handle, MM_VERSION_COMPILED);
-
-		case MM_COMMUNICATE_AARCH32:
-		case MM_COMMUNICATE_AARCH64:
-			return mm_communicate(smc_fid, x1, x2, x3, handle);
 
 		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
 		case SP_MEMORY_ATTRIBUTES_SET_AARCH64:

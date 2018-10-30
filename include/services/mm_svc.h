@@ -7,6 +7,8 @@
 #ifndef MM_SVC_H
 #define MM_SVC_H
 
+#if SPM_DEPRECATED
+
 #include <utils_def.h>
 
 #define MM_VERSION_MAJOR	U(1)
@@ -27,5 +29,7 @@
 
 #define MM_COMMUNICATE_AARCH64		U(0xC4000041)
 #define MM_COMMUNICATE_AARCH32		U(0x84000041)
+
+#endif /* SPM_DEPRECATED */
 
 #endif /* MM_SVC_H */
