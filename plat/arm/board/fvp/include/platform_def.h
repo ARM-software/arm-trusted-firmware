@@ -123,7 +123,11 @@
  * calculated using the current BL31 PROGBITS debug size plus the sizes of
  * BL2 and BL1-RW
  */
+#if ENABLE_SPM && !SPM_DEPRECATED
+#define PLAT_ARM_MAX_BL31_SIZE		UL(0x60000)
+#else
 #define PLAT_ARM_MAX_BL31_SIZE		UL(0x3B000)
+#endif
 
 #ifdef AARCH32
 /*

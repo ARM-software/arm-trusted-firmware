@@ -15,6 +15,7 @@
 #include <spm_svc.h>
 #include <string.h>
 #include <utils.h>
+#include <utils_def.h>
 #include <xlat_tables_v2.h>
 
 #include "spm_private.h"
@@ -24,25 +25,75 @@
  * Instantiation of translation table context
  ******************************************************************************/
 
+/* Lock used for SP_MEMORY_ATTRIBUTES_GET and SP_MEMORY_ATTRIBUTES_SET */
+static spinlock_t mem_attr_smc_lock;
+
 /* Place translation tables by default along with the ones used by BL31. */
 #ifndef PLAT_SP_IMAGE_XLAT_SECTION_NAME
 #define PLAT_SP_IMAGE_XLAT_SECTION_NAME	"xlat_table"
 #endif
 
-/* Allocate and initialise the translation context for the secure partitions. */
-REGISTER_XLAT_CONTEXT2(sp,
-		       PLAT_SP_IMAGE_MMAP_REGIONS,
-		       PLAT_SP_IMAGE_MAX_XLAT_TABLES,
-		       PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE,
-		       EL1_EL0_REGIME, PLAT_SP_IMAGE_XLAT_SECTION_NAME);
+/*
+ * Allocate elements of the translation contexts for the Secure Partitions.
+ */
 
-/* Lock used for SP_MEMORY_ATTRIBUTES_GET and SP_MEMORY_ATTRIBUTES_SET */
-static spinlock_t mem_attr_smc_lock;
+/* Allocate an array of mmap_region per partition. */
+static struct mmap_region sp_mmap_regions[PLAT_SP_IMAGE_MMAP_REGIONS + 1]
+	[PLAT_SPM_MAX_PARTITIONS];
+static OBJECT_POOL(sp_mmap_regions_pool, sp_mmap_regions,
+	sizeof(mmap_region_t) * (PLAT_SP_IMAGE_MMAP_REGIONS + 1),
+	PLAT_SPM_MAX_PARTITIONS);
+
+/* Allocate individual translation tables. */
+static uint64_t sp_xlat_tables[XLAT_TABLE_ENTRIES]
+	[(PLAT_SP_IMAGE_MAX_XLAT_TABLES + 1) * PLAT_SPM_MAX_PARTITIONS]
+	__aligned(XLAT_TABLE_SIZE) __section(PLAT_SP_IMAGE_XLAT_SECTION_NAME);
+static OBJECT_POOL(sp_xlat_tables_pool, sp_xlat_tables,
+	XLAT_TABLE_ENTRIES * sizeof(uint64_t),
+	(PLAT_SP_IMAGE_MAX_XLAT_TABLES + 1) * PLAT_SPM_MAX_PARTITIONS);
+
+/* Allocate base translation tables. */
+static uint64_t sp_xlat_base_tables
+	[GET_NUM_BASE_LEVEL_ENTRIES(PLAT_VIRT_ADDR_SPACE_SIZE)]
+	[PLAT_SPM_MAX_PARTITIONS]
+	__aligned(GET_NUM_BASE_LEVEL_ENTRIES(PLAT_VIRT_ADDR_SPACE_SIZE)
+		  * sizeof(uint64_t))
+	__section(PLAT_SP_IMAGE_XLAT_SECTION_NAME);
+static OBJECT_POOL(sp_xlat_base_tables_pool, sp_xlat_base_tables,
+	GET_NUM_BASE_LEVEL_ENTRIES(PLAT_VIRT_ADDR_SPACE_SIZE) * sizeof(uint64_t),
+	PLAT_SPM_MAX_PARTITIONS);
+
+/* Allocate arrays. */
+static int sp_xlat_mapped_regions[PLAT_SP_IMAGE_MAX_XLAT_TABLES]
+	[PLAT_SPM_MAX_PARTITIONS];
+static OBJECT_POOL(sp_xlat_mapped_regions_pool, sp_xlat_mapped_regions,
+	sizeof(int) * PLAT_SP_IMAGE_MAX_XLAT_TABLES, PLAT_SPM_MAX_PARTITIONS);
+
+/* Allocate individual contexts. */
+static xlat_ctx_t sp_xlat_ctx[PLAT_SPM_MAX_PARTITIONS];
+static OBJECT_POOL(sp_xlat_ctx_pool, sp_xlat_ctx, sizeof(xlat_ctx_t),
+	PLAT_SPM_MAX_PARTITIONS);
 
 /* Get handle of Secure Partition translation context */
 xlat_ctx_t *spm_sp_xlat_context_alloc(void)
 {
-	return &sp_xlat_ctx;
+	xlat_ctx_t *ctx = pool_alloc(&sp_xlat_ctx_pool);
+
+	struct mmap_region *mmap = pool_alloc(&sp_mmap_regions_pool);
+
+	uint64_t *base_table = pool_alloc(&sp_xlat_base_tables_pool);
+	uint64_t **tables = pool_alloc_n(&sp_xlat_tables_pool,
+					PLAT_SP_IMAGE_MAX_XLAT_TABLES);
+
+	int *mapped_regions = pool_alloc(&sp_xlat_mapped_regions_pool);
+
+	xlat_setup_dynamic_ctx(ctx, PLAT_PHY_ADDR_SPACE_SIZE - 1,
+			       PLAT_VIRT_ADDR_SPACE_SIZE - 1, mmap,
+			       PLAT_SP_IMAGE_MMAP_REGIONS, tables,
+			       PLAT_SP_IMAGE_MAX_XLAT_TABLES, base_table,
+			       EL1_EL0_REGIME, mapped_regions);
+
+	return ctx;
 };
 
 /*******************************************************************************

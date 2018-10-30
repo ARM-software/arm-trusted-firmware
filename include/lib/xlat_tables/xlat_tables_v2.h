@@ -209,6 +209,17 @@ void init_xlat_tables(void);
 void init_xlat_tables_ctx(xlat_ctx_t *ctx);
 
 /*
+ * Fill all fields of a dynamic translation tables context. It must be done
+ * either statically with REGISTER_XLAT_CONTEXT() or at runtime with this
+ * function.
+ */
+void xlat_setup_dynamic_ctx(xlat_ctx_t *ctx, unsigned long long pa_max,
+			    uintptr_t va_max, struct mmap_region *mmap,
+			    unsigned int mmap_num, uint64_t **tables,
+			    unsigned int tables_num, uint64_t *base_table,
+			    int xlat_regime, int *mapped_regions);
+
+/*
  * Add a static region with defined base PA and base VA. This function can only
  * be used before initializing the translation tables. The region cannot be
  * removed afterwards.
