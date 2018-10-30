@@ -43,6 +43,9 @@ typedef enum sp_state {
 } sp_state_t;
 
 typedef struct sp_context {
+	/* 1 if the partition is present, 0 otherwise */
+	int is_present;
+
 	/* Location of the image in physical memory */
 	unsigned long long image_base;
 	size_t image_size;
@@ -68,7 +71,7 @@ void __dead2 spm_secure_partition_exit(uint64_t c_rt_ctx, uint64_t ret);
 void spm_sp_setup(sp_context_t *sp_ctx);
 
 /* Functions related to the translation tables management */
-xlat_ctx_t *spm_get_sp_xlat_context(void);
+xlat_ctx_t *spm_sp_xlat_context_alloc(void);
 void sp_map_memory_regions(sp_context_t *sp_ctx);
 
 int32_t spm_memory_attributes_get_smc_handler(sp_context_t *sp_ctx,
@@ -77,6 +80,10 @@ int spm_memory_attributes_set_smc_handler(sp_context_t *sp_ctx,
 					  u_register_t page_address,
 					  u_register_t pages_count,
 					  u_register_t smc_attributes);
+
+/* Functions to handle Secure Partition contexts */
+void spm_cpu_set_sp_ctx(unsigned int linear_id, sp_context_t *sp_ctx);
+sp_context_t *spm_cpu_get_sp_ctx(unsigned int linear_id);
 
 #endif /* __ASSEMBLY__ */
 

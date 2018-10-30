@@ -40,7 +40,7 @@ REGISTER_XLAT_CONTEXT2(sp,
 static spinlock_t mem_attr_smc_lock;
 
 /* Get handle of Secure Partition translation context */
-xlat_ctx_t *spm_get_sp_xlat_context(void)
+xlat_ctx_t *spm_sp_xlat_context_alloc(void)
 {
 	return &sp_xlat_ctx;
 };

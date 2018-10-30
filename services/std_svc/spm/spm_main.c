@@ -25,7 +25,24 @@
 /*******************************************************************************
  * Secure Partition context information.
  ******************************************************************************/
-static sp_context_t sp_ctx;
+sp_context_t sp_ctx_array[PLAT_SPM_MAX_PARTITIONS];
+
+/* Last Secure Partition last used by the CPU */
+sp_context_t *cpu_sp_ctx[PLATFORM_CORE_COUNT];
+
+void spm_cpu_set_sp_ctx(unsigned int linear_id, sp_context_t *sp_ctx)
+{
+	assert(linear_id < PLATFORM_CORE_COUNT);
+
+	cpu_sp_ctx[linear_id] = sp_ctx;
+}
+
+sp_context_t *spm_cpu_get_sp_ctx(unsigned int linear_id)
+{
+	assert(linear_id < PLATFORM_CORE_COUNT);
+
+	return cpu_sp_ctx[linear_id];
+}
 
 /*******************************************************************************
  * Set state of a Secure Partition context.
@@ -86,10 +103,12 @@ int sp_state_try_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to)
 static uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx)
 {
 	uint64_t rc;
+	unsigned int linear_id = plat_my_core_pos();
 
 	assert(sp_ctx != NULL);
 
 	/* Assign the context of the SP to this CPU */
+	spm_cpu_set_sp_ctx(linear_id, sp_ctx);
 	cm_set_context(&(sp_ctx->cpu_ctx), SECURE);
 
 	/* Restore the context assigned above */
@@ -115,7 +134,9 @@ static uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx)
  ******************************************************************************/
 __dead2 static void spm_sp_synchronous_exit(uint64_t rc)
 {
-	sp_context_t *ctx = &sp_ctx;
+	/* Get context of the SP in use by this CPU. */
+	unsigned int linear_id = plat_my_core_pos();
+	sp_context_t *ctx = spm_cpu_get_sp_ctx(linear_id);
 
 	/*
 	 * The SPM must have initiated the original request through a
@@ -132,21 +153,28 @@ __dead2 static void spm_sp_synchronous_exit(uint64_t rc)
  ******************************************************************************/
 static int32_t spm_init(void)
 {
-	uint64_t rc;
+	uint64_t rc = 0;
 	sp_context_t *ctx;
 
-	INFO("Secure Partition init...\n");
+	for (unsigned int i = 0U; i < PLAT_SPM_MAX_PARTITIONS; i++) {
 
-	ctx = &sp_ctx;
+		ctx = &sp_ctx_array[i];
 
-	ctx->state = SP_STATE_RESET;
+		if (ctx->is_present == 0) {
+			continue;
+		}
 
-	rc = spm_sp_synchronous_entry(ctx);
-	assert(rc == 0);
+		INFO("Secure Partition %u init...\n", i);
 
-	ctx->state = SP_STATE_IDLE;
+		ctx->state = SP_STATE_RESET;
 
-	INFO("Secure Partition initialized.\n");
+		rc = spm_sp_synchronous_entry(ctx);
+		assert(rc == 0);
+
+		ctx->state = SP_STATE_IDLE;
+
+		INFO("Secure Partition %u initialized.\n", i);
+	}
 
 	return rc;
 }
@@ -164,37 +192,57 @@ int32_t spm_setup(void)
 	/* Disable MMU at EL1 (initialized by BL2) */
 	disable_mmu_icache_el1();
 
-	/* Initialize context of the SP */
-	INFO("Secure Partition context setup start...\n");
+	unsigned int i = 0U;
 
-	ctx = &sp_ctx;
+	while (1) {
+		rc = plat_spm_sp_get_next_address(&sp_base, &sp_size,
+						&rd_base, &rd_size);
+		if (rc < 0) {
+			/* Reached the end of the package. */
+			break;
+		}
 
-	rc = plat_spm_sp_get_next_address(&sp_base, &sp_size,
-					  &rd_base, &rd_size);
-	if (rc != 0) {
-		ERROR("No Secure Partition found.\n");
-		panic();
+		if (i >= PLAT_SPM_MAX_PARTITIONS) {
+			ERROR("Too many partitions in the package.\n");
+			panic();
+		}
+
+		ctx = &sp_ctx_array[i];
+
+		assert(ctx->is_present == 0);
+
+		/* Initialize context of the SP */
+		INFO("Secure Partition %u context setup start...\n", i);
+
+		/* Assign translation tables context. */
+		ctx->xlat_ctx_handle = spm_sp_xlat_context_alloc();
+
+		/* Save location of the image in physical memory */
+		ctx->image_base = (uintptr_t)sp_base;
+		ctx->image_size = sp_size;
+
+		rc = plat_spm_sp_rd_load(&ctx->rd, rd_base, rd_size);
+		if (rc < 0) {
+			ERROR("Error while loading RD blob.\n");
+			panic();
+		}
+
+		spm_sp_setup(ctx);
+
+		ctx->is_present = 1;
+
+		INFO("Secure Partition %u setup done.\n", i);
+
+		i++;
 	}
 
-	/* Assign translation tables context. */
-	ctx->xlat_ctx_handle = spm_get_sp_xlat_context();
-
-	/* Save location of the image in physical memory */
-	ctx->image_base = (uintptr_t)sp_base;
-	ctx->image_size = sp_size;
-
-	rc = plat_spm_sp_rd_load(&ctx->rd, rd_base, rd_size);
-	if (rc < 0) {
-		ERROR("Error while loading RD blob.\n");
+	if (i == 0U) {
+		ERROR("No present partitions in the package.\n");
 		panic();
 	}
-
-	spm_sp_setup(ctx);
 
 	/* Register init function for deferred init.  */
 	bl31_register_bl32_init(&spm_init);
-
-	INFO("Secure Partition setup done.\n");
 
 	return 0;
 }
@@ -217,6 +265,8 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 	ns = is_caller_non_secure(flags);
 
 	if (ns == SMC_FROM_SECURE) {
+		unsigned int linear_id = plat_my_core_pos();
+		sp_context_t *sp_ctx = spm_cpu_get_sp_ctx(linear_id);
 
 		/* Handle SMCs from Secure world. */
 
@@ -233,24 +283,24 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
 			INFO("Received SP_MEMORY_ATTRIBUTES_GET_AARCH64 SMC\n");
 
-			if (sp_ctx.state != SP_STATE_RESET) {
+			if (sp_ctx->state != SP_STATE_RESET) {
 				WARN("SP_MEMORY_ATTRIBUTES_GET_AARCH64 is available at boot time only\n");
 				SMC_RET1(handle, SPM_NOT_SUPPORTED);
 			}
 			SMC_RET1(handle,
 				 spm_memory_attributes_get_smc_handler(
-					 &sp_ctx, x1));
+					sp_ctx, x1));
 
 		case SP_MEMORY_ATTRIBUTES_SET_AARCH64:
 			INFO("Received SP_MEMORY_ATTRIBUTES_SET_AARCH64 SMC\n");
 
-			if (sp_ctx.state != SP_STATE_RESET) {
+			if (sp_ctx->state != SP_STATE_RESET) {
 				WARN("SP_MEMORY_ATTRIBUTES_SET_AARCH64 is available at boot time only\n");
 				SMC_RET1(handle, SPM_NOT_SUPPORTED);
 			}
 			SMC_RET1(handle,
 				 spm_memory_attributes_set_smc_handler(
-					&sp_ctx, x1, x2, x3));
+					sp_ctx, x1, x2, x3));
 		default:
 			break;
 		}
