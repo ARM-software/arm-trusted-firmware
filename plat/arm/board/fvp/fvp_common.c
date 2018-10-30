@@ -184,7 +184,7 @@ static unsigned int get_interconnect_master(void)
 }
 #endif
 
-#if ENABLE_SPM && defined(IMAGE_BL31)
+#if ENABLE_SPM && defined(IMAGE_BL31) && SPM_DEPRECATED
 /*
  * Boot information passed to a secure partition during initialisation. Linear
  * indices in MP information will be filled at runtime.
