@@ -76,7 +76,23 @@ To build:
 .. code:: bash
 
     make CROSS_COMPILE=arm-linux-gnueabihf- PLAT=stm32mp1 ARCH=aarch32 ARM_ARCH_MAJOR=7 AARCH32_SP=sp_min
+    cd <u-boot_directory>
+    make stm32mp15_basic_defconfig
+    make DEVICE_TREE=stm32mp157c_ev1 all
+    ./tools/mkimage -T stm32image -a 0xC0100000 -e 0xC0100000 -d u-boot.bin u-boot.stm32
 
 The following build options are supported:
 
 - ``ENABLE_STACK_PROTECTOR``: To enable the stack protection.
+
+
+Populate SD-card
+----------------
+
+The SD-card has to be formated with GPT.
+It should contain at least those partitions:
+
+- fsbl: to copy the tf-a-stm32mp157c-ev1.stm32 binary
+- ssbl: to copy the u-boot.stm32 binary
+
+Usually, two copies of fsbl are used (fsbl1 and fsbl2) instead of one partition fsbl.
