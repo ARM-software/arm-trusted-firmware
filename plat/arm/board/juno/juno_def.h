@@ -14,20 +14,20 @@
  ******************************************************************************/
 
 /* Board revisions */
-#define REV_JUNO_R0			0x1	/* Rev B */
-#define REV_JUNO_R1			0x2	/* Rev C */
-#define REV_JUNO_R2			0x3	/* Rev D */
+#define REV_JUNO_R0			U(0x1)	/* Rev B */
+#define REV_JUNO_R1			U(0x2)	/* Rev C */
+#define REV_JUNO_R2			U(0x3)	/* Rev D */
 
 /* Bypass offset from start of NOR flash */
-#define BL1_ROM_BYPASS_OFFSET		0x03EC0000
+#define BL1_ROM_BYPASS_OFFSET		UL(0x03EC0000)
 
-#define EMMC_BASE			0x0c000000
-#define EMMC_SIZE			0x04000000
+#define EMMC_BASE			UL(0x0c000000)
+#define EMMC_SIZE			UL(0x04000000)
 
-#define PSRAM_BASE			0x14000000
-#define PSRAM_SIZE			0x02000000
+#define PSRAM_BASE			UL(0x14000000)
+#define PSRAM_SIZE			UL(0x02000000)
 
-#define JUNO_SSC_VER_PART_NUM		0x030
+#define JUNO_SSC_VER_PART_NUM		U(0x030)
 
 /*******************************************************************************
  * Juno topology related constants
@@ -54,19 +54,19 @@
 /*******************************************************************************
  * TRNG related constants
  ******************************************************************************/
-#define TRNG_BASE	0x7FE60000ULL
+#define TRNG_BASE	UL(0x7FE60000)
 #define TRNG_NOUTPUTS	4
-#define TRNG_STATUS	0x10
-#define TRNG_INTMASK	0x14
-#define TRNG_CONFIG	0x18
-#define TRNG_CONTROL	0x1C
+#define TRNG_STATUS	UL(0x10)
+#define TRNG_INTMASK	UL(0x14)
+#define TRNG_CONFIG	UL(0x18)
+#define TRNG_CONTROL	UL(0x1C)
 #define TRNG_NBYTES	16	/* Number of bytes generated per round. */
 
 /*******************************************************************************
  * MMU-401 related constants
  ******************************************************************************/
-#define MMU401_SSD_OFFSET		0x4000
-#define MMU401_DMA330_BASE		0x7fb00000
+#define MMU401_SSD_OFFSET		UL(0x4000)
+#define MMU401_DMA330_BASE		UL(0x7fb00000)
 
 /*******************************************************************************
  * Interrupt handling constants

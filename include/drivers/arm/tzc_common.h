@@ -73,10 +73,10 @@
 
 /* Macros for allowing Non-Secure access to a region based on NSAID */
 #define TZC_REGION_ACCESS_RD(nsaid)				\
-	((U(1) << (nsaid & TZC_REGION_ACCESS_ID_MASK)) <<	\
+	((U(1) << ((nsaid) & TZC_REGION_ACCESS_ID_MASK)) <<	\
 	 TZC_REGION_ACCESS_RD_EN_SHIFT)
 #define TZC_REGION_ACCESS_WR(nsaid)				\
-	((U(1) << (nsaid & TZC_REGION_ACCESS_ID_MASK)) <<	\
+	((U(1) << ((nsaid) & TZC_REGION_ACCESS_ID_MASK)) <<	\
 	 TZC_REGION_ACCESS_WR_EN_SHIFT)
 #define TZC_REGION_ACCESS_RDWR(nsaid)				\
 	(TZC_REGION_ACCESS_RD(nsaid) |				\

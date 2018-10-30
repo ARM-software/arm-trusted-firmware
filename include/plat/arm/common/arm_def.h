@@ -21,7 +21,7 @@
  *****************************************************************************/
 
 /* Special value used to verify platform parameters from BL2 to BL31 */
-#define ARM_BL31_PLAT_PARAM_VAL		0x0f1e2d3c4b5a6978ULL
+#define ARM_BL31_PLAT_PARAM_VAL		ULL(0x0f1e2d3c4b5a6978)
 
 #define ARM_SYSTEM_COUNT		1
 
@@ -350,8 +350,8 @@
  * To enable TB_FW_CONFIG to be loaded by BL1, define the corresponding base
  * and limit. Leave enough space of BL2 meminfo.
  */
-#define ARM_TB_FW_CONFIG_BASE		ARM_BL_RAM_BASE + sizeof(meminfo_t)
-#define ARM_TB_FW_CONFIG_LIMIT		ARM_BL_RAM_BASE + PAGE_SIZE
+#define ARM_TB_FW_CONFIG_BASE		(ARM_BL_RAM_BASE + sizeof(meminfo_t))
+#define ARM_TB_FW_CONFIG_LIMIT		(ARM_BL_RAM_BASE + PAGE_SIZE)
 
 /*******************************************************************************
  * BL1 specific defines.
@@ -482,7 +482,7 @@
 #  define TSP_SEC_MEM_SIZE		PLAT_ARM_TRUSTED_DRAM_SIZE
 #  define BL32_BASE			PLAT_ARM_TRUSTED_DRAM_BASE
 #  define BL32_LIMIT			(PLAT_ARM_TRUSTED_DRAM_BASE	\
-						+ (1 << 21))
+						+ (UL(1) << 21))
 # elif ARM_TSP_RAM_LOCATION_ID == ARM_DRAM_ID
 #  define TSP_SEC_MEM_BASE		ARM_AP_TZC_DRAM1_BASE
 #  define TSP_SEC_MEM_SIZE		ARM_AP_TZC_DRAM1_SIZE
@@ -511,7 +511,7 @@
 #define BL2U_LIMIT			BL2_LIMIT
 
 #define NS_BL2U_BASE			ARM_NS_DRAM1_BASE
-#define NS_BL1U_BASE			(PLAT_ARM_NVM_BASE + 0x03EB8000)
+#define NS_BL1U_BASE			(PLAT_ARM_NVM_BASE + UL(0x03EB8000))
 
 /*
  * ID of the secure physical generic timer interrupt used by the TSP.
