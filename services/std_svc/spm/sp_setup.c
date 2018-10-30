@@ -57,18 +57,7 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	 * ------------------------
 	 */
 
-	/* This region contains the exception vectors used at S-EL1. */
-	const mmap_region_t sel1_exception_vectors =
-		MAP_REGION_FLAT(SPM_SHIM_EXCEPTIONS_START,
-				SPM_SHIM_EXCEPTIONS_SIZE,
-				MT_CODE | MT_SECURE | MT_PRIVILEGED);
-	mmap_add_region_ctx(sp_ctx->xlat_ctx_handle,
-			    &sel1_exception_vectors);
-
-	mmap_add_ctx(sp_ctx->xlat_ctx_handle,
-		     plat_get_secure_partition_mmap(NULL));
-
-	init_xlat_tables_ctx(sp_ctx->xlat_ctx_handle);
+	sp_map_memory_regions(sp_ctx);
 
 	/*
 	 * MMU-related registers

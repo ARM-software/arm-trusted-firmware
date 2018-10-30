@@ -54,15 +54,22 @@ typedef struct sp_context {
 
 	sp_state_t state;
 	spinlock_t state_lock;
+
+	/* Base and size of the shared SPM<->SP buffer */
+	uintptr_t spm_sp_buffer_base;
+	size_t spm_sp_buffer_size;
 } sp_context_t;
 
 /* Assembly helpers */
 uint64_t spm_secure_partition_enter(uint64_t *c_rt_ctx);
 void __dead2 spm_secure_partition_exit(uint64_t c_rt_ctx, uint64_t ret);
 
+/* Secure Partition setup */
 void spm_sp_setup(sp_context_t *sp_ctx);
 
+/* Functions related to the translation tables management */
 xlat_ctx_t *spm_get_sp_xlat_context(void);
+void sp_map_memory_regions(sp_context_t *sp_ctx);
 
 int32_t spm_memory_attributes_get_smc_handler(sp_context_t *sp_ctx,
 					      uintptr_t base_va);

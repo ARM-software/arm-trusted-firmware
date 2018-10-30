@@ -13,7 +13,7 @@
 #  define PLAT_XLAT_TABLES_DYNAMIC     1
 # endif
 #else
-# if defined(IMAGE_BL31) && RESET_TO_BL31
+# if defined(IMAGE_BL31) && (RESET_TO_BL31 || (ENABLE_SPM && !SPM_DEPRECATED))
 #  define PLAT_XLAT_TABLES_DYNAMIC     1
 # endif
 #endif /* AARCH32 */
