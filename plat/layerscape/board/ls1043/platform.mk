@@ -22,7 +22,6 @@ LS1043_SECURITY_SOURCES 	:=	plat/layerscape/common/ls_tzc380.c	\
 					plat/layerscape/board/ls1043/ls1043_security.c
 
 PLAT_INCLUDES			:=	-Iplat/layerscape/board/ls1043/include   \
-					-Iinclude/plat/arm/common	\
 					-Iplat/layerscape/common/include	\
 					-Iinclude/drivers/arm   \
 					-Iinclude/lib		\
