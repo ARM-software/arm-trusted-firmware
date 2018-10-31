@@ -1,0 +1,25 @@
+/*
+ * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <arm_def.h>
+#include <bl_common.h>
+#include <debug.h>
+#include <plat_arm.h>
+#include <platform.h>
+#include <platform_def.h>
+
+/*
+ * Table of regions to map using the MMU.
+ * Replace or extend the below regions as required
+ */
+
+const mmap_region_t plat_arm_mmap[] = {
+	ARM_MAP_SHARED_RAM,
+	N1SDP_MAP_DEVICE,
+	SOC_CSS_MAP_DEVICE,
+	{0}
+};
+
