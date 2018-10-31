@@ -4,14 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <arch_helpers.h>
+#include <assert.h>
+#include <core_off_arisc.h>
 #include <debug.h>
+#include <delay_timer.h>
 #include <mmio.h>
+#include <platform.h>
 #include <platform_def.h>
-#include <sunxi_mmap.h>
 #include <sunxi_cpucfg.h>
+#include <sunxi_mmap.h>
+#include <sunxi_private.h>
 #include <utils_def.h>
-
-#include "sunxi_private.h"
 
 static void sunxi_cpu_disable_power(unsigned int cluster, unsigned int core)
 {
@@ -40,16 +44,37 @@ static void sunxi_cpu_enable_power(unsigned int cluster, unsigned int core)
 
 void sunxi_cpu_off(unsigned int cluster, unsigned int core)
 {
+	int corenr = cluster * PLATFORM_MAX_CPUS_PER_CLUSTER + core;
+
 	VERBOSE("PSCI: Powering off cluster %d core %d\n", cluster, core);
 
 	/* Deassert DBGPWRDUP */
 	mmio_clrbits_32(SUNXI_CPUCFG_DBG_REG0, BIT(core));
-	/* Activate the core output clamps */
-	mmio_setbits_32(SUNXI_POWEROFF_GATING_REG(cluster), BIT(core));
-	/* Assert CPU power-on reset */
-	mmio_clrbits_32(SUNXI_POWERON_RST_REG(cluster), BIT(core));
-	/* Remove power from the CPU */
-	sunxi_cpu_disable_power(cluster, core);
+
+	/* We can't turn ourself off like this, but it works for other cores. */
+	if (plat_my_core_pos() != corenr) {
+		/* Activate the core output clamps, but not for core 0. */
+		if (corenr != 0)
+			mmio_setbits_32(SUNXI_POWEROFF_GATING_REG(cluster),
+					BIT(core));
+		/* Assert CPU power-on reset */
+		mmio_clrbits_32(SUNXI_POWERON_RST_REG(cluster), BIT(core));
+		/* Remove power from the CPU */
+		sunxi_cpu_disable_power(cluster, core);
+
+		return;
+	}
+
+	/* Simplifies assembly, all SoCs so far are single cluster anyway. */
+	assert(cluster == 0);
+
+	/*
+	 * If we are supposed to turn ourself off, tell the arisc SCP
+	 * to do that work for us. The code expects the core mask to be
+	 * patched into the first instruction.
+	 */
+	sunxi_execute_arisc_code(arisc_core_off, sizeof(arisc_core_off),
+				 0, BIT_32(core));
 }
 
 void sunxi_cpu_on(unsigned int cluster, unsigned int core)

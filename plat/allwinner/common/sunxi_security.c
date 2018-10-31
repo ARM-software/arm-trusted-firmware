@@ -7,6 +7,7 @@
 #include <debug.h>
 #include <mmio.h>
 #include <sunxi_mmap.h>
+#include <sunxi_private.h>
 
 #ifdef SUNXI_SPC_BASE
 #define SPC_DECPORT_STA_REG(p)	(SUNXI_SPC_BASE + ((p) * 0x0c) + 0x4)

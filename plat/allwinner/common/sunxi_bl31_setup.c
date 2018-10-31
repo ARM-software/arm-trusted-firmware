@@ -10,13 +10,14 @@
 #include <debug.h>
 #include <generic_delay_timer.h>
 #include <gicv2.h>
+#include <libfdt.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <sunxi_def.h>
 #include <sunxi_mmap.h>
+#include <sunxi_private.h>
 #include <uart_16550.h>
 
-#include "sunxi_private.h"
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
@@ -27,6 +28,47 @@ static const gicv2_driver_data_t sunxi_gic_data = {
 	.gicd_base = SUNXI_GICD_BASE,
 	.gicc_base = SUNXI_GICC_BASE,
 };
+
+/*
+ * Try to find a DTB loaded in memory by previous stages.
+ *
+ * At the moment we implement a heuristic to find the DTB attached to U-Boot:
+ * U-Boot appends its DTB to the end of the image. Assuming that BL33 is
+ * U-Boot, try to find the size of the U-Boot image to learn the DTB address.
+ * The generic ARMv8 U-Boot image contains the load address and its size
+ * as u64 variables at the beginning of the image. There might be padding
+ * or other headers before that data, so scan the first 2KB after the BL33
+ * entry point to find the load address, which should be followed by the
+ * size. Adding those together gives us the address of the DTB.
+ */
+static void *sunxi_find_dtb(void)
+{
+	uint64_t *u_boot_base;
+	int i;
+
+	u_boot_base = (void *)(SUNXI_DRAM_VIRT_BASE + SUNXI_DRAM_SEC_SIZE);
+
+	for (i = 0; i < 2048 / sizeof(uint64_t); i++) {
+		uint32_t *dtb_base;
+
+		if (u_boot_base[i] != PLAT_SUNXI_NS_IMAGE_OFFSET)
+			continue;
+
+		/* Does the suspected U-Boot size look anyhow reasonable? */
+		if (u_boot_base[i + 1] >= 256 * 1024 * 1024)
+			continue;
+
+		/* end of the image: base address + size */
+		dtb_base = (void *)((char *)u_boot_base + u_boot_base[i + 1]);
+
+		if (fdt_check_header(dtb_base) != 0)
+			continue;
+
+		return dtb_base;
+	}
+
+	return NULL;
+}
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
@@ -66,15 +108,16 @@ void bl31_platform_setup(void)
 {
 	const char *soc_name;
 	uint16_t soc_id = sunxi_read_soc_id();
+	void *fdt;
 
 	switch (soc_id) {
-	case 0x1689:
+	case SUNXI_SOC_A64:
 		soc_name = "A64/H64/R18";
 		break;
-	case 0x1718:
+	case SUNXI_SOC_H5:
 		soc_name = "H5";
 		break;
-	case 0x1728:
+	case SUNXI_SOC_H6:
 		soc_name = "H6";
 		break;
 	default:
@@ -85,6 +128,18 @@ void bl31_platform_setup(void)
 
 	generic_delay_timer_init();
 
+	fdt = sunxi_find_dtb();
+	if (fdt) {
+		const char *model;
+		int length;
+
+		model = fdt_getprop(fdt, 0, "model", &length);
+		NOTICE("BL31: Found U-Boot DTB at %p, model: %s\n", fdt,
+		     model ?: "unknown");
+	} else {
+		NOTICE("BL31: No DTB found.\n");
+	}
+
 	/* Configure the interrupt controller */
 	gicv2_driver_init(&sunxi_gic_data);
 	gicv2_distif_init();
@@ -93,7 +148,7 @@ void bl31_platform_setup(void)
 
 	sunxi_security_setup();
 
-	sunxi_pmic_setup();
+	sunxi_pmic_setup(soc_id, fdt);
 
 	INFO("BL31: Platform setup done\n");
 }
