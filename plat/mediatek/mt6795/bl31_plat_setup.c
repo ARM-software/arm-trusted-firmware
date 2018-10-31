@@ -339,7 +339,7 @@ static entry_point_info_t *bl31_plat_get_next_kernel64_ep_info(void)
 	next_image_info = &bl33_image_ep_info;
 
 	/* Figure out what mode we enter the non-secure world in */
-	if (EL_IMPLEMENTED(2)) {
+	if (el_implemented(2) != EL_IMPL_NONE) {
 		INFO("Kernel_EL2\n");
 		mode = MODE_EL2;
 	} else{

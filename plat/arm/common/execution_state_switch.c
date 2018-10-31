@@ -117,7 +117,7 @@ int arm_execution_state_switch(unsigned int smc_fid,
 		 * Switching from AArch64 to AArch32. Ensure this CPU implements
 		 * the target EL in AArch32.
 		 */
-		impl = from_el2 ? EL_IMPLEMENTED(2) : EL_IMPLEMENTED(1);
+		impl = from_el2 ? el_implemented(2) : el_implemented(1);
 		if (impl != EL_IMPL_A64_A32)
 			goto exec_denied;
 

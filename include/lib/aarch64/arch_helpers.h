@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __ARCH_HELPERS_H__
-#define __ARCH_HELPERS_H__
+#ifndef ARCH_HELPERS_H
+#define ARCH_HELPERS_H
 
 #include <arch.h>	/* for additional register definitions */
 #include <cdefs.h>	/* For __dead2 */
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -363,12 +364,22 @@ static inline unsigned int get_current_el(void)
 }
 
 /*
- * Check if an EL is implemented from AA64PFR0 register fields. 'el' argument
- * must be one of 1, 2 or 3.
+ * Check if an EL is implemented from AA64PFR0 register fields.
  */
-#define EL_IMPLEMENTED(el) \
-	((read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL##el##_SHIFT) \
-		& ID_AA64PFR0_ELX_MASK)
+static inline uint64_t el_implemented(unsigned int el)
+{
+	if (el > 3U) {
+		return EL_IMPL_NONE;
+	} else {
+		unsigned int shift = ID_AA64PFR0_EL1_SHIFT * el;
+
+		return (read_id_aa64pfr0_el1() >> shift) & ID_AA64PFR0_ELX_MASK;
+	}
+}
+
+#if !ERROR_DEPRECATED
+#define EL_IMPLEMENTED(_el)	el_implemented(_el)
+#endif
 
 /* Previously defined accesor functions with incomplete register names  */
 
@@ -389,4 +400,4 @@ static inline unsigned int get_current_el(void)
 #define read_cpacr()		read_cpacr_el1()
 #define write_cpacr(_v)		write_cpacr_el1(_v)
 
-#endif /* __ARCH_HELPERS_H__ */
+#endif /* ARCH_HELPERS_H */

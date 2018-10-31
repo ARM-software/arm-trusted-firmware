@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -118,7 +118,7 @@ static uint32_t qemu_get_spsr_for_bl33_entry(void)
 	unsigned int mode;
 
 	/* Figure out what mode we enter the non-secure world in */
-	mode = EL_IMPLEMENTED(2) ? MODE_EL2 : MODE_EL1;
+	mode = (el_implemented(2) != EL_IMPL_NONE) ? MODE_EL2 : MODE_EL1;
 
 	/*
 	 * TODO: Consider the possibility of specifying the SPSR in

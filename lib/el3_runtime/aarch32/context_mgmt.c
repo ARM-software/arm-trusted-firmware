@@ -57,7 +57,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	uint32_t scr, sctlr;
 	regs_t *reg_ctx;
 
-	assert(ctx);
+	assert(ctx != NULL);
 
 	security_state = GET_SECURITY_STATE(ep->h.attr);
 
@@ -97,7 +97,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 		assert(((ep->spsr >> SPSR_E_SHIFT) & SPSR_E_MASK) ==
 			(EP_GET_EE(ep->h.attr) >> EP_EE_SHIFT));
 
-		sctlr = EP_GET_EE(ep->h.attr) ? SCTLR_EE_BIT : 0;
+		sctlr = (EP_GET_EE(ep->h.attr) != 0U) ? SCTLR_EE_BIT : 0U;
 		sctlr |= (SCTLR_RESET_VAL & ~(SCTLR_TE_BIT | SCTLR_V_BIT));
 		write_ctx_reg(reg_ctx, CTX_NS_SCTLR, sctlr);
 	}
@@ -178,11 +178,11 @@ void cm_prepare_el3_exit(uint32_t security_state)
 	cpu_context_t *ctx = cm_get_context(security_state);
 	bool el2_unused = false;
 
-	assert(ctx);
+	assert(ctx != NULL);
 
 	if (security_state == NON_SECURE) {
 		scr = read_ctx_reg(get_regs_ctx(ctx), CTX_SCR);
-		if (scr & SCR_HCE_BIT) {
+		if ((scr & SCR_HCE_BIT) != 0U) {
 			/* Use SCTLR value to initialize HSCTLR */
 			hsctlr = read_ctx_reg(get_regs_ctx(ctx),
 						 CTX_NS_SCTLR);
@@ -199,8 +199,8 @@ void cm_prepare_el3_exit(uint32_t security_state)
 
 			write_scr(read_scr() & ~SCR_NS_BIT);
 			isb();
-		} else if (read_id_pfr1() &
-			(ID_PFR1_VIRTEXT_MASK << ID_PFR1_VIRTEXT_SHIFT)) {
+		} else if ((read_id_pfr1() &
+			(ID_PFR1_VIRTEXT_MASK << ID_PFR1_VIRTEXT_SHIFT)) != 0U) {
 			el2_unused = true;
 
 			/*

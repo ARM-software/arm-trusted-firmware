@@ -159,9 +159,9 @@ void __init bl31_prepare_next_image_entry(void)
 	 * Ensure that the build flag to save AArch32 system registers in CPU
 	 * context is not set for AArch64-only platforms.
 	 */
-	if (EL_IMPLEMENTED(1) == EL_IMPL_A64ONLY) {
+	if (el_implemented(1) == EL_IMPL_A64ONLY) {
 		ERROR("EL1 supports AArch64-only. Please set build flag "
-				"CTX_INCLUDE_AARCH32_REGS = 0");
+				"CTX_INCLUDE_AARCH32_REGS = 0\n");
 		panic();
 	}
 #endif

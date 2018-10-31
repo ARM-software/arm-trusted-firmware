@@ -1,16 +1,15 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CM_H__
-#define __CM_H__
+#ifndef CONTEXT_MGMT_H
+#define CONTEXT_MGMT_H
 
 #include <arch.h>
 #include <assert.h>
 #include <context.h>
-#include <context_mgmt.h>
 #include <stdint.h>
 
 /*******************************************************************************
@@ -80,4 +79,4 @@ void *cm_get_next_context(void);
 void cm_set_next_context(void *context);
 #endif /* AARCH32 */
 
-#endif /* __CM_H__ */
+#endif /* CONTEXT_MGMT_H */
