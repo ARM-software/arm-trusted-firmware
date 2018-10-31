@@ -8,6 +8,7 @@
 #define SDEI_PRIVATE_H
 
 #include <arch_helpers.h>
+#include <context.h>
 #include <context_mgmt.h>
 #include <debug.h>
 #include <errno.h>
