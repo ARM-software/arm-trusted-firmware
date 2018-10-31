@@ -31,7 +31,7 @@ do
 done
 
 awk  '{sub(/[:blank:]*#.*/,"")}
-!/^$/ && !/\\tpatch$/ {print $1*4, $2, $3}' "$@" |
+!/^$/ && !/\\tpatch$/ !/\\treserved$/ {print $1*4, $2, $3}' "$@" |
 while read idx lib sym
 do
 	file=$build/${lib}_$sym
