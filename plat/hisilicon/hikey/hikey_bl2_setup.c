@@ -9,6 +9,7 @@
 #include <bl_common.h>
 #include <console.h>
 #include <debug.h>
+#include <delay_timer.h>
 #include <desc_image_load.h>
 #include <dw_mmc.h>
 #include <errno.h>
@@ -333,6 +334,7 @@ void bl2_platform_setup(void)
 	params.flags = MMC_FLAG_CMD23;
 	info.mmc_dev_type = MMC_IS_EMMC;
 	dw_mmc_init(&params, &info);
+	mdelay(5);
 
 	hikey_io_setup();
 }
