@@ -26,6 +26,11 @@
 #define SSC_REG_BASE			0x2a420000
 #define SSC_GPRETN			(SSC_REG_BASE + 0x030)
 
+/* System ID Registers Unit */
+#define SID_REG_BASE			0x2a4a0000
+#define SID_SYSTEM_ID_OFFSET		0x40
+#define SID_SYSTEM_CFG_OFFSET		0x70
+
 /* The slave_bootsecure controls access to GPU, DMC and CS. */
 #define CSS_NIC400_SLAVE_BOOTSECURE	8
 
@@ -122,6 +127,8 @@
 #define SSC_VERSION_MINOR_REV_MASK		0xf
 #define SSC_VERSION_DESIGNER_ID_MASK		0xff
 #define SSC_VERSION_PART_NUM_MASK		0xfff
+
+#define SID_SYSTEM_ID_PART_NUM_MASK		0xfff
 
 /* SSC debug configuration registers */
 #define SSC_DBGCFG_SET		0x14
