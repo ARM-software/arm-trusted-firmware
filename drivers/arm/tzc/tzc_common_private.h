@@ -180,39 +180,4 @@ static inline unsigned int _tzc_read_peripheral_id(uintptr_t base)
 	return id;
 }
 
-#if ENABLE_ASSERTIONS
-#ifdef AARCH32
-static inline unsigned long long _tzc_get_max_top_addr(unsigned int addr_width)
-{
-	/*
-	 * Assume at least 32 bit wide address and initialize the max.
-	 * This function doesn't use 64-bit integer arithmetic to avoid
-	 * having to implement additional compiler library functions.
-	 */
-	unsigned long long addr_mask = 0xFFFFFFFFU;
-	uint32_t *addr_ptr = (uint32_t *)&addr_mask;
-
-	assert(addr_width >= 32U);
-
-	/* This logic works only on little - endian platforms */
-	assert((read_sctlr() & SCTLR_EE_BIT) == 0U);
-
-	/*
-	 * If required address width is greater than 32, populate the higher
-	 * 32 bits of the 64 bit field with the max address.
-	 */
-	if (addr_width > 32U)
-		*(addr_ptr + 1U) = ((1U << (addr_width - 32U)) - 1U);
-
-	return addr_mask;
-}
-#else
-static inline unsigned long long _tzc_get_max_top_addr(unsigned int addr_width)
-{
-	return UINT64_MAX >> (64U - addr_width);
-}
-#endif /* AARCH32 */
-
-#endif /* ENABLE_ASSERTIONS */
-
 #endif /* TZC_COMMON_PRIVATE_H */
