@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __BAKERY_LOCK_H__
-#define __BAKERY_LOCK_H__
+#ifndef BAKERY_LOCK_H
+#define BAKERY_LOCK_H
 
 #include <platform_def.h>
 
@@ -13,21 +13,39 @@
 
 #ifndef __ASSEMBLY__
 #include <cdefs.h>
+#include <stdbool.h>
 #include <stdint.h>
+#include <utils_def.h>
 
 /*****************************************************************************
- * Internal helper macros used by the bakery lock implementation.
+ * Internal helpers used by the bakery lock implementation.
  ****************************************************************************/
+
 /* Convert a ticket to priority */
-#define PRIORITY(t, pos)	(((t) << 8) | (pos))
+static inline unsigned int bakery_get_priority(unsigned int t, unsigned int pos)
+{
+	return (t << 8) | pos;
+}
 
-#define CHOOSING_TICKET		0x1
-#define CHOSEN_TICKET		0x0
+#define CHOOSING_TICKET		U(0x1)
+#define CHOSEN_TICKET		U(0x0)
 
-#define bakery_is_choosing(info)	(info & 0x1)
-#define bakery_ticket_number(info)	((info >> 1) & 0x7FFF)
-#define make_bakery_data(choosing, number) \
-		(((choosing & 0x1) | (number << 1)) & 0xFFFF)
+static inline bool bakery_is_choosing(unsigned int info)
+{
+	return (info & 1U) == CHOOSING_TICKET;
+}
+
+static inline unsigned int bakery_ticket_number(unsigned int info)
+{
+	return (info >> 1) & 0x7FFFU;
+}
+
+static inline uint16_t make_bakery_data(unsigned int choosing, unsigned int num)
+{
+	unsigned int val = (choosing & 0x1U) | (num << 1);
+
+	return (uint16_t) val;
+}
 
 /*****************************************************************************
  * External bakery lock interface.
@@ -83,4 +101,4 @@ void bakery_lock_release(bakery_lock_t *bakery);
 
 
 #endif /* __ASSEMBLY__ */
-#endif /* __BAKERY_LOCK_H__ */
+#endif /* BAKERY_LOCK_H */
