@@ -1,3 +1,5 @@
+.. _porting:
+
 TF-A Porting Guide
 =================
 
@@ -64,3 +66,53 @@ Armada-70x0/Armada-80x0 Porting
 	- Please refer to '<path_to_mv_ddr_sources>/doc/porting_guide.txt' for detailed porting description.
 	- The build target directory is "build/<platform>/release/ble".
 
+  - Comphy Porting (phy-porting-layer.h or phy-default-porting-layer.h)
+	- Background:
+		Some of the comphy's parameters value depend on the HW connection between the SoC and the PHY. Every
+		board type has specific HW characteristics like wire length. Due to those differences some comphy
+		parameters vary between board types. Therefore each board type can have its own list of values for
+		all relevant comphy parameters. The PHY porting layer specifies which parameters need to be suited and
+		the board designer should provide relevant values.
+
+		.. seealso::
+			For XFI/SFI comphy type there is procedure "rx_training" which eases process of suiting some of
+			the parameters. Please see :ref:`uboot_cmd` section: rx_training.
+
+		The PHY porting layer simplifies updating static values per board type, which are now grouped in one place.
+
+		.. note::
+			The parameters for the same type of comphy may vary even for the same board type, it is because
+			the lanes from comphy-x to some PHY may have different HW characteristic than lanes from
+			comphy-y to the same (multiplexed) or other PHY.
+
+	- Porting:
+		The porting layer for PHY was introduced in TF-A. There is one file
+		``drivers/marvell/comphy/phy-default-porting-layer.h`` which contains the defaults. Those default
+		parameters are used only if there is no appropriate phy-porting-layer.h file under:
+		``plat/marvell/<soc family>/<platform>/board/phy-porting-layer.h``. If the phy-porting-layer.h exists,
+		the phy-default-porting-layer.h is not going to be included.
+
+		.. warning::
+			Not all comphy types are already reworked to support the PHY porting layer, currently the porting
+			layer is supported for XFI/SFI and SATA comphy types.
+
+		The easiest way to prepare the PHY porting layer for custom board is to copy existing example to a new
+		platform:
+
+		- cp ``plat/marvell/a8k/a80x0/board/phy-porting-layer.h`` "plat/marvell/<soc family>/<platform>/board/phy-porting-layer.h"
+		- adjust relevant parameters or
+		- if different comphy index is used for specific feature, move it to proper table entry and then adjust.
+
+		.. note::
+			The final table size with comphy parameters can be different, depending on the CP module count for
+			given SoC type.
+
+	- Example:
+		Example porting layer for armada-8040-db is under: ``plat/marvell/a8k/a80x0/board/phy-porting-layer.h``
+
+		.. note::
+			If there is no PHY porting layer for new platform (missing phy-porting-layer.h), the default
+			values are used (drivers/marvell/comphy/phy-default-porting-layer.h) and the user is warned:
+
+		.. warning::
+			"Using default comphy parameters - it may be required to suit them for your board".
