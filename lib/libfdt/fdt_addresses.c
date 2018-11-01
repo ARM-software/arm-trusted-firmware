@@ -1,7 +1,6 @@
 /*
  * libfdt - Flat Device Tree manipulation
  * Copyright (C) 2014 David Gibson <david@gibson.dropbear.id.au>
- * Copyright (C) 2018 embedded brains GmbH
  *
  * libfdt is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -56,32 +55,42 @@
 
 #include "libfdt_internal.h"
 
-static int fdt_cells(const void *fdt, int nodeoffset, const char *name)
+int fdt_address_cells(const void *fdt, int nodeoffset)
 {
-	const fdt32_t *c;
+	const fdt32_t *ac;
 	int val;
 	int len;
 
-	c = fdt_getprop(fdt, nodeoffset, name, &len);
-	if (!c)
+	ac = fdt_getprop(fdt, nodeoffset, "#address-cells", &len);
+	if (!ac)
 		return 2;
 
-	if (len != sizeof(*c))
+	if (len != sizeof(*ac))
 		return -FDT_ERR_BADNCELLS;
 
-	val = fdt32_to_cpu(*c);
+	val = fdt32_to_cpu(*ac);
 	if ((val <= 0) || (val > FDT_MAX_NCELLS))
 		return -FDT_ERR_BADNCELLS;
 
 	return val;
 }
 
-int fdt_address_cells(const void *fdt, int nodeoffset)
-{
-	return fdt_cells(fdt, nodeoffset, "#address-cells");
-}
-
 int fdt_size_cells(const void *fdt, int nodeoffset)
 {
-	return fdt_cells(fdt, nodeoffset, "#size-cells");
+	const fdt32_t *sc;
+	int val;
+	int len;
+
+	sc = fdt_getprop(fdt, nodeoffset, "#size-cells", &len);
+	if (!sc)
+		return 2;
+
+	if (len != sizeof(*sc))
+		return -FDT_ERR_BADNCELLS;
+
+	val = fdt32_to_cpu(*sc);
+	if ((val < 0) || (val > FDT_MAX_NCELLS))
+		return -FDT_ERR_BADNCELLS;
+
+	return val;
 }
