@@ -10,14 +10,14 @@
 #include <bl_common.h>
 #include <debug.h>
 #include <k3_console.h>
-#include <plat_arm.h>
-#include <platform_def.h>
 #include <k3_gicv3.h>
+#include <platform_def.h>
 #include <string.h>
 #include <ti_sci.h>
+#include <xlat_tables_v2.h>
 
 /* Table of regions to map using the MMU */
-const mmap_region_t plat_arm_mmap[] = {
+const mmap_region_t plat_k3_mmap[] = {
 	MAP_REGION_FLAT(SHARED_RAM_BASE, SHARED_RAM_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(K3_USART_BASE_ADDRESS, K3_USART_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(K3_GICD_BASE, K3_GICD_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
@@ -97,7 +97,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void bl31_plat_arch_setup(void)
 {
-
 	const mmap_region_t bl_regions[] = {
 		MAP_REGION_FLAT(BL31_BASE, BL31_END - BL31_BASE,
 				MT_MEMORY | MT_RW | MT_SECURE),
@@ -108,7 +107,7 @@ void bl31_plat_arch_setup(void)
 		{0}
 	};
 
-	setup_page_tables(bl_regions, plat_arm_get_mmap());
+	setup_page_tables(bl_regions, plat_k3_mmap);
 	enable_mmu_el3(0);
 }
 
