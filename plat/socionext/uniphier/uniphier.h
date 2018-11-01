@@ -41,7 +41,6 @@ int uniphier_nand_init(uintptr_t *block_dev_spec);
 int uniphier_usb_init(unsigned int soc, uintptr_t *block_dev_spec);
 
 int uniphier_io_setup(unsigned int soc);
-int uniphier_check_image(unsigned int image_id);
 
 struct image_info;
 struct image_info *uniphier_get_image_info(unsigned int image_id);

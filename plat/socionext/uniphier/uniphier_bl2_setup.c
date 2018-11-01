@@ -88,16 +88,6 @@ void bl2_el3_plat_arch_setup(void)
 		break;
 	}
 
-	if (!skip_scp) {
-		ret = uniphier_check_image(SCP_BL2_IMAGE_ID);
-		if (ret) {
-			WARN("SCP_BL2 image not found. SCP_BL2 load will be skipped.\n");
-			WARN("You must setup SCP by other means.\n");
-			skip_scp = 1;
-			uniphier_bl2_kick_scp = 0;
-		}
-	}
-
 	if (skip_scp) {
 		struct image_info *image_info;
 

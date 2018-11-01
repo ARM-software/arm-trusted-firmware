@@ -335,21 +335,3 @@ int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
 
 	return io_dev_init(*dev_handle, init_params);
 }
-
-int uniphier_check_image(unsigned int image_id)
-{
-	uintptr_t dev_handle, image_spec, image_handle;
-	int ret;
-
-	ret = plat_get_image_source(image_id, &dev_handle, &image_spec);
-	if (ret)
-		return ret;
-
-	ret = io_open(dev_handle, image_spec, &image_handle);
-	if (ret)
-		return ret;
-
-	io_close(image_handle);
-
-	return 0;
-}
