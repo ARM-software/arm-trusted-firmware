@@ -96,6 +96,14 @@ ifneq (${RESET_TO_BL31},0)
   Please set RESET_TO_BL31 to 0.")
 endif
 
+ifeq ($(USE_ROMLIB),1)
+all : bl1_romlib.bin
+endif
+
+bl1_romlib.bin : $(BUILD_PLAT)/bl1.bin $(BUILD_PLAT)/romlib/romlib.bin
+	@echo "Building combined BL1 and ROMLIB binary for Juno $@"
+	./lib/romlib/gen_combined_bl1_romlib.sh -o bl1_romlib.bin $(BUILD_PLAT)
+
 # Errata workarounds for Cortex-A53:
 ERRATA_A53_826319		:=	1
 ERRATA_A53_835769		:=	1

@@ -55,7 +55,8 @@
 #define PLAT_ARM_TRUSTED_SRAM_SIZE	UL(0x00040000)	/* 256 KB */
 
 /* Use the bypass address */
-#define PLAT_ARM_TRUSTED_ROM_BASE	V2M_FLASH0_BASE + BL1_ROM_BYPASS_OFFSET
+#define PLAT_ARM_TRUSTED_ROM_BASE	(V2M_FLASH0_BASE + \
+					BL1_ROM_BYPASS_OFFSET)
 
 #define NSRAM_BASE			UL(0x2e000000)
 #define NSRAM_SIZE			UL(0x00008000)	/* 32KB */
@@ -64,11 +65,22 @@
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xc0000000)
 
 /*
+ * PLAT_ARM_MAX_ROMLIB_RW_SIZE is define to use a full page
+ */
+
+#if USE_ROMLIB
+#define PLAT_ARM_MAX_ROMLIB_RW_SIZE	UL(0x1000)
+#define PLAT_ARM_MAX_ROMLIB_RO_SIZE	UL(0xe000)
+#else
+#define PLAT_ARM_MAX_ROMLIB_RW_SIZE	UL(0)
+#define PLAT_ARM_MAX_ROMLIB_RO_SIZE	UL(0)
+#endif
+
+/*
  * Actual ROM size on Juno is 64 KB, but TBB currently requires at least 80 KB
  * in debug mode. We can test TBB on Juno bypassing the ROM and using 128 KB of
  * flash
  */
-#define PLAT_ARM_MAX_ROMLIB_RO_SIZE	0
 
 #if TRUSTED_BOARD_BOOT
 #define PLAT_ARM_TRUSTED_ROM_SIZE	UL(0x00020000)
@@ -118,15 +130,6 @@
 # define PLAT_ARM_MAX_BL1_RW_SIZE	UL(0xB000)
 #else
 # define PLAT_ARM_MAX_BL1_RW_SIZE	UL(0x6000)
-#endif
-
-/*
- * PLAT_ARM_MAX_ROMLIB_RW_SIZE is define to use a full page
- */
-#if USE_ROMLIB
-#define PLAT_ARM_MAX_ROMLIB_RW_SIZE	UL(0x1000)
-#else
-#define PLAT_ARM_MAX_ROMLIB_RW_SIZE	UL(0)
 #endif
 
 /*
