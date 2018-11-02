@@ -12,6 +12,7 @@
 #include "../../css/drivers/scmi/scmi.h"
 #include "../../css/drivers/mhu/css_mhu_doorbell.h"
 
+#if CSS_USE_SCMI_SDS_DRIVER
 static scmi_channel_plat_info_t juno_scmi_plat_info = {
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE,
 		.db_reg_addr = PLAT_CSS_MHU_BASE + CSS_SCMI_MHU_DB_REG_OFF,
@@ -25,6 +26,7 @@ scmi_channel_plat_info_t *plat_css_get_scmi_info()
 	return &juno_scmi_plat_info;
 }
 
+#endif
 /*
  * On Juno, the system power level is the highest power level.
  * The first entry in the power domain descriptor specifies the
