@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLATFORM_DEF_H__
-#define __PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
 
 /* Enable the dynamic translation tables library. */
 #ifdef AARCH32
@@ -41,7 +41,7 @@
 					JUNO_CLUSTER1_CORE_COUNT)
 
 /* Cryptocell HW Base address */
-#define PLAT_CRYPTOCELL_BASE		0x60050000
+#define PLAT_CRYPTOCELL_BASE		UL(0x60050000)
 
 /*
  * Other platform porting definitions are provided by included headers
@@ -52,13 +52,13 @@
  */
 #define PLAT_ARM_CLUSTER_COUNT		JUNO_CLUSTER_COUNT
 
-#define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00040000	/* 256 KB */
+#define PLAT_ARM_TRUSTED_SRAM_SIZE	UL(0x00040000)	/* 256 KB */
 
 /* Use the bypass address */
 #define PLAT_ARM_TRUSTED_ROM_BASE	V2M_FLASH0_BASE + BL1_ROM_BYPASS_OFFSET
 
-#define NSRAM_BASE			0x2e000000
-#define NSRAM_SIZE			0x00008000	/* 32KB */
+#define NSRAM_BASE			UL(0x2e000000)
+#define NSRAM_SIZE			UL(0x00008000)	/* 32KB */
 
 /* virtual address used by dynamic mem_protect for chunk_base */
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xc0000000)
@@ -71,9 +71,9 @@
 #define PLAT_ARM_MAX_ROMLIB_RO_SIZE	0
 
 #if TRUSTED_BOARD_BOOT
-#define PLAT_ARM_TRUSTED_ROM_SIZE	0x00020000
+#define PLAT_ARM_TRUSTED_ROM_SIZE	UL(0x00020000)
 #else
-#define PLAT_ARM_TRUSTED_ROM_SIZE	0x00010000
+#define PLAT_ARM_TRUSTED_ROM_SIZE	UL(0x00010000)
 #endif /* TRUSTED_BOARD_BOOT */
 
 /*
@@ -115,18 +115,18 @@
  * plus a little space for growth.
  */
 #if TRUSTED_BOARD_BOOT
-# define PLAT_ARM_MAX_BL1_RW_SIZE	0xB000
+# define PLAT_ARM_MAX_BL1_RW_SIZE	UL(0xB000)
 #else
-# define PLAT_ARM_MAX_BL1_RW_SIZE	0x6000
+# define PLAT_ARM_MAX_BL1_RW_SIZE	UL(0x6000)
 #endif
 
 /*
  * PLAT_ARM_MAX_ROMLIB_RW_SIZE is define to use a full page
  */
 #if USE_ROMLIB
-#define PLAT_ARM_MAX_ROMLIB_RW_SIZE	0x1000
+#define PLAT_ARM_MAX_ROMLIB_RW_SIZE	UL(0x1000)
 #else
-#define PLAT_ARM_MAX_ROMLIB_RW_SIZE	0
+#define PLAT_ARM_MAX_ROMLIB_RW_SIZE	UL(0)
 #endif
 
 /*
@@ -135,14 +135,14 @@
  */
 #if TRUSTED_BOARD_BOOT
 #if TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA
-# define PLAT_ARM_MAX_BL2_SIZE		0x1F000
+# define PLAT_ARM_MAX_BL2_SIZE		UL(0x1F000)
 #elif TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA
-# define PLAT_ARM_MAX_BL2_SIZE		0x1D000
+# define PLAT_ARM_MAX_BL2_SIZE		UL(0x1D000)
 #else
-# define PLAT_ARM_MAX_BL2_SIZE		0x1C000
+# define PLAT_ARM_MAX_BL2_SIZE		UL(0x1C000)
 #endif
 #else
-# define PLAT_ARM_MAX_BL2_SIZE		0xF000
+# define PLAT_ARM_MAX_BL2_SIZE		UL(0xF000)
 #endif
 
 /*
@@ -151,7 +151,7 @@
  * BL2 and BL1-RW.  SCP_BL2 image is loaded into the space BL31 -> BL2_BASE.
  * Hence the BL31 PROGBITS size should be >= PLAT_CSS_MAX_SCP_BL2_SIZE.
  */
-#define PLAT_ARM_MAX_BL31_SIZE		0x3E000
+#define PLAT_ARM_MAX_BL31_SIZE		UL(0x3E000)
 
 #if JUNO_AARCH32_EL3_RUNTIME
 /*
@@ -160,7 +160,7 @@
  * BL2 and BL1-RW.  SCP_BL2 image is loaded into the space BL32 -> BL2_BASE.
  * Hence the BL32 PROGBITS size should be >= PLAT_CSS_MAX_SCP_BL2_SIZE.
  */
-#define PLAT_ARM_MAX_BL32_SIZE		0x3E000
+#define PLAT_ARM_MAX_BL32_SIZE		UL(0x3E000)
 #endif
 
 /*
@@ -168,26 +168,26 @@
  */
 #if defined(IMAGE_BL1)
 # if TRUSTED_BOARD_BOOT
-#  define PLATFORM_STACK_SIZE 0x1000
+#  define PLATFORM_STACK_SIZE		UL(0x1000)
 # else
-#  define PLATFORM_STACK_SIZE 0x440
+#  define PLATFORM_STACK_SIZE		UL(0x440)
 # endif
 #elif defined(IMAGE_BL2)
 # if TRUSTED_BOARD_BOOT
-#  define PLATFORM_STACK_SIZE 0x1000
+#  define PLATFORM_STACK_SIZE		UL(0x1000)
 # else
-#  define PLATFORM_STACK_SIZE 0x400
+#  define PLATFORM_STACK_SIZE		UL(0x400)
 # endif
 #elif defined(IMAGE_BL2U)
-# define PLATFORM_STACK_SIZE 0x400
+# define PLATFORM_STACK_SIZE		UL(0x400)
 #elif defined(IMAGE_BL31)
 # if PLAT_XLAT_TABLES_DYNAMIC
-#  define PLATFORM_STACK_SIZE 0x800
+#  define PLATFORM_STACK_SIZE		UL(0x800)
 # else
-#  define PLATFORM_STACK_SIZE 0x400
+#  define PLATFORM_STACK_SIZE		UL(0x400)
 # endif
 #elif defined(IMAGE_BL32)
-# define PLATFORM_STACK_SIZE 0x440
+# define PLATFORM_STACK_SIZE		UL(0x440)
 #endif
 
 /*
@@ -197,7 +197,7 @@
 #define PLAT_LOG_LEVEL_ASSERT		40
 
 /* CCI related constants */
-#define PLAT_ARM_CCI_BASE		0x2c090000
+#define PLAT_ARM_CCI_BASE		UL(0x2c090000)
 #define PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX	4
 #define PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX	3
 
@@ -205,7 +205,7 @@
 #define PLAT_ARM_NSTIMER_FRAME_ID		1
 
 /* TZC related constants */
-#define PLAT_ARM_TZC_BASE		0x2a4a0000
+#define PLAT_ARM_TZC_BASE		UL(0x2a4a0000)
 #define PLAT_ARM_TZC_NS_DEV_ACCESS	(				\
 		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CCI400)	|	\
 		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_PCIE)	|	\
@@ -223,13 +223,13 @@
  */
 
 /* GIC related constants (no GICR in GIC-400) */
-#define PLAT_ARM_GICD_BASE		0x2c010000
-#define PLAT_ARM_GICC_BASE		0x2c02f000
-#define PLAT_ARM_GICH_BASE		0x2c04f000
-#define PLAT_ARM_GICV_BASE		0x2c06f000
+#define PLAT_ARM_GICD_BASE		UL(0x2c010000)
+#define PLAT_ARM_GICC_BASE		UL(0x2c02f000)
+#define PLAT_ARM_GICH_BASE		UL(0x2c04f000)
+#define PLAT_ARM_GICV_BASE		UL(0x2c06f000)
 
 /* MHU related constants */
-#define PLAT_CSS_MHU_BASE		0x2b1f0000
+#define PLAT_CSS_MHU_BASE		UL(0x2b1f0000)
 
 /*
  * Base address of the first memory region used for communication between AP
@@ -243,7 +243,7 @@
  * 32-bit word on all CSS platforms. On Juno, part of this configuration is
  * which CPU is the primary, according to the shift and mask definitions below.
  */
-#define PLAT_CSS_SCP_COM_SHARED_MEM_BASE	(ARM_TRUSTED_SRAM_BASE + 0x80)
+#define PLAT_CSS_SCP_COM_SHARED_MEM_BASE	(ARM_TRUSTED_SRAM_BASE + UL(0x80))
 #define PLAT_CSS_PRIMARY_CPU_SHIFT		8
 #define PLAT_CSS_PRIMARY_CPU_BIT_WIDTH		4
 #endif
@@ -252,13 +252,13 @@
  * PLAT_CSS_MAX_SCP_BL2_SIZE is calculated using the current
  * SCP_BL2 size plus a little space for growth.
  */
-#define PLAT_CSS_MAX_SCP_BL2_SIZE	0x14000
+#define PLAT_CSS_MAX_SCP_BL2_SIZE	UL(0x14000)
 
 /*
  * PLAT_CSS_MAX_SCP_BL2U_SIZE is calculated using the current
  * SCP_BL2U size plus a little space for growth.
  */
-#define PLAT_CSS_MAX_SCP_BL2U_SIZE	0x14000
+#define PLAT_CSS_MAX_SCP_BL2U_SIZE	UL(0x14000)
 
 #define PLAT_ARM_G1S_IRQ_PROPS(grp) \
 	CSS_G1S_IRQ_PROPS(grp), \
@@ -287,9 +287,9 @@
  */
 
 /* CSS SoC NIC-400 Global Programmers View (GPV) */
-#define PLAT_SOC_CSS_NIC400_BASE	0x2a000000
+#define PLAT_SOC_CSS_NIC400_BASE	UL(0x2a000000)
 
 #define PLAT_ARM_PRIVATE_SDEI_EVENTS	ARM_SDEI_PRIVATE_EVENTS
 #define PLAT_ARM_SHARED_SDEI_EVENTS	ARM_SDEI_SHARED_EVENTS
 
-#endif /* __PLATFORM_DEF_H__ */
+#endif /* PLATFORM_DEF_H */

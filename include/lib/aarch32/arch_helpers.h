@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __ARCH_HELPERS_H__
-#define __ARCH_HELPERS_H__
+#ifndef ARCH_HELPERS_H
+#define ARCH_HELPERS_H
 
 #include <arch.h>	/* for additional register definitions */
 #include <cdefs.h>
@@ -381,4 +381,4 @@ static inline unsigned int get_current_el(void)
 #define write_icc_sgi0r_el1(_v) \
 		write64_icc_sgi0r_el1(_v)
 
-#endif /* __ARCH_HELPERS_H__ */
+#endif /* ARCH_HELPERS_H */

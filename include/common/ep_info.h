@@ -30,7 +30,7 @@
 #define PARAM_EP_SECURITY_MASK		U(0x1)
 
 /* Secure or Non-secure image */
-#define GET_SECURITY_STATE(x) (x & PARAM_EP_SECURITY_MASK)
+#define GET_SECURITY_STATE(x) ((x) & PARAM_EP_SECURITY_MASK)
 #define SET_SECURITY_STATE(x, security) \
 			((x) = ((x) & ~PARAM_EP_SECURITY_MASK) | (security))
 

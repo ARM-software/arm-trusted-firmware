@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __ARM_DYN_CFG_HELPERS_H__
-#define __ARM_DYN_CFG_HELPERS_H__
+#ifndef ARM_DYN_CFG_HELPERS_H
+#define ARM_DYN_CFG_HELPERS_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -19,4 +19,4 @@ int arm_get_dtb_mbedtls_heap_info(void *dtb, void **heap_addr,
 int arm_set_dtb_mbedtls_heap_info(void *dtb, void *heap_addr,
 	size_t heap_size);
 
-#endif /* __ARM_DYN_CFG_HELPERS_H__ */
+#endif /* ARM_DYN_CFG_HELPERS_H */

@@ -35,9 +35,9 @@
  */
 
 #define assert_bakery_entry_valid(_entry, _bakery) do {	\
-	assert(_bakery);					\
-	assert(_entry < BAKERY_LOCK_MAX_CPUS);		\
-} while (0)
+	assert((_bakery) != NULL);			\
+	assert((_entry) < BAKERY_LOCK_MAX_CPUS);	\
+} while (false)
 
 /* Obtain a ticket for a given CPU */
 static unsigned int bakery_get_ticket(bakery_lock_t *bakery, unsigned int me)
@@ -46,7 +46,7 @@ static unsigned int bakery_get_ticket(bakery_lock_t *bakery, unsigned int me)
 	unsigned int they;
 
 	/* Prevent recursive acquisition */
-	assert(!bakery_ticket_number(bakery->lock_data[me]));
+	assert(bakery_ticket_number(bakery->lock_data[me]) == 0U);
 
 	/*
 	 * Flag that we're busy getting our ticket. All CPUs are iterated in the
@@ -58,9 +58,9 @@ static unsigned int bakery_get_ticket(bakery_lock_t *bakery, unsigned int me)
 	 * ticket value. That's OK as the lock is acquired based on the priority
 	 * value, not the ticket value alone.
 	 */
-	my_ticket = 0;
+	my_ticket = 0U;
 	bakery->lock_data[me] = make_bakery_data(CHOOSING_TICKET, my_ticket);
-	for (they = 0; they < BAKERY_LOCK_MAX_CPUS; they++) {
+	for (they = 0U; they < BAKERY_LOCK_MAX_CPUS; they++) {
 		their_ticket = bakery_ticket_number(bakery->lock_data[they]);
 		if (their_ticket > my_ticket)
 			my_ticket = their_ticket;
@@ -105,8 +105,8 @@ void bakery_lock_get(bakery_lock_t *bakery)
 	 * Now that we got our ticket, compute our priority value, then compare
 	 * with that of others, and proceed to acquire the lock
 	 */
-	my_prio = PRIORITY(my_ticket, me);
-	for (they = 0; they < BAKERY_LOCK_MAX_CPUS; they++) {
+	my_prio = bakery_get_priority(my_ticket, me);
+	for (they = 0U; they < BAKERY_LOCK_MAX_CPUS; they++) {
 		if (me == they)
 			continue;
 
@@ -120,7 +120,8 @@ void bakery_lock_get(bakery_lock_t *bakery)
 		 * (valid) ticket value. If they do, compare priorities
 		 */
 		their_ticket = bakery_ticket_number(their_bakery_data);
-		if (their_ticket && (PRIORITY(their_ticket, they) < my_prio)) {
+		if ((their_ticket != 0U) &&
+		    (bakery_get_priority(their_ticket, they) < my_prio)) {
 			/*
 			 * They have higher priority (lower value). Wait for
 			 * their ticket value to change (either release the lock
@@ -148,7 +149,7 @@ void bakery_lock_release(bakery_lock_t *bakery)
 	unsigned int me = plat_my_core_pos();
 
 	assert_bakery_entry_valid(me, bakery);
-	assert(bakery_ticket_number(bakery->lock_data[me]));
+	assert(bakery_ticket_number(bakery->lock_data[me]) != 0U);
 
 	/*
 	 * Ensure that other observers see any stores in the critical section
@@ -156,7 +157,7 @@ void bakery_lock_release(bakery_lock_t *bakery)
 	 * Then signal other waiting contenders.
 	 */
 	dmbst();
-	bakery->lock_data[me] = 0;
+	bakery->lock_data[me] = 0U;
 	dsb();
 	sev();
 }

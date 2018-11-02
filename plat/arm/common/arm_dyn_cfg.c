@@ -122,8 +122,8 @@ void arm_bl1_set_mbedtls_heap(void)
 void arm_load_tb_fw_config(void)
 {
 	int err;
-	uintptr_t config_base = 0;
-	image_desc_t *image_desc;
+	uintptr_t config_base = 0UL;
+	image_desc_t *desc;
 
 	image_desc_t arm_tb_fw_info = {
 		.image_id = TB_FW_CONFIG_ID,
@@ -148,12 +148,11 @@ void arm_load_tb_fw_config(void)
 	tb_fw_cfg_dtb_size = (size_t)arm_tb_fw_info.image_info.image_max_size;
 
 	/* The BL2 ep_info arg0 is modified to point to TB_FW_CONFIG */
-	image_desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
-	assert(image_desc != NULL);
-	image_desc->ep_info.args.arg0 = config_base;
+	desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
+	assert(desc != NULL);
+	desc->ep_info.args.arg0 = config_base;
 
-	INFO("BL1: TB_FW_CONFIG loaded at address = %p\n",
-			(void *) config_base);
+	INFO("BL1: TB_FW_CONFIG loaded at address = 0x%lx\n", config_base);
 
 #if TRUSTED_BOARD_BOOT && defined(DYN_DISABLE_AUTH)
 	int tb_fw_node;
@@ -240,7 +239,7 @@ void arm_bl2_dyn_cfg_init(void)
 		 */
 		if (config_ids[i] != HW_CONFIG_ID) {
 
-			if (check_uptr_overflow(image_base, image_size) != 0)
+			if (check_uptr_overflow(image_base, image_size))
 				continue;
 
 			/* Ensure the configs don't overlap with BL31 */

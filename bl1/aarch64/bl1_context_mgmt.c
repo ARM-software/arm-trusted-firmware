@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -49,9 +49,9 @@ void bl1_prepare_next_image(unsigned int image_id)
 	 * Ensure that the build flag to save AArch32 system registers in CPU
 	 * context is not set for AArch64-only platforms.
 	 */
-	if (EL_IMPLEMENTED(1) == EL_IMPL_A64ONLY) {
+	if (el_implemented(1) == EL_IMPL_A64ONLY) {
 		ERROR("EL1 supports AArch64-only. Please set build flag "
-				"CTX_INCLUDE_AARCH32_REGS = 0");
+				"CTX_INCLUDE_AARCH32_REGS = 0\n");
 		panic();
 	}
 #endif
@@ -76,7 +76,7 @@ void bl1_prepare_next_image(unsigned int image_id)
 				   DISABLE_ALL_EXCEPTIONS);
 	} else {
 		/* Use EL2 if supported; else use EL1. */
-		if (EL_IMPLEMENTED(2)) {
+		if (el_implemented(2) != EL_IMPL_NONE) {
 			next_bl_ep->spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
 				DISABLE_ALL_EXCEPTIONS);
 		} else {

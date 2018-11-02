@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CONTEXT_H__
-#define __CONTEXT_H__
+#ifndef CONTEXT_H
+#define CONTEXT_H
 
 #include <utils_def.h>
 
@@ -347,4 +347,4 @@ void fpregs_context_restore(fp_regs_t *regs);
 
 #endif /* __ASSEMBLY__ */
 
-#endif /* __CONTEXT_H__ */
+#endif /* CONTEXT_H */

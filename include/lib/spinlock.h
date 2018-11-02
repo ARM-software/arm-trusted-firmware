@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SPINLOCK_H__
-#define __SPINLOCK_H__
+#ifndef SPINLOCK_H
+#define SPINLOCK_H
 
 #ifndef __ASSEMBLY__
 
@@ -26,4 +26,4 @@ void spin_unlock(spinlock_t *lock);
 
 #endif
 
-#endif /* __SPINLOCK_H__ */
+#endif /* SPINLOCK_H */
