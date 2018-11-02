@@ -101,6 +101,8 @@ static void copy_cpu_ctx_to_smc_stx(const regs_t *cpu_reg_ctx,
 				smc_ctx_t *next_smc_ctx)
 {
 	next_smc_ctx->r0 = read_ctx_reg(cpu_reg_ctx, CTX_GPREG_R0);
+	next_smc_ctx->r1 = read_ctx_reg(cpu_reg_ctx, CTX_GPREG_R1);
+	next_smc_ctx->r2 = read_ctx_reg(cpu_reg_ctx, CTX_GPREG_R2);
 	next_smc_ctx->lr_mon = read_ctx_reg(cpu_reg_ctx, CTX_LR);
 	next_smc_ctx->spsr_mon = read_ctx_reg(cpu_reg_ctx, CTX_SPSR);
 	next_smc_ctx->scr = read_ctx_reg(cpu_reg_ctx, CTX_SCR);

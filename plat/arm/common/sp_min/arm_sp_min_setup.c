@@ -82,6 +82,19 @@ void arm_sp_min_early_platform_setup(void *from_bl2, uintptr_t tos_fw_config,
 	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
+# if ARM_LINUX_KERNEL_AS_BL33
+	/*
+	 * According to the file ``Documentation/arm/Booting`` of the Linux
+	 * kernel tree, Linux expects:
+	 * r0 = 0
+	 * r1 = machine type number, optional in DT-only platforms (~0 if so)
+	 * r2 = Physical address of the device tree blob
+	 */
+	bl33_image_ep_info.args.arg0 = 0U;
+	bl33_image_ep_info.args.arg1 = ~0U;
+	bl33_image_ep_info.args.arg2 = (u_register_t)ARM_PRELOADED_DTB_BASE;
+# endif
+
 #else /* RESET_TO_SP_MIN */
 
 	/*
