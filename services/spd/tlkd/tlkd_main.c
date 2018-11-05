@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -429,7 +430,6 @@ static uintptr_t tlkd_smc_handler(uint32_t smc_fid,
 	 */
 	case TLK_SUSPEND_DONE:
 	case TLK_RESUME_DONE:
-	case TLK_SYSTEM_OFF_DONE:
 
 		if (ns)
 			SMC_RET1(handle, SMC_UNK);

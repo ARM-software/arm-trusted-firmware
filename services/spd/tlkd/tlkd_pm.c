@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -98,29 +99,6 @@ static void cpu_resume_handler(u_register_t suspend_level)
 }
 
 /*******************************************************************************
- * System is about to be reset. Inform the SP to allow any book-keeping
- ******************************************************************************/
-static void system_off_handler(void)
-{
-	int cpu = read_mpidr() & MPIDR_CPU_MASK;
-	gp_regs_t *gp_regs;
-
-	/* TLK runs only on CPU0 */
-	if (cpu != 0)
-		return;
-
-	/* pass system off/reset events to TLK */
-	gp_regs = get_gpregs_ctx(&tlk_ctx.cpu_ctx);
-	write_ctx_reg(gp_regs, CTX_GPREG_X0, TLK_SYSTEM_OFF);
-
-	/*
-	 * Enter the SP. We do not care about the return value because we
-	 * must continue with the shutdown anyway.
-	 */
-	(void)tlkd_synchronous_sp_entry(&tlk_ctx);
-}
-
-/*******************************************************************************
  * Structure populated by the Dispatcher to be given a chance to perform any
  * bookkeeping before PSCI executes a power mgmt.  operation.
  ******************************************************************************/
@@ -128,6 +106,4 @@ const spd_pm_ops_t tlkd_pm_ops = {
 	.svc_migrate_info = cpu_migrate_info,
 	.svc_suspend = cpu_suspend_handler,
 	.svc_suspend_finish = cpu_resume_handler,
-	.svc_system_off = system_off_handler,
-	.svc_system_reset = system_off_handler
 };

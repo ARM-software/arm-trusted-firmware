@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,7 +27,6 @@
 #define TLK_RESUME_FID		TLK_TOS_YIELD_FID(0x100)
 #define TLK_SYSTEM_SUSPEND	TLK_TOS_YIELD_FID(0xE001)
 #define TLK_SYSTEM_RESUME	TLK_TOS_YIELD_FID(0xE002)
-#define TLK_SYSTEM_OFF		TLK_TOS_YIELD_FID(0xE003)
 #define TLK_IRQ_FIRED		TLK_TOS_YIELD_FID(0xE004)
 
 /*
@@ -39,7 +39,6 @@
 #define TLK_VA_TRANSLATE	(0x32000004 | (ULL(1) << 31))
 #define TLK_SUSPEND_DONE	(0x32000005 | (ULL(1) << 31))
 #define TLK_RESUME_DONE		(0x32000006 | (ULL(1) << 31))
-#define TLK_SYSTEM_OFF_DONE	(0x32000007 | (ULL(1) << 31))
 #define TLK_IRQ_DONE		(0x32000008 | (ULL(1) << 31))
 
 /*
