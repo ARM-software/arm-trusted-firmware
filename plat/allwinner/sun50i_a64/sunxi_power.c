@@ -118,7 +118,7 @@ static int axp_write(uint8_t reg, uint8_t val)
 	return rsb_write(AXP803_RT_ADDR, reg, val);
 }
 
-static int axp_setbits(uint8_t reg, uint8_t set_mask)
+static int axp_clrsetbits(uint8_t reg, uint8_t clr_mask, uint8_t set_mask)
 {
 	uint8_t regval;
 	int ret;
@@ -127,10 +127,13 @@ static int axp_setbits(uint8_t reg, uint8_t set_mask)
 	if (ret < 0)
 		return ret;
 
-	regval = ret | set_mask;
+	regval = (ret & ~clr_mask) | set_mask;
 
 	return rsb_write(AXP803_RT_ADDR, reg, regval);
 }
+
+#define axp_clrbits(reg, clr_mask) axp_clrsetbits(reg, clr_mask, 0)
+#define axp_setbits(reg, set_mask) axp_clrsetbits(reg, 0, set_mask)
 
 static bool should_enable_regulator(const void *fdt, int node)
 {
@@ -226,8 +229,11 @@ static void setup_axp803_rails(const void *fdt)
 		return;
 	}
 
-	if (fdt_getprop(fdt, node, "x-powers,drive-vbus-en", NULL))
-		axp_setbits(0x8f, BIT(4));
+	if (fdt_getprop(fdt, node, "x-powers,drive-vbus-en", NULL)) {
+		axp_clrbits(0x8f, BIT(4));
+		axp_setbits(0x30, BIT(2));
+		INFO("PMIC: AXP803: Enabling DRIVEVBUS\n");
+	}
 
 	/* descend into the "regulators" subnode */
 	node = fdt_first_subnode(fdt, node);
