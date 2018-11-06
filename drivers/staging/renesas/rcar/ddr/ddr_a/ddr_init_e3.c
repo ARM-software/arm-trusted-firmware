@@ -1046,7 +1046,7 @@ uint32_t recovery_from_backup_mode(void)
    } else {
       NOTICE("[COLD_BOOT]");
    } /*  ddrBackup */
-   err=dram_update_boot_status(ddrBackup);
+   err=rcar_dram_update_boot_status(ddrBackup);
    if(err){
       NOTICE("[BOOT_STATUS_UPDATE_ERROR]");
       return INITDRAM_ERR_I;
@@ -1500,7 +1500,7 @@ if (pdqsr_ctl == 1){
 /*******************************************************************************
  *  DDR Initialize entry for IPL
  ******************************************************************************/
-int32_t InitDram(void)
+int32_t rcar_dram_init(void)
 {
     uint32_t dataL;
     uint32_t failcount;
@@ -1516,7 +1516,7 @@ int32_t InitDram(void)
         NOTICE("BL2: DDR1856(%s)", RCAR_E3_DDR_VERSION);
     } /*  ddr */
 
-    dram_get_boot_status(&ddrBackup);
+    rcar_dram_get_boot_status(&ddrBackup);
 
     if(ddrBackup==DRAM_BOOT_STATUS_WARM){
         dataL=recovery_from_backup_mode(); /*  WARM boot */

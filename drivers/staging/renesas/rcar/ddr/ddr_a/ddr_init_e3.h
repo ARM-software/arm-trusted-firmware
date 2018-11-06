@@ -24,7 +24,7 @@
    #endif
 #endif
 
-extern int32_t InitDram(void);
+extern int32_t rcar_dram_init(void);
 #define INITDRAM_OK (0)
 #define INITDRAM_NG (0xffffffff)
 #define INITDRAM_ERR_I (0xffffffff)

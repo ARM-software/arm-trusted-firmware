@@ -72,9 +72,9 @@ static void swdt_disable(void)
 
 void rcar_swdt_init(void)
 {
-	uint32_t rmsk, val, sr;
+	uint32_t rmsk, sr;
 #if (RCAR_LSI != RCAR_E3)
-	uint32_t reg, product_cut, chk_data;
+	uint32_t reg, val, product_cut, chk_data;
 
 	reg = mmio_read_32(RCAR_PRR);
 	product_cut = reg & (RCAR_PRODUCT_MASK | RCAR_CUT_MASK);
