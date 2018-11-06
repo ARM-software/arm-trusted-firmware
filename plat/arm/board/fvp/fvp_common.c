@@ -176,7 +176,7 @@ static unsigned int get_interconnect_master(void)
 	u_register_t mpidr;
 
 	mpidr = read_mpidr_el1();
-	master = (arm_config.flags & ARM_CONFIG_FVP_SHIFTED_AFF) ?
+	master = ((arm_config.flags & ARM_CONFIG_FVP_SHIFTED_AFF) != 0U) ?
 		MPIDR_AFFLVL2_VAL(mpidr) : MPIDR_AFFLVL1_VAL(mpidr);
 
 	assert(master < FVP_CLUSTER_COUNT);
@@ -327,7 +327,7 @@ void __init fvp_config_setup(void)
 	 * affinities, is uniform across the platform: either all CPUs, or no
 	 * CPUs implement it.
 	 */
-	if (read_mpidr_el1() & MPIDR_MT_MASK)
+	if ((read_mpidr_el1() & MPIDR_MT_MASK) != 0U)
 		arm_config.flags |= ARM_CONFIG_FVP_SHIFTED_AFF;
 }
 
@@ -336,35 +336,31 @@ void __init fvp_interconnect_init(void)
 {
 #if FVP_INTERCONNECT_DRIVER == FVP_CCN
 	if (ccn_get_part0_id(PLAT_ARM_CCN_BASE) != CCN_502_PART0_ID) {
-		ERROR("Unrecognized CCN variant detected. Only CCN-502"
-				" is supported");
+		ERROR("Unrecognized CCN variant detected. Only CCN-502 is supported");
 		panic();
 	}
 
 	plat_arm_interconnect_init();
 #else
-	uintptr_t cci_base = 0;
-	const int *cci_map = 0;
-	unsigned int map_size = 0;
-
-	if (!(arm_config.flags & (ARM_CONFIG_FVP_HAS_CCI400 |
-				ARM_CONFIG_FVP_HAS_CCI5XX))) {
-		return;
-	}
+	uintptr_t cci_base = 0U;
+	const int *cci_map = NULL;
+	unsigned int map_size = 0U;
 
 	/* Initialize the right interconnect */
-	if (arm_config.flags & ARM_CONFIG_FVP_HAS_CCI5XX) {
+	if ((arm_config.flags & ARM_CONFIG_FVP_HAS_CCI5XX) != 0U) {
 		cci_base = PLAT_FVP_CCI5XX_BASE;
 		cci_map = fvp_cci5xx_map;
 		map_size = ARRAY_SIZE(fvp_cci5xx_map);
-	} else if (arm_config.flags & ARM_CONFIG_FVP_HAS_CCI400) {
+	} else if ((arm_config.flags & ARM_CONFIG_FVP_HAS_CCI400) != 0U) {
 		cci_base = PLAT_FVP_CCI400_BASE;
 		cci_map = fvp_cci400_map;
 		map_size = ARRAY_SIZE(fvp_cci400_map);
+	} else {
+		return;
 	}
 
-	assert(cci_base);
-	assert(cci_map);
+	assert(cci_base != 0U);
+	assert(cci_map != NULL);
 	cci_init(cci_base, cci_map, map_size);
 #endif
 }
@@ -376,8 +372,8 @@ void fvp_interconnect_enable(void)
 #else
 	unsigned int master;
 
-	if (arm_config.flags & (ARM_CONFIG_FVP_HAS_CCI400 |
-				ARM_CONFIG_FVP_HAS_CCI5XX)) {
+	if ((arm_config.flags & (ARM_CONFIG_FVP_HAS_CCI400 |
+				 ARM_CONFIG_FVP_HAS_CCI5XX)) != 0U) {
 		master = get_interconnect_master();
 		cci_enable_snoop_dvm_reqs(master);
 	}
@@ -391,8 +387,8 @@ void fvp_interconnect_disable(void)
 #else
 	unsigned int master;
 
-	if (arm_config.flags & (ARM_CONFIG_FVP_HAS_CCI400 |
-				ARM_CONFIG_FVP_HAS_CCI5XX)) {
+	if ((arm_config.flags & (ARM_CONFIG_FVP_HAS_CCI400 |
+				 ARM_CONFIG_FVP_HAS_CCI5XX)) != 0U) {
 		master = get_interconnect_master();
 		cci_disable_snoop_dvm_reqs(master);
 	}

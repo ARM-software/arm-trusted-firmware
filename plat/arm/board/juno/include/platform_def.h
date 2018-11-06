@@ -202,7 +202,7 @@
 #define PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX	3
 
 /* System timer related constants */
-#define PLAT_ARM_NSTIMER_FRAME_ID		1
+#define PLAT_ARM_NSTIMER_FRAME_ID		U(1)
 
 /* TZC related constants */
 #define PLAT_ARM_TZC_BASE		UL(0x2a4a0000)

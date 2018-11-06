@@ -208,7 +208,7 @@
 #define PLAT_ARM_CLUSTER_TO_CCN_ID_MAP	1, 5, 7, 11
 
 /* System timer related constants */
-#define PLAT_ARM_NSTIMER_FRAME_ID		1
+#define PLAT_ARM_NSTIMER_FRAME_ID		U(1)
 
 /* Mailbox base address */
 #define PLAT_ARM_TRUSTED_MAILBOX_BASE	ARM_TRUSTED_SRAM_BASE

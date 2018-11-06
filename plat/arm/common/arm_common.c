@@ -108,13 +108,13 @@ void arm_configure_sys_timer(void)
 	unsigned int freq_val = plat_get_syscnt_freq2();
 
 #if ARM_CONFIG_CNTACR
-	reg_val = (1 << CNTACR_RPCT_SHIFT) | (1 << CNTACR_RVCT_SHIFT);
-	reg_val |= (1 << CNTACR_RFRQ_SHIFT) | (1 << CNTACR_RVOFF_SHIFT);
-	reg_val |= (1 << CNTACR_RWVT_SHIFT) | (1 << CNTACR_RWPT_SHIFT);
+	reg_val = (1U << CNTACR_RPCT_SHIFT) | (1U << CNTACR_RVCT_SHIFT);
+	reg_val |= (1U << CNTACR_RFRQ_SHIFT) | (1U << CNTACR_RVOFF_SHIFT);
+	reg_val |= (1U << CNTACR_RWVT_SHIFT) | (1U << CNTACR_RWPT_SHIFT);
 	mmio_write_32(ARM_SYS_TIMCTL_BASE + CNTACR_BASE(PLAT_ARM_NSTIMER_FRAME_ID), reg_val);
 #endif /* ARM_CONFIG_CNTACR */
 
-	reg_val = (1 << CNTNSAR_NS_SHIFT(PLAT_ARM_NSTIMER_FRAME_ID));
+	reg_val = (1U << CNTNSAR_NS_SHIFT(PLAT_ARM_NSTIMER_FRAME_ID));
 	mmio_write_32(ARM_SYS_TIMCTL_BASE + CNTNSAR, reg_val);
 
 	/*
@@ -154,7 +154,7 @@ unsigned int plat_get_syscnt_freq2(void)
 	counter_base_frequency = mmio_read_32(ARM_SYS_CNTCTL_BASE + CNTFID_OFF);
 
 	/* The first entry of the frequency modes table must not be 0 */
-	if (counter_base_frequency == 0)
+	if (counter_base_frequency == 0U)
 		panic();
 
 	return counter_base_frequency;
