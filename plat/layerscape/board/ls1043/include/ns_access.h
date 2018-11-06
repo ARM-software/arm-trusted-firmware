@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __FSL_NS_ACCESS_H_
-#define __FSL_NS_ACCESS_H_
+#ifndef NS_ACCESS_H
+#define NS_ACCESS_H
 
 #include "fsl_csu.h"
 
@@ -171,4 +171,4 @@ static struct csu_ns_dev ns_dev[] = {
 	 {CSU_CSLX_DSCR, CSU_ALL_RW},
 };
 
-#endif
+#endif /* NS_ACCESS_H */

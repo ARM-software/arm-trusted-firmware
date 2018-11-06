@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __PLAT_MARVELL_H__
-#define __PLAT_MARVELL_H__
+#ifndef PLAT_MARVELL_H
+#define PLAT_MARVELL_H
 
 #include <cassert.h>
 #include <cpu_data.h>
@@ -127,4 +127,4 @@ void marvell_exit_bootrom(uintptr_t base);
 int plat_marvell_early_cpu_powerdown(void);
 int bl2_plat_handle_scp_bl2(image_info_t *scp_bl2_image_info);
 
-#endif /* __PLAT_MARVELL_H__ */
+#endif /* PLAT_MARVELL_H */

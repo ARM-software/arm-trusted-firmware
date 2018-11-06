@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef	LIFEC_REGISTER_H__
-#define	LIFEC_REGISTER_H__
+#ifndef LIFEC_REGISTERS_H
+#define LIFEC_REGISTERS_H
 
 #define	LIFEC_SEC_BASE	(0xE6110000U)
 
@@ -141,4 +141,4 @@
 #define	SAFE_READONLY14	(LIFEC_SAFE_BASE + 0x0210U)
 #define	SAFE_READONLY15	(LIFEC_SAFE_BASE + 0x0214U)
 
-#endif
+#endif /* LIFEC_REGISTERS_H */

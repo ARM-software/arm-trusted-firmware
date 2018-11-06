@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __MSS_SCP_BOOTLOADER_H__
-#define __MSS_SCP_BOOTLOADER_H__
+#ifndef MSS_SCP_BOOTLOADER_H
+#define MSS_SCP_BOOTLOADER_H
 
 int scp_bootloader_transfer(void *image, unsigned int image_size);
 uintptr_t bl2_plat_get_cp_mss_regs(int ap_idx, int cp_idx);
@@ -16,4 +16,4 @@ uint32_t bl2_plat_get_ap_count(void);
 void bl2_plat_configure_mss_windows(uintptr_t mss_regs);
 int bl2_plat_mss_check_image_ready(void);
 
-#endif /* __MSS_SCP_BOOTLOADER_H__ */
+#endif /* MSS_SCP_BOOTLOADER_H */

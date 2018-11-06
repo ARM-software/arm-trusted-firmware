@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HIKEY_DEF_H__
-#define __HIKEY_DEF_H__
+#ifndef HIKEY_DEF_H
+#define HIKEY_DEF_H
 
 /* Always assume DDR is 1GB size. */
 #define DDR_BASE			0x0
@@ -104,4 +104,4 @@
 #define IRQ_SEC_SGI_7				15
 #define IRQ_SEC_SGI_8				16
 
-#endif /* __HIKEY_DEF_H__ */
+#endif /* HIKEY_DEF_H */

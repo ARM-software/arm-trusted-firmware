@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TBBR_OID_H__
-#define __TBBR_OID_H__
+#ifndef TBBR_OID_H
+#define TBBR_OID_H
 
 /*
  * The following is a list of OID values defined and reserved by ARM, which
@@ -145,4 +145,4 @@
 /* NonTrustedFirmwareConfigHash - NT_FW_CONFIG */
 #define NON_TRUSTED_FW_CONFIG_HASH_OID		"1.3.6.1.4.1.4128.2100.1202"
 
-#endif /* __TBBR_OID_H__ */
+#endif /* TBBR_OID_H */

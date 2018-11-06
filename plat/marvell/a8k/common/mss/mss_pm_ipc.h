@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __MSS_PM_IPC_H
-#define __MSS_PM_IPC_H
+#ifndef MSS_PM_IPC_H
+#define MSS_PM_IPC_H
 
 #include <mss_ipc_drv.h>
 
@@ -32,4 +32,4 @@ int mss_pm_ipc_msg_send(unsigned int channel_id, unsigned int msg_id,
 int mss_pm_ipc_msg_trigger(void);
 
 
-#endif /* __MSS_PM_IPC_H */
+#endif /* MSS_PM_IPC_H */

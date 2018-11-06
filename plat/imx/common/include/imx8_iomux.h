@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IMX8_IOMUX_H__
-#define __IMX8_IOMUX_H__
+#ifndef IMX8_IOMUX_H
+#define IMX8_IOMUX_H
 
 #define PADRING_IFMUX_EN_SHIFT		31
 #define PADRING_IFMUX_EN_MASK		(1 << PADRING_IFMUX_EN_SHIFT)
@@ -22,4 +22,4 @@
 #define PADRING_DSE_SHIFT		0
 #define PADRING_DSE_MASK		(0x7 << PADRING_DSE_SHIFT)
 
-#endif	/* __IMX8_IOMUX_H__ */
+#endif /* IMX8_IOMUX_H */

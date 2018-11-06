@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __ROCKCHIP_RK3399_INCLUDE_ADDRESSMAP_H__
-#define __ROCKCHIP_RK3399_INCLUDE_ADDRESSMAP_H__
+#ifndef ADDRESSMAP_H
+#define ADDRESSMAP_H
 
 #include <addressmap_shared.h>
 
@@ -16,4 +16,4 @@
 #define DEV_RNG0_BASE		MMIO_BASE
 #define DEV_RNG0_SIZE		SIZE_M(125)
 
-#endif /* __ROCKCHIP_RK3399_INCLUDE_ADDRESSMAP_H__ */
+#endif /* ADDRESSMAP_H */

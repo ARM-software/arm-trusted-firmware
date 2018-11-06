@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLAT_DEF_H__
-#define __PLAT_DEF_H__
+#ifndef RK3328_DEF_H
+#define RK3328_DEF_H
 
 #define MAJOR_VERSION		(1)
 #define MINOR_VERSION		(2)
@@ -145,4 +145,4 @@
 #define SHARE_MEM_PAGE_NUM      15
 #define SHARE_MEM_SIZE          SIZE_K(SHARE_MEM_PAGE_NUM * 4)
 
-#endif /* __PLAT_DEF_H__ */
+#endif /* RK3328_DEF_H */

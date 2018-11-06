@@ -7,8 +7,8 @@
 
 /* IOW unit device driver for Marvell CP110 and CP115 SoCs */
 
-#ifndef _IOB_H_
-#define _IOB_H_
+#ifndef IOB_H
+#define IOB_H
 
 #include <addr_map.h>
 
@@ -28,4 +28,4 @@ int init_iob(uintptr_t base);
 void iob_cfg_space_update(int ap_idx, int cp_idx,
 			  uintptr_t base, uintptr_t new_base);
 
-#endif /* _IOB_H_ */
+#endif /* IOB_H */

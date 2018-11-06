@@ -7,8 +7,8 @@
 
 /* Address map types for Marvell address translation unit drivers */
 
-#ifndef _ADDR_MAP_H_
-#define _ADDR_MAP_H_
+#ifndef ADDR_MAP_H
+#define ADDR_MAP_H
 
 #include <stdint.h>
 
@@ -18,4 +18,4 @@ struct addr_map_win {
 	uint32_t target_id;
 };
 
-#endif /* _ADDR_MAP_H_ */
+#endif /* ADDR_MAP_H */

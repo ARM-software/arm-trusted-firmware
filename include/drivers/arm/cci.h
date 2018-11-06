@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CCI_H__
-#define __CCI_H__
+#ifndef CCI_H
+#define CCI_H
 
 #include <utils_def.h>
 
@@ -122,4 +122,4 @@ void cci_enable_snoop_dvm_reqs(unsigned int master_id);
 void cci_disable_snoop_dvm_reqs(unsigned int master_id);
 
 #endif /* __ASSEMBLY__ */
-#endif /* __CCI_H__ */
+#endif /* CCI_H */

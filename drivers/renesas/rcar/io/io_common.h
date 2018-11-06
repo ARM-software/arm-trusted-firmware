@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef IO_COMMON_H__
-#define IO_COMMON_H__
+#ifndef IO_COMMON_H
+#define IO_COMMON_H
 
 typedef struct io_drv_spec {
 	size_t offset;
@@ -13,4 +13,4 @@ typedef struct io_drv_spec {
 	uint32_t partition;
 } io_drv_spec_t;
 
-#endif
+#endif /* IO_COMMON_H */

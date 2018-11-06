@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __NORFLASH_H_
-#define __NORFLASH_H_
+#ifndef V2M_FLASH_H
+#define V2M_FLASH_H
 
 #include <stdint.h>
 
@@ -42,5 +42,4 @@ int nor_lock(uintptr_t base_addr);
 int nor_unlock(uintptr_t base_addr);
 int nor_erase(uintptr_t base_addr);
 
-#endif /* __NORFLASH_H_ */
-
+#endif /* V2M_FLASH_H*/

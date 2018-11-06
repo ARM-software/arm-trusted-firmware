@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __FLOWCTRL_H__
-#define __FLOWCTRL_H__
+#ifndef FLOWCTRL_H
+#define FLOWCTRL_H
 
 #include <mmio.h>
 #include <tegra_def.h>
@@ -58,4 +58,4 @@ void tegra_fc_cpu_off(int cpu);
 void tegra_fc_lock_active_cluster(void);
 void tegra_fc_reset_bpmp(void);
 
-#endif /* __FLOWCTRL_H__ */
+#endif /* FLOWCTRL_H */

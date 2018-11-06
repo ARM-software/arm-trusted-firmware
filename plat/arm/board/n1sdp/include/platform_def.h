@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLATFORM_DEF_H__
-#define __PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
 
 #include <arm_def.h>
 #include <board_css_def.h>
@@ -68,4 +68,5 @@
 
 /* Platform ID address */
 #define SSC_VERSION				(SSC_REG_BASE + SSC_VERSION_OFFSET)
-#endif /* __PLATFORM_DEF_H__ */
+
+#endif /* PLATFORM_DEF_H */

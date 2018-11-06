@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __MM_SVC_H__
-#define __MM_SVC_H__
+#ifndef MM_SVC_H
+#define MM_SVC_H
 
 #include <utils_def.h>
 
@@ -28,4 +28,4 @@
 #define MM_COMMUNICATE_AARCH64		U(0xC4000041)
 #define MM_COMMUNICATE_AARCH32		U(0x84000041)
 
-#endif /* __MM_SVC_H__ */
+#endif /* MM_SVC_H */

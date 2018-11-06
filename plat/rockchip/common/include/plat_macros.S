@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __ROCKCHIP_PLAT_MACROS_S__
-#define __ROCKCHIP_PLAT_MACROS_S__
+#ifndef ROCKCHIP_PLAT_MACROS_S
+#define ROCKCHIP_PLAT_MACROS_S
 
 #include <cci.h>
 #include <gic_common.h>
@@ -115,4 +115,4 @@ exit_print_gic_regs:
 #endif
 	.endm
 
-#endif /* __ROCKCHIP_PLAT_MACROS_S__ */
+#endif /* ROCKCHIP_PLAT_MACROS_S */

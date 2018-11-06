@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __AUTH_MOD_H__
-#define __AUTH_MOD_H__
+#ifndef AUTH_MOD_H
+#define AUTH_MOD_H
 
 #if TRUSTED_BOARD_BOOT
 
@@ -49,4 +49,4 @@ extern unsigned int auth_img_flags[MAX_NUMBER_IDS];
 
 #endif /* TRUSTED_BOARD_BOOT */
 
-#endif /* __AUTH_MOD_H__ */
+#endif /* AUTH_MOD_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PUBSUB_H__
-#define __PUBSUB_H__
+#ifndef PUBSUB_H
+#define PUBSUB_H
 
 #define __pubsub_start_sym(event)	__pubsub_##event##_start
 #define __pubsub_end_sym(event)		__pubsub_##event##_end
@@ -84,4 +84,4 @@
 typedef void* (*pubsub_cb_t)(const void *arg);
 
 #endif	/* __LINKER__ */
-#endif	/* __PUBSUB_H__ */
+#endif /* PUBSUB_H */

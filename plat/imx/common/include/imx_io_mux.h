@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IMX_IO_MUX_H__
-#define __IMX_IO_MUX_H__
+#ifndef IMX_IO_MUX_H
+#define IMX_IO_MUX_H
 
 #include <stdint.h>
 
@@ -606,4 +606,4 @@
 void imx_io_muxc_set_pad_alt_function(uint32_t pad_mux_offset, uint32_t alt_function);
 void imx_io_muxc_set_pad_features(uint32_t pad_feature_offset, uint32_t pad_features);
 
-#endif /* __IMX_IO_MUX_H__ */
+#endif /* IMX_IO_MUX_H */

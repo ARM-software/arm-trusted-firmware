@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __STM32MP1_LD_S__
-#define __STM32MP1_LD_S__
+#ifndef STM32MP1_LD_S
+#define STM32MP1_LD_S
+
 #include <platform_def.h>
 #include <xlat_tables_defs.h>
 
@@ -73,4 +74,4 @@ SECTIONS
     __TF_END__ = .;
 
 }
-#endif /*__STM32MP1_LD_S__*/
+#endif /* STM32MP1_LD_S */

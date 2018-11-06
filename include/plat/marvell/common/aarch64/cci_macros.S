@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __CCI_MACROS_S__
-#define __CCI_MACROS_S__
+#ifndef CCI_MACROS_S
+#define CCI_MACROS_S
 
 #include <cci.h>
 #include <platform_def.h>
@@ -36,4 +36,4 @@ cci_iface_regs:
 	bl	str_in_crash_buf_print
 	.endm
 
-#endif /* __CCI_MACROS_S__ */
+#endif /* CCI_MACROS_S */

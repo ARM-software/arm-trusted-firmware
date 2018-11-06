@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __DRAM_REGS_H__
-#define __DRAM_REGS_H__
+#ifndef DRAM_REGS_H
+#define DRAM_REGS_H
 
 #define CTL_REG_NUM		332
 #define PHY_REG_NUM		959
@@ -97,4 +97,4 @@
 #define DDR_STRIDE(n)		mmio_write_32(SGRF_BASE + SGRF_SOC_CON3_7(4), \
 					      (0x1f<<(10+16))|((n)<<10))
 
-#endif /* __DRAM_REGS_H__ */
+#endif /* DRAM_REGS_H */

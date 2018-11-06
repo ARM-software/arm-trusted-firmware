@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __MSS_SCP_BL2_FORMAT_H
-#define __MSS_SCP_BL2_FORMAT_H
+#ifndef MSS_SCP_BL2_FORMAT_H
+#define MSS_SCP_BL2_FORMAT_H
 
 #define MAX_NR_OF_FILES	5
 #define FILE_MAGIC	0xddd01ff
@@ -41,4 +41,4 @@ typedef struct img_header {
 				 */
 } img_header_t;
 
-#endif /* __MSS_SCP_BL2_FORMAT_H */
+#endif /* MSS_SCP_BL2_FORMAT_H */

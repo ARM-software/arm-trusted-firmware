@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __HI3660_H__
-#define __HI3660_H__
+#ifndef HI3660_H
+#define HI3660_H
 
 #include <hi3660_crg.h>
 #include <hi3660_hkadc.h>
@@ -366,4 +366,4 @@
 /* GPIO219: PD interrupt. pull up */
 #define IOCG_AO_043_REG			(IOCG_AO_REG_BASE + 0x030)
 
-#endif  /* __HI3660_H__ */
+#endif /* HI3660_H */

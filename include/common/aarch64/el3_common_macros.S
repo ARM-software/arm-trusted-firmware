@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __EL3_COMMON_MACROS_S__
-#define __EL3_COMMON_MACROS_S__
+#ifndef EL3_COMMON_MACROS_S
+#define EL3_COMMON_MACROS_S
 
 #include <arch.h>
 #include <asm_macros.S>
@@ -341,4 +341,4 @@
 #endif
 	.endm
 
-#endif /* __EL3_COMMON_MACROS_S__ */
+#endif /* EL3_COMMON_MACROS_S */

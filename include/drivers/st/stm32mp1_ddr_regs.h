@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
 
-#ifndef _RAM_STM32MP1_DDR_REGS_H
-#define _RAM_STM32MP1_DDR_REGS_H
+#ifndef STM32MP1_DDR_REGS_H
+#define STM32MP1_DDR_REGS_H
 
 #include <utils_def.h>
 
@@ -410,4 +410,4 @@ struct stm32mp1_ddrphy {
 
 void ddr_enable_clock(void);
 
-#endif /* _RAM_STM32MP1_DDR_REGS_H */
+#endif /* STM32MP1_DDR_REGS_H */

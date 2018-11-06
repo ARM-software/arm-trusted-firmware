@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __DENVER_H__
-#define __DENVER_H__
+#ifndef DENVER_H
+#define DENVER_H
 
 /* MIDR values for Denver */
 #define DENVER_MIDR_PN0			U(0x4E0F0000)
@@ -39,6 +39,6 @@
 /* Disable Dynamic Code Optimisation */
 void denver_disable_dco(void);
 
-#endif
+#endif /* __ASSEMBLY__ */
 
-#endif /* __DENVER_H__ */
+#endif /* DENVER_H */

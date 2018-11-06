@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLAT_ROCKCHIP_RK3399_INCLUDE_SHARED_BL31_PARAM_H__
-#define __PLAT_ROCKCHIP_RK3399_INCLUDE_SHARED_BL31_PARAM_H__
+#ifndef BL31_PARAM_H
+#define BL31_PARAM_H
 
 /*******************************************************************************
  * Platform memory map related constants
@@ -18,9 +18,9 @@
  * BL31 specific defines.
  ******************************************************************************/
 /*
- * Put BL3-1 at the top of the Trusted RAM
+ * Put BL31 at the top of the Trusted RAM
  */
 #define BL31_BASE		(TZRAM_BASE + 0x1000)
 #define BL31_LIMIT		(TZRAM_BASE + TZRAM_SIZE)
 
-#endif /*__PLAT_ROCKCHIP_RK3399_INCLUDE_SHARED_BL31_PARAM_H__*/
+#endif /* BL31_PARAM_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HISI_PWRC_H__
-#define __HISI_PWRC_H__
+#ifndef HISI_PWRC_H
+#define HISI_PWRC_H
 
 #ifndef __ASSEMBLY__
 
@@ -19,4 +19,4 @@ int hisi_pwrc_setup(void);
 
 #endif /*__ASSEMBLY__*/
 
-#endif /* __HISI_PWRC_H__ */
+#endif /* HISI_PWRC_H */

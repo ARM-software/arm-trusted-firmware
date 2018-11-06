@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __STM32MP1_DDR_HELPERS_H__
-#define __STM32MP1_DDR_HELPERS_H__
+#ifndef STM32MP1_DDR_HELPERS_H
+#define STM32MP1_DDR_HELPERS_H
 
 void ddr_enable_clock(void);
 
-#endif /* __STM32MP1_DDR_HELPERS_H__ */
+#endif /* STM32MP1_DDR_HELPERS_H */

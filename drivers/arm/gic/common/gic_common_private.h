@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef GIC_COMMON_PRIVATE_H_
-#define GIC_COMMON_PRIVATE_H_
+#ifndef GIC_COMMON_PRIVATE_H
+#define GIC_COMMON_PRIVATE_H
 
 #include <gic_common.h>
 #include <mmio.h>
@@ -85,4 +85,4 @@ void gicd_set_icactiver(uintptr_t base, unsigned int id);
 void gicd_set_ipriorityr(uintptr_t base, unsigned int id, unsigned int pri);
 void gicd_set_icfgr(uintptr_t base, unsigned int id, unsigned int cfg);
 
-#endif /* GIC_COMMON_PRIVATE_H_ */
+#endif /* GIC_COMMON_PRIVATE_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CSS_SCMI_H__
-#define __CSS_SCMI_H__
+#ifndef SCMI_H
+#define SCMI_H
 
 #include <bakery_lock.h>
 #include <stddef.h>
@@ -162,4 +162,4 @@ int scmi_ap_core_get_reset_addr(void *p, uint64_t *reset_addr, uint32_t *attr);
 /* API to get the platform specific SCMI channel information. */
 scmi_channel_plat_info_t *plat_css_get_scmi_info();
 
-#endif	/* __CSS_SCMI_H__ */
+#endif /* SCMI_H */

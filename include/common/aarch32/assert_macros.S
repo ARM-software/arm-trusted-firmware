@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __ASSERT_MACROS_S__
-#define __ASSERT_MACROS_S__
+#ifndef ASSERT_MACROS_S
+#define ASSERT_MACROS_S
 
 	/*
 	 * Assembler macro to enable asm_assert. We assume that the stack is
@@ -23,4 +23,4 @@
 	b	asm_assert;\
 300:
 
-#endif /* __ASSERT_MACROS_S__ */
+#endif /* ASSERT_MACROS_S */

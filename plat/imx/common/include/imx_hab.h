@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __IMX_HAB_H__
-#define __IMX_HAB_H__
+#ifndef IMX_HAB_H
+#define IMX_HAB_H
 
 #include <imx_hab_arch.h>
 #include <imx_regs.h>
@@ -30,4 +30,4 @@
 #define HAB_ROM_VECTOR_TABLE_REPORT_STATUS	(HAB_ROM_VECTOR_BASE + 0x24)
 #define HAB_ROM_VECTOR_TABLE_FAILSAFE		(HAB_ROM_VECTOR_BASE + 0x28)
 
-#endif /* __IMX_HAB_H__ */
+#endif /* IMX_HAB_H */

@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PWM_H__
-#define __PWM_H__
+#ifndef PWM_H
+#define PWM_H
 
 void disable_pwms(void);
 void enable_pwms(void);
 
-#endif
+#endif /* PWM_H */

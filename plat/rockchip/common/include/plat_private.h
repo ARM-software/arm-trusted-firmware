@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLAT_PRIVATE_H__
-#define __PLAT_PRIVATE_H__
+#ifndef PLAT_PRIVATE_H
+#define PLAT_PRIVATE_H
 
 #ifndef __ASSEMBLY__
 #include <mmio.h>
@@ -143,4 +143,4 @@ void rockchip_plat_mmu_el3(void);
 #define PMU_CPU_AUTO_PWRDN	0xf0
 #define PMU_CLST_RET	0xa5
 
-#endif /* __PLAT_PRIVATE_H__ */
+#endif /* PLAT_PRIVATE_H */

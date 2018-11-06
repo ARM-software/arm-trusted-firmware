@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __DW_UFS_H__
-#define __DW_UFS_H__
+#ifndef DW_UFS_H
+#define DW_UFS_H
 
 #include <stdint.h>
 
@@ -107,4 +107,4 @@ typedef struct dw_ufs_params {
 
 int dw_ufs_init(dw_ufs_params_t *params);
 
-#endif /* __DW_UFS_H__ */
+#endif /* DW_UFS_H */

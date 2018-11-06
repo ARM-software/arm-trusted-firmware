@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __JMP_H__
-#define __JMP_H__
+#ifndef SETJMP_H
+#define SETJMP_H
 
 #define JMP_CTX_X19	0x0
 #define JMP_CTX_X21	0x10
@@ -56,4 +56,4 @@ int setjmp(struct jmpbuf *buf);
 void longjmp(struct jmpbuf *buf);
 
 #endif /* __ASSEMBLY__ */
-#endif /* __JMP_H__ */
+#endif /* SETJMP_H */

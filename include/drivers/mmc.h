@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __MMC_H__
-#define __MMC_H__
+#ifndef MMC_H
+#define MMC_H
 
 #include <stdint.h>
 #include <utils_def.h>
@@ -232,4 +232,4 @@ int mmc_init(const struct mmc_ops *ops_ptr, unsigned int clk,
 	     unsigned int width, unsigned int flags,
 	     struct mmc_device_info *device_info);
 
-#endif	/* __MMC_H__ */
+#endif /* MMC_H */

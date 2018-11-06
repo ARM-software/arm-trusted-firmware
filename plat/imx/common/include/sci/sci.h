@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef _SC_SCI_H
-#define _SC_SCI_H
+#ifndef SCI_H
+#define SCI_H
 
 /* Defines */
 
@@ -16,4 +16,4 @@
 #include <sci/svc/pm/sci_pm_api.h>
 #include <sci/svc/rm/sci_rm_api.h>
 
-#endif /* _SC_SCI_H */
+#endif /* SCI_H */

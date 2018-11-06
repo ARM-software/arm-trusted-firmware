@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CSS_SCMI_PRIVATE_H__
-#define __CSS_SCMI_PRIVATE_H__
+#ifndef SCMI_PRIVATE_H
+#define SCMI_PRIVATE_H
 
 /*
  * SCMI power domain management protocol message and response lengths. It is
@@ -150,4 +150,4 @@ static inline void validate_scmi_channel(scmi_channel_t *ch)
 	assert(ch->info && ch->info->scmi_mbx_mem);
 }
 
-#endif	/* __CSS_SCMI_PRIVATE_H__ */
+#endif /* SCMI_PRIVATE_H */

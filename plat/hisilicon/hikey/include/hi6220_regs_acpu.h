@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HI6220_REGS_ACPU_H__
-#define __HI6220_REGS_ACPU_H__
+#ifndef HI6220_REGS_ACPU_H
+#define HI6220_REGS_ACPU_H
 
 #define ACPU_CTRL_BASE				0xF6504000
 
@@ -297,4 +297,4 @@
 	 (0x1 << ACPU_SC_VD_CTRL_TUNE_EN_INT_SHIFT) |		\
 	 (0x1 << ACPU_SC_VD_CTRL_TUNE_EN_DIF_SHIFT))
 
-#endif /* __HI6220_REGS_ACPU_H__ */
+#endif /* HI6220_REGS_ACPU_H */

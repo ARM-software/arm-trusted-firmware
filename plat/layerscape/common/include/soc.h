@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __LAYERSCAPE_SOC_H__
-#define __LAYERSCAPE_SOC_H__
+#ifndef SOC_H
+#define SOC_H
 
 #include <stdint.h>
 
@@ -15,4 +15,4 @@
 
 void get_gic_offset(uint32_t *gicc_base, uint32_t *gicd_base);
 
-#endif /* __LAYERSCAPE_SOC_H__ */
+#endif /* SOC_H */

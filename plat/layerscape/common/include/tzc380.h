@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TZC380_H__
-#define __TZC380_H__
+#ifndef TZC380_H
+#define TZC380_H
 
 struct tzc380_reg {
 	unsigned int secure;
@@ -16,4 +16,4 @@ struct tzc380_reg {
 	unsigned int sub_mask;
 };
 
-#endif /* __TZC380_H__ */
+#endif /* TZC380_H */

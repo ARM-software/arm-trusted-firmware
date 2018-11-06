@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __EMMC_CONFIG_H__
-#define __EMMC_CONFIG_H__
+#ifndef EMMC_CONFIG_H
+#define EMMC_CONFIG_H
 
 /* ************************ HEADER (INCLUDE) SECTION *********************** */
 
@@ -36,5 +36,5 @@
 
 /* ********************************* CODE ********************************** */
 
-#endif /* #ifndef __EMMC_CONFIG_H__ */
+#endif /* EMMC_CONFIG_H */
 /* ******************************** END ************************************ */

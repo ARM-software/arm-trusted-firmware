@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __BL31_H__
-#define __BL31_H__
+#ifndef BL31_H
+#define BL31_H
 
 #include <stdint.h>
 
@@ -21,4 +21,4 @@ void bl31_warm_entrypoint(void);
 void bl31_main(void);
 void bl31_lib_init(void);
 
-#endif /* __BL31_H__ */
+#endif /* BL31_H */

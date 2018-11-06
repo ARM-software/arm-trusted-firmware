@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PARAM_HEADER_H__
-#define __PARAM_HEADER_H__
+#ifndef PARAM_HEADER_H
+#define PARAM_HEADER_H
 
 #include <stdbool.h>
 #include <utils_def.h>
@@ -54,5 +54,4 @@ typedef struct param_header {
 
 #endif /*__ASSEMBLY__*/
 
-#endif /* __PARAM_HEADER_H__ */
-
+#endif /* PARAM_HEADER_H */

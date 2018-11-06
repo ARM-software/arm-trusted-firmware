@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef CERT_H_
-#define CERT_H_
+#ifndef CERT_H
+#define CERT_H
 
 #include <openssl/ossl_typ.h>
 #include <openssl/x509.h>
@@ -65,4 +65,4 @@ int cert_new(
 extern cert_t *certs;
 extern const unsigned int num_certs;
 
-#endif /* CERT_H_ */
+#endif /* CERT_H */

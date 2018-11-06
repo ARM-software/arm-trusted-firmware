@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __EMMC_DEF_H__
-#define __EMMC_DEF_H__
+#ifndef EMMC_DEF_H
+#define EMMC_DEF_H
 
 #include "emmc_std.h"
 
@@ -74,5 +74,5 @@ void emmc_write_error_info_func_no(uint16_t func_no);
 
 /* ********************************* CODE ********************************** */
 
-#endif /* #define __EMMC_DEF_H__ */
+#endif /* EMMC_DEF_H */
 /* ******************************** END ************************************ */

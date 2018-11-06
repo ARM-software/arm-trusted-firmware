@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __JUNO_TZMP1_DEF_H__
-#define __JUNO_TZMP1_DEF_H__
+#ifndef JUNO_TZMP1_DEF_H
+#define JUNO_TZMP1_DEF_H
 
 #include <plat_arm.h>
 
@@ -82,4 +82,4 @@
 /* config to PROTCTRL register */
 #define V550_PROTCTRL_CONFIG		0xa8700000
 
-#endif /* __JUNO_TZMP1_DEF_H__ */
+#endif /* JUNO_TZMP1_DEF_H */

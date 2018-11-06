@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __BL1_FWU_H__
-#define __BL1_FWU_H__
+#ifndef BL1_H
+#define BL1_H
 
 #include <bl_common.h>
 
@@ -97,4 +97,4 @@ void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 			meminfo_t *bl2_mem_layout);
 
 #endif /* __ASSEMBLY__ */
-#endif /* __BL1_FWU_H__ */
+#endif /* BL1_H */

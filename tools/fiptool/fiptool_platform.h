@@ -1,30 +1,31 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
- *
+ */
+/*
  * Build platform specific handling.
  * This allows for builds on non-Posix platforms
  * e.g. Visual Studio on Windows
  */
 
-#ifndef __FIPTOOL_PLATFORM_H__
-#	define __FIPTOOL_PLATFORM_H__
+#ifndef FIPTOOL_PLATFORM_H
+#define FIPTOOL_PLATFORM_H
 
-#	ifndef _MSC_VER
+#ifndef _MSC_VER
 
-		/* Not Visual Studio, so include Posix Headers. */
-#		include <getopt.h>
-#		include <openssl/sha.h>
-#		include <unistd.h>
+/* Not Visual Studio, so include Posix Headers. */
+# include <getopt.h>
+# include <openssl/sha.h>
+# include <unistd.h>
 
-#		define  BLD_PLAT_STAT stat
+# define  BLD_PLAT_STAT stat
 
-#	else
+#else
 
-		/* Visual Studio. */
-#		include "win_posix.h"
+/* Visual Studio. */
+# include "win_posix.h"
 
-#	endif
+#endif
 
-#endif /* __FIPTOOL_PLATFORM_H__ */
+#endif /* FIPTOOL_PLATFORM_H */

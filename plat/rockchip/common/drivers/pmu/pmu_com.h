@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PMU_COM_H__
-#define __PMU_COM_H__
+#ifndef PMU_COM_H
+#define PMU_COM_H
 
 #ifndef CHECK_CPU_WFIE_BASE
 #define CHECK_CPU_WFIE_BASE (PMU_BASE + PMU_CORE_PWR_ST)
@@ -108,4 +108,4 @@ static int check_cpu_wfie(uint32_t cpu_id, uint32_t wfie_msk)
 	return 0;
 }
 
-#endif /* __PMU_COM_H__ */
+#endif /* PMU_COM_H */

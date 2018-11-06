@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PMU_BITS_H__
-#define __PMU_BITS_H__
+#ifndef PMU_BITS_H
+#define PMU_BITS_H
 
 enum pmu_powerdomain_id {
 	PD_CPUL0 = 0,
@@ -694,4 +694,4 @@ enum pmu_core_pwr_st {
 	STANDBY_BY_WFIL2_CLUSTER_B,
 };
 
-#endif /* __PMU_BITS_H__ */
+#endif /* PMU_BITS_H */

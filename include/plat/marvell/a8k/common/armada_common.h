@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __ARMADA_COMMON_H__
-#define __ARMADA_COMMON_H__
+#ifndef ARMADA_COMMON_H
+#define ARMADA_COMMON_H
 
 #include <amb_adec.h>
 #include <io_win.h>
@@ -125,4 +125,4 @@ int marvell_get_iob_memory_map(struct addr_map_win **win,
 int marvell_get_ccu_memory_map(int ap_idx, struct addr_map_win **win,
 			       uint32_t *size);
 
-#endif /* __A8K_COMMON_H__ */
+#endif /* ARMADA_COMMON_H */

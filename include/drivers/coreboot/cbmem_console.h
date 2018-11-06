@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CBMEM_CONSOLE_H__
-#define __CBMEM_CONSOLE_H__
+#ifndef CBMEM_CONSOLE_H
+#define CBMEM_CONSOLE_H
 
 #include <console.h>
 
@@ -24,4 +24,4 @@ int console_cbmc_register(uintptr_t base, console_cbmc_t *console);
 
 #endif /* __ASSEMBLER__ */
 
-#endif /* __CBMEM_CONSOLE_H__ */
+#endif /* CBMEM_CONSOLE_H */

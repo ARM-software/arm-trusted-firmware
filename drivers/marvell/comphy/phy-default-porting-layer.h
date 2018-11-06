@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __PHY_DEFAULT_PORTING_LAYER_H
-#define __PHY_DEFAULT_PORTING_LAYER_H
+#ifndef PHY_DEFAULT_PORTING_LAYER_H
+#define PHY_DEFAULT_PORTING_LAYER_H
 
 
 #define MAX_LANE_NR		6
@@ -48,4 +48,4 @@ static const struct sata_params
 		.valid = 0x1
 	},
 };
-#endif /* __PHY_DEFAULT_PORTING_LAYER_H */
+#endif /* PHY_DEFAULT_PORTING_LAYER_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __MT8173_DEF_H__
-#define __MT8173_DEF_H__
+#ifndef MT8173_DEF_H
+#define MT8173_DEF_H
 
 #if RESET_TO_BL31
 #error "MT8173 is incompatible with RESET_TO_BL31!"
@@ -149,4 +149,4 @@
 		mtk_make_pwrstate_lvl1(lvl1_state, lvl0_state, pwr_lvl, type))
 
 
-#endif /* __MT8173_DEF_H__ */
+#endif /* MT8173_DEF_H */

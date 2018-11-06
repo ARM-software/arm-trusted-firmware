@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HI6553_H__
-#define __HI6553_H__
+#ifndef HI6553_H
+#define HI6553_H
 
 #include <hi6220.h>
 #include <mmio.h>
@@ -78,4 +78,4 @@
 #define PMU_HI6552_V300				0x30
 #define PMU_HI6552_V310				0x31
 
-#endif	/* __HI6553_H__ */
+#endif /* HI6553_H */

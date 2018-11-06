@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef EXT_H_
-#define EXT_H_
+#ifndef EXT_H
+#define EXT_H
 
 #include <openssl/x509v3.h>
 #include "key.h"
@@ -82,4 +82,4 @@ X509_EXTENSION *ext_new_key(int nid, int crit, EVP_PKEY *k);
 extern ext_t *extensions;
 extern const unsigned int num_extensions;
 
-#endif /* EXT_H_ */
+#endif /* EXT_H */

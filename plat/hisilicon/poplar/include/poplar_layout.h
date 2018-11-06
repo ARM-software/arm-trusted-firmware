@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __POPLAR_LAYOUT_H
-#define __POPLAR_LAYOUT_H
+#ifndef POPLAR_LAYOUT_H
+#define POPLAR_LAYOUT_H
 
 /*
  * Boot memory layout definitions for the HiSilicon Poplar board
@@ -129,4 +129,4 @@
 #define BL31_BASE			(LLOADER_TEXT_BASE + BL31_OFFSET)
 #define BL31_LIMIT			(BL31_BASE + BL31_SIZE)
 
-#endif /* !__POPLAR_LAYOUT_H */
+#endif /* POPLAR_LAYOUT_H */

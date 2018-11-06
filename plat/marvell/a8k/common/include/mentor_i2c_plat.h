@@ -6,8 +6,8 @@
  */
 /* This driver provides I2C support for Marvell A8K and compatible SoCs */
 
-#ifndef A8K_I2C_H
-#define A8K_I2C_H
+#ifndef MENTOR_I2C_PLAT_H
+#define MENTOR_I2C_PLAT_H
 
 #define CONFIG_SYS_TCLK			250000000
 #define CONFIG_SYS_I2C_SPEED		100000
@@ -30,4 +30,4 @@ struct  mentor_i2c_regs {
 	uint32_t unstuck;
 };
 
-#endif
+#endif /* MENTOR_I2C_PLAT_H */

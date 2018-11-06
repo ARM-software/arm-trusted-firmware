@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __BL_COMMON_H__
-#define __BL_COMMON_H__
+#ifndef BL_COMMON_H
+#define BL_COMMON_H
 
 #include <ep_info.h>
 #include <param_header.h>
@@ -201,4 +201,4 @@ void setup_page_tables(const struct mmap_region *bl_regions,
 
 #endif /*__ASSEMBLY__*/
 
-#endif /* __BL_COMMON_H__ */
+#endif /* BL_COMMON_H */

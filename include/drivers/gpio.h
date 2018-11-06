@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __GPIO_H__
-#define __GPIO_H__
+#ifndef GPIO_H
+#define GPIO_H
 
 #define GPIO_DIR_OUT		0
 #define GPIO_DIR_IN		1
@@ -34,4 +34,4 @@ void gpio_set_pull(int gpio, int pull);
 int gpio_get_pull(int gpio);
 void gpio_init(const gpio_ops_t *ops);
 
-#endif	/* __GPIO_H__ */
+#endif /* GPIO_H */

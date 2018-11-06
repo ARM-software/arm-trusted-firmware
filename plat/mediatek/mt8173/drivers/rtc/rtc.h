@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLAT_DRIVER_RTC_H__
-#define __PLAT_DRIVER_RTC_H__
+#ifndef RTC_H
+#define RTC_H
 
 /* RTC registers */
 enum {
@@ -51,4 +51,4 @@ enum {
 
 void rtc_bbpu_power_down(void);
 
-#endif /* __PLAT_DRIVER_RTC_H__ */
+#endif /* RTC_H */

@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef _MC_TRUSTZONE_H
-#define _MC_TRUSTZONE_H
+#ifndef MC_TRUSTZONE_H
+#define MC_TRUSTZONE_H
 
 #include <addr_map.h>
 
@@ -24,4 +24,4 @@
 
 void tz_enable_win(int ap_index, const struct addr_map_win *win, int win_id);
 
-#endif /* _MC_TRUSTZONE_H */
+#endif /* MC_TRUSTZONE_H */

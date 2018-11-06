@@ -11,8 +11,8 @@
  * @{
  */
 
-#ifndef SC_PAD_RPC_H
-#define SC_PAD_RPC_H
+#ifndef SCI_PAD_RPC_H
+#define SCI_PAD_RPC_H
 
 /* Includes */
 
@@ -61,6 +61,6 @@ void pad_dispatch(sc_rm_pt_t caller_pt, sc_rpc_msg_t *msg);
  */
 void pad_xlate(sc_ipc_t ipc, sc_rpc_msg_t *msg);
 
-#endif				/* SC_PAD_RPC_H */
+#endif /* SCI_PAD_RPC_H */
 
 /**@}*/

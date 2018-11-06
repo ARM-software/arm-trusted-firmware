@@ -7,8 +7,8 @@
 
 /* Driver for COMPHY unit that is part or Marvell A8K SoCs */
 
-#ifndef _COMPHY_H_
-#define _COMPHY_H_
+#ifndef COMPHY_H
+#define COMPHY_H
 
 /* COMPHY registers */
 #define COMMON_PHY_CFG1_REG			0x0
@@ -469,5 +469,4 @@
 #define HPIPE_GLOBAL_PM_RXDLOZ_WAIT_MASK	\
 			(0xFF << HPIPE_GLOBAL_PM_RXDLOZ_WAIT_OFFSET)
 
-#endif /* _COMPHY_H_ */
-
+#endif /* COMPHY_H */

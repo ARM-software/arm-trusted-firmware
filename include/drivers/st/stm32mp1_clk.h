@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __STM32MP1_CLK_H__
-#define __STM32MP1_CLK_H__
+#ifndef STM32MP1_CLK_H
+#define STM32MP1_CLK_H
 
 #include <arch_helpers.h>
 #include <stdbool.h>
@@ -27,4 +27,4 @@ static inline uint32_t get_timer(uint32_t base)
 	return base - (uint32_t)(~read_cntpct_el0());
 }
 
-#endif /* __STM32MP1_CLK_H__ */
+#endif /* STM32MP1_CLK_H */

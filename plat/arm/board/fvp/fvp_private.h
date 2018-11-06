@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __FVP_PRIVATE_H__
-#define __FVP_PRIVATE_H__
+#ifndef FVP_PRIVATE_H
+#define FVP_PRIVATE_H
 
 #include <plat_arm.h>
 
@@ -21,4 +21,4 @@ void fvp_interconnect_disable(void);
 void tsp_early_platform_setup(void);
 
 
-#endif /* __FVP_PRIVATE_H__ */
+#endif /* FVP_PRIVATE_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PMU_H__
-#define __PMU_H__
+#ifndef PMU_H
+#define PMU_H
 
 #include <pmu_bits.h>
 #include <pmu_regs.h>
@@ -137,4 +137,4 @@ extern uint32_t clst_warmboot_data[PLATFORM_CLUSTER_COUNT];
 
 extern void sram_func_set_ddrctl_pll(uint32_t pll_src);
 
-#endif /* __PMU_H__ */
+#endif /* PMU_H */

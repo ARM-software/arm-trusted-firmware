@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SDS_H__
-#define __SDS_H__
+#ifndef SDS_H
+#define SDS_H
 
 /* SDS Structure Identifier defines */
 /* AP CPU INFO defines */
@@ -86,4 +86,5 @@ int sds_struct_read(uint32_t structure_id, unsigned int fld_off, void *data,
 int sds_struct_write(uint32_t structure_id, unsigned int fld_off, void *data,
 		size_t size, sds_access_mode_t mode);
 #endif /*__ASSEMBLY__ */
-#endif /* __SDS_H__ */
+
+#endif /* SDS_H */

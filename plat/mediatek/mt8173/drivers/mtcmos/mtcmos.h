@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __MTCMOS_H__
-#define __MTCMOS_H__
+#ifndef MTCMOS_H
+#define MTCMOS_H
 
 /*
  * This function will turn off all the little core's power except cpu 0. The
@@ -15,4 +15,4 @@
 void mtcmos_little_cpu_off(void);
 uint32_t mtcmos_non_cpu_ctrl(uint32_t on, uint32_t mtcmos_num);
 
-#endif /* __MTCMOS_H__ */
+#endif /* MTCMOS_H */

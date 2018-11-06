@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SGM_BASE_PLATFORM_DEF_H__
-#define __SGM_BASE_PLATFORM_DEF_H__
+#ifndef SGM_BASE_PLATFORM_DEF_H
+#define SGM_BASE_PLATFORM_DEF_H
 
 #include <arm_def.h>
 #include <board_css_def.h>
@@ -239,4 +239,4 @@
  */
 #define PLAT_ARM_MEM_PROT_ADDR		(V2M_FLASH0_BASE + \
 					 V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
-#endif /* __SGM_BASE_PLATFORM_DEF_H__ */
+#endif /* SGM_BASE_PLATFORM_DEF_H */

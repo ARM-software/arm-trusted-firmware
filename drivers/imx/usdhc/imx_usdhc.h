@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IMX_USDHC_H__
-#define	__IMX_USDHC_H__
+#ifndef IMX_USDHC_H
+#define IMX_USDHC_H
 
 #include <mmc.h>
 
@@ -134,4 +134,4 @@ void imx_usdhc_init(imx_usdhc_params_t *params,
 #define mmio_clrbits32(addr, clear)		mmio_write_32(addr, mmio_read_32(addr) & ~(clear))
 #define mmio_setbits32(addr, set)		mmio_write_32(addr, mmio_read_32(addr) | (set))
 
-#endif  /* __IMX_USDHC_H__ */
+#endif /* IMX_USDHC_H */

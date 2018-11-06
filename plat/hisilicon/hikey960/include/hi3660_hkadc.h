@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __HI3660_HKADC_H__
-#define __HI3660_HKADC_H__
+#ifndef HI3660_HKADC_H
+#define HI3660_HKADC_H
 
 #define HKADC_SSI_REG_BASE			0xE82B8000
 
@@ -58,4 +58,4 @@
 #define START_DELAY_TIMEOUT			2000
 #define HKADC_WR_NUM_VALUE			4
 
-#endif /* __HI3660_HKADC_H__ */
+#endif /* HI3660_HKADC_H */

@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SMMU_V3_H__
-#define __SMMU_V3_H__
+#ifndef SMMU_V3_H
+#define SMMU_V3_H
 
-#include <utils_def.h>
 #include <stdint.h>
+#include <utils_def.h>
 
 /* SMMUv3 register offsets from device base */
 #define SMMU_S_IDR1	U(0x8004)
@@ -24,4 +24,4 @@
 
 int smmuv3_init(uintptr_t smmu_base);
 
-#endif /* __SMMU_V3_H__ */
+#endif /* SMMU_V3_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef T18X_TEGRA_ARI_H
-#define T18X_TEGRA_ARI_H
+#ifndef T18X_ARI_H
+#define T18X_ARI_H
 
 /*
  * ----------------------------------------------------------------------------
@@ -434,4 +434,4 @@ typedef enum {
 	TEGRA_NVG_CHANNEL_LAST_INDEX,
 } tegra_nvg_channel_id_t;
 
-#endif /* T18X_TEGRA_ARI_H */
+#endif /* T18X_ARI_H */

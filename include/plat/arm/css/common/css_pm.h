@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CSS_PM_H__
-#define __CSS_PM_H__
+#ifndef CSS_PM_H
+#define CSS_PM_H
 
 #include <cdefs.h>
 #include <psci.h>
@@ -45,4 +45,4 @@ int css_node_hw_state(u_register_t mpidr, unsigned int power_level);
  */
 extern const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[];
 
-#endif /* __CSS_PM_H__ */
+#endif /* CSS_PM_H */

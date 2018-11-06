@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __QEMU_PRIVATE_H
-#define __QEMU_PRIVATE_H
+#ifndef QEMU_PRIVATE_H
+#define QEMU_PRIVATE_H
 
 #include <stdint.h>
 
@@ -35,4 +35,4 @@ int dt_add_psci_cpu_enable_methods(void *fdt);
 
 void qemu_console_init(void);
 
-#endif /*__QEMU_PRIVATE_H*/
+#endif /* QEMU_PRIVATE_H */

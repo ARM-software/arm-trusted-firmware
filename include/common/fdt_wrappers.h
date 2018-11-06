@@ -6,8 +6,8 @@
 
 /* Helper functions to offer easier navigation of Device Tree Blob */
 
-#ifndef __FDT_WRAPPERS__
-#define __FDT_WRAPPERS__
+#ifndef FDT_WRAPPERS_H
+#define FDT_WRAPPERS_H
 
 /* Number of cells, given total length in bytes. Each cell is 4 bytes long */
 #define NCELLS(len) ((len) / 4U)
@@ -21,4 +21,4 @@ int fdtw_read_string(const void *dtb, int node, const char *prop,
 int fdtw_write_inplace_cells(void *dtb, int node, const char *prop,
 		unsigned int cells, void *value);
 
-#endif /* __FDT_WRAPPERS__ */
+#endif /* FDT_WRAPPERS_H */

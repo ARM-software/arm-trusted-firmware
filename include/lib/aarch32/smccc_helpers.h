@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SMCCC_HELPERS_H__
-#define __SMCCC_HELPERS_H__
+#ifndef SMCCC_HELPERS_H
+#define SMCCC_HELPERS_H
 
 #include <smccc.h>
 
@@ -156,4 +156,4 @@ void *smc_get_next_ctx(void);
 
 #endif /*__ASSEMBLY__*/
 
-#endif /* __SMCCC_HELPERS_H__ */
+#endif /* SMCCC_HELPERS_H */

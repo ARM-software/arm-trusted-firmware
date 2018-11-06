@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef CMD_OPT_H_
-#define CMD_OPT_H_
+#ifndef CMD_OPT_H
+#define CMD_OPT_H
 
 #include <getopt.h>
 
@@ -30,4 +30,4 @@ const struct option *cmd_opt_get_array(void);
 const char *cmd_opt_get_name(int idx);
 const char *cmd_opt_get_help_msg(int idx);
 
-#endif /* CMD_OPT_H_ */
+#endif /* CMD_OPT_H */

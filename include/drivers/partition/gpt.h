@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __GPT_H__
-#define __GPT_H__
+#ifndef GPT_H
+#define GPT_H
 
 #include <partition.h>
 
@@ -48,4 +48,4 @@ typedef struct gpt_header {
 
 int parse_gpt_entry(gpt_entry_t *gpt_entry, partition_entry_t *entry);
 
-#endif	/* __GPT_H__ */
+#endif /* GPT_H */

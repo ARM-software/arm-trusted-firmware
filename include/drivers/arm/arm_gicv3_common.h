@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __ARM_GICV3_COMMON_H__
-#define __ARM_GICV3_COMMON_H__
+#ifndef ARM_GICV3_COMMON_H
+#define ARM_GICV3_COMMON_H
 
 /*******************************************************************************
  * GIC500/GIC600 Re-distributor interface registers & constants
@@ -17,4 +17,4 @@
 #define WAKER_SL_BIT		(1U << WAKER_SL_SHIFT)
 #define WAKER_QSC_BIT		(1U << WAKER_QSC_SHIFT)
 
-#endif /* __ARM_GICV3_COMMON_H__ */
+#endif /* ARM_GICV3_COMMON_H */

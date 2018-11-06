@@ -9,8 +9,8 @@
  * for Marvell SoCs in AP806, AP807, and AP810
  */
 
-#ifndef _CACHE_LLC_H_
-#define _CACHE_LLC_H_
+#ifndef CACHE_LLC_H
+#define CACHE_LLC_H
 
 #define LLC_CTRL(ap)			(MVEBU_LLC_BASE(ap) + 0x100)
 #define LLC_SYNC(ap)			(MVEBU_LLC_BASE(ap) + 0x700)
@@ -38,5 +38,4 @@ int llc_is_exclusive(int ap_index);
 void llc_runtime_enable(int ap_index);
 #endif
 
-#endif /* _CACHE_LLC_H_ */
-
+#endif /* CACHE_LLC_H */

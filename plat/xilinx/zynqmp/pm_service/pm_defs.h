@@ -6,8 +6,8 @@
 
 /* ZynqMP power management enums and defines */
 
-#ifndef _PM_DEFS_H_
-#define _PM_DEFS_H_
+#ifndef PM_DEFS_H
+#define PM_DEFS_H
 
 /*********************************************************************
  * Macro definitions
@@ -265,4 +265,4 @@ enum pm_shutdown_subtype {
 	PMF_SHUTDOWN_SUBTYPE_SYSTEM,
 };
 
-#endif /* _PM_DEFS_H_ */
+#endif /* PM_DEFS_H */

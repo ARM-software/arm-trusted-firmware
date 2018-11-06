@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TEGRA_PRIVATE_H__
-#define __TEGRA_PRIVATE_H__
+#ifndef TEGRA_PRIVATE_H
+#define TEGRA_PRIVATE_H
 
 #include <arch.h>
 #include <platform_def.h>
@@ -112,4 +112,4 @@ void tegra_delay_timer_init(void);
 void tegra_secure_entrypoint(void);
 void tegra186_cpu_reset_handler(void);
 
-#endif /* __TEGRA_PRIVATE_H__ */
+#endif /* TEGRA_PRIVATE_H */

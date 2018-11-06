@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CSS_SCPI_H__
-#define __CSS_SCPI_H__
+#ifndef CSS_SCPI_H
+#define CSS_SCPI_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -106,5 +106,4 @@ int scpi_get_css_power_state(unsigned int mpidr, unsigned int *cpu_state_p,
 		unsigned int *cluster_state_p);
 uint32_t scpi_sys_power_state(scpi_system_state_t system_state);
 
-
-#endif	/* __CSS_SCPI_H__ */
+#endif /* CSS_SCPI_H */

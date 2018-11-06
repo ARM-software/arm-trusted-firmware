@@ -7,8 +7,8 @@
 
 /* CCU unit device driver for Marvell AP807, AP807 and AP810 SoCs */
 
-#ifndef _CCU_H_
-#define _CCU_H_
+#ifndef CCU_H
+#define CCU_H
 
 #ifndef __ASSEMBLY__
 #include <addr_map.h>
@@ -48,4 +48,4 @@ void ccu_save_win_all(int ap_id);
 void ccu_restore_win_all(int ap_id);
 #endif
 
-#endif /* _CCU_H_ */
+#endif /* CCU_H */

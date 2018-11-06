@@ -9,8 +9,8 @@
  * for PU Power Management. This file should be common for all PU's.
  */
 
-#ifndef _PM_COMMON_H_
-#define _PM_COMMON_H_
+#ifndef PM_COMMON_H
+#define PM_COMMON_H
 
 #include <debug.h>
 #include <stdint.h>
@@ -52,4 +52,4 @@ struct pm_proc {
 const struct pm_proc *pm_get_proc(unsigned int cpuid);
 const struct pm_proc *pm_get_proc_by_node(enum pm_node_id nid);
 
-#endif /* _PM_COMMON_H_ */
+#endif /* PM_COMMON_H */

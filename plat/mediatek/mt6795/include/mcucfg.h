@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __MCUCFG_H__
-#define __MCUCFG_H__
+#ifndef MCUCFG_H
+#define MCUCFG_H
 
 #include <platform_def.h>
 #include <stdint.h>
@@ -151,4 +151,4 @@ enum {
 	MP1_L2RSTDISABLE = 1 << MP1_L2RSTDISABLE_SHIFT
 };
 
-#endif  /* __MCUCFG_H__ */
+#endif  /* MCUCFG_H */

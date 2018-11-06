@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __CPU_MACROS_S__
-#define __CPU_MACROS_S__
+#ifndef CPU_MACROS_S
+#define CPU_MACROS_S
 
 #include <arch.h>
 #include <errata_report.h>
@@ -255,8 +255,6 @@
 	.endm
 #endif
 
-#endif /* __CPU_MACROS_S__ */
-
 	/*
 	 * This macro is used on some CPUs to detect if they are vulnerable
 	 * to CVE-2017-5715.
@@ -285,3 +283,5 @@
 	cmp	w0, #((\_cpu_midr >> MIDR_PN_SHIFT) & MIDR_PN_MASK)
 	b.eq	\_label
 	.endm
+
+#endif /* CPU_MACROS_S */

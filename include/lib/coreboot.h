@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __COREBOOT_H__
-#define __COREBOOT_H__
+#ifndef COREBOOT_H
+#define COREBOOT_H
 
 #include <stdint.h>
 
@@ -21,4 +21,4 @@ extern coreboot_serial_t coreboot_serial;
 
 void coreboot_table_setup(void *base);
 
-#endif /* __COREBOOT_H__ */
+#endif /* COREBOOT_H */

@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __EMMC_REGISTERS_H__
-#define __EMMC_REGISTERS_H__
+#ifndef EMMC_REGISTERS_H
+#define EMMC_REGISTERS_H
 
 /* ************************ HEADER (INCLUDE) SECTION *********************** */
 
@@ -256,5 +256,5 @@
 
 /* ********************************* CODE ********************************** */
 
-#endif /* __EMMC_REGISTERS_H__ */
+#endif /* EMMC_REGISTERS_H */
 /* ******************************** END ************************************ */

@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __IMX_SNVS_H__
-#define __IMX_SNVS_H__
+#ifndef IMX_SNVS_H
+#define IMX_SNVS_H
 
 #include <stdint.h>
 #include <arch.h>
@@ -79,4 +79,4 @@ struct snvs {
 
 void imx_snvs_init(void);
 
-#endif /* __IMX_SNVS_H__ */
+#endif /* IMX_SNVS_H */

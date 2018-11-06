@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IMX_REGS_H__
-#define __IMX_REGS_H__
+#ifndef IMX_REGS_H
+#define IMX_REGS_H
 
 /* Define the processor memory map */
 
@@ -105,4 +105,4 @@
 /* Define the maximum number of WDOG blocks on this SoC */
 #define MXC_MAX_WDOG_NUM		0x04
 
-#endif /* __IMX_REGS_H__ */
+#endif /* IMX_REGS_H */

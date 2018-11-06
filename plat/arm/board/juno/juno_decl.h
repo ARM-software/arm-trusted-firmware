@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __JUNO_DECL_H__
-#define __JUNO_DECL_H__
+#ifndef JUNO_DECL_H
+#define JUNO_DECL_H
 
 int juno_getentropy(void *buf, size_t len);
 
-#endif /* __JUNO_DECL_H__ */
+#endif /* JUNO_DECL_H */

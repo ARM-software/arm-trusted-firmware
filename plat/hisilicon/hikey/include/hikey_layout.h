@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HIKEY_LAYOUT_H
-#define __HIKEY_LAYOUT_H
+#ifndef HIKEY_LAYOUT_H
+#define HIKEY_LAYOUT_H
 
 /*
  * Platform memory map related constants
@@ -119,4 +119,4 @@
 #endif /* SPD_none */
 #endif
 
-#endif /* !__HIKEY_LAYOUT_H */
+#endif /* HIKEY_LAYOUT_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CORTEX_A53_H__
-#define __CORTEX_A53_H__
+#ifndef CORTEX_A53_H
+#define CORTEX_A53_H
 
 /* Cortex-A53 midr for revision 0 */
 #define CORTEX_A53_MIDR 0x410FD030
@@ -67,4 +67,4 @@
  ******************************************************************************/
 #define CORTEX_A53_L2MERRSR			p15, 3, c15
 
-#endif /* __CORTEX_A53_H__ */
+#endif /* CORTEX_A53_H */

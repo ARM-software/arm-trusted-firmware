@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __BL1_PRIVATE_H__
-#define __BL1_PRIVATE_H__
+#ifndef BL1_PRIVATE_H
+#define BL1_PRIVATE_H
 
 #include <stdint.h>
 #include <utils_def.h>
@@ -35,4 +35,4 @@ register_t bl1_fwu_smc_handler(unsigned int smc_fid,
 		void *cookie,
 		void *handle,
 		unsigned int flags);
-#endif /* __BL1_PRIVATE_H__ */
+#endif /* BL1_PRIVATE_H */

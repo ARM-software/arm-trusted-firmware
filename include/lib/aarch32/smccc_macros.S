@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __SMCCC_MACROS_S__
-#define __SMCCC_MACROS_S__
+#ifndef SMCCC_MACROS_S
+#define SMCCC_MACROS_S
 
 #include <arch.h>
 
@@ -196,4 +196,4 @@
 	eret
 	.endm
 
-#endif /* __SMCCC_MACROS_S__ */
+#endif /* SMCCC_MACROS_S */

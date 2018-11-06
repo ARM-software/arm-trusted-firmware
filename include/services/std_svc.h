@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __STD_SVC_H__
-#define __STD_SVC_H__
+#ifndef STD_SVC_H
+#define STD_SVC_H
 
 /* SMC function IDs for Standard Service queries */
 
@@ -27,4 +27,4 @@
  */
 uintptr_t get_arm_std_svc_args(unsigned int svc_mask);
 
-#endif /* __STD_SVC_H__ */
+#endif /* STD_SVC_H */

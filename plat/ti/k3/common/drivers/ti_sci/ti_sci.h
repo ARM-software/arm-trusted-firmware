@@ -7,8 +7,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TI_SCI_H
-#define __TI_SCI_H
+#ifndef TI_SCI_H
+#define TI_SCI_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -205,4 +205,4 @@ int ti_sci_proc_get_boot_status(uint8_t proc_id, uint64_t *bv,
  */
 int ti_sci_init(void);
 
-#endif	/* __TI_SCI_H */
+#endif /* TI_SCI_H */

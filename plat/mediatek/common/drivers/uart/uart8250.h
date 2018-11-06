@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __UART8250_H__
-#define __UART8250_H__
+#ifndef UART8250_H
+#define UART8250_H
 
 /* UART register */
 #define UART_RBR		0x00	/* Receive buffer register */
@@ -35,4 +35,4 @@
 #define UART_LSR_DR		0x01	/* Data ready */
 #define UART_LSR_THRE		0x20	/* Xmit holding register empty */
 
-#endif	/* __UART8250_H__ */
+#endif /* UART8250_H */

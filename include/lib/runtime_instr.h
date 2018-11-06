@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __RUNTIME_INSTR_H__
-#define __RUNTIME_INSTR_H__
+#ifndef RUNTIME_INSTR_H
+#define RUNTIME_INSTR_H
 
 #include <utils_def.h>
 
@@ -22,4 +22,4 @@ PMF_DECLARE_CAPTURE_TIMESTAMP(rt_instr_svc)
 PMF_DECLARE_GET_TIMESTAMP(rt_instr_svc)
 #endif /* __ASSEMBLY__ */
 
-#endif /* __RUNTIME_INSTR_H__ */
+#endif /* RUNTIME_INSTR_H */

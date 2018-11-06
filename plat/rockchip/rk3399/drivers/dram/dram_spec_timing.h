@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef _DRAM_SPEC_TIMING_HEAD_
-#define _DRAM_SPEC_TIMING_HEAD_
+#ifndef DRAM_SPEC_TIMING_H
+#define DRAM_SPEC_TIMING_H
+
 #include <stdint.h>
 
 enum ddr3_speed_rate {
@@ -503,4 +504,4 @@ struct timing_related_config {
 void dram_get_parameter(struct timing_related_config *timing_config,
 			struct dram_timing_t *pdram_timing);
 
-#endif /* _DRAM_SPEC_TIMING_HEAD_ */
+#endif /* DRAM_SPEC_TIMING_H */

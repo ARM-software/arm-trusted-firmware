@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef IO_PRIVATE_H_
-#define IO_PRIVATE_H_
+#ifndef IO_PRIVATE_H
+#define IO_PRIVATE_H
 
 /*
  * Return codes reported by 'io_*' APIs
@@ -17,4 +17,4 @@
 #define IO_NOT_SUPPORTED	(-0x82)
 #define IO_RESOURCES_EXHAUSTED	(-0x83)
 
-#endif
+#endif /* IO_PRIVATE_H */

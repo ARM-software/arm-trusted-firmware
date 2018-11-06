@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __UFS_H__
-#define __UFS_H__
+#ifndef UFS_H
+#define UFS_H
 
 #include <utils_def.h>
 
@@ -545,4 +545,4 @@ size_t ufs_read_blocks(int lun, int lba, uintptr_t buf, size_t size);
 size_t ufs_write_blocks(int lun, int lba, const uintptr_t buf, size_t size);
 int ufs_init(const ufs_ops_t *ops, ufs_params_t *params);
 
-#endif /* __UFS_H__ */
+#endif /* UFS_H */

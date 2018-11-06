@@ -10,8 +10,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TI_SCI_PROTOCOL_H
-#define __TI_SCI_PROTOCOL_H
+#ifndef TI_SCI_PROTOCOL_H
+#define TI_SCI_PROTOCOL_H
 
 #include <stdint.h>
 
@@ -647,4 +647,4 @@ struct ti_sci_msg_resp_get_proc_boot_status {
 	uint32_t status_flags;
 } __packed;
 
-#endif /* __TI_SCI_PROTOCOL_H */
+#endif /* TI_SCI_PROTOCOL_H */

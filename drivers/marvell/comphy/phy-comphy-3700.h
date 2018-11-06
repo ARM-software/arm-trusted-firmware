@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef _PHY_COMPHY_3700_H
-#define _PHY_COMPHY_3700_H
+#ifndef PHY_COMPHY_3700_H
+#define PHY_COMPHY_3700_H
 
 #define PLL_SET_DELAY_US			600
 #define COMPHY_PLL_TIMEOUT			1000
@@ -255,4 +255,4 @@ enum {
 int mvebu_3700_comphy_is_pll_locked(uint8_t comphy_index, uint32_t comphy_mode);
 int mvebu_3700_comphy_power_off(uint8_t comphy_index, uint32_t comphy_mode);
 int mvebu_3700_comphy_power_on(uint8_t comphy_index, uint32_t comphy_mode);
-#endif /* _PHY_COMPHY_3700_H */
+#endif /* PHY_COMPHY_3700_H */

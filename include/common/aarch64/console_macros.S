@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __CONSOLE_MACROS_S__
-#define __CONSOLE_MACROS_S__
+#ifndef CONSOLE_MACROS_S
+#define CONSOLE_MACROS_S
 
 #include <console.h>
 
@@ -84,4 +84,5 @@
 	b	console_register
 	.endm
 #endif /* USE_FINISH_CONSOLE_REG_2 */
-#endif /* __CONSOLE_MACROS_S__ */
+
+#endif /* CONSOLE_MACROS_S */

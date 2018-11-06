@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __HI3660_CRG_H__
-#define __HI3660_CRG_H__
+#ifndef HI3660_CRG_H
+#define HI3660_CRG_H
 
 #define CRG_REG_BASE			0xFFF35000
 
@@ -176,4 +176,4 @@
 #define SC_DIV_AO_HISE_MASK		3
 #define SC_DIV_AO_HISE(x)		((x) & 0x3)
 
-#endif	/* __HI3660_CRG_H__ */
+#endif /* HI3660_CRG_H */

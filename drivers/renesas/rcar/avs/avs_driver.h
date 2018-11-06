@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef AVS_DRIVER_H__
-#define AVS_DRIVER_H__
+#ifndef AVS_DRIVER_H
+#define AVS_DRIVER_H
 
 /* AVS Setting. 1:enable / 0:disable */
 #ifndef AVS_SETTING_ENABLE
@@ -17,4 +17,4 @@ void rcar_avs_init(void);
 void rcar_avs_setting(void);
 void rcar_avs_end(void);
 
-#endif /* AVS_DRIVER_H__ */
+#endif /* AVS_DRIVER_H */
