@@ -312,9 +312,9 @@
 		add	x0, x0, :lo12:__DATA_RAM_START__
 		adrp	x1, __DATA_ROM_START__
 		add	x1, x1, :lo12:__DATA_ROM_START__
-		adrp	x2, __DATA_RAM_END__
-		add	x2, x2, :lo12:__DATA_RAM_END__
-		sub	x2, x2, x0
+		adrp	x2, __RODATA_END__
+		add	x2, x2, :lo12:__RODATA_END__
+		sub	x2, x2, x1
 		bl	memcpy16
 #endif
 	.endif /* _init_c_runtime */
