@@ -41,6 +41,7 @@
 #define SAR_CLOCK_FREQ_MODE(v)		(((v) & SAR_CLOCK_FREQ_MODE_MASK) >> \
 					SAR_CLOCK_FREQ_MODE_OFFSET)
 
+#define AVS_I2C_EEPROM_ADDR		0x57	/* EEPROM */
 #define AVS_EN_CTRL_REG			(MVEBU_AP_GEN_MGMT_BASE + 0x130)
 #define AVS_ENABLE_OFFSET		(0)
 #define AVS_SOFT_RESET_OFFSET		(2)
@@ -72,7 +73,9 @@
 					 (0x24 << AVS_LOW_VDD_LIMIT_OFFSET) | \
 					 (0x1 << AVS_SOFT_RESET_OFFSET) | \
 					 (0x1 << AVS_ENABLE_OFFSET))
-
+/* VDD limit is 0.82V for all A3900 devices
+ * AVS offsets are not the same as in A70x0
+ */
 #define AVS_A3900_CLK_VALUE		((0x80 << 24) | \
 					 (0x2c2 << 13) | \
 					 (0x2c2 << 3) | \
@@ -143,6 +146,13 @@
 
 #define EFUSE_AP_LD0_CLUSTER_DOWN_OFFS		4
 
+#if MARVELL_SVC_TEST
+#define MVEBU_CP_MPP_CTRL37_OFFS	20
+#define MVEBU_CP_MPP_CTRL38_OFFS	24
+#define MVEBU_CP_MPP_I2C_FUNC		2
+#define MVEBU_MPP_CTRL_MASK		0xf
+#endif
+
 /* Return the AP revision of the chip */
 static unsigned int ble_get_ap_type(void)
 {
@@ -201,6 +211,7 @@ static void ble_plat_mmap_config(int restore)
  * Setup Adaptive Voltage Switching - this is required for some platforms
  ****************************************************************************
  */
+#if !MARVELL_SVC_TEST
 static void ble_plat_avs_config(void)
 {
 	uint32_t freq_mode, device_id;
@@ -243,6 +254,113 @@ static void ble_plat_avs_config(void)
 		mmio_write_32(AVS_EN_CTRL_REG, avs_val);
 	}
 }
+#endif
+/******************************************************************************
+ * Update or override current AVS work point value using data stored in EEPROM
+ * This is only required by QA/validation flows and activated by
+ * MARVELL_SVC_TEST flag.
+ *
+ * The function is expected to be called twice.
+ *
+ * First time with AVS value of 0 for testing if the EEPROM requests completely
+ * override the AVS value and bypass the eFuse test
+ *
+ * Second time - with non-zero AVS value obtained from eFuses as an input.
+ * In this case the EEPROM may contain AVS correction value (either positive
+ * or negative) that is added to the input AVS value and returned back for
+ * further processing.
+ ******************************************************************************
+ */
+static uint32_t avs_update_from_eeprom(uint32_t avs_workpoint)
+{
+	uint32_t new_wp = avs_workpoint;
+#if MARVELL_SVC_TEST
+	/* ---------------------------------------------------------------------
+	 * EEPROM  |  Data description (avs_step)
+	 * address |
+	 * ---------------------------------------------------------------------
+	 * 0x120   | AVS workpoint correction value
+	 *         | if not 0 and not 0xff, correct the AVS taken from eFuse
+	 *         | by the number of steps indicated by bit[6:0]
+	 *         | bit[7] defines correction direction.
+	 *         | If bit[7]=1, add the value from bit[6:0] to AVS workpoint,
+	 *         | othervise substruct this value from AVS workpoint.
+	 * ---------------------------------------------------------------------
+	 * 0x121   | AVS workpoint override value
+	 *         | Override the AVS workpoint with the value stored in this
+	 *         | byte. When running on AP806, the AVS workpoint is 7 bits
+	 *         | wide and override value is valid when bit[6:0] holds
+	 *         | value greater than zero and smaller than 0x33.
+	 *         | When running on AP807, the AVS workpoint is 10 bits wide.
+	 *         | Additional 2 MSB bits are supplied by EEPROM byte 0x122.
+	 *         | AVS override value is valid when byte @ 0x121 and bit[1:0]
+	 *         | of byte @ 0x122 combined have non-zero value.
+	 * ---------------------------------------------------------------------
+	 * 0x122   | Extended AVS workpoint override value
+	 *         | Valid only for AP807 platforms and must be less than 0x4
+	 * ---------------------------------------------------------------------
+	 */
+	static uint8_t  avs_step[3] = {0};
+	uintptr_t reg;
+	uint32_t val;
+	unsigned int ap_type = ble_get_ap_type();
+
+	/* Always happens on second call to this function */
+	if (avs_workpoint != 0) {
+		/* Get correction steps from the EEPROM */
+		if ((avs_step[0] != 0) && (avs_step[0] != 0xff)) {
+			NOTICE("AVS request to step %s by 0x%x from old 0x%x\n",
+				avs_step[0] & 0x80 ? "DOWN" : "UP",
+				avs_step[0] & 0x7f, new_wp);
+			if (avs_step[0] & 0x80)
+				new_wp -= avs_step[0] & 0x7f;
+			else
+				new_wp += avs_step[0] & 0x7f;
+		}
+
+		return new_wp;
+	}
+
+	/* AVS values are located in EEPROM
+	 * at CP0 i2c bus #0, device 0x57 offset 0x120
+	 * The SDA and SCK pins of CP0 i2c-0: MPP[38:37], i2c function 0x2.
+	 */
+	reg = MVEBU_CP_MPP_REGS(0, 4);
+	val = mmio_read_32(reg);
+	val &= ~((MVEBU_MPP_CTRL_MASK << MVEBU_CP_MPP_CTRL37_OFFS) |
+		 (MVEBU_MPP_CTRL_MASK << MVEBU_CP_MPP_CTRL38_OFFS));
+	val |= (MVEBU_CP_MPP_I2C_FUNC << MVEBU_CP_MPP_CTRL37_OFFS) |
+		(MVEBU_CP_MPP_I2C_FUNC << MVEBU_CP_MPP_CTRL38_OFFS);
+	mmio_write_32(reg, val);
+
+	/* Init CP0 i2c-0 */
+	i2c_init((void *)(MVEBU_CP0_I2C_BASE));
+
+	/* Read EEPROM only once at the fist call! */
+	i2c_read(AVS_I2C_EEPROM_ADDR, 0x120, 2, avs_step, 3);
+	NOTICE("== SVC test build ==\n");
+	NOTICE("EEPROM holds values 0x%x, 0x%x and 0x%x\n",
+		avs_step[0], avs_step[1], avs_step[2]);
+
+	/* Override the AVS value? */
+	if ((ap_type != CHIP_ID_AP807) && (avs_step[1] < 0x33)) {
+		/* AP806 - AVS is 7 bits */
+		new_wp = avs_step[1];
+
+	} else if (ap_type == CHIP_ID_AP807 && (avs_step[2] < 0x4)) {
+		/* AP807 - AVS is 10 bits */
+		new_wp = avs_step[2];
+		new_wp <<= 8;
+		new_wp |= avs_step[1];
+	}
+
+	if (new_wp == 0)
+		NOTICE("Ignore BAD AVS Override value in EEPROM!\n");
+	else
+		NOTICE("Override AVS by EEPROM value 0x%x\n", new_wp);
+#endif /* MARVELL_SVC_TEST */
+	return new_wp;
+}
 
 /****************************************************************************
  * SVC flow - v0.10
@@ -265,6 +383,11 @@ static void ble_plat_svc_config(void)
 	unsigned int ap_type;
 
 	/* Set access to LD0 */
+	avs_workpoint = avs_update_from_eeprom(0);
+	if (avs_workpoint)
+		goto set_aws_wp;
+
+	/* Set access to LD0 */
 	reg_val = mmio_read_32(MVEBU_AP_EFUSE_SRV_CTRL_REG);
 	reg_val &= ~EFUSE_SRV_CTRL_LD_SELECT_OFFS;
 	mmio_write_32(MVEBU_AP_EFUSE_SRV_CTRL_REG, reg_val);
@@ -282,7 +405,12 @@ static void ble_plat_svc_config(void)
 	sw_ver = (efuse >> EFUSE_AP_LD0_SWREV_OFFS) & EFUSE_AP_LD0_SWREV_MASK;
 	if (sw_ver < 1) {
 		NOTICE("SVC: SW Revision 0x%x. SVC is not supported\n", sw_ver);
+#if MARVELL_SVC_TEST
+		NOTICE("SVC_TEST: AVS bypassed\n");
+
+#else
 		ble_plat_avs_config();
+#endif
 		return;
 	}
 
@@ -450,6 +578,10 @@ static void ble_plat_svc_config(void)
 	if (ap_type != CHIP_ID_AP807)
 		avs_workpoint &= 0x7F;
 
+	/* Update WP from EEPROM if needed */
+	avs_workpoint = avs_update_from_eeprom(avs_workpoint);
+
+set_aws_wp:
 	reg_val  = mmio_read_32(AVS_EN_CTRL_REG);
 	NOTICE("SVC: AVS work point changed from 0x%x to 0x%x\n",
 		(reg_val & AVS_VDD_LOW_LIMIT_MASK) >> AVS_LOW_VDD_LIMIT_OFFSET,

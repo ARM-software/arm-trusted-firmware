@@ -13,6 +13,9 @@ PLAT_COMMON_BASE	:= $(PLAT_FAMILY_BASE)/common
 MARVELL_DRV_BASE	:= drivers/marvell
 MARVELL_COMMON_BASE	:= plat/marvell/common
 
+MARVELL_SVC_TEST		:= 0
+$(eval $(call add_define,MARVELL_SVC_TEST))
+
 ERRATA_A72_859971	:= 1
 
 # Enable MSS support for a8k family
