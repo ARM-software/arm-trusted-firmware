@@ -159,12 +159,12 @@ ifeq ($(MARVELL_SECURE_BOOT),1)
 	@truncate -s %16 $(WTMI_MULTI_IMG)
 	@openssl enc -aes-256-cbc -e -in $(WTMI_MULTI_IMG) \
 	-out $(WTMI_ENC_IMG) \
-	-K `cat $(IMAGESPATH)/aes-256.txt` -k 0 -nosalt \
+	-K `cat $(IMAGESPATH)/aes-256.txt` -nosalt \
 	-iv `cat $(IMAGESPATH)/iv.txt` -p
 	@truncate -s %16 $(BUILD_PLAT)/$(BOOT_IMAGE);
 	@openssl enc -aes-256-cbc -e -in $(BUILD_PLAT)/$(BOOT_IMAGE) \
 	-out $(BUILD_PLAT)/$(BOOT_ENC_IMAGE) \
-	-K `cat $(IMAGESPATH)/aes-256.txt` -k 0 -nosalt \
+	-K `cat $(IMAGESPATH)/aes-256.txt` -nosalt \
 	-iv `cat $(IMAGESPATH)/iv.txt` -p
 endif
 	$(DOIMAGETOOL) $(DOIMAGE_FLAGS)
