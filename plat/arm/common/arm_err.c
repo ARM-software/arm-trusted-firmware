@@ -8,6 +8,7 @@
 #include <console.h>
 #include <debug.h>
 #include <errno.h>
+#include <plat_arm.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <stdint.h>
@@ -27,7 +28,7 @@ void __dead2 plat_arm_error_handler(int err)
 	case -EAUTH:
 		/* Image load or authentication error. Erase the ToC */
 		INFO("Erasing FIP ToC from flash...\n");
-		nor_unlock(PLAT_ARM_FIP_BASE);
+		(void)nor_unlock(PLAT_ARM_FIP_BASE);
 		ret = nor_word_program(PLAT_ARM_FIP_BASE, 0);
 		if (ret != 0) {
 			ERROR("Cannot erase ToC\n");
