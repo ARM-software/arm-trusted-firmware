@@ -86,11 +86,14 @@ $(eval $(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33))
 $(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 
 ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
-  ifneq (${ARCH},aarch64)
-    $(error "ARM_LINUX_KERNEL_AS_BL33 is only available in AArch64.")
-  endif
-  ifneq (${RESET_TO_BL31},1)
-    $(error "ARM_LINUX_KERNEL_AS_BL33 is only available if RESET_TO_BL31=1.")
+  ifeq (${ARCH},aarch64)
+    ifneq (${RESET_TO_BL31},1)
+      $(error "ARM_LINUX_KERNEL_AS_BL33 is only available if RESET_TO_BL31=1.")
+    endif
+  else
+    ifneq (${RESET_TO_SP_MIN},1)
+      $(error "ARM_LINUX_KERNEL_AS_BL33 is only available if RESET_TO_SP_MIN=1.")
+    endif
   endif
   ifndef PRELOADED_BL33_BASE
     $(error "PRELOADED_BL33_BASE must be set if ARM_LINUX_KERNEL_AS_BL33 is used.")
