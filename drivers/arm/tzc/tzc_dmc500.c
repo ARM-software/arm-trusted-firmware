@@ -188,7 +188,7 @@ void tzc_dmc500_configure_region(unsigned int region_no,
 	 * Do address range check based on DMC-TZ configuration. A 43bit address
 	 * is the max and expected case.
 	 */
-	assert(((region_top <= _tzc_get_max_top_addr(43)) &&
+	assert(((region_top <= (UINT64_MAX >> (64U - 43U))) &&
 		(region_base < region_top)));
 
 	/* region_base and (region_top + 1) must be 4KB aligned */
