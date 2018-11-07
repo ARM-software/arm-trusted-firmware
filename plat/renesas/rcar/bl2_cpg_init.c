@@ -42,7 +42,8 @@ static void bl2_secure_cpg_init(void)
 	uint32_t stop_cr2, reset_cr2;
 
 #if (RCAR_LSI == RCAR_E3)
-	reset_cr2 = 0x10000000U stop_cr2 = 0xEFFFFFFFU;
+	reset_cr2 = 0x10000000U;
+	stop_cr2 = 0xEFFFFFFFU;
 #else
 	reset_cr2 = 0x14000000U;
 	stop_cr2 = 0xEBFFFFFFU;

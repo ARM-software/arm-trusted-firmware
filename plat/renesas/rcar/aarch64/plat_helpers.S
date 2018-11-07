@@ -19,6 +19,7 @@
 
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
+       .globl	plat_crash_console_flush
 	.globl	plat_invalidate_icache
 	.globl	plat_report_exception
 	.globl	plat_secondary_reset
@@ -285,6 +286,15 @@ func plat_crash_console_putc
 	mov	sp, x1
 	ret
 endfunc plat_crash_console_putc
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_flush()
+	 *
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_flush
+	b	console_flush
+endfunc plat_crash_console_flush
 
 	/* --------------------------------------------------------------------
 	 * void plat_reset_handler(void);
