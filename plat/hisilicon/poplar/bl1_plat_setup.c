@@ -7,13 +7,13 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <console.h>
 #include <debug.h>
 #include <dw_mmc.h>
 #include <errno.h>
 #include <generic_delay_timer.h>
 #include <mmc.h>
 #include <mmio.h>
+#include <pl011.h>
 #include <pl061_gpio.h>
 #include <platform.h>
 #include <platform_def.h>
@@ -26,6 +26,7 @@
 /* Data structure which holds the extents of the trusted RAM for BL1 */
 static meminfo_t bl1_tzram_layout;
 static meminfo_t bl2_tzram_layout;
+static console_pl011_t console;
 
 /*
  * Cannot use default weak implementation in bl1_main.c because BL1 RW data is
@@ -62,7 +63,8 @@ int bl1_plat_handle_post_image_load(unsigned int image_id)
 void bl1_early_platform_setup(void)
 {
 	/* Initialize the console to provide early debug support */
-	console_init(PL011_UART0_BASE, PL011_UART0_CLK_IN_HZ, PL011_BAUDRATE);
+	console_pl011_register(PL011_UART0_BASE, PL011_UART0_CLK_IN_HZ,
+			       PL011_BAUDRATE, &console);
 
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_tzram_layout.total_base = BL1_RW_BASE;
