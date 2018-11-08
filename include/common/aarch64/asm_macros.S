@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __ASM_MACROS_S__
-#define __ASM_MACROS_S__
+#ifndef ASM_MACROS_S
+#define ASM_MACROS_S
 
 #include <arch.h>
 #include <asm_macros_common.S>
@@ -192,4 +192,4 @@
 	.endm
 #endif
 
-#endif /* __ASM_MACROS_S__ */
+#endif /* ASM_MACROS_S */

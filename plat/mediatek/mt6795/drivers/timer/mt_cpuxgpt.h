@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __MT_CPUXGPT_H__
-#define __MT_CPUXGPT_H__
+#ifndef MT_CPUXGPT_H
+#define MT_CPUXGPT_H
 
 /* REG */
 #define INDEX_CTL_REG       0x000
@@ -25,4 +25,4 @@ void generic_timer_backup(void);
 void sched_clock_init(uint64_t normal_base, uint64_t atf_base);
 uint64_t sched_clock(void);
 
-#endif /* __MT_CPUXGPT_H__ */
+#endif /* MT_CPUXGPT_H */

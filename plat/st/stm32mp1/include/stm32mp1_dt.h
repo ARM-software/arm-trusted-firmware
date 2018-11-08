@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __STM32MP1_DT_H__
-#define __STM32MP1_DT_H__
+#ifndef STM32MP1_DT_H
+#define STM32MP1_DT_H
 
 #include <stdbool.h>
 
@@ -38,4 +38,4 @@ int dt_get_stdout_node_offset(void);
 uint32_t dt_get_ddr_size(void);
 const char *dt_get_board_model(void);
 
-#endif /* __STM32MP1_DT_H__ */
+#endif /* STM32MP1_DT_H */

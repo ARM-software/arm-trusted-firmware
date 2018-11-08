@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SQ_SCPI_H__
-#define __SQ_SCPI_H__
+#ifndef SQ_SCPI_H
+#define SQ_SCPI_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -79,4 +79,4 @@ extern void scpi_set_sq_power_state(unsigned int mpidr,
 					scpi_power_state_t css_state);
 uint32_t scpi_sys_power_state(scpi_system_state_t system_state);
 
-#endif	/* __SQ_SCPI_H__ */
+#endif /* SQ_SCPI_H */

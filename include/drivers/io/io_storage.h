@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IO_H__
-#define __IO_H__
+#ifndef IO_STORAGE_H
+#define IO_STORAGE_H
 
 #include <errno.h>
 #include <stdint.h>
@@ -101,4 +101,4 @@ int io_write(uintptr_t handle, const uintptr_t buffer, size_t length,
 int io_close(uintptr_t handle);
 
 
-#endif /* __IO_H__ */
+#endif /* IO_STORAGE_H */

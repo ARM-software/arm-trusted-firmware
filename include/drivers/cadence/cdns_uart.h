@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CADENCE_UART_H__
-#define __CADENCE_UART_H__
+#ifndef CDNS_UART_H
+#define CDNS_UART_H
 
 #include <console.h>
 
@@ -47,4 +47,4 @@ int console_cdns_register(uint64_t baseaddr, uint32_t clock, uint32_t baud,
 
 #endif /*__ASSEMBLY__*/
 
-#endif
+#endif /* CDNS_UART_H */

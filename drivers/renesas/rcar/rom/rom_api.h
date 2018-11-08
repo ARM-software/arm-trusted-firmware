@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef ROM_API_H__
-#define ROM_API_H__
+#ifndef ROM_API_H
+#define ROM_API_H
 
 #include <stdint.h>
 
@@ -28,4 +28,4 @@ uint32_t rcar_rom_secure_boot_api(uint32_t *key, uint32_t *cert,
 				  rom_read_flash_f f);
 uint32_t rcar_rom_get_lcs(uint32_t *lcs);
 
-#endif
+#endif /* ROM_API_H */

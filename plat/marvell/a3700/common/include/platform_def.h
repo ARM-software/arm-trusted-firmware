@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __PLATFORM_DEF_H__
-#define __PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
 
 #include <board_marvell_def.h>
 #include <mvebu_def.h>
@@ -228,4 +228,4 @@
 #define BL32_LIMIT		TRUSTED_DRAM_SIZE
 #endif
 
-#endif /* __PLATFORM_DEF_H__ */
+#endif /* PLATFORM_DEF_H */

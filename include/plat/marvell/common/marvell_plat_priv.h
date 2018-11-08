@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __MARVELL_PLAT_PRIV_H__
-#define __MARVELL_PLAT_PRIV_H__
+#ifndef MARVELL_PLAT_PRIV_H
+#define MARVELL_PLAT_PRIV_H
 
 #include <utils.h>
 
@@ -31,4 +31,4 @@ void plat_marvell_gic_irq_restore(void);
 void plat_marvell_gic_irq_pcpu_save(void);
 void plat_marvell_gic_irq_pcpu_restore(void);
 
-#endif /* __MARVELL_PLAT_PRIV_H__ */
+#endif /* MARVELL_PLAT_PRIV_H */

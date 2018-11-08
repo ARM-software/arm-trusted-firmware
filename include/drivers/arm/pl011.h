@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PL011_H__
-#define __PL011_H__
+#ifndef PL011_H
+#define PL011_H
 
 #include <console.h>
 
@@ -103,4 +103,4 @@ int console_pl011_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
 
 #endif /*__ASSEMBLY__*/
 
-#endif	/* __PL011_H__ */
+#endif /* PL011_H */

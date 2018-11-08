@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __A3700_PM_H__
-#define __A3700_PM_H__
+#ifndef A3700_PM_H
+#define A3700_PM_H
 
 #include <stdint.h>
 
@@ -48,5 +48,4 @@ struct pm_wake_up_src_config {
 
 struct pm_wake_up_src_config *mv_wake_up_src_config_get(void);
 
-
-#endif /* __A3700_PM_H__ */
+#endif /* A3700_PM_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __FIPTOOL_H__
-#define __FIPTOOL_H__
+#ifndef FIPTOOL_H
+#define FIPTOOL_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -51,4 +51,4 @@ typedef struct cmd {
 	void             (*usage)(void);
 } cmd_t;
 
-#endif /* __FIPTOOL_H__ */
+#endif /* FIPTOOL_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TSPD_PRIVATE_H__
-#define __TSPD_PRIVATE_H__
+#ifndef TSPD_PRIVATE_H
+#define TSPD_PRIVATE_H
 
 #include <arch.h>
 #include <context.h>
@@ -227,4 +227,4 @@ extern tsp_context_t tspd_sp_context[TSPD_CORE_COUNT];
 extern tsp_vectors_t *tsp_vectors;
 #endif /*__ASSEMBLY__*/
 
-#endif /* __TSPD_PRIVATE_H__ */
+#endif /* TSPD_PRIVATE_H */

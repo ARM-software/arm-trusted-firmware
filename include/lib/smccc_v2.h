@@ -7,7 +7,7 @@
 #ifndef SMCCC_V2_H
 #define SMCCC_V2_H
 
-#ifndef __SMCCC_H__
+#ifndef SMCCC_H
 #error "This file must only be included from smccc.h"
 #endif
 

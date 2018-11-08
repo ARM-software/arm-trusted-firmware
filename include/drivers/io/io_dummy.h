@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IO_DUMMY_H__
-#define __IO_DUMMY_H__
+#ifndef IO_DUMMY_H
+#define IO_DUMMY_H
 
 int register_io_dev_dummy(const struct io_dev_connector **dev_con);
 
-#endif /* __IO_DUMMY_H__ */
+#endif /* IO_DUMMY_H */

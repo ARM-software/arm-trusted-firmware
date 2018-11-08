@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __CPU_MACROS_S__
-#define __CPU_MACROS_S__
+#ifndef CPU_MACROS_S
+#define CPU_MACROS_S
 
 #include <arch.h>
 #include <errata_report.h>
@@ -227,4 +227,4 @@
 	beq	\_label
 	.endm
 
-#endif /* __CPU_MACROS_S__ */
+#endif /* CPU_MACROS_S */

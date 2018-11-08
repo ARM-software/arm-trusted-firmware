@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IMX_AIPS_H__
-#define __IMX_AIPS_H__
+#ifndef IMX_AIPS_H
+#define IMX_AIPS_H
 
 #include <stdint.h>
 
@@ -19,4 +19,4 @@ struct aipstz_regs {
 
 void imx_aips_init(void);
 
-#endif /* __IMX_AIPS_H__ */
+#endif /* IMX_AIPS_H */

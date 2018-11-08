@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __POWER_TRACER_H__
-#define __POWER_TRACER_H__
+#ifndef POWER_TRACER_H
+#define POWER_TRACER_H
 
 #define CPU_UP		0
 #define CPU_DOWN	1
@@ -16,4 +16,4 @@
 
 void trace_power_flow(unsigned long mpidr, unsigned char mode);
 
-#endif
+#endif /* POWER_TRACER_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CCN_H__
-#define __CCN_H__
+#ifndef CCN_H
+#define CCN_H
 
 /*
  * This macro defines the maximum number of master interfaces that reside on
@@ -93,4 +93,4 @@ unsigned int ccn_get_l3_run_mode(void);
 int ccn_get_part0_id(uintptr_t periphbase);
 
 #endif /* __ASSEMBLY__ */
-#endif /* __CCN_H__ */
+#endif /* CCN_H */

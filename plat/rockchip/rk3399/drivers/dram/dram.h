@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SOC_ROCKCHIP_RK3399_DRAM_H__
-#define __SOC_ROCKCHIP_RK3399_DRAM_H__
+#ifndef DRAM_H
+#define DRAM_H
 
 #include <dram_regs.h>
 #include <plat_private.h>
@@ -152,4 +152,4 @@ extern __sramdata struct rk3399_sdram_params sdram_config;
 
 void dram_init(void);
 
-#endif
+#endif /* DRAM_H */

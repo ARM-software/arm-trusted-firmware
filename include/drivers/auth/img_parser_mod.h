@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IMG_PARSER_MOD_H__
-#define __IMG_PARSER_MOD_H__
+#ifndef IMG_PARSER_MOD_H
+#define IMG_PARSER_MOD_H
 
 #include <auth_common.h>
 
@@ -61,4 +61,4 @@ int img_parser_get_auth_param(img_type_t img_type,
 		.get_auth_param = _get_param \
 	}
 
-#endif /* __IMG_PARSER_MOD_H__ */
+#endif /* IMG_PARSER_MOD_H */

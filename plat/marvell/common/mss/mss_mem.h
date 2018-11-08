@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __MSS_PM_MEM_H
-#define __MSS_PM_MEM_H
+#ifndef MSS_MEM_H
+#define MSS_MEM_H
 
 /* MSS SRAM Memory base */
 #define MSS_SRAM_PM_CONTROL_BASE		(MVEBU_REGS_BASE + 0x520000)
@@ -57,4 +57,4 @@ struct mss_pm_ctrl_block {
 	unsigned int ctrl_blk_size;
 };
 
-#endif /* __MSS_PM_MEM_H */
+#endif /* MSS_MEM_H */

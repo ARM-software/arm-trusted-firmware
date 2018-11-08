@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __A3700_PLAT_DEF_H__
-#define __A3700_PLAT_DEF_H__
+#ifndef A3700_PLAT_DEF_H
+#define A3700_PLAT_DEF_H
 
 #include <marvell_def.h>
 
@@ -119,4 +119,4 @@
  */
 #define MVEBU_COMPHY_REG_BASE			(MVEBU_REGS_BASE + 0x18300)
 
-#endif /* __A3700_PLAT_DEF_H__ */
+#endif /* A3700_PLAT_DEF_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CSS_DEF_H__
-#define __CSS_DEF_H__
+#ifndef CSS_DEF_H
+#define CSS_DEF_H
 
 #include <arm_def.h>
 #include <gic_common.h>
@@ -200,4 +200,4 @@
 #define CSS_CPU_PWR_STATE_OFF		0
 #define CSS_CPU_PWR_STATE(state, n)	(((state) >> (n)) & 1)
 
-#endif /* __CSS_DEF_H__ */
+#endif /* CSS_DEF_H */

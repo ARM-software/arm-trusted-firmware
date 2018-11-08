@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PMC_H__
-#define __PMC_H__
+#ifndef PMC_H
+#define PMC_H
 
 #include <mmio.h>
 #include <tegra_def.h>
@@ -40,4 +40,4 @@ void tegra_pmc_lock_cpu_vectors(void);
 void tegra_pmc_cpu_on(int32_t cpu);
 __dead2 void tegra_pmc_system_reset(void);
 
-#endif /* __PMC_H__ */
+#endif /* PMC_H */

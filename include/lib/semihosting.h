@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SEMIHOSTING_H__
-#define __SEMIHOSTING_H__
+#ifndef SEMIHOSTING_H
+#define SEMIHOSTING_H
 
 #include <stdint.h>
 #include <stdio.h> /* For ssize_t */
@@ -55,4 +55,4 @@ void semihosting_write_char(char character);
 void semihosting_write_string(char *string);
 char semihosting_read_char(void);
 
-#endif /* __SEMIHOSTING_H__ */
+#endif /* SEMIHOSTING_H */

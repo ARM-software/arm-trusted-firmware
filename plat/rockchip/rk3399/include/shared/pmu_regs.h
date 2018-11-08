@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PMU_REGS_H__
-#define __PMU_REGS_H__
+#ifndef PMU_REGS_H
+#define PMU_REGS_H
 
 #define PMU_WKUP_CFG0		0x00
 #define PMU_WKUP_CFG1		0x04
@@ -145,4 +145,4 @@
 #define GRF_GPIO4C_P		0xe068
 #define GRF_GPIO4D_P		0xe06C
 
-#endif /* __PMU_REGS_H__ */
+#endif /* PMU_REGS_H */

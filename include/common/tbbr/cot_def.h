@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __COT_DEF_H__
-#define __COT_DEF_H__
+#ifndef COT_DEF_H
+#define COT_DEF_H
 
 /* TBBR CoT definitions */
 
 #define COT_MAX_VERIFIED_PARAMS		4
 
-#endif /* __COT_DEF_H__ */
+#endif /* COT_DEF_H */

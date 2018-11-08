@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef _MARVELL_PM_H_
-#define _MARVELL_PM_H_
+#ifndef MARVELL_PM_H
+#define MARVELL_PM_H
 
 #define MVEBU_MAILBOX_MAGIC_NUM		PLAT_MARVELL_MAILBOX_MAGIC_NUM
 #define MVEBU_MAILBOX_SUSPEND_STATE	0xb007de7c
@@ -23,4 +23,4 @@
 /* BLE execution start counter value */
 #define	MBOX_IDX_START_CNT		4
 
-#endif /* _MARVELL_PM_H_ */
+#endif /* MARVELL_PM_H */

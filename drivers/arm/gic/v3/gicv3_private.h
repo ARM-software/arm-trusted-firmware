@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __GICV3_PRIVATE_H__
-#define __GICV3_PRIVATE_H__
+#ifndef GICV3_PRIVATE_H
+#define GICV3_PRIVATE_H
 
 #include <assert.h>
 #include <gic_common.h>
@@ -387,4 +387,4 @@ static inline void gits_wait_for_quiescent_bit(uintptr_t gits_base)
 }
 
 
-#endif /* __GICV3_PRIVATE_H__ */
+#endif /* GICV3_PRIVATE_H */

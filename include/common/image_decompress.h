@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IMAGE_DECOMPRESS_H__
-#define __IMAGE_DECOMPRESS_H__
+#ifndef IMAGE_DECOMPRESS_H
+#define IMAGE_DECOMPRESS_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -21,4 +21,4 @@ void image_decompress_init(uintptr_t buf_base, uint32_t buf_size,
 void image_decompress_prepare(struct image_info *info);
 int image_decompress(struct image_info *info);
 
-#endif /* __IMAGE_DECOMPRESS_H___ */
+#endif /* IMAGE_DECOMPRESS_H */

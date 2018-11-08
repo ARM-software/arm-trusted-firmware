@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef TBB_EXT_H_
-#define TBB_EXT_H_
+#ifndef TBB_EXT_H
+#define TBB_EXT_H
 
 #include "ext.h"
 
@@ -35,4 +35,4 @@ enum {
 	FWU_HASH_EXT
 };
 
-#endif /* TBB_EXT_H_ */
+#endif /* TBB_EXT_H */

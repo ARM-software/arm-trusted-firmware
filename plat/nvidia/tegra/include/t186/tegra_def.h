@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TEGRA_DEF_H__
-#define __TEGRA_DEF_H__
+#ifndef TEGRA_DEF_H
+#define TEGRA_DEF_H
 
 #include <utils_def.h>
 
@@ -247,4 +247,4 @@
 #define TEGRA_TZRAM_BASE		U(0x30000000)
 #define TEGRA_TZRAM_SIZE		U(0x40000)
 
-#endif /* __TEGRA_DEF_H__ */
+#endif /* TEGRA_DEF_H */

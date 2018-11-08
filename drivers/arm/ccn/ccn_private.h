@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CCN_PRIVATE_H__
-#define __CCN_PRIVATE_H__
+#ifndef CCN_PRIVATE_H
+#define CCN_PRIVATE_H
 
 /*
  * A CCN implementation can have a maximum of 64 Request nodes with node IDs
@@ -230,4 +230,4 @@ static inline unsigned int count_set_bits(unsigned long long bitmap)
 #define CCN_GET_HN_NODEID_MAP(periphbase, mn_hn_id_reg_offset)		\
 	ccn_reg_read(periphbase, MN_REGION_ID, mn_hn_id_reg_offset)
 
-#endif /* __CCN_PRIVATE_H__ */
+#endif /* CCN_PRIVATE_H */

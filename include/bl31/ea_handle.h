@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __EA_HANDLE_H__
-#define __EA_HANDLE_H__
+#ifndef EA_HANDLE_H
+#define EA_HANDLE_H
 
 /* Constants indicating the reason for an External Abort */
 
@@ -21,4 +21,4 @@
 /* RAS event signalled as peripheral interrupt */
 #define ERROR_INTERRUPT		3
 
-#endif /* __EA_HANDLE_H__ */
+#endif /* EA_HANDLE_H */

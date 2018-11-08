@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef RAS_COMMON
-#define RAS_COMMON
+#ifndef RAS_H
+#define RAS_H
 
 #define ERR_HANDLER_VERSION	1U
 
@@ -196,4 +196,5 @@ int ras_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 void ras_init(void);
 
 #endif /* __ASSEMBLY__ */
-#endif /* RAS_COMMON */
+
+#endif /* RAS_H */

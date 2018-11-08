@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLAT_PRIVATE_H__
-#define __PLAT_PRIVATE_H__
+#ifndef PLAT_PRIVATE_H
+#define PLAT_PRIVATE_H
 
 /*******************************************************************************
  * Function and variable prototypes
@@ -24,4 +24,4 @@ void plat_cci_disable(void);
 /* Declarations for plat_topology.c */
 int mt_setup_topology(void);
 
-#endif /* __PLAT_PRIVATE_H__ */
+#endif /* PLAT_PRIVATE_H */

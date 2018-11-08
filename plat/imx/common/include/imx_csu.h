@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __IMX_CSU_H__
-#define __IMX_CSU_H__
+#ifndef IMX_CSU_H
+#define IMX_CSU_H
 
 #include <arch.h>
 
@@ -41,4 +41,4 @@
 			      CSU_CSL_SUR_S2)
 void imx_csu_init(void);
 
-#endif /* __IMX_CSU_H__ */
+#endif /* IMX_CSU_H */

@@ -170,4 +170,4 @@
 #define XN_SHIFT			54
 #define UXN_SHIFT			XN_SHIFT
 
-#endif /* __XLAT_TABLES_DEFS_H__ */
+#endif /* XLAT_TABLES_DEFS_H */

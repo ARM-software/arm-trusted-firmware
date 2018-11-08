@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __PM_IPC_DRV_H
-#define __PM_IPC_DRV_H
+#ifndef MSS_IPC_DRV_H
+#define MSS_IPC_DRV_H
 
 #include <psci.h>
 
@@ -117,4 +117,4 @@ int mv_pm_ipc_msg_rx(unsigned int channel_id, struct mss_pm_ipc_msg *msg);
 int mv_pm_ipc_msg_tx(unsigned int channel_id, unsigned int msg_id,
 			unsigned int cluster_power_state);
 
-#endif /* __PM_IPC_DRV_H */
+#endif /* MSS_IPC_DRV_H */

@@ -6,8 +6,8 @@
 
 /* ZynqMP IPI mailbox doorbell service enums and defines */
 
-#ifndef _IPI_MAILBOX_SVC_H_
-#define _IPI_MAILBOX_SVC_H_
+#ifndef IPI_MAILBOX_SVC_H
+#define IPI_MAILBOX_SVC_H
 
 #include <stdint.h>
 
@@ -36,4 +36,4 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 			 uint64_t x3, uint64_t x4, void *cookie, void *handle,
 			 uint64_t flags);
 
-#endif /* _IPI_MAILBOX_SVC_H_ */
+#endif /* IPI_MAILBOX_SVC_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef	CPG_REGISTER_H__
-#define	CPG_REGISTER_H__
+#ifndef CPG_REGISTERS_H
+#define CPG_REGISTERS_H
 
 /* CPG base address */
 #define	CPG_BASE	(0xE6150000U)
@@ -133,4 +133,4 @@
 /* System Module Stop Control Register 11 */
 #define	SMSTPCR11	(CPG_BASE + 0x099CU)
 
-#endif
+#endif /* CPG_REGISTERS_H */

@@ -52,8 +52,8 @@
  * @{
  */
 
-#ifndef SC_PAD_API_H
-#define SC_PAD_API_H
+#ifndef SCI_PAD_API_H
+#define SCI_PAD_API_H
 
 /* Includes */
 
@@ -567,6 +567,6 @@ sc_err_t sc_pad_get_gp_28fdsoi_comp(sc_ipc_t ipc, sc_pad_t pad,
 
 /* @} */
 
-#endif				/* SC_PAD_API_H */
+#endif /* SCI_PAD_API_H */
 
 /**@}*/

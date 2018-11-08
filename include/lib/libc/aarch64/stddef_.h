@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#ifndef STDDEF__H
+#define STDDEF__H
+
 #ifndef SIZET_
 typedef unsigned long size_t;
 #define SIZET_
@@ -13,3 +16,5 @@ typedef unsigned long size_t;
 typedef long ptrdiff_t;
 #define _PTRDIFF_T
 #endif
+
+#endif /* STDDEF__H */

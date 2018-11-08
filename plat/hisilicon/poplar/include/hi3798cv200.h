@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HI3798cv200_H__
-#define __HI3798cv200_H__
+#ifndef HI3798CV200_H
+#define HI3798CV200_H
 
 #include <utils_def.h>
 
@@ -102,4 +102,4 @@
 #define HISI_TZPC_BASE			(0xF8A80000)
 #define HISI_TZPC_SEC_ATTR_CTRL		(HISI_TZPC_BASE + 0x10)
 
-#endif	/* __HI3798cv200_H__ */
+#endif /* HI3798CV200_H */

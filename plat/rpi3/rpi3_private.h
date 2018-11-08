@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __RPI3_PRIVATE_H__
-#define __RPI3_PRIVATE_H__
+#ifndef RPI3_PRIVATE_H
+#define RPI3_PRIVATE_H
 
 #include <stdint.h>
 
@@ -39,4 +39,4 @@ void rpi3_rng_read(void *buf, size_t len);
 /* VideoCore firmware commands */
 int rpi3_vc_hardware_get_board_revision(uint32_t *revision);
 
-#endif /*__RPI3_PRIVATE_H__ */
+#endif /* RPI3_PRIVATE_H */

@@ -17,4 +17,4 @@ int rsb_assign_runtime_address(uint16_t hw_addr, uint8_t rt_addr);
 int rsb_read(uint8_t rt_addr, uint8_t reg_addr);
 int rsb_write(uint8_t rt_addr, uint8_t reg_addr, uint8_t value);
 
-#endif
+#endif /* SUNXI_RSB_H */

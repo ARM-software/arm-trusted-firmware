@@ -8,8 +8,8 @@
  * Header file for the RPC implementation.
  */
 
-#ifndef SC_RPC_H
-#define SC_RPC_H
+#ifndef SCI_RPC_H
+#define SCI_RPC_H
 
 /* Includes */
 
@@ -124,4 +124,4 @@ void sc_rpc_dispatch(sc_rsrc_t mu, sc_rpc_msg_t *msg);
  */
 void sc_rpc_xlate(sc_ipc_t ipc, sc_rpc_msg_t *msg);
 
-#endif				/* SC_RPC_H */
+#endif /* SCI_RPC_H */

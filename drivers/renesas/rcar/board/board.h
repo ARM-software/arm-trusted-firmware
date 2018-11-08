@@ -5,8 +5,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef BOARD_H_
-#define BOARD_H_
+#ifndef BOARD_H
+#define BOARD_H
 
 #define BOARD_SALVATOR_X		(0x00)
 #define BOARD_KRIEK			(0x01)
@@ -32,4 +32,4 @@ extern const char *g_board_tbl[];
 
 int32_t rcar_get_board_type(uint32_t *type, uint32_t *rev);
 
-#endif
+#endif /* BOARD_H */

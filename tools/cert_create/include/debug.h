@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __DEBUG_H__
-#define __DEBUG_H__
+#ifndef DEBUG_H
+#define DEBUG_H
 
 #include <stdio.h>
 
@@ -56,4 +56,4 @@
 # define VERBOSE(...)
 #endif
 
-#endif /* __DEBUG_H__ */
+#endif /* DEBUG_H */

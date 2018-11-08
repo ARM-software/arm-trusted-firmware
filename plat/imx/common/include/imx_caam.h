@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IMX_CAAM_H__
-#define __IMX_CAAM_H__
+#ifndef IMX_CAAM_H
+#define IMX_CAAM_H
 
 #include <stdint.h>
 #include <arch.h>
@@ -66,4 +66,4 @@ struct caam_ctrl {
 /* Declare CAAM API */
 void imx_caam_init(void);
 
-#endif /* __IMX_CAAM_H__ */
+#endif /* IMX_CAAM_H */

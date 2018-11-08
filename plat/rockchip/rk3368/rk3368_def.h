@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLAT_DEF_H__
-#define __PLAT_DEF_H__
+#ifndef RK3368_DEF_H
+#define RK3368_DEF_H
 
 /* Special value used to verify platform parameters from BL2 to BL3-1 */
 #define RK_BL31_PLAT_PARAM_VAL	0x0f1e2d3c4b5a6978ULL
@@ -104,4 +104,4 @@
 	INTR_PROP_DESC(RK_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY,	\
 		       GICV2_INTR_GROUP1, GIC_INTR_CFG_LEVEL)
 
-#endif /* __PLAT_DEF_H__ */
+#endif /* RK3368_DEF_H */

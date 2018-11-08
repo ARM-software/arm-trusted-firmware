@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __EP_INFO_H__
-#define __EP_INFO_H__
+#ifndef EP_INFO_H
+#define EP_INFO_H
 
 #include <param_header.h>
 #include <utils_def.h>
@@ -132,5 +132,4 @@ CASSERT(sizeof(uintptr_t) ==
 
 #endif /*__ASSEMBLY__*/
 
-#endif /* __EP_INFO_H__ */
-
+#endif /* EP_INFO_H */

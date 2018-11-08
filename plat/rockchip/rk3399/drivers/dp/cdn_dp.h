@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SOC_ROCKCHIP_RK3399_DP_H__
-#define __SOC_ROCKCHIP_RK3399_DP_H__
+#ifndef CDN_DP_H
+#define CDN_DP_H
+
 #include <plat_private.h>
 
 enum {
@@ -44,4 +45,5 @@ uint64_t dp_hdcp_store_key(uint64_t x1,
 			   uint64_t x4,
 			   uint64_t x5,
 			   uint64_t x6);
-#endif
+
+#endif /* CDN_DP_H */

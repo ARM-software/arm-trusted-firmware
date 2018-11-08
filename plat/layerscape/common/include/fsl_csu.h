@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __FSL_CSU_H__
-#define __FSL_CSU_H__
+#ifndef FSL_CSU_H
+#define FSL_CSU_H
 
 enum csu_cslx_access {
 	CSU_NS_SUP_R = 0x08,
@@ -30,4 +30,4 @@ struct csu_ns_dev {
 
 void enable_layerscape_ns_access(void);
 
-#endif
+#endif /* FSL_CSU_H */

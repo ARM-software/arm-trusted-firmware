@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HI6220_H__
-#define __HI6220_H__
+#ifndef HI6220_H
+#define HI6220_H
 
 #include <hi6220_regs_acpu.h>
 #include <hi6220_regs_ao.h>
@@ -74,4 +74,4 @@
 #define GPIO18_BASE				0xF702E000
 #define GPIO19_BASE				0xF702F000
 
-#endif	/* __HI6220_H__ */
+#endif /* HI6220_H */

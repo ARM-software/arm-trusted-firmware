@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HI3660_MEM_MAP__
-#define __HI3660_MEM_MAP__
+#ifndef HI3660_MEM_MAP_H
+#define HI3660_MEM_MAP_H
 
 #define HISI_DATA_HEAD_BASE		(0x89C44400)
 
@@ -17,4 +17,4 @@
 #define HISI_DATA1_BASE			(0x89C93480)
 #define HISI_DATA1_SIZE			(0x00002D00)
 
-#endif /* __HI3660_MEM_MAP__ */
+#endif /* HI3660_MEM_MAP_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HIKEY960_DEF_H__
-#define __HIKEY960_DEF_H__
+#ifndef HIKEY960_DEF_H
+#define HIKEY960_DEF_H
 
 #include <common_def.h>
 #include <tbbr_img_def.h>
@@ -53,4 +53,4 @@
 #define HIKEY960_UFS_DATA_BASE		0x10000000
 #define HIKEY960_UFS_DATA_SIZE		0x0A000000	/* 160MB */
 
-#endif /* __HIKEY960_DEF_H__ */
+#endif /* HIKEY960_DEF_H */

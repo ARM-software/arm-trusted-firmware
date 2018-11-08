@@ -11,8 +11,8 @@
  * @{
  */
 
-#ifndef SC_PM_RPC_H
-#define SC_PM_RPC_H
+#ifndef SCI_PM_RPC_H
+#define SCI_PM_RPC_H
 
 /* Includes */
 
@@ -66,6 +66,6 @@ void pm_dispatch(sc_rm_pt_t caller_pt, sc_rpc_msg_t *msg);
  */
 void pm_xlate(sc_ipc_t ipc, sc_rpc_msg_t *msg);
 
-#endif				/* SC_PM_RPC_H */
+#endif /* SCI_PM_RPC_H */
 
 /**@}*/

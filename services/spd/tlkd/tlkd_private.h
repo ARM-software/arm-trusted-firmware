@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TLKD_PRIVATE_H__
-#define __TLKD_PRIVATE_H__
+#ifndef TLKD_PRIVATE_H
+#define TLKD_PRIVATE_H
 
 #include <arch.h>
 #include <context.h>
@@ -119,4 +119,4 @@ void tlkd_init_tlk_ep_state(struct entry_point_info *tlk_entry_point,
 
 #endif /*__ASSEMBLY__*/
 
-#endif /* __TLKD_PRIVATE_H__ */
+#endif /* TLKD_PRIVATE_H */

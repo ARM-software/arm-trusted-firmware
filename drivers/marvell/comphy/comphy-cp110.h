@@ -7,8 +7,8 @@
 
 /* Marvell CP110 SoC COMPHY unit driver */
 
-#ifndef _PHY_COMPHY_CP110_H
-#define _PHY_COMPHY_CP110_H
+#ifndef COMPHY_CP110_H
+#define COMPHY_CP110_H
 
 #define SD_ADDR(base, lane)			(base + 0x1000 * lane)
 #define HPIPE_ADDR(base, lane)			(SD_ADDR(base, lane) + 0x800)
@@ -862,5 +862,4 @@
 /* General defines */
 #define PLL_LOCK_TIMEOUT			15000
 
-#endif /* _PHY_COMPHY_CP110_H */
-
+#endif /* COMPHY_CP110_H */

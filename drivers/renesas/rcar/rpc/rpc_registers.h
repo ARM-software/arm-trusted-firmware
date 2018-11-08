@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef RPC_REGISTER_H__
-#define RPC_REGISTER_H__
+#ifndef RPC_REGISTERS_H
+#define RPC_REGISTERS_H
 
 #define RPC_BASE	(0xEE200000U)
 #define RPC_CMNCR	(RPC_BASE + 0x0000U)
@@ -22,4 +22,4 @@
 #define RPC_PHYCNT	(RPC_BASE + 0x007CU)
 #define RPC_PHYINT	(RPC_BASE + 0x0088U)
 
-#endif
+#endif /* RPC_REGISTERS_H */

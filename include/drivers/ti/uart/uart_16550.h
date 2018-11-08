@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __UART_16550_H__
-#define __UART_16550_H__
+#ifndef UART_16550_H
+#define UART_16550_H
 
 #include <console.h>
 
@@ -93,4 +93,4 @@ int console_16550_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
 
 #endif /*__ASSEMBLY__*/
 
-#endif	/* __UART_16550_H__ */
+#endif /* UART_16550_H */

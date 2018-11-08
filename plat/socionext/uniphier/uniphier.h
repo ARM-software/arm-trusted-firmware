@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __UNIPHIER_H__
-#define __UNIPHIER_H__
+#ifndef UNIPHIER_H
+#define UNIPHIER_H
 
 #include <stdint.h>
 #include <string.h>
@@ -88,4 +88,4 @@ unsigned int uniphier_calc_core_pos(u_register_t mpidr);
 #define UNIPHIER_IMAGE_BUF_SIZE		((UNIPHIER_NS_DRAM_LIMIT) - \
 					 (UNIPHIER_IMAGE_BUF_BASE))
 
-#endif /* __UNIPHIER_H__ */
+#endif /* UNIPHIER_H */

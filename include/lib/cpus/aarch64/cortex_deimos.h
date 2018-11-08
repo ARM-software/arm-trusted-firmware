@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CORTEX_DEIMOS_H__
-#define __CORTEX_DEIMOS_H__
+#ifndef CORTEX_DEIMOS_H
+#define CORTEX_DEIMOS_H
 
 #define CORTEX_DEIMOS_MIDR					U(0x410FD0D0)
 
@@ -20,4 +20,4 @@
 #define CORTEX_DEIMOS_CPUPWRCTLR_EL1				S3_0_C15_C2_7
 #define CORTEX_DEIMOS_CPUPWRCTLR_EL1_CORE_PWRDN_BIT		(U(1) << 0)
 
-#endif /* __CORTEX_DEIMOS_H__ */
+#endif /* CORTEX_DEIMOS_H */

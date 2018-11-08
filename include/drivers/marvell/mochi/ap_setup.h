@@ -7,11 +7,11 @@
 
 /* AP8xx Marvell SoC driver */
 
-#ifndef __AP_SETUP_H__
-#define __AP_SETUP_H__
+#ifndef AP_SETUP_H
+#define AP_SETUP_H
 
 void ap_init(void);
 void ap_ble_init(void);
 int ap_get_count(void);
 
-#endif /* __AP_SETUP_H__ */
+#endif /* AP_SETUP_H */

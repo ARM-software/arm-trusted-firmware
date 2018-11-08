@@ -18,8 +18,8 @@
  * @{
  */
 
-#ifndef SC_RM_API_H
-#define SC_RM_API_H
+#ifndef SCI_RM_API_H
+#define SCI_RM_API_H
 
 /* Includes */
 
@@ -752,6 +752,6 @@ void sc_rm_dump(sc_ipc_t ipc);
 
 /* @} */
 
-#endif				/* SC_RM_API_H */
+#endif /* SCI_RM_API_H */
 
 /**@}*/

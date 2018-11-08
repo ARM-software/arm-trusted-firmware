@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLAT_MACROS_S__
-#define __PLAT_MACROS_S__
+#ifndef PLAT_MACROS_S
+#define PLAT_MACROS_S
 
 #include <tegra_def.h>
 
@@ -57,4 +57,4 @@ spacer:
 1:
 .endm
 
-#endif /* __PLAT_MACROS_S__ */
+#endif /* PLAT_MACROS_S */

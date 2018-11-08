@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CONSOLE_ASSERTIONS_H__
-#define __CONSOLE_ASSERTIONS_H__
+#ifndef CONSOLE_ASSERTIONS_H
+#define CONSOLE_ASSERTIONS_H
 
 #include <cassert.h>
 
@@ -26,5 +26,4 @@ CASSERT(CONSOLE_T_FLUSH == __builtin_offsetof(console_t, flush),
 CASSERT(CONSOLE_T_DRVDATA == sizeof(console_t),
 	assert_console_t_drvdata_offset_mismatch);
 
-#endif /* __CONSOLE_ASSERTIONS_H__ */
-
+#endif /* CONSOLE_ASSERTIONS_H */

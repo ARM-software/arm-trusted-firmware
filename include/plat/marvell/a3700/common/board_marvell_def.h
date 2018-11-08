@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __BOARD_MARVELL_DEF_H__
-#define __BOARD_MARVELL_DEF_H__
+#ifndef BOARD_MARVELL_DEF_H
+#define BOARD_MARVELL_DEF_H
 
 /*
  * Required platform porting definitions common to all ARM
@@ -73,5 +73,4 @@
 
 #define PLAT_MARVELL_TRUSTED_SRAM_SIZE	0x80000	/* 512 KB */
 
-
-#endif /* __BOARD_MARVELL_DEF_H__ */
+#endif /* BOARD_MARVELL_DEF_H */

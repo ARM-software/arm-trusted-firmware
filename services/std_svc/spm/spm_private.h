@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SPM_PRIVATE_H__
-#define __SPM_PRIVATE_H__
+#ifndef SPM_PRIVATE_H
+#define SPM_PRIVATE_H
 
 #include <context.h>
 
@@ -67,4 +67,4 @@ int spm_memory_attributes_set_smc_handler(sp_context_t *sp_ctx,
 
 #endif /* __ASSEMBLY__ */
 
-#endif /* __SPM_PRIVATE_H__ */
+#endif /* SPM_PRIVATE_H */

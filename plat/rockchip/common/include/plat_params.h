@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLAT_PARAMS_H__
-#define __PLAT_PARAMS_H__
+#ifndef PLAT_PARAMS_H
+#define PLAT_PARAMS_H
 
 #include <stdint.h>
 
@@ -95,4 +95,4 @@ struct bl31_u64_param {
 	uint64_t value;
 };
 
-#endif /* __PLAT_PARAMS_H__ */
+#endif /* PLAT_PARAMS_H */

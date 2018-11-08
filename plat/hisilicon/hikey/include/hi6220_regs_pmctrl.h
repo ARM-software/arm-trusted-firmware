@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HI6220_REGS_PMCTRL_H__
-#define __HI6220_REGS_PMCTRL_H__
+#ifndef HI6220_REGS_PMCTRL_H
+#define HI6220_REGS_PMCTRL_H
 
 #define PMCTRL_BASE				0xF7032000
 
@@ -98,4 +98,4 @@
 #define SOC_PMCTRL_ACPUSYSPLLCFG_acpu_syspll_clken_stat_START   (20)
 #define SOC_PMCTRL_ACPUSYSPLLCFG_acpu_syspll_clken_stat_END     (20)
 
-#endif /* __HI6220_REGS_PMCTRL_H__ */
+#endif /* HI6220_REGS_PMCTRL_H */

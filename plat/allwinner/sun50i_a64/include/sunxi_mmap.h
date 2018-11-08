@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SUNXI_MMAP_H__
-#define __SUNXI_MMAP_H__
+#ifndef SUNXI_MMAP_H
+#define SUNXI_MMAP_H
 
 /* Memory regions */
 #define SUNXI_ROM_BASE			0x00000000
@@ -71,4 +71,4 @@
 #define SUNXI_R_RSB_BASE		0x01f03400
 #define SUNXI_R_PWM_BASE		0x01f03800
 
-#endif /* __SUNXI_MMAP_H__ */
+#endif /* SUNXI_MMAP_H */

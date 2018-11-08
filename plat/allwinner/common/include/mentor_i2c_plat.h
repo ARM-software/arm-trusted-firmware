@@ -6,8 +6,8 @@
  */
 /* This driver provides I2C support for Allwinner sunXi SoCs */
 
-#ifndef SUNXI_I2C_H
-#define SUNXI_I2C_H
+#ifndef MENTOR_I2C_PLAT_H
+#define MENTOR_I2C_PLAT_H
 
 #define CONFIG_SYS_TCLK			24000000
 #define CONFIG_SYS_I2C_SPEED		100000
@@ -25,4 +25,4 @@ struct  mentor_i2c_regs {
 	uint32_t soft_reset;
 };
 
-#endif
+#endif /* MENTOR_I2C_PLAT_H */

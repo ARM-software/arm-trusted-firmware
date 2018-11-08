@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __GICV2_PRIVATE_H__
-#define __GICV2_PRIVATE_H__
+#ifndef GICV2_PRIVATE_H
+#define GICV2_PRIVATE_H
 
 #include <gicv2.h>
 #include <mmio.h>
@@ -146,4 +146,4 @@ static inline void gicc_write_dir(uintptr_t base, unsigned int val)
 	mmio_write_32(base + GICC_DIR, val);
 }
 
-#endif /* __GICV2_PRIVATE_H__ */
+#endif /* GICV2_PRIVATE_H */

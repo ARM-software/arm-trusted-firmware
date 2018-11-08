@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLAT_DEF_H__
-#define __PLAT_DEF_H__
+#ifndef RK3399_DEF_H
+#define RK3399_DEF_H
 
 #include <addressmap.h>
 
@@ -62,4 +62,4 @@
 	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY,	\
 		       INTR_GROUP0, GIC_INTR_CFG_LEVEL)
 
-#endif /* __PLAT_DEF_H__ */
+#endif /* RK3399_DEF_H */

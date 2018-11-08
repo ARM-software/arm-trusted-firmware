@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __CSS_MACROS_S__
-#define __CSS_MACROS_S__
+#ifndef CSS_MACROS_S
+#define CSS_MACROS_S
 
 #include <arm_macros.S>
 #include <platform_def.h>
@@ -22,5 +22,4 @@
 	arm_print_gic_regs
 	.endm
 
-
-#endif /* __CSS_MACROS_S__ */
+#endif /* CSS_MACROS_S */

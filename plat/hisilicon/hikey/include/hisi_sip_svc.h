@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HISI_SIP_SVC_H__
-#define __HISI_SIP_SVC_H__
+#ifndef HISI_SIP_SVC_H
+#define HISI_SIP_SVC_H
 
 /* SMC function IDs for SiP Service queries */
 
@@ -18,4 +18,4 @@
 #define HISI_SIP_SVC_VERSION_MAJOR		0x0
 #define HISI_SIP_SVC_VERSION_MINOR		0x1
 
-#endif /* __ARM_SIP_SVC_H__ */
+#endif /* HISI_SIP_SVC_H */

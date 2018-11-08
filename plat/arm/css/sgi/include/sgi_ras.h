@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SGI_RAS__
-#define __SGI_RAS__
+#ifndef SGI_RAS_H
+#define SGI_RAS_H
 
 /*
  * Mapping the RAS interrupt with SDEI event number and the event
@@ -19,4 +19,4 @@ struct sgi_ras_ev_map {
 
 int sgi_ras_intr_handler_setup(void);
 
-#endif /* __SGI_RAS__ */
+#endif /* SGI_RAS_H */

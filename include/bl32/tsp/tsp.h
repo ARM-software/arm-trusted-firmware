@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TSP_H__
-#define __TSP_H__
+#ifndef TSP_H
+#define TSP_H
 
 /*
  * SMC function IDs that TSP uses to signal various forms of completions
@@ -107,4 +107,4 @@ typedef struct tsp_vectors {
 
 #endif /* __ASSEMBLY__ */
 
-#endif /* __TSP_H__ */
+#endif /* TSP_H */

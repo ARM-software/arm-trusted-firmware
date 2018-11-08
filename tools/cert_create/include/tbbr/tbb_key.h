@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef TBB_KEY_H_
-#define TBB_KEY_H_
+#ifndef TBB_KEY_H
+#define TBB_KEY_H
 
 #include "key.h"
 
@@ -22,4 +22,4 @@ enum {
 	NON_TRUSTED_FW_CONTENT_CERT_KEY
 };
 
-#endif /* TBB_KEY_H_ */
+#endif /* TBB_KEY_H */

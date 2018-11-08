@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __SPM_H__
-#define __SPM_H__
+#ifndef SPM_H
+#define SPM_H
 
 #define SPM_POWERON_CONFIG_SET			(SPM_BASE + 0x000)
 #define SPM_POWER_ON_VAL0			(SPM_BASE + 0x010)
@@ -333,4 +333,4 @@ void spm_lock_get(void);
 void spm_lock_release(void);
 void spm_boot_init(void);
 
-#endif /* __SPM_H__ */
+#endif /* SPM_H */

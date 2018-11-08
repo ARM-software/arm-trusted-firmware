@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __M0_PARAM_H__
-#define __M0_PARAM_H__
+#ifndef M0_PARAM_H
+#define M0_PARAM_H
 
 #define PARAM_ADDR		0xc0
 
@@ -22,4 +22,4 @@
 #define PARAM_M0_SIZE		0x28
 #define M0_DONE_FLAG		0xf59ec39a
 
-#endif /*__M0_PARAM_H__*/
+#endif /* M0_PARAM_H */

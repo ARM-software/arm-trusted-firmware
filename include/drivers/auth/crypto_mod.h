@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CRYPTO_MOD_H__
-#define __CRYPTO_MOD_H__
+#ifndef CRYPTO_MOD_H
+#define CRYPTO_MOD_H
 
 /* Return values */
 enum crypto_ret_value {
@@ -59,4 +59,4 @@ int crypto_mod_verify_hash(void *data_ptr, unsigned int data_len,
 
 extern const crypto_lib_desc_t crypto_lib_desc;
 
-#endif /* __CRYPTO_MOD_H__ */
+#endif /* CRYPTO_MOD_H */

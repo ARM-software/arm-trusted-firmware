@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef RCAR_PWRC_H__
-#define RCAR_PWRC_H__
+#ifndef PWRC_H
+#define PWRC_H
 
 #define PPOFFR_OFF		0x0
 #define PPONR_OFF		0x4
@@ -74,4 +74,4 @@ extern uint64_t rcar_stack_generic_timer[5];
 
 #endif
 
-#endif
+#endif /* PWRC_H */

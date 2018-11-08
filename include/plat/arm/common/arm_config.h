@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __ARM_CONFIG_H__
-#define __ARM_CONFIG_H__
+#ifndef ARM_CONFIG_H
+#define ARM_CONFIG_H
 
 #include <stdint.h>
 #include <utils_def.h>
@@ -39,4 +39,4 @@ static inline const arm_config_t *get_arm_config(void)
 }
 
 
-#endif /* __ARM_CONFIG_H__ */
+#endif /* ARM_CONFIG_H */

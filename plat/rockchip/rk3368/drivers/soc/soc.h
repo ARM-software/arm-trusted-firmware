@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SOC_H__
-#define __SOC_H__
+#ifndef SOC_H
+#define SOC_H
 
 enum plls_id {
 	ABPLL_ID = 0,
@@ -138,4 +138,4 @@ void regs_updata_bits(uintptr_t addr, uint32_t val,
 void soc_sleep_config(void);
 void pm_plls_resume(void);
 
-#endif /* __SOC_H__ */
+#endif /* SOC_H */

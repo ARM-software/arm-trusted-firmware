@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __MBR_H__
-#define __MBR_H__
+#ifndef MBR_H
+#define MBR_H
 
 #define MBR_OFFSET			0
 
@@ -26,4 +26,4 @@ typedef struct mbr_entry {
 	unsigned int		sector_nums;
 } mbr_entry_t;
 
-#endif	/* __MBR_H__ */
+#endif /* MBR_H */

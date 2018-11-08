@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __DESC_IMAGE_LOAD_H__
-#define __DESC_IMAGE_LOAD_H__
+#ifndef DESC_IMAGE_LOAD_H
+#define DESC_IMAGE_LOAD_H
 
 #include <bl_common.h>
 
@@ -37,4 +37,4 @@ bl_load_info_t *get_bl_load_info_from_mem_params_desc(void);
 bl_params_t *get_next_bl_params_from_mem_params_desc(void);
 void populate_next_bl_params_config(bl_params_t *bl2_to_next_bl_params);
 
-#endif /* __DESC_IMAGE_LOAD_H__ */
+#endif /* DESC_IMAGE_LOAD_H */

@@ -8,8 +8,8 @@
  * Header file for the IPC implementation.
  */
 
-#ifndef SC_IPC_H
-#define SC_IPC_H
+#ifndef SCI_IPC_H
+#define SCI_IPC_H
 
 /* Includes */
 
@@ -64,4 +64,4 @@ void sc_ipc_write(sc_ipc_t ipc, void *data);
 
 sc_ipc_t ipc_handle;
 
-#endif				/* SC_IPC_H */
+#endif /* SCI_IPC_H */

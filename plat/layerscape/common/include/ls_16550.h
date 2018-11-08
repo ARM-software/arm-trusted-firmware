@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __LS_16550_H__
-#define __LS_16550_H__
+#ifndef LS_16550_H
+#define LS_16550_H
 
 #include <console.h>
 
@@ -83,4 +83,4 @@ int console_ls_16550_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
 
 #endif /*__ASSEMBLY__*/
 
-#endif	/* __LS_16550_H__ */
+#endif /* LS_16550_H */

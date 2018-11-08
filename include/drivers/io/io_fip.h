@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IO_FIP_H__
-#define __IO_FIP_H__
+#ifndef IO_FIP_H
+#define IO_FIP_H
 
 struct io_dev_connector;
 
 int register_io_dev_fip(const struct io_dev_connector **dev_con);
 
-#endif /* __IO_FIP_H__ */
+#endif /* IO_FIP_H */

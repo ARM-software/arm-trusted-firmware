@@ -5,9 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __PLAT_PM_TRACE_H
-#define __PLAT_PM_TRACE_H
-
+#ifndef PLAT_PM_TRACE_H
+#define PLAT_PM_TRACE_H
 
 /*
  * PM Trace is for Debug purpose only!!!
@@ -97,4 +96,4 @@ extern core_trace_func funcTbl[PLATFORM_CORE_COUNT];
  */
 void pm_trace_add(unsigned int trace, unsigned int core);
 
-#endif /* __PLAT_PM_TRACE_H */
+#endif /* PLAT_PM_TRACE_H */

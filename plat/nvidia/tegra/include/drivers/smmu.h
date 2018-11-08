@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SMMU_H
-#define __SMMU_H
+#ifndef SMMU_H
+#define SMMU_H
 
 #include <memctrl_v2.h>
 #include <mmio.h>
@@ -705,4 +705,4 @@ void tegra_smmu_init(void);
 void tegra_smmu_save_context(uint64_t smmu_ctx_addr);
 smmu_regs_t *plat_get_smmu_ctx(void);
 
-#endif /*__SMMU_H */
+#endif /* SMMU_H */

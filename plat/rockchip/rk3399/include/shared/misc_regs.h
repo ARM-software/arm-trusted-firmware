@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __ROCKCHIP_RK3399_INCLUDE_SHARED_MISC_REGS_H__
-#define __ROCKCHIP_RK3399_INCLUDE_SHARED_MISC_REGS_H__
+#ifndef MISC_REGS_H
+#define MISC_REGS_H
 
 /* CRU */
 #define CRU_DPLL_CON0		0x40
@@ -24,4 +24,4 @@
 /* PMU CRU */
 #define PMU_CRU_GATEDIS_CON0	0x130
 
-#endif /* __ROCKCHIP_RK3399_INCLUDE_SHARED_MISC_REGS_H__ */
+#endif /* MISC_REGS_H */

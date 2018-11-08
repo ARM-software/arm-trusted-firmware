@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CSS_MHU_H__
-#define __CSS_MHU_H__
+#ifndef CSS_MHU_H
+#define CSS_MHU_H
 
 #include <stdint.h>
 
@@ -16,4 +16,4 @@ void mhu_secure_message_end(unsigned int slot_id);
 
 void mhu_secure_init(void);
 
-#endif	/* __CSS_MHU_H__ */
+#endif /* CSS_MHU_H */

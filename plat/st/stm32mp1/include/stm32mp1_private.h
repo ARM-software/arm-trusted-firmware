@@ -4,8 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __STM32MP1_PRIVATE_H__
-#define __STM32MP1_PRIVATE_H__
+#ifndef STM32MP1_PRIVATE_H
+#define STM32MP1_PRIVATE_H
+
+#include <stdint.h>
 
 void stm32mp1_io_setup(void);
 void configure_mmu(void);
@@ -19,4 +21,4 @@ uintptr_t stm32mp1_get_boot_ctx_address(void);
 void stm32mp1_gic_pcpu_init(void);
 void stm32mp1_gic_init(void);
 
-#endif /* __STM32MP1_PRIVATE_H__ */
+#endif /* STM32MP1_PRIVATE_H */

@@ -7,8 +7,8 @@
 
 /* Marvell CP110 ana A3700 common */
 
-#ifndef _PHY_COMPHY_COMMON_H
-#define _PHY_COMPHY_COMMON_H
+#ifndef PHY_COMPHY_COMMON_H
+#define PHY_COMPHY_COMMON_H
 
 /* #define DEBUG_COMPHY */
 #ifdef DEBUG_COMPHY
@@ -153,4 +153,4 @@ static inline void __unused reg_set16(uintptr_t addr, uint16_t data,
 	debug("new val 0x%x\n", mmio_read_16(addr));
 }
 
-#endif /* _PHY_COMPHY_COMMON_H */
+#endif /* PHY_COMPHY_COMMON_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __DDR_RK3368_H__
-#define __DDR_RK3368_H__
+#ifndef DDR_RK3368_H
+#define DDR_RK3368_H
 
 #define DDR_PCTL_SCFG		0x0
 #define DDR_PCTL_SCTL		0x4
@@ -244,4 +244,4 @@ uint32_t ddr_get_resume_data_size(void);
 uint32_t *ddr_get_resume_code_base(void);
 void ddr_reg_save(uint32_t pllpdstat, uint64_t base_addr);
 
-#endif
+#endif /* DDR_RK3368_H */

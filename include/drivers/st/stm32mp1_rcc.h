@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __STM32MP1_RCC_H__
-#define __STM32MP1_RCC_H__
+#ifndef STM32MP1_RCC_H
+#define STM32MP1_RCC_H
 
 #include <utils_def.h>
 
@@ -365,4 +365,4 @@
 /* Values of RCC_MP_AHB4ENSETR register */
 #define RCC_MP_AHB4ENSETR_GPIOGEN	BIT(6)
 
-#endif /* __STM32MP1_RCC_H__ */
+#endif /* STM32MP1_RCC_H */

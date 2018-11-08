@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __INTERRUPT_MGMT_H__
-#define __INTERRUPT_MGMT_H__
+#ifndef INTERRUPT_MGMT_H
+#define INTERRUPT_MGMT_H
 
 #include <arch.h>
 #include <utils_def.h>
@@ -144,4 +144,4 @@ int disable_intr_rm_local(uint32_t type, uint32_t security_state);
 int enable_intr_rm_local(uint32_t type, uint32_t security_state);
 
 #endif /*__ASSEMBLY__*/
-#endif /* __INTERRUPT_MGMT_H__ */
+#endif /* INTERRUPT_MGMT_H */

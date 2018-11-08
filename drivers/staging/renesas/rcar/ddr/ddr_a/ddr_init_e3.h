@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#pragma once
-#include <stdint.h>
+#ifndef DDR_INIT_E3_H
+#define DDR_INIT_E3_H
 
-#ifndef	__DDR_INIT_E3_
-#define	__DDR_INIT_E3_
+#include <stdint.h>
 
 #define RCAR_E3_DDR_VERSION    "rev.0.09"
 
@@ -31,4 +30,4 @@ extern int32_t rcar_dram_init(void);
 #define INITDRAM_ERR_O (0xfffffffe)
 #define INITDRAM_ERR_T (0xfffffff0)
 
-#endif /* __DDR_INIT_E3_ */
+#endif /* DDR_INIT_E3_H */

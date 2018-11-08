@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLAT_GPIO_H__
-#define __PLAT_GPIO_H__
+#ifndef STM32_GPIO_H
+#define STM32_GPIO_H
 
 #include <utils_def.h>
 
@@ -98,4 +98,4 @@ void set_gpio(uint32_t bank, uint32_t pin, uint32_t mode, uint32_t speed,
 	      uint32_t pull, uint32_t alternate);
 #endif /*__ASSEMBLY__*/
 
-#endif /*__PLAT_GPIO_H__*/
+#endif /* STM32_GPIO_H */

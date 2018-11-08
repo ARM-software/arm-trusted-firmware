@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __STM32MP1_CLKFUNC_H__
-#define __STM32MP1_CLKFUNC_H__
+#ifndef STM32MP1_CLKFUNC_H
+#define STM32MP1_CLKFUNC_H
 
 #include <stdbool.h>
 
@@ -39,4 +39,4 @@ bool fdt_get_rcc_secure_status(void);
 uintptr_t fdt_get_stgen_base(void);
 int fdt_get_clock_id(int node);
 
-#endif /* __STM32MP1_CLKFUNC_H__ */
+#endif /* STM32MP1_CLKFUNC_H */
