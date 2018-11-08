@@ -7,7 +7,6 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <console.h>
 #include <debug.h>
 #include <delay_timer.h>
 #include <dw_ufs.h>
@@ -17,6 +16,7 @@
 #include <hi3660.h>
 #include <interrupt_props.h>
 #include <mmio.h>
+#include <pl011.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <string.h>
@@ -40,6 +40,7 @@ enum {
 
 /* Data structure which holds the extents of the trusted RAM for BL1 */
 static meminfo_t bl1_tzram_layout;
+static console_pl011_t console;
 
 /******************************************************************************
  * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0
@@ -78,7 +79,8 @@ void bl1_early_platform_setup(void)
 	else
 		uart_base = PL011_UART6_BASE;
 	/* Initialize the console to provide early debug support */
-	console_init(uart_base, PL011_UART_CLK_IN_HZ, PL011_BAUDRATE);
+	console_pl011_register(uart_base, PL011_UART_CLK_IN_HZ,
+			       PL011_BAUDRATE, &console);
 
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_tzram_layout.total_base = BL1_RW_BASE;
