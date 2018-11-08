@@ -382,8 +382,16 @@ smc_handler64:
 	 */
 	tbz	x0, #(FUNCID_NAMESPACE_SHIFT + 1), compat_or_vendor
 
-	/* Namespaces SPRT and SPCI currently unimplemented */
+	/* Namespace is b'10 (SPRT) or b'11 (SPCI) */
+#if ENABLE_SPM
+	tst	x0, #(1 << FUNCID_NAMESPACE_SHIFT)
+	adr	x15, spci_smc_handler
+	adr	x16, sprt_smc_handler
+	csel	x15, x15, x16, ne
+	b	prepare_enter_handler
+#else
 	b	smc_unknown
+#endif
 
 compat_or_vendor:
 
@@ -400,6 +408,8 @@ compat_or_vendor:
 	ubfx	x16, x0, #FUNCID_OEN_SHIFT, #(FUNCID_OEN_WIDTH + 1)
 
 	load_rt_svc_desc_pointer
+
+prepare_enter_handler:
 
 #endif /* SMCCC_MAJOR_VERSION */
 
