@@ -84,6 +84,7 @@ int spm_memory_attributes_set_smc_handler(sp_context_t *sp_ctx,
 /* Functions to handle Secure Partition contexts */
 void spm_cpu_set_sp_ctx(unsigned int linear_id, sp_context_t *sp_ctx);
 sp_context_t *spm_cpu_get_sp_ctx(unsigned int linear_id);
+sp_context_t *spm_sp_get_by_uuid(const uint32_t (*svc_uuid)[4]);
 
 #endif /* __ASSEMBLY__ */
 

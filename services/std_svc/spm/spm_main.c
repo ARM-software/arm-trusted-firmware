@@ -16,6 +16,7 @@
 #include <smccc.h>
 #include <smccc_helpers.h>
 #include <spinlock.h>
+#include <string.h>
 #include <spm_svc.h>
 #include <utils.h>
 #include <xlat_tables_v2.h>
@@ -42,6 +43,38 @@ sp_context_t *spm_cpu_get_sp_ctx(unsigned int linear_id)
 	assert(linear_id < PLATFORM_CORE_COUNT);
 
 	return cpu_sp_ctx[linear_id];
+}
+
+/*******************************************************************************
+ * This function returns a pointer to the context of the Secure Partition that
+ * handles the service specified by an UUID. It returns NULL if the UUID wasn't
+ * found.
+ ******************************************************************************/
+sp_context_t *spm_sp_get_by_uuid(const uint32_t (*svc_uuid)[4])
+{
+	unsigned int i;
+
+	for (i = 0U; i < PLAT_SPM_MAX_PARTITIONS; i++) {
+
+		sp_context_t *sp_ctx = &sp_ctx_array[i];
+
+		if (sp_ctx->is_present == 0) {
+			continue;
+		}
+
+		struct sp_rd_sect_service *rdsvc;
+
+		for (rdsvc = sp_ctx->rd.service; rdsvc != NULL;
+		     rdsvc = rdsvc->next) {
+			uint32_t *rd_uuid = (uint32_t *)(rdsvc->uuid);
+
+			if (memcmp(rd_uuid, svc_uuid, sizeof(rd_uuid)) == 0) {
+				return sp_ctx;
+			}
+		}
+	}
+
+	return NULL;
 }
 
 /*******************************************************************************
