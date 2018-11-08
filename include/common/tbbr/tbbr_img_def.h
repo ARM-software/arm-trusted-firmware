@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TBBR_IMG_DEF_H__
-#define __TBBR_IMG_DEF_H__
+#ifndef TBBR_IMG_DEF_H
+#define TBBR_IMG_DEF_H
 
 #include <utils_def.h>
 
@@ -86,4 +86,4 @@
 /* Define size of the array */
 #define MAX_NUMBER_IDS			U(30)
 
-#endif /* __TBBR_IMG_DEF_H__ */
+#endif /* TBBR_IMG_DEF_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __M0_CTL_H__
-#define __M0_CTL_H__
+#ifndef M0_CTL_H
+#define M0_CTL_H
 
 #include <m0_param.h>
 
@@ -25,4 +25,5 @@ extern void m0_start(void);
 extern void m0_stop(void);
 extern void m0_wait_done(void);
 extern void m0_configure_execute_addr(uintptr_t addr);
-#endif /* __M0_CTL_H__ */
+
+#endif /* M0_CTL_H */

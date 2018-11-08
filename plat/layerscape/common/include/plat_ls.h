@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLAT_LS_H__
-#define __PLAT_LS_H__
+#ifndef PLAT_LS_H
+#define PLAT_LS_H
 
 #include <cpu_data.h>
 #include <stdint.h>
@@ -58,4 +58,4 @@ unsigned int plat_ls_calc_core_pos(u_register_t mpidr);
 /* others */
 unsigned int plat_ls_get_cluster_core_count(u_register_t mpidr);
 
-#endif /* __PLAT_LS_H__ */
+#endif /* PLAT_LS_H */

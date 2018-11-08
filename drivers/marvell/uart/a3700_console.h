@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __A3700_CONSOLE_H__
-#define __A3700_CONSOLE_H__
+#ifndef A3700_CONSOLE_H
+#define A3700_CONSOLE_H
 
 /* MVEBU UART Registers */
 #define UART_RX_REG		0x00
@@ -52,4 +52,4 @@
 #define UART_CTRL_TXFIFO_RESET	(1 << 15)
 #define UARTLSR_TXFIFOEMPTY	(1 << 6)
 
-#endif	/* __A3700_CONSOLE_H__ */
+#endif /* A3700_CONSOLE_H */

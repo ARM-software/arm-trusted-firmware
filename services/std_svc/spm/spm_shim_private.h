@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SPM_SHIM_PRIVATE__
-#define __SPM_SHIM_PRIVATE__
+#ifndef SPM_SHIM_PRIVATE_H
+#define SPM_SHIM_PRIVATE_H
 
 #include <stdint.h>
 #include <utils_def.h>
@@ -22,4 +22,4 @@ IMPORT_SYM(uintptr_t, __SPM_SHIM_EXCEPTIONS_END__,	SPM_SHIM_EXCEPTIONS_END);
 #define SPM_SHIM_EXCEPTIONS_SIZE	\
 	(SPM_SHIM_EXCEPTIONS_END - SPM_SHIM_EXCEPTIONS_START)
 
-#endif /* __SPM_SHIM_PRIVATE__ */
+#endif /* SPM_SHIM_PRIVATE_H */

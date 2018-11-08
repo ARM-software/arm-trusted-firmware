@@ -8,8 +8,8 @@
  * ZynqMP system level PM-API functions for pin control.
  */
 
-#ifndef _PM_API_PINCTRL_H_
-#define _PM_API_PINCTRL_H_
+#ifndef PM_API_PINCTRL_H
+#define PM_API_PINCTRL_H
 
 #include "pm_common.h"
 
@@ -731,4 +731,4 @@ enum pm_ret_status pm_api_pinctrl_get_num_pins(unsigned int *npins);
 enum pm_ret_status pm_api_pinctrl_get_num_functions(unsigned int *nfuncs);
 enum pm_ret_status pm_api_pinctrl_get_num_func_groups(unsigned int fid,
 						      unsigned int *ngroups);
-#endif /* _PM_API_PINCTRL_H_ */
+#endif /* PM_API_PINCTRL_H */

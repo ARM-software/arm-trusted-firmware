@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HIKEY960_PRIVATE_H__
-#define __HIKEY960_PRIVATE_H__
+#ifndef HIKEY960_PRIVATE_H
+#define HIKEY960_PRIVATE_H
 
 #include <bl_common.h>
 
@@ -38,4 +38,4 @@ void clr_retention_ticks(unsigned int val);
 void clr_ex(void);
 void nop(void);
 
-#endif /* __HIKEY960_PRIVATE_H__ */
+#endif /* HIKEY960_PRIVATE_H */

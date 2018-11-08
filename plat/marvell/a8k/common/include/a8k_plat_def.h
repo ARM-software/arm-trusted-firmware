@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __A8K_PLAT_DEF_H__
-#define __A8K_PLAT_DEF_H__
+#ifndef A8K_PLAT_DEF_H
+#define A8K_PLAT_DEF_H
 
 #include <marvell_def.h>
 
@@ -191,4 +191,4 @@ enum ccu_target_ids {
 };
 #endif /* __ASSEMBLER__ */
 
-#endif /* __A8K_PLAT_DEF_H__ */
+#endif /* A8K_PLAT_DEF_H */

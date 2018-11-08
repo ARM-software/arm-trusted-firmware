@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLAT_MACROS_S__
-#define __PLAT_MACROS_S__
+#ifndef PLAT_MACROS_S
+#define PLAT_MACROS_S
 
 #include <arm_macros.S>
 #include <sunxi_mmap.h>
@@ -24,4 +24,4 @@
 	arm_print_gic_regs
 	.endm
 
-#endif /* __PLAT_MACROS_S__ */
+#endif /* PLAT_MACROS_S */

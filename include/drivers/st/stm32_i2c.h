@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __STM32MP1_I2C_H
-#define __STM32MP1_I2C_H
+#ifndef STM32_I2C_H
+#define STM32_I2C_H
 
 #include <stdint.h>
 #include <utils_def.h>
@@ -297,4 +297,4 @@ int stm32_i2c_is_device_ready(struct i2c_handle_s *hi2c, uint16_t dev_addr,
 int stm32_i2c_config_analog_filter(struct i2c_handle_s *hi2c,
 				   uint32_t analog_filter);
 
-#endif /* __STM32MP1_I2C_H */
+#endif /* STM32_I2C_H */

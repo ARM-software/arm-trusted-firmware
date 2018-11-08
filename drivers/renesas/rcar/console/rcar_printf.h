@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef	RCAR_PRINTF_H__
-#define	RCAR_PRINTF_H__
+#ifndef RCAR_PRINTF_H
+#define RCAR_PRINTF_H
 
 #include <string.h>
 
@@ -16,4 +16,4 @@ int32_t rcar_log_init(void);
 extern uint64_t rcar_stack_generic_timer[5];
 #endif
 
-#endif
+#endif /* RCAR_PRINTF_H */

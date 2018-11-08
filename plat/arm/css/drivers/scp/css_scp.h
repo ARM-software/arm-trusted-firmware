@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CSS_SCP_H__
-#define __CSS_SCP_H__
+#ifndef CSS_SCP_H
+#define CSS_SCP_H
 
 #include <cassert.h>
 #include <platform_def.h>
@@ -47,4 +47,4 @@ CASSERT(SCP_BL2_BASE >= ARM_TB_FW_CONFIG_LIMIT, assert_scp_bl2_overflow);
 CASSERT(SCP_BL2U_BASE >= ARM_TB_FW_CONFIG_LIMIT, assert_scp_bl2u_overflow);
 #endif
 
-#endif	/* __CSS_SCP_H__ */
+#endif /* CSS_SCP_H */

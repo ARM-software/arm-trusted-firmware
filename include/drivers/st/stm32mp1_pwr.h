@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __STM32MP1_PWR_H__
-#define __STM32MP1_PWR_H__
+#ifndef STM32MP1_PWR_H
+#define STM32MP1_PWR_H
 
 #include <utils_def.h>
 
@@ -29,4 +29,4 @@
 #define PWR_MPUCR_CSTDBYDIS	BIT(3)
 #define PWR_MPUCR_CSSF		BIT(9)
 
-#endif /* __STM32MP1_PWR_H__ */
+#endif /* STM32MP1_PWR_H */

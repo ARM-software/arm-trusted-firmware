@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IMX_WDOG_H__
-#define __IMX_WDOG_H__
+#ifndef IMX_WDOG_H
+#define IMX_WDOG_H
 
 #include <arch.h>
 #include <stdint.h>
@@ -58,4 +58,4 @@ static inline int wicr_calc_wict(int sec, int half_sec)
 /* External facing API */
 void imx_wdog_init(void);
 
-#endif /* __IMX_WDOG_H__ */
+#endif /* IMX_WDOG_H */

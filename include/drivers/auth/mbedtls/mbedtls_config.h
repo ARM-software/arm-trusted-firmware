@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __MBEDTLS_CONFIG_H__
-#define __MBEDTLS_CONFIG_H__
+#ifndef MBEDTLS_CONFIG_H
+#define MBEDTLS_CONFIG_H
 
 /*
  * Key algorithms currently supported on mbed TLS libraries
@@ -104,4 +104,4 @@
 #define TF_MBEDTLS_HEAP_SIZE		U(7168)
 #endif
 
-#endif /* __MBEDTLS_CONFIG_H__ */
+#endif /* MBEDTLS_CONFIG_H */

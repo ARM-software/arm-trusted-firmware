@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef MICRO_DELAY_H__
-#define MICRO_DELAY_H__
+#ifndef MICRO_DELAY_H
+#define MICRO_DELAY_H
 
 #define TMU3_MEASUREMENT	(0)
 
@@ -23,4 +23,4 @@ uint32_t tcnt3_snapshot(void);
 
 #endif
 
-#endif
+#endif /* MICRO_DELAY_H */

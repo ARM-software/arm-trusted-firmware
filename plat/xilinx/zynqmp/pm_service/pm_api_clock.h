@@ -8,8 +8,8 @@
  * ZynqMP system level PM-API functions for clock control.
  */
 
-#ifndef _PM_API_CLOCK_H_
-#define _PM_API_CLOCK_H_
+#ifndef PM_API_CLOCK_H
+#define PM_API_CLOCK_H
 
 #include <utils_def.h>
 #include "pm_common.h"
@@ -313,4 +313,4 @@ enum pm_ret_status pm_api_clk_set_pll_frac_data(unsigned int pll,
 enum pm_ret_status pm_api_clk_get_pll_frac_data(unsigned int pll,
 						unsigned int *data);
 
-#endif /* _PM_API_CLOCK_H_ */
+#endif /* PM_API_CLOCK_H */

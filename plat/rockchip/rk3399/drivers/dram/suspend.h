@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SOC_ROCKCHIP_RK3399_SUSPEND_H__
-#define __SOC_ROCKCHIP_RK3399_SUSPEND_H__
+#ifndef SUSPEND_H
+#define SUSPEND_H
+
 #include <dram.h>
 
 #define KHz (1000)
@@ -22,4 +23,4 @@
 void dmc_suspend(void);
 __pmusramfunc void dmc_resume(void);
 
-#endif /* __DRAM_H__ */
+#endif /* SUSPEND_H */

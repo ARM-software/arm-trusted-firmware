@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#ifndef STDIO__H
+#define STDIO__H
+
 #ifndef SIZET_
 typedef unsigned int size_t;
 #define SIZET_
@@ -13,3 +16,5 @@ typedef unsigned int size_t;
 typedef int ssize_t;
 #define SSIZET_
 #endif
+
+#endif /* STDIO__H */

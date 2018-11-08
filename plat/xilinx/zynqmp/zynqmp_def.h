@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __ZYNQMP_DEF_H__
-#define __ZYNQMP_DEF_H__
+#ifndef ZYNQMP_DEF_H
+#define ZYNQMP_DEF_H
 
 #include <common_def.h>
 
@@ -340,4 +340,4 @@
 #define  AFIFM6_WRCTRL		U(13)
 #define  FABRIC_WIDTH		U(3)
 
-#endif /* __ZYNQMP_DEF_H__ */
+#endif /* ZYNQMP_DEF_H */

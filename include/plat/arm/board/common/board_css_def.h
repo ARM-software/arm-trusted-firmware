@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __BOARD_CSS_DEF_H__
-#define __BOARD_CSS_DEF_H__
+#ifndef BOARD_CSS_DEF_H
+#define BOARD_CSS_DEF_H
 
 #include <common_def.h>
 #include <soc_css_def.h>
@@ -73,5 +73,4 @@
 #define PLAT_ARM_TSP_UART_BASE			V2M_IOFPGA_UART0_BASE
 #define PLAT_ARM_TSP_UART_CLK_IN_HZ		V2M_IOFPGA_UART0_CLK_IN_HZ
 
-#endif /* __BOARD_CSS_DEF_H__ */
-
+#endif /* BOARD_CSS_DEF_H */

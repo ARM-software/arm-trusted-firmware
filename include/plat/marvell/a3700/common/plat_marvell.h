@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __PLAT_MARVELL_H__
-#define __PLAT_MARVELL_H__
+#ifndef PLAT_MARVELL_H
+#define PLAT_MARVELL_H
 
 #include <bl_common.h>
 #include <cassert.h>
@@ -93,4 +93,4 @@ void plat_marvell_interconnect_enter_coherency(void);
 
 const mmap_region_t *plat_marvell_get_mmap(void);
 
-#endif /* __PLAT_MARVELL_H__ */
+#endif /* PLAT_MARVELL_H */

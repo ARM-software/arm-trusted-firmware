@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef KEY_H_
-#define KEY_H_
+#ifndef KEY_H
+#define KEY_H
 
 #include <openssl/ossl_typ.h>
 
@@ -71,4 +71,4 @@ int key_store(key_t *key);
 extern key_t *keys;
 extern const unsigned int num_keys;
 
-#endif /* KEY_H_ */
+#endif /* KEY_H */

@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __MARVELL_MACROS_S__
-#define __MARVELL_MACROS_S__
+#ifndef MARVELL_MACROS_S
+#define MARVELL_MACROS_S
 
 #include <cci.h>
 #include <gic_common.h>
@@ -131,4 +131,4 @@ cci_iface_regs:
 	.endm
 
 
-#endif /* __MARVELL_MACROS_S__ */
+#endif /* MARVELL_MACROS_S */

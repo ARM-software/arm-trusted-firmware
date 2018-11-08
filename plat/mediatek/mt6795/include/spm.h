@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SPM_H__
-#define __SPM_H__
+#ifndef SPM_H
+#define SPM_H
 
 #define SPM_POWERON_CONFIG_SET			(SPM_BASE + 0x000)
 #define SPM_POWER_ON_VAL0			(SPM_BASE + 0x010)
@@ -195,4 +195,4 @@
 #define WAKE_SRC_ALL_MD32	(1 << 28)
 #define WAKE_SRC_CPU_IRQ	(1 << 29)
 
-#endif /* __SPM_H__ */
+#endif /* SPM_H */

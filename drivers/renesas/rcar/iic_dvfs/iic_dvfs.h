@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef IIC_DVFS_H__
-#define IIC_DVFS_H__
+#ifndef IIC_DVFS_H
+#define IIC_DVFS_H
 
 /* PMIC slave */
 #define PMIC			(0x30)
@@ -20,4 +20,4 @@
 int32_t rcar_iic_dvfs_receive(uint8_t slave, uint8_t reg, uint8_t *data);
 int32_t rcar_iic_dvfs_send(uint8_t slave, uint8_t regr, uint8_t data);
 
-#endif
+#endif /* IIC_DVFS_H */

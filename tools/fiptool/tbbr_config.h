@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TBBR_CONFIG_H__
-#define __TBBR_CONFIG_H__
+#ifndef TBBR_CONFIG_H
+#define TBBR_CONFIG_H
 
 #include <stdint.h>
 
@@ -22,4 +22,4 @@ typedef struct toc_entry {
 
 extern toc_entry_t toc_entries[];
 
-#endif /* __TBBR_CONFIG_H__ */
+#endif /* TBBR_CONFIG_H */

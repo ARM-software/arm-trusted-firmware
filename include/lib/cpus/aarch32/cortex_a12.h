@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CORTEX_A12_H__
-#define __CORTEX_A12_H__
+#ifndef CORTEX_A12_H
+#define CORTEX_A12_H
 
 /*******************************************************************************
  * Cortex-A12 midr with version/revision set to 0
@@ -17,4 +17,4 @@
  ******************************************************************************/
 #define CORTEX_A12_ACTLR_SMP_BIT	(1 << 6)
 
-#endif /* __CORTEX_A12_H__ */
+#endif /* CORTEX_A12_H */

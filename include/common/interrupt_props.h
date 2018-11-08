@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __INTERRUPT_PROPS_H__
-#define __INTERRUPT_PROPS_H__
+#ifndef INTERRUPT_PROPS_H
+#define INTERRUPT_PROPS_H
 
 #ifndef __ASSEMBLY__
 
@@ -26,4 +26,4 @@ typedef struct interrupt_prop {
 } interrupt_prop_t;
 
 #endif /* __ASSEMBLY__ */
-#endif /* __INTERRUPT_PROPS_H__ */
+#endif /* INTERRUPT_PROPS_H */

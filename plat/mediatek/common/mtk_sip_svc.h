@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __PLAT_SIP_SVC_H__
-#define __PLAT_SIP_SVC_H__
+#ifndef MTK_SIP_SVC_H
+#define MTK_SIP_SVC_H
 
 #include <stdint.h>
 
@@ -50,4 +50,4 @@ enum {
  */
 uint64_t mt_sip_set_authorized_sreg(uint32_t sreg, uint32_t val);
 
-#endif /* __PLAT_SIP_SVC_H__ */
+#endif /* MTK_SIP_SVC_H */

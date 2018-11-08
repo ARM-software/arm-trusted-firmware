@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HISI_IPC_H__
-#define __HISI_IPC_H__
+#ifndef HISI_IPC_H
+#define HISI_IPC_H
 
 #define HISI_IPC_CORE_ACPU		0x0
 
@@ -43,4 +43,4 @@ void hisi_ipc_cluster_suspend(unsigned int cpu, unsigned int cluster);
 void hisi_ipc_psci_system_off(void);
 int hisi_ipc_init(void);
 
-#endif	/* __HISI_IPC_H__ */
+#endif /* HISI_IPC_H */

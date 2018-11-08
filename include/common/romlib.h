@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef ROMLIB_H_
+#ifndef ROMLIB_H
+#define ROMLIB_H
 
 #define ROMLIB_MAJOR   0
 #define ROMLIB_MINOR   1
@@ -12,4 +13,4 @@
 
 int rom_lib_init(int version);
 
-#endif
+#endif /* ROMLIB_H */

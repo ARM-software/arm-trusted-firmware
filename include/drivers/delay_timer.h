@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __DELAY_TIMER_H__
-#define __DELAY_TIMER_H__
+#ifndef DELAY_TIMER_H
+#define DELAY_TIMER_H
 
 #include <stdint.h>
 
@@ -27,5 +27,4 @@ void mdelay(uint32_t msec);
 void udelay(uint32_t usec);
 void timer_init(const timer_ops_t *ops_ptr);
 
-
-#endif /* __DELAY_TIMER_H__ */
+#endif /* DELAY_TIMER_H */

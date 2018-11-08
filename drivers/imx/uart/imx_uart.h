@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __IMX_CONSOLE_H__
-#define __IMX_CONSOLE_H__
+#ifndef IMX_UART_H
+#define IMX_UART_H
 
 #define IMX_UART_RXD_OFFSET	0x00
 #define IMX_UART_RXD_CHARRDY	BIT(15)
@@ -150,4 +150,4 @@
 #define IMX_UART_TS_RXFULL	BIT(3)
 #define IMX_UART_TS_SOFTRST	BIT(0)
 
-#endif /* __IMX_UART_H__ */
+#endif /* IMX_UART_H */

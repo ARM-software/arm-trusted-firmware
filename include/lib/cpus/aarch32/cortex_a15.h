@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CORTEX_A15_H__
-#define __CORTEX_A15_H__
+#ifndef CORTEX_A15_H
+#define CORTEX_A15_H
 
 /*******************************************************************************
  * Cortex-A15 midr with version/revision set to 0
@@ -18,4 +18,4 @@
 #define CORTEX_A15_ACTLR_INV_BTB_BIT	(1 << 0)
 #define CORTEX_A15_ACTLR_SMP_BIT	(1 << 6)
 
-#endif /* __CORTEX_A15_H__ */
+#endif /* CORTEX_A15_H */

@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef _STM32MP1_RAM_H
-#define _STM32MP1_RAM_H
+#ifndef STM32MP1_RAM_H
+#define STM32MP1_RAM_H
 
 int stm32mp1_ddr_probe(void);
 
-#endif /* _STM32MP1_RAM_H */
+#endif /* STM32MP1_RAM_H */

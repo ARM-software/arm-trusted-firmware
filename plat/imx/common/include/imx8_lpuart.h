@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IMX_LPUART_H__
-#define __IMX_LPUART_H__
+#ifndef IMX8_LPUART_H
+#define IMX8_LPUART_H
 
 #include <console.h>
 
@@ -63,4 +63,4 @@ int console_lpuart_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
 			   console_lpuart_t *console);
 #endif /*__ASSEMBLY__*/
 
-#endif  /* __IMX_LPUART_H__*/
+#endif /* IMX8_LPUART_H */

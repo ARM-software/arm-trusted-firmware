@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __AUTH_COMMON_H__
-#define __AUTH_COMMON_H__
+#ifndef AUTH_COMMON_H
+#define AUTH_COMMON_H
 
 /*
  * Authentication framework common types
@@ -117,4 +117,4 @@ typedef struct auth_method_desc_s {
 		.len = (unsigned int)_len \
 	}
 
-#endif /* __AUTH_COMMON_H__ */
+#endif /* AUTH_COMMON_H */

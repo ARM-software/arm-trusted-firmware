@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __MBEDTLS_COMMON_H__
-#define __MBEDTLS_COMMON_H__
+#ifndef MBEDTLS_COMMON_H
+#define MBEDTLS_COMMON_H
 
 void mbedtls_init(void);
 
-#endif /* __MBEDTLS_COMMON_H__ */
+#endif /* MBEDTLS_COMMON_H */

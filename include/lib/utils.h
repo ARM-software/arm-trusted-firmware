@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __UTILS_H__
-#define __UTILS_H__
+#ifndef UTILS_H
+#define UTILS_H
 
 /*
  * C code should be put in this part of the header to avoid breaking ASM files
@@ -92,4 +92,4 @@ static inline u_register_t load_addr_## _name(void)		\
 
 #endif /* !(defined(__LINKER__) || defined(__ASSEMBLY__)) */
 
-#endif /* __UTILS_H__ */
+#endif /* UTILS_H */

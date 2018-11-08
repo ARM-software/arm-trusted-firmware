@@ -7,8 +7,8 @@
 
 /* AXI to M-Bridge decoding unit driver for Marvell Armada 8K and 8K+ SoCs */
 
-#ifndef _AMB_ADEC_H_
-#define _AMB_ADEC_H_
+#ifndef AMB_ADEC_H
+#define AMB_ADEC_H
 
 #include <stdint.h>
 
@@ -33,4 +33,4 @@ enum amb_attribute_ids {
 
 int init_amb_adec(uintptr_t base);
 
-#endif /* _AMB_ADEC_H_ */
+#endif /* AMB_ADEC_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HISI_SRAM_MAP_H__
-#define __HISI_SRAM_MAP_H__
+#ifndef HISI_SRAM_MAP_H
+#define HISI_SRAM_MAP_H
 
 /*
  * SRAM Memory Region Layout
@@ -324,4 +324,4 @@
 
 #define PWRCTRL_AXI_RESERVED_ADDR		(ACPU_MASTER_CORE_STATE_ADDR + ACPU_MASTER_CORE_STATE_SIZE)
 
-#endif /* __HISI_SRAM_MAP_H__ */
+#endif /* HISI_SRAM_MAP_H */

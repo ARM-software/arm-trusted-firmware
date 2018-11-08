@@ -1,41 +1,40 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __WINPOSIX_H__
-#	define __WINPOSIX_H__
+#ifndef WIN_POSIX_H
+#define WIN_POSIX_H
 
-#	define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 
-#	include <direct.h>
-#	include <io.h>
-#	include <stdint.h>
-#	include <stdlib.h>
-#	include <string.h>
-#	include <sys/stat.h>
+#include <direct.h>
+#include <io.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
 
-#	include "uuid.h"
-
+#include "uuid.h"
 
 /* Derive or provide Windows equivalents of Posix/GCC/Unix stuff. */
-#	ifndef PATH_MAX
-#		ifdef MAX_PATH
-#			define PATH_MAX MAX_PATH
-#		else
-#			ifdef _MAX_PATH
-#				define MAX_PATH _MAX_PATH
-#				define PATH_MAX _MAX_PATH
-#			else
-#				define PATH_MAX 260
-#			endif
-#		endif
-#	endif
+#ifndef PATH_MAX
+# ifdef MAX_PATH
+#  define PATH_MAX MAX_PATH
+# else
+#  ifdef _MAX_PATH
+#   define MAX_PATH _MAX_PATH
+#   define PATH_MAX _MAX_PATH
+#  else
+#   define PATH_MAX 260
+#  endif
+# endif
+#endif
 
-#	ifndef _CRT_SECURE_NO_WARNINGS
-#		define _CRT_SECURE_NO_WARNINGS 1
-#	endif
+#ifndef _CRT_SECURE_NO_WARNINGS
+# define _CRT_SECURE_NO_WARNINGS 1
+#endif
 
 /*
  * Platform specific names.
@@ -46,13 +45,13 @@
  */
 
 /* fileno cannot be an inline function, because _fileno is a macro. */
-#	define fileno(fileptr) _fileno(fileptr)
+#define fileno(fileptr) _fileno(fileptr)
 
 /* _fstat uses the _stat structure, not stat. */
-#	define BLD_PLAT_STAT	_stat
+#define BLD_PLAT_STAT	_stat
 
 /* Define flag values for _access. */
-#	define F_OK	0
+#define F_OK	0
 
 
 /* getopt implementation for Windows: Data. */
@@ -184,4 +183,4 @@ int getopt_long_only(int argc,
 			   const struct option *longopts,
 			   int *indexptr);
 
-#endif /* __WINPOSIX_H__ */
+#endif /* WIN_POSIX_H */

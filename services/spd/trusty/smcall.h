@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __LIB_SM_SMCALL_H
-#define __LIB_SM_SMCALL_H
+#ifndef SMCALL_H
+#define SMCALL_H
 
 #define SMC_NUM_ENTITIES	64
 #define SMC_NUM_ARGS		4
@@ -72,4 +72,4 @@
 #define SMC_YC_VDEV_KICK_VQ	  SMC_YIELDCALL_NR(SMC_ENTITY_TRUSTED_OS, 24)
 #define SMC_YC_SET_ROT_PARAMS	  SMC_YIELDCALL_NR(SMC_ENTITY_TRUSTED_OS, 65535)
 
-#endif /* __LIB_SM_SMCALL_H */
+#endif /* SMCALL_H */

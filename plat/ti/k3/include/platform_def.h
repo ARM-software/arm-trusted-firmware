@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLATFORM_DEF_H__
-#define __PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
 
 #include <arch.h>
 #include <board_def.h>
@@ -206,4 +206,4 @@
 #define TI_SCI_HOST_ID			10
 #define TI_SCI_MAX_MESSAGE_SIZE		52
 
-#endif /* __PLATFORM_DEF_H__ */
+#endif /* PLATFORM_DEF_H */

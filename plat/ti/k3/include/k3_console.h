@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __K3_CONSOLE_H__
-#define __K3_CONSOLE_H__
+#ifndef K3_CONSOLE_H
+#define K3_CONSOLE_H
 
 void bl31_console_setup(void);
 
-#endif /* __K3_CONSOLE_H__ */
+#endif /* K3_CONSOLE_H */

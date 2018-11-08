@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef BL2_H__
-#define BL2_H__
+#ifndef BL2_H
+#define BL2_H
 
 void bl2_main(void);
 
-#endif /* BL2_H__ */
+#endif /* BL2_H */

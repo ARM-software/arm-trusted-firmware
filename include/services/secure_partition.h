@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SECURE_PARTITION_H__
-#define __SECURE_PARTITION_H__
+#ifndef SECURE_PARTITION_H
+#define SECURE_PARTITION_H
 
 #include <stdint.h>
 #include <utils_def.h>
@@ -46,4 +46,4 @@ typedef struct secure_partition_boot_info {
 	secure_partition_mp_info_t	*mp_info;
 } secure_partition_boot_info_t;
 
-#endif /* __SECURE_PARTITION_H__ */
+#endif /* SECURE_PARTITION_H */

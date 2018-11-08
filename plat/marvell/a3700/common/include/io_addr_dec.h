@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef _IO_ADDR_DEC_H_
-#define _IO_ADDR_DEC_H_
+#ifndef IO_ADDR_DEC_H
+#define IO_ADDR_DEC_H
 
 #include <stdint.h>
 
@@ -63,5 +63,4 @@ int init_io_addr_dec(struct dram_win_map *dram_wins_map,
 		     struct dec_win_config *io_dec_config,
 		     uint32_t io_unit_num);
 
-#endif /* _IO_ADDR_DEC_H_ */
-
+#endif /* IO_ADDR_DEC_H */

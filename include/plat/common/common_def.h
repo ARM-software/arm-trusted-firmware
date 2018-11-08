@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __COMMON_DEF_H__
-#define __COMMON_DEF_H__
+#ifndef COMMON_DEF_H
+#define COMMON_DEF_H
 
 #include <bl_common.h>
 #include <platform_def.h>
@@ -83,4 +83,5 @@
 #define BL2_CODE_END		round_up(BL2_ROM_END, PAGE_SIZE)
 #endif /* BL2_IN_XIP_MEM */
 #endif /* SEPARATE_CODE_AND_RODATA */
-#endif /* __COMMON_DEF_H__ */
+
+#endif /* COMMON_DEF_H */

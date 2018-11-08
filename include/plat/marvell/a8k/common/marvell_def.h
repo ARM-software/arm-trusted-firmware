@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __MARVELL_DEF_H__
-#define __MARVELL_DEF_H__
+#ifndef MARVELL_DEF_H
+#define MARVELL_DEF_H
 
 #include <arch.h>
 #include <common_def.h>
@@ -178,4 +178,4 @@
 					 MARVELL_BL_RAM_SIZE)
 
 
-#endif /* __MARVELL_DEF_H__ */
+#endif /* MARVELL_DEF_H */

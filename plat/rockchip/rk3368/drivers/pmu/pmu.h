@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PMU_H__
-#define __PMU_H__
+#ifndef PMU_H
+#define PMU_H
 
 /* Allocate sp reginon in pmusram */
 #define PSRAM_SP_SIZE		0x80
@@ -204,4 +204,4 @@ enum pmu_bus_idle_st {
 
 #define MAX_WAIT_CONUT 1000
 
-#endif /* __PMU_H__ */
+#endif /* PMU_H */

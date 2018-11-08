@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CONSOLE_H__
-#define __CONSOLE_H__
+#ifndef CONSOLE_H
+#define CONSOLE_H
 
 #include <utils_def.h>
 
@@ -80,5 +80,4 @@ void console_uninit(void);
 
 #endif /* __ASSEMBLY__ */
 
-#endif /* __CONSOLE_H__ */
-
+#endif /* CONSOLE_H */

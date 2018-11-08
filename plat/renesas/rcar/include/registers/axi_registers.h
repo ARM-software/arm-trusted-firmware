@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef	AXI_REGISTER_H__
-#define	AXI_REGISTER_H__
+#ifndef AXI_REGISTERS_H
+#define AXI_REGISTERS_H
 
 /* AXI registers */
 
@@ -243,4 +243,4 @@
 /* EDC edc interrupt enable 1 */
 #define	EDC_EDCINTEN1	(EDC_BASE + 0x0044U)
 
-#endif
+#endif /* AXI_REGISTERS_H */

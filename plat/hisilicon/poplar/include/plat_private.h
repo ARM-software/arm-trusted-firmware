@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PLAT_PRIVATE_H__
-#define __PLAT_PRIVATE_H__
+#ifndef PLAT_PRIVATE_H
+#define PLAT_PRIVATE_H
 
 #include <bl_common.h>
 #include "hi3798cv200.h"
@@ -33,4 +33,4 @@ void poplar_gic_init(void);
 void poplar_gic_cpuif_enable(void);
 void poplar_gic_pcpu_init(void);
 
-#endif /* __PLAT_PRIVATE_H__ */
+#endif /* PLAT_PRIVATE_H */

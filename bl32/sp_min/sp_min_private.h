@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SP_MIN_H__
-#define __SP_MIN_H__
+#ifndef SP_MIN_PRIVATE_H
+#define SP_MIN_PRIVATE_H
 
 void sp_min_warm_entrypoint(void);
 void sp_min_main(void);
 void sp_min_warm_boot(void);
 void sp_min_fiq(void);
 
-#endif /* __SP_MIN_H__ */
+#endif /* SP_MIN_PRIVATE_H */

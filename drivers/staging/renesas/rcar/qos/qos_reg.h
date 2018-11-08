@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef QOS_REG_H_
-#define QOS_REG_H_
+#ifndef QOS_REG_H
+#define QOS_REG_H
 
 #define	RCAR_QOS_NONE				(3U)
 #define	RCAR_QOS_TYPE_DEFAULT		(0U)
@@ -118,4 +118,4 @@
 #define	QOSWT_WTSET0				(QOS_BASE0 + 0x8038U)
 #define	QOSWT_WTSET1				(QOS_BASE0 + 0x803CU)
 
-#endif /* QOS_REG_H_ */
+#endif /* QOS_REG_H */

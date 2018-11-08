@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HI6220_AO_H__
-#define __HI6220_AO_H__
+#ifndef HI6220_REGS_AO_H
+#define HI6220_REGS_AO_H
 
 #define AO_CTRL_BASE				0xF7800000
 
@@ -331,4 +331,4 @@
 #define PCLK_TIMER1						(1 << 16)
 #define PCLK_TIMER0						(1 << 15)
 
-#endif /* __HI6220_AO_H__ */
+#endif /* HI6220_REGS_AO_H */

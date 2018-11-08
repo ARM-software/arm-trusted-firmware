@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __IMX_CLOCK_H__
-#define __IMX_CLOCK_H__
+#ifndef IMX_CLOCK_H
+#define IMX_CLOCK_H
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -999,4 +999,4 @@ void imx_clock_enable_usb(unsigned int usb_id);
 void imx_clock_disable_usb(unsigned int usb_id);
 void imx_clock_set_usb_clk_root_bits(uint32_t usb_clk_root_en_bits);
 
-#endif /* __IMX_CLOCK_H__ */
+#endif /* IMX_CLOCK_H */

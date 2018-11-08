@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-
-#ifndef BOOT_INIT_DRAM_REGDEF_E3_H_
-#define BOOT_INIT_DRAM_REGDEF_E3_H_
+#ifndef BOOT_INIT_DRAM_REGDEF_E3_H
+#define BOOT_INIT_DRAM_REGDEF_E3_H
 
 #ifdef __cplusplus
 extern "C" {
-#endif				/* __cplusplus */
+#endif /* __cplusplus */
 
 #define				BIT0						0x00000001U
 #define				BIT11						0x00000800U
@@ -111,5 +110,6 @@ extern "C" {
 
 #ifdef __cplusplus
 }
-#endif				/* __cplusplus */
-#endif				/* BOOT_INIT_DRAM_REGDEF_E3_H_ */
+#endif /* __cplusplus */
+
+#endif /* BOOT_INIT_DRAM_REGDEF_E3_H */

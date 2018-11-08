@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PMF_ASM_MACROS_S__
-#define __PMF_ASM_MACROS_S__
+#ifndef PMF_ASM_MACROS_S
+#define PMF_ASM_MACROS_S
 
 #define PMF_TS_SIZE	8
 
@@ -27,4 +27,4 @@
 	add	x0, x0, x1
 	.endm
 
-#endif /* __PMF_ASM_MACROS_S__ */
+#endif /* PMF_ASM_MACROS_S */

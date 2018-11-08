@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SDS_PRIVATE_H__
-#define __SDS_PRIVATE_H__
+#ifndef SDS_PRIVATE_H
+#define SDS_PRIVATE_H
 
 /* SDS Header defines */
 #define SDS_HEADER_ID_SHIFT			0
@@ -96,4 +96,5 @@ typedef struct region_descriptor {
 #define GET_SDS_REGION_SIZE(region)		((((region_desc_t *)(region))->reg[1]))
 
 #endif /* __ASSEMBLY__ */
-#endif /* __SDS_PRIVATE_H__ */
+
+#endif /* SDS_PRIVATE_H */

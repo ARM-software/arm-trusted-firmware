@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CORTEX_A9_H__
-#define __CORTEX_A9_H__
+#ifndef CORTEX_A9_H
+#define CORTEX_A9_H
 
 /*******************************************************************************
  * Cortex-A9 midr with version/revision set to 0
@@ -28,4 +28,4 @@
 DEFINE_COPROCR_RW_FUNCS(pcr, PCR)
 #endif
 
-#endif /* __CORTEX_A9_H__ */
+#endif /* CORTEX_A9_H */

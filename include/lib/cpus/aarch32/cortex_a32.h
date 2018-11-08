@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CORTEX_A32_H__
-#define __CORTEX_A32_H__
+#ifndef CORTEX_A32_H
+#define CORTEX_A32_H
 
 /* Cortex-A32 Main ID register for revision 0 */
 #define CORTEX_A32_MIDR				0x410FD010
@@ -17,4 +17,4 @@
 #define CORTEX_A32_CPUECTLR_EL1			p15, 1, c15
 #define CORTEX_A32_CPUECTLR_SMPEN_BIT		(1 << 6)
 
-#endif /* __CORTEX_A32_H__ */
+#endif /* CORTEX_A32_H */

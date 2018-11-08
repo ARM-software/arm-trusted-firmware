@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef RCAR_DEF_H__
-#define RCAR_DEF_H__
+#ifndef RCAR_DEF_H
+#define RCAR_DEF_H
 
 #include <tbbr_img_def.h>
 #include <utils_def.h>
@@ -290,4 +290,4 @@
 #define	LOSSY_FMT2			LOSSY_FMT_YUV422INTLV
 #define	LOSSY_ENA_DIS2			LOSSY_DISABLE
 
-#endif
+#endif /* RCAR_DEF_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __GICV2_H__
-#define __GICV2_H__
+#ifndef GICV2_H
+#define GICV2_H
 
 #include <gic_common.h>
 
@@ -184,4 +184,4 @@ unsigned int gicv2_set_pmr(unsigned int mask);
 void gicv2_interrupt_set_cfg(unsigned int id, unsigned int cfg);
 
 #endif /* __ASSEMBLY__ */
-#endif /* __GICV2_H__ */
+#endif /* GICV2_H */

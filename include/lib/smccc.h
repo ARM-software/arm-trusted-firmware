@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SMCCC_H__
-#define __SMCCC_H__
+#ifndef SMCCC_H
+#define SMCCC_H
 
 #include <utils_def.h>
 
@@ -101,4 +101,4 @@ static inline uint32_t smc_uuid_word(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t
 			      (_uuid).node[4], (_uuid).node[5]))
 
 #endif /*__ASSEMBLY__*/
-#endif /* __SMCCC_H__ */
+#endif /* SMCCC_H */

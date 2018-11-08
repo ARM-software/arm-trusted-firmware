@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef QOS_INIT_H_M3N_V10__
-#define QOS_INIT_H_M3N_V10__
+#ifndef QOS_INIT_M3N_V10_H
+#define QOS_INIT_M3N_V10_H
 
 void qos_init_m3n_v10(void);
 
-#endif /* QOS_INIT_H_M3N_V10__ */
+#endif /* QOS_INIT_M3N_V10_H */

@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __TEESMC_OPTEED_MACROS_H__
-#define __TEESMC_OPTEED_MACROS_H__
+#ifndef TEESMC_OPTEED_MACROS_H
+#define TEESMC_OPTEED_MACROS_H
 
 #include <runtime_svc.h>
 
@@ -14,4 +14,4 @@
 		 (62 << FUNCID_OEN_SHIFT) | \
 		 ((func_num) & FUNCID_NUM_MASK))
 
-#endif /*__TEESMC_OPTEED_MACROS_H__*/
+#endif /* TEESMC_OPTEED_MACROS_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CORTEX_A73_H__
-#define __CORTEX_A73_H__
+#ifndef CORTEX_A73_H
+#define CORTEX_A73_H
 
 /* Cortex-A73 midr for revision 0 */
 #define CORTEX_A73_MIDR	0x410FD090
@@ -29,4 +29,4 @@
 
 #define CORTEX_A73_IMP_DEF_REG1_DISABLE_LOAD_PASS_STORE	(1 << 3)
 
-#endif /* __CORTEX_A73_H__ */
+#endif /* CORTEX_A73_H */

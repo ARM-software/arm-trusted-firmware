@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HIKEY_PRIVATE_H__
-#define __HIKEY_PRIVATE_H__
+#ifndef HIKEY_PRIVATE_H
+#define HIKEY_PRIVATE_H
 
 #include <bl_common.h>
 
@@ -72,4 +72,4 @@ int hikey_write_serialno(struct random_serial_num *serialno);
 
 void init_acpu_dvfs(void);
 
-#endif /* __HIKEY_PRIVATE_H__ */
+#endif /* HIKEY_PRIVATE_H */

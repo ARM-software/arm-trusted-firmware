@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IMX_GPT_H__
-#define __IMX_GPT_H__
+#ifndef IMX_GPT_H
+#define IMX_GPT_H
 
 #include <stdint.h>
 
 void imx_gpt_ops_init(uintptr_t reg_base);
 
-#endif /* __IMX_GPT_H__ */
+#endif /* IMX_GPT_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __ARM_ARCH_SVC_H__
-#define __ARM_ARCH_SVC_H__
+#ifndef ARM_ARCH_SVC_H
+#define ARM_ARCH_SVC_H
 
 #define SMCCC_VERSION			U(0x80000000)
 #define SMCCC_ARCH_FEATURES		U(0x80000001)
@@ -14,4 +14,4 @@
 
 #define SMCCC_ARCH_NOT_REQUIRED		-2
 
-#endif /* __ARM_ARCH_SVC_H__ */
+#endif /* ARM_ARCH_SVC_H */

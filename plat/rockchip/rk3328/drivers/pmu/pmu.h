@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PMU_H__
-#define __PMU_H__
+#ifndef PMU_H
+#define PMU_H
 
 #include <soc.h>
 
@@ -128,4 +128,4 @@ enum pmu_sft_con {
 #define UART_INT_DISABLE	0x00
 #define UART_FIFO_RESET		0x07
 
-#endif /* __PMU_H__ */
+#endif /* PMU_H */

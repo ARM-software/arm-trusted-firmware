@@ -8,8 +8,8 @@
  * Header file containing types used across multiple service APIs.
  */
 
-#ifndef SC_TYPES_H
-#define SC_TYPES_H
+#ifndef SCI_TYPES_H
+#define SCI_TYPES_H
 
 /* Includes */
 
@@ -846,4 +846,4 @@ typedef __UINT32_TYPE__ uint32_t;
 typedef __UINT64_TYPE__ uint64_t;
 #endif
 
-#endif				/* SC_TYPES_H */
+#endif /* SCI_TYPES_H */

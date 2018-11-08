@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __OEM_SVC_H__
-#define __OEM_SVC_H__
+#ifndef OEM_SVC_H
+#define OEM_SVC_H
 
 /*******************************************************************************
  * Defines for runtime services func ids
@@ -41,4 +41,4 @@
 #define OEM_SVC_E_NOT_SUPPORTED		-1
 #define OEM_SVC_E_INVALID_PARAMS	-2
 
-#endif /* __OEM_SVC_H__ */
+#endif /* OEM_SVC_H */

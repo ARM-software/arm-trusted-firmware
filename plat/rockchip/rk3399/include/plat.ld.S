@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __ROCKCHIP_PLAT_LD_S__
-#define __ROCKCHIP_PLAT_LD_S__
+#ifndef ROCKCHIP_PLAT_LD_S
+#define ROCKCHIP_PLAT_LD_S
 
 #include <xlat_tables_defs.h>
 
@@ -95,4 +95,4 @@ SECTIONS
 	} >PMUSRAM
 }
 
-#endif /* __ROCKCHIP_PLAT_LD_S__ */
+#endif /* ROCKCHIP_PLAT_LD_S */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CORTEX_A57_H__
-#define __CORTEX_A57_H__
+#ifndef CORTEX_A57_H
+#define CORTEX_A57_H
 #include <utils_def.h>
 
 /* Cortex-A57 midr for revision 0 */
@@ -81,4 +81,4 @@
  ******************************************************************************/
 #define CORTEX_A57_L2MERRSR_EL1			S3_1_C15_C2_3
 
-#endif /* __CORTEX_A57_H__ */
+#endif /* CORTEX_A57_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef _SOC_TZASC_H_
-#define _SOC_TZASC_H_
+#ifndef SOC_TZASC_H
+#define SOC_TZASC_H
 
 #include "tzc380.h"
 
@@ -90,4 +90,4 @@ static const struct tzc380_reg tzc380_reg_list[] = {
 	{}
 };
 
-#endif /* _SOC_TZASC_H_ */
+#endif /* SOC_TZASC_H */

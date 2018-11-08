@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PARTITION_H__
-#define __PARTITION_H__
+#ifndef PARTITION_H
+#define PARTITION_H
 
 #include <cassert.h>
 #include <stdint.h>
@@ -36,4 +36,4 @@ const partition_entry_t *get_partition_entry(const char *name);
 const partition_entry_list_t *get_partition_entry_list(void);
 void partition_init(unsigned int image_id);
 
-#endif	/* __PARTITION_H__ */
+#endif /* PARTITION_H */

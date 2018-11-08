@@ -9,8 +9,8 @@
  * the execution environment.
  */
 
-#ifndef _PM_CLIENT_H_
-#define _PM_CLIENT_H_
+#ifndef PM_CLIENT_H
+#define PM_CLIENT_H
 
 #include "pm_common.h"
 #include "pm_defs.h"
@@ -25,4 +25,4 @@ enum pm_ret_status pm_set_suspend_mode(uint32_t mode);
 /* Global variables to be set in pm_client.c */
 extern const struct pm_proc *primary_proc;
 
-#endif /* _PM_CLIENT_H_ */
+#endif /* PM_CLIENT_H */

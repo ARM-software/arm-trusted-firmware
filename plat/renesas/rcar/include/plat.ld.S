@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __RCAR_PLAT_LD_S__
-#define __RCAR_PLAT_LD_S__
+#ifndef RCAR_PLAT_LD_S
+#define RCAR_PLAT_LD_S
 
 #include <platform_def.h>
 #include <xlat_tables_defs.h>
@@ -33,4 +33,4 @@ SECTIONS
 
 }
 
-#endif /* __RCAR_PLAT_LD_S__ */
+#endif /* RCAR_PLAT_LD_S */

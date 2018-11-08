@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __HI6220_PIN_H__
-#define __HI6220_PIN_H__
+#ifndef HI6220_REGS_PIN_H
+#define HI6220_REGS_PIN_H
 
 #define IOMG_BASE				0xF7010000
 
@@ -40,4 +40,4 @@
 #define IOCG_PULLDOWN				(1 << 1)
 #define IOCG_PULLUP				(1 << 0)
 
-#endif	/* __HI6220_PIN_H__ */
+#endif /* HI6220_REGS_PIN_H */

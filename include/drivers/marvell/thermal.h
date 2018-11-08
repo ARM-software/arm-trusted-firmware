@@ -7,8 +7,8 @@
 
 /* Driver for thermal unit located in Marvell ARMADA 8K and compatible SoCs */
 
-#ifndef _THERMAL_H
-#define _THERMAL_H
+#ifndef THERMAL_H
+#define THERMAL_H
 
 struct tsen_config {
 	/* thermal temperature parameters */
@@ -28,4 +28,4 @@ int marvell_thermal_init(struct tsen_config *tsen_cfg);
 int marvell_thermal_read(struct tsen_config *tsen_cfg, int *temp);
 struct tsen_config *marvell_thermal_config_get(void);
 
-#endif /* _THERMAL_H */
+#endif /* THERMAL_H */

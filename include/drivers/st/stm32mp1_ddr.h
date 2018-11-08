@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
 
-#ifndef _STM32MP1_DDR_H
-#define _STM32MP1_DDR_H
+#ifndef STM32MP1_DDR_H
+#define STM32MP1_DDR_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #define DT_DDR_COMPAT	"st,stm32mp1-ddr"
 
@@ -170,4 +171,4 @@ struct stm32mp1_ddr_config {
 int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint16_t mem_speed);
 void stm32mp1_ddr_init(struct ddr_info *priv,
 		       struct stm32mp1_ddr_config *config);
-#endif /* _STM32MP1_DDR_H */
+#endif /* STM32MP1_DDR_H */

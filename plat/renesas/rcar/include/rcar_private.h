@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef RCAR_PRIVATE_H__
-#define RCAR_PRIVATE_H__
+#ifndef RCAR_PRIVATE_H
+#define RCAR_PRIVATE_H
 
 #include <bakery_lock.h>
 #include <bl_common.h>
@@ -98,4 +98,4 @@ void plat_cci_init(void);
 void mstpcr_write(uint32_t mstpcr, uint32_t mstpsr, uint32_t target_bit);
 void cpg_write(uintptr_t regadr, uint32_t regval);
 
-#endif
+#endif /* RCAR_PRIVATE_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SUNXI_DEF_H__
-#define __SUNXI_DEF_H__
+#ifndef SUNXI_DEF_H
+#define SUNXI_DEF_H
 
 /* Clock configuration */
 #define SUNXI_OSC24M_CLK_IN_HZ		24000000
@@ -18,4 +18,4 @@
 #define SUNXI_SOC_H5			0x1718
 #define SUNXI_SOC_H6			0x1728
 
-#endif /* __SUNXI_DEF_H__ */
+#endif /* SUNXI_DEF_H */

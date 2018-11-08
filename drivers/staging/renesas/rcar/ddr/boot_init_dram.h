@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef	__BOOT_INIT_DRAM_
-#define	__BOOT_INIT_DRAM_
+#ifndef BOOT_INIT_DRAM_H
+#define BOOT_INIT_DRAM_H
 
 extern int32_t rcar_dram_init(void);
 
@@ -15,4 +15,4 @@ extern int32_t rcar_dram_init(void);
 #define INITDRAM_ERR_O (0xfffffffe)
 #define INITDRAM_ERR_T (0xfffffff0)
 
-#endif
+#endif /* BOOT_INIT_DRAM_H */

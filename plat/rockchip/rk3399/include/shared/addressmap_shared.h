@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __ROCKCHIP_RK3399_INCLUDE_SHARED_ADDRESSMAP_SHARED_H__
-#define __ROCKCHIP_RK3399_INCLUDE_SHARED_ADDRESSMAP_SHARED_H__
+#ifndef ADDRESSMAP_SHARED_H
+#define ADDRESSMAP_SHARED_H
 
 #define SIZE_K(n)		((n) * 1024)
 #define SIZE_M(n)		((n) * 1024 * 1024)
@@ -101,4 +101,4 @@
 
 #define MSCH_BASE(ch)		(SERVICE_NOC_1_BASE + (ch) * 0x8000)
 
-#endif /* __ROCKCHIP_RK3399_INCLUDE_SHARED_ADDRESSMAP_SHARED_H__ */
+#endif /* ADDRESSMAP_SHARED_H */

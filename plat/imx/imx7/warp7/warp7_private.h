@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __WARP7_PRIVATE_H__
-#define __WARP7_PRIVATE_H__
+#ifndef WARP7_PRIVATE_H
+#define WARP7_PRIVATE_H
 
 /*******************************************************************************
  * Function and variable prototypes
  ******************************************************************************/
 void plat_warp7_io_setup(void);
 
-#endif /*__WARP7_PRIVATE_H__ */
+#endif /* WARP7_PRIVATE_H */

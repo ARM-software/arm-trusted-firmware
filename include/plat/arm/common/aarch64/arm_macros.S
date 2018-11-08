@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __ARM_MACROS_S__
-#define __ARM_MACROS_S__
+#ifndef ARM_MACROS_S
+#define ARM_MACROS_S
 
 #include <gic_common.h>
 #include <gicv2.h>
@@ -91,4 +91,4 @@ gicd_ispendr_loop:
 exit_print_gic_regs:
 	.endm
 
-#endif /* __ARM_MACROS_S__ */
+#endif /* ARM_MACROS_S */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PARAMETER_H__
-#define __PARAMETER_H__
+#ifndef DDR_PARAMETER_H
+#define DDR_PARAMETER_H
 
 #include <arch_helpers.h>
 #include <console.h>
@@ -38,4 +38,4 @@ struct param_ddr_usage {
 
 struct param_ddr_usage ddr_region_usage_parse(uint64_t addr, uint64_t max_mb);
 
-#endif /* __PARAMETER_H__ */
+#endif /* DDR_PARAMETER_H */

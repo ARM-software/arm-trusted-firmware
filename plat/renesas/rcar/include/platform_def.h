@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef PLATFORM_DEF_H__
-#define PLATFORM_DEF_H__
+#ifndef PLATFORM_DEF_H
+#define PLATFORM_DEF_H
 
 #include <arch.h>
 #ifndef __ASSEMBLY__
@@ -186,4 +186,4 @@
 #define PLAT_PCPU_DATA_SIZE	(2)
 #endif
 
-#endif
+#endif /* PLATFORM_DEF_H */

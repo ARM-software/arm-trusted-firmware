@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CORTEX_A55_H__
-#define __CORTEX_A55_H__
+#ifndef CORTEX_A55_H
+#define CORTEX_A55_H
 
 /* Cortex-A55 MIDR for revision 0 */
 #define CORTEX_A55_MIDR		0x410fd050
@@ -19,4 +19,4 @@
 /* Definitions of register field mask in CORTEX_A55_CPUPWRCTLR_EL1 */
 #define CORTEX_A55_CORE_PWRDN_EN_MASK	0x1
 
-#endif /* __CORTEX_A55_H__ */
+#endif /* CORTEX_A55_H */

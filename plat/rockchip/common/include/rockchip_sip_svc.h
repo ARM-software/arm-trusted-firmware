@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __ROCKCHIP_SIP_SVC_H__
-#define __ROCKCHIP_SIP_SVC_H__
+#ifndef ROCKCHIP_SIP_SVC_H
+#define ROCKCHIP_SIP_SVC_H
 
 /* SMC function IDs for SiP Service queries */
 #define SIP_SVC_CALL_COUNT		0x8200ff00
@@ -24,4 +24,4 @@ enum {
 	RK_SIP_E_INVALID_PARAM = -1
 };
 
-#endif
+#endif /* ROCKCHIP_SIP_SVC_H */

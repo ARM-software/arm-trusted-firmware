@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __PMIC_WRAP_INIT_H__
-#define __PMIC_WRAP_INIT_H__
+#ifndef PMIC_WRAP_INIT_H
+#define PMIC_WRAP_INIT_H
 
 /* external API */
 int32_t pwrap_read(uint32_t adr, uint32_t *rdata);
@@ -164,4 +164,4 @@ enum {
 	E_PWR_SWITCH_DIO              = 32
 };
 
-#endif /* __PMIC_WRAP_INIT_H__ */
+#endif /* PMIC_WRAP_INIT_H */

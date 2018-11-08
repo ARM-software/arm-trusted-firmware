@@ -16,8 +16,8 @@
  * @{
  */
 
-#ifndef SC_PM_API_H
-#define SC_PM_API_H
+#ifndef SCI_PM_API_H
+#define SCI_PM_API_H
 
 /* Includes */
 
@@ -679,6 +679,6 @@ sc_err_t sc_pm_cpu_start(sc_ipc_t ipc, sc_rsrc_t resource, sc_bool_t enable,
 
 /* @} */
 
-#endif				/* SC_PM_API_H */
+#endif /* SCI_PM_API_H */
 
 /**@}*/

@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __MTK_PLAT_COMMON_H__
-#define __MTK_PLAT_COMMON_H__
+#ifndef MTK_PLAT_COMMON_H
+#define MTK_PLAT_COMMON_H
 
 #include <bl_common.h>
 #include <param_header.h>
@@ -74,4 +74,4 @@ uint64_t get_kernel_info_r1(void);
 uint64_t get_kernel_info_r2(void);
 
 extern struct atf_arg_t gteearg;
-#endif
+#endif /* MTK_PLAT_COMMON_H */

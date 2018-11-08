@@ -6,8 +6,8 @@
 
 /* ZynqMP IPI management enums and defines */
 
-#ifndef _ZYNQMP_IPI_H_
-#define _ZYNQMP_IPI_H_
+#ifndef ZYNQMP_IPI_H
+#define ZYNQMP_IPI_H
 
 #include <stdint.h>
 
@@ -67,4 +67,4 @@ void ipi_mb_disable_irq(uint32_t local, uint32_t remote);
 /* Enable IPI mailbox notification interrupt */
 void ipi_mb_enable_irq(uint32_t local, uint32_t remote);
 
-#endif /* _ZYNQMP_IPI_H_ */
+#endif /* ZYNQMP_IPI_H */

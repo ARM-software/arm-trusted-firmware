@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __IO_BLOCK_H__
-#define __IO_BLOCK_H__
+#ifndef IO_BLOCK_H
+#define IO_BLOCK_H
 
 #include <io_storage.h>
 
@@ -25,4 +25,4 @@ struct io_dev_connector;
 
 int register_io_dev_block(const struct io_dev_connector **dev_con);
 
-#endif /* __IO_BLOCK_H__ */
+#endif /* IO_BLOCK_H */

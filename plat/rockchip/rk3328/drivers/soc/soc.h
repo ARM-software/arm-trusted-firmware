@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SOC_H__
-#define __SOC_H__
+#ifndef SOC_H
+#define SOC_H
 
 /******************************* stimer ***************************************/
 #define TIMER_LOADE_COUNT0	0x00
@@ -110,4 +110,4 @@ enum plls_id {
 #define GPIO2_D2_GPIO_MODE	0x30
 #define GRF_GPIO2D_IOMUX	0x34
 
-#endif /* __SOC_H__ */
+#endif /* SOC_H */

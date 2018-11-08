@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __ARM_SPM_DEF_H__
-#define __ARM_SPM_DEF_H__
+#ifndef ARM_SPM_DEF_H
+#define ARM_SPM_DEF_H
 
 #include <arm_def.h>
 #include <utils_def.h>
@@ -100,4 +100,4 @@
 #define PLAT_SPM_COOKIE_0		ULL(0)
 #define PLAT_SPM_COOKIE_1		ULL(0)
 
-#endif /* __ARM_SPM_DEF_H__ */
+#endif /* ARM_SPM_DEF_H */

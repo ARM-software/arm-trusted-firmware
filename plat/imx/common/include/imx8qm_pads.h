@@ -8,8 +8,8 @@
  * Header file used to configure SoC pad list.
  */
 
-#ifndef SC_PADS_H
-#define SC_PADS_H
+#ifndef IMX8QM_PADS_H
+#define IMX8QM_PADS_H
 
 /* Includes */
 
@@ -290,4 +290,4 @@
 #define SC_P_COMP_CTL_GPIO_1V8_3V3_ENET_ENETA    268	/*  */
 /*@}*/
 
-#endif				/* SC_PADS_H */
+#endif /* IMX8QM_PADS_H */

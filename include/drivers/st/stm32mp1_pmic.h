@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __STM32MP1_PMIC_H__
-#define __STM32MP1_PMIC_H__
+#ifndef STM32MP1_PMIC_H
+#define STM32MP1_PMIC_H
 
 #include <stdbool.h>
 
@@ -15,4 +15,4 @@ void initialize_pmic_i2c(void);
 void initialize_pmic(void);
 int pmic_ddr_power_init(enum ddr_type ddr_type);
 
-#endif /* __STM32MP1_PMIC_H__ */
+#endif /* STM32MP1_PMIC_H */

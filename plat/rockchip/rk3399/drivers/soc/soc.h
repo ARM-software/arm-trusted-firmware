@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SOC_H__
-#define __SOC_H__
+#ifndef SOC_H
+#define SOC_H
 
 #include <utils.h>
 
@@ -281,4 +281,4 @@ void set_pmu_rsthold(void);
 void pmu_sgrf_rst_hld(void);
 __pmusramfunc void pmu_sgrf_rst_hld_release(void);
 __pmusramfunc void restore_pmu_rsthold(void);
-#endif /* __SOC_H__ */
+#endif /* SOC_H */

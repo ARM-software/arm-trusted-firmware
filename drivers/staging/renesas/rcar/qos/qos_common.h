@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef QOS_COMMON_H_
-#define QOS_COMMON_H_
+#ifndef QOS_COMMON_H
+#define QOS_COMMON_H
 
 #define RCAR_REF_DEFAULT		(0U)
 
@@ -110,4 +110,4 @@ typedef struct {
 extern uint32_t qos_init_ddr_ch;
 extern uint8_t qos_init_ddr_phyvalid;
 
-#endif /* QOS_COMMON_H_ */
+#endif /* QOS_COMMON_H */

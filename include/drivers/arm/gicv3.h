@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __GICV3_H__
-#define __GICV3_H__
+#ifndef GICV3_H
+#define GICV3_H
 
 /*******************************************************************************
  * GICv3 miscellaneous definitions
@@ -405,4 +405,4 @@ void gicv3_clear_interrupt_pending(unsigned int id, unsigned int proc_num);
 unsigned int gicv3_set_pmr(unsigned int mask);
 
 #endif /* __ASSEMBLY__ */
-#endif /* __GICV3_H__ */
+#endif /* GICV3_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __FIRMWARE_IMAGE_PACKAGE_H__
-#define __FIRMWARE_IMAGE_PACKAGE_H__
+#ifndef FIRMWARE_IMAGE_PACKAGE_H
+#define FIRMWARE_IMAGE_PACKAGE_H
 
 #include <stdint.h>
 #include <uuid.h>
@@ -88,4 +88,4 @@ typedef struct fip_toc_entry {
 	uint64_t	flags;
 } fip_toc_entry_t;
 
-#endif /* __FIRMWARE_IMAGE_PACKAGE_H__ */
+#endif /* FIRMWARE_IMAGE_PACKAGE_H */

@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __ASM_MACROS_COMMON_S__
-#define __ASM_MACROS_COMMON_S__
+#ifndef ASM_MACROS_COMMON_S
+#define ASM_MACROS_COMMON_S
 
 	/*
 	 * This macro is used to create a function label and place the
@@ -104,4 +104,4 @@
 	.endm
 
 
-#endif /* __ASM_MACROS_COMMON_S__ */
+#endif /* ASM_MACROS_COMMON_S */

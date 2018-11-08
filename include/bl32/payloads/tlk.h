@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TLK_H__
-#define __TLK_H__
+#ifndef TLK_H
+#define TLK_H
 
 #include <utils_def.h>
 
@@ -63,4 +63,4 @@
 #define TOS_UID			0xbf00ff01 /* Implementation UID */
 #define TOS_CALL_VERSION	0xbf00ff03 /* Trusted OS Call Version */
 
-#endif /* __TLK_H__ */
+#endif /* TLK_H */

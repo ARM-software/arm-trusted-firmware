@@ -7,8 +7,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef K3_SEC_PROXY_H
-#define K3_SEC_PROXY_H
+#ifndef SEC_PROXY_H
+#define SEC_PROXY_H
 
 #include <stdint.h>
 
@@ -55,4 +55,4 @@ int k3_sec_proxy_send(enum k3_sec_proxy_chan_id id, const struct k3_sec_proxy_ms
  */
 int k3_sec_proxy_recv(enum k3_sec_proxy_chan_id id, struct k3_sec_proxy_msg *msg);
 
-#endif /* K3_SEC_PROXY_H */
+#endif /* SEC_PROXY_H */

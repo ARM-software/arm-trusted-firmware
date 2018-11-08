@@ -5,8 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#ifndef __MVEBU_DEF_H__
-#define __MVEBU_DEF_H__
+#ifndef MVEBU_DEF_H
+#define MVEBU_DEF_H
 
 #include <a8k_plat_def.h>
 
@@ -14,4 +14,4 @@
 #define I2C_SPD_ADDR		0x53	/* Access SPD data */
 #define I2C_SPD_P0_ADDR		0x36	/* Select SPD data page 0 */
 
-#endif /* __MVEBU_DEF_H__ */
+#endif /* MVEBU_DEF_H */

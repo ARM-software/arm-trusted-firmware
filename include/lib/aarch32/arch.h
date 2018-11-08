@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __ARCH_H__
-#define __ARCH_H__
+#ifndef ARCH_H
+#define ARCH_H
 
 #include <utils_def.h>
 
@@ -630,4 +630,4 @@
 #define AMEVTYPER1E	p15, 0, c13, c15, 6
 #define AMEVTYPER1F	p15, 0, c13, c15, 7
 
-#endif /* __ARCH_H__ */
+#endif /* ARCH_H */

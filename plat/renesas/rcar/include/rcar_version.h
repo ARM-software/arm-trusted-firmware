@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef	RCAR_VERSION_H__
-#define	RCAR_VERSION_H__
+#ifndef RCAR_VERSION_H
+#define RCAR_VERSION_H
 
 #include <arch_helpers.h>
 
@@ -14,4 +14,4 @@
 
 extern const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN];
 
-#endif
+#endif /* RCAR_VERSION_H */

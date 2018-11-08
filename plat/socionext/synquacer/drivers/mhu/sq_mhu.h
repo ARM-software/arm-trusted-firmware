@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SQ_MHU_H__
-#define __SQ_MHU_H__
+#ifndef SQ_MHU_H
+#define SQ_MHU_H
 
 #include <stdint.h>
 
@@ -16,4 +16,4 @@ void mhu_secure_message_end(unsigned int slot_id);
 
 void mhu_secure_init(void);
 
-#endif	/* __SQ_MHU_H__ */
+#endif /* SQ_MHU_H */

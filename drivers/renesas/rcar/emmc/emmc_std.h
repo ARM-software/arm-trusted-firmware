@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __EMMC_STD_H__
-#define __EMMC_STD_H__
+#ifndef EMMC_STD_H
+#define EMMC_STD_H
 
 #include "emmc_hal.h"
 
@@ -471,4 +471,4 @@ uint32_t emmc_get_csd_time(void);
 /* ********************************* CODE ********************************** */
 
 /* ******************************** END ************************************ */
-#endif /* __EMMC_STD_H__ */
+#endif /* EMMC_STD_H */

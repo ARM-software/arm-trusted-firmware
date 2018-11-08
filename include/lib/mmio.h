@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __MMIO_H__
-#define __MMIO_H__
+#ifndef MMIO_H
+#define MMIO_H
 
 #include <stdint.h>
 
@@ -73,4 +73,4 @@ static inline void mmio_clrsetbits_32(uintptr_t addr,
 	mmio_write_32(addr, (mmio_read_32(addr) & ~clear) | set);
 }
 
-#endif /* __MMIO_H__ */
+#endif /* MMIO_H */

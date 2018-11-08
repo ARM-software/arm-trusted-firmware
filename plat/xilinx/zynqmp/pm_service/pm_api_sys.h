@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef _PM_API_SYS_H_
-#define _PM_API_SYS_H_
+#ifndef PM_API_SYS_H
+#define PM_API_SYS_H
 
 #include <stdint.h>
 #include "pm_defs.h"
@@ -176,4 +176,4 @@ enum pm_ret_status pm_aes_engine(uint32_t address_high,
 				 uint32_t address_low,
 				 uint32_t  *value);
 
-#endif /* _PM_API_SYS_H_ */
+#endif /* PM_API_SYS_H */

@@ -36,8 +36,8 @@
  * All rights reserved.
  */
 
-#ifndef AARCH32_ENDIAN_H
-#define AARCH32_ENDIAN_H
+#ifndef ENDIAN__H
+#define ENDIAN__H
 
 #include <stdint.h>
 
@@ -143,4 +143,4 @@ __bswap16_var(uint16_t v)
 #define __bswap32(x)	__bswap32_var(x)
 
 #endif /* __OPTIMIZE__ */
-#endif /* AARCH32_ENDIAN_H */
+#endif /* ENDIAN__H */

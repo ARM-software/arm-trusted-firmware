@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __STM32MP1_CONTEXT_H__
-#define __STM32MP1_CONTEXT_H__
+#ifndef STM32MP1_CONTEXT_H
+#define STM32MP1_CONTEXT_H
 
 #include <stdint.h>
 
 int stm32_save_boot_interface(uint32_t interface, uint32_t instance);
 
-#endif /* __STM32MP1_CONTEXT_H__ */
+#endif /* STM32MP1_CONTEXT_H */

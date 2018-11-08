@@ -8,8 +8,8 @@
 
 /* This driver provides support for Mentor Graphics MI2CV IP core */
 
-#ifndef _MI2CV_H_
-#define _MI2CV_H_
+#ifndef MI2CV_H
+#define MI2CV_H
 
 #include <stdint.h>
 
@@ -36,4 +36,5 @@ int i2c_read(uint8_t chip,
 
 int i2c_write(uint8_t chip,
 	      unsigned int addr, int alen, uint8_t *buffer, int len);
-#endif
+
+#endif /* MI2CV_H */

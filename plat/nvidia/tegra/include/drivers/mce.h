@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __MCE_H__
-#define __MCE_H__
+#ifndef MCE_H
+#define MCE_H
 
 #include <mmio.h>
 #include <tegra_def.h>
@@ -73,4 +73,4 @@ __dead2 void mce_enter_ccplex_state(uint32_t state_idx);
 void mce_update_cstate_info(const mce_cstate_info_t *cstate);
 void mce_verify_firmware_version(void);
 
-#endif /* __MCE_H__ */
+#endif /* MCE_H */

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TSP_PRIVATE_H__
-#define __TSP_PRIVATE_H__
+#ifndef TSP_PRIVATE_H
+#define TSP_PRIVATE_H
 
 /* Definitions to help the assembler access the SMC/ERET args structure */
 #define TSP_ARGS_SIZE		0x40
@@ -149,5 +149,4 @@ tsp_args_t *tsp_system_off_main(uint64_t arg0,
 uint64_t tsp_main(void);
 #endif /* __ASSEMBLY__ */
 
-#endif /* __TSP_PRIVATE_H__ */
-
+#endif /* TSP_PRIVATE_H */

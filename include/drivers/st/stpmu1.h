@@ -4,9 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-
-#ifndef __STPMU1_H__
-#define __STPMU1_H__
+#ifndef STPMU1_H
+#define STPMU1_H
 
 #include <stm32_i2c.h>
 #include <utils_def.h>
@@ -138,4 +137,4 @@ uint8_t stpmu1_is_regulator_enabled(const char *name);
 int stpmu1_regulator_voltage_set(const char *name, uint16_t millivolts);
 void stpmu1_bind_i2c(struct i2c_handle_s *i2c_handle, uint16_t i2c_addr);
 
-#endif /* __STPMU1_H__ */
+#endif /* STPMU1_H */

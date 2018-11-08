@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __GIC_COMMON_H__
-#define __GIC_COMMON_H__
+#ifndef GIC_COMMON_H
+#define GIC_COMMON_H
 
 #include <utils_def.h>
 
@@ -100,4 +100,4 @@
 	(GIC_HIGHEST_NS_PRIORITY << 16)	|	\
 	(GIC_HIGHEST_NS_PRIORITY << 24))
 
-#endif /* __GIC_COMMON_H__ */
+#endif /* GIC_COMMON_H */

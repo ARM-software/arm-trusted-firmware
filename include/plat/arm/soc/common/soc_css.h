@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SOC_CSS_H__
-#define __SOC_CSS_H__
+#ifndef SOC_CSS_H
+#define SOC_CSS_H
 
 /*
  * Utility functions for ARM CSS SoCs
@@ -19,5 +19,4 @@ static inline void soc_css_security_setup(void)
 	soc_css_init_pcie();
 }
 
-
-#endif /* __SOC_CSS_H__ */
+#endif /* SOC_CSS_H */

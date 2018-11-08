@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SOC_CSS_DEF_H__
-#define __SOC_CSS_DEF_H__
+#ifndef SOC_CSS_DEF_H
+#define SOC_CSS_DEF_H
 
 #include <common_def.h>
 #include <utils_def.h>
@@ -84,4 +84,4 @@
 #define PLAT_ARM_SCP_TZC_DRAM1_SIZE	ULL(0x00200000)
 #endif
 
-#endif /* __SOC_CSS_DEF_H__ */
+#endif /* SOC_CSS_DEF_H */

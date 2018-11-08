@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __OPTEED_PRIVATE_H__
-#define __OPTEED_PRIVATE_H__
+#ifndef OPTEED_PRIVATE_H
+#define OPTEED_PRIVATE_H
 
 #include <arch.h>
 #include <context.h>
@@ -157,4 +157,4 @@ extern uint32_t opteed_rw;
 extern struct optee_vectors *optee_vector_table;
 #endif /*__ASSEMBLY__*/
 
-#endif /* __OPTEED_PRIVATE_H__ */
+#endif /* OPTEED_PRIVATE_H */

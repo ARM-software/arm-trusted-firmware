@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __BOOT_API_H
-#define __BOOT_API_H
+#ifndef BOOT_API_H
+#define BOOT_API_H
 
 #include <stdint.h>
 #include <stdio.h>
@@ -235,4 +235,4 @@ typedef struct {
 	uint8_t binary_type;
 } __packed boot_api_image_header_t;
 
-#endif /* __BOOT_API_H */
+#endif /* BOOT_API_H */

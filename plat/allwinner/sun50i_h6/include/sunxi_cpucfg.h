@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SUNXI_CPUCFG_H__
-#define __SUNXI_CPUCFG_H__
+#ifndef SUNXI_CPUCFG_H
+#define SUNXI_CPUCFG_H
 
 #include <sunxi_mmap.h>
 
@@ -24,4 +24,4 @@
 #define SUNXI_CPU_POWER_CLAMP_REG(c, n)	(SUNXI_R_CPUCFG_BASE + 0x0050 + \
 					(c) * 0x10 + (n) * 4)
 
-#endif /* __SUNXI_CPUCFG_H__ */
+#endif /* SUNXI_CPUCFG_H */

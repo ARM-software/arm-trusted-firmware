@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef __EMMC_HAL_H__
-#define __EMMC_HAL_H__
+#ifndef EMMC_HAL_H
+#define EMMC_HAL_H
 /* ************************ HEADER (INCLUDE) SECTION *********************** */
 #include <stdint.h>
 /* ***************** MACROS, CONSTANTS, COMPILATION FLAGS ****************** */
@@ -313,6 +313,6 @@ typedef struct {
 
 /* ********************************* CODE ********************************** */
 
-#endif /* __EMMC_HAL_H__ */
+#endif /* EMMC_HAL_H */
 
 /* ******************************** END ************************************ */

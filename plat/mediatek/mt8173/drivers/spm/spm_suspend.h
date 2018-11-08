@@ -3,8 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef __SPM_SUSPEND_H__
-#define __SPM_SUSPEND_H__
+#ifndef SPM_SUSPEND_H
+#define SPM_SUSPEND_H
 
 /* cpu dormant return code */
 #define CPU_DORMANT_RESET        0
@@ -13,4 +13,4 @@
 void spm_system_suspend(void);
 void spm_system_suspend_finish(void);
 
-#endif /* __SPM_SUSPEND_H__*/
+#endif /* SPM_SUSPEND_H*/
