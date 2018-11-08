@@ -18,6 +18,7 @@
 #include <spinlock.h>
 #include <string.h>
 #include <spm_svc.h>
+#include <sprt_svc.h>
 #include <utils.h>
 #include <xlat_tables_v2.h>
 
@@ -133,7 +134,7 @@ int sp_state_try_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to)
  * This function takes an SP context pointer and performs a synchronous entry
  * into it.
  ******************************************************************************/
-static uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx)
+uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx)
 {
 	uint64_t rc;
 	unsigned int linear_id = plat_my_core_pos();
@@ -165,7 +166,7 @@ static uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx)
  * This function returns to the place where spm_sp_synchronous_entry() was
  * called originally.
  ******************************************************************************/
-__dead2 static void spm_sp_synchronous_exit(uint64_t rc)
+__dead2 void spm_sp_synchronous_exit(uint64_t rc)
 {
 	/* Get context of the SP in use by this CPU. */
 	unsigned int linear_id = plat_my_core_pos();
@@ -202,7 +203,10 @@ static int32_t spm_init(void)
 		ctx->state = SP_STATE_RESET;
 
 		rc = spm_sp_synchronous_entry(ctx);
-		assert(rc == 0);
+		if (rc != SPRT_YIELD_AARCH64) {
+			ERROR("Unexpected return value 0x%llx\n", rc);
+			panic();
+		}
 
 		ctx->state = SP_STATE_IDLE;
 

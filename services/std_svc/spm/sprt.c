@@ -39,6 +39,20 @@ uint64_t sprt_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	case SPRT_VERSION:
 		SMC_RET1(handle, SPRT_VERSION_COMPILED);
 
+	case SPRT_PUT_RESPONSE_AARCH64:
+		/*
+		 * Registers x1-x3 aren't saved by default to the context,
+		 * but they are needed after spm_sp_synchronous_exit() because
+		 * they hold return values.
+		 */
+		SMC_SET_GP(handle, CTX_GPREG_X1, x1);
+		SMC_SET_GP(handle, CTX_GPREG_X2, x2);
+		SMC_SET_GP(handle, CTX_GPREG_X3, x3);
+		spm_sp_synchronous_exit(SPRT_PUT_RESPONSE_AARCH64);
+
+	case SPRT_YIELD_AARCH64:
+		spm_sp_synchronous_exit(SPRT_YIELD_AARCH64);
+
 	default:
 		break;
 	}

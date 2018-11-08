@@ -14,6 +14,7 @@
 #include <platform_def.h>
 #include <platform.h>
 #include <sp_res_desc.h>
+#include <sprt_host.h>
 #include <string.h>
 #include <xlat_tables_v2.h>
 
@@ -132,4 +133,13 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	 */
 	write_ctx_reg(get_sysregs_ctx(ctx), CTX_CPACR_EL1,
 			CPACR_EL1_FPEN(CPACR_EL1_FP_TRAP_NONE));
+
+	/*
+	 * Prepare shared buffers
+	 * ----------------------
+	 */
+
+	/* Initialize SPRT queues */
+	sprt_initialize_queues((void *)sp_ctx->spm_sp_buffer_base,
+			       sp_ctx->spm_sp_buffer_size);
 }
