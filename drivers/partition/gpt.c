@@ -13,10 +13,14 @@
 
 static int unicode_to_ascii(unsigned short *str_in, unsigned char *str_out)
 {
-	uint8_t *name = (uint8_t *)str_in;
+	uint8_t *name;
 	int i;
 
-	assert((str_in != NULL) && (str_out != NULL) && (name[0] != '\0'));
+	assert((str_in != NULL) && (str_out != NULL));
+
+	name = (uint8_t *)str_in;
+
+	assert(name[0] != '\0');
 
 	/* check whether the unicode string is valid */
 	for (i = 1; i < (EFI_NAMELEN << 1); i += 2) {
@@ -36,7 +40,7 @@ int parse_gpt_entry(gpt_entry_t *gpt_entry, partition_entry_t *entry)
 {
 	int result;
 
-	assert((gpt_entry != 0) && (entry != 0));
+	assert((gpt_entry != NULL) && (entry != NULL));
 
 	if ((gpt_entry->first_lba == 0) && (gpt_entry->last_lba == 0)) {
 		return -EINVAL;
