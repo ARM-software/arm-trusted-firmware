@@ -1323,7 +1323,7 @@ int stm32mp1_clk_init(void)
 	int ret, len;
 	enum stm32mp1_pll_id i;
 	bool lse_css = false;
-	const uint32_t *pkcs_cell;
+	const fdt32_t *pkcs_cell;
 
 	/* Check status field to disable security */
 	if (!fdt_get_rcc_secure_status()) {
@@ -1529,7 +1529,7 @@ int stm32mp1_clk_init(void)
 		priv->pkcs_usb_value = 0;
 
 		for (j = 0; j < ((uint32_t)len / sizeof(uint32_t)); j++) {
-			uint32_t pkcs = (uint32_t)fdt32_to_cpu(pkcs_cell[j]);
+			uint32_t pkcs = fdt32_to_cpu(pkcs_cell[j]);
 
 			if (pkcs == (uint32_t)CLK_CKPER_DISABLED) {
 				ckper_disabled = true;
