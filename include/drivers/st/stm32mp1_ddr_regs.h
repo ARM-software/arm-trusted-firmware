@@ -408,6 +408,4 @@ struct stm32mp1_ddrphy {
 #define DDRPHYC_DXNDLLCR_SDPHASE_MASK		GENMASK(17, 14)
 #define DDRPHYC_DXNDLLCR_SDPHASE_SHIFT		14
 
-void ddr_enable_clock(void);
-
 #endif /* STM32MP1_DDR_REGS_H */
