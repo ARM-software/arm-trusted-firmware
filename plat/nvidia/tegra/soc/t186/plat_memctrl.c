@@ -10,8 +10,8 @@
 
 #include <mce.h>
 #include <memctrl_v2.h>
-#include <tegra_mc_def.h>
 #include <tegra186_private.h>
+#include <tegra_mc_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
 
@@ -711,13 +711,6 @@ tegra_mc_settings_t *tegra_get_mc_settings(void)
 void plat_memctrl_tzdram_setup(uint64_t phys_base, uint64_t size_in_bytes)
 {
 	uint32_t val;
-	uint64_t src_base_tzdram;
-	const plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
-	uint64_t src_len_in_bytes = BL31_END - BL31_START;
-
-	/* base address of BL3-1 source in TZDRAM */
-	src_base_tzdram = params_from_bl2->tzdram_base +
-	      tegra186_get_cpu_reset_handler_size();
 
 	/*
 	 * Setup the Memory controller to allow only secure accesses to
@@ -745,15 +738,6 @@ void plat_memctrl_tzdram_setup(uint64_t phys_base, uint64_t size_in_bytes)
 
 	val = tegra_mc_read_32(MC_SECURITY_CFG3_0) & MC_SECURITY_BOM_HI_MASK;
 	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_TZDRAM_ADDR_HI, val);
-
-	/*
-	 * save tzdram_addr_lo and ATF-size, this would be used in SC7-RF to
-	 * generate SHA256.
-	 */
-	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV68_LO,
-			(uint32_t)src_base_tzdram);
-	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV0_HI,
-			(uint32_t)src_len_in_bytes);
 
 	/*
 	 * MCE propagates the security configuration values across the
