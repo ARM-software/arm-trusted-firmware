@@ -56,21 +56,23 @@ endfunc console_cdns_core_init
 	.globl console_cdns_register
 
 	/* -----------------------------------------------
-	 * int console_cdns_register(uint64_t baseaddr,
+	 * int console_cdns_register(uintptr_t baseaddr,
 	 *     uint32_t clock, uint32_t baud,
 	 *     console_cdns_t *console);
 	 * Function to initialize and register a new CDNS
 	 * console. Storage passed in for the console struct
 	 * *must* be persistent (i.e. not from the stack).
 	 * In: x0 - UART register base address
-	 *     x1 - pointer to empty console_cdns_t struct
+	 *     w1 - UART clock in Hz
+	 *     w2 - Baud rate
+	 *     x3 - pointer to empty console_16550_t struct
 	 * Out: return 1 on success, 0 on error
 	 * Clobber list : x0, x1, x2, x6, x7, x14
 	 * -----------------------------------------------
 	 */
 func console_cdns_register
 	mov	x7, x30
-	mov	x6, x1
+	mov	x6, x3
 	cbz	x6, register_fail
 	str	x0, [x6, #CONSOLE_T_CDNS_BASE]
 
@@ -78,7 +80,7 @@ func console_cdns_register
 	cbz	x0, register_fail
 
 	mov	x0, x6
-	mov	x30, v7
+	mov	x30, x7
 	finish_console_register cdns putc=1, getc=1, flush=1
 
 register_fail:
