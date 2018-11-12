@@ -8,7 +8,6 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <cci.h>
-#include <console.h>
 #include <debug.h>
 #include <errno.h>
 #include <gicv2.h>
@@ -18,6 +17,7 @@
 #include <hisi_pwrc.h>
 #include <interrupt_props.h>
 #include <mmio.h>
+#include <pl011.h>
 #include <platform_def.h>
 
 #include "hikey_private.h"
@@ -43,6 +43,7 @@
 
 static entry_point_info_t bl32_ep_info;
 static entry_point_info_t bl33_ep_info;
+static console_pl011_t console;
 
 /******************************************************************************
  * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0
@@ -92,7 +93,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	from_bl2 = (void *) arg0;
 
 	/* Initialize the console to provide early debug support */
-	console_init(CONSOLE_BASE, PL011_UART_CLK_IN_HZ, PL011_BAUDRATE);
+	console_pl011_register(CONSOLE_BASE, PL011_UART_CLK_IN_HZ,
+			       PL011_BAUDRATE, &console);
 
 	/* Initialize CCI driver */
 	cci_init(CCI400_BASE, cci_map, ARRAY_SIZE(cci_map));

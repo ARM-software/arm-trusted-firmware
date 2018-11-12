@@ -7,7 +7,6 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <console.h>
 #include <debug.h>
 #include <delay_timer.h>
 #include <desc_image_load.h>
@@ -21,6 +20,7 @@
 #ifdef SPD_opteed
 #include <optee_utils.h>
 #endif
+#include <pl011.h>
 #include <platform.h>
 #include <platform_def.h>	/* also includes hikey_def.h and hikey_layout.h*/
 #include <string.h>
@@ -49,6 +49,7 @@
 #define BL2_COHERENT_RAM_LIMIT (unsigned long)(&__COHERENT_RAM_END__)
 
 static meminfo_t bl2_el3_tzram_layout;
+static console_pl011_t console;
 
 enum {
 	BOOT_MODE_RECOVERY = 0,
@@ -279,7 +280,8 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 				  u_register_t arg3, u_register_t arg4)
 {
 	/* Initialize the console to provide early debug support */
-	console_init(CONSOLE_BASE, PL011_UART_CLK_IN_HZ, PL011_BAUDRATE);
+	console_pl011_register(CONSOLE_BASE, PL011_UART_CLK_IN_HZ,
+			       PL011_BAUDRATE, &console);
 	/*
 	 * Allow BL2 to see the whole Trusted RAM.
 	 */

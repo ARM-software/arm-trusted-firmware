@@ -9,12 +9,12 @@
 #include <assert.h>
 #include <bl31.h>
 #include <bl_common.h>
-#include <console.h>
 #include <cortex_a53.h>
 #include <debug.h>
 #include <errno.h>
 #include <generic_delay_timer.h>
 #include <mmio.h>
+#include <pl011.h>
 #include <platform.h>
 #include <platform_def.h>
 #include <stddef.h>
@@ -34,6 +34,7 @@
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
+static console_pl011_t console;
 
 static void hisi_tzpc_sec_init(void)
 {
@@ -72,7 +73,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	from_bl2 = (void *) arg0;
 
-	console_init(PL011_UART0_BASE, PL011_UART0_CLK_IN_HZ, PL011_BAUDRATE);
+	console_pl011_register(PL011_UART0_BASE, PL011_UART0_CLK_IN_HZ,
+			       PL011_BAUDRATE, &console);
 
 	/* Init console for crash report */
 	plat_crash_console_init();

@@ -7,7 +7,6 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <console.h>
 #include <debug.h>
 #include <desc_image_load.h>
 #include <dw_mmc.h>
@@ -17,6 +16,7 @@
 #include <mmio.h>
 #include <optee_utils.h>
 #include <partition/partition.h>
+#include <pl011.h>
 #include <platform.h>
 #include <string.h>
 #include "hi3798cv200.h"
@@ -31,6 +31,7 @@
 #define BL2_COHERENT_RAM_LIMIT	(unsigned long)(&__COHERENT_RAM_END__)
 
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
+static console_pl011_t console;
 
 /*******************************************************************************
  * Transfer SCP_BL2 from Trusted RAM using the SCP Download protocol.
@@ -181,7 +182,8 @@ void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	dw_mmc_params_t params = EMMC_INIT_PARAMS(POPLAR_EMMC_DESC_BASE);
 #endif
 
-	console_init(PL011_UART0_BASE, PL011_UART0_CLK_IN_HZ, PL011_BAUDRATE);
+	console_pl011_register(PL011_UART0_BASE, PL011_UART0_CLK_IN_HZ,
+			       PL011_BAUDRATE, &console);
 
 	/* Enable arch timer */
 	generic_delay_timer_init();
