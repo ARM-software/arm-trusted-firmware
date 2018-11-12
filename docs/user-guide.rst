@@ -305,6 +305,13 @@ Common build options
    ``plat_secondary_cold_boot_setup()`` platform porting interfaces do not need
    to be implemented in this case.
 
+-  ``CONSOLE_FLUSH_ON_POWEROFF``: This option, which is enabled by default,
+   tells the system to issue a flush of the console on power operations (reset,
+   power off). However, some combinations of OSes + hardware may have disabled
+   the UART in a manner that creates an infinite loop when flushing the serial 
+   console, thus preventing platform reboot or power down (e.g. Ubuntu 18.04 on
+   Raspberry Pi 3). Setting this option to 0 can work around that problem.
+
 -  ``CRASH_REPORTING``: A non-zero value enables a console dump of processor
    register state when an unexpected exception occurs during execution of
    BL31. This option defaults to the value of ``DEBUG`` - i.e. by default

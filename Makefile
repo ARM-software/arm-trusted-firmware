@@ -559,6 +559,7 @@ endif
 ################################################################################
 
 $(eval $(call assert_boolean,COLD_BOOT_SINGLE_CPU))
+$(eval $(call assert_boolean,CONSOLE_FLUSH_ON_POWEROFF))
 $(eval $(call assert_boolean,CREATE_KEYS))
 $(eval $(call assert_boolean,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
@@ -613,6 +614,7 @@ $(eval $(call assert_numeric,SMCCC_MAJOR_VERSION))
 
 $(eval $(call add_define,ARM_ARCH_MAJOR))
 $(eval $(call add_define,ARM_ARCH_MINOR))
+$(eval $(call add_define,CONSOLE_FLUSH_ON_POWEROFF))
 $(eval $(call add_define,COLD_BOOT_SINGLE_CPU))
 $(eval $(call add_define,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call add_define,CTX_INCLUDE_FPREGS))

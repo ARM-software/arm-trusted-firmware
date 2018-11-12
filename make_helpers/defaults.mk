@@ -37,6 +37,11 @@ BL2_IN_XIP_MEM			:= 0
 # The platform Makefile is free to override this value.
 COLD_BOOT_SINGLE_CPU		:= 0
 
+# Some combinations of OSes + hardware may disable the UART in a manner that
+# prevents console flushing from completing (infinite loop), thus preventing
+# reboot or poweroff. Setting this option to 0 can work around that issue.
+CONSOLE_FLUSH_ON_POWEROFF	:= 1
+
 # Flag to compile in coreboot support code. Exclude by default. The coreboot
 # Makefile system will set this when compiling TF as part of a coreboot image.
 COREBOOT			:= 0

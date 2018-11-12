@@ -23,7 +23,9 @@ void __dead2 psci_system_off(void)
 		psci_spd_pm->svc_system_off();
 	}
 
+#if CONSOLE_FLUSH_ON_POWEROFF
 	(void) console_flush();
+#endif /* CONSOLE_FLUSH_ON_POWEROFF */
 
 	/* Call the platform specific hook */
 	psci_plat_pm_ops->system_off();
@@ -42,7 +44,9 @@ void __dead2 psci_system_reset(void)
 		psci_spd_pm->svc_system_reset();
 	}
 
+#if CONSOLE_FLUSH_ON_POWEROFF
 	(void) console_flush();
+#endif /* CONSOLE_FLUSH_ON_POWEROFF */
 
 	/* Call the platform specific hook */
 	psci_plat_pm_ops->system_reset();
@@ -75,7 +79,9 @@ u_register_t psci_system_reset2(uint32_t reset_type, u_register_t cookie)
 	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_system_reset != NULL)) {
 		psci_spd_pm->svc_system_reset();
 	}
+#if CONSOLE_FLUSH_ON_POWEROFF
 	(void) console_flush();
+#endif /* CONSOLE_FLUSH_ON_POWEROFF */
 
 	return (u_register_t)
 		psci_plat_pm_ops->system_reset2((int) is_vendor, reset_type,

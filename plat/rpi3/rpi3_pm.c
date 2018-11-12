@@ -155,7 +155,9 @@ static void __dead2 rpi3_watchdog_reset(void)
 {
 	uint32_t rstc;
 
+#if CONSOLE_FLUSH_ON_POWEROFF
 	console_flush();
+#endif /* CONSOLE_FLUSH_ON_POWEROFF */
 
 	dsbsy();
 	isb();
