@@ -96,6 +96,10 @@ static console_16550_t rpi3_console;
 
 void rpi3_console_init(void)
 {
+	int console_scope = CONSOLE_FLAG_BOOT;
+#if RPI3_RUNTIME_UART != -1
+	console_scope |= CONSOLE_FLAG_RUNTIME;
+#endif
 	int rc = console_16550_register(PLAT_RPI3_UART_BASE,
 					PLAT_RPI3_UART_CLK_IN_HZ,
 					PLAT_RPI3_UART_BAUDRATE,
@@ -109,8 +113,7 @@ void rpi3_console_init(void)
 		panic();
 	}
 
-	console_set_scope(&rpi3_console.console,
-			  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
+	console_set_scope(&rpi3_console.console, console_scope);
 }
 
 /*******************************************************************************

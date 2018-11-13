@@ -231,6 +231,10 @@ The following build options are supported:
   ``RPI3_DIRECT_LINUX_BOOT=1``. This option allows to specify the location of a
   DTB in memory.
 
+- ``RPI3_RUNTIME_UART``: Indicates whether the UART should be used at runtime
+  or disabled. ``-1`` (default) disables the runtime UART. Any other value
+  enables the default UART (currently UART1) for runtime messages.
+
 - ``BL32``: This port can load and run OP-TEE. The OP-TEE image is optional.
   Please use the code from `here <https://github.com/OP-TEE/optee_os>`__.
   Build the Trusted Firmware with option ``BL32=tee-header_v2.bin
