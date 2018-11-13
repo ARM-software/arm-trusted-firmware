@@ -42,7 +42,7 @@ typedef struct {
  * for the lifetime of the console, such as a global or static local variable.
  * Its contents will be reinitialized from scratch.
  */
-int console_cdns_register(uint64_t baseaddr, uint32_t clock, uint32_t baud,
+int console_cdns_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
 			  console_cdns_t *console);
 
 #endif /*__ASSEMBLY__*/
