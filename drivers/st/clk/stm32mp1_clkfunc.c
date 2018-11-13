@@ -265,11 +265,11 @@ int fdt_rcc_subnode_offset(const char *name)
  * This function gets the pointer to a rcc-clk property from its name.
  * It reads the values indicated inside the device tree.
  * Length of the property is stored in the second parameter.
- * Returns pointer if success, and NULL value else.
+ * Returns pointer on success, and NULL value on failure.
  ******************************************************************************/
-const uint32_t *fdt_rcc_read_prop(const char *prop_name, int *lenp)
+const fdt32_t *fdt_rcc_read_prop(const char *prop_name, int *lenp)
 {
-	const uint32_t *cuint;
+	const fdt32_t *cuint;
 	int node, len;
 	void *fdt;
 

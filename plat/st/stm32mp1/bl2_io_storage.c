@@ -37,7 +37,7 @@ static io_block_spec_t gpt_block_spec = {
 	.length = 34 * MMC_BLOCK_SIZE, /* Size of GPT table */
 };
 
-uint32_t block_buffer[MMC_BLOCK_SIZE] __aligned(MMC_BLOCK_SIZE);
+static uint32_t block_buffer[MMC_BLOCK_SIZE] __aligned(MMC_BLOCK_SIZE);
 
 static const io_block_dev_spec_t mmc_block_dev_spec = {
 	/* It's used as temp buffer in block driver */
