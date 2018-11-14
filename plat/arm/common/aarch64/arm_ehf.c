@@ -23,6 +23,9 @@ ehf_pri_desc_t arm_exceptions[] = {
 	/* Normal priority SDEI */
 	EHF_PRI_DESC(ARM_PRI_BITS, PLAT_SDEI_NORMAL_PRI),
 #endif
+#if ENABLE_SPM
+	EHF_PRI_DESC(ARM_PRI_BITS, PLAT_SP_PRI),
+#endif
 };
 
 /* Plug in ARM exceptions to Exception Handling Framework. */
