@@ -101,3 +101,8 @@ void bl31_platform_setup(void)
 	sgi_ras_intr_handler_setup();
 #endif
 }
+
+const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
+{
+	return css_scmi_override_pm_ops(ops);
+}
