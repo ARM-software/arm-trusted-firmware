@@ -9,6 +9,7 @@
 #include <bl31.h>
 #include <context_mgmt.h>
 #include <debug.h>
+#include <ehf.h>
 #include <errno.h>
 #include <mm_svc.h>
 #include <platform.h>
@@ -233,6 +234,19 @@ static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
 		VERBOSE("MM_COMMUNICATE: comm_size_address is not 0 as recommended.\n");
 	}
 
+	/*
+	 * The current secure partition design mandates
+	 * - at any point, only a single core can be
+	 *   executing in the secure partiton.
+	 * - a core cannot be preempted by an interrupt
+	 *   while executing in secure partition.
+	 * Raise the running priority of the core to the
+	 * interrupt level configured for secure partition
+	 * so as to block any interrupt from preempting this
+	 * core.
+	 */
+	ehf_activate_priority(PLAT_SP_PRI);
+
 	/* Save the Normal world context */
 	cm_el1_sysregs_context_save(NON_SECURE);
 
@@ -242,6 +256,12 @@ static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
 	/* Restore non-secure state */
 	cm_el1_sysregs_context_restore(NON_SECURE);
 	cm_set_next_eret_context(NON_SECURE);
+
+	/*
+	 * Exited from secure partition. This core can take
+	 * interrupts now.
+	 */
+	ehf_deactivate_priority(PLAT_SP_PRI);
 
 	SMC_RET1(handle, rc);
 }
