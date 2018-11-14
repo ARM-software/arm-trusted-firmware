@@ -149,7 +149,7 @@ func plat_crash_console_init
 	ldr	r0, =STM32MP1_DEBUG_USART_BASE
 	ldr	r1, =STM32MP1_HSI_CLK
 	ldr	r2, =STM32MP1_UART_BAUDRATE
-	b	console_core_init
+	b	console_stm32_core_init
 endfunc plat_crash_console_init
 
 	/* ---------------------------------------------
@@ -160,7 +160,7 @@ endfunc plat_crash_console_init
 	 */
 func plat_crash_console_flush
 	ldr	r1, =STM32MP1_DEBUG_USART_BASE
-	b	console_core_flush
+	b	console_stm32_core_flush
 endfunc plat_crash_console_flush
 
 	/* ---------------------------------------------
@@ -176,5 +176,5 @@ endfunc plat_crash_console_flush
 	 */
 func plat_crash_console_putc
 	ldr	r1, =STM32MP1_DEBUG_USART_BASE
-	b	console_core_putc
+	b	console_stm32_core_putc
 endfunc plat_crash_console_putc

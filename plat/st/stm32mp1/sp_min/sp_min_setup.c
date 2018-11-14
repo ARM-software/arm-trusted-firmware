@@ -7,7 +7,6 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <bl_common.h>
-#include <console.h>
 #include <context.h>
 #include <context_mgmt.h>
 #include <debug.h>
@@ -17,6 +16,7 @@
 #include <platform.h>
 #include <platform_def.h>
 #include <platform_sp_min.h>
+#include <stm32_console.h>
 #include <stm32mp1_clk.h>
 #include <stm32mp1_dt.h>
 #include <stm32mp1_private.h>
@@ -29,6 +29,8 @@
  * BL32 from BL2.
  ******************************************************************************/
 static entry_point_info_t bl33_image_ep_info;
+
+static struct console_stm32 console;
 
 /*******************************************************************************
  * Interrupt handler for FIQ (secure IRQ)
@@ -112,8 +114,9 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	result = dt_get_stdout_uart_info(&dt_dev_info);
 
 	if ((result > 0) && dt_dev_info.status) {
-		if (console_init(dt_dev_info.base, 0, STM32MP1_UART_BAUDRATE)
-		    == 0) {
+		if (console_stm32_register(dt_dev_info.base, 0,
+					   STM32MP1_UART_BAUDRATE, &console) ==
+		    0) {
 			panic();
 		}
 	}

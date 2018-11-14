@@ -8,7 +8,6 @@
 #include <assert.h>
 #include <bl_common.h>
 #include <boot_api.h>
-#include <console.h>
 #include <debug.h>
 #include <delay_timer.h>
 #include <desc_image_load.h>
@@ -16,17 +15,20 @@
 #include <mmio.h>
 #include <platform.h>
 #include <platform_def.h>
+#include <stm32_console.h>
 #include <stm32mp1_clk.h>
+#include <stm32mp1_context.h>
 #include <stm32mp1_dt.h>
 #include <stm32mp1_pmic.h>
 #include <stm32mp1_private.h>
-#include <stm32mp1_context.h>
 #include <stm32mp1_pwr.h>
 #include <stm32mp1_ram.h>
 #include <stm32mp1_rcc.h>
 #include <stm32mp1_reset.h>
 #include <string.h>
 #include <xlat_tables_v2.h>
+
+static struct console_stm32 console;
 
 void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
 				  u_register_t arg2, u_register_t arg3)
@@ -137,8 +139,8 @@ void bl2_el3_plat_arch_setup(void)
 
 	clk_rate = stm32mp1_clk_get_rate((unsigned long)dt_dev_info.clock);
 
-	if (console_init(dt_dev_info.base, clk_rate,
-			 STM32MP1_UART_BAUDRATE) == 0) {
+	if (console_stm32_register(dt_dev_info.base, clk_rate,
+				   STM32MP1_UART_BAUDRATE, &console) == 0) {
 		panic();
 	}
 
