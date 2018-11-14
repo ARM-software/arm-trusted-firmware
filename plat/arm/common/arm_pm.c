@@ -14,7 +14,6 @@
 #include <psci.h>
 
 /* Allow ARM Standard platforms to override these functions */
-#pragma weak plat_arm_psci_override_pm_ops
 #pragma weak plat_arm_program_trusted_mailbox
 
 #if !ARM_RECOM_STATE_ID_ENC
@@ -130,14 +129,6 @@ int arm_validate_psci_entrypoint(uintptr_t entrypoint)
 {
 	return (arm_validate_ns_entrypoint(entrypoint) == 0) ? PSCI_E_SUCCESS :
 		PSCI_E_INVALID_ADDRESS;
-}
-
-/******************************************************************************
- * Default definition on ARM standard platforms to override the plat_psci_ops.
- *****************************************************************************/
-const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
-{
-	return ops;
 }
 
 /******************************************************************************
