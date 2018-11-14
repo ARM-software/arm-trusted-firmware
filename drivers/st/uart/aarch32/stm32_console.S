@@ -4,25 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <asm_macros.S>
+#include <stm32_uart_regs.h>
 
 #define USART_TIMEOUT		0x1000
-
-#define USART_CR1		0x00
-#define USART_CR1_UE		0x00000001
-#define USART_CR1_TE		0x00000008
-#define USART_CR1_FIFOEN	0x20000000
-
-#define USART_CR2		0x04
-#define USART_CR2_STOP		0x00003000
-
-#define USART_BRR		0x0C
-
-#define USART_ISR		0x1C
-#define USART_ISR_TC		0x00000040
-#define USART_ISR_TXE		0x00000080
-#define USART_ISR_TEACK		0x00200000
-
-#define USART_TDR		0x28
 
 	.globl	console_core_init
 	.globl	console_core_putc
