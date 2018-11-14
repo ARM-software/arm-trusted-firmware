@@ -5,16 +5,27 @@
  * https://spdx.org/licenses
  */
 
+#include <arch.h>
 #include <asm_macros.S>
 #include <a3700_console.h>
+#define USE_FINISH_CONSOLE_REG_2
+#include <console_macros.S>
 
-	.globl	console_core_init
-	.globl	console_core_putc
-	.globl	console_core_getc
-	.globl	console_core_flush
+	/*
+	 * "core" functions are low-level implementations that don't require
+	 * writable memory and are thus safe to call in BL1 crash context.
+	 */
+	.globl console_a3700_core_putc
+	.globl console_a3700_core_init
+	.globl console_a3700_core_getc
+	.globl console_a3700_core_flush
+
+	.globl console_a3700_putc
+	.globl console_a3700_getc
+	.globl console_a3700_flush
 
 	/* -----------------------------------------------
-	 * int console_core_init(unsigned long base_addr,
+	 * int console_a3700_core_init(unsigned long base_addr,
 	 * unsigned int uart_clk, unsigned int baud_rate)
 	 * Function to initialize the console without a
 	 * C Runtime to print debug information. This
@@ -27,7 +38,7 @@
 	 * Clobber list : x1, x2, x3
 	 * -----------------------------------------------
 	 */
-func console_core_init
+func console_a3700_core_init
 	/* Check the input base address */
 	cbz	x0, init_fail
 	/* Check baud rate and uart clock for sanity */
@@ -95,10 +106,43 @@ func console_core_init
 init_fail:
 	mov	w0, #0
 	ret
-endfunc console_core_init
+endfunc console_a3700_core_init
+
+	.globl console_a3700_register
+
+	/* -----------------------------------------------
+	 * int console_a3700_register(console_16550_t *console,
+		uintptr_t base, uint32_t clk, uint32_t baud)
+	 * Function to initialize and register a new a3700
+	 * console. Storage passed in for the console struct
+	 * *must* be persistent (i.e. not from the stack).
+	 * In: x0 - UART register base address
+	 *     w1 - UART clock in Hz
+	 *     w2 - Baud rate
+	 *     x3 - pointer to empty console_a3700_t struct
+	 * Out: return 1 on success, 0 on error
+	 * Clobber list : x0, x1, x2, x6, x7, x14
+	 * -----------------------------------------------
+	 */
+func console_a3700_register
+	mov	x7, x30
+	mov	x6, x3
+	cbz	x6, register_fail
+	str	x0, [x6, #CONSOLE_T_A3700_BASE]
+
+	bl	console_a3700_core_init
+	cbz	x0, register_fail
+
+	mov	x0, x6
+	mov	x30, x7
+	finish_console_register a3700, putc=1, getc=1, flush=1
+
+register_fail:
+	ret	x7
+endfunc console_a3700_register
 
 	/* --------------------------------------------------------
-	 * int console_core_putc(int c, unsigned int base_addr)
+	 * int console_a3700_core_putc(int c, unsigned int base_addr)
 	 * Function to output a character over the console. It
 	 * returns the character printed on success or -1 on error.
 	 * In : w0 - character to be printed
@@ -107,7 +151,7 @@ endfunc console_core_init
 	 * Clobber list : x2
 	 * --------------------------------------------------------
 	 */
-func console_core_putc
+func console_a3700_core_putc
 	/* Check the input parameter */
 	cbz	x1, putc_error
 
@@ -132,10 +176,25 @@ func console_core_putc
 putc_error:
 	mov	w0, #-1
 	ret
-endfunc console_core_putc
+endfunc console_a3700_core_putc
+
+	/* --------------------------------------------------------
+	 * int console_a3700_putc(int c, console_a3700_t *console)
+	 * Function to output a character over the console. It
+	 * returns the character printed on success or -1 on error.
+	 * In : w0 - character to be printed
+	 *      x1 - pointer to console_t structure
+	 * Out : return -1 on error else return character.
+	 * Clobber list : x2
+	 * --------------------------------------------------------
+	 */
+func console_a3700_putc
+	ldr	x1, [x1, #CONSOLE_T_A3700_BASE]
+	b	console_a3700_core_putc
+endfunc console_a3700_putc
 
 	/* ---------------------------------------------
-	 * int console_core_getc(void)
+	 * int console_a3700_core_getc(void)
 	 * Function to get a character from the console.
 	 * It returns the character grabbed on success
 	 * or -1 on error.
@@ -144,16 +203,28 @@ endfunc console_core_putc
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
-func console_core_getc
-	/* Check if the receive FIFO is empty */
-	ret
-getc_error:
+func console_a3700_core_getc
 	mov	w0, #-1
 	ret
-endfunc console_core_getc
+endfunc console_a3700_core_getc
 
 	/* ---------------------------------------------
-	 * int console_core_flush(uintptr_t base_addr)
+	 * int console_a3700_getc(console_a3700_t *console)
+	 * Function to get a character from the console.
+	 * It returns the character grabbed on success
+	 * or -1 on if no character is available.
+	 * In :  x0 - pointer to console_t structure
+	 * Out : w0 - character if available, else -1
+	 * Clobber list : x0, x1
+	 * ---------------------------------------------
+	 */
+func console_a3700_getc
+	ldr	x0, [x0, #CONSOLE_T_A3700_BASE]
+	b	console_a3700_core_getc
+endfunc console_a3700_getc
+
+	/* ---------------------------------------------
+	 * int console_a3700_core_flush(uintptr_t base_addr)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - console base address
@@ -161,8 +232,22 @@ endfunc console_core_getc
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
-func console_core_flush
-	/* Placeholder */
+func console_a3700_core_flush
 	mov	w0, #0
 	ret
-endfunc console_core_flush
+endfunc console_a3700_core_flush
+
+	/* ---------------------------------------------
+	 * int console_a3700_flush(console_a3700_t *console)
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * In : x0 - pointer to console_t structure
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : x0, x1
+	 * ---------------------------------------------
+	 */
+func console_a3700_flush
+	ldr	x0, [x0, #CONSOLE_T_A3700_BASE]
+	b	console_a3700_core_flush
+endfunc console_a3700_flush
+

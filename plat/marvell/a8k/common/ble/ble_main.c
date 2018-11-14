@@ -35,13 +35,11 @@ int exec_ble_main(int bootrom_flags)
 	 * initialize the console and prints will be ignored
 	 */
 	if ((bootrom_flags & BR_FLAG_SILENT) == 0)
-		console_init(PLAT_MARVELL_BOOT_UART_BASE,
-			     PLAT_MARVELL_BOOT_UART_CLK_IN_HZ,
-			     MARVELL_CONSOLE_BAUDRATE);
+		marvell_console_boot_init();
 
 	NOTICE("Starting binary extension\n");
 
-	/* initiliaze time (for delay functionality) */
+	/* initialize time (for delay functionality) */
 	plat_delay_timer_init();
 
 	ble_plat_setup(&skip);

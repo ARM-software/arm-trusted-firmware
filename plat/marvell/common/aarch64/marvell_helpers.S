@@ -65,7 +65,11 @@ func plat_crash_console_init
 	mov_imm	x0, PLAT_MARVELL_CRASH_UART_BASE
 	mov_imm	x1, PLAT_MARVELL_CRASH_UART_CLK_IN_HZ
 	mov_imm	x2, MARVELL_CONSOLE_BAUDRATE
-	b	console_core_init
+#ifdef PLAT_a3700
+	b	console_a3700_core_init
+#else
+	b	console_16550_core_init
+#endif
 endfunc plat_crash_console_init
 
 	/* ---------------------------------------------
@@ -77,7 +81,12 @@ endfunc plat_crash_console_init
 	 */
 func plat_crash_console_putc
 	mov_imm	x1, PLAT_MARVELL_CRASH_UART_BASE
-	b	console_core_putc
+#ifdef PLAT_a3700
+
+	b	console_a3700_core_putc
+#else
+	b	console_16550_core_putc
+#endif
 endfunc plat_crash_console_putc
 
 	/* ---------------------------------------------
@@ -85,12 +94,16 @@ endfunc plat_crash_console_putc
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * Out : return -1 on error else return 0.
-	 * Clobber list : x0, x1
+	 * Clobber list : r0
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_flush
 	mov_imm	x0, PLAT_MARVELL_CRASH_UART_BASE
-	b	console_core_flush
+#ifdef PLAT_a3700
+	b	console_a3700_core_flush
+#else
+	b	console_16550_core_flush
+#endif
 endfunc plat_crash_console_flush
 
 	/* ---------------------------------------------------------------------
