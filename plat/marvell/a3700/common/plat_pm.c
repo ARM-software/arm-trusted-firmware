@@ -288,17 +288,8 @@ int a3700_validate_ns_entrypoint(uintptr_t entrypoint)
  */
 void a3700_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	uint32_t cpu_idx = plat_my_core_pos();
-
 	/* Prevent interrupts from spuriously waking up this cpu */
 	plat_marvell_gic_cpuif_disable();
-
-	/*
-	 * Enable Core VDD OFF, core is supposed to be powered
-	 * off by PMU when WFI command is issued.
-	 */
-	mmio_setbits_32(MVEBU_PM_CPU_0_PWR_CTRL_REG + 4 * cpu_idx,
-			MVEBU_PM_CORE_PD);
 
 	/* Core can not be powered down with pending IRQ,
 	 * acknowledge all the pending IRQ
