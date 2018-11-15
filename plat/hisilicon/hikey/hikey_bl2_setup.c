@@ -336,7 +336,7 @@ void bl2_platform_setup(void)
 	params.flags = MMC_FLAG_CMD23;
 	info.mmc_dev_type = MMC_IS_EMMC;
 	dw_mmc_init(&params, &info);
-	mdelay(5);
+	mdelay(20);
 
 	hikey_io_setup();
 }
