@@ -18,13 +18,15 @@
 #endif
 
 /* A lane is described by 4 fields:
- *      - bit 1~0 represent comphy polarity invert
- *      - bit 7~2 represent comphy speed
- *      - bit 11~8 represent unit index
- *      - bit 16~12 represent mode
- *      - bit 17 represent comphy indication of clock source
- *      - bit 19-18 represents pcie width (in case of pcie comphy config.)
- *      - bit 31~20 reserved
+ *  - bit 1~0 represent comphy polarity invert
+ *  - bit 7~2 represent comphy speed
+ *  - bit 11~8 represent unit index
+ *  - bit 16~12 represent mode
+ *  - bit 17 represent comphy indication of clock source
+ *  - bit 20~18 represents pcie width (in case of pcie comphy config.)
+ *  - bit 21 represents the source of the request (Linux/Bootloader),
+ *           (reguired only for PCIe!)
+ *  - bit 31~22 reserved
  */
 
 #define COMPHY_INVERT_OFFSET	0
@@ -50,6 +52,11 @@
 #define COMPHY_PCI_WIDTH_LEN	3
 #define COMPHY_PCI_WIDTH_MASK	COMPHY_MASK(COMPHY_PCI_WIDTH_OFFSET, \
 						COMPHY_PCI_WIDTH_LEN)
+#define COMPHY_PCI_CALLER_OFFSET \
+			(COMPHY_PCI_WIDTH_OFFSET + COMPHY_PCI_WIDTH_LEN)
+#define COMPHY_PCI_CALLER_LEN	1
+#define COMPHY_PCI_CALLER_MASK	COMPHY_MASK(COMPHY_PCI_CALLER_OFFSET, \
+						COMPHY_PCI_CALLER_LEN)
 
 #define COMPHY_MASK(offset, len)	(((1 << (len)) - 1) << (offset))
 
@@ -68,6 +75,10 @@
 /* Macro which extracts pcie width indication from lane description */
 #define COMPHY_GET_PCIE_WIDTH(x)	(((x) & COMPHY_PCI_WIDTH_MASK) >> \
 						COMPHY_PCI_WIDTH_OFFSET)
+
+/* Macro which extracts the caller for pcie power on from lane description */
+#define COMPHY_GET_CALLER(x)		(((x) & COMPHY_PCI_CALLER_MASK) >> \
+						COMPHY_PCI_CALLER_OFFSET)
 
 /* Macro which extracts the polarity invert from lane description */
 #define COMPHY_GET_POLARITY_INVERT(x)	(((x) & COMPHY_INVERT_MASK) >> \
