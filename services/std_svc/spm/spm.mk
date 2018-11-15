@@ -16,11 +16,11 @@ include lib/sprt/sprt_host.mk
 SPM_SOURCES	:=	$(addprefix services/std_svc/spm/,	\
 			${ARCH}/spm_helpers.S			\
 			${ARCH}/spm_shim_exceptions.S		\
-			sp_setup.c				\
-			sp_xlat.c				\
 			spci.c					\
 			spm_buffers.c				\
 			spm_main.c				\
+			spm_setup.c				\
+			spm_xlat.c				\
 			sprt.c)					\
 			${SPRT_LIB_SOURCES}
 
