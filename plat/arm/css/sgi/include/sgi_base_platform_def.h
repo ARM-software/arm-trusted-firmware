@@ -142,6 +142,8 @@
 					SOC_CSS_DEVICE_SIZE,	\
 					MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
 
+#define PLAT_SP_PRI				PLAT_RAS_PRI
+
 #if RAS_EXTENSION
 /* Allocate 128KB for CPER buffers */
 #define PLAT_SP_BUF_BASE			ULL(0x20000)
