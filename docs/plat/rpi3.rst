@@ -235,6 +235,41 @@ The following build options are supported:
   or disabled. ``-1`` (default) disables the runtime UART. Any other value
   enables the default UART (currently UART1) for runtime messages.
 
+- ``RPI3_USE_UEFI_MAP``: Set to 1 to build ATF with the altername memory
+   mapping required for an UEFI firmware payload. These changes are needed
+   to be able to run Windows on ARM64. This option, which is disabled by
+   default, results in the following memory mappings:
+
+::
+
+    0x00000000 +-----------------+
+               |       ROM       | BL1
+    0x00010000 +-----------------+
+               |       DTB       | (Loaded by the VideoCore)
+    0x00020000 +-----------------+
+               |       FIP       |
+    0x00030000 +-----------------+
+               |                 |
+               |  UEFI PAYLOAD   |
+               |                 |
+    0x00200000 +-----------------+
+               |   Secure SRAM   | BL2, BL31
+    0x00300000 +-----------------+
+               |   Secure DRAM   | BL32 (Secure payload)
+    0x00400000 +-----------------+
+               |                 |
+               |                 |
+               | Non-secure DRAM | BL33
+               |                 |
+               |                 |
+    0x01000000 +-----------------+
+               |                 |
+               |       ...       |
+               |                 |
+    0x3F000000 +-----------------+
+               |       I/O       |
+
+
 - ``BL32``: This port can load and run OP-TEE. The OP-TEE image is optional.
   Please use the code from `here <https://github.com/OP-TEE/optee_os>`__.
   Build the Trusted Firmware with option ``BL32=tee-header_v2.bin

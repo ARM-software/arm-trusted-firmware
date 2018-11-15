@@ -63,6 +63,25 @@
  * secure DRAM. Note that this is all actually DRAM with different names,
  * there is no Secure RAM in the Raspberry Pi 3.
  */
+#if RPI3_USE_UEFI_MAP
+#define SEC_ROM_BASE			ULL(0x00000000)
+#define SEC_ROM_SIZE			ULL(0x00010000)
+
+/* FIP placed after ROM to append it to BL1 with very little padding. */
+#define PLAT_RPI3_FIP_BASE		ULL(0x00020000)
+#define PLAT_RPI3_FIP_MAX_SIZE		ULL(0x00010000)
+
+/* Reserve 2M of secure SRAM and DRAM, starting at 2M */
+#define SEC_SRAM_BASE			ULL(0x00200000)
+#define SEC_SRAM_SIZE			ULL(0x00100000)
+
+#define SEC_DRAM0_BASE			ULL(0x00300000)
+#define SEC_DRAM0_SIZE			ULL(0x00100000)
+
+/* Windows on ARM requires some RAM at 4M */
+#define NS_DRAM0_BASE			ULL(0x00400000)
+#define NS_DRAM0_SIZE			ULL(0x00C00000)
+#else
 #define SEC_ROM_BASE			ULL(0x00000000)
 #define SEC_ROM_SIZE			ULL(0x00020000)
 
@@ -80,6 +99,7 @@
 
 #define NS_DRAM0_BASE			ULL(0x11000000)
 #define NS_DRAM0_SIZE			ULL(0x01000000)
+#endif /* RPI3_USE_UEFI_MAP */
 
 /*
  * BL33 entrypoint.
