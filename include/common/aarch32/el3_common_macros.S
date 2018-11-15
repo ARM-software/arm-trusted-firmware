@@ -177,9 +177,13 @@
 		 *
 		 * SCTLR.V: Set to zero to select the normal exception vectors
 		 *  with base address held in VBAR.
+		 *
+		 * SCTLR.DSSBS: Set to zero to disable speculation store bypass
+		 *  safe behaviour upon exception entry to EL3.
 		 * -------------------------------------------------------------
 		 */
-		ldr     r0, =(SCTLR_RESET_VAL & ~(SCTLR_TE_BIT | SCTLR_EE_BIT | SCTLR_V_BIT))
+		ldr     r0, =(SCTLR_RESET_VAL & ~(SCTLR_TE_BIT | SCTLR_EE_BIT | \
+				SCTLR_V_BIT | SCTLR_DSSBS_BIT))
 		stcopr	r0, SCTLR
 		isb
 	.endif /* _init_sctlr */
