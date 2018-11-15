@@ -1684,6 +1684,21 @@ an example.
 Note: Loading the BL32 image in TZC secured DRAM doesn't change the memory
 layout of the other images in Trusted SRAM.
 
+CONFIG section in memory layouts shown below contains:
+
+::
+
+    +--------------------+
+    |bl2_mem_params_descs|
+    |--------------------|
+    |     fw_configs     |
+    +--------------------+
+
+``bl2_mem_params_descs`` contains parameters passed from BL2 to next the
+BL image during boot.
+
+``fw_configs`` includes soc_fw_config, tos_fw_config and tb_fw_config.
+
 **FVP with TSP in Trusted SRAM with firmware configs :**
 (These diagrams only cover the AArch64 case)
 
@@ -1708,7 +1723,7 @@ layout of the other images in Trusted SRAM.
                |          |  <<<<<<<<<<<<<  |----------------|
                |          |  <<<<<<<<<<<<<  |     BL32       |
     0x04002000 +----------+                 +----------------+
-               |fw_configs|
+               |  CONFIG  |
     0x04001000 +----------+
                |  Shared  |
     0x04000000 +----------+
@@ -1745,7 +1760,7 @@ layout of the other images in Trusted SRAM.
                |              |  <<<<<<<<<<<<<  | BL31 PROGBITS  |
                |              |                 +----------------+
                +--------------+
-               |  fw_configs  |
+               |    CONFIG    |
     0x04001000 +--------------+
                |    Shared    |
     0x04000000 +--------------+
@@ -1779,7 +1794,7 @@ layout of the other images in Trusted SRAM.
                |          |  <<<<<<<<<<<<<  | BL31 PROGBITS  |
                |          |                 +----------------+
     0x04002000 +----------+
-               |fw_configs|
+               |  CONFIG  |
     0x04001000 +----------+
                |  Shared  |
     0x04000000 +----------+

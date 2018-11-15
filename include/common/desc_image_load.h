@@ -31,6 +31,9 @@ extern unsigned int bl_mem_params_desc_num;
 
 /* BL image loading utility functions */
 void flush_bl_params_desc(void);
+void flush_bl_params_desc_args(bl_mem_params_node_t *mem_params_desc_ptr,
+	unsigned int mem_params_desc_num,
+	bl_params_t *next_bl_params_ptr);
 int get_bl_params_node_index(unsigned int image_id);
 bl_mem_params_node_t *get_bl_mem_params_node(unsigned int image_id);
 bl_load_info_t *get_bl_load_info_from_mem_params_desc(void);
