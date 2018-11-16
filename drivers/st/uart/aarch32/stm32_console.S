@@ -4,30 +4,27 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <asm_macros.S>
+#include <assert_macros.S>
+#define USE_FINISH_CONSOLE_REG_2
+#include <console_macros.S>
+#include <stm32_console.h>
+#include <stm32_uart_regs.h>
 
 #define USART_TIMEOUT		0x1000
 
-#define USART_CR1		0x00
-#define USART_CR1_UE		0x00000001
-#define USART_CR1_TE		0x00000008
-#define USART_CR1_FIFOEN	0x20000000
+	/*
+	 * "core" functions are low-level implementations that don't require
+	 * writeable memory and are thus safe to call in BL1 crash context.
+	 */
+	.globl	console_stm32_core_init
+	.globl	console_stm32_core_putc
+	.globl	console_stm32_core_getc
+	.globl	console_stm32_core_flush
 
-#define USART_CR2		0x04
-#define USART_CR2_STOP		0x00003000
+	.globl	console_stm32_putc
+	.globl	console_stm32_flush
 
-#define USART_BRR		0x0C
 
-#define USART_ISR		0x1C
-#define USART_ISR_TC		0x00000040
-#define USART_ISR_TXE		0x00000080
-#define USART_ISR_TEACK		0x00200000
-
-#define USART_TDR		0x28
-
-	.globl	console_core_init
-	.globl	console_core_putc
-	.globl	console_core_getc
-	.globl	console_core_flush
 
 	/* -----------------------------------------------------------------
 	 * int console_core_init(uintptr_t base_addr,
@@ -45,7 +42,7 @@
 	 * Clobber list : r1, r2, r3
 	 * -----------------------------------------------------------------
 	 */
-func console_core_init
+func console_stm32_core_init
 	/* Check the input base address */
 	cmp	r0, #0
 	beq	core_init_fail
@@ -88,7 +85,43 @@ teack_loop:
 core_init_fail:
 	mov	r0, #0
 	bx	lr
-endfunc console_core_init
+endfunc console_stm32_core_init
+
+	.globl console_stm32_register
+
+	/* -------------------------------------------------------
+	 * int console_stm32_register(uintptr_t baseaddr,
+	 *     uint32_t clock, uint32_t baud,
+	 *     struct console_stm32 *console);
+	 * Function to initialize and register a new STM32
+	 * console. Storage passed in for the console struct
+	 * *must* be persistent (i.e. not from the stack).
+	 * In: r0 - UART register base address
+	 *     r1 - UART clock in Hz
+	 *     r2 - Baud rate
+	 *     r3 - pointer to empty console_stm32 struct
+	 * Out: return 1 on success, 0 on error
+	 * Clobber list : r0, r1, r2
+	 * -------------------------------------------------------
+	 */
+func console_stm32_register
+	push	{r4, lr}
+	mov	r4, r3
+	cmp	r4, #0
+	beq	register_fail
+	str	r0, [r4, #CONSOLE_T_STM32_BASE]
+
+	bl console_stm32_core_init
+	cmp	r0, #0
+	beq	register_fail
+
+	mov	r0, r4
+	pop	{r4, lr}
+	finish_console_register stm32 putc=1, getc=0, flush=1
+
+register_fail:
+	pop	{r4, pc}
+endfunc console_stm32_register
 
 	/* ---------------------------------------------------------------
 	 * int console_core_putc(int c, uintptr_t base_addr)
@@ -102,7 +135,7 @@ endfunc console_core_init
 	 * Clobber list : r2
 	 * ---------------------------------------------------------------
 	 */
-func console_core_putc
+func console_stm32_core_putc
 	/* Check the input parameter */
 	cmp	r1, #0
 	beq	putc_error
@@ -138,7 +171,26 @@ tc_loop_2:
 putc_error:
 	mov	r0, #-1
 	bx	lr
-endfunc console_core_putc
+endfunc console_stm32_core_putc
+
+	/* ------------------------------------------------------------
+	 * int console_stm32_putc(int c, struct console_stm32 *console)
+	 * Function to output a character over the console. It
+	 * returns the character printed on success or -1 on error.
+	 * In: r0 - character to be printed
+	 *     r1 - pointer to console_t structure
+	 * Out : return -1 on error else return character.
+	 * Clobber list: r2
+	 * ------------------------------------------------------------
+	 */
+func console_stm32_putc
+#if ENABLE_ASSERTIONS
+	cmp	r1, #0
+	ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
+	ldr	r1, [r1, #CONSOLE_T_STM32_BASE]
+	b	console_stm32_core_putc
+endfunc console_stm32_putc
 
 	/* -----------------------------------------------------------
 	 * int console_core_getc(uintptr_t base_addr)
@@ -151,11 +203,11 @@ endfunc console_core_putc
 	 * Clobber list : r0, r1
 	 * -----------------------------------------------------------
 	 */
-func console_core_getc
+func console_stm32_core_getc
 	/* Not supported */
 	mov	r0, #-1
 	bx	lr
-endfunc console_core_getc
+endfunc console_stm32_core_getc
 
 	/* ---------------------------------------------------------------
 	 * int console_core_flush(uintptr_t base_addr)
@@ -168,7 +220,7 @@ endfunc console_core_getc
 	 * Clobber list : r0, r1
 	 * ---------------------------------------------------------------
 	 */
-func console_core_flush
+func console_stm32_core_flush
 	cmp	r0, #0
 	beq	flush_error
 	/* Check Transmit Data Register Empty */
@@ -181,4 +233,22 @@ txe_loop_3:
 flush_error:
 	mov	r0, #-1
 	bx	lr
-endfunc console_core_flush
+endfunc console_stm32_core_flush
+
+	/* ------------------------------------------------------
+	 * int console_stm32_flush(struct console_stm32 *console)
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * In : r0 - pointer to console_t structure
+	 * Out : return -1 on error else return 0.
+	 * Clobber list: r0, r1
+	 * ------------------------------------------------------
+	 */
+func console_stm32_flush
+#if ENABLE_ASSERTIONS
+	cmp	r0, #0
+	ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
+	ldr	r0, [r0, #CONSOLE_T_STM32_BASE]
+	b	console_stm32_core_flush
+endfunc console_stm32_flush
