@@ -16,6 +16,7 @@
 	.globl	console_putc
 	.globl	console_getc
 	.globl	console_flush
+	.globl	console_list
 
 	/*
 	 *  The console list pointer is in the data section and not in
