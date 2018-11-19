@@ -108,13 +108,6 @@ else
         LOG_LEVEL	:=	20
 endif
 
-# Enable backtrace by default in DEBUG AArch64 builds
-ifeq (${ARCH},aarch32)
-        ENABLE_BACKTRACE 	:=	0
-else
-        ENABLE_BACKTRACE 	:=	${DEBUG}
-endif
-
 # Default build string (git branch and commit)
 ifeq (${BUILD_STRING},)
         BUILD_STRING	:=	$(shell git describe --always --dirty --tags 2> /dev/null)
@@ -206,11 +199,6 @@ TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
 
 GCC_V_OUTPUT		:=	$(shell $(CC) -v 2>&1)
 
-# Force the compiler to include the frame pointer
-ifeq (${ENABLE_BACKTRACE},1)
-TF_CFLAGS		+=	-fno-omit-frame-pointer
-endif
-
 TF_LDFLAGS		+=	--fatal-warnings -O1
 TF_LDFLAGS		+=	--gc-sections
 TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
@@ -236,10 +224,6 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 
 ifeq ($(notdir $(CC)),armclang)
 BL_COMMON_SOURCES	+=	lib/${ARCH}/armclang_printf.S
-endif
-
-ifeq (${ENABLE_BACKTRACE},1)
-BL_COMMON_SOURCES	+=	common/backtrace.c
 endif
 
 INCLUDES		+=	-Iinclude				\
@@ -269,6 +253,8 @@ INCLUDES		+=	-Iinclude				\
 				${PLAT_INCLUDES}			\
 				${SPD_INCLUDES}				\
 				-Iinclude/tools_share
+
+include common/backtrace/backtrace.mk
 
 ################################################################################
 # Generic definitions
@@ -368,15 +354,6 @@ endif
 ################################################################################
 # Check incompatible options
 ################################################################################
-
-ifeq (${ARCH},aarch32)
-        ifeq (${ENABLE_BACKTRACE},1)
-                ifneq (${AARCH32_INSTRUCTION_SET},A32)
-                        $(error Error: AARCH32_INSTRUCTION_SET=A32 is needed \
-                        for ENABLE_BACKTRACE when compiling for AArch32.)
-                endif
-        endif
-endif
 
 ifdef EL3_PAYLOAD_BASE
         ifdef PRELOADED_BL33_BASE
@@ -568,7 +545,6 @@ $(eval $(call assert_boolean,DYN_DISABLE_AUTH))
 $(eval $(call assert_boolean,EL3_EXCEPTION_HANDLING))
 $(eval $(call assert_boolean,ENABLE_AMU))
 $(eval $(call assert_boolean,ENABLE_ASSERTIONS))
-$(eval $(call assert_boolean,ENABLE_BACKTRACE))
 $(eval $(call assert_boolean,ENABLE_MPAM_FOR_LOWER_ELS))
 $(eval $(call assert_boolean,ENABLE_PIE))
 $(eval $(call assert_boolean,ENABLE_PMF))
@@ -619,7 +595,6 @@ $(eval $(call add_define,CTX_INCLUDE_FPREGS))
 $(eval $(call add_define,EL3_EXCEPTION_HANDLING))
 $(eval $(call add_define,ENABLE_AMU))
 $(eval $(call add_define,ENABLE_ASSERTIONS))
-$(eval $(call add_define,ENABLE_BACKTRACE))
 $(eval $(call add_define,ENABLE_MPAM_FOR_LOWER_ELS))
 $(eval $(call add_define,ENABLE_PIE))
 $(eval $(call add_define,ENABLE_PMF))
