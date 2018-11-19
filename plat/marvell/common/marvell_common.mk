@@ -11,6 +11,8 @@ include $(MARVELL_PLAT_BASE)/marvell.mk
 
 VERSION_STRING			+=(Marvell-${SUBVERSION})
 
+MULTI_CONSOLE_API		:= 1
+
 SEPARATE_CODE_AND_RODATA	:= 1
 
 # flag to switch from PLL to ARO
@@ -28,7 +30,8 @@ PLAT_INCLUDES		+=	-I. -Iinclude/common -Iinclude/common/tbbr	\
 PLAT_BL_COMMON_SOURCES  +=      lib/xlat_tables/xlat_tables_common.c			\
 				lib/xlat_tables/aarch64/xlat_tables.c			\
 				$(MARVELL_PLAT_BASE)/common/aarch64/marvell_common.c	\
-				$(MARVELL_PLAT_BASE)/common/aarch64/marvell_helpers.S
+				$(MARVELL_PLAT_BASE)/common/aarch64/marvell_helpers.S	\
+				$(MARVELL_COMMON_BASE)/marvell_console.c
 
 BL1_SOURCES		+=	drivers/delay_timer/delay_timer.c			\
 				drivers/io/io_fip.c					\

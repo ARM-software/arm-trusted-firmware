@@ -74,9 +74,7 @@ void marvell_bl31_early_platform_setup(void *from_bl2,
 				       void *plat_params_from_bl2)
 {
 	/* Initialize the console to provide early debug support */
-	console_init(PLAT_MARVELL_BOOT_UART_BASE,
-		     PLAT_MARVELL_BOOT_UART_CLK_IN_HZ,
-		     MARVELL_CONSOLE_BAUDRATE);
+	marvell_console_boot_init();
 
 #if RESET_TO_BL31
 	/* There are no parameters from BL2 if BL31 is a reset vector */
@@ -190,10 +188,10 @@ void marvell_bl31_platform_setup(void)
  */
 void marvell_bl31_plat_runtime_setup(void)
 {
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
+
 	/* Initialize the runtime console */
-	console_init(PLAT_MARVELL_BL31_RUN_UART_BASE,
-		     PLAT_MARVELL_BL31_RUN_UART_CLK_IN_HZ,
-		     MARVELL_CONSOLE_BAUDRATE);
+	marvell_console_runtime_init();
 }
 
 void bl31_platform_setup(void)

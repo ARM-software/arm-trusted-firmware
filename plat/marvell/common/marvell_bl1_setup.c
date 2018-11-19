@@ -35,9 +35,7 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
 void marvell_bl1_early_platform_setup(void)
 {
 	/* Initialize the console to provide early debug support */
-	console_init(PLAT_MARVELL_BOOT_UART_BASE,
-		     PLAT_MARVELL_BOOT_UART_CLK_IN_HZ,
-		     MARVELL_CONSOLE_BAUDRATE);
+	marvell_console_boot_init();
 
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_ram_layout.total_base = MARVELL_BL_RAM_BASE;

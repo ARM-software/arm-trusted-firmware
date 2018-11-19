@@ -8,6 +8,8 @@
 #ifndef A3700_CONSOLE_H
 #define A3700_CONSOLE_H
 
+#include <console.h>
+
 /* MVEBU UART Registers */
 #define UART_RX_REG		0x00
 #define UART_TX_REG		0x04
@@ -52,4 +54,26 @@
 #define UART_CTRL_TXFIFO_RESET	(1 << 15)
 #define UARTLSR_TXFIFOEMPTY	(1 << 6)
 
-#endif /* A3700_CONSOLE_H */
+#define CONSOLE_T_A3700_BASE	CONSOLE_T_DRVDATA
+
+#ifndef __ASSEMBLY__
+
+#include <stdint.h>
+
+typedef struct {
+	console_t console;
+	uintptr_t base;
+} console_a3700_t;
+
+/*
+ * Initialize a new a3700 console instance and register it with the console
+ * framework. The |console| pointer must point to storage that will be valid
+ * for the lifetime of the console, such as a global or static local variable.
+ * Its contents will be reinitialized from scratch.
+ */
+int console_a3700_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
+			   console_a3700_t *console);
+
+#endif /*__ASSEMBLY__*/
+
+#endif	/* A3700_CONSOLE_H */

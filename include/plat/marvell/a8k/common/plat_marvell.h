@@ -48,6 +48,12 @@ void marvell_setup_page_tables(uintptr_t total_base,
 #endif
 );
 
+/* Console utility functions */
+void marvell_console_boot_init(void);
+void marvell_console_boot_end(void);
+void marvell_console_runtime_init(void);
+void marvell_console_runtime_end(void);
+
 /* IO storage utility functions */
 void marvell_io_setup(void);
 

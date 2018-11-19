@@ -71,7 +71,6 @@ TIMBLDUARTARGS		:= $(MARVELL_SECURE_BOOT) UART $(IMAGESPATH) $(DOIMAGEPATH) $(CL
 				$(DDR_TOPOLOGY) 0 0 $(DOIMAGE_CFG) $(TIMNCFG) $(TIMNSIG) 0
 DOIMAGE_FLAGS		:= -r $(DOIMAGE_CFG) -v -D
 
-
 # GICV3
 $(eval $(call add_define,CONFIG_GICV3))
 
@@ -91,8 +90,8 @@ ATF_INCLUDES		:=	-Iinclude/common/tbbr		\
 PLAT_INCLUDES		:=	-I$(PLAT_FAMILY_BASE)/$(PLAT)		\
 				-I$(PLAT_COMMON_BASE)/include		\
 				-I$(PLAT_INCLUDE_BASE)/common		\
-				-I$(MARVELL_DRV_BASE)/uart		\
 				-I$(MARVELL_DRV_BASE)			\
+				-Iinclude/drivers/marvell/uart		\
 				-I$/drivers/arm/gic/common/		\
 				$(ATF_INCLUDES)
 
@@ -159,12 +158,12 @@ ifeq ($(MARVELL_SECURE_BOOT),1)
 	@truncate -s %16 $(WTMI_MULTI_IMG)
 	@openssl enc -aes-256-cbc -e -in $(WTMI_MULTI_IMG) \
 	-out $(WTMI_ENC_IMG) \
-	-K `cat $(IMAGESPATH)/aes-256.txt` -k 0 -nosalt \
+	-K `cat $(IMAGESPATH)/aes-256.txt` -nosalt \
 	-iv `cat $(IMAGESPATH)/iv.txt` -p
 	@truncate -s %16 $(BUILD_PLAT)/$(BOOT_IMAGE);
 	@openssl enc -aes-256-cbc -e -in $(BUILD_PLAT)/$(BOOT_IMAGE) \
 	-out $(BUILD_PLAT)/$(BOOT_ENC_IMAGE) \
-	-K `cat $(IMAGESPATH)/aes-256.txt` -k 0 -nosalt \
+	-K `cat $(IMAGESPATH)/aes-256.txt` -nosalt \
 	-iv `cat $(IMAGESPATH)/iv.txt` -p
 endif
 	$(DOIMAGETOOL) $(DOIMAGE_FLAGS)
