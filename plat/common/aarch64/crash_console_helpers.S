@@ -16,7 +16,9 @@
 	.globl	plat_crash_console_putc
 	.globl	plat_crash_console_flush
 
-#if MULTI_CONSOLE_API
+#if !MULTI_CONSOLE_API
+#error "This crash console implementation only works with the MULTI_CONSOLE_API!"
+#endif
 
 	/* -----------------------------------------------------
 	 * int plat_crash_console_init(void)
@@ -68,25 +70,3 @@ endfunc plat_crash_console_putc
 func plat_crash_console_flush
 	b	console_flush
 endfunc plat_crash_console_flush
-
-#else	/* MULTI_CONSOLE_API */
-
-	/* -----------------------------------------------------
-	 * In the old API these are all no-op stubs that need to
-	 * be overridden by the platform to be useful.
-	 * -----------------------------------------------------
-	 */
-func plat_crash_console_init
-	mov	x0, #0
-	ret
-endfunc plat_crash_console_init
-
-func plat_crash_console_putc
-	ret
-endfunc plat_crash_console_putc
-
-func plat_crash_console_flush
-	ret
-endfunc plat_crash_console_flush
-
-#endif
