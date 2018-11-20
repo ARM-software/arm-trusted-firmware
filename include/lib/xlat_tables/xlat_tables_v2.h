@@ -34,6 +34,12 @@
 	MAP_REGION(_adr, _adr, _sz, _attr)
 
 /*
+ * Helper macro to define entries for mmap_region_t. It allows to define 'pa'
+ * and sets 'va' to 0 for each region. To be used with mmap_add_alloc_va().
+ */
+#define MAP_REGION_ALLOC_VA(pa, sz, attr)	MAP_REGION(pa, 0, sz, attr)
+
+/*
  * Helper macro to define an mmap_region_t to map with the desired granularity
  * of translation tables.
  *
@@ -219,6 +225,21 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm);
 void mmap_add(const mmap_region_t *mm);
 void mmap_add_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm);
 
+/*
+ * Add a region with defined base PA. Returns base VA calculated using the
+ * highest existing region in the mmap array even if it fails to allocate the
+ * region.
+ */
+void mmap_add_region_alloc_va(unsigned long long base_pa, uintptr_t *base_va,
+			      size_t size, unsigned int attr);
+void mmap_add_region_alloc_va_ctx(xlat_ctx_t *ctx, mmap_region_t *mm);
+
+/*
+ * Add an array of static regions with defined base PA, and fill the base VA
+ * field on the array of structs. This function can only be used before
+ * initializing the translation tables. The regions cannot be removed afterwards.
+ */
+void mmap_add_alloc_va(mmap_region_t *mm);
 
 #if PLAT_XLAT_TABLES_DYNAMIC
 /*
@@ -235,6 +256,21 @@ void mmap_add_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm);
 int mmap_add_dynamic_region(unsigned long long base_pa, uintptr_t base_va,
 			    size_t size, unsigned int attr);
 int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm);
+
+/*
+ * Add a dynamic region with defined base PA. Returns base VA calculated using
+ * the highest existing region in the mmap array even if it fails to allocate
+ * the region.
+ *
+ * mmap_add_dynamic_region_alloc_va() returns the allocated VA in 'base_va'.
+ * mmap_add_dynamic_region_alloc_va_ctx() returns it in 'mm->base_va'.
+ *
+ * It returns the same error values as mmap_add_dynamic_region().
+ */
+int mmap_add_dynamic_region_alloc_va(unsigned long long base_pa,
+				     uintptr_t *base_va,
+				     size_t size, unsigned int attr);
+int mmap_add_dynamic_region_alloc_va_ctx(xlat_ctx_t *ctx, mmap_region_t *mm);
 
 /*
  * Remove a region with the specified base VA and size. Only dynamic regions can
