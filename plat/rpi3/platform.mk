@@ -111,7 +111,10 @@ RPI3_DIRECT_LINUX_BOOT		:= 0
 
 # UART to use at runtime. -1 means the runtime UART is disabled.
 # Any other value means the default UART will be used.
-RPI3_RUNTIME_UART               := -1
+RPI3_RUNTIME_UART		:= -1
+
+# Use normal memory mapping for ROM, FIP, SRAM and DRAM
+RPI3_USE_UEFI_MAP		:= 0
 
 # BL32 location
 RPI3_BL32_RAM_LOCATION	:= tdram
@@ -131,6 +134,7 @@ $(eval $(call add_define,RPI3_BL33_IN_AARCH32))
 $(eval $(call add_define,RPI3_DIRECT_LINUX_BOOT))
 $(eval $(call add_define,RPI3_PRELOADED_DTB_BASE))
 $(eval $(call add_define,RPI3_RUNTIME_UART))
+$(eval $(call add_define,RPI3_USE_UEFI_MAP))
 
 # Verify build config
 # -------------------
