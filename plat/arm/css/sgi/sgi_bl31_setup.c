@@ -62,5 +62,16 @@ void bl31_platform_setup(void)
 
 const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
 {
+	/* For SGI-Clark.Helios platform only CPU ON/OFF is supported */
+	if ((sgi_plat_info.platform_id == SGI_CLARK_SID_VER_PART_NUM) &&
+	    (sgi_plat_info.config_id == SGI_CLARK_HELIOS_CONFIG_ID)) {
+		ops->cpu_standby = NULL;
+		ops->system_off = NULL;
+		ops->system_reset = NULL;
+		ops->get_sys_suspend_power_state = NULL;
+		ops->pwr_domain_suspend = NULL;
+		ops->pwr_domain_suspend_finish = NULL;
+	}
+
 	return css_scmi_override_pm_ops(ops);
 }
