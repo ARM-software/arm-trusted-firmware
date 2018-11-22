@@ -811,6 +811,80 @@ void mmap_add_region_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 		ctx->max_va = end_va;
 }
 
+/*
+ * Determine the table level closest to the initial lookup level that
+ * can describe this translation. Then, align base VA to the next block
+ * at the determined level.
+ */
+static void mmap_alloc_va_align_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
+{
+	/*
+	 * By or'ing the size and base PA the alignment will be the one
+	 * corresponding to the smallest boundary of the two of them.
+	 *
+	 * There are three different cases. For example (for 4 KiB page size):
+	 *
+	 * +--------------+------------------++--------------+
+	 * | PA alignment | Size multiple of || VA alignment |
+	 * +--------------+------------------++--------------+
+	 * |     2 MiB    |       2 MiB      ||     2 MiB    | (1)
+	 * |     2 MiB    |       4 KiB      ||     4 KiB    | (2)
+	 * |     4 KiB    |       2 MiB      ||     4 KiB    | (3)
+	 * +--------------+------------------++--------------+
+	 *
+	 * - In (1), it is possible to take advantage of the alignment of the PA
+	 *   and the size of the region to use a level 2 translation table
+	 *   instead of a level 3 one.
+	 *
+	 * - In (2), the size is smaller than a block entry of level 2, so it is
+	 *   needed to use a level 3 table to describe the region or the library
+	 *   will map more memory than the desired one.
+	 *
+	 * - In (3), even though the region has the size of one level 2 block
+	 *   entry, it isn't possible to describe the translation with a level 2
+	 *   block entry because of the alignment of the base PA.
+	 *
+	 *   Only bits 47:21 of a level 2 block descriptor are used by the MMU,
+	 *   bits 20:0 of the resulting address are 0 in this case. Because of
+	 *   this, the PA generated as result of this translation is aligned to
+	 *   2 MiB. The PA that was requested to be mapped is aligned to 4 KiB,
+	 *   though, which means that the resulting translation is incorrect.
+	 *   The only way to prevent this is by using a finer granularity.
+	 */
+	unsigned long long align_check;
+
+	align_check = mm->base_pa | (unsigned long long)mm->size;
+
+	/*
+	 * Assume it is always aligned to level 3. There's no need to check that
+	 * level because its block size is PAGE_SIZE. The checks to verify that
+	 * the addresses and size are aligned to PAGE_SIZE are inside
+	 * mmap_add_region.
+	 */
+	for (unsigned int level = ctx->base_level; level <= 2U; ++level) {
+
+		if ((align_check & XLAT_BLOCK_MASK(level)) != 0U)
+			continue;
+
+		mm->base_va = round_up(mm->base_va, XLAT_BLOCK_SIZE(level));
+		return;
+	}
+}
+
+void mmap_add_region_alloc_va_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
+{
+	mm->base_va = ctx->max_va + 1UL;
+
+	assert(mm->size > 0U);
+
+	mmap_alloc_va_align_ctx(ctx, mm);
+
+	/* Detect overflows. More checks are done in mmap_add_region_check(). */
+	assert(mm->base_va > ctx->max_va);
+
+	mmap_add_region_ctx(ctx, mm);
+}
+
 void mmap_add_ctx(xlat_ctx_t *ctx, const mmap_region_t *mm)
 {
 	const mmap_region_t *mm_cursor = mm;
@@ -929,6 +1003,23 @@ int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
 		ctx->max_va = end_va;
 
 	return 0;
+}
+
+int mmap_add_dynamic_region_alloc_va_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
+{
+	mm->base_va = ctx->max_va + 1UL;
+
+	if (mm->size == 0U)
+		return 0;
+
+	mmap_alloc_va_align_ctx(ctx, mm);
+
+	/* Detect overflows. More checks are done in mmap_add_region_check(). */
+	if (mm->base_va < ctx->max_va) {
+		return -ENOMEM;
+	}
+
+	return mmap_add_dynamic_region_ctx(ctx, mm);
 }
 
 /*

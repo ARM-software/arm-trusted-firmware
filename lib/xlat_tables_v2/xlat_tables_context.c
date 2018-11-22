@@ -38,6 +38,25 @@ void mmap_add(const mmap_region_t *mm)
 	mmap_add_ctx(&tf_xlat_ctx, mm);
 }
 
+void mmap_add_region_alloc_va(unsigned long long base_pa, uintptr_t *base_va,
+			      size_t size, unsigned int attr)
+{
+	mmap_region_t mm = MAP_REGION_ALLOC_VA(base_pa, size, attr);
+
+	mmap_add_region_alloc_va_ctx(&tf_xlat_ctx, &mm);
+
+	*base_va = mm.base_va;
+}
+
+void mmap_add_alloc_va(mmap_region_t *mm)
+{
+	while (mm->granularity != 0U) {
+		assert(mm->base_va == 0U);
+		mmap_add_region_alloc_va_ctx(&tf_xlat_ctx, mm);
+		mm++;
+	}
+}
+
 #if PLAT_XLAT_TABLES_DYNAMIC
 
 int mmap_add_dynamic_region(unsigned long long base_pa, uintptr_t base_va,
@@ -47,6 +66,20 @@ int mmap_add_dynamic_region(unsigned long long base_pa, uintptr_t base_va,
 
 	return mmap_add_dynamic_region_ctx(&tf_xlat_ctx, &mm);
 }
+
+int mmap_add_dynamic_region_alloc_va(unsigned long long base_pa,
+				     uintptr_t *base_va, size_t size,
+				     unsigned int attr)
+{
+	mmap_region_t mm = MAP_REGION_ALLOC_VA(base_pa, size, attr);
+
+	int rc = mmap_add_dynamic_region_alloc_va_ctx(&tf_xlat_ctx, &mm);
+
+	*base_va = mm.base_va;
+
+	return rc;
+}
+
 
 int mmap_remove_dynamic_region(uintptr_t base_va, size_t size)
 {
