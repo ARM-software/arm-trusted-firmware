@@ -66,7 +66,9 @@ static const struct {
 	    /*      {SEC_SEL12,             0xFFFFFFFFU},                   */
 	    /* Bit22: RPC slave ports.                                      */
 	    /*        0: registers accessed from secure resource only.      */
-	    /* {SEC_SEL13,          0xFFBFFFFFU},*/
+#if (RCAR_RPC_HYPERFLASH_LOCKED == 1)
+	    {SEC_SEL13,          0xFFBFFFFFU},
+#endif
 	    /* Bit27: System Timer (SCMT) slave ports                       */
 	    /*        0: registers accessed from secure resource only       */
 	    /* Bit26: System Watchdog Timer (SWDT) slave ports              */
@@ -183,8 +185,10 @@ static const struct {
 	/** Security group 1 attribute setting for slave ports 13	*/
 	    /* Bit22: RPC slave ports.                                      */
 	    /*        SecurityGroup3                                        */
-	    /* {SEC_GRP0COND13,     0x00400000U}, */
-	    /* {SEC_GRP1COND13,     0x00400000U}, */
+#if (RCAR_RPC_HYPERFLASH_LOCKED == 1)
+	    {SEC_GRP0COND13,     0x00400000U},
+	    {SEC_GRP1COND13,     0x00400000U},
+#endif
 	/** Security group 0 attribute setting for slave ports 14	*/
 	/** Security group 1 attribute setting for slave ports 14	*/
 	    /* Bit26: System Timer (SCMT) slave ports                       */

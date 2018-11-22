@@ -137,6 +137,13 @@ else
   $(eval $(call add_define,RCAR_LSI))
 endif
 
+# lock RPC HYPERFLASH access by default
+# unlock to repogram the ATF firmware from u-boot
+ifndef RCAR_RPC_HYPERFLASH_LOCKED
+RCAR_RPC_HYPERFLASH_LOCKED := 1
+endif
+$(eval $(call add_define,RCAR_RPC_HYPERFLASH_LOCKED))
+
 # Process RCAR_SECURE_BOOT flag
 ifndef RCAR_SECURE_BOOT
 RCAR_SECURE_BOOT := 1
