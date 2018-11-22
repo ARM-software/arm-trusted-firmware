@@ -128,10 +128,10 @@ void arm_configure_sys_timer(void)
 	/*
 	 * Initialize CNTFRQ register in Non-secure CNTBase frame.
 	 * This is only required for Juno, because it doesn't follow ARM ARM
-	 * in that the value updated in CNTFRQ is not reflected in CNTBASE_CNTFRQ.
-	 * Hence update the value manually.
+	 * in that the value updated in CNTFRQ is not reflected in
+	 * CNTBASEN_CNTFRQ. Hence update the value manually.
 	 */
-	mmio_write_32(ARM_SYS_CNT_BASE_NS + CNTBASE_CNTFRQ, freq_val);
+	mmio_write_32(ARM_SYS_CNT_BASE_NS + CNTBASEN_CNTFRQ, freq_val);
 #endif
 }
 #endif /* ARM_SYS_TIMCTL_BASE */

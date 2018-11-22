@@ -160,5 +160,6 @@
  */
 #define ASSERT_SYM_PTR_ALIGN(sym) assert(((size_t)(sym) % __alignof__(*(sym))) == 0)
 
+#define COMPILER_BARRIER() __asm__ volatile ("" ::: "memory")
 
 #endif /* UTILS_DEF_H */
