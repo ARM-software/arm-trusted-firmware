@@ -391,4 +391,59 @@ static inline unsigned int get_current_el(void)
 #define read_amcntenset0_el0()	read_amcntenset0()
 #define read_amcntenset1_el0()	read_amcntenset1()
 
+/* Helper functions to manipulate CPSR */
+static inline void enable_irq(void)
+{
+	/*
+	 * The compiler memory barrier will prevent the compiler from
+	 * scheduling non-volatile memory access after the write to the
+	 * register.
+	 *
+	 * This could happen if some initialization code issues non-volatile
+	 * accesses to an area used by an interrupt handler, in the assumption
+	 * that it is safe as the interrupts are disabled at the time it does
+	 * that (according to program order). However, non-volatile accesses
+	 * are not necessarily in program order relatively with volatile inline
+	 * assembly statements (and volatile accesses).
+	 */
+	COMPILER_BARRIER();
+	__asm__ volatile ("cpsie	i");
+	isb();
+}
+
+static inline void enable_serror(void)
+{
+	COMPILER_BARRIER();
+	__asm__ volatile ("cpsie	a");
+	isb();
+}
+
+static inline void enable_fiq(void)
+{
+	COMPILER_BARRIER();
+	__asm__ volatile ("cpsie	f");
+	isb();
+}
+
+static inline void disable_irq(void)
+{
+	COMPILER_BARRIER();
+	__asm__ volatile ("cpsid	i");
+	isb();
+}
+
+static inline void disable_serror(void)
+{
+	COMPILER_BARRIER();
+	__asm__ volatile ("cpsid	a");
+	isb();
+}
+
+static inline void disable_fiq(void)
+{
+	COMPILER_BARRIER();
+	__asm__ volatile ("cpsid	f");
+	isb();
+}
+
 #endif /* ARCH_HELPERS_H */
