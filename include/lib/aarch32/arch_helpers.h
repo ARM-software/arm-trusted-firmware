@@ -248,6 +248,19 @@ DEFINE_COPROCR_RW_FUNCS(cnthp_ctl_el2, CNTHP_CTL)
 DEFINE_COPROCR_RW_FUNCS(cnthp_tval_el2, CNTHP_TVAL)
 DEFINE_COPROCR_RW_FUNCS_64(cnthp_cval_el2, CNTHP_CVAL_64)
 
+#define get_cntp_ctl_enable(x)  (((x) >> CNTP_CTL_ENABLE_SHIFT) & \
+					 CNTP_CTL_ENABLE_MASK)
+#define get_cntp_ctl_imask(x)   (((x) >> CNTP_CTL_IMASK_SHIFT) & \
+					 CNTP_CTL_IMASK_MASK)
+#define get_cntp_ctl_istatus(x) (((x) >> CNTP_CTL_ISTATUS_SHIFT) & \
+					 CNTP_CTL_ISTATUS_MASK)
+
+#define set_cntp_ctl_enable(x)  ((x) |= U(1) << CNTP_CTL_ENABLE_SHIFT)
+#define set_cntp_ctl_imask(x)   ((x) |= U(1) << CNTP_CTL_IMASK_SHIFT)
+
+#define clr_cntp_ctl_enable(x)  ((x) &= ~(U(1) << CNTP_CTL_ENABLE_SHIFT))
+#define clr_cntp_ctl_imask(x)   ((x) &= ~(U(1) << CNTP_CTL_IMASK_SHIFT))
+
 DEFINE_COPROCR_RW_FUNCS(icc_sre_el1, ICC_SRE)
 DEFINE_COPROCR_RW_FUNCS(icc_sre_el2, ICC_HSRE)
 DEFINE_COPROCR_RW_FUNCS(icc_sre_el3, ICC_MSRE)
