@@ -33,10 +33,12 @@
 #define MPIDR_AFF0_SHIFT	U(0)
 #define MPIDR_AFF1_SHIFT	U(8)
 #define MPIDR_AFF2_SHIFT	U(16)
+#define MPIDR_AFF_SHIFT(_n)	MPIDR_AFF##_n##_SHIFT
 #define MPIDR_AFFINITY_MASK	U(0x00ffffff)
 #define MPIDR_AFFLVL0		U(0)
 #define MPIDR_AFFLVL1		U(1)
 #define MPIDR_AFFLVL2		U(2)
+#define MPIDR_AFFLVL(_n)	MPIDR_AFFLVL##_n
 
 #define MPIDR_AFFLVL0_VAL(mpidr) \
 		(((mpidr) >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK)
@@ -45,6 +47,20 @@
 #define MPIDR_AFFLVL2_VAL(mpidr) \
 		(((mpidr) >> MPIDR_AFF2_SHIFT) & MPIDR_AFFLVL_MASK)
 #define MPIDR_AFFLVL3_VAL(mpidr)	U(0)
+
+#define MPIDR_AFF_ID(mpid, n)					\
+	(((mpid) >> MPIDR_AFF_SHIFT(n)) & MPIDR_AFFLVL_MASK)
+
+#define MPID_MASK		(MPIDR_MT_MASK				|\
+				 (MPIDR_AFFLVL_MASK << MPIDR_AFF2_SHIFT)|\
+				 (MPIDR_AFFLVL_MASK << MPIDR_AFF1_SHIFT)|\
+				 (MPIDR_AFFLVL_MASK << MPIDR_AFF0_SHIFT))
+
+/*
+ * An invalid MPID. This value can be used by functions that return an MPID to
+ * indicate an error.
+ */
+#define INVALID_MPID		U(0xFFFFFFFF)
 
 /*
  * The MPIDR_MAX_AFFLVL count starts from 0. Take care to
@@ -127,7 +143,7 @@
 #define SDCR_RESET_VAL		U(0x0)
 
 /* HSCTLR definitions */
-#define HSCTLR_RES1 	((U(1) << 29) | (U(1) << 28) | (U(1) << 23) | \
+#define HSCTLR_RES1	((U(1) << 29) | (U(1) << 28) | (U(1) << 23) | \
 			 (U(1) << 22) | (U(1) << 18) | (U(1) << 16) | \
 			 (U(1) << 11) | (U(1) << 4) | (U(1) << 3))
 
@@ -167,6 +183,7 @@
 #define GET_NS_BIT(scr)		((scr) & SCR_NS_BIT)
 
 /* HCR definitions */
+#define HCR_TGE_BIT		(U(1) << 27)
 #define HCR_AMO_BIT		(U(1) << 5)
 #define HCR_IMO_BIT		(U(1) << 4)
 #define HCR_FMO_BIT		(U(1) << 3)
@@ -212,10 +229,9 @@
 /* CNTHP_CTL definitions */
 #define CNTHP_CTL_RESET_VAL	U(0x0)
 
-/* NASCR definitions */
+/* NSACR definitions */
 #define NSASEDIS_BIT		(U(1) << 15)
 #define NSTRCDIS_BIT		(U(1) << 20)
-/* NOTE: correct typo in the definitions */
 #define NSACR_CP11_BIT		(U(1) << 11)
 #define NSACR_CP10_BIT		(U(1) << 10)
 #define NSACR_IMP_DEF_MASK	(U(0x7) << 16)
@@ -262,7 +278,6 @@
 /*
  * TTBCR definitions
  */
-/* The ARM Trusted Firmware uses the long descriptor format */
 #define TTBCR_EAE_BIT		(U(1) << 31)
 
 #define TTBCR_SH1_NON_SHAREABLE		(U(0x0) << 28)
@@ -407,14 +422,30 @@
 #define CNTACR_RWPT_SHIFT	U(0x5)
 
 /*******************************************************************************
- * Definitions of register offsets in the CNTBaseN Frame of the
+ * Definitions of register offsets and fields in the CNTBaseN Frame of the
  * system level implementation of the Generic Timer.
  ******************************************************************************/
-#define CNTBASE_CNTFRQ		U(0x10)
+/* Physical Count register. */
+#define CNTPCT_LO		U(0x0)
+/* Counter Frequency register. */
+#define CNTBASEN_CNTFRQ		U(0x10)
+/* Physical Timer CompareValue register. */
+#define CNTP_CVAL_LO		U(0x20)
+/* Physical Timer Control register. */
+#define CNTP_CTL		U(0x2c)
+
+/* Physical timer control register bit fields shifts and masks */
+#define CNTP_CTL_ENABLE_SHIFT   0
+#define CNTP_CTL_IMASK_SHIFT    1
+#define CNTP_CTL_ISTATUS_SHIFT  2
+
+#define CNTP_CTL_ENABLE_MASK    U(1)
+#define CNTP_CTL_IMASK_MASK     U(1)
+#define CNTP_CTL_ISTATUS_MASK   U(1)
 
 /* MAIR macros */
-#define MAIR0_ATTR_SET(attr, index)	((attr) << ((index) << 3))
-#define MAIR1_ATTR_SET(attr, index)	((attr) << (((index) - U(3)) << 3))
+#define MAIR0_ATTR_SET(attr, index)	((attr) << ((index) << U(3)))
+#define MAIR1_ATTR_SET(attr, index)	((attr) << (((index) - U(3)) << U(3)))
 
 /* System register defines The format is: coproc, opt1, CRn, CRm, opt2 */
 #define SCR		p15, 0, c1, c1, 0
@@ -423,6 +454,7 @@
 #define SDCR		p15, 0, c1, c3, 1
 #define MPIDR		p15, 0, c0, c0, 5
 #define MIDR		p15, 0, c0, c0, 0
+#define HVBAR		p15, 4, c12, c0, 0
 #define VBAR		p15, 0, c12, c0, 0
 #define MVBAR		p15, 0, c12, c0, 1
 #define NSACR		p15, 0, c1, c1, 2
@@ -443,6 +475,7 @@
 #define TTBR0		p15, 0, c2, c0, 0
 #define TTBR1		p15, 0, c2, c0, 1
 #define TLBIALL		p15, 0, c8, c7, 0
+#define TLBIALLH	p15, 4, c8, c7, 0
 #define TLBIALLIS	p15, 0, c8, c3, 0
 #define TLBIMVA		p15, 0, c8, c7, 1
 #define TLBIMVAA	p15, 0, c8, c7, 3
@@ -472,6 +505,7 @@
 /* Debug register defines. The format is: coproc, opt1, CRn, CRm, opt2 */
 #define HDCR		p15, 4, c1, c1, 1
 #define PMCR		p15, 0, c9, c12, 0
+#define CNTHP_TVAL	p15, 4, c14, c2, 0
 #define CNTHP_CTL	p15, 4, c14, c2, 1
 
 /* AArch32 coproc registers for 32bit MMU descriptor support */
@@ -507,6 +541,7 @@
 #define VTTBR_64	p15, 6, c2
 #define CNTPCT_64	p15, 0, c14
 #define HTTBR_64	p15, 4, c2
+#define CNTHP_CVAL_64	p15, 6, c14
 #define PAR_64		p15, 0, c7
 
 /* 64 bit GICv3 CPU Interface system register defines. The format is: coproc, opt1, CRm */

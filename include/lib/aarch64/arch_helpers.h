@@ -7,8 +7,8 @@
 #ifndef ARCH_HELPERS_H
 #define ARCH_HELPERS_H
 
-#include <arch.h>	/* for additional register definitions */
-#include <cdefs.h>	/* For __dead2 */
+#include <arch.h>
+#include <cdefs.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -179,11 +179,13 @@ void disable_mmu_icache_el3(void);
 #define write_daifclr(val) SYSREG_WRITE_CONST(daifclr, val)
 #define write_daifset(val) SYSREG_WRITE_CONST(daifset, val)
 
-DEFINE_SYSREG_READ_FUNC(par_el1)
+DEFINE_SYSREG_RW_FUNCS(par_el1)
 DEFINE_SYSREG_READ_FUNC(id_pfr1_el1)
+DEFINE_SYSREG_READ_FUNC(id_aa64isar1_el1)
 DEFINE_SYSREG_READ_FUNC(id_aa64pfr0_el1)
 DEFINE_SYSREG_READ_FUNC(id_aa64dfr0_el1)
 DEFINE_SYSREG_READ_FUNC(CurrentEl)
+DEFINE_SYSREG_READ_FUNC(ctr_el0)
 DEFINE_SYSREG_RW_FUNCS(daif)
 DEFINE_SYSREG_RW_FUNCS(spsr_el1)
 DEFINE_SYSREG_RW_FUNCS(spsr_el2)
@@ -202,13 +204,19 @@ DEFINE_SYSOP_TYPE_FUNC(dmb, ld)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ish)
 DEFINE_SYSOP_TYPE_FUNC(dsb, nsh)
 DEFINE_SYSOP_TYPE_FUNC(dsb, ishst)
-DEFINE_SYSOP_TYPE_FUNC(dmb, ish)
+DEFINE_SYSOP_TYPE_FUNC(dmb, oshld)
+DEFINE_SYSOP_TYPE_FUNC(dmb, oshst)
+DEFINE_SYSOP_TYPE_FUNC(dmb, osh)
+DEFINE_SYSOP_TYPE_FUNC(dmb, nshld)
+DEFINE_SYSOP_TYPE_FUNC(dmb, nshst)
+DEFINE_SYSOP_TYPE_FUNC(dmb, nsh)
+DEFINE_SYSOP_TYPE_FUNC(dmb, ishld)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ishst)
+DEFINE_SYSOP_TYPE_FUNC(dmb, ish)
 DEFINE_SYSOP_FUNC(isb)
 
 uint32_t get_afflvl_shift(uint32_t);
 uint32_t mpidr_mask_lower_afflvls(uint64_t, uint32_t);
-
 
 void __dead2 eret(uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3,
 		  uint64_t x4, uint64_t x5, uint64_t x6, uint64_t x7);
@@ -286,9 +294,15 @@ DEFINE_SYSREG_RW_FUNCS(cptr_el3)
 
 DEFINE_SYSREG_RW_FUNCS(cpacr_el1)
 DEFINE_SYSREG_RW_FUNCS(cntfrq_el0)
+DEFINE_SYSREG_RW_FUNCS(cnthp_ctl_el2)
+DEFINE_SYSREG_RW_FUNCS(cnthp_tval_el2)
+DEFINE_SYSREG_RW_FUNCS(cnthp_cval_el2)
 DEFINE_SYSREG_RW_FUNCS(cntps_ctl_el1)
 DEFINE_SYSREG_RW_FUNCS(cntps_tval_el1)
 DEFINE_SYSREG_RW_FUNCS(cntps_cval_el1)
+DEFINE_SYSREG_RW_FUNCS(cntp_ctl_el0)
+DEFINE_SYSREG_RW_FUNCS(cntp_tval_el0)
+DEFINE_SYSREG_RW_FUNCS(cntp_cval_el0)
 DEFINE_SYSREG_READ_FUNC(cntpct_el0)
 DEFINE_SYSREG_RW_FUNCS(cnthctl_el2)
 
@@ -298,17 +312,15 @@ DEFINE_SYSREG_RW_FUNCS(cntvoff_el2)
 
 DEFINE_SYSREG_RW_FUNCS(vpidr_el2)
 DEFINE_SYSREG_RW_FUNCS(vmpidr_el2)
-DEFINE_SYSREG_RW_FUNCS(cntp_ctl_el0)
 
 DEFINE_SYSREG_READ_FUNC(isr_el1)
-
-DEFINE_SYSREG_READ_FUNC(ctr_el0)
 
 DEFINE_SYSREG_RW_FUNCS(mdcr_el2)
 DEFINE_SYSREG_RW_FUNCS(mdcr_el3)
 DEFINE_SYSREG_RW_FUNCS(hstr_el2)
-DEFINE_SYSREG_RW_FUNCS(cnthp_ctl_el2)
 DEFINE_SYSREG_RW_FUNCS(pmcr_el0)
+
+/* GICv3 System Registers */
 
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_sre_el1, ICC_SRE_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_sre_el2, ICC_SRE_EL2)
@@ -316,6 +328,7 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(icc_sre_el3, ICC_SRE_EL3)
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_pmr_el1, ICC_PMR_EL1)
 DEFINE_RENAME_SYSREG_READ_FUNC(icc_rpr_el1, ICC_RPR_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_igrpen1_el3, ICC_IGRPEN1_EL3)
+DEFINE_RENAME_SYSREG_RW_FUNCS(icc_igrpen1_el1, ICC_IGRPEN1_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(icc_igrpen0_el1, ICC_IGRPEN0_EL1)
 DEFINE_RENAME_SYSREG_READ_FUNC(icc_hppir0_el1, ICC_HPPIR0_EL1)
 DEFINE_RENAME_SYSREG_READ_FUNC(icc_hppir1_el1, ICC_HPPIR1_EL1)
@@ -324,6 +337,7 @@ DEFINE_RENAME_SYSREG_READ_FUNC(icc_iar1_el1, ICC_IAR1_EL1)
 DEFINE_RENAME_SYSREG_WRITE_FUNC(icc_eoir0_el1, ICC_EOIR0_EL1)
 DEFINE_RENAME_SYSREG_WRITE_FUNC(icc_eoir1_el1, ICC_EOIR1_EL1)
 DEFINE_RENAME_SYSREG_WRITE_FUNC(icc_sgi0r_el1, ICC_SGI0R_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(icc_sgi1r, ICC_SGI1R)
 
 DEFINE_RENAME_SYSREG_RW_FUNCS(amcgcr_el0, AMCGCR_EL0)
 DEFINE_RENAME_SYSREG_RW_FUNCS(amcntenclr0_el0, AMCNTENCLR0_EL0)
@@ -351,11 +365,14 @@ DEFINE_RENAME_SYSREG_READ_FUNC(erxaddr_el1, ERXADDR_EL1)
 DEFINE_RENAME_SYSREG_READ_FUNC(erxmisc0_el1, ERXMISC0_EL1)
 DEFINE_RENAME_SYSREG_READ_FUNC(erxmisc1_el1, ERXMISC1_EL1)
 
+/* Armv8.3 Pointer Authentication Registers */
+DEFINE_RENAME_SYSREG_RW_FUNCS(apgakeylo_el1, APGAKeyLo_EL1)
+
 #define IS_IN_EL(x) \
 	(GET_EL(read_CurrentEl()) == MODE_EL##x)
 
 #define IS_IN_EL1() IS_IN_EL(1)
-#define IS_IN_EL3() IS_IN_EL(3)
+#define IS_IN_EL2() IS_IN_EL(2)
 #define IS_IN_EL3() IS_IN_EL(3)
 
 static inline unsigned int get_current_el(void)
