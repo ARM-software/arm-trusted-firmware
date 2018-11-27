@@ -15,6 +15,7 @@ LIBS        = -lmbedtls -lfdt -lc
 INC         = $(INCLUDES:-I%=-I../../%)
 PPFLAGS     = $(INC) $(DEFINES) -P -D__ASSEMBLY__ -D__LINKER__ -MD -MP -MT $(BUILD_DIR)/romlib.ld
 OBJS        = $(BUILD_DIR)/jmptbl.o $(BUILD_DIR)/init.o
+MAPFILE     = ../../$(BUILD_PLAT)/romlib/romlib.map
 
 V ?= 0
 ifeq ($(V),0)
@@ -25,7 +26,7 @@ endif
 
 ifeq ($(DEBUG),1)
    CFLAGS  := -g
-   LDFLAGS := -g
+   LDFLAGS := -g --gc-sections -O1 -Map=$(MAPFILE)
 endif
 
 
