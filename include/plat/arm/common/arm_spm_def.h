@@ -11,6 +11,31 @@
 #include <xlat_tables_defs.h>
 
 /*
+ * Reserve 4 MiB for binaries of Secure Partitions and Resource Description
+ * blobs.
+ */
+#define PLAT_SP_PACKAGE_BASE	BL32_BASE
+#define PLAT_SP_PACKAGE_SIZE	ULL(0x400000)
+
+#define PLAT_MAP_SP_PACKAGE_MEM_RO	MAP_REGION_FLAT(		\
+						PLAT_SP_PACKAGE_BASE,	\
+						PLAT_SP_PACKAGE_SIZE,	\
+						MT_MEMORY | MT_RO | MT_SECURE)
+#define PLAT_MAP_SP_PACKAGE_MEM_RW	MAP_REGION_FLAT(		\
+						PLAT_SP_PACKAGE_BASE,	\
+						PLAT_SP_PACKAGE_SIZE,	\
+						MT_MEMORY | MT_RW | MT_SECURE)
+
+/*
+ * The rest of the memory reserved for BL32 is free for SPM to use it as memory
+ * pool to allocate memory regions requested in the resource description.
+ */
+#define PLAT_SPM_HEAP_BASE	(PLAT_SP_PACKAGE_BASE + PLAT_SP_PACKAGE_SIZE)
+#define PLAT_SPM_HEAP_SIZE	(BL32_LIMIT - BL32_BASE - PLAT_SP_PACKAGE_SIZE)
+
+#if SPM_DEPRECATED
+
+/*
  * If BL31 is placed in DRAM, place the Secure Partition in DRAM right after the
  * region used by BL31. If BL31 it is placed in SRAM, put the Secure Partition
  * at the base of DRAM.
@@ -27,8 +52,6 @@
 						ARM_SP_IMAGE_SIZE,		\
 						MT_MEMORY | MT_RW | MT_SECURE)
 #endif
-
-#if SPM_DEPRECATED
 
 #ifdef IMAGE_BL31
 /* SPM Payload memory. Mapped as code in S-EL1 */

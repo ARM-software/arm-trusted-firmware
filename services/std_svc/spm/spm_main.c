@@ -157,7 +157,10 @@ static int32_t spm_init(void)
  ******************************************************************************/
 int32_t spm_setup(void)
 {
+	int rc;
 	sp_context_t *ctx;
+	void *sp_base, *rd_base;
+	size_t sp_size, rd_size;
 
 	/* Disable MMU at EL1 (initialized by BL2) */
 	disable_mmu_icache_el1();
@@ -167,8 +170,25 @@ int32_t spm_setup(void)
 
 	ctx = &sp_ctx;
 
+	rc = plat_spm_sp_get_next_address(&sp_base, &sp_size,
+					  &rd_base, &rd_size);
+	if (rc != 0) {
+		ERROR("No Secure Partition found.\n");
+		panic();
+	}
+
 	/* Assign translation tables context. */
 	ctx->xlat_ctx_handle = spm_get_sp_xlat_context();
+
+	/* Save location of the image in physical memory */
+	ctx->image_base = (uintptr_t)sp_base;
+	ctx->image_size = sp_size;
+
+	rc = plat_spm_sp_rd_load(&ctx->rd, rd_base, rd_size);
+	if (rc < 0) {
+		ERROR("Error while loading RD blob.\n");
+		panic();
+	}
 
 	spm_sp_setup(ctx);
 

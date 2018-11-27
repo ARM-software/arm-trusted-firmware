@@ -96,8 +96,11 @@ const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_BL1_RW,
 #endif
 #endif /* TRUSTED_BOARD_BOOT */
-#if ENABLE_SPM
+#if ENABLE_SPM && SPM_DEPRECATED
 	ARM_SP_IMAGE_MMAP,
+#endif
+#if ENABLE_SPM && !SPM_DEPRECATED
+	PLAT_MAP_SP_PACKAGE_MEM_RW,
 #endif
 #if ARM_BL31_IN_DRAM
 	ARM_MAP_BL31_SEC_DRAM,
@@ -126,6 +129,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	ARM_V2M_MAP_MEM_PROTECT,
 #if ENABLE_SPM && SPM_DEPRECATED
 	ARM_SPM_BUF_EL3_MMAP,
+#endif
+#if ENABLE_SPM && !SPM_DEPRECATED
+	PLAT_MAP_SP_PACKAGE_MEM_RO,
 #endif
 	{0}
 };

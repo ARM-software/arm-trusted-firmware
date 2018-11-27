@@ -32,6 +32,7 @@
 #ifndef __ASSEMBLY__
 
 #include <spinlock.h>
+#include <sp_res_desc.h>
 #include <stdint.h>
 #include <xlat_tables_v2.h>
 
@@ -42,9 +43,14 @@ typedef enum sp_state {
 } sp_state_t;
 
 typedef struct sp_context {
+	/* Location of the image in physical memory */
+	unsigned long long image_base;
+	size_t image_size;
+
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
 	xlat_ctx_t *xlat_ctx_handle;
+	struct sp_res_desc rd;
 
 	sp_state_t state;
 	spinlock_t state_lock;

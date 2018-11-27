@@ -249,6 +249,7 @@ ifeq (${SPM_DEPRECATED},0)
 ifeq (${ENABLE_SPM},1)
 BL31_SOURCES		+=	common/fdt_wrappers.c			\
 				plat/common/plat_spm_rd.c		\
+				plat/common/plat_spm_sp.c		\
 				${LIBFDT_SRCS}
 endif
 endif
