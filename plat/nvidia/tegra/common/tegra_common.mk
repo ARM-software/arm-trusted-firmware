@@ -32,5 +32,4 @@ BL31_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
 				${COMMON_DIR}/tegra_io_storage.c		\
 				${COMMON_DIR}/tegra_platform.c			\
 				${COMMON_DIR}/tegra_pm.c			\
-				${COMMON_DIR}/tegra_sip_calls.c			\
-				${COMMON_DIR}/tegra_topology.c
+				${COMMON_DIR}/tegra_sip_calls.c
