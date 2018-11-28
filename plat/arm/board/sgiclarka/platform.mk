@@ -33,10 +33,10 @@ TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
 # Add the TB_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config))
 
-FDT_SOURCES		+=	${SGICLARKA_BASE}/fdts/${PLAT}.dts
-HW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}.dtb
+FDT_SOURCES		+=	${SGICLARKA_BASE}/fdts/${PLAT}_nt_fw_config.dts
+NT_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_nt_fw_config.dtb
 
-# Add the HW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_PAYLOAD,${HW_CONFIG},--hw-config))
+# Add the NT_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config))
 
 override CTX_INCLUDE_AARCH32_REGS	:= 0

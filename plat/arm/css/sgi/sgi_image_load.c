@@ -25,9 +25,9 @@ static int plat_sgi_append_config_node(void)
 	int nodeoffset, err;
 	unsigned int platid = 0, platcfg = 0;
 
-	mem_params = get_bl_mem_params_node(HW_CONFIG_ID);
+	mem_params = get_bl_mem_params_node(NT_FW_CONFIG_ID);
 	if (mem_params == NULL) {
-		ERROR("HW CONFIG base address is NULL");
+		ERROR("NT_FW CONFIG base address is NULL");
 		return -1;
 	}
 
@@ -35,7 +35,7 @@ static int plat_sgi_append_config_node(void)
 
 	/* Check the validity of the fdt */
 	if (fdt_check_header(fdt) != 0) {
-		ERROR("Invalid HW_CONFIG DTB passed\n");
+		ERROR("Invalid NT_FW_CONFIG DTB passed\n");
 		return -1;
 	}
 
