@@ -485,15 +485,14 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 	/*
 	 * We reach here when client completes the event.
 	 *
-	 * If the cause of dispatch originally interrupted the Secure world, and
-	 * if Non-secure world wasn't allowed to preempt Secure execution,
+	 * If the cause of dispatch originally interrupted the Secure world,
 	 * resume Secure.
 	 *
 	 * No need to save the Non-secure context ahead of a world switch: the
 	 * Non-secure context was fully saved before dispatch, and has been
 	 * returned to its pre-dispatch state.
 	 */
-	if ((sec_state == SECURE) && (ehf_is_ns_preemption_allowed() == 0U))
+	if (sec_state == SECURE)
 		restore_and_resume_secure_context();
 
 	/*

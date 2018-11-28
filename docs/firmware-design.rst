@@ -981,6 +981,11 @@ services ``handle()`` function.
 On return from the handler the result registers are populated in X0-X3 before
 restoring the stack and CPU state and returning from the original SMC.
 
+Exception Handling Framework
+----------------------------
+
+Please refer to the `Exception Handling Framework`_ document.
+
 Power State Coordination Interface
 ----------------------------------
 
@@ -2641,5 +2646,6 @@ References
 .. _SMC Calling Convention PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
 .. _TF-A Interrupt Management Design guide: ./interrupt-framework-design.rst
 .. _Xlat_tables design: xlat-tables-lib-v2-design.rst
+.. _Exception Handling Framework: exception-handling.rst
 
 .. |Image 1| image:: diagrams/rt-svc-descs-layout.png?raw=true
