@@ -48,6 +48,23 @@ Arm System Guidance for Infrastructure / Mobile FVP platforms
 :F: plat/arm/board/sgi575/
 :F: plat/arm/board/sgm775/
 
+Console API framework
+---------------------
+:M: Julius Werner <jwerner@chromium.org>
+:G: `jwerner-chromium`_
+:F: drivers/console/
+:F: include/drivers/console.h
+:F: plat/common/aarch64/crash_console_helpers.S
+
+coreboot support libraries
+--------------------------
+:M: Julius Werner <jwerner@chromium.org>
+:G: `jwerner-chromium`_
+:F: drivers/coreboot/
+:F: include/drivers/coreboot/
+:F: include/lib/coreboot.h
+:F: lib/coreboot/
+
 eMMC/UFS drivers
 ----------------
 :M: Haojian Zhuang <haojian.zhuang@linaro.org>
