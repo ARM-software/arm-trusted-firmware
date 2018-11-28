@@ -1,0 +1,147 @@
+/*
+ * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+/ {
+	model = "corstone700";
+	compatible = "arm,Corstone-700";
+	interrupt-parent = <&gic>;
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	chosen {
+		bootargs = "console=ttyAMA0 root=/dev/vda2 rw loglevel=9";
+		linux,initrd-start = <0x02a00000>;
+		linux,initrd-end = <0x04000000>;
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0>;
+			next-level-cache = <&L2_0>;
+		};
+
+	};
+
+	memory@2000000 {
+		device_type = "memory";
+		reg = <0x02000000 0x02000000>;
+	};
+
+	gic: interrupt-controller@1c000000 {
+		compatible = "arm,gic-400";
+		#interrupt-cells = <3>;
+		#address-cells = <0>;
+		interrupt-controller;
+		reg =	<0x1c010000 0x1000>,
+			<0x1c02f000 0x2000>,
+			<0x1c04f000 0x1000>,
+			<0x1c06f000 0x2000>;
+		interrupts = <1 9 0xf08>;
+	};
+
+	L2_0: l2-cache0 {
+		compatible = "cache";
+	};
+
+	refclk100mhz: refclk100mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+		clock-output-names = "apb_pclk";
+	};
+
+	smbclk: refclk24mhzx2 {
+		/* Reference 24MHz clock x 2 */
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <48000000>;
+		clock-output-names = "smclk";
+	};
+
+
+	serial0: uart@1a510000 {
+		compatible = "arm,pl011", "arm,primecell";
+		reg = <0x1a510000 0x1000>;
+		interrupt-parent = <&gic>;
+		interrupts = <0 19 4>;
+		clocks = <&refclk100mhz>, <&smbclk>;
+		clock-names = "apb_pclk", "smclk";
+	};
+
+	serial1: uart@1a520000 {
+		compatible = "arm,pl011", "arm,primecell";
+		reg = <0x1a520000 0x1000>;
+		interrupt-parent = <&gic>;
+		interrupts = <0 20 4>;
+		clocks = <&refclk100mhz>, <&smbclk>;
+		clock-names = "apb_pclk", "smclk";
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts =	<1 13 0xf08>,
+				<1 14 0xf08>,
+				<1 11 0xf08>,
+				<1 10 0xf08>;
+		};
+
+	mbox_es0mhu0: mhu@1b000000 {
+		compatible = "arm,mhuv2","arm,primecell";
+		reg = <0x1b000000 0x1000>,
+		      <0x1b010000 0x1000>;
+		clocks = <&refclk100mhz>;
+		clock-names = "apb_pclk";
+		interrupts = <0 12 4>;
+		interrupt-names = "mhu_rx";
+		#mbox-cells = <1>;
+		mbox-name = "arm-es0-mhu0";
+	};
+
+	mbox_es0mhu1: mhu@1b020000 {
+		compatible = "arm,mhuv2","arm,primecell";
+		reg = <0x1b020000 0x1000>,
+		      <0x1b030000 0x1000>;
+		clocks = <&refclk100mhz>;
+		clock-names = "apb_pclk";
+		interrupts = <0 47 4>;
+		interrupt-names = "mhu_rx";
+		#mbox-cells = <1>;
+		mbox-name = "arm-es0-mhu1";
+	};
+
+	mbox_semhu1: mhu@1b820000 {
+		compatible = "arm,mhuv2","arm,primecell";
+		reg = <0x1b820000 0x1000>,
+		      <0x1b830000 0x1000>;
+		clocks = <&refclk100mhz>;
+		clock-names = "apb_pclk";
+		interrupts = <0 45 4>;
+		interrupt-names = "mhu_rx";
+		#mbox-cells = <1>;
+		mbox-name = "arm-se-mhu1";
+	};
+
+	client {
+		compatible = "arm,client";
+		mboxes = <&mbox_es0mhu0 0>, <&mbox_es0mhu1 0>, <&mbox_semhu1 0>;
+		mbox-names = "es0mhu0", "es0mhu1", "semhu1";
+	};
+
+	extsys0: extsys@1A010310 {
+		compatible = "arm,extsys_ctrl";
+		reg = <0x1A010310 0x4>,
+		      <0x1A010314 0x4>;
+		reg-names = "rstreg", "streg";
+	};
+
+};
