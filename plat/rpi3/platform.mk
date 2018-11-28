@@ -10,8 +10,7 @@ include lib/xlat_tables_v2/xlat_tables.mk
 PLAT_INCLUDES		:=	-Iinclude/common/tbbr			\
 				-Iplat/rpi3/include
 
-PLAT_BL_COMMON_SOURCES	:=	drivers/console/aarch64/console.S	\
-				drivers/ti/uart/aarch64/16550_console.S	\
+PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 				plat/rpi3/rpi3_common.c			\
 				${XLAT_TABLES_LIB_SRCS}
 

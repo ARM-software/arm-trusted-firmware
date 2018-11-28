@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#if MULTI_CONSOLE_API
+
 #include <asm_macros.S>
 #include <assert_macros.S>
 #include <console.h>
@@ -316,3 +318,5 @@ flush_done:
 	mov	r0, r5
 	pop	{r5-r6, pc}
 endfunc console_flush
+
+#endif	/* MULTI_CONSOLE_API */

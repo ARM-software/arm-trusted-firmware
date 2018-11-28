@@ -14,8 +14,7 @@ GXBB_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_helpers.c	\
 				plat/common/plat_gicv2.c
 
-PLAT_BL_COMMON_SOURCES	:=	drivers/console/aarch64/multi_console.S	\
-				drivers/meson/console/aarch64/meson_console.S \
+PLAT_BL_COMMON_SOURCES	:=	drivers/meson/console/aarch64/meson_console.S \
 				plat/meson/gxbb/gxbb_common.c		\
 				plat/meson/gxbb/gxbb_topology.c		\
 				${XLAT_TABLES_LIB_SRCS}

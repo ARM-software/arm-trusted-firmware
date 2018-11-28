@@ -25,7 +25,6 @@ BL31_SOURCES		+=	plat/imx/common/lpuart_console.S	\
 				lib/xlat_tables/xlat_tables_common.c	\
 				lib/xlat_tables/aarch64/xlat_tables.c	\
 				lib/cpus/aarch64/cortex_a35.S		\
-				drivers/console/aarch64/console.S	\
 				${IMX_GIC_SOURCES}			\
 
 include plat/imx/common/sci/sci_api.mk

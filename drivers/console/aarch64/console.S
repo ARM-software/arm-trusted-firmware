@@ -5,7 +5,9 @@
  */
 
 #if MULTI_CONSOLE_API
-#include "multi_console.S"
+#if ERROR_DEPRECATED
+#error "console.S is deprecated, platforms should no longer link it explicitly"
+#endif
 #else
 #include "deprecated_console.S"
 #endif

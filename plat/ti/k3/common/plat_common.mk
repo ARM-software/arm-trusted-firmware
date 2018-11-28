@@ -39,7 +39,6 @@ PLAT_INCLUDES		+=	\
 				-I${PLAT_PATH}/common/drivers/ti_sci	\
 
 K3_CONSOLE_SOURCES	+=	\
-				drivers/console/aarch64/console.S	\
 				drivers/ti/uart/aarch64/16550_console.S	\
 				${PLAT_PATH}/common/k3_console.c	\
 

@@ -15,8 +15,7 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common		\
 
 include lib/libfdt/libfdt.mk
 
-PLAT_BL_COMMON_SOURCES	:=	drivers/console/${ARCH}/console.S	\
-				drivers/ti/uart/${ARCH}/16550_console.S	\
+PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/${ARCH}/16550_console.S	\
 				${XLAT_TABLES_LIB_SRCS}			\
 				${AW_PLAT}/common/plat_helpers.S	\
 				${AW_PLAT}/common/sunxi_common.c

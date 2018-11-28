@@ -10,11 +10,13 @@
 #include <console_macros.S>
 #include <pl011.h>
 
+#if !MULTI_CONSOLE_API
 /*
  * Pull in generic functions to provide backwards compatibility for
  * platform makefiles
  */
 #include "../../../console/aarch64/console.S"
+#endif
 
 	/*
 	 * "core" functions are low-level implementations that don't require

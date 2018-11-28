@@ -96,7 +96,6 @@ PLAT_INCLUDES		:=	-I$(PLAT_FAMILY_BASE)/$(PLAT)		\
 				$(ATF_INCLUDES)
 
 PLAT_BL_COMMON_SOURCES	:=	$(PLAT_COMMON_BASE)/aarch64/a3700_common.c \
-				drivers/console/aarch64/console.S	   \
 				$(MARVELL_COMMON_BASE)/marvell_cci.c	   \
 				$(MARVELL_DRV_BASE)/uart/a3700_console.S
 
