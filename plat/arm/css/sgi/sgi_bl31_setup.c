@@ -42,53 +42,11 @@ scmi_channel_plat_info_t *plat_css_get_scmi_info()
 		panic();
 };
 
-/*******************************************************************************
- * This function sets the sgi_platform_id and sgi_config_id
- ******************************************************************************/
-int sgi_identify_platform(unsigned long hw_config)
-{
-	void *fdt;
-	int nodeoffset;
-	const unsigned int *property;
-
-	fdt = (void *)hw_config;
-
-	/* Check the validity of the fdt */
-	assert(fdt_check_header(fdt) == 0);
-
-	nodeoffset = fdt_subnode_offset(fdt, 0, "system-id");
-	if (nodeoffset < 0) {
-		ERROR("Failed to get system-id node offset\n");
-		return -1;
-	}
-
-	property = fdt_getprop(fdt, nodeoffset, "platform-id", NULL);
-	if (property == NULL) {
-		ERROR("Failed to get platform-id property\n");
-		return -1;
-	}
-
-	sgi_plat_info.platform_id = fdt32_to_cpu(*property);
-
-	property = fdt_getprop(fdt, nodeoffset, "config-id", NULL);
-	if (property == NULL) {
-		ERROR("Failed to get config-id property\n");
-		return -1;
-	}
-
-	sgi_plat_info.config_id = fdt32_to_cpu(*property);
-
-	return 0;
-}
-
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
-	int ret;
-
-	ret = sgi_identify_platform(arg2);
-	if (ret == -1)
-		panic();
+	sgi_plat_info.platform_id = plat_arm_sgi_get_platform_id();
+	sgi_plat_info.config_id = plat_arm_sgi_get_config_id();
 
 	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
 }

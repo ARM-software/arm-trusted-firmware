@@ -21,4 +21,10 @@ typedef struct sgi_platform_info {
 
 extern sgi_platform_info_t sgi_plat_info;
 
+/* returns the part number of the platform*/
+unsigned int plat_arm_sgi_get_platform_id(void);
+
+/* returns the configuration id of the platform */
+unsigned int plat_arm_sgi_get_config_id(void);
+
 #endif /* SGI_VARIANT_H */
