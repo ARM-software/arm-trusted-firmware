@@ -246,6 +246,13 @@ static int mmc_fill_device_info(void)
 			return ret;
 		}
 
+		do {
+			ret = mmc_device_state();
+			if (ret < 0) {
+				return ret;
+			}
+		} while (ret != MMC_STATE_TRAN);
+
 		nb_blocks = (mmc_ext_csd[CMD_EXTCSD_SEC_CNT] << 0) |
 			    (mmc_ext_csd[CMD_EXTCSD_SEC_CNT + 1] << 8) |
 			    (mmc_ext_csd[CMD_EXTCSD_SEC_CNT + 2] << 16) |
