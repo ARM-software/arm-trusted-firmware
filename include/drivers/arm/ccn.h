@@ -76,6 +76,16 @@ typedef struct ccn_desc {
 	uintptr_t periphbase;
 } ccn_desc_t;
 
+/* Enum used to loop through all types of nodes in CCN*/
+typedef enum node_types {
+	NODE_TYPE_RNF = 0,
+	NODE_TYPE_RNI,
+	NODE_TYPE_RND,
+	NODE_TYPE_HNF,
+	NODE_TYPE_HNI,
+	NODE_TYPE_SN,
+	NUM_NODE_TYPES
+} node_types_t;
 
 void ccn_init(const ccn_desc_t *plat_ccn_desc);
 void ccn_enter_snoop_dvm_domain(unsigned long long master_iface_map);
@@ -91,6 +101,13 @@ void ccn_program_sys_addrmap(unsigned int sn0_id,
 		 unsigned char three_sn_en);
 unsigned int ccn_get_l3_run_mode(void);
 int ccn_get_part0_id(uintptr_t periphbase);
+
+void ccn_write_node_reg(node_types_t node_type, unsigned int node_id,
+				unsigned int reg_offset,
+				unsigned long long val);
+unsigned long long ccn_read_node_reg(node_types_t node_type,
+					unsigned int node_id,
+					unsigned int reg_offset);
 
 #endif /* __ASSEMBLY__ */
 #endif /* CCN_H */

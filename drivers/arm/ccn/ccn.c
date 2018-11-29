@@ -11,6 +11,7 @@
 #include <debug.h>
 #include <errno.h>
 #include <mmio.h>
+#include <stdbool.h>
 #include "ccn_private.h"
 
 static const ccn_desc_t *ccn_plat_desc;
@@ -489,4 +490,124 @@ int ccn_get_part0_id(uintptr_t periphbase)
 	assert(periphbase);
 	return (int)(mmio_read_64(periphbase
 			+ MN_PERIPH_ID_0_1_OFFSET) & 0xFF);
+}
+
+/*******************************************************************************
+ * This function returns the region id corresponding to a node_id of node_type.
+ ******************************************************************************/
+static unsigned int get_region_id_for_node(node_types_t node_type,
+						unsigned int node_id)
+{
+	unsigned int mn_reg_off, region_id;
+	unsigned long long node_bitmap;
+	unsigned int loc_node_id, node_pos_in_map = 0;
+
+	assert(node_type < NUM_NODE_TYPES);
+	assert(node_id < MAX_RN_NODES);
+
+	switch (node_type) {
+	case NODE_TYPE_RNI:
+		region_id = RNI_REGION_ID_START;
+		break;
+	case NODE_TYPE_HNF:
+		region_id = HNF_REGION_ID_START;
+		break;
+	case NODE_TYPE_HNI:
+		region_id = HNI_REGION_ID_START;
+		break;
+	case NODE_TYPE_SN:
+		region_id = SBSX_REGION_ID_START;
+		break;
+	default:
+		ERROR("Un-supported Node Type = %d.\n", node_type);
+		assert(false);
+		return REGION_ID_LIMIT;
+	}
+	/*
+	 * RN-I, HN-F, HN-I, SN node registers in the MN region
+	 * occupy contiguous 16 byte apart offsets.
+	 *
+	 * RN-F and RN-D node are not supported as
+	 * none of them exposes any memory map to
+	 * configure any of their offset registers.
+	 */
+
+	mn_reg_off = MN_RNF_NODEID_OFFSET + (node_type << 4);
+	node_bitmap = ccn_reg_read(ccn_plat_desc->periphbase,
+					MN_REGION_ID, mn_reg_off);
+
+	assert((node_bitmap & (1ULL << (node_id))) != 0U);
+
+
+	FOR_EACH_PRESENT_NODE_ID(loc_node_id, node_bitmap) {
+		INFO("Index = %u with loc_nod=%u and input nod=%u\n",
+					node_pos_in_map, loc_node_id, node_id);
+		if (loc_node_id == node_id)
+			break;
+		node_pos_in_map++;
+	}
+
+	if (node_pos_in_map == CCN_MAX_RN_MASTERS) {
+		ERROR("Node Id = %d, is not found.\n", node_id);
+		assert(false);
+		return REGION_ID_LIMIT;
+	}
+
+	region_id += node_pos_in_map;
+
+	return region_id;
+}
+
+/*******************************************************************************
+ * This function sets the value 'val' to the register at register_offset from
+ * the base address pointed to by the region_id.
+ * where, region id is mapped to a node_id of node_type.
+ ******************************************************************************/
+void ccn_write_node_reg(node_types_t node_type, unsigned int node_id,
+			unsigned int reg_offset, unsigned long long val)
+{
+	unsigned int region_id = get_region_id_for_node(node_type, node_id);
+
+	if (reg_offset > REGION_ID_OFFSET) {
+		ERROR("Invalid Register offset 0x%x is provided.\n",
+								reg_offset);
+		assert(false);
+		return;
+	}
+
+	/* Setting the value of Auxilary Control Register of the Node */
+	ccn_reg_write(ccn_plat_desc->periphbase, region_id, reg_offset, val);
+	VERBOSE("Value is successfully written at address 0x%lx.\n",
+			(ccn_plat_desc->periphbase
+			+ region_id_to_base(region_id))
+			+ reg_offset);
+}
+
+/*******************************************************************************
+ * This function read the value 'val' stored in the register at register_offset
+ * from the base address pointed to by the region_id.
+ * where, region id is mapped to a node_id of node_type.
+ ******************************************************************************/
+unsigned long long ccn_read_node_reg(node_types_t node_type,
+					unsigned int node_id,
+					unsigned int reg_offset)
+{
+	unsigned long long val;
+	unsigned int region_id = get_region_id_for_node(node_type, node_id);
+
+	if (reg_offset > REGION_ID_OFFSET) {
+		ERROR("Invalid Register offset 0x%x is provided.\n",
+								reg_offset);
+		assert(false);
+		return ULL(0);
+	}
+
+	/* Setting the value of Auxilary Control Register of the Node */
+	val = ccn_reg_read(ccn_plat_desc->periphbase, region_id, reg_offset);
+	VERBOSE("Value is successfully read from address 0x%lx.\n",
+			(ccn_plat_desc->periphbase
+			+ region_id_to_base(region_id))
+			+ reg_offset);
+
+	return val;
 }
