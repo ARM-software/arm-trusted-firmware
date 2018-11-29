@@ -28,16 +28,6 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		.next_handoff_image_id = BL33_IMAGE_ID,
 	},
 	{
-		.image_id = HW_CONFIG_ID,
-		SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
-				      VERSION_2, entry_point_info_t, SECURE | NON_EXECUTABLE),
-		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
-				      VERSION_2, image_info_t, 0),
-		.image_info.image_base = WARP7_DTB_BASE,
-		.image_info.image_max_size = WARP7_DTB_SIZE,
-		.next_handoff_image_id = INVALID_IMAGE_ID,
-	},
-	{
 		.image_id = BL32_EXTRA1_IMAGE_ID,
 
 		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP, VERSION_2,
