@@ -14,6 +14,7 @@
 #include <generic_delay_timer.h>
 #include <gicv2.h>
 #include <hi3660.h>
+#include <mmio.h>
 #include <hisi_ipc.h>
 #include <interrupt_mgmt.h>
 #include <interrupt_props.h>
@@ -143,6 +144,19 @@ void bl31_plat_arch_setup(void)
 			BL31_COHERENT_RAM_LIMIT);
 }
 
+static void hikey960_edma_init(void)
+{
+	int i;
+	uint32_t non_secure;
+
+	non_secure = EDMAC_SEC_CTRL_INTR_SEC | EDMAC_SEC_CTRL_GLOBAL_SEC;
+	mmio_write_32(EDMAC_SEC_CTRL, non_secure);
+
+	for (i = 0; i < EDMAC_CHANNEL_NUMS; i++) {
+		mmio_write_32(EDMAC_AXI_CONF(i), (1 << 6) | (1 << 18));
+	}
+}
+
 void bl31_platform_setup(void)
 {
 	/* Initialize the GIC driver, cpu and distributor interfaces */
@@ -150,6 +164,8 @@ void bl31_platform_setup(void)
 	gicv2_distif_init();
 	gicv2_pcpu_distif_init();
 	gicv2_cpuif_enable();
+
+	hikey960_edma_init();
 
 	hisi_ipc_init();
 }
