@@ -155,7 +155,9 @@ void arm_bl1_platform_setup(void)
 	 * Allow access to the System counter timer module and program
 	 * counter frequency for non secure images during FWU
 	 */
+#ifdef ARM_SYS_TIMCTL_BASE
 	arm_configure_sys_timer();
+#endif
 	write_cntfrq_el0(plat_get_syscnt_freq2());
 }
 
