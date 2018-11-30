@@ -55,8 +55,11 @@ typedef struct sp_context {
 
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
-	xlat_ctx_t *xlat_ctx_handle;
 	struct sp_res_desc rd;
+
+	/* Translation tables context */
+	xlat_ctx_t *xlat_ctx_handle;
+	spinlock_t xlat_ctx_lock;
 
 	sp_state_t state;
 	spinlock_t state_lock;
@@ -94,13 +97,6 @@ int spm_sp_request_increase_if_zero(sp_context_t *sp_ctx);
 /* Functions related to the translation tables management */
 xlat_ctx_t *spm_sp_xlat_context_alloc(void);
 void sp_map_memory_regions(sp_context_t *sp_ctx);
-
-int32_t spm_memory_attributes_get_smc_handler(sp_context_t *sp_ctx,
-					      uintptr_t base_va);
-int spm_memory_attributes_set_smc_handler(sp_context_t *sp_ctx,
-					  u_register_t page_address,
-					  u_register_t pages_count,
-					  u_register_t smc_attributes);
 
 /* Functions to handle Secure Partition contexts */
 void spm_cpu_set_sp_ctx(unsigned int linear_id, sp_context_t *sp_ctx);

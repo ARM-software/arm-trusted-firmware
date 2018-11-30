@@ -375,8 +375,6 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 	ns = is_caller_non_secure(flags);
 
 	if (ns == SMC_FROM_SECURE) {
-		unsigned int linear_id = plat_my_core_pos();
-		sp_context_t *sp_ctx = spm_cpu_get_sp_ctx(linear_id);
 
 		/* Handle SMCs from Secure world. */
 
@@ -390,27 +388,6 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 		case SPM_VERSION_AARCH32:
 			SMC_RET1(handle, SPM_VERSION_COMPILED);
 
-		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
-			INFO("Received SP_MEMORY_ATTRIBUTES_GET_AARCH64 SMC\n");
-
-			if (sp_ctx->state != SP_STATE_RESET) {
-				WARN("SP_MEMORY_ATTRIBUTES_GET_AARCH64 is available at boot time only\n");
-				SMC_RET1(handle, SPM_NOT_SUPPORTED);
-			}
-			SMC_RET1(handle,
-				 spm_memory_attributes_get_smc_handler(
-					sp_ctx, x1));
-
-		case SP_MEMORY_ATTRIBUTES_SET_AARCH64:
-			INFO("Received SP_MEMORY_ATTRIBUTES_SET_AARCH64 SMC\n");
-
-			if (sp_ctx->state != SP_STATE_RESET) {
-				WARN("SP_MEMORY_ATTRIBUTES_SET_AARCH64 is available at boot time only\n");
-				SMC_RET1(handle, SPM_NOT_SUPPORTED);
-			}
-			SMC_RET1(handle,
-				 spm_memory_attributes_set_smc_handler(
-					sp_ctx, x1, x2, x3));
 		default:
 			break;
 		}
@@ -421,11 +398,6 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 		assert(handle == cm_get_context(NON_SECURE));
 
 		switch (smc_fid) {
-
-		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
-		case SP_MEMORY_ATTRIBUTES_SET_AARCH64:
-			/* SMC interfaces reserved for secure callers. */
-			SMC_RET1(handle, SPM_NOT_SUPPORTED);
 
 		default:
 			break;
