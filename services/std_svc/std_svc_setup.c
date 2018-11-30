@@ -102,7 +102,7 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 		SMC_RET1(handle, ret);
 	}
 
-#if ENABLE_SPM
+#if ENABLE_SPM && SPM_DEPRECATED
 	/*
 	 * Dispatch SPM calls to SPM SMC handler and return its return
 	 * value

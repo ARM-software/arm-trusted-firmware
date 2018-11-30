@@ -18,7 +18,6 @@
 #include <smccc_helpers.h>
 #include <spinlock.h>
 #include <string.h>
-#include <spm_svc.h>
 #include <sprt_svc.h>
 #include <utils.h>
 #include <xlat_tables_v2.h>
@@ -355,54 +354,4 @@ int32_t spm_setup(void)
 	bl31_register_bl32_init(&spm_init);
 
 	return 0;
-}
-
-/*******************************************************************************
- * Secure Partition Manager SMC handler.
- ******************************************************************************/
-uint64_t spm_smc_handler(uint32_t smc_fid,
-			 uint64_t x1,
-			 uint64_t x2,
-			 uint64_t x3,
-			 uint64_t x4,
-			 void *cookie,
-			 void *handle,
-			 uint64_t flags)
-{
-	unsigned int ns;
-
-	/* Determine which security state this SMC originated from */
-	ns = is_caller_non_secure(flags);
-
-	if (ns == SMC_FROM_SECURE) {
-
-		/* Handle SMCs from Secure world. */
-
-		assert(handle == cm_get_context(SECURE));
-
-		/* Make next ERET jump to S-EL0 instead of S-EL1. */
-		cm_set_elr_spsr_el3(SECURE, read_elr_el1(), read_spsr_el1());
-
-		switch (smc_fid) {
-
-		case SPM_VERSION_AARCH32:
-			SMC_RET1(handle, SPM_VERSION_COMPILED);
-
-		default:
-			break;
-		}
-	} else {
-
-		/* Handle SMCs from Non-secure world. */
-
-		assert(handle == cm_get_context(NON_SECURE));
-
-		switch (smc_fid) {
-
-		default:
-			break;
-		}
-	}
-
-	SMC_RET1(handle, SMC_UNK);
 }

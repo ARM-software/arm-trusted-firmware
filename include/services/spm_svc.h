@@ -7,6 +7,8 @@
 #ifndef SPM_SVC_H
 #define SPM_SVC_H
 
+#if SPM_DEPRECATED
+
 #include <utils_def.h>
 
 #define SPM_VERSION_MAJOR	U(0)
@@ -59,11 +61,15 @@
 #define SPM_DENIED		-3
 #define SPM_NO_MEMORY		-5
 
+#endif /* SPM_DEPRECATED */
+
 #ifndef __ASSEMBLY__
 
 #include <stdint.h>
 
 int32_t spm_setup(void);
+
+#if SPM_DEPRECATED
 
 uint64_t spm_smc_handler(uint32_t smc_fid,
 			 uint64_t x1,
@@ -76,6 +82,8 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 
 /* Helper to enter a Secure Partition */
 uint64_t spm_sp_call(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3);
+
+#endif /* SPM_DEPRECATED */
 
 #endif /* __ASSEMBLY__ */
 
