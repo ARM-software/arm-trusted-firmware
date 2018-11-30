@@ -6,6 +6,7 @@
 
 #include "../../css/drivers/scmi/scmi.h"
 #include "../../css/drivers/mhu/css_mhu_doorbell.h"
+#include <plat_arm.h>
 #include <platform_def.h>
 
 static scmi_channel_plat_info_t n1sdp_scmi_plat_info = {
@@ -19,4 +20,9 @@ static scmi_channel_plat_info_t n1sdp_scmi_plat_info = {
 scmi_channel_plat_info_t *plat_css_get_scmi_info()
 {
 	return &n1sdp_scmi_plat_info;
+}
+
+const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
+{
+	return css_scmi_override_pm_ops(ops);
 }

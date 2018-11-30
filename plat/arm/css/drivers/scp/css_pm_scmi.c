@@ -339,7 +339,7 @@ void __init plat_arm_pwrc_setup(void)
  * the SCMI driver, query capability via SCMI and modify the PSCI capability
  * based on that.
  *****************************************************************************/
-const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
+const plat_psci_ops_t *css_scmi_override_pm_ops(plat_psci_ops_t *ops)
 {
 	uint32_t msg_attr;
 	int ret;
