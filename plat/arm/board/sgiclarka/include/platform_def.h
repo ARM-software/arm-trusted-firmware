@@ -20,4 +20,9 @@
 #define SGICLARKA_DMC620_BASE0		UL(0x4e000000)
 #define SGICLARKA_DMC620_BASE1		UL(0x4e100000)
 
+/* System power domain level */
+#define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2
+
+#define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1
+
 #endif /* PLATFORM_DEF_H */

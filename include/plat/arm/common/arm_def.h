@@ -34,6 +34,7 @@
 #define ARM_PWR_LVL0		MPIDR_AFFLVL0
 #define ARM_PWR_LVL1		MPIDR_AFFLVL1
 #define ARM_PWR_LVL2		MPIDR_AFFLVL2
+#define ARM_PWR_LVL3		MPIDR_AFFLVL3
 
 /*
  *  Macros for local power states in ARM platforms encoded by State-ID field

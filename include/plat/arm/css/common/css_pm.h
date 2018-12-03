@@ -11,9 +11,6 @@
 #include <psci.h>
 #include <stdint.h>
 
-/* System power domain at level 2, as currently implemented by CSS platforms */
-#define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2
-
 /* Macros to read the CSS power domain state */
 #define CSS_CORE_PWR_STATE(state)	(state)->pwr_domain_state[ARM_PWR_LVL0]
 #define CSS_CLUSTER_PWR_STATE(state)	(state)->pwr_domain_state[ARM_PWR_LVL1]
