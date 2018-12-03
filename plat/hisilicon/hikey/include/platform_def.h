@@ -41,7 +41,7 @@
 #define MAX_IO_DEVICES			3
 #define MAX_IO_HANDLES			4
 /* eMMC RPMB and eMMC User Data */
-#define MAX_IO_BLOCK_DEVICES		2
+#define MAX_IO_BLOCK_DEVICES		U(2)
 
 /* GIC related constants (no GICR in GIC-400) */
 #define PLAT_ARM_GICD_BASE		0xF6801000

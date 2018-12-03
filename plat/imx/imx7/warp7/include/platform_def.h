@@ -169,7 +169,7 @@
 #define MAX_XLAT_TABLES			6
 #define MAX_IO_DEVICES			2
 #define MAX_IO_HANDLES			3
-#define MAX_IO_BLOCK_DEVICES		1
+#define MAX_IO_BLOCK_DEVICES		1U
 
 /* UART defines */
 #if PLAT_WARP7_UART == 1

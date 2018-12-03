@@ -40,7 +40,7 @@
 /* IO framework user */
 #define MAX_IO_DEVICES			(4)
 #define MAX_IO_HANDLES			(4)
-#define MAX_IO_BLOCK_DEVICES		(2)
+#define MAX_IO_BLOCK_DEVICES		U(2)
 
 /* Memory size options */
 #define POPLAR_DRAM_SIZE_1G	0
