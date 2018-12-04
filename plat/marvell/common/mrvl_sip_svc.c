@@ -87,7 +87,7 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 		SMC_RET1(handle, ret);
 	case MV_SIP_COMPHY_POWER_OFF:
 		/* x1:  comphy_base, x2: comphy_index */
-		ret = mvebu_cp110_comphy_power_off(x1, x2);
+		ret = mvebu_cp110_comphy_power_off(x1, x2, x3);
 		SMC_RET1(handle, ret);
 	case MV_SIP_COMPHY_PLL_LOCK:
 		/* x1:  comphy_base, x2: comphy_index */

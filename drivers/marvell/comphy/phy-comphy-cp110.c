@@ -208,8 +208,8 @@ static void mvebu_cp110_comphy_set_phy_selector(uint64_t comphy_base,
 			   */
 			if ((mode == COMPHY_SGMII_MODE ||
 			    mode == COMPHY_HS_SGMII_MODE ||
-			    mode == COMPHY_SFI_MODE) &&
-			    COMPHY_GET_ID(comphy_mode) == 1)
+			    mode == COMPHY_SFI_MODE || mode == COMPHY_XFI_MODE)
+			    && COMPHY_GET_ID(comphy_mode) == 1)
 				reg |= COMMON_SELECTOR_COMPHY4_PORT1 <<
 					comphy_offset;
 			else
@@ -1205,6 +1205,22 @@ static int mvebu_cp110_comphy_pcie_power_on(uint64_t comphy_base,
 	uint32_t clk_dir;
 	uintptr_t hpipe_addr, comphy_addr, addr;
 	_Bool clk_src = COMPHY_GET_CLK_SRC(comphy_mode);
+	_Bool called_from_uboot = COMPHY_GET_CALLER(comphy_mode);
+
+	/* In Armada 8K DB boards, PCIe initialization can be executed
+	 * only once (PCIe reset performed during chip power on and
+	 * it cannot be executed via GPIO later).
+	 * This means that power on can be executed only once, so let's
+	 * mark if the caller is bootloader or Linux.
+	 * If bootloader -> run power on.
+	 * If Linux -> exit.
+	 *
+	 * TODO: In MacciatoBIN, PCIe reset is connected via GPIO,
+	 * so after GPIO reset is added to Linux Kernel, it can be
+	 * powered-on by Linux.
+	 */
+	if (!called_from_uboot)
+		return ret;
 
 	hpipe_addr = HPIPE_ADDR(COMPHY_PIPE_FROM_COMPHY_ADDR(comphy_base),
 				comphy_index);
@@ -2366,13 +2382,44 @@ int mvebu_cp110_comphy_power_on(uint64_t comphy_base, uint8_t comphy_index,
 	return err;
 }
 
-int mvebu_cp110_comphy_power_off(uint64_t comphy_base, uint8_t comphy_index)
+int mvebu_cp110_comphy_power_off(uint64_t comphy_base, uint8_t comphy_index,
+				 uint64_t comphy_mode)
 {
 	uintptr_t sd_ip_addr, comphy_ip_addr;
 	uint32_t mask, data;
 	uint8_t ap_nr, cp_nr;
+	_Bool called_from_uboot = COMPHY_GET_CALLER(comphy_mode);
 
 	debug_enter();
+
+	/* Power-off might happen because of 2 things:
+	 *	1. Bootloader turns off unconnected lanes
+	 *	2. Linux turns off all lanes during boot
+	 *	   (and then reconfigure it).
+	 *
+	 * For PCIe, there's a problem:
+	 * In Armada 8K DB boards, PCIe initialization can be executed
+	 * only once (PCIe reset performed during chip power on and
+	 * it cannot be executed via GPIO later) so a lane configured to
+	 * PCIe should not be powered off by Linux.
+	 *
+	 * So, check 2 things:
+	 *	1. Is Linux called for power-off?
+	 *	2. Is the comphy configured to PCIe?
+	 * If the answer is YES for both 1 and 2, skip the power-off.
+	 *
+	 * TODO: In MacciatoBIN, PCIe reset is connected via GPIO,
+	 * so after GPIO reset is added to Linux Kernel, it can be
+	 * powered-off.
+	 */
+	if (!called_from_uboot) {
+		data = mmio_read_32(comphy_base +
+				    COMMON_SELECTOR_PIPE_REG_OFFSET);
+		data >>= (COMMON_SELECTOR_COMPHYN_FIELD_WIDTH * comphy_index);
+		data &= COMMON_SELECTOR_COMPHY_MASK;
+		if (data == COMMON_SELECTOR_PIPE_COMPHY_PCIE)
+			return 0;
+	}
 
 	mvebu_cp110_get_ap_and_cp_nr(&ap_nr, &cp_nr, comphy_base);
 

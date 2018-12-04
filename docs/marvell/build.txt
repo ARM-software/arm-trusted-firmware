@@ -78,9 +78,11 @@ Build Instructions
 		Supported Options:
 			- DDR3 1CS (0): DB-88F3720-DDR3-Modular (512MB); EspressoBIN (512MB)
 			- DDR4 1CS (1): DB-88F3720-DDR4-Modular (512MB)
-			- DDR3 2CS (2): EspressoBIN (1GB)
+			- DDR3 2CS (2): EspressoBIN V3-V5 (1GB)
 			- DDR4 2CS (3): DB-88F3720-DDR4-Modular (4GB)
 			- DDR3 1CS (4): DB-88F3720-DDR3-Modular (1GB)
+			- DDR4 1CS (5): EspressoBin V7 (1GB)
+			- DDR4 2CS (6): EspressoBin V7 (2GB)
 			- CUSTOMER (CUST): Customer board, DDR3 1CS 512MB
 
 	- CLOCKSPRESET: For Armada37x0 only, the clock tree configuration preset including CPU and DDR frequency,

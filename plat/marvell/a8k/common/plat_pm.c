@@ -79,7 +79,7 @@ enum CPU_ID {
 	#define PWRC_CPUN_CR_PWR_DN_RQ_OFFSET		1
 	#define PWRC_CPUN_CR_LDO_BYPASS_RDY_OFFSET	0
 #else
-#define PWRC_CPUN_CR_PWR_DN_RQ_OFFSET		0
+	#define PWRC_CPUN_CR_PWR_DN_RQ_OFFSET		0
 	#define PWRC_CPUN_CR_LDO_BYPASS_RDY_OFFSET	31
 #endif
 
@@ -106,7 +106,7 @@ enum CPU_ID {
 #define AP807_PWRC_LDO_CR0_OFFSET		16
 #define AP807_PWRC_LDO_CR0_MASK			\
 			(0xff << AP807_PWRC_LDO_CR0_OFFSET)
-#define AP807_PWRC_LDO_CR0_VAL			0xfd
+#define AP807_PWRC_LDO_CR0_VAL			0xfc
 
 /*
  * Power down CPU:

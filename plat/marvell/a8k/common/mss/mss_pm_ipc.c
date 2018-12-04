@@ -26,7 +26,7 @@
 
 #define MSS_MSG_INT_MASK	(0x80000000)
 #define MSS_TIMER_BASE		(MVEBU_REGS_BASE_MASK + 0x580110)
-#define MSS_TRIGGER_TIMEOUT	(1000)
+#define MSS_TRIGGER_TIMEOUT	(2000)
 
 /*****************************************************************************
  * mss_pm_ipc_msg_send
