@@ -7,8 +7,6 @@
 #ifndef SOC_TZASC_H
 #define SOC_TZASC_H
 
-#include "tzc380.h"
-
 #define MAX_NUM_TZC_REGION	3
 
 /* TZASC related constants */
@@ -57,6 +55,15 @@
 #define TZASC_BYPASS_MUX_DISABLE	0x4
 #define CCI_TERMINATE_BARRIER_TX	0x8
 #define CONFIG_SYS_FSL_TZASC_ADDR	0x1500000
+
+struct tzc380_reg {
+	unsigned int secure;
+	unsigned int enabled;
+	unsigned int low_addr;
+	unsigned int high_addr;
+	unsigned int size;
+	unsigned int sub_mask;
+};
 
 /* List of MAX_NUM_TZC_REGION TZC regions' boundaries and configurations. */
 
