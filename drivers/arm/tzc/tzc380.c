@@ -50,7 +50,7 @@ void tzc380_init(uintptr_t base)
 {
 	unsigned int tzc_build;
 
-	assert(base != NULL);
+	assert(base != 0U);
 	tzc380.base = base;
 
 	/* Save values we will use later. */
@@ -81,7 +81,7 @@ static uint32_t addr_high(uintptr_t addr __unused)
  */
 void tzc380_configure_region(uint8_t region, uintptr_t region_base, unsigned int attr)
 {
-	assert(tzc380.base != NULL);
+	assert(tzc380.base != 0U);
 
 	assert(region < tzc380.num_regions);
 
@@ -92,7 +92,7 @@ void tzc380_configure_region(uint8_t region, uintptr_t region_base, unsigned int
 
 void tzc380_set_action(tzc_action_t action)
 {
-	assert(tzc380.base != NULL);
+	assert(tzc380.base != 0U);
 
 	/*
 	 * - Currently no handler is provided to trap an error via interrupt
