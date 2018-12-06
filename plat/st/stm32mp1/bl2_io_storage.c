@@ -282,7 +282,11 @@ void stm32mp1_io_setup(void)
 		}
 
 		params.device_info = &device_info;
-		stm32_sdmmc2_mmc_init(&params);
+		if (stm32_sdmmc2_mmc_init(&params) != 0) {
+			ERROR("SDMMC%u init failed\n",
+			      boot_context->boot_interface_instance);
+			panic();
+		}
 
 		/* Open MMC as a block device to read GPT table */
 		io_result = register_io_dev_block(&mmc_dev_con);
