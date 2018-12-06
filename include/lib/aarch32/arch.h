@@ -94,10 +94,16 @@
 /* CSSELR definitions */
 #define LEVEL_SHIFT		U(1)
 
-/* ID_PFR0 definitions */
+/* ID_PFR0 AMU definitions */
 #define ID_PFR0_AMU_SHIFT	U(20)
 #define ID_PFR0_AMU_LENGTH	U(4)
 #define ID_PFR0_AMU_MASK	U(0xf)
+
+/* ID_PFR0 DIT definitions */
+#define ID_PFR0_DIT_SHIFT	U(24)
+#define ID_PFR0_DIT_LENGTH	U(4)
+#define ID_PFR0_DIT_MASK	U(0xf)
+#define ID_PFR0_DIT_SUPPORTED	(U(1) << ID_PFR0_DIT_SHIFT)
 
 /* ID_PFR1 definitions */
 #define ID_PFR1_VIRTEXT_SHIFT	U(12)
@@ -276,6 +282,7 @@
 #define DISABLE_ALL_EXCEPTIONS \
 		(SPSR_FIQ_BIT | SPSR_IRQ_BIT | SPSR_ABT_BIT)
 
+#define CPSR_DIT_BIT		(U(1) << 21)
 /*
  * TTBCR definitions
  */

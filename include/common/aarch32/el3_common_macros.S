@@ -110,6 +110,18 @@
 	stcopr	r0, SDCR
 #endif
 
+	/*
+	 * If Data Independent Timing (DIT) functionality is implemented,
+	 * always enable DIT in EL3
+	 */
+	ldcopr	r0, ID_PFR0
+	and	r0, r0, #(ID_PFR0_DIT_MASK << ID_PFR0_DIT_SHIFT)
+	cmp	r0, #ID_PFR0_DIT_SUPPORTED
+	bne	1f
+	mrs	r0, cpsr
+	orr	r0, r0, #CPSR_DIT_BIT
+	msr	cpsr_cxsf, r0
+1:
 	.endm
 
 /* -----------------------------------------------------------------------------
