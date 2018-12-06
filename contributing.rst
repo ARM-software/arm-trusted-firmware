@@ -50,19 +50,19 @@ Making Changes
       other in-source documentation needs updating.
    -  Ensure that each changed file has the correct copyright and license
       information. Files that entirely consist of contributions to this
-      project should have the copyright notice and BSD-3-Clause SPDX license
-      identifier as shown in `license.rst`_. Files that contain
-      changes to imported Third Party IP should contain a notice as follows,
-      with the original copyright and license text retained:
+      project should have a copyright notice and BSD-3-Clause SPDX license
+      identifier of the form as shown in `license.rst`_. Files that contain
+      changes to imported Third Party IP files should retain their original
+      copyright and license notices. For significant contributions you may
+      add your own copyright notice in following format:
 
       ::
 
-          Portions copyright (c) [XXXX-]YYYY, Arm Limited and Contributors. All rights reserved.
+          Portions copyright (c) [XXXX-]YYYY, <OWNER>. All rights reserved.
 
       where XXXX is the year of first contribution (if different to YYYY) and
-      YYYY is the year of most recent contribution.
-   -  If not done previously, you may add your name or your company name to
-      the `Acknowledgements`_ file.
+      YYYY is the year of most recent contribution. <OWNER> is your name or
+      your company name.
    -  If you are submitting new files that you intend to be the technical
       sub-maintainer for (for example, a new platform port), then also update
       the `Maintainers`_ file.
