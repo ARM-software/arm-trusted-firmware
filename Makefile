@@ -226,8 +226,12 @@ else ifeq (${W},3)
 WARNINGS := $(WARNING1) $(WARNING2) $(WARNING3)
 endif
 
+ifneq (${E},0)
+ERRORS := -Werror
+endif
+
 CPPFLAGS		=	${DEFINES} ${INCLUDES} ${MBEDTLS_INC} -nostdinc		\
-				-Wmissing-include-dirs -Werror $(WARNINGS)
+				-Wmissing-include-dirs $(ERRORS) $(WARNINGS)
 ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
 				-D__ASSEMBLY__ -ffreestanding 			\
 				-Wa,--fatal-warnings
