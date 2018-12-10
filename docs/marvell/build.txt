@@ -167,7 +167,7 @@ Armada37x0 Builds require installation of 3 components
 
 (1) ARM cross compiler capable of building images for the service CPU (CM3).
     This component is usually included in the Linux host packages.
-    On Debian/Uboot hosts the default GNU ARM tool chain can be installed
+    On Debian/Ubuntu hosts the default GNU ARM tool chain can be installed
     using the following command::
 
 		> sudo apt-get install gcc-arm-linux-gnueabi
