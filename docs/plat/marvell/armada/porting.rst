@@ -36,7 +36,7 @@ memory map is required.
 .. note::
    For a detailed information on how CCU, IOWIN, AXI-MBUS & IOB work, please
    refer to the SoC functional spec, and under
-   ``docs/marvell/misc/mvebu-[ccu/iob/amb/io-win].txt`` files.
+   ``docs/plat/marvell/armada/misc/mvebu-[ccu/iob/amb/io-win].rst`` files.
 
 boot loader recovery (marvell_plat_config.c)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
