@@ -303,6 +303,7 @@ ERRATA_A57_813419  := 1
 include drivers/staging/renesas/rcar/ddr/ddr.mk
 include drivers/staging/renesas/rcar/qos/qos.mk
 include drivers/staging/renesas/rcar/pfc/pfc.mk
+include lib/libfdt/libfdt.mk
 
 PLAT_INCLUDES	:=	-Iinclude/common/tbbr			\
 			-Idrivers/staging/renesas/rcar/ddr	\
@@ -331,6 +332,7 @@ RCAR_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			lib/cpus/aarch64/cortex_a53.S			\
 			lib/cpus/aarch64/cortex_a57.S			\
+			${LIBFDT_SRCS}					\
 			common/desc_image_load.c			\
 			plat/renesas/rcar/aarch64/platform_common.c	\
 			plat/renesas/rcar/aarch64/plat_helpers.S	\
