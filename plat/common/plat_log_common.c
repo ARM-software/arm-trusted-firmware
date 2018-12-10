@@ -5,6 +5,7 @@
  */
 
 #include <debug.h>
+#include <platform.h>
 
 /* Allow platforms to override the log prefix string */
 #pragma weak plat_log_get_prefix
