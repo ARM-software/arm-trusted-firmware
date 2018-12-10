@@ -18,60 +18,6 @@
 
 extern void memcpy16(void *dest, const void *src, unsigned int length);
 
-/* SMMU IDs currently supported by the driver */
-enum {
-	TEGRA_SMMU0 = 0U,
-	TEGRA_SMMU1,
-	TEGRA_SMMU2
-};
-
-static uint32_t tegra_smmu_read_32(uint32_t smmu_id, uint32_t off)
-{
-	uint32_t ret = 0U;
-
-#if defined(TEGRA_SMMU0_BASE)
-	if (smmu_id == TEGRA_SMMU0) {
-		ret = mmio_read_32(TEGRA_SMMU0_BASE + (uint64_t)off);
-	}
-#endif
-
-#if defined(TEGRA_SMMU1_BASE)
-	if (smmu_id == TEGRA_SMMU1) {
-		ret = mmio_read_32(TEGRA_SMMU1_BASE + (uint64_t)off);
-	}
-#endif
-
-#if defined(TEGRA_SMMU2_BASE)
-	if (smmu_id == TEGRA_SMMU2) {
-		ret = mmio_read_32(TEGRA_SMMU2_BASE + (uint64_t)off);
-	}
-#endif
-
-	return ret;
-}
-
-static void tegra_smmu_write_32(uint32_t smmu_id,
-			uint32_t off, uint32_t val)
-{
-#if defined(TEGRA_SMMU0_BASE)
-	if (smmu_id == TEGRA_SMMU0) {
-		mmio_write_32(TEGRA_SMMU0_BASE + (uint64_t)off, val);
-	}
-#endif
-
-#if defined(TEGRA_SMMU1_BASE)
-	if (smmu_id == TEGRA_SMMU1) {
-		mmio_write_32(TEGRA_SMMU1_BASE + (uint64_t)off, val);
-	}
-#endif
-
-#if defined(TEGRA_SMMU2_BASE)
-	if (smmu_id == TEGRA_SMMU2) {
-		mmio_write_32(TEGRA_SMMU2_BASE + (uint64_t)off, val);
-	}
-#endif
-}
-
 #define SMMU_NUM_CONTEXTS		64U
 #define SMMU_CONTEXT_BANK_MAX_IDX	64U
 
