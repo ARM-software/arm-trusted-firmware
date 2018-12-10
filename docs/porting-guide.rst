@@ -2550,9 +2550,6 @@ as Group 0 secure interrupt, Group 1 secure interrupt or Group 1 NS interrupt.
 Crash Reporting mechanism (in BL31)
 -----------------------------------
 
-NOTE: This section assumes that your platform is enabling the MULTI_CONSOLE_API
-flag in its platform.mk. Not using this flag is deprecated for new platforms.
-
 BL31 implements a crash reporting mechanism which prints the various registers
 of the CPU to enable quick crash analysis and debugging. This mechanism relies
 on the platform implementating ``plat_crash_console_init``,
@@ -2564,15 +2561,18 @@ makefiles in order to benefit from them. By default, they will cause the crash
 output to be routed over the normal console infrastructure and get printed on
 consoles configured to output in crash state. ``console_set_scope()`` can be
 used to control whether a console is used for crash output.
+NOTE: Platforms are responsible for making sure that they only mark consoles for
+use in the crash scope that are able to support this, i.e. that are written in
+assembly and conform with the register clobber rules for putc() (x0-x2, x16-x17)
+and flush() (x0-x3, x16-x17) crash callbacks.
 
 In some cases (such as debugging very early crashes that happen before the
 normal boot console can be set up), platforms may want to control crash output
-more explicitly. For these, the following functions can be overridden by
-platform code. They are executed outside of a C environment and without a stack.
-
-If this behaviour is not desirable, the platform may implement functions that
-redirect the prints to the console driver (``console_xxx_core_init``, etc). Most
-platforms (including Arm platforms) do this and they can be used as an example.
+more explicitly. These platforms may instead provide custom implementations for
+these. They are executed outside of a C environment and without a stack. Many
+console drivers provide functions named ``console_xxx_core_init/putc/flush``
+that are designed to be used by these functions. See Arm platforms (like juno)
+for an example of this.
 
 Function : plat\_crash\_console\_init [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2585,28 +2585,6 @@ Function : plat\_crash\_console\_init [mandatory]
 This API is used by the crash reporting mechanism to initialize the crash
 console. It must only use the general purpose registers x0 through x7 to do the
 initialization and returns 1 on success.
-
-When using the sample implementation, if you are trying to debug crashes before
-the console driver would normally get registered, you can use this to register a
-driver from assembly with hardcoded parameters. For example, you could register
-the 16550 driver like this:
-
-::
-
-    .section .data.crash_console      /* Reserve space for console structure */
-    crash_console:
-    .zero 6 * 8                       /* console_16550_t has 6 8-byte words */
-    func plat_crash_console_init
-        ldr     x0, =YOUR_16550_BASE_ADDR
-        ldr     x1, =YOUR_16550_SRCCLK_IN_HZ
-        ldr     x2, =YOUR_16550_TARGET_BAUD_RATE
-        adrp    x3, crash_console
-        add     x3, x3, :lo12:crash_console
-        b       console_16550_register  /* tail call, returns 1 on success */
-    endfunc plat_crash_console_init
-
-If you're trying to debug crashes in BL1, you can call the
-``console_xxx_core_init`` function exported by some console drivers from here.
 
 Function : plat\_crash\_console\_putc [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2621,12 +2599,6 @@ designated crash console. It must only use general purpose registers x1 and
 x2 to do its work. The parameter and the return value are in general purpose
 register x0.
 
-If you have registered a normal console driver in ``plat_crash_console_init``,
-you can keep the sample implementation here (which calls ``console_putc()``).
-
-If you're trying to debug crashes in BL1, you can call the
-``console_xxx_core_putc`` function exported by some console drivers from here.
-
 Function : plat\_crash\_console\_flush [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -2639,12 +2611,6 @@ This API is used by the crash reporting mechanism to force write of all buffered
 data on the designated crash console. It should only use general purpose
 registers x0 through x5 to do its work. The return value is 0 on successful
 completion; otherwise the return value is -1.
-
-If you have registered a normal console driver in ``plat_crash_console_init``,
-you can keep the sample implementation here (which calls ``console_flush()``).
-
-If you're trying to debug crashes in BL1, you can call the console_xx_core_flush
-function exported by some console drivers from here.
 
 External Abort handling and RAS Support
 ---------------------------------------

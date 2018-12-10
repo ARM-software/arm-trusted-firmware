@@ -55,7 +55,6 @@ PLAT_INCLUDES		:=	-I$(PLAT_FAMILY_BASE)/$(PLAT)		\
 				$(ATF_INCLUDES)
 
 PLAT_BL_COMMON_SOURCES	:=	$(PLAT_COMMON_BASE)/aarch64/a8k_common.c \
-				drivers/console/aarch64/console.S	 \
 				drivers/ti/uart/aarch64/16550_console.S
 
 BLE_PORTING_SOURCES	:=	$(PLAT_FAMILY_BASE)/$(PLAT)/board/dram_port.c \
