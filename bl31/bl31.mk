@@ -8,11 +8,16 @@
 # Include SPM Makefile
 ################################################################################
 ifeq (${ENABLE_SPM},1)
-ifeq (${EL3_EXCEPTION_HANDLING},0)
-  $(error EL3_EXCEPTION_HANDLING must be 1 for SPM support)
-endif
-$(info Including SPM makefile)
-include services/std_svc/spm/spm.mk
+  ifeq (${SPM_DEPRECATED},1)
+    ifeq (${EL3_EXCEPTION_HANDLING},0)
+      $(error EL3_EXCEPTION_HANDLING must be 1 for SPM support)
+    endif
+    $(info Including deprecated SPM makefile)
+    include services/std_svc/spm_deprecated/spm.mk
+  else
+    $(info Including SPM makefile)
+    include services/std_svc/spm/spm.mk
+  endif
 endif
 
 

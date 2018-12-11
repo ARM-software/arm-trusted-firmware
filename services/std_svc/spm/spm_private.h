@@ -29,9 +29,13 @@
 #define SP_C_RT_CTX_SIZE	0x60
 #define SP_C_RT_CTX_ENTRIES	(SP_C_RT_CTX_SIZE >> DWORD_SHIFT)
 
+/* Value returned by spm_sp_synchronous_entry() when a partition is preempted */
+#define SPM_SECURE_PARTITION_PREEMPTED	U(0x1234)
+
 #ifndef __ASSEMBLY__
 
 #include <spinlock.h>
+#include <sp_res_desc.h>
 #include <stdint.h>
 #include <xlat_tables_v2.h>
 
@@ -42,28 +46,68 @@ typedef enum sp_state {
 } sp_state_t;
 
 typedef struct sp_context {
+	/* 1 if the partition is present, 0 otherwise */
+	int is_present;
+
+	/* Location of the image in physical memory */
+	unsigned long long image_base;
+	size_t image_size;
+
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
+	struct sp_res_desc rd;
+
+	/* Translation tables context */
 	xlat_ctx_t *xlat_ctx_handle;
+	spinlock_t xlat_ctx_lock;
 
 	sp_state_t state;
 	spinlock_t state_lock;
+
+	unsigned int request_count;
+	spinlock_t request_count_lock;
+
+	/* Base and size of the shared SPM<->SP buffer */
+	uintptr_t spm_sp_buffer_base;
+	size_t spm_sp_buffer_size;
+	spinlock_t spm_sp_buffer_lock;
 } sp_context_t;
+
+/* Functions used to enter/exit a Secure Partition synchronously */
+uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx, int can_preempt);
+__dead2 void spm_sp_synchronous_exit(uint64_t rc);
 
 /* Assembly helpers */
 uint64_t spm_secure_partition_enter(uint64_t *c_rt_ctx);
 void __dead2 spm_secure_partition_exit(uint64_t c_rt_ctx, uint64_t ret);
 
+/* Secure Partition setup */
 void spm_sp_setup(sp_context_t *sp_ctx);
 
-xlat_ctx_t *spm_get_sp_xlat_context(void);
+/* Secure Partition state management helpers */
+void sp_state_set(sp_context_t *sp_ptr, sp_state_t state);
+void sp_state_wait_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to);
+int sp_state_try_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to);
 
-int32_t spm_memory_attributes_get_smc_handler(sp_context_t *sp_ctx,
-					      uintptr_t base_va);
-int spm_memory_attributes_set_smc_handler(sp_context_t *sp_ctx,
-					  u_register_t page_address,
-					  u_register_t pages_count,
-					  u_register_t smc_attributes);
+/* Functions to keep track of the number of active requests per SP */
+void spm_sp_request_increase(sp_context_t *sp_ctx);
+void spm_sp_request_decrease(sp_context_t *sp_ctx);
+int spm_sp_request_increase_if_zero(sp_context_t *sp_ctx);
+
+/* Functions related to the translation tables management */
+xlat_ctx_t *spm_sp_xlat_context_alloc(void);
+void sp_map_memory_regions(sp_context_t *sp_ctx);
+
+/* Functions to handle Secure Partition contexts */
+void spm_cpu_set_sp_ctx(unsigned int linear_id, sp_context_t *sp_ctx);
+sp_context_t *spm_cpu_get_sp_ctx(unsigned int linear_id);
+sp_context_t *spm_sp_get_by_uuid(const uint32_t (*svc_uuid)[4]);
+
+/* Functions to manipulate response and requests buffers */
+int spm_response_add(uint16_t client_id, uint16_t handle, uint32_t token,
+		     u_register_t x1, u_register_t x2, u_register_t x3);
+int spm_response_get(uint16_t client_id, uint16_t handle, uint32_t token,
+		     u_register_t *x1, u_register_t *x2, u_register_t *x3);
 
 #endif /* __ASSEMBLY__ */
 

@@ -13,7 +13,7 @@
 #  define PLAT_XLAT_TABLES_DYNAMIC     1
 # endif
 #else
-# if defined(IMAGE_BL31) && RESET_TO_BL31
+# if defined(IMAGE_BL31) && (RESET_TO_BL31 || (ENABLE_SPM && !SPM_DEPRECATED))
 #  define PLAT_XLAT_TABLES_DYNAMIC     1
 # endif
 #endif /* AARCH32 */
@@ -72,8 +72,8 @@
 #if defined(IMAGE_BL31)
 # if ENABLE_SPM
 #  define PLAT_ARM_MMAP_ENTRIES		9
-#  define MAX_XLAT_TABLES		7
-#  define PLAT_SP_IMAGE_MMAP_REGIONS	7
+#  define MAX_XLAT_TABLES		9
+#  define PLAT_SP_IMAGE_MMAP_REGIONS	30
 #  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	10
 # else
 #  define PLAT_ARM_MMAP_ENTRIES		8
@@ -123,7 +123,11 @@
  * calculated using the current BL31 PROGBITS debug size plus the sizes of
  * BL2 and BL1-RW
  */
+#if ENABLE_SPM && !SPM_DEPRECATED
+#define PLAT_ARM_MAX_BL31_SIZE		UL(0x60000)
+#else
 #define PLAT_ARM_MAX_BL31_SIZE		UL(0x3B000)
+#endif
 
 #ifdef AARCH32
 /*
@@ -153,7 +157,7 @@
 # define PLATFORM_STACK_SIZE		UL(0x400)
 #elif defined(IMAGE_BL31)
 # if ENABLE_SPM
-#  define PLATFORM_STACK_SIZE		UL(0x500)
+#  define PLATFORM_STACK_SIZE		UL(0x600)
 # elif PLAT_XLAT_TABLES_DYNAMIC
 #  define PLATFORM_STACK_SIZE		UL(0x800)
 # else

@@ -244,6 +244,16 @@ BL31_SOURCES		+=	lib/extensions/ras/std_err_record.c		\
 				lib/extensions/ras/ras_common.c
 endif
 
+# SPM uses libfdt in Arm platforms
+ifeq (${SPM_DEPRECATED},0)
+ifeq (${ENABLE_SPM},1)
+BL31_SOURCES		+=	common/fdt_wrappers.c			\
+				plat/common/plat_spm_rd.c		\
+				plat/common/plat_spm_sp.c		\
+				${LIBFDT_SRCS}
+endif
+endif
+
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # Include common TBB sources

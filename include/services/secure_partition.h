@@ -7,6 +7,8 @@
 #ifndef SECURE_PARTITION_H
 #define SECURE_PARTITION_H
 
+#if SPM_DEPRECATED
+
 #include <stdint.h>
 #include <utils_def.h>
 
@@ -45,5 +47,7 @@ typedef struct secure_partition_boot_info {
 	uint32_t		num_cpus;
 	secure_partition_mp_info_t	*mp_info;
 } secure_partition_boot_info_t;
+
+#endif /* SPM_DEPRECATED */
 
 #endif /* SECURE_PARTITION_H */

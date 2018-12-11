@@ -22,6 +22,7 @@ struct bl_load_info;
 struct bl_params;
 struct mmap_region;
 struct secure_partition_boot_info;
+struct sp_res_desc;
 
 /*******************************************************************************
  * plat_get_rotpk_info() flags
@@ -266,6 +267,9 @@ int plat_set_nv_ctr2(void *cookie, const struct auth_img_desc_s *img_desc,
 const struct mmap_region *plat_get_secure_partition_mmap(void *cookie);
 const struct secure_partition_boot_info *plat_get_secure_partition_boot_info(
 		void *cookie);
+int plat_spm_sp_rd_load(struct sp_res_desc *rd, const void *ptr, size_t size);
+int plat_spm_sp_get_next_address(void **sp_base, size_t *sp_size,
+				 void **rd_base, size_t *rd_size);
 
 /*******************************************************************************
  * Mandatory BL image load functions(may be overridden).
