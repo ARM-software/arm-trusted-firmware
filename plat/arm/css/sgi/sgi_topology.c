@@ -5,6 +5,7 @@
  */
 
 #include <plat_arm.h>
+#include <sgi_variant.h>
 
 /* Topology */
 /*
@@ -19,12 +20,39 @@ const unsigned char sgi_pd_tree_desc[] = {
 	CSS_SGI_MAX_CPUS_PER_CLUSTER
 };
 
+/* SGI-Clark.Helios platform consists of 16 physical CPUS and 32 threads */
+const unsigned char sgi_clark_helios_pd_tree_desc[] = {
+	PLAT_ARM_CLUSTER_COUNT,
+	CSS_SGI_MAX_CPUS_PER_CLUSTER,
+	CSS_SGI_MAX_CPUS_PER_CLUSTER,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_PE_PER_CPU
+};
+
 /*******************************************************************************
  * This function returns the topology tree information.
  ******************************************************************************/
 const unsigned char *plat_get_power_domain_tree_desc(void)
 {
-	return sgi_pd_tree_desc;
+	if (sgi_plat_info.platform_id == SGI_CLARK_SID_VER_PART_NUM &&
+	    sgi_plat_info.config_id == SGI_CLARK_HELIOS_CONFIG_ID)
+		return sgi_clark_helios_pd_tree_desc;
+	else
+		return sgi_pd_tree_desc;
 }
 
 /*******************************************************************************
