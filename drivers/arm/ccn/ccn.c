@@ -553,7 +553,14 @@ static unsigned int get_region_id_for_node(node_types_t node_type,
 		return REGION_ID_LIMIT;
 	}
 
-	region_id += node_pos_in_map;
+	/*
+	 * According to section 3.1.1 in CCN specification, region offset for
+	 * the RN-I components is calculated as (128 + NodeID of RN-I).
+	 */
+	if (node_type == NODE_TYPE_RNI)
+		region_id += node_id;
+	else
+		region_id += node_pos_in_map;
 
 	return region_id;
 }
