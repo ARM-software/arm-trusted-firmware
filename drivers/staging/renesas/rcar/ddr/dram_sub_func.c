@@ -19,10 +19,11 @@
 #define PRR_PRODUCT_V3H			(0x00005600U)	/* R-Car V3H */
 
 #if RCAR_SYSTEM_SUSPEND
-#include "iic_dvfs.h"
-
+/* Local defines */
 #define DRAM_BACKUP_GPIO_USE		(0)
+#include "iic_dvfs.h"
 #if PMIC_ROHM_BD9571
+#define	PMIC_SLAVE_ADDR			(0x30U)
 #define	PMIC_BKUP_MODE_CNT		(0x20U)
 #define	PMIC_QLLM_CNT			(0x27U)
 #define	BIT_BKUP_CTRL_OUT		((uint8_t)(1U << 4U))
@@ -52,40 +53,53 @@
 void rcar_dram_get_boot_status(uint32_t * status)
 {
 #if RCAR_SYSTEM_SUSPEND
-	uint32_t shift = GPIO_BKUP_TRG_SHIFT_SALVATOR;
-	uint32_t gpio = GPIO_INDT1;
-	uint32_t reg, product;
+
+	uint32_t reg_data;
+	uint32_t product;
+	uint32_t shift;
+	uint32_t gpio;
 
 	product = mmio_read_32(PRR) & PRR_PRODUCT_MASK;
-
 	if (product == PRR_PRODUCT_V3H) {
 		shift = GPIO_BKUP_TRG_SHIFT_CONDOR;
 		gpio = GPIO_INDT3;
 	} else if (product == PRR_PRODUCT_E3) {
 		shift = GPIO_BKUP_TRG_SHIFT_EBISU;
 		gpio = GPIO_INDT6;
+	} else {
+		shift = GPIO_BKUP_TRG_SHIFT_SALVATOR;
+		gpio = GPIO_INDT1;
 	}
 
-	reg = mmio_read_32(gpio) & (1U << shift);
-	*status = reg ? DRAM_BOOT_STATUS_WARM : DRAM_BOOT_STATUS_COLD;
-#else
+	reg_data = mmio_read_32(gpio);
+	if (0U != (reg_data & ((uint32_t)1U << shift))) {
+		*status = DRAM_BOOT_STATUS_WARM;
+	} else {
+		*status = DRAM_BOOT_STATUS_COLD;
+	}
+#else	/* RCAR_SYSTEM_SUSPEND */
 	*status = DRAM_BOOT_STATUS_COLD;
-#endif
+#endif	/* RCAR_SYSTEM_SUSPEND */
 }
 
 int32_t rcar_dram_update_boot_status(uint32_t status)
 {
 	int32_t ret = 0;
 #if RCAR_SYSTEM_SUSPEND
+	uint32_t reg_data;
 #if PMIC_ROHM_BD9571
 #if DRAM_BACKUP_GPIO_USE == 0
-	uint8_t mode = 0U;
+	uint8_t bkup_mode_cnt = 0U;
 #else
 	uint32_t reqb, outd;
 #endif
-	uint8_t qllm = 0;
+	uint8_t qllm_cnt = 0U;
+	int32_t i2c_dvfs_ret = -1;
 #endif
-	uint32_t i, product, trg, gpio;
+	uint32_t loop_count;
+	uint32_t product;
+	uint32_t trg;
+	uint32_t gpio;
 
 	product = mmio_read_32(PRR) & PRR_PRODUCT_MASK;
 	if (product == PRR_PRODUCT_V3H) {
@@ -111,50 +125,58 @@ int32_t rcar_dram_update_boot_status(uint32_t status)
 		gpio = GPIO_INDT1;
 	}
 
-	if (status != DRAM_BOOT_STATUS_WARM)
-		goto cold;
-
+	if (status == DRAM_BOOT_STATUS_WARM) {
 #if DRAM_BACKUP_GPIO_USE==1
 	mmio_setbits_32(outd, 1U << reqb);
 #else
-
 #if PMIC_ROHM_BD9571
-	if (rcar_iic_dvfs_receive(PMIC, PMIC_BKUP_MODE_CNT, &mode)) {
-		ERROR("BKUP mode cnt READ ERROR.\n");
-		return DRAM_UPDATE_STATUS_ERR;
+		/* Set BKUP_CRTL_OUT=High (BKUP mode cnt register) */
+		i2c_dvfs_ret = rcar_iic_dvfs_receive(PMIC_SLAVE_ADDR,
+				PMIC_BKUP_MODE_CNT, &bkup_mode_cnt);
+		if (0 != i2c_dvfs_ret) {
+			ERROR("BKUP mode cnt READ ERROR.\n");
+			ret = DRAM_UPDATE_STATUS_ERR;
+		} else {
+			bkup_mode_cnt &= (uint8_t)~BIT_BKUP_CTRL_OUT;
+			i2c_dvfs_ret = rcar_iic_dvfs_send(PMIC_SLAVE_ADDR,
+					PMIC_BKUP_MODE_CNT, bkup_mode_cnt);
+			if (0 != i2c_dvfs_ret) {
+				ERROR("BKUP mode cnt WRITE ERROR. "
+					"value = %d\n", bkup_mode_cnt);
+				ret = DRAM_UPDATE_STATUS_ERR;
+			}
+		}
+#endif /* PMIC_ROHM_BD9571 */
+#endif /* DRAM_BACKUP_GPIO_USE==1 */
+		/* Wait BKUP_TRG=Low */
+		loop_count = DRAM_BKUP_TRG_LOOP_CNT;
+		while (0U < loop_count) {
+			reg_data = mmio_read_32(gpio);
+			if ((reg_data &
+				((uint32_t)1U << trg)) == 0U) {
+				break;
+			}
+			loop_count--;
+		}
+		if (0U == loop_count) {
+			ERROR(	"\nWarm booting...\n" \
+				" The potential of BKUP_TRG did not switch " \
+				"to Low.\n If you expect the operation of " \
+				"cold boot,\n check the board configuration" \
+				" (ex, Dip-SW) and/or the H/W failure.\n");
+			ret = DRAM_UPDATE_STATUS_ERR;
+		}
 	}
-
-	mode &= ~BIT_BKUP_CTRL_OUT;
-	if (rcar_iic_dvfs_send(PMIC, PMIC_BKUP_MODE_CNT, mode)) {
-		ERROR("BKUP mode cnt WRITE ERROR. value = %d\n", mode);
-		return DRAM_UPDATE_STATUS_ERR;
-	}
-#endif
-#endif
-	for (i = 0; i < DRAM_BKUP_TRG_LOOP_CNT; i++) {
-		if (mmio_read_32(gpio) & (1U << trg))
-			continue;
-
-		goto cold;
-	}
-
-	ERROR("\nWarm booting Error...\n"
-	      " The potential of BKUP_TRG did not switch "
-	      "to Low.\n If you expect the operation of "
-	      "cold boot,\n check the board configuration"
-	      " (ex, Dip-SW) and/or the H/W failure.\n");
-
-	return DRAM_UPDATE_STATUS_ERR;
-
-cold:
 #if PMIC_ROHM_BD9571
-	if (ret)
-		return ret;
-
-	qllm = (BIT_QLLM_DDR0_EN | BIT_QLLM_DDR1_EN);
-	if (rcar_iic_dvfs_send(PMIC, PMIC_QLLM_CNT, qllm)) {
-		ERROR("QLLM cnt WRITE ERROR. value = %d\n", qllm);
-		ret = DRAM_UPDATE_STATUS_ERR;
+	if(0 == ret) {
+		qllm_cnt = (BIT_QLLM_DDR0_EN | BIT_QLLM_DDR1_EN);
+		i2c_dvfs_ret = rcar_iic_dvfs_send(PMIC_SLAVE_ADDR,
+				PMIC_QLLM_CNT, qllm_cnt);
+		if (0 != i2c_dvfs_ret) {
+			ERROR("QLLM cnt WRITE ERROR. "
+				"value = %d\n", qllm_cnt);
+			ret = DRAM_UPDATE_STATUS_ERR;
+		}
 	}
 #endif
 #endif

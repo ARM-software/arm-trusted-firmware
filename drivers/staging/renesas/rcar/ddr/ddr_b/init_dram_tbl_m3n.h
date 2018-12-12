@@ -267,7 +267,7 @@ static const uint32_t DDR_PHY_ADR_G_REGSET_M3N[DDR_PHY_ADR_G_REGSET_NUM_M3N] = {
 /*0bb9*/ 0x00000000,
 /*0bba*/ 0x00000000,
 /*0bbb*/ 0x00000000,
-/*0bbc*/ 0x00000065,
+/*0bbc*/ 0x00000265,
 /*0bbd*/ 0x00000000,
 /*0bbe*/ 0x00040401,
 /*0bbf*/ 0x00000000,
