@@ -132,6 +132,7 @@
 #define SCTLR_TRE_BIT		(U(1) << 28)
 #define SCTLR_AFE_BIT		(U(1) << 29)
 #define SCTLR_TE_BIT		(U(1) << 30)
+#define SCTLR_DSSBS_BIT		(U(1) << 31)
 #define SCTLR_RESET_VAL         (SCTLR_RES1 | SCTLR_NTWE_BIT |		\
 				SCTLR_NTWI_BIT | SCTLR_CP15BEN_BIT)
 

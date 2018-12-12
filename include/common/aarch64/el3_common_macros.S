@@ -194,10 +194,13 @@
 		 * SCTLR_EL3.SA: Set to zero to disable Stack Alignment check.
 		 *
 		 * SCTLR_EL3.A: Set to zero to disable Alignment fault checking.
+		 *
+		 * SCTLR.DSSBS: Set to zero to disable speculation store bypass
+		 *  safe behaviour upon exception entry to EL3.
 		 * -------------------------------------------------------------
 		 */
 		mov_imm	x0, (SCTLR_RESET_VAL & ~(SCTLR_EE_BIT | SCTLR_WXN_BIT \
-				| SCTLR_SA_BIT | SCTLR_A_BIT))
+				| SCTLR_SA_BIT | SCTLR_A_BIT | SCTLR_DSSBS_BIT))
 		msr	sctlr_el3, x0
 		isb
 	.endif /* _init_sctlr */
