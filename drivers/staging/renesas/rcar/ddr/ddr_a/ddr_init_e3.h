@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-#define RCAR_E3_DDR_VERSION    "rev.0.09"
+#define RCAR_E3_DDR_VERSION    "rev.0.11"
 
 #ifdef ddr_qos_init_setting
    #define REFRESH_RATE  3900               /*  Average periodic refresh interval[ns]. Support 3900,7800 */
