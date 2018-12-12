@@ -238,6 +238,7 @@ void rcar_qos_init(void)
 #endif
 }
 
+#if !(RCAR_LSI == RCAR_E3)
 uint32_t get_refperiod(void)
 {
 	uint32_t refperiod = QOSWT_WTSET0_CYCLE;
@@ -254,11 +255,9 @@ uint32_t get_refperiod(void)
 		case PRR_PRODUCT_11:
 			break;
 		case PRR_PRODUCT_20:
-			refperiod = QOSWT_WTSET0_CYCLE_H3_20;
-			break;
 		case PRR_PRODUCT_30:
 		default:
-			refperiod = QOSWT_WTSET0_CYCLE_H3_30;
+			refperiod = REFPERIOD_CYCLE;
 			break;
 		}
 		break;
@@ -267,7 +266,7 @@ uint32_t get_refperiod(void)
 		switch (reg & PRR_CUT_MASK) {
 		case PRR_PRODUCT_30:
 		default:
-			refperiod = QOSWT_WTSET0_CYCLE_H3N;
+			refperiod = REFPERIOD_CYCLE;
 			break;
 		}
 		break;
@@ -277,21 +276,16 @@ uint32_t get_refperiod(void)
 		switch (reg & PRR_CUT_MASK) {
 		case PRR_PRODUCT_10:
 			break;
-		case PRR_PRODUCT_20:	/* M3 Cut 11 */
+		case PRR_PRODUCT_20: /* M3 Cut 11 */
 		default:
-			refperiod = QOSWT_WTSET0_CYCLE_M3_11;
+			refperiod = REFPERIOD_CYCLE;
 			break;
 		}
 		break;
 #endif
 #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3N)
 	case PRR_PRODUCT_M3N:
-		refperiod = QOSWT_WTSET0_CYCLE_M3N;
-		break;
-#endif
-#if (RCAR_LSI == RCAR_E3)
-	case PRR_PRODUCT_E3:
-		refperiod = QOSWT_WTSET0_CYCLE_E3;
+		refperiod = REFPERIOD_CYCLE;
 		break;
 #endif
 	default:
@@ -302,28 +296,25 @@ uint32_t get_refperiod(void)
 	/* H3 Cut 10 */
 #elif RCAR_LSI_CUT == RCAR_CUT_11
 	/* H3 Cut 11 */
-#elif RCAR_LSI_CUT == RCAR_CUT_20
-	/* H3 Cut 20 */
-	refperiod = QOSWT_WTSET0_CYCLE_H3_20;
 #else
+	/* H3 Cut 20 */
 	/* H3 Cut 30 or later */
-	refperiod = QOSWT_WTSET0_CYCLE_H3_30;
+	refperiod = REFPERIOD_CYCLE;
 #endif
 #elif RCAR_LSI == RCAR_H3N
 	/* H3N Cut 30 or later */
-	refperiod = QOSWT_WTSET0_CYCLE_H3N;
+	refperiod = REFPERIOD_CYCLE;
 #elif RCAR_LSI == RCAR_M3
 #if RCAR_LSI_CUT == RCAR_CUT_10
 	/* M3 Cut 10 */
 #else
 	/* M3 Cut 11 or later */
-	refperiod = QOSWT_WTSET0_CYCLE_M3_11;
+	refperiod = REFPERIOD_CYCLE;
 #endif
 #elif RCAR_LSI == RCAR_M3N	/* for M3N */
-	refperiod = QOSWT_WTSET0_CYCLE_M3N;
-#elif RCAR_LSI == RCAR_E3	/* for E3 */
-	refperiod = QOSWT_WTSET0_CYCLE_E3;
+	refperiod = REFPERIOD_CYCLE;
 #endif
 
 	return refperiod;
 }
+#endif

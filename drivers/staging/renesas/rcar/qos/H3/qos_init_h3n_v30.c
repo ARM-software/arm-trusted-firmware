@@ -12,7 +12,8 @@
 #include "../qos_reg.h"
 #include "qos_init_h3n_v30.h"
 
-#define	RCAR_QOS_VERSION		"rev.0.03"
+
+#define	RCAR_QOS_VERSION		"rev.0.06"
 
 #define QOSCTRL_FSS			(QOS_BASE1 + 0x0048U)
 
@@ -219,14 +220,6 @@ void qos_init_h3n_v30(void)
 	io_write_32(AXI_MMCR, 0x00010008U);
 	io_write_32(AXI_TR3CR, 0x00010000U);
 	io_write_32(AXI_TR4CR, 0x00010000U);
-
-	/* 3DG bus Leaf setting */
-	io_write_32(GPU_ACT_GRD, 0x00001234U);
-	io_write_32(GPU_ACT0, 0x00000000U);
-	io_write_32(GPU_ACT1, 0x00000000U);
-	io_write_32(GPU_ACT2, 0x00000000U);
-	io_write_32(GPU_ACT3, 0x00000000U);
-	io_write_32(GPU_ACT_GRD, 0x00000000U);
 
 	/* RT bus Leaf setting */
 	io_write_32(RT_ACT0, 0x00000000U);
