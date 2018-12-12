@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "../bl2_private.h"
 
 /*******************************************************************************
  * Place holder function to perform any Secure SVC specific architectural

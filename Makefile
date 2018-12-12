@@ -188,8 +188,50 @@ TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
 ASFLAGS_aarch32		=	$(march32-directive)
 ASFLAGS_aarch64		=	-march=armv8-a
 
+WARNING1 := -Wextra
+WARNING1 += -Wunused -Wno-unused-parameter
+WARNING1 += -Wmissing-declarations
+WARNING1 += -Wmissing-format-attribute
+WARNING1 += -Wmissing-prototypes
+WARNING1 += -Wold-style-definition
+WARNING1 += -Wunused-but-set-variable
+WARNING1 += -Wunused-const-variable
+
+WARNING2 := -Waggregate-return
+WARNING2 += -Wcast-align
+WARNING2 += -Wdisabled-optimization
+WARNING2 += -Wnested-externs
+WARNING2 += -Wshadow
+WARNING2 += -Wlogical-op
+WARNING2 += -Wmissing-field-initializers
+WARNING2 += -Wsign-compare
+WARNING2 += -Wmaybe-uninitialized
+
+WARNING3 := -Wbad-function-cast
+WARNING3 += -Wcast-qual
+WARNING3 += -Wconversion
+WARNING3 += -Wpacked
+WARNING3 += -Wpadded
+WARNING3 += -Wpointer-arith
+WARNING3 += -Wredundant-decls
+WARNING3 += -Wswitch-default
+WARNING3 += -Wpacked-bitfield-compat
+WARNING3 += -Wvla
+
+ifeq (${W},1)
+WARNINGS := $(WARNING1)
+else ifeq (${W},2)
+WARNINGS := $(WARNING1) $(WARNING2)
+else ifeq (${W},3)
+WARNINGS := $(WARNING1) $(WARNING2) $(WARNING3)
+endif
+
+ifneq (${E},0)
+ERRORS := -Werror
+endif
+
 CPPFLAGS		=	${DEFINES} ${INCLUDES} ${MBEDTLS_INC} -nostdinc		\
-				-Wmissing-include-dirs -Werror
+				-Wmissing-include-dirs $(ERRORS) $(WARNINGS)
 ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
 				-D__ASSEMBLY__ -ffreestanding 			\
 				-Wa,--fatal-warnings

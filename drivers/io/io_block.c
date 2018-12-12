@@ -67,8 +67,10 @@ io_type_t device_type_block(void)
 static int find_first_block_state(const io_block_dev_spec_t *dev_spec,
 				  unsigned int *index_out)
 {
+	unsigned int index;
 	int result = -ENOENT;
-	for (int index = 0; index < MAX_IO_BLOCK_DEVICES; ++index) {
+
+	for (index = 0U; index < MAX_IO_BLOCK_DEVICES; ++index) {
 		/* dev_spec is used as identifier since it's unique */
 		if (state_pool[index].dev_spec == dev_spec) {
 			result = 0;
