@@ -59,7 +59,11 @@
  ******************************************************************************/
 /* VE compatible GIC memory map */
 #define VE_GICD_BASE			0x2c001000
+#ifdef ARM_CORTEX_A5
+#define VE_GICC_BASE			0x2c000100
+#else
 #define VE_GICC_BASE			0x2c002000
+#endif
 #define VE_GICH_BASE			0x2c004000
 #define VE_GICV_BASE			0x2c006000
 

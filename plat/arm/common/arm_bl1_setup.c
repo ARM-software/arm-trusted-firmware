@@ -158,7 +158,9 @@ void arm_bl1_platform_setup(void)
 #ifdef ARM_SYS_TIMCTL_BASE
 	arm_configure_sys_timer();
 #endif
+#if (ARM_ARCH_MAJOR > 7) || defined(ARMV7_SUPPORTS_GENERIC_TIMER)
 	write_cntfrq_el0(plat_get_syscnt_freq2());
+#endif
 }
 
 void bl1_platform_setup(void)
