@@ -154,7 +154,7 @@ target32-directive	= 	-target armv8a-none-eabi
 march32-directive	= 	-march=armv8-a
 endif
 
-ifeq ($(notdir $(CC)),armclang)
+ifneq ($(findstring armclang,$(notdir $(CC))),)
 TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi $(march32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi -march=armv8-a
 LD			=	$(LINKER)
