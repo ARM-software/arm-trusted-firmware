@@ -72,7 +72,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 #ifdef RCAR_BL33_ARG0
 		.ep_info.args.arg0 = RCAR_BL33_ARG0,
 #endif
-		.ep_info.args.arg3 = (uintptr_t)fdt_blob,
+		.ep_info.args.arg1 = (uintptr_t)fdt_blob,
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP, VERSION_2,
 			image_info_t, 0),
 		.image_info.image_max_size =
