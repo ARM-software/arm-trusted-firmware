@@ -83,10 +83,6 @@ BL2_SOURCES		+=	common/desc_image_load.c				\
 				plat/st/stm32mp1/plat_bl2_mem_params_desc.c		\
 				plat/st/stm32mp1/plat_image_load.c
 
-# For memory footprint optimization, build with thumb and interwork support
-ASFLAGS			+=	-mthumb -mthumb-interwork
-TF_CFLAGS		+=	-mthumb -mthumb-interwork
-
 # Macros and rules to build TF binary
 STM32_TF_ELF_LDFLAGS	:=	--hash-style=gnu --as-needed
 STM32_DT_BASENAME	:=	$(STM32_DTB_FILE_NAME:.dtb=)
