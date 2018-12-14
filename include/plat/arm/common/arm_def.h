@@ -207,13 +207,11 @@
 						ARM_DRAM2_BASE,		\
 						ARM_DRAM2_SIZE,		\
 						MT_MEMORY | MT_RW | MT_NS)
-#ifdef SPD_tspd
 
 #define ARM_MAP_TSP_SEC_MEM		MAP_REGION_FLAT(		\
 						TSP_SEC_MEM_BASE,	\
 						TSP_SEC_MEM_SIZE,	\
 						MT_MEMORY | MT_RW | MT_SECURE)
-#endif
 
 #if ARM_BL31_IN_DRAM
 #define ARM_MAP_BL31_SEC_DRAM		MAP_REGION_FLAT(		\
