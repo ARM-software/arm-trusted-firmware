@@ -8,7 +8,7 @@
 #ifndef MC_TRUSTZONE_H
 #define MC_TRUSTZONE_H
 
-#include <addr_map.h>
+#include <drivers/marvell/addr_map.h>
 
 #define MVEBU_TZ_MAX_WINS	16
 

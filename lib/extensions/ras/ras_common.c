@@ -4,14 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
-#include <debug.h>
-#include <ea_handle.h>
-#include <ehf.h>
-#include <platform.h>
-#include <ras.h>
-#include <ras_arch.h>
 #include <stdbool.h>
+
+#include <arch_helpers.h>
+#include <bl31/ea_handle.h>
+#include <bl31/ehf.h>
+#include <common/debug.h>
+#include <lib/extensions/ras.h>
+#include <lib/extensions/ras_arch.h>
+#include <plat/common/platform.h>
 
 #ifndef PLAT_RAS_PRI
 # error Platform must define RAS priority value

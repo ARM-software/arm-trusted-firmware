@@ -9,7 +9,7 @@
 #include <assert_macros.S>
 #define USE_FINISH_CONSOLE_REG_2
 #include <console_macros.S>
-#include <uart_16550.h>
+#include <drivers/ti/uart/uart_16550.h>
 
 	/*
 	 * "core" functions are low-level implementations that don't require

@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <mmio.h>
-#include <sp805.h>
 #include <stdint.h>
+
+#include <drivers/arm/sp805.h>
+#include <lib/mmio.h>
 
 /* Inline register access functions */
 

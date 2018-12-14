@@ -4,17 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <context_mgmt.h>
-#include <debug.h>
 #include <errno.h>
 #include <limits.h>
-#include <platform.h>
-#include <smccc.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/smccc.h>
+#include <lib/utils.h>
+#include <plat/common/platform.h>
+#include <services/sprt_svc.h>
 #include <smccc_helpers.h>
-#include <sprt_svc.h>
-#include <utils.h>
 
 #include "spm_private.h"
 

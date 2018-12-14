@@ -6,7 +6,7 @@
 #ifndef CCI_MACROS_S
 #define CCI_MACROS_S
 
-#include <cci.h>
+#include <drivers/arm/cci.h>
 #include <platform_def.h>
 
 .section .rodata.cci_reg_name, "aS"

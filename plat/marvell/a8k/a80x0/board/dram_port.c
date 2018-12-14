@@ -6,9 +6,10 @@
  */
 
 #include <arch_helpers.h>
-#include <debug.h>
-#include <mentor/mi2cv.h>
-#include <mmio.h>
+#include <common/debug.h>
+#include <drivers/mentor/mi2cv.h>
+#include <lib/mmio.h>
+
 #include <mv_ddr_if.h>
 #include <mvebu_def.h>
 #include <plat_marvell.h>

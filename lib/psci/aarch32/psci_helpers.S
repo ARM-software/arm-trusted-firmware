@@ -5,8 +5,8 @@
  */
 
 #include <asm_macros.S>
+#include <lib/psci/psci.h>
 #include <platform_def.h>
-#include <psci.h>
 
 	.globl	psci_do_pwrdown_cache_maintenance
 	.globl	psci_do_pwrup_cache_maintenance

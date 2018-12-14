@@ -50,8 +50,6 @@ ATF_INCLUDES		:=	-Iinclude/common/tbbr
 PLAT_INCLUDES		:=	-I$(PLAT_FAMILY_BASE)/$(PLAT)		\
 				-I$(PLAT_COMMON_BASE)/include		\
 				-I$(PLAT_INCLUDE_BASE)/common		\
-				-Iinclude/drivers/marvell		\
-				-Iinclude/drivers/marvell/mochi		\
 				$(ATF_INCLUDES)
 
 PLAT_BL_COMMON_SOURCES	:=	$(PLAT_COMMON_BASE)/aarch64/a8k_common.c \

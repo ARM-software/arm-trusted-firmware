@@ -7,7 +7,7 @@
 #ifndef BOARD_DEF_H
 #define BOARD_DEF_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /* The ports must be in order and contiguous */
 #define K3_CLUSTER0_CORE_COUNT		2

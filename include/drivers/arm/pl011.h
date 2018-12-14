@@ -7,7 +7,7 @@
 #ifndef PL011_H
 #define PL011_H
 
-#include <console.h>
+#include <drivers/console.h>
 
 /* PL011 Registers */
 #define UARTDR                    0x000

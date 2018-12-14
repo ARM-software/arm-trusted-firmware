@@ -6,7 +6,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <bl_common.h>
+#include <common/bl_common.h>
 #include <context.h>
 #include <el3_common_macros.S>
 #include <smccc_helpers.h>

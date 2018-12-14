@@ -7,19 +7,20 @@
 #ifndef SDEI_PRIVATE_H
 #define SDEI_PRIVATE_H
 
-#include <arch_helpers.h>
-#include <context.h>
-#include <context_mgmt.h>
-#include <debug.h>
 #include <errno.h>
-#include <interrupt_mgmt.h>
-#include <platform.h>
-#include <sdei.h>
-#include <setjmp.h>
-#include <spinlock.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <utils_def.h>
+
+#include <arch_helpers.h>
+#include <bl31/interrupt_mgmt.h>
+#include <common/debug.h>
+#include <context.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/spinlock.h>
+#include <lib/utils_def.h>
+#include <plat/common/platform.h>
+#include <services/sdei.h>
+#include <setjmp.h>
 
 #ifdef AARCH32
 # error SDEI is implemented only for AArch64 systems

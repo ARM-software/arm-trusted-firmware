@@ -4,16 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <debug.h>
+#include <string.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <lib/mmio.h>
+#include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+
 #include <memctrl.h>
 #include <memctrl_v1.h>
-#include <mmio.h>
-#include <string.h>
 #include <tegra_def.h>
-#include <utils.h>
-#include <xlat_tables_v2.h>
 
 /* Video Memory base and size (live values) */
 static uint64_t video_mem_base;

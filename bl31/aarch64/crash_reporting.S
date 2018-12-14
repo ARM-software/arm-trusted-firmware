@@ -3,13 +3,15 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
+#include <plat_macros.S>
+#include <platform_def.h>
+
 #include <arch.h>
 #include <asm_macros.S>
 #include <context.h>
-#include <cpu_data.h>
-#include <plat_macros.S>
-#include <platform_def.h>
-#include <utils_def.h>
+#include <lib/el3_runtime/cpu_data.h>
+#include <lib/utils_def.h>
 
 	.globl	report_unhandled_exception
 	.globl	report_unhandled_interrupt

@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
 #include <platform_def.h>
-#include <tzc_dmc620.h>
+
+#include <common/debug.h>
+#include <drivers/arm/tzc_dmc620.h>
 
 uintptr_t sgiclarkh_dmc_base[] = {
 	SGICLARKH_DMC620_BASE0,

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <mmio.h>
-#include <utils_def.h>
+#include <lib/mmio.h>
+#include <lib/utils_def.h>
 
 #include "uniphier.h"
 

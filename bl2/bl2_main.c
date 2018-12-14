@@ -5,13 +5,14 @@
  */
 
 #include <arch_helpers.h>
-#include <auth_mod.h>
-#include <bl1.h>
-#include <bl2.h>
-#include <bl_common.h>
-#include <console.h>
-#include <debug.h>
-#include <platform.h>
+#include <bl1/bl1.h>
+#include <bl2/bl2.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/auth/auth_mod.h>
+#include <drivers/console.h>
+#include <plat/common/platform.h>
+
 #include "bl2_private.h"
 
 #ifdef AARCH32

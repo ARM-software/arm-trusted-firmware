@@ -4,18 +4,20 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <cpu_data.h>
-#include <debug.h>
-#include <k3_gicv3.h>
-#include <psci.h>
-/* Need to flush psci internal locks before shutdown or their values are lost */
-#include <../../lib/psci/psci_private.h>
-#include <platform.h>
 #include <stdbool.h>
 
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <lib/el3_runtime/cpu_data.h>
+#include <lib/psci/psci.h>
+#include <plat/common/platform.h>
+
+#include <k3_gicv3.h>
 #include <ti_sci.h>
+
+/* Need to flush psci internal locks before shutdown or their values are lost */
+#include "../../../../lib/psci/psci_private.h"
 
 #define STUB() ERROR("stub %s called\n", __func__)
 

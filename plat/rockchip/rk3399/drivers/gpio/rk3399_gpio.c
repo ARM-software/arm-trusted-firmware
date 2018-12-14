@@ -3,15 +3,19 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #include <assert.h>
-#include <debug.h>
-#include <delay_timer.h>
 #include <errno.h>
-#include <gpio.h>
-#include <mmio.h>
-#include <plat_private.h>
-#include <platform.h>
+
 #include <platform_def.h>
+
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/gpio.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
+#include <plat_private.h>
 #include <soc.h>
 
 uint32_t gpio_port[] = {

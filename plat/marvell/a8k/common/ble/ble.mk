@@ -13,12 +13,12 @@ PLAT_MARVELL		=	plat/marvell
 BLE_SOURCES		+= 	$(BLE_PATH)/ble_main.c				\
 				$(BLE_PATH)/ble_mem.S				\
 				drivers/delay_timer/delay_timer.c		\
+				$(PLAT_MARVELL)/common/aarch64/marvell_helpers.S \
 				$(PLAT_MARVELL)/common/plat_delay_timer.c	\
 				$(PLAT_MARVELL)/common/marvell_console.c
 
 PLAT_INCLUDES		+= 	-I$(MV_DDR_PATH) \
 				-I$(CURDIR)/include/ \
-				-I$(CURDIR)/include/drivers \
 				-I$(CURDIR)/include/lib \
 				-I$(CURDIR)/include/lib/libc \
 				-I$(CURDIR)/include/lib/libc/aarch64 \

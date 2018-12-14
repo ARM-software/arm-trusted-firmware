@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <debug.h>
-#include <gicv3.h>
-#include <interrupt_props.h>
-#include <spinlock.h>
+#include <common/debug.h>
+#include <common/interrupt_props.h>
+#include <drivers/arm/gicv3.h>
+#include <lib/spinlock.h>
+
 #include "gicv3_private.h"
 
 const gicv3_driver_data_t *gicv3_driver_data;

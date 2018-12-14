@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
 #include <platform_def.h>
-#include <psci.h>
+
+#include <arch.h>
+#include <lib/psci/psci.h>
 
 unsigned int plat_get_aff_count(unsigned int aff_lvl, unsigned long mpidr)
 {

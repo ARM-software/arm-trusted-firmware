@@ -5,11 +5,12 @@
  */
 
 #include <assert.h>
-#include <debug.h>
 #include <errno.h>
-#include <gpt.h>
 #include <string.h>
-#include <utils.h>
+
+#include <common/debug.h>
+#include <drivers/partition/gpt.h>
+#include <lib/utils.h>
 
 static int unicode_to_ascii(unsigned short *str_in, unsigned char *str_out)
 {

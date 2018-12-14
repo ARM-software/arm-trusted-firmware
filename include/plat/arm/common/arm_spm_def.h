@@ -6,9 +6,10 @@
 #ifndef ARM_SPM_DEF_H
 #define ARM_SPM_DEF_H
 
+#include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
+
 #include <arm_def.h>
-#include <utils_def.h>
-#include <xlat_tables_defs.h>
 
 /*
  * Reserve 4 MiB for binaries of Secure Partitions and Resource Description

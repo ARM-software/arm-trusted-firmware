@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arm_def.h>
-#include <gicv3.h>
-#include <interrupt_props.h>
-#include <plat_arm.h>
-#include <platform.h>
 #include <platform_def.h>
-#include <utils.h>
+
+#include <common/interrupt_props.h>
+#include <drivers/arm/gicv3.h>
+#include <lib/utils.h>
+#include <plat/common/platform.h>
+
+#include <arm_def.h>
+#include <plat_arm.h>
 
 /******************************************************************************
  * The following functions are defined as weak to allow a platform to override

@@ -5,7 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#include <bl_common.h>
+#include <common/bl_common.h>
+
 #include <io_addr_dec.h>
 #include <mvebu_def.h>
 

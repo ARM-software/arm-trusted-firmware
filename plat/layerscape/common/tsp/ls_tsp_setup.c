@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
-#include <gicv2.h>
-#include <interrupt_props.h>
+#include <common/debug.h>
+#include <common/interrupt_props.h>
+#include <drivers/arm/gicv2.h>
 
 #include "ls_16550.h"
 #include "plat_ls.h"

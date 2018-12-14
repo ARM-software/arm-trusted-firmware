@@ -4,11 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <dt-bindings/clock/stm32mp1-clks.h>
 #include <errno.h>
-#include <mmio.h>
+
 #include <platform_def.h>
-#include <stm32mp1_clk.h>
+
+#include <drivers/st/stm32mp1_clk.h>
+#include <dt-bindings/clock/stm32mp1-clks.h>
+#include <lib/mmio.h>
+
 #include <stm32mp1_context.h>
 
 #define TAMP_BOOT_ITF_BACKUP_REG_ID	U(20)

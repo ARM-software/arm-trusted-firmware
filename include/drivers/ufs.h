@@ -7,7 +7,7 @@
 #ifndef UFS_H
 #define UFS_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /* register map of UFSHCI */
 /* Controller Capabilities */

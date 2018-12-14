@@ -271,11 +271,16 @@ endif
 
 INCLUDES		+=	-Iinclude				\
 				-Iinclude/arch/${ARCH}			\
-				-Iinclude/bl1				\
+				-Iinclude/lib/cpus/${ARCH}		\
+				-Iinclude/lib/el3_runtime/${ARCH}	\
+				${PLAT_INCLUDES}			\
+				${SPD_INCLUDES}
+
+ifeq (${ERROR_DEPRECATED},0)
+INCLUDES		+=	-Iinclude/bl1				\
 				-Iinclude/bl2				\
 				-Iinclude/bl2u				\
 				-Iinclude/bl31				\
-				-Iinclude/common			\
 				-Iinclude/drivers			\
 				-Iinclude/drivers/arm			\
 				-Iinclude/drivers/auth			\
@@ -283,18 +288,15 @@ INCLUDES		+=	-Iinclude				\
 				-Iinclude/drivers/ti/uart		\
 				-Iinclude/lib				\
 				-Iinclude/lib/cpus			\
-				-Iinclude/lib/cpus/${ARCH}		\
 				-Iinclude/lib/el3_runtime		\
-				-Iinclude/lib/el3_runtime/${ARCH}	\
 				-Iinclude/lib/extensions		\
 				-Iinclude/lib/pmf			\
 				-Iinclude/lib/psci			\
 				-Iinclude/lib/xlat_tables		\
 				-Iinclude/plat/common			\
 				-Iinclude/services			\
-				${PLAT_INCLUDES}			\
-				${SPD_INCLUDES}				\
 				-Iinclude/tools_share
+endif
 
 include common/backtrace/backtrace.mk
 

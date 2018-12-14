@@ -4,16 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <ddr_rk3368.h>
-#include <debug.h>
-#include <delay_timer.h>
 #include <errno.h>
-#include <mmio.h>
-#include <plat_private.h>
-#include <platform.h>
+
 #include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
+#include <ddr_rk3368.h>
+#include <plat_private.h>
 #include <pmu.h>
 #include <pmu_com.h>
 #include <rk3368_def.h>

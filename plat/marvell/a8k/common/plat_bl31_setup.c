@@ -5,17 +5,17 @@
  * https://spdx.org/licenses
  */
 
+#include <common/debug.h>
+#include <drivers/marvell/mci.h>
+#include <drivers/marvell/mochi/ap_setup.h>
+#include <drivers/marvell/mochi/cp110_setup.h>
+#include <lib/mmio.h>
+
 #include <armada_common.h>
-#include <ap_setup.h>
-#include <cp110_setup.h>
-#include <debug.h>
 #include <marvell_plat_priv.h>
 #include <marvell_pm.h>
 #include <mc_trustzone/mc_trustzone.h>
-#include <mmio.h>
-#include <mci.h>
 #include <plat_marvell.h>
-
 #include <mss_ipc_drv.h>
 #include <mss_mem.h>
 

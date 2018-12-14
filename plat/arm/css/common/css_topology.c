@@ -4,9 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <plat_arm.h>
-#include <platform.h>
 #include <assert.h>
+
+#include <plat/common/platform.h>
+
+#include <plat_arm.h>
 
 #if ARM_PLAT_MT
 #pragma weak plat_arm_get_cpu_pe_count

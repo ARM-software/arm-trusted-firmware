@@ -5,7 +5,7 @@
  */
 
 #include <asm_macros.S>
-#include <cpu_data.h>
+#include <lib/el3_runtime/cpu_data.h>
 
 	.globl	_cpu_data
 	.globl	_cpu_data_by_index

@@ -18,12 +18,14 @@
 # endif
 #endif /* AARCH32 */
 
+#include <drivers/arm/tzc400.h>
+#include <lib/utils_def.h>
+#include <plat/common/common_def.h>
+
 #include <arm_def.h>
 #include <arm_spm_def.h>
-#include <common_def.h>
-#include <tzc400.h>
-#include <utils_def.h>
 #include <v2m_def.h>
+
 #include "../fvp_def.h"
 
 /* Required platform porting definitions */

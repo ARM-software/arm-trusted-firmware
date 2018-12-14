@@ -8,7 +8,7 @@
 #ifndef MSS_IPC_DRV_H
 #define MSS_IPC_DRV_H
 
-#include <psci.h>
+#include <lib/psci/psci.h>
 
 #define MV_PM_FW_IPC_VERSION_MAGIC	(0xCA530000) /* Do NOT change */
 /* Increament for each version */

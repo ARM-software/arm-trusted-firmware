@@ -5,13 +5,13 @@
  */
 
 #include <assert.h>
-#include <io_driver.h>
-#include <io_semihosting.h>
-#include <io_storage.h>
+
 #include <platform_def.h>
-#include <semihosting.h>
 
-
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_semihosting.h>
+#include <drivers/io/io_storage.h>
+#include <lib/semihosting.h>
 
 /* Identify the device type as semihosting */
 static io_type_t device_type_sh(void)

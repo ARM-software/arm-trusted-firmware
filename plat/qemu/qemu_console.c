@@ -3,9 +3,11 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <console.h>
-#include <pl011.h>
+
 #include <platform_def.h>
+
+#include <drivers/console.h>
+#include <drivers/arm/pl011.h>
 
 #if MULTI_CONSOLE_API
 static console_pl011_t console;

@@ -5,17 +5,19 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>		/* For ARRAY_SIZE */
-#include <debug.h>
-#include <firmware_image_package.h>
-#include <io_driver.h>
-#include <io_fip.h>
-#include <io_memmap.h>
-#include <io_semihosting.h>
-#include <io_storage.h>
-#include <platform_def.h>
-#include <semihosting.h>
 #include <string.h>
+
+#include <platform_def.h>
+
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_fip.h>
+#include <drivers/io/io_memmap.h>
+#include <drivers/io/io_semihosting.h>
+#include <drivers/io/io_storage.h>
+#include <lib/semihosting.h>
+#include <tools_share/firmware_image_package.h>
 
 /* Semihosting filenames */
 #define BL2_IMAGE_NAME			"bl2.bin"

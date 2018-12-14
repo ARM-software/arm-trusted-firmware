@@ -5,7 +5,7 @@
  */
 
 #include <asm_macros.S>
-#include <console.h>
+#include <drivers/console.h>
 #include <platform_def.h>
 
 	.weak	plat_my_core_pos

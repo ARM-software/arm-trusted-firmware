@@ -4,14 +4,16 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+#include <string.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <bakery_lock.h>
-#include <debug.h>
-#include <mmio.h>
-#include <string.h>
-#include <xlat_tables_v2.h>
+#include <common/debug.h>
+#include <lib/bakery_lock.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+
 #include "iic_dvfs.h"
 #include "rcar_def.h"
 #include "rcar_private.h"

@@ -5,13 +5,13 @@
  */
 
 #include <assert.h>
-#include <bl31.h>
-#include <bl_common.h>
-#include <context.h>
-#include <context_mgmt.h>
-#include <cpu_data.h>
-#include <platform.h>
 
+#include <bl31/bl31.h>
+#include <common/bl_common.h>
+#include <context.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/el3_runtime/cpu_data.h>
+#include <plat/common/platform.h>
 
 /*******************************************************************************
  * This function returns a pointer to the most recent 'cpu_context' structure

@@ -7,7 +7,7 @@
 #ifndef CDNS_UART_H
 #define CDNS_UART_H
 
-#include <console.h>
+#include <drivers/console.h>
 
 /* This is very minimalistic and will only work in QEMU.  */
 

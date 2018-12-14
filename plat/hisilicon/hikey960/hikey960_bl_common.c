@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
-#include <delay_timer.h>
-#include <hi3660.h>
-#include <mmio.h>
-#include <pl061_gpio.h>
+#include <common/debug.h>
+#include <drivers/arm/pl061_gpio.h>
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
 
+#include <hi3660.h>
 #include "hikey960_private.h"
 
 void hikey960_clk_init(void)

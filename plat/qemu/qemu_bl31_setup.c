@@ -5,11 +5,14 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>
-#include <gic_common.h>
-#include <gicv2.h>
+
 #include <platform_def.h>
-#include <platform.h>
+
+#include <common/bl_common.h>
+#include <drivers/arm/gic_common.h>
+#include <drivers/arm/gicv2.h>
+#include <plat/common/platform.h>
+
 #include "qemu_private.h"
 
 /*

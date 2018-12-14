@@ -5,7 +5,8 @@
  */
 
 #include <platform_def.h>
-#include <xlat_tables_defs.h>
+
+#include <lib/xlat_tables/xlat_tables_defs.h>
 
 OUTPUT_FORMAT(PLATFORM_LINKER_FORMAT)
 OUTPUT_ARCH(PLATFORM_LINKER_ARCH)

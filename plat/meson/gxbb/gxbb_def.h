@@ -7,7 +7,7 @@
 #ifndef GXBB_DEF_H
 #define GXBB_DEF_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /*******************************************************************************
  * System oscillator

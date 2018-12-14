@@ -5,7 +5,7 @@
  */
 
 #include <asm_macros.S>
-#include <bl_common.h>
+#include <common/bl_common.h>
 
 /* -----------------------------------------------------------------------------
  * Very simple stackless exception handlers used by BL2 and BL31 stages.

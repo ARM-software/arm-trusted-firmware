@@ -7,9 +7,9 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <a3700_console.h>
 #define USE_FINISH_CONSOLE_REG_2
 #include <console_macros.S>
+#include <drivers/marvell/uart/a3700_console.h>
 
 	/*
 	 * "core" functions are low-level implementations that don't require

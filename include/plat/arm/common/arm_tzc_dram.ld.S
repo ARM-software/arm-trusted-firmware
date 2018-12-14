@@ -3,10 +3,10 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#ifndef ARM_TZC_DRAM_LD_S__
-#define ARM_TZC_DRAM_LD_S__
+#ifndef ARM_TZC_DRAM_LD_S
+#define ARM_TZC_DRAM_LD_S
 
-#include <xlat_tables_defs.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
 
 MEMORY {
     EL3_SEC_DRAM (rw): ORIGIN = ARM_EL3_TZC_DRAM1_BASE, LENGTH = ARM_EL3_TZC_DRAM1_SIZE
@@ -27,4 +27,4 @@ SECTIONS
 	} >EL3_SEC_DRAM
 }
 
-#endif /* ARM_TZC_DRAM_LD_S__ */
+#endif /* ARM_TZC_DRAM_LD_S */

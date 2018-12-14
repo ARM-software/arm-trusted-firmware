@@ -7,11 +7,12 @@
 
 /* IOW unit device driver for Marvell CP110 and CP115 SoCs */
 
-#include <armada_common.h>
 #include <arch_helpers.h>
-#include <debug.h>
-#include <iob.h>
-#include <mmio.h>
+#include <common/debug.h>
+#include <drivers/marvell/iob.h>
+#include <lib/mmio.h>
+
+#include <armada_common.h>
 #include <mvebu.h>
 #include <mvebu_def.h>
 

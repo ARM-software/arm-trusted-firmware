@@ -7,8 +7,9 @@
 #ifndef STM32MP1_CLK_H
 #define STM32MP1_CLK_H
 
-#include <arch_helpers.h>
 #include <stdbool.h>
+
+#include <arch_helpers.h>
 
 int stm32mp1_clk_probe(void);
 int stm32mp1_clk_init(void);

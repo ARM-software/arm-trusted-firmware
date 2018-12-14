@@ -4,22 +4,25 @@
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
 
+#include <stddef.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <debug.h>
-#include <delay_timer.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/st/stm32mp1_clk.h>
+#include <drivers/st/stm32mp1_ddr.h>
+#include <drivers/st/stm32mp1_ddr_regs.h>
+#include <drivers/st/stm32mp1_pmic.h>
+#include <drivers/st/stm32mp1_pwr.h>
+#include <drivers/st/stm32mp1_ram.h>
+#include <drivers/st/stm32mp1_rcc.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
-#include <mmio.h>
-#include <platform.h>
-#include <stddef.h>
-#include <stm32mp1_clk.h>
-#include <stm32mp1_ddr.h>
-#include <stm32mp1_ddr_regs.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
+#include <stm32mp1_def.h>
 #include <stm32mp1_dt.h>
-#include <stm32mp1_pmic.h>
-#include <stm32mp1_pwr.h>
-#include <stm32mp1_ram.h>
-#include <stm32mp1_rcc.h>
 
 struct reg_desc {
 	const char *name;

@@ -4,15 +4,17 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
-#include <gpc.h>
-#include <mmio.h>
-#include <platform_def.h>
-#include <psci.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <std_svc.h>
+
+#include <common/debug.h>
+#include <lib/mmio.h>
+#include <lib/psci/psci.h>
+#include <platform_def.h>
+#include <services/std_svc.h>
+
+#include <gpc.h>
 
 void imx_set_cpu_secure_entry(unsigned int core_id, uintptr_t sec_entrypoint)
 {

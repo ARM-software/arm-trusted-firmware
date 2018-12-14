@@ -4,17 +4,20 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+#include <string.h>
+
+#include <platform_def.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+
 #include <k3_console.h>
 #include <k3_gicv3.h>
-#include <platform_def.h>
-#include <string.h>
 #include <ti_sci.h>
-#include <xlat_tables_v2.h>
 
 /* Table of regions to map using the MMU */
 const mmap_region_t plat_k3_mmap[] = {

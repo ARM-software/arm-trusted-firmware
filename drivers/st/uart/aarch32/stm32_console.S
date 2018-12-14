@@ -7,8 +7,8 @@
 #include <assert_macros.S>
 #define USE_FINISH_CONSOLE_REG_2
 #include <console_macros.S>
-#include <stm32_console.h>
-#include <stm32_uart_regs.h>
+#include <drivers/st/stm32_console.h>
+#include <drivers/st/stm32_uart_regs.h>
 
 #define USART_TIMEOUT		0x1000
 

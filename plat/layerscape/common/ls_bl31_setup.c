@@ -5,11 +5,12 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>
-#include <console.h>
-#include <gicv2.h>
-#include <interrupt_props.h>
-#include <mmio.h>
+
+#include <common/bl_common.h>
+#include <common/interrupt_props.h>
+#include <drivers/arm/gicv2.h>
+#include <drivers/console.h>
+#include <lib/mmio.h>
 
 #include "ls_16550.h"
 #include "plat_ls.h"

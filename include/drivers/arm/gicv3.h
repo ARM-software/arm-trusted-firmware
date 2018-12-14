@@ -209,12 +209,13 @@
 
 #ifndef __ASSEMBLY__
 
-#include <arch_helpers.h>
-#include <gic_common.h>
-#include <interrupt_props.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <utils_def.h>
+
+#include <arch_helpers.h>
+#include <common/interrupt_props.h>
+#include <drivers/arm/gic_common.h>
+#include <lib/utils_def.h>
 
 static inline bool gicv3_is_intr_id_special_identifier(unsigned int id)
 {

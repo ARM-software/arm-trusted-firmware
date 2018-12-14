@@ -8,7 +8,8 @@
 #define FIRMWARE_IMAGE_PACKAGE_H
 
 #include <stdint.h>
-#include <uuid.h>
+
+#include "uuid.h"
 
 /* This is used as a signature to validate the blob header */
 #define TOC_HEADER_NAME	0xAA640001

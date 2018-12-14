@@ -5,16 +5,18 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>
-#include <console.h>
-#include <coreboot.h>
-#include <debug.h>
-#include <generic_delay_timer.h>
-#include <mmio.h>
-#include <plat_private.h>
-#include <platform.h>
+
 #include <platform_def.h>
-#include <uart_16550.h>
+
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/console.h>
+#include <drivers/generic_delay_timer.h>
+#include <drivers/ti/uart/uart_16550.h>
+#include <lib/coreboot.h>
+#include <lib/mmio.h>
+#include <plat_private.h>
+#include <plat/common/platform.h>
 
 /*
  * The next 2 constants identify the extents of the code & RO data region.

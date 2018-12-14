@@ -5,14 +5,15 @@
  */
 
 #include <assert.h>
-#include <debug.h>
 #include <errno.h>
-#include <io_driver.h>
-#include <io_mmc.h>
-#include <io_storage.h>
-#include <mmc.h>
-#include <stm32_sdmmc2.h>
 #include <string.h>
+
+#include <common/debug.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_storage.h>
+#include <drivers/mmc.h>
+#include <drivers/st/io_mmc.h>
+#include <drivers/st/stm32_sdmmc2.h>
 
 /* SDMMC device functions */
 static int mmc_dev_open(const uintptr_t init_params, io_dev_info_t **dev_info);

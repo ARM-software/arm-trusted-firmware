@@ -7,9 +7,10 @@
 #ifndef BOARD_CSS_DEF_H
 #define BOARD_CSS_DEF_H
 
-#include <common_def.h>
+#include <lib/utils_def.h>
+#include <plat/common/common_def.h>
+
 #include <soc_css_def.h>
-#include <utils_def.h>
 #include <v2m_def.h>
 
 /*
@@ -31,7 +32,7 @@
 
 #ifndef __ASSEMBLY__
 
-#include <mmio.h>
+#include <lib/mmio.h>
 
 #define BOARD_CSS_GET_PLAT_TYPE(addr)					\
 	((mmio_read_32(addr) & BOARD_CSS_PLAT_ID_REG_ID_MASK)		\

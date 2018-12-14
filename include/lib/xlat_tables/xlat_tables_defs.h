@@ -8,8 +8,8 @@
 #define XLAT_TABLES_DEFS_H
 
 #include <arch.h>
-#include <utils_def.h>
-#include <xlat_mmu_helpers.h>
+#include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_mmu_helpers.h>
 
 /* Miscellaneous MMU related constants */
 #define NUM_2MB_IN_GB		(U(1) << 9)

@@ -4,15 +4,16 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <platform_def.h>
+
 #include <arch.h>
 #include <asm_macros.S>
+#include <bl31/ea_handle.h>
+#include <bl31/interrupt_mgmt.h>
+#include <common/runtime_svc.h>
 #include <context.h>
-#include <cpu_data.h>
-#include <ea_handle.h>
-#include <interrupt_mgmt.h>
-#include <platform_def.h>
-#include <runtime_svc.h>
-#include <smccc.h>
+#include <lib/el3_runtime/cpu_data.h>
+#include <lib/smccc.h>
 
 	.globl	runtime_exceptions
 

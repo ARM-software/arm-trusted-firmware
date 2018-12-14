@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
-#include <mmio.h>
-#include <plat_arm.h>
 #include <platform_def.h>
-#include <psci.h>
-#include <utils.h>
-#include <v2m_flash.h>
+
+#include <common/debug.h>
+#include <drivers/cfi/v2m_flash.h>
+#include <lib/psci/psci.h>
+#include <lib/mmio.h>
+#include <lib/utils.h>
+
+#include <plat_arm.h>
 
 /*
  * DRAM1 is used also to load the NS boot loader. For this reason we

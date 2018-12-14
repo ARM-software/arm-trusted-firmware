@@ -5,9 +5,10 @@
  */
 
 #include <arch_helpers.h>
-#include <bakery_lock.h>
-#include <mmio.h>
-#include <platform.h>
+#include <lib/bakery_lock.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
 #include "../zynqmp_ipi.h"
 #include "../zynqmp_private.h"
 #include "pm_ipi.h"

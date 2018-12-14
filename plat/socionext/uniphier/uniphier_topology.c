@@ -5,7 +5,7 @@
  */
 
 #include <arch.h>
-#include <platform.h>
+#include <plat/common/platform.h>
 
 #include "uniphier.h"
 

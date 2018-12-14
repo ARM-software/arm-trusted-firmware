@@ -7,14 +7,16 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
-#include <debug.h>
 #include <errno.h>
-#include <mmio.h>
-#include <platform_def.h>
 #include <stdlib.h>
-#include <utils.h>
-#include <utils_def.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <lib/mmio.h>
+#include <lib/utils.h>
+#include <lib/utils_def.h>
 
 #include "sec_proxy.h"
 

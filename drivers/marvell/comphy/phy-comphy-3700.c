@@ -5,13 +5,16 @@
  * https://spdx.org/licenses
  */
 
-#include <debug.h>
-#include <delay_timer.h>
 #include <errno.h>
-#include <mmio.h>
+
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
+#include <lib/spinlock.h>
+
 #include <mvebu.h>
 #include <mvebu_def.h>
-#include <spinlock.h>
+
 #include "phy-comphy-3700.h"
 #include "phy-comphy-common.h"
 

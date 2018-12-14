@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <platform_def.h>
+
+#include <common/debug.h>
+#include <drivers/arm/tzc400.h>
+
 #include <arm_def.h>
 #include <arm_spm_def.h>
-#include <debug.h>
 #include <plat_arm.h>
-#include <platform_def.h>
-#include <tzc400.h>
-
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak plat_arm_security_setup

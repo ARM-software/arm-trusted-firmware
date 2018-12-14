@@ -4,16 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+#include <errno.h>
+#include <string.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <debug.h>
-#include <delay_timer.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/mmc.h>
+#include <lib/mmio.h>
+
 #include <imx_usdhc.h>
-#include <mmc.h>
-#include <errno.h>
-#include <mmio.h>
-#include <string.h>
 
 static void imx_usdhc_initialize(void);
 static int imx_usdhc_send_cmd(struct mmc_cmd *cmd);

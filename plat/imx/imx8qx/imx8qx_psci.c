@@ -4,15 +4,17 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <stdbool.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <debug.h>
-#include <gicv3.h>
-#include <mmio.h>
+#include <common/debug.h>
+#include <drivers/arm/gicv3.h>
+#include <lib/mmio.h>
+#include <lib/psci/psci.h>
+
 #include <plat_imx8.h>
-#include <psci.h>
 #include <sci/sci.h>
-#include <stdbool.h>
 
 const static int ap_core_index[PLATFORM_CORE_COUNT] = {
 	SC_R_A35_0, SC_R_A35_1, SC_R_A35_2, SC_R_A35_3

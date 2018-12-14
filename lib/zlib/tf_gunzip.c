@@ -5,11 +5,12 @@
  */
 
 #include <assert.h>
-#include <debug.h>
 #include <errno.h>
 #include <string.h>
+
+#include <common/debug.h>
+#include <lib/utils.h>
 #include <tf_gunzip.h>
-#include <utils.h>
 
 #include "zutil.h"
 

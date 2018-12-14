@@ -5,10 +5,11 @@
  */
 
 #include <arch_helpers.h>
-#include <debug.h>
-#include <delay_timer.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
+
 #include <m0_ctl.h>
-#include <mmio.h>
 #include <plat_private.h>
 #include "dfs.h"
 #include "dram.h"

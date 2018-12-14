@@ -5,13 +5,13 @@
  */
 
 #include <arch.h>
-#include <arm_arch_svc.h>
 #include <asm_macros.S>
-#include <bl_common.h>
+#include <common/bl_common.h>
 #include <context.h>
 #include <cortex_a76.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+#include <services/arm_arch_svc.h>
 
 #if !DYNAMIC_WORKAROUND_CVE_2018_3639
 #error Cortex A76 requires DYNAMIC_WORKAROUND_CVE_2018_3639=1

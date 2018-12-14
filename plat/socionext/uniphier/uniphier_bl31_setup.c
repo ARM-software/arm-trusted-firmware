@@ -4,16 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <console.h>
-#include <debug.h>
 #include <errno.h>
-#include <mmio.h>
-#include <platform.h>
+
 #include <platform_def.h>
-#include <xlat_mmu_helpers.h>
+
+#include <arch.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/console.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_mmu_helpers.h>
+#include <plat/common/platform.h>
 
 #include "uniphier.h"
 

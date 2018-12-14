@@ -4,16 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+
+#include <platform_def.h>
+
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/arm/ccn.h>
+#include <plat/common/platform.h>
+#include <services/secure_partition.h>
+
 #include <arm_def.h>
 #include <arm_spm_def.h>
-#include <assert.h>
-#include <bl_common.h>
-#include <ccn.h>
-#include <debug.h>
 #include <plat_arm.h>
-#include <platform_def.h>
-#include <platform.h>
-#include <secure_partition.h>
 #include "../../../../bl1/bl1_private.h"
 
 #if USE_COHERENT_MEM

@@ -4,19 +4,22 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <console.h>
-#include <debug.h>
-#include <desc_image_load.h>
-#include <mmc.h>
-#include <mmio.h>
-#include <optee_utils.h>
+
 #include <platform_def.h>
-#include <utils.h>
-#include <xlat_mmu_helpers.h>
-#include <xlat_tables_defs.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/desc_image_load.h>
+#include <drivers/console.h>
+#include <drivers/mmc.h>
+#include <lib/xlat_tables/xlat_mmu_helpers.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
+#include <lib/mmio.h>
+#include <lib/optee_utils.h>
+#include <lib/utils.h>
+
 #include <imx_aips.h>
 #include <imx_caam.h>
 #include <imx_clock.h>
@@ -27,6 +30,7 @@
 #include <imx_snvs.h>
 #include <imx_usdhc.h>
 #include <imx_wdog.h>
+
 #include "warp7_private.h"
 
 #define UART1_CLK_SELECT (CCM_TARGET_ROOT_ENABLE |\

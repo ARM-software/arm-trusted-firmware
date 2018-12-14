@@ -5,10 +5,12 @@
  */
 
 #include <assert.h>
-#include <debug.h>
+
 #include <platform_def.h>
-#include <xlat_tables_defs.h>
-#include <xlat_tables_v2.h>
+
+#include <common/debug.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include "xlat_tables_private.h"
 

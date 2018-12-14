@@ -4,12 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <debug.h>
-#include <desc_image_load.h>
 #include <errno.h>
-#include <optee_utils.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <common/desc_image_load.h>
+#include <lib/optee_utils.h>
 
 /*
  * load_addr_hi and load_addr_lo: image load address.

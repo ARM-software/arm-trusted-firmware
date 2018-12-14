@@ -7,10 +7,10 @@
 #ifndef RUNTIME_SVC_H
 #define RUNTIME_SVC_H
 
-#include <bl_common.h>		/* to include exception types */
-#include <cassert.h>
+#include <common/bl_common.h>		/* to include exception types */
+#include <lib/cassert.h>
+#include <lib/utils_def.h>
 #include <smccc_helpers.h>	/* to include SMCCC definitions */
-#include <utils_def.h>
 
 /*******************************************************************************
  * Structure definition, typedefs & constants for the runtime service framework

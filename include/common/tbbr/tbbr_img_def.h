@@ -7,7 +7,7 @@
 #ifndef TBBR_IMG_DEF_H
 #define TBBR_IMG_DEF_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /* Firmware Image Package */
 #define FIP_IMAGE_ID			U(0)

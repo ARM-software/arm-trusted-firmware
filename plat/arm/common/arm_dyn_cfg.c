@@ -4,19 +4,21 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arm_dyn_cfg_helpers.h>
 #include <assert.h>
-#include <debug.h>
-#include <desc_image_load.h>
-#if TRUSTED_BOARD_BOOT
-#include <mbedtls_config.h>
-#endif
-#include <plat_arm.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <string.h>
-#include <tbbr_img_def.h>
 
+#include <platform_def.h>
+
+#include <common/debug.h>
+#include <common/desc_image_load.h>
+#include <common/tbbr/tbbr_img_def.h>
+#if TRUSTED_BOARD_BOOT
+#include <drivers/auth/mbedtls/mbedtls_config.h>
+#endif
+#include <plat/common/platform.h>
+
+#include <arm_dyn_cfg_helpers.h>
+#include <plat_arm.h>
 
 /* Variable to store the address to TB_FW_CONFIG passed from BL1 */
 static void *tb_fw_cfg_dtb;

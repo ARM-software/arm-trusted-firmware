@@ -6,7 +6,8 @@
  */
 
 #include <arch_helpers.h>
-#include <debug.h>
+#include <common/debug.h>
+
 #include <mv_ddr_if.h>
 #include <plat_marvell.h>
 

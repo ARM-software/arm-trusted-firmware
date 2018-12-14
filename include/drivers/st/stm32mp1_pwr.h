@@ -7,7 +7,7 @@
 #ifndef STM32MP1_PWR_H
 #define STM32MP1_PWR_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 #define PWR_CR1			U(0x00)
 #define PWR_CR2			U(0x08)

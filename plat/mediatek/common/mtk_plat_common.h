@@ -6,9 +6,10 @@
 #ifndef MTK_PLAT_COMMON_H
 #define MTK_PLAT_COMMON_H
 
-#include <bl_common.h>
-#include <param_header.h>
 #include <stdint.h>
+
+#include <common/bl_common.h>
+#include <common/param_header.h>
 
 /*******************************************************************************
  * Function and variable prototypes

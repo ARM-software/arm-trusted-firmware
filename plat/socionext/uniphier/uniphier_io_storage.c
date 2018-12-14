@@ -6,15 +6,17 @@
 
 #include <assert.h>
 #include <errno.h>
-#include <firmware_image_package.h>
-#include <io/io_block.h>
-#include <io/io_driver.h>
-#include <io/io_fip.h>
-#include <io/io_memmap.h>
-#include <platform_def.h>
 #include <stdint.h>
-#include <utils_def.h>
-#include <xlat_tables_v2.h>
+
+#include <platform_def.h>
+
+#include <drivers/io/io_block.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_fip.h>
+#include <drivers/io/io_memmap.h>
+#include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+#include <tools_share/firmware_image_package.h>
 
 #include "uniphier.h"
 

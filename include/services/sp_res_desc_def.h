@@ -7,7 +7,7 @@
 #ifndef SPM_RES_DESC_DEFS_H
 #define SPM_RES_DESC_DEFS_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /*******************************************************************************
  * Attribute Section

@@ -8,11 +8,11 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <errno.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <platform_def.h>
-#include <platform.h>
-#include <secure_partition.h>
-#include <spm_svc.h>
-#include <xlat_tables_v2.h>
+#include <plat/common/platform.h>
+#include <services/secure_partition.h>
+#include <services/spm_svc.h>
 
 #include "spm_private.h"
 #include "spm_shim_private.h"

@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
-#include <mmio.h>
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <lib/mmio.h>
+
 #include <plat_sip_calls.h>
 #include <rockchip_sip_svc.h>
-#include <runtime_svc.h>
 
 uintptr_t rockchip_plat_sip_handler(uint32_t smc_fid,
 				   u_register_t x1,

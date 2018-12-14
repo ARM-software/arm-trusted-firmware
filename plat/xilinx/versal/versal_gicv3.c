@@ -4,11 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <gicv3.h>
-#include <interrupt_props.h>
-#include <platform.h>
 #include <platform_def.h>
-#include <utils.h>
+
+#include <common/interrupt_props.h>
+#include <drivers/arm/gicv3.h>
+#include <lib/utils.h>
+#include <plat/common/platform.h>
+
 #include "versal_private.h"
 
 /******************************************************************************

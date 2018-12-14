@@ -7,8 +7,8 @@
 #define ASM_MACROS_S
 
 #include <arch.h>
-#include <asm_macros_common.S>
-#include <spinlock.h>
+#include <common/asm_macros_common.S>
+#include <lib/spinlock.h>
 
 /*
  * TLBI instruction with type specifier that implements the workaround for

@@ -3,15 +3,18 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
+#include <assert.h>
+#include <stdint.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <debug.h>
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <plat/common/platform.h>
+#include <tools_share/uuid.h>
+
 #include <oem_svc.h>
-#include <platform.h>
-#include <runtime_svc.h>
-#include <stdint.h>
-#include <uuid.h>
 
 /* OEM Service UUID */
 DEFINE_SVC_UUID2(oem_svc_uid,

@@ -7,7 +7,7 @@
 #ifndef STM32MP1_RCC_H
 #define STM32MP1_RCC_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 #define RCC_TZCR			U(0x00)
 #define RCC_OCENSETR			U(0x0C)

@@ -5,8 +5,10 @@
  */
 
 #include <assert.h>
-#include <cassert.h>
 #include <stdbool.h>
+
+#include <lib/cassert.h>
+
 #include "sdei_private.h"
 
 /* Aliases for SDEI handler states: 'R'unning, 'E'nabled, and re'G'istered */

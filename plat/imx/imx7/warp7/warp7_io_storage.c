@@ -3,15 +3,18 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #include <assert.h>
-#include <debug.h>
-#include <mmc.h>
-#include <firmware_image_package.h>
-#include <io_block.h>
-#include <io_driver.h>
-#include <io_fip.h>
-#include <io_memmap.h>
+
 #include <platform_def.h>
+
+#include <common/debug.h>
+#include <drivers/io/io_block.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_fip.h>
+#include <drivers/io/io_memmap.h>
+#include <drivers/mmc.h>
+#include <tools_share/firmware_image_package.h>
 
 static const io_dev_connector_t *fip_dev_con;
 static uintptr_t fip_dev_handle;

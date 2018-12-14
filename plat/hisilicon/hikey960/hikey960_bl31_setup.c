@@ -4,24 +4,26 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <cci.h>
-#include <console.h>
-#include <debug.h>
 #include <errno.h>
-#include <generic_delay_timer.h>
-#include <gicv2.h>
-#include <hi3660.h>
-#include <mmio.h>
-#include <hisi_ipc.h>
-#include <interrupt_mgmt.h>
-#include <interrupt_props.h>
-#include <pl011.h>
-#include <platform.h>
+
 #include <platform_def.h>
 
+#include <arch_helpers.h>
+#include <bl31/interrupt_mgmt.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/interrupt_props.h>
+#include <drivers/arm/cci.h>
+#include <drivers/arm/gicv2.h>
+#include <drivers/arm/pl011.h>
+#include <drivers/console.h>
+#include <drivers/generic_delay_timer.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
+#include <hi3660.h>
+#include <hisi_ipc.h>
 #include "hikey960_def.h"
 #include "hikey960_private.h"
 

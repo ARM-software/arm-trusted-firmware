@@ -4,11 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
-#include <cci.h>
-#include <plat_arm.h>
 #include <platform_def.h>
-#include <utils.h>
+
+#include <arch.h>
+#include <drivers/arm/cci.h>
+#include <lib/utils.h>
+
+#include <plat_arm.h>
 
 static const int cci_map[] = {
 	PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX,

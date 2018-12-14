@@ -8,12 +8,12 @@
 #ifndef MARVELL_DEF_H
 #define MARVELL_DEF_H
 
-#include <arch.h>
-#include <common_def.h>
 #include <platform_def.h>
-#include <tbbr_img_def.h>
-#include <xlat_tables.h>
 
+#include <arch.h>
+#include <common/tbbr/tbbr_img_def.h>
+#include <lib/xlat_tables/xlat_tables.h>
+#include <plat/common/common_def.h>
 
 /******************************************************************************
  * Definitions common to all MARVELL standard platforms

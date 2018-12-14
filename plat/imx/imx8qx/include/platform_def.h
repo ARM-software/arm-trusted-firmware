@@ -7,7 +7,7 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 #define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
 #define PLATFORM_LINKER_ARCH		aarch64

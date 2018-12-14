@@ -8,7 +8,7 @@
 #define PLATFORM_DEF_H
 
 #include <arch.h>
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 #include "../gxbb_def.h"
 

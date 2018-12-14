@@ -4,11 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <mmio.h>
 #include <endian.h>
-#include <debug.h>
+
+#include <platform_def.h>
+
+#include <common/debug.h>
+#include <lib/mmio.h>
+
 #include "ns_access.h"
-#include "platform_def.h"
 
 static void enable_devices_ns_access(struct csu_ns_dev *ns_dev, uint32_t num)
 {

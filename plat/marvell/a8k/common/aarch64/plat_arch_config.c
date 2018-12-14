@@ -5,12 +5,11 @@
  * https://spdx.org/licenses
  */
 
-#include <platform.h>
 #include <arch_helpers.h>
-#include <mmio.h>
-#include <debug.h>
-#include <cache_llc.h>
-
+#include <common/debug.h>
+#include <drivers/marvell/cache_llc.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
 
 #define CCU_HTC_ASET			(MVEBU_CCU_BASE(MVEBU_AP0) + 0x264)
 #define MVEBU_IO_AFFINITY		(0xF00)

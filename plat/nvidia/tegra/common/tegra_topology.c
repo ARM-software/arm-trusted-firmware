@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
 #include <platform_def.h>
-#include <psci.h>
+
+#include <arch.h>
+#include <lib/psci/psci.h>
 
 extern const unsigned char tegra_power_domain_tree_desc[];
 #pragma weak plat_core_pos_by_mpidr

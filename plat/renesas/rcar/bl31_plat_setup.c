@@ -5,16 +5,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <stddef.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <bl_common.h>
-#include <bl31.h>
-#include <cci.h>
-#include <console.h>
-#include <mmio.h>
-#include <platform.h>
-#include <stddef.h>
-#include <debug.h>
+#include <bl31/bl31.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/arm/cci.h>
+#include <drivers/console.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
 #include "pwrc.h"
 #include "rcar_def.h"
 #include "rcar_private.h"

@@ -9,13 +9,14 @@
  */
 
 #include <assert.h>
-#include <cassert.h>
-#include <debug.h>
 #include <errno.h>
-#include <gpio.h>
-#include <mmio.h>
-#include <pl061_gpio.h>
-#include <utils.h>
+
+#include <common/debug.h>
+#include <drivers/arm/pl061_gpio.h>
+#include <drivers/gpio.h>
+#include <lib/cassert.h>
+#include <lib/mmio.h>
+#include <lib/utils.h>
 
 #if !PLAT_PL061_MAX_GPIOS
 # define PLAT_PL061_MAX_GPIOS	32

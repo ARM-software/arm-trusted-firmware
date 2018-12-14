@@ -4,16 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
 #include <stdarg.h>
 #include <stdint.h>
 
-#include	<arch_helpers.h>
-#include	<platform_def.h>
-#include	<bakery_lock.h>
-#include	"rcar_def.h"
-#include	"rcar_private.h"
-#include	"rcar_printf.h"
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <lib/bakery_lock.h>
+
+#include "rcar_def.h"
+#include "rcar_private.h"
+#include "rcar_printf.h"
 
 #define INDEX_TIMER_COUNT	(4U)
 

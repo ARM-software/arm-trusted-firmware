@@ -5,15 +5,19 @@
  */
 
 #include <assert.h>
-#include <debug.h>
+
 #include <libfdt.h>
+
 #include <platform_def.h>
-#include <stm32_gpio.h>
-#include <stm32mp1_clk.h>
-#include <stm32mp1_clkfunc.h>
-#include <stm32mp1_ddr.h>
+
+#include <common/debug.h>
+#include <drivers/st/stm32_gpio.h>
+#include <drivers/st/stm32mp1_clk.h>
+#include <drivers/st/stm32mp1_clkfunc.h>
+#include <drivers/st/stm32mp1_ddr.h>
+#include <drivers/st/stm32mp1_ram.h>
+
 #include <stm32mp1_dt.h>
-#include <stm32mp1_ram.h>
 
 #define DT_GPIO_BANK_SHIFT	12
 #define DT_GPIO_BANK_MASK	0x1F000U

@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
-#include <mmio.h>
+#include <common/debug.h>
+#include <lib/mmio.h>
+
 #include <sunxi_mmap.h>
 #include <sunxi_private.h>
 

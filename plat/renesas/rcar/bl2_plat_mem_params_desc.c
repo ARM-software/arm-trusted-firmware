@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <bl_common.h>
-#include <desc_image_load.h>
-#include <platform.h>
 #include <platform_def.h>
-#include <xlat_tables_defs.h>
+
+#include <common/bl_common.h>
+#include <common/desc_image_load.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
+#include <plat/common/platform.h>
 
 #if (RCAR_BL33_EXECUTION_EL != 0) && (RCAR_BL33_EXECUTION_EL != 1)
 #error

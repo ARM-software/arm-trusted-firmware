@@ -5,22 +5,23 @@
  * https://spdx.org/licenses
  */
 
+#include <common/debug.h>
+#ifdef USE_CCI
+#include <drivers/arm/cci.h>
+#endif
+#include <lib/psci/psci.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
 #include <a3700_pm.h>
 #include <arch_helpers.h>
 #include <armada_common.h>
-#include <debug.h>
 #include <dram_win.h>
 #include <io_addr_dec.h>
-#include <mmio.h>
 #include <mvebu.h>
 #include <mvebu_def.h>
 #include <marvell_plat_priv.h>
-#include <platform.h>
 #include <plat_marvell.h>
-#include <psci.h>
-#ifdef USE_CCI
-#include <cci.h>
-#endif
 
 /* Warm reset register */
 #define MVEBU_WARM_RESET_REG		(MVEBU_NB_REGS_BASE + 0x840)

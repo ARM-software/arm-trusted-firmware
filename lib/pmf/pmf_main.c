@@ -3,15 +3,17 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
+#include <assert.h>
+#include <errno.h>
+#include <string.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <debug.h>
-#include <errno.h>
-#include <platform.h>
-#include <pmf.h>
-#include <string.h>
-#include <utils_def.h>
+#include <common/debug.h>
+#include <lib/pmf/pmf.h>
+#include <lib/utils_def.h>
+#include <plat/common/platform.h>
 
 /*******************************************************************************
  * The 'pmf_svc_descs' array holds the PMF service descriptors exported by

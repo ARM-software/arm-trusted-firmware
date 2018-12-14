@@ -4,16 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <console.h>
-#include <debug.h>
-#include <hi6220.h>
-#include <mmio.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <string.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/console.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
+#include <hi6220.h>
 
 #define MCU_SECTION_MAX		30
 

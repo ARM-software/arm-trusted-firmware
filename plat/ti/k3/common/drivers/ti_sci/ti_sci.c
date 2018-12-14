@@ -7,13 +7,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
 #include <errno.h>
-#include <platform_def.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
 
+#include <platform_def.h>
+
+#include <common/debug.h>
 #include <sec_proxy.h>
 
 #include "ti_sci_protocol.h"

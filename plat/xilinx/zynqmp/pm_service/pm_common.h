@@ -12,8 +12,10 @@
 #ifndef PM_COMMON_H
 #define PM_COMMON_H
 
-#include <debug.h>
 #include <stdint.h>
+
+#include <common/debug.h>
+
 #include "pm_defs.h"
 
 #define PAYLOAD_ARG_CNT		6U

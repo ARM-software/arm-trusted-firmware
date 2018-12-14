@@ -6,10 +6,11 @@
 #ifndef COMMON_DEF_H
 #define COMMON_DEF_H
 
-#include <bl_common.h>
 #include <platform_def.h>
-#include <utils_def.h>
-#include <xlat_tables_defs.h>
+
+#include <common/bl_common.h>
+#include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
 
 /******************************************************************************
  * Required platform porting definitions that are expected to be common to

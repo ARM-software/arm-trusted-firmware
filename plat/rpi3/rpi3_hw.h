@@ -7,7 +7,7 @@
 #ifndef RPI3_HW_H
 #define RPI3_HW_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /*
  * Peripherals

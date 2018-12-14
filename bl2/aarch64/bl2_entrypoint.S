@@ -6,7 +6,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <bl_common.h>
+#include <common/bl_common.h>
 
 
 	.globl	bl2_entrypoint

@@ -4,29 +4,32 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <boot_api.h>
-#include <debug.h>
-#include <delay_timer.h>
-#include <desc_image_load.h>
-#include <generic_delay_timer.h>
-#include <mmio.h>
-#include <platform.h>
+#include <string.h>
+
 #include <platform_def.h>
-#include <stm32_console.h>
-#include <stm32mp1_clk.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/desc_image_load.h>
+#include <drivers/delay_timer.h>
+#include <drivers/generic_delay_timer.h>
+#include <drivers/st/stm32_console.h>
+#include <drivers/st/stm32mp1_clk.h>
+#include <drivers/st/stm32mp1_pmic.h>
+#include <drivers/st/stm32mp1_pwr.h>
+#include <drivers/st/stm32mp1_ram.h>
+#include <drivers/st/stm32mp1_rcc.h>
+#include <drivers/st/stm32mp1_reset.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+#include <plat/common/platform.h>
+
+#include <boot_api.h>
 #include <stm32mp1_context.h>
 #include <stm32mp1_dt.h>
-#include <stm32mp1_pmic.h>
 #include <stm32mp1_private.h>
-#include <stm32mp1_pwr.h>
-#include <stm32mp1_ram.h>
-#include <stm32mp1_rcc.h>
-#include <stm32mp1_reset.h>
-#include <string.h>
-#include <xlat_tables_v2.h>
 
 static struct console_stm32 console;
 

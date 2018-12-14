@@ -8,7 +8,8 @@
 #define STM32_I2C_H
 
 #include <stdint.h>
-#include <utils_def.h>
+
+#include <lib/utils_def.h>
 
 /* Bit definition for I2C_CR1 register */
 #define I2C_CR1_PE			BIT(0)

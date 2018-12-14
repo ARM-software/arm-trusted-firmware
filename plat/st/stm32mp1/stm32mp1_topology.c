@@ -5,8 +5,9 @@
  */
 
 #include <platform_def.h>
-#include <platform.h>
-#include <psci.h>
+
+#include <lib/psci/psci.h>
+#include <plat/common/platform.h>
 
 /* 1 cluster, all cores into */
 static const unsigned char stm32mp1_power_domain_tree_desc[] = {

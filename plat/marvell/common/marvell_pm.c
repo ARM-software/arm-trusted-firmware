@@ -5,9 +5,11 @@
  * https://spdx.org/licenses
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <psci.h>
+
+#include <arch_helpers.h>
+#include <lib/psci/psci.h>
+
 #include <marvell_pm.h>
 
 /* Standard ARM platforms are expected to export plat_arm_psci_pm_ops */

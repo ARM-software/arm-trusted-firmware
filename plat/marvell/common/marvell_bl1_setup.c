@@ -5,15 +5,17 @@
  * https://spdx.org/licenses
  */
 
-#include <bl1.h>
-#include <bl1/bl1_private.h>
-#include <bl_common.h>
-#include <console.h>
-#include <debug.h>
-#include <platform.h>
 #include <platform_def.h>
+
+#include <bl1/bl1.h>
+#include <bl1/bl1_private.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/arm/sp805.h>
+#include <drivers/console.h>
+#include <plat/common/platform.h>
+
 #include <plat_marvell.h>
-#include <sp805.h>
 
 /* Weak definitions may be overridden in specific Marvell standard platform */
 #pragma weak bl1_early_platform_setup

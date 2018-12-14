@@ -3,9 +3,11 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <debug.h>
-#include <platform.h>
+
 #include <stdint.h>
+
+#include <common/debug.h>
+#include <plat/common/platform.h>
 
 /*
  * Canary value used by the compiler runtime checks to detect stack corruption.

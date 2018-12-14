@@ -6,8 +6,7 @@
 
 include lib/xlat_tables_v2/xlat_tables.mk
 
-PLAT_INCLUDES		:=	-Iinclude/drivers/meson/		\
-				-Iplat/meson/gxbb/include
+PLAT_INCLUDES		:=	-Iplat/meson/gxbb/include
 
 GXBB_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\

@@ -4,12 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arm_def.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <plat_arm.h>
-#include <platform.h>
 #include <platform_def.h>
+
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <plat/common/platform.h>
+
+#include <arm_def.h>
+#include <plat_arm.h>
 
 /*
  * Table of regions to map using the MMU.

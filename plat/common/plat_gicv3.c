@@ -3,15 +3,17 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <arch_helpers.h>
+
 #include <assert.h>
-#include <bl_common.h>
-#include <cassert.h>
-#include <gic_common.h>
-#include <gicv3.h>
-#include <interrupt_mgmt.h>
-#include <platform.h>
 #include <stdbool.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <bl31/interrupt_mgmt.h>
+#include <drivers/arm/gic_common.h>
+#include <drivers/arm/gicv3.h>
+#include <lib/cassert.h>
+#include <plat/common/platform.h>
 
 #ifdef IMAGE_BL31
 

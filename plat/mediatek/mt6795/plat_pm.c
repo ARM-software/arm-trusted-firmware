@@ -4,19 +4,22 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bakery_lock.h>
-#include <cci.h>
-#include <console.h>
-#include <debug.h>
 #include <errno.h>
-#include <mcucfg.h>
-#include <mmio.h>
-#include <plat_private.h>
+
 #include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/arm/cci.h>
+#include <drivers/console.h>
+#include <lib/bakery_lock.h>
+#include <lib/mmio.h>
+#include <lib/psci/psci.h>
+
+#include <mcucfg.h>
+#include <plat_private.h>
 #include <power_tracer.h>
-#include <psci.h>
 #include <scu.h>
 
 struct core_context {

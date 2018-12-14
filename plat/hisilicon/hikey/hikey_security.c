@@ -5,11 +5,14 @@
  */
 
 #include <assert.h>
-#include <debug.h>
-#include <platform_def.h>
 #include <stdint.h>
 #include <string.h>
-#include <utils_def.h>
+
+#include <platform_def.h>
+
+#include <common/debug.h>
+#include <lib/utils_def.h>
+
 #include "hikey_private.h"
 
 #define PORTNUM_MAX		5

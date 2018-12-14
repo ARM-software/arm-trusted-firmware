@@ -11,7 +11,8 @@
 #ifndef PM_API_CLOCK_H
 #define PM_API_CLOCK_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
+
 #include "pm_common.h"
 
 #define CLK_NAME_LEN		U(15)

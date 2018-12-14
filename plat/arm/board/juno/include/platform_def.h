@@ -19,15 +19,16 @@
 #endif /* AARCH32 */
 
 
+#include <drivers/arm/tzc400.h>
+#if TRUSTED_BOARD_BOOT
+#include <drivers/auth/mbedtls/mbedtls_config.h>
+#endif
+#include <plat/common/common_def.h>
+
 #include <arm_def.h>
 #include <board_css_def.h>
-#include <common_def.h>
 #include <css_def.h>
-#if TRUSTED_BOARD_BOOT
-#include <mbedtls_config.h>
-#endif
 #include <soc_css_def.h>
-#include <tzc400.h>
 #include <v2m_def.h>
 #include "../juno_def.h"
 

@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <mmio.h>
-#include <delay_timer.h>
 #include <arch_helpers.h>
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
 
 #define TIMER_BASE_ADDR 0x02B00000
 

@@ -6,7 +6,7 @@
 #ifndef V2M_DEF_H
 #define V2M_DEF_H
 
-#include <xlat_tables_compat.h>
+#include <lib/xlat_tables/xlat_tables_compat.h>
 
 /* V2M motherboard system registers & offsets */
 #define V2M_SYSREGS_BASE		UL(0x1c010000)

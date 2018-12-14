@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <context_mgmt.h>
-#include <debug.h>
-#include <platform.h>
-#include <tsp.h>
+
+#include <arch_helpers.h>
+#include <bl32/tsp/tsp.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <plat/common/platform.h>
+
 #include "tspd_private.h"
 
 /*******************************************************************************

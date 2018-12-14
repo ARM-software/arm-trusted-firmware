@@ -4,17 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arm_spm_def.h>
 #include <assert.h>
-#include <context_mgmt.h>
-#include <interrupt_mgmt.h>
-#include <mm_svc.h>
-#include <ras.h>
-#include <sgi_ras.h>
-#include <platform.h>
-#include <spm_svc.h>
-#include <sdei.h>
 #include <string.h>
+
+#include <bl31/interrupt_mgmt.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/extensions/ras.h>
+#include <plat/common/platform.h>
+#include <services/mm_svc.h>
+#include <services/sdei.h>
+#include <services/spm_svc.h>
+
+#include <arm_spm_def.h>
+#include <sgi_ras.h>
 
 static int sgi_ras_intr_handler(const struct err_record_info *err_rec,
 				int probe_data,

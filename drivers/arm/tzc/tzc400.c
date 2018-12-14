@@ -5,10 +5,12 @@
  */
 
 #include <assert.h>
-#include <debug.h>
-#include <mmio.h>
 #include <stddef.h>
-#include <tzc400.h>
+
+#include <common/debug.h>
+#include <drivers/arm/tzc400.h>
+#include <lib/mmio.h>
+
 #include "tzc_common_private.h"
 
 /*

@@ -6,7 +6,9 @@
 
 #include <assert.h>
 #include <limits.h>
-#include <utils.h>
+
+#include <lib/utils.h>
+
 #include "psci_private.h"
 
 u_register_t psci_mem_protect(unsigned int enable)

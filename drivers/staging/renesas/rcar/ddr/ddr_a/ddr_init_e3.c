@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-
 #include <stdint.h>
-#include <debug.h>
+
+#include <common/debug.h>
 
 #include "boot_init_dram_regdef_e3.h"
 #include "ddr_init_e3.h"

@@ -7,7 +7,7 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 #define PLAT_PRIMARY_CPU  0x0
 

@@ -4,25 +4,28 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <context.h>
-#include <context_mgmt.h>
-#include <debug.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
-#include <generic_delay_timer.h>
-#include <mmio.h>
-#include <platform.h>
+#include <string.h>
+
 #include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <context.h>
+#include <drivers/arm/tzc400.h>
+#include <drivers/generic_delay_timer.h>
+#include <drivers/st/stm32_console.h>
+#include <drivers/st/stm32mp1_clk.h>
+#include <dt-bindings/clock/stm32mp1-clks.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+#include <plat/common/platform.h>
+
 #include <platform_sp_min.h>
-#include <stm32_console.h>
-#include <stm32mp1_clk.h>
 #include <stm32mp1_dt.h>
 #include <stm32mp1_private.h>
-#include <string.h>
-#include <tzc400.h>
-#include <xlat_tables_v2.h>
 
 /******************************************************************************
  * Placeholder variables for copying the arguments that have been passed to

@@ -4,10 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <console.h>
-#include <k3_console.h>
 #include <platform_def.h>
-#include <uart_16550.h>
+
+#include <drivers/console.h>
+#include <drivers/ti/uart/uart_16550.h>
+
+#include <k3_console.h>
 
 void bl31_console_setup(void)
 {

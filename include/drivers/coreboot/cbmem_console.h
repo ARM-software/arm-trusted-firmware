@@ -7,7 +7,7 @@
 #ifndef CBMEM_CONSOLE_H
 #define CBMEM_CONSOLE_H
 
-#include <console.h>
+#include <drivers/console.h>
 
 #define CONSOLE_T_CBMC_BASE	CONSOLE_T_DRVDATA
 #define CONSOLE_T_CBMC_SIZE	(CONSOLE_T_DRVDATA + REGSZ)

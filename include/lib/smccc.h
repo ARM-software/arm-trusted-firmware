@@ -7,7 +7,7 @@
 #ifndef SMCCC_H
 #define SMCCC_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 #define SMCCC_VERSION_MAJOR_SHIFT	U(16)
 #define SMCCC_VERSION_MAJOR_MASK	U(0x7FFF)
@@ -21,10 +21,10 @@
 
 #if SMCCC_MAJOR_VERSION == 1
 # define SMCCC_MINOR_VERSION U(1)
-# include <smccc_v1.h>
+# include <lib/smccc_v1.h>
 #elif SMCCC_MAJOR_VERSION == 2
 # define SMCCC_MINOR_VERSION U(0)
-# include <smccc_v2.h>
+# include <lib/smccc_v2.h>
 #else
 # error "Unsupported version of SMCCC."
 #endif
@@ -35,8 +35,9 @@
 
 #ifndef __ASSEMBLY__
 
-#include <cassert.h>
 #include <stdint.h>
+
+#include <lib/cassert.h>
 
 #define is_caller_non_secure(_f)	(((_f) & SMC_FROM_NON_SECURE) != U(0))
 #define is_caller_secure(_f)		(!is_caller_non_secure(_f))

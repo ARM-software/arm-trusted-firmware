@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <desc_image_load.h>
+#include <common/desc_image_load.h>
+
 #include "ls_def.h"
 
 /*******************************************************************************

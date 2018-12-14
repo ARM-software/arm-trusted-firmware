@@ -4,29 +4,32 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bakery_lock.h>
-#include <bl31.h>
-#include <debug.h>
-#include <delay_timer.h>
-#include <dfs.h>
 #include <errno.h>
-#include <gicv3.h>
-#include <gpio.h>
+#include <string.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <bl31/bl31.h>
+#include <common/debug.h>
+#include <drivers/arm/gicv3.h>
+#include <drivers/delay_timer.h>
+#include <drivers/gpio.h>
+#include <lib/bakery_lock.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
+#include <dfs.h>
 #include <m0_ctl.h>
-#include <mmio.h>
 #include <plat_params.h>
 #include <plat_private.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <pmu.h>
 #include <pmu_com.h>
 #include <pwm.h>
 #include <rk3399_def.h>
 #include <secure.h>
 #include <soc.h>
-#include <string.h>
 #include <suspend.h>
 
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);

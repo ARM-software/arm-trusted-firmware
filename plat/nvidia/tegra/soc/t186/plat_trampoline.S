@@ -6,8 +6,8 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <common_def.h>
 #include <memctrl_v2.h>
+#include <plat/common/common_def.h>
 #include <tegra_def.h>
 
 #define TEGRA186_SMMU_CTX_SIZE		0x420

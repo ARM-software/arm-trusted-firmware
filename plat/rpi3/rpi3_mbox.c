@@ -5,10 +5,12 @@
  */
 
 #include <assert.h>
-#include <arch_helpers.h>
-#include <debug.h>
-#include <mmio.h>
+
 #include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <lib/mmio.h>
 
 #include "rpi3_hw.h"
 

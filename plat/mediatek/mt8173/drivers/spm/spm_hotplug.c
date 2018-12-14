@@ -3,10 +3,12 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #include <arch.h>
-#include <mmio.h>
+#include <lib/mmio.h>
 #include <mt8173_def.h>
-#include <platform.h>
+#include <plat/common/platform.h>
+
 #include <spm.h>
 #include <spm_hotplug.h>
 #include <spm_mcdi.h>

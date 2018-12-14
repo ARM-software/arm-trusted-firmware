@@ -4,14 +4,17 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+
+#include <platform_def.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <platform_def.h>
-#include <assert.h>
-#include <bl_common.h>
-#include <pl011.h>
-#include <debug.h>
-#include <mmio.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/arm/pl011.h>
+#include <lib/mmio.h>
+
 #include <sq_common.h>
 
 static console_pl011_t console;

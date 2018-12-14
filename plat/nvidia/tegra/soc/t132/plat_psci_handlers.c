@@ -4,17 +4,20 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+
+#include <platform_def.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <debug.h>
-#include <delay_timer.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
 #include <denver.h>
+#include <lib/mmio.h>
+#include <lib/psci/psci.h>
+
 #include <flowctrl.h>
-#include <mmio.h>
-#include <platform_def.h>
 #include <pmc.h>
-#include <psci.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
 

@@ -5,13 +5,15 @@
  * https://spdx.org/licenses
  */
 
-#include <debug.h>
-#include <gicv3.h>
-#include <interrupt_props.h>
+#include <platform_def.h>
+
+#include <common/debug.h>
+#include <common/interrupt_props.h>
+#include <drivers/arm/gicv3.h>
+#include <plat/common/platform.h>
+
 #include <marvell_def.h>
 #include <plat_marvell.h>
-#include <platform.h>
-#include <platform_def.h>
 
 /******************************************************************************
  * The following functions are defined as weak to allow a platform to override

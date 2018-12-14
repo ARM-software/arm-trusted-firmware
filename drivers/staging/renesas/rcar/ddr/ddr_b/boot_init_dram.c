@@ -7,8 +7,10 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
-#include <mmio.h>
-#include <debug.h>
+
+#include <common/debug.h>
+#include <lib/mmio.h>
+
 #include "ddr_regdef.h"
 #include "init_dram_tbl_h3.h"
 #include "init_dram_tbl_m3.h"

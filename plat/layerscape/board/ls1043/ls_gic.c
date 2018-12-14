@@ -4,10 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <mmio.h>
-#include <debug.h>
 #include <endian.h>
-#include "platform_def.h"
+
+#include <platform_def.h>
+
+#include <common/debug.h>
+#include <lib/mmio.h>
+
 #include "soc.h"
 
 /*

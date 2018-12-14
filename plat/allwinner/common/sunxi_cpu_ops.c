@@ -4,18 +4,21 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <core_off_arisc.h>
-#include <debug.h>
-#include <delay_timer.h>
-#include <mmio.h>
-#include <platform.h>
+
 #include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
+#include <lib/utils_def.h>
+#include <plat/common/platform.h>
+
+#include <core_off_arisc.h>
 #include <sunxi_cpucfg.h>
 #include <sunxi_mmap.h>
 #include <sunxi_private.h>
-#include <utils_def.h>
 
 static void sunxi_cpu_disable_power(unsigned int cluster, unsigned int core)
 {

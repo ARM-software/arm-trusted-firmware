@@ -4,23 +4,25 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <dw_mmc.h>
 #include <errno.h>
+#include <string.h>
+
+#include <arch_helpers.h>
+#include <bl1/tbbr/tbbr_img_desc.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/arm/pl011.h>
+#include <drivers/mmc.h>
+#include <drivers/synopsys/dw_mmc.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
 #include <hi6220.h>
 #include <hikey_def.h>
 #include <hikey_layout.h>
-#include <mmc.h>
-#include <mmio.h>
-#include <pl011.h>
-#include <platform.h>
-#include <string.h>
-#include <tbbr/tbbr_img_desc.h>
 
-#include "../../bl1/bl1_private.h"
+#include "../../../bl1/bl1_private.h"
 #include "hikey_private.h"
 
 /* Data structure which holds the extents of the trusted RAM for BL1 */

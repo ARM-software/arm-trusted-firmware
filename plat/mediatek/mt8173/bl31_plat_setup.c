@@ -3,19 +3,22 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #include <assert.h>
-#include <bl_common.h>
-#include <common_def.h>
-#include <console.h>
-#include <debug.h>
-#include <generic_delay_timer.h>
+
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/console.h>
+#include <drivers/generic_delay_timer.h>
+#include <lib/mmio.h>
+#include <plat/common/common_def.h>
+#include <plat/common/platform.h>
+
 #include <mcucfg.h>
-#include <mmio.h>
 #include <mtcmos.h>
 #include <mtk_plat_common.h>
 #include <plat_arm.h>
 #include <plat_private.h>
-#include <platform.h>
 #include <spm.h>
 
 static entry_point_info_t bl32_ep_info;

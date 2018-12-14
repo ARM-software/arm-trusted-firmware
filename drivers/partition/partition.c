@@ -5,14 +5,15 @@
  */
 
 #include <assert.h>
-#include <debug.h>
-#include <gpt.h>
-#include <io_storage.h>
-#include <mbr.h>
-#include <partition.h>
-#include <platform.h>
 #include <stdio.h>
 #include <string.h>
+
+#include <common/debug.h>
+#include <drivers/io/io_storage.h>
+#include <drivers/partition/partition.h>
+#include <drivers/partition/gpt.h>
+#include <drivers/partition/mbr.h>
+#include <plat/common/platform.h>
 
 static uint8_t mbr_sector[PARTITION_BLOCK_SIZE];
 partition_entry_list_t list;

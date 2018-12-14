@@ -4,24 +4,26 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <amu.h>
-#include <arch.h>
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <context.h>
-#include <context_mgmt.h>
-#include <interrupt_mgmt.h>
-#include <mpam.h>
-#include <platform.h>
-#include <platform_def.h>
-#include <pubsub_events.h>
-#include <smccc_helpers.h>
-#include <spe.h>
 #include <stdbool.h>
 #include <string.h>
-#include <sve.h>
-#include <utils.h>
+
+#include <platform_def.h>
+
+#include <arch.h>
+#include <arch_helpers.h>
+#include <bl31/interrupt_mgmt.h>
+#include <common/bl_common.h>
+#include <context.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/el3_runtime/pubsub_events.h>
+#include <lib/extensions/amu.h>
+#include <lib/extensions/mpam.h>
+#include <lib/extensions/spe.h>
+#include <lib/extensions/sve.h>
+#include <lib/utils.h>
+#include <plat/common/platform.h>
+#include <smccc_helpers.h>
 
 
 /*******************************************************************************

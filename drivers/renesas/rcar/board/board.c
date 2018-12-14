@@ -6,9 +6,12 @@
  */
 
 #include <stdint.h>
+
+#include <lib/utils_def.h>
+
 #include <iic_dvfs.h>
+
 #include "board.h"
-#include "utils_def.h"
 
 #ifndef BOARD_DEFAULT
 #if (RCAR_LSI == RCAR_E3)

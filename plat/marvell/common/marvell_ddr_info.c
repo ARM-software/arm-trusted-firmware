@@ -5,10 +5,12 @@
  * https://spdx.org/licenses
  */
 
-#include <debug.h>
 #include <platform_def.h>
+
+#include <common/debug.h>
+#include <lib/mmio.h>
+
 #include <ddr_info.h>
-#include <mmio.h>
 
 #define DRAM_CH0_MMAP_LOW_REG(iface, cs, base)	\
 	(base + DRAM_CH0_MMAP_LOW_OFFSET + (iface) * 0x10000 + (cs) * 0x8)

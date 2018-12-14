@@ -4,13 +4,16 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+
+#include <platform_def.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <platform_def.h>
-#include <utils.h>
-#include <xlat_tables_arch.h>
-#include <xlat_tables.h>
+#include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables_arch.h>
+#include <lib/xlat_tables/xlat_tables.h>
+
 #include "../xlat_tables_private.h"
 
 #if (ARM_ARCH_MAJOR == 7) && !defined(ARMV7_SUPPORTS_LARGE_PAGE_ADDRESSING)

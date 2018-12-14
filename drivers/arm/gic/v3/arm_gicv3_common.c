@@ -10,12 +10,13 @@
 * APIs that are different to those generic ones in GICv3 driver.
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <gicv3.h>
+
+#include <arch_helpers.h>
+#include <drivers/arm/arm_gicv3_common.h>
+#include <drivers/arm/gicv3.h>
 
 #include "gicv3_private.h"
-#include "arm_gicv3_common.h"
 
 /*
  * Flush the internal GIC cache of the LPIs pending tables to memory before

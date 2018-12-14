@@ -5,12 +5,13 @@
  */
 
 #include <assert.h>
-#include <debug.h>
-#include <dw_ufs.h>
-#include <mmio.h>
 #include <stdint.h>
 #include <string.h>
-#include <ufs.h>
+
+#include <common/debug.h>
+#include <drivers/dw_ufs.h>
+#include <drivers/ufs.h>
+#include <lib/mmio.h>
 
 static int dwufs_phy_init(ufs_params_t *params)
 {

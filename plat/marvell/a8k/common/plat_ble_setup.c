@@ -5,17 +5,18 @@
  * https://spdx.org/licenses
  */
 
-#include <ap_setup.h>
+#include <common/debug.h>
+#include <drivers/marvell/ap807_clocks_init.h>
+#include <drivers/marvell/aro.h>
+#include <drivers/marvell/ccu.h>
+#include <drivers/marvell/io_win.h>
+#include <drivers/marvell/mochi/ap_setup.h>
+#include <drivers/marvell/mochi/cp110_setup.h>
+
 #include <armada_common.h>
-#include <aro.h>
-#include <ccu.h>
-#include <cp110_setup.h>
-#include <debug.h>
-#include <io_win.h>
 #include <mv_ddr_if.h>
 #include <mvebu_def.h>
 #include <plat_marvell.h>
-#include "ap807_clocks_init.h"
 
 /* Register for skip image use */
 #define SCRATCH_PAD_REG2		0xF06F00A8

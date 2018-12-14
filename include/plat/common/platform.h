@@ -7,8 +7,9 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
-#include <psci.h>
 #include <stdint.h>
+
+#include <lib/psci/psci.h>
 
 /*******************************************************************************
  * Forward declarations

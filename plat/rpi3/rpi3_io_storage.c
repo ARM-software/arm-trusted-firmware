@@ -5,14 +5,16 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <firmware_image_package.h>
-#include <io_driver.h>
-#include <io_fip.h>
-#include <io_memmap.h>
-#include <platform_def.h>
 #include <string.h>
+
+#include <platform_def.h>
+
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_fip.h>
+#include <drivers/io/io_memmap.h>
+#include <tools_share/firmware_image_package.h>
 
 /* Semihosting filenames */
 #define BL2_IMAGE_NAME			"bl2.bin"

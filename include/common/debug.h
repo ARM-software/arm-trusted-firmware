@@ -7,7 +7,7 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /*
  * The log output macros print output to the console. These macros produce
@@ -28,11 +28,13 @@
 #define LOG_LEVEL_VERBOSE		U(50)
 
 #ifndef __ASSEMBLY__
+
 #include <cdefs.h>
-#include <console.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
+
+#include <drivers/console.h>
 
 /*
  * Define Log Markers corresponding to each log level which will

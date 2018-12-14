@@ -5,11 +5,13 @@
  * https://spdx.org/licenses
  */
 
-#include <plat_marvell.h>
-#include <debug.h>
 #include <string.h>
+
+#include <common/debug.h>
+#include <lib/mmio.h>
+
+#include <plat_marvell.h>
 #include <mss_ipc_drv.h>
-#include <mmio.h>
 
 #define IPC_MSG_BASE_MASK		MVEBU_REGS_BASE_MASK
 

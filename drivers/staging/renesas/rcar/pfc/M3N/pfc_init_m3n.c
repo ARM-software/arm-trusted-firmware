@@ -5,7 +5,9 @@
  */
 
 #include <stdint.h>		/* for uint32_t */
-#include <mmio.h>
+
+#include <lib/mmio.h>
+
 #include "pfc_init_m3n.h"
 #include "rcar_def.h"
 

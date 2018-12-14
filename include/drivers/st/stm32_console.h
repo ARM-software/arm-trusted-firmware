@@ -7,7 +7,7 @@
 #ifndef STM32_CONSOLE_H
 #define STM32_CONSOLE_H
 
-#include <console.h>
+#include <drivers/console.h>
 
 #define CONSOLE_T_STM32_BASE	CONSOLE_T_DRVDATA
 

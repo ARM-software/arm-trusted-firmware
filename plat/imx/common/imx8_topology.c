@@ -6,7 +6,7 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
-#include <platform.h>
+#include <plat/common/platform.h>
 
 const unsigned char imx_power_domain_tree_desc[] = {
 	PWR_DOMAIN_AT_MAX_LVL,

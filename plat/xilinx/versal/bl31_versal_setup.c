@@ -5,14 +5,16 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>
-#include <bl31.h>
-#include <console.h>
-#include <debug.h>
 #include <errno.h>
-#include <platform.h>
-#include <pl011.h>
-#include <xlat_tables.h>
+
+#include <bl31/bl31.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/arm/pl011.h>
+#include <drivers/console.h>
+#include <lib/xlat_tables/xlat_tables.h>
+#include <plat/common/platform.h>
+
 #include "versal_private.h"
 
 static entry_point_info_t bl32_image_ep_info;

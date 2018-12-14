@@ -7,8 +7,8 @@
 #ifndef SDEI_H
 #define SDEI_H
 
-#include <spinlock.h>
-#include <utils_def.h>
+#include <lib/spinlock.h>
+#include <lib/utils_def.h>
 
 /* Range 0xC4000020 - 0xC400003F reserved for SDE 64bit smc calls */
 #define SDEI_VERSION				0xC4000020U

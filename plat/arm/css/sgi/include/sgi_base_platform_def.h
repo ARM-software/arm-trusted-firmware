@@ -7,15 +7,16 @@
 #ifndef SGI_BASE_PLATFORM_DEF_H
 #define SGI_BASE_PLATFORM_DEF_H
 
+#include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
+#include <plat/common/common_def.h>
+
 #include <arm_def.h>
 #include <arm_spm_def.h>
 #include <board_css_def.h>
-#include <common_def.h>
 #include <css_def.h>
 #include <soc_css_def.h>
-#include <utils_def.h>
 #include <v2m_def.h>
-#include <xlat_tables_defs.h>
 
 #define PLATFORM_CORE_COUNT		(PLAT_ARM_CLUSTER_COUNT *	\
 					CSS_SGI_MAX_CPUS_PER_CLUSTER * \

@@ -5,9 +5,9 @@
  */
 
 #include <arch_helpers.h>
+#include <lib/spinlock.h>
+#include <lib/utils_def.h>
 #include <platform_def.h>
-#include <spinlock.h>
-#include <utils_def.h>
 
 /*******************************************************************************
  * Secure Service response global array. All the responses to the requests done

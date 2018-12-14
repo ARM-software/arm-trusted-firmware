@@ -7,10 +7,12 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-#include <arch.h>
 #ifndef __ASSEMBLY__
 #include <stdlib.h>
 #endif
+
+#include <arch.h>
+
 #include "rcar_def.h"
 
 /*******************************************************************************

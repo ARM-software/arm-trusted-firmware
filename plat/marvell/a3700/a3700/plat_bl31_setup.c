@@ -5,10 +5,11 @@
  * https://spdx.org/licenses
  */
 
+#include <lib/mmio.h>
+
 #include <armada_common.h>
 #include <dram_win.h>
 #include <io_addr_dec.h>
-#include <mmio.h>
 #include <marvell_plat_priv.h>
 #include <plat_marvell.h>
 

@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <crypto_mod.h>
-#include <debug.h>
-#include <mbedtls_common.h>
-#include <mbedtls_config.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -16,6 +12,11 @@
 #include <mbedtls/memory_buffer_alloc.h>
 #include <mbedtls/oid.h>
 #include <mbedtls/platform.h>
+
+#include <common/debug.h>
+#include <drivers/auth/crypto_mod.h>
+#include <drivers/auth/mbedtls/mbedtls_common.h>
+#include <drivers/auth/mbedtls/mbedtls_config.h>
 
 #define LIB_NAME		"mbed TLS"
 

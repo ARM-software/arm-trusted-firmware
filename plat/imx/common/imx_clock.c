@@ -3,10 +3,13 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <arch.h>
-#include <mmio.h>
+
 #include <stdint.h>
 #include <stdbool.h>
+
+#include <arch.h>
+#include <lib/mmio.h>
+
 #include <imx_regs.h>
 #include <imx_clock.h>
 

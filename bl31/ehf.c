@@ -9,16 +9,17 @@
  */
 
 #include <assert.h>
-#include <context.h>
-#include <context_mgmt.h>
-#include <cpu_data.h>
-#include <debug.h>
-#include <ehf.h>
-#include <gic_common.h>
-#include <interrupt_mgmt.h>
-#include <platform.h>
-#include <pubsub_events.h>
 #include <stdbool.h>
+
+#include <bl31/ehf.h>
+#include <bl31/interrupt_mgmt.h>
+#include <context.h>
+#include <common/debug.h>
+#include <drivers/arm/gic_common.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/el3_runtime/cpu_data.h>
+#include <lib/el3_runtime/pubsub_events.h>
+#include <plat/common/platform.h>
 
 /* Output EHF logs as verbose */
 #define EHF_LOG(...)	VERBOSE("EHF: " __VA_ARGS__)

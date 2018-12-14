@@ -7,8 +7,9 @@
 #ifndef STM32_SDMMC2_H
 #define STM32_SDMMC2_H
 
-#include <mmc.h>
 #include <stdbool.h>
+
+#include <drivers/mmc.h>
 
 struct stm32_sdmmc2_params {
 	uintptr_t		reg_base;

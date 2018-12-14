@@ -8,8 +8,9 @@
 #define PLATFORM_DEF_H
 
 #include <arch.h>
+#include <plat/common/common_def.h>
+
 #include <board_def.h>
-#include <common_def.h>
 
 /*******************************************************************************
  * Generic platform constants

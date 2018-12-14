@@ -5,9 +5,9 @@
  */
 
 #include <arch.h>
-#include <arm_arch_svc.h>
 #include <asm_macros.S>
 #include <context.h>
+#include <services/arm_arch_svc.h>
 
 	.globl	wa_cve_2017_5715_mmu_vbar
 

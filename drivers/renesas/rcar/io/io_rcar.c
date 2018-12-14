@@ -4,23 +4,27 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <auth_mod.h>
-#include <bl_common.h>
-#include <debug.h>
 #include <errno.h>
-#include <firmware_image_package.h>
-#include <io_driver.h>
-#include <io_storage.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <stdint.h>
 #include <string.h>
-#include <uuid.h>
-#include <mmio.h>
+
+#include <platform_def.h>
+
 #include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/auth/auth_mod.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_storage.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+#include <tools_share/firmware_image_package.h>
+#include <tools_share/uuid.h>
+
 #include "io_rcar.h"
 #include "io_common.h"
 #include "io_private.h"
+
 extern int32_t plat_get_drv_source(uint32_t id, uintptr_t *dev,
 				   uintptr_t *image_spec);
 

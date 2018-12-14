@@ -10,7 +10,7 @@
 #define TMU3_MEASUREMENT	(0)
 
 #ifndef __ASSEMBLY__
-#include "stdint.h"
+#include <stdint.h>
 void rcar_micro_delay(uint32_t count_us);
 
 #if (TMU3_MEASUREMENT == 1)

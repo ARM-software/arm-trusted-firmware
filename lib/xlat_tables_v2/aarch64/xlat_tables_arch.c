@@ -4,14 +4,16 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
-#include <arch_helpers.h>
 #include <assert.h>
-#include <cassert.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <utils_def.h>
-#include <xlat_tables_v2.h>
+
+#include <arch.h>
+#include <arch_helpers.h>
+#include <lib/cassert.h>
+#include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+
 #include "../xlat_tables_private.h"
 
 /*

@@ -4,25 +4,27 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <delay_timer.h>
-#include <desc_image_load.h>
-#include <dw_ufs.h>
 #include <errno.h>
-#include <generic_delay_timer.h>
-#include <hi3660.h>
-#include <mmio.h>
-#ifdef SPD_opteed
-#include <optee_utils.h>
-#endif
-#include <pl011.h>
-#include <platform_def.h>
 #include <string.h>
-#include <ufs.h>
 
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/desc_image_load.h>
+#include <drivers/arm/pl011.h>
+#include <drivers/delay_timer.h>
+#include <drivers/dw_ufs.h>
+#include <drivers/generic_delay_timer.h>
+#include <drivers/ufs.h>
+#include <lib/mmio.h>
+#ifdef SPD_opteed
+#include <lib/optee_utils.h>
+#endif
+
+#include <hi3660.h>
 #include "hikey960_def.h"
 #include "hikey960_private.h"
 

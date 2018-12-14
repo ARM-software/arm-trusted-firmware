@@ -7,8 +7,9 @@
 #ifndef PLAT_LS_H
 #define PLAT_LS_H
 
-#include <cpu_data.h>
 #include <stdint.h>
+
+#include <lib/el3_runtime/cpu_data.h>
 
 /* BL1 utility functions */
 void ls_bl1_platform_setup(void);

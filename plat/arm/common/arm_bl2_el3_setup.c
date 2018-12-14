@@ -3,11 +3,14 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <arm_def.h>
+
 #include <assert.h>
-#include <generic_delay_timer.h>
+
+#include <drivers/generic_delay_timer.h>
+#include <plat/common/platform.h>
+
+#include <arm_def.h>
 #include <plat_arm.h>
-#include <platform.h>
 
 #pragma weak bl2_el3_early_platform_setup
 #pragma weak bl2_el3_plat_arch_setup

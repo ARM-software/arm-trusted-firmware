@@ -5,11 +5,11 @@
  */
 #include <arch.h>
 #include <asm_macros.S>
-#include <bl_common.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
 #include <cortex_a53.h>
 #include <cpu_macros.S>
-#include <debug.h>
-#include <errata_report.h>
+#include <lib/cpus/errata_report.h>
 #include <plat_macros.S>
 
 #if A53_DISABLE_NON_TEMPORAL_HINT

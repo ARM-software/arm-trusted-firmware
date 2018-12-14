@@ -6,7 +6,7 @@
 
 #include <asm_macros.S>
 #include <dsu_def.h>
-#include <errata_report.h>
+#include <lib/cpus/errata_report.h>
 
 /* -----------------------------------------------------------------------
  * DSU erratum 936184 check function

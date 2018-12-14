@@ -15,7 +15,8 @@
 #include <cdefs.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <utils_def.h>
+
+#include <lib/utils_def.h>
 
 /*****************************************************************************
  * Internal helpers used by the bakery lock implementation.

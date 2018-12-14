@@ -4,9 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <platform_def.h>
+
 #include <arch.h>
-#include <psci.h>
-#include "platform_def.h"
+#include <lib/psci/psci.h>
+
 #include "plat_private.h"
 
 const unsigned char hisi_power_domain_tree_desc[] = {

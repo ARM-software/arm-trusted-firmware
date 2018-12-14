@@ -4,18 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+#include <errno.h>
+#include <string.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <auth_mod.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <errno.h>
-#include <io_storage.h>
-#include <platform.h>
-#include <string.h>
-#include <utils.h>
-#include <xlat_tables_defs.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/auth/auth_mod.h>
+#include <drivers/io/io_storage.h>
+#include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
+#include <plat/common/platform.h>
 
 #if TRUSTED_BOARD_BOOT
 # ifdef DYN_DISABLE_AUTH

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <platform.h>
-#include <xlat_mmu_helpers.h>
+#include <lib/xlat_tables/xlat_mmu_helpers.h>
+#include <plat/common/platform.h>
 
 /*
  * The following platform setup functions are weakly defined. They

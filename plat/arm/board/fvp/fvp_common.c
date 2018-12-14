@@ -4,20 +4,22 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+
+#include <common/debug.h>
+#include <drivers/arm/cci.h>
+#include <drivers/arm/ccn.h>
+#include <drivers/arm/gicv2.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_compat.h>
+#include <plat/common/platform.h>
+#include <services/secure_partition.h>
+
 #include <arm_config.h>
 #include <arm_def.h>
 #include <arm_spm_def.h>
-#include <assert.h>
-#include <cci.h>
-#include <ccn.h>
-#include <debug.h>
-#include <gicv2.h>
-#include <mmio.h>
 #include <plat_arm.h>
-#include <platform.h>
-#include <secure_partition.h>
 #include <v2m_def.h>
-#include <xlat_tables_compat.h>
 
 #include "../fvp_def.h"
 #include "fvp_private.h"

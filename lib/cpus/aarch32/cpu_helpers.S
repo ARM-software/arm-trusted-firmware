@@ -7,8 +7,8 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
-#include <cpu_data.h>
 #include <cpu_macros.S>
+#include <lib/el3_runtime/cpu_data.h>
 
 #if defined(IMAGE_BL1) || defined(IMAGE_BL32) || (defined(IMAGE_BL2) && BL2_AT_EL3)
 	/*

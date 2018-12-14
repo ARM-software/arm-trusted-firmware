@@ -7,7 +7,7 @@
 #ifndef CORTEX_ARES_H
 #define CORTEX_ARES_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /* Cortex-ARES MIDR for revision 0 */
 #define CORTEX_ARES_MIDR		U(0x410fd0c0)

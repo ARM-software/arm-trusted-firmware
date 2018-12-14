@@ -7,8 +7,8 @@
 #ifndef EP_INFO_H
 #define EP_INFO_H
 
-#include <param_header.h>
-#include <utils_def.h>
+#include <common/param_header.h>
+#include <lib/utils_def.h>
 
 #define SECURE		U(0x0)
 #define NON_SECURE	U(0x1)
@@ -64,8 +64,9 @@
 
 #ifndef __ASSEMBLY__
 
-#include <cassert.h>
 #include <stdint.h>
+
+#include <lib/cassert.h>
 
 typedef struct aapcs64_params {
 	u_register_t arg0;

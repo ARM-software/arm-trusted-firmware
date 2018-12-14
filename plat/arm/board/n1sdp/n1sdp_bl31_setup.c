@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <platform_def.h>
+
 #include "../../css/drivers/scmi/scmi.h"
 #include "../../css/drivers/mhu/css_mhu_doorbell.h"
 #include <plat_arm.h>
-#include <platform_def.h>
 
 static scmi_channel_plat_info_t n1sdp_scmi_plat_info = {
 		.scmi_mbx_mem = N1SDP_SCMI_PAYLOAD_BASE,

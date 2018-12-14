@@ -8,12 +8,14 @@
  * Top-level SMC handler for ZynqMP IPI Mailbox doorbell functions.
  */
 
-#include <bakery_lock.h>
-#include <debug.h>
 #include <errno.h>
-#include <mmio.h>
-#include <runtime_svc.h>
 #include <string.h>
+
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <lib/bakery_lock.h>
+#include <lib/mmio.h>
+
 #include "ipi_mailbox_svc.h"
 #include "../zynqmp_ipi.h"
 #include "../zynqmp_private.h"

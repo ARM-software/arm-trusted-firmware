@@ -5,9 +5,9 @@
  */
 
 #include <asm_macros.S>
-#include <cbmem_console.h>
 #define USE_FINISH_CONSOLE_REG_2
 #include <console_macros.S>
+#include <drivers/coreboot/cbmem_console.h>
 
 /*
  * This driver implements access to coreboot's in-memory console

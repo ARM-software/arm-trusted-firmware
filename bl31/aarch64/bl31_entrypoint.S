@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
-#include <bl_common.h>
-#include <el3_common_macros.S>
 #include <platform_def.h>
-#include <pmf_asm_macros.S>
-#include <runtime_instr.h>
-#include <xlat_mmu_helpers.h>
+
+#include <arch.h>
+#include <common/bl_common.h>
+#include <el3_common_macros.S>
+#include <lib/pmf/pmf_asm_macros.S>
+#include <lib/runtime_instr.h>
+#include <lib/xlat_tables/xlat_mmu_helpers.h>
 
 	.globl	bl31_entrypoint
 	.globl	bl31_warm_entrypoint

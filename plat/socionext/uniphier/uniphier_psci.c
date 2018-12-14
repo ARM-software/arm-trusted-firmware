@@ -5,9 +5,9 @@
  */
 
 #include <arch_helpers.h>
-#include <debug.h>
-#include <mmio.h>
-#include <psci.h>
+#include <common/debug.h>
+#include <lib/mmio.h>
+#include <lib/psci/psci.h>
 
 #include "uniphier.h"
 

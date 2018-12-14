@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
+
+#include <arch_helpers.h>
 #include <cortex_a53.h>
-#include <debug.h>
-#include <delay_timer.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
+
 #include <flowctrl.h>
-#include <mmio.h>
 #include <pmc.h>
 #include <tegra_def.h>
 

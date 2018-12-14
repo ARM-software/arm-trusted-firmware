@@ -7,8 +7,8 @@
 #ifndef PLAT_MACROS_S
 #define PLAT_MACROS_S
 
-#include <cci.h>
-#include <gicv2.h>
+#include <drivers/arm/cci.h>
+#include <drivers/arm/gicv2.h>
 #include <hi3660.h>
 #include <platform_def.h>
 

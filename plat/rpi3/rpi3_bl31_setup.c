@@ -5,12 +5,15 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>
+
 #include <libfdt.h>
-#include <platform.h>
+
 #include <platform_def.h>
-#include <xlat_mmu_helpers.h>
-#include <xlat_tables_defs.h>
+
+#include <common/bl_common.h>
+#include <lib/xlat_tables/xlat_mmu_helpers.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
+#include <plat/common/platform.h>
 
 #include "rpi3_private.h"
 

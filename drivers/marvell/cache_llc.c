@@ -9,11 +9,13 @@
  * for Marvell SoCs in AP806, AP807, and AP810
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <cache_llc.h>
-#include <ccu.h>
-#include <mmio.h>
+
+#include <arch_helpers.h>
+#include <drivers/marvell/cache_llc.h>
+#include <drivers/marvell/ccu.h>
+#include <lib/mmio.h>
+
 #include <mvebu_def.h>
 
 #define CCU_HTC_CR(ap_index)		(MVEBU_CCU_BASE(ap_index) + 0x200)

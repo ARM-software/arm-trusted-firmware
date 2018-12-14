@@ -3,10 +3,14 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <arch.h>
+
 #include <stdint.h>
-#include <mmio.h>
+
 #include <platform_def.h>
+
+#include <arch.h>
+#include <lib/mmio.h>
+
 #include <imx_uart.h>
 
 /* TX/RX FIFO threshold */

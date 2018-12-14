@@ -8,7 +8,8 @@
 #define SPM_SHIM_PRIVATE_H
 
 #include <stdint.h>
-#include <utils_def.h>
+
+#include <lib/utils_def.h>
 
 /* Assembly source */
 IMPORT_SYM(uintptr_t, spm_shim_exceptions_ptr,		SPM_SHIM_EXCEPTIONS_PTR);

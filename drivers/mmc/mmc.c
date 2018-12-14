@@ -6,15 +6,16 @@
 
 /* Define a simple and generic interface to access eMMC and SD-card devices. */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <debug.h>
-#include <delay_timer.h>
 #include <errno.h>
-#include <mmc.h>
 #include <stdbool.h>
 #include <string.h>
-#include <utils.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/mmc.h>
+#include <lib/utils.h>
 
 #define MMC_DEFAULT_MAX_RETRIES		5
 #define SEND_OP_COND_MAX_RETRIES	100

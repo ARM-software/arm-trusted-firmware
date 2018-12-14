@@ -7,7 +7,7 @@
 #ifndef SMCCC_HELPERS_H
 #define SMCCC_HELPERS_H
 
-#include <smccc.h>
+#include <lib/smccc.h>
 
 /* These are offsets to registers in smc_ctx_t */
 #define SMC_CTX_GPREG_R0	U(0x0)
@@ -25,8 +25,10 @@
 #define SMC_CTX_SIZE		U(0x90)
 
 #ifndef __ASSEMBLY__
-#include <cassert.h>
+
 #include <stdint.h>
+
+#include <lib/cassert.h>
 
 /*
  * The generic structure to save arguments and callee saved registers during

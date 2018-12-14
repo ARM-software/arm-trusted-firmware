@@ -4,16 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+#include <stdint.h>
+
+#include <platform_def.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <bl_common.h>
-#include <common_def.h>
-#include <platform_def.h>
-#include <stdint.h>
-#include <utils.h>
-#include <xlat_tables.h>
-#include <xlat_tables_arch.h>
+#include <common/bl_common.h>
+#include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables.h>
+#include <lib/xlat_tables/xlat_tables_arch.h>
+#include <plat/common/common_def.h>
+
 #include "../xlat_tables_private.h"
 
 #define XLAT_TABLE_LEVEL_BASE	\

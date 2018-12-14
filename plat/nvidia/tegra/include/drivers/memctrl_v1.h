@@ -7,7 +7,8 @@
 #ifndef MEMCTRL_V1_H
 #define MEMCTRL_V1_H
 
-#include <mmio.h>
+#include <lib/mmio.h>
+
 #include <tegra_def.h>
 
 /* SMMU registers */

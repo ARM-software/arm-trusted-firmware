@@ -5,9 +5,10 @@
  */
 
 #include <arch_helpers.h>
-#include <debug.h>
-#include <gicv2.h>
-#include <mmio.h>
+#include <common/debug.h>
+#include <drivers/arm/gicv2.h>
+#include <lib/mmio.h>
+
 #include "rcar_def.h"
 
 extern void gicd_set_icenabler(uintptr_t base, unsigned int id);

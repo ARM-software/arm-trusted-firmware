@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
+#include <common/debug.h>
+
 #include "ls_16550.h"
 #include "plat_ls.h"
 #include "../../../bl1/bl1_private.h"

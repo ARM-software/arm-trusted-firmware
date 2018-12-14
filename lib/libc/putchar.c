@@ -5,7 +5,8 @@
  */
 
 #include <stdio.h>
-#include <console.h>
+
+#include <drivers/console.h>
 
 int putchar(int c)
 {

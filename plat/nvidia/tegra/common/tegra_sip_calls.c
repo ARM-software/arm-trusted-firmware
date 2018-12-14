@@ -4,15 +4,17 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+#include <errno.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <errno.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <lib/mmio.h>
+
 #include <memctrl.h>
-#include <mmio.h>
-#include <runtime_svc.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
 

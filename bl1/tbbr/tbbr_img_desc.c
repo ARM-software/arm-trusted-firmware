@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <bl1.h>
-#include <bl_common.h>
 #include <platform_def.h>
-#include <tbbr/tbbr_img_desc.h>
+
+#include <bl1/bl1.h>
+#include <bl1/tbbr/tbbr_img_desc.h>
+#include <common/bl_common.h>
 
 image_desc_t bl1_tbbr_image_descs[] = {
     {

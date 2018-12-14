@@ -5,9 +5,10 @@
  * https://spdx.org/licenses
  */
 
-#include <mmio.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
 #include <mss_mem.h>
-#include <platform.h>
 #include <plat_pm_trace.h>
 
 #ifdef PM_TRACE_ENABLE

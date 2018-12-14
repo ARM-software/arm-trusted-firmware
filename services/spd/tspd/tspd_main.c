@@ -14,20 +14,22 @@
  * handle the request locally or delegate it to the Secure Payload. It is also
  * responsible for initialising and maintaining communication with the SP.
  ******************************************************************************/
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl31.h>
-#include <bl_common.h>
-#include <context_mgmt.h>
-#include <debug.h>
-#include <ehf.h>
 #include <errno.h>
-#include <platform.h>
-#include <runtime_svc.h>
 #include <stddef.h>
 #include <string.h>
-#include <tsp.h>
-#include <uuid.h>
+
+#include <arch_helpers.h>
+#include <bl31/bl31.h>
+#include <bl31/ehf.h>
+#include <bl32/tsp/tsp.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <plat/common/platform.h>
+#include <tools_share/uuid.h>
+
 #include "tspd_private.h"
 
 /*******************************************************************************

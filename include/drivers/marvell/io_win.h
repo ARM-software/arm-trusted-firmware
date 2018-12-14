@@ -10,7 +10,7 @@
 #ifndef IO_WIN_H
 #define IO_WIN_H
 
-#include <addr_map.h>
+#include <drivers/marvell/addr_map.h>
 
 int init_io_win(int ap_index);
 void iow_temp_win_insert(int ap_index, struct addr_map_win *win, int size);

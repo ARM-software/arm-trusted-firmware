@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <bl_common.h>
-#include <gicv3.h>
-#include <interrupt_props.h>
-#include <plat_imx8.h>
-#include <platform.h>
 #include <platform_def.h>
-#include <utils.h>
+
+#include <common/bl_common.h>
+#include <common/interrupt_props.h>
+#include <drivers/arm/gicv3.h>
+#include <lib/utils.h>
+#include <plat/common/platform.h>
+
+#include <plat_imx8.h>
 
 /* the GICv3 driver only needs to be initialized in EL3 */
 uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];

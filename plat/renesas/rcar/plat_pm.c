@@ -4,17 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
-#include <bakery_lock.h>
-#include <bl_common.h>
-#include <cci.h>
-#include <debug.h>
 #include <errno.h>
-#include <gicv2.h>
-#include <mmio.h>
-#include <platform.h>
+
 #include <platform_def.h>
-#include <psci.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/arm/cci.h>
+#include <drivers/arm/gicv2.h>
+#include <lib/bakery_lock.h>
+#include <lib/mmio.h>
+#include <lib/psci/psci.h>
+#include <plat/common/platform.h>
 
 #include "iic_dvfs.h"
 #include "pwrc.h"

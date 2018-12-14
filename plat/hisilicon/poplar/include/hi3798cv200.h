@@ -7,7 +7,7 @@
 #ifndef HI3798CV200_H
 #define HI3798CV200_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /* PL011 */
 #define PL011_UART0_BASE		(0xF8B00000)

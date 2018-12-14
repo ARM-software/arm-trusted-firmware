@@ -7,8 +7,9 @@
 #ifndef IMX_WDOG_H
 #define IMX_WDOG_H
 
-#include <arch.h>
 #include <stdint.h>
+
+#include <arch.h>
 
 struct wdog_regs {
 	uint16_t wcr;

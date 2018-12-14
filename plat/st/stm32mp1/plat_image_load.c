@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <desc_image_load.h>
-#include <platform.h>
+#include <common/desc_image_load.h>
+#include <plat/common/platform.h>
 
 /*******************************************************************************
  * This function flushes the data structures so that they are visible

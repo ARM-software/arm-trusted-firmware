@@ -5,14 +5,17 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
 #include <errno.h>
-#include <plat_arm.h>
-#include <platform.h>
+
 #include <platform_def.h>
-#include <tbbr_img_desc.h>
-#include <utils.h>
+
+#include <bl1/tbbr/tbbr_img_desc.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <lib/utils.h>
+#include <plat/common/platform.h>
+
+#include <plat_arm.h>
 
 /* Struct to keep track of usable memory */
 typedef struct bl1_mem_info {

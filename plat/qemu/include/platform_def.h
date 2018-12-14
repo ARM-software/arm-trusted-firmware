@@ -8,9 +8,9 @@
 #define PLATFORM_DEF_H
 
 #include <arch.h>
-#include <common_def.h>
-#include <tbbr_img_def.h>
-#include <utils_def.h>
+#include <common/tbbr/tbbr_img_def.h>
+#include <lib/utils_def.h>
+#include <plat/common/common_def.h>
 
 /* Special value used to verify platform parameters from BL2 to BL3-1 */
 #define QEMU_BL31_PLAT_PARAM_VAL	0x0f1e2d3c4b5a6978ULL

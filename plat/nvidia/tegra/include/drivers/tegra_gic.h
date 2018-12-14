@@ -7,7 +7,7 @@
 #ifndef __TEGRA_GIC_H__
 #define __TEGRA_GIC_H__
 
-#include <interrupt_props.h>
+#include <common/interrupt_props.h>
 
 /*******************************************************************************
  * Per-CPU struct describing FIQ state to be stored

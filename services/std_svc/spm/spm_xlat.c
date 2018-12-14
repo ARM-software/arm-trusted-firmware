@@ -8,14 +8,16 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <errno.h>
-#include <object_pool.h>
-#include <platform_def.h>
-#include <platform.h>
-#include <sp_res_desc.h>
 #include <string.h>
-#include <utils.h>
-#include <utils_def.h>
-#include <xlat_tables_v2.h>
+
+#include <platform_def.h>
+
+#include <lib/object_pool.h>
+#include <lib/utils.h>
+#include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+#include <plat/common/platform.h>
+#include <services/sp_res_desc.h>
 
 #include "spm_private.h"
 #include "spm_shim_private.h"

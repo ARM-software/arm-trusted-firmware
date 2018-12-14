@@ -7,8 +7,8 @@
 #ifndef RCAR_DEF_H
 #define RCAR_DEF_H
 
-#include <tbbr_img_def.h>
-#include <utils_def.h>
+#include <common/tbbr/tbbr_img_def.h>
+#include <lib/utils_def.h>
 
 #define RCAR_PRIMARY_CPU		0x0
 #define RCAR_TRUSTED_SRAM_BASE		0x44000000

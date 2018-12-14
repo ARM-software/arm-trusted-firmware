@@ -7,7 +7,7 @@
 #define CPU_MACROS_S
 
 #include <arch.h>
-#include <errata_report.h>
+#include <lib/cpus/errata_report.h>
 
 #if defined(IMAGE_BL1) || defined(IMAGE_BL32)  || (defined(IMAGE_BL2) && BL2_AT_EL3)
 #define IMAGE_AT_EL3

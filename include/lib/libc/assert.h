@@ -8,8 +8,10 @@
 #define ASSERT_H
 
 #include <cdefs.h>
-#include <debug.h>
+
 #include <platform_def.h>
+
+#include <common/debug.h>
 
 #ifndef PLAT_LOG_LEVEL_ASSERT
 #define PLAT_LOG_LEVEL_ASSERT	LOG_LEVEL

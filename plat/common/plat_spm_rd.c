@@ -5,13 +5,16 @@
  */
 
 #include <assert.h>
-#include <debug.h>
-#include <fdt_wrappers.h>
-#include <libfdt.h>
-#include <platform_def.h>
-#include <sp_res_desc.h>
 #include <string.h>
-#include <object_pool.h>
+
+#include <libfdt.h>
+
+#include <platform_def.h>
+
+#include <common/debug.h>
+#include <common/fdt_wrappers.h>
+#include <lib/object_pool.h>
+#include <services/sp_res_desc.h>
 
 /*******************************************************************************
  * Resource pool

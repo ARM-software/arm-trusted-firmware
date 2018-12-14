@@ -4,20 +4,22 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
-#include <crypto_driver.h>
-#include <crypto_mod.h>
-#include <debug.h>
-#include <mbedtls_common.h>
-#include <platform_def.h>
-#include <rsa.h>
-#include <sbrom_bsv_api.h>
-#include <secureboot_base_func.h>
-#include <secureboot_gen_defs.h>
 #include <stddef.h>
 #include <string.h>
-#include <util.h>
-#include <utils.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/arm/cryptocell/crypto_driver.h>
+#include <drivers/arm/cryptocell/rsa.h>
+#include <drivers/arm/cryptocell/sbrom_bsv_api.h>
+#include <drivers/arm/cryptocell/secureboot_base_func.h>
+#include <drivers/arm/cryptocell/secureboot_gen_defs.h>
+#include <drivers/arm/cryptocell/util.h>
+#include <drivers/auth/crypto_mod.h>
+#include <drivers/auth/mbedtls/mbedtls_common.h>
+#include <lib/utils.h>
 
 #include <mbedtls/oid.h>
 

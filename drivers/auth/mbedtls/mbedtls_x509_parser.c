@@ -12,19 +12,20 @@
  * extensions field, such as an image hash or a public key.
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <img_parser_mod.h>
-#include <mbedtls_common.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
-#include <utils.h>
 
 /* mbed TLS headers */
 #include <mbedtls/asn1.h>
 #include <mbedtls/oid.h>
 #include <mbedtls/platform.h>
+
+#include <arch_helpers.h>
+#include <drivers/auth/img_parser_mod.h>
+#include <drivers/auth/mbedtls/mbedtls_common.h>
+#include <lib/utils.h>
 
 /* Maximum OID string length ("a.b.c.d.e.f ...") */
 #define MAX_OID_STR_LEN			64

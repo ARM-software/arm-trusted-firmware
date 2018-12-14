@@ -6,7 +6,7 @@
 
 #include <asm_macros.S>
 #include <assert_macros.S>
-#include <xlat_tables_v2.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 	.global	enable_mmu_direct_svc_mon
 	.global	enable_mmu_direct_hyp

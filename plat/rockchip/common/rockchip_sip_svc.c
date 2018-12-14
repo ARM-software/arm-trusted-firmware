@@ -5,12 +5,14 @@
  */
 
 #include <assert.h>
-#include <debug.h>
-#include <mmio.h>
+
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <lib/mmio.h>
+#include <tools_share/uuid.h>
+
 #include <plat_sip_calls.h>
 #include <rockchip_sip_svc.h>
-#include <runtime_svc.h>
-#include <uuid.h>
 
 /* Rockchip SiP Service UUID */
 DEFINE_SVC_UUID2(rk_sip_svc_uid,

@@ -7,8 +7,9 @@
 #ifndef MCUCFG_H
 #define MCUCFG_H
 
-#include <platform_def.h>
 #include <stdint.h>
+
+#include <platform_def.h>
 
 struct mt6795_mcucfg_regs {
 	uint32_t mp0_ca7l_cache_config;

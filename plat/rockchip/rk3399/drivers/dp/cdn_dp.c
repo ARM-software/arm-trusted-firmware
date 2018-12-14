@@ -6,10 +6,12 @@
 
 #include <assert.h>
 #include <cdefs.h>
-#include <cdn_dp.h>
-#include <smccc.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <lib/smccc.h>
+
+#include <cdn_dp.h>
 
 __asm__(
 	".pushsection .text.hdcp_handler, \"ax\", %progbits\n"

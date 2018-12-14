@@ -7,7 +7,7 @@
 #ifndef CCI_H
 #define CCI_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /* Slave interface offsets from PERIPHBASE */
 #define SLAVE_IFACE6_OFFSET		UL(0x7000)

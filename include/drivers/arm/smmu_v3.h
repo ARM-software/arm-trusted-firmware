@@ -8,7 +8,8 @@
 #define SMMU_V3_H
 
 #include <stdint.h>
-#include <utils_def.h>
+
+#include <lib/utils_def.h>
 
 /* SMMUv3 register offsets from device base */
 #define SMMU_S_IDR1	U(0x8004)

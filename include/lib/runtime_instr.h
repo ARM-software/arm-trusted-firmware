@@ -7,7 +7,7 @@
 #ifndef RUNTIME_INSTR_H
 #define RUNTIME_INSTR_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 #define RT_INSTR_ENTER_PSCI		U(0)
 #define RT_INSTR_EXIT_PSCI		U(1)

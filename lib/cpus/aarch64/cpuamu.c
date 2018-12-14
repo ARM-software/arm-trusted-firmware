@@ -5,8 +5,8 @@
  */
 
 #include <cpuamu.h>
-#include <platform.h>
-#include <pubsub_events.h>
+#include <lib/el3_runtime/pubsub_events.h>
+#include <plat/common/platform.h>
 
 #define CPUAMU_NR_COUNTERS	5U
 

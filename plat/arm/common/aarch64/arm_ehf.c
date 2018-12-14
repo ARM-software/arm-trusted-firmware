@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <ehf.h>
 #include <platform_def.h>
+
+#include <bl31/ehf.h>
 
 /*
  * Enumeration of priority levels on ARM platforms.

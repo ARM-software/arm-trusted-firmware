@@ -3,11 +3,15 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <console.h>
-#include <debug.h>
-#include <libfdt.h>
-#include <psci.h>
+
 #include <string.h>
+
+#include <libfdt.h>
+
+#include <common/debug.h>
+#include <drivers/console.h>
+#include <lib/psci/psci.h>
+
 #include "qemu_private.h"
 
 static int append_psci_compatible(void *fdt, int offs, const char *str)

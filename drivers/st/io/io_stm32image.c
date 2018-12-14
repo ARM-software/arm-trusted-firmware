@@ -5,17 +5,20 @@
  */
 
 #include <assert.h>
-#include <boot_api.h>
-#include <debug.h>
 #include <errno.h>
-#include <io_driver.h>
-#include <io_stm32image.h>
-#include <io_storage.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <stdint.h>
 #include <string.h>
-#include <utils.h>
+
+#include <platform_def.h>
+
+#include <common/debug.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_storage.h>
+#include <drivers/st/io_stm32image.h>
+#include <lib/utils.h>
+#include <plat/common/platform.h>
+
+#include <boot_api.h>
 
 static uintptr_t backend_dev_handle;
 static uintptr_t backend_image_spec;

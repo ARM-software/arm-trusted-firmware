@@ -4,21 +4,24 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <debug.h>
 #include <errno.h>
-#include <firmware_image_package.h>
-#include <io_block.h>
-#include <io_driver.h>
-#include <io_fip.h>
-#include <io_memmap.h>
-#include <io_storage.h>
-#include <mmc.h>
-#include <mmio.h>
-#include <platform_def.h>
-#include <semihosting.h>	/* For FOPEN_MODE_... */
 #include <string.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/io/io_block.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_fip.h>
+#include <drivers/io/io_memmap.h>
+#include <drivers/io/io_storage.h>
+#include <drivers/mmc.h>
+#include <lib/mmio.h>
+#include <lib/semihosting.h>
+#include <tools_share/firmware_image_package.h>
+
 #include "hikey_private.h"
 
 #define EMMC_BLOCK_SHIFT			9
