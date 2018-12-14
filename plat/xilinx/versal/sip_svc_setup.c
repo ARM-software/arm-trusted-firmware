@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <tools_share/uuid.h>
+#include "pm_svc_main.h"
 
 /* SMC function IDs for SiP Service queries */
 #define VERSAL_SIP_SVC_CALL_COUNT	0x8200ff00
@@ -36,6 +37,9 @@ DEFINE_SVC_UUID2(versal_sip_uuid,
  */
 static int32_t sip_svc_setup(void)
 {
+	/* PM implementation as SiP Service */
+	pm_setup();
+
 	return 0;
 }
 

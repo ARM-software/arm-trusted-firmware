@@ -106,4 +106,19 @@
 
 #define FPD_APU_CONFIG_0_VINITHI_SHIFT	8
 
+/* IPI registers and bitfields */
+#define IPI0_REG_BASE		0xFF330000
+#define IPI0_TRIG_BIT		(1 << 2)
+#define PMC_IPI_TRIG_BIT	(1 << 1)
+#define IPI1_REG_BASE		0xFF340000
+#define IPI1_TRIG_BIT		(1 << 3)
+#define IPI2_REG_BASE		0xFF350000
+#define IPI2_TRIG_BIT		(1 << 4)
+#define IPI3_REG_BASE		0xFF360000
+#define IPI3_TRIG_BIT		(1 << 5)
+#define IPI4_REG_BASE		0xFF370000
+#define IPI4_TRIG_BIT		(1 << 5)
+#define IPI5_REG_BASE		0xFF380000
+#define IPI5_TRIG_BIT		(1 << 6)
+
 #endif /* VERSAL_DEF_H */
