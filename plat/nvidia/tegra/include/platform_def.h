@@ -59,6 +59,6 @@
  * integrated and external caches.
  ******************************************************************************/
 #define CACHE_WRITEBACK_SHIFT		6
-#define CACHE_WRITEBACK_GRANULE		(U(1) << CACHE_WRITEBACK_SHIFT)
+#define CACHE_WRITEBACK_GRANULE		(0x40) /* (U(1) << CACHE_WRITEBACK_SHIFT) */
 
 #endif /* PLATFORM_DEF_H */
