@@ -270,19 +270,18 @@ BL_COMMON_SOURCES	+=	lib/${ARCH}/armclang_printf.S
 endif
 
 INCLUDES		+=	-Iinclude				\
+				-Iinclude/arch/${ARCH}			\
 				-Iinclude/bl1				\
 				-Iinclude/bl2				\
 				-Iinclude/bl2u				\
 				-Iinclude/bl31				\
 				-Iinclude/common			\
-				-Iinclude/common/${ARCH}		\
 				-Iinclude/drivers			\
 				-Iinclude/drivers/arm			\
 				-Iinclude/drivers/auth			\
 				-Iinclude/drivers/io			\
 				-Iinclude/drivers/ti/uart		\
 				-Iinclude/lib				\
-				-Iinclude/lib/${ARCH}			\
 				-Iinclude/lib/cpus			\
 				-Iinclude/lib/cpus/${ARCH}		\
 				-Iinclude/lib/el3_runtime		\
