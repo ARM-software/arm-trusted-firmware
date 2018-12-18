@@ -215,11 +215,81 @@ DEFINE_SYSOP_TYPE_FUNC(dmb, ishst)
 DEFINE_SYSOP_TYPE_FUNC(dmb, ish)
 DEFINE_SYSOP_FUNC(isb)
 
+static inline void enable_irq(void)
+{
+	/*
+	 * The compiler memory barrier will prevent the compiler from
+	 * scheduling non-volatile memory access after the write to the
+	 * register.
+	 *
+	 * This could happen if some initialization code issues non-volatile
+	 * accesses to an area used by an interrupt handler, in the assumption
+	 * that it is safe as the interrupts are disabled at the time it does
+	 * that (according to program order). However, non-volatile accesses
+	 * are not necessarily in program order relatively with volatile inline
+	 * assembly statements (and volatile accesses).
+	 */
+	COMPILER_BARRIER();
+	write_daifclr(DAIF_IRQ_BIT);
+	isb();
+}
+
+static inline void enable_fiq(void)
+{
+	COMPILER_BARRIER();
+	write_daifclr(DAIF_FIQ_BIT);
+	isb();
+}
+
+static inline void enable_serror(void)
+{
+	COMPILER_BARRIER();
+	write_daifclr(DAIF_ABT_BIT);
+	isb();
+}
+
+static inline void enable_debug_exceptions(void)
+{
+	COMPILER_BARRIER();
+	write_daifclr(DAIF_DBG_BIT);
+	isb();
+}
+
+static inline void disable_irq(void)
+{
+	COMPILER_BARRIER();
+	write_daifset(DAIF_IRQ_BIT);
+	isb();
+}
+
+static inline void disable_fiq(void)
+{
+	COMPILER_BARRIER();
+	write_daifset(DAIF_FIQ_BIT);
+	isb();
+}
+
+static inline void disable_serror(void)
+{
+	COMPILER_BARRIER();
+	write_daifset(DAIF_ABT_BIT);
+	isb();
+}
+
+static inline void disable_debug_exceptions(void)
+{
+	COMPILER_BARRIER();
+	write_daifset(DAIF_DBG_BIT);
+	isb();
+}
+
+#if !ERROR_DEPRECATED
 uint32_t get_afflvl_shift(uint32_t);
 uint32_t mpidr_mask_lower_afflvls(uint64_t, uint32_t);
 
 void __dead2 eret(uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3,
 		  uint64_t x4, uint64_t x5, uint64_t x6, uint64_t x7);
+#endif
 void __dead2 smc(uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3,
 		 uint64_t x4, uint64_t x5, uint64_t x6, uint64_t x7);
 
@@ -305,6 +375,19 @@ DEFINE_SYSREG_RW_FUNCS(cntp_tval_el0)
 DEFINE_SYSREG_RW_FUNCS(cntp_cval_el0)
 DEFINE_SYSREG_READ_FUNC(cntpct_el0)
 DEFINE_SYSREG_RW_FUNCS(cnthctl_el2)
+
+#define get_cntp_ctl_enable(x)  (((x) >> CNTP_CTL_ENABLE_SHIFT) & \
+					CNTP_CTL_ENABLE_MASK)
+#define get_cntp_ctl_imask(x)   (((x) >> CNTP_CTL_IMASK_SHIFT) & \
+					CNTP_CTL_IMASK_MASK)
+#define get_cntp_ctl_istatus(x) (((x) >> CNTP_CTL_ISTATUS_SHIFT) & \
+					CNTP_CTL_ISTATUS_MASK)
+
+#define set_cntp_ctl_enable(x)  ((x) |= (U(1) << CNTP_CTL_ENABLE_SHIFT))
+#define set_cntp_ctl_imask(x)   ((x) |= (U(1) << CNTP_CTL_IMASK_SHIFT))
+
+#define clr_cntp_ctl_enable(x)  ((x) &= ~(U(1) << CNTP_CTL_ENABLE_SHIFT))
+#define clr_cntp_ctl_imask(x)   ((x) &= ~(U(1) << CNTP_CTL_IMASK_SHIFT))
 
 DEFINE_SYSREG_RW_FUNCS(tpidr_el3)
 

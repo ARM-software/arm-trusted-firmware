@@ -9,9 +9,11 @@
 #include <assert_macros.S>
 #include <xlat_tables_defs.h>
 
+#if !ERROR_DEPRECATED
 	.globl	get_afflvl_shift
 	.globl	mpidr_mask_lower_afflvls
 	.globl	eret
+#endif /* ERROR_DEPRECATED */
 	.globl	smc
 
 	.globl	zero_normalmem
@@ -30,6 +32,7 @@
 	.globl	enable_vfp
 #endif
 
+#if !ERROR_DEPRECATED
 func get_afflvl_shift
 	cmp	x0, #3
 	cinc	x0, x0, eq
@@ -52,7 +55,7 @@ endfunc mpidr_mask_lower_afflvls
 func eret
 	eret
 endfunc eret
-
+#endif /* ERROR_DEPRECATED */
 
 func smc
 	smc	#0
