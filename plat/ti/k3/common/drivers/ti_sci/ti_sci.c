@@ -1459,6 +1459,87 @@ int ti_sci_proc_get_boot_status(uint8_t proc_id, uint64_t *bv,
 }
 
 /**
+ * ti_sci_proc_wait_boot_status() - Wait for a processor boot status
+ *
+ * @proc_id:			Processor ID this request is for
+ * @num_wait_iterations		Total number of iterations we will check before
+ *				we will timeout and give up
+ * @num_match_iterations	How many iterations should we have continued
+ *				status to account for status bits glitching.
+ *				This is to make sure that match occurs for
+ *				consecutive checks. This implies that the
+ *				worst case should consider that the stable
+ *				time should at the worst be num_wait_iterations
+ *				num_match_iterations to prevent timeout.
+ * @delay_per_iteration_us	Specifies how long to wait (in micro seconds)
+ *				between each status checks. This is the minimum
+ *				duration, and overhead of register reads and
+ *				checks are on top of this and can vary based on
+ *				varied conditions.
+ * @delay_before_iterations_us	Specifies how long to wait (in micro seconds)
+ *				before the very first check in the first
+ *				iteration of status check loop. This is the
+ *				minimum duration, and overhead of register
+ *				reads and checks are.
+ * @status_flags_1_set_all_wait	If non-zero, Specifies that all bits of the
+ *				status matching this field requested MUST be 1.
+ * @status_flags_1_set_any_wait	If non-zero, Specifies that at least one of the
+ *				bits matching this field requested MUST be 1.
+ * @status_flags_1_clr_all_wait	If non-zero, Specifies that all bits of the
+ *				status matching this field requested MUST be 0.
+ * @status_flags_1_clr_any_wait	If non-zero, Specifies that at least one of the
+ *				bits matching this field requested MUST be 0.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_proc_wait_boot_status(uint8_t proc_id, uint8_t num_wait_iterations,
+				 uint8_t num_match_iterations,
+				 uint8_t delay_per_iteration_us,
+				 uint8_t delay_before_iterations_us,
+				 uint32_t status_flags_1_set_all_wait,
+				 uint32_t status_flags_1_set_any_wait,
+				 uint32_t status_flags_1_clr_all_wait,
+				 uint32_t status_flags_1_clr_any_wait)
+{
+	struct ti_sci_msg_req_wait_proc_boot_status req;
+	struct ti_sci_msg_hdr resp;
+
+	struct ti_sci_xfer xfer;
+	int ret;
+
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_WAIT_PROC_BOOT_STATUS,
+				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+				    &req, sizeof(req),
+				    &resp, sizeof(resp),
+				    &xfer);
+	if (ret) {
+		ERROR("Message alloc failed (%d)\n", ret);
+		return ret;
+	}
+
+	req.processor_id = proc_id;
+	req.num_wait_iterations = num_wait_iterations;
+	req.num_match_iterations = num_match_iterations;
+	req.delay_per_iteration_us = delay_per_iteration_us;
+	req.delay_before_iterations_us = delay_before_iterations_us;
+	req.status_flags_1_set_all_wait = status_flags_1_set_all_wait;
+	req.status_flags_1_set_any_wait = status_flags_1_set_any_wait;
+	req.status_flags_1_clr_all_wait = status_flags_1_clr_all_wait;
+	req.status_flags_1_clr_any_wait = status_flags_1_clr_any_wait;
+
+	ret = ti_sci_do_xfer(&xfer);
+	if (ret) {
+		ERROR("Transfer send failed (%d)\n", ret);
+		return ret;
+	}
+
+	if (!ti_sci_is_response_ack(&resp))
+		return -ENODEV;
+
+	return 0;
+}
+
+/**
  * ti_sci_init() - Basic initialization
  *
  * Return: 0 if all goes well, else appropriate error message
