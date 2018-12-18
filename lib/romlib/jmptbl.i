@@ -4,37 +4,40 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 # Format:
-# index	lib	function	[patch]
+# lib	function	[patch]
 # Add "patch" at the end of the line to patch a function. For example:
-# 14	mbedtls	mbedtls_memory_buffer_alloc_init	patch
+# mbedtls	mbedtls_memory_buffer_alloc_init	patch
+# Holes can be introduced in the table by using a special keyword "reserved".
+# Example:
+# reserved	reserved
+# The jump table will contain an invalid instruction instead of branch
 
-0	rom	rom_lib_init
-1	fdt	fdt_getprop_namelen
-2	fdt	fdt_setprop_inplace
-3	fdt	fdt_check_header
-4	fdt	fdt_node_offset_by_compatible
-5	mbedtls	mbedtls_asn1_get_alg
-6	mbedtls	mbedtls_asn1_get_alg_null
-7	mbedtls	mbedtls_asn1_get_bitstring_null
-8	mbedtls	mbedtls_asn1_get_bool
-9	mbedtls	mbedtls_asn1_get_int
-10	mbedtls	mbedtls_asn1_get_tag
-11	mbedtls	mbedtls_free
-12	mbedtls	mbedtls_md
-13	mbedtls	mbedtls_md_get_size
-14	mbedtls	mbedtls_memory_buffer_alloc_init
-15	mbedtls	mbedtls_oid_get_md_alg
-16	mbedtls	mbedtls_oid_get_numeric_string
-17	mbedtls	mbedtls_oid_get_pk_alg
-18	mbedtls	mbedtls_oid_get_sig_alg
-19	mbedtls	mbedtls_pk_free
-20	mbedtls	mbedtls_pk_init
-21	mbedtls	mbedtls_pk_parse_subpubkey
-22	mbedtls	mbedtls_pk_verify_ext
-23	mbedtls	mbedtls_platform_set_calloc_free
-24	mbedtls	mbedtls_platform_set_snprintf
-25	mbedtls	mbedtls_x509_get_rsassa_pss_params
-26	mbedtls	mbedtls_x509_get_sig_alg
-27	mbedtls	mbedtls_md_info_from_type
-28	c	exit
-29	c	atexit
+rom	rom_lib_init
+fdt	fdt_getprop_namelen
+fdt	fdt_setprop_inplace
+fdt	fdt_check_header
+fdt	fdt_node_offset_by_compatible
+mbedtls	mbedtls_asn1_get_alg
+mbedtls	mbedtls_asn1_get_alg_null
+mbedtls	mbedtls_asn1_get_bitstring_null
+mbedtls	mbedtls_asn1_get_bool
+mbedtls	mbedtls_asn1_get_int
+mbedtls	mbedtls_asn1_get_tag
+mbedtls	mbedtls_free
+mbedtls	mbedtls_md
+mbedtls	mbedtls_md_get_size
+mbedtls	mbedtls_memory_buffer_alloc_init
+mbedtls	mbedtls_oid_get_md_alg
+mbedtls	mbedtls_oid_get_numeric_string
+mbedtls	mbedtls_oid_get_pk_alg
+mbedtls	mbedtls_oid_get_sig_alg
+mbedtls	mbedtls_pk_free
+mbedtls	mbedtls_pk_init
+mbedtls	mbedtls_pk_parse_subpubkey
+mbedtls	mbedtls_pk_verify_ext
+mbedtls	mbedtls_platform_set_snprintf
+mbedtls	mbedtls_x509_get_rsassa_pss_params
+mbedtls	mbedtls_x509_get_sig_alg
+mbedtls	mbedtls_md_info_from_type
+c	exit
+c	atexit
