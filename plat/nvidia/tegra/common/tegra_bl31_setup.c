@@ -313,9 +313,6 @@ void bl31_plat_arch_setup(void)
 	uint64_t code_base = BL_CODE_BASE;
 	uint64_t code_size = BL_CODE_END - BL_CODE_BASE;
 	const mmap_region_t *plat_mmio_map = NULL;
-#if USE_COHERENT_MEM
-	uint32_t coh_start, coh_size;
-#endif
 	const plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 
 	/*
@@ -341,15 +338,6 @@ void bl31_plat_arch_setup(void)
 	mmap_add_region(code_base, code_base,
 			code_size,
 			MT_CODE | MT_SECURE);
-
-#if USE_COHERENT_MEM
-	coh_start = total_base + (BL_COHERENT_RAM_BASE - BL31_RO_BASE);
-	coh_size = BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE;
-
-	mmap_add_region(coh_start, coh_start,
-			coh_size,
-			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE);
-#endif
 
 	/* map TZDRAM used by BL31 as coherent memory */
 	if (TEGRA_TZRAM_BASE == tegra_bl31_phys_base) {
