@@ -1875,22 +1875,25 @@ with 8 CPUs using the AArch64 build of TF-A.
     -C cluster0.NUM_CORES=4                                      \
     -C cluster1.NUM_CORES=4                                      \
     -C cache_state_modelled=1                                    \
-    -C cluster0.cpu0.RVBAR=0x04020000                            \
-    -C cluster0.cpu1.RVBAR=0x04020000                            \
-    -C cluster0.cpu2.RVBAR=0x04020000                            \
-    -C cluster0.cpu3.RVBAR=0x04020000                            \
-    -C cluster1.cpu0.RVBAR=0x04020000                            \
-    -C cluster1.cpu1.RVBAR=0x04020000                            \
-    -C cluster1.cpu2.RVBAR=0x04020000                            \
-    -C cluster1.cpu3.RVBAR=0x04020000                            \
-    --data cluster0.cpu0="<path-to>/<bl31-binary>"@0x04020000    \
-    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04001000    \
+    -C cluster0.cpu0.RVBAR=0x04010000                            \
+    -C cluster0.cpu1.RVBAR=0x04010000                            \
+    -C cluster0.cpu2.RVBAR=0x04010000                            \
+    -C cluster0.cpu3.RVBAR=0x04010000                            \
+    -C cluster1.cpu0.RVBAR=0x04010000                            \
+    -C cluster1.cpu1.RVBAR=0x04010000                            \
+    -C cluster1.cpu2.RVBAR=0x04010000                            \
+    -C cluster1.cpu3.RVBAR=0x04010000                            \
+    --data cluster0.cpu0="<path-to>/<bl31-binary>"@0x04010000    \
+    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0xff000000    \
     --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000    \
     --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000            \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000  \
     --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
 Notes:
+
+-  Since Position Independent Executable (PIE) support is enabled for BL31
+   in this config, it can be loaded at any valid address for execution.
 
 -  Since a FIP is not loaded when using BL31 as reset entrypoint, the
    ``--data="<path-to><bl31|bl32|bl33-binary>"@<base-address-of-binary>``
@@ -1932,14 +1935,14 @@ with 8 CPUs using the AArch32 build of TF-A.
     -C cluster1.cpu1.CONFIG64=0                                  \
     -C cluster1.cpu2.CONFIG64=0                                  \
     -C cluster1.cpu3.CONFIG64=0                                  \
-    -C cluster0.cpu0.RVBAR=0x04001000                            \
-    -C cluster0.cpu1.RVBAR=0x04001000                            \
-    -C cluster0.cpu2.RVBAR=0x04001000                            \
-    -C cluster0.cpu3.RVBAR=0x04001000                            \
-    -C cluster1.cpu0.RVBAR=0x04001000                            \
-    -C cluster1.cpu1.RVBAR=0x04001000                            \
-    -C cluster1.cpu2.RVBAR=0x04001000                            \
-    -C cluster1.cpu3.RVBAR=0x04001000                            \
+    -C cluster0.cpu0.RVBAR=0x04002000                            \
+    -C cluster0.cpu1.RVBAR=0x04002000                            \
+    -C cluster0.cpu2.RVBAR=0x04002000                            \
+    -C cluster0.cpu3.RVBAR=0x04002000                            \
+    -C cluster1.cpu0.RVBAR=0x04002000                            \
+    -C cluster1.cpu1.RVBAR=0x04002000                            \
+    -C cluster1.cpu2.RVBAR=0x04002000                            \
+    -C cluster1.cpu3.RVBAR=0x04002000                            \
     --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04002000    \
     --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000    \
     --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000            \
@@ -1962,16 +1965,16 @@ boot Linux with 8 CPUs using the AArch64 build of TF-A.
     -C bp.secure_memory=1                                        \
     -C bp.tzc_400.diagnostics=1                                  \
     -C cache_state_modelled=1                                    \
-    -C cluster0.cpu0.RVBARADDR=0x04020000                        \
-    -C cluster0.cpu1.RVBARADDR=0x04020000                        \
-    -C cluster0.cpu2.RVBARADDR=0x04020000                        \
-    -C cluster0.cpu3.RVBARADDR=0x04020000                        \
-    -C cluster1.cpu0.RVBARADDR=0x04020000                        \
-    -C cluster1.cpu1.RVBARADDR=0x04020000                        \
-    -C cluster1.cpu2.RVBARADDR=0x04020000                        \
-    -C cluster1.cpu3.RVBARADDR=0x04020000                        \
-    --data cluster0.cpu0="<path-to>/<bl31-binary>"@0x04020000    \
-    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04002000    \
+    -C cluster0.cpu0.RVBARADDR=0x04010000                        \
+    -C cluster0.cpu1.RVBARADDR=0x04010000                        \
+    -C cluster0.cpu2.RVBARADDR=0x04010000                        \
+    -C cluster0.cpu3.RVBARADDR=0x04010000                        \
+    -C cluster1.cpu0.RVBARADDR=0x04010000                        \
+    -C cluster1.cpu1.RVBARADDR=0x04010000                        \
+    -C cluster1.cpu2.RVBARADDR=0x04010000                        \
+    -C cluster1.cpu3.RVBARADDR=0x04010000                        \
+    --data cluster0.cpu0="<path-to>/<bl31-binary>"@0x04010000    \
+    --data cluster0.cpu0="<path-to>/<bl32-binary>"@0xff000000    \
     --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000    \
     --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000            \
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000  \
@@ -1990,10 +1993,10 @@ boot Linux with 4 CPUs using the AArch32 build of TF-A.
     -C bp.secure_memory=1                                       \
     -C bp.tzc_400.diagnostics=1                                 \
     -C cache_state_modelled=1                                   \
-    -C cluster0.cpu0.RVBARADDR=0x04001000                       \
-    -C cluster0.cpu1.RVBARADDR=0x04001000                       \
-    -C cluster0.cpu2.RVBARADDR=0x04001000                       \
-    -C cluster0.cpu3.RVBARADDR=0x04001000                       \
+    -C cluster0.cpu0.RVBARADDR=0x04002000                       \
+    -C cluster0.cpu1.RVBARADDR=0x04002000                       \
+    -C cluster0.cpu2.RVBARADDR=0x04002000                       \
+    -C cluster0.cpu3.RVBARADDR=0x04002000                       \
     --data cluster0.cpu0="<path-to>/<bl32-binary>"@0x04002000   \
     --data cluster0.cpu0="<path-to>/<bl33-binary>"@0x88000000   \
     --data cluster0.cpu0="<path-to>/<fdt>"@0x82000000           \
