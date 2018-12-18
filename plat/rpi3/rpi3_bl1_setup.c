@@ -13,7 +13,6 @@
 #include <lib/xlat_tables/xlat_mmu_helpers.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
-#include "../../bl1/bl1_private.h"
 #include "rpi3_private.h"
 
 /* Data structure which holds the extents of the trusted SRAM for BL1 */

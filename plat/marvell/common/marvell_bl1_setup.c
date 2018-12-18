@@ -8,7 +8,6 @@
 #include <platform_def.h>
 
 #include <bl1/bl1.h>
-#include <bl1/bl1_private.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/arm/sp805.h>

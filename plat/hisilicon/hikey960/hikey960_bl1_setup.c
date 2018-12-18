@@ -25,7 +25,6 @@
 #include <plat/common/platform.h>
 
 #include <hi3660.h>
-#include "../../../bl1/bl1_private.h"
 #include "hikey960_def.h"
 #include "hikey960_private.h"
 

@@ -17,7 +17,6 @@
 #include <arm_def.h>
 #include <arm_spm_def.h>
 #include <plat_arm.h>
-#include "../../../../bl1/bl1_private.h"
 
 #if USE_COHERENT_MEM
 /*

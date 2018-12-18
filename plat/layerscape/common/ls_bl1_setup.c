@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/bl_common.h>
 #include <common/debug.h>
 
 #include "ls_16550.h"
 #include "plat_ls.h"
-#include "../../../bl1/bl1_private.h"
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
 static meminfo_t bl1_tzram_layout;
