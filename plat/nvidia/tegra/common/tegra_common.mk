@@ -13,15 +13,21 @@ PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 
 COMMON_DIR		:=	plat/nvidia/tegra/common
 
-BL31_SOURCES		+= 	drivers/console/aarch64/console.S		\
+TEGRA_GICv2_SOURCES	:=	drivers/arm/gic/common/gic_common.c		\
+				drivers/arm/gic/v2/gicv2_main.c			\
+				drivers/arm/gic/v2/gicv2_helpers.c		\
+				plat/common/plat_gicv2.c			\
+				${COMMON_DIR}/tegra_gicv2.c
+
+BL31_SOURCES		+=	drivers/console/aarch64/console.S		\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/ti/uart/aarch64/16550_console.S		\
+				${TEGRA_GICv2_SOURCES}				\
 				${COMMON_DIR}/aarch64/tegra_helpers.S		\
 				${COMMON_DIR}/drivers/pmc/pmc.c			\
 				${COMMON_DIR}/tegra_bl31_setup.c		\
 				${COMMON_DIR}/tegra_delay_timer.c		\
 				${COMMON_DIR}/tegra_fiq_glue.c			\
-				${COMMON_DIR}/tegra_gic.c			\
 				${COMMON_DIR}/tegra_platform.c			\
 				${COMMON_DIR}/tegra_pm.c			\
 				${COMMON_DIR}/tegra_sip_calls.c			\
