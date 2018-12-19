@@ -12,6 +12,13 @@
 
 #include <tegra_def.h>
 
+/*******************************************************************************
+ * Check and error if SEPARATE_CODE_AND_RODATA is not set to 1
+ ******************************************************************************/
+#if !SEPARATE_CODE_AND_RODATA
+#error "SEPARATE_CODE_AND_RODATA should be set to 1"
+#endif
+
 /*
  * Platform binary types for linking
  */
@@ -71,5 +78,6 @@
  ******************************************************************************/
 #define MAX_IO_DEVICES			U(0)
 #define MAX_IO_HANDLES			U(0)
+
 
 #endif /* PLATFORM_DEF_H */

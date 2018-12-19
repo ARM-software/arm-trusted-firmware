@@ -39,14 +39,7 @@
  * Declarations of linker defined symbols which will help us find the layout
  * of trusted SRAM
  ******************************************************************************/
-
 IMPORT_SYM(uint64_t, __RW_START__,	BL31_RW_START);
-
-static const uint64_t BL31_RW_END	= BL_END;
-static const uint64_t BL31_RODATA_BASE	= BL_RO_DATA_BASE;
-static const uint64_t BL31_RODATA_END	= BL_RO_DATA_END;
-static const uint64_t TEXT_START	= BL_CODE_BASE;
-static const uint64_t TEXT_END		= BL_CODE_END;
 
 extern uint64_t tegra_bl31_phys_base;
 
@@ -314,11 +307,11 @@ void bl31_plat_runtime_setup(void)
 void bl31_plat_arch_setup(void)
 {
 	uint64_t rw_start = BL31_RW_START;
-	uint64_t rw_size = BL31_RW_END - BL31_RW_START;
-	uint64_t rodata_start = BL31_RODATA_BASE;
-	uint64_t rodata_size = BL31_RODATA_END - BL31_RODATA_BASE;
-	uint64_t code_base = TEXT_START;
-	uint64_t code_size = TEXT_END - TEXT_START;
+	uint64_t rw_size = BL_END - BL31_RW_START;
+	uint64_t rodata_start = BL_RO_DATA_BASE;
+	uint64_t rodata_size = BL_RO_DATA_END - BL_RO_DATA_BASE;
+	uint64_t code_base = BL_CODE_BASE;
+	uint64_t code_size = BL_CODE_END - BL_CODE_BASE;
 	const mmap_region_t *plat_mmio_map = NULL;
 #if USE_COHERENT_MEM
 	uint32_t coh_start, coh_size;
