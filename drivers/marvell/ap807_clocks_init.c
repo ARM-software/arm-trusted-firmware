@@ -96,6 +96,11 @@ void ap807_clocks_init(unsigned int freq_option)
 	case CPU_2000_DDR_1200_RCLK_1200:
 		pll_set_freq(PLL_FREQ_2000);
 		break;
+#ifdef MVEBU_SOC_AP807
+	case CPU_2200_DDR_1200_RCLK_1200:
+		pll_set_freq(PLL_FREQ_2200);
+		break;
+#endif
 	default:
 		break;
 	}

@@ -89,6 +89,12 @@
 					 (0x1 << AVS_SOFT_RESET_OFFSET) | \
 					 (0x1 << AVS_ENABLE_OFFSET))
 
+#define AVS_CN9130_HIGH_CLK_VALUE	((0x80 << 24) | \
+					 (0x2dc << 13) | \
+					 (0x2dc << 3) | \
+					 (0x1 << AVS_SOFT_RESET_OFFSET) | \
+					 (0x1 << AVS_ENABLE_OFFSET))
+
 #define MVEBU_AP_EFUSE_SRV_CTRL_REG	(MVEBU_AP_GEN_MGMT_BASE + 0x8)
 #define EFUSE_SRV_CTRL_LD_SELECT_OFFS	6
 #define EFUSE_SRV_CTRL_LD_SEL_USER_MASK	(1 << EFUSE_SRV_CTRL_LD_SELECT_OFFS)
@@ -224,10 +230,19 @@ static void ble_plat_avs_config(void)
 	/* Check which SoC is running and act accordingly */
 	if (ble_get_ap_type() == CHIP_ID_AP807) {
 		/* Increase CPU voltage for higher CPU clock */
-		if (freq_mode == CPU_2000_DDR_1200_RCLK_1200)
+		switch (freq_mode) {
+		case CPU_2000_DDR_1200_RCLK_1200:
 			avs_val = AVS_A3900_HIGH_CLK_VALUE;
-		else
+			break;
+#ifdef MVEBU_SOC_AP807
+		case CPU_2200_DDR_1200_RCLK_1200:
+			avs_val = AVS_CN9130_HIGH_CLK_VALUE;
+			break;
+#endif
+		default:
 			avs_val = AVS_A3900_CLK_VALUE;
+		}
+
 	} else {
 		/* Check which SoC is running and act accordingly */
 		device_id = cp110_device_id_get(MVEBU_CP_REGS_BASE(0));
@@ -463,7 +478,9 @@ static void ble_plat_svc_config(void)
 		NOTICE("SVC: DEV ID: %s, FREQ Mode: 0x%x\n",
 			single_cluster == 0 ? "8040" : "8020", freq_pidi_mode);
 		switch (freq_pidi_mode) {
+#ifndef MVEBU_SOC_AP807
 		case CPU_1800_DDR_1200_RCLK_1200:
+#endif
 		case CPU_1800_DDR_1050_RCLK_1050:
 			if (perr[1])
 				goto perror;
