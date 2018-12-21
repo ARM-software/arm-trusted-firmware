@@ -9,9 +9,14 @@
 
 #include <arch.h>
 #include <lib/utils_def.h>
-#include <plat/common/common_def.h>
 
 #include <tegra_def.h>
+
+/*
+ * Platform binary types for linking
+ */
+#define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
+#define PLATFORM_LINKER_ARCH		aarch64
 
 /*******************************************************************************
  * Generic platform constants
