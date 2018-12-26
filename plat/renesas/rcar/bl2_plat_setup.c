@@ -388,7 +388,7 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 	return 0;
 }
 
-meminfo_t *bl2_plat_sec_mem_layout(void)
+struct meminfo *bl2_plat_sec_mem_layout(void)
 {
 	return &bl2_tzram_layout;
 }
