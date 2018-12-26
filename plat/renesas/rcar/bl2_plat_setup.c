@@ -899,7 +899,7 @@ void bl2_el3_plat_arch_setup(void)
 #if RCAR_BL2_DCACHE == 1
 	NOTICE("BL2: D-Cache enable\n");
 	rcar_configure_mmu_el3(BL2_BASE,
-			       RCAR_SYSRAM_LIMIT - BL2_BASE,
+			       BL2_END - BL2_BASE,
 			       BL2_RO_BASE, BL2_RO_LIMIT
 #if USE_COHERENT_MEM
 			       , BL2_COHERENT_RAM_BASE, BL2_COHERENT_RAM_LIMIT
