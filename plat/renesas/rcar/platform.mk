@@ -355,7 +355,7 @@ BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			drivers/renesas/rcar/rpc/rpc_driver.c		\
 			drivers/renesas/rcar/dma/dma_driver.c		\
 			drivers/renesas/rcar/avs/avs_driver.c		\
-			drivers/renesas/rcar/delay/micro_delay.S	\
+			drivers/renesas/rcar/delay/micro_delay.c	\
 			drivers/renesas/rcar/emmc/emmc_interrupt.c	\
 			drivers/renesas/rcar/emmc/emmc_utility.c	\
 			drivers/renesas/rcar/emmc/emmc_mount.c		\
