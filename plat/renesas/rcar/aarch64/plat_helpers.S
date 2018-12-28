@@ -217,6 +217,8 @@ endfunc platform_mem_init
 	 * ---------------------------------------------
 	 */
 func plat_report_exception
+	/* Switch to SP_EL0 */
+	msr	spsel, #0
 #if IMAGE_BL2
 	mov	w1, #FIQ_SP_EL0
 	cmp	w0, w1
