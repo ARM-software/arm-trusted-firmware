@@ -348,7 +348,8 @@ static void tegra_clear_videomem(uintptr_t non_overlap_area_start,
 	ret = mmap_add_dynamic_region(non_overlap_area_start, /* PA */
 				non_overlap_area_start, /* VA */
 				non_overlap_area_size, /* size */
-				MT_NS | MT_RW | MT_EXECUTE_NEVER); /* attrs */
+				MT_NS | MT_RW | MT_EXECUTE_NEVER |
+				MT_NON_CACHEABLE); /* attrs */
 	assert(ret == 0);
 
 	zero_normalmem((void *)non_overlap_area_start, non_overlap_area_size);
