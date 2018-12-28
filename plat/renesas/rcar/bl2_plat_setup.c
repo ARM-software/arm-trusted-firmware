@@ -61,6 +61,8 @@ extern void rcar_rpc_init(void);
 extern void rcar_pfc_init(void);
 extern void rcar_dma_init(void);
 
+static void bl2_init_generic_timer(void);
+
 /* R-Car Gen3 product check */
 #if (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)
 #define TARGET_PRODUCT			RCAR_PRODUCT_H3
@@ -628,6 +630,8 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	int fcnlnode;
 #endif
 
+	bl2_init_generic_timer();
+
 	reg = mmio_read_32(RCAR_MODEMR);
 	boot_dev = reg & MODEMR_BOOT_DEV_MASK;
 	boot_cpu = reg & MODEMR_BOOT_CPU_MASK;
@@ -915,4 +919,53 @@ void bl2_el3_plat_arch_setup(void)
 void bl2_platform_setup(void)
 {
 
+}
+
+static void bl2_init_generic_timer(void)
+{
+#if RCAR_LSI == RCAR_E3
+	uint32_t reg_cntfid = EXTAL_EBISU;
+#else /* RCAR_LSI == RCAR_E3 */
+	uint32_t reg;
+	uint32_t reg_cntfid;
+	uint32_t modemr;
+	uint32_t modemr_pll;
+	uint32_t board_type;
+	uint32_t board_rev;
+	uint32_t pll_table[] = {
+		EXTAL_MD14_MD13_TYPE_0,	/* MD14/MD13 : 0b00 */
+		EXTAL_MD14_MD13_TYPE_1,	/* MD14/MD13 : 0b01 */
+		EXTAL_MD14_MD13_TYPE_2,	/* MD14/MD13 : 0b10 */
+		EXTAL_MD14_MD13_TYPE_3	/* MD14/MD13 : 0b11 */
+	};
+
+	modemr = mmio_read_32(RCAR_MODEMR);
+	modemr_pll = (modemr & MODEMR_BOOT_PLL_MASK);
+
+	/* Set frequency data in CNTFID0 */
+	reg_cntfid = pll_table[modemr_pll >> MODEMR_BOOT_PLL_SHIFT];
+	reg = mmio_read_32(RCAR_PRR) & (RCAR_PRODUCT_MASK | RCAR_CUT_MASK);
+	switch (modemr_pll) {
+	case MD14_MD13_TYPE_0:
+		rcar_get_board_type(&board_type, &board_rev);
+		if (BOARD_SALVATOR_XS == board_type) {
+			reg_cntfid = EXTAL_SALVATOR_XS;
+		}
+		break;
+	case MD14_MD13_TYPE_3:
+		if (RCAR_PRODUCT_H3_CUT10 == reg) {
+			reg_cntfid = reg_cntfid >> 1U;
+		}
+		break;
+	default:
+		/* none */
+		break;
+	}
+#endif /* RCAR_LSI == RCAR_E3 */
+	/* Update memory mapped and register based freqency */
+	write_cntfrq_el0((u_register_t )reg_cntfid);
+	mmio_write_32(ARM_SYS_CNTCTL_BASE + (uintptr_t)CNTFID_OFF, reg_cntfid);
+	/* Enable counter */
+	mmio_setbits_32(RCAR_CNTC_BASE + (uintptr_t)CNTCR_OFF,
+			(uint32_t)CNTCR_EN);
 }
