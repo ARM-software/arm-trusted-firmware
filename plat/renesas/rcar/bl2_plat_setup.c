@@ -261,7 +261,8 @@ tlb:
 		   product_cut == (RCAR_PRODUCT_M3N | RCAR_CUT_VER11)) {
 		mmio_write_32(IPMMUVI0_IMSCTLR, IMSCTLR_DISCACHE);
 		mmio_write_32(IPMMUPV0_IMSCTLR, IMSCTLR_DISCACHE);
-	} else if (product_cut == (RCAR_PRODUCT_E3 | RCAR_CUT_VER10)) {
+	} else if ((product_cut == (RCAR_PRODUCT_E3 | RCAR_CUT_VER10)) ||
+		   (product_cut == (RCAR_PRODUCT_E3 | RCAR_CUT_VER11))) {
 		mmio_write_32(IPMMUVI0_IMSCTLR, IMSCTLR_DISCACHE);
 		mmio_write_32(IPMMUPV0_IMSCTLR, IMSCTLR_DISCACHE);
 	}
