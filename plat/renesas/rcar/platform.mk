@@ -311,6 +311,7 @@ PLAT_INCLUDES	:=	-Iinclude/common/tbbr			\
 			-Idrivers/staging/renesas/rcar/qos	\
 			-Idrivers/renesas/rcar/iic_dvfs		\
 			-Idrivers/renesas/rcar/board		\
+			-Idrivers/renesas/rcar/cpld/		\
 			-Idrivers/renesas/rcar/avs		\
 			-Idrivers/renesas/rcar/delay		\
 			-Idrivers/renesas/rcar/rom		\

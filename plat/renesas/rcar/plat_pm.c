@@ -22,6 +22,7 @@
 #include "pwrc.h"
 #include "rcar_def.h"
 #include "rcar_private.h"
+#include "ulcb_cpld.h"
 
 #define	DVFS_SET_VID_0V		(0x00)
 #define	P_ALL_OFF		(0x80)
@@ -40,10 +41,6 @@ extern void rcar_pwrc_restore_generic_timer(uint64_t *stack);
 extern void plat_rcar_gic_driver_init(void);
 extern void plat_rcar_gic_init(void);
 extern u_register_t rcar_boot_mpidr;
-
-#if (RCAR_GEN3_ULCB == 1)
-extern void rcar_cpld_reset_cpu(void);
-#endif
 
 static uintptr_t rcar_sec_entrypoint;
 
