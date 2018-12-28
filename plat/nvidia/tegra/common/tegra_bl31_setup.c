@@ -251,6 +251,11 @@ void plat_trusty_set_boot_args(aapcs64_params_t *args)
 	args->arg0 = bl32_mem_size;
 	args->arg1 = bl32_boot_params;
 	args->arg2 = TRUSTY_PARAMS_LEN_BYTES;
+
+	/* update EKS size */
+	if (args->arg4 != 0U) {
+		args->arg2 = args->arg4;
+	}
 }
 #endif
 
