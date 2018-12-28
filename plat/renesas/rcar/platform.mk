@@ -11,6 +11,7 @@ TRUSTED_BOARD_BOOT		:= 1
 RESET_TO_BL31			:= 1
 GENERATE_COT			:= 1
 BL2_AT_EL3			:= 1
+ENABLE_SVE_FOR_NS		:= 0
 
 $(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
 
