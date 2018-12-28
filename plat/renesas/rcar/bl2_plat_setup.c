@@ -74,6 +74,8 @@ extern void rcar_dma_init(void);
 #elif RCAR_LSI == RCAR_E3
 #define TARGET_PRODUCT			RCAR_PRODUCT_E3
 #define TARGET_NAME			"R-Car E3"
+#elif RCAR_LSI == RCAR_AUTO
+#define TARGET_NAME			"R-Car H3/M3/M3N"
 #endif
 
 #if (RCAR_LSI == RCAR_E3)
