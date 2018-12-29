@@ -38,6 +38,8 @@
 #define BL31_SIZE			0x00080000
 #define BL31_LIMIT			(BL31_BASE + BL31_SIZE)
 
+#define BL32_BASE			0xfc000000
+
 #define PLAT_SQ_CCN_BASE		0x32000000
 #define PLAT_SQ_CLUSTER_TO_CCN_ID_MAP					\
 					0,	/* Cluster 0 */		\

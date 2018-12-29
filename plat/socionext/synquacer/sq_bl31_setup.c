@@ -76,7 +76,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/* Initialize power controller before setting up topology */
 	plat_sq_pwrc_setup();
 
-#ifdef BL32_BASE
+#ifdef SPD_opteed
 	struct draminfo di = {0};
 
 	scpi_get_draminfo(&di);
@@ -98,7 +98,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	} else {
 		NOTICE("OP-TEE has not been loaded by SCP firmware\n");
 	}
-#endif /* BL32_BASE */
+#endif /* SPD_opteed */
 
 	/* Populate entry point information for BL33 */
 	SET_PARAM_HEAD(&bl33_image_ep_info,
