@@ -84,10 +84,10 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	unsigned int max_granule_mask = max_granule - 1U;
 
 	/* Base must be aligned to the max granularity */
-	assert((ARM_SP_IMAGE_NS_BUF_BASE & max_granule_mask) == 0);
+	assert((PLAT_SP_IMAGE_NS_BUF_BASE & max_granule_mask) == 0);
 
 	/* Size must be a multiple of the max granularity */
-	assert((ARM_SP_IMAGE_NS_BUF_SIZE & max_granule_mask) == 0);
+	assert((PLAT_SP_IMAGE_NS_BUF_SIZE & max_granule_mask) == 0);
 
 #endif /* ENABLE_ASSERTIONS */
 
