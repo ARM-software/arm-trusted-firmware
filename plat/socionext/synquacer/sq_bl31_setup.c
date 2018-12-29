@@ -21,6 +21,10 @@ static console_pl011_t console;
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
 
+IMPORT_SYM(uintptr_t, __SPM_SHIM_EXCEPTIONS_START__, SPM_SHIM_EXCEPTIONS_START);
+IMPORT_SYM(uintptr_t, __SPM_SHIM_EXCEPTIONS_END__,   SPM_SHIM_EXCEPTIONS_END);
+IMPORT_SYM(uintptr_t, __SPM_SHIM_EXCEPTIONS_LMA__,   SPM_SHIM_EXCEPTIONS_LMA);
+
 entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
 	assert(sec_state_is_valid(type));
@@ -155,8 +159,27 @@ void bl31_plat_runtime_setup(void)
 
 void bl31_plat_arch_setup(void)
 {
-	sq_mmap_setup(BL31_BASE, BL31_SIZE, NULL);
+	static const mmap_region_t secure_partition_mmap[] = {
+#if ENABLE_SPM && SPM_DEPRECATED
+		MAP_REGION_FLAT(PLAT_SPM_BUF_BASE,
+				PLAT_SPM_BUF_SIZE,
+				MT_RW_DATA | MT_SECURE),
+		MAP_REGION_FLAT(PLAT_SQ_SP_PRIV_BASE,
+				PLAT_SQ_SP_PRIV_SIZE,
+				MT_RW_DATA | MT_SECURE),
+#endif
+		{0},
+	};
+
+	sq_mmap_setup(BL31_BASE, BL31_SIZE, secure_partition_mmap);
 	enable_mmu_el3(XLAT_TABLE_NC);
+
+#if ENABLE_SPM && SPM_DEPRECATED
+	memcpy((void *)SPM_SHIM_EXCEPTIONS_START,
+	       (void *)SPM_SHIM_EXCEPTIONS_LMA,
+	       (uintptr_t)SPM_SHIM_EXCEPTIONS_END -
+	       (uintptr_t)SPM_SHIM_EXCEPTIONS_START);
+#endif
 }
 
 void bl31_plat_enable_mmu(uint32_t flags)
