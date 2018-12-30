@@ -102,7 +102,7 @@ const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN]
 #endif
 
 #if IMAGE_BL2
-const mmap_region_t rcar_mmap[] = {
+static const mmap_region_t rcar_mmap[] = {
 	MAP_FLASH0,	/*   0x08000000 -   0x0BFFFFFF  RPC area            */
 	MAP_DRAM0,	/*   0x40000000 -   0xBFFFFFFF  DRAM area(Legacy)   */
 	MAP_REG0,	/*   0xE6000000 -   0xE62FFFFF  SoC register area   */
@@ -116,7 +116,7 @@ const mmap_region_t rcar_mmap[] = {
 #endif
 
 #if IMAGE_BL31
-const mmap_region_t rcar_mmap[] = {
+static const mmap_region_t rcar_mmap[] = {
 	MAP_SHARED_RAM,
 	MAP_ATFW_CRASH,
 	MAP_ATFW_LOG,
@@ -129,7 +129,7 @@ const mmap_region_t rcar_mmap[] = {
 #endif
 
 #if IMAGE_BL32
-const mmap_region_t rcar_mmap[] = {
+static const mmap_region_t rcar_mmap[] = {
 	MAP_DEVICE0,
 	MAP_DEVICE1,
 	{0}
