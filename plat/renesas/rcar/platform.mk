@@ -415,7 +415,7 @@ clean_srecord:
 	rm -f ${SREC_PATH}/bl2.srec ${SREC_PATH}/bl31.srec
 
 .PHONY: rcar_srecord
-rcar_srecord:
+rcar_srecord: $(BL2_ELF_SRC) $(BL31_ELF_SRC)
 	@echo "generating srec: ${SREC_PATH}/bl2.srec"
 	$(Q)$(OC) -O srec --srec-forceS3 ${BL2_ELF_SRC}  ${SREC_PATH}/bl2.srec
 	@echo "generating srec: ${SREC_PATH}/bl31.srec"
