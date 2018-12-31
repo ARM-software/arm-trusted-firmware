@@ -155,6 +155,7 @@ static void rcar_pwr_domain_suspend_finish(const psci_power_state_t
 	write_cntfrq_el0(plat_get_syscnt_freq2());
 	mmio_write_32(RCAR_CNTC_BASE + CNTCR_OFF, CNTCR_FCREQ(U(0)) | CNTCR_EN);
 	rcar_pwrc_setup();
+	rcar_pwrc_code_copy_to_system_ram();
 
 #if RCAR_SYSTEM_SUSPEND
 	rcar_pwrc_init_suspend_to_ram();
@@ -167,11 +168,9 @@ static void __dead2 rcar_system_off(void)
 {
 #if PMIC_ROHM_BD9571
 #if PMIC_LEVEL_MODE
-	rcar_pwrc_code_copy_to_system_ram();
 	if (rcar_iic_dvfs_send(PMIC, DVFS_SET_VID, DVFS_SET_VID_0V))
 		ERROR("BL3-1:Failed the SYSTEM-OFF.\n");
 #else
-	rcar_pwrc_code_copy_to_system_ram();
 	if (rcar_iic_dvfs_send(PMIC, BKUP_MODE_CNT, P_ALL_OFF))
 		ERROR("BL3-1:Failed the SYSTEM-RESET.\n");
 #endif
@@ -204,7 +203,6 @@ static void __dead2 rcar_system_reset(void)
 	uint8_t mode;
 	int32_t error;
 
-	rcar_pwrc_code_copy_to_system_ram();
 	error = rcar_iic_dvfs_send(PMIC, REG_KEEP10, KEEP10_MAGIC);
 	if (error) {
 		ERROR("Failed send KEEP10 magic ret=%d \n", error);
@@ -227,7 +225,6 @@ static void __dead2 rcar_system_reset(void)
 	rcar_pwrc_set_suspend_to_ram();
 done:
 #else
-	rcar_pwrc_code_copy_to_system_ram();
 	if (rcar_iic_dvfs_send(PMIC, BKUP_MODE_CNT, P_ALL_OFF))
 		ERROR("BL3-1:Failed the SYSTEM-RESET.\n");
 #endif

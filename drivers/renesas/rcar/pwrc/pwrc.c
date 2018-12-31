@@ -650,7 +650,6 @@ void rcar_pwrc_set_suspend_to_ram(void)
 				       DEVICE_SRAM_STACK_SIZE);
 	uint32_t sctlr;
 
-	rcar_pwrc_code_copy_to_system_ram();
 	rcar_pwrc_save_generic_timer(rcar_stack_generic_timer);
 
 	/* disable MMU */
@@ -665,10 +664,7 @@ void rcar_pwrc_init_suspend_to_ram(void)
 {
 #if PMIC_ROHM_BD9571
 	uint8_t mode;
-#endif
-	rcar_pwrc_code_copy_to_system_ram();
 
-#if PMIC_ROHM_BD9571
 	if (rcar_iic_dvfs_receive(PMIC, PMIC_BKUP_MODE_CNT, &mode))
 		panic();
 
@@ -683,7 +679,6 @@ void rcar_pwrc_suspend_to_ram(void)
 #if RCAR_SYSTEM_RESET_KEEPON_DDR
 	int32_t error;
 
-	rcar_pwrc_code_copy_to_system_ram();
 	error = rcar_iic_dvfs_send(PMIC, REG_KEEP10, 0);
 	if (error) {
 		ERROR("Failed send KEEP10 init ret=%d \n", error);

@@ -100,6 +100,7 @@ void bl31_plat_arch_setup(void)
 			       , BL31_COHERENT_RAM_BASE, BL31_COHERENT_RAM_LIMIT
 #endif
 	    );
+	rcar_pwrc_code_copy_to_system_ram();
 }
 
 void bl31_platform_setup(void)
