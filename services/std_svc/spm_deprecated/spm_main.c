@@ -151,7 +151,7 @@ static int32_t spm_init(void)
 
 	INFO("Secure Partition initialized.\n");
 
-	return rc;
+	return !rc;
 }
 
 /*******************************************************************************
