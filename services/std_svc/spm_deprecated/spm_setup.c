@@ -168,6 +168,9 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	write_ctx_reg(get_sysregs_ctx(ctx), CTX_VBAR_EL1,
 			SPM_SHIM_EXCEPTIONS_PTR);
 
+	write_ctx_reg(get_sysregs_ctx(ctx), CTX_CNTKCTL_EL1,
+		      EL0PTEN_BIT | EL0VTEN_BIT | EL0PCTEN_BIT | EL0VCTEN_BIT);
+
 	/*
 	 * FPEN: Allow the Secure Partition to access FP/SIMD registers.
 	 * Note that SPM will not do any saving/restoring of these registers on
