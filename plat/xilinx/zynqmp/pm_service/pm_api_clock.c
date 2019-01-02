@@ -330,18 +330,6 @@ static struct pm_clock_node acpu_nodes[] = {
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
-	{
-		.type = TYPE_GATE,
-		.offset = PERIPH_GATE_SHIFT,
-		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_SET_RATE_PARENT |
-			    CLK_IGNORE_UNUSED |
-			    CLK_IS_BASIC |
-			    CLK_IS_CRITICAL,
-		.typeflags = NA_TYPE_FLAGS,
-		.mult = NA_MULT,
-		.div = NA_DIV,
-	},
 };
 
 static struct pm_clock_node generic_mux_div_nodes[] = {
@@ -466,6 +454,20 @@ static struct pm_clock_node acpu_half_nodes[] = {
 	{
 		.type = TYPE_GATE,
 		.offset = 25,
+		.width = PERIPH_GATE_WIDTH,
+		.clkflags = CLK_IGNORE_UNUSED |
+			    CLK_SET_RATE_PARENT |
+			    CLK_IS_BASIC,
+		.typeflags = NA_TYPE_FLAGS,
+		.mult = NA_MULT,
+		.div = NA_DIV,
+	},
+};
+
+static struct pm_clock_node acpu_full_nodes[] = {
+	{
+		.type = TYPE_GATE,
+		.offset = 24,
 		.width = PERIPH_GATE_WIDTH,
 		.clkflags = CLK_IGNORE_UNUSED |
 			    CLK_SET_RATE_PARENT |
@@ -1204,6 +1206,17 @@ static struct pm_clock clocks[] = {
 		}),
 		.nodes = &acpu_nodes,
 		.num_nodes = ARRAY_SIZE(acpu_nodes),
+	},
+	[CLK_ACPU_FULL] = {
+		.name = "acpu_full",
+		.control_reg = CRF_APB_ACPU_CTRL,
+		.status_reg = 0,
+		.parents = &((int32_t []) {
+			CLK_ACPU | PARENT_CLK_NODE2 << CLK_PARENTS_ID_LEN,
+			CLK_NA_PARENT
+		}),
+		.nodes = &acpu_full_nodes,
+		.num_nodes = ARRAY_SIZE(acpu_full_nodes),
 	},
 	[CLK_DBG_TRACE] = {
 		.name = "dbg_trace",
