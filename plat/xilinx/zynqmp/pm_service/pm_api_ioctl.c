@@ -348,7 +348,7 @@ static enum pm_ret_status pm_ioctl_set_pll_frac_mode
 /**
  * pm_ioctl_get_pll_frac_mode() -  Ioctl function for
  *				   getting pll mode
- * @pll     PLL id
+ * @pll     PLL clock id
  * @mode    Mode fraction/integar
  *
  * This function return current PLL mode
@@ -358,7 +358,7 @@ static enum pm_ret_status pm_ioctl_set_pll_frac_mode
 static enum pm_ret_status pm_ioctl_get_pll_frac_mode
 			(unsigned int pll, unsigned int *mode)
 {
-	return pm_api_clk_get_pll_mode(pll, mode);
+	return pm_clock_get_pll_mode(pll, mode);
 }
 
 /**

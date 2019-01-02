@@ -3153,37 +3153,22 @@ enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
 }
 
 /**
- * pm_ioctl_get_pll_mode() -  Get PLL mode
- * @pll     PLL id
- * @mode    Mode fraction/integar
+ * pm_clock_get_pll_mode() -  Get PLL mode
+ * @clock_id	PLL clock id
+ * @mode	Location to store the mode (fractional/integer)
  *
- * This function returns current PLL mode.
+ * This function returns buffered PLL mode.
  *
- * @return      Returns status, either success or error+reason
+ * @return      Success if mode is stored or error if an argument is invalid
  */
-enum pm_ret_status pm_api_clk_get_pll_mode(unsigned int pll,
-					   unsigned int *mode)
+enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
+					 unsigned int *mode)
 {
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	unsigned int val, reg;
+	struct pm_pll *pll = pm_clock_get_pll(clock_id);
 
-	if (!pm_clock_valid(pll))
+	if (!pll || !mode)
 		return PM_RET_ERROR_ARGS;
+	*mode = pll->mode;
 
-	if (pm_clock_type(pll) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	if (!ISPLL(pll))
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	reg = clocks[pll].control_reg + PLL_FRAC_OFFSET;
-
-	ret = pm_mmio_read(reg, &val);
-	val = val & PLL_FRAC_MODE_MASK;
-	if (val == 0)
-		*mode = PLL_INT_MODE;
-	else
-		*mode = PLL_FRAC_MODE;
-
-	return ret;
+	return PM_RET_SUCCESS;
 }
