@@ -2665,94 +2665,35 @@ enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll)
 }
 
 /**
- * pm_api_get_pll_state() - Get state of PLL
- * @clock_id	Id of the PLL
- * @state	State of PLL(1: Enable, 0: Reset)
+ * pm_clock_pll_get_state - Get state of the PLL
+ * @pll		Pointer to the target PLL structure
+ * @state	Location to store the state: 1/0 ("Enabled"/"Disabled")
  *
- * This function is to check state of PLL.
+ * "Enable" actually means that the PLL is locked and its bypass is deasserted,
+ * "Disable" means that it is bypassed.
+ *
+ * Return: PM_RET_ERROR_ARGS error if the argument is not valid, success if
+ * returned state value is valid or an error if returned by PMU
  */
-static inline enum pm_ret_status pm_api_get_pll_state(unsigned int clock_id,
-					unsigned int *state)
+enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
+					  unsigned int *state)
 {
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	unsigned int reg, val;
+	enum pm_ret_status status;
+	enum pm_pll_mode mode;
 
-	reg = clocks[clock_id].control_reg;
-
-	ret = pm_mmio_read(reg, &val);
-
-	/* state:
-	 * 1 - PLL is enabled
-	 * 0 - PLL is in reset state
-	 */
-	*state = !(val & PLLCTRL_RESET_MASK);
-	return ret;
-}
-
-/**
- * pm_api_get_clk_state() - Get the state of clock for given id
- * @clock_id: Id of the clock to be enabled
- * @state: Enable(1)/Disable(0)
- *
- * This function is to get state of the clock which is not PLL.
- *
- * Return: Returns status, either success or error+reason.
- */
-static enum pm_ret_status pm_api_get_clk_state(unsigned int clock_id,
-					       unsigned int *state)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	struct pm_clock_node *nodes = *clocks[clock_id].nodes;
-	uint8_t num_nodes = clocks[clock_id].num_nodes;
-	unsigned int reg, val;
-	uint8_t i = 0;
-	uint8_t offset = NA_SHIFT, width = NA_WIDTH;
-
-	reg = clocks[clock_id].control_reg;
-
-	for (i = 0; i < num_nodes; i++) {
-		if (nodes->type == TYPE_GATE) {
-			offset = nodes->offset;
-			width = nodes->width;
-		}
-		nodes++;
-	}
-	if (width == NA_WIDTH)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	ret = pm_mmio_read(reg, &val);
-	*state = (val & BIT_MASK(offset, width)) >> offset;
-
-	return ret;
-}
-
-/**
- * pm_api_clock_getstate - Get the clock state for given id
- * @clock_id	Id of the clock to be queried
- * @state	1/0 (Enabled/Disabled)
- *
- * This function is used by master to get the state of clock
- * including peripherals and PLL clocks.
- *
- * Return: Returns status, either success or error+reason.
- */
-enum pm_ret_status pm_api_clock_getstate(unsigned int clock_id,
-					 unsigned int *state)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-
-	if (!pm_clock_valid(clock_id))
+	if (!pll || !state)
 		return PM_RET_ERROR_ARGS;
 
-	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
+	status = pm_pll_get_mode(pll->nid, &mode);
+	if (status != PM_RET_SUCCESS)
+		return status;
 
-	if (ISPLL(clock_id))
-		ret = pm_api_get_pll_state(clock_id, state);
+	if (mode == PM_PLL_MODE_RESET)
+		*state = 0;
 	else
-		ret = pm_api_get_clk_state(clock_id, state);
+		*state = 1;
 
-	return ret;
+	return PM_RET_SUCCESS;
 }
 
 static enum pm_ret_status pm_api_clk_set_divider(unsigned int clock_id,

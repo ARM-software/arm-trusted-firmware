@@ -932,7 +932,23 @@ enum pm_ret_status pm_clock_disable(unsigned int clock_id)
 enum pm_ret_status pm_clock_getstate(unsigned int clock_id,
 				     unsigned int *state)
 {
-	return pm_api_clock_getstate(clock_id, state);
+	struct pm_pll *pll;
+	uint32_t payload[PAYLOAD_ARG_CNT];
+	enum pm_ret_status status;
+
+	/* First try to handle it as a PLL */
+	pll = pm_clock_get_pll(clock_id);
+	if (pll)
+		return pm_clock_pll_get_state(pll, state);
+
+	/* Check if clock ID is a valid on-chip clock */
+	status = pm_clock_id_is_valid(clock_id);
+	if (status != PM_RET_SUCCESS)
+		return status;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD2(payload, PM_CLOCK_GETSTATE, clock_id);
+	return pm_ipi_send_sync(primary_proc, payload, state, 1);
 }
 
 /**
