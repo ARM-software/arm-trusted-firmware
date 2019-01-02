@@ -2253,7 +2253,10 @@ static struct pm_ext_clock ext_clocks[] = {
 };
 
 /* Array of clock which are invalid for this variant */
-static uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB};
+static uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB,
+	CLK_ACPU_FULL,
+	CLK_ACPU_HALF,
+};
 
 /**
  * pm_clock_valid - Check if clock is valid or not
