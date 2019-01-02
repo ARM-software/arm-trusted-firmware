@@ -296,7 +296,7 @@ enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
 enum pm_ret_status pm_clock_id_is_valid(unsigned int clock_id);
 
 enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll);
-enum pm_ret_status pm_api_clock_disable(unsigned int clock_id);
+enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll);
 enum pm_ret_status pm_api_clock_getstate(unsigned int clock_id,
 					 unsigned int *state);
 enum pm_ret_status pm_api_clock_setdivider(unsigned int clock_id,

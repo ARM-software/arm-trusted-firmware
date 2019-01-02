@@ -903,12 +903,20 @@ enum pm_ret_status pm_clock_enable(unsigned int clock_id)
  * This function is used by master to disable the clock
  * including peripherals and PLL clocks.
  *
- * Return: Returns status, either success or error+reason.
+ * @return:	Error if an argument is not valid or status as returned by the
+ *		pm_clock_gate
  */
-
 enum pm_ret_status pm_clock_disable(unsigned int clock_id)
 {
-	return pm_api_clock_disable(clock_id);
+	struct pm_pll *pll;
+
+	/* First try to handle it as a PLL */
+	pll = pm_clock_get_pll(clock_id);
+	if (pll)
+		return pm_clock_pll_disable(pll);
+
+	/* It's an on-chip clock, PMU should configure clock's gate */
+	return pm_clock_gate(clock_id, 0);
 }
 
 /**

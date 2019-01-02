@@ -2627,58 +2627,6 @@ pm_api_pll_bypass_and_reset(unsigned int clock_id, unsigned int flag)
 }
 
 /**
- * pm_api_clk_enable_disable() - Enable/Disable the clock for given id
- * @clock_id: Id of the clock to be enabled
- * @enable: Enable(1)/Disable(0)
- *
- * This function is to enable/disable the clock which is not PLL.
- *
- * Return: Returns status, either success or error+reason.
- */
-static enum pm_ret_status pm_api_clk_enable_disable(unsigned int clock_id,
-						    unsigned int enable)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	struct pm_clock_node *nodes = *clocks[clock_id].nodes;
-	uint8_t num_nodes = clocks[clock_id].num_nodes;
-	unsigned int reg, val;
-	uint8_t i = 0;
-	uint8_t offset = NA_SHIFT, width = NA_WIDTH;
-
-	if (clock_id == CLK_GEM0_TX || clock_id == CLK_GEM1_TX ||
-	    clock_id == CLK_GEM2_TX || clock_id == CLK_GEM3_TX)
-		reg = clocks[clock_id].status_reg;
-	else
-		reg = clocks[clock_id].control_reg;
-
-	for (i = 0; i < num_nodes; i++) {
-		if (nodes->type == TYPE_GATE) {
-			offset = nodes->offset;
-			width = nodes->width;
-			break;
-		}
-		nodes++;
-	}
-	if (width == NA_WIDTH)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	ret = pm_mmio_read(reg, &val);
-	if (ret != PM_RET_SUCCESS)
-		return ret;
-	if ((val & BIT_MASK(offset, width)) == enable)
-		return PM_RET_SUCCESS;
-
-	if (enable == 0)
-		val &= ~(BIT_MASK(offset, width));
-	else
-		val |= BIT_MASK(offset, width);
-
-	ret = pm_mmio_write(reg, BIT_MASK(offset, width), val);
-
-	return ret;
-}
-
-/**
  * pm_clock_pll_enable() - "Enable" the PLL clock (lock the PLL)
  * @pll: PLL to be locked
  *
@@ -2700,33 +2648,20 @@ enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll)
 }
 
 /**
- * pm_api_clock_disable - Disable the clock for given id
- * @clock_id	Id of the clock to be disable
+ * pm_clock_pll_disable - "Disable" the PLL clock (bypass/reset the PLL)
+ * @pll		PLL to be bypassed/reset
  *
- * This function is used by master to disable the clock
- * including peripherals and PLL clocks.
+ * This function is used to map IOCTL/linux-based PLL handling to system-level
+ * EEMI APIs
  *
- * Return: Returns status, either success or error+reason.
+ * Return: Error if the argument is not valid or status as returned by PMU
  */
-
-enum pm_ret_status pm_api_clock_disable(unsigned int clock_id)
+enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll)
 {
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-
-	if (!pm_clock_valid(clock_id))
+	if (!pll)
 		return PM_RET_ERROR_ARGS;
 
-	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	/*
-	 * PLL type clock should not be disabled explicitly.
-	 * It is done by PMUFW if required.
-	 */
-	if (!ISPLL(clock_id))
-		ret = pm_api_clk_enable_disable(clock_id, 0);
-
-	return ret;
+	return pm_pll_set_mode(pll->nid, PM_PLL_MODE_RESET);
 }
 
 /**
