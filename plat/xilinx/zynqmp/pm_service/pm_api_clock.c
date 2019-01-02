@@ -2256,6 +2256,7 @@ static struct pm_ext_clock ext_clocks[] = {
 static uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB,
 	CLK_ACPU_FULL,
 	CLK_ACPU_HALF,
+	CLK_APLL_TO_LPD,
 	CLK_DBG_FPD,
 	CLK_DBG_LPD,
 	CLK_DBG_TRACE,
