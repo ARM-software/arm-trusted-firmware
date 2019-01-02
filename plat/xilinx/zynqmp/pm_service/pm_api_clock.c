@@ -2710,51 +2710,36 @@ enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
 }
 
 /**
- * pm_api_clock_getparent - Get the clock parent for given id
- * @clock_id	Id of the clock
- * @parent_idx	parent index
+ * pm_clock_pll_get_parent - Get mux select value of PLL-related clock parent
+ * @pll			Target PLL structure
+ * @clock_id		Id of the clock
+ * @parent_index	parent index (=mux select value)
  *
- * This function is used by master to get parent index
- * for any clock.
+ * This function is used by master to get parent index for PLL-related clock.
  *
  * Return: Returns status, either success or error+reason.
  */
-enum pm_ret_status pm_api_clock_getparent(unsigned int clock_id,
-					  unsigned int *parent_idx)
+enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
+					   enum clock_id clock_id,
+					   unsigned int *parent_index)
 {
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	struct pm_clock_node *nodes;
-	uint8_t num_nodes;
-	unsigned int reg, val;
-	uint8_t i = 0, offset = NA_SHIFT, width = NA_WIDTH;
-
-	if (!pm_clock_valid(clock_id))
+	if (!pll)
 		return PM_RET_ERROR_ARGS;
-
-	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	nodes = *clocks[clock_id].nodes;
-	num_nodes = clocks[clock_id].num_nodes;
-
-	for (i = 0; i < num_nodes; i++) {
-		if (nodes->type == TYPE_MUX) {
-			offset = nodes->offset;
-			width = nodes->width;
-		}
-		nodes++;
+	if (pll->pre_src == clock_id)
+		return pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_PRE_SRC,
+					    parent_index);
+	if (pll->post_src == clock_id)
+		return pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_POST_SRC,
+					    parent_index);
+	if (pll->div2 == clock_id)
+		return pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_DIV2,
+					    parent_index);
+	if (pll->bypass == clock_id) {
+		*parent_index = 0;
+		return PM_RET_SUCCESS;
 	}
-	if (width == NA_WIDTH)
-		return PM_RET_ERROR_NOTSUPPORTED;
 
-	reg = clocks[clock_id].control_reg;
-	ret = pm_mmio_read(reg, &val);
-	val >>= offset;
-	val &= ((1U << width) - 1);
-
-	*parent_idx = val;
-
-	return ret;
+	return PM_RET_ERROR_ARGS;
 }
 
 /**

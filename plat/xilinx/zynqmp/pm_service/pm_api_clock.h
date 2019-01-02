@@ -304,8 +304,9 @@ enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
 enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
 					   enum clock_id clock_id,
 					   unsigned int parent_index);
-enum pm_ret_status pm_api_clock_getparent(unsigned int clock_id,
-					  unsigned int *parent_idx);
+enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
+					   enum clock_id clock_id,
+					   unsigned int *parent_index);
 enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
 					 unsigned int mode);
 enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
