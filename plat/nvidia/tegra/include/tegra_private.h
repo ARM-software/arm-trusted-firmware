@@ -31,9 +31,9 @@ typedef struct plat_params_from_bl2 {
 	/* TZ memory base */
 	uint64_t tzdram_base;
 	/* UART port ID */
-	int uart_id;
+	int32_t uart_id;
 	/* L2 ECC parity protection disable flag */
-	int l2_ecc_parity_prot_dis;
+	int32_t l2_ecc_parity_prot_dis;
 } plat_params_from_bl2_t;
 
 /*******************************************************************************
@@ -90,7 +90,7 @@ int tegra_prepare_cpu_on_finish(unsigned long mpidr);
 
 /* Declarations for tegra_bl31_setup.c */
 plat_params_from_bl2_t *bl31_get_plat_params(void);
-int bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes);
+int32_t bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes);
 void plat_early_platform_setup(void);
 
 /* Declarations for tegra_delay_timer.c */
