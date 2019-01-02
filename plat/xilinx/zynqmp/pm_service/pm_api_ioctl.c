@@ -364,7 +364,7 @@ static enum pm_ret_status pm_ioctl_get_pll_frac_mode
 /**
  * pm_ioctl_set_pll_frac_data() -  Ioctl function for
  *				   setting pll fraction data
- * @pll     PLL id
+ * @pll     PLL clock id
  * @data    fraction data
  *
  * This function sets fraction data.
@@ -375,7 +375,15 @@ static enum pm_ret_status pm_ioctl_get_pll_frac_mode
 static enum pm_ret_status pm_ioctl_set_pll_frac_data
 			(unsigned int pll, unsigned int data)
 {
-	return pm_api_clk_set_pll_frac_data(pll, data);
+	enum pm_node_id pll_nid;
+	enum pm_ret_status status;
+
+	/* Get PLL node ID using PLL clock ID */
+	status = pm_clock_get_pll_node_id(pll, &pll_nid);
+	if (status != PM_RET_SUCCESS)
+		return status;
+
+	return pm_pll_set_parameter(pll_nid, PM_PLL_PARAM_DATA, data);
 }
 
 /**
