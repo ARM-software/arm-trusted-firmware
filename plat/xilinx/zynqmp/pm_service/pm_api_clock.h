@@ -308,8 +308,8 @@ enum pm_ret_status pm_api_clock_setparent(unsigned int clock_id,
 					  unsigned int parent_idx);
 enum pm_ret_status pm_api_clock_getparent(unsigned int clock_id,
 					  unsigned int *parent_idx);
-enum pm_ret_status pm_api_clk_set_pll_mode(unsigned int pll,
-					   unsigned int mode);
+enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
+					 unsigned int mode);
 enum pm_ret_status pm_api_clk_get_pll_mode(unsigned int pll,
 					   unsigned int *mode);
 

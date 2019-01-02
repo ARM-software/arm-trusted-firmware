@@ -2493,10 +2493,12 @@ enum pm_ret_status pm_api_clock_get_attributes(unsigned int clock_id,
  * implemented by linux to system-level EEMI APIs
  * @nid:	PLL node ID
  * @cid:	PLL clock ID
+ * @mode:	PLL mode currently set via IOCTL (PLL_FRAC_MODE/PLL_INT_MODE)
  */
 struct pm_pll {
 	const enum pm_node_id nid;
 	const enum clock_id cid;
+	uint8_t mode;
 };
 
 static struct pm_pll pm_plls[] = {
@@ -3130,38 +3132,24 @@ enum pm_ret_status pm_api_clock_getparent(unsigned int clock_id,
 }
 
 /**
- * pm_api_clk_set_pll_mode() -  Set PLL mode
- * @pll     PLL id
- * @mode    Mode fraction/integar
+ * pm_clock_set_pll_mode() -  Set PLL mode
+ * @clock_id	PLL clock id
+ * @mode	Mode fractional/integer
  *
- * This function sets PLL mode.
+ * This function buffers/saves the PLL mode that is set.
  *
- * @return      Returns status, either success or error+reason
+ * @return      Success if mode is buffered or error if an argument is invalid
  */
-enum pm_ret_status pm_api_clk_set_pll_mode(unsigned int pll,
-					   unsigned int mode)
+enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
+					 unsigned int mode)
 {
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	unsigned int reg;
+	struct pm_pll *pll = pm_clock_get_pll(clock_id);
 
-	if (!pm_clock_valid(pll))
+	if (!pll || (mode != PLL_FRAC_MODE && mode != PLL_INT_MODE))
 		return PM_RET_ERROR_ARGS;
+	pll->mode = mode;
 
-	if (pm_clock_type(pll) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	if (!ISPLL(pll))
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	if (mode != PLL_FRAC_MODE && mode != PLL_INT_MODE)
-		return PM_RET_ERROR_ARGS;
-
-	reg = clocks[pll].control_reg + PLL_FRAC_OFFSET;
-
-	ret = pm_mmio_write(reg, PLL_FRAC_MODE_MASK,
-			    mode << PLL_FRAC_MODE_SHIFT);
-
-	return ret;
+	return PM_RET_SUCCESS;
 }
 
 /**

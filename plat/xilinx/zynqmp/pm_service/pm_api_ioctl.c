@@ -332,7 +332,7 @@ reset_release:
 /**
  * pm_ioctl_set_pll_frac_mode() -  Ioctl function for
  *				   setting pll mode
- * @pll     PLL id
+ * @pll     PLL clock id
  * @mode    Mode fraction/integar
  *
  * This function sets PLL mode
@@ -342,7 +342,7 @@ reset_release:
 static enum pm_ret_status pm_ioctl_set_pll_frac_mode
 			(unsigned int pll, unsigned int mode)
 {
-	return pm_api_clk_set_pll_mode(pll, mode);
+	return pm_clock_set_pll_mode(pll, mode);
 }
 
 /**
