@@ -176,4 +176,8 @@ enum pm_ret_status pm_aes_engine(uint32_t address_high,
 				 uint32_t address_low,
 				 uint32_t  *value);
 
+enum pm_ret_status pm_pll_set_parameter(enum pm_node_id nid,
+				enum pm_pll_param param_id,
+				unsigned int value);
+
 #endif /* PM_API_SYS_H */
