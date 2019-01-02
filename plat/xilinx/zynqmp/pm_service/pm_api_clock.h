@@ -55,7 +55,7 @@
 #define END_OF_CLK     "END_OF_CLK"
 
 //CLock Ids
-enum {
+enum clock_id {
 	CLK_IOPLL,
 	CLK_RPLL,
 	CLK_APLL,
@@ -288,6 +288,10 @@ enum pm_ret_status pm_api_clock_get_parents(unsigned int clock_id,
 					    uint32_t *parents);
 enum pm_ret_status pm_api_clock_get_attributes(unsigned int clock_id,
 					       uint32_t *attr);
+
+enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
+					    enum pm_node_id *node_id);
+
 enum pm_ret_status pm_api_clock_enable(unsigned int clock_id);
 enum pm_ret_status pm_api_clock_disable(unsigned int clock_id);
 enum pm_ret_status pm_api_clock_getstate(unsigned int clock_id,
@@ -310,7 +314,5 @@ enum pm_ret_status pm_api_clk_get_pll_mode(unsigned int pll,
 					   unsigned int *mode);
 enum pm_ret_status pm_api_clk_set_pll_frac_data(unsigned int pll,
 						unsigned int data);
-enum pm_ret_status pm_api_clk_get_pll_frac_data(unsigned int pll,
-						unsigned int *data);
 
 #endif /* PM_API_CLOCK_H */

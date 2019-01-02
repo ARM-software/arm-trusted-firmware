@@ -2489,6 +2489,74 @@ enum pm_ret_status pm_api_clock_get_attributes(unsigned int clock_id,
 }
 
 /**
+ * struct pm_pll - PLL related data required to map IOCTL-based PLL control
+ * implemented by linux to system-level EEMI APIs
+ * @nid:	PLL node ID
+ * @cid:	PLL clock ID
+ */
+struct pm_pll {
+	const enum pm_node_id nid;
+	const enum clock_id cid;
+};
+
+static struct pm_pll pm_plls[] = {
+	{
+		.nid = NODE_IOPLL,
+		.cid = CLK_IOPLL_INT,
+	}, {
+		.nid = NODE_RPLL,
+		.cid = CLK_RPLL_INT,
+	}, {
+		.nid = NODE_APLL,
+		.cid = CLK_APLL_INT,
+	}, {
+		.nid = NODE_VPLL,
+		.cid = CLK_VPLL_INT,
+	}, {
+		.nid = NODE_DPLL,
+		.cid = CLK_DPLL_INT,
+	},
+};
+
+/**
+ * pm_clock_get_pll() - Get PLL structure by PLL clock ID
+ * @clock_id	Clock ID of the target PLL
+ *
+ * @return	Pointer to PLL structure if found, NULL otherwise
+ */
+static struct pm_pll *pm_clock_get_pll(enum clock_id clock_id)
+{
+	uint32_t i;
+
+	for (i = 0; i < ARRAY_SIZE(pm_plls); i++) {
+		if (pm_plls[i].cid == clock_id)
+			return &pm_plls[i];
+	}
+
+	return NULL;
+}
+
+/**
+ * pm_clock_get_pll_node_id() - Get PLL node ID by PLL clock ID
+ * @clock_id	Clock ID of the target PLL
+ * @node_id	Location to store node ID of the target PLL
+ *
+ * @return	PM_RET_SUCCESS if node ID is found, PM_RET_ERROR_ARGS otherwise
+ */
+enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
+					    enum pm_node_id *node_id)
+{
+	struct pm_pll *pll = pm_clock_get_pll(clock_id);
+
+	if (pll) {
+		*node_id = pll->nid;
+		return PM_RET_SUCCESS;
+	}
+
+	return PM_RET_ERROR_ARGS;
+}
+
+/**
  * pll_get_lockbit() -  Returns lockbit index for pll id
  * @pll_id: Id of the pll
  *
@@ -3167,38 +3235,6 @@ enum pm_ret_status pm_api_clk_set_pll_frac_data(unsigned int pll,
 	} else {
 		return PM_RET_ERROR_ARGS;
 	}
-
-	return ret;
-}
-
-/**
- * pm_api_clk_get_pll_frac_data() - Get PLL fraction data
- * @pll     PLL id
- * @data    fraction data
- *
- * This function returns fraction data value.
- *
- * @return      Returns status, either success or error+reason
- */
-enum pm_ret_status pm_api_clk_get_pll_frac_data(unsigned int pll,
-						unsigned int *data)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	unsigned int val, reg;
-
-	if (!pm_clock_valid(pll))
-		return PM_RET_ERROR_ARGS;
-
-	if (pm_clock_type(pll) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	if (!ISPLL(pll))
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	reg = clocks[pll].control_reg + PLL_FRAC_OFFSET;
-
-	ret = pm_mmio_read(reg, &val);
-	*data = (val & PLL_FRAC_DATA_MASK);
 
 	return ret;
 }
