@@ -1060,7 +1060,7 @@ enum pm_ret_status pm_clock_getdivider(unsigned int clock_id,
 enum pm_ret_status pm_clock_setrate(unsigned int clock_id,
 				    uint64_t rate)
 {
-	return pm_api_clock_setrate(clock_id, rate);
+	return PM_RET_ERROR_NOTSUPPORTED;
 }
 
 /**
@@ -1076,7 +1076,7 @@ enum pm_ret_status pm_clock_setrate(unsigned int clock_id,
 enum pm_ret_status pm_clock_getrate(unsigned int clock_id,
 				    uint64_t *rate)
 {
-	return pm_api_clock_getrate(clock_id, rate);
+	return PM_RET_ERROR_NOTSUPPORTED;
 }
 
 /**

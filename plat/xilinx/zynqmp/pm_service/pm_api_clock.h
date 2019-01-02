@@ -300,10 +300,6 @@ enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll);
 enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll);
 enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
 					  unsigned int *state);
-enum pm_ret_status pm_api_clock_setrate(unsigned int clock_id,
-					uint64_t rate);
-enum pm_ret_status pm_api_clock_getrate(unsigned int clock_id,
-					uint64_t *rate);
 enum pm_ret_status pm_api_clock_setparent(unsigned int clock_id,
 					  unsigned int parent_idx);
 enum pm_ret_status pm_api_clock_getparent(unsigned int clock_id,
