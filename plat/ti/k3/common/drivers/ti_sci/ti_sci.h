@@ -206,6 +206,7 @@ int ti_sci_proc_wait_boot_status(uint8_t proc_id, uint8_t num_wait_iterations,
 				 uint32_t status_flags_1_set_any_wait,
 				 uint32_t status_flags_1_clr_all_wait,
 				 uint32_t status_flags_1_clr_any_wait);
+int ti_sci_proc_shutdown(uint8_t proc_id, uint32_t dev_id);
 
 /**
  * ti_sci_init() - Basic initialization
