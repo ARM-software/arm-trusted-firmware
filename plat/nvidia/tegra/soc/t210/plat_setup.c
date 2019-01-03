@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -208,6 +208,7 @@ void plat_late_platform_setup(void)
 void plat_gic_setup(void)
 {
 	tegra_gic_setup(tegra210_interrupt_props, ARRAY_SIZE(tegra210_interrupt_props));
+	tegra_gic_init();
 
 	/* Enable handling for FIQs */
 	tegra_fiq_handler_setup();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -274,7 +274,7 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	/*
 	 * Initialize the GIC cpu and distributor interfaces
 	 */
-	plat_gic_setup();
+	tegra_gic_init();
 
 	/*
 	 * Check if we are exiting from deep sleep.
