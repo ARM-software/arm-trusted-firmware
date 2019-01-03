@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -19,7 +19,7 @@ $(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
 MAX_XLAT_TABLES				:= 10
 $(eval $(call add_define,MAX_XLAT_TABLES))
 
-MAX_MMAP_REGIONS			:= 15
+MAX_MMAP_REGIONS			:= 16
 $(eval $(call add_define,MAX_MMAP_REGIONS))
 
 ENABLE_WDT_LEGACY_FIQ_HANDLING		:= 1
