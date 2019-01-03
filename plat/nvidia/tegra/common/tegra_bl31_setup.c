@@ -293,6 +293,9 @@ void plat_trusty_set_boot_args(aapcs64_params_t *args)
 	if (args->arg4 != 0U) {
 		args->arg2 = args->arg4;
 	}
+
+	/* Profiler Carveout Base */
+	args->arg3 = args->arg5;
 }
 #endif
 
