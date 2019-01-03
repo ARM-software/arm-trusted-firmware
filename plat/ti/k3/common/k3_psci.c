@@ -81,15 +81,16 @@ static int k3_pwr_domain_on(u_register_t mpidr)
 
 void k3_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	int core_id, device, ret;
+	int core_id, proc, device, ret;
 
 	/* Prevent interrupts from spuriously waking up this cpu */
 	k3_gic_cpuif_disable();
 
 	core_id = plat_my_core_pos();
+	proc = PLAT_PROC_START_ID + core_id;
 	device = PLAT_PROC_DEVICE_START_ID + core_id;
 
-	ret = ti_sci_device_put(device);
+	ret = ti_sci_proc_shutdown(proc, device);
 	if (ret) {
 		ERROR("Request to stop core failed: %d\n", ret);
 		return;
