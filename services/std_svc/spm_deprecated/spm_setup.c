@@ -144,8 +144,6 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 		SCTLR_SA0_BIT							|
 		/* Allow cacheable data and instr. accesses to normal memory. */
 		SCTLR_C_BIT | SCTLR_I_BIT					|
-		/* Alignment fault checking enabled when at EL1 and EL0. */
-		SCTLR_A_BIT							|
 		/* Enable MMU. */
 		SCTLR_M_BIT
 	;
@@ -153,6 +151,11 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	sctlr_el1 &= ~(
 		/* Explicit data accesses at EL0 are little-endian. */
 		SCTLR_E0E_BIT							|
+		/*
+		 * Alignment fault checking disabled when at EL1 and EL0 as
+		 * the UEFI spec permits unaligned accesses.
+		 */
+		SCTLR_A_BIT							|
 		/* Accesses to DAIF from EL0 are trapped to EL1. */
 		SCTLR_UMA_BIT
 	);
