@@ -1,15 +1,22 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch_helpers.h>
-#include <bpmp.h>
 #include <cortex_a57.h>
 #include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/interrupt_props.h>
 #include <drivers/console.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+#include <drivers/arm/gic_common.h>
+#include <drivers/arm/gicv2.h>
+#include <bl31/interrupt_mgmt.h>
+
+#include <bpmp.h>
+#include <flowctrl.h>
 #include <platform.h>
 #include <security_engine.h>
 #include <tegra_def.h>
@@ -137,10 +144,25 @@ void plat_early_platform_setup(void)
 	}
 }
 
+/* Secure IRQs for Tegra186 */
+static const interrupt_prop_t tegra210_interrupt_props[] = {
+	INTR_PROP_DESC(TEGRA210_WDT_CPU_LEGACY_FIQ, GIC_HIGHEST_SEC_PRIORITY,
+			GICV2_INTR_GROUP0, GIC_INTR_CFG_EDGE),
+};
+
 /*******************************************************************************
  * Initialize the GIC and SGIs
  ******************************************************************************/
 void plat_gic_setup(void)
 {
-	tegra_gic_setup(NULL, 0);
+	tegra_gic_setup(tegra210_interrupt_props, ARRAY_SIZE(tegra210_interrupt_props));
+
+	/* Enable handling for FIQs */
+	tegra_fiq_handler_setup();
+
+	/*
+	 * Enable routing watchdog FIQs from the flow controller to
+	 * the GICD.
+	 */
+	tegra_fc_enable_fiq_to_ccplex_routing();
 }

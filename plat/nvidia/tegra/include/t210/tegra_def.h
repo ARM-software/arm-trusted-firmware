@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,6 +42,11 @@
  ******************************************************************************/
 #define TEGRA_GICD_BASE			U(0x50041000)
 #define TEGRA_GICC_BASE			U(0x50042000)
+
+/*******************************************************************************
+ * Secure IRQ definitions
+ ******************************************************************************/
+#define TEGRA210_WDT_CPU_LEGACY_FIQ		U(28)
 
 /*******************************************************************************
  * Tegra Memory Select Switch Controller constants
