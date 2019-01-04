@@ -2628,90 +2628,6 @@ enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
 	return PM_RET_SUCCESS;
 }
 
-static enum pm_ret_status pm_api_clk_get_divider(unsigned int clock_id,
-						 uint32_t *divider)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	struct pm_clock_node *nodes;
-	uint8_t num_nodes;
-	unsigned int reg, val, i, div1 = 0, div2 = 0;
-	uint8_t div1_width = NA_WIDTH, div1_offset = NA_SHIFT;
-	uint8_t div2_width = NA_WIDTH, div2_offset = NA_SHIFT;
-
-	reg = clocks[clock_id].control_reg;
-
-	nodes = *clocks[clock_id].nodes;
-	num_nodes = clocks[clock_id].num_nodes;
-	for (i = 0; i < num_nodes; i++) {
-		if (nodes->type == TYPE_DIV1) {
-			div1_offset = nodes->offset;
-			div1_width = nodes->width;
-		}
-		if (nodes->type == TYPE_DIV2) {
-			div2_offset = nodes->offset;
-			div2_width = nodes->width;
-		}
-		nodes++;
-	}
-
-	ret = pm_mmio_read(reg, &val);
-
-	if (div1_width == NA_WIDTH)
-		return PM_RET_ERROR_ARGS;
-
-	div1 = (val & BIT_MASK(div1_offset, div1_width)) >> div1_offset;
-
-	if (div2_width != NA_WIDTH)
-		div2 = (val & BIT_MASK(div2_offset, div2_width)) >> div2_offset;
-
-	*divider = div1 | (div2 << 16);
-
-	return ret;
-}
-
-static enum pm_ret_status pm_api_pll_get_divider(unsigned int clock_id,
-					  unsigned int *divider)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	unsigned int reg, val;
-
-	reg = clocks[clock_id].control_reg;
-
-	ret = pm_mmio_read(reg, &val);
-	*divider = (val & PLL_FBDIV_MASK) >> PLL_FBDIV_SHIFT;
-
-	return ret;
-}
-
-/**
- * pm_api_clock_getdivider - Get the clock divider for given id
- * @clock_id	Id of the clock
- * @divider	Divider value
- *
- * This function is used by master to get divider values
- * for any clock.
- *
- * Return: Returns status, either success or error+reason.
- */
-enum pm_ret_status pm_api_clock_getdivider(unsigned int clock_id,
-					   unsigned int *divider)
-{
-	enum pm_ret_status ret;
-
-	if (!pm_clock_valid(clock_id))
-		return PM_RET_ERROR_ARGS;
-
-	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	if (ISPLL(clock_id))
-		ret = pm_api_pll_get_divider(clock_id, divider);
-	else
-		ret = pm_api_clk_get_divider(clock_id, divider);
-
-	return ret;
-}
-
 /**
  * pm_api_clock_setrate - Set the clock rate for given id
  * @clock_id	Id of the clock
@@ -2899,4 +2815,33 @@ enum pm_ret_status pm_clock_id_is_valid(unsigned int clock_id)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
 	return PM_RET_SUCCESS;
+}
+
+/**
+ * pm_clock_has_div() - Check if the clock has divider with given ID
+ * @clock_id	Clock ID
+ * @div_id	Divider ID
+ *
+ * @return	True(1)=clock has the divider, false(0)=otherwise
+ */
+uint8_t pm_clock_has_div(unsigned int clock_id, enum pm_clock_div_id div_id)
+{
+	uint32_t i;
+	struct pm_clock_node *nodes;
+
+	if (clock_id >= CLK_MAX_OUTPUT_CLK)
+		return 0;
+
+	nodes = *clocks[clock_id].nodes;
+	for (i = 0; i < clocks[clock_id].num_nodes; i++) {
+		if (nodes[i].type == TYPE_DIV1) {
+			if (div_id == PM_CLOCK_DIV0_ID)
+				return 1;
+		} else if (nodes[i].type == TYPE_DIV2) {
+			if (div_id == PM_CLOCK_DIV1_ID)
+				return 1;
+		}
+	}
+
+	return 0;
 }

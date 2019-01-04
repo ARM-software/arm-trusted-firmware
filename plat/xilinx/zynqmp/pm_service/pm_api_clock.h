@@ -276,6 +276,7 @@ enum {
 
 struct pm_pll;
 struct pm_pll *pm_clock_get_pll(enum clock_id clock_id);
+uint8_t pm_clock_has_div(unsigned int clock_id, enum pm_clock_div_id div_id);
 
 enum pm_ret_status pm_api_clock_get_name(unsigned int clock_id, char *name);
 enum pm_ret_status pm_api_clock_get_num_clocks(unsigned int *nclocks);
@@ -299,8 +300,6 @@ enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll);
 enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll);
 enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
 					  unsigned int *state);
-enum pm_ret_status pm_api_clock_getdivider(unsigned int clock_id,
-					   unsigned int *divider);
 enum pm_ret_status pm_api_clock_setrate(unsigned int clock_id,
 					uint64_t rate);
 enum pm_ret_status pm_api_clock_getrate(unsigned int clock_id,
