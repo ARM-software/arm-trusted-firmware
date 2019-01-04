@@ -1326,3 +1326,24 @@ enum pm_ret_status pm_pll_set_mode(enum pm_node_id nid, enum pm_pll_mode mode)
 	PM_PACK_PAYLOAD3(payload, PM_PLL_SET_MODE, nid, mode);
 	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
+
+/**
+ * pm_pll_get_mode() - Get the PLL mode
+ * @nid		Node id of the target PLL
+ * @mode	Location to store the mode of the PLL
+ *
+ * @return	Error if an argument is not valid or status as returned by the
+ *		PM controller (PMU)
+ */
+enum pm_ret_status pm_pll_get_mode(enum pm_node_id nid, enum pm_pll_mode *mode)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Check if given node ID is a PLL node */
+	if (nid < NODE_APLL || nid > NODE_IOPLL)
+		return PM_RET_ERROR_ARGS;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD2(payload, PM_PLL_GET_MODE, nid);
+	return pm_ipi_send_sync(primary_proc, payload, mode, 1);
+}
