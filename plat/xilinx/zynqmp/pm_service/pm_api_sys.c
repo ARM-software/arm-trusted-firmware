@@ -1082,16 +1082,32 @@ enum pm_ret_status pm_clock_getrate(unsigned int clock_id,
 /**
  * pm_clock_setparent - Set the clock parent for given id
  * @clock_id: Id of the clock
- * @parent_id: parent id
+ * @parent_index: Index of the parent clock into clock's parents array
  *
  * This function is used by master to set parent for any clock.
  *
  * Return: Returns status, either success or error+reason.
  */
 enum pm_ret_status pm_clock_setparent(unsigned int clock_id,
-				      unsigned int parent_id)
+				      unsigned int parent_index)
 {
-	return pm_api_clock_setparent(clock_id, parent_id);
+	struct pm_pll *pll;
+	uint32_t payload[PAYLOAD_ARG_CNT];
+	enum pm_ret_status status;
+
+	/* First try to handle it as a PLL */
+	pll = pm_clock_get_pll_by_related_clk(clock_id);
+	if (pll)
+		return pm_clock_pll_set_parent(pll, clock_id, parent_index);
+
+	/* Check if clock ID is a valid on-chip clock */
+	status = pm_clock_id_is_valid(clock_id);
+	if (status != PM_RET_SUCCESS)
+		return status;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD3(payload, PM_CLOCK_SETPARENT, clock_id, parent_index);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**

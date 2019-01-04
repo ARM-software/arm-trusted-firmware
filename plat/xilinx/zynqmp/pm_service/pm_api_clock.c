@@ -2493,11 +2493,19 @@ enum pm_ret_status pm_api_clock_get_attributes(unsigned int clock_id,
  * implemented by linux to system-level EEMI APIs
  * @nid:	PLL node ID
  * @cid:	PLL clock ID
+ * @pre_src:	Pre-source PLL clock ID
+ * @post_src:	Post-source PLL clock ID
+ * @div2:	DIV2 PLL clock ID
+ * @bypass:	PLL output clock ID that maps to bypass select output
  * @mode:	PLL mode currently set via IOCTL (PLL_FRAC_MODE/PLL_INT_MODE)
  */
 struct pm_pll {
 	const enum pm_node_id nid;
 	const enum clock_id cid;
+	const enum clock_id pre_src;
+	const enum clock_id post_src;
+	const enum clock_id div2;
+	const enum clock_id bypass;
 	uint8_t mode;
 };
 
@@ -2505,18 +2513,38 @@ static struct pm_pll pm_plls[] = {
 	{
 		.nid = NODE_IOPLL,
 		.cid = CLK_IOPLL_INT,
+		.pre_src = CLK_IOPLL_PRE_SRC,
+		.post_src = CLK_IOPLL_POST_SRC,
+		.div2 = CLK_IOPLL_INT_MUX,
+		.bypass = CLK_IOPLL,
 	}, {
 		.nid = NODE_RPLL,
 		.cid = CLK_RPLL_INT,
+		.pre_src = CLK_RPLL_PRE_SRC,
+		.post_src = CLK_RPLL_POST_SRC,
+		.div2 = CLK_RPLL_INT_MUX,
+		.bypass = CLK_RPLL,
 	}, {
 		.nid = NODE_APLL,
 		.cid = CLK_APLL_INT,
+		.pre_src = CLK_APLL_PRE_SRC,
+		.post_src = CLK_APLL_POST_SRC,
+		.div2 = CLK_APLL_INT_MUX,
+		.bypass = CLK_APLL,
 	}, {
 		.nid = NODE_VPLL,
 		.cid = CLK_VPLL_INT,
+		.pre_src = CLK_VPLL_PRE_SRC,
+		.post_src = CLK_VPLL_POST_SRC,
+		.div2 = CLK_VPLL_INT_MUX,
+		.bypass = CLK_VPLL,
 	}, {
 		.nid = NODE_DPLL,
 		.cid = CLK_DPLL_INT,
+		.pre_src = CLK_DPLL_PRE_SRC,
+		.post_src = CLK_DPLL_POST_SRC,
+		.div2 = CLK_DPLL_INT_MUX,
+		.bypass = CLK_DPLL,
 	},
 };
 
@@ -2556,6 +2584,28 @@ enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
 	}
 
 	return PM_RET_ERROR_ARGS;
+}
+
+/**
+ * pm_clock_get_pll_by_related_clk() - Get PLL structure by PLL-related clock ID
+ * @clock_id	Clock ID
+ *
+ * @return	Pointer to PLL structure if found, NULL otherwise
+ */
+struct pm_pll *pm_clock_get_pll_by_related_clk(enum clock_id clock_id)
+{
+	uint32_t i;
+
+	for (i = 0; i < ARRAY_SIZE(pm_plls); i++) {
+		if (pm_plls[i].pre_src == clock_id ||
+		    pm_plls[i].post_src == clock_id ||
+		    pm_plls[i].div2 == clock_id ||
+		    pm_plls[i].bypass == clock_id) {
+			return &pm_plls[i];
+		}
+	}
+
+	return NULL;
 }
 
 /**
@@ -2629,54 +2679,34 @@ enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
 }
 
 /**
- * pm_api_clock_setparent - Set the clock parent for given id
- * @clock_id	Id of the clock
- * @parent_idx	parent index
+ * pm_clock_pll_set_parent - Set the clock parent for PLL-related clock id
+ * @pll			Target PLL structure
+ * @clock_id		Id of the clock
+ * @parent_index	parent index (=mux select value)
  *
- * This function is used by master to set parent for any clock.
+ * The whole clock-tree implementation relies on the fact that parent indexes
+ * match to the multiplexer select values. This function has to rely on that
+ * assumption as well => parent_index is actually the mux select value.
  *
  * Return: Returns status, either success or error+reason.
  */
-enum pm_ret_status pm_api_clock_setparent(unsigned int clock_id,
-					  unsigned int parent_idx)
+enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
+					   enum clock_id clock_id,
+					   unsigned int parent_index)
 {
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	struct pm_clock_node *nodes;
-	uint8_t num_nodes;
-	unsigned int reg, val;
-	int32_t *clk_parents;
-	unsigned int i = 0;
-	uint8_t  offset = NA_SHIFT, width = NA_WIDTH;
-
-	if (!pm_clock_valid(clock_id))
+	if (!pll)
 		return PM_RET_ERROR_ARGS;
+	if (pll->pre_src == clock_id)
+		return pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_PRE_SRC,
+					    parent_index);
+	if (pll->post_src == clock_id)
+		return pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_POST_SRC,
+					    parent_index);
+	if (pll->div2 == clock_id)
+		return pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_DIV2,
+					    parent_index);
 
-	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	clk_parents = *clocks[clock_id].parents;
-
-	for (i = 0; i <= parent_idx; i++)
-		if (clk_parents[i] == CLK_NA_PARENT)
-			return PM_RET_ERROR_ARGS;
-
-	nodes = *clocks[clock_id].nodes;
-	num_nodes = clocks[clock_id].num_nodes;
-	for (i = 0; i < num_nodes; i++) {
-		if (nodes->type == TYPE_MUX) {
-			offset = nodes->offset;
-			width = nodes->width;
-		}
-		nodes++;
-	}
-	if (width == NA_WIDTH)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	reg = clocks[clock_id].control_reg;
-	val = parent_idx << offset;
-	ret = pm_mmio_write(reg, BIT_MASK(offset, width), val);
-
-	return ret;
+	return PM_RET_ERROR_ARGS;
 }
 
 /**
