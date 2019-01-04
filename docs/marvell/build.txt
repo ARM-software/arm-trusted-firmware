@@ -125,8 +125,8 @@ Build Instructions
 	the image boot from SPI NOR flash partition 0, and the image is non trusted in WTP, the command
 	line is as following::
 
-		> make DEBUG=1 USE_COHERENT_MEM=0 LOG_LEVEL=20 SECURE=0 CLOCKSPRESET=CPU_1000_DDR_800 \
-			DDR_TOPOLOGY=3 BOOTDEV=SPINOR PARTNUM=0 PLAT=a3700 all fip
+		> make DEBUG=1 USE_COHERENT_MEM=0 LOG_LEVEL=20 CLOCKSPRESET=CPU_1000_DDR_800 \
+			MARVELL_SECURE_BOOT=0 DDR_TOPOLOGY=3 BOOTDEV=SPINOR PARTNUM=0 PLAT=a3700 all fip
 
 	Supported MARVELL_PLATFORM are:
 		- a3700 (for both A3720 DB and EspressoBin)
