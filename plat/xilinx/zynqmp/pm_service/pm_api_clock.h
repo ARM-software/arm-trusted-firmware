@@ -274,6 +274,8 @@ enum {
 #define	TYPE_DIV2 5U
 #define	TYPE_GATE 6U
 
+struct pm_pll;
+struct pm_pll *pm_clock_get_pll(enum clock_id clock_id);
 
 enum pm_ret_status pm_api_clock_get_name(unsigned int clock_id, char *name);
 enum pm_ret_status pm_api_clock_get_num_clocks(unsigned int *nclocks);
@@ -291,8 +293,9 @@ enum pm_ret_status pm_api_clock_get_attributes(unsigned int clock_id,
 
 enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
 					    enum pm_node_id *node_id);
+enum pm_ret_status pm_clock_id_is_valid(unsigned int clock_id);
 
-enum pm_ret_status pm_api_clock_enable(unsigned int clock_id);
+enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll);
 enum pm_ret_status pm_api_clock_disable(unsigned int clock_id);
 enum pm_ret_status pm_api_clock_getstate(unsigned int clock_id,
 					 unsigned int *state);

@@ -844,18 +844,56 @@ static enum pm_ret_status pm_clock_get_attributes(unsigned int clock_id,
 }
 
 /**
+ * pm_clock_gate() - Configure clock gate
+ * @clock_id	Id of the clock to be configured
+ * @enable	Flag 0=disable (gate the clock), !0=enable (activate the clock)
+ *
+ * @return	Error if an argument is not valid or status as returned by the
+ *		PM controller (PMU)
+ */
+static enum pm_ret_status pm_clock_gate(unsigned int clock_id,
+					unsigned char enable)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+	enum pm_ret_status status;
+	enum pm_api_id api_id;
+
+	/* Check if clock ID is valid and return an error if it is not */
+	status = pm_clock_id_is_valid(clock_id);
+	if (status != PM_RET_SUCCESS)
+		return status;
+
+	if (enable)
+		api_id = PM_CLOCK_ENABLE;
+	else
+		api_id = PM_CLOCK_DISABLE;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD2(payload, api_id, clock_id);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
  * pm_clock_enable() - Enable the clock for given id
  * @clock_id: Id of the clock to be enabled
  *
  * This function is used by master to enable the clock
  * including peripherals and PLL clocks.
  *
- * Return: Returns status, either success or error+reason.
+ * @return:	Error if an argument is not valid or status as returned by the
+ *		pm_clock_gate
  */
-
 enum pm_ret_status pm_clock_enable(unsigned int clock_id)
 {
-	return pm_api_clock_enable(clock_id);
+	struct pm_pll *pll;
+
+	/* First try to handle it as a PLL */
+	pll = pm_clock_get_pll(clock_id);
+	if (pll)
+		return pm_clock_pll_enable(pll);
+
+	/* It's an on-chip clock, PMU should configure clock's gate */
+	return pm_clock_gate(clock_id, 1);
 }
 
 /**

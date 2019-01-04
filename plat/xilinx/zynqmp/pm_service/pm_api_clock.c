@@ -2526,7 +2526,7 @@ static struct pm_pll pm_plls[] = {
  *
  * @return	Pointer to PLL structure if found, NULL otherwise
  */
-static struct pm_pll *pm_clock_get_pll(enum clock_id clock_id)
+struct pm_pll *pm_clock_get_pll(enum clock_id clock_id)
 {
 	uint32_t i;
 
@@ -2679,32 +2679,24 @@ static enum pm_ret_status pm_api_clk_enable_disable(unsigned int clock_id,
 }
 
 /**
- * pm_api_clock_enable() - Enable the clock for given id
- * @clock_id: Id of the clock to be enabled
+ * pm_clock_pll_enable() - "Enable" the PLL clock (lock the PLL)
+ * @pll: PLL to be locked
  *
- * This function is used by master to enable the clock
- * including peripherals and PLL clocks.
+ * This function is used to map IOCTL/linux-based PLL handling to system-level
+ * EEMI APIs
  *
- * Return: Returns status, either success or error+reason.
+ * Return: Error if the argument is not valid or status as returned by PMU
  */
-enum pm_ret_status pm_api_clock_enable(unsigned int clock_id)
+enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll)
 {
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-
-	if (!pm_clock_valid(clock_id))
+	if (!pll)
 		return PM_RET_ERROR_ARGS;
 
-	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
+	/* Set the PLL mode according to the buffered mode value */
+	if (pll->mode == PLL_FRAC_MODE)
+		return pm_pll_set_mode(pll->nid, PM_PLL_MODE_FRACTIONAL);
 
-	/*
-	 * PLL type clock should not enable explicitly.
-	 * It is done by FSBL on boot-up and by PMUFW whenever required.
-	 */
-	if (!ISPLL(clock_id))
-		ret = pm_api_clk_enable_disable(clock_id, 1);
-
-	return ret;
+	return pm_pll_set_mode(pll->nid, PM_PLL_MODE_INTEGER);
 }
 
 /**
@@ -3169,6 +3161,23 @@ enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
 	if (!pll || !mode)
 		return PM_RET_ERROR_ARGS;
 	*mode = pll->mode;
+
+	return PM_RET_SUCCESS;
+}
+
+/**
+ * pm_clock_id_is_valid() -  Check if given clock ID is valid
+ * @clock_id   ID of the clock to be checked
+ *
+ * @return     Returns success if clock_id is valid, otherwise an error
+ */
+enum pm_ret_status pm_clock_id_is_valid(unsigned int clock_id)
+{
+	if (!pm_clock_valid(clock_id))
+		return PM_RET_ERROR_ARGS;
+
+	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
+		return PM_RET_ERROR_NOTSUPPORTED;
 
 	return PM_RET_SUCCESS;
 }
