@@ -130,6 +130,18 @@
 	 */
 	mov_imm x0, (CPTR_EL3_RESET_VAL & ~(TCPAC_BIT | TTA_BIT | TFP_BIT))
 	msr	cptr_el3, x0
+
+	/*
+	 * If Data Independent Timing (DIT) functionality is implemented,
+	 * always enable DIT in EL3
+	 */
+	mrs	x0, id_aa64pfr0_el1
+	ubfx	x0, x0, #ID_AA64PFR0_DIT_SHIFT, #ID_AA64PFR0_DIT_LENGTH
+	cmp	x0, #ID_AA64PFR0_DIT_SUPPORTED
+	bne	1f
+	mov	x0, #DIT_BIT
+	msr	DIT, x0
+1:
 	.endm
 
 /* -----------------------------------------------------------------------------

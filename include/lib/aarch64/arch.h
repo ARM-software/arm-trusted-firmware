@@ -135,6 +135,10 @@
 #define ID_AA64PFR0_SVE_LENGTH	U(4)
 #define ID_AA64PFR0_MPAM_SHIFT	U(40)
 #define ID_AA64PFR0_MPAM_MASK	ULL(0xf)
+#define ID_AA64PFR0_DIT_SHIFT	U(48)
+#define ID_AA64PFR0_DIT_MASK	ULL(0xf)
+#define ID_AA64PFR0_DIT_LENGTH	U(4)
+#define ID_AA64PFR0_DIT_SUPPORTED	U(1)
 #define ID_AA64PFR0_CSV2_SHIFT	U(56)
 #define ID_AA64PFR0_CSV2_MASK	ULL(0xf)
 #define ID_AA64PFR0_CSV2_LENGTH	U(4)
@@ -778,7 +782,7 @@
 
 /*******************************************************************************
  * RAS system registers
- *******************************************************************************/
+ ******************************************************************************/
 #define DISR_EL1		S3_0_C12_C1_1
 #define DISR_A_BIT		U(31)
 
@@ -807,7 +811,13 @@
 
 /*******************************************************************************
  * Armv8.3 Pointer Authentication Registers
- *******************************************************************************/
+ ******************************************************************************/
 #define APGAKeyLo_EL1		S3_0_C2_C3_0
+
+/*******************************************************************************
+ * Armv8.4 Data Independent Timing Registers
+ ******************************************************************************/
+#define DIT			S3_3_C4_C2_5
+#define DIT_BIT			BIT(24)
 
 #endif /* ARCH_H */
