@@ -1296,3 +1296,33 @@ enum pm_ret_status pm_pll_get_parameter(enum pm_node_id nid,
 	PM_PACK_PAYLOAD3(payload, PM_PLL_GET_PARAMETER, nid, param_id);
 	return pm_ipi_send_sync(primary_proc, payload, value, 1);
 }
+
+/**
+ * pm_pll_set_mode() - Set the PLL mode
+ * @nid		Node id of the target PLL
+ * @mode	PLL mode to be set
+ *
+ * If reset mode is set the PM controller will first bypass the PLL and then
+ * assert the reset. If integer or fractional mode is set the PM controller will
+ * ensure that the complete PLL programming sequence is satisfied. After this
+ * function returns success the PLL is locked and its bypass is deasserted.
+ *
+ * @return	Error if an argument is not valid or status as returned by the
+ *		PM controller (PMU)
+ */
+enum pm_ret_status pm_pll_set_mode(enum pm_node_id nid, enum pm_pll_mode mode)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Check if given node ID is a PLL node */
+	if (nid < NODE_APLL || nid > NODE_IOPLL)
+		return PM_RET_ERROR_ARGS;
+
+	/* Check if PLL mode is valid */
+	if (mode >= PM_PLL_MODE_MAX)
+		return PM_RET_ERROR_ARGS;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD3(payload, PM_PLL_SET_MODE, nid, mode);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
