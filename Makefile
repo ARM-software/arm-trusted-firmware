@@ -26,10 +26,6 @@ include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 # Default values for build configurations, and their dependencies
 ################################################################################
 
-ifdef ASM_ASSERTION
-        $(warning ASM_ASSERTION is removed, use ENABLE_ASSERTIONS instead.)
-endif
-
 include ${MAKE_HELPERS_DIRECTORY}defaults.mk
 
 # Assertions enabled for DEBUG builds by default
