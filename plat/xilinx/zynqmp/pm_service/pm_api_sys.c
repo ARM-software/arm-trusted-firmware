@@ -1268,3 +1268,31 @@ enum pm_ret_status pm_pll_set_parameter(enum pm_node_id nid,
 	PM_PACK_PAYLOAD4(payload, PM_PLL_SET_PARAMETER, nid, param_id, value);
 	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
+
+/**
+ * pm_pll_get_parameter() - Get the PLL parameter value
+ * @nid		Node id of the target PLL
+ * @param_id	ID of the PLL parameter
+ * @value	Location to store the parameter value
+ *
+ * @return	Error if an argument is not valid or status as returned by the
+ *		PM controller (PMU)
+ */
+enum pm_ret_status pm_pll_get_parameter(enum pm_node_id nid,
+					enum pm_pll_param param_id,
+					unsigned int *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Check if given node ID is a PLL node */
+	if (nid < NODE_APLL || nid > NODE_IOPLL)
+		return PM_RET_ERROR_ARGS;
+
+	/* Check if parameter ID is valid and return an error if it's not */
+	if (param_id >= PM_PLL_PARAM_MAX)
+		return PM_RET_ERROR_ARGS;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD3(payload, PM_PLL_GET_PARAMETER, nid, param_id);
+	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+}

@@ -94,6 +94,7 @@ enum pm_api_id {
 	PM_SECURE_AES,
 	/* PLL control API functions */
 	PM_PLL_SET_PARAMETER,
+	PM_PLL_GET_PARAMETER,
 	PM_API_MAX
 };
 
