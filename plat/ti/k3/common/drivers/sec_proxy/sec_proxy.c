@@ -163,6 +163,44 @@ static inline int k3_sec_proxy_verify_thread(struct k3_sec_proxy_thread *spt,
 }
 
 /**
+ * k3_sec_proxy_clear_rx_thread() - Clear Secure Proxy thread
+ *
+ * @id: Channel Identifier
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int k3_sec_proxy_clear_rx_thread(enum k3_sec_proxy_chan_id id)
+{
+	struct k3_sec_proxy_thread *spt = &spm.threads[id];
+
+	/* Check for any errors already available */
+	if (mmio_read_32(spt->rt + RT_THREAD_STATUS) &
+	    RT_THREAD_STATUS_ERROR_MASK) {
+		ERROR("Thread %d is corrupted, cannot send data\n", spt->id);
+		return -EINVAL;
+	}
+
+	/* Make sure thread is configured for right direction */
+	if (!(mmio_read_32(spt->scfg + SCFG_THREAD_CTRL) & SCFG_THREAD_CTRL_DIR_MASK)) {
+		ERROR("Cannot clear a transmit thread %d\n", spt->id);
+		return -EINVAL;
+	}
+
+	/* Read off messages from thread until empty */
+	uint32_t try_count = 10;
+	while (mmio_read_32(spt->rt + RT_THREAD_STATUS) & RT_THREAD_STATUS_CUR_CNT_MASK) {
+		if (!(try_count--)) {
+			ERROR("Could not clear all messages from thread %d\n", spt->id);
+			return -ETIMEDOUT;
+		}
+		WARN("Clearing message from thread %d\n", spt->id);
+		mmio_read_32(spt->data + spm.desc.data_end_offset);
+	}
+
+	return 0;
+}
+
+/**
  * k3_sec_proxy_send() - Send data over a Secure Proxy thread
  * @id: Channel Identifier
  * @msg: Pointer to k3_sec_proxy_msg

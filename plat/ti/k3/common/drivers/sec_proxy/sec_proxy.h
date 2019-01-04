@@ -44,6 +44,15 @@ struct k3_sec_proxy_msg {
  *
  * Return: 0 if all goes well, else appropriate error message
  */
+int k3_sec_proxy_clear_rx_thread(enum k3_sec_proxy_chan_id id);
+
+/**
+ * k3_sec_proxy_send() - Send data over a Secure Proxy thread
+ * @id: Channel Identifier
+ * @msg: Pointer to k3_sec_proxy_msg
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
 int k3_sec_proxy_send(enum k3_sec_proxy_chan_id id, const struct k3_sec_proxy_msg *msg);
 
 /**
