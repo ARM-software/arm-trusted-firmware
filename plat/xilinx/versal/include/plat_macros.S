@@ -7,10 +7,11 @@
 #ifndef PLAT_MACROS_S
 #define PLAT_MACROS_S
 
+#include <drivers/arm/gic_common.h>
+#include <drivers/arm/gicv2.h>
+#include <drivers/arm/gicv3.h>
+
 #include "../include/platform_def.h"
-#include <gic_common.h>
-#include <gicv2.h>
-#include <gicv3.h>
 
 .section .rodata.gic_reg_name, "aS"
 /* Applicable only to GICv2 and GICv3 with SRE disabled (legacy mode) */

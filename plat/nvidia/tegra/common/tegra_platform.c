@@ -5,7 +5,8 @@
  */
 
 #include <arch_helpers.h>
-#include <mmio.h>
+#include <lib/mmio.h>
+
 #include <tegra_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>

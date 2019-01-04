@@ -7,7 +7,7 @@
 #ifndef ARCH_H
 #define ARCH_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /*******************************************************************************
  * MIDR bit definitions

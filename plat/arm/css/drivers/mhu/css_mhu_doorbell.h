@@ -7,8 +7,9 @@
 #ifndef CSS_MHU_DOORBELL_H
 #define CSS_MHU_DOORBELL_H
 
-#include <mmio.h>
 #include <stdint.h>
+
+#include <lib/mmio.h>
 
 /* MHUv2 Base Address */
 #define MHUV2_BASE_ADDR		PLAT_CSS_MHU_BASE

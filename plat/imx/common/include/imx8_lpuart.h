@@ -7,7 +7,7 @@
 #ifndef IMX8_LPUART_H
 #define IMX8_LPUART_H
 
-#include <console.h>
+#include <drivers/console.h>
 
 #define VERID	0x0
 #define PARAM	0x4

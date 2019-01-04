@@ -4,19 +4,20 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
-#include <mmio.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <string.h>
+
+#include <platform_def.h>
+
+#include <common/debug.h>
+#include <lib/mmio.h>
 
 #include <hi6220_regs_acpu.h>
 #include <hi6220_regs_ao.h>
 #include <hisi_ipc.h>
 #include <hisi_pwrc.h>
 #include <hisi_sram_map.h>
-
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
-#include <platform_def.h>
 
 #define CLUSTER_CORE_COUNT		(4)
 #define CLUSTER_CORE_MASK		((1 << CLUSTER_CORE_COUNT) - 1)

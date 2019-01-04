@@ -4,12 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <mmio.h>
 #include <stdint.h>
 #include <string.h>
+
+#include <common/debug.h>
+#include <lib/mmio.h>
+
 #include "cpg_registers.h"
 #include "rpc_registers.h"
-#include "debug.h"
 #include "rcar_private.h"
 
 #define MSTPSR9_RPC_BIT		(0x00020000U)

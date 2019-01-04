@@ -10,18 +10,20 @@
  */
 
 #include <errno.h>
-#include <runtime_svc.h>
+
+#include <common/runtime_svc.h>
+#if ZYNQMP_WDT_RESTART
+#include <arch_helpers.h>
+#include <drivers/arm/gicv2.h>
+#include <lib/mmio.h>
+#include <lib/spinlock.h>
+#include <plat/common/platform.h>
+#endif
+
 #include "../zynqmp_private.h"
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_ipi.h"
-#if ZYNQMP_WDT_RESTART
-#include <arch_helpers.h>
-#include <gicv2.h>
-#include <mmio.h>
-#include <platform.h>
-#include <spinlock.h>
-#endif
 
 #define PM_SET_SUSPEND_MODE	0xa02
 #define PM_GET_TRUSTZONE_VERSION	0xa03

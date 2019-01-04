@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <bl_common.h>
-#include <gicv2.h>
-#include <platform.h>
 #include <platform_def.h>
-#include <utils.h>
+
+#include <common/bl_common.h>
+#include <drivers/arm/gicv2.h>
+#include <lib/utils.h>
+#include <plat/common/platform.h>
 
 #include <stm32mp1_private.h>
 

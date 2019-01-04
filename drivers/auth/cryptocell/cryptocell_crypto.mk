@@ -20,8 +20,6 @@ endif
 TF_LDFLAGS		+= -L$(CCSBROM_LIB_PATH)
 LDLIBS			+= -lcc_712sbromx509
 
-INCLUDES		+=	-Iinclude/drivers/arm/cryptocell
-
 CRYPTOCELL_SOURCES	:=	drivers/auth/cryptocell/cryptocell_crypto.c
 
 BL1_SOURCES		+=	${CRYPTOCELL_SOURCES}

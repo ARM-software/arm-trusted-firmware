@@ -7,9 +7,9 @@
 #ifndef SP804_DELAY_TIMER_H
 #define SP804_DELAY_TIMER_H
 
-#include <delay_timer.h>
 #include <stdint.h>
 
+#include <drivers/delay_timer.h>
 
 uint32_t sp804_get_timer_value(void);
 

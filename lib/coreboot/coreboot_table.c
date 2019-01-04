@@ -5,12 +5,13 @@
  */
 
 #include <assert.h>
-#include <cbmem_console.h>
-#include <coreboot.h>
-#include <debug.h>
-#include <mmio.h>
 #include <string.h>
-#include <xlat_tables_v2.h>
+
+#include <drivers/coreboot/cbmem_console.h>
+#include <common/debug.h>
+#include <lib/coreboot.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 /*
  * Structures describing coreboot's in-memory descriptor tables. See

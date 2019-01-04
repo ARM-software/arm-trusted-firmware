@@ -7,11 +7,12 @@
 #ifndef OPTEED_PRIVATE_H
 #define OPTEED_PRIVATE_H
 
-#include <arch.h>
-#include <context.h>
-#include <interrupt_mgmt.h>
 #include <platform_def.h>
-#include <psci.h>
+
+#include <arch.h>
+#include <bl31/interrupt_mgmt.h>
+#include <context.h>
+#include <lib/psci/psci.h>
 
 /*******************************************************************************
  * OPTEE PM state information e.g. OPTEE is suspended, uninitialised etc
@@ -80,8 +81,9 @@
 
 #ifndef __ASSEMBLY__
 
-#include <cassert.h>
 #include <stdint.h>
+
+#include <lib/cassert.h>
 
 typedef uint32_t optee_vector_isn_t;
 

@@ -4,10 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
 #include <assert.h>
-#include <desc_image_load.h>
+
 #include <platform_def.h>
+
+#include <arch.h>
+#include <common/desc_image_load.h>
 
 #include "uniphier.h"
 

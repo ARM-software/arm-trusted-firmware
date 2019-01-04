@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
-#include <io_driver.h>
-#include <io_storage.h>
 #include <string.h>
+
+#include <common/debug.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_storage.h>
 
 #include "io_common.h"
 #include "io_emmcdrv.h"

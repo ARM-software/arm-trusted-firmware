@@ -5,9 +5,10 @@
  */
 
 #include <cdefs.h>
-#include <mmio.h>
-#include <smmu_v3.h>
 #include <stdbool.h>
+
+#include <drivers/arm/smmu_v3.h>
+#include <lib/mmio.h>
 
 static inline uint32_t __init smmuv3_read_s_idr1(uintptr_t base)
 {

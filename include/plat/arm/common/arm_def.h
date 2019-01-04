@@ -6,15 +6,15 @@
 #ifndef ARM_DEF_H
 #define ARM_DEF_H
 
-#include <arch.h>
-#include <common_def.h>
-#include <gic_common.h>
-#include <interrupt_props.h>
 #include <platform_def.h>
-#include <tbbr_img_def.h>
-#include <utils_def.h>
-#include <xlat_tables_defs.h>
 
+#include <arch.h>
+#include <common/interrupt_props.h>
+#include <common/tbbr/tbbr_img_def.h>
+#include <drivers/arm/gic_common.h>
+#include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
+#include <plat/common/common_def.h>
 
 /******************************************************************************
  * Definitions common to all ARM standard platforms
@@ -207,13 +207,11 @@
 						ARM_DRAM2_BASE,		\
 						ARM_DRAM2_SIZE,		\
 						MT_MEMORY | MT_RW | MT_NS)
-#ifdef SPD_tspd
 
 #define ARM_MAP_TSP_SEC_MEM		MAP_REGION_FLAT(		\
 						TSP_SEC_MEM_BASE,	\
 						TSP_SEC_MEM_SIZE,	\
 						MT_MEMORY | MT_RW | MT_SECURE)
-#endif
 
 #if ARM_BL31_IN_DRAM
 #define ARM_MAP_BL31_SEC_DRAM		MAP_REGION_FLAT(		\

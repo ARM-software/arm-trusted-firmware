@@ -11,12 +11,14 @@
  * for Marvell and Allwinner SoCs in ATF.
  */
 
-#include <debug.h>
-#include <delay_timer.h>
 #include <errno.h>
-#include <mentor/mi2cv.h>
+
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/mentor/mi2cv.h>
+#include <lib/mmio.h>
+
 #include <mentor_i2c_plat.h>
-#include <mmio.h>
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 #define DEBUG_I2C

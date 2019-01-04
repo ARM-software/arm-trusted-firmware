@@ -8,6 +8,7 @@
 #define PM_API_SYS_H
 
 #include <stdint.h>
+
 #include "pm_defs.h"
 
 enum pm_query_id {

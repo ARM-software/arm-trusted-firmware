@@ -4,14 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arm_arch_svc.h>
-#include <debug.h>
-#include <errata_report.h>
-#include <runtime_svc.h>
-#include <smccc.h>
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <lib/cpus/errata_report.h>
+#include <lib/cpus/wa_cve_2017_5715.h>
+#include <lib/cpus/wa_cve_2018_3639.h>
+#include <lib/smccc.h>
+#include <services/arm_arch_svc.h>
 #include <smccc_helpers.h>
-#include <wa_cve_2017_5715.h>
-#include <wa_cve_2018_3639.h>
 
 static int32_t smccc_version(void)
 {

@@ -5,13 +5,13 @@
  */
 
 #include <arch_helpers.h>
-#include <gpio.h>
+#include <drivers/arm/pl061_gpio.h>
+#include <drivers/arm/sp804_delay_timer.h>
+#include <drivers/gpio.h>
+#include <lib/mmio.h>
+
 #include <hi6220.h>
 #include <hi6553.h>
-#include <mmio.h>
-#include <pl061_gpio.h>
-#include <sp804_delay_timer.h>
-
 #include "hikey_private.h"
 
 void hikey_sp804_init(void)

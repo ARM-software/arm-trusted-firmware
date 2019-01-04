@@ -7,12 +7,14 @@
 #ifndef TEGRA_PRIVATE_H
 #define TEGRA_PRIVATE_H
 
+#include <platform_def.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <platform_def.h>
-#include <psci.h>
+#include <lib/psci/psci.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+
 #include <tegra_gic.h>
-#include <xlat_tables_v2.h>
 
 /*******************************************************************************
  * Tegra DRAM memory base address

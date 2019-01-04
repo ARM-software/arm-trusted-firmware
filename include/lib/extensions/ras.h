@@ -71,7 +71,8 @@
 #ifndef __ASSEMBLY__
 
 #include <assert.h>
-#include <ras_arch.h>
+
+#include <lib/extensions/ras_arch.h>
 
 struct err_record_info;
 

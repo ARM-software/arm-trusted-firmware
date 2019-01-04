@@ -407,7 +407,7 @@ typedef struct tegra_mc_settings {
 
 #ifndef __ASSEMBLY__
 
-#include <mmio.h>
+#include <lib/mmio.h>
 
 static inline uint32_t tegra_mc_read_32(uint32_t off)
 {

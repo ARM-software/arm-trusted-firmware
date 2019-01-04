@@ -4,17 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <debug.h>
-#include <delay_timer.h>
 #include <endian.h>
 #include <errno.h>
-#include <mmio.h>
-#include <platform_def.h>
 #include <stdint.h>
 #include <string.h>
-#include <ufs.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/ufs.h>
+#include <lib/mmio.h>
 
 #define CDB_ADDR_MASK			127
 #define ALIGN_CDB(x)			(((x) + CDB_ADDR_MASK) & ~CDB_ADDR_MASK)

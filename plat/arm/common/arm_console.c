@@ -3,12 +3,16 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #include <assert.h>
-#include <console.h>
-#include <debug.h>
-#include <pl011.h>
-#include <plat_arm.h>
+
 #include <platform_def.h>
+
+#include <common/debug.h>
+#include <drivers/arm/pl011.h>
+#include <drivers/console.h>
+
+#include <plat_arm.h>
 
 /*******************************************************************************
  * Functions that set up the console

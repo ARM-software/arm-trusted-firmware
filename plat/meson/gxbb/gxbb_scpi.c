@@ -5,10 +5,12 @@
  */
 
 #include <assert.h>
-#include <mmio.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <string.h>
+
+#include <platform_def.h>
+
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
 
 #include "gxbb_private.h"
 

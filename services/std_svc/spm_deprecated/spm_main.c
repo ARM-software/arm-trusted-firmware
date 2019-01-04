@@ -6,21 +6,22 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
-#include <bl31.h>
-#include <context_mgmt.h>
-#include <debug.h>
-#include <ehf.h>
 #include <errno.h>
-#include <mm_svc.h>
-#include <platform.h>
-#include <runtime_svc.h>
-#include <secure_partition.h>
-#include <smccc.h>
+
+#include <bl31/bl31.h>
+#include <bl31/ehf.h>
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/smccc.h>
+#include <lib/spinlock.h>
+#include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+#include <plat/common/platform.h>
+#include <services/mm_svc.h>
+#include <services/secure_partition.h>
+#include <services/spm_svc.h>
 #include <smccc_helpers.h>
-#include <spinlock.h>
-#include <spm_svc.h>
-#include <utils.h>
-#include <xlat_tables_v2.h>
 
 #include "spm_private.h"
 

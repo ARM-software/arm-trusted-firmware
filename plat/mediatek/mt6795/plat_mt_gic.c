@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <gicv2.h>
-#include <interrupt_props.h>
-#include <platform.h>
 #include <platform_def.h>
+
+#include <common/interrupt_props.h>
+#include <drivers/arm/gicv2.h>
+#include <plat/common/platform.h>
 
 static const interrupt_prop_t g0_interrupt_props[] = {
 	INTR_PROP_DESC(FIQ_SMP_CALL_SGI, GIC_HIGHEST_SEC_PRIORITY,

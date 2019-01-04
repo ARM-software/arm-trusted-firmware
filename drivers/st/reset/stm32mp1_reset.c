@@ -4,14 +4,16 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <bl_common.h>
-#include <debug.h>
 #include <limits.h>
-#include <mmio.h>
+
 #include <platform_def.h>
-#include <stm32mp1_rcc.h>
-#include <stm32mp1_reset.h>
-#include <utils_def.h>
+
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/st/stm32mp1_rcc.h>
+#include <drivers/st/stm32mp1_reset.h>
+#include <lib/mmio.h>
+#include <lib/utils_def.h>
 
 #define RST_CLR_OFFSET	4U
 

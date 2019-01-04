@@ -5,8 +5,10 @@
  */
 
 #include <stdint.h>
-#include <debug.h>
-#include <mmio.h>
+
+#include <common/debug.h>
+#include <lib/mmio.h>
+
 #include "qos_init.h"
 #include "qos_common.h"
 #if RCAR_LSI == RCAR_AUTO

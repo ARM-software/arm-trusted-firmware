@@ -5,15 +5,17 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <ep_info.h>
-#include <interrupt_mgmt.h>
-#include <meson_console.h>
-#include <mmio.h>
-#include <platform_def.h>
 #include <stdint.h>
-#include <xlat_tables_v2.h>
+
+#include <platform_def.h>
+
+#include <bl31/interrupt_mgmt.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/ep_info.h>
+#include <drivers/meson/meson_console.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 /*******************************************************************************
  * Platform memory map regions

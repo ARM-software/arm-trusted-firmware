@@ -7,9 +7,10 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-#include <common_def.h>
-#include <tzc400.h>
-#include <utils.h>
+#include <drivers/arm/tzc400.h>
+#include <lib/utils.h>
+#include <plat/common/common_def.h>
+
 #include "ls_def.h"
 
 #define FIRMWARE_WELCOME_STR_LS1043	"Welcome to LS1043 BL1 Phase\n"

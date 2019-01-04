@@ -184,7 +184,7 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <context.h>
-#include <mmio.h>
+#include <lib/mmio.h>
 #include <stdint.h>
 
 /*

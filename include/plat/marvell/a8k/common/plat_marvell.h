@@ -8,11 +8,12 @@
 #ifndef PLAT_MARVELL_H
 #define PLAT_MARVELL_H
 
-#include <cassert.h>
-#include <cpu_data.h>
 #include <stdint.h>
-#include <utils.h>
-#include <xlat_tables.h>
+
+#include <lib/cassert.h>
+#include <lib/el3_runtime/cpu_data.h>
+#include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables.h>
 
 /*
  * Extern declarations common to Marvell standard platforms

@@ -7,8 +7,8 @@
 #ifndef HIKEY960_DEF_H
 #define HIKEY960_DEF_H
 
-#include <common_def.h>
-#include <tbbr_img_def.h>
+#include <common/tbbr/tbbr_img_def.h>
+#include <plat/common/common_def.h>
 
 #define DDR_BASE			0x0
 #define DDR_SIZE			0xC0000000

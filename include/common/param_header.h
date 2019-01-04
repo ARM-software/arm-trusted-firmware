@@ -8,7 +8,8 @@
 #define PARAM_HEADER_H
 
 #include <stdbool.h>
-#include <utils_def.h>
+
+#include <lib/utils_def.h>
 
 /* Param header types */
 #define PARAM_EP			U(0x01)

@@ -8,8 +8,8 @@
 #define XLAT_TABLES_AARCH64_H
 
 #include <arch.h>
-#include <utils_def.h>
-#include <xlat_tables_defs.h>
+#include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
 
 #if !defined(PAGE_SIZE)
 #error "PAGE_SIZE is not defined."

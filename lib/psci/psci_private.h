@@ -7,14 +7,15 @@
 #ifndef PSCI_PRIVATE_H
 #define PSCI_PRIVATE_H
 
+#include <stdbool.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <bakery_lock.h>
-#include <bl_common.h>
-#include <cpu_data.h>
-#include <psci.h>
-#include <spinlock.h>
-#include <stdbool.h>
+#include <common/bl_common.h>
+#include <lib/bakery_lock.h>
+#include <lib/el3_runtime/cpu_data.h>
+#include <lib/psci/psci.h>
+#include <lib/spinlock.h>
 
 /*
  * The PSCI capability which are provided by the generic code but does not

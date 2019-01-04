@@ -4,21 +4,25 @@
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
 
-#include <arch_helpers.h>
-#include <boot_api.h>
-#include <debug.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
 #include <errno.h>
+
 #include <libfdt.h>
-#include <mmio.h>
+
 #include <platform_def.h>
-#include <stm32mp1_clk.h>
-#include <stm32mp1_ddr.h>
-#include <stm32mp1_ddr_helpers.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/st/stm32mp1_clk.h>
+#include <drivers/st/stm32mp1_ddr.h>
+#include <drivers/st/stm32mp1_ddr_helpers.h>
+#include <drivers/st/stm32mp1_ram.h>
+#include <drivers/st/stm32mp1_rcc.h>
+#include <dt-bindings/clock/stm32mp1-clks.h>
+#include <lib/mmio.h>
+
+#include <boot_api.h>
 #include <stm32mp1_dt.h>
 #include <stm32mp1_private.h>
-#include <stm32mp1_ram.h>
-#include <stm32mp1_rcc.h>
 
 #define DDR_PATTERN	0xAAAAAAAAU
 #define DDR_ANTIPATTERN	0x55555555U

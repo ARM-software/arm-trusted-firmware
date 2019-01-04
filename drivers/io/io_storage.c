@@ -5,11 +5,12 @@
  */
 
 #include <assert.h>
-#include <io_driver.h>
-#include <io_storage.h>
-#include <platform_def.h>
 #include <stddef.h>
 
+#include <platform_def.h>
+
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_storage.h>
 
 /* Storage for a fixed maximum number of IO entities, definable by platform */
 static io_entity_t entity_pool[MAX_IO_HANDLES];

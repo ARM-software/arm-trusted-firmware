@@ -7,7 +7,8 @@
 #ifndef MCE_H
 #define MCE_H
 
-#include <mmio.h>
+#include <lib/mmio.h>
+
 #include <tegra_def.h>
 
 /*******************************************************************************

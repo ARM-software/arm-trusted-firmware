@@ -7,7 +7,7 @@
 #ifndef TBBR_IMG_DESC_H
 #define TBBR_IMG_DESC_H
 
-#include <bl_common.h>
+#include <common/bl_common.h>
 
 extern image_desc_t bl1_tbbr_image_descs[];
 

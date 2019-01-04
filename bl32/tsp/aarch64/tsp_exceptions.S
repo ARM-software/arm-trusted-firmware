@@ -6,9 +6,8 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <bl_common.h>
-#include <tsp.h>
-
+#include <bl32/tsp/tsp.h>
+#include <common/bl_common.h>
 
 	/* ----------------------------------------------------
 	 * The caller-saved registers x0-x18 and LR are saved

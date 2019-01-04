@@ -4,21 +4,23 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <desc_image_load.h>
-#include <dw_mmc.h>
 #include <errno.h>
-#include <generic_delay_timer.h>
-#include <mmc.h>
-#include <mmio.h>
-#include <optee_utils.h>
-#include <partition/partition.h>
-#include <pl011.h>
-#include <platform.h>
 #include <string.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/desc_image_load.h>
+#include <drivers/arm/pl011.h>
+#include <drivers/generic_delay_timer.h>
+#include <drivers/partition/partition.h>
+#include <drivers/synopsys/dw_mmc.h>
+#include <drivers/mmc.h>
+#include <lib/mmio.h>
+#include <lib/optee_utils.h>
+#include <plat/common/platform.h>
+
 #include "hi3798cv200.h"
 #include "plat_private.h"
 

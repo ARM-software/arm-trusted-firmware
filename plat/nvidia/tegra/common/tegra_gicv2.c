@@ -5,12 +5,15 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>
-#include <gicv2.h>
+
 #include <platform_def.h>
+
+#include <common/bl_common.h>
+#include <drivers/arm/gicv2.h>
+#include <lib/utils.h>
+
 #include <tegra_private.h>
 #include <tegra_def.h>
-#include <utils.h>
 
 /******************************************************************************
  * Tegra common helper to setup the GICv2 driver data.

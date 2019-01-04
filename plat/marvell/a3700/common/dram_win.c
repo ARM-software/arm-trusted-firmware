@@ -5,12 +5,14 @@
  * https://spdx.org/licenses
  */
 
+#include <string.h>
+
+#include <lib/mmio.h>
+
 #include <dram_win.h>
 #include <marvell_plat_priv.h>
-#include <mmio.h>
 #include <mvebu.h>
 #include <plat_marvell.h>
-#include <string.h>
 
 /* Armada 3700 has 5 configurable windows */
 #define MV_CPU_WIN_NUM		5

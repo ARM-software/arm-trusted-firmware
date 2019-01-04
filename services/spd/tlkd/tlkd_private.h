@@ -7,11 +7,12 @@
 #ifndef TLKD_PRIVATE_H
 #define TLKD_PRIVATE_H
 
-#include <arch.h>
-#include <context.h>
-#include <interrupt_mgmt.h>
 #include <platform_def.h>
-#include <psci.h>
+
+#include <arch.h>
+#include <bl31/interrupt_mgmt.h>
+#include <context.h>
+#include <lib/psci/psci.h>
 
 /*
  * This flag is used by the TLKD to determine if the SP is servicing a yielding
@@ -72,8 +73,9 @@
 
 #ifndef __ASSEMBLY__
 
-#include <cassert.h>
 #include <stdint.h>
+
+#include <lib/cassert.h>
 
 /* AArch64 callee saved general purpose register context structure. */
 DEFINE_REG_STRUCT(c_rt_regs, TLKD_C_RT_CTX_ENTRIES);

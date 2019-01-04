@@ -7,11 +7,13 @@
 #ifndef SMCCC_HELPERS_H
 #define SMCCC_HELPERS_H
 
-#include <smccc.h>
+#include <lib/smccc.h>
 
 #ifndef __ASSEMBLY__
-#include <context.h>
+
 #include <stdbool.h>
+
+#include <context.h>
 
 /* Convenience macros to return from SMC handler */
 #define SMC_RET0(_h)	{					\

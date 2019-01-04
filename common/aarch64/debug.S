@@ -6,7 +6,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <debug.h>
+#include <common/debug.h>
 
 	.globl	asm_print_str
 	.globl	asm_print_hex

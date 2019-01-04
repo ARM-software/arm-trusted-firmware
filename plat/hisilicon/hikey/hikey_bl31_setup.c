@@ -4,21 +4,24 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <cci.h>
-#include <debug.h>
 #include <errno.h>
-#include <gicv2.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/interrupt_props.h>
+#include <drivers/arm/cci.h>
+#include <drivers/arm/gicv2.h>
+#include <drivers/arm/pl011.h>
+#include <lib/mmio.h>
+
 #include <hi6220.h>
 #include <hikey_def.h>
 #include <hisi_ipc.h>
 #include <hisi_pwrc.h>
-#include <interrupt_props.h>
-#include <mmio.h>
-#include <pl011.h>
-#include <platform_def.h>
 
 #include "hikey_private.h"
 

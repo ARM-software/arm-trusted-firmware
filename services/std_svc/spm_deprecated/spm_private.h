@@ -31,9 +31,10 @@
 
 #ifndef __ASSEMBLY__
 
-#include <spinlock.h>
 #include <stdint.h>
-#include <xlat_tables_v2.h>
+
+#include <lib/spinlock.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 typedef enum sp_state {
 	SP_STATE_RESET = 0,

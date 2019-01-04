@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <bl_common.h>
-#include <desc_image_load.h>
-#include <platform.h>
+#include <common/bl_common.h>
+#include <common/desc_image_load.h>
+#include <plat/common/platform.h>
 
 extern void bl2_plat_flush_bl31_params(void);
 

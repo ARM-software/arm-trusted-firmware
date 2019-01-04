@@ -5,10 +5,12 @@
  */
 
 #include <assert.h>
-#include <gicv3.h>
-#include <interrupt_props.h>
-#include <platform.h>
+
 #include <platform_def.h>
+
+#include <common/interrupt_props.h>
+#include <drivers/arm/gicv3.h>
+#include <plat/common/platform.h>
 
 #include "sq_common.h"
 

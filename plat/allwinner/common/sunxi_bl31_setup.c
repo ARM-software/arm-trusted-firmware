@@ -4,20 +4,24 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
 #include <assert.h>
-#include <console.h>
-#include <debug.h>
-#include <generic_delay_timer.h>
-#include <gicv2.h>
+
 #include <libfdt.h>
-#include <mmio.h>
-#include <platform.h>
+
 #include <platform_def.h>
+
+#include <arch.h>
+#include <common/debug.h>
+#include <drivers/arm/gicv2.h>
+#include <drivers/console.h>
+#include <drivers/generic_delay_timer.h>
+#include <drivers/ti/uart/uart_16550.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
 #include <sunxi_def.h>
 #include <sunxi_mmap.h>
 #include <sunxi_private.h>
-#include <uart_16550.h>
 
 
 static entry_point_info_t bl32_image_ep_info;

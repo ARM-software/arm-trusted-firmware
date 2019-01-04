@@ -6,10 +6,11 @@
 
 #include <assert.h>
 #include <cdefs.h>
-#include <console.h>
-#include <debug.h>
-#include <platform.h>
 #include <stdio.h>
+
+#include <common/debug.h>
+#include <drivers/console.h>
+#include <plat/common/platform.h>
 
 /*
  * Only print the output if PLAT_LOG_LEVEL_ASSERT is higher or equal to

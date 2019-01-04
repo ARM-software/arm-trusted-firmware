@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
-#include <platform.h>
-#include <stpmu1.h>
 #include <string.h>
+
+#include <common/debug.h>
+#include <drivers/st/stpmu1.h>
+#include <plat/common/platform.h>
 
 struct regul_struct {
 	const char *dt_node_name;

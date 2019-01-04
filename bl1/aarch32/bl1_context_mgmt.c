@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
+
+#include <arch_helpers.h>
 #include <context.h>
-#include <context_mgmt.h>
-#include <debug.h>
-#include <platform.h>
+#include <common/debug.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <plat/common/platform.h>
 #include <smccc_helpers.h>
+
 #include "../bl1_private.h"
 
 /*

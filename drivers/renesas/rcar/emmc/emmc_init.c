@@ -5,7 +5,9 @@
  */
 
 #include <stddef.h>
-#include <mmio.h>
+
+#include <lib/mmio.h>
+
 #include "emmc_config.h"
 #include "emmc_hal.h"
 #include "emmc_std.h"

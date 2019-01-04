@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <gicv2.h>
-#include <platform.h>
 #include <platform_def.h>
+
+#include <drivers/arm/gicv2.h>
+#include <plat/common/platform.h>
 
 /******************************************************************************
  * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0

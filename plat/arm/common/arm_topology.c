@@ -4,9 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
-#include <plat_arm.h>
 #include <platform_def.h>
+
+#include <arch.h>
+
+#include <plat_arm.h>
 
 /*******************************************************************************
  * This function validates an MPIDR by checking whether it falls within the

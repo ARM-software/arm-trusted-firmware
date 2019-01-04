@@ -4,16 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <stdbool.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <cci.h>
-#include <debug.h>
-#include <gicv3.h>
-#include <mmio.h>
+#include <common/debug.h>
+#include <drivers/arm/cci.h>
+#include <drivers/arm/gicv3.h>
+#include <lib/mmio.h>
+#include <lib/psci/psci.h>
+
 #include <plat_imx8.h>
-#include <psci.h>
 #include <sci/sci.h>
-#include <stdbool.h>
 
 #define CORE_PWR_STATE(state) \
 	((state)->pwr_domain_state[MPIDR_AFFLVL0])

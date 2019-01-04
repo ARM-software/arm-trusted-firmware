@@ -7,7 +7,7 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'regs'
@@ -26,8 +26,9 @@
 
 #ifndef __ASSEMBLY__
 
-#include <cassert.h>
 #include <stdint.h>
+
+#include <lib/cassert.h>
 
 /*
  * Common constants to help define the 'cpu_context' structure and its

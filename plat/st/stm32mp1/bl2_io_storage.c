@@ -4,26 +4,29 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <boot_api.h>
-#include <debug.h>
-#include <io_block.h>
-#include <io_driver.h>
-#include <io_dummy.h>
-#include <io_mmc.h>
-#include <io_stm32image.h>
-#include <io_storage.h>
-#include <mmc.h>
-#include <mmio.h>
-#include <partition.h>
-#include <platform.h>
-#include <platform_def.h>
-#include <stm32_sdmmc2.h>
-#include <stm32mp1_private.h>
-#include <stm32mp1_rcc.h>
 #include <string.h>
-#include <utils.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/io/io_block.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_dummy.h>
+#include <drivers/io/io_storage.h>
+#include <drivers/mmc.h>
+#include <drivers/partition/partition.h>
+#include <drivers/st/io_mmc.h>
+#include <drivers/st/io_stm32image.h>
+#include <drivers/st/stm32_sdmmc2.h>
+#include <drivers/st/stm32mp1_rcc.h>
+#include <lib/mmio.h>
+#include <lib/utils.h>
+#include <plat/common/platform.h>
+
+#include <boot_api.h>
+#include <stm32mp1_private.h>
 
 /* IO devices */
 static const io_dev_connector_t *dummy_dev_con;

@@ -6,20 +6,22 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
-#include <bl31.h>
-#include <bl_common.h>
-#include <cassert.h>
-#include <context.h>
-#include <debug.h>
-#include <ehf.h>
-#include <interrupt_mgmt.h>
-#include <platform.h>
-#include <pubsub.h>
-#include <runtime_svc.h>
-#include <sdei.h>
 #include <stddef.h>
 #include <string.h>
-#include <utils.h>
+
+#include <bl31/bl31.h>
+#include <bl31/ehf.h>
+#include <bl31/interrupt_mgmt.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <context.h>
+#include <lib/cassert.h>
+#include <lib/el3_runtime/pubsub.h>
+#include <lib/utils.h>
+#include <plat/common/platform.h>
+#include <services/sdei.h>
+
 #include "sdei_private.h"
 
 #define MAJOR_VERSION	1ULL

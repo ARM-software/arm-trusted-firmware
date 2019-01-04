@@ -4,21 +4,22 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+#include <string.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <bl31.h>
-#include <bl_common.h>
-#include <console.h>
-#include <context_mgmt.h>
-#include <debug.h>
-#include <ehf.h>
-#include <platform.h>
-#include <pmf.h>
-#include <runtime_instr.h>
-#include <runtime_svc.h>
-#include <std_svc.h>
-#include <string.h>
+#include <bl31/bl31.h>
+#include <bl31/ehf.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <drivers/console.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/pmf/pmf.h>
+#include <lib/runtime_instr.h>
+#include <plat/common/platform.h>
+#include <services/std_svc.h>
 
 #if ENABLE_RUNTIME_INSTRUMENTATION
 PMF_REGISTER_SERVICE_SMC(rt_instr_svc, PMF_RT_INSTR_SVC_ID,

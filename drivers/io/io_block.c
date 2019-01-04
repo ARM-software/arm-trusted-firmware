@@ -5,14 +5,16 @@
  */
 
 #include <assert.h>
-#include <debug.h>
 #include <errno.h>
-#include <io_block.h>
-#include <io_driver.h>
-#include <io_storage.h>
-#include <platform_def.h>
 #include <string.h>
-#include <utils.h>
+
+#include <platform_def.h>
+
+#include <common/debug.h>
+#include <drivers/io/io_block.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_storage.h>
+#include <lib/utils.h>
 
 typedef struct {
 	io_block_dev_spec_t	*dev_spec;

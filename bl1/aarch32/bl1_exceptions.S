@@ -6,12 +6,12 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <bl1.h>
-#include <bl_common.h>
+#include <bl1/bl1.h>
+#include <common/bl_common.h>
 #include <context.h>
+#include <lib/xlat_tables/xlat_tables.h>
 #include <smccc_helpers.h>
 #include <smccc_macros.S>
-#include <xlat_tables.h>
 
 	.globl	bl1_aarch32_smc_handler
 

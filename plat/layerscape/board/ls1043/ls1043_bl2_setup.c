@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <mmio.h>
-#include <debug.h>
+#include <common/debug.h>
+#include <lib/mmio.h>
+
 #include "plat_ls.h"
 
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,

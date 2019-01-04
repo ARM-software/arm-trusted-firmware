@@ -7,10 +7,10 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
-#include <cpu_data.h>
+#include <common/debug.h>
 #include <cpu_macros.S>
-#include <debug.h>
-#include <errata_report.h>
+#include <lib/cpus/errata_report.h>
+#include <lib/el3_runtime/cpu_data.h>
 
  /* Reset fn is needed in BL at reset vector */
 #if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3)

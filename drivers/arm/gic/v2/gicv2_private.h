@@ -7,9 +7,10 @@
 #ifndef GICV2_PRIVATE_H
 #define GICV2_PRIVATE_H
 
-#include <gicv2.h>
-#include <mmio.h>
 #include <stdint.h>
+
+#include <drivers/arm/gicv2.h>
+#include <lib/mmio.h>
 
 /*******************************************************************************
  * Private function prototypes

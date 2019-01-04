@@ -6,8 +6,9 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <tsp.h>
-#include <xlat_tables_defs.h>
+#include <bl32/tsp/tsp.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
+
 #include "../tsp_private.h"
 
 

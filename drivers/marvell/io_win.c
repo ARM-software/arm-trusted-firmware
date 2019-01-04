@@ -7,10 +7,11 @@
 
 /* IO Window unit device driver for Marvell AP807, AP807 and AP810 SoCs */
 
+#include <common/debug.h>
+#include <drivers/marvell/io_win.h>
+#include <lib/mmio.h>
+
 #include <armada_common.h>
-#include <debug.h>
-#include <io_win.h>
-#include <mmio.h>
 #include <mvebu.h>
 #include <mvebu_def.h>
 

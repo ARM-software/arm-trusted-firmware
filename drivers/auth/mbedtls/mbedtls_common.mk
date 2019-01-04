@@ -14,10 +14,9 @@ ifeq (${MBEDTLS_DIR},)
 endif
 
 MBEDTLS_INC		=	-I${MBEDTLS_DIR}/include
-INCLUDES		+=     -Iinclude/drivers/auth/mbedtls
 
 # Specify mbed TLS configuration file
-MBEDTLS_CONFIG_FILE	:=	"<mbedtls_config.h>"
+MBEDTLS_CONFIG_FILE	:=	"<drivers/auth/mbedtls/mbedtls_config.h>"
 $(eval $(call add_define,MBEDTLS_CONFIG_FILE))
 
 MBEDTLS_SOURCES	+=		drivers/auth/mbedtls/mbedtls_common.c

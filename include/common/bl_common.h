@@ -7,9 +7,9 @@
 #ifndef BL_COMMON_H
 #define BL_COMMON_H
 
-#include <ep_info.h>
-#include <param_header.h>
-#include <utils_def.h>
+#include <common/ep_info.h>
+#include <common/param_header.h>
+#include <lib/utils_def.h>
 
 #define UP	U(1)
 #define DOWN	U(0)
@@ -58,11 +58,11 @@
 #define SERROR_AARCH32			U(0xf)
 
 #ifndef __ASSEMBLY__
-#include <cassert.h>
+
 #include <stddef.h>
 #include <stdint.h>
-#include <utils_def.h> /* To retain compatibility */
 
+#include <lib/cassert.h>
 
 /*
  * Declarations of linker defined symbols to help determine memory layout of

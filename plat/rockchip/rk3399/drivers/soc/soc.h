@@ -7,7 +7,7 @@
 #ifndef SOC_H
 #define SOC_H
 
-#include <utils.h>
+#include <lib/utils.h>
 
 #define GLB_SRST_FST_CFG_VAL	0xfdb9
 #define GLB_SRST_SND_CFG_VAL	0xeca8

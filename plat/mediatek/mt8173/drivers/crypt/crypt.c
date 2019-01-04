@@ -3,12 +3,15 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
+#include <assert.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <debug.h>
-#include <delay_timer.h>
-#include <mmio.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
+
 #include <mt8173_def.h>
 #include <mtk_sip_svc.h>
 

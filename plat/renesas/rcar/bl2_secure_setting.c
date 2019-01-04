@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <lib/mmio.h>
+#include <lib/utils_def.h>
+
 #include "axi_registers.h"
 #include "lifec_registers.h"
 #include "micro_delay.h"
-#include "mmio.h"
-#include "utils_def.h"
 
 static void lifec_security_setting(void);
 static void axi_security_setting(void);

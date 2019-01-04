@@ -6,7 +6,8 @@
  */
 
 #include <arch_helpers.h>
-#include <delay_timer.h>
+#include <drivers/delay_timer.h>
+
 #include <mvebu_def.h>
 
 #define SYS_COUNTER_FREQ_IN_MHZ	(COUNTER_FREQUENCY/1000000)

@@ -4,8 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-PLAT_INCLUDES		+=	-Iinclude/drivers/cfi/				\
-				-Iinclude/plat/arm/board/common/
+PLAT_INCLUDES		+=	-Iinclude/plat/arm/board/common/
 
 PLAT_BL_COMMON_SOURCES	+=	drivers/arm/pl011/${ARCH}/pl011_console.S	\
 				plat/arm/board/common/${ARCH}/board_arm_helpers.S

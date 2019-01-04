@@ -4,13 +4,17 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bakery_lock.h>
-#include <css_def.h>
-#include <mmio.h>
-#include <plat_arm.h>
+
 #include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <lib/bakery_lock.h>
+#include <lib/mmio.h>
+
+#include <css_def.h>
+#include <plat_arm.h>
+
 #include "css_mhu.h"
 
 /* SCP MHU secure channel registers */

@@ -8,9 +8,10 @@
 #define PLATFORM_DEF_H
 
 #include <arch.h>
-#include <gic_common.h>
-#include <interrupt_props.h>
-#include <utils_def.h>
+#include <common/interrupt_props.h>
+#include <drivers/arm/gic_common.h>
+#include <lib/utils_def.h>
+
 #include "../zynqmp_def.h"
 
 /*******************************************************************************

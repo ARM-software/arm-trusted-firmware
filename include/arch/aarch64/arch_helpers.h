@@ -7,11 +7,12 @@
 #ifndef ARCH_HELPERS_H
 #define ARCH_HELPERS_H
 
-#include <arch.h>
 #include <cdefs.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+
+#include <arch.h>
 
 /**********************************************************************
  * Macros which create inline functions to read or write CPU system

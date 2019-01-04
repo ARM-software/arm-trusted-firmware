@@ -270,32 +270,33 @@ BL_COMMON_SOURCES	+=	lib/${ARCH}/armclang_printf.S
 endif
 
 INCLUDES		+=	-Iinclude				\
-				-Iinclude/bl1				\
+				-Iinclude/arch/${ARCH}			\
+				-Iinclude/lib/cpus/${ARCH}		\
+				-Iinclude/lib/el3_runtime/${ARCH}	\
+				${PLAT_INCLUDES}			\
+				${SPD_INCLUDES}
+
+ifeq (${ERROR_DEPRECATED},0)
+INCLUDES		+=	-Iinclude/bl1				\
 				-Iinclude/bl2				\
 				-Iinclude/bl2u				\
 				-Iinclude/bl31				\
-				-Iinclude/common			\
-				-Iinclude/common/${ARCH}		\
 				-Iinclude/drivers			\
 				-Iinclude/drivers/arm			\
 				-Iinclude/drivers/auth			\
 				-Iinclude/drivers/io			\
 				-Iinclude/drivers/ti/uart		\
 				-Iinclude/lib				\
-				-Iinclude/lib/${ARCH}			\
 				-Iinclude/lib/cpus			\
-				-Iinclude/lib/cpus/${ARCH}		\
 				-Iinclude/lib/el3_runtime		\
-				-Iinclude/lib/el3_runtime/${ARCH}	\
 				-Iinclude/lib/extensions		\
 				-Iinclude/lib/pmf			\
 				-Iinclude/lib/psci			\
 				-Iinclude/lib/xlat_tables		\
 				-Iinclude/plat/common			\
 				-Iinclude/services			\
-				${PLAT_INCLUDES}			\
-				${SPD_INCLUDES}				\
 				-Iinclude/tools_share
+endif
 
 include common/backtrace/backtrace.mk
 

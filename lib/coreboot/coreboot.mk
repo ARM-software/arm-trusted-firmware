@@ -19,6 +19,4 @@ BL31_SOURCES	+=	$(addprefix lib/coreboot/,	\
 
 BL31_SOURCES	+=	drivers/coreboot/cbmem_console/${ARCH}/cbmem_console.S
 
-INCLUDES	+=	-Iinclude/drivers/coreboot
-
 endif	# COREBOOT

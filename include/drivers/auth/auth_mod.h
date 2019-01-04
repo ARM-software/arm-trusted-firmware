@@ -9,10 +9,10 @@
 
 #if TRUSTED_BOARD_BOOT
 
-#include <auth_common.h>
-#include <cot_def.h>
-#include <img_parser_mod.h>
-#include <tbbr_img_def.h>
+#include <common/tbbr/cot_def.h>
+#include <common/tbbr/tbbr_img_def.h>
+#include <drivers/auth/auth_common.h>
+#include <drivers/auth/img_parser_mod.h>
 
 /*
  * Image flags

@@ -3,8 +3,11 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #include <stdint.h>
-#include <mmio.h>
+
+#include <lib/mmio.h>
+
 #include <imx_caam.h>
 
 void imx_caam_init(void)

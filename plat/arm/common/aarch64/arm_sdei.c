@@ -6,9 +6,10 @@
 
 /* SDEI configuration for ARM platforms */
 
-#include <ehf.h>
 #include <platform_def.h>
-#include <sdei.h>
+
+#include <bl31/ehf.h>
+#include <services/sdei.h>
 
 /* Private event mappings */
 static sdei_ev_map_t arm_sdei_private[] = {

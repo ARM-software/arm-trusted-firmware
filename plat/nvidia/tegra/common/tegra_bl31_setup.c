@@ -4,27 +4,30 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl31.h>
-#include <bl_common.h>
-#include <console.h>
-#include <cortex_a53.h>
-#include <cortex_a57.h>
-#include <debug.h>
-#include <denver.h>
 #include <errno.h>
-#include <memctrl.h>
-#include <mmio.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <stddef.h>
 #include <string.h>
+
+#include <platform_def.h>
+
+#include <arch.h>
+#include <arch_helpers.h>
+#include <bl31/bl31.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <cortex_a53.h>
+#include <cortex_a57.h>
+#include <denver.h>
+#include <drivers/console.h>
+#include <lib/mmio.h>
+#include <lib/utils.h>
+#include <lib/utils_def.h>
+#include <plat/common/platform.h>
+
+#include <memctrl.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
-#include <utils.h>
-#include <utils_def.h>
 
 /* length of Trusty's input parameters (in bytes) */
 #define TRUSTY_PARAMS_LEN_BYTES	(4096*2)

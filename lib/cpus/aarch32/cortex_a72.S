@@ -6,9 +6,9 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
+#include <common/debug.h>
 #include <cortex_a72.h>
 #include <cpu_macros.S>
-#include <debug.h>
 
 	/* ---------------------------------------------
 	 * Disable all types of L2 prefetches.

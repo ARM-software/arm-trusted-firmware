@@ -4,21 +4,24 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl31.h>
-#include <bl_common.h>
-#include <cortex_a53.h>
-#include <debug.h>
 #include <errno.h>
-#include <generic_delay_timer.h>
-#include <mmio.h>
-#include <pl011.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <stddef.h>
 #include <string.h>
+
+#include <platform_def.h>
+
+#include <arch.h>
+#include <arch_helpers.h>
+#include <bl31/bl31.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <cortex_a53.h>
+#include <drivers/arm/pl011.h>
+#include <drivers/generic_delay_timer.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
 #include "hi3798cv200.h"
 #include "plat_private.h"
 

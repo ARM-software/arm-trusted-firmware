@@ -7,8 +7,8 @@
 #ifndef SPRT_SVC_H
 #define SPRT_SVC_H
 
-#include <smccc.h>
-#include <utils_def.h>
+#include <lib/smccc.h>
+#include <lib/utils_def.h>
 
 /* SPRT_VERSION helpers */
 

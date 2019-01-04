@@ -5,8 +5,9 @@
  */
 
 #include <assert.h>
-#include <delay_timer.h>
-#include <mmio.h>
+
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
 
 uintptr_t sp804_base_addr;
 

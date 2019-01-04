@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <delay_timer.h>
-#include <generic_delay_timer.h>
-#include <platform.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/generic_delay_timer.h>
+#include <plat/common/platform.h>
 
 /* Ticks elapsed in one second by a signal of 1 MHz */
 #define MHZ_TICKS_PER_SEC 1000000

@@ -5,19 +5,21 @@
  * https://spdx.org/licenses
  */
 
-#include <armada_common.h>
 #include <assert.h>
-#include <bakery_lock.h>
-#include <debug.h>
-#include <delay_timer.h>
-#include <cache_llc.h>
-#include <console.h>
-#include <gicv2.h>
+
+#include <common/debug.h>
+#include <drivers/arm/gicv2.h>
+#include <drivers/console.h>
+#include <drivers/delay_timer.h>
+#include <drivers/marvell/cache_llc.h>
+#include <lib/bakery_lock.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
+#include <armada_common.h>
 #include <marvell_pm.h>
-#include <mmio.h>
 #include <mss_pm_ipc.h>
 #include <plat_marvell.h>
-#include <platform.h>
 #include <plat_pm_trace.h>
 
 #define MVEBU_PRIVATE_UID_REG		0x30

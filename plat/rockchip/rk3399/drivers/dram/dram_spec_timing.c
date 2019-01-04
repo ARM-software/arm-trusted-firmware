@@ -4,10 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <dram.h>
 #include <stdint.h>
 #include <string.h>
-#include <utils.h>
+
+#include <lib/utils.h>
+
+#include <dram.h>
+
 #include "dram_spec_timing.h"
 
 static const uint8_t ddr3_cl_cwl[][7] = {

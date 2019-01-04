@@ -6,10 +6,10 @@
 #ifndef ROCKCHIP_PLAT_MACROS_S
 #define ROCKCHIP_PLAT_MACROS_S
 
-#include <cci.h>
-#include <gic_common.h>
-#include <gicv2.h>
-#include <gicv3.h>
+#include <drivers/arm/cci.h>
+#include <drivers/arm/gic_common.h>
+#include <drivers/arm/gicv2.h>
+#include <drivers/arm/gicv3.h>
 #include <platform_def.h>
 
 .section .rodata.gic_reg_name, "aS"

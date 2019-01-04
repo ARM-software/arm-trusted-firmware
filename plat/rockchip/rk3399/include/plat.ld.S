@@ -6,7 +6,7 @@
 #ifndef ROCKCHIP_PLAT_LD_S
 #define ROCKCHIP_PLAT_LD_S
 
-#include <xlat_tables_defs.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
 
 MEMORY {
     SRAM (rwx): ORIGIN = SRAM_BASE, LENGTH = SRAM_SIZE

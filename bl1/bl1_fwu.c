@@ -4,20 +4,23 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <auth_mod.h>
-#include <bl1.h>
-#include <bl_common.h>
-#include <context.h>
-#include <context_mgmt.h>
-#include <debug.h>
 #include <errno.h>
-#include <platform.h>
-#include <platform_def.h>
-#include <smccc_helpers.h>
 #include <string.h>
-#include <utils.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <bl1/bl1.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <context.h>
+#include <drivers/auth/auth_mod.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/utils.h>
+#include <plat/common/platform.h>
+#include <smccc_helpers.h>
+
 #include "bl1_private.h"
 
 /*

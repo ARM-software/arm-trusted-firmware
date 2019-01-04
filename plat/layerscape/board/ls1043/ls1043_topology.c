@@ -5,7 +5,9 @@
  */
 
 #include <arch.h>
-#include <cassert.h>
+
+#include <lib/cassert.h>
+
 #include "plat_ls.h"
 #include "platform_def.h"
 

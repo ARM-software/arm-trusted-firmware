@@ -4,11 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <bl_common.h>
-#include <console.h>
-#include <debug.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/console.h>
+
 #include <plat_arm.h>
 #include <platform_tsp.h>
+
 #include "../zynqmp_private.h"
 
 #define BL32_END (unsigned long)(&__BL32_END__)

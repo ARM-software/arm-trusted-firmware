@@ -4,12 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <platform_def.h>
+
 #include <arch.h>
 #include <asm_macros.S>
-#include <bl_common.h>
-#include <platform_def.h>
-#include <stm32_gpio.h>
-#include <stm32mp1_rcc.h>
+#include <common/bl_common.h>
+#include <drivers/st/stm32_gpio.h>
+#include <drivers/st/stm32mp1_rcc.h>
 
 #define GPIO_BANK_G_ADDRESS	0x50008000
 #define GPIO_TX_PORT		11

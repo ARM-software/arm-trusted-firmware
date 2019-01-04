@@ -4,12 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <console.h>
-#include <debug.h>
-#include <platform.h>
 #include <stddef.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/console.h>
+#include <plat/common/platform.h>
+
 #include "psci_private.h"
 
 void __dead2 psci_system_off(void)

@@ -3,17 +3,21 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
+#include <assert.h>
+
+#include <platform_def.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <debug.h>
-#include <mmio.h>
+#include <common/debug.h>
+#include <common/romlib.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_compat.h>
+#include <plat/common/platform.h>
+#include <services/secure_partition.h>
+
 #include <plat_arm.h>
-#include <platform.h>
-#include <platform_def.h>
-#include <romlib.h>
-#include <secure_partition.h>
-#include <xlat_tables_compat.h>
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak plat_get_ns_image_entrypoint

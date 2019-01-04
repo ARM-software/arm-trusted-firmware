@@ -7,9 +7,10 @@
 #ifndef PSCI_LIB_H
 #define PSCI_LIB_H
 
-#include <ep_info.h>
+#include <common/ep_info.h>
 
 #ifndef __ASSEMBLY__
+
 #include <cdefs.h>
 #include <stdint.h>
 

@@ -8,11 +8,12 @@
 #define PLATFORM_DEF_H
 
 #include <arch.h>
-#include <common_def.h>
-#include <gic_common.h>
-#include <interrupt_props.h>
-#include <tbbr/tbbr_img_def.h>
-#include <utils_def.h>
+#include <common/interrupt_props.h>
+#include <common/tbbr/tbbr_img_def.h>
+#include <drivers/arm/gic_common.h>
+#include <lib/utils_def.h>
+#include <plat/common/common_def.h>
+
 #include "hi3798cv200.h"
 #include "poplar_layout.h"		/* BL memory region sizes, etc */
 

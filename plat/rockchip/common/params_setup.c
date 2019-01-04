@@ -5,16 +5,18 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>
-#include <console.h>
-#include <coreboot.h>
-#include <debug.h>
-#include <gpio.h>
-#include <mmio.h>
+#include <string.h>
+
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/console.h>
+#include <drivers/gpio.h>
+#include <lib/coreboot.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
 #include <plat_params.h>
 #include <plat_private.h>
-#include <platform.h>
-#include <string.h>
 
 static struct gpio_info param_reset;
 static struct gpio_info param_poweroff;

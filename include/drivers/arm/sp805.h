@@ -7,7 +7,7 @@
 #ifndef SP805_H
 #define SP805_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /* SP805 register offset */
 #define SP805_WDOG_LOAD_OFF		UL(0x000)

@@ -4,12 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <auth_mod.h>
-#include <platform_def.h>
 #include <stddef.h>
 
+#include <platform_def.h>
+
+#include <drivers/auth/auth_mod.h>
 #if USE_TBBR_DEFS
-#include <tbbr_oid.h>
+#include <tools_share/tbbr_oid.h>
 #else
 #include <platform_oid.h>
 #endif

@@ -6,7 +6,7 @@
 #ifndef TEESMC_OPTEED_MACROS_H
 #define TEESMC_OPTEED_MACROS_H
 
-#include <runtime_svc.h>
+#include <common/runtime_svc.h>
 
 #define TEESMC_OPTEED_RV(func_num) \
 		((SMC_TYPE_FAST << FUNCID_TYPE_SHIFT) | \

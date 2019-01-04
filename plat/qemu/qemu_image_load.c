@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <desc_image_load.h>
+#include <common/desc_image_load.h>
 
 /*******************************************************************************
  * This function is a wrapper of a common function which flushes the data

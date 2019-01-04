@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
-#include <bl_common.h>
 #include <platform_def.h>
-#include <xlat_tables_v2.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include "qemu_private.h"
 

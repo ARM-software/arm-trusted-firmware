@@ -7,7 +7,7 @@
 #ifndef FVP_DEF_H
 #define FVP_DEF_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 #ifndef FVP_CLUSTER_COUNT
 #define FVP_CLUSTER_COUNT		2

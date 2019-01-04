@@ -7,12 +7,13 @@
 #ifndef XLAT_TABLES_H
 #define XLAT_TABLES_H
 
-#include <xlat_tables_defs.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
 
 #ifndef __ASSEMBLY__
 #include <stddef.h>
 #include <stdint.h>
-#include <xlat_mmu_helpers.h>
+
+#include <lib/xlat_tables/xlat_mmu_helpers.h>
 
 /* Helper macro to define entries for mmap_region_t. It creates
  * identity mappings for each region.

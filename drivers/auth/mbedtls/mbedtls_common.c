@@ -5,14 +5,16 @@
  */
 
 #include <assert.h>
-#include <debug.h>
+#include <stddef.h>
+
 /* mbed TLS headers */
 #include <mbedtls/memory_buffer_alloc.h>
 #include <mbedtls/platform.h>
-#include <mbedtls_common.h>
-#include <mbedtls_config.h>
-#include <platform.h>
-#include <stddef.h>
+
+#include <common/debug.h>
+#include <drivers/auth/mbedtls/mbedtls_common.h>
+#include <drivers/auth/mbedtls/mbedtls_config.h>
+#include <plat/common/platform.h>
 
 static void cleanup(void)
 {

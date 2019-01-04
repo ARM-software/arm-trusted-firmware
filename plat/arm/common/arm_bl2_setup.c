@@ -4,21 +4,24 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
-#include <arm_def.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <desc_image_load.h>
-#include <generic_delay_timer.h>
-#ifdef SPD_opteed
-#include <optee_utils.h>
-#endif
-#include <plat_arm.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <string.h>
-#include <utils.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/desc_image_load.h>
+#include <drivers/generic_delay_timer.h>
+#ifdef SPD_opteed
+#include <lib/optee_utils.h>
+#endif
+#include <lib/utils.h>
+#include <plat/common/platform.h>
+
+#include <arm_def.h>
+#include <plat_arm.h>
 
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);

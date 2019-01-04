@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <platform.h>
+#include <plat/common/platform.h>
+
 #include "zynqmp_private.h"
 
 int plat_core_pos_by_mpidr(u_register_t mpidr)

@@ -5,7 +5,8 @@
  */
 
 #include <stdint.h>
-#include <utils.h>
+
+#include <lib/utils.h>
 
 #include "rpi3_private.h"
 

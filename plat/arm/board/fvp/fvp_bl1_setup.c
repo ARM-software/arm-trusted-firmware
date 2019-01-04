@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <plat_arm.h>
-#include <platform.h>
-#include <tbbr_img_def.h>
-#include "fvp_private.h"
+#include <common/tbbr/tbbr_img_def.h>
+#include <plat/common/platform.h>
 
+#include <plat_arm.h>
+
+#include "fvp_private.h"
 
 /*******************************************************************************
  * Perform any BL1 specific platform actions.

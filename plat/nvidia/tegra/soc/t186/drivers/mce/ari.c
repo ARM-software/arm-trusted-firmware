@@ -4,16 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+#include <errno.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <debug.h>
-#include <delay_timer.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
 #include <denver.h>
-#include <errno.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
 #include <mce_private.h>
-#include <mmio.h>
-#include <platform.h>
 #include <t18x_ari.h>
 
 /*******************************************************************************

@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arm_def.h>
 #include <assert.h>
-#include <cassert.h>
-#include <platform.h>
 #include <stdint.h>
 #include <string.h>
-#include <tbbr_oid.h>
+
+#include <lib/cassert.h>
+#include <plat/common/platform.h>
+#include <tools_share/tbbr_oid.h>
+
+#include <arm_def.h>
 
 /* SHA256 algorithm */
 #define SHA256_BYTES			32
@@ -180,9 +182,9 @@ int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr)
 }
 #else /* ARM_CRYPTOCELL_INTEG */
 
-#include <nvm.h>
-#include <nvm_otp.h>
-#include <sbrom_bsv_api.h>
+#include <drivers/arm/cryptocell/nvm.h>
+#include <drivers/arm/cryptocell/nvm_otp.h>
+#include <drivers/arm/cryptocell/sbrom_bsv_api.h>
 
 CASSERT(HASH_RESULT_SIZE_IN_BYTES == SHA256_BYTES,
 		assert_mismatch_in_hash_result_size);

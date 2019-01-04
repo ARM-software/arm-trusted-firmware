@@ -7,8 +7,8 @@
 #ifndef IO_STM32IMAGE_H
 #define IO_STM32IMAGE_H
 
-#include <io_driver.h>
-#include <partition.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/partition/partition.h>
 
 #define MAX_LBA_SIZE		512
 #define MAX_PART_NAME_SIZE	(EFI_NAMELEN + 1)

@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <mmio.h>
+#include <lib/mmio.h>
+
 #include "imx8_mu.h"
 
 void MU_EnableRxFullInt(uint32_t base, uint32_t index)

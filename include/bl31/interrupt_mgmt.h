@@ -8,7 +8,7 @@
 #define INTERRUPT_MGMT_H
 
 #include <arch.h>
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /*******************************************************************************
  * Constants for the types of interrupts recognised by the IM framework

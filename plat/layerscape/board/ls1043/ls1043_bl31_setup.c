@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <cci.h>
-#include <debug.h>
+#include <common/debug.h>
+#include <drivers/arm/cci.h>
+
 #include "plat_ls.h"
 #include "fsl_csu.h"
 

@@ -4,12 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <desc_image_load.h>
 
-
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/desc_image_load.h>
 
 static bl_load_info_t bl_load_info;
 static bl_params_t next_bl_params;

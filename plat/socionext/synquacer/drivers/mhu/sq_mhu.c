@@ -4,11 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bakery_lock.h>
-#include <mmio.h>
+
 #include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <lib/bakery_lock.h>
+#include <lib/mmio.h>
+
 #include <sq_common.h>
 #include "sq_mhu.h"
 

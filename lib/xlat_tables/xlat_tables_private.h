@@ -7,9 +7,10 @@
 #ifndef XLAT_TABLES_PRIVATE_H
 #define XLAT_TABLES_PRIVATE_H
 
-#include <cassert.h>
 #include <platform_def.h>
-#include <xlat_tables_arch.h>
+
+#include <lib/cassert.h>
+#include <lib/xlat_tables/xlat_tables_arch.h>
 
 #if HW_ASSISTED_COHERENCY
 #error xlat tables v2 must be used with HW_ASSISTED_COHERENCY

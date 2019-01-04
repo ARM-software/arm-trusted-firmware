@@ -4,12 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <bl_common.h>
-#include <desc_image_load.h>
-#include <marvell_def.h>
-#include <platform.h>
 #include <platform_def.h>
 
+#include <common/bl_common.h>
+#include <common/desc_image_load.h>
+#include <marvell_def.h>
+#include <plat/common/platform.h>
 
 /*******************************************************************************
  * Following descriptor provides BL image/ep information that gets used

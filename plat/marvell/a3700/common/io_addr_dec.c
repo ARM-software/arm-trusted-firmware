@@ -4,9 +4,11 @@
  * SPDX-License-Identifier:	BSD-3-Clause
  * https://spdx.org/licenses
  */
-#include <debug.h>
+
+#include <common/debug.h>
+#include <lib/mmio.h>
+
 #include <io_addr_dec.h>
-#include <mmio.h>
 #include <plat_marvell.h>
 
 #define MVEBU_DEC_WIN_CTRL_REG(base, win, off)	(MVEBU_REGS_BASE + (base) + \

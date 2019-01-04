@@ -4,13 +4,16 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <bl_common.h>
-#include <css_def.h>
-#include <debug.h>
-#include <mmio.h>
-#include <plat_arm.h>
 #include <string.h>
-#include <utils.h>
+
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <lib/mmio.h>
+#include <lib/utils.h>
+
+#include <css_def.h>
+#include <plat_arm.h>
+
 #include "../drivers/scp/css_scp.h"
 
 /* Weak definition may be overridden in specific CSS based platform */

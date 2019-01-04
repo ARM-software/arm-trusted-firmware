@@ -4,15 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <mmio.h>
-#include <ddr_rk3368.h>
-#include <debug.h>
+#include <stdint.h>
+#include <string.h>
+
 #include <platform_def.h>
+
+#include <common/debug.h>
+#include <lib/mmio.h>
+
+#include <ddr_rk3368.h>
 #include <pmu.h>
 #include <rk3368_def.h>
 #include <soc.h>
-#include <stdint.h>
-#include <string.h>
 
 /* GRF_SOC_STATUS0 */
 #define DPLL_LOCK		(0x1 << 2)

@@ -7,7 +7,7 @@
 #ifndef STM32_UART_REGS_H
 #define STM32_UART_REGS_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 #define USART_CR1		U(0x00)
 #define USART_CR2		U(0x04)

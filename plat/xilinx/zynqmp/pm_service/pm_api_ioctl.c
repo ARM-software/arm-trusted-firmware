@@ -9,9 +9,10 @@
  */
 
 #include <arch_helpers.h>
-#include <delay_timer.h>
-#include <mmio.h>
-#include <platform.h>
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
 #include "pm_api_clock.h"
 #include "pm_api_ioctl.h"
 #include "pm_api_sys.h"

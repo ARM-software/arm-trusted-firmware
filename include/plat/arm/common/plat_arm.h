@@ -6,14 +6,15 @@
 #ifndef PLAT_ARM_H
 #define PLAT_ARM_H
 
-#include <bakery_lock.h>
-#include <cassert.h>
-#include <cpu_data.h>
 #include <stdint.h>
-#include <spinlock.h>
-#include <tzc_common.h>
-#include <utils_def.h>
-#include <xlat_tables_compat.h>
+
+#include <drivers/arm/tzc_common.h>
+#include <lib/bakery_lock.h>
+#include <lib/cassert.h>
+#include <lib/el3_runtime/cpu_data.h>
+#include <lib/spinlock.h>
+#include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_tables_compat.h>
 
 /*******************************************************************************
  * Forward declarations

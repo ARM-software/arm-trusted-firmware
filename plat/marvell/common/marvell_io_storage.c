@@ -6,15 +6,17 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>		/* For ARRAY_SIZE */
-#include <debug.h>
-#include <firmware_image_package.h>
-#include <io_driver.h>
-#include <io_fip.h>
-#include <io_memmap.h>
-#include <io_storage.h>
-#include <platform_def.h>
 #include <string.h>
+
+#include <platform_def.h>
+
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_fip.h>
+#include <drivers/io/io_memmap.h>
+#include <drivers/io/io_storage.h>
+#include <tools_share/firmware_image_package.h>
 
 /* IO devices */
 static const io_dev_connector_t *fip_dev_con;

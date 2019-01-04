@@ -8,9 +8,10 @@
 #define PLATFORM_DEF_H
 
 #include <arch.h>
-#include <common_def.h>
-#include <gic_common.h>
-#include <utils_def.h>
+#include <drivers/arm/gic_common.h>
+#include <lib/utils_def.h>
+#include <plat/common/common_def.h>
+
 #include "../stm32mp1_def.h"
 
 /*******************************************************************************

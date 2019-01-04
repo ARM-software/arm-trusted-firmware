@@ -4,17 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
-#include <assert.h> /* for context_mgmt.h */
-#include <bl31.h>
-#include <bl_common.h>
-#include <context_mgmt.h>
-#include <debug.h>
-#include <interrupt_mgmt.h>
-#include <platform.h>
-#include <runtime_svc.h>
+#include <assert.h>
 #include <stdbool.h>
 #include <string.h>
+
+#include <arch_helpers.h>
+#include <bl31/bl31.h>
+#include <bl31/interrupt_mgmt.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <plat/common/platform.h>
 
 #include "sm_err.h"
 #include "smcall.h"

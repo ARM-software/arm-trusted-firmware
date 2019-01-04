@@ -8,11 +8,12 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-#include <board_marvell_def.h>
-#include <mvebu_def.h>
 #ifndef __ASSEMBLY__
 #include <stdio.h>
 #endif /* __ASSEMBLY__ */
+
+#include <board_marvell_def.h>
+#include <mvebu_def.h>
 
 /*
  * Most platform porting definitions provided by included headers

@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <io/io_block.h>
-#include <mmio.h>
-#include <platform_def.h>
 #include <stdint.h>
-#include <utils_def.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <drivers/io/io_block.h>
+#include <lib/mmio.h>
+#include <lib/utils_def.h>
 
 #include "uniphier.h"
 

@@ -8,7 +8,8 @@
 #define PLATFORM_DEF_H
 
 #include <arch.h>
-#include <common_def.h>
+#include <plat/common/common_def.h>
+
 #include <rk3328_def.h>
 
 /*******************************************************************************

@@ -6,7 +6,7 @@
 
 #include <cortex_a75.h>
 #include <cpuamu.h>
-#include <pubsub_events.h>
+#include <lib/el3_runtime/pubsub_events.h>
 
 static void *cortex_a75_context_save(const void *arg)
 {

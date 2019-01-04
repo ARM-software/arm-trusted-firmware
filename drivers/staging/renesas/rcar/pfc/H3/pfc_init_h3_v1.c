@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <stdint.h>		/* for uint32_t */
-#include <mmio.h>
+#include <stdint.h>
 
+#include <lib/mmio.h>
 
 /* GPIO base address */
 #define	GPIO_BASE		(0xE6050000U)

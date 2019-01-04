@@ -4,26 +4,28 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl31.h>
-#include <bl_common.h>
-#include <console.h>
+
+#include <arch_helpers.h>
+#include <bl31/bl31.h>
+#include <bl31/interrupt_mgmt.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/interrupt_props.h>
 #include <context.h>
-#include <context_mgmt.h>
 #include <cortex_a57.h>
-#include <debug.h>
 #include <denver.h>
-#include <gic_common.h>
-#include <gicv2.h>
-#include <interrupt_mgmt.h>
-#include <interrupt_props.h>
+#include <drivers/arm/gic_common.h>
+#include <drivers/arm/gicv2.h>
+#include <drivers/console.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+#include <plat/common/platform.h>
+
 #include <mce.h>
-#include <platform.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
-#include <xlat_tables_v2.h>
 
 DEFINE_RENAME_SYSREG_RW_FUNCS(l2ctlr_el1, CORTEX_A57_L2CTLR_EL1)
 extern uint64_t tegra_enable_l2_ecc_parity_prot;

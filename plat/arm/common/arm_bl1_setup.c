@@ -4,17 +4,20 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
-#include <arm_def.h>
 #include <assert.h>
-#include <bl1.h>
-#include <bl_common.h>
-#include <plat_arm.h>
-#include <platform.h>
+
 #include <platform_def.h>
-#include <sp805.h>
-#include <utils.h>
-#include <xlat_tables_compat.h>
+
+#include <arch.h>
+#include <bl1/bl1.h>
+#include <common/bl_common.h>
+#include <drivers/arm/sp805.h>
+#include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables_compat.h>
+#include <plat/common/platform.h>
+
+#include <arm_def.h>
+#include <plat_arm.h>
 
 #include "../../../bl1/bl1_private.h"
 

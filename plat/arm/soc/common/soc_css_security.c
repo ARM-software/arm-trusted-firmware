@@ -4,10 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <board_css_def.h>
-#include <mmio.h>
-#include <nic_400.h>
 #include <platform_def.h>
+
+#include <drivers/arm/nic_400.h>
+#include <lib/mmio.h>
+
+#include <board_css_def.h>
 #include <soc_css.h>
 #include <soc_css_def.h>
 

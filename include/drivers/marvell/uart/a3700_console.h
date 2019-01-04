@@ -8,7 +8,7 @@
 #ifndef A3700_CONSOLE_H
 #define A3700_CONSOLE_H
 
-#include <console.h>
+#include <drivers/console.h>
 
 /* MVEBU UART Registers */
 #define UART_RX_REG		0x00

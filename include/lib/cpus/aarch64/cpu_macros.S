@@ -7,7 +7,7 @@
 #define CPU_MACROS_S
 
 #include <arch.h>
-#include <errata_report.h>
+#include <lib/cpus/errata_report.h>
 
 #define CPU_IMPL_PN_MASK	(MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) | \
 				(MIDR_PN_MASK << MIDR_PN_SHIFT)

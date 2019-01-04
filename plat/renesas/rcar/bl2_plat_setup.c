@@ -4,18 +4,21 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <desc_image_load.h>
-#include <arch_helpers.h>
-#include <bl_common.h>
-#include <bl1.h>
-#include <console.h>
-#include <debug.h>
-#include <libfdt.h>
-#include <mmio.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <string.h>
-#include <xlat_tables_defs.h>
+
+#include <libfdt.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <bl1/bl1.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/desc_image_load.h>
+#include <drivers/console.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
+#include <plat/common/platform.h>
 
 #include "avs_driver.h"
 #include "boot_init_dram.h"

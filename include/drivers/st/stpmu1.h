@@ -7,8 +7,8 @@
 #ifndef STPMU1_H
 #define STPMU1_H
 
-#include <stm32_i2c.h>
-#include <utils_def.h>
+#include <drivers/st/stm32_i2c.h>
+#include <lib/utils_def.h>
 
 #define TURN_ON_REG			0x1U
 #define TURN_OFF_REG			0x2U

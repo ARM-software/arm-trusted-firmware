@@ -3,11 +3,13 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #include <assert.h>
-#include <debug.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
+
+#include <common/debug.h>
 
 #define get_num_va_args(_args, _lcount)				\
 	(((_lcount) > 1)  ? va_arg(_args, long long int) :	\

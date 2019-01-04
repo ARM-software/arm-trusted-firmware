@@ -3,25 +3,28 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <arch_helpers.h>
+
 #include <assert.h>
-#include <bl_common.h>
-#include <cci.h>
-#include <common_def.h>
-#include <console.h>
-#include <context_mgmt.h>
-#include <debug.h>
-#include <generic_delay_timer.h>
+#include <string.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/arm/cci.h>
+#include <drivers/console.h>
+#include <drivers/generic_delay_timer.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/mmio.h>
+#include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_tables.h>
+#include <plat/common/common_def.h>
+#include <plat/common/platform.h>
+
 #include <mcucfg.h>
-#include <mmio.h>
 #include <mt_cpuxgpt.h>
 #include <mtk_plat_common.h>
 #include <mtk_sip_svc.h>
 #include <plat_private.h>
-#include <platform.h>
-#include <string.h>
-#include <utils_def.h>
-#include <xlat_tables.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will help us find the layout

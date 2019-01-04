@@ -10,7 +10,8 @@
  */
 
 #include <arch_helpers.h>
-#include <platform.h>
+#include <plat/common/platform.h>
+
 #include "pm_api_clock.h"
 #include "pm_api_ioctl.h"
 #include "pm_api_pinctrl.h"

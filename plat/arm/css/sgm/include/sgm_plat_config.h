@@ -7,8 +7,8 @@
 #ifndef SGM_PLAT_CONFIG_H
 #define SGM_PLAT_CONFIG_H
 
-#include <ccn.h>
-#include <gicv3.h>
+#include <drivers/arm/ccn.h>
+#include <drivers/arm/gicv3.h>
 
 /* The type of interconnect */
 typedef enum {

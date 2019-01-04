@@ -4,15 +4,17 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <console.h>
-#include <debug.h>
-#include <interrupt_mgmt.h>
+
 #include <platform_def.h>
-#include <uart_16550.h>
-#include <xlat_tables_v2.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <bl31/interrupt_mgmt.h>
+#include <drivers/console.h>
+#include <drivers/ti/uart/uart_16550.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include "rpi3_hw.h"
 #include "rpi3_private.h"

@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
-#include <platform.h>
+#include <common/debug.h>
+#include <plat/common/platform.h>
 
 /* Allow platforms to override the log prefix string */
 #pragma weak plat_log_get_prefix

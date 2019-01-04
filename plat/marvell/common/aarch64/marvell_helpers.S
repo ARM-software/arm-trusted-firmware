@@ -7,12 +7,12 @@
 
 #include <asm_macros.S>
 #include <cortex_a72.h>
+#ifndef PLAT_a3700
+#include <drivers/marvell/ccu.h>
+#include <drivers/marvell/cache_llc.h>
+#endif
 #include <marvell_def.h>
 #include <platform_def.h>
-#ifndef PLAT_a3700
-#include <ccu.h>
-#include <cache_llc.h>
-#endif
 
 	.weak	plat_marvell_calc_core_pos
 	.weak	plat_my_core_pos

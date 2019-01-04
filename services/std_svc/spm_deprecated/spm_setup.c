@@ -4,18 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+#include <string.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <common_def.h>
 #include <context.h>
-#include <context_mgmt.h>
-#include <debug.h>
+#include <common/debug.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <platform_def.h>
-#include <platform.h>
-#include <secure_partition.h>
-#include <string.h>
-#include <xlat_tables_v2.h>
+#include <plat/common/common_def.h>
+#include <plat/common/platform.h>
+#include <services/secure_partition.h>
 
 #include "spm_private.h"
 #include "spm_shim_private.h"

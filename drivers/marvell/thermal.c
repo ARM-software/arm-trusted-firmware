@@ -7,8 +7,8 @@
 
 /* Driver for thermal unit located in Marvell ARMADA 8K and compatible SoCs */
 
-#include <debug.h>
-#include <thermal.h>
+#include <common/debug.h>
+#include <drivers/marvell/thermal.h>
 
 int marvell_thermal_init(struct tsen_config *tsen_cfg)
 {

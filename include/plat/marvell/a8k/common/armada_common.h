@@ -8,10 +8,10 @@
 #ifndef ARMADA_COMMON_H
 #define ARMADA_COMMON_H
 
-#include <amb_adec.h>
-#include <io_win.h>
-#include <iob.h>
-#include <ccu.h>
+#include <drivers/marvell/amb_adec.h>
+#include <drivers/marvell/ccu.h>
+#include <drivers/marvell/io_win.h>
+#include <drivers/marvell/iob.h>
 
 /*
  * This struct supports skip image request

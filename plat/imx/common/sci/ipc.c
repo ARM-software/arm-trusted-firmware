@@ -4,11 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <bakery_lock.h>
+#include <stdlib.h>
+
+#include <lib/bakery_lock.h>
+
 #include <sci/sci_scfw.h>
 #include <sci/sci_ipc.h>
 #include <sci/sci_rpc.h>
-#include <stdlib.h>
 #include "imx8_mu.h"
 
 DEFINE_BAKERY_LOCK(sc_ipc_bakery_lock);

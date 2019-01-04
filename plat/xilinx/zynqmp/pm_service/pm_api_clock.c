@@ -8,11 +8,13 @@
  * ZynqMP system level PM-API functions for clock control.
  */
 
-#include <arch_helpers.h>
-#include <mmio.h>
-#include <platform.h>
 #include <stdbool.h>
 #include <string.h>
+
+#include <arch_helpers.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
 #include "pm_api_clock.h"
 #include "pm_api_sys.h"
 #include "pm_client.h"

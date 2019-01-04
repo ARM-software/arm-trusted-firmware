@@ -4,10 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
-#include <mmio.h>
 #include <endian.h>
-#include "platform_def.h"
+
+#include <platform_def.h>
+
+#include <common/debug.h>
+#include <lib/mmio.h>
+
 #include "soc_tzasc.h"
 
 int tzc380_set_region(unsigned int tzasc_base, unsigned int region_id,

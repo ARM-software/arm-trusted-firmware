@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <platform.h>
+#include <plat/common/platform.h>
 
 extern char rpi3_rotpk_hash[], rpi3_rotpk_hash_end[];
 

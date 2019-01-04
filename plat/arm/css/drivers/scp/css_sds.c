@@ -4,13 +4,16 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <css_def.h>
-#include <debug.h>
-#include <delay_timer.h>
-#include <platform.h>
 #include <stdint.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <plat/common/platform.h>
+
+#include <css_def.h>
+
 #include "css_scp.h"
 #include "../sds/sds.h"
 

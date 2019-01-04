@@ -5,12 +5,16 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
+
 #include <libfdt.h>
+
+#include <common/bl_common.h>
+#include <common/debug.h>
+
 #include <plat_arm.h>
 #include <sgi_ras.h>
 #include <sgi_variant.h>
+
 #include "../../css/drivers/scmi/scmi.h"
 #include "../../css/drivers/mhu/css_mhu_doorbell.h"
 

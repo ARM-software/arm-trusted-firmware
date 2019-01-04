@@ -10,8 +10,8 @@
 #include <errno.h>
 #include <stdint.h>
 #include <stdio.h> /* For ssize_t */
-#include <uuid.h>
 
+#include <tools_share/uuid.h>
 
 /* Device type which can be used to enable policy decisions about which device
  * to access */

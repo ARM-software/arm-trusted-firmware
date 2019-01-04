@@ -7,7 +7,7 @@
 #ifndef CONSOLE_H
 #define CONSOLE_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 #define CONSOLE_T_NEXT			(U(0) * REGSZ)
 #define CONSOLE_T_FLAGS			(U(1) * REGSZ)
@@ -44,7 +44,9 @@ typedef struct console {
 	int (*const flush)(struct console *console);
 	/* Additional private driver data may follow here. */
 } console_t;
-#include <console_assertions.h> /* offset macro assertions for console_t */
+
+/* offset macro assertions for console_t */
+#include <drivers/console_assertions.h>
 
 /*
  * NOTE: There is no publicly accessible console_register() function. Consoles

@@ -4,11 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+
 #include <css_pm.h>
-#include <debug.h>
 #include <plat_arm.h>
+
 #include "../scpi/css_scpi.h"
 #include "css_scp.h"
 

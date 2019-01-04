@@ -5,8 +5,9 @@
  */
 
 #include <assert.h>
-#include <crypto_mod.h>
-#include <debug.h>
+
+#include <common/debug.h>
+#include <drivers/auth/crypto_mod.h>
 
 /* Variable exported by the crypto library through REGISTER_CRYPTO_LIB() */
 

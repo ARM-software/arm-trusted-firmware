@@ -5,11 +5,12 @@
  * https://spdx.org/licenses
  */
 
-#include <debug.h>
-#include <delay_timer.h>
-#include <mmio.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/marvell/thermal.h>
+#include <lib/mmio.h>
+
 #include <mvebu_def.h>
-#include <thermal.h>
 
 #define THERMAL_TIMEOUT					1200
 

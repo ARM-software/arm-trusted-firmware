@@ -8,7 +8,7 @@
 #include <assert_macros.S>
 #define USE_FINISH_CONSOLE_REG_2
 #include <console_macros.S>
-#include <meson_console.h>
+#include <drivers/meson/meson_console.h>
 
 	.globl console_meson_register
 	.globl console_meson_init

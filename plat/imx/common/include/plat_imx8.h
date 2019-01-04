@@ -7,8 +7,8 @@
 #ifndef PLAT_IMX8_H
 #define PLAT_IMX8_H
 
-#include <gicv3.h>
-#include <psci.h>
+#include <drivers/arm/gicv3.h>
+#include <lib/psci/psci.h>
 
 unsigned int plat_calc_core_pos(uint64_t mpidr);
 void imx_mailbox_init(uintptr_t base_addr);

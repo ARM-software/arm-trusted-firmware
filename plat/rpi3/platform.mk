@@ -7,8 +7,7 @@
 include lib/libfdt/libfdt.mk
 include lib/xlat_tables_v2/xlat_tables.mk
 
-PLAT_INCLUDES		:=	-Iinclude/common/tbbr			\
-				-Iplat/rpi3/include
+PLAT_INCLUDES		:=	-Iplat/rpi3/include
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 				plat/rpi3/rpi3_common.c			\
@@ -184,8 +183,6 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 				drivers/auth/crypto_mod.c		\
 				drivers/auth/img_parser_mod.c		\
 				drivers/auth/tbbr/tbbr_cot.c
-
-    PLAT_INCLUDES	+=	-Iinclude/bl1/tbbr
 
     BL1_SOURCES		+=	${AUTH_SOURCES}				\
 				bl1/tbbr/tbbr_img_desc.c		\

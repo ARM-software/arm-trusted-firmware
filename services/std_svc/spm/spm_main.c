@@ -4,23 +4,24 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl31.h>
-#include <context_mgmt.h>
-#include <debug.h>
-#include <ehf.h>
 #include <errno.h>
-#include <interrupt_mgmt.h>
-#include <platform.h>
-#include <runtime_svc.h>
-#include <smccc.h>
-#include <smccc_helpers.h>
-#include <spinlock.h>
 #include <string.h>
-#include <sprt_svc.h>
-#include <utils.h>
-#include <xlat_tables_v2.h>
+
+#include <arch_helpers.h>
+#include <bl31/bl31.h>
+#include <bl31/ehf.h>
+#include <bl31/interrupt_mgmt.h>
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/smccc.h>
+#include <lib/spinlock.h>
+#include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+#include <plat/common/platform.h>
+#include <services/sprt_svc.h>
+#include <smccc_helpers.h>
 
 #include "spm_private.h"
 

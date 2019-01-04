@@ -8,7 +8,8 @@
 #define BL1_PRIVATE_H
 
 #include <stdint.h>
-#include <utils_def.h>
+
+#include <lib/utils_def.h>
 
 /*******************************************************************************
  * Declarations of linker defined symbols which will tell us where BL1 lives

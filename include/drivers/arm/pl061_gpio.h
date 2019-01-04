@@ -7,7 +7,7 @@
 #ifndef PL061_GPIO_H
 #define PL061_GPIO_H
 
-#include <gpio.h>
+#include <drivers/gpio.h>
 
 void pl061_gpio_register(uintptr_t base_addr, int gpio_dev);
 void pl061_gpio_init(void);

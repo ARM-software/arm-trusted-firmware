@@ -7,7 +7,7 @@
 #ifndef STM32_GPIO_H
 #define STM32_GPIO_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 #define STM32_GPIOA_BANK	U(0x50002000)
 #define STM32_GPIOZ_BANK	U(0x54004000)

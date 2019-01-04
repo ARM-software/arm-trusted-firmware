@@ -4,16 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <gicv2.h>
-#include <mmio.h>
+
 #include <platform_def.h>
-#include <platform.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/arm/gicv2.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+#include <plat/common/platform.h>
+
 #include <stm32mp1_private.h>
-#include <xlat_tables_v2.h>
 
 #define MAP_SRAM	MAP_REGION_FLAT(STM32MP1_SRAM_BASE, \
 					STM32MP1_SRAM_SIZE, \

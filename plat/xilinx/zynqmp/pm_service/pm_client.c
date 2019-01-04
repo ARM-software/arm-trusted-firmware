@@ -10,13 +10,15 @@
  */
 
 #include <assert.h>
-#include <bakery_lock.h>
-#include <bl_common.h>
-#include <gic_common.h>
-#include <gicv2.h>
-#include <mmio.h>
 #include <string.h>
-#include <utils.h>
+
+#include <common/bl_common.h>
+#include <drivers/arm/gic_common.h>
+#include <drivers/arm/gicv2.h>
+#include <lib/bakery_lock.h>
+#include <lib/mmio.h>
+#include <lib/utils.h>
+
 #include "../zynqmp_def.h"
 #include "pm_api_sys.h"
 #include "pm_client.h"

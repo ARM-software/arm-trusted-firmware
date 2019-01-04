@@ -4,12 +4,13 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <console.h>
-#include <debug.h>
 #include <stdbool.h>
 #include <stdint.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/console.h>
 
 /* Maximum number of entries in the backtrace to display */
 #define UNWIND_LIMIT	20U

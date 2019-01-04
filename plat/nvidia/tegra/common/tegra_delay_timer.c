@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <delay_timer.h>
-#include <mmio.h>
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
+
 #include <tegra_def.h>
 #include <tegra_private.h>
 

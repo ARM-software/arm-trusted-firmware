@@ -5,17 +5,20 @@
  * https://spdx.org/licenses
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <console.h>
-#include <debug.h>
-#include <desc_image_load.h>
-#include <marvell_def.h>
-#include <platform_def.h>
-#include <plat_marvell.h>
 #include <string.h>
-#include <utils.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/desc_image_load.h>
+#include <drivers/console.h>
+#include <lib/utils.h>
+
+#include <marvell_def.h>
+#include <plat_marvell.h>
 
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);

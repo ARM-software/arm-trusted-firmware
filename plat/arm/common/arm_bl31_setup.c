@@ -4,19 +4,21 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/console.h>
+#include <lib/extensions/ras.h>
+#include <lib/mmio.h>
+#include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables_compat.h>
+#include <plat/common/platform.h>
+
 #include <arm_def.h>
-#include <assert.h>
-#include <bl_common.h>
-#include <console.h>
-#include <debug.h>
-#include <mmio.h>
 #include <plat_arm.h>
-#include <platform.h>
-#include <ras.h>
-#include <utils.h>
-#include <xlat_tables_compat.h>
 
 /*
  * Placeholder variables for copying the arguments that have been passed to

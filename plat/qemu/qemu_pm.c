@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <debug.h>
-#include <gicv2.h>
-#include <platform.h>
+
 #include <platform_def.h>
-#include <psci.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/arm/gicv2.h>
+#include <lib/psci/psci.h>
+#include <plat/common/platform.h>
 
 /*
  * The secure entry point to be used on warm reset.

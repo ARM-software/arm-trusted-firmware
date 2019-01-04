@@ -5,12 +5,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
-#include <debug.h>
-#include <mmio.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <stddef.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
 
 #include "rom_api.h"
 

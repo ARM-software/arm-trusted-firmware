@@ -3,14 +3,17 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <arch_helpers.h>
-#include <bl_common.h>
-#include <cci.h>
-#include <debug.h>
-#include <mt8173_def.h>
+
 #include <platform_def.h>
-#include <utils.h>
-#include <xlat_tables.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/arm/cci.h>
+#include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables.h>
+
+#include <mt8173_def.h>
 
 static const int cci_map[] = {
 	PLAT_MT_CCI_CLUSTER0_SL_IFACE_IX,

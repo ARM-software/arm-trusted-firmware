@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
-#include <platform.h>
 #include <stdint.h>
+
+#include <arch_helpers.h>
+#include <plat/common/platform.h>
 
 #define RANDOM_CANARY_VALUE	2144346116U
 

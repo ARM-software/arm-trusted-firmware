@@ -4,17 +4,20 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <cassert.h>
-#include <debug.h>
-#include <delay_timer.h>
 #include <errno.h>
-#include <generic_delay_timer.h>
+
 #include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/generic_delay_timer.h>
+#include <lib/cassert.h>
+#include <lib/psci/psci.h>
+
 #include <sq_common.h>
 #include "sq_scpi.h"
-#include <psci.h>
 
 /* Macros to read the SQ power domain state */
 #define SQ_PWR_LVL0	MPIDR_AFFLVL0

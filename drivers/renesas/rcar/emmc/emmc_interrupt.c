@@ -5,6 +5,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <stddef.h>
+
+#include <lib/mmio.h>
 
 #include "emmc_config.h"
 #include "emmc_def.h"
@@ -12,9 +15,6 @@
 #include "emmc_registers.h"
 #include "emmc_std.h"
 #include "rcar_def.h"
-
-#include <mmio.h>
-#include <stddef.h>
 
 static EMMC_ERROR_CODE emmc_trans_sector(uint32_t *buff_address_virtual);
 

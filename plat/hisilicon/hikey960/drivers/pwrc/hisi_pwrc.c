@@ -4,15 +4,16 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <../hikey960_def.h>
-#include <arch_helpers.h>
 #include <assert.h>
-#include <hisi_ipc.h>
-#include <mmio.h>
-#include <platform.h>
+
 #include <platform_def.h>
 
+#include <arch_helpers.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
 
+#include <../hikey960_def.h>
+#include <hisi_ipc.h>
 #include "hisi_pwrc.h"
 
 

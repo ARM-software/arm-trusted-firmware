@@ -5,15 +5,18 @@
  */
 
 #include <assert.h>
-#include <bl_common.h>
-#include <console.h>
-#include <debug.h>
-#include <mmio.h>
-#include <pl011.h>
-#include <plat_arm.h>
-#include <platform.h>
+
 #include <platform_def.h>
-#include <platform_sp_min.h>
+
+#include <bl32/sp_min/platform_sp_min.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/arm/pl011.h>
+#include <drivers/console.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
+#include <plat_arm.h>
 
 static entry_point_info_t bl33_image_ep_info;
 

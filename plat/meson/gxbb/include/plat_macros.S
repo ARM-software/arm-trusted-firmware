@@ -7,7 +7,7 @@
 #ifndef PLAT_MACROS_S
 #define PLAT_MACROS_S
 
-#include <gicv2.h>
+#include <drivers/arm/gicv2.h>
 #include <platform_def.h>
 
 .section .rodata.gic_reg_name, "aS"

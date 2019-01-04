@@ -7,8 +7,8 @@
 #ifndef TZC380_H
 #define TZC380_H
 
-#include <tzc_common.h>
-#include <utils_def.h>
+#include <drivers/arm/tzc_common.h>
+#include <lib/utils_def.h>
 
 #define TZC380_CONFIGURATION_OFF	U(0x000)
 #define ACTION_OFF			U(0x004)

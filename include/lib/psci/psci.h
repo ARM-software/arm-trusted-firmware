@@ -7,11 +7,12 @@
 #ifndef PSCI_H
 #define PSCI_H
 
-#include <bakery_lock.h>
-#include <bl_common.h>
 #include <platform_def.h>	/* for PLAT_NUM_PWR_DOMAINS */
-#include <psci_lib.h>		/* To maintain compatibility for SPDs */
-#include <utils_def.h>
+
+#include <common/bl_common.h>
+#include <lib/bakery_lock.h>
+#include <lib/psci/psci_lib.h>	/* To maintain compatibility for SPDs */
+#include <lib/utils_def.h>
 
 /*******************************************************************************
  * Number of power domains whose state this PSCI implementation can track

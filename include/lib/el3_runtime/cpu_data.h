@@ -7,8 +7,9 @@
 #ifndef CPU_DATA_H
 #define CPU_DATA_H
 
-#include <ehf.h>
 #include <platform_def.h>	/* CACHE_WRITEBACK_GRANULE required */
+
+#include <bl31/ehf.h>
 
 #ifdef AARCH32
 
@@ -51,9 +52,9 @@
 #ifndef __ASSEMBLY__
 
 #include <arch_helpers.h>
-#include <cassert.h>
+#include <lib/cassert.h>
+#include <lib/psci/psci.h>
 #include <platform_def.h>
-#include <psci.h>
 #include <stdint.h>
 
 /* Offsets for the cpu_data structure */

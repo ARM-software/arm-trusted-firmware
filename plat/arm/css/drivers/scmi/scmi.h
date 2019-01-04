@@ -7,11 +7,12 @@
 #ifndef SCMI_H
 #define SCMI_H
 
-#include <bakery_lock.h>
-#include <psci.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <spinlock.h>
+
+#include <lib/bakery_lock.h>
+#include <lib/psci/psci.h>
+#include <lib/spinlock.h>
 
 /* Supported SCMI Protocol Versions */
 #define SCMI_AP_CORE_PROTO_VER			MAKE_SCMI_VERSION(1, 0)

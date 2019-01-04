@@ -4,18 +4,20 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <bl_common.h>
-#include <debug.h>
-#include <desc_image_load.h>
 #include <errno.h>
-#include <io/io_storage.h>
-#include <image_decompress.h>
-#include <platform.h>
+
 #include <platform_def.h>
+
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/desc_image_load.h>
+#include <common/image_decompress.h>
+#include <drivers/io/io_storage.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+#include <plat/common/platform.h>
 #ifdef UNIPHIER_DECOMPRESS_GZIP
 #include <tf_gunzip.h>
 #endif
-#include <xlat_tables_v2.h>
 
 #include "uniphier.h"
 

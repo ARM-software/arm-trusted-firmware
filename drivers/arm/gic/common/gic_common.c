@@ -5,8 +5,10 @@
  */
 
 #include <assert.h>
-#include <gic_common.h>
-#include <mmio.h>
+
+#include <drivers/arm/gic_common.h>
+#include <lib/mmio.h>
+
 #include "gic_common_private.h"
 
 /*******************************************************************************

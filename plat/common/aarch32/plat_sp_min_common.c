@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <console.h>
-#include <platform.h>
+#include <drivers/console.h>
+#include <plat/common/platform.h>
 #include <platform_sp_min.h>
 
 /*

@@ -4,25 +4,28 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <cci.h>
-#include <console.h>
+#include <stdbool.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
 #include <context.h>
-#include <context_mgmt.h>
-#include <debug.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/arm/cci.h>
+#include <drivers/console.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables.h>
+#include <plat/common/platform.h>
+
 #include <imx8qm_pads.h>
 #include <imx8_iomux.h>
 #include <imx8_lpuart.h>
-#include <mmio.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <plat_imx8.h>
 #include <sci/sci.h>
 #include <sec_rsrc.h>
-#include <stdbool.h>
-#include <xlat_tables.h>
 
 IMPORT_SYM(unsigned long, __COHERENT_RAM_START__, BL31_COHERENT_RAM_START);
 IMPORT_SYM(unsigned long, __COHERENT_RAM_END__, BL31_COHERENT_RAM_END);

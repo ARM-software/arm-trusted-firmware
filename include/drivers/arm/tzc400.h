@@ -7,8 +7,8 @@
 #ifndef TZC400_H
 #define TZC400_H
 
-#include <tzc_common.h>
-#include <utils_def.h>
+#include <drivers/arm/tzc_common.h>
+#include <lib/utils_def.h>
 
 #define BUILD_CONFIG_OFF			U(0x000)
 #define GATE_KEEPER_OFF				U(0x008)

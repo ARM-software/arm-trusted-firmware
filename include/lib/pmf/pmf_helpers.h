@@ -7,12 +7,13 @@
 #ifndef PMF_HELPERS_H
 #define PMF_HELPERS_H
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <platform.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <plat/common/platform.h>
 
 /*
  * Prototype for PMF service functions.

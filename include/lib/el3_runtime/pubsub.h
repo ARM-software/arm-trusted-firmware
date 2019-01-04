@@ -30,10 +30,11 @@
 
 /* For the compiler ... */
 
-#include <arch_helpers.h>
 #include <assert.h>
 #include <cdefs.h>
 #include <stddef.h>
+
+#include <arch_helpers.h>
 
 #define __pubsub_section(event)		__section("__pubsub_" #event)
 

@@ -3,12 +3,14 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #include <assert.h>
-#include <gic_common.h>
-#include <gicv2.h>
-#include <interrupt_mgmt.h>
-#include <platform.h>
 #include <stdbool.h>
+
+#include <bl31/interrupt_mgmt.h>
+#include <drivers/arm/gic_common.h>
+#include <drivers/arm/gicv2.h>
+#include <plat/common/platform.h>
 
 /*
  * The following platform GIC functions are weakly defined. They

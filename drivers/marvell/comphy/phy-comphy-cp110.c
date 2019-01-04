@@ -7,12 +7,14 @@
 
 /* Marvell CP110 SoC COMPHY unit driver */
 
-#include <debug.h>
-#include <delay_timer.h>
 #include <errno.h>
-#include <mmio.h>
+
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
+#include <lib/spinlock.h>
+
 #include <mvebu_def.h>
-#include <spinlock.h>
 #include "mvebu.h"
 #include "comphy-cp110.h"
 #include "phy-comphy-cp110.h"

@@ -7,7 +7,7 @@
 #ifndef STM32MP1_DDR_REGS_H
 #define STM32MP1_DDR_REGS_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /* DDR3/LPDDR2/LPDDR3 Controller (DDRCTRL) registers */
 struct stm32mp1_ddrctl {

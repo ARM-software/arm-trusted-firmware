@@ -11,7 +11,8 @@
 
 #include <assert.h>
 #include <errno.h>
-#include <gpio.h>
+
+#include <drivers/gpio.h>
 
 /*
  * The gpio implementation

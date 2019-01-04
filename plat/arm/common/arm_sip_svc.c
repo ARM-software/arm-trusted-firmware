@@ -4,14 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arm_sip_svc.h>
-#include <debug.h>
-#include <plat_arm.h>
-#include <pmf.h>
-#include <runtime_svc.h>
 #include <stdint.h>
-#include <uuid.h>
 
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <lib/pmf/pmf.h>
+#include <tools_share/uuid.h>
+
+#include <arm_sip_svc.h>
+#include <plat_arm.h>
 
 /* ARM SiP Service UUID */
 DEFINE_SVC_UUID2(arm_sip_svc_uid,

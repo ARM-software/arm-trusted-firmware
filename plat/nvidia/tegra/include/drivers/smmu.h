@@ -7,8 +7,9 @@
 #ifndef SMMU_H
 #define SMMU_H
 
+#include <lib/mmio.h>
+
 #include <memctrl_v2.h>
-#include <mmio.h>
 #include <tegra_def.h>
 
 /*******************************************************************************

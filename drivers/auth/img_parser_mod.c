@@ -5,14 +5,15 @@
  */
 
 #include <assert.h>
-#include <auth_common.h>
-#include <debug.h>
 #include <errno.h>
-#include <img_parser_mod.h>
 #include <limits.h>
 #include <stdint.h>
 #include <string.h>
-#include <utils_def.h>
+
+#include <common/debug.h>
+#include <drivers/auth/auth_common.h>
+#include <drivers/auth/img_parser_mod.h>
+#include <lib/utils_def.h>
 
 IMPORT_SYM(uintptr_t, __PARSER_LIB_DESCS_START__,	PARSER_LIB_DESCS_START);
 IMPORT_SYM(uintptr_t, __PARSER_LIB_DESCS_END__,		PARSER_LIB_DESCS_END);

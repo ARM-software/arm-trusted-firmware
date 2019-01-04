@@ -5,17 +5,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <platform_def.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <gicv2.h>
-#include <gic_common.h>
-#include <interrupt_props.h>
-#include <mmio.h>
-#include <platform.h>
-#include <platform_def.h>
-#include <xlat_tables_v2.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/interrupt_props.h>
+#include <drivers/arm/gicv2.h>
+#include <drivers/arm/gic_common.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
+#include <plat/common/platform.h>
+
 #include "rcar_def.h"
 #include "rcar_private.h"
 #include "rcar_version.h"

@@ -4,15 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
-#include <arm_def.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <generic_delay_timer.h>
-#include <plat_arm.h>
-#include <platform_def.h>
-#include <platform.h>
 #include <string.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <drivers/generic_delay_timer.h>
+#include <plat/common/platform.h>
+
+#include <arm_def.h>
+#include <plat_arm.h>
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak bl2u_platform_setup

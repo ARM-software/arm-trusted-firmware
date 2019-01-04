@@ -7,8 +7,9 @@
 #ifndef HI6553_H
 #define HI6553_H
 
+#include <lib/mmio.h>
+
 #include <hi6220.h>
-#include <mmio.h>
 
 #define HI6553_DISABLE6_XO_CLK			(PMUSSI_BASE + (0x036 << 2))
 

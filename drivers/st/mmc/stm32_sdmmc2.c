@@ -4,25 +4,27 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+#include <errno.h>
+#include <string.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <debug.h>
-#include <delay_timer.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/mmc.h>
+#include <drivers/st/stm32_sdmmc2.h>
+#include <drivers/st/stm32mp1_clk.h>
+#include <drivers/st/stm32mp1_rcc.h>
+#include <drivers/st/stm32mp1_reset.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <dt-bindings/reset/stm32mp1-resets.h>
-#include <errno.h>
 #include <libfdt.h>
-#include <mmc.h>
-#include <mmio.h>
-#include <platform.h>
-#include <stm32_sdmmc2.h>
-#include <stm32mp1_clk.h>
+#include <lib/mmio.h>
+#include <lib/utils.h>
+#include <plat/common/platform.h>
+
 #include <stm32mp1_dt.h>
-#include <stm32mp1_rcc.h>
-#include <stm32mp1_reset.h>
-#include <string.h>
-#include <utils.h>
 
 /* Registers offsets */
 #define SDMMC_POWER			0x00U

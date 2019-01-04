@@ -14,11 +14,13 @@
 
 /* Includes */
 
+#include <stdlib.h>
+
 #include <sci/sci_types.h>
 #include <sci/svc/rm/sci_rm_api.h>
 #include <sci/svc/pm/sci_pm_api.h>
 #include <sci/sci_rpc.h>
-#include <stdlib.h>
+
 #include "sci_pm_rpc.h"
 
 /* Local Defines */

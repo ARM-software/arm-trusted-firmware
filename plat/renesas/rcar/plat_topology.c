@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
 #include <platform_def.h>
-#include <psci.h>
+
+#include <common/debug.h>
+#include <lib/psci/psci.h>
 
 static const unsigned char rcar_power_domain_tree_desc[] = {
 	1,

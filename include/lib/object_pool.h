@@ -7,9 +7,10 @@
 #ifndef OBJECT_POOL_H
 #define OBJECT_POOL_H
 
-#include <debug.h>
 #include <stdlib.h>
-#include <utils_def.h>
+
+#include <common/debug.h>
+#include <lib/utils_def.h>
 
 /*
  * Pool of statically allocated objects.

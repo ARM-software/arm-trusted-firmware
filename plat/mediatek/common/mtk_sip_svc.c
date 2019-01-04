@@ -3,15 +3,18 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #include <assert.h>
-#include <console.h>
-#include <debug.h>
-#include <mmio.h>
+
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <drivers/console.h>
+#include <lib/mmio.h>
+#include <tools_share/uuid.h>
+
 #include <mtk_plat_common.h>
 #include <mtk_sip_svc.h>
 #include <plat_sip_calls.h>
-#include <runtime_svc.h>
-#include <uuid.h>
 
 /* Mediatek SiP Service UUID */
 DEFINE_SVC_UUID2(mtk_sip_svc_uid,

@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <plat/common/platform.h>
+
 #include <plat_arm.h>
-#include <platform.h>
 #include "fvp_def.h"
 #include "fvp_private.h"
 

@@ -4,13 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
-#include <generic_delay_timer.h>
-#include <mmio.h>
-#include <platform.h>
 #include <stdbool.h>
 #include <string.h>
-#include <xlat_tables.h>
+
+#include <common/debug.h>
+#include <drivers/generic_delay_timer.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables.h>
+#include <plat/common/platform.h>
+
 #include "../zynqmp_private.h"
 #include "pm_api_sys.h"
 

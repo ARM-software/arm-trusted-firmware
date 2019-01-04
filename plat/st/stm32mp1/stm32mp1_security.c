@@ -4,16 +4,19 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <debug.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
-#include <mmio.h>
 #include <stdint.h>
-#include <stm32mp1_clk.h>
+
+#include <platform_def.h>
+
+#include <common/debug.h>
+#include <drivers/arm/tzc400.h>
+#include <drivers/st/stm32mp1_clk.h>
+#include <drivers/st/stm32mp1_rcc.h>
+#include <dt-bindings/clock/stm32mp1-clks.h>
+#include <lib/mmio.h>
+
 #include <stm32mp1_dt.h>
 #include <stm32mp1_private.h>
-#include <stm32mp1_rcc.h>
-#include <tzc400.h>
-#include "platform_def.h"
 
 /*******************************************************************************
  * Initialize the TrustZone Controller. Configure Region 0 with Secure RW access

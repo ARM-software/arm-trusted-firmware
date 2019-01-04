@@ -5,13 +5,15 @@
  * https://spdx.org/licenses
  */
 
-#include <ap_setup.h>
-#include <cache_llc.h>
-#include <debug.h>
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <drivers/marvell/cache_llc.h>
+#include <drivers/marvell/mochi/ap_setup.h>
+#include <lib/smccc.h>
+
 #include <marvell_plat_priv.h>
 #include <plat_marvell.h>
-#include <runtime_svc.h>
-#include <smccc.h>
+
 #include "comphy/phy-comphy-cp110.h"
 
 /* #define DEBUG_COMPHY */

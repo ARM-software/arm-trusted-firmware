@@ -5,8 +5,10 @@
  */
 
 #include <stdint.h>
-#include <debug.h>
-#include <mmio.h>
+
+#include <common/debug.h>
+#include <lib/mmio.h>
+
 #include "rcar_def.h"
 #if RCAR_LSI == RCAR_AUTO
 #include "H3/pfc_init_h3_v1.h"

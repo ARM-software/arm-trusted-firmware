@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
-#include <debug.h>
 #include <errno.h>
 #include <stdint.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
 
 /*
  * Error handler

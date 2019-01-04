@@ -4,15 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arm_def.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <console.h>
-#include <debug.h>
-#include <pl011.h>
-#include <plat_arm.h>
+
 #include <platform_def.h>
-#include <platform_tsp.h>
+
+#include <bl32/tsp/platform_tsp.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/arm/pl011.h>
+#include <drivers/console.h>
+
+#include <arm_def.h>
+#include <plat_arm.h>
 
 #define BL32_END (unsigned long)(&__BL32_END__)
 

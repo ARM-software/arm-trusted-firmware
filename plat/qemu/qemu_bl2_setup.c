@@ -3,17 +3,22 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <arch_helpers.h>
+
 #include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <desc_image_load.h>
-#include <optee_utils.h>
-#include <libfdt.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <string.h>
-#include <utils.h>
+
+#include <libfdt.h>
+
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/desc_image_load.h>
+#include <lib/optee_utils.h>
+#include <lib/utils.h>
+#include <plat/common/platform.h>
+
 #include "qemu_private.h"
 
 

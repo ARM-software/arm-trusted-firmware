@@ -4,9 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
-#include <platform_def.h>
 #include <stdint.h>
+
+#include <platform_def.h>
+
+#include <arch.h>
 
 #include "gxbb_private.h"
 

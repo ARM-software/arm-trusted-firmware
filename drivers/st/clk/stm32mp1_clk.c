@@ -4,26 +4,29 @@
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
 
-#include <arch.h>
-#include <arch_helpers.h>
 #include <assert.h>
-#include <debug.h>
-#include <delay_timer.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
-#include <dt-bindings/clock/stm32mp1-clksrc.h>
 #include <errno.h>
-#include <generic_delay_timer.h>
-#include <libfdt.h>
-#include <mmio.h>
-#include <platform.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stm32mp1_clk.h>
-#include <stm32mp1_clkfunc.h>
+
+#include <libfdt.h>
+
+#include <arch.h>
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <drivers/generic_delay_timer.h>
+#include <drivers/st/stm32mp1_clk.h>
+#include <drivers/st/stm32mp1_clkfunc.h>
+#include <drivers/st/stm32mp1_rcc.h>
+#include <dt-bindings/clock/stm32mp1-clks.h>
+#include <dt-bindings/clock/stm32mp1-clksrc.h>
+#include <lib/mmio.h>
+#include <lib/utils_def.h>
+#include <plat/common/platform.h>
+
 #include <stm32mp1_dt.h>
 #include <stm32mp1_private.h>
-#include <stm32mp1_rcc.h>
-#include <utils_def.h>
 
 #define MAX_HSI_HZ	64000000
 

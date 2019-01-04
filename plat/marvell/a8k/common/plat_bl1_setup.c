@@ -5,7 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#include <mmio.h>
+#include <lib/mmio.h>
+
 #include <plat_marvell.h>
 
 void marvell_bl1_setup_mpps(void)

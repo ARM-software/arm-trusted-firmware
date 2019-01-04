@@ -4,21 +4,24 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <boot_api.h>
-#include <debug.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
 #include <errno.h>
-#include <gic_common.h>
-#include <gicv2.h>
-#include <mmio.h>
+
 #include <platform_def.h>
-#include <platform.h>
-#include <psci.h>
-#include <stm32mp1_clk.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/arm/gic_common.h>
+#include <drivers/arm/gicv2.h>
+#include <drivers/st/stm32mp1_clk.h>
+#include <drivers/st/stm32mp1_rcc.h>
+#include <dt-bindings/clock/stm32mp1-clks.h>
+#include <lib/mmio.h>
+#include <lib/psci/psci.h>
+#include <plat/common/platform.h>
+
+#include <boot_api.h>
 #include <stm32mp1_private.h>
-#include <stm32mp1_rcc.h>
 
 static uint32_t stm32_sec_entrypoint;
 static uint32_t cntfrq_core0;

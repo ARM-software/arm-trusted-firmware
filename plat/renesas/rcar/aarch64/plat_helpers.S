@@ -7,10 +7,11 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <bl_common.h>
+#include <common/bl_common.h>
+#include <common/runtime_svc.h>
 #include <cortex_a57.h>
 #include <platform_def.h>
-#include <runtime_svc.h>
+
 #include "rcar_def.h"
 
 	.globl	plat_get_my_entrypoint

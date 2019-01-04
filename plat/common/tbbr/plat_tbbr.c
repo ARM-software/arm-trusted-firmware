@@ -5,14 +5,15 @@
  */
 
 #include <assert.h>
-#include <auth/auth_mod.h>
-#include <platform.h>
+#include <string.h>
+
+#include <drivers/auth/auth_mod.h>
+#include <plat/common/platform.h>
 #if USE_TBBR_DEFS
-#include <tbbr_oid.h>
+#include <tools_share/tbbr_oid.h>
 #else
 #include <platform_oid.h>
 #endif
-#include <string.h>
 
 /*
  * Store a new non-volatile counter value. This implementation

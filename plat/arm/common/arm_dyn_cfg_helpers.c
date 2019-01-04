@@ -4,11 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arm_dyn_cfg_helpers.h>
 #include <assert.h>
-#include <desc_image_load.h>
-#include <fdt_wrappers.h>
+
 #include <libfdt.h>
+
+#include <common/desc_image_load.h>
+#include <common/fdt_wrappers.h>
+
+#include <arm_dyn_cfg_helpers.h>
 #include <plat_arm.h>
 
 #define DTB_PROP_MBEDTLS_HEAP_ADDR "mbedtls_heap_addr"

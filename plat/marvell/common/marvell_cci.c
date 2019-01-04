@@ -5,7 +5,8 @@
  * https://spdx.org/licenses
  */
 
-#include <cci.h>
+#include <drivers/arm/cci.h>
+
 #include <plat_marvell.h>
 
 static const int cci_map[] = {

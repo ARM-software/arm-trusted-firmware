@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <lib/xlat_tables/xlat_tables_defs.h>
 #include <platform_def.h>
-#include <xlat_tables_defs.h>
 
 MEMORY {
 	ROM (rx): ORIGIN = ROMLIB_RO_BASE, LENGTH = ROMLIB_RO_LIMIT - ROMLIB_RO_BASE

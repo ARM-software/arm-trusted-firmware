@@ -6,7 +6,7 @@
 #ifndef CONSOLE_MACROS_S
 #define CONSOLE_MACROS_S
 
-#include <console.h>
+#include <drivers/console.h>
 
 /*
  * This macro encapsulates the common setup that has to be done at the end of

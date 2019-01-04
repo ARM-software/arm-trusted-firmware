@@ -5,7 +5,7 @@
  */
 
 #include <asm_macros.S>
-#include <tsp.h>
+#include <bl32/tsp/tsp.h>
 
 	.globl tsp_get_magic
 

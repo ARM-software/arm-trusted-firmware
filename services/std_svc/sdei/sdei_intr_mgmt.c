@@ -4,16 +4,18 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <cassert.h>
-#include <debug.h>
-#include <ehf.h>
-#include <interrupt_mgmt.h>
-#include <runtime_svc.h>
-#include <sdei.h>
 #include <string.h>
+
+#include <arch_helpers.h>
+#include <bl31/ehf.h>
+#include <bl31/interrupt_mgmt.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/runtime_svc.h>
+#include <lib/cassert.h>
+#include <services/sdei.h>
+
 #include "sdei_private.h"
 
 /* x0-x17 GPREGS context */

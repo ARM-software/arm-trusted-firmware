@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <bl_common.h>
-#include <debug.h>
-#include <mmio.h>
 #include <stdbool.h>
-#include <stm32_gpio.h>
+
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <drivers/st/stm32_gpio.h>
+#include <lib/mmio.h>
 
 static bool check_gpio(uint32_t bank, uint32_t pin)
 {

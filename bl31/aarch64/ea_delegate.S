@@ -8,9 +8,9 @@
 #include <assert_macros.S>
 #include <asm_macros.S>
 #include <assert_macros.S>
+#include <bl31/ea_handle.h>
 #include <context.h>
-#include <ea_handle.h>
-#include <ras_arch.h>
+#include <lib/extensions/ras_arch.h>
 
 
 	.globl	handle_lower_el_ea_esb

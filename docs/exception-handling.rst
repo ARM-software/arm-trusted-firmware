@@ -308,9 +308,9 @@ assign interrupts to fictitious dispatchers:
 
 .. code:: c
 
+   #include <common/interrupt_props.h>
+   #include <drivers/arm/gic_common.h>
    #include <exception_mgmt.h>
-   #include <gic_common.h>
-   #include <interrupt_props.h>
 
    ...
 

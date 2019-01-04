@@ -3,9 +3,11 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #include <arch_helpers.h>
+#include <lib/mmio.h>
+
 #include <mcucfg.h>
-#include <mmio.h>
 #include <mt8173_def.h>
 #include <mt_cpuxgpt.h>
 

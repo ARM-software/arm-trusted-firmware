@@ -7,7 +7,8 @@
 #define ARM_CONFIG_H
 
 #include <stdint.h>
-#include <utils_def.h>
+
+#include <lib/utils_def.h>
 
 /* Whether Base memory map is in use */
 #define ARM_CONFIG_BASE_MMAP		BIT(1)

@@ -4,19 +4,21 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <cci.h>
-#include <debug.h>
-#include <delay_timer.h>
-#include <gicv2.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/arm/cci.h>
+#include <drivers/arm/gicv2.h>
+#include <drivers/arm/pl011.h>
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
+#include <lib/psci/psci.h>
+
 #include <hi3660.h>
 #include <hi3660_crg.h>
-#include <mmio.h>
-#include <pl011.h>
-#include <psci.h>
-#include "drivers/pwrc/hisi_pwrc.h"
 
+#include "drivers/pwrc/hisi_pwrc.h"
 #include "hikey960_def.h"
 #include "hikey960_private.h"
 

@@ -4,11 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+
+#include <platform_def.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
-#include <assert.h>
-#include <bl_common.h>
-#include <platform_def.h>
+#include <common/bl_common.h>
+
 #include "qemu_private.h"
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/

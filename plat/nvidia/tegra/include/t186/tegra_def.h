@@ -7,7 +7,7 @@
 #ifndef TEGRA_DEF_H
 #define TEGRA_DEF_H
 
-#include <utils_def.h>
+#include <lib/utils_def.h>
 
 /*******************************************************************************
  * MCE apertures used by the ARI interface

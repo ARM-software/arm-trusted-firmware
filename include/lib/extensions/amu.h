@@ -7,11 +7,13 @@
 #ifndef AMU_H
 #define AMU_H
 
-#include <cassert.h>
-#include <platform_def.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <utils_def.h>
+
+#include <platform_def.h>
+
+#include <lib/cassert.h>
+#include <lib/utils_def.h>
 
 /* All group 0 counters */
 #define AMU_GROUP0_COUNTERS_MASK	U(0xf)

@@ -4,19 +4,21 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <cci.h>
-#include <debug.h>
-#include <gicv2.h>
+
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <drivers/arm/cci.h>
+#include <drivers/arm/gicv2.h>
+#include <drivers/arm/sp804_delay_timer.h>
+#include <lib/mmio.h>
+#include <lib/psci/psci.h>
+
 #include <hi6220.h>
 #include <hikey_def.h>
 #include <hisi_ipc.h>
 #include <hisi_pwrc.h>
 #include <hisi_sram_map.h>
-#include <mmio.h>
-#include <psci.h>
-#include <sp804_delay_timer.h>
 
 #define CORE_PWR_STATE(state) \
 	((state)->pwr_domain_state[MPIDR_AFFLVL0])

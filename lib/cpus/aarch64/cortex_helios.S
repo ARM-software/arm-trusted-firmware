@@ -5,10 +5,10 @@
  */
 #include <arch.h>
 #include <asm_macros.S>
-#include <bl_common.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
 #include <cortex_helios.h>
 #include <cpu_macros.S>
-#include <debug.h>
 #include <plat_macros.S>
 
 func cortex_helios_cpu_pwr_dwn

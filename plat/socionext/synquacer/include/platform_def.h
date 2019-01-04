@@ -7,8 +7,8 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-#include <common_def.h>
-#include <utils_def.h>
+#include <lib/utils_def.h>
+#include <plat/common/common_def.h>
 
 /* CPU topology */
 #define PLAT_MAX_CORES_PER_CLUSTER	2

@@ -7,7 +7,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
-#include <xlat_tables_defs.h>
+#include <lib/xlat_tables/xlat_tables_defs.h>
 
 #if !ERROR_DEPRECATED
 	.globl	get_afflvl_shift

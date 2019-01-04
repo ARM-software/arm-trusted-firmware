@@ -9,8 +9,8 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
-#include <mmio.h>
-#include <tzc_common.h>
+#include <drivers/arm/tzc_common.h>
+#include <lib/mmio.h>
 
 #define DEFINE_TZC_COMMON_WRITE_ACTION(fn_name, macro_name)		\
 	static inline void _tzc##fn_name##_write_action(		\

@@ -5,12 +5,13 @@
  */
 
 #include <assert.h>
-#include <debug.h>
-#include <delay_timer.h>
 #include <errno.h>
-#include <hi3660.h>
-#include <mmio.h>
 
+#include <common/debug.h>
+#include <drivers/delay_timer.h>
+#include <lib/mmio.h>
+
+#include <hi3660.h>
 #include "hikey960_private.h"
 
 #define ADC_ADCIN0				0

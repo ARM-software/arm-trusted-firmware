@@ -7,8 +7,8 @@
 #ifndef TZC_DMC500_H
 #define TZC_DMC500_H
 
-#include <tzc_common.h>
-#include <utils_def.h>
+#include <drivers/arm/tzc_common.h>
+#include <lib/utils_def.h>
 
 #define SI_STATUS_OFFSET				U(0x000)
 #define SI_STATE_CTRL_OFFSET				U(0x030)

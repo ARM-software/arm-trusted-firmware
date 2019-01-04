@@ -5,7 +5,8 @@
  */
 
 #include <platform_def.h>
-#include <xlat_tables_defs.h>
+
+#include <lib/xlat_tables/xlat_tables_defs.h>
 
 OUTPUT_FORMAT(PLATFORM_LINKER_FORMAT)
 OUTPUT_ARCH(PLATFORM_LINKER_ARCH)
@@ -77,7 +78,7 @@ SECTIONS
 
         /* Place pubsub sections for events */
         . = ALIGN(8);
-#include <pubsub_events.h>
+#include <lib/el3_runtime/pubsub_events.h>
 
         . = ALIGN(PAGE_SIZE);
         __RODATA_END__ = .;
@@ -124,7 +125,7 @@ SECTIONS
 
         /* Place pubsub sections for events */
         . = ALIGN(8);
-#include <pubsub_events.h>
+#include <lib/el3_runtime/pubsub_events.h>
 
         *(.vectors)
         __RO_END_UNALIGNED__ = .;

@@ -4,18 +4,21 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
-#include <arch_helpers.h>
 #include <assert.h>
-#include <cassert.h>
-#include <common_def.h>
-#include <debug.h>
-#include <platform_def.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include <utils.h>
-#include <xlat_tables.h>
+
+#include <platform_def.h>
+
+#include <arch.h>
+#include <arch_helpers.h>
+#include <common/debug.h>
+#include <lib/cassert.h>
+#include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables.h>
+#include <plat/common/common_def.h>
+
 #include "xlat_tables_private.h"
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE

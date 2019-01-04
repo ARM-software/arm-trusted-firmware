@@ -4,26 +4,28 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch_helpers.h>
 #include <assert.h>
-#include <bl_common.h>
-#include <debug.h>
-#include <delay_timer.h>
-#include <dw_ufs.h>
 #include <errno.h>
-#include <generic_delay_timer.h>
-#include <gicv2.h>
-#include <hi3660.h>
-#include <interrupt_props.h>
-#include <mmio.h>
-#include <pl011.h>
-#include <platform.h>
-#include <platform_def.h>
 #include <string.h>
-#include <tbbr/tbbr_img_desc.h>
-#include <ufs.h>
 
-#include "../../bl1/bl1_private.h"
+#include <platform_def.h>
+
+#include <arch_helpers.h>
+#include <bl1/tbbr/tbbr_img_desc.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/interrupt_props.h>
+#include <drivers/arm/gicv2.h>
+#include <drivers/arm/pl011.h>
+#include <drivers/delay_timer.h>
+#include <drivers/dw_ufs.h>
+#include <drivers/generic_delay_timer.h>
+#include <drivers/ufs.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
+
+#include <hi3660.h>
+#include "../../../bl1/bl1_private.h"
 #include "hikey960_def.h"
 #include "hikey960_private.h"
 

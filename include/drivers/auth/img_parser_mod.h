@@ -7,7 +7,7 @@
 #ifndef IMG_PARSER_MOD_H
 #define IMG_PARSER_MOD_H
 
-#include <auth_common.h>
+#include <drivers/auth/auth_common.h>
 
 /*
  * Return values

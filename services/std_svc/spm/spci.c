@@ -5,17 +5,18 @@
  */
 
 #include <assert.h>
-#include <context_mgmt.h>
-#include <debug.h>
 #include <errno.h>
-#include <smccc.h>
-#include <smccc_helpers.h>
-#include <spci_svc.h>
-#include <spinlock.h>
-#include <sprt_host.h>
-#include <sprt_svc.h>
 #include <string.h>
-#include <utils.h>
+
+#include <common/debug.h>
+#include <lib/el3_runtime/context_mgmt.h>
+#include <lib/smccc.h>
+#include <lib/spinlock.h>
+#include <lib/utils.h>
+#include <services/spci_svc.h>
+#include <services/sprt_svc.h>
+#include <smccc_helpers.h>
+#include <sprt_host.h>
 
 #include "spm_private.h"
 

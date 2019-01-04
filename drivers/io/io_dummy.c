@@ -5,11 +5,12 @@
  */
 
 #include <assert.h>
-#include <debug.h>
-#include <io_driver.h>
-#include <io_dummy.h>
-#include <io_storage.h>
 #include <string.h>
+
+#include <common/debug.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_dummy.h>
+#include <drivers/io/io_storage.h>
 
 struct file_state {
 	int in_use;

@@ -10,7 +10,8 @@
 #if SPM_DEPRECATED
 
 #include <stdint.h>
-#include <utils_def.h>
+
+#include <lib/utils_def.h>
 
 /*
  * Flags used by the secure_partition_mp_info structure to describe the

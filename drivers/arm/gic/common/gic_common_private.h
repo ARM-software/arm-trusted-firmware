@@ -7,9 +7,10 @@
 #ifndef GIC_COMMON_PRIVATE_H
 #define GIC_COMMON_PRIVATE_H
 
-#include <gic_common.h>
-#include <mmio.h>
 #include <stdint.h>
+
+#include <drivers/arm/gic_common.h>
+#include <lib/mmio.h>
 
 /*******************************************************************************
  * GIC Distributor interface register accessors that are common to GICv3 & GICv2

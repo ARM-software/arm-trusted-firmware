@@ -11,8 +11,8 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
-#include <spinlock.h>
-#include <utils_def.h>
+#include <lib/spinlock.h>
+#include <lib/utils_def.h>
 
 #if DEBUG
 void print_errata_status(void);
