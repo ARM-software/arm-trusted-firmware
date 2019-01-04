@@ -964,7 +964,37 @@ enum pm_ret_status pm_clock_getstate(unsigned int clock_id,
 enum pm_ret_status pm_clock_setdivider(unsigned int clock_id,
 				       unsigned int divider)
 {
-	return pm_api_clock_setdivider(clock_id, divider);
+	enum pm_ret_status status;
+	enum pm_node_id nid;
+	enum pm_clock_div_id div_id;
+	uint32_t payload[PAYLOAD_ARG_CNT];
+	const uint32_t div0 = 0xFFFF0000;
+	const uint32_t div1 = 0x0000FFFF;
+	uint32_t val;
+
+	/* Get PLL node ID using PLL clock ID */
+	status = pm_clock_get_pll_node_id(clock_id, &nid);
+	if (status == PM_RET_SUCCESS)
+		return pm_pll_set_parameter(nid, PM_PLL_PARAM_FBDIV, divider);
+
+	/* Check if clock ID is a valid on-chip clock */
+	status = pm_clock_id_is_valid(clock_id);
+	if (status != PM_RET_SUCCESS)
+		return status;
+
+	if (div0 == (divider & div0)) {
+		div_id = PM_CLOCK_DIV0_ID;
+		val = divider & ~div0;
+	} else if (div1 == (divider & div1)) {
+		div_id = PM_CLOCK_DIV1_ID;
+		val = (divider & ~div1) >> 16;
+	} else {
+		return PM_RET_ERROR_ARGS;
+	}
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD4(payload, PM_CLOCK_SETDIVIDER, clock_id, div_id, val);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**

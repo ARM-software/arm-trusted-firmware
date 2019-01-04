@@ -308,4 +308,13 @@ enum pm_pll_mode {
 	PM_PLL_MODE_MAX,
 };
 
+/**
+ * @PM_CLOCK_DIV0_ID:          Clock divider 0
+ * @PM_CLOCK_DIV1_ID:          Clock divider 1
+ */
+enum pm_clock_div_id {
+	PM_CLOCK_DIV0_ID,
+	PM_CLOCK_DIV1_ID,
+};
+
 #endif /* PM_DEFS_H */

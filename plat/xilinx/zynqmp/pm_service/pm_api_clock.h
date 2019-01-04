@@ -299,9 +299,6 @@ enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll);
 enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll);
 enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
 					  unsigned int *state);
-
-enum pm_ret_status pm_api_clock_setdivider(unsigned int clock_id,
-					   unsigned int divider);
 enum pm_ret_status pm_api_clock_getdivider(unsigned int clock_id,
 					   unsigned int *divider);
 enum pm_ret_status pm_api_clock_setrate(unsigned int clock_id,
