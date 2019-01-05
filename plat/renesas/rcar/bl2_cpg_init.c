@@ -33,6 +33,11 @@ static void bl2_realtime_cpg_init_e3(void);
 static void bl2_system_cpg_init_e3(void);
 #endif
 
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_D3)
+static void bl2_realtime_cpg_init_d3(void);
+static void bl2_system_cpg_init_d3(void);
+#endif
+
 typedef struct {
 	uintptr_t adr;
 	uint32_t val;
@@ -41,21 +46,39 @@ typedef struct {
 static void bl2_secure_cpg_init(void)
 {
 	uint32_t stop_cr2, reset_cr2;
+	uint32_t stop_cr4, reset_cr4;
+	uint32_t stop_cr5, reset_cr5;
 
-#if (RCAR_LSI == RCAR_E3)
+#if (RCAR_LSI == RCAR_D3)
+	reset_cr2 = 0x00000000U;
+	stop_cr2 = 0xFFFFFFFFU;
+#elif (RCAR_LSI == RCAR_E3)
 	reset_cr2 = 0x10000000U;
 	stop_cr2 = 0xEFFFFFFFU;
 #else
 	reset_cr2 = 0x14000000U;
 	stop_cr2 = 0xEBFFFFFFU;
 #endif
+
+#if (RCAR_LSI == RCAR_D3)
+	reset_cr4 = 0x00000000U;
+	stop_cr4 = 0xFFFFFFFFU;
+	reset_cr5 = 0x00000000U;
+	stop_cr5 = 0xFFFFFFFFU;
+#else
+	reset_cr4 = 0x80000003U;
+	stop_cr4 = 0x7FFFFFFFU;
+	reset_cr5 = 0x40000000U;
+	stop_cr5 = 0xBFFFFFFFU;
+#endif
+
 	/** Secure Module Stop Control Registers */
 	cpg_write(SCMSTPCR0, 0xFFFFFFFFU);
 	cpg_write(SCMSTPCR1, 0xFFFFFFFFU);
 	cpg_write(SCMSTPCR2, stop_cr2);
 	cpg_write(SCMSTPCR3, 0xFFFFFFFFU);
-	cpg_write(SCMSTPCR4, 0x7FFFFFFFU);
-	cpg_write(SCMSTPCR5, 0xBFFFFFFFU);
+	cpg_write(SCMSTPCR4, stop_cr4);
+	cpg_write(SCMSTPCR5, stop_cr5);
 	cpg_write(SCMSTPCR6, 0xFFFFFFFFU);
 	cpg_write(SCMSTPCR7, 0xFFFFFFFFU);
 	cpg_write(SCMSTPCR8, 0xFFFFFFFFU);
@@ -68,8 +91,8 @@ static void bl2_secure_cpg_init(void)
 	cpg_write(SCSRSTECR1, 0x00000000U);
 	cpg_write(SCSRSTECR2, reset_cr2);
 	cpg_write(SCSRSTECR3, 0x00000000U);
-	cpg_write(SCSRSTECR4, 0x80000003U);
-	cpg_write(SCSRSTECR5, 0x40000000U);
+	cpg_write(SCSRSTECR4, reset_cr4);
+	cpg_write(SCSRSTECR5, reset_cr5);
 	cpg_write(SCSRSTECR6, 0x00000000U);
 	cpg_write(SCSRSTECR7, 0x00000000U);
 	cpg_write(SCSRSTECR8, 0x00000000U);
@@ -229,6 +252,42 @@ static void bl2_system_cpg_init_e3(void)
 }
 #endif
 
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_D3)
+static void bl2_realtime_cpg_init_d3(void)
+{
+	/* Realtime Module Stop Control Registers */
+	cpg_write(RMSTPCR0, 0x00010000U);
+	cpg_write(RMSTPCR1, 0xFFFFFFFFU);
+	cpg_write(RMSTPCR2, 0x00060FDCU);
+	cpg_write(RMSTPCR3, 0xFFFFFFDFU);
+	cpg_write(RMSTPCR4, 0x80000184U);
+	cpg_write(RMSTPCR5, 0x83FFFFFFU);
+	cpg_write(RMSTPCR6, 0xFFFFFFFFU);
+	cpg_write(RMSTPCR7, 0xFFFFFFFFU);
+	cpg_write(RMSTPCR8, 0x00F1FFF7U);
+	cpg_write(RMSTPCR9, 0xF3F5E016U);
+	cpg_write(RMSTPCR10, 0xFFFEFFE0U);
+	cpg_write(RMSTPCR11, 0x000000B7U);
+}
+
+static void bl2_system_cpg_init_d3(void)
+{
+	/* System Module Stop Control Registers */
+	cpg_write(SMSTPCR0, 0x00010000U);
+	cpg_write(SMSTPCR1, 0xFFFFFFFFU);
+	cpg_write(SMSTPCR2, 0x00060FDCU);
+	cpg_write(SMSTPCR3, 0xFFFFFBDFU);
+	cpg_write(SMSTPCR4, 0x00000084U);
+	cpg_write(SMSTPCR5, 0x83FFFFFFU);
+	cpg_write(SMSTPCR6, 0xFFFFFFFFU);
+	cpg_write(SMSTPCR7, 0xFFFFFFFFU);
+	cpg_write(SMSTPCR8, 0x00F1FFF7U);
+	cpg_write(SMSTPCR9, 0xF3F5E016U);
+	cpg_write(SMSTPCR10, 0xFFFEFFE0U);
+	cpg_write(SMSTPCR11, 0x000000B7U);
+}
+#endif
+
 void bl2_cpg_init(void)
 {
 	uint32_t boot_cpu = mmio_read_32(RCAR_MODEMR) & MODEMR_BOOT_CPU_MASK;
@@ -254,6 +313,9 @@ void bl2_cpg_init(void)
 		case RCAR_PRODUCT_E3:
 			bl2_realtime_cpg_init_e3();
 			break;
+		case RCAR_PRODUCT_D3:
+			bl2_realtime_cpg_init_d3();
+			break;
 		default:
 			panic();
 			break;
@@ -266,6 +328,8 @@ void bl2_cpg_init(void)
 		bl2_realtime_cpg_init_m3n();
 #elif RCAR_LSI == RCAR_E3
 		bl2_realtime_cpg_init_e3();
+#elif RCAR_LSI == RCAR_D3
+		bl2_realtime_cpg_init_d3();
 #else
 #error "Don't have CPG initialize routine(unknown)."
 #endif
@@ -290,6 +354,9 @@ void bl2_system_cpg_init(void)
 	case RCAR_PRODUCT_E3:
 		bl2_system_cpg_init_e3();
 		break;
+	case RCAR_PRODUCT_D3:
+		bl2_system_cpg_init_d3();
+		break;
 	default:
 		panic();
 		break;
@@ -302,6 +369,8 @@ void bl2_system_cpg_init(void)
 	bl2_system_cpg_init_m3n();
 #elif RCAR_LSI == RCAR_E3
 	bl2_system_cpg_init_e3();
+#elif RCAR_LSI == RCAR_D3
+	bl2_system_cpg_init_d3();
 #else
 #error "Don't have CPG initialize routine(unknown)."
 #endif
