@@ -737,6 +737,12 @@ uint32_t rcar_pwrc_get_mpidr_cluster(uint64_t mpidr)
 	return c;
 }
 
+#if RCAR_LSI == RCAR_D3
+uint32_t rcar_pwrc_get_cpu_num(uint32_t c)
+{
+	return 1;
+}
+#else
 uint32_t rcar_pwrc_get_cpu_num(uint32_t c)
 {
 	uint32_t reg = mmio_read_32(RCAR_PRR);
@@ -768,6 +774,7 @@ count_ca57:
 done:
 	return count;
 }
+#endif
 
 int32_t rcar_pwrc_cpu_on_check(uint64_t mpidr)
 {
