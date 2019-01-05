@@ -768,3 +768,43 @@ count_ca57:
 done:
 	return count;
 }
+
+int32_t rcar_pwrc_cpu_on_check(uint64_t mpidr)
+{
+	uint64_t i;
+	uint64_t j;
+	uint64_t cpu_count;
+	uintptr_t reg_PSTR;
+	uint32_t status;
+	uint64_t my_cpu;
+	int32_t rtn;
+	uint32_t my_cluster_type;
+
+	const uint32_t cluster_type[PLATFORM_CLUSTER_COUNT] = {
+			RCAR_CLUSTER_CA53,
+			RCAR_CLUSTER_CA57
+	};
+	const uintptr_t registerPSTR[PLATFORM_CLUSTER_COUNT] = {
+			RCAR_CA53PSTR,
+			RCAR_CA57PSTR
+	};
+
+	my_cluster_type = rcar_pwrc_get_cluster();
+
+	rtn = 0;
+	my_cpu = mpidr & ((uint64_t)(MPIDR_CPU_MASK));
+	for (i = 0U; i < ((uint64_t)(PLATFORM_CLUSTER_COUNT)); i++) {
+		cpu_count = rcar_pwrc_get_cpu_num(cluster_type[i]);
+		reg_PSTR = registerPSTR[i];
+		for (j = 0U; j < cpu_count; j++) {
+			if ((my_cluster_type != cluster_type[i]) || (my_cpu != j)) {
+				status = mmio_read_32(reg_PSTR) >> (j * 4U);
+				if ((status & 0x00000003U) == 0U) {
+					rtn--;
+				}
+			}
+		}
+	}
+	return (rtn);
+
+}
