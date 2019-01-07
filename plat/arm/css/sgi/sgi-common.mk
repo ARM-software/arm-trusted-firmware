@@ -47,7 +47,7 @@ BL31_SOURCES		+=	${CSS_ENT_BASE}/sgi_ras.c
 endif
 
 ifneq (${RESET_TO_BL31},0)
-  $(error "Using BL31 as the reset vector is not supported on ${PLATFORM} platform. \
+  $(error "Using BL31 as the reset vector is not supported on ${PLAT} platform. \
   Please set RESET_TO_BL31 to 0.")
 endif
 
