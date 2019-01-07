@@ -20,9 +20,6 @@
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
 
-#include <stm32mp1_def.h>
-#include <stm32mp1_dt.h>
-
 /* I2C Timing hard-coded value, for I2C clock source is HSI at 64MHz */
 #define I2C_TIMING			0x10D07DB5
 

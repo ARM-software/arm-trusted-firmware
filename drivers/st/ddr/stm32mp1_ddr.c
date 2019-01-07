@@ -6,6 +6,8 @@
 
 #include <stddef.h>
 
+#include <platform_def.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
@@ -20,9 +22,6 @@
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/mmio.h>
 #include <plat/common/platform.h>
-
-#include <stm32mp1_def.h>
-#include <stm32mp1_dt.h>
 
 struct reg_desc {
 	const char *name;

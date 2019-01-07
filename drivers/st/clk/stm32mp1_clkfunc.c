@@ -8,11 +8,11 @@
 
 #include <libfdt.h>
 
+#include <platform_def.h>
+
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_clkfunc.h>
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
-
-#include <stm32mp1_dt.h>
 
 #define DT_RCC_NODE_NAME	"rcc@50000000"
 #define DT_RCC_CLK_COMPAT	"st,stm32mp1-rcc"

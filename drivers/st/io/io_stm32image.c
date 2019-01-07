@@ -18,8 +18,6 @@
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 
-#include <boot_api.h>
-
 static uintptr_t backend_dev_handle;
 static uintptr_t backend_image_spec;
 static uint32_t *stm32_img;

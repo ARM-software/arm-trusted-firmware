@@ -11,6 +11,8 @@
 
 #include <libfdt.h>
 
+#include <platform_def.h>
+
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
@@ -24,9 +26,6 @@
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
 #include <plat/common/platform.h>
-
-#include <stm32mp1_dt.h>
-#include <stm32mp1_private.h>
 
 #define MAX_HSI_HZ	64000000
 
