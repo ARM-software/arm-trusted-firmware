@@ -35,8 +35,8 @@
 DEFINE_BAKERY_LOCK(pm_secure_lock);
 
 const struct pm_ipi apu_ipi = {
-	.apu_ipi_id = IPI_ID_APU,
-	.pmu_ipi_id = IPI_ID_PMU0,
+	.local_ipi_id = IPI_ID_APU,
+	.remote_ipi_id = IPI_ID_PMU0,
 	.buffer_base = IPI_BUFFER_APU_BASE,
 };
 
@@ -53,7 +53,7 @@ const struct pm_ipi apu_ipi = {
 int pm_ipi_init(const struct pm_proc *proc)
 {
 	bakery_lock_init(&pm_secure_lock);
-	ipi_mb_open(proc->ipi->apu_ipi_id, proc->ipi->pmu_ipi_id);
+	ipi_mb_open(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
 
 	return 0;
 }
@@ -84,7 +84,7 @@ static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
 	}
 
 	/* Generate IPI to PMU */
-	ipi_mb_notify(proc->ipi->apu_ipi_id, proc->ipi->pmu_ipi_id,
+	ipi_mb_notify(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id,
 		      is_blocking);
 
 	return PM_RET_SUCCESS;
@@ -226,10 +226,10 @@ unlock:
 
 void pm_ipi_irq_enable(const struct pm_proc *proc)
 {
-	ipi_mb_enable_irq(proc->ipi->apu_ipi_id, proc->ipi->pmu_ipi_id);
+	ipi_mb_enable_irq(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
 }
 
 void pm_ipi_irq_clear(const struct pm_proc *proc)
 {
-	ipi_mb_ack(proc->ipi->apu_ipi_id, proc->ipi->pmu_ipi_id);
+	ipi_mb_ack(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
 }

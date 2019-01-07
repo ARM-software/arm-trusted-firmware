@@ -28,13 +28,13 @@
 
 /**
  * pm_ipi - struct for capturing IPI-channel specific info
- * @apu_ipi_id	APU IPI agent ID
- * @pmu_ipi_id	PMU Agent ID
+ * @local_ipi_id	Local IPI agent ID
+ * @remote_ipi_id	Remote IPI Agent ID
  * @buffer_base	base address for payload buffer
  */
 struct pm_ipi {
-	const uint32_t apu_ipi_id;
-	const uint32_t pmu_ipi_id;
+	const uint32_t local_ipi_id;
+	const uint32_t remote_ipi_id;
 	const uintptr_t buffer_base;
 };
 
