@@ -290,12 +290,7 @@ endif
 
 endif
 
-# RECLAIM_INIT_CODE can only be set when LOAD_IMAGE_V2=2 and xlat tables v2
-# are used
 ifeq (${RECLAIM_INIT_CODE}, 1)
-    ifeq (${LOAD_IMAGE_V2}, 0)
-        $(error "LOAD_IMAGE_V2 must be enabled to use RECLAIM_INIT_CODE")
-    endif
     ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
         $(error "To reclaim init code xlat tables v2 must be used")
     endif
