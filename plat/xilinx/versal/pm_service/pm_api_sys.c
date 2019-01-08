@@ -497,3 +497,78 @@ enum pm_ret_status pm_clock_get_parent(uint32_t clk_id, uint32_t *parent)
 
 	return pm_ipi_send_sync(primary_proc, payload, parent, 1);
 }
+
+/**
+ * pm_pll_set_param() - Set PLL parameter
+ * @clk_id	PLL clock ID
+ * @param	PLL parameter ID
+ * @value	Value to set for PLL parameter
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pll_set_param(uint32_t clk_id, uint32_t param,
+				    uint32_t value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD4(payload, LIBPM_MODULE_ID, PM_PLL_SET_PARAMETER, clk_id,
+			 param, value);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_pll_get_param() - Get PLL parameter value
+ * @clk_id	PLL clock ID
+ * @param	PLL parameter ID
+ * @value:	Buffer to store PLL parameter value
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pll_get_param(uint32_t clk_id, uint32_t param,
+				    uint32_t *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_PLL_GET_PARAMETER, clk_id,
+			 param);
+
+	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+}
+
+/**
+ * pm_pll_set_mode() - Set PLL mode
+ * @clk_id	PLL clock ID
+ * @mode	PLL mode
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pll_set_mode(uint32_t clk_id, uint32_t mode)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_PLL_SET_MODE, clk_id,
+			 mode);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_pll_get_mode() - Get PLL mode
+ * @clk_id	PLL clock ID
+ * @mode:	Buffer to store PLL mode
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pll_get_mode(uint32_t clk_id, uint32_t *mode)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, PM_PLL_GET_MODE, clk_id);
+
+	return pm_ipi_send_sync(primary_proc, payload, mode, 1);
+}

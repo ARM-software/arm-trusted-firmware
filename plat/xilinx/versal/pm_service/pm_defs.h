@@ -48,6 +48,10 @@
 #define PM_CLOCK_GETRATE		42U
 #define PM_CLOCK_SETPARENT		43U
 #define PM_CLOCK_GETPARENT		44U
+#define PM_PLL_SET_PARAMETER		48U
+#define PM_PLL_GET_PARAMETER		49U
+#define PM_PLL_SET_MODE			50U
+#define PM_PLL_GET_MODE			51U
 
 /*********************************************************************
  * Enum definitions
