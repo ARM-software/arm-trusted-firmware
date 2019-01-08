@@ -4,24 +4,33 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define BOARDNUM 16
+#define BOARDNUM 18
 #define BOARD_JUDGE_AUTO
 
+#ifdef BOARD_JUDGE_AUTO
 static uint32_t _board_judge(void);
 
 static uint32_t boardcnf_get_brd_type(void)
 {
 	return _board_judge();
 }
+#else
+static uint32_t boardcnf_get_brd_type(void)
+{
+	return (1);
+}
+#endif
+
+#define DDR_FAST_INIT
 
 struct _boardcnf_ch {
 	uint8_t ddr_density[CS_CNT];
-	uint32_t ca_swap;
+	uint64_t ca_swap;
 	uint16_t dqs_swap;
 	uint32_t dq_swap[SLICE_CNT];
 	uint8_t dm_swap[SLICE_CNT];
 	uint16_t wdqlvl_patt[16];
-	int8_t cacs_adj[10];
+	int8_t cacs_adj[16];
 	int8_t dm_adj_w[SLICE_CNT];
 	int8_t dq_adj_w[SLICE_CNT * 8];
 	int8_t dm_adj_r[SLICE_CNT];
@@ -876,7 +885,11 @@ static const struct _boardcnf boardcnfs[BOARDNUM] = {
 	 0x0a0,
 	 {
 	  {
+#if (RCAR_DRAM_LPDDR4_MEMCONF == 2)
+	   {0x04, 0x04},
+#else
 	   {0x02, 0x02},
+#endif
 	   0x00342501,
 	   0x3201,
 	   {0x10672534, 0x43257106, 0x34527601, 0x71605243},
@@ -1227,7 +1240,89 @@ static const struct _boardcnf boardcnfs[BOARDNUM] = {
 	    0, 0, 0, 0, 0, 0, 0, 0}
 	   }
 	  }
+	 },
+/* boardcnf[16] RENESAS KRIEK-P2P board with M3-W/SoC */
+	{
+	 0x03,
+	 0x01,
+	 0x0320,
+	 0,
+	 0x0300,
+	 0x00a0,
+	 {
+	  {
+	   {0x04, 0x04},
+	    0x520314FFFF523041,
+	    0x3201,
+	   {0x01672543, 0x45361207, 0x45632107, 0x60715234},
+	   {0x08, 0x08, 0x08, 0x08},
+	    WDQLVL_PAT,
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0},
+	   {0, 0, 0, 0},
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0},
+	   {0, 0, 0, 0},
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0}
+	   },
+	  {
+	   {0x04, 0x04},
+	    0x314250FFFF312405,
+	    0x2310,
+	   {0x01672543, 0x45361207, 0x45632107, 0x60715234},
+	   {0x08, 0x08, 0x08, 0x08},
+	    WDQLVL_PAT,
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0},
+	   {0, 0, 0, 0},
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0},
+	   {0, 0, 0, 0},
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0}
+	   }
+	  }
+	 },
+/* boardcnf[17] RENESAS KRIEK-P2P board with M3-N/SoC */
+	{
+	 0x01,
+	 0x01,
+	 0x0300,
+	 0,
+	 0x0300,
+	 0x00a0,
+	 {
+	  {
+	   {0x04, 0x04},
+	    0x520314FFFF523041,
+	    0x3201,
+	   {0x01672543, 0x45361207, 0x45632107, 0x60715234},
+	   {0x08, 0x08, 0x08, 0x08},
+	    WDQLVL_PAT,
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0},
+	   {0, 0, 0, 0},
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0},
+	   {0, 0, 0, 0},
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0}
+	  }
 	 }
+	}
 };
 
 void boardcnf_get_brd_clk(uint32_t brd, uint32_t * clk, uint32_t * div)
@@ -1258,6 +1353,7 @@ void boardcnf_get_brd_clk(uint32_t brd, uint32_t * clk, uint32_t * div)
 			break;
 		}
 	}
+	(void)brd;
 }
 
 void boardcnf_get_ddr_mbps(uint32_t brd, uint32_t * mbps, uint32_t * div)
@@ -1284,6 +1380,7 @@ void boardcnf_get_ddr_mbps(uint32_t brd, uint32_t * mbps, uint32_t * div)
 		*div = 1;
 		break;
 	}
+	(void)brd;
 }
 
 #define _def_REFPERIOD  1890
@@ -1393,10 +1490,10 @@ static uint32_t opencheck_SSI_WS6(void)
 	if (down == up) {
 		/* Same = Connect */
 		return 0;
+	} else {
+		/* Diff = Open */
+		return 1;
 	}
-
-	/* Diff = Open */
-	return 1;
 }
 
 #endif
@@ -1431,6 +1528,7 @@ static uint32_t _board_judge(void)
 	usb2_ovc_open = opencheck_SSI_WS6();
 
 	/* RENESAS Eva-borad */
+	brd = 99;
 	if (Prr_Product == PRR_PRODUCT_V3H) {
 		/* RENESAS Condor board */
 		brd = 12;
@@ -1441,10 +1539,12 @@ static uint32_t _board_judge(void)
 		} else if (Prr_Product == PRR_PRODUCT_M3) {
 			/* RENESAS Kriek board with M3-W */
 			brd = 1;
-		} else if (Prr_Cut <= PRR_PRODUCT_11) {
+		} else if ((Prr_Product == PRR_PRODUCT_H3)
+			   && (Prr_Cut<=PRR_PRODUCT_11)) {
 			/* RENESAS Kriek board with PM3 */
 			brd = 13;
-		} else {
+		} else if ((Prr_Product == PRR_PRODUCT_H3)
+			   && (Prr_Cut > PRR_PRODUCT_20)) {
 			/* RENESAS Kriek board with H3N */
 			brd = 15;
 		}
@@ -1467,12 +1567,13 @@ static uint32_t _board_judge(void)
 		} else if (Prr_Product == PRR_PRODUCT_M3N) {
 			/* RENESAS SALVATOR-X (M3-N/SIP) */
 			brd = 11;
-		} else {
+		} else if (Prr_Product == PRR_PRODUCT_M3) {
 			/* RENESAS SALVATOR-X (M3-W/SIP) */
 			brd = 0;
 		}
 	}
 #endif
+
 	return brd;
 }
 #endif

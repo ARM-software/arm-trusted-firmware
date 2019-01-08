@@ -17,6 +17,7 @@
 #include "iic_dvfs.h"
 #include "rcar_def.h"
 #include "rcar_private.h"
+#include "micro_delay.h"
 #include "pwrc.h"
 
 /*
@@ -122,7 +123,6 @@ RCAR_INSTANTIATE_LOCK
 #define	RST_BASE				(0xE6160000U)
 #define	RST_MODEMR				(RST_BASE + 0x0060U)
 #define	RST_MODEMR_BIT0				(0x00000001U)
-#define RCAR_CONV_MICROSEC			(1000000U)
 
 #if PMIC_ROHM_BD9571
 #define	BIT_BKUP_CTRL_OUT			((uint8_t)(1U << 4))
@@ -141,23 +141,6 @@ RCAR_INSTANTIATE_LOCK
 IMPORT_SYM(unsigned long, __system_ram_start__, SYSTEM_RAM_START);
 IMPORT_SYM(unsigned long, __system_ram_end__, SYSTEM_RAM_END);
 IMPORT_SYM(unsigned long, __SRAM_COPY_START__, SRAM_COPY_START);
-#endif
-
-#if RCAR_SYSTEM_SUSPEND
-static void __attribute__ ((section (".system_ram")))
-	rcar_pwrc_micro_delay(uint64_t micro_sec)
-{
-	uint64_t freq, base, val;
-	uint64_t wait_time = 0;
-
-	freq = read_cntfrq_el0();
-	base = read_cntpct_el0();
-
-	while (micro_sec > wait_time) {
-		val = read_cntpct_el0() - base;
-		wait_time = val * RCAR_CONV_MICROSEC / freq;
-	}
-}
 #endif
 
 uint32_t rcar_pwrc_status(uint64_t mpidr)
@@ -414,7 +397,7 @@ self_refresh:
 	mmio_write_32(DBSC4_REG_DBACEN, 0);
 
 	if (product == RCAR_PRODUCT_H3 && cut < RCAR_CUT_VER20)
-		rcar_pwrc_micro_delay(100);
+		rcar_micro_delay(100);
 	else if (product == RCAR_PRODUCT_H3) {
 		mmio_write_32(DBSC4_REG_DBCAM0CTRL0, 1);
 		DBCAM_FLUSH(0);
@@ -465,7 +448,7 @@ self_refresh:
 
 	/* Set the auto-refresh enable register */
 	mmio_write_32(DBSC4_REG_DBRFEN, 0U);
-	rcar_pwrc_micro_delay(1U);
+	rcar_micro_delay(1U);
 
 	if (product == RCAR_PRODUCT_M3)
 		return;
@@ -650,7 +633,6 @@ void rcar_pwrc_set_suspend_to_ram(void)
 				       DEVICE_SRAM_STACK_SIZE);
 	uint32_t sctlr;
 
-	rcar_pwrc_code_copy_to_system_ram();
 	rcar_pwrc_save_generic_timer(rcar_stack_generic_timer);
 
 	/* disable MMU */
@@ -665,10 +647,7 @@ void rcar_pwrc_init_suspend_to_ram(void)
 {
 #if PMIC_ROHM_BD9571
 	uint8_t mode;
-#endif
-	rcar_pwrc_code_copy_to_system_ram();
 
-#if PMIC_ROHM_BD9571
 	if (rcar_iic_dvfs_receive(PMIC, PMIC_BKUP_MODE_CNT, &mode))
 		panic();
 
@@ -683,7 +662,6 @@ void rcar_pwrc_suspend_to_ram(void)
 #if RCAR_SYSTEM_RESET_KEEPON_DDR
 	int32_t error;
 
-	rcar_pwrc_code_copy_to_system_ram();
 	error = rcar_iic_dvfs_send(PMIC, REG_KEEP10, 0);
 	if (error) {
 		ERROR("Failed send KEEP10 init ret=%d \n", error);

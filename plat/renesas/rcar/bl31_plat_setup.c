@@ -64,7 +64,7 @@ void plat_cci_disable(void)
 	cci_disable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr()));
 }
 
-entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
+struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
 	bl2_to_bl31_params_mem_t *from_bl2 = (bl2_to_bl31_params_mem_t *)
 					     PARAMS_BASE;
@@ -100,6 +100,7 @@ void bl31_plat_arch_setup(void)
 			       , BL31_COHERENT_RAM_BASE, BL31_COHERENT_RAM_LIMIT
 #endif
 	    );
+	rcar_pwrc_code_copy_to_system_ram();
 }
 
 void bl31_platform_setup(void)

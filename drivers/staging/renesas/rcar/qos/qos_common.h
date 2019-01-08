@@ -9,6 +9,15 @@
 
 #define RCAR_REF_DEFAULT		(0U)
 
+/* define used for get_refperiod. */
+/* REFPERIOD_CYCLE need smaller than QOSWT_WTSET0_CYCLEs */
+/* refere to plat/renesas/rcar/ddr/ddr_a/ddr_init_e3.h for E3. */
+#if (RCAR_REF_INT == RCAR_REF_DEFAULT)	/* REF default */
+#define REFPERIOD_CYCLE		((126 * BASE_SUB_SLOT_NUM * 1000U)/400)	/* unit:ns */
+#else					/* REF option */
+#define REFPERIOD_CYCLE		((252 * BASE_SUB_SLOT_NUM * 1000U)/400)	/* unit:ns */
+#endif
+
 #if (RCAR_LSI == RCAR_E3)
 /* define used for E3 */
 #if (RCAR_REF_INT == RCAR_REF_DEFAULT)	/* REF 3.9usec */
@@ -19,7 +28,7 @@
 
 #define OPERATING_FREQ_E3		(266U)	/* MHz */
 #define SL_INIT_SSLOTCLK_E3		(SUB_SLOT_CYCLE_E3 -1U)
-#define QOSWT_WTSET0_CYCLE_E3		((SUB_SLOT_CYCLE_E3 * BASE_SUB_SLOT_NUM * 1000U)/OPERATING_FREQ_E3)	/* unit:ns */
+/* #define QOSWT_WTSET0_CYCLE_E3		((SUB_SLOT_CYCLE_E3 * BASE_SUB_SLOT_NUM * 1000U)/OPERATING_FREQ_E3) */	/* unit:ns */
 #endif
 
 #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3N)

@@ -867,7 +867,9 @@ static void StartRtDma0_Descriptor(void)
 		/* Set transfer parameter, Start transfer */
 		mmio_write_32(RTDMAC_RDMCHCR(RTDMAC_CH), RDMCHCR_DPM_INFINITE
 			      | RDMCHCR_RPT_TCR
-			      | RDMCHCR_TS_2 | RDMCHCR_RS_AUTO | RDMCHCR_DE);
+			      | RDMCHCR_TS_2
+			      | RDMCHCR_RS_AUTO
+			      | RDMCHCR_DE);
 	}
 }
 
@@ -913,7 +915,8 @@ void pfc_init_m3(void)
 		      | MOD_SEL0_DRIF2_A
 		      | MOD_SEL0_DRIF1_A
 		      | MOD_SEL0_DRIF0_A
-		      | MOD_SEL0_CANFD0_A | MOD_SEL0_ADG_A_A);
+		      | MOD_SEL0_CANFD0_A
+		      | MOD_SEL0_ADG_A_A);
 	pfc_reg_write(PFC_MOD_SEL1, MOD_SEL1_TSIF1_A
 		      | MOD_SEL1_TSIF0_A
 		      | MOD_SEL1_TIMER_TMU_A
@@ -933,7 +936,9 @@ void pfc_init_m3(void)
 		      | MOD_SEL1_PWM6_A
 		      | MOD_SEL1_PWM5_A
 		      | MOD_SEL1_PWM4_A
-		      | MOD_SEL1_PWM3_A | MOD_SEL1_PWM2_A | MOD_SEL1_PWM1_A);
+		      | MOD_SEL1_PWM3_A
+		      | MOD_SEL1_PWM2_A
+		      | MOD_SEL1_PWM1_A);
 	pfc_reg_write(PFC_MOD_SEL2, MOD_SEL2_I2C_5_A
 		      | MOD_SEL2_I2C_3_A
 		      | MOD_SEL2_I2C_0_A
@@ -944,7 +949,9 @@ void pfc_init_m3(void)
 		      | MOD_SEL2_SSI2_A
 		      | MOD_SEL2_SSI9_A
 		      | MOD_SEL2_TIMER_TMU2_A
-		      | MOD_SEL2_ADG_B_A | MOD_SEL2_ADG_C_A | MOD_SEL2_VIN4_A);
+		      | MOD_SEL2_ADG_B_A
+		      | MOD_SEL2_ADG_C_A
+		      | MOD_SEL2_VIN4_A);
 
 	/* initialize peripheral function select */
 	pfc_reg_write(PFC_IPSR0, IPSR_28_FUNC(0)
@@ -1099,7 +1106,10 @@ void pfc_init_m3(void)
 		      | GPSR0_D14
 		      | GPSR0_D13
 		      | GPSR0_D12
-		      | GPSR0_D11 | GPSR0_D10 | GPSR0_D9 | GPSR0_D8);
+		      | GPSR0_D11
+		      | GPSR0_D10
+		      | GPSR0_D9
+		      | GPSR0_D8);
 	pfc_reg_write(PFC_GPSR1, GPSR1_CLKOUT
 		      | GPSR1_EX_WAIT0_A
 		      | GPSR1_A19
@@ -1113,7 +1123,11 @@ void pfc_init_m3(void)
 		      | GPSR1_A7
 		      | GPSR1_A6
 		      | GPSR1_A5
-		      | GPSR1_A4 | GPSR1_A3 | GPSR1_A2 | GPSR1_A1 | GPSR1_A0);
+		      | GPSR1_A4
+		      | GPSR1_A3
+		      | GPSR1_A2
+		      | GPSR1_A1
+		      | GPSR1_A0);
 	pfc_reg_write(PFC_GPSR2, GPSR2_AVB_AVTP_CAPTURE_A
 		      | GPSR2_AVB_AVTP_MATCH_A
 		      | GPSR2_AVB_LINK
@@ -1123,7 +1137,10 @@ void pfc_init_m3(void)
 		      | GPSR2_PWM1_A
 		      | GPSR2_IRQ5
 		      | GPSR2_IRQ4
-		      | GPSR2_IRQ3 | GPSR2_IRQ2 | GPSR2_IRQ1 | GPSR2_IRQ0);
+		      | GPSR2_IRQ3
+		      | GPSR2_IRQ2
+		      | GPSR2_IRQ1
+		      | GPSR2_IRQ0);
 	pfc_reg_write(PFC_GPSR3, GPSR3_SD0_WP
 		      | GPSR3_SD0_CD
 		      | GPSR3_SD1_DAT3
@@ -1133,7 +1150,9 @@ void pfc_init_m3(void)
 		      | GPSR3_SD0_DAT3
 		      | GPSR3_SD0_DAT2
 		      | GPSR3_SD0_DAT1
-		      | GPSR3_SD0_DAT0 | GPSR3_SD0_CMD | GPSR3_SD0_CLK);
+		      | GPSR3_SD0_DAT0
+		      | GPSR3_SD0_CMD
+		      | GPSR3_SD0_CLK);
 	pfc_reg_write(PFC_GPSR4, GPSR4_SD3_DAT7
 		      | GPSR4_SD3_DAT6
 		      | GPSR4_SD3_DAT3
@@ -1146,7 +1165,9 @@ void pfc_init_m3(void)
 		      | GPSR4_SD2_DAT3
 		      | GPSR4_SD2_DAT2
 		      | GPSR4_SD2_DAT1
-		      | GPSR4_SD2_DAT0 | GPSR4_SD2_CMD | GPSR4_SD2_CLK);
+		      | GPSR4_SD2_DAT0
+		      | GPSR4_SD2_CMD
+		      | GPSR4_SD2_CLK);
 	pfc_reg_write(PFC_GPSR5, GPSR5_MSIOF0_SS2
 		      | GPSR5_MSIOF0_SS1
 		      | GPSR5_MSIOF0_SYNC
@@ -1161,7 +1182,9 @@ void pfc_init_m3(void)
 		      | GPSR5_RTS1_TANS
 		      | GPSR5_CTS1
 		      | GPSR5_TX1_A
-		      | GPSR5_RX1_A | GPSR5_RTS0_TANS | GPSR5_SCK0);
+		      | GPSR5_RX1_A
+		      | GPSR5_RTS0_TANS
+		      | GPSR5_SCK0);
 	pfc_reg_write(PFC_GPSR6, GPSR6_USB30_OVC
 		      | GPSR6_USB30_PWEN
 		      | GPSR6_USB1_OVC
@@ -1181,9 +1204,12 @@ void pfc_init_m3(void)
 		      | GPSR6_SSI_SCK4
 		      | GPSR6_SSI_SDATA1_A
 		      | GPSR6_SSI_SDATA0
-		      | GPSR6_SSI_WS0129 | GPSR6_SSI_SCK0129);
+		      | GPSR6_SSI_WS0129
+		      | GPSR6_SSI_SCK0129);
 	pfc_reg_write(PFC_GPSR7, GPSR7_HDMI1_CEC
-		      | GPSR7_HDMI0_CEC | GPSR7_AVS2 | GPSR7_AVS1);
+		      | GPSR7_HDMI0_CEC
+		      | GPSR7_AVS2
+		      | GPSR7_AVS1);
 
 	/* initialize POC control register */
 	pfc_reg_write(PFC_POCCTRL0, POC_SD3_DS_33V
@@ -1200,7 +1226,9 @@ void pfc_init_m3(void)
 		      | POC_SD0_DAT3_33V
 		      | POC_SD0_DAT2_33V
 		      | POC_SD0_DAT1_33V
-		      | POC_SD0_DAT0_33V | POC_SD0_CMD_33V | POC_SD0_CLK_33V);
+		      | POC_SD0_DAT0_33V
+		      | POC_SD0_CMD_33V
+		      | POC_SD0_CLK_33V);
 
 	/* initialize DRV control register */
 	reg = mmio_read_32(PFC_DRVCTRL0);
