@@ -10,6 +10,7 @@
 #define PLAT_IPI_H
 
 #include <stdint.h>
+#include <ipi.h>
 
 /*********************************************************************
  * IPI agent IDs macros
@@ -42,6 +43,12 @@
 /*********************************************************************
  * IPI APIs declarations
  ********************************************************************/
+/* Configure IPI table for zynqmp */
+void zynqmp_ipi_config_table_init(void);
+
+/* Initialize IPI configuration table */
+void ipi_config_table_init(const struct ipi_config *ipi_table,
+			   uint32_t total_ipi);
 
 /* Validate IPI mailbox access */
 int ipi_mb_validate(uint32_t local, uint32_t remote, unsigned int is_secure);

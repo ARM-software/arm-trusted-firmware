@@ -36,15 +36,21 @@
 #define IPI_IDR_OFFSET  0x1CU
 
 /* IPI register start offset */
-#define IPI_REG_BASE(I) (zynqmp_ipi_table[(I)].ipi_reg_base)
+#define IPI_REG_BASE(I) (ipi_table[(I)].ipi_reg_base)
 
 /* IPI register bit mask */
-#define IPI_BIT_MASK(I) (zynqmp_ipi_table[(I)].ipi_bit_mask)
+#define IPI_BIT_MASK(I) (ipi_table[(I)].ipi_bit_mask)
 
 /* IPI secure check */
 #define IPI_SECURE_MASK  0x1U
-#define IPI_IS_SECURE(I) ((zynqmp_ipi_table[(I)].secure_only & \
-			   IPI_SECURE_MASK) ? 1 : 0)
+#define IPI_IS_SECURE(I) ((ipi_table[(I)].secure_only & \
+				IPI_SECURE_MASK) ? 1 : 0)
+
+/* IPI configuration table */
+const static struct ipi_config *ipi_table;
+
+/* Total number of IPI */
+static uint32_t ipi_total;
 
 /* Zynqmp ipi configuration table */
 const static struct ipi_config zynqmp_ipi_table[] = {
@@ -116,6 +122,29 @@ const static struct ipi_config zynqmp_ipi_table[] = {
 	},
 };
 
+/**
+ * zynqmp_ipi_config_table_init() - Initialize ZynqMP IPI configuration data
+ *
+ */
+void zynqmp_ipi_config_table_init(void)
+{
+	ipi_config_table_init(zynqmp_ipi_table, ARRAY_SIZE(zynqmp_ipi_table));
+}
+
+/**
+ * ipi_config_table_init() - Initialize IPI configuration data
+ *
+ * @ipi_config_table  - IPI configuration table
+ * @ipi_total - Total number of IPI available
+ *
+ */
+void ipi_config_table_init(const struct ipi_config *ipi_config_table,
+			   uint32_t total_ipi)
+{
+	ipi_table = ipi_config_table;
+	ipi_total = total_ipi;
+}
+
 /* is_ipi_mb_within_range() - verify if IPI mailbox is within range
  *
  * @local  - local IPI ID
@@ -126,7 +155,6 @@ const static struct ipi_config zynqmp_ipi_table[] = {
 static inline int is_ipi_mb_within_range(uint32_t local, uint32_t remote)
 {
 	int ret = 1;
-	uint32_t ipi_total = ARRAY_SIZE(zynqmp_ipi_table);
 
 	if (remote >= ipi_total || local >= ipi_total)
 		ret = 0;

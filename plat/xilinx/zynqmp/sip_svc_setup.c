@@ -41,6 +41,9 @@ DEFINE_SVC_UUID2(zynqmp_sip_uuid,
  */
 static int32_t sip_svc_setup(void)
 {
+	/* Configure IPI data for ZynqMP */
+	zynqmp_ipi_config_table_init();
+
 	/* PM implementation as SiP Service */
 	pm_setup();
 
