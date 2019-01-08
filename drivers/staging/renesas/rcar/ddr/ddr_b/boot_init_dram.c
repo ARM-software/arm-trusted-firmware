@@ -647,11 +647,6 @@ static inline uint32_t ddr_regdef_lsb(uint32_t _regdef)
 	return DDR_REGDEF_LSB(pDDR_REGDEF_TBL[_regdef]);
 }
 
-static inline uint32_t ddr_regdef_len(uint32_t _regdef)
-{
-	return DDR_REGDEF_LEN(pDDR_REGDEF_TBL[_regdef]);
-}
-
 static void ddr_setval_s(uint32_t ch, uint32_t slice, uint32_t _regdef,
 			 uint32_t val)
 {
