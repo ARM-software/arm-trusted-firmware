@@ -28,50 +28,10 @@
 #define IPI_ID_PL3	10U
 
 /*********************************************************************
- * IPI mailbox status macros
+ * Platform specific IPI API declarations
  ********************************************************************/
-#define IPI_MB_STATUS_IDLE		0
-#define IPI_MB_STATUS_SEND_PENDING	1
-#define IPI_MB_STATUS_RECV_PENDING	2
 
-/*********************************************************************
- * IPI mailbox call is secure or not macros
- ********************************************************************/
-#define IPI_MB_CALL_NOTSECURE	0
-#define IPI_MB_CALL_SECURE	1
-
-/*********************************************************************
- * IPI APIs declarations
- ********************************************************************/
 /* Configure IPI table for zynqmp */
 void zynqmp_ipi_config_table_init(void);
-
-/* Initialize IPI configuration table */
-void ipi_config_table_init(const struct ipi_config *ipi_table,
-			   uint32_t total_ipi);
-
-/* Validate IPI mailbox access */
-int ipi_mb_validate(uint32_t local, uint32_t remote, unsigned int is_secure);
-
-/* Open the IPI mailbox */
-void ipi_mb_open(uint32_t local, uint32_t remote);
-
-/* Release the IPI mailbox */
-void ipi_mb_release(uint32_t local, uint32_t remote);
-
-/* Enquire IPI mailbox status */
-int ipi_mb_enquire_status(uint32_t local, uint32_t remote);
-
-/* Trigger notification on the IPI mailbox */
-void ipi_mb_notify(uint32_t local, uint32_t remote, uint32_t is_blocking);
-
-/* Ack IPI mailbox notification */
-void ipi_mb_ack(uint32_t local, uint32_t remote);
-
-/* Disable IPI mailbox notification interrupt */
-void ipi_mb_disable_irq(uint32_t local, uint32_t remote);
-
-/* Enable IPI mailbox notification interrupt */
-void ipi_mb_enable_irq(uint32_t local, uint32_t remote);
 
 #endif /* PLAT_IPI_H */

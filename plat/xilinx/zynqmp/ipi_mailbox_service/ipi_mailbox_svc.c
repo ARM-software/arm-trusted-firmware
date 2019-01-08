@@ -15,6 +15,8 @@
 #include <common/runtime_svc.h>
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
+
+#include <ipi.h>
 #include <plat_ipi.h>
 #include <plat_private.h>
 
