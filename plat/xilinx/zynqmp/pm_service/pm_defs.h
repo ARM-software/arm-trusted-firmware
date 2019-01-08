@@ -92,6 +92,11 @@ enum pm_api_id {
 	/* FPGA PL Readback */
 	PM_FPGA_READ,
 	PM_SECURE_AES,
+	/* PLL control API functions */
+	PM_PLL_SET_PARAMETER,
+	PM_PLL_GET_PARAMETER,
+	PM_PLL_SET_MODE,
+	PM_PLL_GET_MODE,
 	PM_API_MAX
 };
 
@@ -263,6 +268,53 @@ enum pm_shutdown_subtype {
 	PMF_SHUTDOWN_SUBTYPE_SUBSYSTEM,
 	PMF_SHUTDOWN_SUBTYPE_PS_ONLY,
 	PMF_SHUTDOWN_SUBTYPE_SYSTEM,
+};
+
+/**
+ * @PM_PLL_PARAM_DIV2:         Enable for divide by 2 function inside the PLL
+ * @PM_PLL_PARAM_FBDIV:        Feedback divisor integer portion for the PLL
+ * @PM_PLL_PARAM_DATA:         Feedback divisor fractional portion for the PLL
+ * @PM_PLL_PARAM_PRE_SRC:      Clock source for PLL input
+ * @PM_PLL_PARAM_POST_SRC:     Clock source for PLL Bypass mode
+ * @PM_PLL_PARAM_LOCK_DLY:     Lock circuit config settings for lock windowsize
+ * @PM_PLL_PARAM_LOCK_CNT:     Lock circuit counter setting
+ * @PM_PLL_PARAM_LFHF:         PLL loop filter high frequency capacitor control
+ * @PM_PLL_PARAM_CP:           PLL charge pump control
+ * @PM_PLL_PARAM_RES:          PLL loop filter resistor control
+ */
+enum pm_pll_param {
+	PM_PLL_PARAM_DIV2,
+	PM_PLL_PARAM_FBDIV,
+	PM_PLL_PARAM_DATA,
+	PM_PLL_PARAM_PRE_SRC,
+	PM_PLL_PARAM_POST_SRC,
+	PM_PLL_PARAM_LOCK_DLY,
+	PM_PLL_PARAM_LOCK_CNT,
+	PM_PLL_PARAM_LFHF,
+	PM_PLL_PARAM_CP,
+	PM_PLL_PARAM_RES,
+	PM_PLL_PARAM_MAX,
+};
+
+/**
+ * @PM_PLL_MODE_RESET:         PLL is in reset (not locked)
+ * @PM_PLL_MODE_INTEGER:       PLL is locked in integer mode
+ * @PM_PLL_MODE_FRACTIONAL:    PLL is locked in fractional mode
+ */
+enum pm_pll_mode {
+	PM_PLL_MODE_RESET,
+	PM_PLL_MODE_INTEGER,
+	PM_PLL_MODE_FRACTIONAL,
+	PM_PLL_MODE_MAX,
+};
+
+/**
+ * @PM_CLOCK_DIV0_ID:          Clock divider 0
+ * @PM_CLOCK_DIV1_ID:          Clock divider 1
+ */
+enum pm_clock_div_id {
+	PM_CLOCK_DIV0_ID,
+	PM_CLOCK_DIV1_ID,
 };
 
 #endif /* PM_DEFS_H */

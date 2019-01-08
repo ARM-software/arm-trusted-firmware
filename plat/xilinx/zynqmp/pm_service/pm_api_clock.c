@@ -332,18 +332,6 @@ static struct pm_clock_node acpu_nodes[] = {
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
-	{
-		.type = TYPE_GATE,
-		.offset = PERIPH_GATE_SHIFT,
-		.width = PERIPH_GATE_WIDTH,
-		.clkflags = CLK_SET_RATE_PARENT |
-			    CLK_IGNORE_UNUSED |
-			    CLK_IS_BASIC |
-			    CLK_IS_CRITICAL,
-		.typeflags = NA_TYPE_FLAGS,
-		.mult = NA_MULT,
-		.div = NA_DIV,
-	},
 };
 
 static struct pm_clock_node generic_mux_div_nodes[] = {
@@ -468,6 +456,20 @@ static struct pm_clock_node acpu_half_nodes[] = {
 	{
 		.type = TYPE_GATE,
 		.offset = 25,
+		.width = PERIPH_GATE_WIDTH,
+		.clkflags = CLK_IGNORE_UNUSED |
+			    CLK_SET_RATE_PARENT |
+			    CLK_IS_BASIC,
+		.typeflags = NA_TYPE_FLAGS,
+		.mult = NA_MULT,
+		.div = NA_DIV,
+	},
+};
+
+static struct pm_clock_node acpu_full_nodes[] = {
+	{
+		.type = TYPE_GATE,
+		.offset = 24,
 		.width = PERIPH_GATE_WIDTH,
 		.clkflags = CLK_IGNORE_UNUSED |
 			    CLK_SET_RATE_PARENT |
@@ -1206,6 +1208,17 @@ static struct pm_clock clocks[] = {
 		}),
 		.nodes = &acpu_nodes,
 		.num_nodes = ARRAY_SIZE(acpu_nodes),
+	},
+	[CLK_ACPU_FULL] = {
+		.name = "acpu_full",
+		.control_reg = CRF_APB_ACPU_CTRL,
+		.status_reg = 0,
+		.parents = &((int32_t []) {
+			CLK_ACPU | PARENT_CLK_NODE2 << CLK_PARENTS_ID_LEN,
+			CLK_NA_PARENT
+		}),
+		.nodes = &acpu_full_nodes,
+		.num_nodes = ARRAY_SIZE(acpu_full_nodes),
 	},
 	[CLK_DBG_TRACE] = {
 		.name = "dbg_trace",
@@ -2242,7 +2255,29 @@ static struct pm_ext_clock ext_clocks[] = {
 };
 
 /* Array of clock which are invalid for this variant */
-static uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB};
+static uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB,
+	CLK_ACPU_FULL,
+	CLK_ACPU_HALF,
+	CLK_APLL_TO_LPD,
+	CLK_DBG_FPD,
+	CLK_DBG_LPD,
+	CLK_DBG_TRACE,
+	CLK_DBG_TSTMP,
+	CLK_DDR_REF,
+	CLK_TOPSW_MAIN,
+	CLK_TOPSW_LSBUS,
+	CLK_GTGREF0_REF,
+	CLK_LPD_SWITCH,
+	CLK_LPD_LSBUS,
+	CLK_CPU_R5,
+	CLK_CPU_R5_CORE,
+	CLK_CSU_SPB,
+	CLK_CSU_PLL,
+	CLK_PCAP,
+	CLK_IOU_SWITCH,
+	CLK_DLL_REF,
+	CLK_TIMESTAMP_REF,
+};
 
 /**
  * pm_clock_valid - Check if clock is valid or not
@@ -2491,716 +2526,343 @@ enum pm_ret_status pm_api_clock_get_attributes(unsigned int clock_id,
 }
 
 /**
- * pll_get_lockbit() -  Returns lockbit index for pll id
- * @pll_id: Id of the pll
- *
- * This function return the PLL_LOCKED bit index in
- * pll status register accosiated with given pll id.
- *
- * Return: Returns bit index
+ * struct pm_pll - PLL related data required to map IOCTL-based PLL control
+ * implemented by linux to system-level EEMI APIs
+ * @nid:	PLL node ID
+ * @cid:	PLL clock ID
+ * @pre_src:	Pre-source PLL clock ID
+ * @post_src:	Post-source PLL clock ID
+ * @div2:	DIV2 PLL clock ID
+ * @bypass:	PLL output clock ID that maps to bypass select output
+ * @mode:	PLL mode currently set via IOCTL (PLL_FRAC_MODE/PLL_INT_MODE)
  */
-static int pll_get_lockbit(unsigned int pll_id)
+struct pm_pll {
+	const enum pm_node_id nid;
+	const enum clock_id cid;
+	const enum clock_id pre_src;
+	const enum clock_id post_src;
+	const enum clock_id div2;
+	const enum clock_id bypass;
+	uint8_t mode;
+};
+
+static struct pm_pll pm_plls[] = {
+	{
+		.nid = NODE_IOPLL,
+		.cid = CLK_IOPLL_INT,
+		.pre_src = CLK_IOPLL_PRE_SRC,
+		.post_src = CLK_IOPLL_POST_SRC,
+		.div2 = CLK_IOPLL_INT_MUX,
+		.bypass = CLK_IOPLL,
+	}, {
+		.nid = NODE_RPLL,
+		.cid = CLK_RPLL_INT,
+		.pre_src = CLK_RPLL_PRE_SRC,
+		.post_src = CLK_RPLL_POST_SRC,
+		.div2 = CLK_RPLL_INT_MUX,
+		.bypass = CLK_RPLL,
+	}, {
+		.nid = NODE_APLL,
+		.cid = CLK_APLL_INT,
+		.pre_src = CLK_APLL_PRE_SRC,
+		.post_src = CLK_APLL_POST_SRC,
+		.div2 = CLK_APLL_INT_MUX,
+		.bypass = CLK_APLL,
+	}, {
+		.nid = NODE_VPLL,
+		.cid = CLK_VPLL_INT,
+		.pre_src = CLK_VPLL_PRE_SRC,
+		.post_src = CLK_VPLL_POST_SRC,
+		.div2 = CLK_VPLL_INT_MUX,
+		.bypass = CLK_VPLL,
+	}, {
+		.nid = NODE_DPLL,
+		.cid = CLK_DPLL_INT,
+		.pre_src = CLK_DPLL_PRE_SRC,
+		.post_src = CLK_DPLL_POST_SRC,
+		.div2 = CLK_DPLL_INT_MUX,
+		.bypass = CLK_DPLL,
+	},
+};
+
+/**
+ * pm_clock_get_pll() - Get PLL structure by PLL clock ID
+ * @clock_id	Clock ID of the target PLL
+ *
+ * @return	Pointer to PLL structure if found, NULL otherwise
+ */
+struct pm_pll *pm_clock_get_pll(enum clock_id clock_id)
 {
-	switch (pll_id) {
-	case CLK_APLL_INT:
-	case CLK_IOPLL_INT:
-		return 0;
-	case CLK_DPLL_INT:
-	case CLK_RPLL_INT:
-		return 1;
-	case CLK_VPLL_INT:
-		return 2;
-	default:
-		return -1;
+	uint32_t i;
+
+	for (i = 0; i < ARRAY_SIZE(pm_plls); i++) {
+		if (pm_plls[i].cid == clock_id)
+			return &pm_plls[i];
 	}
+
+	return NULL;
 }
 
 /**
- * pm_api_pll_bypass_and_reset() - Bypass and reset PLL
- * @clock_id: Id of the PLL
+ * pm_clock_get_pll_node_id() - Get PLL node ID by PLL clock ID
+ * @clock_id	Clock ID of the target PLL
+ * @node_id	Location to store node ID of the target PLL
  *
- * This function is to bypass and reset PLL.
+ * @return	PM_RET_SUCCESS if node ID is found, PM_RET_ERROR_ARGS otherwise
  */
-static inline enum pm_ret_status
-pm_api_pll_bypass_and_reset(unsigned int clock_id, unsigned int flag)
+enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
+					    enum pm_node_id *node_id)
 {
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	unsigned int reg, val;
-	int lockbit;
+	struct pm_pll *pll = pm_clock_get_pll(clock_id);
 
-	reg = clocks[clock_id].control_reg;
-
-	if (flag & CLK_PLL_RESET_ASSERT) {
-		ret = pm_mmio_write(reg, PLLCTRL_BP_MASK, PLLCTRL_BP_MASK);
-		if (ret != PM_RET_SUCCESS)
-			return ret;
-		ret = pm_mmio_write(reg, PLLCTRL_RESET_MASK,
-				    PLLCTRL_RESET_MASK);
-		if (ret != PM_RET_SUCCESS)
-			return ret;
-	}
-	if (flag & CLK_PLL_RESET_RELEASE) {
-		ret = pm_mmio_write(reg, PLLCTRL_RESET_MASK,
-				    ~PLLCTRL_RESET_MASK);
-		if (ret != PM_RET_SUCCESS)
-			return ret;
-
-		lockbit = pll_get_lockbit(clock_id);
-		do {
-			ret = pm_mmio_read(clocks[clock_id].status_reg, &val);
-			if (ret != PM_RET_SUCCESS)
-				return ret;
-		} while ((lockbit >= 0) && !(val & (1 << lockbit)));
-
-		ret = pm_mmio_write(reg, PLLCTRL_BP_MASK,
-			      ~(unsigned int)PLLCTRL_BP_MASK);
-	}
-	return ret;
-}
-
-/**
- * pm_api_clk_enable_disable() - Enable/Disable the clock for given id
- * @clock_id: Id of the clock to be enabled
- * @enable: Enable(1)/Disable(0)
- *
- * This function is to enable/disable the clock which is not PLL.
- *
- * Return: Returns status, either success or error+reason.
- */
-static enum pm_ret_status pm_api_clk_enable_disable(unsigned int clock_id,
-						    unsigned int enable)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	struct pm_clock_node *nodes = *clocks[clock_id].nodes;
-	uint8_t num_nodes = clocks[clock_id].num_nodes;
-	unsigned int reg, val;
-	uint8_t i = 0;
-	uint8_t offset = NA_SHIFT, width = NA_WIDTH;
-
-	if (clock_id == CLK_GEM0_TX || clock_id == CLK_GEM1_TX ||
-	    clock_id == CLK_GEM2_TX || clock_id == CLK_GEM3_TX)
-		reg = clocks[clock_id].status_reg;
-	else
-		reg = clocks[clock_id].control_reg;
-
-	for (i = 0; i < num_nodes; i++) {
-		if (nodes->type == TYPE_GATE) {
-			offset = nodes->offset;
-			width = nodes->width;
-			break;
-		}
-		nodes++;
-	}
-	if (width == NA_WIDTH)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	ret = pm_mmio_read(reg, &val);
-	if (ret != PM_RET_SUCCESS)
-		return ret;
-	if ((val & BIT_MASK(offset, width)) == enable)
+	if (pll) {
+		*node_id = pll->nid;
 		return PM_RET_SUCCESS;
-
-	if (enable == 0)
-		val &= ~(BIT_MASK(offset, width));
-	else
-		val |= BIT_MASK(offset, width);
-
-	ret = pm_mmio_write(reg, BIT_MASK(offset, width), val);
-
-	return ret;
-}
-
-/**
- * pm_api_clock_enable() - Enable the clock for given id
- * @clock_id: Id of the clock to be enabled
- *
- * This function is used by master to enable the clock
- * including peripherals and PLL clocks.
- *
- * Return: Returns status, either success or error+reason.
- */
-enum pm_ret_status pm_api_clock_enable(unsigned int clock_id)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-
-	if (!pm_clock_valid(clock_id))
-		return PM_RET_ERROR_ARGS;
-
-	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	/*
-	 * PLL type clock should not enable explicitly.
-	 * It is done by FSBL on boot-up and by PMUFW whenever required.
-	 */
-	if (!ISPLL(clock_id))
-		ret = pm_api_clk_enable_disable(clock_id, 1);
-
-	return ret;
-}
-
-/**
- * pm_api_clock_disable - Disable the clock for given id
- * @clock_id	Id of the clock to be disable
- *
- * This function is used by master to disable the clock
- * including peripherals and PLL clocks.
- *
- * Return: Returns status, either success or error+reason.
- */
-
-enum pm_ret_status pm_api_clock_disable(unsigned int clock_id)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-
-	if (!pm_clock_valid(clock_id))
-		return PM_RET_ERROR_ARGS;
-
-	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	/*
-	 * PLL type clock should not be disabled explicitly.
-	 * It is done by PMUFW if required.
-	 */
-	if (!ISPLL(clock_id))
-		ret = pm_api_clk_enable_disable(clock_id, 0);
-
-	return ret;
-}
-
-/**
- * pm_api_get_pll_state() - Get state of PLL
- * @clock_id	Id of the PLL
- * @state	State of PLL(1: Enable, 0: Reset)
- *
- * This function is to check state of PLL.
- */
-static inline enum pm_ret_status pm_api_get_pll_state(unsigned int clock_id,
-					unsigned int *state)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	unsigned int reg, val;
-
-	reg = clocks[clock_id].control_reg;
-
-	ret = pm_mmio_read(reg, &val);
-
-	/* state:
-	 * 1 - PLL is enabled
-	 * 0 - PLL is in reset state
-	 */
-	*state = !(val & PLLCTRL_RESET_MASK);
-	return ret;
-}
-
-/**
- * pm_api_get_clk_state() - Get the state of clock for given id
- * @clock_id: Id of the clock to be enabled
- * @state: Enable(1)/Disable(0)
- *
- * This function is to get state of the clock which is not PLL.
- *
- * Return: Returns status, either success or error+reason.
- */
-static enum pm_ret_status pm_api_get_clk_state(unsigned int clock_id,
-					       unsigned int *state)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	struct pm_clock_node *nodes = *clocks[clock_id].nodes;
-	uint8_t num_nodes = clocks[clock_id].num_nodes;
-	unsigned int reg, val;
-	uint8_t i = 0;
-	uint8_t offset = NA_SHIFT, width = NA_WIDTH;
-
-	reg = clocks[clock_id].control_reg;
-
-	for (i = 0; i < num_nodes; i++) {
-		if (nodes->type == TYPE_GATE) {
-			offset = nodes->offset;
-			width = nodes->width;
-		}
-		nodes++;
 	}
-	if (width == NA_WIDTH)
-		return PM_RET_ERROR_NOTSUPPORTED;
 
-	ret = pm_mmio_read(reg, &val);
-	*state = (val & BIT_MASK(offset, width)) >> offset;
-
-	return ret;
+	return PM_RET_ERROR_ARGS;
 }
 
 /**
- * pm_api_clock_getstate - Get the clock state for given id
- * @clock_id	Id of the clock to be queried
- * @state	1/0 (Enabled/Disabled)
+ * pm_clock_get_pll_by_related_clk() - Get PLL structure by PLL-related clock ID
+ * @clock_id	Clock ID
  *
- * This function is used by master to get the state of clock
- * including peripherals and PLL clocks.
+ * @return	Pointer to PLL structure if found, NULL otherwise
+ */
+struct pm_pll *pm_clock_get_pll_by_related_clk(enum clock_id clock_id)
+{
+	uint32_t i;
+
+	for (i = 0; i < ARRAY_SIZE(pm_plls); i++) {
+		if (pm_plls[i].pre_src == clock_id ||
+		    pm_plls[i].post_src == clock_id ||
+		    pm_plls[i].div2 == clock_id ||
+		    pm_plls[i].bypass == clock_id) {
+			return &pm_plls[i];
+		}
+	}
+
+	return NULL;
+}
+
+/**
+ * pm_clock_pll_enable() - "Enable" the PLL clock (lock the PLL)
+ * @pll: PLL to be locked
+ *
+ * This function is used to map IOCTL/linux-based PLL handling to system-level
+ * EEMI APIs
+ *
+ * Return: Error if the argument is not valid or status as returned by PMU
+ */
+enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll)
+{
+	if (!pll)
+		return PM_RET_ERROR_ARGS;
+
+	/* Set the PLL mode according to the buffered mode value */
+	if (pll->mode == PLL_FRAC_MODE)
+		return pm_pll_set_mode(pll->nid, PM_PLL_MODE_FRACTIONAL);
+
+	return pm_pll_set_mode(pll->nid, PM_PLL_MODE_INTEGER);
+}
+
+/**
+ * pm_clock_pll_disable - "Disable" the PLL clock (bypass/reset the PLL)
+ * @pll		PLL to be bypassed/reset
+ *
+ * This function is used to map IOCTL/linux-based PLL handling to system-level
+ * EEMI APIs
+ *
+ * Return: Error if the argument is not valid or status as returned by PMU
+ */
+enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll)
+{
+	if (!pll)
+		return PM_RET_ERROR_ARGS;
+
+	return pm_pll_set_mode(pll->nid, PM_PLL_MODE_RESET);
+}
+
+/**
+ * pm_clock_pll_get_state - Get state of the PLL
+ * @pll		Pointer to the target PLL structure
+ * @state	Location to store the state: 1/0 ("Enabled"/"Disabled")
+ *
+ * "Enable" actually means that the PLL is locked and its bypass is deasserted,
+ * "Disable" means that it is bypassed.
+ *
+ * Return: PM_RET_ERROR_ARGS error if the argument is not valid, success if
+ * returned state value is valid or an error if returned by PMU
+ */
+enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
+					  unsigned int *state)
+{
+	enum pm_ret_status status;
+	enum pm_pll_mode mode;
+
+	if (!pll || !state)
+		return PM_RET_ERROR_ARGS;
+
+	status = pm_pll_get_mode(pll->nid, &mode);
+	if (status != PM_RET_SUCCESS)
+		return status;
+
+	if (mode == PM_PLL_MODE_RESET)
+		*state = 0;
+	else
+		*state = 1;
+
+	return PM_RET_SUCCESS;
+}
+
+/**
+ * pm_clock_pll_set_parent - Set the clock parent for PLL-related clock id
+ * @pll			Target PLL structure
+ * @clock_id		Id of the clock
+ * @parent_index	parent index (=mux select value)
+ *
+ * The whole clock-tree implementation relies on the fact that parent indexes
+ * match to the multiplexer select values. This function has to rely on that
+ * assumption as well => parent_index is actually the mux select value.
  *
  * Return: Returns status, either success or error+reason.
  */
-enum pm_ret_status pm_api_clock_getstate(unsigned int clock_id,
-					 unsigned int *state)
+enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
+					   enum clock_id clock_id,
+					   unsigned int parent_index)
 {
-	enum pm_ret_status ret = PM_RET_SUCCESS;
+	if (!pll)
+		return PM_RET_ERROR_ARGS;
+	if (pll->pre_src == clock_id)
+		return pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_PRE_SRC,
+					    parent_index);
+	if (pll->post_src == clock_id)
+		return pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_POST_SRC,
+					    parent_index);
+	if (pll->div2 == clock_id)
+		return pm_pll_set_parameter(pll->nid, PM_PLL_PARAM_DIV2,
+					    parent_index);
 
+	return PM_RET_ERROR_ARGS;
+}
+
+/**
+ * pm_clock_pll_get_parent - Get mux select value of PLL-related clock parent
+ * @pll			Target PLL structure
+ * @clock_id		Id of the clock
+ * @parent_index	parent index (=mux select value)
+ *
+ * This function is used by master to get parent index for PLL-related clock.
+ *
+ * Return: Returns status, either success or error+reason.
+ */
+enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
+					   enum clock_id clock_id,
+					   unsigned int *parent_index)
+{
+	if (!pll)
+		return PM_RET_ERROR_ARGS;
+	if (pll->pre_src == clock_id)
+		return pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_PRE_SRC,
+					    parent_index);
+	if (pll->post_src == clock_id)
+		return pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_POST_SRC,
+					    parent_index);
+	if (pll->div2 == clock_id)
+		return pm_pll_get_parameter(pll->nid, PM_PLL_PARAM_DIV2,
+					    parent_index);
+	if (pll->bypass == clock_id) {
+		*parent_index = 0;
+		return PM_RET_SUCCESS;
+	}
+
+	return PM_RET_ERROR_ARGS;
+}
+
+/**
+ * pm_clock_set_pll_mode() -  Set PLL mode
+ * @clock_id	PLL clock id
+ * @mode	Mode fractional/integer
+ *
+ * This function buffers/saves the PLL mode that is set.
+ *
+ * @return      Success if mode is buffered or error if an argument is invalid
+ */
+enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
+					 unsigned int mode)
+{
+	struct pm_pll *pll = pm_clock_get_pll(clock_id);
+
+	if (!pll || (mode != PLL_FRAC_MODE && mode != PLL_INT_MODE))
+		return PM_RET_ERROR_ARGS;
+	pll->mode = mode;
+
+	return PM_RET_SUCCESS;
+}
+
+/**
+ * pm_clock_get_pll_mode() -  Get PLL mode
+ * @clock_id	PLL clock id
+ * @mode	Location to store the mode (fractional/integer)
+ *
+ * This function returns buffered PLL mode.
+ *
+ * @return      Success if mode is stored or error if an argument is invalid
+ */
+enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
+					 unsigned int *mode)
+{
+	struct pm_pll *pll = pm_clock_get_pll(clock_id);
+
+	if (!pll || !mode)
+		return PM_RET_ERROR_ARGS;
+	*mode = pll->mode;
+
+	return PM_RET_SUCCESS;
+}
+
+/**
+ * pm_clock_id_is_valid() -  Check if given clock ID is valid
+ * @clock_id   ID of the clock to be checked
+ *
+ * @return     Returns success if clock_id is valid, otherwise an error
+ */
+enum pm_ret_status pm_clock_id_is_valid(unsigned int clock_id)
+{
 	if (!pm_clock_valid(clock_id))
 		return PM_RET_ERROR_ARGS;
 
 	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
 		return PM_RET_ERROR_NOTSUPPORTED;
 
-	if (ISPLL(clock_id))
-		ret = pm_api_get_pll_state(clock_id, state);
-	else
-		ret = pm_api_get_clk_state(clock_id, state);
-
-	return ret;
+	return PM_RET_SUCCESS;
 }
 
-static enum pm_ret_status pm_api_clk_set_divider(unsigned int clock_id,
-						 uint32_t divider)
+/**
+ * pm_clock_has_div() - Check if the clock has divider with given ID
+ * @clock_id	Clock ID
+ * @div_id	Divider ID
+ *
+ * @return	True(1)=clock has the divider, false(0)=otherwise
+ */
+uint8_t pm_clock_has_div(unsigned int clock_id, enum pm_clock_div_id div_id)
 {
-	enum pm_ret_status ret = PM_RET_SUCCESS;
+	uint32_t i;
 	struct pm_clock_node *nodes;
-	uint8_t num_nodes;
-	uint16_t div1, div2;
-	unsigned int reg, mask = 0, val = 0, i;
-	uint8_t div1_width = NA_WIDTH, div1_offset = NA_SHIFT;
-	uint8_t div2_width = NA_WIDTH, div2_offset = NA_SHIFT;
 
-	div1 = (uint16_t)(divider & 0xFFFFU);
-	div2 = (uint16_t)((divider >> 16) & 0xFFFFU);
-
-	reg = clocks[clock_id].control_reg;
+	if (clock_id >= CLK_MAX_OUTPUT_CLK)
+		return 0;
 
 	nodes = *clocks[clock_id].nodes;
-	num_nodes = clocks[clock_id].num_nodes;
-	for (i = 0; i < num_nodes; i++) {
-		if (nodes->type == TYPE_DIV1) {
-			div1_offset = nodes->offset;
-			div1_width = nodes->width;
+	for (i = 0; i < clocks[clock_id].num_nodes; i++) {
+		if (nodes[i].type == TYPE_DIV1) {
+			if (div_id == PM_CLOCK_DIV0_ID)
+				return 1;
+		} else if (nodes[i].type == TYPE_DIV2) {
+			if (div_id == PM_CLOCK_DIV1_ID)
+				return 1;
 		}
-		if (nodes->type == TYPE_DIV2) {
-			div2_offset = nodes->offset;
-			div2_width = nodes->width;
-		}
-		nodes++;
 	}
 
-	if (div1 != (uint16_t)-1) {
-		if (div1_width == NA_WIDTH)
-			return PM_RET_ERROR_NOTSUPPORTED;
-		val |= div1 << div1_offset;
-		mask |= BIT_MASK(div1_offset, div1_width);
-	}
-	if (div2 != (uint16_t)-1) {
-		if (div2_width == NA_WIDTH)
-			return PM_RET_ERROR_NOTSUPPORTED;
-		val |= div2 << div2_offset;
-		mask |= BIT_MASK(div2_offset, div2_width);
-	}
-	ret = pm_mmio_write(reg, mask, val);
-
-	return ret;
-}
-
-static enum pm_ret_status pm_api_pll_set_divider(unsigned int clock_id,
-					  unsigned int divider)
-{
-	unsigned int reg = clocks[clock_id].control_reg;
-	enum pm_ret_status ret;
-
-	pm_api_pll_bypass_and_reset(clock_id, CLK_PLL_RESET_ASSERT);
-	ret = pm_mmio_write(reg, PLL_FBDIV_MASK, divider << PLL_FBDIV_SHIFT);
-	pm_api_pll_bypass_and_reset(clock_id, CLK_PLL_RESET_RELEASE);
-
-	return ret;
-}
-
-/**
- * pm_api_clock_setdivider - Set the clock divider for given id
- * @clock_id	Id of the clock
- * @divider	Divider value
- *
- * This function is used by master to set divider for any clock
- * to achieve desired rate.
- *
- * Return: Returns status, either success or error+reason.
- */
-enum pm_ret_status pm_api_clock_setdivider(unsigned int clock_id,
-					   unsigned int divider)
-{
-	enum pm_ret_status ret;
-
-	if (!pm_clock_valid(clock_id))
-		return PM_RET_ERROR_ARGS;
-
-	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	if (ISPLL(clock_id))
-		ret = pm_api_pll_set_divider(clock_id, divider);
-	else
-		ret = pm_api_clk_set_divider(clock_id, divider);
-
-	return ret;
-}
-
-static enum pm_ret_status pm_api_clk_get_divider(unsigned int clock_id,
-						 uint32_t *divider)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	struct pm_clock_node *nodes;
-	uint8_t num_nodes;
-	unsigned int reg, val, i, div1 = 0, div2 = 0;
-	uint8_t div1_width = NA_WIDTH, div1_offset = NA_SHIFT;
-	uint8_t div2_width = NA_WIDTH, div2_offset = NA_SHIFT;
-
-	reg = clocks[clock_id].control_reg;
-
-	nodes = *clocks[clock_id].nodes;
-	num_nodes = clocks[clock_id].num_nodes;
-	for (i = 0; i < num_nodes; i++) {
-		if (nodes->type == TYPE_DIV1) {
-			div1_offset = nodes->offset;
-			div1_width = nodes->width;
-		}
-		if (nodes->type == TYPE_DIV2) {
-			div2_offset = nodes->offset;
-			div2_width = nodes->width;
-		}
-		nodes++;
-	}
-
-	ret = pm_mmio_read(reg, &val);
-
-	if (div1_width == NA_WIDTH)
-		return PM_RET_ERROR_ARGS;
-
-	div1 = (val & BIT_MASK(div1_offset, div1_width)) >> div1_offset;
-
-	if (div2_width != NA_WIDTH)
-		div2 = (val & BIT_MASK(div2_offset, div2_width)) >> div2_offset;
-
-	*divider = div1 | (div2 << 16);
-
-	return ret;
-}
-
-static enum pm_ret_status pm_api_pll_get_divider(unsigned int clock_id,
-					  unsigned int *divider)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	unsigned int reg, val;
-
-	reg = clocks[clock_id].control_reg;
-
-	ret = pm_mmio_read(reg, &val);
-	*divider = (val & PLL_FBDIV_MASK) >> PLL_FBDIV_SHIFT;
-
-	return ret;
-}
-
-/**
- * pm_api_clock_getdivider - Get the clock divider for given id
- * @clock_id	Id of the clock
- * @divider	Divider value
- *
- * This function is used by master to get divider values
- * for any clock.
- *
- * Return: Returns status, either success or error+reason.
- */
-enum pm_ret_status pm_api_clock_getdivider(unsigned int clock_id,
-					   unsigned int *divider)
-{
-	enum pm_ret_status ret;
-
-	if (!pm_clock_valid(clock_id))
-		return PM_RET_ERROR_ARGS;
-
-	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	if (ISPLL(clock_id))
-		ret = pm_api_pll_get_divider(clock_id, divider);
-	else
-		ret = pm_api_clk_get_divider(clock_id, divider);
-
-	return ret;
-}
-
-/**
- * pm_api_clock_setrate - Set the clock rate for given id
- * @clock_id	Id of the clock
- * @rate	Rate value in hz
- *
- * This function is used by master to set rate for any clock.
- *
- * Return: Returns status, either success or error+reason.
- */
-enum pm_ret_status pm_api_clock_setrate(unsigned int clock_id,
-					uint64_t rate)
-{
-	return PM_RET_ERROR_NOTSUPPORTED;
-}
-
-/**
- * pm_api_clock_getrate - Get the clock rate for given id
- * @clock_id	Id of the clock
- * @rate	rate value in hz
- *
- * This function is used by master to get rate
- * for any clock.
- *
- * Return: Returns status, either success or error+reason.
- */
-enum pm_ret_status pm_api_clock_getrate(unsigned int clock_id,
-					uint64_t *rate)
-{
-	return PM_RET_ERROR_NOTSUPPORTED;
-}
-
-/**
- * pm_api_clock_setparent - Set the clock parent for given id
- * @clock_id	Id of the clock
- * @parent_idx	parent index
- *
- * This function is used by master to set parent for any clock.
- *
- * Return: Returns status, either success or error+reason.
- */
-enum pm_ret_status pm_api_clock_setparent(unsigned int clock_id,
-					  unsigned int parent_idx)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	struct pm_clock_node *nodes;
-	uint8_t num_nodes;
-	unsigned int reg, val;
-	int32_t *clk_parents;
-	unsigned int i = 0;
-	uint8_t  offset = NA_SHIFT, width = NA_WIDTH;
-
-	if (!pm_clock_valid(clock_id))
-		return PM_RET_ERROR_ARGS;
-
-	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	clk_parents = *clocks[clock_id].parents;
-
-	for (i = 0; i <= parent_idx; i++)
-		if (clk_parents[i] == CLK_NA_PARENT)
-			return PM_RET_ERROR_ARGS;
-
-	nodes = *clocks[clock_id].nodes;
-	num_nodes = clocks[clock_id].num_nodes;
-	for (i = 0; i < num_nodes; i++) {
-		if (nodes->type == TYPE_MUX) {
-			offset = nodes->offset;
-			width = nodes->width;
-		}
-		nodes++;
-	}
-	if (width == NA_WIDTH)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	reg = clocks[clock_id].control_reg;
-	val = parent_idx << offset;
-	ret = pm_mmio_write(reg, BIT_MASK(offset, width), val);
-
-	return ret;
-}
-
-/**
- * pm_api_clock_getparent - Get the clock parent for given id
- * @clock_id	Id of the clock
- * @parent_idx	parent index
- *
- * This function is used by master to get parent index
- * for any clock.
- *
- * Return: Returns status, either success or error+reason.
- */
-enum pm_ret_status pm_api_clock_getparent(unsigned int clock_id,
-					  unsigned int *parent_idx)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	struct pm_clock_node *nodes;
-	uint8_t num_nodes;
-	unsigned int reg, val;
-	uint8_t i = 0, offset = NA_SHIFT, width = NA_WIDTH;
-
-	if (!pm_clock_valid(clock_id))
-		return PM_RET_ERROR_ARGS;
-
-	if (pm_clock_type(clock_id) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	nodes = *clocks[clock_id].nodes;
-	num_nodes = clocks[clock_id].num_nodes;
-
-	for (i = 0; i < num_nodes; i++) {
-		if (nodes->type == TYPE_MUX) {
-			offset = nodes->offset;
-			width = nodes->width;
-		}
-		nodes++;
-	}
-	if (width == NA_WIDTH)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	reg = clocks[clock_id].control_reg;
-	ret = pm_mmio_read(reg, &val);
-	val >>= offset;
-	val &= ((1U << width) - 1);
-
-	*parent_idx = val;
-
-	return ret;
-}
-
-/**
- * pm_api_clk_set_pll_mode() -  Set PLL mode
- * @pll     PLL id
- * @mode    Mode fraction/integar
- *
- * This function sets PLL mode.
- *
- * @return      Returns status, either success or error+reason
- */
-enum pm_ret_status pm_api_clk_set_pll_mode(unsigned int pll,
-					   unsigned int mode)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	unsigned int reg;
-
-	if (!pm_clock_valid(pll))
-		return PM_RET_ERROR_ARGS;
-
-	if (pm_clock_type(pll) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	if (!ISPLL(pll))
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	if (mode != PLL_FRAC_MODE && mode != PLL_INT_MODE)
-		return PM_RET_ERROR_ARGS;
-
-	reg = clocks[pll].control_reg + PLL_FRAC_OFFSET;
-
-	ret = pm_mmio_write(reg, PLL_FRAC_MODE_MASK,
-			    mode << PLL_FRAC_MODE_SHIFT);
-
-	return ret;
-}
-
-/**
- * pm_ioctl_get_pll_mode() -  Get PLL mode
- * @pll     PLL id
- * @mode    Mode fraction/integar
- *
- * This function returns current PLL mode.
- *
- * @return      Returns status, either success or error+reason
- */
-enum pm_ret_status pm_api_clk_get_pll_mode(unsigned int pll,
-					   unsigned int *mode)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	unsigned int val, reg;
-
-	if (!pm_clock_valid(pll))
-		return PM_RET_ERROR_ARGS;
-
-	if (pm_clock_type(pll) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	if (!ISPLL(pll))
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	reg = clocks[pll].control_reg + PLL_FRAC_OFFSET;
-
-	ret = pm_mmio_read(reg, &val);
-	val = val & PLL_FRAC_MODE_MASK;
-	if (val == 0)
-		*mode = PLL_INT_MODE;
-	else
-		*mode = PLL_FRAC_MODE;
-
-	return ret;
-}
-
-/**
- * pm_api_clk_set_pll_frac_data() -  Set PLL fraction data
- * @pll     PLL id
- * @data    fraction data
- *
- * This function sets fraction data. It is valid for fraction
- * mode only.
- *
- * @return      Returns status, either success or error+reason
- */
-enum pm_ret_status pm_api_clk_set_pll_frac_data(unsigned int pll,
-						unsigned int data)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	unsigned int val, reg, mode = 0;
-
-	if (!pm_clock_valid(pll))
-		return PM_RET_ERROR_ARGS;
-
-	if (pm_clock_type(pll) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	if (!ISPLL(pll))
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	ret = pm_api_clk_get_pll_mode(pll, &mode);
-	if (ret != PM_RET_SUCCESS)
-		return ret;
-	if (mode == PLL_FRAC_MODE) {
-		reg = clocks[pll].control_reg + PLL_FRAC_OFFSET;
-		val = data << PLL_FRAC_DATA_SHIFT;
-		ret = pm_mmio_write(reg, PLL_FRAC_DATA_MASK, val);
-	} else {
-		return PM_RET_ERROR_ARGS;
-	}
-
-	return ret;
-}
-
-/**
- * pm_api_clk_get_pll_frac_data() - Get PLL fraction data
- * @pll     PLL id
- * @data    fraction data
- *
- * This function returns fraction data value.
- *
- * @return      Returns status, either success or error+reason
- */
-enum pm_ret_status pm_api_clk_get_pll_frac_data(unsigned int pll,
-						unsigned int *data)
-{
-	enum pm_ret_status ret = PM_RET_SUCCESS;
-	unsigned int val, reg;
-
-	if (!pm_clock_valid(pll))
-		return PM_RET_ERROR_ARGS;
-
-	if (pm_clock_type(pll) != CLK_TYPE_OUTPUT)
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	if (!ISPLL(pll))
-		return PM_RET_ERROR_NOTSUPPORTED;
-
-	reg = clocks[pll].control_reg + PLL_FRAC_OFFSET;
-
-	ret = pm_mmio_read(reg, &val);
-	*data = (val & PLL_FRAC_DATA_MASK);
-
-	return ret;
+	return 0;
 }

@@ -845,18 +845,56 @@ static enum pm_ret_status pm_clock_get_attributes(unsigned int clock_id,
 }
 
 /**
+ * pm_clock_gate() - Configure clock gate
+ * @clock_id	Id of the clock to be configured
+ * @enable	Flag 0=disable (gate the clock), !0=enable (activate the clock)
+ *
+ * @return	Error if an argument is not valid or status as returned by the
+ *		PM controller (PMU)
+ */
+static enum pm_ret_status pm_clock_gate(unsigned int clock_id,
+					unsigned char enable)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+	enum pm_ret_status status;
+	enum pm_api_id api_id;
+
+	/* Check if clock ID is valid and return an error if it is not */
+	status = pm_clock_id_is_valid(clock_id);
+	if (status != PM_RET_SUCCESS)
+		return status;
+
+	if (enable)
+		api_id = PM_CLOCK_ENABLE;
+	else
+		api_id = PM_CLOCK_DISABLE;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD2(payload, api_id, clock_id);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
  * pm_clock_enable() - Enable the clock for given id
  * @clock_id: Id of the clock to be enabled
  *
  * This function is used by master to enable the clock
  * including peripherals and PLL clocks.
  *
- * Return: Returns status, either success or error+reason.
+ * @return:	Error if an argument is not valid or status as returned by the
+ *		pm_clock_gate
  */
-
 enum pm_ret_status pm_clock_enable(unsigned int clock_id)
 {
-	return pm_api_clock_enable(clock_id);
+	struct pm_pll *pll;
+
+	/* First try to handle it as a PLL */
+	pll = pm_clock_get_pll(clock_id);
+	if (pll)
+		return pm_clock_pll_enable(pll);
+
+	/* It's an on-chip clock, PMU should configure clock's gate */
+	return pm_clock_gate(clock_id, 1);
 }
 
 /**
@@ -866,12 +904,20 @@ enum pm_ret_status pm_clock_enable(unsigned int clock_id)
  * This function is used by master to disable the clock
  * including peripherals and PLL clocks.
  *
- * Return: Returns status, either success or error+reason.
+ * @return:	Error if an argument is not valid or status as returned by the
+ *		pm_clock_gate
  */
-
 enum pm_ret_status pm_clock_disable(unsigned int clock_id)
 {
-	return pm_api_clock_disable(clock_id);
+	struct pm_pll *pll;
+
+	/* First try to handle it as a PLL */
+	pll = pm_clock_get_pll(clock_id);
+	if (pll)
+		return pm_clock_pll_disable(pll);
+
+	/* It's an on-chip clock, PMU should configure clock's gate */
+	return pm_clock_gate(clock_id, 0);
 }
 
 /**
@@ -887,7 +933,23 @@ enum pm_ret_status pm_clock_disable(unsigned int clock_id)
 enum pm_ret_status pm_clock_getstate(unsigned int clock_id,
 				     unsigned int *state)
 {
-	return pm_api_clock_getstate(clock_id, state);
+	struct pm_pll *pll;
+	uint32_t payload[PAYLOAD_ARG_CNT];
+	enum pm_ret_status status;
+
+	/* First try to handle it as a PLL */
+	pll = pm_clock_get_pll(clock_id);
+	if (pll)
+		return pm_clock_pll_get_state(pll, state);
+
+	/* Check if clock ID is a valid on-chip clock */
+	status = pm_clock_id_is_valid(clock_id);
+	if (status != PM_RET_SUCCESS)
+		return status;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD2(payload, PM_CLOCK_GETSTATE, clock_id);
+	return pm_ipi_send_sync(primary_proc, payload, state, 1);
 }
 
 /**
@@ -903,7 +965,37 @@ enum pm_ret_status pm_clock_getstate(unsigned int clock_id,
 enum pm_ret_status pm_clock_setdivider(unsigned int clock_id,
 				       unsigned int divider)
 {
-	return pm_api_clock_setdivider(clock_id, divider);
+	enum pm_ret_status status;
+	enum pm_node_id nid;
+	enum pm_clock_div_id div_id;
+	uint32_t payload[PAYLOAD_ARG_CNT];
+	const uint32_t div0 = 0xFFFF0000;
+	const uint32_t div1 = 0x0000FFFF;
+	uint32_t val;
+
+	/* Get PLL node ID using PLL clock ID */
+	status = pm_clock_get_pll_node_id(clock_id, &nid);
+	if (status == PM_RET_SUCCESS)
+		return pm_pll_set_parameter(nid, PM_PLL_PARAM_FBDIV, divider);
+
+	/* Check if clock ID is a valid on-chip clock */
+	status = pm_clock_id_is_valid(clock_id);
+	if (status != PM_RET_SUCCESS)
+		return status;
+
+	if (div0 == (divider & div0)) {
+		div_id = PM_CLOCK_DIV0_ID;
+		val = divider & ~div0;
+	} else if (div1 == (divider & div1)) {
+		div_id = PM_CLOCK_DIV1_ID;
+		val = (divider & ~div1) >> 16;
+	} else {
+		return PM_RET_ERROR_ARGS;
+	}
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD4(payload, PM_CLOCK_SETDIVIDER, clock_id, div_id, val);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
@@ -919,7 +1011,42 @@ enum pm_ret_status pm_clock_setdivider(unsigned int clock_id,
 enum pm_ret_status pm_clock_getdivider(unsigned int clock_id,
 				       unsigned int *divider)
 {
-	return pm_api_clock_getdivider(clock_id, divider);
+	enum pm_ret_status status;
+	enum pm_node_id nid;
+	uint32_t payload[PAYLOAD_ARG_CNT];
+	uint32_t val;
+
+	/* Get PLL node ID using PLL clock ID */
+	status = pm_clock_get_pll_node_id(clock_id, &nid);
+	if (status == PM_RET_SUCCESS)
+		return pm_pll_get_parameter(nid, PM_PLL_PARAM_FBDIV, divider);
+
+	/* Check if clock ID is a valid on-chip clock */
+	status = pm_clock_id_is_valid(clock_id);
+	if (status != PM_RET_SUCCESS)
+		return status;
+
+	if (pm_clock_has_div(clock_id, PM_CLOCK_DIV0_ID)) {
+		/* Send request to the PMU to get div0 */
+		PM_PACK_PAYLOAD3(payload, PM_CLOCK_GETDIVIDER, clock_id,
+				 PM_CLOCK_DIV0_ID);
+		status = pm_ipi_send_sync(primary_proc, payload, &val, 1);
+		if (status != PM_RET_SUCCESS)
+			return status;
+		*divider = val;
+	}
+
+	if (pm_clock_has_div(clock_id, PM_CLOCK_DIV1_ID)) {
+		/* Send request to the PMU to get div1 */
+		PM_PACK_PAYLOAD3(payload, PM_CLOCK_GETDIVIDER, clock_id,
+				 PM_CLOCK_DIV1_ID);
+		status = pm_ipi_send_sync(primary_proc, payload, &val, 1);
+		if (status != PM_RET_SUCCESS)
+			return status;
+		*divider |= val << 16;
+	}
+
+	return status;
 }
 
 /**
@@ -934,7 +1061,7 @@ enum pm_ret_status pm_clock_getdivider(unsigned int clock_id,
 enum pm_ret_status pm_clock_setrate(unsigned int clock_id,
 				    uint64_t rate)
 {
-	return pm_api_clock_setrate(clock_id, rate);
+	return PM_RET_ERROR_NOTSUPPORTED;
 }
 
 /**
@@ -950,28 +1077,44 @@ enum pm_ret_status pm_clock_setrate(unsigned int clock_id,
 enum pm_ret_status pm_clock_getrate(unsigned int clock_id,
 				    uint64_t *rate)
 {
-	return pm_api_clock_getrate(clock_id, rate);
+	return PM_RET_ERROR_NOTSUPPORTED;
 }
 
 /**
  * pm_clock_setparent - Set the clock parent for given id
  * @clock_id: Id of the clock
- * @parent_id: parent id
+ * @parent_index: Index of the parent clock into clock's parents array
  *
  * This function is used by master to set parent for any clock.
  *
  * Return: Returns status, either success or error+reason.
  */
 enum pm_ret_status pm_clock_setparent(unsigned int clock_id,
-				      unsigned int parent_id)
+				      unsigned int parent_index)
 {
-	return pm_api_clock_setparent(clock_id, parent_id);
+	struct pm_pll *pll;
+	uint32_t payload[PAYLOAD_ARG_CNT];
+	enum pm_ret_status status;
+
+	/* First try to handle it as a PLL */
+	pll = pm_clock_get_pll_by_related_clk(clock_id);
+	if (pll)
+		return pm_clock_pll_set_parent(pll, clock_id, parent_index);
+
+	/* Check if clock ID is a valid on-chip clock */
+	status = pm_clock_id_is_valid(clock_id);
+	if (status != PM_RET_SUCCESS)
+		return status;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD3(payload, PM_CLOCK_SETPARENT, clock_id, parent_index);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
  * pm_clock_getparent - Get the clock parent for given id
  * @clock_id: Id of the clock
- * @parent_id: parent id
+ * @parent_index: parent index
  *
  * This function is used by master to get parent index
  * for any clock.
@@ -979,9 +1122,25 @@ enum pm_ret_status pm_clock_setparent(unsigned int clock_id,
  * Return: Returns status, either success or error+reason.
  */
 enum pm_ret_status pm_clock_getparent(unsigned int clock_id,
-				      unsigned int *parent_id)
+				      unsigned int *parent_index)
 {
-	return pm_api_clock_getparent(clock_id, parent_id);
+	struct pm_pll *pll;
+	uint32_t payload[PAYLOAD_ARG_CNT];
+	enum pm_ret_status status;
+
+	/* First try to handle it as a PLL */
+	pll = pm_clock_get_pll_by_related_clk(clock_id);
+	if (pll)
+		return pm_clock_pll_get_parent(pll, clock_id, parent_index);
+
+	/* Check if clock ID is a valid on-chip clock */
+	status = pm_clock_id_is_valid(clock_id);
+	if (status != PM_RET_SUCCESS)
+		return status;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD2(payload, PM_CLOCK_GETPARENT, clock_id);
+	return pm_ipi_send_sync(primary_proc, payload, parent_index, 1);
 }
 
 /**
@@ -1237,4 +1396,114 @@ enum pm_ret_status pm_fpga_read(uint32_t reg_numframes,
 	PM_PACK_PAYLOAD5(payload, PM_FPGA_READ, reg_numframes, address_low,
 			 address_high, readback_type);
 	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+}
+
+/*
+ * pm_pll_set_parameter() - Set the PLL parameter value
+ * @nid		Node id of the target PLL
+ * @param_id	ID of the PLL parameter
+ * @value	Parameter value to be set
+ *
+ * Setting the parameter will have physical effect once the PLL mode is set to
+ * integer or fractional.
+ *
+ * @return	Error if an argument is not valid or status as returned by the
+ *		PM controller (PMU)
+ */
+enum pm_ret_status pm_pll_set_parameter(enum pm_node_id nid,
+					enum pm_pll_param param_id,
+					unsigned int value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Check if given node ID is a PLL node */
+	if (nid < NODE_APLL || nid > NODE_IOPLL)
+		return PM_RET_ERROR_ARGS;
+
+	/* Check if parameter ID is valid and return an error if it's not */
+	if (param_id >= PM_PLL_PARAM_MAX)
+		return PM_RET_ERROR_ARGS;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD4(payload, PM_PLL_SET_PARAMETER, nid, param_id, value);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_pll_get_parameter() - Get the PLL parameter value
+ * @nid		Node id of the target PLL
+ * @param_id	ID of the PLL parameter
+ * @value	Location to store the parameter value
+ *
+ * @return	Error if an argument is not valid or status as returned by the
+ *		PM controller (PMU)
+ */
+enum pm_ret_status pm_pll_get_parameter(enum pm_node_id nid,
+					enum pm_pll_param param_id,
+					unsigned int *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Check if given node ID is a PLL node */
+	if (nid < NODE_APLL || nid > NODE_IOPLL)
+		return PM_RET_ERROR_ARGS;
+
+	/* Check if parameter ID is valid and return an error if it's not */
+	if (param_id >= PM_PLL_PARAM_MAX)
+		return PM_RET_ERROR_ARGS;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD3(payload, PM_PLL_GET_PARAMETER, nid, param_id);
+	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+}
+
+/**
+ * pm_pll_set_mode() - Set the PLL mode
+ * @nid		Node id of the target PLL
+ * @mode	PLL mode to be set
+ *
+ * If reset mode is set the PM controller will first bypass the PLL and then
+ * assert the reset. If integer or fractional mode is set the PM controller will
+ * ensure that the complete PLL programming sequence is satisfied. After this
+ * function returns success the PLL is locked and its bypass is deasserted.
+ *
+ * @return	Error if an argument is not valid or status as returned by the
+ *		PM controller (PMU)
+ */
+enum pm_ret_status pm_pll_set_mode(enum pm_node_id nid, enum pm_pll_mode mode)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Check if given node ID is a PLL node */
+	if (nid < NODE_APLL || nid > NODE_IOPLL)
+		return PM_RET_ERROR_ARGS;
+
+	/* Check if PLL mode is valid */
+	if (mode >= PM_PLL_MODE_MAX)
+		return PM_RET_ERROR_ARGS;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD3(payload, PM_PLL_SET_MODE, nid, mode);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_pll_get_mode() - Get the PLL mode
+ * @nid		Node id of the target PLL
+ * @mode	Location to store the mode of the PLL
+ *
+ * @return	Error if an argument is not valid or status as returned by the
+ *		PM controller (PMU)
+ */
+enum pm_ret_status pm_pll_get_mode(enum pm_node_id nid, enum pm_pll_mode *mode)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Check if given node ID is a PLL node */
+	if (nid < NODE_APLL || nid > NODE_IOPLL)
+		return PM_RET_ERROR_ARGS;
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD2(payload, PM_PLL_GET_MODE, nid);
+	return pm_ipi_send_sync(primary_proc, payload, mode, 1);
 }

@@ -56,7 +56,7 @@
 #define END_OF_CLK     "END_OF_CLK"
 
 //CLock Ids
-enum {
+enum clock_id {
 	CLK_IOPLL,
 	CLK_RPLL,
 	CLK_APLL,
@@ -160,6 +160,7 @@ enum {
 	CLK_VPLL_POST_SRC,
 	CLK_CAN0_MIO,
 	CLK_CAN1_MIO,
+	CLK_ACPU_FULL,
 	END_OF_OUTPUT_CLKS,
 };
 
@@ -275,6 +276,10 @@ enum {
 #define	TYPE_DIV2 5U
 #define	TYPE_GATE 6U
 
+struct pm_pll;
+struct pm_pll *pm_clock_get_pll(enum clock_id clock_id);
+struct pm_pll *pm_clock_get_pll_by_related_clk(enum clock_id clock_id);
+uint8_t pm_clock_has_div(unsigned int clock_id, enum pm_clock_div_id div_id);
 
 enum pm_ret_status pm_api_clock_get_name(unsigned int clock_id, char *name);
 enum pm_ret_status pm_api_clock_get_num_clocks(unsigned int *nclocks);
@@ -289,29 +294,24 @@ enum pm_ret_status pm_api_clock_get_parents(unsigned int clock_id,
 					    uint32_t *parents);
 enum pm_ret_status pm_api_clock_get_attributes(unsigned int clock_id,
 					       uint32_t *attr);
-enum pm_ret_status pm_api_clock_enable(unsigned int clock_id);
-enum pm_ret_status pm_api_clock_disable(unsigned int clock_id);
-enum pm_ret_status pm_api_clock_getstate(unsigned int clock_id,
-					 unsigned int *state);
-enum pm_ret_status pm_api_clock_setdivider(unsigned int clock_id,
-					   unsigned int divider);
-enum pm_ret_status pm_api_clock_getdivider(unsigned int clock_id,
-					   unsigned int *divider);
-enum pm_ret_status pm_api_clock_setrate(unsigned int clock_id,
-					uint64_t rate);
-enum pm_ret_status pm_api_clock_getrate(unsigned int clock_id,
-					uint64_t *rate);
-enum pm_ret_status pm_api_clock_setparent(unsigned int clock_id,
-					  unsigned int parent_idx);
-enum pm_ret_status pm_api_clock_getparent(unsigned int clock_id,
-					  unsigned int *parent_idx);
-enum pm_ret_status pm_api_clk_set_pll_mode(unsigned int pll,
-					   unsigned int mode);
-enum pm_ret_status pm_api_clk_get_pll_mode(unsigned int pll,
-					   unsigned int *mode);
-enum pm_ret_status pm_api_clk_set_pll_frac_data(unsigned int pll,
-						unsigned int data);
-enum pm_ret_status pm_api_clk_get_pll_frac_data(unsigned int pll,
-						unsigned int *data);
+
+enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
+					    enum pm_node_id *node_id);
+enum pm_ret_status pm_clock_id_is_valid(unsigned int clock_id);
+
+enum pm_ret_status pm_clock_pll_enable(struct pm_pll *pll);
+enum pm_ret_status pm_clock_pll_disable(struct pm_pll *pll);
+enum pm_ret_status pm_clock_pll_get_state(struct pm_pll *pll,
+					  unsigned int *state);
+enum pm_ret_status pm_clock_pll_set_parent(struct pm_pll *pll,
+					   enum clock_id clock_id,
+					   unsigned int parent_index);
+enum pm_ret_status pm_clock_pll_get_parent(struct pm_pll *pll,
+					   enum clock_id clock_id,
+					   unsigned int *parent_index);
+enum pm_ret_status pm_clock_set_pll_mode(enum clock_id clock_id,
+					 unsigned int mode);
+enum pm_ret_status pm_clock_get_pll_mode(enum clock_id clock_id,
+					 unsigned int *mode);
 
 #endif /* PM_API_CLOCK_H */
