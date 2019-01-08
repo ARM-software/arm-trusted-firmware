@@ -33,6 +33,12 @@
 #define PM_SET_REQUIREMENT		15U
 #define PM_RESET_ASSERT			17U
 #define PM_RESET_GET_STATUS		18U
+#define	PM_PINCTRL_REQUEST		28U
+#define	PM_PINCTRL_RELEASE		29U
+#define	PM_PINCTRL_GET_FUNCTION		30U
+#define	PM_PINCTRL_SET_FUNCTION		31U
+#define	PM_PINCTRL_CONFIG_PARAM_GET	32U
+#define	PM_PINCTRL_CONFIG_PARAM_SET	33U
 
 /*********************************************************************
  * Enum definitions

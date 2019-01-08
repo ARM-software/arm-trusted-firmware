@@ -270,3 +270,111 @@ enum pm_ret_status pm_reset_get_status(uint32_t reset, uint32_t *status)
 
 	return pm_ipi_send_sync(primary_proc, payload, status, 1);
 }
+
+/**
+ * pm_pinctrl_request() - Request a pin
+ * @pin		Pin ID
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pinctrl_request(uint32_t pin)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, PM_PINCTRL_REQUEST, pin);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_pinctrl_release() - Release a pin
+ * @pin		Pin ID
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pinctrl_release(uint32_t pin)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, PM_PINCTRL_RELEASE, pin);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_pinctrl_set_function() - Set pin function
+ * @pin		Pin ID
+ * @function	Function ID
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pinctrl_set_function(uint32_t pin, uint32_t function)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_PINCTRL_SET_FUNCTION, pin,
+			 function)
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_pinctrl_get_function() - Get function set on the pin
+ * @pin		Pin ID
+ * @function	Function set on the pin
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pinctrl_get_function(uint32_t pin, uint32_t *function)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, PM_PINCTRL_SET_FUNCTION,
+			 pin);
+
+	return pm_ipi_send_sync(primary_proc, payload, function, 1);
+}
+
+/**
+ * pm_pinctrl_set_pin_param() - Set configuration parameter for the pin
+ * @pin		Pin ID
+ * @param	Parameter ID
+ * @value	Parameter value
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pinctrl_set_pin_param(uint32_t pin, uint32_t param,
+					    uint32_t value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD4(payload, LIBPM_MODULE_ID, PM_PINCTRL_CONFIG_PARAM_SET,
+			 pin, param, value);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_pinctrl_get_pin_param() - Get configuration parameter value for the pin
+ * @pin		Pin ID
+ * @param	Parameter ID
+ * @value	Buffer to store parameter value
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_pinctrl_get_pin_param(uint32_t pin, uint32_t param,
+					    uint32_t *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_PINCTRL_CONFIG_PARAM_GET,
+			 pin, param);
+
+	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+}
