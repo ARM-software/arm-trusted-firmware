@@ -31,6 +31,8 @@
 #define PM_REQUEST_DEVICE		13U
 #define PM_RELEASE_DEVICE		14U
 #define PM_SET_REQUIREMENT		15U
+#define PM_RESET_ASSERT			17U
+#define PM_RESET_GET_STATUS		18U
 
 /*********************************************************************
  * Enum definitions

@@ -235,3 +235,38 @@ enum pm_ret_status pm_get_device_status(uint32_t device_id, uint32_t *response)
 
 	return pm_ipi_send_sync(primary_proc, payload, response, 3);
 }
+
+/**
+ * pm_reset_assert() - Assert/De-assert reset
+ * @reset	Reset ID
+ * @assert	Assert (1) or de-assert (0)
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_reset_assert(uint32_t reset, bool assert)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_RESET_ASSERT, reset,
+			 assert);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_reset_get_status() - Get current status of a reset line
+ * @reset	Reset ID
+ * @status	Returns current status of selected reset ID
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_reset_get_status(uint32_t reset, uint32_t *status)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, PM_RESET_ASSERT, reset);
+
+	return pm_ipi_send_sync(primary_proc, payload, status, 1);
+}
