@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 /* ZynqMP IPI management enums and defines */
 
-#ifndef ZYNQMP_IPI_H
-#define ZYNQMP_IPI_H
+#ifndef PLAT_IPI_H
+#define PLAT_IPI_H
 
 #include <stdint.h>
 
@@ -67,4 +67,4 @@ void ipi_mb_disable_irq(uint32_t local, uint32_t remote);
 /* Enable IPI mailbox notification interrupt */
 void ipi_mb_enable_irq(uint32_t local, uint32_t remote);
 
-#endif /* ZYNQMP_IPI_H */
+#endif /* PLAT_IPI_H */

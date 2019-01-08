@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,9 +9,9 @@
 #include <common/runtime_svc.h>
 #include <tools_share/uuid.h>
 
+#include <plat_ipi.h>
 #include "ipi_mailbox_svc.h"
 #include "pm_svc_main.h"
-#include "zynqmp_ipi.h"
 
 /* SMC function IDs for SiP Service queries */
 #define ZYNQMP_SIP_SVC_CALL_COUNT	0x8200ff00

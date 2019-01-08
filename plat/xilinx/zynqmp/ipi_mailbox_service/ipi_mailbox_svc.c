@@ -15,10 +15,10 @@
 #include <common/runtime_svc.h>
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
+#include <plat_ipi.h>
 #include <plat_private.h>
 
 #include "ipi_mailbox_svc.h"
-#include "../zynqmp_ipi.h"
 #include "../../../services/spd/trusty/smcall.h"
 
 /*********************************************************************
