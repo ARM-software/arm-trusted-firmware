@@ -22,6 +22,9 @@
 #define XPM_DEVID_ACPU_0	APU_DEVID(XPM_NODEIDX_DEV_ACPU_0)
 #define XPM_DEVID_ACPU_1	APU_DEVID(XPM_NODEIDX_DEV_ACPU_1)
 
+/* PM API ids */
+#define PM_GET_API_VERSION		1U
+
 /*********************************************************************
  * Enum definitions
  ********************************************************************/

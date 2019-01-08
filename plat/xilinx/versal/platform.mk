@@ -67,4 +67,5 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S			\
 				plat/xilinx/versal/versal_gicv3.c		\
 				plat/xilinx/versal/versal_ipi.c			\
 				plat/xilinx/versal/pm_service/pm_svc_main.c	\
+				plat/xilinx/versal/pm_service/pm_api_sys.c	\
 				plat/xilinx/versal/pm_service/pm_client.c
