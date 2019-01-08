@@ -21,7 +21,6 @@
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	N1SDP_MAP_DEVICE,
-	SOC_CSS_MAP_DEVICE,
 	{0}
 };
 

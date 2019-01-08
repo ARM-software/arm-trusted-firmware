@@ -7,6 +7,8 @@
 #ifndef SCMI_PRIVATE_H
 #define SCMI_PRIVATE_H
 
+#include <lib/mmio.h>
+
 /*
  * SCMI power domain management protocol message and response lengths. It is
  * calculated as sum of length in bytes of the message header (4) and payload
