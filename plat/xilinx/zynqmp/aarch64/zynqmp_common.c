@@ -11,9 +11,9 @@
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables.h>
+#include <plat_private.h>
 #include <plat/common/platform.h>
 
-#include "../zynqmp_private.h"
 #include "pm_api_sys.h"
 
 /*

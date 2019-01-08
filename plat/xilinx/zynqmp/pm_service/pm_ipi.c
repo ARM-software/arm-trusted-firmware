@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,10 +7,10 @@
 #include <arch_helpers.h>
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
+#include <plat_private.h>
 #include <plat/common/platform.h>
 
 #include "../zynqmp_ipi.h"
-#include "../zynqmp_private.h"
 #include "pm_ipi.h"
 
 /* IPI message buffers */

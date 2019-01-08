@@ -20,7 +20,7 @@
 #include <plat/common/platform.h>
 #endif
 
-#include "../zynqmp_private.h"
+#include <plat_private.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_ipi.h"
