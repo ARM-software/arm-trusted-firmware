@@ -20,10 +20,6 @@
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/mmio.h>
 
-#include <boot_api.h>
-#include <stm32mp1_dt.h>
-#include <stm32mp1_private.h>
-
 #define DDR_PATTERN	0xAAAAAAAAU
 #define DDR_ANTIPATTERN	0x55555555U
 

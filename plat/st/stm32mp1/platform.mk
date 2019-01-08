@@ -22,8 +22,6 @@ PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 1)))
 $(eval $(call add_define,PLAT_PARTITION_MAX_ENTRIES))
 
 PLAT_INCLUDES		:=	-Iplat/st/stm32mp1/include/
-PLAT_INCLUDES		+=	-Iplat/st/stm32mp1/
-PLAT_INCLUDES		+=	-Iinclude/common/tbbr
 
 # Device tree
 STM32_DTB_FILE_NAME	?=	stm32mp157c-ev1.dtb
