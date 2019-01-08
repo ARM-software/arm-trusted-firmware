@@ -24,9 +24,13 @@
 
 /* PM API ids */
 #define PM_GET_API_VERSION		1U
+#define PM_GET_DEVICE_STATUS		3U
 #define PM_REQ_SUSPEND			6U
 #define PM_SELF_SUSPEND			7U
 #define PM_ABORT_SUSPEND		9U
+#define PM_REQUEST_DEVICE		13U
+#define PM_RELEASE_DEVICE		14U
+#define PM_SET_REQUIREMENT		15U
 
 /*********************************************************************
  * Enum definitions
@@ -38,6 +42,22 @@ enum pm_abort_reason {
 	ABORT_REASON_NO_PWRDN,
 	ABORT_REASON_UNKNOWN,
 };
+
+/**
+ * Subsystem IDs
+ */
+typedef enum {
+	XPM_SUBSYSID_PMC,
+	XPM_SUBSYSID_PSM,
+	XPM_SUBSYSID_APU,
+	XPM_SUBSYSID_RPU0_LOCK,
+	XPM_SUBSYSID_RPU0_0,
+	XPM_SUBSYSID_RPU0_1,
+	XPM_SUBSYSID_DDR0,
+	XPM_SUBSYSID_ME,
+	XPM_SUBSYSID_PL,
+	XPM_SUBSYSID_MAX,
+} XPm_SubsystemId;
 
 /**
  * @PM_RET_SUCCESS:		success
