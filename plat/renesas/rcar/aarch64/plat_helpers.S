@@ -326,11 +326,11 @@ func plat_reset_handler
 	ubfx	w0, w0, 8, 8
 	/* H3? */
 	cmp	w0, #0x4F
-	b.eq	H3
+	b.eq	RCARH3
 	/* set R-Car M3/M3N */
 	mov	x2, #1
 	b	CHK_A5x
-H3:
+RCARH3:
 	/* set R-Car H3 */
 	mov	x2, #0
 	/* --------------------------------------------------------------------
