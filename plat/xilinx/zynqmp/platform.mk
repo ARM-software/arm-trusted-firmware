@@ -47,6 +47,7 @@ endif
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iinclude/plat/arm/common/aarch64/		\
+				-Iplat/xilinx/common/include/			\
 				-Iplat/xilinx/zynqmp/include/			\
 				-Iplat/xilinx/zynqmp/pm_service/		\
 				-Iplat/xilinx/zynqmp/ipi_mailbox_service/
