@@ -40,5 +40,12 @@ enum pm_ret_status pm_pinctrl_set_pin_param(uint32_t pin, uint32_t param,
 					    uint32_t value);
 enum pm_ret_status pm_pinctrl_get_pin_param(uint32_t pin, uint32_t param,
 					    uint32_t *value);
+enum pm_ret_status pm_clock_enable(uint32_t clk_id);
+enum pm_ret_status pm_clock_disable(uint32_t clk_id);
+enum pm_ret_status pm_clock_get_state(uint32_t clk_id, uint32_t *state);
+enum pm_ret_status pm_clock_set_divider(uint32_t clk_id, uint32_t divider);
+enum pm_ret_status pm_clock_get_divider(uint32_t clk_id, uint32_t *divider);
+enum pm_ret_status pm_clock_set_parent(uint32_t clk_id, uint32_t parent);
+enum pm_ret_status pm_clock_get_parent(uint32_t clk_id, uint32_t *parent);
 
 #endif /* PM_API_SYS_H */

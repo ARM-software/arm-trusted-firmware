@@ -39,6 +39,15 @@
 #define	PM_PINCTRL_SET_FUNCTION		31U
 #define	PM_PINCTRL_CONFIG_PARAM_GET	32U
 #define	PM_PINCTRL_CONFIG_PARAM_SET	33U
+#define PM_CLOCK_ENABLE			36U
+#define PM_CLOCK_DISABLE		37U
+#define PM_CLOCK_GETSTATE		38U
+#define PM_CLOCK_SETDIVIDER		39U
+#define PM_CLOCK_GETDIVIDER		40U
+#define PM_CLOCK_SETRATE		41U
+#define PM_CLOCK_GETRATE		42U
+#define PM_CLOCK_SETPARENT		43U
+#define PM_CLOCK_GETPARENT		44U
 
 /*********************************************************************
  * Enum definitions

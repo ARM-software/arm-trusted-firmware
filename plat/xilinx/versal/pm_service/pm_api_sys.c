@@ -378,3 +378,122 @@ enum pm_ret_status pm_pinctrl_get_pin_param(uint32_t pin, uint32_t param,
 
 	return pm_ipi_send_sync(primary_proc, payload, value, 1);
 }
+
+/**
+ * pm_clock_enable() - Enable the clock
+ * @clk_id	Clock ID
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_clock_enable(uint32_t clk_id)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, PM_CLOCK_ENABLE, clk_id);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_clock_disable() - Disable the clock
+ * @clk_id	Clock ID
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_clock_disable(uint32_t clk_id)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, PM_CLOCK_DISABLE, clk_id);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_clock_get_state() - Get clock status
+ * @clk_id	Clock ID
+ * @state:	Buffer to store clock status (1: Enabled, 0:Disabled)
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_clock_get_state(uint32_t clk_id, uint32_t *state)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, PM_CLOCK_GETSTATE, clk_id);
+
+	return pm_ipi_send_sync(primary_proc, payload, state, 1);
+}
+
+/**
+ * pm_clock_set_divider() - Set divider for the clock
+ * @clk_id	Clock ID
+ * @divider	Divider value
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_clock_set_divider(uint32_t clk_id, uint32_t divider)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_CLOCK_SETDIVIDER, clk_id,
+			 divider);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_clock_get_divider() - Get divider value for the clock
+ * @clk_id	Clock ID
+ * @divider:	Buffer to store clock divider value
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_clock_get_divider(uint32_t clk_id, uint32_t *divider)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, PM_CLOCK_GETDIVIDER, clk_id);
+
+	return pm_ipi_send_sync(primary_proc, payload, divider, 1);
+}
+
+/**
+ * pm_clock_set_parent() - Set parent for the clock
+ * @clk_id	Clock ID
+ * @parent	Parent ID
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_clock_set_parent(uint32_t clk_id, uint32_t parent)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_CLOCK_SETPARENT, clk_id,
+			 parent);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_clock_get_parent() - Get parent value for the clock
+ * @clk_id	Clock ID
+ * @parent:	Buffer to store clock parent value
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_clock_get_parent(uint32_t clk_id, uint32_t *parent)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, PM_CLOCK_GETPARENT, clk_id);
+
+	return pm_ipi_send_sync(primary_proc, payload, parent, 1);
+}
