@@ -2198,6 +2198,18 @@ static struct pm_clock clocks[] = {
 		.nodes = &can1_nodes,
 		.num_nodes = ARRAY_SIZE(can1_nodes),
 	},
+	[CLK_LPD_WDT] = {
+		.name = "lpd_wdt",
+		.control_reg = IOU_SLCR_WDT_CLK_SEL,
+		.status_reg = 0,
+		.parents = &((int32_t []) {
+			CLK_LPD_LSBUS,
+			EXT_CLK_SWDT1 | CLK_EXTERNAL_PARENT,
+			CLK_NA_PARENT
+		}),
+		.nodes = &wdt_nodes,
+		.num_nodes = ARRAY_SIZE(wdt_nodes),
+	},
 };
 
 static struct pm_ext_clock ext_clocks[] = {
@@ -2343,7 +2355,6 @@ static uint32_t pm_clk_invalid_list[] = {CLK_USB0, CLK_USB1, CLK_CSU_SPB,
 	CLK_TOPSW_LSBUS,
 	CLK_GTGREF0_REF,
 	CLK_LPD_SWITCH,
-	CLK_LPD_LSBUS,
 	CLK_CPU_R5,
 	CLK_CPU_R5_CORE,
 	CLK_CSU_SPB,
