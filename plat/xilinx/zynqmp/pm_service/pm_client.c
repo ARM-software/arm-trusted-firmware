@@ -19,6 +19,7 @@
 #include <lib/mmio.h>
 #include <lib/utils.h>
 
+#include <plat_ipi.h>
 #include <zynqmp_def.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
@@ -34,6 +35,12 @@
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
 extern const struct pm_ipi apu_ipi;
+
+const struct pm_ipi apu_ipi = {
+	.local_ipi_id = IPI_ID_APU,
+	.remote_ipi_id = IPI_ID_PMU0,
+	.buffer_base = IPI_BUFFER_APU_BASE,
+};
 
 static uint32_t suspend_mode = PM_SUSPEND_MODE_STD;
 

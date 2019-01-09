@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+
 #include <arch_helpers.h>
+
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
 
@@ -15,33 +17,8 @@
 
 #include "pm_ipi.h"
 
-/* IPI message buffers */
-#define IPI_BUFFER_BASEADDR	0xFF990000U
-
-#define IPI_BUFFER_APU_BASE	(IPI_BUFFER_BASEADDR + 0x400U)
-#define IPI_BUFFER_PMU_BASE	(IPI_BUFFER_BASEADDR + 0xE00U)
-
-#define IPI_BUFFER_LOCAL_BASE	IPI_BUFFER_APU_BASE
-#define IPI_BUFFER_REMOTE_BASE	IPI_BUFFER_PMU_BASE
-
-#define IPI_BUFFER_TARGET_LOCAL_OFFSET	0x80U
-#define IPI_BUFFER_TARGET_REMOTE_OFFSET	0x1C0U
-
-#define IPI_BUFFER_MAX_WORDS	8
-
-#define IPI_BUFFER_REQ_OFFSET	0x0U
-#define IPI_BUFFER_RESP_OFFSET	0x20U
-
-#define IPI_BLOCKING		1
-#define IPI_NON_BLOCKING	0
 
 DEFINE_BAKERY_LOCK(pm_secure_lock);
-
-const struct pm_ipi apu_ipi = {
-	.local_ipi_id = IPI_ID_APU,
-	.remote_ipi_id = IPI_ID_PMU0,
-	.buffer_base = IPI_BUFFER_APU_BASE,
-};
 
 /**
  * pm_ipi_init() - Initialize IPI peripheral for communication with
@@ -238,4 +215,16 @@ void pm_ipi_irq_enable(const struct pm_proc *proc)
 void pm_ipi_irq_clear(const struct pm_proc *proc)
 {
 	ipi_mb_ack(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
+}
+
+uint32_t pm_ipi_irq_status(const struct pm_proc *proc)
+{
+	int ret;
+
+	ret = ipi_mb_enquire_status(proc->ipi->local_ipi_id,
+				    proc->ipi->remote_ipi_id);
+	if (ret & IPI_MB_STATUS_RECV_PENDING)
+		return 1;
+	else
+		return 0;
 }

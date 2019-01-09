@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,18 +13,7 @@
 #define PM_COMMON_H
 
 #include <stdint.h>
-
-#include <common/debug.h>
-
-#include "pm_defs.h"
-
-#define PAYLOAD_ARG_CNT		6U
-#define PAYLOAD_ARG_SIZE	4U	/* size in bytes */
-
-#define ZYNQMP_TZ_VERSION_MAJOR		1
-#define ZYNQMP_TZ_VERSION_MINOR		0
-#define ZYNQMP_TZ_VERSION		((ZYNQMP_TZ_VERSION_MAJOR << 16) | \
-					ZYNQMP_TZ_VERSION_MINOR)
+#include <plat_pm_common.h>
 
 /**
  * pm_ipi - struct for capturing IPI-channel specific info
@@ -46,12 +35,11 @@ struct pm_ipi {
  *		(in APU all processors share one IPI channel)
  */
 struct pm_proc {
-	const enum pm_node_id node_id;
+	const uint32_t node_id;
 	const unsigned int pwrdn_mask;
 	const struct pm_ipi *ipi;
 };
 
 const struct pm_proc *pm_get_proc(unsigned int cpuid);
-const struct pm_proc *pm_get_proc_by_node(enum pm_node_id nid);
 
 #endif /* PM_COMMON_H */

@@ -73,6 +73,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				plat/common/plat_psci_common.c			\
+				plat/xilinx/common/pm_service/pm_ipi.c		\
 				plat/xilinx/zynqmp/bl31_zynqmp_setup.c		\
 				plat/xilinx/zynqmp/plat_psci.c			\
 				plat/xilinx/zynqmp/plat_zynqmp.c		\
@@ -85,6 +86,5 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/xilinx/zynqmp/pm_service/pm_api_pinctrl.c	\
 				plat/xilinx/zynqmp/pm_service/pm_api_ioctl.c	\
 				plat/xilinx/zynqmp/pm_service/pm_api_clock.c	\
-				plat/xilinx/zynqmp/pm_service/pm_ipi.c		\
 				plat/xilinx/zynqmp/pm_service/pm_client.c	\
 				plat/xilinx/zynqmp/ipi_mailbox_service/ipi_mailbox_svc.c
