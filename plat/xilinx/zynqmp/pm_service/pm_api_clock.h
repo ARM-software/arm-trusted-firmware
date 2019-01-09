@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -132,7 +132,7 @@ enum clock_id {
 	CLK_PL1_REF,
 	CLK_PL2_REF,
 	CLK_PL3_REF,
-	CLK_WDT,
+	CLK_FPD_WDT,
 	CLK_IOPLL_INT,
 	CLK_IOPLL_PRE_SRC,
 	CLK_IOPLL_HALF,

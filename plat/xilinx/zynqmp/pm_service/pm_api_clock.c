@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -2035,8 +2035,8 @@ static struct pm_clock clocks[] = {
 		.nodes = &acpu_half_nodes,
 		.num_nodes = ARRAY_SIZE(acpu_half_nodes),
 	},
-	[CLK_WDT] = {
-		.name = "wdt",
+	[CLK_FPD_WDT] = {
+		.name = "fpd_wdt",
 		.control_reg = FPD_SLCR_WDT_CLK_SEL,
 		.status_reg = 0,
 		.parents = &((int32_t []) {
