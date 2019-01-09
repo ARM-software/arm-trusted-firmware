@@ -59,6 +59,12 @@ uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 			     u_register_t flags)
 {
 	/* Let PM SMC handler deal with PM-related requests */
+	if (is_pm_fid(smc_fid)) {
+		return pm_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle,
+				      flags);
+	}
+
+	/* Let PM SMC handler deal with PM-related requests */
 	switch (smc_fid) {
 	case VERSAL_SIP_SVC_CALL_COUNT:
 		/* PM functions + default functions */
