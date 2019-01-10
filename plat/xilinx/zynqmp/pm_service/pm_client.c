@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,7 +19,8 @@
 #include <lib/mmio.h>
 #include <lib/utils.h>
 
-#include "../zynqmp_def.h"
+#include <plat_ipi.h>
+#include <zynqmp_def.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_ipi.h"
@@ -34,6 +35,12 @@
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
 extern const struct pm_ipi apu_ipi;
+
+const struct pm_ipi apu_ipi = {
+	.local_ipi_id = IPI_ID_APU,
+	.remote_ipi_id = IPI_ID_PMU0,
+	.buffer_base = IPI_BUFFER_APU_BASE,
+};
 
 static uint32_t suspend_mode = PM_SUSPEND_MODE_STD;
 

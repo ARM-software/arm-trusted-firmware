@@ -1,45 +1,28 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+
 #include <arch_helpers.h>
+
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
+
+#include <ipi.h>
+#include <plat_ipi.h>
+#include <plat_private.h>
 #include <plat/common/platform.h>
 
-#include "../zynqmp_ipi.h"
-#include "../zynqmp_private.h"
 #include "pm_ipi.h"
 
-/* IPI message buffers */
-#define IPI_BUFFER_BASEADDR	0xFF990000U
-
-#define IPI_BUFFER_APU_BASE	(IPI_BUFFER_BASEADDR + 0x400U)
-#define IPI_BUFFER_PMU_BASE	(IPI_BUFFER_BASEADDR + 0xE00U)
-
-#define IPI_BUFFER_TARGET_APU_OFFSET	0x80U
-#define IPI_BUFFER_TARGET_PMU_OFFSET	0x1C0U
-
-#define IPI_BUFFER_MAX_WORDS	8
-
-#define IPI_BUFFER_REQ_OFFSET	0x0U
-#define IPI_BUFFER_RESP_OFFSET	0x20U
-
-#define IPI_BLOCKING		1
-#define IPI_NON_BLOCKING	0
 
 DEFINE_BAKERY_LOCK(pm_secure_lock);
 
-const struct pm_ipi apu_ipi = {
-	.apu_ipi_id = IPI_ID_APU,
-	.pmu_ipi_id = IPI_ID_PMU0,
-	.buffer_base = IPI_BUFFER_APU_BASE,
-};
-
 /**
- * pm_ipi_init() - Initialize IPI peripheral for communication with PMU
+ * pm_ipi_init() - Initialize IPI peripheral for communication with
+ *		   remote processor
  *
  * @proc	Pointer to the processor who is initiating request
  * @return	On success, the initialization function must return 0.
@@ -51,13 +34,13 @@ const struct pm_ipi apu_ipi = {
 int pm_ipi_init(const struct pm_proc *proc)
 {
 	bakery_lock_init(&pm_secure_lock);
-	ipi_mb_open(proc->ipi->apu_ipi_id, proc->ipi->pmu_ipi_id);
+	ipi_mb_open(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
 
 	return 0;
 }
 
 /**
- * pm_ipi_send_common() - Sends IPI request to the PMU
+ * pm_ipi_send_common() - Sends IPI request to the remote processor
  * @proc	Pointer to the processor who is initiating request
  * @payload	API id and call arguments to be written in IPI buffer
  *
@@ -72,7 +55,7 @@ static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
 {
 	unsigned int offset = 0;
 	uintptr_t buffer_base = proc->ipi->buffer_base +
-					IPI_BUFFER_TARGET_PMU_OFFSET +
+					IPI_BUFFER_TARGET_REMOTE_OFFSET +
 					IPI_BUFFER_REQ_OFFSET;
 
 	/* Write payload into IPI buffer */
@@ -81,16 +64,16 @@ static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
 		offset += PAYLOAD_ARG_SIZE;
 	}
 
-	/* Generate IPI to PMU */
-	ipi_mb_notify(proc->ipi->apu_ipi_id, proc->ipi->pmu_ipi_id,
+	/* Generate IPI to remote processor */
+	ipi_mb_notify(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id,
 		      is_blocking);
 
 	return PM_RET_SUCCESS;
 }
 
 /**
- * pm_ipi_send_non_blocking() - Sends IPI request to the PMU without blocking
- *			        notification
+ * pm_ipi_send_non_blocking() - Sends IPI request to the remote processor
+ *			        without blocking notification
  * @proc	Pointer to the processor who is initiating request
  * @payload	API id and call arguments to be written in IPI buffer
  *
@@ -113,7 +96,7 @@ enum pm_ret_status pm_ipi_send_non_blocking(const struct pm_proc *proc,
 }
 
 /**
- * pm_ipi_send() - Sends IPI request to the PMU
+ * pm_ipi_send() - Sends IPI request to the remote processor
  * @proc	Pointer to the processor who is initiating request
  * @payload	API id and call arguments to be written in IPI buffer
  *
@@ -137,7 +120,8 @@ enum pm_ret_status pm_ipi_send(const struct pm_proc *proc,
 
 
 /**
- * pm_ipi_buff_read() - Reads IPI response after PMU has handled interrupt
+ * pm_ipi_buff_read() - Reads IPI response after remote processor has handled
+ *			interrupt
  * @proc	Pointer to the processor who is waiting and reading response
  * @value	Used to return value from IPI buffer element (optional)
  * @count	Number of values to return in @value
@@ -149,7 +133,7 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 {
 	size_t i;
 	uintptr_t buffer_base = proc->ipi->buffer_base +
-				IPI_BUFFER_TARGET_PMU_OFFSET +
+				IPI_BUFFER_TARGET_REMOTE_OFFSET +
 				IPI_BUFFER_RESP_OFFSET;
 
 	/*
@@ -168,7 +152,8 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 }
 
 /**
- * pm_ipi_buff_read_callb() - Reads IPI response after PMU has handled interrupt
+ * pm_ipi_buff_read_callb() - Reads IPI response after remote processor has
+ *			      handled interrupt
  * @value	Used to return value from IPI buffer element (optional)
  * @count	Number of values to return in @value
  *
@@ -177,8 +162,8 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 void pm_ipi_buff_read_callb(unsigned int *value, size_t count)
 {
 	size_t i;
-	uintptr_t buffer_base = IPI_BUFFER_PMU_BASE +
-				IPI_BUFFER_TARGET_APU_OFFSET +
+	uintptr_t buffer_base = IPI_BUFFER_REMOTE_BASE +
+				IPI_BUFFER_TARGET_LOCAL_OFFSET +
 				IPI_BUFFER_REQ_OFFSET;
 
 	if (count > IPI_BUFFER_MAX_WORDS)
@@ -191,7 +176,7 @@ void pm_ipi_buff_read_callb(unsigned int *value, size_t count)
 }
 
 /**
- * pm_ipi_send_sync() - Sends IPI request to the PMU
+ * pm_ipi_send_sync() - Sends IPI request to the remote processor
  * @proc	Pointer to the processor who is initiating request
  * @payload	API id and call arguments to be written in IPI buffer
  * @value	Used to return value from IPI buffer element (optional)
@@ -224,10 +209,22 @@ unlock:
 
 void pm_ipi_irq_enable(const struct pm_proc *proc)
 {
-	ipi_mb_enable_irq(proc->ipi->apu_ipi_id, proc->ipi->pmu_ipi_id);
+	ipi_mb_enable_irq(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
 }
 
 void pm_ipi_irq_clear(const struct pm_proc *proc)
 {
-	ipi_mb_ack(proc->ipi->apu_ipi_id, proc->ipi->pmu_ipi_id);
+	ipi_mb_ack(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id);
+}
+
+uint32_t pm_ipi_irq_status(const struct pm_proc *proc)
+{
+	int ret;
+
+	ret = ipi_mb_enquire_status(proc->ipi->local_ipi_id,
+				    proc->ipi->remote_ipi_id);
+	if (ret & IPI_MB_STATUS_RECV_PENDING)
+		return 1;
+	else
+		return 0;
 }

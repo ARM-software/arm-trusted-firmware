@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,7 +8,7 @@
 
 #include <arm_macros.S>
 #include <cci_macros.S>
-#include "../zynqmp_def.h"
+#include "zynqmp_def.h"
 
 	/* ---------------------------------------------
 	 * The below required platform porting macro

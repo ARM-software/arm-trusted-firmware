@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,9 +16,11 @@
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
 
+#include <ipi.h>
+#include <plat_ipi.h>
+#include <plat_private.h>
+
 #include "ipi_mailbox_svc.h"
-#include "../zynqmp_ipi.h"
-#include "../zynqmp_private.h"
 #include "../../../services/spd/trusty/smcall.h"
 
 /*********************************************************************

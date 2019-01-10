@@ -1,30 +1,15 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018, Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-/* ZynqMP IPI management enums and defines */
+/* Xilinx IPI management configuration data and macros */
 
-#ifndef ZYNQMP_IPI_H
-#define ZYNQMP_IPI_H
+#ifndef IPI_H
+#define IPI_H
 
 #include <stdint.h>
-
-/*********************************************************************
- * IPI agent IDs macros
- ********************************************************************/
-#define IPI_ID_APU	0U
-#define IPI_ID_RPU0	1U
-#define IPI_ID_RPU1	2U
-#define IPI_ID_PMU0	3U
-#define IPI_ID_PMU1	4U
-#define IPI_ID_PMU2	5U
-#define IPI_ID_PMU3	6U
-#define IPI_ID_PL0	7U
-#define IPI_ID_PL1	8U
-#define IPI_ID_PL2	9U
-#define IPI_ID_PL3	10U
 
 /*********************************************************************
  * IPI mailbox status macros
@@ -40,8 +25,30 @@
 #define IPI_MB_CALL_SECURE	1
 
 /*********************************************************************
+ * IPI secure check
+ ********************************************************************/
+#define IPI_SECURE_MASK  0x1U
+#define IPI_IS_SECURE(I) ((ipi_table[(I)].secure_only & \
+			   IPI_SECURE_MASK) ? 1 : 0)
+
+/*********************************************************************
+ * Struct definitions
+ ********************************************************************/
+
+/* structure to maintain IPI configuration information */
+struct ipi_config {
+	unsigned int ipi_bit_mask;
+	unsigned int ipi_reg_base;
+	unsigned char secure_only;
+};
+
+/*********************************************************************
  * IPI APIs declarations
  ********************************************************************/
+
+/* Initialize IPI configuration table */
+void ipi_config_table_init(const struct ipi_config *ipi_table,
+			   uint32_t total_ipi);
 
 /* Validate IPI mailbox access */
 int ipi_mb_validate(uint32_t local, uint32_t remote, unsigned int is_secure);
@@ -67,4 +74,4 @@ void ipi_mb_disable_irq(uint32_t local, uint32_t remote);
 /* Enable IPI mailbox notification interrupt */
 void ipi_mb_enable_irq(uint32_t local, uint32_t remote);
 
-#endif /* ZYNQMP_IPI_H */
+#endif /* IPI_H */

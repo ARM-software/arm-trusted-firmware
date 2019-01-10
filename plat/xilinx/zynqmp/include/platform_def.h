@@ -12,7 +12,7 @@
 #include <drivers/arm/gic_common.h>
 #include <lib/utils_def.h>
 
-#include "../zynqmp_def.h"
+#include "zynqmp_def.h"
 
 /*******************************************************************************
  * Generic platform constants

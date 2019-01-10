@@ -12,12 +12,12 @@
 #include <drivers/arm/gicv2.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
+#include <plat_private.h>
 #include <plat/common/platform.h>
 
 #include <plat_arm.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
-#include "zynqmp_private.h"
 
 uintptr_t zynqmp_sec_entry;
 

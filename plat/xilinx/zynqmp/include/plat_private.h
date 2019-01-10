@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef ZYNQMP_PRIVATE_H
-#define ZYNQMP_PRIVATE_H
+#ifndef PLAT_PRIVATE_H
+#define PLAT_PRIVATE_H
 
 #include <stdint.h>
 
@@ -39,4 +39,4 @@ int request_intr_type_el3(uint32_t, interrupt_type_handler_t);
 enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32_image_ep_info,
 		       entry_point_info_t *bl33_image_ep_info);
 
-#endif /* ZYNQMP_PRIVATE_H */
+#endif /* PLAT_PRIVATE_H */
