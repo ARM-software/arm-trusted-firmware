@@ -41,6 +41,7 @@
 #define	PM_PINCTRL_SET_FUNCTION		31U
 #define	PM_PINCTRL_CONFIG_PARAM_GET	32U
 #define	PM_PINCTRL_CONFIG_PARAM_SET	33U
+#define PM_IOCTL			34U
 #define PM_CLOCK_ENABLE			36U
 #define PM_CLOCK_DISABLE		37U
 #define PM_CLOCK_GETSTATE		38U
@@ -54,6 +55,16 @@
 #define PM_PLL_GET_PARAMETER		49U
 #define PM_PLL_SET_MODE			50U
 #define PM_PLL_GET_MODE			51U
+
+/* IOCTL IDs for clock driver */
+#define IOCTL_SET_PLL_FRAC_MODE		8
+#define	IOCTL_GET_PLL_FRAC_MODE		9
+#define	IOCTL_SET_PLL_FRAC_DATA		10
+#define	IOCTL_GET_PLL_FRAC_DATA		11
+
+/* Parameter ID for PLL IOCTLs */
+/* Fractional data portion for PLL */
+#define PM_PLL_PARAM_DATA	2
 
 /*********************************************************************
  * Enum definitions

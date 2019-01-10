@@ -612,3 +612,37 @@ enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype)
 
 	return pm_ipi_send_non_blocking(primary_proc, payload);
 }
+
+/**
+ * pm_api_ioctl() -  PM IOCTL API for device control and configs
+ * @device_id	Device ID
+ * @ioctl_id	ID of the requested IOCTL
+ * @arg1	Argument 1 to requested IOCTL call
+ * @arg2	Argument 2 to requested IOCTL call
+ * @value	Returned output value
+ *
+ * This function calls IOCTL to firmware for device control and configuration.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
+				uint32_t arg1, uint32_t arg2, uint32_t *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	switch (ioctl_id) {
+	case IOCTL_SET_PLL_FRAC_MODE:
+		return pm_pll_set_mode(arg1, arg2);
+	case IOCTL_GET_PLL_FRAC_MODE:
+		return pm_pll_get_mode(arg1, value);
+	case IOCTL_SET_PLL_FRAC_DATA:
+		return pm_pll_set_param(arg1, PM_PLL_PARAM_DATA, arg2);
+	case IOCTL_GET_PLL_FRAC_DATA:
+		return pm_pll_get_param(arg1, PM_PLL_PARAM_DATA, value);
+	default:
+		/* Send request to the PMC */
+		PM_PACK_PAYLOAD5(payload, LIBPM_MODULE_ID, PM_IOCTL, device_id,
+				 ioctl_id, arg1, arg2);
+		return pm_ipi_send_sync(primary_proc, payload, value, 1);
+	}
+}
