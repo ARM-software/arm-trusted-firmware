@@ -58,7 +58,7 @@ This release
 
 This release provides a suitable starting point for productization of secure
 world boot and runtime firmware, in either the AArch32 or AArch64 execution
-state.
+states.
 
 Users are encouraged to do their own security validation, including penetration
 testing, on any secure world code derived from TF-A.
@@ -95,10 +95,10 @@ Functionality
 -  Secure Monitor library code such as world switching, EL1 context management
    and interrupt routing.
    When a Secure-EL1 Payload (SP) is present, for example a Secure OS, the
-   AArch64 EL3 Runtime Software must be integrated with a dispatcher component
-   (SPD) to customize the interaction with the SP.
+   AArch64 EL3 Runtime Software must be integrated with a Secure Payload
+   Dispatcher (SPD) component to customize the interaction with the SP.
 
--  A Test SP/SPD to demonstrate AArch64 Secure Monitor functionality and SP
+-  A Test SP and SPD to demonstrate AArch64 Secure Monitor functionality and SP
    interaction with PSCI.
 
 -  SPDs for the `OP-TEE Secure OS`_, `NVIDIA Trusted Little Kernel`_
@@ -136,8 +136,8 @@ Functionality
 
 -  Support for the GCC, LLVM and Arm Compiler 6 toolchains.
 
--  Support combining several libraries into a self-called "romlib" image, that
-   may be shared across images to reduce memory footprint. The romlib image
+-  Support for combining several libraries into a self-called "romlib" image
+   that may be shared across images to reduce memory footprint. The romlib image
    is stored in ROM but is accessed through a jump-table that may be stored
    in read-write memory, allowing for the library code to be patched.
 
@@ -148,8 +148,8 @@ provides details of changes made since the last release.
 Platforms
 ~~~~~~~~~
 
-Various AArch32 and AArch64 builds of this release has been tested on variants
-r0, r1 and r2 of the `Juno Arm Development Platform`_.
+Various AArch32 and AArch64 builds of this release have been tested on r0, r1
+and r2 variants of the `Juno Arm Development Platform`_.
 
 Various AArch64 builds of this release have been tested on the following Arm
 Fixed Virtual Platforms (`FVP`_) without shifted affinities that do not
@@ -229,10 +229,10 @@ Getting started
 
 Get the TF-A source code from `GitHub`_.
 
-See the `User Guide`_ for instructions on how to install, build and use
-the TF-A with the Arm `FVP`_\ s.
+See the `User Guide`_ for instructions on how to install, build and use TF-A
+with the Arm `FVP`_\ s.
 
-See the `Firmware Design`_ for information on how the TF-A works.
+See the `Firmware Design`_ for information on how TF-A works.
 
 See the `Porting Guide`_ as well for information about how to use this
 software on another Armv7-A or Armv8-A platform.
