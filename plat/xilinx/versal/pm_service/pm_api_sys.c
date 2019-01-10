@@ -572,3 +572,43 @@ enum pm_ret_status pm_pll_get_mode(uint32_t clk_id, uint32_t *mode)
 
 	return pm_ipi_send_sync(primary_proc, payload, mode, 1);
 }
+
+/**
+ * pm_force_powerdown() - PM call to request for another PU or subsystem to
+ *			  be powered down forcefully
+ * @target	Device ID of the PU node to be forced powered down.
+ * @ack		Flag to specify whether acknowledge is requested
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_force_powerdown(uint32_t target, uint8_t ack)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_FORCE_POWERDOWN, target,
+			 ack);
+
+	if (ack == IPI_BLOCKING)
+		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	else
+		return pm_ipi_send(primary_proc, payload);
+}
+
+/**
+ * pm_system_shutdown() - PM call to request a system shutdown or restart
+ * @type	Shutdown or restart? 0=shutdown, 1=restart
+ * @subtype	Scope: 0=APU-subsystem, 1=PS, 2=system
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_SYSTEM_SHUTDOWN, type,
+			 subtype);
+
+	return pm_ipi_send_non_blocking(primary_proc, payload);
+}

@@ -53,5 +53,7 @@ enum pm_ret_status pm_pll_get_param(uint32_t clk_id, uint32_t param,
 				    uint32_t *value);
 enum pm_ret_status pm_pll_set_mode(uint32_t clk_id, uint32_t mode);
 enum pm_ret_status pm_pll_get_mode(uint32_t clk_id, uint32_t *mode);
+enum pm_ret_status pm_force_powerdown(uint32_t target, uint8_t ack);
+enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype);
 
 #endif /* PM_API_SYS_H */

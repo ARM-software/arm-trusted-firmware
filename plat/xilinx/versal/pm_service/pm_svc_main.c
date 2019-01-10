@@ -88,6 +88,10 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 				      pm_arg[3]);
 		SMC_RET1(handle, (uint64_t)ret);
 
+	case PM_FORCE_POWERDOWN:
+		ret = pm_force_powerdown(pm_arg[0], pm_arg[1]);
+		SMC_RET1(handle, (uint64_t)ret);
+
 	case PM_REQ_SUSPEND:
 		ret = pm_req_suspend(pm_arg[0], pm_arg[1], pm_arg[2],
 				     pm_arg[3]);
@@ -95,6 +99,10 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_ABORT_SUSPEND:
 		ret = pm_abort_suspend(pm_arg[0]);
+		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_SYSTEM_SHUTDOWN:
+		ret = pm_system_shutdown(pm_arg[0], pm_arg[1]);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_REQUEST_DEVICE:
