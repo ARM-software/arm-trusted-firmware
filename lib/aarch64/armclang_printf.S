@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,7 +13,13 @@
 	.globl __2printf
 
 func __0printf
-__1printf:
-__2printf:
-        b	printf
+	b	printf
 endfunc __0printf
+
+func __1printf
+	b	printf
+endfunc __1printf
+
+func __2printf
+	b	printf
+endfunc __2printf
