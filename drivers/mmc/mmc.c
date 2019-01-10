@@ -405,7 +405,7 @@ static int mmc_send_op_cond(void)
 			return 0;
 		}
 
-		mdelay(1);
+		mdelay(10);
 	}
 
 	ERROR("CMD1 failed after %d retries\n", SEND_OP_COND_MAX_RETRIES);
