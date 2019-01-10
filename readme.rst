@@ -101,7 +101,7 @@ Functionality
 -  A Test SP/SPD to demonstrate AArch64 Secure Monitor functionality and SP
    interaction with PSCI.
 
--  SPDs for the `OP-TEE Secure OS`_, `NVidia Trusted Little Kernel`_
+-  SPDs for the `OP-TEE Secure OS`_, `NVIDIA Trusted Little Kernel`_
    and `Trusty Secure OS`_.
 
 -  A Trusted Board Boot implementation, conforming to all mandatory TBBR
@@ -276,7 +276,7 @@ Arm licensees may contact Arm directly via their partner managers.
 .. _FVP: https://developer.arm.com/products/system-design/fixed-virtual-platforms
 .. _Linaro Release 18.04: https://community.arm.com/dev-platforms/b/documents/posts/linaro-release-notes-deprecated#LinaroRelease18.04
 .. _OP-TEE Secure OS: https://github.com/OP-TEE/optee_os
-.. _NVidia Trusted Little Kernel: http://nv-tegra.nvidia.com/gitweb/?p=3rdparty/ote_partner/tlk.git;a=summary
+.. _NVIDIA Trusted Little Kernel: http://nv-tegra.nvidia.com/gitweb/?p=3rdparty/ote_partner/tlk.git;a=summary
 .. _Trusty Secure OS: https://source.android.com/security/trusty
 .. _GitHub: https://www.github.com/ARM-software/arm-trusted-firmware
 .. _GitHub issue tracker: https://github.com/ARM-software/tf-issues/issues
