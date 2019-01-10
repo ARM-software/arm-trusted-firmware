@@ -9,7 +9,7 @@ such as:
 -  The `Power State Coordination Interface (PSCI)`_
 -  Trusted Board Boot Requirements (TBBR, Arm DEN0006C-1)
 -  `SMC Calling Convention`_
--  `System Control and Management Interface`_
+-  `System Control and Management Interface (SCMI)`_
 -  `Software Delegated Exception Interface (SDEI)`_
 
 Where possible, the code is designed for reuse or porting to other Armv7-A and
@@ -267,7 +267,7 @@ Arm licensees may contact Arm directly via their partner managers.
 .. _Power State Coordination Interface (PSCI): PSCI_
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _SMC Calling Convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
-.. _System Control and Management Interface: SCMI_
+.. _System Control and Management Interface (SCMI): SCMI_
 .. _SCMI: http://infocenter.arm.com/help/topic/com.arm.doc.den0056a/DEN0056A_System_Control_and_Management_Interface.pdf
 .. _Software Delegated Exception Interface (SDEI): SDEI_
 .. _SDEI: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
