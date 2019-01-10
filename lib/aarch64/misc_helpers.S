@@ -18,7 +18,6 @@
 
 	.globl	zero_normalmem
 	.globl	zeromem
-	.globl	zeromem16
 	.globl	memcpy16
 
 	.globl	disable_mmu_el1
