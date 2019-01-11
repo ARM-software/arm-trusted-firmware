@@ -283,7 +283,7 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		val = params_from_bl2->tzdram_base +
 			tegra186_get_cpu_reset_handler_size();
 		memcpy16((void *)(uintptr_t)val, (void *)(uintptr_t)BL31_BASE,
-			 (uintptr_t)&__BL31_END__ - (uintptr_t)BL31_BASE);
+			 (uintptr_t)BL31_END - (uintptr_t)BL31_BASE);
 	}
 
 	return PSCI_E_SUCCESS;
