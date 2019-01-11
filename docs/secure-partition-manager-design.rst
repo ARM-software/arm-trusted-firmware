@@ -309,7 +309,7 @@ SPM to delegate service requests to the Secure Partition. The interface also
 allows the Secure Partition to:
 
 - Register with the SPM a service that it provides.
-- Indicate completion of a service request delagated by the SPM
+- Indicate completion of a service request delegated by the SPM
 
 Miscellaneous interfaces
 ------------------------

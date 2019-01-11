@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -375,7 +375,7 @@ static uintptr_t tspd_smc_handler(uint32_t smc_fid,
 
 			/*
 			 * TSP has been successfully initialized. Register power
-			 * managemnt hooks with PSCI
+			 * management hooks with PSCI
 			 */
 			psci_register_spd_pm_hook(&tspd_pm);
 

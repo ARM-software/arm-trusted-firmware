@@ -10,7 +10,7 @@ Trusted Firmware-A - version 2.0
 New Features
 ------------
 
--  Removal of a number of deprecated API's
+-  Removal of a number of deprecated APIs
 
    -  A new Platform Compatibility Policy document has been created which
       references a wiki page that maintains a listing of deprecated
@@ -20,7 +20,7 @@ New Features
       from the code base.
 
    -  Various Arm and partner platforms have been updated to remove the use of
-      removed API's in this release.
+      removed APIs in this release.
 
    -  This release is otherwise unchanged from 1.6 release
 
@@ -130,7 +130,7 @@ New Features
       the clang linker is not used because it is unable to link TF-A objects
       due to immaturity of clang linker functionality at this time.
 
--  Refactor support API's into Libraries
+-  Refactor support APIs into Libraries
 
    -  Evolve libfdt, mbed TLS library and standard C library sources as
       proper libraries that TF-A may be linked against.
@@ -435,7 +435,7 @@ New features
 
    -  Introduced APIs to get and set the memory attributes of a region.
 
-   -  Added support to manage both priviledge levels in translation regimes that
+   -  Added support to manage both privilege levels in translation regimes that
       describe translations for 2 Exception levels, specifically the EL1&0
       translation regime, and extended the memory map region attributes to
       include specifying Non-privileged access.
@@ -683,7 +683,7 @@ New features
 -  Enhancements to Firmware Update feature:
 
    -  The FWU logic now checks for overlapping images to prevent execution of
-      unauthenticated arbitary code.
+      unauthenticated arbitrary code.
 
    -  Introduced new FWU_SMC_IMAGE_RESET SMC that changes the image loading
       state machine to go from COPYING, COPIED or AUTHENTICATED states to
@@ -855,7 +855,7 @@ New features
 
    -  Essential control registers are fully initialised on EL3 start-up, when
       initialising the non-secure and secure context structures and when
-      preparing to leave EL3 for a lower EL. This gives better alignement with
+      preparing to leave EL3 for a lower EL. This gives better alignment with
       the Arm ARM which states that software must initialise RES0 and RES1
       fields with 0 / 1.
 
@@ -1345,7 +1345,7 @@ New features
 -  It is now possible to specify the name of the FIP at build time by defining
    the ``FIP_NAME`` variable.
 
--  Issues with depedencies on the 'fiptool' makefile target have been
+-  Issues with dependencies on the 'fiptool' makefile target have been
    rectified. The ``fip_create`` tool is now rebuilt whenever its source files
    change.
 
@@ -1376,7 +1376,7 @@ New features
       the secure world. This can be done by setting the build flag
       ``FVP_TSP_RAM_LOCATION`` to the value ``dram``.
 
--  Separate transation tables are created for each boot loader image. The
+-  Separate translation tables are created for each boot loader image. The
    ``IMAGE_BLx`` build options are used to do this. This allows each stage to
    create mappings only for areas in the memory map that it needs.
 
@@ -1530,7 +1530,7 @@ New features
    -  Clarified the platform porting interface to the TSP.
 
    -  Reworked the TSPD setup code to support the alternate BL3-2
-      intialization flow where BL3-1 generic code hands control to BL3-2,
+      initialization flow where BL3-1 generic code hands control to BL3-2,
       rather than expecting the TSPD to hand control directly to BL3-2.
 
    -  Considerable rework to PSCI generic code to support CPU specific
@@ -1569,7 +1569,7 @@ Issues resolved since last release
 
 -  Removed the concept of top/bottom image loading. The image loader now
    automatically detects the position of the image inside the current memory
-   layout and updates the layout to minimize fragementation. This resolves the
+   layout and updates the layout to minimize fragmentation. This resolves the
    image loader limitations of previously releases. There are currently no
    plans to support dynamic image loading.
 

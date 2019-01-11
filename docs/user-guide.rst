@@ -108,7 +108,7 @@ Building TF-A
    ``CC`` needs to point to the clang or armclang binary, which will
    also select the clang or armclang assembler. Be aware that the
    GNU linker is used by default.  In case of being needed the linker
-   can be overriden using the ``LD`` variable. Clang linker version 6 is
+   can be overridden using the ``LD`` variable. Clang linker version 6 is
    known to work with TF-A.
 
    In both cases ``CROSS_COMPILE`` should be set as described above.
@@ -357,8 +357,8 @@ Common build options
    supports the format used by GCC when T32 interworking is disabled. For this
    reason enabling this option in AArch32 will force the compiler to only
    generate A32 code. This option is enabled by default only in AArch64 debug
-   builds, but this behaviour can be overriden in each platform's Makefile or in
-   the build command line.
+   builds, but this behaviour can be overridden in each platform's Makefile or
+   in the build command line.
 
 -  ``ENABLE_MPAM_FOR_LOWER_ELS``: Boolean option to enable lower ELs to use MPAM
    feature. MPAM is an optional Armv8.4 extension that enables various memory
@@ -428,7 +428,7 @@ Common build options
    handled at EL3, and a panic will result. This is supported only for AArch64
    builds.
 
--  ``FAULT_INJECTION_SUPPORT``: ARMv8.4 externsions introduced support for fault
+-  ``FAULT_INJECTION_SUPPORT``: ARMv8.4 extensions introduced support for fault
    injection from lower ELs, and this build option enables lower ELs to use
    Error Records accessed via System Registers to inject faults. This is
    applicable only to AArch64 builds.

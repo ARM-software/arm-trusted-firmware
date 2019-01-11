@@ -266,14 +266,14 @@ FWU\_SMC\_IMAGE\_AUTH
         if (image_id is invalid) return -EPERM
         if (secure world caller)
             if (image_id state is not RESET) return -EPERM
-            if (image_addr/image_size is not mappped into BL1) return -ENOMEM
+            if (image_addr/image_size is not mapped into BL1) return -ENOMEM
         else // normal world caller
             if (image_id is secure image)
                 if (image_id state is not COPIED) return -EPERM
             else // image_id is non-secure image
                 if (image_id state is not RESET) return -EPERM
                 if (image_addr/image_size is in secure memory) return -ENOMEM
-                if (image_addr/image_size not mappped into BL1) return -ENOMEM
+                if (image_addr/image_size not mapped into BL1) return -ENOMEM
 
 This SMC authenticates the image specified by ``image_id``. If the image is in the
 RESET state, BL1 authenticates the image in place using the provided

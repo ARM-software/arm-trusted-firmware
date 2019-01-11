@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -370,7 +370,7 @@ void ccn_exit_dvm_domain(unsigned long long master_iface_map)
  * system. The state is expected to be one of NO_L3, SF_ONLY, L3_HAM or
  * L3_FAM. Instead of comparing the states reported by all HN-Fs, the state of
  * the first present HN-F node is reported. Since the driver does not export an
- * interface to program them seperately, there is no reason to perform this
+ * interface to program them separately, there is no reason to perform this
  * check. An HN-F could report that the L3 cache is transitioning from one mode
  * to another e.g. HNF_PM_NOL3_2_SFONLY. In this case, the function waits for
  * the transition to complete and reports the final state.
@@ -383,7 +383,7 @@ unsigned int ccn_get_l3_run_mode(void)
 	assert(ccn_plat_desc->periphbase);
 
 	/*
-	 * Wait for a L3 cache paritition to enter any run mode. The pstate
+	 * Wait for a L3 cache partition to enter any run mode. The pstate
 	 * parameter is read from an HN-F P-state status register. A non-zero
 	 * value in bits[1:0] means that the cache is transitioning to a run
 	 * mode.
@@ -428,7 +428,7 @@ void ccn_set_l3_run_mode(unsigned int mode)
 	region_id = HNF_REGION_ID_START;
 	FOR_EACH_PRESENT_REGION_ID(region_id, mn_hnf_id_map) {
 		/*
-		 * Wait for a L3 cache paritition to enter a target run
+		 * Wait for a L3 cache partition to enter a target run
 		 * mode. The pstate parameter is read from an HN-F P-state
 		 * status register.
 		 */
@@ -584,7 +584,7 @@ void ccn_write_node_reg(node_types_t node_type, unsigned int node_id,
 		return;
 	}
 
-	/* Setting the value of Auxilary Control Register of the Node */
+	/* Setting the value of Auxiliary Control Register of the Node */
 	ccn_reg_write(ccn_plat_desc->periphbase, region_id, reg_offset, val);
 	VERBOSE("Value is successfully written at address 0x%lx.\n",
 			(ccn_plat_desc->periphbase
@@ -611,7 +611,7 @@ unsigned long long ccn_read_node_reg(node_types_t node_type,
 		return ULL(0);
 	}
 
-	/* Setting the value of Auxilary Control Register of the Node */
+	/* Setting the value of Auxiliary Control Register of the Node */
 	val = ccn_reg_read(ccn_plat_desc->periphbase, region_id, reg_offset);
 	VERBOSE("Value is successfully read from address 0x%lx.\n",
 			(ccn_plat_desc->periphbase

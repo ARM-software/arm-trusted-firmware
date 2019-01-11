@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,7 +68,7 @@ void __init bl31_lib_init(void)
  * before passing control to the bootloader or an Operating System. This
  * function calls runtime_svc_init() which initializes all registered runtime
  * services. The run time services would setup enough context for the core to
- * swtich to the next exception level. When this function returns, the core will
+ * switch to the next exception level. When this function returns, the core will
  * switch to the programmed exception level via. an ERET.
  ******************************************************************************/
 void bl31_main(void)
@@ -96,13 +96,13 @@ void bl31_main(void)
 	 * decide which is the next image (BL32 or BL33) and how to execute it.
 	 * If the SPD runtime service is present, it would want to pass control
 	 * to BL32 first in S-EL1. In that case, SPD would have registered a
-	 * function to intialize bl32 where it takes responsibility of entering
+	 * function to initialize bl32 where it takes responsibility of entering
 	 * S-EL1 and returning control back to bl31_main. Once this is done we
 	 * can prepare entry into BL33 as normal.
 	 */
 
 	/*
-	 * If SPD had registerd an init hook, invoke it.
+	 * If SPD had registered an init hook, invoke it.
 	 */
 	if (bl32_init != NULL) {
 		INFO("BL31: Initializing BL32\n");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -341,7 +341,7 @@ static uintptr_t tlkd_smc_handler(uint32_t smc_fid,
 
 		/*
 		 * SP has been successfully initialized. Register power
-		 * managemnt hooks with PSCI
+		 * management hooks with PSCI
 		 */
 		psci_register_spd_pm_hook(&tlkd_pm_ops);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,12 +18,12 @@
  *     unsigned denominator);
  */
 
-/* struct qr - stores qutient/remainder to handle divmod EABI interfaces. */
+/* struct qr - stores quotient/remainder to handle divmod EABI interfaces. */
 struct qr {
 	unsigned int q;		/* computed quotient */
 	unsigned int r;		/* computed remainder */
-	unsigned int q_n;	/* specficies if quotient shall be negative */
-	unsigned int r_n;	/* specficies if remainder shall be negative */
+	unsigned int q_n;	/* specifies if quotient shall be negative */
+	unsigned int r_n;	/* specifies if remainder shall be negative */
 };
 
 static void uint_div_qr(unsigned int numerator, unsigned int denominator,

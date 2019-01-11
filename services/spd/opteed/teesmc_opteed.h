@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,13 +10,13 @@
 #define TEESMC_OPTEED_H
 
 /*
- * This file specify SMC function IDs used when returning from TEE to the
+ * This file specifies SMC function IDs used when returning from TEE to the
  * secure monitor.
  *
  * All SMC Function IDs indicates SMC32 Calling Convention but will carry
  * full 64 bit values in the argument registers if invoked from Aarch64
  * mode. This violates the SMC Calling Convention, but since this
- * convention only coveres API towards Normwal World it's something that
+ * convention only coveres API towards Normal World it's something that
  * only concerns the OP-TEE Dispatcher in ARM Trusted Firmware and OP-TEE
  * OS at Secure EL1.
  */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -100,7 +100,7 @@ static struct args trusty_context_switch(uint32_t security_state, uint64_t r0,
 
 	/*
 	 * To avoid the additional overhead in PSCI flow, skip FP context
-	 * saving/restoring in case of CPU suspend and resume, asssuming that
+	 * saving/restoring in case of CPU suspend and resume, assuming that
 	 * when it's needed the PSCI caller has preserved FP context before
 	 * going here.
 	 */
@@ -302,7 +302,7 @@ static int32_t trusty_init(void)
 
 	/*
 	 * Adjust secondary cpu entry point for 32 bit images to the
-	 * end of exeption vectors
+	 * end of exception vectors
 	 */
 	if ((cpu != 0) && (reg_width == MODE_RW_32)) {
 		INFO("trusty: cpu %d, adjust entry point to 0x%lx\n",

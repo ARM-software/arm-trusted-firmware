@@ -203,7 +203,7 @@ BL1 performs minimal architectural initialization as follows.
 
    The ``plat_report_exception()`` implementation on the Arm FVP port programs
    the Versatile Express System LED register in the following format to
-   indicate the occurence of an unexpected exception:
+   indicate the occurrence of an unexpected exception:
 
    ::
 
@@ -1991,7 +1991,7 @@ Coherent memory usage in PSCI implementation
 The ``psci_non_cpu_pd_nodes`` data structure stores the platform's power domain
 tree information for state management of power domains. By default, this data
 structure is allocated in the coherent memory region in TF-A because it can be
-accessed by multple CPUs, either with caches enabled or disabled.
+accessed by multiple CPUs, either with caches enabled or disabled.
 
 .. code:: c
 
@@ -2031,7 +2031,7 @@ cache lines after these fields are written.
 
 The field ``local_state`` can be concurrently accessed by multiple CPUs in
 different cache states. A Lamport's Bakery lock ``psci_locks`` is used to ensure
-mutual exlusion to this field and a clean and invalidate is needed after it
+mutual exclusion to this field and a clean and invalidate is needed after it
 is written.
 
 Bakery lock data
@@ -2225,7 +2225,7 @@ appropriately map the code region as executable and the read-only data as
 execute-never.
 
 This has an impact on memory footprint, as padding bytes need to be introduced
-between the code and read-only data to ensure the segragation of the two. To
+between the code and read-only data to ensure the segregation of the two. To
 limit the memory cost, this flag also changes the memory layout such that the
 code and exception vectors are now contiguous, like so:
 
@@ -2352,12 +2352,12 @@ has finished and be used for runtime data.
 
 The build option ``RECLAIM_INIT_CODE`` can be set to mark this boot time code
 with a ``.text.init.*`` attribute which can be filtered and placed suitably
-within the BL image for later reclaimation by the platform. The platform can
-specify the fiter and the memory region for this init section in BL31 via the
+within the BL image for later reclamation by the platform. The platform can
+specify the filter and the memory region for this init section in BL31 via the
 plat.ld.S linker script. For example, on the FVP, this section is placed
 overlapping the secondary CPU stacks so that after the cold boot is done, this
 memory can be reclaimed for the stacks. The init memory section is initially
-mapped with ``RO``, ``EXECUTE`` attributes. After BL31 initilization has
+mapped with ``RO``, ``EXECUTE`` attributes. After BL31 initialization has
 completed, the FVP changes the attributes of this section to ``RW``,
 ``EXECUTE_NEVER`` allowing it to be used for runtime data. The memory attributes
 are changed within the ``bl31_plat_runtime_setup`` platform hook. The init
@@ -2553,7 +2553,7 @@ extension is mandatory to support the TF-A bootloader and runtime services.
 
 Platform implementing an Armv7-A system can to define from its target
 Cortex-A architecture through ``ARM_CORTEX_A<X> = yes`` in their
-``plaform.mk`` script. For example ``ARM_CORTEX_A15=yes`` for a
+``platform.mk`` script. For example ``ARM_CORTEX_A15=yes`` for a
 Cortex-A15 target.
 
 Platform can also set ``ARM_WITH_NEON=yes`` to enable neon support.

@@ -203,8 +203,8 @@ doesn't return.
 Engaging the RAS framework
 --------------------------
 
-Enabling RAS support is a platform choice conjunctional of three distinct but
-related build options:
+Enabling RAS support is a platform choice constructed from three distinct, but
+related, build options:
 
 -  ``RAS_EXTENSION=1`` includes the RAS framework in the run time firmware;
 
@@ -244,7 +244,7 @@ allocate the highest secure priority for RAS handling.
 
 .. __: exception-handling.rst#partitioning-priority-levels
 
-Handling of both `interrrupt`__ and `non-interrupt`__ exceptions follow the
+Handling of both `interrupt`__ and `non-interrupt`__ exceptions follow the
 sequences outlined in the |EHF| documentation. I.e., for interrupts, the
 priority management is implicit; but for non-interrupt exceptions, they're
 explicit using `EHF APIs`__.

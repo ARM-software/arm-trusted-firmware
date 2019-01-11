@@ -390,7 +390,7 @@ also be defined:
 -  **#define : SCP\_BL2\_IMAGE\_ID**
 
    SCP\_BL2 image identifier, used by BL2 to load SCP\_BL2 into secure memory
-   from platform storage before being transfered to the SCP.
+   from platform storage before being transferred to the SCP.
 
 -  **#define : SCP\_FW\_KEY\_CERT\_ID**
 
@@ -439,9 +439,9 @@ platform, the following constants must also be defined:
 -  **#define : TSP\_SEC\_MEM\_SIZE**
 
    Defines the size of the secure memory used by the BL32 image on the
-   platform. ``TSP_SEC_MEM_BASE`` and ``TSP_SEC_MEM_SIZE`` must fully accomodate
-   the memory required by the BL32 image, defined by ``BL32_BASE`` and
-   ``BL32_LIMIT``.
+   platform. ``TSP_SEC_MEM_BASE`` and ``TSP_SEC_MEM_SIZE`` must fully
+   accommodate the memory required by the BL32 image, defined by ``BL32_BASE``
+   and ``BL32_LIMIT``.
 
 -  **#define : TSP\_IRQ\_SEC\_PHY\_TIMER**
 
@@ -821,11 +821,11 @@ Function : plat\_my\_core\_pos()
     Argument : void
     Return   : unsigned int
 
-This funtion returns the index of the calling CPU which is used as a
+This function returns the index of the calling CPU which is used as a
 CPU-specific linear index into blocks of memory (for example while allocating
 per-CPU stacks). This function will be invoked very early in the
 initialization sequence which mandates that this function should be
-implemented in assembly and should not rely on the avalability of a C
+implemented in assembly and should not rely on the availability of a C
 runtime environment. This function can clobber x0 - x8 and must preserve
 x9 - x29.
 
@@ -929,7 +929,7 @@ Function : plat\_reset\_handler()
 
 A platform may need to do additional initialization after reset. This function
 allows the platform to do the platform specific intializations. Platform
-specific errata workarounds could also be implemented here. The api should
+specific errata workarounds could also be implemented here. The API should
 preserve the values of callee saved registers x19 to x29.
 
 The default implementation doesn't do anything. If a platform needs to override
@@ -1543,7 +1543,7 @@ The AP Firmware Updater Configuration, BL2U, is an optional part of the FWU
 process and is executed only by the primary CPU. BL1 passes control to BL2U at
 ``BL2U_BASE``. BL2U executes in Secure-EL1 and is responsible for:
 
-#. (Optional) Transfering the optional SCP\_BL2U binary image from AP secure
+#. (Optional) Transferring the optional SCP\_BL2U binary image from AP secure
    memory to SCP RAM. BL2U uses the SCP\_BL2U ``image_info`` passed by BL1.
    ``SCP_BL2U_BASE`` defines the address in AP secure memory where SCP\_BL2U
    should be copied from. Subsequent handling of the SCP\_BL2U image is
@@ -1649,7 +1649,7 @@ CPUs. BL31 executes at EL3 and is responsible for:
    implementation.
 
 #. Optionally passing control to the BL32 image, pre-loaded at a platform-
-   specific address by BL2. BL31 exports a set of apis that allow runtime
+   specific address by BL2. BL31 exports a set of APIs that allow runtime
    services to specify the security state in which the next image should be
    executed and run the corresponding image. On ARM platforms, BL31 uses the
    ``bl_params`` list populated by BL2 in memory to do this.
@@ -1800,7 +1800,7 @@ defined by the translation library, and can be found in the file
 ``include/lib/xlat_tables/xlat_mmu_helpers.h``.
 
 On DynamIQ systems, this function must not use stack while enabling MMU, which
-is how the function in xlat table library version 2 is implementated.
+is how the function in xlat table library version 2 is implemented.
 
 Function : plat\_get\_syscnt\_freq2() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2030,7 +2030,7 @@ Function : plat\_get\_power\_domain\_tree\_desc() [mandatory]
 
 This function returns a pointer to the byte array containing the power domain
 topology tree description. The format and method to construct this array are
-described in `Power Domain Topology Design`_. The BL31 PSCI initilization code
+described in `Power Domain Topology Design`_. The BL31 PSCI initialization code
 requires this array to be described by the platform, either statically or
 dynamically, to initialize the power domain topology tree. In case the array
 is populated dynamically, then plat\_core\_pos\_by\_mpidr() and
@@ -2070,7 +2070,7 @@ plat\_psci\_ops.cpu\_standby()
 
 Perform the platform-specific actions to enter the standby state for a cpu
 indicated by the passed argument. This provides a fast path for CPU standby
-wherein overheads of PSCI state management and lock acquistion is avoided.
+wherein overheads of PSCI state management and lock acquisition is avoided.
 For this handler to be invoked by the PSCI ``CPU_SUSPEND`` API implementation,
 the suspend state type specified in the ``power-state`` parameter should be
 STANDBY and the target power domain level specified should be the CPU. The
@@ -2345,7 +2345,7 @@ state or EL3/S-EL1 in the secure state. The design of this framework is
 described in the `IMF Design Guide`_
 
 A platform should export the following APIs to support the IMF. The following
-text briefly describes each api and its implementation in Arm standard
+text briefly describes each API and its implementation in Arm standard
 platforms. The API implementation depends upon the type of interrupt controller
 present in the platform. Arm standard platform layer supports both
 `Arm Generic Interrupt Controller version 2.0 (GICv2)`_
@@ -2552,7 +2552,7 @@ Crash Reporting mechanism (in BL31)
 
 BL31 implements a crash reporting mechanism which prints the various registers
 of the CPU to enable quick crash analysis and debugging. This mechanism relies
-on the platform implementating ``plat_crash_console_init``,
+on the platform implementing ``plat_crash_console_init``,
 ``plat_crash_console_putc`` and ``plat_crash_console_flush``.
 
 The file ``plat/common/aarch64/crash_console_helpers.S`` contains sample
