@@ -154,7 +154,8 @@ static void hikey960_edma_init(void)
 	non_secure = EDMAC_SEC_CTRL_INTR_SEC | EDMAC_SEC_CTRL_GLOBAL_SEC;
 	mmio_write_32(EDMAC_SEC_CTRL, non_secure);
 
-	for (i = 0; i < EDMAC_CHANNEL_NUMS; i++) {
+	/* Channel 0 is reserved for LPM3, keep secure */
+	for (i = 1; i < EDMAC_CHANNEL_NUMS; i++) {
 		mmio_write_32(EDMAC_AXI_CONF(i), (1 << 6) | (1 << 18));
 	}
 }
