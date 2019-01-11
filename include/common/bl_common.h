@@ -57,6 +57,48 @@
 #define FIQ_AARCH32			U(0xe)
 #define SERROR_AARCH32			U(0xf)
 
+/*
+ * Mapping to connect linker symbols from .ld.S with their counterparts
+ * from .scat for the BL31 image
+ */
+#if defined(USE_ARM_LINK)
+#define __BL31_END__			Load$$LR$$LR_END$$Base
+#define __BSS_START__			Load$$LR$$LR_BSS$$Base
+#define __BSS_END__			Load$$LR$$LR_BSS$$Limit
+#define __BSS_SIZE__			Load$$LR$$LR_BSS$$Length
+#define __COHERENT_RAM_START__		Load$$LR$$LR_COHERENT_RAM$$Base
+#define __COHERENT_RAM_END_UNALIGNED__	Load$$__COHERENT_RAM_EPILOGUE_UNALIGNED__$$Base
+#define __COHERENT_RAM_END__		Load$$LR$$LR_COHERENT_RAM$$Limit
+#define __COHERENT_RAM_UNALIGNED_SIZE__	Load$$__COHERENT_RAM__$$Length
+#define __CPU_OPS_START__		Load$$__CPU_OPS__$$Base
+#define __CPU_OPS_END__			Load$$__CPU_OPS__$$Limit
+#define __DATA_START__			Load$$__DATA__$$Base
+#define __DATA_END__			Load$$__DATA__$$Limit
+#define __GOT_START__			Load$$__GOT__$$Base
+#define __GOT_END__			Load$$__GOT__$$Limit
+#define __PERCPU_BAKERY_LOCK_START__	Load$$__BAKERY_LOCKS__$$Base
+#define __PERCPU_BAKERY_LOCK_END__	Load$$__BAKERY_LOCKS_EPILOGUE__$$Base
+#define __PMF_SVC_DESCS_START__		Load$$__PMF_SVC_DESCS__$$Base
+#define __PMF_SVC_DESCS_END__		Load$$__PMF_SVC_DESCS__$$Limit
+#define __PMF_TIMESTAMP_START__		Load$$__PMF_TIMESTAMP__$$Base
+#define __PMF_TIMESTAMP_END__		Load$$__PER_CPU_TIMESTAMPS__$$Limit
+#define __PMF_PERCPU_TIMESTAMP_END__	Load$$__PMF_TIMESTAMP_EPILOGUE__$$Base
+#define __RELA_END__			Load$$__RELA__$$Limit
+#define __RELA_START__			Load$$__RELA__$$Base
+#define __RODATA_START__		Load$$__RODATA__$$Base
+#define __RODATA_END__			Load$$__RODATA_EPILOGUE__$$Base
+#define __RT_SVC_DESCS_START__		Load$$__RT_SVC_DESCS__$$Base
+#define __RT_SVC_DESCS_END__		Load$$__RT_SVC_DESCS__$$Limit
+#define __RW_START__			Load$$LR$$LR_RW_DATA$$Base
+#define __RW_END__			Load$$LR$$LR_END$$Base
+#define __SPM_SHIM_EXCEPTIONS_START__	Load$$__SPM_SHIM_EXCEPTIONS__$$Base
+#define __SPM_SHIM_EXCEPTIONS_END__	Load$$__SPM_SHIM_EXCEPTIONS_EPILOGUE__$$Base
+#define __STACKS_START__		Load$$__STACKS__$$Base
+#define __STACKS_END__			Load$$__STACKS__$$Limit
+#define __TEXT_START__			Load$$__TEXT__$$Base
+#define __TEXT_END__			Load$$__TEXT_EPILOGUE__$$Base
+#endif /* USE_ARM_LINK */
+
 #ifndef __ASSEMBLY__
 
 #include <stddef.h>

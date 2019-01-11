@@ -355,8 +355,13 @@ $(eval $(call MAKE_LIB_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
 .PHONY : lib${1}_dirs
 lib${1}_dirs: | ${BUILD_DIR} ${LIB_DIR}  ${ROMLIB_DIR} ${LIBWRAPPER_DIR}
 libraries: ${LIB_DIR}/lib$(1).a
+ifneq ($(findstring armlink,$(notdir $(LD))),)
+LDPATHS = --userlibpath=${LIB_DIR}
+LDLIBS += --library=$(1)
+else
 LDPATHS = -L${LIB_DIR}
 LDLIBS += -l$(1)
+endif
 
 ifeq ($(USE_ROMLIB),1)
 LIBWRAPPER = -lwrappers
@@ -421,9 +426,18 @@ else
 	       const char version_string[] = "${VERSION_STRING}";' | \
 		$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -xc -c - -o $(BUILD_DIR)/build_message.o
 endif
+ifneq ($(findstring armlink,$(notdir $(LD))),)
+	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) --entry=bl${1}_entrypoint \
+		--predefine="-D__LINKER__=$(__LINKER__)" \
+		--predefine="-DTF_CFLAGS=$(TF_CFLAGS)" \
+		--map --list="$(MAPFILE)" --scatter=${PLAT_DIR}/scat/bl${1}.scat \
+		$(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS) \
+		$(BUILD_DIR)/build_message.o $(OBJS)
+else
 	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) -Map=$(MAPFILE) \
 		--script $(LINKERFILE) $(BUILD_DIR)/build_message.o \
 		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
+endif
 
 $(DUMP): $(ELF)
 	$${ECHO} "  OD      $$@"
