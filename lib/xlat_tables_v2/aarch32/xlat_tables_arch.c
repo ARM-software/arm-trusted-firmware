@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include <platform_def.h>
 
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <lib/cassert.h>
 #include <lib/utils_def.h>
@@ -219,13 +220,10 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 	/* Set TTBR0 bits as well */
 	ttbr0 = (uint64_t)(uintptr_t) base_table;
 
-#if ARM_ARCH_AT_LEAST(8, 2)
-	/*
-	 * Enable CnP bit so as to share page tables with all PEs. This
-	 * is mandatory for ARMv8.2 implementations.
-	 */
-	ttbr0 |= TTBR_CNP_BIT;
-#endif
+	if (is_armv8_2_ttcnp_present()) {
+		/* Enable CnP bit so as to share page tables with all PEs. */
+		ttbr0 |= TTBR_CNP_BIT;
+	}
 
 	/* Now populate MMU configuration */
 	params[MMU_CFG_MAIR] = mair;
