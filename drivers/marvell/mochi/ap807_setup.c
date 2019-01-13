@@ -11,6 +11,7 @@
 #include <drivers/marvell/cache_llc.h>
 #include <drivers/marvell/ccu.h>
 #include <drivers/marvell/io_win.h>
+#include <drivers/marvell/iob.h>
 #include <drivers/marvell/mci.h>
 #include <drivers/marvell/mochi/ap_setup.h>
 #include <lib/mmio.h>
@@ -189,6 +190,38 @@ static void misc_soc_configurations(void)
 	reg = mmio_read_32(MVEBU_SYSRST_OUT_CONFIG_REG);
 	reg &= ~(WD_MASK_SYS_RST_OUT);
 	mmio_write_32(MVEBU_SYSRST_OUT_CONFIG_REG, reg);
+}
+
+/*
+ * By default all external CPs start with configuration address space set to
+ * 0xf200_0000. To overcome this issue, go in the loop and initialize the
+ * CP one by one, using temporary window configuration which allows to access
+ * each CP and update its configuration space according to decoding
+ * windows scheme defined for each platform.
+ */
+void update_cp110_default_win(int cp_id)
+{
+	int mci_id = cp_id - 1;
+	uintptr_t cp110_base, cp110_temp_base;
+
+	/* CP110 default configuration address space */
+	cp110_temp_base = MVEBU_AP_IO_BASE(MVEBU_AP0);
+
+	struct addr_map_win iowin_temp_win = {
+		.base_addr = cp110_temp_base,
+		.win_size = MVEBU_CP_OFFSET,
+	};
+
+	iowin_temp_win.target_id = mci_id;
+	iow_temp_win_insert(0, &iowin_temp_win, 1);
+
+	/* Calculate the new CP110 - base address */
+	cp110_base = MVEBU_CP_REGS_BASE(cp_id);
+	/* Go and update the CP110 configuration address space */
+	iob_cfg_space_update(0, cp_id, cp110_temp_base, cp110_base);
+
+	/* Remove the temporary IO-WIN window */
+	iow_temp_win_remove(0, &iowin_temp_win, 1);
 }
 
 void ap_init(void)

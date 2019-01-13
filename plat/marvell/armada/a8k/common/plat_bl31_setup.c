@@ -117,8 +117,11 @@ void bl31_plat_arch_setup(void)
 
 	for (cp = 0; cp < CP_COUNT; cp++) {
 	/* configure cp110 for CP0*/
-		if (cp == 1)
+		if (cp >= 1) {
 			mci_initialize(MVEBU_MCI0);
+			update_cp110_default_win(cp);
+		}
+
 
 	/* initialize MCI & CP1 */
 		cp110_init(MVEBU_CP_REGS_BASE(cp),
@@ -127,6 +130,12 @@ void bl31_plat_arch_setup(void)
 	/* Should be called only after setting IOB windows */
 		marvell_bl31_mpp_init(cp);
 	}
+
+	/*
+	 * There is need to configure IO_WIN windows again to overwrite
+	 * temporary configuration done during update_cp110_default_win
+	 */
+	init_io_win(MVEBU_AP0);
 
 	/* initialize IPC between MSS and ATF */
 	if (mailbox[MBOX_IDX_MAGIC] != MVEBU_MAILBOX_MAGIC_NUM ||
