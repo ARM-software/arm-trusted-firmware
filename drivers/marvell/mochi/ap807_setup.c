@@ -31,6 +31,11 @@
 #define DSS_CR0					(MVEBU_RFU_BASE + 0x100)
 #define DVM_48BIT_VA_ENABLE			(1 << 21)
 
+
+/* SoC RFU / IHBx4 Control */
+#define MCIX4_807_REG_START_ADDR_REG(unit_id)	(MVEBU_RFU_BASE + \
+						0x4258 + (unit_id * 0x4))
+
 /* Secure MoChi incoming access */
 #define SEC_MOCHI_IN_ACC_REG			(MVEBU_RFU_BASE + 0x4738)
 #define SEC_MOCHI_IN_ACC_IHB0_EN		(1)
@@ -124,7 +129,7 @@ static void mci_remap_indirect_access_base(void)
 	uint32_t mci;
 
 	for (mci = 0; mci < MCI_MAX_UNIT_ID; mci++)
-		mmio_write_32(MCIX4_REG_START_ADDRESS_REG(mci),
+		mmio_write_32(MCIX4_807_REG_START_ADDR_REG(mci),
 				  MVEBU_MCI_REG_BASE_REMAP(mci) >>
 				  MCI_REMAP_OFF_SHIFT);
 }
