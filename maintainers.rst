@@ -144,6 +144,13 @@ NXP i.MX 8 platform port
 :F: docs/plat/imx8.rst
 :F: plat/imx/
 
+NXP i.MX8M platform port
+------------------------
+:M: Jacky Bai <ping.bai@nxp.com>
+:G: `JackyBai`_
+:F: doc/plat/imx8m.rst
+:F: plat/imx/imx8m/
+
 OP-TEE dispatcher
 -----------------
 :M: Jens Wiklander <jens.wiklander@linaro.org>
@@ -241,6 +248,7 @@ Xilinx platform port
 .. _etienne-lms: https://github.com/etienne-lms
 .. _glneo: https://github.com/glneo
 .. _hzhuang1: https://github.com/hzhuang1
+.. _JackyBai: https://github.com/JackyBai
 .. _jenswi-linaro: https://github.com/jenswi-linaro
 .. _ldts: https://github.com/ldts
 .. _niej: https://github.com/niej
