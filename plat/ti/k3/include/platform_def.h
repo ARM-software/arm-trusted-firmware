@@ -136,10 +136,6 @@
 #define K3_USART_CLK_SPEED 48000000
 #endif
 
-#ifndef K3_USART_BAUD
-#define K3_USART_BAUD 115200
-#endif
-
 /* Crash console defaults */
 #define CRASH_CONSOLE_BASE K3_USART_BASE_ADDRESS
 #define CRASH_CONSOLE_CLK K3_USART_CLK_SPEED
