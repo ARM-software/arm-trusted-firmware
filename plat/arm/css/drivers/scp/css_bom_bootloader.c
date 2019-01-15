@@ -10,8 +10,7 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <plat/common/platform.h>
-
-#include <css_def.h>
+#include <platform_def.h>
 
 #include "../mhu/css_mhu.h"
 #include "../scpi/css_scpi.h"

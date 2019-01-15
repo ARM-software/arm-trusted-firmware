@@ -11,7 +11,6 @@
 #include <common/debug.h>
 #include <drivers/arm/tzc_dmc500.h>
 
-#include <arm_def.h>
 #include <plat_arm.h>
 
 /*******************************************************************************

@@ -9,8 +9,6 @@
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
-#include <arm_def.h>
-
 /*
  * Reserve 4 MiB for binaries of Secure Partitions and Resource Description
  * blobs.

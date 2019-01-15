@@ -3,7 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include <arm_def.h>
+
+#include <platform_def.h>
 #include <plat_arm.h>
 
 /*

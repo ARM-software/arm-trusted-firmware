@@ -11,8 +11,6 @@
 #include <drivers/arm/gic_common.h>
 #include <drivers/arm/tzc400.h>
 
-#include <arm_def.h>
-
 /*************************************************************************
  * Definitions common to all ARM Compute SubSystems (CSS)
  *************************************************************************/

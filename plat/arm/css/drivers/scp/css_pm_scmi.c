@@ -10,8 +10,8 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <plat/common/platform.h>
+#include <platform_def.h>
 
-#include <css_def.h>
 #include <css_pm.h>
 #include <plat_arm.h>
 

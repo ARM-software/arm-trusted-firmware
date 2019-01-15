@@ -10,7 +10,6 @@
 #include <common/debug.h>
 #include <plat/common/platform.h>
 
-#include <arm_def.h>
 #include <plat_arm.h>
 
 /*

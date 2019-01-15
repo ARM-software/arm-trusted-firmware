@@ -20,7 +20,6 @@
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 
-#include <arm_def.h>
 #include <plat_arm.h>
 
 /* Data structure which holds the extents of the trusted SRAM for BL2 */

@@ -11,9 +11,7 @@
 #include <cortex_a57.h>
 #include <cortex_a72.h>
 #include <cpu_macros.S>
-#include <v2m_def.h>
-#include "../juno_def.h"
-
+#include <platform_def.h>
 
 	.globl	plat_reset_handler
 	.globl	plat_arm_calc_core_pos

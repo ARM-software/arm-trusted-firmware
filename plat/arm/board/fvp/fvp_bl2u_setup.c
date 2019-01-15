@@ -5,9 +5,9 @@
  */
 
 #include <plat/common/platform.h>
+#include <platform_def.h>
 
 #include <plat_arm.h>
-#include "fvp_def.h"
 #include "fvp_private.h"
 
 void bl2u_early_platform_setup(struct meminfo *mem_layout, void *plat_info)

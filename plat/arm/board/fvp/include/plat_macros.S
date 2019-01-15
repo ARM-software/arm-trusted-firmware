@@ -7,8 +7,7 @@
 #define PLAT_MACROS_S
 
 #include <arm_macros.S>
-#include <v2m_def.h>
-#include "../fvp_def.h"
+#include <platform_def.h>
 
 	/* ---------------------------------------------
 	 * The below required platform porting macro

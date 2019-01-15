@@ -16,7 +16,6 @@
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/common/platform.h>
 
-#include <arm_def.h>
 #include <plat_arm.h>
 
 #include "../../../bl1/bl1_private.h"

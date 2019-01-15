@@ -11,8 +11,7 @@
 #include <lib/cassert.h>
 #include <plat/common/platform.h>
 #include <tools_share/tbbr_oid.h>
-
-#include <arm_def.h>
+#include <platform_def.h>
 
 /* SHA256 algorithm */
 #define SHA256_BYTES			32

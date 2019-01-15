@@ -14,14 +14,13 @@
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
+#include <platform_def.h>
 
 #include <arm_config.h>
 #include <plat_arm.h>
-#include <v2m_def.h>
 
 #include "../../../../drivers/arm/gic/v3/gicv3_private.h"
 #include "drivers/pwrc/fvp_pwrc.h"
-#include "fvp_def.h"
 #include "fvp_private.h"
 
 

@@ -7,8 +7,8 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <platform_def.h>
+
 #include "../drivers/pwrc/fvp_pwrc.h"
-#include "../fvp_def.h"
 
 	.globl	plat_secondary_cold_boot_setup
 	.globl	plat_get_my_entrypoint

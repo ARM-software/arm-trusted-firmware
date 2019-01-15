@@ -7,9 +7,9 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/utils.h>
+#include <platform_def.h>
 
 #include "juno_decl.h"
-#include "juno_def.h"
 
 u_register_t plat_get_stack_protector_canary(void)
 {

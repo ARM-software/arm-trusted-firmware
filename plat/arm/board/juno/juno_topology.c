@@ -5,11 +5,10 @@
  */
 
 #include <plat/common/platform.h>
+#include <platform_def.h>
 
-#include <arm_def.h>
 #include <css_pm.h>
 #include <plat_arm.h>
-#include "juno_def.h"
 #include "../../css/drivers/scmi/scmi.h"
 #include "../../css/drivers/mhu/css_mhu_doorbell.h"
 

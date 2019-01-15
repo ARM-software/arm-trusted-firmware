@@ -6,7 +6,7 @@
 
 #include <asm_macros.S>
 #include <common/bl_common.h>
-#include <v2m_def.h>
+#include <platform_def.h>
 
 	.globl  plat_report_exception
 

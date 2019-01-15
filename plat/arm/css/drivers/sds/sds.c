@@ -10,8 +10,8 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <platform_def.h>
 
-#include <css_def.h>
 #include "sds.h"
 #include "sds_private.h"
 
