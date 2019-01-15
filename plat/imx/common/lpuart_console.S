@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,7 @@
 	.globl	console_lpuart_init
 	.globl	console_lpuart_putc
 	.globl	console_lpuart_getc
+	.globl	console_lpuart_flush
 
 func console_lpuart_register
 	mov	x7, x30
@@ -27,7 +28,7 @@ func console_lpuart_register
 
 	mov	x0, x6
 	mov	x30, x7
-	finish_console_register lpuart putc=1, getc=1
+	finish_console_register lpuart putc=1, getc=1, flush=1
 
 register_fail:
 	ret	x7
@@ -70,3 +71,8 @@ getc_error:
 	mov	w0, #-1
 	ret
 endfunc console_lpuart_getc
+
+func console_lpuart_flush
+	mov	x0, #0
+	ret
+endfunc console_lpuart_flush
