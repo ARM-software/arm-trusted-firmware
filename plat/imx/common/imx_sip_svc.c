@@ -29,6 +29,9 @@ static uintptr_t imx_sip_handler(unsigned int smc_fid,
 #if (defined(PLAT_IMX8QM) || defined(PLAT_IMX8QX))
 	case  IMX_SIP_SRTC:
 		return imx_srtc_handler(smc_fid, handle, x1, x2, x3, x4);
+	case  IMX_SIP_CPUFREQ:
+		SMC_RET1(handle, imx_cpufreq_handler(smc_fid, x1, x2, x3));
+		break;
 #endif
 	default:
 		WARN("Unimplemented i.MX SiP Service Call: 0x%x\n", smc_fid);
