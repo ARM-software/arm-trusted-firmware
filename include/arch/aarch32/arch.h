@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -94,12 +94,16 @@
 /* CSSELR definitions */
 #define LEVEL_SHIFT		U(1)
 
-/* ID_PFR0 AMU definitions */
+/* ID_MMFR4 definitions */
+#define ID_MMFR4_CNP_SHIFT	U(12)
+#define ID_MMFR4_CNP_LENGTH	U(4)
+#define ID_MMFR4_CNP_MASK	U(0xf)
+
+/* ID_PFR0 definitions */
 #define ID_PFR0_AMU_SHIFT	U(20)
 #define ID_PFR0_AMU_LENGTH	U(4)
 #define ID_PFR0_AMU_MASK	U(0xf)
 
-/* ID_PFR0 DIT definitions */
 #define ID_PFR0_DIT_SHIFT	U(24)
 #define ID_PFR0_DIT_LENGTH	U(4)
 #define ID_PFR0_DIT_MASK	U(0xf)
@@ -475,6 +479,7 @@
 #define DCISW		p15, 0, c7, c6, 2
 #define CTR		p15, 0, c0, c0, 1
 #define CNTFRQ		p15, 0, c14, c0, 0
+#define ID_MMFR4	p15, 0, c0, c2, 6
 #define ID_PFR0		p15, 0, c0, c1, 0
 #define ID_PFR1		p15, 0, c0, c1, 1
 #define MAIR0		p15, 0, c10, c2, 0

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -214,6 +214,7 @@ DEFINE_SYSREG_RW_FUNCS(cpsr)
  ******************************************************************************/
 DEFINE_COPROCR_READ_FUNC(mpidr, MPIDR)
 DEFINE_COPROCR_READ_FUNC(midr, MIDR)
+DEFINE_COPROCR_READ_FUNC(id_mmfr4, ID_MMFR4)
 DEFINE_COPROCR_READ_FUNC(id_pfr0, ID_PFR0)
 DEFINE_COPROCR_READ_FUNC(id_pfr1, ID_PFR1)
 DEFINE_COPROCR_READ_FUNC(isr, ISR)

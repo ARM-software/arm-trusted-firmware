@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -156,10 +156,6 @@
 #define ID_AA64PFR0_GIC_WIDTH	U(4)
 #define ID_AA64PFR0_GIC_MASK	((ULL(1) << ID_AA64PFR0_GIC_WIDTH) - ULL(1))
 
-/* ID_AA64MMFR0_EL1 definitions */
-#define ID_AA64MMFR0_EL1_PARANGE_SHIFT	U(0)
-#define ID_AA64MMFR0_EL1_PARANGE_MASK	ULL(0xf)
-
 /* ID_AA64ISAR1_EL1 definitions */
 #define ID_AA64ISAR1_GPI_SHIFT	U(28)
 #define ID_AA64ISAR1_GPI_WIDTH	U(4)
@@ -178,6 +174,10 @@
 	(((ULL(1) << ID_AA64ISAR1_API_WIDTH) - ULL(1)) << ID_AA64ISAR1_API_SHIFT)
 #define ID_AA64ISAR1_APA_MASK \
 	(((ULL(1) << ID_AA64ISAR1_APA_WIDTH) - ULL(1)) << ID_AA64ISAR1_APA_SHIFT)
+
+/* ID_AA64MMFR0_EL1 definitions */
+#define ID_AA64MMFR0_EL1_PARANGE_SHIFT	U(0)
+#define ID_AA64MMFR0_EL1_PARANGE_MASK	ULL(0xf)
 
 #define PARANGE_0000	U(32)
 #define PARANGE_0001	U(36)
@@ -201,6 +201,11 @@
 #define ID_AA64MMFR0_EL1_TGRAN16_MASK		ULL(0xf)
 #define ID_AA64MMFR0_EL1_TGRAN16_SUPPORTED	ULL(0x1)
 #define ID_AA64MMFR0_EL1_TGRAN16_NOT_SUPPORTED	ULL(0x0)
+
+/* ID_AA64MMFR2_EL1 definitions */
+#define ID_AA64MMFR2_EL1		S3_0_C0_C7_2
+#define ID_AA64MMFR2_EL1_CNP_SHIFT	U(0)
+#define ID_AA64MMFR2_EL1_CNP_MASK	ULL(0xf)
 
 /* ID_AA64PFR1_EL1 definitions */
 #define ID_AA64PFR1_EL1_SSBS_SHIFT	U(4)
