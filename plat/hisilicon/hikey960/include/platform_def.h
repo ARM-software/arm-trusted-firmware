@@ -122,11 +122,7 @@
 #endif
 
 #ifdef IMAGE_BL2
-#ifdef SPD_opteed
 #define MAX_XLAT_TABLES			4
-#else
-#define MAX_XLAT_TABLES			3
-#endif
 #endif
 
 #define MAX_MMAP_REGIONS		16

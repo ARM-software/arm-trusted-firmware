@@ -11,7 +11,7 @@
 #include <plat/common/common_def.h>
 
 #define DDR_BASE			0x0
-#define DDR_SIZE			0xC0000000
+#define DDR_SIZE			0xE0000000
 
 #define DEVICE_BASE			0xE0000000
 #define DEVICE_SIZE			0x20000000
