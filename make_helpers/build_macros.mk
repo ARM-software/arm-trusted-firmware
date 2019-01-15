@@ -216,10 +216,11 @@ define MAKE_C
 $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
 $(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
+$(eval BL_CFLAGS := $(BL$(call uppercase,$(3))_CFLAGS))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
 	$$(ECHO) "  CC      $$<"
-	$$(Q)$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -D$(IMAGE) $(MAKE_DEP) -c $$< -o $$@
+	$$(Q)$$(CC) $$(TF_CFLAGS) $$(CFLAGS) $(BL_CFLAGS) -D$(IMAGE) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
 
