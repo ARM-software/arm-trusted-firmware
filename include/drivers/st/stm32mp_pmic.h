@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2017-2018, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef STM32MP1_PMIC_H
-#define STM32MP1_PMIC_H
+#ifndef STM32MP_PMIC_H
+#define STM32MP_PMIC_H
 
 #include <stdbool.h>
 
@@ -17,4 +17,4 @@ void initialize_pmic_i2c(void);
 void initialize_pmic(void);
 int pmic_ddr_power_init(enum ddr_type ddr_type);
 
-#endif /* STM32MP1_PMIC_H */
+#endif /* STM32MP_PMIC_H */

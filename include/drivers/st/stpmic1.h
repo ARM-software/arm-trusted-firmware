@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2016-2018, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef STPMU1_H
-#define STPMU1_H
+#ifndef STPMIC1_H
+#define STPMIC1_H
 
 #include <drivers/st/stm32_i2c.h>
 #include <lib/utils_def.h>
@@ -127,14 +127,14 @@
 #define SWIN_SWOUT_ENABLED		BIT(2)
 #define USBSW_OTG_SWITCH_ENABLED	BIT(1)
 
-int stpmu1_switch_off(void);
-int stpmu1_register_read(uint8_t register_id, uint8_t *value);
-int stpmu1_register_write(uint8_t register_id, uint8_t value);
-int stpmu1_register_update(uint8_t register_id, uint8_t value, uint8_t mask);
-int stpmu1_regulator_enable(const char *name);
-int stpmu1_regulator_disable(const char *name);
-uint8_t stpmu1_is_regulator_enabled(const char *name);
-int stpmu1_regulator_voltage_set(const char *name, uint16_t millivolts);
-void stpmu1_bind_i2c(struct i2c_handle_s *i2c_handle, uint16_t i2c_addr);
+int stpmic1_switch_off(void);
+int stpmic1_register_read(uint8_t register_id, uint8_t *value);
+int stpmic1_register_write(uint8_t register_id, uint8_t value);
+int stpmic1_register_update(uint8_t register_id, uint8_t value, uint8_t mask);
+int stpmic1_regulator_enable(const char *name);
+int stpmic1_regulator_disable(const char *name);
+uint8_t stpmic1_is_regulator_enabled(const char *name);
+int stpmic1_regulator_voltage_set(const char *name, uint16_t millivolts);
+void stpmic1_bind_i2c(struct i2c_handle_s *i2c_handle, uint16_t i2c_addr);
 
-#endif /* STPMU1_H */
+#endif /* STPMIC1_H */
