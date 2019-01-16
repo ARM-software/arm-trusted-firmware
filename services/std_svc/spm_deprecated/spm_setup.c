@@ -84,10 +84,10 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	unsigned int max_granule_mask = max_granule - 1U;
 
 	/* Base must be aligned to the max granularity */
-	assert((ARM_SP_IMAGE_NS_BUF_BASE & max_granule_mask) == 0);
+	assert((PLAT_SP_IMAGE_NS_BUF_BASE & max_granule_mask) == 0);
 
 	/* Size must be a multiple of the max granularity */
-	assert((ARM_SP_IMAGE_NS_BUF_SIZE & max_granule_mask) == 0);
+	assert((PLAT_SP_IMAGE_NS_BUF_SIZE & max_granule_mask) == 0);
 
 #endif /* ENABLE_ASSERTIONS */
 
@@ -144,8 +144,6 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 		SCTLR_SA0_BIT							|
 		/* Allow cacheable data and instr. accesses to normal memory. */
 		SCTLR_C_BIT | SCTLR_I_BIT					|
-		/* Alignment fault checking enabled when at EL1 and EL0. */
-		SCTLR_A_BIT							|
 		/* Enable MMU. */
 		SCTLR_M_BIT
 	;
@@ -153,6 +151,11 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	sctlr_el1 &= ~(
 		/* Explicit data accesses at EL0 are little-endian. */
 		SCTLR_E0E_BIT							|
+		/*
+		 * Alignment fault checking disabled when at EL1 and EL0 as
+		 * the UEFI spec permits unaligned accesses.
+		 */
+		SCTLR_A_BIT							|
 		/* Accesses to DAIF from EL0 are trapped to EL1. */
 		SCTLR_UMA_BIT
 	);
@@ -167,6 +170,9 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	/* Shim Exception Vector Base Address */
 	write_ctx_reg(get_sysregs_ctx(ctx), CTX_VBAR_EL1,
 			SPM_SHIM_EXCEPTIONS_PTR);
+
+	write_ctx_reg(get_sysregs_ctx(ctx), CTX_CNTKCTL_EL1,
+		      EL0PTEN_BIT | EL0VTEN_BIT | EL0PCTEN_BIT | EL0VCTEN_BIT);
 
 	/*
 	 * FPEN: Allow the Secure Partition to access FP/SIMD registers.

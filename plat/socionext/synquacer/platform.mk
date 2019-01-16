@@ -17,10 +17,6 @@ ERRATA_A53_855873		:= 1
 # Libraries
 include lib/xlat_tables_v2/xlat_tables.mk
 
-ifeq (${SPD},opteed)
-TF_CFLAGS_aarch64	+=	-DBL32_BASE=0xfc000000
-endif
-
 PLAT_PATH		:=	plat/socionext/synquacer
 PLAT_INCLUDES		:=	-I$(PLAT_PATH)/include		\
 				-I$(PLAT_PATH)/drivers/scpi	\
@@ -47,3 +43,9 @@ BL31_SOURCES		+=	drivers/arm/ccn/ccn.c			\
 				$(PLAT_PATH)/sq_xlat_setup.c		\
 				$(PLAT_PATH)/drivers/scpi/sq_scpi.c	\
 				$(PLAT_PATH)/drivers/mhu/sq_mhu.c
+
+ifeq (${ENABLE_SPM},1)
+$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
+
+BL31_SOURCES		+=	$(PLAT_PATH)/sq_spm.c
+endif

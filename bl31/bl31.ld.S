@@ -143,6 +143,10 @@ SECTIONS
            "cpu_ops not defined for this platform.")
 
 #if ENABLE_SPM
+#ifndef SPM_SHIM_EXCEPTIONS_VMA
+#define SPM_SHIM_EXCEPTIONS_VMA         RAM
+#endif
+
     /*
      * Exception vectors of the SPM shim layer. They must be aligned to a 2K
      * address, but we need to place them in a separate page so that we can set
@@ -156,7 +160,10 @@ SECTIONS
         *(.spm_shim_exceptions)
         . = ALIGN(PAGE_SIZE);
         __SPM_SHIM_EXCEPTIONS_END__ = .;
-    } >RAM
+    } >SPM_SHIM_EXCEPTIONS_VMA AT>RAM
+
+    PROVIDE(__SPM_SHIM_EXCEPTIONS_LMA__ = LOADADDR(spm_shim_exceptions));
+    . = LOADADDR(spm_shim_exceptions) + SIZEOF(spm_shim_exceptions);
 #endif
 
     /*
