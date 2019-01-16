@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,7 +16,7 @@ typedef struct {
 	uintptr_t base;
 } console_uart_t;
 
-int console_uart_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
+int console_imx_uart_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
 			   console_uart_t *console);
 #endif /*__ASSEMBLY__*/
 

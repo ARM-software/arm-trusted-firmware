@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,10 +16,11 @@
 #define UTS   0xb4 /* UART Test Register (mx31) */
 #define  URXD_RX_DATA    (0xFF)
 
-	.globl	console_uart_register
-	.globl	console_uart_init
-	.globl	console_uart_putc
-	.globl	console_uart_getc
+	.globl	console_imx_uart_register
+	.globl	console_imx_uart_init
+	.globl	console_imx_uart_putc
+	.globl	console_imx_uart_getc
+	.globl	console_imx_uart_flush
 
 func console_imx_uart_register
 	mov	x7, x30
@@ -32,7 +33,7 @@ func console_imx_uart_register
 
 	mov	x0, x6
 	mov	x30, x7
-	finish_console_register imx_uart putc=1, getc=1
+	finish_console_register imx_uart putc=1, getc=1, flush=1
 
 register_fail:
 	ret	x7
@@ -82,3 +83,8 @@ getc_error:
 	mov	w0, #-1
 	ret
 endfunc console_imx_uart_getc
+
+func console_imx_uart_flush
+	mov	x0, #0
+	ret
+endfunc console_imx_uart_flush

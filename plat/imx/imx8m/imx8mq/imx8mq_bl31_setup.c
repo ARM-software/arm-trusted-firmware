@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -87,7 +87,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 #if DEBUG_CONSOLE
 	static console_uart_t console;
 
-	console_uart_register(IMX_BOOT_UART_BASE, IMX_BOOT_UART_CLK_IN_HZ,
+	console_imx_uart_register(IMX_BOOT_UART_BASE, IMX_BOOT_UART_CLK_IN_HZ,
 		IMX_CONSOLE_BAUDRATE, &console);
 #endif
 	/*
