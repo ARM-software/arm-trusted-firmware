@@ -130,7 +130,9 @@ endif
 $(eval $(call add_define,RPI3_BL32_RAM_LOCATION_ID))
 $(eval $(call add_define,RPI3_BL33_IN_AARCH32))
 $(eval $(call add_define,RPI3_DIRECT_LINUX_BOOT))
+ifdef RPI3_PRELOADED_DTB_BASE
 $(eval $(call add_define,RPI3_PRELOADED_DTB_BASE))
+endif
 $(eval $(call add_define,RPI3_RUNTIME_UART))
 $(eval $(call add_define,RPI3_USE_UEFI_MAP))
 
