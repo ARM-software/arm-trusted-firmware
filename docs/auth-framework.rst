@@ -160,7 +160,7 @@ These components are responsible for initiating the authentication process for a
 particular image in BL1 or BL2. For each BL image that requires authentication,
 the Generic code asks recursively the Authentication module what is the parent
 image until either an authenticated image or the ROT is reached. Then the
-Generic code calls the IO framewotk to load the image and calls the
+Generic code calls the IO framework to load the image and calls the
 Authentication module to authenticate it, following the CoT from ROT to Image.
 
 TF-A Platform Port (PP)
@@ -422,7 +422,7 @@ An IPL for each type must be registered using the following macro:
 -  ``_name``: a string containing the IPL name for debugging purposes.
 -  ``_init``: initialization function pointer.
 -  ``_check_int``: check image integrity function pointer.
--  ``_get_param``: extract authentication parameter funcion pointer.
+-  ``_get_param``: extract authentication parameter function pointer.
 
 The ``init()`` function will be used to initialize the IPL.
 
@@ -925,7 +925,7 @@ three functions:
 The mbedTLS library algorithm support is configured by the
 ``TF_MBEDTLS_KEY_ALG`` variable which can take in 3 values: `rsa`, `ecdsa` or
 `rsa+ecdsa`. This variable allows the Makefile to include the corresponding
-sources in the build for the various algorthms. Setting the variable to
+sources in the build for the various algorithms. Setting the variable to
 `rsa+ecdsa` enables support for both rsa and ecdsa algorithms in the mbedTLS
 library.
 

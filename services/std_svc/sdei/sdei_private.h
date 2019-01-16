@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -54,7 +54,7 @@
 /*
  * 'info' parameter to SDEI_EVENT_GET_INFO SMC.
  *
- * Note that the SDEI v1.0 speification mistakenly enumerates the
+ * Note that the SDEI v1.0 specification mistakenly enumerates the
  * SDEI_INFO_EV_SIGNALED as SDEI_INFO_SIGNALED. This will be corrected in a
  * future version.
  */

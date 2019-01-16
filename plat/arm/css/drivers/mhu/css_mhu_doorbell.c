@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,7 +32,7 @@ void mhuv2_ring_doorbell(struct scmi_channel_plat_info *plat_info)
 			plat_info->db_modify_mask,
 			plat_info->db_preserve_mask);
 
-	/* clear the access request for the recevier */
+	/* clear the access request for the receiver */
 	MHU_V2_CLEAR_REQUEST(MHUV2_BASE_ADDR);
 
 	return;

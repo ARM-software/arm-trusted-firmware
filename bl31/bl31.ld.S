@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -240,7 +240,7 @@ SECTIONS
          * Time-stamps are stored in normal .bss memory
          *
          * The compiler will allocate enough memory for one CPU's time-stamps,
-         * the remaining memory for other CPU's is allocated by the
+         * the remaining memory for other CPUs is allocated by the
          * linker script
          */
         . = ALIGN(CACHE_WRITEBACK_GRANULE);

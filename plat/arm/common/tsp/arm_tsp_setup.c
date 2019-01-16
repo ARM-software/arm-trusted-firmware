@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -77,7 +77,7 @@ void tsp_platform_setup(void)
 void tsp_plat_arch_setup(void)
 {
 #if USE_COHERENT_MEM
-	/* Ensure ARM platforms dont use coherent memory in TSP */
+	/* Ensure ARM platforms don't use coherent memory in TSP */
 	assert((BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE) == 0U);
 #endif
 

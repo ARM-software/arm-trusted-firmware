@@ -240,7 +240,7 @@ As explained in `Secure payload power management callback`_,
 the EL3 Runtime Software may want to perform some bookkeeping during power
 management operations. This function is used to register the ``spd_pm_ops_t``
 (first argument) callbacks with the PSCI library which will be called
-ppropriately during power management. Calling this function is optional and
+appropriately during power management. Calling this function is optional and
 need to be called by the primary CPU during the cold boot sequence after
 ``psci_setup()`` has completed.
 

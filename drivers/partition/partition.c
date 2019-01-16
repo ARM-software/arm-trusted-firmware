@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -75,7 +75,7 @@ static int load_mbr_header(uintptr_t image_handle, mbr_entry_t *mbr_entry)
 
 /*
  * Load GPT header and check the GPT signature.
- * If partiton numbers could be found, check & update it.
+ * If partition numbers could be found, check & update it.
  */
 static int load_gpt_header(uintptr_t image_handle)
 {

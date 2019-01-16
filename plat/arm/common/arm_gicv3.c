@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -151,7 +151,7 @@ void plat_arm_gic_save(void)
 	 * If an ITS is available, save its context before
 	 * the Redistributor using:
 	 * gicv3_its_save_disable(gits_base, &its_ctx[i])
-	 * Additionnaly, an implementation-defined sequence may
+	 * Additionally, an implementation-defined sequence may
 	 * be required to save the whole ITS state.
 	 */
 

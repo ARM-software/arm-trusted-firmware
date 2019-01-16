@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -362,7 +362,7 @@ tsp_args_t *tsp_smc_handler(uint64_t func,
 
 	/*
 	 * Request a service back from dispatcher/secure monitor. This call
-	 * return and thereafter resume exectuion
+	 * return and thereafter resume execution
 	 */
 	tsp_get_magic(service_args);
 
@@ -395,7 +395,7 @@ tsp_args_t *tsp_smc_handler(uint64_t func,
 }
 
 /*******************************************************************************
- * TSP smc abort handler. This function is called when aborting a preemtped
+ * TSP smc abort handler. This function is called when aborting a preempted
  * yielding SMC request. It should cleanup all resources owned by the SMC
  * handler such as locks or dynamically allocated memory so following SMC
  * request are executed in a clean environment.
