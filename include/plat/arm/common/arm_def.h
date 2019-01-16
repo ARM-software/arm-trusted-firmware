@@ -6,8 +6,6 @@
 #ifndef ARM_DEF_H
 #define ARM_DEF_H
 
-#include <platform_def.h>
-
 #include <arch.h>
 #include <common/interrupt_props.h>
 #include <common/tbbr/tbbr_img_def.h>

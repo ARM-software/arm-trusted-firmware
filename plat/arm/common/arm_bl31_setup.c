@@ -16,8 +16,8 @@
 #include <lib/utils.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/common/platform.h>
+#include <platform_def.h>
 
-#include <arm_def.h>
 #include <plat_arm.h>
 
 /*

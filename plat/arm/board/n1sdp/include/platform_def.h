@@ -9,6 +9,7 @@
 
 #include <arm_def.h>
 #include <css_def.h>
+#include <v2m_def.h>
 
 /* UART related constants */
 #define PLAT_ARM_BOOT_UART_BASE			0x2A400000

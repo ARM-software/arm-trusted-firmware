@@ -8,8 +8,7 @@
 
 #include <arch_helpers.h>
 #include <plat/common/platform.h>
-
-#include <v2m_def.h>
+#include <platform_def.h>
 
 /*
  * Juno error handler

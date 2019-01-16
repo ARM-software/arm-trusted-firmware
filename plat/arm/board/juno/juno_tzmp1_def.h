@@ -7,8 +7,6 @@
 #ifndef JUNO_TZMP1_DEF_H
 #define JUNO_TZMP1_DEF_H
 
-#include <plat_arm.h>
-
 /*
  * Public memory regions for both protected and non-protected mode
  *

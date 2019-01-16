@@ -9,9 +9,8 @@
 #include <string.h>
 
 #include <plat/common/platform.h>
+#include <platform_def.h>
 #include <tools_share/tbbr_oid.h>
-
-#include "fvp_def.h"
 
 /*
  * Store a new non-volatile counter value. On some FVP versions, the

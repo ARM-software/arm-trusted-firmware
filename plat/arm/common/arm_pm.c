@@ -13,7 +13,6 @@
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
 
-#include <arm_def.h>
 #include <plat_arm.h>
 
 /* Allow ARM Standard platforms to override these functions */

@@ -11,7 +11,6 @@
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 
-#include <arm_def.h>
 #include <plat_arm.h>
 
 /******************************************************************************

@@ -11,8 +11,7 @@
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <plat/common/platform.h>
-
-#include <css_def.h>
+#include <platform_def.h>
 
 #include "css_scp.h"
 #include "../sds/sds.h"

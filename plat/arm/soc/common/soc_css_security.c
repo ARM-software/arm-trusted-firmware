@@ -9,9 +9,7 @@
 #include <drivers/arm/nic_400.h>
 #include <lib/mmio.h>
 
-#include <board_css_def.h>
 #include <soc_css.h>
-#include <soc_css_def.h>
 
 void soc_css_init_nic400(void)
 {

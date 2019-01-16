@@ -14,7 +14,6 @@
 #include <drivers/arm/pl011.h>
 #include <drivers/console.h>
 
-#include <arm_def.h>
 #include <plat_arm.h>
 
 #define BL32_END (unsigned long)(&__BL32_END__)

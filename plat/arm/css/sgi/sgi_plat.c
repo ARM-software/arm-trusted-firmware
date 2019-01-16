@@ -14,8 +14,6 @@
 #include <plat/common/platform.h>
 #include <services/secure_partition.h>
 
-#include <arm_def.h>
-#include <arm_spm_def.h>
 #include <plat_arm.h>
 #include "../../../../bl1/bl1_private.h"
 

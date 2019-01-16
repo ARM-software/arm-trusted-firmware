@@ -9,8 +9,6 @@
 #include <common/debug.h>
 #include <drivers/arm/tzc400.h>
 
-#include <arm_def.h>
-#include <arm_spm_def.h>
 #include <plat_arm.h>
 
 /* Weak definitions may be overridden in specific ARM standard platform */

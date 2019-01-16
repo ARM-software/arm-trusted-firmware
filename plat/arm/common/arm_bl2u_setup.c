@@ -14,7 +14,6 @@
 #include <drivers/generic_delay_timer.h>
 #include <plat/common/platform.h>
 
-#include <arm_def.h>
 #include <plat_arm.h>
 
 /* Weak definitions may be overridden in specific ARM standard platform */

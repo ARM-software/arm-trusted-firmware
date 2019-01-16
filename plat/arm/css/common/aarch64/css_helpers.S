@@ -3,10 +3,11 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #include <arch.h>
 #include <asm_macros.S>
 #include <cpu_macros.S>
-#include <css_def.h>
+#include <platform_def.h>
 
 	.weak	plat_secondary_cold_boot_setup
 	.weak	plat_get_my_entrypoint

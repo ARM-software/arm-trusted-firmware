@@ -11,8 +11,7 @@
 #include <common/debug.h>
 #include <lib/utils.h>
 #include <plat/common/platform.h>
-
-#include <css_def.h>
+#include <platform_def.h>
 
 #include "../mhu/css_mhu.h"
 #include "css_scpi.h"

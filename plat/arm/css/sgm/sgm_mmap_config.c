@@ -9,7 +9,6 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 
-#include <arm_def.h>
 #include <plat_arm.h>
 #include <sgm_variant.h>
 

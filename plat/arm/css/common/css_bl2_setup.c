@@ -10,8 +10,8 @@
 #include <common/debug.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
+#include <platform_def.h>
 
-#include <css_def.h>
 #include <plat_arm.h>
 
 #include "../drivers/scp/css_scp.h"

@@ -9,9 +9,9 @@
 
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
+#include <platform_def.h>
 
 #include "juno_decl.h"
-#include "juno_def.h"
 
 #define NSAMPLE_CLOCKS	1 /* min 1 cycle, max 231 cycles */
 #define NRETRIES	5
