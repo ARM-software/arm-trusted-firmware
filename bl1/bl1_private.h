@@ -9,16 +9,7 @@
 
 #include <stdint.h>
 
-#include <lib/utils_def.h>
-
-/*******************************************************************************
- * Declarations of linker defined symbols which will tell us where BL1 lives
- * in Trusted ROM and RAM
- ******************************************************************************/
-IMPORT_SYM(uintptr_t, __BL1_ROM_END__,   BL1_ROM_END);
-
-IMPORT_SYM(uintptr_t, __BL1_RAM_START__, BL1_RAM_BASE);
-IMPORT_SYM(uintptr_t, __BL1_RAM_END__,   BL1_RAM_LIMIT);
+#include <common/bl_common.h>
 
 /******************************************
  * Function prototypes
@@ -36,4 +27,5 @@ register_t bl1_fwu_smc_handler(unsigned int smc_fid,
 		void *cookie,
 		void *handle,
 		unsigned int flags);
+
 #endif /* BL1_PRIVATE_H */

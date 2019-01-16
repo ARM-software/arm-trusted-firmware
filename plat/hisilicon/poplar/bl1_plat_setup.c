@@ -22,7 +22,6 @@
 #include <lib/mmio.h>
 #include <plat/common/platform.h>
 
-#include "../../../bl1/bl1_private.h"
 #include "hi3798cv200.h"
 #include "plat_private.h"
 

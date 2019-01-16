@@ -9,8 +9,6 @@
 
 #include <stdint.h>
 
-#include "../../bl1/bl1_private.h"
-
 void qemu_configure_mmu_svc_mon(unsigned long total_base,
 			unsigned long total_size,
 			unsigned long code_start, unsigned long code_limit,

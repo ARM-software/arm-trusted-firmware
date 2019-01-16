@@ -18,8 +18,6 @@
 
 #include <plat_arm.h>
 
-#include "../../../bl1/bl1_private.h"
-
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak bl1_early_platform_setup
 #pragma weak bl1_plat_arch_setup

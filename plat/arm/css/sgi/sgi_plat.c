@@ -15,7 +15,6 @@
 #include <services/secure_partition.h>
 
 #include <plat_arm.h>
-#include "../../../../bl1/bl1_private.h"
 
 #if USE_COHERENT_MEM
 /*
