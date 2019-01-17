@@ -203,6 +203,21 @@ enum ddr_type {
 #define STM32MP1_EMMC_HIGH_SPEED_MAX_FREQ	52000000	/*52 MHz*/
 
 /*******************************************************************************
+ * STM32MP1 BSEC / OTP
+ ******************************************************************************/
+#define STM32MP1_OTP_MAX_ID		0x5FU
+#define STM32MP1_UPPER_OTP_START	0x20U
+
+#define OTP_MAX_SIZE			(STM32MP1_OTP_MAX_ID + 1U)
+
+/* OTP offsets */
+#define DATA0_OTP			U(0)
+
+/* OTP mask */
+/* DATA0 */
+#define DATA0_OTP_SECURED		BIT(6)
+
+/*******************************************************************************
  * STM32MP1 TAMP
  ******************************************************************************/
 #define TAMP_BASE			U(0x5C00A000)
