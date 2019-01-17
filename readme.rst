@@ -194,19 +194,21 @@ This release also contains the following platform support:
 
 -  Allwinner sun50i_64 and sun50i_h6
 -  Amlogic Meson S905 (GXBB)
--  ARM SGI-575 and SGM-775
+-  Arm SGI-575, SGI Clark.A, SGI Clark.H and SGM-775
+-  Arm NeoVerse N1 System Development Platform
 -  HiKey, HiKey960 and Poplar boards
--  Marvell Armada 8K
+-  Marvell Armada 3700 and 8K
 -  MediaTek MT6795 and MT8173 SoCs
--  NVidia T132, T186 and T210 SoCs
--  NXP QorIQ LS1043A, i.MX8QX, i.MX8QM and i.MX7Solo WaRP7
--  QEMU emulator
--  Raspberry Pi 3 board
+-  NVIDIA T132, T186 and T210 SoCs
+-  NXP QorIQ LS1043A, i.MX8MQ, i.MX8QX, i.MX8QM and i.MX7Solo WaRP7
+-  QEMU
+-  Raspberry Pi 3
+-  R-Car Generation 3
 -  RockChip RK3328, RK3368 and RK3399 SoCs
 -  Socionext UniPhier SoC family and SynQuacer SC2A11 SoCs
 -  STMicroelectronics STM32MP1
 -  Texas Instruments K3 SoCs
--  Xilinx Zynq UltraScale + MPSoC
+-  Xilinx Versal and Zynq UltraScale + MPSoC
 
 Still to come
 ~~~~~~~~~~~~~
@@ -260,7 +262,7 @@ Arm licensees may contact Arm directly via their partner managers.
 
 --------------
 
-*Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _Armv7-A and Armv8-A: https://developer.arm.com/products/architecture/a-profile
 .. _Secure Monitor: http://www.arm.com/products/processors/technologies/trustzone/tee-smc.php
