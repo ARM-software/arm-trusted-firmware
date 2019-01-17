@@ -51,7 +51,7 @@ PLAT_BL_COMMON_SOURCES	+=	${LIBFDT_SRCS}						\
 				drivers/st/clk/stm32mp1_clkfunc.c			\
 				drivers/st/ddr/stm32mp1_ddr_helpers.c			\
 				drivers/st/gpio/stm32_gpio.c				\
-				drivers/st/pmic/stm32_i2c.c				\
+				drivers/st/i2c/stm32_i2c.c				\
 				drivers/st/pmic/stm32mp1_pmic.c				\
 				drivers/st/pmic/stpmu1.c				\
 				drivers/st/reset/stm32mp1_reset.c			\
