@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -126,14 +126,6 @@ enum ddr_type {
 #define STM32MP1_UART_BAUDRATE		115200
 
 /*******************************************************************************
- * STM32MP1 GIC-400
- ******************************************************************************/
-#define STM32MP1_GICD_BASE		U(0xA0021000)
-#define STM32MP1_GICC_BASE		U(0xA0022000)
-#define STM32MP1_GICH_BASE		U(0xA0024000)
-#define STM32MP1_GICV_BASE		U(0xA0026000)
-
-/*******************************************************************************
  * STM32MP1 TZC (TZ400)
  ******************************************************************************/
 #define STM32MP1_TZC_BASE		U(0x5C006000)
@@ -149,10 +141,7 @@ enum ddr_type {
 #define STM32MP1_TZC_ETH_ID		U(10)
 #define STM32MP1_TZC_DAP_ID		U(15)
 
-#define STM32MP1_MEMORY_NS		0
-#define STM32MP1_MEMORY_SECURE		1
-
-#define STM32MP1_FILTER_BIT_ALL		3
+#define STM32MP1_FILTER_BIT_ALL		U(3)
 
 /*******************************************************************************
  * STM32MP1 SDMMC

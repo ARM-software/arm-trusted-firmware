@@ -24,8 +24,8 @@ $(eval $(call add_define,PLAT_PARTITION_MAX_ENTRIES))
 PLAT_INCLUDES		:=	-Iplat/st/stm32mp1/include/
 
 # Device tree
-STM32_DTB_FILE_NAME	?=	stm32mp157c-ev1.dtb
-FDT_SOURCES		:=	$(addprefix fdts/, $(patsubst %.dtb,%.dts,$(STM32_DTB_FILE_NAME)))
+DTB_FILE_NAME		?=	stm32mp157c-ev1.dtb
+FDT_SOURCES		:=	$(addprefix fdts/, $(patsubst %.dtb,%.dts,$(DTB_FILE_NAME)))
 DTC_FLAGS		+=	-Wno-unit_address_vs_reg
 
 include lib/libfdt/libfdt.mk
@@ -82,13 +82,13 @@ BL2_SOURCES		+=	common/desc_image_load.c				\
 
 # Macros and rules to build TF binary
 STM32_TF_ELF_LDFLAGS	:=	--hash-style=gnu --as-needed
-STM32_DT_BASENAME	:=	$(STM32_DTB_FILE_NAME:.dtb=)
+STM32_DT_BASENAME	:=	$(DTB_FILE_NAME:.dtb=)
 STM32_TF_STM32		:=	${BUILD_PLAT}/tf-a-${STM32_DT_BASENAME}.stm32
 STM32_TF_BINARY		:=	$(STM32_TF_STM32:.stm32=.bin)
 STM32_TF_MAPFILE	:=	$(STM32_TF_STM32:.stm32=.map)
 STM32_TF_LINKERFILE	:=	$(STM32_TF_STM32:.stm32=.ld)
 STM32_TF_ELF		:=	$(STM32_TF_STM32:.stm32=.elf)
-STM32_TF_DTBFILE	:=      ${BUILD_PLAT}/fdts/${STM32_DTB_FILE_NAME}
+STM32_TF_DTBFILE	:=      ${BUILD_PLAT}/fdts/${DTB_FILE_NAME}
 STM32_TF_OBJS		:=	${BUILD_PLAT}/stm32mp1.o
 
 # Variables for use with stm32image
@@ -131,7 +131,7 @@ ${STM32_TF_OBJS}:	plat/st/stm32mp1/stm32mp1.S bl2 ${BL32_DEP} ${STM32_TF_DTBFILE
 				-DDTB_BIN_PATH=\"${STM32_TF_DTBFILE}\" \
 				-c plat/st/stm32mp1/stm32mp1.S -o $@
 
-${STM32_TF_LINKERFILE}:	plat/st/stm32mp1/stm32mp1.ld.S
+${STM32_TF_LINKERFILE}:	plat/st/stm32mp1/stm32mp1.ld.S ${BUILD_PLAT}
 			@echo "  LDS     $<"
 			${Q}${AS} ${ASFLAGS} ${TF_CFLAGS} -P -E $< -o $@
 
