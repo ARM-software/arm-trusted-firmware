@@ -8,27 +8,56 @@
 #define TEGRA_PLATFORM_H
 
 #include <cdefs.h>
+#include <stdbool.h>
+#include <utils_def.h>
+
+/*******************************************************************************
+ * Tegra major, minor version helper macros
+ ******************************************************************************/
+#define MAJOR_VERSION_SHIFT		U(0x4)
+#define MAJOR_VERSION_MASK		U(0xF)
+#define MINOR_VERSION_SHIFT		U(0x10)
+#define MINOR_VERSION_MASK		U(0xF)
+#define CHIP_ID_SHIFT			U(8)
+#define CHIP_ID_MASK			U(0xFF)
+#define PRE_SI_PLATFORM_SHIFT		U(0x14)
+#define PRE_SI_PLATFORM_MASK		U(0xF)
+
+/*******************************************************************************
+ * Tegra chip ID values
+ ******************************************************************************/
+#define TEGRA_CHIPID_TEGRA13		U(0x13)
+#define TEGRA_CHIPID_TEGRA21		U(0x21)
+#define TEGRA_CHIPID_TEGRA18		U(0x18)
+
+#ifndef __ASSEMBLY__
 
 /*
- * Tegra chip major/minor version
+ * Tegra chip ID major/minor identifiers
  */
 uint32_t tegra_get_chipid_major(void);
 uint32_t tegra_get_chipid_minor(void);
 
 /*
- * Tegra chip identifiers
+ * Tegra chip ID identifiers
  */
-uint8_t tegra_chipid_is_t132(void);
-uint8_t tegra_chipid_is_t210(void);
-uint8_t tegra_chipid_is_t186(void);
+bool tegra_chipid_is_t132(void);
+bool tegra_chipid_is_t186(void);
+bool tegra_chipid_is_t210(void);
+bool tegra_chipid_is_t210_b01(void);
 
 
 /*
  * Tegra platform identifiers
  */
-uint8_t tegra_platform_is_silicon(void);
-uint8_t tegra_platform_is_qt(void);
-uint8_t tegra_platform_is_emulation(void);
-uint8_t tegra_platform_is_fpga(void);
+bool tegra_platform_is_silicon(void);
+bool tegra_platform_is_qt(void);
+bool tegra_platform_is_emulation(void);
+bool tegra_platform_is_linsim(void);
+bool tegra_platform_is_fpga(void);
+bool tegra_platform_is_unit_fpga(void);
+bool tegra_platform_is_virt_dev_kit(void);
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* TEGRA_PLATFORM_H */

@@ -200,15 +200,14 @@ int32_t nvg_is_sc7_allowed(uint32_t ari_base, uint32_t state, uint32_t wake_time
 
 int32_t nvg_online_core(uint32_t ari_base, uint32_t core)
 {
-	uint64_t cpu = read_mpidr() & (uint64_t)MPIDR_CPU_MASK;
-	uint64_t impl = (read_midr() >> (uint64_t)MIDR_IMPL_SHIFT) &
-			(uint64_t)MIDR_IMPL_MASK;
+	uint64_t cpu = read_mpidr() & MPIDR_CPU_MASK;
+	uint64_t impl = (read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK;
 	int32_t ret = 0;
 
 	(void)ari_base;
 
 	/* sanity check code id */
-	if ((core >= (uint32_t)MCE_CORE_ID_MAX) || (cpu == core)) {
+	if ((core >= MCE_CORE_ID_MAX) || (cpu == core)) {
 		ERROR("%s: unsupported core id (%d)\n", __func__, core);
 		ret = EINVAL;
 	} else {

@@ -14,14 +14,13 @@
 #include <tegra_def.h>
 #include <tegra_private.h>
 
-#define MISCREG_CPU_RESET_VECTOR	0x2000
-#define MISCREG_AA64_RST_LOW		0x2004
-#define MISCREG_AA64_RST_HIGH		0x2008
+#define MISCREG_AA64_RST_LOW		0x2004U
+#define MISCREG_AA64_RST_HIGH		0x2008U
 
-#define SCRATCH_SECURE_RSV1_SCRATCH_0	0x658
-#define SCRATCH_SECURE_RSV1_SCRATCH_1	0x65C
+#define SCRATCH_SECURE_RSV1_SCRATCH_0	0x658U
+#define SCRATCH_SECURE_RSV1_SCRATCH_1	0x65CU
 
-#define CPU_RESET_MODE_AA64		1
+#define CPU_RESET_MODE_AA64		1U
 
 extern void memcpy16(void *dest, const void *src, unsigned int length);
 
@@ -34,7 +33,7 @@ extern uint64_t __tegra186_cpu_reset_handler_end;
 void plat_secondary_setup(void)
 {
 	uint32_t addr_low, addr_high;
-	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
+	const plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 	uint64_t cpu_reset_handler_base;
 
 	INFO("Setting up secondary CPU boot\n");
@@ -58,7 +57,7 @@ void plat_secondary_setup(void)
 	}
 
 	addr_low = (uint32_t)cpu_reset_handler_base | CPU_RESET_MODE_AA64;
-	addr_high = (uint32_t)((cpu_reset_handler_base >> 32) & 0x7ff);
+	addr_high = (uint32_t)((cpu_reset_handler_base >> 32U) & 0x7ffU);
 
 	/* write lower 32 bits first, then the upper 11 bits */
 	mmio_write_32(TEGRA_MISC_BASE + MISCREG_AA64_RST_LOW, addr_low);
@@ -71,5 +70,5 @@ void plat_secondary_setup(void)
 			addr_high);
 
 	/* update reset vector address to the CCPLEX */
-	mce_update_reset_vector();
+	(void)mce_update_reset_vector();
 }

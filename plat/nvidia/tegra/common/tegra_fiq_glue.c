@@ -41,6 +41,11 @@ static uint64_t tegra_fiq_interrupt_handler(uint32_t id,
 	uint32_t cpu = plat_my_core_pos();
 	uint32_t irq;
 
+	(void)id;
+	(void)flags;
+	(void)handle;
+	(void)cookie;
+
 	bakery_lock_get(&tegra_fiq_lock);
 
 	/*

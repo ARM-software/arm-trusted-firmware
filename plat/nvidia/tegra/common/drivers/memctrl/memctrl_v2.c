@@ -87,6 +87,9 @@ static void tegra_memctrl_reconfig_mss_clients(void)
 	 * strongly ordered MSS clients. ROC needs to be single point
 	 * of control on overriding the memory type. So, remove TSA's
 	 * memtype override.
+	 *
+	 * MC clients with default SO_DEV override still enabled at TSA:
+	 * AONW, BPMPW, SCEW, APEW
 	 */
 #if ENABLE_AFI_DEVICE
 	mc_set_tsa_passthrough(AFIW);
@@ -106,63 +109,121 @@ static void tegra_memctrl_reconfig_mss_clients(void)
 	mc_set_tsa_passthrough(AONDMAW);
 	mc_set_tsa_passthrough(SCEDMAW);
 
-	/*
-	 * Change COH_PATH_OVERRIDE_SO_DEV from NO_OVERRIDE -> FORCE_COHERENT
-	 * for boot and strongly ordered MSS clients. This steers all sodev
-	 * transactions to ROC.
+	/* Parker has no IO Coherency support and need the following:
+	 * Ordered MC Clients on Parker are AFI, EQOS, SATA, XUSB.
+	 * ISO clients(DISP, VI, EQOS) should never snoop caches and
+	 *     don't need ROC/PCFIFO ordering.
+	 * ISO clients(EQOS) that need ordering should use PCFIFO ordering
+	 *     and bypass ROC ordering by using FORCE_NON_COHERENT path.
+	 * FORCE_NON_COHERENT/FORCE_COHERENT config take precedence
+	 *     over SMMU attributes.
+	 * Force all Normal memory transactions from ISO and non-ISO to be
+	 *     non-coherent(bypass ROC, avoid cache snoop to avoid perf hit).
+	 * Force the SO_DEV transactions from ordered ISO clients(EQOS) to
+	 *     non-coherent path and enable MC PCFIFO interlock for ordering.
+	 * Force the SO_DEV transactions from ordered non-ISO clients (PCIe,
+	 *     XUSB, SATA) to coherent so that the transactions are
+	 *     ordered by ROC.
+	 * PCFIFO ensure write ordering.
+	 * Read after Write ordering is maintained/enforced by MC clients.
+	 * Clients that need PCIe type write ordering must
+	 *     go through ROC ordering.
+	 * Ordering enable for Read clients is not necessary.
+	 * R5's and A9 would get necessary ordering from AXI and
+	 *     don't need ROC ordering enable:
+	 *     - MMIO ordering is through dev mapping and MMIO
+	 *       accesses bypass SMMU.
+	 *     - Normal memory is accessed through SMMU and ordering is
+	 *       ensured by client and AXI.
+	 *     - Ack point for Normal memory is WCAM in MC.
+	 *     - MMIO's can be early acked and AXI ensures dev memory ordering,
+	 *       Client ensures read/write direction change ordering.
+	 *     - See Bug 200312466 for more details.
 	 *
-	 * Change AXID_OVERRIDE/AXID_OVERRIDE_SO_DEV only for some clients
-	 * whose AXI IDs we know and trust.
+	 * CGID_TAG_ADR is only present from T186 A02. As this code is common
+	 *    between A01 and A02, tegra_memctrl_set_overrides() programs
+	 *    CGID_TAG_ADR for the necessary clients on A02.
 	 */
-
-#if ENABLE_AFI_DEVICE
-	/* Match AFIW */
-	mc_set_forced_coherent_so_dev_cfg(AFIR);
-#endif
-
+	mc_set_txn_override(HDAR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(BPMPW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(PTCR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(NVDISPLAYR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(EQOSW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(NVJPGSWR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(ISPRA, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SDMMCWAA, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(VICSRD, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(MPCOREW, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
+	mc_set_txn_override(GPUSRD, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(AXISR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SCEDMAW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SDMMCW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(EQOSR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	/* See bug 200131110 comment #35*/
+	mc_set_txn_override(APEDMAR, CGID_TAG_CLIENT_AXI_ID, SO_DEV_CLIENT_AXI_ID, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(NVENCSRD, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SDMMCRAB, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(VICSRD1, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(BPMPDMAR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(VIW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SDMMCRAA, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(AXISW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(XUSB_DEVR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(UFSHCR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(TSECSWR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(GPUSWR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SATAR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(XUSB_HOSTW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_COHERENT);
+	mc_set_txn_override(TSECSWRB, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(GPUSRD2, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SCEDMAR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(GPUSWR2, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(AONDMAW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	/* See bug 200131110 comment #35*/
+	mc_set_txn_override(APEDMAW, CGID_TAG_CLIENT_AXI_ID, SO_DEV_CLIENT_AXI_ID, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(AONW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(HOST1XDMAR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(ETRR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SESWR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(NVJPGSRD, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(NVDECSRD, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(TSECSRDB, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(BPMPDMAW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(APER, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(NVDECSRD1, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(XUSB_HOSTR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(ISPWA, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SESRD, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SCER, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(AONR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(MPCORER, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
+	mc_set_txn_override(SDMMCWA, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(HDAW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(NVDECSWR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(UFSHCW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(AONDMAR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SATAW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_COHERENT);
+	mc_set_txn_override(ETRW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(VICSWR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(NVENCSWR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	/* See bug 200131110 comment #35 */
+	mc_set_txn_override(AFIR, CGID_TAG_DEFAULT, SO_DEV_CLIENT_AXI_ID, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SDMMCWAB, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SDMMCRA, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(NVDISPLAYR1, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(ISPWB, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(BPMPR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(APEW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(SDMMCR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(XUSB_DEVW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_COHERENT);
+	mc_set_txn_override(TSECSRD, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
 	/*
 	 * See bug 200131110 comment #35 - there are no normal requests
 	 * and AWID for SO/DEV requests is hardcoded in RTL for a
 	 * particular PCIE controller
 	 */
-#if ENABLE_AFI_DEVICE
-	mc_set_forced_coherent_so_dev_cfg(AFIW);
-#endif
-	mc_set_forced_coherent_cfg(HDAR);
-	mc_set_forced_coherent_cfg(HDAW);
-	mc_set_forced_coherent_cfg(SATAR);
-	mc_set_forced_coherent_cfg(SATAW);
-	mc_set_forced_coherent_cfg(XUSB_HOSTR);
-	mc_set_forced_coherent_cfg(XUSB_HOSTW);
-	mc_set_forced_coherent_cfg(XUSB_DEVR);
-	mc_set_forced_coherent_cfg(XUSB_DEVW);
-	mc_set_forced_coherent_cfg(SDMMCRAB);
-	mc_set_forced_coherent_cfg(SDMMCWAB);
-
-	/* Match APEDMAW */
-	mc_set_forced_coherent_axid_so_dev_cfg(APEDMAR);
-
-	/*
-	 * See bug 200131110 comment #35 - AWID for normal requests
-	 * is 0x80 and AWID for SO/DEV requests is 0x01
-	 */
-	mc_set_forced_coherent_axid_so_dev_cfg(APEDMAW);
-	mc_set_forced_coherent_cfg(SESRD);
-	mc_set_forced_coherent_cfg(SESWR);
-	mc_set_forced_coherent_cfg(ETRR);
-	mc_set_forced_coherent_cfg(ETRW);
-	mc_set_forced_coherent_cfg(AXISR);
-	mc_set_forced_coherent_cfg(AXISW);
-	mc_set_forced_coherent_cfg(EQOSR);
-	mc_set_forced_coherent_cfg(EQOSW);
-	mc_set_forced_coherent_cfg(UFSHCR);
-	mc_set_forced_coherent_cfg(UFSHCW);
-	mc_set_forced_coherent_cfg(BPMPDMAR);
-	mc_set_forced_coherent_cfg(BPMPDMAW);
-	mc_set_forced_coherent_cfg(AONDMAR);
-	mc_set_forced_coherent_cfg(AONDMAW);
-	mc_set_forced_coherent_cfg(SCEDMAR);
-	mc_set_forced_coherent_cfg(SCEDMAW);
+	mc_set_txn_override(AFIW, CGID_TAG_DEFAULT, SO_DEV_CLIENT_AXI_ID, FORCE_NON_COHERENT, FORCE_COHERENT);
+	mc_set_txn_override(SCEW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
 
 	/*
 	 * At this point, ordering can occur at ROC. So, remove PCFIFO's
@@ -192,55 +253,17 @@ static void tegra_memctrl_reconfig_mss_clients(void)
 		mc_set_pcfifo_unordered_boot_so_mss(4, SESWR) &
 		mc_set_pcfifo_unordered_boot_so_mss(4, ETRW) &
 		mc_set_pcfifo_unordered_boot_so_mss(4, AXISW) &
-		mc_set_pcfifo_unordered_boot_so_mss(4, EQOSW) &
 		mc_set_pcfifo_unordered_boot_so_mss(4, UFSHCW) &
 		mc_set_pcfifo_unordered_boot_so_mss(4, BPMPDMAW) &
 		mc_set_pcfifo_unordered_boot_so_mss(4, AONDMAW) &
 		mc_set_pcfifo_unordered_boot_so_mss(4, SCEDMAW);
+	/* EQOSW is the only client that has PCFIFO order enabled. */
+	val |= mc_set_pcfifo_ordered_boot_so_mss(4, EQOSW);
 	tegra_mc_write_32(MC_PCFIFO_CLIENT_CONFIG4, val);
 
 	val = MC_PCFIFO_CLIENT_CONFIG5_RESET_VAL &
 		mc_set_pcfifo_unordered_boot_so_mss(5, APEDMAW);
 	tegra_mc_write_32(MC_PCFIFO_CLIENT_CONFIG5, val);
-
-	/*
-	 * At this point, ordering can occur at ROC. SMMU need not
-	 * reorder any requests.
-	 *
-	 * Change SMMU_*_ORDERED_CLIENT from ORDERED -> UNORDERED
-	 * for boot and strongly ordered MSS clients
-	 */
-	val = MC_SMMU_CLIENT_CONFIG1_RESET_VAL &
-#if ENABLE_AFI_DEVICE
-		mc_set_smmu_unordered_boot_so_mss(1, AFIW) &
-#endif
-		mc_set_smmu_unordered_boot_so_mss(1, HDAW) &
-		mc_set_smmu_unordered_boot_so_mss(1, SATAW);
-	tegra_mc_write_32(MC_SMMU_CLIENT_CONFIG1, val);
-
-	val = MC_SMMU_CLIENT_CONFIG2_RESET_VAL &
-		mc_set_smmu_unordered_boot_so_mss(2, XUSB_HOSTW) &
-		mc_set_smmu_unordered_boot_so_mss(2, XUSB_DEVW);
-	tegra_mc_write_32(MC_SMMU_CLIENT_CONFIG2, val);
-
-	val = MC_SMMU_CLIENT_CONFIG3_RESET_VAL &
-		mc_set_smmu_unordered_boot_so_mss(3, SDMMCWAB);
-	tegra_mc_write_32(MC_SMMU_CLIENT_CONFIG3, val);
-
-	val = MC_SMMU_CLIENT_CONFIG4_RESET_VAL &
-		mc_set_smmu_unordered_boot_so_mss(4, SESWR) &
-		mc_set_smmu_unordered_boot_so_mss(4, ETRW) &
-		mc_set_smmu_unordered_boot_so_mss(4, AXISW) &
-		mc_set_smmu_unordered_boot_so_mss(4, EQOSW) &
-		mc_set_smmu_unordered_boot_so_mss(4, UFSHCW) &
-		mc_set_smmu_unordered_boot_so_mss(4, BPMPDMAW) &
-		mc_set_smmu_unordered_boot_so_mss(4, AONDMAW) &
-		mc_set_smmu_unordered_boot_so_mss(4, SCEDMAW);
-	tegra_mc_write_32(MC_SMMU_CLIENT_CONFIG4, val);
-
-	val = MC_SMMU_CLIENT_CONFIG5_RESET_VAL &
-		mc_set_smmu_unordered_boot_so_mss(5, APEDMAW);
-	tegra_mc_write_32(MC_SMMU_CLIENT_CONFIG5, val);
 
 	/*
 	 * Deassert HOTRESET FLUSH_ENABLE for boot and strongly ordered MSS

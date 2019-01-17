@@ -20,8 +20,6 @@
 #include <t18x_ari.h>
 #include <tegra_private.h>
 
-extern uint32_t tegra186_system_powerdn_state;
-
 /*******************************************************************************
  * Offset to read the ref_clk counter value
  ******************************************************************************/
@@ -30,7 +28,6 @@ extern uint32_t tegra186_system_powerdn_state;
 /*******************************************************************************
  * Tegra186 SiP SMCs
  ******************************************************************************/
-#define TEGRA_SIP_SYSTEM_SHUTDOWN_STATE			0xC2FFFE01
 #define TEGRA_SIP_GET_ACTMON_CLK_COUNTERS		0xC2FFFE02
 #define TEGRA_SIP_MCE_CMD_ENTER_CSTATE			0xC2FFFF00
 #define TEGRA_SIP_MCE_CMD_UPDATE_CSTATE_INFO		0xC2FFFF01
@@ -60,7 +57,7 @@ int plat_sip_handler(uint32_t smc_fid,
 		     uint64_t x2,
 		     uint64_t x3,
 		     uint64_t x4,
-		     void *cookie,
+		     const void *cookie,
 		     void *handle,
 		     uint64_t flags)
 {
@@ -112,33 +109,6 @@ int plat_sip_handler(uint32_t smc_fid,
 		mce_ret = mce_command_handler(smc_fid, x1, x2, x3);
 		write_ctx_reg(get_gpregs_ctx(handle), CTX_GPREG_X0,
 			      (uint64_t)mce_ret);
-
-		return 0;
-
-	case TEGRA_SIP_SYSTEM_SHUTDOWN_STATE:
-
-		/* clean up the high bits */
-		x1 = (uint32_t)x1;
-
-		/*
-		 * SC8 is a special Tegra186 system state where the CPUs and
-		 * DRAM are powered down but the other subsystem is still
-		 * alive.
-		 */
-		if ((x1 == TEGRA_ARI_SYSTEM_SC8) ||
-		    (x1 == TEGRA_ARI_MISC_CCPLEX_SHUTDOWN_POWER_OFF)) {
-
-			tegra186_system_powerdn_state = x1;
-			flush_dcache_range(
-				(uintptr_t)&tegra186_system_powerdn_state,
-				sizeof(tegra186_system_powerdn_state));
-
-		} else {
-
-			ERROR("%s: unhandled powerdn state (%d)\n", __func__,
-				(uint32_t)x1);
-			return -ENOTSUP;
-		}
 
 		return 0;
 

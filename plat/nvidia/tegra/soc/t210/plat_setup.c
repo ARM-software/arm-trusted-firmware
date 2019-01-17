@@ -1,16 +1,58 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch_helpers.h>
+#include <bpmp.h>
+#include <cortex_a57.h>
 #include <common/bl_common.h>
 #include <drivers/console.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
-
+#include <platform.h>
+#include <security_engine.h>
 #include <tegra_def.h>
+#include <tegra_platform.h>
 #include <tegra_private.h>
+
+/* sets of MMIO ranges setup */
+#define MMIO_RANGE_0_ADDR	0x50000000
+#define MMIO_RANGE_1_ADDR	0x60000000
+#define MMIO_RANGE_2_ADDR	0x70000000
+#define MMIO_RANGE_SIZE		0x200000
+
+/*
+ * Table of regions to map using the MMU.
+ */
+static const mmap_region_t tegra_mmap[] = {
+	MAP_REGION_FLAT(TEGRA_IRAM_BASE, 0x40000, /* 256KB */
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(MMIO_RANGE_0_ADDR, MMIO_RANGE_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(MMIO_RANGE_1_ADDR, MMIO_RANGE_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(MMIO_RANGE_2_ADDR, MMIO_RANGE_SIZE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+	{0}
+};
+
+/*******************************************************************************
+ * Set up the pagetables as per the platform memory map & initialize the MMU
+ ******************************************************************************/
+const mmap_region_t *plat_get_mmio_map(void)
+{
+	/* Add the map region for security engine SE2 */
+	if (tegra_chipid_is_t210_b01()) {
+		mmap_add_region((uint64_t)TEGRA_SE2_BASE,
+				(uint64_t)TEGRA_SE2_BASE,
+				(uint64_t)TEGRA_SE2_RANGE_SIZE,
+				MT_DEVICE | MT_RW | MT_SECURE);
+	}
+
+	/* MMIO space */
+	return tegra_mmap;
+}
 
 /*******************************************************************************
  * The Tegra power domain tree has a single system level power domain i.e. a
@@ -29,32 +71,12 @@ const unsigned char tegra_power_domain_tree_desc[] = {
 	PLATFORM_MAX_CPUS_PER_CLUSTER
 };
 
-/* sets of MMIO ranges setup */
-#define MMIO_RANGE_0_ADDR	0x50000000
-#define MMIO_RANGE_1_ADDR	0x60000000
-#define MMIO_RANGE_2_ADDR	0x70000000
-#define MMIO_RANGE_SIZE		0x200000
-
-/*
- * Table of regions to map using the MMU.
- */
-static const mmap_region_t tegra_mmap[] = {
-	MAP_REGION_FLAT(MMIO_RANGE_0_ADDR, MMIO_RANGE_SIZE,
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(MMIO_RANGE_1_ADDR, MMIO_RANGE_SIZE,
-			MT_DEVICE | MT_RW | MT_SECURE),
-	MAP_REGION_FLAT(MMIO_RANGE_2_ADDR, MMIO_RANGE_SIZE,
-			MT_DEVICE | MT_RW | MT_SECURE),
-	{0}
-};
-
 /*******************************************************************************
- * Set up the pagetables as per the platform memory map & initialize the MMU
+ * This function returns the Tegra default topology tree information.
  ******************************************************************************/
-const mmap_region_t *plat_get_mmio_map(void)
+const unsigned char *plat_get_power_domain_tree_desc(void)
 {
-	/* MMIO space */
-	return tegra_mmap;
+	return tegra_power_domain_tree_desc;
 }
 
 /*******************************************************************************
@@ -91,6 +113,28 @@ uint32_t plat_get_console_from_id(int id)
 		return 0;
 
 	return tegra210_uart_addresses[id];
+}
+
+/*******************************************************************************
+ * Handler for early platform setup
+ ******************************************************************************/
+void plat_early_platform_setup(void)
+{
+	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
+	uint64_t val;
+
+	/* platform parameter passed by the previous bootloader */
+	if (plat_params->l2_ecc_parity_prot_dis != 1) {
+		/* Enable ECC Parity Protection for Cortex-A57 CPUs */
+		val = read_l2ctlr_el1();
+		val |= (uint64_t)CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT;
+		write_l2ctlr_el1(val);
+	}
+
+	/* Initialize security engine driver */
+	if (tegra_chipid_is_t210_b01()) {
+		tegra_se_init();
+	}
 }
 
 /*******************************************************************************

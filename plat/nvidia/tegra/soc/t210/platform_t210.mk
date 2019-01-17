@@ -16,18 +16,22 @@ $(eval $(call add_define,PLATFORM_CLUSTER_COUNT))
 PLATFORM_MAX_CPUS_PER_CLUSTER		:= 4
 $(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
 
-MAX_XLAT_TABLES				:= 4
+MAX_XLAT_TABLES				:= 10
 $(eval $(call add_define,MAX_XLAT_TABLES))
 
-MAX_MMAP_REGIONS			:= 8
+MAX_MMAP_REGIONS			:= 10
 $(eval $(call add_define,MAX_MMAP_REGIONS))
+
+PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/se
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
+				${COMMON_DIR}/drivers/bpmp/bpmp.c	\
 				${COMMON_DIR}/drivers/flowctrl/flowctrl.c	\
 				${COMMON_DIR}/drivers/memctrl/memctrl_v1.c	\
 				${SOC_DIR}/plat_psci_handlers.c			\
 				${SOC_DIR}/plat_setup.c				\
+				${SOC_DIR}/drivers/se/security_engine.c		\
 				${SOC_DIR}/plat_secondary.c
 
 # Enable workarounds for selected Cortex-A57 erratas.

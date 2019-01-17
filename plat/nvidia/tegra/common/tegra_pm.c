@@ -21,6 +21,7 @@
 #include <memctrl.h>
 #include <pmc.h>
 #include <tegra_def.h>
+#include <tegra_platform.h>
 #include <tegra_private.h>
 
 extern uint64_t tegra_bl31_phys_base;
@@ -222,6 +223,7 @@ __dead2 void tegra_pwr_domain_power_down_wfi(const psci_power_state_t
 void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	plat_params_from_bl2_t *plat_params;
+	uint32_t console_clock;
 
 	/*
 	 * Initialize the GIC cpu and distributor interfaces
@@ -234,10 +236,19 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] ==
 			PSTATE_ID_SOC_POWERDN) {
 
+		/*
+		 * Reference clock used by the FPGAs is a lot slower.
+		 */
+		if (tegra_platform_is_fpga() == 1U) {
+			console_clock = TEGRA_BOOT_UART_CLK_13_MHZ;
+		} else {
+			console_clock = TEGRA_BOOT_UART_CLK_408_MHZ;
+		}
+
 		/* Initialize the runtime console */
 		if (tegra_console_base != (uint64_t)0) {
-			console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
-				TEGRA_CONSOLE_BAUDRATE);
+			console_init(tegra_console_base, console_clock,
+				     TEGRA_CONSOLE_BAUDRATE);
 		}
 
 		/*

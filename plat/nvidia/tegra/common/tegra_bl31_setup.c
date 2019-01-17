@@ -27,6 +27,7 @@
 
 #include <memctrl.h>
 #include <tegra_def.h>
+#include <tegra_platform.h>
 #include <tegra_private.h>
 
 /* length of Trusty's input parameters (in bytes) */
@@ -122,6 +123,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	plat_params_from_bl2_t *plat_params = (plat_params_from_bl2_t *)arg1;
 	image_info_t bl32_img_info = { {0} };
 	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
+	uint32_t console_clock;
 
 	/*
 	 * For RESET_TO_BL31 systems, BL31 is the first bootloader to run so
@@ -155,6 +157,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	plat_bl31_params_from_bl2.tzdram_base = plat_params->tzdram_base;
 	plat_bl31_params_from_bl2.tzdram_size = plat_params->tzdram_size;
 	plat_bl31_params_from_bl2.uart_id = plat_params->uart_id;
+	plat_bl31_params_from_bl2.l2_ecc_parity_prot_dis = plat_params->l2_ecc_parity_prot_dis;
 
 	/*
 	 * It is very important that we run either from TZDRAM or TZSRAM base.
@@ -163,6 +166,15 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	if ((plat_bl31_params_from_bl2.tzdram_base != BL31_BASE) &&
 	    (TEGRA_TZRAM_BASE != BL31_BASE))
 		panic();
+
+	/*
+	 * Reference clock used by the FPGAs is a lot slower.
+	 */
+	if (tegra_platform_is_fpga() == 1U) {
+		console_clock = TEGRA_BOOT_UART_CLK_13_MHZ;
+	} else {
+		console_clock = TEGRA_BOOT_UART_CLK_408_MHZ;
+	}
 
 	/*
 	 * Get the base address of the UART controller to be used for the
@@ -174,8 +186,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		/*
 		 * Configure the UART port to be used as the console
 		 */
-		console_init(tegra_console_base, TEGRA_BOOT_UART_CLK_IN_HZ,
-			TEGRA_CONSOLE_BAUDRATE);
+		console_init(tegra_console_base, console_clock,
+			     TEGRA_CONSOLE_BAUDRATE);
 	}
 
 	/*
@@ -239,6 +251,11 @@ void plat_trusty_set_boot_args(aapcs64_params_t *args)
 	args->arg0 = bl32_mem_size;
 	args->arg1 = bl32_boot_params;
 	args->arg2 = TRUSTY_PARAMS_LEN_BYTES;
+
+	/* update EKS size */
+	if (args->arg4 != 0U) {
+		args->arg2 = args->arg4;
+	}
 }
 #endif
 
