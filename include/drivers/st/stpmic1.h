@@ -84,17 +84,39 @@
 #define ITSOURCE2_REG			0xB1U
 #define ITSOURCE3_REG			0xB2U
 #define ITSOURCE4_REG			0xB3U
+
+/* Registers masks */
 #define LDO_VOLTAGE_MASK		0x7CU
 #define BUCK_VOLTAGE_MASK		0xFCU
 #define LDO_BUCK_VOLTAGE_SHIFT		2
-#define LDO_ENABLE_MASK			0x01U
-#define BUCK_ENABLE_MASK		0x01U
-#define BUCK_HPLP_ENABLE_MASK		0x02U
-#define LDO_HPLP_ENABLE_MASK		0x02U
+#define LDO_BUCK_ENABLE_MASK		0x01U
+#define LDO_BUCK_HPLP_ENABLE_MASK	0x02U
 #define LDO_BUCK_HPLP_SHIFT		1
 #define LDO_BUCK_RANK_MASK		0x01U
 #define LDO_BUCK_RESET_MASK		0x01U
 #define LDO_BUCK_PULL_DOWN_MASK		0x03U
+
+/* Pull down register */
+#define BUCK1_PULL_DOWN_SHIFT		0
+#define BUCK2_PULL_DOWN_SHIFT		2
+#define BUCK3_PULL_DOWN_SHIFT		4
+#define BUCK4_PULL_DOWN_SHIFT		6
+#define VREF_DDR_PULL_DOWN_SHIFT	4
+
+/* Buck Mask reset register */
+#define BUCK1_MASK_RESET		0
+#define BUCK2_MASK_RESET		1
+#define BUCK3_MASK_RESET		2
+#define BUCK4_MASK_RESET		3
+
+/* LDO Mask reset register */
+#define LDO1_MASK_RESET			0
+#define LDO2_MASK_RESET			1
+#define LDO3_MASK_RESET			2
+#define LDO4_MASK_RESET			3
+#define LDO5_MASK_RESET			4
+#define LDO6_MASK_RESET			5
+#define VREF_DDR_MASK_RESET		6
 
 /* Main PMIC Control Register (MAIN_CONTROL_REG) */
 #define ICC_EVENT_ENABLED		BIT(4)
@@ -127,6 +149,7 @@
 #define SWIN_SWOUT_ENABLED		BIT(2)
 #define USBSW_OTG_SWITCH_ENABLED	BIT(1)
 
+int stpmic1_powerctrl_on(void);
 int stpmic1_switch_off(void);
 int stpmic1_register_read(uint8_t register_id, uint8_t *value);
 int stpmic1_register_write(uint8_t register_id, uint8_t value);
@@ -135,6 +158,12 @@ int stpmic1_regulator_enable(const char *name);
 int stpmic1_regulator_disable(const char *name);
 uint8_t stpmic1_is_regulator_enabled(const char *name);
 int stpmic1_regulator_voltage_set(const char *name, uint16_t millivolts);
+int stpmic1_regulator_voltage_get(const char *name);
+int stpmic1_regulator_pull_down_set(const char *name);
+int stpmic1_regulator_mask_reset_set(const char *name);
 void stpmic1_bind_i2c(struct i2c_handle_s *i2c_handle, uint16_t i2c_addr);
+
+int stpmic1_get_version(unsigned long *version);
+void stpmic1_dump_regulators(void);
 
 #endif /* STPMIC1_H */
