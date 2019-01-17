@@ -159,6 +159,19 @@ static void hikey960_edma_init(void)
 	}
 }
 
+static void hikey960_asp_dma_init(void)
+{
+	int i;
+	uint32_t non_secure;
+
+	non_secure = ASP_DMAC_SEC_CTRL_INTR_SEC | ASP_DMAC_SEC_CTRL_GLOBAL_SEC;
+	mmio_write_32(ASP_DMAC_SEC_CTRL, non_secure);
+
+	for (i = 0; i < ASP_DMAC_CHANNEL_NUMS; i++) {
+		mmio_write_32(ASP_DMAC_AXI_CONF(i), (1 << 6) | (1 << 18));
+	}
+}
+
 void bl31_platform_setup(void)
 {
 	/* Initialize the GIC driver, cpu and distributor interfaces */
@@ -168,6 +181,7 @@ void bl31_platform_setup(void)
 	gicv2_cpuif_enable();
 
 	hikey960_edma_init();
+	hikey960_asp_dma_init();
 
 	hisi_ipc_init();
 }
