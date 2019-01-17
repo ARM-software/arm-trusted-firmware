@@ -141,6 +141,7 @@ void bl31_plat_arch_setup(void)
 	enable_mmu_el3(0);
 }
 
+#ifdef RPI3_PRELOADED_DTB_BASE
 /*
  * Add information to the device tree (if any) about the reserved DRAM used by
  * the Trusted Firmware.
@@ -204,6 +205,7 @@ static void rpi3_dtb_add_mem_rsv(void)
 	INFO("rpi3: Reserved 0x%llx - 0x%llx in DTB\n", SEC_SRAM_BASE,
 	     SEC_SRAM_BASE + SEC_SRAM_SIZE);
 }
+#endif
 
 void bl31_platform_setup(void)
 {
