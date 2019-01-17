@@ -266,8 +266,8 @@ static int stm32mp1_ddr_setup(void)
 	VERBOSE("%s : ram size(%x, %x)\n", __func__,
 		(uint32_t)priv->info.base, (uint32_t)priv->info.size);
 
-	dcsw_op_all(DC_OP_CISW);
 	write_sctlr(read_sctlr() & ~SCTLR_C_BIT);
+	dcsw_op_all(DC_OP_CISW);
 
 	uret = ddr_test_data_bus();
 	if (uret != 0U) {

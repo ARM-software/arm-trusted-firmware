@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2015-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -82,8 +82,8 @@
 
 #define GPIO_SPEED_LOW		0x00
 #define GPIO_SPEED_MEDIUM	0x01
-#define GPIO_SPEED_FAST		0x02
-#define GPIO_SPEED_HIGH		0x03
+#define GPIO_SPEED_HIGH		0x02
+#define GPIO_SPEED_VERY_HIGH	0x03
 #define GPIO_SPEED_MASK		U(0x03)
 
 #define GPIO_NO_PULL		0x00

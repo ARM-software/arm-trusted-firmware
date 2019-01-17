@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,8 +34,8 @@ const char *stm32mp_osc_node_label[NB_OSC] = {
 /*******************************************************************************
  * This function reads the frequency of an oscillator from its name.
  * It reads the value indicated inside the device tree.
- * Returns 0 if success, and a negative value else.
- * If success, value is stored in the second parameter.
+ * Returns 0 on success, and a negative FDT/ERRNO error code on failure.
+ * On success, value is stored in the second parameter.
  ******************************************************************************/
 int fdt_osc_read_freq(const char *name, uint32_t *freq)
 {
@@ -127,7 +127,7 @@ bool fdt_osc_read_bool(enum stm32mp_osc_id osc_id, const char *prop_name)
 
 /*******************************************************************************
  * This function reads a value of a oscillator property from its id.
- * Returns value if success, and a default value if property not found.
+ * Returns value on success, and a default value if property not found.
  * Default value is passed as parameter.
  ******************************************************************************/
 uint32_t fdt_osc_read_uint32_default(enum stm32mp_osc_id osc_id,

@@ -470,12 +470,11 @@ static int stm32_sdmmc2_prepare(int lba, uintptr_t buf, size_t size)
 	}
 
 	/* Prepare CMD 16*/
-	mmio_write_32(base + SDMMC_DTIMER, UINT32_MAX);
+	mmio_write_32(base + SDMMC_DTIMER, 0);
 
 	mmio_write_32(base + SDMMC_DLENR, 0);
 
-	mmio_clrsetbits_32(base + SDMMC_DCTRLR,
-			   SDMMC_DCTRLR_CLEAR_MASK, SDMMC_DCTRLR_DTDIR);
+	mmio_write_32(base + SDMMC_DCTRLR, 0);
 
 	zeromem(&cmd, sizeof(struct mmc_cmd));
 
