@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,11 +12,8 @@
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32mp1_rcc.h>
 
-#define GPIO_BANK_G_ADDRESS	0x50008000
-#define GPIO_TX_PORT		11
-#define GPIO_TX_SHIFT		(GPIO_TX_PORT << 1)
-#define GPIO_TX_ALT_SHIFT	((GPIO_TX_PORT - GPIO_ALT_LOWER_LIMIT) << 2)
-#define STM32MP1_HSI_CLK	64000000
+#define GPIO_TX_SHIFT		(DEBUG_UART_TX_GPIO_PORT << 1)
+#define GPIO_TX_ALT_SHIFT	((DEBUG_UART_TX_GPIO_PORT - GPIO_ALT_LOWER_LIMIT) << 2)
 
 	.globl	platform_mem_init
 	.globl	plat_report_exception
@@ -112,13 +109,13 @@ endfunc plat_my_core_pos
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-	/* Enable GPIOs for UART4 TX */
-	ldr	r1, =(RCC_BASE + RCC_MP_AHB4ENSETR)
+	/* Enable GPIOs for UART TX */
+	ldr	r1, =(RCC_BASE + DEBUG_UART_TX_GPIO_BANK_CLK_REG)
 	ldr	r2, [r1]
-	/* Configure GPIO G11 */
-	orr	r2, r2, #RCC_MP_AHB4ENSETR_GPIOGEN
+	/* Configure GPIO */
+	orr	r2, r2, #DEBUG_UART_TX_GPIO_BANK_CLK_EN
 	str	r2, [r1]
-	ldr	r1, =GPIO_BANK_G_ADDRESS
+	ldr	r1, =DEBUG_UART_TX_GPIO_BANK_ADDRESS
 	/* Set GPIO mode alternate */
 	ldr	r2, [r1, #GPIO_MODE_OFFSET]
 	bic	r2, r2, #(GPIO_MODE_MASK << GPIO_TX_SHIFT)
@@ -132,23 +129,22 @@ func plat_crash_console_init
 	ldr	r2, [r1, #GPIO_PUPD_OFFSET]
 	bic	r2, r2, #(GPIO_PULL_MASK << GPIO_TX_SHIFT)
 	str	r2, [r1, #GPIO_PUPD_OFFSET]
-	/* Set alternate AF6 */
+	/* Set alternate */
 	ldr	r2, [r1, #GPIO_AFRH_OFFSET]
 	bic	r2, r2, #(GPIO_ALTERNATE_MASK << GPIO_TX_ALT_SHIFT)
-	orr	r2, r2, #(GPIO_ALTERNATE_6 << GPIO_TX_ALT_SHIFT)
+	orr	r2, r2, #(DEBUG_UART_TX_GPIO_ALTERNATE << GPIO_TX_ALT_SHIFT)
 	str	r2, [r1, #GPIO_AFRH_OFFSET]
-
-	/* Enable UART clock, with HSI source */
-	ldr	r1, =(RCC_BASE + RCC_UART24CKSELR)
-	mov	r2, #RCC_UART24CKSELR_HSI
+	/* Enable UART clock, with its source */
+	ldr	r1, =(RCC_BASE + DEBUG_UART_TX_CLKSRC_REG)
+	mov	r2, #DEBUG_UART_TX_CLKSRC
 	str	r2, [r1]
-	ldr	r1, =(RCC_BASE + RCC_MP_APB1ENSETR)
+	ldr	r1, =(RCC_BASE + DEBUG_UART_TX_EN_REG)
 	ldr	r2, [r1]
-	orr	r2, r2, #RCC_MP_APB1ENSETR_UART4EN
+	orr	r2, r2, #DEBUG_UART_TX_EN
 	str	r2, [r1]
 
 	ldr	r0, =STM32MP1_DEBUG_USART_BASE
-	ldr	r1, =STM32MP1_HSI_CLK
+	ldr	r1, =STM32MP1_DEBUG_USART_CLK_FRQ
 	ldr	r2, =STM32MP1_UART_BAUDRATE
 	b	console_stm32_core_init
 endfunc plat_crash_console_init

@@ -17,6 +17,7 @@
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <drivers/mmc.h>
+#include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32_sdmmc2.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_rcc.h>
@@ -642,7 +643,7 @@ static int stm32_sdmmc2_dt_get_config(void)
 		return -FDT_ERR_NOTFOUND;
 	}
 
-	if (fdt_check_status(sdmmc_node) == 0) {
+	if (fdt_get_status(sdmmc_node) == DT_DISABLED) {
 		return -FDT_ERR_NOTFOUND;
 	}
 

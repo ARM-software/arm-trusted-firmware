@@ -61,7 +61,7 @@ bool dt_check_pmic(void)
 		return false;
 	}
 
-	return fdt_check_status(node);
+	return fdt_get_status(node);
 }
 
 static int dt_pmic_i2c_config(struct dt_node_info *i2c_info)
