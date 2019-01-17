@@ -368,9 +368,16 @@
 
 #define EDMAC_BASE				0xfdf30000
 #define EDMAC_SEC_CTRL				(EDMAC_BASE + 0x694)
-#define EDMAC_AXI_CONF(x)			(EDMAC_BASE + 0x820 + (x << 6))
+#define EDMAC_AXI_CONF(x)			(EDMAC_BASE + 0x820 + ((x) << 6))
 #define EDMAC_SEC_CTRL_INTR_SEC			(1 << 1)
 #define EDMAC_SEC_CTRL_GLOBAL_SEC		(1 << 0)
 #define EDMAC_CHANNEL_NUMS				16
+
+#define ASP_DMAC_BASE				0xe804b000
+#define ASP_DMAC_SEC_CTRL			(EDMAC_BASE + 0x694)
+#define ASP_DMAC_AXI_CONF(x)			(EDMAC_BASE + 0x820 + ((x) << 6))
+#define ASP_DMAC_SEC_CTRL_INTR_SEC		(1 << 1)
+#define ASP_DMAC_SEC_CTRL_GLOBAL_SEC		(1 << 0)
+#define ASP_DMAC_CHANNEL_NUMS			16
 
 #endif /* HI3660_H */
