@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2018-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -667,15 +667,15 @@ static int stm32_sdmmc2_dt_get_config(void)
 	cuint++;
 	sdmmc2_params.reset_id = fdt32_to_cpu(*cuint);
 
-	if ((fdt_getprop(fdt, sdmmc_node, "st,pin-ckin", NULL)) != NULL) {
+	if ((fdt_getprop(fdt, sdmmc_node, "st,use-ckin", NULL)) != NULL) {
 		sdmmc2_params.pin_ckin = SDMMC_CLKCR_SELCLKRX_0;
 	}
 
-	if ((fdt_getprop(fdt, sdmmc_node, "st,dirpol", NULL)) != NULL) {
+	if ((fdt_getprop(fdt, sdmmc_node, "st,sig-dir", NULL)) != NULL) {
 		sdmmc2_params.dirpol = SDMMC_POWER_DIRPOL;
 	}
 
-	if ((fdt_getprop(fdt, sdmmc_node, "st,negedge", NULL)) != NULL) {
+	if ((fdt_getprop(fdt, sdmmc_node, "st,neg-edge", NULL)) != NULL) {
 		sdmmc2_params.negedge = SDMMC_CLKCR_NEGEDGE;
 	}
 

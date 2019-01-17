@@ -3,23 +3,65 @@
  * Copyright (C) STMicroelectronics 2017 - All Rights Reserved
  * Author: Ludovic Barre <ludovic.barre@st.com> for STMicroelectronics.
  */
-
 /dts-v1/;
+
 #include "stm32mp157c-ed1.dts"
 
 / {
-	model = "STMicroelectronics STM32MP157C-EV1 pmic eval daughter on eval mother";
+	model = "STMicroelectronics STM32MP157C eval daughter on eval mother";
 	compatible = "st,stm32mp157c-ev1", "st,stm32mp157c-ed1", "st,stm32mp157";
 
 	chosen {
-		bootargs = "earlyprintk console=ttyS3,115200 root=/dev/ram";
-		stdout-path = "serial3:115200n8";
+		stdout-path = "serial0:115200n8";
+	};
+
+	aliases {
+		serial1 = &usart3;
+	};
+};
+
+&fmc {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	nand: nand@0 {
+		reg = <0>;
+		nand-on-flash-bbt;
+		#address-cells = <1>;
+		#size-cells = <1>;
+	};
+};
+
+&qspi {
+	pinctrl-names = "default";
+	pinctrl-0 = <&qspi_clk_pins_a &qspi_bk1_pins_a &qspi_bk2_pins_a>;
+	reg = <0x58003000 0x1000>, <0x70000000 0x4000000>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	flash0: mx66l51235l@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <108000000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+	};
+
+	flash1: mx66l51235l@1 {
+		compatible = "jedec,spi-nor";
+		reg = <1>;
+		spi-rx-bus-width = <4>;
+		spi-max-frequency = <108000000>;
+		#address-cells = <1>;
+		#size-cells = <1>;
 	};
 };
 
 &usart3 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&usart3_pins_a>;
-	resets = <&rcc USART3_R>;
 	status = "disabled";
 };

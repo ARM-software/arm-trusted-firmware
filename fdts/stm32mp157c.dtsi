@@ -3,7 +3,7 @@
  * Copyright (C) STMicroelectronics 2017 - All Rights Reserved
  * Author: Ludovic Barre <ludovic.barre@st.com> for STMicroelectronics.
  */
-
+#include <dt-bindings/interrupt-controller/arm-gic.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <dt-bindings/reset/stm32mp1-resets.h>
 
@@ -11,15 +11,12 @@
 	#address-cells = <1>;
 	#size-cells = <1>;
 
-	aliases {
-		serial0 = &usart1;
-		serial1 = &usart2;
-		serial2 = &usart3;
-		serial3 = &uart4;
-		serial4 = &uart5;
-		serial5 = &usart6;
-		serial6 = &uart7;
-		serial7 = &uart8;
+	intc: interrupt-controller@a0021000 {
+		compatible = "arm,cortex-a7-gic";
+		#interrupt-cells = <3>;
+		interrupt-controller;
+		reg = <0xa0021000 0x1000>,
+		      <0xa0022000 0x2000>;
 	};
 
 	clocks {
@@ -56,7 +53,7 @@
 		clk_i2s_ckin: i2s_ckin {
 			#clock-cells = <0>;
 			compatible = "fixed-clock";
-			clock-frequency = <64000000>;
+			clock-frequency = <0>;
 		};
 
 		clk_dsi_phy: ck_dsi_phy {
@@ -64,31 +61,28 @@
 			compatible = "fixed-clock";
 			clock-frequency = <0>;
 		};
-
-		clk_usbo_48m: ck_usbo_48m {
-			#clock-cells = <0>;
-			compatible = "fixed-clock";
-			clock-frequency = <48000000>;
-		};
 	};
 
 	soc {
 		compatible = "simple-bus";
 		#address-cells = <1>;
 		#size-cells = <1>;
+		interrupt-parent = <&intc>;
 		ranges;
 
 		usart2: serial@4000e000 {
-			compatible = "st,stm32h7-usart";
+			compatible = "st,stm32h7-uart";
 			reg = <0x4000e000 0x400>;
 			clocks = <&rcc USART2_K>;
+			resets = <&rcc USART2_R>;
 			status = "disabled";
 		};
 
 		usart3: serial@4000f000 {
-			compatible = "st,stm32h7-usart";
+			compatible = "st,stm32h7-uart";
 			reg = <0x4000f000 0x400>;
 			clocks = <&rcc USART3_K>;
+			resets = <&rcc USART3_R>;
 			status = "disabled";
 		};
 
@@ -96,6 +90,7 @@
 			compatible = "st,stm32h7-uart";
 			reg = <0x40010000 0x400>;
 			clocks = <&rcc UART4_K>;
+			resets = <&rcc UART4_R>;
 			status = "disabled";
 		};
 
@@ -103,6 +98,7 @@
 			compatible = "st,stm32h7-uart";
 			reg = <0x40011000 0x400>;
 			clocks = <&rcc UART5_K>;
+			resets = <&rcc UART5_R>;
 			status = "disabled";
 		};
 
@@ -111,6 +107,7 @@
 			compatible = "st,stm32h7-uart";
 			reg = <0x40018000 0x400>;
 			clocks = <&rcc UART7_K>;
+			resets = <&rcc UART7_R>;
 			status = "disabled";
 		};
 
@@ -118,21 +115,23 @@
 			compatible = "st,stm32h7-uart";
 			reg = <0x40019000 0x400>;
 			clocks = <&rcc UART8_K>;
+			resets = <&rcc UART8_R>;
 			status = "disabled";
 		};
 
 		usart6: serial@44003000 {
-			compatible = "st,stm32h7-usart";
+			compatible = "st,stm32h7-uart";
 			reg = <0x44003000 0x400>;
 			clocks = <&rcc USART6_K>;
+			resets = <&rcc USART6_R>;
 			status = "disabled";
 		};
 
 		sdmmc3: sdmmc@48004000 {
 			compatible = "st,stm32-sdmmc2";
 			reg = <0x48004000 0x400>, <0x48005000 0x400>;
-			reg-names = "sdmmc", "delay";
 			clocks = <&rcc SDMMC3_K>;
+			clock-names = "apb_pclk";
 			resets = <&rcc SDMMC3_R>;
 			cap-sd-highspeed;
 			cap-mmc-highspeed;
@@ -141,17 +140,34 @@
 		};
 
 		rcc: rcc@50000000 {
-			compatible = "syscon", "st,stm32mp1-rcc";
+			compatible = "st,stm32mp1-rcc", "syscon";
+			reg = <0x50000000 0x1000>;
 			#clock-cells = <1>;
 			#reset-cells = <1>;
-			reg = <0x50000000 0x1000>;
+			interrupts = <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>;
 		};
 
-		rcc_reboot: rcc-reboot@50000000 {
-				compatible = "syscon-reboot";
-				regmap = <&rcc>;
-				offset = <0x404>;
-				mask = <0x1>;
+		pwr: pwr@50001000 {
+			compatible = "st,stm32mp1-pwr", "syscon", "simple-mfd";
+			reg = <0x50001000 0x400>;
+		};
+
+		exti: interrupt-controller@5000d000 {
+			compatible = "st,stm32mp1-exti", "syscon";
+			interrupt-controller;
+			#interrupt-cells = <2>;
+			reg = <0x5000d000 0x400>;
+
+			/* exti_pwr is an extra interrupt controller used for
+			 * EXTI 55 to 60. It's mapped on pwr interrupt
+			 * controller.
+			 */
+			exti_pwr: exti-pwr {
+				interrupt-controller;
+				#interrupt-cells = <2>;
+				interrupt-parent = <&pwr>;
+				st,irq-number = <6>;
+			};
 		};
 
 		rng1: rng@54003000 {
@@ -162,13 +178,15 @@
 			status = "disabled";
 		};
 
-		fmc_nand: fmc_nand@58002000 {
-			compatible = "st,stm32mp1-fmc";
+		fmc: nand-controller@58002000 {
+			compatible = "st,stm32mp15-fmc2";
 			reg = <0x58002000 0x1000>,
-			      <0x80000000 0x40000>,
-			      <0x81000000 0x40000>,
-			      <0x88000000 0x40000>,
-			      <0x89000000 0x40000>;
+			      <0x80000000 0x1000>,
+			      <0x88010000 0x1000>,
+			      <0x88020000 0x1000>,
+			      <0x81000000 0x1000>,
+			      <0x89010000 0x1000>,
+			      <0x89020000 0x1000>;
 			clocks = <&rcc FMC_K>;
 			resets = <&rcc FMC_R>;
 			status = "disabled";
@@ -177,15 +195,17 @@
 		qspi: qspi@58003000 {
 			compatible = "st,stm32f469-qspi";
 			reg = <0x58003000 0x1000>, <0x70000000 0x10000000>;
+			reg-names = "qspi", "qspi_mm";
 			clocks = <&rcc QSPI_K>;
+			resets = <&rcc QSPI_R>;
 			status = "disabled";
 		};
 
 		sdmmc1: sdmmc@58005000 {
 			compatible = "st,stm32-sdmmc2";
 			reg = <0x58005000 0x1000>, <0x58006000 0x1000>;
-			reg-names = "sdmmc", "delay";
 			clocks = <&rcc SDMMC1_K>;
+			clock-names = "apb_pclk";
 			resets = <&rcc SDMMC1_R>;
 			cap-sd-highspeed;
 			cap-mmc-highspeed;
@@ -196,8 +216,8 @@
 		sdmmc2: sdmmc@58007000 {
 			compatible = "st,stm32-sdmmc2";
 			reg = <0x58007000 0x1000>, <0x58008000 0x1000>;
-			reg-names = "sdmmc", "delay";
 			clocks = <&rcc SDMMC2_K>;
+			clock-names = "apb_pclk";
 			resets = <&rcc SDMMC2_R>;
 			cap-sd-highspeed;
 			cap-mmc-highspeed;
@@ -205,7 +225,7 @@
 			status = "disabled";
 		};
 
-		iwdg2: iwdg@5a002000 {
+		iwdg2: watchdog@5a002000 {
 			compatible = "st,stm32mp1-iwdg";
 			reg = <0x5a002000 0x400>;
 			clocks = <&rcc IWDG2>, <&rcc CK_LSI>;
@@ -214,15 +234,34 @@
 		};
 
 		usart1: serial@5c000000 {
-			compatible = "st,stm32h7-usart";
+			compatible = "st,stm32h7-uart";
 			reg = <0x5c000000 0x400>;
+			interrupt-names = "event", "wakeup";
+			interrupts-extended = <&intc GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>,
+					      <&exti 26 1>;
 			clocks = <&rcc USART1_K>;
+			resets = <&rcc USART1_R>;
+			status = "disabled";
+		};
+
+		spi6: spi@5c001000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32h7-spi";
+			reg = <0x5c001000 0x400>;
+			interrupts = <GIC_SPI 86 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&rcc SPI6_K>;
+			resets = <&rcc SPI6_R>;
 			status = "disabled";
 		};
 
 		i2c4: i2c@5c002000 {
 			compatible = "st,stm32f7-i2c";
 			reg = <0x5c002000 0x400>;
+			interrupt-names = "event", "error", "wakeup";
+			interrupts-extended = <&intc GIC_SPI 95 IRQ_TYPE_LEVEL_HIGH>,
+					      <&intc GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>,
+					      <&exti 24 1>;
 			clocks = <&rcc I2C4_K>;
 			resets = <&rcc I2C4_R>;
 			#address-cells = <1>;
@@ -235,6 +274,36 @@
 			reg = <0x5c004000 0x400>;
 			clocks = <&rcc RTCAPB>, <&rcc RTC>;
 			clock-names = "pclk", "rtc_ck";
+			interrupts-extended = <&intc GIC_SPI 3 IRQ_TYPE_LEVEL_HIGH>,
+					      <&exti 19 1>;
+			status = "disabled";
+		};
+
+		bsec: nvmem@5c005000 {
+			compatible = "st,stm32mp15-bsec";
+			reg = <0x5c005000 0x400>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+			ts_cal1: calib@5c {
+				reg = <0x5c 0x2>;
+			};
+			ts_cal2: calib@5e {
+				reg = <0x5e 0x2>;
+			};
+		};
+
+		i2c6: i2c@5c009000 {
+			compatible = "st,stm32f7-i2c";
+			reg = <0x5c009000 0x400>;
+			interrupt-names = "event", "error", "wakeup";
+			interrupts-extended = <&intc GIC_SPI 135 IRQ_TYPE_LEVEL_HIGH>,
+					      <&intc GIC_SPI 136 IRQ_TYPE_LEVEL_HIGH>,
+					      <&exti 54 1>;
+			clocks = <&rcc I2C6_K>;
+			resets = <&rcc I2C6_R>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "disabled";
 		};
 	};
 };
