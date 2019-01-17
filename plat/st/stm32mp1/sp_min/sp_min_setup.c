@@ -16,6 +16,7 @@
 #include <drivers/arm/gicv2.h>
 #include <drivers/arm/tzc400.h>
 #include <drivers/generic_delay_timer.h>
+#include <drivers/st/bsec.h>
 #include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
@@ -108,6 +109,10 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	}
 
 	if (dt_open_and_check() < 0) {
+		panic();
+	}
+
+	if (bsec_probe() != 0) {
 		panic();
 	}
 

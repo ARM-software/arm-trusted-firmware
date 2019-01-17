@@ -14,6 +14,8 @@
 
 #include <stm32mp1_smc.h>
 
+#include "bsec_svc.h"
+
 /* STM32 SiP Service UUID */
 DEFINE_SVC_UUID2(stm32_sip_svc_uid,
 		 0xa778aa50, 0xf49b, 0x144a, 0x8a, 0x5e,
@@ -55,6 +57,11 @@ static uintptr_t stm32mp1_svc_smc_handler(uint32_t smc_fid, u_register_t x1,
 		/* Return the version of current implementation */
 		ret1 = STM32_SIP_SVC_VERSION_MAJOR;
 		ret2 = STM32_SIP_SVC_VERSION_MINOR;
+		ret2_enabled = true;
+		break;
+
+	case STM32_SMC_BSEC:
+		ret1 = bsec_main(x1, x2, x3, &ret2);
 		ret2_enabled = true;
 		break;
 
