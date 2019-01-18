@@ -102,3 +102,29 @@ int imx_wakeup_src_handler(uint32_t smc_fid,
 
 	return SMC_OK;
 }
+
+int imx_otp_handler(uint32_t smc_fid,
+		void *handle,
+		u_register_t x1,
+		u_register_t x2)
+{
+	int ret;
+	uint32_t fuse;
+
+	switch (smc_fid) {
+	case IMX_SIP_OTP_READ:
+		ret = sc_misc_otp_fuse_read(ipc_handle, x1, &fuse);
+		SMC_RET2(handle, ret, fuse);
+		break;
+	case IMX_SIP_OTP_WRITE:
+		ret = sc_misc_otp_fuse_write(ipc_handle, x1, x2);
+		SMC_RET1(handle, ret);
+		break;
+	default:
+		ret = SMC_UNK;
+		SMC_RET1(handle, ret);
+		break;
+	}
+
+	return ret;
+}

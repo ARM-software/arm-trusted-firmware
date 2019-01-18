@@ -34,6 +34,9 @@ static uintptr_t imx_sip_handler(unsigned int smc_fid,
 		break;
 	case  IMX_SIP_WAKEUP_SRC:
 		SMC_RET1(handle, imx_wakeup_src_handler(smc_fid, x1, x2, x3));
+	case IMX_SIP_OTP_READ:
+	case IMX_SIP_OTP_WRITE:
+		return imx_otp_handler(smc_fid, handle, x1, x2);
 #endif
 	default:
 		WARN("Unimplemented i.MX SiP Service Call: 0x%x\n", smc_fid);
