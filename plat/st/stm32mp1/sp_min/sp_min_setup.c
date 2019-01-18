@@ -20,6 +20,7 @@
 #include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32mp1_clk.h>
+#include <drivers/st/stm32mp1_reset.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/mmio.h>
@@ -142,6 +143,8 @@ void sp_min_platform_setup(void)
 			MT_CODE | MT_SECURE);
 
 	configure_mmu();
+
+	stm32mp1_reset_init();
 
 	/* Initialize tzc400 after DDR initialization */
 	stm32mp1_security_setup();

@@ -47,6 +47,7 @@ PLAT_BL_COMMON_SOURCES	+=	${LIBFDT_SRCS}						\
 				drivers/arm/tzc/tzc400.c				\
 				drivers/delay_timer/delay_timer.c			\
 				drivers/delay_timer/generic_delay_timer.c		\
+				drivers/reset/reset.c					\
 				drivers/st/bsec/bsec.c					\
 				drivers/st/clk/stm32mp1_clk.c				\
 				drivers/st/clk/stm32mp1_clkfunc.c			\

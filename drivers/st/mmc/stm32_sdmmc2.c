@@ -17,11 +17,11 @@
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <drivers/mmc.h>
+#include <drivers/reset.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32_sdmmc2.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_rcc.h>
-#include <drivers/st/stm32mp1_reset.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <dt-bindings/reset/stm32mp1-resets.h>
 #include <lib/mmio.h>
@@ -727,9 +727,9 @@ int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params)
 		return ret;
 	}
 
-	stm32mp1_reset_assert(sdmmc2_params.reset_id);
+	reset_assert(sdmmc2_params.reset_id);
 	udelay(2);
-	stm32mp1_reset_deassert(sdmmc2_params.reset_id);
+	reset_deassert(sdmmc2_params.reset_id);
 	mdelay(1);
 
 	sdmmc2_params.clk_rate = stm32mp1_clk_get_rate(sdmmc2_params.clock_id);

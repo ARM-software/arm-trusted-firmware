@@ -15,6 +15,7 @@
 #include <common/desc_image_load.h>
 #include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
+#include <drivers/reset.h>
 #include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32mp_pmic.h>
 #include <drivers/st/stm32mp1_clk.h>
@@ -211,6 +212,8 @@ void bl2_el3_plat_arch_setup(void)
 		panic();
 	}
 
+	stm32mp1_reset_init();
+
 	result = dt_get_stdout_uart_info(&dt_uart_info);
 
 	if ((result <= 0) ||
@@ -228,9 +231,9 @@ void bl2_el3_plat_arch_setup(void)
 		goto skip_console_init;
 	}
 
-	stm32mp1_reset_assert((uint32_t)dt_uart_info.reset);
+	reset_assert((unsigned int)dt_uart_info.reset);
 	udelay(2);
-	stm32mp1_reset_deassert((uint32_t)dt_uart_info.reset);
+	reset_deassert((unsigned int)dt_uart_info.reset);
 	mdelay(1);
 
 	clk_rate = stm32mp1_clk_get_rate((unsigned long)dt_uart_info.clock);
