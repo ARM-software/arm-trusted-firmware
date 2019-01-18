@@ -18,6 +18,7 @@
 #include <drivers/generic_delay_timer.h>
 #include <drivers/st/bsec.h>
 #include <drivers/st/stm32_console.h>
+#include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/el3_runtime/context_mgmt.h>
@@ -148,6 +149,16 @@ void sp_min_platform_setup(void)
 	generic_delay_timer_init();
 
 	stm32mp1_gic_init();
+
+	/* Unlock ETZPC securable peripherals */
+#define STM32MP1_ETZPC_BASE	0x5C007000U
+#define ETZPC_DECPROT0		0x010U
+	mmio_write_32(STM32MP1_ETZPC_BASE + ETZPC_DECPROT0, 0xFFFFFFFF);
+
+	/* Set GPIO bank Z as non secure */
+	for (uint32_t pin = 0U; pin < STM32MP_GPIOZ_PIN_MAX_COUNT; pin++) {
+		set_gpio_secure_cfg(GPIO_BANK_Z, pin, false);
+	}
 }
 
 void sp_min_plat_arch_setup(void)
