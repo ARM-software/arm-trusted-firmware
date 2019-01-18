@@ -16,5 +16,6 @@
 #include <sci/svc/pm/sci_pm_api.h>
 #include <sci/svc/rm/sci_rm_api.h>
 #include <sci/svc/timer/sci_timer_api.h>
+#include <sci/svc/misc/sci_misc_api.h>
 
 #endif /* SCI_H */
