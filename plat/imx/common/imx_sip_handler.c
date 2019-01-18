@@ -76,3 +76,29 @@ int imx_cpufreq_handler(uint32_t smc_fid,
 
 	return 0;
 }
+
+static bool wakeup_src_irqsteer;
+
+bool imx_is_wakeup_src_irqsteer(void)
+{
+	return wakeup_src_irqsteer;
+}
+
+int imx_wakeup_src_handler(uint32_t smc_fid,
+		    u_register_t x1,
+		    u_register_t x2,
+		    u_register_t x3)
+{
+	switch (x1) {
+	case IMX_SIP_WAKEUP_SRC_IRQSTEER:
+		wakeup_src_irqsteer = true;
+		break;
+	case IMX_SIP_WAKEUP_SRC_SCU:
+		wakeup_src_irqsteer = false;
+		break;
+	default:
+		return SMC_UNK;
+	}
+
+	return SMC_OK;
+}
