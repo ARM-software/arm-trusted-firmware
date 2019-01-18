@@ -6,8 +6,7 @@
 
 PLAT_INCLUDES		:=	-Iplat/nvidia/tegra/include/drivers \
 				-Iplat/nvidia/tegra/include/lib \
-				-Iplat/nvidia/tegra/include \
-				-Iplat/nvidia/tegra/include/${TARGET_SOC}
+				-Iplat/nvidia/tegra/include
 
 include lib/xlat_tables_v2/xlat_tables.mk
 PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}

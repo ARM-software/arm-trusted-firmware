@@ -37,7 +37,8 @@ MAX_MMAP_REGIONS			:= 30
 $(eval $(call add_define,MAX_MMAP_REGIONS))
 
 # platform files
-PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/include
+PLAT_INCLUDES		+=	-Iplat/nvidia/tegra/include/t194 \
+				-I${SOC_DIR}/drivers/include
 
 BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S \
 				lib/cpus/aarch64/denver.S		\
