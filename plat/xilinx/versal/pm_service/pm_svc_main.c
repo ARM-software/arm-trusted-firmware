@@ -152,6 +152,9 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 			 ((uint64_t)reset_status << 32));
 	}
 
+	case PM_INIT_FINALIZE:
+		SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS);
+
 	case PM_PINCTRL_REQUEST:
 		ret = pm_pinctrl_request(pm_arg[0]);
 		SMC_RET1(handle, (uint64_t)ret);
