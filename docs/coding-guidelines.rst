@@ -64,7 +64,8 @@ type usage guidelines should be followed:
 
 - Use ``int`` as the default integer type - it's likely to be the fastest on all
   systems. Also this can be assumed to be 32-bit as a consequence of the
-  Procedure Call Standard for the Arm Architecture.
+  `Procedure Call Standard for the Arm Architecture`_ and the `Procedure Call
+  Standard for the Arm 64-bit Architecture`_ .
 
 - Avoid use of ``short`` as this may end up being slower than ``int`` in some
   systems. If a variable must be exactly 16-bit, use ``int16_t`` or
@@ -503,3 +504,5 @@ have ``const`` arguments, assuming they don't need to modify the data.
 .. _`Linux Coding Style`: https://www.kernel.org/doc/html/latest/process/coding-style.html
 .. _`Linus's tree`: https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/scripts/checkpatch.pl
 .. _`Why the “volatile” type class should not be used`: https://www.kernel.org/doc/html/latest/process/volatile-considered-harmful.html
+.. _`Procedure Call Standard for the Arm Architecture`: http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042f/IHI0042F_aapcs.pdf
+.. _`Procedure Call Standard for the Arm 64-bit Architecture`: http://infocenter.arm.com/help/topic/com.arm.doc.ihi0055b/IHI0055B_aapcs64.pdf
