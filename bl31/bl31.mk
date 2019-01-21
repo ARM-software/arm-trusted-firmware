@@ -12,8 +12,8 @@ ifeq (${ENABLE_SPM},1)
     ifeq (${EL3_EXCEPTION_HANDLING},0)
       $(error EL3_EXCEPTION_HANDLING must be 1 for SPM support)
     endif
-    $(info Including deprecated SPM makefile)
-    include services/std_svc/spm_deprecated/spm.mk
+    $(info Including makefile of SPM based on MM)
+    include services/std_svc/spm_mm/spm.mk
   else
     $(info Including SPM makefile)
     include services/std_svc/spm/spm.mk

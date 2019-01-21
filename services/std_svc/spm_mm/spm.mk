@@ -11,7 +11,7 @@ ifneq (${ARCH},aarch64)
         $(error "Error: SPM is only supported on aarch64.")
 endif
 
-SPM_SOURCES	:=	$(addprefix services/std_svc/spm_deprecated/, \
+SPM_SOURCES	:=	$(addprefix services/std_svc/spm_mm/,	\
 			${ARCH}/spm_helpers.S			\
 			${ARCH}/spm_shim_exceptions.S		\
 			spm_main.c				\
