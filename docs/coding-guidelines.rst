@@ -107,7 +107,9 @@ type usage guidelines should be followed:
 
 - Use ``size_t`` when storing the ``sizeof()`` something.
 
-- (Rarely) use ``ssize_t`` when returning ``sizeof()`` or error from a function.
+- Use ``ssize_t`` when returning the ``sizeof()`` something from a function that
+  can also return an error code; the signed type allows for a negative return
+  code in case of error. This practice should be used sparingly.
 
 - Use ``u_register_t`` when it's important to store the contents of a register
   in its native size (32-bit in AArch32 and 64-bit in AArch64). This is not a
