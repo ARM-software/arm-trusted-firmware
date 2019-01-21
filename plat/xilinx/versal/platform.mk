@@ -38,6 +38,7 @@ VERSAL_CONSOLE	?=	pl011
 $(eval $(call add_define_val,VERSAL_CONSOLE,VERSAL_CONSOLE_ID_${VERSAL_CONSOLE}))
 
 PLAT_INCLUDES		:=	-Iplat/xilinx/common/include/			\
+				-Iplat/xilinx/common/ipi_mailbox_service/	\
 				-Iplat/xilinx/versal/include/			\
 				-Iplat/xilinx/versal/pm_service/
 
@@ -58,6 +59,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
 				plat/common/plat_psci_common.c			\
 				plat/xilinx/common/ipi.c			\
+				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				plat/xilinx/common/pm_service/pm_ipi.c		\
 				plat/xilinx/versal/bl31_versal_setup.c		\
 				plat/xilinx/versal/plat_psci.c			\

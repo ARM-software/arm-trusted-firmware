@@ -9,6 +9,8 @@
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <tools_share/uuid.h>
+
+#include "ipi_mailbox_svc.h"
 #include "pm_svc_main.h"
 
 /* SMC function IDs for SiP Service queries */
@@ -23,7 +25,9 @@
 /* These macros are used to identify PM calls from the SMC function ID */
 #define PM_FID_MASK	0xf000u
 #define PM_FID_VALUE	0u
+#define IPI_FID_VALUE	0x1000u
 #define is_pm_fid(_fid) (((_fid) & PM_FID_MASK) == PM_FID_VALUE)
+#define is_ipi_fid(_fid) (((_fid) & PM_FID_MASK) == IPI_FID_VALUE)
 
 /* SiP Service UUID */
 DEFINE_SVC_UUID2(versal_sip_uuid,
@@ -61,6 +65,12 @@ uintptr_t sip_svc_smc_handler(uint32_t smc_fid,
 	/* Let PM SMC handler deal with PM-related requests */
 	if (is_pm_fid(smc_fid)) {
 		return pm_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle,
+				      flags);
+	}
+
+	/* Let IPI SMC handler deal with IPI-related requests */
+	if (is_ipi_fid(smc_fid)) {
+		return ipi_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle,
 				      flags);
 	}
 
