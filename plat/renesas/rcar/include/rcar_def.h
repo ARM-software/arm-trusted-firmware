@@ -204,8 +204,6 @@
 #define	EXTAL_MD14_MD13_TYPE_3		U(16666600)	/* MD14=1 MD13=1 */
 #define	EXTAL_SALVATOR_XS		U(8320000)	/* Salvator-XS */
 #define EXTAL_EBISU			U(24000000)	/* Ebisu */
-/* CPU Auxiliary Control Register */
-#define RCAR_CA57_DIS_LOAD_PASS_STORE	(ULL(1) << 55)
 /* CPG write protect registers 	*/
 #define	CPGWPR_PASSWORD			(0x5A5AFFFFU)
 #define	CPGWPCR_PASSWORD		(0xA5A50000U)
