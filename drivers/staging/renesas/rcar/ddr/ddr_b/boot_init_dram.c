@@ -2826,7 +2826,7 @@ static uint32_t pll3_freq(uint32_t on)
 	set_freqchgack(0);
 
 	if (timeout) {
-		FATAL_MSG("Time out[2]");
+		FATAL_MSG("BL2: Time out[2]\n");
 		return (1);
 	}
 	return (0);
@@ -3012,13 +3012,13 @@ static uint32_t init_ddr(void)
 	***********************************************************************/
 #ifdef DDR_BACKUPMODE
 	if (ddrBackup) {
-		NOTICE("[WARM_BOOT]");
+		NOTICE("BL2: [WARM_BOOT]\n");
 	} else {
-		NOTICE("[COLD_BOOT]");
+		NOTICE("BL2: [COLD_BOOT]\n");
 	}
 	err = rcar_dram_update_boot_status(ddrBackup);
 	if (err) {
-		NOTICE("[BOOT_STATUS_UPDATE_ERROR]");
+		NOTICE("BL2: [BOOT_STATUS_UPDATE_ERROR]\n");
 		return INITDRAM_ERR_I;
 	}
 #endif
