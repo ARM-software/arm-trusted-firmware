@@ -46,7 +46,6 @@ bool tegra_chipid_is_t186(void);
 bool tegra_chipid_is_t210(void);
 bool tegra_chipid_is_t210_b01(void);
 
-
 /*
  * Tegra platform identifiers
  */

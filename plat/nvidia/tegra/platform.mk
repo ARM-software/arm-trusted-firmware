@@ -12,6 +12,8 @@ $(eval $(call add_define,CRASH_REPORTING))
 
 # enable assert() for release/debug builds
 ENABLE_ASSERTIONS	:=	1
+PLAT_LOG_LEVEL_ASSERT	:=	40
+$(eval $(call add_define,PLAT_LOG_LEVEL_ASSERT))
 
 # enable dynamic memory mapping
 PLAT_XLAT_TABLES_DYNAMIC :=	1
@@ -28,6 +30,9 @@ USE_COHERENT_MEM	:=	0
 
 # do not enable SVE
 ENABLE_SVE_FOR_NS	:=	0
+
+# enable D-cache early during CPU warmboot
+WARMBOOT_ENABLE_DCACHE_EARLY := 1
 
 include plat/nvidia/tegra/common/tegra_common.mk
 include ${SOC_DIR}/platform_${TARGET_SOC}.mk

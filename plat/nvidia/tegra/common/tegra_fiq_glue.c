@@ -65,7 +65,7 @@ static uint64_t tegra_fiq_interrupt_handler(uint32_t id,
 	 * Set the new ELR to continue execution in the NS world using the
 	 * FIQ handler registered earlier.
 	 */
-	assert(ns_fiq_handler_addr);
+	assert(ns_fiq_handler_addr != 0ULL);
 	write_ctx_reg((el3state_ctx), (uint32_t)(CTX_ELR_EL3), (ns_fiq_handler_addr));
 
 	/*

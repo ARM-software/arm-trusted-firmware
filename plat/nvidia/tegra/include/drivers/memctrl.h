@@ -13,5 +13,6 @@ void tegra_memctrl_tzdram_setup(uint64_t phys_base, uint32_t size_in_bytes);
 void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes);
 void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes);
 void tegra_memctrl_disable_ahb_redirection(void);
+void tegra_memctrl_clear_pending_interrupts(void);
 
 #endif /* MEMCTRL_H */

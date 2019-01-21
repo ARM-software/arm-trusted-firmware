@@ -26,6 +26,7 @@
 #include <plat/common/platform.h>
 
 #include <memctrl.h>
+#include <profiler.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
@@ -40,20 +41,19 @@ extern void memcpy16(void *dest, const void *src, unsigned int length);
  * of trusted SRAM
  ******************************************************************************/
 
-IMPORT_SYM(unsigned long, __RW_START__,		BL31_RW_START);
-IMPORT_SYM(unsigned long, __RW_END__,		BL31_RW_END);
-IMPORT_SYM(unsigned long, __RODATA_START__,	BL31_RODATA_BASE);
-IMPORT_SYM(unsigned long, __RODATA_END__,	BL31_RODATA_END);
-IMPORT_SYM(unsigned long, __TEXT_START__,	TEXT_START);
-IMPORT_SYM(unsigned long, __TEXT_END__,		TEXT_END);
+IMPORT_SYM(uint64_t, __RW_START__,	BL31_RW_START);
+IMPORT_SYM(uint64_t, __RW_END__,	BL31_RW_END);
+IMPORT_SYM(uint64_t, __RODATA_START__,	BL31_RODATA_BASE);
+IMPORT_SYM(uint64_t, __RODATA_END__,	BL31_RODATA_END);
+IMPORT_SYM(uint64_t, __TEXT_START__,	TEXT_START);
+IMPORT_SYM(uint64_t, __TEXT_END__,	TEXT_END);
 
 extern uint64_t tegra_bl31_phys_base;
 extern uint64_t tegra_console_base;
 
-
 static entry_point_info_t bl33_image_ep_info, bl32_image_ep_info;
 static plat_params_from_bl2_t plat_bl31_params_from_bl2 = {
-	.tzdram_size = (uint64_t)TZDRAM_SIZE
+	.tzdram_size = TZDRAM_SIZE
 };
 static unsigned long bl32_mem_size;
 static unsigned long bl32_boot_params;
@@ -93,14 +93,16 @@ plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
  ******************************************************************************/
 entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
-	if (type == NON_SECURE)
-		return &bl33_image_ep_info;
+	entry_point_info_t *ep =  NULL;
 
 	/* return BL32 entry point info if it is valid */
-	if (type == SECURE && bl32_image_ep_info.pc)
-		return &bl32_image_ep_info;
+	if (type == NON_SECURE) {
+		ep = &bl33_image_ep_info;
+	} else if ((type == SECURE) && (bl32_image_ep_info.pc != 0U)) {
+		ep = &bl32_image_ep_info;
+	}
 
-	return NULL;
+	return ep;
 }
 
 /*******************************************************************************
@@ -124,6 +126,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	image_info_t bl32_img_info = { {0} };
 	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
 	uint32_t console_clock;
+	int32_t ret;
 
 	/*
 	 * For RESET_TO_BL31 systems, BL31 is the first bootloader to run so
@@ -131,20 +134,22 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 * might use custom ways to get arguments, so provide handlers which
 	 * they can override.
 	 */
-	if (arg_from_bl2 == NULL)
+	if (arg_from_bl2 == NULL) {
 		arg_from_bl2 = plat_get_bl31_params();
-	if (plat_params == NULL)
+	}
+	if (plat_params == NULL) {
 		plat_params = plat_get_bl31_plat_params();
+	}
 
 	/*
 	 * Copy BL3-3, BL3-2 entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
-	assert(arg_from_bl2);
-	assert(arg_from_bl2->bl33_ep_info);
+	assert(arg_from_bl2 != NULL);
+	assert(arg_from_bl2->bl33_ep_info != NULL);
 	bl33_image_ep_info = *arg_from_bl2->bl33_ep_info;
 
-	if (arg_from_bl2->bl32_ep_info) {
+	if (arg_from_bl2->bl32_ep_info != NULL) {
 		bl32_image_ep_info = *arg_from_bl2->bl32_ep_info;
 		bl32_mem_size = arg_from_bl2->bl32_ep_info->args.arg0;
 		bl32_boot_params = arg_from_bl2->bl32_ep_info->args.arg2;
@@ -153,7 +158,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/*
 	 * Parse platform specific parameters - TZDRAM aperture base and size
 	 */
-	assert(plat_params);
+	assert(plat_params != NULL);
 	plat_bl31_params_from_bl2.tzdram_base = plat_params->tzdram_base;
 	plat_bl31_params_from_bl2.tzdram_size = plat_params->tzdram_size;
 	plat_bl31_params_from_bl2.uart_id = plat_params->uart_id;
@@ -163,14 +168,15 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 * It is very important that we run either from TZDRAM or TZSRAM base.
 	 * Add an explicit check here.
 	 */
-	if ((plat_bl31_params_from_bl2.tzdram_base != BL31_BASE) &&
-	    (TEGRA_TZRAM_BASE != BL31_BASE))
+	if ((plat_bl31_params_from_bl2.tzdram_base != (uint64_t)BL31_BASE) &&
+	    (TEGRA_TZRAM_BASE != BL31_BASE)) {
 		panic();
+	}
 
 	/*
 	 * Reference clock used by the FPGAs is a lot slower.
 	 */
-	if (tegra_platform_is_fpga() == 1U) {
+	if (tegra_platform_is_fpga()) {
 		console_clock = TEGRA_BOOT_UART_CLK_13_MHZ;
 	} else {
 		console_clock = TEGRA_BOOT_UART_CLK_408_MHZ;
@@ -182,13 +188,39 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 */
 	tegra_console_base = plat_get_console_from_id(plat_params->uart_id);
 
-	if (tegra_console_base != (uint64_t)0) {
+	if (tegra_console_base != 0U) {
 		/*
 		 * Configure the UART port to be used as the console
 		 */
-		console_init(tegra_console_base, console_clock,
+		(void)console_init(tegra_console_base, console_clock,
 			     TEGRA_CONSOLE_BAUDRATE);
 	}
+
+	/*
+	 * The previous bootloader passes the base address of the shared memory
+	 * location to store the boot profiler logs. Sanity check the
+	 * address and initilise the profiler library, if it looks ok.
+	 */
+	if (plat_params->boot_profiler_shmem_base != 0ULL) {
+
+		ret = bl31_check_ns_address(plat_params->boot_profiler_shmem_base,
+				PROFILER_SIZE_BYTES);
+		if (ret == (int32_t)0) {
+
+			/* store the membase for the profiler lib */
+			plat_bl31_params_from_bl2.boot_profiler_shmem_base =
+				plat_params->boot_profiler_shmem_base;
+
+			/* initialise the profiler library */
+			boot_profiler_init(plat_params->boot_profiler_shmem_base,
+					   TEGRA_TMRUS_BASE);
+		}
+	}
+
+	/*
+	 * Add timestamp for platform early setup entry.
+	 */
+	boot_profiler_add_record("[TF] early setup entry");
 
 	/*
 	 * Initialize delay timer
@@ -199,14 +231,14 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 * Do initial security configuration to allow DRAM/device access.
 	 */
 	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
-			plat_bl31_params_from_bl2.tzdram_size);
+			(uint32_t)plat_bl31_params_from_bl2.tzdram_size);
 
 	/*
 	 * The previous bootloader might not have placed the BL32 image
 	 * inside the TZDRAM. We check the BL32 image info to find out
 	 * the base/PC values and relocate the image if necessary.
 	 */
-	if (arg_from_bl2->bl32_image_info) {
+	if (arg_from_bl2->bl32_image_info != NULL) {
 
 		bl32_img_info = *arg_from_bl2->bl32_image_info;
 
@@ -223,11 +255,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		assert(bl32_image_ep_info.pc < tzdram_end);
 
 		/* relocate BL32 */
-		if (bl32_start >= tzdram_end || bl32_end <= tzdram_start) {
+		if ((bl32_start >= tzdram_end) || (bl32_end <= tzdram_start)) {
 
 			INFO("Relocate BL32 to TZDRAM\n");
 
-			memcpy16((void *)(uintptr_t)bl32_image_ep_info.pc,
+			(void)memcpy16((void *)(uintptr_t)bl32_image_ep_info.pc,
 				 (void *)(uintptr_t)bl32_start,
 				 bl32_img_info.image_size);
 
@@ -239,6 +271,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	/* Early platform setup for Tegra SoCs */
 	plat_early_platform_setup();
+
+	/*
+	 * Add timestamp for platform early setup exit.
+	 */
+	boot_profiler_add_record("[TF] early setup exit");
 
 	INFO("BL3-1: Boot CPU: %s Processor [%lx]\n",
 	     (((read_midr() >> MIDR_IMPL_SHIFT) & MIDR_IMPL_MASK)
@@ -256,6 +293,9 @@ void plat_trusty_set_boot_args(aapcs64_params_t *args)
 	if (args->arg4 != 0U) {
 		args->arg2 = args->arg4;
 	}
+
+	/* Profiler Carveout Base */
+	args->arg3 = args->arg5;
 }
 #endif
 
@@ -264,7 +304,10 @@ void plat_trusty_set_boot_args(aapcs64_params_t *args)
  ******************************************************************************/
 void bl31_platform_setup(void)
 {
-	uint32_t tmp_reg;
+	/*
+	 * Add timestamp for platform setup entry.
+	 */
+	boot_profiler_add_record("[TF] plat setup entry");
 
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_gic_setup();
@@ -285,9 +328,10 @@ void bl31_platform_setup(void)
 	 */
 	tegra_memctrl_tzram_setup(TEGRA_TZRAM_BASE, TEGRA_TZRAM_SIZE);
 
-	/* Set the next EL to be AArch64 */
-	tmp_reg = SCR_RES1_BITS | SCR_RW_BIT;
-	write_scr(tmp_reg);
+	/*
+	 * Add timestamp for platform setup exit.
+	 */
+	boot_profiler_add_record("[TF] plat setup exit");
 
 	INFO("BL3-1: Tegra platform setup complete\n");
 }
@@ -298,6 +342,15 @@ void bl31_platform_setup(void)
 void bl31_plat_runtime_setup(void)
 {
 	/*
+	 * During cold boot, it is observed that the arbitration
+	 * bit is set in the Memory controller leading to false
+	 * error interrupts in the non-secure world. To avoid
+	 * this, clean the interrupt status register before
+	 * booting into the non-secure world
+	 */
+	tegra_memctrl_clear_pending_interrupts();
+
+	/*
 	 * During boot, USB3 and flash media (SDMMC/SATA) devices need
 	 * access to IRAM. Because these clients connect to the MC and
 	 * do not have a direct path to the IRAM, the MC implements AHB
@@ -307,6 +360,12 @@ void bl31_plat_runtime_setup(void)
 	 * disabled before we jump to the non-secure world.
 	 */
 	tegra_memctrl_disable_ahb_redirection();
+
+	/*
+	 * Add final timestamp before exiting BL31.
+	 */
+	boot_profiler_add_record("[TF] bl31 exit");
+	boot_profiler_deinit();
 }
 
 /*******************************************************************************
@@ -315,17 +374,22 @@ void bl31_plat_runtime_setup(void)
  ******************************************************************************/
 void bl31_plat_arch_setup(void)
 {
-	unsigned long rw_start = BL31_RW_START;
-	unsigned long rw_size = BL31_RW_END - BL31_RW_START;
-	unsigned long rodata_start = BL31_RODATA_BASE;
-	unsigned long rodata_size = BL31_RODATA_END - BL31_RODATA_BASE;
-	unsigned long code_base = TEXT_START;
-	unsigned long code_size = TEXT_END - TEXT_START;
+	uint64_t rw_start = BL31_RW_START;
+	uint64_t rw_size = BL31_RW_END - BL31_RW_START;
+	uint64_t rodata_start = BL31_RODATA_BASE;
+	uint64_t rodata_size = BL31_RODATA_END - BL31_RODATA_BASE;
+	uint64_t code_base = TEXT_START;
+	uint64_t code_size = TEXT_END - TEXT_START;
 	const mmap_region_t *plat_mmio_map = NULL;
 #if USE_COHERENT_MEM
-	unsigned long coh_start, coh_size;
+	uint32_t coh_start, coh_size;
 #endif
-	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
+	const plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
+
+	/*
+	 * Add timestamp for arch setup entry.
+	 */
+	boot_profiler_add_record("[TF] arch setup entry");
 
 	/* add memory regions */
 	mmap_add_region(rw_start, rw_start,
@@ -352,21 +416,22 @@ void bl31_plat_arch_setup(void)
 
 	mmap_add_region(coh_start, coh_start,
 			coh_size,
-			MT_DEVICE | MT_RW | MT_SECURE);
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE);
 #endif
 
 	/* map on-chip free running uS timer */
-	mmap_add_region(page_align((uint64_t)TEGRA_TMRUS_BASE, 0),
-			page_align((uint64_t)TEGRA_TMRUS_BASE, 0),
-			(uint64_t)TEGRA_TMRUS_SIZE,
-			MT_DEVICE | MT_RO | MT_SECURE);
+	mmap_add_region(page_align(TEGRA_TMRUS_BASE, 0),
+			page_align(TEGRA_TMRUS_BASE, 0),
+			TEGRA_TMRUS_SIZE,
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RO | (uint8_t)MT_SECURE);
 
 	/* add MMIO space */
 	plat_mmio_map = plat_get_mmio_map();
-	if (plat_mmio_map)
+	if (plat_mmio_map != NULL) {
 		mmap_add(plat_mmio_map);
-	else
+	} else {
 		WARN("MMIO map not available\n");
+	}
 
 	/* set up translation tables */
 	init_xlat_tables();
@@ -374,33 +439,41 @@ void bl31_plat_arch_setup(void)
 	/* enable the MMU */
 	enable_mmu_el3(0);
 
+	/*
+	 * Add timestamp for arch setup exit.
+	 */
+	boot_profiler_add_record("[TF] arch setup exit");
+
 	INFO("BL3-1: Tegra: MMU enabled\n");
 }
 
 /*******************************************************************************
  * Check if the given NS DRAM range is valid
  ******************************************************************************/
-int bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes)
+int32_t bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes)
 {
-	uint64_t end = base + size_in_bytes;
+	uint64_t end = base + size_in_bytes - U(1);
+	int32_t ret = 0;
 
 	/*
 	 * Check if the NS DRAM address is valid
 	 */
-	if ((base < TEGRA_DRAM_BASE) || (end > TEGRA_DRAM_END)) {
+	if ((base < TEGRA_DRAM_BASE) || (base >= TEGRA_DRAM_END) ||
+	    (end > TEGRA_DRAM_END)) {
+
 		ERROR("NS address is out-of-bounds!\n");
-		return -EFAULT;
+		ret = -EFAULT;
 	}
 
 	/*
 	 * TZDRAM aperture contains the BL31 and BL32 images, so we need
 	 * to check if the NS DRAM range overlaps the TZDRAM aperture.
 	 */
-	if ((base < TZDRAM_END) && (end > tegra_bl31_phys_base)) {
+	if ((base < (uint64_t)TZDRAM_END) && (end > tegra_bl31_phys_base)) {
 		ERROR("NS address overlaps TZDRAM!\n");
-		return -ENOTSUP;
+		ret = -ENOTSUP;
 	}
 
 	/* valid NS address */
-	return 0;
+	return ret;
 }

@@ -49,11 +49,10 @@ void plat_secondary_setup(void)
 		cpu_reset_handler_base = params_from_bl2->tzdram_base;
 		memcpy16((void *)((uintptr_t)cpu_reset_handler_base),
 			 (void *)(uintptr_t)tegra186_cpu_reset_handler,
-			 (uintptr_t)&__tegra186_cpu_reset_handler_end -
-			 (uintptr_t)tegra186_cpu_reset_handler);
+			 (uintptr_t)&tegra186_cpu_reset_handler);
 
 	} else {
-		cpu_reset_handler_base = (uintptr_t)tegra_secure_entrypoint;
+		cpu_reset_handler_base = (uintptr_t)&tegra_secure_entrypoint;
 	}
 
 	addr_low = (uint32_t)cpu_reset_handler_base | CPU_RESET_MODE_AA64;

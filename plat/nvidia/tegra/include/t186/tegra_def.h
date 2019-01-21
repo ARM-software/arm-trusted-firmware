@@ -112,8 +112,13 @@
 #define TSA_CONFIG_STATIC0_CSW_XUSB_HOSTW		U(0x15018)
 #define  TSA_CONFIG_STATIC0_CSW_XUSB_HOSTW_RESET	U(0x1100)
 
-#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK		(U(0x3) << 11)
-#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU		(U(0) << 11)
+#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK		(ULL(0x3) << 11)
+#define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU		(ULL(0) << 11)
+
+/*******************************************************************************
+ * Tegra General Purpose Centralised DMA constants
+ ******************************************************************************/
+#define TEGRA_GPCDMA_BASE		ULL(0x2610000)
 
 /*******************************************************************************
  * Tegra Memory Controller constants
@@ -124,7 +129,7 @@
 /* General Security Carveout register macros */
 #define MC_GSC_CONFIG_REGS_SIZE		U(0x40)
 #define MC_GSC_LOCK_CFG_SETTINGS_BIT	(U(1) << 1)
-#define MC_GSC_ENABLE_TZ_LOCK_BIT	(U(1) << 0)
+#define MC_GSC_ENABLE_TZ_LOCK_BIT	(ULL(1) << 0)
 #define MC_GSC_SIZE_RANGE_4KB_SHIFT	U(27)
 #define MC_GSC_BASE_LO_SHIFT		U(12)
 #define MC_GSC_BASE_LO_MASK		U(0xFFFFF)
@@ -135,6 +140,10 @@
 #define MC_SECURITY_CFG0_0		U(0x70)
 #define MC_SECURITY_CFG1_0		U(0x74)
 #define MC_SECURITY_CFG3_0		U(0x9BC)
+
+#define MC_SECURITY_BOM_MASK		(U(0xFFF) << 20)
+#define MC_SECURITY_SIZE_MB_MASK	(U(0x1FFF) << 0)
+#define MC_SECURITY_BOM_HI_MASK		(U(0x3) << 0)
 
 /* Video Memory carveout configuration registers */
 #define MC_VIDEO_PROTECT_BASE_HI	U(0x978)
@@ -198,6 +207,8 @@
 #define TEGRA_CAR_RESET_BASE		U(0x05000000)
 #define TEGRA_GPU_RESET_REG_OFFSET	U(0x30)
 #define  GPU_RESET_BIT			(U(1) << 0)
+#define TEGRA_GPCDMA_RST_SET_REG_OFFSET	U(0x6A0004)
+#define TEGRA_GPCDMA_RST_CLR_REG_OFFSET	U(0x6A0008)
 
 /*******************************************************************************
  * Tegra micro-seconds timer constants

@@ -38,7 +38,15 @@ typedef struct tegra_se_dev {
 	tegra_se_io_lst_t *src_ll_buf;
 	/* pointer to destination linked list buffer */
 	tegra_se_io_lst_t *dst_ll_buf;
+	/* LP context buffer pointer */
+	uint32_t *ctx_save_buf;
 } tegra_se_dev_t;
+
+/* PKA1 device structure */
+typedef struct tegra_pka_dev {
+	/* PKA1 base address */
+	uint64_t pka_base;
+} tegra_pka_dev_t;
 
 /*******************************************************************************
  * Public interface

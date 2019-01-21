@@ -20,9 +20,6 @@ $(eval $(call add_define,ENABLE_CHIP_VERIFICATION_HARNESS))
 ENABLE_SMMU_DEVICE			:= 1
 $(eval $(call add_define,ENABLE_SMMU_DEVICE))
 
-NUM_SMMU_DEVICES			:= 1
-$(eval $(call add_define,NUM_SMMU_DEVICES))
-
 RESET_TO_BL31				:= 1
 
 PROGRAMMABLE_RESET_ADDRESS		:= 1
@@ -50,6 +47,7 @@ PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/include
 
 BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
+				${COMMON_DIR}/drivers/gpcdma/gpcdma.c	\
 				${COMMON_DIR}/drivers/memctrl/memctrl_v2.c \
 				${COMMON_DIR}/drivers/smmu/smmu.c	\
 				${SOC_DIR}/drivers/mce/mce.c		\
@@ -64,3 +62,13 @@ BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
 				${SOC_DIR}/plat_smmu.c			\
 				${SOC_DIR}/plat_trampoline.S
 
+# Enable workarounds for selected Cortex-A57 erratas.
+A57_DISABLE_NON_TEMPORAL_HINT	:=	1
+ERRATA_A57_806969		:=	1
+ERRATA_A57_813419		:=	1
+ERRATA_A57_813420		:=	1
+ERRATA_A57_826974		:=	1
+ERRATA_A57_826977		:=	1
+ERRATA_A57_828024		:=	1
+ERRATA_A57_829520		:=	1
+ERRATA_A57_833471		:=	1

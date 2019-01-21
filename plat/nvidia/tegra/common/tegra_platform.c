@@ -15,7 +15,7 @@
  * Tegra platforms
  ******************************************************************************/
 typedef enum tegra_platform {
-	TEGRA_PLATFORM_SILICON = 0,
+	TEGRA_PLATFORM_SILICON = 0U,
 	TEGRA_PLATFORM_QT,
 	TEGRA_PLATFORM_FPGA,
 	TEGRA_PLATFORM_EMULATION,
@@ -83,7 +83,7 @@ bool tegra_chipid_is_t132(void)
 {
 	uint32_t chip_id = ((tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK);
 
-	return (chip_id == (uint32_t)TEGRA_CHIPID_TEGRA13);
+	return (chip_id == TEGRA_CHIPID_TEGRA13);
 }
 
 bool tegra_chipid_is_t186(void)
@@ -97,12 +97,12 @@ bool tegra_chipid_is_t210(void)
 {
 	uint32_t chip_id = (tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK;
 
-	return (chip_id == (uint32_t)TEGRA_CHIPID_TEGRA21);
+	return (chip_id == TEGRA_CHIPID_TEGRA21);
 }
 
 bool tegra_chipid_is_t210_b01(void)
 {
-	return (tegra_chipid_is_t210() && (tegra_get_chipid_major() == 0x2UL));
+	return (tegra_chipid_is_t210() && (tegra_get_chipid_major() == 0x2U));
 }
 
 /*

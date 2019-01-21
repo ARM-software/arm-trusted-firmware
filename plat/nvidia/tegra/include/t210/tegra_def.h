@@ -89,6 +89,16 @@
 #define TEGRA_RST_DEV_CLR_V		U(0x434)
 #define TEGRA_CLK_ENB_V			U(0x440)
 
+/* SE Clock Offsets */
+#define TEGRA_RST_DEVICES_V		0x358UL
+#define  SE_RESET_BIT 			(0x1UL << 31)
+#define TEGRA_RST_DEVICES_W		 0x35CUL
+#define  ENTROPY_CLK_ENB_BIT		(0x1UL << 21)
+#define TEGRA_CLK_OUT_ENB_V		0x360UL
+#define  SE_CLK_ENB_BIT			(0x1UL << 31)
+#define TEGRA_CLK_OUT_ENB_W		0x364UL
+#define  ENTROPY_RESET_BIT 		(0x1UL << 21)
+
 /*******************************************************************************
  * Tegra Flow Controller constants
  ******************************************************************************/
@@ -125,6 +135,16 @@
 #define TEGRA_UARTE_BASE		U(0x70006400)
 
 /*******************************************************************************
+ * Tegra Fuse Controller related constants
+ ******************************************************************************/
+#define TEGRA_FUSE_BASE			0x7000F800UL
+#define FUSE_BOOT_SECURITY_INFO		0x268UL
+#define FUSE_ATOMIC_SAVE_CARVEOUT_EN	(0x1U << 7)
+#define FUSE_JTAG_SECUREID_VALID	(0x104UL)
+#define ECID_VALID			(0x1UL)
+
+
+/*******************************************************************************
  * Tegra Power Mgmt Controller constants
  ******************************************************************************/
 #define TEGRA_PMC_BASE			U(0x7000E400)
@@ -143,6 +163,9 @@
  ******************************************************************************/
 #define TEGRA_MC_BASE			U(0x70019000)
 
+/* Memory Controller Interrupt Status */
+#define MC_INTSTATUS			0x00U
+
 /* TZDRAM carveout configuration registers */
 #define MC_SECURITY_CFG0_0		U(0x70)
 #define MC_SECURITY_CFG1_0		U(0x74)
@@ -152,6 +175,10 @@
 #define MC_VIDEO_PROTECT_BASE_HI	U(0x978)
 #define MC_VIDEO_PROTECT_BASE_LO	U(0x648)
 #define MC_VIDEO_PROTECT_SIZE_MB	U(0x64c)
+
+/* SMMU configuration registers*/
+#define MC_SMMU_PPCS_ASID_0		0x270U
+#define  PPCS_SMMU_ENABLE		(0x1U << 31)
 
 /*******************************************************************************
  * Tegra SE constants
@@ -167,5 +194,11 @@
  ******************************************************************************/
 #define TEGRA_TZRAM_BASE		U(0x7C010000)
 #define TEGRA_TZRAM_SIZE		U(0x10000)
+
+/*******************************************************************************
+ * Tegra TZRAM carveout constants
+ ******************************************************************************/
+#define TEGRA_TZRAM_CARVEOUT_BASE	U(0x7C04C000)
+#define TEGRA_TZRAM_CARVEOUT_SIZE	U(0x4000)
 
 #endif /* TEGRA_DEF_H */

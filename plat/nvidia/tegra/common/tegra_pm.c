@@ -50,37 +50,42 @@ uint8_t tegra_fake_system_suspend;
 #pragma weak tegra_soc_prepare_system_off
 #pragma weak tegra_soc_get_target_pwr_state
 
-int tegra_soc_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_state)
+int32_t tegra_soc_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_state)
 {
 	return PSCI_E_NOT_SUPPORTED;
 }
 
-int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
+int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
+	(void)target_state;
 	return PSCI_E_NOT_SUPPORTED;
 }
 
-int tegra_soc_pwr_domain_on(u_register_t mpidr)
+int32_t tegra_soc_pwr_domain_on(u_register_t mpidr)
 {
+	(void)mpidr;
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
+int32_t tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 {
+	(void)target_state;
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
+int32_t tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
+	(void)target_state;
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
+int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 {
+	(void)target_state;
 	return PSCI_E_SUCCESS;
 }
 
-int tegra_soc_prepare_system_reset(void)
+int32_t tegra_soc_prepare_system_reset(void)
 {
 	return PSCI_E_SUCCESS;
 }
@@ -91,19 +96,26 @@ __dead2 void tegra_soc_prepare_system_off(void)
 	panic();
 }
 
-plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
+plat_local_state_t tegra_soc_get_target_pwr_state(uint32_t lvl,
 					     const plat_local_state_t *states,
-					     unsigned int ncpu)
+					     uint32_t ncpu)
 {
 	plat_local_state_t target = PLAT_MAX_OFF_STATE, temp;
+	uint32_t num_cpu = ncpu;
+	const plat_local_state_t *local_state = states;
 
-	assert(ncpu);
+	(void)lvl;
+
+	assert(ncpu != 0U);
 
 	do {
-		temp = *states++;
-		if ((temp < target))
+		temp = *local_state;
+		if ((temp < target)) {
 			target = temp;
-	} while (--ncpu);
+		}
+		--num_cpu;
+		local_state++;
+	} while (num_cpu != 0U);
 
 	return target;
 }
@@ -117,8 +129,9 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 void tegra_get_sys_suspend_power_state(psci_power_state_t *req_state)
 {
 	/* all affinities use system suspend state id */
-	for (uint32_t i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++)
+	for (uint32_t i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++) {
 		req_state->pwr_domain_state[i] = PSTATE_ID_SOC_POWERDN;
+	}
 }
 
 /*******************************************************************************
@@ -126,6 +139,8 @@ void tegra_get_sys_suspend_power_state(psci_power_state_t *req_state)
  ******************************************************************************/
 void tegra_cpu_standby(plat_local_state_t cpu_state)
 {
+	(void)cpu_state;
+
 	/*
 	 * Enter standby state
 	 * dsb is good practice before using wfi to enter low power states
@@ -138,7 +153,7 @@ void tegra_cpu_standby(plat_local_state_t cpu_state)
  * Handler called when an affinity instance is about to be turned on. The
  * level and mpidr determine the affinity instance.
  ******************************************************************************/
-int tegra_pwr_domain_on(u_register_t mpidr)
+int32_t tegra_pwr_domain_on(u_register_t mpidr)
 {
 	return tegra_soc_pwr_domain_on(mpidr);
 }
@@ -149,7 +164,7 @@ int tegra_pwr_domain_on(u_register_t mpidr)
  ******************************************************************************/
 void tegra_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	tegra_soc_pwr_domain_off(target_state);
+	(void)tegra_soc_pwr_domain_off(target_state);
 }
 
 /*******************************************************************************
@@ -169,12 +184,13 @@ void tegra_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_sta
  ******************************************************************************/
 void tegra_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
-	tegra_soc_pwr_domain_suspend(target_state);
+	(void)tegra_soc_pwr_domain_suspend(target_state);
 
 	/* Disable console if we are entering deep sleep. */
 	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] ==
-			PSTATE_ID_SOC_POWERDN)
-		console_uninit();
+			PSTATE_ID_SOC_POWERDN) {
+		(void)console_uninit();
+	}
 
 	/* disable GICC */
 	tegra_gic_cpuif_deactivate();
@@ -191,7 +207,7 @@ __dead2 void tegra_pwr_domain_power_down_wfi(const psci_power_state_t
 	uint64_t rmr_el3 = 0;
 
 	/* call the chip's power down handler */
-	tegra_soc_pwr_domain_power_down_wfi(target_state);
+	(void)tegra_soc_pwr_domain_power_down_wfi(target_state);
 
 	/*
 	 * If we are in fake system suspend mode, ensure we start doing
@@ -222,7 +238,7 @@ __dead2 void tegra_pwr_domain_power_down_wfi(const psci_power_state_t
  ******************************************************************************/
 void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
-	plat_params_from_bl2_t *plat_params;
+	const plat_params_from_bl2_t *plat_params;
 	uint32_t console_clock;
 
 	/*
@@ -239,15 +255,15 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 		/*
 		 * Reference clock used by the FPGAs is a lot slower.
 		 */
-		if (tegra_platform_is_fpga() == 1U) {
+		if (tegra_platform_is_fpga()) {
 			console_clock = TEGRA_BOOT_UART_CLK_13_MHZ;
 		} else {
 			console_clock = TEGRA_BOOT_UART_CLK_408_MHZ;
 		}
 
 		/* Initialize the runtime console */
-		if (tegra_console_base != (uint64_t)0) {
-			console_init(tegra_console_base, console_clock,
+		if (tegra_console_base != 0ULL) {
+			(void)console_init(tegra_console_base, console_clock,
 				     TEGRA_CONSOLE_BAUDRATE);
 		}
 
@@ -262,7 +278,7 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 		 */
 		plat_params = bl31_get_plat_params();
 		tegra_memctrl_tzdram_setup(plat_params->tzdram_base,
-			plat_params->tzdram_size);
+			(uint32_t)plat_params->tzdram_size);
 
 		/*
 		 * Set up the TZRAM memory aperture to allow only secure world
@@ -274,7 +290,7 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	/*
 	 * Reset hardware settings.
 	 */
-	tegra_soc_pwr_domain_on_finish(target_state);
+	(void)tegra_soc_pwr_domain_on_finish(target_state);
 }
 
 /*******************************************************************************
@@ -305,7 +321,7 @@ __dead2 void tegra_system_reset(void)
 	INFO("Restarting system...\n");
 
 	/* per-SoC system reset handler */
-	tegra_soc_prepare_system_reset();
+	(void)tegra_soc_prepare_system_reset();
 
 	/*
 	 * Program the PMC in order to restart the system.
@@ -316,10 +332,10 @@ __dead2 void tegra_system_reset(void)
 /*******************************************************************************
  * Handler called to check the validity of the power state parameter.
  ******************************************************************************/
-int32_t tegra_validate_power_state(unsigned int power_state,
+int32_t tegra_validate_power_state(uint32_t power_state,
 				   psci_power_state_t *req_state)
 {
-	assert(req_state);
+	assert(req_state != NULL);
 
 	return tegra_soc_validate_power_state(power_state, req_state);
 }
@@ -327,16 +343,19 @@ int32_t tegra_validate_power_state(unsigned int power_state,
 /*******************************************************************************
  * Platform handler called to check the validity of the non secure entrypoint.
  ******************************************************************************/
-int tegra_validate_ns_entrypoint(uintptr_t entrypoint)
+int32_t tegra_validate_ns_entrypoint(uintptr_t entrypoint)
 {
+	int32_t ret = PSCI_E_INVALID_ADDRESS;
+
 	/*
 	 * Check if the non secure entrypoint lies within the non
 	 * secure DRAM.
 	 */
-	if ((entrypoint >= TEGRA_DRAM_BASE) && (entrypoint <= TEGRA_DRAM_END))
-		return PSCI_E_SUCCESS;
+	if ((entrypoint >= TEGRA_DRAM_BASE) && (entrypoint <= TEGRA_DRAM_END)) {
+		ret = PSCI_E_SUCCESS;
+	}
 
-	return PSCI_E_INVALID_ADDRESS;
+	return ret;
 }
 
 /*******************************************************************************
@@ -376,7 +395,7 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 	/*
 	 * Reset hardware settings.
 	 */
-	tegra_soc_pwr_domain_on_finish(&target_state);
+	(void)tegra_soc_pwr_domain_on_finish(&target_state);
 
 	/*
 	 * Initialize PSCI ops struct

@@ -20,7 +20,8 @@
  * Constants and Macros
  ******************************************************************************/
 
-#define TIMEOUT_100MS	100UL	// Timeout in 100ms
+#define TIMEOUT_100MS	100U	// Timeout in 100ms
+#define RNG_AES_KEY_INDEX   1
 
 /*******************************************************************************
  * Data structure and global variables
@@ -67,6 +68,15 @@
  * #--------------------------------#
  */
 
+/* Known pattern data */
+static const uint32_t se_ctx_known_pattern_data[SE_CTX_KNOWN_PATTERN_SIZE_WORDS] = {
+	/* 128 bit AES block */
+	0x0C0D0E0F,
+	0x08090A0B,
+	0x04050607,
+	0x00010203,
+};
+
 /* SE input and output linked list buffers */
 static tegra_se_io_lst_t se1_src_ll_buf;
 static tegra_se_io_lst_t se1_dst_ll_buf;
@@ -78,7 +88,7 @@ static tegra_se_io_lst_t se2_dst_ll_buf;
 /* SE1 security engine device handle */
 static tegra_se_dev_t se_dev_1 = {
 	.se_num = 1,
-	/* setup base address for se */
+	/* Setup base address for se */
 	.se_base = TEGRA_SE1_BASE,
 	/* Setup context size in AES blocks */
 	.ctx_size_blks = SE_CTX_SAVE_SIZE_BLOCKS_SE1,
@@ -86,12 +96,14 @@ static tegra_se_dev_t se_dev_1 = {
 	.src_ll_buf = &se1_src_ll_buf,
 	/* Setup DST buffers for SE operations */
 	.dst_ll_buf = &se1_dst_ll_buf,
+	/* Setup context save destination */
+	.ctx_save_buf = (uint32_t *)(TEGRA_TZRAM_CARVEOUT_BASE),
 };
 
 /* SE2 security engine device handle */
 static tegra_se_dev_t se_dev_2 = {
 	.se_num = 2,
-	/* setup base address for se */
+	/* Setup base address for se */
 	.se_base = TEGRA_SE2_BASE,
 	/* Setup context size in AES blocks */
 	.ctx_size_blks = SE_CTX_SAVE_SIZE_BLOCKS_SE2,
@@ -99,7 +111,11 @@ static tegra_se_dev_t se_dev_2 = {
 	.src_ll_buf = &se2_src_ll_buf,
 	/* Setup DST buffers for SE operations */
 	.dst_ll_buf = &se2_dst_ll_buf,
+	/* Setup context save destination */
+	.ctx_save_buf = (uint32_t *)(TEGRA_TZRAM_CARVEOUT_BASE + 0x1000),
 };
+
+static bool ecid_valid;
 
 /*******************************************************************************
  * Functions Definition
@@ -186,35 +202,15 @@ static int32_t tegra_se_operation_complete(const tegra_se_dev_t *se_dev)
 }
 
 /*
- * Verify the SE context save auto has been enabled.
- * SE_CTX_SAVE_AUTO.ENABLE == ENABLE
- * If the SE context save auto is not enabled, then set
- * the context save auto enable and lock the setting.
- * If the SE context save auto is not enabled and the
- * enable setting is locked, then return an error.
+ * Returns true if the SE engine is configured to perform SE context save in
+ * hardware.
  */
-static inline int32_t tegra_se_ctx_save_auto_enable(const tegra_se_dev_t *se_dev)
+static inline bool tegra_se_atomic_save_enabled(const tegra_se_dev_t *se_dev)
 {
 	uint32_t val;
-	int32_t ret = 0;
 
 	val = tegra_se_read_32(se_dev, SE_CTX_SAVE_AUTO_REG_OFFSET);
-	if (SE_CTX_SAVE_AUTO_ENABLE(val) == SE_CTX_SAVE_AUTO_DIS) {
-		if (SE_CTX_SAVE_AUTO_LOCK(val) == SE_CTX_SAVE_AUTO_LOCK_EN) {
-			ERROR("%s: ERR: Cannot enable atomic. Write locked!\n",
-					__func__);
-			ret = -EACCES;
-		}
-
-		/* Program SE_CTX_SAVE_AUTO */
-		if (ret == 0) {
-			tegra_se_write_32(se_dev, SE_CTX_SAVE_AUTO_REG_OFFSET,
-					SE_CTX_SAVE_AUTO_LOCK_EN |
-					SE_CTX_SAVE_AUTO_EN);
-		}
-	}
-
-	return ret;
+	return (SE_CTX_SAVE_AUTO_ENABLE(val) == SE_CTX_SAVE_AUTO_EN);
 }
 
 /*
@@ -258,14 +254,6 @@ static int32_t tegra_se_context_save_atomic(const tegra_se_dev_t *se_dev)
 
 	/* Check that previous operation is finalized */
 	ret = tegra_se_operation_prepare(se_dev);
-
-	/* Ensure HW atomic context save has been enabled
-	 * This should have been done at boot time.
-	 * SE_CTX_SAVE_AUTO.ENABLE == ENABLE
-	 */
-	if (ret == 0) {
-		ret = tegra_se_ctx_save_auto_enable(se_dev);
-	}
 
 	/* Read the context save progress counter: block_count
 	 * Ensure no previous context save has been triggered
@@ -325,7 +313,8 @@ static int32_t tegra_se_context_save_atomic(const tegra_se_dev_t *se_dev)
  * Security engine primitive operations, including normal operation
  * and the context save operation.
  */
-static int tegra_se_perform_operation(const tegra_se_dev_t *se_dev, uint32_t nbytes)
+static int tegra_se_perform_operation(const tegra_se_dev_t *se_dev, uint32_t nbytes,
+					bool context_save)
 {
 	uint32_t nblocks = nbytes / TEGRA_SE_AES_BLOCK_SIZE;
 	int ret = 0;
@@ -351,13 +340,32 @@ static int tegra_se_perform_operation(const tegra_se_dev_t *se_dev, uint32_t nby
 	tegra_se_make_data_coherent(se_dev);
 
 	/* Start hardware operation */
-	tegra_se_write_32(se_dev, SE_OPERATION_REG_OFFSET, SE_OP_START);
+	if (context_save)
+		tegra_se_write_32(se_dev, SE_OPERATION_REG_OFFSET, SE_OP_CTX_SAVE);
+	else
+		tegra_se_write_32(se_dev, SE_OPERATION_REG_OFFSET, SE_OP_START);
 
 	/* Wait for operation to finish */
 	ret = tegra_se_operation_complete(se_dev);
 
 op_error:
 	return ret;
+}
+
+/*
+ * Normal security engine operations other than the context save
+ */
+int tegra_se_start_normal_operation(const tegra_se_dev_t *se_dev, uint32_t nbytes)
+{
+	return tegra_se_perform_operation(se_dev, nbytes, false);
+}
+
+/*
+ * Security engine context save operation
+ */
+int tegra_se_start_ctx_save_operation(const tegra_se_dev_t *se_dev, uint32_t nbytes)
+{
+	return tegra_se_perform_operation(se_dev, nbytes, true);
 }
 
 /*
@@ -381,7 +389,10 @@ static int tegra_se_generate_srk(const tegra_se_dev_t *se_dev)
 	se_dev->dst_ll_buf->last_buff_num = 0;
 
 	/* Configure random number generator */
-	val = (DRBG_MODE_FORCE_RESEED | DRBG_SRC_ENTROPY);
+	if (ecid_valid)
+		val = (DRBG_MODE_FORCE_INSTANTION | DRBG_SRC_ENTROPY);
+	else
+		val = (DRBG_MODE_FORCE_RESEED | DRBG_SRC_ENTROPY);
 	tegra_se_write_32(se_dev, SE_RNG_CONFIG_REG_OFFSET, val);
 
 	/* Configure output destination = SRK */
@@ -391,9 +402,501 @@ static int tegra_se_generate_srk(const tegra_se_dev_t *se_dev)
 	tegra_se_write_32(se_dev, SE_CONFIG_REG_OFFSET, val);
 
 	/* Perform hardware operation */
-	ret = tegra_se_perform_operation(se_dev, 0);
+	ret = tegra_se_start_normal_operation(se_dev, 0);
 
 	return ret;
+}
+
+/*
+ * Generate plain text random data to some memory location using
+ * SE/SE2's SP800-90 random number generator. The random data size
+ * must be some multiple of the AES block size (16 bytes).
+ */
+static int tegra_se_lp_generate_random_data(tegra_se_dev_t *se_dev)
+{
+	int ret = 0;
+	uint32_t val;
+
+	/* Set some arbitrary memory location to store the random data */
+	se_dev->dst_ll_buf->last_buff_num = 0;
+	if (!se_dev->ctx_save_buf) {
+		ERROR("%s: ERR: context save buffer NULL pointer!\n", __func__);
+		return PSCI_E_NOT_PRESENT;
+	}
+	se_dev->dst_ll_buf->buffer[0].addr = ((uint64_t)(&(((tegra_se_context_t *)
+					se_dev->ctx_save_buf)->rand_data)));
+	se_dev->dst_ll_buf->buffer[0].data_len = SE_CTX_SAVE_RANDOM_DATA_SIZE;
+
+
+	/* Confgure the following hardware register settings:
+	 * SE_CONFIG.DEC_ALG = NOP
+	 * SE_CONFIG.ENC_ALG = RNG
+	 * SE_CONFIG.ENC_MODE = KEY192
+	 * SE_CONFIG.DST = MEMORY
+	 */
+	val = (SE_CONFIG_ENC_ALG_RNG |
+		SE_CONFIG_DEC_ALG_NOP |
+		SE_CONFIG_ENC_MODE_KEY192 |
+		SE_CONFIG_DST_MEMORY);
+	tegra_se_write_32(se_dev, SE_CONFIG_REG_OFFSET, val);
+
+	/* Program the RNG options in SE_CRYPTO_CONFIG as follows:
+	 * XOR_POS = BYPASS
+	 * INPUT_SEL = RANDOM (Entropy or LFSR)
+	 * HASH_ENB = DISABLE
+	 */
+	val = (SE_CRYPTO_INPUT_RANDOM |
+		SE_CRYPTO_XOR_BYPASS |
+		SE_CRYPTO_CORE_ENCRYPT |
+		SE_CRYPTO_HASH_DISABLE |
+		SE_CRYPTO_KEY_INDEX(RNG_AES_KEY_INDEX) |
+		SE_CRYPTO_IV_ORIGINAL);
+	tegra_se_write_32(se_dev, SE_CRYPTO_REG_OFFSET, val);
+
+	/* Configure RNG */
+	if (ecid_valid)
+		val = (DRBG_MODE_FORCE_INSTANTION | DRBG_SRC_LFSR);
+	else
+		val = (DRBG_MODE_FORCE_RESEED | DRBG_SRC_LFSR);
+	tegra_se_write_32(se_dev, SE_RNG_CONFIG_REG_OFFSET, val);
+
+	/* SE normal operation */
+	ret = tegra_se_start_normal_operation(se_dev, SE_CTX_SAVE_RANDOM_DATA_SIZE);
+
+	return ret;
+}
+
+/*
+ * Encrypt memory blocks with SRK as part of the security engine context.
+ * The data blocks include: random data and the known pattern data, where
+ * the random data is the first block and known pattern is the last block.
+ */
+static int tegra_se_lp_data_context_save(tegra_se_dev_t *se_dev,
+		uint64_t src_addr, uint64_t dst_addr, uint32_t data_size)
+{
+	int ret = 0;
+
+	se_dev->src_ll_buf->last_buff_num = 0;
+	se_dev->dst_ll_buf->last_buff_num = 0;
+	se_dev->src_ll_buf->buffer[0].addr = src_addr;
+	se_dev->src_ll_buf->buffer[0].data_len = data_size;
+	se_dev->dst_ll_buf->buffer[0].addr = dst_addr;
+	se_dev->dst_ll_buf->buffer[0].data_len = data_size;
+
+	/* By setting the context source from memory and calling the context save
+	 * operation, the SE encrypts the memory data with SRK.
+	 */
+	tegra_se_write_32(se_dev, SE_CTX_SAVE_CONFIG_REG_OFFSET, SE_CTX_SAVE_SRC_MEM);
+
+	ret = tegra_se_start_ctx_save_operation(se_dev, data_size);
+
+	return ret;
+}
+
+/*
+ * Context save the key table access control sticky bits and
+ * security status of each key-slot. The encrypted sticky-bits are
+ * 32 bytes (2 AES blocks) and formatted as the following structure:
+ * {	bit in registers			bit in context save
+ *	SECURITY_0[4]				158
+ *	SE_RSA_KEYTABLE_ACCE4SS_1[2:0]		157:155
+ *	SE_RSA_KEYTABLE_ACCE4SS_0[2:0]		154:152
+ *	SE_RSA_SECURITY_PERKEY_0[1:0]		151:150
+ *	SE_CRYPTO_KEYTABLE_ACCESS_15[7:0]	149:142
+ *	...,
+ *	SE_CRYPTO_KEYTABLE_ACCESS_0[7:0]	29:22
+ *	SE_CRYPTO_SECURITY_PERKEY_0[15:0]	21:6
+ *	SE_TZRAM_SECURITY_0[1:0]		5:4
+ *	SE_SECURITY_0[16]			3:3
+ *	SE_SECURITY_0[2:0] }			2:0
+ */
+static int tegra_se_lp_sticky_bits_context_save(tegra_se_dev_t *se_dev)
+{
+	int ret = PSCI_E_INTERN_FAIL;
+	uint32_t val = 0;
+
+	se_dev->dst_ll_buf->last_buff_num = 0;
+	if (!se_dev->ctx_save_buf) {
+		ERROR("%s: ERR: context save buffer NULL pointer!\n", __func__);
+		return PSCI_E_NOT_PRESENT;
+	}
+	se_dev->dst_ll_buf->buffer[0].addr = ((uint64_t)(&(((tegra_se_context_t *)
+						se_dev->ctx_save_buf)->sticky_bits)));
+	se_dev->dst_ll_buf->buffer[0].data_len = SE_CTX_SAVE_STICKY_BITS_SIZE;
+
+	/*
+	 * The 1st AES block save the sticky-bits context 1 - 16 bytes (0 - 3 words).
+	 * The 2nd AES block save the sticky-bits context 17 - 32 bytes (4 - 7 words).
+	 */
+	for (int i = 0; i < 2; i++) {
+		val = SE_CTX_SAVE_SRC_STICKY_BITS |
+			SE_CTX_SAVE_STICKY_WORD_QUAD(i);
+		tegra_se_write_32(se_dev, SE_CTX_SAVE_CONFIG_REG_OFFSET, val);
+
+		/* SE context save operation */
+		ret = tegra_se_start_ctx_save_operation(se_dev,
+				SE_CTX_SAVE_STICKY_BITS_SIZE);
+		if (ret)
+			break;
+		se_dev->dst_ll_buf->buffer[0].addr += SE_CTX_SAVE_STICKY_BITS_SIZE;
+	}
+
+	return ret;
+}
+
+static int tegra_se_aeskeytable_context_save(tegra_se_dev_t *se_dev)
+{
+	uint32_t val = 0;
+	int ret = 0;
+
+	se_dev->dst_ll_buf->last_buff_num = 0;
+	if (!se_dev->ctx_save_buf) {
+		ERROR("%s: ERR: context save buffer NULL pointer!\n", __func__);
+		ret = -EINVAL;
+		goto aes_keytable_save_err;
+	}
+
+	/* AES key context save */
+	for (int slot = 0; slot < TEGRA_SE_AES_KEYSLOT_COUNT; slot++) {
+		se_dev->dst_ll_buf->buffer[0].addr = ((uint64_t)(&(
+						((tegra_se_context_t *)se_dev->
+						 ctx_save_buf)->key_slots[slot].key)));
+		se_dev->dst_ll_buf->buffer[0].data_len = TEGRA_SE_KEY_128_SIZE;
+		for (int i = 0; i < 2; i++) {
+			val = SE_CTX_SAVE_SRC_AES_KEYTABLE |
+				SE_CTX_SAVE_KEY_INDEX(slot) |
+				SE_CTX_SAVE_WORD_QUAD(i);
+			tegra_se_write_32(se_dev, SE_CTX_SAVE_CONFIG_REG_OFFSET, val);
+
+			/* SE context save operation */
+			ret = tegra_se_start_ctx_save_operation(se_dev,
+					TEGRA_SE_KEY_128_SIZE);
+			if (ret) {
+				ERROR("%s: ERR: AES key CTX_SAVE OP failed, "
+						"slot=%d, word_quad=%d.\n",
+						__func__, slot, i);
+				goto aes_keytable_save_err;
+			}
+			se_dev->dst_ll_buf->buffer[0].addr += TEGRA_SE_KEY_128_SIZE;
+		}
+
+		/* OIV context save */
+		se_dev->dst_ll_buf->last_buff_num = 0;
+		se_dev->dst_ll_buf->buffer[0].addr = ((uint64_t)(&(
+						((tegra_se_context_t *)se_dev->
+						 ctx_save_buf)->key_slots[slot].oiv)));
+		se_dev->dst_ll_buf->buffer[0].data_len = TEGRA_SE_AES_IV_SIZE;
+
+		val = SE_CTX_SAVE_SRC_AES_KEYTABLE |
+			SE_CTX_SAVE_KEY_INDEX(slot) |
+			SE_CTX_SAVE_WORD_QUAD_ORIG_IV;
+		tegra_se_write_32(se_dev, SE_CTX_SAVE_CONFIG_REG_OFFSET, val);
+
+		/* SE context save operation */
+		ret = tegra_se_start_ctx_save_operation(se_dev, TEGRA_SE_AES_IV_SIZE);
+		if (ret) {
+			ERROR("%s: ERR: OIV CTX_SAVE OP failed, slot=%d.\n",
+					__func__, slot);
+			goto aes_keytable_save_err;
+		}
+
+		/* UIV context save */
+		se_dev->dst_ll_buf->last_buff_num = 0;
+		se_dev->dst_ll_buf->buffer[0].addr = ((uint64_t)(&(
+						((tegra_se_context_t *)se_dev->
+						 ctx_save_buf)->key_slots[slot].uiv)));
+		se_dev->dst_ll_buf->buffer[0].data_len = TEGRA_SE_AES_IV_SIZE;
+
+		val = SE_CTX_SAVE_SRC_AES_KEYTABLE |
+			SE_CTX_SAVE_KEY_INDEX(slot) |
+			SE_CTX_SAVE_WORD_QUAD_UPD_IV;
+		tegra_se_write_32(se_dev, SE_CTX_SAVE_CONFIG_REG_OFFSET, val);
+
+		/* SE context save operation */
+		ret = tegra_se_start_ctx_save_operation(se_dev, TEGRA_SE_AES_IV_SIZE);
+		if (ret) {
+			ERROR("%s: ERR: UIV CTX_SAVE OP failed, slot=%d\n",
+					__func__, slot);
+			goto aes_keytable_save_err;
+		}
+	}
+
+aes_keytable_save_err:
+	return ret;
+}
+
+static int tegra_se_lp_rsakeytable_context_save(tegra_se_dev_t *se_dev)
+{
+	uint32_t val = 0;
+	int ret = 0;
+	/* First the modulus and then the exponent must be
+	 * encrypted and saved. This is repeated for SLOT 0
+	 * and SLOT 1. Hence the order:
+	 * SLOT 0 exponent : RSA_KEY_INDEX : 0
+	 * SLOT 0 modulus : RSA_KEY_INDEX : 1
+	 * SLOT 1 exponent : RSA_KEY_INDEX : 2
+	 * SLOT 1 modulus : RSA_KEY_INDEX : 3
+	 */
+	const unsigned int key_index_mod[TEGRA_SE_RSA_KEYSLOT_COUNT][2] = {
+		/* RSA key slot 0 */
+		{SE_RSA_KEY_INDEX_SLOT0_EXP, SE_RSA_KEY_INDEX_SLOT0_MOD},
+		/* RSA key slot 1 */
+		{SE_RSA_KEY_INDEX_SLOT1_EXP, SE_RSA_KEY_INDEX_SLOT1_MOD},
+	};
+
+	se_dev->dst_ll_buf->last_buff_num = 0;
+	se_dev->dst_ll_buf->buffer[0].addr = ((uint64_t)(&(
+					((tegra_se_context_t *)se_dev->
+					 ctx_save_buf)->rsa_keys)));
+	se_dev->dst_ll_buf->buffer[0].data_len = TEGRA_SE_KEY_128_SIZE;
+
+	for (int slot = 0; slot < TEGRA_SE_RSA_KEYSLOT_COUNT; slot++) {
+		/* loop for modulus and exponent */
+		for (int index = 0; index < 2; index++) {
+			for (int word_quad = 0; word_quad < 16; word_quad++) {
+				val = SE_CTX_SAVE_SRC_RSA_KEYTABLE |
+					SE_CTX_SAVE_RSA_KEY_INDEX(
+						key_index_mod[slot][index]) |
+					SE_CTX_RSA_WORD_QUAD(word_quad);
+				tegra_se_write_32(se_dev,
+					SE_CTX_SAVE_CONFIG_REG_OFFSET, val);
+
+				/* SE context save operation */
+				ret = tegra_se_start_ctx_save_operation(se_dev,
+						TEGRA_SE_KEY_128_SIZE);
+				if (ret) {
+					ERROR("%s: ERR: slot=%d.\n",
+						__func__, slot);
+					goto rsa_keytable_save_err;
+				}
+
+				/* Update the pointer to the next word quad */
+				se_dev->dst_ll_buf->buffer[0].addr +=
+					TEGRA_SE_KEY_128_SIZE;
+			}
+		}
+	}
+
+rsa_keytable_save_err:
+	return ret;
+}
+
+static int tegra_se_pkakeytable_sticky_bits_save(tegra_se_dev_t *se_dev)
+{
+	int ret = 0;
+
+	se_dev->dst_ll_buf->last_buff_num = 0;
+	se_dev->dst_ll_buf->buffer[0].addr = ((uint64_t)(&(
+					((tegra_se2_context_blob_t *)se_dev->
+					 ctx_save_buf)->pka_ctx.sticky_bits)));
+	se_dev->dst_ll_buf->buffer[0].data_len = TEGRA_SE_AES_BLOCK_SIZE;
+
+	/* PKA1 sticky bits are 1 AES block (16 bytes) */
+	tegra_se_write_32(se_dev, SE_CTX_SAVE_CONFIG_REG_OFFSET,
+			SE_CTX_SAVE_SRC_PKA1_STICKY_BITS |
+			SE_CTX_STICKY_WORD_QUAD_WORDS_0_3);
+
+	/* SE context save operation */
+	ret = tegra_se_start_ctx_save_operation(se_dev, 0);
+	if (ret) {
+		ERROR("%s: ERR: PKA1 sticky bits CTX_SAVE OP failed\n",
+				__func__);
+		goto pka_sticky_bits_save_err;
+	}
+
+pka_sticky_bits_save_err:
+	return ret;
+}
+
+static int tegra_se_pkakeytable_context_save(tegra_se_dev_t *se_dev)
+{
+	uint32_t val = 0;
+	int ret = 0;
+
+	se_dev->dst_ll_buf->last_buff_num = 0;
+	se_dev->dst_ll_buf->buffer[0].addr = ((uint64_t)(&(
+					((tegra_se2_context_blob_t *)se_dev->
+					 ctx_save_buf)->pka_ctx.pka_keys)));
+	se_dev->dst_ll_buf->buffer[0].data_len = TEGRA_SE_KEY_128_SIZE;
+
+	/* for each slot, save word quad 0-127 */
+	for (int slot = 0; slot < TEGRA_SE_PKA1_KEYSLOT_COUNT; slot++) {
+		for (int word_quad = 0; word_quad < 512/4; word_quad++) {
+			val = SE_CTX_SAVE_SRC_PKA1_KEYTABLE |
+				SE_CTX_PKA1_WORD_QUAD_L((slot * 128) +
+						word_quad) |
+				SE_CTX_PKA1_WORD_QUAD_H((slot * 128) +
+						word_quad);
+			tegra_se_write_32(se_dev,
+					SE_CTX_SAVE_CONFIG_REG_OFFSET, val);
+
+			/* SE context save operation */
+			ret = tegra_se_start_ctx_save_operation(se_dev,
+					TEGRA_SE_KEY_128_SIZE);
+			if (ret) {
+				ERROR("%s: ERR: pka1 keytable ctx save error\n",
+						__func__);
+				goto pka_keytable_save_err;
+			}
+
+			/* Update the pointer to the next word quad */
+			se_dev->dst_ll_buf->buffer[0].addr +=
+				TEGRA_SE_KEY_128_SIZE;
+		}
+	}
+
+pka_keytable_save_err:
+	return ret;
+}
+
+static int tegra_se_save_SRK(tegra_se_dev_t *se_dev)
+{
+	tegra_se_write_32(se_dev, SE_CTX_SAVE_CONFIG_REG_OFFSET,
+			SE_CTX_SAVE_SRC_SRK);
+
+	/* SE context save operation */
+	return tegra_se_start_ctx_save_operation(se_dev, 0);
+}
+
+/*
+ *  Lock both SE from non-TZ clients.
+ */
+static inline void tegra_se_lock(tegra_se_dev_t *se_dev)
+{
+	uint32_t val;
+
+	assert(se_dev);
+	val = tegra_se_read_32(se_dev, SE_SECURITY_REG_OFFSET);
+	val |= SE_SECURITY_TZ_LOCK_SOFT(SE_SECURE);
+	tegra_se_write_32(se_dev, SE_SECURITY_REG_OFFSET, val);
+}
+
+/*
+ * Use SRK to encrypt SE state and save to TZRAM carveout
+ */
+static int tegra_se_context_save_sw(tegra_se_dev_t *se_dev)
+{
+	int err = 0;
+
+	assert(se_dev);
+
+	/* Lock entire SE/SE2 as TZ protected */
+	tegra_se_lock(se_dev);
+
+	INFO("%s: generate SRK\n", __func__);
+	/* Generate SRK */
+	err = tegra_se_generate_srk(se_dev);
+	if (err) {
+		ERROR("%s: ERR: SRK generation failed\n", __func__);
+		return err;
+	}
+
+	INFO("%s: generate random data\n", __func__);
+	/* Generate random data */
+	err = tegra_se_lp_generate_random_data(se_dev);
+	if (err) {
+		ERROR("%s: ERR: LP random pattern generation failed\n", __func__);
+		return err;
+	}
+
+	INFO("%s: encrypt random data\n", __func__);
+	/* Encrypt the random data block */
+	err = tegra_se_lp_data_context_save(se_dev,
+		((uint64_t)(&(((tegra_se_context_t *)se_dev->
+					ctx_save_buf)->rand_data))),
+		((uint64_t)(&(((tegra_se_context_t *)se_dev->
+					ctx_save_buf)->rand_data))),
+		SE_CTX_SAVE_RANDOM_DATA_SIZE);
+	if (err) {
+		ERROR("%s: ERR: random pattern encryption failed\n", __func__);
+		return err;
+	}
+
+	INFO("%s: save SE sticky bits\n", __func__);
+	/* Save AES sticky bits context */
+	err = tegra_se_lp_sticky_bits_context_save(se_dev);
+	if (err) {
+		ERROR("%s: ERR: sticky bits context save failed\n", __func__);
+		return err;
+	}
+
+	INFO("%s: save AES keytables\n", __func__);
+	/* Save AES key table context */
+	err = tegra_se_aeskeytable_context_save(se_dev);
+	if (err) {
+		ERROR("%s: ERR: LP keytable save failed\n", __func__);
+		return err;
+	}
+
+	/* RSA key slot table context save */
+	INFO("%s: save RSA keytables\n", __func__);
+	err = tegra_se_lp_rsakeytable_context_save(se_dev);
+	if (err) {
+		ERROR("%s: ERR: rsa key table context save failed\n", __func__);
+		return err;
+	}
+
+	/* Only SE2 has an interface with PKA1; thus, PKA1's context is saved
+	 * via SE2.
+	 */
+	if (se_dev->se_num == 2) {
+		/* Encrypt PKA1 sticky bits on SE2 only */
+		INFO("%s: save PKA sticky bits\n", __func__);
+		err = tegra_se_pkakeytable_sticky_bits_save(se_dev);
+		if (err) {
+			ERROR("%s: ERR: PKA sticky bits context save failed\n", __func__);
+			return err;
+		}
+
+		/* Encrypt PKA1 keyslots on SE2 only */
+		INFO("%s: save PKA keytables\n", __func__);
+		err = tegra_se_pkakeytable_context_save(se_dev);
+		if (err) {
+			ERROR("%s: ERR: PKA key table context save failed\n", __func__);
+			return err;
+		}
+	}
+
+	/* Encrypt known pattern */
+	if (se_dev->se_num == 1) {
+		err = tegra_se_lp_data_context_save(se_dev,
+			((uint64_t)(&se_ctx_known_pattern_data)),
+			((uint64_t)(&(((tegra_se_context_blob_t *)se_dev->ctx_save_buf)->known_pattern))),
+			SE_CTX_KNOWN_PATTERN_SIZE);
+	} else if (se_dev->se_num == 2) {
+		err = tegra_se_lp_data_context_save(se_dev,
+			((uint64_t)(&se_ctx_known_pattern_data)),
+			((uint64_t)(&(((tegra_se2_context_blob_t *)se_dev->ctx_save_buf)->known_pattern))),
+			SE_CTX_KNOWN_PATTERN_SIZE);
+	}
+	if (err) {
+		ERROR("%s: ERR: save LP known pattern failure\n", __func__);
+		return err;
+	}
+
+	/* Write lp context buffer address into PMC scratch register */
+	if (se_dev->se_num == 1) {
+		/* SE context address */
+		mmio_write_32((uint64_t)TEGRA_PMC_BASE + PMC_SECURE_SCRATCH117_OFFSET,
+				((uint64_t)(se_dev->ctx_save_buf)));
+	} else if (se_dev->se_num == 2) {
+		/* SE2 & PKA1 context address */
+		mmio_write_32((uint64_t)TEGRA_PMC_BASE + PMC_SECURE_SCRATCH116_OFFSET,
+				((uint64_t)(se_dev->ctx_save_buf)));
+	}
+
+	/* Saves SRK to PMC secure scratch registers for BootROM, which
+	 * verifies and restores the security engine context on warm boot.
+	 */
+	err = tegra_se_save_SRK(se_dev);
+	if (err < 0) {
+		ERROR("%s: ERR: LP SRK save failure\n", __func__);
+		return err;
+	}
+
+	INFO("%s: SE context save done \n", __func__);
+
+	return err;
 }
 
 /*
@@ -401,13 +904,58 @@ static int tegra_se_generate_srk(const tegra_se_dev_t *se_dev)
  */
 void tegra_se_init(void)
 {
+	uint32_t val = 0;
 	INFO("%s: start SE init\n", __func__);
 
 	/* Generate random SRK to initialize DRBG */
 	tegra_se_generate_srk(&se_dev_1);
 	tegra_se_generate_srk(&se_dev_2);
 
+	/* determine if ECID is valid */
+	val = mmio_read_32(TEGRA_FUSE_BASE + FUSE_JTAG_SECUREID_VALID);
+	ecid_valid = (val == ECID_VALID);
+
 	INFO("%s: SE init done\n", __func__);
+}
+
+static void tegra_se_enable_clocks(void)
+{
+	uint32_t val = 0;
+
+	/* Enable entropy clock */
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_W);
+	val |= ENTROPY_CLK_ENB_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_W, val);
+
+	/* De-Assert Entropy Reset */
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEVICES_W);
+	val &= ~ENTROPY_RESET_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEVICES_W, val);
+
+	/* Enable SE clock */
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_V);
+	val |= SE_CLK_ENB_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_V, val);
+
+	/* De-Assert SE Reset */
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEVICES_V);
+	val &= ~SE_RESET_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_RST_DEVICES_V, val);
+}
+
+static void tegra_se_disable_clocks(void)
+{
+	uint32_t val = 0;
+
+	/* Disable entropy clock */
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_W);
+	val &= ~ENTROPY_CLK_ENB_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_W, val);
+
+	/* Disable SE clock */
+	val = mmio_read_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_V);
+	val &= ~SE_CLK_ENB_BIT;
+	mmio_write_32(TEGRA_CAR_RESET_BASE + TEGRA_CLK_OUT_ENB_V, val);
 }
 
 /*
@@ -417,20 +965,56 @@ void tegra_se_init(void)
 int32_t tegra_se_suspend(void)
 {
 	int32_t ret = 0;
+	uint32_t val = 0;
 
-	/* Atomic context save se2 and pka1 */
-	INFO("%s: SE2/PKA1 atomic context save\n", __func__);
-	ret = tegra_se_context_save_atomic(&se_dev_2);
+	/* SE does not use SMMU in EL3, disable SMMU.
+	 * This will be re-enabled by kernel on resume */
+	val = mmio_read_32(TEGRA_MC_BASE + MC_SMMU_PPCS_ASID_0);
+	val &= ~PPCS_SMMU_ENABLE;
+	mmio_write_32(TEGRA_MC_BASE + MC_SMMU_PPCS_ASID_0, val);
 
-	/* Atomic context save se */
-	if (ret == 0) {
-		INFO("%s: SE1 atomic context save\n", __func__);
-		ret = tegra_se_context_save_atomic(&se_dev_1);
+	tegra_se_enable_clocks();
+
+	if (tegra_se_atomic_save_enabled(&se_dev_2) &&
+			tegra_se_atomic_save_enabled(&se_dev_1)) {
+		/* Atomic context save se2 and pka1 */
+		INFO("%s: SE2/PKA1 atomic context save\n", __func__);
+		if (ret == 0) {
+			ret = tegra_se_context_save_atomic(&se_dev_2);
+		}
+
+		/* Atomic context save se */
+		if (ret == 0) {
+			INFO("%s: SE1 atomic context save\n", __func__);
+			ret = tegra_se_context_save_atomic(&se_dev_1);
+		}
+
+		if (ret == 0) {
+			INFO("%s: SE atomic context save done\n", __func__);
+		}
+	} else if (!tegra_se_atomic_save_enabled(&se_dev_2) &&
+			!tegra_se_atomic_save_enabled(&se_dev_1)) {
+		/* SW context save se2 and pka1 */
+		INFO("%s: SE2/PKA1 legacy(SW) context save\n", __func__);
+		if (ret == 0) {
+			ret = tegra_se_context_save_sw(&se_dev_2);
+		}
+
+		/* SW context save se */
+		if (ret == 0) {
+			INFO("%s: SE1 legacy(SW) context save\n", __func__);
+			ret = tegra_se_context_save_sw(&se_dev_1);
+		}
+
+		if (ret == 0) {
+			INFO("%s: SE SW context save done\n", __func__);
+		}
+	} else {
+		ERROR("%s: One SE set for atomic CTX save, the other is not\n",
+			 __func__);
 	}
 
-	if (ret == 0) {
-		INFO("%s: SE atomic context save done\n", __func__);
-	}
+	tegra_se_disable_clocks();
 
 	return ret;
 }
@@ -445,6 +1029,7 @@ int32_t tegra_se_save_tzram(void)
 	uint32_t timeout;
 
 	INFO("%s: SE TZRAM save start\n", __func__);
+	tegra_se_enable_clocks();
 
 	val = (SE_TZRAM_OP_REQ_INIT | SE_TZRAM_OP_MODE_SAVE);
 	tegra_se_write_32(&se_dev_1, SE_TZRAM_OPERATION, val);
@@ -465,6 +1050,8 @@ int32_t tegra_se_save_tzram(void)
 		INFO("%s: SE TZRAM save done!\n", __func__);
 	}
 
+	tegra_se_disable_clocks();
+
 	return ret;
 }
 
@@ -482,12 +1069,6 @@ static void tegra_se_warm_boot_resume(const tegra_se_dev_t *se_dev)
 		DRBG_RO_ENT_SRC_LOCK_ENABLE |
 		DRBG_RO_ENT_SRC_ENABLE;
 	tegra_se_write_32(se_dev, SE_RNG_SRC_CONFIG_REG_OFFSET, val);
-
-	/* Enable and lock the SE atomic context save setting */
-	if (tegra_se_ctx_save_auto_enable(se_dev) != 0) {
-		ERROR("%s: ERR: enable SE%d context save auto failed!\n",
-			__func__, se_dev->se_num);
-	}
 
 	/* Set a random value to SRK to initialize DRBG */
 	tegra_se_generate_srk(se_dev);

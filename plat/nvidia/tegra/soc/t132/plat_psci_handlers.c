@@ -98,19 +98,24 @@ int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 
 int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 {
+	uint64_t val;
+
 	tegra_fc_cpu_off(read_mpidr() & MPIDR_CPU_MASK);
 
 	/* Disable DCO operations */
 	denver_disable_dco();
 
 	/* Power down the CPU */
-	write_actlr_el1(DENVER_CPU_STATE_POWER_DOWN);
+	val = read_actlr_el1() & ~ACTLR_EL1_PMSTATE_MASK;
+	write_actlr_el1(val | DENVER_CPU_STATE_POWER_DOWN);
 
 	return PSCI_E_SUCCESS;
 }
 
 int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
+	uint64_t val;
+
 #if ENABLE_ASSERTIONS
 	int cpu = read_mpidr() & MPIDR_CPU_MASK;
 
@@ -128,7 +133,8 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	denver_disable_dco();
 
 	/* Program the suspend state ID */
-	write_actlr_el1(target_state->pwr_domain_state[PLAT_MAX_PWR_LVL]);
+	val = read_actlr_el1() & ~ACTLR_EL1_PMSTATE_MASK;
+	write_actlr_el1(val | target_state->pwr_domain_state[PLAT_MAX_PWR_LVL]);
 
 	return PSCI_E_SUCCESS;
 }

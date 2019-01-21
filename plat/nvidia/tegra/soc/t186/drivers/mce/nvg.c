@@ -14,10 +14,12 @@
 
 #include <mce_private.h>
 #include <t18x_ari.h>
+#include <tegra_private.h>
 
 int32_t nvg_enter_cstate(uint32_t ari_base, uint32_t state, uint32_t wake_time)
 {
 	int32_t ret = 0;
+	uint64_t val = 0ULL;
 
 	(void)ari_base;
 
@@ -28,10 +30,11 @@ int32_t nvg_enter_cstate(uint32_t ari_base, uint32_t state, uint32_t wake_time)
 		ret = EINVAL;
 	} else {
 		/* time (TSC ticks) until the core is expected to get a wake event */
-		nvg_set_request_data(TEGRA_NVG_CHANNEL_WAKE_TIME, wake_time);
+		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_WAKE_TIME, wake_time);
 
 		/* set the core cstate */
-		write_actlr_el1(state);
+		val = read_actlr_el1() & ~ACTLR_EL1_PMSTATE_MASK;
+		write_actlr_el1(val | (uint64_t)state);
 	}
 
 	return ret;
@@ -78,7 +81,7 @@ int32_t nvg_update_cstate_info(uint32_t ari_base, uint32_t cluster, uint32_t ccp
 	val |= ((uint64_t)wake_mask << CSTATE_WAKE_MASK_SHIFT);
 
 	/* set the updated cstate info */
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_CSTATE_INFO, val);
+	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CSTATE_INFO, val);
 
 	return 0;
 }
@@ -189,7 +192,7 @@ int32_t nvg_is_sc7_allowed(uint32_t ari_base, uint32_t state, uint32_t wake_time
 				((uint64_t)state & MCE_SC7_ALLOWED_MASK);
 
 		/* issue command to check if SC7 is allowed */
-		nvg_set_request_data(TEGRA_NVG_CHANNEL_IS_SC7_ALLOWED, val);
+		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_IS_SC7_ALLOWED, val);
 
 		/* 1 = SC7 allowed, 0 = SC7 not allowed */
 		ret = (nvg_get_result() != 0ULL) ? 1 : 0;
@@ -219,7 +222,7 @@ int32_t nvg_online_core(uint32_t ari_base, uint32_t core)
 			ret = EINVAL;
 		} else {
 			/* get a core online */
-			nvg_set_request_data(TEGRA_NVG_CHANNEL_ONLINE_CORE,
+			nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_ONLINE_CORE,
 				((uint64_t)core & MCE_CORE_ID_MASK));
 		}
 	}
@@ -247,7 +250,7 @@ int32_t nvg_cc3_ctrl(uint32_t ari_base, uint32_t freq, uint32_t volt, uint8_t en
 		((volt & MCE_AUTO_CC3_VTG_MASK) << MCE_AUTO_CC3_VTG_SHIFT) |\
 		((enable != 0U) ? MCE_AUTO_CC3_ENABLE_BIT : 0U));
 
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_CC3_CTRL, (uint64_t)val);
+	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_CC3_CTRL, (uint64_t)val);
 
 	return 0;
 }

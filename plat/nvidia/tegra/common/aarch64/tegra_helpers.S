@@ -18,16 +18,21 @@
 /*******************************************************************************
  * Implementation defined ACTLR_EL3 bit definitions
  ******************************************************************************/
-#define ACTLR_EL3_L2ACTLR_BIT		(1 << 6)
-#define ACTLR_EL3_L2ECTLR_BIT		(1 << 5)
-#define ACTLR_EL3_L2CTLR_BIT		(1 << 4)
-#define ACTLR_EL3_CPUECTLR_BIT		(1 << 1)
-#define ACTLR_EL3_CPUACTLR_BIT		(1 << 0)
+#define ACTLR_EL3_L2ACTLR_BIT		(U(1) << 6)
+#define ACTLR_EL3_L2ECTLR_BIT		(U(1) << 5)
+#define ACTLR_EL3_L2CTLR_BIT		(U(1) << 4)
+#define ACTLR_EL3_CPUECTLR_BIT		(U(1) << 1)
+#define ACTLR_EL3_CPUACTLR_BIT		(U(1) << 0)
+#define ACTLR_EL3_ENABLE_ALL_MASK	(ACTLR_EL3_L2ACTLR_BIT | \
+								ACTLR_EL3_L2ECTLR_BIT | \
+					 			ACTLR_EL3_L2CTLR_BIT | \
+					 			ACTLR_EL3_CPUECTLR_BIT | \
+					 			ACTLR_EL3_CPUACTLR_BIT)
 #define ACTLR_EL3_ENABLE_ALL_ACCESS	(ACTLR_EL3_L2ACTLR_BIT | \
-					 ACTLR_EL3_L2ECTLR_BIT | \
-					 ACTLR_EL3_L2CTLR_BIT | \
-					 ACTLR_EL3_CPUECTLR_BIT | \
-					 ACTLR_EL3_CPUACTLR_BIT)
+					 			ACTLR_EL3_L2ECTLR_BIT | \
+					 			ACTLR_EL3_L2CTLR_BIT | \
+					 			ACTLR_EL3_CPUECTLR_BIT | \
+					 			ACTLR_EL3_CPUACTLR_BIT)
 
 	/* Global functions */
 	.globl	plat_is_my_cpu_primary
@@ -87,8 +92,17 @@
 	 * Enable L2 and CPU ECTLR RW access from non-secure world
 	 * -------------------------------------------------------
 	 */
-	mov	x0, #ACTLR_EL3_ENABLE_ALL_ACCESS
+	mrs	x0, actlr_el3
+	mov	x1, #ACTLR_EL3_ENABLE_ALL_MASK
+	bic	x0, x0, x1
+	mov	x1, #ACTLR_EL3_ENABLE_ALL_ACCESS
+	orr	x0, x0, x1
 	msr	actlr_el3, x0
+	mrs	x0, actlr_el2
+	mov	x1, #ACTLR_EL3_ENABLE_ALL_MASK
+	bic	x0, x0, x1
+	mov	x1, #ACTLR_EL3_ENABLE_ALL_ACCESS
+	orr	x0, x0, x1
 	msr	actlr_el2, x0
 	isb
 
@@ -130,17 +144,20 @@ func plat_is_my_cpu_primary
 	ret
 endfunc plat_is_my_cpu_primary
 
-	/* -----------------------------------------------------
+	/* ----------------------------------------------------------
 	 * unsigned int plat_my_core_pos(void);
 	 *
-	 * result: CorePos = CoreId + (ClusterId << 2)
-	 * -----------------------------------------------------
+	 * result: CorePos = CoreId + (ClusterId * cpus per cluster)
+	 * ----------------------------------------------------------
 	 */
 func plat_my_core_pos
 	mrs	x0, mpidr_el1
 	and	x1, x0, #MPIDR_CPU_MASK
 	and	x0, x0, #MPIDR_CLUSTER_MASK
-	add	x0, x1, x0, LSR #6
+	lsr	x0, x0, #MPIDR_AFFINITY_BITS
+	mov	x2, #PLATFORM_MAX_CPUS_PER_CLUSTER
+	mul	x0, x0, x2
+	add	x0, x1, x0
 	ret
 endfunc plat_my_core_pos
 
@@ -162,14 +179,17 @@ endfunc plat_get_my_entrypoint
 	/* -----------------------------------------------------
 	 * int platform_get_core_pos(int mpidr);
 	 *
-	 * With this function: CorePos = (ClusterId * 4) +
-	 *                                CoreId
+	 * result: CorePos = (ClusterId * cpus per cluster) +
+	 *                   CoreId
 	 * -----------------------------------------------------
 	 */
 func platform_get_core_pos
 	and	x1, x0, #MPIDR_CPU_MASK
 	and	x0, x0, #MPIDR_CLUSTER_MASK
-	add	x0, x1, x0, LSR #6
+	lsr	x0, x0, #MPIDR_AFFINITY_BITS
+	mov	x2, #PLATFORM_MAX_CPUS_PER_CLUSTER
+	mul	x0, x0, x2
+	add	x0, x1, x0
 	ret
 endfunc platform_get_core_pos
 
@@ -399,31 +419,6 @@ func tegra_secure_entrypoint _align=6
 restore_oslock:
 	mov	x0, #1
 	msr	oslar_el1, x0
-
-	cpu_init_common
-
-	/* ---------------------------------------------------------------------
-	 * The initial state of the Architectural feature trap register
-	 * (CPTR_EL3) is unknown and it must be set to a known state. All
-	 * feature traps are disabled. Some bits in this register are marked as
-	 * Reserved and should not be modified.
-	 *
-	 * CPTR_EL3.TCPAC: This causes a direct access to the CPACR_EL1 from EL1
-	 *  or the CPTR_EL2 from EL2 to trap to EL3 unless it is trapped at EL2.
-	 * CPTR_EL3.TTA: This causes access to the Trace functionality to trap
-	 *  to EL3 when executed from EL0, EL1, EL2, or EL3. If system register
-	 *  access to trace functionality is not supported, this bit is RES0.
-	 * CPTR_EL3.TFP: This causes instructions that access the registers
-	 *  associated with Floating Point and Advanced SIMD execution to trap
-	 *  to EL3 when executed from any exception level, unless trapped to EL1
-	 *  or EL2.
-	 * ---------------------------------------------------------------------
-	 */
-	mrs	x1, cptr_el3
-	bic	w1, w1, #TCPAC_BIT
-	bic	w1, w1, #TTA_BIT
-	bic	w1, w1, #TFP_BIT
-	msr	cptr_el3, x1
 
 	/* --------------------------------------------------
 	 * Get secure world's entry point and jump to it

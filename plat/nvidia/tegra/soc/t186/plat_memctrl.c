@@ -206,11 +206,11 @@ const static mc_txn_override_cfg_t tegra186_txn_override_cfgs[] = {
  ******************************************************************************/
 static tegra_mc_settings_t tegra186_mc_settings = {
 	.streamid_override_cfg = tegra186_streamid_override_regs,
-	.num_streamid_override_cfgs = ARRAY_SIZE(tegra186_streamid_override_regs),
+	.num_streamid_override_cfgs = (uint32_t)ARRAY_SIZE(tegra186_streamid_override_regs),
 	.streamid_security_cfg = tegra186_streamid_sec_cfgs,
-	.num_streamid_security_cfgs = ARRAY_SIZE(tegra186_streamid_sec_cfgs),
+	.num_streamid_security_cfgs = (uint32_t)ARRAY_SIZE(tegra186_streamid_sec_cfgs),
 	.txn_override_cfg = tegra186_txn_override_cfgs,
-	.num_txn_override_cfgs = ARRAY_SIZE(tegra186_txn_override_cfgs)
+	.num_txn_override_cfgs = (uint32_t)ARRAY_SIZE(tegra186_txn_override_cfgs)
 };
 
 /*******************************************************************************

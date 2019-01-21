@@ -287,13 +287,13 @@ static void tegra_memctrl_reconfig_mss_clients(void)
 
 static void tegra_memctrl_set_overrides(void)
 {
-	tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
+	const tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
 	const mc_txn_override_cfg_t *mc_txn_override_cfgs;
 	uint32_t num_txn_override_cfgs;
 	uint32_t i, val;
 
 	/* Get the settings from the platform */
-	assert(plat_mc_settings);
+	assert(plat_mc_settings != NULL);
 	mc_txn_override_cfgs = plat_mc_settings->txn_override_cfg;
 	num_txn_override_cfgs = plat_mc_settings->num_txn_override_cfgs;
 
@@ -302,24 +302,24 @@ static void tegra_memctrl_set_overrides(void)
 	 */
 	if ((tegra_chipid_is_t186()) &&
 	    (!tegra_platform_is_silicon() ||
-	    (tegra_platform_is_silicon() && (tegra_get_chipid_minor() == 1)))) {
+	    (tegra_platform_is_silicon() && (tegra_get_chipid_minor() == 1U)))) {
 
 		/*
 		 * GPU and NVENC settings for Tegra186 simulation and
 		 * Silicon rev. A01
 		 */
 		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR);
-		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+		val &= (uint32_t)~MC_TXN_OVERRIDE_CGID_TAG_MASK;
 		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR,
 			val | MC_TXN_OVERRIDE_CGID_TAG_ZERO);
 
 		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR2);
-		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+		val &= (uint32_t)~MC_TXN_OVERRIDE_CGID_TAG_MASK;
 		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_GPUSWR2,
 			val | MC_TXN_OVERRIDE_CGID_TAG_ZERO);
 
 		val = tegra_mc_read_32(MC_TXN_OVERRIDE_CONFIG_NVENCSWR);
-		val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+		val &= (uint32_t)~MC_TXN_OVERRIDE_CGID_TAG_MASK;
 		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_NVENCSWR,
 			val | MC_TXN_OVERRIDE_CGID_TAG_CLIENT_AXI_ID);
 
@@ -330,7 +330,7 @@ static void tegra_memctrl_set_overrides(void)
 		 */
 		for (i = 0; i < num_txn_override_cfgs; i++) {
 			val = tegra_mc_read_32(mc_txn_override_cfgs[i].offset);
-			val &= ~MC_TXN_OVERRIDE_CGID_TAG_MASK;
+			val &= (uint32_t)~MC_TXN_OVERRIDE_CGID_TAG_MASK;
 			tegra_mc_write_32(mc_txn_override_cfgs[i].offset,
 				val | mc_txn_override_cfgs[i].cgid_tag);
 		}
@@ -347,7 +347,7 @@ void tegra_memctrl_setup(void)
 	uint32_t num_streamid_override_regs;
 	const mc_streamid_security_cfg_t *mc_streamid_sec_cfgs;
 	uint32_t num_streamid_sec_cfgs;
-	tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
+	const tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
 	uint32_t i;
 
 	INFO("Tegra Memory Controller (v2)\n");
@@ -357,7 +357,7 @@ void tegra_memctrl_setup(void)
 	tegra_smmu_init();
 #endif
 	/* Get the settings from the platform */
-	assert(plat_mc_settings);
+	assert(plat_mc_settings != NULL);
 	mc_streamid_override_regs = plat_mc_settings->streamid_override_cfg;
 	num_streamid_override_regs = plat_mc_settings->num_streamid_override_cfgs;
 	mc_streamid_sec_cfgs = plat_mc_settings->streamid_security_cfg;
@@ -421,7 +421,7 @@ void tegra_memctrl_restore_settings(void)
 	tegra_memctrl_set_overrides();
 
 	/* video memory carveout region */
-	if (video_mem_base) {
+	if (video_mem_base != 0ULL) {
 		tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_LO,
 				  (uint32_t)video_mem_base);
 		tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI,
@@ -444,6 +444,8 @@ void tegra_memctrl_restore_settings(void)
  */
 void tegra_memctrl_tzdram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 {
+	uint32_t val;
+
 	/*
 	 * Setup the Memory controller to allow only secure accesses to
 	 * the TZDRAM carveout
@@ -458,15 +460,20 @@ void tegra_memctrl_tzdram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	 * When TZ encryption enabled,
 	 * We need setup TZDRAM before CPU to access TZ Carveout,
 	 * otherwise CPU will fetch non-decrypted data.
-	 * So save TZDRAM setting for retore by SC7 resume FW.
+	 * So save TZDRAM setting for restore by SC7 resume FW.
+	 * Scratch registers map:
+	 *  RSV55_0 = CFG1[12:0] | CFG0[31:20]
+	 *  RSV55_1 = CFG3[1:0]
 	 */
 
-	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV55_LO,
-					tegra_mc_read_32(MC_SECURITY_CFG0_0));
-	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV55_HI,
-					tegra_mc_read_32(MC_SECURITY_CFG3_0));
-	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV54_HI,
-					tegra_mc_read_32(MC_SECURITY_CFG1_0));
+	val = tegra_mc_read_32(MC_SECURITY_CFG1_0) & MC_SECURITY_SIZE_MB_MASK;
+	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV54_HI, val);
+
+	val |= tegra_mc_read_32(MC_SECURITY_CFG0_0) & MC_SECURITY_BOM_MASK;
+	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV55_LO, val);
+
+	val = tegra_mc_read_32(MC_SECURITY_CFG3_0) & MC_SECURITY_BOM_HI_MASK;
+	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV55_HI, val);
 
 	/*
 	 * MCE propagates the security configuration values across the
@@ -525,7 +532,7 @@ void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	 * at all.
 	 */
 	val = tegra_mc_read_32(MC_TZRAM_CARVEOUT_CFG);
-	val &= ~MC_GSC_ENABLE_TZ_LOCK_BIT;
+	val &= (uint32_t)~MC_GSC_ENABLE_TZ_LOCK_BIT;
 	val |= MC_GSC_LOCK_CFG_SETTINGS_BIT;
 	tegra_mc_write_32(MC_TZRAM_CARVEOUT_CFG, val);
 
@@ -600,18 +607,21 @@ static void tegra_unlock_videomem_nonoverlap(void)
 static void tegra_clear_videomem(uintptr_t non_overlap_area_start,
 				 unsigned long long non_overlap_area_size)
 {
+	int ret;
+
 	/*
 	 * Map the NS memory first, clean it and then unmap it.
 	 */
-	mmap_add_dynamic_region(non_overlap_area_start, /* PA */
+	ret = mmap_add_dynamic_region(non_overlap_area_start, /* PA */
 				non_overlap_area_start, /* VA */
 				non_overlap_area_size, /* size */
 				MT_NS | MT_RW | MT_EXECUTE_NEVER); /* attrs */
+	assert(ret == 0);
 
 	zero_normalmem((void *)non_overlap_area_start, non_overlap_area_size);
 	flush_dcache_range(non_overlap_area_start, non_overlap_area_size);
 
-	mmap_remove_dynamic_region(non_overlap_area_start,
+	(void)mmap_remove_dynamic_region(non_overlap_area_start,
 		non_overlap_area_size);
 }
 
@@ -658,17 +668,19 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	 */
 	INFO("Cleaning previous Video Memory Carveout\n");
 
-	if (phys_base > vmem_end_old || video_mem_base > vmem_end_new) {
+	if ((phys_base > vmem_end_old) || (video_mem_base > vmem_end_new)) {
 		tegra_clear_videomem(video_mem_base,
-				     (uint64_t)video_mem_size_mb << 20);
+				     (uint32_t)video_mem_size_mb << 20U);
 	} else {
 		if (video_mem_base < phys_base) {
 			non_overlap_area_size = phys_base - video_mem_base;
-			tegra_clear_videomem(video_mem_base, non_overlap_area_size);
+			tegra_clear_videomem(video_mem_base,
+					(uint32_t)non_overlap_area_size);
 		}
 		if (vmem_end_old > vmem_end_new) {
 			non_overlap_area_size = vmem_end_old - vmem_end_new;
-			tegra_clear_videomem(vmem_end_new, non_overlap_area_size);
+			tegra_clear_videomem(vmem_end_new,
+					(uint32_t)non_overlap_area_size);
 		}
 	}
 
@@ -697,6 +709,11 @@ done:
  * This feature exists only for v1 of the Tegra Memory Controller.
  */
 void tegra_memctrl_disable_ahb_redirection(void)
+{
+	; /* do nothing */
+}
+
+void tegra_memctrl_clear_pending_interrupts(void)
 {
 	; /* do nothing */
 }
