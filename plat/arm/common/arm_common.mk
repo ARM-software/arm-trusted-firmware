@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -240,7 +240,7 @@ BL31_SOURCES		+=	lib/extensions/ras/std_err_record.c		\
 endif
 
 # SPM uses libfdt in Arm platforms
-ifeq (${SPM_DEPRECATED},0)
+ifeq (${SPM_MM},0)
 ifeq (${ENABLE_SPM},1)
 BL31_SOURCES		+=	common/fdt_wrappers.c			\
 				plat/common/plat_spm_rd.c		\

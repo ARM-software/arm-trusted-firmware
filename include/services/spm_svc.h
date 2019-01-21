@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #ifndef SPM_SVC_H
 #define SPM_SVC_H
 
-#if SPM_DEPRECATED
+#if SPM_MM
 
 #include <lib/utils_def.h>
 
@@ -61,7 +61,7 @@
 #define SPM_DENIED		-3
 #define SPM_NO_MEMORY		-5
 
-#endif /* SPM_DEPRECATED */
+#endif /* SPM_MM */
 
 #ifndef __ASSEMBLY__
 
@@ -69,7 +69,7 @@
 
 int32_t spm_setup(void);
 
-#if SPM_DEPRECATED
+#if SPM_MM
 
 uint64_t spm_smc_handler(uint32_t smc_fid,
 			 uint64_t x1,
@@ -83,7 +83,7 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 /* Helper to enter a Secure Partition */
 uint64_t spm_sp_call(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3);
 
-#endif /* SPM_DEPRECATED */
+#endif /* SPM_MM */
 
 #endif /* __ASSEMBLY__ */
 

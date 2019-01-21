@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #ifndef SECURE_PARTITION_H
 #define SECURE_PARTITION_H
 
-#if SPM_DEPRECATED
+#if SPM_MM
 
 #include <stdint.h>
 
@@ -49,6 +49,6 @@ typedef struct secure_partition_boot_info {
 	secure_partition_mp_info_t	*mp_info;
 } secure_partition_boot_info_t;
 
-#endif /* SPM_DEPRECATED */
+#endif /* SPM_MM */
 
 #endif /* SECURE_PARTITION_H */

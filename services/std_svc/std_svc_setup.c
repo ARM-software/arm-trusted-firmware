@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -103,7 +103,7 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 		SMC_RET1(handle, ret);
 	}
 
-#if ENABLE_SPM && SPM_DEPRECATED
+#if ENABLE_SPM && SPM_MM
 	/*
 	 * Dispatch SPM calls to SPM SMC handler and return its return
 	 * value

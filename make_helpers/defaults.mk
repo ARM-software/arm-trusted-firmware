@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -162,8 +162,8 @@ SPD				:= none
 # For including the Secure Partition Manager
 ENABLE_SPM			:= 0
 
-# Use the deprecated SPM based on MM
-SPM_DEPRECATED			:= 1
+# Use the SPM based on MM
+SPM_MM				:= 1
 
 # Flag to introduce an infinite loop in BL1 just before it exits into the next
 # image. This is meant to help debugging the post-BL2 phase.
