@@ -27,6 +27,10 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 				drivers/io/io_fip.c			\
 				drivers/io/io_memmap.c			\
 				drivers/io/io_storage.c			\
+				drivers/gpio/gpio.c			\
+				drivers/delay_timer/delay_timer.c	\
+				drivers/delay_timer/generic_delay_timer.c \
+				drivers/rpi3/gpio/rpi3_gpio.c		\
 				plat/common/aarch64/platform_mp_stack.S	\
 				plat/rpi3/aarch64/plat_helpers.S	\
 				plat/rpi3/aarch64/rpi3_bl2_mem_params_desc.c \
