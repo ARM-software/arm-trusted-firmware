@@ -15,20 +15,8 @@ Some of the guidelines may also apply to other codebases.
 **Note:** the existing TF codebase does not necessarily comply with all the
 below guidelines but the intent is for it to do so eventually.
 
-Coding style
-------------
-
-Trusted Firmware re-uses the `Linux Coding Style`_ . This style is enforced by
-the *checkpatch* tool which can be found in the Linux source code (in `Linus's tree`_
-, for example).
-
-For convenience, the top-level TF makefile has a `checkpatch` target, which
-defines a set of checkpatch options used in TF.
-
-Checkpatch errors will gate upstream merging of pull requests.
-
-Checkpatch warnings will not gate merging but should be reviewed and fixed if
-possible.
+Checkpatch overrides
+--------------------
 
 Some checkpatch warnings in the TF codebase are deliberately ignored. These
 include:
@@ -503,8 +491,6 @@ writeable data section, which may result in a smaller and faster binary. Note
 that this may require dependent functions (``init()`` in the above example) to
 have ``const`` arguments, assuming they don't need to modify the data.
 
-.. _`Linux Coding Style`: https://www.kernel.org/doc/html/latest/process/coding-style.html
-.. _`Linus's tree`: https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/scripts/checkpatch.pl
 .. _`Why the “volatile” type class should not be used`: https://www.kernel.org/doc/html/latest/process/volatile-considered-harmful.html
 .. _`Procedure Call Standard for the Arm Architecture`: http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042f/IHI0042F_aapcs.pdf
 .. _`Procedure Call Standard for the Arm 64-bit Architecture`: http://infocenter.arm.com/help/topic/com.arm.doc.ihi0055b/IHI0055B_aapcs64.pdf
