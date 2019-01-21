@@ -30,8 +30,51 @@ include:
   contains some very useful information, there are several legimate uses of the
   volatile keyword within the TF codebase.
 
+Headers and inclusion
+---------------------
+
+Header guards
+^^^^^^^^^^^^^
+
+For a header file called "some_driver.h" the style used by the Trusted Firmware
+is:
+
+.. code:: c
+
+  #ifndef SOME_DRIVER_H
+  #define SOME_DRIVER_H
+
+  <header content>
+
+  #endif /* SOME_DRIVER_H */
+
+
+Include statements
+^^^^^^^^^^^^^^^^^^
+
+Any header files under ``include/`` are *system* includes and should be
+included using the ``#include <path/to/file.h>`` syntax.
+
+Platforms are allowed to add more include paths to be passed to the compiler.
+This is needed in particular for the file ``platform_def.h``:
+
+.. code:: c
+
+  PLAT_INCLUDES  += -Iinclude/plat/myplat/include
+
+Header files that are included from the same or relative directory as the source
+file are *user* includes and should be included using the ``#include "relative-path/file.h"``
+syntax.
+
+``#include`` statements should be in alphabetical order, with *system*
+includes listed before *user* includes and standard C library includes before
+anything else.
+
+Types and typedefs
+------------------
+
 Use of built-in *C* and *libc* data types
--------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The TF codebase should be kept as portable as possible, especially since both
 64-bit and 32-bit platforms are supported. To help with this, the following data
@@ -126,37 +169,56 @@ type usage guidelines should be followed:
 
 These guidelines should be updated if additional types are needed.
 
-Use logging macros to control log output
-----------------------------------------
+Avoid anonymous typedefs of structs/enums in headers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``debug.h`` provides logging macros (for example, ``WARN`` and ``ERROR``)
-which wrap ``tf_log`` and which allow the logging call to be compiled-out
-depending on the ``make`` command. Use these macros to avoid print statements
-being compiled unconditionally into the binary.
-
-Each logging macro has a numerical log level:
+For example, the following definition:
 
 .. code:: c
 
-  #define LOG_LEVEL_NONE    0
-  #define LOG_LEVEL_ERROR   10
-  #define LOG_LEVEL_NOTICE  20
-  #define LOG_LEVEL_WARNING 30
-  #define LOG_LEVEL_INFO    40
-  #define LOG_LEVEL_VERBOSE 50
+  typedef struct {
+          int arg1;
+          int arg2;
+  } my_struct_t;
 
 
-By default, all logging statements with a log level ``<= LOG_LEVEL_INFO`` will
-be compiled into debug builds and all statements with a log level
-``<= LOG_LEVEL_NOTICE`` will be compiled into release builds. This can be
-overridden from the command line or by the platform makefile (although it may be
-necessary to clean the build directory first). For example, to enable
-``VERBOSE`` logging on FVP:
+is better written as:
 
-``make PLAT=fvp LOG_LEVEL=50 all``
+.. code:: c
 
-Error handling
---------------
+  struct my_struct {
+          int arg1;
+          int arg2;
+  };
+
+This allows function declarations in other header files that depend on the
+struct/enum to forward declare the struct/enum instead of including the
+entire header:
+
+.. code:: c
+
+  #include <my_struct.h>
+  void my_func(my_struct_t *arg);
+
+instead of:
+
+.. code:: c
+
+  struct my_struct;
+  void my_func(struct my_struct *arg);
+
+Some TF definitions use both a struct/enum name **and** a typedef name. This
+is discouraged for new definitions as it makes it difficult for TF to comply
+with MISRA rule 8.3, which states that "All declarations of an object or
+function shall use the same names and type qualifiers".
+
+The Linux coding standards also discourage new typedefs and checkpatch emits
+a warning for this.
+
+Existing typedefs will be retained for compatibility.
+
+Error handling and robustness
+-----------------------------
 
 Using CASSERT to check for compile time data errors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -333,122 +395,40 @@ The secure world **should never** crash or become unusable due to receiving too
 many normal world requests (a *Denial of Service* or *DoS* attack). It should
 have a mechanism for throttling or ignoring normal world requests.
 
-Library and driver code
------------------------
+Performance considerations
+--------------------------
 
-TF library code (under ``lib/`` and ``include/lib``) is any code that provides a
-reusable interface to other code, potentially even to code outside of TF.
+Avoid printf and use logging macros
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In some systems drivers must conform to a specific driver framework to provide
-services to the rest of the system. TF has no driver framework and the
-distinction between a driver and library is somewhat subjective.
+``debug.h`` provides logging macros (for example, ``WARN`` and ``ERROR``)
+which wrap ``tf_log`` and which allow the logging call to be compiled-out
+depending on the ``make`` command. Use these macros to avoid print statements
+being compiled unconditionally into the binary.
 
-A driver (under ``drivers/`` and ``include/drivers/``) is defined as code that
-interfaces with hardware via a memory mapped interface.
-
-Some drivers (for example, the Arm CCI driver in ``include/drivers/arm/cci.h``)
-provide a general purpose API to that specific hardware. Other drivers (for
-example, the Arm PL011 console driver in ``drivers/arm/pl011/pl011_console.S``)
-provide a specific hardware implementation of a more abstract library API. In
-the latter case there may potentially be multiple drivers for the same hardware
-device.
-
-Neither libraries nor drivers should depend on platform-specific code. If they
-require platform-specific data (for example, a base address) to operate then
-they should provide an initialization function that takes the platform-specific
-data as arguments.
-
-TF common code (under ``common/`` and ``include/common/``) is code that is re-used
-by other generic (non-platform-specific) TF code. It is effectively internal
-library code.
-
-Header guards
--------------
-
-For a header file called "some_driver.h" the style used by the Trusted Firmware
-is:
+Each logging macro has a numerical log level:
 
 .. code:: c
 
-  #ifndef SOME_DRIVER_H
-  #define SOME_DRIVER_H
-
-  <header content>
-
-  #endif /* SOME_DRIVER_H */
-
-
-Include statements
-------------------
-
-Any header files under ``include/`` are *system* includes and should be
-included using the ``#include <path/to/file.h>`` syntax.
-
-Platforms are allowed to add more include paths to be passed to the compiler.
-This is needed in particular for the file ``platform_def.h``:
-
-.. code:: c
-
-  PLAT_INCLUDES  += -Iinclude/plat/myplat/include
-
-Header files that are included from the same or relative directory as the source
-file are *user* includes and should be included using the ``#include "relative-path/file.h"``
-syntax.
-
-``#include`` statements should be in alphabetical order, with *system*
-includes listed before *user* includes and standard C library includes before
-anything else.
-
-Avoid anonymous typedefs of structs/enums in header files
----------------------------------------------------------
-
-For example, the following definition:
-
-.. code:: c
-
-  typedef struct {
-          int arg1;
-          int arg2;
-  } my_struct_t;
+  #define LOG_LEVEL_NONE    0
+  #define LOG_LEVEL_ERROR   10
+  #define LOG_LEVEL_NOTICE  20
+  #define LOG_LEVEL_WARNING 30
+  #define LOG_LEVEL_INFO    40
+  #define LOG_LEVEL_VERBOSE 50
 
 
-is better written as:
+By default, all logging statements with a log level ``<= LOG_LEVEL_INFO`` will
+be compiled into debug builds and all statements with a log level
+``<= LOG_LEVEL_NOTICE`` will be compiled into release builds. This can be
+overridden from the command line or by the platform makefile (although it may be
+necessary to clean the build directory first). For example, to enable
+``VERBOSE`` logging on FVP:
 
-.. code:: c
-
-  struct my_struct {
-          int arg1;
-          int arg2;
-  };
-
-This allows function declarations in other header files that depend on the
-struct/enum to forward declare the struct/enum instead of including the
-entire header:
-
-.. code:: c
-
-  #include <my_struct.h>
-  void my_func(my_struct_t *arg);
-
-instead of:
-
-.. code:: c
-
-  struct my_struct;
-  void my_func(struct my_struct *arg);
-
-Some TF definitions use both a struct/enum name **and** a typedef name. This
-is discouraged for new definitions as it makes it difficult for TF to comply
-with MISRA rule 8.3, which states that "All declarations of an object or
-function shall use the same names and type qualifiers".
-
-The Linux coding standards also discourage new typedefs and checkpatch emits
-a warning for this.
-
-Existing typedefs will be retained for compatibility.
+``make PLAT=fvp LOG_LEVEL=50 all``
 
 Use const data where possible
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For example, the following code:
 
@@ -490,6 +470,35 @@ This allows the linker to put the data in a read-only data section instead of a
 writeable data section, which may result in a smaller and faster binary. Note
 that this may require dependent functions (``init()`` in the above example) to
 have ``const`` arguments, assuming they don't need to modify the data.
+
+Library and driver code
+-----------------------
+
+TF library code (under ``lib/`` and ``include/lib``) is any code that provides a
+reusable interface to other code, potentially even to code outside of TF.
+
+In some systems drivers must conform to a specific driver framework to provide
+services to the rest of the system. TF has no driver framework and the
+distinction between a driver and library is somewhat subjective.
+
+A driver (under ``drivers/`` and ``include/drivers/``) is defined as code that
+interfaces with hardware via a memory mapped interface.
+
+Some drivers (for example, the Arm CCI driver in ``include/drivers/arm/cci.h``)
+provide a general purpose API to that specific hardware. Other drivers (for
+example, the Arm PL011 console driver in ``drivers/arm/pl011/pl011_console.S``)
+provide a specific hardware implementation of a more abstract library API. In
+the latter case there may potentially be multiple drivers for the same hardware
+device.
+
+Neither libraries nor drivers should depend on platform-specific code. If they
+require platform-specific data (for example, a base address) to operate then
+they should provide an initialization function that takes the platform-specific
+data as arguments.
+
+TF common code (under ``common/`` and ``include/common/``) is code that is re-used
+by other generic (non-platform-specific) TF code. It is effectively internal
+library code.
 
 .. _`Why the “volatile” type class should not be used`: https://www.kernel.org/doc/html/latest/process/volatile-considered-harmful.html
 .. _`Procedure Call Standard for the Arm Architecture`: http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042f/IHI0042F_aapcs.pdf
