@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,5 +20,9 @@ uintptr_t stm32mp1_get_boot_ctx_address(void);
 
 void stm32mp1_gic_pcpu_init(void);
 void stm32mp1_gic_init(void);
+
+uintptr_t stm32_get_gpio_bank_base(unsigned int bank);
+unsigned long stm32_get_gpio_bank_clock(unsigned int bank);
+uint32_t stm32_get_gpio_bank_offset(unsigned int bank);
 
 #endif /* STM32MP1_PRIVATE_H */

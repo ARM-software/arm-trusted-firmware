@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -25,7 +25,7 @@
 
 static struct ddr_info ddr_priv_data;
 
-int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint16_t mem_speed)
+int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint32_t mem_speed)
 {
 	unsigned long ddrphy_clk, ddr_clk, mem_speed_hz;
 
@@ -33,10 +33,10 @@ int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint16_t mem_speed)
 
 	ddrphy_clk = stm32mp1_clk_get_rate(DDRPHYC);
 
-	VERBOSE("DDR: mem_speed (%d MHz), RCC %ld MHz\n",
-		mem_speed, ddrphy_clk / 1000U / 1000U);
+	VERBOSE("DDR: mem_speed (%d kHz), RCC %ld kHz\n",
+		mem_speed, ddrphy_clk / 1000U);
 
-	mem_speed_hz = (uint32_t)mem_speed * 1000U * 1000U;
+	mem_speed_hz = mem_speed * 1000U;
 
 	/* Max 10% frequency delta */
 	if (ddrphy_clk > mem_speed_hz) {
@@ -44,9 +44,9 @@ int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint16_t mem_speed)
 	} else {
 		ddr_clk = mem_speed_hz - ddrphy_clk;
 	}
-	if (ddr_clk > mem_speed_hz) {
-		ERROR("DDR expected freq %d MHz, current is %ld MHz\n",
-		      mem_speed, ddrphy_clk / 1000U / 1000U);
+	if (ddr_clk > (mem_speed_hz / 10)) {
+		ERROR("DDR expected freq %d kHz, current is %ld kHz\n",
+		      mem_speed, ddrphy_clk / 1000U);
 		return -1;
 	}
 	return 0;
@@ -208,11 +208,16 @@ static int stm32mp1_ddr_setup(void)
 		return -EINVAL;
 	}
 
-	config.info.speed =
-		(uint16_t)fdt_read_uint32_default(node, "st,mem-speed",
-						  STM32MP1_DDR_SPEED_DFLT);
-	config.info.size = fdt_read_uint32_default(node, "st,mem-size",
-						   STM32MP1_DDR_SIZE_DFLT);
+	config.info.speed = fdt_read_uint32_default(node, "st,mem-speed", 0);
+	if (!config.info.speed) {
+		VERBOSE("%s: no st,mem-speed\n", __func__);
+		return -EINVAL;
+	}
+	config.info.size = fdt_read_uint32_default(node, "st,mem-size", 0);
+	if (!config.info.size) {
+		VERBOSE("%s: no st,mem-size\n", __func__);
+		return -EINVAL;
+	}
 	config.info.name = fdt_getprop(fdt, node, "st,mem-name", &len);
 	if (config.info.name == NULL) {
 		VERBOSE("%s: no st,mem-name\n", __func__);
@@ -222,7 +227,7 @@ static int stm32mp1_ddr_setup(void)
 
 	for (idx = 0; idx < ARRAY_SIZE(param); idx++) {
 		ret = fdt_read_uint32_array(node, param[idx].name,
-					    (void *)((uint32_t)&config +
+					    (void *)((uintptr_t)&config +
 						     param[idx].offset),
 					    param[idx].size);
 
@@ -261,8 +266,8 @@ static int stm32mp1_ddr_setup(void)
 	VERBOSE("%s : ram size(%x, %x)\n", __func__,
 		(uint32_t)priv->info.base, (uint32_t)priv->info.size);
 
-	dcsw_op_all(DC_OP_CISW);
 	write_sctlr(read_sctlr() & ~SCTLR_C_BIT);
+	dcsw_op_all(DC_OP_CISW);
 
 	uret = ddr_test_data_bus();
 	if (uret != 0U) {

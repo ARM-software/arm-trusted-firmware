@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -19,3 +19,7 @@ BL32_SOURCES		+=	drivers/arm/gic/common/gic_common.c	\
 
 # Generic PSCI
 BL32_SOURCES		+=	plat/common/plat_psci_common.c
+
+# stm32mp1 specific services
+BL32_SOURCES		+=	plat/st/stm32mp1/services/bsec_svc.c		\
+				plat/st/stm32mp1/services/stm32mp1_svc_setup.c

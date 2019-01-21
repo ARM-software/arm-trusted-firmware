@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,10 +23,8 @@
 #include <boot_api.h>
 #include <stm32mp1_private.h>
 
-static uint32_t stm32_sec_entrypoint;
+static uintptr_t stm32_sec_entrypoint;
 static uint32_t cntfrq_core0;
-
-#define SEND_SECURE_IT_TO_CORE_1	0x20000U
 
 /*******************************************************************************
  * STM32MP1 handler called when a CPU is about to enter standby.
@@ -42,6 +40,7 @@ static void stm32_cpu_standby(plat_local_state_t cpu_state)
 	 * Enter standby state
 	 * dsb is good practice before using wfi to enter low power states
 	 */
+	isb();
 	dsb();
 	while (interrupt == GIC_SPURIOUS_INTERRUPT) {
 		wfi();
@@ -59,7 +58,7 @@ static void stm32_cpu_standby(plat_local_state_t cpu_state)
 /*******************************************************************************
  * STM32MP1 handler called when a power domain is about to be turned on. The
  * mpidr determines the CPU to be turned on.
- * call by core  0 to activate core 1
+ * call by core 0 to activate core 1
  ******************************************************************************/
 static int stm32_pwr_domain_on(u_register_t mpidr)
 {
@@ -102,8 +101,7 @@ static int stm32_pwr_domain_on(u_register_t mpidr)
 	}
 
 	/* Generate an IT to core 1 */
-	mmio_write_32(STM32MP1_GICD_BASE + GICD_SGIR,
-		      SEND_SECURE_IT_TO_CORE_1 | ARM_IRQ_SEC_SGI_0);
+	gicv2_raise_sgi(ARM_IRQ_SEC_SGI_0, STM32MP1_SECONDARY_CPU);
 
 	return PSCI_E_SUCCESS;
 }

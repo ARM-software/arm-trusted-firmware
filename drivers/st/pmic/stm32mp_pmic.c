@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,10 +13,10 @@
 
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
+#include <drivers/st/stm32mp_pmic.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32mp1_clk.h>
-#include <drivers/st/stm32mp1_pmic.h>
-#include <drivers/st/stpmu1.h>
+#include <drivers/st/stpmic1.h>
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
 
@@ -27,23 +27,23 @@
 
 #define MASK_RESET_BUCK3		BIT(2)
 
-#define STPMU1_LDO12356_OUTPUT_MASK	(uint8_t)(GENMASK(6, 2))
-#define STPMU1_LDO12356_OUTPUT_SHIFT	2
-#define STPMU1_LDO3_MODE		(uint8_t)(BIT(7))
-#define STPMU1_LDO3_DDR_SEL		31U
-#define STPMU1_LDO3_1800000		(9U << STPMU1_LDO12356_OUTPUT_SHIFT)
+#define STPMIC1_LDO12356_OUTPUT_MASK	(uint8_t)(GENMASK(6, 2))
+#define STPMIC1_LDO12356_OUTPUT_SHIFT	2
+#define STPMIC1_LDO3_MODE		(uint8_t)(BIT(7))
+#define STPMIC1_LDO3_DDR_SEL		31U
+#define STPMIC1_LDO3_1800000		(9U << STPMIC1_LDO12356_OUTPUT_SHIFT)
 
-#define STPMU1_BUCK_OUTPUT_SHIFT	2
-#define STPMU1_BUCK3_1V8		(39U << STPMU1_BUCK_OUTPUT_SHIFT)
+#define STPMIC1_BUCK_OUTPUT_SHIFT	2
+#define STPMIC1_BUCK3_1V8		(39U << STPMIC1_BUCK_OUTPUT_SHIFT)
 
-#define STPMU1_DEFAULT_START_UP_DELAY_MS	1
+#define STPMIC1_DEFAULT_START_UP_DELAY_MS	1
 
 static struct i2c_handle_s i2c_handle;
 static uint32_t pmic_i2c_addr;
 
 static int dt_get_pmic_node(void *fdt)
 {
-	return fdt_node_offset_by_compatible(fdt, -1, "st,stpmu1");
+	return fdt_node_offset_by_compatible(fdt, -1, "st,stpmic1");
 }
 
 bool dt_check_pmic(void)
@@ -61,7 +61,7 @@ bool dt_check_pmic(void)
 		return false;
 	}
 
-	return fdt_check_status(node);
+	return fdt_get_status(node);
 }
 
 static int dt_pmic_i2c_config(struct dt_node_info *i2c_info)
@@ -138,16 +138,16 @@ int dt_pmic_enable_boot_on_regulators(void)
 		voltage = (uint16_t)(fdt32_to_cpu(*cuint) / 1000U);
 		node_name = fdt_get_name(fdt, regulator_node, NULL);
 
-		if (stpmu1_is_regulator_enabled(node_name) == 0U) {
+		if (stpmic1_is_regulator_enabled(node_name) == 0U) {
 			int status;
 
-			status = stpmu1_regulator_voltage_set(node_name,
-							      voltage);
+			status = stpmic1_regulator_voltage_set(node_name,
+							       voltage);
 			if (status != 0) {
 				return status;
 			}
 
-			status = stpmu1_regulator_enable(node_name);
+			status = stpmic1_regulator_enable(node_name);
 			if (status != 0) {
 				return status;
 			}
@@ -204,7 +204,7 @@ void initialize_pmic_i2c(void)
 		panic();
 	}
 
-	stpmu1_bind_i2c(&i2c_handle, (uint16_t)pmic_i2c_addr);
+	stpmic1_bind_i2c(&i2c_handle, (uint16_t)pmic_i2c_addr);
 }
 
 void initialize_pmic(void)
@@ -214,7 +214,7 @@ void initialize_pmic(void)
 
 	initialize_pmic_i2c();
 
-	status = stpmu1_register_read(VERSION_STATUS_REG, &read_val);
+	status = stpmic1_register_read(VERSION_STATUS_REG, &read_val);
 	if (status != 0) {
 		panic();
 	}
@@ -222,7 +222,7 @@ void initialize_pmic(void)
 	INFO("PMIC version = 0x%x\n", read_val);
 
 	/* Keep VDD on during the reset cycle */
-	status = stpmu1_register_update(MASK_RESET_BUCK_REG,
+	status = stpmic1_register_update(MASK_RESET_BUCK_REG,
 					MASK_RESET_BUCK3,
 					MASK_RESET_BUCK3);
 	if (status != 0) {
@@ -239,45 +239,46 @@ int pmic_ddr_power_init(enum ddr_type ddr_type)
 	switch (ddr_type) {
 	case STM32MP_DDR3:
 		/* Set LDO3 to sync mode */
-		status = stpmu1_register_read(LDO3_CONTROL_REG, &read_val);
+		status = stpmic1_register_read(LDO3_CONTROL_REG, &read_val);
 		if (status != 0) {
 			return status;
 		}
 
-		read_val &= ~STPMU1_LDO3_MODE;
-		read_val &= ~STPMU1_LDO12356_OUTPUT_MASK;
-		read_val |= STPMU1_LDO3_DDR_SEL << STPMU1_LDO12356_OUTPUT_SHIFT;
+		read_val &= ~STPMIC1_LDO3_MODE;
+		read_val &= ~STPMIC1_LDO12356_OUTPUT_MASK;
+		read_val |= STPMIC1_LDO3_DDR_SEL <<
+			    STPMIC1_LDO12356_OUTPUT_SHIFT;
 
-		status = stpmu1_register_write(LDO3_CONTROL_REG, read_val);
+		status = stpmic1_register_write(LDO3_CONTROL_REG, read_val);
 		if (status != 0) {
 			return status;
 		}
 
-		status = stpmu1_regulator_voltage_set("buck2", 1350);
+		status = stpmic1_regulator_voltage_set("buck2", 1350);
 		if (status != 0) {
 			return status;
 		}
 
-		status = stpmu1_regulator_enable("buck2");
+		status = stpmic1_regulator_enable("buck2");
 		if (status != 0) {
 			return status;
 		}
 
-		mdelay(STPMU1_DEFAULT_START_UP_DELAY_MS);
+		mdelay(STPMIC1_DEFAULT_START_UP_DELAY_MS);
 
-		status = stpmu1_regulator_enable("vref_ddr");
+		status = stpmic1_regulator_enable("vref_ddr");
 		if (status != 0) {
 			return status;
 		}
 
-		mdelay(STPMU1_DEFAULT_START_UP_DELAY_MS);
+		mdelay(STPMIC1_DEFAULT_START_UP_DELAY_MS);
 
-		status = stpmu1_regulator_enable("ldo3");
+		status = stpmic1_regulator_enable("ldo3");
 		if (status != 0) {
 			return status;
 		}
 
-		mdelay(STPMU1_DEFAULT_START_UP_DELAY_MS);
+		mdelay(STPMIC1_DEFAULT_START_UP_DELAY_MS);
 		break;
 
 	case STM32MP_LPDDR2:
@@ -286,57 +287,57 @@ int pmic_ddr_power_init(enum ddr_type ddr_type)
 		 * Set LDO3 to bypass mode if BUCK3 = 1.8V
 		 * Set LDO3 to normal mode if BUCK3 != 1.8V
 		 */
-		status = stpmu1_register_read(BUCK3_CONTROL_REG, &read_val);
+		status = stpmic1_register_read(BUCK3_CONTROL_REG, &read_val);
 		if (status != 0) {
 			return status;
 		}
 
-		if ((read_val & STPMU1_BUCK3_1V8) == STPMU1_BUCK3_1V8) {
+		if ((read_val & STPMIC1_BUCK3_1V8) == STPMIC1_BUCK3_1V8) {
 			buck3_at_1v8 = true;
 		}
 
-		status = stpmu1_register_read(LDO3_CONTROL_REG, &read_val);
+		status = stpmic1_register_read(LDO3_CONTROL_REG, &read_val);
 		if (status != 0) {
 			return status;
 		}
 
-		read_val &= ~STPMU1_LDO3_MODE;
-		read_val &= ~STPMU1_LDO12356_OUTPUT_MASK;
-		read_val |= STPMU1_LDO3_1800000;
+		read_val &= ~STPMIC1_LDO3_MODE;
+		read_val &= ~STPMIC1_LDO12356_OUTPUT_MASK;
+		read_val |= STPMIC1_LDO3_1800000;
 		if (buck3_at_1v8) {
-			read_val |= STPMU1_LDO3_MODE;
+			read_val |= STPMIC1_LDO3_MODE;
 		}
 
-		status = stpmu1_register_write(LDO3_CONTROL_REG, read_val);
+		status = stpmic1_register_write(LDO3_CONTROL_REG, read_val);
 		if (status != 0) {
 			return status;
 		}
 
-		status = stpmu1_regulator_voltage_set("buck2", 1200);
+		status = stpmic1_regulator_voltage_set("buck2", 1200);
 		if (status != 0) {
 			return status;
 		}
 
-		status = stpmu1_regulator_enable("ldo3");
+		status = stpmic1_regulator_enable("ldo3");
 		if (status != 0) {
 			return status;
 		}
 
-		mdelay(STPMU1_DEFAULT_START_UP_DELAY_MS);
+		mdelay(STPMIC1_DEFAULT_START_UP_DELAY_MS);
 
-		status = stpmu1_regulator_enable("buck2");
+		status = stpmic1_regulator_enable("buck2");
 		if (status != 0) {
 			return status;
 		}
 
-		mdelay(STPMU1_DEFAULT_START_UP_DELAY_MS);
+		mdelay(STPMIC1_DEFAULT_START_UP_DELAY_MS);
 
-		status = stpmu1_regulator_enable("vref_ddr");
+		status = stpmic1_regulator_enable("vref_ddr");
 		if (status != 0) {
 			return status;
 		}
 
-		mdelay(STPMU1_DEFAULT_START_UP_DELAY_MS);
+		mdelay(STPMIC1_DEFAULT_START_UP_DELAY_MS);
 		break;
 
 	default:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -65,22 +65,6 @@ static void init_tzc400(void)
  ******************************************************************************/
 static void early_init_tzc400(void)
 {
-	uint32_t rstsr, rst_standby;
-
-	rstsr = mmio_read_32(RCC_BASE + RCC_MP_RSTSCLRR);
-
-	/* No warning if return from (C)STANDBY */
-	rst_standby = rstsr &
-		(RCC_MP_RSTSCLRR_STDBYRSTF | RCC_MP_RSTSCLRR_CSTDBYRSTF);
-
-	if (stm32mp1_clk_is_enabled(TZC1) && (rst_standby == 0U)) {
-		WARN("TZC400 port 1 clock already enable\n");
-	}
-
-	if (stm32mp1_clk_is_enabled(TZC2) && (rst_standby == 0U)) {
-		WARN("TZC400 port 2 clock already enable\n");
-	}
-
 	if (stm32mp1_clk_enable(TZC1) != 0) {
 		ERROR("Cannot enable TZC1 clock\n");
 		panic();
@@ -103,6 +87,7 @@ static void early_init_tzc400(void)
 				STM32MP1_DDR_BASE +
 				(STM32MP1_DDR_MAX_SIZE - 1U),
 				TZC_REGION_S_RDWR,
+				TZC_REGION_ACCESS_RDWR(STM32MP1_TZC_A7_ID) |
 				TZC_REGION_ACCESS_RDWR(STM32MP1_TZC_SDMMC_ID));
 
 	/* Raise an exception if a NS device tries to access secure memory */

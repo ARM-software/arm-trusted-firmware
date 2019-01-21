@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2018-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +17,7 @@
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <drivers/mmc.h>
+#include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32_sdmmc2.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_rcc.h>
@@ -470,12 +471,11 @@ static int stm32_sdmmc2_prepare(int lba, uintptr_t buf, size_t size)
 	}
 
 	/* Prepare CMD 16*/
-	mmio_write_32(base + SDMMC_DTIMER, UINT32_MAX);
+	mmio_write_32(base + SDMMC_DTIMER, 0);
 
 	mmio_write_32(base + SDMMC_DLENR, 0);
 
-	mmio_clrsetbits_32(base + SDMMC_DCTRLR,
-			   SDMMC_DCTRLR_CLEAR_MASK, SDMMC_DCTRLR_DTDIR);
+	mmio_write_32(base + SDMMC_DCTRLR, 0);
 
 	zeromem(&cmd, sizeof(struct mmc_cmd));
 
@@ -643,7 +643,7 @@ static int stm32_sdmmc2_dt_get_config(void)
 		return -FDT_ERR_NOTFOUND;
 	}
 
-	if (fdt_check_status(sdmmc_node) == 0) {
+	if (fdt_get_status(sdmmc_node) == DT_DISABLED) {
 		return -FDT_ERR_NOTFOUND;
 	}
 
@@ -667,15 +667,15 @@ static int stm32_sdmmc2_dt_get_config(void)
 	cuint++;
 	sdmmc2_params.reset_id = fdt32_to_cpu(*cuint);
 
-	if ((fdt_getprop(fdt, sdmmc_node, "st,pin-ckin", NULL)) != NULL) {
+	if ((fdt_getprop(fdt, sdmmc_node, "st,use-ckin", NULL)) != NULL) {
 		sdmmc2_params.pin_ckin = SDMMC_CLKCR_SELCLKRX_0;
 	}
 
-	if ((fdt_getprop(fdt, sdmmc_node, "st,dirpol", NULL)) != NULL) {
+	if ((fdt_getprop(fdt, sdmmc_node, "st,sig-dir", NULL)) != NULL) {
 		sdmmc2_params.dirpol = SDMMC_POWER_DIRPOL;
 	}
 
-	if ((fdt_getprop(fdt, sdmmc_node, "st,negedge", NULL)) != NULL) {
+	if ((fdt_getprop(fdt, sdmmc_node, "st,neg-edge", NULL)) != NULL) {
 		sdmmc2_params.negedge = SDMMC_CLKCR_NEGEDGE;
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,8 +30,8 @@
 #define BL33_BINARY_TYPE		U(0x0)
 
 #define STM32MP1_PRIMARY_CPU		U(0x0)
+#define STM32MP1_SECONDARY_CPU		U(0x1)
 
-#define PLATFORM_CACHE_LINE_SIZE	64
 #define PLATFORM_CLUSTER_COUNT		ULL(1)
 #define PLATFORM_CLUSTER0_CORE_COUNT	U(2)
 #define PLATFORM_CLUSTER1_CORE_COUNT	U(0)
@@ -39,9 +39,9 @@
 					 PLATFORM_CLUSTER0_CORE_COUNT)
 #define PLATFORM_MAX_CPUS_PER_CLUSTER	2
 
-#define MAX_IO_DEVICES			4
-#define MAX_IO_HANDLES			4
-#define MAX_IO_BLOCK_DEVICES		1
+#define MAX_IO_DEVICES			U(4)
+#define MAX_IO_HANDLES			U(4)
+#define MAX_IO_BLOCK_DEVICES		U(1)
 
 /*******************************************************************************
  * BL2 specific defines.
@@ -81,8 +81,8 @@
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
-#define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
-#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
+#define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 32)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 32)
 
 /*******************************************************************************
  * Declarations and constants to access the mailboxes safely. Each mailbox is
@@ -121,9 +121,6 @@
  */
 #define PLATFORM_G1S_PROPS(grp) \
 	INTR_PROP_DESC(ARM_IRQ_SEC_PHY_TIMER,		\
-		       GIC_HIGHEST_SEC_PRIORITY,	\
-		       grp, GIC_INTR_CFG_LEVEL),	\
-	INTR_PROP_DESC(STM32MP1_IRQ_TAMPSERRS,		\
 		       GIC_HIGHEST_SEC_PRIORITY,	\
 		       grp, GIC_INTR_CFG_LEVEL),	\
 	INTR_PROP_DESC(STM32MP1_IRQ_AXIERRIRQ,		\

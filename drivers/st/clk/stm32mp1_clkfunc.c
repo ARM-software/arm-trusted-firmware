@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,10 +32,18 @@ const char *stm32mp_osc_node_label[NB_OSC] = {
 };
 
 /*******************************************************************************
+ * This function returns the RCC node in the device tree.
+ ******************************************************************************/
+static int fdt_get_rcc_node(void *fdt)
+{
+	return fdt_node_offset_by_compatible(fdt, -1, DT_RCC_CLK_COMPAT);
+}
+
+/*******************************************************************************
  * This function reads the frequency of an oscillator from its name.
  * It reads the value indicated inside the device tree.
- * Returns 0 if success, and a negative value else.
- * If success, value is stored in the second parameter.
+ * Returns 0 on success, and a negative FDT/ERRNO error code on failure.
+ * On success, value is stored in the second parameter.
  ******************************************************************************/
 int fdt_osc_read_freq(const char *name, uint32_t *freq)
 {
@@ -127,7 +135,7 @@ bool fdt_osc_read_bool(enum stm32mp_osc_id osc_id, const char *prop_name)
 
 /*******************************************************************************
  * This function reads a value of a oscillator property from its id.
- * Returns value if success, and a default value if property not found.
+ * Returns value on success, and a default value if property not found.
  * Default value is passed as parameter.
  ******************************************************************************/
 uint32_t fdt_osc_read_uint32_default(enum stm32mp_osc_id osc_id,
@@ -240,7 +248,7 @@ int fdt_rcc_read_uint32_array(const char *prop_name,
 /*******************************************************************************
  * This function gets the subnode offset in rcc-clk section from its name.
  * It reads the values indicated inside the device tree.
- * Returns offset if success, and a negative value else.
+ * Returns offset on success, and a negative FDT/ERRNO error code on failure.
  ******************************************************************************/
 int fdt_rcc_subnode_offset(const char *name)
 {
@@ -251,7 +259,7 @@ int fdt_rcc_subnode_offset(const char *name)
 		return -ENOENT;
 	}
 
-	node = fdt_node_offset_by_compatible(fdt, -1, DT_RCC_CLK_COMPAT);
+	node = fdt_get_rcc_node(fdt);
 	if (node < 0) {
 		return -FDT_ERR_NOTFOUND;
 	}
@@ -280,7 +288,7 @@ const fdt32_t *fdt_rcc_read_prop(const char *prop_name, int *lenp)
 		return NULL;
 	}
 
-	node = fdt_node_offset_by_compatible(fdt, -1, DT_RCC_CLK_COMPAT);
+	node = fdt_get_rcc_node(fdt);
 	if (node < 0) {
 		return NULL;
 	}
@@ -297,7 +305,7 @@ const fdt32_t *fdt_rcc_read_prop(const char *prop_name, int *lenp)
 /*******************************************************************************
  * This function gets the secure status for rcc node.
  * It reads secure-status in device tree.
- * Returns 1 if rcc is available from secure world, 0 else.
+ * Returns true if rcc is available from secure world, false if not.
  ******************************************************************************/
 bool fdt_get_rcc_secure_status(void)
 {
@@ -308,18 +316,18 @@ bool fdt_get_rcc_secure_status(void)
 		return false;
 	}
 
-	node = fdt_node_offset_by_compatible(fdt, -1, DT_RCC_COMPAT);
+	node = fdt_get_rcc_node(fdt);
 	if (node < 0) {
 		return false;
 	}
 
-	return fdt_check_secure_status(node);
+	return (fdt_get_status(node) & DT_SECURE) != 0U;
 }
 
 /*******************************************************************************
  * This function reads the stgen base address.
  * It reads the value indicated inside the device tree.
- * Returns address if success, and NULL value else.
+ * Returns address on success, and NULL value on failure.
  ******************************************************************************/
 uintptr_t fdt_get_stgen_base(void)
 {
@@ -347,7 +355,7 @@ uintptr_t fdt_get_stgen_base(void)
 /*******************************************************************************
  * This function gets the clock ID of the given node.
  * It reads the value indicated inside the device tree.
- * Returns ID if success, and a negative value else.
+ * Returns ID on success, and a negative FDT/ERRNO error code on failure.
  ******************************************************************************/
 int fdt_get_clock_id(int node)
 {

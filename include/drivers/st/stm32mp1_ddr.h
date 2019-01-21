@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -153,7 +153,7 @@ struct stm32mp1_ddrphy_cal {
 
 struct stm32mp1_ddr_info {
 	const char *name;
-	uint16_t speed; /* in MHZ */
+	uint32_t speed; /* in kHZ */
 	uint32_t size;  /* Memory size in byte = col * row * width */
 };
 
@@ -168,7 +168,7 @@ struct stm32mp1_ddr_config {
 	struct stm32mp1_ddrphy_cal p_cal;
 };
 
-int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint16_t mem_speed);
+int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint32_t mem_speed);
 void stm32mp1_ddr_init(struct ddr_info *priv,
 		       struct stm32mp1_ddr_config *config);
 #endif /* STM32MP1_DDR_H */

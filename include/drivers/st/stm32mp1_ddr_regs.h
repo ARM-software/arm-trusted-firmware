@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -247,11 +247,14 @@ struct stm32mp1_ddrphy {
 #define DDRCTRL_DBGSTAT				0x310
 #define DDRCTRL_SWCTL				0x320
 #define DDRCTRL_SWSTAT				0x324
+#define DDRCTRL_PSTAT				0x3FC
 #define DDRCTRL_PCTRL_0				0x490
 #define DDRCTRL_PCTRL_1				0x540
 
 /* DDR Controller Register fields */
 #define DDRCTRL_MSTR_DDR3			BIT(0)
+#define DDRCTRL_MSTR_LPDDR2			BIT(2)
+#define DDRCTRL_MSTR_LPDDR3			BIT(3)
 #define DDRCTRL_MSTR_DATA_BUS_WIDTH_MASK	GENMASK(13, 12)
 #define DDRCTRL_MSTR_DATA_BUS_WIDTH_FULL	0
 #define DDRCTRL_MSTR_DATA_BUS_WIDTH_HALF	BIT(12)
@@ -269,7 +272,7 @@ struct stm32mp1_ddrphy {
 /* Only one rank supported */
 #define DDRCTRL_MRCTRL0_MR_RANK_SHIFT		4
 #define DDRCTRL_MRCTRL0_MR_RANK_ALL \
-		(0x1U << DDRCTRL_MRCTRL0_MR_RANK_SHIFT)
+					BIT(DDRCTRL_MRCTRL0_MR_RANK_SHIFT)
 #define DDRCTRL_MRCTRL0_MR_ADDR_SHIFT		12
 #define DDRCTRL_MRCTRL0_MR_ADDR_MASK		GENMASK(15, 12)
 #define DDRCTRL_MRCTRL0_MR_WR			BIT(31)
@@ -367,6 +370,7 @@ struct stm32mp1_ddrphy {
 
 #define DDRPHYC_DLLGCR_BPS200			BIT(23)
 
+#define DDRPHYC_ACDLLCR_DLLSRST			BIT(30)
 #define DDRPHYC_ACDLLCR_DLLDIS			BIT(31)
 
 #define DDRPHYC_PTR0_TDLLSRST_OFFSET		0

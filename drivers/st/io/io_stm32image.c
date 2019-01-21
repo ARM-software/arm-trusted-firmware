@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -94,6 +94,8 @@ static int stm32image_dev_open(const uintptr_t init_params,
 	for (i = 0; i < STM32_PART_NUM; i++) {
 		memcpy(stm32image_dev.part_info[i].name,
 		       device_info->part_info[i].name, MAX_PART_NAME_SIZE);
+		stm32image_dev.part_info[i].binary_type =
+			device_info->part_info[i].binary_type;
 		stm32image_dev.part_info[i].part_offset =
 			device_info->part_info[i].part_offset;
 		stm32image_dev.part_info[i].bkp_offset =
@@ -193,21 +195,29 @@ static int stm32image_partition_size(io_entity_t *entity, size_t *length)
 		result = io_read(backend_handle, (uintptr_t)header,
 				 MAX_LBA_SIZE, (size_t *)&bytes_read);
 		if (result != 0) {
-			ERROR("%s: io_read (%i)\n", __func__, result);
-			break;
+			if (current_part->bkp_offset == 0U) {
+				ERROR("%s: io_read (%i)\n", __func__, result);
+			}
+			header->magic = 0;
 		}
 
 		if ((header->magic != BOOT_API_IMAGE_HEADER_MAGIC_NB) ||
 		    (header->binary_type != current_part->binary_type) ||
 		    (header->image_length >= stm32image_dev.device_size)) {
-			WARN("%s: partition %s wrong header\n",
-			     __func__, current_part->name);
+			VERBOSE("%s: partition %s not found at %x\n",
+				__func__, current_part->name, *stm32_img);
+
+			if (current_part->bkp_offset == 0U) {
+				result = -ENOMEM;
+				break;
+			}
 
 			/* Header not correct, check next offset for backup */
 			*stm32_img += current_part->bkp_offset;
 			if (*stm32_img > stm32image_dev.device_size) {
 				/* No backup found, end of device reached */
-				WARN("Out of memory\n");
+				WARN("%s : partition %s not found\n",
+				     __func__, current_part->name);
 				result = -ENOMEM;
 				break;
 			}
@@ -221,9 +231,13 @@ static int stm32image_partition_size(io_entity_t *entity, size_t *length)
 		return result;
 	}
 
-	*length = header->image_length;
+	if (header->image_length < stm32image_dev.lba_size) {
+		*length = stm32image_dev.lba_size;
+	} else {
+		*length = header->image_length;
+	}
 
-	INFO("STM32 Image size : %i\n", *length);
+	INFO("STM32 Image size : %lu\n", (unsigned long)*length);
 
 	return 0;
 }
@@ -266,11 +280,10 @@ static int check_header(boot_api_image_header_t *header, uintptr_t buffer)
 static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 				     size_t length, size_t *length_read)
 {
-	int result = 0, offset, local_length = 0;
+	int result = 0;
 	uint8_t *local_buffer = (uint8_t *)buffer;
 	boot_api_image_header_t *header =
 		(boot_api_image_header_t *)first_lba_buffer;
-	uintptr_t backend_handle;
 
 	assert(entity != NULL);
 	assert(buffer != 0U);
@@ -279,8 +292,17 @@ static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 	*length_read = 0U;
 
 	while (*length_read == 0U) {
+		int offset;
+		int local_length;
+		uintptr_t backend_handle;
+
 		if (header->magic != BOOT_API_IMAGE_HEADER_MAGIC_NB) {
 			/* Check for backup as image is corrupted */
+			if (current_part->bkp_offset == 0U) {
+				result = -ENOMEM;
+				break;
+			}
+
 			*stm32_img += current_part->bkp_offset;
 			if (*stm32_img >= stm32image_dev.device_size) {
 				/* End of device reached */
@@ -342,8 +364,8 @@ static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 		if (result != 0) {
 			ERROR("%s: io_read (%i)\n", __func__, result);
 			*length_read = 0;
-			io_close(backend_handle);
-			break;
+			header->magic = 0;
+			continue;
 		}
 
 		result = check_header(header, buffer);
@@ -351,8 +373,6 @@ static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 			ERROR("Header check failed\n");
 			*length_read = 0;
 			header->magic = 0;
-			io_close(backend_handle);
-			break;
 		}
 
 		io_close(backend_handle);

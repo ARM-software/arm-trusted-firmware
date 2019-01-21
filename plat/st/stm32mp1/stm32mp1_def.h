@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -112,6 +112,39 @@ enum ddr_type {
 #define PWR_BASE			U(0x50001000)
 
 /*******************************************************************************
+ * STM32MP1 GPIO
+ ******************************************************************************/
+#define GPIOA_BASE			U(0x50002000)
+#define GPIOB_BASE			U(0x50003000)
+#define GPIOC_BASE			U(0x50004000)
+#define GPIOD_BASE			U(0x50005000)
+#define GPIOE_BASE			U(0x50006000)
+#define GPIOF_BASE			U(0x50007000)
+#define GPIOG_BASE			U(0x50008000)
+#define GPIOH_BASE			U(0x50009000)
+#define GPIOI_BASE			U(0x5000A000)
+#define GPIOJ_BASE			U(0x5000B000)
+#define GPIOK_BASE			U(0x5000C000)
+#define GPIOZ_BASE			U(0x54004000)
+#define GPIO_BANK_OFFSET		U(0x1000)
+
+/* Bank IDs used in GPIO driver API */
+#define GPIO_BANK_A			U(0)
+#define GPIO_BANK_B			U(1)
+#define GPIO_BANK_C			U(2)
+#define GPIO_BANK_D			U(3)
+#define GPIO_BANK_E			U(4)
+#define GPIO_BANK_F			U(5)
+#define GPIO_BANK_G			U(6)
+#define GPIO_BANK_H			U(7)
+#define GPIO_BANK_I			U(8)
+#define GPIO_BANK_J			U(9)
+#define GPIO_BANK_K			U(10)
+#define GPIO_BANK_Z			U(25)
+
+#define STM32MP_GPIOZ_PIN_MAX_COUNT	8
+
+/*******************************************************************************
  * STM32MP1 UART
  ******************************************************************************/
 #define USART1_BASE			U(0x5C000000)
@@ -122,16 +155,21 @@ enum ddr_type {
 #define USART6_BASE			U(0x44003000)
 #define UART7_BASE			U(0x40018000)
 #define UART8_BASE			U(0x40019000)
-#define STM32MP1_DEBUG_USART_BASE	UART4_BASE
-#define STM32MP1_UART_BAUDRATE		115200
+#define STM32MP1_UART_BAUDRATE		U(115200)
 
-/*******************************************************************************
- * STM32MP1 GIC-400
- ******************************************************************************/
-#define STM32MP1_GICD_BASE		U(0xA0021000)
-#define STM32MP1_GICC_BASE		U(0xA0022000)
-#define STM32MP1_GICH_BASE		U(0xA0024000)
-#define STM32MP1_GICV_BASE		U(0xA0026000)
+/* For UART crash console */
+#define STM32MP1_DEBUG_USART_BASE	UART4_BASE
+/* UART4 on HSI@64MHz, TX on GPIOG11 Alternate 6 */
+#define STM32MP1_DEBUG_USART_CLK_FRQ	64000000
+#define DEBUG_UART_TX_GPIO_BANK_ADDRESS	GPIOG_BASE
+#define DEBUG_UART_TX_GPIO_BANK_CLK_REG	RCC_MP_AHB4ENSETR
+#define DEBUG_UART_TX_GPIO_BANK_CLK_EN	RCC_MP_AHB4ENSETR_GPIOGEN
+#define DEBUG_UART_TX_GPIO_PORT		11
+#define DEBUG_UART_TX_GPIO_ALTERNATE	6
+#define DEBUG_UART_TX_CLKSRC_REG	RCC_UART24CKSELR
+#define DEBUG_UART_TX_CLKSRC		RCC_UART24CKSELR_HSI
+#define DEBUG_UART_TX_EN_REG		RCC_MP_APB1ENSETR
+#define DEBUG_UART_TX_EN		RCC_MP_APB1ENSETR_UART4EN
 
 /*******************************************************************************
  * STM32MP1 TZC (TZ400)
@@ -149,10 +187,7 @@ enum ddr_type {
 #define STM32MP1_TZC_ETH_ID		U(10)
 #define STM32MP1_TZC_DAP_ID		U(15)
 
-#define STM32MP1_MEMORY_NS		0
-#define STM32MP1_MEMORY_SECURE		1
-
-#define STM32MP1_FILTER_BIT_ALL		3
+#define STM32MP1_FILTER_BIT_ALL		U(3)
 
 /*******************************************************************************
  * STM32MP1 SDMMC
@@ -166,6 +201,21 @@ enum ddr_type {
 #define STM32MP1_SD_HIGH_SPEED_MAX_FREQ		50000000	/*50 MHz*/
 #define STM32MP1_EMMC_NORMAL_SPEED_MAX_FREQ	26000000	/*26 MHz*/
 #define STM32MP1_EMMC_HIGH_SPEED_MAX_FREQ	52000000	/*52 MHz*/
+
+/*******************************************************************************
+ * STM32MP1 BSEC / OTP
+ ******************************************************************************/
+#define STM32MP1_OTP_MAX_ID		0x5FU
+#define STM32MP1_UPPER_OTP_START	0x20U
+
+#define OTP_MAX_SIZE			(STM32MP1_OTP_MAX_ID + 1U)
+
+/* OTP offsets */
+#define DATA0_OTP			U(0)
+
+/* OTP mask */
+/* DATA0 */
+#define DATA0_OTP_SECURED		BIT(6)
 
 /*******************************************************************************
  * STM32MP1 TAMP

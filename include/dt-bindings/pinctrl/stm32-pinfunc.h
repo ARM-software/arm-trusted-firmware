@@ -32,4 +32,10 @@
 
 #define STM32_PINMUX(port, line, mode) (((PIN_NO(port, line)) << 8) | (mode))
 
+/*  package information */
+#define STM32MP157CAA	0x1
+#define STM32MP157CAB	0x2
+#define STM32MP157CAC	0x4
+#define STM32MP157CAD	0x8
+
 #endif /* _DT_BINDINGS_STM32_PINFUNC_H */

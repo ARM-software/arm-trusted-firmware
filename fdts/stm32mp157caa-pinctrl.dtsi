@@ -7,8 +7,8 @@
 #include "stm32mp157-pinctrl.dtsi"
 / {
 	soc {
-		pinctrl: pin-controller {
-			compatible = "st,stm32mp157caa-pinctrl";
+		pinctrl: pin-controller@50002000 {
+			st,package = <STM32MP157CAA>;
 
 			gpioa: gpio@50002000 {
 				status = "okay";
@@ -77,8 +77,8 @@
 			};
 		};
 
-		pinctrl_z: pin-controller-z {
-			compatible = "st,stm32mp157caa-z-pinctrl";
+		pinctrl_z: pin-controller-z@54004000 {
+			st,package = <STM32MP157CAA>;
 
 			gpioz: gpio@54004000 {
 				status = "okay";

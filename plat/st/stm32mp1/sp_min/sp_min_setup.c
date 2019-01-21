@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,9 +13,12 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <context.h>
+#include <drivers/arm/gicv2.h>
 #include <drivers/arm/tzc400.h>
 #include <drivers/generic_delay_timer.h>
+#include <drivers/st/bsec.h>
 #include <drivers/st/stm32_console.h>
+#include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/el3_runtime/context_mgmt.h>
@@ -40,7 +43,7 @@ static struct console_stm32 console;
  ******************************************************************************/
 void sp_min_plat_fiq_handler(uint32_t id)
 {
-	switch (id) {
+	switch (id & INT_ID_MASK) {
 	case STM32MP1_IRQ_TZC400:
 		ERROR("STM32MP1_IRQ_TZC400 generated\n");
 		panic();
@@ -50,7 +53,7 @@ void sp_min_plat_fiq_handler(uint32_t id)
 		panic();
 		break;
 	default:
-		ERROR("SECURE IT handler not define for it : %i", id);
+		ERROR("SECURE IT handler not define for it : %u", id);
 		break;
 	}
 }
@@ -80,7 +83,7 @@ entry_point_info_t *sp_min_plat_get_bl33_ep_info(void)
 void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				  u_register_t arg2, u_register_t arg3)
 {
-	struct dt_node_info dt_dev_info;
+	struct dt_node_info dt_uart_info;
 	int result;
 	bl_params_t *params_from_bl2 = (bl_params_t *)arg0;
 
@@ -110,14 +113,18 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 	}
 
+	if (bsec_probe() != 0) {
+		panic();
+	}
+
 	if (stm32mp1_clk_probe() < 0) {
 		panic();
 	}
 
-	result = dt_get_stdout_uart_info(&dt_dev_info);
+	result = dt_get_stdout_uart_info(&dt_uart_info);
 
-	if ((result > 0) && dt_dev_info.status) {
-		if (console_stm32_register(dt_dev_info.base, 0,
+	if ((result > 0) && (dt_uart_info.status != 0U)) {
+		if (console_stm32_register(dt_uart_info.base, 0,
 					   STM32MP1_UART_BAUDRATE, &console) ==
 		    0) {
 			panic();
@@ -142,6 +149,16 @@ void sp_min_platform_setup(void)
 	generic_delay_timer_init();
 
 	stm32mp1_gic_init();
+
+	/* Unlock ETZPC securable peripherals */
+#define STM32MP1_ETZPC_BASE	0x5C007000U
+#define ETZPC_DECPROT0		0x010U
+	mmio_write_32(STM32MP1_ETZPC_BASE + ETZPC_DECPROT0, 0xFFFFFFFF);
+
+	/* Set GPIO bank Z as non secure */
+	for (uint32_t pin = 0U; pin < STM32MP_GPIOZ_PIN_MAX_COUNT; pin++) {
+		set_gpio_secure_cfg(GPIO_BANK_Z, pin, false);
+	}
 }
 
 void sp_min_plat_arch_setup(void)
