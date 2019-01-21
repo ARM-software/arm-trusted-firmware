@@ -55,9 +55,9 @@ endif
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iinclude/plat/arm/common/aarch64/		\
 				-Iplat/xilinx/common/include/			\
+				-Iplat/xilinx/common/ipi_mailbox_service/	\
 				-Iplat/xilinx/zynqmp/include/			\
 				-Iplat/xilinx/zynqmp/pm_service/		\
-				-Iplat/xilinx/zynqmp/ipi_mailbox_service/
 
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
@@ -80,6 +80,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				plat/common/plat_psci_common.c			\
+				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				plat/xilinx/common/pm_service/pm_ipi.c		\
 				plat/xilinx/zynqmp/bl31_zynqmp_setup.c		\
 				plat/xilinx/zynqmp/plat_psci.c			\
@@ -92,5 +93,8 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/xilinx/zynqmp/pm_service/pm_api_pinctrl.c	\
 				plat/xilinx/zynqmp/pm_service/pm_api_ioctl.c	\
 				plat/xilinx/zynqmp/pm_service/pm_api_clock.c	\
-				plat/xilinx/zynqmp/pm_service/pm_client.c	\
-				plat/xilinx/zynqmp/ipi_mailbox_service/ipi_mailbox_svc.c
+				plat/xilinx/zynqmp/pm_service/pm_client.c
+
+ifneq (${RESET_TO_BL31},1)
+  $(error "Using BL31 as the reset vector is only one option supported on ZynqMP. Please set RESET_TO_BL31 to 1.")
+endif
