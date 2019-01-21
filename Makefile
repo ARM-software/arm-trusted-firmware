@@ -242,6 +242,7 @@ TF_LDFLAGS		+=	--gc-sections
 TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
 
 DTC_FLAGS		+=	-I dts -O dtb
+DTC_CPPFLAGS		+=	-nostdinc -Iinclude -undef -x assembler-with-cpp
 
 ################################################################################
 # Common sources and include directories
