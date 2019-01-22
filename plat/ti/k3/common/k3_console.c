@@ -16,6 +16,6 @@ void bl31_console_setup(void)
 	static console_16550_t console;
 
 	/* Initialize the console to provide early debug support */
-	console_16550_register(K3_USART_BASE_ADDRESS, K3_USART_CLK_SPEED,
+	console_16550_register(K3_USART_BASE, K3_USART_CLK_SPEED,
 			       K3_USART_BAUD, &console);
 }
