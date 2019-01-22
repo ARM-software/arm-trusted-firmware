@@ -139,10 +139,10 @@ static inline int k3_sec_proxy_verify_thread(struct k3_sec_proxy_thread *spt,
 	if ((mmio_read_32(spt->scfg + SCFG_THREAD_CTRL) & SCFG_THREAD_CTRL_DIR_MASK)
 	    != (dir << SCFG_THREAD_CTRL_DIR_SHIFT)) {
 		if (dir)
-			ERROR("Trying to receive data on tx Thread %d\n",
+			ERROR("Trying to send data on RX Thread %d\n",
 			      spt->id);
 		else
-			ERROR("Trying to send data on rx Thread %d\n",
+			ERROR("Trying to receive data on TX Thread %d\n",
 			      spt->id);
 		return -EINVAL;
 	}
