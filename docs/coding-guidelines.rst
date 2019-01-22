@@ -48,27 +48,75 @@ is:
 
   #endif /* SOME_DRIVER_H */
 
+Include statement ordering
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Include statements
-^^^^^^^^^^^^^^^^^^
+All header files that are included by a source file must use the following,
+grouped ordering. This is to improve readability (by making it easier to quickly
+read through the list of headers) and maintainability.
 
-Any header files under ``include/`` are *system* includes and should be
-included using the ``#include <path/to/file.h>`` syntax.
+#. *System* includes: Header files from the standard *C* library, such as
+   ``stddef.h`` and ``string.h``.
+
+#. *Project* includes: Header files under the ``include/`` directory within TF
+   are *project* includes.
+
+#. *Platform* includes: Header files relating to a single, specific platform,
+   and which are located under the ``plat/<platform_name>`` directory within TF,
+   are *platform* includes.
+
+Within each group, ``#include`` statements must be in alphabetical order,
+taking both the file and directory names into account.
+
+Groups must be separated by a single blank line for clarity.
+
+The example below illustrates the ordering rules using some contrived header
+file names; this type of name reuse should be otherwise avoided.
+.. code:: c
+
+  #include <string.h>
+
+  #include <a_dir/example/a_header.h>
+  #include <a_dir/example/b_header.h>
+  #include <a_dir/test/a_header.h>
+  #include <b_dir/example/a_header.h>
+
+  #include "./a_header.h"
+
+Include statement variants
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Two variants of the ``#include`` directive are acceptable in the TF codebase.
+Correct use of the two styles improves readability by suggesting the location
+of the included header and reducing ambiguity in cases where generic and
+platform-specific headers share a name.
+
+For header files that are in the same directory as the source file that is
+including them, use the ``"..."`` variant.
+
+For header files that are **not** in the same directory as the source file that
+is including them, use the ``<...>`` variant.
+
+Example (bl1_fwu.c):
+.. code:: c
+
+  #include <assert.h>
+  #include <errno.h>
+  #include <string.h>
+
+  #include "bl1_private.h"
+
+Platform include paths
+^^^^^^^^^^^^^^^^^^^^^^
 
 Platforms are allowed to add more include paths to be passed to the compiler.
-This is needed in particular for the file ``platform_def.h``:
+The ``PLAT_INCLUDES`` variable is used for this purpose. This is needed in
+particular for the file ``platform_def.h``.
 
+Example:
 .. code:: c
 
   PLAT_INCLUDES  += -Iinclude/plat/myplat/include
-
-Header files that are included from the same or relative directory as the source
-file are *user* includes and should be included using the ``#include "relative-path/file.h"``
-syntax.
-
-``#include`` statements should be in alphabetical order, with *system*
-includes listed before *user* includes and standard C library includes before
-anything else.
 
 Types and typedefs
 ------------------
