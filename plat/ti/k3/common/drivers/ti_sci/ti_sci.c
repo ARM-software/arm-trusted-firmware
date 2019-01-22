@@ -158,6 +158,13 @@ static inline int ti_sci_do_xfer(struct ti_sci_xfer *xfer)
 	struct k3_sec_proxy_msg *msg = &xfer->tx_message;
 	int ret;
 
+	/* Clear any spurious messages in receive queue */
+	ret = k3_sec_proxy_clear_rx_thread(SP_RESPONSE);
+	if (ret) {
+		ERROR("Could not clear response queue (%d)\n", ret);
+		return ret;
+	}
+
 	/* Send the message */
 	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, msg);
 	if (ret) {
@@ -165,6 +172,7 @@ static inline int ti_sci_do_xfer(struct ti_sci_xfer *xfer)
 		return ret;
 	}
 
+	/* Get the response */
 	ret = ti_sci_get_response(xfer, SP_RESPONSE);
 	if (ret) {
 		ERROR("Failed to get response (%d)\n", ret);
