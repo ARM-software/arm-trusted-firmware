@@ -179,6 +179,7 @@ int ti_sci_core_reboot(void);
  *                                 and then set the processor configuration flags.
  *              @cert_addr: Memory address at which payload image certificate is located.
  * - ti_sci_proc_get_boot_status - Command to get the processor boot status
+ * - ti_sci_proc_wait_boot_status - Command to wait for a processor boot status
  *
  * NOTE: for all these functions, the following are generic in nature:
  * @proc_id:	Processor ID
@@ -197,6 +198,15 @@ int ti_sci_proc_get_boot_status(uint8_t proc_id, uint64_t *bv,
 				uint32_t *cfg_flags,
 				uint32_t *ctrl_flags,
 				uint32_t *sts_flags);
+int ti_sci_proc_wait_boot_status(uint8_t proc_id, uint8_t num_wait_iterations,
+				 uint8_t num_match_iterations,
+				 uint8_t delay_per_iteration_us,
+				 uint8_t delay_before_iterations_us,
+				 uint32_t status_flags_1_set_all_wait,
+				 uint32_t status_flags_1_set_any_wait,
+				 uint32_t status_flags_1_clr_all_wait,
+				 uint32_t status_flags_1_clr_any_wait);
+int ti_sci_proc_shutdown(uint8_t proc_id, uint32_t dev_id);
 
 /**
  * ti_sci_init() - Basic initialization
