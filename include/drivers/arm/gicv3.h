@@ -84,6 +84,7 @@
 #define GICR_PCPUBASE_SHIFT	0x11
 #define GICR_SGIBASE_OFFSET	U(65536)	/* 64 KB */
 #define GICR_CTLR		U(0x0)
+#define GICR_IIDR		U(0x04)
 #define GICR_TYPER		U(0x08)
 #define GICR_WAKER		U(0x14)
 #define GICR_PROPBASER		U(0x70)

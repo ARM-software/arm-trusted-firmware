@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-void k3_gic_driver_init(uintptr_t gicd_base, uintptr_t gicr_base);
+void k3_gic_driver_init(uintptr_t gic_base);
 void k3_gic_init(void);
 void k3_gic_cpuif_enable(void);
 void k3_gic_cpuif_disable(void);
