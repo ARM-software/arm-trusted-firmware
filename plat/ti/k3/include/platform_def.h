@@ -74,18 +74,13 @@
 
 /*
  * ARM-TF lives in SRAM, partition it here
- */
-
-#define SHARED_RAM_BASE			BL31_LIMIT
-#define SHARED_RAM_SIZE			0x00001000
-
-/*
+ *
  * BL3-1 specific defines.
  *
- * Put BL3-1 at the base of the Trusted SRAM, before SHARED_RAM.
+ * Put BL3-1 at the base of the Trusted SRAM.
  */
 #define BL31_BASE			SEC_SRAM_BASE
-#define BL31_SIZE			(SEC_SRAM_SIZE - SHARED_RAM_SIZE)
+#define BL31_SIZE			SEC_SRAM_SIZE
 #define BL31_LIMIT			(BL31_BASE + BL31_SIZE)
 #define BL31_PROGBITS_LIMIT		BL31_LIMIT
 
