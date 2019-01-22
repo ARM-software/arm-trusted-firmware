@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,7 +13,7 @@
 #  define PLAT_XLAT_TABLES_DYNAMIC     1
 # endif
 #else
-# if defined(IMAGE_BL31) && (RESET_TO_BL31 || (ENABLE_SPM && !SPM_DEPRECATED))
+# if defined(IMAGE_BL31) && (RESET_TO_BL31 || (ENABLE_SPM && !SPM_MM))
 #  define PLAT_XLAT_TABLES_DYNAMIC     1
 # endif
 #endif /* AARCH32 */
@@ -125,7 +125,7 @@
  * calculated using the current BL31 PROGBITS debug size plus the sizes of
  * BL2 and BL1-RW
  */
-#if ENABLE_SPM && !SPM_DEPRECATED
+#if ENABLE_SPM && !SPM_MM
 #define PLAT_ARM_MAX_BL31_SIZE		UL(0x60000)
 #else
 #define PLAT_ARM_MAX_BL31_SIZE		UL(0x3B000)

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -584,7 +584,6 @@ $(eval $(call assert_boolean,CREATE_KEYS))
 $(eval $(call assert_boolean,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
 $(eval $(call assert_boolean,DEBUG))
-$(eval $(call assert_boolean,DISABLE_PEDANTIC))
 $(eval $(call assert_boolean,DYN_DISABLE_AUTH))
 $(eval $(call assert_boolean,EL3_EXCEPTION_HANDLING))
 $(eval $(call assert_boolean,ENABLE_AMU))
@@ -613,7 +612,7 @@ $(eval $(call assert_boolean,RESET_TO_BL31))
 $(eval $(call assert_boolean,SAVE_KEYS))
 $(eval $(call assert_boolean,SEPARATE_CODE_AND_RODATA))
 $(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
-$(eval $(call assert_boolean,SPM_DEPRECATED))
+$(eval $(call assert_boolean,SPM_MM))
 $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
 $(eval $(call assert_boolean,USE_COHERENT_MEM))
 $(eval $(call assert_boolean,USE_ROMLIB))
@@ -667,7 +666,7 @@ $(eval $(call add_define,RECLAIM_INIT_CODE))
 $(eval $(call add_define,SMCCC_MAJOR_VERSION))
 $(eval $(call add_define,SPD_${SPD}))
 $(eval $(call add_define,SPIN_ON_BL1_EXIT))
-$(eval $(call add_define,SPM_DEPRECATED))
+$(eval $(call add_define,SPM_MM))
 $(eval $(call add_define,TRUSTED_BOARD_BOOT))
 $(eval $(call add_define,USE_COHERENT_MEM))
 $(eval $(call add_define,USE_ROMLIB))

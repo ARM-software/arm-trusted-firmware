@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,12 +8,12 @@
 # Include SPM Makefile
 ################################################################################
 ifeq (${ENABLE_SPM},1)
-  ifeq (${SPM_DEPRECATED},1)
+  ifeq (${SPM_MM},1)
     ifeq (${EL3_EXCEPTION_HANDLING},0)
       $(error EL3_EXCEPTION_HANDLING must be 1 for SPM support)
     endif
-    $(info Including deprecated SPM makefile)
-    include services/std_svc/spm_deprecated/spm.mk
+    $(info Including makefile of SPM based on MM)
+    include services/std_svc/spm_mm/spm.mk
   else
     $(info Including SPM makefile)
     include services/std_svc/spm/spm.mk
