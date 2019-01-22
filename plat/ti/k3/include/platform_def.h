@@ -82,7 +82,6 @@
 #define BL31_BASE			SEC_SRAM_BASE
 #define BL31_SIZE			SEC_SRAM_SIZE
 #define BL31_LIMIT			(BL31_BASE + BL31_SIZE)
-#define BL31_PROGBITS_LIMIT		BL31_LIMIT
 
 /*
  * Defines the maximum number of translation tables that are allocated by the
