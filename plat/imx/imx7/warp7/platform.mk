@@ -62,6 +62,43 @@ BL2_SOURCES		+=	common/desc_image_load.c			\
 				plat/imx/imx7/warp7/warp7_image_load.c		\
 				${XLAT_TABLES_LIB_SRCS}
 
+ifneq (${TRUSTED_BOARD_BOOT},0)
+
+include drivers/auth/mbedtls/mbedtls_crypto.mk
+include drivers/auth/mbedtls/mbedtls_x509.mk
+
+AUTH_SOURCES	:=	drivers/auth/auth_mod.c			\
+			drivers/auth/crypto_mod.c		\
+			drivers/auth/img_parser_mod.c		\
+			drivers/auth/tbbr/tbbr_cot.c
+
+BL2_SOURCES		+=	${AUTH_SOURCES}					\
+				plat/common/tbbr/plat_tbbr.c			\
+				plat/imx/imx7/warp7/warp7_trusted_boot.c	\
+				plat/imx/imx7/warp7/warp7_rotpk.S
+
+ROT_KEY             = $(BUILD_PLAT)/rot_key.pem
+ROTPK_HASH          = $(BUILD_PLAT)/rotpk_sha256.bin
+
+$(eval $(call add_define_val,ROTPK_HASH,'"$(ROTPK_HASH)"'))
+$(eval $(call MAKE_LIB_DIRS))
+
+$(BUILD_PLAT)/bl2/warp7_rotpk.o: $(ROTPK_HASH)
+
+certificates: $(ROT_KEY)
+
+$(ROT_KEY): | $(BUILD_PLAT)
+	@echo "  OPENSSL $@"
+	@if [ ! -f $(ROT_KEY) ]; then \
+		openssl genrsa 2048 > $@ 2>/dev/null; \
+	fi
+
+$(ROTPK_HASH): $(ROT_KEY)
+	@echo "  OPENSSL $@"
+	$(Q)openssl rsa -in $< -pubout -outform DER 2>/dev/null |\
+	openssl dgst -sha256 -binary > $@ 2>/dev/null
+endif
+
 # Build config flags
 # ------------------
 
@@ -85,6 +122,21 @@ USE_COHERENT_MEM		:= 1
 # PLAT_WARP7_UART
 PLAT_WARP7_UART			:=1
 $(eval $(call add_define,PLAT_WARP7_UART))
+
+# Add the build options to pack BLx images and kernel device tree
+# in the FIP if the platform requires.
+ifneq ($(BL2),)
+$(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/tb_fw.crt,--tb-fw-cert))
+endif
+ifneq ($(BL32_EXTRA1),)
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
+endif
+ifneq ($(BL32_EXTRA2),)
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
+endif
+ifneq ($(HW_CONFIG),)
+$(eval $(call TOOL_ADD_IMG,HW_CONFIG,--hw-config))
+endif
 
 # Verify build config
 # -------------------
