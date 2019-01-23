@@ -5,8 +5,8 @@
 #
 
 # TSP source files specific to FVP platform
-BL32_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_helpers.S	\
-				plat/arm/board/fvp/drivers/pwrc/fvp_pwrc.c	\
+BL32_SOURCES		+=	drivers/arm/fvp/fvp_pwrc.c			\
+				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
 				plat/arm/board/fvp/fvp_topology.c		\
 				plat/arm/board/fvp/tsp/fvp_tsp_setup.c		\
 				${FVP_GIC_SOURCES}

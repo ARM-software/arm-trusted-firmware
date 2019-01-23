@@ -8,9 +8,8 @@
 #include <asm_macros.S>
 #include <drivers/arm/gicv2.h>
 #include <drivers/arm/gicv3.h>
+#include <drivers/arm/fvp/fvp_pwrc.h>
 #include <platform_def.h>
-
-#include "../drivers/pwrc/fvp_pwrc.h"
 
 	.globl	plat_secondary_cold_boot_setup
 	.globl	plat_get_my_entrypoint
