@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -229,6 +229,22 @@ endif
 
 ifeq (${ARCH},aarch32)
     NEED_BL32 := yes
+endif
+
+# Enable the dynamic translation tables library.
+ifeq (${ARCH},aarch32)
+    ifeq (${RESET_TO_SP_MIN},1)
+        BL32_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+    endif
+else
+    ifeq (${RESET_TO_BL31},1)
+        BL31_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+    endif
+    ifeq (${ENABLE_SPM},1)
+        ifeq (${SPM_MM},0)
+            BL31_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+        endif
+    endif
 endif
 
 # Add support for platform supplied linker script for BL31 build
