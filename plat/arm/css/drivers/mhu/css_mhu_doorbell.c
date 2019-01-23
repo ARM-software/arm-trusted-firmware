@@ -7,9 +7,9 @@
 #include <platform_def.h>
 
 #include <arch_helpers.h>
+#include <drivers/arm/css/scmi.h>
 
 #include "css_mhu_doorbell.h"
-#include "../scmi/scmi.h"
 
 void mhu_ring_doorbell(struct scmi_channel_plat_info *plat_info)
 {

@@ -13,9 +13,9 @@ BL32_SOURCES		+=	plat/arm/css/drivers/scp/css_pm_scpi.c		\
 				plat/arm/css/drivers/mhu/css_mhu.c		\
 				plat/arm/css/drivers/scpi/css_scpi.c
 else
-BL32_SOURCES		+=	plat/arm/css/drivers/scp/css_pm_scmi.c		\
-				plat/arm/css/drivers/scmi/scmi_common.c		\
-				plat/arm/css/drivers/scmi/scmi_pwr_dmn_proto.c	\
-				plat/arm/css/drivers/scmi/scmi_sys_pwr_proto.c	\
+BL32_SOURCES		+=	drivers/arm/css/scmi/scmi_common.c		\
+				drivers/arm/css/scmi/scmi_pwr_dmn_proto.c	\
+				drivers/arm/css/scmi/scmi_sys_pwr_proto.c	\
+				plat/arm/css/drivers/scp/css_pm_scmi.c		\
 				plat/arm/css/drivers/mhu/css_mhu_doorbell.c
 endif

@@ -8,8 +8,8 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/arm/css/scmi.h>
 
-#include "scmi.h"
 #include "scmi_private.h"
 
 /*

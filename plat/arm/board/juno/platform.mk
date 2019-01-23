@@ -27,7 +27,6 @@ endif
 CSS_USE_SCMI_SDS_DRIVER		:=	1
 
 PLAT_INCLUDES		:=	-Iplat/arm/board/juno/include		\
-				-Iplat/arm/css/drivers/scmi		\
 				-Iplat/arm/css/drivers/sds
 
 PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/juno/${ARCH}/juno_helpers.S \
