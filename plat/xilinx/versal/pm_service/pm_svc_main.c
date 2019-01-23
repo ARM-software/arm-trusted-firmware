@@ -111,6 +111,10 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		ret = pm_req_wakeup(pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3]);
 		SMC_RET1(handle, (uint64_t)ret);
 
+	case PM_SET_WAKEUP_SOURCE:
+		ret = pm_set_wakeup_source(pm_arg[0], pm_arg[1], pm_arg[2]);
+		SMC_RET1(handle, (uint64_t)ret);
+
 	case PM_REQUEST_DEVICE:
 		ret = pm_request_device(pm_arg[0], pm_arg[1], pm_arg[2],
 					pm_arg[3]);

@@ -694,3 +694,21 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 		return pm_ipi_send_sync(primary_proc, payload, value, 1);
 	}
 }
+
+/**
+ * pm_set_wakeup_source() - PM call to specify the wakeup source while suspended
+ * @target	Device id of the targeted PU or subsystem
+ * @wkup_node	Device id of the wakeup peripheral
+ * @enable	Enable or disable the specified peripheral as wake source
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_set_wakeup_source(uint32_t target, uint32_t wkup_device,
+					uint8_t enable)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	PM_PACK_PAYLOAD4(payload, LIBPM_MODULE_ID, PM_SET_WAKEUP_SOURCE, target,
+			 wkup_device, enable);
+	return pm_ipi_send(primary_proc, payload);
+}
