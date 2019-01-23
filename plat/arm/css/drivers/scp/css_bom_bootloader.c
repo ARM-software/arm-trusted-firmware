@@ -9,10 +9,10 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/arm/css/css_mhu.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-#include "../mhu/css_mhu.h"
 #include "../scpi/css_scpi.h"
 #include "css_scp.h"
 

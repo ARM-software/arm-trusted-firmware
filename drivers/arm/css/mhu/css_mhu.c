@@ -9,11 +9,10 @@
 #include <platform_def.h>
 
 #include <arch_helpers.h>
+#include <drivers/arm/css/css_mhu.h>
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
 #include <plat/arm/common/plat_arm.h>
-
-#include "css_mhu.h"
 
 /* SCP MHU secure channel registers */
 #define SCP_INTR_S_STAT		0x200

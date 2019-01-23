@@ -6,10 +6,9 @@
 
 #include <platform_def.h>
 
+#include <drivers/arm/css/css_mhu_doorbell.h>
 #include <drivers/arm/css/scmi.h>
 #include <plat/arm/common/plat_arm.h>
-
-#include "../../css/drivers/mhu/css_mhu_doorbell.h"
 
 static scmi_channel_plat_info_t n1sdp_scmi_plat_info = {
 		.scmi_mbx_mem = N1SDP_SCMI_PAYLOAD_BASE,

@@ -9,11 +9,11 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/arm/css/css_mhu.h>
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-#include "../mhu/css_mhu.h"
 #include "css_scpi.h"
 
 #define SCPI_SHARED_MEM_SCP_TO_AP	PLAT_CSS_SCP_COM_SHARED_MEM_BASE
