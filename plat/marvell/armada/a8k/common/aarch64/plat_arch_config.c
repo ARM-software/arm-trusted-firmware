@@ -13,7 +13,21 @@
 
 #define CCU_HTC_ASET			(MVEBU_CCU_BASE(MVEBU_AP0) + 0x264)
 #define MVEBU_IO_AFFINITY		(0xF00)
+#define MVEBU_SF_REG			(MVEBU_REGS_BASE + 0x40)
+#define MVEBU_SF_EN			BIT(8)
 
+#ifdef MVEBU_SOC_AP807
+static void plat_enable_snoop_filter(void)
+{
+	int cpu_id = plat_my_core_pos();
+
+	/* Snoop filter needs to be enabled once per cluster */
+	if (cpu_id % 2)
+		return;
+
+	mmio_setbits_32(MVEBU_SF_REG, MVEBU_SF_EN);
+}
+#endif
 
 static void plat_enable_affinity(void)
 {
@@ -42,4 +56,8 @@ void marvell_psci_arch_init(int die_index)
 
 	/* Enable Affinity */
 	plat_enable_affinity();
+
+#ifdef MVEBU_SOC_AP807
+	plat_enable_snoop_filter();
+#endif
 }
