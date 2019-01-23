@@ -26,8 +26,7 @@ endif
 # SCP during power management operations and for SCP RAM Firmware transfer.
 CSS_USE_SCMI_SDS_DRIVER		:=	1
 
-PLAT_INCLUDES		:=	-Iplat/arm/board/juno/include		\
-				-Iplat/arm/css/drivers/sds
+PLAT_INCLUDES		:=	-Iplat/arm/board/juno/include
 
 PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/juno/${ARCH}/juno_helpers.S \
 				plat/arm/board/juno/juno_common.c
@@ -87,7 +86,7 @@ BL31_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c		\
 				${JUNO_SECURITY_SOURCES}
 
 ifeq (${CSS_USE_SCMI_SDS_DRIVER},1)
-BL1_SOURCES		+=	plat/arm/css/drivers/sds/sds.c
+BL1_SOURCES		+=	drivers/arm/css/sds/sds.c
 endif
 
 endif

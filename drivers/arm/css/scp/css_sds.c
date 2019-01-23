@@ -10,11 +10,10 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/css/css_scp.h>
+#include <drivers/arm/css/sds.h>
 #include <drivers/delay_timer.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
-
-#include "../sds/sds.h"
 
 int css_scp_boot_image_xfer(void *image, unsigned int image_size)
 {

@@ -50,10 +50,10 @@ ifeq (${CSS_LOAD_SCP_IMAGES},1)
 
   ifeq (${CSS_USE_SCMI_SDS_DRIVER},1)
     BL2U_SOURCES	+=	drivers/arm/css/scp/css_sds.c			\
-				plat/arm/css/drivers/sds/sds.c
+				drivers/arm/css/sds/sds.c
 
     BL2_SOURCES		+=	drivers/arm/css/scp/css_sds.c			\
-				plat/arm/css/drivers/sds/sds.c
+				drivers/arm/css/sds/sds.c
   else
     BL2U_SOURCES	+=	drivers/arm/css/mhu/css_mhu.c			\
 				drivers/arm/css/scp/css_bom_bootloader.c	\
@@ -73,7 +73,7 @@ ifeq (${CSS_LOAD_SCP_IMAGES},1)
 endif
 
 ifeq (${CSS_USE_SCMI_SDS_DRIVER},1)
-  PLAT_BL_COMMON_SOURCES	+=	plat/arm/css/drivers/sds/${ARCH}/sds_helpers.S
+  PLAT_BL_COMMON_SOURCES	+=	drivers/arm/css/sds/${ARCH}/sds_helpers.S
 endif
 
 # Process CSS_USE_SCMI_SDS_DRIVER flag
