@@ -160,6 +160,34 @@ enum pm_ret_status pm_req_suspend(uint32_t target, uint8_t ack,
 }
 
 /**
+ * pm_req_wakeup() - PM call for processor to wake up selected processor
+ *		     or subsystem
+ * @target	Device ID of the processor or subsystem to wake up
+ * @set_address	Resume address presence indicator
+ *		1 - resume address specified, 0 - otherwise
+ * @address	Resume address
+ * @ack		Flag to specify whether acknowledge requested
+ *
+ * This API function is either used to power up another APU core for SMP
+ * (by PSCI) or to power up an entirely different PU or subsystem, such
+ * as RPU0, RPU, or PL_CORE_xx. Resume address for the target PU will be
+ * automatically set by PMC.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_req_wakeup(uint32_t target, uint32_t set_address,
+				 uintptr_t address, uint8_t ack)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC to perform the wake of the PU */
+	PM_PACK_PAYLOAD5(payload, LIBPM_MODULE_ID, PM_REQ_WAKEUP, target,
+			 set_address, address, ack);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
  * pm_request_device() - Request a device
  * @device_id		Device ID
  * @capabilities	Requested capabilities for the device
