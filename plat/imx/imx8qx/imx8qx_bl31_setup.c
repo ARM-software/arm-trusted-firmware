@@ -44,10 +44,7 @@ static entry_point_info_t bl33_image_ep_info;
 			(SC_PAD_28FDSOI_PS_PD << PADRING_PULL_SHIFT))
 
 static const mmap_region_t imx_mmap[] = {
-	MAP_REGION_FLAT(IMX_BOOT_UART_BASE, IMX_BOOT_UART_SIZE, MT_DEVICE | MT_RW),
-	MAP_REGION_FLAT(SC_IPC_BASE, SC_IPC_SIZE, MT_DEVICE | MT_RW),
-	MAP_REGION_FLAT(PLAT_GICD_BASE, PLAT_GICD_SIZE, MT_DEVICE | MT_RW),
-	MAP_REGION_FLAT(PLAT_GICR_BASE, PLAT_GICR_SIZE, MT_DEVICE | MT_RW),
+	MAP_REGION_FLAT(IMX_REG_BASE, IMX_REG_SIZE, MT_DEVICE | MT_RW),
 	{0}
 };
 
@@ -280,6 +277,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 #endif
 	/* Turn on MU1 for non-secure OS/Hypervisor */
 	sc_pm_set_resource_power_mode(ipc_handle, SC_R_MU_1A, SC_PM_PW_MODE_ON);
+
+	/* Turn on GPT_0's power & clock for non-secure OS/Hypervisor */
+	sc_pm_set_resource_power_mode(ipc_handle, SC_R_GPT_0, SC_PM_PW_MODE_ON);
+	sc_pm_clock_enable(ipc_handle, SC_R_GPT_0, SC_PM_CLK_PER, true, 0);
+	mmio_write_32(IMX_GPT0_LPCG_BASE, mmio_read_32(IMX_GPT0_LPCG_BASE) | (1 << 25));
 
 	/*
 	 * create new partition for non-secure OS/Hypervisor
