@@ -74,22 +74,9 @@
 					 (0x24 << AVS_LOW_VDD_LIMIT_OFFSET) | \
 					 (0x1 << AVS_SOFT_RESET_OFFSET) | \
 					 (0x1 << AVS_ENABLE_OFFSET))
-/* VDD limit is 0.82V for all A3900 devices
- * AVS offsets are not the same as in A70x0
- */
-#define AVS_A3900_CLK_VALUE		((0x80u << 24) | \
-					 (0x2c2 << 13) | \
-					 (0x2c2 << 3) | \
-					 (0x1 << AVS_SOFT_RESET_OFFSET) | \
-					 (0x1 << AVS_ENABLE_OFFSET))
-/* VDD is 0.88V for 2GHz clock */
-#define AVS_A3900_HIGH_CLK_VALUE	((0x80u << 24) | \
-					 (0x2f5 << 13) | \
-					 (0x2f5 << 3) | \
-					 (0x1 << AVS_SOFT_RESET_OFFSET) | \
-					 (0x1 << AVS_ENABLE_OFFSET))
 
-#define AVS_CN9130_HIGH_CLK_VALUE	((0x80 << 24) | \
+/* VDD is 0.88V for 2GHz clock on CN913x devices */
+#define AVS_AP807_CLK_VALUE		((0x80UL << 24) | \
 					 (0x2dc << 13) | \
 					 (0x2dc << 3) | \
 					 (0x1 << AVS_SOFT_RESET_OFFSET) | \
@@ -229,20 +216,7 @@ static void ble_plat_avs_config(void)
 						 FREQ_MODE_AP_SAR_REG_NUM)));
 	/* Check which SoC is running and act accordingly */
 	if (ble_get_ap_type() == CHIP_ID_AP807) {
-		/* Increase CPU voltage for higher CPU clock */
-		switch (freq_mode) {
-		case CPU_2000_DDR_1200_RCLK_1200:
-			avs_val = AVS_A3900_HIGH_CLK_VALUE;
-			break;
-#ifdef MVEBU_SOC_AP807
-		case CPU_2200_DDR_1200_RCLK_1200:
-			avs_val = AVS_CN9130_HIGH_CLK_VALUE;
-			break;
-#endif
-		default:
-			avs_val = AVS_A3900_CLK_VALUE;
-		}
-
+		avs_val = AVS_AP807_CLK_VALUE;
 	} else {
 		/* Check which SoC is running and act accordingly */
 		device_id = cp110_device_id_get(MVEBU_CP_REGS_BASE(0));
