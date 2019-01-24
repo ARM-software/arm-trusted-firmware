@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,7 +69,6 @@ int mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 int mce_update_reset_vector(void);
 int mce_update_gsc_videomem(void);
 int mce_update_gsc_tzdram(void);
-int mce_update_gsc_tzram(void);
 __dead2 void mce_enter_ccplex_state(uint32_t state_idx);
 void mce_update_cstate_info(const mce_cstate_info_t *cstate);
 void mce_verify_firmware_version(void);
