@@ -19,12 +19,14 @@ sc_rsrc_t secure_rsrcs[] = {
 	SC_R_GIC_SMMU,
 	SC_R_CCI,
 	SC_R_SYSTEM,
-	SC_R_IRQSTR_SCU2
+	SC_R_IRQSTR_SCU2,
+	SC_R_GPT_0
 };
 
 /* resources that have register access for non-secure domain */
 sc_rsrc_t ns_access_allowed[] = {
 	SC_R_GIC,
 	SC_R_GIC_SMMU,
-	SC_R_CCI
+	SC_R_CCI,
+	SC_R_GPT_0
 };
