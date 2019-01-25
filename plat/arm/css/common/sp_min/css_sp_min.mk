@@ -10,8 +10,8 @@ BL32_SOURCES		+=	plat/arm/css/common/css_pm.c			\
 
 ifeq (${CSS_USE_SCMI_SDS_DRIVER},0)
 BL32_SOURCES		+=	drivers/arm/css/mhu/css_mhu.c			\
-				plat/arm/css/drivers/scp/css_pm_scpi.c		\
-				plat/arm/css/drivers/scpi/css_scpi.c
+				drivers/arm/css/scpi/css_scpi.c			\
+				plat/arm/css/drivers/scp/css_pm_scpi.c
 else
 BL32_SOURCES		+=	drivers/arm/css/mhu/css_mhu_doorbell.c		\
 				drivers/arm/css/scmi/scmi_common.c		\

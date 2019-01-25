@@ -27,8 +27,8 @@ BL31_SOURCES		+=	plat/arm/css/common/css_pm.c			\
 
 ifeq (${CSS_USE_SCMI_SDS_DRIVER},0)
 BL31_SOURCES		+=	drivers/arm/css/mhu/css_mhu.c			\
-				plat/arm/css/drivers/scp/css_pm_scpi.c		\
-				plat/arm/css/drivers/scpi/css_scpi.c
+				drivers/arm/css/scpi/css_scpi.c			\
+				plat/arm/css/drivers/scp/css_pm_scpi.c
 else
 BL31_SOURCES		+=	drivers/arm/css/mhu/css_mhu_doorbell.c		\
 				drivers/arm/css/scmi/scmi_ap_core_proto.c	\
@@ -55,13 +55,13 @@ ifeq (${CSS_LOAD_SCP_IMAGES},1)
     BL2_SOURCES		+=	plat/arm/css/drivers/scp/css_sds.c	\
 				plat/arm/css/drivers/sds/sds.c
   else
-    BL2U_SOURCES	+=	drivers/arm/css/mhu/css_mhu.c			\
-				plat/arm/css/drivers/scp/css_bom_bootloader.c	\
-				plat/arm/css/drivers/scpi/css_scpi.c
+    BL2U_SOURCES	+=	drivers/arm/css/mhu/css_mhu.c		\
+				drivers/arm/css/scpi/css_scpi.c		\
+				plat/arm/css/drivers/scp/css_bom_bootloader.c
 
-    BL2_SOURCES		+=	drivers/arm/css/mhu/css_mhu.c			\
-				plat/arm/css/drivers/scp/css_bom_bootloader.c	\
-				plat/arm/css/drivers/scpi/css_scpi.c
+    BL2_SOURCES		+=	drivers/arm/css/mhu/css_mhu.c		\
+				drivers/arm/css/scpi/css_scpi.c		\
+				plat/arm/css/drivers/scp/css_bom_bootloader.c
     # Enable option to detect whether the SCP ROM firmware in use predates version
     # 1.7.0 and therefore, is incompatible.
     CSS_DETECT_PRE_1_7_0_SCP	:=	1

@@ -10,10 +10,10 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/css/css_mhu.h>
+#include <drivers/arm/css/css_scpi.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-#include "../scpi/css_scpi.h"
 #include "css_scp.h"
 
 /* ID of the MHU slot used for the BOM protocol */
