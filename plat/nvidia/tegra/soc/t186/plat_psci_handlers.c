@@ -22,14 +22,10 @@
 #include <smmu.h>
 #include <stdbool.h>
 #include <t18x_ari.h>
+#include <tegra186_private.h>
 #include <tegra_private.h>
 
 extern void memcpy16(void *dest, const void *src, unsigned int length);
-
-extern void prepare_cpu_pwr_dwn(void);
-extern void tegra186_cpu_reset_handler(void);
-extern uint64_t __tegra186_cpu_reset_handler_end,
-		__tegra186_smmu_context;
 
 /* state id mask */
 #define TEGRA186_STATE_ID_MASK		0xFU
@@ -125,12 +121,11 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 		/* save 'Secure Boot' Processor Feature Config Register */
 		val = mmio_read_32(TEGRA_MISC_BASE + MISCREG_PFCFG);
-		mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV6, val);
+		mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SECURE_BOOTP_FCFG, val);
 
 		/* save SMMU context to TZDRAM */
 		smmu_ctx_base = params_from_bl2->tzdram_base +
-			((uintptr_t)&__tegra186_smmu_context -
-			 (uintptr_t)&tegra186_cpu_reset_handler);
+				tegra186_get_smmu_ctx_offset();
 		tegra_smmu_save_context((uintptr_t)smmu_ctx_base);
 
 		/* Prepare for system suspend */
@@ -139,6 +134,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		cstate_info.system_state_force = 1;
 		cstate_info.update_wake_mask = 1;
 		mce_update_cstate_info(&cstate_info);
+
 		/* Loop until system suspend is allowed */
 		do {
 			val = (uint32_t)mce_command_handler(
@@ -151,6 +147,10 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		/* Instruct the MCE to enter system suspend state */
 		(void)mce_command_handler((uint64_t)MCE_CMD_ENTER_CSTATE,
 			(uint64_t)TEGRA_ARI_CORE_C7, MCE_CORE_SLEEP_TIME_INFINITE, 0U);
+
+		/* set system suspend state for house-keeping */
+		tegra186_set_system_suspend_entry();
+
 	} else {
 		; /* do nothing */
 	}
@@ -281,8 +281,7 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		 * BL3-1 over to TZDRAM.
 		 */
 		val = params_from_bl2->tzdram_base +
-			((uintptr_t)&__tegra186_cpu_reset_handler_end -
-			 (uintptr_t)&tegra186_cpu_reset_handler);
+			tegra186_get_cpu_reset_handler_size();
 		memcpy16((void *)(uintptr_t)val, (void *)(uintptr_t)BL31_BASE,
 			 (uintptr_t)&__BL31_END__ - (uintptr_t)BL31_BASE);
 	}
@@ -297,7 +296,7 @@ int32_t tegra_soc_pwr_domain_on(u_register_t mpidr)
 	uint64_t target_cluster = (mpidr & MPIDR_CLUSTER_MASK) >>
 			MPIDR_AFFINITY_BITS;
 
-	if (target_cluster > MPIDR_AFFLVL1) {
+	if (target_cluster > ((uint32_t)PLATFORM_CLUSTER_COUNT - 1U)) {
 
 		ERROR("%s: unsupported CPU (0x%lx)\n", __func__, mpidr);
 		ret = PSCI_E_NOT_PRESENT;

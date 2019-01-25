@@ -11,14 +11,8 @@ $(eval $(call add_define,ENABLE_AFI_DEVICE))
 ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS	:= 1
 $(eval $(call add_define,ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS))
 
-RELOCATE_TO_BL31_BASE			:= 1
-$(eval $(call add_define,RELOCATE_TO_BL31_BASE))
-
 ENABLE_CHIP_VERIFICATION_HARNESS	:= 0
 $(eval $(call add_define,ENABLE_CHIP_VERIFICATION_HARNESS))
-
-ENABLE_SMMU_DEVICE			:= 1
-$(eval $(call add_define,ENABLE_SMMU_DEVICE))
 
 RESET_TO_BL31				:= 1
 
@@ -45,7 +39,8 @@ $(eval $(call add_define,MAX_MMAP_REGIONS))
 # platform files
 PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/include
 
-BL31_SOURCES		+=	lib/cpus/aarch64/denver.S		\
+BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S	\
+				lib/cpus/aarch64/denver.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
 				${COMMON_DIR}/drivers/gpcdma/gpcdma.c	\
 				${COMMON_DIR}/drivers/memctrl/memctrl_v2.c \

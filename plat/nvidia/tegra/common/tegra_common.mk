@@ -22,7 +22,6 @@ TEGRA_GICv2_SOURCES	:=	drivers/arm/gic/common/gic_common.c		\
 
 BL31_SOURCES		+=	drivers/console/aarch64/console.S		\
 				drivers/delay_timer/delay_timer.c		\
-				drivers/ti/uart/aarch64/16550_console.S		\
 				${TEGRA_GICv2_SOURCES}				\
 				${COMMON_DIR}/aarch64/tegra_helpers.S		\
 				${COMMON_DIR}/drivers/pmc/pmc.c			\

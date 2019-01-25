@@ -8,6 +8,7 @@
 
 #include <smmu.h>
 #include <tegra_def.h>
+#include <tegra_mc_def.h>
 
 #define MAX_NUM_SMMU_DEVICES	U(1)
 

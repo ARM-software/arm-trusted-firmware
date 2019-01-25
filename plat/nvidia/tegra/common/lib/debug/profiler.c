@@ -26,8 +26,6 @@
 #include <mmio.h>
 #include <profiler.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdint.h>
 #include <string.h>
 #include <utils_def.h>
 #include <xlat_tables_v2.h>

@@ -125,7 +125,7 @@ int tegra_bpmp_init(void)
 		val = mmio_read_32(TEGRA_RES_SEMA_BASE + STA_OFFSET);
 		if (val != SIGN_OF_LIFE) {
 			ERROR("BPMP precessor not available\n");
-			ret = -ENOTSUP;
+			return -ENOTSUP;
 		}
 
 		/* check if clock for the atomics block is enabled */
@@ -158,8 +158,7 @@ int tegra_bpmp_init(void)
 		}
 
 		/* mark state as "initialized" */
-		if (ret == 0)
-			bpmp_init_state = BPMP_INIT_COMPLETE;
+		bpmp_init_state = BPMP_INIT_COMPLETE;
 
 		/* the channel values have to be visible across all cpus */
 		flush_dcache_range((uint64_t)channel_base, sizeof(channel_base));

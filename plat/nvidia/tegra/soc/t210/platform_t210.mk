@@ -24,9 +24,10 @@ $(eval $(call add_define,MAX_MMAP_REGIONS))
 
 PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/se
 
-BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S			\
+BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S		\
+				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
-				${COMMON_DIR}/drivers/bpmp/bpmp.c	\
+				${COMMON_DIR}/drivers/bpmp/bpmp.c		\
 				${COMMON_DIR}/drivers/flowctrl/flowctrl.c	\
 				${COMMON_DIR}/drivers/memctrl/memctrl_v1.c	\
 				${SOC_DIR}/plat_psci_handlers.c			\

@@ -40,7 +40,7 @@
  * the number of power domains at the highest power level.
  *******************************************************************************
  */
-const uint8_t tegra_power_domain_tree_desc[] = {
+static const uint8_t tegra_power_domain_tree_desc[] = {
 	/* No of root nodes */
 	1,
 	/* No of clusters */
@@ -211,7 +211,7 @@ struct tegra_bl31_params *plat_get_bl31_params(void)
 {
 	uint32_t val;
 
-	val = mmio_read_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV53_LO);
+	val = mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PARAMS_ADDR);
 
 	return (struct tegra_bl31_params *)(uintptr_t)val;
 }
@@ -223,7 +223,7 @@ plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
 {
 	uint32_t val;
 
-	val = mmio_read_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV53_HI);
+	val = mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PLAT_PARAMS_ADDR);
 
 	return (plat_params_from_bl2_t *)(uintptr_t)val;
 }

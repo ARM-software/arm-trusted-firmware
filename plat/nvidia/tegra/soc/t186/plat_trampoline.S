@@ -10,23 +10,32 @@
 #include <plat/common/common_def.h>
 #include <tegra_def.h>
 
+#define TEGRA186_STATE_SYSTEM_SUSPEND	0x5C7
+#define TEGRA186_STATE_SYSTEM_RESUME	0x600D
 #define TEGRA186_SMMU_CTX_SIZE		0x420
 
 	.globl	tegra186_cpu_reset_handler
 
 /* CPU reset handler routine */
 func tegra186_cpu_reset_handler _align=4
-	/*
-	 * The TZRAM loses state during System Suspend. We use this
-	 * information to decide if the reset handler is running after a
-	 * System Suspend. Resume from system suspend requires restoring
-	 * the entire state from TZDRAM to TZRAM.
-	 */
-	mov	x0, #BL31_BASE
-	ldr	x0, [x0]
-	cbnz	x0, boot_cpu
+	/* check if we are exiting system suspend state */
+	adr	x0, __tegra186_system_suspend_state
+	ldr	x1, [x0]
+	mov	x2, #TEGRA186_STATE_SYSTEM_SUSPEND
+	lsl	x2, x2, #16
+	add	x2, x2, #TEGRA186_STATE_SYSTEM_SUSPEND
+	cmp	x1, x2
+	bne	boot_cpu
 
-	/* resume from system suspend */
+	/* set system resume state */
+	mov	x1, #TEGRA186_STATE_SYSTEM_RESUME
+	lsl	x1, x1, #16
+	mov	x2, #TEGRA186_STATE_SYSTEM_RESUME
+	add	x1, x1, x2
+	str	x1, [x0]
+	dsb	sy
+
+	/* prepare to relocate to TZSRAM */
 	mov	x0, #BL31_BASE
 	adr	x1, __tegra186_cpu_reset_handler_end
 	adr	x2, __tegra186_cpu_reset_handler_data
@@ -69,6 +78,12 @@ endfunc tegra186_cpu_reset_handler
 __tegra186_cpu_reset_handler_data:
 	.quad	tegra_secure_entrypoint
 	.quad	__BL31_END__ - BL31_BASE
+
+	.globl	__tegra186_system_suspend_state
+__tegra186_system_suspend_state:
+	.quad	0
+
+	.align 4
 	.globl	__tegra186_smmu_context
 __tegra186_smmu_context:
 	.rept	TEGRA186_SMMU_CTX_SIZE
@@ -80,3 +95,50 @@ __tegra186_smmu_context:
 	.align 4
 	.globl	__tegra186_cpu_reset_handler_end
 __tegra186_cpu_reset_handler_end:
+
+	.globl tegra186_get_cpu_reset_handler_size
+	.globl tegra186_get_cpu_reset_handler_base
+	.globl tegra186_get_smmu_ctx_offset
+	.globl tegra186_set_system_suspend_entry
+
+/* return size of the CPU reset handler */
+func tegra186_get_cpu_reset_handler_size
+	adr	x0, __tegra186_cpu_reset_handler_end
+	adr	x1, tegra186_cpu_reset_handler
+	sub	x0, x0, x1
+	ret
+endfunc tegra186_get_cpu_reset_handler_size
+
+/* return the start address of the CPU reset handler */
+func tegra186_get_cpu_reset_handler_base
+	adr	x0, tegra186_cpu_reset_handler
+	ret
+endfunc tegra186_get_cpu_reset_handler_base
+
+/* return the size of the SMMU context */
+func tegra186_get_smmu_ctx_offset
+	adr	x0, __tegra186_smmu_context
+	adr	x1, tegra186_cpu_reset_handler
+	sub	x0, x0, x1
+	ret
+endfunc tegra186_get_smmu_ctx_offset
+
+/* set system suspend state before SC7 entry */
+func tegra186_set_system_suspend_entry
+	mov	x0, #TEGRA_MC_BASE
+	mov	x3, #MC_SECURITY_CFG3_0
+	ldr	w1, [x0, x3]
+	lsl	x1, x1, #32
+	mov	x3, #MC_SECURITY_CFG0_0
+	ldr	w2, [x0, x3]
+	orr	x3, x1, x2			/* TZDRAM base */
+	adr	x0, __tegra186_system_suspend_state
+	adr	x1, tegra186_cpu_reset_handler
+	sub	x2, x0, x1			/* offset in TZDRAM */
+	mov	x0, #TEGRA186_STATE_SYSTEM_SUSPEND
+	lsl	x0, x0, #16
+	add	x0, x0, #TEGRA186_STATE_SYSTEM_SUSPEND
+	str	x0, [x3, x2]			/* set value in TZDRAM */
+	dsb	sy
+	ret
+endfunc tegra186_set_system_suspend_entry

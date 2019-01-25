@@ -64,19 +64,17 @@
 #define MCA_ARG_FINISH_MASK			U(0xFF)
 
 /*******************************************************************************
- * Uncore PERFMON ARI struct
+ * Uncore PERFMON ARI macros
  ******************************************************************************/
 #define UNCORE_PERFMON_CMD_READ			U(0)
 #define UNCORE_PERFMON_CMD_WRITE		U(1)
 
 #define UNCORE_PERFMON_CMD_MASK			U(0xFF)
-#define UNCORE_PERFMON_CMD_SHIFT		U(24)
 #define UNCORE_PERFMON_UNIT_GRP_MASK		U(0xF)
 #define UNCORE_PERFMON_SELECTOR_MASK		U(0xF)
 #define UNCORE_PERFMON_REG_MASK			U(0xFF)
 #define UNCORE_PERFMON_CTR_MASK			U(0xFF)
 #define UNCORE_PERFMON_RESP_STATUS_MASK		U(0xFF)
-#define UNCORE_PERFMON_RESP_STATUS_SHIFT	U(24)
 
 /*******************************************************************************
  * Structure populated by arch specific code to export routines which perform

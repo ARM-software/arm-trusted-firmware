@@ -135,6 +135,7 @@
 #define MC_GSC_BASE_LO_MASK		U(0xFFFFF)
 #define MC_GSC_BASE_HI_SHIFT		U(0)
 #define MC_GSC_BASE_HI_MASK		U(3)
+#define MC_GSC_ENABLE_CPU_SECURE_BIT    (U(1) << 31)
 
 /* TZDRAM carveout configuration registers */
 #define MC_SECURITY_CFG0_0		U(0x70)
@@ -165,7 +166,10 @@
 #define MC_TZRAM_BASE_LO		U(0x2194)
 #define MC_TZRAM_BASE_HI		U(0x2198)
 #define MC_TZRAM_SIZE			U(0x219C)
-#define MC_TZRAM_CLIENT_ACCESS_CFG0	U(0x21A0)
+#define MC_TZRAM_CLIENT_ACCESS0_CFG0	U(0x21A0)
+#define MC_TZRAM_CLIENT_ACCESS1_CFG0	U(0x21A4)
+#define  TZRAM_ALLOW_MPCORER		(U(1) << 7)
+#define  TZRAM_ALLOW_MPCOREW		(U(1) << 25)
 
 /*******************************************************************************
  * Tegra UART Controller constants
@@ -232,9 +236,18 @@
 #define  SECURE_SCRATCH_RSV11_HI	U(0x6AC)
 #define  SECURE_SCRATCH_RSV53_LO	U(0x7F8)
 #define  SECURE_SCRATCH_RSV53_HI	U(0x7FC)
-#define  SECURE_SCRATCH_RSV54_HI	U(0x804)
 #define  SECURE_SCRATCH_RSV55_LO	U(0x808)
 #define  SECURE_SCRATCH_RSV55_HI	U(0x80C)
+
+#define SCRATCH_RESET_VECTOR_LO		SECURE_SCRATCH_RSV1_LO
+#define SCRATCH_RESET_VECTOR_HI		SECURE_SCRATCH_RSV1_HI
+#define SCRATCH_SECURE_BOOTP_FCFG	SECURE_SCRATCH_RSV6
+#define SCRATCH_SMMU_TABLE_ADDR_LO	SECURE_SCRATCH_RSV11_LO
+#define SCRATCH_SMMU_TABLE_ADDR_HI	SECURE_SCRATCH_RSV11_HI
+#define SCRATCH_BL31_PARAMS_ADDR	SECURE_SCRATCH_RSV53_LO
+#define SCRATCH_BL31_PLAT_PARAMS_ADDR	SECURE_SCRATCH_RSV53_HI
+#define SCRATCH_TZDRAM_ADDR_LO		SECURE_SCRATCH_RSV55_LO
+#define SCRATCH_TZDRAM_ADDR_HI		SECURE_SCRATCH_RSV55_HI
 
 /*******************************************************************************
  * Tegra Memory Mapped Control Register Access constants
