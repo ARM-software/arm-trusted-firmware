@@ -20,11 +20,28 @@ static bl_params_t next_bl_params;
  ******************************************************************************/
 void flush_bl_params_desc(void)
 {
-	flush_dcache_range((uintptr_t)bl_mem_params_desc_ptr,
-			sizeof(*bl_mem_params_desc_ptr) * bl_mem_params_desc_num);
+	flush_bl_params_desc_args(bl_mem_params_desc_ptr,
+		bl_mem_params_desc_num,
+		&next_bl_params);
+}
 
-	flush_dcache_range((uintptr_t)&next_bl_params,
-			sizeof(next_bl_params));
+/*******************************************************************************
+ * This function flushes the data structures specified as arguments so that they
+ * are visible in memory for the next BL image.
+ ******************************************************************************/
+void flush_bl_params_desc_args(bl_mem_params_node_t *mem_params_desc_ptr,
+	unsigned int mem_params_desc_num,
+	bl_params_t *next_bl_params_ptr)
+{
+	assert(mem_params_desc_ptr != NULL);
+	assert(mem_params_desc_num != 0U);
+	assert(next_bl_params_ptr != NULL);
+
+	flush_dcache_range((uintptr_t)mem_params_desc_ptr,
+		sizeof(*mem_params_desc_ptr) * mem_params_desc_num);
+
+	flush_dcache_range((uintptr_t)next_bl_params_ptr,
+			sizeof(*next_bl_params_ptr));
 }
 
 /*******************************************************************************

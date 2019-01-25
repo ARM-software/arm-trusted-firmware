@@ -11,6 +11,7 @@
 #include <common/desc_image_load.h>
 #include <plat/common/platform.h>
 
+#include <plat_arm.h>
 #include <sgi_variant.h>
 
 /*******************************************************************************
@@ -72,14 +73,11 @@ static int plat_sgi_append_config_node(void)
 bl_params_t *plat_get_next_bl_params(void)
 {
 	int ret;
-	bl_params_t *next_bl_params;
 
 	ret = plat_sgi_append_config_node();
 	if (ret != 0)
 		panic();
 
-	next_bl_params = get_next_bl_params_from_mem_params_desc();
-	populate_next_bl_params_config(next_bl_params);
-
-	return next_bl_params;
+	return arm_get_next_bl_params();
 }
+
