@@ -21,7 +21,6 @@
 
 #include "uniphier.h"
 
-#define BL2_END			(unsigned long)(&__BL2_END__)
 #define BL2_SIZE		((BL2_END) - (BL2_BASE))
 
 static int uniphier_bl2_kick_scp;

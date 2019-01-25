@@ -25,14 +25,6 @@
 #include "hi3798cv200.h"
 #include "plat_private.h"
 
-/* Memory ranges for code and RO data sections */
-#define BL31_RO_BASE	(unsigned long)(&__RO_START__)
-#define BL31_RO_LIMIT	(unsigned long)(&__RO_END__)
-
-/* Memory ranges for coherent memory section */
-#define BL31_COHERENT_RAM_BASE	(unsigned long)(&__COHERENT_RAM_START__)
-#define BL31_COHERENT_RAM_LIMIT	(unsigned long)(&__COHERENT_RAM_END__)
-
 #define TZPC_SEC_ATTR_CTRL_VALUE (0x9DB98D45)
 
 static entry_point_info_t bl32_image_ep_info;
@@ -133,10 +125,10 @@ void bl31_plat_arch_setup(void)
 {
 	plat_configure_mmu_el3(BL31_BASE,
 			       (BL31_LIMIT - BL31_BASE),
-			       BL31_RO_BASE,
-			       BL31_RO_LIMIT,
-			       BL31_COHERENT_RAM_BASE,
-			       BL31_COHERENT_RAM_LIMIT);
+			       BL_CODE_BASE,
+			       BL_CODE_END,
+			       BL_COHERENT_RAM_BASE,
+			       BL_COHERENT_RAM_END);
 
 	INFO("Boot BL33 from 0x%lx for %lu Bytes\n",
 	     bl33_image_ep_info.pc, bl33_image_ep_info.args.arg2);
