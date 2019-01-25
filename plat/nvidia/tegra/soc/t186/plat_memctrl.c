@@ -219,9 +219,7 @@ static void tegra186_memctrl_reconfig_mss_clients(void)
 	assert(val == MC_CLIENT_HOTRESET_CTRL0_RESET_VAL);
 
 	wdata_0 = MC_CLIENT_HOTRESET_CTRL0_HDA_FLUSH_ENB |
-#if ENABLE_AFI_DEVICE
 		  MC_CLIENT_HOTRESET_CTRL0_AFI_FLUSH_ENB |
-#endif
 		  MC_CLIENT_HOTRESET_CTRL0_SATA_FLUSH_ENB |
 		  MC_CLIENT_HOTRESET_CTRL0_XUSB_HOST_FLUSH_ENB |
 		  MC_CLIENT_HOTRESET_CTRL0_XUSB_DEV_FLUSH_ENB;
@@ -271,9 +269,7 @@ static void tegra186_memctrl_reconfig_mss_clients(void)
 	 * MC clients with default SO_DEV override still enabled at TSA:
 	 * AONW, BPMPW, SCEW, APEW
 	 */
-#if ENABLE_AFI_DEVICE
 	mc_set_tsa_passthrough(AFIW);
-#endif
 	mc_set_tsa_passthrough(HDAW);
 	mc_set_tsa_passthrough(SATAW);
 	mc_set_tsa_passthrough(XUSB_HOSTW);
@@ -413,9 +409,7 @@ static void tegra186_memctrl_reconfig_mss_clients(void)
 	 * boot and strongly ordered MSS clients
 	 */
 	val = MC_PCFIFO_CLIENT_CONFIG1_RESET_VAL &
-#if ENABLE_AFI_DEVICE
 		mc_set_pcfifo_unordered_boot_so_mss(1, AFIW) &
-#endif
 		mc_set_pcfifo_unordered_boot_so_mss(1, HDAW) &
 		mc_set_pcfifo_unordered_boot_so_mss(1, SATAW);
 	tegra_mc_write_32(MC_PCFIFO_CLIENT_CONFIG1, val);
