@@ -2031,7 +2031,6 @@ accessed by multiple CPUs, either with caches enabled or disabled.
 
         /*
          * Index of the parent power domain node.
-         * TODO: Figure out whether to whether using pointer is more efficient.
          */
         unsigned int parent_node;
 
