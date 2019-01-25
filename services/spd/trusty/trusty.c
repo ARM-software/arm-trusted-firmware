@@ -420,7 +420,8 @@ static int32_t trusty_setup(void)
 	} else if (instr >> 8 == 0xd53810U || instr >> 16 == 0x9400U) {
 		INFO("trusty: Found 64 bit image\n");
 	} else {
-		NOTICE("trusty: Found unknown image, 0x%x\n", instr);
+		ERROR("trusty: Found unknown image, 0x%x\n", instr);
+		return -1;
 	}
 
 	SET_PARAM_HEAD(ep_info, PARAM_EP, VERSION_1, SECURE | EP_ST_ENABLE);
