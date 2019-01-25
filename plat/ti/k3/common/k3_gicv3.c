@@ -6,10 +6,12 @@
 
 #include <platform_def.h>
 
+#include <assert.h>
 #include <common/bl_common.h>
 #include <common/interrupt_props.h>
 #include <drivers/arm/gicv3.h>
 #include <lib/utils.h>
+#include <lib/mmio.h>
 #include <plat/common/platform.h>
 
 #include <k3_gicv3.h>
@@ -35,8 +37,25 @@ gicv3_driver_data_t k3_gic_data = {
 	.mpidr_to_core_pos = k3_mpidr_to_core_pos,
 };
 
-void k3_gic_driver_init(uintptr_t gicd_base, uintptr_t gicr_base)
+void k3_gic_driver_init(uintptr_t gic_base)
 {
+	/* GIC Distributor is always at the base of the IP */
+	uintptr_t gicd_base = gic_base;
+	/* GIC Redistributor base is run-time detected */
+	uintptr_t gicr_base = 0;
+
+	for (unsigned int gicr_shift = 18; gicr_shift < 21; gicr_shift++) {
+		uintptr_t gicr_check = gic_base + BIT(gicr_shift);
+		uint32_t iidr = mmio_read_32(gicr_check + GICR_IIDR);
+		if (iidr != 0) {
+			/* Found the GICR base */
+			gicr_base = gicr_check;
+			break;
+		}
+	}
+	/* Assert if we have not found the GICR base */
+	assert(gicr_base != 0);
+
 	/*
 	 * The GICv3 driver is initialized in EL3 and does not need
 	 * to be initialized again in SEL1. This is because the S-EL1
