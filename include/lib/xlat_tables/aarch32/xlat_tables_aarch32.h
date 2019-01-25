@@ -63,8 +63,7 @@
  * is 1.
  *
  * Note that this macro assumes that the given virtual address space size is
- * valid. Therefore, the caller is expected to check it is the case using the
- * CHECK_VIRT_ADDR_SPACE_SIZE() macro first.
+ * valid.
  */
 #define GET_XLAT_TABLE_LEVEL_BASE(_virt_addr_space_sz)			\
 	(((_virt_addr_space_sz) > (ULL(1) << L1_XLAT_ADDRESS_SHIFT)) ?	\

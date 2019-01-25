@@ -14,18 +14,6 @@
 #endif
 
 /*
- * Evaluates to 1 if the given virtual address space size is valid, or 0 if it's
- * not.
- *
- * A valid size is one that is a power of 2 and is within the architectural
- * limits. Not that these limits are different for AArch32 and AArch64.
- */
-#define CHECK_VIRT_ADDR_SPACE_SIZE(size)			\
-	(((unsigned long long)(size) >= MIN_VIRT_ADDR_SPACE_SIZE) &&	\
-	((unsigned long long)(size) <= MAX_VIRT_ADDR_SPACE_SIZE) &&	\
-	IS_POWER_OF_TWO(size))
-
-/*
  * Evaluates to 1 if the given physical address space size is a power of 2,
  * or 0 if it's not.
  */

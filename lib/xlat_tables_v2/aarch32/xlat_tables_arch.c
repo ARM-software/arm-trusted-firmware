@@ -45,6 +45,14 @@ unsigned long long xlat_arch_get_max_supported_pa(void)
 	/* Physical address space size for long descriptor format. */
 	return (1ULL << 40) - 1ULL;
 }
+
+/*
+ * Return minimum virtual address space size supported by the architecture
+ */
+uintptr_t xlat_get_min_virt_addr_space_size(void)
+{
+	return MIN_VIRT_ADDR_SPACE_SIZE;
+}
 #endif /* ENABLE_ASSERTIONS*/
 
 bool is_mmu_enabled_ctx(const xlat_ctx_t *ctx)
@@ -193,7 +201,12 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 	if (max_va != UINT32_MAX) {
 		uintptr_t virtual_addr_space_size = max_va + 1U;
 
-		assert(CHECK_VIRT_ADDR_SPACE_SIZE(virtual_addr_space_size));
+		assert(virtual_addr_space_size >=
+			xlat_get_min_virt_addr_space_size());
+		assert(virtual_addr_space_size <=
+			MAX_VIRT_ADDR_SPACE_SIZE);
+		assert(IS_POWER_OF_TWO(virtual_addr_space_size));
+
 		/*
 		 * __builtin_ctzll(0) is undefined but here we are guaranteed
 		 * that virtual_addr_space_size is in the range [1, UINT32_MAX].

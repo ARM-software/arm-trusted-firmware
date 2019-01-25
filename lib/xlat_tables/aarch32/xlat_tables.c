@@ -55,6 +55,11 @@ void init_xlat_tables(void)
 {
 	unsigned long long max_pa;
 	uintptr_t max_va;
+
+	assert(PLAT_VIRT_ADDR_SPACE_SIZE >= MIN_VIRT_ADDR_SPACE_SIZE);
+	assert(PLAT_VIRT_ADDR_SPACE_SIZE <= MAX_VIRT_ADDR_SPACE_SIZE);
+	assert(IS_POWER_OF_TWO(PLAT_VIRT_ADDR_SPACE_SIZE));
+
 	print_mmap();
 	init_xlation_table(0U, base_xlation_table, XLAT_TABLE_LEVEL_BASE,
 						&max_va, &max_pa);

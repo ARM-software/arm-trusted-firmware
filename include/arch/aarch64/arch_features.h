@@ -17,4 +17,10 @@ static inline bool is_armv8_2_ttcnp_present(void)
 		ID_AA64MMFR2_EL1_CNP_MASK) != 0U;
 }
 
+static inline bool is_armv8_4_ttst_present(void)
+{
+	return ((read_id_aa64mmfr2_el1() >> ID_AA64MMFR2_EL1_ST_SHIFT) &
+		ID_AA64MMFR2_EL1_ST_MASK) == 1U;
+}
+
 #endif /* ARCH_FEATURES_H */
