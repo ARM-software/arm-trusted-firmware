@@ -11,8 +11,7 @@
 #include <common/debug.h>
 #include <drivers/arm/pl011.h>
 #include <drivers/console.h>
-
-#include <plat_arm.h>
+#include <plat/arm/common/plat_arm.h>
 
 /*******************************************************************************
  * Functions that set up the console

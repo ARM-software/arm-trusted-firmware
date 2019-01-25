@@ -11,8 +11,7 @@
 #include <lib/psci/psci.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
-
-#include <plat_arm.h>
+#include <plat/arm/common/plat_arm.h>
 
 /*
  * DRAM1 is used also to load the NS boot loader. For this reason we

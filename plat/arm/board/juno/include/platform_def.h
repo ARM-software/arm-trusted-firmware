@@ -23,13 +23,13 @@
 #if TRUSTED_BOARD_BOOT
 #include <drivers/auth/mbedtls/mbedtls_config.h>
 #endif
+#include <plat/arm/board/common/board_css_def.h>
+#include <plat/arm/board/common/v2m_def.h>
+#include <plat/arm/common/arm_def.h>
+#include <plat/arm/css/common/css_def.h>
+#include <plat/arm/soc/common/soc_css_def.h>
 #include <plat/common/common_def.h>
 
-#include <arm_def.h>
-#include <board_css_def.h>
-#include <css_def.h>
-#include <soc_css_def.h>
-#include <v2m_def.h>
 #include "../juno_def.h"
 
 /* Required platform porting definitions */

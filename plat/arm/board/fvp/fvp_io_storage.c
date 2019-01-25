@@ -11,9 +11,8 @@
 #include <drivers/io/io_semihosting.h>
 #include <drivers/io/io_storage.h>
 #include <lib/semihosting.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/common_def.h>
-
-#include <plat_arm.h>
 
 /* Semihosting filenames */
 #define BL2_IMAGE_NAME			"bl2.bin"

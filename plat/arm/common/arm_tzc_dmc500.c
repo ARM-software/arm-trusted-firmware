@@ -10,8 +10,7 @@
 
 #include <common/debug.h>
 #include <drivers/arm/tzc_dmc500.h>
-
-#include <plat_arm.h>
+#include <plat/arm/common/plat_arm.h>
 
 /*******************************************************************************
  * Initialize the DMC500-TrustZone Controller for ARM standard platforms.

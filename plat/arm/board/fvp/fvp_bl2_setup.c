@@ -7,10 +7,10 @@
 #include <drivers/arm/sp804_delay_timer.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-#include <plat_arm.h>
 #include "fvp_private.h"
 
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3)

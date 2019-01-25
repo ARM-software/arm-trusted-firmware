@@ -11,9 +11,8 @@
 
 #include <arch_helpers.h>
 #include <lib/psci/psci.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-
-#include <plat_arm.h>
 
 /* Allow ARM Standard platforms to override these functions */
 #pragma weak plat_arm_program_trusted_mailbox

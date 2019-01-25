@@ -7,7 +7,7 @@
 #ifndef FVP_PRIVATE_H
 #define FVP_PRIVATE_H
 
-#include <plat_arm.h>
+#include <plat/arm/common/plat_arm.h>
 
 /*******************************************************************************
  * Function and variable prototypes

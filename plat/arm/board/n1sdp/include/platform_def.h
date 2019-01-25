@@ -7,9 +7,9 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-#include <arm_def.h>
-#include <css_def.h>
-#include <v2m_def.h>
+#include <plat/arm/board/common/v2m_def.h>
+#include <plat/arm/common/arm_def.h>
+#include <plat/arm/css/common/css_def.h>
 
 /* UART related constants */
 #define PLAT_ARM_BOOT_UART_BASE			0x2A400000

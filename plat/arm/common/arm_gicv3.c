@@ -9,9 +9,8 @@
 #include <common/interrupt_props.h>
 #include <drivers/arm/gicv3.h>
 #include <lib/utils.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-
-#include <plat_arm.h>
 
 /******************************************************************************
  * The following functions are defined as weak to allow a platform to override

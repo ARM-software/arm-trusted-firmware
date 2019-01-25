@@ -14,9 +14,8 @@
 #include <drivers/arm/pl011.h>
 #include <drivers/console.h>
 #include <lib/mmio.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-
-#include <plat_arm.h>
 
 static entry_point_info_t bl33_image_ep_info;
 

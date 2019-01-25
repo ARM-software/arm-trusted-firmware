@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <plat/arm/common/plat_arm.h>
+#include <plat/arm/css/common/css_pm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-#include <css_pm.h>
-#include <plat_arm.h>
 #include "../../css/drivers/scmi/scmi.h"
 #include "../../css/drivers/mhu/css_mhu_doorbell.h"
 

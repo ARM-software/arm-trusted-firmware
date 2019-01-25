@@ -6,9 +6,9 @@
 
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
+#include <plat/arm/common/plat_arm.h>
 #include <platform_def.h>
 
-#include <plat_arm.h>
 #include "../../fvp_private.h"
 #include "fvp_pwrc.h"
 

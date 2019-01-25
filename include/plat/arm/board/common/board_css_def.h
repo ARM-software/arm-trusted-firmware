@@ -8,10 +8,9 @@
 #define BOARD_CSS_DEF_H
 
 #include <lib/utils_def.h>
+#include <plat/arm/board/common/v2m_def.h>
+#include <plat/arm/soc/common/soc_css_def.h>
 #include <plat/common/common_def.h>
-
-#include <soc_css_def.h>
-#include <v2m_def.h>
 
 /*
  * Definitions common to all ARM CSS-based development platforms

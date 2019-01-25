@@ -7,8 +7,8 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/console.h>
+#include <plat/arm/common/plat_arm.h>
 
-#include <plat_arm.h>
 #include <plat_private.h>
 #include <platform_tsp.h>
 

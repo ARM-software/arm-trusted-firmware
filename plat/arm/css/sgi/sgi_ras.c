@@ -10,12 +10,12 @@
 #include <bl31/interrupt_mgmt.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/extensions/ras.h>
+#include <plat/arm/common/arm_spm_def.h>
 #include <plat/common/platform.h>
 #include <services/mm_svc.h>
 #include <services/sdei.h>
 #include <services/spm_svc.h>
 
-#include <arm_spm_def.h>
 #include <sgi_ras.h>
 
 static int sgi_ras_intr_handler(const struct err_record_info *err_rec,

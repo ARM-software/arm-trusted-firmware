@@ -10,10 +10,10 @@
 #include <common/debug.h>
 #include <common/tbbr/tbbr_img_def.h>
 #include <drivers/arm/sp805.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-#include <plat_arm.h>
 #include <sds.h>
 
 void juno_reset_to_aarch32_state(void);

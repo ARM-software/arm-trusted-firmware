@@ -11,8 +11,7 @@
 #include <arch_helpers.h>
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
-
-#include <plat_arm.h>
+#include <plat/arm/common/plat_arm.h>
 
 #include "css_mhu.h"
 

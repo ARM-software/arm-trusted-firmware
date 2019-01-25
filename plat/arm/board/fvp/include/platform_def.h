@@ -20,11 +20,10 @@
 
 #include <drivers/arm/tzc400.h>
 #include <lib/utils_def.h>
+#include <plat/arm/board/common/v2m_def.h>
+#include <plat/arm/common/arm_def.h>
+#include <plat/arm/common/arm_spm_def.h>
 #include <plat/common/common_def.h>
-
-#include <arm_def.h>
-#include <arm_spm_def.h>
-#include <v2m_def.h>
 
 #include "../fvp_def.h"
 

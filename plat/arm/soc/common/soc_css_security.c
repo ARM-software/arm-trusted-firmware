@@ -8,8 +8,7 @@
 
 #include <drivers/arm/nic_400.h>
 #include <lib/mmio.h>
-
-#include <soc_css.h>
+#include <plat/arm/soc/common/soc_css.h>
 
 void soc_css_init_nic400(void)
 {

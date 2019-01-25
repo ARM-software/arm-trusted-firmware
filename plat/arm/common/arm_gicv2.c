@@ -7,9 +7,8 @@
 #include <platform_def.h>
 
 #include <drivers/arm/gicv2.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-
-#include <plat_arm.h>
 
 /******************************************************************************
  * The following functions are defined as weak to allow a platform to override

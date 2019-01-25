@@ -11,9 +11,10 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/console.h>
-#include <plat_arm.h>
-#include <plat_private.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
+
+#include <plat_private.h>
 
 #define BL31_END (unsigned long)(&__BL31_END__)
 

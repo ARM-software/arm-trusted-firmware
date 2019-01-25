@@ -7,9 +7,8 @@
 #include <assert.h>
 #include <common/bl_common.h>
 #include <common/desc_image_load.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-
-#include <plat_arm.h>
 
 #pragma weak plat_flush_next_bl_params
 #pragma weak plat_get_bl_image_load_info

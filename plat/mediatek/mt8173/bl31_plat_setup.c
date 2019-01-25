@@ -11,13 +11,13 @@
 #include <drivers/console.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/common_def.h>
 #include <plat/common/platform.h>
 
 #include <mcucfg.h>
 #include <mtcmos.h>
 #include <mtk_plat_common.h>
-#include <plat_arm.h>
 #include <plat_private.h>
 #include <spm.h>
 

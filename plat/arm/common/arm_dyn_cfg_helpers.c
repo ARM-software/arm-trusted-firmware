@@ -10,9 +10,8 @@
 
 #include <common/desc_image_load.h>
 #include <common/fdt_wrappers.h>
-
-#include <arm_dyn_cfg_helpers.h>
-#include <plat_arm.h>
+#include <plat/arm/common/arm_dyn_cfg_helpers.h>
+#include <plat/arm/common/plat_arm.h>
 
 #define DTB_PROP_MBEDTLS_HEAP_ADDR "mbedtls_heap_addr"
 #define DTB_PROP_MBEDTLS_HEAP_SIZE "mbedtls_heap_size"

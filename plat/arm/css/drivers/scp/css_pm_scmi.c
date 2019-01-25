@@ -9,11 +9,10 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <plat/arm/common/plat_arm.h>
+#include <plat/arm/css/common/css_pm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
-
-#include <css_pm.h>
-#include <plat_arm.h>
 
 #include "../scmi/scmi.h"
 #include "css_scp.h"

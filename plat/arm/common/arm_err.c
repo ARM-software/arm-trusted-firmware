@@ -13,9 +13,8 @@
 #include <common/debug.h>
 #include <drivers/cfi/v2m_flash.h>
 #include <drivers/console.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-
-#include <plat_arm.h>
 
 #pragma weak plat_arm_error_handler
 

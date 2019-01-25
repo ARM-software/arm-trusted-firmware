@@ -45,8 +45,7 @@ ifdef ZYNQMP_WDT_RESTART
 $(eval $(call add_define,ZYNQMP_WDT_RESTART))
 endif
 
-PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
-				-Iinclude/plat/arm/common/aarch64/		\
+PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/aarch64/		\
 				-Iplat/xilinx/common/include/			\
 				-Iplat/xilinx/zynqmp/include/			\
 				-Iplat/xilinx/zynqmp/pm_service/		\

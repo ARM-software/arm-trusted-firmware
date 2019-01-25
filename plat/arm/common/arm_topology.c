@@ -7,8 +7,7 @@
 #include <platform_def.h>
 
 #include <arch.h>
-
-#include <plat_arm.h>
+#include <plat/arm/common/plat_arm.h>
 
 /*******************************************************************************
  * This function validates an MPIDR by checking whether it falls within the

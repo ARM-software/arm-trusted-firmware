@@ -12,12 +12,11 @@
 #include <drivers/arm/gicv2.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
+#include <plat/arm/common/arm_config.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 #include <services/secure_partition.h>
-
-#include <arm_config.h>
-#include <plat_arm.h>
 
 #include "fvp_private.h"
 

@@ -8,10 +8,10 @@
 
 #include <arch.h>
 #include <lib/cassert.h>
+#include <plat/arm/common/arm_config.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
-#include <plat_arm.h>
-#include <arm_config.h>
 #include "drivers/pwrc/fvp_pwrc.h"
 
 /* The FVP power domain tree descriptor */

@@ -6,10 +6,10 @@
 
 #include <common/debug.h>
 #include <drivers/arm/tzc_dmc500.h>
+#include <plat/arm/common/plat_arm.h>
+#include <plat/arm/soc/common/soc_css.h>
 
-#include <plat_arm.h>
 #include <sgm_variant.h>
-#include <soc_css.h>
 
 /* Is populated with the DMC-500 controllers base addresses */
 static tzc_dmc500_driver_data_t plat_driver_data;

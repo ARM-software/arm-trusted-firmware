@@ -11,8 +11,7 @@ CSS_LOAD_SCP_IMAGES	?=	1
 # By default, SCMI driver is disabled for CSS platforms
 CSS_USE_SCMI_SDS_DRIVER	?=	0
 
-PLAT_INCLUDES		+=	-Iinclude/plat/arm/css/common			\
-				-Iinclude/plat/arm/css/common/aarch64
+PLAT_INCLUDES		+=	-Iinclude/plat/arm/css/common/aarch64
 
 
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/css/common/${ARCH}/css_helpers.S

@@ -12,10 +12,9 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/cassert.h>
+#include <plat/arm/common/plat_arm.h>
+#include <plat/arm/css/common/css_pm.h>
 #include <plat/common/platform.h>
-
-#include <css_pm.h>
-#include <plat_arm.h>
 
 #include "../drivers/scp/css_scp.h"
 

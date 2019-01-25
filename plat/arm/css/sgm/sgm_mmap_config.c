@@ -8,8 +8,8 @@
 
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <plat/arm/common/plat_arm.h>
 
-#include <plat_arm.h>
 #include <sgm_variant.h>
 
 /*

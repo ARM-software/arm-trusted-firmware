@@ -9,14 +9,13 @@
 
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
+#include <plat/arm/board/common/board_css_def.h>
+#include <plat/arm/board/common/v2m_def.h>
+#include <plat/arm/common/arm_def.h>
+#include <plat/arm/common/arm_spm_def.h>
+#include <plat/arm/css/common/css_def.h>
+#include <plat/arm/soc/common/soc_css_def.h>
 #include <plat/common/common_def.h>
-
-#include <arm_def.h>
-#include <arm_spm_def.h>
-#include <board_css_def.h>
-#include <css_def.h>
-#include <soc_css_def.h>
-#include <v2m_def.h>
 
 #define PLATFORM_CORE_COUNT		(PLAT_ARM_CLUSTER_COUNT *	\
 					CSS_SGI_MAX_CPUS_PER_CLUSTER * \

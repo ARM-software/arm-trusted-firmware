@@ -5,9 +5,8 @@
  */
 
 #include <common/tbbr/tbbr_img_def.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-
-#include <plat_arm.h>
 
 #include "fvp_private.h"
 
