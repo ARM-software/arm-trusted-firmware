@@ -16,7 +16,7 @@
 #include <plat/common/platform.h>
 
 static uint8_t mbr_sector[PARTITION_BLOCK_SIZE];
-partition_entry_list_t list;
+static partition_entry_list_t list;
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
 static void dump_entries(int num)

@@ -183,7 +183,7 @@ static int dwufs_phy_set_pwr_mode(ufs_params_t *params)
 	return 0;
 }
 
-const ufs_ops_t dw_ufs_ops = {
+static const ufs_ops_t dw_ufs_ops = {
 	.phy_init		= dwufs_phy_init,
 	.phy_set_pwr_mode	= dwufs_phy_set_pwr_mode,
 };
