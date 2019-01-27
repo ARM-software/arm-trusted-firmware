@@ -22,12 +22,12 @@ static const timer_ops_t *timer_ops;
  ***********************************************************/
 void udelay(uint32_t usec)
 {
+	uint32_t start, delta, total_delta;
+
 	assert((timer_ops != NULL) &&
 		(timer_ops->clk_mult != 0U) &&
 		(timer_ops->clk_div != 0U) &&
 		(timer_ops->get_timer_value != NULL));
-
-	uint32_t start, delta, total_delta;
 
 	assert(usec < (UINT32_MAX / timer_ops->clk_div));
 

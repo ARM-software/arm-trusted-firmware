@@ -176,10 +176,11 @@ int io_dev_open(const io_dev_connector_t *dev_con, const uintptr_t dev_spec,
 int io_dev_init(uintptr_t dev_handle, const uintptr_t init_params)
 {
 	int result = 0;
+	io_dev_info_t *dev;
 	assert(dev_handle != (uintptr_t)NULL);
 	assert(is_valid_dev(dev_handle));
 
-	io_dev_info_t *dev = (io_dev_info_t *)dev_handle;
+	dev = (io_dev_info_t *)dev_handle;
 
 	/* Absence of registered function implies NOP here */
 	if (dev->funcs->dev_init != NULL) {
@@ -196,10 +197,11 @@ int io_dev_init(uintptr_t dev_handle, const uintptr_t init_params)
 int io_dev_close(uintptr_t dev_handle)
 {
 	int result = 0;
+	io_dev_info_t *dev;
 	assert(dev_handle != (uintptr_t)NULL);
 	assert(is_valid_dev(dev_handle));
 
-	io_dev_info_t *dev = (io_dev_info_t *)dev_handle;
+	dev = (io_dev_info_t *)dev_handle;
 
 	/* Absence of registered function implies NOP here */
 	if (dev->funcs->dev_close != NULL) {
@@ -217,11 +219,12 @@ int io_dev_close(uintptr_t dev_handle)
 int io_open(uintptr_t dev_handle, const uintptr_t spec, uintptr_t *handle)
 {
 	int result;
+	io_dev_info_t *dev;
+	io_entity_t *entity;
 	assert((spec != (uintptr_t)NULL) && (handle != NULL));
 	assert(is_valid_dev(dev_handle));
 
-	io_dev_info_t *dev = (io_dev_info_t *)dev_handle;
-	io_entity_t *entity;
+	dev = (io_dev_info_t *)dev_handle;
 
 	result = allocate_entity(&entity);
 
@@ -243,11 +246,13 @@ int io_open(uintptr_t dev_handle, const uintptr_t spec, uintptr_t *handle)
 int io_seek(uintptr_t handle, io_seek_mode_t mode, ssize_t offset)
 {
 	int result = -ENODEV;
+	io_entity_t *entity;
+	io_dev_info_t *dev;
 	assert(is_valid_entity(handle) && is_valid_seek_mode(mode));
 
-	io_entity_t *entity = (io_entity_t *)handle;
+	entity = (io_entity_t *)handle;
 
-	io_dev_info_t *dev = entity->dev_handle;
+	dev = entity->dev_handle;
 
 	if (dev->funcs->seek != NULL)
 		result = dev->funcs->seek(entity, mode, offset);
@@ -260,11 +265,13 @@ int io_seek(uintptr_t handle, io_seek_mode_t mode, ssize_t offset)
 int io_size(uintptr_t handle, size_t *length)
 {
 	int result = -ENODEV;
+	io_entity_t *entity;
+	io_dev_info_t *dev;
 	assert(is_valid_entity(handle) && (length != NULL));
 
-	io_entity_t *entity = (io_entity_t *)handle;
+	entity = (io_entity_t *)handle;
 
-	io_dev_info_t *dev = entity->dev_handle;
+	dev = entity->dev_handle;
 
 	if (dev->funcs->size != NULL)
 		result = dev->funcs->size(entity, length);
@@ -280,11 +287,13 @@ int io_read(uintptr_t handle,
 		size_t *length_read)
 {
 	int result = -ENODEV;
+	io_entity_t *entity;
+	io_dev_info_t *dev;
 	assert(is_valid_entity(handle));
 
-	io_entity_t *entity = (io_entity_t *)handle;
+	entity = (io_entity_t *)handle;
 
-	io_dev_info_t *dev = entity->dev_handle;
+	dev = entity->dev_handle;
 
 	if (dev->funcs->read != NULL)
 		result = dev->funcs->read(entity, buffer, length, length_read);
@@ -300,11 +309,13 @@ int io_write(uintptr_t handle,
 		size_t *length_written)
 {
 	int result = -ENODEV;
+	io_entity_t *entity;
+	io_dev_info_t *dev;
 	assert(is_valid_entity(handle));
 
-	io_entity_t *entity = (io_entity_t *)handle;
+	entity = (io_entity_t *)handle;
 
-	io_dev_info_t *dev = entity->dev_handle;
+	dev = entity->dev_handle;
 
 	if (dev->funcs->write != NULL) {
 		result = dev->funcs->write(entity, buffer, length,
@@ -319,11 +330,13 @@ int io_write(uintptr_t handle,
 int io_close(uintptr_t handle)
 {
 	int result = 0;
+	io_entity_t *entity;
+	io_dev_info_t *dev;
 	assert(is_valid_entity(handle));
 
-	io_entity_t *entity = (io_entity_t *)handle;
+	entity = (io_entity_t *)handle;
 
-	io_dev_info_t *dev = entity->dev_handle;
+	dev = entity->dev_handle;
 
 	/* Absence of registered function implies NOP here */
 	if (dev->funcs->close != NULL)

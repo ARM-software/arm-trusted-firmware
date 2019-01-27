@@ -108,12 +108,14 @@ static int sh_file_seek(io_entity_t *entity, int mode, ssize_t offset)
 static int sh_file_len(io_entity_t *entity, size_t *length)
 {
 	int result = -ENOENT;
+	long sh_handle;
+	long sh_result;
 
 	assert(entity != NULL);
 	assert(length != NULL);
 
-	long sh_handle = (long)entity->info;
-	long sh_result = semihosting_file_length(sh_handle);
+	sh_handle = (long)entity->info;
+	sh_result = semihosting_file_length(sh_handle);
 
 	if (sh_result >= 0) {
 		result = 0;

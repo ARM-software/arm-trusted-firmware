@@ -616,13 +616,14 @@ void gicv3_rdistif_init_restore(unsigned int proc_num,
 void gicv3_distif_save(gicv3_dist_ctx_t * const dist_ctx)
 {
 	unsigned int num_ints;
+	uintptr_t gicd_base;
 
 	assert(gicv3_driver_data != NULL);
 	assert(gicv3_driver_data->gicd_base != 0U);
 	assert(IS_IN_EL3());
 	assert(dist_ctx != NULL);
 
-	uintptr_t gicd_base = gicv3_driver_data->gicd_base;
+	gicd_base = gicv3_driver_data->gicd_base;
 
 	num_ints = gicd_read_typer(gicd_base);
 	num_ints &= TYPER_IT_LINES_NO_MASK;
@@ -680,13 +681,14 @@ void gicv3_distif_save(gicv3_dist_ctx_t * const dist_ctx)
 void gicv3_distif_init_restore(const gicv3_dist_ctx_t * const dist_ctx)
 {
 	unsigned int num_ints = 0U;
+	uintptr_t gicd_base;
 
 	assert(gicv3_driver_data != NULL);
 	assert(gicv3_driver_data->gicd_base != 0U);
 	assert(IS_IN_EL3());
 	assert(dist_ctx != NULL);
 
-	uintptr_t gicd_base = gicv3_driver_data->gicd_base;
+	gicd_base = gicv3_driver_data->gicd_base;
 
 	/*
 	 * Clear the "enable" bits for G0/G1S/G1NS interrupts before configuring
