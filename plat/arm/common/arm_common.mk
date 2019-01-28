@@ -141,9 +141,6 @@ ifeq (${ARM_CRYPTOCELL_INTEG},1)
     endif
 endif
 
-PLAT_INCLUDES		+=	-Iinclude/common/tbbr				\
-				-Iinclude/plat/arm/common
-
 ifeq (${ARCH}, aarch64)
 PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/aarch64
 endif
@@ -256,8 +253,6 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 				drivers/auth/crypto_mod.c			\
 				drivers/auth/img_parser_mod.c			\
 				drivers/auth/tbbr/tbbr_cot.c			\
-
-    PLAT_INCLUDES	+=	-Iinclude/bl1/tbbr
 
     BL1_SOURCES		+=	${AUTH_SOURCES}					\
 				bl1/tbbr/tbbr_img_desc.c			\

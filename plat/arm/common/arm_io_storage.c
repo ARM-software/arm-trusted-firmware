@@ -15,10 +15,9 @@
 #include <drivers/io/io_memmap.h>
 #include <drivers/io/io_storage.h>
 #include <lib/utils.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <tools_share/firmware_image_package.h>
-
-#include <plat_arm.h>
 
 /* IO devices */
 static const io_dev_connector_t *fip_dev_con;

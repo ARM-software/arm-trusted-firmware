@@ -9,13 +9,13 @@ BL32_SOURCES		+=	plat/arm/css/common/css_pm.c			\
 				plat/arm/css/common/css_topology.c
 
 ifeq (${CSS_USE_SCMI_SDS_DRIVER},0)
-BL32_SOURCES		+=	plat/arm/css/drivers/scp/css_pm_scpi.c		\
-				plat/arm/css/drivers/mhu/css_mhu.c		\
-				plat/arm/css/drivers/scpi/css_scpi.c
+BL32_SOURCES		+=	drivers/arm/css/mhu/css_mhu.c			\
+				drivers/arm/css/scp/css_pm_scpi.c		\
+				drivers/arm/css/scpi/css_scpi.c
 else
-BL32_SOURCES		+=	plat/arm/css/drivers/scp/css_pm_scmi.c		\
-				plat/arm/css/drivers/scmi/scmi_common.c		\
-				plat/arm/css/drivers/scmi/scmi_pwr_dmn_proto.c	\
-				plat/arm/css/drivers/scmi/scmi_sys_pwr_proto.c	\
-				plat/arm/css/drivers/mhu/css_mhu_doorbell.c
+BL32_SOURCES		+=	drivers/arm/css/mhu/css_mhu_doorbell.c		\
+				drivers/arm/css/scp/css_pm_scmi.c		\
+				drivers/arm/css/scmi/scmi_common.c		\
+				drivers/arm/css/scmi/scmi_pwr_dmn_proto.c	\
+				drivers/arm/css/scmi/scmi_sys_pwr_proto.c
 endif

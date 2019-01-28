@@ -9,8 +9,7 @@
 #include <arch.h>
 #include <drivers/arm/cci.h>
 #include <lib/utils.h>
-
-#include <plat_arm.h>
+#include <plat/arm/common/plat_arm.h>
 
 static const int cci_map[] = {
 	PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX,

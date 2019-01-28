@@ -12,9 +12,8 @@
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <drivers/generic_delay_timer.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-
-#include <plat_arm.h>
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak bl2u_platform_setup

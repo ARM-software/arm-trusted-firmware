@@ -5,7 +5,7 @@
  */
 
 #include <platform_def.h>
-#include <plat_arm.h>
+#include <plat/arm/common/plat_arm.h>
 
 /*
  * Table of memory regions for different BL stages to map using the MMU.

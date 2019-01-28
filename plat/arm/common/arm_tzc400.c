@@ -8,8 +8,7 @@
 
 #include <common/debug.h>
 #include <drivers/arm/tzc400.h>
-
-#include <plat_arm.h>
+#include <plat/arm/common/plat_arm.h>
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak plat_arm_security_setup

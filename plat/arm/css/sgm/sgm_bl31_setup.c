@@ -6,12 +6,11 @@
 
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <drivers/arm/css/css_mhu_doorbell.h>
+#include <drivers/arm/css/scmi.h>
+#include <plat/arm/common/plat_arm.h>
 
-#include <plat_arm.h>
 #include <sgm_plat_config.h>
-
-#include "../../css/drivers/scmi/scmi.h"
-#include "../../css/drivers/mhu/css_mhu_doorbell.h"
 
 static scmi_channel_plat_info_t sgm775_scmi_plat_info = {
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE,

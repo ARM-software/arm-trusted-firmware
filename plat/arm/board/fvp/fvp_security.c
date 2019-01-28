@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arm_config.h>
-#include <plat_arm.h>
+#include <plat/arm/common/arm_config.h>
+#include <plat/arm/common/plat_arm.h>
 
 /*
  * We assume that all security programming is done by the primary core.

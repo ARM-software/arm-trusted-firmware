@@ -9,7 +9,6 @@ MTK_PLAT_SOC		:=	${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
 				-I${MTK_PLAT}/common/drivers/uart/		\
-				-Iinclude/plat/arm/common			\
 				-Iinclude/plat/arm/common/aarch64		\
 				-I${MTK_PLAT_SOC}/drivers/crypt/		\
 				-I${MTK_PLAT_SOC}/drivers/mtcmos/		\

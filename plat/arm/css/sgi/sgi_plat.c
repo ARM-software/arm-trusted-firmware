@@ -11,10 +11,9 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/arm/ccn.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <services/secure_partition.h>
-
-#include <plat_arm.h>
 
 #if USE_COHERENT_MEM
 /*

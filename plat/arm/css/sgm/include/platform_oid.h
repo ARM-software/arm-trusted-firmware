@@ -3,7 +3,8 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
-#include "../../../../../include/plat/arm/board/common/board_arm_oid.h"
+
+#include <plat/arm/board/common/board_arm_oid.h>
 
 /*
  * Required platform OIDs

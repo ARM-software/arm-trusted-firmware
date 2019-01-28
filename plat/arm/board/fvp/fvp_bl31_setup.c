@@ -5,10 +5,10 @@
  */
 
 #include <drivers/arm/smmu_v3.h>
+#include <plat/arm/common/arm_config.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
-#include <arm_config.h>
-#include <plat_arm.h>
 #include "fvp_private.h"
 
 void __init bl31_early_platform_setup2(u_register_t arg0,

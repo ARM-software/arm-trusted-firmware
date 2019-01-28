@@ -5,10 +5,10 @@
 #
 
 # SP_MIN source files specific to FVP platform
-BL32_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c			\
+BL32_SOURCES		+=	drivers/arm/fvp/fvp_pwrc.c			\
+				drivers/cfi/v2m/v2m_flash.c			\
 				lib/utils/mem_region.c				\
 				plat/arm/board/fvp/aarch32/fvp_helpers.S	\
-				plat/arm/board/fvp/drivers/pwrc/fvp_pwrc.c	\
 				plat/arm/board/fvp/fvp_pm.c			\
 				plat/arm/board/fvp/fvp_topology.c		\
 				plat/arm/board/fvp/sp_min/fvp_sp_min_setup.c	\

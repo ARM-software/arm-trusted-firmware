@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -146,14 +146,14 @@ endif
 BL2U_SOURCES		+=	plat/arm/board/fvp/fvp_bl2u_setup.c		\
 				${FVP_SECURITY_SOURCES}
 
-BL31_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
+BL31_SOURCES		+=	drivers/arm/fvp/fvp_pwrc.c			\
+				drivers/arm/smmu/smmu_v3.c			\
 				drivers/cfi/v2m/v2m_flash.c			\
 				lib/utils/mem_region.c				\
 				plat/arm/board/fvp/fvp_bl31_setup.c		\
 				plat/arm/board/fvp/fvp_pm.c			\
 				plat/arm/board/fvp/fvp_topology.c		\
 				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
-				plat/arm/board/fvp/drivers/pwrc/fvp_pwrc.c	\
 				plat/arm/common/arm_nor_psci_mem_protect.c	\
 				${FVP_CPU_LIBS}					\
 				${FVP_GIC_SOURCES}				\
@@ -229,6 +229,22 @@ endif
 
 ifeq (${ARCH},aarch32)
     NEED_BL32 := yes
+endif
+
+# Enable the dynamic translation tables library.
+ifeq (${ARCH},aarch32)
+    ifeq (${RESET_TO_SP_MIN},1)
+        BL32_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+    endif
+else
+    ifeq (${RESET_TO_BL31},1)
+        BL31_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+    endif
+    ifeq (${ENABLE_SPM},1)
+        ifeq (${SPM_MM},0)
+            BL31_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+        endif
+    endif
 endif
 
 # Add support for platform supplied linker script for BL31 build

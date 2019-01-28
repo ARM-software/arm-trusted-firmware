@@ -12,10 +12,10 @@
 #include <drivers/arm/gicv2.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
-#include <plat_private.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
-#include <plat_arm.h>
+#include <plat_private.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
 

@@ -15,11 +15,11 @@
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
+#include <plat/arm/common/plat_arm.h>
 
 #include <mcucfg.h>
 #include <mt8173_def.h>
 #include <mt_cpuxgpt.h> /* generic_timer_backup() */
-#include <plat_arm.h>
 #include <plat_private.h>
 #include <power_tracer.h>
 #include <rtc.h>

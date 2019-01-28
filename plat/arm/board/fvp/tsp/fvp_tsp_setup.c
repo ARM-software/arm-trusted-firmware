@@ -4,7 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <plat_arm.h>
+#include <plat/arm/common/plat_arm.h>
+
 #include "../fvp_private.h"
 
 void tsp_early_platform_setup(void)

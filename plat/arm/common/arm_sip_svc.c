@@ -9,10 +9,9 @@
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <lib/pmf/pmf.h>
+#include <plat/arm/common/arm_sip_svc.h>
+#include <plat/arm/common/plat_arm.h>
 #include <tools_share/uuid.h>
-
-#include <arm_sip_svc.h>
-#include <plat_arm.h>
 
 /* ARM SiP Service UUID */
 DEFINE_SVC_UUID2(arm_sip_svc_uid,

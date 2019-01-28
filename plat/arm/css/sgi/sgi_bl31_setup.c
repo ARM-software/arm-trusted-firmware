@@ -10,13 +10,12 @@
 
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <drivers/arm/css/css_mhu_doorbell.h>
+#include <drivers/arm/css/scmi.h>
+#include <plat/arm/common/plat_arm.h>
 
-#include <plat_arm.h>
 #include <sgi_ras.h>
 #include <sgi_variant.h>
-
-#include "../../css/drivers/scmi/scmi.h"
-#include "../../css/drivers/mhu/css_mhu_doorbell.h"
 
 sgi_platform_info_t sgi_plat_info;
 

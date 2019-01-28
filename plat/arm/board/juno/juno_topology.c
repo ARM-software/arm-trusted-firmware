@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <drivers/arm/css/css_mhu_doorbell.h>
+#include <drivers/arm/css/scmi.h>
+#include <plat/arm/common/plat_arm.h>
+#include <plat/arm/css/common/css_pm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
-
-#include <css_pm.h>
-#include <plat_arm.h>
-#include "../../css/drivers/scmi/scmi.h"
-#include "../../css/drivers/mhu/css_mhu_doorbell.h"
 
 #if CSS_USE_SCMI_SDS_DRIVER
 static scmi_channel_plat_info_t juno_scmi_plat_info = {

@@ -12,10 +12,9 @@
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/psci/psci.h>
 #include <lib/utils.h>
+#include <plat/arm/common/arm_sip_svc.h>
+#include <plat/arm/common/plat_arm.h>
 #include <smccc_helpers.h>
-
-#include <arm_sip_svc.h>
-#include <plat_arm.h>
 
 /*
  * Handle SMC from a lower exception level to switch its execution state

@@ -7,10 +7,9 @@
 #include <assert.h>
 
 #include <drivers/generic_delay_timer.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
-
-#include <plat_arm.h>
 
 #pragma weak bl2_el3_early_platform_setup
 #pragma weak bl2_el3_plat_arch_setup

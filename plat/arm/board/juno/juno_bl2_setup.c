@@ -8,8 +8,7 @@
 
 #include <common/bl_common.h>
 #include <common/desc_image_load.h>
-
-#include <plat_arm.h>
+#include <plat/arm/common/plat_arm.h>
 
 #if JUNO_AARCH32_EL3_RUNTIME
 /*******************************************************************************

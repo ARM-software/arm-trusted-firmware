@@ -8,13 +8,11 @@
 
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <drivers/arm/css/css_scp.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
+#include <plat/arm/common/plat_arm.h>
 #include <platform_def.h>
-
-#include <plat_arm.h>
-
-#include "../drivers/scp/css_scp.h"
 
 /* Weak definition may be overridden in specific CSS based platform */
 #pragma weak plat_arm_bl2_handle_scp_bl2

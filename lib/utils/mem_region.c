@@ -6,7 +6,9 @@
 
 #include <assert.h>
 
+#include <common/debug.h>
 #include <lib/utils.h>
+#include <lib/xlat_tables/xlat_tables_compat.h>
 
 /*
  * All the regions defined in mem_region_t must have the following properties

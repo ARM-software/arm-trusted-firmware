@@ -9,9 +9,9 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
-#include <plat_arm.h>
 #include <sgi_variant.h>
 
 /*******************************************************************************

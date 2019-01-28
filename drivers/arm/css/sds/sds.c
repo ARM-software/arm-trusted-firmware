@@ -10,9 +10,9 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/arm/css/sds.h>
 #include <platform_def.h>
 
-#include "sds.h"
 #include "sds_private.h"
 
 /*

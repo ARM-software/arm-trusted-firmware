@@ -13,9 +13,8 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <lib/utils.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-
-#include <plat_arm.h>
 
 /* Struct to keep track of usable memory */
 typedef struct bl1_mem_info {

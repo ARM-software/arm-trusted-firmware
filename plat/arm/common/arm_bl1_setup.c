@@ -14,9 +14,8 @@
 #include <drivers/arm/sp805.h>
 #include <lib/utils.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-
-#include <plat_arm.h>
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak bl1_early_platform_setup

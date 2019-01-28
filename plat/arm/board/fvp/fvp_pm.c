@@ -10,17 +10,15 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/gicv3.h>
+#include <drivers/arm/fvp/fvp_pwrc.h>
 #include <lib/extensions/spe.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
+#include <plat/arm/common/arm_config.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-#include <arm_config.h>
-#include <plat_arm.h>
-
-#include "../../../../drivers/arm/gic/v3/gicv3_private.h"
-#include "drivers/pwrc/fvp_pwrc.h"
 #include "fvp_private.h"
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,29 +7,17 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-/* Enable the dynamic translation tables library. */
-#ifdef AARCH32
-# if defined(IMAGE_BL32) && RESET_TO_SP_MIN
-#  define PLAT_XLAT_TABLES_DYNAMIC     1
-# endif
-#else
-# if defined(IMAGE_BL31) && RESET_TO_BL31
-#  define PLAT_XLAT_TABLES_DYNAMIC     1
-# endif
-#endif /* AARCH32 */
-
-
 #include <drivers/arm/tzc400.h>
 #if TRUSTED_BOARD_BOOT
 #include <drivers/auth/mbedtls/mbedtls_config.h>
 #endif
+#include <plat/arm/board/common/board_css_def.h>
+#include <plat/arm/board/common/v2m_def.h>
+#include <plat/arm/common/arm_def.h>
+#include <plat/arm/css/common/css_def.h>
+#include <plat/arm/soc/common/soc_css_def.h>
 #include <plat/common/common_def.h>
 
-#include <arm_def.h>
-#include <board_css_def.h>
-#include <css_def.h>
-#include <soc_css_def.h>
-#include <v2m_def.h>
 #include "../juno_def.h"
 
 /* Required platform porting definitions */

@@ -8,9 +8,9 @@
 #include <drivers/arm/nic_400.h>
 #include <lib/mmio.h>
 #include <platform_def.h>
+#include <plat/arm/common/plat_arm.h>
+#include <plat/arm/soc/common/soc_css.h>
 
-#include <plat_arm.h>
-#include <soc_css.h>
 #include "juno_tzmp1_def.h"
 
 #ifdef JUNO_TZMP1

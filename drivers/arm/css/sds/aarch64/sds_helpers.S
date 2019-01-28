@@ -6,8 +6,9 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <drivers/arm/css/sds.h>
 #include <platform_def.h>
-#include "../sds.h"
+
 #include "../sds_private.h"
 
 	.globl	sds_get_primary_cpu_id

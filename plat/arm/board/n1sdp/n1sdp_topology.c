@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <plat_arm.h>
+#include <plat/arm/common/plat_arm.h>
 
 /* Topology */
 typedef struct n1sdp_topology {

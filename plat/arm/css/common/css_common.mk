@@ -11,8 +11,7 @@ CSS_LOAD_SCP_IMAGES	?=	1
 # By default, SCMI driver is disabled for CSS platforms
 CSS_USE_SCMI_SDS_DRIVER	?=	0
 
-PLAT_INCLUDES		+=	-Iinclude/plat/arm/css/common			\
-				-Iinclude/plat/arm/css/common/aarch64
+PLAT_INCLUDES		+=	-Iinclude/plat/arm/css/common/aarch64
 
 
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/css/common/${ARCH}/css_helpers.S
@@ -27,16 +26,16 @@ BL31_SOURCES		+=	plat/arm/css/common/css_pm.c			\
 				plat/arm/css/common/css_topology.c
 
 ifeq (${CSS_USE_SCMI_SDS_DRIVER},0)
-BL31_SOURCES		+=	plat/arm/css/drivers/scp/css_pm_scpi.c		\
-				plat/arm/css/drivers/mhu/css_mhu.c		\
-				plat/arm/css/drivers/scpi/css_scpi.c
+BL31_SOURCES		+=	drivers/arm/css/mhu/css_mhu.c			\
+				drivers/arm/css/scp/css_pm_scpi.c		\
+				drivers/arm/css/scpi/css_scpi.c
 else
-BL31_SOURCES		+=	plat/arm/css/drivers/scp/css_pm_scmi.c		\
-				plat/arm/css/drivers/scmi/scmi_ap_core_proto.c	\
-				plat/arm/css/drivers/scmi/scmi_common.c		\
-				plat/arm/css/drivers/scmi/scmi_pwr_dmn_proto.c	\
-				plat/arm/css/drivers/scmi/scmi_sys_pwr_proto.c	\
-				plat/arm/css/drivers/mhu/css_mhu_doorbell.c
+BL31_SOURCES		+=	drivers/arm/css/mhu/css_mhu_doorbell.c		\
+				drivers/arm/css/scmi/scmi_ap_core_proto.c	\
+				drivers/arm/css/scmi/scmi_common.c		\
+				drivers/arm/css/scmi/scmi_pwr_dmn_proto.c	\
+				drivers/arm/css/scmi/scmi_sys_pwr_proto.c	\
+				drivers/arm/css/scp/css_pm_scmi.c
 endif
 
 # Process CSS_LOAD_SCP_IMAGES flag
@@ -50,19 +49,19 @@ ifeq (${CSS_LOAD_SCP_IMAGES},1)
   endif
 
   ifeq (${CSS_USE_SCMI_SDS_DRIVER},1)
-    BL2U_SOURCES	+=	plat/arm/css/drivers/scp/css_sds.c	\
-				plat/arm/css/drivers/sds/sds.c
+    BL2U_SOURCES	+=	drivers/arm/css/scp/css_sds.c			\
+				drivers/arm/css/sds/sds.c
 
-    BL2_SOURCES		+=	plat/arm/css/drivers/scp/css_sds.c	\
-				plat/arm/css/drivers/sds/sds.c
+    BL2_SOURCES		+=	drivers/arm/css/scp/css_sds.c			\
+				drivers/arm/css/sds/sds.c
   else
-    BL2U_SOURCES	+=	plat/arm/css/drivers/scp/css_bom_bootloader.c	\
-				plat/arm/css/drivers/mhu/css_mhu.c		\
-				plat/arm/css/drivers/scpi/css_scpi.c
+    BL2U_SOURCES	+=	drivers/arm/css/mhu/css_mhu.c			\
+				drivers/arm/css/scp/css_bom_bootloader.c	\
+				drivers/arm/css/scpi/css_scpi.c
 
-    BL2_SOURCES		+=	plat/arm/css/drivers/scp/css_bom_bootloader.c	\
-				plat/arm/css/drivers/mhu/css_mhu.c		\
-				plat/arm/css/drivers/scpi/css_scpi.c
+    BL2_SOURCES		+=	drivers/arm/css/mhu/css_mhu.c			\
+				drivers/arm/css/scp/css_bom_bootloader.c	\
+				drivers/arm/css/scpi/css_scpi.c
     # Enable option to detect whether the SCP ROM firmware in use predates version
     # 1.7.0 and therefore, is incompatible.
     CSS_DETECT_PRE_1_7_0_SCP	:=	1
@@ -74,7 +73,7 @@ ifeq (${CSS_LOAD_SCP_IMAGES},1)
 endif
 
 ifeq (${CSS_USE_SCMI_SDS_DRIVER},1)
-  PLAT_BL_COMMON_SOURCES	+=	plat/arm/css/drivers/sds/${ARCH}/sds_helpers.S
+  PLAT_BL_COMMON_SOURCES	+=	drivers/arm/css/sds/${ARCH}/sds_helpers.S
 endif
 
 # Process CSS_USE_SCMI_SDS_DRIVER flag

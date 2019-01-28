@@ -15,10 +15,9 @@
 #include <lib/mmio.h>
 #include <lib/utils.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
+#include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
-
-#include <plat_arm.h>
 
 /*
  * Placeholder variables for copying the arguments that have been passed to

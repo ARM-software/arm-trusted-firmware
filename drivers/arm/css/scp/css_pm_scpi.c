@@ -8,12 +8,10 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
-
-#include <css_pm.h>
-#include <plat_arm.h>
-
-#include "../scpi/css_scpi.h"
-#include "css_scp.h"
+#include <drivers/arm/css/css_scp.h>
+#include <drivers/arm/css/css_scpi.h>
+#include <plat/arm/common/plat_arm.h>
+#include <plat/arm/css/common/css_pm.h>
 
 /*
  * This file implements the SCP power management functions using SCPI protocol.

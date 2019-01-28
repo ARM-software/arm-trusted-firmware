@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -26,9 +26,7 @@ endif
 # SCP during power management operations and for SCP RAM Firmware transfer.
 CSS_USE_SCMI_SDS_DRIVER		:=	1
 
-PLAT_INCLUDES		:=	-Iplat/arm/board/juno/include		\
-				-Iplat/arm/css/drivers/scmi		\
-				-Iplat/arm/css/drivers/sds
+PLAT_INCLUDES		:=	-Iplat/arm/board/juno/include
 
 PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/juno/${ARCH}/juno_helpers.S \
 				plat/arm/board/juno/juno_common.c
@@ -88,7 +86,7 @@ BL31_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c		\
 				${JUNO_SECURITY_SOURCES}
 
 ifeq (${CSS_USE_SCMI_SDS_DRIVER},1)
-BL1_SOURCES		+=	plat/arm/css/drivers/sds/sds.c
+BL1_SOURCES		+=	drivers/arm/css/sds/sds.c
 endif
 
 endif
@@ -133,6 +131,17 @@ SKIP_A57_L1_FLUSH_PWR_DWN	:=	 1
 
 # Do not enable SVE
 ENABLE_SVE_FOR_NS		:=	0
+
+# Enable the dynamic translation tables library.
+ifeq (${ARCH},aarch32)
+    ifeq (${RESET_TO_SP_MIN},1)
+        BL32_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+    endif
+else
+    ifeq (${RESET_TO_BL31},1)
+        BL31_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+    endif
+endif
 
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk

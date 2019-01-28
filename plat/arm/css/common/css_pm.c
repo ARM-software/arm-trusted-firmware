@@ -11,13 +11,11 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/arm/css/css_scp.h>
 #include <lib/cassert.h>
+#include <plat/arm/common/plat_arm.h>
+#include <plat/arm/css/common/css_pm.h>
 #include <plat/common/platform.h>
-
-#include <css_pm.h>
-#include <plat_arm.h>
-
-#include "../drivers/scp/css_scp.h"
 
 /* Allow CSS platforms to override `plat_arm_psci_pm_ops` */
 #pragma weak plat_arm_psci_pm_ops

@@ -7,24 +7,12 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-/* Enable the dynamic translation tables library. */
-#ifdef AARCH32
-# if defined(IMAGE_BL32) && RESET_TO_SP_MIN
-#  define PLAT_XLAT_TABLES_DYNAMIC     1
-# endif
-#else
-# if defined(IMAGE_BL31) && (RESET_TO_BL31 || (ENABLE_SPM && !SPM_MM))
-#  define PLAT_XLAT_TABLES_DYNAMIC     1
-# endif
-#endif /* AARCH32 */
-
 #include <drivers/arm/tzc400.h>
 #include <lib/utils_def.h>
+#include <plat/arm/board/common/v2m_def.h>
+#include <plat/arm/common/arm_def.h>
+#include <plat/arm/common/arm_spm_def.h>
 #include <plat/common/common_def.h>
-
-#include <arm_def.h>
-#include <arm_spm_def.h>
-#include <v2m_def.h>
 
 #include "../fvp_def.h"
 
