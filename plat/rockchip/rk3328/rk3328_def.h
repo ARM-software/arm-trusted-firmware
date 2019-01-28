@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -131,15 +131,13 @@
 #define RK_IRQ_SEC_SGI_7	15
 
 /*
- * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
- * terminology. On a GICv2 system or mode, the lists will be merged and treated
- * as Group 0 interrupts.
+ * Define a list of Group 0 interrupts.
  */
-#define PLAT_RK_GICV2_G1S_IRQS						\
+#define PLAT_RK_GICV2_G0_IRQS						\
 	INTR_PROP_DESC(RK_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY,	\
-		       GICV2_INTR_GROUP1, GIC_INTR_CFG_LEVEL),		\
+		       GICV2_INTR_GROUP0, GIC_INTR_CFG_LEVEL),		\
 	INTR_PROP_DESC(RK_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY,	\
-		       GICV2_INTR_GROUP1, GIC_INTR_CFG_LEVEL)
+		       GICV2_INTR_GROUP0, GIC_INTR_CFG_LEVEL)
 
 #define SHARE_MEM_BASE          0x100000/* [1MB, 1MB+60K]*/
 #define SHARE_MEM_PAGE_NUM      15
