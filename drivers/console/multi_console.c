@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -76,7 +76,7 @@ int console_putc(int c)
 	console_t *console;
 
 	for (console = console_list; console != NULL; console = console->next)
-		if (console->flags & console_state) {
+		if ((console->flags & console_state) && console->putc) {
 			int ret = console->putc(c, console);
 			if ((err == ERROR_NO_VALID_CONSOLE) || (ret < err))
 				err = ret;
@@ -93,7 +93,7 @@ int console_getc(void)
 	do {	/* Keep polling while at least one console works correctly. */
 		for (console = console_list; console != NULL;
 		     console = console->next)
-			if (console->flags & console_state) {
+			if ((console->flags & console_state) && console->getc) {
 				int ret = console->getc(console);
 				if (ret >= 0)
 					return ret;
@@ -111,7 +111,7 @@ int console_flush(void)
 	console_t *console;
 
 	for (console = console_list; console != NULL; console = console->next)
-		if (console->flags & console_state) {
+		if ((console->flags & console_state) && console->flush) {
 			int ret = console->flush(console);
 			if ((err == ERROR_NO_VALID_CONSOLE) || (ret < err))
 				err = ret;
