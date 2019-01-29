@@ -181,6 +181,13 @@ Renesas rcar-gen3 platform port
 :F: drivers/renesas/rcar
 :F: tools/renesas/rcar_layout_create
 
+Reset driver
+------------
+:M: Yann Gautier <yann.gautier@st.com>
+:G: `Yann-lms`_
+:F: drivers/reset/reset.c
+:F: include/drivers/reset.h
+
 RockChip platform port
 ----------------------
 :M: Tony Xie <tony.xie@rock-chips.com>
