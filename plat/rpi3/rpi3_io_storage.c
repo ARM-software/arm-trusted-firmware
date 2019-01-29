@@ -133,11 +133,6 @@ static const struct plat_io_policy policies[] = {
 		(uintptr_t)&bl32_uuid_spec,
 		open_fip
 	},
-	[BL32_IMAGE_ID] = {
-		&fip_dev_handle,
-		(uintptr_t)&bl32_uuid_spec,
-		open_fip
-	},
 	[BL32_EXTRA1_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl32_extra1_uuid_spec,
