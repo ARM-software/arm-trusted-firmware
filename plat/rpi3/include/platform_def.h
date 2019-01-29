@@ -244,6 +244,8 @@
 #define MAX_IO_DEVICES			U(3)
 #define MAX_IO_HANDLES			U(4)
 
+#define MAX_IO_BLOCK_DEVICES		U(1)
+
 /*
  * Serial-related constants.
  */
