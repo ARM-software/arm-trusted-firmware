@@ -271,10 +271,10 @@ static void uuid_from_str(uuid_t *u, const char *s)
 	    &u->node[2], &u->node[3],
 	    &u->node[4], &u->node[5]);
 	/*
-	 * Given the format specifier above, we expect 11 items to be scanned
+	 * Given the format specifier above, we expect 16 items to be scanned
 	 * for a properly formatted UUID.
 	 */
-	if (n != 11)
+	if (n != 16)
 		log_errx("Invalid UUID: %s", s);
 }
 
