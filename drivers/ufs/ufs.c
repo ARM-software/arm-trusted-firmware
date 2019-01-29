@@ -591,7 +591,7 @@ void ufs_write_desc(int idn, int index, uintptr_t buf, size_t size)
 	ufs_query(QUERY_WRITE_DESC, idn, index, 0, buf, size);
 }
 
-void ufs_read_capacity(int lun, unsigned int *num, unsigned int *size)
+static void ufs_read_capacity(int lun, unsigned int *num, unsigned int *size)
 {
 	utp_utrd_t utrd;
 	resp_upiu_t *resp;
