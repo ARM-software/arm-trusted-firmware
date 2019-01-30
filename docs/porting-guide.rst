@@ -1198,9 +1198,6 @@ the BL1 stage.
 
     meminfo.total_base = Base address of secure RAM visible to BL1
     meminfo.total_size = Size of secure RAM visible to BL1
-    meminfo.free_base  = Base address of secure RAM available for allocation
-                         to BL1
-    meminfo.free_size  = Size of secure RAM available for allocation to BL1
 
 This information is used by BL1 to load the BL2 image in secure RAM. BL1 also
 populates a similar structure to tell BL2 the extents of memory available for
