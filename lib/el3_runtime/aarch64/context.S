@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -332,9 +332,10 @@ func save_gp_registers
 	ret
 endfunc save_gp_registers
 
-/*
+/* -----------------------------------------------------
  * This function restores all general purpose registers except x30 from the
  * CPU context. x30 register must be explicitly restored by the caller.
+ * -----------------------------------------------------
  */
 func restore_gp_registers
 	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
@@ -357,9 +358,10 @@ func restore_gp_registers
 	ret
 endfunc restore_gp_registers
 
-/*
+/* -----------------------------------------------------
  * Restore general purpose registers (including x30), and exit EL3 via. ERET to
  * a lower exception level.
+ * -----------------------------------------------------
  */
 func restore_gp_registers_eret
 	bl	restore_gp_registers
@@ -377,12 +379,12 @@ func restore_gp_registers_eret
 	eret
 endfunc	restore_gp_registers_eret
 
-	/* -----------------------------------------------------
-	 * This routine assumes that the SP_EL3 is pointing to
-	 * a valid context structure from where the gp regs and
-	 * other special registers can be retrieved.
-	 * -----------------------------------------------------
-	 */
+/* -----------------------------------------------------
+ * This routine assumes that the SP_EL3 is pointing to
+ * a valid context structure from where the gp regs and
+ * other special registers can be retrieved.
+ * -----------------------------------------------------
+ */
 func el3_exit
 	/* -----------------------------------------------------
 	 * Save the current SP_EL0 i.e. the EL3 runtime stack
@@ -410,9 +412,9 @@ func el3_exit
 	cmp	x17, xzr
 	beq	1f
 	blr	x17
+1:
 #endif
 
-1:
 	/* Restore saved general purpose registers and return */
 	b	restore_gp_registers_eret
 endfunc el3_exit
