@@ -33,3 +33,4 @@ void MU_SendMessage(uint32_t base, uint32_t regIndex, uint32_t msg);
 void MU_ReceiveMsg(uint32_t base, uint32_t regIndex, uint32_t *msg);
 void MU_EnableGeneralInt(uint32_t base, uint32_t index);
 void MU_EnableRxFullInt(uint32_t base, uint32_t index);
+void MU_Resume(uint32_t base);
