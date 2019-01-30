@@ -1866,6 +1866,11 @@ BL image during boot.
                |   MHU    |
     0x04000000 +----------+
 
+Library at ROM
+---------------
+
+Please refer to the `ROMLIB Design`_ document.
+
 Firmware Image Package (FIP)
 ----------------------------
 
@@ -2662,5 +2667,6 @@ References
 .. _TF-A Interrupt Management Design guide: ./interrupt-framework-design.rst
 .. _Xlat_tables design: xlat-tables-lib-v2-design.rst
 .. _Exception Handling Framework: exception-handling.rst
+.. _ROMLIB Design: romlib-design.rst
 
 .. |Image 1| image:: diagrams/rt-svc-descs-layout.png?raw=true

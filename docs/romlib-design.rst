@@ -1,0 +1,125 @@
+Library at ROM
+==============
+
+.. section-numbering::
+    :suffix: .
+
+.. contents::
+
+This document provides an overview of the "library at ROM" implementation in
+Trusted Firmware-A (TF-A).
+
+Introduction
+~~~~~~~~~~~~
+
+The "library at ROM" feature allows platforms to build a library of functions to
+be placed in ROM. This reduces SRAM usage by utilising the available space in
+ROM. The "library at ROM" contains a jump table with the list of functions that
+are placed in ROM. The capabilities of the "library at ROM" are:
+
+1. Functions can be from one or several libraries.
+
+2. Functions can be patched after they have been programmed into ROM.
+
+3. Platform-specific libraries can be placed in ROM.
+
+4. Functions can be accessed by one or more BL images.
+
+Index file
+~~~~~~~~~~
+
+.. image:: diagrams/romlib_design.png
+    :width: 600
+
+Library at ROM is described by an index file with the list of functions to be
+placed in ROM. The index file is platform specific and its format is:
+
+::
+
+    lib function    [patch]
+
+    lib      -- Name of the library the function belongs to
+    function -- Name of the function to be placed in library at ROM
+    [patch]  -- Option to patch the function
+
+It is also possible to insert reserved spaces in the list by using the keyword
+"reserved" rather than the "lib" and "function" names as shown below:
+
+::
+
+    reserved    reserved
+
+The reserved spaces can be used to add more functions in the future without
+affecting the order and location of functions already existing in the jump
+table. Also, for additional flexibility and modularity, the index file can
+include other index files.
+
+For an index file example, refer to ``lib/romlib/jmptbl.i``.
+
+Wrapper functions
+~~~~~~~~~~~~~~~~~
+
+.. image:: diagrams/romlib_wrapper.png
+    :width: 600
+
+When invoking a function of the "library at ROM", the calling sequence is as
+follows:
+
+BL image --> wrapper function --> jump table entry --> library at ROM
+
+The index file is used to create a jump table which is placed in ROM. Then, the
+wrappers refer to the jump table to call the "library at ROM" functions. The
+wrappers essentially contain a branch instruction to the jump table entry
+corresponding to the original function. Finally, the original function in the BL
+image(s) is replaced with the wrapper function.
+
+The "library at ROM" contains a necessary init function that initialises the
+global variables defined by the functions inside "library at ROM".
+
+Scripts
+~~~~~~~
+
+There are several scripts that generate the necessary files for the "library at
+ROM" to work:
+
+1. ``gentbl.sh`` - Generates the jump table by parsing the index file.
+
+2. ``genvar.sh`` - Generates the jump table global variable (**not** the jump
+table itself) with the absolute address in ROM. This global variable is,
+basically, a pointer to the jump table.
+
+3. ``genwrappers.sh`` - Generates a wrapper function for each entry in the index
+file except for the ones that contain the keyword ``patch``. The generated
+wrapper file is called ``<lib>_<fn_name>.S``.
+
+Patching of functions in library at ROM
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``genwrappers.sh`` script does not generate wrappers for the entries in the
+index file that contain the keyword ``patch``. Thus, it allows calling the
+function from the actual library by breaking the link to the  "library at ROM"
+version of this function.
+
+The calling sequence for a patched function is as follows:
+
+BL image --> function
+
+Build library at ROM
+~~~~~~~~~~~~~~~~~~~~~
+
+The environment variable ``CROSS_COMPILE`` must be set as per the user guide.
+
+::
+
+    make PLAT=fvp                                                   \
+    MBEDTLS_DIR=</path/to/mbedtls/>                                 \
+    TRUSTED_BOARD_BOOT=1 GENERATE_COT=1                             \
+    ARM_ROTPK_LOCATION=devel_rsa                                    \
+    ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem        \
+    BL33=</path/to/bl33.bin>                                        \
+    USE_ROMLIB=1                                                    \
+    all fip
+
+--------------
+
+*Copyright (c) 2019, Arm Limited. All rights reserved.*
