@@ -51,7 +51,9 @@ CASSERT((PLAT_PERCPU_BAKERY_LOCK_SIZE & (CACHE_WRITEBACK_GRANULE - 1)) == 0, \
  * Use the linker defined symbol which has evaluated the size reqiurement.
  * This is not as efficient as using a platform defined constant
  */
-IMPORT_SYM(uintptr_t, __PERCPU_BAKERY_LOCK_SIZE__, PERCPU_BAKERY_LOCK_SIZE);
+IMPORT_SYM(uintptr_t, __PERCPU_BAKERY_LOCK_START__, BAKERY_LOCK_START);
+IMPORT_SYM(uintptr_t, __PERCPU_BAKERY_LOCK_END__, BAKERY_LOCK_END);
+#define PERCPU_BAKERY_LOCK_SIZE (BAKERY_LOCK_END - BAKERY_LOCK_START)
 #endif
 
 static inline bakery_lock_t *get_bakery_info(unsigned int cpu_ix,
