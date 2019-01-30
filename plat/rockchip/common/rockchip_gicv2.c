@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,11 +22,10 @@
 #pragma weak plat_rockchip_gic_pcpu_init
 
 /******************************************************************************
- * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0
- * interrupts.
+ * List of interrupts.
  *****************************************************************************/
 static const interrupt_prop_t g0_interrupt_props[] = {
-	PLAT_RK_GICV2_G1S_IRQS
+	PLAT_RK_GICV2_G0_IRQS
 };
 
 /*
