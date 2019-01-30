@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include <common/debug.h>
+#include <common/runtime_svc.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/smccc.h>
 #include <lib/spinlock.h>
@@ -679,9 +680,10 @@ static uint64_t spci_service_get_response(void *handle, u_register_t x1,
 /*******************************************************************************
  * This function handles all SMCs in the range reserved for SPCI.
  ******************************************************************************/
-uint64_t spci_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
-			  uint64_t x3, uint64_t x4, void *cookie, void *handle,
-			  uint64_t flags)
+static uintptr_t spci_smc_handler(uint32_t smc_fid, u_register_t x1,
+				  u_register_t x2, u_register_t x3,
+				  u_register_t x4, void *cookie, void *handle,
+				  u_register_t flags)
 {
 	uint32_t spci_fid;
 
@@ -773,3 +775,12 @@ uint64_t spci_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	WARN("SPCI: Unsupported call 0x%08x\n", smc_fid);
 	SMC_RET1(handle, SPCI_NOT_SUPPORTED);
 }
+
+DECLARE_RT_SVC(
+	spci_handler,
+	OEN_SPCI_START,
+	OEN_SPCI_END,
+	SMC_TYPE_FAST,
+	NULL,
+	spci_smc_handler
+);

@@ -153,9 +153,6 @@ SEPARATE_CODE_AND_RODATA	:= 0
 # cores stack
 RECLAIM_INIT_CODE		:= 0
 
-# Default to SMCCC Version 1.X
-SMCCC_MAJOR_VERSION		:= 1
-
 # SPD choice
 SPD				:= none
 
