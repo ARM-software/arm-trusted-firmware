@@ -1,10 +1,11 @@
 #
-# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-BL2_SOURCES		+=	bl2/bl2_main.c				\
+BL2_SOURCES		+=	bl2/bl2_image_load_v2.c			\
+				bl2/bl2_main.c				\
 				bl2/${ARCH}/bl2_arch_setup.c		\
 				lib/locks/exclusive/${ARCH}/spinlock.S	\
 				plat/common/${ARCH}/platform_up_stack.S	\
@@ -14,7 +15,9 @@ ifeq (${ARCH},aarch64)
 BL2_SOURCES		+=	common/aarch64/early_exceptions.S
 endif
 
-BL2_SOURCES		+=	bl2/bl2_image_load_v2.c
+ifeq (${ENABLE_PAUTH},1)
+BL2_CFLAGS		+=	-msign-return-address=non-leaf
+endif
 
 ifeq (${BL2_AT_EL3},0)
 BL2_SOURCES		+=	bl2/${ARCH}/bl2_entrypoint.S
