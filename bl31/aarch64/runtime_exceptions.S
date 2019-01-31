@@ -120,7 +120,13 @@
 	 * ---------------------------------------------------------------------
 	 */
 	.macro	handle_interrupt_exception label
+
 	bl	save_gp_registers
+
+#if CTX_INCLUDE_PAUTH_REGS
+	bl	pauth_context_save
+#endif
+
 	/* Save the EL3 system registers needed to return from this exception */
 	mrs	x0, spsr_el3
 	mrs	x1, elr_el3
@@ -320,14 +326,21 @@ smc_handler32:
 	tbnz	x0, #FUNCID_CC_SHIFT, smc_prohibited
 
 smc_handler64:
+	/* NOTE: The code below must preserve x0-x4 */
+
+	/* Save general purpose registers */
+	bl	save_gp_registers
+
+#if CTX_INCLUDE_PAUTH_REGS
+	bl	pauth_context_save
+#endif
+
 	/*
 	 * Populate the parameters for the SMC handler.
 	 * We already have x0-x4 in place. x5 will point to a cookie (not used
 	 * now). x6 will point to the context structure (SP_EL3) and x7 will
 	 * contain flags we need to pass to the handler.
 	 */
-	bl	save_gp_registers
-
 	mov	x5, xzr
 	mov	x6, sp
 

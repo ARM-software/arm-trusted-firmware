@@ -14,6 +14,10 @@
 	.global	fpregs_context_save
 	.global	fpregs_context_restore
 #endif
+#if CTX_INCLUDE_PAUTH_REGS
+	.global	pauth_context_restore
+	.global	pauth_context_save
+#endif
 	.global	save_gp_registers
 	.global	restore_gp_registers
 	.global	restore_gp_registers_eret
@@ -299,6 +303,76 @@ func fpregs_context_restore
 endfunc fpregs_context_restore
 #endif /* CTX_INCLUDE_FPREGS */
 
+#if CTX_INCLUDE_PAUTH_REGS
+/* -----------------------------------------------------
+ * The following function strictly follows the AArch64
+ * PCS to use x9-x17 (temporary caller-saved registers)
+ * to save the ARMv8.3-PAuth register context. It assumes
+ * that 'sp' is pointing to a 'cpu_context_t' structure
+ * to where the register context will be saved.
+ * -----------------------------------------------------
+ */
+func pauth_context_save
+	add	x11, sp, #CTX_PAUTH_REGS_OFFSET
+
+	mrs	x9, APIAKeyLo_EL1
+	mrs	x10, APIAKeyHi_EL1
+	stp	x9, x10, [x11, #CTX_PACIAKEY_LO]
+
+	mrs	x9, APIBKeyLo_EL1
+	mrs	x10, APIBKeyHi_EL1
+	stp	x9, x10, [x11, #CTX_PACIBKEY_LO]
+
+	mrs	x9, APDAKeyLo_EL1
+	mrs	x10, APDAKeyHi_EL1
+	stp	x9, x10, [x11, #CTX_PACDAKEY_LO]
+
+	mrs	x9, APDBKeyLo_EL1
+	mrs	x10, APDBKeyHi_EL1
+	stp	x9, x10, [x11, #CTX_PACDBKEY_LO]
+
+	mrs	x9, APGAKeyLo_EL1
+	mrs	x10, APGAKeyHi_EL1
+	stp	x9, x10, [x11, #CTX_PACGAKEY_LO]
+
+	ret
+endfunc pauth_context_save
+
+/* -----------------------------------------------------
+ * The following function strictly follows the AArch64
+ * PCS to use x9-x17 (temporary caller-saved registers)
+ * to restore the ARMv8.3-PAuth register context. It assumes
+ * that 'sp' is pointing to a 'cpu_context_t' structure
+ * from where the register context will be restored.
+ * -----------------------------------------------------
+ */
+func pauth_context_restore
+	add	x11, sp, #CTX_PAUTH_REGS_OFFSET
+
+	ldp	x9, x10, [x11, #CTX_PACIAKEY_LO]
+	msr	APIAKeyLo_EL1, x9
+	msr	APIAKeyHi_EL1, x10
+
+	ldp	x9, x10, [x11, #CTX_PACIAKEY_LO]
+	msr	APIBKeyLo_EL1, x9
+	msr	APIBKeyHi_EL1, x10
+
+	ldp	x9, x10, [x11, #CTX_PACDAKEY_LO]
+	msr	APDAKeyLo_EL1, x9
+	msr	APDAKeyHi_EL1, x10
+
+	ldp	x9, x10, [x11, #CTX_PACDBKEY_LO]
+	msr	APDBKeyLo_EL1, x9
+	msr	APDBKeyHi_EL1, x10
+
+	ldp	x9, x10, [x11, #CTX_PACGAKEY_LO]
+	msr	APGAKeyLo_EL1, x9
+	msr	APGAKeyHi_EL1, x10
+
+	ret
+endfunc pauth_context_restore
+#endif /* CTX_INCLUDE_PAUTH_REGS */
+
 /* -----------------------------------------------------
  * The following functions are used to save and restore
  * all the general purpose registers. Ideally we would
@@ -413,6 +487,11 @@ func el3_exit
 	beq	1f
 	blr	x17
 1:
+#endif
+
+#if CTX_INCLUDE_PAUTH_REGS
+	/* Restore ARMv8.3-PAuth registers */
+	bl	pauth_context_restore
 #endif
 
 	/* Restore saved general purpose registers and return */

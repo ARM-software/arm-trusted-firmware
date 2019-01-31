@@ -76,9 +76,16 @@
 	 * authentication instructions from lower ELs.
 	 * ---------------------------------------------------------------------
 	 */
-	mov_imm	x0, ((SCR_RESET_VAL | SCR_EA_BIT | SCR_SIF_BIT | \
-				SCR_API_BIT | SCR_APK_BIT) \
+	mov_imm	x0, ((SCR_RESET_VAL | SCR_EA_BIT | SCR_SIF_BIT) \
 			& ~(SCR_TWE_BIT | SCR_TWI_BIT | SCR_SMD_BIT))
+#if CTX_INCLUDE_PAUTH_REGS
+	/*
+	 * If the pointer authentication registers are saved during world
+	 * switches, enable pointer authentication everywhere, as it is safe to
+	 * do so.
+	 */
+	orr	x0, x0, #(SCR_API_BIT | SCR_APK_BIT)
+#endif
 	msr	scr_el3, x0
 
 	/* ---------------------------------------------------------------------

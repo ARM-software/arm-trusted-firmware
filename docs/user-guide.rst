@@ -358,6 +358,12 @@ Common build options
    registers to be included when saving and restoring the CPU context. Default
    is 0.
 
+-  ``CTX_INCLUDE_PAUTH_REGS``: Boolean option that, when set to 1, will cause
+   the ARMv8.3-PAuth registers to be included when saving and restoring the CPU
+   context. Note that if the hardware supports this extension and this option is
+   set to 0 the value of the registers will be leaked between Secure and
+   Non-secure worlds. The default is 0.
+
 -  ``DEBUG``: Chooses between a debug and release build. It can take either 0
    (release) or 1 (debug) as values. 0 is the default.
 
