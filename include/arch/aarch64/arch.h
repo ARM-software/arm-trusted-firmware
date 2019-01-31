@@ -204,6 +204,10 @@
 
 /* ID_AA64MMFR2_EL1 definitions */
 #define ID_AA64MMFR2_EL1		S3_0_C0_C7_2
+
+#define ID_AA64MMFR2_EL1_ST_SHIFT	U(28)
+#define ID_AA64MMFR2_EL1_ST_MASK	ULL(0xf)
+
 #define ID_AA64MMFR2_EL1_CNP_SHIFT	U(0)
 #define ID_AA64MMFR2_EL1_CNP_MASK	ULL(0xf)
 
@@ -427,6 +431,7 @@
 
 #define TCR_TxSZ_MIN		ULL(16)
 #define TCR_TxSZ_MAX		ULL(39)
+#define TCR_TxSZ_MAX_TTST	ULL(48)
 
 /* (internal) physical address size bits in EL3/EL1 */
 #define TCR_PS_BITS_4GB		ULL(0x0)

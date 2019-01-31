@@ -125,9 +125,6 @@ struct xlat_ctx {
 #define REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, _mmap_count,		\
 			_xlat_tables_count, _virt_addr_space_size,	\
 			_phy_addr_space_size, _xlat_regime, _section_name)\
-	CASSERT(CHECK_VIRT_ADDR_SPACE_SIZE(_virt_addr_space_size),	\
-		assert_invalid_virtual_addr_space_size_for_##_ctx_name);\
-									\
 	CASSERT(CHECK_PHY_ADDR_SPACE_SIZE(_phy_addr_space_size),	\
 		assert_invalid_physical_addr_space_sizefor_##_ctx_name);\
 									\

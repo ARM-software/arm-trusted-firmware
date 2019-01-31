@@ -101,6 +101,21 @@ unsigned long long xlat_arch_get_max_supported_pa(void)
 
 	return (1ULL << pa_range_bits_arr[pa_range]) - 1ULL;
 }
+
+/*
+ * Return minimum virtual address space size supported by the architecture
+ */
+uintptr_t xlat_get_min_virt_addr_space_size(void)
+{
+	uintptr_t ret;
+
+	if (is_armv8_4_ttst_present())
+		ret = MIN_VIRT_ADDR_SPACE_SIZE_TTST;
+	else
+		ret = MIN_VIRT_ADDR_SPACE_SIZE;
+
+	return ret;
+}
 #endif /* ENABLE_ASSERTIONS*/
 
 bool is_mmu_enabled_ctx(const xlat_ctx_t *ctx)
@@ -221,7 +236,11 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 	assert(max_va < ((uint64_t)UINTPTR_MAX));
 
 	virtual_addr_space_size = (uintptr_t)max_va + 1U;
-	assert(CHECK_VIRT_ADDR_SPACE_SIZE(virtual_addr_space_size));
+
+	assert(virtual_addr_space_size >=
+		xlat_get_min_virt_addr_space_size());
+	assert(virtual_addr_space_size <= MAX_VIRT_ADDR_SPACE_SIZE);
+	assert(IS_POWER_OF_TWO(virtual_addr_space_size));
 
 	/*
 	 * __builtin_ctzll(0) is undefined but here we are guaranteed that
