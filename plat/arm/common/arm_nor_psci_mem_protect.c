@@ -21,7 +21,7 @@
  * until the end of DRAM1.
  * We limit the size of DRAM2 to 1 GB to avoid big delays while booting
  */
-#define DRAM1_NS_IMAGE_LIMIT  (PLAT_ARM_NS_IMAGE_OFFSET + (32 << TWO_MB_SHIFT))
+#define DRAM1_NS_IMAGE_LIMIT  (PLAT_ARM_NS_IMAGE_BASE + (32 << TWO_MB_SHIFT))
 #define DRAM1_PROTECTED_SIZE  (ARM_NS_DRAM1_END+1u - DRAM1_NS_IMAGE_LIMIT)
 
 static mem_region_t arm_ram_ranges[] = {

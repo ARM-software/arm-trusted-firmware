@@ -53,7 +53,7 @@
 /*
  * Load address of BL33 for this platform port
  */
-#define PLAT_ARM_NS_IMAGE_OFFSET	(ARM_DRAM1_BASE + UL(0x8000000))
+#define PLAT_ARM_NS_IMAGE_BASE		(ARM_DRAM1_BASE + UL(0x8000000))
 
 /*
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
