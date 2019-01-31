@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <common/runtime_svc.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/smccc.h>
 #include <lib/utils.h>
@@ -154,9 +155,10 @@ static int32_t sprt_memory_perm_attr_set(sp_context_t *sp_ctx,
 /*******************************************************************************
  * This function handles all SMCs in the range reserved for SPRT.
  ******************************************************************************/
-uint64_t sprt_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
-			  uint64_t x3, uint64_t x4, void *cookie, void *handle,
-			  uint64_t flags)
+static uintptr_t sprt_smc_handler(uint32_t smc_fid, u_register_t x1,
+				  u_register_t x2, u_register_t x3,
+				  u_register_t x4, void *cookie, void *handle,
+				  u_register_t flags)
 {
 	/* SPRT only supported from the Secure world */
 	if (is_caller_non_secure(flags) == SMC_FROM_NON_SECURE) {
@@ -214,3 +216,12 @@ uint64_t sprt_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	WARN("SPRT: Unsupported call 0x%08x\n", smc_fid);
 	SMC_RET1(handle, SPRT_NOT_SUPPORTED);
 }
+
+DECLARE_RT_SVC(
+	sprt_handler,
+	OEN_SPRT_START,
+	OEN_SPRT_END,
+	SMC_TYPE_FAST,
+	NULL,
+	sprt_smc_handler
+);

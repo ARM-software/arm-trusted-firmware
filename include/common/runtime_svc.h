@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,17 +36,8 @@
  * In SMCCC 1.X, the function identifier has 6 bits for the owning entity number
  * and a single bit for the type of smc call. When taken together, those values
  * limit the maximum number of runtime services to 128.
- *
- * In SMCCC 2.X the type bit is always 1 and there are only 4 OEN bits in the
- * compatibility namespace, so the total number of services is 16. The LSB of
- * namespace is also added to these 4 bits to make space for the vendor service
- * handler and so the total number of runtime services is 32.
  */
-#if SMCCC_MAJOR_VERSION == 1
 #define MAX_RT_SVCS		U(128)
-#elif SMCCC_MAJOR_VERSION == 2
-#define MAX_RT_SVCS		U(32)
-#endif
 
 #ifndef __ASSEMBLY__
 
@@ -70,11 +61,7 @@ typedef uintptr_t (*rt_svc_handle_t)(uint32_t smc_fid,
 typedef struct rt_svc_desc {
 	uint8_t start_oen;
 	uint8_t end_oen;
-#if SMCCC_MAJOR_VERSION == 1
 	uint8_t call_type;
-#elif SMCCC_MAJOR_VERSION == 2
-	uint8_t is_vendor;
-#endif
 	const char *name;
 	rt_svc_init_t init;
 	rt_svc_handle_t handle;
@@ -83,8 +70,6 @@ typedef struct rt_svc_desc {
 /*
  * Convenience macros to declare a service descriptor
  */
-#if SMCCC_MAJOR_VERSION == 1
-
 #define DECLARE_RT_SVC(_name, _start, _end, _type, _setup, _smch)	\
 	static const rt_svc_desc_t __svc_desc_ ## _name			\
 		__section("rt_svc_descs") __used = {			\
@@ -95,37 +80,6 @@ typedef struct rt_svc_desc {
 			.init = (_setup),				\
 			.handle = (_smch)				\
 		}
-
-#elif SMCCC_MAJOR_VERSION == 2
-
-#define DECLARE_RT_SVC(_name, _start, _end, _type, _setup, _smch)	\
-	static const rt_svc_desc_t __svc_desc_ ## _name			\
-		__section("rt_svc_descs") __used = {			\
-			.start_oen = (_start),				\
-			.end_oen = (_end),				\
-			.is_vendor = 0,					\
-			.name = #_name,					\
-			.init = (_setup),				\
-			.handle = (_smch),				\
-		};							\
-	CASSERT((_type) == SMC_TYPE_FAST, rt_svc_type_check_ ## _name)
-
-/*
- * The higher 16 entries of the runtime services are used for the vendor
- * specific descriptor.
- */
-#define DECLARE_RT_SVC_VENDOR(_setup, _smch)				\
-	static const rt_svc_desc_t __svc_desc_vendor			\
-		__section("rt_svc_descs") __used = {			\
-			.start_oen = 0,					\
-			.end_oen = 15,					\
-			.is_vendor = 1,					\
-			.name = "vendor_rt_svc",			\
-			.init = _setup,					\
-			.handle = _smch,				\
-		}
-
-#endif /* SMCCC_MAJOR_VERSION */
 
 /*
  * Compile time assertions related to the 'rt_svc_desc' structure to:
@@ -144,7 +98,6 @@ CASSERT(RT_SVC_DESC_HANDLE == __builtin_offsetof(rt_svc_desc_t, handle), \
 	assert_rt_svc_desc_handle_offset_mismatch);
 
 
-#if SMCCC_MAJOR_VERSION == 1
 /*
  * This function combines the call type and the owning entity number
  * corresponding to a runtime service to generate a unique owning entity number.
@@ -168,22 +121,6 @@ static inline uint32_t get_unique_oen_from_smc_fid(uint32_t fid)
 {
 	return get_unique_oen(GET_SMC_OEN(fid), GET_SMC_TYPE(fid));
 }
-
-#elif SMCCC_MAJOR_VERSION == 2
-
-/*
- * This function combines the owning entity number corresponding to a runtime
- * service with one extra bit for the vendor namespace to generate an index into
- * the 'rt_svc_descs_indices' array. The entry contains the index of the service
- * descriptor in the 'rt_svc_descs' array.
- */
-static inline uint32_t get_rt_desc_idx(uint32_t oen, uint32_t is_vendor)
-{
-	return ((is_vendor & 1U) << FUNCID_OEN_WIDTH) |
-		(oen & FUNCID_OEN_MASK);
-}
-
-#endif
 
 /*******************************************************************************
  * Function & variable prototypes

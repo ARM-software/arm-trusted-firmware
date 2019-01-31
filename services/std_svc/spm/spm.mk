@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -25,9 +25,6 @@ SPM_SOURCES	:=	$(addprefix services/std_svc/spm/,	\
 			${SPRT_LIB_SOURCES}
 
 INCLUDES	+=	${SPRT_LIB_INCLUDES}
-
-# Force SMC Calling Convention 2 when using SPM
-SMCCC_MAJOR_VERSION	:=	2
 
 # Let the top-level Makefile know that we intend to include a BL32 image
 NEED_BL32		:=	yes

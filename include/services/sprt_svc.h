@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,10 +37,13 @@
 
 /* Definitions to build the complete SMC ID */
 
-#define SPRT_SMC_64(sprt_fid)	((FUNCID_NAMESPACE_SPRT << FUNCID_NAMESPACE_SHIFT) | \
+#define OEN_SPRT_START			U(0x20)
+#define OEN_SPRT_END			U(0x2F)
+
+#define SPRT_SMC_64(sprt_fid)	((OEN_SPRT_START << FUNCID_OEN_SHIFT) | \
 				 (U(1) << 31) | ((sprt_fid) & SPRT_FID_MASK) | \
 				 (SMC_64 << FUNCID_CC_SHIFT))
-#define SPRT_SMC_32(sprt_fid)	((FUNCID_NAMESPACE_SPRT << FUNCID_NAMESPACE_SHIFT) | \
+#define SPRT_SMC_32(sprt_fid)	((OEN_SPRT_START << FUNCID_OEN_SHIFT) | \
 				 (U(1) << 31) | ((sprt_fid) & SPRT_FID_MASK) | \
 				 (SMC_32 << FUNCID_CC_SHIFT))
 

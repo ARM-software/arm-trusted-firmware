@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,7 +34,10 @@
 #define SPCI_FID_TUN_SHIFT		U(24)
 #define SPCI_FID_TUN_MASK		U(0x7)
 
-#define SPCI_SMC(spci_fid)	((FUNCID_NAMESPACE_SPCI << FUNCID_NAMESPACE_SHIFT) | \
+#define OEN_SPCI_START			U(0x30)
+#define OEN_SPCI_END			U(0x3F)
+
+#define SPCI_SMC(spci_fid)	((OEN_SPCI_START << FUNCID_OEN_SHIFT) | \
 				 (U(1) << 31) | (spci_fid))
 #define SPCI_MISC_32(misc_fid)	((SMC_32 << FUNCID_CC_SHIFT) |	\
 				 SPCI_FID_MISC_FLAG |		\
