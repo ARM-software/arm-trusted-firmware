@@ -248,7 +248,6 @@ DTC_CPPFLAGS		+=	-nostdinc -Iinclude -undef -x assembler-with-cpp
 # Common sources and include directories
 ################################################################################
 include lib/compiler-rt/compiler-rt.mk
-include lib/libc/libc.mk
 
 BL_COMMON_SOURCES	+=	common/bl_common.c			\
 				common/tf_log.c				\
@@ -390,6 +389,13 @@ $(info Including ${AARCH32_SP_MAKE})
 include ${AARCH32_SP_MAKE}
 endif
 
+endif
+
+################################################################################
+# Include libc if not overridden
+################################################################################
+ifeq (${OVERRIDE_LIBC},0)
+include lib/libc/libc.mk
 endif
 
 ################################################################################
@@ -595,6 +601,7 @@ $(eval $(call assert_boolean,HANDLE_EA_EL3_FIRST))
 $(eval $(call assert_boolean,HW_ASSISTED_COHERENCY))
 $(eval $(call assert_boolean,MULTI_CONSOLE_API))
 $(eval $(call assert_boolean,NS_TIMER_SWITCH))
+$(eval $(call assert_boolean,OVERRIDE_LIBC))
 $(eval $(call assert_boolean,PL011_GENERIC_UART))
 $(eval $(call assert_boolean,PROGRAMMABLE_RESET_ADDRESS))
 $(eval $(call assert_boolean,PSCI_EXTENDED_STATE_ID))

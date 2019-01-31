@@ -122,6 +122,9 @@ MULTI_CONSOLE_API		:= 0
 # NS timer register save and restore
 NS_TIMER_SWITCH			:= 0
 
+# Include lib/libc in the final image
+OVERRIDE_LIBC			:= 0
+
 # Build PL011 UART driver in minimal generic UART mode
 PL011_GENERIC_UART		:= 0
 
