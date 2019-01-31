@@ -169,8 +169,12 @@ Raspberry Pi 3 platform port
 ----------------------------
 :M: Antonio Niño Díaz <antonio.ninodiaz@arm.com>
 :G: `antonio-nino-diaz-arm`_
+:M: Ying-Chun Liu (PaulLiu) <paul.liu@linaro.org>
+:G: `grandpaul`_
 :F: docs/plat/rpi3.rst
 :F: plat/rpi3/
+:F: drivers/rpi3/
+:F: include/drivers/rpi3/
 
 Renesas rcar-gen3 platform port
 -------------------------------
