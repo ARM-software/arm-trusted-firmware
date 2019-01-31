@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -300,7 +300,7 @@ static int mmc_fill_device_info(void)
 		break;
 	}
 
-	if (ret != 0) {
+	if (ret < 0) {
 		return ret;
 	}
 
