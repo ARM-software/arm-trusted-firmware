@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,16 +29,31 @@ func bl2_entrypoint
 		_init_c_runtime=1                               \
 		_exception_vectors=bl2_el3_exceptions
 
-	/*
+	/* ---------------------------------------------
 	 * Restore parameters of boot rom
+	 * ---------------------------------------------
 	 */
 	mov	x0, x20
 	mov	x1, x21
 	mov	x2, x22
 	mov	x3, x23
 
-	bl	bl2_el3_early_platform_setup
-	bl	bl2_el3_plat_arch_setup
+	/* ---------------------------------------------
+	 * Perform BL2 setup
+	 * ---------------------------------------------
+	 */
+	bl	bl2_el3_setup
+
+	/* ---------------------------------------------
+	 * Enable pointer authentication
+	 * ---------------------------------------------
+	 */
+#if ENABLE_PAUTH
+	mrs	x0, sctlr_el3
+	orr	x0, x0, #SCTLR_EnIA_BIT
+	msr	sctlr_el3, x0
+	isb
+#endif /* ENABLE_PAUTH */
 
 	/* ---------------------------------------------
 	 * Jump to main function.
@@ -55,15 +70,28 @@ endfunc bl2_entrypoint
 
 func bl2_run_next_image
 	mov	x20,x0
-        /*
-         * MMU needs to be disabled because both BL2 and BL31 execute
-         * in EL3, and therefore share the same address space.
-         * BL31 will initialize the address space according to its
-         * own requirement.
-         */
+	/* ---------------------------------------------
+	 * MMU needs to be disabled because both BL2 and BL31 execute
+	 * in EL3, and therefore share the same address space.
+	 * BL31 will initialize the address space according to its
+	 * own requirement.
+	 * ---------------------------------------------
+	 */
 	bl	disable_mmu_icache_el3
 	tlbi	alle3
 	bl	bl2_el3_plat_prepare_exit
+
+	/* ---------------------------------------------
+	 * Disable pointer authentication before jumping to BL31 or that will
+	 * cause an authentication failure during the early platform init.
+	 * ---------------------------------------------
+	 */
+#if ENABLE_PAUTH
+	mrs	x0, sctlr_el3
+	bic	x0, x0, #SCTLR_EnIA_BIT
+	msr	sctlr_el3, x0
+	isb
+#endif /* ENABLE_PAUTH */
 
 	ldp	x0, x1, [x20, #ENTRY_POINT_INFO_PC_OFFSET]
 	msr	elr_el3, x0
