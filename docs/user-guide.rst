@@ -86,6 +86,46 @@ Download the TF-A source code from Github:
 
     git clone https://github.com/ARM-software/arm-trusted-firmware.git
 
+Checking source code style
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Trusted Firmware follows the `Linux Coding Style`_ . When making changes to the
+source, for submission to the project, the source must be in compliance with
+this style guide.
+
+Additional, project-specific guidelines are defined in the `Trusted Firmware-A
+Coding Guidelines`_ document.
+
+To assist with coding style compliance, the project Makefile contains two
+targets which both utilise the `checkpatch.pl` script that ships with the Linux
+source tree. The project also defines certain *checkpatch* options in the
+``.checkpatch.conf`` file in the top-level directory.
+
+**Note:** Checkpatch errors will gate upstream merging of pull requests.
+Checkpatch warnings will not gate merging but should be reviewed and fixed if
+possible.
+
+To check the entire source tree, you must first download copies of
+``checkpatch.pl``, ``spelling.txt`` and ``const_structs.checkpatch`` available
+in the `Linux master tree`_ *scripts* directory, then set the ``CHECKPATCH``
+environment variable to point to ``checkpatch.pl`` (with the other 2 files in
+the same directory) and build the `checkcodebase` target:
+
+::
+
+    make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkcodebase
+
+To just check the style on the files that differ between your local branch and
+the remote master, use:
+
+::
+
+    make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkpatch
+
+If you wish to check your patch against something other than the remote master,
+set the ``BASE_COMMIT`` variable to your desired branch. By default, ``BASE_COMMIT``
+is set to ``origin/master``.
+
 Building TF-A
 -------------
 
@@ -930,34 +970,6 @@ An additional boot loader binary file is created in the ``build`` directory:
 
     build/<platform>/<build-type>/bl32.bin
 
-Checking source code style
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When making changes to the source for submission to the project, the source
-must be in compliance with the Linux style guide, and to assist with this check
-the project Makefile contains two targets, which both utilise the
-``checkpatch.pl`` script that ships with the Linux source tree.
-
-To check the entire source tree, you must first download copies of
-``checkpatch.pl``, ``spelling.txt`` and ``const_structs.checkpatch`` available
-in the `Linux master tree`_ scripts directory, then set the ``CHECKPATCH``
-environment variable to point to ``checkpatch.pl`` (with the other 2 files in
-the same directory) and build the target checkcodebase:
-
-::
-
-    make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkcodebase
-
-To just check the style on the files that differ between your local branch and
-the remote master, use:
-
-::
-
-    make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkpatch
-
-If you wish to check your patch against something other than the remote master,
-set the ``BASE_COMMIT`` variable to your desired branch. By default, ``BASE_COMMIT``
-is set to ``origin/master``.
 
 Building and using the FIP tool
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2054,6 +2066,7 @@ wakeup interrupt from RTC.
 .. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/w/docs/303/juno
 .. _Arm Platforms Portal: https://community.arm.com/dev-platforms/
 .. _Development Studio 5 (DS-5): http://www.arm.com/products/tools/software-tools/ds-5/index.php
+.. _`Linux Coding Style`: https://www.kernel.org/doc/html/latest/process/coding-style.html
 .. _Linux master tree: https://github.com/torvalds/linux/tree/master/
 .. _Dia: https://wiki.gnome.org/Apps/Dia/Download
 .. _here: psci-lib-integration-guide.rst
@@ -2069,3 +2082,4 @@ wakeup interrupt from RTC.
 .. _Juno Getting Started Guide: http://infocenter.arm.com/help/topic/com.arm.doc.dui0928e/DUI0928E_juno_arm_development_platform_gsg.pdf
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _Secure Partition Manager Design guide: secure-partition-manager-design.rst
+.. _`Trusted Firmware-A Coding Guidelines`: coding-guidelines.rst
