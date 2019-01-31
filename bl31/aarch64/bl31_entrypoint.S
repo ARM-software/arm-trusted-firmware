@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -87,29 +87,39 @@ func bl31_entrypoint
 	bl	fixup_gdt_reloc
 #endif /* ENABLE_PIE */
 
-	/* ---------------------------------------------
-	 * Perform platform specific early arch. setup
-	 * ---------------------------------------------
+	/* --------------------------------------------------------------------
+	 * Perform BL31 setup
+	 * --------------------------------------------------------------------
 	 */
 	mov	x0, x20
 	mov	x1, x21
 	mov	x2, x22
 	mov	x3, x23
-	bl	bl31_early_platform_setup2
-	bl	bl31_plat_arch_setup
+	bl	bl31_setup
 
-	/* ---------------------------------------------
+	/* --------------------------------------------------------------------
+	 * Enable pointer authentication
+	 * --------------------------------------------------------------------
+	 */
+#if ENABLE_PAUTH
+	mrs	x0, sctlr_el3
+	orr	x0, x0, #SCTLR_EnIA_BIT
+	msr	sctlr_el3, x0
+	isb
+#endif /* ENABLE_PAUTH */
+
+	/* --------------------------------------------------------------------
 	 * Jump to main function.
-	 * ---------------------------------------------
+	 * --------------------------------------------------------------------
 	 */
 	bl	bl31_main
 
-	/* -------------------------------------------------------------
+	/* --------------------------------------------------------------------
 	 * Clean the .data & .bss sections to main memory. This ensures
 	 * that any global data which was initialised by the primary CPU
 	 * is visible to secondary CPUs before they enable their data
 	 * caches and participate in coherency.
-	 * -------------------------------------------------------------
+	 * --------------------------------------------------------------------
 	 */
 	adr	x0, __DATA_START__
 	adr	x1, __DATA_END__
