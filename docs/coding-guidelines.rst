@@ -72,6 +72,7 @@ Groups must be separated by a single blank line for clarity.
 
 The example below illustrates the ordering rules using some contrived header
 file names; this type of name reuse should be otherwise avoided.
+
 .. code:: c
 
   #include <string.h>
@@ -98,6 +99,7 @@ For header files that are **not** in the same directory as the source file that
 is including them, use the ``<...>`` variant.
 
 Example (bl1_fwu.c):
+
 .. code:: c
 
   #include <assert.h>
@@ -114,6 +116,7 @@ The ``PLAT_INCLUDES`` variable is used for this purpose. This is needed in
 particular for the file ``platform_def.h``.
 
 Example:
+
 .. code:: c
 
   PLAT_INCLUDES  += -Iinclude/plat/myplat/include
