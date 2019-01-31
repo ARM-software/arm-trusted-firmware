@@ -274,12 +274,6 @@ Common build options
    compiling TF-A. Its value must be a numeric, and defaults to 0. See also,
    *Armv8 Architecture Extensions* in `Firmware Design`_.
 
--  ``ARM_PLAT_MT``: This flag determines whether the Arm platform layer has to
-   cater for the multi-threading ``MT`` bit when accessing MPIDR. When this flag
-   is set, the functions which deal with MPIDR assume that the ``MT`` bit in
-   MPIDR is set and access the bit-fields in MPIDR accordingly. Default value of
-   this flag is 0. Note that this option is not used on FVP platforms.
-
 -  ``BL2``: This is an optional build option which specifies the path to BL2
    image for the ``fip`` target. In this case, the BL2 in the TF-A will not be
    built.
@@ -769,6 +763,12 @@ Arm development platform specific build options
    to the location of a device tree blob (DTB) already loaded in memory. The
    Linux Image address must be specified using the ``PRELOADED_BL33_BASE``
    option.
+
+-  ``ARM_PLAT_MT``: This flag determines whether the Arm platform layer has to
+   cater for the multi-threading ``MT`` bit when accessing MPIDR. When this flag
+   is set, the functions which deal with MPIDR assume that the ``MT`` bit in
+   MPIDR is set and access the bit-fields in MPIDR accordingly. Default value of
+   this flag is 0. Note that this option is not used on FVP platforms.
 
 -  ``ARM_RECOM_STATE_ID_ENC``: The PSCI1.0 specification recommends an encoding
    for the construction of composite state-ID in the power-state parameter.
