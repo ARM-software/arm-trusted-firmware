@@ -24,6 +24,9 @@
 #define GPIO_INOUTSEL2		0xE6052004
 #define GPIO_INOUTSEL6		0xE6055404
 
+/* General IO/Interrupt Switching Register */
+#define GPIO_IOINTSEL6		0xE6055400
+
 /* GPIO/perihperal function select */
 #define PFC_GPSR2		0xE6060108
 #define PFC_GPSR6		0xE6060118
@@ -93,6 +96,7 @@ static void cpld_init(void)
 	gpio_pfc(PFC_GPSR2, SSTBZ);
 	gpio_pfc(PFC_GPSR6, MOSI);
 
+	gpio_set_value(GPIO_IOINTSEL6, SCLK, 0);
 	gpio_set_value(GPIO_OUTDT6, SCLK, 0);
 	gpio_set_value(GPIO_OUTDT2, SSTBZ, 1);
 	gpio_set_value(GPIO_OUTDT6, MOSI, 0);

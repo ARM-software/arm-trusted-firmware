@@ -175,7 +175,7 @@ static void __dead2 rcar_system_off(void)
 	uint64_t cpu = read_mpidr_el1() & 0x0000ffff;
 	int32_t rtn_on;
 
-	rtn_on = cpu_on_check(cpu);
+	rtn_on = rcar_pwrc_cpu_on_check(cpu);
 
 	if (cpu == rcar_boot_mpidr)
 		panic();
