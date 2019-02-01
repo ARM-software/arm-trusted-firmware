@@ -10,7 +10,6 @@ RK_PLAT_COMMON		:=	${RK_PLAT}/common
 
 PLAT_INCLUDES		:=	-Idrivers/arm/gic/common/			\
 				-Idrivers/arm/gic/v2/			\
-				-Iinclude/plat/common/				\
 				-I${RK_PLAT_COMMON}/                            \
 				-I${RK_PLAT_COMMON}/include/                    \
 				-I${RK_PLAT_COMMON}/pmusram                     \

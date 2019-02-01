@@ -23,8 +23,6 @@ LS1043_SECURITY_SOURCES 	:=	plat/layerscape/common/ls_tzc380.c	\
 
 PLAT_INCLUDES			:=	-Iplat/layerscape/board/ls1043/include   \
 					-Iplat/layerscape/common/include	\
-					-Iinclude/lib
-
 
 PLAT_BL_COMMON_SOURCES		:=	plat/layerscape/common/aarch64/ls_console.S
 

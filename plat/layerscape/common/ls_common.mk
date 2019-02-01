@@ -15,8 +15,6 @@ SEPARATE_CODE_AND_RODATA	:=	1
 
 COLD_BOOT_SINGLE_CPU		:=	1
 
-PLAT_INCLUDES		+=	-Iinclude/common/tbbr
-
 PLAT_BL_COMMON_SOURCES	+=	plat/layerscape/common/${ARCH}/ls_helpers.S		\
 				plat/layerscape/common/ls_common.c
 

@@ -22,8 +22,7 @@ $(eval $(call add_define,ARO_ENABLE))
 LLC_ENABLE			:= 1
 $(eval $(call add_define,LLC_ENABLE))
 
-PLAT_INCLUDES		+=	-I. -Iinclude/common -Iinclude/common/tbbr	\
-				-I$(MARVELL_PLAT_INCLUDE_BASE)/common	\
+PLAT_INCLUDES		+=	-I$(MARVELL_PLAT_INCLUDE_BASE)/common	\
 				-I$(MARVELL_PLAT_INCLUDE_BASE)/common/aarch64
 
 

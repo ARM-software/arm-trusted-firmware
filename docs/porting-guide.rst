@@ -103,19 +103,12 @@ File : platform\_def.h [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each platform must ensure that a header file of this name is in the system
-include path with the following constants defined. This may require updating the
-list of ``PLAT_INCLUDES`` in the ``platform.mk`` file. In the Arm development
-platforms, this file is found in ``plat/arm/board/<plat_name>/include/``.
+include path with the following constants defined. This will require updating
+the list of ``PLAT_INCLUDES`` in the ``platform.mk`` file.
 
 Platform ports may optionally use the file `include/plat/common/common\_def.h`_,
 which provides typical values for some of the constants below. These values are
 likely to be suitable for all platform ports.
-
-Platform ports that want to be aligned with standard Arm platforms (for example
-FVP and Juno) may also use `include/plat/arm/common/arm\_def.h`_, which provides
-standard values for some of the constants below. However, this requires the
-platform port to define additional platform porting constants in
-``platform_def.h``. These additional constants are not documented here.
 
 -  **#define : PLATFORM\_LINKER\_FORMAT**
 

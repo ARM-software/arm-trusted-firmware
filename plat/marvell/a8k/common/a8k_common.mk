@@ -45,12 +45,9 @@ MARVELL_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_helpers.c	\
 				plat/common/plat_gicv2.c
 
-ATF_INCLUDES		:=	-Iinclude/common/tbbr
-
 PLAT_INCLUDES		:=	-I$(PLAT_FAMILY_BASE)/$(PLAT)		\
 				-I$(PLAT_COMMON_BASE)/include		\
-				-I$(PLAT_INCLUDE_BASE)/common		\
-				$(ATF_INCLUDES)
+				-I$(PLAT_INCLUDE_BASE)/common
 
 PLAT_BL_COMMON_SOURCES	:=	$(PLAT_COMMON_BASE)/aarch64/a8k_common.c \
 				drivers/ti/uart/aarch64/16550_console.S

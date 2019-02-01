@@ -30,9 +30,7 @@ $(eval $(call add_define,QEMU_LOAD_BL32))
 endif
 
 PLAT_PATH               :=      plat/qemu/
-PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/		\
-				-Iplat/qemu/include			\
-				-Iinclude/common/tbbr
+PLAT_INCLUDES		:=	-Iplat/qemu/include
 
 ifeq (${ARM_ARCH_MAJOR},8)
 PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/${ARCH}
@@ -54,8 +52,6 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 				drivers/auth/crypto_mod.c		\
 				drivers/auth/img_parser_mod.c		\
 				drivers/auth/tbbr/tbbr_cot.c
-
-    PLAT_INCLUDES	+=	-Iinclude/bl1/tbbr
 
     BL1_SOURCES		+=	${AUTH_SOURCES}				\
 				bl1/tbbr/tbbr_img_desc.c		\
