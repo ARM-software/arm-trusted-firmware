@@ -189,11 +189,6 @@ typedef struct bl_params {
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
-size_t get_image_size(unsigned int image_id);
-
-int is_mem_free(uintptr_t free_base, size_t free_size,
-		uintptr_t addr, size_t size);
-
 int load_auth_image(unsigned int image_id, image_info_t *image_data);
 
 #if TRUSTED_BOARD_BOOT && defined(DYN_DISABLE_AUTH)
