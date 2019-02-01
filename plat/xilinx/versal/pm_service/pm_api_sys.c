@@ -642,6 +642,26 @@ enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype)
 }
 
 /**
+* pm_query_data() -  PM API for querying firmware data
+* @qid	The type of data to query
+* @arg1	Argument 1 to requested query data call
+* @arg2	Argument 2 to requested query data call
+* @arg3	Argument 3 to requested query data call
+* @data	Returned output data
+*
+* This function returns requested data.
+*/
+enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
+				 uint32_t arg3, uint32_t *data)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD5(payload, LIBPM_MODULE_ID, PM_QUERY_DATA, qid, arg1,
+			 arg2, arg3);
+	return pm_ipi_send_sync(primary_proc, payload, data, 4);
+}
+/**
  * pm_api_ioctl() -  PM IOCTL API for device control and configs
  * @device_id	Device ID
  * @ioctl_id	ID of the requested IOCTL
