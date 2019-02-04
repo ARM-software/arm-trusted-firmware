@@ -66,9 +66,9 @@
  * BL33 specific defines.
  ******************************************************************************/
 #ifndef PRELOADED_BL33_BASE
-# define PLAT_ARM_NS_IMAGE_OFFSET	0x8000000
+# define PLAT_ARM_NS_IMAGE_BASE	0x8000000
 #else
-# define PLAT_ARM_NS_IMAGE_OFFSET	PRELOADED_BL33_BASE
+# define PLAT_ARM_NS_IMAGE_BASE	PRELOADED_BL33_BASE
 #endif
 
 /*******************************************************************************
