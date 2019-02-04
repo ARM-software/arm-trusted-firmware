@@ -1,0 +1,162 @@
+/*
+ * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <arch.h>
+#include <arch_helpers.h>
+#include <drivers/arm/gicv2.h>
+
+#include <drivers/generic_delay_timer.h>
+#include <drivers/console.h>
+#include <drivers/ti/uart/uart_16550.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/desc_image_load.h>
+#include <errno.h>
+#include <drivers/io/io_storage.h>
+#include <common/image_decompress.h>
+#include <plat/common/platform.h>
+#include <platform_def.h>
+#include <platform_private.h>
+#include <drivers/synopsys/dw_mmc.h>
+#include <lib/mmio.h>
+#include <lib/xlat_tables/xlat_tables.h>
+
+#include "s10_memory_controller.h"
+#include "s10_reset_manager.h"
+#include "s10_clock_manager.h"
+#include "s10_handoff.h"
+#include "s10_pinmux.h"
+#include "aarch64/stratix10_private.h"
+
+const mmap_region_t plat_stratix10_mmap[] = {
+	MAP_REGION_FLAT(DRAM_BASE, DRAM_SIZE, MT_MEMORY | MT_RW | MT_NS),
+	MAP_REGION_FLAT(DEVICE1_BASE, DEVICE1_SIZE, MT_DEVICE | MT_RW | MT_NS),
+	MAP_REGION_FLAT(DEVICE2_BASE, DEVICE2_SIZE, MT_DEVICE | MT_RW | MT_NS),
+	MAP_REGION_FLAT(OCRAM_BASE, OCRAM_SIZE,
+		MT_NON_CACHEABLE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(DEVICE3_BASE, DEVICE3_SIZE,
+		MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(MEM64_BASE, MEM64_SIZE, MT_DEVICE | MT_RW | MT_NS),
+	MAP_REGION_FLAT(DEVICE4_BASE, DEVICE4_SIZE, MT_DEVICE | MT_RW | MT_NS),
+	{0},
+};
+
+boot_source_type boot_source;
+
+void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
+				u_register_t x2, u_register_t x4)
+{
+	static console_16550_t console;
+	handoff reverse_handoff_ptr;
+
+	generic_delay_timer_init();
+
+	if (s10_get_handoff(&reverse_handoff_ptr))
+		return;
+	config_pinmux(&reverse_handoff_ptr);
+	boot_source = reverse_handoff_ptr.boot_source;
+
+	config_clkmgr_handoff(&reverse_handoff_ptr);
+	enable_nonsecure_access();
+	deassert_peripheral_reset();
+	config_hps_hs_before_warm_reset();
+
+	console_16550_register(PLAT_UART0_BASE, PLAT_UART_CLOCK, PLAT_BAUDRATE,
+		&console);
+
+	plat_delay_timer_init();
+	init_hard_memory_controller();
+}
+
+
+void bl2_el3_plat_arch_setup(void)
+{
+
+	struct mmc_device_info info;
+	const mmap_region_t bl_regions[] = {
+		MAP_REGION_FLAT(BL2_BASE, BL2_END - BL2_BASE,
+			MT_MEMORY | MT_RW | MT_SECURE),
+		MAP_REGION_FLAT(BL_CODE_BASE, BL_CODE_END - BL_CODE_BASE,
+			MT_CODE | MT_SECURE),
+		MAP_REGION_FLAT(BL_RO_DATA_BASE,
+			BL_RO_DATA_END - BL_RO_DATA_BASE,
+			MT_RO_DATA | MT_SECURE),
+#if USE_COHERENT_MEM_BAR
+		MAP_REGION_FLAT(BL_COHERENT_RAM_BASE,
+			BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,
+			MT_DEVICE | MT_RW | MT_SECURE),
+#endif
+		{0},
+	};
+
+	setup_page_tables(bl_regions, plat_stratix10_mmap);
+
+	enable_mmu_el3(0);
+
+	/* ECC Scrubbing */
+	memset(0, DRAM_BASE, DRAM_SIZE);
+
+	dw_mmc_params_t params = EMMC_INIT_PARAMS(0x100000);
+
+	info.mmc_dev_type = MMC_IS_SD;
+
+	switch (boot_source) {
+	case BOOT_SOURCE_SDMMC:
+		dw_mmc_init(&params, &info);
+		stratix10_io_setup();
+		break;
+	default:
+		ERROR("Unsupported boot source\n");
+		panic();
+		break;
+	}
+}
+
+uint32_t get_spsr_for_bl33_entry(void)
+{
+	unsigned long el_status;
+	unsigned int mode;
+	uint32_t spsr;
+
+	/* Figure out what mode we enter the non-secure world in */
+	el_status = read_id_aa64pfr0_el1() >> ID_AA64PFR0_EL2_SHIFT;
+	el_status &= ID_AA64PFR0_ELX_MASK;
+
+	mode = (el_status) ? MODE_EL2 : MODE_EL1;
+
+	/*
+	 * TODO: Consider the possibility of specifying the SPSR in
+	 * the FIP ToC and allowing the platform to have a say as
+	 * well.
+	 */
+	spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+	return spsr;
+}
+
+
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
+
+	switch (image_id) {
+	case BL33_IMAGE_ID:
+		bl_mem_params->ep_info.args.arg0 = 0xffff & read_mpidr();
+		bl_mem_params->ep_info.spsr = get_spsr_for_bl33_entry();
+		break;
+	default:
+		break;
+	}
+
+	return 0;
+}
+
+/*******************************************************************************
+ * Perform any BL3-1 platform setup code
+ ******************************************************************************/
+void bl2_platform_setup(void)
+{
+}
+
