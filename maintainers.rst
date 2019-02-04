@@ -93,6 +93,12 @@ HiSilicon Poplar platform port
 :F: docs/plat/poplar.rst
 :F: plat/hisilicon/poplar/
 
+Intel SocFPGA platform ports
+----------------------------
+:M: Tien Hock Loh <tien.hock.loh@intel.com>
+:G: `thloh85-intel`
+:F: plat/intel/soc
+
 MediaTek platform ports
 -----------------------
 :M: Yidi Lin (林以廸) <yidi.lin@mediatek.com>
