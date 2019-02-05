@@ -38,7 +38,7 @@ work_statistics_t tsp_stats[PLATFORM_CORE_COUNT];
  * linker symbol __BL32_END__. Use these addresses to compute the TSP image
  * size.
  ******************************************************************************/
-#define BL32_TOTAL_LIMIT (unsigned long)(&__BL32_END__)
+#define BL32_TOTAL_LIMIT BL32_END
 #define BL32_TOTAL_SIZE (BL32_TOTAL_LIMIT - (unsigned long) BL32_BASE)
 
 static tsp_args_t *set_smc_args(uint64_t arg0,

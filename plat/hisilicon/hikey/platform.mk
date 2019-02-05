@@ -45,8 +45,7 @@ endif
 
 USE_COHERENT_MEM	:=	1
 
-PLAT_INCLUDES		:=	-Iinclude/common/tbbr			\
-				-Iplat/hisilicon/hikey/include
+PLAT_INCLUDES		:=	-Iplat/hisilicon/hikey/include
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/aarch64/pl011_console.S \
 				lib/xlat_tables/aarch64/xlat_tables.c	\

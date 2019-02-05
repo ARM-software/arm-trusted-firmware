@@ -306,8 +306,7 @@ include drivers/staging/renesas/rcar/qos/qos.mk
 include drivers/staging/renesas/rcar/pfc/pfc.mk
 include lib/libfdt/libfdt.mk
 
-PLAT_INCLUDES	:=	-Iinclude/common/tbbr			\
-			-Idrivers/staging/renesas/rcar/ddr	\
+PLAT_INCLUDES	:=	-Idrivers/staging/renesas/rcar/ddr	\
 			-Idrivers/staging/renesas/rcar/qos	\
 			-Idrivers/renesas/rcar/iic_dvfs		\
 			-Idrivers/renesas/rcar/board		\

@@ -8,6 +8,7 @@
 #include <assert.h>
 
 #include <arch.h>
+#include <common/bl_common.h>
 #include <common/debug.h>
 #ifdef USE_CCI
 #include <drivers/arm/cci.h>
@@ -18,15 +19,6 @@
 #include <marvell_def.h>
 #include <marvell_plat_priv.h>
 #include <plat_marvell.h>
-
-/*
- * The next 3 constants identify the extents of the code, RO data region and the
- * limit of the BL31 image.  These addresses are used by the MMU setup code and
- * therefore they must be page-aligned.  It is the responsibility of the linker
- * script to ensure that __RO_START__, __RO_END__ & __BL31_END__ linker symbols
- * refer to page-aligned addresses.
- */
-#define BL31_END (unsigned long)(&__BL31_END__)
 
 /*
  * Placeholder variables for copying the arguments that have been passed to

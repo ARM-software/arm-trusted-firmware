@@ -23,7 +23,6 @@ PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
 				-I${MTK_PLAT_SOC}/drivers/timer/			\
 				-I${MTK_PLAT_SOC}/include/					\
 				-Iinclude/plat/arm/common/					\
-				-Iinclude/common/tbbr/					\
 				${OEMS_INCLUDES}
 
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/aarch64/xlat_tables.c			\

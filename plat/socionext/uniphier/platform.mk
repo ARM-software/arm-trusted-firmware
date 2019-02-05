@@ -72,8 +72,6 @@ ifeq (${TRUSTED_BOARD_BOOT},1)
 include drivers/auth/mbedtls/mbedtls_crypto.mk
 include drivers/auth/mbedtls/mbedtls_x509.mk
 
-PLAT_INCLUDES		+=	-Iinclude/common/tbbr
-
 BL2_SOURCES		+=	drivers/auth/auth_mod.c			\
 				drivers/auth/crypto_mod.c		\
 				drivers/auth/img_parser_mod.c		\

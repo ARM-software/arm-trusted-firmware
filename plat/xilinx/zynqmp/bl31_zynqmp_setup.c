@@ -16,8 +16,6 @@
 
 #include <plat_private.h>
 
-#define BL31_END (unsigned long)(&__BL31_END__)
-
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
 

@@ -24,14 +24,6 @@
 #include "hi3798cv200.h"
 #include "plat_private.h"
 
-/* Memory ranges for code and read only data sections */
-#define BL2_RO_BASE	(unsigned long)(&__RO_START__)
-#define BL2_RO_LIMIT	(unsigned long)(&__RO_END__)
-
-/* Memory ranges for coherent memory section */
-#define BL2_COHERENT_RAM_BASE	(unsigned long)(&__COHERENT_RAM_START__)
-#define BL2_COHERENT_RAM_LIMIT	(unsigned long)(&__COHERENT_RAM_END__)
-
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 static console_pl011_t console;
 
@@ -206,10 +198,10 @@ void bl2_plat_arch_setup(void)
 {
 	plat_configure_mmu_el1(bl2_tzram_layout.total_base,
 			       bl2_tzram_layout.total_size,
-			       BL2_RO_BASE,
-			       BL2_RO_LIMIT,
-			       BL2_COHERENT_RAM_BASE,
-			       BL2_COHERENT_RAM_LIMIT);
+			       BL_CODE_BASE,
+			       BL_CODE_END,
+			       BL_COHERENT_RAM_BASE,
+			       BL_COHERENT_RAM_END);
 }
 
 void bl2_platform_setup(void)

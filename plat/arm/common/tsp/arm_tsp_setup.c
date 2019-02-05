@@ -15,8 +15,6 @@
 #include <drivers/console.h>
 #include <plat/arm/common/plat_arm.h>
 
-#define BL32_END (unsigned long)(&__BL32_END__)
-
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak tsp_early_platform_setup
 #pragma weak tsp_platform_setup

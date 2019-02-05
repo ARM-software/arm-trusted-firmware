@@ -21,7 +21,6 @@ endif
 
 # Platform
 PLAT_INCLUDES		:=	-Idrivers/imx/uart			\
-				-Iinclude/common/tbbr			\
 				-Iplat/imx/common/include/		\
 				-Iplat/imx/imx7/warp7/include		\
 				-Idrivers/imx/timer			\

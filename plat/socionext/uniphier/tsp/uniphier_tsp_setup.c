@@ -6,11 +6,11 @@
 
 #include <platform_def.h>
 
+#include <common/bl_common.h>
 #include <lib/xlat_tables/xlat_mmu_helpers.h>
 
 #include "../uniphier.h"
 
-#define BL32_END		(unsigned long)(&__BL32_END__)
 #define BL32_SIZE		((BL32_END) - (BL32_BASE))
 
 void tsp_early_platform_setup(void)
