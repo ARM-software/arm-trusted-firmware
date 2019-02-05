@@ -43,6 +43,8 @@ Arm System Guidance for Infrastructure / Mobile FVP platforms
 -------------------------------------------------------------
 :M: Nariman Poushin <nariman.poushin@linaro.org>
 :G: `npoushin`_
+:M: Thomas Abraham <thomas.abraham@arm.com>
+:G: `thomas-arm`_
 :F: plat/arm/css/sgi/
 :F: plat/arm/css/sgm/
 :F: plat/arm/board/sgi575/
@@ -272,6 +274,7 @@ Xilinx platform port
 .. _sivadur: https://github.com/sivadur
 .. _smaeul: https://github.com/smaeul
 .. _soby-mathew: https://github.com/soby-mathew
+.. _thomas-arm: https://github.com/thomas-arm
 .. _TonyXie06: https://github.com/TonyXie06
 .. _vwadekar: https://github.com/vwadekar
 .. _Yann-lms: https://github.com/Yann-lms
