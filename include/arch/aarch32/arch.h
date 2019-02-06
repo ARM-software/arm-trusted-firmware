@@ -114,6 +114,8 @@
 #define ID_PFR1_VIRTEXT_MASK	U(0xf)
 #define GET_VIRT_EXT(id)	(((id) >> ID_PFR1_VIRTEXT_SHIFT) \
 				 & ID_PFR1_VIRTEXT_MASK)
+#define ID_PFR1_GENTIMER_SHIFT	U(16)
+#define ID_PFR1_GENTIMER_MASK	U(0xf)
 #define ID_PFR1_GIC_SHIFT	U(28)
 #define ID_PFR1_GIC_MASK	U(0xf)
 
