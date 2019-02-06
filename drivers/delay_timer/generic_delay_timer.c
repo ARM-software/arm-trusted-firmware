@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
 
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
@@ -43,6 +44,8 @@ void generic_delay_timer_init_args(uint32_t mult, uint32_t div)
 
 void generic_delay_timer_init(void)
 {
+	assert(is_armv7_gentimer_present());
+
 	/* Value in ticks */
 	unsigned int mult = MHZ_TICKS_PER_SEC;
 
