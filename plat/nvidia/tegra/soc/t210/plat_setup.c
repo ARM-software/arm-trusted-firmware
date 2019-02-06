@@ -1,15 +1,24 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch_helpers.h>
-#include <bpmp.h>
+#include <assert.h>
 #include <cortex_a57.h>
 #include <common/bl_common.h>
+#include <common/debug.h>
+#include <common/interrupt_props.h>
 #include <drivers/console.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+#include <drivers/arm/gic_common.h>
+#include <drivers/arm/gicv2.h>
+#include <bl31/interrupt_mgmt.h>
+
+#include <bpmp.h>
+#include <flowctrl.h>
+#include <memctrl.h>
 #include <platform.h>
 #include <security_engine.h>
 #include <tegra_def.h>
@@ -137,10 +146,76 @@ void plat_early_platform_setup(void)
 	}
 }
 
+/* Secure IRQs for Tegra186 */
+static const interrupt_prop_t tegra210_interrupt_props[] = {
+	INTR_PROP_DESC(TEGRA210_WDT_CPU_LEGACY_FIQ, GIC_HIGHEST_SEC_PRIORITY,
+			GICV2_INTR_GROUP0, GIC_INTR_CFG_EDGE),
+};
+
+void plat_late_platform_setup(void)
+{
+	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
+	uint64_t sc7entry_end, offset;
+	int ret;
+	uint32_t val;
+
+	/* memmap TZDRAM area containing the SC7 Entry Firmware */
+	if (plat_params->sc7entry_fw_base && plat_params->sc7entry_fw_size) {
+
+		assert(plat_params->sc7entry_fw_size <= TEGRA_IRAM_A_SIZE);
+
+		/*
+		 * Verify that the SC7 entry firmware resides inside the TZDRAM
+		 * aperture, _before_ the BL31 code and the start address is
+		 * exactly 1MB from BL31 base.
+		 */
+
+		/* sc7entry-fw must be _before_ BL31 base */
+		assert(plat_params->tzdram_base > plat_params->sc7entry_fw_base);
+
+		sc7entry_end = plat_params->sc7entry_fw_base +
+			       plat_params->sc7entry_fw_size;
+		assert(sc7entry_end < plat_params->tzdram_base);
+
+		/* sc7entry-fw start must be exactly 1MB behind BL31 base */
+		offset = plat_params->tzdram_base - plat_params->sc7entry_fw_base;
+		assert(offset == 0x100000);
+
+		/* secure TZDRAM area */
+		tegra_memctrl_tzdram_setup(plat_params->sc7entry_fw_base,
+			plat_params->tzdram_size + offset);
+
+		/* power off BPMP processor until SC7 entry */
+		tegra_fc_bpmp_off();
+
+		/* memmap SC7 entry firmware code */
+		ret = mmap_add_dynamic_region(plat_params->sc7entry_fw_base,
+				plat_params->sc7entry_fw_base,
+				plat_params->sc7entry_fw_size,
+				MT_SECURE | MT_RO_DATA);
+		assert(ret == 0);
+
+		/* restrict PMC access to secure world */
+		val = mmio_read_32(TEGRA_MISC_BASE + APB_SLAVE_SECURITY_ENABLE);
+		val |= PMC_SECURITY_EN_BIT;
+		mmio_write_32(TEGRA_MISC_BASE + APB_SLAVE_SECURITY_ENABLE, val);
+	}
+}
+
 /*******************************************************************************
  * Initialize the GIC and SGIs
  ******************************************************************************/
 void plat_gic_setup(void)
 {
-	tegra_gic_setup(NULL, 0);
+	tegra_gic_setup(tegra210_interrupt_props, ARRAY_SIZE(tegra210_interrupt_props));
+	tegra_gic_init();
+
+	/* Enable handling for FIQs */
+	tegra_fiq_handler_setup();
+
+	/*
+	 * Enable routing watchdog FIQs from the flow controller to
+	 * the GICD.
+	 */
+	tegra_fc_enable_fiq_to_ccplex_routing();
 }

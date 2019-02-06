@@ -27,8 +27,10 @@
 #define SIGN_OF_LIFE		0xAAAAAAAAU
 
 /* flags to indicate bpmp driver's state */
+#define BPMP_NOT_PRESENT	0xF00DBEEFU
 #define BPMP_INIT_COMPLETE	0xBEEFF00DU
 #define BPMP_INIT_PENDING	0xDEADBEEFU
+#define BPMP_SUSPEND_ENTRY	0xF00DCAFEU
 
 /* requests serviced by the bpmp */
 #define MRQ_PING		0
@@ -105,6 +107,16 @@ typedef struct mb_data {
  * Function to initialise the interface with the bpmp
  */
 int tegra_bpmp_init(void);
+
+/**
+ * Function to suspend the interface with the bpmp
+ */
+void tegra_bpmp_suspend(void);
+
+/**
+ * Function to resume the interface with the bpmp
+ */
+void tegra_bpmp_resume(void);
 
 /**
  * Handler to send a MRQ_* command to the bpmp

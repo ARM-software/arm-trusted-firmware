@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -41,6 +41,7 @@ uint8_t tegra_fake_system_suspend;
  * provide typical implementations that will be overridden by a SoC.
  */
 #pragma weak tegra_soc_pwr_domain_suspend_pwrdown_early
+#pragma weak tegra_soc_cpu_standby
 #pragma weak tegra_soc_pwr_domain_suspend
 #pragma weak tegra_soc_pwr_domain_on
 #pragma weak tegra_soc_pwr_domain_off
@@ -53,6 +54,12 @@ uint8_t tegra_fake_system_suspend;
 int32_t tegra_soc_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_state)
 {
 	return PSCI_E_NOT_SUPPORTED;
+}
+
+int32_t tegra_soc_cpu_standby(plat_local_state_t cpu_state)
+{
+	(void)cpu_state;
+	return PSCI_E_SUCCESS;
 }
 
 int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
@@ -139,14 +146,37 @@ void tegra_get_sys_suspend_power_state(psci_power_state_t *req_state)
  ******************************************************************************/
 void tegra_cpu_standby(plat_local_state_t cpu_state)
 {
+	u_register_t saved_scr_el3;
+
 	(void)cpu_state;
+
+	/* Tegra SoC specific handler */
+	if (tegra_soc_cpu_standby(cpu_state) != PSCI_E_SUCCESS)
+		ERROR("%s failed\n", __func__);
+
+	saved_scr_el3 = read_scr_el3();
+
+	/*
+	 * As per ARM ARM D1.17.2, any physical IRQ interrupt received by the
+	 * PE will be treated as a wake-up event, if SCR_EL3.IRQ is set to '1',
+	 * irrespective of the value of the PSTATE.I bit value.
+	 */
+	write_scr_el3(saved_scr_el3 | SCR_IRQ_BIT);
 
 	/*
 	 * Enter standby state
-	 * dsb is good practice before using wfi to enter low power states
+	 *
+	 * dsb & isb is good practice before using wfi to enter low power states
 	 */
 	dsb();
+	isb();
 	wfi();
+
+	/*
+	 * Restore saved scr_el3 that has IRQ bit cleared as we don't want EL3
+	 * handling any further interrupts
+	 */
+	write_scr_el3(saved_scr_el3);
 }
 
 /*******************************************************************************
@@ -244,7 +274,7 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	/*
 	 * Initialize the GIC cpu and distributor interfaces
 	 */
-	plat_gic_setup();
+	tegra_gic_init();
 
 	/*
 	 * Check if we are exiting from deep sleep.

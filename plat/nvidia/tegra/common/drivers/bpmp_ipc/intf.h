@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2017-2018, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,10 +11,10 @@
  * Flags used in IPC req
  */
 #define FLAG_DO_ACK			(U(1) << 0)
-#define FLAG_RING_DOORBELL		(U(1) << 1)
+#define FLAG_RING_DOORBELL	(U(1) << 1)
 
 /* Bit 1 is designated for CCPlex in secure world */
-#define HSP_MASTER_CCPLEX_BIT		(U(1) << 1)
+#define HSP_MASTER_CCPLEX_BIT	(U(1) << 1)
 /* Bit 19 is designated for BPMP in non-secure world */
 #define HSP_MASTER_BPMP_BIT		(U(1) << 19)
 /* Timeout to receive response from BPMP is 1 sec */
@@ -49,9 +49,10 @@ struct frame_data {
  */
 
 /**
- * MRQ code to issue a module reset command to BPMP
+ * MRQ command codes
  */
 #define MRQ_RESET			U(20)
+#define MRQ_CLK				U(22)
 
 /**
  * Reset sub-commands
@@ -70,5 +71,57 @@ struct __attribute__((packed)) mrq_reset_request {
 	/* id of the reset to affected */
 	uint32_t reset_id;
 };
+
+/**
+ * MRQ_CLK sub-commands
+ *
+ */
+enum {
+	CMD_CLK_GET_RATE = 1,
+	CMD_CLK_SET_RATE = 2,
+	CMD_CLK_ROUND_RATE = 3,
+	CMD_CLK_GET_PARENT = 4,
+	CMD_CLK_SET_PARENT = 5,
+	CMD_CLK_IS_ENABLED = 6,
+	CMD_CLK_ENABLE = 7,
+	CMD_CLK_DISABLE = 8,
+	CMD_CLK_GET_ALL_INFO = 14,
+	CMD_CLK_GET_MAX_CLK_ID = 15,
+	CMD_CLK_MAX,
+};
+
+/**
+ * Used by the sender of an #MRQ_CLK message to control clocks. The
+ * clk_request is split into several sub-commands. Some sub-commands
+ * require no additional data. Others have a sub-command specific
+ * payload
+ *
+ * |sub-command                 |payload                |
+ * |----------------------------|-----------------------|
+ * |CMD_CLK_GET_RATE            |-                      |
+ * |CMD_CLK_SET_RATE            |clk_set_rate           |
+ * |CMD_CLK_ROUND_RATE          |clk_round_rate         |
+ * |CMD_CLK_GET_PARENT          |-                      |
+ * |CMD_CLK_SET_PARENT          |clk_set_parent         |
+ * |CMD_CLK_IS_ENABLED          |-                      |
+ * |CMD_CLK_ENABLE              |-                      |
+ * |CMD_CLK_DISABLE             |-                      |
+ * |CMD_CLK_GET_ALL_INFO        |-                      |
+ * |CMD_CLK_GET_MAX_CLK_ID      |-                      |
+ *
+ */
+struct mrq_clk_request {
+	/**
+	 * sub-command and clock id concatenated to 32-bit word.
+	 * - bits[31..24] is the sub-cmd.
+	 * - bits[23..0] is the clock id
+	 */
+	uint32_t cmd_and_id;
+};
+
+/**
+ * Macro to prepare the MRQ_CLK sub-command
+ */
+#define make_mrq_clk_cmd(cmd, id)	(((cmd) << 24) | (id & 0xFFFFFF))
 
 #endif /* INTF_H */

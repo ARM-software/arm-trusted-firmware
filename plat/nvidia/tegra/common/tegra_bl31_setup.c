@@ -162,13 +162,15 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	}
 
 	/*
-	 * Parse platform specific parameters - TZDRAM aperture base and size
+	 * Parse platform specific parameters
 	 */
 	assert(plat_params != NULL);
 	plat_bl31_params_from_bl2.tzdram_base = plat_params->tzdram_base;
 	plat_bl31_params_from_bl2.tzdram_size = plat_params->tzdram_size;
 	plat_bl31_params_from_bl2.uart_id = plat_params->uart_id;
 	plat_bl31_params_from_bl2.l2_ecc_parity_prot_dis = plat_params->l2_ecc_parity_prot_dis;
+	plat_bl31_params_from_bl2.sc7entry_fw_size = plat_params->sc7entry_fw_size;
+	plat_bl31_params_from_bl2.sc7entry_fw_base = plat_params->sc7entry_fw_base;
 
 	/*
 	 * It is very important that we run either from TZDRAM or TZSRAM base.
@@ -404,6 +406,14 @@ void bl31_plat_arch_setup(void)
 	 */
 	boot_profiler_add_record("[TF] arch setup entry");
 
+	/* add MMIO space */
+	plat_mmio_map = plat_get_mmio_map();
+	if (plat_mmio_map != NULL) {
+		mmap_add(plat_mmio_map);
+	} else {
+		WARN("MMIO map not available\n");
+	}
+
 	/* add memory regions */
 	mmap_add_region(rw_start, rw_start,
 			rw_size,
@@ -415,14 +425,6 @@ void bl31_plat_arch_setup(void)
 			code_size,
 			MT_CODE | MT_SECURE);
 
-	/* map TZDRAM used by BL31 as coherent memory */
-	if (TEGRA_TZRAM_BASE == tegra_bl31_phys_base) {
-		mmap_add_region(params_from_bl2->tzdram_base,
-				params_from_bl2->tzdram_base,
-				BL31_SIZE,
-				MT_DEVICE | MT_RW | MT_SECURE);
-	}
-
 #if USE_COHERENT_MEM
 	coh_start = total_base + (BL_COHERENT_RAM_BASE - BL31_RO_BASE);
 	coh_size = BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE;
@@ -432,18 +434,12 @@ void bl31_plat_arch_setup(void)
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE);
 #endif
 
-	/* map on-chip free running uS timer */
-	mmap_add_region(page_align(TEGRA_TMRUS_BASE, 0),
-			page_align(TEGRA_TMRUS_BASE, 0),
-			TEGRA_TMRUS_SIZE,
-			(uint8_t)MT_DEVICE | (uint8_t)MT_RO | (uint8_t)MT_SECURE);
-
-	/* add MMIO space */
-	plat_mmio_map = plat_get_mmio_map();
-	if (plat_mmio_map != NULL) {
-		mmap_add(plat_mmio_map);
-	} else {
-		WARN("MMIO map not available\n");
+	/* map TZDRAM used by BL31 as coherent memory */
+	if (TEGRA_TZRAM_BASE == tegra_bl31_phys_base) {
+		mmap_add_region(params_from_bl2->tzdram_base,
+				params_from_bl2->tzdram_base,
+				BL31_SIZE,
+				MT_DEVICE | MT_RW | MT_SECURE);
 	}
 
 	/* set up translation tables */

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -19,8 +19,11 @@ $(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
 MAX_XLAT_TABLES				:= 10
 $(eval $(call add_define,MAX_XLAT_TABLES))
 
-MAX_MMAP_REGIONS			:= 15
+MAX_MMAP_REGIONS			:= 16
 $(eval $(call add_define,MAX_MMAP_REGIONS))
+
+ENABLE_WDT_LEGACY_FIQ_HANDLING		:= 1
+$(eval $(call add_define,ENABLE_WDT_LEGACY_FIQ_HANDLING))
 
 PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/se
 
@@ -33,7 +36,8 @@ BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S		\
 				${SOC_DIR}/plat_psci_handlers.c			\
 				${SOC_DIR}/plat_setup.c				\
 				${SOC_DIR}/drivers/se/security_engine.c		\
-				${SOC_DIR}/plat_secondary.c
+				${SOC_DIR}/plat_secondary.c		\
+				${SOC_DIR}/plat_sip_calls.c
 
 # Enable workarounds for selected Cortex-A57 erratas.
 A57_DISABLE_NON_TEMPORAL_HINT	:=	1
@@ -48,3 +52,6 @@ A53_DISABLE_NON_TEMPORAL_HINT	:=	1
 ERRATA_A53_826319		:=	1
 ERRATA_A53_836870		:=	1
 ERRATA_A53_855873		:=	1
+
+# Skip L1 $ flush when powering down Cortex-A57 CPUs
+SKIP_A57_L1_FLUSH_PWR_DWN	:=	1

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -34,6 +34,9 @@ ENABLE_SVE_FOR_NS	:=	0
 # enable D-cache early during CPU warmboot
 WARMBOOT_ENABLE_DCACHE_EARLY := 1
 
+# remove the standard libc
+OVERRIDE_LIBC		:=	1
+
 include plat/nvidia/tegra/common/tegra_common.mk
 include ${SOC_DIR}/platform_${TARGET_SOC}.mk
 
@@ -42,3 +45,17 @@ BUILD_PLAT	:=	${BUILD_BASE}/${PLAT}/${TARGET_SOC}/${BUILD_TYPE}
 
 # platform cflags (enable signed comparisons, disable stdlib)
 TF_CFLAGS	+= -Wsign-compare -nostdlib
+
+# override with necessary libc files for the Tegra platform
+override LIBC_SRCS :=	$(addprefix lib/libc/,		\
+			assert.c			\
+			memcpy.c			\
+			memmove.c			\
+			memset.c			\
+			printf.c			\
+			putchar.c			\
+			strlen.c			\
+			snprintf.c)
+
+INCLUDES	+=	-Iinclude/lib/libc		\
+			-Iinclude/lib/libc/$(ARCH)	\

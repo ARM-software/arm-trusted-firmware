@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -63,10 +63,26 @@ func console_core_putc
 	/* Check the input parameter */
 	cbz	x1, putc_error
 
+	/* Prepend '\r' to '\n' */
+	cmp	w0, #0xA
+	b.ne	2f
+
 	/* wait until spe is ready */
 1:	ldr	w2, [x1]
 	and	w2, w2, #CONSOLE_IS_BUSY
 	cbnz	w2, 1b
+
+	/* spe is ready */
+	mov	w2, #0xD		/* '\r' */
+	and	w2, w2, #0xFF
+	mov	w3, #(CONSOLE_WRITE | (1 << CONSOLE_NUM_BYTES_SHIFT))
+	orr	w2, w2, w3
+	str	w2, [x1]
+
+	/* wait until spe is ready */
+2:	ldr	w2, [x1]
+	and	w2, w2, #CONSOLE_IS_BUSY
+	cbnz	w2, 2b
 
 	/* spe is ready */
 	mov	w2, w0

@@ -1,13 +1,10 @@
 #
-# Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 # platform configs
-ENABLE_AFI_DEVICE			:= 1
-$(eval $(call add_define,ENABLE_AFI_DEVICE))
-
 ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS	:= 1
 $(eval $(call add_define,ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS))
 
@@ -33,7 +30,7 @@ $(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
 MAX_XLAT_TABLES				:= 24
 $(eval $(call add_define,MAX_XLAT_TABLES))
 
-MAX_MMAP_REGIONS			:= 24
+MAX_MMAP_REGIONS			:= 25
 $(eval $(call add_define,MAX_MMAP_REGIONS))
 
 # platform files

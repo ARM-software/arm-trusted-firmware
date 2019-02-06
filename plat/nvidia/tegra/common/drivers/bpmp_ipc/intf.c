@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2017-2018, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -298,6 +298,52 @@ int32_t tegra_bpmp_ipc_reset_module(uint32_t rst_id)
 	if (ret != 0) {
 		ERROR("%s: failed for module %d with error %d\n", __func__,
 		      rst_id, ret);
+	}
+
+	return ret;
+}
+
+int tegra_bpmp_ipc_enable_clock(uint32_t clk_id)
+{
+	int ret;
+	struct mrq_clk_request req;
+
+	/* only SE clocks are supported */
+	if (clk_id != TEGRA_CLK_SE) {
+		return -ENOTSUP;
+	}
+
+	/* prepare the MRQ_CLK command */
+	req.cmd_and_id = make_mrq_clk_cmd(CMD_CLK_ENABLE, clk_id);
+
+	ret = tegra_bpmp_ipc_send_req_atomic(MRQ_CLK, &req, sizeof(req),
+			NULL, 0);
+	if (ret != 0) {
+		ERROR("%s: failed for module %d with error %d\n", __func__,
+		      clk_id, ret);
+	}
+
+	return ret;
+}
+
+int tegra_bpmp_ipc_disable_clock(uint32_t clk_id)
+{
+	int ret;
+	struct mrq_clk_request req;
+
+	/* only SE clocks are supported */
+	if (clk_id != TEGRA_CLK_SE) {
+		return -ENOTSUP;
+	}
+
+	/* prepare the MRQ_CLK command */
+	req.cmd_and_id = make_mrq_clk_cmd(CMD_CLK_DISABLE, clk_id);
+
+	ret = tegra_bpmp_ipc_send_req_atomic(MRQ_CLK, &req, sizeof(req),
+			NULL, 0);
+	if (ret != 0) {
+		ERROR("%s: failed for module %d with error %d\n", __func__,
+		      clk_id, ret);
 	}
 
 	return ret;

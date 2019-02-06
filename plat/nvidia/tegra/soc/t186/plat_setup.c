@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -91,6 +91,8 @@ static const mmap_region_t tegra_mmap[] = {
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_PMC_BASE, 0x40000U, /* 256KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_TMRUS_BASE, 0x1000U, /* 4KB */
+			MT_DEVICE | MT_RO | MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_SCRATCH_BASE, 0x10000U, /* 64KB */
 			MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_MMCRAB_BASE, 0x60000U, /* 384KB */
@@ -194,14 +196,13 @@ static const interrupt_prop_t tegra186_interrupt_props[] = {
 void plat_gic_setup(void)
 {
 	tegra_gic_setup(tegra186_interrupt_props, ARRAY_SIZE(tegra186_interrupt_props));
+	tegra_gic_init();
 
 	/*
 	 * Initialize the FIQ handler only if the platform supports any
 	 * FIQ interrupt sources.
 	 */
-	if (sizeof(tegra186_interrupt_props) > 0U) {
-		tegra_fiq_handler_setup();
-	}
+	tegra_fiq_handler_setup();
 }
 
 /*******************************************************************************

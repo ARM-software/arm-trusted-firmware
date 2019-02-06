@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,7 @@
 #include <flowctrl.h>
 #include <pmc.h>
 #include <tegra_def.h>
+#include <utils_def.h>
 
 #define CLK_RST_DEV_L_SET		0x300
 #define CLK_RST_DEV_L_CLR		0x304
@@ -76,6 +77,47 @@ static void tegra_fc_prepare_suspend(int cpu_id, uint32_t csr)
 }
 
 /*******************************************************************************
+ * After this, no core can wake from C7 until the action is reverted.
+ * If a wake up event is asserted, the FC state machine will stall until
+ * the action is reverted.
+ ******************************************************************************/
+void tegra_fc_ccplex_pgexit_lock(void)
+{
+	unsigned int i, cpu = read_mpidr() & MPIDR_CPU_MASK;
+	uint32_t flags = tegra_fc_read_32(FLOWCTRL_FC_SEQ_INTERCEPT) & ~INTERCEPT_IRQ_PENDING;;
+	uint32_t icept_cpu_flags[] = {
+		INTERCEPT_EXIT_PG_CORE0,
+		INTERCEPT_EXIT_PG_CORE1,
+		INTERCEPT_EXIT_PG_CORE2,
+		INTERCEPT_EXIT_PG_CORE3
+	};
+
+	/* set the intercept flags */
+	for (i = 0; i < ARRAY_SIZE(icept_cpu_flags); i++) {
+
+		/* skip current CPU */
+		if (i == cpu)
+			continue;
+
+		/* enable power gate exit intercept locks */
+		flags |= icept_cpu_flags[i];
+	}
+
+	tegra_fc_write_32(FLOWCTRL_FC_SEQ_INTERCEPT, flags);
+	(void)tegra_fc_read_32(FLOWCTRL_FC_SEQ_INTERCEPT);
+}
+
+/*******************************************************************************
+ * Revert the ccplex powergate exit locks
+ ******************************************************************************/
+void tegra_fc_ccplex_pgexit_unlock(void)
+{
+	/* clear lock bits, clear pending interrupts */
+	tegra_fc_write_32(FLOWCTRL_FC_SEQ_INTERCEPT, INTERCEPT_IRQ_PENDING);
+	(void)tegra_fc_read_32(FLOWCTRL_FC_SEQ_INTERCEPT);
+}
+
+/*******************************************************************************
  * Powerdn the current CPU
  ******************************************************************************/
 void tegra_fc_cpu_powerdn(uint32_t mpidr)
@@ -126,6 +168,31 @@ void tegra_fc_cluster_powerdn(uint32_t mpidr)
 	/* power down the CPU cluster */
 	val = FLOWCTRL_TURNOFF_CPURAIL << FLOWCTRL_ENABLE_EXT;
 	tegra_fc_prepare_suspend(cpu, val);
+}
+
+/*******************************************************************************
+ * Check if cluster idle or power down state is allowed from this CPU
+ ******************************************************************************/
+bool tegra_fc_is_ccx_allowed(void)
+{
+	unsigned int i, cpu = read_mpidr() & MPIDR_CPU_MASK;
+	uint32_t val;
+	bool ccx_allowed = true;
+
+	for (i = 0; i < ARRAY_SIZE(flowctrl_offset_cpu_csr); i++) {
+
+		/* skip current CPU */
+		if (i == cpu)
+			continue;
+
+		/* check if all other CPUs are already halted */
+		val = mmio_read_32(flowctrl_offset_cpu_csr[i]);
+		if ((val & FLOWCTRL_CSR_HALT_MASK) == 0U) {
+			ccx_allowed = false;
+		}
+	}
+
+	return ccx_allowed;
 }
 
 /*******************************************************************************
@@ -190,22 +257,19 @@ void tegra_fc_lock_active_cluster(void)
 }
 
 /*******************************************************************************
- * Reset BPMP processor
+ * Power ON BPMP processor
  ******************************************************************************/
-void tegra_fc_reset_bpmp(void)
+void tegra_fc_bpmp_on(uint32_t entrypoint)
 {
-	uint32_t val;
-
 	/* halt BPMP */
 	tegra_fc_write_32(FLOWCTRL_HALT_BPMP_EVENTS, FLOWCTRL_WAITEVENT);
 
 	/* Assert BPMP reset */
 	mmio_write_32(TEGRA_CAR_RESET_BASE + CLK_RST_DEV_L_SET, CLK_BPMP_RST);
 
-	/* Restore reset address (stored in PMC_SCRATCH39) */
-	val = tegra_pmc_read_32(PMC_SCRATCH39);
-	mmio_write_32(TEGRA_EVP_BASE + EVP_BPMP_RESET_VECTOR, val);
-	while (val != mmio_read_32(TEGRA_EVP_BASE + EVP_BPMP_RESET_VECTOR))
+	/* Set reset address (stored in PMC_SCRATCH39) */
+	mmio_write_32(TEGRA_EVP_BASE + EVP_BPMP_RESET_VECTOR, entrypoint);
+	while (entrypoint != mmio_read_32(TEGRA_EVP_BASE + EVP_BPMP_RESET_VECTOR))
 		; /* wait till value reaches EVP_BPMP_RESET_VECTOR */
 
 	/* Wait for 2us before de-asserting the reset signal. */
@@ -216,4 +280,43 @@ void tegra_fc_reset_bpmp(void)
 
 	/* Un-halt BPMP */
 	tegra_fc_write_32(FLOWCTRL_HALT_BPMP_EVENTS, 0);
+}
+
+/*******************************************************************************
+ * Power OFF BPMP processor
+ ******************************************************************************/
+void tegra_fc_bpmp_off(void)
+{
+	/* halt BPMP */
+	tegra_fc_write_32(FLOWCTRL_HALT_BPMP_EVENTS, FLOWCTRL_WAITEVENT);
+
+	/* Assert BPMP reset */
+	mmio_write_32(TEGRA_CAR_RESET_BASE + CLK_RST_DEV_L_SET, CLK_BPMP_RST);
+
+	/* Clear reset address */
+	mmio_write_32(TEGRA_EVP_BASE + EVP_BPMP_RESET_VECTOR, 0);
+	while (0 != mmio_read_32(TEGRA_EVP_BASE + EVP_BPMP_RESET_VECTOR))
+		; /* wait till value reaches EVP_BPMP_RESET_VECTOR */
+}
+
+/*******************************************************************************
+ * Route legacy FIQ to the GICD
+ ******************************************************************************/
+void tegra_fc_enable_fiq_to_ccplex_routing(void)
+{
+	uint32_t val = tegra_fc_read_32(FLOW_CTLR_FLOW_DBG_QUAL);
+
+	/* set the bit to pass FIQs to the GICD */
+	tegra_fc_write_32(FLOW_CTLR_FLOW_DBG_QUAL, val | FLOWCTRL_FIQ2CCPLEX_ENABLE);
+}
+
+/*******************************************************************************
+ * Disable routing legacy FIQ to the GICD
+ ******************************************************************************/
+void tegra_fc_disable_fiq_to_ccplex_routing(void)
+{
+	uint32_t val = tegra_fc_read_32(FLOW_CTLR_FLOW_DBG_QUAL);
+
+	/* clear the bit to pass FIQs to the GICD */
+	tegra_fc_write_32(FLOW_CTLR_FLOW_DBG_QUAL, val & ~FLOWCTRL_FIQ2CCPLEX_ENABLE);
 }

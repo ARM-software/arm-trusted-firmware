@@ -46,6 +46,10 @@ typedef struct plat_params_from_bl2 {
 	int32_t l2_ecc_parity_prot_dis;
 	/* SHMEM base address for storing the boot logs */
 	uint64_t boot_profiler_shmem_base;
+	/* System Suspend Entry Firmware size */
+	uint64_t sc7entry_fw_size;
+	/* System Suspend Entry Firmware base address */
+	uint64_t sc7entry_fw_base;
 } plat_params_from_bl2_t;
 
 /*******************************************************************************
@@ -97,6 +101,7 @@ extern uint8_t tegra_fake_system_suspend;
 void tegra_pm_system_suspend_entry(void);
 void tegra_pm_system_suspend_exit(void);
 int32_t tegra_system_suspended(void);
+int32_t tegra_soc_cpu_standby(plat_local_state_t cpu_state);
 int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state);
 int32_t tegra_soc_pwr_domain_on(u_register_t mpidr);
 int32_t tegra_soc_pwr_domain_off(const psci_power_state_t *target_state);

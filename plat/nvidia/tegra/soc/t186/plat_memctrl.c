@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -94,7 +94,7 @@ const static uint32_t tegra186_streamid_override_regs[] = {
  * Array to hold the security configs for stream IDs
  ******************************************************************************/
 const static mc_streamid_security_cfg_t tegra186_streamid_sec_cfgs[] = {
-	mc_make_sec_cfg(SCEW, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SCEW, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(AFIR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(AFIW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(NVDISPLAYR1, NON_SECURE, OVERRIDE, ENABLE),
@@ -109,17 +109,17 @@ const static mc_streamid_security_cfg_t tegra186_streamid_sec_cfgs[] = {
 	mc_make_sec_cfg(SATAW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(UFSHCW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCR, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(SCEDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SCEDMAW, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(UFSHCR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCWAA, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SESWR, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(MPCORER, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(PTCR, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(BPMPW, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(BPMPW, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(ETRW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(GPUSRD, SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(VICSWR, NON_SECURE, NO_OVERRIDE, ENABLE),
-	mc_make_sec_cfg(SCEDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SCEDMAR, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(HDAW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(ISPWA, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(EQOSW, NON_SECURE, OVERRIDE, ENABLE),
@@ -129,20 +129,20 @@ const static mc_streamid_security_cfg_t tegra186_streamid_sec_cfgs[] = {
 	mc_make_sec_cfg(VIW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(AXISR, SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(SDMMCW, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(BPMPDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(BPMPDMAW, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(ISPRA, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(NVDECSWR, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(XUSB_DEVW, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(NVDECSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(NVDECSRD, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(MPCOREW, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(NVDISPLAYR, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(BPMPDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(BPMPDMAR, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(NVJPGSWR, NON_SECURE, NO_OVERRIDE, ENABLE),
-	mc_make_sec_cfg(NVDECSRD1, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(NVDECSRD1, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(TSECSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(NVJPGSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCWA, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(SCER, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(SCER, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(XUSB_HOSTR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(VICSRD, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(AONDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
@@ -151,7 +151,7 @@ const static mc_streamid_security_cfg_t tegra186_streamid_sec_cfgs[] = {
 	mc_make_sec_cfg(HOST1XDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(EQOSR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SATAR, NON_SECURE, OVERRIDE, ENABLE),
-	mc_make_sec_cfg(BPMPR, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(BPMPR, NON_SECURE, NO_OVERRIDE, DISABLE),
 	mc_make_sec_cfg(HDAR, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(SDMMCRAB, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(ETRR, NON_SECURE, OVERRIDE, ENABLE),
@@ -162,10 +162,10 @@ const static mc_streamid_security_cfg_t tegra186_streamid_sec_cfgs[] = {
 	mc_make_sec_cfg(TSECSWRB, NON_SECURE, NO_OVERRIDE, ENABLE),
 	mc_make_sec_cfg(ISPWB, NON_SECURE, OVERRIDE, ENABLE),
 	mc_make_sec_cfg(GPUSRD2, SECURE, NO_OVERRIDE, DISABLE),
-	mc_make_sec_cfg(APEDMAW, NON_SECURE, NO_OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APER, NON_SECURE, NO_OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APEW, NON_SECURE, NO_OVERRIDE, ENABLE),
-	mc_make_sec_cfg(APEDMAR, NON_SECURE, NO_OVERRIDE, ENABLE),
+	mc_make_sec_cfg(APEDMAW, NON_SECURE, NO_OVERRIDE, DISABLE),
+	mc_make_sec_cfg(APER, NON_SECURE, NO_OVERRIDE, DISABLE),
+	mc_make_sec_cfg(APEW, NON_SECURE, NO_OVERRIDE, DISABLE),
+	mc_make_sec_cfg(APEDMAR, NON_SECURE, NO_OVERRIDE, DISABLE),
 };
 
 /*******************************************************************************
@@ -219,9 +219,7 @@ static void tegra186_memctrl_reconfig_mss_clients(void)
 	assert(val == MC_CLIENT_HOTRESET_CTRL0_RESET_VAL);
 
 	wdata_0 = MC_CLIENT_HOTRESET_CTRL0_HDA_FLUSH_ENB |
-#if ENABLE_AFI_DEVICE
 		  MC_CLIENT_HOTRESET_CTRL0_AFI_FLUSH_ENB |
-#endif
 		  MC_CLIENT_HOTRESET_CTRL0_SATA_FLUSH_ENB |
 		  MC_CLIENT_HOTRESET_CTRL0_XUSB_HOST_FLUSH_ENB |
 		  MC_CLIENT_HOTRESET_CTRL0_XUSB_DEV_FLUSH_ENB;
@@ -271,9 +269,7 @@ static void tegra186_memctrl_reconfig_mss_clients(void)
 	 * MC clients with default SO_DEV override still enabled at TSA:
 	 * AONW, BPMPW, SCEW, APEW
 	 */
-#if ENABLE_AFI_DEVICE
 	mc_set_tsa_passthrough(AFIW);
-#endif
 	mc_set_tsa_passthrough(HDAW);
 	mc_set_tsa_passthrough(SATAW);
 	mc_set_tsa_passthrough(XUSB_HOSTW);
@@ -413,9 +409,7 @@ static void tegra186_memctrl_reconfig_mss_clients(void)
 	 * boot and strongly ordered MSS clients
 	 */
 	val = MC_PCFIFO_CLIENT_CONFIG1_RESET_VAL &
-#if ENABLE_AFI_DEVICE
 		mc_set_pcfifo_unordered_boot_so_mss(1, AFIW) &
-#endif
 		mc_set_pcfifo_unordered_boot_so_mss(1, HDAW) &
 		mc_set_pcfifo_unordered_boot_so_mss(1, SATAW);
 	tegra_mc_write_32(MC_PCFIFO_CLIENT_CONFIG1, val);

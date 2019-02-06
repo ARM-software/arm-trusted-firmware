@@ -575,6 +575,10 @@ Common build options
    1 (do save and restore). 0 is the default. An SPD may set this to 1 if it
    wants the timer registers to be saved and restored.
 
+- ``OVERRIDE_LIBC``: This option allows platforms to override the default libc
+   for the BL image. It can be either 0 (include) or 1 (remove). The default
+   value is 0.
+
 -  ``PL011_GENERIC_UART``: Boolean option to indicate the PL011 driver that
    the underlying hardware is not a full PL011 UART but a minimally compliant
    generic UART, which is a subset of the PL011. The driver will not access

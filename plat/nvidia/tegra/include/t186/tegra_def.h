@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -56,6 +56,12 @@
  ******************************************************************************/
 #define PLAT_MAX_RET_STATE		U(1)
 #define PLAT_MAX_OFF_STATE		U(8)
+
+/*******************************************************************************
+ * Chip specific page table and MMU setup constants
+ ******************************************************************************/
+#define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 35)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 35)
 
 /*******************************************************************************
  * Secure IRQ definitions
@@ -210,7 +216,9 @@
  ******************************************************************************/
 #define TEGRA_CAR_RESET_BASE		U(0x05000000)
 #define TEGRA_GPU_RESET_REG_OFFSET	U(0x30)
+#define TEGRA_GPU_RESET_GPU_SET_OFFSET	U(0x34)
 #define  GPU_RESET_BIT			(U(1) << 0)
+#define  GPU_SET_BIT			(U(1) << 0)
 #define TEGRA_GPCDMA_RST_SET_REG_OFFSET	U(0x6A0004)
 #define TEGRA_GPCDMA_RST_CLR_REG_OFFSET	U(0x6A0008)
 

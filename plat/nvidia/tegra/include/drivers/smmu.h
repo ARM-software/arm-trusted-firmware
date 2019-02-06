@@ -618,9 +618,9 @@ typedef struct smmu_regs {
 		.val = 0x00000000U, \
 	}
 
-#define smmu_make_gnsr0_sec_cfg(name) \
+#define smmu_make_gnsr0_sec_cfg(base_addr, name) \
 	{ \
-		.reg = TEGRA_SMMU0_BASE + SMMU_GNSR0_ ## name, \
+		.reg = base_addr + SMMU_GNSR0_ ## name, \
 		.val = 0x00000000U, \
 	}
 
@@ -628,60 +628,199 @@ typedef struct smmu_regs {
  * On ARM-SMMU, conditional offset to access secure aliases of non-secure registers
  * is 0x400. So, add it to register address
  */
-#define smmu_make_gnsr0_nsec_cfg(name) \
+#define smmu_make_gnsr0_nsec_cfg(base_addr, name) \
 	{ \
-		.reg = TEGRA_SMMU0_BASE + 0x400U + SMMU_GNSR0_ ## name, \
+		.reg = base_addr + 0x400U + SMMU_GNSR0_ ## name, \
 		.val = 0x00000000U, \
 	}
 
-#define smmu_make_gnsr0_smr_cfg(n) \
+#define smmu_make_gnsr0_smr_cfg(base_addr, n) \
 	{ \
-		.reg = TEGRA_SMMU0_BASE + SMMU_GNSR0_SMR ## n, \
+		.reg = base_addr + SMMU_GNSR0_SMR ## n, \
 		.val = 0x00000000U, \
 	}
 
-#define smmu_make_gnsr0_s2cr_cfg(n) \
+#define smmu_make_gnsr0_s2cr_cfg(base_addr, n) \
 	{ \
-		.reg = TEGRA_SMMU0_BASE + SMMU_GNSR0_S2CR ## n, \
+		.reg = base_addr + SMMU_GNSR0_S2CR ## n, \
 		.val = 0x00000000U, \
 	}
 
-#define smmu_make_gnsr1_cbar_cfg(n) \
+#define smmu_make_gnsr1_cbar_cfg(base_addr, n) \
 	{ \
-		.reg = TEGRA_SMMU0_BASE + (1U << PGSHIFT) + SMMU_GNSR1_CBAR ## n, \
+		.reg = base_addr + (1U << PGSHIFT) + SMMU_GNSR1_CBAR ## n, \
 		.val = 0x00000000U, \
 	}
 
-#define smmu_make_gnsr1_cba2r_cfg(n) \
+#define smmu_make_gnsr1_cba2r_cfg(base_addr, n) \
 	{ \
-		.reg = TEGRA_SMMU0_BASE + (1U << PGSHIFT) + SMMU_GNSR1_CBA2R ## n, \
+		.reg = base_addr + (1U << PGSHIFT) + SMMU_GNSR1_CBA2R ## n, \
 		.val = 0x00000000U, \
 	}
 
-#define make_smmu_cb_cfg(name, n) \
+#define smmu_make_cb_cfg(base_addr, name, n) \
 	{ \
-		.reg = TEGRA_SMMU0_BASE + (CB_SIZE >> 1) + (n * (1 << PGSHIFT)) \
+		.reg = base_addr + (CB_SIZE >> 1) + (n * (1 << PGSHIFT)) \
 			+ SMMU_CBn_ ## name, \
 		.val = 0x00000000U, \
 	}
 
-#define smmu_make_smrg_group(n)	\
-	smmu_make_gnsr0_smr_cfg(n),	\
-	smmu_make_gnsr0_s2cr_cfg(n),	\
-	smmu_make_gnsr1_cbar_cfg(n),	\
-	smmu_make_gnsr1_cba2r_cfg(n)	/* don't put "," here. */
+#define smmu_make_smrg_group(base_addr, n)	\
+	smmu_make_gnsr0_smr_cfg(base_addr, n),	\
+	smmu_make_gnsr0_s2cr_cfg(base_addr, n),	\
+	smmu_make_gnsr1_cbar_cfg(base_addr, n),	\
+	smmu_make_gnsr1_cba2r_cfg(base_addr, n)	/* don't put "," here. */
 
-#define smmu_make_cb_group(n)		\
-	make_smmu_cb_cfg(SCTLR, n),	\
-	make_smmu_cb_cfg(TCR2, n),	\
-	make_smmu_cb_cfg(TTBR0_LO, n),	\
-	make_smmu_cb_cfg(TTBR0_HI, n),	\
-	make_smmu_cb_cfg(TCR, n),	\
-	make_smmu_cb_cfg(PRRR_MAIR0, n),\
-	make_smmu_cb_cfg(FSR, n),	\
-	make_smmu_cb_cfg(FAR_LO, n),	\
-	make_smmu_cb_cfg(FAR_HI, n),	\
-	make_smmu_cb_cfg(FSYNR0, n)	/* don't put "," here. */
+#define smmu_make_cb_group(base_addr, n)		\
+	smmu_make_cb_cfg(base_addr, SCTLR, n),	\
+	smmu_make_cb_cfg(base_addr, TCR2, n),	\
+	smmu_make_cb_cfg(base_addr, TTBR0_LO, n),	\
+	smmu_make_cb_cfg(base_addr, TTBR0_HI, n),	\
+	smmu_make_cb_cfg(base_addr, TCR, n),	\
+	smmu_make_cb_cfg(base_addr, PRRR_MAIR0, n),\
+	smmu_make_cb_cfg(base_addr, FSR, n),	\
+	smmu_make_cb_cfg(base_addr, FAR_LO, n),	\
+	smmu_make_cb_cfg(base_addr, FAR_HI, n),	\
+	smmu_make_cb_cfg(base_addr, FSYNR0, n)	/* don't put "," here. */
+
+#define smmu_make_cfg(base_addr)			\
+	smmu_make_gnsr0_nsec_cfg(base_addr, CR0),	\
+	smmu_make_gnsr0_sec_cfg(base_addr, IDR0),	\
+	smmu_make_gnsr0_sec_cfg(base_addr, IDR1),	\
+	smmu_make_gnsr0_sec_cfg(base_addr, IDR2),	\
+	smmu_make_gnsr0_nsec_cfg(base_addr, GFSR),	\
+	smmu_make_gnsr0_nsec_cfg(base_addr, GFSYNR0),	\
+	smmu_make_gnsr0_nsec_cfg(base_addr, GFSYNR1),	\
+	smmu_make_gnsr0_nsec_cfg(base_addr, TLBGSTATUS),\
+	smmu_make_gnsr0_nsec_cfg(base_addr, PIDR2),	\
+	smmu_make_smrg_group(base_addr, 0),		\
+	smmu_make_smrg_group(base_addr, 1),		\
+	smmu_make_smrg_group(base_addr, 2),		\
+	smmu_make_smrg_group(base_addr, 3),		\
+	smmu_make_smrg_group(base_addr, 4),		\
+	smmu_make_smrg_group(base_addr, 5),		\
+	smmu_make_smrg_group(base_addr, 6),		\
+	smmu_make_smrg_group(base_addr, 7),		\
+	smmu_make_smrg_group(base_addr, 8),		\
+	smmu_make_smrg_group(base_addr, 9),		\
+	smmu_make_smrg_group(base_addr, 10),		\
+	smmu_make_smrg_group(base_addr, 11),		\
+	smmu_make_smrg_group(base_addr, 12),		\
+	smmu_make_smrg_group(base_addr, 13),		\
+	smmu_make_smrg_group(base_addr, 14),		\
+	smmu_make_smrg_group(base_addr, 15),		\
+	smmu_make_smrg_group(base_addr, 16),		\
+	smmu_make_smrg_group(base_addr, 17),		\
+	smmu_make_smrg_group(base_addr, 18),		\
+	smmu_make_smrg_group(base_addr, 19),		\
+	smmu_make_smrg_group(base_addr, 20),		\
+	smmu_make_smrg_group(base_addr, 21),		\
+	smmu_make_smrg_group(base_addr, 22),		\
+	smmu_make_smrg_group(base_addr, 23),		\
+	smmu_make_smrg_group(base_addr, 24),		\
+	smmu_make_smrg_group(base_addr, 25),		\
+	smmu_make_smrg_group(base_addr, 26),		\
+	smmu_make_smrg_group(base_addr, 27),		\
+	smmu_make_smrg_group(base_addr, 28),		\
+	smmu_make_smrg_group(base_addr, 29),		\
+	smmu_make_smrg_group(base_addr, 30),		\
+	smmu_make_smrg_group(base_addr, 31),		\
+	smmu_make_smrg_group(base_addr, 32),		\
+	smmu_make_smrg_group(base_addr, 33),		\
+	smmu_make_smrg_group(base_addr, 34),		\
+	smmu_make_smrg_group(base_addr, 35),		\
+	smmu_make_smrg_group(base_addr, 36),		\
+	smmu_make_smrg_group(base_addr, 37),		\
+	smmu_make_smrg_group(base_addr, 38),		\
+	smmu_make_smrg_group(base_addr, 39),		\
+	smmu_make_smrg_group(base_addr, 40),		\
+	smmu_make_smrg_group(base_addr, 41),		\
+	smmu_make_smrg_group(base_addr, 42),		\
+	smmu_make_smrg_group(base_addr, 43),		\
+	smmu_make_smrg_group(base_addr, 44),		\
+	smmu_make_smrg_group(base_addr, 45),		\
+	smmu_make_smrg_group(base_addr, 46),		\
+	smmu_make_smrg_group(base_addr, 47),		\
+	smmu_make_smrg_group(base_addr, 48),		\
+	smmu_make_smrg_group(base_addr, 49),		\
+	smmu_make_smrg_group(base_addr, 50),		\
+	smmu_make_smrg_group(base_addr, 51),		\
+	smmu_make_smrg_group(base_addr, 52),		\
+	smmu_make_smrg_group(base_addr, 53),		\
+	smmu_make_smrg_group(base_addr, 54),		\
+	smmu_make_smrg_group(base_addr, 55),		\
+	smmu_make_smrg_group(base_addr, 56),		\
+	smmu_make_smrg_group(base_addr, 57),		\
+	smmu_make_smrg_group(base_addr, 58),		\
+	smmu_make_smrg_group(base_addr, 59),		\
+	smmu_make_smrg_group(base_addr, 60),		\
+	smmu_make_smrg_group(base_addr, 61),		\
+	smmu_make_smrg_group(base_addr, 62),		\
+	smmu_make_smrg_group(base_addr, 63),		\
+	smmu_make_cb_group(base_addr, 0),		\
+	smmu_make_cb_group(base_addr, 1),		\
+	smmu_make_cb_group(base_addr, 2),		\
+	smmu_make_cb_group(base_addr, 3),		\
+	smmu_make_cb_group(base_addr, 4),		\
+	smmu_make_cb_group(base_addr, 5),		\
+	smmu_make_cb_group(base_addr, 6),		\
+	smmu_make_cb_group(base_addr, 7),		\
+	smmu_make_cb_group(base_addr, 8),		\
+	smmu_make_cb_group(base_addr, 9),		\
+	smmu_make_cb_group(base_addr, 10),		\
+	smmu_make_cb_group(base_addr, 11),		\
+	smmu_make_cb_group(base_addr, 12),		\
+	smmu_make_cb_group(base_addr, 13),		\
+	smmu_make_cb_group(base_addr, 14),		\
+	smmu_make_cb_group(base_addr, 15),		\
+	smmu_make_cb_group(base_addr, 16),		\
+	smmu_make_cb_group(base_addr, 17),		\
+	smmu_make_cb_group(base_addr, 18),		\
+	smmu_make_cb_group(base_addr, 19),		\
+	smmu_make_cb_group(base_addr, 20),		\
+	smmu_make_cb_group(base_addr, 21),		\
+	smmu_make_cb_group(base_addr, 22),		\
+	smmu_make_cb_group(base_addr, 23),		\
+	smmu_make_cb_group(base_addr, 24),		\
+	smmu_make_cb_group(base_addr, 25),		\
+	smmu_make_cb_group(base_addr, 26),		\
+	smmu_make_cb_group(base_addr, 27),		\
+	smmu_make_cb_group(base_addr, 28),		\
+	smmu_make_cb_group(base_addr, 29),		\
+	smmu_make_cb_group(base_addr, 30),		\
+	smmu_make_cb_group(base_addr, 31),		\
+	smmu_make_cb_group(base_addr, 32),		\
+	smmu_make_cb_group(base_addr, 33),		\
+	smmu_make_cb_group(base_addr, 34),		\
+	smmu_make_cb_group(base_addr, 35),		\
+	smmu_make_cb_group(base_addr, 36),		\
+	smmu_make_cb_group(base_addr, 37),		\
+	smmu_make_cb_group(base_addr, 38),		\
+	smmu_make_cb_group(base_addr, 39),		\
+	smmu_make_cb_group(base_addr, 40),		\
+	smmu_make_cb_group(base_addr, 41),		\
+	smmu_make_cb_group(base_addr, 42),		\
+	smmu_make_cb_group(base_addr, 43),		\
+	smmu_make_cb_group(base_addr, 44),		\
+	smmu_make_cb_group(base_addr, 45),		\
+	smmu_make_cb_group(base_addr, 46),		\
+	smmu_make_cb_group(base_addr, 47),		\
+	smmu_make_cb_group(base_addr, 48),		\
+	smmu_make_cb_group(base_addr, 49),		\
+	smmu_make_cb_group(base_addr, 50),		\
+	smmu_make_cb_group(base_addr, 51),		\
+	smmu_make_cb_group(base_addr, 52),		\
+	smmu_make_cb_group(base_addr, 53),		\
+	smmu_make_cb_group(base_addr, 54),		\
+	smmu_make_cb_group(base_addr, 55),		\
+	smmu_make_cb_group(base_addr, 56),		\
+	smmu_make_cb_group(base_addr, 57),		\
+	smmu_make_cb_group(base_addr, 58),		\
+	smmu_make_cb_group(base_addr, 59),		\
+	smmu_make_cb_group(base_addr, 60),		\
+	smmu_make_cb_group(base_addr, 61),		\
+	smmu_make_cb_group(base_addr, 62),		\
+	smmu_make_cb_group(base_addr, 63)	/* don't put "," here. */
 
 #define smmu_bypass_cfg \
 	{ \

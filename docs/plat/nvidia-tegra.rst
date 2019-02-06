@@ -1,6 +1,23 @@
 Tegra SoCs - Overview
 =====================
 
+-  .. rubric:: T186
+      :name: t186
+
+The NVIDIA® Parker (T186) series system-on-chip (SoC) delivers a heterogeneous
+multi-processing (HMP) solution designed to optimize performance and
+efficiency.
+
+T186 has Dual NVIDIA Denver 2 ARM® CPU cores, plus Quad ARM Cortex®-A57 cores,
+in a coherent multiprocessor configuration. The Denver 2 and Cortex-A57 cores
+support ARMv8, executing both 64-bit Aarch64 code, and 32-bit Aarch32 code
+including legacy ARMv7 applications. The Denver 2 processors each have 128 KB
+Instruction and 64 KB Data Level 1 caches; and have a 2MB shared Level 2
+unified cache. The Cortex-A57 processors each have 48 KB Instruction and 32 KB
+Data Level 1 caches; and also have a 2 MB shared Level 2 unified cache. A
+high speed coherency fabric connects these two processor complexes and allows
+heterogeneous multi-processing with all six cores if required.
+
 -  .. rubric:: T210
       :name: t210
 
@@ -49,11 +66,21 @@ Directory structure
 Trusted OS dispatcher
 =====================
 
-Tegra supports multiple Trusted OS', Trusted Little Kernel (TLK) being one of
-them. In order to include the 'tlkd' dispatcher in the image, pass 'SPD=tlkd'
-on the command line while preparing a bl31 image. This allows other Trusted OS
-vendors to use the upstream code and include their dispatchers in the image
-without changing any makefiles.
+Tegra supports multiple Trusted OS'.
+
+- Trusted Little Kernel (TLK): In order to include the 'tlkd' dispatcher in
+  the image, pass 'SPD=tlkd' on the command line while preparing a bl31 image.
+- Trusty: In order to include the 'trusty' dispatcher in the image, pass
+  'SPD=trusty' on the command line while preparing a bl31 image.
+
+This allows other Trusted OS vendors to use the upstream code and include
+their dispatchers in the image without changing any makefiles.
+
+These are the supported Trusted OS' by Tegra platforms.
+
+Tegra132: TLK
+Tegra210: TLK and Trusty
+Tegra186: Trusty
 
 Preparing the BL31 image to run on Tegra SoCs
 =============================================
@@ -61,7 +88,8 @@ Preparing the BL31 image to run on Tegra SoCs
 .. code:: shell
 
     CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- make PLAT=tegra \
-    TARGET_SOC=<target-soc e.g. t210|t132> SPD=<dispatcher e.g. tlkd> bl31
+    TARGET_SOC=<target-soc e.g. t186|t210|t132> SPD=<dispatcher e.g. trusty|tlkd>
+    bl31
 
 Platforms wanting to use different TZDRAM\_BASE, can add ``TZDRAM_BASE=<value>``
 to the build command line.
