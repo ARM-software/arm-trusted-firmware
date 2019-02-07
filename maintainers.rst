@@ -278,3 +278,5 @@ Xilinx platform port
 .. _TonyXie06: https://github.com/TonyXie06
 .. _vwadekar: https://github.com/vwadekar
 .. _Yann-lms: https://github.com/Yann-lms
+.. _grandpaul: https://github.com/grandpaul
+.. _jwerner-chromium: https://github.com/jwerner-chromium
