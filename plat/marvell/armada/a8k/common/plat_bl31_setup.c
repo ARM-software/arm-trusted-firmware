@@ -117,7 +117,7 @@ void bl31_plat_arch_setup(void)
 
 	for (cp = 0; cp < CP_COUNT; cp++) {
 		if (cp >= 1) {
-			mci_initialize(MVEBU_MCI0);
+			mci_link_tune(MVEBU_MCI0);
 			update_cp110_default_win(cp);
 		}
 
