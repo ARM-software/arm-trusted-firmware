@@ -140,7 +140,7 @@ to this library are declared in ``psci.h`` and are as listed below:
         void psci_register_spd_pm_hook(const spd_pm_ops_t *pm);
         void psci_prepare_next_non_secure_ctx(entry_point_info_t *next_image_info);
 
-The CPU context data 'cpu\_context\_t' is programmed to the registers differently
+The CPU context data 'cpu_context_t' is programmed to the registers differently
 when PSCI is integrated with an AArch32 EL3 Runtime Software compared to
 when the PSCI is integrated with an AArch64 EL3 Runtime Software (BL31). For
 example, in the case of AArch64, there is no need to retrieve ``cpu_context_t``
@@ -159,7 +159,7 @@ values if required.
 
 PSCI library needs the flexibility to access both secure and non-secure
 copies of banked registers. Hence it needs to be invoked in Monitor mode
-for AArch32 and in EL3 for AArch64. The NS bit in SCR (in AArch32) or SCR\_EL3
+for AArch32 and in EL3 for AArch64. The NS bit in SCR (in AArch32) or SCR_EL3
 (in AArch64) must be set to 0. Additional requirements for the PSCI library
 interfaces are:
 
@@ -175,8 +175,8 @@ interfaces are:
 Further requirements for each interface can be found in the interface
 description.
 
-Interface : psci\_setup()
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Interface : psci_setup()
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -212,8 +212,8 @@ must have completed. Major actions performed by this interface are:
    `CPU Context management API`_) for all the CPUs in the
    platform
 
-Interface : psci\_prepare\_next\_non\_secure\_ctx()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Interface : psci_prepare_next_non_secure_ctx()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -225,11 +225,11 @@ must be called by the EL3 Runtime Software to initialize the non-secure world
 context. The non-secure world entrypoint information ``next_image_info`` (first
 argument) will be used to determine the non-secure context. After this function
 returns, the EL3 Runtime Software must retrieve the ``cpu_context_t`` (using
-cm\_get\_context()) for the current CPU and program the registers prior to exit
+cm_get_context()) for the current CPU and program the registers prior to exit
 to the non-secure world.
 
-Interface : psci\_register\_spd\_pm\_hook()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Interface : psci_register_spd_pm_hook()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -244,8 +244,8 @@ appropriately during power management. Calling this function is optional and
 need to be called by the primary CPU during the cold boot sequence after
 ``psci_setup()`` has completed.
 
-Interface : psci\_smc\_handler()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Interface : psci_smc_handler()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -270,8 +270,8 @@ PSCI API corresponding to ``smc_fid``. This function may not return back to the
 caller if PSCI API causes power down of the CPU. In this case, when the CPU
 wakes up, it will start execution from the warm reset address.
 
-Interface : psci\_warmboot\_entrypoint()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Interface : psci_warmboot_entrypoint()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -302,7 +302,7 @@ EL3 Runtime Software dependencies
 ---------------------------------
 
 The PSCI Library includes supporting frameworks like context management,
-cpu operations (cpu\_ops) and per-cpu data framework. Other helper library
+cpu operations (cpu_ops) and per-cpu data framework. Other helper library
 functions like bakery locks and spin locks are also included in the library.
 The dependencies which must be fulfilled by the EL3 Runtime Software
 for integration with PSCI library are described below.
@@ -323,7 +323,7 @@ these functions but the EL3 Runtime Software may use its own implementation.
 
 These must be implemented as described in ISO C Standard.
 
-**Function : flush\_dcache\_range()**
+**Function : flush_dcache_range()**
 
 ::
 
@@ -333,7 +333,7 @@ These must be implemented as described in ISO C Standard.
 This function cleans and invalidates (flushes) the data cache for memory
 at address ``addr`` (first argument) address and of size ``size`` (second argument).
 
-**Function : inv\_dcache\_range()**
+**Function : inv_dcache_range()**
 
 ::
 
@@ -343,7 +343,7 @@ at address ``addr`` (first argument) address and of size ``size`` (second argume
 This function invalidates (flushes) the data cache for memory at address
 ``addr`` (first argument) address and of size ``size`` (second argument).
 
-**Function : do\_panic()**
+**Function : do_panic()**
 
 ::
 
@@ -363,7 +363,7 @@ demonstrates how these APIs can be implemented but the EL3 Runtime Software can
 choose a more optimal implementation (like dedicating the secure TPIDRPRW
 system register (in AArch32) for storing these pointers).
 
-**Function : cm\_set\_context\_by\_index()**
+**Function : cm_set_context_by_index()**
 
 ::
 
@@ -384,7 +384,7 @@ The actual method of storing the ``context`` pointers is implementation specific
 For example, SP-MIN stores the pointers in the array ``sp_min_cpu_ctx_ptr``
 declared in ``sp_min_main.c``.
 
-**Function : cm\_get\_context()**
+**Function : cm_get_context()**
 
 ::
 
@@ -398,7 +398,7 @@ context pointers are stored prior to invoking this API. The ``security_state``
 will always be non-secure when called by PSCI library and this argument
 is retained for compatibility with BL31.
 
-**Function : cm\_get\_context\_by\_index()**
+**Function : cm_get_context_by_index()**
 
 ::
 
@@ -423,25 +423,25 @@ Runtime Software for integration with the PSCI library.
 
 The mandatory platform APIs are:
 
--  plat\_my\_core\_pos
--  plat\_core\_pos\_by\_mpidr
--  plat\_get\_syscnt\_freq2
--  plat\_get\_power\_domain\_tree\_desc
--  plat\_setup\_psci\_ops
--  plat\_reset\_handler
--  plat\_panic\_handler
--  plat\_get\_my\_stack
+-  plat_my_core_pos
+-  plat_core_pos_by_mpidr
+-  plat_get_syscnt_freq2
+-  plat_get_power_domain_tree_desc
+-  plat_setup_psci_ops
+-  plat_reset_handler
+-  plat_panic_handler
+-  plat_get_my_stack
 
 The mandatory platform macros are:
 
--  PLATFORM\_CORE\_COUNT
--  PLAT\_MAX\_PWR\_LVL
--  PLAT\_NUM\_PWR\_DOMAINS
--  CACHE\_WRITEBACK\_GRANULE
--  PLAT\_MAX\_OFF\_STATE
--  PLAT\_MAX\_RET\_STATE
--  PLAT\_MAX\_PWR\_LVL\_STATES (optional)
--  PLAT\_PCPU\_DATA\_SIZE (optional)
+-  PLATFORM_CORE_COUNT
+-  PLAT_MAX_PWR_LVL
+-  PLAT_NUM_PWR_DOMAINS
+-  CACHE_WRITEBACK_GRANULE
+-  PLAT_MAX_OFF_STATE
+-  PLAT_MAX_RET_STATE
+-  PLAT_MAX_PWR_LVL_STATES (optional)
+-  PLAT_PCPU_DATA_SIZE (optional)
 
 The details of these APIs/macros can be found in `Porting Guide`_.
 
@@ -486,50 +486,50 @@ enabled/re-targeted back to the current CPU.
 
 A brief description of each callback is given below:
 
--  svc\_on, svc\_off, svc\_on\_finish
+-  svc_on, svc_off, svc_on_finish
 
-   The ``svc_on``, ``svc_off`` callbacks are called during PSCI\_CPU\_ON,
-   PSCI\_CPU\_OFF APIs respectively. The ``svc_on_finish`` is called when the
-   target CPU of PSCI\_CPU\_ON API powers up and executes the
+   The ``svc_on``, ``svc_off`` callbacks are called during PSCI_CPU_ON,
+   PSCI_CPU_OFF APIs respectively. The ``svc_on_finish`` is called when the
+   target CPU of PSCI_CPU_ON API powers up and executes the
    ``psci_warmboot_entrypoint()`` PSCI library interface.
 
--  svc\_suspend, svc\_suspend\_finish
+-  svc_suspend, svc_suspend_finish
 
    The ``svc_suspend`` callback is called during power down bu either
-   PSCI\_SUSPEND or PSCI\_SYSTEM\_SUSPEND APIs. The ``svc_suspend_finish`` is
+   PSCI_SUSPEND or PSCI_SYSTEM_SUSPEND APIs. The ``svc_suspend_finish`` is
    called when the CPU wakes up from suspend and executes the
    ``psci_warmboot_entrypoint()`` PSCI library interface. The ``max_off_pwrlvl``
    (first parameter) denotes the highest power domain level being powered down
    to or woken up from suspend.
 
--  svc\_system\_off, svc\_system\_reset
+-  svc_system_off, svc_system_reset
 
-   These callbacks are called during PSCI\_SYSTEM\_OFF and PSCI\_SYSTEM\_RESET
+   These callbacks are called during PSCI_SYSTEM_OFF and PSCI_SYSTEM_RESET
    PSCI APIs respectively.
 
--  svc\_migrate\_info
+-  svc_migrate_info
 
-   This callback is called in response to PSCI\_MIGRATE\_INFO\_TYPE or
-   PSCI\_MIGRATE\_INFO\_UP\_CPU APIs. The return value of this callback must
-   correspond to the return value of PSCI\_MIGRATE\_INFO\_TYPE API as described
+   This callback is called in response to PSCI_MIGRATE_INFO_TYPE or
+   PSCI_MIGRATE_INFO_UP_CPU APIs. The return value of this callback must
+   correspond to the return value of PSCI_MIGRATE_INFO_TYPE API as described
    in `PSCI spec`_. If the secure payload is a Uniprocessor (UP)
    implementation, then it must update the mpidr of the CPU it is resident in
    via ``resident_cpu`` (first argument). The updates to ``resident_cpu`` is
    ignored if the secure payload is a multiprocessor (MP) implementation.
 
--  svc\_migrate
+-  svc_migrate
 
    This callback is only relevant if the secure payload in EL3 Runtime
    Software is a Uniprocessor (UP) implementation and supports migration from
    the current CPU ``from_cpu`` (first argument) to another CPU ``to_cpu``
-   (second argument). This callback is called in response to PSCI\_MIGRATE
+   (second argument). This callback is called in response to PSCI_MIGRATE
    API. This callback is never called if the secure payload is a
    Multiprocessor (MP) implementation.
 
 CPU operations
 ~~~~~~~~~~~~~~
 
-The CPU operations (cpu\_ops) framework implement power down sequence specific
+The CPU operations (cpu_ops) framework implement power down sequence specific
 to the CPU and the details of which can be found in the
 ``CPU specific operations framework`` section of `Firmware Design`_. The TF-A
 tree implements the ``cpu_ops`` for various supported CPUs and the EL3 Runtime

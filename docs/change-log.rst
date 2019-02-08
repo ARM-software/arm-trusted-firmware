@@ -973,7 +973,7 @@ New features
 
 -  Updated PSCI support:
 
-   -  Added support for PSCI NODE\_HW\_STATE API for Arm platforms.
+   -  Added support for PSCI NODE_HW_STATE API for Arm platforms.
 
    -  New optional platform hook, ``pwr_domain_pwr_down_wfi()``, in
       ``plat_psci_ops`` to enable platforms to perform platform-specific actions
@@ -1000,14 +1000,14 @@ New features
       This can be useful to map a non-cacheable memory region, such as a DMA
       buffer.
 
-   -  Introduced the MT\_EXECUTE/MT\_EXECUTE\_NEVER memory mapping attributes to
+   -  Introduced the MT_EXECUTE/MT_EXECUTE_NEVER memory mapping attributes to
       specify the access permissions for instruction execution of a memory
       region.
 
 -  Enabled support to isolate code and read-only data on separate memory pages,
    allowing independent access control to be applied to each.
 
--  Enabled SCR\_EL3.SIF (Secure Instruction Fetch) bit in BL1 and BL31 common
+-  Enabled SCR_EL3.SIF (Secure Instruction Fetch) bit in BL1 and BL31 common
    architectural setup code, preventing fetching instructions from non-secure
    memory when in secure state.
 
@@ -1025,7 +1025,7 @@ New features
       the working directory.
 
    -  Aligned command line options for specifying images to use same naming
-      convention as specified by TBBR and already used in cert\_create tool.
+      convention as specified by TBBR and already used in cert_create tool.
 
 -  Refactored the TZC-400 driver to also support memory controllers that
    integrate TZC functionality, for example Arm CoreLink DMC-500. Also added
@@ -1036,7 +1036,7 @@ New features
 
 -  Enhanced support for Arm platforms:
 
-   -  Updated image loading support to make SCP images (SCP\_BL2 and SCP\_BL2U)
+   -  Updated image loading support to make SCP images (SCP_BL2 and SCP_BL2U)
       optional.
 
    -  Enhanced topology description support to allow multi-cluster topology
@@ -1104,7 +1104,7 @@ New features
       **Note** the default build of TF-A will not be able to boot
       Linux kernel with GICv2 FDT blob.
 
-   -  Enabled wake-up from CPU\_SUSPEND to stand-by by temporarily re-routing
+   -  Enabled wake-up from CPU_SUSPEND to stand-by by temporarily re-routing
       interrupts and then restoring after resume.
 
 Issues resolved since last release
@@ -1219,7 +1219,7 @@ New features
 
    -  Better alignment with version 1.0 of the PSCI specification.
 
--  Added support for the SYSTEM\_SUSPEND PSCI API on Arm platforms. When invoked
+-  Added support for the SYSTEM_SUSPEND PSCI API on Arm platforms. When invoked
    on the last running core on a supported platform, this puts the system
    into a low power mode with memory retention.
 
@@ -1615,7 +1615,7 @@ Known issues
        <SimName>System Generator:FVP_Base_A57x4_A53x4</SimName>
 
    to
-   System Generator:FVP\_Base\_Cortex-A57x4\_A53x4
+   System Generator:FVP_Base_Cortex-A57x4_A53x4
 
    A similar change can be made to the other Cortex-A57-A53 Base FVP variants.
 
@@ -1643,7 +1643,7 @@ New features
 
 -  Moved architectural timer setup to platform-specific code.
 
--  Added standby state support to PSCI cpu\_suspend implementation.
+-  Added standby state support to PSCI cpu_suspend implementation.
 
 -  SRAM usage improvements:
 
@@ -1669,7 +1669,7 @@ New features
    default configuration is provided for the Base FVPs. This means the model
    parameter ``-C bp.secure_memory=1`` is now supported.
 
--  Started saving the PSCI cpu\_suspend 'power\_state' parameter prior to
+-  Started saving the PSCI cpu_suspend 'power_state' parameter prior to
    suspending a CPU. This allows platforms that implement multiple power-down
    states at the same affinity level to identify a specific state.
 
@@ -1767,13 +1767,13 @@ New features
    instructions for how to contribute and updated copyright text in all files
    to acknowledge contributors.
 
--  The PSCI CPU\_SUSPEND API has been stabilised to the extent where it can be
+-  The PSCI CPU_SUSPEND API has been stabilised to the extent where it can be
    used for entry into power down states with the following restrictions:
 
    -  Entry into standby states is not supported.
    -  The API is only supported on the AEMv8 and Cortex-A57-A53 Base FVPs.
 
--  The PSCI AFFINITY\_INFO api has undergone limited testing on the Base FVPs to
+-  The PSCI AFFINITY_INFO api has undergone limited testing on the Base FVPs to
    allow experimental use.
 
 -  Required C library and runtime header files are now included locally in
@@ -1803,7 +1803,7 @@ New features
    particular code modules to DRAM itself.
 
 -  Reworked BL2 to BL3-1 handover interface. A new composite structure
-   (bl31\_args) holds the superset of information that needs to be passed from
+   (bl31_args) holds the superset of information that needs to be passed from
    BL2 to BL3-1, including information on how handover execution control to
    BL3-2 (if present) and BL3-3 (non-trusted firmware).
 
@@ -1817,7 +1817,7 @@ New features
 -  Added a framework for implementing EL3 runtime services. Reworked the PSCI
    implementation to be one such runtime service.
 
--  Reworked the exception handling logic, making use of both SP\_EL0 and SP\_EL3
+-  Reworked the exception handling logic, making use of both SP_EL0 and SP_EL3
    stack pointers for determining the type of exception, managing general
    purpose and system register context on exception entry/exit, and handling
    SMCs. SMCs are directed to the correct EL3 runtime service.
