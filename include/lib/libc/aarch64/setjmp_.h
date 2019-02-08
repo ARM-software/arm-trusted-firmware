@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SETJMP_H
-#define SETJMP_H
+#ifndef SETJMP__H
+#define SETJMP__H
 
 #define JMP_CTX_X19	0x0
 #define JMP_CTX_X21	0x10
@@ -21,13 +21,10 @@
 #ifndef __ASSEMBLY__
 
 #include <cdefs.h>
-#include <stdint.h>
 
 /* Jump buffer hosting x18 - x30 and sp_el0 registers */
 typedef uint64_t jmp_buf[JMP_SIZE] __aligned(16);
 
-int setjmp(jmp_buf env);
-__dead2 void longjmp(jmp_buf env, int val);
-
 #endif /* __ASSEMBLY__ */
-#endif /* SETJMP_H */
+
+#endif /* SETJMP__H */
