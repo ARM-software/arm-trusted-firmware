@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,8 +12,6 @@
 	.local	platform_normal_stacks
 	.weak	plat_set_my_stack
 	.weak	plat_get_my_stack
-	.weak	platform_set_stack
-	.weak	platform_get_stack
 
 	/* -----------------------------------------------------
 	 * uintptr_t plat_get_my_stack ()

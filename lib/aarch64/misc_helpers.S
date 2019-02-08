@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
+#include <common/bl_common.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
 #if !ERROR_DEPRECATED
@@ -18,16 +19,13 @@
 
 	.globl	zero_normalmem
 	.globl	zeromem
-	.globl	zeromem16
 	.globl	memcpy16
 
 	.globl	disable_mmu_el1
 	.globl	disable_mmu_el3
 	.globl	disable_mmu_icache_el1
 	.globl	disable_mmu_icache_el3
-
 	.globl	fixup_gdt_reloc
-
 #if SUPPORT_VFP
 	.globl	enable_vfp
 #endif

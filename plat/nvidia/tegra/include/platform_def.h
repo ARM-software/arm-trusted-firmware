@@ -9,9 +9,14 @@
 
 #include <arch.h>
 #include <lib/utils_def.h>
-#include <plat/common/common_def.h>
 
 #include <tegra_def.h>
+
+/*
+ * Platform binary types for linking
+ */
+#define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
+#define PLATFORM_LINKER_ARCH		aarch64
 
 /*******************************************************************************
  * Generic platform constants
@@ -59,6 +64,6 @@
  * integrated and external caches.
  ******************************************************************************/
 #define CACHE_WRITEBACK_SHIFT		6
-#define CACHE_WRITEBACK_GRANULE		(U(1) << CACHE_WRITEBACK_SHIFT)
+#define CACHE_WRITEBACK_GRANULE		(0x40) /* (U(1) << CACHE_WRITEBACK_SHIFT) */
 
 #endif /* PLATFORM_DEF_H */

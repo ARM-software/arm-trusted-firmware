@@ -21,7 +21,7 @@
 #include "xlat_tables_private.h"
 
 /* Helper function that cleans the data cache only if it is enabled. */
-static inline void xlat_clean_dcache_range(uintptr_t addr, size_t size)
+static inline __attribute__((unused)) void xlat_clean_dcache_range(uintptr_t addr, size_t size)
 {
 	if (is_dcache_enabled())
 		clean_dcache_range(addr, size);

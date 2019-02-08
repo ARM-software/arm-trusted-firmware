@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,8 +25,6 @@
 	.weak	plat_handle_uncontainable_ea
 	.weak	plat_handle_double_fault
 	.weak	plat_handle_el3_ea
-
-	.globl	platform_get_core_pos
 
 #define MPIDR_RES_BIT_MASK	0xff000000
 
