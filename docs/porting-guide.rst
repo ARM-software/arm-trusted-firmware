@@ -2733,8 +2733,8 @@ been written specifically for TF-A. Fome implementation files have been obtained
 from `FreeBSD`_, others have been written specifically for TF-A as well. The
 files can be found in ``include/lib/libc`` and ``lib/libc``.
 
-SCC can be found in `http://www.simple-cc.org/`_. A copy of the `FreeBSD`_
-sources can be obtained from `http://github.com/freebsd/freebsd`_.
+SCC can be found in http://www.simple-cc.org/. A copy of the `FreeBSD`_ sources
+can be obtained from http://github.com/freebsd/freebsd.
 
 Storage abstraction layer
 -------------------------
