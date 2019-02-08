@@ -189,4 +189,4 @@ Boot UEFI in normal mode
 
 -  Reference `link <https://github.com/96boards-hikey/tools-images-hikey960/blob/master/build-from-source/README-ATF-UEFI-build-from-source.md>`__
 
-.. _link: http://www.96boards.org/documentation/ConsumerEdition/HiKey960/README.md
+.. _link: https://www.96boards.org/documentation/consumer/hikey/hikey960

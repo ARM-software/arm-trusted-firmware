@@ -41,5 +41,5 @@ migrate before the removal of the deprecated interface.
 *Copyright (c) 2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _Porting Guide: ./porting-guide.rst
-.. _Release information: https://github.com/ARM-software/arm-trusted-firmware/wiki/TF-A-Release-information#2removal-of-deprecated-interfaces
+.. _Release information: https://github.com/ARM-software/arm-trusted-firmware/wiki/TF-A-Release-information#removal-of-deprecated-interfaces
 .. _tf-issue: https://github.com/ARM-software/tf-issues/issues

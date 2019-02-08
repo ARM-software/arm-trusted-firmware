@@ -2808,5 +2808,5 @@ amount of open resources per driver.
 .. _IMF Design Guide: interrupt-framework-design.rst
 .. _Arm Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html
 .. _3.0 (GICv3): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0069b/index.html
-.. _FreeBSD: http://www.freebsd.org
+.. _FreeBSD: https://www.freebsd.org
 .. _SCC: http://www.simple-cc.org/
