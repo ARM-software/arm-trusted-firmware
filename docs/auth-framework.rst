@@ -720,7 +720,7 @@ Example: the BL31 Chain of Trust
 
 Four image descriptors form the BL31 Chain of Trust:
 
-.. code:: asm
+.. code:: c
 
     [TRUSTED_KEY_CERT_ID] = {
         .img_id = TRUSTED_KEY_CERT_ID,

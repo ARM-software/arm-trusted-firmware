@@ -2343,18 +2343,18 @@ A publisher that wants to publish event ``foo`` would:
 A subscriber that wants to subscribe to event ``foo`` published above would
 implement:
 
-::
+.. code:: c
 
-   void *foo_handler(const void *arg)
-   {
-        void *result;
+    void *foo_handler(const void *arg)
+    {
+         void *result;
 
-        /* Do handling ... */
+         /* Do handling ... */
 
-        return result;
-   }
+         return result;
+    }
 
-   SUBSCRIBE_TO_EVENT(foo, foo_handler);
+    SUBSCRIBE_TO_EVENT(foo, foo_handler);
 
 
 Reclaiming the BL31 initialization code

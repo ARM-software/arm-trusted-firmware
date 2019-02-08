@@ -85,7 +85,7 @@ file names; this type of name reuse should be otherwise avoided.
   #include "./a_header.h"
 
 Include statement variants
-^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Two variants of the ``#include`` directive are acceptable in the TF codebase.
 Correct use of the two styles improves readability by suggesting the location
@@ -125,7 +125,7 @@ Types and typedefs
 ------------------
 
 Use of built-in *C* and *libc* data types
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The TF codebase should be kept as portable as possible, especially since both
 64-bit and 32-bit platforms are supported. To help with this, the following data
@@ -214,9 +214,8 @@ type usage guidelines should be followed:
             u_register_t arg7;
     } aapcs64_params_t;
 
-
-    If some code wants to operate on ``arg0`` and knows that it represents a
-    32-bit unsigned integer on all systems, cast it to ``unsigned int``.
+If some code wants to operate on ``arg0`` and knows that it represents a 32-bit
+unsigned integer on all systems, cast it to ``unsigned int``.
 
 These guidelines should be updated if additional types are needed.
 

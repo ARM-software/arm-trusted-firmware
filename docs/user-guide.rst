@@ -575,7 +575,7 @@ Common build options
    1 (do save and restore). 0 is the default. An SPD may set this to 1 if it
    wants the timer registers to be saved and restored.
 
-- ``OVERRIDE_LIBC``: This option allows platforms to override the default libc
+-  ``OVERRIDE_LIBC``: This option allows platforms to override the default libc
    for the BL image. It can be either 0 (include) or 1 (remove). The default
    value is 0.
 
