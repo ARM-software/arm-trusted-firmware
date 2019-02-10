@@ -478,9 +478,6 @@ static void ble_plat_svc_config(void)
 		NOTICE("SVC: DEV ID: %s, FREQ Mode: 0x%x\n",
 			single_cluster == 0 ? "8040" : "8020", freq_pidi_mode);
 		switch (freq_pidi_mode) {
-#ifndef MVEBU_SOC_AP807
-		case CPU_1800_DDR_1200_RCLK_1200:
-#endif
 		case CPU_1800_DDR_1050_RCLK_1050:
 			if (perr[1])
 				goto perror;

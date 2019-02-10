@@ -46,11 +46,6 @@ static void pll_set_freq(unsigned int freq_val)
 	int i;
 
 	for (i = 0 ; i < AP807_CLUSTER_NUM ; i++) {
-		mmio_write_32(AP807_CPU_PLL_CFG(i),
-			      AP807_CPU_PLL_CFG_USE_REG_FILE);
-		mmio_write_32(AP807_CPU_PLL_CFG(i),
-			      AP807_CPU_PLL_CFG_USE_REG_FILE |
-			      AP807_CPU_PLL_CFG_BYPASS_MODE);
 		mmio_write_32(AP807_CPU_PLL_PARAM(i), freq_val);
 		mmio_write_32(AP807_CPU_PLL_CFG(i),
 			      AP807_CPU_PLL_CFG_USE_REG_FILE);
@@ -84,24 +79,16 @@ static void aro_to_pll(void)
  */
 void ap807_clocks_init(unsigned int freq_option)
 {
-	/* Switch from ARO to PLL */
-	aro_to_pll();
-
 	/* Modifications in frequency table:
 	 * 0x0: 764x: change to 2000 MHz.
 	 * 0x2: 744x change to 1800 MHz, 764x change to 2200/2400.
 	 * 0x3: 3900/744x/764x change to 1200 MHz.
 	 */
-	switch (freq_option) {
-	case CPU_2000_DDR_1200_RCLK_1200:
-		pll_set_freq(PLL_FREQ_2000);
-		break;
-#ifdef MVEBU_SOC_AP807
-	case CPU_2200_DDR_1200_RCLK_1200:
+
+	if (freq_option == CPU_2200_DDR_1200_RCLK_1200)
 		pll_set_freq(PLL_FREQ_2200);
-		break;
-#endif
-	default:
-		break;
-	}
+
+	/* Switch from ARO to PLL */
+	aro_to_pll();
+
 }
