@@ -71,12 +71,6 @@ static int k3_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_INTERN_FAIL;
 	}
 
-	ret = ti_sci_proc_release(proc);
-	if (ret) {
-		/* this is not fatal */
-		WARN("Could not release processor control: %d\n", ret);
-	}
-
 	return PSCI_E_SUCCESS;
 }
 
