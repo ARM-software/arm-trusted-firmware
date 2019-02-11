@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,16 +7,18 @@
 #ifndef CORTEX_A55_H
 #define CORTEX_A55_H
 
+#include <lib/utils_def.h>
+
 /* Cortex-A55 MIDR for revision 0 */
-#define CORTEX_A55_MIDR		0x410fd050
+#define CORTEX_A55_MIDR			U(0x410fd050)
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
  ******************************************************************************/
-#define CORTEX_A55_CPUPWRCTLR_EL1		S3_0_C15_C2_7
+#define CORTEX_A55_CPUPWRCTLR_EL1	S3_0_C15_C2_7
 #define CORTEX_A55_CPUECTLR_EL1		S3_0_C15_C1_4
 
 /* Definitions of register field mask in CORTEX_A55_CPUPWRCTLR_EL1 */
-#define CORTEX_A55_CORE_PWRDN_EN_MASK	0x1
+#define CORTEX_A55_CORE_PWRDN_EN_MASK	U(0x1)
 
 #endif /* CORTEX_A55_H */

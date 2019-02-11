@@ -26,13 +26,13 @@
  ******************************************************************************/
 #define CORTEX_A53_ECTLR_EL1				S3_1_C15_C2_1
 
-#define CORTEX_A53_ECTLR_SMP_BIT			(U(1) << 6)
+#define CORTEX_A53_ECTLR_SMP_BIT			(ULL(1) << 6)
 
 #define CORTEX_A53_ECTLR_CPU_RET_CTRL_SHIFT		U(0)
-#define CORTEX_A53_ECTLR_CPU_RET_CTRL_MASK		(U(0x7) << CORTEX_A53_ECTLR_CPU_RET_CTRL_SHIFT)
+#define CORTEX_A53_ECTLR_CPU_RET_CTRL_MASK		(ULL(0x7) << CORTEX_A53_ECTLR_CPU_RET_CTRL_SHIFT)
 
 #define CORTEX_A53_ECTLR_FPU_RET_CTRL_SHIFT		U(3)
-#define CORTEX_A53_ECTLR_FPU_RET_CTRL_MASK		(U(0x7) << CORTEX_A53_ECTLR_FPU_RET_CTRL_SHIFT)
+#define CORTEX_A53_ECTLR_FPU_RET_CTRL_MASK		(ULL(0x7) << CORTEX_A53_ECTLR_FPU_RET_CTRL_SHIFT)
 
 /*******************************************************************************
  * CPU Memory Error Syndrome register specific definitions.

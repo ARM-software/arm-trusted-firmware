@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,6 +28,6 @@
 /********************************************************************
  * Masks applied for DSU errata workarounds			    *
  ********************************************************************/
-#define DSU_ERRATA_936184_MASK	(ULL(0x3) << 15)
+#define DSU_ERRATA_936184_MASK	(U(0x3) << 15)
 
 #endif /* DSU_DEF_H */

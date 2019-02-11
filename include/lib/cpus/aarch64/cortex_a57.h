@@ -32,7 +32,7 @@
 #define CORTEX_A57_ECTLR_L2_DPFTCH_DIST_MASK	(ULL(0x3) << 32)
 
 #define CORTEX_A57_ECTLR_CPU_RET_CTRL_SHIFT	U(0)
-#define CORTEX_A57_ECTLR_CPU_RET_CTRL_MASK	(U(0x7) << CORTEX_A57_ECTLR_CPU_RET_CTRL_SHIFT)
+#define CORTEX_A57_ECTLR_CPU_RET_CTRL_MASK	(ULL(0x7) << CORTEX_A57_ECTLR_CPU_RET_CTRL_SHIFT)
 
 /*******************************************************************************
  * CPU Memory Error Syndrome register specific definitions.

@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef CORTEX_DEIMOS_H
 #define CORTEX_DEIMOS_H
+
+#include <lib/utils_def.h>
 
 #define CORTEX_DEIMOS_MIDR					U(0x410FD0D0)
 

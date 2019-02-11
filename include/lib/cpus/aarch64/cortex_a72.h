@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,7 @@
 #include <lib/utils_def.h>
 
 /* Cortex-A72 midr for revision 0 */
-#define CORTEX_A72_MIDR 				0x410FD080
+#define CORTEX_A72_MIDR 				U(0x410FD080)
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
@@ -50,12 +50,12 @@
  ******************************************************************************/
 #define CORTEX_A72_L2CTLR_EL1				S3_1_C11_C0_2
 
-#define CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT	0
-#define CORTEX_A72_L2CTLR_TAG_RAM_LATENCY_SHIFT		6
+#define CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT	U(0)
+#define CORTEX_A72_L2CTLR_TAG_RAM_LATENCY_SHIFT		U(6)
 
-#define CORTEX_A72_L2_DATA_RAM_LATENCY_3_CYCLES		0x2
-#define CORTEX_A72_L2_TAG_RAM_LATENCY_2_CYCLES		0x1
-#define CORTEX_A72_L2_TAG_RAM_LATENCY_3_CYCLES		0x2
+#define CORTEX_A72_L2_DATA_RAM_LATENCY_3_CYCLES		U(0x2)
+#define CORTEX_A72_L2_TAG_RAM_LATENCY_2_CYCLES		U(0x1)
+#define CORTEX_A72_L2_TAG_RAM_LATENCY_3_CYCLES		U(0x2)
 
 /*******************************************************************************
  * L2 Memory Error Syndrome register specific definitions.

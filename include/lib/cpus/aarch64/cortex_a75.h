@@ -28,7 +28,7 @@
 /* Definitions of register field mask in CORTEX_A75_CPUPWRCTLR_EL1 */
 #define CORTEX_A75_CORE_PWRDN_EN_MASK	U(0x1)
 
-#define CORTEX_A75_ACTLR_AMEN_BIT	(U(1) << 4)
+#define CORTEX_A75_ACTLR_AMEN_BIT	(ULL(1) << 4)
 
 /*
  * The Cortex-A75 core implements five counters, 0-4. Events 0, 1, 2, are
