@@ -91,7 +91,7 @@ TF-A has a `services`_ directory in the source tree under which
 each owning entity can place the implementation of its runtime service. The
 `PSCI`_ implementation is located here in the `lib/psci`_ directory.
 
-Runtime service sources will need to include the `runtime\_svc.h`_ header file.
+Runtime service sources will need to include the `runtime_svc.h`_ header file.
 
 Registering a runtime service
 -----------------------------
@@ -140,7 +140,7 @@ to ensure that the following conditions are met:
 #. The ``_type`` is one of ``SMC_TYPE_FAST`` or ``SMC_TYPE_YIELD``
 #. ``_setup`` and ``_smch`` routines have been specified
 
-`std\_svc\_setup.c`_ provides an example of registering a runtime service:
+`std_svc_setup.c`_ provides an example of registering a runtime service:
 
 .. code:: c
 
@@ -310,6 +310,6 @@ provide this information....
 .. _Firmware Design: ./firmware-design.rst
 .. _services: ../services
 .. _lib/psci: ../lib/psci
-.. _runtime\_svc.h: ../include/common/runtime_svc.h
+.. _runtime_svc.h: ../include/common/runtime_svc.h
 .. _smccc.h: ../include/lib/smccc.h
-.. _std\_svc\_setup.c: ../services/std_svc/std_svc_setup.c
+.. _std_svc_setup.c: ../services/std_svc/std_svc_setup.c

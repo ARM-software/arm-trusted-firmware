@@ -451,7 +451,7 @@ requirements mentioned earlier.
    The handover agreement between the TSP and the TSPD requires that the TSPD
    masks all interrupts (``PSTATE.DAIF`` bits) when it calls
    ``tsp_sel1_intr_entry()``. The TSP has to preserve the callee saved general
-   purpose, SP\_EL1/Secure-EL0, LR, VFP and system registers. It can use
+   purpose, SP_EL1/Secure-EL0, LR, VFP and system registers. It can use
    ``x0-x18`` to enable its C runtime.
 
 #. The TSPD implements a handler function for Secure-EL1 interrupts. This
@@ -595,7 +595,7 @@ The TSP also replaces the default exception vector table referenced through the
 ``early_exceptions`` variable, with a vector table capable of handling FIQ and IRQ
 exceptions taken at the same (Secure-EL1) exception level. This table is
 referenced through the ``tsp_exceptions`` variable and programmed into the
-VBAR\_EL1. It caters for the asynchronous handling model.
+VBAR_EL1. It caters for the asynchronous handling model.
 
 The TSP also programs the Secure Physical Timer in the Arm Generic Timer block
 to raise a periodic interrupt (every half a second) for the purpose of testing
@@ -904,7 +904,7 @@ In the synchronous model, it should begin handling a Secure-EL1 interrupt after
 receiving control from the SPD service at an entrypoint agreed upon during build
 time or during the registration phase. Before handling the interrupt, the SP
 should save any Secure-EL1 system register context which is needed for resuming
-normal execution in the SP later e.g. ``SPSR_EL1,``\ ELR\_EL1\`. After handling the
+normal execution in the SP later e.g. ``SPSR_EL1,``\ ELR_EL1\`. After handling the
 interrupt, the SP could return control back to the exception level and security
 state where the interrupt was originally taken from. The SP should use an SMC32
 or SMC64 to ask the SPD service to do this.

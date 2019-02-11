@@ -93,7 +93,7 @@ For Cortex-A53, the following errata build flags are defined :
 -  ``ERRATA_A53_855873``: This applies errata 855873 workaround to Cortex-A53
    CPUs. Though the erratum is present in every revision of the CPU,
    this workaround is only applied to CPUs from r0p3 onwards, which feature
-   a chicken bit in CPUACTLR\_EL1 to enable a hardware workaround.
+   a chicken bit in CPUACTLR_EL1 to enable a hardware workaround.
    Earlier revisions of the CPU have other errata which require the same
    workaround in software, so they should be covered anyway.
 

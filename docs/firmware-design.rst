@@ -404,16 +404,16 @@ needed in the ``bl2_plat_handle_post_image_load()`` function. These
 configuration files can be passed to next Boot Loader stages as arguments
 by updating the corresponding entrypoint information in this function.
 
-SCP\_BL2 (System Control Processor Firmware) image load
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SCP_BL2 (System Control Processor Firmware) image load
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Some systems have a separate System Control Processor (SCP) for power, clock,
-reset and system control. BL2 loads the optional SCP\_BL2 image from platform
+reset and system control. BL2 loads the optional SCP_BL2 image from platform
 storage into a platform-specific region of secure memory. The subsequent
-handling of SCP\_BL2 is platform specific. For example, on the Juno Arm
+handling of SCP_BL2 is platform specific. For example, on the Juno Arm
 development platform port the image is transferred into SCP's internal memory
 using the Boot Over MHU (BOM) protocol after being loaded in the trusted SRAM
-memory. The SCP executes SCP\_BL2 and signals to the Application Processor (AP)
+memory. The SCP executes SCP_BL2 and signals to the Application Processor (AP)
 for BL2 execution to continue.
 
 EL3 Runtime Software image load
@@ -688,7 +688,7 @@ Data structures used in the BL31 cold boot interface
 These structures are designed to support compatibility and independent
 evolution of the structures and the firmware images. For example, a version of
 BL31 that can interpret the BL3x image information from different versions of
-BL2, a platform that uses an extended entry\_point\_info structure to convey
+BL2, a platform that uses an extended entry_point_info structure to convey
 additional register information to BL31, or a ELF image loader that can convey
 more details about the firmware images.
 
@@ -803,10 +803,10 @@ Required CPU state for warm boot initialization
 
 When requesting a CPU power-on, or suspending a running CPU, AArch32 EL3
 Runtime Software must ensure execution of a warm boot initialization entrypoint.
-If TF-A BL1 is used and the PROGRAMMABLE\_RESET\_ADDRESS build flag is false,
+If TF-A BL1 is used and the PROGRAMMABLE_RESET_ADDRESS build flag is false,
 then AArch32 EL3 Runtime Software must ensure that BL1 branches to the warm
 boot entrypoint by arranging for the BL1 platform function,
-plat\_get\_my\_entrypoint(), to return a non-zero value.
+plat_get_my_entrypoint(), to return a non-zero value.
 
 In this case, the warm boot entrypoint must be in AArch32 EL3, little-endian
 data access and all interrupt sources masked:
@@ -996,7 +996,7 @@ mandatory APIs in PSCI v1.1, PSCI v1.0 and in PSCI v0.2 draft specification
 `Power State Coordination Interface PDD`_ are implemented. The table lists
 the PSCI v1.1 APIs and their support in generic code.
 
-An API implementation might have a dependency on platform code e.g. CPU\_SUSPEND
+An API implementation might have a dependency on platform code e.g. CPU_SUSPEND
 requires the platform to export a part of the implementation. Hence the level
 of support of the mandatory APIs depends upon the support exported by the
 platform port as well. The Juno and FVP (all variants) platforms export all the
@@ -1657,13 +1657,13 @@ The following list describes the memory layout on the Arm development platforms:
 
 -  BL2 is loaded below BL1 RW
 
--  EL3 Runtime Software, BL31 for AArch64 and BL32 for AArch32 (e.g. SP\_MIN),
+-  EL3 Runtime Software, BL31 for AArch64 and BL32 for AArch32 (e.g. SP_MIN),
    is loaded at the top of the Trusted SRAM, such that its NOBITS sections will
    overwrite BL1 R/W data and BL2. This implies that BL1 global variables
    remain valid only until execution reaches the EL3 Runtime Software entry
    point during a cold boot.
 
--  On Juno, SCP\_BL2 is loaded temporarily into the EL3 Runtime Software memory
+-  On Juno, SCP_BL2 is loaded temporarily into the EL3 Runtime Software memory
    region and transfered to the SCP before being overwritten by EL3 Runtime
    Software.
 
@@ -2089,11 +2089,11 @@ the update made by CPU0 as well.
 
 To use bakery locks when ``USE_COHERENT_MEM`` is disabled, the lock data structure
 has been redesigned. The changes utilise the characteristic of Lamport's Bakery
-algorithm mentioned earlier. The bakery\_lock structure only allocates the memory
+algorithm mentioned earlier. The bakery_lock structure only allocates the memory
 for a single CPU. The macro ``DEFINE_BAKERY_LOCK`` allocates all the bakery locks
 needed for a CPU into a section ``bakery_lock``. The linker allocates the memory
-for other cores by using the total size allocated for the bakery\_lock section
-and multiplying it with (PLATFORM\_CORE\_COUNT - 1). This enables software to
+for other cores by using the total size allocated for the bakery_lock section
+and multiplying it with (PLATFORM_CORE_COUNT - 1). This enables software to
 perform software cache maintenance on the lock data structure without running
 into coherency issues associated with mismatched attributes.
 
@@ -2155,7 +2155,7 @@ with n bakery locks are:
     ------------------
 
 Consider a system of 2 CPUs with 'N' bakery locks as shown above. For an
-operation on Lock\_N, the corresponding ``bakery_info_t`` in both CPU0 and CPU1
+operation on Lock_N, the corresponding ``bakery_info_t`` in both CPU0 and CPU1
 ``bakery_lock`` section need to be fetched and appropriate cache operations need
 to be performed for each access.
 
@@ -2343,18 +2343,18 @@ A publisher that wants to publish event ``foo`` would:
 A subscriber that wants to subscribe to event ``foo`` published above would
 implement:
 
-::
+.. code:: c
 
-   void *foo_handler(const void *arg)
-   {
-        void *result;
+    void *foo_handler(const void *arg)
+    {
+         void *result;
 
-        /* Do handling ... */
+         /* Do handling ... */
 
-        return result;
-   }
+         return result;
+    }
 
-   SUBSCRIBE_TO_EVENT(foo, foo_handler);
+    SUBSCRIBE_TO_EVENT(foo, foo_handler);
 
 
 Reclaiming the BL31 initialization code
@@ -2619,8 +2619,8 @@ categories. Based upon the above, the code layout looks like this:
     lib          Yes             Yes             Yes
     services     No              No              Yes
 
-The build system provides a non configurable build option IMAGE\_BLx for each
-boot loader stage (where x = BL stage). e.g. for BL1 , IMAGE\_BL1 will be
+The build system provides a non configurable build option IMAGE_BLx for each
+boot loader stage (where x = BL stage). e.g. for BL1 , IMAGE_BL1 will be
 defined by the build system. This enables TF-A to compile certain code only
 for specific boot loader stages
 

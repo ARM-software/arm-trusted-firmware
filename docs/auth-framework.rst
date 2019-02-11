@@ -209,7 +209,7 @@ It is responsible for:
 #. Tracking which images have been verified. In case an image is a part of
    multiple CoTs then it should be verified only once e.g. the Trusted World
    Key Certificate in the TBBR-Client spec. contains information to verify
-   SCP\_BL2, BL31, BL32 each of which have a separate CoT. (This
+   SCP_BL2, BL31, BL32 each of which have a separate CoT. (This
    responsibility has not been described in this document but should be
    trivial to implement).
 
@@ -627,7 +627,7 @@ The TBBR CoT
 
 The CoT can be found in ``drivers/auth/tbbr/tbbr_cot.c``. This CoT consists of an
 array of image descriptors and it is registered in the framework using the macro
-``REGISTER_COT(cot_desc)``, where 'cot\_desc' must be the name of the array
+``REGISTER_COT(cot_desc)``, where 'cot_desc' must be the name of the array
 (passing a pointer or any other type of indirection will cause the registration
 process to fail).
 
@@ -720,7 +720,7 @@ Example: the BL31 Chain of Trust
 
 Four image descriptors form the BL31 Chain of Trust:
 
-.. code:: asm
+.. code:: c
 
     [TRUSTED_KEY_CERT_ID] = {
         .img_id = TRUSTED_KEY_CERT_ID,

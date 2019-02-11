@@ -135,8 +135,8 @@ The following is a brief description of the supported states:
 BL1 SMC Interface
 -----------------
 
-BL1\_SMC\_CALL\_COUNT
-~~~~~~~~~~~~~~~~~~~~~
+BL1_SMC_CALL_COUNT
+~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -148,8 +148,8 @@ BL1\_SMC\_CALL\_COUNT
 
 This SMC returns the number of SMCs supported by BL1.
 
-BL1\_SMC\_UID
-~~~~~~~~~~~~~
+BL1_SMC_UID
+~~~~~~~~~~~
 
 ::
 
@@ -162,8 +162,8 @@ BL1\_SMC\_UID
 This SMC returns the 128-bit `Universally Unique Identifier`_ for the
 BL1 SMC service.
 
-BL1\_SMC\_VERSION
-~~~~~~~~~~~~~~~~~
+BL1_SMC_VERSION
+~~~~~~~~~~~~~~~
 
 ::
 
@@ -176,8 +176,8 @@ BL1\_SMC\_VERSION
 
 This SMC returns the current version of the BL1 SMC service.
 
-BL1\_SMC\_RUN\_IMAGE
-~~~~~~~~~~~~~~~~~~~~
+BL1_SMC_RUN_IMAGE
+~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -196,8 +196,8 @@ This SMC passes execution control to an EL3 image described by the provided
 ``entry_point_info_t`` structure. In the normal TF-A boot flow, BL2 invokes
 this SMC for BL1 to pass execution control to BL31.
 
-FWU\_SMC\_IMAGE\_COPY
-~~~~~~~~~~~~~~~~~~~~~
+FWU_SMC_IMAGE_COPY
+~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -245,8 +245,8 @@ contiguous memory.
 
 Once the SMC is handled, BL1 returns from exception to the normal world caller.
 
-FWU\_SMC\_IMAGE\_AUTH
-~~~~~~~~~~~~~~~~~~~~~
+FWU_SMC_IMAGE_AUTH
+~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -285,8 +285,8 @@ BL1 returns from exception to the caller. If authentication succeeds then BL1
 sets the image state to AUTHENTICATED. If authentication fails then BL1 returns
 the -EAUTH error and sets the image state back to RESET.
 
-FWU\_SMC\_IMAGE\_EXECUTE
-~~~~~~~~~~~~~~~~~~~~~~~~
+FWU_SMC_IMAGE_EXECUTE
+~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -313,8 +313,8 @@ secure world image.
 BL1 saves the normal world caller's context, sets the secure image state to
 EXECUTED, and returns from exception to the secure image.
 
-FWU\_SMC\_IMAGE\_RESUME
-~~~~~~~~~~~~~~~~~~~~~~~
+FWU_SMC_IMAGE_RESUME
+~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -340,8 +340,8 @@ the resuming world. If the call is successful then the caller provided
 ``image_param`` is returned to the resumed world, otherwise an error code is
 returned to the caller.
 
-FWU\_SMC\_SEC\_IMAGE\_DONE
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+FWU_SMC_SEC_IMAGE_DONE
+~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -361,8 +361,8 @@ BL1 sets the previously executing secure image state to the RESET state,
 restores the normal world context and returns from exception into the normal
 world.
 
-FWU\_SMC\_UPDATE\_DONE
-~~~~~~~~~~~~~~~~~~~~~~
+FWU_SMC_UPDATE_DONE
+~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -377,8 +377,8 @@ This SMC completes the firmware update process. BL1 calls the platform specific
 function ``bl1_plat_fwu_done``, passing the optional argument ``client_cookie`` as
 a ``void *``. The SMC does not return.
 
-FWU\_SMC\_IMAGE\_RESET
-~~~~~~~~~~~~~~~~~~~~~~
+FWU_SMC_IMAGE_RESET
+~~~~~~~~~~~~~~~~~~~
 
 ::
 
