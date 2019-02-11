@@ -16,14 +16,6 @@
 /**
  * Device control operations
  *
- * - ti_sci_device_set_state - Set device state helper
- *              @flags: flags to setup for the device
- *              @state: State to move the device to
- * - ti_sci_device_get_state - Get device state helper
- *              @clcnt: Pointer to Context Loss Count
- *              @resets: pointer to resets
- *              @p_state: pointer to p_state
- *              @c_state: pointer to c_state
  * - ti_sci_device_get - command to request for device managed by TISCI
  * - ti_sci_device_idle - Command to idle a device managed by TISCI
  * - ti_sci_device_put - command to release a device managed by TISCI
@@ -54,9 +46,6 @@
  * usage count by balancing get_device with put_device. No refcounting is
  * managed by driver for that purpose.
  */
-int ti_sci_device_set_state(uint32_t id, uint32_t flags, uint8_t state);
-int ti_sci_device_get_state(uint32_t id,  uint32_t *clcnt,  uint32_t *resets,
-			    uint8_t *p_state,  uint8_t *c_state);
 int ti_sci_device_get(uint32_t id);
 int ti_sci_device_idle(uint32_t id);
 int ti_sci_device_put(uint32_t id);
@@ -72,12 +61,6 @@ int ti_sci_device_get_resets(uint32_t id, uint32_t *reset_state);
 /**
  * Clock control operations
  *
- * - ti_sci_clock_set_state - Set clock state helper
- *              @flags: Header flags as needed
- *              @state: State to request for the clock.
- * - ti_sci_clock_get_state - Get clock state helper
- *              @programmed_state: State requested for clock to move to
- *              @current_state: State that the clock is currently in
  * - ti_sci_clock_get - Get control of a clock from TI SCI
  *              @needs_ssc: 'true' iff Spread Spectrum clock is desired
  *              @can_change_freq: 'true' iff frequency change is desired
@@ -123,10 +106,6 @@ int ti_sci_device_get_resets(uint32_t id, uint32_t *reset_state);
  * usage count by balancing get_clock with put_clock. No refcounting is
  * managed by driver for that purpose.
  */
-int ti_sci_clock_set_state(uint32_t dev_id, uint8_t clk_id,
-			   uint32_t flags, uint8_t state);
-int ti_sci_clock_get_state(uint32_t dev_id, uint8_t clk_id,
-			   uint8_t *programmed_state, uint8_t *current_state);
 int ti_sci_clock_get(uint32_t dev_id, uint8_t clk_id,
 		     bool needs_ssc, bool can_change_freq,
 		     bool enable_input_term);

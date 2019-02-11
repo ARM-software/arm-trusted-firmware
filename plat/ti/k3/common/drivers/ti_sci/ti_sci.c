@@ -236,7 +236,7 @@ static inline bool ti_sci_is_response_ack(void *r)
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int ti_sci_device_set_state(uint32_t id, uint32_t flags, uint8_t state)
+static int ti_sci_device_set_state(uint32_t id, uint32_t flags, uint8_t state)
 {
 	struct ti_sci_msg_req_set_device_state req;
 	struct ti_sci_msg_hdr resp;
@@ -280,8 +280,9 @@ int ti_sci_device_set_state(uint32_t id, uint32_t flags, uint8_t state)
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int ti_sci_device_get_state(uint32_t id,  uint32_t *clcnt,  uint32_t *resets,
-			    uint8_t *p_state,  uint8_t *c_state)
+static int ti_sci_device_get_state(uint32_t id,  uint32_t *clcnt,
+				   uint32_t *resets, uint8_t *p_state,
+				   uint8_t *c_state)
 {
 	struct ti_sci_msg_req_get_device_state req;
 	struct ti_sci_msg_resp_get_device_state resp;
