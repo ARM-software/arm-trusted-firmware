@@ -13,12 +13,13 @@
  * handle the request locally or delegate it to the Secure Payload. It is also
  * responsible for initialising and maintaining communication with the SP.
  ******************************************************************************/
-#include <arch_helpers.h>
 #include <assert.h>
 #include <errno.h>
 #include <stddef.h>
 
+#include <arch_helpers.h>
 #include <bl31/bl31.h>
+#include <bl32/payloads/tlk.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <common/runtime_svc.h>
@@ -26,7 +27,6 @@
 #include <plat/common/platform.h>
 #include <tools_share/uuid.h>
 
-#include <tlk.h>
 #include "tlkd_private.h"
 
 extern const spd_pm_ops_t tlkd_pm_ops;
