@@ -13,6 +13,9 @@ GENERATE_COT			:= 1
 BL2_AT_EL3			:= 1
 ENABLE_SVE_FOR_NS		:= 0
 
+CRASH_REPORTING			:= 1
+HANDLE_EA_EL3_FIRST		:= 1
+
 $(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
 
 ifeq (${SPD},none)
@@ -322,8 +325,8 @@ PLAT_INCLUDES	:=	-Idrivers/staging/renesas/rcar/ddr	\
 			-Iplat/renesas/rcar/include		\
 			-Iplat/renesas/rcar
 
-PLAT_BL_COMMON_SOURCES	:=	drivers/renesas/rcar/iic_dvfs/iic_dvfs.c
-
+PLAT_BL_COMMON_SOURCES	:=	drivers/renesas/rcar/iic_dvfs/iic_dvfs.c \
+				plat/renesas/rcar/rcar_common.c
 
 RCAR_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
