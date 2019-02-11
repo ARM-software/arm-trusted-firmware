@@ -95,7 +95,7 @@ static int ti_sci_setup_one_xfer(uint16_t msg_type, uint32_t msg_flags,
 	hdr->seq = info.seq;
 	hdr->type = msg_type;
 	hdr->host = info.desc.host_id;
-	hdr->flags = msg_flags;
+	hdr->flags = msg_flags | TI_SCI_FLAG_REQ_ACK_ON_PROCESSED;
 
 	xfer->tx_message.buf = tx_buf;
 	xfer->tx_message.len = tx_message_size;
@@ -142,6 +142,9 @@ static inline int ti_sci_get_response(struct ti_sci_xfer *xfer,
 		      msg->len, info.desc.max_msg_size);
 		return -EINVAL;
 	}
+
+	if (!(hdr->flags & TI_SCI_FLAG_RESP_GENERIC_ACK))
+		return -ENODEV;
 
 	return 0;
 }
@@ -214,20 +217,6 @@ int ti_sci_get_revision(struct ti_sci_msg_resp_version *rev_info)
 }
 
 /**
- * ti_sci_is_response_ack() - Generic ACK/NACK message check
- *
- * @r:	pointer to response buffer
- *
- * Return: true if the response was an ACK, else returns false
- */
-static inline bool ti_sci_is_response_ack(void *r)
-{
-	struct ti_sci_msg_hdr *hdr = r;
-
-	return hdr->flags & TI_SCI_FLAG_RESP_GENERIC_ACK ? true : false;
-}
-
-/**
  * ti_sci_device_set_state() - Set device state
  *
  * @id:		Device identifier
@@ -244,8 +233,7 @@ static int ti_sci_device_set_state(uint32_t id, uint32_t flags, uint8_t state)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_DEVICE_STATE,
-				    flags | TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_DEVICE_STATE, flags,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -262,9 +250,6 @@ static int ti_sci_device_set_state(uint32_t id, uint32_t flags, uint8_t state)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -309,9 +294,6 @@ static int ti_sci_device_get_state(uint32_t id,  uint32_t *clcnt,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	if (clcnt)
 		*clcnt = resp.context_loss_count;
@@ -573,8 +555,7 @@ int ti_sci_device_set_resets(uint32_t id, uint32_t reset_state)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_DEVICE_RESETS,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_DEVICE_RESETS, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -591,9 +572,6 @@ int ti_sci_device_set_resets(uint32_t id, uint32_t reset_state)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -632,8 +610,7 @@ int ti_sci_clock_set_state(uint32_t dev_id, uint8_t clk_id,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_STATE,
-				    flags | TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_STATE, flags,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -651,9 +628,6 @@ int ti_sci_clock_set_state(uint32_t dev_id, uint8_t clk_id,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -683,8 +657,7 @@ int ti_sci_clock_get_state(uint32_t dev_id, uint8_t clk_id,
 	if (!programmed_state && !current_state)
 		return -EINVAL;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_STATE,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_STATE, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -701,9 +674,6 @@ int ti_sci_clock_get_state(uint32_t dev_id, uint8_t clk_id,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	if (programmed_state)
 		*programmed_state = resp.programmed_state;
@@ -889,8 +859,7 @@ int ti_sci_clock_set_parent(uint32_t dev_id, uint8_t clk_id, uint8_t parent_id)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_PARENT,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_PARENT, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -908,9 +877,6 @@ int ti_sci_clock_set_parent(uint32_t dev_id, uint8_t clk_id, uint8_t parent_id)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -934,8 +900,7 @@ int ti_sci_clock_get_parent(uint32_t dev_id, uint8_t clk_id, uint8_t *parent_id)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_PARENT,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_PARENT, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -952,9 +917,6 @@ int ti_sci_clock_get_parent(uint32_t dev_id, uint8_t clk_id, uint8_t *parent_id)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	*parent_id = resp.parent_id;
 
@@ -981,8 +943,7 @@ int ti_sci_clock_get_num_parents(uint32_t dev_id, uint8_t clk_id,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_NUM_CLOCK_PARENTS,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_NUM_CLOCK_PARENTS, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -999,9 +960,6 @@ int ti_sci_clock_get_num_parents(uint32_t dev_id, uint8_t clk_id,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	*num_parents = resp.num_parents;
 
@@ -1037,8 +995,7 @@ int ti_sci_clock_get_match_freq(uint32_t dev_id, uint8_t clk_id,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_QUERY_CLOCK_FREQ,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_QUERY_CLOCK_FREQ, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1058,9 +1015,6 @@ int ti_sci_clock_get_match_freq(uint32_t dev_id, uint8_t clk_id,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	*match_freq = resp.freq_hz;
 
@@ -1094,8 +1048,7 @@ int ti_sci_clock_set_freq(uint32_t dev_id, uint8_t clk_id, uint64_t min_freq,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_FREQ,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_FREQ, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1114,9 +1067,6 @@ int ti_sci_clock_set_freq(uint32_t dev_id, uint8_t clk_id, uint64_t min_freq,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1140,8 +1090,7 @@ int ti_sci_clock_get_freq(uint32_t dev_id, uint8_t clk_id, uint64_t *freq)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_FREQ,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_FREQ, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1158,9 +1107,6 @@ int ti_sci_clock_get_freq(uint32_t dev_id, uint8_t clk_id, uint64_t *freq)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	*freq = resp.freq_hz;
 
@@ -1180,8 +1126,7 @@ int ti_sci_core_reboot(void)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SYS_RESET,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SYS_RESET, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1195,9 +1140,6 @@ int ti_sci_core_reboot(void)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1217,8 +1159,7 @@ int ti_sci_proc_request(uint8_t proc_id)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_REQUEST,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_REQUEST, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1234,9 +1175,6 @@ int ti_sci_proc_request(uint8_t proc_id)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1256,8 +1194,7 @@ int ti_sci_proc_release(uint8_t proc_id)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_RELEASE,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_RELEASE, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1273,9 +1210,6 @@ int ti_sci_proc_release(uint8_t proc_id)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1297,8 +1231,7 @@ int ti_sci_proc_handover(uint8_t proc_id, uint8_t host_id)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_HANDOVER,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_HANDOVER, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1315,9 +1248,6 @@ int ti_sci_proc_handover(uint8_t proc_id, uint8_t host_id)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1341,8 +1271,7 @@ int ti_sci_proc_set_boot_cfg(uint8_t proc_id, uint64_t bootvector,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_SET_PROC_BOOT_CONFIG,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_SET_PROC_BOOT_CONFIG, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1363,9 +1292,6 @@ int ti_sci_proc_set_boot_cfg(uint8_t proc_id, uint64_t bootvector,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1388,8 +1314,7 @@ int ti_sci_proc_set_boot_ctrl(uint8_t proc_id, uint32_t control_flags_set,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_SET_PROC_BOOT_CTRL,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_SET_PROC_BOOT_CTRL, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1407,9 +1332,6 @@ int ti_sci_proc_set_boot_ctrl(uint8_t proc_id, uint32_t control_flags_set,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1431,8 +1353,7 @@ int ti_sci_proc_auth_boot_image(uint8_t proc_id, uint64_t cert_addr)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_AUTH_BOOT_IMIAGE,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_AUTH_BOOT_IMIAGE, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1451,9 +1372,6 @@ int ti_sci_proc_auth_boot_image(uint8_t proc_id, uint64_t cert_addr)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1476,8 +1394,7 @@ int ti_sci_proc_get_boot_status(uint8_t proc_id, uint64_t *bv,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_GET_PROC_BOOT_STATUS,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_GET_PROC_BOOT_STATUS, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1493,9 +1410,6 @@ int ti_sci_proc_get_boot_status(uint8_t proc_id, uint64_t *bv,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	*bv = (resp.bootvector_low & TISCI_ADDR_LOW_MASK) |
 	      (((uint64_t)resp.bootvector_high << TISCI_ADDR_HIGH_SHIFT) &
@@ -1556,8 +1470,7 @@ int ti_sci_proc_wait_boot_status(uint8_t proc_id, uint8_t num_wait_iterations,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_WAIT_PROC_BOOT_STATUS,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_WAIT_PROC_BOOT_STATUS, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1581,9 +1494,6 @@ int ti_sci_proc_wait_boot_status(uint8_t proc_id, uint8_t num_wait_iterations,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
