@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -206,6 +206,22 @@ $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | lib$(3)_dirs
 
 endef
 
+# MAKE_S_LIB builds an assembly source file and generates the dependency file
+#   $(1) = output directory
+#   $(2) = source file (%.S)
+#   $(3) = library name
+define MAKE_S_LIB
+$(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
+$(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
+
+$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | lib$(3)_dirs
+	$$(ECHO) "  AS      $$<"
+	$$(Q)$$(AS) $$(ASFLAGS) $(MAKE_DEP) -c $$< -o $$@
+
+-include $(DEP)
+
+endef
+
 
 # MAKE_C builds a C source file and generates the dependency file
 #   $(1) = output directory
@@ -263,7 +279,7 @@ $(1): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
 
 endef
 
-# MAKE_LIB_OBJS builds both C source files
+# MAKE_LIB_OBJS builds both C and assembly source files
 #   $(1) = output directory
 #   $(2) = list of source files
 #   $(3) = name of the library
@@ -271,6 +287,10 @@ define MAKE_LIB_OBJS
         $(eval C_OBJS := $(filter %.c,$(2)))
         $(eval REMAIN := $(filter-out %.c,$(2)))
         $(eval $(foreach obj,$(C_OBJS),$(call MAKE_C_LIB,$(1),$(obj),$(3))))
+
+        $(eval S_OBJS := $(filter %.S,$(REMAIN)))
+        $(eval REMAIN := $(filter-out %.S,$(REMAIN)))
+        $(eval $(foreach obj,$(S_OBJS),$(call MAKE_S_LIB,$(1),$(obj),$(3))))
 
         $(and $(REMAIN),$(error Unexpected source files present: $(REMAIN)))
 endef

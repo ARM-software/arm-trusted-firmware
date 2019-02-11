@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,7 +9,7 @@
 	.globl	begin_sdei_synchronous_dispatch
 
 /*
- * void begin_sdei_synchronous_dispatch(struct jmpbuf *buffer);
+ * void begin_sdei_synchronous_dispatch(jmp_buf *buffer);
  *
  * Begin SDEI dispatch synchronously by setting up a jump point, and exiting
  * EL3. This jump point is jumped to by the dispatcher after the event is

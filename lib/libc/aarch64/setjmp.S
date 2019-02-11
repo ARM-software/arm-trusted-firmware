@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,10 +12,7 @@
 	.globl	longjmp
 
 /*
- * int setjmp(struct jmpbuf *buf);
- *
- * Sets a jump point in the buffer specified in x0. Returns 0 to the caller when
- * when setting up the jump, and 1 when returning from the jump.
+ * int setjmp(jmp_buf env);
  */
 func setjmp
 	mov	x7, sp
@@ -34,9 +31,7 @@ endfunc setjmp
 
 
 /*
- * void longjmp(struct jmpbuf *buf);
- *
- * Return to a jump point setup by setjmp()
+ * void longjmp(jmp_buf env, int val);
  */
 func longjmp
 	ldp	x7, xzr, [x0, #JMP_CTX_SP]
@@ -60,6 +55,7 @@ func longjmp
 
 	mov	sp, x7
 
-	mov	x0, #1
+	ands	x0, x1, x1 /* Move val to x0 and set flags */
+	cinc	x0, x0, eq /* If val is 0, return 1 */
 	ret
 endfunc longjmp

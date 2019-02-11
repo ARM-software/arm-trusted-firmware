@@ -1,10 +1,10 @@
 #
-# Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-LIBC_SRCS	:=	$(addprefix lib/libc/,	\
+LIBC_SRCS	:=	$(addprefix lib/libc/,		\
 			abort.c				\
 			assert.c			\
 			exit.c				\
@@ -24,6 +24,11 @@ LIBC_SRCS	:=	$(addprefix lib/libc/,	\
 			strncmp.c			\
 			strnlen.c			\
 			strrchr.c)
+
+ifeq (${ARCH},aarch64)
+LIBC_SRCS	+=	$(addprefix lib/libc/aarch64/,	\
+			setjmp.S)
+endif
 
 INCLUDES	+=	-Iinclude/lib/libc		\
 			-Iinclude/lib/libc/$(ARCH)	\

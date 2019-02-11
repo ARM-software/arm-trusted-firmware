@@ -243,6 +243,6 @@ int64_t sdei_pe_mask(void);
 int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 		void *cookie);
 bool can_sdei_state_trans(sdei_entry_t *se, sdei_action_t act);
-void begin_sdei_synchronous_dispatch(struct jmpbuf *buffer);
+void begin_sdei_synchronous_dispatch(jmp_buf *buffer);
 
 #endif /* SDEI_PRIVATE_H */
