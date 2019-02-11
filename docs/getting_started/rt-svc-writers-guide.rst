@@ -2,12 +2,8 @@ Trusted Firmware-A EL3 runtime service writer's guide
 =====================================================
 
 
-.. section-numbering::
-    :suffix: .
 
 .. contents::
-
---------------
 
 Introduction
 ------------
@@ -307,9 +303,9 @@ provide this information....
 
 .. _SMCCC: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
-.. _Firmware Design: ./firmware-design.rst
-.. _services: ../services
-.. _lib/psci: ../lib/psci
-.. _runtime_svc.h: ../include/common/runtime_svc.h
-.. _smccc.h: ../include/lib/smccc.h
-.. _std_svc_setup.c: ../services/std_svc/std_svc_setup.c
+.. _Firmware Design: ../designb_documents/firmware-design.rst
+.. _services: ../../services
+.. _lib/psci: ../../lib/psci
+.. _runtime_svc.h: ../../include/common/runtime_svc.h
+.. _smccc.h: ../../include/lib/smccc.h
+.. _std_svc_setup.c: ../../services/std_svc/std_svc_setup.c

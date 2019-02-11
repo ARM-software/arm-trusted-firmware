@@ -2,8 +2,7 @@ Trusted Firmware-A interrupt management design guide
 ====================================================
 
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
 
@@ -1018,7 +1017,7 @@ TSP by returning ``SMC_UNK`` error.
 
 *Copyright (c) 2014-2019, Arm Limited and Contributors. All rights reserved.*
 
-.. _Porting Guide: ./porting-guide.rst
+.. _Porting Guide: ../getting_started/porting-guide.rst
 .. _SMC calling convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
 
 .. |Image 1| image:: diagrams/sec-int-handling.png?raw=true

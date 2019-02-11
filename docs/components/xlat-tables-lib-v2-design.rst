@@ -2,8 +2,7 @@ Translation Tables Library Design
 =================================
 
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
 
@@ -416,13 +415,13 @@ mapping cannot be cached in the TLBs.
 
 *Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.*
 
-.. _lib/xlat_tables_v2: ../lib/xlat_tables_v2
-.. _lib/xlat_tables: ../lib/xlat_tables
-.. _xlat_tables_v2.h: ../include/lib/xlat_tables/xlat_tables_v2.h
-.. _xlat_tables_context.c: ../lib/xlat_tables_v2/xlat_tables_context.c
-.. _xlat_tables_core.c: ../lib/xlat_tables_v2/xlat_tables_core.c
-.. _xlat_tables_utils.c: ../lib/xlat_tables_v2/xlat_tables_utils.c
-.. _aarch32/xlat_tables_arch.c: ../lib/xlat_tables_v2/aarch32/xlat_tables_arch.c
-.. _aarch64/xlat_tables_arch.c: ../lib/xlat_tables_v2/aarch64/xlat_tables_arch.c
-.. _Porting Guide: porting-guide.rst
-.. |Alignment Example| image:: ./diagrams/xlat_align.png?raw=true
+.. _lib/xlat_tables_v2: ../../lib/xlat_tables_v2
+.. _lib/xlat_tables: ../../lib/xlat_tables
+.. _xlat_tables_v2.h: ../../include/lib/xlat_tables/xlat_tables_v2.h
+.. _xlat_tables_context.c: ../../lib/xlat_tables_v2/xlat_tables_context.c
+.. _xlat_tables_core.c: ../../lib/xlat_tables_v2/xlat_tables_core.c
+.. _xlat_tables_utils.c: ../../lib/xlat_tables_v2/xlat_tables_utils.c
+.. _aarch32/xlat_tables_arch.c: ../../lib/xlat_tables_v2/aarch32/xlat_tables_arch.c
+.. _aarch64/xlat_tables_arch.c: ../../lib/xlat_tables_v2/aarch64/xlat_tables_arch.c
+.. _Porting Guide: ../getting_started/porting-guide.rst
+.. |Alignment Example| image:: ../diagrams/xlat_align.png?raw=true

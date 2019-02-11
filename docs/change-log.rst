@@ -2417,15 +2417,15 @@ releases of TF-A.
 *Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _SDEI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
-.. _PSCI Integration Guide: psci-lib-integration-guide.rst
+.. _PSCI Integration Guide: ./getting_started/psci-lib-integration-guide.rst
 .. _Developer Certificate of Origin: ../dco.txt
-.. _Contribution Guide: ../contributing.rst
-.. _Authentication framework: auth-framework.rst
-.. _Firmware Update: firmware-update.rst
-.. _TF-A Reset Design: reset-design.rst
-.. _Power Domain Topology Design: psci-pd-tree.rst
+.. _Contribution Guide: ./contributing.rst
+.. _Authentication framework: ./design/auth-framework.rst
+.. _Firmware Update: ./design/firmware-update.rst
+.. _TF-A Reset Design: ./design/reset-design.rst
+.. _Power Domain Topology Design: ./design/psci-pd-tree.rst
 .. _TF-A wiki on GitHub: https://github.com/ARM-software/arm-trusted-firmware/wiki/ARM-Trusted-Firmware-Image-Terminology
-.. _Authentication Framework: auth-framework.rst
-.. _OP-TEE Dispatcher: optee-dispatcher.rst
+.. _Authentication Framework: ./design/auth-framework.rst
+.. _OP-TEE Dispatcher: ./spd/optee-dispatcher.rst
 .. _tf-issue#501: https://github.com/ARM-software/tf-issues/issues/501
 .. _PR#1002: https://github.com/ARM-software/arm-trusted-firmware/pull/1002#issuecomment-312650193

@@ -1,8 +1,7 @@
 Platform Interrupt Controller API documentation
 ===============================================
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
 
@@ -10,7 +9,7 @@ This document lists the optional platform interrupt controller API that
 abstracts the runtime configuration and control of interrupt controller from the
 generic code. The mandatory APIs are described in the `porting guide`__.
 
-.. __: porting-guide.rst#interrupt-management-framework-in-bl31
+.. __: ../getting_started/porting-guide.rst#interrupt-management-framework-in-bl31
 
 Function: unsigned int plat_ic_get_running_priority(void); [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

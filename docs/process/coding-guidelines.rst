@@ -1,8 +1,7 @@
 Trusted Firmware-A Coding Guidelines
 ====================================
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
 

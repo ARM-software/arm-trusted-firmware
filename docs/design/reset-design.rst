@@ -2,8 +2,7 @@ Trusted Firmware-A reset design
 ===============================
 
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
 
@@ -158,9 +157,9 @@ This might be done by the Trusted Boot Firmware or by platform code in BL31.
 *Copyright (c) 2015-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _Firmware Design: firmware-design.rst
-.. _User Guide: user-guide.rst
+.. _User Guide: ../getting_started/user-guide.rst
 
-.. |Default reset code flow| image:: diagrams/default_reset_code.png?raw=true
-.. |Reset code flow with programmable reset address| image:: diagrams/reset_code_no_boot_type_check.png?raw=true
-.. |Reset code flow with single CPU released out of reset| image:: diagrams/reset_code_no_cpu_check.png?raw=true
-.. |Reset code flow with programmable reset address and single CPU released out of reset| image:: diagrams/reset_code_no_checks.png?raw=true
+.. |Default reset code flow| image:: ../diagrams/default_reset_code.png?raw=true
+.. |Reset code flow with programmable reset address| image:: ../diagrams/reset_code_no_boot_type_check.png?raw=true
+.. |Reset code flow with single CPU released out of reset| image:: ../diagrams/reset_code_no_cpu_check.png?raw=true
+.. |Reset code flow with programmable reset address and single CPU released out of reset| image:: ../diagrams/reset_code_no_checks.png?raw=true

@@ -2,8 +2,7 @@ Arm CPU Specific Build Macros
 =============================
 
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
 

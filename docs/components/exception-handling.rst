@@ -2,8 +2,7 @@ Exception Handling Framework in Trusted Firmware-A
 ==================================================
 
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
     :depth: 2
@@ -117,7 +116,7 @@ for more than one priority level.
 
 .. _ehf-figure:
 
-.. image:: draw.io/ehf.svg
+.. image:: ../draw.io/ehf.svg
 
 A priority level is *active* when a handler at that priority level is currently
 executing in EL3, or has delegated the execution to a lower EL. For interrupts,

@@ -2,12 +2,8 @@ Trusted Firmware-A Porting Guide
 ================================
 
 
-.. section-numbering::
-    :suffix: .
 
 .. contents::
-
---------------
 
 Introduction
 ------------
@@ -2366,7 +2362,7 @@ FVP can be configured to use either GICv2 or GICv3 depending on the build flag
 
 See also: `Interrupt Controller Abstraction APIs`__.
 
-.. __: platform-interrupt-controller-API.rst
+.. __: ../design/platform-interrupt-controller-API.rst
 
 Function : plat_interrupt_type_to_line() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2493,7 +2489,7 @@ value obtained from the interrupt controller when acknowledging an interrupt.
 The actual interrupt number shall be extracted from this raw value using the API
 `plat_ic_get_interrupt_id()`__.
 
-.. __: platform-interrupt-controller-API.rst#function-unsigned-int-plat-ic-get-interrupt-id-unsigned-int-raw-optional
+.. __: ../design/platform-interrupt-controller-API.rst#function-unsigned-int-plat-ic-get-interrupt-id-unsigned-int-raw-optional
 
 This function in Arm standard platforms using GICv2, reads the *Interrupt
 Acknowledge Register* (``GICC_IAR``). This changes the state of the highest

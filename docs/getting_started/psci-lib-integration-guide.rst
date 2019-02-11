@@ -2,8 +2,6 @@ PSCI Library Integration guide for Armv8-A AArch32 systems
 ==========================================================
 
 
-.. section-numbering::
-    :suffix: .
 
 .. contents::
 
@@ -550,5 +548,5 @@ workarounds.
 .. _SMCCC: https://silver.arm.com/download/ARM_and_AMBA_Architecture/AR570-DA-80002-r0p0-00rel0/ARM_DEN0028A_SMC_Calling_Convention.pdf
 .. _PSCI specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _PSCI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
-.. _Porting Guide: porting-guide.rst
-.. _Firmware Design: ./firmware-design.rst
+.. _Porting Guide: ../getting_started/porting-guide.rst
+.. _Firmware Design: ../design/firmware-design.rst

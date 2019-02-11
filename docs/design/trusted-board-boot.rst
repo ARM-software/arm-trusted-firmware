@@ -2,8 +2,7 @@ Trusted Board Boot Design Guide
 ===============================
 
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
 
@@ -234,7 +233,7 @@ for building and using the tool can be found in the `User Guide`_.
 
 .. _Firmware Update: firmware-update.rst
 .. _X.509 v3: https://tools.ietf.org/rfc/rfc5280.txt
-.. _User Guide: user-guide.rst
+.. _User Guide: ../getting_started/user-guide.rst
 .. _Auth Framework: auth-framework.rst
 .. _TBBR-client: https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
 .. _Trusted Board Boot Requirements (TBBR): `TBBR-client`_

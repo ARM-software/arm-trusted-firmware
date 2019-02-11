@@ -1,8 +1,7 @@
 Trusted Firmware-A for Raspberry Pi 3
 =====================================
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
 
