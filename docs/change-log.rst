@@ -1,14 +1,16 @@
+Trusted Firmware-A Release Notes
+================================
 
-.. section-numbering::
-    :suffix: .
+This document contains a summary of the new features, changes, fixes and known
+issues in each release of Trusted Firmware-A.
 
 .. contents::
 
-Trusted Firmware-A - version 2.1
-================================
+Version 2.1
+-----------
 
 New Features
-------------
+^^^^^^^^^^^^
 
 - Architecture
    - Support for ARMv8.3 pointer authentication in the normal and secure worlds
@@ -198,7 +200,7 @@ New Features
 
 
 Changed
--------
+^^^^^^^
 
 - Build System
    - Warning levels are now selectable with ``W=<1,2,3>``
@@ -311,7 +313,7 @@ Changed
 
 
 Resolved Issues
----------------
+^^^^^^^^^^^^^^^
 
 - Architecture
    - Incorrect check for SSBS feature detection
@@ -401,7 +403,7 @@ Resolved Issues
 
 
 Deprecations
-------------
+^^^^^^^^^^^^
 
 - Common Code
    - ``plat_crash_console_init`` function
@@ -424,7 +426,7 @@ Deprecations
 
 
 Known Issues
-------------
+^^^^^^^^^^^^
 
 - Build System Issues
    - dtb: DTB creation not supported when building on a Windows host.
@@ -448,11 +450,11 @@ Known Issues
 
    - mediatek/mt6795: This platform does not build in this release
 
-Trusted Firmware-A - version 2.0
-================================
+Version 2.0
+-----------
 
 New Features
-------------
+^^^^^^^^^^^^
 
 -  Removal of a number of deprecated APIs
 
@@ -469,12 +471,12 @@ New Features
    -  This release is otherwise unchanged from 1.6 release
 
 Issues resolved since last release
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  No issues known at 1.6 release resolved in 2.0 release
 
 Known Issues
-------------
+^^^^^^^^^^^^
 
 -  DTB creation not supported when building on a Windows host. This step in the
    build process is skipped when running on a Windows host. Known issue from
@@ -487,11 +489,11 @@ Known Issues
    confirmed to be working after the removal of the deprecated interfaces
    although they do build.
 
-Trusted Firmware-A - version 1.6
-================================
+Version 1.6
+-----------
 
 New Features
-------------
+^^^^^^^^^^^^
 
 -  Addressing Speculation Security Vulnerabilities
 
@@ -760,22 +762,22 @@ New Features
    -  STMicroelectronics STM32MP1 Platform
 
 Issues resolved since last release
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  No issues known at 1.5 release resolved in 1.6 release
 
 Known Issues
-------------
+^^^^^^^^^^^^
 
 -  DTB creation not supported when building on a Windows host. This step in the
    build process is skipped when running on a Windows host. Known issue from
    1.5 version.
 
-Trusted Firmware-A - version 1.5
-================================
+Version 1.5
+-----------
 
 New features
-------------
+^^^^^^^^^^^^
 
 -  Added new firmware support to enable RAS (Reliability, Availability, and
    Serviceability) functionality.
@@ -1044,7 +1046,7 @@ New features
       facilitate transfer by DMA.
 
 Issues resolved since last release
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  TF-A can be built with optimisations disabled (-O0).
 
@@ -1052,16 +1054,16 @@ Issues resolved since last release
    running TF-A in AArch32 execution mode (resolving `tf-issue#501`_).
 
 Known Issues
-------------
+^^^^^^^^^^^^
 
 -  DTB creation not supported when building on a Windows host. This step in the
    build process is skipped when running on a Windows host.
 
-Trusted Firmware-A - version 1.4
-================================
+Version 1.4
+-----------
 
 New features
-------------
+^^^^^^^^^^^^
 
 -  Enabled support for platforms with hardware assisted coherency.
 
@@ -1318,7 +1320,7 @@ New features
    pre-empted SMC during PSCI power management requests.
 
 Issues resolved since last release
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  TF-A can be built with the latest mbed TLS version (v2.4.2). The earlier
    version 2.3.0 cannot be used due to build warnings that the TF-A build
@@ -1332,7 +1334,7 @@ Issues resolved since last release
    shutdown request using the PSCI SYSTEM_OFF API.
 
 Known Issues
-------------
+^^^^^^^^^^^^
 
 -  Building TF-A with compiler optimisations disabled (-O0) fails.
 
@@ -1346,12 +1348,12 @@ Known Issues
    platform, please use GCC compiler version of at least 5.0. See `PR#1002`_ for
    more details.
 
-Trusted Firmware-A - version 1.3
-================================
+Version 1.3
+-----------
 
 
 New features
-------------
+^^^^^^^^^^^^
 
 -  Added support for running TF-A in AArch32 execution state.
 
@@ -1552,10 +1554,10 @@ New features
       interrupts and then restoring after resume.
 
 Issues resolved since last release
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Known issues
-------------
+^^^^^^^^^^^^
 
 -  The version of the AEMv8 Base FVP used in this release resets the model
    instead of terminating its execution in response to a shutdown request using
@@ -1569,11 +1571,11 @@ Known issues
 
 -  TBBR is not currently supported when running TF-A in AArch32 state.
 
-Trusted Firmware-A - version 1.2
-================================
+Version 1.2
+-----------
 
 New features
-------------
+^^^^^^^^^^^^
 
 -  The Trusted Board Boot implementation on Arm platforms now conforms to the
    mandatory requirements of the TBBR specification.
@@ -1690,7 +1692,7 @@ New features
    common driver. The standalone CCI-400 driver has been deprecated.
 
 Issues resolved since last release
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  The Trusted Board Boot implementation has been redesigned to provide greater
    modularity and scalability. See the `Authentication Framework`_ document.
@@ -1705,7 +1707,7 @@ Issues resolved since last release
 -  GICv3 is now fully supported and stable.
 
 Known issues
-------------
+^^^^^^^^^^^^
 
 -  The version of the AEMv8 Base FVP used in this release resets the model
    instead of terminating its execution in response to a shutdown request using
@@ -1721,11 +1723,11 @@ Known issues
 
 -  Building TF-A with compiler optimisations disabled (``-O0``) fails.
 
-Trusted Firmware-A - version 1.1
-================================
+Version 1.1
+-----------
 
 New features
-------------
+^^^^^^^^^^^^
 
 -  A prototype implementation of Trusted Board Boot has been added. Boot
    loader images are verified by BL1 and BL2 during the cold boot path. BL1 and
@@ -1828,7 +1830,7 @@ New features
    added. Details of using it with TF-A can be found in `OP-TEE Dispatcher`_
 
 Issues resolved since last release
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  The Juno port has been aligned with the FVP port as follows.
 
@@ -1855,7 +1857,7 @@ Issues resolved since last release
    the Cortex-A57-A53 Base FVPs.
 
 Known issues
-------------
+^^^^^^^^^^^^
 
 -  The Trusted Board Boot implementation is a prototype. There are issues with
    the modularity and scalability of the design. Support for a Trusted
@@ -1883,11 +1885,11 @@ Known issues
 
 -  The Juno-specific firmware design documentation is incomplete.
 
-Trusted Firmware-A - version 1.0
-================================
+Version 1.0
+-----------
 
 New features
-------------
+^^^^^^^^^^^^
 
 -  It is now possible to map higher physical addresses using non-flat virtual
    to physical address mappings in the MMU setup.
@@ -2009,7 +2011,7 @@ New features
    Juno platform.
 
 Issues resolved since last release
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  Removed the concept of top/bottom image loading. The image loader now
    automatically detects the position of the image inside the current memory
@@ -2023,7 +2025,7 @@ Issues resolved since last release
    resolved. This TF-A version uses Linaro toolchain 14.07 (based on GCC 4.9).
 
 Known issues
-------------
+^^^^^^^^^^^^
 
 -  GICv3 support is experimental. The Linux kernel patches to support this are
    not widely available. There are known issues with GICv3 initialization in
@@ -2063,11 +2065,11 @@ Known issues
 
    A similar change can be made to the other Cortex-A57-A53 Base FVP variants.
 
-Trusted Firmware-A - version 0.4
-================================
+Version 0.4
+-----------
 
 New features
-------------
+^^^^^^^^^^^^
 
 -  Makefile improvements:
 
@@ -2145,7 +2147,7 @@ New features
    interrupt handling during TSP processing.
 
 Issues resolved since last release
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  Now support use of the model parameter ``-C bp.secure_memory=1`` in the Base
    FVPs (see **New features**).
@@ -2164,7 +2166,7 @@ Issues resolved since last release
    checking.
 
 Known issues
-------------
+^^^^^^^^^^^^
 
 -  GICv3 support is experimental. The Linux kernel patches to support this are
    not widely available. There are known issues with GICv3 initialization in
@@ -2193,11 +2195,11 @@ Known issues
 -  The firmware design documentation for the Test Secure-EL1 Payload (TSP) and
    its dispatcher (TSPD) is incomplete. Similarly for the PSCI section.
 
-Trusted Firmware-A - version 0.3
-================================
+Version 0.3
+-----------
 
 New features
-------------
+^^^^^^^^^^^^
 
 -  Support for Foundation FVP Version 2.0 added.
    The documented UEFI configuration disables some devices that are unavailable
@@ -2274,7 +2276,7 @@ New features
    NOTE: The TSP/TSPD is not built by default.
 
 Issues resolved since last release
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  Support has been added for switching context between secure and normal
    worlds in EL3.
@@ -2299,7 +2301,7 @@ Issues resolved since last release
    in this release, for both Foundation and Base FVPs.
 
 Known issues
-------------
+^^^^^^^^^^^^
 
 The following is a list of issues which are expected to be fixed in the future
 releases of TF-A.
@@ -2347,11 +2349,11 @@ releases of TF-A.
 -  The firmware design documentation for the Test Secure-EL1 Payload (TSP) and
    its dispatcher (TSPD) is incomplete. Similarly for the PSCI section.
 
-Trusted Firmware-A - version 0.2
-================================
+Version 0.2
+-----------
 
 New features
-------------
+^^^^^^^^^^^^
 
 -  First source release.
 
@@ -2359,13 +2361,13 @@ New features
    by default since there are known issues (see below).
 
 Issues resolved since last release
-----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  The "psci" nodes in the FDTs provided in this release now fully comply
    with the recommendations made in the PSCI specification.
 
 Known issues
-------------
+^^^^^^^^^^^^
 
 The following is a list of issues which are expected to be fixed in the future
 releases of TF-A.
@@ -2427,5 +2429,3 @@ releases of TF-A.
 .. _OP-TEE Dispatcher: optee-dispatcher.rst
 .. _tf-issue#501: https://github.com/ARM-software/tf-issues/issues/501
 .. _PR#1002: https://github.com/ARM-software/arm-trusted-firmware/pull/1002#issuecomment-312650193
-.. _mbed TLS releases: https://tls.mbed.org/tech-updates/releases
-.. _Firmware Design: firmware-design.rst
