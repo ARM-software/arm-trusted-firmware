@@ -402,6 +402,53 @@ int ti_sci_device_put(uint32_t id)
 }
 
 /**
+ * ti_sci_device_put_no_wait() - Release a device without requesting or waiting
+ *				 for a response.
+ *
+ * @id:		Device Identifier
+ *
+ * Request for the device - NOTE: the client MUST maintain integrity of
+ * usage count by balancing get_device with put_device. No refcounting is
+ * managed by driver for that purpose.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_device_put_no_wait(uint32_t id)
+{
+	struct ti_sci_msg_req_set_device_state req;
+	struct ti_sci_msg_hdr *hdr;
+	struct k3_sec_proxy_msg tx_message;
+	int ret;
+
+	/* Ensure we have sane transfer size */
+	if (sizeof(req) > info.desc.max_msg_size)
+		return -ERANGE;
+
+	hdr = (struct ti_sci_msg_hdr *)&req;
+	hdr->seq = info.seq;
+	hdr->type = TI_SCI_MSG_SET_DEVICE_STATE;
+	hdr->host = info.desc.host_id;
+	/* Setup with NORESPONSE flag to keep response queue clean */
+	hdr->flags = TI_SCI_FLAG_REQ_GENERIC_NORESPONSE;
+
+	req.id = id;
+	req.state = MSG_DEVICE_SW_STATE_AUTO_OFF;
+
+	tx_message.buf = (uint8_t *)&req;
+	tx_message.len = sizeof(req);
+
+	 /* Send message */
+	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, &tx_message);
+	if (ret) {
+		ERROR("Message sending failed (%d)\n", ret);
+		return ret;
+	}
+
+	/* Return without waiting for response */
+	return 0;
+}
+
+/**
  * ti_sci_device_is_valid() - Is the device valid
  *
  * @id:		Device Identifier
@@ -1337,6 +1384,55 @@ int ti_sci_proc_set_boot_ctrl(uint8_t proc_id, uint32_t control_flags_set,
 }
 
 /**
+ * ti_sci_proc_set_boot_ctrl_no_wait() - Set the processor boot control flags
+ *					 without requesting or waiting for a
+ *					 response.
+ *
+ * @proc_id:			Processor ID this request is for
+ * @control_flags_set:		Control flags to be set
+ * @control_flags_clear:	Control flags to be cleared
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_proc_set_boot_ctrl_no_wait(uint8_t proc_id,
+				      uint32_t control_flags_set,
+				      uint32_t control_flags_clear)
+{
+	struct ti_sci_msg_req_set_proc_boot_ctrl req;
+	struct ti_sci_msg_hdr *hdr;
+	struct k3_sec_proxy_msg tx_message;
+	int ret;
+
+	/* Ensure we have sane transfer size */
+	if (sizeof(req) > info.desc.max_msg_size)
+		return -ERANGE;
+
+	hdr = (struct ti_sci_msg_hdr *)&req;
+	hdr->seq = info.seq;
+	hdr->type = TISCI_MSG_SET_PROC_BOOT_CTRL;
+	hdr->host = info.desc.host_id;
+	/* Setup with NORESPONSE flag to keep response queue clean */
+	hdr->flags = TI_SCI_FLAG_REQ_GENERIC_NORESPONSE;
+
+	req.processor_id = proc_id;
+	req.control_flags_set = control_flags_set;
+	req.control_flags_clear = control_flags_clear;
+
+	tx_message.buf = (uint8_t *)&req;
+	tx_message.len = sizeof(req);
+
+	 /* Send message */
+	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, &tx_message);
+	if (ret) {
+		ERROR("Message sending failed (%d)\n", ret);
+		return ret;
+	}
+
+	/* Return without waiting for response */
+	return 0;
+}
+
+/**
  * ti_sci_proc_auth_boot_image() - Authenticate and load image and then set the
  *                                 processor configuration flags
  *
@@ -1495,6 +1591,92 @@ int ti_sci_proc_wait_boot_status(uint8_t proc_id, uint8_t num_wait_iterations,
 		return ret;
 	}
 
+	return 0;
+}
+
+/**
+ * ti_sci_proc_wait_boot_status_no_wait() - Wait for a processor boot status
+ *					    without requesting or waiting for
+ *					    a response.
+ *
+ * @proc_id:			Processor ID this request is for
+ * @num_wait_iterations		Total number of iterations we will check before
+ *				we will timeout and give up
+ * @num_match_iterations	How many iterations should we have continued
+ *				status to account for status bits glitching.
+ *				This is to make sure that match occurs for
+ *				consecutive checks. This implies that the
+ *				worst case should consider that the stable
+ *				time should at the worst be num_wait_iterations
+ *				num_match_iterations to prevent timeout.
+ * @delay_per_iteration_us	Specifies how long to wait (in micro seconds)
+ *				between each status checks. This is the minimum
+ *				duration, and overhead of register reads and
+ *				checks are on top of this and can vary based on
+ *				varied conditions.
+ * @delay_before_iterations_us	Specifies how long to wait (in micro seconds)
+ *				before the very first check in the first
+ *				iteration of status check loop. This is the
+ *				minimum duration, and overhead of register
+ *				reads and checks are.
+ * @status_flags_1_set_all_wait	If non-zero, Specifies that all bits of the
+ *				status matching this field requested MUST be 1.
+ * @status_flags_1_set_any_wait	If non-zero, Specifies that at least one of the
+ *				bits matching this field requested MUST be 1.
+ * @status_flags_1_clr_all_wait	If non-zero, Specifies that all bits of the
+ *				status matching this field requested MUST be 0.
+ * @status_flags_1_clr_any_wait	If non-zero, Specifies that at least one of the
+ *				bits matching this field requested MUST be 0.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_proc_wait_boot_status_no_wait(uint8_t proc_id,
+					 uint8_t num_wait_iterations,
+					 uint8_t num_match_iterations,
+					 uint8_t delay_per_iteration_us,
+					 uint8_t delay_before_iterations_us,
+					 uint32_t status_flags_1_set_all_wait,
+					 uint32_t status_flags_1_set_any_wait,
+					 uint32_t status_flags_1_clr_all_wait,
+					 uint32_t status_flags_1_clr_any_wait)
+{
+	struct ti_sci_msg_req_wait_proc_boot_status req;
+	struct ti_sci_msg_hdr *hdr;
+	struct k3_sec_proxy_msg tx_message;
+	int ret;
+
+	/* Ensure we have sane transfer size */
+	if (sizeof(req) > info.desc.max_msg_size)
+		return -ERANGE;
+
+	hdr = (struct ti_sci_msg_hdr *)&req;
+	hdr->seq = info.seq;
+	hdr->type = TISCI_MSG_WAIT_PROC_BOOT_STATUS;
+	hdr->host = info.desc.host_id;
+	/* Setup with NORESPONSE flag to keep response queue clean */
+	hdr->flags = TI_SCI_FLAG_REQ_GENERIC_NORESPONSE;
+
+	req.processor_id = proc_id;
+	req.num_wait_iterations = num_wait_iterations;
+	req.num_match_iterations = num_match_iterations;
+	req.delay_per_iteration_us = delay_per_iteration_us;
+	req.delay_before_iterations_us = delay_before_iterations_us;
+	req.status_flags_1_set_all_wait = status_flags_1_set_all_wait;
+	req.status_flags_1_set_any_wait = status_flags_1_set_any_wait;
+	req.status_flags_1_clr_all_wait = status_flags_1_clr_all_wait;
+	req.status_flags_1_clr_any_wait = status_flags_1_clr_any_wait;
+
+	tx_message.buf = (uint8_t *)&req;
+	tx_message.len = sizeof(req);
+
+	 /* Send message */
+	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, &tx_message);
+	if (ret) {
+		ERROR("Message sending failed (%d)\n", ret);
+		return ret;
+	}
+
+	/* Return without waiting for response */
 	return 0;
 }
 

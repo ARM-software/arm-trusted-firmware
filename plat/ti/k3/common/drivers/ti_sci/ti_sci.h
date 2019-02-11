@@ -21,6 +21,7 @@
  * - ti_sci_device_idle - Command to idle a device managed by TISCI
  * - ti_sci_device_idle_exclusive - exclusively idle a device
  * - ti_sci_device_put - command to release a device managed by TISCI
+ * - ti_sci_device_put_no_wait - release a device without waiting for response
  * - ti_sci_device_is_valid - Is the device valid
  * - ti_sci_device_get_clcnt - Get context loss counter
  *              @count: Pointer to Context Loss counter to populate
@@ -53,6 +54,7 @@ int ti_sci_device_get_exclusive(uint32_t id);
 int ti_sci_device_idle(uint32_t id);
 int ti_sci_device_idle_exclusive(uint32_t id);
 int ti_sci_device_put(uint32_t id);
+int ti_sci_device_put_no_wait(uint32_t id);
 int ti_sci_device_is_valid(uint32_t id);
 int ti_sci_device_get_clcnt(uint32_t id, uint32_t *count);
 int ti_sci_device_is_idle(uint32_t id, bool *r_state);
@@ -158,11 +160,13 @@ int ti_sci_core_reboot(void);
  * - ti_sci_proc_set_boot_ctrl - Command to set the processor boot control flags
  *              @control_flags_set: Control flags to be set
  *              @control_flags_clear: Control flags to be cleared
+ * - ti_sci_proc_set_boot_ctrl_no_wait - Same as above without waiting for response
  * - ti_sci_proc_auth_boot_image - Command to authenticate and load the image
  *                                 and then set the processor configuration flags.
  *              @cert_addr: Memory address at which payload image certificate is located.
  * - ti_sci_proc_get_boot_status - Command to get the processor boot status
  * - ti_sci_proc_wait_boot_status - Command to wait for a processor boot status
+ * - ti_sci_proc_wait_boot_status_no_wait - Same as above without waiting for response
  *
  * NOTE: for all these functions, the following are generic in nature:
  * @proc_id:	Processor ID
@@ -176,6 +180,9 @@ int ti_sci_proc_set_boot_cfg(uint8_t proc_id, uint64_t bootvector,
 			     uint32_t config_flags_clear);
 int ti_sci_proc_set_boot_ctrl(uint8_t proc_id, uint32_t control_flags_set,
 			      uint32_t control_flags_clear);
+int ti_sci_proc_set_boot_ctrl_no_wait(uint8_t proc_id,
+				      uint32_t control_flags_set,
+				      uint32_t control_flags_clear);
 int ti_sci_proc_auth_boot_image(uint8_t proc_id, uint64_t cert_addr);
 int ti_sci_proc_get_boot_status(uint8_t proc_id, uint64_t *bv,
 				uint32_t *cfg_flags,
@@ -189,6 +196,15 @@ int ti_sci_proc_wait_boot_status(uint8_t proc_id, uint8_t num_wait_iterations,
 				 uint32_t status_flags_1_set_any_wait,
 				 uint32_t status_flags_1_clr_all_wait,
 				 uint32_t status_flags_1_clr_any_wait);
+int ti_sci_proc_wait_boot_status_no_wait(uint8_t proc_id,
+					 uint8_t num_wait_iterations,
+					 uint8_t num_match_iterations,
+					 uint8_t delay_per_iteration_us,
+					 uint8_t delay_before_iterations_us,
+					 uint32_t status_flags_1_set_all_wait,
+					 uint32_t status_flags_1_set_any_wait,
+					 uint32_t status_flags_1_clr_all_wait,
+					 uint32_t status_flags_1_clr_any_wait);
 int ti_sci_proc_shutdown(uint8_t proc_id, uint32_t dev_id);
 
 /**
