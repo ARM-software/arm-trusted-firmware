@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef CORTEX_A53_H
 #define CORTEX_A53_H
+
+#include <lib/utils_def.h>
 
 /* Cortex-A53 midr for revision 0 */
 #define CORTEX_A53_MIDR 0x410FD030
@@ -42,9 +44,10 @@
  ******************************************************************************/
 #define CORTEX_A53_CPUACTLR			p15, 0, c15
 
-#define CORTEX_A53_CPUACTLR_ENDCCASCI_SHIFT	44
-#define CORTEX_A53_CPUACTLR_ENDCCASCI		(1 << CORTEX_A53_CPUACTLR_ENDCCASCI_SHIFT)
-#define CORTEX_A53_CPUACTLR_DTAH		(1 << 24)
+#define CORTEX_A53_CPUACTLR_ENDCCASCI_SHIFT	U(44)
+#define CORTEX_A53_CPUACTLR_ENDCCASCI		(ULL(1) << CORTEX_A53_CPUACTLR_ENDCCASCI_SHIFT)
+#define CORTEX_A53_CPUACTLR_DTAH_SHIFT		U(24)
+#define CORTEX_A53_CPUACTLR_DTAH		(ULL(1) << CORTEX_A53_CPUACTLR_DTAH_SHIFT)
 
 /*******************************************************************************
  * L2 Auxiliary Control register specific definitions.
