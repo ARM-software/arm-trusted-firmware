@@ -17,7 +17,9 @@
  * Device control operations
  *
  * - ti_sci_device_get - command to request for device managed by TISCI
+ * - ti_sci_device_get_exclusive - exclusively request a device
  * - ti_sci_device_idle - Command to idle a device managed by TISCI
+ * - ti_sci_device_idle_exclusive - exclusively idle a device
  * - ti_sci_device_put - command to release a device managed by TISCI
  * - ti_sci_device_is_valid - Is the device valid
  * - ti_sci_device_get_clcnt - Get context loss counter
@@ -47,7 +49,9 @@
  * managed by driver for that purpose.
  */
 int ti_sci_device_get(uint32_t id);
+int ti_sci_device_get_exclusive(uint32_t id);
 int ti_sci_device_idle(uint32_t id);
+int ti_sci_device_idle_exclusive(uint32_t id);
 int ti_sci_device_put(uint32_t id);
 int ti_sci_device_is_valid(uint32_t id);
 int ti_sci_device_get_clcnt(uint32_t id, uint32_t *count);

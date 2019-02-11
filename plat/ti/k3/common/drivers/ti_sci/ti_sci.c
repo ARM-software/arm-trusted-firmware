@@ -334,11 +334,30 @@ static int ti_sci_device_get_state(uint32_t id,  uint32_t *clcnt,
  * usage count by balancing get_device with put_device. No refcounting is
  * managed by driver for that purpose.
  *
- * NOTE: The request is for exclusive access for the processor.
- *
  * Return: 0 if all goes well, else appropriate error message
  */
 int ti_sci_device_get(uint32_t id)
+{
+	return ti_sci_device_set_state(id, 0, MSG_DEVICE_SW_STATE_ON);
+}
+
+/**
+ * ti_sci_device_get_exclusive() - Exclusive request for device managed by TISCI
+ *
+ * @id:		Device Identifier
+ *
+ * Request for the device - NOTE: the client MUST maintain integrity of
+ * usage count by balancing get_device with put_device. No refcounting is
+ * managed by driver for that purpose.
+ *
+ * NOTE: This _exclusive version of the get API is for exclusive access to the
+ * device. Any other host in the system will fail to get this device after this
+ * call until exclusive access is released with device_put or a non-exclusive
+ * set call.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_device_get_exclusive(uint32_t id)
 {
 	return ti_sci_device_set_state(id,
 				       MSG_FLAG_DEVICE_EXCLUSIVE,
@@ -357,6 +376,27 @@ int ti_sci_device_get(uint32_t id)
  * Return: 0 if all goes well, else appropriate error message
  */
 int ti_sci_device_idle(uint32_t id)
+{
+	return ti_sci_device_set_state(id, 0, MSG_DEVICE_SW_STATE_RETENTION);
+}
+
+/**
+ * ti_sci_device_idle_exclusive() - Exclusive idle a device managed by TISCI
+ *
+ * @id:		Device Identifier
+ *
+ * Request for the device - NOTE: the client MUST maintain integrity of
+ * usage count by balancing get_device with put_device. No refcounting is
+ * managed by driver for that purpose.
+ *
+ * NOTE: This _exclusive version of the idle API is for exclusive access to
+ * the device. Any other host in the system will fail to get this device after
+ * this call until exclusive access is released with device_put or a
+ * non-exclusive set call.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_device_idle_exclusive(uint32_t id)
 {
 	return ti_sci_device_set_state(id,
 				       MSG_FLAG_DEVICE_EXCLUSIVE,
