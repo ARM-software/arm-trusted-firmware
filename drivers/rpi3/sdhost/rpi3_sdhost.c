@@ -272,8 +272,6 @@ static int rpi3_sdhost_send_cmd(struct mmc_cmd *cmd)
 	}
 
 	cmd_idx = cmd->cmd_idx & HC_CMD_COMMAND_MASK;
-	if (cmd_idx == MMC_CMD(17))
-		cmd_idx = MMC_CMD(18);
 
 	cmd_arg = cmd->cmd_arg;
 	if (cmd_idx == MMC_ACMD(51)) {
@@ -364,8 +362,12 @@ static int rpi3_sdhost_send_cmd(struct mmc_cmd *cmd)
 		mmio_write_32(reg_base + HC_HOSTSTATUS,
 			      HC_HSTST_MASK_ERROR_ALL);
 
+		/*
+		 * If the command SEND_OP_COND returns with CRC7 error,
+		 * it can be considered as having completed successfully.
+		 */
 		if (!(sdhsts & HC_HSTST_ERROR_CRC7)
-		    || (cmd_idx != MMC_ACMD(51))) {
+		    || (cmd_idx != MMC_CMD(1))) {
 			if (sdhsts & HC_HSTST_TIMEOUT_CMD) {
 				ERROR("rpi3_sdhost: timeout status 0x%x\n",
 				      sdhsts);
@@ -533,21 +535,6 @@ static int rpi3_sdhost_read(int lba, uintptr_t buf, size_t size)
 	if (rpi3_sdhost_params.current_cmd == MMC_CMD(18))
 		send_command_decorated(MMC_CMD(12), 0);
 
-	if (err == -(EILSEQ)) {
-		const int max_retries = 20;
-		int r;
-
-		rpi3_sdhost_params.crc_err_retries++;
-		if (rpi3_sdhost_params.crc_err_retries < max_retries) {
-			/* retries if there's an CRC error */
-			r = rpi3_sdhost_prepare(lba, buf, size);
-			send_command_decorated(MMC_CMD(18), lba);
-			r = rpi3_sdhost_read(lba, buf, size);
-			if (r == 0)
-				err = 0;
-		}
-	}
-
 	return err;
 }
 
@@ -617,16 +604,20 @@ void rpi3_sdhost_init(struct rpi3_sdhost_params *params,
 	}
 
 	/* setting pull resistors for 48 to 53.
-	 * GPIO 48 (SD_CLK) to GPIO_PULL_UP
-	 * GPIO 49 (SD_CMD) to GPIO_PULL_NONE
-	 * GPIO 50 (SD_D0)  to GPIO_PULL_NONE
-	 * GPIO 51 (SD_D1)  to GPIO_PULL_NONE
-	 * GPIO 52 (SD_D2)  to GPIO_PULL_NONE
-	 * GPIO 53 (SD_D3)  to GPIO_PULL_NONE
+	 * It is debatable to set SD_CLK to UP or NONE. We massively
+	 * tested different brands of SD Cards and found NONE works
+	 * most stable.
+	 *
+	 * GPIO 48 (SD_CLK) to GPIO_PULL_NONE
+	 * GPIO 49 (SD_CMD) to GPIO_PULL_UP
+	 * GPIO 50 (SD_D0)  to GPIO_PULL_UP
+	 * GPIO 51 (SD_D1)  to GPIO_PULL_UP
+	 * GPIO 52 (SD_D2)  to GPIO_PULL_UP
+	 * GPIO 53 (SD_D3)  to GPIO_PULL_UP
 	 */
-	gpio_set_pull(48, GPIO_PULL_UP);
+	gpio_set_pull(48, GPIO_PULL_NONE);
 	for (int i = 49; i <= 53; i++)
-		gpio_set_pull(i, GPIO_PULL_NONE);
+		gpio_set_pull(i, GPIO_PULL_UP);
 
 	/* Set pin 48-53 to alt-0. It means route SDHOST to card slot */
 	for (int i = 48; i <= 53; i++)
@@ -675,15 +666,14 @@ void rpi3_sdhost_stop(void)
 				     rpi3_sdhost_params.gpio48_pinselect[i-48]);
 	}
 
-	/* Must reset the pull resistors for u-boot to work.
-	 * GPIO 48 (SD_CLK) to GPIO_PULL_NONE
+	/* Reset the pull resistors before entering BL33.
+	 * GPIO 48 (SD_CLK) to GPIO_PULL_UP
 	 * GPIO 49 (SD_CMD) to GPIO_PULL_UP
 	 * GPIO 50 (SD_D0)  to GPIO_PULL_UP
 	 * GPIO 51 (SD_D1)  to GPIO_PULL_UP
 	 * GPIO 52 (SD_D2)  to GPIO_PULL_UP
 	 * GPIO 53 (SD_D3)  to GPIO_PULL_UP
 	 */
-	gpio_set_pull(48, GPIO_PULL_NONE);
-	for (int i = 49; i <= 53; i++)
+	for (int i = 48; i <= 53; i++)
 		gpio_set_pull(i, GPIO_PULL_UP);
 }
