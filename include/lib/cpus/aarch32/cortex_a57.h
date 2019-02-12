@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,16 +10,16 @@
 #include <lib/utils_def.h>
 
 /* Cortex-A57 midr for revision 0 */
-#define CORTEX_A57_MIDR 0x410FD070
+#define CORTEX_A57_MIDR			U(0x410FD070)
 
 /* Retention timer tick definitions */
-#define RETENTION_ENTRY_TICKS_2		0x1
-#define RETENTION_ENTRY_TICKS_8		0x2
-#define RETENTION_ENTRY_TICKS_32	0x3
-#define RETENTION_ENTRY_TICKS_64	0x4
-#define RETENTION_ENTRY_TICKS_128	0x5
-#define RETENTION_ENTRY_TICKS_256	0x6
-#define RETENTION_ENTRY_TICKS_512	0x7
+#define RETENTION_ENTRY_TICKS_2		U(0x1)
+#define RETENTION_ENTRY_TICKS_8		U(0x2)
+#define RETENTION_ENTRY_TICKS_32	U(0x3)
+#define RETENTION_ENTRY_TICKS_64	U(0x4)
+#define RETENTION_ENTRY_TICKS_128	U(0x5)
+#define RETENTION_ENTRY_TICKS_256	U(0x6)
+#define RETENTION_ENTRY_TICKS_512	U(0x7)
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
@@ -31,7 +31,7 @@
 #define CORTEX_A57_ECTLR_L2_IPFTCH_DIST_MASK	(ULL(0x3) << 35)
 #define CORTEX_A57_ECTLR_L2_DPFTCH_DIST_MASK	(ULL(0x3) << 32)
 
-#define CORTEX_A57_ECTLR_CPU_RET_CTRL_SHIFT	0
+#define CORTEX_A57_ECTLR_CPU_RET_CTRL_SHIFT	U(0)
 #define CORTEX_A57_ECTLR_CPU_RET_CTRL_MASK	(ULL(0x7) << CORTEX_A57_ECTLR_CPU_RET_CTRL_SHIFT)
 
 /*******************************************************************************
@@ -61,19 +61,19 @@
  ******************************************************************************/
 #define CORTEX_A57_L2CTLR				p15, 1, c9, c0, 2
 
-#define CORTEX_A57_L2CTLR_DATA_RAM_LATENCY_SHIFT	0
-#define CORTEX_A57_L2CTLR_TAG_RAM_LATENCY_SHIFT		6
+#define CORTEX_A57_L2CTLR_DATA_RAM_LATENCY_SHIFT	U(0)
+#define CORTEX_A57_L2CTLR_TAG_RAM_LATENCY_SHIFT		U(6)
 
-#define CORTEX_A57_L2_DATA_RAM_LATENCY_3_CYCLES		0x2
-#define CORTEX_A57_L2_TAG_RAM_LATENCY_3_CYCLES		0x2
+#define CORTEX_A57_L2_DATA_RAM_LATENCY_3_CYCLES		U(0x2)
+#define CORTEX_A57_L2_TAG_RAM_LATENCY_3_CYCLES		U(0x2)
 
 /*******************************************************************************
  * L2 Extended Control register specific definitions.
  ******************************************************************************/
 #define CORTEX_A57_L2ECTLR			p15, 1, c9, c0, 3
 
-#define CORTEX_A57_L2ECTLR_RET_CTRL_SHIFT	0
-#define CORTEX_A57_L2ECTLR_RET_CTRL_MASK	(ULL(0x7) << CORTEX_A57_L2ECTLR_RET_CTRL_SHIFT)
+#define CORTEX_A57_L2ECTLR_RET_CTRL_SHIFT	U(0)
+#define CORTEX_A57_L2ECTLR_RET_CTRL_MASK	(U(0x7) << CORTEX_A57_L2ECTLR_RET_CTRL_SHIFT)
 
 /*******************************************************************************
  * L2 Memory Error Syndrome register specific definitions.

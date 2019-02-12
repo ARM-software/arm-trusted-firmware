@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,12 +23,12 @@
  ******************************************************************************/
 #define CORTEX_A75_CPUACTLR_EL1		S3_0_C15_C1_0
 
-#define CORTEX_A75_CPUACTLR_EL1_DISABLE_LOAD_PASS_STORE	(1 << 35)
+#define CORTEX_A75_CPUACTLR_EL1_DISABLE_LOAD_PASS_STORE	(ULL(1) << 35)
 
 /* Definitions of register field mask in CORTEX_A75_CPUPWRCTLR_EL1 */
 #define CORTEX_A75_CORE_PWRDN_EN_MASK	U(0x1)
 
-#define CORTEX_A75_ACTLR_AMEN_BIT	(U(1) << 4)
+#define CORTEX_A75_ACTLR_AMEN_BIT	(ULL(1) << 4)
 
 /*
  * The Cortex-A75 core implements five counters, 0-4. Events 0, 1, 2, are

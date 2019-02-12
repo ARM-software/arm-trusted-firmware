@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,13 +26,13 @@
  ******************************************************************************/
 #define CORTEX_A57_ECTLR_EL1			S3_1_C15_C2_1
 
-#define CORTEX_A57_ECTLR_SMP_BIT		(U(1) << 6)
-#define CORTEX_A57_ECTLR_DIS_TWD_ACC_PFTCH_BIT	(U(1) << 38)
-#define CORTEX_A57_ECTLR_L2_IPFTCH_DIST_MASK	(U(0x3) << 35)
-#define CORTEX_A57_ECTLR_L2_DPFTCH_DIST_MASK	(U(0x3) << 32)
+#define CORTEX_A57_ECTLR_SMP_BIT		(ULL(1) << 6)
+#define CORTEX_A57_ECTLR_DIS_TWD_ACC_PFTCH_BIT	(ULL(1) << 38)
+#define CORTEX_A57_ECTLR_L2_IPFTCH_DIST_MASK	(ULL(0x3) << 35)
+#define CORTEX_A57_ECTLR_L2_DPFTCH_DIST_MASK	(ULL(0x3) << 32)
 
 #define CORTEX_A57_ECTLR_CPU_RET_CTRL_SHIFT	U(0)
-#define CORTEX_A57_ECTLR_CPU_RET_CTRL_MASK	(U(0x7) << CORTEX_A57_ECTLR_CPU_RET_CTRL_SHIFT)
+#define CORTEX_A57_ECTLR_CPU_RET_CTRL_MASK	(ULL(0x7) << CORTEX_A57_ECTLR_CPU_RET_CTRL_SHIFT)
 
 /*******************************************************************************
  * CPU Memory Error Syndrome register specific definitions.

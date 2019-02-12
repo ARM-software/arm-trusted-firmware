@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #ifndef CORTEX_A53_H
 #define CORTEX_A53_H
+
+#include <lib/utils_def.h>
 
 /* Cortex-A53 midr for revision 0 */
 #define CORTEX_A53_MIDR			U(0x410FD030)
@@ -24,13 +26,13 @@
  ******************************************************************************/
 #define CORTEX_A53_ECTLR_EL1				S3_1_C15_C2_1
 
-#define CORTEX_A53_ECTLR_SMP_BIT			(U(1) << 6)
+#define CORTEX_A53_ECTLR_SMP_BIT			(ULL(1) << 6)
 
 #define CORTEX_A53_ECTLR_CPU_RET_CTRL_SHIFT		U(0)
-#define CORTEX_A53_ECTLR_CPU_RET_CTRL_MASK		(U(0x7) << CORTEX_A53_ECTLR_CPU_RET_CTRL_SHIFT)
+#define CORTEX_A53_ECTLR_CPU_RET_CTRL_MASK		(ULL(0x7) << CORTEX_A53_ECTLR_CPU_RET_CTRL_SHIFT)
 
 #define CORTEX_A53_ECTLR_FPU_RET_CTRL_SHIFT		U(3)
-#define CORTEX_A53_ECTLR_FPU_RET_CTRL_MASK		(U(0x7) << CORTEX_A53_ECTLR_FPU_RET_CTRL_SHIFT)
+#define CORTEX_A53_ECTLR_FPU_RET_CTRL_MASK		(ULL(0x7) << CORTEX_A53_ECTLR_FPU_RET_CTRL_SHIFT)
 
 /*******************************************************************************
  * CPU Memory Error Syndrome register specific definitions.
@@ -43,13 +45,13 @@
 #define CORTEX_A53_CPUACTLR_EL1				S3_1_C15_C2_0
 
 #define CORTEX_A53_CPUACTLR_EL1_ENDCCASCI_SHIFT		U(44)
-#define CORTEX_A53_CPUACTLR_EL1_ENDCCASCI		(U(1) << CORTEX_A53_CPUACTLR_EL1_ENDCCASCI_SHIFT)
+#define CORTEX_A53_CPUACTLR_EL1_ENDCCASCI		(ULL(1) << CORTEX_A53_CPUACTLR_EL1_ENDCCASCI_SHIFT)
 #define CORTEX_A53_CPUACTLR_EL1_RADIS_SHIFT		U(27)
-#define CORTEX_A53_CPUACTLR_EL1_RADIS			(U(3) << CORTEX_A53_CPUACTLR_EL1_RADIS_SHIFT)
+#define CORTEX_A53_CPUACTLR_EL1_RADIS			(ULL(3) << CORTEX_A53_CPUACTLR_EL1_RADIS_SHIFT)
 #define CORTEX_A53_CPUACTLR_EL1_L1RADIS_SHIFT		U(25)
-#define CORTEX_A53_CPUACTLR_EL1_L1RADIS			(U(3) << CORTEX_A53_CPUACTLR_EL1_L1RADIS_SHIFT)
+#define CORTEX_A53_CPUACTLR_EL1_L1RADIS			(ULL(3) << CORTEX_A53_CPUACTLR_EL1_L1RADIS_SHIFT)
 #define CORTEX_A53_CPUACTLR_EL1_DTAH_SHIFT		U(24)
-#define CORTEX_A53_CPUACTLR_EL1_DTAH			(U(1) << CORTEX_A53_CPUACTLR_EL1_DTAH_SHIFT)
+#define CORTEX_A53_CPUACTLR_EL1_DTAH			(ULL(1) << CORTEX_A53_CPUACTLR_EL1_DTAH_SHIFT)
 
 /*******************************************************************************
  * L2 Auxiliary Control register specific definitions.
