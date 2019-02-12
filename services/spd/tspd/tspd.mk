@@ -5,7 +5,10 @@
 #
 
 TSPD_DIR		:=	services/spd/tspd
+
+ifeq (${ERROR_DEPRECATED},0)
 SPD_INCLUDES		:=	-Iinclude/bl32/tsp
+endif
 
 SPD_SOURCES		:=	services/spd/tspd/tspd_common.c		\
 				services/spd/tspd/tspd_helpers.S	\

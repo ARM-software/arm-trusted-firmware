@@ -7,11 +7,11 @@
 #include <assert.h>
 
 #include <arch_helpers.h>
+#include <bl32/payloads/tlk.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/psci/psci.h>
-#include <tlk.h>
 
 #include "tlkd_private.h"
 
