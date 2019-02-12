@@ -2060,11 +2060,11 @@ wakeup interrupt from RTC.
 
 .. _Linaro: `Linaro Release Notes`_
 .. _Linaro Release: `Linaro Release Notes`_
-.. _Linaro Release Notes: https://community.arm.com/dev-platforms/w/docs/226/old-linaro-release-notes
-.. _Linaro instructions: https://community.arm.com/dev-platforms/w/docs/304/linaro-software-deliverables
+.. _Linaro Release Notes: https://community.arm.com/dev-platforms/w/docs/226/old-release-notes
+.. _Linaro instructions: https://community.arm.com/dev-platforms/w/docs/304/arm-reference-platforms-deliverables
 .. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/w/docs/303/juno
 .. _Arm Platforms Portal: https://community.arm.com/dev-platforms/
-.. _Development Studio 5 (DS-5): http://www.arm.com/products/tools/software-tools/ds-5/index.php
+.. _Development Studio 5 (DS-5): https://developer.arm.com/products/software-development-tools/ds-5-development-studio
 .. _`Linux Coding Style`: https://www.kernel.org/doc/html/latest/process/coding-style.html
 .. _Linux master tree: https://github.com/torvalds/linux/tree/master/
 .. _Dia: https://wiki.gnome.org/Apps/Dia/Download

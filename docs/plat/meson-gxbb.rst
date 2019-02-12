@@ -23,4 +23,4 @@ This port has been tested in a ODROID-C2. After building it, follow the
 instructions in the `U-Boot repository`_, replacing the mentioned **bl31.bin**
 by the one built from this port.
 
-.. _U-Boot repository: https://github.com/u-boot/u-boot/blob/master/board/amlogic/odroid-c2/README
+.. _U-Boot repository: https://github.com/u-boot/u-boot/blob/master/board/amlogic/odroid-c2/README.odroid-c2

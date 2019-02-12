@@ -969,7 +969,7 @@ New features
    fixed sample points at key places in the code.
 
 -  To support the QEMU platform port, imported libfdt v1.4.1 from
-   https://git.kernel.org/cgit/utils/dtc/dtc.git
+   https://git.kernel.org/pub/scm/utils/dtc/dtc.git
 
 -  Updated PSCI support:
 

@@ -149,7 +149,7 @@ Flash images in recovery mode
 
        $sudo python hisi-idt.py -d /dev/ttyUSB1 --img1 recovery.bin
 
--  Update images. All aosp or debian images could be fetched from `link <https://builds.96boards.org/>`__.
+-  Update images. All aosp or debian images could be fetched from `link <http://releases.linaro.org/96boards/>`__.
 
    .. code:: shell
 
@@ -168,4 +168,4 @@ Boot UEFI in normal mode
 
 -  Reference `link <https://github.com/96boards-hikey/tools-images-hikey960/blob/master/build-from-source/README-ATF-UEFI-build-from-source.md>`__
 
-.. _link: https://github.com/96boards/documentation/blob/master/ConsumerEdition/HiKey/Quickstart/README.md
+.. _link: https://www.96boards.org/documentation/consumer/hikey/

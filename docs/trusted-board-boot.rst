@@ -233,6 +233,6 @@ for building and using the tool can be found in the `User Guide`_.
 *Copyright (c) 2015-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _Firmware Update: firmware-update.rst
-.. _X.509 v3: http://www.ietf.org/rfc/rfc5280.txt
+.. _X.509 v3: https://tools.ietf.org/rfc/rfc5280.txt
 .. _User Guide: user-guide.rst
 .. _Auth Framework: auth-framework.rst
