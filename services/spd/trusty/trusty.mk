@@ -13,8 +13,6 @@ ifeq (${TRUSTY_SPD_WITH_GENERIC_SERVICES},1)
 SPD_SOURCES		+=	services/spd/trusty/generic-arm64-smcall.c
 endif
 
-BL31_CFLAGS	+=		-DPLAT_XLAT_TABLES_DYNAMIC=1
-
 NEED_BL32		:=	yes
 
 CTX_INCLUDE_FPREGS	:=	1

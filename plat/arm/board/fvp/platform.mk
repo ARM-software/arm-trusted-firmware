@@ -236,7 +236,7 @@ ifeq (${ARCH},aarch32)
     ifeq (${RESET_TO_SP_MIN},1)
         BL32_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
     endif
-else
+else # if AArch64
     ifeq (${RESET_TO_BL31},1)
         BL31_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
     endif
@@ -244,6 +244,9 @@ else
         ifeq (${SPM_MM},0)
             BL31_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
         endif
+    endif
+    ifeq (${SPD},trusty)
+        BL31_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
     endif
 endif
 
