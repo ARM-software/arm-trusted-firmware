@@ -258,6 +258,8 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	uint32_t uart1_en_bits = (uint32_t)UART1_CLK_SELECT;
 	uint32_t uart6_en_bits = (uint32_t)UART6_CLK_SELECT;
 	uint32_t usdhc_clock_sel = PLAT_WARP7_SD - 1;
+	static console_imx_uart_t console;
+	int console_scope = CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME;
 
 	/* Initialize the AIPS */
 	imx_aips_init();
@@ -278,8 +280,12 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	warp7_setup_pinmux();
 
 	/* Init UART, storage and friends */
-	console_init(PLAT_WARP7_BOOT_UART_BASE, PLAT_WARP7_BOOT_UART_CLK_IN_HZ,
-		     PLAT_WARP7_CONSOLE_BAUDRATE);
+	console_imx_uart_register(PLAT_WARP7_BOOT_UART_BASE,
+				  PLAT_WARP7_BOOT_UART_CLK_IN_HZ,
+				  PLAT_WARP7_CONSOLE_BAUDRATE,
+				  &console);
+	console_set_scope(&console.console, console_scope);
+
 	warp7_usdhc_setup();
 
 	/* Open handles to persistent storage */
