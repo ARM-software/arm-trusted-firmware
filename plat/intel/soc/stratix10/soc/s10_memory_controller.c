@@ -10,6 +10,7 @@
 #include <lib/mmio.h>
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
+#include <platform_def.h>
 #include <string.h>
 
 #include "s10_memory_controller.h"
@@ -316,9 +317,15 @@ void configure_ddr_sched_ctrl_regs(void)
 		act_to_act_bank << S10_MPFE_DDR_MAIN_SCHED_ACTIVATE_RRD_OFST);
 
 	mmio_write_32(S10_MPFE_DDR_MAIN_SCHED_DEVTODEV,
-	bus_rd_to_rd << S10_MPFE_DDR_MAIN_SCHED_DEVTODEV_BUSRDTORD_OFST |
-	bus_rd_to_wr << S10_MPFE_DDR_MAIN_SCHED_DEVTODEV_BUSRDTOWR_OFST |
-	bus_wr_to_rd << S10_MPFE_DDR_MAIN_SCHED_DEVTODEV_BUSWRTORD_OFST);
+		((bus_rd_to_rd
+			<< S10_MPFE_DDR_MAIN_SCHED_DEVTODEV_BUSRDTORD_OFST)
+			& S10_MPFE_DDR_MAIN_SCHED_DEVTODEV_BUSRDTORD_MSK) |
+		((bus_rd_to_wr
+			<< S10_MPFE_DDR_MAIN_SCHED_DEVTODEV_BUSRDTOWR_OFST)
+			& S10_MPFE_DDR_MAIN_SCHED_DEVTODEV_BUSRDTOWR_MSK) |
+		((bus_wr_to_rd
+			<< S10_MPFE_DDR_MAIN_SCHED_DEVTODEV_BUSWRTORD_OFST)
+			& S10_MPFE_DDR_MAIN_SCHED_DEVTODEV_BUSWRTORD_MSK));
 
 }
 
@@ -393,7 +400,10 @@ void configure_hmc_adaptor_regs(void)
 			S10_MPFE_HMC_ADP_ECCCTRL1_CNT_RST_SET_MSK |
 			S10_MPFE_HMC_ADP_ECCCTRL1_ECC_EN_SET_MSK,
 			S10_MPFE_HMC_ADP_ECCCTRL1_ECC_EN_SET_MSK);
+		INFO("Scrubbing ECC\n");
 
+		/* ECC Scrubbing */
+		memset(DRAM_BASE, 0, DRAM_SIZE);
 	} else {
 		INFO("ECC is disabled.\n");
 	}

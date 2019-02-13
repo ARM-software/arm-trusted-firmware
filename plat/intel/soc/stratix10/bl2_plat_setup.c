@@ -96,9 +96,6 @@ void bl2_el3_plat_arch_setup(void)
 
 	enable_mmu_el3(0);
 
-	/* ECC Scrubbing */
-	memset(0, DRAM_BASE, DRAM_SIZE);
-
 	dw_mmc_params_t params = EMMC_INIT_PARAMS(0x100000);
 
 	info.mmc_dev_type = MMC_IS_SD;
