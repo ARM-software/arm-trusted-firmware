@@ -59,6 +59,7 @@ BL2_SOURCES		+=	common/desc_image_load.c			\
 				plat/imx/imx7/warp7/warp7_bl2_mem_params_desc.c \
 				plat/imx/imx7/warp7/warp7_io_storage.c		\
 				plat/imx/imx7/warp7/warp7_image_load.c		\
+				plat/imx/common/aarch32/imx_uart_console.S	\
 				${XLAT_TABLES_LIB_SRCS}
 
 ifneq (${TRUSTED_BOARD_BOOT},0)
@@ -117,6 +118,9 @@ SEPARATE_CODE_AND_RODATA	:= 1
 
 # Use Coherent memory
 USE_COHERENT_MEM		:= 1
+
+# Use multi console API
+MULTI_CONSOLE_API               := 1
 
 # PLAT_WARP7_UART
 PLAT_WARP7_UART			:=1
