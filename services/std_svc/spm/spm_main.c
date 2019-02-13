@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,7 @@
 #include <lib/utils.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
+#include <services/spm_svc.h>
 #include <services/sprt_svc.h>
 #include <smccc_helpers.h>
 

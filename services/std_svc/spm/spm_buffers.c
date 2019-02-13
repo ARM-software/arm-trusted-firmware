@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,8 @@
 #include <lib/spinlock.h>
 #include <lib/utils_def.h>
 #include <platform_def.h>
+
+#include "./spm_private.h"
 
 /*******************************************************************************
  * Secure Service response global array. All the responses to the requests done

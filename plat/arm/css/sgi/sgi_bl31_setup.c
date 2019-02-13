@@ -13,6 +13,7 @@
 #include <drivers/arm/css/css_mhu_doorbell.h>
 #include <drivers/arm/css/scmi.h>
 #include <plat/arm/common/plat_arm.h>
+#include <plat/common/platform.h>
 
 #include <sgi_ras.h>
 #include <sgi_variant.h>
@@ -35,7 +36,7 @@ static scmi_channel_plat_info_t rd_n1e1_edge_scmi_plat_info = {
 		.ring_doorbell = &mhuv2_ring_doorbell,
 };
 
-scmi_channel_plat_info_t *plat_css_get_scmi_info()
+scmi_channel_plat_info_t *plat_css_get_scmi_info(void)
 {
 	if (sgi_plat_info.platform_id == RD_N1E1_EDGE_SID_VER_PART_NUM)
 		return &rd_n1e1_edge_scmi_plat_info;
@@ -43,7 +44,7 @@ scmi_channel_plat_info_t *plat_css_get_scmi_info()
 		return &sgi575_scmi_plat_info;
 	else
 		panic();
-};
+}
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)

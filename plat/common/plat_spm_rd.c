@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include <common/debug.h>
 #include <common/fdt_wrappers.h>
 #include <lib/object_pool.h>
+#include <plat/common/platform.h>
 #include <services/sp_res_desc.h>
 
 /*******************************************************************************

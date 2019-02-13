@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -48,7 +48,7 @@ typedef struct {
 	uintptr_t dev_spec;
 } fip_dev_state_t;
 
-static const uuid_t uuid_null = { {0} };
+static const uuid_t uuid_null;
 /*
  * Only one file can be open across all FIP device
  * as backends like io_memmap don't support
