@@ -27,14 +27,6 @@ implementations are all weakly defined; they are provided to ease the porting
 effort. Each platform port can override them with its own implementation if the
 default implementation is inadequate.
 
-Platform ports that want to be aligned with standard Arm platforms (for example
-FVP and Juno) may also use `include/plat/arm/common/plat_arm.h`_ and the
-corresponding source files in ``plat/arm/common/``. These provide standard
-implementations for some of the required platform porting functions. However,
-using these functions requires the platform port to implement additional
-Arm standard platform porting functions. These additional functions are not
-documented here.
-
 Some modifications are common to all Boot Loader (BL) stages. Section 2
 discusses these in detail. The subsequent sections discuss the remaining
 modifications for each BL stage in detail.
@@ -43,6 +35,14 @@ This document should be read in conjunction with the TF-A `User Guide`_.
 
 Please refer to the `Platform compatibility policy`_ for the policy regarding
 compatibility and deprecation of these porting interfaces.
+
+Only Arm development platforms (such as FVP and Juno) may use the
+functions/definitions in ``include/plat/arm/common/`` and the corresponding
+source files in ``plat/arm/common/``. This is done so that there are no
+dependencies between platforms maintained by different people/companies. If you
+want to use any of the functionality present in ``plat/arm`` files, please
+create a pull request that moves the code to ``plat/common`` so that it can be
+discussed.
 
 Common modifications
 --------------------
@@ -2770,7 +2770,7 @@ operations such as loading a bootloader image.
 
 The current implementation only allows for known images to be loaded by the
 firmware. These images are specified by using their identifiers, as defined in
-[include/plat/common/platform_def.h] (or a separate header file included from
+``include/plat/common/common_def.h`` (or a separate header file included from
 there). The platform layer (``plat_get_image_source()``) then returns a reference
 to a device and a driver-specific ``spec`` which will be understood by the driver
 to allow access to the image data.
@@ -2788,7 +2788,7 @@ amount of open resources per driver.
 
 --------------
 
-*Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _include/plat/common/platform.h: ../include/plat/common/platform.h
 .. _include/plat/arm/common/plat_arm.h: ../include/plat/arm/common/plat_arm.h%5D
