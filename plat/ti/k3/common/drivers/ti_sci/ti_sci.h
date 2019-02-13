@@ -16,17 +16,12 @@
 /**
  * Device control operations
  *
- * - ti_sci_device_set_state - Set device state helper
- *              @flags: flags to setup for the device
- *              @state: State to move the device to
- * - ti_sci_device_get_state - Get device state helper
- *              @clcnt: Pointer to Context Loss Count
- *              @resets: pointer to resets
- *              @p_state: pointer to p_state
- *              @c_state: pointer to c_state
  * - ti_sci_device_get - command to request for device managed by TISCI
+ * - ti_sci_device_get_exclusive - exclusively request a device
  * - ti_sci_device_idle - Command to idle a device managed by TISCI
+ * - ti_sci_device_idle_exclusive - exclusively idle a device
  * - ti_sci_device_put - command to release a device managed by TISCI
+ * - ti_sci_device_put_no_wait - release a device without waiting for response
  * - ti_sci_device_is_valid - Is the device valid
  * - ti_sci_device_get_clcnt - Get context loss counter
  *              @count: Pointer to Context Loss counter to populate
@@ -54,12 +49,12 @@
  * usage count by balancing get_device with put_device. No refcounting is
  * managed by driver for that purpose.
  */
-int ti_sci_device_set_state(uint32_t id, uint32_t flags, uint8_t state);
-int ti_sci_device_get_state(uint32_t id,  uint32_t *clcnt,  uint32_t *resets,
-			    uint8_t *p_state,  uint8_t *c_state);
 int ti_sci_device_get(uint32_t id);
+int ti_sci_device_get_exclusive(uint32_t id);
 int ti_sci_device_idle(uint32_t id);
+int ti_sci_device_idle_exclusive(uint32_t id);
 int ti_sci_device_put(uint32_t id);
+int ti_sci_device_put_no_wait(uint32_t id);
 int ti_sci_device_is_valid(uint32_t id);
 int ti_sci_device_get_clcnt(uint32_t id, uint32_t *count);
 int ti_sci_device_is_idle(uint32_t id, bool *r_state);
@@ -72,12 +67,6 @@ int ti_sci_device_get_resets(uint32_t id, uint32_t *reset_state);
 /**
  * Clock control operations
  *
- * - ti_sci_clock_set_state - Set clock state helper
- *              @flags: Header flags as needed
- *              @state: State to request for the clock.
- * - ti_sci_clock_get_state - Get clock state helper
- *              @programmed_state: State requested for clock to move to
- *              @current_state: State that the clock is currently in
  * - ti_sci_clock_get - Get control of a clock from TI SCI
  *              @needs_ssc: 'true' iff Spread Spectrum clock is desired
  *              @can_change_freq: 'true' iff frequency change is desired
@@ -123,10 +112,6 @@ int ti_sci_device_get_resets(uint32_t id, uint32_t *reset_state);
  * usage count by balancing get_clock with put_clock. No refcounting is
  * managed by driver for that purpose.
  */
-int ti_sci_clock_set_state(uint32_t dev_id, uint8_t clk_id,
-			   uint32_t flags, uint8_t state);
-int ti_sci_clock_get_state(uint32_t dev_id, uint8_t clk_id,
-			   uint8_t *programmed_state, uint8_t *current_state);
 int ti_sci_clock_get(uint32_t dev_id, uint8_t clk_id,
 		     bool needs_ssc, bool can_change_freq,
 		     bool enable_input_term);
@@ -175,11 +160,13 @@ int ti_sci_core_reboot(void);
  * - ti_sci_proc_set_boot_ctrl - Command to set the processor boot control flags
  *              @control_flags_set: Control flags to be set
  *              @control_flags_clear: Control flags to be cleared
+ * - ti_sci_proc_set_boot_ctrl_no_wait - Same as above without waiting for response
  * - ti_sci_proc_auth_boot_image - Command to authenticate and load the image
  *                                 and then set the processor configuration flags.
  *              @cert_addr: Memory address at which payload image certificate is located.
  * - ti_sci_proc_get_boot_status - Command to get the processor boot status
  * - ti_sci_proc_wait_boot_status - Command to wait for a processor boot status
+ * - ti_sci_proc_wait_boot_status_no_wait - Same as above without waiting for response
  *
  * NOTE: for all these functions, the following are generic in nature:
  * @proc_id:	Processor ID
@@ -193,6 +180,9 @@ int ti_sci_proc_set_boot_cfg(uint8_t proc_id, uint64_t bootvector,
 			     uint32_t config_flags_clear);
 int ti_sci_proc_set_boot_ctrl(uint8_t proc_id, uint32_t control_flags_set,
 			      uint32_t control_flags_clear);
+int ti_sci_proc_set_boot_ctrl_no_wait(uint8_t proc_id,
+				      uint32_t control_flags_set,
+				      uint32_t control_flags_clear);
 int ti_sci_proc_auth_boot_image(uint8_t proc_id, uint64_t cert_addr);
 int ti_sci_proc_get_boot_status(uint8_t proc_id, uint64_t *bv,
 				uint32_t *cfg_flags,
@@ -206,7 +196,15 @@ int ti_sci_proc_wait_boot_status(uint8_t proc_id, uint8_t num_wait_iterations,
 				 uint32_t status_flags_1_set_any_wait,
 				 uint32_t status_flags_1_clr_all_wait,
 				 uint32_t status_flags_1_clr_any_wait);
-int ti_sci_proc_shutdown(uint8_t proc_id, uint32_t dev_id);
+int ti_sci_proc_wait_boot_status_no_wait(uint8_t proc_id,
+					 uint8_t num_wait_iterations,
+					 uint8_t num_match_iterations,
+					 uint8_t delay_per_iteration_us,
+					 uint8_t delay_before_iterations_us,
+					 uint32_t status_flags_1_set_all_wait,
+					 uint32_t status_flags_1_set_any_wait,
+					 uint32_t status_flags_1_clr_all_wait,
+					 uint32_t status_flags_1_clr_any_wait);
 
 /**
  * ti_sci_init() - Basic initialization

@@ -13,6 +13,7 @@
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
 
+#include <ti_sci_protocol.h>
 #include <k3_gicv3.h>
 #include <ti_sci.h>
 
@@ -70,12 +71,6 @@ static int k3_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_INTERN_FAIL;
 	}
 
-	ret = ti_sci_proc_release(proc);
-	if (ret) {
-		/* this is not fatal */
-		WARN("Could not release processor control: %d\n", ret);
-	}
-
 	return PSCI_E_SUCCESS;
 }
 
@@ -90,9 +85,24 @@ void k3_pwr_domain_off(const psci_power_state_t *target_state)
 	proc = PLAT_PROC_START_ID + core_id;
 	device = PLAT_PROC_DEVICE_START_ID + core_id;
 
-	ret = ti_sci_proc_shutdown(proc, device);
+	/* Start by sending wait for WFI command */
+	ret = ti_sci_proc_wait_boot_status_no_wait(proc,
+			/*
+			 * Wait maximum time to give us the best chance to get
+			 * to WFI before this command timeouts
+			 */
+			UINT8_MAX, 100, UINT8_MAX, UINT8_MAX,
+			/* Wait for WFI */
+			PROC_BOOT_STATUS_FLAG_ARMV8_WFI, 0, 0, 0);
 	if (ret) {
-		ERROR("Request to stop core failed: %d\n", ret);
+		ERROR("Sending wait for WFI failed (%d)\n", ret);
+		return;
+	}
+
+	/* Now queue up the core shutdown request */
+	ret = ti_sci_device_put_no_wait(device);
+	if (ret) {
+		ERROR("Sending core shutdown message failed (%d)\n", ret);
 		return;
 	}
 }

@@ -95,7 +95,7 @@ static int ti_sci_setup_one_xfer(uint16_t msg_type, uint32_t msg_flags,
 	hdr->seq = info.seq;
 	hdr->type = msg_type;
 	hdr->host = info.desc.host_id;
-	hdr->flags = msg_flags;
+	hdr->flags = msg_flags | TI_SCI_FLAG_REQ_ACK_ON_PROCESSED;
 
 	xfer->tx_message.buf = tx_buf;
 	xfer->tx_message.len = tx_message_size;
@@ -142,6 +142,9 @@ static inline int ti_sci_get_response(struct ti_sci_xfer *xfer,
 		      msg->len, info.desc.max_msg_size);
 		return -EINVAL;
 	}
+
+	if (!(hdr->flags & TI_SCI_FLAG_RESP_GENERIC_ACK))
+		return -ENODEV;
 
 	return 0;
 }
@@ -214,20 +217,6 @@ int ti_sci_get_revision(struct ti_sci_msg_resp_version *rev_info)
 }
 
 /**
- * ti_sci_is_response_ack() - Generic ACK/NACK message check
- *
- * @r:	pointer to response buffer
- *
- * Return: true if the response was an ACK, else returns false
- */
-static inline bool ti_sci_is_response_ack(void *r)
-{
-	struct ti_sci_msg_hdr *hdr = r;
-
-	return hdr->flags & TI_SCI_FLAG_RESP_GENERIC_ACK ? true : false;
-}
-
-/**
  * ti_sci_device_set_state() - Set device state
  *
  * @id:		Device identifier
@@ -236,7 +225,7 @@ static inline bool ti_sci_is_response_ack(void *r)
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int ti_sci_device_set_state(uint32_t id, uint32_t flags, uint8_t state)
+static int ti_sci_device_set_state(uint32_t id, uint32_t flags, uint8_t state)
 {
 	struct ti_sci_msg_req_set_device_state req;
 	struct ti_sci_msg_hdr resp;
@@ -244,8 +233,7 @@ int ti_sci_device_set_state(uint32_t id, uint32_t flags, uint8_t state)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_DEVICE_STATE,
-				    flags | TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_DEVICE_STATE, flags,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -263,9 +251,6 @@ int ti_sci_device_set_state(uint32_t id, uint32_t flags, uint8_t state)
 		return ret;
 	}
 
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
-
 	return 0;
 }
 
@@ -280,8 +265,9 @@ int ti_sci_device_set_state(uint32_t id, uint32_t flags, uint8_t state)
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int ti_sci_device_get_state(uint32_t id,  uint32_t *clcnt,  uint32_t *resets,
-			    uint8_t *p_state,  uint8_t *c_state)
+static int ti_sci_device_get_state(uint32_t id,  uint32_t *clcnt,
+				   uint32_t *resets, uint8_t *p_state,
+				   uint8_t *c_state)
 {
 	struct ti_sci_msg_req_get_device_state req;
 	struct ti_sci_msg_resp_get_device_state resp;
@@ -309,9 +295,6 @@ int ti_sci_device_get_state(uint32_t id,  uint32_t *clcnt,  uint32_t *resets,
 		return ret;
 	}
 
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
-
 	if (clcnt)
 		*clcnt = resp.context_loss_count;
 	if (resets)
@@ -333,11 +316,30 @@ int ti_sci_device_get_state(uint32_t id,  uint32_t *clcnt,  uint32_t *resets,
  * usage count by balancing get_device with put_device. No refcounting is
  * managed by driver for that purpose.
  *
- * NOTE: The request is for exclusive access for the processor.
- *
  * Return: 0 if all goes well, else appropriate error message
  */
 int ti_sci_device_get(uint32_t id)
+{
+	return ti_sci_device_set_state(id, 0, MSG_DEVICE_SW_STATE_ON);
+}
+
+/**
+ * ti_sci_device_get_exclusive() - Exclusive request for device managed by TISCI
+ *
+ * @id:		Device Identifier
+ *
+ * Request for the device - NOTE: the client MUST maintain integrity of
+ * usage count by balancing get_device with put_device. No refcounting is
+ * managed by driver for that purpose.
+ *
+ * NOTE: This _exclusive version of the get API is for exclusive access to the
+ * device. Any other host in the system will fail to get this device after this
+ * call until exclusive access is released with device_put or a non-exclusive
+ * set call.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_device_get_exclusive(uint32_t id)
 {
 	return ti_sci_device_set_state(id,
 				       MSG_FLAG_DEVICE_EXCLUSIVE,
@@ -356,6 +358,27 @@ int ti_sci_device_get(uint32_t id)
  * Return: 0 if all goes well, else appropriate error message
  */
 int ti_sci_device_idle(uint32_t id)
+{
+	return ti_sci_device_set_state(id, 0, MSG_DEVICE_SW_STATE_RETENTION);
+}
+
+/**
+ * ti_sci_device_idle_exclusive() - Exclusive idle a device managed by TISCI
+ *
+ * @id:		Device Identifier
+ *
+ * Request for the device - NOTE: the client MUST maintain integrity of
+ * usage count by balancing get_device with put_device. No refcounting is
+ * managed by driver for that purpose.
+ *
+ * NOTE: This _exclusive version of the idle API is for exclusive access to
+ * the device. Any other host in the system will fail to get this device after
+ * this call until exclusive access is released with device_put or a
+ * non-exclusive set call.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_device_idle_exclusive(uint32_t id)
 {
 	return ti_sci_device_set_state(id,
 				       MSG_FLAG_DEVICE_EXCLUSIVE,
@@ -376,6 +399,53 @@ int ti_sci_device_idle(uint32_t id)
 int ti_sci_device_put(uint32_t id)
 {
 	return ti_sci_device_set_state(id, 0, MSG_DEVICE_SW_STATE_AUTO_OFF);
+}
+
+/**
+ * ti_sci_device_put_no_wait() - Release a device without requesting or waiting
+ *				 for a response.
+ *
+ * @id:		Device Identifier
+ *
+ * Request for the device - NOTE: the client MUST maintain integrity of
+ * usage count by balancing get_device with put_device. No refcounting is
+ * managed by driver for that purpose.
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_device_put_no_wait(uint32_t id)
+{
+	struct ti_sci_msg_req_set_device_state req;
+	struct ti_sci_msg_hdr *hdr;
+	struct k3_sec_proxy_msg tx_message;
+	int ret;
+
+	/* Ensure we have sane transfer size */
+	if (sizeof(req) > info.desc.max_msg_size)
+		return -ERANGE;
+
+	hdr = (struct ti_sci_msg_hdr *)&req;
+	hdr->seq = info.seq;
+	hdr->type = TI_SCI_MSG_SET_DEVICE_STATE;
+	hdr->host = info.desc.host_id;
+	/* Setup with NORESPONSE flag to keep response queue clean */
+	hdr->flags = TI_SCI_FLAG_REQ_GENERIC_NORESPONSE;
+
+	req.id = id;
+	req.state = MSG_DEVICE_SW_STATE_AUTO_OFF;
+
+	tx_message.buf = (uint8_t *)&req;
+	tx_message.len = sizeof(req);
+
+	 /* Send message */
+	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, &tx_message);
+	if (ret) {
+		ERROR("Message sending failed (%d)\n", ret);
+		return ret;
+	}
+
+	/* Return without waiting for response */
+	return 0;
 }
 
 /**
@@ -532,8 +602,7 @@ int ti_sci_device_set_resets(uint32_t id, uint32_t reset_state)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_DEVICE_RESETS,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_DEVICE_RESETS, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -550,9 +619,6 @@ int ti_sci_device_set_resets(uint32_t id, uint32_t reset_state)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -591,8 +657,7 @@ int ti_sci_clock_set_state(uint32_t dev_id, uint8_t clk_id,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_STATE,
-				    flags | TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_STATE, flags,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -610,9 +675,6 @@ int ti_sci_clock_set_state(uint32_t dev_id, uint8_t clk_id,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -642,8 +704,7 @@ int ti_sci_clock_get_state(uint32_t dev_id, uint8_t clk_id,
 	if (!programmed_state && !current_state)
 		return -EINVAL;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_STATE,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_STATE, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -660,9 +721,6 @@ int ti_sci_clock_get_state(uint32_t dev_id, uint8_t clk_id,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	if (programmed_state)
 		*programmed_state = resp.programmed_state;
@@ -848,8 +906,7 @@ int ti_sci_clock_set_parent(uint32_t dev_id, uint8_t clk_id, uint8_t parent_id)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_PARENT,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_PARENT, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -867,9 +924,6 @@ int ti_sci_clock_set_parent(uint32_t dev_id, uint8_t clk_id, uint8_t parent_id)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -893,8 +947,7 @@ int ti_sci_clock_get_parent(uint32_t dev_id, uint8_t clk_id, uint8_t *parent_id)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_PARENT,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_PARENT, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -911,9 +964,6 @@ int ti_sci_clock_get_parent(uint32_t dev_id, uint8_t clk_id, uint8_t *parent_id)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	*parent_id = resp.parent_id;
 
@@ -940,8 +990,7 @@ int ti_sci_clock_get_num_parents(uint32_t dev_id, uint8_t clk_id,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_NUM_CLOCK_PARENTS,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_NUM_CLOCK_PARENTS, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -958,9 +1007,6 @@ int ti_sci_clock_get_num_parents(uint32_t dev_id, uint8_t clk_id,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	*num_parents = resp.num_parents;
 
@@ -996,8 +1042,7 @@ int ti_sci_clock_get_match_freq(uint32_t dev_id, uint8_t clk_id,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_QUERY_CLOCK_FREQ,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_QUERY_CLOCK_FREQ, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1017,9 +1062,6 @@ int ti_sci_clock_get_match_freq(uint32_t dev_id, uint8_t clk_id,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	*match_freq = resp.freq_hz;
 
@@ -1053,8 +1095,7 @@ int ti_sci_clock_set_freq(uint32_t dev_id, uint8_t clk_id, uint64_t min_freq,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_FREQ,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_CLOCK_FREQ, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1073,9 +1114,6 @@ int ti_sci_clock_set_freq(uint32_t dev_id, uint8_t clk_id, uint64_t min_freq,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1099,8 +1137,7 @@ int ti_sci_clock_get_freq(uint32_t dev_id, uint8_t clk_id, uint64_t *freq)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_FREQ,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_GET_CLOCK_FREQ, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1117,9 +1154,6 @@ int ti_sci_clock_get_freq(uint32_t dev_id, uint8_t clk_id, uint64_t *freq)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	*freq = resp.freq_hz;
 
@@ -1139,8 +1173,7 @@ int ti_sci_core_reboot(void)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SYS_RESET,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SYS_RESET, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1154,9 +1187,6 @@ int ti_sci_core_reboot(void)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1176,8 +1206,7 @@ int ti_sci_proc_request(uint8_t proc_id)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_REQUEST,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_REQUEST, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1193,9 +1222,6 @@ int ti_sci_proc_request(uint8_t proc_id)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1215,8 +1241,7 @@ int ti_sci_proc_release(uint8_t proc_id)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_RELEASE,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_RELEASE, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1232,9 +1257,6 @@ int ti_sci_proc_release(uint8_t proc_id)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1256,8 +1278,7 @@ int ti_sci_proc_handover(uint8_t proc_id, uint8_t host_id)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_HANDOVER,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_HANDOVER, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1274,9 +1295,6 @@ int ti_sci_proc_handover(uint8_t proc_id, uint8_t host_id)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1300,8 +1318,7 @@ int ti_sci_proc_set_boot_cfg(uint8_t proc_id, uint64_t bootvector,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_SET_PROC_BOOT_CONFIG,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_SET_PROC_BOOT_CONFIG, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1322,9 +1339,6 @@ int ti_sci_proc_set_boot_cfg(uint8_t proc_id, uint64_t bootvector,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1347,8 +1361,7 @@ int ti_sci_proc_set_boot_ctrl(uint8_t proc_id, uint32_t control_flags_set,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_SET_PROC_BOOT_CTRL,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_SET_PROC_BOOT_CTRL, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1367,9 +1380,55 @@ int ti_sci_proc_set_boot_ctrl(uint8_t proc_id, uint32_t control_flags_set,
 		return ret;
 	}
 
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
+	return 0;
+}
 
+/**
+ * ti_sci_proc_set_boot_ctrl_no_wait() - Set the processor boot control flags
+ *					 without requesting or waiting for a
+ *					 response.
+ *
+ * @proc_id:			Processor ID this request is for
+ * @control_flags_set:		Control flags to be set
+ * @control_flags_clear:	Control flags to be cleared
+ *
+ * Return: 0 if all goes well, else appropriate error message
+ */
+int ti_sci_proc_set_boot_ctrl_no_wait(uint8_t proc_id,
+				      uint32_t control_flags_set,
+				      uint32_t control_flags_clear)
+{
+	struct ti_sci_msg_req_set_proc_boot_ctrl req;
+	struct ti_sci_msg_hdr *hdr;
+	struct k3_sec_proxy_msg tx_message;
+	int ret;
+
+	/* Ensure we have sane transfer size */
+	if (sizeof(req) > info.desc.max_msg_size)
+		return -ERANGE;
+
+	hdr = (struct ti_sci_msg_hdr *)&req;
+	hdr->seq = info.seq;
+	hdr->type = TISCI_MSG_SET_PROC_BOOT_CTRL;
+	hdr->host = info.desc.host_id;
+	/* Setup with NORESPONSE flag to keep response queue clean */
+	hdr->flags = TI_SCI_FLAG_REQ_GENERIC_NORESPONSE;
+
+	req.processor_id = proc_id;
+	req.control_flags_set = control_flags_set;
+	req.control_flags_clear = control_flags_clear;
+
+	tx_message.buf = (uint8_t *)&req;
+	tx_message.len = sizeof(req);
+
+	 /* Send message */
+	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, &tx_message);
+	if (ret) {
+		ERROR("Message sending failed (%d)\n", ret);
+		return ret;
+	}
+
+	/* Return without waiting for response */
 	return 0;
 }
 
@@ -1390,8 +1449,7 @@ int ti_sci_proc_auth_boot_image(uint8_t proc_id, uint64_t cert_addr)
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_AUTH_BOOT_IMIAGE,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_PROC_AUTH_BOOT_IMIAGE, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1410,9 +1468,6 @@ int ti_sci_proc_auth_boot_image(uint8_t proc_id, uint64_t cert_addr)
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	return 0;
 }
@@ -1435,8 +1490,7 @@ int ti_sci_proc_get_boot_status(uint8_t proc_id, uint64_t *bv,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_GET_PROC_BOOT_STATUS,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_GET_PROC_BOOT_STATUS, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1452,9 +1506,6 @@ int ti_sci_proc_get_boot_status(uint8_t proc_id, uint64_t *bv,
 		ERROR("Transfer send failed (%d)\n", ret);
 		return ret;
 	}
-
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
 
 	*bv = (resp.bootvector_low & TISCI_ADDR_LOW_MASK) |
 	      (((uint64_t)resp.bootvector_high << TISCI_ADDR_HIGH_SHIFT) &
@@ -1515,8 +1566,7 @@ int ti_sci_proc_wait_boot_status(uint8_t proc_id, uint8_t num_wait_iterations,
 	struct ti_sci_xfer xfer;
 	int ret;
 
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_WAIT_PROC_BOOT_STATUS,
-				    TI_SCI_FLAG_REQ_ACK_ON_PROCESSED,
+	ret = ti_sci_setup_one_xfer(TISCI_MSG_WAIT_PROC_BOOT_STATUS, 0,
 				    &req, sizeof(req),
 				    &resp, sizeof(resp),
 				    &xfer);
@@ -1541,91 +1591,92 @@ int ti_sci_proc_wait_boot_status(uint8_t proc_id, uint8_t num_wait_iterations,
 		return ret;
 	}
 
-	if (!ti_sci_is_response_ack(&resp))
-		return -ENODEV;
-
 	return 0;
 }
 
 /**
- * ti_sci_proc_shutdown() - Shutdown Processor without waiting for ACKs
+ * ti_sci_proc_wait_boot_status_no_wait() - Wait for a processor boot status
+ *					    without requesting or waiting for
+ *					    a response.
  *
- * @proc_id:	Processor ID this request is for
- * @dev_id:	Device identifier this request is for
+ * @proc_id:			Processor ID this request is for
+ * @num_wait_iterations		Total number of iterations we will check before
+ *				we will timeout and give up
+ * @num_match_iterations	How many iterations should we have continued
+ *				status to account for status bits glitching.
+ *				This is to make sure that match occurs for
+ *				consecutive checks. This implies that the
+ *				worst case should consider that the stable
+ *				time should at the worst be num_wait_iterations
+ *				num_match_iterations to prevent timeout.
+ * @delay_per_iteration_us	Specifies how long to wait (in micro seconds)
+ *				between each status checks. This is the minimum
+ *				duration, and overhead of register reads and
+ *				checks are on top of this and can vary based on
+ *				varied conditions.
+ * @delay_before_iterations_us	Specifies how long to wait (in micro seconds)
+ *				before the very first check in the first
+ *				iteration of status check loop. This is the
+ *				minimum duration, and overhead of register
+ *				reads and checks are.
+ * @status_flags_1_set_all_wait	If non-zero, Specifies that all bits of the
+ *				status matching this field requested MUST be 1.
+ * @status_flags_1_set_any_wait	If non-zero, Specifies that at least one of the
+ *				bits matching this field requested MUST be 1.
+ * @status_flags_1_clr_all_wait	If non-zero, Specifies that all bits of the
+ *				status matching this field requested MUST be 0.
+ * @status_flags_1_clr_any_wait	If non-zero, Specifies that at least one of the
+ *				bits matching this field requested MUST be 0.
  *
  * Return: 0 if all goes well, else appropriate error message
  */
-int ti_sci_proc_shutdown(uint8_t proc_id, uint32_t dev_id)
+int ti_sci_proc_wait_boot_status_no_wait(uint8_t proc_id,
+					 uint8_t num_wait_iterations,
+					 uint8_t num_match_iterations,
+					 uint8_t delay_per_iteration_us,
+					 uint8_t delay_before_iterations_us,
+					 uint32_t status_flags_1_set_all_wait,
+					 uint32_t status_flags_1_set_any_wait,
+					 uint32_t status_flags_1_clr_all_wait,
+					 uint32_t status_flags_1_clr_any_wait)
 {
-	struct ti_sci_msg_req_wait_proc_boot_status wait_req;
-	struct ti_sci_msg_req_set_device_state set_req;
-	/*
-	 * We will not be waiting for this response, but declare one anyway
-	 * to pass to the setup function so the checks will still pass
-	 */
-	struct ti_sci_msg_hdr resp;
-
-	struct ti_sci_xfer xfer;
+	struct ti_sci_msg_req_wait_proc_boot_status req;
+	struct ti_sci_msg_hdr *hdr;
+	struct k3_sec_proxy_msg tx_message;
 	int ret;
 
-	/* Start by sending wait command */
+	/* Ensure we have sane transfer size */
+	if (sizeof(req) > info.desc.max_msg_size)
+		return -ERANGE;
 
+	hdr = (struct ti_sci_msg_hdr *)&req;
+	hdr->seq = info.seq;
+	hdr->type = TISCI_MSG_WAIT_PROC_BOOT_STATUS;
+	hdr->host = info.desc.host_id;
 	/* Setup with NORESPONSE flag to keep response queue clean */
-	ret = ti_sci_setup_one_xfer(TISCI_MSG_WAIT_PROC_BOOT_STATUS,
-				    TI_SCI_FLAG_REQ_GENERIC_NORESPONSE,
-				    &wait_req, sizeof(wait_req),
-				    &resp, sizeof(resp),
-				    &xfer);
-	if (ret) {
-		ERROR("Message alloc failed (%d)\n", ret);
-		return ret;
-	}
+	hdr->flags = TI_SCI_FLAG_REQ_GENERIC_NORESPONSE;
 
-	wait_req.processor_id = proc_id;
-	/*
-	 * Wait maximum time to give us the best chance to get
-	 * to WFI before this command timeouts
-	 */
-	wait_req.delay_before_iterations_us = UINT8_MAX;
-	wait_req.num_wait_iterations = UINT8_MAX;
-	wait_req.delay_per_iteration_us = UINT8_MAX;  /* TODO: optimize time */
-	wait_req.num_match_iterations = 2;
-	wait_req.status_flags_1_set_all_wait = 0;
-	/* Wait for either WFE or WFI */
-	wait_req.status_flags_1_set_any_wait = PROC_BOOT_STATUS_FLAG_ARMV8_WFE |
-					       PROC_BOOT_STATUS_FLAG_ARMV8_WFI;
-	wait_req.status_flags_1_clr_all_wait = 0;
-	wait_req.status_flags_1_clr_any_wait = 0;
+	req.processor_id = proc_id;
+	req.num_wait_iterations = num_wait_iterations;
+	req.num_match_iterations = num_match_iterations;
+	req.delay_per_iteration_us = delay_per_iteration_us;
+	req.delay_before_iterations_us = delay_before_iterations_us;
+	req.status_flags_1_set_all_wait = status_flags_1_set_all_wait;
+	req.status_flags_1_set_any_wait = status_flags_1_set_any_wait;
+	req.status_flags_1_clr_all_wait = status_flags_1_clr_all_wait;
+	req.status_flags_1_clr_any_wait = status_flags_1_clr_any_wait;
 
-	/* Send wait message */
-	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, &xfer.tx_message);
+	tx_message.buf = (uint8_t *)&req;
+	tx_message.len = sizeof(req);
+
+	 /* Send message */
+	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, &tx_message);
 	if (ret) {
 		ERROR("Message sending failed (%d)\n", ret);
 		return ret;
 	}
 
-	/* Now queue up the shutdown request */
-	ret = ti_sci_setup_one_xfer(TI_SCI_MSG_SET_DEVICE_STATE,
-				    TI_SCI_FLAG_REQ_GENERIC_NORESPONSE,
-				    &set_req, sizeof(set_req),
-				    &resp, sizeof(resp),
-				    &xfer);
-	if (ret) {
-		ERROR("Message alloc failed (%d)\n", ret);
-		return ret;
-	}
-
-	set_req.id = dev_id;
-	set_req.state = MSG_DEVICE_SW_STATE_AUTO_OFF;
-
-	/* Send shutdown message */
-	ret = k3_sec_proxy_send(SP_HIGH_PRIORITY, &xfer.tx_message);
-	if (ret) {
-		ERROR("Message sending failed (%d)\n", ret);
-		return ret;
-	}
-
-	/* Return without waiting for responses */
+	/* Return without waiting for response */
 	return 0;
 }
 
