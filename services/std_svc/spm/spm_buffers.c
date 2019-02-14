@@ -42,7 +42,7 @@ int spm_response_add(uint16_t client_id, uint16_t handle, uint32_t token,
 		}
 	}
 
-	for (int i = 0; i < ARRAY_SIZE(responses); i++) {
+	for (unsigned int i = 0U; i < ARRAY_SIZE(responses); i++) {
 		struct sprt_response *resp = &(responses[i]);
 
 		if (resp->is_valid == 0) {

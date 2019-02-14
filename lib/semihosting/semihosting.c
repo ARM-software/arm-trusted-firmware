@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -160,7 +160,7 @@ long semihosting_system(char *command_line)
 long semihosting_get_flen(const char *file_name)
 {
 	long file_handle;
-	size_t length;
+	long length;
 
 	assert(semihosting_connection_supported());
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,10 +29,6 @@
 	} while (0)
 
 #pragma weak plat_set_nv_ctr2
-
-/* Pointer to CoT */
-extern const auth_img_desc_t *const cot_desc_ptr;
-extern unsigned int auth_img_flags[MAX_NUMBER_IDS];
 
 static int cmp_auth_param_type_desc(const auth_param_type_desc_t *a,
 		const auth_param_type_desc_t *b)

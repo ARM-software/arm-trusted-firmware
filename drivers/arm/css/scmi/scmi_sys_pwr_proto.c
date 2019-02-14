@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,7 +18,8 @@
 int scmi_sys_pwr_state_set(void *p, uint32_t flags, uint32_t system_state)
 {
 	mailbox_mem_t *mbx_mem;
-	int token = 0, ret;
+	unsigned int token = 0;
+	int ret;
 	scmi_channel_t *ch = (scmi_channel_t *)p;
 
 	validate_scmi_channel(ch);
@@ -50,7 +51,8 @@ int scmi_sys_pwr_state_set(void *p, uint32_t flags, uint32_t system_state)
 int scmi_sys_pwr_state_get(void *p, uint32_t *system_state)
 {
 	mailbox_mem_t *mbx_mem;
-	int token = 0, ret;
+	unsigned int token = 0;
+	int ret;
 	scmi_channel_t *ch = (scmi_channel_t *)p;
 
 	validate_scmi_channel(ch);

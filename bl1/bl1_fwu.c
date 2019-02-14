@@ -52,9 +52,6 @@ __dead2 static void bl1_fwu_done(void *client_cookie, void *reserved);
  */
 static unsigned int sec_exec_image_id = INVALID_IMAGE_ID;
 
-/* Authentication status of each image. */
-extern unsigned int auth_img_flags[MAX_NUMBER_IDS];
-
 /*******************************************************************************
  * Top level handler for servicing FWU SMCs.
  ******************************************************************************/

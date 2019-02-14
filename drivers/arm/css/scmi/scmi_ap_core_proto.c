@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,7 +18,8 @@
 int scmi_ap_core_set_reset_addr(void *p, uint64_t reset_addr, uint32_t attr)
 {
 	mailbox_mem_t *mbx_mem;
-	int token = 0, ret;
+	unsigned int token = 0;
+	int ret;
 	scmi_channel_t *ch = (scmi_channel_t *)p;
 
 	validate_scmi_channel(ch);
@@ -51,7 +52,8 @@ int scmi_ap_core_set_reset_addr(void *p, uint64_t reset_addr, uint32_t attr)
 int scmi_ap_core_get_reset_addr(void *p, uint64_t *reset_addr, uint32_t *attr)
 {
 	mailbox_mem_t *mbx_mem;
-	int token = 0, ret;
+	unsigned int token = 0;
+	int ret;
 	scmi_channel_t *ch = (scmi_channel_t *)p;
 	uint32_t lo_addr, hi_addr;
 
