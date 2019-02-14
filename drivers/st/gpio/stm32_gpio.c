@@ -15,7 +15,7 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/st/stm32_gpio.h>
-#include <drivers/st/stm32mp1_clkfunc.h>
+#include <drivers/st/stm32mp_clkfunc.h>
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
 

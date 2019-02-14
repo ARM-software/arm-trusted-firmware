@@ -18,10 +18,10 @@
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
+#include <drivers/st/stm32mp_clkfunc.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_clkfunc.h>
 #include <drivers/st/stm32mp1_rcc.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
