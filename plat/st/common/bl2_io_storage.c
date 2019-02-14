@@ -25,9 +25,6 @@
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 
-#include <boot_api.h>
-#include <stm32mp1_private.h>
-
 /* IO devices */
 static const io_dev_connector_t *dummy_dev_con;
 static uintptr_t dummy_dev_handle;

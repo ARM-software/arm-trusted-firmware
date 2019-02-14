@@ -20,9 +20,6 @@
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
 
-#include <boot_api.h>
-#include <stm32mp1_private.h>
-
 static uintptr_t stm32_sec_entrypoint;
 static uint32_t cntfrq_core0;
 

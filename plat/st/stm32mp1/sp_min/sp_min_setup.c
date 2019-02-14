@@ -27,8 +27,6 @@
 #include <plat/common/platform.h>
 
 #include <platform_sp_min.h>
-#include <stm32mp1_dt.h>
-#include <stm32mp1_private.h>
 
 /******************************************************************************
  * Placeholder variables for copying the arguments that have been passed to

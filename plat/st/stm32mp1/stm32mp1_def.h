@@ -13,7 +13,8 @@
 
 #ifndef __ASSEMBLY__
 #include <boot_api.h>
-#include <stm32mp1_dt.h>
+#include <stm32mp_common.h>
+#include <stm32mp_dt.h>
 #include <stm32mp1_private.h>
 #endif
 

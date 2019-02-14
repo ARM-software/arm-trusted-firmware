@@ -15,9 +15,6 @@
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/mmio.h>
 
-#include <stm32mp1_dt.h>
-#include <stm32mp1_private.h>
-
 /*******************************************************************************
  * Initialize the TrustZone Controller. Configure Region 0 with Secure RW access
  * and allow Non-Secure masters full access.

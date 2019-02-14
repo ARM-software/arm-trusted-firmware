@@ -254,17 +254,17 @@ void set_gpio(uint32_t bank, uint32_t pin, uint32_t mode, uint32_t speed,
 	VERBOSE("GPIO %u mode alternate high to 0x%x\n", bank,
 		mmio_read_32(base + GPIO_AFRH_OFFSET));
 
-	stm32mp1_clk_disable((unsigned long)clock);
+	stm32mp1_clk_disable(clock);
 }
 
 void set_gpio_secure_cfg(uint32_t bank, uint32_t pin, bool secure)
 {
 	uintptr_t base = stm32_get_gpio_bank_base(bank);
-	int clock = stm32_get_gpio_bank_clock(bank);
+	unsigned long clock = stm32_get_gpio_bank_clock(bank);
 
 	assert(pin <= GPIO_PIN_MAX);
 
-	stm32mp1_clk_enable((unsigned long)clock);
+	stm32mp1_clk_enable(clock);
 
 	if (secure) {
 		mmio_setbits_32(base + GPIO_SECR_OFFSET, BIT(pin));
@@ -272,5 +272,5 @@ void set_gpio_secure_cfg(uint32_t bank, uint32_t pin, bool secure)
 		mmio_clrbits_32(base + GPIO_SECR_OFFSET, BIT(pin));
 	}
 
-	stm32mp1_clk_disable((unsigned long)clock);
+	stm32mp1_clk_disable(clock);
 }

@@ -14,9 +14,10 @@
 #include <common/debug.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32mp1_clk.h>
-#include <drivers/st/stm32mp1_clkfunc.h>
 #include <drivers/st/stm32mp1_ddr.h>
 #include <drivers/st/stm32mp1_ram.h>
+
+#include <stm32mp_dt.h>
 
 static int fdt_checked;
 
@@ -68,9 +69,9 @@ bool fdt_check_node(int node)
 /*******************************************************************************
  * This function return global node status (generic use of fdt library).
  ******************************************************************************/
-uint32_t fdt_get_status(int node)
+uint8_t fdt_get_status(int node)
 {
-	uint32_t status = DT_DISABLED;
+	uint8_t status = DT_DISABLED;
 	int len;
 	const char *cchar;
 

@@ -26,10 +26,7 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
-#include <boot_api.h>
 #include <stm32mp1_context.h>
-#include <stm32mp1_dt.h>
-#include <stm32mp1_private.h>
 
 static struct console_stm32 console;
 
