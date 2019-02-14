@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2018-2019, Linaro Limited
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +9,8 @@
 #define STM32MP_COMMON_H
 
 #include <stdbool.h>
+
+#include <arch_helpers.h>
 
 /* Functions to save and get boot context address given by ROM code */
 void stm32mp_save_boot_ctx_address(uintptr_t address);
@@ -41,5 +44,20 @@ unsigned long stm32mp_clk_get_rate(unsigned long id);
 
 /* Initialise the IO layer and register platform IO devices */
 void stm32mp_io_setup(void);
+
+static inline uint64_t arm_cnt_us2cnt(uint32_t us)
+{
+	return ((uint64_t)us * (uint64_t)read_cntfrq()) / 1000000ULL;
+}
+
+static inline uint64_t timeout_init_us(uint32_t us)
+{
+	return read_cntpct_el0() + arm_cnt_us2cnt(us);
+}
+
+static inline bool timeout_elapsed(uint64_t expire)
+{
+	return read_cntpct_el0() > expire;
+}
 
 #endif /* STM32MP_COMMON_H */
