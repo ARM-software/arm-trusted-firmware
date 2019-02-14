@@ -27,16 +27,16 @@
 #include <lib/utils_def.h>
 #include <plat/common/platform.h>
 
-#define MAX_HSI_HZ	64000000
+#define MAX_HSI_HZ		64000000
 
-#define TIMEOUT_200MS	(plat_get_syscnt_freq2() / 5U)
-#define TIMEOUT_1S	plat_get_syscnt_freq2()
+#define TIMEOUT_US_200MS	U(200000)
+#define TIMEOUT_US_1S		U(1000000)
 
-#define PLLRDY_TIMEOUT	TIMEOUT_200MS
-#define CLKSRC_TIMEOUT	TIMEOUT_200MS
-#define CLKDIV_TIMEOUT	TIMEOUT_200MS
-#define HSIDIV_TIMEOUT	TIMEOUT_200MS
-#define OSCRDY_TIMEOUT	TIMEOUT_1S
+#define PLLRDY_TIMEOUT		TIMEOUT_US_200MS
+#define CLKSRC_TIMEOUT		TIMEOUT_US_200MS
+#define CLKDIV_TIMEOUT		TIMEOUT_US_200MS
+#define HSIDIV_TIMEOUT		TIMEOUT_US_200MS
+#define OSCRDY_TIMEOUT		TIMEOUT_US_1S
 
 enum stm32mp1_parent_id {
 /* Oscillators are defined in enum stm32mp_osc_id */
@@ -870,7 +870,7 @@ static void stm32mp1_hs_ocs_set(int enable, uint32_t rcc, uint32_t mask_on)
 static int stm32mp1_osc_wait(int enable, uint32_t rcc, uint32_t offset,
 			     uint32_t mask_rdy)
 {
-	unsigned long start;
+	uint64_t timeout;
 	uint32_t mask_test;
 	uint32_t address = rcc + offset;
 
@@ -880,9 +880,9 @@ static int stm32mp1_osc_wait(int enable, uint32_t rcc, uint32_t offset,
 		mask_test = 0;
 	}
 
-	start = get_timer(0);
+	timeout = timeout_init_us(OSCRDY_TIMEOUT);
 	while ((mmio_read_32(address) & mask_rdy) != mask_test) {
-		if (get_timer(start) > OSCRDY_TIMEOUT) {
+		if (timeout_elapsed(timeout)) {
 			ERROR("OSC %x @ %x timeout for enable=%d : 0x%x\n",
 			      mask_rdy, address, enable, mmio_read_32(address));
 			return -ETIMEDOUT;
@@ -975,16 +975,16 @@ static void stm32mp1_hsi_set(uint32_t rcc, int enable)
 
 static int stm32mp1_set_hsidiv(uint32_t rcc, uint8_t hsidiv)
 {
-	unsigned long start;
 	uint32_t address = rcc + RCC_OCRDYR;
+	uint64_t timeout;
 
 	mmio_clrsetbits_32(rcc + RCC_HSICFGR,
 			   RCC_HSICFGR_HSIDIV_MASK,
 			   RCC_HSICFGR_HSIDIV_MASK & (uint32_t)hsidiv);
 
-	start = get_timer(0);
+	timeout = timeout_init_us(HSIDIV_TIMEOUT);
 	while ((mmio_read_32(address) & RCC_OCRDYR_HSIDIVRDY) == 0U) {
-		if (get_timer(start) > HSIDIV_TIMEOUT) {
+		if (timeout_elapsed(timeout)) {
 			ERROR("HSIDIV failed @ 0x%x: 0x%x\n",
 			      address, mmio_read_32(address));
 			return -ETIMEDOUT;
@@ -1032,12 +1032,11 @@ static int stm32mp1_pll_output(struct stm32mp1_clk_priv *priv,
 {
 	const struct stm32mp1_clk_pll *pll = priv->data->pll;
 	uint32_t pllxcr = priv->base + pll[pll_id].pllxcr;
-	unsigned long start;
+	uint64_t timeout = timeout_init_us(PLLRDY_TIMEOUT);
 
-	start = get_timer(0);
 	/* Wait PLL lock */
 	while ((mmio_read_32(pllxcr) & RCC_PLLNCR_PLLRDY) == 0U) {
-		if (get_timer(start) > PLLRDY_TIMEOUT) {
+		if (timeout_elapsed(timeout)) {
 			ERROR("PLL%d start failed @ 0x%x: 0x%x\n",
 			      pll_id, pllxcr, mmio_read_32(pllxcr));
 			return -ETIMEDOUT;
@@ -1055,7 +1054,7 @@ static int stm32mp1_pll_stop(struct stm32mp1_clk_priv *priv,
 {
 	const struct stm32mp1_clk_pll *pll = priv->data->pll;
 	uint32_t pllxcr = priv->base + pll[pll_id].pllxcr;
-	unsigned long start;
+	uint64_t timeout;
 
 	/* Stop all output */
 	mmio_clrbits_32(pllxcr, RCC_PLLNCR_DIVPEN | RCC_PLLNCR_DIVQEN |
@@ -1064,10 +1063,10 @@ static int stm32mp1_pll_stop(struct stm32mp1_clk_priv *priv,
 	/* Stop PLL */
 	mmio_clrbits_32(pllxcr, RCC_PLLNCR_PLLON);
 
-	start = get_timer(0);
+	timeout = timeout_init_us(PLLRDY_TIMEOUT);
 	/* Wait PLL stopped */
 	while ((mmio_read_32(pllxcr) & RCC_PLLNCR_PLLRDY) != 0U) {
-		if (get_timer(start) > PLLRDY_TIMEOUT) {
+		if (timeout_elapsed(timeout)) {
 			ERROR("PLL%d stop failed @ 0x%x: 0x%x\n",
 			      pll_id, pllxcr, mmio_read_32(pllxcr));
 			return -ETIMEDOUT;
@@ -1166,14 +1165,14 @@ static int stm32mp1_set_clksrc(struct stm32mp1_clk_priv *priv,
 			       unsigned int clksrc)
 {
 	uint32_t address = priv->base + (clksrc >> 4);
-	unsigned long start;
+	uint64_t timeout;
 
 	mmio_clrsetbits_32(address, RCC_SELR_SRC_MASK,
 			   clksrc & RCC_SELR_SRC_MASK);
 
-	start = get_timer(0);
+	timeout = timeout_init_us(CLKSRC_TIMEOUT);
 	while ((mmio_read_32(address) & RCC_SELR_SRCRDY) == 0U) {
-		if (get_timer(start) > CLKSRC_TIMEOUT) {
+		if (timeout_elapsed(timeout)) {
 			ERROR("CLKSRC %x start failed @ 0x%x: 0x%x\n",
 			      clksrc, address, mmio_read_32(address));
 			return -ETIMEDOUT;
@@ -1185,14 +1184,14 @@ static int stm32mp1_set_clksrc(struct stm32mp1_clk_priv *priv,
 
 static int stm32mp1_set_clkdiv(unsigned int clkdiv, uint32_t address)
 {
-	unsigned long start;
+	uint64_t timeout;
 
 	mmio_clrsetbits_32(address, RCC_DIVR_DIV_MASK,
 			   clkdiv & RCC_DIVR_DIV_MASK);
 
-	start = get_timer(0);
+	timeout = timeout_init_us(CLKDIV_TIMEOUT);
 	while ((mmio_read_32(address) & RCC_DIVR_DIVRDY) == 0U) {
-		if (get_timer(start) > CLKDIV_TIMEOUT) {
+		if (timeout_elapsed(timeout)) {
 			ERROR("CLKDIV %x start failed @ 0x%x: 0x%x\n",
 			      clkdiv, address, mmio_read_32(address));
 			return -ETIMEDOUT;

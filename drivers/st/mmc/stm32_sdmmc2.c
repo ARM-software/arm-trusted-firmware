@@ -119,8 +119,8 @@
 					 SDMMC_STAR_IDMATE   | \
 					 SDMMC_STAR_IDMABTC)
 
-#define TIMEOUT_10_MS			(plat_get_syscnt_freq2() / 100U)
-#define TIMEOUT_1_S			plat_get_syscnt_freq2()
+#define TIMEOUT_US_10_MS		10000U
+#define TIMEOUT_US_1_S			1000000U
 
 #define DT_SDMMC2_COMPAT		"st,stm32-sdmmc2"
 
@@ -181,11 +181,12 @@ static int stm32_sdmmc2_stop_transfer(void)
 
 static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 {
+	uint64_t timeout;
 	uint32_t flags_cmd, status;
 	uint32_t flags_data = 0;
 	int err = 0;
 	uintptr_t base = sdmmc2_params.reg_base;
-	unsigned int cmd_reg, arg_reg, start;
+	unsigned int cmd_reg, arg_reg;
 
 	if (cmd == NULL) {
 		return -EINVAL;
@@ -268,10 +269,10 @@ static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 
 	status = mmio_read_32(base + SDMMC_STAR);
 
-	start = get_timer(0);
+	timeout = timeout_init_us(TIMEOUT_US_10_MS);
 
 	while ((status & flags_cmd) == 0U) {
-		if (get_timer(start) > TIMEOUT_10_MS) {
+		if (timeout_elapsed(timeout)) {
 			err = -ETIMEDOUT;
 			ERROR("%s: timeout 10ms (cmd = %d,status = %x)\n",
 			      __func__, cmd->cmd_idx, status);
@@ -335,10 +336,10 @@ static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 
 	status = mmio_read_32(base + SDMMC_STAR);
 
-	start = get_timer(0);
+	timeout = timeout_init_us(TIMEOUT_US_10_MS);
 
 	while ((status & flags_data) == 0U) {
-		if (get_timer(start) > TIMEOUT_10_MS) {
+		if (timeout_elapsed(timeout)) {
 			ERROR("%s: timeout 10ms (cmd = %d,status = %x)\n",
 			      __func__, cmd->cmd_idx, status);
 			err = -ETIMEDOUT;
@@ -360,7 +361,7 @@ err_exit:
 	mmio_write_32(base + SDMMC_ICR, SDMMC_STATIC_FLAGS);
 	mmio_clrbits_32(base + SDMMC_CMDR, SDMMC_CMDR_CMDTRANS);
 
-	if (err != 0) {
+	if ((err != 0) && ((status & SDMMC_STAR_DPSMACT) != 0U)) {
 		int ret_stop = stm32_sdmmc2_stop_transfer();
 
 		if (ret_stop != 0) {
@@ -519,7 +520,7 @@ static int stm32_sdmmc2_read(int lba, uintptr_t buf, size_t size)
 	uint32_t *buffer;
 	uintptr_t base = sdmmc2_params.reg_base;
 	uintptr_t fifo_reg = base + SDMMC_FIFOR;
-	unsigned int start;
+	uint64_t timeout;
 	int ret;
 
 	/* Assert buf is 4 bytes aligned */
@@ -537,7 +538,7 @@ static int stm32_sdmmc2_read(int lba, uintptr_t buf, size_t size)
 		flags |= SDMMC_STAR_DBCKEND;
 	}
 
-	start = get_timer(0);
+	timeout = timeout_init_us(TIMEOUT_US_1_S);
 
 	do {
 		status = mmio_read_32(base + SDMMC_STAR);
@@ -559,7 +560,7 @@ static int stm32_sdmmc2_read(int lba, uintptr_t buf, size_t size)
 			return -EIO;
 		}
 
-		if (get_timer(start) > TIMEOUT_1_S) {
+		if (timeout_elapsed(timeout)) {
 			ERROR("%s: timeout 1s (status = %x)\n",
 			      __func__, status);
 			mmio_write_32(base + SDMMC_ICR,

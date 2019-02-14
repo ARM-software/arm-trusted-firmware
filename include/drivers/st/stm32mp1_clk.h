@@ -13,13 +13,4 @@ int stm32mp1_clk_probe(void);
 int stm32mp1_clk_init(void);
 void stm32mp1_stgen_increment(unsigned long long offset_in_ms);
 
-static inline uint32_t get_timer(uint32_t base)
-{
-	if (base == 0U) {
-		return (uint32_t)(~read_cntpct_el0());
-	}
-
-	return base - (uint32_t)(~read_cntpct_el0());
-}
-
 #endif /* STM32MP1_CLK_H */
