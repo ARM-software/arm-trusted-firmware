@@ -14,13 +14,10 @@
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <drivers/st/stm32mp_pmic.h>
-#include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_ddr.h>
 #include <drivers/st/stm32mp1_ddr_regs.h>
 #include <drivers/st/stm32mp1_pwr.h>
 #include <drivers/st/stm32mp1_ram.h>
-#include <drivers/st/stm32mp1_rcc.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/mmio.h>
 #include <plat/common/platform.h>
 

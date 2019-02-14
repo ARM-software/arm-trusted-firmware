@@ -11,7 +11,6 @@
 #include <common/debug.h>
 #include <drivers/arm/tzc400.h>
 #include <drivers/st/stm32mp1_clk.h>
-#include <drivers/st/stm32mp1_rcc.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/mmio.h>
 

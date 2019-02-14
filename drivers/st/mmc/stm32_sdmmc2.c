@@ -20,10 +20,6 @@
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32_sdmmc2.h>
 #include <drivers/st/stm32mp_reset.h>
-#include <drivers/st/stm32mp1_clk.h>
-#include <drivers/st/stm32mp1_rcc.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
-#include <dt-bindings/reset/stm32mp1-resets.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
 #include <plat/common/platform.h>

@@ -13,7 +13,6 @@
 
 #include <common/debug.h>
 #include <drivers/st/stm32_gpio.h>
-#include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_ddr.h>
 #include <drivers/st/stm32mp1_ram.h>
 

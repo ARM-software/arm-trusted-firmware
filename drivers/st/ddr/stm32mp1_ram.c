@@ -12,12 +12,9 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
-#include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_ddr.h>
 #include <drivers/st/stm32mp1_ddr_helpers.h>
 #include <drivers/st/stm32mp1_ram.h>
-#include <drivers/st/stm32mp1_rcc.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/mmio.h>
 
 #define DDR_PATTERN	0xAAAAAAAAU

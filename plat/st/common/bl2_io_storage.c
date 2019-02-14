@@ -20,7 +20,6 @@
 #include <drivers/st/io_mmc.h>
 #include <drivers/st/io_stm32image.h>
 #include <drivers/st/stm32_sdmmc2.h>
-#include <drivers/st/stm32mp1_rcc.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
 #include <plat/common/platform.h>

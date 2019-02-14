@@ -8,10 +8,15 @@
 #define STM32MP1_DEF_H
 
 #include <common/tbbr/tbbr_img_def.h>
+#include <drivers/st/stm32mp1_rcc.h>
+#include <dt-bindings/clock/stm32mp1-clks.h>
+#include <dt-bindings/reset/stm32mp1-resets.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
 #ifndef __ASSEMBLY__
+#include <drivers/st/stm32mp1_clk.h>
+
 #include <boot_api.h>
 #include <stm32mp_common.h>
 #include <stm32mp_dt.h>

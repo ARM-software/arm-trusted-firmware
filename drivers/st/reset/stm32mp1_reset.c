@@ -11,7 +11,6 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/st/stm32mp_reset.h>
-#include <drivers/st/stm32mp1_rcc.h>
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
 

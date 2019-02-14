@@ -10,7 +10,6 @@
 #include <asm_macros.S>
 #include <common/bl_common.h>
 #include <drivers/st/stm32_gpio.h>
-#include <drivers/st/stm32mp1_rcc.h>
 
 #define GPIO_TX_SHIFT		(DEBUG_UART_TX_GPIO_PORT << 1)
 #define GPIO_TX_ALT_SHIFT	((DEBUG_UART_TX_GPIO_PORT - GPIO_ALT_LOWER_LIMIT) << 2)

@@ -10,7 +10,6 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
 #include <plat/common/platform.h>
 
 uintptr_t plat_get_ns_image_entrypoint(void)
