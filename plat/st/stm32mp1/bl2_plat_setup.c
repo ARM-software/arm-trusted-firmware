@@ -31,7 +31,7 @@ static struct console_stm32 console;
 
 static void print_reset_reason(void)
 {
-	uint32_t rstsr = mmio_read_32(RCC_BASE + RCC_MP_RSTSCLRR);
+	uint32_t rstsr = mmio_read_32(stm32mp_rcc_base() + RCC_MP_RSTSCLRR);
 
 	if (rstsr == 0U) {
 		WARN("Reset reason unknown\n");
@@ -147,6 +147,8 @@ void bl2_el3_plat_arch_setup(void)
 	boot_api_context_t *boot_context =
 		(boot_api_context_t *)stm32mp_get_boot_ctx_address();
 	uint32_t clk_rate;
+	uintptr_t pwr_base;
+	uintptr_t rcc_base;
 
 	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE,
 			BL_CODE_END - BL_CODE_BASE,
@@ -174,27 +176,30 @@ void bl2_el3_plat_arch_setup(void)
 		panic();
 	}
 
+	pwr_base = stm32mp_pwr_base();
+	rcc_base = stm32mp_rcc_base();
+
 	/*
 	 * Disable the backup domain write protection.
 	 * The protection is enable at each reset by hardware
 	 * and must be disabled by software.
 	 */
-	mmio_setbits_32(PWR_BASE + PWR_CR1, PWR_CR1_DBP);
+	mmio_setbits_32(pwr_base + PWR_CR1, PWR_CR1_DBP);
 
-	while ((mmio_read_32(PWR_BASE + PWR_CR1) & PWR_CR1_DBP) == 0U) {
+	while ((mmio_read_32(pwr_base + PWR_CR1) & PWR_CR1_DBP) == 0U) {
 		;
 	}
 
 	/* Reset backup domain on cold boot cases */
-	if ((mmio_read_32(RCC_BASE + RCC_BDCR) & RCC_BDCR_RTCSRC_MASK) == 0U) {
-		mmio_setbits_32(RCC_BASE + RCC_BDCR, RCC_BDCR_VSWRST);
+	if ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_RTCSRC_MASK) == 0U) {
+		mmio_setbits_32(rcc_base + RCC_BDCR, RCC_BDCR_VSWRST);
 
-		while ((mmio_read_32(RCC_BASE + RCC_BDCR) & RCC_BDCR_VSWRST) ==
+		while ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_VSWRST) ==
 		       0U) {
 			;
 		}
 
-		mmio_clrbits_32(RCC_BASE + RCC_BDCR, RCC_BDCR_VSWRST);
+		mmio_clrbits_32(rcc_base + RCC_BDCR, RCC_BDCR_VSWRST);
 	}
 
 	generic_delay_timer_init();

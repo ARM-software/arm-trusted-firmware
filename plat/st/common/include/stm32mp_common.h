@@ -16,6 +16,18 @@
 void stm32mp_save_boot_ctx_address(uintptr_t address);
 uintptr_t stm32mp_get_boot_ctx_address(void);
 
+/* Return the base address of the DDR controller */
+uintptr_t stm32mp_ddrctrl_base(void);
+
+/* Return the base address of the DDR PHY */
+uintptr_t stm32mp_ddrphyc_base(void);
+
+/* Return the base address of the PWR peripheral */
+uintptr_t stm32mp_pwr_base(void);
+
+/* Return the base address of the RCC peripheral */
+uintptr_t stm32mp_rcc_base(void);
+
 /*
  * Platform util functions for the GPIO driver
  * @bank: Target GPIO bank ID as per DT bindings

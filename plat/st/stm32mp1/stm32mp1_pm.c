@@ -159,7 +159,8 @@ static void __dead2 stm32_system_off(void)
 
 static void __dead2 stm32_system_reset(void)
 {
-	mmio_setbits_32(RCC_BASE + RCC_MP_GRSTCSETR, RCC_MP_GRSTCSETR_MPSYSRST);
+	mmio_setbits_32(stm32mp_rcc_base() + RCC_MP_GRSTCSETR,
+			RCC_MP_GRSTCSETR_MPSYSRST);
 
 	/* Loop in case system reset is not immediately caught */
 	for ( ; ; ) {

@@ -292,6 +292,73 @@ uint32_t dt_get_ddr_size(void)
 }
 
 /*******************************************************************************
+ * This function gets DDRCTRL base address information from the DT.
+ * Returns value on success, and 0 on failure.
+ ******************************************************************************/
+uintptr_t dt_get_ddrctrl_base(void)
+{
+	int node;
+	uint32_t array[4];
+
+	node = fdt_node_offset_by_compatible(fdt, -1, DT_DDR_COMPAT);
+	if (node < 0) {
+		INFO("%s: Cannot read DDR node in DT\n", __func__);
+		return 0;
+	}
+
+	if (fdt_read_uint32_array(node, "reg", array, 4) < 0) {
+		return 0;
+	}
+
+	return array[0];
+}
+
+/*******************************************************************************
+ * This function gets DDRPHYC base address information from the DT.
+ * Returns value on success, and 0 on failure.
+ ******************************************************************************/
+uintptr_t dt_get_ddrphyc_base(void)
+{
+	int node;
+	uint32_t array[4];
+
+	node = fdt_node_offset_by_compatible(fdt, -1, DT_DDR_COMPAT);
+	if (node < 0) {
+		INFO("%s: Cannot read DDR node in DT\n", __func__);
+		return 0;
+	}
+
+	if (fdt_read_uint32_array(node, "reg", array, 4) < 0) {
+		return 0;
+	}
+
+	return array[2];
+}
+
+/*******************************************************************************
+ * This function gets PWR base address information from the DT.
+ * Returns value on success, and 0 on failure.
+ ******************************************************************************/
+uintptr_t dt_get_pwr_base(void)
+{
+	int node;
+	const fdt32_t *cuint;
+
+	node = fdt_node_offset_by_compatible(fdt, -1, DT_PWR_COMPAT);
+	if (node < 0) {
+		INFO("%s: Cannot read PWR node in DT\n", __func__);
+		return 0;
+	}
+
+	cuint = fdt_getprop(fdt, node, "reg", NULL);
+	if (cuint == NULL) {
+		return 0;
+	}
+
+	return fdt32_to_cpu(*cuint);
+}
+
+/*******************************************************************************
  * This function retrieves board model from DT
  * Returns string taken from model node, NULL otherwise
  ******************************************************************************/

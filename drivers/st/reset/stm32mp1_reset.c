@@ -20,9 +20,10 @@ void stm32mp_reset_assert(uint32_t id)
 {
 	uint32_t offset = (id / (uint32_t)__LONG_BIT) * sizeof(uintptr_t);
 	uint32_t bit = id % (uint32_t)__LONG_BIT;
+	uintptr_t rcc_base = stm32mp_rcc_base();
 
-	mmio_write_32(RCC_BASE + offset, BIT(bit));
-	while ((mmio_read_32(RCC_BASE + offset) & BIT(bit)) == 0U) {
+	mmio_write_32(rcc_base + offset, BIT(bit));
+	while ((mmio_read_32(rcc_base + offset) & BIT(bit)) == 0U) {
 		;
 	}
 }
@@ -32,9 +33,10 @@ void stm32mp_reset_deassert(uint32_t id)
 	uint32_t offset = ((id / (uint32_t)__LONG_BIT) * sizeof(uintptr_t)) +
 			  RST_CLR_OFFSET;
 	uint32_t bit = id % (uint32_t)__LONG_BIT;
+	uintptr_t rcc_base = stm32mp_rcc_base();
 
-	mmio_write_32(RCC_BASE + offset, BIT(bit));
-	while ((mmio_read_32(RCC_BASE + offset) & BIT(bit)) != 0U) {
+	mmio_write_32(rcc_base + offset, BIT(bit));
+	while ((mmio_read_32(rcc_base + offset) & BIT(bit)) != 0U) {
 		;
 	}
 }

@@ -11,7 +11,7 @@
 
 void ddr_enable_clock(void)
 {
-	mmio_setbits_32(RCC_BASE + RCC_DDRITFCR,
+	mmio_setbits_32(stm32mp_rcc_base() + RCC_DDRITFCR,
 			RCC_DDRITFCR_DDRC1EN |
 			RCC_DDRITFCR_DDRC2EN |
 			RCC_DDRITFCR_DDRPHYCEN |

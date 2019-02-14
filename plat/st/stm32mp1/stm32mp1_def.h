@@ -253,6 +253,7 @@ static inline uint32_t tamp_bkpr(uint32_t idx)
 /*******************************************************************************
  * Device Tree defines
  ******************************************************************************/
+#define DT_PWR_COMPAT			"st,stm32mp1-pwr"
 #define DT_RCC_CLK_COMPAT		"st,stm32mp1-rcc"
 
 #endif /* STM32MP1_DEF_H */

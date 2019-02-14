@@ -298,10 +298,10 @@ int stm32mp1_ddr_probe(void)
 
 	VERBOSE("STM32MP DDR probe\n");
 
-	priv->ctl = (struct stm32mp1_ddrctl *)DDRCTRL_BASE;
-	priv->phy = (struct stm32mp1_ddrphy *)DDRPHYC_BASE;
-	priv->pwr = PWR_BASE;
-	priv->rcc = RCC_BASE;
+	priv->ctl = (struct stm32mp1_ddrctl *)stm32mp_ddrctrl_base();
+	priv->phy = (struct stm32mp1_ddrphy *)stm32mp_ddrphyc_base();
+	priv->pwr = stm32mp_pwr_base();
+	priv->rcc = stm32mp_rcc_base();
 
 	priv->info.base = STM32MP_DDR_BASE;
 	priv->info.size = 0;
