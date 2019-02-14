@@ -700,7 +700,7 @@ static void stm32mp1_refresh_restore(struct stm32mp1_ddrctl *ctl,
 
 static int board_ddr_power_init(enum ddr_type ddr_type)
 {
-	if (dt_check_pmic()) {
+	if (dt_pmic_status() > 0) {
 		return pmic_ddr_power_init(ddr_type);
 	}
 

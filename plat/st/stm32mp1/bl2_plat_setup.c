@@ -126,7 +126,7 @@ void bl2_platform_setup(void)
 {
 	int ret;
 
-	if (dt_check_pmic()) {
+	if (dt_pmic_status() > 0) {
 		initialize_pmic();
 	}
 
