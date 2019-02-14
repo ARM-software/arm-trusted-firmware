@@ -61,14 +61,8 @@ static void init_tzc400(void)
  ******************************************************************************/
 static void early_init_tzc400(void)
 {
-	if (stm32mp_clk_enable(TZC1) != 0) {
-		ERROR("Cannot enable TZC1 clock\n");
-		panic();
-	}
-	if (stm32mp_clk_enable(TZC2) != 0) {
-		ERROR("Cannot enable TZC2 clock\n");
-		panic();
-	}
+	stm32mp_clk_enable(TZC1);
+	stm32mp_clk_enable(TZC2);
 
 	tzc400_init(STM32MP1_TZC_BASE);
 

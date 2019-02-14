@@ -59,7 +59,6 @@ static void stm32_cpu_standby(plat_local_state_t cpu_state)
 static int stm32_pwr_domain_on(u_register_t mpidr)
 {
 	unsigned long current_cpu_mpidr = read_mpidr_el1();
-	uint32_t tamp_clk_off = 0;
 	uint32_t bkpr_core1_addr =
 		tamp_bkpr(BOOT_API_CORE1_BRANCH_ADDRESS_TAMP_BCK_REG_IDX);
 	uint32_t bkpr_core1_magic =
@@ -75,12 +74,7 @@ static int stm32_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_INVALID_ADDRESS;
 	}
 
-	if (!stm32mp_clk_is_enabled(RTCAPB)) {
-		tamp_clk_off = 1;
-		if (stm32mp_clk_enable(RTCAPB) != 0) {
-			panic();
-		}
-	}
+	stm32mp_clk_enable(RTCAPB);
 
 	cntfrq_core0 = read_cntfrq_el0();
 
@@ -90,11 +84,7 @@ static int stm32_pwr_domain_on(u_register_t mpidr)
 	/* Write magic number in backup register */
 	mmio_write_32(bkpr_core1_magic, BOOT_API_A7_CORE1_MAGIC_NUMBER);
 
-	if (tamp_clk_off != 0U) {
-		if (stm32mp_clk_disable(RTCAPB) != 0) {
-			panic();
-		}
-	}
+	stm32mp_clk_disable(RTCAPB);
 
 	/* Generate an IT to core 1 */
 	gicv2_raise_sgi(ARM_IRQ_SEC_SGI_0, STM32MP_SECONDARY_CPU);

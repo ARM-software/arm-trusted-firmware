@@ -18,7 +18,6 @@ enum stm32mp_osc_id {
 	_LSI,
 	_LSE,
 	_I2S_CKIN,
-	_USB_PHY_48,
 	NB_OSC,
 	_UNKNOWN_OSC_ID = 0xFF
 };

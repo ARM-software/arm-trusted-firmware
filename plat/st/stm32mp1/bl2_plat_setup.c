@@ -225,9 +225,7 @@ void bl2_el3_plat_arch_setup(void)
 		goto skip_console_init;
 	}
 
-	if (stm32mp_clk_enable((unsigned long)dt_uart_info.clock) != 0) {
-		goto skip_console_init;
-	}
+	stm32mp_clk_enable((unsigned long)dt_uart_info.clock);
 
 	stm32mp_reset_assert((uint32_t)dt_uart_info.reset);
 	udelay(2);

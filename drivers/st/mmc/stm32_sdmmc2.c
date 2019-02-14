@@ -702,8 +702,6 @@ unsigned long long stm32_sdmmc2_mmc_get_device_size(void)
 
 int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params)
 {
-	int ret;
-
 	assert((params != NULL) &&
 	       ((params->reg_base & MMC_BLOCK_MASK) == 0U) &&
 	       ((params->bus_width == MMC_BUS_WIDTH_1) ||
@@ -717,12 +715,7 @@ int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params)
 		return -ENOMEM;
 	}
 
-	ret = stm32mp_clk_enable(sdmmc2_params.clock_id);
-	if (ret != 0) {
-		ERROR("%s: clock %d failed\n", __func__,
-		      sdmmc2_params.clock_id);
-		return ret;
-	}
+	stm32mp_clk_enable(sdmmc2_params.clock_id);
 
 	stm32mp_reset_assert(sdmmc2_params.reset_id);
 	udelay(2);

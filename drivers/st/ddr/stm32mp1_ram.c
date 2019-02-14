@@ -168,7 +168,7 @@ static int stm32mp1_ddr_setup(void)
 	int ret;
 	struct stm32mp1_ddr_config config;
 	int node, len;
-	uint32_t tamp_clk_off = 0, uret, idx;
+	uint32_t uret, idx;
 	void *fdt;
 
 #define PARAM(x, y)							\
@@ -233,19 +233,6 @@ static int stm32mp1_ddr_setup(void)
 		if (ret != 0) {
 			ERROR("%s: Cannot read %s\n",
 			      __func__, param[idx].name);
-			return -EINVAL;
-		}
-	}
-
-	if (!stm32mp_clk_is_enabled(RTCAPB)) {
-		tamp_clk_off = 1;
-		if (stm32mp_clk_enable(RTCAPB) != 0) {
-			return -EINVAL;
-		}
-	}
-
-	if (tamp_clk_off != 0U) {
-		if (stm32mp_clk_disable(RTCAPB) != 0) {
 			return -EINVAL;
 		}
 	}

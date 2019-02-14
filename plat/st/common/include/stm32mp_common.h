@@ -50,8 +50,8 @@ uint32_t stm32_get_gpio_bank_offset(unsigned int bank);
  * @id: Target clock ID, ID used in clock DT bindings
  */
 bool stm32mp_clk_is_enabled(unsigned long id);
-int stm32mp_clk_enable(unsigned long id);
-int stm32mp_clk_disable(unsigned long id);
+void stm32mp_clk_enable(unsigned long id);
+void stm32mp_clk_disable(unsigned long id);
 unsigned long stm32mp_clk_get_rate(unsigned long id);
 
 /* Initialise the IO layer and register platform IO devices */

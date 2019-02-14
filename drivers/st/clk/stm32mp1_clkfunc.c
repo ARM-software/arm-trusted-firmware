@@ -23,7 +23,6 @@ const char *stm32mp_osc_node_label[NB_OSC] = {
 	[_HSE] = "clk-hse",
 	[_CSI] = "clk-csi",
 	[_I2S_CKIN] = "i2s_ckin",
-	[_USB_PHY_48] = "ck_usbo_48m"
 };
 
 /*
