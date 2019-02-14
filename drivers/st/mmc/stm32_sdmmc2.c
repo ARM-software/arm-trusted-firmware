@@ -19,9 +19,9 @@
 #include <drivers/mmc.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32_sdmmc2.h>
+#include <drivers/st/stm32mp_reset.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_rcc.h>
-#include <drivers/st/stm32mp1_reset.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <dt-bindings/reset/stm32mp1-resets.h>
 #include <lib/mmio.h>
@@ -159,7 +159,7 @@ static void stm32_sdmmc2_init(void)
 	uintptr_t base = sdmmc2_params.reg_base;
 
 	clock_div = div_round_up(sdmmc2_params.clk_rate,
-				 STM32MP1_MMC_INIT_FREQ * 2);
+				 STM32MP_MMC_INIT_FREQ * 2);
 
 	mmio_write_32(base + SDMMC_CLKCR, SDMMC_CLKCR_HWFC_EN | clock_div |
 		      sdmmc2_params.negedge |
@@ -429,15 +429,15 @@ static int stm32_sdmmc2_set_ios(unsigned int clk, unsigned int width)
 
 	if (sdmmc2_params.device_info->mmc_dev_type == MMC_IS_EMMC) {
 		if (max_bus_freq >= 52000000U) {
-			max_freq = STM32MP1_EMMC_HIGH_SPEED_MAX_FREQ;
+			max_freq = STM32MP_EMMC_HIGH_SPEED_MAX_FREQ;
 		} else {
-			max_freq = STM32MP1_EMMC_NORMAL_SPEED_MAX_FREQ;
+			max_freq = STM32MP_EMMC_NORMAL_SPEED_MAX_FREQ;
 		}
 	} else {
 		if (max_bus_freq >= 50000000U) {
-			max_freq = STM32MP1_SD_HIGH_SPEED_MAX_FREQ;
+			max_freq = STM32MP_SD_HIGH_SPEED_MAX_FREQ;
 		} else {
-			max_freq = STM32MP1_SD_NORMAL_SPEED_MAX_FREQ;
+			max_freq = STM32MP_SD_NORMAL_SPEED_MAX_FREQ;
 		}
 	}
 
@@ -720,19 +720,19 @@ int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params)
 		return -ENOMEM;
 	}
 
-	ret = stm32mp1_clk_enable(sdmmc2_params.clock_id);
+	ret = stm32mp_clk_enable(sdmmc2_params.clock_id);
 	if (ret != 0) {
 		ERROR("%s: clock %d failed\n", __func__,
 		      sdmmc2_params.clock_id);
 		return ret;
 	}
 
-	stm32mp1_reset_assert(sdmmc2_params.reset_id);
+	stm32mp_reset_assert(sdmmc2_params.reset_id);
 	udelay(2);
-	stm32mp1_reset_deassert(sdmmc2_params.reset_id);
+	stm32mp_reset_deassert(sdmmc2_params.reset_id);
 	mdelay(1);
 
-	sdmmc2_params.clk_rate = stm32mp1_clk_get_rate(sdmmc2_params.clock_id);
+	sdmmc2_params.clk_rate = stm32mp_clk_get_rate(sdmmc2_params.clock_id);
 
 	return mmc_init(&stm32_sdmmc2_ops, sdmmc2_params.clk_rate,
 			sdmmc2_params.bus_width, sdmmc2_params.flags,

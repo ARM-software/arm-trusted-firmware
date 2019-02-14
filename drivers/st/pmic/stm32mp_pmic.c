@@ -167,7 +167,7 @@ void initialize_pmic_i2c(void)
 		panic();
 	}
 
-	if (stm32mp1_clk_enable((uint32_t)i2c_info.clock) < 0) {
+	if (stm32mp_clk_enable((uint32_t)i2c_info.clock) < 0) {
 		ERROR("I2C clock enable failed\n");
 		panic();
 	}

@@ -17,11 +17,11 @@
 #include <drivers/generic_delay_timer.h>
 #include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32mp_pmic.h>
+#include <drivers/st/stm32mp_reset.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_pwr.h>
 #include <drivers/st/stm32mp1_ram.h>
 #include <drivers/st/stm32mp1_rcc.h>
-#include <drivers/st/stm32mp1_reset.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
@@ -120,7 +120,7 @@ void bl2_el3_early_platform_setup(u_register_t arg0,
 				  u_register_t arg2 __unused,
 				  u_register_t arg3 __unused)
 {
-	stm32mp1_save_boot_ctx_address(arg0);
+	stm32mp_save_boot_ctx_address(arg0);
 }
 
 void bl2_platform_setup(void)
@@ -146,7 +146,7 @@ void bl2_el3_plat_arch_setup(void)
 	struct dt_node_info dt_uart_info;
 	const char *board_model;
 	boot_api_context_t *boot_context =
-		(boot_api_context_t *)stm32mp1_get_boot_ctx_address();
+		(boot_api_context_t *)stm32mp_get_boot_ctx_address();
 	uint32_t clk_rate;
 
 	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE,
@@ -159,9 +159,9 @@ void bl2_el3_plat_arch_setup(void)
 			MT_MEMORY | MT_RO | MT_SECURE);
 
 	/* Map non secure DDR for BL33 load and DDR training area restore */
-	mmap_add_region(STM32MP1_DDR_BASE,
-			STM32MP1_DDR_BASE,
-			STM32MP1_DDR_MAX_SIZE,
+	mmap_add_region(STM32MP_DDR_BASE,
+			STM32MP_DDR_BASE,
+			STM32MP_DDR_MAX_SIZE,
 			MT_MEMORY | MT_RW | MT_NS);
 
 	/* Prevent corruption of preloaded Device Tree */
@@ -221,19 +221,19 @@ void bl2_el3_plat_arch_setup(void)
 		goto skip_console_init;
 	}
 
-	if (stm32mp1_clk_enable((unsigned long)dt_uart_info.clock) != 0) {
+	if (stm32mp_clk_enable((unsigned long)dt_uart_info.clock) != 0) {
 		goto skip_console_init;
 	}
 
-	stm32mp1_reset_assert((uint32_t)dt_uart_info.reset);
+	stm32mp_reset_assert((uint32_t)dt_uart_info.reset);
 	udelay(2);
-	stm32mp1_reset_deassert((uint32_t)dt_uart_info.reset);
+	stm32mp_reset_deassert((uint32_t)dt_uart_info.reset);
 	mdelay(1);
 
-	clk_rate = stm32mp1_clk_get_rate((unsigned long)dt_uart_info.clock);
+	clk_rate = stm32mp_clk_get_rate((unsigned long)dt_uart_info.clock);
 
 	if (console_stm32_register(dt_uart_info.base, clk_rate,
-				   STM32MP1_UART_BAUDRATE, &console) == 0) {
+				   STM32MP_UART_BAUDRATE, &console) == 0) {
 		panic();
 	}
 
@@ -254,5 +254,5 @@ skip_console_init:
 
 	print_reset_reason();
 
-	stm32mp1_io_setup();
+	stm32mp_io_setup();
 }

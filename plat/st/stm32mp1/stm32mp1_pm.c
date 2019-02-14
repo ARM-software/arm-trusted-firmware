@@ -70,15 +70,15 @@ static int stm32_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_INVALID_PARAMS;
 	}
 
-	if ((stm32_sec_entrypoint < STM32MP1_SRAM_BASE) ||
-	    (stm32_sec_entrypoint > (STM32MP1_SRAM_BASE +
-				     (STM32MP1_SRAM_SIZE - 1)))) {
+	if ((stm32_sec_entrypoint < STM32MP_SYSRAM_BASE) ||
+	    (stm32_sec_entrypoint > (STM32MP_SYSRAM_BASE +
+				     (STM32MP_SYSRAM_SIZE - 1)))) {
 		return PSCI_E_INVALID_ADDRESS;
 	}
 
-	if (!stm32mp1_clk_is_enabled(RTCAPB)) {
+	if (!stm32mp_clk_is_enabled(RTCAPB)) {
 		tamp_clk_off = 1;
-		if (stm32mp1_clk_enable(RTCAPB) != 0) {
+		if (stm32mp_clk_enable(RTCAPB) != 0) {
 			panic();
 		}
 	}
@@ -92,13 +92,13 @@ static int stm32_pwr_domain_on(u_register_t mpidr)
 	mmio_write_32(bkpr_core1_magic, BOOT_API_A7_CORE1_MAGIC_NUMBER);
 
 	if (tamp_clk_off != 0U) {
-		if (stm32mp1_clk_disable(RTCAPB) != 0) {
+		if (stm32mp_clk_disable(RTCAPB) != 0) {
 			panic();
 		}
 	}
 
 	/* Generate an IT to core 1 */
-	gicv2_raise_sgi(ARM_IRQ_SEC_SGI_0, STM32MP1_SECONDARY_CPU);
+	gicv2_raise_sgi(ARM_IRQ_SEC_SGI_0, STM32MP_SECONDARY_CPU);
 
 	return PSCI_E_SUCCESS;
 }
@@ -194,7 +194,7 @@ static int stm32_validate_power_state(unsigned int power_state,
 static int stm32_validate_ns_entrypoint(uintptr_t entrypoint)
 {
 	/* The non-secure entry point must be in DDR */
-	if (entrypoint < STM32MP1_DDR_BASE) {
+	if (entrypoint < STM32MP_DDR_BASE) {
 		return PSCI_E_INVALID_ADDRESS;
 	}
 

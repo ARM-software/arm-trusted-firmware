@@ -25,12 +25,12 @@ unsigned int plat_get_syscnt_freq2(void)
 
 static uintptr_t boot_ctx_address;
 
-void stm32mp1_save_boot_ctx_address(uintptr_t address)
+void stm32mp_save_boot_ctx_address(uintptr_t address)
 {
 	boot_ctx_address = address;
 }
 
-uintptr_t stm32mp1_get_boot_ctx_address(void)
+uintptr_t stm32mp_get_boot_ctx_address(void)
 {
 	return boot_ctx_address;
 }

@@ -57,12 +57,12 @@ static const io_dev_connector_t *mmc_dev_con;
 
 static const io_block_spec_t bl32_block_spec = {
 	.offset = BL32_BASE,
-	.length = STM32MP1_BL32_SIZE
+	.length = STM32MP_BL32_SIZE
 };
 
 static const io_block_spec_t bl2_block_spec = {
 	.offset = BL2_BASE,
-	.length = STM32MP1_BL2_SIZE,
+	.length = STM32MP_BL2_SIZE,
 };
 
 static const struct stm32image_part_info bl33_partition_spec = {
@@ -163,7 +163,7 @@ static void print_boot_device(boot_api_context_t *boot_context)
 	}
 }
 
-void stm32mp1_io_setup(void)
+void stm32mp_io_setup(void)
 {
 	int io_result __unused;
 	uint8_t idx;
@@ -173,7 +173,7 @@ void stm32mp1_io_setup(void)
 	uintptr_t mmc_default_instance;
 	const partition_entry_t *entry;
 	boot_api_context_t *boot_context =
-		(boot_api_context_t *)stm32mp1_get_boot_ctx_address();
+		(boot_api_context_t *)stm32mp_get_boot_ctx_address();
 
 	print_boot_device(boot_context);
 
@@ -200,21 +200,21 @@ void stm32mp1_io_setup(void)
 		if (boot_context->boot_interface_selected ==
 		    BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_EMMC) {
 			device_info.mmc_dev_type = MMC_IS_EMMC;
-			mmc_default_instance = STM32MP1_SDMMC2_BASE;
+			mmc_default_instance = STM32MP_SDMMC2_BASE;
 		} else {
 			device_info.mmc_dev_type = MMC_IS_SD;
-			mmc_default_instance = STM32MP1_SDMMC1_BASE;
+			mmc_default_instance = STM32MP_SDMMC1_BASE;
 		}
 
 		switch (boot_context->boot_interface_instance) {
 		case 1:
-			params.reg_base = STM32MP1_SDMMC1_BASE;
+			params.reg_base = STM32MP_SDMMC1_BASE;
 			break;
 		case 2:
-			params.reg_base = STM32MP1_SDMMC2_BASE;
+			params.reg_base = STM32MP_SDMMC2_BASE;
 			break;
 		case 3:
-			params.reg_base = STM32MP1_SDMMC3_BASE;
+			params.reg_base = STM32MP_SDMMC3_BASE;
 			break;
 		default:
 			WARN("SDMMC instance not found, using default\n");

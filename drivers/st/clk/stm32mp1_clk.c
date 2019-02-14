@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -777,7 +777,7 @@ static unsigned long stm32mp1_clk_get(struct stm32mp1_clk_priv *priv, int p)
 	return clock;
 }
 
-bool stm32mp1_clk_is_enabled(unsigned long id)
+bool stm32mp_clk_is_enabled(unsigned long id)
 {
 	struct stm32mp1_clk_priv *priv = &stm32mp1_clk_priv_data;
 	const struct stm32mp1_clk_gate *gate = priv->data->gate;
@@ -791,7 +791,7 @@ bool stm32mp1_clk_is_enabled(unsigned long id)
 		 BIT(gate[i].bit)) != 0U);
 }
 
-int stm32mp1_clk_enable(unsigned long id)
+int stm32mp_clk_enable(unsigned long id)
 {
 	struct stm32mp1_clk_priv *priv = &stm32mp1_clk_priv_data;
 	const struct stm32mp1_clk_gate *gate = priv->data->gate;
@@ -810,7 +810,7 @@ int stm32mp1_clk_enable(unsigned long id)
 	return 0;
 }
 
-int stm32mp1_clk_disable(unsigned long id)
+int stm32mp_clk_disable(unsigned long id)
 {
 	struct stm32mp1_clk_priv *priv = &stm32mp1_clk_priv_data;
 	const struct stm32mp1_clk_gate *gate = priv->data->gate;
@@ -831,7 +831,7 @@ int stm32mp1_clk_disable(unsigned long id)
 	return 0;
 }
 
-unsigned long stm32mp1_clk_get_rate(unsigned long id)
+unsigned long stm32mp_clk_get_rate(unsigned long id)
 {
 	struct stm32mp1_clk_priv *priv = &stm32mp1_clk_priv_data;
 	int p = stm32mp1_clk_get_parent(priv, id);

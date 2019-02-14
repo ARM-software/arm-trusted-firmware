@@ -8,8 +8,8 @@
 
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
-#define MAP_SRAM	MAP_REGION_FLAT(STM32MP1_SRAM_BASE, \
-					STM32MP1_SRAM_SIZE, \
+#define MAP_SRAM	MAP_REGION_FLAT(STM32MP_SYSRAM_BASE, \
+					STM32MP_SYSRAM_SIZE, \
 					MT_MEMORY | \
 					MT_RW | \
 					MT_SECURE | \

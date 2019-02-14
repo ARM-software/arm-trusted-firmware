@@ -21,7 +21,7 @@
 
 static int fdt_checked;
 
-static void *fdt = (void *)(uintptr_t)STM32MP1_DTB_BASE;
+static void *fdt = (void *)(uintptr_t)STM32MP_DTB_BASE;
 
 /*******************************************************************************
  * This function checks device tree file with its header.

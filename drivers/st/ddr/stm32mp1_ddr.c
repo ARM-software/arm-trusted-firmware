@@ -639,7 +639,7 @@ static void stm32mp1_ddr3_dll_off(struct ddr_info *priv)
 	 */
 
 	/* Change Bypass Mode Frequency Range */
-	if (stm32mp1_clk_get_rate(DDRPHYC) < 100000000U) {
+	if (stm32mp_clk_get_rate(DDRPHYC) < 100000000U) {
 		mmio_clrbits_32((uintptr_t)&priv->phy->dllgcr,
 				DDRPHYC_DLLGCR_BPS200);
 	} else {
