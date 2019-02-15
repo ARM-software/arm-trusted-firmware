@@ -202,6 +202,9 @@ void bl2_el3_plat_arch_setup(void)
 		mmio_clrbits_32(rcc_base + RCC_BDCR, RCC_BDCR_VSWRST);
 	}
 
+	/* Disable MCKPROT */
+	mmio_clrbits_32(rcc_base + RCC_TZCR, RCC_TZCR_MCKPROT);
+
 	generic_delay_timer_init();
 
 	if (stm32mp1_clk_probe() < 0) {

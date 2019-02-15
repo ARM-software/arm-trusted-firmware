@@ -13,6 +13,7 @@ int stm32mp1_clk_probe(void);
 int stm32mp1_clk_init(void);
 
 bool stm32mp1_rcc_is_secure(void);
+bool stm32mp1_rcc_is_mckprot(void);
 
 void __stm32mp1_clk_enable(unsigned long id, bool caller_is_secure);
 void __stm32mp1_clk_disable(unsigned long id, bool caller_is_secure);

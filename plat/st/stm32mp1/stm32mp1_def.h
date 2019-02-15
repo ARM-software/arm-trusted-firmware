@@ -183,6 +183,7 @@ enum ddr_type {
 #define STM32MP1_TZC_BASE		U(0x5C006000)
 
 #define STM32MP1_TZC_A7_ID		U(0)
+#define STM32MP1_TZC_M4_ID		U(1)
 #define STM32MP1_TZC_LCD_ID		U(3)
 #define STM32MP1_TZC_GPU_ID		U(4)
 #define STM32MP1_TZC_MDMA_ID		U(5)
