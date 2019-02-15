@@ -10,6 +10,7 @@
 #include <common/debug.h>
 #include <drivers/arm/tzc400.h>
 #include <lib/mmio.h>
+#include <lib/utils_def.h>
 
 #include "tzc_common_private.h"
 
@@ -70,6 +71,77 @@ DEFINE_TZC_COMMON_WRITE_REGION_ID_ACCESS(400, 400)
 DEFINE_TZC_COMMON_CONFIGURE_REGION0(400)
 DEFINE_TZC_COMMON_CONFIGURE_REGION(400)
 
+static void _tzc400_clear_it(uintptr_t base, uint32_t filter)
+{
+	mmio_write_32(base + INT_CLEAR, BIT_32(filter));
+}
+
+static uint32_t _tzc400_get_int_by_filter(uintptr_t base, uint32_t filter)
+{
+	return mmio_read_32(base + INT_STATUS) & BIT_32(filter);
+}
+
+#if DEBUG
+static unsigned long _tzc400_get_fail_address(uintptr_t base, uint32_t filter)
+{
+	unsigned long fail_address;
+
+	fail_address = mmio_read_32(base + FAIL_ADDRESS_LOW_OFF +
+				    (filter * FILTER_OFFSET));
+#ifdef __aarch64__
+	fail_address += (unsigned long)mmio_read_32(base + FAIL_ADDRESS_HIGH_OFF +
+						    (filter * FILTER_OFFSET)) << 32;
+#endif
+
+	return fail_address;
+}
+
+static uint32_t _tzc400_get_fail_id(uintptr_t base, uint32_t filter)
+{
+	return mmio_read_32(base + FAIL_ID + (filter * FILTER_OFFSET));
+}
+
+static uint32_t _tzc400_get_fail_control(uintptr_t base, uint32_t filter)
+{
+	return mmio_read_32(base + FAIL_CONTROL_OFF + (filter * FILTER_OFFSET));
+}
+
+static void _tzc400_dump_fail_filter(uintptr_t base, uint32_t filter)
+{
+	uint32_t control_fail;
+	uint32_t fail_id;
+	unsigned long address_fail;
+
+	address_fail = _tzc400_get_fail_address(base, filter);
+	ERROR("Illegal access to 0x%lx:\n", address_fail);
+
+	fail_id = _tzc400_get_fail_id(base, filter);
+	ERROR("\tFAIL_ID = 0x%x\n", fail_id);
+
+	control_fail = _tzc400_get_fail_control(base, filter);
+	if (((control_fail & BIT_32(FAIL_CONTROL_NS_SHIFT)) >> FAIL_CONTROL_NS_SHIFT) ==
+	    FAIL_CONTROL_NS_NONSECURE) {
+		ERROR("\tNon-Secure\n");
+	} else {
+		ERROR("\tSecure\n");
+	}
+
+	if (((control_fail & BIT_32(FAIL_CONTROL_PRIV_SHIFT)) >> FAIL_CONTROL_PRIV_SHIFT) ==
+	    FAIL_CONTROL_PRIV_PRIV) {
+		ERROR("\tPrivilege\n");
+	} else {
+		ERROR("\tUnprivilege\n");
+	}
+
+	if (((control_fail & BIT_32(FAIL_CONTROL_DIR_SHIFT)) >> FAIL_CONTROL_DIR_SHIFT) ==
+	    FAIL_CONTROL_DIR_WRITE) {
+		ERROR("\tWrite\n");
+	} else {
+		ERROR("\tRead\n");
+	}
+}
+#endif /* DEBUG */
+
 static unsigned int _tzc400_get_gate_keeper(uintptr_t base,
 				unsigned int filter)
 {
@@ -108,11 +180,6 @@ void tzc400_set_action(unsigned int action)
 	assert(tzc400.base != 0U);
 	assert(action <= TZC_ACTION_ERR_INT);
 
-	/*
-	 * - Currently no handler is provided to trap an error via interrupt
-	 *   or exception.
-	 * - The interrupt action has not been tested.
-	 */
 	_tzc400_write_action(tzc400.base, action);
 }
 
@@ -244,4 +311,32 @@ void tzc400_disable_filters(void)
 	 */
 	for (filter = 0; filter < tzc400.num_filters; filter++)
 		_tzc400_set_gate_keeper(tzc400.base, filter, 0);
+}
+
+int tzc400_it_handler(void)
+{
+	uint32_t filter;
+	uint32_t filter_it_pending = tzc400.num_filters;
+
+	assert(tzc400.base != 0U);
+
+	for (filter = 0U; filter < tzc400.num_filters; filter++) {
+		if (_tzc400_get_int_by_filter(tzc400.base, filter) != 0U) {
+			filter_it_pending = filter;
+			break;
+		}
+	}
+
+	if (filter_it_pending == tzc400.num_filters) {
+		ERROR("TZC-400: No interrupt pending!\n");
+		return -1;
+	}
+
+#if DEBUG
+	_tzc400_dump_fail_filter(tzc400.base, filter_it_pending);
+#endif
+
+	_tzc400_clear_it(tzc400.base, filter_it_pending);
+
+	return 0;
 }
