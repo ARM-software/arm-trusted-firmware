@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,8 +16,8 @@ vector_base bl2u_vector_table
 	b	bl2u_entrypoint
 	b	report_exception	/* Undef */
 	b	report_exception	/* SVC call */
-	b	report_exception	/* Prefetch abort */
-	b	report_exception	/* Data abort */
+	b	report_prefetch_abort	/* Prefetch abort */
+	b	report_data_abort	/* Data abort */
 	b	report_exception	/* Reserved */
 	b	report_exception	/* IRQ */
 	b	report_exception	/* FIQ */

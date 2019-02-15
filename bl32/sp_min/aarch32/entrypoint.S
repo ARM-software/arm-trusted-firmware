@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -51,8 +51,8 @@ vector_base sp_min_vector_table
 	b	sp_min_entrypoint
 	b	plat_panic_handler	/* Undef */
 	b	sp_min_handle_smc	/* Syscall */
-	b	plat_panic_handler	/* Prefetch abort */
-	b	plat_panic_handler	/* Data abort */
+	b	report_prefetch_abort	/* Prefetch abort */
+	b	report_data_abort	/* Data abort */
 	b	plat_panic_handler	/* Reserved */
 	b	plat_panic_handler	/* IRQ */
 	b	sp_min_handle_fiq	/* FIQ */
