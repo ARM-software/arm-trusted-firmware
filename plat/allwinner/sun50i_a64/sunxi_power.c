@@ -175,7 +175,7 @@ static int fdt_get_regulator_millivolt(const void *fdt, int node)
 
 #define NO_SPLIT 0xff
 
-struct axp_regulator {
+static const struct axp_regulator {
 	char *dt_name;
 	uint16_t min_volt;
 	uint16_t max_volt;
@@ -247,7 +247,7 @@ static void setup_axp803_rails(const void *fdt)
 	for (node = fdt_first_subnode(fdt, node);
 	     node != -FDT_ERR_NOTFOUND;
 	     node = fdt_next_subnode(fdt, node)) {
-		struct axp_regulator *reg;
+		const struct axp_regulator *reg;
 		const char *name;
 		int length;
 
