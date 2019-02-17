@@ -229,8 +229,8 @@ static void setup_axp803_rails(const void *fdt)
 
 	/* locate the PMIC DT node, bail out if not found */
 	node = fdt_node_offset_by_compatible(fdt, -1, "x-powers,axp803");
-	if (node == -FDT_ERR_NOTFOUND) {
-		WARN("BL31: PMIC: No AXP803 DT node, skipping initial setup.\n");
+	if (node < 0) {
+		WARN("BL31: PMIC: Cannot find AXP803 DT node, skipping initial setup.\n");
 		return;
 	}
 
@@ -241,11 +241,15 @@ static void setup_axp803_rails(const void *fdt)
 	}
 
 	/* descend into the "regulators" subnode */
-	node = fdt_first_subnode(fdt, node);
+	node = fdt_subnode_offset(fdt, node, "regulators");
+	if (node < 0) {
+		WARN("BL31: PMIC: Cannot find regulators subnode, skipping initial setup.\n");
+		return;
+	}
 
 	/* iterate over all regulators to find used ones */
 	for (node = fdt_first_subnode(fdt, node);
-	     node != -FDT_ERR_NOTFOUND;
+	     node >= 0;
 	     node = fdt_next_subnode(fdt, node)) {
 		const struct axp_regulator *reg;
 		const char *name;
