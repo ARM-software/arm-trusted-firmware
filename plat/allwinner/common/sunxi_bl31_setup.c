@@ -11,6 +11,7 @@
 #include <platform_def.h>
 
 #include <arch.h>
+#include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/console.h>
@@ -101,7 +102,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
 	/* Turn off all secondary CPUs */
-	sunxi_disable_secondary_cpus(plat_my_core_pos());
+	sunxi_disable_secondary_cpus(read_mpidr());
 }
 
 void bl31_plat_arch_setup(void)
