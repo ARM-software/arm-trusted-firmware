@@ -175,7 +175,7 @@ DEFINE_BAKERY_LOCK(arisc_lock);
  */
 void sunxi_execute_arisc_code(uint32_t *code, size_t size, uint16_t param)
 {
-	uintptr_t arisc_reset_vec = SUNXI_SRAM_A2_BASE - 0x4000 + 0x100;
+	uintptr_t arisc_reset_vec = SUNXI_SRAM_A2_BASE + 0x100;
 
 	do {
 		bakery_lock_get(&arisc_lock);
