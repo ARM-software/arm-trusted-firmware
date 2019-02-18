@@ -10,7 +10,6 @@
 #include <asm_macros.S>
 #include <common/bl_common.h>
 #include <drivers/st/stm32_gpio.h>
-#include <drivers/st/stm32mp1_rcc.h>
 
 #define GPIO_TX_SHIFT		(DEBUG_UART_TX_GPIO_PORT << 1)
 #define GPIO_TX_ALT_SHIFT	((DEBUG_UART_TX_GPIO_PORT - GPIO_ALT_LOWER_LIMIT) << 2)
@@ -74,7 +73,7 @@ func plat_is_my_cpu_primary
 	ldcopr	r0, MPIDR
 	ldr	r1, =(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
 	and	r0, r1
-	cmp	r0, #STM32MP1_PRIMARY_CPU
+	cmp	r0, #STM32MP_PRIMARY_CPU
 	moveq	r0, #1
 	movne	r0, #0
 	bx	lr
@@ -143,9 +142,9 @@ func plat_crash_console_init
 	orr	r2, r2, #DEBUG_UART_TX_EN
 	str	r2, [r1]
 
-	ldr	r0, =STM32MP1_DEBUG_USART_BASE
-	ldr	r1, =STM32MP1_DEBUG_USART_CLK_FRQ
-	ldr	r2, =STM32MP1_UART_BAUDRATE
+	ldr	r0, =STM32MP_DEBUG_USART_BASE
+	ldr	r1, =STM32MP_DEBUG_USART_CLK_FRQ
+	ldr	r2, =STM32MP_UART_BAUDRATE
 	b	console_stm32_core_init
 endfunc plat_crash_console_init
 
@@ -156,7 +155,7 @@ endfunc plat_crash_console_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_flush
-	ldr	r1, =STM32MP1_DEBUG_USART_BASE
+	ldr	r1, =STM32MP_DEBUG_USART_BASE
 	b	console_stm32_core_flush
 endfunc plat_crash_console_flush
 
@@ -172,6 +171,6 @@ endfunc plat_crash_console_flush
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_putc
-	ldr	r1, =STM32MP1_DEBUG_USART_BASE
+	ldr	r1, =STM32MP_DEBUG_USART_BASE
 	b	console_stm32_core_putc
 endfunc plat_crash_console_putc

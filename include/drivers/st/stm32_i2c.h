@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -111,94 +111,113 @@
 #define I2C_ICR_TIMOUTCF		BIT(12)
 #define I2C_ICR_ALERTCF			BIT(13)
 
+enum i2c_speed_e {
+	I2C_SPEED_STANDARD,	/* 100 kHz */
+	I2C_SPEED_FAST,		/* 400 kHz */
+	I2C_SPEED_FAST_PLUS,	/* 1 MHz   */
+};
+
+#define STANDARD_RATE				100000
+#define FAST_RATE				400000
+#define FAST_PLUS_RATE				1000000
+
 struct stm32_i2c_init_s {
-	uint32_t timing;           /* Specifies the I2C_TIMINGR_register value
-				    * This parameter is calculated by referring
-				    * to I2C initialization section in Reference
-				    * manual.
-				    */
+	uint32_t own_address1;		/*
+					 * Specifies the first device own
+					 * address. This parameter can be a
+					 * 7-bit or 10-bit address.
+					 */
 
-	uint32_t own_address1;     /* Specifies the first device own address.
-				    * This parameter can be a 7-bit or 10-bit
-				    * address.
-				    */
+	uint32_t addressing_mode;	/*
+					 * Specifies if 7-bit or 10-bit
+					 * addressing mode is selected.
+					 * This parameter can be a value of
+					 * @ref I2C_ADDRESSING_MODE.
+					 */
 
-	uint32_t addressing_mode;  /* Specifies if 7-bit or 10-bit addressing
-				    * mode is selected.
-				    * This parameter can be a value of @ref
-				    * I2C_ADDRESSING_MODE.
-				    */
+	uint32_t dual_address_mode;	/*
+					 * Specifies if dual addressing mode is
+					 * selected.
+					 * This parameter can be a value of @ref
+					 * I2C_DUAL_ADDRESSING_MODE.
+					 */
 
-	uint32_t dual_address_mode; /* Specifies if dual addressing mode is
-				     * selected.
-				     * This parameter can be a value of @ref
-				     * I2C_DUAL_ADDRESSING_MODE.
-				     */
+	uint32_t own_address2;		/*
+					 * Specifies the second device own
+					 * address if dual addressing mode is
+					 * selected. This parameter can be a
+					 * 7-bit address.
+					 */
 
-	uint32_t own_address2;     /* Specifies the second device own address
-				    * if dual addressing mode is selected.
-				    * This parameter can be a 7-bit address.
-				    */
+	uint32_t own_address2_masks;	/*
+					 * Specifies the acknowledge mask
+					 * address second device own address
+					 * if dual addressing mode is selected
+					 * This parameter can be a value of @ref
+					 * I2C_OWN_ADDRESS2_MASKS.
+					 */
 
-	uint32_t own_address2_masks; /* Specifies the acknowledge mask address
-				      * second device own address if dual
-				      * addressing mode is selected.
-				      * This parameter can be a value of @ref
-				      * I2C_OWN_ADDRESS2_MASKS.
-				      */
+	uint32_t general_call_mode;	/*
+					 * Specifies if general call mode is
+					 * selected.
+					 * This parameter can be a value of @ref
+					 * I2C_GENERAL_CALL_ADDRESSING_MODE.
+					 */
 
-	uint32_t general_call_mode; /* Specifies if general call mode is
-				     * selected.
-				     * This parameter can be a value of @ref
-				     * I2C_GENERAL_CALL_ADDRESSING_MODE.
-				     */
+	uint32_t no_stretch_mode;	/*
+					 * Specifies if nostretch mode is
+					 * selected.
+					 * This parameter can be a value of @ref
+					 * I2C_NOSTRETCH_MODE.
+					 */
 
-	uint32_t no_stretch_mode;  /* Specifies if nostretch mode is
-				    * selected.
-				    * This parameter can be a value of @ref
-				    * I2C_NOSTRETCH_MODE.
-				    */
+	uint32_t rise_time;		/*
+					 * Specifies the SCL clock pin rising
+					 * time in nanoseconds.
+					 */
 
+	uint32_t fall_time;		/*
+					 * Specifies the SCL clock pin falling
+					 * time in nanoseconds.
+					 */
+
+	enum i2c_speed_e speed_mode;	/*
+					 * Specifies the I2C clock source
+					 * frequency mode.
+					 * This parameter can be a value of @ref
+					 * i2c_speed_mode_e.
+					 */
+
+	int analog_filter;		/*
+					 * Specifies if the I2C analog noise
+					 * filter is selected.
+					 * This parameter can be 0 (filter
+					 * off), all other values mean filter
+					 * on.
+					 */
+
+	uint8_t digital_filter_coef;	/*
+					 * Specifies the I2C digital noise
+					 * filter coefficient.
+					 * This parameter can be a value
+					 * between 0 and
+					 * STM32_I2C_DIGITAL_FILTER_MAX.
+					 */
 };
 
 enum i2c_state_e {
-	I2C_STATE_RESET          = 0x00U,   /* Peripheral is not yet
-					     * initialized.
-					     */
-	I2C_STATE_READY          = 0x20U,   /* Peripheral Initialized
-					     * and ready for use.
-					     */
-	I2C_STATE_BUSY           = 0x24U,   /* An internal process is
-					     * ongoing.
-					     */
-	I2C_STATE_BUSY_TX        = 0x21U,   /* Data Transmission process
-					     * is ongoing.
-					     */
-	I2C_STATE_BUSY_RX        = 0x22U,   /* Data Reception process
-					     * is ongoing.
-					     */
-	I2C_STATE_LISTEN         = 0x28U,   /* Address Listen Mode is
-					     * ongoing.
-					     */
-	I2C_STATE_BUSY_TX_LISTEN = 0x29U,   /* Address Listen Mode
-					     * and Data Transmission
-					     * process is ongoing.
-					     */
-	I2C_STATE_BUSY_RX_LISTEN = 0x2AU,   /* Address Listen Mode
-					     * and Data Reception
-					     * process is ongoing.
-					     */
-	I2C_STATE_ABORT          = 0x60U,   /* Abort user request ongoing. */
-	I2C_STATE_TIMEOUT        = 0xA0U,   /* Timeout state. */
-	I2C_STATE_ERROR          = 0xE0U    /* Error. */
-
+	I2C_STATE_RESET          = 0x00U,	/* Not yet initialized       */
+	I2C_STATE_READY          = 0x20U,	/* Ready for use             */
+	I2C_STATE_BUSY           = 0x24U,	/* Internal process ongoing  */
+	I2C_STATE_BUSY_TX        = 0x21U,	/* Data Transmission ongoing */
+	I2C_STATE_BUSY_RX        = 0x22U,	/* Data Reception ongoing    */
 };
 
 enum i2c_mode_e {
-	I2C_MODE_NONE   = 0x00U,   /* No I2C communication on going.       */
-	I2C_MODE_MASTER = 0x10U,   /* I2C communication is in Master Mode. */
-	I2C_MODE_SLAVE  = 0x20U,   /* I2C communication is in Slave Mode.  */
-	I2C_MODE_MEM    = 0x40U    /* I2C communication is in Memory Mode. */
+	I2C_MODE_NONE   = 0x00U,	/* No active communication      */
+	I2C_MODE_MASTER = 0x10U,	/* Communication in Master Mode */
+	I2C_MODE_SLAVE  = 0x20U,	/* Communication in Slave Mode  */
+	I2C_MODE_MEM    = 0x40U		/* Communication in Memory Mode */
 
 };
 
@@ -213,26 +232,12 @@ enum i2c_mode_e {
 
 struct i2c_handle_s {
 	uint32_t i2c_base_addr;			/* Registers base address */
-
-	struct stm32_i2c_init_s i2c_init;	/* Communication parameters */
-
-	uint8_t *p_buff;			/* Pointer to transfer buffer */
-
-	uint16_t xfer_size;			/* Transfer size */
-
-	uint16_t xfer_count;			/* Transfer counter */
-
-	uint32_t prev_state;			/* Communication previous
-						 * state
-						 */
-
-	uint8_t lock;				/* Locking object */
-
-	enum i2c_state_e i2c_state;		/* Communication state */
-
-	enum i2c_mode_e i2c_mode;		/* Communication mode */
-
-	uint32_t i2c_err;			/* Error code */
+	unsigned int dt_status;			/* DT nsec/sec status     */
+	unsigned int clock;			/* Clock reference        */
+	uint8_t lock;				/* Locking object         */
+	enum i2c_state_e i2c_state;		/* Communication state    */
+	enum i2c_mode_e i2c_mode;		/* Communication mode     */
+	uint32_t i2c_err;			/* Error code             */
 };
 
 #define I2C_ADDRESSINGMODE_7BIT		0x00000001U
@@ -250,15 +255,15 @@ struct i2c_handle_s {
 #define I2C_MEMADD_SIZE_8BIT		0x00000001U
 #define I2C_MEMADD_SIZE_16BIT		0x00000002U
 
-#define  I2C_RELOAD_MODE		I2C_CR2_RELOAD
-#define  I2C_AUTOEND_MODE		I2C_CR2_AUTOEND
-#define  I2C_SOFTEND_MODE		0x00000000U
+#define I2C_RELOAD_MODE			I2C_CR2_RELOAD
+#define I2C_AUTOEND_MODE		I2C_CR2_AUTOEND
+#define I2C_SOFTEND_MODE		0x00000000U
 
-#define  I2C_NO_STARTSTOP		0x00000000U
-#define  I2C_GENERATE_STOP		(BIT(31) | I2C_CR2_STOP)
-#define  I2C_GENERATE_START_READ	(BIT(31) | I2C_CR2_START | \
+#define I2C_NO_STARTSTOP		0x00000000U
+#define I2C_GENERATE_STOP		(BIT(31) | I2C_CR2_STOP)
+#define I2C_GENERATE_START_READ		(BIT(31) | I2C_CR2_START | \
 					 I2C_CR2_RD_WRN)
-#define  I2C_GENERATE_START_WRITE	(BIT(31) | I2C_CR2_START)
+#define I2C_GENERATE_START_WRITE	(BIT(31) | I2C_CR2_START)
 
 #define I2C_FLAG_TXE			I2C_ISR_TXE
 #define I2C_FLAG_TXIS			I2C_ISR_TXIS
@@ -281,21 +286,36 @@ struct i2c_handle_s {
 					 I2C_CR2_NBYTES | I2C_CR2_RELOAD  | \
 					 I2C_CR2_RD_WRN)
 
-#define I2C_ANALOGFILTER_ENABLE		((uint32_t)0x00000000U)
+#define I2C_TIMEOUT_BUSY_MS		25U
+
+#define I2C_ANALOGFILTER_ENABLE		0x00000000U
 #define I2C_ANALOGFILTER_DISABLE	I2C_CR1_ANFOFF
 
-int stm32_i2c_init(struct i2c_handle_s *hi2c);
+/* STM32 specific defines */
+#define STM32_I2C_RISE_TIME_DEFAULT		25	/* ns */
+#define STM32_I2C_FALL_TIME_DEFAULT		10	/* ns */
+#define STM32_I2C_SPEED_DEFAULT			I2C_SPEED_STANDARD
+#define STM32_I2C_ANALOG_FILTER_DELAY_MIN	50	/* ns */
+#define STM32_I2C_ANALOG_FILTER_DELAY_MAX	260	/* ns */
+#define STM32_I2C_DIGITAL_FILTER_MAX		16
 
+int stm32_i2c_get_setup_from_fdt(void *fdt, int node,
+				 struct stm32_i2c_init_s *init);
+int stm32_i2c_init(struct i2c_handle_s *hi2c,
+		   struct stm32_i2c_init_s *init_data);
 int stm32_i2c_mem_write(struct i2c_handle_s *hi2c, uint16_t dev_addr,
 			uint16_t mem_addr, uint16_t mem_add_size,
-			uint8_t *p_data, uint16_t size, uint32_t timeout);
+			uint8_t *p_data, uint16_t size, uint32_t timeout_ms);
 int stm32_i2c_mem_read(struct i2c_handle_s *hi2c, uint16_t dev_addr,
 		       uint16_t mem_addr, uint16_t mem_add_size,
-		       uint8_t *p_data, uint16_t size, uint32_t timeout);
-int stm32_i2c_is_device_ready(struct i2c_handle_s *hi2c, uint16_t dev_addr,
-			      uint32_t trials, uint32_t timeout);
-
-int stm32_i2c_config_analog_filter(struct i2c_handle_s *hi2c,
-				   uint32_t analog_filter);
+		       uint8_t *p_data, uint16_t size, uint32_t timeout_ms);
+int stm32_i2c_master_transmit(struct i2c_handle_s *hi2c, uint16_t dev_addr,
+			      uint8_t *p_data, uint16_t size,
+			      uint32_t timeout_ms);
+int stm32_i2c_master_receive(struct i2c_handle_s *hi2c, uint16_t dev_addr,
+			     uint8_t *p_data, uint16_t size,
+			     uint32_t timeout_ms);
+bool stm32_i2c_is_device_ready(struct i2c_handle_s *hi2c, uint16_t dev_addr,
+			       uint32_t trials, uint32_t timeout_ms);
 
 #endif /* STM32_I2C_H */

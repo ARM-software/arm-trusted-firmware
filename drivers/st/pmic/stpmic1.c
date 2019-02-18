@@ -8,7 +8,8 @@
 
 #include <common/debug.h>
 #include <drivers/st/stpmic1.h>
-#include <plat/common/platform.h>
+
+#define I2C_TIMEOUT_MS		25
 
 struct regul_struct {
 	const char *dt_node_name;
@@ -677,8 +678,9 @@ int stpmic1_regulator_voltage_get(const char *name)
 int stpmic1_register_read(uint8_t register_id,  uint8_t *value)
 {
 	return stm32_i2c_mem_read(pmic_i2c_handle, pmic_i2c_addr,
-				  (uint16_t)register_id, I2C_MEMADD_SIZE_8BIT,
-				  value, 1, 100000);
+				  (uint16_t)register_id,
+				  I2C_MEMADD_SIZE_8BIT, value,
+				  1, I2C_TIMEOUT_MS);
 }
 
 int stpmic1_register_write(uint8_t register_id, uint8_t value)
@@ -687,7 +689,8 @@ int stpmic1_register_write(uint8_t register_id, uint8_t value)
 
 	status = stm32_i2c_mem_write(pmic_i2c_handle, pmic_i2c_addr,
 				     (uint16_t)register_id,
-				     I2C_MEMADD_SIZE_8BIT, &value, 1, 100000);
+				     I2C_MEMADD_SIZE_8BIT, &value,
+				     1, I2C_TIMEOUT_MS);
 
 #if ENABLE_ASSERTIONS
 	if (status != 0) {

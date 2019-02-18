@@ -8,12 +8,19 @@
 #define STM32MP1_DEF_H
 
 #include <common/tbbr/tbbr_img_def.h>
+#include <drivers/st/stm32mp1_rcc.h>
+#include <dt-bindings/clock/stm32mp1-clks.h>
+#include <dt-bindings/reset/stm32mp1-resets.h>
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
 #ifndef __ASSEMBLY__
+#include <drivers/st/stm32mp1_clk.h>
+
 #include <boot_api.h>
-#include <stm32mp1_dt.h>
+#include <stm32mp_common.h>
+#include <stm32mp_dt.h>
+#include <stm32mp_shres_helpers.h>
 #include <stm32mp1_private.h>
 #endif
 
@@ -21,14 +28,13 @@
  * STM32MP1 memory map related constants
  ******************************************************************************/
 
-#define STM32MP1_SRAM_BASE		U(0x2FFC0000)
-#define STM32MP1_SRAM_SIZE		U(0x00040000)
+#define STM32MP_SYSRAM_BASE		U(0x2FFC0000)
+#define STM32MP_SYSRAM_SIZE		U(0x00040000)
 
 /* DDR configuration */
-#define STM32MP1_DDR_BASE		U(0xC0000000)
-#define STM32MP1_DDR_SIZE_DFLT		U(0x20000000)	/* 512 MB */
-#define STM32MP1_DDR_MAX_SIZE		U(0x40000000)	/* Max 1GB */
-#define STM32MP1_DDR_SPEED_DFLT		528
+#define STM32MP_DDR_BASE		U(0xC0000000)
+#define STM32MP_DDR_MAX_SIZE		U(0x40000000)	/* Max 1GB */
+#define STM32MP_DDR_SPEED_DFLT		528
 
 /* DDR power initializations */
 #ifndef __ASSEMBLY__
@@ -39,36 +45,36 @@ enum ddr_type {
 #endif
 
 /* Section used inside TF binaries */
-#define STM32MP1_PARAM_LOAD_SIZE	U(0x00002400)	/* 9 Ko for param */
+#define STM32MP_PARAM_LOAD_SIZE		U(0x00002400)	/* 9 Ko for param */
 /* 256 Octets reserved for header */
-#define STM32MP1_HEADER_SIZE		U(0x00000100)
+#define STM32MP_HEADER_SIZE		U(0x00000100)
 
-#define STM32MP1_BINARY_BASE		(STM32MP1_SRAM_BASE +		\
-					 STM32MP1_PARAM_LOAD_SIZE +	\
-					 STM32MP1_HEADER_SIZE)
+#define STM32MP_BINARY_BASE		(STM32MP_SYSRAM_BASE +		\
+					 STM32MP_PARAM_LOAD_SIZE +	\
+					 STM32MP_HEADER_SIZE)
 
-#define STM32MP1_BINARY_SIZE		(STM32MP1_SRAM_SIZE -		\
-					 (STM32MP1_PARAM_LOAD_SIZE +	\
-					  STM32MP1_HEADER_SIZE))
-
-#if STACK_PROTECTOR_ENABLED
-#define STM32MP1_BL32_SIZE		U(0x00012000)	/* 72 Ko for BL32 */
-#else
-#define STM32MP1_BL32_SIZE		U(0x00011000)	/* 68 Ko for BL32 */
-#endif
-
-#define STM32MP1_BL32_BASE		(STM32MP1_SRAM_BASE + \
-					 STM32MP1_SRAM_SIZE - \
-					 STM32MP1_BL32_SIZE)
+#define STM32MP_BINARY_SIZE		(STM32MP_SYSRAM_SIZE -		\
+					 (STM32MP_PARAM_LOAD_SIZE +	\
+					  STM32MP_HEADER_SIZE))
 
 #if STACK_PROTECTOR_ENABLED
-#define STM32MP1_BL2_SIZE		U(0x00015000)	/* 84 Ko for BL2 */
+#define STM32MP_BL32_SIZE		U(0x00012000)	/* 72 Ko for BL32 */
 #else
-#define STM32MP1_BL2_SIZE		U(0x00013000)	/* 76 Ko for BL2 */
+#define STM32MP_BL32_SIZE		U(0x00011000)	/* 68 Ko for BL32 */
 #endif
 
-#define STM32MP1_BL2_BASE		(STM32MP1_BL32_BASE - \
-					 STM32MP1_BL2_SIZE)
+#define STM32MP_BL32_BASE		(STM32MP_SYSRAM_BASE + \
+					 STM32MP_SYSRAM_SIZE - \
+					 STM32MP_BL32_SIZE)
+
+#if STACK_PROTECTOR_ENABLED
+#define STM32MP_BL2_SIZE		U(0x00015000)	/* 84 Ko for BL2 */
+#else
+#define STM32MP_BL2_SIZE		U(0x00013000)	/* 76 Ko for BL2 */
+#endif
+
+#define STM32MP_BL2_BASE		(STM32MP_BL32_BASE - \
+					 STM32MP_BL2_SIZE)
 
 /* BL2 and BL32/sp_min require 5 tables */
 #define MAX_XLAT_TABLES			5
@@ -85,12 +91,12 @@ enum ddr_type {
 #endif
 
 /* DTB initialization value */
-#define STM32MP1_DTB_SIZE		U(0x00004000)	/* 16Ko for DTB */
+#define STM32MP_DTB_SIZE		U(0x00004000)	/* 16Ko for DTB */
 
-#define STM32MP1_DTB_BASE		(STM32MP1_BL2_BASE - \
-					 STM32MP1_DTB_SIZE)
+#define STM32MP_DTB_BASE		(STM32MP_BL2_BASE - \
+					 STM32MP_DTB_SIZE)
 
-#define STM32MP1_BL33_BASE		(STM32MP1_DDR_BASE + U(0x100000))
+#define STM32MP_BL33_BASE		(STM32MP_DDR_BASE + U(0x100000))
 
 /*******************************************************************************
  * STM32MP1 device/io map related constants (used for MMU)
@@ -155,12 +161,12 @@ enum ddr_type {
 #define USART6_BASE			U(0x44003000)
 #define UART7_BASE			U(0x40018000)
 #define UART8_BASE			U(0x40019000)
-#define STM32MP1_UART_BAUDRATE		U(115200)
+#define STM32MP_UART_BAUDRATE		U(115200)
 
 /* For UART crash console */
-#define STM32MP1_DEBUG_USART_BASE	UART4_BASE
+#define STM32MP_DEBUG_USART_BASE	UART4_BASE
 /* UART4 on HSI@64MHz, TX on GPIOG11 Alternate 6 */
-#define STM32MP1_DEBUG_USART_CLK_FRQ	64000000
+#define STM32MP_DEBUG_USART_CLK_FRQ	64000000
 #define DEBUG_UART_TX_GPIO_BANK_ADDRESS	GPIOG_BASE
 #define DEBUG_UART_TX_GPIO_BANK_CLK_REG	RCC_MP_AHB4ENSETR
 #define DEBUG_UART_TX_GPIO_BANK_CLK_EN	RCC_MP_AHB4ENSETR_GPIOGEN
@@ -192,15 +198,15 @@ enum ddr_type {
 /*******************************************************************************
  * STM32MP1 SDMMC
  ******************************************************************************/
-#define STM32MP1_SDMMC1_BASE		U(0x58005000)
-#define STM32MP1_SDMMC2_BASE		U(0x58007000)
-#define STM32MP1_SDMMC3_BASE		U(0x48004000)
+#define STM32MP_SDMMC1_BASE		U(0x58005000)
+#define STM32MP_SDMMC2_BASE		U(0x58007000)
+#define STM32MP_SDMMC3_BASE		U(0x48004000)
 
-#define STM32MP1_MMC_INIT_FREQ			400000		/*400 KHz*/
-#define STM32MP1_SD_NORMAL_SPEED_MAX_FREQ	25000000	/*25 MHz*/
-#define STM32MP1_SD_HIGH_SPEED_MAX_FREQ		50000000	/*50 MHz*/
-#define STM32MP1_EMMC_NORMAL_SPEED_MAX_FREQ	26000000	/*26 MHz*/
-#define STM32MP1_EMMC_HIGH_SPEED_MAX_FREQ	52000000	/*52 MHz*/
+#define STM32MP_MMC_INIT_FREQ			400000		/*400 KHz*/
+#define STM32MP_SD_NORMAL_SPEED_MAX_FREQ	25000000	/*25 MHz*/
+#define STM32MP_SD_HIGH_SPEED_MAX_FREQ		50000000	/*50 MHz*/
+#define STM32MP_EMMC_NORMAL_SPEED_MAX_FREQ	26000000	/*26 MHz*/
+#define STM32MP_EMMC_HIGH_SPEED_MAX_FREQ	52000000	/*52 MHz*/
 
 /*******************************************************************************
  * STM32MP1 BSEC / OTP
@@ -244,5 +250,11 @@ static inline uint32_t tamp_bkpr(uint32_t idx)
  * STM32MP1 I2C4
  ******************************************************************************/
 #define I2C4_BASE			U(0x5C002000)
+
+/*******************************************************************************
+ * Device Tree defines
+ ******************************************************************************/
+#define DT_PWR_COMPAT			"st,stm32mp1-pwr"
+#define DT_RCC_CLK_COMPAT		"st,stm32mp1-rcc"
 
 #endif /* STM32MP1_DEF_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2018-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,25 +7,42 @@
 #ifndef STM32MP1_CLK_H
 #define STM32MP1_CLK_H
 
-#include <stdbool.h>
-
 #include <arch_helpers.h>
 
 int stm32mp1_clk_probe(void);
 int stm32mp1_clk_init(void);
-bool stm32mp1_clk_is_enabled(unsigned long id);
-int stm32mp1_clk_enable(unsigned long id);
-int stm32mp1_clk_disable(unsigned long id);
-unsigned long stm32mp1_clk_get_rate(unsigned long id);
-void stm32mp1_stgen_increment(unsigned long long offset_in_ms);
 
-static inline uint32_t get_timer(uint32_t base)
+bool stm32mp1_rcc_is_secure(void);
+
+void __stm32mp1_clk_enable(unsigned long id, bool caller_is_secure);
+void __stm32mp1_clk_disable(unsigned long id, bool caller_is_secure);
+
+static inline void stm32mp1_clk_enable_non_secure(unsigned long id)
 {
-	if (base == 0U) {
-		return (uint32_t)(~read_cntpct_el0());
-	}
-
-	return base - (uint32_t)(~read_cntpct_el0());
+	__stm32mp1_clk_enable(id, false);
 }
+
+static inline void stm32mp1_clk_enable_secure(unsigned long id)
+{
+	__stm32mp1_clk_enable(id, true);
+}
+
+static inline void stm32mp1_clk_disable_non_secure(unsigned long id)
+{
+	__stm32mp1_clk_disable(id, false);
+}
+
+static inline void stm32mp1_clk_disable_secure(unsigned long id)
+{
+	__stm32mp1_clk_disable(id, true);
+}
+
+unsigned int stm32mp1_clk_get_refcount(unsigned long id);
+
+/* SMP protection on RCC registers access */
+void stm32mp1_clk_rcc_regs_lock(void);
+void stm32mp1_clk_rcc_regs_unlock(void);
+
+void stm32mp1_stgen_increment(unsigned long long offset_in_ms);
 
 #endif /* STM32MP1_CLK_H */

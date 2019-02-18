@@ -14,13 +14,10 @@
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <drivers/st/stm32mp_pmic.h>
-#include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_ddr.h>
 #include <drivers/st/stm32mp1_ddr_regs.h>
 #include <drivers/st/stm32mp1_pwr.h>
 #include <drivers/st/stm32mp1_ram.h>
-#include <drivers/st/stm32mp1_rcc.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/mmio.h>
 #include <plat/common/platform.h>
 
@@ -32,7 +29,7 @@ struct reg_desc {
 
 #define INVALID_OFFSET	0xFFU
 
-#define TIMESLOT_1US	(plat_get_syscnt_freq2() / 1000000U)
+#define TIMEOUT_US_1S	1000000U
 
 #define DDRCTL_REG(x, y)					\
 	{							\
@@ -327,49 +324,43 @@ static void stm32mp1_ddrphy_idone_wait(struct stm32mp1_ddrphy *phy)
 {
 	uint32_t pgsr;
 	int error = 0;
-	unsigned long start;
-	unsigned long time0, time;
-
-	start = get_timer(0);
-	time0 = start;
+	uint64_t timeout = timeout_init_us(TIMEOUT_US_1S);
 
 	do {
 		pgsr = mmio_read_32((uintptr_t)&phy->pgsr);
-		time = get_timer(start);
-		if (time != time0) {
-			VERBOSE("  > [0x%lx] pgsr = 0x%x &\n",
-				(uintptr_t)&phy->pgsr, pgsr);
-			VERBOSE("    [0x%lx] pir = 0x%x (time=%lx)\n",
-				(uintptr_t)&phy->pir,
-				mmio_read_32((uintptr_t)&phy->pir),
-				time);
-		}
 
-		time0 = time;
-		if (time > plat_get_syscnt_freq2()) {
+		VERBOSE("  > [0x%lx] pgsr = 0x%x &\n",
+			(uintptr_t)&phy->pgsr, pgsr);
+
+		if (timeout_elapsed(timeout)) {
 			panic();
 		}
+
 		if ((pgsr & DDRPHYC_PGSR_DTERR) != 0U) {
 			VERBOSE("DQS Gate Trainig Error\n");
 			error++;
 		}
+
 		if ((pgsr & DDRPHYC_PGSR_DTIERR) != 0U) {
 			VERBOSE("DQS Gate Trainig Intermittent Error\n");
 			error++;
 		}
+
 		if ((pgsr & DDRPHYC_PGSR_DFTERR) != 0U) {
 			VERBOSE("DQS Drift Error\n");
 			error++;
 		}
+
 		if ((pgsr & DDRPHYC_PGSR_RVERR) != 0U) {
 			VERBOSE("Read Valid Training Error\n");
 			error++;
 		}
+
 		if ((pgsr & DDRPHYC_PGSR_RVEIRR) != 0U) {
 			VERBOSE("Read Valid Training Intermittent Error\n");
 			error++;
 		}
-	} while ((pgsr & DDRPHYC_PGSR_IDONE) == 0U && error == 0);
+	} while (((pgsr & DDRPHYC_PGSR_IDONE) == 0U) && (error == 0));
 	VERBOSE("\n[0x%lx] pgsr = 0x%x\n",
 		(uintptr_t)&phy->pgsr, pgsr);
 }
@@ -401,21 +392,19 @@ static void stm32mp1_start_sw_done(struct stm32mp1_ddrctl *ctl)
 /* Wait quasi dynamic register update */
 static void stm32mp1_wait_sw_done_ack(struct stm32mp1_ddrctl *ctl)
 {
-	unsigned long start;
+	uint64_t timeout;
 	uint32_t swstat;
 
 	mmio_setbits_32((uintptr_t)&ctl->swctl, DDRCTRL_SWCTL_SW_DONE);
 	VERBOSE("[0x%lx] swctl = 0x%x\n",
 		(uintptr_t)&ctl->swctl, mmio_read_32((uintptr_t)&ctl->swctl));
 
-	start = get_timer(0);
+	timeout = timeout_init_us(TIMEOUT_US_1S);
 	do {
 		swstat = mmio_read_32((uintptr_t)&ctl->swstat);
 		VERBOSE("[0x%lx] swstat = 0x%x ",
 			(uintptr_t)&ctl->swstat, swstat);
-		VERBOSE("timer in ms 0x%x = start 0x%lx\r",
-			get_timer(0), start);
-		if (get_timer(start) > plat_get_syscnt_freq2()) {
+		if (timeout_elapsed(timeout)) {
 			panic();
 		}
 	} while ((swstat & DDRCTRL_SWSTAT_SW_DONE_ACK) == 0U);
@@ -427,22 +416,21 @@ static void stm32mp1_wait_sw_done_ack(struct stm32mp1_ddrctl *ctl)
 /* Wait quasi dynamic register update */
 static void stm32mp1_wait_operating_mode(struct ddr_info *priv, uint32_t mode)
 {
-	unsigned long start;
+	uint64_t timeout;
 	uint32_t stat;
-	uint32_t operating_mode;
-	uint32_t selref_type;
 	int break_loop = 0;
 
-	start = get_timer(0);
+	timeout = timeout_init_us(TIMEOUT_US_1S);
 	for ( ; ; ) {
+		uint32_t operating_mode;
+		uint32_t selref_type;
+
 		stat = mmio_read_32((uintptr_t)&priv->ctl->stat);
 		operating_mode = stat & DDRCTRL_STAT_OPERATING_MODE_MASK;
 		selref_type = stat & DDRCTRL_STAT_SELFREF_TYPE_MASK;
 		VERBOSE("[0x%lx] stat = 0x%x\n",
 			(uintptr_t)&priv->ctl->stat, stat);
-		VERBOSE("timer in ms 0x%x = start 0x%lx\r",
-			get_timer(0), start);
-		if (get_timer(start) > plat_get_syscnt_freq2()) {
+		if (timeout_elapsed(timeout)) {
 			panic();
 		}
 
@@ -639,7 +627,7 @@ static void stm32mp1_ddr3_dll_off(struct ddr_info *priv)
 	 */
 
 	/* Change Bypass Mode Frequency Range */
-	if (stm32mp1_clk_get_rate(DDRPHYC) < 100000000U) {
+	if (stm32mp_clk_get_rate(DDRPHYC) < 100000000U) {
 		mmio_clrbits_32((uintptr_t)&priv->phy->dllgcr,
 				DDRPHYC_DLLGCR_BPS200);
 	} else {
@@ -712,7 +700,7 @@ static void stm32mp1_refresh_restore(struct stm32mp1_ddrctl *ctl,
 
 static int board_ddr_power_init(enum ddr_type ddr_type)
 {
-	if (dt_check_pmic()) {
+	if (dt_pmic_status() > 0) {
 		return pmic_ddr_power_init(ddr_type);
 	}
 

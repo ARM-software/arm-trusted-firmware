@@ -5,7 +5,6 @@
  */
 
 #include <errno.h>
-#include <stdbool.h>
 
 #include <libfdt.h>
 
@@ -13,19 +12,11 @@
 
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
+#include <drivers/st/stm32_i2c.h>
 #include <drivers/st/stm32mp_pmic.h>
-#include <drivers/st/stm32_gpio.h>
-#include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stpmic1.h>
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
-
-/* I2C Timing hard-coded value, for I2C clock source is HSI at 64MHz */
-#define I2C_TIMING			0x10D07DB5
-
-#define I2C_TIMEOUT			0xFFFFF
-
-#define MASK_RESET_BUCK3		BIT(2)
 
 #define STPMIC1_LDO12356_OUTPUT_MASK	(uint8_t)(GENMASK(6, 2))
 #define STPMIC1_LDO12356_OUTPUT_SHIFT	2
@@ -46,25 +37,29 @@ static int dt_get_pmic_node(void *fdt)
 	return fdt_node_offset_by_compatible(fdt, -1, "st,stpmic1");
 }
 
-bool dt_check_pmic(void)
+int dt_pmic_status(void)
 {
 	int node;
 	void *fdt;
 
 	if (fdt_get_address(&fdt) == 0) {
-		return false;
+		return -ENOENT;
 	}
 
 	node = dt_get_pmic_node(fdt);
-	if (node < 0) {
-		VERBOSE("%s: No PMIC node found in DT\n", __func__);
-		return false;
+	if (node <= 0) {
+		return -FDT_ERR_NOTFOUND;
 	}
 
 	return fdt_get_status(node);
 }
 
-static int dt_pmic_i2c_config(struct dt_node_info *i2c_info)
+/*
+ * Get PMIC and its I2C bus configuration from the device tree.
+ * Return 0 on success, negative on error, 1 if no PMIC node is found.
+ */
+static int dt_pmic_i2c_config(struct dt_node_info *i2c_info,
+			      struct stm32_i2c_init_s *init)
 {
 	int pmic_node, i2c_node;
 	void *fdt;
@@ -76,7 +71,7 @@ static int dt_pmic_i2c_config(struct dt_node_info *i2c_info)
 
 	pmic_node = dt_get_pmic_node(fdt);
 	if (pmic_node < 0) {
-		return -FDT_ERR_NOTFOUND;
+		return 1;
 	}
 
 	cuint = fdt_getprop(fdt, pmic_node, "reg", NULL);
@@ -99,10 +94,10 @@ static int dt_pmic_i2c_config(struct dt_node_info *i2c_info)
 		return -FDT_ERR_NOTFOUND;
 	}
 
-	return dt_set_pinctrl_config(i2c_node);
+	return stm32_i2c_get_setup_from_fdt(fdt, i2c_node, init);
 }
 
-int dt_pmic_enable_boot_on_regulators(void)
+int dt_pmic_configure_boot_on_regulators(void)
 {
 	int pmic_node, regulators_node, regulator_node;
 	void *fdt;
@@ -120,12 +115,38 @@ int dt_pmic_enable_boot_on_regulators(void)
 
 	fdt_for_each_subnode(regulator_node, fdt, regulators_node) {
 		const fdt32_t *cuint;
-		const char *node_name;
+		const char *node_name = fdt_get_name(fdt, regulator_node, NULL);
 		uint16_t voltage;
+		int status;
 
+#if defined(IMAGE_BL2)
+		if ((fdt_getprop(fdt, regulator_node, "regulator-boot-on",
+				 NULL) == NULL) &&
+		    (fdt_getprop(fdt, regulator_node, "regulator-always-on",
+				 NULL) == NULL)) {
+#else
 		if (fdt_getprop(fdt, regulator_node, "regulator-boot-on",
 				NULL) == NULL) {
+#endif
 			continue;
+		}
+
+		if (fdt_getprop(fdt, regulator_node, "regulator-pull-down",
+				NULL) != NULL) {
+
+			status = stpmic1_regulator_pull_down_set(node_name);
+			if (status != 0) {
+				return status;
+			}
+		}
+
+		if (fdt_getprop(fdt, regulator_node, "st,mask-reset",
+				NULL) != NULL) {
+
+			status = stpmic1_regulator_mask_reset_set(node_name);
+			if (status != 0) {
+				return status;
+			}
 		}
 
 		cuint = fdt_getprop(fdt, regulator_node,
@@ -136,17 +157,13 @@ int dt_pmic_enable_boot_on_regulators(void)
 
 		/* DT uses microvolts, whereas driver awaits millivolts */
 		voltage = (uint16_t)(fdt32_to_cpu(*cuint) / 1000U);
-		node_name = fdt_get_name(fdt, regulator_node, NULL);
+
+		status = stpmic1_regulator_voltage_set(node_name, voltage);
+		if (status != 0) {
+			return status;
+		}
 
 		if (stpmic1_is_regulator_enabled(node_name) == 0U) {
-			int status;
-
-			status = stpmic1_regulator_voltage_set(node_name,
-							       voltage);
-			if (status != 0) {
-				return status;
-			}
-
 			status = stpmic1_regulator_enable(node_name);
 			if (status != 0) {
 				return status;
@@ -157,77 +174,77 @@ int dt_pmic_enable_boot_on_regulators(void)
 	return 0;
 }
 
-void initialize_pmic_i2c(void)
+bool initialize_pmic_i2c(void)
 {
 	int ret;
 	struct dt_node_info i2c_info;
+	struct i2c_handle_s *i2c = &i2c_handle;
+	struct stm32_i2c_init_s i2c_init;
 
-	if (dt_pmic_i2c_config(&i2c_info) != 0) {
-		ERROR("I2C configuration failed\n");
+	ret = dt_pmic_i2c_config(&i2c_info, &i2c_init);
+	if (ret < 0) {
+		ERROR("I2C configuration failed %d\n", ret);
 		panic();
 	}
 
-	if (stm32mp1_clk_enable((uint32_t)i2c_info.clock) < 0) {
-		ERROR("I2C clock enable failed\n");
-		panic();
+	if (ret != 0) {
+		return false;
 	}
 
 	/* Initialize PMIC I2C */
-	i2c_handle.i2c_base_addr		= i2c_info.base;
-	i2c_handle.i2c_init.timing		= I2C_TIMING;
-	i2c_handle.i2c_init.own_address1	= pmic_i2c_addr;
-	i2c_handle.i2c_init.addressing_mode	= I2C_ADDRESSINGMODE_7BIT;
-	i2c_handle.i2c_init.dual_address_mode	= I2C_DUALADDRESS_DISABLE;
-	i2c_handle.i2c_init.own_address2	= 0;
-	i2c_handle.i2c_init.own_address2_masks	= I2C_OAR2_OA2NOMASK;
-	i2c_handle.i2c_init.general_call_mode	= I2C_GENERALCALL_DISABLE;
-	i2c_handle.i2c_init.no_stretch_mode	= I2C_NOSTRETCH_DISABLE;
+	i2c->i2c_base_addr		= i2c_info.base;
+	i2c->dt_status			= i2c_info.status;
+	i2c->clock			= i2c_info.clock;
+	i2c_init.own_address1		= pmic_i2c_addr;
+	i2c_init.addressing_mode	= I2C_ADDRESSINGMODE_7BIT;
+	i2c_init.dual_address_mode	= I2C_DUALADDRESS_DISABLE;
+	i2c_init.own_address2		= 0;
+	i2c_init.own_address2_masks	= I2C_OAR2_OA2NOMASK;
+	i2c_init.general_call_mode	= I2C_GENERALCALL_DISABLE;
+	i2c_init.no_stretch_mode	= I2C_NOSTRETCH_DISABLE;
+	i2c_init.analog_filter		= 1;
+	i2c_init.digital_filter_coef	= 0;
 
-	ret = stm32_i2c_init(&i2c_handle);
+	ret = stm32_i2c_init(i2c, &i2c_init);
 	if (ret != 0) {
 		ERROR("Cannot initialize I2C %x (%d)\n",
-		      i2c_handle.i2c_base_addr, ret);
+		      i2c->i2c_base_addr, ret);
 		panic();
 	}
 
-	ret = stm32_i2c_config_analog_filter(&i2c_handle,
-					     I2C_ANALOGFILTER_ENABLE);
-	if (ret != 0) {
-		ERROR("Cannot initialize I2C analog filter (%d)\n", ret);
+	if (!stm32_i2c_is_device_ready(i2c, pmic_i2c_addr, 1,
+				       I2C_TIMEOUT_BUSY_MS)) {
+		ERROR("I2C device not ready\n");
 		panic();
 	}
 
-	ret = stm32_i2c_is_device_ready(&i2c_handle, (uint16_t)pmic_i2c_addr, 1,
-					I2C_TIMEOUT);
-	if (ret != 0) {
-		ERROR("I2C device not ready (%d)\n", ret);
-		panic();
-	}
+	stpmic1_bind_i2c(i2c, (uint16_t)pmic_i2c_addr);
 
-	stpmic1_bind_i2c(&i2c_handle, (uint16_t)pmic_i2c_addr);
+	return true;
 }
 
 void initialize_pmic(void)
 {
-	int status;
-	uint8_t read_val;
+	unsigned long pmic_version;
 
-	initialize_pmic_i2c();
+	if (!initialize_pmic_i2c()) {
+		VERBOSE("No PMIC\n");
+		return;
+	}
 
-	status = stpmic1_register_read(VERSION_STATUS_REG, &read_val);
-	if (status != 0) {
+	if (stpmic1_get_version(&pmic_version) != 0) {
+		ERROR("Failed to access PMIC\n");
 		panic();
 	}
 
-	INFO("PMIC version = 0x%x\n", read_val);
+	INFO("PMIC version = 0x%02lx\n", pmic_version);
+	stpmic1_dump_regulators();
 
-	/* Keep VDD on during the reset cycle */
-	status = stpmic1_register_update(MASK_RESET_BUCK_REG,
-					MASK_RESET_BUCK3,
-					MASK_RESET_BUCK3);
-	if (status != 0) {
+#if defined(IMAGE_BL2)
+	if (dt_pmic_configure_boot_on_regulators() != 0) {
 		panic();
-	}
+	};
+#endif
 }
 
 int pmic_ddr_power_init(enum ddr_type ddr_type)

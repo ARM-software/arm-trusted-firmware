@@ -1,24 +1,26 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*
- * Copyright (C) STMicroelectronics 2017 - All Rights Reserved
- * Author: Ludovic Barre <ludovic.barre@st.com> for STMicroelectronics.
+ * Copyright (C) STMicroelectronics 2018-2019 - All Rights Reserved
+ * Author: Alexandre Torgue <alexandre.torgue@st.com>.
  */
+
 /dts-v1/;
 
 #include "stm32mp157c.dtsi"
-#include "stm32mp157caa-pinctrl.dtsi"
+#include "stm32mp157cac-pinctrl.dtsi"
 
 / {
-	model = "STMicroelectronics STM32MP157C eval daughter";
-	compatible = "st,stm32mp157c-ed1", "st,stm32mp157";
+	model = "STMicroelectronics STM32MP157A-DK1 Discovery Board";
+	compatible = "st,stm32mp157a-dk1", "st,stm32mp157";
+
+	aliases {
+		serial0 = &uart4;
+	};
 
 	chosen {
 		stdout-path = "serial0:115200n8";
 	};
 
-	aliases {
-		serial0 = &uart4;
-	};
 };
 
 &clk_hse {
@@ -42,15 +44,13 @@
 
 		st,main-control-register = <0x04>;
 		st,vin-control-register = <0xc0>;
-		st,usb-control-register = <0x30>;
+		st,usb-control-register = <0x20>;
 
 		regulators {
 			compatible = "st,stpmic1-regulators";
 
 			ldo1-supply = <&v3v3>;
-			ldo2-supply = <&v3v3>;
 			ldo3-supply = <&vdd_ddr>;
-			ldo5-supply = <&v3v3>;
 			ldo6-supply = <&v3v3>;
 
 			vddcore: buck1 {
@@ -90,16 +90,18 @@
 				regulator-initial-mode = <0>;
 			};
 
-			vdda: ldo1 {
-				regulator-name = "vdda";
-				regulator-min-microvolt = <2900000>;
-				regulator-max-microvolt = <2900000>;
+			v1v8_audio: ldo1 {
+				regulator-name = "v1v8_audio";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
 			};
 
-			v2v8: ldo2 {
-				regulator-name = "v2v8";
-				regulator-min-microvolt = <2800000>;
-				regulator-max-microvolt = <2800000>;
+			v3v3_hdmi: ldo2 {
+				regulator-name = "v3v3_hdmi";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
 			};
 
 			vtt_ddr: ldo3 {
@@ -116,17 +118,18 @@
 				regulator-max-microvolt = <3300000>;
 			};
 
-			vdd_sd: ldo5 {
-				regulator-name = "vdd_sd";
+			vdda: ldo5 {
+				regulator-name = "vdda";
 				regulator-min-microvolt = <2900000>;
 				regulator-max-microvolt = <2900000>;
 				regulator-boot-on;
 			};
 
-			v1v8: ldo6 {
-				regulator-name = "v1v8";
-				regulator-min-microvolt = <1800000>;
-				regulator-max-microvolt = <1800000>;
+			v1v2_hdmi: ldo6 {
+				regulator-name = "v1v2_hdmi";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <1200000>;
+				regulator-always-on;
 			};
 
 			vref_ddr: vref_ddr {
@@ -153,32 +156,11 @@
 
 &sdmmc1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&sdmmc1_b4_pins_a &sdmmc1_dir_pins_a>;
+	pinctrl-0 = <&sdmmc1_b4_pins_a>;
 	broken-cd;
-	st,sig-dir;
 	st,neg-edge;
-	st,use-ckin;
 	bus-width = <4>;
-	vmmc-supply = <&vdd_sd>;
-	sd-uhs-sdr12;
-	sd-uhs-sdr25;
-	sd-uhs-sdr50;
-	sd-uhs-ddr50;
-	sd-uhs-sdr104;
-	status = "okay";
-};
-
-&sdmmc2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&sdmmc2_b4_pins_a &sdmmc2_d47_pins_a>;
-	non-removable;
-	no-sd;
-	no-sdio;
-	st,neg-edge;
-	bus-width = <8>;
 	vmmc-supply = <&v3v3>;
-	vqmmc-supply = <&v3v3>;
-	mmc-ddr-3_3v;
 	status = "okay";
 };
 
@@ -190,7 +172,7 @@
 
 /* ATF Specific */
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
-#include "stm32mp15-ddr3-2x4Gb-1066-binG.dtsi"
+#include "stm32mp15-ddr3-1x4Gb-1066-binG.dtsi"
 
 / {
 	aliases {
@@ -203,8 +185,6 @@
 		gpio6 = &gpiog;
 		gpio7 = &gpioh;
 		gpio8 = &gpioi;
-		gpio9 = &gpioj;
-		gpio10 = &gpiok;
 		gpio25 = &gpioz;
 		i2c3 = &i2c4;
 	};
@@ -306,5 +286,3 @@
 		cfg = < 3 98 5 7 7 PQR(1,1,1) >;
 	};
 };
-
-/delete-node/ &clk_csi;

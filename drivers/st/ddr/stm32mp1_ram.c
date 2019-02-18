@@ -12,12 +12,9 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
-#include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_ddr.h>
 #include <drivers/st/stm32mp1_ddr_helpers.h>
 #include <drivers/st/stm32mp1_ram.h>
-#include <drivers/st/stm32mp1_rcc.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/mmio.h>
 
 #define DDR_PATTERN	0xAAAAAAAAU
@@ -31,7 +28,7 @@ int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint32_t mem_speed)
 
 	ddr_enable_clock();
 
-	ddrphy_clk = stm32mp1_clk_get_rate(DDRPHYC);
+	ddrphy_clk = stm32mp_clk_get_rate(DDRPHYC);
 
 	VERBOSE("DDR: mem_speed (%d kHz), RCC %ld kHz\n",
 		mem_speed, ddrphy_clk / 1000U);
@@ -65,10 +62,10 @@ static uint32_t ddr_test_data_bus(void)
 	uint32_t pattern;
 
 	for (pattern = 1U; pattern != 0U; pattern <<= 1) {
-		mmio_write_32(STM32MP1_DDR_BASE, pattern);
+		mmio_write_32(STM32MP_DDR_BASE, pattern);
 
-		if (mmio_read_32(STM32MP1_DDR_BASE) != pattern) {
-			return (uint32_t)STM32MP1_DDR_BASE;
+		if (mmio_read_32(STM32MP_DDR_BASE) != pattern) {
+			return (uint32_t)STM32MP_DDR_BASE;
 		}
 	}
 
@@ -92,44 +89,44 @@ static uint32_t ddr_test_addr_bus(void)
 	/* Write the default pattern at each of the power-of-two offsets. */
 	for (offset = sizeof(uint32_t); (offset & addressmask) != 0U;
 	     offset <<= 1) {
-		mmio_write_32(STM32MP1_DDR_BASE + (uint32_t)offset,
+		mmio_write_32(STM32MP_DDR_BASE + (uint32_t)offset,
 			      DDR_PATTERN);
 	}
 
 	/* Check for address bits stuck high. */
-	mmio_write_32(STM32MP1_DDR_BASE + (uint32_t)testoffset,
+	mmio_write_32(STM32MP_DDR_BASE + (uint32_t)testoffset,
 		      DDR_ANTIPATTERN);
 
 	for (offset = sizeof(uint32_t); (offset & addressmask) != 0U;
 	     offset <<= 1) {
-		if (mmio_read_32(STM32MP1_DDR_BASE + (uint32_t)offset) !=
+		if (mmio_read_32(STM32MP_DDR_BASE + (uint32_t)offset) !=
 		    DDR_PATTERN) {
-			return (uint32_t)(STM32MP1_DDR_BASE + offset);
+			return (uint32_t)(STM32MP_DDR_BASE + offset);
 		}
 	}
 
-	mmio_write_32(STM32MP1_DDR_BASE + (uint32_t)testoffset, DDR_PATTERN);
+	mmio_write_32(STM32MP_DDR_BASE + (uint32_t)testoffset, DDR_PATTERN);
 
 	/* Check for address bits stuck low or shorted. */
 	for (testoffset = sizeof(uint32_t); (testoffset & addressmask) != 0U;
 	     testoffset <<= 1) {
-		mmio_write_32(STM32MP1_DDR_BASE + (uint32_t)testoffset,
+		mmio_write_32(STM32MP_DDR_BASE + (uint32_t)testoffset,
 			      DDR_ANTIPATTERN);
 
-		if (mmio_read_32(STM32MP1_DDR_BASE) != DDR_PATTERN) {
-			return STM32MP1_DDR_BASE;
+		if (mmio_read_32(STM32MP_DDR_BASE) != DDR_PATTERN) {
+			return STM32MP_DDR_BASE;
 		}
 
 		for (offset = sizeof(uint32_t); (offset & addressmask) != 0U;
 		     offset <<= 1) {
-			if ((mmio_read_32(STM32MP1_DDR_BASE +
+			if ((mmio_read_32(STM32MP_DDR_BASE +
 					  (uint32_t)offset) != DDR_PATTERN) &&
 			    (offset != testoffset)) {
-				return (uint32_t)(STM32MP1_DDR_BASE + offset);
+				return (uint32_t)(STM32MP_DDR_BASE + offset);
 			}
 		}
 
-		mmio_write_32(STM32MP1_DDR_BASE + (uint32_t)testoffset,
+		mmio_write_32(STM32MP_DDR_BASE + (uint32_t)testoffset,
 			      DDR_PATTERN);
 	}
 
@@ -147,13 +144,13 @@ static uint32_t ddr_check_size(void)
 {
 	uint32_t offset = sizeof(uint32_t);
 
-	mmio_write_32(STM32MP1_DDR_BASE, DDR_PATTERN);
+	mmio_write_32(STM32MP_DDR_BASE, DDR_PATTERN);
 
-	while (offset < STM32MP1_DDR_MAX_SIZE) {
-		mmio_write_32(STM32MP1_DDR_BASE + offset, DDR_ANTIPATTERN);
+	while (offset < STM32MP_DDR_MAX_SIZE) {
+		mmio_write_32(STM32MP_DDR_BASE + offset, DDR_ANTIPATTERN);
 		dsb();
 
-		if (mmio_read_32(STM32MP1_DDR_BASE) != DDR_PATTERN) {
+		if (mmio_read_32(STM32MP_DDR_BASE) != DDR_PATTERN) {
 			break;
 		}
 
@@ -171,7 +168,7 @@ static int stm32mp1_ddr_setup(void)
 	int ret;
 	struct stm32mp1_ddr_config config;
 	int node, len;
-	uint32_t tamp_clk_off = 0, uret, idx;
+	uint32_t uret, idx;
 	void *fdt;
 
 #define PARAM(x, y)							\
@@ -240,19 +237,6 @@ static int stm32mp1_ddr_setup(void)
 		}
 	}
 
-	if (!stm32mp1_clk_is_enabled(RTCAPB)) {
-		tamp_clk_off = 1;
-		if (stm32mp1_clk_enable(RTCAPB) != 0) {
-			return -EINVAL;
-		}
-	}
-
-	if (tamp_clk_off != 0U) {
-		if (stm32mp1_clk_disable(RTCAPB) != 0) {
-			return -EINVAL;
-		}
-	}
-
 	/* Disable axidcg clock gating during init */
 	mmio_clrbits_32(priv->rcc + RCC_DDRITFCR, RCC_DDRITFCR_AXIDCGEN);
 
@@ -301,12 +285,12 @@ int stm32mp1_ddr_probe(void)
 
 	VERBOSE("STM32MP DDR probe\n");
 
-	priv->ctl = (struct stm32mp1_ddrctl *)DDRCTRL_BASE;
-	priv->phy = (struct stm32mp1_ddrphy *)DDRPHYC_BASE;
-	priv->pwr = PWR_BASE;
-	priv->rcc = RCC_BASE;
+	priv->ctl = (struct stm32mp1_ddrctl *)stm32mp_ddrctrl_base();
+	priv->phy = (struct stm32mp1_ddrphy *)stm32mp_ddrphyc_base();
+	priv->pwr = stm32mp_pwr_base();
+	priv->rcc = stm32mp_rcc_base();
 
-	priv->info.base = STM32MP1_DDR_BASE;
+	priv->info.base = STM32MP_DDR_BASE;
 	priv->info.size = 0;
 
 	return stm32mp1_ddr_setup();

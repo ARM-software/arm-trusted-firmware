@@ -11,12 +11,8 @@
 #include <common/debug.h>
 #include <drivers/arm/tzc400.h>
 #include <drivers/st/stm32mp1_clk.h>
-#include <drivers/st/stm32mp1_rcc.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/mmio.h>
-
-#include <stm32mp1_dt.h>
-#include <stm32mp1_private.h>
 
 /*******************************************************************************
  * Initialize the TrustZone Controller. Configure Region 0 with Secure RW access
@@ -25,7 +21,7 @@
 static void init_tzc400(void)
 {
 	unsigned long long region_base, region_top;
-	unsigned long long ddr_base = STM32MP1_DDR_BASE;
+	unsigned long long ddr_base = STM32MP_DDR_BASE;
 	unsigned long long ddr_size = (unsigned long long)dt_get_ddr_size();
 
 	tzc400_init(STM32MP1_TZC_BASE);
@@ -65,14 +61,8 @@ static void init_tzc400(void)
  ******************************************************************************/
 static void early_init_tzc400(void)
 {
-	if (stm32mp1_clk_enable(TZC1) != 0) {
-		ERROR("Cannot enable TZC1 clock\n");
-		panic();
-	}
-	if (stm32mp1_clk_enable(TZC2) != 0) {
-		ERROR("Cannot enable TZC2 clock\n");
-		panic();
-	}
+	stm32mp_clk_enable(TZC1);
+	stm32mp_clk_enable(TZC2);
 
 	tzc400_init(STM32MP1_TZC_BASE);
 
@@ -83,9 +73,9 @@ static void early_init_tzc400(void)
 	 * same configuration to all filters in the TZC.
 	 */
 	tzc400_configure_region(STM32MP1_FILTER_BIT_ALL, 1,
-				STM32MP1_DDR_BASE,
-				STM32MP1_DDR_BASE +
-				(STM32MP1_DDR_MAX_SIZE - 1U),
+				STM32MP_DDR_BASE,
+				STM32MP_DDR_BASE +
+				(STM32MP_DDR_MAX_SIZE - 1U),
 				TZC_REGION_S_RDWR,
 				TZC_REGION_ACCESS_RDWR(STM32MP1_TZC_A7_ID) |
 				TZC_REGION_ACCESS_RDWR(STM32MP1_TZC_SDMMC_ID));

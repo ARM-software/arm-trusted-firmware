@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -18,25 +18,27 @@
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
+#include <drivers/st/stm32mp_clkfunc.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_clkfunc.h>
 #include <drivers/st/stm32mp1_rcc.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
 #include <lib/mmio.h>
+#include <lib/spinlock.h>
 #include <lib/utils_def.h>
 #include <plat/common/platform.h>
 
-#define MAX_HSI_HZ	64000000
+#define MAX_HSI_HZ		64000000
+#define USB_PHY_48_MHZ		48000000
 
-#define TIMEOUT_200MS	(plat_get_syscnt_freq2() / 5U)
-#define TIMEOUT_1S	plat_get_syscnt_freq2()
+#define TIMEOUT_US_200MS	U(200000)
+#define TIMEOUT_US_1S		U(1000000)
 
-#define PLLRDY_TIMEOUT	TIMEOUT_200MS
-#define CLKSRC_TIMEOUT	TIMEOUT_200MS
-#define CLKDIV_TIMEOUT	TIMEOUT_200MS
-#define HSIDIV_TIMEOUT	TIMEOUT_200MS
-#define OSCRDY_TIMEOUT	TIMEOUT_1S
+#define PLLRDY_TIMEOUT		TIMEOUT_US_200MS
+#define CLKSRC_TIMEOUT		TIMEOUT_US_200MS
+#define CLKDIV_TIMEOUT		TIMEOUT_US_200MS
+#define HSIDIV_TIMEOUT		TIMEOUT_US_200MS
+#define OSCRDY_TIMEOUT		TIMEOUT_US_1S
 
 enum stm32mp1_parent_id {
 /* Oscillators are defined in enum stm32mp_osc_id */
@@ -68,12 +70,20 @@ enum stm32mp1_parent_id {
 	_HCLK2,
 	_CK_PER,
 	_CK_MPU,
+	_USB_PHY_48,
 	_PARENT_NB,
 	_UNKNOWN_ID = 0xff,
 };
 
+/* Lists only the parent clock we are interested in */
 enum stm32mp1_parent_sel {
+	_I2C12_SEL,
+	_I2C35_SEL,
+	_STGEN_SEL,
 	_I2C46_SEL,
+	_SPI6_SEL,
+	_USART1_SEL,
+	_RNG1_SEL,
 	_UART6_SEL,
 	_UART24_SEL,
 	_UART35_SEL,
@@ -82,9 +92,9 @@ enum stm32mp1_parent_sel {
 	_SDMMC3_SEL,
 	_QSPI_SEL,
 	_FMC_SEL,
+	_ASS_SEL,
 	_USBPHY_SEL,
 	_USBO_SEL,
-	_STGEN_SEL,
 	_PARENT_SEL_NB,
 	_UNKNOWN_SEL = 0xff,
 };
@@ -164,9 +174,8 @@ struct stm32mp1_clk_gate {
 	uint8_t bit;
 	uint8_t index;
 	uint8_t set_clr;
-	enum stm32mp1_parent_sel sel;
-	enum stm32mp1_parent_id fixed;
-	bool secure;
+	uint8_t sel; /* Relates to enum stm32mp1_parent_sel */
+	uint8_t fixed; /* Relates to enum stm32mp1_parent_id */
 };
 
 struct stm32mp1_clk_sel {
@@ -189,21 +198,8 @@ struct stm32mp1_clk_pll {
 	enum stm32mp_osc_id refclk[REFCLK_SIZE];
 };
 
-struct stm32mp1_clk_data {
-	const struct stm32mp1_clk_gate *gate;
-	const struct stm32mp1_clk_sel *sel;
-	const struct stm32mp1_clk_pll *pll;
-	const int nb_gate;
-};
-
-struct stm32mp1_clk_priv {
-	uint32_t base;
-	const struct stm32mp1_clk_data *data;
-	unsigned long osc[NB_OSC];
-	uint32_t pkcs_usb_value;
-};
-
-#define STM32MP1_CLK(off, b, idx, s)			\
+/* Clocks with selectable source and non set/clr register access */
+#define _CLK_SELEC(off, b, idx, s)			\
 	{						\
 		.offset = (off),			\
 		.bit = (b),				\
@@ -211,10 +207,10 @@ struct stm32mp1_clk_priv {
 		.set_clr = 0,				\
 		.sel = (s),				\
 		.fixed = _UNKNOWN_ID,			\
-		.secure = 0,				\
 	}
 
-#define STM32MP1_CLK_F(off, b, idx, f)			\
+/* Clocks with fixed source and non set/clr register access */
+#define _CLK_FIXED(off, b, idx, f)			\
 	{						\
 		.offset = (off),			\
 		.bit = (b),				\
@@ -222,10 +218,10 @@ struct stm32mp1_clk_priv {
 		.set_clr = 0,				\
 		.sel = _UNKNOWN_SEL,			\
 		.fixed = (f),				\
-		.secure = 0,				\
 	}
 
-#define STM32MP1_CLK_SET_CLR(off, b, idx, s)		\
+/* Clocks with selectable source and set/clr register access */
+#define _CLK_SC_SELEC(off, b, idx, s)			\
 	{						\
 		.offset = (off),			\
 		.bit = (b),				\
@@ -233,10 +229,10 @@ struct stm32mp1_clk_priv {
 		.set_clr = 1,				\
 		.sel = (s),				\
 		.fixed = _UNKNOWN_ID,			\
-		.secure = 0,				\
 	}
 
-#define STM32MP1_CLK_SET_CLR_F(off, b, idx, f)		\
+/* Clocks with fixed source and set/clr register access */
+#define _CLK_SC_FIXED(off, b, idx, f)			\
 	{						\
 		.offset = (off),			\
 		.bit = (b),				\
@@ -244,32 +240,20 @@ struct stm32mp1_clk_priv {
 		.set_clr = 1,				\
 		.sel = _UNKNOWN_SEL,			\
 		.fixed = (f),				\
-		.secure = 0,				\
 	}
 
-#define STM32MP1_CLK_SEC_SET_CLR(off, b, idx, s)	\
-	{						\
-		.offset = (off),			\
-		.bit = (b),				\
-		.index = (idx),				\
-		.set_clr = 1,				\
-		.sel = (s),				\
-		.fixed = _UNKNOWN_ID,			\
-		.secure = 1,				\
-	}
-
-#define STM32MP1_CLK_PARENT(idx, off, s, m, p)		\
+#define _CLK_PARENT(idx, off, s, m, p)			\
 	[(idx)] = {					\
 		.offset = (off),			\
 		.src = (s),				\
 		.msk = (m),				\
 		.parent = (p),				\
-		.nb_parent = ARRAY_SIZE((p))		\
+		.nb_parent = ARRAY_SIZE(p)		\
 	}
 
-#define STM32MP1_CLK_PLL(idx, type, off1, off2, off3,	\
-			 off4, off5, off6,		\
-			 p1, p2, p3, p4)		\
+#define _CLK_PLL(idx, type, off1, off2, off3,		\
+		 off4, off5, off6,			\
+		 p1, p2, p3, p4)			\
 	[(idx)] = {					\
 		.plltype = (type),			\
 		.rckxselr = (off1),			\
@@ -285,113 +269,176 @@ struct stm32mp1_clk_priv {
 	}
 
 static const uint8_t stm32mp1_clks[][2] = {
-	{CK_PER, _CK_PER},
-	{CK_MPU, _CK_MPU},
-	{CK_AXI, _ACLK},
-	{CK_HSE, _HSE},
-	{CK_CSI, _CSI},
-	{CK_LSI, _LSI},
-	{CK_LSE, _LSE},
-	{CK_HSI, _HSI},
-	{CK_HSE_DIV2, _HSE_KER_DIV2},
+	{ CK_PER, _CK_PER },
+	{ CK_MPU, _CK_MPU },
+	{ CK_AXI, _ACLK },
+	{ CK_HSE, _HSE },
+	{ CK_CSI, _CSI },
+	{ CK_LSI, _LSI },
+	{ CK_LSE, _LSE },
+	{ CK_HSI, _HSI },
+	{ CK_HSE_DIV2, _HSE_KER_DIV2 },
 };
+
+#define NB_GATES	ARRAY_SIZE(stm32mp1_clk_gate)
 
 static const struct stm32mp1_clk_gate stm32mp1_clk_gate[] = {
-	STM32MP1_CLK(RCC_DDRITFCR, 0, DDRC1, _UNKNOWN_SEL),
-	STM32MP1_CLK(RCC_DDRITFCR, 1, DDRC1LP, _UNKNOWN_SEL),
-	STM32MP1_CLK(RCC_DDRITFCR, 2, DDRC2, _UNKNOWN_SEL),
-	STM32MP1_CLK(RCC_DDRITFCR, 3, DDRC2LP, _UNKNOWN_SEL),
-	STM32MP1_CLK_F(RCC_DDRITFCR, 4, DDRPHYC, _PLL2_R),
-	STM32MP1_CLK(RCC_DDRITFCR, 5, DDRPHYCLP, _UNKNOWN_SEL),
-	STM32MP1_CLK(RCC_DDRITFCR, 6, DDRCAPB, _UNKNOWN_SEL),
-	STM32MP1_CLK(RCC_DDRITFCR, 7, DDRCAPBLP, _UNKNOWN_SEL),
-	STM32MP1_CLK(RCC_DDRITFCR, 8, AXIDCG, _UNKNOWN_SEL),
-	STM32MP1_CLK(RCC_DDRITFCR, 9, DDRPHYCAPB, _UNKNOWN_SEL),
-	STM32MP1_CLK(RCC_DDRITFCR, 10, DDRPHYCAPBLP, _UNKNOWN_SEL),
+	_CLK_FIXED(RCC_DDRITFCR, 0, DDRC1, _ACLK),
+	_CLK_FIXED(RCC_DDRITFCR, 1, DDRC1LP, _ACLK),
+	_CLK_FIXED(RCC_DDRITFCR, 2, DDRC2, _ACLK),
+	_CLK_FIXED(RCC_DDRITFCR, 3, DDRC2LP, _ACLK),
+	_CLK_FIXED(RCC_DDRITFCR, 4, DDRPHYC, _PLL2_R),
+	_CLK_FIXED(RCC_DDRITFCR, 5, DDRPHYCLP, _PLL2_R),
+	_CLK_FIXED(RCC_DDRITFCR, 6, DDRCAPB, _PCLK4),
+	_CLK_FIXED(RCC_DDRITFCR, 7, DDRCAPBLP, _PCLK4),
+	_CLK_FIXED(RCC_DDRITFCR, 8, AXIDCG, _ACLK),
+	_CLK_FIXED(RCC_DDRITFCR, 9, DDRPHYCAPB, _PCLK4),
+	_CLK_FIXED(RCC_DDRITFCR, 10, DDRPHYCAPBLP, _PCLK4),
 
-	STM32MP1_CLK_SET_CLR(RCC_MP_APB1ENSETR, 14, USART2_K, _UART24_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_APB1ENSETR, 15, USART3_K, _UART35_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_APB1ENSETR, 16, UART4_K, _UART24_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_APB1ENSETR, 17, UART5_K, _UART35_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_APB1ENSETR, 18, UART7_K, _UART78_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_APB1ENSETR, 19, UART8_K, _UART78_SEL),
+	_CLK_SC_FIXED(RCC_MP_APB1ENSETR, 6, TIM12_K, _PCLK1),
+	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 14, USART2_K, _UART24_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 15, USART3_K, _UART35_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 16, UART4_K, _UART24_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 17, UART5_K, _UART35_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 18, UART7_K, _UART78_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 19, UART8_K, _UART78_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 21, I2C1_K, _I2C12_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 22, I2C2_K, _I2C12_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 23, I2C3_K, _I2C35_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB1ENSETR, 24, I2C5_K, _I2C35_SEL),
 
-	STM32MP1_CLK_SET_CLR(RCC_MP_APB2ENSETR, 13, USART6_K, _UART6_SEL),
+	_CLK_SC_FIXED(RCC_MP_APB2ENSETR, 2, TIM15_K, _PCLK2),
+	_CLK_SC_SELEC(RCC_MP_APB2ENSETR, 13, USART6_K, _UART6_SEL),
 
-	STM32MP1_CLK_SET_CLR(RCC_MP_APB4ENSETR, 8, DDRPERFM, _UNKNOWN_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_APB4ENSETR, 15, IWDG2, _UNKNOWN_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_APB4ENSETR, 16, USBPHY_K, _USBPHY_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB4ENSETR, 8, DDRPERFM, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB4ENSETR, 15, IWDG2, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB4ENSETR, 16, USBPHY_K, _USBPHY_SEL),
 
-	STM32MP1_CLK_SEC_SET_CLR(RCC_MP_APB5ENSETR, 2, I2C4_K, _I2C46_SEL),
-	STM32MP1_CLK_SEC_SET_CLR(RCC_MP_APB5ENSETR, 8, RTCAPB, _PCLK5),
-	STM32MP1_CLK_SEC_SET_CLR(RCC_MP_APB5ENSETR, 11, TZC1, _UNKNOWN_SEL),
-	STM32MP1_CLK_SEC_SET_CLR(RCC_MP_APB5ENSETR, 12, TZC2, _UNKNOWN_SEL),
-	STM32MP1_CLK_SEC_SET_CLR(RCC_MP_APB5ENSETR, 20, STGEN_K, _STGEN_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 0, SPI6_K, _SPI6_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 2, I2C4_K, _I2C46_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 3, I2C6_K, _I2C46_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 4, USART1_K, _USART1_SEL),
+	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 8, RTCAPB, _PCLK5),
+	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 11, TZC1, _PCLK5),
+	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 12, TZC2, _PCLK5),
+	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 13, TZPC, _PCLK5),
+	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 15, IWDG1, _PCLK5),
+	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 16, BSEC, _PCLK5),
+	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 20, STGEN_K, _STGEN_SEL),
 
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB2ENSETR, 8, USBO_K, _USBO_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB2ENSETR, 16, SDMMC3_K, _SDMMC3_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB2ENSETR, 8, USBO_K, _USBO_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB2ENSETR, 16, SDMMC3_K, _SDMMC3_SEL),
 
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB4ENSETR, 0, GPIOA, _UNKNOWN_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB4ENSETR, 1, GPIOB, _UNKNOWN_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB4ENSETR, 2, GPIOC, _UNKNOWN_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB4ENSETR, 3, GPIOD, _UNKNOWN_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB4ENSETR, 4, GPIOE, _UNKNOWN_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB4ENSETR, 5, GPIOF, _UNKNOWN_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB4ENSETR, 6, GPIOG, _UNKNOWN_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB4ENSETR, 7, GPIOH, _UNKNOWN_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB4ENSETR, 8, GPIOI, _UNKNOWN_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB4ENSETR, 9, GPIOJ, _UNKNOWN_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB4ENSETR, 10, GPIOK, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 0, GPIOA, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 1, GPIOB, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 2, GPIOC, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 3, GPIOD, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 4, GPIOE, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 5, GPIOF, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 6, GPIOG, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 7, GPIOH, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 8, GPIOI, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 9, GPIOJ, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB4ENSETR, 10, GPIOK, _UNKNOWN_SEL),
 
-	STM32MP1_CLK_SEC_SET_CLR(RCC_MP_AHB5ENSETR, 0, GPIOZ, _UNKNOWN_SEL),
-	STM32MP1_CLK_SEC_SET_CLR(RCC_MP_AHB5ENSETR, 5, HASH1, _UNKNOWN_SEL),
-	STM32MP1_CLK_SEC_SET_CLR(RCC_MP_AHB5ENSETR, 6, RNG1_K, _CSI_KER),
-	STM32MP1_CLK_SEC_SET_CLR(RCC_MP_AHB5ENSETR, 8, BKPSRAM, _UNKNOWN_SEL),
+	_CLK_SC_FIXED(RCC_MP_AHB5ENSETR, 0, GPIOZ, _PCLK5),
+	_CLK_SC_FIXED(RCC_MP_AHB5ENSETR, 4, CRYP1, _PCLK5),
+	_CLK_SC_FIXED(RCC_MP_AHB5ENSETR, 5, HASH1, _PCLK5),
+	_CLK_SC_SELEC(RCC_MP_AHB5ENSETR, 6, RNG1_K, _RNG1_SEL),
+	_CLK_SC_FIXED(RCC_MP_AHB5ENSETR, 8, BKPSRAM, _PCLK5),
 
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB6ENSETR, 12, FMC_K, _FMC_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB6ENSETR, 14, QSPI_K, _QSPI_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB6ENSETR, 16, SDMMC1_K, _SDMMC12_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB6ENSETR, 17, SDMMC2_K, _SDMMC12_SEL),
-	STM32MP1_CLK_SET_CLR(RCC_MP_AHB6ENSETR, 24, USBH, _UNKNOWN_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB6ENSETR, 12, FMC_K, _FMC_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB6ENSETR, 14, QSPI_K, _QSPI_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB6ENSETR, 16, SDMMC1_K, _SDMMC12_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB6ENSETR, 17, SDMMC2_K, _SDMMC12_SEL),
+	_CLK_SC_SELEC(RCC_MP_AHB6ENSETR, 24, USBH, _UNKNOWN_SEL),
 
-	STM32MP1_CLK(RCC_DBGCFGR, 8, CK_DBG, _UNKNOWN_SEL),
+	_CLK_SELEC(RCC_DBGCFGR, 8, CK_DBG, _UNKNOWN_SEL),
 };
 
-static const uint8_t i2c46_parents[] = {_PCLK5, _PLL3_Q, _HSI_KER, _CSI_KER};
-static const uint8_t uart6_parents[] = {_PCLK2, _PLL4_Q, _HSI_KER, _CSI_KER,
-					_HSE_KER};
-static const uint8_t uart24_parents[] = {_PCLK1, _PLL4_Q, _HSI_KER, _CSI_KER,
-					 _HSE_KER};
-static const uint8_t uart35_parents[] = {_PCLK1, _PLL4_Q, _HSI_KER, _CSI_KER,
-					 _HSE_KER};
-static const uint8_t uart78_parents[] = {_PCLK1, _PLL4_Q, _HSI_KER, _CSI_KER,
-					 _HSE_KER};
-static const uint8_t sdmmc12_parents[] = {_HCLK6, _PLL3_R, _PLL4_P, _HSI_KER};
-static const uint8_t sdmmc3_parents[] = {_HCLK2, _PLL3_R, _PLL4_P, _HSI_KER};
-static const uint8_t qspi_parents[] = {_ACLK, _PLL3_R, _PLL4_P, _CK_PER};
-static const uint8_t fmc_parents[] = {_ACLK, _PLL3_R, _PLL4_P, _CK_PER};
-static const uint8_t usbphy_parents[] = {_HSE_KER, _PLL4_R, _HSE_KER_DIV2};
-static const uint8_t usbo_parents[] = {_PLL4_R, _USB_PHY_48};
-static const uint8_t stgen_parents[] = {_HSI_KER, _HSE_KER};
+static const uint8_t i2c12_parents[] = {
+	_PCLK1, _PLL4_R, _HSI_KER, _CSI_KER
+};
+
+static const uint8_t i2c35_parents[] = {
+	_PCLK1, _PLL4_R, _HSI_KER, _CSI_KER
+};
+
+static const uint8_t stgen_parents[] = {
+	_HSI_KER, _HSE_KER
+};
+
+static const uint8_t i2c46_parents[] = {
+	_PCLK5, _PLL3_Q, _HSI_KER, _CSI_KER
+};
+
+static const uint8_t spi6_parents[] = {
+	_PCLK5, _PLL4_Q, _HSI_KER, _CSI_KER, _HSE_KER, _PLL3_Q
+};
+
+static const uint8_t usart1_parents[] = {
+	_PCLK5, _PLL3_Q, _HSI_KER, _CSI_KER, _PLL4_Q, _HSE_KER
+};
+
+static const uint8_t rng1_parents[] = {
+	_CSI, _PLL4_R, _LSE, _LSI
+};
+
+static const uint8_t uart6_parents[] = {
+	_PCLK2, _PLL4_Q, _HSI_KER, _CSI_KER, _HSE_KER
+};
+
+static const uint8_t uart234578_parents[] = {
+	_PCLK1, _PLL4_Q, _HSI_KER, _CSI_KER, _HSE_KER
+};
+
+static const uint8_t sdmmc12_parents[] = {
+	_HCLK6, _PLL3_R, _PLL4_P, _HSI_KER
+};
+
+static const uint8_t sdmmc3_parents[] = {
+	_HCLK2, _PLL3_R, _PLL4_P, _HSI_KER
+};
+
+static const uint8_t qspi_parents[] = {
+	_ACLK, _PLL3_R, _PLL4_P, _CK_PER
+};
+
+static const uint8_t fmc_parents[] = {
+	_ACLK, _PLL3_R, _PLL4_P, _CK_PER
+};
+
+static const uint8_t ass_parents[] = {
+	_HSI, _HSE, _PLL2
+};
+
+static const uint8_t usbphy_parents[] = {
+	_HSE_KER, _PLL4_R, _HSE_KER_DIV2
+};
+
+static const uint8_t usbo_parents[] = {
+	_PLL4_R, _USB_PHY_48
+};
 
 static const struct stm32mp1_clk_sel stm32mp1_clk_sel[_PARENT_SEL_NB] = {
-	STM32MP1_CLK_PARENT(_I2C46_SEL, RCC_I2C46CKSELR, 0, 0x7, i2c46_parents),
-	STM32MP1_CLK_PARENT(_UART6_SEL, RCC_UART6CKSELR, 0, 0x7, uart6_parents),
-	STM32MP1_CLK_PARENT(_UART24_SEL, RCC_UART24CKSELR, 0, 0x7,
-			    uart24_parents),
-	STM32MP1_CLK_PARENT(_UART35_SEL, RCC_UART35CKSELR, 0, 0x7,
-			    uart35_parents),
-	STM32MP1_CLK_PARENT(_UART78_SEL, RCC_UART78CKSELR, 0, 0x7,
-			    uart78_parents),
-	STM32MP1_CLK_PARENT(_SDMMC12_SEL, RCC_SDMMC12CKSELR, 0, 0x7,
-			    sdmmc12_parents),
-	STM32MP1_CLK_PARENT(_SDMMC3_SEL, RCC_SDMMC3CKSELR, 0, 0x7,
-			    sdmmc3_parents),
-	STM32MP1_CLK_PARENT(_QSPI_SEL, RCC_QSPICKSELR, 0, 0xf, qspi_parents),
-	STM32MP1_CLK_PARENT(_FMC_SEL, RCC_FMCCKSELR, 0, 0xf, fmc_parents),
-	STM32MP1_CLK_PARENT(_USBPHY_SEL, RCC_USBCKSELR, 0, 0x3, usbphy_parents),
-	STM32MP1_CLK_PARENT(_USBO_SEL, RCC_USBCKSELR, 4, 0x1, usbo_parents),
-	STM32MP1_CLK_PARENT(_STGEN_SEL, RCC_STGENCKSELR, 0, 0x3, stgen_parents),
+	_CLK_PARENT(_I2C12_SEL, RCC_I2C12CKSELR, 0, 0x7, i2c12_parents),
+	_CLK_PARENT(_I2C35_SEL, RCC_I2C35CKSELR, 0, 0x7, i2c35_parents),
+	_CLK_PARENT(_STGEN_SEL, RCC_STGENCKSELR, 0, 0x3, stgen_parents),
+	_CLK_PARENT(_I2C46_SEL, RCC_I2C46CKSELR, 0, 0x7, i2c46_parents),
+	_CLK_PARENT(_SPI6_SEL, RCC_SPI6CKSELR, 0, 0x7, spi6_parents),
+	_CLK_PARENT(_USART1_SEL, RCC_UART1CKSELR, 0, 0x7, usart1_parents),
+	_CLK_PARENT(_RNG1_SEL, RCC_RNG1CKSELR, 0, 0x3, rng1_parents),
+	_CLK_PARENT(_UART6_SEL, RCC_UART6CKSELR, 0, 0x7, uart6_parents),
+	_CLK_PARENT(_UART24_SEL, RCC_UART24CKSELR, 0, 0x7, uart234578_parents),
+	_CLK_PARENT(_UART35_SEL, RCC_UART35CKSELR, 0, 0x7, uart234578_parents),
+	_CLK_PARENT(_UART78_SEL, RCC_UART78CKSELR, 0, 0x7, uart234578_parents),
+	_CLK_PARENT(_SDMMC12_SEL, RCC_SDMMC12CKSELR, 0, 0x7, sdmmc12_parents),
+	_CLK_PARENT(_SDMMC3_SEL, RCC_SDMMC3CKSELR, 0, 0x7, sdmmc3_parents),
+	_CLK_PARENT(_QSPI_SEL, RCC_QSPICKSELR, 0, 0xf, qspi_parents),
+	_CLK_PARENT(_FMC_SEL, RCC_FMCCKSELR, 0, 0xf, fmc_parents),
+	_CLK_PARENT(_ASS_SEL, RCC_ASSCKSELR, 0, 0x3, ass_parents),
+	_CLK_PARENT(_USBPHY_SEL, RCC_USBCKSELR, 0, 0x3, usbphy_parents),
+	_CLK_PARENT(_USBO_SEL, RCC_USBCKSELR, 4, 0x1, usbo_parents),
 };
 
 /* Define characteristic of PLL according type */
@@ -413,26 +460,26 @@ static const struct stm32mp1_pll stm32mp1_pll[PLL_TYPE_NB] = {
 static const uint8_t pllncfgr2[_DIV_NB] = {
 	[_DIV_P] = RCC_PLLNCFGR2_DIVP_SHIFT,
 	[_DIV_Q] = RCC_PLLNCFGR2_DIVQ_SHIFT,
-	[_DIV_R] = RCC_PLLNCFGR2_DIVR_SHIFT
+	[_DIV_R] = RCC_PLLNCFGR2_DIVR_SHIFT,
 };
 
 static const struct stm32mp1_clk_pll stm32mp1_clk_pll[_PLL_NB] = {
-	STM32MP1_CLK_PLL(_PLL1, PLL_1600,
-			 RCC_RCK12SELR, RCC_PLL1CFGR1, RCC_PLL1CFGR2,
-			 RCC_PLL1FRACR, RCC_PLL1CR, RCC_PLL1CSGR,
-			 _HSI, _HSE, _UNKNOWN_OSC_ID, _UNKNOWN_OSC_ID),
-	STM32MP1_CLK_PLL(_PLL2, PLL_1600,
-			 RCC_RCK12SELR, RCC_PLL2CFGR1, RCC_PLL2CFGR2,
-			 RCC_PLL2FRACR, RCC_PLL2CR, RCC_PLL2CSGR,
-			 _HSI, _HSE, _UNKNOWN_OSC_ID, _UNKNOWN_OSC_ID),
-	STM32MP1_CLK_PLL(_PLL3, PLL_800,
-			 RCC_RCK3SELR, RCC_PLL3CFGR1, RCC_PLL3CFGR2,
-			 RCC_PLL3FRACR, RCC_PLL3CR, RCC_PLL3CSGR,
-			 _HSI, _HSE, _CSI, _UNKNOWN_OSC_ID),
-	STM32MP1_CLK_PLL(_PLL4, PLL_800,
-			 RCC_RCK4SELR, RCC_PLL4CFGR1, RCC_PLL4CFGR2,
-			 RCC_PLL4FRACR, RCC_PLL4CR, RCC_PLL4CSGR,
-			 _HSI, _HSE, _CSI, _I2S_CKIN),
+	_CLK_PLL(_PLL1, PLL_1600,
+		 RCC_RCK12SELR, RCC_PLL1CFGR1, RCC_PLL1CFGR2,
+		 RCC_PLL1FRACR, RCC_PLL1CR, RCC_PLL1CSGR,
+		 _HSI, _HSE, _UNKNOWN_OSC_ID, _UNKNOWN_OSC_ID),
+	_CLK_PLL(_PLL2, PLL_1600,
+		 RCC_RCK12SELR, RCC_PLL2CFGR1, RCC_PLL2CFGR2,
+		 RCC_PLL2FRACR, RCC_PLL2CR, RCC_PLL2CSGR,
+		 _HSI, _HSE, _UNKNOWN_OSC_ID, _UNKNOWN_OSC_ID),
+	_CLK_PLL(_PLL3, PLL_800,
+		 RCC_RCK3SELR, RCC_PLL3CFGR1, RCC_PLL3CFGR2,
+		 RCC_PLL3FRACR, RCC_PLL3CR, RCC_PLL3CSGR,
+		 _HSI, _HSE, _CSI, _UNKNOWN_OSC_ID),
+	_CLK_PLL(_PLL4, PLL_800,
+		 RCC_RCK4SELR, RCC_PLL4CFGR1, RCC_PLL4CFGR2,
+		 RCC_PLL4FRACR, RCC_PLL4CR, RCC_PLL4CSGR,
+		 _HSI, _HSE, _CSI, _I2S_CKIN),
 };
 
 /* Prescaler table lookups for clock computation */
@@ -449,33 +496,84 @@ static const uint8_t stm32mp1_axi_div[8] = {
 	1, 2, 3, 4, 4, 4, 4, 4
 };
 
-static const struct stm32mp1_clk_data stm32mp1_data = {
-	.gate = stm32mp1_clk_gate,
-	.sel = stm32mp1_clk_sel,
-	.pll = stm32mp1_clk_pll,
-	.nb_gate = ARRAY_SIZE(stm32mp1_clk_gate),
-};
+/* RCC clock device driver private */
+static unsigned long stm32mp1_osc[NB_OSC];
+static struct spinlock reg_lock;
+static unsigned int gate_refcounts[NB_GATES];
+static struct spinlock refcount_lock;
 
-static struct stm32mp1_clk_priv stm32mp1_clk_priv_data;
+static const struct stm32mp1_clk_gate *gate_ref(unsigned int idx)
+{
+	return &stm32mp1_clk_gate[idx];
+}
 
-static unsigned long stm32mp1_clk_get_fixed(struct stm32mp1_clk_priv *priv,
-					    enum stm32mp_osc_id idx)
+static const struct stm32mp1_clk_sel *clk_sel_ref(unsigned int idx)
+{
+	return &stm32mp1_clk_sel[idx];
+}
+
+static const struct stm32mp1_clk_pll *pll_ref(unsigned int idx)
+{
+	return &stm32mp1_clk_pll[idx];
+}
+
+static int stm32mp1_lock_available(void)
+{
+	/* The spinlocks are used only when MMU is enabled */
+	return (read_sctlr() & SCTLR_M_BIT) && (read_sctlr() & SCTLR_C_BIT);
+}
+
+static void stm32mp1_clk_lock(struct spinlock *lock)
+{
+	if (stm32mp1_lock_available() == 0U) {
+		return;
+	}
+
+	/* Assume interrupts are masked */
+	spin_lock(lock);
+}
+
+static void stm32mp1_clk_unlock(struct spinlock *lock)
+{
+	if (stm32mp1_lock_available() == 0U) {
+		return;
+	}
+
+	spin_unlock(lock);
+}
+
+bool stm32mp1_rcc_is_secure(void)
+{
+	uintptr_t rcc_base = stm32mp_rcc_base();
+
+	return (mmio_read_32(rcc_base + RCC_TZCR) & RCC_TZCR_TZEN) != 0;
+}
+
+void stm32mp1_clk_rcc_regs_lock(void)
+{
+	stm32mp1_clk_lock(&reg_lock);
+}
+
+void stm32mp1_clk_rcc_regs_unlock(void)
+{
+	stm32mp1_clk_unlock(&reg_lock);
+}
+
+static unsigned long stm32mp1_clk_get_fixed(enum stm32mp_osc_id idx)
 {
 	if (idx >= NB_OSC) {
 		return 0;
 	}
 
-	return priv->osc[idx];
+	return stm32mp1_osc[idx];
 }
 
-static int stm32mp1_clk_get_id(struct stm32mp1_clk_priv *priv, unsigned long id)
+static int stm32mp1_clk_get_gated_id(unsigned long id)
 {
-	const struct stm32mp1_clk_gate *gate = priv->data->gate;
-	int i;
-	int nb_clks = priv->data->nb_gate;
+	unsigned int i;
 
-	for (i = 0; i < nb_clks; i++) {
-		if (gate[i].index == id) {
+	for (i = 0U; i < NB_GATES; i++) {
+		if (gate_ref(i)->index == id) {
 			return i;
 		}
 	}
@@ -485,77 +583,64 @@ static int stm32mp1_clk_get_id(struct stm32mp1_clk_priv *priv, unsigned long id)
 	return -EINVAL;
 }
 
-static enum stm32mp1_parent_sel
-stm32mp1_clk_get_sel(struct stm32mp1_clk_priv *priv, int i)
+static enum stm32mp1_parent_sel stm32mp1_clk_get_sel(int i)
 {
-	const struct stm32mp1_clk_gate *gate = priv->data->gate;
-
-	return gate[i].sel;
+	return (enum stm32mp1_parent_sel)(gate_ref(i)->sel);
 }
 
-static enum stm32mp1_parent_id
-stm32mp1_clk_get_fixed_parent(struct stm32mp1_clk_priv *priv, int i)
+static enum stm32mp1_parent_id stm32mp1_clk_get_fixed_parent(int i)
 {
-	const struct stm32mp1_clk_gate *gate = priv->data->gate;
-
-	return gate[i].fixed;
+	return (enum stm32mp1_parent_id)(gate_ref(i)->fixed);
 }
 
-static int stm32mp1_clk_get_parent(struct stm32mp1_clk_priv *priv,
-				   unsigned long id)
+static int stm32mp1_clk_get_parent(unsigned long id)
 {
-	const struct stm32mp1_clk_sel *sel = priv->data->sel;
+	const struct stm32mp1_clk_sel *sel;
 	uint32_t j, p_sel;
 	int i;
 	enum stm32mp1_parent_id p;
 	enum stm32mp1_parent_sel s;
+	uintptr_t rcc_base = stm32mp_rcc_base();
 
-	for (j = 0; j < ARRAY_SIZE(stm32mp1_clks); j++) {
+	for (j = 0U; j < ARRAY_SIZE(stm32mp1_clks); j++) {
 		if (stm32mp1_clks[j][0] == id) {
 			return (int)stm32mp1_clks[j][1];
 		}
 	}
 
-	i = stm32mp1_clk_get_id(priv, id);
+	i = stm32mp1_clk_get_gated_id(id);
 	if (i < 0) {
-		return i;
+		panic();
 	}
 
-	p = stm32mp1_clk_get_fixed_parent(priv, i);
+	p = stm32mp1_clk_get_fixed_parent(i);
 	if (p < _PARENT_NB) {
 		return (int)p;
 	}
 
-	s = stm32mp1_clk_get_sel(priv, i);
-	if (s >= _PARENT_SEL_NB) {
+	s = stm32mp1_clk_get_sel(i);
+	if (s == _UNKNOWN_SEL) {
 		return -EINVAL;
 	}
-
-	p_sel = (mmio_read_32(priv->base + sel[s].offset) >> sel[s].src) &
-		sel[s].msk;
-
-	if (p_sel < sel[s].nb_parent) {
-		return (int)sel[s].parent[p_sel];
+	if (s >= _PARENT_SEL_NB) {
+		panic();
 	}
 
-	ERROR("%s: no parents defined for clk id %ld\n", __func__, id);
+	sel = clk_sel_ref(s);
+	p_sel = (mmio_read_32(rcc_base + sel->offset) >> sel->src) & sel->msk;
+	if (p_sel < sel->nb_parent) {
+		return (int)sel->parent[p_sel];
+	}
 
 	return -EINVAL;
 }
 
-static unsigned long stm32mp1_pll_get_fref_ck(struct stm32mp1_clk_priv *priv,
-					      enum stm32mp1_pll_id pll_id)
+static unsigned long stm32mp1_pll_get_fref(const struct stm32mp1_clk_pll *pll)
 {
-	const struct stm32mp1_clk_pll *pll = priv->data->pll;
-	uint32_t selr, src;
-	unsigned long refclk;
+	uint32_t selr = mmio_read_32(stm32mp_rcc_base() + pll->rckxselr);
+	uint32_t src = selr & RCC_SELR_REFCLK_SRC_MASK;
 
-	selr = mmio_read_32(priv->base + pll[pll_id].rckxselr);
-	src = selr & RCC_SELR_REFCLK_SRC_MASK;
-
-	refclk = stm32mp1_clk_get_fixed(priv, pll[pll_id].refclk[src]);
-
-	return refclk;
+	return stm32mp1_clk_get_fixed(pll->refclk[src]);
 }
 
 /*
@@ -564,20 +649,19 @@ static unsigned long stm32mp1_pll_get_fref_ck(struct stm32mp1_clk_priv *priv,
  * - PLL3 & PLL4 => return VCO     with Fpll_y_ck = FVCO / (DIVy + 1)
  * => in all cases Fpll_y_ck = pll_get_fvco() / (DIVy + 1)
  */
-static unsigned long stm32mp1_pll_get_fvco(struct stm32mp1_clk_priv *priv,
-					   enum stm32mp1_pll_id pll_id)
+static unsigned long stm32mp1_pll_get_fvco(const struct stm32mp1_clk_pll *pll)
 {
-	const struct stm32mp1_clk_pll *pll = priv->data->pll;
 	unsigned long refclk, fvco;
 	uint32_t cfgr1, fracr, divm, divn;
+	uintptr_t rcc_base = stm32mp_rcc_base();
 
-	cfgr1 = mmio_read_32(priv->base + pll[pll_id].pllxcfgr1);
-	fracr = mmio_read_32(priv->base + pll[pll_id].pllxfracr);
+	cfgr1 = mmio_read_32(rcc_base + pll->pllxcfgr1);
+	fracr = mmio_read_32(rcc_base + pll->pllxfracr);
 
 	divm = (cfgr1 & (RCC_PLLNCFGR1_DIVM_MASK)) >> RCC_PLLNCFGR1_DIVM_SHIFT;
 	divn = cfgr1 & RCC_PLLNCFGR1_DIVN_MASK;
 
-	refclk = stm32mp1_pll_get_fref_ck(priv, pll_id);
+	refclk = stm32mp1_pll_get_fref(pll);
 
 	/*
 	 * With FRACV :
@@ -586,13 +670,13 @@ static unsigned long stm32mp1_pll_get_fvco(struct stm32mp1_clk_priv *priv,
 	 *   Fvco = Fck_ref * ((DIVN + 1) / (DIVM + 1)
 	 */
 	if ((fracr & RCC_PLLNFRACR_FRACLE) != 0U) {
-		uint32_t fracv = (fracr & RCC_PLLNFRACR_FRACV_MASK)
-			    >> RCC_PLLNFRACR_FRACV_SHIFT;
+		uint32_t fracv = (fracr & RCC_PLLNFRACR_FRACV_MASK) >>
+				 RCC_PLLNFRACR_FRACV_SHIFT;
 		unsigned long long numerator, denominator;
 
-		numerator = ((unsigned long long)divn + 1U) << 13;
-		numerator = (refclk * numerator) + fracv;
-		denominator = ((unsigned long long)divm + 1U)  << 13;
+		numerator = (((unsigned long long)divn + 1U) << 13) + fracv;
+		numerator = refclk * numerator;
+		denominator = ((unsigned long long)divm + 1U) << 13;
 		fvco = (unsigned long)(numerator / denominator);
 	} else {
 		fvco = (unsigned long)(refclk * (divn + 1U) / (divm + 1U));
@@ -601,11 +685,10 @@ static unsigned long stm32mp1_pll_get_fvco(struct stm32mp1_clk_priv *priv,
 	return fvco;
 }
 
-static unsigned long stm32mp1_read_pll_freq(struct stm32mp1_clk_priv *priv,
-					    enum stm32mp1_pll_id pll_id,
+static unsigned long stm32mp1_read_pll_freq(enum stm32mp1_pll_id pll_id,
 					    enum stm32mp1_div_id div_id)
 {
-	const struct stm32mp1_clk_pll *pll = priv->data->pll;
+	const struct stm32mp1_clk_pll *pll = pll_ref(pll_id);
 	unsigned long dfout;
 	uint32_t cfgr2, divy;
 
@@ -613,42 +696,42 @@ static unsigned long stm32mp1_read_pll_freq(struct stm32mp1_clk_priv *priv,
 		return 0;
 	}
 
-	cfgr2 = mmio_read_32(priv->base + pll[pll_id].pllxcfgr2);
+	cfgr2 = mmio_read_32(stm32mp_rcc_base() + pll->pllxcfgr2);
 	divy = (cfgr2 >> pllncfgr2[div_id]) & RCC_PLLNCFGR2_DIVX_MASK;
 
-	dfout = stm32mp1_pll_get_fvco(priv, pll_id) / (divy + 1U);
+	dfout = stm32mp1_pll_get_fvco(pll) / (divy + 1U);
 
 	return dfout;
 }
 
-static unsigned long stm32mp1_clk_get(struct stm32mp1_clk_priv *priv, int p)
+static unsigned long get_clock_rate(int p)
 {
 	uint32_t reg, clkdiv;
 	unsigned long clock = 0;
+	uintptr_t rcc_base = stm32mp_rcc_base();
 
 	switch (p) {
 	case _CK_MPU:
 	/* MPU sub system */
-		reg = mmio_read_32(priv->base + RCC_MPCKSELR);
+		reg = mmio_read_32(rcc_base + RCC_MPCKSELR);
 		switch (reg & RCC_SELR_SRC_MASK) {
 		case RCC_MPCKSELR_HSI:
-			clock = stm32mp1_clk_get_fixed(priv, _HSI);
+			clock = stm32mp1_clk_get_fixed(_HSI);
 			break;
 		case RCC_MPCKSELR_HSE:
-			clock = stm32mp1_clk_get_fixed(priv, _HSE);
+			clock = stm32mp1_clk_get_fixed(_HSE);
 			break;
 		case RCC_MPCKSELR_PLL:
-			clock = stm32mp1_read_pll_freq(priv, _PLL1, _DIV_P);
+			clock = stm32mp1_read_pll_freq(_PLL1, _DIV_P);
 			break;
 		case RCC_MPCKSELR_PLL_MPUDIV:
-			clock = stm32mp1_read_pll_freq(priv, _PLL1, _DIV_P);
+			clock = stm32mp1_read_pll_freq(_PLL1, _DIV_P);
 
-			reg = mmio_read_32(priv->base + RCC_MPCKDIVR);
+			reg = mmio_read_32(rcc_base + RCC_MPCKDIVR);
 			clkdiv = reg & RCC_MPUDIV_MASK;
 			if (clkdiv != 0U) {
 				clock /= stm32mp1_mpu_div[clkdiv];
 			}
-
 			break;
 		default:
 			break;
@@ -660,32 +743,32 @@ static unsigned long stm32mp1_clk_get(struct stm32mp1_clk_priv *priv, int p)
 	case _HCLK6:
 	case _PCLK4:
 	case _PCLK5:
-		reg = mmio_read_32(priv->base + RCC_ASSCKSELR);
+		reg = mmio_read_32(rcc_base + RCC_ASSCKSELR);
 		switch (reg & RCC_SELR_SRC_MASK) {
 		case RCC_ASSCKSELR_HSI:
-			clock = stm32mp1_clk_get_fixed(priv, _HSI);
+			clock = stm32mp1_clk_get_fixed(_HSI);
 			break;
 		case RCC_ASSCKSELR_HSE:
-			clock = stm32mp1_clk_get_fixed(priv, _HSE);
+			clock = stm32mp1_clk_get_fixed(_HSE);
 			break;
 		case RCC_ASSCKSELR_PLL:
-			clock = stm32mp1_read_pll_freq(priv, _PLL2, _DIV_P);
+			clock = stm32mp1_read_pll_freq(_PLL2, _DIV_P);
 			break;
 		default:
 			break;
 		}
 
 		/* System clock divider */
-		reg = mmio_read_32(priv->base + RCC_AXIDIVR);
+		reg = mmio_read_32(rcc_base + RCC_AXIDIVR);
 		clock /= stm32mp1_axi_div[reg & RCC_AXIDIV_MASK];
 
 		switch (p) {
 		case _PCLK4:
-			reg = mmio_read_32(priv->base + RCC_APB4DIVR);
+			reg = mmio_read_32(rcc_base + RCC_APB4DIVR);
 			clock >>= stm32mp1_apbx_div[reg & RCC_APBXDIV_MASK];
 			break;
 		case _PCLK5:
-			reg = mmio_read_32(priv->base + RCC_APB5DIVR);
+			reg = mmio_read_32(rcc_base + RCC_APB5DIVR);
 			clock >>= stm32mp1_apbx_div[reg & RCC_APBXDIV_MASK];
 			break;
 		default:
@@ -693,16 +776,16 @@ static unsigned long stm32mp1_clk_get(struct stm32mp1_clk_priv *priv, int p)
 		}
 		break;
 	case _CK_PER:
-		reg = mmio_read_32(priv->base + RCC_CPERCKSELR);
+		reg = mmio_read_32(rcc_base + RCC_CPERCKSELR);
 		switch (reg & RCC_SELR_SRC_MASK) {
 		case RCC_CPERCKSELR_HSI:
-			clock = stm32mp1_clk_get_fixed(priv, _HSI);
+			clock = stm32mp1_clk_get_fixed(_HSI);
 			break;
 		case RCC_CPERCKSELR_HSE:
-			clock = stm32mp1_clk_get_fixed(priv, _HSE);
+			clock = stm32mp1_clk_get_fixed(_HSE);
 			break;
 		case RCC_CPERCKSELR_CSI:
-			clock = stm32mp1_clk_get_fixed(priv, _CSI);
+			clock = stm32mp1_clk_get_fixed(_CSI);
 			break;
 		default:
 			break;
@@ -710,65 +793,65 @@ static unsigned long stm32mp1_clk_get(struct stm32mp1_clk_priv *priv, int p)
 		break;
 	case _HSI:
 	case _HSI_KER:
-		clock = stm32mp1_clk_get_fixed(priv, _HSI);
+		clock = stm32mp1_clk_get_fixed(_HSI);
 		break;
 	case _CSI:
 	case _CSI_KER:
-		clock = stm32mp1_clk_get_fixed(priv, _CSI);
+		clock = stm32mp1_clk_get_fixed(_CSI);
 		break;
 	case _HSE:
 	case _HSE_KER:
-		clock = stm32mp1_clk_get_fixed(priv, _HSE);
+		clock = stm32mp1_clk_get_fixed(_HSE);
 		break;
 	case _HSE_KER_DIV2:
-		clock = stm32mp1_clk_get_fixed(priv, _HSE) >> 1;
+		clock = stm32mp1_clk_get_fixed(_HSE) >> 1;
 		break;
 	case _LSI:
-		clock = stm32mp1_clk_get_fixed(priv, _LSI);
+		clock = stm32mp1_clk_get_fixed(_LSI);
 		break;
 	case _LSE:
-		clock = stm32mp1_clk_get_fixed(priv, _LSE);
+		clock = stm32mp1_clk_get_fixed(_LSE);
 		break;
 	/* PLL */
 	case _PLL1_P:
-		clock = stm32mp1_read_pll_freq(priv, _PLL1, _DIV_P);
+		clock = stm32mp1_read_pll_freq(_PLL1, _DIV_P);
 		break;
 	case _PLL1_Q:
-		clock = stm32mp1_read_pll_freq(priv, _PLL1, _DIV_Q);
+		clock = stm32mp1_read_pll_freq(_PLL1, _DIV_Q);
 		break;
 	case _PLL1_R:
-		clock = stm32mp1_read_pll_freq(priv, _PLL1, _DIV_R);
+		clock = stm32mp1_read_pll_freq(_PLL1, _DIV_R);
 		break;
 	case _PLL2_P:
-		clock = stm32mp1_read_pll_freq(priv, _PLL2, _DIV_P);
+		clock = stm32mp1_read_pll_freq(_PLL2, _DIV_P);
 		break;
 	case _PLL2_Q:
-		clock = stm32mp1_read_pll_freq(priv, _PLL2, _DIV_Q);
+		clock = stm32mp1_read_pll_freq(_PLL2, _DIV_Q);
 		break;
 	case _PLL2_R:
-		clock = stm32mp1_read_pll_freq(priv, _PLL2, _DIV_R);
+		clock = stm32mp1_read_pll_freq(_PLL2, _DIV_R);
 		break;
 	case _PLL3_P:
-		clock = stm32mp1_read_pll_freq(priv, _PLL3, _DIV_P);
+		clock = stm32mp1_read_pll_freq(_PLL3, _DIV_P);
 		break;
 	case _PLL3_Q:
-		clock = stm32mp1_read_pll_freq(priv, _PLL3, _DIV_Q);
+		clock = stm32mp1_read_pll_freq(_PLL3, _DIV_Q);
 		break;
 	case _PLL3_R:
-		clock = stm32mp1_read_pll_freq(priv, _PLL3, _DIV_R);
+		clock = stm32mp1_read_pll_freq(_PLL3, _DIV_R);
 		break;
 	case _PLL4_P:
-		clock = stm32mp1_read_pll_freq(priv, _PLL4, _DIV_P);
+		clock = stm32mp1_read_pll_freq(_PLL4, _DIV_P);
 		break;
 	case _PLL4_Q:
-		clock = stm32mp1_read_pll_freq(priv, _PLL4, _DIV_Q);
+		clock = stm32mp1_read_pll_freq(_PLL4, _DIV_Q);
 		break;
 	case _PLL4_R:
-		clock = stm32mp1_read_pll_freq(priv, _PLL4, _DIV_R);
+		clock = stm32mp1_read_pll_freq(_PLL4, _DIV_R);
 		break;
 	/* Other */
 	case _USB_PHY_48:
-		clock = stm32mp1_clk_get_fixed(priv, _USB_PHY_48);
+		clock = USB_PHY_48_MHZ;
 		break;
 	default:
 		break;
@@ -777,113 +860,164 @@ static unsigned long stm32mp1_clk_get(struct stm32mp1_clk_priv *priv, int p)
 	return clock;
 }
 
-bool stm32mp1_clk_is_enabled(unsigned long id)
+static void __clk_enable(struct stm32mp1_clk_gate const *gate)
 {
-	struct stm32mp1_clk_priv *priv = &stm32mp1_clk_priv_data;
-	const struct stm32mp1_clk_gate *gate = priv->data->gate;
-	int i = stm32mp1_clk_get_id(priv, id);
+	uintptr_t rcc_base = stm32mp_rcc_base();
 
-	if (i < 0) {
-		return false;
-	}
-
-	return ((mmio_read_32(priv->base + gate[i].offset) &
-		 BIT(gate[i].bit)) != 0U);
-}
-
-int stm32mp1_clk_enable(unsigned long id)
-{
-	struct stm32mp1_clk_priv *priv = &stm32mp1_clk_priv_data;
-	const struct stm32mp1_clk_gate *gate = priv->data->gate;
-	int i = stm32mp1_clk_get_id(priv, id);
-
-	if (i < 0) {
-		return i;
-	}
-
-	if (gate[i].set_clr != 0U) {
-		mmio_write_32(priv->base + gate[i].offset, BIT(gate[i].bit));
+	if (gate->set_clr != 0U) {
+		mmio_write_32(rcc_base + gate->offset, BIT(gate->bit));
 	} else {
-		mmio_setbits_32(priv->base + gate[i].offset, BIT(gate[i].bit));
+		mmio_setbits_32(rcc_base + gate->offset, BIT(gate->bit));
 	}
 
-	return 0;
+	VERBOSE("Clock %d has been enabled", gate->index);
 }
 
-int stm32mp1_clk_disable(unsigned long id)
+static void __clk_disable(struct stm32mp1_clk_gate const *gate)
 {
-	struct stm32mp1_clk_priv *priv = &stm32mp1_clk_priv_data;
-	const struct stm32mp1_clk_gate *gate = priv->data->gate;
-	int i = stm32mp1_clk_get_id(priv, id);
+	uintptr_t rcc_base = stm32mp_rcc_base();
+
+	if (gate->set_clr != 0U) {
+		mmio_write_32(rcc_base + gate->offset + RCC_MP_ENCLRR_OFFSET,
+			      BIT(gate->bit));
+	} else {
+		mmio_clrbits_32(rcc_base + gate->offset, BIT(gate->bit));
+	}
+
+	VERBOSE("Clock %d has been disabled", gate->index);
+}
+
+static bool __clk_is_enabled(struct stm32mp1_clk_gate const *gate)
+{
+	uintptr_t rcc_base = stm32mp_rcc_base();
+
+	return mmio_read_32(rcc_base + gate->offset) & BIT(gate->bit);
+}
+
+unsigned int stm32mp1_clk_get_refcount(unsigned long id)
+{
+	int i = stm32mp1_clk_get_gated_id(id);
 
 	if (i < 0) {
-		return i;
+		panic();
 	}
 
-	if (gate[i].set_clr != 0U) {
-		mmio_write_32(priv->base + gate[i].offset
-			      + RCC_MP_ENCLRR_OFFSET,
-			      BIT(gate[i].bit));
-	} else {
-		mmio_clrbits_32(priv->base + gate[i].offset, BIT(gate[i].bit));
-	}
-
-	return 0;
+	return gate_refcounts[i];
 }
 
-unsigned long stm32mp1_clk_get_rate(unsigned long id)
+void __stm32mp1_clk_enable(unsigned long id, bool secure)
 {
-	struct stm32mp1_clk_priv *priv = &stm32mp1_clk_priv_data;
-	int p = stm32mp1_clk_get_parent(priv, id);
-	unsigned long rate;
+	const struct stm32mp1_clk_gate *gate;
+	int i = stm32mp1_clk_get_gated_id(id);
+	unsigned int *refcnt;
+
+	if (i < 0) {
+		ERROR("Clock %d can't be enabled\n", (uint32_t)id);
+		panic();
+	}
+
+	gate = gate_ref(i);
+	refcnt = &gate_refcounts[i];
+
+	stm32mp1_clk_lock(&refcount_lock);
+
+	if (stm32mp_incr_shrefcnt(refcnt, secure) != 0) {
+		__clk_enable(gate);
+	}
+
+	stm32mp1_clk_unlock(&refcount_lock);
+}
+
+void __stm32mp1_clk_disable(unsigned long id, bool secure)
+{
+	const struct stm32mp1_clk_gate *gate;
+	int i = stm32mp1_clk_get_gated_id(id);
+	unsigned int *refcnt;
+
+	if (i < 0) {
+		ERROR("Clock %d can't be disabled\n", (uint32_t)id);
+		panic();
+	}
+
+	gate = gate_ref(i);
+	refcnt = &gate_refcounts[i];
+
+	stm32mp1_clk_lock(&refcount_lock);
+
+	if (stm32mp_decr_shrefcnt(refcnt, secure) != 0) {
+		__clk_disable(gate);
+	}
+
+	stm32mp1_clk_unlock(&refcount_lock);
+}
+
+void stm32mp_clk_enable(unsigned long id)
+{
+	__stm32mp1_clk_enable(id, true);
+}
+
+void stm32mp_clk_disable(unsigned long id)
+{
+	__stm32mp1_clk_disable(id, true);
+}
+
+bool stm32mp_clk_is_enabled(unsigned long id)
+{
+	int i = stm32mp1_clk_get_gated_id(id);
+
+	if (i < 0) {
+		panic();
+	}
+
+	return __clk_is_enabled(gate_ref(i));
+}
+
+unsigned long stm32mp_clk_get_rate(unsigned long id)
+{
+	int p = stm32mp1_clk_get_parent(id);
 
 	if (p < 0) {
 		return 0;
 	}
 
-	rate = stm32mp1_clk_get(priv, p);
-
-	return rate;
+	return get_clock_rate(p);
 }
 
-static void stm32mp1_ls_osc_set(int enable, uint32_t rcc, uint32_t offset,
-				uint32_t mask_on)
+static void stm32mp1_ls_osc_set(bool enable, uint32_t offset, uint32_t mask_on)
 {
-	uint32_t address = rcc + offset;
+	uintptr_t address = stm32mp_rcc_base() + offset;
 
-	if (enable != 0) {
+	if (enable) {
 		mmio_setbits_32(address, mask_on);
 	} else {
 		mmio_clrbits_32(address, mask_on);
 	}
 }
 
-static void stm32mp1_hs_ocs_set(int enable, uint32_t rcc, uint32_t mask_on)
+static void stm32mp1_hs_ocs_set(bool enable, uint32_t mask_on)
 {
-	if (enable != 0) {
-		mmio_setbits_32(rcc + RCC_OCENSETR, mask_on);
-	} else {
-		mmio_setbits_32(rcc + RCC_OCENCLRR, mask_on);
-	}
+	uint32_t offset = enable ? RCC_OCENSETR : RCC_OCENCLRR;
+	uintptr_t address = stm32mp_rcc_base() + offset;
+
+	mmio_write_32(address, mask_on);
 }
 
-static int stm32mp1_osc_wait(int enable, uint32_t rcc, uint32_t offset,
-			     uint32_t mask_rdy)
+static int stm32mp1_osc_wait(bool enable, uint32_t offset, uint32_t mask_rdy)
 {
-	unsigned long start;
+	uint64_t timeout;
 	uint32_t mask_test;
-	uint32_t address = rcc + offset;
+	uintptr_t address = stm32mp_rcc_base() + offset;
 
-	if (enable != 0) {
+	if (enable) {
 		mask_test = mask_rdy;
 	} else {
 		mask_test = 0;
 	}
 
-	start = get_timer(0);
+	timeout = timeout_init_us(OSCRDY_TIMEOUT);
 	while ((mmio_read_32(address) & mask_rdy) != mask_test) {
-		if (get_timer(start) > OSCRDY_TIMEOUT) {
-			ERROR("OSC %x @ %x timeout for enable=%d : 0x%x\n",
+		if (timeout_elapsed(timeout)) {
+			ERROR("OSC %x @ %lx timeout for enable=%d : 0x%x\n",
 			      mask_rdy, address, enable, mmio_read_32(address));
 			return -ETIMEDOUT;
 		}
@@ -892,19 +1026,24 @@ static int stm32mp1_osc_wait(int enable, uint32_t rcc, uint32_t offset,
 	return 0;
 }
 
-static void stm32mp1_lse_enable(uint32_t rcc, bool bypass, uint32_t lsedrv)
+static void stm32mp1_lse_enable(bool bypass, bool digbyp, uint32_t lsedrv)
 {
 	uint32_t value;
+	uintptr_t rcc_base = stm32mp_rcc_base();
 
-	if (bypass) {
-		mmio_setbits_32(rcc + RCC_BDCR, RCC_BDCR_LSEBYP);
+	if (digbyp) {
+		mmio_setbits_32(rcc_base + RCC_BDCR, RCC_BDCR_DIGBYP);
+	}
+
+	if (bypass || digbyp) {
+		mmio_setbits_32(rcc_base + RCC_BDCR, RCC_BDCR_LSEBYP);
 	}
 
 	/*
 	 * Warning: not recommended to switch directly from "high drive"
 	 * to "medium low drive", and vice-versa.
 	 */
-	value = (mmio_read_32(rcc + RCC_BDCR) & RCC_BDCR_LSEDRV_MASK) >>
+	value = (mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_LSEDRV_MASK) >>
 		RCC_BDCR_LSEDRV_SHIFT;
 
 	while (value != lsedrv) {
@@ -914,78 +1053,82 @@ static void stm32mp1_lse_enable(uint32_t rcc, bool bypass, uint32_t lsedrv)
 			value++;
 		}
 
-		mmio_clrsetbits_32(rcc + RCC_BDCR,
+		mmio_clrsetbits_32(rcc_base + RCC_BDCR,
 				   RCC_BDCR_LSEDRV_MASK,
 				   value << RCC_BDCR_LSEDRV_SHIFT);
 	}
 
-	stm32mp1_ls_osc_set(1, rcc, RCC_BDCR, RCC_BDCR_LSEON);
+	stm32mp1_ls_osc_set(true, RCC_BDCR, RCC_BDCR_LSEON);
 }
 
-static void stm32mp1_lse_wait(uint32_t rcc)
+static void stm32mp1_lse_wait(void)
 {
-	if (stm32mp1_osc_wait(1, rcc, RCC_BDCR, RCC_BDCR_LSERDY) != 0) {
+	if (stm32mp1_osc_wait(true, RCC_BDCR, RCC_BDCR_LSERDY) != 0) {
 		VERBOSE("%s: failed\n", __func__);
 	}
 }
 
-static void stm32mp1_lsi_set(uint32_t rcc, int enable)
+static void stm32mp1_lsi_set(bool enable)
 {
-	stm32mp1_ls_osc_set(enable, rcc, RCC_RDLSICR, RCC_RDLSICR_LSION);
-	if (stm32mp1_osc_wait(enable, rcc, RCC_RDLSICR, RCC_RDLSICR_LSIRDY) !=
-	    0) {
+	stm32mp1_ls_osc_set(enable, RCC_RDLSICR, RCC_RDLSICR_LSION);
+
+	if (stm32mp1_osc_wait(enable, RCC_RDLSICR, RCC_RDLSICR_LSIRDY) != 0) {
 		VERBOSE("%s: failed\n", __func__);
 	}
 }
 
-static void stm32mp1_hse_enable(uint32_t rcc, bool bypass, bool css)
+static void stm32mp1_hse_enable(bool bypass, bool digbyp, bool css)
 {
-	if (bypass) {
-		mmio_setbits_32(rcc + RCC_OCENSETR, RCC_OCENR_HSEBYP);
+	uintptr_t rcc_base = stm32mp_rcc_base();
+
+	if (digbyp) {
+		mmio_write_32(rcc_base + RCC_OCENSETR, RCC_OCENR_DIGBYP);
 	}
 
-	stm32mp1_hs_ocs_set(1, rcc, RCC_OCENR_HSEON);
-	if (stm32mp1_osc_wait(1, rcc, RCC_OCRDYR, RCC_OCRDYR_HSERDY) !=
-	    0) {
+	if (bypass || digbyp) {
+		mmio_write_32(rcc_base + RCC_OCENSETR, RCC_OCENR_HSEBYP);
+	}
+
+	stm32mp1_hs_ocs_set(true, RCC_OCENR_HSEON);
+	if (stm32mp1_osc_wait(true, RCC_OCRDYR, RCC_OCRDYR_HSERDY) != 0) {
 		VERBOSE("%s: failed\n", __func__);
 	}
 
 	if (css) {
-		mmio_setbits_32(rcc + RCC_OCENSETR, RCC_OCENR_HSECSSON);
+		mmio_write_32(rcc_base + RCC_OCENSETR, RCC_OCENR_HSECSSON);
 	}
 }
 
-static void stm32mp1_csi_set(uint32_t rcc, int enable)
+static void stm32mp1_csi_set(bool enable)
 {
-	stm32mp1_ls_osc_set(enable, rcc, RCC_OCENSETR, RCC_OCENR_CSION);
-	if (stm32mp1_osc_wait(enable, rcc, RCC_OCRDYR, RCC_OCRDYR_CSIRDY) !=
-	    0) {
+	stm32mp1_hs_ocs_set(enable, RCC_OCENR_CSION);
+	if (stm32mp1_osc_wait(enable, RCC_OCRDYR, RCC_OCRDYR_CSIRDY) != 0) {
 		VERBOSE("%s: failed\n", __func__);
 	}
 }
 
-static void stm32mp1_hsi_set(uint32_t rcc, int enable)
+static void stm32mp1_hsi_set(bool enable)
 {
-	stm32mp1_hs_ocs_set(enable, rcc, RCC_OCENR_HSION);
-	if (stm32mp1_osc_wait(enable, rcc, RCC_OCRDYR, RCC_OCRDYR_HSIRDY) !=
-	    0) {
+	stm32mp1_hs_ocs_set(enable, RCC_OCENR_HSION);
+	if (stm32mp1_osc_wait(enable, RCC_OCRDYR, RCC_OCRDYR_HSIRDY) != 0) {
 		VERBOSE("%s: failed\n", __func__);
 	}
 }
 
-static int stm32mp1_set_hsidiv(uint32_t rcc, uint8_t hsidiv)
+static int stm32mp1_set_hsidiv(uint8_t hsidiv)
 {
-	unsigned long start;
-	uint32_t address = rcc + RCC_OCRDYR;
+	uint64_t timeout;
+	uintptr_t rcc_base = stm32mp_rcc_base();
+	uintptr_t address = rcc_base + RCC_OCRDYR;
 
-	mmio_clrsetbits_32(rcc + RCC_HSICFGR,
+	mmio_clrsetbits_32(rcc_base + RCC_HSICFGR,
 			   RCC_HSICFGR_HSIDIV_MASK,
 			   RCC_HSICFGR_HSIDIV_MASK & (uint32_t)hsidiv);
 
-	start = get_timer(0);
+	timeout = timeout_init_us(HSIDIV_TIMEOUT);
 	while ((mmio_read_32(address) & RCC_OCRDYR_HSIDIVRDY) == 0U) {
-		if (get_timer(start) > HSIDIV_TIMEOUT) {
-			ERROR("HSIDIV failed @ 0x%x: 0x%x\n",
+		if (timeout_elapsed(timeout)) {
+			ERROR("HSIDIV failed @ 0x%lx: 0x%x\n",
 			      address, mmio_read_32(address));
 			return -ETIMEDOUT;
 		}
@@ -994,7 +1137,7 @@ static int stm32mp1_set_hsidiv(uint32_t rcc, uint8_t hsidiv)
 	return 0;
 }
 
-static int stm32mp1_hsidiv(uint32_t rcc, unsigned long hsifreq)
+static int stm32mp1_hsidiv(unsigned long hsifreq)
 {
 	uint8_t hsidiv;
 	uint32_t hsidivfreq = MAX_HSI_HZ;
@@ -1013,32 +1156,102 @@ static int stm32mp1_hsidiv(uint32_t rcc, unsigned long hsifreq)
 	}
 
 	if (hsidiv != 0U) {
-		return stm32mp1_set_hsidiv(rcc, hsidiv);
+		return stm32mp1_set_hsidiv(hsidiv);
 	}
 
 	return 0;
 }
 
-static void stm32mp1_pll_start(struct stm32mp1_clk_priv *priv,
-			       enum stm32mp1_pll_id pll_id)
+static bool stm32mp1_check_pll_conf(enum stm32mp1_pll_id pll_id,
+				    unsigned int clksrc,
+				    uint32_t *pllcfg, int plloff)
 {
-	const struct stm32mp1_clk_pll *pll = priv->data->pll;
+	const struct stm32mp1_clk_pll *pll = pll_ref(pll_id);
+	uintptr_t rcc_base = stm32mp_rcc_base();
+	uintptr_t pllxcr = rcc_base + pll->pllxcr;
+	enum stm32mp1_plltype type = pll->plltype;
+	uintptr_t clksrc_address = rcc_base + (clksrc >> 4);
+	unsigned long refclk;
+	uint32_t ifrge = 0U;
+	uint32_t src, value, fracv;
 
-	mmio_write_32(priv->base + pll[pll_id].pllxcr, RCC_PLLNCR_PLLON);
+	/* Check PLL output */
+	if (mmio_read_32(pllxcr) != RCC_PLLNCR_PLLON) {
+		return false;
+	}
+
+	/* Check current clksrc */
+	src = mmio_read_32(clksrc_address) & RCC_SELR_SRC_MASK;
+	if (src != (clksrc & RCC_SELR_SRC_MASK)) {
+		return false;
+	}
+
+	/* Check Div */
+	src = mmio_read_32(rcc_base + pll->rckxselr) & RCC_SELR_REFCLK_SRC_MASK;
+
+	refclk = stm32mp1_clk_get_fixed(pll->refclk[src]) /
+		 (pllcfg[PLLCFG_M] + 1U);
+
+	if ((refclk < (stm32mp1_pll[type].refclk_min * 1000000U)) ||
+	    (refclk > (stm32mp1_pll[type].refclk_max * 1000000U))) {
+		return false;
+	}
+
+	if ((type == PLL_800) && (refclk >= 8000000U)) {
+		ifrge = 1U;
+	}
+
+	value = (pllcfg[PLLCFG_N] << RCC_PLLNCFGR1_DIVN_SHIFT) &
+		RCC_PLLNCFGR1_DIVN_MASK;
+	value |= (pllcfg[PLLCFG_M] << RCC_PLLNCFGR1_DIVM_SHIFT) &
+		 RCC_PLLNCFGR1_DIVM_MASK;
+	value |= (ifrge << RCC_PLLNCFGR1_IFRGE_SHIFT) &
+		 RCC_PLLNCFGR1_IFRGE_MASK;
+	if (mmio_read_32(rcc_base + pll->pllxcfgr1) != value) {
+		return false;
+	}
+
+	/* Fractional configuration */
+	fracv = fdt_read_uint32_default(plloff, "frac", 0);
+
+	value = fracv << RCC_PLLNFRACR_FRACV_SHIFT;
+	value |= RCC_PLLNFRACR_FRACLE;
+	if (mmio_read_32(rcc_base + pll->pllxfracr) != value) {
+		return false;
+	}
+
+	/* Output config */
+	value = (pllcfg[PLLCFG_P] << RCC_PLLNCFGR2_DIVP_SHIFT) &
+		RCC_PLLNCFGR2_DIVP_MASK;
+	value |= (pllcfg[PLLCFG_Q] << RCC_PLLNCFGR2_DIVQ_SHIFT) &
+		 RCC_PLLNCFGR2_DIVQ_MASK;
+	value |= (pllcfg[PLLCFG_R] << RCC_PLLNCFGR2_DIVR_SHIFT) &
+		 RCC_PLLNCFGR2_DIVR_MASK;
+	if (mmio_read_32(rcc_base + pll->pllxcfgr2) != value) {
+		return false;
+	}
+
+	return true;
 }
 
-static int stm32mp1_pll_output(struct stm32mp1_clk_priv *priv,
-			       enum stm32mp1_pll_id pll_id, uint32_t output)
+static void stm32mp1_pll_start(enum stm32mp1_pll_id pll_id)
 {
-	const struct stm32mp1_clk_pll *pll = priv->data->pll;
-	uint32_t pllxcr = priv->base + pll[pll_id].pllxcr;
-	unsigned long start;
+	const struct stm32mp1_clk_pll *pll = pll_ref(pll_id);
+	uintptr_t pllxcr = stm32mp_rcc_base() + pll->pllxcr;
 
-	start = get_timer(0);
+	mmio_write_32(pllxcr, RCC_PLLNCR_PLLON);
+}
+
+static int stm32mp1_pll_output(enum stm32mp1_pll_id pll_id, uint32_t output)
+{
+	const struct stm32mp1_clk_pll *pll = pll_ref(pll_id);
+	uintptr_t pllxcr = stm32mp_rcc_base() + pll->pllxcr;
+	uint64_t timeout = timeout_init_us(PLLRDY_TIMEOUT);
+
 	/* Wait PLL lock */
 	while ((mmio_read_32(pllxcr) & RCC_PLLNCR_PLLRDY) == 0U) {
-		if (get_timer(start) > PLLRDY_TIMEOUT) {
-			ERROR("PLL%d start failed @ 0x%x: 0x%x\n",
+		if (timeout_elapsed(timeout)) {
+			ERROR("PLL%d start failed @ 0x%lx: 0x%x\n",
 			      pll_id, pllxcr, mmio_read_32(pllxcr));
 			return -ETIMEDOUT;
 		}
@@ -1050,12 +1263,11 @@ static int stm32mp1_pll_output(struct stm32mp1_clk_priv *priv,
 	return 0;
 }
 
-static int stm32mp1_pll_stop(struct stm32mp1_clk_priv *priv,
-			     enum stm32mp1_pll_id pll_id)
+static int stm32mp1_pll_stop(enum stm32mp1_pll_id pll_id)
 {
-	const struct stm32mp1_clk_pll *pll = priv->data->pll;
-	uint32_t pllxcr = priv->base + pll[pll_id].pllxcr;
-	unsigned long start;
+	const struct stm32mp1_clk_pll *pll = pll_ref(pll_id);
+	uintptr_t pllxcr = stm32mp_rcc_base() + pll->pllxcr;
+	uint64_t timeout;
 
 	/* Stop all output */
 	mmio_clrbits_32(pllxcr, RCC_PLLNCR_DIVPEN | RCC_PLLNCR_DIVQEN |
@@ -1064,11 +1276,11 @@ static int stm32mp1_pll_stop(struct stm32mp1_clk_priv *priv,
 	/* Stop PLL */
 	mmio_clrbits_32(pllxcr, RCC_PLLNCR_PLLON);
 
-	start = get_timer(0);
+	timeout = timeout_init_us(PLLRDY_TIMEOUT);
 	/* Wait PLL stopped */
 	while ((mmio_read_32(pllxcr) & RCC_PLLNCR_PLLRDY) != 0U) {
-		if (get_timer(start) > PLLRDY_TIMEOUT) {
-			ERROR("PLL%d stop failed @ 0x%x: 0x%x\n",
+		if (timeout_elapsed(timeout)) {
+			ERROR("PLL%d stop failed @ 0x%lx: 0x%x\n",
 			      pll_id, pllxcr, mmio_read_32(pllxcr));
 			return -ETIMEDOUT;
 		}
@@ -1077,12 +1289,11 @@ static int stm32mp1_pll_stop(struct stm32mp1_clk_priv *priv,
 	return 0;
 }
 
-static void stm32mp1_pll_config_output(struct stm32mp1_clk_priv *priv,
-				       enum stm32mp1_pll_id pll_id,
+static void stm32mp1_pll_config_output(enum stm32mp1_pll_id pll_id,
 				       uint32_t *pllcfg)
 {
-	const struct stm32mp1_clk_pll *pll = priv->data->pll;
-	uint32_t rcc = priv->base;
+	const struct stm32mp1_clk_pll *pll = pll_ref(pll_id);
+	uintptr_t rcc_base = stm32mp_rcc_base();
 	uint32_t value;
 
 	value = (pllcfg[PLLCFG_P] << RCC_PLLNCFGR2_DIVP_SHIFT) &
@@ -1091,24 +1302,23 @@ static void stm32mp1_pll_config_output(struct stm32mp1_clk_priv *priv,
 		 RCC_PLLNCFGR2_DIVQ_MASK;
 	value |= (pllcfg[PLLCFG_R] << RCC_PLLNCFGR2_DIVR_SHIFT) &
 		 RCC_PLLNCFGR2_DIVR_MASK;
-	mmio_write_32(rcc + pll[pll_id].pllxcfgr2, value);
+	mmio_write_32(rcc_base + pll->pllxcfgr2, value);
 }
 
-static int stm32mp1_pll_config(struct stm32mp1_clk_priv *priv,
-			       enum stm32mp1_pll_id pll_id,
+static int stm32mp1_pll_config(enum stm32mp1_pll_id pll_id,
 			       uint32_t *pllcfg, uint32_t fracv)
 {
-	const struct stm32mp1_clk_pll *pll = priv->data->pll;
-	uint32_t rcc = priv->base;
-	enum stm32mp1_plltype type = pll[pll_id].plltype;
+	const struct stm32mp1_clk_pll *pll = pll_ref(pll_id);
+	uintptr_t rcc_base = stm32mp_rcc_base();
+	enum stm32mp1_plltype type = pll->plltype;
 	unsigned long refclk;
 	uint32_t ifrge = 0;
 	uint32_t src, value;
 
-	src = mmio_read_32(priv->base + pll[pll_id].rckxselr) &
+	src = mmio_read_32(rcc_base + pll->rckxselr) &
 		RCC_SELR_REFCLK_SRC_MASK;
 
-	refclk = stm32mp1_clk_get_fixed(priv, pll[pll_id].refclk[src]) /
+	refclk = stm32mp1_clk_get_fixed(pll->refclk[src]) /
 		 (pllcfg[PLLCFG_M] + 1U);
 
 	if ((refclk < (stm32mp1_pll[type].refclk_min * 1000000U)) ||
@@ -1126,28 +1336,26 @@ static int stm32mp1_pll_config(struct stm32mp1_clk_priv *priv,
 		 RCC_PLLNCFGR1_DIVM_MASK;
 	value |= (ifrge << RCC_PLLNCFGR1_IFRGE_SHIFT) &
 		 RCC_PLLNCFGR1_IFRGE_MASK;
-	mmio_write_32(rcc + pll[pll_id].pllxcfgr1, value);
+	mmio_write_32(rcc_base + pll->pllxcfgr1, value);
 
 	/* Fractional configuration */
 	value = 0;
-	mmio_write_32(rcc + pll[pll_id].pllxfracr, value);
+	mmio_write_32(rcc_base + pll->pllxfracr, value);
 
 	value = fracv << RCC_PLLNFRACR_FRACV_SHIFT;
-	mmio_write_32(rcc + pll[pll_id].pllxfracr, value);
+	mmio_write_32(rcc_base + pll->pllxfracr, value);
 
 	value |= RCC_PLLNFRACR_FRACLE;
-	mmio_write_32(rcc + pll[pll_id].pllxfracr, value);
+	mmio_write_32(rcc_base + pll->pllxfracr, value);
 
-	stm32mp1_pll_config_output(priv, pll_id, pllcfg);
+	stm32mp1_pll_config_output(pll_id, pllcfg);
 
 	return 0;
 }
 
-static void stm32mp1_pll_csg(struct stm32mp1_clk_priv *priv,
-			     enum stm32mp1_pll_id pll_id,
-			     uint32_t *csg)
+static void stm32mp1_pll_csg(enum stm32mp1_pll_id pll_id, uint32_t *csg)
 {
-	const struct stm32mp1_clk_pll *pll = priv->data->pll;
+	const struct stm32mp1_clk_pll *pll = pll_ref(pll_id);
 	uint32_t pllxcsg = 0;
 
 	pllxcsg |= (csg[PLLCSG_MOD_PER] << RCC_PLLNCSGR_MOD_PER_SHIFT) &
@@ -1159,23 +1367,22 @@ static void stm32mp1_pll_csg(struct stm32mp1_clk_priv *priv,
 	pllxcsg |= (csg[PLLCSG_SSCG_MODE] << RCC_PLLNCSGR_SSCG_MODE_SHIFT) &
 		    RCC_PLLNCSGR_SSCG_MODE_MASK;
 
-	mmio_write_32(priv->base + pll[pll_id].pllxcsgr, pllxcsg);
+	mmio_write_32(stm32mp_rcc_base() + pll->pllxcsgr, pllxcsg);
 }
 
-static int stm32mp1_set_clksrc(struct stm32mp1_clk_priv *priv,
-			       unsigned int clksrc)
+static int stm32mp1_set_clksrc(unsigned int clksrc)
 {
-	uint32_t address = priv->base + (clksrc >> 4);
-	unsigned long start;
+	uintptr_t clksrc_address = stm32mp_rcc_base() + (clksrc >> 4);
+	uint64_t timeout;
 
-	mmio_clrsetbits_32(address, RCC_SELR_SRC_MASK,
+	mmio_clrsetbits_32(clksrc_address, RCC_SELR_SRC_MASK,
 			   clksrc & RCC_SELR_SRC_MASK);
 
-	start = get_timer(0);
-	while ((mmio_read_32(address) & RCC_SELR_SRCRDY) == 0U) {
-		if (get_timer(start) > CLKSRC_TIMEOUT) {
-			ERROR("CLKSRC %x start failed @ 0x%x: 0x%x\n",
-			      clksrc, address, mmio_read_32(address));
+	timeout = timeout_init_us(CLKSRC_TIMEOUT);
+	while ((mmio_read_32(clksrc_address) & RCC_SELR_SRCRDY) == 0U) {
+		if (timeout_elapsed(timeout)) {
+			ERROR("CLKSRC %x start failed @ 0x%lx: 0x%x\n", clksrc,
+			      clksrc_address, mmio_read_32(clksrc_address));
 			return -ETIMEDOUT;
 		}
 	}
@@ -1183,17 +1390,17 @@ static int stm32mp1_set_clksrc(struct stm32mp1_clk_priv *priv,
 	return 0;
 }
 
-static int stm32mp1_set_clkdiv(unsigned int clkdiv, uint32_t address)
+static int stm32mp1_set_clkdiv(unsigned int clkdiv, uintptr_t address)
 {
-	unsigned long start;
+	uint64_t timeout;
 
 	mmio_clrsetbits_32(address, RCC_DIVR_DIV_MASK,
 			   clkdiv & RCC_DIVR_DIV_MASK);
 
-	start = get_timer(0);
+	timeout = timeout_init_us(CLKDIV_TIMEOUT);
 	while ((mmio_read_32(address) & RCC_DIVR_DIVRDY) == 0U) {
-		if (get_timer(start) > CLKDIV_TIMEOUT) {
-			ERROR("CLKDIV %x start failed @ 0x%x: 0x%x\n",
+		if (timeout_elapsed(timeout)) {
+			ERROR("CLKDIV %x start failed @ 0x%lx: 0x%x\n",
 			      clkdiv, address, mmio_read_32(address));
 			return -ETIMEDOUT;
 		}
@@ -1202,10 +1409,9 @@ static int stm32mp1_set_clkdiv(unsigned int clkdiv, uint32_t address)
 	return 0;
 }
 
-static void stm32mp1_mco_csg(struct stm32mp1_clk_priv *priv,
-			     uint32_t clksrc, uint32_t clkdiv)
+static void stm32mp1_mco_csg(uint32_t clksrc, uint32_t clkdiv)
 {
-	uint32_t address = priv->base + (clksrc >> 4);
+	uintptr_t clksrc_address = stm32mp_rcc_base() + (clksrc >> 4);
 
 	/*
 	 * Binding clksrc :
@@ -1214,22 +1420,21 @@ static void stm32mp1_mco_csg(struct stm32mp1_clk_priv *priv,
 	 *      bit2-0: MCOSEL[2:0]
 	 */
 	if ((clksrc & 0x8U) != 0U) {
-		mmio_clrbits_32(address, RCC_MCOCFG_MCOON);
+		mmio_clrbits_32(clksrc_address, RCC_MCOCFG_MCOON);
 	} else {
-		mmio_clrsetbits_32(address,
+		mmio_clrsetbits_32(clksrc_address,
 				   RCC_MCOCFG_MCOSRC_MASK,
 				   clksrc & RCC_MCOCFG_MCOSRC_MASK);
-		mmio_clrsetbits_32(address,
+		mmio_clrsetbits_32(clksrc_address,
 				   RCC_MCOCFG_MCODIV_MASK,
 				   clkdiv << RCC_MCOCFG_MCODIV_SHIFT);
-		mmio_setbits_32(address, RCC_MCOCFG_MCOON);
+		mmio_setbits_32(clksrc_address, RCC_MCOCFG_MCOON);
 	}
 }
 
-static void stm32mp1_set_rtcsrc(struct stm32mp1_clk_priv *priv,
-				unsigned int clksrc, bool lse_css)
+static void stm32mp1_set_rtcsrc(unsigned int clksrc, bool lse_css)
 {
-	uint32_t address = priv->base + RCC_BDCR;
+	uintptr_t address = stm32mp_rcc_base() + RCC_BDCR;
 
 	if (((mmio_read_32(address) & RCC_BDCR_RTCCKEN) == 0U) ||
 	    (clksrc != (uint32_t)CLK_RTC_DISABLED)) {
@@ -1248,38 +1453,35 @@ static void stm32mp1_set_rtcsrc(struct stm32mp1_clk_priv *priv,
 #define CNTCVL_OFF	0x008
 #define CNTCVU_OFF	0x00C
 
-static void stm32mp1_stgen_config(struct stm32mp1_clk_priv *priv)
+static void stm32mp1_stgen_config(void)
 {
 	uintptr_t stgen;
-	int p;
 	uint32_t cntfid0;
 	unsigned long rate;
+	unsigned long long counter;
 
 	stgen = fdt_get_stgen_base();
-
 	cntfid0 = mmio_read_32(stgen + CNTFID_OFF);
-	p = stm32mp1_clk_get_parent(priv, STGEN_K);
-	rate = stm32mp1_clk_get(priv, p);
+	rate = get_clock_rate(stm32mp1_clk_get_parent(STGEN_K));
 
-	if (cntfid0 != rate) {
-		unsigned long long counter;
-
-		mmio_clrbits_32(stgen + CNTCR_OFF, CNTCR_EN);
-		counter = (unsigned long long)
-			mmio_read_32(stgen + CNTCVL_OFF);
-		counter |= ((unsigned long long)
-			    (mmio_read_32(stgen + CNTCVU_OFF))) << 32;
-		counter = (counter * rate / cntfid0);
-		mmio_write_32(stgen + CNTCVL_OFF, (uint32_t)counter);
-		mmio_write_32(stgen + CNTCVU_OFF, (uint32_t)(counter >> 32));
-		mmio_write_32(stgen + CNTFID_OFF, rate);
-		mmio_setbits_32(stgen + CNTCR_OFF, CNTCR_EN);
-
-		write_cntfrq((u_register_t)rate);
-
-		/* Need to update timer with new frequency */
-		generic_delay_timer_init();
+	if (cntfid0 == rate) {
+		return;
 	}
+
+	mmio_clrbits_32(stgen + CNTCR_OFF, CNTCR_EN);
+	counter = (unsigned long long)mmio_read_32(stgen + CNTCVL_OFF);
+	counter |= ((unsigned long long)mmio_read_32(stgen + CNTCVU_OFF)) << 32;
+	counter = (counter * rate / cntfid0);
+
+	mmio_write_32(stgen + CNTCVL_OFF, (uint32_t)counter);
+	mmio_write_32(stgen + CNTCVU_OFF, (uint32_t)(counter >> 32));
+	mmio_write_32(stgen + CNTFID_OFF, rate);
+	mmio_setbits_32(stgen + CNTCR_OFF, CNTCR_EN);
+
+	write_cntfrq((u_register_t)rate);
+
+	/* Need to update timer with new frequency */
+	generic_delay_timer_init();
 }
 
 void stm32mp1_stgen_increment(unsigned long long offset_in_ms)
@@ -1300,9 +1502,9 @@ void stm32mp1_stgen_increment(unsigned long long offset_in_ms)
 	mmio_setbits_32(stgen + CNTCR_OFF, CNTCR_EN);
 }
 
-static void stm32mp1_pkcs_config(struct stm32mp1_clk_priv *priv, uint32_t pkcs)
+static void stm32mp1_pkcs_config(uint32_t pkcs)
 {
-	uint32_t address = priv->base + ((pkcs >> 4) & 0xFFFU);
+	uintptr_t address = stm32mp_rcc_base() + ((pkcs >> 4) & 0xFFFU);
 	uint32_t value = pkcs & 0xFU;
 	uint32_t mask = 0xFU;
 
@@ -1316,8 +1518,7 @@ static void stm32mp1_pkcs_config(struct stm32mp1_clk_priv *priv, uint32_t pkcs)
 
 int stm32mp1_clk_init(void)
 {
-	struct stm32mp1_clk_priv *priv = &stm32mp1_clk_priv_data;
-	uint32_t rcc = priv->base;
+	uintptr_t rcc_base = stm32mp_rcc_base();
 	unsigned int clksrc[CLKSRC_NB];
 	unsigned int clkdiv[CLKDIV_NB];
 	unsigned int pllcfg[_PLL_NB][PLLCFG_NB];
@@ -1325,11 +1526,14 @@ int stm32mp1_clk_init(void)
 	int ret, len;
 	enum stm32mp1_pll_id i;
 	bool lse_css = false;
+	bool pll3_preserve = false;
+	bool pll4_preserve = false;
+	bool pll4_bootrom = false;
 	const fdt32_t *pkcs_cell;
 
 	/* Check status field to disable security */
 	if (!fdt_get_rcc_secure_status()) {
-		mmio_write_32(rcc + RCC_TZCR, 0);
+		mmio_write_32(rcc_base + RCC_TZCR, 0);
 	}
 
 	ret = fdt_rcc_read_uint32_array("st,clksrc", clksrc,
@@ -1361,113 +1565,135 @@ int stm32mp1_clk_init(void)
 		}
 	}
 
-	stm32mp1_mco_csg(priv, clksrc[CLKSRC_MCO1], clkdiv[CLKDIV_MCO1]);
-	stm32mp1_mco_csg(priv, clksrc[CLKSRC_MCO2], clkdiv[CLKDIV_MCO2]);
+	stm32mp1_mco_csg(clksrc[CLKSRC_MCO1], clkdiv[CLKDIV_MCO1]);
+	stm32mp1_mco_csg(clksrc[CLKSRC_MCO2], clkdiv[CLKDIV_MCO2]);
 
 	/*
 	 * Switch ON oscillator found in device-tree.
 	 * Note: HSI already ON after BootROM stage.
 	 */
-	if (priv->osc[_LSI] != 0U) {
-		stm32mp1_lsi_set(rcc, 1);
+	if (stm32mp1_osc[_LSI] != 0U) {
+		stm32mp1_lsi_set(true);
 	}
-	if (priv->osc[_LSE] != 0U) {
-		bool bypass;
+	if (stm32mp1_osc[_LSE] != 0U) {
+		bool bypass, digbyp;
 		uint32_t lsedrv;
 
 		bypass = fdt_osc_read_bool(_LSE, "st,bypass");
+		digbyp = fdt_osc_read_bool(_LSE, "st,digbypass");
 		lse_css = fdt_osc_read_bool(_LSE, "st,css");
 		lsedrv = fdt_osc_read_uint32_default(_LSE, "st,drive",
 						     LSEDRV_MEDIUM_HIGH);
-		stm32mp1_lse_enable(rcc, bypass, lsedrv);
+		stm32mp1_lse_enable(bypass, digbyp, lsedrv);
 	}
-	if (priv->osc[_HSE] != 0U) {
-		bool bypass, css;
+	if (stm32mp1_osc[_HSE] != 0U) {
+		bool bypass, digbyp, css;
 
-		bypass = fdt_osc_read_bool(_LSE, "st,bypass");
-		css = fdt_osc_read_bool(_LSE, "st,css");
-		stm32mp1_hse_enable(rcc, bypass, css);
+		bypass = fdt_osc_read_bool(_HSE, "st,bypass");
+		digbyp = fdt_osc_read_bool(_HSE, "st,digbypass");
+		css = fdt_osc_read_bool(_HSE, "st,css");
+		stm32mp1_hse_enable(bypass, digbyp, css);
 	}
 	/*
 	 * CSI is mandatory for automatic I/O compensation (SYSCFG_CMPCR)
 	 * => switch on CSI even if node is not present in device tree
 	 */
-	stm32mp1_csi_set(rcc, 1);
+	stm32mp1_csi_set(true);
 
 	/* Come back to HSI */
-	ret = stm32mp1_set_clksrc(priv, CLK_MPU_HSI);
+	ret = stm32mp1_set_clksrc(CLK_MPU_HSI);
 	if (ret != 0) {
 		return ret;
 	}
-	ret = stm32mp1_set_clksrc(priv, CLK_AXI_HSI);
+	ret = stm32mp1_set_clksrc(CLK_AXI_HSI);
 	if (ret != 0) {
 		return ret;
+	}
+
+	if ((mmio_read_32(rcc_base + RCC_MP_RSTSCLRR) &
+	     RCC_MP_RSTSCLRR_MPUP0RSTF) != 0) {
+		pll3_preserve = stm32mp1_check_pll_conf(_PLL3,
+							clksrc[CLKSRC_PLL3],
+							pllcfg[_PLL3],
+							plloff[_PLL3]);
+		pll4_preserve = stm32mp1_check_pll_conf(_PLL4,
+							clksrc[CLKSRC_PLL4],
+							pllcfg[_PLL4],
+							plloff[_PLL4]);
 	}
 
 	for (i = (enum stm32mp1_pll_id)0; i < _PLL_NB; i++) {
-		if (i == _PLL4)
+		if (((i == _PLL3) && pll3_preserve) ||
+		    ((i == _PLL4) && pll4_preserve)) {
 			continue;
-		ret = stm32mp1_pll_stop(priv, i);
+		}
+
+		ret = stm32mp1_pll_stop(i);
 		if (ret != 0) {
 			return ret;
 		}
 	}
 
 	/* Configure HSIDIV */
-	if (priv->osc[_HSI] != 0U) {
-		ret = stm32mp1_hsidiv(rcc, priv->osc[_HSI]);
+	if (stm32mp1_osc[_HSI] != 0U) {
+		ret = stm32mp1_hsidiv(stm32mp1_osc[_HSI]);
 		if (ret != 0) {
 			return ret;
 		}
-		stm32mp1_stgen_config(priv);
+		stm32mp1_stgen_config();
 	}
 
 	/* Select DIV */
 	/* No ready bit when MPUSRC != CLK_MPU_PLL1P_DIV, MPUDIV is disabled */
-	mmio_write_32(rcc + RCC_MPCKDIVR,
+	mmio_write_32(rcc_base + RCC_MPCKDIVR,
 		      clkdiv[CLKDIV_MPU] & RCC_DIVR_DIV_MASK);
-	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_AXI], rcc + RCC_AXIDIVR);
+	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_AXI], rcc_base + RCC_AXIDIVR);
 	if (ret != 0) {
 		return ret;
 	}
-	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_APB4], rcc + RCC_APB4DIVR);
+	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_APB4], rcc_base + RCC_APB4DIVR);
 	if (ret != 0) {
 		return ret;
 	}
-	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_APB5], rcc + RCC_APB5DIVR);
+	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_APB5], rcc_base + RCC_APB5DIVR);
 	if (ret != 0) {
 		return ret;
 	}
-	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_APB1], rcc + RCC_APB1DIVR);
+	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_APB1], rcc_base + RCC_APB1DIVR);
 	if (ret != 0) {
 		return ret;
 	}
-	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_APB2], rcc + RCC_APB2DIVR);
+	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_APB2], rcc_base + RCC_APB2DIVR);
 	if (ret != 0) {
 		return ret;
 	}
-	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_APB3], rcc + RCC_APB3DIVR);
+	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_APB3], rcc_base + RCC_APB3DIVR);
 	if (ret != 0) {
 		return ret;
 	}
 
 	/* No ready bit for RTC */
-	mmio_write_32(rcc + RCC_RTCDIVR,
+	mmio_write_32(rcc_base + RCC_RTCDIVR,
 		      clkdiv[CLKDIV_RTC] & RCC_DIVR_DIV_MASK);
 
 	/* Configure PLLs source */
-	ret = stm32mp1_set_clksrc(priv, clksrc[CLKSRC_PLL12]);
-	if (ret != 0) {
-		return ret;
-	}
-	ret = stm32mp1_set_clksrc(priv, clksrc[CLKSRC_PLL3]);
+	ret = stm32mp1_set_clksrc(clksrc[CLKSRC_PLL12]);
 	if (ret != 0) {
 		return ret;
 	}
 
-	ret = stm32mp1_set_clksrc(priv, clksrc[CLKSRC_PLL4]);
-	if (ret != 0) {
-		return ret;
+	if (!pll3_preserve) {
+		ret = stm32mp1_set_clksrc(clksrc[CLKSRC_PLL3]);
+		if (ret != 0) {
+			return ret;
+		}
+	}
+
+	if (!pll4_preserve) {
+		ret = stm32mp1_set_clksrc(clksrc[CLKSRC_PLL4]);
+		if (ret != 0) {
+			return ret;
+		}
 	}
 
 	/* Configure and start PLLs */
@@ -1475,25 +1701,36 @@ int stm32mp1_clk_init(void)
 		uint32_t fracv;
 		uint32_t csg[PLLCSG_NB];
 
+		if (((i == _PLL3) && pll3_preserve) ||
+		    ((i == _PLL4) && pll4_preserve && !pll4_bootrom)) {
+			continue;
+		}
+
 		if (!fdt_check_node(plloff[i])) {
+			continue;
+		}
+
+		if ((i == _PLL4) && pll4_bootrom) {
+			/* Set output divider if not done by the Bootrom */
+			stm32mp1_pll_config_output(i, pllcfg[i]);
 			continue;
 		}
 
 		fracv = fdt_read_uint32_default(plloff[i], "frac", 0);
 
-		ret = stm32mp1_pll_config(priv, i, pllcfg[i], fracv);
+		ret = stm32mp1_pll_config(i, pllcfg[i], fracv);
 		if (ret != 0) {
 			return ret;
 		}
 		ret = fdt_read_uint32_array(plloff[i], "csg", csg,
 					    (uint32_t)PLLCSG_NB);
 		if (ret == 0) {
-			stm32mp1_pll_csg(priv, i, csg);
+			stm32mp1_pll_csg(i, csg);
 		} else if (ret != -FDT_ERR_NOTFOUND) {
 			return ret;
 		}
 
-		stm32mp1_pll_start(priv, i);
+		stm32mp1_pll_start(i);
 	}
 	/* Wait and start PLLs ouptut when ready */
 	for (i = (enum stm32mp1_pll_id)0; i < _PLL_NB; i++) {
@@ -1501,34 +1738,32 @@ int stm32mp1_clk_init(void)
 			continue;
 		}
 
-		ret = stm32mp1_pll_output(priv, i, pllcfg[i][PLLCFG_O]);
+		ret = stm32mp1_pll_output(i, pllcfg[i][PLLCFG_O]);
 		if (ret != 0) {
 			return ret;
 		}
 	}
 	/* Wait LSE ready before to use it */
-	if (priv->osc[_LSE] != 0U) {
-		stm32mp1_lse_wait(rcc);
+	if (stm32mp1_osc[_LSE] != 0U) {
+		stm32mp1_lse_wait();
 	}
 
 	/* Configure with expected clock source */
-	ret = stm32mp1_set_clksrc(priv, clksrc[CLKSRC_MPU]);
+	ret = stm32mp1_set_clksrc(clksrc[CLKSRC_MPU]);
 	if (ret != 0) {
 		return ret;
 	}
-	ret = stm32mp1_set_clksrc(priv, clksrc[CLKSRC_AXI]);
+	ret = stm32mp1_set_clksrc(clksrc[CLKSRC_AXI]);
 	if (ret != 0) {
 		return ret;
 	}
-	stm32mp1_set_rtcsrc(priv, clksrc[CLKSRC_RTC], lse_css);
+	stm32mp1_set_rtcsrc(clksrc[CLKSRC_RTC], lse_css);
 
 	/* Configure PKCK */
 	pkcs_cell = fdt_rcc_read_prop("st,pkcs", &len);
 	if (pkcs_cell != NULL) {
 		bool ckper_disabled = false;
 		uint32_t j;
-
-		priv->pkcs_usb_value = 0;
 
 		for (j = 0; j < ((uint32_t)len / sizeof(uint32_t)); j++) {
 			uint32_t pkcs = fdt32_to_cpu(pkcs_cell[j]);
@@ -1537,7 +1772,7 @@ int stm32mp1_clk_init(void)
 				ckper_disabled = true;
 				continue;
 			}
-			stm32mp1_pkcs_config(priv, pkcs);
+			stm32mp1_pkcs_config(pkcs);
 		}
 
 		/*
@@ -1547,18 +1782,18 @@ int stm32mp1_clk_init(void)
 		 * => deactivated CKPER only after switching clock
 		 */
 		if (ckper_disabled) {
-			stm32mp1_pkcs_config(priv, CLK_CKPER_DISABLED);
+			stm32mp1_pkcs_config(CLK_CKPER_DISABLED);
 		}
 	}
 
 	/* Switch OFF HSI if not found in device-tree */
-	if (priv->osc[_HSI] == 0U) {
-		stm32mp1_hsi_set(rcc, 0);
+	if (stm32mp1_osc[_HSI] == 0U) {
+		stm32mp1_hsi_set(false);
 	}
-	stm32mp1_stgen_config(priv);
+	stm32mp1_stgen_config();
 
 	/* Software Self-Refresh mode (SSR) during DDR initilialization */
-	mmio_clrsetbits_32(priv->base + RCC_DDRITFCR,
+	mmio_clrsetbits_32(rcc_base + RCC_DDRITFCR,
 			   RCC_DDRITFCR_DDRCKMOD_MASK,
 			   RCC_DDRITFCR_DDRCKMOD_SSR <<
 			   RCC_DDRITFCR_DDRCKMOD_SHIFT);
@@ -1567,47 +1802,26 @@ int stm32mp1_clk_init(void)
 }
 
 static void stm32mp1_osc_clk_init(const char *name,
-				  struct stm32mp1_clk_priv *priv,
 				  enum stm32mp_osc_id index)
 {
 	uint32_t frequency;
 
-	priv->osc[index] = 0;
-
-	if (fdt_osc_read_freq(name, &frequency) != 0) {
-		ERROR("%s frequency request failed\n", name);
-		panic();
-	} else {
-		priv->osc[index] = frequency;
+	if (fdt_osc_read_freq(name, &frequency) == 0) {
+		stm32mp1_osc[index] = frequency;
 	}
 }
 
 static void stm32mp1_osc_init(void)
 {
-	struct stm32mp1_clk_priv *priv = &stm32mp1_clk_priv_data;
 	enum stm32mp_osc_id i;
 
 	for (i = (enum stm32mp_osc_id)0 ; i < NB_OSC; i++) {
-		stm32mp1_osc_clk_init(stm32mp_osc_node_label[i], priv, i);
+		stm32mp1_osc_clk_init(stm32mp_osc_node_label[i], i);
 	}
 }
 
 int stm32mp1_clk_probe(void)
 {
-	struct stm32mp1_clk_priv *priv = &stm32mp1_clk_priv_data;
-
-	priv->base = fdt_rcc_read_addr();
-	if (priv->base == 0U) {
-		return -EINVAL;
-	}
-
-	priv->data = &stm32mp1_data;
-
-	if ((priv->data->gate == NULL) || (priv->data->sel == NULL) ||
-	    (priv->data->pll == NULL)) {
-		return -EINVAL;
-	}
-
 	stm32mp1_osc_init();
 
 	return 0;

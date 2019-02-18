@@ -17,25 +17,21 @@
 #include <drivers/generic_delay_timer.h>
 #include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32mp_pmic.h>
+#include <drivers/st/stm32mp_reset.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_pwr.h>
 #include <drivers/st/stm32mp1_ram.h>
-#include <drivers/st/stm32mp1_rcc.h>
-#include <drivers/st/stm32mp1_reset.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
-#include <boot_api.h>
 #include <stm32mp1_context.h>
-#include <stm32mp1_dt.h>
-#include <stm32mp1_private.h>
 
 static struct console_stm32 console;
 
 static void print_reset_reason(void)
 {
-	uint32_t rstsr = mmio_read_32(RCC_BASE + RCC_MP_RSTSCLRR);
+	uint32_t rstsr = mmio_read_32(stm32mp_rcc_base() + RCC_MP_RSTSCLRR);
 
 	if (rstsr == 0U) {
 		WARN("Reset reason unknown\n");
@@ -123,14 +119,14 @@ void bl2_el3_early_platform_setup(u_register_t arg0,
 				  u_register_t arg2 __unused,
 				  u_register_t arg3 __unused)
 {
-	stm32mp1_save_boot_ctx_address(arg0);
+	stm32mp_save_boot_ctx_address(arg0);
 }
 
 void bl2_platform_setup(void)
 {
 	int ret;
 
-	if (dt_check_pmic()) {
+	if (dt_pmic_status() > 0) {
 		initialize_pmic();
 	}
 
@@ -149,8 +145,10 @@ void bl2_el3_plat_arch_setup(void)
 	struct dt_node_info dt_uart_info;
 	const char *board_model;
 	boot_api_context_t *boot_context =
-		(boot_api_context_t *)stm32mp1_get_boot_ctx_address();
+		(boot_api_context_t *)stm32mp_get_boot_ctx_address();
 	uint32_t clk_rate;
+	uintptr_t pwr_base;
+	uintptr_t rcc_base;
 
 	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE,
 			BL_CODE_END - BL_CODE_BASE,
@@ -162,9 +160,9 @@ void bl2_el3_plat_arch_setup(void)
 			MT_MEMORY | MT_RO | MT_SECURE);
 
 	/* Map non secure DDR for BL33 load and DDR training area restore */
-	mmap_add_region(STM32MP1_DDR_BASE,
-			STM32MP1_DDR_BASE,
-			STM32MP1_DDR_MAX_SIZE,
+	mmap_add_region(STM32MP_DDR_BASE,
+			STM32MP_DDR_BASE,
+			STM32MP_DDR_MAX_SIZE,
 			MT_MEMORY | MT_RW | MT_NS);
 
 	/* Prevent corruption of preloaded Device Tree */
@@ -178,27 +176,30 @@ void bl2_el3_plat_arch_setup(void)
 		panic();
 	}
 
+	pwr_base = stm32mp_pwr_base();
+	rcc_base = stm32mp_rcc_base();
+
 	/*
 	 * Disable the backup domain write protection.
 	 * The protection is enable at each reset by hardware
 	 * and must be disabled by software.
 	 */
-	mmio_setbits_32(PWR_BASE + PWR_CR1, PWR_CR1_DBP);
+	mmio_setbits_32(pwr_base + PWR_CR1, PWR_CR1_DBP);
 
-	while ((mmio_read_32(PWR_BASE + PWR_CR1) & PWR_CR1_DBP) == 0U) {
+	while ((mmio_read_32(pwr_base + PWR_CR1) & PWR_CR1_DBP) == 0U) {
 		;
 	}
 
 	/* Reset backup domain on cold boot cases */
-	if ((mmio_read_32(RCC_BASE + RCC_BDCR) & RCC_BDCR_RTCSRC_MASK) == 0U) {
-		mmio_setbits_32(RCC_BASE + RCC_BDCR, RCC_BDCR_VSWRST);
+	if ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_RTCSRC_MASK) == 0U) {
+		mmio_setbits_32(rcc_base + RCC_BDCR, RCC_BDCR_VSWRST);
 
-		while ((mmio_read_32(RCC_BASE + RCC_BDCR) & RCC_BDCR_VSWRST) ==
+		while ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_VSWRST) ==
 		       0U) {
 			;
 		}
 
-		mmio_clrbits_32(RCC_BASE + RCC_BDCR, RCC_BDCR_VSWRST);
+		mmio_clrbits_32(rcc_base + RCC_BDCR, RCC_BDCR_VSWRST);
 	}
 
 	generic_delay_timer_init();
@@ -224,19 +225,17 @@ void bl2_el3_plat_arch_setup(void)
 		goto skip_console_init;
 	}
 
-	if (stm32mp1_clk_enable((unsigned long)dt_uart_info.clock) != 0) {
-		goto skip_console_init;
-	}
+	stm32mp_clk_enable((unsigned long)dt_uart_info.clock);
 
-	stm32mp1_reset_assert((uint32_t)dt_uart_info.reset);
+	stm32mp_reset_assert((uint32_t)dt_uart_info.reset);
 	udelay(2);
-	stm32mp1_reset_deassert((uint32_t)dt_uart_info.reset);
+	stm32mp_reset_deassert((uint32_t)dt_uart_info.reset);
 	mdelay(1);
 
-	clk_rate = stm32mp1_clk_get_rate((unsigned long)dt_uart_info.clock);
+	clk_rate = stm32mp_clk_get_rate((unsigned long)dt_uart_info.clock);
 
 	if (console_stm32_register(dt_uart_info.base, clk_rate,
-				   STM32MP1_UART_BAUDRATE, &console) == 0) {
+				   STM32MP_UART_BAUDRATE, &console) == 0) {
 		panic();
 	}
 
@@ -257,5 +256,5 @@ skip_console_init:
 
 	print_reset_reason();
 
-	stm32mp1_io_setup();
+	stm32mp_io_setup();
 }

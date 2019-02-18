@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef STM32MP1_DT_H
-#define STM32MP1_DT_H
+#ifndef STM32MP_DT_H
+#define STM32MP_DT_H
 
 #include <stdbool.h>
 
@@ -27,7 +27,7 @@ struct dt_node_info {
 int dt_open_and_check(void);
 int fdt_get_address(void **fdt_addr);
 bool fdt_check_node(int node);
-uint32_t fdt_get_status(int node);
+uint8_t fdt_get_status(int node);
 uint32_t fdt_read_uint32_default(int node, const char *prop_name,
 				 uint32_t dflt_value);
 int fdt_read_uint32_array(int node, const char *prop_name,
@@ -38,6 +38,9 @@ int dt_get_node(struct dt_node_info *info, int offset, const char *compat);
 int dt_get_stdout_uart_info(struct dt_node_info *info);
 int dt_get_stdout_node_offset(void);
 uint32_t dt_get_ddr_size(void);
+uintptr_t dt_get_ddrctrl_base(void);
+uintptr_t dt_get_ddrphyc_base(void);
+uintptr_t dt_get_pwr_base(void);
 const char *dt_get_board_model(void);
 
-#endif /* STM32MP1_DT_H */
+#endif /* STM32MP_DT_H */

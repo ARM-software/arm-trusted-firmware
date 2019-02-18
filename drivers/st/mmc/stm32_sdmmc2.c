@@ -19,11 +19,7 @@
 #include <drivers/mmc.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32_sdmmc2.h>
-#include <drivers/st/stm32mp1_clk.h>
-#include <drivers/st/stm32mp1_rcc.h>
-#include <drivers/st/stm32mp1_reset.h>
-#include <dt-bindings/clock/stm32mp1-clks.h>
-#include <dt-bindings/reset/stm32mp1-resets.h>
+#include <drivers/st/stm32mp_reset.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
 #include <plat/common/platform.h>
@@ -123,8 +119,8 @@
 					 SDMMC_STAR_IDMATE   | \
 					 SDMMC_STAR_IDMABTC)
 
-#define TIMEOUT_10_MS			(plat_get_syscnt_freq2() / 100U)
-#define TIMEOUT_1_S			plat_get_syscnt_freq2()
+#define TIMEOUT_US_10_MS		10000U
+#define TIMEOUT_US_1_S			1000000U
 
 #define DT_SDMMC2_COMPAT		"st,stm32-sdmmc2"
 
@@ -159,7 +155,7 @@ static void stm32_sdmmc2_init(void)
 	uintptr_t base = sdmmc2_params.reg_base;
 
 	clock_div = div_round_up(sdmmc2_params.clk_rate,
-				 STM32MP1_MMC_INIT_FREQ * 2);
+				 STM32MP_MMC_INIT_FREQ * 2);
 
 	mmio_write_32(base + SDMMC_CLKCR, SDMMC_CLKCR_HWFC_EN | clock_div |
 		      sdmmc2_params.negedge |
@@ -185,11 +181,12 @@ static int stm32_sdmmc2_stop_transfer(void)
 
 static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 {
+	uint64_t timeout;
 	uint32_t flags_cmd, status;
 	uint32_t flags_data = 0;
 	int err = 0;
 	uintptr_t base = sdmmc2_params.reg_base;
-	unsigned int cmd_reg, arg_reg, start;
+	unsigned int cmd_reg, arg_reg;
 
 	if (cmd == NULL) {
 		return -EINVAL;
@@ -272,10 +269,10 @@ static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 
 	status = mmio_read_32(base + SDMMC_STAR);
 
-	start = get_timer(0);
+	timeout = timeout_init_us(TIMEOUT_US_10_MS);
 
 	while ((status & flags_cmd) == 0U) {
-		if (get_timer(start) > TIMEOUT_10_MS) {
+		if (timeout_elapsed(timeout)) {
 			err = -ETIMEDOUT;
 			ERROR("%s: timeout 10ms (cmd = %d,status = %x)\n",
 			      __func__, cmd->cmd_idx, status);
@@ -339,10 +336,10 @@ static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 
 	status = mmio_read_32(base + SDMMC_STAR);
 
-	start = get_timer(0);
+	timeout = timeout_init_us(TIMEOUT_US_10_MS);
 
 	while ((status & flags_data) == 0U) {
-		if (get_timer(start) > TIMEOUT_10_MS) {
+		if (timeout_elapsed(timeout)) {
 			ERROR("%s: timeout 10ms (cmd = %d,status = %x)\n",
 			      __func__, cmd->cmd_idx, status);
 			err = -ETIMEDOUT;
@@ -364,7 +361,7 @@ err_exit:
 	mmio_write_32(base + SDMMC_ICR, SDMMC_STATIC_FLAGS);
 	mmio_clrbits_32(base + SDMMC_CMDR, SDMMC_CMDR_CMDTRANS);
 
-	if (err != 0) {
+	if ((err != 0) && ((status & SDMMC_STAR_DPSMACT) != 0U)) {
 		int ret_stop = stm32_sdmmc2_stop_transfer();
 
 		if (ret_stop != 0) {
@@ -429,15 +426,15 @@ static int stm32_sdmmc2_set_ios(unsigned int clk, unsigned int width)
 
 	if (sdmmc2_params.device_info->mmc_dev_type == MMC_IS_EMMC) {
 		if (max_bus_freq >= 52000000U) {
-			max_freq = STM32MP1_EMMC_HIGH_SPEED_MAX_FREQ;
+			max_freq = STM32MP_EMMC_HIGH_SPEED_MAX_FREQ;
 		} else {
-			max_freq = STM32MP1_EMMC_NORMAL_SPEED_MAX_FREQ;
+			max_freq = STM32MP_EMMC_NORMAL_SPEED_MAX_FREQ;
 		}
 	} else {
 		if (max_bus_freq >= 50000000U) {
-			max_freq = STM32MP1_SD_HIGH_SPEED_MAX_FREQ;
+			max_freq = STM32MP_SD_HIGH_SPEED_MAX_FREQ;
 		} else {
-			max_freq = STM32MP1_SD_NORMAL_SPEED_MAX_FREQ;
+			max_freq = STM32MP_SD_NORMAL_SPEED_MAX_FREQ;
 		}
 	}
 
@@ -523,7 +520,7 @@ static int stm32_sdmmc2_read(int lba, uintptr_t buf, size_t size)
 	uint32_t *buffer;
 	uintptr_t base = sdmmc2_params.reg_base;
 	uintptr_t fifo_reg = base + SDMMC_FIFOR;
-	unsigned int start;
+	uint64_t timeout;
 	int ret;
 
 	/* Assert buf is 4 bytes aligned */
@@ -541,7 +538,7 @@ static int stm32_sdmmc2_read(int lba, uintptr_t buf, size_t size)
 		flags |= SDMMC_STAR_DBCKEND;
 	}
 
-	start = get_timer(0);
+	timeout = timeout_init_us(TIMEOUT_US_1_S);
 
 	do {
 		status = mmio_read_32(base + SDMMC_STAR);
@@ -563,7 +560,7 @@ static int stm32_sdmmc2_read(int lba, uintptr_t buf, size_t size)
 			return -EIO;
 		}
 
-		if (get_timer(start) > TIMEOUT_1_S) {
+		if (timeout_elapsed(timeout)) {
 			ERROR("%s: timeout 1s (status = %x)\n",
 			      __func__, status);
 			mmio_write_32(base + SDMMC_ICR,
@@ -705,8 +702,6 @@ unsigned long long stm32_sdmmc2_mmc_get_device_size(void)
 
 int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params)
 {
-	int ret;
-
 	assert((params != NULL) &&
 	       ((params->reg_base & MMC_BLOCK_MASK) == 0U) &&
 	       ((params->bus_width == MMC_BUS_WIDTH_1) ||
@@ -720,19 +715,14 @@ int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params)
 		return -ENOMEM;
 	}
 
-	ret = stm32mp1_clk_enable(sdmmc2_params.clock_id);
-	if (ret != 0) {
-		ERROR("%s: clock %d failed\n", __func__,
-		      sdmmc2_params.clock_id);
-		return ret;
-	}
+	stm32mp_clk_enable(sdmmc2_params.clock_id);
 
-	stm32mp1_reset_assert(sdmmc2_params.reset_id);
+	stm32mp_reset_assert(sdmmc2_params.reset_id);
 	udelay(2);
-	stm32mp1_reset_deassert(sdmmc2_params.reset_id);
+	stm32mp_reset_deassert(sdmmc2_params.reset_id);
 	mdelay(1);
 
-	sdmmc2_params.clk_rate = stm32mp1_clk_get_rate(sdmmc2_params.clock_id);
+	sdmmc2_params.clk_rate = stm32mp_clk_get_rate(sdmmc2_params.clock_id);
 
 	return mmc_init(&stm32_sdmmc2_ops, sdmmc2_params.clk_rate,
 			sdmmc2_params.bus_width, sdmmc2_params.flags,

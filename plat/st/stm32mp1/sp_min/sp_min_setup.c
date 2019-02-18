@@ -27,8 +27,6 @@
 #include <plat/common/platform.h>
 
 #include <platform_sp_min.h>
-#include <stm32mp1_dt.h>
-#include <stm32mp1_private.h>
 
 /******************************************************************************
  * Placeholder variables for copying the arguments that have been passed to
@@ -125,7 +123,7 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	if ((result > 0) && (dt_uart_info.status != 0U)) {
 		if (console_stm32_register(dt_uart_info.base, 0,
-					   STM32MP1_UART_BAUDRATE, &console) ==
+					   STM32MP_UART_BAUDRATE, &console) ==
 		    0) {
 			panic();
 		}

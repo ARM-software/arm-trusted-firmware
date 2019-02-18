@@ -15,9 +15,6 @@
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 
-#include <stm32mp1_dt.h>
-#include <stm32mp1_private.h>
-
 struct stm32_gic_instance {
 	uint32_t cells;
 	uint32_t phandle_node;

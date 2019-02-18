@@ -13,14 +13,14 @@
 
 #include <common/debug.h>
 #include <drivers/st/stm32_gpio.h>
-#include <drivers/st/stm32mp1_clk.h>
-#include <drivers/st/stm32mp1_clkfunc.h>
 #include <drivers/st/stm32mp1_ddr.h>
 #include <drivers/st/stm32mp1_ram.h>
 
+#include <stm32mp_dt.h>
+
 static int fdt_checked;
 
-static void *fdt = (void *)(uintptr_t)STM32MP1_DTB_BASE;
+static void *fdt = (void *)(uintptr_t)STM32MP_DTB_BASE;
 
 /*******************************************************************************
  * This function checks device tree file with its header.
@@ -68,9 +68,9 @@ bool fdt_check_node(int node)
 /*******************************************************************************
  * This function return global node status (generic use of fdt library).
  ******************************************************************************/
-uint32_t fdt_get_status(int node)
+uint8_t fdt_get_status(int node)
 {
-	uint32_t status = DT_DISABLED;
+	uint8_t status = DT_DISABLED;
 	int len;
 	const char *cchar;
 
@@ -289,6 +289,73 @@ uint32_t dt_get_ddr_size(void)
 	}
 
 	return fdt_read_uint32_default(node, "st,mem-size", 0);
+}
+
+/*******************************************************************************
+ * This function gets DDRCTRL base address information from the DT.
+ * Returns value on success, and 0 on failure.
+ ******************************************************************************/
+uintptr_t dt_get_ddrctrl_base(void)
+{
+	int node;
+	uint32_t array[4];
+
+	node = fdt_node_offset_by_compatible(fdt, -1, DT_DDR_COMPAT);
+	if (node < 0) {
+		INFO("%s: Cannot read DDR node in DT\n", __func__);
+		return 0;
+	}
+
+	if (fdt_read_uint32_array(node, "reg", array, 4) < 0) {
+		return 0;
+	}
+
+	return array[0];
+}
+
+/*******************************************************************************
+ * This function gets DDRPHYC base address information from the DT.
+ * Returns value on success, and 0 on failure.
+ ******************************************************************************/
+uintptr_t dt_get_ddrphyc_base(void)
+{
+	int node;
+	uint32_t array[4];
+
+	node = fdt_node_offset_by_compatible(fdt, -1, DT_DDR_COMPAT);
+	if (node < 0) {
+		INFO("%s: Cannot read DDR node in DT\n", __func__);
+		return 0;
+	}
+
+	if (fdt_read_uint32_array(node, "reg", array, 4) < 0) {
+		return 0;
+	}
+
+	return array[2];
+}
+
+/*******************************************************************************
+ * This function gets PWR base address information from the DT.
+ * Returns value on success, and 0 on failure.
+ ******************************************************************************/
+uintptr_t dt_get_pwr_base(void)
+{
+	int node;
+	const fdt32_t *cuint;
+
+	node = fdt_node_offset_by_compatible(fdt, -1, DT_PWR_COMPAT);
+	if (node < 0) {
+		INFO("%s: Cannot read PWR node in DT\n", __func__);
+		return 0;
+	}
+
+	cuint = fdt_getprop(fdt, node, "reg", NULL);
+	if (cuint == NULL) {
+		return 0;
+	}
+
+	return fdt32_to_cpu(*cuint);
 }
 
 /*******************************************************************************
