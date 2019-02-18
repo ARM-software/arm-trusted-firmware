@@ -291,16 +291,17 @@
 
 /* MDCR_EL3 definitions */
 #define MDCR_SPD32(x)		((x) << 14)
-#define MDCR_SPD32_LEGACY	U(0x0)
-#define MDCR_SPD32_DISABLE	U(0x2)
-#define MDCR_SPD32_ENABLE	U(0x3)
-#define MDCR_SDD_BIT		(U(1) << 16)
+#define MDCR_SPD32_LEGACY	ULL(0x0)
+#define MDCR_SPD32_DISABLE	ULL(0x2)
+#define MDCR_SPD32_ENABLE	ULL(0x3)
+#define MDCR_SDD_BIT		(ULL(1) << 16)
 #define MDCR_NSPB(x)		((x) << 12)
-#define MDCR_NSPB_EL1		U(0x3)
-#define MDCR_TDOSA_BIT		(U(1) << 10)
-#define MDCR_TDA_BIT		(U(1) << 9)
-#define MDCR_TPM_BIT		(U(1) << 6)
-#define MDCR_EL3_RESET_VAL	U(0x0)
+#define MDCR_NSPB_EL1		ULL(0x3)
+#define MDCR_TDOSA_BIT		(ULL(1) << 10)
+#define MDCR_TDA_BIT		(ULL(1) << 9)
+#define MDCR_TPM_BIT		(ULL(1) << 6)
+#define MDCR_SCCD_BIT		(ULL(1) << 23)
+#define MDCR_EL3_RESET_VAL	ULL(0x0)
 
 /* MDCR_EL2 definitions */
 #define MDCR_EL2_TPMS		(U(1) << 14)
