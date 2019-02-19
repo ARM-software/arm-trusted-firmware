@@ -454,7 +454,8 @@ DEFINE_RENAME_SYSREG_READ_FUNC(erxmisc1_el1, ERXMISC1_EL1)
 DEFINE_RENAME_SYSREG_READ_FUNC(id_aa64mmfr2_el1, ID_AA64MMFR2_EL1)
 
 /* Armv8.3 Pointer Authentication Registers */
-DEFINE_RENAME_SYSREG_RW_FUNCS(apgakeylo_el1, APGAKeyLo_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(apiakeyhi_el1, APIAKeyHi_EL1)
+DEFINE_RENAME_SYSREG_RW_FUNCS(apiakeylo_el1, APIAKeyLo_EL1)
 
 #define IS_IN_EL(x) \
 	(GET_EL(read_CurrentEl()) == MODE_EL##x)

@@ -123,8 +123,12 @@
 
 	bl	save_gp_registers
 
+	/* Save ARMv8.3-PAuth registers and load firmware key */
 #if CTX_INCLUDE_PAUTH_REGS
 	bl	pauth_context_save
+#endif
+#if ENABLE_PAUTH
+	bl	pauth_load_bl_apiakey
 #endif
 
 	/* Save the EL3 system registers needed to return from this exception */
@@ -331,8 +335,12 @@ smc_handler64:
 	/* Save general purpose registers */
 	bl	save_gp_registers
 
+	/* Save ARMv8.3-PAuth registers and load firmware key */
 #if CTX_INCLUDE_PAUTH_REGS
 	bl	pauth_context_save
+#endif
+#if ENABLE_PAUTH
+	bl	pauth_load_bl_apiakey
 #endif
 
 	/*

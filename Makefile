@@ -184,6 +184,14 @@ TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
 ASFLAGS_aarch32		=	$(march32-directive)
 ASFLAGS_aarch64		=	-march=armv8-a
 
+# Set the compiler to ARMv8.3 mode so that it uses all the ARMv8.3-PAuth
+# instructions. Keeping it in 8.0 would make the compiler emit
+# backwards-compatible hint instructions, which needs more space.
+ifeq (${ENABLE_PAUTH},1)
+TF_CFLAGS_aarch64	+=	-march=armv8.3-a
+ASFLAGS_aarch64		+=	-march=armv8.3-a
+endif
+
 WARNING1 := -Wextra
 WARNING1 += -Wunused -Wno-unused-parameter
 WARNING1 += -Wmissing-declarations
@@ -459,6 +467,15 @@ ifeq ($(DYN_DISABLE_AUTH), 1)
     endif
 endif
 
+# If pointer authentication is used in the firmware, make sure that all the
+# registers associated to it are also saved and restored. Not doing it would
+# leak the value of the key used by EL3 to EL1 and S-EL1.
+ifeq ($(ENABLE_PAUTH),1)
+    ifeq ($(CTX_INCLUDE_PAUTH_REGS),0)
+        $(error ENABLE_PAUTH=1 requires CTX_INCLUDE_PAUTH_REGS=1)
+    endif
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -587,6 +604,7 @@ $(eval $(call assert_boolean,EL3_EXCEPTION_HANDLING))
 $(eval $(call assert_boolean,ENABLE_AMU))
 $(eval $(call assert_boolean,ENABLE_ASSERTIONS))
 $(eval $(call assert_boolean,ENABLE_MPAM_FOR_LOWER_ELS))
+$(eval $(call assert_boolean,ENABLE_PAUTH))
 $(eval $(call assert_boolean,ENABLE_PIE))
 $(eval $(call assert_boolean,ENABLE_PMF))
 $(eval $(call assert_boolean,ENABLE_PSCI_STAT))
@@ -639,6 +657,7 @@ $(eval $(call add_define,EL3_EXCEPTION_HANDLING))
 $(eval $(call add_define,ENABLE_AMU))
 $(eval $(call add_define,ENABLE_ASSERTIONS))
 $(eval $(call add_define,ENABLE_MPAM_FOR_LOWER_ELS))
+$(eval $(call add_define,ENABLE_PAUTH))
 $(eval $(call add_define,ENABLE_PIE))
 $(eval $(call add_define,ENABLE_PMF))
 $(eval $(call add_define,ENABLE_PSCI_STAT))

@@ -2566,6 +2566,11 @@ Armv8.3-A
    must be set to 1. This will add all pointer authentication system registers
    to the context that is saved when doing a world switch.
 
+   The Trusted Firmware itself has support for pointer authentication at runtime
+   that can be enabled by setting both options ``ENABLE_PAUTH`` and
+   ``CTX_INCLUDE_PAUTH_REGS`` to 1. This enables pointer authentication in BL1,
+   BL2, BL31, and the TSP if it is used.
+
 Armv7-A
 ~~~~~~~
 

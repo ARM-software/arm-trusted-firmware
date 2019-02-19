@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
@@ -243,3 +244,53 @@ void print_entry_point_info(const entry_point_info_t *ep_info)
 #endif
 #undef PRINT_IMAGE_ARG
 }
+
+#ifdef AARCH64
+/*******************************************************************************
+ * Handle all possible cases regarding ARMv8.3-PAuth.
+ ******************************************************************************/
+void bl_handle_pauth(void)
+{
+#if ENABLE_PAUTH
+	/*
+	 * ENABLE_PAUTH = 1 && CTX_INCLUDE_PAUTH_REGS = 1
+	 *
+	 * Check that the system supports address authentication to avoid
+	 * getting an access fault when accessing the registers. This is all
+	 * that is needed to check. If any of the authentication mechanisms is
+	 * supported, the system knows about ARMv8.3-PAuth, so all the registers
+	 * are available and accessing them won't generate a fault.
+	 *
+	 * Obtain 128-bit instruction key A from the platform and save it to the
+	 * system registers. Pointer authentication can't be enabled here or the
+	 * authentication will fail when returning from this function.
+	 */
+	assert(is_armv8_3_pauth_api_present());
+
+	uint64_t *apiakey = plat_init_apiakey();
+
+	write_apiakeylo_el1(apiakey[0]);
+	write_apiakeyhi_el1(apiakey[1]);
+#else /* if !ENABLE_PAUTH */
+
+# if CTX_INCLUDE_PAUTH_REGS
+	/*
+	 * ENABLE_PAUTH = 0 && CTX_INCLUDE_PAUTH_REGS = 1
+	 *
+	 * Assert that the ARMv8.3-PAuth registers are present or an access
+	 * fault will be triggered when they are being saved or restored.
+	 */
+	assert(is_armv8_3_pauth_present());
+# else
+	/*
+	 * ENABLE_PAUTH = 0 && CTX_INCLUDE_PAUTH_REGS = 0
+	 *
+	 * Pointer authentication is allowed in the Non-secure world, but
+	 * prohibited in the Secure world. The Trusted Firmware doesn't save the
+	 * registers during a world switch. No check needed.
+	 */
+# endif /* CTX_INCLUDE_PAUTH_REGS */
+
+#endif /* ENABLE_PAUTH */
+}
+#endif /* AARCH64 */

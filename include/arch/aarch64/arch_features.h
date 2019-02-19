@@ -23,6 +23,23 @@ static inline bool is_armv8_2_ttcnp_present(void)
 		ID_AA64MMFR2_EL1_CNP_MASK) != 0U;
 }
 
+static inline bool is_armv8_3_pauth_present(void)
+{
+	uint64_t mask = (ID_AA64ISAR1_GPI_MASK << ID_AA64ISAR1_GPI_SHIFT) |
+			(ID_AA64ISAR1_GPA_MASK << ID_AA64ISAR1_GPA_SHIFT) |
+			(ID_AA64ISAR1_API_MASK << ID_AA64ISAR1_API_SHIFT) |
+			(ID_AA64ISAR1_APA_MASK << ID_AA64ISAR1_APA_SHIFT);
+
+	/* If any of the fields is not zero, PAuth is present */
+	return (read_id_aa64isar1_el1() & mask) != 0U;
+}
+
+static inline bool is_armv8_3_pauth_api_present(void)
+{
+	return ((read_id_aa64isar1_el1() >> ID_AA64ISAR1_API_SHIFT) &
+		ID_AA64ISAR1_API_MASK) != 0U;
+}
+
 static inline bool is_armv8_4_ttst_present(void)
 {
 	return ((read_id_aa64mmfr2_el1() >> ID_AA64MMFR2_EL1_ST_SHIFT) &
