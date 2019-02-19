@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #define CPU_MACROS_S
 
 #include <arch.h>
+#include <assert_macros.S>
 #include <lib/cpus/errata_report.h>
 
 #define CPU_IMPL_PN_MASK	(MIDR_IMPL_MASK << MIDR_IMPL_SHIFT) | \
@@ -263,11 +264,22 @@
 	mrs	\_reg, id_aa64pfr0_el1
 	ubfx	\_reg, \_reg, #ID_AA64PFR0_CSV2_SHIFT, #ID_AA64PFR0_CSV2_LENGTH
 	/*
-	 * If the field equals to 1 then branch targets trained in one
-	 * context cannot affect speculative execution in a different context.
+	 * If the field equals 1, branch targets trained in one context cannot
+	 * affect speculative execution in a different context.
+	 *
+	 * If the field equals 2, it means that the system is also aware of
+	 * SCXTNUM_ELx register contexts. We aren't using them in the TF, so we
+	 * expect users of the registers to do the right thing.
+	 *
+	 * Only apply mitigations if the value of this field is 0.
 	 */
-	cmp	\_reg, #1
-	beq	\_label
+#if ENABLE_ASSERTIONS
+	cmp	\_reg, #3 /* Only values 0 to 2 are expected */
+	ASM_ASSERT(lo)
+#endif
+
+	cmp	\_reg, #0
+	bne	\_label
 	.endm
 
 	/*
