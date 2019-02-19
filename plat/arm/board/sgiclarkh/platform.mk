@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018, Arm Limited. All rights reserved.
+# Copyright (c) 2018-2019, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -10,7 +10,7 @@ SGICLARKH_BASE		=	plat/arm/board/sgiclarkh
 
 PLAT_INCLUDES		+=	-I${SGICLARKH_BASE}/include/
 
-SGI_CPU_SOURCES		:=	lib/cpus/aarch64/cortex_helios.S
+SGI_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_e1.S
 
 BL1_SOURCES		+=	${SGI_CPU_SOURCES}
 

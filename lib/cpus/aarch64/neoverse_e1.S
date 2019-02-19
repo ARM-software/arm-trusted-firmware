@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,38 +7,38 @@
 #include <asm_macros.S>
 #include <common/bl_common.h>
 #include <common/debug.h>
-#include <cortex_helios.h>
+#include <neoverse_e1.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
-func cortex_helios_cpu_pwr_dwn
-	mrs	x0, CORTEX_HELIOS_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_HELIOS_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	CORTEX_HELIOS_CPUPWRCTLR_EL1, x0
+func neoverse_e1_cpu_pwr_dwn
+	mrs	x0, NEOVERSE_E1_CPUPWRCTLR_EL1
+	orr	x0, x0, #NEOVERSE_E1_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+	msr	NEOVERSE_E1_CPUPWRCTLR_EL1, x0
 	isb
 	ret
-endfunc cortex_helios_cpu_pwr_dwn
+endfunc neoverse_e1_cpu_pwr_dwn
 
 #if REPORT_ERRATA
 /*
- * Errata printing function for Cortex Helios. Must follow AAPCS.
+ * Errata printing function for Neoverse N1. Must follow AAPCS.
  */
-func cortex_helios_errata_report
+func neoverse_e1_errata_report
 	ret
-endfunc cortex_helios_errata_report
+endfunc neoverse_e1_errata_report
 #endif
 
 
-.section .rodata.cortex_helios_regs, "aS"
-cortex_helios_regs:  /* The ascii list of register names to be reported */
+.section .rodata.neoverse_e1_regs, "aS"
+neoverse_e1_regs:  /* The ascii list of register names to be reported */
 	.asciz	"cpuectlr_el1", ""
 
-func cortex_helios_cpu_reg_dump
-	adr	x6, cortex_helios_regs
-	mrs	x8, CORTEX_HELIOS_ECTLR_EL1
+func neoverse_e1_cpu_reg_dump
+	adr	x6, neoverse_e1_regs
+	mrs	x8, NEOVERSE_E1_ECTLR_EL1
 	ret
-endfunc cortex_helios_cpu_reg_dump
+endfunc neoverse_e1_cpu_reg_dump
 
-declare_cpu_ops cortex_helios, CORTEX_HELIOS_MIDR, \
+declare_cpu_ops neoverse_e1, NEOVERSE_E1_MIDR, \
 	CPU_NO_RESET_FUNC, \
-	cortex_helios_cpu_pwr_dwn
+	neoverse_e1_cpu_pwr_dwn
