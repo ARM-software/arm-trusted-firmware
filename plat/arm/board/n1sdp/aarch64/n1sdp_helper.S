@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch.h>
 #include <asm_macros.S>
-#include <cortex_ares.h>
+#include <neoverse_n1.h>
 #include <cpu_macros.S>
 #include <platform_def.h>
 
@@ -58,17 +58,17 @@ endfunc plat_arm_calc_core_pos
 	 */
 
 func plat_reset_handler
-	jump_if_cpu_midr CORTEX_ARES_MIDR, ARES
+	jump_if_cpu_midr NEOVERSE_N1_MIDR, N1
 	ret
 
 	/* -----------------------------------------------------
 	 * Disable CPU power down bit in power control register
 	 * -----------------------------------------------------
 	 */
-ARES:
-	mrs	x0, CORTEX_ARES_CPUPWRCTLR_EL1
-	bic	x0, x0, #CORTEX_ARES_CORE_PWRDN_EN_MASK
-	msr	CORTEX_ARES_CPUPWRCTLR_EL1, x0
+N1:
+	mrs	x0, NEOVERSE_N1_CPUPWRCTLR_EL1
+	bic	x0, x0, #NEOVERSE_N1_CORE_PWRDN_EN_MASK
+	msr	NEOVERSE_N1_CPUPWRCTLR_EL1, x0
 	isb
 	ret
 endfunc plat_reset_handler
