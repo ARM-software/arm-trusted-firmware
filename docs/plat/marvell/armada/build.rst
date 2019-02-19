@@ -26,7 +26,7 @@ BL33 should be ``~/project/u-boot/u-boot.bin``
 
        *u-boot.bin* should be used and not *u-boot-spl.bin*
 
-Set MSS/SCP image path (mandatory only for Armada80x0)
+Set MSS/SCP image path (mandatory only for A7K/8K/CN913x)
 
     .. code:: shell
 
@@ -92,21 +92,30 @@ There are several build options:
 
 - BLE_PATH
 
-        Points to BLE (Binary ROM extension) sources folder. Only required for A8K builds.
+        Points to BLE (Binary ROM extension) sources folder.
+        Only required for A7K/8K/CN913x builds.
         The parameter is optional, its default value is ``plat/marvell/armada/a8k/common/ble``.
 
 - MV_DDR_PATH
 
-        For A7/8K, use this parameter to point to mv_ddr driver sources to allow BLE build. For A37x0,
+        For A7K/8K/CN913x, use this parameter to point to mv_ddr driver sources to allow BLE build. For A37x0,
         it is used for ddr_tool build.
 
         Usage example: MV_DDR_PATH=path/to/mv_ddr
 
-        The parameter is optional for A7/8K, when this parameter is not set, the mv_ddr
+        The parameter is optional for A7K/8K/CN913x, when this parameter is not set, the mv_ddr
         sources are expected to be located at: drivers/marvell/mv_ddr. However, the parameter
         is necessary for A37x0.
 
         For the mv_ddr source location, check the section "Tools and external components installation"
+
+- CP_NUM
+
+        Total amount of CPs (South Bridge) connected to AP. When the parameter is omitted,
+        the build uses the default number of CPs, which is a number of embedded CPs inside the
+        package: 1 or 2 depending on the SoC used. The parameter is valid for OcteonTX2 CN913x SoC
+        family (PLAT=t9130), which can have external CPs connected to the MCI ports. Valid
+        values with CP_NUM are in a range of 1 to 3.
 
 - DDR_TOPOLOGY
 
@@ -191,7 +200,8 @@ There are several build options:
         - a70x0
         - a70x0_amc (for AMC board)
         - a80x0
-        - a80x0_mcbin (for MacciatoBin)
+        - a80x0_mcbin (for MacchiatoBin)
+        - t9130 (OcteonTX2 CN913x)
 
 Special Build Flags
 --------------------
@@ -199,7 +209,7 @@ Special Build Flags
 - PLAT_RECOVERY_IMAGE_ENABLE
     When set this option to enable secondary recovery function when build atf.
     In order to build UART recovery image this operation should be disabled for
-    a70x0 and a80x0 because of hardware limitation (boot from secondary image
+    A7K/8K/CN913x because of hardware limitation (boot from secondary image
     can interrupt UART recovery process). This MACRO definition is set in
     ``plat/marvell/armada/a8k/common/include/platform_def.h`` file.
 
