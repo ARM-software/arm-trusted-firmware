@@ -188,6 +188,8 @@ Renesas rcar-gen3 platform port
 -------------------------------
 :M: Jorge Ramirez-Ortiz  <jramirez@baylibre.com>
 :G: `ldts`_
+:M: Marek Vasut <marek.vasut@gmail.com>
+:G: `marex`_
 :F: docs/plat/rcar-gen3.rst
 :F: plat/renesas/rcar
 :F: drivers/renesas/rcar
@@ -263,6 +265,7 @@ Xilinx platform port
 .. _JackyBai: https://github.com/JackyBai
 .. _jenswi-linaro: https://github.com/jenswi-linaro
 .. _ldts: https://github.com/ldts
+.. _marex: https://github.com/marex
 .. _niej: https://github.com/niej
 .. _kostapr: https://github.com/kostapr
 .. _masahir0y: https://github.com/masahir0y
