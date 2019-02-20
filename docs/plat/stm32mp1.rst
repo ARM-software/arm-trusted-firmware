@@ -4,6 +4,8 @@ Trusted Firmware-A for STM32MP1
 STM32MP1 is a microprocessor designed by STMicroelectronics
 based on a dual Arm Cortex-A7.
 It is an Armv7-A platform, using dedicated code from TF-A.
+The STM32MP1 chip also embeds a Cortex-M4.
+More information can be found on `STM32MP1 Series`_ page.
 
 
 Design
@@ -78,7 +80,7 @@ To build:
     make CROSS_COMPILE=arm-linux-gnueabihf- PLAT=stm32mp1 ARCH=aarch32 ARM_ARCH_MAJOR=7 AARCH32_SP=sp_min
     cd <u-boot_directory>
     make stm32mp15_basic_defconfig
-    make DEVICE_TREE=stm32mp157c_ev1 all
+    make DEVICE_TREE=stm32mp157c-ev1 all
     ./tools/mkimage -T stm32image -a 0xC0100000 -e 0xC0100000 -d u-boot.bin u-boot.stm32
 
 The following build options are supported:
@@ -96,3 +98,6 @@ It should contain at least those partitions:
 - ssbl: to copy the u-boot.stm32 binary
 
 Usually, two copies of fsbl are used (fsbl1 and fsbl2) instead of one partition fsbl.
+
+
+.. _STM32MP1 Series: https://www.st.com/en/microcontrollers-microprocessors/stm32mp1-series.html
