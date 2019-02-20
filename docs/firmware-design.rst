@@ -2544,10 +2544,8 @@ This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` >= 8, or when
 Armv8.2-A
 ~~~~~~~~~
 
-This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` == 8 and
-``ARM_ARCH_MINOR`` >= 2.
-
--  The Common not Private (CnP) bit is enabled to indicate that multiple
+-  The presence of ARMv8.2-TTCNP is detected at runtime. When it is present, the
+   Common not Private (TTBRn_ELx.CnP) bit is enabled to indicate that multiple
    Processing Elements in the same Inner Shareable domain use the same
    translation table entries for a given stage of translation for a particular
    translation regime.
@@ -2642,7 +2640,7 @@ References
 
 --------------
 
-*Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _Reset Design: ./reset-design.rst
 .. _Porting Guide: ./porting-guide.rst
