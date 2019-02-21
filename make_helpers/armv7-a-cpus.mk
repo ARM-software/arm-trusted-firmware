@@ -47,4 +47,9 @@ ifeq ($(filter yes,$(ARM_CORTEX_A7) $(ARM_CORTEX_A12) $(ARM_CORTEX_A15) $(ARM_CO
 $(eval $(call add_define,ARMV7_SUPPORTS_LARGE_PAGE_ADDRESSING))
 $(eval $(call add_define,ARMV7_SUPPORTS_VIRTUALIZATION))
 $(eval $(call add_define,ARMV7_SUPPORTS_GENERIC_TIMER))
+$(eval $(call add_define,ARMV7_SUPPORTS_VFP))
+endif
+
+ifeq ($(ARM_CORTEX_A5),yes)
+$(eval $(call add_define,ARM_CORTEX_A5))
 endif

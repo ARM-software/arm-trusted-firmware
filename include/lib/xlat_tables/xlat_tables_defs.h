@@ -73,7 +73,11 @@
 #define PAGE_SIZE_MASK		(PAGE_SIZE - U(1))
 #define IS_PAGE_ALIGNED(addr)	(((addr) & PAGE_SIZE_MASK) == U(0))
 
-#define XLAT_ENTRY_SIZE_SHIFT	U(3) /* Each MMU table entry is 8 bytes (1 << 3) */
+#if (ARM_ARCH_MAJOR == 7) && !ARMV7_SUPPORTS_LARGE_PAGE_ADDRESSING
+#define XLAT_ENTRY_SIZE_SHIFT	U(2)	/* Each MMU table entry is 4 bytes */
+#else
+#define XLAT_ENTRY_SIZE_SHIFT	U(3)	/* Each MMU table entry is 8 bytes */
+#endif
 #define XLAT_ENTRY_SIZE		(U(1) << XLAT_ENTRY_SIZE_SHIFT)
 
 #define XLAT_TABLE_SIZE_SHIFT	PAGE_SIZE_SHIFT /* Size of one complete table */
