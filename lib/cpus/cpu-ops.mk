@@ -53,9 +53,21 @@ endif
 # These should be enabled by the platform if the erratum workaround needs to be
 # applied.
 
+# Flag to apply erratum 819472 workaround during reset. This erratum applies
+# only to revision <= r0p1 of the Cortex A53 cpu.
+ERRATA_A53_819472	?=0
+
+# Flag to apply erratum 824069 workaround during reset. This erratum applies
+# only to revision <= r0p2 of the Cortex A53 cpu.
+ERRATA_A53_824069	?=0
+
 # Flag to apply erratum 826319 workaround during reset. This erratum applies
 # only to revision <= r0p2 of the Cortex A53 cpu.
 ERRATA_A53_826319	?=0
+
+# Flag to apply erratum 827319 workaround during reset. This erratum applies
+# only to revision <= r0p2 of the Cortex A53 cpu.
+ERRATA_A53_827319	?=0
 
 # Flag to apply erratum 835769 workaround at compile and link time.  This
 # erratum applies to revision <= r0p4 of the Cortex A53 cpu. Enabling this
@@ -156,9 +168,21 @@ ERRATA_N1_1043202	?=1
 # higher DSU power consumption on idle.
 ERRATA_DSU_936184	?=0
 
+# Process ERRATA_A53_819472 flag
+$(eval $(call assert_boolean,ERRATA_A53_819472))
+$(eval $(call add_define,ERRATA_A53_819472))
+
+# Process ERRATA_A53_824069 flag
+$(eval $(call assert_boolean,ERRATA_A53_824069))
+$(eval $(call add_define,ERRATA_A53_824069))
+
 # Process ERRATA_A53_826319 flag
 $(eval $(call assert_boolean,ERRATA_A53_826319))
 $(eval $(call add_define,ERRATA_A53_826319))
+
+# Process ERRATA_A53_827319 flag
+$(eval $(call assert_boolean,ERRATA_A53_827319))
+$(eval $(call add_define,ERRATA_A53_827319))
 
 # Process ERRATA_A53_835769 flag
 $(eval $(call assert_boolean,ERRATA_A53_835769))

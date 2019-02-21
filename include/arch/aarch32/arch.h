@@ -71,7 +71,11 @@
 /* Data Cache set/way op type defines */
 #define DC_OP_ISW			U(0x0)
 #define DC_OP_CISW			U(0x1)
+#if ERRATA_A53_827319
+#define DC_OP_CSW			DC_OP_CISW
+#else
 #define DC_OP_CSW			U(0x2)
+#endif
 
 /*******************************************************************************
  * Generic timer memory mapped registers & offsets

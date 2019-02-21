@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,6 +42,36 @@ func cortex_a53_disable_smp
 	ret
 endfunc cortex_a53_disable_smp
 
+	/* ---------------------------------------------------
+	 * Errata Workaround for Cortex A53 Errata #819472.
+	 * This applies only to revision <= r0p1 of Cortex A53.
+	 * ---------------------------------------------------
+	 */
+func check_errata_819472
+	/*
+	 * Even though this is only needed for revision <= r0p1, it
+	 * is always applied due to limitations of the current
+	 * errata framework.
+	 */
+	mov	x0, #ERRATA_APPLIES
+	ret
+endfunc check_errata_819472
+
+	/* ---------------------------------------------------
+	 * Errata Workaround for Cortex A53 Errata #824069.
+	 * This applies only to revision <= r0p2 of Cortex A53.
+	 * ---------------------------------------------------
+	 */
+func check_errata_824069
+	/*
+	 * Even though this is only needed for revision <= r0p2, it
+	 * is always applied due to limitations of the current
+	 * errata framework.
+	 */
+	mov	x0, #ERRATA_APPLIES
+	ret
+endfunc check_errata_824069
+
 	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A53 Errata #826319.
 	 * This applies only to revision <= r0p2 of Cortex A53.
@@ -69,6 +99,21 @@ func check_errata_826319
 	mov	x1, #0x02
 	b	cpu_rev_var_ls
 endfunc check_errata_826319
+
+	/* ---------------------------------------------------
+	 * Errata Workaround for Cortex A53 Errata #827319.
+	 * This applies only to revision <= r0p2 of Cortex A53.
+	 * ---------------------------------------------------
+	 */
+func check_errata_827319
+	/*
+	 * Even though this is only needed for revision <= r0p2, it
+	 * is always applied due to limitations of the current
+	 * errata framework.
+	 */
+	mov	x0, #ERRATA_APPLIES
+	ret
+endfunc check_errata_827319
 
 	/* ---------------------------------------------------------------------
 	 * Disable the cache non-temporal hint.
@@ -304,7 +349,10 @@ func cortex_a53_errata_report
 	 * Report all errata. The revision-variant information is passed to
 	 * checking functions of each errata.
 	 */
+	report_errata ERRATA_A53_819472, cortex_a53, 819472
+	report_errata ERRATA_A53_824069, cortex_a53, 824069
 	report_errata ERRATA_A53_826319, cortex_a53, 826319
+	report_errata ERRATA_A53_827319, cortex_a53, 827319
 	report_errata ERRATA_A53_835769, cortex_a53, 835769
 	report_errata ERRATA_A53_836870, cortex_a53, disable_non_temporal_hint
 	report_errata ERRATA_A53_843419, cortex_a53, 843419

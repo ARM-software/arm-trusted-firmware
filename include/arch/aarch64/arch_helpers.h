@@ -113,6 +113,18 @@ static inline void tlbi ## _type(uint64_t v)			\
 }
 #endif /* ERRATA_A57_813419 */
 
+#if ERRATA_A53_819472 || ERRATA_A53_824069 || ERRATA_A53_827319
+/*
+ * Define function for DC instruction with register parameter that enables
+ * the workaround for errata 819472, 824069 and 827319 of Cortex-A53.
+ */
+#define DEFINE_DCOP_ERRATA_A53_TYPE_PARAM_FUNC(_name, _type)	\
+static inline void dc ## _name(uint64_t v)			\
+{								\
+	__asm__("dc " #_type ", %0" : : "r" (v));		\
+}
+#endif /* ERRATA_A53_819472 || ERRATA_A53_824069 || ERRATA_A53_827319 */
+
 DEFINE_SYSOP_TYPE_FUNC(tlbi, alle1)
 DEFINE_SYSOP_TYPE_FUNC(tlbi, alle1is)
 DEFINE_SYSOP_TYPE_FUNC(tlbi, alle2)
@@ -143,11 +155,23 @@ DEFINE_SYSOP_TYPE_PARAM_FUNC(tlbi, vale3is)
  ******************************************************************************/
 DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, isw)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, cisw)
+#if ERRATA_A53_827319
+DEFINE_DCOP_ERRATA_A53_TYPE_PARAM_FUNC(csw, cisw)
+#else
 DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, csw)
+#endif
+#if ERRATA_A53_819472 || ERRATA_A53_824069 || ERRATA_A53_827319
+DEFINE_DCOP_ERRATA_A53_TYPE_PARAM_FUNC(cvac, civac)
+#else
 DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, cvac)
+#endif
 DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, ivac)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, civac)
+#if ERRATA_A53_819472 || ERRATA_A53_824069 || ERRATA_A53_827319
+DEFINE_DCOP_ERRATA_A53_TYPE_PARAM_FUNC(cvau, civac)
+#else
 DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, cvau)
+#endif
 DEFINE_SYSOP_TYPE_PARAM_FUNC(dc, zva)
 
 /*******************************************************************************

@@ -328,7 +328,11 @@ DEFINE_BPIOP_FUNC(allis, BPIALLIS)
  */
 DEFINE_DCOP_PARAM_FUNC(civac, DCCIMVAC)
 DEFINE_DCOP_PARAM_FUNC(ivac, DCIMVAC)
+#if ERRATA_A53_819472 || ERRATA_A53_824069 || ERRATA_A53_827319
+DEFINE_DCOP_PARAM_FUNC(cvac, DCCIMVAC)
+#else
 DEFINE_DCOP_PARAM_FUNC(cvac, DCCMVAC)
+#endif
 
 /* Previously defined accessor functions with incomplete register names  */
 #define dsb()			dsbsy()
