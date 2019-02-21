@@ -79,6 +79,10 @@ ERRATA_A53_843419	?=0
 # of by the rich OS.
 ERRATA_A53_855873	?=0
 
+# Flag to apply erratum 768277 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A55 cpu.
+ERRATA_A55_768277	?=0
+
 # Flag to apply erratum 806969 workaround during reset. This erratum applies
 # only to revision r0p0 of the Cortex A57 cpu.
 ERRATA_A57_806969	?=0
@@ -147,6 +151,10 @@ $(eval $(call add_define,ERRATA_A53_843419))
 # Process ERRATA_A53_855873 flag
 $(eval $(call assert_boolean,ERRATA_A53_855873))
 $(eval $(call add_define,ERRATA_A53_855873))
+
+# Process ERRATA_A55_768277 flag
+$(eval $(call assert_boolean,ERRATA_A55_768277))
+$(eval $(call add_define,ERRATA_A55_768277))
 
 # Process ERRATA_A57_806969 flag
 $(eval $(call assert_boolean,ERRATA_A57_806969))

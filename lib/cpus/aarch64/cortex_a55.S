@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,11 +11,49 @@
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A55 Errata #768277.
+	 * This applies only to revision r0p0 of Cortex A55.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_a55_768277_wa
+	/*
+	 * Compare x0 against revision r0p0
+	 */
+	mov	x17, x30
+	bl	check_errata_768277
+	cbz	x0, 1f
+	mrs	x1, CORTEX_A55_CPUACTLR_EL1
+	orr	x1, x1, #CORTEX_A55_CPUACTLR_EL1_DISABLE_DUAL_ISSUE
+	msr	CORTEX_A55_CPUACTLR_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a55_768277_wa
+
+func check_errata_768277
+	mov	x1, #0x00
+	b	cpu_rev_var_ls
+endfunc check_errata_768277
+
 func cortex_a55_reset_func
 	mov	x19, x30
+
 #if ERRATA_DSU_936184
 	bl	errata_dsu_936184_wa
 #endif
+
+	bl	cpu_get_rev_var
+	mov	x18, x0
+
+#if ERRATA_A55_768277
+	mov	x0, x18
+	bl	errata_a55_768277_wa
+#endif
+
 	ret	x19
 endfunc cortex_a55_reset_func
 
@@ -49,6 +87,7 @@ func cortex_a55_errata_report
 	 * "report_errata" is expecting it and it doesn't corrupt it.
 	 */
 	report_errata ERRATA_DSU_936184, cortex_a55, dsu_936184
+	report_errata ERRATA_A55_768277, cortex_a55, 768277
 
 	ldp	x8, x30, [sp], #16
 	ret
