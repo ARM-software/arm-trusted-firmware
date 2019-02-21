@@ -46,6 +46,13 @@ func cortex_a57_disable_ext_debug
 	mov	r0, #1
 	stcopr	r0, DBGOSDLR
 	isb
+#if ERRATA_A57_817169
+	/*
+	 * Invalidate any TLB address
+	 */
+	mov	r0, #0
+	stcopr	r0, TLBIMVA
+#endif
 	dsb	sy
 	bx	lr
 endfunc cortex_a57_disable_ext_debug
@@ -151,6 +158,20 @@ func check_errata_814670
 	mov	r1, #0x00
 	b	cpu_rev_var_ls
 endfunc check_errata_814670
+
+	/* ----------------------------------------------------
+	 * Errata Workaround for Cortex A57 Errata #817169.
+	 * This applies only to revision <= r0p1 of Cortex A57.
+	 * ----------------------------------------------------
+	 */
+func check_errata_817169
+	/*
+	 * Even though this is only needed for revision <= r0p1, it
+	 * is always applied because of the low cost of the workaround.
+	 */
+	mov	r0, #ERRATA_APPLIES
+	bx	lr
+endfunc check_errata_817169
 
 	/* --------------------------------------------------------------------
 	 * Disable the over-read from the LDNP instruction.
@@ -568,6 +589,7 @@ func cortex_a57_errata_report
 	report_errata ERRATA_A57_813419, cortex_a57, 813419
 	report_errata ERRATA_A57_813420, cortex_a57, 813420
 	report_errata ERRATA_A57_814670, cortex_a57, 814670
+	report_errata ERRATA_A57_817169, cortex_a57, 817169
 	report_errata A57_DISABLE_NON_TEMPORAL_HINT, cortex_a57, \
 		disable_ldnp_overread
 	report_errata ERRATA_A57_826974, cortex_a57, 826974
