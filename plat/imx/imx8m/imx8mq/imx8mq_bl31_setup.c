@@ -84,6 +84,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		mmio_write_32(IMX_CSU_BASE + i * 4, 0xffffffff);
 	}
 
+	/* config CAAM JRaMID set MID to Cortex A */
+	mmio_write_32(CAAM_JR0MID, CAAM_NS_MID);
+	mmio_write_32(CAAM_JR1MID, CAAM_NS_MID);
+	mmio_write_32(CAAM_JR2MID, CAAM_NS_MID);
+
 #if DEBUG_CONSOLE
 	static console_uart_t console;
 
