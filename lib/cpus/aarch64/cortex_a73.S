@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,7 +35,47 @@ func cortex_a73_disable_smp
 	ret
 endfunc cortex_a73_disable_smp
 
+	/* ---------------------------------------------------
+	 * Errata Workaround for Cortex A73 Errata #855423.
+	 * This applies only to revision <= r0p1 of Cortex A73.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * ---------------------------------------------------
+	 */
+func errata_a73_855423_wa
+	/*
+	 * Compare x0 against revision r0p1
+	 */
+	mov	x17, x30
+	bl	check_errata_855423
+	cbz	x0, 1f
+	mrs	x1, CORTEX_A73_IMP_DEF_REG2
+	orr	x1, x1, #(1 << 7)
+	msr	CORTEX_A73_IMP_DEF_REG2, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a73_855423_wa
+
+func check_errata_855423
+	mov	x1, #0x01
+	b	cpu_rev_var_ls
+endfunc check_errata_855423
+
+	/* -------------------------------------------------
+	 * The CPU Ops reset function for Cortex-A73.
+	 * -------------------------------------------------
+	 */
+
 func cortex_a73_reset_func
+	mov	x19, x30
+	bl	cpu_get_rev_var
+
+#if ERRATA_A73_855423
+	bl	errata_a73_855423_wa
+#endif
+
 #if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
 	cpu_check_csv2	x0, 1f
 	adr	x0, wa_cve_2017_5715_bpiall_vbar
@@ -60,7 +100,7 @@ func cortex_a73_reset_func
 	orr	x0, x0, #CORTEX_A73_CPUECTLR_SMP_BIT
 	msr	CORTEX_A73_CPUECTLR_EL1, x0
 	isb
-	ret
+	ret	x19
 endfunc cortex_a73_reset_func
 
 func cortex_a73_core_pwr_dwn
@@ -160,6 +200,7 @@ func cortex_a73_errata_report
 	 * Report all errata. The revision-variant information is passed to
 	 * checking functions of each errata.
 	 */
+	report_errata ERRATA_A73_855423, cortex_a73, 855423
 	report_errata WORKAROUND_CVE_2017_5715, cortex_a73, cve_2017_5715
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a73, cve_2018_3639
 

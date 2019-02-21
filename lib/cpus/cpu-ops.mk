@@ -119,6 +119,10 @@ ERRATA_A57_859972	?=0
 # only to revision <= r0p3 of the Cortex A72 cpu.
 ERRATA_A72_859971	?=0
 
+# Flag to apply erratum 855423 workaround during reset. This erratum applies
+# only to revision <= r0p1 of the Cortex A73 cpu.
+ERRATA_A73_855423	?=0
+
 # Flag to apply T32 CLREX workaround during reset. This erratum applies
 # only to r0p0 and r1p0 of the Neoverse N1 cpu.
 ERRATA_N1_1043202	?=1
@@ -187,6 +191,10 @@ $(eval $(call add_define,ERRATA_A57_859972))
 # Process ERRATA_A72_859971 flag
 $(eval $(call assert_boolean,ERRATA_A72_859971))
 $(eval $(call add_define,ERRATA_A72_859971))
+
+# Process ERRATA_A73_855423 flag
+$(eval $(call assert_boolean,ERRATA_A73_855423))
+$(eval $(call add_define,ERRATA_A73_855423))
 
 # Process ERRATA_N1_1043202 flag
 $(eval $(call assert_boolean,ERRATA_N1_1043202))

@@ -132,6 +132,11 @@ For Cortex-A72, the following errata build flags are defined :
 -  ``ERRATA_A72_859971``: This applies errata 859971 workaround to Cortex-A72
    CPU. This needs to be enabled only for revision <= r0p3 of the CPU.
 
+For Cortex-A73, the following errata build flags are defined :
+
+-  ``ERRATA_A73_855423``: This applies errata 855423 workaround to Cortex-A73
+   CPU. This needs to be enabled only for revision <= r0p1 of the CPU.
+
 DSU Errata Workarounds
 ----------------------
 
