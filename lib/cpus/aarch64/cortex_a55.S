@@ -110,6 +110,38 @@ func check_errata_798797
 	b	cpu_rev_var_ls
 endfunc check_errata_798797
 
+	/* --------------------------------------------------------------------
+	 * Errata Workaround for Cortex A55 Errata #846532.
+	 * This applies only to revisions <= r0p1 of Cortex A55.
+	 * Disabling dual-issue has a small impact on performance. Disabling a
+	 * power optimization feature is an alternate workaround with no impact
+	 * on performance but with an increase in power consumption (see errata
+	 * notice).
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------------------------
+	 */
+func errata_a55_846532_wa
+	/*
+	 * Compare x0 against revision r0p1
+	 */
+	mov	x17, x30
+	bl	check_errata_846532
+	cbz	x0, 1f
+	mrs	x1, CORTEX_A55_CPUACTLR_EL1
+	orr	x1, x1, #CORTEX_A55_CPUACTLR_EL1_DISABLE_DUAL_ISSUE
+	msr	CORTEX_A55_CPUACTLR_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a55_846532_wa
+
+func check_errata_846532
+	mov	x1, #0x01
+	b	cpu_rev_var_ls
+endfunc check_errata_846532
+
 func cortex_a55_reset_func
 	mov	x19, x30
 
@@ -133,6 +165,11 @@ func cortex_a55_reset_func
 #if ERRATA_A55_798797
 	mov	x0, x18
 	bl	errata_a55_798797_wa
+#endif
+
+#if ERRATA_A55_846532
+	mov	x0, x18
+	bl	errata_a55_846532_wa
 #endif
 
 	ret	x19
@@ -171,6 +208,7 @@ func cortex_a55_errata_report
 	report_errata ERRATA_A55_768277, cortex_a55, 768277
 	report_errata ERRATA_A55_778703, cortex_a55, 778703
 	report_errata ERRATA_A55_798797, cortex_a55, 798797
+	report_errata ERRATA_A55_846532, cortex_a55, 846532
 
 	ldp	x8, x30, [sp], #16
 	ret

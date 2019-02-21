@@ -91,6 +91,10 @@ ERRATA_A55_778703	?=0
 # only to revision r0p0 of the Cortex A55 cpu.
 ERRATA_A55_798797	?=0
 
+# Flag to apply erratum 846532 workaround during reset. This erratum applies
+# only to revision <= r0p1 of the Cortex A55 cpu.
+ERRATA_A55_846532	?=0
+
 # Flag to apply erratum 806969 workaround during reset. This erratum applies
 # only to revision r0p0 of the Cortex A57 cpu.
 ERRATA_A57_806969	?=0
@@ -171,6 +175,10 @@ $(eval $(call add_define,ERRATA_A55_778703))
 # Process ERRATA_A55_798797 flag
 $(eval $(call assert_boolean,ERRATA_A55_798797))
 $(eval $(call add_define,ERRATA_A55_798797))
+
+# Process ERRATA_A55_846532 flag
+$(eval $(call assert_boolean,ERRATA_A55_846532))
+$(eval $(call add_define,ERRATA_A55_846532))
 
 # Process ERRATA_A57_806969 flag
 $(eval $(call assert_boolean,ERRATA_A57_806969))
