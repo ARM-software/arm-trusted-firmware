@@ -145,6 +145,11 @@ For Cortex-A75, the following errata build flags are defined :
 -  ``ERRATA_A75_790748``: This applies errata 790748 workaround to Cortex-A75
     CPU. This needs to be enabled only for revision r0p0 of the CPU.
 
+For Cortex-A76, the following errata build flags are defined :
+
+-  ``ERRATA_A76_1130799``: This applies errata 1130799 workaround to Cortex-A76
+   CPU. This needs to be enabled only for revision <= r2p0 of the CPU.
+
 DSU Errata Workarounds
 ----------------------
 
