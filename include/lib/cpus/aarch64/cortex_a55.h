@@ -27,6 +27,7 @@
 
 #define CORTEX_A55_CPUACTLR_EL1_DISABLE_WRITE_STREAMING	(ULL(1) << 24)
 #define CORTEX_A55_CPUACTLR_EL1_DISABLE_DUAL_ISSUE	(ULL(1) << 31)
+#define CORTEX_A55_CPUACTLR_EL1_DISABLE_L1_PAGEWALKS	(ULL(1) << 49)
 
 /*******************************************************************************
  * CPU Identification register specific definitions.
