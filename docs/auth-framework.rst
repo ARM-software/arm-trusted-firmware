@@ -606,13 +606,13 @@ The following data structure describes an image in a CoT.
         unsigned int img_id;
         const struct auth_img_desc_s *parent;
         img_type_t img_type;
-        auth_method_desc_t img_auth_methods[AUTH_METHOD_NUM];
-        auth_param_desc_t authenticated_data[COT_MAX_VERIFIED_PARAMS];
+        const auth_method_desc_t *const img_auth_methods;
+        const auth_param_desc_t *const authenticated_data;
     } auth_img_desc_t;
 
-A CoT is defined as an array of ``auth_image_desc_t`` structures linked together
-by the ``parent`` field. Those nodes with no parent must be authenticated using
-the ROTPK stored in the platform.
+A CoT is defined as an array of pointers to ``auth_image_desc_t`` structures
+linked together by the ``parent`` field. Those nodes with no parent must be
+authenticated using the ROTPK stored in the platform.
 
 Implementation example
 ----------------------
@@ -625,15 +625,15 @@ recommended to read this guide along with the source code.
 The TBBR CoT
 ~~~~~~~~~~~~
 
-The CoT can be found in ``drivers/auth/tbbr/tbbr_cot.c``. This CoT consists of an
-array of image descriptors and it is registered in the framework using the macro
-``REGISTER_COT(cot_desc)``, where 'cot_desc' must be the name of the array
-(passing a pointer or any other type of indirection will cause the registration
-process to fail).
+The CoT can be found in ``drivers/auth/tbbr/tbbr_cot.c``. This CoT consists of
+an array of pointers to image descriptors and it is registered in the framework
+using the macro ``REGISTER_COT(cot_desc)``, where 'cot_desc' must be the name
+of the array (passing a pointer or any other type of indirection will cause the
+registration process to fail).
 
-The number of images participating in the boot process depends on the CoT. There
-is, however, a minimum set of images that are mandatory in TF-A and thus all
-CoTs must present:
+The number of images participating in the boot process depends on the CoT.
+There is, however, a minimum set of images that are mandatory in TF-A and thus
+all CoTs must present:
 
 -  ``BL2``
 -  ``SCP_BL2`` (platform specific)
@@ -674,13 +674,15 @@ Each image descriptor must specify:
    is NULL, the authentication parameters will be obtained from the platform
    (i.e. the BL2 and Trusted Key certificates are signed with the ROT private
    key, whose public part is stored in the platform).
--  ``img_auth_methods``: this array defines the authentication methods that must
-   be checked to consider an image authenticated. Each method consists of a
-   type and a list of parameter descriptors. A parameter descriptor consists of
-   a type and a cookie which will point to specific information required to
-   extract that parameter from the image (i.e. if the parameter is stored in an
-   x509v3 extension, the cookie will point to the extension OID). Depending on
-   the method type, a different number of parameters must be specified.
+-  ``img_auth_methods``: this points to an array which defines the
+   authentication methods that must be checked to consider an image
+   authenticated. Each method consists of a type and a list of parameter
+   descriptors. A parameter descriptor consists of a type and a cookie which
+   will point to specific information required to extract that parameter from
+   the image (i.e. if the parameter is stored in an x509v3 extension, the
+   cookie will point to the extension OID). Depending on the method type, a
+   different number of parameters must be specified. This pointer should not be
+   NULL.
    Supported methods are:
 
    -  ``AUTH_METHOD_HASH``: the hash of the image must match the hash extracted
@@ -700,11 +702,11 @@ Each image descriptor must specify:
       -  ``alg``: the signature algorithm used (obtained from current image)
       -  ``data``: the data to be signed (obtained from current image)
 
--  ``authenticated_data``: this array indicates what authentication parameters
-   must be extracted from an image once it has been authenticated. Each
-   parameter consists of a parameter descriptor and the buffer address/size
-   to store the parameter. The CoT is responsible for allocating the required
-   memory to store the parameters.
+-  ``authenticated_data``: this array pointer indicates what authentication
+   parameters must be extracted from an image once it has been authenticated.
+   Each parameter consists of a parameter descriptor and the buffer
+   address/size to store the parameter. The CoT is responsible for allocating
+   the required memory to store the parameters. This pointer may be NULL.
 
 In the ``tbbr_cot.c`` file, a set of buffers are allocated to store the parameters
 extracted from the certificates. In the case of the TBBR CoT, these parameters
@@ -722,102 +724,130 @@ Four image descriptors form the BL31 Chain of Trust:
 
 .. code:: c
 
-    [TRUSTED_KEY_CERT_ID] = {
-        .img_id = TRUSTED_KEY_CERT_ID,
-        .img_type = IMG_CERT,
-        .parent = NULL,
-        .img_auth_methods = {
-            [0] = {
-                .type = AUTH_METHOD_SIG,
-                .param.sig = {
-                    .pk = &subject_pk,
-                    .sig = &sig,
-                    .alg = &sig_alg,
-                    .data = &raw_data,
-                }
-            }
-        },
-        .authenticated_data = {
-            [0] = {
-                .type_desc = &trusted_world_pk,
-                .data = {
-                    .ptr = (void *)trusted_world_pk_buf,
-                    .len = (unsigned int)PK_DER_LEN
-                }
+    static const auth_img_desc_t trusted_key_cert = {
+            .img_id = TRUSTED_KEY_CERT_ID,
+            .img_type = IMG_CERT,
+            .parent = NULL,
+            .img_auth_methods =  (const auth_method_desc_t[AUTH_METHOD_NUM]) {
+                    [0] = {
+                            .type = AUTH_METHOD_SIG,
+                            .param.sig = {
+                                    .pk = &subject_pk,
+                                    .sig = &sig,
+                                    .alg = &sig_alg,
+                                    .data = &raw_data
+                            }
+                    },
+                    [1] = {
+                            .type = AUTH_METHOD_NV_CTR,
+                            .param.nv_ctr = {
+                                    .cert_nv_ctr = &trusted_nv_ctr,
+                                    .plat_nv_ctr = &trusted_nv_ctr
+                            }
+                    }
             },
-            [1] = {
-                .type_desc = &non_trusted_world_pk,
-                .data = {
-                    .ptr = (void *)non_trusted_world_pk_buf,
-                    .len = (unsigned int)PK_DER_LEN
-                }
+            .authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
+                    [0] = {
+                            .type_desc = &trusted_world_pk,
+                            .data = {
+                                    .ptr = (void *)trusted_world_pk_buf,
+                                    .len = (unsigned int)PK_DER_LEN
+                            }
+                    },
+                    [1] = {
+                            .type_desc = &non_trusted_world_pk,
+                            .data = {
+                                    .ptr = (void *)non_trusted_world_pk_buf,
+                                    .len = (unsigned int)PK_DER_LEN
+                            }
+                    }
             }
-        }
-    },
-    [SOC_FW_KEY_CERT_ID] = {
-        .img_id = SOC_FW_KEY_CERT_ID,
-        .img_type = IMG_CERT,
-        .parent = &cot_desc[TRUSTED_KEY_CERT_ID],
-        .img_auth_methods = {
-            [0] = {
-                .type = AUTH_METHOD_SIG,
-                .param.sig = {
-                    .pk = &trusted_world_pk,
-                    .sig = &sig,
-                    .alg = &sig_alg,
-                    .data = &raw_data,
-                }
+    };
+    static const auth_img_desc_t soc_fw_key_cert = {
+            .img_id = SOC_FW_KEY_CERT_ID,
+            .img_type = IMG_CERT,
+            .parent = &trusted_key_cert,
+            .img_auth_methods =  (const auth_method_desc_t[AUTH_METHOD_NUM]) {
+                    [0] = {
+                            .type = AUTH_METHOD_SIG,
+                            .param.sig = {
+                                    .pk = &trusted_world_pk,
+                                    .sig = &sig,
+                                    .alg = &sig_alg,
+                                    .data = &raw_data
+                            }
+                    },
+                    [1] = {
+                            .type = AUTH_METHOD_NV_CTR,
+                            .param.nv_ctr = {
+                                    .cert_nv_ctr = &trusted_nv_ctr,
+                                    .plat_nv_ctr = &trusted_nv_ctr
+                            }
+                    }
+            },
+            .authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
+                    [0] = {
+                            .type_desc = &soc_fw_content_pk,
+                            .data = {
+                                    .ptr = (void *)content_pk_buf,
+                                    .len = (unsigned int)PK_DER_LEN
+                            }
+                    }
             }
-        },
-        .authenticated_data = {
-            [0] = {
-                .type_desc = &soc_fw_content_pk,
-                .data = {
-                    .ptr = (void *)content_pk_buf,
-                    .len = (unsigned int)PK_DER_LEN
-                }
+    };
+    static const auth_img_desc_t soc_fw_content_cert = {
+            .img_id = SOC_FW_CONTENT_CERT_ID,
+            .img_type = IMG_CERT,
+            .parent = &soc_fw_key_cert,
+            .img_auth_methods =  (const auth_method_desc_t[AUTH_METHOD_NUM]) {
+                    [0] = {
+                            .type = AUTH_METHOD_SIG,
+                            .param.sig = {
+                                    .pk = &soc_fw_content_pk,
+                                    .sig = &sig,
+                                    .alg = &sig_alg,
+                                    .data = &raw_data
+                            }
+                    },
+                    [1] = {
+                            .type = AUTH_METHOD_NV_CTR,
+                            .param.nv_ctr = {
+                                    .cert_nv_ctr = &trusted_nv_ctr,
+                                    .plat_nv_ctr = &trusted_nv_ctr
+                            }
+                    }
+            },
+            .authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
+                    [0] = {
+                            .type_desc = &soc_fw_hash,
+                            .data = {
+                                    .ptr = (void *)soc_fw_hash_buf,
+                                    .len = (unsigned int)HASH_DER_LEN
+                            }
+                    },
+                    [1] = {
+                            .type_desc = &soc_fw_config_hash,
+                            .data = {
+                                    .ptr = (void *)soc_fw_config_hash_buf,
+                                    .len = (unsigned int)HASH_DER_LEN
+                            }
+                    }
             }
-        }
-    },
-    [SOC_FW_CONTENT_CERT_ID] = {
-        .img_id = SOC_FW_CONTENT_CERT_ID,
-        .img_type = IMG_CERT,
-        .parent = &cot_desc[SOC_FW_KEY_CERT_ID],
-        .img_auth_methods = {
-            [0] = {
-                .type = AUTH_METHOD_SIG,
-                .param.sig = {
-                    .pk = &soc_fw_content_pk,
-                    .sig = &sig,
-                    .alg = &sig_alg,
-                    .data = &raw_data,
-                }
+    };
+    static const auth_img_desc_t bl31_image = {
+            .img_id = BL31_IMAGE_ID,
+            .img_type = IMG_RAW,
+            .parent = &soc_fw_content_cert,
+            .img_auth_methods =  (const auth_method_desc_t[AUTH_METHOD_NUM]) {
+                    [0] = {
+                            .type = AUTH_METHOD_HASH,
+                            .param.hash = {
+                                    .data = &raw_data,
+                                    .hash = &soc_fw_hash
+                            }
+                    }
             }
-        },
-        .authenticated_data = {
-            [0] = {
-                .type_desc = &soc_fw_hash,
-                .data = {
-                    .ptr = (void *)soc_fw_hash_buf,
-                    .len = (unsigned int)HASH_DER_LEN
-                }
-            }
-        }
-    },
-    [BL31_IMAGE_ID] = {
-        .img_id = BL31_IMAGE_ID,
-        .img_type = IMG_RAW,
-        .parent = &cot_desc[SOC_FW_CONTENT_CERT_ID],
-        .img_auth_methods = {
-            [0] = {
-                .type = AUTH_METHOD_HASH,
-                .param.hash = {
-                    .data = &raw_data,
-                    .hash = &soc_fw_hash,
-                }
-            }
-        }
-    }
+    };
 
 The **Trusted Key certificate** is signed with the ROT private key and contains
 the Trusted World public key and the Non-Trusted World public key as x509v3
@@ -935,7 +965,7 @@ of SHA-256 with smaller memory footprint (~1.5 KB less) but slower (~30%).
 
 --------------
 
-*Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _Trusted Board Boot: ./trusted-board-boot.rst
 .. _Platform Porting Guide: ./porting-guide.rst
