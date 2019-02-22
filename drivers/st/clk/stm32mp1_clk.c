@@ -70,6 +70,7 @@ enum stm32mp1_parent_id {
 	_HCLK2,
 	_CK_PER,
 	_CK_MPU,
+	_CK_MCU,
 	_USB_PHY_48,
 	_PARENT_NB,
 	_UNKNOWN_ID = 0xff,
@@ -93,6 +94,7 @@ enum stm32mp1_parent_sel {
 	_QSPI_SEL,
 	_FMC_SEL,
 	_ASS_SEL,
+	_MSS_SEL,
 	_USBPHY_SEL,
 	_USBO_SEL,
 	_PARENT_SEL_NB,
@@ -117,6 +119,7 @@ enum stm32mp1_div_id {
 enum stm32mp1_clksrc_id {
 	CLKSRC_MPU,
 	CLKSRC_AXI,
+	CLKSRC_MCU,
 	CLKSRC_PLL12,
 	CLKSRC_PLL3,
 	CLKSRC_PLL4,
@@ -129,6 +132,7 @@ enum stm32mp1_clksrc_id {
 enum stm32mp1_clkdiv_id {
 	CLKDIV_MPU,
 	CLKDIV_AXI,
+	CLKDIV_MCU,
 	CLKDIV_APB1,
 	CLKDIV_APB2,
 	CLKDIV_APB3,
@@ -272,6 +276,7 @@ static const uint8_t stm32mp1_clks[][2] = {
 	{ CK_PER, _CK_PER },
 	{ CK_MPU, _CK_MPU },
 	{ CK_AXI, _ACLK },
+	{ CK_MCU, _CK_MCU },
 	{ CK_HSE, _HSE },
 	{ CK_CSI, _CSI },
 	{ CK_LSI, _LSI },
@@ -412,6 +417,10 @@ static const uint8_t ass_parents[] = {
 	_HSI, _HSE, _PLL2
 };
 
+static const uint8_t mss_parents[] = {
+	_HSI, _HSE, _CSI, _PLL3
+};
+
 static const uint8_t usbphy_parents[] = {
 	_HSE_KER, _PLL4_R, _HSE_KER_DIV2
 };
@@ -437,6 +446,7 @@ static const struct stm32mp1_clk_sel stm32mp1_clk_sel[_PARENT_SEL_NB] = {
 	_CLK_PARENT(_QSPI_SEL, RCC_QSPICKSELR, 0, 0xf, qspi_parents),
 	_CLK_PARENT(_FMC_SEL, RCC_FMCCKSELR, 0, 0xf, fmc_parents),
 	_CLK_PARENT(_ASS_SEL, RCC_ASSCKSELR, 0, 0x3, ass_parents),
+	_CLK_PARENT(_MSS_SEL, RCC_MSSCKSELR, 0, 0x3, mss_parents),
 	_CLK_PARENT(_USBPHY_SEL, RCC_USBCKSELR, 0, 0x3, usbphy_parents),
 	_CLK_PARENT(_USBO_SEL, RCC_USBCKSELR, 4, 0x1, usbo_parents),
 };
@@ -483,6 +493,10 @@ static const struct stm32mp1_clk_pll stm32mp1_clk_pll[_PLL_NB] = {
 };
 
 /* Prescaler table lookups for clock computation */
+/* div = /1 /2 /4 /8 / 16 /64 /128 /512 */
+static const uint8_t stm32mp1_mcu_div[16] = {
+	0, 1, 2, 3, 4, 6, 7, 8, 9, 9, 9, 9, 9, 9, 9, 9
+};
 
 /* div = /1 /2 /4 /8 /16 : same divider for PMU and APBX */
 #define stm32mp1_mpu_div stm32mp1_mpu_apbx_div
@@ -547,6 +561,13 @@ bool stm32mp1_rcc_is_secure(void)
 	uintptr_t rcc_base = stm32mp_rcc_base();
 
 	return (mmio_read_32(rcc_base + RCC_TZCR) & RCC_TZCR_TZEN) != 0;
+}
+
+bool stm32mp1_rcc_is_mckprot(void)
+{
+	uintptr_t rcc_base = stm32mp_rcc_base();
+
+	return (mmio_read_32(rcc_base + RCC_TZCR) & RCC_TZCR_MCKPROT) != 0;
 }
 
 void stm32mp1_clk_rcc_regs_lock(void)
@@ -771,6 +792,51 @@ static unsigned long get_clock_rate(int p)
 			reg = mmio_read_32(rcc_base + RCC_APB5DIVR);
 			clock >>= stm32mp1_apbx_div[reg & RCC_APBXDIV_MASK];
 			break;
+		default:
+			break;
+		}
+		break;
+	/* MCU sub system */
+	case _CK_MCU:
+	case _PCLK1:
+	case _PCLK2:
+	case _PCLK3:
+		reg = mmio_read_32(rcc_base + RCC_MSSCKSELR);
+		switch (reg & RCC_SELR_SRC_MASK) {
+		case RCC_MSSCKSELR_HSI:
+			clock = stm32mp1_clk_get_fixed(_HSI);
+			break;
+		case RCC_MSSCKSELR_HSE:
+			clock = stm32mp1_clk_get_fixed(_HSE);
+			break;
+		case RCC_MSSCKSELR_CSI:
+			clock = stm32mp1_clk_get_fixed(_CSI);
+			break;
+		case RCC_MSSCKSELR_PLL:
+			clock = stm32mp1_read_pll_freq(_PLL3, _DIV_P);
+			break;
+		default:
+			break;
+		}
+
+		/* MCU clock divider */
+		reg = mmio_read_32(rcc_base + RCC_MCUDIVR);
+		clock >>= stm32mp1_mcu_div[reg & RCC_MCUDIV_MASK];
+
+		switch (p) {
+		case _PCLK1:
+			reg = mmio_read_32(rcc_base + RCC_APB1DIVR);
+			clock >>= stm32mp1_apbx_div[reg & RCC_APBXDIV_MASK];
+			break;
+		case _PCLK2:
+			reg = mmio_read_32(rcc_base + RCC_APB2DIVR);
+			clock >>= stm32mp1_apbx_div[reg & RCC_APBXDIV_MASK];
+			break;
+		case _PCLK3:
+			reg = mmio_read_32(rcc_base + RCC_APB3DIVR);
+			clock >>= stm32mp1_apbx_div[reg & RCC_APBXDIV_MASK];
+			break;
+		case _CK_MCU:
 		default:
 			break;
 		}
@@ -1609,6 +1675,10 @@ int stm32mp1_clk_init(void)
 	if (ret != 0) {
 		return ret;
 	}
+	ret = stm32mp1_set_clksrc(CLK_MCU_HSI);
+	if (ret != 0) {
+		return ret;
+	}
 
 	if ((mmio_read_32(rcc_base + RCC_MP_RSTSCLRR) &
 	     RCC_MP_RSTSCLRR_MPUP0RSTF) != 0) {
@@ -1656,6 +1726,10 @@ int stm32mp1_clk_init(void)
 		return ret;
 	}
 	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_APB5], rcc_base + RCC_APB5DIVR);
+	if (ret != 0) {
+		return ret;
+	}
+	ret = stm32mp1_set_clkdiv(clkdiv[CLKDIV_MCU], rcc_base + RCC_MCUDIVR);
 	if (ret != 0) {
 		return ret;
 	}
@@ -1754,6 +1828,10 @@ int stm32mp1_clk_init(void)
 		return ret;
 	}
 	ret = stm32mp1_set_clksrc(clksrc[CLKSRC_AXI]);
+	if (ret != 0) {
+		return ret;
+	}
+	ret = stm32mp1_set_clksrc(clksrc[CLKSRC_MCU]);
 	if (ret != 0) {
 		return ret;
 	}

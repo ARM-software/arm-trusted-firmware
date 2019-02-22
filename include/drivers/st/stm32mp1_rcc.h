@@ -111,6 +111,7 @@
 #define RCC_RCK4SELR			U(0x824)
 #define RCC_TIMG1PRER			U(0x828)
 #define RCC_TIMG2PRER			U(0x82C)
+#define RCC_MCUDIVR			U(0x830)
 #define RCC_APB1DIVR			U(0x834)
 #define RCC_APB2DIVR			U(0x838)
 #define RCC_APB3DIVR			U(0x83C)
@@ -237,6 +238,7 @@
 
 /* Values for RCC_TZCR register */
 #define RCC_TZCR_TZEN			BIT(0)
+#define RCC_TZCR_MCKPROT		BIT(1)
 
 /* Used for most of RCC_<x>SELR registers */
 #define RCC_SELR_SRC_MASK		GENMASK(2, 0)
@@ -273,6 +275,7 @@
 #define RCC_APBXDIV_MASK		GENMASK(2, 0)
 #define RCC_MPUDIV_MASK			GENMASK(2, 0)
 #define RCC_AXIDIV_MASK			GENMASK(2, 0)
+#define RCC_MCUDIV_MASK			GENMASK(3, 0)
 
 /* Used for TIMER Prescaler */
 #define RCC_TIMGXPRER_TIMGXPRE		BIT(0)
@@ -421,6 +424,7 @@
 
 /* Global Reset Register */
 #define RCC_MP_GRSTCSETR_MPSYSRST	BIT(0)
+#define RCC_MP_GRSTCSETR_MCURST		BIT(1)
 #define RCC_MP_GRSTCSETR_MPUP0RST	BIT(4)
 #define RCC_MP_GRSTCSETR_MPUP1RST	BIT(5)
 

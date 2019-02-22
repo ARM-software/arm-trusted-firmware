@@ -224,6 +224,7 @@
 	st,clksrc = <
 		CLK_MPU_PLL1P
 		CLK_AXI_PLL2P
+		CLK_MCU_PLL3P
 		CLK_PLL12_HSE
 		CLK_PLL3_HSE
 		CLK_PLL4_HSE
@@ -235,6 +236,7 @@
 	st,clkdiv = <
 		1 /*MPU*/
 		0 /*AXI*/
+		0 /*MCU*/
 		1 /*APB1*/
 		1 /*APB2*/
 		1 /*APB3*/
