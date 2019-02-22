@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -10,7 +10,7 @@ SGICLARKA_BASE		=	plat/arm/board/sgiclarka
 
 PLAT_INCLUDES		+=	-I${SGICLARKA_BASE}/include/
 
-SGI_CPU_SOURCES		:=	lib/cpus/aarch64/cortex_ares.S
+SGI_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_n1.S
 
 BL1_SOURCES		+=	${SGI_CPU_SOURCES}
 

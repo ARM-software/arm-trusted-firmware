@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -120,8 +120,8 @@ ERRATA_A57_859972	?=0
 ERRATA_A72_859971	?=0
 
 # Flag to apply T32 CLREX workaround during reset. This erratum applies
-# only to r0p0 and r1p0 of the Ares cpu.
-ERRATA_ARES_1043202	?=1
+# only to r0p0 and r1p0 of the Neoverse N1 cpu.
+ERRATA_N1_1043202	?=1
 
 # Flag to apply DSU erratum 936184. This erratum applies to DSUs containing
 # the ACP interface and revision < r2p0. Applying the workaround results in
@@ -188,9 +188,9 @@ $(eval $(call add_define,ERRATA_A57_859972))
 $(eval $(call assert_boolean,ERRATA_A72_859971))
 $(eval $(call add_define,ERRATA_A72_859971))
 
-# Process ERRATA_ARES_1043202 flag
-$(eval $(call assert_boolean,ERRATA_ARES_1043202))
-$(eval $(call add_define,ERRATA_ARES_1043202))
+# Process ERRATA_N1_1043202 flag
+$(eval $(call assert_boolean,ERRATA_N1_1043202))
+$(eval $(call add_define,ERRATA_N1_1043202))
 
 # Process ERRATA_DSU_936184 flag
 $(eval $(call assert_boolean,ERRATA_DSU_936184))

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -12,7 +12,7 @@ INTERCONNECT_SOURCES	:=	${N1SDP_BASE}/n1sdp_interconnect.c
 PLAT_INCLUDES		:=	-I${N1SDP_BASE}/include
 
 
-N1SDP_CPU_SOURCES	:=	lib/cpus/aarch64/cortex_ares.S
+N1SDP_CPU_SOURCES	:=	lib/cpus/aarch64/neoverse_n1.S
 
 
 N1SDP_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\

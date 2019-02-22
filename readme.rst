@@ -195,7 +195,7 @@ This release also contains the following platform support:
 -  Allwinner sun50i_64 and sun50i_h6
 -  Amlogic Meson S905 (GXBB)
 -  Arm SGI-575, SGI Clark.A, SGI Clark.H and SGM-775
--  Arm NeoVerse N1 System Development Platform
+-  Arm Neoverse N1 System Development Platform
 -  HiKey, HiKey960 and Poplar boards
 -  Marvell Armada 3700 and 8K
 -  MediaTek MT6795 and MT8173 SoCs
