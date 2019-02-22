@@ -88,10 +88,10 @@
 
 #ifndef __ASSEMBLY__
 
-#if !ERROR_DEPRECATED
+//#if !ERROR_DEPRECATED
 typedef unsigned int tzc_action_t;
 typedef unsigned int tzc_region_attributes_t;
-#endif
+//#endif
 
 #endif /* __ASSEMBLY__ */
 #endif /* TZC_COMMON_H */
