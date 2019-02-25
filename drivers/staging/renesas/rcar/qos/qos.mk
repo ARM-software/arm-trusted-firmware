@@ -12,6 +12,7 @@ ifeq (${RCAR_LSI},${RCAR_AUTO})
     BL2_SOURCES += drivers/staging/renesas/rcar/qos/H3/qos_init_h3_v30.c
     BL2_SOURCES += drivers/staging/renesas/rcar/qos/M3/qos_init_m3_v10.c
     BL2_SOURCES += drivers/staging/renesas/rcar/qos/M3/qos_init_m3_v11.c
+    BL2_SOURCES += drivers/staging/renesas/rcar/qos/M3/qos_init_m3_v30.c
     BL2_SOURCES += drivers/staging/renesas/rcar/qos/M3N/qos_init_m3n_v10.c
 else ifdef RCAR_LSI_CUT_COMPAT
   ifeq (${RCAR_LSI},${RCAR_H3})
@@ -26,6 +27,7 @@ else ifdef RCAR_LSI_CUT_COMPAT
   ifeq (${RCAR_LSI},${RCAR_M3})
     BL2_SOURCES += drivers/staging/renesas/rcar/qos/M3/qos_init_m3_v10.c
     BL2_SOURCES += drivers/staging/renesas/rcar/qos/M3/qos_init_m3_v11.c
+    BL2_SOURCES += drivers/staging/renesas/rcar/qos/M3/qos_init_m3_v30.c
   endif
   ifeq (${RCAR_LSI},${RCAR_M3N})
     BL2_SOURCES += drivers/staging/renesas/rcar/qos/M3N/qos_init_m3n_v10.c
@@ -61,9 +63,13 @@ else
      BL2_SOURCES += drivers/staging/renesas/rcar/qos/M3/qos_init_m3_v10.c
     else ifeq (${LSI_CUT},11)
      BL2_SOURCES += drivers/staging/renesas/rcar/qos/M3/qos_init_m3_v11.c
-    else
-#    LSI_CUT 11 or later
+    else ifeq (${LSI_CUT},13)
      BL2_SOURCES += drivers/staging/renesas/rcar/qos/M3/qos_init_m3_v11.c
+    else ifeq (${LSI_CUT},30)
+     BL2_SOURCES += drivers/staging/renesas/rcar/qos/M3/qos_init_m3_v30.c
+    else
+#    LSI_CUT 30 or later
+     BL2_SOURCES += drivers/staging/renesas/rcar/qos/M3/qos_init_m3_v30.c
     endif
   endif
   ifeq (${RCAR_LSI},${RCAR_M3N})

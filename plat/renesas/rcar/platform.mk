@@ -38,10 +38,12 @@ $(eval $(call add_define,RCAR_H3N))
 $(eval $(call add_define,RCAR_AUTO))
 RCAR_CUT_10:=0
 RCAR_CUT_11:=1
+RCAR_CUT_13:=3
 RCAR_CUT_20:=10
 RCAR_CUT_30:=20
 $(eval $(call add_define,RCAR_CUT_10))
 $(eval $(call add_define,RCAR_CUT_11))
+$(eval $(call add_define,RCAR_CUT_13))
 $(eval $(call add_define,RCAR_CUT_20))
 $(eval $(call add_define,RCAR_CUT_30))
 
@@ -98,6 +100,10 @@ else
         RCAR_LSI_CUT:=0
       else ifeq (${LSI_CUT},11)
         RCAR_LSI_CUT:=1
+      else ifeq (${LSI_CUT},13)
+        RCAR_LSI_CUT:=3
+      else ifeq (${LSI_CUT},30)
+        RCAR_LSI_CUT:=20
       else
         $(error "Error: ${LSI_CUT} is not supported.")
       endif
@@ -130,6 +136,8 @@ else
       # disable compatible function.
       ifeq (${LSI_CUT},10)
         RCAR_LSI_CUT:=0
+      else ifeq (${LSI_CUT},11)
+        RCAR_LSI_CUT:=1
       else
         $(error "Error: ${LSI_CUT} is not supported.")
       endif
