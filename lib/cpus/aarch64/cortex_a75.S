@@ -38,6 +38,34 @@ func check_errata_764081
 	b	cpu_rev_var_ls
 endfunc check_errata_764081
 
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A75 Errata #790748.
+	 * This applies only to revision r0p0 of Cortex A75.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_a75_790748_wa
+	/*
+	 * Compare x0 against revision r0p0
+	 */
+	mov	x17, x30
+	bl	check_errata_790748
+	cbz	x0, 1f
+	mrs	x1, CORTEX_A75_CPUACTLR_EL1
+	orr	x1, x1 ,#(1 << 13)
+	msr	CORTEX_A75_CPUACTLR_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a75_790748_wa
+
+func check_errata_790748
+	mov	x1, #0x00
+	b	cpu_rev_var_ls
+endfunc check_errata_790748
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A75.
 	 * -------------------------------------------------
@@ -45,9 +73,16 @@ endfunc check_errata_764081
 func cortex_a75_reset_func
 	mov	x19, x30
 	bl	cpu_get_rev_var
+	mov	x18, x0
 
 #if ERRATA_A75_764081
+	mov	x0, x18
 	bl	errata_a75_764081_wa
+#endif
+
+#if ERRATA_A75_790748
+	mov	x0, x18
+	bl	errata_a75_790748_wa
 #endif
 
 #if IMAGE_BL31 && WORKAROUND_CVE_2017_5715
@@ -148,6 +183,7 @@ func cortex_a75_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata ERRATA_A75_764081, cortex_a75, 764081
+	report_errata ERRATA_A75_790748, cortex_a75, 790748
 	report_errata WORKAROUND_CVE_2017_5715, cortex_a75, cve_2017_5715
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a75, cve_2018_3639
 	report_errata ERRATA_DSU_936184, cortex_a75, dsu_936184
