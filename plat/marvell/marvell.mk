@@ -16,6 +16,10 @@ $(eval $(call add_define,MARVELL_SECURE_BOOT))
 PALLADIUM			:= 0
 $(eval $(call add_define,PALLADIUM))
 
+# Set board to work with DDR 32bit
+DDR32				:= 0
+$(eval $(call add_define,DDR32))
+
 ifeq (${MARVELL_SECURE_BOOT},1)
 DOIMAGE_SEC_FLAGS := -c $(DOIMAGE_SEC)
 DOIMAGE_LIBS_CHECK = \

@@ -52,8 +52,13 @@ static struct mv_ddr_topology_map board_topology_map = {
 	   MV_DDR_FREQ_SAR,		/* frequency */
 	   0, 0,			/* cas_l, cas_wl */
 	   MV_DDR_TEMP_LOW} },		/* temperature */
+#if DDR32
+	MV_DDR_32BIT_ECC_PUP8_BUS_MASK, /* subphys mask */
+	MV_DDR_CFG_DEFAULT,		/* ddr configuration data source */
+#else
 	MV_DDR_64BIT_ECC_PUP8_BUS_MASK, /* subphys mask */
 	MV_DDR_CFG_SPD,			/* ddr configuration data source */
+#endif
 	{ {0} },			/* raw spd data */
 	{0},				/* timing parameters */
 	{				/* electrical configuration */

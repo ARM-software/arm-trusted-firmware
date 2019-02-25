@@ -194,6 +194,10 @@ Special Build Flags
     can interrupt UART recovery process). This MACRO definition is set in
     ``plat/marvell/armada/a8k/common/include/platform_def.h`` file.
 
+- DDR32
+    In order to work in 32bit DDR, instead of the default 64bit ECC DDR,
+    this flag should be set to 1.
+
 For more information about build options, please refer to the
 :ref:`Build Options` document.
 
