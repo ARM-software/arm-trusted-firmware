@@ -954,11 +954,11 @@ The TSP handles interrupts under the asynchronous model as follows.
    control to the TSP in response to an SMC with ``TSP_FID_RESUME`` as the
    function identifier from the non-secure state (see section 2.3.2.4).
 
-#. .. rubric:: Other considerations
-      :name: other-considerations
+Other considerations
+--------------------
 
 Implication of preempted SMC on Non-Secure Software
----------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A ``yielding`` SMC call to Secure payload can be preempted by a non-secure
 interrupt and the execution can return to the non-secure world for handling
@@ -1001,7 +1001,7 @@ TSP by returning ``SMC_UNK`` error.
 
 --------------
 
-*Copyright (c) 2014-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _Porting Guide: ./porting-guide.rst
 .. _SMC calling convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
