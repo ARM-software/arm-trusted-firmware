@@ -109,7 +109,7 @@ static const char *invalid_descriptors_ommited =
 		"%s(%d invalid descriptors omitted)\n";
 
 /*
- * Recursive function that reads the translation tables passed as an argument
+ * Function that reads the translation tables passed as an argument
  * and prints their status.
  */
 static void xlat_tables_print_internal(xlat_ctx_t *ctx, uintptr_t table_base_va,
@@ -118,10 +118,23 @@ static void xlat_tables_print_internal(xlat_ctx_t *ctx, uintptr_t table_base_va,
 {
 	assert(level <= XLAT_TABLE_LEVEL_MAX);
 
-	uint64_t desc;
-	uintptr_t table_idx_va = table_base_va;
+	/*
+	 * data structure to track DESC_TABLE entry before iterate into subtable
+	 * of next translation level. it will be restored after return from
+	 * subtable iteration.
+	 */
+	struct desc_table {
+		const uint64_t *table_base;
+		uintptr_t table_idx_va;
+		unsigned int idx;
+	} desc_tables[XLAT_TABLE_LEVEL_MAX + 1] = {
+		{NULL, 0U, XLAT_TABLE_ENTRIES}, };
+	unsigned int this_level = level;
+	const uint64_t *this_base = table_base;
+	unsigned int max_entries = table_entries;
+	size_t level_size = XLAT_BLOCK_SIZE(this_level);
 	unsigned int table_idx = 0U;
-	size_t level_size = XLAT_BLOCK_SIZE(level);
+	uintptr_t table_idx_va = table_base_va;
 
 	/*
 	 * Keep track of how many invalid descriptors are counted in a row.
@@ -131,67 +144,110 @@ static void xlat_tables_print_internal(xlat_ctx_t *ctx, uintptr_t table_base_va,
 	 */
 	int invalid_row_count = 0;
 
-	while (table_idx < table_entries) {
-
-		desc = table_base[table_idx];
-
-		if ((desc & DESC_MASK) == INVALID_DESC) {
-
-			if (invalid_row_count == 0) {
-				printf("%sVA:0x%lx size:0x%zx\n",
-				       level_spacers[level],
-				       table_idx_va, level_size);
-			}
-			invalid_row_count++;
-
-		} else {
-
+	while (this_base != NULL) {
+		/* finish current xlat level */
+		if (table_idx >= max_entries) {
 			if (invalid_row_count > 1) {
 				printf(invalid_descriptors_ommited,
-				       level_spacers[level],
-				       invalid_row_count - 1);
+					  level_spacers[this_level],
+					  invalid_row_count - 1);
 			}
 			invalid_row_count = 0;
 
-			/*
-			 * Check if this is a table or a block. Tables are only
-			 * allowed in levels other than 3, but DESC_PAGE has the
-			 * same value as DESC_TABLE, so we need to check.
-			 */
-			if (((desc & DESC_MASK) == TABLE_DESC) &&
-					(level < XLAT_TABLE_LEVEL_MAX)) {
-				/*
-				 * Do not print any PA for a table descriptor,
-				 * as it doesn't directly map physical memory
-				 * but instead points to the next translation
-				 * table in the translation table walk.
-				 */
-				printf("%sVA:0x%lx size:0x%zx\n",
-				       level_spacers[level],
-				       table_idx_va, level_size);
-
-				uintptr_t addr_inner = desc & TABLE_ADDR_MASK;
-
-				xlat_tables_print_internal(ctx, table_idx_va,
-					(uint64_t *)addr_inner,
-					XLAT_TABLE_ENTRIES, level + 1U);
+			/* no parent level to iterate. */
+			if (this_level <= level) {
+				this_base = NULL;
+				table_idx = max_entries + 1;
 			} else {
-				printf("%sVA:0x%lx PA:0x%llx size:0x%zx ",
-				       level_spacers[level], table_idx_va,
-				       (uint64_t)(desc & TABLE_ADDR_MASK),
-				       level_size);
-				xlat_desc_print(ctx, desc);
-				printf("\n");
+				/* retore previous DESC_TABLE entry and start
+				 * to iterate.
+				 */
+				this_level--;
+				level_size = XLAT_BLOCK_SIZE(this_level);
+				this_base = desc_tables[this_level].table_base;
+				table_idx = desc_tables[this_level].idx;
+				table_idx_va =
+					desc_tables[this_level].table_idx_va;
+				if (this_level == level) {
+					max_entries = table_entries;
+				} else {
+					max_entries = XLAT_TABLE_ENTRIES;
+				}
+
+				assert(this_base != NULL);
+			}
+		} else {
+			uint64_t desc = this_base[table_idx];
+
+			if ((desc & DESC_MASK) == INVALID_DESC) {
+				if (invalid_row_count == 0) {
+					printf("%sVA:0x%lx size:0x%zx\n",
+						  level_spacers[this_level],
+						  table_idx_va, level_size);
+				}
+				invalid_row_count++;
+				table_idx++;
+				table_idx_va += level_size;
+			} else {
+				if (invalid_row_count > 1) {
+					printf(invalid_descriptors_ommited,
+						  level_spacers[this_level],
+						  invalid_row_count - 1);
+				}
+				invalid_row_count = 0;
+				/*
+				 * Check if this is a table or a block. Tables
+				 * are only allowed in levels other than 3, but
+				 * DESC_PAGE has the same value as DESC_TABLE,
+				 * so we need to check.
+				 */
+
+				if (((desc & DESC_MASK) == TABLE_DESC) &&
+				    (this_level < XLAT_TABLE_LEVEL_MAX)) {
+					uintptr_t addr_inner;
+
+					/*
+					 * Do not print any PA for a table
+					 * descriptor, as it doesn't directly
+					 * map physical memory but instead
+					 * points to the next translation
+					 * table in the translation table walk.
+					 */
+					printf("%sVA:0x%lx size:0x%zx\n",
+					       level_spacers[this_level],
+					       table_idx_va, level_size);
+
+					addr_inner = desc & TABLE_ADDR_MASK;
+					/* save current xlat level */
+					desc_tables[this_level].table_base =
+						this_base;
+					desc_tables[this_level].idx =
+						table_idx + 1;
+					desc_tables[this_level].table_idx_va =
+						table_idx_va + level_size;
+
+					/* start iterating next level entries */
+					this_base = (uint64_t *)addr_inner;
+					max_entries = XLAT_TABLE_ENTRIES;
+					this_level++;
+					level_size =
+						XLAT_BLOCK_SIZE(this_level);
+					table_idx = 0U;
+				} else {
+					printf("%sVA:0x%lx PA:0x%llx size:0x%zx ",
+					       level_spacers[this_level],
+					       table_idx_va,
+					       (uint64_t)(desc & TABLE_ADDR_MASK),
+					       level_size);
+					xlat_desc_print(ctx, desc);
+					printf("\n");
+
+					table_idx++;
+					table_idx_va += level_size;
+
+				}
 			}
 		}
-
-		table_idx++;
-		table_idx_va += level_size;
-	}
-
-	if (invalid_row_count > 1) {
-		printf(invalid_descriptors_ommited,
-		       level_spacers[level], invalid_row_count - 1);
 	}
 }
 
