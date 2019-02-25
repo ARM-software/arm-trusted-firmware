@@ -46,8 +46,21 @@ struct reg_desc {
 		.par_offset = offsetof(struct y, x)		\
 	}
 
+/*
+ * PARAMETERS: value get from device tree :
+ *             size / order need to be aligned with binding
+ *             modification NOT ALLOWED !!!
+ */
+#define DDRCTL_REG_REG_SIZE	25	/* st,ctl-reg */
+#define DDRCTL_REG_TIMING_SIZE	12	/* st,ctl-timing */
+#define DDRCTL_REG_MAP_SIZE	9	/* st,ctl-map */
+#define DDRCTL_REG_PERF_SIZE	17	/* st,ctl-perf */
+
+#define DDRPHY_REG_REG_SIZE	11	/* st,phy-reg */
+#define	DDRPHY_REG_TIMING_SIZE	10	/* st,phy-timing */
+
 #define DDRCTL_REG_REG(x)	DDRCTL_REG(x, stm32mp1_ddrctrl_reg)
-static const struct reg_desc ddr_reg[] = {
+static const struct reg_desc ddr_reg[DDRCTL_REG_REG_SIZE] = {
 	DDRCTL_REG_REG(mstr),
 	DDRCTL_REG_REG(mrctrl0),
 	DDRCTL_REG_REG(mrctrl1),
@@ -76,7 +89,7 @@ static const struct reg_desc ddr_reg[] = {
 };
 
 #define DDRCTL_REG_TIMING(x)	DDRCTL_REG(x, stm32mp1_ddrctrl_timing)
-static const struct reg_desc ddr_timing[] = {
+static const struct reg_desc ddr_timing[DDRCTL_REG_TIMING_SIZE] = {
 	DDRCTL_REG_TIMING(rfshtmg),
 	DDRCTL_REG_TIMING(dramtmg0),
 	DDRCTL_REG_TIMING(dramtmg1),
@@ -92,7 +105,7 @@ static const struct reg_desc ddr_timing[] = {
 };
 
 #define DDRCTL_REG_MAP(x)	DDRCTL_REG(x, stm32mp1_ddrctrl_map)
-static const struct reg_desc ddr_map[] = {
+static const struct reg_desc ddr_map[DDRCTL_REG_MAP_SIZE] = {
 	DDRCTL_REG_MAP(addrmap1),
 	DDRCTL_REG_MAP(addrmap2),
 	DDRCTL_REG_MAP(addrmap3),
@@ -105,7 +118,7 @@ static const struct reg_desc ddr_map[] = {
 };
 
 #define DDRCTL_REG_PERF(x)	DDRCTL_REG(x, stm32mp1_ddrctrl_perf)
-static const struct reg_desc ddr_perf[] = {
+static const struct reg_desc ddr_perf[DDRCTL_REG_PERF_SIZE] = {
 	DDRCTL_REG_PERF(sched),
 	DDRCTL_REG_PERF(sched1),
 	DDRCTL_REG_PERF(perfhpr1),
@@ -126,7 +139,7 @@ static const struct reg_desc ddr_perf[] = {
 };
 
 #define DDRPHY_REG_REG(x)	DDRPHY_REG(x, stm32mp1_ddrphy_reg)
-static const struct reg_desc ddrphy_reg[] = {
+static const struct reg_desc ddrphy_reg[DDRPHY_REG_REG_SIZE] = {
 	DDRPHY_REG_REG(pgcr),
 	DDRPHY_REG_REG(aciocr),
 	DDRPHY_REG_REG(dxccr),
@@ -141,7 +154,7 @@ static const struct reg_desc ddrphy_reg[] = {
 };
 
 #define DDRPHY_REG_TIMING(x)	DDRPHY_REG(x, stm32mp1_ddrphy_timing)
-static const struct reg_desc ddrphy_timing[] = {
+static const struct reg_desc ddrphy_timing[DDRPHY_REG_TIMING_SIZE] = {
 	DDRPHY_REG_TIMING(ptr0),
 	DDRPHY_REG_TIMING(ptr1),
 	DDRPHY_REG_TIMING(ptr2),
@@ -154,36 +167,9 @@ static const struct reg_desc ddrphy_timing[] = {
 	DDRPHY_REG_TIMING(mr3),
 };
 
-#define DDR_REG_DYN(x)						\
-	{							\
-		.name = #x,					\
-		.offset = offsetof(struct stm32mp1_ddrctl, x),	\
-		.par_offset = INVALID_OFFSET \
-	}
-
-static const struct reg_desc ddr_dyn[] = {
-	DDR_REG_DYN(stat),
-	DDR_REG_DYN(init0),
-	DDR_REG_DYN(dfimisc),
-	DDR_REG_DYN(dfistat),
-	DDR_REG_DYN(swctl),
-	DDR_REG_DYN(swstat),
-	DDR_REG_DYN(pctrl_0),
-	DDR_REG_DYN(pctrl_1),
-};
-
-#define DDRPHY_REG_DYN(x)					\
-	{							\
-		.name = #x,					\
-		.offset = offsetof(struct stm32mp1_ddrphy, x),	\
-		.par_offset = INVALID_OFFSET			\
-	}
-
-static const struct reg_desc ddrphy_dyn[] = {
-	DDRPHY_REG_DYN(pir),
-	DDRPHY_REG_DYN(pgsr),
-};
-
+/*
+ * REGISTERS ARRAY: used to parse device tree and interactive mode
+ */
 enum reg_type {
 	REG_REG,
 	REG_TIMING,
@@ -191,12 +177,6 @@ enum reg_type {
 	REG_MAP,
 	REGPHY_REG,
 	REGPHY_TIMING,
-/*
- * Dynamic registers => managed in driver or not changed,
- * can be dumped in interactive mode.
- */
-	REG_DYN,
-	REGPHY_DYN,
 	REG_TYPE_NB
 };
 
@@ -217,49 +197,37 @@ static const struct ddr_reg_info ddr_registers[REG_TYPE_NB] = {
 	[REG_REG] = {
 		.name = "static",
 		.desc = ddr_reg,
-		.size = ARRAY_SIZE(ddr_reg),
+		.size = DDRCTL_REG_REG_SIZE,
 		.base = DDR_BASE
 	},
 	[REG_TIMING] = {
 		.name = "timing",
 		.desc = ddr_timing,
-		.size = ARRAY_SIZE(ddr_timing),
+		.size = DDRCTL_REG_TIMING_SIZE,
 		.base = DDR_BASE
 	},
 	[REG_PERF] = {
 		.name = "perf",
 		.desc = ddr_perf,
-		.size = ARRAY_SIZE(ddr_perf),
+		.size = DDRCTL_REG_PERF_SIZE,
 		.base = DDR_BASE
 	},
 	[REG_MAP] = {
 		.name = "map",
 		.desc = ddr_map,
-		.size = ARRAY_SIZE(ddr_map),
+		.size = DDRCTL_REG_MAP_SIZE,
 		.base = DDR_BASE
 	},
 	[REGPHY_REG] = {
 		.name = "static",
 		.desc = ddrphy_reg,
-		.size = ARRAY_SIZE(ddrphy_reg),
+		.size = DDRPHY_REG_REG_SIZE,
 		.base = DDRPHY_BASE
 	},
 	[REGPHY_TIMING] = {
 		.name = "timing",
 		.desc = ddrphy_timing,
-		.size = ARRAY_SIZE(ddrphy_timing),
-		.base = DDRPHY_BASE
-	},
-	[REG_DYN] = {
-		.name = "dyn",
-		.desc = ddr_dyn,
-		.size = ARRAY_SIZE(ddr_dyn),
-		.base = DDR_BASE
-	},
-	[REGPHY_DYN] = {
-		.name = "dyn",
-		.desc = ddrphy_dyn,
-		.size = ARRAY_SIZE(ddrphy_dyn),
+		.size = DDRPHY_REG_TIMING_SIZE,
 		.base = DDRPHY_BASE
 	},
 };

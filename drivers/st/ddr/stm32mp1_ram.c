@@ -231,8 +231,8 @@ static int stm32mp1_ddr_setup(void)
 		VERBOSE("%s: %s[0x%x] = %d\n", __func__,
 			param[idx].name, param[idx].size, ret);
 		if (ret != 0) {
-			ERROR("%s: Cannot read %s\n",
-			      __func__, param[idx].name);
+			ERROR("%s: Cannot read %s, error=%d\n",
+			      __func__, param[idx].name, ret);
 			return -EINVAL;
 		}
 	}
