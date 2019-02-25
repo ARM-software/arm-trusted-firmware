@@ -18,6 +18,8 @@
 #define CORTEX_A76_CPUPWRCTLR_EL1	S3_0_C15_C2_7
 #define CORTEX_A76_CPUECTLR_EL1		S3_0_C15_C1_4
 
+#define CORTEX_A76_CPUECTLR_EL1_WS_THR_L2	(ULL(3) << 24)
+
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions.
  ******************************************************************************/
