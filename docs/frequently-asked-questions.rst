@@ -84,5 +84,5 @@ this please". These are associated with Arm's Continuous Integration
 infrastructure and can be safely ignored. Those who are curious can see the
 documentation for `this Jenkins plugin`_ for more details.
 
-.. _release information: release-information
+.. _release information: release-information.rst
 .. _this Jenkins plugin: https://wiki.jenkins-ci.org/display/JENKINS/GitHub+pull+request+builder+plugin

@@ -89,12 +89,12 @@ Security Advisories
 +-----------+------------------------------------------------------------------+
 
 .. _GitHub issue tracker: https://github.com/ARM-software/tf-issues/issues
-.. _this PGP/GPG key: Trusted-Firmware-Security.asc
-.. _TFV-1: ARM-Trusted-Firmware-Security-Advisory-TFV-1
-.. _TFV-2: ARM-Trusted-Firmware-Security-Advisory-TFV-2
-.. _TFV-3: ARM-Trusted-Firmware-Security-Advisory-TFV-3
-.. _TFV-4: ARM-Trusted-Firmware-Security-Advisory-TFV-4
-.. _TFV-5: ARM-Trusted-Firmware-Security-Advisory-TFV-5
-.. _TFV-6: Arm-Trusted-Firmware-Security-Advisory-TFV-6
-.. _TFV-7: Trusted-Firmware-A-Security-Advisory-TFV-7
-.. _TFV-8: Trusted-Firmware-A-Security-Advisory-TFV-8
+.. _this PGP/GPG key: security-reporting.asc
+.. _TFV-1: ./security_advisories/security-advisory-tfv-1.rst
+.. _TFV-2: ./security_advisories/security-advisory-tfv-2.rst
+.. _TFV-3: ./security_advisories/security-advisory-tfv-3.rst
+.. _TFV-4: ./security_advisories/security-advisory-tfv-4.rst
+.. _TFV-5: ./security_advisories/security-advisory-tfv-5.rst
+.. _TFV-6: ./security_advisories/security-advisory-tfv-6.rst
+.. _TFV-7: ./security_advisories/security-advisory-tfv-7.rst
+.. _TFV-8: ./security_advisories/security-advisory-tfv-8.rst

@@ -282,4 +282,4 @@ We suspect the time for lead CPU 4 is shorter than CPU 5 due to subtle cache
 effects, given that these measurements are at the nano-second level.
 
 .. _Juno R1 platform: https://www.arm.com/files/pdf/Juno_r1_ARM_Dev_datasheet.pdf
-.. _TF master as of 31/01/2017: https://github.com/ARM-software/arm-trusted-firmware/tree/c38b36d
+.. _TF master as of 31/01/2017: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/?id=c38b36d

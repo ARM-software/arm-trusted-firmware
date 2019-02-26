@@ -81,9 +81,9 @@ after which it will be removed.
 | Makefile in ``INCLUDES``.      |             |         | header files. More information in commit 09d40e0e0828_. |
 +--------------------------------+-------------+---------+---------------------------------------------------------+
 
-*Copyright (c) 2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.*
 
-.. _Platform compatibility policy: https://github.com/ARM-software/arm-trusted-firmware/blob/master/docs/platform-compatibility-policy.rst
-.. _crash_console_helpers.S: https://github.com/ARM-software/arm-trusted-firmware/blob/master/plat/common/aarch64/crash_console_helpers.S
-.. _cc5859c: https://github.com/ARM-software/arm-trusted-firmware/commit/cc5859ca19ff546c35eb0331000dae090b6eabcf
-.. _09d40e0e0828: https://github.com/ARM-software/arm-trusted-firmware/commit/09d40e0e08283a249e7dce0e106c07c5141f9b7e
+.. _Platform compatibility policy: platform-compatibility-policy.rst
+.. _crash_console_helpers.S: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/plat/common/aarch64/crash_console_helpers.S
+.. _cc5859c: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/commit/?id=cc5859ca19ff546c35eb0331000dae090b6eabcf
+.. _09d40e0e0828: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/commit/?id=09d40e0e08283a249e7dce0e106c07c5141f9b7e
