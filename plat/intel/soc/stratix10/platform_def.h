@@ -15,6 +15,9 @@
 #include <plat/common/common_def.h>
 
 
+#define PLAT_CPUID_RELEASE			0xffe1b000
+#define PLAT_S10_SEC_ENTRY			0xffe1b008
+
 /* Define next boot image name and offset */
 #define PLAT_NS_IMAGE_OFFSET			0x50000
 #define PLAT_HANDOFF_OFFSET			0xFFE3F000
@@ -75,7 +78,7 @@
 #define DRAM_SIZE				(0x80000000)
 
 #define OCRAM_BASE				(0xFFE00000)
-#define OCRAM_SIZE				(0x00100000)
+#define OCRAM_SIZE				(0x00040000)
 
 #define MEM64_BASE				(0x0100000000)
 #define MEM64_SIZE				(0x1F00000000)
@@ -111,10 +114,10 @@
 #define BL1_RW_SIZE	(0x14000)
 
 #define BL2_BASE	(0xffe00000)
-#define BL2_LIMIT	(0xffe1c000)
+#define BL2_LIMIT	(0xffe1b000)
 
 #define BL31_BASE	(0xffe1c000)
-#define BL31_LIMIT	(0xffe3ffff)
+#define BL31_LIMIT	(0xffe3bfff)
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
