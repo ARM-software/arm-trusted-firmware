@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,8 +18,8 @@
 #define PLAT_CSS_MHU_BASE		UL(0x45400000)
 
 /* Base address of DMC-620 instances */
-#define SGICLARKA_DMC620_BASE0		UL(0x4e000000)
-#define SGICLARKA_DMC620_BASE1		UL(0x4e100000)
+#define RDN1EDGE_DMC620_BASE0		UL(0x4e000000)
+#define RDN1EDGE_DMC620_BASE1		UL(0x4e100000)
 
 /* System power domain level */
 #define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2
