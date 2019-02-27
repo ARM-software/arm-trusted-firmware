@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -41,7 +41,7 @@ static int32_t smccc_arch_features(u_register_t arg)
 		 * PE implements architectural Speculation Store Bypass Safe
 		 * (SSBS) feature.
 		 */
-		ssbs = (read_id_aa64pfr0_el1() >> ID_AA64PFR1_EL1_SSBS_SHIFT) &
+		ssbs = (read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_SSBS_SHIFT) &
 			ID_AA64PFR1_EL1_SSBS_MASK;
 
 		/*
