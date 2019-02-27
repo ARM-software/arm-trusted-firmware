@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <plat_arm.h>
 #include <plat_private.h>
 #include <bl31/bl31.h>
 #include <common/bl_common.h>
@@ -102,6 +103,9 @@ void bl31_plat_runtime_setup(void)
  */
 void bl31_plat_arch_setup(void)
 {
+	plat_arm_interconnect_init();
+	plat_arm_interconnect_enter_coherency();
+
 	const mmap_region_t bl_regions[] = {
 		MAP_REGION_FLAT(BL31_BASE, BL31_END - BL31_BASE,
 			MT_MEMORY | MT_RW | MT_SECURE),

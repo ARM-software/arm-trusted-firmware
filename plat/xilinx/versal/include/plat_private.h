@@ -18,6 +18,8 @@ void plat_versal_gic_init(void);
 void plat_versal_gic_cpuif_enable(void);
 void plat_versal_gic_cpuif_disable(void);
 void plat_versal_gic_pcpu_init(void);
+void plat_versal_gic_save(void);
+void plat_versal_gic_resume(void);
 
 unsigned int versal_calc_core_pos(u_register_t mpidr);
 
