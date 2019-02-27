@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -104,6 +104,7 @@ const char *plat_log_get_prefix(unsigned int log_level);
 void bl2_plat_preload_setup(void);
 int plat_try_next_boot_source(void);
 int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size);
+uint64_t *plat_init_apiakey(void);
 
 /*******************************************************************************
  * Mandatory BL1 functions

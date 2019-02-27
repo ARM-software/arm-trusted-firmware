@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,6 +68,14 @@ func enter_lower_el_sync_ea
 	/* Save GP registers */
 	bl	save_gp_registers
 
+	/* Save ARMv8.3-PAuth registers and load firmware key */
+#if CTX_INCLUDE_PAUTH_REGS
+	bl	pauth_context_save
+#endif
+#if ENABLE_PAUTH
+	bl	pauth_load_bl_apiakey
+#endif
+
 	/* Setup exception class and syndrome arguments for platform handler */
 	mov	x0, #ERROR_EA_SYNC
 	mrs	x1, esr_el3
@@ -97,6 +105,14 @@ func enter_lower_el_async_ea
 
 	/* Save GP registers */
 	bl	save_gp_registers
+
+	/* Save ARMv8.3-PAuth registers and load firmware key */
+#if CTX_INCLUDE_PAUTH_REGS
+	bl	pauth_context_save
+#endif
+#if ENABLE_PAUTH
+	bl	pauth_load_bl_apiakey
+#endif
 
 	/* Setup exception class and syndrome arguments for platform handler */
 	mov	x0, #ERROR_EA_ASYNC

@@ -51,6 +51,11 @@ CTX_INCLUDE_AARCH32_REGS	:= 1
 # Include FP registers in cpu context
 CTX_INCLUDE_FPREGS		:= 0
 
+# Include pointer authentication (ARMv8.3-PAuth) registers in cpu context. This
+# must be set to 1 if the platform wants to use this feature in the Secure
+# world. It is not needed to use it in the Non-secure world.
+CTX_INCLUDE_PAUTH_REGS		:= 0
+
 # Debug build
 DEBUG				:= 0
 
@@ -81,6 +86,9 @@ ENABLE_STACK_PROTECTOR		:= 0
 
 # Flag to enable exception handling in EL3
 EL3_EXCEPTION_HANDLING		:= 0
+
+# Flag to enable Pointer Authentication
+ENABLE_PAUTH			:= 0
 
 # Build flag to treat usage of deprecated platform and framework APIs as error.
 ERROR_DEPRECATED		:= 0

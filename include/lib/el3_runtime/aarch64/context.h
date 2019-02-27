@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -104,25 +104,30 @@
 #define CTX_SPSR_FIQ		U(0xd8)
 #define CTX_DACR32_EL2		U(0xe0)
 #define CTX_IFSR32_EL2		U(0xe8)
-#define CTX_TIMER_SYSREGS_OFF	U(0xf0) /* Align to the next 16 byte boundary */
+#define CTX_AARCH32_END		U(0xf0) /* Align to the next 16 byte boundary */
 #else
-#define CTX_TIMER_SYSREGS_OFF	U(0xc0)  /* Align to the next 16 byte boundary */
-#endif /* __CTX_INCLUDE_AARCH32_REGS__ */
+#define CTX_AARCH32_END		U(0xc0)  /* Align to the next 16 byte boundary */
+#endif /* CTX_INCLUDE_AARCH32_REGS */
 
 /*
  * If the timer registers aren't saved and restored, we don't have to reserve
  * space for them in the context
  */
 #if NS_TIMER_SWITCH
-#define CTX_CNTP_CTL_EL0	(CTX_TIMER_SYSREGS_OFF + U(0x0))
-#define CTX_CNTP_CVAL_EL0	(CTX_TIMER_SYSREGS_OFF + U(0x8))
-#define CTX_CNTV_CTL_EL0	(CTX_TIMER_SYSREGS_OFF + U(0x10))
-#define CTX_CNTV_CVAL_EL0	(CTX_TIMER_SYSREGS_OFF + U(0x18))
-#define CTX_CNTKCTL_EL1		(CTX_TIMER_SYSREGS_OFF + U(0x20))
-#define CTX_SYSREGS_END		(CTX_TIMER_SYSREGS_OFF + U(0x30)) /* Align to the next 16 byte boundary */
+#define CTX_CNTP_CTL_EL0	(CTX_AARCH32_END + U(0x0))
+#define CTX_CNTP_CVAL_EL0	(CTX_AARCH32_END + U(0x8))
+#define CTX_CNTV_CTL_EL0	(CTX_AARCH32_END + U(0x10))
+#define CTX_CNTV_CVAL_EL0	(CTX_AARCH32_END + U(0x18))
+#define CTX_CNTKCTL_EL1		(CTX_AARCH32_END + U(0x20))
+#define CTX_TIMER_SYSREGS_END	(CTX_AARCH32_END + U(0x30)) /* Align to the next 16 byte boundary */
 #else
-#define CTX_SYSREGS_END		CTX_TIMER_SYSREGS_OFF
-#endif /* __NS_TIMER_SWITCH__ */
+#define CTX_TIMER_SYSREGS_END	CTX_AARCH32_END
+#endif /* NS_TIMER_SWITCH */
+
+/*
+ * End of system registers.
+ */
+#define CTX_SYSREGS_END		CTX_TIMER_SYSREGS_END
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'fp_regs'
@@ -174,15 +179,37 @@
 #define CTX_FPREGS_END		U(0)
 #endif
 
+/*******************************************************************************
+ * Registers related to CVE-2018-3639
+ ******************************************************************************/
 #define CTX_CVE_2018_3639_OFFSET	(CTX_FPREGS_OFFSET + CTX_FPREGS_END)
 #define CTX_CVE_2018_3639_DISABLE	U(0)
 #define CTX_CVE_2018_3639_END		U(0x10) /* Align to the next 16 byte boundary */
 
+/*******************************************************************************
+ * Registers related to ARMv8.3-PAuth.
+ ******************************************************************************/
+#define CTX_PAUTH_REGS_OFFSET	(CTX_CVE_2018_3639_OFFSET + CTX_CVE_2018_3639_END)
+#if CTX_INCLUDE_PAUTH_REGS
+#define CTX_PACIAKEY_LO		U(0x0)
+#define CTX_PACIAKEY_HI		U(0x8)
+#define CTX_PACIBKEY_LO		U(0x10)
+#define CTX_PACIBKEY_HI		U(0x18)
+#define CTX_PACDAKEY_LO		U(0x20)
+#define CTX_PACDAKEY_HI		U(0x28)
+#define CTX_PACDBKEY_LO		U(0x30)
+#define CTX_PACDBKEY_HI		U(0x38)
+#define CTX_PACGAKEY_LO		U(0x40)
+#define CTX_PACGAKEY_HI		U(0x48)
+#define CTX_PACGAKEY_END	U(0x50)
+#define CTX_PAUTH_REGS_END	U(0x60) /* Align to the next 16 byte boundary */
+#else
+#define CTX_PAUTH_REGS_END	U(0)
+#endif /* CTX_INCLUDE_PAUTH_REGS */
+
 #ifndef __ASSEMBLY__
 
 #include <stdint.h>
-
-#include <platform_def.h>	/* for CACHE_WRITEBACK_GRANULE */
 
 #include <lib/cassert.h>
 
@@ -200,10 +227,13 @@
 #define CTX_GPREG_ALL		(CTX_GPREGS_END >> DWORD_SHIFT)
 #define CTX_SYSREG_ALL		(CTX_SYSREGS_END >> DWORD_SHIFT)
 #if CTX_INCLUDE_FPREGS
-#define CTX_FPREG_ALL		(CTX_FPREGS_END >> DWORD_SHIFT)
+# define CTX_FPREG_ALL		(CTX_FPREGS_END >> DWORD_SHIFT)
 #endif
 #define CTX_EL3STATE_ALL	(CTX_EL3STATE_END >> DWORD_SHIFT)
 #define CTX_CVE_2018_3639_ALL	(CTX_CVE_2018_3639_END >> DWORD_SHIFT)
+#if CTX_INCLUDE_PAUTH_REGS
+# define CTX_PAUTH_REGS_ALL	(CTX_PAUTH_REGS_END >> DWORD_SHIFT)
+#endif
 
 /*
  * AArch64 general purpose register context structure. Usually x0-x18,
@@ -239,6 +269,11 @@ DEFINE_REG_STRUCT(el3_state, CTX_EL3STATE_ALL);
 /* Function pointer used by CVE-2018-3639 dynamic mitigation */
 DEFINE_REG_STRUCT(cve_2018_3639, CTX_CVE_2018_3639_ALL);
 
+/* Registers associated to ARMv8.3-PAuth */
+#if CTX_INCLUDE_PAUTH_REGS
+DEFINE_REG_STRUCT(pauth, CTX_PAUTH_REGS_ALL);
+#endif
+
 /*
  * Macros to access members of any of the above structures using their
  * offsets
@@ -264,16 +299,22 @@ typedef struct cpu_context {
 	fp_regs_t fpregs_ctx;
 #endif
 	cve_2018_3639_t cve_2018_3639_ctx;
+#if CTX_INCLUDE_PAUTH_REGS
+	pauth_t pauth_ctx;
+#endif
 } cpu_context_t;
 
 /* Macros to access members of the 'cpu_context_t' structure */
 #define get_el3state_ctx(h)	(&((cpu_context_t *) h)->el3state_ctx)
 #if CTX_INCLUDE_FPREGS
-#define get_fpregs_ctx(h)	(&((cpu_context_t *) h)->fpregs_ctx)
+# define get_fpregs_ctx(h)	(&((cpu_context_t *) h)->fpregs_ctx)
 #endif
 #define get_sysregs_ctx(h)	(&((cpu_context_t *) h)->sysregs_ctx)
 #define get_gpregs_ctx(h)	(&((cpu_context_t *) h)->gpregs_ctx)
 #define get_cve_2018_3639_ctx(h)	(&((cpu_context_t *) h)->cve_2018_3639_ctx)
+#if CTX_INCLUDE_PAUTH_REGS
+# define get_pauth_ctx(h)	(&((cpu_context_t *) h)->pauth_ctx)
+#endif
 
 /*
  * Compile time assertions related to the 'cpu_context' structure to
@@ -292,6 +333,10 @@ CASSERT(CTX_EL3STATE_OFFSET == __builtin_offsetof(cpu_context_t, el3state_ctx), 
 	assert_core_context_el3state_offset_mismatch);
 CASSERT(CTX_CVE_2018_3639_OFFSET == __builtin_offsetof(cpu_context_t, cve_2018_3639_ctx), \
 	assert_core_context_cve_2018_3639_offset_mismatch);
+#if CTX_INCLUDE_PAUTH_REGS
+CASSERT(CTX_PAUTH_REGS_OFFSET == __builtin_offsetof(cpu_context_t, pauth_ctx), \
+	assert_core_context_pauth_offset_mismatch);
+#endif
 
 /*
  * Helper macro to set the general purpose registers that correspond to
@@ -338,14 +383,6 @@ void el1_sysregs_context_restore(el1_sys_regs_t *regs);
 void fpregs_context_save(fp_regs_t *regs);
 void fpregs_context_restore(fp_regs_t *regs);
 #endif
-
-
-#undef CTX_SYSREG_ALL
-#if CTX_INCLUDE_FPREGS
-#undef CTX_FPREG_ALL
-#endif
-#undef CTX_GPREG_ALL
-#undef CTX_EL3STATE_ALL
 
 #endif /* __ASSEMBLY__ */
 

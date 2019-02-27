@@ -1792,6 +1792,22 @@ defined by the translation library, and can be found in the file
 On DynamIQ systems, this function must not use stack while enabling MMU, which
 is how the function in xlat table library version 2 is implemented.
 
+Function : plat_init_apiakey [optional]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : uint64_t *
+
+This function populates the ``plat_apiakey`` array that contains the values used
+to set the ``APIAKey{Hi,Lo}_EL1`` registers. It returns a pointer to this array.
+
+The value should be obtained from a reliable source of randomness.
+
+This function is only needed if ARMv8.3 pointer authentication is used in the
+Trusted Firmware by building with ``ENABLE_PAUTH=1``.
+
 Function : plat_get_syscnt_freq2() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

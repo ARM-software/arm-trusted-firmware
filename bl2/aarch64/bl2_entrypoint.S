@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -106,17 +106,25 @@ func bl2_entrypoint
 #endif
 
 	/* ---------------------------------------------
-	 * Perform early platform setup & platform
-	 * specific early arch. setup e.g. mmu setup
+	 * Perform BL2 setup
 	 * ---------------------------------------------
 	 */
 	mov	x0, x20
 	mov	x1, x21
 	mov	x2, x22
 	mov	x3, x23
-	bl	bl2_early_platform_setup2
+	bl	bl2_setup
 
-	bl	bl2_plat_arch_setup
+	/* ---------------------------------------------
+	 * Enable pointer authentication
+	 * ---------------------------------------------
+	 */
+#if ENABLE_PAUTH
+	mrs	x0, sctlr_el1
+	orr	x0, x0, #SCTLR_EnIA_BIT
+	msr	sctlr_el1, x0
+	isb
+#endif /* ENABLE_PAUTH */
 
 	/* ---------------------------------------------
 	 * Jump to main function.

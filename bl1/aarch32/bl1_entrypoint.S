@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,12 +52,10 @@ func bl1_entrypoint
 		_exception_vectors=bl1_vector_table
 
 	/* -----------------------------------------------------
-	 * Perform early platform setup & platform
-	 * specific early arch. setup e.g. mmu setup
+	 * Perform BL1 setup
 	 * -----------------------------------------------------
 	 */
-	bl	bl1_early_platform_setup
-	bl	bl1_plat_arch_setup
+	bl	bl1_setup
 
 	/* -----------------------------------------------------
 	 * Jump to main function.

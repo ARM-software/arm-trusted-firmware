@@ -64,6 +64,27 @@ void __init bl31_lib_init(void)
 }
 
 /*******************************************************************************
+ * Setup function for BL31.
+ ******************************************************************************/
+void bl31_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
+		u_register_t arg3)
+{
+	/* Perform early platform-specific setup */
+	bl31_early_platform_setup2(arg0, arg1, arg2, arg3);
+
+	/*
+	 * Update pointer authentication key before the MMU is enabled. It is
+	 * saved in the rodata section, that can be writen before enabling the
+	 * MMU. This function must be called after the console is initialized
+	 * in the early platform setup.
+	 */
+	bl_handle_pauth();
+
+	/* Perform late platform-specific setup */
+	bl31_plat_arch_setup();
+}
+
+/*******************************************************************************
  * BL31 is responsible for setting up the runtime services for the primary cpu
  * before passing control to the bootloader or an Operating System. This
  * function calls runtime_svc_init() which initializes all registered runtime

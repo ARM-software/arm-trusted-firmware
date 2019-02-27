@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -122,12 +122,21 @@ func tsp_entrypoint _align=3
 #endif
 
 	/* ---------------------------------------------
-	 * Perform early platform setup & platform
-	 * specific early arch. setup e.g. mmu setup
+	 * Perform TSP setup
 	 * ---------------------------------------------
 	 */
-	bl	tsp_early_platform_setup
-	bl	tsp_plat_arch_setup
+	bl	tsp_setup
+
+	/* ---------------------------------------------
+	 * Enable pointer authentication
+	 * ---------------------------------------------
+	 */
+#if ENABLE_PAUTH
+	mrs	x0, sctlr_el1
+	orr	x0, x0, #SCTLR_EnIA_BIT
+	msr	sctlr_el1, x0
+	isb
+#endif /* ENABLE_PAUTH */
 
 	/* ---------------------------------------------
 	 * Jump to main function.

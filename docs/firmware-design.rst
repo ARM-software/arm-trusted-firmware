@@ -2558,8 +2558,18 @@ Armv8.2-A
 Armv8.3-A
 ~~~~~~~~~
 
--  Pointer Authentication features of Armv8.3-A are unconditionally enabled so
-   that lower ELs are allowed to use them without causing a trap to EL3.
+-  Pointer authentication features of Armv8.3-A are unconditionally enabled in
+   the Non-secure world so that lower ELs are allowed to use them without
+   causing a trap to EL3.
+
+   In order to enable the Secure world to use it, ``CTX_INCLUDE_PAUTH_REGS``
+   must be set to 1. This will add all pointer authentication system registers
+   to the context that is saved when doing a world switch.
+
+   The Trusted Firmware itself has support for pointer authentication at runtime
+   that can be enabled by setting both options ``ENABLE_PAUTH`` and
+   ``CTX_INCLUDE_PAUTH_REGS`` to 1. This enables pointer authentication in BL1,
+   BL2, BL31, and the TSP if it is used.
 
 Armv7-A
 ~~~~~~~

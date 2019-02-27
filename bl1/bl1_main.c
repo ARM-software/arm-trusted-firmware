@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -49,6 +49,28 @@ void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 	bl2_mem_layout->total_size = BL1_RW_BASE - bl1_mem_layout->total_base;
 
 	flush_dcache_range((unsigned long)bl2_mem_layout, sizeof(meminfo_t));
+}
+
+/*******************************************************************************
+ * Setup function for BL1.
+ ******************************************************************************/
+void bl1_setup(void)
+{
+	/* Perform early platform-specific setup */
+	bl1_early_platform_setup();
+
+#ifdef AARCH64
+	/*
+	 * Update pointer authentication key before the MMU is enabled. It is
+	 * saved in the rodata section, that can be writen before enabling the
+	 * MMU. This function must be called after the console is initialized
+	 * in the early platform setup.
+	 */
+	bl_handle_pauth();
+#endif /* AARCH64 */
+
+	/* Perform late platform-specific setup */
+	bl1_plat_arch_setup();
 }
 
 /*******************************************************************************

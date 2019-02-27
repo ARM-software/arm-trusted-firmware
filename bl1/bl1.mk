@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -19,6 +19,10 @@ BL1_SOURCES		+=	bl1/bl1_main.c				\
 ifeq (${ARCH},aarch64)
 BL1_SOURCES		+=	lib/cpus/aarch64/dsu_helpers.S		\
 				lib/el3_runtime/aarch64/context.S
+endif
+
+ifeq (${ENABLE_PAUTH},1)
+BL1_CFLAGS		+=	-msign-return-address=non-leaf
 endif
 
 ifeq (${TRUSTED_BOARD_BOOT},1)

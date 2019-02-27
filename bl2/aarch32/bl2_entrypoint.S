@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -108,16 +108,15 @@ func bl2_entrypoint
 #endif
 
 	/* ---------------------------------------------
-	 * Perform early platform setup & platform
-	 * specific early arch. setup e.g. mmu setup
+	 * Perform BL2 setup
 	 * ---------------------------------------------
 	 */
 	mov	r0, r9
 	mov	r1, r10
 	mov	r2, r11
 	mov	r3, r12
-	bl	bl2_early_platform_setup2
-	bl	bl2_plat_arch_setup
+
+	bl	bl2_setup
 
 	/* ---------------------------------------------
 	 * Jump to main function.
