@@ -18,6 +18,8 @@
 #include <plat/common/platform.h>
 #include "pm_client.h"
 
+#define UNDEFINED_CPUID		(~0)
+
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
 static const struct pm_ipi apu_ipi = {
@@ -76,6 +78,44 @@ void pm_client_abort_suspend(void)
 	/* Clear powerdown request */
 	mmio_write_32(FPD_APU_PWRCTL, mmio_read_32(FPD_APU_PWRCTL) &
 		      ~primary_proc->pwrdn_mask);
+
+	bakery_lock_release(&pm_client_secure_lock);
+}
+
+/**
+ * pm_get_cpuid() - get the local cpu ID for a global node ID
+ * @nid:	node id of the processor
+ *
+ * Return: the cpu ID (starting from 0) for the subsystem
+ */
+static unsigned int pm_get_cpuid(uint32_t nid)
+{
+	for (size_t i = 0; i < ARRAY_SIZE(pm_procs_all); i++) {
+		if (pm_procs_all[i].node_id == nid)
+			return i;
+	}
+	return UNDEFINED_CPUID;
+}
+
+/**
+ * pm_client_wakeup() - Client-specific wakeup actions
+ *
+ * This function should contain any PU-specific actions
+ * required for waking up another APU core
+ */
+void pm_client_wakeup(const struct pm_proc *proc)
+{
+	unsigned int cpuid = pm_get_cpuid(proc->node_id);
+
+	if (cpuid == UNDEFINED_CPUID)
+		return;
+
+	bakery_lock_get(&pm_client_secure_lock);
+
+	/* clear powerdown bit for affected cpu */
+	uint32_t val = mmio_read_32(FPD_APU_PWRCTL);
+	val &= ~(proc->pwrdn_mask);
+	mmio_write_32(FPD_APU_PWRCTL, val);
 
 	bakery_lock_release(&pm_client_secure_lock);
 }
