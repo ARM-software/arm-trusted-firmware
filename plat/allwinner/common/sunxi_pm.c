@@ -35,7 +35,7 @@ static int sunxi_pwr_domain_on(u_register_t mpidr)
 	if (mpidr_is_valid(mpidr) == 0)
 		return PSCI_E_INTERN_FAIL;
 
-	sunxi_cpu_on(MPIDR_AFFLVL1_VAL(mpidr), MPIDR_AFFLVL0_VAL(mpidr));
+	sunxi_cpu_on(mpidr);
 
 	return PSCI_E_SUCCESS;
 }
@@ -47,9 +47,7 @@ static void sunxi_pwr_domain_off(const psci_power_state_t *target_state)
 
 static void __dead2 sunxi_pwr_down_wfi(const psci_power_state_t *target_state)
 {
-	u_register_t mpidr = read_mpidr();
-
-	sunxi_cpu_off(MPIDR_AFFLVL1_VAL(mpidr), MPIDR_AFFLVL0_VAL(mpidr));
+	sunxi_cpu_off(read_mpidr());
 
 	while (1)
 		wfi();
@@ -64,7 +62,7 @@ static void sunxi_pwr_domain_on_finish(const psci_power_state_t *target_state)
 static void __dead2 sunxi_system_off(void)
 {
 	/* Turn off all secondary CPUs */
-	sunxi_disable_secondary_cpus(plat_my_core_pos());
+	sunxi_disable_secondary_cpus(read_mpidr());
 
 	sunxi_power_down();
 }

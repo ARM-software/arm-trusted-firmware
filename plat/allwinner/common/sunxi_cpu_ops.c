@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,9 +45,10 @@ static void sunxi_cpu_enable_power(unsigned int cluster, unsigned int core)
 	mmio_write_32(SUNXI_CPU_POWER_CLAMP_REG(cluster, core), 0x00);
 }
 
-void sunxi_cpu_off(unsigned int cluster, unsigned int core)
+void sunxi_cpu_off(u_register_t mpidr)
 {
-	int corenr = cluster * PLATFORM_MAX_CPUS_PER_CLUSTER + core;
+	unsigned int cluster = MPIDR_AFFLVL1_VAL(mpidr);
+	unsigned int core    = MPIDR_AFFLVL0_VAL(mpidr);
 
 	VERBOSE("PSCI: Powering off cluster %d core %d\n", cluster, core);
 
@@ -55,9 +56,9 @@ void sunxi_cpu_off(unsigned int cluster, unsigned int core)
 	mmio_clrbits_32(SUNXI_CPUCFG_DBG_REG0, BIT(core));
 
 	/* We can't turn ourself off like this, but it works for other cores. */
-	if (plat_my_core_pos() != corenr) {
+	if (read_mpidr() != mpidr) {
 		/* Activate the core output clamps, but not for core 0. */
-		if (corenr != 0)
+		if (core != 0)
 			mmio_setbits_32(SUNXI_POWEROFF_GATING_REG(cluster),
 					BIT(core));
 		/* Assert CPU power-on reset */
@@ -80,8 +81,11 @@ void sunxi_cpu_off(unsigned int cluster, unsigned int core)
 				 0, BIT_32(core));
 }
 
-void sunxi_cpu_on(unsigned int cluster, unsigned int core)
+void sunxi_cpu_on(u_register_t mpidr)
 {
+	unsigned int cluster = MPIDR_AFFLVL1_VAL(mpidr);
+	unsigned int core    = MPIDR_AFFLVL0_VAL(mpidr);
+
 	VERBOSE("PSCI: Powering on cluster %d core %d\n", cluster, core);
 
 	/* Assert CPU core reset */
@@ -102,12 +106,18 @@ void sunxi_cpu_on(unsigned int cluster, unsigned int core)
 	mmio_setbits_32(SUNXI_CPUCFG_DBG_REG0, BIT(core));
 }
 
-void sunxi_disable_secondary_cpus(unsigned int primary_cpu)
+void sunxi_disable_secondary_cpus(u_register_t primary_mpidr)
 {
-	for (unsigned int cpu = 0; cpu < PLATFORM_CORE_COUNT; cpu += 1) {
-		if (cpu == primary_cpu)
-			continue;
-		sunxi_cpu_off(cpu / PLATFORM_MAX_CPUS_PER_CLUSTER,
-			       cpu % PLATFORM_MAX_CPUS_PER_CLUSTER);
+	unsigned int cluster;
+	unsigned int core;
+
+	for (cluster = 0; cluster < PLATFORM_CLUSTER_COUNT; ++cluster) {
+		for (core = 0; core < PLATFORM_MAX_CPUS_PER_CLUSTER; ++core) {
+			u_register_t mpidr = (cluster << MPIDR_AFF1_SHIFT) |
+					     (core    << MPIDR_AFF0_SHIFT) |
+					     BIT(31);
+			if (mpidr != primary_mpidr)
+				sunxi_cpu_off(mpidr);
+		}
 	}
 }
