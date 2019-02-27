@@ -17,9 +17,6 @@
 	 * ---------------------------------------------
 	 */
 	.macro plat_crash_print_regs
-	mov_imm	x17, PLAT_GICC_BASE
-	mov_imm	x16, PLAT_GICD_BASE
-	arm_print_gic_regs
 	.endm
 
 #endif /* __PLAT_MACROS_S__ */

@@ -46,8 +46,23 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/stratix10/soc/s10_system_manager.c	\
                 common/desc_image_load.c
 
-#		plat/intel/soc/stratix10/plat_topology.c		\
+BL31_SOURCES	+=	drivers/arm/cci/cci.c				\
+		lib/cpus/aarch64/cortex_a53.S				\
+			lib/cpus/aarch64/aem_generic.S			\
+			lib/cpus/aarch64/cortex_a53.S			\
+			plat/common/plat_psci_common.c			\
+			plat/intel/soc/stratix10/plat_sip_svc.c		\
+			plat/intel/soc/stratix10/bl31_plat_setup.c 	\
+			plat/intel/soc/stratix10/plat_psci.c		\
+			plat/intel/soc/stratix10/plat_topology.c	\
+			plat/intel/soc/stratix10/plat_delay_timer.c	\
+			plat/intel/soc/stratix10/soc/s10_reset_manager.c\
+			plat/intel/soc/stratix10/soc/s10_pinmux.c	\
+			plat/intel/soc/stratix10/soc/s10_clock_manager.c\
+			plat/intel/soc/stratix10/soc/s10_handoff.c	\
+			plat/intel/soc/stratix10/soc/s10_mailbox.c	\
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 BL2_AT_EL3			:= 1
 MULTI_CONSOLE_API		:= 1
+USE_COHERENT_MEM		:= 1

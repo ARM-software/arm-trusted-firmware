@@ -19,8 +19,6 @@
 	.globl	platform_mem_init
 
 	.globl plat_get_my_entrypoint
-	.globl stratix10_sec_entry
-	.globl cpuid_release
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
@@ -34,11 +32,11 @@
 func plat_secondary_cold_boot_setup
 	/* Wait until the it gets reset signal from rstmgr gets populated */
 poll_mailbox:
-	 wfi
+	wfi
 
-	adr	x0, stratix10_sec_entry
+	mov_imm	x0, PLAT_S10_SEC_ENTRY
 	ldr	x1, [x0]
-	adr	x2, cpuid_release
+	mov_imm	x2, PLAT_CPUID_RELEASE
 	ldr	x3, [x2]
 	mrs	x4, mpidr_el1
 	and	x4, x4, #0xff
@@ -68,7 +66,7 @@ func plat_my_core_pos
 endfunc plat_my_core_pos
 
 func plat_get_my_entrypoint
-	adr	x1,stratix10_sec_entry
+	mov_imm	x1, PLAT_S10_SEC_ENTRY
 	ldr	x0, [x1]
 	ret
 endfunc plat_get_my_entrypoint
@@ -120,10 +118,4 @@ endfunc platform_mem_init
 
 	.data
 	.align 3
-
-stratix10_sec_entry:
-	.quad 0
-
-cpuid_release:
-	.quad 0
 
