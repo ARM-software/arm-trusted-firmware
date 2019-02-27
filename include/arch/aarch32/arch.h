@@ -153,6 +153,7 @@
 #define SDCR_SPD_LEGACY		U(0x0)
 #define SDCR_SPD_DISABLE	U(0x2)
 #define SDCR_SPD_ENABLE		U(0x3)
+#define SDCR_SCCD_BIT		(U(1) << 23)
 #define SDCR_RESET_VAL		U(0x0)
 
 /* HSCTLR definitions */

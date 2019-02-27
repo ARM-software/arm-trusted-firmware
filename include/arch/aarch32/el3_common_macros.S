@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -105,10 +105,15 @@
 	 * Initialise SDCR, setting all the fields rather than relying on hw.
 	 *
 	 * SDCR.SPD: Disable AArch32 privileged debug. Debug exceptions from
-	 * Secure EL1 are disabled.
+	 *  Secure EL1 are disabled.
+	 *
+	 * SDCR: Set to one so that cycle counting by PMCCNTR is prohibited in
+	 *  Secure state. This bit is RES0 in versions of the architecture
+	 *  earlier than ARMv8.5, setting it to 1 doesn't have any effect on
+	 *  them.
 	 * ---------------------------------------------------------------------
 	 */
-	ldr	r0, =(SDCR_RESET_VAL | SDCR_SPD(SDCR_SPD_DISABLE))
+	ldr	r0, =(SDCR_RESET_VAL | SDCR_SPD(SDCR_SPD_DISABLE) | SDCR_SCCD_BIT)
 	stcopr	r0, SDCR
 #endif
 
