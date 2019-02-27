@@ -21,7 +21,6 @@ struct rpi3_sdhost_params {
 	uint8_t		cmdbusy;
 	uint8_t		mmc_app_cmd;
 	uint32_t	ns_per_fifo_word;
-	uint32_t	crc_err_retries;
 
 	uint32_t	sdcard_rca;
 	uint32_t	gpio48_pinselect[6];
