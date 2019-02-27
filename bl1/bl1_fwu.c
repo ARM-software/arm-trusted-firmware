@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -105,7 +105,7 @@ register_t bl1_fwu_smc_handler(unsigned int smc_fid,
 #define FWU_MAX_SIMULTANEOUS_IMAGES	10
 #endif
 
-static int bl1_fwu_loaded_ids[FWU_MAX_SIMULTANEOUS_IMAGES] = {
+static unsigned int bl1_fwu_loaded_ids[FWU_MAX_SIMULTANEOUS_IMAGES] = {
 	[0 ... FWU_MAX_SIMULTANEOUS_IMAGES-1] = INVALID_IMAGE_ID
 };
 
@@ -113,7 +113,7 @@ static int bl1_fwu_loaded_ids[FWU_MAX_SIMULTANEOUS_IMAGES] = {
  * Adds an image_id to the bl1_fwu_loaded_ids array.
  * Returns 0 on success, 1 on error.
  */
-static int bl1_fwu_add_loaded_id(int image_id)
+static int bl1_fwu_add_loaded_id(unsigned int image_id)
 {
 	int i;
 
@@ -138,7 +138,7 @@ static int bl1_fwu_add_loaded_id(int image_id)
  * Removes an image_id from the bl1_fwu_loaded_ids array.
  * Returns 0 on success, 1 on error.
  */
-static int bl1_fwu_remove_loaded_id(int image_id)
+static int bl1_fwu_remove_loaded_id(unsigned int image_id)
 {
 	int i;
 
@@ -157,7 +157,7 @@ static int bl1_fwu_remove_loaded_id(int image_id)
  * This function checks if the specified image overlaps another image already
  * loaded. It returns 0 if there is no overlap, a negative error code otherwise.
  ******************************************************************************/
-static int bl1_fwu_image_check_overlaps(int image_id)
+static int bl1_fwu_image_check_overlaps(unsigned int image_id)
 {
 	const image_desc_t *image_desc, *checked_image_desc;
 	const image_info_t *info, *checked_info;
