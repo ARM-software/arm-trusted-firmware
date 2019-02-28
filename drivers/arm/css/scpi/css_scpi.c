@@ -169,7 +169,7 @@ void scpi_set_css_power_state(unsigned int mpidr,
  * In response to the query, SCP returns power states of all CPUs in all
  * clusters of the system. The returned response is then filtered based on the
  * supplied MPIDR. Power states of requested cluster and CPUs within are updated
- * via. supplied non-NULL pointer arguments.
+ * via supplied non-NULL pointer arguments.
  *
  * Returns 0 on success, or -1 on errors.
  */
@@ -223,7 +223,7 @@ int scpi_get_css_power_state(unsigned int mpidr, unsigned int *cpu_state_p,
 	if (CLUSTER_ID(power_state) != cluster)
 		goto exit;
 
-	/* Update power state via. pointers */
+	/* Update power state via pointers */
 	if (cluster_state_p)
 		*cluster_state_p = CLUSTER_POWER_STATE(power_state);
 	if (cpu_state_p)

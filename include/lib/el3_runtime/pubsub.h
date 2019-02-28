@@ -49,7 +49,7 @@
 /*
  * Have the function func called back when the specified event happens. This
  * macro places the function address into the pubsub section, which is picked up
- * and invoked by the invoke_pubsubs() function via. the PUBLISH_EVENT* macros.
+ * and invoked by the invoke_pubsubs() function via the PUBLISH_EVENT* macros.
  *
  * The extern declaration is there to satisfy MISRA C-2012 rule 8.4.
  */

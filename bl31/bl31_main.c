@@ -90,7 +90,7 @@ void bl31_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
  * function calls runtime_svc_init() which initializes all registered runtime
  * services. The run time services would setup enough context for the core to
  * switch to the next exception level. When this function returns, the core will
- * switch to the programmed exception level via. an ERET.
+ * switch to the programmed exception level via an ERET.
  ******************************************************************************/
 void bl31_main(void)
 {

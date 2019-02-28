@@ -4,7 +4,7 @@ Arm SiP Service
 This document enumerates and describes the Arm SiP (Silicon Provider) services.
 
 SiP services are non-standard, platform-specific services offered by the silicon
-implementer or platform provider. They are accessed via. ``SMC`` ("SMC calls")
+implementer or platform provider. They are accessed via ``SMC`` ("SMC calls")
 instruction executed from Exception Levels below EL3. SMC calls for SiP
 services:
 

@@ -140,8 +140,7 @@ PL011_GENERIC_UART		:= 0
 # The platform Makefile is free to override this value.
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 
-# Flag used to choose the power state format viz Extended State-ID or the
-# Original format.
+# Flag used to choose the power state format: Extended State-ID or Original
 PSCI_EXTENDED_STATE_ID		:= 0
 
 # Enable RAS support

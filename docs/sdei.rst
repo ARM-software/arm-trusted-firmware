@@ -142,7 +142,7 @@ Event flags describe the properties of the event. They are bit maps that can be
 .. __: `Defining events`_
 
 -  ``SDEI_MAPF_DYNAMIC``: Marks the event as dynamic. Dynamic events can be
-   bound to (or released from) any Non-secure interrupt at runtime via. the
+   bound to (or released from) any Non-secure interrupt at runtime via the
    ``SDEI_INTERRUPT_BIND`` and ``SDEI_INTERRUPT_RELEASE`` calls.
 
 -  ``SDEI_MAPF_BOUND``: Marks the event as statically bound to an interrupt.
@@ -226,7 +226,7 @@ Explicit dispatch of events
 Typically, an SDEI event dispatch is caused by the PE receiving interrupts that
 are bound to an SDEI event. However, there are cases where the Secure world
 requires dispatch of an SDEI event as a direct or indirect result of a past
-activity, viz. receiving a Secure interrupt or an exception.
+activity, such as receiving a Secure interrupt or an exception.
 
 The SDEI dispatcher implementation provides ``sdei_dispatch_event()`` API for
 this purpose. The API has the following signature:

@@ -314,9 +314,9 @@ static void *ehf_entering_normal_world(const void *arg)
 
 /*
  * Program Priority Mask to the original Non-secure priority such that
- * Non-secure interrupts may preempt Secure execution, viz. during Yielding SMC
- * calls. The 'preempt_ret_code' parameter indicates the Yielding SMC's return
- * value in case the call was preempted.
+ * Non-secure interrupts may preempt Secure execution (for example, during
+ * Yielding SMC calls). The 'preempt_ret_code' parameter indicates the Yielding
+ * SMC's return value in case the call was preempted.
  *
  * This API is expected to be invoked before delegating a yielding SMC to Secure
  * EL1. I.e. within the window of secure execution after Non-secure context is
@@ -360,7 +360,7 @@ void ehf_allow_ns_preemption(uint64_t preempt_ret_code)
 
 /*
  * Return whether Secure execution has explicitly allowed Non-secure interrupts
- * to preempt itself, viz. during Yielding SMC calls.
+ * to preempt itself (for example, during Yielding SMC calls).
  */
 unsigned int ehf_is_ns_preemption_allowed(void)
 {
