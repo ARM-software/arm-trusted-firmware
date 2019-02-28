@@ -187,6 +187,14 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 					| SCTLR_NTWI_BIT | SCTLR_NTWE_BIT;
 	}
 
+#if ERRATA_A75_764081
+	/*
+	 * If workaround of errata 764081 for Cortex-A75 is used then set
+	 * SCTLR_EL1.IESB to enable Implicit Error Synchronization Barrier.
+	 */
+	sctlr_elx |= SCTLR_IESB_BIT;
+#endif
+
 	/*
 	 * Store the initialised SCTLR_EL1 value in the cpu_context - SCTLR_EL2
 	 * and other EL2 registers are set up by cm_prepare_ns_entry() as they
@@ -319,6 +327,14 @@ void cm_prepare_el3_exit(uint32_t security_state)
 							   CTX_SCTLR_EL1);
 			sctlr_elx &= SCTLR_EE_BIT;
 			sctlr_elx |= SCTLR_EL2_RES1;
+#if ERRATA_A75_764081
+			/*
+			 * If workaround of errata 764081 for Cortex-A75 is used
+			 * then set SCTLR_EL2.IESB to enable Implicit Error
+			 * Synchronization Barrier.
+			 */
+			sctlr_elx |= SCTLR_IESB_BIT;
+#endif
 			write_sctlr_el2(sctlr_elx);
 		} else if (el_implemented(2) != EL_IMPL_NONE) {
 			el2_unused = true;

@@ -119,6 +119,30 @@ ERRATA_A57_859972	?=0
 # only to revision <= r0p3 of the Cortex A72 cpu.
 ERRATA_A72_859971	?=0
 
+# Flag to apply erratum 855423 workaround during reset. This erratum applies
+# only to revision <= r0p1 of the Cortex A73 cpu.
+ERRATA_A73_855423	?=0
+
+# Flag to apply erratum 764081 workaround during reset. This erratum applies
+# only to revision <= r0p0 of the Cortex A75 cpu.
+ERRATA_A75_764081	?=0
+
+# Flag to apply erratum 790748 workaround during reset. This erratum applies
+# only to revision <= r0p0 of the Cortex A75 cpu.
+ERRATA_A75_790748	?=0
+
+# Flag to apply erratum 1073348 workaround during reset. This erratum applies
+# only to revision <= r1p0 of the Cortex A76 cpu.
+ERRATA_A76_1073348	?=0
+
+# Flag to apply erratum 1130799 workaround during reset. This erratum applies
+# only to revision <= r2p0 of the Cortex A76 cpu.
+ERRATA_A76_1130799	?=0
+
+# Flag to apply erratum 1220197 workaround during reset. This erratum applies
+# only to revision <= r2p0 of the Cortex A76 cpu.
+ERRATA_A76_1220197	?=0
+
 # Flag to apply T32 CLREX workaround during reset. This erratum applies
 # only to r0p0 and r1p0 of the Neoverse N1 cpu.
 ERRATA_N1_1043202	?=1
@@ -187,6 +211,30 @@ $(eval $(call add_define,ERRATA_A57_859972))
 # Process ERRATA_A72_859971 flag
 $(eval $(call assert_boolean,ERRATA_A72_859971))
 $(eval $(call add_define,ERRATA_A72_859971))
+
+# Process ERRATA_A73_855423 flag
+$(eval $(call assert_boolean,ERRATA_A73_855423))
+$(eval $(call add_define,ERRATA_A73_855423))
+
+# Process ERRATA_A75_764081 flag
+$(eval $(call assert_boolean,ERRATA_A75_764081))
+$(eval $(call add_define,ERRATA_A75_764081))
+
+# Process ERRATA_A75_790748 flag
+$(eval $(call assert_boolean,ERRATA_A75_790748))
+$(eval $(call add_define,ERRATA_A75_790748))
+
+# Process ERRATA_A76_1073348 flag
+$(eval $(call assert_boolean,ERRATA_A76_1073348))
+$(eval $(call add_define,ERRATA_A76_1073348))
+
+# Process ERRATA_A76_1130799 flag
+$(eval $(call assert_boolean,ERRATA_A76_1130799))
+$(eval $(call add_define,ERRATA_A76_1130799))
+
+# Process ERRATA_A76_1220197 flag
+$(eval $(call assert_boolean,ERRATA_A76_1220197))
+$(eval $(call add_define,ERRATA_A76_1220197))
 
 # Process ERRATA_N1_1043202 flag
 $(eval $(call assert_boolean,ERRATA_N1_1043202))

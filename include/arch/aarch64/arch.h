@@ -251,6 +251,7 @@
 #define SCTLR_NTWE_BIT		(ULL(1) << 18)
 #define SCTLR_WXN_BIT		(ULL(1) << 19)
 #define SCTLR_UWXN_BIT		(ULL(1) << 20)
+#define SCTLR_IESB_BIT		(ULL(1) << 21)
 #define SCTLR_E0E_BIT		(ULL(1) << 24)
 #define SCTLR_EE_BIT		(ULL(1) << 25)
 #define SCTLR_UCI_BIT		(ULL(1) << 26)
