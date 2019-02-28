@@ -356,7 +356,10 @@ enum pm_ret_status pm_get_api_version(unsigned int *version)
  */
 enum pm_ret_status pm_set_configuration(unsigned int phys_addr)
 {
-	return PM_RET_ERROR_NOTSUPPORTED;
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	PM_PACK_PAYLOAD2(payload, PM_SET_CONFIGURATION, phys_addr);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
