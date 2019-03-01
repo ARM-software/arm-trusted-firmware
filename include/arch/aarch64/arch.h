@@ -119,7 +119,11 @@
 /* Data cache set/way op type defines */
 #define DCISW			U(0x0)
 #define DCCISW			U(0x1)
+#if ERRATA_A53_827319
+#define DCCSW			DCCISW
+#else
 #define DCCSW			U(0x2)
+#endif
 
 /* ID_AA64PFR0_EL1 definitions */
 #define ID_AA64PFR0_EL0_SHIFT	U(0)

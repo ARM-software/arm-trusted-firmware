@@ -105,7 +105,10 @@ bl1_romlib.bin : $(BUILD_PLAT)/bl1.bin $(BUILD_PLAT)/romlib/romlib.bin
 	./lib/romlib/gen_combined_bl1_romlib.sh -o bl1_romlib.bin $(BUILD_PLAT)
 
 # Errata workarounds for Cortex-A53:
+ERRATA_A53_819472		:=	1
+ERRATA_A53_824069		:=	1
 ERRATA_A53_826319		:=	1
+ERRATA_A53_827319		:=	1
 ERRATA_A53_835769		:=	1
 ERRATA_A53_836870		:=	1
 ERRATA_A53_843419		:=	1
@@ -115,6 +118,8 @@ ERRATA_A53_855873		:=	1
 ERRATA_A57_806969		:=	0
 ERRATA_A57_813419		:=	1
 ERRATA_A57_813420		:=	1
+ERRATA_A57_814670		:=	1
+ERRATA_A57_817169		:=	1
 ERRATA_A57_826974		:=	1
 ERRATA_A57_826977		:=	1
 ERRATA_A57_828024		:=	1

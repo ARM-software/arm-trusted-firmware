@@ -53,9 +53,21 @@ endif
 # These should be enabled by the platform if the erratum workaround needs to be
 # applied.
 
+# Flag to apply erratum 819472 workaround during reset. This erratum applies
+# only to revision <= r0p1 of the Cortex A53 cpu.
+ERRATA_A53_819472	?=0
+
+# Flag to apply erratum 824069 workaround during reset. This erratum applies
+# only to revision <= r0p2 of the Cortex A53 cpu.
+ERRATA_A53_824069	?=0
+
 # Flag to apply erratum 826319 workaround during reset. This erratum applies
 # only to revision <= r0p2 of the Cortex A53 cpu.
 ERRATA_A53_826319	?=0
+
+# Flag to apply erratum 827319 workaround during reset. This erratum applies
+# only to revision <= r0p2 of the Cortex A53 cpu.
+ERRATA_A53_827319	?=0
 
 # Flag to apply erratum 835769 workaround at compile and link time.  This
 # erratum applies to revision <= r0p4 of the Cortex A53 cpu. Enabling this
@@ -79,6 +91,26 @@ ERRATA_A53_843419	?=0
 # of by the rich OS.
 ERRATA_A53_855873	?=0
 
+# Flag to apply erratum 768277 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A55 cpu.
+ERRATA_A55_768277	?=0
+
+# Flag to apply erratum 778703 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A55 cpu.
+ERRATA_A55_778703	?=0
+
+# Flag to apply erratum 798797 workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A55 cpu.
+ERRATA_A55_798797	?=0
+
+# Flag to apply erratum 846532 workaround during reset. This erratum applies
+# only to revision <= r0p1 of the Cortex A55 cpu.
+ERRATA_A55_846532	?=0
+
+# Flag to apply erratum 903758 workaround during reset. This erratum applies
+# only to revision <= r0p1 of the Cortex A55 cpu.
+ERRATA_A55_903758	?=0
+
 # Flag to apply erratum 806969 workaround during reset. This erratum applies
 # only to revision r0p0 of the Cortex A57 cpu.
 ERRATA_A57_806969	?=0
@@ -90,6 +122,14 @@ ERRATA_A57_813419	?=0
 # Flag to apply erratum 813420  workaround during reset. This erratum applies
 # only to revision r0p0 of the Cortex A57 cpu.
 ERRATA_A57_813420	?=0
+
+# Flag to apply erratum 814670  workaround during reset. This erratum applies
+# only to revision r0p0 of the Cortex A57 cpu.
+ERRATA_A57_814670	?=0
+
+# Flag to apply erratum 817169 workaround during power down. This erratum
+# applies only to revision <= r0p1 of the Cortex A57 cpu.
+ERRATA_A57_817169	?=0
 
 # Flag to apply erratum 826974 workaround during reset. This erratum applies
 # only to revision <= r1p1 of the Cortex A57 cpu.
@@ -152,9 +192,21 @@ ERRATA_N1_1043202	?=1
 # higher DSU power consumption on idle.
 ERRATA_DSU_936184	?=0
 
+# Process ERRATA_A53_819472 flag
+$(eval $(call assert_boolean,ERRATA_A53_819472))
+$(eval $(call add_define,ERRATA_A53_819472))
+
+# Process ERRATA_A53_824069 flag
+$(eval $(call assert_boolean,ERRATA_A53_824069))
+$(eval $(call add_define,ERRATA_A53_824069))
+
 # Process ERRATA_A53_826319 flag
 $(eval $(call assert_boolean,ERRATA_A53_826319))
 $(eval $(call add_define,ERRATA_A53_826319))
+
+# Process ERRATA_A53_827319 flag
+$(eval $(call assert_boolean,ERRATA_A53_827319))
+$(eval $(call add_define,ERRATA_A53_827319))
 
 # Process ERRATA_A53_835769 flag
 $(eval $(call assert_boolean,ERRATA_A53_835769))
@@ -172,6 +224,26 @@ $(eval $(call add_define,ERRATA_A53_843419))
 $(eval $(call assert_boolean,ERRATA_A53_855873))
 $(eval $(call add_define,ERRATA_A53_855873))
 
+# Process ERRATA_A55_768277 flag
+$(eval $(call assert_boolean,ERRATA_A55_768277))
+$(eval $(call add_define,ERRATA_A55_768277))
+
+# Process ERRATA_A55_778703 flag
+$(eval $(call assert_boolean,ERRATA_A55_778703))
+$(eval $(call add_define,ERRATA_A55_778703))
+
+# Process ERRATA_A55_798797 flag
+$(eval $(call assert_boolean,ERRATA_A55_798797))
+$(eval $(call add_define,ERRATA_A55_798797))
+
+# Process ERRATA_A55_846532 flag
+$(eval $(call assert_boolean,ERRATA_A55_846532))
+$(eval $(call add_define,ERRATA_A55_846532))
+
+# Process ERRATA_A55_903758 flag
+$(eval $(call assert_boolean,ERRATA_A55_903758))
+$(eval $(call add_define,ERRATA_A55_903758))
+
 # Process ERRATA_A57_806969 flag
 $(eval $(call assert_boolean,ERRATA_A57_806969))
 $(eval $(call add_define,ERRATA_A57_806969))
@@ -183,6 +255,14 @@ $(eval $(call add_define,ERRATA_A57_813419))
 # Process ERRATA_A57_813420 flag
 $(eval $(call assert_boolean,ERRATA_A57_813420))
 $(eval $(call add_define,ERRATA_A57_813420))
+
+# Process ERRATA_A57_814670 flag
+$(eval $(call assert_boolean,ERRATA_A57_814670))
+$(eval $(call add_define,ERRATA_A57_814670))
+
+# Process ERRATA_A57_817169 flag
+$(eval $(call assert_boolean,ERRATA_A57_817169))
+$(eval $(call add_define,ERRATA_A57_817169))
 
 # Process ERRATA_A57_826974 flag
 $(eval $(call assert_boolean,ERRATA_A57_826974))
