@@ -233,7 +233,7 @@ Note:
    The ``ARRAY_SIZE()`` macro therefore should be used to determine the size of
    array.
 
-Finally, this array of descriptors is exposed to |EHF| via. the
+Finally, this array of descriptors is exposed to |EHF| via the
 ``EHF_REGISTER_PRIORITIES()`` macro.
 
 Refer to the `Interrupt handling example`_ for usage. See also: `Interrupt
@@ -379,8 +379,8 @@ Activating and Deactivating priorities
 
 A priority level is said to be *active* when an exception of that priority is
 being handled: for interrupts, this is implied when the interrupt is
-acknowledged; for non-interrupt exceptions, viz. SErrors or `SDEI explicit
-dispatches`__, this has to be done via. calling ``ehf_activate_priority()``. See
+acknowledged; for non-interrupt exceptions, such as SErrors or `SDEI explicit
+dispatches`__, this has to be done via calling ``ehf_activate_priority()``. See
 `Run-time flow`_.
 
 .. __: sdei.rst#explicit-dispatch-of-events
@@ -388,7 +388,7 @@ dispatches`__, this has to be done via. calling ``ehf_activate_priority()``. See
 Conversely, when the dispatcher has reached a logical resolution for the cause
 of the exception, the corresponding priority level ought to be deactivated. As
 above, for interrupts, this is implied when the interrupt is EOId in the GIC;
-for other exceptions, this has to be done via. calling
+for other exceptions, this has to be done via calling
 ``ehf_deactivate_priority()``.
 
 Thanks to `different provisions`__ for exception delegation, there are
@@ -405,7 +405,7 @@ potentially more than one work flow for deactivation:
 
 -  The dispatcher has to delegate the execution to lower ELs, and the cause of
    the exception can be considered resolved only when the lower EL returns
-   signals complete (via. an ``SMC``) at a future point in time. The following
+   signals complete (via an ``SMC``) at a future point in time. The following
    sequence ensues:
 
    #. The dispatcher calls ``setjmp()`` to setup a jump point, and arranges to
@@ -414,7 +414,7 @@ potentially more than one work flow for deactivation:
    #. Through the ensuing ``ERET`` from runtime firmware, execution is delegated
       to a lower EL.
 
-   #. The lower EL completes its execution, and signals completion via. an
+   #. The lower EL completes its execution, and signals completion via an
       ``SMC``.
 
    #. The ``SMC`` is handled by the same dispatcher that handled the exception
@@ -597,7 +597,7 @@ world ones. The platform further assigns relative priorities amongst Secure
 dispatchers through |EHF|.
 
 As mentioned in `Partitioning priority levels`_, interrupts targeting distinct
-dispatchers fall in distinct priority levels. Because they're routed via. the
+dispatchers fall in distinct priority levels. Because they're routed via the
 GIC, interrupt delivery to the PE is subject to GIC prioritisation rules. In
 particular, when an interrupt is being handled by the PE (i.e., the interrupt is
 in *Active* state), only interrupts of higher priority are signalled to the PE,

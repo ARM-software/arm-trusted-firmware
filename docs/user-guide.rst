@@ -548,13 +548,13 @@ Common build options
 
 -  ``KEY_ALG``: This build flag enables the user to select the algorithm to be
    used for generating the PKCS keys and subsequent signing of the certificate.
-   It accepts 3 values viz. ``rsa``, ``rsa_1_5``, ``ecdsa``. The ``rsa_1_5`` is
-   the legacy PKCS#1 RSA 1.5 algorithm which is not TBBR compliant and is
-   retained only for compatibility. The default value of this flag is ``rsa``
-   which is the TBBR compliant PKCS#1 RSA 2.1 scheme.
+   It accepts 3 values: ``rsa``, ``rsa_1_5`` and ``ecdsa``. The option
+   ``rsa_1_5`` is the legacy PKCS#1 RSA 1.5 algorithm which is not TBBR
+   compliant and is retained only for compatibility. The default value of this
+   flag is ``rsa`` which is the TBBR compliant PKCS#1 RSA 2.1 scheme.
 
 -  ``HASH_ALG``: This build flag enables the user to select the secure hash
-   algorithm. It accepts 3 values viz. ``sha256``, ``sha384``, ``sha512``.
+   algorithm. It accepts 3 values: ``sha256``, ``sha384`` and ``sha512``.
    The default value of this flag is ``sha256``.
 
 -  ``LDFLAGS``: Extra user options appended to the linkers' command line in
@@ -619,14 +619,14 @@ Common build options
    does not need to be implemented in this case.
 
 -  ``PSCI_EXTENDED_STATE_ID``: As per PSCI1.0 Specification, there are 2 formats
-   possible for the PSCI power-state parameter viz original and extended
-   State-ID formats. This flag if set to 1, configures the generic PSCI layer
-   to use the extended format. The default value of this flag is 0, which
-   means by default the original power-state format is used by the PSCI
-   implementation. This flag should be specified by the platform makefile
-   and it governs the return value of PSCI_FEATURES API for CPU_SUSPEND
-   smc function id. When this option is enabled on Arm platforms, the
-   option ``ARM_RECOM_STATE_ID_ENC`` needs to be set to 1 as well.
+   possible for the PSCI power-state parameter: original and extended State-ID
+   formats. This flag if set to 1, configures the generic PSCI layer to use the
+   extended format. The default value of this flag is 0, which means by default
+   the original power-state format is used by the PSCI implementation. This flag
+   should be specified by the platform makefile and it governs the return value
+   of PSCI_FEATURES API for CPU_SUSPEND smc function id. When this option is
+   enabled on Arm platforms, the option ``ARM_RECOM_STATE_ID_ENC`` needs to be
+   set to 1 as well.
 
 -  ``RAS_EXTENSION``: When set to ``1``, enable Armv8.2 RAS features. RAS features
    are an optional extension for pre-Armv8.2 CPUs, but are mandatory for Armv8.2

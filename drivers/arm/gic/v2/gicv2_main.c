@@ -279,8 +279,8 @@ unsigned int gicv2_get_running_priority(void)
 /*******************************************************************************
  * This function sets the GICv2 target mask pattern for the current PE. The PE
  * target mask is used to translate linear PE index (returned by platform core
- * position) to a bit mask used when targeting interrupts to a PE, viz. when
- * raising SGIs and routing SPIs.
+ * position) to a bit mask used when targeting interrupts to a PE (for example
+ * when raising SGIs and routing SPIs).
  ******************************************************************************/
 void gicv2_set_pe_target_mask(unsigned int proc_num)
 {

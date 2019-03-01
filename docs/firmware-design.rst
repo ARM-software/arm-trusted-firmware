@@ -1282,9 +1282,9 @@ interrupt configuration during the driver initialisation.
 Secure interrupt configuration are specified in an array of secure interrupt
 properties. In this scheme, in both GICv2 and GICv3 driver data structures, the
 ``interrupt_props`` member points to an array of interrupt properties. Each
-element of the array specifies the interrupt number and its configuration, viz.
-priority, group, configuration. Each element of the array shall be populated by
-the macro ``INTR_PROP_DESC()``. The macro takes the following arguments:
+element of the array specifies the interrupt number and its attributes
+(priority, group, configuration). Each element of the array shall be populated
+by the macro ``INTR_PROP_DESC()``. The macro takes the following arguments:
 
 - 10-bit interrupt number,
 
@@ -1439,7 +1439,7 @@ C run time. Therefore it must follow AAPCS, and must not use stack.
 
 CPU drivers that apply errata workaround can optionally implement an assembly
 function that report the status of errata workarounds pertaining to that CPU.
-For a driver that registers the CPU, for example, ``cpux`` via. ``declare_cpu_ops``
+For a driver that registers the CPU, for example, ``cpux`` via ``declare_cpu_ops``
 macro, the errata reporting function, if it exists, must be named
 ``cpux_errata_report``. This function will always be called with MMU enabled; it
 must follow AAPCS and may use stack.

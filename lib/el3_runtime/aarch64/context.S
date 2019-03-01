@@ -456,7 +456,7 @@ func restore_gp_registers
 endfunc restore_gp_registers
 
 /* -----------------------------------------------------
- * Restore general purpose registers (including x30), and exit EL3 via. ERET to
+ * Restore general purpose registers (including x30), and exit EL3 via ERET to
  * a lower exception level.
  * -----------------------------------------------------
  */

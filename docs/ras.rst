@@ -15,10 +15,10 @@ Serviceability (RAS) extensions. RAS is a mandatory extension for Armv8.2 and
 later CPUs, and also an optional extension to the base Armv8.0 architecture.
 
 In conjunction with the |EHF|, support for RAS extension enables firmware-first
-paradigm for handling platform errors, in which exceptions resulting from
-errors—viz. Synchronous External Abort (SEA), Asynchronous External Abort
-(signalled as SErrors), Fault Handling and Error Recovery interrupts are routed
-to and handled in EL3. The |EHF| document mentions various `error handling
+paradigm for handling platform errors: exceptions resulting from errors are
+routed to and handled in EL3. Said errors are Synchronous External Abort (SEA),
+Asynchronous External Abort (signalled as SErrors), Fault Handling and Error
+Recovery interrupts.  The |EHF| document mentions various `error handling
 use-cases`__.
 
 .. __: exception-handling.rst#delegation-use-cases
@@ -66,7 +66,7 @@ through one one of the notification mechanisms—SEAs, SErrors, or interrupts. R
 nodes contain one or more error records, which are registers through which the
 nodes advertise various properties of the signalled error. Arm recommends that
 error records are implemented in the Standard Error Record format. The RAS
-architecture allows for error records to be accessible via. system or
+architecture allows for error records to be accessible via system or
 memory-mapped registers.
 
 The platform should enumerate the error records providing for each of them:
@@ -121,7 +121,7 @@ The error handler must have the following prototype:
                int probe_data, const struct err_handler_data *const data);
 
 The ``data`` constant parameter describes the various properties of the error,
-viz. the reason for the error, exception syndrome, and also ``flags``,
+including the reason for the error, exception syndrome, and also ``flags``,
 ``cookie``, and ``handle`` parameters from the `top-level exception handler`__.
 
 .. __: interrupt-framework-design.rst#el3-interrupts

@@ -1936,7 +1936,7 @@ handler (if present) is called for the CPU power domain.
 
 The ``power-state`` parameter of a PSCI ``CPU_SUSPEND`` call can be used to
 describe composite power states specific to a platform. The PSCI implementation
-defines a generic representation of the power-state parameter viz which is an
+defines a generic representation of the power-state parameter, which is an
 array of local power states where each index corresponds to a power domain
 level. Each entry contains the local power state the power domain at that power
 level could enter. It depends on the ``validate_power_state()`` handler to
