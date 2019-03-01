@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
+#include <common/bl_common.h>
 #include <common/debug.h>
 #include <cpu_macros.S>
 #include <lib/cpus/errata_report.h>

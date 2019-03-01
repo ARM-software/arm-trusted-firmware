@@ -1,0 +1,284 @@
+#! armclang -E -x c
+
+/*
+ * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <platform_def.h>
+
+#define PAGE_SIZE	(1024 * 4)
+
+LR_START BL31_BASE
+{
+	__BL31_START__ +0 FIXED EMPTY 0
+	{
+		/* placeholder */
+	}
+
+	/* BL31_BASE address must be aligned on a page boundary. */
+	ScatterAssert((ImageBase(__BL31_START__) AND 0xFFF) == 0)
+}
+
+LR_TEXT BL31_BASE
+{
+	__TEXT__ +0 FIXED
+	{
+		*(:gdef:bl31_entrypoint, +FIRST)
+		*(.text*)
+		*(.vectors)
+		.ANY1(+RO-CODE)
+	}
+
+	__TEXT_EPILOGUE__ AlignExpr(+0, PAGE_SIZE) FIXED EMPTY 0
+	{
+		/* section delimiter */
+	}
+}
+
+LR_RO_DATA +0
+{
+	__RODATA__ AlignExpr(ImageLimit(LR_TEXT), 0) FIXED
+	{
+		*(.rodata*)
+		.ANY2(+RO-DATA)
+	}
+
+	/* Ensure 8-byte alignment for descriptors and ensure inclusion */
+	__RT_SVC_DESCS__ AlignExpr(ImageLimit(__RODATA__), 8) FIXED
+	{
+		*(rt_svc_descs)
+	}
+
+#if ENABLE_PMF
+	/* Ensure 8-byte alignment for descriptors and ensure inclusion */
+	__PMF_SVC_DESCS__ AlignExpr(ImageLimit(__RT_SVC_DESCS__), 8) FIXED
+	{
+		*(pmf_svc_descs)
+	}
+#endif /* ENABLE_PMF */
+
+	/*
+	 * Ensure 8-byte alignment for cpu_ops so that its fields are also
+	 * aligned.
+	 */
+	__CPU_OPS__ AlignExpr(+0, 8) FIXED
+	{
+		*(cpu_ops)
+	}
+
+	/*
+	 * Keep the .got section in the RO section as it is patched
+	 * prior to enabling the MMU and having the .got in RO is better for
+	 * security. GOT is a table of addresses so ensure 8-byte alignment.
+	 */
+	__GOT__ AlignExpr(ImageLimit(__CPU_OPS__), 8) FIXED
+	{
+		*(.got)
+	}
+
+	/* Place pubsub sections for events */
+	__PUBSUB_EVENTS__ AlignExpr(+0, 8) EMPTY 0
+	{
+		/* placeholder */
+	}
+
+#include <lib/el3_runtime/pubsub_events.h>
+
+	__RODATA_EPILOGUE__ AlignExpr(+0, PAGE_SIZE) FIXED EMPTY 0
+	{
+		/* section delimiter */
+	}
+}
+
+	/* cpu_ops must always be defined */
+	ScatterAssert(ImageLength(__CPU_OPS__) > 0)
+
+#if ENABLE_SPM
+LR_SPM +0
+{
+	/*
+	 * Exception vectors of the SPM shim layer. They must be aligned to a 2K
+	 * address, but we need to place them in a separate page so that we can set
+	 * individual permissions to them, so the actual alignment needed is 4K.
+	 *
+	 * There's no need to include this into the RO section of BL31 because it
+	 * doesn't need to be accessed by BL31.
+	 */
+	__SPM_SHIM_EXCEPTIONS__ AlignExpr(ImageLimit(LR_RO_DATA), PAGE_SIZE) FIXED
+	{
+		*(.spm_shim_exceptions)
+	}
+
+	__SPM_SHIM_EXCEPTIONS_EPILOGUE__ AlignExpr(ImageLimit(__SPM_SHIM_EXCEPTIONS__), PAGE_SIZE) FIXED
+	{
+		/* placeholder */
+	}
+}
+#endif
+
+LR_RW_DATA +0
+{
+	__DATA__ AlignExpr(+0, 16) FIXED
+	{
+		*(.data*)
+		*(.constdata)
+		*(locale$$data)
+	}
+}
+
+LR_RELA +0
+{
+	/*
+	 * .rela.dyn needs to come after .data for the read-elf utility to parse
+	 * this section correctly. Ensure 8-byte alignment so that the fields of
+	 * RELA data structure are aligned.
+	 */
+	__RELA__ AlignExpr(ImageLimit(LR_RW_DATA), 8) FIXED
+	{
+		*(.rela.dyn)
+	}
+}
+
+#ifdef BL31_PROGBITS_LIMIT
+	/* BL31 progbits has exceeded its limit. */
+	ScatterAssert(ImageLimit(LR_RELA) <= BL31_PROGBITS_LIMIT)
+#endif
+
+LR_STACKS +0
+{
+	__STACKS__ AlignExpr(+0, 64) FIXED
+	{
+		*(tzfw_normal_stacks)
+	}
+}
+
+#define __BAKERY_LOCK_SIZE__		(ImageLimit(__BAKERY_LOCKS_EPILOGUE__) - \
+					 ImageBase(__BAKERY_LOCKS__))
+#define BAKERY_LOCK_SIZE		(__BAKERY_LOCK_SIZE__ * (PLATFORM_CORE_COUNT - 1))
+#define __PMF_TIMESTAMP_SIZE__		(ImageLimit(__PMF_TIMESTAMP__) - \
+					 ImageBase(__PMF_TIMESTAMP__))
+#define PER_CPU_TIMESTAMP_SIZE		(__PMF_TIMESTAMP_SIZE__ * (PLATFORM_CORE_COUNT - 1))
+
+LR_BSS +0
+{
+	__BSS__ AlignExpr(ImageLimit(LR_STACKS), 256) FIXED
+	{
+		*(.bss*)
+		*(COMDAT)
+	}
+
+#if !USE_COHERENT_MEM
+	/*
+	 * Bakery locks are stored in normal .bss memory
+	 *
+	 * Each lock's data is spread across multiple cache lines, one per CPU,
+	 * but multiple locks can share the same cache line.
+	 * The compiler will allocate enough memory for one CPU's bakery locks,
+	 * the remaining cache lines are allocated by the linker script
+	 */
+	__BAKERY_LOCKS__ AlignExpr(ImageLimit(__BSS__), CACHE_WRITEBACK_GRANULE) FIXED
+	{
+		*(bakery_lock)
+	}
+
+	__BAKERY_LOCKS_EPILOGUE__ AlignExpr(ImageLimit(__BAKERY_LOCKS__), CACHE_WRITEBACK_GRANULE) FIXED EMPTY 0
+	{
+		/* section delimiter */
+	}
+
+	__PER_CPU_BAKERY_LOCKS__ ImageLimit(__BAKERY_LOCKS_EPILOGUE__) FIXED FILL 0 BAKERY_LOCK_SIZE
+	{
+		/* padded memory section to store per cpu bakery locks */
+	}
+
+#ifdef PLAT_PERCPU_BAKERY_LOCK_SIZE
+	/* PLAT_PERCPU_BAKERY_LOCK_SIZE does not match bakery lock requirements */
+	ScatterAssert(__PER_CPU_BAKERY_LOCK_SIZE__ == PLAT_PERCPU_BAKERY_LOCK_SIZE)
+#endif
+#endif
+
+#if ENABLE_PMF
+	/*
+	 * Time-stamps are stored in normal .bss memory
+	 *
+	 * The compiler will allocate enough memory for one CPU's time-stamps,
+	 * the remaining memory for other CPU's is allocated by the
+	 * linker script
+	 */
+	__PMF_TIMESTAMP__ AlignExpr(+0, CACHE_WRITEBACK_GRANULE) FIXED EMPTY CACHE_WRITEBACK_GRANULE
+	{
+		/* store timestamps in this carved out memory */
+	}
+
+	__PMF_TIMESTAMP_EPILOGUE__ AlignExpr(ImageLimit(__PMF_TIMESTAMP__), CACHE_WRITEBACK_GRANULE) FIXED EMPTY 0
+	{
+		/*
+		 * placeholder to make __PMF_TIMESTAMP_START__ end on a
+		 * CACHE_WRITEBACK_GRANULE boundary
+		 */
+	}
+
+	__PER_CPU_TIMESTAMPS__ +0 FIXED FILL 0 PER_CPU_TIMESTAMP_SIZE
+	{
+		/* padded memory section to store per cpu timestamps */
+	}
+#endif /* ENABLE_PMF */
+}
+
+LR_XLAT_TABLE +0
+{
+	xlat_table +0 FIXED
+	{
+		*(xlat_table)
+	}
+}
+
+#if USE_COHERENT_MEM
+LR_COHERENT_RAM +0
+{
+	/*
+	 * The base address of the coherent memory section must be page-aligned (4K)
+	 * to guarantee that the coherent data are stored on their own pages and
+	 * are not mixed with normal data.  This is required to set up the correct
+	 * memory attributes for the coherent data page tables.
+	 */
+	__COHERENT_RAM__ AlignExpr(+0, PAGE_SIZE) FIXED
+	{
+		/*
+		 * Bakery locks are stored in coherent memory
+		 *
+		 * Each lock's data is contiguous and fully allocated by the compiler
+		 */
+		*(bakery_lock)
+		*(tzfw_coherent_mem)
+	}
+
+	__COHERENT_RAM_EPILOGUE_UNALIGNED__ +0 FIXED EMPTY 0
+	{
+		/* section delimiter */
+	}
+
+	/*
+	 * Memory page(s) mapped to this section will be marked
+	 * as device memory.  No other unexpected data must creep in.
+	 * Ensure the rest of the current memory page is unused.
+	 */
+	__COHERENT_RAM_EPILOGUE__ AlignExpr(ImageLimit(__COHERENT_RAM_START__), PAGE_SIZE) FIXED EMPTY 0
+	{
+		/* section delimiter */
+	}
+}
+#endif
+
+LR_END +0
+{
+	__BL31_END__ +0 FIXED EMPTY 0
+	{
+		/* placeholder */
+	}
+
+	/* BL31 image has exceeded its limit. */
+	ScatterAssert(ImageLimit(__BL31_END__) <= BL31_LIMIT)
+}

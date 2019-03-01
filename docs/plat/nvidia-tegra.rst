@@ -82,6 +82,16 @@ Tegra132: TLK
 Tegra210: TLK and Trusty
 Tegra186: Trusty
 
+Scatter files
+=============
+
+Tegra platforms currently support scatter files and ld.S scripts. The scatter
+files help support ARMLINK linker to generate BL31 binaries. For now, there
+exists a common scatter file, plat/nvidia/tegra/scat/bl31.scat, for all Tegra
+SoCs. The `LINKER` build variable needs to point to the ARMLINK binary for
+the scatter file to be used. Tegra platforms have verified BL31 image generation
+with ARMCLANG (compilation) and ARMLINK (linking) for the Tegra186 platforms.
+
 Preparing the BL31 image to run on Tegra SoCs
 =============================================
 

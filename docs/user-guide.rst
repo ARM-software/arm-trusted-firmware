@@ -729,6 +729,12 @@ Common build options
    Note: when ``EL3_EXCEPTION_HANDLING`` is ``1``, ``TSP_NS_INTR_ASYNC_PREEMPT``
    must also be set to ``1``.
 
+-  ``USE_ARM_LINK``: This flag determines whether to enable support for ARM
+   linker. When the ``LINKER`` build variable points to the armlink linker,
+   this flag is enabled automatically. To enable support for armlink, platforms
+   will have to provide a scatter file for the BL image. Currently, Tegra
+   platforms use the armlink support to compile BL3-1 images.
+
 -  ``USE_COHERENT_MEM``: This flag determines whether to include the coherent
    memory region in the BL memory map or not (see "Use of Coherent memory in
    TF-A" section in `Firmware Design`_). It can take the value 1

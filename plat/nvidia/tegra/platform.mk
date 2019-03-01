@@ -59,3 +59,18 @@ override LIBC_SRCS :=	$(addprefix lib/libc/,		\
 
 INCLUDES	+=	-Iinclude/lib/libc		\
 			-Iinclude/lib/libc/$(ARCH)	\
+
+ifneq ($(findstring armlink,$(notdir $(LD))),)
+# o suppress warnings for section mismatches, undefined symbols
+# o use only those libraries that are specified in the input file
+#   list to resolve references
+# o create a static callgraph of functions
+# o resolve undefined symbols to el3_panic
+# o include only required sections
+TF_LDFLAGS	+= --diag_suppress=L6314,L6332 --no_scanlib --callgraph
+TF_LDFLAGS	+= --unresolved=el3_panic
+TF_LDFLAGS	+= --keep="*(__pubsub*)" --keep="*(rt_svc_descs*)" --keep="*(*cpu_ops)"
+ifeq (${ENABLE_PMF},1)
+TF_LDFLAGS	+= --keep="*(*pmf_svc_descs*)"
+endif
+endif

@@ -245,8 +245,13 @@ TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
 
 GCC_V_OUTPUT		:=	$(shell $(CC) -v 2>&1)
 
+ifneq ($(findstring armlink,$(notdir $(LD))),)
+TF_LDFLAGS		+=	--diag_error=warning --lto_level=O1
+TF_LDFLAGS		+=	--remove --info=unused,unusedsymbols
+else
 TF_LDFLAGS		+=	--fatal-warnings -O1
 TF_LDFLAGS		+=	--gc-sections
+endif
 TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
 
 DTC_FLAGS		+=	-I dts -O dtb
@@ -714,6 +719,10 @@ ifeq (${DYN_DISABLE_AUTH},1)
 $(eval $(call add_define,DYN_DISABLE_AUTH))
 endif
 
+ifneq ($(findstring armlink,$(notdir $(LD))),)
+$(eval $(call add_define,USE_ARM_LINK))
+endif
+
 ################################################################################
 # Build targets
 ################################################################################
@@ -728,7 +737,11 @@ msg_start:
 
 # Check if deprecated declarations and cpp warnings should be treated as error or not.
 ifeq (${ERROR_DEPRECATED},0)
+ifneq ($(findstring clang,$(notdir $(CC))),)
+    CPPFLAGS		+= 	-Wno-error=deprecated-declarations
+else
     CPPFLAGS		+= 	-Wno-error=deprecated-declarations -Wno-error=cpp
+endif
 endif
 
 $(eval $(call MAKE_LIB_DIRS))

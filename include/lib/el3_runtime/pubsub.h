@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,13 +7,11 @@
 #ifndef PUBSUB_H
 #define PUBSUB_H
 
-#define __pubsub_start_sym(event)	__pubsub_##event##_start
-#define __pubsub_end_sym(event)		__pubsub_##event##_end
-
 #ifdef __LINKER__
 
 /* For the linker ... */
-
+#define __pubsub_start_sym(event)	__pubsub_##event##_start
+#define __pubsub_end_sym(event)		__pubsub_##event##_end
 #define __pubsub_section(event)		__pubsub_##event
 
 /*
@@ -21,10 +19,22 @@
  * contexts. In linker context, this collects pubsub sections for each event,
  * placing guard symbols around each.
  */
+#if defined(USE_ARM_LINK)
+#define REGISTER_PUBSUB_EVENT(event) \
+	__pubsub_start_sym(event) +0 FIXED \
+	{ \
+		*(__pubsub_section(event)) \
+	} \
+	__pubsub_end_sym(event) +0 FIXED EMPTY 0 \
+	{ \
+		/* placeholder */ \
+	}
+#else
 #define REGISTER_PUBSUB_EVENT(event) \
 	__pubsub_start_sym(event) = .; \
 	KEEP(*(__pubsub_section(event))); \
 	__pubsub_end_sym(event) = .
+#endif
 
 #else /* __LINKER__ */
 
@@ -35,6 +45,14 @@
 #include <stddef.h>
 
 #include <arch_helpers.h>
+
+#if defined(USE_ARM_LINK)
+#define __pubsub_start_sym(event)	Load$$__pubsub_##event##_start$$Base
+#define __pubsub_end_sym(event)		Load$$__pubsub_##event##_end$$Base
+#else
+#define __pubsub_start_sym(event)	__pubsub_##event##_start
+#define __pubsub_end_sym(event)		__pubsub_##event##_end
+#endif
 
 #define __pubsub_section(event)		__section("__pubsub_" #event)
 
