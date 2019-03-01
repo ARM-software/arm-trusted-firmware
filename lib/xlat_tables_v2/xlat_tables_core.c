@@ -231,8 +231,100 @@ typedef enum {
 
 } action_t;
 
+/*
+ * Function that returns the first VA of the table affected by the specified
+ * mmap region.
+ */
+static uintptr_t xlat_tables_find_start_va(mmap_region_t *mm,
+				   const uintptr_t table_base_va,
+				   const unsigned int level)
+{
+	uintptr_t table_idx_va;
+
+	if (mm->base_va > table_base_va) {
+		/* Find the first index of the table affected by the region. */
+		table_idx_va = mm->base_va & ~XLAT_BLOCK_MASK(level);
+	} else {
+		/* Start from the beginning of the table. */
+		table_idx_va = table_base_va;
+	}
+
+	return table_idx_va;
+}
+
+/*
+ * Function that returns table index for the given VA and level arguments.
+ */
+static inline unsigned int  xlat_tables_va_to_index(const uintptr_t table_base_va,
+						const uintptr_t va,
+						const unsigned int level)
+{
+	return (unsigned int)((va - table_base_va) >> XLAT_ADDR_SHIFT(level));
+}
+
 #if PLAT_XLAT_TABLES_DYNAMIC
 
+/*
+ * From the given arguments, it decides which action to take when unmapping the
+ * specified region.
+ */
+static action_t xlat_tables_unmap_region_action(const mmap_region_t *mm,
+		const uintptr_t table_idx_va, const uintptr_t table_idx_end_va,
+		const unsigned int level, const uint64_t desc_type)
+{
+	action_t action;
+	uintptr_t region_end_va = mm->base_va + mm->size - 1U;
+
+	if ((mm->base_va <= table_idx_va) &&
+	    (region_end_va >= table_idx_end_va)) {
+		/* Region covers all block */
+
+		if (level == 3U) {
+			/*
+			 * Last level, only page descriptors allowed,
+			 * erase it.
+			 */
+			assert(desc_type == PAGE_DESC);
+
+			action = ACTION_WRITE_BLOCK_ENTRY;
+		} else {
+			/*
+			 * Other levels can have table descriptors. If
+			 * so, recurse into it and erase descriptors
+			 * inside it as needed. If there is a block
+			 * descriptor, just erase it. If an invalid
+			 * descriptor is found, this table isn't
+			 * actually mapped, which shouldn't happen.
+			 */
+			if (desc_type == TABLE_DESC) {
+				action = ACTION_RECURSE_INTO_TABLE;
+			} else {
+				assert(desc_type == BLOCK_DESC);
+				action = ACTION_WRITE_BLOCK_ENTRY;
+			}
+		}
+
+	} else if ((mm->base_va <= table_idx_end_va) ||
+		   (region_end_va >= table_idx_va)) {
+		/*
+		 * Region partially covers block.
+		 *
+		 * It can't happen in level 3.
+		 *
+		 * There must be a table descriptor here, if not there
+		 * was a problem when mapping the region.
+		 */
+		assert(level < 3U);
+		assert(desc_type == TABLE_DESC);
+
+		action = ACTION_RECURSE_INTO_TABLE;
+	} else {
+		/* The region doesn't cover the block at all */
+		action = ACTION_NONE;
+	}
+
+	return action;
+}
 /*
  * Recursive function that writes to the translation tables and unmaps the
  * specified region.
@@ -255,19 +347,8 @@ static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 
 	unsigned int table_idx;
 
-	if (mm->base_va > table_base_va) {
-		/* Find the first index of the table affected by the region. */
-		table_idx_va = mm->base_va & ~XLAT_BLOCK_MASK(level);
-
-		table_idx = (unsigned int)((table_idx_va - table_base_va) >>
-			    XLAT_ADDR_SHIFT(level));
-
-		assert(table_idx < table_entries);
-	} else {
-		/* Start from the beginning of the table. */
-		table_idx_va = table_base_va;
-		table_idx = 0;
-	}
+	table_idx_va = xlat_tables_find_start_va(mm, table_base_va, level);
+	table_idx = xlat_tables_va_to_index(table_base_va, table_idx_va, level);
 
 	while (table_idx < table_entries) {
 
@@ -276,55 +357,9 @@ static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 		desc = table_base[table_idx];
 		uint64_t desc_type = desc & DESC_MASK;
 
-		action_t action;
-
-		if ((mm->base_va <= table_idx_va) &&
-		    (region_end_va >= table_idx_end_va)) {
-			/* Region covers all block */
-
-			if (level == 3U) {
-				/*
-				 * Last level, only page descriptors allowed,
-				 * erase it.
-				 */
-				assert(desc_type == PAGE_DESC);
-
-				action = ACTION_WRITE_BLOCK_ENTRY;
-			} else {
-				/*
-				 * Other levels can have table descriptors. If
-				 * so, recurse into it and erase descriptors
-				 * inside it as needed. If there is a block
-				 * descriptor, just erase it. If an invalid
-				 * descriptor is found, this table isn't
-				 * actually mapped, which shouldn't happen.
-				 */
-				if (desc_type == TABLE_DESC) {
-					action = ACTION_RECURSE_INTO_TABLE;
-				} else {
-					assert(desc_type == BLOCK_DESC);
-					action = ACTION_WRITE_BLOCK_ENTRY;
-				}
-			}
-
-		} else if ((mm->base_va <= table_idx_end_va) ||
-			   (region_end_va >= table_idx_va)) {
-			/*
-			 * Region partially covers block.
-			 *
-			 * It can't happen in level 3.
-			 *
-			 * There must be a table descriptor here, if not there
-			 * was a problem when mapping the region.
-			 */
-			assert(level < 3U);
-			assert(desc_type == TABLE_DESC);
-
-			action = ACTION_RECURSE_INTO_TABLE;
-		} else {
-			/* The region doesn't cover the block at all */
-			action = ACTION_NONE;
-		}
+		action_t action = xlat_tables_unmap_region_action(mm,
+				table_idx_va, table_idx_end_va, level,
+				desc_type);
 
 		if (action == ACTION_WRITE_BLOCK_ENTRY) {
 
@@ -525,19 +560,8 @@ static uintptr_t xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 
 	unsigned int table_idx;
 
-	if (mm->base_va > table_base_va) {
-		/* Find the first index of the table affected by the region. */
-		table_idx_va = mm->base_va & ~XLAT_BLOCK_MASK(level);
-
-		table_idx = (unsigned int)((table_idx_va - table_base_va) >>
-			    XLAT_ADDR_SHIFT(level));
-
-		assert(table_idx < table_entries);
-	} else {
-		/* Start from the beginning of the table. */
-		table_idx_va = table_base_va;
-		table_idx = 0U;
-	}
+	table_idx_va = xlat_tables_find_start_va(mm, table_base_va, level);
+	table_idx = xlat_tables_va_to_index(table_base_va, table_idx_va, level);
 
 #if PLAT_XLAT_TABLES_DYNAMIC
 	if (level > ctx->base_level)
