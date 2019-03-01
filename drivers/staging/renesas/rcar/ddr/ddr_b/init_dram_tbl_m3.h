@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -219,8 +219,8 @@ static const uint32_t DDR_PHY_ADR_G_REGSET_M3[DDR_PHY_ADR_G_REGSET_NUM_M3] = {
 /*0b95*/ 0x0002c000,
 /*0b96*/ 0x02c002c0,
 /*0b97*/ 0x000002c0,
-/*0b98*/ 0x01421142,
-/*0b99*/ 0x00000142,
+/*0b98*/ 0x03421342,
+/*0b99*/ 0x00000342,
 /*0b9a*/ 0x00000000,
 /*0b9b*/ 0x00000000,
 /*0b9c*/ 0x05020000,
