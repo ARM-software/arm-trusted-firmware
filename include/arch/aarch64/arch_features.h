@@ -34,10 +34,12 @@ static inline bool is_armv8_3_pauth_present(void)
 	return (read_id_aa64isar1_el1() & mask) != 0U;
 }
 
-static inline bool is_armv8_3_pauth_api_present(void)
+static inline bool is_armv8_3_pauth_apa_api_present(void)
 {
-	return ((read_id_aa64isar1_el1() >> ID_AA64ISAR1_API_SHIFT) &
-		ID_AA64ISAR1_API_MASK) != 0U;
+	uint64_t mask = (ID_AA64ISAR1_API_MASK << ID_AA64ISAR1_API_SHIFT) |
+			(ID_AA64ISAR1_APA_MASK << ID_AA64ISAR1_APA_SHIFT);
+
+	return (read_id_aa64isar1_el1() & mask) != 0U;
 }
 
 static inline bool is_armv8_4_ttst_present(void)

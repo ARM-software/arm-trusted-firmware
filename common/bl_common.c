@@ -265,7 +265,7 @@ void bl_handle_pauth(void)
 	 * system registers. Pointer authentication can't be enabled here or the
 	 * authentication will fail when returning from this function.
 	 */
-	assert(is_armv8_3_pauth_api_present());
+	assert(is_armv8_3_pauth_apa_api_present());
 
 	uint64_t *apiakey = plat_init_apiakey();
 
