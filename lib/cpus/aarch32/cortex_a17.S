@@ -63,6 +63,34 @@ func check_errata_852421
 	b	cpu_rev_var_ls
 endfunc check_errata_852421
 
+	/* ----------------------------------------------------
+	 * Errata Workaround for Cortex A17 Errata #852423.
+	 * This applies only to revision <= r1p2 of Cortex A17.
+	 * Inputs:
+	 * r0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: r0-r3
+	 * ----------------------------------------------------
+	 */
+func errata_a17_852423_wa
+	/*
+	 * Compare r0 against revision r1p2
+	 */
+	mov	r2, lr
+	bl	check_errata_852423
+	cmp	r0, #ERRATA_NOT_APPLIES
+	beq	1f
+	ldcopr	r0, CORTEX_A17_IMP_DEF_REG1
+	orr	r0, r0, #(1<<12)
+	stcopr	r0, CORTEX_A17_IMP_DEF_REG1
+1:
+	bx	r2
+endfunc errata_a17_852423_wa
+
+func check_errata_852423
+	mov	r1, #0x12
+	b	cpu_rev_var_ls
+endfunc check_errata_852423
+
 func check_errata_cve_2017_5715
 #if WORKAROUND_CVE_2017_5715
 	mov	r0, #ERRATA_APPLIES
@@ -87,6 +115,7 @@ func cortex_a17_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata ERRATA_A17_852421, cortex_a17, 852421
+	report_errata ERRATA_A17_852423, cortex_a17, 852423
 	report_errata WORKAROUND_CVE_2017_5715, cortex_a17, cve_2017_5715
 
 	pop	{r12, lr}
@@ -97,9 +126,16 @@ endfunc cortex_a17_errata_report
 func cortex_a17_reset_func
 	mov	r5, lr
 	bl	cpu_get_rev_var
+	mov	r4, r0
 
 #if ERRATA_A17_852421
+	mov	r0, r4
 	bl	errata_a17_852421_wa
+#endif
+
+#if ERRATA_A17_852423
+	mov	r0, r4
+	bl	errata_a17_852423_wa
 #endif
 
 #if IMAGE_BL32 && WORKAROUND_CVE_2017_5715
