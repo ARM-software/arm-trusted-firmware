@@ -46,6 +46,10 @@ endfunc check_errata_1043202
 
 func neoverse_n1_reset_func
 	mov	x19, x30
+
+	/* Disables speculative loads */
+	msr	SSBS, xzr
+
 	bl	cpu_get_rev_var
 	mov	x18, x0
 
