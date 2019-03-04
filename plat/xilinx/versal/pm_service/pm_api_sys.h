@@ -36,6 +36,7 @@ enum pm_ret_status pm_set_requirement(uint32_t device_id, uint32_t capabilities,
 enum pm_ret_status pm_get_device_status(uint32_t device_id, uint32_t *response);
 enum pm_ret_status pm_reset_assert(uint32_t reset, bool assert);
 enum pm_ret_status pm_reset_get_status(uint32_t reset, uint32_t *status);
+void pm_get_callbackdata(uint32_t *data, size_t count);
 enum pm_ret_status pm_pinctrl_request(uint32_t pin);
 enum pm_ret_status pm_pinctrl_release(uint32_t pin);
 enum pm_ret_status pm_pinctrl_set_function(uint32_t pin, uint32_t function);

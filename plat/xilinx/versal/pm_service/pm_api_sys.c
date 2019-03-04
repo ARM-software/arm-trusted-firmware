@@ -313,6 +313,22 @@ enum pm_ret_status pm_reset_get_status(uint32_t reset, uint32_t *status)
 }
 
 /**
+ * pm_get_callbackdata() - Read from IPI response buffer
+ * @data - array of PAYLOAD_ARG_CNT elements
+ *
+ * Read value from ipi buffer response buffer.
+ */
+void pm_get_callbackdata(uint32_t *data, size_t count)
+{
+	/* Return if interrupt is not from PMU */
+	if (!pm_ipi_irq_status(primary_proc))
+		return;
+
+	pm_ipi_buff_read_callb(data, count);
+	pm_ipi_irq_clear(primary_proc);
+}
+
+/**
  * pm_pinctrl_request() - Request a pin
  * @pin		Pin ID
  *
