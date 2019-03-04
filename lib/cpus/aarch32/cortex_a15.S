@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,6 +29,13 @@ func cortex_a15_disable_smp
 	bic	r0, #CORTEX_A15_ACTLR_SMP_BIT
 	stcopr	r0, ACTLR
 	isb
+#if ERRATA_A15_816470
+	/*
+	 * Invalidate any TLB address
+	 */
+	mov	r0, #0
+	stcopr	r0, TLBIMVA
+#endif
 	dsb	sy
 	bx	lr
 endfunc cortex_a15_disable_smp
@@ -40,6 +47,20 @@ func cortex_a15_enable_smp
 	isb
 	bx	lr
 endfunc cortex_a15_enable_smp
+
+	/* ----------------------------------------------------
+	 * Errata Workaround for Cortex A15 Errata #816470.
+	 * This applies only to revision >= r3p0 of Cortex A15.
+	 * ----------------------------------------------------
+	 */
+func check_errata_816470
+	/*
+	 * Even though this is only needed for revision >= r3p0, it is always
+	 * applied because of the low cost of the workaround.
+	 */
+	mov	r0, #ERRATA_APPLIES
+	bx	lr
+endfunc check_errata_816470
 
 func check_errata_cve_2017_5715
 #if WORKAROUND_CVE_2017_5715
@@ -64,6 +85,7 @@ func cortex_a15_errata_report
 	 * Report all errata. The revision-variant information is passed to
 	 * checking functions of each errata.
 	 */
+	report_errata ERRATA_A15_816470, cortex_a15, 816470
 	report_errata WORKAROUND_CVE_2017_5715, cortex_a15, cve_2017_5715
 
 	pop	{r12, lr}
