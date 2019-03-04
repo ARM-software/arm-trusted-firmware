@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,6 +25,7 @@
 #include "pm_client.h"
 #include "pm_ipi.h"
 
+#define PM_GET_CALLBACK_DATA	0xa01
 #define PM_SET_SUSPEND_MODE	0xa02
 #define PM_GET_TRUSTZONE_VERSION	0xa03
 
@@ -411,6 +412,16 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		ret = pm_secure_rsaaes(pm_arg[0], pm_arg[1], pm_arg[2],
 				       pm_arg[3]);
 		SMC_RET1(handle, (uint64_t)ret);
+
+	case PM_GET_CALLBACK_DATA:
+	{
+		uint32_t result[4] = {0};
+
+		pm_get_callbackdata(result, (sizeof(result)/sizeof(uint32_t)));
+		SMC_RET2(handle,
+			 (uint64_t)result[0] | ((uint64_t)result[1] << 32),
+			 (uint64_t)result[2] | ((uint64_t)result[3] << 32));
+	}
 
 	case PM_PINCTRL_REQUEST:
 		ret = pm_pinctrl_request(pm_arg[0]);
