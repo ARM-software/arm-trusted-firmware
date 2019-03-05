@@ -57,6 +57,10 @@ endif
 # applies only to revision >= r3p0 of the Cortex A15 cpu.
 ERRATA_A15_816470	?=0
 
+# Flag to apply erratum 827671 workaround during reset. This erratum applies
+# only to revision >= r3p0 of the Cortex A15 cpu.
+ERRATA_A15_827671	?=0
+
 # Flag to apply erratum 819472 workaround during reset. This erratum applies
 # only to revision <= r0p1 of the Cortex A53 cpu.
 ERRATA_A53_819472	?=0
@@ -203,6 +207,10 @@ ERRATA_DSU_936184	?=0
 # Process ERRATA_A15_816470 flag
 $(eval $(call assert_boolean,ERRATA_A15_816470))
 $(eval $(call add_define,ERRATA_A15_816470))
+
+# Process ERRATA_A15_827671 flag
+$(eval $(call assert_boolean,ERRATA_A15_827671))
+$(eval $(call add_define,ERRATA_A15_827671))
 
 # Process ERRATA_A53_819472 flag
 $(eval $(call assert_boolean,ERRATA_A53_819472))
