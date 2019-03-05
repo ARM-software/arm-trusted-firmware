@@ -1,10 +1,16 @@
-Trusted Firmware images
------------------------
+Image Terminology
+=================
+
+.. section-numbering::
+    :suffix: .
+
+.. contents::
 
 This page contains the current name, abbreviated name and purpose of the various
 images referred to in the Trusted Firmware project.
 
-Some general notes:
+General Notes
+-------------
 
 - Some of the names and abbreviated names have changed to accomodate new
   requirements. The changed names are as backward compatible as possible to
@@ -35,6 +41,9 @@ Some general notes:
 
 - The image names are not case sensitive. For example, ``bl1`` is
   interchangeable with ``BL1``, although mixed case should be avoided.
+
+Trusted Firmware Images
+-----------------------
 
 AP Boot ROM: ``AP_BL1``
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,8 +123,8 @@ This image was previously abbreviated as BL3-0 but from the SCP's point of view,
 this has always been the 2nd stage firmware. The previous name is too
 AP-centric.
 
-Firmware update images
-----------------------
+Firmware Update (FWU) Images
+----------------------------
 
 The terminology for these images has not been widely adopted yet but they have
 to be considered in a production Trusted Board Boot solution.
@@ -154,7 +163,7 @@ This is the 2nd stage AP normal world firmware updater. Its primary purpose is
 to load a new set of firmware images from an external interface and write them
 into non-volatile storage.
 
-Other processor firmware images
+Other Processor Firmware Images
 -------------------------------
 
 Some systems may have additional processors to the AP and SCP. For example, a

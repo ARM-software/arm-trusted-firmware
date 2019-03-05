@@ -1,3 +1,6 @@
+Frequently-Asked Questions (FAQ)
+================================
+
 How do I update a Pull Request?
 -------------------------------
 
