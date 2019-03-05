@@ -22,9 +22,9 @@
 	 */
 	.globl	reset_handler
 func reset_handler
-	mov	r10, lr
+	mov	r8, lr
 
-	/* The plat_reset_handler can clobber r0 - r9 */
+	/* The plat_reset_handler can clobber r0 - r7 */
 	bl	plat_reset_handler
 
 	/* Get the matching cpu_ops pointer (clobbers: r0 - r5) */
@@ -38,7 +38,7 @@ func reset_handler
 	/* Get the cpu_ops reset handler */
 	ldr	r1, [r0, #CPU_RESET_FUNC]
 	cmp	r1, #0
-	mov	lr, r10
+	mov	lr, r8
 	bxne	r1
 	bx	lr
 endfunc reset_handler
