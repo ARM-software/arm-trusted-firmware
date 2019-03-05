@@ -371,7 +371,7 @@ endif
 
 ifeq ($(ENABLE_PIE),1)
     TF_CFLAGS		+=	-fpie
-    TF_LDFLAGS		+=	-pie
+    TF_LDFLAGS		+=	-pie --no-dynamic-linker
 else
     PIE_FOUND		:=	$(findstring --enable-default-pie,${GCC_V_OUTPUT})
     ifneq ($(PIE_FOUND),)
