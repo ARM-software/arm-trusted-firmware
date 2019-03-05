@@ -66,4 +66,10 @@
 #define CACHE_WRITEBACK_SHIFT		6
 #define CACHE_WRITEBACK_GRANULE		(0x40) /* (U(1) << CACHE_WRITEBACK_SHIFT) */
 
+/*******************************************************************************
+ * Dummy macros to compile io_storage support
+ ******************************************************************************/
+#define MAX_IO_DEVICES			U(0)
+#define MAX_IO_HANDLES			U(0)
+
 #endif /* PLATFORM_DEF_H */
