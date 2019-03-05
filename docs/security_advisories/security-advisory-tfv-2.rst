@@ -2,7 +2,7 @@
 | Title          | Enabled secure self-hosted invasive debug interface can     |
 |                | allow normal world to panic secure world                    |
 +================+=============================================================+
-| CVE ID         | CVE-2017-7564                                               |
+| CVE ID         | `CVE-2017-7564`_                                            |
 +----------------+-------------------------------------------------------------+
 | Date           | 02 Feb 2017                                                 |
 +----------------+-------------------------------------------------------------+
@@ -51,6 +51,7 @@ image or integrate the `AArch32 equivalent`_ of the ``el3_arch_init_common``
 macro. Here the affected bits are ``SDCR.SPD``, which should also be assigned to
 ``10`` instead of ``00``
 
+.. _CVE-2017-7564: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-7564
 .. _commit 495f3d3: https://github.com/ARM-software/arm-trusted-firmware/commit/495f3d3
 .. _AArch64 macro: https://github.com/ARM-software/arm-trusted-firmware/blob/bcc2bf0/include/common/aarch64/el3_common_macros.S#L85
 .. _AArch32 equivalent: https://github.com/ARM-software/arm-trusted-firmware/blob/bcc2bf0/include/common/aarch32/el3_common_macros.S#L41

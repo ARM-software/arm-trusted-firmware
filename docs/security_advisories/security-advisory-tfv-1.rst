@@ -2,7 +2,7 @@
 | Title          | Malformed Firmware Update SMC can result in copy of         |
 |                | unexpectedly large data into secure memory                  |
 +================+=============================================================+
-| CVE ID         | CVE-2016-10319                                              |
+| CVE ID         | `CVE-2016-10319`_                                           |
 +----------------+-------------------------------------------------------------+
 | Date           | 18 Oct 2016                                                 |
 +----------------+-------------------------------------------------------------+
@@ -154,5 +154,6 @@ ARM platform version of this function contains a similar vulnerability:
   return success. Platforms that copy this insecure pattern will have the same
   vulnerability.
 
+.. _CVE-2016-10319: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-10319
 .. _48bfb88: https://github.com/ARM-software/arm-trusted-firmware/commit/48bfb88
 .. _Pull Request #783: https://github.com/ARM-software/arm-trusted-firmware/pull/783

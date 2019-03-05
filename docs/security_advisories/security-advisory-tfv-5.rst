@@ -2,7 +2,7 @@
 | Title          | Not initializing or saving/restoring ``PMCR_EL0`` can leak  |
 |                | secure world timing information                             |
 +================+=============================================================+
-| CVE ID         | CVE-2017-15031                                              |
+| CVE ID         | `CVE-2017-15031`_                                           |
 +----------------+-------------------------------------------------------------+
 | Date           | 02 Oct 2017                                                 |
 +----------------+-------------------------------------------------------------+
@@ -39,4 +39,5 @@ sensible default values in the secure context.
 The same issue exists for the equivalent AArch32 register, ``PMCR``, except that
 here ``PMCR_EL0.DP`` architecturally resets to zero.
 
+.. _CVE-2017-15031: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15031
 .. _Pull Request #1127: https://github.com/ARM-software/arm-trusted-firmware/pull/1127

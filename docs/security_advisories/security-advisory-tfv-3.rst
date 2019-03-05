@@ -1,7 +1,7 @@
 +----------------+-------------------------------------------------------------+
 | Title          | RO memory is always executable at AArch64 Secure EL1        |
 +================+=============================================================+
-| CVE ID         | CVE-2017-7563                                               |
+| CVE ID         | `CVE-2017-7563`_                                            |
 +----------------+-------------------------------------------------------------+
 | Date           | 06 Apr 2017                                                 |
 +----------------+-------------------------------------------------------------+
@@ -78,5 +78,6 @@ The vulnerability is mitigated by the following factors:
   mapped into the secure world is non-executable by setting the ``SCR_EL3.SIF``
   bit. See the ``el3_arch_init_common`` macro in ``el3_common_macros.S``.
 
+.. _CVE-2017-7563: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-7563
 .. _Pull Request #662: https://github.com/ARM-software/arm-trusted-firmware/pull/662
 .. _Pull Request #924: https://github.com/ARM-software/arm-trusted-firmware/pull/924

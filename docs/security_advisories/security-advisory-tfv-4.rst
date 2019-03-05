@@ -3,7 +3,7 @@
 |                | authentication of unexpected data in secure memory in       |
 |                | AArch32 state                                               |
 +================+=============================================================+
-| CVE ID         | CVE-2017-9607                                               |
+| CVE ID         | `CVE-2017-9607`_                                            |
 +----------------+-------------------------------------------------------------+
 | Date           | 20 Jun 2017                                                 |
 +----------------+-------------------------------------------------------------+
@@ -114,6 +114,7 @@ The vulnerability is known to affect all ARM standard platforms when enabling
 the ``TRUSTED_BOARD_BOOT`` and ``ARCH=aarch32`` build options.  Other platforms
 may also be affected if they fulfil the above conditions.
 
+.. _CVE-2017-9607: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9607
 .. _commit c396b73: https://github.com/ARM-software/arm-trusted-firmware/commit/c396b73
 .. _Pull Request #678: https://github.com/ARM-software/arm-trusted-firmware/pull/678
 .. _Pull Request #939: https://github.com/ARM-software/arm-trusted-firmware/pull/939
