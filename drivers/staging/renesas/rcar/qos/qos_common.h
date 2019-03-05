@@ -78,12 +78,16 @@
 /* define used for M3 */
 #if (RCAR_REF_INT == RCAR_REF_DEFAULT)	/* REF 1.95usec */
 #define SUB_SLOT_CYCLE_M3_11		(0x84U)	/* 132 */
+#define SUB_SLOT_CYCLE_M3_30		(0x84U)	/* 132 */
 #else /* REF 3.9usec */
 #define SUB_SLOT_CYCLE_M3_11		(0x108U)	/* 264 */
+#define SUB_SLOT_CYCLE_M3_30		(0x108U)	/* 264 */
 #endif /* (RCAR_REF_INT == RCAR_REF_DEFAULT) */
 
 #define SL_INIT_SSLOTCLK_M3_11		(SUB_SLOT_CYCLE_M3_11 -1U)
+#define SL_INIT_SSLOTCLK_M3_30		(SUB_SLOT_CYCLE_M3_30 -1U)
 #define QOSWT_WTSET0_CYCLE_M3_11	((SUB_SLOT_CYCLE_M3_11 * BASE_SUB_SLOT_NUM * 1000U)/OPERATING_FREQ)	/* unit:ns */
+#define QOSWT_WTSET0_CYCLE_M3_30	((SUB_SLOT_CYCLE_M3_30 * BASE_SUB_SLOT_NUM * 1000U)/OPERATING_FREQ)	/* unit:ns */
 #endif
 
 #define OPERATING_FREQ			(400U)	/* MHz */

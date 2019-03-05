@@ -1526,6 +1526,10 @@ void pfc_init_m3(void)
 	mmio_write_32(GPIO_INOUTSEL2, 0x00000400U);
 	mmio_write_32(GPIO_INOUTSEL3, 0x0000C000U);
 	mmio_write_32(GPIO_INOUTSEL4, 0x00000000U);
+#if (RCAR_GEN3_ULCB == 1)
+	mmio_write_32(GPIO_INOUTSEL5, 0x0000000EU);
+#else
 	mmio_write_32(GPIO_INOUTSEL5, 0x0000020EU);
+#endif
 	mmio_write_32(GPIO_INOUTSEL6, 0x00013880U);
 }

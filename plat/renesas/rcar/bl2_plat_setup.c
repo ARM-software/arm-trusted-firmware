@@ -236,7 +236,7 @@ void bl2_plat_flush_bl31_params(void)
 	product = reg & RCAR_PRODUCT_MASK;
 	cut = reg & RCAR_CUT_MASK;
 
-	if (product == RCAR_PRODUCT_M3)
+	if (product == RCAR_PRODUCT_M3 && RCAR_CUT_VER30 > cut)
 		goto tlb;
 
 	if (product == RCAR_PRODUCT_H3 && RCAR_CUT_VER20 > cut)
@@ -693,8 +693,17 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 		break;
 	}
 
-	if (RCAR_PRODUCT_M3_CUT11 == product_cut) {
-		NOTICE("BL2: PRR is R-Car %s Ver.1.1 / Ver.1.2\n", str);
+	if ((RCAR_PRODUCT_M3 == product) &&
+	    (RCAR_CUT_VER20 == (reg & RCAR_MAJOR_MASK))) {
+		if (RCAR_M3_CUT_VER11 == (reg & RCAR_CUT_MASK)) {
+			/* M3 Ver.1.1 or Ver.1.2 */
+			NOTICE("BL2: PRR is R-Car %s Ver.1.1 / Ver.1.2\n",
+				str);
+		} else {
+			NOTICE("BL2: PRR is R-Car %s Ver.1.%d\n",
+				str,
+				(reg & RCAR_MINOR_MASK) + RCAR_M3_MINOR_OFFSET);
+		}
 	} else {
 		major = (reg & RCAR_MAJOR_MASK) >> RCAR_MAJOR_SHIFT;
 		major = major + RCAR_MAJOR_OFFSET;
