@@ -15,6 +15,7 @@
 #include <context.h>
 #include <drivers/arm/tzc380.h>
 #include <drivers/console.h>
+#include <drivers/generic_delay_timer.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables.h>
@@ -128,6 +129,8 @@ void bl31_plat_arch_setup(void)
 
 void bl31_platform_setup(void)
 {
+	generic_delay_timer_init();
+
 	/* init the GICv3 cpu and distributor interface */
 	plat_gic_driver_init();
 	plat_gic_init();

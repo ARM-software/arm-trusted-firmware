@@ -20,6 +20,8 @@ IMX_GIC_SOURCES		:=	drivers/arm/gic/v3/gicv3_helpers.c	\
 BL31_SOURCES		+=	plat/imx/common/imx8_helpers.S			\
 				plat/imx/imx8m/imx8mq/imx8mq_bl31_setup.c	\
 				plat/imx/imx8m/imx8mq/imx8mq_psci.c		\
+				plat/imx/imx8m/gpc_common.c			\
+				plat/imx/imx8m/imx8m_psci_common.c		\
 				plat/imx/imx8m/imx8mq/gpc.c			\
 				plat/imx/common/imx8_topology.c			\
 				plat/imx/common/imx_uart_console.S		\
@@ -28,6 +30,8 @@ BL31_SOURCES		+=	plat/imx/common/imx8_helpers.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				drivers/console/aarch64/console.S		\
 				drivers/arm/tzc/tzc380.c			\
+				drivers/delay_timer/delay_timer.c		\
+				drivers/delay_timer/generic_delay_timer.c	\
 				${IMX_GIC_SOURCES}
 
 USE_COHERENT_MEM	:=	1
