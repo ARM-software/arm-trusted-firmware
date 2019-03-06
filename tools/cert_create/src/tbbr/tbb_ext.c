@@ -19,10 +19,6 @@
 #include "tbbr/tbb_ext.h"
 #include "tbbr/tbb_key.h"
 
-/* TODO: get these values from the command line */
-#define TRUSTED_WORLD_NVCTR_VALUE	0
-#define NORMAL_WORLD_NVCTR_VALUE	0
-
 static ext_t tbb_ext[] = {
 	[TRUSTED_FW_NVCOUNTER_EXT] = {
 		.oid = TRUSTED_FW_NVCOUNTER_OID,
