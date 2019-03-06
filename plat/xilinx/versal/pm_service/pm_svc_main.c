@@ -17,9 +17,6 @@
 #include "pm_client.h"
 #include "pm_ipi.h"
 
-#define PM_GET_CALLBACK_DATA		0xa01
-#define PM_GET_TRUSTZONE_VERSION	0xa03
-
 /* pm_up = true - UP, pm_up = false - DOWN */
 static bool pm_up;
 
@@ -292,6 +289,14 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	case PM_GET_TRUSTZONE_VERSION:
 		SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS |
 			 ((uint64_t)VERSAL_TZ_VERSION << 32));
+
+	case PM_FEATURE_CHECK:
+	{
+		uint32_t version;
+
+		ret = pm_feature_check(pm_arg[0], &version);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)version << 32));
+	}
 
 	default:
 		WARN("Unimplemented PM Service Call: 0x%x\n", smc_fid);

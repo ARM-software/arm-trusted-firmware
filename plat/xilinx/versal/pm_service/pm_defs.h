@@ -33,6 +33,12 @@
 				       XPM_NODESUBCL_DEV_PERIPH, \
 				       XPM_NODETYPE_DEV_PERIPH, (IDX))
 
+#define PM_GET_CALLBACK_DATA		0xa01
+#define PM_GET_TRUSTZONE_VERSION	0xa03
+
+/* PM API Versions */
+#define PM_API_BASE_VERSION		1U
+
 /* PM API ids */
 #define PM_GET_API_VERSION		1U
 #define PM_GET_DEVICE_STATUS		3U
@@ -70,6 +76,7 @@
 #define PM_PLL_GET_PARAMETER		49U
 #define PM_PLL_SET_MODE			50U
 #define PM_PLL_GET_MODE			51U
+#define PM_FEATURE_CHECK		63U
 
 /* IOCTL IDs for clock driver */
 #define IOCTL_SET_PLL_FRAC_MODE		8
@@ -121,6 +128,7 @@ typedef enum {
  * @PM_RET_SUCCESS:		success
  * @PM_RET_ERROR_ARGS:		illegal arguments provided (deprecated)
  * @PM_RET_ERROR_NOTSUPPORTED:	feature not supported  (deprecated)
+ * @PM_RET_ERROR_NOFEATURE:	feature is not available
  * @PM_RET_ERROR_INTERNAL:	internal error
  * @PM_RET_ERROR_CONFLICT:	conflict
  * @PM_RET_ERROR_ACCESS:	access rights violation
@@ -134,6 +142,7 @@ enum pm_ret_status {
 	PM_RET_SUCCESS,
 	PM_RET_ERROR_ARGS = 1,
 	PM_RET_ERROR_NOTSUPPORTED = 4,
+	PM_RET_ERROR_NOFEATURE = 19,
 	PM_RET_ERROR_INTERNAL = 2000,
 	PM_RET_ERROR_CONFLICT = 2001,
 	PM_RET_ERROR_ACCESS = 2002,

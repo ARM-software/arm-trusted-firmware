@@ -65,5 +65,5 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
 				 uint32_t arg3, uint32_t *data);
 unsigned int pm_get_shutdown_scope(void);
-
+enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version);
 #endif /* PM_API_SYS_H */

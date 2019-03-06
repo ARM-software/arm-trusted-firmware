@@ -747,3 +747,73 @@ enum pm_ret_status pm_set_wakeup_source(uint32_t target, uint32_t wkup_device,
 			 wkup_device, enable);
 	return pm_ipi_send(primary_proc, payload);
 }
+
+/**
+ * pm_feature_check() - Returns the supported API version if supported
+ * @api_id	API ID to check
+ * @value	Returned supported API version
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT], fw_api_version;
+	uint32_t status;
+
+	switch (api_id) {
+	case PM_GET_CALLBACK_DATA:
+	case PM_GET_TRUSTZONE_VERSION:
+	case PM_INIT_FINALIZE:
+		*version = (PM_API_BASE_VERSION << 16);
+		return PM_RET_SUCCESS;
+	case PM_GET_API_VERSION:
+	case PM_GET_DEVICE_STATUS:
+	case PM_REQ_SUSPEND:
+	case PM_SELF_SUSPEND:
+	case PM_FORCE_POWERDOWN:
+	case PM_ABORT_SUSPEND:
+	case PM_REQ_WAKEUP:
+	case PM_SET_WAKEUP_SOURCE:
+	case PM_SYSTEM_SHUTDOWN:
+	case PM_REQUEST_DEVICE:
+	case PM_RELEASE_DEVICE:
+	case PM_SET_REQUIREMENT:
+	case PM_RESET_ASSERT:
+	case PM_RESET_GET_STATUS:
+	case PM_PINCTRL_REQUEST:
+	case PM_PINCTRL_RELEASE:
+	case PM_PINCTRL_GET_FUNCTION:
+	case PM_PINCTRL_SET_FUNCTION:
+	case PM_PINCTRL_CONFIG_PARAM_GET:
+	case PM_PINCTRL_CONFIG_PARAM_SET:
+	case PM_IOCTL:
+	case PM_QUERY_DATA:
+	case PM_CLOCK_ENABLE:
+	case PM_CLOCK_DISABLE:
+	case PM_CLOCK_GETSTATE:
+	case PM_CLOCK_SETDIVIDER:
+	case PM_CLOCK_GETDIVIDER:
+	case PM_CLOCK_SETPARENT:
+	case PM_CLOCK_GETPARENT:
+	case PM_PLL_SET_PARAMETER:
+	case PM_PLL_GET_PARAMETER:
+	case PM_PLL_SET_MODE:
+	case PM_PLL_GET_MODE:
+	case PM_FEATURE_CHECK:
+		*version = (PM_API_BASE_VERSION << 16);
+		break;
+	default:
+		*version = 0U;
+		return PM_RET_ERROR_NOFEATURE;
+	}
+
+	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, PM_FEATURE_CHECK, api_id);
+
+	status = pm_ipi_send_sync(primary_proc, payload, &fw_api_version, 1);
+	if (status != PM_RET_SUCCESS)
+		return status;
+
+	*version |= fw_api_version;
+
+	return PM_RET_SUCCESS;
+}
