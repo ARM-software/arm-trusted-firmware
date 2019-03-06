@@ -68,6 +68,9 @@
 #define SLT_PLAT_PDN			BIT(8)
 #define SLT_PLAT_PUP			BIT(9)
 
+#define MASTER1_MAPPING			BIT(1)
+#define MASTER2_MAPPING			BIT(2)
+
 /* helper macro */
 #define A53_LPM_MASK	U(0xF)
 #define A53_LPM_WAIT	U(0x5)
