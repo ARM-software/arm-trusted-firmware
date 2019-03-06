@@ -11,7 +11,6 @@
 
 #include <uuid.h>
 
-/* TODO: Update this number as required */
 #define TOC_HEADER_SERIAL_NUMBER 0x12345678
 
 typedef struct toc_entry {
