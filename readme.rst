@@ -260,6 +260,19 @@ vulnerability, please report this using the process defined in the TF-A
 
 Arm licensees may contact Arm directly via their partner managers.
 
+Security advisories
+~~~~~~~~~~~~~~~~~~~
+
+`Security Advisory TFV-1`_
+`Security Advisory TFV-2`_
+`Security Advisory TFV-3`_
+`Security Advisory TFV-4`_
+`Security Advisory TFV-5`_
+`Security Advisory TFV-6`_
+`Security Advisory TFV-7`_
+`Security Advisory TFV-8`_
+
+
 --------------
 
 *Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
@@ -282,7 +295,7 @@ Arm licensees may contact Arm directly via their partner managers.
 .. _Trusty Secure OS: https://source.android.com/security/trusty
 .. _GitHub: https://www.github.com/ARM-software/arm-trusted-firmware
 .. _GitHub issue tracker: https://github.com/ARM-software/tf-issues/issues
-.. _Security Centre: https://github.com/ARM-software/arm-trusted-firmware/wiki/ARM-Trusted-Firmware-Security-Centre
+.. _Security Center: ./docs/security-center.rst
 .. _license: ./license.rst
 .. _Contributing Guidelines: ./contributing.rst
 .. _Acknowledgments: ./acknowledgements.rst
@@ -292,3 +305,11 @@ Arm licensees may contact Arm directly via their partner managers.
 .. _Porting Guide: ./docs/porting-guide.rst
 .. _FreeBSD: http://www.freebsd.org
 .. _SCC: http://www.simple-cc.org/
+.. _Security Advisory TFV-1: ./docs/security_advisories/security-advisory-tfv-1.rst
+.. _Security Advisory TFV-2: ./docs/security_advisories/security-advisory-tfv-2.rst
+.. _Security Advisory TFV-3: ./docs/security_advisories/security-advisory-tfv-3.rst
+.. _Security Advisory TFV-4: ./docs/security_advisories/security-advisory-tfv-4.rst
+.. _Security Advisory TFV-5: ./docs/security_advisories/security-advisory-tfv-5.rst
+.. _Security Advisory TFV-6: ./docs/security_advisories/security-advisory-tfv-6.rst
+.. _Security Advisory TFV-7: ./docs/security_advisories/security-advisory-tfv-7.rst
+.. _Security Advisory TFV-8: ./docs/security_advisories/security-advisory-tfv-8.rst
