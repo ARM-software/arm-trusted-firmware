@@ -1,5 +1,5 @@
-Trusted Board Boot Design Guide
-===============================
+Trusted Board Boot
+==================
 
 
 

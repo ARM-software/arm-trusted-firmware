@@ -1,5 +1,5 @@
-Trusted Firmware-A reset design
-===============================
+CPU Reset
+=========
 
 
 

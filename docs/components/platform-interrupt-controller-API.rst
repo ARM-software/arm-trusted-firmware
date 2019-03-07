@@ -1,7 +1,5 @@
-Platform Interrupt Controller API documentation
-===============================================
-
-
+Platform Interrupt Controller API
+=================================
 
 .. contents::
 

@@ -1,7 +1,5 @@
-Trusted Firmware-A Porting Guide
-================================
-
-
+Porting Guide
+=============
 
 .. contents::
 

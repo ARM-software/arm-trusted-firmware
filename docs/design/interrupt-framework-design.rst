@@ -1,8 +1,5 @@
-Trusted Firmware-A interrupt management design guide
-====================================================
-
-
-
+Interrupt Management Framework 
+==============================
 
 .. contents::
 

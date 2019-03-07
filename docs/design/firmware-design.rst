@@ -1,8 +1,5 @@
-Trusted Firmware-A design
-=========================
-
-
-
+Firmware Design
+===============
 
 .. contents::
 

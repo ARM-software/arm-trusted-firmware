@@ -1,8 +1,5 @@
-Trusted Firmware-A User Guide
-=============================
-
-
-
+User Guide
+==========
 
 .. contents::
 

@@ -1,8 +1,5 @@
-Translation Tables Library Design
+Translation (XLAT) Tables Library
 =================================
-
-
-
 
 .. contents::
 

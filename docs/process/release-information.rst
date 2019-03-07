@@ -1,5 +1,5 @@
-TF-A Release Information
-========================
+Release Processes
+=================
 
 .. section-numbering::
     :suffix: .

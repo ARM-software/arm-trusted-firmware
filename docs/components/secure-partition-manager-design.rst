@@ -1,8 +1,5 @@
-*******************************
-Secure Partition Manager Design
-*******************************
-
-
+Secure Partition Manager
+************************
 
 .. contents::
 

@@ -1,5 +1,5 @@
-Trusted Firmware-A Release Notes
-================================
+Change Log & Release Notes
+==========================
 
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.

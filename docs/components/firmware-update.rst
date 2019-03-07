@@ -1,8 +1,5 @@
-Trusted Firmware-A - Firmware Update design guide
-=================================================
-
-
-
+Firmware Update (FWU)
+=====================
 
 .. contents::
 

@@ -1,8 +1,5 @@
-Exception Handling Framework in Trusted Firmware-A
-==================================================
-
-
-
+Exception Handling Framework
+============================
 
 .. contents::
     :depth: 2

@@ -1,7 +1,5 @@
-Trusted Firmware-A Coding Guidelines
-====================================
-
-
+Coding Style & Guidelines
+=========================
 
 .. contents::
 

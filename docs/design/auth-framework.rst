@@ -1,8 +1,5 @@
-Abstracting a Chain of Trust
-============================
-
-
-
+Authentication Framework & Chain of Trust
+=========================================
 
 .. contents::
 

@@ -1,8 +1,5 @@
-PSCI Power Domain Tree design
-=============================
-
-
-
+PSCI Power Domain Tree Structure
+================================
 
 .. contents::
 

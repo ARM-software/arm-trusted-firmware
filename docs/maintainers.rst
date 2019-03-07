@@ -1,5 +1,5 @@
-Trusted Firmware-A maintainers
-==============================
+Maintainers
+===========
 
 Trusted Firmware-A (TF-A) is an Arm maintained project. All contributions are
 ultimately merged by the maintainers listed below. Technical ownership of some

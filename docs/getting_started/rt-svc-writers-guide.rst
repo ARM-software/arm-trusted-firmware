@@ -1,4 +1,4 @@
-Trusted Firmware-A EL3 runtime service writer's guide
+EL3 Runtime Service Writer's Guide
 =====================================================
 
 

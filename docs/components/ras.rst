@@ -1,7 +1,5 @@
-RAS support in Trusted Firmware-A
-=================================
-
-
+Reliability, Availability, and Serviceability (RAS) Extensions
+==============================================================
 
 .. contents::
     :depth: 2

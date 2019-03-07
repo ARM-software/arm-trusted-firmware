@@ -14,8 +14,8 @@ Trusted Firmware-A Documentation
    perf/index
    security_advisories/index
    change-log
-   maintainers
    acknowledgements
+   maintainers
    license
 
 Trusted Firmware-A (TF-A) provides a reference implementation of secure world
