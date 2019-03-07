@@ -15,7 +15,7 @@ Once a BL32 is ready, TLKD can be included in the image by adding "SPD=tlkd"
 to the build command.
 
 Trusted Little Kernel (TLK)
-===========================
+---------------------------
 
 TLK is a Trusted OS running as Secure EL1. It is a Free Open Source Software
 (FOSS) release of the NVIDIA® Trusted Little Kernel (TLK) technology, which
@@ -54,20 +54,20 @@ TLK and OTE can be found in the Tegra\_BSP\_for\_Android\_TLK\_FOSS\_Reference.p
 manual located under the "documentation" directory\_.
 
 Build TLK
-=========
+---------
 
 To build and execute TLK, follow the instructions from "Building a TLK Device"
 section from Tegra\_BSP\_for\_Android\_TLK\_FOSS\_Reference.pdf manual.
 
 Input parameters to TLK
-=======================
+-----------------------
 
 TLK expects the TZDRAM size and a structure containing the boot arguments. BL2
 passes this information to the EL3 software as members of the bl32\_ep\_info
 struct, where bl32\_ep\_info is part of bl31\_params\_t (passed by BL2 in X0)
 
-Example:
---------
+Example
+~~~~~~~
 
 ::
 

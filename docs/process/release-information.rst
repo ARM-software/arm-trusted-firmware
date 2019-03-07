@@ -1,9 +1,6 @@
 Release Processes
 =================
 
-.. section-numbering::
-    :suffix: .
-
 .. contents::
 
 --------------

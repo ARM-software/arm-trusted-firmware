@@ -1,9 +1,6 @@
 Library at ROM
 ==============
 
-.. section-numbering::
-    :suffix: .
-
 .. contents::
 
 This document provides an overview of the "library at ROM" implementation in
