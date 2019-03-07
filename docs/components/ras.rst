@@ -1,9 +1,6 @@
 Reliability, Availability, and Serviceability (RAS) Extensions
 ==============================================================
 
-.. contents::
-    :depth: 2
-
 .. |EHF| replace:: Exception Handling Framework
 .. |TF-A| replace:: Trusted Firmware-A
 

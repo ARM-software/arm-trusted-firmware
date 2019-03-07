@@ -1,8 +1,6 @@
 Firmware Design
 ===============
 
-.. contents::
-
 Trusted Firmware-A (TF-A) implements a subset of the Trusted Board Boot
 Requirements (TBBR) Platform Design Document (PDD) [1]_ for Arm reference
 platforms. The TBB sequence starts when the platform is powered on and runs up

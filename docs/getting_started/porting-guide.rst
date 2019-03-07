@@ -1,8 +1,6 @@
 Porting Guide
 =============
 
-.. contents::
-
 Introduction
 ------------
 

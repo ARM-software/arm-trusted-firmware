@@ -1,11 +1,6 @@
 Trusted Board Boot
 ==================
 
-
-
-
-.. contents::
-
 The Trusted Board Boot (TBB) feature prevents malicious firmware from running on
 the platform by authenticating all firmware images up to and including the
 normal world bootloader. It does this by establishing a Chain of Trust using

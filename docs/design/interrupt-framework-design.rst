@@ -1,8 +1,6 @@
 Interrupt Management Framework 
 ==============================
 
-.. contents::
-
 This framework is responsible for managing interrupts routed to EL3. It also
 allows EL3 software to configure the interrupt routing behavior. Its main
 objective is to implement the following two requirements.

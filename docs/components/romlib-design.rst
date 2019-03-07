@@ -1,8 +1,6 @@
 Library at ROM
 ==============
 
-.. contents::
-
 This document provides an overview of the "library at ROM" implementation in
 Trusted Firmware-A (TF-A).
 

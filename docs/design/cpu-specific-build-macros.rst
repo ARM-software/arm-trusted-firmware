@@ -1,11 +1,6 @@
 Arm CPU Specific Build Macros
 =============================
 
-
-
-
-.. contents::
-
 This document describes the various build options present in the CPU specific
 operations framework to enable errata workarounds and to enable optimizations
 for a specific CPU on a platform.

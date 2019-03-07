@@ -1,8 +1,6 @@
 Secure Partition Manager
 ************************
 
-.. contents::
-
 Background
 ==========
 

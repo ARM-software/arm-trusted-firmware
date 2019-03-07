@@ -1,10 +1,6 @@
 Firmware Update (FWU)
 =====================
 
-.. contents::
-
---------------
-
 Introduction
 ------------
 

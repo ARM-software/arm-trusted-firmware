@@ -1,9 +1,6 @@
 SDEI: Software Delegated Exception Interface
 ============================================
 
-.. contents::
-    :depth: 2
-
 This document provides an overview of the SDEI dispatcher implementation in
 Trusted Firmware-A (TF-A).
 

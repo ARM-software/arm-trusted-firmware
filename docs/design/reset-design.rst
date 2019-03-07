@@ -1,11 +1,6 @@
 CPU Reset
 =========
 
-
-
-
-.. contents::
-
 This document describes the high-level design of the framework to handle CPU
 resets in Trusted Firmware-A (TF-A). It also describes how the platform
 integrator can tailor this code to the system configuration to some extent,

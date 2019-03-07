@@ -1,10 +1,6 @@
 PSCI Power Domain Tree Structure
 ================================
 
-.. contents::
-
---------------
-
 Requirements
 ------------
 

@@ -1,8 +1,6 @@
 Authentication Framework & Chain of Trust
 =========================================
 
-.. contents::
-
 The aim of this document is to describe the authentication framework
 implemented in Trusted Firmware-A (TF-A). This framework fulfills the
 following requirements:

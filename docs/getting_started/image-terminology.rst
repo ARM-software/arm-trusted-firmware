@@ -1,8 +1,6 @@
 Image Terminology
 =================
 
-.. contents::
-
 This page contains the current name, abbreviated name and purpose of the various
 images referred to in the Trusted Firmware project.
 

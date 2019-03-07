@@ -1,8 +1,6 @@
 Raspberry Pi 3
 ==============
 
-.. contents::
-
 The `Raspberry Pi 3`_ is an inexpensive single-board computer that contains four
 Arm Cortex-A53 cores.
 

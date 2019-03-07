@@ -1,13 +1,6 @@
 Platform Compatibility Policy
 =============================
 
-
-
-
-.. contents::
-
---------------
-
 Introduction
 ------------
 

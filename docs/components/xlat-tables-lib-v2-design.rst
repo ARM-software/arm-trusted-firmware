@@ -1,9 +1,6 @@
 Translation (XLAT) Tables Library
 =================================
 
-.. contents::
-
-
 This document describes the design of the translation tables library (version 2)
 used by Trusted Firmware-A (TF-A). This library provides APIs to create page
 tables based on a description of the memory layout, as well as setting up system

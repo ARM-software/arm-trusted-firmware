@@ -1,10 +1,6 @@
 EL3 Runtime Service Writer's Guide
 =====================================================
 
-
-
-.. contents::
-
 Introduction
 ------------
 

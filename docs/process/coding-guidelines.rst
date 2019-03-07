@@ -1,8 +1,6 @@
 Coding Style & Guidelines
 =========================
 
-.. contents::
-
 The following sections contain TF coding guidelines. They are continually
 evolving and should not be considered "set in stone". Feel free to question them
 and provide feedback.

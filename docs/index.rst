@@ -3,7 +3,7 @@ Trusted Firmware-A Documentation
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents
+   :hidden:
 
    Home<self>
    getting_started/index
@@ -17,6 +17,9 @@ Trusted Firmware-A Documentation
    acknowledgements
    maintainers
    license
+
+.. contents:: On This Page
+    :depth: 3
 
 Trusted Firmware-A (TF-A) provides a reference implementation of secure world
 software for `Armv7-A and Armv8-A`_, including a `Secure Monitor`_ executing

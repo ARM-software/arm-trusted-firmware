@@ -1,10 +1,6 @@
 Release Processes
 =================
 
-.. contents::
-
---------------
-
 Project Release Cadence
 -----------------------
 
