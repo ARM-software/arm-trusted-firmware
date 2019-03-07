@@ -1,3 +1,6 @@
+Advisory TFV-7 (CVE-2018-3639)
+==============================
+
 +----------------+-------------------------------------------------------------+
 | Title          | Trusted Firmware-A exposure to cache speculation            |
 |                | vulnerability Variant 4                                     |
@@ -46,7 +49,7 @@ for platforms that are unaffected or where the risk is deemed low enough.
 Arm CPUs not mentioned below are unaffected.
 
 Static mitigation
-~~~~~~~~~~~~~~~~~
+-----------------
 
 For affected CPUs, this approach enables the mitigation during EL3
 initialization, following every PE reset. No mechanism is provided to disable
@@ -67,7 +70,7 @@ TF-A implements this approach for the following affected CPUs:
   (``S3_0_C15_C1_0``).
 
 Dynamic mitigation
-~~~~~~~~~~~~~~~~~~
+------------------
 
 For affected CPUs, this approach also enables the mitigation during EL3
 initialization, following every PE reset. In addition, this approach implements

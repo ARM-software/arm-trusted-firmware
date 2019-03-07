@@ -1,3 +1,6 @@
+Advisory TFV-6 (CVE-2017-5753, CVE-2017-5715, CVE-2017-5754)
+============================================================
+
 +----------------+-------------------------------------------------------------+
 | Title          | Arm Trusted Firmware exposure to speculative processor      |
 |                | vulnerabilities using cache timing side-channels            |
@@ -28,13 +31,13 @@ these vulnerabilities on Arm systems, please refer to the `Arm Processor
 Security Update`_.
 
 Variant 1 (`CVE-2017-5753`_)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 At the time of writing, no vulnerable patterns have been observed in upstream TF
 code, therefore no workarounds have been applied or are planned.
 
 Variant 2 (`CVE-2017-5715`_)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 Where possible on vulnerable CPUs, Arm recommends invalidating the branch
 predictor as early as possible on entry into the secure world, before any branch
@@ -122,7 +125,7 @@ Cortex-A76, Cortex-A53, Cortex-A55, Cortex-A32, Cortex-A7 and Cortex-A5.
 For more information about non-Arm CPUs, please contact the CPU vendor.
 
 Variant 3 (`CVE-2017-5754`_)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------
 
 This variant is only exploitable between Exception Levels within the same
 translation regime, for example between EL0 and EL1, therefore this variant
