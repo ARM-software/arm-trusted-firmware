@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 
+#include <lib/psci/psci.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
 struct draminfo {
@@ -22,7 +23,7 @@ struct draminfo {
 	uint64_t	size3;
 };
 
-uint32_t scpi_get_draminfo(struct draminfo *info);
+uint32_t sq_scp_get_draminfo(struct draminfo *info);
 
 void plat_sq_pwrc_setup(void);
 
@@ -40,5 +41,13 @@ void sq_gic_pcpu_init(void);
 
 void sq_mmap_setup(uintptr_t total_base, size_t total_size,
 		   const struct mmap_region *mmap);
+
+/* SCMI API for power management by SCP */
+void sq_scmi_off(const struct psci_power_state *target_state);
+void sq_scmi_on(u_register_t mpidr);
+void __dead2 sq_scmi_sys_reboot(void);
+void __dead2 sq_scmi_system_off(int state);
+/* SCMI API for vendor specific protocol */
+uint32_t sq_scmi_get_draminfo(struct draminfo *info);
 
 #endif /* SQ_COMMON_H */

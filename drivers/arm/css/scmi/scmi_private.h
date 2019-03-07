@@ -152,4 +152,9 @@ static inline void validate_scmi_channel(scmi_channel_t *ch)
 	assert(ch->info && ch->info->scmi_mbx_mem);
 }
 
+/*
+ * SCMI vendor specific protocol
+ */
+#define SCMI_SYS_VENDOR_EXT_PROTO_ID		0x80
+
 #endif /* SCMI_PRIVATE_H */

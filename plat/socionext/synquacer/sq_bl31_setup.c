@@ -14,7 +14,6 @@
 #include <common/debug.h>
 #include <drivers/arm/pl011.h>
 #include <lib/mmio.h>
-
 #include <sq_common.h>
 
 static console_pl011_t console;
@@ -83,7 +82,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 #ifdef SPD_opteed
 	struct draminfo di = {0};
 
-	scpi_get_draminfo(&di);
+	sq_scp_get_draminfo(&di);
 
 	/*
 	 * Check if OP-TEE has been loaded in Secure RAM allocated
@@ -154,7 +153,7 @@ void bl31_plat_runtime_setup(void)
 {
 	struct draminfo *di = (struct draminfo *)(unsigned long)DRAMINFO_BASE;
 
-	scpi_get_draminfo(di);
+	sq_scp_get_draminfo(di);
 }
 
 void bl31_plat_arch_setup(void)
