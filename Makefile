@@ -55,7 +55,7 @@ ROOT_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					lib				\
 					include				\
 					docs				\
-					%.md,				\
+					%.rst,				\
 					$(wildcard *)))
 CHECK_PATHS		:=	${ROOT_DIRS_TO_CHECK}			\
 				${INC_DIRS_TO_CHECK}			\
@@ -815,7 +815,7 @@ realclean distclean:
 checkcodebase:		locate-checkpatch
 	@echo "  CHECKING STYLE"
 	@if test -d .git ; then						\
-		git ls-files | grep -E -v 'libfdt|libc|docs|\.md' |	\
+		git ls-files | grep -E -v 'libfdt|libc|docs|\.rst' |	\
 		while read GIT_FILE ;					\
 		do ${CHECKPATCH} ${CHECKCODE_ARGS} -f $$GIT_FILE ;	\
 		done ;							\
@@ -825,7 +825,7 @@ checkcodebase:		locate-checkpatch
 		 -not -iwholename "*libfdt*"				\
 		 -not -iwholename "*libc*"				\
 		 -not -iwholename "*docs*"				\
-		 -not -iwholename "*.md"				\
+		 -not -iwholename "*.rst"				\
 		 -exec ${CHECKPATCH} ${CHECKCODE_ARGS} -f {} \; ;	\
 	fi
 
