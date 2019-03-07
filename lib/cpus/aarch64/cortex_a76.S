@@ -13,13 +13,10 @@
 #include <plat_macros.S>
 #include <services/arm_arch_svc.h>
 
-#if !DYNAMIC_WORKAROUND_CVE_2018_3639
-#error Cortex A76 requires DYNAMIC_WORKAROUND_CVE_2018_3639=1
-#endif
-
 #define ESR_EL3_A64_SMC0	0x5e000000
 #define ESR_EL3_A32_SMC0	0x4e000000
 
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	/*
 	 * This macro applies the mitigation for CVE-2018-3639.
 	 * It implements a fast path where `SMCCC_ARCH_WORKAROUND_2`
@@ -188,6 +185,7 @@ vector_entry cortex_a76_serror_aarch32
 	apply_cve_2018_3639_wa _is_sync_exception=0 _esr_el3_val=ESR_EL3_A32_SMC0
 	b	serror_aarch32
 end_vector_entry cortex_a76_serror_aarch32
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 */
 
 	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A76 Errata #1073348.
@@ -320,8 +318,12 @@ func cortex_a76_reset_func
 	mrs	x0, id_aa64pfr1_el1
 	lsr	x0, x0, #ID_AA64PFR1_EL1_SSBS_SHIFT
 	and	x0, x0, #ID_AA64PFR1_EL1_SSBS_MASK
+#if !DYNAMIC_WORKAROUND_CVE_2018_3639 && ENABLE_ASSERTIONS
+	cmp	x0, 0
+	ASM_ASSERT(ne)
+#endif
+#if DYNAMIC_WORKAROUND_CVE_2018_3639
 	cbnz	x0, 1f
-
 	mrs	x0, CORTEX_A76_CPUACTLR2_EL1
 	orr	x0, x0, #CORTEX_A76_CPUACTLR2_EL1_DISABLE_LOAD_PASS_STORE
 	msr	CORTEX_A76_CPUACTLR2_EL1, x0
@@ -336,10 +338,11 @@ func cortex_a76_reset_func
 	adr	x0, cortex_a76_wa_cve_2018_3639_a76_vbar
 	msr	vbar_el3, x0
 	isb
-#endif
+#endif /* IMAGE_BL31 */
 
 1:
-#endif
+#endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 */
+#endif /* WORKAROUND_CVE_2018_3639 */
 
 #if ERRATA_DSU_936184
 	bl	errata_dsu_936184_wa
