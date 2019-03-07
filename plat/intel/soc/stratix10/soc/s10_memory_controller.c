@@ -8,6 +8,7 @@
 #include <arch_helpers.h>
 #include <errno.h>
 #include <lib/mmio.h>
+#include <lib/utils.h>
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <platform_def.h>
@@ -403,7 +404,7 @@ void configure_hmc_adaptor_regs(void)
 		INFO("Scrubbing ECC\n");
 
 		/* ECC Scrubbing */
-		memset(DRAM_BASE, 0, DRAM_SIZE);
+		zeromem(DRAM_BASE, DRAM_SIZE);
 	} else {
 		INFO("ECC is disabled.\n");
 	}
