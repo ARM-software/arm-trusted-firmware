@@ -194,7 +194,8 @@ void stm32mp_io_setup(void)
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_EMMC:
 		dmbsy();
 
-		memset(&params, 0, sizeof(struct stm32_sdmmc2_params));
+		zeromem(&device_info, sizeof(struct mmc_device_info));
+		zeromem(&params, sizeof(struct stm32_sdmmc2_params));
 
 		if (boot_context->boot_interface_selected ==
 		    BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_EMMC) {
