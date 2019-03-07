@@ -22,11 +22,11 @@
 
 	/*
 	 * This macro applies the mitigation for CVE-2018-3639.
-	 * It implements a fash path where `SMCCC_ARCH_WORKAROUND_2`
+	 * It implements a fast path where `SMCCC_ARCH_WORKAROUND_2`
 	 * SMC calls from a lower EL running in AArch32 or AArch64
 	 * will go through the fast and return early.
 	 *
-	 * The macro saves x2-x3 to the context.  In the fast path
+	 * The macro saves x2-x3 to the context. In the fast path
 	 * x0-x3 registers do not need to be restored as the calling
 	 * context will have saved them.
 	 */
@@ -63,7 +63,7 @@
 		 * When the calling context wants mitigation disabled,
 		 * we program the mitigation disable function in the
 		 * CPU context, which gets invoked on subsequent exits from
-		 * EL3 via the `el3_exit` function.  Otherwise NULL is
+		 * EL3 via the `el3_exit` function. Otherwise NULL is
 		 * programmed in the CPU context, which results in caller's
 		 * inheriting the EL3 mitigation state (enabled) on subsequent
 		 * `el3_exit`.
@@ -82,7 +82,7 @@
 	.endif
 1:
 	/*
-	 * Always enable v4 mitigation during EL3 execution.  This is not
+	 * Always enable v4 mitigation during EL3 execution. This is not
 	 * required for the fast path above because it does not perform any
 	 * memory loads.
 	 */
@@ -319,7 +319,7 @@ func cortex_a76_reset_func
 	/* If the PE implements SSBS, we don't need the dynamic workaround */
 	mrs	x0, id_aa64pfr1_el1
 	lsr	x0, x0, #ID_AA64PFR1_EL1_SSBS_SHIFT
-	and     x0, x0, #ID_AA64PFR1_EL1_SSBS_MASK
+	and	x0, x0, #ID_AA64PFR1_EL1_SSBS_MASK
 	cbnz	x0, 1f
 
 	mrs	x0, CORTEX_A76_CPUACTLR2_EL1
@@ -330,7 +330,7 @@ func cortex_a76_reset_func
 #ifdef IMAGE_BL31
 	/*
 	 * The Cortex-A76 generic vectors are overwritten to use the vectors
-	 * defined above.  This is required in order to apply mitigation
+	 * defined above. This is required in order to apply mitigation
 	 * against CVE-2018-3639 on exception entry from lower ELs.
 	 */
 	adr	x0, cortex_a76_wa_cve_2018_3639_a76_vbar
