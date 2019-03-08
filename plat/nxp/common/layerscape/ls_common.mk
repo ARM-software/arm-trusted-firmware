@@ -13,4 +13,10 @@ ifeq ($(ERRATA), yes)
 include ${PLAT_COMMON_PATH}/layerscape/errata.mk
 endif
 
+ifeq (${TRUSTED_BOARD_BOOT},1)
+ifeq ($(SECURE_BOOT),)
+SECURE_BOOT := yes
+endif
+endif
+
 include $(PLAT_TOOL_PATH)/create_pbl.mk

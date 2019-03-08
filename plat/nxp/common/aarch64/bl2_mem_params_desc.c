@@ -37,8 +37,14 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
 			VERSION_2, image_info_t, IMAGE_ATTRIB_PLAT_SETUP),
+#ifdef CSF_HEADER_PREPENDED
+		.image_info.image_base = BL31_BASE - CSF_HDR_SZ,
+		.image_info.image_max_size = (BL31_LIMIT - BL31_BASE) +
+								CSF_HDR_SZ,
+#else
 		.image_info.image_base = BL31_BASE,
 		.image_info.image_max_size = (BL31_LIMIT - BL31_BASE),
+#endif
 
 # ifdef NXP_LOAD_BL32
 		.next_handoff_image_id = BL32_IMAGE_ID,
@@ -57,8 +63,14 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
 				VERSION_2, image_info_t, 0),
+#ifdef CSF_HEADER_PREPENDED
+		.image_info.image_base = BL32_BASE - CSF_HDR_SZ,
+		.image_info.image_max_size = (BL32_LIMIT - BL32_BASE) +
+								CSF_HDR_SZ,
+#else
 		.image_info.image_base = BL32_BASE,
 		.image_info.image_max_size = (BL32_LIMIT - BL32_BASE),
+#endif
 		.next_handoff_image_id = BL33_IMAGE_ID,
 	},
 # endif /* BL32_BASE */
@@ -72,8 +84,14 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
 				VERSION_2, image_info_t, 0),
+#ifdef CSF_HEADER_PREPENDED
+		.image_info.image_base = BL33_BASE - CSF_HDR_SZ,
+		.image_info.image_max_size = (BL33_LIMIT - BL33_BASE) +
+								 CSF_HDR_SZ,
+#else
 		.image_info.image_base = BL33_BASE,
 		.image_info.image_max_size = BL33_LIMIT - BL33_BASE,
+#endif
 		.ep_info.spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,
 					DISABLE_ALL_EXCEPTIONS),
 

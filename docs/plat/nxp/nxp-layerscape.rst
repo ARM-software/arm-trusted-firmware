@@ -171,5 +171,7 @@ should be modified based on the binary size of the image to be copied.
        or
        => qixis reset qspi (For platforms with Qixis)
 
+For trusted boot, please refer to docs/plat/nxp-layerscape-tb.rst
+
 .. _ls1043ardb:https://www.nxp.com/support/developer-resources/software-development-tools/qoriq-developer-resources/qoriq-ls1043a-reference-design-board:LS1043A-RDB
 
