@@ -30,6 +30,9 @@
 #include "s10_handoff.h"
 #include "s10_pinmux.h"
 #include "aarch64/stratix10_private.h"
+#include "include/s10_mailbox.h"
+#include "drivers/qspi/cadence_qspi.h"
+
 
 const mmap_region_t plat_stratix10_mmap[] = {
 	MAP_REGION_FLAT(DRAM_BASE, DRAM_SIZE,
@@ -109,8 +112,18 @@ void bl2_el3_plat_arch_setup(void)
 	switch (boot_source) {
 	case BOOT_SOURCE_SDMMC:
 		dw_mmc_init(&params, &info);
-		stratix10_io_setup();
+		stratix10_io_setup(boot_source);
 		break;
+
+	case BOOT_SOURCE_QSPI:
+		mailbox_set_qspi_open();
+		mailbox_set_qspi_direct();
+		cad_qspi_init(0, QSPI_CONFIG_CPHA, QSPI_CONFIG_CPOL,
+			QSPI_CONFIG_CSDA, QSPI_CONFIG_CSDADS,
+			QSPI_CONFIG_CSEOT, QSPI_CONFIG_CSSOT, 0);
+		stratix10_io_setup(boot_source);
+		break;
+
 	default:
 		ERROR("Unsupported boot source\n");
 		panic();
