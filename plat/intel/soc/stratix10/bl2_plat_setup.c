@@ -104,6 +104,7 @@ void bl2_el3_plat_arch_setup(void)
 	dw_mmc_params_t params = EMMC_INIT_PARAMS(0x100000);
 
 	info.mmc_dev_type = MMC_IS_SD;
+	info.ocr_voltage = OCR_3_3_3_4 | OCR_3_2_3_3;
 
 	switch (boot_source) {
 	case BOOT_SOURCE_SDMMC:

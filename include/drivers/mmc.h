@@ -220,6 +220,7 @@ struct mmc_device_info {
 	unsigned long long	device_size;	/* Size of device in bytes */
 	unsigned int		block_size;	/* Block size in bytes */
 	unsigned int		max_bus_freq;	/* Max bus freq in Hz */
+	unsigned int		ocr_voltage;	/* OCR voltage */
 	enum mmc_device_type	mmc_dev_type;	/* Type of MMC */
 };
 
