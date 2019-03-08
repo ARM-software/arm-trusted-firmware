@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -31,7 +31,7 @@ do
 done
 
 awk  '{sub(/[:blank:]*#.*/,"")}
-!/^$/ && !/\\tpatch$/ !/\\treserved$/ {print $1*4, $2, $3}' "$@" |
+!/^$/ && $NF != "patch" && $NF != "reserved" {print $1*4, $2, $3}' "$@" |
 while read idx lib sym
 do
 	file=$build/${lib}_$sym
@@ -41,7 +41,7 @@ do
 $sym:
 	ldr	x17, =jmptbl
 	ldr	x17, [x17]
-	mov	x16, $idx
+	mov	x16, #$idx
 	add	x16, x16, x17
 	br	x16
 EOF

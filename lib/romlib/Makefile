@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -58,18 +58,15 @@ $(WRAPPER_DIR)/jmpvar.s: $(BUILD_DIR)/romlib.elf
 	@echo "  VAR     $@"
 	$(Q)./genvar.sh -o $@ $(BUILD_DIR)/romlib.elf
 
-$(LIB_DIR)/libwrappers.a: jmptbl.i $(WRAPPER_DIR)/jmpvar.o
+$(LIB_DIR)/libwrappers.a: $(BUILD_DIR)/jmptbl.i $(WRAPPER_DIR)/jmpvar.o
 	@echo "  AR      $@"
 	$(Q)./genwrappers.sh -b $(WRAPPER_DIR) -o $@ $(BUILD_DIR)/jmptbl.i
 
-$(BUILD_DIR)/jmptbl.s: jmptbl.i
+$(BUILD_DIR)/jmptbl.i: $(BUILD_DIR)/jmptbl.s
+
+$(BUILD_DIR)/jmptbl.s: ../../$(PLAT_DIR)/jmptbl.i
 	@echo "  TBL     $@"
-	if [ -e "../../$(PLAT_DIR)/jmptbl.i" ] ; \
-	then \
-		$(Q)./gentbl.sh -o $@ -b $(BUILD_DIR) ../../$(PLAT_DIR)/jmptbl.i; \
-	else \
-		@echo "USE_ROMLIB=1 requires jump table list file: jmptbl.i in platform directory"; \
-	fi
+	$(Q)./gentbl.sh -o $@ -b $(BUILD_DIR) ../../$(PLAT_DIR)/jmptbl.i
 
 clean:
 	@rm -f $(BUILD_DIR)/*
