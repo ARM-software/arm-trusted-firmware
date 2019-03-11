@@ -122,7 +122,7 @@ static const auth_img_desc_t trusted_boot_fw_cert = {
 	.img_id = TRUSTED_BOOT_FW_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = NULL,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_SIG,
 			.param.sig = {
@@ -140,7 +140,7 @@ static const auth_img_desc_t trusted_boot_fw_cert = {
 			}
 		}
 	},
-	.authenticated_data = {
+	.authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
 		[0] = {
 			.type_desc = &tb_fw_hash,
 			.data = {
@@ -169,7 +169,7 @@ static const auth_img_desc_t bl2_image = {
 	.img_id = BL2_IMAGE_ID,
 	.img_type = IMG_RAW,
 	.parent = &trusted_boot_fw_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -185,7 +185,7 @@ static const auth_img_desc_t hw_config = {
 	.img_id = HW_CONFIG_ID,
 	.img_type = IMG_RAW,
 	.parent = &trusted_boot_fw_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -201,7 +201,7 @@ static const auth_img_desc_t tb_fw_config = {
 	.img_id = TB_FW_CONFIG_ID,
 	.img_type = IMG_RAW,
 	.parent = &trusted_boot_fw_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -220,7 +220,7 @@ static const auth_img_desc_t trusted_key_cert = {
 	.img_id = TRUSTED_KEY_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = NULL,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_SIG,
 			.param.sig = {
@@ -238,7 +238,7 @@ static const auth_img_desc_t trusted_key_cert = {
 			}
 		}
 	},
-	.authenticated_data = {
+	.authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
 		[0] = {
 			.type_desc = &trusted_world_pk,
 			.data = {
@@ -262,7 +262,7 @@ static const auth_img_desc_t scp_fw_key_cert = {
 	.img_id = SCP_FW_KEY_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = &trusted_key_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_SIG,
 			.param.sig = {
@@ -280,7 +280,7 @@ static const auth_img_desc_t scp_fw_key_cert = {
 			}
 		}
 	},
-	.authenticated_data = {
+	.authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
 		[0] = {
 			.type_desc = &scp_fw_content_pk,
 			.data = {
@@ -294,7 +294,7 @@ static const auth_img_desc_t scp_fw_content_cert = {
 	.img_id = SCP_FW_CONTENT_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = &scp_fw_key_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_SIG,
 			.param.sig = {
@@ -312,7 +312,7 @@ static const auth_img_desc_t scp_fw_content_cert = {
 			}
 		}
 	},
-	.authenticated_data = {
+	.authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
 		[0] = {
 			.type_desc = &scp_fw_hash,
 			.data = {
@@ -326,7 +326,7 @@ static const auth_img_desc_t scp_bl2_image = {
 	.img_id = SCP_BL2_IMAGE_ID,
 	.img_type = IMG_RAW,
 	.parent = &scp_fw_content_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -343,7 +343,7 @@ static const auth_img_desc_t soc_fw_key_cert = {
 	.img_id = SOC_FW_KEY_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = &trusted_key_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_SIG,
 			.param.sig = {
@@ -361,7 +361,7 @@ static const auth_img_desc_t soc_fw_key_cert = {
 			}
 		}
 	},
-	.authenticated_data = {
+	.authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
 		[0] = {
 			.type_desc = &soc_fw_content_pk,
 			.data = {
@@ -375,7 +375,7 @@ static const auth_img_desc_t soc_fw_content_cert = {
 	.img_id = SOC_FW_CONTENT_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = &soc_fw_key_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_SIG,
 			.param.sig = {
@@ -393,7 +393,7 @@ static const auth_img_desc_t soc_fw_content_cert = {
 			}
 		}
 	},
-	.authenticated_data = {
+	.authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
 		[0] = {
 			.type_desc = &soc_fw_hash,
 			.data = {
@@ -414,7 +414,7 @@ static const auth_img_desc_t bl31_image = {
 	.img_id = BL31_IMAGE_ID,
 	.img_type = IMG_RAW,
 	.parent = &soc_fw_content_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -429,7 +429,7 @@ static const auth_img_desc_t soc_fw_config = {
 	.img_id = SOC_FW_CONFIG_ID,
 	.img_type = IMG_RAW,
 	.parent = &soc_fw_content_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -446,7 +446,7 @@ static const auth_img_desc_t trusted_os_fw_key_cert = {
 	.img_id = TRUSTED_OS_FW_KEY_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = &trusted_key_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_SIG,
 			.param.sig = {
@@ -464,7 +464,7 @@ static const auth_img_desc_t trusted_os_fw_key_cert = {
 			}
 		}
 	},
-	.authenticated_data = {
+	.authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
 		[0] = {
 			.type_desc = &tos_fw_content_pk,
 			.data = {
@@ -478,7 +478,7 @@ static const auth_img_desc_t trusted_os_fw_content_cert = {
 	.img_id = TRUSTED_OS_FW_CONTENT_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = &trusted_os_fw_key_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_SIG,
 			.param.sig = {
@@ -496,7 +496,7 @@ static const auth_img_desc_t trusted_os_fw_content_cert = {
 			}
 		}
 	},
-	.authenticated_data = {
+	.authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
 		[0] = {
 			.type_desc = &tos_fw_hash,
 			.data = {
@@ -531,7 +531,7 @@ static const auth_img_desc_t bl32_image = {
 	.img_id = BL32_IMAGE_ID,
 	.img_type = IMG_RAW,
 	.parent = &trusted_os_fw_content_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -545,7 +545,7 @@ static const auth_img_desc_t bl32_extra1_image = {
 	.img_id = BL32_EXTRA1_IMAGE_ID,
 	.img_type = IMG_RAW,
 	.parent = &trusted_os_fw_content_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -559,7 +559,7 @@ static const auth_img_desc_t bl32_extra2_image = {
 	.img_id = BL32_EXTRA2_IMAGE_ID,
 	.img_type = IMG_RAW,
 	.parent = &trusted_os_fw_content_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -574,7 +574,7 @@ static const auth_img_desc_t tos_fw_config = {
 	.img_id = TOS_FW_CONFIG_ID,
 	.img_type = IMG_RAW,
 	.parent = &trusted_os_fw_content_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -591,7 +591,7 @@ static const auth_img_desc_t non_trusted_fw_key_cert = {
 	.img_id = NON_TRUSTED_FW_KEY_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = &trusted_key_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_SIG,
 			.param.sig = {
@@ -609,7 +609,7 @@ static const auth_img_desc_t non_trusted_fw_key_cert = {
 			}
 		}
 	},
-	.authenticated_data = {
+	.authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
 		[0] = {
 			.type_desc = &nt_fw_content_pk,
 			.data = {
@@ -623,7 +623,7 @@ static const auth_img_desc_t non_trusted_fw_content_cert = {
 	.img_id = NON_TRUSTED_FW_CONTENT_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = &non_trusted_fw_key_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_SIG,
 			.param.sig = {
@@ -641,7 +641,7 @@ static const auth_img_desc_t non_trusted_fw_content_cert = {
 			}
 		}
 	},
-	.authenticated_data = {
+	.authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
 		[0] = {
 			.type_desc = &nt_world_bl_hash,
 			.data = {
@@ -662,7 +662,7 @@ static const auth_img_desc_t bl33_image = {
 	.img_id = BL33_IMAGE_ID,
 	.img_type = IMG_RAW,
 	.parent = &non_trusted_fw_content_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -677,7 +677,7 @@ static const auth_img_desc_t nt_fw_config = {
 	.img_id = NT_FW_CONFIG_ID,
 	.img_type = IMG_RAW,
 	.parent = &non_trusted_fw_content_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -695,7 +695,7 @@ static const auth_img_desc_t fwu_cert = {
 	.img_id = FWU_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = NULL,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_SIG,
 			.param.sig = {
@@ -706,7 +706,7 @@ static const auth_img_desc_t fwu_cert = {
 			}
 		}
 	},
-	.authenticated_data = {
+	.authenticated_data = (const auth_param_desc_t[COT_MAX_VERIFIED_PARAMS]) {
 		[0] = {
 			.type_desc = &scp_bl2u_hash,
 			.data = {
@@ -737,7 +737,7 @@ static const auth_img_desc_t scp_bl2u_image = {
 	.img_id = SCP_BL2U_IMAGE_ID,
 	.img_type = IMG_RAW,
 	.parent = &fwu_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -754,7 +754,7 @@ static const auth_img_desc_t bl2u_image = {
 	.img_id = BL2U_IMAGE_ID,
 	.img_type = IMG_RAW,
 	.parent = &fwu_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {
@@ -771,7 +771,7 @@ static const auth_img_desc_t ns_bl2u_image = {
 	.img_id = NS_BL2U_IMAGE_ID,
 	.img_type = IMG_RAW,
 	.parent = &fwu_cert,
-	.img_auth_methods = {
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
 		[0] = {
 			.type = AUTH_METHOD_HASH,
 			.param.hash = {

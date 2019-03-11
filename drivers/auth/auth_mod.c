@@ -53,6 +53,9 @@ static int auth_get_param(const auth_param_type_desc_t *param_type_desc,
 {
 	int i;
 
+	if (img_desc->authenticated_data == NULL)
+		return 1;
+
 	for (i = 0 ; i < COT_MAX_VERIFIED_PARAMS ; i++) {
 		if (0 == cmp_auth_param_type_desc(param_type_desc,
 				img_desc->authenticated_data[i].type_desc)) {
@@ -361,6 +364,8 @@ int auth_mod_verify_img(unsigned int img_id,
 
 	/* Authenticate the image using the methods indicated in the image
 	 * descriptor. */
+	if(img_desc->img_auth_methods == NULL)
+		return 1;
 	for (i = 0 ; i < AUTH_METHOD_NUM ; i++) {
 		auth_method = &img_desc->img_auth_methods[i];
 		switch (auth_method->type) {
@@ -389,25 +394,27 @@ int auth_mod_verify_img(unsigned int img_id,
 
 	/* Extract the parameters indicated in the image descriptor to
 	 * authenticate the children images. */
-	for (i = 0 ; i < COT_MAX_VERIFIED_PARAMS ; i++) {
-		if (img_desc->authenticated_data[i].type_desc == NULL) {
-			continue;
+	if (img_desc->authenticated_data != NULL) {
+		for (i = 0 ; i < COT_MAX_VERIFIED_PARAMS ; i++) {
+			if (img_desc->authenticated_data[i].type_desc == NULL) {
+				continue;
+			}
+
+			/* Get the parameter from the image parser module */
+			rc = img_parser_get_auth_param(img_desc->img_type,
+					img_desc->authenticated_data[i].type_desc,
+					img_ptr, img_len, &param_ptr, &param_len);
+			return_if_error(rc);
+
+			/* Check parameter size */
+			if (param_len > img_desc->authenticated_data[i].data.len) {
+				return 1;
+			}
+
+			/* Copy the parameter for later use */
+			memcpy((void *)img_desc->authenticated_data[i].data.ptr,
+					(void *)param_ptr, param_len);
 		}
-
-		/* Get the parameter from the image parser module */
-		rc = img_parser_get_auth_param(img_desc->img_type,
-				img_desc->authenticated_data[i].type_desc,
-				img_ptr, img_len, &param_ptr, &param_len);
-		return_if_error(rc);
-
-		/* Check parameter size */
-		if (param_len > img_desc->authenticated_data[i].data.len) {
-			return 1;
-		}
-
-		/* Copy the parameter for later use */
-		memcpy((void *)img_desc->authenticated_data[i].data.ptr,
-				(void *)param_ptr, param_len);
 	}
 
 	/* Mark image as authenticated */
