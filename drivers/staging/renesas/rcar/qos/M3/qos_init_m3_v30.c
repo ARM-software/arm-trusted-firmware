@@ -12,7 +12,7 @@
 #include "../qos_reg.h"
 #include "qos_init_m3_v30.h"
 
-#define	RCAR_QOS_VERSION		"rev.0.1"
+#define	RCAR_QOS_VERSION		"rev.0.02"
 
 #define QOSCTRL_EARLYR			(QOS_BASE1 + 0x0060U)
 #define QOSCTRL_FSS			(QOS_BASE1 + 0x0048U)
