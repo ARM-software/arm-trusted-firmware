@@ -265,7 +265,7 @@ $(eval $(call add_define,RCAR_REF_INT))
 
 # Process RCAR_REWT_TRAINING flag
 ifndef RCAR_REWT_TRAINING
-RCAR_REWT_TRAINING := 0
+RCAR_REWT_TRAINING := 1
 endif
 $(eval $(call add_define,RCAR_REWT_TRAINING))
 
