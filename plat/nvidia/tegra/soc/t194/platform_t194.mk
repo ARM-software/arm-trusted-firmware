@@ -24,12 +24,6 @@ COLD_BOOT_SINGLE_CPU			:= 1
 TZDRAM_BASE				:= 0x40000000
 $(eval $(call add_define,TZDRAM_BASE))
 
-PLATFORM_CLUSTER_COUNT			:= 4
-$(eval $(call add_define,PLATFORM_CLUSTER_COUNT))
-
-PLATFORM_MAX_CPUS_PER_CLUSTER		:= 2
-$(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
-
 MAX_XLAT_TABLES				:= 25
 $(eval $(call add_define,MAX_XLAT_TABLES))
 

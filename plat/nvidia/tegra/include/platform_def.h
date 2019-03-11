@@ -47,7 +47,7 @@
 #define PLATFORM_CORE_COUNT		(PLATFORM_CLUSTER_COUNT * \
 					 PLATFORM_MAX_CPUS_PER_CLUSTER)
 #define PLAT_NUM_PWR_DOMAINS		(PLATFORM_CORE_COUNT + \
-					 PLATFORM_CLUSTER_COUNT + 1)
+					 PLATFORM_CLUSTER_COUNT + U(1))
 
 /*******************************************************************************
  * Platform console related constants
