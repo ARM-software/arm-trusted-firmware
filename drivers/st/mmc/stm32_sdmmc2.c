@@ -723,6 +723,7 @@ int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params)
 	mdelay(1);
 
 	sdmmc2_params.clk_rate = stm32mp_clk_get_rate(sdmmc2_params.clock_id);
+	sdmmc2_params.device_info->ocr_voltage = OCR_3_2_3_3 | OCR_3_3_3_4;
 
 	return mmc_init(&stm32_sdmmc2_ops, sdmmc2_params.clk_rate,
 			sdmmc2_params.bus_width, sdmmc2_params.flags,
