@@ -74,11 +74,10 @@ func bl2_run_next_image
 
 	/*
 	 * Extract PC and SPSR based on struct `entry_point_info_t`
-	 * and load it in LR and SPSR registers respectively.
+	 * and load it in to the LR.
 	 */
 	ldr	lr, [r8, #ENTRY_POINT_INFO_PC_OFFSET]
-	ldr	r1, [r8, #(ENTRY_POINT_INFO_PC_OFFSET + 4)]
-	msr	spsr, r1
+	ldr	r4, [r8, #(ENTRY_POINT_INFO_PC_OFFSET + 4)]
 
 	/* Some BL32 stages expect lr_svc to provide the BL33 entry address */
 	cps	#MODE32_svc
@@ -87,5 +86,7 @@ func bl2_run_next_image
 
 	add	r8, r8, #ENTRY_POINT_INFO_ARGS_OFFSET
 	ldm	r8, {r0, r1, r2, r3}
+	/* Load CPSR with target mode prior to eret */
+	msr	cpsr, r4
 	eret
 endfunc bl2_run_next_image
