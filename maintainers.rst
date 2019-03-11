@@ -125,12 +125,14 @@ NVidia platform ports
 :F: lib/cpus/aarch64/denver.S
 :F: plat/nvidia/
 
-NXP QorIQ Layerscape platform ports
------------------------------------
-:M: Jiafei Pan <jiafei.pan@nxp.com>
-:G: `qoriq-open-source`_
-:F: docs/plat/ls1043a.rst
-:F: plat/layerscape/
+NXP QorIQ Layerscape platform ports and SoC drivers
+---------------------------------------------------
+:M: Ruchika Gupta <ruchika.gupta@nxp.com> 
+:G: `ruchi393`_
+:F: docs/plat/nxp/
+:F: plat/nxp/
+:F: drivers/nxp/
+:F: tools/nxp/
 
 NXP i.MX 7 WaRP7 platform port and SoC drivers
 ----------------------------------------------
@@ -271,7 +273,7 @@ Xilinx platform port
 .. _masahir0y: https://github.com/masahir0y
 .. _mtk09422: https://github.com/mtk09422
 .. _npoushin: https://github.com/npoushin
-.. _qoriq-open-source: https://github.com/qoriq-open-source
+.. _ruchi393: https://github.com/ruchi393
 .. _rockchip-linux: https://github.com/rockchip-linux
 .. _shawnguo2: https://github.com/shawnguo2
 .. _sivadur: https://github.com/sivadur
