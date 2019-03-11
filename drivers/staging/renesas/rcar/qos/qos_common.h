@@ -34,9 +34,9 @@
 #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3N)
 /* define used for M3N */
 #if (RCAR_REF_INT == RCAR_REF_DEFAULT)	/* REF 1.95usec */
-#define SUB_SLOT_CYCLE_M3N		(0x84U)	/* 132 */
+#define SUB_SLOT_CYCLE_M3N		(0x7EU)	/* 126 */
 #else /* REF 3.9usec */
-#define SUB_SLOT_CYCLE_M3N		(0x108U)	/* 264 */
+#define SUB_SLOT_CYCLE_M3N		(0xFCU)	/* 252 */
 #endif /* (RCAR_REF_INT == RCAR_REF_DEFAULT) */
 
 #define SL_INIT_SSLOTCLK_M3N		(SUB_SLOT_CYCLE_M3N -1U)
@@ -46,9 +46,9 @@
 #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_H3)
 /* define used for H3 */
 #if (RCAR_REF_INT == RCAR_REF_DEFAULT)	/* REF 1.95usec */
-#define SUB_SLOT_CYCLE_H3_20		(0x84U)	/* 132 */
+#define SUB_SLOT_CYCLE_H3_20		(0x7EU)	/* 126 */
 #else /* REF 3.9usec */
-#define SUB_SLOT_CYCLE_H3_20		(0x108U)	/* 264 */
+#define SUB_SLOT_CYCLE_H3_20		(0xFCU)	/* 252 */
 #endif /* (RCAR_REF_INT == RCAR_REF_DEFAULT) */
 
 #define SL_INIT_SSLOTCLK_H3_20		(SUB_SLOT_CYCLE_H3_20 -1U)
@@ -64,9 +64,9 @@
 #if (RCAR_LSI == RCAR_H3N)
 /* define used for H3N */
 #if (RCAR_REF_INT == RCAR_REF_DEFAULT)	/* REF 1.95usec */
-#define SUB_SLOT_CYCLE_H3N		(0x84U)	/* 132 */
+#define SUB_SLOT_CYCLE_H3N		(0x7EU)	/* 126 */
 #else /* REF 3.9usec */
-#define SUB_SLOT_CYCLE_H3N		(0x108U)	/* 264 */
+#define SUB_SLOT_CYCLE_H3N		(0xFCU)	/* 252 */
 #endif /* (RCAR_REF_INT == RCAR_REF_DEFAULT) */
 
 #define SL_INIT_SSLOTCLK_H3N		(SUB_SLOT_CYCLE_H3N -1U)
@@ -77,11 +77,11 @@
 #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3)
 /* define used for M3 */
 #if (RCAR_REF_INT == RCAR_REF_DEFAULT)	/* REF 1.95usec */
-#define SUB_SLOT_CYCLE_M3_11		(0x84U)	/* 132 */
-#define SUB_SLOT_CYCLE_M3_30		(0x84U)	/* 132 */
+#define SUB_SLOT_CYCLE_M3_11		(0x7EU)	/* 126 */
+#define SUB_SLOT_CYCLE_M3_30		(0x7EU)	/* 126 */
 #else /* REF 3.9usec */
-#define SUB_SLOT_CYCLE_M3_11		(0x108U)	/* 264 */
-#define SUB_SLOT_CYCLE_M3_30		(0x108U)	/* 264 */
+#define SUB_SLOT_CYCLE_M3_11		(0xFCU)	/* 252 */
+#define SUB_SLOT_CYCLE_M3_30		(0xFCU)	/* 252 */
 #endif /* (RCAR_REF_INT == RCAR_REF_DEFAULT) */
 
 #define SL_INIT_SSLOTCLK_M3_11		(SUB_SLOT_CYCLE_M3_11 -1U)
