@@ -264,6 +264,19 @@ func tsp_cpu_on_entry
 	bl	bl32_plat_enable_mmu
 
 	/* ---------------------------------------------
+	 * Load APIAKey and enable pointer authentication
+	 * ---------------------------------------------
+	 */
+#if ENABLE_PAUTH
+	bl	pauth_load_bl_apiakey
+
+	mrs	x0, sctlr_el1
+	orr	x0, x0, #SCTLR_EnIA_BIT
+	msr	sctlr_el1, x0
+	isb
+#endif /* ENABLE_PAUTH */
+
+	/* ---------------------------------------------
 	 * Enter C runtime to perform any remaining
 	 * book keeping
 	 * ---------------------------------------------

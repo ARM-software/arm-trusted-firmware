@@ -19,6 +19,9 @@ BL1_SOURCES		+=	bl1/bl1_main.c				\
 ifeq (${ARCH},aarch64)
 BL1_SOURCES		+=	lib/cpus/aarch64/dsu_helpers.S		\
 				lib/el3_runtime/aarch64/context.S
+ifeq (${ENABLE_PAUTH}, 1)
+BL1_SOURCES		+=	lib/aarch64/pauth_helpers.S
+endif
 endif
 
 ifeq (${ENABLE_PAUTH},1)

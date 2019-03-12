@@ -18,9 +18,6 @@
 	.global	pauth_context_restore
 	.global	pauth_context_save
 #endif
-#if ENABLE_PAUTH
-	.global	pauth_load_bl_apiakey
-#endif
 	.global	save_gp_registers
 	.global	restore_gp_registers
 	.global	restore_gp_registers_eret
@@ -375,26 +372,6 @@ func pauth_context_restore
 	ret
 endfunc pauth_context_restore
 #endif /* CTX_INCLUDE_PAUTH_REGS */
-
-/* -----------------------------------------------------
- * The following function strictly follows the AArch64
- * PCS to use x9-x17 (temporary caller-saved registers)
- * to load the APIA key used by the firmware.
- * -----------------------------------------------------
- */
-#if ENABLE_PAUTH
-func pauth_load_bl_apiakey
-	/* Load instruction key A used by the Trusted Firmware. */
-	adrp	x11, plat_apiakey
-	add	x11, x11, :lo12:plat_apiakey
-	ldp	x9, x10, [x11, #0]
-
-	msr	APIAKeyLo_EL1, x9
-	msr	APIAKeyHi_EL1, x10
-
-	ret
-endfunc pauth_load_bl_apiakey
-#endif /* ENABLE_PAUTH */
 
 /* -----------------------------------------------------
  * The following functions are used to save and restore

@@ -22,6 +22,9 @@ PSCI_LIB_SOURCES	:=	lib/el3_runtime/cpu_data_array.c	\
 
 ifeq (${ARCH}, aarch64)
 PSCI_LIB_SOURCES	+=	lib/el3_runtime/aarch64/context.S
+ifeq (${ENABLE_PAUTH}, 1)
+PSCI_LIB_SOURCES	+=	lib/aarch64/pauth_helpers.S
+endif
 endif
 
 ifeq (${USE_COHERENT_MEM}, 1)

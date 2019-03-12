@@ -15,6 +15,10 @@ BL32_SOURCES		+=	bl32/tsp/tsp_main.c			\
 				common/aarch64/early_exceptions.S	\
 				lib/locks/exclusive/aarch64/spinlock.S
 
+ifeq (${ENABLE_PAUTH}, 1)
+BL32_SOURCES		+=	lib/aarch64/pauth_helpers.S
+endif
+
 BL32_LINKERFILE		:=	bl32/tsp/tsp.ld.S
 
 # This flag determines whether pointer authentication is used in the TSP or not
