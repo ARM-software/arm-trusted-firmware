@@ -255,7 +255,7 @@ Feedback and support
 
 Arm welcomes any feedback on TF-A. If you think you have found a security
 vulnerability, please report this using the process defined in the TF-A
-`Security Centre`_. For all other feedback, please use the
+`Security Center`_. For all other feedback, please use the
 `GitHub issue tracker`_.
 
 Arm licensees may contact Arm directly via their partner managers.
