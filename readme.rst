@@ -263,14 +263,14 @@ Arm licensees may contact Arm directly via their partner managers.
 Security advisories
 ~~~~~~~~~~~~~~~~~~~
 
-`Security Advisory TFV-1`_
-`Security Advisory TFV-2`_
-`Security Advisory TFV-3`_
-`Security Advisory TFV-4`_
-`Security Advisory TFV-5`_
-`Security Advisory TFV-6`_
-`Security Advisory TFV-7`_
-`Security Advisory TFV-8`_
+-  `Security Advisory TFV-1`_
+-  `Security Advisory TFV-2`_
+-  `Security Advisory TFV-3`_
+-  `Security Advisory TFV-4`_
+-  `Security Advisory TFV-5`_
+-  `Security Advisory TFV-6`_
+-  `Security Advisory TFV-7`_
+-  `Security Advisory TFV-8`_
 
 
 --------------
