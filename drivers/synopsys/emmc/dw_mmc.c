@@ -243,6 +243,11 @@ static int dw_send_cmd(struct mmc_cmd *cmd)
 		op = CMD_WAIT_PRVDATA_COMPLETE;
 		break;
 	case 8:
+		if (dw_params.mmc_dev_type == MMC_IS_EMMC)
+			op = CMD_DATA_TRANS_EXPECT | CMD_WAIT_PRVDATA_COMPLETE;
+		else
+			op = CMD_WAIT_PRVDATA_COMPLETE;
+		break;
 	case 17:
 	case 18:
 		op = CMD_DATA_TRANS_EXPECT | CMD_WAIT_PRVDATA_COMPLETE;
@@ -251,6 +256,9 @@ static int dw_send_cmd(struct mmc_cmd *cmd)
 	case 25:
 		op = CMD_WRITE | CMD_DATA_TRANS_EXPECT |
 		     CMD_WAIT_PRVDATA_COMPLETE;
+		break;
+	case 51:
+		op = CMD_DATA_TRANS_EXPECT;
 		break;
 	default:
 		op = 0;
@@ -337,7 +345,6 @@ static int dw_prepare(int lba, uintptr_t buf, size_t size)
 	uintptr_t base;
 
 	assert(((buf & DWMMC_ADDRESS_MASK) == 0) &&
-	       ((size % MMC_BLOCK_SIZE) == 0) &&
 	       (dw_params.desc_size > 0) &&
 	       ((dw_params.reg_base & MMC_BLOCK_MASK) == 0) &&
 	       ((dw_params.desc_base & MMC_BLOCK_MASK) == 0) &&
@@ -352,6 +359,12 @@ static int dw_prepare(int lba, uintptr_t buf, size_t size)
 	base = dw_params.reg_base;
 	desc = (struct dw_idmac_desc *)dw_params.desc_base;
 	mmio_write_32(base + DWMMC_BYTCNT, size);
+
+	if (size < MMC_BLOCK_SIZE)
+		mmio_write_32(base + DWMMC_BLKSIZ, size);
+	else
+		mmio_write_32(base + DWMMC_BLKSIZ, MMC_BLOCK_SIZE);
+
 	mmio_write_32(base + DWMMC_RINTSTS, ~0);
 	for (i = 0; i < desc_cnt; i++) {
 		desc[i].des0 = IDMAC_DES0_OWN | IDMAC_DES0_CH | IDMAC_DES0_DIC;
@@ -375,11 +388,22 @@ static int dw_prepare(int lba, uintptr_t buf, size_t size)
 	flush_dcache_range(dw_params.desc_base,
 			   desc_cnt * DWMMC_DMA_MAX_BUFFER_SIZE);
 
+
 	return 0;
 }
 
 static int dw_read(int lba, uintptr_t buf, size_t size)
 {
+	uint32_t data = 0;
+	int timeout = TIMEOUT;
+
+	do {
+		data = mmio_read_32(dw_params.reg_base + DWMMC_RINTSTS);
+		udelay(50);
+	} while (!(data & INT_DTO) && timeout-- > 0);
+
+	inv_dcache_range(buf, size);
+
 	return 0;
 }
 
@@ -401,6 +425,9 @@ void dw_mmc_init(dw_mmc_params_t *params, struct mmc_device_info *info)
 		(params->bus_width == MMC_BUS_WIDTH_8)));
 
 	memcpy(&dw_params, params, sizeof(dw_mmc_params_t));
+	mmio_write_32(dw_params.reg_base + DWMMC_FIFOTH, 0x103ff);
 	mmc_init(&dw_mmc_ops, params->clk_rate, params->bus_width,
 		 params->flags, info);
+
+	dw_params.mmc_dev_type = info->mmc_dev_type;
 }
