@@ -222,6 +222,7 @@
 
 /* MHU related constants */
 #define PLAT_CSS_MHU_BASE		UL(0x2b1f0000)
+#define PLAT_MHUV2_BASE			PLAT_CSS_MHU_BASE
 
 /*
  * Base address of the first memory region used for communication between AP

@@ -16,6 +16,16 @@
 #define PLATFORM_CORE_COUNT		(PLAT_CLUSTER_COUNT *	\
 					 PLAT_MAX_CORES_PER_CLUSTER)
 
+/* Macros to read the SQ power domain state */
+#define SQ_PWR_LVL0		MPIDR_AFFLVL0
+#define SQ_PWR_LVL1		MPIDR_AFFLVL1
+#define SQ_PWR_LVL2		MPIDR_AFFLVL2
+
+#define SQ_CORE_PWR_STATE(state)	(state)->pwr_domain_state[SQ_PWR_LVL0]
+#define SQ_CLUSTER_PWR_STATE(state)	(state)->pwr_domain_state[SQ_PWR_LVL1]
+#define SQ_SYSTEM_PWR_STATE(state)	((PLAT_MAX_PWR_LVL > SQ_PWR_LVL1) ?\
+				(state)->pwr_domain_state[SQ_PWR_LVL2] : 0)
+
 #define PLAT_MAX_PWR_LVL		U(1)
 #define PLAT_MAX_RET_STATE		U(1)
 #define PLAT_MAX_OFF_STATE		U(2)
@@ -70,6 +80,7 @@
 #define DRAMINFO_BASE			0x2E00FFC0
 
 #define PLAT_SQ_MHU_BASE		0x45000000
+#define PLAT_MHUV2_BASE			0xFFFFFFFF /* MHUV2 is not supported */
 
 #define PLAT_SQ_SCP_COM_SHARED_MEM_BASE		0x45400000
 #define SCPI_CMD_GET_DRAMINFO			0x1

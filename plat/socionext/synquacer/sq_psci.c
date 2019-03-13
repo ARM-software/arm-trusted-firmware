@@ -19,26 +19,20 @@
 #include <sq_common.h>
 #include "sq_scpi.h"
 
-/* Macros to read the SQ power domain state */
-#define SQ_PWR_LVL0	MPIDR_AFFLVL0
-#define SQ_PWR_LVL1	MPIDR_AFFLVL1
-#define SQ_PWR_LVL2	MPIDR_AFFLVL2
-
-#define SQ_CORE_PWR_STATE(state)	(state)->pwr_domain_state[SQ_PWR_LVL0]
-#define SQ_CLUSTER_PWR_STATE(state)	(state)->pwr_domain_state[SQ_PWR_LVL1]
-#define SQ_SYSTEM_PWR_STATE(state)	((PLAT_MAX_PWR_LVL > SQ_PWR_LVL1) ?\
-				(state)->pwr_domain_state[SQ_PWR_LVL2] : 0)
-
 uintptr_t sq_sec_entrypoint;
 
 int sq_pwr_domain_on(u_register_t mpidr)
 {
+#if SQ_USE_SCMI_DRIVER
+	sq_scmi_on(mpidr);
+#else
 	/*
 	 * SCP takes care of powering up parent power domains so we
 	 * only need to care about level 0
 	 */
 	scpi_set_sq_power_state(mpidr, scpi_power_on, scpi_power_on,
 				 scpi_power_on);
+#endif
 
 	return PSCI_E_SUCCESS;
 }
@@ -70,6 +64,7 @@ void sq_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	sq_gic_cpuif_enable();
 }
 
+#if !SQ_USE_SCMI_DRIVER
 static void sq_power_down_common(const psci_power_state_t *target_state)
 {
 	uint32_t cluster_state = scpi_power_on;
@@ -97,10 +92,15 @@ static void sq_power_down_common(const psci_power_state_t *target_state)
 				 cluster_state,
 				 system_state);
 }
+#endif
 
 void sq_pwr_domain_off(const psci_power_state_t *target_state)
 {
+#if SQ_USE_SCMI_DRIVER
+	sq_scmi_off(target_state);
+#else
 	sq_power_down_common(target_state);
+#endif
 }
 
 void __dead2 sq_system_off(void)
@@ -135,6 +135,9 @@ void __dead2 sq_system_off(void)
 
 void __dead2 sq_system_reset(void)
 {
+#if SQ_USE_SCMI_DRIVER
+	sq_scmi_sys_reboot();
+#else
 	uint32_t response;
 
 	/* Send the system reset request to the SCP */
@@ -147,6 +150,7 @@ void __dead2 sq_system_reset(void)
 	wfi();
 	ERROR("SQ System Reset: operation not handled.\n");
 	panic();
+#endif
 }
 
 void sq_cpu_standby(plat_local_state_t cpu_state)

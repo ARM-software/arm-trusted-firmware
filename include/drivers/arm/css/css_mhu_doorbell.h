@@ -12,7 +12,7 @@
 #include <lib/mmio.h>
 
 /* MHUv2 Base Address */
-#define MHUV2_BASE_ADDR		PLAT_CSS_MHU_BASE
+#define MHUV2_BASE_ADDR		PLAT_MHUV2_BASE
 
 /* MHUv2 Control Registers Offsets */
 #define MHU_V2_MSG_NO_CAP_OFFSET		0xF80

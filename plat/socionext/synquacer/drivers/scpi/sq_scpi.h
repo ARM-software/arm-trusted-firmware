@@ -78,5 +78,6 @@ extern void scpi_set_sq_power_state(unsigned int mpidr,
 					scpi_power_state_t cluster_state,
 					scpi_power_state_t css_state);
 uint32_t scpi_sys_power_state(scpi_system_state_t system_state);
+uint32_t scpi_get_draminfo(struct draminfo *info);
 
 #endif /* SQ_SCPI_H */
