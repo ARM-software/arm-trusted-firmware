@@ -292,7 +292,7 @@ of the size of an array is the same.
 If ``MY_STRUCT_SIZE`` in the above example were wrong then the compiler would
 emit an error like this:
 
-.. code:: c
+::
 
   my_struct.h:10:1: error: size of array ‘assert_my_struct_size_mismatch’ is negative
 

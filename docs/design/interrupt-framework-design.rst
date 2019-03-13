@@ -48,7 +48,7 @@ the exception level(s) it is handled in.
 The following constants define the various interrupt types in the framework
 implementation.
 
-::
+.. code:: c
 
     #define INTR_TYPE_S_EL1      0
     #define INTR_TYPE_EL3        1

@@ -408,7 +408,7 @@ An IPL must provide functions with the following prototypes:
 
 An IPL for each type must be registered using the following macro:
 
-::
+.. code:: c
 
     REGISTER_IMG_PARSER_LIB(_type, _name, _init, _check_int, _get_param)
 

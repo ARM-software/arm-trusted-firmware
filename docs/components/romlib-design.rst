@@ -106,7 +106,7 @@ The environment variable ``CROSS_COMPILE`` must be set as per the user guide.
 In the below example the usage of ROMLIB together with mbed TLS is demonstrated
 to showcase the benefits of library at ROM - it's not mandatory.
 
-::
+.. code:: shell
 
     make PLAT=fvp                                                   \
     MBEDTLS_DIR=</path/to/mbedtls/>                                 \

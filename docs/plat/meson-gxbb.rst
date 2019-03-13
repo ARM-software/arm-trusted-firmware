@@ -15,7 +15,7 @@ and Linux:
 
 In order to build it:
 
-::
+.. code:: shell
 
     CROSS_COMPILE=aarch64-linux-gnu- make DEBUG=1 PLAT=gxbb bl31
 

@@ -92,7 +92,7 @@ A runtime service is registered using the ``DECLARE_RT_SVC()`` macro, specifying
 the name of the service, the range of OENs covered, the type of service and
 initialization and call handler functions.
 
-::
+.. code:: c
 
     #define DECLARE_RT_SVC(_name, _start, _end, _type, _setup, _smch)
 

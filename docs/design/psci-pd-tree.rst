@@ -109,7 +109,7 @@ separately.
 
 This tree is defined by the platform as the array described above as follows:
 
-::
+.. code:: c
 
         #define PLAT_NUM_POWER_DOMAINS       20
         #define PLATFORM_CORE_COUNT          13
@@ -219,7 +219,7 @@ to represent leaf and non-leaf power domain nodes in the tree.
 The power domain tree is implemented as a combination of the following data
 structures.
 
-::
+.. code:: c
 
     non_cpu_pd_node_t psci_non_cpu_pd_nodes[PSCI_NUM_NON_CPU_PWR_DOMAINS];
     cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];

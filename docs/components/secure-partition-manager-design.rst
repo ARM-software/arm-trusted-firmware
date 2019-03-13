@@ -130,7 +130,7 @@ First, build the Standalone MM Secure Partition. To build it, refer to the
 Then build TF-A with SPM support and include the Standalone MM Secure Partition
 image in the FIP:
 
-::
+.. code:: shell
 
     BL32=path/to/standalone/mm/sp BL33=path/to/bl33.bin \
     make PLAT=fvp ENABLE_SPM=1 ARM_BL31_IN_DRAM=1 fip all

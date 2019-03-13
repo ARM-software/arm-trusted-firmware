@@ -224,7 +224,7 @@ activity, such as receiving a Secure interrupt or an exception.
 The SDEI dispatcher implementation provides ``sdei_dispatch_event()`` API for
 this purpose. The API has the following signature:
 
-::
+.. code:: c
 
         int sdei_dispatch_event(int ev_num);
 

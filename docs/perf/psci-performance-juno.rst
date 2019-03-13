@@ -28,7 +28,7 @@ levels 0, 1 and 2 respectively. It does not support any retention states.
 We used the upstream `TF master as of 31/01/2017`_, building the platform using
 the ``ENABLE_RUNTIME_INSTRUMENTATION`` option:
 
-::
+.. code:: shell
 
     make PLAT=juno ENABLE_RUNTIME_INSTRUMENTATION=1 \
         SCP_BL2=<path/to/scp-fw.bin>                \

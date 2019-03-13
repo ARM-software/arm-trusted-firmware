@@ -2304,7 +2304,7 @@ result in build error. Subscribing to an undefined event however won't.
 Subscribed handlers must be of type ``pubsub_cb_t``, with following function
 signature:
 
-::
+.. code:: c
 
    typedef void* (*pubsub_cb_t)(const void *arg);
 
@@ -2331,7 +2331,7 @@ A publisher that wants to publish event ``foo`` would:
 
 -  Define the event ``foo`` in the ``pubsub_events.h``.
 
-   ::
+   .. code:: c
 
       REGISTER_PUBSUB_EVENT(foo);
 
@@ -2467,7 +2467,7 @@ respectively.
 From outside TF-A, timestamps for individual CPUs can be retrieved by calling
 into ``pmf_smc_handler()``.
 
-.. code:: c
+::
 
     Interface : pmf_smc_handler()
     Argument  : unsigned int smc_fid, u_register_t x1,
@@ -2597,7 +2597,7 @@ Platform may choose to not define straight the toolchain target architecture
 directive by defining ``MARCH32_DIRECTIVE``.
 I.e:
 
-::
+.. code:: make
 
    MARCH32_DIRECTIVE := -mach=armv7-a
 
