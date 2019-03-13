@@ -193,7 +193,7 @@ priority assignment:
    6 and 5), the platform can partition into 4 secure priority ranges: ``0x0``,
    ``0x20``, ``0x40``, and ``0x60``. See `Interrupt handling example`_.
 
-Note:
+.. note::
 
    The Arm GIC architecture requires that a GIC implementation that supports two
    security states must implement at least 32 priority levels; i.e., at least 5
@@ -215,7 +215,7 @@ priority level descriptors. Each entry in the array is of type
 ``ehf_pri_desc_t``, and declares a priority level, and shall be populated by the
 ``EHF_PRI_DESC()`` macro.
 
-Note:
+.. warning::
 
    The macro ``EHF_PRI_DESC()`` installs the descriptors in the array at a
    computed index, and not necessarily where the macro is placed in the array.

@@ -1141,8 +1141,10 @@ returning through EL3 and running the non-trusted firmware (BL33):
    ``bl31_register_bl32_init()`` which provides a SPD-defined mechanism to
    invoke a 'world-switch synchronous call' to Secure-EL1 to run the BL32
    entrypoint.
-   NOTE: The Test SPD service included with TF-A provides one implementation
-   of such a mechanism.
+
+   .. note::
+      The Test SPD service included with TF-A provides one implementation
+      of such a mechanism.
 
    On completion BL32 returns control to BL31 via a SMC, and on receipt the
    SPD service handler invokes the synchronous call return mechanism to return
@@ -1675,8 +1677,9 @@ The location of the BL32 image will result in different memory maps. This is
 illustrated for both FVP and Juno in the following diagrams, using the TSP as
 an example.
 
-Note: Loading the BL32 image in TZC secured DRAM doesn't change the memory
-layout of the other images in Trusted SRAM.
+.. note::
+   Loading the BL32 image in TZC secured DRAM doesn't change the memory
+   layout of the other images in Trusted SRAM.
 
 CONFIG section in memory layouts shown below contains:
 
@@ -2215,8 +2218,9 @@ The default memory layout for each BL image is as follows:
        |       Code        |
        +-------------------+ BLx_BASE
 
-Note: The 2KB alignment for the exception vectors is an architectural
-requirement.
+.. note::
+   The 2KB alignment for the exception vectors is an architectural
+   requirement.
 
 The read-write data start on a new memory page so that they can be mapped with
 read-write permissions, whereas the code and read-only data below are configured

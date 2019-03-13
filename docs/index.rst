@@ -153,7 +153,8 @@ The latest version of the AArch64 build of TF-A has been tested on the following
 Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 (64-bit host machine only).
 
-The FVP models used are Version 11.5 Build 33, unless otherwise stated.
+.. note::
+   The FVP models used are Version 11.5 Build 33, unless otherwise stated.
 
 -  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_AEMv8A-AEMv8A-AEMv8A-AEMv8A-CCN502``
@@ -190,7 +191,8 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_Cortex-A32x4``
 
-NOTE: The ``FVP_Base_RevC-2xAEMv8A`` FVP only supports shifted affinities.
+.. note::
+   The ``FVP_Base_RevC-2xAEMv8A`` FVP only supports shifted affinities.
 
 The Foundation FVP can be downloaded free of charge. The Base FVPs can be
 licensed from Arm. See the `Arm FVP website`_.

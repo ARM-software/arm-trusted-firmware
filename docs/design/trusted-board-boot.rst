@@ -141,8 +141,9 @@ if any of the steps fail.
    compared with the hash of the ROTPK read from the trusted root-key storage
    registers. If they match, the BL2 hash is read from the certificate.
 
-   Note: the matching operation is platform specific and is currently
-   unimplemented on the Arm development platforms.
+   .. note::
+      The matching operation is platform specific and is currently
+      unimplemented on the Arm development platforms.
 
 -  BL1 loads the BL2 image. Its hash is calculated and compared with the hash
    read from the certificate. Control is transferred to the BL2 image if all

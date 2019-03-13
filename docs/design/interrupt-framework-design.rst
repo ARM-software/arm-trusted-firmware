@@ -416,8 +416,9 @@ runtime.
 Test secure payload dispatcher behavior
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Note:** where this document discusses ``TSP_NS_INTR_ASYNC_PREEMPT`` as being
-``1``, the same results also apply when ``EL3_EXCEPTION_HANDLING`` is ``1``.
+.. note::
+   Where this document discusses ``TSP_NS_INTR_ASYNC_PREEMPT`` as being
+   ``1``, the same results also apply when ``EL3_EXCEPTION_HANDLING`` is ``1``.
 
 The TSPD only handles Secure-EL1 interrupts and is provided with the following
 routing model at build time.

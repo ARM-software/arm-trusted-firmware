@@ -23,10 +23,11 @@ configuration, some of these steps might be unnecessary. The following sections
 guide the platform integrator by indicating which build options exclude which
 steps, depending on the capability of the platform.
 
-Note: If BL31 is used as the TF-A entry point instead of BL1, the diagram
-above is still relevant, as all these operations will occur in BL31 in
-this case. Please refer to section 6 "Using BL31 entrypoint as the reset
-address" for more information.
+.. note::
+   If BL31 is used as the TF-A entry point instead of BL1, the diagram
+   above is still relevant, as all these operations will occur in BL31 in
+   this case. Please refer to section 6 "Using BL31 entrypoint as the reset
+   address" for more information.
 
 Programmable CPU reset address
 ------------------------------

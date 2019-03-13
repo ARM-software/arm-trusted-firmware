@@ -953,9 +953,11 @@ sources in the build for the various algorithms. Setting the variable to
 `rsa+ecdsa` enables support for both rsa and ecdsa algorithms in the mbedTLS
 library.
 
-Note: If code size is a concern, the build option ``MBEDTLS_SHA256_SMALLER`` can
-be defined in the platform Makefile. It will make mbed TLS use an implementation
-of SHA-256 with smaller memory footprint (~1.5 KB less) but slower (~30%).
+.. note::
+   If code size is a concern, the build option ``MBEDTLS_SHA256_SMALLER`` can
+   be defined in the platform Makefile. It will make mbed TLS use an
+   implementation of SHA-256 with smaller memory footprint (~1.5 KB less) but
+   slower (~30%).
 
 --------------
 

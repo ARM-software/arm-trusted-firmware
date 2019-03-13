@@ -1186,7 +1186,8 @@ New features
 -  Migrated to use SPDX[0] license identifiers to make software license
    auditing simpler.
 
-   *NOTE:* Files that have been imported by FreeBSD have not been modified.
+   .. note::
+      Files that have been imported by FreeBSD have not been modified.
 
    [0]: https://spdx.org/
 
@@ -2205,7 +2206,8 @@ New features
    be used on the AEMv8 and Cortex-A57-A53 Base FVPs, as well as the Foundation
    FVP.
 
-   NOTE: The software will not work on Version 1.0 of the Foundation FVP.
+   .. note::
+      The software will not work on Version 1.0 of the Foundation FVP.
 
 -  Enabled third party contributions. Added a new contributing.md containing
    instructions for how to contribute and updated copyright text in all files
@@ -2236,15 +2238,18 @@ New features
    FIP from NOR flash, although some support for image loading using semi-
    hosting is retained.
 
-   NOTE: Building a FIP by default is a non-backwards-compatible change.
+   .. note::
+      Building a FIP by default is a non-backwards-compatible change.
 
-   NOTE: Generic BL2 code now loads a BL3-3 (non-trusted firmware) image into
-   DRAM instead of expecting this to be pre-loaded at known location. This is
-   also a non-backwards-compatible change.
+   .. note::
+      Generic BL2 code now loads a BL3-3 (non-trusted firmware) image into
+      DRAM instead of expecting this to be pre-loaded at known location. This is
+      also a non-backwards-compatible change.
 
-   NOTE: Some non-trusted firmware (e.g. UEFI) will need to be rebuilt so that
-   it knows the new location to execute from and no longer needs to copy
-   particular code modules to DRAM itself.
+   .. note::
+      Some non-trusted firmware (e.g. UEFI) will need to be rebuilt so that
+      it knows the new location to execute from and no longer needs to copy
+      particular code modules to DRAM itself.
 
 -  Reworked BL2 to BL3-1 handover interface. A new composite structure
    (bl31_args) holds the superset of information that needs to be passed from
@@ -2270,8 +2275,11 @@ New features
    Dispatcher (TSPD), which is loaded as an EL3 runtime service. The TSPD
    implements Secure Monitor functionality such as world switching and
    EL1 context management, and is responsible for communication with the TSP.
-   NOTE: The TSPD does not yet contain support for secure world interrupts.
-   NOTE: The TSP/TSPD is not built by default.
+
+   .. note::
+      The TSPD does not yet contain support for secure world interrupts.
+   .. note::
+      The TSP/TSPD is not built by default.
 
 Issues resolved since last release
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

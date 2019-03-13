@@ -260,8 +260,9 @@ The ``cookie`` parameter to the handler is reserved for future use and can be
 ignored. The ``handle`` is returned by the SMC handler - completion of the
 handler function must always be via one of the ``SMC_RETn()`` macros.
 
-NOTE: The PSCI and Test Secure-EL1 Payload Dispatcher services do not follow
-all of the above requirements yet.
+.. note::
+   The PSCI and Test Secure-EL1 Payload Dispatcher services do not follow
+   all of the above requirements yet.
 
 Services that contain multiple sub-services
 -------------------------------------------

@@ -7,8 +7,9 @@ and provide feedback.
 
 Some of the guidelines may also apply to other codebases.
 
-**Note:** the existing TF codebase does not necessarily comply with all the
-below guidelines but the intent is for it to do so eventually.
+.. note::
+   The existing TF codebase does not necessarily comply with all the
+   below guidelines but the intent is for it to do so eventually.
 
 Checkpatch overrides
 --------------------

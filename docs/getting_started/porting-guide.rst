@@ -331,7 +331,9 @@ must also be defined:
 
    SCP_BL2U image identifier, used by BL1 to fetch an image descriptor
    corresponding to SCP_BL2U.
-   NOTE: TF-A does not provide source code for this image.
+
+   .. note::
+      TF-A does not provide source code for this image.
 
 If the Non-Secure Firmware Updater ROM, NS_BL1U is used, the following must
 also be defined:
@@ -340,7 +342,9 @@ also be defined:
 
    Defines the base address in non-secure ROM where NS_BL1U executes.
    Must be aligned on a page-size boundary.
-   NOTE: TF-A does not provide source code for this image.
+
+   .. note::
+      TF-A does not provide source code for this image.
 
 -  **#define : NS_BL1U_IMAGE_ID**
 
@@ -354,7 +358,9 @@ be defined:
 
    Defines the base address in non-secure memory where NS_BL2U executes.
    Must be aligned on a page-size boundary.
-   NOTE: TF-A does not provide source code for this image.
+
+   .. note::
+      TF-A does not provide source code for this image.
 
 -  **#define : NS_BL2U_IMAGE_ID**
 
@@ -1000,8 +1006,9 @@ situation from which it cannot recover. This function must not return,
 and must be implemented in assembly because it may be called before the C
 environment is initialized.
 
-Note: The address from where it was called is stored in x30 (Link Register).
-The default implementation simply spins.
+.. note::
+   The address from where it was called is stored in x30 (Link Register).
+   The default implementation simply spins.
 
 Function : plat_get_bl_image_load_info()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1042,9 +1049,10 @@ value will weaken the protection as the attacker could easily write the right
 value as part of the attack most of the time. Therefore, it should return a
 true random number.
 
-Note: For the protection to be effective, the global data need to be placed at
-a lower address than the stack bases. Failure to do so would allow an attacker
-to overwrite the canary as part of the stack buffer overflow attack.
+.. warning::
+   For the protection to be effective, the global data need to be placed at
+   a lower address than the stack bases. Failure to do so would allow an
+   attacker to overwrite the canary as part of the stack buffer overflow attack.
 
 Function : plat_flush_next_bl_params()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2564,10 +2572,12 @@ makefiles in order to benefit from them. By default, they will cause the crash
 output to be routed over the normal console infrastructure and get printed on
 consoles configured to output in crash state. ``console_set_scope()`` can be
 used to control whether a console is used for crash output.
-NOTE: Platforms are responsible for making sure that they only mark consoles for
-use in the crash scope that are able to support this, i.e. that are written in
-assembly and conform with the register clobber rules for putc() (x0-x2, x16-x17)
-and flush() (x0-x3, x16-x17) crash callbacks.
+
+.. note::
+   Platforms are responsible for making sure that they only mark consoles for
+   use in the crash scope that are able to support this, i.e. that are written
+   in assembly and conform with the register clobber rules for putc()
+   (x0-x2, x16-x17) and flush() (x0-x3, x16-x17) crash callbacks.
 
 In some cases (such as debugging very early crashes that happen before the
 normal boot console can be set up), platforms may want to control crash output

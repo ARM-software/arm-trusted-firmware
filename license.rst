@@ -27,8 +27,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 --------------
 
-Note:
-Individual files contain the following tag instead of the full license text.
+.. note::
+   Individual files contain the following tag instead of the full license text.
 
 ::
 
