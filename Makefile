@@ -841,13 +841,18 @@ checkcodebase:		locate-checkpatch
 
 checkpatch:		locate-checkpatch
 	@echo "  CHECKING STYLE"
+	@if test -n "${CHECKPATCH_OPTS}"; then				\
+		echo "    with ${CHECKPATCH_OPTS} option(s)";		\
+	fi
 	${Q}COMMON_COMMIT=$$(git merge-base HEAD ${BASE_COMMIT});	\
 	for commit in `git rev-list $$COMMON_COMMIT..HEAD`; do		\
 		printf "\n[*] Checking style of '$$commit'\n\n";	\
 		git log --format=email "$$commit~..$$commit"		\
-			-- ${CHECK_PATHS} | ${CHECKPATCH} - || true;	\
+			-- ${CHECK_PATHS} |				\
+			${CHECKPATCH} ${CHECKPATCH_OPTS} - || true;	\
 		git diff --format=email "$$commit~..$$commit"		\
-			-- ${CHECK_PATHS} | ${CHECKPATCH} - || true;	\
+			-- ${CHECK_PATHS} |				\
+			${CHECKPATCH}  ${CHECKPATCH_OPTS} - || true;	\
 	done
 
 certtool: ${CRTTOOL}
