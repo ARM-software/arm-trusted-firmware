@@ -147,26 +147,34 @@ target32-directive	= 	-target arm-none-eabi
 # Will set march32-directive from platform configuration
 else
 target32-directive	= 	-target armv8a-none-eabi
+
+# Set the compiler's target architecture profile based on ARM_ARCH_MINOR option
+ifeq (${ARM_ARCH_MINOR},0)
 march32-directive	= 	-march=armv8-a
+march64-directive	= 	-march=armv8-a
+else
+march32-directive	= 	-march=armv8.${ARM_ARCH_MINOR}-a
+march64-directive	= 	-march=armv8.${ARM_ARCH_MINOR}-a
+endif
 endif
 
 ifneq ($(findstring armclang,$(notdir $(CC))),)
 TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi $(march32-directive)
-TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi -march=armv8-a
+TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi $(march64-directive)
 LD			=	$(LINKER)
 AS			=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
 CPP			=	$(CC) -E $(TF_CFLAGS_$(ARCH))
 PP			=	$(CC) -E $(TF_CFLAGS_$(ARCH))
 else ifneq ($(findstring clang,$(notdir $(CC))),)
 TF_CFLAGS_aarch32	=	$(target32-directive) $(march32-directive)
-TF_CFLAGS_aarch64	=	-target aarch64-elf
+TF_CFLAGS_aarch64	=	-target aarch64-elf $(march64-directive)
 LD			=	$(LINKER)
 AS			=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
 CPP			=	$(CC) -E
 PP			=	$(CC) -E
 else
 TF_CFLAGS_aarch32	=	$(march32-directive)
-TF_CFLAGS_aarch64	=	-march=armv8-a
+TF_CFLAGS_aarch64	=	$(march64-directive)
 LD			=	$(LINKER)
 endif
 
@@ -182,15 +190,7 @@ TF_CFLAGS_aarch32	+=	-mno-unaligned-access
 TF_CFLAGS_aarch64	+=	-mgeneral-regs-only -mstrict-align
 
 ASFLAGS_aarch32		=	$(march32-directive)
-ASFLAGS_aarch64		=	-march=armv8-a
-
-# Set the compiler to ARMv8.3 mode so that it uses all the ARMv8.3-PAuth
-# instructions. Keeping it in 8.0 would make the compiler emit
-# backwards-compatible hint instructions, which needs more space.
-ifeq (${ENABLE_PAUTH},1)
-TF_CFLAGS_aarch64	+=	-march=armv8.3-a
-ASFLAGS_aarch64		+=	-march=armv8.3-a
-endif
+ASFLAGS_aarch64		=	$(march64-directive)
 
 WARNING1 := -Wextra
 WARNING1 += -Wunused -Wno-unused-parameter

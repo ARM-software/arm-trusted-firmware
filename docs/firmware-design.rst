@@ -2521,7 +2521,7 @@ section lists the usage of Architecture Extensions, and build flags
 controlling them.
 
 In general, and unless individually mentioned, the build options
-``ARM_ARCH_MAJOR`` and ``ARM_ARCH_MINOR`` selects the Architecture Extension to
+``ARM_ARCH_MAJOR`` and ``ARM_ARCH_MINOR`` select the Architecture Extension to
 target when building TF-A. Subsequent Arm Architecture Extensions are backward
 compatible with previous versions.
 
@@ -2569,6 +2569,10 @@ Armv8.3-A
    that can be enabled by setting both options ``ENABLE_PAUTH`` and
    ``CTX_INCLUDE_PAUTH_REGS`` to 1. This enables pointer authentication in BL1,
    BL2, BL31, and the TSP if it is used.
+
+   If ``ARM_ARCH_MAJOR == 8`` and ``ARM_ARCH_MINOR >= 3`` the code footprint of
+   enabling PAuth is lower because the compiler will use the optimized
+   PAuth instructions rather than the backwards-compatible ones.
 
 Armv7-A
 ~~~~~~~
