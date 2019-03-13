@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
 #define PLATFORM_LINKER_ARCH		aarch64
 
-#define PLATFORM_STACK_SIZE		0x800
+#define PLATFORM_STACK_SIZE		0xB00
 #define CACHE_WRITEBACK_GRANULE		64
 
 #define PLAT_PRIMARY_CPU		0x0
@@ -24,15 +24,14 @@
 #define PWR_DOMAIN_AT_MAX_LVL		U(1)
 #define PLAT_MAX_PWR_LVL		U(2)
 #define PLAT_MAX_OFF_STATE		U(4)
-#define PLAT_MAX_RET_STATE		U(1)
+#define PLAT_MAX_RET_STATE		U(2)
 
-#define PLAT_WAIT_RET_STATE		PLAT_MAX_RET_STATE
-#define PLAT_WAIT_OFF_STATE		U(2)
+#define PLAT_WAIT_RET_STATE		U(1)
 #define PLAT_STOP_OFF_STATE		U(3)
 
-#define BL31_BASE			U(0x910000)
-#define BL31_LIMIT			U(0x920000)
-#define BL32_BASE			U(0xfe000000)
+#define BL31_BASE			U(0x920000)
+#define BL31_LIMIT			U(0x940000)
+#define BL32_BASE			U(0xbe000000)
 
 /* non-secure uboot base */
 #define PLAT_NS_IMAGE_OFFSET		U(0x40200000)
@@ -44,21 +43,29 @@
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ull << 32)
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ull << 32)
 
-#define MAX_XLAT_TABLES			4
-#define MAX_MMAP_REGIONS		14
+#define MAX_XLAT_TABLES			8
+#define MAX_MMAP_REGIONS		16
 
-#define HAB_RVT_BASE			U(0x00000880) /* HAB_RVT for i.MX8MQ */
+#define HAB_RVT_BASE			U(0x00000900) /* HAB_RVT for i.MX8MM */
 
-#define IMX_BOOT_UART_BASE		U(0x30860000)
-#define IMX_BOOT_UART_CLK_IN_HZ		25000000 /* Select 25Mhz oscillator */
+#define IMX_BOOT_UART_BASE		U(0x30890000)
+#define IMX_BOOT_UART_CLK_IN_HZ		24000000 /* Select 24MHz oscillator */
+
 #define PLAT_CRASH_UART_BASE		IMX_BOOT_UART_BASE
-#define PLAT_CRASH_UART_CLK_IN_HZ	25000000
+#define PLAT_CRASH_UART_CLK_IN_HZ	24000000
 #define IMX_CONSOLE_BAUDRATE		115200
 
-#define IMX_AIPS_BASE			U(0x30200000)
+#define IMX_AIPSTZ1			U(0x301f0000)
+#define IMX_AIPSTZ2			U(0x305f0000)
+#define IMX_AIPSTZ3			U(0x309f0000)
+#define IMX_AIPSTZ4			U(0x32df0000)
+
+#define IMX_AIPS_BASE			U(0x30000000)
 #define IMX_AIPS_SIZE			U(0xC00000)
+#define IMX_GPV_BASE			U(0x32000000)
+#define IMX_GPV_SIZE			U(0x800000)
 #define IMX_AIPS1_BASE			U(0x30200000)
-#define IMX_AIPS3_ARB_BASE		U(0x30800000)
+#define IMX_AIPS4_BASE			U(0x32c00000)
 #define IMX_ANAMIX_BASE			U(0x30360000)
 #define IMX_CCM_BASE			U(0x30380000)
 #define IMX_SRC_BASE			U(0x30390000)
@@ -73,12 +80,7 @@
 #define IMX_DDRC_BASE			U(0x3d400000)
 #define IMX_DDRPHY_BASE			U(0x3c000000)
 #define IMX_DDR_IPS_BASE		U(0x3d000000)
-#define IMX_ROM_BASE			U(0x00000000)
-
-#define AIPSTZ1_BASE			U(0x301f0000)
-#define AIPSTZ2_BASE			U(0x305f0000)
-#define AIPSTZ3_BASE			U(0x309f0000)
-#define AIPSTZ4_BASE			U(0x32df0000)
+#define IMX_ROM_BASE			U(0x0)
 
 #define GPV_BASE			U(0x32000000)
 #define GPV_SIZE			U(0x800000)
@@ -106,10 +108,13 @@
 #define SNVS_LPCR_DP_EN			BIT(5)
 #define SNVS_LPCR_TOP			BIT(6)
 
-
 #define IOMUXC_GPR10			U(0x28)
 #define GPR_TZASC_EN			BIT(0)
 #define GPR_TZASC_EN_LOCK		BIT(16)
+
+#define ANAMIX_MISC_CTL			U(0x124)
+
+#define MAX_CSU_NUM			U(64)
 
 #define OCRAM_S_BASE			U(0x00180000)
 #define OCRAM_S_SIZE			U(0x8000)
@@ -117,11 +122,4 @@
 
 #define COUNTER_FREQUENCY		8000000 /* 8MHz */
 
-#define DEBUG_CONSOLE			0
 #define IMX_WDOG_B_RESET
-#define PLAT_IMX8M			1
-
-#define CAAM_JR0MID			U(0x30900010)
-#define CAAM_JR1MID			U(0x30900018)
-#define CAAM_JR2MID			U(0x30900020)
-#define CAAM_NS_MID			U(0x1)
