@@ -61,6 +61,14 @@ ERRATA_A15_816470	?=0
 # only to revision >= r3p0 of the Cortex A15 cpu.
 ERRATA_A15_827671	?=0
 
+# Flag to apply erratum 852421 workaround during reset. This erratum applies
+# only to revision <= r1p2 of the Cortex A17 cpu.
+ERRATA_A17_852421	?=0
+
+# Flag to apply erratum 852423 workaround during reset. This erratum applies
+# only to revision <= r1p2 of the Cortex A17 cpu.
+ERRATA_A17_852423	?=0
+
 # Flag to apply erratum 819472 workaround during reset. This erratum applies
 # only to revision <= r0p1 of the Cortex A53 cpu.
 ERRATA_A53_819472	?=0
@@ -211,6 +219,14 @@ $(eval $(call add_define,ERRATA_A15_816470))
 # Process ERRATA_A15_827671 flag
 $(eval $(call assert_boolean,ERRATA_A15_827671))
 $(eval $(call add_define,ERRATA_A15_827671))
+
+# Process ERRATA_A17_852421 flag
+$(eval $(call assert_boolean,ERRATA_A17_852421))
+$(eval $(call add_define,ERRATA_A17_852421))
+
+# Process ERRATA_A17_852423 flag
+$(eval $(call assert_boolean,ERRATA_A17_852423))
+$(eval $(call add_define,ERRATA_A17_852423))
 
 # Process ERRATA_A53_819472 flag
 $(eval $(call assert_boolean,ERRATA_A53_819472))
