@@ -31,7 +31,7 @@ BL2_SOURCES     +=	\
 		drivers/io/io_block.c					\
 		drivers/io/io_fip.c					\
 		drivers/gpio/gpio.c					\
-		drivers/io/io_memmap.c					\
+		drivers/intel/soc/stratix10/io/s10_memmap_qspi.c	\
 		plat/intel/soc/stratix10/bl2_plat_setup.c		\
 		plat/intel/soc/stratix10/plat_storage.c			\
                 plat/intel/soc/stratix10/bl2_plat_mem_params_desc.c	\
@@ -44,7 +44,9 @@ BL2_SOURCES     +=	\
 		lib/cpus/aarch64/cortex_a53.S				\
 		plat/intel/soc/stratix10/stratix10_image_load.c		\
 		plat/intel/soc/stratix10/soc/s10_system_manager.c	\
-                common/desc_image_load.c
+		common/desc_image_load.c				\
+		plat/intel/soc/stratix10/soc/s10_mailbox.c		\
+		plat/intel/soc/stratix10/drivers/qspi/cadence_qspi.c
 
 BL31_SOURCES	+=	drivers/arm/cci/cci.c				\
 		lib/cpus/aarch64/cortex_a53.S				\

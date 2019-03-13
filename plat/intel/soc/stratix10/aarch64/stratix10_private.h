@@ -29,6 +29,6 @@ typedef enum {
 } boot_source_type;
 
 void enable_nonsecure_access(void);
-void stratix10_io_setup(void);
+void stratix10_io_setup(int boot_source);
 
 #endif
