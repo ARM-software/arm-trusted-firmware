@@ -9,11 +9,9 @@
 
 /*
  * Instruction pointer authentication key A. The low 64-bit are at [0], and the
- * high bits at [1]. They are run-time constants so they are placed in the
- * rodata section. They are written before MMU is turned on and the permissions
- * are effective.
+ * high bits at [1].
  */
-uint64_t plat_apiakey[2] __section("rodata.apiakey");
+uint64_t plat_apiakey[2];
 
 /*
  * This is only a toy implementation to generate a seemingly random 128-bit key
