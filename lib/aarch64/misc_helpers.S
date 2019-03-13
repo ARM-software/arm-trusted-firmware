@@ -531,8 +531,8 @@ func fixup_gdt_reloc
 #endif
 	/*
 	 * Calculate the offset based on return address in x30.
-	 * Assume that this funtion is called within a page of the start of
-	 * of fixup region.
+	 * Assume that this function is called within a page at the start of
+	 * fixup region.
 	 */
 	and	x2, x30, #~(PAGE_SIZE - 1)
 	sub	x0, x2, x6	/* Diff(S) = Current Address - Compiled Address */
@@ -580,13 +580,13 @@ func fixup_gdt_reloc
 	 *
 	 * r_offset is address of reference
 	 * r_info is symbol index and type of relocation (in this case
-	 * 0x403 which corresponds to R_AARCH64_RELATIV).
+	 * 0x403 which corresponds to R_AARCH64_RELATIVE).
 	 * r_addend is constant part of expression.
 	 *
 	 * Size of Elf64_Rela structure is 24 bytes.
 	 */
 1:
-	/* Assert that the relocation type is R_AARCH64_RELATIV */
+	/* Assert that the relocation type is R_AARCH64_RELATIVE */
 #if ENABLE_ASSERTIONS
 	ldr	x3, [x1, #8]
 	cmp	x3, #0x403
