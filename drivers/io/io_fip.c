@@ -85,7 +85,6 @@ static inline int compare_uuids(const uuid_t *uuid1, const uuid_t *uuid2)
 }
 
 
-/* TODO: We could check version numbers or do a package checksum? */
 static inline int is_valid_header(fip_toc_header_t *header)
 {
 	if ((header->name == TOC_HEADER_NAME) && (header->serial_number != 0)) {

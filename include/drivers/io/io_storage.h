@@ -79,8 +79,6 @@ int io_dev_open(const struct io_dev_connector *dev_con,
  * re-initialisation */
 int io_dev_init(uintptr_t dev_handle, const uintptr_t init_params);
 
-/* TODO: Consider whether an explicit "shutdown" API should be included */
-
 /* Close a connection to a device */
 int io_dev_close(uintptr_t dev_handle);
 
