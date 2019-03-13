@@ -173,6 +173,7 @@
 /* ATF Specific */
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
 #include "stm32mp15-ddr3-1x4Gb-1066-binG.dtsi"
+#include "stm32mp157c-security.dtsi"
 
 / {
 	aliases {
@@ -187,14 +188,6 @@
 		gpio8 = &gpioi;
 		gpio25 = &gpioz;
 		i2c3 = &i2c4;
-	};
-
-	soc {
-		stgen: stgen@5C008000 {
-			compatible = "st,stm32-stgen";
-			reg = <0x5C008000 0x1000>;
-			status = "okay";
-		};
 	};
 };
 
