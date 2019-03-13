@@ -15,6 +15,7 @@ Trusted Firmware-A Documentation
    security_advisories/index
    change-log
    acknowledgements
+   glossary
    maintainers
    license
 
@@ -102,7 +103,7 @@ Functionality
       Secure-EL0, which can be used to implement simple management and
       security services.
 
-   -  An SDEI dispatcher to route interrupt-based SDEI events.
+   -  An |SDEI| dispatcher to route interrupt-based |SDEI| events.
 
    -  An Exception Handling Framework (EHF) that allows dispatching of EL3
       interrupts to their registered handlers, to facilitate firmware-first

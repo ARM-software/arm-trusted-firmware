@@ -294,12 +294,12 @@ Changed
 
 - SDEI
    - Added support for unconditionally resuming secure world execution after
-     SDEI event processing completes
+     |SDEI| event processing completes
 
-     SDEI interrupts, although targeting EL3, occur on behalf of the non-secure
+     |SDEI| interrupts, although targeting EL3, occur on behalf of the non-secure
      world, and may have higher priority than secure world
      interrupts. Therefore they might preempt secure execution and yield
-     execution to the non-secure SDEI handler. Upon completion of SDEI event
+     execution to the non-secure |SDEI| handler. Upon completion of |SDEI| event
      handling, resume secure execution if it was preempted.
 
 - Translation Tables (XLAT)
@@ -501,7 +501,7 @@ New Features
 
    -  Implement dynamic mitigation for CVE-2018-3639 on Cortex-A76
 
-   -  Ensure SDEI handler executes with CVE-2018-3639 mitigation enabled
+   -  Ensure |SDEI| handler executes with CVE-2018-3639 mitigation enabled
 
 -  Introduce RAS handling on AArch64
 
@@ -621,7 +621,7 @@ New Features
 
    -  Introduce jump primitives for BL31
 
-   -  Mask events after CPU wakeup in SDEI dispatcher to conform to the
+   -  Mask events after CPU wakeup in |SDEI| dispatcher to conform to the
       specification
 
 -  Misc TF-A Core Common Code Enhancements
@@ -785,8 +785,8 @@ New features
       management and security services. The SPM is the firmware component that
       is responsible for managing a Secure Partition.
 
-   -  SDEI dispatcher: Support for interrupt-based SDEI events and all
-      interfaces as defined by the SDEI specification v1.0, see
+   -  SDEI dispatcher: Support for interrupt-based |SDEI| events and all
+      interfaces as defined by the |SDEI| specification v1.0, see
       `SDEI Specification`_
 
    -  Exception Handling Framework (EHF): Framework that allows dispatching of

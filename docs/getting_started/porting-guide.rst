@@ -1840,7 +1840,7 @@ line boundary.
 SDEI porting requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The SDEI dispatcher requires the platform to provide the following macros
+The |SDEI| dispatcher requires the platform to provide the following macros
 and functions, of which some are optional, and some others mandatory.
 
 Macros
@@ -1850,19 +1850,19 @@ Macro: PLAT_SDEI_NORMAL_PRI [mandatory]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This macro must be defined to the EL3 exception priority level associated with
-Normal SDEI events on the platform. This must have a higher value (therefore of
-lower priority) than ``PLAT_SDEI_CRITICAL_PRI``.
+Normal |SDEI| events on the platform. This must have a higher value
+(therefore of lower priority) than ``PLAT_SDEI_CRITICAL_PRI``.
 
 Macro: PLAT_SDEI_CRITICAL_PRI [mandatory]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This macro must be defined to the EL3 exception priority level associated with
-Critical SDEI events on the platform. This must have a lower value (therefore of
-higher priority) than ``PLAT_SDEI_NORMAL_PRI``.
+Critical |SDEI| events on the platform. This must have a lower value
+(therefore of higher priority) than ``PLAT_SDEI_NORMAL_PRI``.
 
-**Note**: SDEI exception priorities must be the lowest among Secure priorities.
-Among the SDEI exceptions, Critical SDEI priority must be higher than Normal
-SDEI priority.
+**Note**: |SDEI| exception priorities must be the lowest among Secure
+priorities. Among the |SDEI| exceptions, Critical |SDEI| priority must
+be higher than Normal |SDEI| priority.
 
 Functions
 .........
@@ -1876,10 +1876,10 @@ Function: int plat_sdei_validate_entry_point(uintptr_t ep) [optional]
   Return: int
 
 This function validates the address of client entry points provided for both
-event registration and *Complete and Resume* SDEI calls. The function takes one
-argument, which is the address of the handler the SDEI client requested to
-register. The function must return ``0`` for successful validation, or ``-1``
-upon failure.
+event registration and *Complete and Resume* |SDEI| calls. The function
+takes one argument, which is the address of the handler the |SDEI| client
+requested to register. The function must return ``0`` for successful validation,
+or ``-1`` upon failure.
 
 The default implementation always returns ``0``. On Arm platforms, this function
 is implemented to translate the entry point to physical address, and further to
@@ -1894,11 +1894,12 @@ Function: void plat_sdei_handle_masked_trigger(uint64_t mpidr, unsigned int intr
   Argument: unsigned int
   Return: void
 
-SDEI specification requires that a PE comes out of reset with the events masked.
-The client therefore is expected to call ``PE_UNMASK`` to unmask SDEI events on
-the PE. No SDEI events can be dispatched until such time.
+|SDEI| specification requires that a PE comes out of reset with the events
+masked. The client therefore is expected to call ``PE_UNMASK`` to unmask
+|SDEI| events on the PE. No |SDEI| events can be dispatched until such
+time.
 
-Should a PE receive an interrupt that was bound to an SDEI event while the
+Should a PE receive an interrupt that was bound to an |SDEI| event while the
 events are masked on the PE, the dispatcher implementation invokes the function
 ``plat_sdei_handle_masked_trigger``. The MPIDR of the PE that received the
 interrupt and the interrupt ID are passed as parameters.

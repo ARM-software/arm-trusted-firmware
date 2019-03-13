@@ -9,13 +9,14 @@
 #
 # See the options documentation at http://www.sphinx-doc.org/en/master/config
 
+import os
+
 # -- Project information -----------------------------------------------------
 
 project = 'Trusted Firmware-A'
 
 version = '2.1'
 release = version # We don't need these to be distinct
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -48,6 +49,10 @@ exclude_patterns = []
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+# Load the contents of the global substitutions file into the 'rst_prolog'
+# variable. This ensures that the substitutions are all inserted into each page.
+with open('global_substitutions.txt', 'r') as subs:
+  rst_prolog = subs.read()
 
 # -- Options for HTML output -------------------------------------------------
 

@@ -1,9 +1,6 @@
 Exception Handling Framework
 ============================
 
-.. |EHF| replace:: Exception Handling Framework
-.. |TF-A| replace:: Trusted Firmware-A
-
 This document describes various aspects of handling exceptions by Runtime
 Firmware (BL31) that are targeted at EL3, other than SMCs. The |EHF| takes care
 of the following exceptions when targeted at EL3:
@@ -48,11 +45,11 @@ exceptions are targeted at and handled in EL3. For instance:
 
 -  The Arm `SDEI specification`_ defines interfaces through which Normal world
    interacts with the Runtime Firmware in order to request notification of
-   system events. The SDEI specification requires that these events are notified
-   even when the Normal world executes with the exceptions masked. This too
-   implies that firmware-first handling is required, where the events are first
-   received by the EL3 firmware, and then dispatched to Normal world through
-   purely software mechanism.
+   system events. The |SDEI| specification requires that these events are
+   notified even when the Normal world executes with the exceptions masked. This
+   too implies that firmware-first handling is required, where the events are
+   first received by the EL3 firmware, and then dispatched to Normal world
+   through purely software mechanism.
 
 For |TF-A|, firmware-first handling means that asynchronous exceptions are
 suitably routed to EL3, and the Runtime Firmware (BL31) is extended to include
@@ -73,8 +70,8 @@ choose to:
    processing of the error to dedicated software stack running at lower secure
    ELs (as above); additionally, the Normal world may also be required to
    participate in the handling, or be notified of such events (for example, as
-   an SDEI event). In this scheme, exception handling potentially and maximally
-   spans all ELs in both Secure and Normal worlds.
+   an |SDEI| event). In this scheme, exception handling potentially and
+   maximally spans all ELs in both Secure and Normal worlds.
 
 On any given system, all of the above handling models may be employed
 independently depending on platform choice and the nature of the exception
@@ -603,8 +600,8 @@ should carefully consider the assignment of priorities to dispatchers integrated
 into runtime firmware. The platform should sensibly delineate priority to
 various dispatchers according to their nature. In particular, dispatchers of
 critical nature (RAS, for example) should be assigned higher priority than
-others (SDEI, for example); and within SDEI, Critical priority SDEI should be
-assigned higher priority than Normal ones.
+others (|SDEI|, for example); and within |SDEI|, Critical priority
+|SDEI| should be assigned higher priority than Normal ones.
 
 Limitations
 -----------
