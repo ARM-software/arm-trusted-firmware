@@ -39,7 +39,7 @@ be set ``1``.
 
 .. _ras-figure:
 
-.. image:: ../draw.io/ras.svg
+.. image:: ../resources/diagrams/draw.io/ras.svg
 
 See more on `Engaging the RAS framework`_.
 

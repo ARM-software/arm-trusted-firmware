@@ -400,5 +400,5 @@ This is only allowed if the image is not being executed.
 .. _Authentication Framework Design: ./auth-framework.rst
 .. _Universally Unique Identifier: https://tools.ietf.org/rfc/rfc4122.txt
 
-.. |Flow Diagram| image:: diagrams/fwu_flow.png?raw=true
-.. |FWU state machine| image:: diagrams/fwu_states.png?raw=true
+.. |Flow Diagram| image:: ../resources/diagrams/fwu_flow.png
+.. |FWU state machine| image:: ../resources/diagrams/fwu_states.png

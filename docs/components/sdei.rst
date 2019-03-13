@@ -26,7 +26,7 @@ The following figure depicts a general sequence involving SDEI client executing
 at EL2 and an event dispatch resulting from the triggering of a bound interrupt.
 A commentary is provided below:
 
-.. image:: ../plantuml/sdei_general.svg
+.. image:: ../resources/diagrams/plantuml/sdei_general.svg
 
 As part of initialisation, the SDEI client binds a Non-secure interrupt [1], and
 the SDEI dispatcher returns a platform dynamic event number [2]. The client then
@@ -234,7 +234,7 @@ on success, or ``-1`` on failure.
 The following figure depicts a scenario involving explicit dispatch of SDEI
 event. A commentary is provided below:
 
-.. image:: ../plantuml/sdei_explicit_dispatch.svg
+.. image:: ../resources/diagrams/plantuml/sdei_explicit_dispatch.svg
 
 As part of initialisation, the SDEI client registers a handler for a platform
 event [1], enables the event [3], and unmasks the current PE [5]. Note that,

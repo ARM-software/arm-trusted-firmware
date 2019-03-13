@@ -2679,4 +2679,4 @@ References
 .. _ROMLIB Design: romlib-design.rst
 .. _Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D): https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
 
-.. |Image 1| image:: diagrams/rt-svc-descs-layout.png?raw=true
+.. |Image 1| image:: ../resources/diagrams/rt-svc-descs-layout.png

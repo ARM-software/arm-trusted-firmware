@@ -23,7 +23,7 @@ are placed in ROM. The capabilities of the "library at ROM" are:
 Index file
 ~~~~~~~~~~
 
-.. image:: diagrams/romlib_design.png
+.. image:: ../resources/diagrams/romlib_design.png
     :width: 600
 
 Library at ROM is described by an index file with the list of functions to be
@@ -54,7 +54,7 @@ For an index file example, refer to ``lib/romlib/jmptbl.i``.
 Wrapper functions
 ~~~~~~~~~~~~~~~~~
 
-.. image:: diagrams/romlib_wrapper.png
+.. image:: ../resources/diagrams/romlib_wrapper.png
     :width: 600
 
 When invoking a function of the "library at ROM", the calling sequence is as

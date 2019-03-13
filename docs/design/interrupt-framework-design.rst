@@ -1015,5 +1015,5 @@ TSP by returning ``SMC_UNK`` error.
 .. _Porting Guide: ../getting_started/porting-guide.rst
 .. _SMC calling convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
 
-.. |Image 1| image:: diagrams/sec-int-handling.png?raw=true
-.. |Image 2| image:: diagrams/non-sec-int-handling.png?raw=true
+.. |Image 1| image:: ../resources/diagrams/sec-int-handling.png
+.. |Image 2| image:: ../resources/diagrams/non-sec-int-handling.png

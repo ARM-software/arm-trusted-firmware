@@ -154,7 +154,7 @@ This might be done by the Trusted Boot Firmware or by platform code in BL31.
 .. _Firmware Design: firmware-design.rst
 .. _User Guide: ../getting_started/user-guide.rst
 
-.. |Default reset code flow| image:: ../diagrams/default_reset_code.png?raw=true
-.. |Reset code flow with programmable reset address| image:: ../diagrams/reset_code_no_boot_type_check.png?raw=true
-.. |Reset code flow with single CPU released out of reset| image:: ../diagrams/reset_code_no_cpu_check.png?raw=true
-.. |Reset code flow with programmable reset address and single CPU released out of reset| image:: ../diagrams/reset_code_no_checks.png?raw=true
+.. |Default reset code flow| image:: ../resources/diagrams/default_reset_code.png
+.. |Reset code flow with programmable reset address| image:: ../resources/diagrams/reset_code_no_boot_type_check.png
+.. |Reset code flow with single CPU released out of reset| image:: ../resources/diagrams/reset_code_no_cpu_check.png
+.. |Reset code flow with programmable reset address and single CPU released out of reset| image:: ../resources/diagrams/reset_code_no_checks.png
