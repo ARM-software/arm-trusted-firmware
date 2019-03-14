@@ -356,7 +356,7 @@ func pauth_context_restore
 	msr	APIAKeyLo_EL1, x9
 	msr	APIAKeyHi_EL1, x10
 
-	ldp	x9, x10, [x11, #CTX_PACIAKEY_LO]
+	ldp	x9, x10, [x11, #CTX_PACIBKEY_LO]
 	msr	APIBKeyLo_EL1, x9
 	msr	APIBKeyHi_EL1, x10
 
