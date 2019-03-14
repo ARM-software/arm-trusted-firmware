@@ -173,5 +173,15 @@
 #define BL31_LIMIT			(MARVELL_BL_RAM_BASE +	\
 					 MARVELL_BL_RAM_SIZE)
 
+/*****************************************************************************
+ * BL32 specific defines.
+ *****************************************************************************
+ */
+#define BL32_BASE		PLAT_MARVELL_TRUSTED_DRAM_BASE
+#define BL32_LIMIT		(BL32_BASE + PLAT_MARVELL_TRUSTED_DRAM_SIZE)
+
+#ifdef SPD_none
+#undef BL32_BASE
+#endif /* SPD_none */
 
 #endif /* MARVELL_DEF_H */
