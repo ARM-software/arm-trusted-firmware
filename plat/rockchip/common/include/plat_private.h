@@ -68,12 +68,25 @@ struct rockchip_bl31_params {
 /******************************************************************************
  * Function and variable prototypes
  *****************************************************************************/
+#ifdef AARCH32
+void plat_configure_mmu_svc_mon(unsigned long total_base,
+				unsigned long total_size,
+				unsigned long,
+				unsigned long,
+				unsigned long,
+				unsigned long);
+
+void rockchip_plat_mmu_svc_mon(void);
+#else
 void plat_configure_mmu_el3(unsigned long total_base,
 			    unsigned long total_size,
 			    unsigned long,
 			    unsigned long,
 			    unsigned long,
 			    unsigned long);
+
+void rockchip_plat_mmu_el3(void);
+#endif
 
 void plat_cci_init(void);
 void plat_cci_enable(void);
@@ -128,12 +141,10 @@ void __dead2 rockchip_soc_sys_pd_pwr_dn_wfi(void);
 extern const unsigned char rockchip_power_domain_tree_desc[];
 
 extern void *pmu_cpuson_entrypoint;
-extern uint64_t cpuson_entry_point[PLATFORM_CORE_COUNT];
+extern u_register_t cpuson_entry_point[PLATFORM_CORE_COUNT];
 extern uint32_t cpuson_flags[PLATFORM_CORE_COUNT];
 
 extern const mmap_region_t plat_rk_mmap[];
-
-void rockchip_plat_mmu_el3(void);
 
 #endif /* __ASSEMBLY__ */
 
