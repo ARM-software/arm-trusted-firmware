@@ -368,9 +368,8 @@ static struct pm_clock_node dp_audio_video_ref_nodes[] = {
 		.offset = PERIPH_MUX_SHIFT,
 		.width = PERIPH_MUX_WIDTH,
 		.clkflags = CLK_SET_RATE_NO_REPARENT |
-			    CLK_SET_RATE_PARENT |
-			    CLK_FRAC | CLK_IS_BASIC,
-		.typeflags = NA_TYPE_FLAGS,
+			    CLK_SET_RATE_PARENT | CLK_IS_BASIC,
+		.typeflags = CLK_FRAC,
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -379,8 +378,9 @@ static struct pm_clock_node dp_audio_video_ref_nodes[] = {
 		.offset = PERIPH_DIV1_SHIFT,
 		.width = PERIPH_DIV1_WIDTH,
 		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_SET_RATE_PARENT |
-			    CLK_FRAC | CLK_IS_BASIC,
-		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
+			    CLK_IS_BASIC,
+		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO |
+			     CLK_FRAC,
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
@@ -389,8 +389,9 @@ static struct pm_clock_node dp_audio_video_ref_nodes[] = {
 		.offset = PERIPH_DIV2_SHIFT,
 		.width = PERIPH_DIV2_WIDTH,
 		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_SET_RATE_PARENT |
-			    CLK_FRAC | CLK_IS_BASIC,
-		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
+			    CLK_IS_BASIC,
+		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO |
+			     CLK_FRAC,
 		.mult = NA_MULT,
 		.div = NA_DIV,
 	},
