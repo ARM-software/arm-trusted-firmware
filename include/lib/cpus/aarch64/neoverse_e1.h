@@ -9,7 +9,7 @@
 
 #include <lib/utils_def.h>
 
-#define NEOVERSE_E1_MIDR		U(0x410FD060)
+#define NEOVERSE_E1_MIDR		U(0x410FD4A0)
 
 /*******************************************************************************
  * CPU Extended Control register specific definitions.
