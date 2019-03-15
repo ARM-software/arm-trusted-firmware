@@ -843,4 +843,9 @@
 #define DIT			S3_3_C4_C2_5
 #define DIT_BIT			BIT(24)
 
+/*******************************************************************************
+ * Armv8.5 - new MSR encoding to directly access PSTATE.SSBS field
+ ******************************************************************************/
+#define SSBS			S3_3_C4_C2_6
+
 #endif /* ARCH_H */
