@@ -582,7 +582,8 @@ static struct pm_clock_node gem_ref_ungated_nodes[] = {
 		.type = TYPE_DIV2,
 		.offset = 16,
 		.width = 6,
-		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC,
+		.clkflags = CLK_SET_RATE_NO_REPARENT | CLK_IS_BASIC |
+			    CLK_SET_RATE_PARENT,
 		.typeflags = CLK_DIVIDER_ONE_BASED | CLK_DIVIDER_ALLOW_ZERO,
 		.mult = NA_MULT,
 		.div = NA_DIV,
