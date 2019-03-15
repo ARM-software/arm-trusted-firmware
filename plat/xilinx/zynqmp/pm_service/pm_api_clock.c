@@ -30,6 +30,10 @@
 #define CLK_TYPE_SHIFT			U(2)
 #define CLK_CLKFLAGS_SHIFT		U(8)
 #define CLK_TYPEFLAGS_SHIFT		U(24)
+#define CLK_TYPEFLAGS2_SHIFT		U(4)
+#define CLK_TYPEFLAGS_BITS_MASK		U(0xFF)
+#define CLK_TYPEFLAGS2_BITS_MASK	U(0x0F00)
+#define CLK_TYPEFLAGS_BITS		U(8)
 
 #define CLK_EXTERNAL_PARENT	(PARENT_CLK_EXTERNAL << CLK_PARENTS_ID_LEN)
 
@@ -2461,6 +2465,7 @@ enum pm_ret_status pm_api_clock_get_topology(unsigned int clock_id,
 	struct pm_clock_node *clock_nodes;
 	uint8_t num_nodes;
 	unsigned int i;
+	uint16_t typeflags;
 
 	if (!pm_clock_valid(clock_id))
 		return PM_RET_ERROR_ARGS;
@@ -2480,11 +2485,14 @@ enum pm_ret_status pm_api_clock_get_topology(unsigned int clock_id,
 	for (i = 0; i < 3U; i++) {
 		if ((index + i) == num_nodes)
 			break;
-		topology[i] =  clock_nodes[index + i].type;
+		topology[i] = clock_nodes[index + i].type;
 		topology[i] |= clock_nodes[index + i].clkflags <<
 					CLK_CLKFLAGS_SHIFT;
-		topology[i] |= clock_nodes[index + i].typeflags <<
+		typeflags = clock_nodes[index + i].typeflags;
+		topology[i] |= (typeflags & CLK_TYPEFLAGS_BITS_MASK) <<
 					CLK_TYPEFLAGS_SHIFT;
+		topology[i] |= (typeflags & CLK_TYPEFLAGS2_BITS_MASK) >>
+				(CLK_TYPEFLAGS_BITS - CLK_TYPEFLAGS2_SHIFT);
 	}
 
 	return PM_RET_SUCCESS;
