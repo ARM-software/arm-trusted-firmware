@@ -146,13 +146,7 @@
 #elif defined(IMAGE_BL2U)
 # define PLATFORM_STACK_SIZE		UL(0x400)
 #elif defined(IMAGE_BL31)
-# if ENABLE_SPM
-#  define PLATFORM_STACK_SIZE		UL(0x600)
-# elif PLAT_XLAT_TABLES_DYNAMIC
 #  define PLATFORM_STACK_SIZE		UL(0x800)
-# else
-#  define PLATFORM_STACK_SIZE		UL(0x400)
-# endif
 #elif defined(IMAGE_BL32)
 # define PLATFORM_STACK_SIZE		UL(0x440)
 #endif
