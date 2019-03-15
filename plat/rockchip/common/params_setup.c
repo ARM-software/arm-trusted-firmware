@@ -11,6 +11,7 @@
 #include <common/debug.h>
 #include <drivers/console.h>
 #include <drivers/gpio.h>
+#include <libfdt.h>
 #include <lib/coreboot.h>
 #include <lib/mmio.h>
 #include <plat/common/platform.h>
@@ -26,6 +27,13 @@ static struct gpio_info *poweroff_gpio;
 static struct gpio_info suspend_gpio[10];
 uint32_t suspend_gpio_cnt;
 static struct apio_info *suspend_apio;
+
+static uint8_t fdt_buffer[0x10000];
+
+void *plat_get_fdt(void)
+{
+	return &fdt_buffer[0];
+}
 
 struct gpio_info *plat_get_rockchip_gpio_reset(void)
 {
@@ -49,10 +57,29 @@ struct apio_info *plat_get_rockchip_suspend_apio(void)
 	return suspend_apio;
 }
 
+static int dt_process_fdt(void *blob)
+{
+	void *fdt = plat_get_fdt();
+	int ret;
+
+	ret = fdt_open_into(blob, fdt, 0x10000);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
+
 void params_early_setup(void *plat_param_from_bl2)
 {
 	struct bl31_plat_param *bl2_param;
 	struct bl31_gpio_param *gpio_param;
+
+	/*
+	 * Test if this is a FDT passed as a platform-specific parameter
+	 * block.
+	 */
+	if (!dt_process_fdt(plat_param_from_bl2))
+		return;
 
 	/* keep plat parameters for later processing if need */
 	bl2_param = (struct bl31_plat_param *)plat_param_from_bl2;

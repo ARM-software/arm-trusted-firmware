@@ -8,6 +8,8 @@ RK_PLAT		:=	plat/rockchip
 RK_PLAT_SOC	:=	${RK_PLAT}/${PLAT}
 RK_PLAT_COMMON	:=	${RK_PLAT}/common
 
+include lib/libfdt/libfdt.mk
+
 PLAT_INCLUDES		:=	-I${RK_PLAT_COMMON}/			\
 				-I${RK_PLAT_COMMON}/include/		\
 				-I${RK_PLAT_COMMON}/pmusram		\
@@ -43,6 +45,7 @@ BL31_SOURCES	+=	${RK_GIC_SOURCES}				\
 			drivers/gpio/gpio.c				\
 			lib/cpus/aarch64/cortex_a53.S			\
 			lib/cpus/aarch64/cortex_a72.S			\
+			$(LIBFDT_SRCS)					\
 			${RK_PLAT_COMMON}/aarch64/plat_helpers.S	\
 			${RK_PLAT_COMMON}/bl31_plat_setup.c		\
 			${RK_PLAT_COMMON}/params_setup.c		\
