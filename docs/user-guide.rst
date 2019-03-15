@@ -1114,7 +1114,7 @@ images with support for these features:
    is important to use a version that is compatible with TF-A and fixes any
    known security vulnerabilities. See `mbed TLS Security Center`_ for more
    information. The latest version of TF-A is tested with tag
-   ``mbedtls-2.12.0``.
+   ``mbedtls-2.16.0``.
 
    The ``drivers/auth/mbedtls/mbedtls_*.mk`` files contain the list of mbed TLS
    source files the modules depend upon.
