@@ -25,6 +25,8 @@
 #include <plat_pm.h>
 #include <plat_private.h>
 #include <pmic.h>
+#include <spm.h>
+#include <spm_suspend.h>
 #include <rtc.h>
 
 #define MTK_LOCAL_STATE_OFF     2
@@ -149,6 +151,58 @@ static void __dead2 plat_system_reset(void)
 	panic();
 }
 
+static void plat_power_domain_suspend(const psci_power_state_t *state)
+{
+	uint64_t mpidr = read_mpidr();
+	int cpu = MPIDR_AFFLVL0_VAL(mpidr);
+	int cluster = MPIDR_AFFLVL1_VAL(mpidr);
+
+	spm_system_suspend();
+
+	/* init cpu reset arch as AARCH64 */
+	mcucfg_init_archstate(cluster, cpu, 1);
+	mcucfg_set_bootaddr(cluster, cpu, secure_entrypoint);
+	spm_set_bootaddr(secure_entrypoint);
+
+	/* Prevent interrupts from spuriously waking up this cpu */
+	gic_rdist_save();
+	gic_cpuif_deactivate(0);
+
+	if (state->pwr_domain_state[MPIDR_AFFLVL2] == MTK_LOCAL_STATE_OFF) {
+		plat_cci_disable();
+		disable_scu(mpidr);
+		gic_dist_save();
+	}
+}
+
+static void plat_power_domain_suspend_finish(const psci_power_state_t *state)
+{
+	uint64_t mpidr = read_mpidr();
+
+	gic_setup();
+	gic_dist_restore();
+
+	if (state->pwr_domain_state[MPIDR_AFFLVL2] == MTK_LOCAL_STATE_OFF) {
+		enable_scu(mpidr);
+		plat_cci_enable();
+		plat_dcm_restore_cluster_on(mpidr);
+	}
+
+	mmio_write_32(EMI_WFIFO, 0xf);
+	spm_system_suspend_finish();
+
+	gic_cpuif_init();
+	gic_rdist_restore();
+}
+
+static void plat_get_sys_suspend_power_state(psci_power_state_t *req_state)
+{
+	assert(PLAT_MAX_PWR_LVL >= 2);
+
+	for (int i = MPIDR_AFFLVL0; i <= PLAT_MAX_PWR_LVL; i++)
+		req_state->pwr_domain_state[i] = MTK_LOCAL_STATE_OFF;
+}
+
 /*******************************************************************************
  * MTK_platform handler called when an affinity instance is about to be turned
  * on. The level and mpidr determine the affinity instance.
@@ -158,12 +212,12 @@ static const plat_psci_ops_t plat_plat_pm_ops = {
 	.pwr_domain_on			= plat_power_domain_on,
 	.pwr_domain_on_finish		= plat_power_domain_on_finish,
 	.pwr_domain_off			= plat_power_domain_off,
-	.pwr_domain_suspend		= NULL,
-	.pwr_domain_suspend_finish	= NULL,
+	.pwr_domain_suspend		= plat_power_domain_suspend,
+	.pwr_domain_suspend_finish	= plat_power_domain_suspend_finish,
 	.system_off			= plat_system_off,
 	.system_reset			= plat_system_reset,
 	.validate_power_state		= NULL,
-	.get_sys_suspend_power_state	= NULL,
+	.get_sys_suspend_power_state	= plat_get_sys_suspend_power_state,
 };
 
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,

@@ -10,6 +10,8 @@
 #include <plat_debug.h>
 #include <platform_def.h>
 
+#define MP1_CPUTOP_PWR_CON		(0x10006218)
+
 /* setup other debug features */
 void circular_buffer_setup(void)
 {

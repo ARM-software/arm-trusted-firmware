@@ -12,10 +12,11 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT_SOC}/drivers/spmc/                  \
                  -I${MTK_PLAT_SOC}/drivers/gpio/                  \
                  -I${MTK_PLAT_SOC}/drivers/pmic/                  \
+                 -I${MTK_PLAT_SOC}/drivers/spm/                   \
                  -I${MTK_PLAT_SOC}/drivers/rtc/                   \
                  -I${MTK_PLAT_SOC}/include/
 
-PLAT_BL_COMMON_SOURCES := lib/xlat_tables/aarch64/xlat_tables.c	      \
+PLAT_BL_COMMON_SOURCES := lib/xlat_tables/aarch64/xlat_tables.c       \
                           lib/xlat_tables/xlat_tables_common.c        \
                           plat/common/plat_gicv2.c                    \
                           plat/common/aarch64/crash_console_helpers.S
@@ -40,10 +41,13 @@ BL31_SOURCES    += drivers/arm/cci/cci.c                                 \
                    ${MTK_PLAT_SOC}/drivers/pmic/pmic.c                   \
                    ${MTK_PLAT_SOC}/drivers/rtc/rtc.c                     \
                    ${MTK_PLAT_SOC}/drivers/spmc/mtspmc.c                 \
+                   ${MTK_PLAT_SOC}/drivers/spm/spm.c                     \
+                   ${MTK_PLAT_SOC}/drivers/spm/spm_suspend.c             \
                    ${MTK_PLAT_SOC}/drivers/gpio/mtgpio.c                 \
                    ${MTK_PLAT_SOC}/plat_pm.c                             \
                    ${MTK_PLAT_SOC}/plat_topology.c                       \
                    ${MTK_PLAT_SOC}/plat_mt_gic.c                         \
+                   ${MTK_PLAT_SOC}/plat_mt_cirq.c                        \
                    ${MTK_PLAT_SOC}/plat_dcm.c                            \
                    ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
                    ${MTK_PLAT_SOC}/plat_debug.c                          \

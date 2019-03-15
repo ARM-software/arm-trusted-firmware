@@ -859,6 +859,138 @@ uint64_t mt_irq_dump_status(uint32_t irq)
 	return rc;
 }
 
+uint32_t mt_irq_get_pending(uint32_t irq)
+{
+	uint32_t bit = 1 << (irq % 32);
+
+	return (mmio_read_32(BASE_GICD_BASE + GICD_ISPENDR + irq / 32 * 4) & bit) ? 1 : 0;
+}
+
+
+void mt_irq_set_pending(uint32_t irq)
+{
+	uint32_t bit = 1 << (irq % 32);
+
+	mmio_write_32(BASE_GICD_BASE + GICD_ISPENDR + irq / 32 * 4, bit);
+}
+
+/*
+ * mt_irq_mask_all: disable all interrupts
+ * @mask: pointer to struct mtk_irq_mask for storing the original mask value.
+ * Return 0 for success; return negative values for failure.
+ * (This is ONLY used for the idle current measurement by the factory mode.)
+ */
+int32_t mt_irq_mask_all(mtk_irq_mask_t *mask)
+{
+	unsigned int rdist_sgi_base = 0;
+
+	assert(gic_populate_rdist((unsigned int *)&rdist_sgi_base) != -1);
+	if (!mask)
+		return -1;
+
+	rdist_sgi_base += SZ_64K;
+	mask->mask0 = mmio_read_32((rdist_sgi_base + GICR_ISENABLER));
+	mask->mask1 = mmio_read_32((BASE_GICD_BASE + GICD_ISENABLER + 0x4));
+	mask->mask2 = mmio_read_32((BASE_GICD_BASE + GICD_ISENABLER + 0x8));
+	mask->mask3 = mmio_read_32((BASE_GICD_BASE + GICD_ISENABLER + 0xC));
+	mask->mask4 = mmio_read_32((BASE_GICD_BASE + GICD_ISENABLER + 0x10));
+	mask->mask5 = mmio_read_32((BASE_GICD_BASE + GICD_ISENABLER + 0x14));
+	mask->mask6 = mmio_read_32((BASE_GICD_BASE + GICD_ISENABLER + 0x18));
+	mask->mask7 = mmio_read_32((BASE_GICD_BASE + GICD_ISENABLER + 0x1C));
+	mask->mask8 = mmio_read_32((BASE_GICD_BASE + GICD_ISENABLER + 0x20));
+	mask->mask9 = mmio_read_32((BASE_GICD_BASE + GICD_ISENABLER + 0x24));
+	mask->mask10 = mmio_read_32((BASE_GICD_BASE + GICD_ISENABLER + 0x28));
+
+	mmio_write_32((BASE_GICR_BASE + GICR_ICENABLER), 0xFFFFFFFF);
+	mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x4), 0xFFFFFFFF);
+	mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x8), 0xFFFFFFFF);
+	mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0xc), 0xFFFFFFFF);
+	mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x10), 0xFFFFFFFF);
+	mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x14), 0xFFFFFFFF);
+	mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x18), 0xFFFFFFFF);
+	mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x1c), 0xFFFFFFFF);
+	mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x20), 0xFFFFFFFF);
+	mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x24), 0xFFFFFFFF);
+	mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x28), 0xFFFFFFFF);
+
+	mask->header = IRQ_MASK_HEADER;
+	mask->footer = IRQ_MASK_FOOTER;
+
+	return 0;
+}
+
+/*
+ * mt_irq_mask_restore: restore all interrupts
+ * @mask: pointer to struct mtk_irq_mask for storing the original mask value.
+ * Return 0 for success; return negative values for failure.
+ * (This is ONLY used for the idle current measurement by the factory mode.)
+ */
+int32_t mt_irq_mask_restore(struct mtk_irq_mask *mask)
+{
+	unsigned int rdist_sgi_base = 0;
+
+	assert(gic_populate_rdist((unsigned int *)&rdist_sgi_base) != -1);
+	if (!mask)
+		return -1;
+	if (mask->header != IRQ_MASK_HEADER)
+		return -1;
+	if (mask->footer != IRQ_MASK_FOOTER)
+		return -1;
+
+	gic_distif_init(MT_GIC_BASE);
+	rdist_sgi_base += SZ_64K;
+	mmio_write_32((rdist_sgi_base + GICR_ISENABLER), mask->mask0);
+	mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x4), mask->mask1);
+	mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x8), mask->mask2);
+	mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0xC), mask->mask3);
+	mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x10), mask->mask4);
+	mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x14), mask->mask5);
+	mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x18), mask->mask6);
+	mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x1C), mask->mask7);
+	mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x20), mask->mask8);
+	mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x24), mask->mask9);
+	mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x28), mask->mask10);
+
+	return 0;
+}
+
+/*
+ * mt_irq_mask_for_sleep: disable an interrupt for the sleep manager's use
+ * @irq: interrupt id
+ * (THIS IS ONLY FOR SLEEP FUNCTION USE. DO NOT USE IT YOURSELF!)
+ */
+void mt_irq_mask_for_sleep(uint32_t irq)
+{
+	uint32_t mask;
+
+	mask = 1 << (irq % 32);
+	if (irq < 16) {
+		ERROR("Fail to enable interrupt %d\n", irq);
+		return;
+	}
+
+	mmio_write_32(BASE_GICD_BASE + GICD_ICENABLER + irq / 32 * 4, mask);
+}
+
+/*
+ * mt_irq_unmask_for_sleep: enable an interrupt for the sleep manager's use
+ * @irq: interrupt id
+ * (THIS IS ONLY FOR SLEEP FUNCTION USE. DO NOT USE IT YOURSELF!)
+ */
+void mt_irq_unmask_for_sleep(int32_t irq)
+{
+
+	uint32_t mask;
+
+	mask = 1 << (irq % 32);
+	if (irq < 16) {
+		ERROR("Fail to enable interrupt %d\n", irq);
+		return;
+	}
+
+	mmio_write_32(BASE_GICD_BASE + GICD_ISENABLER + irq / 32 * 4, mask);
+}
+
 void gic_sync_dcm_enable(void)
 {
 	unsigned int val = mmio_read_32(GIC_SYNC_DCM);

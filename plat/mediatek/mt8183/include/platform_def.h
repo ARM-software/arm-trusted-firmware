@@ -74,6 +74,7 @@
 #define MT_L2_WRITE_ACCESS_RATE    (MCUCFG_BASE + 0x604)
 #define MP0_CA7L_CACHE_CONFIG    (MCUCFG_BASE + 0x7F0)
 #define MP1_CA7L_CACHE_CONFIG    (MCUCFG_BASE + 0x7F4)
+#define EMI_WFIFO                (MCUCFG_BASE + 0x0b5c)
 
 /*******************************************************************************
  * GIC related constants

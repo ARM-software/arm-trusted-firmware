@@ -14,6 +14,28 @@ enum irq_schedule_mode {
     HW_MODE,
 };
 
+#define GICR_ISENABLER		0x100
+#define GICR_ICENABLER		0x180
+
+#define IRQ_MASK_HEADER		0xF1F1F1F1
+#define IRQ_MASK_FOOTER		0xF2F2F2F2
+
+typedef struct mtk_irq_mask {
+	uint32_t header;	/* for error checking */
+	uint32_t mask0;
+	uint32_t mask1;
+	uint32_t mask2;
+	uint32_t mask3;
+	uint32_t mask4;
+	uint32_t mask5;
+	uint32_t mask6;
+	uint32_t mask7;
+	uint32_t mask8;
+	uint32_t mask9;
+	uint32_t mask10;
+	uint32_t footer;	/* for error checking */
+} mtk_irq_mask_t;
+
 #define GIC_INT_MASK (MCUCFG_BASE + 0x5e8)
 #define GIC500_ACTIVE_SEL_SHIFT 3
 #define GIC500_ACTIVE_SEL_MASK (0x7 << GIC500_ACTIVE_SEL_SHIFT)
@@ -34,6 +56,12 @@ void gic_cpuif_deactivate(unsigned int gicc_base);
 void gic_dist_save(void);
 void gic_dist_restore(void);
 void gic_setup(void);
+uint32_t mt_irq_get_pending(uint32_t irq);
+void mt_irq_set_pending(uint32_t irq);
+int32_t mt_irq_mask_all(mtk_irq_mask_t *mask);
+int32_t mt_irq_mask_restore(struct mtk_irq_mask *mask);
+void mt_irq_mask_for_sleep(uint32_t irq);
+void mt_irq_unmask_for_sleep(int32_t irq);
 
 /* distributor registers & their field definitions, in secure world */
 #define GICD_V3_CTLR                        0x0000
