@@ -478,6 +478,12 @@ endif
 ifeq ($(ENABLE_PAUTH),1)
     ifeq ($(CTX_INCLUDE_PAUTH_REGS),0)
         $(error ENABLE_PAUTH=1 requires CTX_INCLUDE_PAUTH_REGS=1)
+    else
+        $(info ENABLE_PAUTH and CTX_INCLUDE_PAUTH_REGS are experimental features)
+    endif
+else
+    ifeq ($(CTX_INCLUDE_PAUTH_REGS),1)
+        $(info CTX_INCLUDE_PAUTH_REGS is an experimental feature)
     endif
 endif
 

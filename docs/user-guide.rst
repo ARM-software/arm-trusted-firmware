@@ -358,11 +358,12 @@ Common build options
    registers to be included when saving and restoring the CPU context. Default
    is 0.
 
--  ``CTX_INCLUDE_PAUTH_REGS``: Boolean option that, when set to 1, will cause
-   the ARMv8.3-PAuth registers to be included when saving and restoring the CPU
-   context. Note that if the hardware supports this extension and this option is
-   set to 0 the value of the registers will be leaked between Secure and
-   Non-secure worlds if PAuth is used on both sides. The default is 0.
+-  ``CTX_INCLUDE_PAUTH_REGS``: Boolean option that, when set to 1, enables
+   Pointer Authentication for Secure world. This will cause the ARMv8.3-PAuth
+   registers to be included when saving and restoring the CPU context as
+   part of world switch. Default value is 0 and this is an experimental feature.
+   Note that Pointer Authentication is enabled for Non-secure world irrespective
+   of the value of this flag if the CPU supports it.
 
 -  ``DEBUG``: Chooses between a debug and release build. It can take either 0
    (release) or 1 (debug) as values. 0 is the default.
@@ -412,11 +413,11 @@ Common build options
    and use partitions in EL3 as required. This option defaults to ``0``.
 
 -  ``ENABLE_PAUTH``: Boolean option to enable ARMv8.3 Pointer Authentication
-   (``ARMv8.3-PAuth``) support in the Trusted Firmware itself. Note that this
-   option doesn't affect the saving of the registers introduced with this
-   extension, they are always saved if they are detected regardless of the value
-   of this option. If enabled, it is needed to use a compiler that supports the
-   option ``-msign-return-address``. It defaults to 0.
+  support for TF-A BL images itself. If enabled, it is needed to use a compiler 
+  that supports the option ``-msign-return-address``. This flag defaults to 0
+  and this is an experimental feature.
+  Note that Pointer Authentication is enabled for Non-secure world irrespective
+  of the value of this flag if the CPU supports it.
 
 -  ``ENABLE_PIE``: Boolean option to enable Position Independent Executable(PIE)
    support within generic code in TF-A. This option is currently only supported
@@ -1049,7 +1050,7 @@ The tool binary can be located in:
 
     ./tools/fiptool/fiptool
 
-Invoking the tool with ``--help`` will print a help message with all available
+Invoking the tool with ``help`` will print a help message with all available
 options.
 
 Example 1: create a new Firmware package ``fip.bin`` that contains BL2 and BL31:
