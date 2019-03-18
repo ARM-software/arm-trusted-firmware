@@ -208,6 +208,11 @@ void plat_early_platform_setup(void)
 	/* sanity check MCE firmware compatibility */
 	mce_verify_firmware_version();
 
+#if RAS_EXTENSION
+	/* Enable Uncorrectable RAS error */
+	tegra194_ras_enable();
+#endif
+
 	/*
 	 * Program XUSB STREAMIDs
 	 * ======================

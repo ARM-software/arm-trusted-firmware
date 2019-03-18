@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +18,47 @@
 #ifndef PLAT_RAS_PRI
 # error Platform must define RAS priority value
 #endif
+
+/*
+ * Function to convert architecturally-defined primary error code SERR,
+ * bits[7:0] from ERR<n>STATUS to its corresponding error string.
+ */
+const char *ras_serr_to_str(unsigned int serr)
+{
+	const char *str[ERROR_STATUS_NUM_SERR] = {
+		"No error",
+		"IMPLEMENTATION DEFINED error",
+		"Data value from (non-associative) internal memory",
+		"IMPLEMENTATION DEFINED pin",
+		"Assertion failure",
+		"Error detected on internal data path",
+		"Data value from associative memory",
+		"Address/control value from associative memory",
+		"Data value from a TLB",
+		"Address/control value from a TLB",
+		"Data value from producer",
+		"Address/control value from producer",
+		"Data value from (non-associative) external memory",
+		"Illegal address (software fault)",
+		"Illegal access (software fault)",
+		"Illegal state (software fault)",
+		"Internal data register",
+		"Internal control register",
+		"Error response from slave",
+		"External timeout",
+		"Internal timeout",
+		"Deferred error from slave not supported at master"
+	};
+
+	/*
+	 * All other values are reserved. Reserved values might be defined
+	 * in a future version of the architecture
+	 */
+	if (serr >= ERROR_STATUS_NUM_SERR)
+		return "unknown SERR";
+
+	return str[serr];
+}
 
 /* Handler that receives External Aborts on RAS-capable systems */
 int ras_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,

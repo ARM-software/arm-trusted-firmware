@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -150,6 +151,9 @@
 #define ERROR_STATUS_SET_UEO	0x1	/* Restable */
 #define ERROR_STATUS_SET_UC	0x2     /* Uncontainable */
 #define ERROR_STATUS_SET_CE	0x3     /* Corrected */
+
+/* Number of architecturally-defined primary error codes */
+#define ERROR_STATUS_NUM_SERR	U(22)
 
 /* Implementation Defined Syndrome bit in ESR */
 #define SERROR_IDS_BIT		U(24)
