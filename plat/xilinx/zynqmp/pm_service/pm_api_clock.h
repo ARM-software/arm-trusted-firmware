@@ -307,6 +307,9 @@ enum pm_ret_status pm_api_clock_get_parents(unsigned int clock_id,
 					    uint32_t *parents);
 enum pm_ret_status pm_api_clock_get_attributes(unsigned int clock_id,
 					       uint32_t *attr);
+enum pm_ret_status pm_api_clock_get_max_divisor(enum clock_id clock_id,
+						uint8_t div_type,
+						uint32_t *max_div);
 
 enum pm_ret_status pm_clock_get_pll_node_id(enum clock_id clock_id,
 					    enum pm_node_id *node_id);
