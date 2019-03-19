@@ -325,9 +325,8 @@ static action_t xlat_tables_unmap_region_action(const mmap_region_t *mm,
 
 	return action;
 }
-
 /*
- * Function that writes to the translation tables and unmaps the
+ * Recursive function that writes to the translation tables and unmaps the
  * specified region.
  */
 static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
@@ -338,137 +337,70 @@ static void xlat_tables_unmap_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 {
 	assert((level >= ctx->base_level) && (level <= XLAT_TABLE_LEVEL_MAX));
 
-	/*
-	 * data structure to track DESC_TABLE entry before iterate into subtable
-	 * of next translation level. it will be used to restore previous level
-	 * after finish subtable iteration.
-	 */
-	struct desc_table_unmap {
-		uint64_t *table_base;
-		uintptr_t table_idx_va;
-		unsigned int idx;
-	} desc_tables[XLAT_TABLE_LEVEL_MAX + 1] = {
-		{NULL, 0U, XLAT_TABLE_ENTRIES}, };
+	uint64_t *subtable;
+	uint64_t desc;
 
-	unsigned int this_level = level;
-	uint64_t *this_base = table_base;
-	unsigned int max_entries = table_entries;
-	size_t level_size = XLAT_BLOCK_SIZE(this_level);
-	unsigned int table_idx;
 	uintptr_t table_idx_va;
+	uintptr_t table_idx_end_va; /* End VA of this entry */
 
 	uintptr_t region_end_va = mm->base_va + mm->size - 1U;
+
+	unsigned int table_idx;
 
 	table_idx_va = xlat_tables_find_start_va(mm, table_base_va, level);
 	table_idx = xlat_tables_va_to_index(table_base_va, table_idx_va, level);
 
-	while (this_base != NULL) {
+	while (table_idx < table_entries) {
 
-		uint64_t desc;
-		uint64_t desc_type;
-		uintptr_t table_idx_end_va; /* End VA of this entry */
-		action_t action;
+		table_idx_end_va = table_idx_va + XLAT_BLOCK_SIZE(level) - 1U;
 
-		/* finish current xlat level iteration. */
-		if (table_idx >= max_entries) {
-			if (this_level > ctx->base_level) {
-				xlat_table_dec_regions_count(ctx, this_base);
-			}
+		desc = table_base[table_idx];
+		uint64_t desc_type = desc & DESC_MASK;
 
-			if (this_level > level) {
-				uint64_t *subtable;
-
-				/* back from subtable iteration, restore
-				 * previous DESC_TABLE entry.
-				 */
-				this_level--;
-				this_base = desc_tables[this_level].table_base;
-				table_idx = desc_tables[this_level].idx;
-				table_idx_va =
-					desc_tables[this_level].table_idx_va;
-				level_size = XLAT_BLOCK_SIZE(this_level);
-
-				if (this_level == level) {
-					max_entries = table_entries;
-				} else {
-					max_entries = XLAT_TABLE_ENTRIES;
-				}
-
-				desc = this_base[table_idx];
-				subtable =  (uint64_t *)(uintptr_t)(desc & TABLE_ADDR_MASK);
-				/*
-				 * If the subtable is now empty, remove its reference.
-				 */
-				if (xlat_table_is_empty(ctx, subtable)) {
-					this_base[table_idx] = INVALID_DESC;
-					xlat_arch_tlbi_va(table_idx_va,
-							ctx->xlat_regime);
-				}
-				table_idx++;
-				table_idx_va += level_size;
-
-			} else {
-				/* reached end of top level, exit.*/
-				this_base = NULL;
-				break;
-			}
-
-		}
-
-		/* If reached the end of the region, stop iterating entries in
-		 * current xlat level.
-		 */
-		if (region_end_va <= table_idx_va) {
-			table_idx = max_entries;
-			continue;
-		}
-
-
-		table_idx_end_va = table_idx_va + XLAT_BLOCK_SIZE(this_level) - 1U;
-
-		desc = this_base[table_idx];
-		desc_type = desc & DESC_MASK;
-
-		action = xlat_tables_unmap_region_action(mm, table_idx_va,
-							 table_idx_end_va,
-							 this_level,
-							 desc_type);
+		action_t action = xlat_tables_unmap_region_action(mm,
+				table_idx_va, table_idx_end_va, level,
+				desc_type);
 
 		if (action == ACTION_WRITE_BLOCK_ENTRY) {
-			this_base[table_idx] = INVALID_DESC;
+
+			table_base[table_idx] = INVALID_DESC;
 			xlat_arch_tlbi_va(table_idx_va, ctx->xlat_regime);
 
-			table_idx++;
-			table_idx_va += level_size;
 		} else if (action == ACTION_RECURSE_INTO_TABLE) {
-
-			uint64_t *subtable;
-			uintptr_t base_va;
 
 			subtable = (uint64_t *)(uintptr_t)(desc & TABLE_ADDR_MASK);
 
-			desc_tables[this_level].table_base = this_base;
-			desc_tables[this_level].table_idx_va = table_idx_va;
-			base_va = table_idx_va;
-			desc_tables[this_level].idx = table_idx;
+			/* Recurse to write into subtable */
+			xlat_tables_unmap_region(ctx, mm, table_idx_va,
+						 subtable, XLAT_TABLE_ENTRIES,
+						 level + 1U);
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+			xlat_clean_dcache_range((uintptr_t)subtable,
+				XLAT_TABLE_ENTRIES * sizeof(uint64_t));
+#endif
+			/*
+			 * If the subtable is now empty, remove its reference.
+			 */
+			if (xlat_table_is_empty(ctx, subtable)) {
+				table_base[table_idx] = INVALID_DESC;
+				xlat_arch_tlbi_va(table_idx_va,
+						  ctx->xlat_regime);
+			}
 
-			this_base = subtable;
-			this_level++;
-
-			max_entries = XLAT_TABLE_ENTRIES;
-			level_size = XLAT_BLOCK_SIZE(this_level);
-
-			table_idx_va = xlat_tables_find_start_va(mm,
-					base_va, this_level);
-			table_idx = xlat_tables_va_to_index(base_va,
-					table_idx_va, this_level);
 		} else {
 			assert(action == ACTION_NONE);
-
-			table_idx++;
-			table_idx_va += level_size;
 		}
+
+		table_idx++;
+		table_idx_va += XLAT_BLOCK_SIZE(level);
+
+		/* If reached the end of the region, exit */
+		if (region_end_va <= table_idx_va)
+			break;
 	}
+
+	if (level > ctx->base_level)
+		xlat_table_dec_regions_count(ctx, table_base);
 }
 
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
@@ -605,169 +537,105 @@ static action_t xlat_tables_map_region_action(const mmap_region_t *mm,
 }
 
 /*
- * Function that writes to the translation tables and maps the
+ * Recursive function that writes to the translation tables and maps the
  * specified region. On success, it returns the VA of the last byte that was
  * successfully mapped. On error, it returns the VA of the next entry that
  * should have been mapped.
  */
 static uintptr_t xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
-				   const uintptr_t table_base_va,
+				   uintptr_t table_base_va,
 				   uint64_t *const table_base,
 				   unsigned int table_entries,
 				   unsigned int level)
 {
-
 	assert((level >= ctx->base_level) && (level <= XLAT_TABLE_LEVEL_MAX));
 
-	/*
-	 * data structure to track DESC_TABLE entry before iterate into subtable
-	 * of next translation level. it will be used to restore previous level
-	 * after finish subtable iteration.
-	 */
-	struct desc_table_map {
-		uint64_t *table_base;
-		uintptr_t table_idx_va;
-		unsigned int idx;
-	} desc_tables[XLAT_TABLE_LEVEL_MAX + 1] = {
-		{NULL, 0U, XLAT_TABLE_ENTRIES}, };
-
-	unsigned int this_level = level;
-	uint64_t *this_base = table_base;
-	unsigned int max_entries = table_entries;
-	size_t level_size = XLAT_BLOCK_SIZE(this_level);
 	uintptr_t mm_end_va = mm->base_va + mm->size - 1U;
 
 	uintptr_t table_idx_va;
+	unsigned long long table_idx_pa;
+
+	uint64_t *subtable;
+	uint64_t desc;
+
 	unsigned int table_idx;
 
 	table_idx_va = xlat_tables_find_start_va(mm, table_base_va, level);
 	table_idx = xlat_tables_va_to_index(table_base_va, table_idx_va, level);
 
-	while (this_base != NULL) {
-
-		uint64_t desc;
-		uint64_t desc_type;
-		unsigned long long table_idx_pa;
-		action_t action;
-
-		/* finish current xlat level iteration. */
-		if (table_idx >= max_entries) {
-			if (this_level <= level) {
-				this_base = NULL;
-				break;
-			} else {
-
-				/* back from subtable iteration, restore
-				 * previous DESC_TABLE entry.
-				 */
-				this_level--;
-				level_size = XLAT_BLOCK_SIZE(this_level);
-				this_base = desc_tables[this_level].table_base;
-				table_idx = desc_tables[this_level].idx;
-				if (this_level == level) {
-					max_entries = table_entries;
-				} else {
-					max_entries = XLAT_TABLE_ENTRIES;
-				}
-#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
-				uintptr_t subtable;
-				desc = this_base[table_idx];
-				subtable = (uintptr_t)(desc & TABLE_ADDR_MASK);
-				xlat_clean_dcache_range(subtable,
-					XLAT_TABLE_ENTRIES * sizeof(uint64_t));
+#if PLAT_XLAT_TABLES_DYNAMIC
+	if (level > ctx->base_level)
+		xlat_table_inc_regions_count(ctx, table_base);
 #endif
 
-				table_idx++;
-				table_idx_va =
-					desc_tables[this_level].table_idx_va +
-					level_size;
-			}
-		}
+	while (table_idx < table_entries) {
 
-		desc = this_base[table_idx];
-		desc_type = desc & DESC_MASK;
+		desc = table_base[table_idx];
 
 		table_idx_pa = mm->base_pa + table_idx_va - mm->base_va;
 
-		/* If reached the end of the region, simply exit since we
-		 * already write all BLOCK entries and create all required
-		 * subtables.
-		 */
-		if (mm_end_va <= table_idx_va) {
-			this_base = NULL;
-			break;
-		}
-
-		action = xlat_tables_map_region_action(mm, desc_type,
-				table_idx_pa, table_idx_va, this_level);
+		action_t action = xlat_tables_map_region_action(mm,
+			(uint32_t)(desc & DESC_MASK), table_idx_pa,
+			table_idx_va, level);
 
 		if (action == ACTION_WRITE_BLOCK_ENTRY) {
-			this_base[table_idx] = xlat_desc(ctx, mm->attr,
-					table_idx_pa, this_level);
-			table_idx++;
-			table_idx_va += level_size;
+
+			table_base[table_idx] =
+				xlat_desc(ctx, (uint32_t)mm->attr, table_idx_pa,
+					  level);
+
 		} else if (action == ACTION_CREATE_NEW_TABLE) {
+			uintptr_t end_va;
 
-			uintptr_t base_va;
-
-			uint64_t *subtable = xlat_table_get_empty(ctx);
+			subtable = xlat_table_get_empty(ctx);
 			if (subtable == NULL) {
-				/* Not enough free tables to map this region. */
+				/* Not enough free tables to map this region */
 				return table_idx_va;
 			}
 
 			/* Point to new subtable from this one. */
-			this_base[table_idx] = TABLE_DESC | (unsigned long)subtable;
+			table_base[table_idx] = TABLE_DESC | (unsigned long)subtable;
 
-			desc_tables[this_level].table_base = this_base;
-			desc_tables[this_level].table_idx_va = table_idx_va;
-			desc_tables[this_level].idx = table_idx;
-			base_va = table_idx_va;
-
-			this_level++;
-			this_base = subtable;
-			level_size = XLAT_BLOCK_SIZE(this_level);
-			table_idx_va = xlat_tables_find_start_va(mm, base_va,
-					this_level);
-			table_idx = xlat_tables_va_to_index(base_va,
-					table_idx_va, this_level);
-			max_entries = XLAT_TABLE_ENTRIES;
-
-#if PLAT_XLAT_TABLES_DYNAMIC
-			if (this_level > ctx->base_level) {
-				xlat_table_inc_regions_count(ctx, subtable);
-			}
+			/* Recurse to write into subtable */
+			end_va = xlat_tables_map_region(ctx, mm, table_idx_va,
+					       subtable, XLAT_TABLE_ENTRIES,
+					       level + 1U);
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+			xlat_clean_dcache_range((uintptr_t)subtable,
+				XLAT_TABLE_ENTRIES * sizeof(uint64_t));
 #endif
+			if (end_va !=
+				(table_idx_va + XLAT_BLOCK_SIZE(level) - 1U))
+				return end_va;
 
 		} else if (action == ACTION_RECURSE_INTO_TABLE) {
+			uintptr_t end_va;
 
-			uintptr_t base_va;
-			uint64_t *subtable = (uint64_t *)(uintptr_t)(desc & TABLE_ADDR_MASK);
-
-			desc_tables[this_level].table_base = this_base;
-			desc_tables[this_level].table_idx_va = table_idx_va;
-			desc_tables[this_level].idx = table_idx;
-			base_va = table_idx_va;
-
-			this_level++;
-			level_size = XLAT_BLOCK_SIZE(this_level);
-			table_idx_va = xlat_tables_find_start_va(mm, base_va,
-					this_level);
-			table_idx = xlat_tables_va_to_index(base_va,
-					table_idx_va, this_level);
-			this_base = subtable;
-			max_entries = XLAT_TABLE_ENTRIES;
-
-#if PLAT_XLAT_TABLES_DYNAMIC
-			if (this_level > ctx->base_level) {
-				xlat_table_inc_regions_count(ctx, subtable);
-			}
+			subtable = (uint64_t *)(uintptr_t)(desc & TABLE_ADDR_MASK);
+			/* Recurse to write into subtable */
+			end_va = xlat_tables_map_region(ctx, mm, table_idx_va,
+					       subtable, XLAT_TABLE_ENTRIES,
+					       level + 1U);
+#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
+			xlat_clean_dcache_range((uintptr_t)subtable,
+				XLAT_TABLE_ENTRIES * sizeof(uint64_t));
 #endif
+			if (end_va !=
+				(table_idx_va + XLAT_BLOCK_SIZE(level) - 1U))
+				return end_va;
+
 		} else {
+
 			assert(action == ACTION_NONE);
-			table_idx++;
-			table_idx_va += level_size;
+
 		}
+
+		table_idx++;
+		table_idx_va += XLAT_BLOCK_SIZE(level);
+
+		/* If reached the end of the region, exit */
+		if (mm_end_va <= table_idx_va)
+			break;
 	}
 
 	return table_idx_va - 1U;
