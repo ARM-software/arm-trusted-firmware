@@ -14,9 +14,6 @@
 #include <lib/extensions/ras_arch.h>
 #include <plat/common/platform.h>
 
-#ifndef PLAT_RAS_PRI
-# error Platform must define RAS priority value
-#endif
 
 /* Handler that receives External Aborts on RAS-capable systems */
 int ras_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
@@ -56,6 +53,12 @@ int ras_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 
 	return (n_handled != 0U) ? 1 : 0;
 }
+
+#if EL3_EXCEPTION_HANDLING
+
+#ifndef PLAT_RAS_PRI
+# error Platform must define RAS priority value
+#endif
 
 #if ENABLE_ASSERTIONS
 static void assert_interrupts_sorted(void)
@@ -139,3 +142,9 @@ void __init ras_init(void)
 	/* Register RAS priority handler */
 	ehf_register_priority_handler(PLAT_RAS_PRI, ras_interrupt_handler);
 }
+
+#else
+
+void __init ras_init(void) {}
+
+#endif /* EL3_EXCEPTION_HANDLING */
