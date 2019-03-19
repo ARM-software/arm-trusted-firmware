@@ -32,6 +32,7 @@
 #include "aarch64/stratix10_private.h"
 #include "include/s10_mailbox.h"
 #include "drivers/qspi/cadence_qspi.h"
+#include "drivers/wdt/watchdog.h"
 
 
 const mmap_region_t plat_stratix10_mmap[] = {
@@ -71,6 +72,8 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	enable_nonsecure_access();
 	deassert_peripheral_reset();
 	config_hps_hs_before_warm_reset();
+
+	watchdog_init(get_wdt_clk(&reverse_handoff_ptr));
 
 	console_16550_register(PLAT_UART0_BASE, PLAT_UART_CLOCK, PLAT_BAUDRATE,
 		&console);
