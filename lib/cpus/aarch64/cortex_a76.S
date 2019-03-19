@@ -13,6 +13,11 @@
 #include <plat_macros.S>
 #include <services/arm_arch_svc.h>
 
+/* Hardware handled coherency */
+#if HW_ASSISTED_COHERENCY == 0
+#error "Cortex-A76 must be compiled with HW_ASSISTED_COHERENCY enabled"
+#endif
+
 #define ESR_EL3_A64_SMC0	0x5e000000
 #define ESR_EL3_A32_SMC0	0x4e000000
 

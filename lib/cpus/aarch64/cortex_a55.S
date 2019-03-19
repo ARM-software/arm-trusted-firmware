@@ -11,6 +11,11 @@
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
+/* Hardware handled coherency */
+#if HW_ASSISTED_COHERENCY == 0
+#error "Cortex-A55 must be compiled with HW_ASSISTED_COHERENCY enabled"
+#endif
+
 	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A55 Errata #768277.
 	 * This applies only to revision r0p0 of Cortex A55.

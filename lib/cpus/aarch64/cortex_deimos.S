@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,11 @@
 #include <cortex_deimos.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
+
+/* Hardware handled coherency */
+#if HW_ASSISTED_COHERENCY == 0
+#error "Deimos must be compiled with HW_ASSISTED_COHERENCY enabled"
+#endif
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down

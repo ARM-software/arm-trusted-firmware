@@ -11,6 +11,11 @@
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
+/* Hardware handled coherency */
+#if HW_ASSISTED_COHERENCY == 0
+#error "Neoverse Zeus must be compiled with HW_ASSISTED_COHERENCY enabled"
+#endif
+
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------

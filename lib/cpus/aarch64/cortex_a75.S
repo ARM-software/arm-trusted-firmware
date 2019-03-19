@@ -10,6 +10,11 @@
 #include <cpuamu.h>
 #include <cpu_macros.S>
 
+/* Hardware handled coherency */
+#if HW_ASSISTED_COHERENCY == 0
+#error "Cortex-A75 must be compiled with HW_ASSISTED_COHERENCY enabled"
+#endif
+
 	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A75 Errata #764081.
 	 * This applies only to revision r0p0 of Cortex A75.

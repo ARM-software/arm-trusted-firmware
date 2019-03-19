@@ -530,13 +530,21 @@ Common build options
 
 -  ``HW_ASSISTED_COHERENCY``: On most Arm systems to-date, platform-specific
    software operations are required for CPUs to enter and exit coherency.
-   However, there exists newer systems where CPUs' entry to and exit from
-   coherency is managed in hardware. Such systems require software to only
-   initiate the operations, and the rest is managed in hardware, minimizing
-   active software management. In such systems, this boolean option enables
-   TF-A to carry out build and run-time optimizations during boot and power
-   management operations. This option defaults to 0 and if it is enabled,
-   then it implies ``WARMBOOT_ENABLE_DCACHE_EARLY`` is also enabled.
+   However, newer systems exist where CPUs' entry to and exit from coherency
+   is managed in hardware. Such systems require software to only initiate these
+   operations, and the rest is managed in hardware, minimizing active software
+   management. In such systems, this boolean option enables TF-A to carry out
+   build and run-time optimizations during boot and power management operations.
+   This option defaults to 0 and if it is enabled, then it implies
+   ``WARMBOOT_ENABLE_DCACHE_EARLY`` is also enabled.
+
+   If this flag is disabled while the platform which TF-A is compiled for
+   includes cores that manage coherency in hardware, then a compilation error is
+   generated. This is based on the fact that a system cannot have, at the same
+   time, cores that manage coherency in hardware and cores that don't. In other
+   words, a platform cannot have, at the same time, cores that require
+   ``HW_ASSISTED_COHERENCY=1`` and cores that require
+   ``HW_ASSISTED_COHERENCY=0``.
 
    Note that, when ``HW_ASSISTED_COHERENCY`` is enabled, version 2 of
    translation library (xlat tables v2) must be used; version 1 of translation
