@@ -742,6 +742,11 @@ Common build options
    (Coherent memory region is included) or 0 (Coherent memory region is
    excluded). Default is 1.
 
+-  ``USE_ROMLIB``: This flag determines whether library at ROM will be used.
+   This feature creates a library of functions to be placed in ROM and thus
+   reduces SRAM usage. Refer to `Library at ROM`_ for further details. Default
+   is 0.
+
 -  ``V``: Verbose build. If assigned anything other than 0, the build commands
    are printed. Default is 0.
 
@@ -2102,3 +2107,4 @@ wakeup interrupt from RTC.
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _Secure Partition Manager Design guide: secure-partition-manager-design.rst
 .. _`Trusted Firmware-A Coding Guidelines`: coding-guidelines.rst
+   _`Library at ROM`: romlib-design.rst
