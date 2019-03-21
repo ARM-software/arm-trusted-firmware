@@ -159,6 +159,7 @@ int plat_sip_handler(uint32_t smc_fid,
 
 #if RAS_EXTENSION
 void tegra194_ras_enable(void);
+void tegra194_ras_corrected_err_clear(void);
 #endif
 
 #endif /* TEGRA_PRIVATE_H */

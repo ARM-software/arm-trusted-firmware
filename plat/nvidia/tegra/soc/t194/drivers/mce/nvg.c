@@ -236,3 +236,15 @@ void nvg_system_shutdown(void)
 	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_SHUTDOWN,
 			     (uint64_t)TEGRA_NVG_SHUTDOWN);
 }
+
+/*
+ * Request to clear CCPLEX->HSM correctable error signal.
+ * NVGDATA[1]: A write of 1 clears the CCPLEX->HSM correctable error signal,
+ *             A write of 0 has no effect.
+ */
+void nvg_clear_hsm_corr_status(void)
+{
+	nvg_hsm_error_ctrl_channel_t status = { .bits = { .corr = 1U, }, };
+
+	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_HSM_ERROR_CTRL, status.flat);
+}
