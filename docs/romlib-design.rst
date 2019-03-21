@@ -85,12 +85,12 @@ ROM" to work:
 1. ``gentbl.sh`` - Generates the jump table by parsing the index file.
 
 2. ``genvar.sh`` - Generates the jump table global variable (**not** the jump
-table itself) with the absolute address in ROM. This global variable is,
-basically, a pointer to the jump table.
+   table itself) with the absolute address in ROM. This global variable is,
+   basically, a pointer to the jump table.
 
 3. ``genwrappers.sh`` - Generates a wrapper function for each entry in the index
-file except for the ones that contain the keyword ``patch``. The generated
-wrapper file is called ``<lib>_<fn_name>.S``.
+   file except for the ones that contain the keyword ``patch``. The generated
+   wrapper file is called ``<lib>_<fn_name>.S``.
 
 Patching of functions in library at ROM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -108,6 +108,8 @@ Build library at ROM
 ~~~~~~~~~~~~~~~~~~~~~
 
 The environment variable ``CROSS_COMPILE`` must be set as per the user guide.
+In the below example the usage of ROMLIB together with mbed TLS is demonstrated
+to showcase the benefits of library at ROM - it's not mandatory.
 
 ::
 
@@ -119,6 +121,12 @@ The environment variable ``CROSS_COMPILE`` must be set as per the user guide.
     BL33=</path/to/bl33.bin>                                        \
     USE_ROMLIB=1                                                    \
     all fip
+
+Known issue
+-----------
+When building library at ROM, a clean build is always required. This is
+necessary when changes are made to the index files, e.g. adding new functions,
+patching existing ones etc.
 
 --------------
 
