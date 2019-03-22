@@ -110,11 +110,6 @@ Comphy Porting (phy-porting-layer.h or phy-default-porting-layer.h)
     parameters need to be suited and the board designer should provide relevant
     values.
 
-    .. seealso::
-        For XFI/SFI comphy type there is procedure "rx_training" which eases
-        process of suiting some of the parameters. Please see *uboot_cmd*
-        section: rx_training.
-
     The PHY porting layer simplifies updating static values per board type,
     which are now grouped in one place.
 
