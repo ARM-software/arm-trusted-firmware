@@ -78,6 +78,9 @@
 #define PM_PLL_GET_MODE			51U
 #define PM_FEATURE_CHECK		63U
 
+/* Loader API ids */
+#define PM_LOAD_PDI			0x701U
+
 /* IOCTL IDs for clock driver */
 #define IOCTL_SET_PLL_FRAC_MODE		8
 #define	IOCTL_GET_PLL_FRAC_MODE		9

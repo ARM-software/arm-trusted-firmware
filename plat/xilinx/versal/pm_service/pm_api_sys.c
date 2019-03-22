@@ -802,6 +802,9 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	case PM_FEATURE_CHECK:
 		*version = (PM_API_BASE_VERSION << 16);
 		break;
+	case PM_LOAD_PDI:
+		*version = (PM_API_BASE_VERSION << 16);
+		return PM_RET_SUCCESS;
 	default:
 		*version = 0U;
 		return PM_RET_ERROR_NOFEATURE;
@@ -816,4 +819,26 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	*version |= fw_api_version;
 
 	return PM_RET_SUCCESS;
+}
+
+/**
+ * pm_load_pdi() - Load the PDI
+ *
+ * This function provides support to load PDI from linux
+ *
+ * src:        Source device of pdi(DDR, OCM, SD etc)
+ * address_low: lower 32-bit Linear memory space address
+ * address_high: higher 32-bit Linear memory space address
+ *
+ * @return      Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_load_pdi(uint32_t src,
+			       uint32_t address_low, uint32_t address_high)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD4(payload, LOADER_MODULE_ID, PM_LOAD_PDI, src,
+			 address_high, address_low);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
