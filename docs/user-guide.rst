@@ -81,11 +81,11 @@ In addition, the following optional packages and tools may be needed:
 Getting the TF-A source code
 ----------------------------
 
-Download the TF-A source code from Github:
-
-::
-
-    git clone https://github.com/ARM-software/arm-trusted-firmware.git
+Clone the repository from the Gerrit server. The project details may be found
+on the `arm-trusted-firmware-a project page`_. We recommend the "`Clone with
+commit-msg hook`" clone method, which will setup the git commit hook that
+automatically generates and inserts appropriate `Change-Id:` lines in your
+commit messages.
 
 Checking source code style
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2101,6 +2101,7 @@ wakeup interrupt from RTC.
 .. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/w/docs/303/juno
 .. _Arm Platforms Portal: https://community.arm.com/dev-platforms/
 .. _Development Studio 5 (DS-5): https://developer.arm.com/products/software-development-tools/ds-5-development-studio
+.. _arm-trusted-firmware-a project page: https://review.trustedfirmware.org/admin/projects/TF-A/trusted-firmware-a
 .. _`Linux Coding Style`: https://www.kernel.org/doc/html/latest/process/coding-style.html
 .. _Linux master tree: https://github.com/torvalds/linux/tree/master/
 .. _Dia: https://wiki.gnome.org/Apps/Dia/Download
@@ -2118,4 +2119,4 @@ wakeup interrupt from RTC.
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _Secure Partition Manager Design guide: secure-partition-manager-design.rst
 .. _`Trusted Firmware-A Coding Guidelines`: coding-guidelines.rst
-   _`Library at ROM`: romlib-design.rst
+.. _`Library at ROM`: romlib-design.rst

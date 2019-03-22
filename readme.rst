@@ -251,15 +251,13 @@ Still to come
 -  Ongoing security hardening, optimization and quality improvements.
 
 For a full list of detailed issues in the current code, please see the `Change
-Log`_ and the `GitHub issue tracker`_.
+Log`_ and the `issue tracker`_.
 
 Getting started
 ---------------
 
-Get the TF-A source code from `GitHub`_.
-
-See the `User Guide`_ for instructions on how to install, build and use TF-A
-with the Arm `FVP`_\ s.
+See the `User Guide`_ for instructions on how to download, install, build and
+use TF-A with the Arm `FVP`_\ s.
 
 See the `Firmware Design`_ for information on how TF-A works.
 
@@ -281,7 +279,7 @@ IRC channel
 
 Development discussion takes place on the #trusted-firmware-a channel
 on the Freenode IRC network. This is not an official support channel.
-If you have an issue to raise, please use the `GitHub issue tracker`_.
+If you have an issue to raise, please use the `issue tracker`_.
 
 Feedback and support
 ~~~~~~~~~~~~~~~~~~~~
@@ -289,7 +287,7 @@ Feedback and support
 Arm welcomes any feedback on TF-A. If you think you have found a security
 vulnerability, please report this using the process defined in the TF-A
 `Security Center`_. For all other feedback, please use the
-`GitHub issue tracker`_.
+`issue tracker`_.
 
 Arm licensees may contact Arm directly via their partner managers.
 
@@ -326,8 +324,8 @@ Security advisories
 .. _OP-TEE Secure OS: https://github.com/OP-TEE/optee_os
 .. _NVIDIA Trusted Little Kernel: http://nv-tegra.nvidia.com/gitweb/?p=3rdparty/ote_partner/tlk.git;a=summary
 .. _Trusty Secure OS: https://source.android.com/security/trusty
-.. _GitHub: https://www.github.com/ARM-software/arm-trusted-firmware
-.. _GitHub issue tracker: https://github.com/ARM-software/tf-issues/issues
+.. _trustedfirmware.org: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
+.. _issue tracker: http://issues.trustedfirmware.org
 .. _Security Center: ./docs/security-center.rst
 .. _license: ./license.rst
 .. _Contributing Guidelines: ./contributing.rst
