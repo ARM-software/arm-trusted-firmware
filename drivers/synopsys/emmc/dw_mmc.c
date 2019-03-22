@@ -426,8 +426,7 @@ void dw_mmc_init(dw_mmc_params_t *params, struct mmc_device_info *info)
 
 	memcpy(&dw_params, params, sizeof(dw_mmc_params_t));
 	mmio_write_32(dw_params.reg_base + DWMMC_FIFOTH, 0x103ff);
+	dw_params.mmc_dev_type = info->mmc_dev_type;
 	mmc_init(&dw_mmc_ops, params->clk_rate, params->bus_width,
 		 params->flags, info);
-
-	dw_params.mmc_dev_type = info->mmc_dev_type;
 }
