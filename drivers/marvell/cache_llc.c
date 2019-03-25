@@ -31,19 +31,19 @@ void llc_cache_sync(int ap_index)
 
 void llc_flush_all(int ap_index)
 {
-	mmio_write_32(L2X0_CLEAN_INV_WAY(ap_index), LLC_WAY_MASK);
+	mmio_write_32(LLC_CLEAN_INV_WAY(ap_index), LLC_ALL_WAYS_MASK);
 	llc_cache_sync(ap_index);
 }
 
 void llc_clean_all(int ap_index)
 {
-	mmio_write_32(L2X0_CLEAN_WAY(ap_index), LLC_WAY_MASK);
+	mmio_write_32(LLC_CLEAN_WAY(ap_index), LLC_ALL_WAYS_MASK);
 	llc_cache_sync(ap_index);
 }
 
 void llc_inv_all(int ap_index)
 {
-	mmio_write_32(L2X0_INV_WAY(ap_index), LLC_WAY_MASK);
+	mmio_write_32(LLC_INV_WAY(ap_index), LLC_ALL_WAYS_MASK);
 	llc_cache_sync(ap_index);
 }
 

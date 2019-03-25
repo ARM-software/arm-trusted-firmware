@@ -14,18 +14,27 @@
 
 #define LLC_CTRL(ap)			(MVEBU_LLC_BASE(ap) + 0x100)
 #define LLC_SYNC(ap)			(MVEBU_LLC_BASE(ap) + 0x700)
-#define L2X0_INV_WAY(ap)		(MVEBU_LLC_BASE(ap) + 0x77C)
-#define L2X0_CLEAN_WAY(ap)		(MVEBU_LLC_BASE(ap) + 0x7BC)
-#define L2X0_CLEAN_INV_WAY(ap)		(MVEBU_LLC_BASE(ap) + 0x7FC)
+#define LLC_BANKED_MNT_AHR(ap)		(MVEBU_LLC_BASE(ap) + 0x724)
+#define LLC_INV_WAY(ap)			(MVEBU_LLC_BASE(ap) + 0x77C)
+#define LLC_BLK_ALOC(ap)		(MVEBU_LLC_BASE(ap) + 0x78c)
+#define LLC_CLEAN_WAY(ap)		(MVEBU_LLC_BASE(ap) + 0x7BC)
+#define LLC_CLEAN_INV_WAY(ap)		(MVEBU_LLC_BASE(ap) + 0x7FC)
 #define LLC_TC0_LOCK(ap)		(MVEBU_LLC_BASE(ap) + 0x920)
 
 #define MASTER_LLC_CTRL			LLC_CTRL(MVEBU_AP0)
-#define MASTER_L2X0_INV_WAY		L2X0_INV_WAY(MVEBU_AP0)
+#define MASTER_LLC_INV_WAY		LLC_INV_WAY(MVEBU_AP0)
 #define MASTER_LLC_TC0_LOCK		LLC_TC0_LOCK(MVEBU_AP0)
 
 #define LLC_CTRL_EN			1
 #define LLC_EXCLUSIVE_EN		0x100
-#define LLC_WAY_MASK			0xFFFFFFFF
+#define LLC_ALL_WAYS_MASK		0xFFFFFFFF
+
+/* AP806/AP807 - 1MB 8-ways LLC */
+#define LLC_WAYS			8
+#define LLC_WAY_MASK			((1 << LLC_WAYS) - 1)
+#define LLC_SIZE			(1024 * 1024)
+#define LLC_WAY_SIZE			(LLC_SIZE / LLC_WAYS)
+
 
 #ifndef __ASSEMBLER__
 void llc_cache_sync(int ap_index);
