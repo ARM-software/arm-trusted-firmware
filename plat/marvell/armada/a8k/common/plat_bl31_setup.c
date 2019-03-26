@@ -116,20 +116,11 @@ void bl31_plat_arch_setup(void)
 		marvell_bl31_plat_arch_setup();
 
 	for (cp = 0; cp < CP_COUNT; cp++) {
-		if (cp >= 1)
-			update_cp110_default_win(cp);
-
 		cp110_init(MVEBU_CP_REGS_BASE(cp),
 			   STREAM_ID_BASE + (cp * MAX_STREAM_ID_PER_CP));
 
 		marvell_bl31_mpp_init(cp);
 	}
-
-	/*
-	 * There is need to configure IO_WIN windows again to overwrite
-	 * temporary configuration done during update_cp110_default_win
-	 */
-	init_io_win(MVEBU_AP0);
 
 	for (cp = 1; cp < CP_COUNT; cp++)
 		mci_link_tune(cp - 1);
