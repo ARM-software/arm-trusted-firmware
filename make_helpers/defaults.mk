@@ -138,7 +138,7 @@ KEY_ALG				:= rsa
 
 # Enable use of the console API allowing multiple consoles to be registered
 # at the same time.
-MULTI_CONSOLE_API		:= 0
+MULTI_CONSOLE_API		:= 1
 
 # NS timer register save and restore
 NS_TIMER_SWITCH			:= 0

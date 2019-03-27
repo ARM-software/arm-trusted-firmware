@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,14 +8,6 @@
 #include <assert_macros.S>
 #include <console_macros.S>
 #include <drivers/arm/pl011.h>
-
-#if !MULTI_CONSOLE_API
-/*
- * Pull in generic functions to provide backwards compatibility for
- * platform makefiles
- */
-#include "../../../console/aarch64/console.S"
-#endif
 
 	/*
 	 * "core" functions are low-level implementations that don't require
