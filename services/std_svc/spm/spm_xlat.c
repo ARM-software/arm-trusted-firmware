@@ -95,6 +95,34 @@ xlat_ctx_t *spm_sp_xlat_context_alloc(void)
 };
 
 /*******************************************************************************
+ * Translation table context used for S-EL1 exception vectors
+ ******************************************************************************/
+
+REGISTER_XLAT_CONTEXT2(spm_sel1, SPM_SHIM_MMAP_REGIONS, SPM_SHIM_XLAT_TABLES,
+		SPM_SHIM_XLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE,
+		EL1_EL0_REGIME, PLAT_SP_IMAGE_XLAT_SECTION_NAME);
+
+void spm_exceptions_xlat_init_context(void)
+{
+	/* This region contains the exception vectors used at S-EL1. */
+	mmap_region_t sel1_exception_vectors =
+		MAP_REGION(SPM_SHIM_EXCEPTIONS_PTR,
+			   0x0UL,
+			   SPM_SHIM_EXCEPTIONS_SIZE,
+			   MT_CODE | MT_SECURE | MT_PRIVILEGED);
+
+	mmap_add_region_ctx(&spm_sel1_xlat_ctx,
+			    &sel1_exception_vectors);
+
+	init_xlat_tables_ctx(&spm_sel1_xlat_ctx);
+}
+
+uint64_t *spm_exceptions_xlat_get_base_table(void)
+{
+	return spm_sel1_xlat_ctx.base_table;
+}
+
+/*******************************************************************************
  * Functions to allocate memory for regions.
  ******************************************************************************/
 
@@ -300,15 +328,6 @@ static void map_rdmem(sp_context_t *sp_ctx, struct sp_rd_sect_mem_region *rdmem)
 
 void sp_map_memory_regions(sp_context_t *sp_ctx)
 {
-	/* This region contains the exception vectors used at S-EL1. */
-	const mmap_region_t sel1_exception_vectors =
-		MAP_REGION_FLAT(SPM_SHIM_EXCEPTIONS_START,
-				SPM_SHIM_EXCEPTIONS_SIZE,
-				MT_CODE | MT_SECURE | MT_PRIVILEGED);
-
-	mmap_add_region_ctx(sp_ctx->xlat_ctx_handle,
-			    &sel1_exception_vectors);
-
 	struct sp_rd_sect_mem_region *rdmem;
 
 	for (rdmem = sp_ctx->rd.mem_region; rdmem != NULL; rdmem = rdmem->next) {

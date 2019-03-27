@@ -300,6 +300,9 @@ int32_t spm_setup(void)
 		panic();
 	}
 
+	/* Setup shim layer */
+	spm_exceptions_xlat_init_context();
+
 	/*
 	 * Setup all Secure Partitions.
 	 */
