@@ -4,6 +4,446 @@
 
 .. contents::
 
+Trusted Firmware-A - version 2.1
+================================
+
+New Features
+------------
+
+- Architecture
+   - Support for ARMv8.3 pointer authentication in the normal and secure worlds
+
+     The use of pointer authentication in the normal world is enabled whenever
+     architectural support is available, without the need for additional build
+     flags.
+
+     Use of pointer authentication in the secure world remains an
+     experimental configuration at this time. Using both the ``ENABLE_PAUTH``
+     and ``CTX_INCLUDE_PAUTH_REGS`` build flags, pointer authentication can be
+     enabled in EL3 and S-EL1/0.
+
+     See the `Firmware Design`_ document for additional details on the use of
+     pointer authentication.
+
+   - Enable Data Independent Timing (DIT) in EL3, where supported
+
+- Build System
+   - Support for BL-specific build flags
+
+   - Support setting compiler target architecture based on ``ARM_ARCH_MINOR``
+     build option.
+
+   - New ``RECLAIM_INIT_CODE`` build flag:
+
+     A significant amount of the code used for the initialization of BL31 is
+     not needed again after boot time. In order to reduce the runtime memory
+     footprint, the memory used for this code can be reclaimed after
+     initialization.
+
+     Certain boot-time functions were marked with the ``__init`` attribute to
+     enable this reclamation.
+
+- CPU Support
+   - cortex-a76: Workaround for erratum 1073348
+   - cortex-a76: Workaround for erratum 1220197
+   - cortex-a76: Workaround for erratum 1130799
+
+   - cortex-a75: Workaround for erratum 790748
+   - cortex-a75: Workaround for erratum 764081
+
+   - cortex-a73: Workaround for erratum 852427
+   - cortex-a73: Workaround for erratum 855423
+
+   - cortex-a57: Workaround for erratum 817169
+   - cortex-a57: Workaround for erratum 814670
+
+   - cortex-a55: Workaround for erratum 903758
+   - cortex-a55: Workaround for erratum 846532
+   - cortex-a55: Workaround for erratum 798797
+   - cortex-a55: Workaround for erratum 778703
+   - cortex-a55: Workaround for erratum 768277
+
+   - cortex-a53: Workaround for erratum 819472
+   - cortex-a53: Workaround for erratum 824069
+   - cortex-a53: Workaround for erratum 827319
+
+   - cortex-a17: Workaround for erratum 852423
+   - cortex-a17: Workaround for erratum 852421
+
+   - cortex-a15: Workaround for erratum 816470
+   - cortex-a15: Workaround for erratum 827671
+
+- Documentation
+   - Exception Handling Framework documentation
+
+   - Library at ROM (romlib) documentation
+
+   - RAS framework documentation
+
+   - Coding Guidelines document
+
+- Drivers
+   - ccn: Add API for setting and reading node registers
+      - Adds ``ccn_read_node_reg`` function
+      - Adds ``ccn_write_node_reg`` function
+
+   - partition: Support MBR partition entries
+
+   - scmi: Add ``plat_css_get_scmi_info`` function
+
+     Adds a new API ``plat_css_get_scmi_info`` which lets the platform
+     register a platform-specific instance of ``scmi_channel_plat_info_t`` and
+     remove the default values
+
+   - tzc380: Add TZC380 TrustZone Controller driver
+
+   - tzc-dmc620: Add driver to manage the TrustZone Controller within the
+     DMC-620 Dynamic Memory Controller
+
+- Library at ROM (romlib)
+   - Add platform-specific jump table list
+
+   - Allow patching of romlib functions
+
+     This change allows patching of functions in the romlib. This can be done by
+     adding "patch" at the end of the jump table entry for the function that
+     needs to be patched in the file jmptbl.i.
+
+- Library Code
+   - Support non-LPAE-enabled MMU tables in AArch32
+
+   - mmio: Add ``mmio_clrsetbits_16`` function
+      - 16-bit variant of ``mmio_clrsetbits``
+
+   - object_pool: Add Object Pool Allocator
+      - Manages object allocation using a fixed-size static array
+      - Adds ``pool_alloc`` and ``pool_alloc_n`` functions
+      - Does not provide any functions to free allocated objects (by design)
+
+   - libc: Added ``strlcpy`` function
+
+   - libc: Import ``strrchr`` function from FreeBSD
+
+   - xlat_tables: Add support for ARMv8.4-TTST
+
+   - xlat_tables: Support mapping regions without an explicitly specified VA
+
+- Math
+   - Added softudiv macro to support software division
+
+- Memory Partitioning And Monitoring (MPAM)
+   - Enabled MPAM EL2 traps (``MPAMHCR_EL2`` and ``MPAM_EL2``)
+
+- Platforms
+   - amlogic: Add support for Meson S905 (GXBB)
+
+   - arm/fvp_ve: Add support for FVP Versatile Express platform
+
+   - arm/n1sdp: Add support for Neoverse N1 System Development platform
+
+   - arm/rde1edge: Add support for Neoverse E1 platform
+
+   - arm/rdn1edge: Add support for Neoverse N1 platform
+
+   - arm: Add support for booting directly to Linux without an intermediate
+     loader (AArch32)
+
+   - arm/juno: Enable new CPU errata workarounds for A53 and A57
+
+   - arm/juno: Add romlib support
+
+     Building a combined BL1 and ROMLIB binary file with the correct page
+     alignment is now supported on the Juno platform. When ``USE_ROMLIB`` is set
+     for Juno, it generates the combined file ``bl1_romlib.bin`` which needs to
+     be used instead of bl1.bin.
+
+   - intel/stratix: Add support for Intel Stratix 10 SoC FPGA platform
+
+   - marvell: Add support for Armada-37xx SoC platform
+
+   - nxp: Add support for i.MX8M and i.MX7 Warp7 platforms
+
+   - renesas: Add support for R-Car Gen3 platform
+
+   - xilinx: Add support for Versal ACAP platforms
+
+- Position-Independent Executable (PIE)
+
+  PIE support has initially been added to BL31. The ``ENABLE_PIE`` build flag is
+  used to enable or disable this functionality as required.
+
+- Secure Partition Manager
+   - New, SPCI-compliant SPM implementation
+
+     A new version of SPM has been implemented based on draft specifications of
+     the SPCI (Secure Partition Client Interface) and SPRT (Secure
+     Partition Runtime) specifications.
+
+     The new implementation is a prototype that is expected to undergo intensive
+     rework as the specifications change. It has basic support for multiple
+     Secure Partitions and Resource Descriptions.
+
+     The old version of SPM, based on MM (ARM Management Mode Interface
+     Specification), is still present in the codebase. A new build flag,
+     ``SPM_MM`` has been added to allow selection of the desired implementation.
+     This flag defaults to 1, selecting the MM-based implementation.
+
+- Security
+   - Spectre Variant-1 mitigations (``CVE-2017-5753``)
+
+   - Use Speculation Store Bypass Safe (SSBS) functionality where available
+
+     Provides mitigation against ``CVE-2018-19440`` (Not saving x0 to x3
+     registers can leak information from one Normal World SMC client to another)
+
+
+Changed
+-------
+
+- Build System
+   - Warning levels are now selectable with ``W=<1,2,3>``
+
+   - Removed unneeded include paths in PLAT_INCLUDES
+
+   - "Warnings as errors" (Werror) can be disabled using ``E=0``
+
+   - Support totally quiet output with ``-s`` flag
+
+   - Support passing options to checkpatch using ``CHECKPATCH_OPTS=<opts>``
+
+   - Invoke host compiler with ``HOSTCC / HOSTCCFLAGS`` instead of ``CC / CFLAGS``
+
+   - Make device tree pre-processing similar to U-boot/Linux by:
+      - Creating separate ``CPPFLAGS`` for DT preprocessing so that compiler
+        options specific to it can be accommodated.
+      - Replacing ``CPP`` with ``PP`` for DT pre-processing
+
+- CPU Support
+   - Errata report function definition is now mandatory for CPU support files
+
+     CPU operation files must now define a ``<name>_errata_report`` function to
+     print errata status. This is no longer a weak reference.
+
+- Documentation
+   - Migrated some content from GitHub wiki to ``docs/`` directory
+
+   - Security advisories now have CVE links
+
+   - Updated copyright guidelines
+
+   - Miscellaneous small fixes
+
+- Drivers
+   - console: The ``MULTI_CONSOLE_API`` framework has been rewritten in C
+   - console: Ported multi-console driver to AArch32
+
+   - gic: Remove 'lowest priority' constants
+
+     Removed ``GIC_LOWEST_SEC_PRIORITY`` and ``GIC_LOWEST_NS_PRIORITY``.
+     Platforms should define these if required, or instead determine the correct
+     priority values at runtime.
+
+   - delay_timer: Check that the Generic Timer extension is present
+
+   - mmc: Increase command reply timeout to 10 milliseconds
+
+   - mmc: Poll eMMC device status to ensure ``EXT_CSD`` command completion
+
+   - mmc: Correctly check return code from ``mmc_fill_device_info``
+
+- External Libraries
+
+   - libfdt: Upgraded from 1.4.2 to 1.4.6-9
+
+   - mbed TLS: Upgraded from 2.12 to 2.16
+
+     This change incorporates fixes for security issues that should be reviewed
+     to determine if they are relevant for software implementations using
+     Trusted Firmware-A. See the `mbed TLS releases`_ page for details on
+     changes from the 2.12 to the 2.16 release.
+
+- Library Code
+   - compiler-rt: Updated ``lshrdi3.c`` and ``int_lib.h`` with changes from
+     LLVM master branch (r345645)
+
+   - cpu: Updated macro that checks need for ``CVE-2017-5715`` mitigation
+
+   - libc: Made setjmp and longjmp C standard compliant
+
+   - libc: Allowed overriding the default libc (use ``OVERRIDE_LIBC``)
+
+   - libc: Moved setjmp and longjmp to the ``libc/`` directory
+
+- Platforms
+   - Removed Mbed TLS dependency from plat_bl_common.c
+
+   - arm: Removed unused ``ARM_MAP_BL_ROMLIB`` macro
+
+   - arm: Removed ``ARM_BOARD_OPTIMISE_MEM`` feature and build flag
+
+   - arm: Moved several components into ``drivers/`` directory
+
+     This affects the SDS, SCP, SCPI, MHU and SCMI components
+
+   - arm/juno: Increased maximum BL2 image size to ``0xF000``
+
+     This change was required to accommodate a larger ``libfdt`` library
+
+- SCMI
+   - Optimized bakery locks when hardware-assisted coherency is enabled using the
+     ``HW_ASSISTED_COHERENCY`` build flag
+
+- SDEI
+   - Added support for unconditionally resuming secure world execution after
+     SDEI event processing completes
+
+     SDEI interrupts, although targeting EL3, occur on behalf of the non-secure
+     world, and may have higher priority than secure world
+     interrupts. Therefore they might preempt secure execution and yield
+     execution to the non-secure SDEI handler. Upon completion of SDEI event
+     handling, resume secure execution if it was preempted.
+
+- Translation Tables (XLAT)
+   - Dynamically detect need for ``Common not Private (TTBRn_ELx.CnP)`` bit
+
+     Properly handle the case where ``ARMv8.2-TTCNP`` is implemented in a CPU
+     that does not implement all mandatory v8.2 features (and so must claim to
+     implement a lower architecture version).
+
+
+Resolved Issues
+---------------
+
+- Architecture
+   - Incorrect check for SSBS feature detection
+
+   - Unintentional register clobber in AArch32 reset_handler function
+
+- Build System
+   - Dependency issue during DTB image build
+
+   - Incorrect variable expansion in Arm platform makefiles
+
+   - Building on Windows with verbose mode (``V=1``) enabled is broken
+
+   - AArch32 compilation flags is missing ``$(march32-directive)``
+
+- BL-Specific Issues
+   - bl2: ``uintptr_t is not defined`` error when ``BL2_IN_XIP_MEM`` is defined
+
+   - bl2: Missing prototype warning in ``bl2_arch_setup``
+
+   - bl31: Omission of Global Offset Table (GOT) section
+
+- Code Quality Issues
+   - Multiple MISRA compliance issues
+
+   - Potential NULL pointer dereference (Coverity-detected)
+
+- Drivers
+   - mmc: Local declaration of ``scr`` variable causes a cache issue when
+     invalidating after the read DMA transfer completes
+
+   - mmc: ``ACMD41`` does not send voltage information during initialization,
+     resulting in the command being treated as a query. This prevents the
+     command from initializing the controller.
+
+   - mmc: When checking device state using ``mmc_device_state()`` there are no
+     retries attempted in the event of an error
+
+   - ccn: Incorrect Region ID calculation for RN-I nodes
+
+   - console: ``Fix MULTI_CONSOLE_API`` when used as a crash console
+
+   - partition: Improper NULL checking in gpt.c
+
+   - partition: Compilation failure in ``VERBOSE`` mode (``V=1``)
+
+- Library Code
+   - common: Incorrect check for Address Authentication support
+
+   - xlat: Fix XLAT_V1 / XLAT_V2 incompatibility
+
+     The file ``arm_xlat_tables.h`` has been renamed to ``xlat_tables_compat.h``
+     and has been moved to a common folder. This header can be used to guarantee
+     compatibility, as it includes the correct header based on
+     ``XLAT_TABLES_LIB_V2``.
+
+   - xlat: armclang unused-function warning on ``xlat_clean_dcache_range``
+
+   - xlat: Invalid ``mm_cursor`` checks in ``mmap_add`` and ``mmap_add_ctx``
+
+   - sdei: Missing ``context.h`` header
+
+- Platforms
+   - common: Missing prototype warning for ``plat_log_get_prefix``
+
+   - arm: Insufficient maximum BL33 image size
+
+   - arm: Potential memory corruption during BL2-BL31 transition
+
+     On Arm platforms, the BL2 memory can be overlaid by BL31/BL32. The memory
+     descriptors describing the list of executable images are created in BL2
+     R/W memory, which could be possibly corrupted later on by BL31/BL32 due
+     to overlay. This patch creates a reserved location in SRAM for these
+     descriptors and are copied over by BL2 before handing over to next BL
+     image.
+
+   - juno: Invalid behaviour when ``CSS_USE_SCMI_SDS_DRIVER`` is not set
+
+     In ``juno_pm.c`` the ``css_scmi_override_pm_ops`` function was used
+     regardless of whether the build flag was set. The original behaviour has
+     been restored in the case where the build flag is not set.
+
+- Tools
+   - fiptool: Incorrect UUID parsing of blob parameters
+
+   - doimage: Incorrect object rules in Makefile
+
+
+Deprecations
+------------
+
+- Common Code
+   - ``plat_crash_console_init`` function
+
+   - ``plat_crash_console_putc`` function
+
+   - ``plat_crash_console_flush`` function
+
+   - ``finish_console_register`` macro
+
+- AArch64-specific Code
+   - helpers: ``get_afflvl_shift``
+
+   - helpers: ``mpidr_mask_lower_afflvls``
+
+   - helpers: ``eret``
+
+- Secure Partition Manager (SPM)
+   - Boot-info structure
+
+
+Known Issues
+------------
+
+- Build System Issues
+   - dtb: DTB creation not supported when building on a Windows host.
+
+     This step in the build process is skipped when running on a Windows host. A
+     known issue from the 1.6 release.
+
+- Platform Issues
+   - arm/juno: System suspend from Linux does not function as documented in the
+     user guide
+
+     Following the instructions provided in the user guide document does not
+     result in the platform entering system suspend state as expected. A message
+     relating to the hdlcd driver failing to suspend will be emitted on the
+     Linux terminal.
+
+   - mediatek/mt6795: This platform does not build in this release
+
 Trusted Firmware-A - version 2.0
 ================================
 
@@ -1983,3 +2423,5 @@ releases of TF-A.
 .. _OP-TEE Dispatcher: optee-dispatcher.rst
 .. _tf-issue#501: https://github.com/ARM-software/tf-issues/issues/501
 .. _PR#1002: https://github.com/ARM-software/arm-trusted-firmware/pull/1002#issuecomment-312650193
+.. _mbed TLS releases: https://tls.mbed.org/tech-updates/releases
+.. _Firmware Design: firmware-design.rst
