@@ -11,16 +11,9 @@
 
 /* The ports must be in order and contiguous */
 #define K3_CLUSTER0_CORE_COUNT		2
-#define K3_CLUSTER0_MSMC_PORT		0
-
 #define K3_CLUSTER1_CORE_COUNT		2
-#define K3_CLUSTER1_MSMC_PORT		1
-
 #define K3_CLUSTER2_CORE_COUNT		2
-#define K3_CLUSTER2_MSMC_PORT		2
-
 #define K3_CLUSTER3_CORE_COUNT		2
-#define K3_CLUSTER3_MSMC_PORT		3
 
 /*
  * This RAM will be used for the bootloader including code, bss, and stacks.
