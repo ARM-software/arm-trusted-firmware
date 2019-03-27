@@ -328,9 +328,6 @@ int32_t spm_setup(void)
 		/* Initialize context of the SP */
 		INFO("Secure Partition %u context setup start...\n", i);
 
-		/* Assign translation tables context. */
-		ctx->xlat_ctx_handle = spm_sp_xlat_context_alloc();
-
 		/* Save location of the image in physical memory */
 		ctx->image_base = (uintptr_t)sp_base;
 		ctx->image_size = sp_size;

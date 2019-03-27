@@ -100,7 +100,7 @@ void spm_exceptions_xlat_init_context(void);
 uint64_t *spm_exceptions_xlat_get_base_table(void);
 
 /* Functions related to the translation tables management */
-xlat_ctx_t *spm_sp_xlat_context_alloc(void);
+void spm_sp_xlat_context_alloc(sp_context_t *sp_ctx);
 void sp_map_memory_regions(sp_context_t *sp_ctx);
 
 /* Functions to handle Secure Partition contexts */

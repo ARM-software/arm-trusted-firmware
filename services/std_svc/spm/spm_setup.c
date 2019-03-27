@@ -60,6 +60,9 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	 * ------------------------
 	 */
 
+	/* Assign translation tables context. */
+	spm_sp_xlat_context_alloc(sp_ctx);
+
 	sp_map_memory_regions(sp_ctx);
 
 	/*
