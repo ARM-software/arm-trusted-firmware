@@ -24,7 +24,7 @@ static unsigned int tzc380_read_build_config(uintptr_t base)
 	return mmio_read_32(base + TZC380_CONFIGURATION_OFF);
 }
 
-static void tzc380_write_action(uintptr_t base, tzc_action_t action)
+static void tzc380_write_action(uintptr_t base, unsigned int action)
 {
 	mmio_write_32(base + ACTION_OFF, action);
 }
@@ -91,7 +91,7 @@ void tzc380_configure_region(uint8_t region, uintptr_t region_base, unsigned int
 	tzc380_write_region_attributes(tzc380.base, region, attr);
 }
 
-void tzc380_set_action(tzc_action_t action)
+void tzc380_set_action(unsigned int action)
 {
 	assert(tzc380.base != 0U);
 
