@@ -5,6 +5,7 @@
  */
 
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <assert.h>
 #include <errno.h>
@@ -64,6 +65,8 @@ static OBJECT_POOL(sp_xlat_ctx_pool, sp_xlat_ctx, sizeof(xlat_ctx_t),
 /* Get handle of Secure Partition translation context */
 void spm_sp_xlat_context_alloc(sp_context_t *sp_ctx)
 {
+	/* Allocate xlat context elements */
+
 	xlat_ctx_t *ctx = pool_alloc(&sp_xlat_ctx_pool);
 
 	struct mmap_region *mmap = pool_alloc(&sp_mmap_regions_pool);
@@ -74,8 +77,59 @@ void spm_sp_xlat_context_alloc(sp_context_t *sp_ctx)
 
 	int *mapped_regions = pool_alloc(&sp_xlat_mapped_regions_pool);
 
-	xlat_setup_dynamic_ctx(ctx, PLAT_PHY_ADDR_SPACE_SIZE - 1,
-			       PLAT_VIRT_ADDR_SPACE_SIZE - 1, mmap,
+	/* Calculate the size of the virtual address space needed */
+
+	uintptr_t va_size = 0U;
+	struct sp_rd_sect_mem_region *rdmem;
+
+	for (rdmem = sp_ctx->rd.mem_region; rdmem != NULL; rdmem = rdmem->next) {
+		uintptr_t end_va = (uintptr_t)rdmem->base +
+				   (uintptr_t)rdmem->size;
+
+		if (end_va > va_size)
+			va_size = end_va;
+	}
+
+	if (va_size == 0U) {
+		ERROR("No regions in resource description.\n");
+		panic();
+	}
+
+	/*
+	 * Get the power of two that is greater or equal to the top VA. The
+	 * values of base and size in the resource description are 32-bit wide
+	 * so the values will never overflow when using a uintptr_t.
+	 */
+	if (!IS_POWER_OF_TWO(va_size)) {
+		va_size = 1ULL <<
+			((sizeof(va_size) * 8) - __builtin_clzll(va_size));
+	}
+
+	if (va_size > PLAT_VIRT_ADDR_SPACE_SIZE) {
+		ERROR("Resource description requested too much virtual memory.\n");
+		panic();
+	}
+
+	uintptr_t min_va_size;
+
+	/* The following sizes are only valid for 4KB pages */
+	assert(PAGE_SIZE == (4U * 1024U));
+
+	if (is_armv8_4_ttst_present()) {
+		VERBOSE("Using ARMv8.4-TTST\n");
+		min_va_size = 1ULL << (64 - TCR_TxSZ_MAX_TTST);
+	} else {
+		min_va_size = 1ULL << (64 - TCR_TxSZ_MAX);
+	}
+
+	if (va_size < min_va_size) {
+		va_size = min_va_size;
+	}
+
+	/* Initialize xlat context */
+
+	xlat_setup_dynamic_ctx(ctx, PLAT_PHY_ADDR_SPACE_SIZE - 1ULL,
+			       va_size - 1ULL, mmap,
 			       PLAT_SP_IMAGE_MMAP_REGIONS, tables,
 			       PLAT_SP_IMAGE_MAX_XLAT_TABLES, base_table,
 			       EL1_EL0_REGIME, mapped_regions);
