@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,7 @@
 	.globl	plat_qemu_calc_core_pos
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
+	.globl	plat_crash_console_flush
 	.globl  plat_secondary_cold_boot_setup
 	.globl  plat_get_my_entrypoint
 	.globl  plat_is_my_cpu_primary
@@ -116,4 +117,17 @@ func plat_crash_console_putc
 	mov_imm	r1, PLAT_QEMU_CRASH_UART_BASE
 	b	console_core_putc
 endfunc plat_crash_console_putc
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_flush(int c)
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : x0, x1
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_flush
+	mov_imm	r0, PLAT_QEMU_CRASH_UART_BASE
+	b	console_core_flush
+endfunc plat_crash_console_flush
 

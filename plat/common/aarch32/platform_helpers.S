@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,11 +8,6 @@
 #include <asm_macros.S>
 
 	.weak	plat_report_exception
-#if !ERROR_DEPRECATED
-	.weak	plat_crash_console_init
-	.weak	plat_crash_console_putc
-	.weak	plat_crash_console_flush
-#endif
 	.weak	plat_reset_handler
 	.weak	plat_disable_acp
 	.weak	bl1_plat_prepare_exit
@@ -27,37 +22,6 @@
 func plat_report_exception
 	bx	lr
 endfunc plat_report_exception
-
-#if !ERROR_DEPRECATED
-	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
-	 * -----------------------------------------------------
-	 */
-func plat_crash_console_init
-	mov	r0, #0
-	bx	lr
-endfunc plat_crash_console_init
-
-	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
-	 * -----------------------------------------------------
-	 */
-func plat_crash_console_putc
-	bx	lr
-endfunc plat_crash_console_putc
-
-	/* -----------------------------------------------------
-	 * Placeholder function which should be redefined by
-	 * each platform.
-	 * -----------------------------------------------------
-	 */
-func plat_crash_console_flush
-	mov	r0, #0
-	bx	lr
-endfunc plat_crash_console_flush
-#endif
 
 	/* -----------------------------------------------------
 	 * Placeholder function which should be redefined by

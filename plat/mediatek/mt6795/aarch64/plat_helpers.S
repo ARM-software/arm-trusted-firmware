@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,7 @@
 	.globl	platform_is_primary_cpu
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
+	.globl	plat_crash_console_flush
 	.globl	platform_mem_init
 
 
@@ -120,6 +121,19 @@ func plat_crash_console_putc
 	b	console_core_putc
 	ret
 endfunc plat_crash_console_putc
+
+	/* ---------------------------------------------
+	 * int plat_crash_console_flush(int c)
+	 * Function to force a write of all buffered
+	 * data that hasn't been output.
+	 * Out : return -1 on error else return 0.
+	 * Clobber list : x0, x1
+	 * ---------------------------------------------
+	 */
+func plat_crash_console_flush
+	mov_imm	x0, UART0_BASE
+	b	console_core_flush
+endfunc plat_crash_console_flush
 
 	/* --------------------------------------------------------
 	 * void platform_mem_init (void);
