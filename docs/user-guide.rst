@@ -413,7 +413,7 @@ Common build options
    and use partitions in EL3 as required. This option defaults to ``0``.
 
 -  ``ENABLE_PAUTH``: Boolean option to enable ARMv8.3 Pointer Authentication
-  support for TF-A BL images itself. If enabled, it is needed to use a compiler 
+  support for TF-A BL images itself. If enabled, it is needed to use a compiler
   that supports the option ``-msign-return-address``. This flag defaults to 0
   and this is an experimental feature.
   Note that Pointer Authentication is enabled for Non-secure world irrespective
@@ -1014,18 +1014,13 @@ For AArch64:
 
 ::
 
-    make PLAT=fvp BL33=<path/to/bl33.bin> fip
+    make PLAT=fvp BL33=<path-to>/bl33.bin fip
 
 For AArch32:
 
 ::
 
-    make PLAT=fvp ARCH=aarch32 AARCH32_SP=sp_min BL33=<path/to/bl33.bin> fip
-
-Note that AArch32 support for Normal world boot loader (BL33), like U-boot or
-UEFI, on FVP is not available upstream. Hence custom solutions are required to
-allow Linux boot on FVP. These instructions assume such a custom boot loader
-(BL33) is available.
+    make PLAT=fvp ARCH=aarch32 AARCH32_SP=sp_min BL33=<path-to>/bl33.bin fip
 
 The resulting FIP may be found in:
 
@@ -1276,8 +1271,7 @@ section for more info on selecting the right FDT to use.
        make [DEBUG=1] [V=1] fiptool
 
        # Unpack firmware images from Linaro FIP
-       ./tools/fiptool/fiptool unpack \
-            <path/to/linaro/release>/fip.bin
+       ./tools/fiptool/fiptool unpack <path-to-linaro-release>/fip.bin
 
    The unpack operation will result in a set of binary images extracted to the
    current working directory. The SCP_BL2 image corresponds to
@@ -1287,8 +1281,8 @@ section for more info on selecting the right FDT to use.
    exist in the current directory. If that is the case, either delete those
    files or use the ``--force`` option to overwrite.
 
-   Note: For AArch32, the instructions below assume that nt-fw.bin is a custom
-   Normal world boot loader that supports AArch32.
+   Note: For AArch32, the instructions below assume that nt-fw.bin is a normal
+   world boot loader that supports AArch32.
 
 #. Build TF-A images and create a new FIP for FVP
 
@@ -1309,9 +1303,7 @@ section for more info on selecting the right FDT to use.
 
    ::
 
-       make PLAT=juno all fip \
-       BL33=<path-to-juno-oe-uboot>/SOFTWARE/bl33-uboot.bin \
-       SCP_BL2=<path-to-juno-busybox-uboot>/SOFTWARE/scp_bl2.bin
+       make PLAT=juno BL33=nt-fw.bin SCP_BL2=scp-fw.bin all fip
 
    For AArch32:
 
@@ -1333,6 +1325,13 @@ section for more info on selecting the right FDT to use.
           make ARCH=aarch32 PLAT=juno AARCH32_SP=sp_min \
           RESET_TO_SP_MIN=1 JUNO_AARCH32_EL3_RUNTIME=1 bl32
 
+   -  Save ``bl32.bin`` to a temporary location and clean the build products.
+
+      ::
+
+          cp <path-to-build>/bl32.bin <path-to-temporary>
+          make realclean
+
    -  Before building BL1 and BL2, the environment variable ``CROSS_COMPILE``
       must point to the AArch64 Linaro cross compiler.
 
@@ -1346,9 +1345,8 @@ section for more info on selecting the right FDT to use.
       ::
 
           make ARCH=aarch64 PLAT=juno JUNO_AARCH32_EL3_RUNTIME=1 \
-          BL33=<path-to-juno32-oe-uboot>/SOFTWARE/bl33-uboot.bin \
-          SCP_BL2=<path-to-juno32-oe-uboot>/SOFTWARE/scp_bl2.bin \
-          BL32=<path-to-bl32>/bl32.bin all fip
+          BL33=nt-fw.bin SCP_BL2=scp-fw.bin \
+          BL32=<path-to-temporary>/bl32.bin all fip
 
 The resulting BL1 and FIP images may be found in:
 
@@ -1504,7 +1502,7 @@ used:
 
    ::
 
-       -C bp.flashloader1.fname="/path/to/el3-payload"
+       -C bp.flashloader1.fname="<path-to>/<el3-payload>"
 
    On Foundation FVP, there is no flash loader component and the EL3 payload
    may be programmed anywhere in flash using method 3 below.
@@ -1514,15 +1512,15 @@ used:
 
    ::
 
-       load /path/to/el3-payload.elf
+       load <path-to>/el3-payload.elf
 
 #. The EL3 payload may be pre-loaded in volatile memory using the following
    model parameters:
 
    ::
 
-       --data cluster0.cpu0="/path/to/el3-payload"@address  [Base FVPs]
-       --data="/path/to/el3-payload"@address                [Foundation FVP]
+       --data cluster0.cpu0="<path-to>/el3-payload>"@address   [Base FVPs]
+       --data="<path-to>/<el3-payload>"@address                [Foundation FVP]
 
    The address provided to the FVP must match the ``EL3_PAYLOAD_BASE`` address
    used when building TF-A.
@@ -1650,12 +1648,10 @@ The latest version of the AArch64 build of TF-A has been tested on the following
 Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 (64-bit host machine only).
 
-NOTE: Unless otherwise stated, the model version is Version 11.4 Build 37.
+The FVP models used are Version 11.5 Build 33, unless otherwise stated.
 
--  ``FVP_Base_Aresx4``
 -  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_AEMv8A-AEMv8A-AEMv8A-AEMv8A-CCN502``
--  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_RevC-2xAEMv8A``
 -  ``FVP_Base_Cortex-A32x4``
 -  ``FVP_Base_Cortex-A35x4``
@@ -1670,7 +1666,8 @@ NOTE: Unless otherwise stated, the model version is Version 11.4 Build 37.
 -  ``FVP_Base_Cortex-A73x4``
 -  ``FVP_Base_Cortex-A75x4``
 -  ``FVP_Base_Cortex-A76x4``
--  ``FVP_CSS_SGI-575`` (Version 11.3 build 40)
+-  ``FVP_Base_Neoverse-N1x4`` (Tested with internal model)
+-  ``FVP_CSS_SGI-575`` (Version 11.3 build 42)
 -  ``Foundation_Platform``
 
 The latest version of the AArch32 build of TF-A has been tested on the following
@@ -1832,6 +1829,9 @@ with 8 CPUs using the AArch64 build of TF-A.
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
     --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
+Note: The ``FVP_Base_RevC-2xAEMv8A`` has shifted affinities and requires a
+specific DTS for all the CPUs to be loaded.
+
 Running on the AEMv8 Base FVP (AArch32) with reset to BL1 entrypoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1928,7 +1928,7 @@ with 8 CPUs using the AArch64 build of TF-A.
 
 Notes:
 
--  Since Position Independent Executable (PIE) support is enabled for BL31
+-  If Position Independent Executable (PIE) support is enabled for BL31
    in this config, it can be loaded at any valid address for execution.
 
 -  Since a FIP is not loaded when using BL31 as reset entrypoint, the
@@ -1938,6 +1938,9 @@ Notes:
    Payload. For the same reason, the FDT needs to be compiled from the DT source
    and loaded via the ``--data cluster0.cpu0="<path-to>/<fdt>"@0x82000000``
    parameter.
+
+-  The ``FVP_Base_RevC-2xAEMv8A`` has shifted affinities and requires a
+   specific DTS for all the CPUs to be loaded.
 
 -  The ``-C cluster<X>.cpu<Y>.RVBAR=@<base-address-of-bl31>`` parameter, where
    X and Y are the cluster and CPU numbers respectively, is used to set the
