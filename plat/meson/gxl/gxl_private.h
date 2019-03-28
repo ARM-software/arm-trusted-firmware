@@ -8,6 +8,7 @@
 #define GXBB_PRIVATE_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 /* Utility functions */
 unsigned int plat_gxbb_calc_core_pos(u_register_t mpidr);
@@ -29,6 +30,7 @@ void scpi_jtag_set_state(uint32_t state, uint8_t select);
 uint32_t scpi_efuse_read(void *dst, uint32_t base, uint32_t size);
 void scpi_unknown_thermal(uint32_t arg0, uint32_t arg1,
 			  uint32_t arg2, uint32_t arg3);
+void scpi_upload_scp_fw(uintptr_t addr, size_t size, int send);
 
 /* Peripherals */
 void gxbb_thermal_unknown(void);

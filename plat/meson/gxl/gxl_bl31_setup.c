@@ -19,6 +19,8 @@
  * BL31 from BL2.
  */
 static entry_point_info_t bl33_image_ep_info;
+static image_info_t bl30_image_info;
+static image_info_t bl301_image_info;
 
 /*******************************************************************************
  * Return a pointer to the 'entry_point_info' structure of the next image for
@@ -50,19 +52,20 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
  * tables. BL2 has flushed this information to memory, so we are guaranteed
  * to pick up good data.
  ******************************************************************************/
-struct gxbb_bl31_param {
+struct gxl_bl31_param {
 	param_header_t h;
 	image_info_t *bl31_image_info;
 	entry_point_info_t *bl32_ep_info;
 	image_info_t *bl32_image_info;
 	entry_point_info_t *bl33_ep_info;
 	image_info_t *bl33_image_info;
+	image_info_t *scp_image_info[];
 };
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
-	struct gxbb_bl31_param *from_bl2;
+	struct gxl_bl31_param *from_bl2;
 
 	/* Initialize the console to provide early debug support */
 	gxbb_console_init();
@@ -74,7 +77,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	assert(arg1 == GXBB_BL31_PLAT_PARAM_VAL);
 
 	/* Check that params passed from BL2 are not NULL. */
-	from_bl2 = (struct gxbb_bl31_param *) arg0;
+	from_bl2 = (struct gxl_bl31_param *) arg0;
 
 	/* Check params passed from BL2 are not NULL. */
 	assert(from_bl2 != NULL);
@@ -91,6 +94,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		ERROR("BL31: BL33 entrypoint not obtained from BL2\n");
 		panic();
 	}
+
+	bl30_image_info = *from_bl2->scp_image_info[0];
+	bl301_image_info = *from_bl2->scp_image_info[1];
 }
 
 void bl31_plat_arch_setup(void)
@@ -98,6 +104,14 @@ void bl31_plat_arch_setup(void)
 	gxbb_setup_page_tables();
 
 	enable_mmu_el3(0);
+}
+
+static inline void gxl_scp_boot(void)
+{
+	scpi_upload_scp_fw(bl30_image_info.image_base,
+			bl30_image_info.image_size, 0);
+	scpi_upload_scp_fw(bl301_image_info.image_base,
+			bl301_image_info.image_size, 1);
 }
 
 /*******************************************************************************
@@ -140,5 +154,7 @@ void bl31_platform_setup(void)
 	gicv2_pcpu_distif_init();
 	gicv2_cpuif_enable();
 
-//	gxbb_thermal_unknown();
+	gxl_scp_boot();
+
+	gxbb_thermal_unknown();
 }

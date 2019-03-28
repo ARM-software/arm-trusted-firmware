@@ -9,11 +9,13 @@
 #include <plat/common/platform.h>
 #include <platform_def.h>
 #include <string.h>
+#include <crypto/sha_dma.h>
 
 #include "gxl_private.h"
 
 #define SIZE_SHIFT	20
 #define SIZE_MASK	0x1FF
+#define SIZE_FWBLK	0x200UL
 
 /*
  * Note: The Amlogic SCP firmware uses the legacy SCPI protocol.
@@ -24,12 +26,16 @@
 #define SCPI_CMD_JTAG_SET_STATE		0xC0
 #define SCPI_CMD_EFUSE_READ		0xC2
 
+#define SCPI_CMD_COPY_FW 0xd4
+#define SCPI_CMD_SET_FW_ADDR 0xd3
+#define SCPI_CMD_FW_SIZE 0xd2
+
 static inline uint32_t scpi_cmd(uint32_t command, uint32_t size)
 {
 	return command | (size << SIZE_SHIFT);
 }
 
-void scpi_secure_message_send(uint32_t command, uint32_t size)
+static void scpi_secure_message_send(uint32_t command, uint32_t size)
 {
 	mhu_secure_message_send(scpi_cmd(command, size));
 }
@@ -134,4 +140,72 @@ void scpi_unknown_thermal(uint32_t arg0, uint32_t arg1,
 	mhu_secure_message_send(scpi_cmd(0xC3, 16));
 	mhu_secure_message_wait();
 	mhu_secure_message_end();
+}
+
+static inline void scpi_copy_scp_data(uint8_t *data, size_t len)
+{
+	void *dst = (void *)GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD;
+	size_t sz;
+
+	mmio_write_32(GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD, len);
+	scpi_secure_message_send(SCPI_CMD_FW_SIZE, len);
+	mhu_secure_message_wait();
+
+	for (sz = 0; sz < len; sz += SIZE_FWBLK) {
+		memcpy(dst, data + sz, MIN(SIZE_FWBLK, len - sz));
+		mhu_secure_message_send(SCPI_CMD_COPY_FW);
+	}
+}
+
+static inline void scpi_set_scp_addr(uint64_t addr, size_t len)
+{
+	volatile uint64_t *dst = (uint64_t *)GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD;
+
+	/*
+	 * It is ok as GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD is mapped as
+	 * non cachable
+	 */
+	*dst = addr;
+	scpi_secure_message_send(SCPI_CMD_SET_FW_ADDR, sizeof(addr));
+	mhu_secure_message_wait();
+
+	mmio_write_32(GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD, len);
+	scpi_secure_message_send(SCPI_CMD_FW_SIZE, len);
+	mhu_secure_message_wait();
+}
+
+static inline void scpi_send_fw_hash(uint8_t hash[], size_t len)
+{
+	void *dst = (void *)GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD;
+
+	memcpy(dst, hash, len);
+	mhu_secure_message_send(0xd0);
+	mhu_secure_message_send(0xd1);
+	mhu_secure_message_send(0xd5);
+	mhu_secure_message_end();
+}
+
+/**
+ * Upload a FW to SCP.
+ *
+ * @param addr: firmware data address
+ * @param size: size of firmware
+ * @param send: If set, actually copy the firmware in SCP memory otherwise only
+ *  send the firmware address.
+ */
+void scpi_upload_scp_fw(uintptr_t addr, size_t size, int send)
+{
+	struct asd_ctx ctx;
+
+	asd_sha_init(&ctx, ASM_SHA256);
+	asd_sha_update(&ctx, (void *)addr, size);
+	asd_sha_finalize(&ctx);
+
+	mhu_secure_message_start();
+	if (send == 0)
+		scpi_set_scp_addr(addr, size);
+	else
+		scpi_copy_scp_data((void *)addr, size);
+
+	scpi_send_fw_hash(ctx.digest, sizeof(ctx.digest));
 }
