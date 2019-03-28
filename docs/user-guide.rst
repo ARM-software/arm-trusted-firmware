@@ -1658,6 +1658,8 @@ The FVP models used are Version 11.5 Build 33, unless otherwise stated.
 -  ``FVP_Base_Cortex-A53x4``
 -  ``FVP_Base_Cortex-A55x4+Cortex-A75x4``
 -  ``FVP_Base_Cortex-A55x4``
+-  ``FVP_Base_Cortex-A57x1-A53x1``
+-  ``FVP_Base_Cortex-A57x2-A53x4``
 -  ``FVP_Base_Cortex-A57x4-A53x4``
 -  ``FVP_Base_Cortex-A57x4``
 -  ``FVP_Base_Cortex-A72x4-A53x4``
@@ -1667,7 +1669,11 @@ The FVP models used are Version 11.5 Build 33, unless otherwise stated.
 -  ``FVP_Base_Cortex-A75x4``
 -  ``FVP_Base_Cortex-A76x4``
 -  ``FVP_Base_Neoverse-N1x4`` (Tested with internal model)
+-  ``FVP_Base_Deimos``
 -  ``FVP_CSS_SGI-575`` (Version 11.3 build 42)
+-  ``FVP_CSS_SGM-775`` (Version 11.3 build 42)
+-  ``FVP_RD_E1Edge`` (Version 11.3 build 42)
+-  ``FVP_RD_N1Edge`` (Version 11.3 build 42)
 -  ``Foundation_Platform``
 
 The latest version of the AArch32 build of TF-A has been tested on the following

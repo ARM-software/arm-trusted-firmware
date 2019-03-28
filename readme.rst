@@ -161,22 +161,22 @@ Platforms
 Various AArch32 and AArch64 builds of this release have been tested on r0, r1
 and r2 variants of the `Juno Arm Development Platform`_.
 
-Various AArch64 builds of this release have been tested on the following Arm
-Fixed Virtual Platforms (`FVP`_) without shifted affinities that do not
-support threaded CPU cores (64-bit host machine only):
+The latest version of the AArch64 build of TF-A has been tested on the following
+Arm FVPs without shifted affinities, and that do not support threaded CPU cores
+(64-bit host machine only).
 
-NOTE: Unless otherwise stated, the model version is Version 11.4 Build 37.
+The FVP models used are Version 11.5 Build 33, unless otherwise stated.
 
--  ``FVP_Base_Aresx4``
 -  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_AEMv8A-AEMv8A-AEMv8A-AEMv8A-CCN502``
--  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_RevC-2xAEMv8A``
 -  ``FVP_Base_Cortex-A32x4``
 -  ``FVP_Base_Cortex-A35x4``
 -  ``FVP_Base_Cortex-A53x4``
 -  ``FVP_Base_Cortex-A55x4+Cortex-A75x4``
 -  ``FVP_Base_Cortex-A55x4``
+-  ``FVP_Base_Cortex-A57x1-A53x1``
+-  ``FVP_Base_Cortex-A57x2-A53x4``
 -  ``FVP_Base_Cortex-A57x4-A53x4``
 -  ``FVP_Base_Cortex-A57x4``
 -  ``FVP_Base_Cortex-A72x4-A53x4``
@@ -185,15 +185,22 @@ NOTE: Unless otherwise stated, the model version is Version 11.4 Build 37.
 -  ``FVP_Base_Cortex-A73x4``
 -  ``FVP_Base_Cortex-A75x4``
 -  ``FVP_Base_Cortex-A76x4``
--  ``FVP_CSS_SGI-575`` (Version 11.3 build 40)
+-  ``FVP_Base_Neoverse-N1x4`` (Tested with internal model)
+-  ``FVP_Base_Deimos``
+-  ``FVP_CSS_SGI-575`` (Version 11.3 build 42)
+-  ``FVP_CSS_SGM-775`` (Version 11.3 build 42)
+-  ``FVP_RD_E1Edge`` (Version 11.3 build 42)
+-  ``FVP_RD_N1Edge`` (Version 11.3 build 42)
 -  ``Foundation_Platform``
 
 The latest version of the AArch32 build of TF-A has been tested on the following
-Arm FVPs without shifted affinities that do not support threaded CPU cores
+Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 (64-bit host machine only).
 
 -  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_Cortex-A32x4``
+
+NOTE: The ``FVP_Base_RevC-2xAEMv8A`` FVP only supports shifted affinities.
 
 The Foundation FVP can be downloaded free of charge. The Base FVPs can be
 licensed from Arm. See the `Arm FVP website`_.
