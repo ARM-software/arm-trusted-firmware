@@ -209,8 +209,10 @@ static void mvebu_cp110_comphy_set_phy_selector(uint64_t comphy_base,
 			   * as SFI1/XFI1 available only for CP115.
 			   */
 			if ((mode == COMPHY_SGMII_MODE ||
-			    mode == COMPHY_HS_SGMII_MODE ||
-			    mode == COMPHY_SFI_MODE || mode == COMPHY_XFI_MODE)
+			     mode == COMPHY_HS_SGMII_MODE ||
+			     mode == COMPHY_SFI_MODE ||
+			     mode == COMPHY_XFI_MODE ||
+			     mode == COMPHY_AP_MODE)
 			    && COMPHY_GET_ID(comphy_mode) == 1)
 				reg |= COMMON_SELECTOR_COMPHY4_PORT1 <<
 					comphy_offset;
@@ -2225,12 +2227,16 @@ int mvebu_cp110_comphy_xfi_rx_training(uint64_t comphy_base,
  * the network registers like: MG, AP, MAC, PCS, Serdes etc.)
  */
 static int mvebu_cp110_comphy_ap_power_on(uint64_t comphy_base,
-					  uint8_t comphy_index)
+					  uint8_t comphy_index,
+					  uint32_t comphy_mode)
 {
 	uint32_t mask, data;
 	uintptr_t comphy_addr = comphy_addr =
 				COMPHY_ADDR(comphy_base, comphy_index);
 
+	/* configure phy selector for XFI/SFI */
+	mvebu_cp110_comphy_set_phy_selector(comphy_base, comphy_index,
+					    comphy_mode);
 	debug_enter();
 	debug("stage: RFU configurations - hard reset comphy\n");
 	/* RFU configurations - hard reset comphy */
@@ -2323,7 +2329,8 @@ int mvebu_cp110_comphy_power_on(uint64_t comphy_base, uint8_t comphy_index,
 						       comphy_mode);
 		break;
 	case (COMPHY_AP_MODE):
-		err = mvebu_cp110_comphy_ap_power_on(comphy_base, comphy_index);
+		err = mvebu_cp110_comphy_ap_power_on(comphy_base, comphy_index,
+						     comphy_mode);
 		break;
 	default:
 		ERROR("comphy%d: unsupported comphy mode\n", comphy_index);
