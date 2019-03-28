@@ -52,6 +52,7 @@ MARVELL_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				plat/common/plat_gicv2.c
 
 PLAT_INCLUDES		:=	-I$(BOARD_DIR)				\
+				-I$(BOARD_DIR)/board			\
 				-I$(PLAT_COMMON_BASE)/include		\
 				-I$(PLAT_INCLUDE_BASE)/common
 
