@@ -5,9 +5,9 @@
  */
 
 #include <assert.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <stdbool.h>
 #include <string.h>
-#include <xlat_tables_v2.h>
 
 #include <arch_helpers.h>
 #include <bl31/bl31.h>

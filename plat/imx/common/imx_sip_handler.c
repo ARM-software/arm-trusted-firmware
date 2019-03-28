@@ -6,7 +6,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include <std_svc.h>
+#include <services/std_svc.h>
 #include <string.h>
 #include <platform_def.h>
 #include <common/debug.h>

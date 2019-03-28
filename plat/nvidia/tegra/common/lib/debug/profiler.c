@@ -23,12 +23,12 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <assert.h>
-#include <mmio.h>
+#include <lib/mmio.h>
+#include <lib/utils_def.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <profiler.h>
 #include <stdbool.h>
 #include <string.h>
-#include <utils_def.h>
-#include <xlat_tables_v2.h>
 
 static uint64_t shmem_base_addr;
 

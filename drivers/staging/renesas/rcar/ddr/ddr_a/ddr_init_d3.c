@@ -5,7 +5,7 @@
  */
 
 #include <stdint.h>
-#include <mmio.h>
+#include <lib/mmio.h>
 #include <common/debug.h>
 
 #include "boot_init_dram_regdef_d3.h"
@@ -193,7 +193,7 @@ static void init_ddr_d3_1866(void)
          RegVal_R2 = (ReadReg_32(DBSC_D3_DBPDRGD0) & 0xFFFFFF00);
          WriteReg_32(DBSC_D3_DBPDRGA0,0x000000B0 + i*0x20);
          WriteReg_32(DBSC_D3_DBPDRGD0,RegVal_R2 | RegVal_R6);
-      } else 
+      } else
       {
          WriteReg_32(DBSC_D3_DBPDRGA0,0x000000B2 + i*0x20);
          RegVal_R2 = (ReadReg_32(DBSC_D3_DBPDRGD0) & 0xFFFFFFF8);
@@ -508,7 +508,7 @@ static void init_ddr_d3_1600(void)
          RegVal_R2 = (ReadReg_32(DBSC_D3_DBPDRGD0) & 0xFFFFFF00);
          WriteReg_32(DBSC_D3_DBPDRGA0,0x000000B0 + i*0x20);
          WriteReg_32(DBSC_D3_DBPDRGD0,RegVal_R2 | RegVal_R6);
-      } else 
+      } else
       {
          WriteReg_32(DBSC_D3_DBPDRGA0,0x000000B2 + i*0x20);
          RegVal_R2 = (ReadReg_32(DBSC_D3_DBPDRGD0) & 0xFFFFFFF8);

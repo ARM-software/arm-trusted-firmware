@@ -15,6 +15,7 @@
 
 #include <bpmp.h>
 #include <flowctrl.h>
+#include <lib/utils.h>
 #include <memctrl.h>
 #include <pmc.h>
 #include <platform_def.h>
@@ -22,7 +23,6 @@
 #include <tegra_def.h>
 #include <tegra_private.h>
 #include <tegra_platform.h>
-#include <utils.h>
 
 /*
  * Register used to clear CPU reset signals. Each CPU has two reset

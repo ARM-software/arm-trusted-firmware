@@ -11,7 +11,7 @@
 
 #ifndef __ASSEMBLY__
 
-#include <mmio.h>
+#include <lib/mmio.h>
 #include <stdint.h>
 
 /*******************************************************************************

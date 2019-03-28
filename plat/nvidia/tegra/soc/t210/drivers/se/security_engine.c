@@ -8,10 +8,10 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <common/debug.h>
-#include <delay_timer.h>
+#include <drivers/delay_timer.h>
 #include <errno.h>
-#include <mmio.h>
-#include <psci.h>
+#include <lib/mmio.h>
+#include <lib/psci/psci.h>
 #include <se_private.h>
 #include <security_engine.h>
 #include <tegra_platform.h>

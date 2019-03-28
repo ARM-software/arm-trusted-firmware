@@ -7,9 +7,9 @@
 #ifndef IVC_H
 #define IVC_H
 
+#include <lib/utils_def.h>
 #include <stdint.h>
 #include <stddef.h>
-#include <utils_def.h>
 
 #define IVC_ALIGN		U(64)
 #define IVC_CHHDR_TX_FIELDS	U(16)

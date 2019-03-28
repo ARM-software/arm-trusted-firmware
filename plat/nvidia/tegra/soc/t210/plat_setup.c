@@ -19,7 +19,7 @@
 #include <bpmp.h>
 #include <flowctrl.h>
 #include <memctrl.h>
-#include <platform.h>
+#include <plat/common/platform.h>
 #include <security_engine.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>

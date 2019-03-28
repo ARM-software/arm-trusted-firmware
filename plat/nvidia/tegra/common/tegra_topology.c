@@ -7,8 +7,8 @@
 #include <platform_def.h>
 
 #include <arch.h>
-#include <platform.h>
 #include <lib/psci/psci.h>
+#include <plat/common/platform.h>
 
 #pragma weak plat_core_pos_by_mpidr
 

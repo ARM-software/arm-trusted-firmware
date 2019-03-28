@@ -11,8 +11,8 @@
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <errno.h>
-#include <mmio.h>
-#include <utils_def.h>
+#include <lib/mmio.h>
+#include <lib/utils_def.h>
 
 #include <memctrl.h>
 #include <pmc.h>

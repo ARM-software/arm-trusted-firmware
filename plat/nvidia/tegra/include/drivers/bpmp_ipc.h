@@ -7,9 +7,9 @@
 #ifndef __BPMP_IPC_H__
 #define __BPMP_IPC_H__
 
+#include <lib/utils_def.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <utils_def.h>
 
 /**
  * Currently supported reset identifiers

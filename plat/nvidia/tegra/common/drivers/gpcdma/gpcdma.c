@@ -6,14 +6,14 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
-#include <delay_timer.h>
+#include <drivers/delay_timer.h>
 #include <errno.h>
 #include <gpcdma.h>
-#include <mmio.h>
+#include <lib/mmio.h>
+#include <lib/utils_def.h>
 #include <platform_def.h>
 #include <stdbool.h>
 #include <tegra_def.h>
-#include <utils_def.h>
 
 /* DMA channel registers */
 #define DMA_CH_CSR				U(0x0)

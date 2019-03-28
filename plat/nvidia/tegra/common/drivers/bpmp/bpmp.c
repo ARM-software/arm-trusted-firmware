@@ -8,10 +8,10 @@
 #include <assert.h>
 #include <bpmp.h>
 #include <common/debug.h>
-#include <delay_timer.h>
+#include <drivers/delay_timer.h>
 #include <errno.h>
-#include <mmio.h>
-#include <platform.h>
+#include <lib/mmio.h>
+#include <plat/common/platform.h>
 #include <stdbool.h>
 #include <string.h>
 #include <tegra_def.h>

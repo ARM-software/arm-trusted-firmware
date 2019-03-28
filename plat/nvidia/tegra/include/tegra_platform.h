@@ -8,8 +8,8 @@
 #define TEGRA_PLATFORM_H
 
 #include <cdefs.h>
+#include <lib/utils_def.h>
 #include <stdbool.h>
-#include <utils_def.h>
 
 /*******************************************************************************
  * Tegra major, minor version helper macros
