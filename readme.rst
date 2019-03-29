@@ -139,7 +139,7 @@ Functionality
    in read-write memory, allowing for the library code to be patched.
 
 -  A prototype implementation of a Secure Partition Manager (SPM) that is based
-   on the SPCI and SPRT specifications.
+   on the SPCI Alpha 1 and SPRT draft specifications.
 
 -  Support for ARMv8.3 pointer authentication in the normal and secure worlds.
    The use of pointer authentication in the normal world is enabled whenever
@@ -239,7 +239,8 @@ Still to come
 
 -  Refinements to Position Independent Executable (PIE) support.
 
--  Refinements to SPCI-compliant SPM implementation.
+-  Refinements to the SPCI-based SPM implementation as the draft SPCI and SPRT
+   specifications continue to evolve.
 
 -  Documentation enhancements.
 
