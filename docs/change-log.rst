@@ -95,7 +95,7 @@ New Features
      register a platform-specific instance of ``scmi_channel_plat_info_t`` and
      remove the default values
 
-   - tzc380: Add TZC380 TrustZone Controller driver
+   - tzc380: Add TZC-380 TrustZone Controller driver
 
    - tzc-dmc620: Add driver to manage the TrustZone Controller within the
      DMC-620 Dynamic Memory Controller
@@ -173,17 +173,17 @@ New Features
   used to enable or disable this functionality as required.
 
 - Secure Partition Manager
-   - New, SPCI-compliant SPM implementation
+   - New SPM implementation based on SPCI Alpha 1 draft specification
 
-     A new version of SPM has been implemented based on draft specifications of
-     the SPCI (Secure Partition Client Interface) and SPRT (Secure
-     Partition Runtime) specifications.
+     A new version of SPM has been implemented, based on the SPCI (Secure
+     Partition Client Interface) and SPRT (Secure Partition Runtime) draft
+     specifications.
 
      The new implementation is a prototype that is expected to undergo intensive
      rework as the specifications change. It has basic support for multiple
      Secure Partitions and Resource Descriptions.
 
-     The old version of SPM, based on MM (ARM Management Mode Interface
+     The older version of SPM, based on MM (ARM Management Mode Interface
      Specification), is still present in the codebase. A new build flag,
      ``SPM_MM`` has been added to allow selection of the desired implementation.
      This flag defaults to 1, selecting the MM-based implementation.
@@ -231,10 +231,9 @@ Changed
 
    - Updated copyright guidelines
 
-   - Miscellaneous small fixes
-
 - Drivers
    - console: The ``MULTI_CONSOLE_API`` framework has been rewritten in C
+
    - console: Ported multi-console driver to AArch32
 
    - gic: Remove 'lowest priority' constants
