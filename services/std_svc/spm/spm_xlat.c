@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -158,6 +158,11 @@ static void map_rdmem(sp_context_t *sp_ctx, struct sp_rd_sect_mem_region *rdmem)
 	unsigned long long rd_base_pa;
 
 	unsigned int memtype = rdmem->attr & RD_MEM_MASK;
+
+	if (rd_size == 0U) {
+		VERBOSE("Memory region '%s' is empty. Ignored.\n", rdmem->name);
+		return;
+	}
 
 	VERBOSE("Adding memory region '%s'\n", rdmem->name);
 
