@@ -482,8 +482,10 @@ static void bl2_advertise_dram_entries(uint64_t dram_config[8])
 		if (!size)
 			continue;
 
-		NOTICE("BL2: CH%d: %llx - %llx, %lld GiB\n",
-			chan, start, start + size - 1, size >> 30);
+		NOTICE("BL2: CH%d: %llx - %llx, %lld %siB\n",
+			chan, start, start + size - 1,
+			(size >> 30) ? : size >> 20,
+			(size >> 30) ? "G" : "M");
 	}
 
 	/*
