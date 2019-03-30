@@ -6,6 +6,9 @@
 
 include lib/xlat_tables_v2/xlat_tables.mk
 
+DOIMAGEPATH		?=	tools/meson
+DOIMAGETOOL		?=	${DOIMAGEPATH}/doimage
+
 PLAT_INCLUDES		:=	-Iinclude/drivers/meson/		\
 				-Iinclude/drivers/meson/gxl		\
 				-Iplat/meson/gxl/include
@@ -76,3 +79,16 @@ endif
 ifeq (${ARCH},aarch32)
   $(error Error: AArch32 not supported on gxl)
 endif
+
+all: ${BUILD_PLAT}/bl31.img
+distclean realclean clean: cleanimage
+
+cleanimage:
+	${Q}${MAKE} -C ${DOIMAGEPATH} clean
+
+${DOIMAGETOOL}:
+	${Q}${MAKE} -C ${DOIMAGEPATH}
+
+${BUILD_PLAT}/bl31.img: ${BUILD_PLAT}/bl31.bin ${DOIMAGETOOL}
+	${DOIMAGETOOL} ${BUILD_PLAT}/bl31.bin ${BUILD_PLAT}/bl31.img
+
