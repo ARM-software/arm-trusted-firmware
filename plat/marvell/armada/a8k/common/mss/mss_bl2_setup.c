@@ -63,10 +63,15 @@ static int bl2_plat_mmap_init(void)
 	 * Do not touch CCU window 0,
 	 * it's used for the internal registers access
 	 */
-	for (cfg_idx = 0, win_id = 1; cfg_idx < cfg_num; cfg_idx++, win_id++) {
+	for (cfg_idx = 0, win_id = 1;
+	     (win_id < MVEBU_CCU_MAX_WINS) && (cfg_idx < cfg_num); win_id++) {
+		/* Skip already enabled CCU windows */
+		if (ccu_is_win_enabled(MVEBU_AP0, win_id))
+			continue;
 		/* Enable required CCU windows */
 		ccu_win_check(&ccu_mem_map[cfg_idx]);
 		ccu_enable_win(MVEBU_AP0, &ccu_mem_map[cfg_idx], win_id);
+		cfg_idx++;
 	}
 
 	/* Config address for each cp other than cp0 */
