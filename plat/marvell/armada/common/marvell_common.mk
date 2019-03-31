@@ -16,8 +16,21 @@ SEPARATE_CODE_AND_RODATA	:= 1
 # flag to switch from PLL to ARO
 ARO_ENABLE			:= 0
 $(eval $(call add_define,ARO_ENABLE))
+
+# Convert LLC to secure SRAM
+LLC_SRAM			:= 0
+$(eval $(call add_define,LLC_SRAM))
+
 # Enable/Disable LLC
+ifeq (${LLC_SRAM}, 0)
 LLC_ENABLE			:= 1
+else
+# When LLC_SRAM=1, the entire LLC converted to SRAM and enabled at BL1.
+# All existing cases activating LLC at BL31 stage should be disabled.
+# The below assignment does not allow changing the LLC_ENABLE
+# value in the command line.
+LLC_ENABLE			= 0
+endif
 $(eval $(call add_define,LLC_ENABLE))
 
 include lib/xlat_tables_v2/xlat_tables.mk

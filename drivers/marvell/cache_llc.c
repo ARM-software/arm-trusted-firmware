@@ -109,3 +109,41 @@ void llc_runtime_enable(int ap_index)
 	reg |= (0x1 << CCU_SET_POC_OFFSET);
 	mmio_write_32(CCU_HTC_CR(ap_index), reg);
 }
+
+#if LLC_SRAM
+void llc_sram_enable(int ap_index)
+{
+	uint32_t tc, way;
+	uint32_t way_addr;
+
+	/* Lockdown all available ways for all traffic classes */
+	for (tc = 0; tc < LLC_TC_NUM; tc++)
+		mmio_write_32(LLC_TCN_LOCK(ap_index, tc), LLC_WAY_MASK);
+
+	/* Clear the high bits of SRAM address */
+	mmio_write_32(LLC_BANKED_MNT_AHR(ap_index), 0);
+
+	way_addr = PLAT_MARVELL_TRUSTED_RAM_BASE;
+	for (way = 0; way < LLC_WAYS; way++) {
+		/* Trigger allocation block command */
+		mmio_write_32(LLC_BLK_ALOC(ap_index),
+			      LLC_BLK_ALOC_BASE_ADDR(way_addr) |
+			      LLC_BLK_ALOC_WAY_DATA_CLR |
+			      LLC_BLK_ALOC_WAY_ID(way));
+		way_addr += LLC_WAY_SIZE;
+	}
+	llc_enable(ap_index, 1);
+}
+
+void llc_sram_disable(int ap_index)
+{
+	uint32_t tc;
+
+	/* Disable the line lockings */
+	for (tc = 0; tc < LLC_TC_NUM; tc++)
+		mmio_write_32(LLC_TCN_LOCK(ap_index, tc), 0);
+
+	/* Invalidate all ways */
+	llc_inv_all(ap_index);
+}
+#endif /* LLC_SRAM */

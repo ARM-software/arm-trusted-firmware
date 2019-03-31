@@ -77,6 +77,13 @@ There are several build options:
 
         Flag defining the LLC (L3) cache state. The cache is enabled by default (``LLC_ENABLE=1``).
 
+- LLC_SRAM
+
+        Flag defining the LLC (L3) cache SRAM support. The feature is
+        disabled by default (``LLC_ENABLE=0``).
+        When LLC SRAM is enabled, the secure payload (BL32) is loaded into this
+        SRAM area instead of the DRAM.
+
 - MARVELL_SECURE_BOOT
 
         Build trusted(=1)/non trusted(=0) image, default is non trusted.
