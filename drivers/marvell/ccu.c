@@ -54,8 +54,8 @@ static void dump_ccu(int ap_index)
 							      win_id));
 			start = ((uint64_t)alr << ADDRESS_SHIFT);
 			end = (((uint64_t)ahr + 0x10) << ADDRESS_SHIFT);
-			printf("\tccu    %02x     0x%016llx 0x%016llx\n",
-			       target_id, start, end);
+			printf("\tccu%d    %02x     0x%016llx 0x%016llx\n",
+			       win_id, target_id, start, end);
 		}
 	}
 	win_cr = mmio_read_32(CCU_WIN_GCR_OFFSET(ap_index));
@@ -79,6 +79,12 @@ void ccu_win_check(struct addr_map_win *win)
 		NOTICE("%s: Aligning size to 0x%llx\n",
 		       __func__, win->win_size);
 	}
+}
+
+int ccu_is_win_enabled(int ap_index, uint32_t win_id)
+{
+	return mmio_read_32(CCU_WIN_CR_OFFSET(ap_index, win_id)) &
+			    WIN_ENABLE_BIT;
 }
 
 void ccu_enable_win(int ap_index, struct addr_map_win *win, uint32_t win_id)
