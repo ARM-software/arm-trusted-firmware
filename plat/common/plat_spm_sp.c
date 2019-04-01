@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited. All rights reserved.
+ * Copyright (c) 2018-2019, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <platform_def.h>
 
 #include <common/debug.h>
+#include <plat/common/platform.h>
 #include <tools_share/sptool.h>
 
 static unsigned int sp_next;

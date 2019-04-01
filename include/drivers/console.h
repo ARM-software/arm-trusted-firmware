@@ -49,11 +49,12 @@ typedef struct console {
 #include <drivers/console_assertions.h>
 
 /*
- * NOTE: There is no publicly accessible console_register() function. Consoles
- * are registered by directly calling the register function of a specific
- * implementation, e.g. console_16550_register() from <uart_16550.h>. Consoles
- * registered that way can be unregistered/reconfigured with below functions.
+ * Add a console_t instance to the console list. This should only be called by
+ * console drivers after they have initialized all fields in the console
+ * structure. Platforms seeking to register a new console need to call the
+ * respective console__register() function instead.
  */
+int console_register(console_t *console);
 /* Remove a single console_t instance from the console list. Return a pointer to
  * the console that was removed if it was found, or NULL if not. */
 console_t *console_unregister(console_t *console);

@@ -13,11 +13,11 @@
 console_t *console_list;
 uint8_t console_state = CONSOLE_FLAG_BOOT;
 
+IMPORT_SYM(console_t *, __STACKS_START__, stacks_start)
+IMPORT_SYM(console_t *, __STACKS_END__, stacks_end)
+
 int console_register(console_t *console)
 {
-	IMPORT_SYM(console_t *, __STACKS_START__, stacks_start)
-	IMPORT_SYM(console_t *, __STACKS_END__, stacks_end)
-
 	/* Assert that the struct is not on the stack (common mistake). */
 	assert((console < stacks_start) || (console >= stacks_end));
 	/* Assert that we won't make a circle in the list. */

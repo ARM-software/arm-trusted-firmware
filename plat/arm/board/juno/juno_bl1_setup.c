@@ -61,7 +61,7 @@ static int is_watchdog_reset(void)
  ******************************************************************************/
 int plat_arm_bl1_fwu_needed(void)
 {
-	const uint32_t *nv_flags_ptr = (const uint32_t *)V2M_SYS_NVFLAGS_ADDR;
+	const int32_t *nv_flags_ptr = (const int32_t *)V2M_SYS_NVFLAGS_ADDR;
 
 	/* Check if TOC is invalid or watchdog reset happened. */
 	if ((arm_io_is_toc_valid() != 1) ||

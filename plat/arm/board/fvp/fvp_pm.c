@@ -20,6 +20,7 @@
 #include <platform_def.h>
 
 #include "fvp_private.h"
+#include "../drivers/arm/gic/v3/gicv3_private.h"
 
 
 #if ARM_RECOM_STATE_ID_ENC

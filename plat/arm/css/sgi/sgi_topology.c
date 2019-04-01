@@ -5,6 +5,7 @@
  */
 
 #include <plat/arm/common/plat_arm.h>
+#include <plat/common/platform.h>
 
 #include <sgi_variant.h>
 

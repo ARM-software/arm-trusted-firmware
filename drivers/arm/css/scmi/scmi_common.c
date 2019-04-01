@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -90,7 +90,8 @@ void scmi_put_channel(scmi_channel_t *ch)
 int scmi_proto_version(void *p, uint32_t proto_id, uint32_t *version)
 {
 	mailbox_mem_t *mbx_mem;
-	int token = 0, ret;
+	unsigned int token = 0;
+	int ret;
 	scmi_channel_t *ch = (scmi_channel_t *)p;
 
 	validate_scmi_channel(ch);
@@ -122,7 +123,8 @@ int scmi_proto_msg_attr(void *p, uint32_t proto_id,
 		uint32_t command_id, uint32_t *attr)
 {
 	mailbox_mem_t *mbx_mem;
-	int token = 0, ret;
+	unsigned int token = 0;
+	int ret;
 	scmi_channel_t *ch = (scmi_channel_t *)p;
 
 	validate_scmi_channel(ch);

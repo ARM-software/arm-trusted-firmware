@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <plat/arm/common/plat_arm.h>
 
 /*
  * For SGI575 which support FCM (with automatic interconnect enter/exit),

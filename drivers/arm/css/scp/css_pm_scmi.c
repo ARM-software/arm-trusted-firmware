@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -99,7 +99,7 @@ void css_scp_suspend(const struct psci_power_state *target_state)
 		return;
 	}
 #if !HW_ASSISTED_COHERENCY
-	int lvl;
+	unsigned int lvl;
 	uint32_t scmi_pwr_state = 0;
 	/*
 	 * If we reach here, then assert that power down at system power domain
@@ -145,7 +145,8 @@ void css_scp_suspend(const struct psci_power_state *target_state)
  */
 void css_scp_off(const struct psci_power_state *target_state)
 {
-	int lvl = 0, ret;
+	unsigned int lvl = 0;
+	int ret;
 	uint32_t scmi_pwr_state = 0;
 
 	/* At-least the CPU level should be specified to be OFF */
@@ -184,7 +185,8 @@ void css_scp_off(const struct psci_power_state *target_state)
  */
 void css_scp_on(u_register_t mpidr)
 {
-	int lvl = 0, ret, core_pos;
+	unsigned int lvl = 0;
+	int ret, core_pos;
 	uint32_t scmi_pwr_state = 0;
 
 	for (; lvl <= PLAT_MAX_PWR_LVL; lvl++)

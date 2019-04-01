@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 
 #include <common/debug.h>
 #include <drivers/arm/tzc_dmc620.h>
+#include <plat/arm/common/plat_arm.h>
 
 uintptr_t sgi575_dmc_base[] = {
 	SGI575_DMC620_BASE0,
