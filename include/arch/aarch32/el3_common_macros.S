@@ -94,7 +94,7 @@
 	 *  from all exception levels.
 	 * ---------------------------------------------------------------------
 	 */
-#if (ARM_ARCH_MAJOR > 7) || defined(ARMV7_SUPPORTS_VFP)
+#if ((ARM_ARCH_MAJOR > 7) || defined(ARMV7_SUPPORTS_VFP)) && !(__SOFTFP__)
 	ldr	r0, =(FPEXC_RESET_VAL | FPEXC_EN_BIT)
 	vmsr	FPEXC, r0
 	isb
