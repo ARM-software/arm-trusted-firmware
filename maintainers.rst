@@ -34,6 +34,14 @@ Amlogic Meson S905 (GXBB) platform port
 :F: drivers/meson/
 :F: plat/meson/gxbb/
 
+Amlogic Meson S905x (GXL) platform port
+---------------------------------------
+:M: Remi Pommarel <repk@triplefau.lt>
+:G: `remi-triplefault`_
+:F: docs/plat/meson-gxl.rst
+:F: drivers/meson/gxl
+:F: plat/meson/gxl/
+
 Armv7-A architecture port
 -------------------------
 :M: Etienne Carriere <etienne.carriere@linaro.org>
@@ -272,6 +280,7 @@ Xilinx platform port
 .. _mtk09422: https://github.com/mtk09422
 .. _npoushin: https://github.com/npoushin
 .. _qoriq-open-source: https://github.com/qoriq-open-source
+.. _remi-triplefault: https://github.com/repk
 .. _rockchip-linux: https://github.com/rockchip-linux
 .. _shawnguo2: https://github.com/shawnguo2
 .. _sivadur: https://github.com/sivadur
