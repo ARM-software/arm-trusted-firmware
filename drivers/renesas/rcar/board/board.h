@@ -15,7 +15,8 @@
 #define BOARD_EBISU			(0x08)
 #define BOARD_STARTER_KIT_PRE		(0x0B)
 #define BOARD_EBISU_4D			(0x0DU)
-#define BOARD_UNKNOWN			(BOARD_EBISU_4D + 1U)
+#define BOARD_DRAAK			(0x0EU)
+#define BOARD_UNKNOWN			(BOARD_DRAAK + 1U)
 
 #define BOARD_REV_UNKNOWN		(0xFF)
 

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define RCAR_SA0_SIZE_SMALL	(0)	/* for E3 */
+#define RCAR_SA0_SIZE_SMALL	(0)	/* for E3/D3 */
 #define RCAR_SA0_SIZE_NORMAL	(1)	/* for H3/M3/M3N */
 
 #define BL2_ADDRESS	(0xE6304000)	/* BL2 start address */

@@ -103,14 +103,14 @@
 /* Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
  * size plus a little space for growth. */
 #define RCAR_SYSRAM_BASE		U(0xE6300000)
-#if RCAR_LSI == RCAR_E3
+#if (RCAR_LSI == RCAR_E3) || (RCAR_LSI == RCAR_D3)
 #define BL2_LIMIT			U(0xE6320000)
 #else
 #define BL2_LIMIT			U(0xE6360000)
 #endif
 
 #define BL2_BASE			U(0xE6304000)
-#if RCAR_LSI == RCAR_E3
+#if (RCAR_LSI == RCAR_E3) || (RCAR_LSI == RCAR_D3)
 #define BL2_IMAGE_LIMIT			U(0xE6318000)
 #else
 #define BL2_IMAGE_LIMIT			U(0xE632E800)

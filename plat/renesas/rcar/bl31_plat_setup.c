@@ -85,10 +85,12 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	NOTICE("BL3-1 : Rev.%s\n", version_of_renesas);
 
+#if RCAR_LSI != RCAR_D3
 	if (RCAR_CLUSTER_A53A57 == rcar_pwrc_get_cluster()) {
 		plat_cci_init();
 		plat_cci_enable();
 	}
+#endif
 }
 
 void bl31_plat_arch_setup(void)

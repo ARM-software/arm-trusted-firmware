@@ -55,6 +55,15 @@ endif
 endif
 $(eval $(call add_define,RCAR_SA6_TYPE))
 
+# Handle different VMA adjustment on D3
+ifeq (${RCAR_LSI},${RCAR_D3})
+RCAR_VMA_ADJUST_ADDR := 0xE6320000
+else
+RCAR_VMA_ADJUST_ADDR := 0xE6312000
+endif
+$(eval $(call add_define,RCAR_VMA_ADJUST_ADDR))
+
+
 ###################################################
 
 #c compiler
@@ -88,8 +97,8 @@ $(OUTPUT_FILE_SA0) : $(MEMORY_DEF_SA0) $(OBJ_FILE_SA0)
 	-o $(OUTPUT_FILE_SA0)			\
 	-Map $(FILE_NAME_SA0).map 		\
 
-	$(objcopy) -O srec --adjust-vma=0xE6320000 --srec-forceS3  $(OUTPUT_FILE_SA0) $(FILE_NAME_SA0).srec
-	$(objcopy) -O binary --adjust-vma=0xE6320000 --srec-forceS3  $(OUTPUT_FILE_SA0) $(FILE_NAME_SA0).bin
+	$(objcopy) -O srec --adjust-vma=$(RCAR_VMA_ADJUST_ADDR) --srec-forceS3  $(OUTPUT_FILE_SA0) $(FILE_NAME_SA0).srec
+	$(objcopy) -O binary --adjust-vma=$(RCAR_VMA_ADJUST_ADDR) --srec-forceS3  $(OUTPUT_FILE_SA0) $(FILE_NAME_SA0).bin
 
 $(OUTPUT_FILE_SA6) : $(MEMORY_DEF_SA6) $(OBJ_FILE_SA6)
 	$(LD) $(OBJ_FILE_SA6)		 	\
@@ -97,8 +106,8 @@ $(OUTPUT_FILE_SA6) : $(MEMORY_DEF_SA6) $(OBJ_FILE_SA6)
 	-o $(OUTPUT_FILE_SA6)			\
 	-Map $(FILE_NAME_SA6).map 		\
 
-	$(objcopy) -O srec --adjust-vma=0xE6320000 --srec-forceS3  $(OUTPUT_FILE_SA6) $(FILE_NAME_SA6).srec
-	$(objcopy) -O binary --adjust-vma=0xE6320000 --srec-forceS3  $(OUTPUT_FILE_SA6) $(FILE_NAME_SA6).bin
+	$(objcopy) -O srec --adjust-vma=$(RCAR_VMA_ADJUST_ADDR) --srec-forceS3  $(OUTPUT_FILE_SA6) $(FILE_NAME_SA6).srec
+	$(objcopy) -O binary --adjust-vma=$(RCAR_VMA_ADJUST_ADDR) --srec-forceS3  $(OUTPUT_FILE_SA6) $(FILE_NAME_SA6).bin
 
 ###################################################
 # Compile

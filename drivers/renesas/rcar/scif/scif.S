@@ -17,6 +17,7 @@
 #define	PRR_CUT_MASK		(0x000000FF)
 #define	PRR_PRODUCT_H3_VER_10	(0x00004F00)
 #define	PRR_PRODUCT_E3		(0x00005700)
+#define	PRR_PRODUCT_D3		(0x00005800)
 
 /* module stop */
 #define	CPG_BASE		(0xE6150000)
@@ -60,6 +61,7 @@
 					 SCSMR_STOP_1 +		\
 					 SCSMR_CKS_DIV1)
 #define	SCBRR_115200BPS		(17)
+#define	SCBRR_115200BPSON	(16)
 #define	SCBRR_115200BPS_E3_SSCG	(15)
 #define	SCBRR_230400BPS		(8)
 
@@ -192,21 +194,28 @@ func console_core_init
 	cmp	w1, w2
 	beq	3f
 	and	w1, w1, #PRR_PRODUCT_MASK
+	mov	w2, #PRR_PRODUCT_D3
+	cmp	w1, w2
+	beq	4f
+	and	w1, w1, #PRR_PRODUCT_MASK
 	mov	w2, #PRR_PRODUCT_E3
 	cmp	w1, w2
-	bne	4f
+	bne	5f
 
 	ldr	x1, =RST_MODEMR
 	ldr	w1, [x1]
 	and	w1, w1, #MODEMR_MD12
 	mov	w2, #MODEMR_MD12
 	cmp	w1, w2
-	bne	4f
+	bne	5f
 
 	mov	w1, #SCBRR_115200BPS_E3_SSCG
 	b	2f
-4:
+5:
 	mov	w1, #SCBRR_115200BPS
+	b	2f
+4:
+	mov	w1, #SCBRR_115200BPSON
 	b	2f
 3:
 	mov	w1, #SCBRR_230400BPS

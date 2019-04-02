@@ -92,18 +92,22 @@ static void rcar_pwr_domain_on_finish(const psci_power_state_t *target_state)
 
 static void rcar_pwr_domain_off(const psci_power_state_t *target_state)
 {
+#if RCAR_LSI != RCAR_D3
 	uint32_t cluster_type = rcar_pwrc_get_cluster();
+#endif
 	unsigned long mpidr = read_mpidr_el1();
 
 	gicv2_cpuif_disable();
 	rcar_pwrc_cpuoff(mpidr);
 
+#if RCAR_LSI != RCAR_D3
 	if (CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE) {
 		if (cluster_type == RCAR_CLUSTER_A53A57)
 			plat_cci_disable();
 
 		rcar_pwrc_clusteroff(mpidr);
 	}
+#endif
 }
 
 static void rcar_pwr_domain_suspend(const psci_power_state_t *target_state)
