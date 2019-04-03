@@ -211,6 +211,7 @@ This release also contains the following platform support:
 
 -  Allwinner sun50i_a64 and sun50i_h6
 -  Amlogic Meson S905 (GXBB)
+-  Amlogic Meson S905x (GXL)
 -  Arm Juno Software Development Platform
 -  Arm Neoverse N1 System Development Platform (N1SDP)
 -  Arm Neoverse Reference Design N1 Edge (RD-N1-Edge) FVP
