@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <assert.h>
 #include <errno.h>
@@ -50,17 +51,6 @@ static OBJECT_POOL(sp_xlat_tables_pool, sp_xlat_tables,
 	XLAT_TABLE_ENTRIES * sizeof(uint64_t),
 	(PLAT_SP_IMAGE_MAX_XLAT_TABLES + 1) * PLAT_SPM_MAX_PARTITIONS);
 
-/* Allocate base translation tables. */
-static uint64_t sp_xlat_base_tables
-	[GET_NUM_BASE_LEVEL_ENTRIES(PLAT_VIRT_ADDR_SPACE_SIZE)]
-	[PLAT_SPM_MAX_PARTITIONS]
-	__aligned(GET_NUM_BASE_LEVEL_ENTRIES(PLAT_VIRT_ADDR_SPACE_SIZE)
-		  * sizeof(uint64_t))
-	__section(PLAT_SP_IMAGE_XLAT_SECTION_NAME);
-static OBJECT_POOL(sp_xlat_base_tables_pool, sp_xlat_base_tables,
-	GET_NUM_BASE_LEVEL_ENTRIES(PLAT_VIRT_ADDR_SPACE_SIZE) * sizeof(uint64_t),
-	PLAT_SPM_MAX_PARTITIONS);
-
 /* Allocate arrays. */
 static int sp_xlat_mapped_regions[PLAT_SP_IMAGE_MAX_XLAT_TABLES]
 	[PLAT_SPM_MAX_PARTITIONS];
@@ -73,26 +63,107 @@ static OBJECT_POOL(sp_xlat_ctx_pool, sp_xlat_ctx, sizeof(xlat_ctx_t),
 	PLAT_SPM_MAX_PARTITIONS);
 
 /* Get handle of Secure Partition translation context */
-xlat_ctx_t *spm_sp_xlat_context_alloc(void)
+void spm_sp_xlat_context_alloc(sp_context_t *sp_ctx)
 {
+	/* Allocate xlat context elements */
+
 	xlat_ctx_t *ctx = pool_alloc(&sp_xlat_ctx_pool);
 
 	struct mmap_region *mmap = pool_alloc(&sp_mmap_regions_pool);
 
-	uint64_t *base_table = pool_alloc(&sp_xlat_base_tables_pool);
+	uint64_t *base_table = pool_alloc(&sp_xlat_tables_pool);
 	uint64_t **tables = pool_alloc_n(&sp_xlat_tables_pool,
 					PLAT_SP_IMAGE_MAX_XLAT_TABLES);
 
 	int *mapped_regions = pool_alloc(&sp_xlat_mapped_regions_pool);
 
-	xlat_setup_dynamic_ctx(ctx, PLAT_PHY_ADDR_SPACE_SIZE - 1,
-			       PLAT_VIRT_ADDR_SPACE_SIZE - 1, mmap,
+	/* Calculate the size of the virtual address space needed */
+
+	uintptr_t va_size = 0U;
+	struct sp_rd_sect_mem_region *rdmem;
+
+	for (rdmem = sp_ctx->rd.mem_region; rdmem != NULL; rdmem = rdmem->next) {
+		uintptr_t end_va = (uintptr_t)rdmem->base +
+				   (uintptr_t)rdmem->size;
+
+		if (end_va > va_size)
+			va_size = end_va;
+	}
+
+	if (va_size == 0U) {
+		ERROR("No regions in resource description.\n");
+		panic();
+	}
+
+	/*
+	 * Get the power of two that is greater or equal to the top VA. The
+	 * values of base and size in the resource description are 32-bit wide
+	 * so the values will never overflow when using a uintptr_t.
+	 */
+	if (!IS_POWER_OF_TWO(va_size)) {
+		va_size = 1ULL <<
+			((sizeof(va_size) * 8) - __builtin_clzll(va_size));
+	}
+
+	if (va_size > PLAT_VIRT_ADDR_SPACE_SIZE) {
+		ERROR("Resource description requested too much virtual memory.\n");
+		panic();
+	}
+
+	uintptr_t min_va_size;
+
+	/* The following sizes are only valid for 4KB pages */
+	assert(PAGE_SIZE == (4U * 1024U));
+
+	if (is_armv8_4_ttst_present()) {
+		VERBOSE("Using ARMv8.4-TTST\n");
+		min_va_size = 1ULL << (64 - TCR_TxSZ_MAX_TTST);
+	} else {
+		min_va_size = 1ULL << (64 - TCR_TxSZ_MAX);
+	}
+
+	if (va_size < min_va_size) {
+		va_size = min_va_size;
+	}
+
+	/* Initialize xlat context */
+
+	xlat_setup_dynamic_ctx(ctx, PLAT_PHY_ADDR_SPACE_SIZE - 1ULL,
+			       va_size - 1ULL, mmap,
 			       PLAT_SP_IMAGE_MMAP_REGIONS, tables,
 			       PLAT_SP_IMAGE_MAX_XLAT_TABLES, base_table,
 			       EL1_EL0_REGIME, mapped_regions);
 
-	return ctx;
+	sp_ctx->xlat_ctx_handle = ctx;
 };
+
+/*******************************************************************************
+ * Translation table context used for S-EL1 exception vectors
+ ******************************************************************************/
+
+REGISTER_XLAT_CONTEXT2(spm_sel1, SPM_SHIM_MMAP_REGIONS, SPM_SHIM_XLAT_TABLES,
+		SPM_SHIM_XLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE,
+		EL1_EL0_REGIME, PLAT_SP_IMAGE_XLAT_SECTION_NAME);
+
+void spm_exceptions_xlat_init_context(void)
+{
+	/* This region contains the exception vectors used at S-EL1. */
+	mmap_region_t sel1_exception_vectors =
+		MAP_REGION(SPM_SHIM_EXCEPTIONS_PTR,
+			   0x0UL,
+			   SPM_SHIM_EXCEPTIONS_SIZE,
+			   MT_CODE | MT_SECURE | MT_PRIVILEGED);
+
+	mmap_add_region_ctx(&spm_sel1_xlat_ctx,
+			    &sel1_exception_vectors);
+
+	init_xlat_tables_ctx(&spm_sel1_xlat_ctx);
+}
+
+uint64_t *spm_exceptions_xlat_get_base_table(void)
+{
+	return spm_sel1_xlat_ctx.base_table;
+}
 
 /*******************************************************************************
  * Functions to allocate memory for regions.
@@ -158,6 +229,11 @@ static void map_rdmem(sp_context_t *sp_ctx, struct sp_rd_sect_mem_region *rdmem)
 	unsigned long long rd_base_pa;
 
 	unsigned int memtype = rdmem->attr & RD_MEM_MASK;
+
+	if (rd_size == 0U) {
+		VERBOSE("Memory region '%s' is empty. Ignored.\n", rdmem->name);
+		return;
+	}
 
 	VERBOSE("Adding memory region '%s'\n", rdmem->name);
 
@@ -295,15 +371,6 @@ static void map_rdmem(sp_context_t *sp_ctx, struct sp_rd_sect_mem_region *rdmem)
 
 void sp_map_memory_regions(sp_context_t *sp_ctx)
 {
-	/* This region contains the exception vectors used at S-EL1. */
-	const mmap_region_t sel1_exception_vectors =
-		MAP_REGION_FLAT(SPM_SHIM_EXCEPTIONS_START,
-				SPM_SHIM_EXCEPTIONS_SIZE,
-				MT_CODE | MT_SECURE | MT_PRIVILEGED);
-
-	mmap_add_region_ctx(sp_ctx->xlat_ctx_handle,
-			    &sel1_exception_vectors);
-
 	struct sp_rd_sect_mem_region *rdmem;
 
 	for (rdmem = sp_ctx->rd.mem_region; rdmem != NULL; rdmem = rdmem->next) {

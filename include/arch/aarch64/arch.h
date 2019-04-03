@@ -433,6 +433,9 @@
 #define TCR_TxSZ_MAX		ULL(39)
 #define TCR_TxSZ_MAX_TTST	ULL(48)
 
+#define TCR_T0SZ_SHIFT		U(0)
+#define TCR_T1SZ_SHIFT		U(16)
+
 /* (internal) physical address size bits in EL3/EL1 */
 #define TCR_PS_BITS_4GB		ULL(0x0)
 #define TCR_PS_BITS_64GB	ULL(0x1)
@@ -462,11 +465,31 @@
 #define TCR_SH_OUTER_SHAREABLE	(ULL(0x2) << 12)
 #define TCR_SH_INNER_SHAREABLE	(ULL(0x3) << 12)
 
+#define TCR_RGN1_INNER_NC	(ULL(0x0) << 24)
+#define TCR_RGN1_INNER_WBA	(ULL(0x1) << 24)
+#define TCR_RGN1_INNER_WT	(ULL(0x2) << 24)
+#define TCR_RGN1_INNER_WBNA	(ULL(0x3) << 24)
+
+#define TCR_RGN1_OUTER_NC	(ULL(0x0) << 26)
+#define TCR_RGN1_OUTER_WBA	(ULL(0x1) << 26)
+#define TCR_RGN1_OUTER_WT	(ULL(0x2) << 26)
+#define TCR_RGN1_OUTER_WBNA	(ULL(0x3) << 26)
+
+#define TCR_SH1_NON_SHAREABLE	(ULL(0x0) << 28)
+#define TCR_SH1_OUTER_SHAREABLE	(ULL(0x2) << 28)
+#define TCR_SH1_INNER_SHAREABLE	(ULL(0x3) << 28)
+
 #define TCR_TG0_SHIFT		U(14)
 #define TCR_TG0_MASK		ULL(3)
 #define TCR_TG0_4K		(ULL(0) << TCR_TG0_SHIFT)
 #define TCR_TG0_64K		(ULL(1) << TCR_TG0_SHIFT)
 #define TCR_TG0_16K		(ULL(2) << TCR_TG0_SHIFT)
+
+#define TCR_TG1_SHIFT		U(30)
+#define TCR_TG1_MASK		ULL(3)
+#define TCR_TG1_16K		(ULL(1) << TCR_TG1_SHIFT)
+#define TCR_TG1_4K		(ULL(2) << TCR_TG1_SHIFT)
+#define TCR_TG1_64K		(ULL(3) << TCR_TG1_SHIFT)
 
 #define TCR_EPD0_BIT		(ULL(1) << 7)
 #define TCR_EPD1_BIT		(ULL(1) << 23)

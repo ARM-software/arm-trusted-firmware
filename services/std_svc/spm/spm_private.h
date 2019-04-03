@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -95,8 +95,12 @@ void spm_sp_request_increase(sp_context_t *sp_ctx);
 void spm_sp_request_decrease(sp_context_t *sp_ctx);
 int spm_sp_request_increase_if_zero(sp_context_t *sp_ctx);
 
+/* Functions related to the shim layer translation tables */
+void spm_exceptions_xlat_init_context(void);
+uint64_t *spm_exceptions_xlat_get_base_table(void);
+
 /* Functions related to the translation tables management */
-xlat_ctx_t *spm_sp_xlat_context_alloc(void);
+void spm_sp_xlat_context_alloc(sp_context_t *sp_ctx);
 void sp_map_memory_regions(sp_context_t *sp_ctx);
 
 /* Functions to handle Secure Partition contexts */

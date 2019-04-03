@@ -248,7 +248,7 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 	 */
 	int t0sz = 64 - __builtin_ctzll(virtual_addr_space_size);
 
-	tcr = (uint64_t) t0sz;
+	tcr = (uint64_t)t0sz << TCR_T0SZ_SHIFT;
 
 	/*
 	 * Set the cacheability and shareability attributes for memory
