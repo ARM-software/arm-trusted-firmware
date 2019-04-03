@@ -181,7 +181,7 @@ void bl31_platform_setup(void)
 	gicv2_cpuif_enable();
 
 	hikey960_edma_init();
-
+	hikey960_asp_dma_init();
 	hisi_ipc_init();
 }
 
