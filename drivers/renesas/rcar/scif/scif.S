@@ -21,12 +21,16 @@
 
 /* module stop */
 #define	CPG_BASE		(0xE6150000)
+#define	CPG_SMSTPCR2		(0x0138)
 #define	CPG_SMSTPCR3		(0x013C)
+#define CPG_MSTPSR2		(0x0040)
 #define	CPG_MSTPSR3		(0x0048)
+#define	MSTP207			(1 << 7)
 #define	MSTP310			(1 << 10)
 #define	CPG_CPGWPR		(0x0900)
 
 /* scif */
+#define	SCIF0_BASE		(0xE6E60000)
 #define	SCIF2_BASE		(0xE6E88000)
 #define	SCIF_SCSMR		(0x00)
 #define	SCIF_SCBRR		(0x04)
@@ -40,6 +44,18 @@
 #define	SCIF_SCLSR		(0x24)
 #define	SCIF_DL			(0x30)
 #define	SCIF_CKS		(0x34)
+
+#if RCAR_LSI == RCAR_V3M
+#define SCIF_BASE		SCIF0_BASE
+#define CPG_SMSTPCR		CPG_SMSTPCR2
+#define CPG_MSTPSR		CPG_MSTPSR2
+#define MSTP			MSTP207
+#else
+#define SCIF_BASE		SCIF2_BASE
+#define CPG_SMSTPCR		CPG_SMSTPCR3
+#define CPG_MSTPSR		CPG_MSTPSR3
+#define MSTP			MSTP310
+#endif
 
 /* mode pin */
 #define	RST_MODEMR		(0xE6160060)
@@ -152,17 +168,17 @@ endfunc console_uninit
 	 */
 func console_core_init
 	ldr	x0, =CPG_BASE
-	ldr	w1, [x0, #CPG_SMSTPCR3]
-	and	w1, w1, #~MSTP310		/* MSTP310=0 */
+	ldr	w1, [x0, #CPG_SMSTPCR]
+	and	w1, w1, #~MSTP
 	mvn	w2, w1
 	str	w2, [x0, #CPG_CPGWPR]
-	str	w1, [x0, #CPG_SMSTPCR3]
+	str	w1, [x0, #CPG_SMSTPCR]
 5:
-	ldr w1, [x0, #CPG_MSTPSR3]
-	and w1, w1, #MSTP310
+	ldr w1, [x0, #CPG_MSTPSR]
+	and w1, w1, #MSTP
 	cbnz w1, 5b
 
-	ldr	x0, =SCIF2_BASE
+	ldr	x0, =SCIF_BASE
 	/* Clear bits TE and RE in SCSCR to 0 */
 	mov	w1, #(SCSCR_TE_DIS + SCSCR_RE_DIS)
 	strh	w1, [x0, #SCIF_SCSCR]
@@ -272,7 +288,7 @@ endfunc console_putc
 	 * --------------------------------------------------------
 	 */
 func console_core_putc
-	ldr	x1, =SCIF2_BASE
+	ldr	x1, =SCIF_BASE
 	cmp	w0, #0xA
 	/* Prepend '\r' to '\n' */
 	bne	2f
@@ -323,7 +339,7 @@ endfunc console_getc
 	 * ---------------------------------------------
 	 */
 func console_flush
-	ldr	x0, =SCIF2_BASE
+	ldr	x0, =SCIF_BASE
 1:
 	/* Check TEND flag */
 	ldrh	w1, [x0, #SCIF_SCFSR]
@@ -331,7 +347,7 @@ func console_flush
 	cmp	w1, #SCFSR_TEND_TRANS_END
 	bne	1b
 
-	ldr	x0, =SCIF2_BASE
+	ldr	x0, =SCIF_BASE
 	ldrh	w1, [x0, #SCIF_SCSCR]
 	and	w1, w1, #~(SCSCR_TE_EN + SCSCR_RE_EN)
 	strh	w1, [x0, #SCIF_SCSCR]
