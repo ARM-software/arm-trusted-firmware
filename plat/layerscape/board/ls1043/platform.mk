@@ -56,9 +56,6 @@ BL31_SOURCES			+=	plat/layerscape/board/ls1043/ls1043_bl31_setup.c		\
 					${LS1043_INTERCONNECT_SOURCES}			\
 					${LS1043_SECURITY_SOURCES}
 
-# Disable the PSCI platform compatibility layer
-MULTI_CONSOLE_API		:=	1
-
 # Enable workarounds for selected Cortex-A53 erratas.
 ERRATA_A53_855873		:=	1
 

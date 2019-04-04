@@ -240,11 +240,7 @@ void arm_bl31_platform_setup(void)
  ******************************************************************************/
 void arm_bl31_plat_runtime_setup(void)
 {
-#if MULTI_CONSOLE_API
 	console_switch_state(CONSOLE_FLAG_RUNTIME);
-#else
-	console_uninit();
-#endif
 
 	/* Initialize the runtime console */
 	arm_console_runtime_init();

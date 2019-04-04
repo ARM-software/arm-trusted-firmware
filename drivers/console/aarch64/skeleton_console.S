@@ -22,8 +22,6 @@
 	 * any function may always clobber the intra-procedure-call registers
 	 * X16 and X17, but may never depend on them retaining their values
 	 * across any function call.)
-	 * Platforms using drivers based on this template need to enable
-	 * MULTI_CONSOLE_API := 1 in their platform.mk.
 	 */
 
 	.globl	console_xxx_register

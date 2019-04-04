@@ -67,5 +67,4 @@ BL31_SOURCES	+=	drivers/arm/cci/cci.c				\
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 BL2_AT_EL3			:= 1
-MULTI_CONSOLE_API		:= 1
 USE_COHERENT_MEM		:= 1

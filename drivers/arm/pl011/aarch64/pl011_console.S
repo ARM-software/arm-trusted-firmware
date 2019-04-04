@@ -75,7 +75,6 @@ core_init_fail:
 	ret
 endfunc console_pl011_core_init
 
-#if MULTI_CONSOLE_API
 	.globl console_pl011_register
 
 	/* -----------------------------------------------
@@ -109,16 +108,6 @@ func console_pl011_register
 register_fail:
 	ret	x7
 endfunc console_pl011_register
-#else
-	.globl console_core_init
-	.globl console_core_putc
-	.globl console_core_getc
-	.globl console_core_flush
-	.equ console_core_init,console_pl011_core_init
-	.equ console_core_putc,console_pl011_core_putc
-	.equ console_core_getc,console_pl011_core_getc
-	.equ console_core_flush,console_pl011_core_flush
-#endif
 
 	/* --------------------------------------------------------
 	 * int console_pl011_core_putc(int c, uintptr_t base_addr)

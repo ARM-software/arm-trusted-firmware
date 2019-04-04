@@ -106,8 +106,6 @@ endif
 $(eval $(call assert_boolean,ARM_XLAT_TABLES_LIB_V1))
 $(eval $(call add_define,ARM_XLAT_TABLES_LIB_V1))
 
-MULTI_CONSOLE_API		:=	1
-
 ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
 	# Only use nonlpae version of xlatv1 otherwise use xlat v2
 	PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/${ARCH}/nonlpae_tables.c

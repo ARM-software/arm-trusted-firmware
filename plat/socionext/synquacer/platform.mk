@@ -5,7 +5,6 @@
 #
 
 override RESET_TO_BL31			:= 1
-override MULTI_CONSOLE_API		:= 1
 override PROGRAMMABLE_RESET_ADDRESS	:= 1
 override USE_COHERENT_MEM		:= 1
 override SEPARATE_CODE_AND_RODATA	:= 1

@@ -49,8 +49,6 @@ ERRATA_A53_835769		:=	1
 ERRATA_A53_843419		:=	1
 ERRATA_A53_855873		:=	1
 
-MULTI_CONSOLE_API		:=	1
-
 # The reset vector can be changed for each CPU.
 PROGRAMMABLE_RESET_ADDRESS	:=	1
 

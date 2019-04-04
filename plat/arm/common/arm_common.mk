@@ -125,9 +125,6 @@ ENABLE_PMF			:=	1
 # mapping the former as executable and the latter as execute-never.
 SEPARATE_CODE_AND_RODATA	:=	1
 
-# Use the multi console API, which is only available for AArch64 for now
-MULTI_CONSOLE_API		:=	1
-
 # Disable ARM Cryptocell by default
 ARM_CRYPTOCELL_INTEG		:=	0
 $(eval $(call assert_boolean,ARM_CRYPTOCELL_INTEG))

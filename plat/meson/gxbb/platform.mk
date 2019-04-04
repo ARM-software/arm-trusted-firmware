@@ -57,15 +57,8 @@ SEPARATE_CODE_AND_RODATA	:= 1
 # Use Coherent memory
 USE_COHERENT_MEM		:= 1
 
-# Use multi console API
-MULTI_CONSOLE_API		:= 1
-
 # Verify build config
 # -------------------
-
-ifneq (${MULTI_CONSOLE_API}, 1)
-  $(error Error: gxbb needs MULTI_CONSOLE_API=1)
-endif
 
 ifneq (${RESET_TO_BL31}, 0)
   $(error Error: gxbb needs RESET_TO_BL31=0)
