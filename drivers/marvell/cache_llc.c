@@ -111,28 +111,36 @@ void llc_runtime_enable(int ap_index)
 }
 
 #if LLC_SRAM
-void llc_sram_enable(int ap_index)
+int llc_sram_enable(int ap_index, int size)
 {
-	uint32_t tc, way;
+	uint32_t tc, way, ways_to_allocate;
 	uint32_t way_addr;
+
+	if ((size <= 0) || (size > LLC_SIZE) || (size % LLC_WAY_SIZE))
+		return -1;
+
+	llc_enable(ap_index, 1);
+	llc_inv_all(ap_index);
+
+	ways_to_allocate = size / LLC_WAY_SIZE;
 
 	/* Lockdown all available ways for all traffic classes */
 	for (tc = 0; tc < LLC_TC_NUM; tc++)
-		mmio_write_32(LLC_TCN_LOCK(ap_index, tc), LLC_WAY_MASK);
+		mmio_write_32(LLC_TCN_LOCK(ap_index, tc), LLC_ALL_WAYS_MASK);
 
 	/* Clear the high bits of SRAM address */
 	mmio_write_32(LLC_BANKED_MNT_AHR(ap_index), 0);
 
 	way_addr = PLAT_MARVELL_TRUSTED_RAM_BASE;
-	for (way = 0; way < LLC_WAYS; way++) {
+	for (way = 0; way < ways_to_allocate; way++) {
 		/* Trigger allocation block command */
 		mmio_write_32(LLC_BLK_ALOC(ap_index),
 			      LLC_BLK_ALOC_BASE_ADDR(way_addr) |
-			      LLC_BLK_ALOC_WAY_DATA_CLR |
+			      LLC_BLK_ALOC_WAY_DATA_SET |
 			      LLC_BLK_ALOC_WAY_ID(way));
 		way_addr += LLC_WAY_SIZE;
 	}
-	llc_enable(ap_index, 1);
+	return 0;
 }
 
 void llc_sram_disable(int ap_index)
@@ -146,4 +154,36 @@ void llc_sram_disable(int ap_index)
 	/* Invalidate all ways */
 	llc_inv_all(ap_index);
 }
+
+int llc_sram_test(int ap_index, int size, char *msg)
+{
+	uintptr_t addr, end_addr;
+	uint32_t data = 0;
+
+	if ((size <= 0) || (size > LLC_SIZE))
+		return -1;
+
+	INFO("=== LLC SRAM WRITE test %s\n", msg);
+	for (addr = PLAT_MARVELL_TRUSTED_RAM_BASE,
+	     end_addr = PLAT_MARVELL_TRUSTED_RAM_BASE + size;
+	     addr < end_addr; addr += 4) {
+		mmio_write_32(addr, addr);
+	}
+	INFO("=== LLC SRAM WRITE test %s PASSED\n", msg);
+	INFO("=== LLC SRAM READ test %s\n", msg);
+	for (addr = PLAT_MARVELL_TRUSTED_RAM_BASE,
+	     end_addr = PLAT_MARVELL_TRUSTED_RAM_BASE + size;
+	     addr < end_addr; addr += 4) {
+		data = mmio_read_32(addr);
+		if (data != addr) {
+			INFO("=== LLC SRAM READ test %s FAILED @ 0x%08lx)\n",
+			     msg, addr);
+			return -1;
+		}
+	}
+	INFO("=== LLC SRAM READ test %s PASSED (last read = 0x%08x)\n",
+	     msg, data);
+	return 0;
+}
+
 #endif /* LLC_SRAM */
