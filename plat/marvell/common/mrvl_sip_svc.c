@@ -116,8 +116,7 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 
 	/* Miscellaneous FID's' */
 	case MV_SIP_DRAM_SIZE:
-		/* x1:  ap_base_addr */
-		ret = mvebu_get_dram_size(x1);
+		ret = mvebu_get_dram_size(MVEBU_REGS_BASE);
 		SMC_RET1(handle, ret);
 	case MV_SIP_LLC_ENABLE:
 		for (i = 0; i < ap_get_count(); i++)
