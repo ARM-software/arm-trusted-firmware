@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,39 +17,6 @@
  * with a tail call that will include return to the caller.
  * REQUIRES console_t pointer in x0 and a valid return address in x30.
  */
-/*
- * The USE_FINISH_CONSOLE_REG_2 guard is introduced to allow selection between
- * the 2 variants of the finish_console_register macro and will be removed
- * once the deprecated variant is removed.
- */
-#ifndef USE_FINISH_CONSOLE_REG_2
-#if !ERROR_DEPRECATED
-	/* This version of the macro is deprecated. Use the new version */
-	.macro	finish_console_register _driver
-	/*
-	 * Add these weak definitions so we will automatically write a 0 if the
-	 * function doesn't exist. I'd rather use .ifdef but that only works if
-	 * the function was defined (not just declared .global) above this point
-	 * in the file, which we can't guarantee.
-	 */
-	.weak console_\_driver\()_putc
-	.weak console_\_driver\()_getc
-	.weak console_\_driver\()_flush
-
-	/* Don't use adrp on weak funcs! See GNU ld bugzilla issue 22589. */
-	ldr	r1, =console_\_driver\()_putc
-	str	r1, [r0, #CONSOLE_T_PUTC]
-	ldr	r1, =console_\_driver\()_getc
-	str	r1, [r0, #CONSOLE_T_GETC]
-	ldr	r1, =console_\_driver\()_flush
-	str	r1, [r0, #CONSOLE_T_FLUSH]
-	mov	r1, #(CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH)
-	str	r1, [r0, #CONSOLE_T_FLAGS]
-	b	console_register
-	.endm
-#endif /* ERROR_DEPRECATED */
-#else /* USE_FINISH_CONSOLE_REG_2 */
-	/* The new version of the macro not using weak references */
 	.macro	finish_console_register _driver, putc=0, getc=0, flush=0
 	/*
 	 * If any of the callback is not specified or set as 0, then the
@@ -80,5 +47,5 @@
 	str	r1, [r0, #CONSOLE_T_FLAGS]
 	b	console_register
 	.endm
-#endif /* USE_FINISH_CONSOLE_REG_2 */
+
 #endif /* CONSOLE_MACROS_S */

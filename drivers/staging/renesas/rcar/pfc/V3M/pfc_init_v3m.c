@@ -6,7 +6,7 @@
  */
 
 #include <stdint.h>		/* for uint32_t */
-#include <mmio.h>
+#include <lib/mmio.h>
 #include "pfc_init_v3m.h"
 #include "include/rcar_def.h"
 #include "rcar_private.h"

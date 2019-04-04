@@ -310,13 +310,6 @@ static inline void disable_debug_exceptions(void)
 	isb();
 }
 
-#if !ERROR_DEPRECATED
-uint32_t get_afflvl_shift(uint32_t);
-uint32_t mpidr_mask_lower_afflvls(uint64_t, uint32_t);
-
-void __dead2 eret(uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3,
-		  uint64_t x4, uint64_t x5, uint64_t x6, uint64_t x7);
-#endif
 void __dead2 smc(uint64_t x0, uint64_t x1, uint64_t x2, uint64_t x3,
 		 uint64_t x4, uint64_t x5, uint64_t x6, uint64_t x7);
 
@@ -507,10 +500,6 @@ static inline uint64_t el_implemented(unsigned int el)
 		return (read_id_aa64pfr0_el1() >> shift) & ID_AA64PFR0_ELX_MASK;
 	}
 }
-
-#if !ERROR_DEPRECATED
-#define EL_IMPLEMENTED(_el)	el_implemented(_el)
-#endif
 
 /* Previously defined accesor functions with incomplete register names  */
 

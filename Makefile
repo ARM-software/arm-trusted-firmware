@@ -285,28 +285,6 @@ INCLUDES		+=	-Iinclude				\
 				${PLAT_INCLUDES}			\
 				${SPD_INCLUDES}
 
-ifeq (${ERROR_DEPRECATED},0)
-INCLUDES		+=	-Iinclude/bl1				\
-				-Iinclude/bl2				\
-				-Iinclude/bl2u				\
-				-Iinclude/bl31				\
-				-Iinclude/drivers			\
-				-Iinclude/drivers/arm			\
-				-Iinclude/drivers/auth			\
-				-Iinclude/drivers/io			\
-				-Iinclude/drivers/ti/uart		\
-				-Iinclude/lib				\
-				-Iinclude/lib/cpus			\
-				-Iinclude/lib/el3_runtime		\
-				-Iinclude/lib/extensions		\
-				-Iinclude/lib/pmf			\
-				-Iinclude/lib/psci			\
-				-Iinclude/lib/xlat_tables		\
-				-Iinclude/plat/common			\
-				-Iinclude/services			\
-				-Iinclude/tools_share
-endif
-
 include common/backtrace/backtrace.mk
 
 ################################################################################

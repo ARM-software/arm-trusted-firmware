@@ -7,13 +7,13 @@
 #include <assert.h>
 #include <bpmp_ipc.h>
 #include <debug.h>
-#include <delay_timer.h>
+#include <drivers/delay_timer.h>
 #include <errno.h>
-#include <mmio.h>
+#include <lib/mmio.h>
+#include <lib/utils_def.h>
 #include <stdbool.h>
 #include <string.h>
 #include <tegra_def.h>
-#include <utils_def.h>
 
 #include "intf.h"
 #include "ivc.h"

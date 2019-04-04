@@ -5,7 +5,7 @@
  */
 
 #include <stdint.h>
-#include <mmio.h>
+#include <lib/mmio.h>
 #include "pfc_init_d3.h"
 #include "rcar_def.h"
 
@@ -896,7 +896,7 @@ void pfc_init_d3(void)
 	pfc_reg_write(PFC_PUD3, 0xFF0FFFFFU);
 	pfc_reg_write(PFC_PUD4, 0xE0000000U);
 	pfc_reg_write(PFC_PUD5, 0x60000000U);
-                            
+
 	/* initialize LSI pin pull-enable register */
 	pfc_reg_write(PFC_PUEN0, 0x00000000U);
 	pfc_reg_write(PFC_PUEN1, 0x00000000U);
@@ -904,7 +904,7 @@ void pfc_init_d3(void)
 	pfc_reg_write(PFC_PUEN3, 0x000F008CU);
 	pfc_reg_write(PFC_PUEN4, 0x00000000U);
 	pfc_reg_write(PFC_PUEN5, 0x00000000U);
-                             
+
 	/* initialize positive/negative logic select */
 	mmio_write_32(GPIO_POSNEG0, 0x00000000U);
 	mmio_write_32(GPIO_POSNEG1, 0x00000000U);

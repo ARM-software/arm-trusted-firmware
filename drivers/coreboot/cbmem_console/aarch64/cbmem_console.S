@@ -5,7 +5,6 @@
  */
 
 #include <asm_macros.S>
-#define USE_FINISH_CONSOLE_REG_2
 #include <console_macros.S>
 #include <drivers/coreboot/cbmem_console.h>
 

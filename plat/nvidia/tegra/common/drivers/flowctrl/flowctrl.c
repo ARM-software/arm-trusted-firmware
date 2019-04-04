@@ -13,9 +13,9 @@
 #include <lib/mmio.h>
 
 #include <flowctrl.h>
+#include <lib/utils_def.h>
 #include <pmc.h>
 #include <tegra_def.h>
-#include <utils_def.h>
 
 #define CLK_RST_DEV_L_SET		0x300
 #define CLK_RST_DEV_L_CLR		0x304

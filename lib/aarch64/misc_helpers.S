@@ -10,11 +10,6 @@
 #include <common/bl_common.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
-#if !ERROR_DEPRECATED
-	.globl	get_afflvl_shift
-	.globl	mpidr_mask_lower_afflvls
-	.globl	eret
-#endif /* ERROR_DEPRECATED */
 	.globl	smc
 
 	.globl	zero_normalmem
@@ -29,31 +24,6 @@
 #if SUPPORT_VFP
 	.globl	enable_vfp
 #endif
-
-#if !ERROR_DEPRECATED
-func get_afflvl_shift
-	cmp	x0, #3
-	cinc	x0, x0, eq
-	mov	x1, #MPIDR_AFFLVL_SHIFT
-	lsl	x0, x0, x1
-	ret
-endfunc get_afflvl_shift
-
-func mpidr_mask_lower_afflvls
-	cmp	x1, #3
-	cinc	x1, x1, eq
-	mov	x2, #MPIDR_AFFLVL_SHIFT
-	lsl	x2, x1, x2
-	lsr	x0, x0, x2
-	lsl	x0, x0, x2
-	ret
-endfunc mpidr_mask_lower_afflvls
-
-
-func eret
-	eret
-endfunc eret
-#endif /* ERROR_DEPRECATED */
 
 func smc
 	smc	#0

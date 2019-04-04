@@ -6,7 +6,6 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
-#define USE_FINISH_CONSOLE_REG_2
 #include <console_macros.S>
 #include <drivers/cadence/cdns_uart.h>
 

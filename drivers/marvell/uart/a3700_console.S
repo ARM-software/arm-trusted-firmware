@@ -7,7 +7,6 @@
 
 #include <arch.h>
 #include <asm_macros.S>
-#define USE_FINISH_CONSOLE_REG_2
 #include <console_macros.S>
 #include <drivers/marvell/uart/a3700_console.h>
 
