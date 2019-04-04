@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -9,6 +9,7 @@ PSCI_EXTENDED_STATE_ID := 1
 A53_DISABLE_NON_TEMPORAL_HINT := 0
 SEPARATE_CODE_AND_RODATA := 1
 ZYNQMP_WDT_RESTART := 0
+ZYNQMP_IPI_CRC_CHECK := 0
 override RESET_TO_BL31 := 1
 
 # Do not enable SVE
@@ -45,7 +46,12 @@ ifdef ZYNQMP_WDT_RESTART
 $(eval $(call add_define,ZYNQMP_WDT_RESTART))
 endif
 
-PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/aarch64/		\
+ifdef ZYNQMP_IPI_CRC_CHECK
+    $(eval $(call add_define,ZYNQMP_IPI_CRC_CHECK))
+endif
+
+PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
+				-Iinclude/plat/arm/common/aarch64/		\
 				-Iplat/xilinx/common/include/			\
 				-Iplat/xilinx/zynqmp/include/			\
 				-Iplat/xilinx/zynqmp/pm_service/		\

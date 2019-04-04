@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,5 +26,8 @@ void pm_ipi_buff_read_callb(unsigned int *value, size_t count);
 void pm_ipi_irq_enable(const struct pm_proc *proc);
 void pm_ipi_irq_clear(const struct pm_proc *proc);
 uint32_t pm_ipi_irq_status(const struct pm_proc *proc);
+#if ZYNQMP_IPI_CRC_CHECK
+uint32_t calculate_crc(uint32_t payload[PAYLOAD_ARG_CNT], uint32_t buffersize);
+#endif
 
 #endif /* PM_IPI_H */

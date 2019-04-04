@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -57,6 +57,9 @@ static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
 	uintptr_t buffer_base = proc->ipi->buffer_base +
 					IPI_BUFFER_TARGET_REMOTE_OFFSET +
 					IPI_BUFFER_REQ_OFFSET;
+#if ZYNQMP_IPI_CRC_CHECK
+	payload[PAYLOAD_CRC_POS] = calculate_crc(payload, IPI_W0_TO_W6_SIZE);
+#endif
 
 	/* Write payload into IPI buffer */
 	for (size_t i = 0; i < PAYLOAD_ARG_CNT; i++) {
@@ -132,6 +135,10 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 					   unsigned int *value, size_t count)
 {
 	size_t i;
+#if ZYNQMP_IPI_CRC_CHECK
+	size_t j;
+	unsigned int response_payload[PAYLOAD_ARG_CNT];
+#endif
 	uintptr_t buffer_base = proc->ipi->buffer_base +
 				IPI_BUFFER_TARGET_REMOTE_OFFSET +
 				IPI_BUFFER_RESP_OFFSET;
@@ -147,6 +154,16 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 		*value = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
 		value++;
 	}
+#if ZYNQMP_IPI_CRC_CHECK
+	for (j = 0; j < PAYLOAD_ARG_CNT; j++)
+		response_payload[j] = mmio_read_32(buffer_base +
+						(j * PAYLOAD_ARG_SIZE));
+
+	if (response_payload[PAYLOAD_CRC_POS] !=
+			calculate_crc(response_payload, IPI_W0_TO_W6_SIZE))
+		NOTICE("ERROR in CRC response payload value:0x%x\n",
+					response_payload[PAYLOAD_CRC_POS]);
+#endif
 
 	return mmio_read_32(buffer_base);
 }
@@ -162,6 +179,10 @@ static enum pm_ret_status pm_ipi_buff_read(const struct pm_proc *proc,
 void pm_ipi_buff_read_callb(unsigned int *value, size_t count)
 {
 	size_t i;
+#if ZYNQMP_IPI_CRC_CHECK
+	size_t j;
+	unsigned int response_payload[PAYLOAD_ARG_CNT];
+#endif
 	uintptr_t buffer_base = IPI_BUFFER_REMOTE_BASE +
 				IPI_BUFFER_TARGET_LOCAL_OFFSET +
 				IPI_BUFFER_REQ_OFFSET;
@@ -173,6 +194,16 @@ void pm_ipi_buff_read_callb(unsigned int *value, size_t count)
 		*value = mmio_read_32(buffer_base + (i * PAYLOAD_ARG_SIZE));
 		value++;
 	}
+#if ZYNQMP_IPI_CRC_CHECK
+	for (j = 0; j < PAYLOAD_ARG_CNT; j++)
+		response_payload[j] = mmio_read_32(buffer_base +
+						(j * PAYLOAD_ARG_SIZE));
+
+	if (response_payload[PAYLOAD_CRC_POS] !=
+			calculate_crc(response_payload, IPI_W0_TO_W6_SIZE))
+		NOTICE("ERROR in CRC response payload value:0x%x\n",
+					response_payload[PAYLOAD_CRC_POS]);
+#endif
 }
 
 /**
@@ -228,3 +259,34 @@ uint32_t pm_ipi_irq_status(const struct pm_proc *proc)
 	else
 		return 0;
 }
+
+#if ZYNQMP_IPI_CRC_CHECK
+uint32_t calculate_crc(uint32_t *payload, uint32_t bufsize)
+{
+	uint32_t crcinit = CRC_INIT_VALUE;
+	uint32_t order   = CRC_ORDER;
+	uint32_t polynom = CRC_POLYNOM;
+	uint32_t i, j, c, bit, datain, crcmask, crchighbit;
+	uint32_t crc = crcinit;
+
+	crcmask = ((uint32_t)((1U << (order - 1U)) - 1U) << 1U) | 1U;
+	crchighbit = (uint32_t)(1U << (order - 1U));
+
+	for (i = 0U; i < bufsize; i++) {
+		datain = mmio_read_8((unsigned long)payload + i);
+		c = datain;
+		j = 0x80U;
+		while (j != 0U) {
+			bit = crc & crchighbit;
+			crc <<= 1U;
+			if (0U != (c & j))
+				bit ^= crchighbit;
+			if (bit != 0U)
+				crc ^= polynom;
+			j >>= 1U;
+		}
+		crc &= crcmask;
+	}
+	return crc;
+}
+#endif
