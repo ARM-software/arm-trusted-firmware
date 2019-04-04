@@ -27,20 +27,29 @@
 static uintptr_t gxbb_sec_entrypoint;
 static volatile uint32_t gxbb_cpu0_go;
 
-static void gxbb_program_mailbox(u_register_t mpidr, uint64_t value)
+static void gxl_pm_set_ep(u_register_t mpidr, uint64_t value)
 {
 	unsigned int core = plat_gxbb_calc_core_pos(mpidr);
 	uintptr_t cpu_mailbox_addr = GXBB_PSCI_MAILBOX_BASE + (core << 4);
 
 	mmio_write_64(cpu_mailbox_addr, value);
-	flush_dcache_range(cpu_mailbox_addr, sizeof(uint64_t));
+}
+
+static void gxl_pm_state(u_register_t mpidr, uint32_t value)
+{
+	unsigned int core = plat_gxbb_calc_core_pos(mpidr);
+	uintptr_t cpu_mailbox_addr = GXBB_PSCI_MAILBOX_BASE + (core << 4) + 8;
+
+	mmio_write_32(cpu_mailbox_addr, value);
 }
 
 static void __dead2 gxbb_system_reset(void)
 {
 	INFO("BL31: PSCI_SYSTEM_RESET\n");
 
+	u_register_t mpidr = read_mpidr_el1();
 	uint32_t status = mmio_read_32(GXBB_AO_RTI_STATUS_REG3);
+	int ret;
 
 	NOTICE("BL31: Reboot reason: 0x%x\n", status);
 
@@ -50,12 +59,16 @@ static void __dead2 gxbb_system_reset(void)
 
 	mmio_write_32(GXBB_AO_RTI_STATUS_REG3, status);
 
-	int ret = scpi_sys_power_state(SCPI_SYSTEM_REBOOT);
+	gxl_pm_state(mpidr, 0xFFFFFFFF);
+
+	ret = scpi_sys_power_state(SCPI_SYSTEM_REBOOT);
 
 	if (ret != 0) {
 		ERROR("BL31: PSCI_SYSTEM_RESET: SCP error: %u\n", ret);
 		panic();
 	}
+
+	gxl_pm_state(mpidr, 0);
 
 	wfi();
 
@@ -67,14 +80,20 @@ static void __dead2 gxbb_system_off(void)
 {
 	INFO("BL31: PSCI_SYSTEM_OFF\n");
 
-	unsigned int ret = scpi_sys_power_state(SCPI_SYSTEM_SHUTDOWN);
+	u_register_t mpidr = read_mpidr_el1();
+	int ret;
+
+	gxl_pm_state(mpidr, 0xFFFFFFFF);
+
+	ret = scpi_sys_power_state(SCPI_SYSTEM_SHUTDOWN);
 
 	if (ret != 0) {
 		ERROR("BL31: PSCI_SYSTEM_OFF: SCP error %u\n", ret);
 		panic();
 	}
 
-	gxbb_program_mailbox(read_mpidr_el1(), 0);
+	gxl_pm_set_ep(mpidr, 0);
+	gxl_pm_state(mpidr, 0);
 
 	wfi();
 
@@ -101,7 +120,7 @@ static int32_t gxbb_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_SUCCESS;
 	}
 
-	gxbb_program_mailbox(mpidr, gxbb_sec_entrypoint);
+	gxl_pm_set_ep(mpidr, gxbb_sec_entrypoint);
 	scpi_set_css_power_state(mpidr,
 				 SCPI_POWER_ON, SCPI_POWER_ON, SCPI_POWER_ON);
 	dmbsy();
@@ -133,10 +152,8 @@ static void gxbb_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	u_register_t mpidr = read_mpidr_el1();
 	unsigned int core = plat_gxbb_calc_core_pos(mpidr);
-	uintptr_t addr = GXBB_PSCI_MAILBOX_BASE + 8 + (core << 4);
 
-	mmio_write_32(addr, 0xFFFFFFFF);
-	flush_dcache_range(addr, sizeof(uint32_t));
+	gxl_pm_state(mpidr, 0xFFFFFFFF);
 
 	gicv2_cpuif_disable();
 
