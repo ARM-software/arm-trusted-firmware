@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include <common/interrupt_props.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
+#include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_mmu_helpers.h>
 
 #include "gxl_private.h"
@@ -100,12 +101,19 @@ void bl31_plat_arch_setup(void)
 	enable_mmu_el3(0);
 }
 
+static inline bool gxl_scp_ready(void)
+{
+	return GXBB_AO_RTI_SCP_IS_READY(mmio_read_32(GXBB_AO_RTI_SCP_STAT));
+}
+
 static inline void gxl_scp_boot(void)
 {
 	scpi_upload_scp_fw(bl30_image_info.image_base,
 			bl30_image_info.image_size, 0);
 	scpi_upload_scp_fw(bl301_image_info.image_base,
 			bl301_image_info.image_size, 1);
+	while (!gxl_scp_ready())
+		;
 }
 
 /*******************************************************************************
