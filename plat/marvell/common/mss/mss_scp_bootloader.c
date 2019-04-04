@@ -250,7 +250,13 @@ static int load_img_to_cm3(enum cm3_t cm3_type,
 		break;
 	case MG_CP0:
 	case MG_CP1:
+	case MG_CP2:
 		cp_index = cm3_type - MG_CP0;
+		if (bl2_plat_get_cp_count(0) <= cp_index) {
+			NOTICE("Skipping MG CP%d related image\n",
+			       cp_index);
+			break;
+		}
 		NOTICE("Load image to CP%d MG\n", cp_index);
 		ret = mg_image_load(single_img, image_size,
 				    MG_CM3_SRAM_BASE(cp_index));
@@ -288,7 +294,7 @@ static int split_and_load_bl2_image(void *image)
 	}
 
 	if (file_hdr->nr_of_imgs > MAX_NR_OF_FILES) {
-		ERROR("SCP_BL2 concatenated image contains to many images\n");
+		ERROR("SCP_BL2 concatenated image contains too many images\n");
 		return -1;
 	}
 
