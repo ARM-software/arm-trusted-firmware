@@ -92,6 +92,11 @@ For Cortex-A17, the following errata build flags are defined :
 -  ``ERRATA_A17_852423``: This applies errata 852423 workaround to Cortex-A17
    CPU. This needs to be enabled only for revision <= r1p2 of the CPU.
 
+For Cortex-A35, the following errata build flags are defined :
+
+-  ``ERRATA_A35_855472``: This applies errata 855472 workaround to Cortex-A35
+   CPUs. This needs to be enabled only for revision r0p0 of Cortex-A35.
+
 For Cortex-A53, the following errata build flags are defined :
 
 -  ``ERRATA_A53_819472``: This applies errata 819472 workaround to all
