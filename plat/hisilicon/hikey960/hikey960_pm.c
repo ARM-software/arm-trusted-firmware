@@ -228,7 +228,7 @@ static void hikey960_pwr_domain_suspend(const psci_power_state_t *target_state)
 			/* check the SR flag bit to determine
 			 * CLUSTER_IDLE_IPC or AP_SR_IPC to send
 			 */
-			if (hisi_test_ap_suspend_flag(cluster))
+			if (hisi_test_ap_suspend_flag())
 				hisi_enter_ap_suspend(cluster, core);
 			else
 				hisi_enter_cluster_idle(cluster, core);
@@ -268,7 +268,7 @@ hikey960_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 	hisi_clear_cpuidle_flag(cluster, core);
 	hisi_cpuidle_unlock(cluster, core);
 
-	if (hisi_test_ap_suspend_flag(cluster)) {
+	if (hisi_test_ap_suspend_flag()) {
 		hikey960_sr_dma_reinit();
 		gicv2_cpuif_enable();
 		console_pl011_register(uart_base, PL011_UART_CLK_IN_HZ,
