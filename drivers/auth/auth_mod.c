@@ -30,6 +30,10 @@
 
 #pragma weak plat_set_nv_ctr2
 
+/* Pointer to CoT */
+extern const auth_img_desc_t **const cot_desc_ptr;
+extern unsigned int auth_img_flags[MAX_NUMBER_IDS];
+
 static int cmp_auth_param_type_desc(const auth_param_type_desc_t *a,
 		const auth_param_type_desc_t *b)
 {
@@ -48,6 +52,9 @@ static int auth_get_param(const auth_param_type_desc_t *param_type_desc,
 			  void **param, unsigned int *len)
 {
 	int i;
+
+	if (img_desc->authenticated_data == NULL)
+		return 1;
 
 	for (i = 0 ; i < COT_MAX_VERIFIED_PARAMS ; i++) {
 		if (0 == cmp_auth_param_type_desc(param_type_desc,
@@ -300,7 +307,7 @@ int auth_mod_get_parent_id(unsigned int img_id, unsigned int *parent_id)
 	assert(parent_id != NULL);
 
 	/* Get the image descriptor */
-	img_desc = &cot_desc_ptr[img_id];
+	img_desc = cot_desc_ptr[img_id];
 
 	/* Check if the image has no parent (ROT) */
 	if (img_desc->parent == NULL) {
@@ -349,7 +356,7 @@ int auth_mod_verify_img(unsigned int img_id,
 	int rc, i;
 
 	/* Get the image descriptor from the chain of trust */
-	img_desc = &cot_desc_ptr[img_id];
+	img_desc = cot_desc_ptr[img_id];
 
 	/* Ask the parser to check the image integrity */
 	rc = img_parser_check_integrity(img_desc->img_type, img_ptr, img_len);
@@ -357,6 +364,8 @@ int auth_mod_verify_img(unsigned int img_id,
 
 	/* Authenticate the image using the methods indicated in the image
 	 * descriptor. */
+	if(img_desc->img_auth_methods == NULL)
+		return 1;
 	for (i = 0 ; i < AUTH_METHOD_NUM ; i++) {
 		auth_method = &img_desc->img_auth_methods[i];
 		switch (auth_method->type) {
@@ -385,25 +394,27 @@ int auth_mod_verify_img(unsigned int img_id,
 
 	/* Extract the parameters indicated in the image descriptor to
 	 * authenticate the children images. */
-	for (i = 0 ; i < COT_MAX_VERIFIED_PARAMS ; i++) {
-		if (img_desc->authenticated_data[i].type_desc == NULL) {
-			continue;
+	if (img_desc->authenticated_data != NULL) {
+		for (i = 0 ; i < COT_MAX_VERIFIED_PARAMS ; i++) {
+			if (img_desc->authenticated_data[i].type_desc == NULL) {
+				continue;
+			}
+
+			/* Get the parameter from the image parser module */
+			rc = img_parser_get_auth_param(img_desc->img_type,
+					img_desc->authenticated_data[i].type_desc,
+					img_ptr, img_len, &param_ptr, &param_len);
+			return_if_error(rc);
+
+			/* Check parameter size */
+			if (param_len > img_desc->authenticated_data[i].data.len) {
+				return 1;
+			}
+
+			/* Copy the parameter for later use */
+			memcpy((void *)img_desc->authenticated_data[i].data.ptr,
+					(void *)param_ptr, param_len);
 		}
-
-		/* Get the parameter from the image parser module */
-		rc = img_parser_get_auth_param(img_desc->img_type,
-				img_desc->authenticated_data[i].type_desc,
-				img_ptr, img_len, &param_ptr, &param_len);
-		return_if_error(rc);
-
-		/* Check parameter size */
-		if (param_len > img_desc->authenticated_data[i].data.len) {
-			return 1;
-		}
-
-		/* Copy the parameter for later use */
-		memcpy((void *)img_desc->authenticated_data[i].data.ptr,
-				(void *)param_ptr, param_len);
 	}
 
 	/* Mark image as authenticated */
