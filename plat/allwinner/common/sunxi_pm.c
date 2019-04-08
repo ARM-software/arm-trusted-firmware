@@ -20,9 +20,15 @@
 #include <sunxi_mmap.h>
 #include <sunxi_private.h>
 
-#define SUNXI_WDOG0_CTRL_REG		(SUNXI_WDOG_BASE + 0x0010)
-#define SUNXI_WDOG0_CFG_REG		(SUNXI_WDOG_BASE + 0x0014)
-#define SUNXI_WDOG0_MODE_REG		(SUNXI_WDOG_BASE + 0x0018)
+#ifdef SUNXI_WDT_QUIRK
+#define SUNXI_WDT_BASE			SUNXI_R_WDOG_BASE
+#else
+#define SUNXI_WDT_BASE			SUNXI_WDOG_BASE
+#endif
+
+#define SUNXI_WDT_CTRL_REG		(SUNXI_WDT_BASE + 0x0010)
+#define SUNXI_WDT_CFG_REG		(SUNXI_WDT_BASE + 0x0014)
+#define SUNXI_WDT_MODE_REG		(SUNXI_WDT_BASE + 0x0018)
 
 #define mpidr_is_valid(mpidr) ( \
 	MPIDR_AFFLVL3_VAL(mpidr) == 0 && \
@@ -70,9 +76,9 @@ static void __dead2 sunxi_system_off(void)
 static void __dead2 sunxi_system_reset(void)
 {
 	/* Reset the whole system when the watchdog times out */
-	mmio_write_32(SUNXI_WDOG0_CFG_REG, 1);
+	mmio_write_32(SUNXI_WDT_CFG_REG, 1);
 	/* Enable the watchdog with the shortest timeout (0.5 seconds) */
-	mmio_write_32(SUNXI_WDOG0_MODE_REG, (0 << 4) | 1);
+	mmio_write_32(SUNXI_WDT_MODE_REG, (0 << 4) | 1);
 	/* Wait for twice the watchdog timeout before panicking */
 	mdelay(1000);
 
