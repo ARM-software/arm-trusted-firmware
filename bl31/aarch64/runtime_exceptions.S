@@ -420,7 +420,7 @@ smc_unknown:
 	mov	x0, #SMC_UNK
 	str	x0, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
 #if CTX_INCLUDE_PAUTH_REGS
-	bl	pauth_context_save
+	bl	pauth_context_restore
 #endif
 	b	restore_gp_registers_eret
 
