@@ -124,7 +124,9 @@ loop3:
 level_done:
 	add	r1, r1, #2		// increment the cache number
 	cmp	r3, r1
-	dsb	sy			// ensure completion of previous cache maintenance instruction
+	// Ensure completion of previous cache maintenance instruction. Note
+	// this also mitigates erratum 814220 on Cortex-A7
+	dsb	sy
 	bhi	loop1
 
 	mov	r6, #0
