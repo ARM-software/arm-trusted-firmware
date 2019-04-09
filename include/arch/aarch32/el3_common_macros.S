@@ -92,9 +92,14 @@
 	 *
 	 * FPEXC.EN: Enable access to Advanced SIMD and floating point features
 	 *  from all exception levels.
+         *
+         * __SOFTFP__: Predefined macro exposed by soft-float toolchain.
+         *  ARMv7 and Cortex-A32(ARMv8/aarch32) has both soft-float and
+         *  hard-float variants of toolchain, avoid compiling below code with
+         *  soft-float toolchain as "vmsr" instruction will not be recognized.
 	 * ---------------------------------------------------------------------
 	 */
-#if (ARM_ARCH_MAJOR > 7) || defined(ARMV7_SUPPORTS_VFP)
+#if ((ARM_ARCH_MAJOR > 7) || defined(ARMV7_SUPPORTS_VFP)) && !(__SOFTFP__)
 	ldr	r0, =(FPEXC_RESET_VAL | FPEXC_EN_BIT)
 	vmsr	FPEXC, r0
 	isb
