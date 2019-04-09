@@ -185,6 +185,8 @@ The FVP models used are Version 11.5 Build 33, unless otherwise stated.
 -  ``FVP_Base_Cortex-A73x4``
 -  ``FVP_Base_Cortex-A75x4``
 -  ``FVP_Base_Cortex-A76x4``
+-  ``FVP_Base_Cortex-A76AEx4`` (Tested with internal model)
+-  ``FVP_Base_Cortex-A76AEx8`` (Tested with internal model)
 -  ``FVP_Base_Neoverse-N1x4`` (Tested with internal model)
 -  ``FVP_Base_Deimos``
 -  ``FVP_CSS_SGI-575`` (Version 11.3 build 42)
