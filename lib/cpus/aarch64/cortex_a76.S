@@ -344,9 +344,14 @@ func cortex_a76_reset_func
 #endif /* DYNAMIC_WORKAROUND_CVE_2018_3639 */
 #endif /* WORKAROUND_CVE_2018_3639 */
 
+#if ERRATA_DSU_798953
+	bl	errata_dsu_798953_wa
+#endif
+
 #if ERRATA_DSU_936184
 	bl	errata_dsu_936184_wa
 #endif
+
 	ret	x19
 endfunc cortex_a76_reset_func
 
@@ -368,7 +373,7 @@ endfunc cortex_a76_core_pwr_dwn
 
 #if REPORT_ERRATA
 /*
- * Errata printing function for Cortex Cortex A76. Must follow AAPCS.
+ * Errata printing function for Cortex A76. Must follow AAPCS.
  */
 func cortex_a76_errata_report
 	stp	x8, x30, [sp, #-16]!
@@ -384,6 +389,7 @@ func cortex_a76_errata_report
 	report_errata ERRATA_A76_1130799, cortex_a76, 1130799
 	report_errata ERRATA_A76_1220197, cortex_a76, 1220197
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a76, cve_2018_3639
+	report_errata ERRATA_DSU_798953, cortex_a76, dsu_798953
 	report_errata ERRATA_DSU_936184, cortex_a76, dsu_936184
 
 	ldp	x8, x30, [sp], #16

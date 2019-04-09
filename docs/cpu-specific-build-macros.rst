@@ -233,6 +233,11 @@ of DSU errata workarounds are similar to `CPU errata workarounds`_.
 
 For DSU errata, the following build flags are defined:
 
+-  ``ERRATA_DSU_798953``: This applies errata 798953 workaround for the
+   affected DSU configurations. This errata applies only for those DSUs that
+   revision is r0p0 (on r0p1 it is fixed). However, please note that this
+   workaround results in increased DSU power consumption on idle.
+
 -  ``ERRATA_DSU_936184``: This applies errata 936184 workaround for the
    affected DSU configurations. This errata applies only for those DSUs that
    contain the ACP interface **and** the DSU revision is older than r2p0 (on

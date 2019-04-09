@@ -214,6 +214,10 @@ ERRATA_A76_1220197	?=0
 # only to r0p0 and r1p0 of the Neoverse N1 cpu.
 ERRATA_N1_1043202	?=1
 
+# Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
+# Applying the workaround results in higher DSU power consumption on idle.
+ERRATA_DSU_798953	?=0
+
 # Flag to apply DSU erratum 936184. This erratum applies to DSUs containing
 # the ACP interface and revision < r2p0. Applying the workaround results in
 # higher DSU power consumption on idle.
@@ -374,6 +378,10 @@ $(eval $(call add_define,ERRATA_A76_1220197))
 # Process ERRATA_N1_1043202 flag
 $(eval $(call assert_boolean,ERRATA_N1_1043202))
 $(eval $(call add_define,ERRATA_N1_1043202))
+
+# Process ERRATA_DSU_798953 flag
+$(eval $(call assert_boolean,ERRATA_DSU_798953))
+$(eval $(call add_define,ERRATA_DSU_798953))
 
 # Process ERRATA_DSU_936184 flag
 $(eval $(call assert_boolean,ERRATA_DSU_936184))

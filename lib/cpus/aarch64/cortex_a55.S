@@ -173,6 +173,10 @@ endfunc check_errata_903758
 func cortex_a55_reset_func
 	mov	x19, x30
 
+#if ERRATA_DSU_798953
+	bl	errata_dsu_798953_wa
+#endif
+
 #if ERRATA_DSU_936184
 	bl	errata_dsu_936184_wa
 #endif
@@ -237,6 +241,7 @@ func cortex_a55_errata_report
 	 * Report all errata. The revision variant information is at x8, where
 	 * "report_errata" is expecting it and it doesn't corrupt it.
 	 */
+	report_errata ERRATA_DSU_798953, cortex_a55, dsu_798953
 	report_errata ERRATA_DSU_936184, cortex_a55, dsu_936184
 	report_errata ERRATA_A55_768277, cortex_a55, 768277
 	report_errata ERRATA_A55_778703, cortex_a55, 778703
