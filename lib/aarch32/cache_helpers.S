@@ -90,23 +90,23 @@ endfunc inv_dcache_range
 	.endm
 
 func do_dcsw_op
-	push	{r4-r12,lr}
+	push	{r4-r12, lr}
 	adr	r11, dcsw_loop_table	// compute cache op based on the operation type
 	add	r6, r11, r0, lsl #3	// cache op is 2x32-bit instructions
 loop1:
 	add	r10, r1, r1, LSR #1	// Work out 3x current cache level
 	mov	r12, r2, LSR r10	// extract cache type bits from clidr
-	and	r12, r12, #7   		// mask the bits for current cache only
+	and	r12, r12, #7		// mask the bits for current cache only
 	cmp	r12, #2			// see what cache we have at this level
-	blo	level_done      	// no cache or only instruction cache at this level
+	blo	level_done		// no cache or only instruction cache at this level
 
 	stcopr	r1, CSSELR		// select current cache level in csselr
 	isb				// isb to sych the new cssr&csidr
 	ldcopr	r12, CCSIDR		// read the new ccsidr
-	and	r10, r12, #7   		// extract the length of the cache lines
-	add	r10, r10, #4        	// add 4 (r10 = line length offset)
+	and	r10, r12, #7		// extract the length of the cache lines
+	add	r10, r10, #4		// add 4 (r10 = line length offset)
 	ubfx	r4, r12, #3, #10	// r4 = maximum way number (right aligned)
-	clz	r5, r4            	// r5 = the bit position of the way size increment
+	clz	r5, r4			// r5 = the bit position of the way size increment
 	mov	r9, r4			// r9 working copy of the aligned max way number
 
 loop2:
@@ -117,9 +117,9 @@ loop3:
 	orr	r0, r0, r7, LSL r10	// factor in the set number
 
 	blx	r6
-	subs	r7, r7, #1              // decrement the set number
+	subs	r7, r7, #1		// decrement the set number
 	bhs	loop3
-	subs	r9, r9, #1              // decrement the way number
+	subs	r9, r9, #1		// decrement the way number
 	bhs	loop2
 level_done:
 	add	r1, r1, #2		// increment the cache number
@@ -133,7 +133,7 @@ level_done:
 	stcopr	r6, CSSELR		//select cache level 0 in csselr
 	dsb	sy
 	isb
-	pop	{r4-r12,pc}
+	pop	{r4-r12, pc}
 
 dcsw_loop_table:
 	stcopr	r0, DCISW
