@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,20 +8,20 @@
 #include <dsu_def.h>
 #include <lib/cpus/errata_report.h>
 
-/* -----------------------------------------------------------------------
- * DSU erratum 936184 check function
- * Checks the DSU variant, revision and configuration to determine if
- * the erratum applies. Erratum applies if ACP interface is present
- * in the DSU and revision-variant < r2p0.
- *
- * The erratum was fixed in r2p0.
- *
- * This function is called from both assembly and C environment. So it
- * follows AAPCS.
- *
- * Clobbers: x0-x3
- * -----------------------------------------------------------------------
- */
+	/* -----------------------------------------------------------------------
+	 * DSU erratum 936184 check function
+	 * Checks the DSU variant, revision and configuration to determine if
+	 * the erratum applies. Erratum applies if ACP interface is present
+	 * in the DSU and revision-variant < r2p0.
+	 *
+	 * The erratum was fixed in r2p0.
+	 *
+	 * This function is called from both assembly and C environment. So it
+	 * follows AAPCS.
+	 *
+	 * Clobbers: x0-x3
+	 * -----------------------------------------------------------------------
+	 */
 	.globl	check_errata_dsu_936184
 	.globl	errata_dsu_936184_wa
 
@@ -41,19 +41,19 @@ func check_errata_dsu_936184
 	/* DSU variant and revision bitfields in CLUSTERIDR are adjacent */
 	ubfx	x0, x1, #CLUSTERIDR_REV_SHIFT,\
 			#(CLUSTERIDR_REV_BITS + CLUSTERIDR_VAR_BITS)
-	mov	x1, #(0x2 << CLUSTERIDR_REV_BITS)
+	mov	x1, #(0x2 << CLUSTERIDR_VAR_SHIFT)
 	cmp	x0, x1
 	csel	x0, x2, x3, hs
 1:
 	ret
 endfunc check_errata_dsu_936184
 
-/* --------------------------------------------------
- * Errata Workaround for DSU erratum #936184.
- *
- * Can clobber only: x0-x17
- * --------------------------------------------------
- */
+	/* --------------------------------------------------
+	 * Errata Workaround for DSU erratum #936184.
+	 *
+	 * Can clobber only: x0-x17
+	 * --------------------------------------------------
+	 */
 func errata_dsu_936184_wa
 	mov	x17, x30
 	bl	check_errata_dsu_936184
