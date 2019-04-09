@@ -104,7 +104,7 @@ sp_context_t *spm_sp_get_by_uuid(const uint32_t (*svc_uuid)[4])
 		     rdsvc = rdsvc->next) {
 			uint32_t *rd_uuid = (uint32_t *)(rdsvc->uuid);
 
-			if (memcmp(rd_uuid, svc_uuid, sizeof(rd_uuid)) == 0) {
+			if (memcmp(rd_uuid, svc_uuid, sizeof(*svc_uuid)) == 0) {
 				return sp_ctx;
 			}
 		}
