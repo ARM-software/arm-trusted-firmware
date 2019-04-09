@@ -364,7 +364,7 @@ int auth_mod_verify_img(unsigned int img_id,
 
 	/* Authenticate the image using the methods indicated in the image
 	 * descriptor. */
-	if(img_desc->img_auth_methods == NULL)
+	if (img_desc->img_auth_methods == NULL)
 		return 1;
 	for (i = 0 ; i < AUTH_METHOD_NUM ; i++) {
 		auth_method = &img_desc->img_auth_methods[i];
