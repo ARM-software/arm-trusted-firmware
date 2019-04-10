@@ -116,21 +116,28 @@ static inline int ti_sci_get_response(struct ti_sci_xfer *xfer,
 {
 	struct k3_sec_proxy_msg *msg = &xfer->rx_message;
 	struct ti_sci_msg_hdr *hdr;
+	unsigned int retry = 5;
 	int ret;
 
-	/* Receive the response */
-	ret = k3_sec_proxy_recv(chan, msg);
-	if (ret) {
-		ERROR("Message receive failed (%d)\n", ret);
-		return ret;
+	for (; retry > 0; retry--) {
+		/* Receive the response */
+		ret = k3_sec_proxy_recv(chan, msg);
+		if (ret) {
+			ERROR("Message receive failed (%d)\n", ret);
+			return ret;
+		}
+
+		/* msg is updated by Secure Proxy driver */
+		hdr = (struct ti_sci_msg_hdr *)msg->buf;
+
+		/* Sanity check for message response */
+		if (hdr->seq == info.seq)
+			break;
+		else
+			WARN("Message with sequence ID %u is not expected\n", hdr->seq);
 	}
-
-	/* msg is updated by Secure Proxy driver */
-	hdr = (struct ti_sci_msg_hdr *)msg->buf;
-
-	/* Sanity check for message response */
-	if (hdr->seq != info.seq) {
-		ERROR("Message for %d is not expected\n", hdr->seq);
+	if (!retry) {
+		ERROR("Timed out waiting for message\n");
 		return -EINVAL;
 	}
 
