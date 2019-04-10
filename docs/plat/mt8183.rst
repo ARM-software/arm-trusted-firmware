@@ -1,0 +1,20 @@
+Description
+===========
+
+MediaTek 8183 (MT8183) is a 64-bit ARM SoC introduced by MediaTek in early 2018.
+The chip incorporates eight cores - four Cortex-A53 little cores and Cortex-A73.
+Both clusters can operate at up to 2 GHz.
+
+Boot Sequence
+=============
+
+::
+
+    Boot Rom --> Coreboot --> TF-A BL31 --> Depthcharge --> Linux Kernel
+
+How to Build
+============
+
+.. code:: shell
+
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=mt8183 DEBUG=1
