@@ -47,6 +47,7 @@ int plat_get_image_source(unsigned int image_id,
 uintptr_t plat_get_ns_image_entrypoint(void);
 unsigned int plat_my_core_pos(void);
 int plat_core_pos_by_mpidr(u_register_t mpidr);
+int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size);
 
 #if STACK_PROTECTOR_ENABLED
 /*
@@ -103,7 +104,6 @@ void plat_panic_handler(void) __dead2;
 const char *plat_log_get_prefix(unsigned int log_level);
 void bl2_plat_preload_setup(void);
 int plat_try_next_boot_source(void);
-int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size);
 uint64_t *plat_init_apiakey(void);
 
 /*******************************************************************************
@@ -262,6 +262,7 @@ int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr);
 int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr);
 int plat_set_nv_ctr2(void *cookie, const struct auth_img_desc_s *img_desc,
 		unsigned int nv_ctr);
+int get_mbedtls_heap_helper(void **heap_addr, size_t *heap_size);
 
 /*******************************************************************************
  * Secure Partitions functions
