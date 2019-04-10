@@ -1,18 +1,27 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
+#include <arch.h>
 #include <asm_macros.S>
+#include <assert_macros.S>
+#define USE_FINISH_CONSOLE_REG_2
+#include <console_macros.S>
 #include <uart8250.h>
 
-	.globl	console_core_init
-	.globl	console_core_putc
-	.globl	console_core_getc
-	.globl	console_core_flush
+	.globl	console_8250_core_init
+	.globl	console_8250_core_putc
+	.globl	console_8250_core_getc
+	.globl	console_8250_core_flush
+
+	.globl	console_8250_putc
+	.globl	console_8250_getc
+	.globl	console_8250_flush
 
 	/* -----------------------------------------------
-	 * int console_core_init(unsigned long base_addr,
+	 * int console_8250_core_init(unsigned long base_addr,
 	 * unsigned int uart_clk, unsigned int baud_rate)
 	 * Function to initialize the console without a
 	 * C Runtime to print debug information. This
@@ -25,7 +34,7 @@
 	 * Clobber list : x1, x2, x3
 	 * -----------------------------------------------
 	 */
-func console_core_init
+func console_8250_core_init
 	/* Check the input base address */
 	cbz	x0, core_init_fail
 	/* Check baud rate and uart clock for sanity */
@@ -89,10 +98,40 @@ func console_core_init
 core_init_fail:
 	mov	w0, wzr
 	ret
-endfunc console_core_init
+endfunc console_8250_core_init
+
+#if MULTI_CONSOLE_API
+	.globl console_8250_register
+
+func console_8250_register
+	mov	x7, x30
+	mov	x6, x3
+	cbz	x6, register_fail
+	str	x0, [x6, #CONSOLE_T_DRVDATA]
+
+	bl	console_8250_core_init
+	cbz	x0, register_fail
+
+	mov	x0, x6
+	mov	x30, x7
+	finish_console_register 8250 putc=1, getc=1, flush=1
+
+register_fail:
+        ret	x7
+endfunc console_8250_register
+#else
+	.globl console_core_init
+	.globl console_core_putc
+	.globl console_core_getc
+	.globl console_core_flush
+	.equ console_core_init,console_8250_core_init
+	.equ console_core_putc,console_8250_core_putc
+	.equ console_core_getc,console_8250_core_getc
+	.equ console_core_flush,console_8250_core_flush
+#endif
 
 	/* --------------------------------------------------------
-	 * int console_core_putc(int c, unsigned long base_addr)
+	 * int console_8250_core_putc(int c, unsigned long base_addr)
 	 * Function to output a character over the console. It
 	 * returns the character printed on success or -1 on error.
 	 * In : w0 - character to be printed
@@ -101,7 +140,7 @@ endfunc console_core_init
 	 * Clobber list : x2
 	 * --------------------------------------------------------
 	 */
-func console_core_putc
+func console_8250_core_putc
 	/* Check the input parameter */
 	cbz	x1, putc_error
 	/* Prepend '\r' to '\n' */
@@ -124,10 +163,15 @@ func console_core_putc
 putc_error:
 	mov	w0, #-1
 	ret
-endfunc console_core_putc
+endfunc console_8250_core_putc
+
+func console_8250_putc
+        ldr     x1, [x1, #CONSOLE_T_DRVDATA]
+        b       console_8250_core_putc
+endfunc console_8250_putc
 
 	/* ---------------------------------------------
-	 * int console_core_getc(unsigned long base_addr)
+	 * int console_8250_core_getc(unsigned long base_addr)
 	 * Function to get a character from the console.
 	 * It returns the character grabbed on success
 	 * or -1 on error.
@@ -135,7 +179,7 @@ endfunc console_core_putc
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
-func console_core_getc
+func console_8250_core_getc
 	cbz	x0, getc_error
 
 	/* Check if the receive FIFO is empty */
@@ -146,19 +190,30 @@ func console_core_getc
 getc_error:
 	mov	w0, #-1
 	ret
-endfunc console_core_getc
+endfunc console_8250_core_getc
+
+func console_8250_getc
+        ldr     x0, [x0, #CONSOLE_T_DRVDATA]
+        b       console_8250_core_getc
+endfunc console_8250_getc
 
 	/* ---------------------------------------------
-	 * int console_core_flush(uintptr_t base_addr)
+	 * int console_8250_core_flush(uintptr_t base_addr)
 	 * Function to force a write of all buffered
-	 * data that hasn't been output.
+	 * data that has not been output.
 	 * In : x0 - console base address
 	 * Out : return -1 on error else return 0.
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
-func console_core_flush
+func console_8250_core_flush
 	/* Placeholder */
 	mov	w0, #0
 	ret
-endfunc console_core_flush
+endfunc console_8250_core_flush
+
+func console_8250_flush
+        ldr     x0, [x0, #CONSOLE_T_DRVDATA]
+        b       console_8250_core_flush
+endfunc console_8250_flush
+

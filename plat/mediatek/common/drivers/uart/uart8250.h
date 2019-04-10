@@ -1,10 +1,13 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #ifndef UART8250_H
 #define UART8250_H
+
+#include <drivers/console.h>
 
 /* UART register */
 #define UART_RBR		0x00	/* Receive buffer register */
@@ -35,4 +38,15 @@
 #define UART_LSR_DR		0x01	/* Data ready */
 #define UART_LSR_THRE		0x20	/* Xmit holding register empty */
 
-#endif /* UART8250_H */
+#ifndef __ASSEMBLY__
+typedef struct {
+	console_t console;
+	uintptr_t base;
+} console_8250_t;
+
+int console_8250_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
+			console_8250_t *console);
+#endif /* __ASSEMBLY__ */
+
+#endif	/* UART8250_H */
+
