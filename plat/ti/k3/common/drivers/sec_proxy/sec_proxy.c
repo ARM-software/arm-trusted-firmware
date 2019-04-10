@@ -138,7 +138,7 @@ static inline int k3_sec_proxy_verify_thread(struct k3_sec_proxy_thread *spt,
 	/* Make sure thread is configured for right direction */
 	if ((mmio_read_32(spt->scfg + SCFG_THREAD_CTRL) & SCFG_THREAD_CTRL_DIR_MASK)
 	    != (dir << SCFG_THREAD_CTRL_DIR_SHIFT)) {
-		if (dir)
+		if (dir == THREAD_IS_TX)
 			ERROR("Trying to send data on RX Thread %s\n",
 			      spt->name);
 		else
@@ -151,10 +151,12 @@ static inline int k3_sec_proxy_verify_thread(struct k3_sec_proxy_thread *spt,
 	uint32_t tick_start = (uint32_t)read_cntpct_el0();
 	uint32_t ticks_per_us = SYS_COUNTER_FREQ_IN_TICKS / 1000000;
 	while (!(mmio_read_32(spt->rt + RT_THREAD_STATUS) & RT_THREAD_STATUS_CUR_CNT_MASK)) {
-		VERBOSE("Waiting for thread %s to clear\n", spt->name);
+		VERBOSE("Waiting for thread %s to %s\n",
+			spt->name, (dir == THREAD_IS_TX) ? "empty" : "fill");
 		if (((uint32_t)read_cntpct_el0() - tick_start) >
 		    (spm.desc.timeout_us * ticks_per_us)) {
-			ERROR("Timeout waiting for thread %s to clear\n", spt->name);
+			ERROR("Timeout waiting for thread %s to %s\n",
+				spt->name, (dir == THREAD_IS_TX) ? "empty" : "fill");
 			return -ETIMEDOUT;
 		}
 	}
