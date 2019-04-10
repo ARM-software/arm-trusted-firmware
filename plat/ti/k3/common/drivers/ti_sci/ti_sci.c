@@ -45,7 +45,6 @@ static struct ti_sci_info info = {
 		.host_id = TI_SCI_HOST_ID,
 		.max_msg_size = TI_SCI_MAX_MESSAGE_SIZE,
 	},
-	.seq = 0x0a,
 };
 
 /**
@@ -89,10 +88,8 @@ static int ti_sci_setup_one_xfer(uint16_t msg_type, uint32_t msg_flags,
 	    tx_message_size < sizeof(*hdr))
 		return -ERANGE;
 
-	info.seq++;
-
 	hdr = (struct ti_sci_msg_hdr *)tx_buf;
-	hdr->seq = info.seq;
+	hdr->seq = ++info.seq;
 	hdr->type = msg_type;
 	hdr->host = info.desc.host_id;
 	hdr->flags = msg_flags | TI_SCI_FLAG_REQ_ACK_ON_PROCESSED;
@@ -425,7 +422,7 @@ int ti_sci_device_put_no_wait(uint32_t id)
 		return -ERANGE;
 
 	hdr = (struct ti_sci_msg_hdr *)&req;
-	hdr->seq = info.seq;
+	hdr->seq = ++info.seq;
 	hdr->type = TI_SCI_MSG_SET_DEVICE_STATE;
 	hdr->host = info.desc.host_id;
 	/* Setup with NORESPONSE flag to keep response queue clean */
@@ -1408,7 +1405,7 @@ int ti_sci_proc_set_boot_ctrl_no_wait(uint8_t proc_id,
 		return -ERANGE;
 
 	hdr = (struct ti_sci_msg_hdr *)&req;
-	hdr->seq = info.seq;
+	hdr->seq = ++info.seq;
 	hdr->type = TISCI_MSG_SET_PROC_BOOT_CTRL;
 	hdr->host = info.desc.host_id;
 	/* Setup with NORESPONSE flag to keep response queue clean */
@@ -1650,7 +1647,7 @@ int ti_sci_proc_wait_boot_status_no_wait(uint8_t proc_id,
 		return -ERANGE;
 
 	hdr = (struct ti_sci_msg_hdr *)&req;
-	hdr->seq = info.seq;
+	hdr->seq = ++info.seq;
 	hdr->type = TISCI_MSG_WAIT_PROC_BOOT_STATUS;
 	hdr->host = info.desc.host_id;
 	/* Setup with NORESPONSE flag to keep response queue clean */
