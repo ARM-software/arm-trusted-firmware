@@ -1,6 +1,11 @@
 Trusted Firmware-A - version 2.1
 ================================
 
+.. section-numbering::
+    :suffix: .
+
+.. contents::
+
 Trusted Firmware-A (TF-A) provides a reference implementation of secure world
 software for `Armv7-A and Armv8-A`_, including a `Secure Monitor`_ executing
 at Exception Level 3 (EL3). It implements various Arm interface standards,
@@ -26,6 +31,12 @@ Arm will continue development in collaboration with interested parties to
 provide a full reference implementation of Secure Monitor code and Arm standards
 to the benefit of all developers working with Armv7-A and Armv8-A TrustZone
 technology.
+
+Documentation contents
+----------------------
+
+The `Trusted Firmware-A Documentation Contents`_ page contains an overview of
+the documentation that is available, with links to facilitate easier browsing.
 
 License
 -------
@@ -271,12 +282,6 @@ See the `Contributing Guidelines`_ for information on how to contribute to this
 project and the `Acknowledgments`_ file for a list of contributors to the
 project.
 
-Documentation contents
-~~~~~~~~~~~~~~~~~~~~~~
-
-The `Trusted Firmware-A Documentation Contents`_ page contains an overview of
-the documentation that is available, with links to facilitate easier browsing.
-
 IRC channel
 ~~~~~~~~~~~
 
@@ -328,7 +333,7 @@ Security advisories
 .. _NVIDIA Trusted Little Kernel: http://nv-tegra.nvidia.com/gitweb/?p=3rdparty/ote_partner/tlk.git;a=summary
 .. _Trusty Secure OS: https://source.android.com/security/trusty
 .. _trustedfirmware.org: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
-.. _issue tracker: http://issues.trustedfirmware.org
+.. _issue tracker: https://developer.trustedfirmware.org/project/board/1/
 .. _Security Center: ./docs/security-center.rst
 .. _license: ./license.rst
 .. _Contributing Guidelines: ./contributing.rst
