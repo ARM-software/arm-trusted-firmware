@@ -16,6 +16,9 @@ MEMORY {
     RAM (rwx): ORIGIN = BL32_BASE, LENGTH = BL32_LIMIT - BL32_BASE
 }
 
+#ifdef PLAT_SP_MIN_EXTRA_LD_SCRIPT
+#include <plat_sp_min.ld.S>
+#endif
 
 SECTIONS
 {
