@@ -75,10 +75,8 @@ static int bl2_plat_mmap_init(void)
 	mmio_write_32(MVEBU_IO_WIN_BASE(MVEBU_AP0) + IOW_GCR_OFFSET, PIDI_TID);
 
 	/* Open AMB bridge required for MG access */
-	cp110_amb_init(MVEBU_CP_REGS_BASE(0));
-
-	if (CP_COUNT == 2)
-		cp110_amb_init(MVEBU_CP_REGS_BASE(1));
+	for (cp = 0; cp < CP_COUNT; cp++)
+		cp110_amb_init(MVEBU_CP_REGS_BASE(cp));
 
 	return 0;
 }
