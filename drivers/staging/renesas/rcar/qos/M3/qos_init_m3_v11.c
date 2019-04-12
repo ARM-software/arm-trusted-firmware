@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2017-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,7 +12,7 @@
 #include "../qos_reg.h"
 #include "qos_init_m3_v11.h"
 
-#define	RCAR_QOS_VERSION		"rev.0.18"
+#define	RCAR_QOS_VERSION		"rev.0.19"
 
 
 #define QOSWT_TIME_BANK0				(20000000U)	/* unit:ns */

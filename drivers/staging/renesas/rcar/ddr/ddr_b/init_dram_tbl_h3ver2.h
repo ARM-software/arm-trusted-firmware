@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -239,8 +239,8 @@ static const uint32_t
 /*069d*/ 0x0002c000,
 /*069e*/ 0x02c002c0,
 /*069f*/ 0x000002c0,
-/*06a0*/ 0x01421142,
-/*06a1*/ 0x00000142,
+/*06a0*/ 0x03421342,
+/*06a1*/ 0x00000342,
 /*06a2*/ 0x00000000,
 /*06a3*/ 0x00000000,
 /*06a4*/ 0x05020000,

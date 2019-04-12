@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define BOARDNUM 19
+#define BOARDNUM 20
 #define BOARD_JUDGE_AUTO
 
 #ifdef BOARD_JUDGE_AUTO
@@ -1374,6 +1374,57 @@ static const struct _boardcnf boardcnfs[BOARDNUM] = {
 	  }
 	 }
 	},
+/* boardcnf[19] RENESAS SALVATOR-X board with M3-W/SIP(16Gbit 1rank) */
+        {
+         0x03,
+         0x01,
+         0x02c0,
+         0,
+         0x0300,
+         0x00a0,
+	 {
+          {
+	   {0x04, 0xff},
+	    0x00543210,
+	    0x3201,
+	   {0x70612543, 0x43251670, 0x45326170, 0x10672534},
+	   {0x08, 0x08, 0x08, 0x08},
+	   WDQLVL_PAT,
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0},
+	   {0, 0, 0, 0},
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0},
+	   {0, 0, 0, 0},
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0}
+	   },
+	  {
+	   {0x04, 0xff},
+	    0x00543210,
+	    0x2310,
+	   {0x01327654, 0x34526107, 0x35421670, 0x70615324},
+	   {0x08, 0x08, 0x08, 0x08},
+	   WDQLVL_PAT,
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0},
+	   {0, 0, 0, 0},
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0},
+	   {0, 0, 0, 0},
+	   {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0, 0, 0, 0, 0, 0, 0}
+	  }
+	 }
+	},
 };
 
 void boardcnf_get_brd_clk(uint32_t brd, uint32_t * clk, uint32_t * div)
@@ -1618,9 +1669,12 @@ static uint32_t _board_judge(void)
 		} else if (Prr_Product == PRR_PRODUCT_M3N) {
 			/* RENESAS SALVATOR-X (M3-N/SIP) */
 			brd = 11;
-		} else if ((Prr_Product == PRR_PRODUCT_M3) && (Prr_Cut < PRR_PRODUCT_30)) {
+		} else if ((Prr_Product == PRR_PRODUCT_M3) && (Prr_Cut <= PRR_PRODUCT_20)) {
 			/* RENESAS SALVATOR-X (M3-W/SIP) */
 			brd = 0;
+		} else if ((Prr_Product == PRR_PRODUCT_M3) && (Prr_Cut < PRR_PRODUCT_30)) {
+			/* RENESAS SALVATOR-X (M3-W Ver.1.3/SIP) */
+			brd = 19;
 		} else if ((Prr_Product == PRR_PRODUCT_M3) && (Prr_Cut >= PRR_PRODUCT_30)) {
 			/* RENESAS SALVATOR-X (M3-W ver.3.0/SIP) */
 			brd = 18;
