@@ -71,6 +71,11 @@ for it to specify which errata workarounds should be enabled or not.
 The value of the build flags is 0 by default, that is, disabled. A value of 1
 will enable it.
 
+For Cortex-A9, the following errata build flags are defined :
+
+-  ``ERRATA_A9_794073``: This applies errata 794073 workaround to Cortex-A15
+   CPU. This needs to be enabled for all revisions of the CPU.
+
 For Cortex-A15, the following errata build flags are defined :
 
 -  ``ERRATA_A15_816470``: This applies errata 816470 workaround to Cortex-A15
@@ -260,7 +265,7 @@ architecture that can be enabled by the platform as desired.
 
 --------------
 
-*Copyright (c) 2014-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _CVE-2017-5715: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5715
 .. _CVE-2018-3639: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3639

@@ -53,6 +53,9 @@ endif
 # These should be enabled by the platform if the erratum workaround needs to be
 # applied.
 
+# Flag to apply erratum 794073 workaround when disabling mmu.
+ERRATA_A9_794073	?=0
+
 # Flag to apply erratum 816470 workaround during power down. This erratum
 # applies only to revision >= r3p0 of the Cortex A15 cpu.
 ERRATA_A15_816470	?=0
@@ -211,6 +214,10 @@ ERRATA_N1_1043202	?=1
 # the ACP interface and revision < r2p0. Applying the workaround results in
 # higher DSU power consumption on idle.
 ERRATA_DSU_936184	?=0
+
+# Process ERRATA_A9_794073 flag
+$(eval $(call assert_boolean,ERRATA_A9_794073))
+$(eval $(call add_define,ERRATA_A9_794073))
 
 # Process ERRATA_A15_816470 flag
 $(eval $(call assert_boolean,ERRATA_A15_816470))
