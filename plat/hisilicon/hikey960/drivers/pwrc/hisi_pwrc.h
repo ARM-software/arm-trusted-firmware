@@ -39,7 +39,7 @@ void hisi_clear_cpu_boot_flag(unsigned int cluster, unsigned int core);
 int cluster_is_powered_on(unsigned int cluster);
 void hisi_enter_core_idle(unsigned int cluster, unsigned int core);
 void hisi_enter_cluster_idle(unsigned int cluster, unsigned int core);
-int hisi_test_ap_suspend_flag(unsigned int cluster);
+int hisi_test_ap_suspend_flag(void);
 void hisi_enter_ap_suspend(unsigned int cluster, unsigned int core);
 
 
