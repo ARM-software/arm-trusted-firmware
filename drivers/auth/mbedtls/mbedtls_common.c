@@ -16,8 +16,6 @@
 #include <drivers/auth/mbedtls/mbedtls_config.h>
 #include <plat/common/platform.h>
 
-#pragma weak plat_get_mbedtls_heap
-
 static void cleanup(void)
 {
 	ERROR("EXIT from BL2\n");
@@ -58,10 +56,10 @@ void mbedtls_init(void)
 }
 
 /*
- * The following default implementation of the function simply returns the
- * by default allocated heap.
+ * The following helper function simply returns the default allocated heap.
+ * It can be used by platforms for their plat_get_mbedtls_heap() implementation.
  */
-int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
+int get_mbedtls_heap_helper(void **heap_addr, size_t *heap_size)
 {
 	static unsigned char heap[TF_MBEDTLS_HEAP_SIZE];
 

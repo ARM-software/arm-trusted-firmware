@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include <platform_def.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/arm/soc/common/soc_css.h>
+#include <plat/common/platform.h>
 
 #include "juno_tzmp1_def.h"
 
@@ -144,3 +145,10 @@ void plat_arm_security_setup(void)
 	init_v550();
 #endif
 }
+
+#if TRUSTED_BOARD_BOOT
+int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
+{
+	return get_mbedtls_heap_helper(heap_addr, heap_size);
+}
+#endif
