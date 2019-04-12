@@ -22,8 +22,8 @@ New Features
      and ``CTX_INCLUDE_PAUTH_REGS`` build flags, pointer authentication can be
      enabled in EL3 and S-EL1/0.
 
-     See the `Firmware Design`_ document for additional details on the use of
-     pointer authentication.
+     See the :ref:`Firmware Design` document for additional details on the use
+     of pointer authentication.
 
    - Enable Data Independent Timing (DIT) in EL3, where supported
 
@@ -1359,7 +1359,7 @@ New features
    The PSCI library has been refactored to allow integration with **EL3 Runtime
    Software**. This is software that is executing at the highest secure
    privilege which is EL3 in AArch64 or Secure SVC/Monitor mode in AArch32. See
-   `PSCI Integration Guide`_.
+   :ref:`PSCI Library Integration guide for Armv8-A AArch32 systems`.
 
    Included is a minimal AArch32 Secure Payload, **SP-MIN**, that illustrates
    the usage and integration of the PSCI library with EL3 Runtime Software
@@ -1402,11 +1402,11 @@ New features
 
    Commits now must have a 'Signed-off-by:' field to certify that the
    contribution has been made under the terms of the
-   `Developer Certificate of Origin`_.
+   :download:`Developer Certificate of Origin <../dco.txt>`.
 
    A signed CLA is no longer required.
 
-   The `Contribution Guide`_ has been updated to reflect this change.
+   The :ref:`Contributor's Guide` has been updated to reflect this change.
 
 -  Introduced Performance Measurement Framework (PMF) which provides support
    for capturing, storing, dumping and retrieving time-stamps to measure the
@@ -1620,13 +1620,13 @@ New features
 
 -  Added the following new design documents:
 
-   -  `Authentication framework`_
-   -  `Firmware Update`_
-   -  `TF-A Reset Design`_
-   -  `Power Domain Topology Design`_
+   -  :ref:`Authentication Framework & Chain of Trust`
+   -  :ref:`Firmware Update (FWU)`
+   -  :ref:`CPU Reset`
+   -  :ref:`PSCI Power Domain Tree Structure`
 
 -  Applied the new image terminology to the code base and documentation, as
-   described in the `image terminology document`_.
+   described in the :ref:`Image Terminology` document.
 
 -  The build system has been reworked to improve readability and facilitate
    adding future extensions.
@@ -1694,7 +1694,8 @@ Issues resolved since last release
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -  The Trusted Board Boot implementation has been redesigned to provide greater
-   modularity and scalability. See the `Authentication Framework`_ document.
+   modularity and scalability. See the
+   :ref:`Authentication Framework & Chain of Trust` document.
    All missing mandatory features are now implemented.
 
 -  The FVP and Juno ports may now use the hash of the ROTPK stored in the
@@ -1826,7 +1827,7 @@ New features
    create mappings only for areas in the memory map that it needs.
 
 -  A Secure Payload Dispatcher (OPTEED) for the OP-TEE Trusted OS has been
-   added. Details of using it with TF-A can be found in `OP-TEE Dispatcher`_
+   added. Details of using it with TF-A can be found in :ref:`OP-TEE Dispatcher`
 
 Issues resolved since last release
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2423,16 +2424,6 @@ releases of TF-A.
 *Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _SDEI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
-.. _PSCI Integration Guide: ./getting_started/psci-lib-integration-guide.rst
-.. _Developer Certificate of Origin: ../dco.txt
-.. _Contribution Guide: ./process/contributing.rst
-.. _Authentication framework: ./design/auth-framework.rst
-.. _Firmware Update: ./design/firmware-update.rst
-.. _Firmware Design: ./design/firmware-design.rst
-.. _TF-A Reset Design: ./design/reset-design.rst
-.. _Power Domain Topology Design: ./design/psci-pd-tree.rst
-.. _image terminology document: ./getting_started/image-terminology.rst
-.. _Authentication Framework: ./design/auth-framework.rst
-.. _OP-TEE Dispatcher: ./spd/optee-dispatcher.rst
 .. _tf-issue#501: https://github.com/ARM-software/tf-issues/issues/501
 .. _PR#1002: https://github.com/ARM-software/arm-trusted-firmware/pull/1002#issuecomment-312650193
+.. _mbed TLS releases: https://tls.mbed.org/tech-updates/releases

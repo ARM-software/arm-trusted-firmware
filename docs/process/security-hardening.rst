@@ -9,7 +9,7 @@ Build options
 -------------
 
 Several build options can be used to check for security issues. Refer to the
-`user guide`_ for detailed information on the specific build options.
+:ref:`User Guide` for detailed information on the specific build options.
 
 - The ``BRANCH_PROTECTION`` build flag can be used to enable Pointer
   Authentication and Branch Target Identification.
@@ -53,6 +53,6 @@ Several build options can be used to check for security issues. Refer to the
   NB: The ``Werror`` flag is enabled by default in TF-A and can be disabled by
   setting the ``E`` build flag to 0.
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+--------------
 
-.. _user guide: ../getting_started/user-guide.rst
+*Copyright (c) 2019, Arm Limited. All rights reserved.*

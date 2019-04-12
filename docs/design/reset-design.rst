@@ -6,9 +6,9 @@ resets in Trusted Firmware-A (TF-A). It also describes how the platform
 integrator can tailor this code to the system configuration to some extent,
 resulting in a simplified and more optimised boot flow.
 
-This document should be used in conjunction with the `Firmware Design`_, which
-provides greater implementation details around the reset code, specifically
-for the cold boot path.
+This document should be used in conjunction with the :ref:`Firmware Design`
+document which provides greater implementation details around the reset code,
+specifically for the cold boot path.
 
 General reset code flow
 -----------------------
@@ -109,11 +109,14 @@ images might be done by the Trusted Boot Firmware or by platform code in BL31.
 
 Although the Arm FVP platform does not support programming the reset base
 address dynamically at run-time, it is possible to set the initial value of the
-``RVBAR_EL3`` register at start-up. This feature is provided on the Base FVP only.
+``RVBAR_EL3`` register at start-up. This feature is provided on the Base FVP
+only.
+
 It allows the Arm FVP port to support the ``RESET_TO_BL31`` configuration, in
 which case the ``bl31.bin`` image must be loaded to its run address in Trusted
 SRAM and all CPU reset vectors be changed from the default ``0x0`` to this run
-address. See the `User Guide`_ for details of running the FVP models in this way.
+address. See the :ref:`User Guide` for details of running the FVP models in this
+way.
 
 Although technically it would be possible to program the reset base address with
 the right support in the SCP firmware, this is currently not implemented so the
@@ -150,10 +153,7 @@ This might be done by the Trusted Boot Firmware or by platform code in BL31.
 
 --------------
 
-*Copyright (c) 2015-2018, Arm Limited and Contributors. All rights reserved.*
-
-.. _Firmware Design: firmware-design.rst
-.. _User Guide: ../getting_started/user-guide.rst
+*Copyright (c) 2015-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. |Default reset code flow| image:: ../resources/diagrams/default_reset_code.png
 .. |Reset code flow with programmable reset address| image:: ../resources/diagrams/reset_code_no_boot_type_check.png

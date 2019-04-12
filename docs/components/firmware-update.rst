@@ -14,8 +14,8 @@ be complemented by other, higher level firmware update software.
 
 FWU implements a specific part of the Trusted Board Boot Requirements (TBBR)
 specification, Arm DEN0006C-1. It should be used in conjunction with the
-`Trusted Board Boot`_ design document, which describes the image authentication
-parts of the Trusted Firmware-A (TF-A) TBBR implementation.
+:ref:`Trusted Board Boot` design document, which describes the image
+authentication parts of the Trusted Firmware-A (TF-A) TBBR implementation.
 
 Scope
 ~~~~~
@@ -53,10 +53,11 @@ The primary requirements of the FWU feature are:
    at other Exception Levels.
 #. Export a platform interface to provide FWU common code with the information
    it needs, and to enable platform specific FWU functionality. See the
-   `Porting Guide`_ for details of this interface.
+   :ref:`Porting Guide` for details of this interface.
 
 TF-A uses abbreviated image terminology for FWU images like for other TF-A
-images. An overview of this terminology can be found `here`_.
+images. See the :ref:`Image Terminology` document for an explanation of these
+terms.
 
 The following diagram shows the FWU boot flow for Arm development platforms.
 Arm CSS platforms like Juno have a System Control Processor (SCP), and these
@@ -70,8 +71,8 @@ Image Identification
 Each FWU image and certificate is identified by a unique ID, defined by the
 platform, which BL1 uses to fetch an image descriptor (``image_desc_t``) via a
 call to ``bl1_plat_get_image_desc()``. The same ID is also used to prepare the
-Chain of Trust (Refer to the `Authentication Framework Design`_
-for more information).
+Chain of Trust (Refer to the :ref:`Authentication Framework & Chain of Trust`
+document for more information).
 
 The image descriptor includes the following information:
 
@@ -394,11 +395,6 @@ This is only allowed if the image is not being executed.
 
 *Copyright (c) 2015-2019, Arm Limited and Contributors. All rights reserved.*
 
-.. _Trusted Board Boot: ../design/trusted-board-boot.rst
-.. _Porting Guide: ../getting_started/porting-guide.rst
-.. _here: ../getting_started/image-terminology.rst
-.. _Authentication Framework Design: ../design/auth-framework.rst
 .. _Universally Unique Identifier: https://tools.ietf.org/rfc/rfc4122.txt
-
 .. |Flow Diagram| image:: ../resources/diagrams/fwu_flow.png
 .. |FWU state machine| image:: ../resources/diagrams/fwu_states.png

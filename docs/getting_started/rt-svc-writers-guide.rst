@@ -21,8 +21,8 @@ independent implementation of services for each group, which are then compiled
 into the BL31 image. This simplifies the integration of common software from
 Arm to support `PSCI`_, Secure Monitor for a Trusted OS and SoC specific
 software. The common runtime services framework ensures that SMC Functions are
-dispatched to their respective service implementation - the `Firmware Design`_
-provides details of how this is achieved.
+dispatched to their respective service implementation - the
+:ref:`Firmware Design` document provides details of how this is achieved.
 
 The interface and operation of the runtime services depends heavily on the
 concepts and definitions described in the `SMCCC`_, in particular SMC Function
@@ -79,11 +79,11 @@ handler will be responsible for all SMC Functions within a given service type.
 Getting started
 ---------------
 
-TF-A has a `services`_ directory in the source tree under which
+TF-A has a ``services`` directory in the source tree under which
 each owning entity can place the implementation of its runtime service. The
-`PSCI`_ implementation is located here in the `lib/psci`_ directory.
+`PSCI`_ implementation is located here in the ``lib/psci`` directory.
 
-Runtime service sources will need to include the `runtime_svc.h`_ header file.
+Runtime service sources will need to include the ``runtime_svc.h`` header file.
 
 Registering a runtime service
 -----------------------------
@@ -100,7 +100,7 @@ initialization and call handler functions.
    is also used for diagnostic purposes
 
 -  ``_start`` and ``_end`` values must be based on the ``OEN_*`` values defined in
-   `smccc.h`_
+   ``smccc.h``
 
 -  ``_type`` must be one of ``SMC_TYPE_FAST`` or ``SMC_TYPE_YIELD``
 
@@ -132,7 +132,7 @@ to ensure that the following conditions are met:
 #. The ``_type`` is one of ``SMC_TYPE_FAST`` or ``SMC_TYPE_YIELD``
 #. ``_setup`` and ``_smch`` routines have been specified
 
-`std_svc_setup.c`_ provides an example of registering a runtime service:
+``std_svc_setup.c`` provides an example of registering a runtime service:
 
 .. code:: c
 
@@ -296,13 +296,7 @@ provide this information....
 
 --------------
 
-*Copyright (c) 2014-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _SMCCC: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
-.. _Firmware Design: ../design/firmware-design.rst
-.. _services: ../../services
-.. _lib/psci: ../../lib/psci
-.. _runtime_svc.h: ../../include/common/runtime_svc.h
-.. _smccc.h: ../../include/lib/smccc.h
-.. _std_svc_setup.c: ../../services/std_svc/std_svc_setup.c

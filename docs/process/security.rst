@@ -38,9 +38,11 @@ Please include:
 
   - Any additional software or tools required
 
-We recommend using `this PGP/GPG key`_ for encrypting the information. This key
-is also available at http://keyserver.pgp.com and LDAP port 389 of the same
-server. The fingerprint for this key is:
+We recommend using :download:`this PGP/GPG key <./security-reporting.asc>` for
+encrypting the information. This key is also available at
+http://keyserver.pgp.com and LDAP port 389 of the same server.
+
+The fingerprint for this key is:
 
 ::
 
@@ -59,7 +61,7 @@ code.
 Attribution
 -----------
 
-We will name and thank you in the ``change-log.rst`` distributed with the source
+We will name and thank you in the :ref:`Change Log & Release Notes` distributed with the source
 code and in any published security advisory.
 
 Security Advisories
@@ -68,38 +70,43 @@ Security Advisories
 +-----------+------------------------------------------------------------------+
 | ID        | Title                                                            |
 +===========+==================================================================+
-| `TFV-1`_  | Malformed Firmware Update SMC can result in copy of unexpectedly |
+|  |TFV-1|  | Malformed Firmware Update SMC can result in copy of unexpectedly |
 |           | large data into secure memory                                    |
 +-----------+------------------------------------------------------------------+
-| `TFV-2`_  | Enabled secure self-hosted invasive debug interface can allow    |
+|  |TFV-2|  | Enabled secure self-hosted invasive debug interface can allow    |
 |           | normal world to panic secure world                               |
 +-----------+------------------------------------------------------------------+
-| `TFV-3`_  | RO memory is always executable at AArch64 Secure EL1             |
+|  |TFV-3|  | RO memory is always executable at AArch64 Secure EL1             |
 +-----------+------------------------------------------------------------------+
-| `TFV-4`_  | Malformed Firmware Update SMC can result in copy or              |
+|  |TFV-4|  | Malformed Firmware Update SMC can result in copy or              |
 |           | authentication of unexpected data in secure memory in AArch32    |
 |           | state                                                            |
 +-----------+------------------------------------------------------------------+
-| `TFV-5`_  | Not initializing or saving/restoring PMCR_EL0 can leak secure    |
+|  |TFV-5|  | Not initializing or saving/restoring PMCR_EL0 can leak secure    |
 |           | world timing information                                         |
 +-----------+------------------------------------------------------------------+
-| `TFV-6`_  | Trusted Firmware-A exposure to speculative processor             |
+|  |TFV-6|  | Trusted Firmware-A exposure to speculative processor             |
 |           | vulnerabilities using cache timing side-channels                 |
 +-----------+------------------------------------------------------------------+
-| `TFV-7`_  | Trusted Firmware-A exposure to cache speculation vulnerability   |
+|  |TFV-7|  | Trusted Firmware-A exposure to cache speculation vulnerability   |
 |           | Variant 4                                                        |
 +-----------+------------------------------------------------------------------+
-| `TFV-8`_  | Not saving x0 to x3 registers can leak information from one      |
+|  |TFV-8|  | Not saving x0 to x3 registers can leak information from one      |
 |           | Normal World SMC client to another                               |
 +-----------+------------------------------------------------------------------+
 
 .. _issue tracker: https://developer.trustedfirmware.org/project/board/1/
 .. _this PGP/GPG key: security-reporting.asc
-.. _TFV-1: ../security_advisories/security-advisory-tfv-1.rst
-.. _TFV-2: ../security_advisories/security-advisory-tfv-2.rst
-.. _TFV-3: ../security_advisories/security-advisory-tfv-3.rst
-.. _TFV-4: ../security_advisories/security-advisory-tfv-4.rst
-.. _TFV-5: ../security_advisories/security-advisory-tfv-5.rst
-.. _TFV-6: ../security_advisories/security-advisory-tfv-6.rst
-.. _TFV-7: ../security_advisories/security-advisory-tfv-7.rst
-.. _TFV-8: ../security_advisories/security-advisory-tfv-8.rst
+
+.. |TFV-1| replace:: :ref:`Advisory TFV-1 (CVE-2016-10319)`
+.. |TFV-2| replace:: :ref:`Advisory TFV-2 (CVE-2017-7564)`
+.. |TFV-3| replace:: :ref:`Advisory TFV-3 (CVE-2017-7563)`
+.. |TFV-4| replace:: :ref:`Advisory TFV-4 (CVE-2017-9607)`
+.. |TFV-5| replace:: :ref:`Advisory TFV-5 (CVE-2017-15031)`
+.. |TFV-6| replace:: :ref:`Advisory TFV-6 (CVE-2017-5753, CVE-2017-5715, CVE-2017-5754)`
+.. |TFV-7| replace:: :ref:`Advisory TFV-7 (CVE-2018-3639)`
+.. |TFV-8| replace:: :ref:`Advisory TFV-8 (CVE-2018-19440)`
+
+--------------
+
+*Copyright (c) 2019, Arm Limited. All rights reserved.*

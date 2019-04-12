@@ -37,7 +37,7 @@ This can vary a lot, depending on:
   conflict between the topics.
 
 * If there is a code freeze in place in preparation for the release. Please
-  refer the `release information`_ for more details.
+  refer the :ref:`Release Processes` document for more details.
 
 * The workload of the TF maintainers.
 
@@ -55,9 +55,9 @@ receiving patches that will not be merged into the release. In this case, the
 patches will be merged onto ``integration``, which will temporarily diverge from
 the release branch. The ``integration`` branch will be rebased onto ``master``
 after the release, and then ``master`` will be fast-forwarded to ``integration``
-1-2 days later. This whole process could take up 4 weeks. Please refer the
-`release information`_ for code freeze dates. The TF maintainers will inform the
-patch owner if this is going to happen.
+1-2 days later. This whole process could take up 4 weeks. Please refer to the
+:ref:`Release Processes` document for code freeze dates. The TF maintainers
+will inform the patch owner if this is going to happen.
 
 It is OK to create a patch based on commits that are only available in
 ``integration`` or another patch set, rather than ``master``. There is a risk
@@ -73,7 +73,10 @@ but would be after the CI has been transitioned to `trustedfirmware.org`_.
 Please refer to https://github.com/ARM-software/tf-issues/issues/681 for more
 details on the timelines.
 
-.. _release information: release-information.rst
+--------------
+
+*Copyright (c) 2019, Arm Limited. All rights reserved.*
+
 .. _Gerrit Upload Patch Set documentation: https://review.trustedfirmware.org/Documentation/intro-user.html#upload-patch-set
 .. _Gerrit Replace Changes documentation: https://review.trustedfirmware.org/Documentation/user-upload.html#push_replace
 .. _trustedfirmware.org: https://www.trustedfirmware.org/

@@ -437,13 +437,13 @@ The mandatory platform macros are:
 -  PLAT_MAX_PWR_LVL_STATES (optional)
 -  PLAT_PCPU_DATA_SIZE (optional)
 
-The details of these APIs/macros can be found in `Porting Guide`_.
+The details of these APIs/macros can be found in the :ref:`Porting Guide`.
 
 All platform specific operations for power management are done via
 ``plat_psci_ops_t`` callbacks registered by the platform when
 ``plat_setup_psci_ops()`` API is called. The description of each of
 the callbacks in ``plat_psci_ops_t`` can be found in PSCI section of the
-`Porting Guide`_. If any these callbacks are not registered, then the
+:ref:`Porting Guide`. If any these callbacks are not registered, then the
 PSCI API associated with that callback will not be supported by PSCI
 library.
 
@@ -524,12 +524,12 @@ CPU operations
 ~~~~~~~~~~~~~~
 
 The CPU operations (cpu_ops) framework implement power down sequence specific
-to the CPU and the details of which can be found in the
-``CPU specific operations framework`` section of `Firmware Design`_. The TF-A
-tree implements the ``cpu_ops`` for various supported CPUs and the EL3 Runtime
-Software needs to include the required ``cpu_ops`` in its build. The start and
-end of the ``cpu_ops`` descriptors must be exported by the EL3 Runtime Software
-via the ``__CPU_OPS_START__`` and ``__CPU_OPS_END__`` linker symbols.
+to the CPU and the details of which can be found at
+:ref:`firmware_design_cpu_ops_fwk`. The TF-A tree implements the ``cpu_ops``
+for various supported CPUs and the EL3 Runtime Software needs to include the
+required ``cpu_ops`` in its build. The start and end of the ``cpu_ops``
+descriptors must be exported by the EL3 Runtime Software via the
+``__CPU_OPS_START__`` and ``__CPU_OPS_END__`` linker symbols.
 
 The ``cpu_ops`` descriptors also include reset sequences and may include errata
 workarounds for the CPU. The EL3 Runtime Software can choose to call this
@@ -538,11 +538,9 @@ workarounds.
 
 --------------
 
-*Copyright (c) 2016-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2016-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _PSCI spec: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _SMCCC: https://silver.arm.com/download/ARM_and_AMBA_Architecture/AR570-DA-80002-r0p0-00rel0/ARM_DEN0028A_SMC_Calling_Convention.pdf
 .. _PSCI specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _PSCI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
-.. _Porting Guide: ./porting-guide.rst
-.. _Firmware Design: ../design/firmware-design.rst
