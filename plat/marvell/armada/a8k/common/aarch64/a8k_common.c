@@ -28,6 +28,10 @@ const mmap_region_t plat_marvell_mmap[] = {
 	MARVELL_MAP_SECURE_RAM,
 	MAP_DEVICE0,
 	MARVELL_MAP_DRAM,
+#ifdef SPD_opteed
+	MARVELL_MAP_OPTEE_CORE_MEM,
+	MARVELL_OPTEE_PAGEABLE_LOAD_MEM,
+#endif
 	{0}
 };
 #endif

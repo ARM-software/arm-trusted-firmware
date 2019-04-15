@@ -77,20 +77,42 @@
 #define MARVELL_IRQ_SEC_SGI_6		14
 #define MARVELL_IRQ_SEC_SGI_7		15
 
-#if LLC_SRAM
-/* The entire LLC SRAM should be marked as secure in MMU tables,
- * otherwise any access to it will produce exception
+#ifdef SPD_opteed
+/*
+ * BL2 needs to map 4MB at the end of TZC_DRAM1 in order to
+ * load/authenticate the trusted os extra image. The first 512KB of
+ * TZC_DRAM1 are reserved for trusted os (OPTEE). The extra image loading
+ * for OPTEE is paged image which only include the paging part using
+ * virtual memory but without "init" data. OPTEE will copy the "init" data
+ * (from pager image) to the first 512KB of TZC_DRAM, and then copy the
+ * extra image behind the "init" data.
  */
-#define MARVELL_MAP_SECURE_RAM		MAP_REGION_FLAT(		\
-						PLAT_MARVELL_LLC_SRAM_BASE,\
-						PLAT_MARVELL_LLC_SRAM_SIZE,\
+#define MARVELL_OPTEE_PAGEABLE_LOAD_BASE	\
+					(PLAT_MARVELL_TRUSTED_RAM_BASE + \
+					 PLAT_MARVELL_TRUSTED_RAM_SIZE - \
+					 MARVELL_OPTEE_PAGEABLE_LOAD_SIZE)
+#define MARVELL_OPTEE_PAGEABLE_LOAD_SIZE	0x400000
+#define MARVELL_OPTEE_PAGEABLE_LOAD_MEM		\
+					MAP_REGION_FLAT(		  \
+					MARVELL_OPTEE_PAGEABLE_LOAD_BASE, \
+					MARVELL_OPTEE_PAGEABLE_LOAD_SIZE, \
+					MT_MEMORY | MT_RW | MT_SECURE)
+
+/*
+ * Map the memory for the OP-TEE core (also known as OP-TEE pager when paging
+ * support is enabled).
+ */
+#define MARVELL_MAP_OPTEE_CORE_MEM	MAP_REGION_FLAT(		\
+						BL32_BASE,		\
+						BL32_LIMIT - BL32_BASE,	\
 						MT_MEMORY | MT_RW | MT_SECURE)
-#else
+#endif /* SPD_opteed */
+
 #define MARVELL_MAP_SECURE_RAM		MAP_REGION_FLAT(		 \
 						MARVELL_SHARED_RAM_BASE, \
 						MARVELL_SHARED_RAM_SIZE, \
 						MT_MEMORY | MT_RW | MT_SECURE)
-#endif
+
 #define MARVELL_MAP_DRAM		MAP_REGION_FLAT(		\
 						MARVELL_DRAM_BASE,	\
 						MARVELL_DRAM_SIZE,	\
