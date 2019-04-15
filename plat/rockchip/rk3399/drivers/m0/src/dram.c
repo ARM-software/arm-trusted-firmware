@@ -55,7 +55,7 @@ static void ddr_set_pll(void)
 	mmio_write_32(CRU_BASE + CRU_DPLL_CON3, PLL_MODE(PLL_NORMAL_MODE));
 }
 
-__attribute__((noreturn)) void main(void)
+__attribute__((noreturn)) void m0_main(void)
 {
 	mmio_setbits_32(PHY_REG(0, 927), (1 << 22));
 	mmio_setbits_32(PHY_REG(1, 927), (1 << 22));

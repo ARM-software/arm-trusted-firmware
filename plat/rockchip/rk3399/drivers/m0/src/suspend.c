@@ -11,7 +11,7 @@
 
 #define SCR_SLEEPDEEP_SHIFT	(1 << 2)
 
-__attribute__((noreturn)) void main(void)
+__attribute__((noreturn)) void m0_main(void)
 {
 	unsigned int status_value;
 
