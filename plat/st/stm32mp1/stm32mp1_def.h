@@ -34,7 +34,6 @@
 /* DDR configuration */
 #define STM32MP_DDR_BASE		U(0xC0000000)
 #define STM32MP_DDR_MAX_SIZE		U(0x40000000)	/* Max 1GB */
-#define STM32MP_DDR_SPEED_DFLT		528
 
 /* DDR power initializations */
 #ifndef __ASSEMBLY__
