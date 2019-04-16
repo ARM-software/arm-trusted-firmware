@@ -158,8 +158,7 @@ include lib/xlat_tables_v2/xlat_tables.mk
 PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 endif
 
-BL1_SOURCES		+=	drivers/arm/sp805/sp805.c			\
-				drivers/io/io_fip.c				\
+BL1_SOURCES		+=	drivers/io/io_fip.c				\
 				drivers/io/io_memmap.c				\
 				drivers/io/io_storage.c				\
 				plat/arm/common/arm_bl1_setup.c			\

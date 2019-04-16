@@ -31,7 +31,8 @@ SGM_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
 BL1_SOURCES		+=	$(SGM_CPU_SOURCES)			\
 				${INTERCONNECT_SOURCES}			\
 				${CSS_SGM_BASE}/sgm_bl1_setup.c		\
-				${CSS_SGM_BASE}/sgm_plat_config.c
+				${CSS_SGM_BASE}/sgm_plat_config.c	\
+				drivers/arm/sp805/sp805.c
 
 BL2_SOURCES		+=	${SECURITY_SOURCES}			\
 				${CSS_SGM_BASE}/sgm_plat_config.c

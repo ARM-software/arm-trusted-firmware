@@ -295,4 +295,8 @@ extern plat_psci_ops_t plat_arm_psci_pm_ops;
 extern const mmap_region_t plat_arm_mmap[];
 extern const unsigned int arm_pm_idle_states[];
 
+/* secure watchdog */
+void plat_arm_secure_wdt_start(void);
+void plat_arm_secure_wdt_stop(void);
+
 #endif /* PLAT_ARM_H */

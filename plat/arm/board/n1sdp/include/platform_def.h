@@ -87,4 +87,8 @@
 /* Platform ID address */
 #define SSC_VERSION				(SSC_REG_BASE + SSC_VERSION_OFFSET)
 
+/* Secure Watchdog Constants */
+#define SBSA_SECURE_WDOG_BASE			UL(0x2A480000)
+#define SBSA_SECURE_WDOG_TIMEOUT		UL(100)
+
 #endif /* PLATFORM_DEF_H */

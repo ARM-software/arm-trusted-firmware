@@ -62,6 +62,7 @@ BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
 				plat/arm/board/juno/juno_err.c		\
 				plat/arm/board/juno/juno_bl1_setup.c	\
+				drivers/arm/sp805/sp805.c		\
 				${JUNO_INTERCONNECT_SOURCES}		\
 				${JUNO_SECURITY_SOURCES}
 

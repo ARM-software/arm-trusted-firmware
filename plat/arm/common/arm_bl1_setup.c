@@ -11,7 +11,6 @@
 #include <arch.h>
 #include <bl1/bl1.h>
 #include <common/bl_common.h>
-#include <drivers/arm/sp805.h>
 #include <lib/utils.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/arm/common/plat_arm.h>
@@ -67,7 +66,7 @@ void arm_bl1_early_platform_setup(void)
 
 #if !ARM_DISABLE_TRUSTED_WDOG
 	/* Enable watchdog */
-	sp805_start(ARM_SP805_TWDG_BASE, ARM_TWDG_LOAD_VAL);
+	plat_arm_secure_wdt_start();
 #endif
 
 	/* Initialize the console to provide early debug support */
@@ -172,7 +171,7 @@ void bl1_plat_prepare_exit(entry_point_info_t *ep_info)
 {
 #if !ARM_DISABLE_TRUSTED_WDOG
 	/* Disable watchdog before leaving BL1 */
-	sp805_stop(ARM_SP805_TWDG_BASE);
+	plat_arm_secure_wdt_stop();
 #endif
 
 #ifdef EL3_PAYLOAD_BASE
