@@ -299,6 +299,7 @@ int pmic_ddr_power_init(enum ddr_type ddr_type)
 		break;
 
 	case STM32MP_LPDDR2:
+	case STM32MP_LPDDR3:
 		/*
 		 * Set LDO3 to 1.8V
 		 * Set LDO3 to bypass mode if BUCK3 = 1.8V

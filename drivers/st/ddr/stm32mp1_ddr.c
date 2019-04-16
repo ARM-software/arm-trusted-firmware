@@ -717,6 +717,8 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 		ret = board_ddr_power_init(STM32MP_DDR3);
 	} else if ((config->c_reg.mstr & DDRCTRL_MSTR_LPDDR2) != 0U) {
 		ret = board_ddr_power_init(STM32MP_LPDDR2);
+	} else if ((config->c_reg.mstr & DDRCTRL_MSTR_LPDDR3) != 0U) {
+		ret = board_ddr_power_init(STM32MP_LPDDR3);
 	} else {
 		ERROR("DDR type not supported\n");
 	}
