@@ -237,7 +237,7 @@ int io_open(uintptr_t dev_handle, const uintptr_t spec, uintptr_t *handle)
 
 
 /* Seek to a specific position in an IO entity */
-int io_seek(uintptr_t handle, io_seek_mode_t mode, ssize_t offset)
+int io_seek(uintptr_t handle, io_seek_mode_t mode, signed long long offset)
 {
 	int result = -ENODEV;
 	assert(is_valid_entity(handle) && is_valid_seek_mode(mode));

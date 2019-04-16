@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,14 +20,15 @@ static int mmc_dev_open(const uintptr_t init_params, io_dev_info_t **dev_info);
 static int mmc_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 			  io_entity_t *entity);
 static int mmc_dev_init(io_dev_info_t *dev_info, const uintptr_t init_params);
-static int mmc_block_seek(io_entity_t *entity, int mode, ssize_t offset);
+static int mmc_block_seek(io_entity_t *entity, int mode,
+			  signed long long offset);
 static int mmc_block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 			  size_t *length_read);
 static int mmc_block_close(io_entity_t *entity);
 static int mmc_dev_close(io_dev_info_t *dev_info);
 static io_type_t device_type_mmc(void);
 
-static ssize_t seek_offset;
+static signed long long seek_offset;
 
 static const io_dev_connector_t mmc_dev_connector = {
 	.dev_open = mmc_dev_open
@@ -85,7 +86,8 @@ static int mmc_block_open(io_dev_info_t *dev_info, const  uintptr_t spec,
 }
 
 /* Seek to a particular file offset on the mmc device */
-static int mmc_block_seek(io_entity_t *entity, int mode, ssize_t offset)
+static int mmc_block_seek(io_entity_t *entity, int mode,
+			  signed long long offset)
 {
 	seek_offset = offset;
 	return 0;

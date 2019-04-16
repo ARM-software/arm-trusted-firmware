@@ -25,7 +25,7 @@ static io_type_t device_type_sh(void)
 static int sh_dev_open(const uintptr_t dev_spec, io_dev_info_t **dev_info);
 static int sh_file_open(io_dev_info_t *dev_info, const uintptr_t spec,
 		io_entity_t *entity);
-static int sh_file_seek(io_entity_t *entity, int mode, ssize_t offset);
+static int sh_file_seek(io_entity_t *entity, int mode, signed long long offset);
 static int sh_file_len(io_entity_t *entity, size_t *length);
 static int sh_file_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 		size_t *length_read);
@@ -90,7 +90,7 @@ static int sh_file_open(io_dev_info_t *dev_info __unused,
 
 
 /* Seek to a particular file offset on the semi-hosting device */
-static int sh_file_seek(io_entity_t *entity, int mode, ssize_t offset)
+static int sh_file_seek(io_entity_t *entity, int mode, signed long long offset)
 {
 	long file_handle, sh_result;
 
@@ -98,7 +98,7 @@ static int sh_file_seek(io_entity_t *entity, int mode, ssize_t offset)
 
 	file_handle = (long)entity->info;
 
-	sh_result = semihosting_file_seek(file_handle, offset);
+	sh_result = semihosting_file_seek(file_handle, (ssize_t)offset);
 
 	return (sh_result == 0) ? 0 : -ENOENT;
 }

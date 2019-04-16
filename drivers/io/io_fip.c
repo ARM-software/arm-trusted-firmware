@@ -304,7 +304,8 @@ static int fip_file_open(io_dev_info_t *dev_info, const uintptr_t spec,
 	}
 
 	/* Seek past the FIP header into the Table of Contents */
-	result = io_seek(backend_handle, IO_SEEK_SET, sizeof(fip_toc_header_t));
+	result = io_seek(backend_handle, IO_SEEK_SET,
+			 (signed long long)sizeof(fip_toc_header_t));
 	if (result != 0) {
 		WARN("fip_file_open: failed to seek\n");
 		result = -ENOENT;
@@ -389,7 +390,8 @@ static int fip_file_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 
 	/* Seek to the position in the FIP where the payload lives */
 	file_offset = fp->entry.offset_address + fp->file_pos;
-	result = io_seek(backend_handle, IO_SEEK_SET, file_offset);
+	result = io_seek(backend_handle, IO_SEEK_SET,
+			 (signed long long)file_offset);
 	if (result != 0) {
 		WARN("fip_file_read: failed to seek\n");
 		result = -ENOENT;
