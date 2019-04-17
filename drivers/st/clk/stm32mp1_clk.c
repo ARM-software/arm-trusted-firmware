@@ -1516,9 +1516,6 @@ static void stm32mp1_set_rtcsrc(unsigned int clksrc, bool lse_css)
 	}
 }
 
-#define CNTCVL_OFF	0x008
-#define CNTCVU_OFF	0x00C
-
 static void stm32mp1_stgen_config(void)
 {
 	uintptr_t stgen;
