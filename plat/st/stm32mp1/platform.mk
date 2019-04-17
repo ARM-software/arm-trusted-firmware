@@ -19,6 +19,8 @@ ENABLE_PIE		:=	1
 BL2_IN_XIP_MEM		:=	1
 endif
 
+# Please don't increment this value without good understanding of
+# the monotonic counter
 STM32_TF_VERSION	?=	0
 
 # Enable dynamic memory mapping

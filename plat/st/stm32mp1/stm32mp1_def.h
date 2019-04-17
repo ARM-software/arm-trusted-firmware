@@ -353,6 +353,7 @@ enum ddr_type {
 #define PACKAGE_OTP			"package_otp"
 #define HW2_OTP				"hw2_otp"
 #define NAND_OTP			"nand_otp"
+#define MONOTONIC_OTP			"monotonic_otp"
 #define UID_OTP				"uid_otp"
 #define BOARD_ID_OTP			"board_id"
 
@@ -414,6 +415,9 @@ enum ddr_type {
 
 /* NAND number of planes */
 #define NAND_PLANE_BIT_NB_MASK		BIT(14)
+
+/* MONOTONIC OTP */
+#define MAX_MONOTONIC_VALUE		32
 
 /* UID OTP */
 #define UID_WORD_NB			U(3)
