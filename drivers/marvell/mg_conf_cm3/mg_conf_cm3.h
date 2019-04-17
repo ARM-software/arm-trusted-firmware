@@ -6,3 +6,4 @@
  */
 
 void mg_start_ap_fw(int cp_nr);
+int mg_image_load(uintptr_t src_addr, uint32_t size, int cp_index);
