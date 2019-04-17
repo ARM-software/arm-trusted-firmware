@@ -350,7 +350,7 @@ unsigned int plat_get_syscnt_freq2(void)
 	unsigned int ver = zynqmp_get_silicon_ver();
 
 	if (ver == ZYNQMP_CSU_VERSION_QEMU)
-		return 50000000;
+		return 65000000;
 	else
 		return mmio_read_32(IOU_SCNTRS_BASEFREQ);
 }
