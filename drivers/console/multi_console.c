@@ -20,8 +20,10 @@ int console_register(console_t *console)
 {
 	/* Assert that the struct is not on the stack (common mistake). */
 	assert((console < stacks_start) || (console >= stacks_end));
-	/* Assert that we won't make a circle in the list. */
-	assert(!console_is_registered(console));
+
+	/* Check that we won't make a circle in the list. */
+	if (console_is_registered(console) == 1)
+		return 1;
 
 	console->next = console_list;
 	console_list = console;
