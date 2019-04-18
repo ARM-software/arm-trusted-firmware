@@ -73,7 +73,7 @@ will enable it.
 
 For Cortex-A9, the following errata build flags are defined :
 
--  ``ERRATA_A9_794073``: This applies errata 794073 workaround to Cortex-A15
+-  ``ERRATA_A9_794073``: This applies errata 794073 workaround to Cortex-A9
    CPU. This needs to be enabled for all revisions of the CPU.
 
 For Cortex-A15, the following errata build flags are defined :
