@@ -22,6 +22,7 @@
 #include <drivers/st/stm32mp1_pwr.h>
 #include <drivers/st/stm32mp1_ram.h>
 #include <lib/mmio.h>
+#include <lib/optee_utils.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
@@ -136,7 +137,13 @@ void bl2_platform_setup(void)
 		panic();
 	}
 
+#ifdef AARCH32_SP_OPTEE
+	INFO("BL2 runs OP-TEE setup\n");
+	/* Initialize tzc400 after DDR initialization */
+	stm32mp1_security_setup();
+#else
 	INFO("BL2 runs SP_MIN setup\n");
+#endif
 }
 
 void bl2_el3_plat_arch_setup(void)
@@ -154,11 +161,25 @@ void bl2_el3_plat_arch_setup(void)
 			BL_CODE_END - BL_CODE_BASE,
 			MT_CODE | MT_SECURE);
 
+#ifdef AARCH32_SP_OPTEE
+	/* OP-TEE image needs post load processing: keep RAM read/write */
+	mmap_add_region(STM32MP_DDR_BASE + dt_get_ddr_size() -
+			STM32MP_DDR_S_SIZE - STM32MP_DDR_SHMEM_SIZE,
+			STM32MP_DDR_BASE + dt_get_ddr_size() -
+			STM32MP_DDR_S_SIZE - STM32MP_DDR_SHMEM_SIZE,
+			STM32MP_DDR_S_SIZE,
+			MT_MEMORY | MT_RW | MT_SECURE);
+
+	mmap_add_region(STM32MP_OPTEE_BASE, STM32MP_OPTEE_BASE,
+			STM32MP_OPTEE_SIZE,
+			MT_MEMORY | MT_RW | MT_SECURE);
+#else
 	/* Prevent corruption of preloaded BL32 */
 	mmap_add_region(BL32_BASE, BL32_BASE,
 			BL32_LIMIT - BL32_BASE,
 			MT_MEMORY | MT_RO | MT_SECURE);
 
+#endif
 	/* Map non secure DDR for BL33 load and DDR training area restore */
 	mmap_add_region(STM32MP_DDR_BASE,
 			STM32MP_DDR_BASE,
@@ -261,3 +282,69 @@ skip_console_init:
 
 	stm32mp_io_setup();
 }
+
+#if defined(AARCH32_SP_OPTEE)
+/*******************************************************************************
+ * This function can be used by the platforms to update/use image
+ * information for given `image_id`.
+ ******************************************************************************/
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	int err = 0;
+	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
+	bl_mem_params_node_t *bl32_mem_params;
+	bl_mem_params_node_t *pager_mem_params;
+	bl_mem_params_node_t *paged_mem_params;
+
+	assert(bl_mem_params != NULL);
+
+	switch (image_id) {
+	case BL32_IMAGE_ID:
+		bl_mem_params->ep_info.pc =
+					bl_mem_params->image_info.image_base;
+
+		pager_mem_params = get_bl_mem_params_node(BL32_EXTRA1_IMAGE_ID);
+		assert(pager_mem_params != NULL);
+		pager_mem_params->image_info.image_base = STM32MP_OPTEE_BASE;
+		pager_mem_params->image_info.image_max_size =
+			STM32MP_OPTEE_SIZE;
+
+		paged_mem_params = get_bl_mem_params_node(BL32_EXTRA2_IMAGE_ID);
+		assert(paged_mem_params != NULL);
+		paged_mem_params->image_info.image_base = STM32MP_DDR_BASE +
+			(dt_get_ddr_size() - STM32MP_DDR_S_SIZE -
+			 STM32MP_DDR_SHMEM_SIZE);
+		paged_mem_params->image_info.image_max_size =
+			STM32MP_DDR_S_SIZE;
+
+		err = parse_optee_header(&bl_mem_params->ep_info,
+					 &pager_mem_params->image_info,
+					 &paged_mem_params->image_info);
+		if (err) {
+			ERROR("OPTEE header parse error.\n");
+			panic();
+		}
+
+		/* Set optee boot info from parsed header data */
+		bl_mem_params->ep_info.pc =
+				pager_mem_params->image_info.image_base;
+		bl_mem_params->ep_info.args.arg0 =
+				paged_mem_params->image_info.image_base;
+		bl_mem_params->ep_info.args.arg1 = 0; /* Unused */
+		bl_mem_params->ep_info.args.arg2 = 0; /* No DT supported */
+		break;
+
+	case BL33_IMAGE_ID:
+		bl32_mem_params = get_bl_mem_params_node(BL32_IMAGE_ID);
+		assert(bl32_mem_params != NULL);
+		bl32_mem_params->ep_info.lr_svc = bl_mem_params->ep_info.pc;
+		break;
+
+	default:
+		/* Do nothing in default case */
+		break;
+	}
+
+	return err;
+}
+#endif

@@ -18,7 +18,11 @@ WORKAROUND_CVE_2017_5715:=	0
 # Number of TF-A copies in the device
 STM32_TF_A_COPIES		:=	2
 $(eval $(call add_define,STM32_TF_A_COPIES))
+ifeq ($(AARCH32_SP),optee)
+PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 4)))
+else
 PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 1)))
+endif
 $(eval $(call add_define,PLAT_PARTITION_MAX_ENTRIES))
 
 PLAT_INCLUDES		:=	-Iplat/st/common/include/
@@ -83,6 +87,10 @@ BL2_SOURCES		+=	drivers/st/ddr/stm32mp1_ddr.c				\
 BL2_SOURCES		+=	common/desc_image_load.c				\
 				plat/st/stm32mp1/plat_bl2_mem_params_desc.c		\
 				plat/st/stm32mp1/plat_image_load.c
+
+ifeq ($(AARCH32_SP),optee)
+BL2_SOURCES		+=	lib/optee/optee_utils.c
+endif
 
 # Macros and rules to build TF binary
 STM32_TF_ELF_LDFLAGS	:=	--hash-style=gnu --as-needed

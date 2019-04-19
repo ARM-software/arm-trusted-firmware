@@ -42,6 +42,37 @@ static void init_tzc400(void)
 
 	tzc400_disable_filters();
 
+#ifdef AARCH32_SP_OPTEE
+	/*
+	 * Region 1 set to cover all non-secure DRAM at 0xC000_0000. Apply the
+	 * same configuration to all filters in the TZC.
+	 */
+	region_base = ddr_base;
+	region_top = ddr_top - STM32MP_DDR_S_SIZE - STM32MP_DDR_SHMEM_SIZE;
+	tzc400_configure_region(STM32MP1_FILTER_BIT_ALL, 1,
+				region_base,
+				region_top,
+				TZC_REGION_S_NONE,
+				TZC_REGION_NSEC_ALL_ACCESS_RDWR);
+
+	/* Region 2 set to cover all secure DRAM. */
+	region_base = region_top + 1U;
+	region_top = ddr_top - STM32MP_DDR_SHMEM_SIZE;
+	tzc400_configure_region(STM32MP1_FILTER_BIT_ALL, 2,
+				region_base,
+				region_top,
+				TZC_REGION_S_RDWR,
+				0);
+
+	/* Region 3 set to cover non-secure shared memory DRAM. */
+	region_base = region_top + 1U;
+	region_top = ddr_top;
+	tzc400_configure_region(STM32MP1_FILTER_BIT_ALL, 3,
+				region_base,
+				region_top,
+				TZC_REGION_S_NONE,
+				TZC_REGION_NSEC_ALL_ACCESS_RDWR);
+#else
 	/*
 	 * Region 1 set to cover all DRAM at 0xC000_0000. Apply the
 	 * same configuration to all filters in the TZC.
@@ -53,6 +84,7 @@ static void init_tzc400(void)
 				region_top,
 				TZC_REGION_S_NONE,
 				TZC_REGION_NSEC_ALL_ACCESS_RDWR);
+#endif
 
 	/* Raise an exception if a NS device tries to access secure memory */
 	tzc400_set_action(TZC_ACTION_ERR);

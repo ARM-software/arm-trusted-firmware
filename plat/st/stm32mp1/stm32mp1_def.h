@@ -34,6 +34,10 @@
 /* DDR configuration */
 #define STM32MP_DDR_BASE		U(0xC0000000)
 #define STM32MP_DDR_MAX_SIZE		U(0x40000000)	/* Max 1GB */
+#ifdef AARCH32_SP_OPTEE
+#define STM32MP_DDR_S_SIZE		U(0x01E00000)	/* 30 MB */
+#define STM32MP_DDR_SHMEM_SIZE		U(0x00200000)	/* 2 MB */
+#endif
 
 /* DDR power initializations */
 #ifndef __ASSEMBLY__
@@ -56,20 +60,37 @@ enum ddr_type {
 					 (STM32MP_PARAM_LOAD_SIZE +	\
 					  STM32MP_HEADER_SIZE))
 
+#ifdef AARCH32_SP_OPTEE
+#define STM32MP_BL32_SIZE		U(0)
+
+#define STM32MP_OPTEE_BASE		STM32MP_SYSRAM_BASE
+
+#define STM32MP_OPTEE_SIZE		(STM32MP_DTB_BASE -  \
+					 STM32MP_OPTEE_BASE)
+#else
 #if STACK_PROTECTOR_ENABLED
 #define STM32MP_BL32_SIZE		U(0x00012000)	/* 72 Ko for BL32 */
 #else
 #define STM32MP_BL32_SIZE		U(0x00011000)	/* 68 Ko for BL32 */
+#endif
 #endif
 
 #define STM32MP_BL32_BASE		(STM32MP_SYSRAM_BASE + \
 					 STM32MP_SYSRAM_SIZE - \
 					 STM32MP_BL32_SIZE)
 
+#ifdef AARCH32_SP_OPTEE
+#if STACK_PROTECTOR_ENABLED
+#define STM32MP_BL2_SIZE		U(0x00019000)	/* 100 Ko for BL2 */
+#else
+#define STM32MP_BL2_SIZE		U(0x00017000)	/* 92 Ko for BL2 */
+#endif
+#else
 #if STACK_PROTECTOR_ENABLED
 #define STM32MP_BL2_SIZE		U(0x00015000)	/* 84 Ko for BL2 */
 #else
 #define STM32MP_BL2_SIZE		U(0x00013000)	/* 76 Ko for BL2 */
+#endif
 #endif
 
 #define STM32MP_BL2_BASE		(STM32MP_BL32_BASE - \
