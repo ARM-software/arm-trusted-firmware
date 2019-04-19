@@ -111,7 +111,7 @@ enum ddr_type {
 #endif
 
 /* DTB initialization value */
-#define STM32MP_DTB_SIZE		U(0x00004000)	/* 16Ko for DTB */
+#define STM32MP_DTB_SIZE		U(0x00005000)	/* 20Ko for DTB */
 
 #define STM32MP_DTB_BASE		(STM32MP_BL2_BASE - \
 					 STM32MP_DTB_SIZE)
