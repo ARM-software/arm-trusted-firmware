@@ -242,40 +242,6 @@ static int stm32image_partition_size(io_entity_t *entity, size_t *length)
 	return 0;
 }
 
-static int check_header(boot_api_image_header_t *header, uintptr_t buffer)
-{
-	uint32_t i;
-	uint32_t img_checksum = 0;
-
-	/*
-	 * Check header/payload validity:
-	 *	- Header magic
-	 *	- Header version
-	 *	- Payload checksum
-	 */
-	if (header->magic != BOOT_API_IMAGE_HEADER_MAGIC_NB) {
-		ERROR("Header magic\n");
-		return -EINVAL;
-	}
-
-	if (header->header_version != BOOT_API_HEADER_VERSION) {
-		ERROR("Header version\n");
-		return -EINVAL;
-	}
-
-	for (i = 0; i < header->image_length; i++) {
-		img_checksum += *(uint8_t *)(buffer + i);
-	}
-
-	if (header->payload_checksum != img_checksum) {
-		ERROR("Checksum: 0x%x (awaited: 0x%x)\n", img_checksum,
-		      header->payload_checksum);
-		return -EINVAL;
-	}
-
-	return 0;
-}
-
 /* Read data from a partition */
 static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 				     size_t length, size_t *length_read)
@@ -368,7 +334,7 @@ static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 			continue;
 		}
 
-		result = check_header(header, buffer);
+		result = stm32mp_check_header(header, buffer);
 		if (result != 0) {
 			ERROR("Header check failed\n");
 			*length_read = 0;

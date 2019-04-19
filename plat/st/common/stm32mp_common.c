@@ -5,6 +5,7 @@
  */
 
 #include <assert.h>
+#include <errno.h>
 
 #include <platform_def.h>
 
@@ -115,4 +116,38 @@ uint32_t stm32_get_gpio_bank_offset(unsigned int bank)
 	assert(GPIO_BANK_A == 0 && bank <= GPIO_BANK_K);
 
 	return bank * GPIO_BANK_OFFSET;
+}
+
+int stm32mp_check_header(boot_api_image_header_t *header, uintptr_t buffer)
+{
+	uint32_t i;
+	uint32_t img_checksum = 0U;
+
+	/*
+	 * Check header/payload validity:
+	 *	- Header magic
+	 *	- Header version
+	 *	- Payload checksum
+	 */
+	if (header->magic != BOOT_API_IMAGE_HEADER_MAGIC_NB) {
+		ERROR("Header magic\n");
+		return -EINVAL;
+	}
+
+	if (header->header_version != BOOT_API_HEADER_VERSION) {
+		ERROR("Header version\n");
+		return -EINVAL;
+	}
+
+	for (i = 0U; i < header->image_length; i++) {
+		img_checksum += *(uint8_t *)(buffer + i);
+	}
+
+	if (header->payload_checksum != img_checksum) {
+		ERROR("Checksum: 0x%x (awaited: 0x%x)\n", img_checksum,
+		      header->payload_checksum);
+		return -EINVAL;
+	}
+
+	return 0;
 }

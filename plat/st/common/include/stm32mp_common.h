@@ -10,6 +10,8 @@
 
 #include <stdbool.h>
 
+#include <platform_def.h>
+
 #include <arch_helpers.h>
 
 /* Functions to save and get boot context address given by ROM code */
@@ -93,5 +95,13 @@ static inline bool timeout_elapsed(uint64_t expire)
 {
 	return read_cntpct_el0() > expire;
 }
+
+/*
+ * Check that the STM32 header of a .stm32 binary image is valid
+ * @param header: pointer to the stm32 image header
+ * @param buffer: address of the binary image (payload)
+ * @return: 0 on success, negative value in case of error
+ */
+int stm32mp_check_header(boot_api_image_header_t *header, uintptr_t buffer);
 
 #endif /* STM32MP_COMMON_H */
