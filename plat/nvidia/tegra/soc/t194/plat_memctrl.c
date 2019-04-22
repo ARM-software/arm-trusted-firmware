@@ -447,6 +447,8 @@ tegra_mc_settings_t *tegra_get_mc_settings(void)
 void plat_memctrl_tzdram_setup(uint64_t phys_base, uint64_t size_in_bytes)
 {
 	uint32_t sec_reg_ctrl = tegra_mc_read_32(MC_SECURITY_CFG_REG_CTRL_0);
+	uint32_t phys_base_lo = (uint32_t)phys_base & 0xFFF00000;
+	uint32_t phys_base_hi = (uint32_t)(phys_base >> 32);
 
 	/*
 	 * Check TZDRAM carveout register access status. Setup TZDRAM fence
@@ -461,8 +463,8 @@ void plat_memctrl_tzdram_setup(uint64_t phys_base, uint64_t size_in_bytes)
 		 */
 		INFO("Configuring TrustZone DRAM Memory Carveout\n");
 
-		tegra_mc_write_32(MC_SECURITY_CFG0_0, (uint32_t)phys_base);
-		tegra_mc_write_32(MC_SECURITY_CFG3_0, (uint32_t)(phys_base >> 32));
+		tegra_mc_write_32(MC_SECURITY_CFG0_0, phys_base_lo);
+		tegra_mc_write_32(MC_SECURITY_CFG3_0, phys_base_hi);
 		tegra_mc_write_32(MC_SECURITY_CFG1_0, (uint32_t)(size_in_bytes >> 20));
 
 		/*
