@@ -58,6 +58,7 @@ SECTIONS
         *(.bl2_image*)
         __BL2_IMAGE_END__ = .;
 
+#ifndef AARCH32_SP_OPTEE
         /*
          * bl32 will be settled by bl2.
          * The strongest and only alignment constraint is 8 words to simplify
@@ -67,6 +68,7 @@ SECTIONS
         __BL32_IMAGE_START__ = .;
         *(.bl32_image*)
         __BL32_IMAGE_END__ = .;
+#endif
 
         __DATA_END__ = .;
     } >RAM

@@ -25,6 +25,15 @@
 #define PLATFORM_STACK_SIZE		0xC00
 #endif
 
+#ifdef AARCH32_SP_OPTEE
+#define OPTEE_HEADER_IMAGE_NAME		"teeh"
+#define OPTEE_PAGED_IMAGE_NAME		"teed"
+#define OPTEE_PAGER_IMAGE_NAME		"teex"
+#define OPTEE_HEADER_BINARY_TYPE	U(0x20)
+#define OPTEE_PAGER_BINARY_TYPE		U(0x21)
+#define OPTEE_PAGED_BINARY_TYPE		U(0x22)
+#endif
+
 /* SSBL = second stage boot loader */
 #define BL33_IMAGE_NAME			"ssbl"
 #define BL33_BINARY_TYPE		U(0x0)
@@ -57,9 +66,11 @@
 /*******************************************************************************
  * BL32 specific defines.
  ******************************************************************************/
+#ifndef AARCH32_SP_OPTEE
 #define BL32_BASE			STM32MP_BL32_BASE
 #define BL32_LIMIT			(STM32MP_BL32_BASE + \
 					 STM32MP_BL32_SIZE)
+#endif
 
 /*******************************************************************************
  * BL33 specific defines.
