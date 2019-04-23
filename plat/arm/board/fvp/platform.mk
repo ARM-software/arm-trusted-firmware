@@ -112,7 +112,8 @@ else
 FVP_CPU_LIBS		+=	lib/cpus/aarch32/cortex_a32.S
 endif
 
-BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
+BL1_SOURCES		+=	drivers/arm/sp805/sp805.c			\
+				drivers/io/io_semihosting.c			\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\
 				plat/arm/board/fvp/${ARCH}/fvp_helpers.S	\

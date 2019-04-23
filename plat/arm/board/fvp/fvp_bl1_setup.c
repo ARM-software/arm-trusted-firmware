@@ -5,9 +5,10 @@
  */
 
 #include <common/tbbr/tbbr_img_def.h>
+#include <drivers/arm/sp805.h>
 #include <plat/arm/common/plat_arm.h>
+#include <plat/arm/common/arm_def.h>
 #include <plat/common/platform.h>
-
 #include "fvp_private.h"
 
 /*******************************************************************************
@@ -29,4 +30,14 @@ void bl1_early_platform_setup(void)
 	 * Enable coherency in Interconnect for the primary CPU's cluster.
 	 */
 	fvp_interconnect_enable();
+}
+
+void plat_arm_secure_wdt_start(void)
+{
+	sp805_start(ARM_SP805_TWDG_BASE, ARM_TWDG_LOAD_VAL);
+}
+
+void plat_arm_secure_wdt_stop(void)
+{
+	sp805_stop(ARM_SP805_TWDG_BASE);
 }

@@ -13,6 +13,8 @@
 #include <drivers/arm/ccn.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
+#include <drivers/arm/sbsa.h>
+#include <sgi_base_platform_def.h>
 #include <services/secure_partition.h>
 
 #define SGI_MAP_FLASH0_RO	MAP_REGION_FLAT(V2M_FLASH0_BASE,\
@@ -139,3 +141,13 @@ int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 	return arm_get_mbedtls_heap(heap_addr, heap_size);
 }
 #endif
+
+void plat_arm_secure_wdt_start(void)
+{
+	sbsa_wdog_start(SBSA_SECURE_WDOG_BASE, SBSA_SECURE_WDOG_TIMEOUT);
+}
+
+void plat_arm_secure_wdt_stop(void)
+{
+	sbsa_wdog_stop(SBSA_SECURE_WDOG_BASE);
+}

@@ -8,7 +8,8 @@
 #include <common/debug.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/arm/soc/common/soc_css.h>
-
+#include <plat/arm/common/arm_def.h>
+#include <drivers/arm/sp805.h>
 #include <sgm_plat_config.h>
 
 void bl1_early_platform_setup(void)
@@ -31,4 +32,14 @@ void bl1_early_platform_setup(void)
 	 */
 	plat_arm_interconnect_enter_coherency();
 #endif
+}
+
+void plat_arm_secure_wdt_start(void)
+{
+	sp805_start(ARM_SP805_TWDG_BASE, ARM_TWDG_LOAD_VAL);
+}
+
+void plat_arm_secure_wdt_stop(void)
+{
+	sp805_stop(ARM_SP805_TWDG_BASE);
 }

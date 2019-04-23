@@ -12,6 +12,7 @@
 #include <drivers/arm/css/sds.h>
 #include <drivers/arm/sp805.h>
 #include <plat/arm/common/plat_arm.h>
+#include <plat/arm/common/arm_def.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
@@ -112,3 +113,13 @@ void bl1_plat_prepare_exit(entry_point_info_t *ep_info)
 	juno_reset_to_aarch32_state();
 }
 #endif /* JUNO_AARCH32_EL3_RUNTIME */
+
+void plat_arm_secure_wdt_start(void)
+{
+	sp805_start(ARM_SP805_TWDG_BASE, ARM_TWDG_LOAD_VAL);
+}
+
+void plat_arm_secure_wdt_stop(void)
+{
+	sp805_stop(ARM_SP805_TWDG_BASE);
+}
