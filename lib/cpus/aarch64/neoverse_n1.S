@@ -50,6 +50,12 @@ func neoverse_n1_reset_func
 	/* Disables speculative loads */
 	msr	SSBS, xzr
 
+	/* Forces all cacheable atomic instructions to be near */
+	mrs	x0, NEOVERSE_N1_CPUACTLR2_EL1
+	orr	x0, x0, #NEOVERSE_N1_CPUACTLR2_EL1_BIT_2
+	msr	NEOVERSE_N1_CPUACTLR2_EL1, x0
+	isb
+
 	bl	cpu_get_rev_var
 	mov	x18, x0
 
