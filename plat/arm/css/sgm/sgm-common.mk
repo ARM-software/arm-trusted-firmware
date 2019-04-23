@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+CSS_USE_SCMI_SDS_DRIVER	:=	1
+
 CSS_SGM_BASE		:=	plat/arm/css/sgm
 
 PLAT_INCLUDES		:=	-I${CSS_SGM_BASE}/include
