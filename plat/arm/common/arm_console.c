@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -80,9 +80,7 @@ void arm_console_runtime_end(void)
 {
 	(void)console_flush();
 
-#if MULTI_CONSOLE_API
-	(void)console_unregister(&arm_runtime_console.console);
-#else
+#if !MULTI_CONSOLE_API
 	console_uninit();
-#endif /* MULTI_CONSOLE_API */
+#endif /* !MULTI_CONSOLE_API */
 }
