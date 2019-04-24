@@ -62,6 +62,9 @@ DEBUG				:= 0
 # Build platform
 DEFAULT_PLAT			:= fvp
 
+# Disable the generation of the binary image (ELF only).
+DISABLE_BIN_GENERATION		:= 0
+
 # Enable capability to disable authentication dynamically. Only meant for
 # development platforms.
 DYN_DISABLE_AUTH		:= 0
