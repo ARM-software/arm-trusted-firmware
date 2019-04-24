@@ -2655,8 +2655,7 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 References
 ----------
 
-.. [#] Trusted Board Boot Requirements CLIENT PDD (Arm DEN0006C-1). Available
-       under NDA through your Arm account representative.
+.. [#] `Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D)`_
 .. [#] `Power State Coordination Interface PDD`_
 .. [#] `SMC Calling Convention PDD`_
 .. [#] `TF-A Interrupt Management Design guide`_.
@@ -2684,5 +2683,6 @@ References
 .. _Xlat_tables design: xlat-tables-lib-v2-design.rst
 .. _Exception Handling Framework: exception-handling.rst
 .. _ROMLIB Design: romlib-design.rst
+.. _Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D): https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
 
 .. |Image 1| image:: diagrams/rt-svc-descs-layout.png?raw=true

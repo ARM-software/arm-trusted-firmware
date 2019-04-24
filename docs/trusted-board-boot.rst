@@ -12,9 +12,9 @@ the platform by authenticating all firmware images up to and including the
 normal world bootloader. It does this by establishing a Chain of Trust using
 Public-Key-Cryptography Standards (PKCS).
 
-This document describes the design of Trusted Firmware-A (TF-A) TBB, which is
-an implementation of the Trusted Board Boot Requirements (TBBR) specification,
-Arm DEN0006C-1. It should be used in conjunction with the `Firmware Update`_
+This document describes the design of Trusted Firmware-A (TF-A) TBB, which is an
+implementation of the `Trusted Board Boot Requirements (TBBR)`_ specification,
+Arm DEN0006D. It should be used in conjunction with the `Firmware Update`_
 design document, which implements a specific aspect of the TBBR.
 
 Chain of Trust
@@ -206,7 +206,7 @@ Authentication Framework
 
 The authentication framework included in TF-A provides support to implement
 the desired trusted boot sequence. Arm platforms use this framework to
-implement the boot requirements specified in the TBBR-client document.
+implement the boot requirements specified in the `TBBR-client`_ document.
 
 More information about the authentication framework can be found in the
 `Auth Framework`_ document.
@@ -230,9 +230,11 @@ for building and using the tool can be found in the `User Guide`_.
 
 --------------
 
-*Copyright (c) 2015-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2015-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _Firmware Update: firmware-update.rst
 .. _X.509 v3: https://tools.ietf.org/rfc/rfc5280.txt
 .. _User Guide: user-guide.rst
 .. _Auth Framework: auth-framework.rst
+.. _TBBR-client: https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
+.. _Trusted Board Boot Requirements (TBBR): `TBBR-client`_
