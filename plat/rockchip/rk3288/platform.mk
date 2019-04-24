@@ -11,8 +11,6 @@ RK_PLAT			:=	plat/rockchip
 RK_PLAT_SOC		:=	${RK_PLAT}/${PLAT}
 RK_PLAT_COMMON		:=	${RK_PLAT}/common
 
-include lib/libfdt/libfdt.mk
-
 PLAT_INCLUDES		:=	-I${RK_PLAT_COMMON}/				\
 				-I${RK_PLAT_COMMON}/include/			\
 				-I${RK_PLAT_COMMON}/aarch32/			\
@@ -42,7 +40,6 @@ BL32_SOURCES		+=	${RK_GIC_SOURCES}				\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
 				lib/cpus/aarch32/cortex_a12.S			\
-				$(LIBFDT_SRCS)					\
 				${RK_PLAT_COMMON}/aarch32/plat_helpers.S	\
 				${RK_PLAT_COMMON}/params_setup.c		\
 				${RK_PLAT_COMMON}/aarch32/pmu_sram_cpus_on.S	\
@@ -58,6 +55,7 @@ BL32_SOURCES		+=	${RK_GIC_SOURCES}				\
 MULTI_CONSOLE_API	:=	1
 
 include lib/coreboot/coreboot.mk
+include lib/libfdt/libfdt.mk
 
 $(eval $(call add_define,PLAT_SP_MIN_EXTRA_LD_SCRIPT))
 
