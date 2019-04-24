@@ -45,7 +45,6 @@ static struct ti_sci_info info = {
 		.host_id = TI_SCI_HOST_ID,
 		.max_msg_size = TI_SCI_MAX_MESSAGE_SIZE,
 	},
-	.seq = 0x0a,
 };
 
 /**
@@ -89,10 +88,8 @@ static int ti_sci_setup_one_xfer(uint16_t msg_type, uint32_t msg_flags,
 	    tx_message_size < sizeof(*hdr))
 		return -ERANGE;
 
-	info.seq++;
-
 	hdr = (struct ti_sci_msg_hdr *)tx_buf;
-	hdr->seq = info.seq;
+	hdr->seq = ++info.seq;
 	hdr->type = msg_type;
 	hdr->host = info.desc.host_id;
 	hdr->flags = msg_flags | TI_SCI_FLAG_REQ_ACK_ON_PROCESSED;
@@ -119,21 +116,28 @@ static inline int ti_sci_get_response(struct ti_sci_xfer *xfer,
 {
 	struct k3_sec_proxy_msg *msg = &xfer->rx_message;
 	struct ti_sci_msg_hdr *hdr;
+	unsigned int retry = 5;
 	int ret;
 
-	/* Receive the response */
-	ret = k3_sec_proxy_recv(chan, msg);
-	if (ret) {
-		ERROR("Message receive failed (%d)\n", ret);
-		return ret;
+	for (; retry > 0; retry--) {
+		/* Receive the response */
+		ret = k3_sec_proxy_recv(chan, msg);
+		if (ret) {
+			ERROR("Message receive failed (%d)\n", ret);
+			return ret;
+		}
+
+		/* msg is updated by Secure Proxy driver */
+		hdr = (struct ti_sci_msg_hdr *)msg->buf;
+
+		/* Sanity check for message response */
+		if (hdr->seq == info.seq)
+			break;
+		else
+			WARN("Message with sequence ID %u is not expected\n", hdr->seq);
 	}
-
-	/* msg is updated by Secure Proxy driver */
-	hdr = (struct ti_sci_msg_hdr *)msg->buf;
-
-	/* Sanity check for message response */
-	if (hdr->seq != info.seq) {
-		ERROR("Message for %d is not expected\n", hdr->seq);
+	if (!retry) {
+		ERROR("Timed out waiting for message\n");
 		return -EINVAL;
 	}
 
@@ -425,7 +429,7 @@ int ti_sci_device_put_no_wait(uint32_t id)
 		return -ERANGE;
 
 	hdr = (struct ti_sci_msg_hdr *)&req;
-	hdr->seq = info.seq;
+	hdr->seq = ++info.seq;
 	hdr->type = TI_SCI_MSG_SET_DEVICE_STATE;
 	hdr->host = info.desc.host_id;
 	/* Setup with NORESPONSE flag to keep response queue clean */
@@ -1408,7 +1412,7 @@ int ti_sci_proc_set_boot_ctrl_no_wait(uint8_t proc_id,
 		return -ERANGE;
 
 	hdr = (struct ti_sci_msg_hdr *)&req;
-	hdr->seq = info.seq;
+	hdr->seq = ++info.seq;
 	hdr->type = TISCI_MSG_SET_PROC_BOOT_CTRL;
 	hdr->host = info.desc.host_id;
 	/* Setup with NORESPONSE flag to keep response queue clean */
@@ -1650,7 +1654,7 @@ int ti_sci_proc_wait_boot_status_no_wait(uint8_t proc_id,
 		return -ERANGE;
 
 	hdr = (struct ti_sci_msg_hdr *)&req;
-	hdr->seq = info.seq;
+	hdr->seq = ++info.seq;
 	hdr->type = TISCI_MSG_WAIT_PROC_BOOT_STATUS;
 	hdr->host = info.desc.host_id;
 	/* Setup with NORESPONSE flag to keep response queue clean */
