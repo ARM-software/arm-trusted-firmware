@@ -22,6 +22,9 @@ ERRATA_A53_836870	:=	1
 ERRATA_A53_843419	:=	1
 ERRATA_A53_855873	:=	1
 
+# Split out RO data into a non-executable section
+SEPARATE_CODE_AND_RODATA :=    1
+
 # Leave the caches enabled on core powerdown path
 TI_AM65X_WORKAROUND	:=	1
 $(eval $(call add_define,TI_AM65X_WORKAROUND))
