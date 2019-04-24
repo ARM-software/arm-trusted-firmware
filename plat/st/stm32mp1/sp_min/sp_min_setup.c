@@ -134,6 +134,11 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		    0) {
 			panic();
 		}
+
+#ifdef DEBUG
+		console_set_scope(&console.console,
+				  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
+#endif
 	}
 }
 
