@@ -20,8 +20,6 @@
 /* Need to flush psci internal locks before shutdown or their values are lost */
 #include "../../../../lib/psci/psci_private.h"
 
-#define STUB() ERROR("stub %s called\n", __func__)
-
 uintptr_t k3_sec_entrypoint;
 
 static void k3_cpu_standby(plat_local_state_t cpu_state)
