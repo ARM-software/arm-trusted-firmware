@@ -49,8 +49,6 @@ enum pmu_cores_pm_by_wfi {
 
 extern void *pmu_cpuson_entrypoint_start;
 extern void *pmu_cpuson_entrypoint_end;
-extern uint64_t cpuson_entry_point[PLATFORM_CORE_COUNT];
-extern uint32_t cpuson_flags[PLATFORM_CORE_COUNT];
 
 #define CORES_PM_DISABLE	0x0
 
