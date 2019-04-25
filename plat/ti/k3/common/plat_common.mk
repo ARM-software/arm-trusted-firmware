@@ -12,8 +12,8 @@ COLD_BOOT_SINGLE_CPU	:=	1
 PROGRAMMABLE_RESET_ADDRESS:=	1
 
 # System coherency is managed in hardware
-HW_ASSISTED_COHERENCY	:=	1
-USE_COHERENT_MEM	:=	0
+WARMBOOT_ENABLE_DCACHE_EARLY :=	1
+USE_COHERENT_MEM	:=	1
 
 # A53 erratum for SoC. (enable them all)
 ERRATA_A53_826319	:=	1
