@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,7 +45,7 @@ void sp_min_plat_fiq_handler(uint32_t id)
 {
 	switch (id & INT_ID_MASK) {
 	case STM32MP1_IRQ_TZC400:
-		ERROR("STM32MP1_IRQ_TZC400 generated\n");
+		(void)tzc400_it_handler();
 		panic();
 		break;
 	case STM32MP1_IRQ_AXIERRIRQ:
