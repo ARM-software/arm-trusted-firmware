@@ -28,10 +28,6 @@ ERRATA_A72_859971	:=	1
 # Split out RO data into a non-executable section
 SEPARATE_CODE_AND_RODATA :=    1
 
-# Leave the caches enabled on core powerdown path
-TI_AM65X_WORKAROUND	:=	1
-$(eval $(call add_define,TI_AM65X_WORKAROUND))
-
 MULTI_CONSOLE_API	:=	1
 TI_16550_MDR_QUIRK	:=	1
 $(eval $(call add_define,TI_16550_MDR_QUIRK))
