@@ -23,7 +23,7 @@ void WEAK svc_handler(void);
 void WEAK pend_sv_handler(void);
 void WEAK systick_handler(void);
 
-extern int main(void);
+extern int m0_main(void);
 
 /* Function prototypes */
 static void default_reset_handler(void);
@@ -59,12 +59,12 @@ void (* const g_pfnVectors[])(void) = {
  * This is the code that gets called when the processor first
  * starts execution following a reset event. Only the absolutely
  * necessary set is performed, after which the application
- * supplied main() routine is called.
+ * supplied m0_main() routine is called.
  */
 static void default_reset_handler(void)
 {
 	/* call the application's entry point */
-	main();
+	m0_main();
 }
 
 /**
