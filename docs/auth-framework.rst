@@ -80,7 +80,7 @@ Chain of Trust
 A CoT is basically a sequence of authentication images which usually starts with
 a root of trust and culminates in a single data image. The following diagram
 illustrates how this maps to a CoT for the BL31 image described in the
-TBBR-Client specification.
+`TBBR-Client specification`_.
 
 ::
 
@@ -969,3 +969,4 @@ of SHA-256 with smaller memory footprint (~1.5 KB less) but slower (~30%).
 
 .. _Trusted Board Boot: ./trusted-board-boot.rst
 .. _Platform Porting Guide: ./porting-guide.rst
+.. _TBBR-Client specification: https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
