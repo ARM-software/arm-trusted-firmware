@@ -12,7 +12,7 @@ include lib/libfdt/libfdt.mk
 
 PLAT_INCLUDES		:=	-I${RK_PLAT_COMMON}/			\
 				-I${RK_PLAT_COMMON}/include/		\
-				-I${RK_PLAT_COMMON}/pmusram		\
+				-I${RK_PLAT_COMMON}/aarch64/		\
 				-I${RK_PLAT_COMMON}/drivers/pmu/	\
 				-I${RK_PLAT_SOC}/			\
 				-I${RK_PLAT_SOC}/drivers/pmu/		\
@@ -49,7 +49,7 @@ BL31_SOURCES	+=	${RK_GIC_SOURCES}				\
 			${RK_PLAT_COMMON}/aarch64/plat_helpers.S	\
 			${RK_PLAT_COMMON}/bl31_plat_setup.c		\
 			${RK_PLAT_COMMON}/params_setup.c		\
-			${RK_PLAT_COMMON}/pmusram/pmu_sram_cpus_on.S	\
+			${RK_PLAT_COMMON}/aarch64/pmu_sram_cpus_on.S	\
 			${RK_PLAT_COMMON}/plat_pm.c			\
 			${RK_PLAT_COMMON}/plat_topology.c		\
 			${RK_PLAT_COMMON}/aarch64/platform_common.c	\

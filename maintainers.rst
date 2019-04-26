@@ -208,6 +208,8 @@ RockChip platform port
 :M: Tony Xie <tony.xie@rock-chips.com>
 :G: `TonyXie06`_
 :G: `rockchip-linux`_
+:M: Heiko Stuebner <heiko@sntech.de>
+:G: `mmind`_
 :F: plat/rockchip/
 
 STM32MP1 platform port
@@ -277,6 +279,7 @@ Xilinx platform port
 .. _niej: https://github.com/niej
 .. _kostapr: https://github.com/kostapr
 .. _masahir0y: https://github.com/masahir0y
+.. _mmind: https://github.com/mmind
 .. _mtk09422: https://github.com/mtk09422
 .. _npoushin: https://github.com/npoushin
 .. _qoriq-open-source: https://github.com/qoriq-open-source

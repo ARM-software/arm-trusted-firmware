@@ -88,6 +88,17 @@ static int check_cpu_wfie(uint32_t cpu_id, uint32_t wfie_msk)
 		cluster_id = 0;
 	}
 
+	/*
+	 * wfe/wfi tracking not possible, hopefully the host
+	 * was sucessful in enabling wfe/wfi.
+	 * We'll give a bit of additional time, like the kernel does.
+	 */
+	if ((cluster_id && clstb_cpu_wfe < 0) ||
+	    (!cluster_id && clstl_cpu_wfe < 0)) {
+		mdelay(1);
+		return 0;
+	}
+
 	if (cluster_id)
 		wfie_msk <<= (clstb_cpu_wfe + cpu_id);
 	else
