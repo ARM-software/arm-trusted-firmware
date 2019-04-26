@@ -6,7 +6,7 @@
 
 / {
 	soc {
-		stgen: stgen@5C008000 {
+		stgen: stgen@5c008000 {
 			compatible = "st,stm32-stgen";
 			reg = <0x5C008000 0x1000>;
 			status = "okay";
