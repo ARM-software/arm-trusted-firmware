@@ -45,31 +45,35 @@ endfunc cortex_a53_disable_smp
 	/* ---------------------------------------------------
 	 * Errata Workaround for Cortex A53 Errata #819472.
 	 * This applies only to revision <= r0p1 of Cortex A53.
+	 * Due to the nature of the errata it is applied unconditionally
+	 * when built in, report it as applicable in this case
 	 * ---------------------------------------------------
 	 */
 func check_errata_819472
-	/*
-	 * Even though this is only needed for revision <= r0p1, it
-	 * is always applied due to limitations of the current
-	 * errata framework.
-	 */
-	mov	x0, #ERRATA_APPLIES
+#if ERRATA_A53_819472
+	mov x0, #ERRATA_APPLIES
 	ret
+#else
+	mov	x1, #0x01
+	b	cpu_rev_var_ls
+#endif
 endfunc check_errata_819472
 
 	/* ---------------------------------------------------
 	 * Errata Workaround for Cortex A53 Errata #824069.
 	 * This applies only to revision <= r0p2 of Cortex A53.
+	 * Due to the nature of the errata it is applied unconditionally
+	 * when built in, report it as applicable in this case
 	 * ---------------------------------------------------
 	 */
 func check_errata_824069
-	/*
-	 * Even though this is only needed for revision <= r0p2, it
-	 * is always applied due to limitations of the current
-	 * errata framework.
-	 */
-	mov	x0, #ERRATA_APPLIES
+#if ERRATA_A53_824069
+	mov x0, #ERRATA_APPLIES
 	ret
+#else
+	mov	x1, #0x02
+	b	cpu_rev_var_ls
+#endif
 endfunc check_errata_824069
 
 	/* --------------------------------------------------
@@ -103,16 +107,18 @@ endfunc check_errata_826319
 	/* ---------------------------------------------------
 	 * Errata Workaround for Cortex A53 Errata #827319.
 	 * This applies only to revision <= r0p2 of Cortex A53.
+	 * Due to the nature of the errata it is applied unconditionally
+	 * when built in, report it as applicable in this case
 	 * ---------------------------------------------------
 	 */
 func check_errata_827319
-	/*
-	 * Even though this is only needed for revision <= r0p2, it
-	 * is always applied due to limitations of the current
-	 * errata framework.
-	 */
-	mov	x0, #ERRATA_APPLIES
+#if ERRATA_A53_827319
+	mov x0, #ERRATA_APPLIES
 	ret
+#else
+	mov	x1, #0x02
+	b	cpu_rev_var_ls
+#endif
 endfunc check_errata_827319
 
 	/* ---------------------------------------------------------------------
