@@ -87,7 +87,7 @@
 # define PLATFORM_NAME		"Versal Virt"
 # define VERSAL_UART_CLOCK	25000000
 # define VERSAL_UART_BAUDRATE	115200
-# define VERSAL_CPU_CLOCK	62500000
+# define VERSAL_CPU_CLOCK	2720000
 #endif
 
 /* Access control register defines */
