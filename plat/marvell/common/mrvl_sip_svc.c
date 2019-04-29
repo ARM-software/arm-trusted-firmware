@@ -15,6 +15,7 @@
 #include <plat_marvell.h>
 
 #include "comphy/phy-comphy-cp110.h"
+#include <stdbool.h>
 
 /* #define DEBUG_COMPHY */
 #ifdef DEBUG_COMPHY
@@ -38,12 +39,24 @@
 
 #define MAX_LANE_NR		6
 #define MVEBU_COMPHY_OFFSET	0x441000
-#define MVEBU_SD_OFFSET		0x120000
+#define MVEBU_CP_BASE_MASK	(~0xffffff)
 
 /* This macro is used to identify COMPHY related calls from SMC function ID */
 #define is_comphy_fid(fid)	\
 	((fid) >= MV_SIP_COMPHY_POWER_ON && (fid) <= MV_SIP_COMPHY_DIG_RESET)
 
+_Bool is_cp_range_valid(u_register_t *addr)
+{
+	int cp_nr;
+
+	*addr &= MVEBU_CP_BASE_MASK;
+	for (cp_nr = 0; cp_nr < CP_NUM; cp_nr++) {
+		if (*addr == MVEBU_CP_REGS_BASE(cp_nr))
+			return true;
+	}
+
+	return false;
+}
 
 uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 			       u_register_t x1,
@@ -59,19 +72,16 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 
 	debug("%s: got SMC (0x%x) x1 0x%lx, x2 0x%lx, x3 0x%lx\n",
 						 __func__, smc_fid, x1, x2, x3);
+
 	if (is_comphy_fid(smc_fid)) {
-
-		/* some systems passes SD phys address instead of COMPHY phys
-		 * address - convert it
-		 */
-		if (x1 & MVEBU_SD_OFFSET)
-			x1 = (x1 & ~0xffffff) + MVEBU_COMPHY_OFFSET;
-
-		if ((x1 & 0xffffff) != MVEBU_COMPHY_OFFSET) {
+		/* validate address passed via x1 */
+		if (!is_cp_range_valid(&x1)) {
 			ERROR("%s: Wrong smc (0x%x) address: %lx\n",
 			      __func__, smc_fid, x1);
 			SMC_RET1(handle, SMC_UNK);
 		}
+
+		x1 += MVEBU_COMPHY_OFFSET;
 
 		if (x2 >= MAX_LANE_NR) {
 			ERROR("%s: Wrong smc (0x%x) lane nr: %lx\n",
@@ -106,8 +116,7 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 
 	/* Miscellaneous FID's' */
 	case MV_SIP_DRAM_SIZE:
-		/* x1:  ap_base_addr */
-		ret = mvebu_get_dram_size(x1);
+		ret = mvebu_get_dram_size(MVEBU_REGS_BASE);
 		SMC_RET1(handle, ret);
 	case MV_SIP_LLC_ENABLE:
 		for (i = 0; i < ap_get_count(); i++)
