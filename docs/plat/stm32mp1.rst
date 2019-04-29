@@ -81,7 +81,7 @@ To build with SP_min:
 
 .. code:: bash
 
-    make CROSS_COMPILE=arm-linux-gnueabihf- PLAT=stm32mp1 ARCH=aarch32 ARM_ARCH_MAJOR=7 AARCH32_SP=sp_min
+    make CROSS_COMPILE=arm-linux-gnueabihf- PLAT=stm32mp1 ARCH=aarch32 ARM_ARCH_MAJOR=7 AARCH32_SP=sp_min DTB_FILE_NAME=stm32mp157c-ev1.dtb
     cd <u-boot_directory>
     make stm32mp15_basic_defconfig
     make DEVICE_TREE=stm32mp157c-ev1 all
