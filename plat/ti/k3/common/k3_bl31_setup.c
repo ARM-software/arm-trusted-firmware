@@ -99,9 +99,12 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 void bl31_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
-		MAP_REGION_FLAT(BL31_START,      BL31_END       - BL31_START,     MT_MEMORY  | MT_RW | MT_SECURE),
-		MAP_REGION_FLAT(BL_CODE_BASE,    BL_CODE_END    - BL_CODE_BASE,   MT_CODE    | MT_RO | MT_SECURE),
-		MAP_REGION_FLAT(BL_RO_DATA_BASE, BL_RO_DATA_END - BL_RO_DATA_END, MT_RO_DATA | MT_RO | MT_SECURE),
+		MAP_REGION_FLAT(BL31_START,           BL31_END            - BL31_START,           MT_MEMORY  | MT_RW | MT_SECURE),
+		MAP_REGION_FLAT(BL_CODE_BASE,         BL_CODE_END         - BL_CODE_BASE,         MT_CODE    | MT_RO | MT_SECURE),
+		MAP_REGION_FLAT(BL_RO_DATA_BASE,      BL_RO_DATA_END      - BL_RO_DATA_BASE,      MT_RO_DATA | MT_RO | MT_SECURE),
+#if USE_COHERENT_MEM
+		MAP_REGION_FLAT(BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE, MT_DEVICE  | MT_RW | MT_SECURE),
+#endif
 		{ /* sentinel */ }
 	};
 
