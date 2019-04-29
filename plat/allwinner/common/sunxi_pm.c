@@ -20,9 +20,9 @@
 #include <sunxi_mmap.h>
 #include <sunxi_private.h>
 
-#define SUNXI_WDOG0_CTRL_REG		(SUNXI_WDOG_BASE + 0x0010)
-#define SUNXI_WDOG0_CFG_REG		(SUNXI_WDOG_BASE + 0x0014)
-#define SUNXI_WDOG0_MODE_REG		(SUNXI_WDOG_BASE + 0x0018)
+#define SUNXI_WDOG0_CTRL_REG		(SUNXI_R_WDOG_BASE + 0x0010)
+#define SUNXI_WDOG0_CFG_REG		(SUNXI_R_WDOG_BASE + 0x0014)
+#define SUNXI_WDOG0_MODE_REG		(SUNXI_R_WDOG_BASE + 0x0018)
 
 #define mpidr_is_valid(mpidr) ( \
 	MPIDR_AFFLVL3_VAL(mpidr) == 0 && \
