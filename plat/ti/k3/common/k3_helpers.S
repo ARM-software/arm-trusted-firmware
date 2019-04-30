@@ -73,21 +73,17 @@ func plat_my_core_pos
 	lsr	x1, x1, #MPIDR_AFF1_SHIFT
 	and	x0, x0, #MPIDR_CPU_MASK
 
-#if K3_CLUSTER1_MSMC_PORT != UNUSED
-	cmp	x1, #K3_CLUSTER0_MSMC_PORT
+	cmp	x1, 0
 	b.eq out
 	add	x0, x0, #K3_CLUSTER0_CORE_COUNT
-#if K3_CLUSTER2_MSMC_PORT != UNUSED
-	cmp	x1, #K3_CLUSTER1_MSMC_PORT
+
+	cmp	x1, 1
 	b.eq out
 	add	x0, x0, #K3_CLUSTER1_CORE_COUNT
-#if K3_CLUSTER3_MSMC_PORT != UNUSED
-	cmp	x1, #K3_CLUSTER2_MSMC_PORT
+
+	cmp	x1, 2
 	b.eq out
 	add	x0, x0, #K3_CLUSTER2_CORE_COUNT
-#endif /* K3_CLUSTER3_MSMC_PORT != UNUSED */
-#endif /* K3_CLUSTER2_MSMC_PORT != UNUSED */
-#endif /* K3_CLUSTER1_MSMC_PORT != UNUSED */
 
 out:
 	ret
