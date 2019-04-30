@@ -35,8 +35,20 @@
 #define RK_INTMEM_BASE		0xff8c0000
 #define RK_INTMEM_SIZE		0x10000
 
-#define UART_DBG_BASE		0xff690000
-#define UART_DBG_SIZE		0x10000
+#define UART0_BASE		0xff180000
+#define UART0_SIZE		0x10000
+
+#define UART1_BASE		0xff190000
+#define UART1_SIZE		0x10000
+
+#define UART2_BASE		0xff690000
+#define UART2_SIZE		0x10000
+
+#define UART3_BASE		0xff1b0000
+#define UART3_SIZE		0x10000
+
+#define UART4_BASE		0xff1c0000
+#define UART4_SIZE		0x10000
 
 #define CRU_BASE		0xff760000
 
@@ -57,7 +69,6 @@
 /**************************************************************************
  * UART related constants
  **************************************************************************/
-#define RK3368_UART2_BASE	UART_DBG_BASE
 #define RK3368_BAUDRATE		115200
 #define RK3368_UART_CLOCK	24000000
 
