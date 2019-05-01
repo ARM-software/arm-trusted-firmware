@@ -210,6 +210,22 @@ ERRATA_A76_1130799	?=0
 # only to revision <= r2p0 of the Cortex A76 cpu.
 ERRATA_A76_1220197	?=0
 
+# Flag to apply erratum 1257314 workaround during reset. This erratum applies
+# only to revision <= r3p0 of the Cortex A76 cpu.
+ERRATA_A76_1257314	?=0
+
+# Flag to apply erratum 1262606 workaround during reset. This erratum applies
+# only to revision <= r3p0 of the Cortex A76 cpu.
+ERRATA_A76_1262606	?=0
+
+# Flag to apply erratum 1262888 workaround during reset. This erratum applies
+# only to revision <= r3p0 of the Cortex A76 cpu.
+ERRATA_A76_1262888	?=0
+
+# Flag to apply erratum 1275112 workaround during reset. This erratum applies
+# only to revision <= r3p0 of the Cortex A76 cpu.
+ERRATA_A76_1275112	?=0
+
 # Flag to apply T32 CLREX workaround during reset. This erratum applies
 # only to r0p0 and r1p0 of the Neoverse N1 cpu.
 ERRATA_N1_1043202	?=1
@@ -374,6 +390,22 @@ $(eval $(call add_define,ERRATA_A76_1130799))
 # Process ERRATA_A76_1220197 flag
 $(eval $(call assert_boolean,ERRATA_A76_1220197))
 $(eval $(call add_define,ERRATA_A76_1220197))
+
+# Process ERRATA_A76_1257314 flag
+$(eval $(call assert_boolean,ERRATA_A76_1257314))
+$(eval $(call add_define,ERRATA_A76_1257314))
+
+# Process ERRATA_A76_1262606 flag
+$(eval $(call assert_boolean,ERRATA_A76_1262606))
+$(eval $(call add_define,ERRATA_A76_1262606))
+
+# Process ERRATA_A76_1262888 flag
+$(eval $(call assert_boolean,ERRATA_A76_1262888))
+$(eval $(call add_define,ERRATA_A76_1262888))
+
+# Process ERRATA_A76_1275112 flag
+$(eval $(call assert_boolean,ERRATA_A76_1275112))
+$(eval $(call add_define,ERRATA_A76_1275112))
 
 # Process ERRATA_N1_1043202 flag
 $(eval $(call assert_boolean,ERRATA_N1_1043202))
