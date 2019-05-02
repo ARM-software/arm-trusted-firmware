@@ -14,6 +14,7 @@
 #include <drivers/generic_delay_timer.h>
 #include <mcucfg.h>
 #include <mt_gic_v3.h>
+#include <lib/coreboot.h>
 #include <lib/mmio.h>
 #include <mtk_plat_common.h>
 #include <mtspmc.h>
@@ -77,7 +78,15 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	params_early_setup(arg1);
 
+#if COREBOOT
+	if (coreboot_serial.type)
+		console_16550_register(coreboot_serial.baseaddr,
+				       coreboot_serial.input_hertz,
+				       coreboot_serial.baud,
+				       &console);
+#else
 	console_16550_register(UART0_BASE, UART_CLOCK, UART_BAUDRATE, &console);
+#endif
 
 	NOTICE("MT8183 bl31_setup\n");
 

@@ -70,3 +70,5 @@ MULTI_CONSOLE_API := 1
 MACH_MT8183 := 1
 $(eval $(call add_define,MACH_MT8183))
 
+include lib/coreboot/coreboot.mk
+
