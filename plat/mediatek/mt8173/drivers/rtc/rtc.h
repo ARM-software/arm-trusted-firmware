@@ -49,6 +49,12 @@ enum {
 	RTC_BBPU_KEY	= 0x43 << 8
 };
 
+/* external API */
+uint16_t RTC_Read(uint32_t addr);
+void RTC_Write(uint32_t addr, uint16_t data);
+int32_t rtc_busy_wait(void);
+int32_t RTC_Write_Trigger(void);
+int32_t Writeif_unlock(void);
 void rtc_bbpu_power_down(void);
 
 #endif /* RTC_H */
