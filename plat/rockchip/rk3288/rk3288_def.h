@@ -28,8 +28,20 @@
 #define DDR_PHY1_BASE		0xff640000
 #define DDR_PHY1_SIZE		SIZE_K(64)
 
-#define UART_DBG_BASE		0xff690000
-#define UART_DBG_SIZE		SIZE_K(64)
+#define UART0_BASE		0xff180000
+#define UART0_SIZE		SIZE_K(64)
+
+#define UART1_BASE		0xff190000
+#define UART1_SIZE		SIZE_K(64)
+
+#define UART2_BASE		0xff690000
+#define UART2_SIZE		SIZE_K(64)
+
+#define UART3_BASE		0xff1b0000
+#define UART3_SIZE		SIZE_K(64)
+
+#define UART4_BASE		0xff1c0000
+#define UART4_SIZE		SIZE_K(64)
 
 /* 96k instead of 64k? */
 #define SRAM_BASE		0xff700000
@@ -71,7 +83,6 @@
 /**************************************************************************
  * UART related constants
  **************************************************************************/
-#define RK3288_UART2_BASE	UART_DBG_BASE
 #define RK3288_BAUDRATE		115200
 #define RK3288_UART_CLOCK	24000000
 

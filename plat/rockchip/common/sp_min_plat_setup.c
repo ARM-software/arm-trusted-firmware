@@ -65,7 +65,7 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				       coreboot_serial.baud,
 				       &console);
 #else
-	console_16550_register(PLAT_RK_UART_BASE, PLAT_RK_UART_CLOCK,
+	console_16550_register(rockchip_get_uart_base(), PLAT_RK_UART_CLOCK,
 			       PLAT_RK_UART_BAUDRATE, &console);
 #endif
 	VERBOSE("sp_min_setup\n");

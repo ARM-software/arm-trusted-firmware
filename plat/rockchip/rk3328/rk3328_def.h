@@ -15,6 +15,12 @@
 /* Special value used to verify platform parameters from BL2 to BL3-1 */
 #define RK_BL31_PLAT_PARAM_VAL	0x0f1e2d3c4b5a6978ULL
 
+#define UART0_BASE		0xff110000
+#define UART0_SIZE		SIZE_K(64)
+
+#define UART1_BASE		0xff120000
+#define UART1_SIZE		SIZE_K(64)
+
 #define UART2_BASE		0xff130000
 #define UART2_SIZE		SIZE_K(64)
 
@@ -97,7 +103,6 @@
 /**************************************************************************
  * UART related constants
  **************************************************************************/
-#define RK3328_UART2_BASE	UART2_BASE
 #define RK3328_BAUDRATE	1500000
 #define RK3328_UART_CLOCK	24000000
 
