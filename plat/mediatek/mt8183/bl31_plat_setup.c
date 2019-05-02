@@ -12,6 +12,7 @@
 #include <common/debug.h>
 #include <drivers/generic_delay_timer.h>
 #include <mcucfg.h>
+#include <mt_gic_v3.h>
 #include <lib/mmio.h>
 #include <mtk_plat_common.h>
 #include <plat_debug.h>
@@ -69,8 +70,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
 	struct mtk_bl31_params *arg_from_bl2 = (struct mtk_bl31_params *)arg0;
-
 	static console_16550_t console;
+
 	console_16550_register(UART0_BASE, UART_CLOCK, UART_BAUDRATE, &console);
 
 	NOTICE("MT8183 bl31_setup\n");
@@ -91,6 +92,10 @@ void bl31_platform_setup(void)
 {
 	platform_setup_cpu();
 	generic_delay_timer_init();
+
+	/* Initialize the GIC driver, CPU and distributor interfaces */
+	mt_gic_driver_init();
+	mt_gic_init();
 }
 
 /*******************************************************************************

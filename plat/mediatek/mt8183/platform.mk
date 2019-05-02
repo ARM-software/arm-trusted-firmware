@@ -12,14 +12,15 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
 
 PLAT_BL_COMMON_SOURCES := lib/xlat_tables/aarch64/xlat_tables.c       \
                           lib/xlat_tables/xlat_tables_common.c        \
-                          plat/common/plat_gicv2.c                    \
                           plat/common/plat_psci_common.c              \
                           plat/common/aarch64/crash_console_helpers.S
 
 BL31_SOURCES    += drivers/arm/cci/cci.c                                 \
                    drivers/arm/gic/common/gic_common.c                   \
-                   drivers/arm/gic/v2/gicv2_main.c                       \
-                   drivers/arm/gic/v2/gicv2_helpers.c                    \
+                   drivers/arm/gic/v3/arm_gicv3_common.c                 \
+                   drivers/arm/gic/v3/gicv3_helpers.c                    \
+                   drivers/arm/gic/v3/gic500.c                           \
+                   drivers/arm/gic/v3/gicv3_main.c                       \
                    drivers/delay_timer/delay_timer.c                     \
                    drivers/delay_timer/generic_delay_timer.c             \
                    drivers/gpio/gpio.c                                   \
@@ -27,11 +28,13 @@ BL31_SOURCES    += drivers/arm/cci/cci.c                                 \
                    lib/cpus/aarch64/aem_generic.S                        \
                    lib/cpus/aarch64/cortex_a53.S                         \
                    lib/cpus/aarch64/cortex_a73.S                         \
+                   plat/common/plat_gicv3.c                              \
                    ${MTK_PLAT}/common/mtk_plat_common.c                  \
                    ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                    ${MTK_PLAT_SOC}/aarch64/platform_common.c             \
                    ${MTK_PLAT_SOC}/plat_pm.c                             \
                    ${MTK_PLAT_SOC}/plat_topology.c                       \
+                   ${MTK_PLAT_SOC}/plat_mt_gic.c                         \
                    ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
                    ${MTK_PLAT_SOC}/plat_debug.c                          \
                    ${MTK_PLAT_SOC}/scu.c
