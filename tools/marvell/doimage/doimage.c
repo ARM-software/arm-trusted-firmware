@@ -1563,13 +1563,9 @@ error:
 
 int write_boot_image(uint8_t *buf, uint32_t image_size, FILE *out_fd)
 {
-	int aligned_size;
 	int written;
 
-	/* Image size must be aligned to 4 bytes */
-	aligned_size = (image_size + 3) & (~0x3);
-
-	written = fwrite(buf, aligned_size, 1, out_fd);
+	written = fwrite(buf, image_size, 1, out_fd);
 	if (written != 1) {
 		fprintf(stderr, "Error: Failed to write boot image\n");
 		goto error;
@@ -1591,7 +1587,7 @@ int main(int argc, char *argv[])
 	int ext_cnt = 0;
 	int opt;
 	int ret = 0;
-	int image_size;
+	int image_size, file_size;
 	uint8_t *image_buf = NULL;
 	int read;
 	size_t len;
@@ -1687,16 +1683,18 @@ int main(int argc, char *argv[])
 		goto main_exit;
 	}
 
-	/* Read the input file to buffer */
-	image_size = get_file_size(in_file);
-	image_buf = calloc((image_size + AES_BLOCK_SZ - 1) &
-			   ~(AES_BLOCK_SZ - 1), 1);
+	/* Read the input file to buffer
+	 * Always align the image to 16 byte boundary
+	 */
+	file_size  = get_file_size(in_file);
+	image_size = (file_size + AES_BLOCK_SZ - 1) & ~(AES_BLOCK_SZ - 1);
+	image_buf  = calloc(image_size, 1);
 	if (image_buf == NULL) {
 		fprintf(stderr, "Error: failed allocating input buffer\n");
 		return 1;
 	}
 
-	read = fread(image_buf, image_size, 1, in_fd);
+	read = fread(image_buf, file_size, 1, in_fd);
 	if (read != 1) {
 		fprintf(stderr, "Error: failed to read input file\n");
 		goto main_exit;
