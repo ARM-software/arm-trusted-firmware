@@ -11,7 +11,7 @@
 #include <common/debug.h>
 #include <drivers/arm/cci.h>
 #include <drivers/arm/gicv2.h>
-#include <drivers/console.h>
+#include <drivers/ti/uart/uart_16550.h>
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
@@ -543,12 +543,14 @@ int plat_validate_power_state(unsigned int power_state,
 
 void mtk_system_pwr_domain_resume(void)
 {
-	console_init(MT8173_UART0_BASE, MT8173_UART_CLOCK, MT8173_BAUDRATE);
+	console_switch_state(CONSOLE_FLAG_BOOT);
 
 	/* Assert system power domain is available on the platform */
 	assert(PLAT_MAX_PWR_LVL >= MTK_PWR_LVL2);
 
 	plat_arm_gic_init();
+
+	console_switch_state(CONSOLE_FLAG_RUNTIME);
 }
 
 static const plat_psci_ops_t plat_plat_pm_ops = {
