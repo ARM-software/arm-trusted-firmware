@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,6 +16,7 @@
 #include <mt_gic_v3.h>
 #include <lib/mmio.h>
 #include <mtk_plat_common.h>
+#include <mtspmc.h>
 #include <plat_debug.h>
 #include <plat_private.h>
 #include <platform_def.h>
@@ -95,6 +96,10 @@ void bl31_platform_setup(void)
 
 	/* Init mcsi SF */
 	plat_mtk_cci_init_sf();
+
+#if SPMC_MODE == 1
+	spmc_init();
+#endif
 }
 
 /*******************************************************************************

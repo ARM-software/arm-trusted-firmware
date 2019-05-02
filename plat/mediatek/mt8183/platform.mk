@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2019, MediaTek Inc. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -9,6 +9,7 @@ MTK_PLAT_SOC  := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT_SOC}/drivers/                       \
+                 -I${MTK_PLAT_SOC}/drivers/spmc/                  \
                  -I${MTK_PLAT_SOC}/include/
 
 PLAT_BL_COMMON_SOURCES := lib/xlat_tables/aarch64/xlat_tables.c       \
@@ -35,9 +36,11 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                    ${MTK_PLAT_SOC}/aarch64/platform_common.c             \
                    ${MTK_PLAT_SOC}/drivers/mcsi/mcsi.c                   \
+                   ${MTK_PLAT_SOC}/drivers/spmc/mtspmc.c                 \
                    ${MTK_PLAT_SOC}/plat_pm.c                             \
                    ${MTK_PLAT_SOC}/plat_topology.c                       \
                    ${MTK_PLAT_SOC}/plat_mt_gic.c                         \
+                   ${MTK_PLAT_SOC}/plat_dcm.c                            \
                    ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
                    ${MTK_PLAT_SOC}/plat_debug.c                          \
                    ${MTK_PLAT_SOC}/scu.c

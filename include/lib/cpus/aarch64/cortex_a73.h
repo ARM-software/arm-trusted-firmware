@@ -35,4 +35,11 @@
 
 #define CORTEX_A73_IMP_DEF_REG2		S3_0_C15_C0_2
 
+/*******************************************************************************
+ * Helper function to access a73_cpuectlr_el1 register on Cortex-A73 CPUs
+ ******************************************************************************/
+#ifndef __ASSEMBLY__
+DEFINE_RENAME_SYSREG_RW_FUNCS(a73_cpuectlr_el1, CORTEX_A73_CPUECTLR_EL1)
+#endif
+
 #endif /* CORTEX_A73_H */
