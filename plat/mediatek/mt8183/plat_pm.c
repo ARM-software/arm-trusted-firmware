@@ -22,6 +22,8 @@
 #include <plat_dcm.h>
 #include <plat_debug.h>
 #include <plat_private.h>
+#include <pmic.h>
+#include <rtc.h>
 
 #define MTK_LOCAL_STATE_OFF     2
 
@@ -115,6 +117,22 @@ static void plat_mtk_power_domain_on_finish(const psci_power_state_t *state)
 }
 
 /*******************************************************************************
+ * MTK handlers to shutdown/reboot the system
+ ******************************************************************************/
+static void __dead2 plat_mtk_system_off(void)
+{
+	INFO("MTK System Off\n");
+
+	rtc_power_off_sequence();
+	wk_pmic_enable_sdn_delay();
+	pmic_power_off();
+
+	wfi();
+	ERROR("MTK System Off: operation not handled.\n");
+	panic();
+}
+
+/*******************************************************************************
  * MTK_platform handler called when an affinity instance is about to be turned
  * on. The level and mpidr determine the affinity instance.
  ******************************************************************************/
@@ -125,7 +143,7 @@ static const plat_psci_ops_t plat_plat_pm_ops = {
 	.pwr_domain_off			= plat_mtk_power_domain_off,
 	.pwr_domain_suspend		= NULL,
 	.pwr_domain_suspend_finish	= NULL,
-	.system_off			= NULL,
+	.system_off			= plat_mtk_system_off,
 	.system_reset			= NULL,
 	.validate_power_state		= NULL,
 	.get_sys_suspend_power_state	= NULL,
