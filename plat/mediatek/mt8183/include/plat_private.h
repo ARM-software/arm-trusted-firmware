@@ -17,10 +17,10 @@ void plat_configure_mmu_el3(uintptr_t total_base,
 			    uintptr_t coh_start,
 			    uintptr_t coh_limit);
 
-void plat_cci_init(void);
-void plat_cci_enable(void);
-void plat_cci_disable(void);
-void plat_cci_init_sf(void);
+void plat_mtk_cci_init(void);
+void plat_mtk_cci_enable(void);
+void plat_mtk_cci_disable(void);
+void plat_mtk_cci_init_sf(void);
 
 /* Declarations for plat_topology.c */
 int mt_setup_topology(void);

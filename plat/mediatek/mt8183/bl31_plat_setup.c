@@ -96,6 +96,9 @@ void bl31_platform_setup(void)
 	/* Initialize the GIC driver, CPU and distributor interfaces */
 	mt_gic_driver_init();
 	mt_gic_init();
+
+	/* Init mcsi SF */
+	plat_mtk_cci_init_sf();
 }
 
 /*******************************************************************************
@@ -104,6 +107,9 @@ void bl31_platform_setup(void)
  ******************************************************************************/
 void bl31_plat_arch_setup(void)
 {
+	plat_mtk_cci_init();
+	plat_mtk_cci_enable();
+
 	enable_scu(read_mpidr());
 
 	plat_configure_mmu_el3(BL_CODE_BASE,
