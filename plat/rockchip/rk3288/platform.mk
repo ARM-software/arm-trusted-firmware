@@ -11,6 +11,8 @@ RK_PLAT			:=	plat/rockchip
 RK_PLAT_SOC		:=	${RK_PLAT}/${PLAT}
 RK_PLAT_COMMON		:=	${RK_PLAT}/common
 
+DISABLE_BIN_GENERATION	:=	1
+
 PLAT_INCLUDES		:=	-I${RK_PLAT_COMMON}/				\
 				-I${RK_PLAT_COMMON}/include/			\
 				-I${RK_PLAT_COMMON}/aarch32/			\

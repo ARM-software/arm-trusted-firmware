@@ -369,6 +369,10 @@ Common build options
 -  ``DEBUG``: Chooses between a debug and release build. It can take either 0
    (release) or 1 (debug) as values. 0 is the default.
 
+-  ``DISABLE_BIN_GENERATION``: Boolean option to disable the generation
+   of the binary image. If set to 1, then only the ELF image is built.
+   0 is the default.
+
 -  ``DYN_DISABLE_AUTH``: Provides the capability to dynamically disable Trusted
    Board Boot authentication at runtime. This option is meant to be enabled only
    for development platforms. ``TRUSTED_BOARD_BOOT`` flag must be set if this
