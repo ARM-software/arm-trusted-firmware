@@ -1,60 +1,55 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/debug.h>
 #include <cdefs.h>
-#include <stdbool.h>
-
 #include <drivers/arm/smmu_v3.h>
 #include <lib/mmio.h>
 
-static inline uint32_t __init smmuv3_read_s_idr1(uintptr_t base)
-{
-	return mmio_read_32(base + SMMU_S_IDR1);
-}
+/* SMMU poll number of retries */
+#define SMMU_POLL_RETRY		1000000
 
-static inline uint32_t __init smmuv3_read_s_init(uintptr_t base)
+static int __init smmuv3_poll(uintptr_t smmu_reg, uint32_t mask,
+				uint32_t value)
 {
-	return mmio_read_32(base + SMMU_S_INIT);
-}
+	uint32_t reg_val, retries = SMMU_POLL_RETRY;
 
-static inline void __init smmuv3_write_s_init(uintptr_t base, uint32_t value)
-{
-	mmio_write_32(base + SMMU_S_INIT, value);
-}
+	do {
+		reg_val = mmio_read_32(smmu_reg);
+		if ((reg_val & mask) == value)
+			return 0;
+	} while (--retries != 0U);
 
-/* Test for pending invalidate */
-static inline bool smmuv3_inval_pending(uintptr_t base)
-{
-	return (smmuv3_read_s_init(base) & SMMU_S_INIT_INV_ALL_MASK) != 0U;
+	ERROR("Failed to poll SMMUv3 register @%p\n", (void *)smmu_reg);
+	ERROR("Read value 0x%x, expected 0x%x\n", reg_val,
+		value == 0U ? reg_val & ~mask : reg_val | mask);
+	return -1;
 }
 
 /*
  * Initialize the SMMU by invalidating all secure caches and TLBs.
- *
- * Returns 0 on success, and -1 on failure.
+ * Abort all incoming transactions in order to implement a default
+ * deny policy on reset
  */
 int __init smmuv3_init(uintptr_t smmu_base)
 {
-	uint32_t idr1_reg;
-
 	/*
 	 * Invalidation of secure caches and TLBs is required only if the SMMU
 	 * supports secure state. If not, it's implementation defined as to how
 	 * SMMU_S_INIT register is accessed.
 	 */
-	idr1_reg = smmuv3_read_s_idr1(smmu_base);
-	if (((idr1_reg >> SMMU_S_IDR1_SECURE_IMPL_SHIFT) &
-			SMMU_S_IDR1_SECURE_IMPL_MASK) == 0U) {
-		return -1;
+	if ((mmio_read_32(smmu_base + SMMU_S_IDR1) &
+			SMMU_S_IDR1_SECURE_IMPL) != 0U) {
+
+		/* Initiate invalidation */
+		mmio_write_32(smmu_base + SMMU_S_INIT, SMMU_S_INIT_INV_ALL);
+
+		/* Wait for global invalidation operation to finish */
+		return smmuv3_poll(smmu_base + SMMU_S_INIT,
+					SMMU_S_INIT_INV_ALL, 0U);
 	}
-
-	/* Initiate invalidation, and wait for it to finish */
-	smmuv3_write_s_init(smmu_base, SMMU_S_INIT_INV_ALL_MASK);
-	while (smmuv3_inval_pending(smmu_base))
-		;
-
 	return 0;
 }
