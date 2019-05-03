@@ -365,6 +365,22 @@ func check_errata_1275112
 	b	cpu_rev_var_ls
 endfunc check_errata_1275112
 
+	/* ---------------------------------------------------
+	 * Errata Workaround for Cortex A76 Errata #1286807.
+	 * This applies only to revision <= r3p0 of Cortex A76.
+	 * Due to the nature of the errata it is applied unconditionally
+	 * when built in, report it as applicable in this case
+	 * ---------------------------------------------------
+	 */
+func check_errata_1286807
+#if ERRATA_A76_1286807
+	mov x0, #ERRATA_APPLIES
+	ret
+#else
+	mov	x1, #0x30
+	b	cpu_rev_var_ls
+#endif
+endfunc check_errata_1286807
 
 func check_errata_cve_2018_3639
 #if WORKAROUND_CVE_2018_3639
@@ -502,6 +518,7 @@ func cortex_a76_errata_report
 	report_errata ERRATA_A76_1262606, cortex_a76, 1262606
 	report_errata ERRATA_A76_1262888, cortex_a76, 1262888
 	report_errata ERRATA_A76_1275112, cortex_a76, 1275112
+	report_errata ERRATA_A76_1286807, cortex_a76, 1286807
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a76, cve_2018_3639
 	report_errata ERRATA_DSU_798953, cortex_a76, dsu_798953
 	report_errata ERRATA_DSU_936184, cortex_a76, dsu_936184
