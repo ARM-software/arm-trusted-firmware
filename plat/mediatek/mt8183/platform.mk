@@ -31,6 +31,7 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    drivers/delay_timer/generic_delay_timer.c             \
                    drivers/gpio/gpio.c                                   \
                    drivers/ti/uart/aarch64/16550_console.S               \
+                   lib/bl_aux_params/bl_aux_params.c                     \
                    lib/cpus/aarch64/aem_generic.S                        \
                    lib/cpus/aarch64/cortex_a53.S                         \
                    lib/cpus/aarch64/cortex_a73.S                         \
@@ -38,6 +39,7 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT}/common/mtk_plat_common.c                  \
                    ${MTK_PLAT}/common/drivers/pmic_wrap/pmic_wrap_init.c \
                    ${MTK_PLAT}/common/drivers/rtc/rtc_common.c           \
+                   ${MTK_PLAT}/common/params_setup.c                     \
                    ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                    ${MTK_PLAT_SOC}/aarch64/platform_common.c             \
                    ${MTK_PLAT_SOC}/drivers/mcsi/mcsi.c                   \

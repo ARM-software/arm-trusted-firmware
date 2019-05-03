@@ -18,6 +18,7 @@
 #include <mtk_plat_common.h>
 #include <mtspmc.h>
 #include <plat_debug.h>
+#include <plat_params.h>
 #include <plat_private.h>
 #include <platform_def.h>
 #include <scu.h>
@@ -73,6 +74,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
 	static console_16550_t console;
+
+	params_early_setup(arg1);
 
 	console_16550_register(UART0_BASE, UART_CLOCK, UART_BAUDRATE, &console);
 
