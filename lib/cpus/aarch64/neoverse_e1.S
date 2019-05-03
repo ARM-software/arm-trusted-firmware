@@ -11,6 +11,11 @@
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
+/* Hardware handled coherency */
+#if HW_ASSISTED_COHERENCY == 0
+#error "Neoverse E1 must be compiled with HW_ASSISTED_COHERENCY enabled"
+#endif
+
 func neoverse_e1_cpu_pwr_dwn
 	mrs	x0, NEOVERSE_E1_CPUPWRCTLR_EL1
 	orr	x0, x0, #NEOVERSE_E1_CPUPWRCTLR_EL1_CORE_PWRDN_BIT

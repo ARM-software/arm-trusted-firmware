@@ -10,6 +10,11 @@
 #include <cpuamu.h>
 #include <cpu_macros.S>
 
+/* Hardware handled coherency */
+#if HW_ASSISTED_COHERENCY == 0
+#error "Neoverse N1 must be compiled with HW_ASSISTED_COHERENCY enabled"
+#endif
+
 /* --------------------------------------------------
  * Errata Workaround for Neoverse N1 Errata
  * This applies to revision r0p0 and r1p0 of Neoverse N1.

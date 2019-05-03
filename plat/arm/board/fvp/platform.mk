@@ -95,18 +95,25 @@ PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/fvp/fvp_common.c
 FVP_CPU_LIBS		:=	lib/cpus/${ARCH}/aem_generic.S
 
 ifeq (${ARCH}, aarch64)
-FVP_CPU_LIBS		+=	lib/cpus/aarch64/cortex_a35.S			\
+
+# select a different set of CPU files, depending on whether we compile with
+# hardware assisted coherency configurations or not
+ifeq (${HW_ASSISTED_COHERENCY}, 0)
+	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a35.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
-				lib/cpus/aarch64/cortex_a55.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
-				lib/cpus/aarch64/cortex_a73.S			\
+				lib/cpus/aarch64/cortex_a73.S
+else
+	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S			\
 				lib/cpus/aarch64/cortex_a75.S			\
 				lib/cpus/aarch64/cortex_a76.S			\
 				lib/cpus/aarch64/cortex_a76ae.S			\
 				lib/cpus/aarch64/neoverse_n1.S			\
+				lib/cpus/aarch64/neoverse_e1.S			\
 				lib/cpus/aarch64/cortex_deimos.S		\
 				lib/cpus/aarch64/neoverse_zeus.S
+endif
 
 else
 FVP_CPU_LIBS		+=	lib/cpus/aarch32/cortex_a32.S
@@ -217,10 +224,13 @@ ENABLE_PIE		:=	1
 endif
 
 ifeq (${ENABLE_AMU},1)
-BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a75_pubsub.c	\
-				lib/cpus/aarch64/neoverse_n1_pubsub.c	\
-				lib/cpus/aarch64/cpuamu.c		\
+BL31_SOURCES		+=	lib/cpus/aarch64/cpuamu.c		\
 				lib/cpus/aarch64/cpuamu_helpers.S
+
+ifeq (${HW_ASSISTED_COHERENCY}, 1)
+BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a75_pubsub.c	\
+				lib/cpus/aarch64/neoverse_n1_pubsub.c
+endif
 endif
 
 ifeq (${RAS_EXTENSION},1)

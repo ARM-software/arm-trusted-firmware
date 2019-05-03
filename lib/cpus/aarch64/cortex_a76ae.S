@@ -8,6 +8,11 @@
 #include <cortex_a76ae.h>
 #include <cpu_macros.S>
 
+/* Hardware handled coherency */
+#if HW_ASSISTED_COHERENCY == 0
+#error "Cortex-A76AE must be compiled with HW_ASSISTED_COHERENCY enabled"
+#endif
+
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------
