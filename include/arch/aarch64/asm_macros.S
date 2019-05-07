@@ -12,9 +12,9 @@
 
 /*
  * TLBI instruction with type specifier that implements the workaround for
- * errata 813419 of Cortex-A57.
+ * errata 813419 of Cortex-A57 or errata 1286807 of Cortex-A76.
  */
-#if ERRATA_A57_813419
+#if ERRATA_A57_813419 || ERRATA_A76_1286807
 #define TLB_INVALIDATE(_type) \
 	tlbi	_type; \
 	dsb	ish; \
