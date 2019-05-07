@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+
 #include <platform_def.h>
 
 #include <lib/xlat_tables/xlat_tables_v2.h>
@@ -52,4 +54,15 @@ void configure_mmu(void)
 	init_xlat_tables();
 
 	enable_mmu_svc_mon(0);
+}
+
+unsigned long stm32_get_gpio_bank_clock(unsigned int bank)
+{
+	if (bank == GPIO_BANK_Z) {
+		return GPIOZ;
+	}
+
+	assert(GPIO_BANK_A == 0 && bank <= GPIO_BANK_K);
+
+	return GPIOA + (bank - GPIO_BANK_A);
 }

@@ -98,17 +98,6 @@ uintptr_t stm32_get_gpio_bank_base(unsigned int bank)
 	return GPIOA_BASE + (bank * GPIO_BANK_OFFSET);
 }
 
-unsigned long stm32_get_gpio_bank_clock(unsigned int bank)
-{
-	if (bank == GPIO_BANK_Z) {
-		return GPIOZ;
-	}
-
-	assert(GPIO_BANK_A == 0 && bank <= GPIO_BANK_K);
-
-	return GPIOA + (bank - GPIO_BANK_A);
-}
-
 uint32_t stm32_get_gpio_bank_offset(unsigned int bank)
 {
 	if (bank == GPIO_BANK_Z) {
