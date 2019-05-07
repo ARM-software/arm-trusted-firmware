@@ -454,14 +454,20 @@ endif
 # registers associated to it are also saved and restored. Not doing it would
 # leak the value of the key used by EL3 to EL1 and S-EL1.
 ifeq ($(ENABLE_PAUTH),1)
-    ifeq ($(CTX_INCLUDE_PAUTH_REGS),0)
+    ifneq ($(ARCH),aarch64)
+        $(error ENABLE_PAUTH=1 requires AArch64)
+    else ifeq ($(CTX_INCLUDE_PAUTH_REGS),0)
         $(error ENABLE_PAUTH=1 requires CTX_INCLUDE_PAUTH_REGS=1)
     else
         $(info ENABLE_PAUTH and CTX_INCLUDE_PAUTH_REGS are experimental features)
     endif
 else
     ifeq ($(CTX_INCLUDE_PAUTH_REGS),1)
-        $(info CTX_INCLUDE_PAUTH_REGS is an experimental feature)
+        ifneq ($(ARCH),aarch64)
+            $(error CTX_INCLUDE_PAUTH_REGS=1 requires AArch64)
+        else
+            $(info CTX_INCLUDE_PAUTH_REGS is an experimental feature)
+        endif
     endif
 endif
 
