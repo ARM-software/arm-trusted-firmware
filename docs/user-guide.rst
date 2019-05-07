@@ -359,12 +359,17 @@ Common build options
    registers to be included when saving and restoring the CPU context. Default
    is 0.
 
--  ``CTX_INCLUDE_PAUTH_REGS``: Boolean option that, when set to 1, enables
-   Pointer Authentication for Secure world. This will cause the ARMv8.3-PAuth
-   registers to be included when saving and restoring the CPU context as
-   part of world switch. Default value is 0 and this is an experimental feature.
-   Note that Pointer Authentication is enabled for Non-secure world irrespective
-   of the value of this flag if the CPU supports it.
+-  ``CTX_INCLUDE_PAUTH_REGS``: Boolean option that, when set to 1, allows
+   Pointer Authentication for **Secure world**. This will cause the
+   Armv8.3-PAuth registers to be included when saving and restoring the CPU
+   context as part of a world switch. Default value is 0. Pointer Authentication
+   is an experimental feature.
+
+   Note that, if the CPU supports it, Pointer Authentication is allowed for
+   Non-secure world irrespectively of the value of this flag. "Allowed" means
+   that accesses to PAuth-related registers or execution of PAuth-related
+   instructions will not be trapped to EL3. As such, usage or not of PAuth in
+   Non-secure world images, depends on those images themselves.
 
 -  ``DEBUG``: Chooses between a debug and release build. It can take either 0
    (release) or 1 (debug) as values. 0 is the default.
@@ -417,12 +422,12 @@ Common build options
    partitioning in EL3, however. Platform initialisation code should configure
    and use partitions in EL3 as required. This option defaults to ``0``.
 
--  ``ENABLE_PAUTH``: Boolean option to enable ARMv8.3 Pointer Authentication
-  support for TF-A BL images itself. If enabled, it is needed to use a compiler
-  that supports the option ``-msign-return-address``. This flag defaults to 0
-  and this is an experimental feature.
-  Note that Pointer Authentication is enabled for Non-secure world irrespective
-  of the value of this flag if the CPU supports it.
+-  ``ENABLE_PAUTH``: Boolean option to enable Armv8.3 Pointer Authentication
+   for **TF-A BL images themselves**. If enabled, the compiler must support the
+   ``-msign-return-address`` option. This flag defaults to 0. Pointer
+   Authentication is an experimental feature.
+
+   If this flag is enabled, ``CTX_INCLUDE_PAUTH_REGS`` must also be enabled.
 
 -  ``ENABLE_PIE``: Boolean option to enable Position Independent Executable(PIE)
    support within generic code in TF-A. This option is currently only supported
