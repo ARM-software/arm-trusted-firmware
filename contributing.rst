@@ -107,6 +107,23 @@ Submitting Changes
       `Maintainers`_ will ask you to create a new patch set to resolve the
       problem.
 
+Binary Components
+-----------------
+
+-  Platforms may depend on binary components submitted to the `Trusted Firmware
+   binary repository`_ if they require code that the contributor is unable or
+   unwilling to open-source. This should be used as a rare exception.
+-  All binary components must follow the contribution guidelines (in particular
+   licensing rules) outlined in the `readme.rst <tf-binaries-readme_>`_ file of
+   the binary repository.
+-  Binary components must be restricted to only the specific functionality that
+   cannot be open-sourced and must be linked into a larger open-source platform
+   port. The majority of the platform port must still be implemented in open
+   source. Platform ports that are merely a thin wrapper around a binary
+   component that contains all the actual code will not be accepted.
+-  Only platform port code (i.e. in the ``plat/<vendor>`` directory) may rely on
+   binary components. Generic code must always be fully open-source.
+
 --------------
 
 *Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
@@ -128,3 +145,5 @@ Submitting Changes
 .. _Gerrit Signed-off-by Lines guidelines: https://review.trustedfirmware.org/Documentation/user-signedoffby.html
 .. _Gerrit Change-Ids documentation: https://review.trustedfirmware.org/Documentation/user-changeid.html
 .. _TF-A Tests: https://git.trustedfirmware.org/TF-A/tf-a-tests.git/about/
+.. _Trusted Firmware binary repository: https://review.trustedfirmware.org/admin/repos/tf-binaries
+.. _tf-binaries-readme: https://git.trustedfirmware.org/tf-binaries.git/tree/readme.rst
