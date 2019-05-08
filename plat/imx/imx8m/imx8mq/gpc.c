@@ -119,17 +119,21 @@ void imx_gpc_init(void)
 	uint32_t val;
 	int i;
 	/* mask all the interrupt by default */
+	for (i = 0; i < 4; i++) {
+		mmio_write_32(IMX_GPC_BASE + IMR1_CORE0_A53 + i * 4, ~0x0);
+		mmio_write_32(IMX_GPC_BASE + IMR1_CORE1_A53 + i * 4, ~0x0);
+		mmio_write_32(IMX_GPC_BASE + IMR1_CORE2_A53 + i * 4, ~0x0);
+		mmio_write_32(IMX_GPC_BASE + IMR1_CORE3_A53 + i * 4, ~0x0);
+		mmio_write_32(IMX_GPC_BASE + IMR1_CORE0_M4 + i * 4, ~0x0);
+	}
 	/* Due to the hardware design requirement, need to make
 	 * sure GPR interrupt(#32) is unmasked during RUN mode to
 	 * avoid entering DSM mode by mistake.
 	 */
-	for (i = 0; i < 4; i++) {
-		mmio_write_32(IMX_GPC_BASE + IMR1_CORE0_A53 + i * 4, 0xFFFFFFFE);
-		mmio_write_32(IMX_GPC_BASE + IMR1_CORE1_A53 + i * 4, 0xFFFFFFFE);
-		mmio_write_32(IMX_GPC_BASE + IMR1_CORE2_A53 + i * 4, 0xFFFFFFFE);
-		mmio_write_32(IMX_GPC_BASE + IMR1_CORE3_A53 + i * 4, 0xFFFFFFFE);
-		mmio_write_32(IMX_GPC_BASE + IMR1_CORE0_M4 + i * 4, ~0x0);
-	}
+	mmio_write_32(IMX_GPC_BASE + IMR1_CORE0_A53, 0xFFFFFFFE);
+	mmio_write_32(IMX_GPC_BASE + IMR1_CORE1_A53, 0xFFFFFFFE);
+	mmio_write_32(IMX_GPC_BASE + IMR1_CORE2_A53, 0xFFFFFFFE);
+	mmio_write_32(IMX_GPC_BASE + IMR1_CORE3_A53, 0xFFFFFFFE);
 
 	/* use external IRQs to wakeup C0~C3 from LPM */
 	val = mmio_read_32(IMX_GPC_BASE + LPCR_A53_BSC);
@@ -162,4 +166,7 @@ void imx_gpc_init(void)
 	 */
 	mmio_clrbits_32(IMX_SRC_BASE + SRC_OTG1PHY_SCR, 0x1);
 	mmio_clrbits_32(IMX_SRC_BASE + SRC_OTG2PHY_SCR, 0x1);
+
+	/* enable all the power domain by default */
+	mmio_write_32(IMX_GPC_BASE + PU_PGC_UP_TRG, 0x3fcf);
 }
