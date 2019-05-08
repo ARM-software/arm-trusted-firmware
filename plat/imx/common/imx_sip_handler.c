@@ -14,6 +14,8 @@
 #include <imx_sip_svc.h>
 #include <sci/sci.h>
 
+#if defined(PLAT_IMX8QM) || defined(PLAT_IMX8QX)
+
 #ifdef PLAT_IMX8QM
 const static int ap_cluster_index[PLATFORM_CLUSTER_COUNT] = {
 	SC_R_A53, SC_R_A72,
@@ -138,6 +140,8 @@ int imx_misc_set_temp_handler(uint32_t smc_fid,
 {
 	return sc_misc_set_temp(ipc_handle, x1, x2, x3, x4);
 }
+
+#endif /* defined(PLAT_IMX8QM) || defined(PLAT_IMX8QX) */
 
 static uint64_t imx_get_commit_hash(u_register_t x2,
 		    u_register_t x3,
