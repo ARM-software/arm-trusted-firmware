@@ -28,8 +28,8 @@ Allwinner ARMv8 platform port
 
 Amlogic Meson S905 (GXBB) platform port
 ---------------------------------------
-:M: Antonio Niño Díaz <antonio.ninodiaz@arm.com>
-:G: `antonio-nino-diaz-arm`_
+:M: Andre Przywara <andre.przywara@arm.com>
+:G: `Andre-ARM`_
 :F: docs/plat/meson-gxbb.rst
 :F: drivers/meson/
 :F: plat/meson/gxbb/
@@ -183,8 +183,6 @@ QEMU platform port
 
 Raspberry Pi 3 platform port
 ----------------------------
-:M: Antonio Niño Díaz <antonio.ninodiaz@arm.com>
-:G: `antonio-nino-diaz-arm`_
 :M: Ying-Chun Liu (PaulLiu) <paul.liu@linaro.org>
 :G: `grandpaul`_
 :F: docs/plat/rpi3.rst
@@ -264,7 +262,6 @@ Xilinx platform port
 
 .. _Andre-ARM: https://github.com/Andre-ARM
 .. _Anson-Huang: https://github.com/Anson-Huang
-.. _antonio-nino-diaz-arm: https://github.com/antonio-nino-diaz-arm
 .. _bryanodonoghue: https://github.com/bryanodonoghue
 .. _b49020: https://github.com/b49020
 .. _danh-arm: https://github.com/danh-arm
