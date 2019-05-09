@@ -31,5 +31,6 @@
 #define SMMU_S_GBPA_ABORT		(1UL << 20)
 
 int smmuv3_init(uintptr_t smmu_base);
+int smmuv3_security_init(uintptr_t smmu_base);
 
 #endif /* SMMU_V3_H */

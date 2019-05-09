@@ -30,26 +30,63 @@ static int __init smmuv3_poll(uintptr_t smmu_reg, uint32_t mask,
 }
 
 /*
+ * Abort all incoming transactions in order to implement a default
+ * deny policy on reset.
+ */
+int __init smmuv3_security_init(uintptr_t smmu_base)
+{
+	/* Attribute update has completed when SMMU_(S)_GBPA.Update bit is 0 */
+	if (smmuv3_poll(smmu_base + SMMU_GBPA, SMMU_GBPA_UPDATE, 0U) != 0U)
+		return -1;
+
+	/*
+	 * SMMU_(S)_CR0 resets to zero with all streams bypassing the SMMU,
+	 * so just abort all incoming transactions.
+	 */
+	mmio_setbits_32(smmu_base + SMMU_GBPA,
+			SMMU_GBPA_UPDATE | SMMU_GBPA_ABORT);
+
+	if (smmuv3_poll(smmu_base + SMMU_GBPA, SMMU_GBPA_UPDATE, 0U) != 0U)
+		return -1;
+
+	/* Check if the SMMU supports secure state */
+	if ((mmio_read_32(smmu_base + SMMU_S_IDR1) &
+				SMMU_S_IDR1_SECURE_IMPL) == 0U)
+		return 0;
+
+	/* Abort all incoming secure transactions */
+	if (smmuv3_poll(smmu_base + SMMU_S_GBPA, SMMU_S_GBPA_UPDATE, 0U) != 0U)
+		return -1;
+
+	mmio_setbits_32(smmu_base + SMMU_S_GBPA,
+			SMMU_S_GBPA_UPDATE | SMMU_S_GBPA_ABORT);
+
+	return smmuv3_poll(smmu_base + SMMU_S_GBPA, SMMU_S_GBPA_UPDATE, 0U);
+}
+
+/*
  * Initialize the SMMU by invalidating all secure caches and TLBs.
  * Abort all incoming transactions in order to implement a default
  * deny policy on reset
  */
 int __init smmuv3_init(uintptr_t smmu_base)
 {
-	/*
-	 * Invalidation of secure caches and TLBs is required only if the SMMU
-	 * supports secure state. If not, it's implementation defined as to how
-	 * SMMU_S_INIT register is accessed.
-	 */
+	/* Abort all incoming transactions */
+	if (smmuv3_security_init(smmu_base) != 0)
+		return -1;
+
+	/* Check if the SMMU supports secure state */
 	if ((mmio_read_32(smmu_base + SMMU_S_IDR1) &
-			SMMU_S_IDR1_SECURE_IMPL) != 0U) {
+				SMMU_S_IDR1_SECURE_IMPL) == 0U)
+		return 0;
+	/*
+	 * Initiate invalidation of secure caches and TLBs if the SMMU
+	 * supports secure state. If not, it's implementation defined
+	 * as to how SMMU_S_INIT register is accessed.
+	 */
+	mmio_write_32(smmu_base + SMMU_S_INIT, SMMU_S_INIT_INV_ALL);
 
-		/* Initiate invalidation */
-		mmio_write_32(smmu_base + SMMU_S_INIT, SMMU_S_INIT_INV_ALL);
-
-		/* Wait for global invalidation operation to finish */
-		return smmuv3_poll(smmu_base + SMMU_S_INIT,
-					SMMU_S_INIT_INV_ALL, 0U);
-	}
-	return 0;
+	/* Wait for global invalidation operation to finish */
+	return smmuv3_poll(smmu_base + SMMU_S_INIT,
+				SMMU_S_INIT_INV_ALL, 0U);
 }
