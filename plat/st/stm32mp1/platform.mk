@@ -49,8 +49,7 @@ PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 
 PLAT_BL_COMMON_SOURCES	+=	lib/cpus/aarch32/cortex_a7.S
 
-PLAT_BL_COMMON_SOURCES	+=	${LIBFDT_SRCS}						\
-				drivers/arm/tzc/tzc400.c				\
+PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 				drivers/delay_timer/delay_timer.c			\
 				drivers/delay_timer/generic_delay_timer.c		\
 				drivers/st/bsec/bsec.c					\
