@@ -27,6 +27,7 @@
 
 static const mmap_region_t imx_mmap[] = {
 	MAP_REGION_FLAT(GPV_BASE, GPV_SIZE, MT_DEVICE | MT_RW), /* GPV map */
+	MAP_REGION_FLAT(IMX_ROM_BASE, IMX_ROM_SIZE, MT_MEMORY | MT_RO), /* ROM map */
 	MAP_REGION_FLAT(IMX_AIPS_BASE, IMX_AIPS_SIZE, MT_DEVICE | MT_RW), /* AIPS map */
 	MAP_REGION_FLAT(IMX_GIC_BASE, IMX_GIC_SIZE, MT_DEVICE | MT_RW), /* GIC map */
 	{0},
@@ -34,6 +35,45 @@ static const mmap_region_t imx_mmap[] = {
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
+
+static uint32_t imx_soc_revision;
+
+int imx_soc_info_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2,
+				u_register_t x3)
+{
+	return imx_soc_revision;
+}
+
+#define ANAMIX_DIGPROG		0x6c
+#define ROM_SOC_INFO_A0		0x800
+#define ROM_SOC_INFO_B0		0x83C
+#define OCOTP_SOC_INFO_B1	0x40
+
+static void imx8mq_soc_info_init(void)
+{
+	uint32_t rom_version;
+	uint32_t ocotp_val;
+
+	imx_soc_revision = mmio_read_32(IMX_ANAMIX_BASE + ANAMIX_DIGPROG);
+	rom_version = mmio_read_8(IMX_ROM_BASE + ROM_SOC_INFO_A0);
+	if (rom_version == 0x10)
+		return;
+
+	rom_version = mmio_read_8(IMX_ROM_BASE + ROM_SOC_INFO_B0);
+	if (rom_version == 0x20) {
+		imx_soc_revision &= ~0xff;
+		imx_soc_revision |= rom_version;
+		return;
+	}
+
+	/* 0xff0055aa is magic number for B1 */
+	ocotp_val = mmio_read_32(IMX_OCOTP_BASE + OCOTP_SOC_INFO_B1);
+	if (ocotp_val == 0xff0055aa) {
+		imx_soc_revision &= ~0xff;
+		imx_soc_revision |= 0x21;
+		return;
+	}
+}
 
 /* get SPSR for BL33 entry */
 static uint32_t get_spsr_for_bl33_entry(void)
@@ -127,6 +167,9 @@ void bl31_platform_setup(void)
 	/* init the GICv3 cpu and distributor interface */
 	plat_gic_driver_init();
 	plat_gic_init();
+
+	/* determine SOC revision for erratas */
+	imx8mq_soc_info_init();
 
 	/* gpc init */
 	imx_gpc_init();
