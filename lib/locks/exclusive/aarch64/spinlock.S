@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,8 +39,6 @@
 
 #if USE_CAS
 
-	.arch	armv8.1-a
-
 /*
  * Acquire lock using Compare and Swap instruction.
  *
@@ -59,8 +57,6 @@ func spin_lock
 	cbnz	w1, 1b
 	ret
 endfunc spin_lock
-
-	.arch	armv8-a
 
 #else /* !USE_CAS */
 
