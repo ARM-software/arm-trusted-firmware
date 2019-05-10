@@ -6,6 +6,8 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <cortex_a72.h>
+#include <cpu_macros.S>
 #include <platform_def.h>
 
 #define K3_BOOT_REASON_COLD_RESET 0x1
@@ -88,6 +90,26 @@ func plat_my_core_pos
 out:
 	ret
 endfunc plat_my_core_pos
+
+	/* --------------------------------------------------------------------
+	 * This handler does the following:
+	 * - Set the L2 Data RAM latency to 2 (i.e. 3 cycles) for Cortex-A72
+	 * --------------------------------------------------------------------
+	 */
+	.globl plat_reset_handler
+func plat_reset_handler
+	/* Only on Cortex-A72 */
+	jump_if_cpu_midr CORTEX_A72_MIDR, a72
+	ret
+
+	/* Cortex-A72 specific settings */
+a72:
+	mrs x0, CORTEX_A72_L2CTLR_EL1
+	orr x0, x0, #(CORTEX_A72_L2_DATA_RAM_LATENCY_3_CYCLES << CORTEX_A72_L2CTLR_DATA_RAM_LATENCY_SHIFT)
+	msr CORTEX_A72_L2CTLR_EL1, x0
+	isb
+	ret
+endfunc plat_reset_handler
 
 	/* ---------------------------------------------
 	 * int plat_crash_console_init(void)
