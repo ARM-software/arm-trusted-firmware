@@ -127,7 +127,7 @@ PSCI Library Interface
 ----------------------
 
 The PSCI library implements the `PSCI Specification`_. The interfaces
-to this library are declared in ``psci.h`` and are as listed below:
+to this library are declared in ``psci_lib.h`` and are as listed below:
 
 .. code:: c
 
@@ -186,7 +186,7 @@ Interface : psci_setup()
 This function is to be called by the primary CPU during cold boot before
 any other interface to the PSCI library. It takes ``lib_args``, a const pointer
 to ``psci_lib_args_t``, as the argument. The ``psci_lib_args_t`` is a versioned
-structure and is declared in ``psci.h`` header as follows:
+structure and is declared in ``psci_lib.h`` header as follows:
 
 .. code:: c
 
@@ -200,9 +200,9 @@ structure and is declared in ``psci.h`` header as follows:
 The first field ``h``, of ``param_header_t`` type, provides the version
 information. The second field ``mailbox_ep`` is the warm boot entrypoint address
 and is used to configure the platform mailbox. Helper macros are provided in
-psci.h to construct the ``lib_args`` argument statically or during runtime. Prior
-to calling the ``psci_setup()`` interface, the platform setup for cold boot
-must have completed. Major actions performed by this interface are:
+``psci_lib.h`` to construct the ``lib_args`` argument statically or during
+runtime. Prior to calling the ``psci_setup()`` interface, the platform setup for
+cold boot must have completed. Major actions performed by this interface are:
 
 -  Initializes architecture.
 -  Initializes PSCI power domain and state coordination data structures.
