@@ -6,10 +6,29 @@
 
 #include <assert.h>
 
+#include <libfdt.h>
+
 #include <platform_def.h>
 
 #include <drivers/st/stm32_iwdg.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+
+/* Internal layout of the 32bit OTP word board_id */
+#define BOARD_ID_BOARD_NB_MASK		GENMASK(31, 16)
+#define BOARD_ID_BOARD_NB_SHIFT		16
+#define BOARD_ID_VARIANT_MASK		GENMASK(15, 12)
+#define BOARD_ID_VARIANT_SHIFT		12
+#define BOARD_ID_REVISION_MASK		GENMASK(11, 8)
+#define BOARD_ID_REVISION_SHIFT		8
+#define BOARD_ID_BOM_MASK		GENMASK(3, 0)
+
+#define BOARD_ID2NB(_id)		(((_id) & BOARD_ID_BOARD_NB_MASK) >> \
+					 BOARD_ID_BOARD_NB_SHIFT)
+#define BOARD_ID2VAR(_id)		(((_id) & BOARD_ID_VARIANT_MASK) >> \
+					 BOARD_ID_VARIANT_SHIFT)
+#define BOARD_ID2REV(_id)		(((_id) & BOARD_ID_REVISION_MASK) >> \
+					 BOARD_ID_REVISION_SHIFT)
+#define BOARD_ID2BOM(_id)		((_id) & BOARD_ID_BOM_MASK)
 
 #define MAP_SRAM	MAP_REGION_FLAT(STM32MP_SYSRAM_BASE, \
 					STM32MP_SYSRAM_SIZE, \
@@ -186,6 +205,53 @@ void stm32mp_print_cpuinfo(void)
 	}
 
 	NOTICE("CPU: STM32MP%s%s Rev.%s\n", cpu_s, pkg, cpu_r);
+}
+
+void stm32mp_print_boardinfo(void)
+{
+	uint32_t board_id;
+	uint32_t board_otp;
+	int bsec_node, bsec_board_id_node;
+	void *fdt;
+	const fdt32_t *cuint;
+
+	if (fdt_get_address(&fdt) == 0) {
+		panic();
+	}
+
+	bsec_node = fdt_node_offset_by_compatible(fdt, -1, DT_BSEC_COMPAT);
+	if (bsec_node < 0) {
+		return;
+	}
+
+	bsec_board_id_node = fdt_subnode_offset(fdt, bsec_node, "board_id");
+	if (bsec_board_id_node <= 0) {
+		return;
+	}
+
+	cuint = fdt_getprop(fdt, bsec_board_id_node, "reg", NULL);
+	if (cuint == NULL) {
+		panic();
+	}
+
+	board_otp = fdt32_to_cpu(*cuint) / sizeof(uint32_t);
+
+	if (bsec_shadow_read_otp(&board_id, board_otp) != BSEC_OK) {
+		ERROR("BSEC: PART_NUMBER_OTP Error\n");
+		return;
+	}
+
+	if (board_id != 0U) {
+		char rev[2];
+
+		rev[0] = BOARD_ID2REV(board_id) - 1 + 'A';
+		rev[1] = '\0';
+		NOTICE("Board: MB%04x Var%d Rev.%s-%02d\n",
+		       BOARD_ID2NB(board_id),
+		       BOARD_ID2VAR(board_id),
+		       rev,
+		       BOARD_ID2BOM(board_id));
+	}
 }
 
 uint32_t stm32_iwdg_get_instance(uintptr_t base)

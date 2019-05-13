@@ -59,6 +59,9 @@ uint32_t stm32_get_gpio_bank_offset(unsigned int bank);
 /* Print CPU information */
 void stm32mp_print_cpuinfo(void);
 
+/* Print board information */
+void stm32mp_print_boardinfo(void);
+
 /*
  * Util for clock gating and to get clock rate for stm32 and platform drivers
  * @id: Target clock ID, ID used in clock DT bindings
