@@ -14,9 +14,9 @@
 #include <tools_share/tbbr_oid.h>
 
 #include <common/debug.h>
-#include <drivers/arm/cryptocell/sbrom_bsv_api.h>
-#include <drivers/arm/cryptocell/nvm.h>
-#include <drivers/arm/cryptocell/nvm_otp.h>
+#include <drivers/arm/cryptocell/712/sbrom_bsv_api.h>
+#include <drivers/arm/cryptocell/712/nvm.h>
+#include <drivers/arm/cryptocell/712/nvm_otp.h>
 
 /*
  * Return the ROTPK hash
