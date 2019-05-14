@@ -25,6 +25,9 @@ ERRATA_A53_855873	:=	1
 # A72 Erratum for SoC
 ERRATA_A72_859971	:=	1
 
+CRASH_REPORTING		:= 1
+HANDLE_EA_EL3_FIRST	:= 1
+
 # Split out RO data into a non-executable section
 SEPARATE_CODE_AND_RODATA :=    1
 
