@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -302,5 +302,4 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
  * Register crypto library descriptor
  */
 REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash);
-
 

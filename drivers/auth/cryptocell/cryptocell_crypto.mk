@@ -20,7 +20,8 @@ endif
 TF_LDFLAGS		+= -L$(CCSBROM_LIB_PATH)
 LDLIBS			+= -lcc_712sbromx509
 
-CRYPTOCELL_SOURCES	:=	drivers/auth/cryptocell/cryptocell_crypto.c
+CRYPTOCELL_SOURCES	:= drivers/auth/cryptocell/cryptocell_crypto.c \
+			   drivers/auth/cryptocell/cryptocell_plat_helpers.c
 
-BL1_SOURCES		+=	${CRYPTOCELL_SOURCES}
-BL2_SOURCES		+=	${CRYPTOCELL_SOURCES}
+BL1_SOURCES		+= ${CRYPTOCELL_SOURCES}
+BL2_SOURCES		+= ${CRYPTOCELL_SOURCES}
