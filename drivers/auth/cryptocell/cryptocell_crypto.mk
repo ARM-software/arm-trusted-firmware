@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -22,6 +22,8 @@ endif
 CRYPTOCELL_VERSION ?= 712
 ifeq (${CRYPTOCELL_VERSION},712)
   CCSBROM_LIB_FILENAME := cc_712sbromx509
+else ifeq (${CRYPTOCELL_VERSION},713)
+  CCSBROM_LIB_FILENAME	:= cc_713bsv
 else
   $(error Error: CRYPTOCELL_VERSION set to invalid version)
 endif

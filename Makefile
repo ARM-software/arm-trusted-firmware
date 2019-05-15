@@ -39,12 +39,20 @@ PLAT				:= ${DEFAULT_PLAT}
 
 CHECKCODE_ARGS		:=	--no-patch
 # Do not check the coding style on imported library files or documentation files
+INC_ARM_DIRS_TO_CHECK	:=	$(sort $(filter-out                     \
+					include/drivers/arm/cryptocell,	\
+					$(wildcard include/drivers/arm/*)))
+INC_ARM_DIRS_TO_CHECK	+=	include/drivers/arm/cryptocell/*.h
+INC_DRV_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
+					include/drivers/arm,		\
+					$(wildcard include/drivers/*)))
 INC_LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					include/lib/libfdt		\
 					include/lib/libc,		\
 					$(wildcard include/lib/*)))
 INC_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
-					include/lib,			\
+					include/lib			\
+					include/drivers,		\
 					$(wildcard include/*)))
 LIB_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 					lib/compiler-rt			\
@@ -60,7 +68,9 @@ ROOT_DIRS_TO_CHECK	:=	$(sort $(filter-out			\
 CHECK_PATHS		:=	${ROOT_DIRS_TO_CHECK}			\
 				${INC_DIRS_TO_CHECK}			\
 				${INC_LIB_DIRS_TO_CHECK}		\
-				${LIB_DIRS_TO_CHECK}
+				${LIB_DIRS_TO_CHECK}			\
+				${INC_DRV_DIRS_TO_CHECK}		\
+				${INC_ARM_DIRS_TO_CHECK}
 
 
 ################################################################################
