@@ -26,3 +26,8 @@ void plat_arm_secure_wdt_stop(void)
 {
 	sp805_stop(ARM_SP805_TWDG_BASE);
 }
+
+void bl1_platform_setup(void)
+{
+	arm_bl1_platform_setup();
+}
