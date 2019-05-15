@@ -704,7 +704,7 @@ static void ufs_enum(void)
 	ufs_verify_ready();
 
 	ufs_set_flag(FLAG_DEVICE_INIT);
-	mdelay(100);
+	mdelay(200);
 	/* dump available LUNs */
 	for (i = 0; i < UFS_MAX_LUNS; i++) {
 		ufs_read_capacity(i, &blk_num, &blk_size);
