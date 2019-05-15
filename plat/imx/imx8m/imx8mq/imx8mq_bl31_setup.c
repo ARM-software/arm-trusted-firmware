@@ -25,13 +25,6 @@
 #include <imx_uart.h>
 #include <plat_imx8.h>
 
-IMPORT_SYM(uintptr_t, __COHERENT_RAM_START__, BL31_COHERENT_RAM_START);
-IMPORT_SYM(uintptr_t, __COHERENT_RAM_END__, BL31_COHERENT_RAM_END);
-IMPORT_SYM(uintptr_t, __RO_START__, BL31_RO_START);
-IMPORT_SYM(uintptr_t, __RO_END__, BL31_RO_END);
-IMPORT_SYM(uintptr_t, __RW_START__, BL31_RW_START);
-IMPORT_SYM(uintptr_t, __RW_END__, BL31_RW_END);
-
 static const mmap_region_t imx_mmap[] = {
 	MAP_REGION_FLAT(GPV_BASE, GPV_SIZE, MT_DEVICE | MT_RW), /* GPV map */
 	MAP_REGION_FLAT(IMX_AIPS_BASE, IMX_AIPS_SIZE, MT_DEVICE | MT_RW), /* AIPS map */
@@ -109,16 +102,16 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void bl31_plat_arch_setup(void)
 {
-	mmap_add_region(BL31_RO_START, BL31_RO_START, (BL31_RO_END - BL31_RO_START),
-		MT_MEMORY | MT_RO | MT_SECURE);
-	mmap_add_region(BL31_RW_START, BL31_RW_START, (BL31_RW_END - BL31_RW_START),
+	mmap_add_region(BL31_BASE, BL31_BASE, (BL31_LIMIT - BL31_BASE),
 		MT_MEMORY | MT_RW | MT_SECURE);
+	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE, (BL_CODE_END - BL_CODE_BASE),
+		MT_MEMORY | MT_RO | MT_SECURE);
 
 	mmap_add(imx_mmap);
 
 #if USE_COHERENT_MEM
-	mmap_add_region(BL31_COHERENT_RAM_START, BL31_COHERENT_RAM_START,
-		BL31_COHERENT_RAM_END - BL31_COHERENT_RAM_START,
+	mmap_add_region(BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_BASE,
+		BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,
 		MT_DEVICE | MT_RW | MT_SECURE);
 #endif
 	/* setup xlat table */
