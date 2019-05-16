@@ -49,11 +49,31 @@ func check_errata_1043202
 	b	cpu_rev_var_ls
 endfunc check_errata_1043202
 
+/* --------------------------------------------------
+ * Disable speculative loads if Neoverse N1 supports
+ * SSBS.
+ *
+ * Shall clobber: x0.
+ * --------------------------------------------------
+ */
+func neoverse_n1_disable_speculative_loads
+	/* Check if the PE implements SSBS */
+	mrs	x0, id_aa64pfr1_el1
+	tst	x0, #(ID_AA64PFR1_EL1_SSBS_MASK << ID_AA64PFR1_EL1_SSBS_SHIFT)
+	b.eq	1f
+
+	/* Disable speculative loads */
+	msr	SSBS, xzr
+	isb
+
+1:
+	ret
+endfunc neoverse_n1_disable_speculative_loads
+
 func neoverse_n1_reset_func
 	mov	x19, x30
 
-	/* Disables speculative loads */
-	msr	SSBS, xzr
+	bl neoverse_n1_disable_speculative_loads
 
 	/* Forces all cacheable atomic instructions to be near */
 	mrs	x0, NEOVERSE_N1_CPUACTLR2_EL1

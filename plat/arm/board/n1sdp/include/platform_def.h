@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,6 +24,7 @@
 #define PLAT_ARM_CRASH_UART_BASE		PLAT_ARM_RUN_UART_BASE
 #define PLAT_ARM_CRASH_UART_CLK_IN_HZ		PLAT_ARM_RUN_UART_CLK_IN_HZ
 
+#define PLAT_ARM_DRAM2_BASE			ULL(0x8080000000)
 #define PLAT_ARM_DRAM2_SIZE			ULL(0x780000000)
 
 #if CSS_USE_SCMI_SDS_DRIVER

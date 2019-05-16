@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -54,7 +54,7 @@
  * Required platform porting definitions common to all ARM CSS-based
  * development platforms
  */
-
+#define PLAT_ARM_DRAM2_BASE			ULL(0x880000000)
 #define PLAT_ARM_DRAM2_SIZE			ULL(0x180000000)
 
 /* UART related constants */
