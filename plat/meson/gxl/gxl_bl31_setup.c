@@ -70,12 +70,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/* Initialize the console to provide early debug support */
 	gxbb_console_init();
 
-	/*
-	 * In debug builds, we pass a special value in 'arg1' to verify platform
-	 * parameters from BL2 to BL31. In release builds it's not used.
-	 */
-	assert(arg1 == GXBB_BL31_PLAT_PARAM_VAL);
-
 	/* Check that params passed from BL2 are not NULL. */
 	from_bl2 = (struct gxl_bl31_param *) arg0;
 
