@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -100,12 +100,8 @@ uint32_t init_ddr(void)
 
 #if RCAR_DRAM_DDR3L_MEMCONF == 0
    WriteReg_32(DBSC_E3_DBMEMCONF00, 0x0f030a02); /*  1GB */
-#elif RCAR_DRAM_DDR3L_MEMCONF == 1
-   WriteReg_32(DBSC_E3_DBMEMCONF00, 0x10030a02); /*  2GB(default) */
-#elif RCAR_DRAM_DDR3L_MEMCONF == 2
-   WriteReg_32(DBSC_E3_DBMEMCONF00, 0x10030b02); /*  4GB */
 #else
-   WriteReg_32(DBSC_E3_DBMEMCONF00, 0x10030a02); /*  2GB */
+   WriteReg_32(DBSC_E3_DBMEMCONF00, 0x10030a02); /*  2GB(default) */
 #endif
 
 #if RCAR_DRAM_DDR3L_MEMDUAL == 1
@@ -894,10 +890,6 @@ uint32_t recovery_from_backup_mode(void)
 
 #if RCAR_DRAM_DDR3L_MEMCONF == 0
    WriteReg_32(DBSC_E3_DBMEMCONF00, 0x0f030a02);
-#elif RCAR_DRAM_DDR3L_MEMCONF == 1
-   WriteReg_32(DBSC_E3_DBMEMCONF00, 0x10030a02);
-#elif RCAR_DRAM_DDR3L_MEMCONF == 2
-   WriteReg_32(DBSC_E3_DBMEMCONF00, 0x10030b02);
 #else
    WriteReg_32(DBSC_E3_DBMEMCONF00, 0x10030a02);
 #endif
