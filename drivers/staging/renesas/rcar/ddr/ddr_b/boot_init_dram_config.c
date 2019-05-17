@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define BOARDNUM 20
+#define BOARDNUM 22
 #define BOARD_JUDGE_AUTO
 
 #ifdef BOARD_JUDGE_AUTO
@@ -1425,6 +1425,108 @@ static const struct _boardcnf boardcnfs[BOARDNUM] = {
 	  }
 	 }
 	},
+/* boardcnf[20] RENESAS KRIEK 16Gbit/2rank/2ch board with M3-W/SoC */
+        {
+         0x03,
+         0x01,
+         0x02c0,
+         0,
+         0x0300,
+         0x00a0,
+         {
+          {
+           {0x04, 0x04},
+            0x00345201,
+            0x3201,
+           {0x01672543, 0x45361207, 0x45632107, 0x60715234},
+           {0x08, 0x08, 0x08, 0x08},
+            WDQLVL_PAT,
+           {0, 0, 0, 0, 0, 0, 0, 0,
+	    0, 0},
+           {0, 0, 0, 0},
+           {0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0},
+           {0, 0, 0, 0},
+           {0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0}
+           },
+          {
+	   {0x04, 0x04},
+            0x00302154,
+            0x2310,
+           {0x01672543, 0x45361207, 0x45632107, 0x60715234},
+           {0x08, 0x08, 0x08, 0x08},
+           WDQLVL_PAT,
+           {0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0},
+           {0, 0, 0, 0},
+           {0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0},
+           {0, 0, 0, 0},
+           {0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0}
+          }
+         }
+        },
+/* boardcnf[21] RENESAS KRIEK 16Gbit/1rank/2ch board with M3-W/SoC */
+        {
+         0x03,
+         0x01,
+         0x02c0,
+         0,
+         0x0300,
+         0x00a0,
+         {
+          {
+           {0x04, 0xff},
+            0x00345201,
+            0x3201,
+           {0x01672543, 0x45361207, 0x45632107, 0x60715234},
+           {0x08, 0x08, 0x08, 0x08},
+           WDQLVL_PAT,
+           {0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0},
+           {0, 0, 0, 0},
+           {0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0},
+           {0, 0, 0, 0},
+           {0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0}
+           },
+          {
+           {0x04, 0xff},
+            0x00302154,
+            0x2310,
+           {0x01672543, 0x45361207, 0x45632107, 0x60715234},
+           {0x08, 0x08, 0x08, 0x08},
+           WDQLVL_PAT,
+           {0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0},
+           {0, 0, 0, 0},
+           {0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0},
+           {0, 0, 0, 0},
+           {0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0}
+           }
+          }
+         }
 };
 
 void boardcnf_get_brd_clk(uint32_t brd, uint32_t * clk, uint32_t * div)
@@ -1522,10 +1624,10 @@ static const uint32_t TermcodeBySample[20][3] = {
 #define GPIO_INDT5	0xE605500CU
 #define GPIO_INDT6	0xE605540CU
 
-#define BIT25 		(1<<25)
-#define BIT22 		(1<<22)
-#define BIT15 		(1<<15)
-#define BIT0  		(1)
+#define BIT25 		BIT(25)
+#define BIT22 		BIT(22)
+#define BIT15 		BIT(15)
+#define BIT0  		BIT(0)
 #define GPIO_GPSR6 	(0xE6060118U)
 
 #if (RCAR_GEN3_ULCB == 0)
@@ -1673,7 +1775,7 @@ static uint32_t _board_judge(void)
 			/* RENESAS SALVATOR-X (M3-W/SIP) */
 			brd = 0;
 		} else if ((Prr_Product == PRR_PRODUCT_M3) && (Prr_Cut < PRR_PRODUCT_30)) {
-			/* RENESAS SALVATOR-X (M3-W Ver.1.3/SIP) */
+			/* RENESAS SALVATOR-X (M3-W Ver.1.x/SIP) */
 			brd = 19;
 		} else if ((Prr_Product == PRR_PRODUCT_M3) && (Prr_Cut >= PRR_PRODUCT_30)) {
 			/* RENESAS SALVATOR-X (M3-W ver.3.0/SIP) */
