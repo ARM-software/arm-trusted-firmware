@@ -18,6 +18,8 @@ struct ras_error {
 
 /* RAS error node-specific auxiliary data */
 struct ras_aux_data {
+	/* name for current RAS node. */
+	const char *name;
 	/* point to null-terminated ras_error array to convert error code to msg. */
 	const struct ras_error *error_records;
 	/*
@@ -218,6 +220,7 @@ static inline uint64_t node##_err_ctrl(void)					\
 
 #define DEFINE_ONE_RAS_AUX_DATA(node)						\
 	{									\
+		.name = #node,							\
 		.error_records = node##_uncorr_ras_errors,			\
 		.err_ctrl = &node##_err_ctrl					\
 	},
