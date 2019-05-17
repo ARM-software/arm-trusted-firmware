@@ -20,7 +20,6 @@
 #include <drivers/generic_delay_timer.h>
 #include <drivers/st/stm32mp_clkfunc.h>
 #include <drivers/st/stm32mp1_clk.h>
-#include <drivers/st/stm32mp1_clkfunc.h>
 #include <drivers/st/stm32mp1_rcc.h>
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
 #include <lib/mmio.h>
@@ -39,6 +38,15 @@
 #define CLKDIV_TIMEOUT		TIMEOUT_US_200MS
 #define HSIDIV_TIMEOUT		TIMEOUT_US_200MS
 #define OSCRDY_TIMEOUT		TIMEOUT_US_1S
+
+const char *stm32mp_osc_node_label[NB_OSC] = {
+	[_LSI] = "clk-lsi",
+	[_LSE] = "clk-lse",
+	[_HSI] = "clk-hsi",
+	[_HSE] = "clk-hse",
+	[_CSI] = "clk-csi",
+	[_I2S_CKIN] = "i2s_ckin",
+};
 
 enum stm32mp1_parent_id {
 /* Oscillators are defined in enum stm32mp_osc_id */
