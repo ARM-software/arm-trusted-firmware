@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018, Renesas Electronics Corporation. All rights reserved.
+# Copyright (c) 2018-2019, Renesas Electronics Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -12,6 +12,7 @@ RESET_TO_BL31			:= 1
 GENERATE_COT			:= 1
 BL2_AT_EL3			:= 1
 ENABLE_SVE_FOR_NS		:= 0
+MULTI_CONSOLE_API		:= 1
 
 CRASH_REPORTING			:= 1
 HANDLE_EA_EL3_FIRST		:= 1
