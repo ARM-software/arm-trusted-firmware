@@ -163,6 +163,10 @@ void bl2_el3_plat_arch_setup(void)
 	uintptr_t pwr_base;
 	uintptr_t rcc_base;
 
+	if (bsec_probe() != 0U) {
+		panic();
+	}
+
 	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE,
 			BL_CODE_END - BL_CODE_BASE,
 			MT_CODE | MT_SECURE);
@@ -203,10 +207,6 @@ void bl2_el3_plat_arch_setup(void)
 
 	while ((mmio_read_32(pwr_base + PWR_CR1) & PWR_CR1_DBP) == 0U) {
 		;
-	}
-
-	if (bsec_probe() != 0) {
-		panic();
 	}
 
 	/* Reset backup domain on cold boot cases */

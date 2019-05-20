@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,14 +7,14 @@
 #include <assert.h>
 #include <errno.h>
 
-#include <platform_def.h>
-
 #include <common/debug.h>
 #include <drivers/st/bsec.h>
+#include <drivers/st/bsec2_reg.h>
 #include <drivers/st/stm32mp1_rcc.h>
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
 
+#include <platform_def.h>
 #include <stm32mp1_dbgmcu.h>
 
 #define DBGMCU_IDC		U(0x00)

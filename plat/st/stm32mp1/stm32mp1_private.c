@@ -536,8 +536,8 @@ uint32_t stm32_iwdg_shadow_update(uint32_t iwdg_inst, uint32_t flags)
 	}
 
 	/* Sticky lock OTP_IWDG (read and write) */
-	if (!bsec_write_sr_lock(HW2_OTP, 1U) ||
-	    !bsec_write_sw_lock(HW2_OTP, 1U)) {
+	if ((bsec_set_sr_lock(HW2_OTP) != BSEC_OK) ||
+	    (bsec_set_sw_lock(HW2_OTP) != BSEC_OK)) {
 		return BSEC_LOCK_FAIL;
 	}
 

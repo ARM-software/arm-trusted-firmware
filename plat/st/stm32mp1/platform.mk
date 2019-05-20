@@ -216,7 +216,7 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 				drivers/clk/clk.c					\
 				drivers/delay_timer/delay_timer.c			\
 				drivers/delay_timer/generic_delay_timer.c		\
-				drivers/st/bsec/bsec.c					\
+				drivers/st/bsec/bsec2.c					\
 				drivers/st/clk/stm32mp_clkfunc.c			\
 				drivers/st/clk/stm32mp1_clk.c				\
 				drivers/st/ddr/stm32mp_ddr.c				\
