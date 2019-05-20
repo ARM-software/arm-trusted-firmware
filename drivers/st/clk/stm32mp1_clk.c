@@ -1912,9 +1912,18 @@ static void stm32mp1_osc_init(void)
 	}
 }
 
+static void sync_earlyboot_clocks_state(void)
+{
+	if (!stm32mp_is_single_core()) {
+		stm32mp1_clk_enable_secure(RTCAPB);
+	}
+}
+
 int stm32mp1_clk_probe(void)
 {
 	stm32mp1_osc_init();
+
+	sync_earlyboot_clocks_state();
 
 	return 0;
 }
