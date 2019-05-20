@@ -58,6 +58,5 @@
 
 #define DEBUG_CONSOLE			0
 #define DEBUG_CONSOLE_A35		0
-#define PLAT_IMX8QX			1
 
 #endif /* PLATFORM_DEF_H */
