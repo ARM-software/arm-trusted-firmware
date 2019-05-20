@@ -16,7 +16,7 @@
 #endif
 
 /* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Errata
+ * Errata Workaround for Neoverse N1 Erratum 1043202.
  * This applies to revision r0p0 and r1p0 of Neoverse N1.
  * Inputs:
  * x0: variant[4:7] and revision[0:3] of current cpu.
@@ -70,6 +70,35 @@ func neoverse_n1_disable_speculative_loads
 	ret
 endfunc neoverse_n1_disable_speculative_loads
 
+/* --------------------------------------------------
+ * Errata Workaround for Neoverse N1 Erratum 1315703.
+ * This applies to revision <= r3p0 of Neoverse N1.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
+func errata_n1_1315703_wa
+	/* Compare x0 against revision r3p1 */
+	mov	x17, x30
+	bl	check_errata_1315703
+	cbz	x0, 1f
+
+	mrs	x0, NEOVERSE_N1_CPUACTLR2_EL1
+	orr	x0, x0, #NEOVERSE_N1_CPUACTLR2_EL1_BIT_16
+	msr	NEOVERSE_N1_CPUACTLR2_EL1, x0
+	isb
+
+1:
+	ret	x17
+endfunc errata_n1_1315703_wa
+
+func check_errata_1315703
+	/* Applies to everything <= r3p0. */
+	mov	x1, #0x30
+	b	cpu_rev_var_ls
+endfunc check_errata_1315703
+
 func neoverse_n1_reset_func
 	mov	x19, x30
 
@@ -87,6 +116,11 @@ func neoverse_n1_reset_func
 #if ERRATA_N1_1043202
 	mov	x0, x18
 	bl	errata_n1_1043202_wa
+#endif
+
+#if ERRATA_N1_1315703
+	mov	x0, x18
+	bl	errata_n1_1315703_wa
 #endif
 
 #if ENABLE_AMU
@@ -141,6 +175,7 @@ func neoverse_n1_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata ERRATA_N1_1043202, neoverse_n1, 1043202
+	report_errata ERRATA_N1_1315703, neoverse_n1, 1315703
 
 	ldp	x8, x30, [sp], #16
 	ret

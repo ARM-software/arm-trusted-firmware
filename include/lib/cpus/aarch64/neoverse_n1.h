@@ -35,7 +35,8 @@
  ******************************************************************************/
 #define NEOVERSE_N1_CPUACTLR2_EL1	S3_0_C15_C1_1
 
-#define NEOVERSE_N1_CPUACTLR2_EL1_BIT_2	(ULL(1) << 2)
+#define NEOVERSE_N1_CPUACTLR2_EL1_BIT_2		(ULL(1) << 2)
+#define NEOVERSE_N1_CPUACTLR2_EL1_BIT_16	(ULL(1) << 16)
 
 /* Instruction patching registers */
 #define CPUPSELR_EL3	S3_6_C15_C8_0

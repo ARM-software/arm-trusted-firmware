@@ -226,6 +226,9 @@ For Cortex-A76, the following errata build flags are defined :
 -  ``ERRATA_A76_1275112``: This applies errata 1275112 workaround to Cortex-A76
    CPU. This needs to be enabled only for revision <= r3p0 of the CPU.
 
+-  ``ERRATA_N1_1315703``: This applies errata 1315703 workaround to Neoverse-N1
+   CPU. This needs to be enabled only for revision <= r3p0 of the CPU.
+
 DSU Errata Workarounds
 ----------------------
 
