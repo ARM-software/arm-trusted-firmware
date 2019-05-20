@@ -239,10 +239,14 @@ enum ddr_type {
 
 /* OTP offsets */
 #define DATA0_OTP			U(0)
+#define HW2_OTP				U(18)
 
 /* OTP mask */
 /* DATA0 */
 #define DATA0_OTP_SECURED		BIT(6)
+
+/* HW2 OTP */
+#define HW2_OTP_PRODUCT_BELOW_2V5	BIT(13)
 
 /*******************************************************************************
  * STM32MP1 TAMP
@@ -277,5 +281,6 @@ static inline uint32_t tamp_bkpr(uint32_t idx)
  ******************************************************************************/
 #define DT_PWR_COMPAT			"st,stm32mp1-pwr"
 #define DT_RCC_CLK_COMPAT		"st,stm32mp1-rcc"
+#define DT_SYSCFG_COMPAT		"st,stm32mp157-syscfg"
 
 #endif /* STM32MP1_DEF_H */

@@ -146,6 +146,12 @@
 	status = "okay";
 };
 
+&pwr {
+	pwr-regulators {
+		vdd-supply = <&vdd>;
+	};
+};
+
 &rng1 {
 	status = "okay";
 };

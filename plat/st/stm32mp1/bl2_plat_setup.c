@@ -15,6 +15,7 @@
 #include <common/desc_image_load.h>
 #include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
+#include <drivers/st/bsec.h>
 #include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32mp_pmic.h>
 #include <drivers/st/stm32mp_reset.h>
@@ -211,6 +212,10 @@ void bl2_el3_plat_arch_setup(void)
 		;
 	}
 
+	if (bsec_probe() != 0) {
+		panic();
+	}
+
 	/* Reset backup domain on cold boot cases */
 	if ((mmio_read_32(rcc_base + RCC_BDCR) & RCC_BDCR_RTCSRC_MASK) == 0U) {
 		mmio_setbits_32(rcc_base + RCC_BDCR, RCC_BDCR_VSWRST);
@@ -235,6 +240,8 @@ void bl2_el3_plat_arch_setup(void)
 	if (stm32mp1_clk_init() < 0) {
 		panic();
 	}
+
+	stm32mp1_syscfg_init();
 
 	result = dt_get_stdout_uart_info(&dt_uart_info);
 

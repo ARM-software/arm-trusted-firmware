@@ -41,6 +41,8 @@ uint32_t dt_get_ddr_size(void);
 uintptr_t dt_get_ddrctrl_base(void);
 uintptr_t dt_get_ddrphyc_base(void);
 uintptr_t dt_get_pwr_base(void);
+uint32_t dt_get_pwr_vdd_voltage(void);
+uintptr_t dt_get_syscfg_base(void);
 const char *dt_get_board_model(void);
 
 #endif /* STM32MP_DT_H */
