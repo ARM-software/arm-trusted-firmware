@@ -19,6 +19,14 @@ do
 		build=$2
 		shift 2
 		;;
+	--bti=*)
+		enable_bti=$(echo $1 | sed 's/--bti=\(.*\)/\1/')
+		shift 1
+		;;
+	--asflags=*)
+		asflags=$(echo $1 | sed 's/--asflags=\(.*\)/\1/')
+		shift 1
+		;;
 	--)
 		shift
 		break
@@ -30,8 +38,13 @@ do
 	esac
 done
 
-awk  '{sub(/[:blank:]*#.*/,"")}
-!/^$/ && $NF != "patch" && $NF != "reserved" {print $1*4, $2, $3}' "$@" |
+awk -v BTI=$enable_bti '
+{sub(/[:blank:]*#.*/,"")}
+!/^$/ && $NF != "patch" && $NF != "reserved" {
+		if (BTI == 1)
+			print $1*8, $2, $3
+		else
+			print $1*4, $2, $3}' "$@" |
 while read idx lib sym
 do
 	file=$build/${lib}_$sym
@@ -39,14 +52,20 @@ do
 	cat <<EOF > $file.s
 	.globl	$sym
 $sym:
+EOF
+if [ $enable_bti = 1 ]
+then
+	echo "\tbti\tjc" >> $file.s
+fi
+	cat <<EOF >> $file.s
 	ldr	x17, =jmptbl
-	ldr	x17, [x17]
 	mov	x16, #$idx
+	ldr	x17, [x17]
 	add	x16, x16, x17
 	br	x16
 EOF
 
-	${CROSS_COMPILE}as -o $file.o $file.s
+	${CROSS_COMPILE}as ${asflags} -o $file.o $file.s
 done
 
 ${CROSS_COMPILE}ar -rc $out $build/*.o

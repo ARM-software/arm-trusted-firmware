@@ -29,6 +29,11 @@ ifeq ($(DEBUG),1)
    LDFLAGS += -Map=$(MAPFILE)
 endif
 
+ifeq (${ARM_ARCH_MINOR},0)
+	ASFLAGS = -march=armv8-a
+else
+	ASFLAGS = -march=armv8.${ARM_ARCH_MINOR}-a
+endif
 
 .PHONY: all clean distclean
 
@@ -60,13 +65,13 @@ $(WRAPPER_DIR)/jmpvar.s: $(BUILD_DIR)/romlib.elf
 
 $(LIB_DIR)/libwrappers.a: $(BUILD_DIR)/jmptbl.i $(WRAPPER_DIR)/jmpvar.o
 	@echo "  AR      $@"
-	$(Q)./genwrappers.sh -b $(WRAPPER_DIR) -o $@ $(BUILD_DIR)/jmptbl.i
+	$(Q)./genwrappers.sh -b $(WRAPPER_DIR) -o $@ --bti=$(ENABLE_BTI) --asflags=$(ASFLAGS) $(BUILD_DIR)/jmptbl.i
 
 $(BUILD_DIR)/jmptbl.i: $(BUILD_DIR)/jmptbl.s
 
 $(BUILD_DIR)/jmptbl.s: ../../$(PLAT_DIR)/jmptbl.i
 	@echo "  TBL     $@"
-	$(Q)./gentbl.sh -o $@ -b $(BUILD_DIR) ../../$(PLAT_DIR)/jmptbl.i
+	$(Q)./gentbl.sh -o $@ -b $(BUILD_DIR) --bti=$(ENABLE_BTI) ../../$(PLAT_DIR)/jmptbl.i
 
 clean:
 	@rm -f $(BUILD_DIR)/*
