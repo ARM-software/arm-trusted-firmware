@@ -909,10 +909,12 @@ cscope:
 	${Q}cscope -b -q -k
 
 help:
-	@echo "usage: ${MAKE} PLAT=<${PLATFORM_LIST}> [OPTIONS] [TARGET]"
+	@echo "usage: ${MAKE} [PLAT=<platform>] [OPTIONS] [TARGET]"
 	@echo ""
 	@echo "PLAT is used to specify which platform you wish to build."
 	@echo "If no platform is specified, PLAT defaults to: ${DEFAULT_PLAT}"
+	@echo ""
+	@echo "platform = ${PLATFORM_LIST}"
 	@echo ""
 	@echo "Please refer to the User Guide for a list of all supported options."
 	@echo "Note that the build system doesn't track dependencies for build "
