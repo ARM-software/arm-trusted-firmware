@@ -2,8 +2,7 @@ Trusted Firmware-A User Guide
 =============================
 
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
 

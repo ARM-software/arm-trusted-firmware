@@ -2,8 +2,7 @@ Abstracting a Chain of Trust
 ============================
 
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
 
@@ -968,5 +967,5 @@ of SHA-256 with smaller memory footprint (~1.5 KB less) but slower (~30%).
 *Copyright (c) 2017-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _Trusted Board Boot: ./trusted-board-boot.rst
-.. _Platform Porting Guide: ./porting-guide.rst
+.. _Platform Porting Guide: ../getting_started/porting-guide.rst
 .. _TBBR-Client specification: https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a

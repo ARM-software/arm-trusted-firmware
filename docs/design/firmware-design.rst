@@ -2,8 +2,7 @@ Trusted Firmware-A design
 =========================
 
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
 
@@ -2665,19 +2664,19 @@ References
 *Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _Reset Design: ./reset-design.rst
-.. _Porting Guide: ./porting-guide.rst
+.. _Porting Guide: ../getting_started/porting-guide.rst
 .. _Firmware Update: ./firmware-update.rst
 .. _PSCI PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _SMC calling convention PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
-.. _PSCI Library integration guide: ./psci-lib-integration-guide.rst
+.. _PSCI Library integration guide: ../getting_started/psci-lib-integration-guide.rst
 .. _SMCCC: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _Power State Coordination Interface PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
-.. _here: ./psci-lib-integration-guide.rst
+.. _here: ../getting_started/psci-lib-integration-guide.rst
 .. _cpu-specific-build-macros.rst: ./cpu-specific-build-macros.rst
 .. _CPUBM: ./cpu-specific-build-macros.rst
 .. _Arm ARM: http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0487a.e/index.html
-.. _User Guide: ./user-guide.rst
+.. _User Guide: ../getting_started/user-guide.rst
 .. _SMC Calling Convention PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
 .. _TF-A Interrupt Management Design guide: ./interrupt-framework-design.rst
 .. _Xlat_tables design: xlat-tables-lib-v2-design.rst

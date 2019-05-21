@@ -1,43 +1,21 @@
-Arm Trusted Firmware-A Documentation Index
-==========================================
+Trusted Firmware-A Documentation
+================================
 
 .. toctree::
    :maxdepth: 1
-   :caption: Design Documents
+   :caption: Contents
 
-   arm-sip-service
-   auth-framework
-
-   .. toctree::
-   :maxdepth: 1
-   :caption: Release Notes
+   getting_started/index
+   process/index
+   components/index
+   design/index
+   plat/index
+   perf/index
+   security_advisories/index
+   readme
    change-log
-
-   .. toctree::
-   :maxdepth: 1
-   :caption: Guides
-
-   .. toctree::
-   :maxdepth: 1
-   :caption: Policies
-   cpu-specific-build-macros
-   exception-handling
-   firmware-design
-   firmware-update
-   interrupt-framework-design
-   platform-compatibility-policy
-   platform-interrupt-controller-API
-   porting-guide
-   psci-lib-integration-guide
-   psci-pd-tree
-   ras
-   reset-design
-   rt-svc-writers-guide
-   sdei
-   secure-partition-manager-design
-   trusted-board-boot
-   user-guide
-   xlat-tables-lib-v2-design
+   maintainers
+   acknowledgements
 
 Indices and tables
 ==================

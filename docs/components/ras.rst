@@ -1,8 +1,7 @@
 RAS support in Trusted Firmware-A
 =================================
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
     :depth: 2
@@ -45,7 +44,7 @@ be set ``1``.
 
 .. _ras-figure:
 
-.. image:: draw.io/ras.svg
+.. image:: ../draw.io/ras.svg
 
 See more on `Engaging the RAS framework`_.
 
@@ -56,7 +55,7 @@ The RAS framework allows the platform to define handlers for External Abort,
 Uncontainable Errors, Double Fault, and errors rising from EL3 execution. Please
 refer to the porting guide for the `RAS platform API descriptions`__.
 
-.. __: porting-guide.rst#external-abort-handling-and-ras-support
+.. __: ../getting_started/porting-guide.rst#external-abort-handling-and-ras-support
 
 Registering RAS error records
 -----------------------------

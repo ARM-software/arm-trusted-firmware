@@ -2,8 +2,7 @@ PSCI Power Domain Tree design
 =============================
 
 
-.. section-numbering::
-    :suffix: .
+
 
 .. contents::
 
