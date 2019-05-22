@@ -87,6 +87,14 @@ uintptr_t stm32mp_rcc_base(void)
 	return rcc_base;
 }
 
+bool stm32mp_lock_available(void)
+{
+	const uint32_t c_m_bits = SCTLR_M_BIT | SCTLR_C_BIT;
+
+	/* The spinlocks are used only when MMU and data cache are enabled */
+	return (read_sctlr() & c_m_bits) == c_m_bits;
+}
+
 uintptr_t stm32_get_gpio_bank_base(unsigned int bank)
 {
 	if (bank == GPIO_BANK_Z) {

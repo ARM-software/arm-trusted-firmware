@@ -32,20 +32,14 @@ static uintptr_t bsec_base;
 
 static void bsec_lock(void)
 {
-	const uint32_t mask = SCTLR_M_BIT | SCTLR_C_BIT;
-
-	/* Lock is currently required only when MMU and cache are enabled */
-	if ((read_sctlr() & mask) == mask) {
+	if (stm32mp_lock_available()) {
 		spin_lock(&bsec_spinlock);
 	}
 }
 
 static void bsec_unlock(void)
 {
-	const uint32_t mask = SCTLR_M_BIT | SCTLR_C_BIT;
-
-	/* Unlock is required only when MMU and cache are enabled */
-	if ((read_sctlr() & mask) == mask) {
+	if (stm32mp_lock_available()) {
 		spin_unlock(&bsec_spinlock);
 	}
 }
