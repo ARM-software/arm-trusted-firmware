@@ -1,7 +1,5 @@
-Trusted Firmware-A for Raspberry Pi 3
-=====================================
-
-
+Raspberry Pi 3
+==============
 
 .. contents::
 
@@ -167,7 +165,7 @@ Secondary cores
 ~~~~~~~~~~~~~~~
 
 This port of the Trusted Firmware-A supports ``PSCI_CPU_ON``,
-`PSCI_SYSTEM_RESET`` and ``PSCI_SYSTEM_OFF``. The last one doesn't really turn
+``PSCI_SYSTEM_RESET`` and ``PSCI_SYSTEM_OFF``. The last one doesn't really turn
 the system off, it simply reboots it and asks the VideoCore firmware to keep it
 in a low power mode permanently.
 

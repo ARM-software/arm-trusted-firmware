@@ -1,5 +1,5 @@
-Tegra SoCs - Overview
-=====================
+NVIDIA Tegra
+============
 
 -  .. rubric:: T186
       :name: t186
@@ -58,13 +58,13 @@ to extensive power-gating and dynamic voltage and clock scaling based on
 workloads.
 
 Directory structure
-===================
+-------------------
 
 -  plat/nvidia/tegra/common - Common code for all Tegra SoCs
 -  plat/nvidia/tegra/soc/txxx - Chip specific code
 
 Trusted OS dispatcher
-=====================
+---------------------
 
 Tegra supports multiple Trusted OS'.
 
@@ -83,7 +83,7 @@ Tegra210: TLK and Trusty
 Tegra186: Trusty
 
 Scatter files
-=============
+-------------
 
 Tegra platforms currently support scatter files and ld.S scripts. The scatter
 files help support ARMLINK linker to generate BL31 binaries. For now, there
@@ -93,7 +93,7 @@ the scatter file to be used. Tegra platforms have verified BL31 image generation
 with ARMCLANG (compilation) and ARMLINK (linking) for the Tegra186 platforms.
 
 Preparing the BL31 image to run on Tegra SoCs
-=============================================
+---------------------------------------------
 
 .. code:: shell
 
@@ -125,7 +125,7 @@ uint64\_t boot\_profiler\_shmem\_base;
 } plat\_params\_from\_bl2\_t;
 
 Power Management
-================
+----------------
 
 The PSCI implementation expects each platform to expose the 'power state'
 parameter to be used during the 'SYSTEM SUSPEND' call. The state-id field
@@ -133,7 +133,7 @@ is implementation defined on Tegra SoCs and is preferably defined by
 tegra\_def.h.
 
 Tegra configs
-=============
+-------------
 
 -  'tegra\_enable\_l2\_ecc\_parity\_prot': This flag enables the L2 ECC and Parity
    Protection bit, for Arm Cortex-A57 CPUs, during CPU boot. This flag will

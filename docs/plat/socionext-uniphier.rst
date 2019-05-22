@@ -1,6 +1,5 @@
-Trusted Firmware-A for Socionext UniPhier SoCs
-==============================================
-
+Socionext UniPhier
+==================
 
 Socionext UniPhier Armv8-A SoCs use Trusted Firmware-A (TF-A) as the secure
 world firmware, supporting BL2 and BL31.

@@ -1,5 +1,5 @@
-Trusted Firmware-A for STM32MP1
-===============================
+STMicroelectronics STM32MP1
+===========================
 
 STM32MP1 is a microprocessor designed by STMicroelectronics
 based on a dual Arm Cortex-A7.

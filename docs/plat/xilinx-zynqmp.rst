@@ -1,5 +1,5 @@
-Trusted Firmware-A for Xilinx Zynq UltraScale+ MPSoC
-====================================================
+Xilinx Zynq UltraScale+ MPSoC
+=============================
 
 Trusted Firmware-A (TF-A) implements the EL3 firmware layer for Xilinx Zynq
 UltraScale + MPSoC.
@@ -23,7 +23,7 @@ To build bl32 TSP you have to rebuild bl31 too:
     make CROSS_COMPILE=aarch64-none-elf- PLAT=zynqmp SPD=tspd bl31 bl32
 
 ZynqMP platform specific build options
-======================================
+--------------------------------------
 
 -  ``ZYNQMP_ATF_MEM_BASE``: Specifies the base address of the bl31 binary.
 -  ``ZYNQMP_ATF_MEM_SIZE``: Specifies the size of the memory region of the bl31 binary.
@@ -36,7 +36,7 @@ ZynqMP platform specific build options
    -  ``cadence1`` : Cadence UART 1
 
 FSBL->TF-A Parameter Passing
-===========================
+----------------------------
 
 The FSBL populates a data structure with image information for TF-A. TF-A uses
 that data to hand off to the loaded images. The address of the handoff data
@@ -45,7 +45,7 @@ register is free to be used by other software once TF-A has brought up
 further firmware images.
 
 Power Domain Tree
-=================
+-----------------
 
 The following power domain tree represents the power domain model used by TF-A
 for ZynqMP:

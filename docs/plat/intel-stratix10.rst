@@ -1,5 +1,5 @@
-Description
-===========
+Intel Stratix 10 SoCFPGA
+========================
 
 Stratix 10 SoCFPGA is a FPGA with integrated quad-core 64-bit Arm Cortex A53 processor.
 
@@ -11,10 +11,10 @@ the hardware, then loads bl31 and bl33 (UEFI) into DDR and boots to bl33.
     Boot ROM --> Trusted Firmware-A --> UEFI
 
 How to build
-============
+------------
 
 Code Locations
---------------
+~~~~~~~~~~~~~~
 
 -  Trusted Firmware-A:
    `link <https://github.com/ARM-software/arm-trusted-firmware>`__
@@ -23,7 +23,7 @@ Code Locations
    `link <https://github.com/altera-opensource/uefi-socfpga>`__
 
 Build Procedure
----------------
+~~~~~~~~~~~~~~~
 
 -  Fetch all the above 2 repositories into local host.
    Make all the repositories in the same ${BUILD\_PATH}.
@@ -45,7 +45,7 @@ Build Procedure
        BL33=PEI.ROM
 
 Install Procedure
------------------
+~~~~~~~~~~~~~~~~~
 
 - dd fip.bin to a A2 partition on the MMC drive to be booted in Stratix 10
   board.
@@ -53,16 +53,18 @@ Install Procedure
 - Generate a SOF containing bl2
 
 .. code:: bash
+
         aarch64-linux-gnu-objcopy -I binary -O ihex --change-addresses 0xffe00000 bl2.bin bl2.hex
         quartus_cpf --bootloader bl2.hex <quartus_generated_sof> <output_sof_with_bl2>
 
 - Configure SOF to board
 
 .. code:: bash
+
         nios2-configure-sof <output_sof_with_bl2>
 
 Boot trace
-==========
+----------
 
 ::
          INFO:    DDR: DRAM calibration success.

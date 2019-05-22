@@ -1,5 +1,5 @@
-Trusted Firmware-A for Amlogic Meson S905 (GXBB)
-================================================
+Amlogic Meson S905 (GXBB)
+=========================
 
 The Amlogic Meson S905 is a SoC with a quad core Arm Cortex-A53 running at
 1.5Ghz. It also contains a Cortex-M3 used as SCP.

@@ -1,15 +1,17 @@
-Trusted Firmware-A for Texas Instruments K3 SoCs
-================================================
+Texas Instruments K3
+====================
 
 Trusted Firmware-A (TF-A) implements the EL3 firmware layer for Texas Instruments K3 SoCs.
 
 Boot Flow
 ---------
 
-R5(U-Boot) --> TF-A BL31 --> BL32(OP-TEE) --> TF-A BL31 --> BL33(U-Boot) --> Linux
+::
+
+   R5(U-Boot) --> TF-A BL31 --> BL32(OP-TEE) --> TF-A BL31 --> BL33(U-Boot) --> Linux
                                                        \
-                                                Optional direct to Linux boot
-                                                         \
+                                                   Optional direct to Linux boot
+                                                           \
                                                            --> BL33(Linux)
 
 Texas Instruments K3 SoCs contain an R5 processor used as the boot master, it
