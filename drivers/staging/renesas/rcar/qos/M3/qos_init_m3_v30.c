@@ -12,7 +12,7 @@
 #include "../qos_reg.h"
 #include "qos_init_m3_v30.h"
 
-#define	RCAR_QOS_VERSION		"rev.0.02"
+#define	RCAR_QOS_VERSION		"rev.0.03"
 
 #define QOSCTRL_EARLYR			(QOS_BASE1 + 0x0060U)
 #define QOSCTRL_FSS			(QOS_BASE1 + 0x0048U)
@@ -40,20 +40,18 @@
 
 #if RCAR_QOS_TYPE  == RCAR_QOS_TYPE_DEFAULT
 
-/* Same as M3 Ver.1.1 default setting */
 #if RCAR_REF_INT == RCAR_REF_DEFAULT
-#include "qos_init_m3_v11_mstat195.h"
+#include "qos_init_m3_v30_mstat195.h"
 #else
-#include "qos_init_m3_v11_mstat390.h"
+#include "qos_init_m3_v30_mstat390.h"
 #endif
 
 #if RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE
 
-/* Same as M3 Ver.1.1 default setting */
 #if RCAR_REF_INT == RCAR_REF_DEFAULT
-#include "qos_init_m3_v11_qoswt195.h"
+#include "qos_init_m3_v30_qoswt195.h"
 #else
-#include "qos_init_m3_v11_qoswt390.h"
+#include "qos_init_m3_v30_qoswt390.h"
 #endif
 
 #endif /* RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE */
