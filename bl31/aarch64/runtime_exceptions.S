@@ -352,28 +352,6 @@ smc_handler64:
 	mov	x5, xzr
 	mov	x6, sp
 
-	/* Get the unique owning entity number */
-	ubfx	x16, x0, #FUNCID_OEN_SHIFT, #FUNCID_OEN_WIDTH
-	ubfx	x15, x0, #FUNCID_TYPE_SHIFT, #FUNCID_TYPE_WIDTH
-	orr	x16, x16, x15, lsl #FUNCID_OEN_WIDTH
-
-	/* Load descriptor index from array of indices */
-	adr	x14, rt_svc_descs_indices
-	ldrb	w15, [x14, x16]
-
-	/* Any index greater than 127 is invalid. Check bit 7. */
-	tbnz	w15, 7, smc_unknown
-
-	/*
-	 * Get the descriptor using the index
-	 * x11 = (base + off), w15 = index
-	 *
-	 * handler = (base + off) + (index << log2(size))
-	 */
-	adr	x11, (__RT_SVC_DESCS_START__ + RT_SVC_DESC_HANDLE)
-	lsl	w10, w15, #RT_SVC_SIZE_LOG2
-	ldr	x15, [x11, w10, uxtw]
-
 	/*
 	 * Restore the saved C runtime stack value which will become the new
 	 * SP_EL0 i.e. EL3 runtime stack. It was saved in the 'cpu_context'
@@ -400,6 +378,28 @@ smc_handler64:
 
 	mov	sp, x12
 
+	/* Get the unique owning entity number */
+	ubfx	x16, x0, #FUNCID_OEN_SHIFT, #FUNCID_OEN_WIDTH
+	ubfx	x15, x0, #FUNCID_TYPE_SHIFT, #FUNCID_TYPE_WIDTH
+	orr	x16, x16, x15, lsl #FUNCID_OEN_WIDTH
+
+	/* Load descriptor index from array of indices */
+	adr	x14, rt_svc_descs_indices
+	ldrb	w15, [x14, x16]
+
+	/* Any index greater than 127 is invalid. Check bit 7. */
+	tbnz	w15, 7, smc_unknown
+
+	/*
+	 * Get the descriptor using the index
+	 * x11 = (base + off), w15 = index
+	 *
+	 * handler = (base + off) + (index << log2(size))
+	 */
+	adr	x11, (__RT_SVC_DESCS_START__ + RT_SVC_DESC_HANDLE)
+	lsl	w10, w15, #RT_SVC_SIZE_LOG2
+	ldr	x15, [x11, w10, uxtw]
+
 	/*
 	 * Call the Secure Monitor Call handler and then drop directly into
 	 * el3_exit() which will program any remaining architectural state
@@ -414,15 +414,14 @@ smc_handler64:
 
 smc_unknown:
 	/*
-	 * Unknown SMC call. Populate return value with SMC_UNK, restore
-	 * GP registers, and return to caller.
+	 * Unknown SMC call. Populate return value with SMC_UNK and call
+	 * el3_exit() which will restore the remaining architectural state
+	 * i.e., SYS, GP and PAuth registers(if any) prior to issuing the ERET
+         * to the desired lower EL.
 	 */
 	mov	x0, #SMC_UNK
-	str	x0, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
-#if CTX_INCLUDE_PAUTH_REGS
-	bl	pauth_context_restore
-#endif
-	b	restore_gp_registers_eret
+	str	x0, [x6, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
+	b	el3_exit
 
 smc_prohibited:
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
