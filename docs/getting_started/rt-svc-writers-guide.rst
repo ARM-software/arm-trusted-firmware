@@ -1,9 +1,5 @@
-Trusted Firmware-A EL3 runtime service writer's guide
+EL3 Runtime Service Writer's Guide
 =====================================================
-
-
-
-.. contents::
 
 Introduction
 ------------
@@ -96,7 +92,7 @@ A runtime service is registered using the ``DECLARE_RT_SVC()`` macro, specifying
 the name of the service, the range of OENs covered, the type of service and
 initialization and call handler functions.
 
-::
+.. code:: c
 
     #define DECLARE_RT_SVC(_name, _start, _end, _type, _setup, _smch)
 
@@ -264,8 +260,9 @@ The ``cookie`` parameter to the handler is reserved for future use and can be
 ignored. The ``handle`` is returned by the SMC handler - completion of the
 handler function must always be via one of the ``SMC_RETn()`` macros.
 
-NOTE: The PSCI and Test Secure-EL1 Payload Dispatcher services do not follow
-all of the above requirements yet.
+.. note::
+   The PSCI and Test Secure-EL1 Payload Dispatcher services do not follow
+   all of the above requirements yet.
 
 Services that contain multiple sub-services
 -------------------------------------------

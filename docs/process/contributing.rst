@@ -1,5 +1,5 @@
-Contributing to Trusted Firmware-A
-==================================
+Contributor's Guide
+===================
 
 Getting Started
 ---------------

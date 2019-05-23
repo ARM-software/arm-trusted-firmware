@@ -1,10 +1,5 @@
-*******************************
-Secure Partition Manager Design
-*******************************
-
-
-
-.. contents::
+Secure Partition Manager
+************************
 
 Background
 ==========
@@ -135,7 +130,7 @@ First, build the Standalone MM Secure Partition. To build it, refer to the
 Then build TF-A with SPM support and include the Standalone MM Secure Partition
 image in the FIP:
 
-::
+.. code:: shell
 
     BL32=path/to/standalone/mm/sp BL33=path/to/bl33.bin \
     make PLAT=fvp ENABLE_SPM=1 ARM_BL31_IN_DRAM=1 fip all
@@ -819,5 +814,5 @@ Error Codes
 .. _SDEI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
 .. _SMC Calling Convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
 
-.. |Image 1| image:: ../diagrams/secure_sw_stack_tos.png
-.. |Image 2| image:: ../diagrams/secure_sw_stack_sp.png
+.. |Image 1| image:: ../resources/diagrams/secure_sw_stack_tos.png
+.. |Image 2| image:: ../resources/diagrams/secure_sw_stack_sp.png

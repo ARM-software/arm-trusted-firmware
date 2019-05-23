@@ -1,12 +1,5 @@
-TF-A Release Information
-========================
-
-.. section-numbering::
-    :suffix: .
-
-.. contents::
-
---------------
+Release Processes
+=================
 
 Project Release Cadence
 -----------------------

@@ -1,9 +1,5 @@
-Trusted Firmware-A Coding Guidelines
-====================================
-
-
-
-.. contents::
+Coding Style & Guidelines
+=========================
 
 The following sections contain TF coding guidelines. They are continually
 evolving and should not be considered "set in stone". Feel free to question them
@@ -11,8 +7,9 @@ and provide feedback.
 
 Some of the guidelines may also apply to other codebases.
 
-**Note:** the existing TF codebase does not necessarily comply with all the
-below guidelines but the intent is for it to do so eventually.
+.. note::
+   The existing TF codebase does not necessarily comply with all the
+   below guidelines but the intent is for it to do so eventually.
 
 Checkpatch overrides
 --------------------
@@ -296,7 +293,7 @@ of the size of an array is the same.
 If ``MY_STRUCT_SIZE`` in the above example were wrong then the compiler would
 emit an error like this:
 
-.. code:: c
+::
 
   my_struct.h:10:1: error: size of array ‘assert_my_struct_size_mismatch’ is negative
 

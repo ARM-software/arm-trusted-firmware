@@ -1,10 +1,5 @@
-RAS support in Trusted Firmware-A
-=================================
-
-
-
-.. contents::
-    :depth: 2
+Reliability, Availability, and Serviceability (RAS) Extensions
+==============================================================
 
 .. |EHF| replace:: Exception Handling Framework
 .. |TF-A| replace:: Trusted Firmware-A
@@ -44,7 +39,7 @@ be set ``1``.
 
 .. _ras-figure:
 
-.. image:: ../draw.io/ras.svg
+.. image:: ../resources/diagrams/draw.io/ras.svg
 
 See more on `Engaging the RAS framework`_.
 

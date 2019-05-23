@@ -1,5 +1,5 @@
-Trusted Firmware-A for Socionext Synquacer SoCs
-===============================================
+Socionext Synquacer
+===================
 
 Socionext's Synquacer SC2A11 is a multi-core processor with 24 cores of Arm
 Cortex-A53. The Developerbox, of 96boards, is a platform that contains this
@@ -9,10 +9,10 @@ the moment.
 More information are listed in `link`_.
 
 How to build
-============
+------------
 
 Code Locations
---------------
+~~~~~~~~~~~~~~
 
 -  Trusted Firmware-A:
    `link <https://github.com/ARM-software/arm-trusted-firmware>`__
@@ -27,12 +27,12 @@ Code Locations
    `link <https://github.com/tianocore/edk2-non-osi>`__
 
 Boot Flow
----------
+~~~~~~~~~
 
 SCP firmware --> TF-A BL31 --> UEFI(edk2)
 
 Build Procedure
----------------
+~~~~~~~~~~~~~~~
 
 -  Firstly, in addition to the “normal” build tools you will also need a
    few specialist tools. On a Debian or Ubuntu operating system try:
@@ -98,7 +98,7 @@ Build Procedure
    Note #2: Replace -b RELEASE with -b DEBUG to build a debug.
 
 Install the System Firmware
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 -  Providing your Developerbox is fully working and has on operating system
    installed then you can adopt your the newly compiled system firmware using

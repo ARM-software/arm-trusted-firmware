@@ -7,7 +7,7 @@ Processes & Policies
    :numbered:
 
    release-information
-   security-center
+   security
    platform-compatibility-policy
    coding-guidelines
    contributing

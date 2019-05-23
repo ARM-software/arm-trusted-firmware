@@ -1,9 +1,5 @@
-Platform Interrupt Controller API documentation
-===============================================
-
-
-
-.. contents::
+Platform Interrupt Controller API
+=================================
 
 This document lists the optional platform interrupt controller API that
 abstracts the runtime configuration and control of interrupt controller from the

@@ -1,5 +1,5 @@
-Description
-===========
+NXP i.MX 8M Series
+==================
 
 The i.MX 8M family of applications processors based on Arm Corte-A53 and Cortex-M4
 cores provide high-performance computing, power efficiency, enhanced system
@@ -7,15 +7,15 @@ reliability and embedded security needed to drive the growth of fast-growing
 edge node computing, streaming multimedia, and machine learning applications.
 
 Boot Sequence
-=============
+-------------
 
 Bootrom --> SPL --> BL31 --> BL33(u-boot) --> Linux kernel
 
 How to build
-============
+------------
 
 Build Procedure
----------------
+~~~~~~~~~~~~~~~
 
 -  Prepare AARCH64 toolchain.
 
@@ -34,7 +34,7 @@ Build Procedure
    Target_SoC should be "imx8mm" for i.MX8MM SoC.
 
 Deploy TF-A Images
------------------
+~~~~~~~~~~~~~~~~~~
 
 TF-A binary(bl31.bin), u-boot-spl.bin u-boot-nodtb.bin and dtb are combined
 together to generate a binary file called flash.bin, the imx-mkimage tool is

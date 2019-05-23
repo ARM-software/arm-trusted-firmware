@@ -1,10 +1,5 @@
-Trusted Firmware-A design
-=========================
-
-
-
-
-.. contents::
+Firmware Design
+===============
 
 Trusted Firmware-A (TF-A) implements a subset of the Trusted Board Boot
 Requirements (TBBR) Platform Design Document (PDD) [1]_ for Arm reference
@@ -1146,8 +1141,10 @@ returning through EL3 and running the non-trusted firmware (BL33):
    ``bl31_register_bl32_init()`` which provides a SPD-defined mechanism to
    invoke a 'world-switch synchronous call' to Secure-EL1 to run the BL32
    entrypoint.
-   NOTE: The Test SPD service included with TF-A provides one implementation
-   of such a mechanism.
+
+   .. note::
+      The Test SPD service included with TF-A provides one implementation
+      of such a mechanism.
 
    On completion BL32 returns control to BL31 via a SMC, and on receipt the
    SPD service handler invokes the synchronous call return mechanism to return
@@ -1680,8 +1677,9 @@ The location of the BL32 image will result in different memory maps. This is
 illustrated for both FVP and Juno in the following diagrams, using the TSP as
 an example.
 
-Note: Loading the BL32 image in TZC secured DRAM doesn't change the memory
-layout of the other images in Trusted SRAM.
+.. note::
+   Loading the BL32 image in TZC secured DRAM doesn't change the memory
+   layout of the other images in Trusted SRAM.
 
 CONFIG section in memory layouts shown below contains:
 
@@ -2220,8 +2218,9 @@ The default memory layout for each BL image is as follows:
        |       Code        |
        +-------------------+ BLx_BASE
 
-Note: The 2KB alignment for the exception vectors is an architectural
-requirement.
+.. note::
+   The 2KB alignment for the exception vectors is an architectural
+   requirement.
 
 The read-write data start on a new memory page so that they can be mapped with
 read-write permissions, whereas the code and read-only data below are configured
@@ -2309,7 +2308,7 @@ result in build error. Subscribing to an undefined event however won't.
 Subscribed handlers must be of type ``pubsub_cb_t``, with following function
 signature:
 
-::
+.. code:: c
 
    typedef void* (*pubsub_cb_t)(const void *arg);
 
@@ -2336,7 +2335,7 @@ A publisher that wants to publish event ``foo`` would:
 
 -  Define the event ``foo`` in the ``pubsub_events.h``.
 
-   ::
+   .. code:: c
 
       REGISTER_PUBSUB_EVENT(foo);
 
@@ -2472,7 +2471,7 @@ respectively.
 From outside TF-A, timestamps for individual CPUs can be retrieved by calling
 into ``pmf_smc_handler()``.
 
-.. code:: c
+::
 
     Interface : pmf_smc_handler()
     Argument  : unsigned int smc_fid, u_register_t x1,
@@ -2602,7 +2601,7 @@ Platform may choose to not define straight the toolchain target architecture
 directive by defining ``MARCH32_DIRECTIVE``.
 I.e:
 
-::
+.. code:: make
 
    MARCH32_DIRECTIVE := -mach=armv7-a
 
@@ -2684,4 +2683,4 @@ References
 .. _ROMLIB Design: romlib-design.rst
 .. _Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D): https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
 
-.. |Image 1| image:: diagrams/rt-svc-descs-layout.png?raw=true
+.. |Image 1| image:: ../resources/diagrams/rt-svc-descs-layout.png

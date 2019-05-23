@@ -1,5 +1,5 @@
-Trusted Firmware-A for QEMU virt Armv8-A
-========================================
+QEMU virt Armv8-A
+=================
 
 Trusted Firmware-A (TF-A) implements the EL3 firmware layer for QEMU virt
 Armv8-A. BL1 is used as the BootROM, supplied with the -bios argument.
@@ -33,13 +33,13 @@ is conveniently achieved with symlinks the local names as:
 
 To build:
 
-::
+.. code:: shell
 
-    make CROSS_COMPILE=aarch64-none-elf- PLAT=qemu 
+    make CROSS_COMPILE=aarch64-none-elf- PLAT=qemu
 
 To start (QEMU v2.6.0):
 
-::
+.. code:: shell
 
     qemu-system-aarch64 -nographic -machine virt,secure=on -cpu cortex-a57  \
         -kernel Image                           \

@@ -1,10 +1,5 @@
-Trusted Firmware-A interrupt management design guide
-====================================================
-
-
-
-
-.. contents::
+Interrupt Management Framework 
+==============================
 
 This framework is responsible for managing interrupts routed to EL3. It also
 allows EL3 software to configure the interrupt routing behavior. Its main
@@ -53,7 +48,7 @@ the exception level(s) it is handled in.
 The following constants define the various interrupt types in the framework
 implementation.
 
-::
+.. code:: c
 
     #define INTR_TYPE_S_EL1      0
     #define INTR_TYPE_EL3        1
@@ -421,8 +416,9 @@ runtime.
 Test secure payload dispatcher behavior
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Note:** where this document discusses ``TSP_NS_INTR_ASYNC_PREEMPT`` as being
-``1``, the same results also apply when ``EL3_EXCEPTION_HANDLING`` is ``1``.
+.. note::
+   Where this document discusses ``TSP_NS_INTR_ASYNC_PREEMPT`` as being
+   ``1``, the same results also apply when ``EL3_EXCEPTION_HANDLING`` is ``1``.
 
 The TSPD only handles Secure-EL1 interrupts and is provided with the following
 routing model at build time.
@@ -1020,5 +1016,5 @@ TSP by returning ``SMC_UNK`` error.
 .. _Porting Guide: ../getting_started/porting-guide.rst
 .. _SMC calling convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
 
-.. |Image 1| image:: diagrams/sec-int-handling.png?raw=true
-.. |Image 2| image:: diagrams/non-sec-int-handling.png?raw=true
+.. |Image 1| image:: ../resources/diagrams/sec-int-handling.png
+.. |Image 2| image:: ../resources/diagrams/non-sec-int-handling.png

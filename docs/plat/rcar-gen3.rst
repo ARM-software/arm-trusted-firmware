@@ -1,5 +1,5 @@
-Description
-===========
+Renesas R-Car
+=============
 
 "R-Car" is the nickname for Renesas' system-on-chip (SoC) family for
 car information systems designed for the next-generation of automotive
@@ -97,14 +97,14 @@ program counters.
 
 
 How to build
-============
+------------
 
 The TF-A build options depend on the target board so you will have to
 refer to those specific instructions. What follows is customized to
 the H3 SiP Salvator-X development system used in this port.
 
 Build Tested:
--------------
+~~~~~~~~~~~~~
 RCAR_OPT="LSI=H3 RCAR_DRAM_SPLIT=1 RCAR_LOSSY_ENABLE=1"
 MBEDTLS_DIR=$mbedtls_src
 
@@ -112,7 +112,7 @@ $ MBEDTLS_DIR=$mbedtls_src_tree make clean bl2 bl31 rcar_layout_tool \
 PLAT=rcar ${RCAR_OPT} SPD=opteed
 
 System Tested:
---------------------
+~~~~~~~~~~~~~~
 * mbed_tls:
   git@github.com:ARMmbed/mbedtls.git [devel]
 
@@ -150,7 +150,7 @@ System Tested:
   Linux 4.19-rc4
 
 TF-A Build Procedure
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 -  Fetch all the above 4 repositories.
 
@@ -184,7 +184,7 @@ TF-A Build Procedure
        make -j8 PLATFORM="rcar" CFG_ARM64_core=y
 
 Install Procedure
------------------
+~~~~~~~~~~~~~~~~~
 
 - Boot the board in Mini-monitor mode and enable access to the
   Hyperflash.
@@ -195,7 +195,7 @@ Install Procedure
 
 
 Boot trace
-==========
+----------
 
 Notice that BL31 traces are not accessible via the console and that in
 order to verbose the BL2 output you will have to compile TF-A with
@@ -266,4 +266,3 @@ LOG_LEVEL=50 and DEBUG=1
    Net:   eth0: ethernet@e6800000
    Hit any key to stop autoboot:  0
    =>
-

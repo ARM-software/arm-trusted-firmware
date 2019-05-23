@@ -1,3 +1,6 @@
+Advisory TFV-3 (CVE-2017-7563)
+==============================
+
 +----------------+-------------------------------------------------------------+
 | Title          | RO memory is always executable at AArch64 Secure EL1        |
 +================+=============================================================+
@@ -65,7 +68,7 @@ The vulnerability is mitigated by the following factors:
   of the ``XN``, ``UXN`` or ``PXN`` bits in the translation tables. See the
   ``enable_mmu()`` function:
 
-  .. code:: c
+  ::
 
       sctlr = read_sctlr_el##_el();               \
       sctlr |= SCTLR_WXN_BIT | SCTLR_M_BIT;       \

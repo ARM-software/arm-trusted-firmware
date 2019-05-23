@@ -1,10 +1,5 @@
-Trusted Firmware-A reset design
-===============================
-
-
-
-
-.. contents::
+CPU Reset
+=========
 
 This document describes the high-level design of the framework to handle CPU
 resets in Trusted Firmware-A (TF-A). It also describes how the platform
@@ -28,10 +23,11 @@ configuration, some of these steps might be unnecessary. The following sections
 guide the platform integrator by indicating which build options exclude which
 steps, depending on the capability of the platform.
 
-Note: If BL31 is used as the TF-A entry point instead of BL1, the diagram
-above is still relevant, as all these operations will occur in BL31 in
-this case. Please refer to section 6 "Using BL31 entrypoint as the reset
-address" for more information.
+.. note::
+   If BL31 is used as the TF-A entry point instead of BL1, the diagram
+   above is still relevant, as all these operations will occur in BL31 in
+   this case. Please refer to section 6 "Using BL31 entrypoint as the reset
+   address" for more information.
 
 Programmable CPU reset address
 ------------------------------
@@ -159,7 +155,7 @@ This might be done by the Trusted Boot Firmware or by platform code in BL31.
 .. _Firmware Design: firmware-design.rst
 .. _User Guide: ../getting_started/user-guide.rst
 
-.. |Default reset code flow| image:: ../diagrams/default_reset_code.png?raw=true
-.. |Reset code flow with programmable reset address| image:: ../diagrams/reset_code_no_boot_type_check.png?raw=true
-.. |Reset code flow with single CPU released out of reset| image:: ../diagrams/reset_code_no_cpu_check.png?raw=true
-.. |Reset code flow with programmable reset address and single CPU released out of reset| image:: ../diagrams/reset_code_no_checks.png?raw=true
+.. |Default reset code flow| image:: ../resources/diagrams/default_reset_code.png
+.. |Reset code flow with programmable reset address| image:: ../resources/diagrams/reset_code_no_boot_type_check.png
+.. |Reset code flow with single CPU released out of reset| image:: ../resources/diagrams/reset_code_no_cpu_check.png
+.. |Reset code flow with programmable reset address and single CPU released out of reset| image:: ../resources/diagrams/reset_code_no_checks.png

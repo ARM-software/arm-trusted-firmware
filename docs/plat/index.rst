@@ -16,7 +16,6 @@ Platform Ports
    meson-gxl
    mt8183
    nvidia-tegra
-   poplar
    qemu
    rcar-gen3
    rockchip
@@ -26,4 +25,5 @@ Platform Ports
    synquacer
    ti-k3
    warp7
+   xilinx-versal
    xilinx-zynqmp

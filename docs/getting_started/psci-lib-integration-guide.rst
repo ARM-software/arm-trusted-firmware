@@ -1,10 +1,6 @@
 PSCI Library Integration guide for Armv8-A AArch32 systems
 ==========================================================
 
-
-
-.. contents::
-
 This document describes the PSCI library interface with a focus on how to
 integrate with a suitable Trusted OS for an Armv8-A AArch32 system. The PSCI
 Library implements the PSCI Standard as described in `PSCI spec`_ and is meant

@@ -1,3 +1,6 @@
+Advisory TFV-8 (CVE-2018-19440)
+===============================
+
 +----------------+-------------------------------------------------------------+
 | Title          | Not saving x0 to x3 registers can leak information from one |
 |                | Normal World SMC client to another                          |
@@ -36,7 +39,7 @@ CPU context stored on the stack. This includes registers ``x0`` to ``x3``, as
 can be seen in the ``lib/el3_runtime/aarch64/context.S`` file at line 339
 (referring to the version of the code as of `commit c385955`_):
 
-.. code:: c
+::
 
     /*
      * This function restores all general purpose registers except x30 from the

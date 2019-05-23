@@ -1,5 +1,5 @@
-Description
-===========
+NXP QorIQ® LS1043A
+==================
 
 The QorIQ® LS1043A processor is NXP's first quad-core, 64-bit Arm®-based
 processor for embedded networking. The LS1023A (two core version) and the
@@ -36,7 +36,7 @@ UART: supports two UARTs up to 115200 bps for console
 More information are listed in `ls1043`_.
 
 Boot Sequence
-=============
+-------------
 
 
 Bootrom --> TF-A BL1 --> TF-A BL2 --> TF-A BL1 --> TF-A BL31
@@ -44,10 +44,10 @@ Bootrom --> TF-A BL1 --> TF-A BL2 --> TF-A BL1 --> TF-A BL31
 
 
 How to build
-============
+------------
 
 Build Procedure
----------------
+~~~~~~~~~~~~~~~
 
 -  Prepare AARCH64 toolchain.
 
@@ -69,7 +69,7 @@ Build Procedure
        BL33=u-boot.bin NEED_BL32=yes BL32=tee.bin SPD=opteed
 
 Deploy TF-A Images
------------------
+~~~~~~~~~~~~~~~~~~
 
 -  Deploy TF-A images on Nor flash Alt Bank.
 

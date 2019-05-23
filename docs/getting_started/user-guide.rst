@@ -1,10 +1,5 @@
-Trusted Firmware-A User Guide
-=============================
-
-
-
-
-.. contents::
+User Guide
+==========
 
 This document describes how to build Trusted Firmware-A (TF-A) and run it with a
 tested set of other software components using defined configurations on the Juno
@@ -49,7 +44,7 @@ Tools
 
 Install the required packages to build TF-A with the following command:
 
-::
+.. code:: shell
 
     sudo apt-get install device-tree-compiler build-essential gcc make git libssl-dev
 
@@ -101,9 +96,10 @@ targets which both utilise the `checkpatch.pl` script that ships with the Linux
 source tree. The project also defines certain *checkpatch* options in the
 ``.checkpatch.conf`` file in the top-level directory.
 
-**Note:** Checkpatch errors will gate upstream merging of pull requests.
-Checkpatch warnings will not gate merging but should be reviewed and fixed if
-possible.
+.. note::
+   Checkpatch errors will gate upstream merging of pull requests.
+   Checkpatch warnings will not gate merging but should be reviewed and fixed if
+   possible.
 
 To check the entire source tree, you must first download copies of
 ``checkpatch.pl``, ``spelling.txt`` and ``const_structs.checkpatch`` available
@@ -111,14 +107,14 @@ in the `Linux master tree`_ *scripts* directory, then set the ``CHECKPATCH``
 environment variable to point to ``checkpatch.pl`` (with the other 2 files in
 the same directory) and build the `checkcodebase` target:
 
-::
+.. code:: shell
 
     make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkcodebase
 
 To just check the style on the files that differ between your local branch and
 the remote master, use:
 
-::
+.. code:: shell
 
     make CHECKPATCH=<path-to-linux>/linux/scripts/checkpatch.pl checkpatch
 
@@ -134,13 +130,13 @@ Building TF-A
 
    For AArch64:
 
-   ::
+   .. code:: shell
 
        export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
 
    For AArch32:
 
-   ::
+   .. code:: shell
 
        export CROSS_COMPILE=<path-to-aarch32-gcc>/bin/arm-linux-gnueabihf-
 
@@ -158,7 +154,7 @@ Building TF-A
 
    For AArch64 using Arm Compiler 6:
 
-   ::
+   .. code:: shell
 
        export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
        make CC=<path-to-armclang>/bin/armclang PLAT=<platform> all
@@ -169,7 +165,7 @@ Building TF-A
 
    For AArch64 using clang:
 
-   ::
+   .. code:: shell
 
        export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
        make CC=<path-to-clang>/bin/clang PLAT=<platform> all
@@ -178,13 +174,13 @@ Building TF-A
 
    For AArch64:
 
-   ::
+   .. code:: shell
 
        make PLAT=<platform> all
 
    For AArch32:
 
-   ::
+   .. code:: shell
 
        make PLAT=<platform> ARCH=aarch32 AARCH32_SP=sp_min all
 
@@ -227,7 +223,7 @@ Building TF-A
 
 -  Build products for a specific build variant can be removed using:
 
-   ::
+   .. code:: shell
 
        make DEBUG=<D> PLAT=<platform> clean
 
@@ -235,7 +231,7 @@ Building TF-A
 
    The build tree can be removed completely using:
 
-   ::
+   .. code:: shell
 
        make realclean
 
@@ -723,8 +719,9 @@ Common build options
    of certificates in the FIP and FWU_FIP depends upon the value of the
    ``GENERATE_COT`` option.
 
-   Note: This option depends on ``CREATE_KEYS`` to be enabled. If the keys
-   already exist in disk, they will be overwritten without further notice.
+   .. warning::
+      This option depends on ``CREATE_KEYS`` to be enabled. If the keys
+      already exist in disk, they will be overwritten without further notice.
 
 -  ``TRUSTED_WORLD_KEY``: This option is used when ``GENERATE_COT=1``. It
    specifies the file that contains the Trusted World private key in PEM
@@ -744,8 +741,9 @@ Common build options
    interrupts to TSP allowing it to save its context and hand over
    synchronously to EL3 via an SMC.
 
-   Note: when ``EL3_EXCEPTION_HANDLING`` is ``1``, ``TSP_NS_INTR_ASYNC_PREEMPT``
-   must also be set to ``1``.
+   .. note::
+      When ``EL3_EXCEPTION_HANDLING`` is ``1``, ``TSP_NS_INTR_ASYNC_PREEMPT``
+      must also be set to ``1``.
 
 -  ``USE_ARM_LINK``: This flag determines whether to enable support for ARM
    linker. When the ``LINKER`` build variable points to the armlink linker,
@@ -940,7 +938,7 @@ Debugging options
 
 To compile a debug version and make the build more verbose use
 
-::
+.. code:: shell
 
     make PLAT=<platform> DEBUG=1 V=1 all
 
@@ -953,14 +951,15 @@ version to 2 is recommended for DS-5 versions older than 5.16.
 When debugging logic problems it might also be useful to disable all compiler
 optimizations by using ``-O0``.
 
-NOTE: Using ``-O0`` could cause output images to be larger and base addresses
-might need to be recalculated (see the **Memory layout on Arm development
-platforms** section in the `Firmware Design`_).
+.. warning::
+   Using ``-O0`` could cause output images to be larger and base addresses
+   might need to be recalculated (see the **Memory layout on Arm development
+   platforms** section in the `Firmware Design`_).
 
 Extra debug options can be passed to the build system by setting ``CFLAGS`` or
 ``LDFLAGS``:
 
-.. code:: makefile
+.. code:: shell
 
     CFLAGS='-O0 -gdwarf-2'                                     \
     make PLAT=<platform> DEBUG=1 V=1 all
@@ -1001,7 +1000,7 @@ must be recompiled as well. For more information on SPs and SPDs, see the
 First clean the TF-A build directory to get rid of any previous BL31 binary.
 Then to build the TSP image use:
 
-::
+.. code:: shell
 
     make PLAT=<platform> SPD=tspd all
 
@@ -1029,13 +1028,13 @@ and BL33 images.
 
 For AArch64:
 
-::
+.. code:: shell
 
     make PLAT=fvp BL33=<path-to>/bl33.bin fip
 
 For AArch32:
 
-::
+.. code:: shell
 
     make PLAT=fvp ARCH=aarch32 AARCH32_SP=sp_min BL33=<path-to>/bl33.bin fip
 
@@ -1051,13 +1050,13 @@ steps:
 
 It is recommended to remove old artifacts before building the tool:
 
-::
+.. code:: shell
 
     make -C tools/fiptool clean
 
 Build the tool:
 
-::
+.. code:: shell
 
     make [DEBUG=1] [V=1] fiptool
 
@@ -1072,7 +1071,7 @@ options.
 
 Example 1: create a new Firmware package ``fip.bin`` that contains BL2 and BL31:
 
-::
+.. code:: shell
 
     ./tools/fiptool/fiptool create \
         --tb-fw build/<platform>/<build-type>/bl2.bin \
@@ -1081,13 +1080,13 @@ Example 1: create a new Firmware package ``fip.bin`` that contains BL2 and BL31:
 
 Example 2: view the contents of an existing Firmware package:
 
-::
+.. code:: shell
 
     ./tools/fiptool/fiptool info <path-to>/fip.bin
 
 Example 3: update the entries of an existing Firmware package:
 
-::
+.. code:: shell
 
     # Change the BL2 from Debug to Release version
     ./tools/fiptool/fiptool update \
@@ -1096,14 +1095,14 @@ Example 3: update the entries of an existing Firmware package:
 
 Example 4: unpack all entries from an existing Firmware package:
 
-::
+.. code:: shell
 
     # Images will be unpacked to the working directory
     ./tools/fiptool/fiptool unpack <path-to>/fip.bin
 
 Example 5: remove an entry from an existing Firmware package:
 
-::
+.. code:: shell
 
     ./tools/fiptool/fiptool remove \
         --tb-fw build/<platform>/debug/fip.bin
@@ -1173,7 +1172,7 @@ images with support for these features:
 
    Example of command line using RSA development keys:
 
-   ::
+   .. code:: shell
 
        MBEDTLS_DIR=<path of the directory containing mbed TLS sources> \
        make PLAT=<platform> TRUSTED_BOARD_BOOT=1 GENERATE_COT=1        \
@@ -1210,12 +1209,14 @@ images with support for these features:
        NS_BL2U=<path-to>/<ns_bl2u_image>                               \
        all fip fwu_fip
 
-   Note: The BL2U image will be built by default and added to the FWU_FIP.
-   The user may override this by adding ``BL2U=<path-to>/<bl2u_image>``
-   to the command line above.
+   .. note::
+      The BL2U image will be built by default and added to the FWU_FIP.
+      The user may override this by adding ``BL2U=<path-to>/<bl2u_image>``
+      to the command line above.
 
-   Note: Building and installing the non-secure and SCP FWU images (NS_BL1U,
-   NS_BL2U and SCP_BL2U) is outside the scope of this document.
+   .. note::
+      Building and installing the non-secure and SCP FWU images (NS_BL1U,
+      NS_BL2U and SCP_BL2U) is outside the scope of this document.
 
    The result of this build will be bl1.bin, fip.bin and fwu_fip.bin binaries.
    Both the FIP and FWU_FIP will include the certificates corresponding to the
@@ -1230,7 +1231,7 @@ The ``cert_create`` tool is built as part of the TF-A build process when the
 previous section), but it can also be built separately with the following
 command:
 
-::
+.. code:: shell
 
     make PLAT=<platform> [DEBUG=1] [V=1] certtool
 
@@ -1239,14 +1240,14 @@ For platforms that require their own IDs in certificate files, the generic
 platform must define its IDs within a ``platform_oid.h`` header file for the
 build to succeed.
 
-::
+.. code:: shell
 
     make PLAT=<platform> USE_TBBR_DEFS=0 [DEBUG=1] [V=1] certtool
 
 ``DEBUG=1`` builds the tool in debug mode. ``V=1`` makes the build process more
 verbose. The following command should be used to obtain help about the tool:
 
-::
+.. code:: shell
 
     ./tools/cert_create/cert_create -h
 
@@ -1257,25 +1258,30 @@ This section provides Juno and FVP specific instructions to build Trusted
 Firmware, obtain the additional required firmware, and pack it all together in
 a single FIP binary. It assumes that a `Linaro Release`_ has been installed.
 
-Note: Pre-built binaries for AArch32 are available from Linaro Release 16.12
-onwards. Before that release, pre-built binaries are only available for AArch64.
+.. note::
+   Pre-built binaries for AArch32 are available from Linaro Release 16.12
+   onwards. Before that release, pre-built binaries are only available for
+   AArch64.
 
-Note: Follow the full instructions for one platform before switching to a
-different one. Mixing instructions for different platforms may result in
-corrupted binaries.
+.. warning::
+   Follow the full instructions for one platform before switching to a
+   different one. Mixing instructions for different platforms may result in
+   corrupted binaries.
 
-Note: The uboot image downloaded by the Linaro workspace script does not always
-match the uboot image packaged as BL33 in the corresponding fip file. It is
-recommended to use the version that is packaged in the fip file using the
-instructions below.
+.. warning::
+   The uboot image downloaded by the Linaro workspace script does not always
+   match the uboot image packaged as BL33 in the corresponding fip file. It is
+   recommended to use the version that is packaged in the fip file using the
+   instructions below.
 
-Note: For the FVP, the kernel FDT is packaged in FIP during build and loaded
-by the firmware at runtime. See `Obtaining the Flattened Device Trees`_
-section for more info on selecting the right FDT to use.
+.. note::
+   For the FVP, the kernel FDT is packaged in FIP during build and loaded
+   by the firmware at runtime. See `Obtaining the Flattened Device Trees`_
+   section for more info on selecting the right FDT to use.
 
 #. Clean the working directory
 
-   ::
+   .. code:: shell
 
        make realclean
 
@@ -1284,7 +1290,7 @@ section for more info on selecting the right FDT to use.
    Use the fiptool to extract the SCP_BL2 and BL33 images from the FIP
    package included in the Linaro release:
 
-   ::
+   .. code:: shell
 
        # Build the fiptool
        make [DEBUG=1] [V=1] fiptool
@@ -1296,16 +1302,18 @@ section for more info on selecting the right FDT to use.
    current working directory. The SCP_BL2 image corresponds to
    ``scp-fw.bin`` and BL33 corresponds to ``nt-fw.bin``.
 
-   Note: The fiptool will complain if the images to be unpacked already
-   exist in the current directory. If that is the case, either delete those
-   files or use the ``--force`` option to overwrite.
+   .. note::
+      The fiptool will complain if the images to be unpacked already
+      exist in the current directory. If that is the case, either delete those
+      files or use the ``--force`` option to overwrite.
 
-   Note: For AArch32, the instructions below assume that nt-fw.bin is a normal
-   world boot loader that supports AArch32.
+   .. note::
+      For AArch32, the instructions below assume that nt-fw.bin is a
+      normal world boot loader that supports AArch32.
 
 #. Build TF-A images and create a new FIP for FVP
 
-   ::
+   .. code:: shell
 
        # AArch64
        make PLAT=fvp BL33=nt-fw.bin all fip
@@ -1320,7 +1328,7 @@ section for more info on selecting the right FDT to use.
    Building for AArch64 on Juno simply requires the addition of ``SCP_BL2``
    as a build parameter.
 
-   ::
+   .. code:: shell
 
        make PLAT=juno BL33=nt-fw.bin SCP_BL2=scp-fw.bin all fip
 
@@ -1333,13 +1341,13 @@ section for more info on selecting the right FDT to use.
    -  Before building BL32, the environment variable ``CROSS_COMPILE`` must point
       to the AArch32 Linaro cross compiler.
 
-      ::
+      .. code:: shell
 
           export CROSS_COMPILE=<path-to-aarch32-gcc>/bin/arm-linux-gnueabihf-
 
    -  Build BL32 in AArch32.
 
-      ::
+      .. code:: shell
 
           make ARCH=aarch32 PLAT=juno AARCH32_SP=sp_min \
           RESET_TO_SP_MIN=1 JUNO_AARCH32_EL3_RUNTIME=1 bl32
@@ -1354,14 +1362,14 @@ section for more info on selecting the right FDT to use.
    -  Before building BL1 and BL2, the environment variable ``CROSS_COMPILE``
       must point to the AArch64 Linaro cross compiler.
 
-      ::
+      .. code:: shell
 
           export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
 
    -  The following parameters should be used to build BL1 and BL2 in AArch64
       and point to the BL32 file.
 
-      ::
+      .. code:: shell
 
           make ARCH=aarch64 PLAT=juno JUNO_AARCH32_EL3_RUNTIME=1 \
           BL33=nt-fw.bin SCP_BL2=scp-fw.bin \
@@ -1499,7 +1507,7 @@ clear the mailbox at start-up.
 One way to do that is to create an 8-byte file containing all zero bytes using
 the following command:
 
-::
+.. code:: shell
 
     dd if=/dev/zero of=mailbox.dat bs=1 count=8
 
@@ -1569,7 +1577,7 @@ used when compiling TF-A. For example, the following command will create a FIP
 without a BL33 and prepare to jump to a BL33 image loaded at address
 0x80000000:
 
-::
+.. code:: shell
 
     make PRELOADED_BL33_BASE=0x80000000 PLAT=fvp all fip
 
@@ -1584,7 +1592,7 @@ memory (like in FVP).
 For example, if the kernel is loaded at ``0x80080000`` and the DTB is loaded at
 address ``0x82000000``, the firmware can be built like this:
 
-::
+.. code:: shell
 
     CROSS_COMPILE=aarch64-linux-gnu-  \
     make PLAT=fvp DEBUG=1             \
@@ -1632,7 +1640,7 @@ offset in ``INITRD_START`` has to be removed.
 
 And the FVP binary can be run with the following command:
 
-::
+.. code:: shell
 
     <path-to>/FVP_Base_AEMv8A-AEMv8A                            \
     -C pctl.startup=0.0.0.0                                     \
@@ -1667,7 +1675,8 @@ The latest version of the AArch64 build of TF-A has been tested on the following
 Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 (64-bit host machine only).
 
-The FVP models used are Version 11.6 Build 45, unless otherwise stated.
+.. note::
+   The FVP models used are Version 11.6 Build 45, unless otherwise stated.
 
 -  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_AEMv8A-AEMv8A-AEMv8A-AEMv8A-CCN502``
@@ -1704,30 +1713,36 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_Cortex-A32x4``
 
-NOTE: The ``FVP_Base_RevC-2xAEMv8A`` FVP only supports shifted affinities, which
-is not compatible with legacy GIC configurations. Therefore this FVP does not
-support these legacy GIC configurations.
+.. note::
+   The ``FVP_Base_RevC-2xAEMv8A`` FVP only supports shifted affinities, which
+   is not compatible with legacy GIC configurations. Therefore this FVP does not
+   support these legacy GIC configurations.
 
-NOTE: The build numbers quoted above are those reported by launching the FVP
-with the ``--version`` parameter.
+.. note::
+   The build numbers quoted above are those reported by launching the FVP
+   with the ``--version`` parameter.
 
-NOTE: Linaro provides a ramdisk image in prebuilt FVP configurations and full
-file systems that can be downloaded separately. To run an FVP with a virtio
-file system image an additional FVP configuration option
-``-C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>`` can be
-used.
+.. note::
+   Linaro provides a ramdisk image in prebuilt FVP configurations and full
+   file systems that can be downloaded separately. To run an FVP with a virtio
+   file system image an additional FVP configuration option
+   ``-C bp.virtioblockdevice.image_path="<path-to>/<file-system-image>`` can be
+   used.
 
-NOTE: The software will not work on Version 1.0 of the Foundation FVP.
-The commands below would report an ``unhandled argument`` error in this case.
+.. note::
+   The software will not work on Version 1.0 of the Foundation FVP.
+   The commands below would report an ``unhandled argument`` error in this case.
 
-NOTE: FVPs can be launched with ``--cadi-server`` option such that a
-CADI-compliant debugger (for example, Arm DS-5) can connect to and control its
-execution.
+.. note::
+   FVPs can be launched with ``--cadi-server`` option such that a
+   CADI-compliant debugger (for example, Arm DS-5) can connect to and control
+   its execution.
 
-NOTE: Since FVP model Version 11.0 Build 11.0.34 and Version 8.5 Build 0.8.5202
-the internal synchronisation timings changed compared to older versions of the
-models. The models can be launched with ``-Q 100`` option if they are required
-to match the run time characteristics of the older versions.
+.. warning::
+   Since FVP model Version 11.0 Build 11.0.34 and Version 8.5 Build 0.8.5202
+   the internal synchronisation timings changed compared to older versions of
+   the models. The models can be launched with ``-Q 100`` option if they are
+   required to match the run time characteristics of the older versions.
 
 The Foundation FVP is a cut down version of the AArch64 Base FVP. It can be
 downloaded for free from `Arm's website`_.
@@ -1748,8 +1763,9 @@ be found in the TF-A source directory under ``fdts/``. The Foundation FVP has
 a subset of the Base FVP components. For example, the Foundation FVP lacks
 CLCD and MMC support, and has only one CPU cluster.
 
-Note: It is not recommended to use the FDTs built along the kernel because not
-all FDTs are available from there.
+.. note::
+   It is not recommended to use the FDTs built along the kernel because not
+   all FDTs are available from there.
 
 The dynamic configuration capability is enabled in the firmware for FVPs.
 This means that the firmware can authenticate and load the FDT if present in
@@ -1806,7 +1822,7 @@ Running on the Foundation FVP with reset to BL1 entrypoint
 The following ``Foundation_Platform`` parameters should be used to boot Linux with
 4 CPUs using the AArch64 build of TF-A.
 
-::
+.. code:: shell
 
     <path-to>/Foundation_Platform                   \
     --cores=4                                       \
@@ -1842,7 +1858,7 @@ Running on the AEMv8 Base FVP with reset to BL1 entrypoint
 The following ``FVP_Base_RevC-2xAEMv8A`` parameters should be used to boot Linux
 with 8 CPUs using the AArch64 build of TF-A.
 
-::
+.. code:: shell
 
     <path-to>/FVP_Base_RevC-2xAEMv8A                            \
     -C pctl.startup=0.0.0.0                                     \
@@ -1856,8 +1872,9 @@ with 8 CPUs using the AArch64 build of TF-A.
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000 \
     --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
-Note: The ``FVP_Base_RevC-2xAEMv8A`` has shifted affinities and requires a
-specific DTS for all the CPUs to be loaded.
+.. note::
+   The ``FVP_Base_RevC-2xAEMv8A`` has shifted affinities and requires
+   a specific DTS for all the CPUs to be loaded.
 
 Running on the AEMv8 Base FVP (AArch32) with reset to BL1 entrypoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1865,7 +1882,7 @@ Running on the AEMv8 Base FVP (AArch32) with reset to BL1 entrypoint
 The following ``FVP_Base_AEMv8A-AEMv8A`` parameters should be used to boot Linux
 with 8 CPUs using the AArch32 build of TF-A.
 
-::
+.. code:: shell
 
     <path-to>/FVP_Base_AEMv8A-AEMv8A                            \
     -C pctl.startup=0.0.0.0                                     \
@@ -1893,7 +1910,7 @@ Running on the Cortex-A57-A53 Base FVP with reset to BL1 entrypoint
 The following ``FVP_Base_Cortex-A57x4-A53x4`` model parameters should be used to
 boot Linux with 8 CPUs using the AArch64 build of TF-A.
 
-::
+.. code:: shell
 
     <path-to>/FVP_Base_Cortex-A57x4-A53x4                       \
     -C pctl.startup=0.0.0.0                                     \
@@ -1911,7 +1928,7 @@ Running on the Cortex-A32 Base FVP (AArch32) with reset to BL1 entrypoint
 The following ``FVP_Base_Cortex-A32x4`` model parameters should be used to
 boot Linux with 4 CPUs using the AArch32 build of TF-A.
 
-::
+.. code:: shell
 
     <path-to>/FVP_Base_Cortex-A32x4                             \
     -C pctl.startup=0.0.0.0                                     \
@@ -1929,7 +1946,7 @@ Running on the AEMv8 Base FVP with reset to BL31 entrypoint
 The following ``FVP_Base_RevC-2xAEMv8A`` parameters should be used to boot Linux
 with 8 CPUs using the AArch64 build of TF-A.
 
-::
+.. code:: shell
 
     <path-to>/FVP_Base_RevC-2xAEMv8A                             \
     -C pctl.startup=0.0.0.0                                      \
@@ -1984,7 +2001,7 @@ Running on the AEMv8 Base FVP (AArch32) with reset to SP_MIN entrypoint
 The following ``FVP_Base_AEMv8A-AEMv8A`` parameters should be used to boot Linux
 with 8 CPUs using the AArch32 build of TF-A.
 
-::
+.. code:: shell
 
     <path-to>/FVP_Base_AEMv8A-AEMv8A                             \
     -C pctl.startup=0.0.0.0                                      \
@@ -2015,8 +2032,9 @@ with 8 CPUs using the AArch32 build of TF-A.
     --data cluster0.cpu0="<path-to>/<kernel-binary>"@0x80080000  \
     --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
-Note: The load address of ``<bl32-binary>`` depends on the value ``BL32_BASE``.
-It should match the address programmed into the RVBAR register as well.
+.. note::
+   The load address of ``<bl32-binary>`` depends on the value ``BL32_BASE``.
+   It should match the address programmed into the RVBAR register as well.
 
 Running on the Cortex-A57-A53 Base FVP with reset to BL31 entrypoint
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2024,7 +2042,7 @@ Running on the Cortex-A57-A53 Base FVP with reset to BL31 entrypoint
 The following ``FVP_Base_Cortex-A57x4-A53x4`` model parameters should be used to
 boot Linux with 8 CPUs using the AArch64 build of TF-A.
 
-::
+.. code:: shell
 
     <path-to>/FVP_Base_Cortex-A57x4-A53x4                        \
     -C pctl.startup=0.0.0.0                                      \
@@ -2052,7 +2070,7 @@ Running on the Cortex-A32 Base FVP (AArch32) with reset to SP_MIN entrypoint
 The following ``FVP_Base_Cortex-A32x4`` model parameters should be used to
 boot Linux with 4 CPUs using the AArch32 build of TF-A.
 
-::
+.. code:: shell
 
     <path-to>/FVP_Base_Cortex-A32x4                             \
     -C pctl.startup=0.0.0.0                                     \
@@ -2101,7 +2119,7 @@ The SYSTEM SUSPEND is a PSCI API which can be used to implement system suspend
 to RAM. For more details refer to section 5.16 of `PSCI`_. To test system suspend
 on Juno, at the linux shell prompt, issue the following command:
 
-::
+.. code:: shell
 
     echo +10 > /sys/class/rtc/rtc0/wakealarm
     echo -n mem > /sys/power/state

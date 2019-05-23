@@ -1,5 +1,5 @@
-Description
-===========
+NXP i.MX 8 Series
+=================
 
 The i.MX 8 series of applications processors is a feature- and
 performance-scalable multi-core platform that includes single-,
@@ -20,15 +20,15 @@ control for system-level resources on i.MX8. The heart of the system
 controller is a Cortex-M4 that executes system controller firmware.
 
 Boot Sequence
-=============
+-------------
 
 Bootrom --> BL31 --> BL33(u-boot) --> Linux kernel
 
 How to build
-============
+------------
 
 Build Procedure
----------------
+~~~~~~~~~~~~~~~
 
 -  Prepare AARCH64 toolchain.
 
@@ -46,7 +46,7 @@ Build Procedure
    Target_SoC should be "imx8qx" for i.MX8QX SoC.
 
 Deploy TF-A Images
------------------
+~~~~~~~~~~~~~~~~~~
 
 TF-A binary(bl31.bin), scfw_tcm.bin and u-boot.bin are combined together
 to generate a binary file called flash.bin, the imx-mkimage tool is used

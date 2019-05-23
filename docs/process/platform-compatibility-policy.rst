@@ -1,12 +1,5 @@
-TF-A Platform Compatibility Policy
-==================================
-
-
-
-
-.. contents::
-
---------------
+Platform Compatibility Policy
+=============================
 
 Introduction
 ------------

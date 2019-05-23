@@ -1,11 +1,5 @@
-Translation Tables Library Design
+Translation (XLAT) Tables Library
 =================================
-
-
-
-
-.. contents::
-
 
 This document describes the design of the translation tables library (version 2)
 used by Trusted Firmware-A (TF-A). This library provides APIs to create page
@@ -424,4 +418,4 @@ mapping cannot be cached in the TLBs.
 .. _aarch32/xlat_tables_arch.c: ../../lib/xlat_tables_v2/aarch32/xlat_tables_arch.c
 .. _aarch64/xlat_tables_arch.c: ../../lib/xlat_tables_v2/aarch64/xlat_tables_arch.c
 .. _Porting Guide: ../getting_started/porting-guide.rst
-.. |Alignment Example| image:: ../diagrams/xlat_align.png?raw=true
+.. |Alignment Example| image:: ../resources/diagrams/xlat_align.png

@@ -1,10 +1,5 @@
-Abstracting a Chain of Trust
-============================
-
-
-
-
-.. contents::
+Authentication Framework & Chain of Trust
+=========================================
 
 The aim of this document is to describe the authentication framework
 implemented in Trusted Firmware-A (TF-A). This framework fulfills the
@@ -413,7 +408,7 @@ An IPL must provide functions with the following prototypes:
 
 An IPL for each type must be registered using the following macro:
 
-::
+.. code:: c
 
     REGISTER_IMG_PARSER_LIB(_type, _name, _init, _check_int, _get_param)
 
@@ -958,9 +953,11 @@ sources in the build for the various algorithms. Setting the variable to
 `rsa+ecdsa` enables support for both rsa and ecdsa algorithms in the mbedTLS
 library.
 
-Note: If code size is a concern, the build option ``MBEDTLS_SHA256_SMALLER`` can
-be defined in the platform Makefile. It will make mbed TLS use an implementation
-of SHA-256 with smaller memory footprint (~1.5 KB less) but slower (~30%).
+.. note::
+   If code size is a concern, the build option ``MBEDTLS_SHA256_SMALLER`` can
+   be defined in the platform Makefile. It will make mbed TLS use an
+   implementation of SHA-256 with smaller memory footprint (~1.5 KB less) but
+   slower (~30%).
 
 --------------
 

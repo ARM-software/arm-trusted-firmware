@@ -1,5 +1,5 @@
-Arm SiP Service
-===============
+Arm SiP Services
+================
 
 This document enumerates and describes the Arm SiP (Silicon Provider) services.
 

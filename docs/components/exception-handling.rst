@@ -1,14 +1,5 @@
-Exception Handling Framework in Trusted Firmware-A
-==================================================
-
-
-
-
-.. contents::
-    :depth: 2
-
-.. |EHF| replace:: Exception Handling Framework
-.. |TF-A| replace:: Trusted Firmware-A
+Exception Handling Framework
+============================
 
 This document describes various aspects of handling exceptions by Runtime
 Firmware (BL31) that are targeted at EL3, other than SMCs. The |EHF| takes care
@@ -54,11 +45,11 @@ exceptions are targeted at and handled in EL3. For instance:
 
 -  The Arm `SDEI specification`_ defines interfaces through which Normal world
    interacts with the Runtime Firmware in order to request notification of
-   system events. The SDEI specification requires that these events are notified
-   even when the Normal world executes with the exceptions masked. This too
-   implies that firmware-first handling is required, where the events are first
-   received by the EL3 firmware, and then dispatched to Normal world through
-   purely software mechanism.
+   system events. The |SDEI| specification requires that these events are
+   notified even when the Normal world executes with the exceptions masked. This
+   too implies that firmware-first handling is required, where the events are
+   first received by the EL3 firmware, and then dispatched to Normal world
+   through purely software mechanism.
 
 For |TF-A|, firmware-first handling means that asynchronous exceptions are
 suitably routed to EL3, and the Runtime Firmware (BL31) is extended to include
@@ -79,8 +70,8 @@ choose to:
    processing of the error to dedicated software stack running at lower secure
    ELs (as above); additionally, the Normal world may also be required to
    participate in the handling, or be notified of such events (for example, as
-   an SDEI event). In this scheme, exception handling potentially and maximally
-   spans all ELs in both Secure and Normal worlds.
+   an |SDEI| event). In this scheme, exception handling potentially and
+   maximally spans all ELs in both Secure and Normal worlds.
 
 On any given system, all of the above handling models may be employed
 independently depending on platform choice and the nature of the exception
@@ -116,7 +107,7 @@ for more than one priority level.
 
 .. _ehf-figure:
 
-.. image:: ../draw.io/ehf.svg
+.. image:: ../resources/diagrams/draw.io/ehf.svg
 
 A priority level is *active* when a handler at that priority level is currently
 executing in EL3, or has delegated the execution to a lower EL. For interrupts,
@@ -202,7 +193,7 @@ priority assignment:
    6 and 5), the platform can partition into 4 secure priority ranges: ``0x0``,
    ``0x20``, ``0x40``, and ``0x60``. See `Interrupt handling example`_.
 
-Note:
+.. note::
 
    The Arm GIC architecture requires that a GIC implementation that supports two
    security states must implement at least 32 priority levels; i.e., at least 5
@@ -224,7 +215,7 @@ priority level descriptors. Each entry in the array is of type
 ``ehf_pri_desc_t``, and declares a priority level, and shall be populated by the
 ``EHF_PRI_DESC()`` macro.
 
-Note:
+.. warning::
 
    The macro ``EHF_PRI_DESC()`` installs the descriptors in the array at a
    computed index, and not necessarily where the macro is placed in the array.
@@ -609,8 +600,8 @@ should carefully consider the assignment of priorities to dispatchers integrated
 into runtime firmware. The platform should sensibly delineate priority to
 various dispatchers according to their nature. In particular, dispatchers of
 critical nature (RAS, for example) should be assigned higher priority than
-others (SDEI, for example); and within SDEI, Critical priority SDEI should be
-assigned higher priority than Normal ones.
+others (|SDEI|, for example); and within |SDEI|, Critical priority
+|SDEI| should be assigned higher priority than Normal ones.
 
 Limitations
 -----------

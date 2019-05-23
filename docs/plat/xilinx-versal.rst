@@ -1,5 +1,5 @@
-Trusted Firmware-A for Xilinx Versal
-================================
+Xilinx Versal
+=============
 
 Trusted Firmware-A implements the EL3 firmware layer for Xilinx Versal.
 The platform only uses the runtime part of TF-A as Xilinx Versal already has a
@@ -19,7 +19,9 @@ To build ATF for different platform (for now its just versal virtual "versal_vir
 make RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=versal VERSAL_PLATFORM=versal_virt bl31
 ```
 
-# Xilinx Versal platform specific build options
+Xilinx Versal platform specific build options
+---------------------------------------------
+
 *   `VERSAL_ATF_MEM_BASE`: Specifies the base address of the bl31 binary.
 *   `VERSAL_ATF_MEM_SIZE`: Specifies the size of the memory region of the bl31 binary.
 *   `VERSAL_BL32_MEM_BASE`: Specifies the base address of the bl32 binary.

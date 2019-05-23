@@ -1,5 +1,5 @@
-Trusted Firmware-A for Rockchip SoCs
-====================================
+Rockchip SoCs
+=============
 
 Trusted Firmware-A supports a number of Rockchip ARM SoCs from both
 AARCH32 and AARCH64 fields.
@@ -12,7 +12,7 @@ This includes right now:
 
 
 Boot Sequence
-=============
+-------------
 
 For AARCH32:
     Bootrom --> BL1/BL2 --> BL32 --> BL33 --> Linux kernel
@@ -26,7 +26,7 @@ BL1/2 and BL33 can currently be supplied from either:
 
 
 How to build
-============
+------------
 
 Rockchip SoCs expect TF-A's BL31 (AARCH64) or BL32 (AARCH32) to get
 integrated with other boot software like U-Boot or Coreboot, so only
@@ -46,7 +46,7 @@ compilation toolchain.
 
 
 How to deploy
-=============
+-------------
 
 Both upstream U-Boot and Coreboot projects contain instructions on where
 to put the built images during their respective build process.
