@@ -18,6 +18,8 @@
 /* SCMI messge ID to get the available DRAM region */
 #define SCMI_VENDOR_EXT_MEMINFO_GET_MSG		0x3
 
+#define SCMI_VENDOR_EXT_MEMINFO_GET_MSG_LEN	4
+
 /*
  * API to get the available DRAM region
  */
@@ -35,7 +37,7 @@ int scmi_get_draminfo(void *p, struct draminfo *info)
 	mbx_mem = (mailbox_mem_t *)(ch->info->scmi_mbx_mem);
 	mbx_mem->msg_header = SCMI_MSG_CREATE(SCMI_SYS_VENDOR_EXT_PROTO_ID,
 			SCMI_VENDOR_EXT_MEMINFO_GET_MSG, token);
-	mbx_mem->len = 8;
+	mbx_mem->len = SCMI_VENDOR_EXT_MEMINFO_GET_MSG_LEN;
 	mbx_mem->flags = SCMI_FLAG_RESP_POLL;
 
 	scmi_send_sync_command(ch);
