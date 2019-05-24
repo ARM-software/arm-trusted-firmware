@@ -335,14 +335,14 @@ Security advisories
 .. _Trusty Secure OS: https://source.android.com/security/trusty
 .. _trustedfirmware.org: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
 .. _issue tracker: https://developer.trustedfirmware.org/project/board/1/
-.. _Security Center: ./docs/security-center.rst
+.. _Security Center: ./docs/process/security.rst
 .. _license: ./license.rst
-.. _Contributing Guidelines: ./contributing.rst
-.. _Acknowledgments: ./acknowledgements.rst
-.. _Firmware Design: ./docs/firmware-design.rst
+.. _Contributing Guidelines: ./docs/process/contributing.rst
+.. _Acknowledgments: ./docs/acknowledgements.rst
+.. _Firmware Design: ./docs/design/firmware-design.rst
 .. _Change Log: ./docs/change-log.rst
-.. _User Guide: ./docs/user-guide.rst
-.. _Porting Guide: ./docs/porting-guide.rst
+.. _User Guide: ./docs/getting-started/user-guide.rst
+.. _Porting Guide: ./docs/getting-started/porting-guide.rst
 .. _FreeBSD: http://www.freebsd.org
 .. _SCC: http://www.simple-cc.org/
 .. _Security Advisory TFV-1: ./docs/security_advisories/security-advisory-tfv-1.rst
