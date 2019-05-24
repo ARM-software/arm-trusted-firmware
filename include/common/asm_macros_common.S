@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -38,6 +38,12 @@
 	.cfi_startproc
 	.align \_align
 	\_name:
+#if ENABLE_BTI
+	/* When Branch Target Identification is enabled, insert "bti jc"
+	 * instruction to enable indirect calls and branches
+	 */
+	 bti	jc
+#endif
 	.endm
 
 	/*

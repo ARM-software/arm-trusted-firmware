@@ -48,4 +48,10 @@ static inline bool is_armv8_4_ttst_present(void)
 		ID_AA64MMFR2_EL1_ST_MASK) == 1U;
 }
 
+static inline bool is_armv8_5_bti_present(void)
+{
+	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_BT_SHIFT) &
+		ID_AA64PFR1_EL1_BT_MASK) == BTI_IMPLEMENTED;
+}
+
 #endif /* ARCH_FEATURES_H */

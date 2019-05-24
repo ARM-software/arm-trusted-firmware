@@ -33,6 +33,9 @@ BL2_AT_EL3			:= 0
 # when BL2_AT_EL3 is 1.
 BL2_IN_XIP_MEM			:= 0
 
+# Select the branch protection features to use.
+BRANCH_PROTECTION		:= 0
+
 # By default, consider that the platform may release several CPUs out of reset.
 # The platform Makefile is free to override this value.
 COLD_BOOT_SINGLE_CPU		:= 0
@@ -90,7 +93,14 @@ ENABLE_STACK_PROTECTOR		:= 0
 # Flag to enable exception handling in EL3
 EL3_EXCEPTION_HANDLING		:= 0
 
-# Flag to enable Pointer Authentication
+# Flag to enable Branch Target Identification.
+# Internal flag not meant for direct setting.
+# Use BRANCH_PROTECTION to enable BTI.
+ENABLE_BTI			:= 0
+
+# Flag to enable Pointer Authentication.
+# Internal flag not meant for direct setting.
+# Use BRANCH_PROTECTION to enable PAUTH.
 ENABLE_PAUTH			:= 0
 
 # Build flag to treat usage of deprecated platform and framework APIs as error.

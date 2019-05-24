@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -96,6 +96,13 @@ static void xlat_desc_print(const xlat_ctx_t *ctx, uint64_t desc)
 	}
 
 	printf(((LOWER_ATTRS(NS) & desc) != 0ULL) ? "-NS" : "-S");
+
+#ifdef AARCH64
+	/* Check Guarded Page bit */
+	if ((desc & GP) != 0ULL) {
+		printf("-GP");
+	}
+#endif
 }
 
 static const char * const level_spacers[] = {
