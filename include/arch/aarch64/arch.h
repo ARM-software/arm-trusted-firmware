@@ -163,16 +163,12 @@
 /* ID_AA64ISAR1_EL1 definitions */
 #define ID_AA64ISAR1_EL1	S3_0_C0_C6_1
 #define ID_AA64ISAR1_GPI_SHIFT	U(28)
-#define ID_AA64ISAR1_GPI_WIDTH	U(4)
 #define ID_AA64ISAR1_GPI_MASK	ULL(0xf)
 #define ID_AA64ISAR1_GPA_SHIFT	U(24)
-#define ID_AA64ISAR1_GPA_WIDTH	U(4)
 #define ID_AA64ISAR1_GPA_MASK	ULL(0xf)
 #define ID_AA64ISAR1_API_SHIFT	U(8)
-#define ID_AA64ISAR1_API_WIDTH	U(4)
 #define ID_AA64ISAR1_API_MASK	ULL(0xf)
 #define ID_AA64ISAR1_APA_SHIFT	U(4)
-#define ID_AA64ISAR1_APA_WIDTH	U(4)
 #define ID_AA64ISAR1_APA_MASK	ULL(0xf)
 
 /* ID_AA64MMFR0_EL1 definitions */
@@ -217,6 +213,11 @@
 
 #define SSBS_UNAVAILABLE	ULL(0)	/* No architectural SSBS support */
 
+#define ID_AA64PFR1_EL1_BT_SHIFT	U(0)
+#define ID_AA64PFR1_EL1_BT_MASK		ULL(0xf)
+
+#define BTI_IMPLEMENTED		ULL(1)	/* The BTI mechanism is implemented */
+
 /* ID_PFR1_EL1 definitions */
 #define ID_PFR1_VIRTEXT_SHIFT	U(12)
 #define ID_PFR1_VIRTEXT_MASK	U(0xf)
@@ -260,6 +261,9 @@
 #define SCTLR_EE_BIT		(ULL(1) << 25)
 #define SCTLR_UCI_BIT		(ULL(1) << 26)
 #define SCTLR_EnIA_BIT		(ULL(1) << 31)
+#define SCTLR_BT0_BIT		(ULL(1) << 35)
+#define SCTLR_BT1_BIT		(ULL(1) << 36)
+#define SCTLR_BT_BIT		(ULL(1) << 36)
 #define SCTLR_DSSBS_BIT		(ULL(1) << 44)
 #define SCTLR_RESET_VAL		SCTLR_EL3_RES1
 

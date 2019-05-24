@@ -2564,7 +2564,7 @@ Armv8.3-A
    to the context that is saved when doing a world switch.
 
    The TF-A itself has support for pointer authentication at runtime
-   that can be enabled by setting both options ``ENABLE_PAUTH`` and
+   that can be enabled by setting ``BRANCH_PROTECTION`` option to non-zero and
    ``CTX_INCLUDE_PAUTH_REGS`` to 1. This enables pointer authentication in BL1,
    BL2, BL31, and the TSP if it is used.
 
@@ -2576,6 +2576,12 @@ Armv8.3-A
    If ``ARM_ARCH_MAJOR == 8`` and ``ARM_ARCH_MINOR >= 3`` the code footprint of
    enabling PAuth is lower because the compiler will use the optimized
    PAuth instructions rather than the backwards-compatible ones.
+
+Armv8.5-A
+~~~~~~~~~
+
+-  Branch Target Identification feature is selected by ``BRANCH_PROTECTION``
+   option set to 1. This option defaults to 0 and this is an experimental feature.
 
 Armv7-A
 ~~~~~~~

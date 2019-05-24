@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,7 @@
 
 #include <platform_def.h>
 
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/utils_def.h>
@@ -195,6 +196,18 @@ uint64_t xlat_desc(const xlat_ctx_t *ctx, uint32_t attr,
 
 		if (mem_type == MT_MEMORY) {
 			desc |= LOWER_ATTRS(ATTR_IWBWA_OWBWA_NTR_INDEX | ISH);
+
+			/* Check if Branch Target Identification is enabled */
+#if ENABLE_BTI
+			/* Set GP bit for block and page code entries
+			 * if BTI mechanism is implemented.
+			 */
+			if (is_armv8_5_bti_present() &&
+			   ((attr & (MT_TYPE_MASK | MT_RW |
+				MT_EXECUTE_NEVER)) == MT_CODE)) {
+				desc |= GP;
+			}
+#endif
 		} else {
 			assert(mem_type == MT_NON_CACHEABLE);
 			desc |= LOWER_ATTRS(ATTR_NON_CACHEABLE_INDEX | OSH);

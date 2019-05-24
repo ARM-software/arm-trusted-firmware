@@ -10,7 +10,6 @@
 #include <el3_common_macros.S>
 
 	.globl	bl2_entrypoint
-	.globl	bl2_vector_table
 	.globl	bl2_el3_run_image
 	.globl	bl2_run_next_image
 
@@ -51,6 +50,13 @@ func bl2_entrypoint
 #if ENABLE_PAUTH
 	mrs	x0, sctlr_el3
 	orr	x0, x0, #SCTLR_EnIA_BIT
+#if ENABLE_BTI
+	/* ---------------------------------------------
+	 * Enable PAC branch type compatibility
+	 * ---------------------------------------------
+	 */
+	bic	x0, x0, #SCTLR_BT_BIT
+#endif	/* ENABLE_BTI */
 	msr	sctlr_el3, x0
 	isb
 #endif /* ENABLE_PAUTH */

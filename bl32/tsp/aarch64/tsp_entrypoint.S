@@ -136,6 +136,13 @@ func tsp_entrypoint _align=3
 #if ENABLE_PAUTH
 	mrs	x0, sctlr_el1
 	orr	x0, x0, #SCTLR_EnIA_BIT
+#if ENABLE_BTI
+	/* ---------------------------------------------
+	 * Enable PAC branch type compatibility
+	 * ---------------------------------------------
+	 */
+	bic	x0, x0, #(SCTLR_BT0_BIT | SCTLR_BT1_BIT)
+#endif	/* ENABLE_BTI */
 	msr	sctlr_el1, x0
 	isb
 #endif /* ENABLE_PAUTH */
@@ -164,7 +171,7 @@ endfunc tsp_entrypoint
 	 * TSPD for the various entrypoints
 	 * -------------------------------------------
 	 */
-func tsp_vector_table
+vector_base tsp_vector_table
 	b	tsp_yield_smc_entry
 	b	tsp_fast_smc_entry
 	b	tsp_cpu_on_entry
@@ -175,7 +182,6 @@ func tsp_vector_table
 	b	tsp_system_off_entry
 	b	tsp_system_reset_entry
 	b	tsp_abort_yield_smc_entry
-endfunc tsp_vector_table
 
 	/*---------------------------------------------
 	 * This entrypoint is used by the TSPD when this

@@ -105,6 +105,13 @@ func bl31_entrypoint
 #if ENABLE_PAUTH
 	mrs	x0, sctlr_el3
 	orr	x0, x0, #SCTLR_EnIA_BIT
+#if ENABLE_BTI
+	/* --------------------------------------------------------------------
+	 * Enable PAC branch type compatibility
+	 * --------------------------------------------------------------------
+	 */
+	bic	x0, x0, #SCTLR_BT_BIT
+#endif	/* ENABLE_BTI */
 	msr	sctlr_el3, x0
 	isb
 #endif /* ENABLE_PAUTH */
@@ -211,6 +218,13 @@ func bl31_warm_entrypoint
 
 	mrs	x0, sctlr_el3
 	orr	x0, x0, #SCTLR_EnIA_BIT
+#if ENABLE_BTI
+	/* --------------------------------------------------------------------
+	 * Enable PAC branch type compatibility
+	 * --------------------------------------------------------------------
+	 */
+	bic	x0, x0, #SCTLR_BT_BIT
+#endif	/* ENABLE_BTI */
 	msr	sctlr_el3, x0
 	isb
 #endif /* ENABLE_PAUTH */
