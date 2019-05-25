@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include <lib/psci/psci.h>
 #include <lib/xlat_tables/xlat_tables.h>
 #include <lib/mmio.h>
+#include <plat_params.h>
 
 #define __sramdata __attribute__((section(".sram.data")))
 #define __sramconst __attribute__((section(".sram.rodata")))
@@ -94,7 +95,7 @@ void plat_cci_disable(void);
 
 void plat_delay_timer_init(void);
 
-void params_early_setup(void *plat_params_from_bl2);
+void params_early_setup(u_register_t plat_params_from_bl2);
 
 void plat_rockchip_gic_driver_init(void);
 void plat_rockchip_gic_init(void);
@@ -108,10 +109,10 @@ uintptr_t plat_get_sec_entrypoint(void);
 
 void platform_cpu_warmboot(void);
 
-struct gpio_info *plat_get_rockchip_gpio_reset(void);
-struct gpio_info *plat_get_rockchip_gpio_poweroff(void);
-struct gpio_info *plat_get_rockchip_suspend_gpio(uint32_t *count);
-struct apio_info *plat_get_rockchip_suspend_apio(void);
+struct bl_aux_gpio_info *plat_get_rockchip_gpio_reset(void);
+struct bl_aux_gpio_info *plat_get_rockchip_gpio_poweroff(void);
+struct bl_aux_gpio_info *plat_get_rockchip_suspend_gpio(uint32_t *count);
+struct bl_aux_rk_apio_info *plat_get_rockchip_suspend_apio(void);
 void plat_rockchip_gpio_init(void);
 void plat_rockchip_save_gpio(void);
 void plat_rockchip_restore_gpio(void);

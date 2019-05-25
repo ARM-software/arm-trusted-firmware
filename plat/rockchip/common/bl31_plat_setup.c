@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -41,7 +41,7 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 }
 
 #pragma weak params_early_setup
-void params_early_setup(void *plat_param_from_bl2)
+void params_early_setup(u_register_t plat_param_from_bl2)
 {
 }
 
@@ -58,9 +58,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	static console_16550_t console;
 	struct rockchip_bl31_params *arg_from_bl2 = (struct rockchip_bl31_params *) arg0;
-	void *plat_params_from_bl2 = (void *) arg1;
 
-	params_early_setup(plat_params_from_bl2);
+	params_early_setup(arg1);
 
 #if COREBOOT
 	if (coreboot_serial.type)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -890,7 +890,7 @@ static uint32_t gpio_2_4_clk_gate;
 
 static void suspend_apio(void)
 {
-	struct apio_info *suspend_apio;
+	struct bl_aux_rk_apio_info *suspend_apio;
 	int i;
 
 	suspend_apio = plat_get_rockchip_suspend_apio();
@@ -1010,7 +1010,7 @@ static void suspend_apio(void)
 
 static void resume_apio(void)
 {
-	struct apio_info *suspend_apio;
+	struct bl_aux_rk_apio_info *suspend_apio;
 	int i;
 
 	suspend_apio = plat_get_rockchip_suspend_apio();
@@ -1038,7 +1038,7 @@ static void resume_apio(void)
 
 static void suspend_gpio(void)
 {
-	struct gpio_info *suspend_gpio;
+	struct bl_aux_gpio_info *suspend_gpio;
 	uint32_t count;
 	int i;
 
@@ -1053,7 +1053,7 @@ static void suspend_gpio(void)
 
 static void resume_gpio(void)
 {
-	struct gpio_info *suspend_gpio;
+	struct bl_aux_gpio_info *suspend_gpio;
 	uint32_t count;
 	int i;
 
@@ -1491,7 +1491,7 @@ int rockchip_soc_sys_pwr_dm_resume(void)
 
 void __dead2 rockchip_soc_soft_reset(void)
 {
-	struct gpio_info *rst_gpio;
+	struct bl_aux_gpio_info *rst_gpio;
 
 	rst_gpio = plat_get_rockchip_gpio_reset();
 
@@ -1508,7 +1508,7 @@ void __dead2 rockchip_soc_soft_reset(void)
 
 void __dead2 rockchip_soc_system_off(void)
 {
-	struct gpio_info *poweroff_gpio;
+	struct bl_aux_gpio_info *poweroff_gpio;
 
 	poweroff_gpio = plat_get_rockchip_gpio_poweroff();
 

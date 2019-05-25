@@ -40,7 +40,7 @@ entry_point_info_t *sp_min_plat_get_bl33_ep_info(void)
 }
 
 #pragma weak params_early_setup
-void params_early_setup(void *plat_param_from_bl2)
+void params_early_setup(u_register_t plat_param_from_bl2)
 {
 }
 
@@ -54,9 +54,8 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	static console_16550_t console;
 	struct rockchip_bl31_params *arg_from_bl2 = (struct rockchip_bl31_params *) arg0;
-	void *plat_params_from_bl2 = (void *) arg1;
 
-	params_early_setup(plat_params_from_bl2);
+	params_early_setup(arg1);
 
 #if COREBOOT
 	if (coreboot_serial.type)
