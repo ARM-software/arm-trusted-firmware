@@ -41,7 +41,7 @@ execute the registered handler [10]. The client terminates its execution with
 original EL2 execution [13]. Note that the SDEI interrupt remains active until
 the client handler completes, at which point EL3 does EOI [12].
 
-Other than events bound to interrupts (as depicted in the sequence above, SDEI
+Other than events bound to interrupts, as depicted in the sequence above, SDEI
 events can be explicitly dispatched in response to other exceptions, for
 example, upon receiving an *SError* or *Synchronous External Abort*. See
 `Explicit dispatch of events`_.
@@ -370,3 +370,4 @@ implemented in assembly, following a similar pattern as below:
 
 .. _SDEI specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
 .. _SDEI porting requirements: ../getting_started/porting-guide.rst#sdei-porting-requirements
+.. _Software Delegated Exception Interface: `SDEI specification`_
