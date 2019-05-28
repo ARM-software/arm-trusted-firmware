@@ -13,9 +13,9 @@ Getting Started
       raise a separate `issue`_ for this and ensure that the changes that
       include Third Party IP are made on a separate topic branch.
 
--  Clone `arm-trusted-firmware-a`_ on your own machine as suggested on the
+-  Clone `Trusted Firmware-A`_ on your own machine as suggested on the
    `User Guide`_.
--  Create a local topic branch based on the `arm-trusted-firmware-a`_ ``master``
+-  Create a local topic branch based on the `Trusted Firmware-A`_ ``master``
    branch.
 
 Making Changes
@@ -130,17 +130,17 @@ Binary Components
 
 .. _developer.trustedfirmware.org: https://developer.trustedfirmware.org
 .. _issue: https://developer.trustedfirmware.org/project/board/1/
-.. _arm-trusted-firmware-a: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
+.. _Trusted Firmware-A: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
 .. _Git guidelines: http://git-scm.com/book/ch5-2.html
-.. _Coding Guidelines: ./docs/coding-guidelines.rst
-.. _User Guide: ./docs/user-guide.rst
-.. _Porting Guide: ./docs/porting-guide.rst
-.. _Firmware Design: ./docs/firmware-design.rst
-.. _license.rst: ./license.rst
-.. _Acknowledgements: ./acknowledgements.rst
-.. _Maintainers: ./maintainers.rst
-.. _Running the software on FVP: ./docs/user-guide.rst#user-content-running-the-software-on-fvp
-.. _Developer Certificate of Origin (DCO): ./dco.txt
+.. _Coding Guidelines: ./coding-guidelines.rst
+.. _User Guide: ../getting_started/user-guide.rst
+.. _Porting Guide: ../getting_started/porting-guide.rst
+.. _Firmware Design: ../design/firmware-design.rst
+.. _license.rst: ../license.rst
+.. _Acknowledgements: ../acknowledgements.rst
+.. _Maintainers: ../maintainers.rst
+.. _Running the software on FVP: ../getting_started/user-guide.rst#user-content-running-the-software-on-fvp
+.. _Developer Certificate of Origin (DCO): ../../dco.txt
 .. _Gerrit Uploading Changes documentation: https://review.trustedfirmware.org/Documentation/user-upload.html
 .. _Gerrit Signed-off-by Lines guidelines: https://review.trustedfirmware.org/Documentation/user-signedoffby.html
 .. _Gerrit Change-Ids documentation: https://review.trustedfirmware.org/Documentation/user-changeid.html

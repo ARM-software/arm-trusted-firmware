@@ -92,5 +92,5 @@ respectively.
 *Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.*
 
 .. _SMC Calling Convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
-.. _Performance Measurement Framework: ./firmware-design.rst#user-content-performance-measurement-framework
-.. _Firmware Design document: ./firmware-design.rst
+.. _Performance Measurement Framework: ../design/firmware-design.rst#user-content-performance-measurement-framework
+.. _Firmware Design document: ../design/firmware-design.rst

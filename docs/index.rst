@@ -300,21 +300,11 @@ Arm licensees may contact Arm directly via their partner managers.
 .. _Trusty Secure OS: https://source.android.com/security/trusty
 .. _trustedfirmware.org: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
 .. _issue tracker: https://issues.trustedfirmware.org
-.. _Security Center: ./docs/security-center.rst
+.. _Security Center: ./process/security.rst
 .. _license: ./license.rst
-.. _Contributing Guidelines: ./contributing.rst
+.. _Contributing Guidelines: ./process/contributing.rst
 .. _Acknowledgments: ./acknowledgements.rst
-.. _Firmware Design: ./docs/firmware-design.rst
-.. _Change Log: ./docs/change-log.rst
-.. _User Guide: ./docs/user-guide.rst
-.. _Porting Guide: ./docs/porting-guide.rst
-.. _FreeBSD: http://www.freebsd.org
-.. _SCC: http://www.simple-cc.org/
-.. _Security Advisory TFV-1: ./docs/security_advisories/security-advisory-tfv-1.rst
-.. _Security Advisory TFV-2: ./docs/security_advisories/security-advisory-tfv-2.rst
-.. _Security Advisory TFV-3: ./docs/security_advisories/security-advisory-tfv-3.rst
-.. _Security Advisory TFV-4: ./docs/security_advisories/security-advisory-tfv-4.rst
-.. _Security Advisory TFV-5: ./docs/security_advisories/security-advisory-tfv-5.rst
-.. _Security Advisory TFV-6: ./docs/security_advisories/security-advisory-tfv-6.rst
-.. _Security Advisory TFV-7: ./docs/security_advisories/security-advisory-tfv-7.rst
-.. _Security Advisory TFV-8: ./docs/security_advisories/security-advisory-tfv-8.rst
+.. _Firmware Design: ./design/firmware-design.rst
+.. _Change Log: ./change-log.rst
+.. _User Guide: ./getting_started/user-guide.rst
+.. _Porting Guide: ./getting_started/porting-guide.rst

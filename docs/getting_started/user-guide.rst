@@ -2160,17 +2160,17 @@ wakeup interrupt from RTC.
 .. _Linux master tree: https://github.com/torvalds/linux/tree/master/
 .. _Dia: https://wiki.gnome.org/Apps/Dia/Download
 .. _here: psci-lib-integration-guide.rst
-.. _Trusted Board Boot: trusted-board-boot.rst
-.. _TB_FW_CONFIG for FVP: ../plat/arm/board/fvp/fdts/fvp_tb_fw_config.dts
-.. _Secure-EL1 Payloads and Dispatchers: firmware-design.rst#user-content-secure-el1-payloads-and-dispatchers
-.. _Firmware Update: firmware-update.rst
-.. _Firmware Design: firmware-design.rst
+.. _Trusted Board Boot: ../design/trusted-board-boot.rst
+.. _TB_FW_CONFIG for FVP: ../../plat/arm/board/fvp/fdts/fvp_tb_fw_config.dts
+.. _Secure-EL1 Payloads and Dispatchers: ../design/firmware-design.rst#user-content-secure-el1-payloads-and-dispatchers
+.. _Firmware Update: ../components/firmware-update.rst
+.. _Firmware Design: ../design/firmware-design.rst
 .. _mbed TLS Repository: https://github.com/ARMmbed/mbedtls.git
 .. _mbed TLS Security Center: https://tls.mbed.org/security
 .. _Arm's website: `FVP models`_
 .. _FVP models: https://developer.arm.com/products/system-design/fixed-virtual-platforms
 .. _Juno Getting Started Guide: http://infocenter.arm.com/help/topic/com.arm.doc.dui0928e/DUI0928E_juno_arm_development_platform_gsg.pdf
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
-.. _Secure Partition Manager Design guide: secure-partition-manager-design.rst
-.. _`Trusted Firmware-A Coding Guidelines`: coding-guidelines.rst
-.. _`Library at ROM`: romlib-design.rst
+.. _Secure Partition Manager Design guide: ../components/secure-partition-manager-design.rst
+.. _`Trusted Firmware-A Coding Guidelines`: ../process/coding-guidelines.rst
+.. _Library at ROM: ../components/romlib-design.rst

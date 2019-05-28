@@ -2425,7 +2425,7 @@ releases of TF-A.
 .. _SDEI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
 .. _PSCI Integration Guide: ./getting_started/psci-lib-integration-guide.rst
 .. _Developer Certificate of Origin: ../dco.txt
-.. _Contribution Guide: ./contributing.rst
+.. _Contribution Guide: ./process/contributing.rst
 .. _Authentication framework: ./design/auth-framework.rst
 .. _Firmware Update: ./design/firmware-update.rst
 .. _Firmware Design: ./design/firmware-design.rst
