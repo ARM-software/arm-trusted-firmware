@@ -22,6 +22,9 @@ ERRATA_A53_836870	:=	1
 ERRATA_A53_843419	:=	1
 ERRATA_A53_855873	:=	1
 
+# A72 Erratum for SoC
+ERRATA_A72_859971	:=	1
+
 # Split out RO data into a non-executable section
 SEPARATE_CODE_AND_RODATA :=    1
 
@@ -68,6 +71,7 @@ K3_TI_SCI_SOURCES	+=	\
 
 PLAT_BL_COMMON_SOURCES	+=	\
 				lib/cpus/aarch64/cortex_a53.S		\
+				lib/cpus/aarch64/cortex_a72.S		\
 				${XLAT_TABLES_LIB_SRCS}			\
 				${K3_CONSOLE_SOURCES}			\
 
