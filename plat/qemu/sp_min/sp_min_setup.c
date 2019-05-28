@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -93,8 +93,7 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	bl_params_t *params_from_bl2 = (bl_params_t *)arg0;
 
 	/* Initialize the console to provide early debug support */
-	console_init(PLAT_QEMU_BOOT_UART_BASE, PLAT_QEMU_BOOT_UART_CLK_IN_HZ,
-			PLAT_QEMU_CONSOLE_BAUDRATE);
+	qemu_console_init();
 
 	ERROR("qemu sp_min, console init\n");
 	/*
