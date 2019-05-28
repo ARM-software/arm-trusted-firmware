@@ -39,4 +39,10 @@
 /* Definitions of register field mask in CORTEX_A55_CPUPWRCTLR_EL1 */
 #define CORTEX_A55_CORE_PWRDN_EN_MASK	U(0x1)
 
+/* Instruction patching registers */
+#define CPUPSELR_EL3	S3_6_C15_C8_0
+#define CPUPCR_EL3	S3_6_C15_C8_1
+#define CPUPOR_EL3	S3_6_C15_C8_2
+#define CPUPMR_EL3	S3_6_C15_C8_3
+
 #endif /* CORTEX_A55_H */

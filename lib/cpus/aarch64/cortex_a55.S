@@ -175,6 +175,53 @@ func check_errata_903758
 	b	cpu_rev_var_ls
 endfunc check_errata_903758
 
+	/* -----------------------------------------------------
+	 * Errata Workaround for Cortex A55 Errata #1221012.
+	 * This applies only to revisions <= r1p0 of Cortex A55.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * -----------------------------------------------------
+	 */
+func errata_a55_1221012_wa
+	/*
+	 * Compare x0 against revision r1p0
+	 */
+	mov	x17, x30
+	bl	check_errata_1221012
+	cbz	x0, 1f
+	mov	x0, #0x0020
+	movk	x0, #0x0850, lsl #16
+	msr	CPUPOR_EL3, x0
+	mov	x0, #0x0000
+	movk	x0, #0x1FF0, lsl #16
+	movk	x0, #0x2, lsl #32
+	msr	CPUPMR_EL3, x0
+	mov	x0, #0x03fd
+	movk	x0, #0x0110, lsl #16
+	msr	CPUPCR_EL3, x0
+	mov	x0, #0x1
+	msr	CPUPSELR_EL3, x0
+	mov	x0, #0x0040
+	movk	x0, #0x08D0, lsl #16
+	msr	CPUPOR_EL3, x0
+	mov	x0, #0x0040
+	movk	x0, #0x1FF0, lsl #16
+	movk	x0, #0x2, lsl #32
+	msr	CPUPMR_EL3, x0
+	mov	x0, #0x03fd
+	movk	x0, #0x0110, lsl #16
+	msr	CPUPCR_EL3, x0
+	isb
+1:
+	ret	x17
+endfunc errata_a55_1221012_wa
+
+func check_errata_1221012
+	mov	x1, #0x10
+	b	cpu_rev_var_ls
+endfunc check_errata_1221012
+
 func cortex_a55_reset_func
 	mov	x19, x30
 
@@ -212,6 +259,11 @@ func cortex_a55_reset_func
 #if ERRATA_A55_903758
 	mov	x0, x18
 	bl	errata_a55_903758_wa
+#endif
+
+#if ERRATA_A55_1221012
+	mov	x0, x18
+	bl	errata_a55_1221012_wa
 #endif
 
 	ret	x19
@@ -253,6 +305,7 @@ func cortex_a55_errata_report
 	report_errata ERRATA_A55_798797, cortex_a55, 798797
 	report_errata ERRATA_A55_846532, cortex_a55, 846532
 	report_errata ERRATA_A55_903758, cortex_a55, 903758
+	report_errata ERRATA_A55_1221012, cortex_a55, 1221012
 
 	ldp	x8, x30, [sp], #16
 	ret
