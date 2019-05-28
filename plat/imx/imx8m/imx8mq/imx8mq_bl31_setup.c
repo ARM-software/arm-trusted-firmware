@@ -22,6 +22,7 @@
 #include <plat/common/platform.h>
 
 #include <gpc.h>
+#include <imx_aipstz.h>
 #include <imx_uart.h>
 #include <plat_imx8.h>
 
@@ -30,6 +31,14 @@ static const mmap_region_t imx_mmap[] = {
 	MAP_REGION_FLAT(IMX_ROM_BASE, IMX_ROM_SIZE, MT_MEMORY | MT_RO), /* ROM map */
 	MAP_REGION_FLAT(IMX_AIPS_BASE, IMX_AIPS_SIZE, MT_DEVICE | MT_RW), /* AIPS map */
 	MAP_REGION_FLAT(IMX_GIC_BASE, IMX_GIC_SIZE, MT_DEVICE | MT_RW), /* GIC map */
+	{0},
+};
+
+static const struct aipstz_cfg aipstz[] = {
+	{AIPSTZ1_BASE, 0x77777777, 0x77777777, .opacr = {0x0, 0x0, 0x0, 0x0, 0x0}, },
+	{AIPSTZ2_BASE, 0x77777777, 0x77777777, .opacr = {0x0, 0x0, 0x0, 0x0, 0x0}, },
+	{AIPSTZ3_BASE, 0x77777777, 0x77777777, .opacr = {0x0, 0x0, 0x0, 0x0, 0x0}, },
+	{AIPSTZ4_BASE, 0x77777777, 0x77777777, .opacr = {0x0, 0x0, 0x0, 0x0, 0x0}, },
 	{0},
 };
 
@@ -117,6 +126,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	for (i = 0; i < 64; i++) {
 		mmio_write_32(IMX_CSU_BASE + i * 4, 0xffffffff);
 	}
+
+	imx_aipstz_init(aipstz);
 
 	/* config CAAM JRaMID set MID to Cortex A */
 	mmio_write_32(CAAM_JR0MID, CAAM_NS_MID);
