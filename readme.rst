@@ -341,8 +341,8 @@ Security advisories
 .. _Acknowledgments: ./docs/acknowledgements.rst
 .. _Firmware Design: ./docs/design/firmware-design.rst
 .. _Change Log: ./docs/change-log.rst
-.. _User Guide: ./docs/getting-started/user-guide.rst
-.. _Porting Guide: ./docs/getting-started/porting-guide.rst
+.. _User Guide: ./docs/getting_started/user-guide.rst
+.. _Porting Guide: ./docs/getting_started/porting-guide.rst
 .. _FreeBSD: http://www.freebsd.org
 .. _SCC: http://www.simple-cc.org/
 .. _Security Advisory TFV-1: ./docs/security_advisories/security-advisory-tfv-1.rst

@@ -2428,6 +2428,7 @@ releases of TF-A.
 .. _Contribution Guide: ./contributing.rst
 .. _Authentication framework: ./design/auth-framework.rst
 .. _Firmware Update: ./design/firmware-update.rst
+.. _Firmware Design: ./design/firmware-design.rst
 .. _TF-A Reset Design: ./design/reset-design.rst
 .. _Power Domain Topology Design: ./design/psci-pd-tree.rst
 .. _TF-A wiki on GitHub: https://github.com/ARM-software/arm-trusted-firmware/wiki/ARM-Trusted-Firmware-Image-Terminology
