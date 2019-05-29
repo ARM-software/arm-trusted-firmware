@@ -1,0 +1,33 @@
+All headers under include/export/ are export headers that are intended for
+inclusion in third-party code which needs to interact with TF-A data structures
+or interfaces. They must follow these special rules:
+
+- Header guards should start with ARM_TRUSTED_FIRMWARE_ to reduce clash risk.
+
+- All definitions should be sufficiently namespaced (e.g. with BL_ or TF_) to
+  make name clashes with third-party code unlikely.
+
+- They must not #include any headers except other export headers, and those
+  includes must use relative paths with "../double_quotes.h" notation.
+
+- They must not rely on any type definitions other that <stdint.h> types defined
+  in the ISO C standard (i.e. uint64_t is fine, but not u_register_t). They
+  should still not #include <stdint.h>. Instead, wrapper headers including
+  export headers need to ensure that they #include <stdint.h> earlier in their
+  include order.
+
+- They must not rely on any macro definitions other than those which are
+  pre-defined by all common compilers (e.g. __ASSEMBLER__ or __aarch64__).
+
+- They must only contain macro, type and structure definitions, no prototypes.
+
+- They should avoid using integer types with architecture-dependent widths
+  (e.g. long, uintptr_t, pointer types) where possible. (Some existing export
+  headers are violating this for now.)
+
+- Their names should always end in "_exp.h".
+
+- Normal TF-A code should never include export headers directly. Instead, it
+  should include a wrapper header that ensures the export header is included in
+  the right manner. (The wrapper header for include/export/x/y/z_exp.h should
+  normally be placed at include/x/y/z.h.)
