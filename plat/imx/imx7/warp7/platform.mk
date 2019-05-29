@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -31,7 +31,6 @@ PLAT_INCLUDES		:=	-Idrivers/imx/uart			\
 include lib/xlat_tables_v2/xlat_tables.mk
 
 BL2_SOURCES		+=	common/desc_image_load.c			\
-				drivers/console/aarch32/console.S		\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/mmc/mmc.c				\
 				drivers/io/io_block.c				\
