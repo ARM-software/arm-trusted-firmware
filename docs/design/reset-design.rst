@@ -115,8 +115,8 @@ only.
 It allows the Arm FVP port to support the ``RESET_TO_BL31`` configuration, in
 which case the ``bl31.bin`` image must be loaded to its run address in Trusted
 SRAM and all CPU reset vectors be changed from the default ``0x0`` to this run
-address. See the :ref:`User Guide` for details of running the FVP models in this
-way.
+address. See the :ref:`Arm Fixed Virtual Platforms (FVP)` for details of running
+the FVP models in this way.
 
 Although technically it would be possible to program the reset base address with
 the right support in the SCP firmware, this is currently not implemented so the

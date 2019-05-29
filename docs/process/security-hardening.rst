@@ -9,7 +9,7 @@ Build options
 -------------
 
 Several build options can be used to check for security issues. Refer to the
-:ref:`User Guide` for detailed information on the specific build options.
+:ref:`Build Options` for detailed information on these.
 
 - The ``BRANCH_PROTECTION`` build flag can be used to enable Pointer
   Authentication and Branch Target Identification.

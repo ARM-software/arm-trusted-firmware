@@ -7,3 +7,8 @@ Performance & Testing
    :numbered:
 
    psci-performance-juno
+   tsp
+
+--------------
+
+*Copyright (c) 2019, Arm Limited. All rights reserved.*

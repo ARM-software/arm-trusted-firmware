@@ -78,3 +78,7 @@ Trusted Firmware-A made using the above make commands:
           -C motherboard.flashloader1.fname=<path_to_fip.bin> \
           --data cluster.cpu0=<path_to_zImage>@0x80080000  \
           --data cluster.cpu0=<path_to_ramdisk>@0x84000000
+
+--------------
+
+*Copyright (c) 2019, Arm Limited. All rights reserved.*

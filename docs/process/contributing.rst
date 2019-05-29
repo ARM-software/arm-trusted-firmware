@@ -13,8 +13,8 @@ Getting Started
       raise a separate `issue`_ for this and ensure that the changes that
       include Third Party IP are made on a separate topic branch.
 
--  Clone `Trusted Firmware-A`_ on your own machine as suggested in the
-   :ref:`User Guide`.
+-  Clone `Trusted Firmware-A`_ on your own machine as described in
+   :ref:`prerequisites_get_source`.
 -  Create a local topic branch based on the `Trusted Firmware-A`_ ``master``
    branch.
 
@@ -26,8 +26,7 @@ Making Changes
 -  Follow the :ref:`Coding Style & Guidelines`.
 
    -  Use the checkpatch.pl script provided with the Linux source tree. A
-      Makefile target is provided for convenience (see the "Checking source code
-      style" section in the :ref:`User Guide`).
+      Makefile target is provided for convenience.
 
 -  Keep the commits on topic. If you need to fix another bug or make another
    enhancement, please create a separate `issue`_ and address it on a separate
@@ -38,8 +37,9 @@ Making Changes
    an `issue`_, include a reference.
 -  Where appropriate, please update the documentation.
 
-   -  Consider whether the :ref:`User Guide`, :ref:`Porting Guide`,
-      :ref:`Firmware Design` or other in-source documentation needs updating.
+   -  Consider whether the :ref:`Porting Guide`,
+      :ref:`Firmware Design` document or other in-source documentation needs
+      updating.
    -  Ensure that each changed file has the correct copyright and license
       information. Files that entirely consist of contributions to this
       project should have a copyright notice and BSD-3-Clause SPDX license
@@ -63,9 +63,9 @@ Making Changes
       include the documentation changes within the single commit.
 
 -  Please test your changes. As a minimum, ensure that Linux boots on the
-   Foundation FVP. See :ref:`user_guide_run_fvp` for more information. For
-   more extensive testing, consider running the `TF-A Tests`_ against your
-   patches.
+   Foundation FVP. See :ref:`Arm Fixed Virtual Platforms (FVP)` for more
+   information. For more extensive testing, consider running the `TF-A Tests`_
+   against your patches.
 
 Submitting Changes
 ------------------
@@ -82,7 +82,8 @@ Submitting Changes
 
 -  Ensure that each commit also has a unique ``Change-Id:`` line. If you have
    cloned the repository with the "`Clone with commit-msg hook`" clone method
-   (as advised on the :ref:`User Guide`), this should already be the case.
+   (following the :ref:`Prerequisites` document), this should already be the
+   case.
 
    More details may be found in the `Gerrit Change-Ids documentation`_.
 
