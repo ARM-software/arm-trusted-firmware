@@ -18,15 +18,6 @@
 #include <plat_private.h>
 #include <plat/common/platform.h>
 
-/*
- * The next 2 constants identify the extents of the code & RO data region.
- * These addresses are used by the MMU setup code and therefore they must be
- * page-aligned.  It is the responsibility of the linker script to ensure that
- * __RO_START__ and __RO_END__ linker symbols refer to page-aligned addresses.
- */
-IMPORT_SYM(unsigned long, __RO_START__,	BL31_RO_BASE);
-IMPORT_SYM(unsigned long, __RO_END__,	BL31_RO_LIMIT);
-
 static entry_point_info_t bl32_ep_info;
 static entry_point_info_t bl33_ep_info;
 
@@ -116,10 +107,10 @@ void bl31_plat_arch_setup(void)
 {
 	plat_cci_init();
 	plat_cci_enable();
-	plat_configure_mmu_el3(BL31_RO_BASE,
-			       BL_COHERENT_RAM_END - BL31_RO_BASE,
-			       BL31_RO_BASE,
-			       BL31_RO_LIMIT,
+	plat_configure_mmu_el3(BL_CODE_BASE,
+			       BL_COHERENT_RAM_END - BL_CODE_BASE,
+			       BL_CODE_BASE,
+			       BL_CODE_END,
 			       BL_COHERENT_RAM_BASE,
 			       BL_COHERENT_RAM_END);
 }
