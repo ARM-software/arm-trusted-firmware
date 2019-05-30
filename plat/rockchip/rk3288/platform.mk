@@ -30,7 +30,8 @@ RK_GIC_SOURCES         :=	drivers/arm/gic/common/gic_common.c		\
 				plat/common/plat_gicv2.c			\
 				${RK_PLAT}/common/rockchip_gicv2.c
 
-PLAT_BL_COMMON_SOURCES	:=	lib/bl_aux_params/bl_aux_params.c		\
+PLAT_BL_COMMON_SOURCES	:=	common/desc_image_load.c			\
+				lib/bl_aux_params/bl_aux_params.c		\
 				plat/common/aarch32/crash_console_helpers.S	\
 				plat/common/plat_psci_common.c
 

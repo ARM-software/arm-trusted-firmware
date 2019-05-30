@@ -31,15 +31,6 @@ extern uint32_t __bl31_sram_text_real_end, __bl31_sram_data_real_end;
 extern uint32_t __sram_incbin_start, __sram_incbin_end;
 extern uint32_t __sram_incbin_real_end;
 
-struct rockchip_bl31_params {
-       param_header_t h;
-       image_info_t *bl31_image_info;
-       entry_point_info_t *bl32_ep_info;
-       image_info_t *bl32_image_info;
-       entry_point_info_t *bl33_ep_info;
-       image_info_t *bl33_image_info;
-};
-
 /******************************************************************************
  * The register have write-mask bits, it is mean, if you want to set the bits,
  * you needs set the write-mask bits at the same time,
