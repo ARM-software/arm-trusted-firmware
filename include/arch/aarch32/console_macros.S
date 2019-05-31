@@ -15,7 +15,7 @@
  * default consoles are enabled for the "boot" and "crash" states, this can be
  * changed after registration with the console_set_scope() function). It ends
  * with a tail call that will include return to the caller.
- * REQUIRES console_t pointer in x0 and a valid return address in x30.
+ * REQUIRES console_t pointer in r0 and a valid return address in lr.
  */
 	.macro	finish_console_register _driver, putc=0, getc=0, flush=0
 	/*
