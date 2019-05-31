@@ -260,13 +260,6 @@ See the `Contributing Guidelines`_ for information on how to contribute to this
 project and the `Acknowledgments`_ file for a list of contributors to the
 project.
 
-IRC channel
-~~~~~~~~~~~
-
-Development discussion takes place on the #trusted-firmware-a channel
-on the Freenode IRC network. This is not an official support channel.
-If you have an issue to raise, please use the `issue tracker`_.
-
 Feedback and support
 ~~~~~~~~~~~~~~~~~~~~
 
