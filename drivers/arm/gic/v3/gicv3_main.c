@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -265,6 +265,10 @@ void gicv3_cpuif_enable(unsigned int proc_num)
 	write_scr_el3(scr_el3 & (~SCR_NS_BIT));
 	isb();
 
+	/* Write the secure ICC_SRE_EL1 register */
+	write_icc_sre_el1(ICC_SRE_SRE_BIT);
+	isb();
+
 	/* Program the idle priority in the PMR */
 	write_icc_pmr_el1(GIC_PRI_MASK);
 
@@ -274,9 +278,6 @@ void gicv3_cpuif_enable(unsigned int proc_num)
 	/* Enable Group1 Secure interrupts */
 	write_icc_igrpen1_el3(read_icc_igrpen1_el3() |
 				IGRPEN1_EL3_ENABLE_G1S_BIT);
-
-	/* Write the secure ICC_SRE_EL1 register */
-	write_icc_sre_el1(ICC_SRE_SRE_BIT);
 	isb();
 }
 
