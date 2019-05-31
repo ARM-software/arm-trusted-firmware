@@ -2821,14 +2821,14 @@ amount of open resources per driver.
 .. _plat/common/aarch64/platform_mp_stack.S: ../plat/common/aarch64/platform_mp_stack.S
 .. _plat/common/aarch64/platform_up_stack.S: ../plat/common/aarch64/platform_up_stack.S
 .. _For example, define the build flag in platform.mk: PLAT_PL061_MAX_GPIOS%20:=%20160
-.. _Power Domain Topology Design: psci-pd-tree.rst
+.. _Power Domain Topology Design: ../design/psci-pd-tree.rst
 .. _include/common/bl_common.h: ../include/common/bl_common.h
 .. _include/lib/aarch32/arch.h: ../include/lib/aarch32/arch.h
-.. _Firmware Design: firmware-design.rst
+.. _Firmware Design: ../design/firmware-design.rst
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _plat/arm/board/fvp/fvp_pm.c: ../plat/arm/board/fvp/fvp_pm.c
-.. _Platform compatibility policy: ./platform-compatibility-policy.rst
-.. _IMF Design Guide: interrupt-framework-design.rst
+.. _Platform compatibility policy: ../process/platform-compatibility-policy.rst
+.. _IMF Design Guide: ../design/interrupt-framework-design.rst
 .. _Arm Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html
 .. _3.0 (GICv3): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0069b/index.html
 .. _FreeBSD: https://www.freebsd.org

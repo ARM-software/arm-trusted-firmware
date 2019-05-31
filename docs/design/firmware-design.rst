@@ -19,7 +19,7 @@ in either security state. The details of the interrupt management framework
 and its design can be found in TF-A Interrupt Management Design guide [4]_.
 
 TF-A also implements a library for setting up and managing the translation
-tables. The details of this library can be found in `Xlat_tables design`_.
+tables. The details of this library can be found in `Translation tables design`_.
 
 TF-A can be built to support either AArch64 or AArch32 execution state.
 
@@ -1333,7 +1333,7 @@ different CPUs during power down and reset handling. The platform can specify
 any CPU optimization it wants to enable for each CPU. It can also specify
 the CPU errata workarounds to be applied for each CPU type during reset
 handling by defining CPU errata compile time macros. Details on these macros
-can be found in the `cpu-specific-build-macros.rst`_ file.
+can be found in `CPU specific build macros`_.
 
 The CPU specific operations framework depends on the ``cpu_ops`` structure which
 needs to be exported for each type of CPU in the platform. It is defined in
@@ -2670,7 +2670,7 @@ References
 
 .. _Reset Design: ./reset-design.rst
 .. _Porting Guide: ../getting_started/porting-guide.rst
-.. _Firmware Update: ./firmware-update.rst
+.. _Firmware Update: ../components/firmware-update.rst
 .. _PSCI PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _SMC calling convention PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
 .. _PSCI Library integration guide: ../getting_started/psci-lib-integration-guide.rst
@@ -2678,15 +2678,15 @@ References
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _Power State Coordination Interface PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _here: ../getting_started/psci-lib-integration-guide.rst
-.. _cpu-specific-build-macros.rst: ./cpu-specific-build-macros.rst
+.. _CPU specific build macros: ./cpu-specific-build-macros.rst
 .. _CPUBM: ./cpu-specific-build-macros.rst
 .. _Arm ARM: http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0487a.e/index.html
 .. _User Guide: ../getting_started/user-guide.rst
 .. _SMC Calling Convention PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
 .. _TF-A Interrupt Management Design guide: ./interrupt-framework-design.rst
-.. _Xlat_tables design: xlat-tables-lib-v2-design.rst
-.. _Exception Handling Framework: exception-handling.rst
-.. _ROMLIB Design: romlib-design.rst
+.. _Translation tables design: ../components/xlat-tables-lib-v2-design.rst
+.. _Exception Handling Framework: ../components/exception-handling.rst
+.. _ROMLIB Design: ../components/romlib-design.rst
 .. _Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D): https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
 
 .. |Image 1| image:: ../resources/diagrams/rt-svc-descs-layout.png
