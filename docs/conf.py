@@ -23,7 +23,7 @@ release = version # We don't need these to be distinct
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = []
+extensions = ['sphinx.ext.autosectionlabel']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -54,6 +54,9 @@ pygments_style = 'sphinx'
 with open('global_substitutions.txt', 'r') as subs:
   rst_prolog = subs.read()
 
+# Minimum version of sphinx required
+needs_sphinx = '2.0'
+
 # -- Options for HTML output -------------------------------------------------
 
 # Don't show the "Built with Sphinx" footer
@@ -75,3 +78,8 @@ html_theme_options = {
     'prev_next_buttons_location': 'both', # Top and bottom of the page
     'style_external_links': True # Display an icon next to external links
 }
+
+# -- Options for autosectionlabel --------------------------------------------
+
+# Only generate automatic section labels for document titles
+autosectionlabel_maxdepth = 1
