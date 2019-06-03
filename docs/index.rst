@@ -260,13 +260,13 @@ See the `Contributing Guidelines`_ for information on how to contribute to this
 project and the `Acknowledgments`_ file for a list of contributors to the
 project.
 
-Feedback and support
-~~~~~~~~~~~~~~~~~~~~
+Contact us
+~~~~~~~~~~
 
-Arm welcomes any feedback on TF-A. If you think you have found a security
+We welcome any feedback on TF-A. If you think you have found a security
 vulnerability, please report this using the process defined in the TF-A
-`Security Center`_. For all other feedback, please use the
-`issue tracker`_.
+`Security Center`_. For all other feedback, you can use either the
+`issue tracker`_ or our `mailing list`_.
 
 Arm licensees may contact Arm directly via their partner managers.
 
@@ -293,6 +293,7 @@ Arm licensees may contact Arm directly via their partner managers.
 .. _Trusty Secure OS: https://source.android.com/security/trusty
 .. _trustedfirmware.org: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
 .. _issue tracker: https://issues.trustedfirmware.org
+.. _mailing list: https://lists.trustedfirmware.org/mailman/listinfo/tf-a
 .. _Security Center: ./process/security.rst
 .. _license: ./license.rst
 .. _Contributing Guidelines: ./process/contributing.rst
