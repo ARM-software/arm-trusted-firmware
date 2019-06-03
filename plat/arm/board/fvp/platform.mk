@@ -96,8 +96,8 @@ FVP_CPU_LIBS		:=	lib/cpus/${ARCH}/aem_generic.S
 
 ifeq (${ARCH}, aarch64)
 
-# select a different set of CPU files, depending on whether we compile with
-# hardware assisted coherency configurations or not
+# select a different set of CPU files, depending on whether we compile for
+# hardware assisted coherency cores or not
 ifeq (${HW_ASSISTED_COHERENCY}, 0)
 	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a35.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
@@ -105,14 +105,19 @@ ifeq (${HW_ASSISTED_COHERENCY}, 0)
 				lib/cpus/aarch64/cortex_a72.S			\
 				lib/cpus/aarch64/cortex_a73.S
 else
-	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S			\
-				lib/cpus/aarch64/cortex_a75.S			\
-				lib/cpus/aarch64/cortex_a76.S			\
-				lib/cpus/aarch64/cortex_a76ae.S			\
-				lib/cpus/aarch64/neoverse_n1.S			\
-				lib/cpus/aarch64/neoverse_e1.S			\
-				lib/cpus/aarch64/cortex_deimos.S		\
-				lib/cpus/aarch64/neoverse_zeus.S
+	# AArch64-only cores
+	ifeq (${CTX_INCLUDE_AARCH32_REGS}, 0)
+		FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a76.S		\
+					lib/cpus/aarch64/cortex_a76ae.S		\
+					lib/cpus/aarch64/neoverse_n1.S		\
+					lib/cpus/aarch64/neoverse_e1.S		\
+					lib/cpus/aarch64/cortex_deimos.S	\
+					lib/cpus/aarch64/neoverse_zeus.S
+	# AArch64/AArch32
+	else
+		FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S		\
+					lib/cpus/aarch64/cortex_a75.S
+	endif
 endif
 
 else

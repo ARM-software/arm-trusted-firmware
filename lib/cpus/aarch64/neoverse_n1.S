@@ -15,6 +15,11 @@
 #error "Neoverse N1 must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+/* 64-bit only core */
+#if CTX_INCLUDE_AARCH32_REGS == 1
+#error "Neoverse-N1 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
+#endif
+
 /* --------------------------------------------------
  * Errata Workaround for Neoverse N1 Errata
  * This applies to revision r0p0 and r1p0 of Neoverse N1.
