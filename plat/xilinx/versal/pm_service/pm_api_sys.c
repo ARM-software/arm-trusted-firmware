@@ -785,6 +785,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 		return PM_RET_SUCCESS;
 	case PM_GET_API_VERSION:
 	case PM_GET_DEVICE_STATUS:
+	case PM_GET_OP_CHARACTERISTIC:
 	case PM_REQ_SUSPEND:
 	case PM_SELF_SUSPEND:
 	case PM_FORCE_POWERDOWN:
@@ -858,4 +859,27 @@ enum pm_ret_status pm_load_pdi(uint32_t src,
 	PM_PACK_PAYLOAD4(payload, LOADER_MODULE_ID, PM_LOAD_PDI, src,
 			 address_high, address_low);
 	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_get_op_characteristic() - PM call to request operating characteristics
+ *                              of a device
+ * @device_id   Device id
+ * @type        Type of the operating characteristic
+ *              (power, temperature and latency)
+ * @result      Returns the operating characteristic for the requested device,
+ *              specified by the type
+ *
+ * @return      Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_get_op_characteristic(uint32_t device_id,
+					    enum pm_opchar_type type,
+					    uint32_t *result)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_GET_OP_CHARACTERISTIC,
+			 device_id, type);
+	return pm_ipi_send_sync(primary_proc, payload, result, 1);
 }

@@ -313,6 +313,14 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		SMC_RET1(handle, (uint64_t)ret);
 	}
 
+	case PM_GET_OP_CHARACTERISTIC:
+	{
+		uint32_t result;
+
+		ret = pm_get_op_characteristic(pm_arg[0], pm_arg[1], &result);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)result << 32));
+	}
+
 	default:
 		WARN("Unimplemented PM Service Call: 0x%x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);

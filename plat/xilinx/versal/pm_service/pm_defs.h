@@ -42,6 +42,7 @@
 /* PM API ids */
 #define PM_GET_API_VERSION		1U
 #define PM_GET_DEVICE_STATUS		3U
+#define PM_GET_OP_CHARACTERISTIC	4U
 #define PM_REQ_SUSPEND			6U
 #define PM_SELF_SUSPEND			7U
 #define PM_FORCE_POWERDOWN		8U
@@ -110,6 +111,12 @@ enum pm_abort_reason {
 	ABORT_REASON_PU_BUSY,
 	ABORT_REASON_NO_PWRDN,
 	ABORT_REASON_UNKNOWN,
+};
+
+enum pm_opchar_type {
+	PM_OPCHAR_TYPE_POWER = 1,
+	PM_OPCHAR_TYPE_TEMP,
+	PM_OPCHAR_TYPE_LATENCY,
 };
 
 /**
