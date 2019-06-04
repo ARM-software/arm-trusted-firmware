@@ -15,6 +15,7 @@
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
 #ifndef __ASSEMBLER__
+#include <drivers/st/bsec.h>
 #include <drivers/st/stm32mp1_clk.h>
 
 #include <boot_api.h>
@@ -87,9 +88,9 @@ enum ddr_type {
 #endif
 #else
 #if STACK_PROTECTOR_ENABLED
-#define STM32MP_BL2_SIZE		U(0x00015000)	/* 84 Ko for BL2 */
+#define STM32MP_BL2_SIZE		U(0x00018000)	/* 96 Ko for BL2 */
 #else
-#define STM32MP_BL2_SIZE		U(0x00013000)	/* 76 Ko for BL2 */
+#define STM32MP_BL2_SIZE		U(0x00016000)	/* 88 Ko for BL2 */
 #endif
 #endif
 
@@ -245,6 +246,11 @@ enum ddr_type {
 /* DATA0 */
 #define DATA0_OTP_SECURED		BIT(6)
 
+/* IWDG OTP */
+#define HW2_OTP_IWDG_HW_POS		U(3)
+#define HW2_OTP_IWDG_FZ_STOP_POS	U(5)
+#define HW2_OTP_IWDG_FZ_STANDBY_POS	U(7)
+
 /* HW2 OTP */
 #define HW2_OTP_PRODUCT_BELOW_2V5	BIT(13)
 
@@ -272,13 +278,29 @@ static inline uint32_t tamp_bkpr(uint32_t idx)
 #define DDRPHYC_BASE			U(0x5A004000)
 
 /*******************************************************************************
+ * STM32MP1 IWDG
+ ******************************************************************************/
+#define IWDG_MAX_INSTANCE		U(2)
+#define IWDG1_INST			U(0)
+#define IWDG2_INST			U(1)
+
+#define IWDG1_BASE			U(0x5C003000)
+#define IWDG2_BASE			U(0x5A002000)
+
+/*******************************************************************************
  * STM32MP1 I2C4
  ******************************************************************************/
 #define I2C4_BASE			U(0x5C002000)
 
 /*******************************************************************************
+ * STM32MP1 DBGMCU
+ ******************************************************************************/
+#define DBGMCU_BASE			U(0x50081000)
+
+/*******************************************************************************
  * Device Tree defines
  ******************************************************************************/
+#define DT_IWDG_COMPAT			"st,stm32mp1-iwdg"
 #define DT_PWR_COMPAT			"st,stm32mp1-pwr"
 #define DT_RCC_CLK_COMPAT		"st,stm32mp1-rcc"
 #define DT_SYSCFG_COMPAT		"st,stm32mp157-syscfg"

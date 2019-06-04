@@ -19,6 +19,7 @@
 #include <drivers/st/bsec.h>
 #include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32_gpio.h>
+#include <drivers/st/stm32_iwdg.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/el3_runtime/context_mgmt.h>
@@ -156,6 +157,10 @@ void sp_min_platform_setup(void)
 	/* Set GPIO bank Z as non secure */
 	for (uint32_t pin = 0U; pin < STM32MP_GPIOZ_PIN_MAX_COUNT; pin++) {
 		set_gpio_secure_cfg(GPIO_BANK_Z, pin, false);
+	}
+
+	if (stm32_iwdg_init() < 0) {
+		panic();
 	}
 }
 

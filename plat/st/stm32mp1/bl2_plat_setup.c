@@ -17,6 +17,7 @@
 #include <drivers/generic_delay_timer.h>
 #include <drivers/st/bsec.h>
 #include <drivers/st/stm32_console.h>
+#include <drivers/st/stm32_iwdg.h>
 #include <drivers/st/stm32mp_pmic.h>
 #include <drivers/st/stm32mp_reset.h>
 #include <drivers/st/stm32mp1_clk.h>
@@ -28,6 +29,7 @@
 #include <plat/common/platform.h>
 
 #include <stm32mp1_context.h>
+#include <stm32mp1_dbgmcu.h>
 
 static struct console_stm32 console;
 
@@ -276,6 +278,16 @@ void bl2_el3_plat_arch_setup(void)
 	}
 
 skip_console_init:
+	if (stm32_iwdg_init() < 0) {
+		panic();
+	}
+
+	stm32_iwdg_refresh();
+
+	result = stm32mp1_dbgmcu_freeze_iwdg2();
+	if (result != 0) {
+		INFO("IWDG2 freeze error : %i\n", result);
+	}
 
 	if (stm32_save_boot_interface(boot_context->boot_interface_selected,
 				      boot_context->boot_interface_instance) !=

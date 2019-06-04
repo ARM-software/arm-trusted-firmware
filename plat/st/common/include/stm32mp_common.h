@@ -28,6 +28,17 @@ uintptr_t stm32mp_pwr_base(void);
 /* Return the base address of the RCC peripheral */
 uintptr_t stm32mp_rcc_base(void);
 
+/* Get IWDG platform instance ID from peripheral IO memory base address */
+uint32_t stm32_iwdg_get_instance(uintptr_t base);
+
+/* Return bitflag mask for expected IWDG configuration from OTP content */
+uint32_t stm32_iwdg_get_otp_config(uint32_t iwdg_inst);
+
+#if defined(IMAGE_BL2)
+/* Update OTP shadow registers with IWDG configuration from device tree */
+uint32_t stm32_iwdg_shadow_update(uint32_t iwdg_inst, uint32_t flags);
+#endif
+
 /*
  * Platform util functions for the GPIO driver
  * @bank: Target GPIO bank ID as per DT bindings
