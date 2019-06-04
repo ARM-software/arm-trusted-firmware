@@ -254,6 +254,30 @@ void stm32mp_print_boardinfo(void)
 	}
 }
 
+/* Return true when SoC provides a single Cortex-A7 core, and false otherwise */
+bool stm32mp_is_single_core(void)
+{
+	uint32_t part_number;
+	bool ret = false;
+
+	if (get_part_number(&part_number) < 0) {
+		ERROR("Invalid part number, assume single core chip");
+		return true;
+	}
+
+	switch (part_number) {
+	case STM32MP151A_PART_NB:
+	case STM32MP151C_PART_NB:
+		ret = true;
+		break;
+
+	default:
+		break;
+	}
+
+	return ret;
+}
+
 uint32_t stm32_iwdg_get_instance(uintptr_t base)
 {
 	switch (base) {
