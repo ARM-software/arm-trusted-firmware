@@ -1313,7 +1313,11 @@ static void stm32mp1_pll_start(enum stm32mp1_pll_id pll_id)
 	const struct stm32mp1_clk_pll *pll = pll_ref(pll_id);
 	uintptr_t pllxcr = stm32mp_rcc_base() + pll->pllxcr;
 
-	mmio_write_32(pllxcr, RCC_PLLNCR_PLLON);
+	/* Preserve RCC_PLLNCR_SSCG_CTRL value */
+	mmio_clrsetbits_32(pllxcr,
+			   RCC_PLLNCR_DIVPEN | RCC_PLLNCR_DIVQEN |
+			   RCC_PLLNCR_DIVREN,
+			   RCC_PLLNCR_PLLON);
 }
 
 static int stm32mp1_pll_output(enum stm32mp1_pll_id pll_id, uint32_t output)
@@ -1442,6 +1446,9 @@ static void stm32mp1_pll_csg(enum stm32mp1_pll_id pll_id, uint32_t *csg)
 		    RCC_PLLNCSGR_SSCG_MODE_MASK;
 
 	mmio_write_32(stm32mp_rcc_base() + pll->pllxcsgr, pllxcsg);
+
+	mmio_setbits_32(stm32mp_rcc_base() + pll->pllxcr,
+			RCC_PLLNCR_SSCG_CTRL);
 }
 
 static int stm32mp1_set_clksrc(unsigned int clksrc)
