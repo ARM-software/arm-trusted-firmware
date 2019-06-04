@@ -272,6 +272,8 @@ void bl2_el3_plat_arch_setup(void)
 		panic();
 	}
 
+	stm32mp_print_cpuinfo();
+
 	board_model = dt_get_board_model();
 	if (board_model != NULL) {
 		NOTICE("Model: %s\n", board_model);

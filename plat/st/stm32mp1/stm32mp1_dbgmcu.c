@@ -16,7 +16,13 @@
 
 #include <stm32mp1_dbgmcu.h>
 
+#define DBGMCU_IDC		U(0x00)
 #define DBGMCU_APB4FZ1		U(0x2C)
+
+#define DBGMCU_IDC_DEV_ID_MASK	GENMASK(11, 0)
+#define DBGMCU_IDC_REV_ID_MASK	GENMASK(31, 16)
+#define DBGMCU_IDC_REV_ID_SHIFT	16
+
 #define DBGMCU_APB4FZ1_IWDG2	BIT(2)
 
 static uintptr_t get_rcc_base(void)
@@ -43,6 +49,30 @@ static int stm32mp1_dbgmcu_init(void)
 	}
 
 	mmio_setbits_32(rcc_base + RCC_DBGCFGR, RCC_DBGCFGR_DBGCKEN);
+
+	return 0;
+}
+
+int stm32mp1_dbgmcu_get_chip_version(uint32_t *chip_version)
+{
+	if (stm32mp1_dbgmcu_init() != 0) {
+		return -EPERM;
+	}
+
+	*chip_version = (mmio_read_32(DBGMCU_BASE + DBGMCU_IDC) &
+			 DBGMCU_IDC_REV_ID_MASK) >> DBGMCU_IDC_REV_ID_SHIFT;
+
+	return 0;
+}
+
+int stm32mp1_dbgmcu_get_chip_dev_id(uint32_t *chip_dev_id)
+{
+	if (stm32mp1_dbgmcu_init() != 0) {
+		return -EPERM;
+	}
+
+	*chip_dev_id = mmio_read_32(DBGMCU_BASE + DBGMCU_IDC) &
+		DBGMCU_IDC_DEV_ID_MASK;
 
 	return 0;
 }

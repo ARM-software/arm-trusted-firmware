@@ -68,6 +68,126 @@ unsigned long stm32_get_gpio_bank_clock(unsigned int bank)
 	return GPIOA + (bank - GPIO_BANK_A);
 }
 
+static int get_part_number(uint32_t *part_nb)
+{
+	uint32_t part_number;
+	uint32_t dev_id;
+
+	if (stm32mp1_dbgmcu_get_chip_dev_id(&dev_id) < 0) {
+		return -1;
+	}
+
+	if (bsec_shadow_read_otp(&part_number, PART_NUMBER_OTP) != BSEC_OK) {
+		ERROR("BSEC: PART_NUMBER_OTP Error\n");
+		return -1;
+	}
+
+	part_number = (part_number & PART_NUMBER_OTP_PART_MASK) >>
+		PART_NUMBER_OTP_PART_SHIFT;
+
+	*part_nb = part_number | (dev_id << 16);
+
+	return 0;
+}
+
+static int get_cpu_package(uint32_t *cpu_package)
+{
+	uint32_t package;
+
+	if (bsec_shadow_read_otp(&package, PACKAGE_OTP) != BSEC_OK) {
+		ERROR("BSEC: PACKAGE_OTP Error\n");
+		return -1;
+	}
+
+	*cpu_package = (package & PACKAGE_OTP_PKG_MASK) >>
+		PACKAGE_OTP_PKG_SHIFT;
+
+	return 0;
+}
+
+void stm32mp_print_cpuinfo(void)
+{
+	const char *cpu_s, *cpu_r, *pkg;
+	uint32_t part_number;
+	uint32_t cpu_package;
+	uint32_t chip_dev_id;
+	int ret;
+
+	/* MPUs Part Numbers */
+	ret = get_part_number(&part_number);
+	if (ret < 0) {
+		WARN("Cannot get part number\n");
+		return;
+	}
+
+	switch (part_number) {
+	case STM32MP157C_PART_NB:
+		cpu_s = "157C";
+		break;
+	case STM32MP157A_PART_NB:
+		cpu_s = "157A";
+		break;
+	case STM32MP153C_PART_NB:
+		cpu_s = "153C";
+		break;
+	case STM32MP153A_PART_NB:
+		cpu_s = "153A";
+		break;
+	case STM32MP151C_PART_NB:
+		cpu_s = "151C";
+		break;
+	case STM32MP151A_PART_NB:
+		cpu_s = "151A";
+		break;
+	default:
+		cpu_s = "????";
+		break;
+	}
+
+	/* Package */
+	ret = get_cpu_package(&cpu_package);
+	if (ret < 0) {
+		WARN("Cannot get CPU package\n");
+		return;
+	}
+
+	switch (cpu_package) {
+	case PKG_AA_LFBGA448:
+		pkg = "AA";
+		break;
+	case PKG_AB_LFBGA354:
+		pkg = "AB";
+		break;
+	case PKG_AC_TFBGA361:
+		pkg = "AC";
+		break;
+	case PKG_AD_TFBGA257:
+		pkg = "AD";
+		break;
+	default:
+		pkg = "??";
+		break;
+	}
+
+	/* REVISION */
+	ret = stm32mp1_dbgmcu_get_chip_version(&chip_dev_id);
+	if (ret < 0) {
+		WARN("Cannot get CPU version\n");
+		return;
+	}
+
+	switch (chip_dev_id) {
+	case STM32MP1_REV_B:
+		cpu_r = "B";
+		break;
+	default:
+		cpu_r = "?";
+		break;
+	}
+
+	NOTICE("CPU: STM32MP%s%s Rev.%s\n", cpu_s, pkg, cpu_r);
+}
+
 uint32_t stm32_iwdg_get_instance(uintptr_t base)
 {
 	switch (base) {

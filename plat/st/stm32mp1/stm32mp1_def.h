@@ -22,8 +22,29 @@
 #include <stm32mp_common.h>
 #include <stm32mp_dt.h>
 #include <stm32mp_shres_helpers.h>
+#include <stm32mp1_dbgmcu.h>
 #include <stm32mp1_private.h>
 #endif
+
+/*******************************************************************************
+ * CHIP ID
+ ******************************************************************************/
+#define STM32MP157C_PART_NB	U(0x05000000)
+#define STM32MP157A_PART_NB	U(0x05000001)
+#define STM32MP153C_PART_NB	U(0x05000024)
+#define STM32MP153A_PART_NB	U(0x05000025)
+#define STM32MP151C_PART_NB	U(0x0500002E)
+#define STM32MP151A_PART_NB	U(0x0500002F)
+
+#define STM32MP1_REV_B		U(0x2000)
+
+/*******************************************************************************
+ * PACKAGE ID
+ ******************************************************************************/
+#define PKG_AA_LFBGA448		U(4)
+#define PKG_AB_LFBGA354		U(3)
+#define PKG_AC_TFBGA361		U(2)
+#define PKG_AD_TFBGA257		U(1)
 
 /*******************************************************************************
  * STM32MP1 memory map related constants
@@ -240,11 +261,21 @@ enum ddr_type {
 
 /* OTP offsets */
 #define DATA0_OTP			U(0)
+#define PART_NUMBER_OTP			U(1)
+#define PACKAGE_OTP			U(16)
 #define HW2_OTP				U(18)
 
 /* OTP mask */
 /* DATA0 */
 #define DATA0_OTP_SECURED		BIT(6)
+
+/* PART NUMBER */
+#define PART_NUMBER_OTP_PART_MASK	GENMASK_32(7, 0)
+#define PART_NUMBER_OTP_PART_SHIFT	0
+
+/* PACKAGE */
+#define PACKAGE_OTP_PKG_MASK		GENMASK_32(29, 27)
+#define PACKAGE_OTP_PKG_SHIFT		27
 
 /* IWDG OTP */
 #define HW2_OTP_IWDG_HW_POS		U(3)
