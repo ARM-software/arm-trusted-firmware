@@ -28,10 +28,13 @@
 static void psci_suspend_to_standby_finisher(int cpu_idx,
 					     unsigned int end_pwrlvl)
 {
+	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
 	psci_power_state_t state_info;
 
-	psci_acquire_pwr_domain_locks(end_pwrlvl,
-				cpu_idx);
+	/* Get the parent nodes */
+	psci_get_parent_pwr_domain_nodes(cpu_idx, end_pwrlvl, parent_nodes);
+
+	psci_acquire_pwr_domain_locks(end_pwrlvl, parent_nodes);
 
 	/*
 	 * Find out which retention states this CPU has exited from until the
@@ -57,8 +60,7 @@ static void psci_suspend_to_standby_finisher(int cpu_idx,
 	 */
 	psci_set_pwr_domains_to_run(end_pwrlvl);
 
-	psci_release_pwr_domain_locks(end_pwrlvl,
-				cpu_idx);
+	psci_release_pwr_domain_locks(end_pwrlvl, parent_nodes);
 }
 
 /*******************************************************************************
@@ -156,6 +158,7 @@ void psci_cpu_suspend_start(const entry_point_info_t *ep,
 {
 	int skip_wfi = 0;
 	int idx = (int) plat_my_core_pos();
+	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
 
 	/*
 	 * This function must only be called on platforms where the
@@ -164,13 +167,15 @@ void psci_cpu_suspend_start(const entry_point_info_t *ep,
 	assert((psci_plat_pm_ops->pwr_domain_suspend != NULL) &&
 	       (psci_plat_pm_ops->pwr_domain_suspend_finish != NULL));
 
+	/* Get the parent nodes */
+	psci_get_parent_pwr_domain_nodes(idx, end_pwrlvl, parent_nodes);
+
 	/*
 	 * This function acquires the lock corresponding to each power
 	 * level so that by the time all locks are taken, the system topology
 	 * is snapshot and state management can be done safely.
 	 */
-	psci_acquire_pwr_domain_locks(end_pwrlvl,
-				      idx);
+	psci_acquire_pwr_domain_locks(end_pwrlvl, parent_nodes);
 
 	/*
 	 * We check if there are any pending interrupts after the delay
@@ -214,8 +219,8 @@ exit:
 	 * Release the locks corresponding to each power level in the
 	 * reverse order to which they were acquired.
 	 */
-	psci_release_pwr_domain_locks(end_pwrlvl,
-				  idx);
+	psci_release_pwr_domain_locks(end_pwrlvl, parent_nodes);
+
 	if (skip_wfi == 1)
 		return;
 
