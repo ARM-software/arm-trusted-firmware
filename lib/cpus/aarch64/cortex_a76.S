@@ -18,6 +18,11 @@
 #error "Cortex-A76 must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+/* 64-bit only core */
+#if CTX_INCLUDE_AARCH32_REGS == 1
+#error "Cortex-A76 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
+#endif
+
 #define ESR_EL3_A64_SMC0	0x5e000000
 #define ESR_EL3_A32_SMC0	0x4e000000
 

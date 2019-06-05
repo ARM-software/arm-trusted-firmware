@@ -16,6 +16,11 @@
 #error "Deimos must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+/* 64-bit only core */
+#if CTX_INCLUDE_AARCH32_REGS == 1
+#error "Cortex-Deimos supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
+#endif
+
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------

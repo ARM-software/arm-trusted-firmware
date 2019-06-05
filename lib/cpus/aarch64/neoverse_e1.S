@@ -16,6 +16,11 @@
 #error "Neoverse E1 must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+/* 64-bit only core */
+#if CTX_INCLUDE_AARCH32_REGS == 1
+#error "Neoverse-E1 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
+#endif
+
 func neoverse_e1_cpu_pwr_dwn
 	mrs	x0, NEOVERSE_E1_CPUPWRCTLR_EL1
 	orr	x0, x0, #NEOVERSE_E1_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
