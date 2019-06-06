@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -18,6 +18,10 @@ do
 	-b)
 		build=$2
 		shift 2
+		;;
+	--bti=*)
+		enable_bti=$(echo $1 | sed 's/--bti=\(.*\)/\1/')
+		shift 1
 		;;
 	--)
 		shift
@@ -47,12 +51,15 @@ if (NF == 2 && $1 == "include") {
 awk -v OFS="\t" '
 BEGIN{print "#index\tlib\tfunction\t[patch]"}
 {print NR-1, $0}' | tee $build/jmptbl.i |
-awk -v OFS="\n" '
+awk -v OFS="\n" -v BTI=$enable_bti '
 BEGIN {print "\t.text",
              "\t.globl\tjmptbl",
              "jmptbl:"}
       {sub(/[:blank:]*#.*/,"")}
-!/^$/ {if ($3 == "reserved")
+!/^$/ {
+	if (BTI == 1)
+		print "\tbti\tj"
+	if ($3 == "reserved")
 		print "\t.word\t0x0"
 	else
 		print "\tb\t" $3}' > $$.tmp &&
