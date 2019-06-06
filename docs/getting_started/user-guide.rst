@@ -401,6 +401,8 @@ Common build options
    for development platforms. ``TRUSTED_BOARD_BOOT`` flag must be set if this
    flag has to be enabled. 0 is the default.
 
+-  ``E``: Boolean option to make warnings into errors. Default is 1.
+
 -  ``EL3_PAYLOAD_BASE``: This option enables booting an EL3 payload instead of
    the normal boot flow. It must specify the entry point address of the EL3
    payload. Please refer to the "Booting an EL3 payload" section for more
@@ -784,6 +786,10 @@ Common build options
 -  ``VERSION_STRING``: String used in the log output for each TF-A image.
    Defaults to a string formed by concatenating the version number, build type
    and build string.
+
+-  ``W``: Warning level. Some compiler warning options of interest have been
+   regrouped and put in the root Makefile. This flag can take the values 0 to 3,
+   each level enabling more warning options. Default is 0.
 
 -  ``WARMBOOT_ENABLE_DCACHE_EARLY`` : Boolean option to enable D-cache early on
    the CPU after warm boot. This is applicable for platforms which do not
