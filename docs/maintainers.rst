@@ -11,10 +11,16 @@ Main maintainers
 ----------------
 :M: Dan Handley <dan.handley@arm.com>
 :G: `danh-arm`_
-:M: Dimitris Papastamos <dimitrs.papastamos@arm.com>
-:G: `dp-arm`_
 :M: Soby Mathew <soby.mathew@arm.com>
 :G: `soby-mathew`_
+:M: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:G: `sandrine-bailleux-arm`_
+:M: Alexei Fedorov <alexei.fedorov@arm.com>
+:G: `AlexeiFedorov`_
+:M: Paul Beesley <paul.beesley@arm.com>
+:G: `pbeesley-arm`_
+:M: John Tsichritzis <john.tsichritzis@arm.com>
+:G: `jts-arm`_
 
 Allwinner ARMv8 platform port
 -----------------------------
@@ -260,28 +266,33 @@ Xilinx platform port
 :F: docs/plat/xilinx-zynqmp.rst
 :F: plat/xilinx/
 
+.. _AlexeiFedorov: https://github.com/AlexeiFedorov
 .. _Andre-ARM: https://github.com/Andre-ARM
 .. _Anson-Huang: https://github.com/Anson-Huang
 .. _bryanodonoghue: https://github.com/bryanodonoghue
 .. _b49020: https://github.com/b49020
 .. _danh-arm: https://github.com/danh-arm
-.. _dp-arm: https://github.com/dp-arm
 .. _etienne-lms: https://github.com/etienne-lms
 .. _glneo: https://github.com/glneo
+.. _grandpaul: https://github.com/grandpaul
 .. _hzhuang1: https://github.com/hzhuang1
 .. _JackyBai: https://github.com/JackyBai
 .. _jenswi-linaro: https://github.com/jenswi-linaro
+.. _jts-arm: https://github.com/jts-arm
+.. _jwerner-chromium: https://github.com/jwerner-chromium
+.. _kostapr: https://github.com/kostapr
 .. _ldts: https://github.com/ldts
 .. _marex: https://github.com/marex
-.. _niej: https://github.com/niej
-.. _kostapr: https://github.com/kostapr
 .. _masahir0y: https://github.com/masahir0y
 .. _mmind: https://github.com/mmind
 .. _mtk09422: https://github.com/mtk09422
+.. _niej: https://github.com/niej
 .. _npoushin: https://github.com/npoushin
+.. _pbeesley-arm: https://github.com/pbeesley-arm
 .. _qoriq-open-source: https://github.com/qoriq-open-source
 .. _remi-triplefault: https://github.com/repk
 .. _rockchip-linux: https://github.com/rockchip-linux
+.. _sandrine-bailleux-arm: https://github.com/sandrine-bailleux-arm
 .. _shawnguo2: https://github.com/shawnguo2
 .. _sivadur: https://github.com/sivadur
 .. _smaeul: https://github.com/smaeul
@@ -290,5 +301,3 @@ Xilinx platform port
 .. _TonyXie06: https://github.com/TonyXie06
 .. _vwadekar: https://github.com/vwadekar
 .. _Yann-lms: https://github.com/Yann-lms
-.. _grandpaul: https://github.com/grandpaul
-.. _jwerner-chromium: https://github.com/jwerner-chromium
