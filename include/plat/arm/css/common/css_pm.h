@@ -27,6 +27,7 @@ static inline unsigned int css_system_pwr_state(const psci_power_state_t *state)
 
 int css_pwr_domain_on(u_register_t mpidr);
 void css_pwr_domain_on_finish(const psci_power_state_t *target_state);
+void css_pwr_domain_on_finish_late(const psci_power_state_t *target_state);
 void css_pwr_domain_off(const psci_power_state_t *target_state);
 void css_pwr_domain_suspend(const psci_power_state_t *target_state);
 void css_pwr_domain_suspend_finish(
