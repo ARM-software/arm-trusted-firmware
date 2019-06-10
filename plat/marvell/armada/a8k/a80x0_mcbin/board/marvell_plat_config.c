@@ -78,12 +78,8 @@ struct addr_map_win io_win_memory_map[] = {
 	/* CP1 (MCI0) internal regs */
 	{0x00000000f4000000,		0x2000000,  MCI_0_TID},
 #ifndef IMAGE_BLE
-	/* PCIe0 and SPI1_CS0 (RUNIT) on CP1*/
-	{0x00000000f9000000,		0x2000000,  MCI_0_TID},
-	/* PCIe1 on CP1*/
-	{0x00000000fb000000,		0x1000000,  MCI_0_TID},
-	/* PCIe2 on CP1*/
-	{0x00000000fc000000,		0x1000000,  MCI_0_TID},
+	/* PCIe0-2 and SPI1_CS0 (RUNIT) on CP1*/
+	{0x00000000f9000000,		0x4000000,  MCI_0_TID},
 	/* MCI 0 indirect window */
 	{MVEBU_MCI_REG_BASE_REMAP(0),	0x100000,   MCI_0_TID},
 	/* MCI 1 indirect window */
