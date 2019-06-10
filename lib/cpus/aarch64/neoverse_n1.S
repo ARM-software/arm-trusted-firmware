@@ -146,6 +146,11 @@ func neoverse_n1_reset_func
 	msr	CPUAMCNTENSET_EL0, x0
 	isb
 #endif
+
+#if ERRATA_DSU_936184
+	bl	errata_dsu_936184_wa
+#endif
+
 	ret	x19
 endfunc neoverse_n1_reset_func
 
@@ -181,6 +186,7 @@ func neoverse_n1_errata_report
 	 */
 	report_errata ERRATA_N1_1043202, neoverse_n1, 1043202
 	report_errata ERRATA_N1_1315703, neoverse_n1, 1315703
+	report_errata ERRATA_DSU_936184, neoverse_n1, dsu_936184
 
 	ldp	x8, x30, [sp], #16
 	ret
