@@ -222,7 +222,7 @@ All the above platforms have been tested with `Linaro Release 18.04`_.
 
 This release also contains the following platform support:
 
--  Allwinner sun50i_a64 and sun50i_h6
+-  Allwinner sun50i (A64, H5, and H6) SoCs
 -  Amlogic Meson S905 (GXBB)
 -  Amlogic Meson S905x (GXL)
 -  Arm Juno Software Development Platform
