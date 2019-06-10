@@ -568,34 +568,34 @@ unsigned int psci_find_target_suspend_lvl(const psci_power_state_t *state_info)
 }
 
 /*******************************************************************************
- * This function is passed a cpu_index and the highest level in the topology
- * tree that the operation should be applied to. It picks up locks in order of
- * increasing power domain level in the range specified.
+ * This function is passed the highest level in the topology tree that the
+ * operation should be applied to and a list of node indexes. It picks up locks
+ * from the node index list in order of increasing power domain level in the
+ * range specified.
  ******************************************************************************/
-void psci_acquire_pwr_domain_locks(unsigned int end_pwrlvl, int cpu_idx)
+void psci_acquire_pwr_domain_locks(unsigned int end_pwrlvl,
+				   const unsigned int *parent_nodes)
 {
-	unsigned int parent_idx = psci_cpu_pd_nodes[cpu_idx].parent_node;
+	unsigned int parent_idx;
 	unsigned int level;
 
 	/* No locking required for level 0. Hence start locking from level 1 */
 	for (level = PSCI_CPU_PWR_LVL + 1U; level <= end_pwrlvl; level++) {
+		parent_idx = parent_nodes[level - 1U];
 		psci_lock_get(&psci_non_cpu_pd_nodes[parent_idx]);
-		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
 	}
 }
 
 /*******************************************************************************
- * This function is passed a cpu_index and the highest level in the topology
- * tree that the operation should be applied to. It releases the locks in order
- * of decreasing power domain level in the range specified.
+ * This function is passed the highest level in the topology tree that the
+ * operation should be applied to and a list of node indexes. It releases the
+ * locks in order of decreasing power domain level in the range specified.
  ******************************************************************************/
-void psci_release_pwr_domain_locks(unsigned int end_pwrlvl, int cpu_idx)
+void psci_release_pwr_domain_locks(unsigned int end_pwrlvl,
+				   const unsigned int *parent_nodes)
 {
-	unsigned int parent_idx, parent_nodes[PLAT_MAX_PWR_LVL] = {0};
+	unsigned int parent_idx;
 	unsigned int level;
-
-	/* Get the parent nodes */
-	psci_get_parent_pwr_domain_nodes(cpu_idx, end_pwrlvl, parent_nodes);
 
 	/* Unlock top down. No unlocking required for level 0. */
 	for (level = end_pwrlvl; level >= PSCI_CPU_PWR_LVL + 1U; level--) {
@@ -764,6 +764,7 @@ void psci_warmboot_entrypoint(void)
 {
 	unsigned int end_pwrlvl;
 	int cpu_idx = (int) plat_my_core_pos();
+	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
 	psci_power_state_t state_info = { {PSCI_LOCAL_STATE_RUN} };
 
 	/*
@@ -781,12 +782,15 @@ void psci_warmboot_entrypoint(void)
 	 */
 	end_pwrlvl = get_power_on_target_pwrlvl();
 
+	/* Get the parent nodes */
+	psci_get_parent_pwr_domain_nodes(cpu_idx, end_pwrlvl, parent_nodes);
+
 	/*
 	 * This function acquires the lock corresponding to each power level so
 	 * that by the time all locks are taken, the system topology is snapshot
 	 * and state management can be done safely.
 	 */
-	psci_acquire_pwr_domain_locks(end_pwrlvl, cpu_idx);
+	psci_acquire_pwr_domain_locks(end_pwrlvl, parent_nodes);
 
 	psci_get_target_local_pwr_states(end_pwrlvl, &state_info);
 
@@ -831,7 +835,7 @@ void psci_warmboot_entrypoint(void)
 	 * This loop releases the lock corresponding to each power level
 	 * in the reverse order to which they were acquired.
 	 */
-	psci_release_pwr_domain_locks(end_pwrlvl, cpu_idx);
+	psci_release_pwr_domain_locks(end_pwrlvl, parent_nodes);
 }
 
 /*******************************************************************************
