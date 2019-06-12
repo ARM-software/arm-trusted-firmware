@@ -24,6 +24,7 @@
 #include <gpc.h>
 #include <imx_aipstz.h>
 #include <imx_uart.h>
+#include <imx8m_caam.h>
 #include <plat_imx8.h>
 
 static const mmap_region_t imx_mmap[] = {
@@ -129,10 +130,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	imx_aipstz_init(aipstz);
 
-	/* config CAAM JRaMID set MID to Cortex A */
-	mmio_write_32(CAAM_JR0MID, CAAM_NS_MID);
-	mmio_write_32(CAAM_JR1MID, CAAM_NS_MID);
-	mmio_write_32(CAAM_JR2MID, CAAM_NS_MID);
+	imx8m_caam_init();
 
 #if DEBUG_CONSOLE
 	static console_uart_t console;
