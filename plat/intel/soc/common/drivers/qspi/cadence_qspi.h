@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CAD_QSPI_H__
-#define __CAD_QSPI_H__
+#ifndef CAD_QSPI_H
+#define CAD_QSPI_H
 
 #define CAD_QSPI_MICRON_N25Q_SUPPORT		1
 

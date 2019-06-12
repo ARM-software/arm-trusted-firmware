@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __CAD_WATCHDOG_H__
-#define __CAD_WATCHDOG_H__
+#ifndef CAD_WATCHDOG_H
+#define CAD_WATCHDOG_H
 
 #define WDT_BASE			(0xFFD00200)
 #define WDT_REG_SIZE_OFFSET		(0x4)

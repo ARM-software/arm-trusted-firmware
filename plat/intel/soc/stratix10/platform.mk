@@ -7,6 +7,7 @@
 PLAT_INCLUDES		:=	\
 			-Iplat/intel/soc/stratix10/			\
 			-Iplat/intel/soc/stratix10/include/		\
+			-Iplat/intel/soc/common/drivers/
 
 PLAT_BL_COMMON_SOURCES	:=	\
 			lib/xlat_tables/xlat_tables_common.c 		\
@@ -46,8 +47,8 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/stratix10/soc/s10_system_manager.c	\
 		common/desc_image_load.c				\
 		plat/intel/soc/stratix10/soc/s10_mailbox.c		\
-		plat/intel/soc/stratix10/drivers/qspi/cadence_qspi.c	\
-		plat/intel/soc/stratix10/drivers/wdt/watchdog.c
+		plat/intel/soc/common/drivers/qspi/cadence_qspi.c	\
+		plat/intel/soc/common/drivers/wdt/watchdog.c
 
 BL31_SOURCES	+=	drivers/arm/cci/cci.c				\
 		lib/cpus/aarch64/cortex_a53.S				\

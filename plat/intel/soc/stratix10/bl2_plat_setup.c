@@ -31,8 +31,8 @@
 #include "s10_pinmux.h"
 #include "aarch64/stratix10_private.h"
 #include "include/s10_mailbox.h"
-#include "drivers/qspi/cadence_qspi.h"
-#include "drivers/wdt/watchdog.h"
+#include "qspi/cadence_qspi.h"
+#include "wdt/watchdog.h"
 
 
 const mmap_region_t plat_stratix10_mmap[] = {
