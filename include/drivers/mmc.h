@@ -111,12 +111,17 @@
 #define MMC_STATE_SLP			10
 
 #define MMC_FLAG_CMD23			(U(1) << 0)
+#define MMC_FLAG_SD_CMD6		(U(1) << 1)
 
 #define CMD8_CHECK_PATTERN		U(0xAA)
 #define VHS_2_7_3_6_V			BIT(8)
 
 #define SD_SCR_BUS_WIDTH_1		BIT(8)
 #define SD_SCR_BUS_WIDTH_4		BIT(10)
+
+#define SD_SWITCH_FUNC_CHECK		0U
+#define SD_SWITCH_FUNC_SWITCH		BIT(31)
+#define SD_SWITCH_ALL_GROUPS_MASK	GENMASK(23, 0)
 
 struct mmc_cmd {
 	unsigned int	cmd_idx;
@@ -215,6 +220,27 @@ struct mmc_csd_sd_v2 {
 	unsigned int		taac:			8;
 	unsigned int		reserved_6:		6;
 	unsigned int		csd_structure:		2;
+};
+
+struct sd_switch_status {
+	unsigned short		max_current;
+	unsigned short		support_g6;
+	unsigned short		support_g5;
+	unsigned short		support_g4;
+	unsigned short		support_g3;
+	unsigned short		support_g2;
+	unsigned short		support_g1;
+	unsigned char		sel_g6_g5;
+	unsigned char		sel_g4_g3;
+	unsigned char		sel_g2_g1;
+	unsigned char		data_struct_ver;
+	unsigned short		busy_g6;
+	unsigned short		busy_g5;
+	unsigned short		busy_g4;
+	unsigned short		busy_g3;
+	unsigned short		busy_g2;
+	unsigned short		busy_g1;
+	unsigned short		reserved[17];
 };
 
 enum mmc_device_type {
