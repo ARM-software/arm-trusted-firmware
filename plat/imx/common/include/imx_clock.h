@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
- *
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #ifndef IMX_CLOCK_H
@@ -819,6 +818,8 @@ struct ccm_target_root_ctrl {
 #define CCM_TRGT_MUX_WDOG_CLK_ROOT_USB_PLL			(BIT(26) | BIT(24))
 #define CCM_TRGT_MUX_WDOG_CLK_ROOT_REF_1M			(BIT(26) | BIT(25))
 #define CCM_TRGT_MUX_WDOG_CLK_ROOT_SYS_PLL_PFD1_DIV2		((BIT(26) | BIT(25) | BIT(24))
+#define WDOG_DEFAULT_CLK_SELECT					(CCM_TARGET_ROOT_ENABLE |\
+								CCM_TRGT_MUX_WDOG_CLK_ROOT_OSC_24M)
 
 /* Target CSI_MCLK_CLK_ROOT */
 
