@@ -24,13 +24,13 @@ static void dbsc_setting(void)
 
 	/* BUFCAM settings */
 	/* DBSC_DBCAM0CNF0 not set */
-	io_write_32(DBSC_DBCAM0CNF1, 0x00044218);	/* dbcam0cnf1 */
-	io_write_32(DBSC_DBCAM0CNF2, 0x000000F4);	/* dbcam0cnf2 */
+	io_write_32(DBSC_DBCAM0CNF1, 0x00044218);
+	io_write_32(DBSC_DBCAM0CNF2, 0x000000F4);
 	/* DBSC_DBCAM0CNF3 not set */
-	io_write_32(DBSC_DBSCHCNT0, 0x080F0037);	/* dbschcnt0 */
-	io_write_32(DBSC_DBSCHCNT1, 0x00001010);	/* dbschcnt1 */
-	io_write_32(DBSC_DBSCHSZ0, 0x00000001);	/* dbschsz0 */
-	io_write_32(DBSC_DBSCHRW0, 0x22421111);	/* dbschrw0 */
+	io_write_32(DBSC_DBSCHCNT0, 0x080F0037);
+	io_write_32(DBSC_DBSCHCNT1, 0x00001010);
+	io_write_32(DBSC_DBSCHSZ0, 0x00000001);
+	io_write_32(DBSC_DBSCHRW0, 0x22421111);
 
 	md = (*((volatile uint32_t *)RST_MODEMR) & 0x000A0000) >> 17;
 
@@ -58,54 +58,14 @@ static void dbsc_setting(void)
 	io_write_32(DBSC_DBSCHQOS01, 0x0000E000);
 	io_write_32(DBSC_DBSCHQOS02, 0x00007000);
 	io_write_32(DBSC_DBSCHQOS03, 0x00000000);
-	/* DBSC_DBSCHQOS10 not set */
-	/* DBSC_DBSCHQOS11 not set */
-	/* DBSC_DBSCHQOS12 not set */
-	/* DBSC_DBSCHQOS13 not set */
-	/* DBSC_DBSCHQOS20 not set */
-	/* DBSC_DBSCHQOS21 not set */
-	/* DBSC_DBSCHQOS22 not set */
-	/* DBSC_DBSCHQOS23 not set */
-	/* DBSC_DBSCHQOS30 not set */
-	/* DBSC_DBSCHQOS31 not set */
-	/* DBSC_DBSCHQOS32 not set */
-	/* DBSC_DBSCHQOS33 not set */
 	io_write_32(DBSC_DBSCHQOS40, 0x00000E00);
 	io_write_32(DBSC_DBSCHQOS41, 0x00000DFF);
 	io_write_32(DBSC_DBSCHQOS42, 0x00000400);
 	io_write_32(DBSC_DBSCHQOS43, 0x00000200);
-	/* DBSC_DBSCHQOS50 not set */
-	/* DBSC_DBSCHQOS51 not set */
-	/* DBSC_DBSCHQOS52 not set */
-	/* DBSC_DBSCHQOS53 not set */
-	/* DBSC_DBSCHQOS60 not set */
-	/* DBSC_DBSCHQOS61 not set */
-	/* DBSC_DBSCHQOS62 not set */
-	/* DBSC_DBSCHQOS63 not set */
-	/* DBSC_DBSCHQOS70 not set */
-	/* DBSC_DBSCHQOS71 not set */
-	/* DBSC_DBSCHQOS72 not set */
-	/* DBSC_DBSCHQOS73 not set */
-	/* DBSC_DBSCHQOS80 not set */
-	/* DBSC_DBSCHQOS81 not set */
-	/* DBSC_DBSCHQOS82 not set */
-	/* DBSC_DBSCHQOS83 not set */
 	io_write_32(DBSC_DBSCHQOS90, 0x00000C00);
 	io_write_32(DBSC_DBSCHQOS91, 0x00000BFF);
 	io_write_32(DBSC_DBSCHQOS92, 0x00000400);
 	io_write_32(DBSC_DBSCHQOS93, 0x00000200);
-	/* DBSC_DBSCHQOS100 not set */
-	/* DBSC_DBSCHQOS101 not set */
-	/* DBSC_DBSCHQOS102 not set */
-	/* DBSC_DBSCHQOS103 not set */
-	/* DBSC_DBSCHQOS110 not set */
-	/* DBSC_DBSCHQOS111 not set */
-	/* DBSC_DBSCHQOS112 not set */
-	/* DBSC_DBSCHQOS113 not set */
-	/* DBSC_DBSCHQOS120 not set */
-	/* DBSC_DBSCHQOS121 not set */
-	/* DBSC_DBSCHQOS122 not set */
-	/* DBSC_DBSCHQOS123 not set */
 	io_write_32(DBSC_DBSCHQOS130, 0x00000980);
 	io_write_32(DBSC_DBSCHQOS131, 0x0000097F);
 	io_write_32(DBSC_DBSCHQOS132, 0x00000300);

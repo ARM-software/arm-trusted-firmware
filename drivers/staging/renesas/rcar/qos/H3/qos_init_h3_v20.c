@@ -63,12 +63,12 @@ static void dbsc_setting(void)
 	io_write_32(DBSC_DBSYSCNT0, 0x00001234U);
 
 	/* BUFCAM settings */
-	io_write_32(DBSC_DBCAM0CNF1, 0x00043218U);	/* dbcam0cnf1 */
-	io_write_32(DBSC_DBCAM0CNF2, 0x000000F4U);	/* dbcam0cnf2 */
-	io_write_32(DBSC_DBCAM0CNF3, 0x00000000U);	/* dbcam0cnf3 */
-	io_write_32(DBSC_DBSCHCNT0, 0x000F0037U);	/* dbschcnt0 */
-	io_write_32(DBSC_DBSCHSZ0, 0x00000001U);	/* dbschsz0 */
-	io_write_32(DBSC_DBSCHRW0, 0x22421111U);	/* dbschrw0 */
+	io_write_32(DBSC_DBCAM0CNF1, 0x00043218U);
+	io_write_32(DBSC_DBCAM0CNF2, 0x000000F4U);
+	io_write_32(DBSC_DBCAM0CNF3, 0x00000000U);
+	io_write_32(DBSC_DBSCHCNT0, 0x000F0037U);
+	io_write_32(DBSC_DBSCHSZ0, 0x00000001U);
+	io_write_32(DBSC_DBSCHRW0, 0x22421111U);
 
 	md = (*((volatile uint32_t *)RST_MODEMR) & 0x000A0000) >> 17;
 
