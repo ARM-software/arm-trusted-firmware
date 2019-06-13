@@ -14,7 +14,6 @@
 
 #define	RCAR_QOS_VERSION		"rev.0.19"
 
-
 #define QOSWT_TIME_BANK0				(20000000U)	/* unit:ns */
 
 #define	QOSWT_WTEN_ENABLE				(0x1U)
