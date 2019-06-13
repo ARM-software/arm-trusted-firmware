@@ -18,8 +18,6 @@
 
 static void dbsc_setting(void)
 {
-	uint32_t md=0;
-
 	/* Register write enable */
 	io_write_32(DBSC_DBSYSCNT0, 0x00001234U);
 
@@ -30,18 +28,8 @@ static void dbsc_setting(void)
 	io_write_32(DBSC_DBSCHSZ0, 0x00000001);
 	io_write_32(DBSC_DBSCHRW0, 0x22421111);
 
-	md = (*((volatile uint32_t*)RST_MODEMR) & 0x00080000) >> 19;
-
-	switch (md) {
-	case 0x0:	//MD19=0 : DDR3L-1600, 4GByte(1GByte x4)
-		/* DDR1600 */
-		io_write_32(DBSC_SCFCTST2, 0x012F1123);
-		break;
-	default:	//MD19=1 : DDR3L-1856, 4GByte(1GByte x4)
-		/* DDR1856 */
-		io_write_32(DBSC_SCFCTST2, 0x012F1123);
-		break;
-	}
+	/* DDR3 */
+	io_write_32(DBSC_SCFCTST2, 0x012F1123);
 
 	/* QoS Settings */
 	io_write_32(DBSC_DBSCHQOS00, 0x00000F00);
