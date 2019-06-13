@@ -18,8 +18,6 @@
 
 static void dbsc_setting(void)
 {
-	uint32_t md = 0;
-
 	/* BUFCAM settings */
 	/* DBSC_DBCAM0CNF0 not set */
 	io_write_32(DBSC_DBCAM0CNF1, 0x00043218);
@@ -30,26 +28,8 @@ static void dbsc_setting(void)
 	io_write_32(DBSC_DBSCHSZ0, 0x00000001);
 	io_write_32(DBSC_DBSCHRW0, 0x22421111);
 
-	md = (*((volatile uint32_t *)RST_MODEMR) & 0x000A0000) >> 17;
-
-	switch (md) {
-	case 0x0:
-		/* DDR3200 */
-		io_write_32(DBSC_SCFCTST2, 0x012F1123);
-		break;
-	case 0x1:		/* MD19=0,MD17=1 : LPDDR4-3000, 4GByte(1GByte x4) */
-		/* DDR2800 */
-		io_write_32(DBSC_SCFCTST2, 0x012F1123);
-		break;
-	case 0x4:		/* MD19=1,MD17=0 : LPDDR4-2400, 4GByte(1GByte x4) */
-		/* DDR2400 */
-		io_write_32(DBSC_SCFCTST2, 0x012F1123);
-		break;
-	default:		/* MD19=1,MD17=1 : LPDDR4-1600, 4GByte(1GByte x4) */
-		/* DDR1600 */
-		io_write_32(DBSC_SCFCTST2, 0x012F1123);
-		break;
-	}
+	/* DDR3 */
+	io_write_32(DBSC_SCFCTST2, 0x012F1123);
 
 	/* QoS Settings */
 	io_write_32(DBSC_DBSCHQOS00, 0x00000F00);
