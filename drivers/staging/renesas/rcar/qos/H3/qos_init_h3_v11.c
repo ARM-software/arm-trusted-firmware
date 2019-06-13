@@ -235,19 +235,16 @@ void qos_init_h3_v11(void)
 	io_write_32(0xFFC51800, 0x00000001U);
 
 	/* CCI bus Leaf setting */
-	{
+	uint32_t modemr = io_read_32(RCAR_MODEMR);
 
-		uint32_t modemr = io_read_32(RCAR_MODEMR);
+	modemr &= MODEMR_BOOT_CPU_MASK;
 
-		modemr &= MODEMR_BOOT_CPU_MASK;
-
-		if ((modemr == MODEMR_BOOT_CPU_CA57) ||
-		    (modemr == MODEMR_BOOT_CPU_CA53)) {
-			io_write_32(0xF1300800, 0x00000001U);
-			io_write_32(0xF1340800, 0x00000001U);
-			io_write_32(0xF1380800, 0x00000001U);
-			io_write_32(0xF13C0800, 0x00000001U);
-		}
+	if ((modemr == MODEMR_BOOT_CPU_CA57) ||
+	    (modemr == MODEMR_BOOT_CPU_CA53)) {
+		io_write_32(0xF1300800, 0x00000001U);
+		io_write_32(0xF1340800, 0x00000001U);
+		io_write_32(0xF1380800, 0x00000001U);
+		io_write_32(0xF13C0800, 0x00000001U);
 	}
 
 	/* Resource Alloc start */
