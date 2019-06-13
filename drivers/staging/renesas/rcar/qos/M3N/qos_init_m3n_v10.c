@@ -170,30 +170,28 @@ void qos_init_m3n_v10(void)
 		    SL_INIT_SSLOTCLK_M3N);
 	io_write_32(QOSCTRL_REF_ARS, REF_ARS_ARBSTOPCYCLE_M3N);
 
-	{
-		uint32_t i;
+	uint32_t i;
 
-		for (i = 0U; i < ARRAY_SIZE(mstat_fix); i++) {
-			io_write_64(QOSBW_FIX_QOS_BANK0 + i * 8, mstat_fix[i]);
-			io_write_64(QOSBW_FIX_QOS_BANK1 + i * 8, mstat_fix[i]);
-		}
-		for (i = 0U; i < ARRAY_SIZE(mstat_be); i++) {
-			io_write_64(QOSBW_BE_QOS_BANK0 + i * 8, mstat_be[i]);
-			io_write_64(QOSBW_BE_QOS_BANK1 + i * 8, mstat_be[i]);
-		}
-#if RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE
-		for (i = 0U; i < ARRAY_SIZE(qoswt_fix); i++) {
-			io_write_64(QOSWT_FIX_WTQOS_BANK0 + i * 8,
-				    qoswt_fix[i]);
-			io_write_64(QOSWT_FIX_WTQOS_BANK1 + i * 8,
-				    qoswt_fix[i]);
-		}
-		for (i = 0U; i < ARRAY_SIZE(qoswt_be); i++) {
-			io_write_64(QOSWT_BE_WTQOS_BANK0 + i * 8, qoswt_be[i]);
-			io_write_64(QOSWT_BE_WTQOS_BANK1 + i * 8, qoswt_be[i]);
-		}
-#endif /* RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE */
+	for (i = 0U; i < ARRAY_SIZE(mstat_fix); i++) {
+		io_write_64(QOSBW_FIX_QOS_BANK0 + i * 8, mstat_fix[i]);
+		io_write_64(QOSBW_FIX_QOS_BANK1 + i * 8, mstat_fix[i]);
 	}
+	for (i = 0U; i < ARRAY_SIZE(mstat_be); i++) {
+		io_write_64(QOSBW_BE_QOS_BANK0 + i * 8, mstat_be[i]);
+		io_write_64(QOSBW_BE_QOS_BANK1 + i * 8, mstat_be[i]);
+	}
+#if RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE
+	for (i = 0U; i < ARRAY_SIZE(qoswt_fix); i++) {
+		io_write_64(QOSWT_FIX_WTQOS_BANK0 + i * 8,
+			    qoswt_fix[i]);
+		io_write_64(QOSWT_FIX_WTQOS_BANK1 + i * 8,
+			    qoswt_fix[i]);
+	}
+	for (i = 0U; i < ARRAY_SIZE(qoswt_be); i++) {
+		io_write_64(QOSWT_BE_WTQOS_BANK0 + i * 8, qoswt_be[i]);
+		io_write_64(QOSWT_BE_WTQOS_BANK1 + i * 8, qoswt_be[i]);
+	}
+#endif /* RCAR_REWT_TRAINING != RCAR_REWT_TRAINING_DISABLE */
 
 	/* RT bus Leaf setting */
 	io_write_32(RT_ACT0, 0x00000000U);
