@@ -20,6 +20,9 @@ static void dbsc_setting(void)
 {
 	uint32_t md=0;
 
+	/* Register write enable */
+	io_write_32(DBSC_DBSYSCNT0, 0x00001234U);
+
 	/* BUFCAM settings */
 	io_write_32(DBSC_DBCAM0CNF1, 0x00043218);
 	io_write_32(DBSC_DBCAM0CNF2, 0x000000F4);
@@ -65,12 +68,13 @@ static void dbsc_setting(void)
 	io_write_32(DBSC_DBSCHQOS151, 0x00000030);
 	io_write_32(DBSC_DBSCHQOS152, 0x00000020);
 	io_write_32(DBSC_DBSCHQOS153, 0x00000010);
+
+	/* Register write protect */
+	io_write_32(DBSC_DBSYSCNT0, 0x00000000U);
 }
 
 void qos_init_d3(void)
 {
-	io_write_32(DBSC_DBSYSCNT0, 0x00001234);
-
 	dbsc_setting();
 
 	/* DRAM Split Address mapping */
@@ -159,5 +163,4 @@ void qos_init_d3(void)
 	/* Resource Alloc start */
 	io_write_32(QOSCTRL_RAEN,  0x00000001U);
 #endif /* !(RCAR_QOS_TYPE == RCAR_QOS_NONE) */
-	io_write_32(DBSC_DBSYSCNT0, 0x00000000);
 }
