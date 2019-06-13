@@ -164,21 +164,15 @@ void qos_init_d3(void)
 	io_write_32(QOSCTRL_REF_ARS, 0x00780000U);
 
 	/* QOSBW SRAM setting */
-	{
 	uint32_t i;
 
 	for (i = 0U; i < ARRAY_SIZE(mstat_fix); i++) {
-		io_write_64(QOSBW_FIX_QOS_BANK0 + mstat_fix[i].addr,
-				mstat_fix[i].value);
-		io_write_64(QOSBW_FIX_QOS_BANK1 + mstat_fix[i].addr,
-				mstat_fix[i].value);
+		io_write_64(QOSBW_FIX_QOS_BANK0 + i * 8, mstat_fix[i]);
+		io_write_64(QOSBW_FIX_QOS_BANK1 + i * 8, mstat_fix[i]);
 	}
 	for (i = 0U; i < ARRAY_SIZE(mstat_be); i++) {
-		io_write_64(QOSBW_BE_QOS_BANK0 + mstat_be[i].addr,
-				mstat_be[i].value);
-		io_write_64(QOSBW_BE_QOS_BANK1 + mstat_be[i].addr,
-				mstat_be[i].value);
-	}
+		io_write_64(QOSBW_BE_QOS_BANK0 + i * 8, mstat_be[i]);
+		io_write_64(QOSBW_BE_QOS_BANK1 + i * 8, mstat_be[i]);
 	}
 
 	/* 3DG bus Leaf setting */
