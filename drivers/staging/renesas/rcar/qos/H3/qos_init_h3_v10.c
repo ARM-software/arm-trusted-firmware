@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,49 +9,10 @@
 #include <common/debug.h>
 
 #include "../qos_common.h"
+#include "../qos_reg.h"
 #include "qos_init_h3_v10.h"
 
 #define	RCAR_QOS_VERSION		"rev.0.36"
-
-#define	RCAR_QOS_NONE			(3U)
-#define	RCAR_QOS_TYPE_DEFAULT		(0U)
-
-#define	RCAR_DRAM_SPLIT_LINEAR		(0U)
-#define	RCAR_DRAM_SPLIT_4CH		(1U)
-#define	RCAR_DRAM_SPLIT_2CH		(2U)
-#define	RCAR_DRAM_SPLIT_AUTO		(3U)
-
-#define	AXI_BASE			(0xE6784000U)
-#define	AXI_ADSPLCR0			(AXI_BASE + 0x0008U)
-#define	AXI_ADSPLCR1			(AXI_BASE + 0x000CU)
-#define	AXI_ADSPLCR2			(AXI_BASE + 0x0010U)
-#define	AXI_ADSPLCR3			(AXI_BASE + 0x0014U)
-#define	ADSPLCR0_ADRMODE_DEFAULT	((uint32_t)0U << 31U)
-#define	ADSPLCR0_ADRMODE_GEN2		((uint32_t)1U << 31U)
-#define	ADSPLCR0_SPLITSEL(x)		((uint32_t)(x) << 16U)
-#define	ADSPLCR0_AREA(x)		((uint32_t)(x) <<  8U)
-#define	ADSPLCR0_SWP			(0x0CU)
-
-#define	MSTAT_BASE			(0xE67E0000U)
-#define	MSTAT_FIX_QOS_BANK0		(MSTAT_BASE + 0x0000U)
-#define	MSTAT_FIX_QOS_BANK1		(MSTAT_BASE + 0x1000U)
-#define	MSTAT_BE_QOS_BANK0		(MSTAT_BASE + 0x2000U)
-#define	MSTAT_BE_QOS_BANK1		(MSTAT_BASE + 0x3000U)
-#define	MSTAT_SL_INIT			(MSTAT_BASE + 0x8000U)
-#define	MSTAT_REF_ARS			(MSTAT_BASE + 0x8004U)
-#define	MSTAT_STATQC			(MSTAT_BASE + 0x8008U)
-
-#define	RALLOC_BASE			(0xE67F0000U)
-#define	RALLOC_RAS			(RALLOC_BASE + 0x0000U)
-#define	RALLOC_FIXTH			(RALLOC_BASE + 0x0004U)
-#define	RALLOC_RAEN			(RALLOC_BASE + 0x0018U)
-#define	RALLOC_REGGD			(RALLOC_BASE + 0x0020U)
-#define	RALLOC_DANN			(RALLOC_BASE + 0x0030U)
-#define	RALLOC_DANT			(RALLOC_BASE + 0x0038U)
-#define	RALLOC_EC			(RALLOC_BASE + 0x003CU)
-#define	RALLOC_EMS			(RALLOC_BASE + 0x0040U)
-#define	RALLOC_INSFC			(RALLOC_BASE + 0x0050U)
-#define	RALLOC_BERR			(RALLOC_BASE + 0x0054U)
 
 #if RCAR_QOS_TYPE  == RCAR_QOS_TYPE_DEFAULT
 static const mstat_slot_t mstat_fix[] = {
@@ -305,32 +266,32 @@ void qos_init_h3_v10(void)
 	io_write_32(0xE67D1008U, 0x00000100U);
 
 	/* Resource Alloc setting */
-	io_write_32(RALLOC_RAS, 0x00000040U);
-	io_write_32(RALLOC_FIXTH, 0x000F0005U);
-	io_write_32(RALLOC_REGGD, 0x00000004U);
-	io_write_64(RALLOC_DANN, 0x0202000004040404UL);
-	io_write_32(RALLOC_DANT, 0x003C1110U);
-	io_write_32(RALLOC_EC, 0x00080001U);	/* need for H3 v1.* */
-	io_write_64(RALLOC_EMS, 0x0000000000000000UL);
-	io_write_32(RALLOC_INSFC, 0xC7840001U);
-	io_write_32(RALLOC_BERR, 0x00000000U);
+	io_write_32(QOSCTRL_RAS, 0x00000040U);
+	io_write_32(QOSCTRL_FIXTH, 0x000F0005U);
+	io_write_32(QOSCTRL_REGGD, 0x00000004U);
+	io_write_64(QOSCTRL_DANN, 0x0202000004040404UL);
+	io_write_32(QOSCTRL_DANT, 0x003C1110U);
+	io_write_32(QOSCTRL_EC, 0x00080001U);	/* need for H3 v1.* */
+	io_write_64(QOSCTRL_EMS, 0x0000000000000000UL);
+	io_write_32(QOSCTRL_INSFC, 0xC7840001U);
+	io_write_32(QOSCTRL_BERR, 0x00000000U);
 
-	/* MSTAT setting */
-	io_write_32(MSTAT_SL_INIT,
+	/* QOSBW setting */
+	io_write_32(QOSCTRL_SL_INIT,
 		    SL_INIT_REFFSSLOT | SL_INIT_SLOTSSLOT | SL_INIT_SSLOTCLK);
-	io_write_32(MSTAT_REF_ARS, 0x00330000U);
+	io_write_32(QOSCTRL_REF_ARS, 0x00330000U);
 
-	/* MSTAT SRAM setting */
+	/* QOSBW SRAM setting */
 	for (uint32_t i = 0U; i < ARRAY_SIZE(mstat_fix); i++) {
-		io_write_64(MSTAT_FIX_QOS_BANK0 + mstat_fix[i].addr,
+		io_write_64(QOSBW_FIX_QOS_BANK0 + mstat_fix[i].addr,
 			mstat_fix[i].value);
-		io_write_64(MSTAT_FIX_QOS_BANK1 + mstat_fix[i].addr,
+		io_write_64(QOSBW_FIX_QOS_BANK1 + mstat_fix[i].addr,
 			mstat_fix[i].value);
 	}
 	for (uint32_t i = 0U; i < ARRAY_SIZE(mstat_be); i++) {
-		io_write_64(MSTAT_BE_QOS_BANK0 + mstat_be[i].addr,
+		io_write_64(QOSBW_BE_QOS_BANK0 + mstat_be[i].addr,
 			mstat_be[i].value);
-		io_write_64(MSTAT_BE_QOS_BANK1 + mstat_be[i].addr,
+		io_write_64(QOSBW_BE_QOS_BANK1 + mstat_be[i].addr,
 			mstat_be[i].value);
 	}
 
@@ -346,14 +307,14 @@ void qos_init_h3_v10(void)
 	io_write_32(0xFD827800U, 0x0000003FU);
 
 	/* Resource Alloc start */
-	io_write_32(RALLOC_RAEN, 0x00000001U);
+	io_write_32(QOSCTRL_RAEN, 0x00000001U);
 
-	/* MSTAT start */
-	io_write_32(MSTAT_STATQC, 0x00000001U);
+	/* QOSBW start */
+	io_write_32(QOSCTRL_STATQC, 0x00000001U);
 #else
 	NOTICE("BL2: QoS is None\n");
 
 	/* Resource Alloc setting */
-	io_write_32(RALLOC_EC, 0x00080001U);	/* need for H3 v1.* */
+	io_write_32(QOSCTRL_EC, 0x00080001U);	/* need for H3 v1.* */
 #endif /* !(RCAR_QOS_TYPE == RCAR_QOS_NONE) */
 }

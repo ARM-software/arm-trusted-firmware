@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2017-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,12 +19,15 @@
 
 #define	DBSC_BASE					(0xE6790000U)
 #define DBSC_DBSYSCNT0				(DBSC_BASE + 0x0100U)
+#define DBSC_AXARB				(DBSC_BASE + 0x0800U)
 #define DBSC_DBCAM0CNF1				(DBSC_BASE + 0x0904U)
 #define DBSC_DBCAM0CNF2				(DBSC_BASE + 0x0908U)
 #define DBSC_DBCAM0CNF3				(DBSC_BASE + 0x090CU)
 #define DBSC_DBSCHCNT0				(DBSC_BASE + 0x1000U)
+#define DBSC_DBSCHCNT1				(DBSC_BASE + 0x1004U)
 #define DBSC_DBSCHSZ0				(DBSC_BASE + 0x1010U)
 #define DBSC_DBSCHRW0				(DBSC_BASE + 0x1020U)
+#define DBSC_DBSCHRW1				(DBSC_BASE + 0x1024U)
 #define DBSC_DBSCHQOS00				(DBSC_BASE + 0x1030U)
 #define DBSC_DBSCHQOS01				(DBSC_BASE + 0x1034U)
 #define DBSC_DBSCHQOS02				(DBSC_BASE + 0x1038U)
@@ -53,6 +56,8 @@
 #define DBSC_DBSCHQOS151			(DBSC_BASE + 0x1124U)
 #define DBSC_DBSCHQOS152			(DBSC_BASE + 0x1128U)
 #define DBSC_DBSCHQOS153			(DBSC_BASE + 0x112CU)
+#define DBSC_SCFCTST0				(DBSC_BASE + 0x1700U)
+#define DBSC_SCFCTST1				(DBSC_BASE + 0x1708U)
 #define DBSC_SCFCTST2				(DBSC_BASE + 0x170CU)
 
 #define	AXI_BASE					(0xE6784000U)
@@ -80,11 +85,18 @@
 #define	QOSCTRL_STATQC				(QOS_BASE0 + 0x8008U)
 
 #define	QOS_BASE1					(0xE67F0000U)
-#define	QOSCTRL_RAS					(QOS_BASE1 + 0x0000U)
+#define	QOSCTRL_RAS				(QOS_BASE1 + 0x0000U)
+#define	QOSCTRL_FIXTH				(QOS_BASE1 + 0x0004U)
 #define	QOSCTRL_RAEN				(QOS_BASE1 + 0x0018U)
+#define	QOSCTRL_REGGD				(QOS_BASE1 + 0x0020U)
 #define	QOSCTRL_DANN				(QOS_BASE1 + 0x0030U)
 #define	QOSCTRL_DANT				(QOS_BASE1 + 0x0038U)
+#define	QOSCTRL_EC				(QOS_BASE1 + 0x003CU)
+#define	QOSCTRL_EMS				(QOS_BASE1 + 0x0040U)
+#define	QOSCTRL_FSS				(QOS_BASE1 + 0x0048U)
 #define	QOSCTRL_INSFC				(QOS_BASE1 + 0x0050U)
+#define	QOSCTRL_BERR				(QOS_BASE1 + 0x0054U)
+#define	QOSCTRL_EARLYR				(QOS_BASE1 + 0x0060U)
 #define	QOSCTRL_RACNT0				(QOS_BASE1 + 0x0080U)
 #define	QOSCTRL_STATGEN0			(QOS_BASE1 + 0x0088U)
 
