@@ -11,6 +11,7 @@
 
 #include "qos_init.h"
 #include "qos_common.h"
+#include "qos_reg.h"
 #if RCAR_LSI == RCAR_AUTO
 #include "H3/qos_init_h3_v10.h"
 #include "H3/qos_init_h3_v11.h"
@@ -389,3 +390,20 @@ uint32_t get_refperiod(void)
 	return refperiod;
 }
 #endif
+
+void rcar_qos_dbsc_setting(struct rcar_gen3_dbsc_qos_settings *qos,
+			   unsigned int qos_size, bool dbsc_wren)
+{
+	int i;
+
+	/* Register write enable */
+	if (dbsc_wren)
+		io_write_32(DBSC_DBSYSCNT0, 0x00001234U);
+
+	for (i = 0; i < qos_size; i++)
+		io_write_32(qos[i].reg, qos[i].val);
+
+	/* Register write protect */
+	if (dbsc_wren)
+		io_write_32(DBSC_DBSYSCNT0, 0x00000000U);
+}

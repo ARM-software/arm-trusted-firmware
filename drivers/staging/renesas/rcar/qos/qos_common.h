@@ -128,7 +128,15 @@ typedef struct {
 	uint64_t value;
 } mstat_slot_t;
 
+struct rcar_gen3_dbsc_qos_settings {
+	uint32_t	reg;
+	uint32_t	val;
+};
+
 extern uint32_t qos_init_ddr_ch;
 extern uint8_t qos_init_ddr_phyvalid;
+
+void rcar_qos_dbsc_setting(struct rcar_gen3_dbsc_qos_settings *qos,
+			   unsigned int qos_size, bool dbsc_wren);
 
 #endif /* QOS_COMMON_H */
