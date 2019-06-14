@@ -14,9 +14,6 @@
 
 #define	RCAR_QOS_VERSION		"rev.0.09"
 
-#define QOSCTRL_EARLYR			(QOS_BASE1 + 0x0060U)
-#define QOSCTRL_FSS			(QOS_BASE1 + 0x0048U)
-
 #define REF_ARS_ARBSTOPCYCLE_M3N	(((SL_INIT_SSLOTCLK_M3N) - 5U) << 16U)
 
 #define QOSWT_TIME_BANK0				(20000000U)	/* unit:ns */
