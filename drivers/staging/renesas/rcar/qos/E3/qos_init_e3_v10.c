@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2018-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,9 +13,6 @@
 #include "qos_init_e3_v10.h"
 
 #define	RCAR_QOS_VERSION		"rev.0.05"
-
-#define QOSCTRL_EARLYR			(QOS_BASE1 + 0x0060U)
-#define QOSCTRL_FSS			(QOS_BASE1 + 0x0048U)
 
 #define REF_ARS_ARBSTOPCYCLE_E3	(((SL_INIT_SSLOTCLK_E3) - 5U) << 16U)
 
