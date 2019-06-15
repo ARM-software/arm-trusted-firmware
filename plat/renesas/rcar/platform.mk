@@ -349,12 +349,12 @@ ERRATA_A57_859972  := 1
 ERRATA_A57_813419  := 1
 
 include drivers/staging/renesas/rcar/ddr/ddr.mk
-include drivers/staging/renesas/rcar/qos/qos.mk
+include drivers/renesas/rcar/qos/qos.mk
 include drivers/staging/renesas/rcar/pfc/pfc.mk
 include lib/libfdt/libfdt.mk
 
 PLAT_INCLUDES	:=	-Idrivers/staging/renesas/rcar/ddr	\
-			-Idrivers/staging/renesas/rcar/qos	\
+			-Idrivers/renesas/rcar/qos		\
 			-Idrivers/renesas/rcar/iic_dvfs		\
 			-Idrivers/renesas/rcar/board		\
 			-Idrivers/renesas/rcar/cpld/		\
