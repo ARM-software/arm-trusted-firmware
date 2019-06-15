@@ -126,17 +126,17 @@ void qos_init_d3(void)
 	}
 
 	/* 3DG bus Leaf setting */
-	io_write_32(0xFD820808U, 0x00001234U);
-	io_write_32(0xFD820800U, 0x00000000U);
-	io_write_32(0xFD821800U, 0x00000000U);
-	io_write_32(0xFD822800U, 0x00000000U);
-	io_write_32(0xFD823800U, 0x00000000U);
+	io_write_32(GPU_ACT_GRD, 0x00001234U);
+	io_write_32(GPU_ACT0, 0x00000000U);
+	io_write_32(GPU_ACT1, 0x00000000U);
+	io_write_32(GPU_ACT2, 0x00000000U);
+	io_write_32(GPU_ACT3, 0x00000000U);
 
 	/* RT bus Leaf setting */
-	io_write_32(0xF1300800U, 0x00000003U);
-	io_write_32(0xF1340800U, 0x00000003U);
-	io_write_32(0xFFC50800U, 0x00000000U);
-	io_write_32(0xFFC51800U, 0x00000000U);
+	io_write_32(CPU_ACT0, 0x00000003U);
+	io_write_32(CPU_ACT1, 0x00000003U);
+	io_write_32(RT_ACT0, 0x00000000U);
+	io_write_32(RT_ACT1, 0x00000000U);
 
 	/* Resource Alloc start */
 	io_write_32(QOSCTRL_RAEN,  0x00000001U);
