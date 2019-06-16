@@ -207,7 +207,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/*
 	 * The previous bootloader passes the base address of the shared memory
 	 * location to store the boot profiler logs. Sanity check the
-	 * address and initilise the profiler library, if it looks ok.
+	 * address and initialise the profiler library, if it looks ok.
 	 */
 	if (plat_params->boot_profiler_shmem_base != 0ULL) {
 
