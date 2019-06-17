@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018, Renesas Electronics Corporation. All rights reserved.
+# Copyright (c) 2018-2019, Renesas Electronics Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -12,6 +12,7 @@ RESET_TO_BL31			:= 1
 GENERATE_COT			:= 1
 BL2_AT_EL3			:= 1
 ENABLE_SVE_FOR_NS		:= 0
+MULTI_CONSOLE_API		:= 1
 
 CRASH_REPORTING			:= 1
 HANDLE_EA_EL3_FIRST		:= 1
@@ -348,12 +349,12 @@ ERRATA_A57_859972  := 1
 ERRATA_A57_813419  := 1
 
 include drivers/staging/renesas/rcar/ddr/ddr.mk
-include drivers/staging/renesas/rcar/qos/qos.mk
+include drivers/renesas/rcar/qos/qos.mk
 include drivers/staging/renesas/rcar/pfc/pfc.mk
 include lib/libfdt/libfdt.mk
 
 PLAT_INCLUDES	:=	-Idrivers/staging/renesas/rcar/ddr	\
-			-Idrivers/staging/renesas/rcar/qos	\
+			-Idrivers/renesas/rcar/qos		\
 			-Idrivers/renesas/rcar/iic_dvfs		\
 			-Idrivers/renesas/rcar/board		\
 			-Idrivers/renesas/rcar/cpld/		\

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 
 #include "qos_init.h"
 #include "qos_common.h"
+#include "qos_reg.h"
 #if RCAR_LSI == RCAR_AUTO
 #include "H3/qos_init_h3_v10.h"
 #include "H3/qos_init_h3_v11.h"
@@ -50,42 +51,41 @@
 #endif
 
  /* Product Register */
-#define PRR			(0xFFF00044U)
-#define PRR_PRODUCT_MASK	(0x00007F00U)
-#define PRR_CUT_MASK		(0x000000FFU)
-#define PRR_PRODUCT_H3		(0x00004F00U)	/* R-Car H3 */
-#define PRR_PRODUCT_M3		(0x00005200U)	/* R-Car M3 */
-#define PRR_PRODUCT_V3M		(0x00005400U)	/* R-Car V3M */
-#define PRR_PRODUCT_M3N		(0x00005500U)	/* R-Car M3N */
-#define PRR_PRODUCT_E3		(0x00005700U)	/* R-Car E3 */
-#define PRR_PRODUCT_D3		(0x00005800U)	/* R-Car D3 */
-#define PRR_PRODUCT_10		(0x00U)
-#define PRR_PRODUCT_11		(0x01U)
-#define PRR_PRODUCT_20		(0x10U)
-#define PRR_PRODUCT_21		(0x11U)
-#define PRR_PRODUCT_30		(0x20U)
+#define PRR			0xFFF00044U
+#define PRR_PRODUCT_MASK	0x00007F00U
+#define PRR_CUT_MASK		0x000000FFU
+#define PRR_PRODUCT_H3		0x00004F00U	/* R-Car H3 */
+#define PRR_PRODUCT_M3		0x00005200U	/* R-Car M3 */
+#define PRR_PRODUCT_V3M		0x00005400U	/* R-Car V3M */
+#define PRR_PRODUCT_M3N		0x00005500U	/* R-Car M3N */
+#define PRR_PRODUCT_E3		0x00005700U	/* R-Car E3 */
+#define PRR_PRODUCT_D3		0x00005800U	/* R-Car D3 */
+#define PRR_PRODUCT_10		0x00U
+#define PRR_PRODUCT_11		0x01U
+#define PRR_PRODUCT_20		0x10U
+#define PRR_PRODUCT_21		0x11U
+#define PRR_PRODUCT_30		0x20U
 
 #if (RCAR_LSI != RCAR_E3) && (RCAR_LSI != RCAR_D3) && (RCAR_LSI != RCAR_V3M)
 
 #define DRAM_CH_CNT			0x04
 uint32_t qos_init_ddr_ch;
 uint8_t qos_init_ddr_phyvalid;
-
 #endif
 
 #define PRR_PRODUCT_ERR(reg)				\
-	do{						\
+	do {						\
 		ERROR("LSI Product ID(PRR=0x%x) QoS "	\
-		"initialize not supported.\n",reg);	\
+		"initialize not supported.\n", reg);	\
 		panic();				\
-	} while(0)
+	} while (0)
 
 #define PRR_CUT_ERR(reg)				\
-	do{						\
+	do {						\
 		ERROR("LSI Cut ID(PRR=0x%x) QoS "	\
-		"initialize not supported.\n",reg);	\
+		"initialize not supported.\n", reg);	\
 		panic();				\
-	} while(0)
+	} while (0)
 
 void rcar_qos_init(void)
 {
@@ -390,3 +390,20 @@ uint32_t get_refperiod(void)
 	return refperiod;
 }
 #endif
+
+void rcar_qos_dbsc_setting(struct rcar_gen3_dbsc_qos_settings *qos,
+			   unsigned int qos_size, bool dbsc_wren)
+{
+	int i;
+
+	/* Register write enable */
+	if (dbsc_wren)
+		io_write_32(DBSC_DBSYSCNT0, 0x00001234U);
+
+	for (i = 0; i < qos_size; i++)
+		io_write_32(qos[i].reg, qos[i].val);
+
+	/* Register write protect */
+	if (dbsc_wren)
+		io_write_32(DBSC_DBSYSCNT0, 0x00000000U);
+}

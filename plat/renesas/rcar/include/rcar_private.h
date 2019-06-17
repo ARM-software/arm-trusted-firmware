@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -98,5 +98,10 @@ void plat_cci_init(void);
 
 void mstpcr_write(uint32_t mstpcr, uint32_t mstpsr, uint32_t target_bit);
 void cpg_write(uintptr_t regadr, uint32_t regval);
+
+void rcar_console_boot_init(void);
+void rcar_console_boot_end(void);
+void rcar_console_runtime_init(void);
+void rcar_console_runtime_end(void);
 
 #endif /* RCAR_PRIVATE_H */

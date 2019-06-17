@@ -67,3 +67,38 @@ void plat_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 
 	panic();
 }
+
+#include <drivers/renesas/rcar/console/console.h>
+
+static console_rcar_t rcar_boot_console;
+static console_rcar_t rcar_runtime_console;
+
+void rcar_console_boot_init(void)
+{
+	int ret;
+
+	ret = console_rcar_register(0, 0, 0, &rcar_boot_console);
+	if (!ret)
+		panic();
+
+	console_set_scope(&rcar_boot_console.console, CONSOLE_FLAG_BOOT);
+}
+
+void rcar_console_boot_end(void)
+{
+}
+
+void rcar_console_runtime_init(void)
+{
+	int ret;
+
+	ret = console_rcar_register(1, 0, 0, &rcar_runtime_console);
+	if (!ret)
+		panic();
+
+	console_set_scope(&rcar_boot_console.console, CONSOLE_FLAG_RUNTIME);
+}
+
+void rcar_console_runtime_end(void)
+{
+}
