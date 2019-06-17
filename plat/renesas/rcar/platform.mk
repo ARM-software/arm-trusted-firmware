@@ -350,7 +350,7 @@ ERRATA_A57_813419  := 1
 
 include drivers/staging/renesas/rcar/ddr/ddr.mk
 include drivers/renesas/rcar/qos/qos.mk
-include drivers/staging/renesas/rcar/pfc/pfc.mk
+include drivers/renesas/rcar/pfc/pfc.mk
 include lib/libfdt/libfdt.mk
 
 PLAT_INCLUDES	:=	-Idrivers/staging/renesas/rcar/ddr	\
