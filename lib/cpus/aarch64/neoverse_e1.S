@@ -21,6 +21,21 @@
 #error "Neoverse-E1 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+	/* -------------------------------------------------
+	 * The CPU Ops reset function for Neoverse-E1.
+	 * Shall clobber: x0-x19
+	 * -------------------------------------------------
+	 */
+func neoverse_e1_reset_func
+	mov	x19, x30
+
+#if ERRATA_DSU_936184
+	bl	errata_dsu_936184_wa
+#endif
+
+	ret	x19
+endfunc neoverse_e1_reset_func
+
 func neoverse_e1_cpu_pwr_dwn
 	mrs	x0, NEOVERSE_E1_CPUPWRCTLR_EL1
 	orr	x0, x0, #NEOVERSE_E1_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
@@ -34,6 +49,18 @@ endfunc neoverse_e1_cpu_pwr_dwn
  * Errata printing function for Neoverse N1. Must follow AAPCS.
  */
 func neoverse_e1_errata_report
+	stp	x8, x30, [sp, #-16]!
+
+	bl	cpu_get_rev_var
+	mov	x8, x0
+
+	/*
+	 * Report all errata. The revision-variant information is passed to
+	 * checking functions of each errata.
+	 */
+	report_errata ERRATA_DSU_936184, neoverse_e1, dsu_936184
+
+	ldp	x8, x30, [sp], #16
 	ret
 endfunc neoverse_e1_errata_report
 #endif
@@ -50,5 +77,5 @@ func neoverse_e1_cpu_reg_dump
 endfunc neoverse_e1_cpu_reg_dump
 
 declare_cpu_ops neoverse_e1, NEOVERSE_E1_MIDR, \
-	CPU_NO_RESET_FUNC, \
+	neoverse_e1_reset_func, \
 	neoverse_e1_cpu_pwr_dwn
