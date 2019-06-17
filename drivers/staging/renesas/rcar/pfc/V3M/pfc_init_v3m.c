@@ -487,7 +487,7 @@ static void pfc_reg_write(uint32_t addr, uint32_t data)
 	mmio_write_32((uintptr_t)addr, data);
 }
 
-static void StartRtDma0_Descriptor(void)
+static void start_rtdma0_descriptor(void)
 {
 	uint32_t reg;
 
@@ -529,7 +529,7 @@ static void StartRtDma0_Descriptor(void)
 void pfc_init_v3m(void)
 {
 	/* Work around for PFC eratta */
-	StartRtDma0_Descriptor();
+	start_rtdma0_descriptor();
 
 	// pin function
 	// md[4:1]!=0000
