@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -146,11 +147,13 @@
 
 #define CAD_QSPI_SUBSECTOR_SIZE			0x1000
 
-#define S10_QSPI_ADDR_BYTES			2
-#define S10_QSPI_BYTES_PER_DEV			256
-#define S10_BYTES_PER_BLOCK			16
+#define INTEL_QSPI_ADDR_BYTES			2
+#define INTEL_QSPI_BYTES_PER_DEV		256
+#define INTEL_BYTES_PER_BLOCK			16
 
 #define QSPI_FAST_READ				0xb
+
+#define QSPI_WRITE				0x2
 
 // QSPI CONFIGURATIONS
 

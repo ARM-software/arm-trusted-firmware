@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -65,13 +66,13 @@ int cad_qspi_set_read_config(uint32_t opcode, uint32_t instr_type,
 	return 0;
 }
 
-int cat_qspi_set_write_config(uint32_t addr_type, uint32_t data_type,
-		uint32_t mode_bit, uint32_t dummy_clk_cycle)
+int cad_qspi_set_write_config(uint32_t opcode, uint32_t addr_type,
+		uint32_t data_type, uint32_t dummy_clk_cycle)
 {
 	mmio_write_32(CAD_QSPI_OFFSET + CAD_QSPI_DEVWR,
+			CAD_QSPI_DEV_OPCODE(opcode) |
 			CAD_QSPI_DEV_ADDR_TYPE(addr_type) |
 			CAD_QSPI_DEV_DATA_TYPE(data_type) |
-			CAD_QSPI_DEV_MODE_BIT(mode_bit) |
 			CAD_QSPI_DEV_DUMMY_CLK_CYCLE(dummy_clk_cycle));
 
 	return 0;
@@ -161,7 +162,7 @@ int cad_qspi_stig_read_cmd(uint32_t opcode, uint32_t dummy, uint32_t num_bytes,
 		CAD_QSPI_FLASHCMD_NUMDUMMYBYTES(dummy);
 
 	if (cad_qspi_stig_cmd_helper(cad_qspi_cs, cmd)) {
-		ERROR("failed to send stig cmd");
+		ERROR("failed to send stig cmd\n");
 		return -1;
 	}
 
@@ -249,6 +250,8 @@ int cad_qspi_n25q_enable(void)
 	cad_qspi_set_read_config(QSPI_FAST_READ, CAD_QSPI_INST_SINGLE,
 			CAD_QSPI_ADDR_FASTREAD, CAT_QSPI_ADDR_SINGLE_IO, 1,
 			0);
+	cad_qspi_set_write_config(QSPI_WRITE, 0, 0, 0);
+
 	return 0;
 }
 
@@ -512,7 +515,7 @@ int cad_qspi_init(uint32_t desired_clk_freq, uint32_t clk_phase,
 	INFO("Initializing Qspi\n");
 
 	if (cad_qspi_idle() == 0) {
-		ERROR("device not idle");
+		ERROR("device not idle\n");
 		return -1;
 	}
 
@@ -587,8 +590,9 @@ int cad_qspi_init(uint32_t desired_clk_freq, uint32_t clk_phase,
 		return -1;
 	}
 
-	cad_qspi_configure_dev_size(S10_QSPI_ADDR_BYTES,
-				S10_QSPI_BYTES_PER_DEV, S10_BYTES_PER_BLOCK);
+	cad_qspi_configure_dev_size(INTEL_QSPI_ADDR_BYTES,
+				INTEL_QSPI_BYTES_PER_DEV,
+				INTEL_BYTES_PER_BLOCK);
 
 	INFO("Flash size: %d Bytes\n", qspi_device_size);
 
@@ -689,13 +693,13 @@ int cad_qspi_read(void *buffer, uint32_t  offset, uint32_t  size)
 			((long) ((int *)buffer) & 0x3)  ||
 			(offset & 0x3) ||
 			(size & 0x3)) {
-		ERROR("Invalid read parameter");
+		ERROR("Invalid read parameter\n");
 		return -1;
 	}
 
 	if (CAD_QSPI_INDRD_RD_STAT(mmio_read_32(CAD_QSPI_OFFSET +
 						CAD_QSPI_INDRD))) {
-		ERROR("Read in progress");
+		ERROR("Read in progress\n");
 		return -1;
 	}
 
