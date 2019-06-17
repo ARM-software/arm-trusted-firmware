@@ -38,6 +38,12 @@ BL31_SOURCES		+=	drivers/arm/gic/common/gic_common.c	\
 # The bootloader is guaranteed to only run on CPU 0 by the boot ROM.
 COLD_BOOT_SINGLE_CPU		:=	1
 
+# Do not enable SPE (not supported on ARM v8.0).
+ENABLE_SPE_FOR_LOWER_ELS	:=	0
+
+# Do not enable SVE (not supported on ARM v8.0).
+ENABLE_SVE_FOR_NS		:=	0
+
 # Enable workarounds for Cortex-A53 errata. Allwinner uses at least r0p4.
 ERRATA_A53_835769		:=	1
 ERRATA_A53_843419		:=	1
@@ -56,3 +62,6 @@ RESET_TO_BL31			:=	1
 
 # We are short on memory, so save 3.5KB by not having an extra coherent page.
 USE_COHERENT_MEM		:=	0
+
+# This platform is single-cluster and does not require coherency setup.
+WARMBOOT_ENABLE_DCACHE_EARLY	:=	1
