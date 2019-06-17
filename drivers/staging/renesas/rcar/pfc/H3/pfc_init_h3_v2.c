@@ -570,18 +570,6 @@
 #define MOD_SEL2_VIN4_A		((uint32_t)0U << 0U)
 #define MOD_SEL2_VIN4_B		((uint32_t)1U << 0U)
 
-/* SCIF3 Registers for Dummy write */
-#define SCIF3_BASE		(0xE6C50000U)
-#define SCIF3_SCFCR		(SCIF3_BASE + 0x0018U)
-#define SCIF3_SCFDR		(SCIF3_BASE + 0x001CU)
-#define SCFCR_DATA		(0x0000U)
-
-/* Realtime module stop control */
-#define CPG_BASE		(0xE6150000U)
-#define CPG_MSTPSR0		(CPG_BASE + 0x0030U)
-#define CPG_RMSTPCR0		(CPG_BASE + 0x0110U)
-#define RMSTPCR0_RTDMAC		(0x00200000U)
-
 static void pfc_reg_write(uint32_t addr, uint32_t data);
 
 static void pfc_reg_write(uint32_t addr, uint32_t data)
