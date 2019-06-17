@@ -612,7 +612,7 @@
 #define RDMCHCRB_SLM_256	(0x00000080U)	/* once in 256 clock cycle */
 #define RDMDPBASE_SEL_EXT	(0x00000001U)	/* External memory use */
 
-static void StartRtDma0_Descriptor(void)
+static void start_rtdma0_descriptor(void)
 {
 	uint32_t reg;
 
@@ -673,7 +673,7 @@ void pfc_init_m3(void)
 	uint32_t reg;
 
 	/* Work around for PFC eratta */
-	StartRtDma0_Descriptor();
+	start_rtdma0_descriptor();
 
 	/* initialize module select */
 	pfc_reg_write(PFC_MOD_SEL0, MOD_SEL0_MSIOF3_A
