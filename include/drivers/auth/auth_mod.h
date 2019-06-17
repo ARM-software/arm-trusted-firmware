@@ -40,11 +40,10 @@ int auth_mod_verify_img(unsigned int img_id,
 
 /* Macro to register a CoT defined as an array of auth_img_desc_t pointers */
 #define REGISTER_COT(_cot) \
-	const auth_img_desc_t **const cot_desc_ptr = \
-			(const auth_img_desc_t **const)_cot; \
+	const auth_img_desc_t *const *const cot_desc_ptr = (_cot); \
 	unsigned int auth_img_flags[MAX_NUMBER_IDS]
 
-extern const auth_img_desc_t **const cot_desc_ptr;
+extern const auth_img_desc_t *const *const cot_desc_ptr;
 extern unsigned int auth_img_flags[MAX_NUMBER_IDS];
 
 #endif /* TRUSTED_BOARD_BOOT */
