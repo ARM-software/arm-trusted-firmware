@@ -612,9 +612,6 @@
 #define RDMCHCRB_SLM_256	(0x00000080U)	/* once in 256 clock cycle */
 #define RDMDPBASE_SEL_EXT	(0x00000001U)	/* External memory use */
 
-static void StartRtDma0_Descriptor(void);
-static void pfc_reg_write(uint32_t addr, uint32_t data);
-
 static void StartRtDma0_Descriptor(void)
 {
 	uint32_t reg;
