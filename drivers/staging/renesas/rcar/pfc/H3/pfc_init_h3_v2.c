@@ -570,8 +570,6 @@
 #define MOD_SEL2_VIN4_A		((uint32_t)0U << 0U)
 #define MOD_SEL2_VIN4_B		((uint32_t)1U << 0U)
 
-static void pfc_reg_write(uint32_t addr, uint32_t data);
-
 static void pfc_reg_write(uint32_t addr, uint32_t data)
 {
 	mmio_write_32(PFC_PMMR, ~data);
