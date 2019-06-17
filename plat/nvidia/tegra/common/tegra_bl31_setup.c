@@ -248,12 +248,6 @@ void bl31_platform_setup(void)
 	tegra_memctrl_setup();
 
 	/*
-	 * Set up the TZRAM memory aperture to allow only secure world
-	 * access
-	 */
-	tegra_memctrl_tzram_setup(TEGRA_TZRAM_BASE, TEGRA_TZRAM_SIZE);
-
-	/*
 	 * Late setup handler to allow platforms to performs additional
 	 * functionality.
 	 * This handler gets called with MMU enabled.
