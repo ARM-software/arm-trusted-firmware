@@ -32,7 +32,6 @@
 
 
 void watchdog_init(int watchdog_clk);
-void watchdog_enable(void);
 void watchdog_info(void);
 void watchdog_status(void);
 void watchdog_sw_rst(void);

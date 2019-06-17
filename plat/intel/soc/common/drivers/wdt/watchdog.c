@@ -28,10 +28,10 @@ void watchdog_info(void)
 void watchdog_status(void)
 {
 	if (mmio_read_32(WDT_CR) & 1) {
-		INFO("Watchdog Timer in currently enabled\n");
+		INFO("Watchdog Timer is currently enabled\n");
 		INFO("Current Counter : 0x%x\r\n", mmio_read_32(WDT_CCVR));
 	} else {
-		INFO("Watchdog Timer in currently disabled\n");
+		INFO("Watchdog Timer is currently disabled\n");
 	}
 }
 
@@ -49,10 +49,5 @@ void watchdog_init(int watchdog_clk)
 
 	mmio_write_32(WDT_TORR, (cycles_i << 4) | cycles_i);
 
-	watchdog_enable();
-}
-
-void watchdog_enable(void)
-{
 	mmio_write_32(WDT_CR, WDT_CR_RMOD|WDT_CR_EN);
 }
