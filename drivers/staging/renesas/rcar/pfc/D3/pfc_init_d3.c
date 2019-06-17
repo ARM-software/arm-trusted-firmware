@@ -571,39 +571,6 @@
 #define MOD_SEL2_VIN4_A		((uint32_t)0U << 0U)
 #define MOD_SEL2_VIN4_B		((uint32_t)1U << 0U)
 
-/* Realtime module stop control */
-#define CPG_BASE		(0xE6150000U)
-#define CPG_MSTPSR0		(CPG_BASE + 0x0030U)
-#define CPG_RMSTPCR0		(CPG_BASE + 0x0110U)
-#define RMSTPCR0_RTDMAC		(0x00200000U)
-
-/* RT-DMAC Registers */
-#define RTDMAC_CH		(0U)		/* choose 0 to 15 */
-
-#define RTDMAC_BASE		(0xFFC10000U)
-#define RTDMAC_RDMOR		(RTDMAC_BASE + 0x0060U)
-#define RTDMAC_RDMCHCLR		(RTDMAC_BASE + 0x0080U)
-#define RTDMAC_RDMSAR(x)	(RTDMAC_BASE + 0x8000U + (0x80U * (x)))
-#define RTDMAC_RDMDAR(x)	(RTDMAC_BASE + 0x8004U + (0x80U * (x)))
-#define RTDMAC_RDMTCR(x)	(RTDMAC_BASE + 0x8008U + (0x80U * (x)))
-#define RTDMAC_RDMCHCR(x)	(RTDMAC_BASE + 0x800CU + (0x80U * (x)))
-#define RTDMAC_RDMCHCRB(x)	(RTDMAC_BASE + 0x801CU + (0x80U * (x)))
-#define RTDMAC_RDMDPBASE(x)	(RTDMAC_BASE + 0x8050U + (0x80U * (x)))
-#define RTDMAC_DESC_BASE	(RTDMAC_BASE + 0xA000U)
-#define RTDMAC_DESC_RDMSAR	(RTDMAC_DESC_BASE + 0x0000U)
-#define RTDMAC_DESC_RDMDAR	(RTDMAC_DESC_BASE + 0x0004U)
-#define RTDMAC_DESC_RDMTCR	(RTDMAC_DESC_BASE + 0x0008U)
-
-#define RDMOR_DME		(0x0001U)	/* DMA Master Enable */
-#define RDMCHCR_DPM_INFINITE	(0x30000000U)	/* Infinite repeat mode */
-#define RDMCHCR_RPT_TCR		(0x02000000U)	/* enable to update TCR */
-#define RDMCHCR_TS_2		(0x00000008U)	/* Word(2byte) units transfer */
-#define RDMCHCR_RS_AUTO		(0x00000400U)	/* Auto request */
-#define RDMCHCR_DE		(0x00000001U)	/* DMA Enable */
-#define RDMCHCRB_DRST		(0x00008000U)	/* Descriptor reset */
-#define RDMCHCRB_SLM_256	(0x00000080U)	/* once in 256 clock cycle */
-#define RDMDPBASE_SEL_EXT	(0x00000001U)	/* External memory use */
-
 static void pfc_reg_write(uint32_t addr, uint32_t data)
 {
 	mmio_write_32(PFC_PMMR, ~data);
