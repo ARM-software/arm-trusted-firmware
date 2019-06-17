@@ -287,8 +287,6 @@
 #define MOD_SEL1_SSI9_A		((uint32_t)0U << 4U)
 #define MOD_SEL1_SSI9_B		((uint32_t)1U << 4U)
 
-static void pfc_reg_write(uint32_t addr, uint32_t data);
-
 static void pfc_reg_write(uint32_t addr, uint32_t data)
 {
 	mmio_write_32(PFC_PMMR, ~data);
