@@ -2251,7 +2251,7 @@ static int mvebu_cp110_comphy_ap_power_on(uint64_t comphy_base,
 
 	/* Start AP Firmware */
 	mvebu_cp110_get_ap_and_cp_nr(&ap_nr, &cp_nr, comphy_base);
-	mg_start_ap_fw(cp_nr);
+	mg_start_ap_fw(cp_nr, comphy_index);
 
 	return 0;
 }
