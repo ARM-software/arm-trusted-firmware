@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*
- * Copyright (C) STMicroelectronics 2017 - All Rights Reserved
+ * Copyright (C) STMicroelectronics 2017-2019 - All Rights Reserved
  * Author: Ludovic Barre <ludovic.barre@st.com> for STMicroelectronics.
  */
 #include <dt-bindings/interrupt-controller/arm-gic.h>
@@ -70,6 +70,16 @@
 		interrupt-parent = <&intc>;
 		ranges;
 
+		timers12: timer@40006000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32-timers";
+			reg = <0x40006000 0x400>;
+			clocks = <&rcc TIM12_K>;
+			clock-names = "int";
+			status = "disabled";
+		};
+
 		usart2: serial@4000e000 {
 			compatible = "st,stm32h7-uart";
 			reg = <0x4000e000 0x400>;
@@ -127,8 +137,19 @@
 			status = "disabled";
 		};
 
+		timers15: timer@44006000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "st,stm32-timers";
+			reg = <0x44006000 0x400>;
+			clocks = <&rcc TIM15_K>;
+			clock-names = "int";
+			status = "disabled";
+		};
+
 		sdmmc3: sdmmc@48004000 {
-			compatible = "st,stm32-sdmmc2";
+			compatible = "arm,pl18x", "arm,primecell";
+			arm,primecell-periphid = <0x00253180>;
 			reg = <0x48004000 0x400>, <0x48005000 0x400>;
 			clocks = <&rcc SDMMC3_K>;
 			clock-names = "apb_pclk";
@@ -136,6 +157,16 @@
 			cap-sd-highspeed;
 			cap-mmc-highspeed;
 			max-frequency = <120000000>;
+			status = "disabled";
+		};
+
+		usbotg_hs: usb-otg@49000000 {
+			compatible = "st,stm32mp1-hsotg", "snps,dwc2";
+			reg = <0x49000000 0x10000>;
+			clocks = <&rcc USBO_K>;
+			clock-names = "otg";
+			resets = <&rcc USBO_R>;
+			reset-names = "dwc2";
 			status = "disabled";
 		};
 
@@ -170,6 +201,30 @@
 			};
 		};
 
+		syscfg: syscon@50020000 {
+			compatible = "st,stm32mp157-syscfg", "syscon";
+			reg = <0x50020000 0x400>;
+			clocks = <&rcc SYSCFG>;
+		};
+
+		cryp1: cryp@54001000 {
+			compatible = "st,stm32mp1-cryp";
+			reg = <0x54001000 0x400>;
+			interrupts = <GIC_SPI 79 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&rcc CRYP1>;
+			resets = <&rcc CRYP1_R>;
+			status = "disabled";
+		};
+
+		hash1: hash@54002000 {
+			compatible = "st,stm32f756-hash";
+			reg = <0x54002000 0x400>;
+			interrupts = <GIC_SPI 80 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&rcc HASH1>;
+			resets = <&rcc HASH1_R>;
+			status = "disabled";
+		};
+
 		rng1: rng@54003000 {
 			compatible = "st,stm32-rng";
 			reg = <0x54003000 0x400>;
@@ -202,7 +257,8 @@
 		};
 
 		sdmmc1: sdmmc@58005000 {
-			compatible = "st,stm32-sdmmc2";
+			compatible = "arm,pl18x", "arm,primecell";
+			arm,primecell-periphid = <0x00253180>;
 			reg = <0x58005000 0x1000>, <0x58006000 0x1000>;
 			clocks = <&rcc SDMMC1_K>;
 			clock-names = "apb_pclk";
@@ -214,7 +270,8 @@
 		};
 
 		sdmmc2: sdmmc@58007000 {
-			compatible = "st,stm32-sdmmc2";
+			compatible = "arm,pl18x", "arm,primecell";
+			arm,primecell-periphid = <0x00253180>;
 			reg = <0x58007000 0x1000>, <0x58008000 0x1000>;
 			clocks = <&rcc SDMMC2_K>;
 			clock-names = "apb_pclk";

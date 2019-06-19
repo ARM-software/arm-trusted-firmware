@@ -36,11 +36,12 @@ int dt_set_stdout_pinctrl(void);
 void dt_fill_device_info(struct dt_node_info *info, int node);
 int dt_get_node(struct dt_node_info *info, int offset, const char *compat);
 int dt_get_stdout_uart_info(struct dt_node_info *info);
-int dt_get_stdout_node_offset(void);
 uint32_t dt_get_ddr_size(void);
 uintptr_t dt_get_ddrctrl_base(void);
 uintptr_t dt_get_ddrphyc_base(void);
 uintptr_t dt_get_pwr_base(void);
+uint32_t dt_get_pwr_vdd_voltage(void);
+uintptr_t dt_get_syscfg_base(void);
 const char *dt_get_board_model(void);
 
 #endif /* STM32MP_DT_H */

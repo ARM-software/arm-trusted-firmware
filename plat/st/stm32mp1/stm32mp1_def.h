@@ -111,7 +111,7 @@ enum ddr_type {
 #endif
 
 /* DTB initialization value */
-#define STM32MP_DTB_SIZE		U(0x00004000)	/* 16Ko for DTB */
+#define STM32MP_DTB_SIZE		U(0x00005000)	/* 20Ko for DTB */
 
 #define STM32MP_DTB_BASE		(STM32MP_BL2_BASE - \
 					 STM32MP_DTB_SIZE)
@@ -223,11 +223,11 @@ enum ddr_type {
 #define STM32MP_SDMMC2_BASE		U(0x58007000)
 #define STM32MP_SDMMC3_BASE		U(0x48004000)
 
-#define STM32MP_MMC_INIT_FREQ			400000		/*400 KHz*/
-#define STM32MP_SD_NORMAL_SPEED_MAX_FREQ	25000000	/*25 MHz*/
-#define STM32MP_SD_HIGH_SPEED_MAX_FREQ		50000000	/*50 MHz*/
-#define STM32MP_EMMC_NORMAL_SPEED_MAX_FREQ	26000000	/*26 MHz*/
-#define STM32MP_EMMC_HIGH_SPEED_MAX_FREQ	52000000	/*52 MHz*/
+#define STM32MP_MMC_INIT_FREQ			U(400000)	/*400 KHz*/
+#define STM32MP_SD_NORMAL_SPEED_MAX_FREQ	U(25000000)	/*25 MHz*/
+#define STM32MP_SD_HIGH_SPEED_MAX_FREQ		U(50000000)	/*50 MHz*/
+#define STM32MP_EMMC_NORMAL_SPEED_MAX_FREQ	U(26000000)	/*26 MHz*/
+#define STM32MP_EMMC_HIGH_SPEED_MAX_FREQ	U(52000000)	/*52 MHz*/
 
 /*******************************************************************************
  * STM32MP1 BSEC / OTP
@@ -239,10 +239,14 @@ enum ddr_type {
 
 /* OTP offsets */
 #define DATA0_OTP			U(0)
+#define HW2_OTP				U(18)
 
 /* OTP mask */
 /* DATA0 */
 #define DATA0_OTP_SECURED		BIT(6)
+
+/* HW2 OTP */
+#define HW2_OTP_PRODUCT_BELOW_2V5	BIT(13)
 
 /*******************************************************************************
  * STM32MP1 TAMP
@@ -277,5 +281,6 @@ static inline uint32_t tamp_bkpr(uint32_t idx)
  ******************************************************************************/
 #define DT_PWR_COMPAT			"st,stm32mp1-pwr"
 #define DT_RCC_CLK_COMPAT		"st,stm32mp1-rcc"
+#define DT_SYSCFG_COMPAT		"st,stm32mp157-syscfg"
 
 #endif /* STM32MP1_DEF_H */

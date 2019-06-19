@@ -99,6 +99,7 @@
  * Generic timer memory mapped registers & offsets
  ******************************************************************************/
 #define CNTCR_OFF			U(0x000)
+#define CNTCV_OFF			U(0x008)
 #define CNTFID_OFF			U(0x020)
 
 #define CNTCR_EN			(U(1) << 0)

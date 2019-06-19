@@ -20,7 +20,6 @@
 #include <drivers/generic_delay_timer.h>
 #include <drivers/st/stm32mp_clkfunc.h>
 #include <drivers/st/stm32mp1_clk.h>
-#include <drivers/st/stm32mp1_clkfunc.h>
 #include <drivers/st/stm32mp1_rcc.h>
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
 #include <lib/mmio.h>
@@ -39,6 +38,15 @@
 #define CLKDIV_TIMEOUT		TIMEOUT_US_200MS
 #define HSIDIV_TIMEOUT		TIMEOUT_US_200MS
 #define OSCRDY_TIMEOUT		TIMEOUT_US_1S
+
+const char *stm32mp_osc_node_label[NB_OSC] = {
+	[_LSI] = "clk-lsi",
+	[_LSE] = "clk-lse",
+	[_HSI] = "clk-hsi",
+	[_HSE] = "clk-hse",
+	[_CSI] = "clk-csi",
+	[_I2S_CKIN] = "i2s_ckin",
+};
 
 enum stm32mp1_parent_id {
 /* Oscillators are defined in enum stm32mp_osc_id */
@@ -83,7 +91,7 @@ enum stm32mp1_parent_sel {
 	_STGEN_SEL,
 	_I2C46_SEL,
 	_SPI6_SEL,
-	_USART1_SEL,
+	_UART1_SEL,
 	_RNG1_SEL,
 	_UART6_SEL,
 	_UART24_SEL,
@@ -93,8 +101,8 @@ enum stm32mp1_parent_sel {
 	_SDMMC3_SEL,
 	_QSPI_SEL,
 	_FMC_SEL,
-	_ASS_SEL,
-	_MSS_SEL,
+	_AXIS_SEL,
+	_MCUS_SEL,
 	_USBPHY_SEL,
 	_USBO_SEL,
 	_PARENT_SEL_NB,
@@ -246,13 +254,13 @@ struct stm32mp1_clk_pll {
 		.fixed = (f),				\
 	}
 
-#define _CLK_PARENT(idx, off, s, m, p)			\
-	[(idx)] = {					\
-		.offset = (off),			\
-		.src = (s),				\
-		.msk = (m),				\
-		.parent = (p),				\
-		.nb_parent = ARRAY_SIZE(p)		\
+#define _CLK_PARENT_SEL(_label, _rcc_selr, _parents)		\
+	[_ ## _label ## _SEL] = {				\
+		.offset = _rcc_selr,				\
+		.src = _rcc_selr ## _ ## _label ## SRC_SHIFT,	\
+		.msk = _rcc_selr ## _ ## _label ## SRC_MASK,	\
+		.parent = (_parents),				\
+		.nb_parent = ARRAY_SIZE(_parents)		\
 	}
 
 #define _CLK_PLL(idx, type, off1, off2, off3,		\
@@ -315,6 +323,8 @@ static const struct stm32mp1_clk_gate stm32mp1_clk_gate[] = {
 	_CLK_SC_FIXED(RCC_MP_APB2ENSETR, 2, TIM15_K, _PCLK2),
 	_CLK_SC_SELEC(RCC_MP_APB2ENSETR, 13, USART6_K, _UART6_SEL),
 
+	_CLK_SC_FIXED(RCC_MP_APB3ENSETR, 11, SYSCFG, _UNKNOWN_ID),
+
 	_CLK_SC_SELEC(RCC_MP_APB4ENSETR, 8, DDRPERFM, _UNKNOWN_SEL),
 	_CLK_SC_SELEC(RCC_MP_APB4ENSETR, 15, IWDG2, _UNKNOWN_SEL),
 	_CLK_SC_SELEC(RCC_MP_APB4ENSETR, 16, USBPHY_K, _USBPHY_SEL),
@@ -322,7 +332,7 @@ static const struct stm32mp1_clk_gate stm32mp1_clk_gate[] = {
 	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 0, SPI6_K, _SPI6_SEL),
 	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 2, I2C4_K, _I2C46_SEL),
 	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 3, I2C6_K, _I2C46_SEL),
-	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 4, USART1_K, _USART1_SEL),
+	_CLK_SC_SELEC(RCC_MP_APB5ENSETR, 4, USART1_K, _UART1_SEL),
 	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 8, RTCAPB, _PCLK5),
 	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 11, TZC1, _PCLK5),
 	_CLK_SC_FIXED(RCC_MP_APB5ENSETR, 12, TZC2, _PCLK5),
@@ -430,25 +440,25 @@ static const uint8_t usbo_parents[] = {
 };
 
 static const struct stm32mp1_clk_sel stm32mp1_clk_sel[_PARENT_SEL_NB] = {
-	_CLK_PARENT(_I2C12_SEL, RCC_I2C12CKSELR, 0, 0x7, i2c12_parents),
-	_CLK_PARENT(_I2C35_SEL, RCC_I2C35CKSELR, 0, 0x7, i2c35_parents),
-	_CLK_PARENT(_STGEN_SEL, RCC_STGENCKSELR, 0, 0x3, stgen_parents),
-	_CLK_PARENT(_I2C46_SEL, RCC_I2C46CKSELR, 0, 0x7, i2c46_parents),
-	_CLK_PARENT(_SPI6_SEL, RCC_SPI6CKSELR, 0, 0x7, spi6_parents),
-	_CLK_PARENT(_USART1_SEL, RCC_UART1CKSELR, 0, 0x7, usart1_parents),
-	_CLK_PARENT(_RNG1_SEL, RCC_RNG1CKSELR, 0, 0x3, rng1_parents),
-	_CLK_PARENT(_UART6_SEL, RCC_UART6CKSELR, 0, 0x7, uart6_parents),
-	_CLK_PARENT(_UART24_SEL, RCC_UART24CKSELR, 0, 0x7, uart234578_parents),
-	_CLK_PARENT(_UART35_SEL, RCC_UART35CKSELR, 0, 0x7, uart234578_parents),
-	_CLK_PARENT(_UART78_SEL, RCC_UART78CKSELR, 0, 0x7, uart234578_parents),
-	_CLK_PARENT(_SDMMC12_SEL, RCC_SDMMC12CKSELR, 0, 0x7, sdmmc12_parents),
-	_CLK_PARENT(_SDMMC3_SEL, RCC_SDMMC3CKSELR, 0, 0x7, sdmmc3_parents),
-	_CLK_PARENT(_QSPI_SEL, RCC_QSPICKSELR, 0, 0xf, qspi_parents),
-	_CLK_PARENT(_FMC_SEL, RCC_FMCCKSELR, 0, 0xf, fmc_parents),
-	_CLK_PARENT(_ASS_SEL, RCC_ASSCKSELR, 0, 0x3, ass_parents),
-	_CLK_PARENT(_MSS_SEL, RCC_MSSCKSELR, 0, 0x3, mss_parents),
-	_CLK_PARENT(_USBPHY_SEL, RCC_USBCKSELR, 0, 0x3, usbphy_parents),
-	_CLK_PARENT(_USBO_SEL, RCC_USBCKSELR, 4, 0x1, usbo_parents),
+	_CLK_PARENT_SEL(I2C12, RCC_I2C12CKSELR, i2c12_parents),
+	_CLK_PARENT_SEL(I2C35, RCC_I2C35CKSELR, i2c35_parents),
+	_CLK_PARENT_SEL(STGEN, RCC_STGENCKSELR, stgen_parents),
+	_CLK_PARENT_SEL(I2C46, RCC_I2C46CKSELR, i2c46_parents),
+	_CLK_PARENT_SEL(SPI6, RCC_SPI6CKSELR, spi6_parents),
+	_CLK_PARENT_SEL(UART1, RCC_UART1CKSELR, usart1_parents),
+	_CLK_PARENT_SEL(RNG1, RCC_RNG1CKSELR, rng1_parents),
+	_CLK_PARENT_SEL(UART6, RCC_UART6CKSELR, uart6_parents),
+	_CLK_PARENT_SEL(UART24, RCC_UART24CKSELR, uart234578_parents),
+	_CLK_PARENT_SEL(UART35, RCC_UART35CKSELR, uart234578_parents),
+	_CLK_PARENT_SEL(UART78, RCC_UART78CKSELR, uart234578_parents),
+	_CLK_PARENT_SEL(SDMMC12, RCC_SDMMC12CKSELR, sdmmc12_parents),
+	_CLK_PARENT_SEL(SDMMC3, RCC_SDMMC3CKSELR, sdmmc3_parents),
+	_CLK_PARENT_SEL(QSPI, RCC_QSPICKSELR, qspi_parents),
+	_CLK_PARENT_SEL(FMC, RCC_FMCCKSELR, fmc_parents),
+	_CLK_PARENT_SEL(AXIS, RCC_ASSCKSELR, ass_parents),
+	_CLK_PARENT_SEL(MCUS, RCC_MSSCKSELR, mss_parents),
+	_CLK_PARENT_SEL(USBPHY, RCC_USBCKSELR, usbphy_parents),
+	_CLK_PARENT_SEL(USBO, RCC_USBCKSELR, usbo_parents),
 };
 
 /* Define characteristic of PLL according type */
@@ -648,7 +658,7 @@ static int stm32mp1_clk_get_parent(unsigned long id)
 	}
 
 	sel = clk_sel_ref(s);
-	p_sel = (mmio_read_32(rcc_base + sel->offset) >> sel->src) & sel->msk;
+	p_sel = (mmio_read_32(rcc_base + sel->offset) & sel->msk) >> sel->src;
 	if (p_sel < sel->nb_parent) {
 		return (int)sel->parent[p_sel];
 	}
@@ -1305,7 +1315,11 @@ static void stm32mp1_pll_start(enum stm32mp1_pll_id pll_id)
 	const struct stm32mp1_clk_pll *pll = pll_ref(pll_id);
 	uintptr_t pllxcr = stm32mp_rcc_base() + pll->pllxcr;
 
-	mmio_write_32(pllxcr, RCC_PLLNCR_PLLON);
+	/* Preserve RCC_PLLNCR_SSCG_CTRL value */
+	mmio_clrsetbits_32(pllxcr,
+			   RCC_PLLNCR_DIVPEN | RCC_PLLNCR_DIVQEN |
+			   RCC_PLLNCR_DIVREN,
+			   RCC_PLLNCR_PLLON);
 }
 
 static int stm32mp1_pll_output(enum stm32mp1_pll_id pll_id, uint32_t output)
@@ -1434,6 +1448,9 @@ static void stm32mp1_pll_csg(enum stm32mp1_pll_id pll_id, uint32_t *csg)
 		    RCC_PLLNCSGR_SSCG_MODE_MASK;
 
 	mmio_write_32(stm32mp_rcc_base() + pll->pllxcsgr, pllxcsg);
+
+	mmio_setbits_32(stm32mp_rcc_base() + pll->pllxcr,
+			RCC_PLLNCR_SSCG_CTRL);
 }
 
 static int stm32mp1_set_clksrc(unsigned int clksrc)
@@ -1515,9 +1532,6 @@ static void stm32mp1_set_rtcsrc(unsigned int clksrc, bool lse_css)
 		mmio_setbits_32(address, RCC_BDCR_LSECSSON);
 	}
 }
-
-#define CNTCVL_OFF	0x008
-#define CNTCVU_OFF	0x00C
 
 static void stm32mp1_stgen_config(void)
 {

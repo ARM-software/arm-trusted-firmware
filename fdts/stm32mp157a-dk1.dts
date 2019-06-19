@@ -15,6 +15,8 @@
 
 	aliases {
 		serial0 = &uart4;
+		serial1 = &usart3;
+		serial2 = &uart7;
 	};
 
 	chosen {
@@ -146,6 +148,12 @@
 	status = "okay";
 };
 
+&pwr {
+	pwr-regulators {
+		vdd-supply = <&vdd>;
+	};
+};
+
 &rng1 {
 	status = "okay";
 };
@@ -168,6 +176,18 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart4_pins_a>;
 	status = "okay";
+};
+
+&uart7 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart7_pins_a>;
+	status = "disabled";
+};
+
+&usart3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usart3_pins_b>;
+	status = "disabled";
 };
 
 /* ATF Specific */
@@ -279,5 +299,13 @@
 	/* VCO = 594.0 MHz => P = 99, Q = 74, R = 74 */
 	pll4: st,pll@3 {
 		cfg = < 3 98 5 7 7 PQR(1,1,1) >;
+	};
+};
+
+&bsec {
+	board_id: board_id@ec {
+		reg = <0xec 0x4>;
+		status = "okay";
+		secure-status = "okay";
 	};
 };

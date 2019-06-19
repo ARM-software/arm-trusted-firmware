@@ -9,6 +9,19 @@
 
 #include <arch_helpers.h>
 
+enum stm32mp_osc_id {
+	_HSI,
+	_HSE,
+	_CSI,
+	_LSI,
+	_LSE,
+	_I2S_CKIN,
+	NB_OSC,
+	_UNKNOWN_OSC_ID = 0xFF
+};
+
+extern const char *stm32mp_osc_node_label[NB_OSC];
+
 int stm32mp1_clk_probe(void);
 int stm32mp1_clk_init(void);
 

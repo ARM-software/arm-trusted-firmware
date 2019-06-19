@@ -26,9 +26,12 @@
 		status = "okay";
 		secure-status = "okay";
 	};
-	board_id: board_id@ec {
-		reg = <0xec 0x4>;
-		status = "okay";
-		secure-status = "okay";
-	};
+};
+
+&sdmmc1 {
+	compatible = "st,stm32-sdmmc2";
+};
+
+&sdmmc2 {
+	compatible = "st,stm32-sdmmc2";
 };

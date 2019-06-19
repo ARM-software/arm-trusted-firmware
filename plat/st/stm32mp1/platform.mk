@@ -49,14 +49,12 @@ PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 
 PLAT_BL_COMMON_SOURCES	+=	lib/cpus/aarch32/cortex_a7.S
 
-PLAT_BL_COMMON_SOURCES	+=	${LIBFDT_SRCS}						\
-				drivers/arm/tzc/tzc400.c				\
+PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 				drivers/delay_timer/delay_timer.c			\
 				drivers/delay_timer/generic_delay_timer.c		\
 				drivers/st/bsec/bsec.c					\
 				drivers/st/clk/stm32mp_clkfunc.c			\
 				drivers/st/clk/stm32mp1_clk.c				\
-				drivers/st/clk/stm32mp1_clkfunc.c			\
 				drivers/st/ddr/stm32mp1_ddr_helpers.c			\
 				drivers/st/gpio/stm32_gpio.c				\
 				drivers/st/i2c/stm32_i2c.c				\
@@ -66,7 +64,8 @@ PLAT_BL_COMMON_SOURCES	+=	${LIBFDT_SRCS}						\
 				plat/st/common/stm32mp_dt.c				\
 				plat/st/stm32mp1/stm32mp1_context.c			\
 				plat/st/stm32mp1/stm32mp1_helper.S			\
-				plat/st/stm32mp1/stm32mp1_security.c
+				plat/st/stm32mp1/stm32mp1_security.c			\
+				plat/st/stm32mp1/stm32mp1_syscfg.c
 
 BL2_SOURCES		+=	drivers/io/io_block.c					\
 				drivers/io/io_dummy.c					\

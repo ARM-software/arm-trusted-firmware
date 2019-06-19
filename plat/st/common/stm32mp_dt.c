@@ -146,6 +146,52 @@ int fdt_read_uint32_array(int node, const char *prop_name, uint32_t *array,
 }
 
 /*******************************************************************************
+ * This function gets the stdout path node.
+ * It reads the value indicated inside the device tree.
+ * Returns node offset on success and a negative FDT error code on failure.
+ ******************************************************************************/
+static int dt_get_stdout_node_offset(void)
+{
+	int node;
+	const char *cchar;
+
+	node = fdt_path_offset(fdt, "/secure-chosen");
+	if (node < 0) {
+		node = fdt_path_offset(fdt, "/chosen");
+		if (node < 0) {
+			return -FDT_ERR_NOTFOUND;
+		}
+	}
+
+	cchar = fdt_getprop(fdt, node, "stdout-path", NULL);
+	if (cchar == NULL) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	node = -FDT_ERR_NOTFOUND;
+	if (strchr(cchar, (int)':') != NULL) {
+		const char *name;
+		char *str = (char *)cchar;
+		int len = 0;
+
+		while (strncmp(":", str, 1)) {
+			len++;
+			str++;
+		}
+
+		name = fdt_get_alias_namelen(fdt, cchar, len);
+
+		if (name != NULL) {
+			node = fdt_path_offset(fdt, name);
+		}
+	} else {
+		node = fdt_path_offset(fdt, cchar);
+	}
+
+	return node;
+}
+
+/*******************************************************************************
  * This function gets the stdout pin configuration information from the DT.
  * And then calls the sub-function to treat it and set GPIO registers.
  * Returns 0 on success and a negative FDT error code on failure.
@@ -232,49 +278,6 @@ int dt_get_stdout_uart_info(struct dt_node_info *info)
 }
 
 /*******************************************************************************
- * This function gets the stdout path node.
- * It reads the value indicated inside the device tree.
- * Returns node if success, and a negative value else.
- ******************************************************************************/
-int dt_get_stdout_node_offset(void)
-{
-	int node;
-	const char *cchar;
-
-	node = fdt_path_offset(fdt, "/chosen");
-	if (node < 0) {
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	cchar = fdt_getprop(fdt, node, "stdout-path", NULL);
-	if (cchar == NULL) {
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	node = -FDT_ERR_NOTFOUND;
-	if (strchr(cchar, (int)':') != NULL) {
-		const char *name;
-		char *str = (char *)cchar;
-		int len = 0;
-
-		while (strncmp(":", str, 1)) {
-			len++;
-			str++;
-		}
-
-		name = fdt_get_alias_namelen(fdt, cchar, len);
-
-		if (name != NULL) {
-			node = fdt_path_offset(fdt, name);
-		}
-	} else {
-		node = fdt_path_offset(fdt, cchar);
-	}
-
-	return node;
-}
-
-/*******************************************************************************
  * This function gets DDR size information from the DT.
  * Returns value in bytes on success, and 0 on failure.
  ******************************************************************************/
@@ -347,6 +350,68 @@ uintptr_t dt_get_pwr_base(void)
 	node = fdt_node_offset_by_compatible(fdt, -1, DT_PWR_COMPAT);
 	if (node < 0) {
 		INFO("%s: Cannot read PWR node in DT\n", __func__);
+		return 0;
+	}
+
+	cuint = fdt_getprop(fdt, node, "reg", NULL);
+	if (cuint == NULL) {
+		return 0;
+	}
+
+	return fdt32_to_cpu(*cuint);
+}
+
+/*******************************************************************************
+ * This function gets PWR VDD regulator voltage information from the DT.
+ * Returns value in microvolts on success, and 0 on failure.
+ ******************************************************************************/
+uint32_t dt_get_pwr_vdd_voltage(void)
+{
+	int node, pwr_regulators_node;
+	const fdt32_t *cuint;
+
+	node = fdt_node_offset_by_compatible(fdt, -1, DT_PWR_COMPAT);
+	if (node < 0) {
+		INFO("%s: Cannot read PWR node in DT\n", __func__);
+		return 0;
+	}
+
+	pwr_regulators_node = fdt_subnode_offset(fdt, node, "pwr-regulators");
+	if (node < 0) {
+		INFO("%s: Cannot read pwr-regulators node in DT\n", __func__);
+		return 0;
+	}
+
+	cuint = fdt_getprop(fdt, pwr_regulators_node, "vdd-supply", NULL);
+	if (cuint == NULL) {
+		return 0;
+	}
+
+	node = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(*cuint));
+	if (node < 0) {
+		return 0;
+	}
+
+	cuint = fdt_getprop(fdt, node, "regulator-min-microvolt", NULL);
+	if (cuint == NULL) {
+		return 0;
+	}
+
+	return fdt32_to_cpu(*cuint);
+}
+
+/*******************************************************************************
+ * This function gets SYSCFG base address information from the DT.
+ * Returns value on success, and 0 on failure.
+ ******************************************************************************/
+uintptr_t dt_get_syscfg_base(void)
+{
+	int node;
+	const fdt32_t *cuint;
+
+	node = fdt_node_offset_by_compatible(fdt, -1, DT_SYSCFG_COMPAT);
+	if (node < 0) {
+		INFO("%s: Cannot read SYSCFG node in DT\n", __func__);
 		return 0;
 	}
 

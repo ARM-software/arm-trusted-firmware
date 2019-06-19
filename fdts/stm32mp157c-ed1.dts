@@ -42,7 +42,7 @@
 
 		st,main-control-register = <0x04>;
 		st,vin-control-register = <0xc0>;
-		st,usb-control-register = <0x30>;
+		st,usb-control-register = <0x20>;
 
 		regulators {
 			compatible = "st,stpmic1-regulators";
@@ -141,6 +141,12 @@
 &iwdg2 {
 	timeout-sec = <32>;
 	status = "okay";
+};
+
+&pwr {
+	pwr-regulators {
+		vdd-supply = <&vdd>;
+	};
 };
 
 &rng1 {
@@ -302,4 +308,10 @@
 	};
 };
 
-/delete-node/ &clk_csi;
+&bsec {
+	board_id: board_id@ec {
+		reg = <0xec 0x4>;
+		status = "okay";
+		secure-status = "okay";
+	};
+};
