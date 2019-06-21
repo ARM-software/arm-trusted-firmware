@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -59,7 +59,9 @@ static void versal_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 	plat_versal_gic_cpuif_disable();
 
-	plat_versal_gic_save();
+	if (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) {
+		plat_versal_gic_save();
+	}
 
 	state = target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE ?
 		PM_STATE_SUSPEND_TO_RAM : PM_STATE_CPU_IDLE;
@@ -99,11 +101,9 @@ static void versal_pwr_domain_suspend_finish(
 	/* APU was turned off, so restore GIC context */
 	if (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) {
 		plat_versal_gic_resume();
-		plat_versal_gic_cpuif_enable();
-	} else {
-		plat_versal_gic_cpuif_enable();
-		plat_versal_gic_pcpu_init();
 	}
+
+	plat_versal_gic_cpuif_enable();
 }
 
 void versal_pwr_domain_on_finish(const psci_power_state_t *target_state)
