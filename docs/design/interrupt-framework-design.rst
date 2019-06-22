@@ -381,8 +381,8 @@ in the ``cpu_context`` is used by the ``el3_exit()`` function to program the
                                   uint32_t value);
 
 ``cm_get_scr_el3()`` returns the value of the ``SCR_EL3`` register for the specified
-security state of the current CPU. ``cm_write_scr_el3()`` writes a ``0`` or ``1`` to
-the bit specified by ``bit_pos``. ``register_interrupt_type_handler()`` invokes
+security state of the current CPU. ``cm_write_scr_el3_bit()`` writes a ``0`` or ``1``
+to the bit specified by ``bit_pos``. ``register_interrupt_type_handler()`` invokes
 ``set_routing_model()`` API which programs the ``SCR_EL3`` according to the routing
 model using the ``cm_get_scr_el3()`` and ``cm_write_scr_el3_bit()`` APIs.
 
