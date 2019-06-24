@@ -15,6 +15,13 @@
 #define MVEBU_IO_AFFINITY		(0xF00)
 #define MVEBU_SF_REG			(MVEBU_REGS_BASE + 0x40)
 #define MVEBU_SF_EN			BIT(8)
+#define MVEBU_DFX_REG(cluster_id)	(MVEBU_REGS_BASE + 0x6F82A0 + \
+					(cluster_id) * 0x4)
+#define MVEBU_DFX_CLK_EN_POS		0x3
+#define MVEBU_DFX_CL0_CLK_OFFS		16
+#define MVEBU_DFX_CL0_CLK_MASK		(0xF << MVEBU_DFX_CL0_CLK_OFFS)
+#define MVEBU_DFX_CL1_CLK_OFFS		8
+#define MVEBU_DFX_CL1_CLK_MASK		(0xF << MVEBU_DFX_CL1_CLK_OFFS)
 
 #ifdef MVEBU_SOC_AP807
 static void plat_enable_snoop_filter(void)
@@ -26,6 +33,29 @@ static void plat_enable_snoop_filter(void)
 		return;
 
 	mmio_setbits_32(MVEBU_SF_REG, MVEBU_SF_EN);
+}
+#endif
+
+#ifndef MVEBU_SOC_AP807
+static void plat_config_dfx_clock(void)
+{
+	int cluster_id = plat_my_core_pos();
+	uint32_t val;
+
+	/* DFX clock needs to be configured once per cluster */
+	if ((cluster_id % PLAT_MAX_CPUS_PER_CLUSTER) != 0) {
+		return;
+	}
+
+	val = mmio_read_32(MVEBU_DFX_REG(cluster_id / PLAT_MAX_CPUS_PER_CLUSTER));
+	if (cluster_id == 0) {
+		val &= ~MVEBU_DFX_CL0_CLK_MASK;
+		val |= (MVEBU_DFX_CLK_EN_POS << MVEBU_DFX_CL0_CLK_OFFS);
+	} else {
+		val &= ~MVEBU_DFX_CL1_CLK_MASK;
+		val |= (MVEBU_DFX_CLK_EN_POS << MVEBU_DFX_CL1_CLK_OFFS);
+	}
+	mmio_write_32(MVEBU_DFX_REG(cluster_id / PLAT_MAX_CPUS_PER_CLUSTER), val);
 }
 #endif
 
@@ -59,5 +89,7 @@ void marvell_psci_arch_init(int die_index)
 
 #ifdef MVEBU_SOC_AP807
 	plat_enable_snoop_filter();
+#else
+	plat_config_dfx_clock();
 #endif
 }
