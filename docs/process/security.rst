@@ -95,11 +95,11 @@ Security Advisories
 
 .. _issue tracker: https://developer.trustedfirmware.org/project/board/1/
 .. _this PGP/GPG key: security-reporting.asc
-.. _TFV-1: ./security_advisories/security-advisory-tfv-1.rst
-.. _TFV-2: ./security_advisories/security-advisory-tfv-2.rst
-.. _TFV-3: ./security_advisories/security-advisory-tfv-3.rst
-.. _TFV-4: ./security_advisories/security-advisory-tfv-4.rst
-.. _TFV-5: ./security_advisories/security-advisory-tfv-5.rst
-.. _TFV-6: ./security_advisories/security-advisory-tfv-6.rst
-.. _TFV-7: ./security_advisories/security-advisory-tfv-7.rst
-.. _TFV-8: ./security_advisories/security-advisory-tfv-8.rst
+.. _TFV-1: ../security_advisories/security-advisory-tfv-1.rst
+.. _TFV-2: ../security_advisories/security-advisory-tfv-2.rst
+.. _TFV-3: ../security_advisories/security-advisory-tfv-3.rst
+.. _TFV-4: ../security_advisories/security-advisory-tfv-4.rst
+.. _TFV-5: ../security_advisories/security-advisory-tfv-5.rst
+.. _TFV-6: ../security_advisories/security-advisory-tfv-6.rst
+.. _TFV-7: ../security_advisories/security-advisory-tfv-7.rst
+.. _TFV-8: ../security_advisories/security-advisory-tfv-8.rst
