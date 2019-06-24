@@ -31,6 +31,7 @@
 #define NEOVERSE_N1_CPUECTLR_EL1	S3_0_C15_C1_4
 
 #define NEOVERSE_N1_WS_THR_L2_MASK	(ULL(3) << 24)
+#define NEOVERSE_N1_CPUECTLR_EL1_MM_TLBPF_DIS_BIT	(ULL(1) << 51)
 
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions.
