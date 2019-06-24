@@ -293,6 +293,33 @@ func check_errata_1262888
 endfunc check_errata_1262888
 
 /* --------------------------------------------------
+ * Errata Workaround for Neoverse N1 Errata #1275112
+ * This applies to revision <=r3p0 of Neoverse N1.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
+func errata_n1_1275112_wa
+	/* Compare x0 against revision r3p0 */
+	mov	x17, x30
+	bl	check_errata_1275112
+	cbz	x0, 1f
+	mrs	x1, NEOVERSE_N1_CPUACTLR_EL1
+	orr	x1, x1, NEOVERSE_N1_CPUACTLR_EL1_BIT_13
+	msr	NEOVERSE_N1_CPUACTLR_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_n1_1275112_wa
+
+func check_errata_1275112
+	/* Applies to <=r3p0 */
+	mov	x1, #0x30
+	b	cpu_rev_var_ls
+endfunc check_errata_1275112
+
+/* --------------------------------------------------
  * Errata Workaround for Neoverse N1 Erratum 1315703.
  * This applies to revision <= r3p0 of Neoverse N1.
  * Inputs:
@@ -380,6 +407,11 @@ func neoverse_n1_reset_func
 	bl	errata_n1_1262888_wa
 #endif
 
+#if ERRATA_N1_1275112
+	mov	x0, x18
+	bl	errata_n1_1275112_wa
+#endif
+
 #if ERRATA_N1_1315703
 	mov	x0, x18
 	bl	errata_n1_1315703_wa
@@ -450,6 +482,7 @@ func neoverse_n1_errata_report
 	report_errata ERRATA_N1_1257314, neoverse_n1, 1257314
 	report_errata ERRATA_N1_1262606, neoverse_n1, 1262606
 	report_errata ERRATA_N1_1262888, neoverse_n1, 1262888
+	report_errata ERRATA_N1_1275112, neoverse_n1, 1275112
 	report_errata ERRATA_N1_1315703, neoverse_n1, 1315703
 	report_errata ERRATA_DSU_936184, neoverse_n1, dsu_936184
 
