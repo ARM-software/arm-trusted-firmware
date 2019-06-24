@@ -250,6 +250,10 @@ ERRATA_N1_1130799	?=0
 # only to revision <= r2p0 of the Neoverse N1 cpu.
 ERRATA_N1_1165347	?=0
 
+# Flag to apply erratum 1207823 workaround during reset. This erratum applies
+# only to revision <= r2p0 of the Neoverse N1 cpu.
+ERRATA_N1_1207823	?=0
+
 # Flag to apply erratum 1315703 workaround during reset. This erratum applies
 # to revisions before r3p1 of the Neoverse N1 cpu.
 ERRATA_N1_1315703	?=1
@@ -454,6 +458,10 @@ $(eval $(call add_define,ERRATA_N1_1130799))
 # Process ERRATA_N1_1165347 flag
 $(eval $(call assert_boolean,ERRATA_N1_1165347))
 $(eval $(call add_define,ERRATA_N1_1165347))
+
+# Process ERRATA_N1_1207823 flag
+$(eval $(call assert_boolean,ERRATA_N1_1207823))
+$(eval $(call add_define,ERRATA_N1_1207823))
 
 # Process ERRATA_N1_1315703 flag
 $(eval $(call assert_boolean,ERRATA_N1_1315703))
