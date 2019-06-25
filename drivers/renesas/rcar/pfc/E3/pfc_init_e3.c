@@ -52,8 +52,8 @@
 #define GPSR1_A2		BIT(2)
 #define GPSR1_A1		BIT(1)
 #define GPSR1_A0		BIT(0)
-#define GPSR2_BIT27_REVERCED	BIT(27)
-#define GPSR2_BIT26_REVERCED	BIT(26)
+#define GPSR2_BIT27_REVERSED	BIT(27)
+#define GPSR2_BIT26_REVERSED	BIT(26)
 #define GPSR2_EX_WAIT0		BIT(25)
 #define GPSR2_RD_WR		BIT(24)
 #define GPSR2_RD		BIT(23)
@@ -503,8 +503,8 @@ void pfc_init_e3(void)
 		      | GPSR1_A2
 		      | GPSR1_A1
 		      | GPSR1_A0);
-	pfc_reg_write(PFC_GPSR2, GPSR2_BIT27_REVERCED
-		      | GPSR2_BIT26_REVERCED
+	pfc_reg_write(PFC_GPSR2, GPSR2_BIT27_REVERSED
+		      | GPSR2_BIT26_REVERSED
 		      | GPSR2_RD
 		      | GPSR2_AVB_PHY_INT
 		      | GPSR2_AVB_TXCREFCLK
