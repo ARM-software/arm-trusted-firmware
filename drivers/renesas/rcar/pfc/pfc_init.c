@@ -51,16 +51,19 @@
 #define PRR_PRODUCT_11		(0x01U)
 #define PRR_PRODUCT_20		(0x10U)
 
-#define PRR_PRODUCT_ERR(reg)	do{\
-				ERROR("LSI Product ID(PRR=0x%x) PFC "\
-				"initialize not supported.\n",reg);\
-				panic();\
-				}while(0)
-#define PRR_CUT_ERR(reg)	do{\
-				ERROR("LSI Cut ID(PRR=0x%x) PFC "\
-				"initialize not supported.\n",reg);\
-				panic();\
-				}while(0)
+#define PRR_PRODUCT_ERR(reg)				\
+	do {						\
+		ERROR("LSI Product ID(PRR=0x%x) PFC initialize not supported.\n", \
+			reg);				\
+		panic();				\
+	} while (0)
+
+#define PRR_CUT_ERR(reg)				\
+	do {						\
+		ERROR("LSI Cut ID(PRR=0x%x) PFC initialize not supported.\n", \
+			reg);				\
+		panic();\
+	} while (0)
 
 void rcar_pfc_init(void)
 {

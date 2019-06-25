@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef PFC_INIT_D3_H__
-#define PFC_INIT_D3_H__
+#ifndef PFC_INIT_D3_H
+#define PFC_INIT_D3_H
 
 void pfc_init_d3(void);
 
-#endif	/* PFC_INIT_D3_H__ */
+#endif	/* PFC_INIT_D3_H */
