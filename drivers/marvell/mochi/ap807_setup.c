@@ -117,6 +117,8 @@ static void init_aurora2(void)
 	reg |= (0x1 << CCU_SET_POC_OFFSET);
 	mmio_write_32(CCU_HTC_CR, reg);
 #endif /* LLC_ENABLE */
+
+	errata_wa_init();
 }
 
 
