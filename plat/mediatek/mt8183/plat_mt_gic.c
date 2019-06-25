@@ -1,14 +1,14 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/arm/gicv3.h>
 #include <bl31/interrupt_mgmt.h>
-#include <../drivers/arm/gic/v3/gicv3_private.h>
 #include <mt_gic_v3.h>
 #include <mtk_plat_common.h>
 #include "plat_private.h"
@@ -21,13 +21,9 @@
 
 uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 
-/*
- * We save and restore the GICv3 context on system suspend. Allocate the
- * data in the designated EL3 Secure carve-out memory
- */
-gicv3_redist_ctx_t rdist_ctx __section("arm_el3_tzc_dram");
-gicv3_dist_ctx_t dist_ctx __section("arm_el3_tzc_dram");
-
+/* we save and restore the GICv3 context on system suspend */
+gicv3_redist_ctx_t rdist_ctx;
+gicv3_dist_ctx_t dist_ctx;
 
 static unsigned int mt_mpidr_to_core_pos(u_register_t mpidr)
 {
@@ -41,27 +37,6 @@ gicv3_driver_data_t mt_gicv3_data = {
 	.rdistif_base_addrs = rdistif_base_addrs,
 	.mpidr_to_core_pos = mt_mpidr_to_core_pos,
 };
-
-void setup_int_schedule_mode(enum irq_schedule_mode mode,
-			     unsigned int active_cpu)
-{
-	assert(mode <= HW_MODE);
-	assert(active_cpu <= 0xFF);
-
-	if (mode == HW_MODE) {
-		mmio_write_32(GIC_INT_MASK,
-		(mmio_read_32(GIC_INT_MASK) & ~(GIC500_ACTIVE_SEL_MASK))
-		| (0x1 << GIC500_ACTIVE_SEL_SHIFT));
-	} else if (mode == SW_MODE) {
-		mmio_write_32(GIC_INT_MASK,
-		(mmio_read_32(GIC_INT_MASK) & ~(GIC500_ACTIVE_SEL_MASK)));
-	}
-
-	mmio_write_32(GIC_INT_MASK,
-		(mmio_read_32(GIC_INT_MASK) & ~(GIC500_ACTIVE_CPU_MASK))
-		| (active_cpu << GIC500_ACTIVE_CPU_SHIFT));
-	return;
-}
 
 void clear_sec_pol_ctl_en(void)
 {
@@ -85,21 +60,12 @@ void mt_gic_init(void)
 	gicv3_rdistif_init(plat_my_core_pos());
 	gicv3_cpuif_enable(plat_my_core_pos());
 
-	setup_int_schedule_mode(SW_MODE, 0xf);
 	clear_sec_pol_ctl_en();
 }
 
 void mt_gic_set_pending(uint32_t irq)
 {
 	gicv3_set_interrupt_pending(irq, plat_my_core_pos());
-}
-
-uint32_t mt_gic_get_pending(uint32_t irq)
-{
-	uint32_t bit = 1 << (irq % 32);
-
-	return (mmio_read_32(gicv3_driver_data->gicd_base +
-			     GICD_ISPENDR + irq / 32 * 4) & bit) ? 1 : 0;
 }
 
 void mt_gic_cpuif_enable(void)

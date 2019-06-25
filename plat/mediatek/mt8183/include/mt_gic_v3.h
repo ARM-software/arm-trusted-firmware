@@ -9,11 +9,6 @@
 
 #include <lib/mmio.h>
 
-enum irq_schedule_mode {
-	SW_MODE,
-	HW_MODE
-};
-
 #define GIC_INT_MASK (MCUCFG_BASE + 0x5e8)
 #define GIC500_ACTIVE_SEL_SHIFT 3
 #define GIC500_ACTIVE_SEL_MASK (0x7 << GIC500_ACTIVE_SEL_SHIFT)
