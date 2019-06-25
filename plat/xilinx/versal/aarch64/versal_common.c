@@ -46,10 +46,6 @@ void versal_config_setup(void)
 
 	versal_print_platform_name();
 
-	mmio_write_32(VERSAL_CRL_IOU_SWITCH_CTRL,
-		      VERSAL_IOU_SWITCH_CTRL_CLKACT_BIT |
-		      (0x20 << VERSAL_IOU_SWITCH_CTRL_DIVISOR0_SHIFT));
-
 	/* Global timer init - Program time stamp reference clk */
 	val = mmio_read_32(VERSAL_CRL_TIMESTAMP_REF_CTRL);
 	val |= VERSAL_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT;
