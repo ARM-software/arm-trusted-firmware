@@ -43,7 +43,6 @@ func errata_n1_1043202_wa
 	msr	CPUPMR_EL3, x0
 	ldr	x0, =0x800200071
 	msr	CPUPCR_EL3, x0
-	isb
 1:
 	ret	x17
 endfunc errata_n1_1043202_wa
@@ -69,7 +68,6 @@ func neoverse_n1_disable_speculative_loads
 
 	/* Disable speculative loads */
 	msr	SSBS, xzr
-	isb
 
 1:
 	ret
@@ -91,7 +89,6 @@ func errata_n1_1073348_wa
 	mrs	x1, NEOVERSE_N1_CPUACTLR_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR_EL1_BIT_6
 	msr	NEOVERSE_N1_CPUACTLR_EL1, x1
-	isb
 1:
 	ret	x17
 endfunc errata_n1_1073348_wa
@@ -118,7 +115,6 @@ func errata_n1_1130799_wa
 	mrs	x1, NEOVERSE_N1_CPUACTLR2_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR2_EL1_BIT_59
 	msr	NEOVERSE_N1_CPUACTLR2_EL1, x1
-	isb
 1:
 	ret	x17
 endfunc errata_n1_1130799_wa
@@ -146,7 +142,6 @@ func errata_n1_1165347_wa
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR2_EL1_BIT_0
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR2_EL1_BIT_15
 	msr	NEOVERSE_N1_CPUACTLR2_EL1, x1
-	isb
 1:
 	ret	x17
 endfunc errata_n1_1165347_wa
@@ -173,7 +168,6 @@ func errata_n1_1207823_wa
 	mrs	x1, NEOVERSE_N1_CPUACTLR2_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR2_EL1_BIT_11
 	msr	NEOVERSE_N1_CPUACTLR2_EL1, x1
-	isb
 1:
 	ret	x17
 endfunc errata_n1_1207823_wa
@@ -200,7 +194,6 @@ func errata_n1_1220197_wa
 	mrs	x1, NEOVERSE_N1_CPUECTLR_EL1
 	orr	x1, x1, NEOVERSE_N1_WS_THR_L2_MASK
 	msr	NEOVERSE_N1_CPUECTLR_EL1, x1
-	isb
 1:
 	ret	x17
 endfunc errata_n1_1220197_wa
@@ -227,7 +220,6 @@ func errata_n1_1257314_wa
 	mrs	x1, NEOVERSE_N1_CPUACTLR3_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR3_EL1_BIT_10
 	msr	NEOVERSE_N1_CPUACTLR3_EL1, x1
-	isb
 1:
 	ret	x17
 endfunc errata_n1_1257314_wa
@@ -254,7 +246,6 @@ func errata_n1_1262606_wa
 	mrs	x1, NEOVERSE_N1_CPUACTLR_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR_EL1_BIT_13
 	msr	NEOVERSE_N1_CPUACTLR_EL1, x1
-	isb
 1:
 	ret	x17
 endfunc errata_n1_1262606_wa
@@ -281,7 +272,6 @@ func errata_n1_1262888_wa
 	mrs	x1, NEOVERSE_N1_CPUECTLR_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUECTLR_EL1_MM_TLBPF_DIS_BIT
 	msr	NEOVERSE_N1_CPUECTLR_EL1, x1
-	isb
 1:
 	ret	x17
 endfunc errata_n1_1262888_wa
@@ -308,7 +298,6 @@ func errata_n1_1275112_wa
 	mrs	x1, NEOVERSE_N1_CPUACTLR_EL1
 	orr	x1, x1, NEOVERSE_N1_CPUACTLR_EL1_BIT_13
 	msr	NEOVERSE_N1_CPUACTLR_EL1, x1
-	isb
 1:
 	ret	x17
 endfunc errata_n1_1275112_wa
@@ -336,7 +325,6 @@ func errata_n1_1315703_wa
 	mrs	x0, NEOVERSE_N1_CPUACTLR2_EL1
 	orr	x0, x0, #NEOVERSE_N1_CPUACTLR2_EL1_BIT_16
 	msr	NEOVERSE_N1_CPUACTLR2_EL1, x0
-	isb
 
 1:
 	ret	x17
@@ -422,24 +410,22 @@ func neoverse_n1_reset_func
 	mrs	x0, actlr_el3
 	orr	x0, x0, #NEOVERSE_N1_ACTLR_AMEN_BIT
 	msr	actlr_el3, x0
-	isb
 
 	/* Make sure accesses from EL0/EL1 are not trapped to EL2 */
 	mrs	x0, actlr_el2
 	orr	x0, x0, #NEOVERSE_N1_ACTLR_AMEN_BIT
 	msr	actlr_el2, x0
-	isb
 
 	/* Enable group0 counters */
 	mov	x0, #NEOVERSE_N1_AMU_GROUP0_MASK
 	msr	CPUAMCNTENSET_EL0, x0
-	isb
 #endif
 
 #if ERRATA_DSU_936184
 	bl	errata_dsu_936184_wa
 #endif
 
+	isb
 	ret	x19
 endfunc neoverse_n1_reset_func
 
