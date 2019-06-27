@@ -470,7 +470,7 @@ int32_t bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes)
 	if ((base < TEGRA_DRAM_BASE) || (base >= TEGRA_DRAM_END) ||
 	    (end > TEGRA_DRAM_END)) {
 
-		ERROR("NS address is out-of-bounds!\n");
+		ERROR("NS address 0x%llx is out-of-bounds!\n", base);
 		ret = -EFAULT;
 	}
 
@@ -479,7 +479,7 @@ int32_t bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes)
 	 * to check if the NS DRAM range overlaps the TZDRAM aperture.
 	 */
 	if ((base < (uint64_t)TZDRAM_END) && (end > tegra_bl31_phys_base)) {
-		ERROR("NS address overlaps TZDRAM!\n");
+		ERROR("NS address 0x%llx overlaps TZDRAM!\n", base);
 		ret = -ENOTSUP;
 	}
 
