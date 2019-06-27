@@ -112,8 +112,11 @@ HiSilicon Poplar platform port
 Intel SocFPGA platform ports
 ----------------------------
 :M: Tien Hock Loh <tien.hock.loh@intel.com>
-:G: `thloh85-intel`
+:G: `thloh85-intel`_
+:M: Hadi Asyrafi <muhammad.hadi.asyrafi.abdul.halim@intel.com>
+:G: `mabdulha`_
 :F: plat/intel/soc
+:F: drivers/intel/soc/
 
 MediaTek platform ports
 -----------------------
