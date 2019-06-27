@@ -256,4 +256,15 @@
 
 #define PLAT_SP_PRI			PLAT_RAS_PRI
 
+/*
+ * Physical and virtual address space limits for MMU in AARCH64 & AARCH32 modes
+ */
+#ifdef AARCH64
+#define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 36)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 36)
+#else
+#define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
+#endif
+
 #endif /* PLATFORM_DEF_H */

@@ -25,7 +25,22 @@
 #define PLAT_ARM_CRASH_UART_CLK_IN_HZ		PLAT_ARM_RUN_UART_CLK_IN_HZ
 
 #define PLAT_ARM_DRAM2_BASE			ULL(0x8080000000)
-#define PLAT_ARM_DRAM2_SIZE			ULL(0x780000000)
+#define PLAT_ARM_DRAM2_SIZE			ULL(0xF80000000)
+
+/*
+ * N1SDP platform supports RDIMMs with ECC capability. To use the ECC
+ * capability, the entire DDR memory space has to be zeroed out before
+ * enabling the ECC bits in DMC620. The access the complete DDR memory
+ * space the physical & virtual address space limits are extended to
+ * 40-bits.
+ */
+#ifndef AARCH32
+#define PLAT_PHY_ADDR_SPACE_SIZE		(1ULL << 40)
+#define PLAT_VIRT_ADDR_SPACE_SIZE		(1ULL << 40)
+#else
+#define PLAT_PHY_ADDR_SPACE_SIZE		(1ULL << 32)
+#define PLAT_VIRT_ADDR_SPACE_SIZE		(1ULL << 32)
+#endif
 
 #if CSS_USE_SCMI_SDS_DRIVER
 #define N1SDP_SCMI_PAYLOAD_BASE			0x45400000
@@ -55,8 +70,8 @@
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
  * plat_arm_mmap array defined for each BL stage.
  */
-#define PLAT_ARM_MMAP_ENTRIES			3
-#define MAX_XLAT_TABLES				4
+#define PLAT_ARM_MMAP_ENTRIES			6
+#define MAX_XLAT_TABLES				7
 
 #define PLATFORM_STACK_SIZE			0x400
 
@@ -73,12 +88,17 @@
 #define PLAT_ARM_G0_IRQ_PROPS(grp)		ARM_G0_IRQ_PROPS(grp)
 
 
-#define N1SDP_DEVICE_BASE			(0x20000000)
-#define N1SDP_DEVICE_SIZE			(0x30000000)
+#define N1SDP_DEVICE_BASE			(0x08000000)
+#define N1SDP_DEVICE_SIZE			(0x48000000)
 #define N1SDP_MAP_DEVICE			MAP_REGION_FLAT(	\
 						N1SDP_DEVICE_BASE,	\
 						N1SDP_DEVICE_SIZE,	\
 						MT_DEVICE | MT_RW | MT_SECURE)
+
+#define ARM_MAP_DRAM1				MAP_REGION_FLAT(	\
+						ARM_DRAM1_BASE,		\
+						ARM_DRAM1_SIZE,		\
+						MT_MEMORY | MT_RW | MT_NS)
 
 /* GIC related constants */
 #define PLAT_ARM_GICD_BASE			0x30000000
