@@ -50,8 +50,6 @@ BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 				${RK_PLAT_SOC}/drivers/soc/soc.c		\
 				${RK_PLAT_SOC}/drivers/ddr/ddr_rk3368.c		\
 
-MULTI_CONSOLE_API	:=	1
-
 include lib/coreboot/coreboot.mk
 include lib/libfdt/libfdt.mk
 

@@ -102,9 +102,6 @@ SEPARATE_CODE_AND_RODATA	:= 1
 # Use Coherent memory
 USE_COHERENT_MEM		:= 1
 
-# Use multi console API
-MULTI_CONSOLE_API		:= 1
-
 # Platform build flags
 # --------------------
 
@@ -150,10 +147,6 @@ ifneq (${RPI3_DIRECT_LINUX_BOOT}, 0)
   ifndef RPI3_PRELOADED_DTB_BASE
     $(error Error: RPI3_PRELOADED_DTB_BASE needed if RPI3_DIRECT_LINUX_BOOT=1)
   endif
-endif
-
-ifneq (${MULTI_CONSOLE_API}, 1)
-  $(error Error: rpi3 needs MULTI_CONSOLE_API=1)
 endif
 
 ifneq (${RESET_TO_BL31}, 0)

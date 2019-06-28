@@ -49,7 +49,6 @@ endfunc plat_ls_calc_core_pos
 	 * ---------------------------------------------
 	 */
 
-#if MULTI_CONSOLE_API
 	/* -----------------------------------------------------
 	 * int plat_crash_console_init(void)
 	 * Use normal console by default. Switch it to crash
@@ -101,45 +100,6 @@ func plat_crash_console_flush
 	b	console_flush
 endfunc plat_crash_console_flush
 
-#else	/* MULTI_CONSOLE_API */
-
-	/* -----------------------------------------------------
-	 * In the old API these are all no-op stubs that need to
-	 * be overridden by the platform to be useful.
-	 * -----------------------------------------------------
-	 */
-func plat_crash_console_init
-	mov_imm	x0, PLAT_LS1043_UART_BASE
-	mov_imm	x1, PLAT_LS1043_UART_CLOCK
-	mov_imm	x2, PLAT_LS1043_UART_BAUDRATE
-	b	console_core_init
-endfunc plat_crash_console_init
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_putc(int c)
-	 * Function to print a character on the crash
-	 * console without a C Runtime.
-	 * Clobber list : x1, x2
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_putc
-	mov_imm	x1, PLAT_LS1043_UART_BASE
-	b	console_core_putc
-endfunc plat_crash_console_putc
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_flush()
-	 * Function to force a write of all buffered
-	 * data that hasn't been output.
-	 * Out : return -1 on error else return 0.
-	 * Clobber list : r0 - r1
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_flush
-	mov_imm	x1, PLAT_LS1043_UART_BASE
-	b	console_core_flush
-endfunc plat_crash_console_flush
-#endif
 	/* ---------------------------------------------------------------------
 	 * We don't need to carry out any memory initialization on LS
 	 * platforms. The Secure SRAM is accessible straight away.

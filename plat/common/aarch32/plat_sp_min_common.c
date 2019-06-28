@@ -21,9 +21,5 @@ void sp_min_plat_runtime_setup(void)
 	 * Finish the use of console driver in SP_MIN so that any runtime logs
 	 * from SP_MIN will be suppressed.
 	 */
-#if MULTI_CONSOLE_API
 	console_switch_state(CONSOLE_FLAG_RUNTIME);
-#else
-	console_uninit();
-#endif
 }

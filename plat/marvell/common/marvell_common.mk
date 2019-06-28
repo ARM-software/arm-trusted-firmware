@@ -11,8 +11,6 @@ include $(MARVELL_PLAT_BASE)/marvell.mk
 
 VERSION_STRING			+=(Marvell-${SUBVERSION})
 
-MULTI_CONSOLE_API		:= 1
-
 SEPARATE_CODE_AND_RODATA	:= 1
 
 # flag to switch from PLL to ARO

@@ -16,8 +16,6 @@
 	.globl	plat_crash_console_putc
 	.globl	plat_crash_console_flush
 
-#if MULTI_CONSOLE_API
-
 	/* -----------------------------------------------------
 	 * int plat_crash_console_init(void)
 	 * Use normal console by default. Switch it to crash
@@ -68,25 +66,3 @@ endfunc plat_crash_console_putc
 func plat_crash_console_flush
 	b	console_flush
 endfunc plat_crash_console_flush
-
-#else	/* MULTI_CONSOLE_API */
-
-	/* -----------------------------------------------------
-	 * In the old API these are all no-op stubs that need to
-	 * be overridden by the platform to be useful.
-	 * -----------------------------------------------------
-	 */
-func plat_crash_console_init
-	mov	r0, #0
-	bx	lr
-endfunc plat_crash_console_init
-
-func plat_crash_console_putc
-	bx	lr
-endfunc plat_crash_console_putc
-
-func plat_crash_console_flush
-	bx	lr
-endfunc plat_crash_console_flush
-
-#endif

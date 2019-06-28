@@ -151,12 +151,6 @@ ifneq ($(ENABLE_STACK_PROTECTOR), 0)
 	PLAT_BL_COMMON_SOURCES += plat/qemu/qemu_stack_protector.c
 endif
 
-# Use MULTI_CONSOLE_API by default only on AArch64
-# as it is not yet supported on AArch32
-ifeq ($(ARCH),aarch64)
-MULTI_CONSOLE_API	:= 1
-endif
-
 BL32_RAM_LOCATION	:=	tdram
 ifeq (${BL32_RAM_LOCATION}, tsram)
   BL32_RAM_LOCATION_ID = SEC_SRAM_ID

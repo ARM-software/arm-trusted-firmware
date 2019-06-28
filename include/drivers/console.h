@@ -75,13 +75,6 @@ int console_getc(void);
 /* Flush all consoles registered for the current state. */
 int console_flush(void);
 
-#if !MULTI_CONSOLE_API
-/* REMOVED on AArch64 -- use console_<driver>_register() instead! */
-int console_init(uintptr_t base_addr,
-		 unsigned int uart_clk, unsigned int baud_rate);
-void console_uninit(void);
-#endif
-
 #endif /* __ASSEMBLY__ */
 
 #endif /* CONSOLE_H */

@@ -28,13 +28,10 @@
 /*******************************************************************************
  * Initialize the UART
  ******************************************************************************/
-#if MULTI_CONSOLE_API
 static console_pl011_t arm_tsp_runtime_console;
-#endif
 
 void arm_tsp_early_platform_setup(void)
 {
-#if MULTI_CONSOLE_API
 	/*
 	 * Initialize a different console than already in use to display
 	 * messages from TSP
@@ -48,10 +45,6 @@ void arm_tsp_early_platform_setup(void)
 
 	console_set_scope(&arm_tsp_runtime_console.console,
 			  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
-#else
-	console_init(PLAT_ARM_TSP_UART_BASE, PLAT_ARM_TSP_UART_CLK_IN_HZ,
-			ARM_CONSOLE_BAUDRATE);
-#endif /* MULTI_CONSOLE_API */
 }
 
 void tsp_early_platform_setup(void)

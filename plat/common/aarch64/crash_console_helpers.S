@@ -16,10 +16,6 @@
 	.globl	plat_crash_console_putc
 	.globl	plat_crash_console_flush
 
-#if !MULTI_CONSOLE_API
-#error "This crash console implementation only works with the MULTI_CONSOLE_API!"
-#endif
-
 	/*
 	 * Spinlock to syncronize access to crash_console_triggered. We cannot
 	 * acquire spinlocks when the cache is disabled, so in some cases (like
