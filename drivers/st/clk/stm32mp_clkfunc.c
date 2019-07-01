@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <errno.h>
 
-#include <libfdt.h>
-
-#include <platform_def.h>
-
 #include <common/fdt_wrappers.h>
 #include <drivers/clk.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32mp_clkfunc.h>
+#include <libfdt.h>
+
+#include <platform_def.h>
 
 #define DT_UART_COMPAT		"st,stm32h7-uart"
 /*
@@ -45,7 +44,8 @@ int fdt_osc_read_freq(const char *name, uint32_t *freq)
 			return ret;
 		}
 
-		if (strncmp(cchar, name, (size_t)ret) == 0) {
+		if ((strncmp(cchar, name, (size_t)ret) == 0) &&
+		    (fdt_get_status(subnode) != DT_DISABLED)) {
 			const fdt32_t *cuint;
 
 			cuint = fdt_getprop(fdt, subnode, "clock-frequency",
