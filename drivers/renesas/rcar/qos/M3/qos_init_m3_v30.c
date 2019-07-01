@@ -12,7 +12,7 @@
 #include "../qos_reg.h"
 #include "qos_init_m3_v30.h"
 
-#define	RCAR_QOS_VERSION			"rev.0.03"
+#define	RCAR_QOS_VERSION			"rev.0.04"
 
 #define QOSWT_TIME_BANK0			20000000U	/* unit:ns */
 
