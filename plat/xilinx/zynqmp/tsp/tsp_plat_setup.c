@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,11 +18,16 @@
 void tsp_early_platform_setup(void)
 {
 	/*
-	 * Initialize a different console than already in use to display
+	 * Register a different console than already in use to display
 	 * messages from TSP
 	 */
-	console_init(ZYNQMP_UART_BASE, zynqmp_get_uart_clk(),
-		     ZYNQMP_UART_BAUDRATE);
+	static console_cdns_t tsp_boot_console;
+	(void)console_cdns_register(ZYNQMP_UART_BASE,
+				       zynqmp_get_uart_clk(),
+				       ZYNQMP_UART_BAUDRATE,
+				       &tsp_boot_console);
+	console_set_scope(&tsp_boot_console.console,
+			  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_BOOT);
 
 	/* Initialize the platform config for future decision making */
 	zynqmp_config_setup();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -90,7 +90,7 @@ func plat_crash_console_init
 	mov_imm	x0, ZYNQMP_CRASH_UART_BASE
 	mov_imm	x1, ZYNQMP_CRASH_UART_CLK_IN_HZ
 	mov_imm	x2, ZYNQMP_UART_BAUDRATE
-	b	console_core_init
+	b	console_cdns_core_init
 endfunc plat_crash_console_init
 
 	/* ---------------------------------------------
@@ -102,7 +102,7 @@ endfunc plat_crash_console_init
 	 */
 func plat_crash_console_putc
 	mov_imm	x1, ZYNQMP_CRASH_UART_BASE
-	b	console_core_putc
+	b	console_cdns_core_putc
 endfunc plat_crash_console_putc
 
 	/* ---------------------------------------------
@@ -115,7 +115,7 @@ endfunc plat_crash_console_putc
 	 */
 func plat_crash_console_flush
 	mov_imm	x0, ZYNQMP_CRASH_UART_BASE
-	b	console_core_flush
+	b	console_cdns_core_flush
 endfunc plat_crash_console_flush
 
 	/* ---------------------------------------------------------------------
