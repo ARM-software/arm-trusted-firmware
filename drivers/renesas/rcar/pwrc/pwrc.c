@@ -763,10 +763,10 @@ uint32_t rcar_pwrc_get_cluster(void)
 
 	reg = mmio_read_32(RCAR_PRR);
 
-	if (reg & (1 << (STATE_CA53_CPU + RCAR_CA53CPU_NUM_MAX)))
+	if (reg & (1U << (STATE_CA53_CPU + RCAR_CA53CPU_NUM_MAX)))
 		return RCAR_CLUSTER_CA57;
 
-	if (reg & (1 << (STATE_CA57_CPU + RCAR_CA57CPU_NUM_MAX)))
+	if (reg & (1U << (STATE_CA57_CPU + RCAR_CA57CPU_NUM_MAX)))
 		return RCAR_CLUSTER_CA53;
 
 	return RCAR_CLUSTER_A53A57;
@@ -810,7 +810,7 @@ uint32_t rcar_pwrc_get_cpu_num(uint32_t c)
 
 count_ca57:
 	if (IS_A53A57(c) || IS_CA57(c)) {
-		if (reg & (1 << (STATE_CA57_CPU + RCAR_CA57CPU_NUM_MAX)))
+		if (reg & (1U << (STATE_CA57_CPU + RCAR_CA57CPU_NUM_MAX)))
 			goto done;
 
 		for (i = 0; i < RCAR_CA57CPU_NUM_MAX; i++) {
