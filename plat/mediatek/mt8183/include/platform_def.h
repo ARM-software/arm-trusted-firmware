@@ -180,7 +180,7 @@ INTR_PROP_DESC(MT_IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY, grp, \
 #define MTK_WDT_STATUS_SECURITY_RST         (1 << 28)
 #define MTK_WDT_STATUS_IRQ_ASSERT           (1 << 29)
 #define MTK_WDT_STATUS_SW_WDT_RST           (1 << 30)
-#define MTK_WDT_STATUS_HW_WDT_RST           (1 << 31)
+#define MTK_WDT_STATUS_HW_WDT_RST           (1U << 31)
 
 /* RGU other related */
 #define MTK_WDT_MODE_DUAL_MODE    0x0040
