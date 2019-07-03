@@ -109,9 +109,9 @@ else
 	ifeq (${CTX_INCLUDE_AARCH32_REGS}, 0)
 		FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a76.S		\
 					lib/cpus/aarch64/cortex_a76ae.S		\
+					lib/cpus/aarch64/cortex_a77.S		\
 					lib/cpus/aarch64/neoverse_n1.S		\
 					lib/cpus/aarch64/neoverse_e1.S		\
-					lib/cpus/aarch64/cortex_deimos.S	\
 					lib/cpus/aarch64/neoverse_zeus.S
 	# AArch64/AArch32
 	else
