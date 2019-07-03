@@ -9,9 +9,9 @@
 
 #include <stdint.h>
 
-#define SVR_WO_E		0xFFFFFE
-#define SVR_LS1043A		0x879204
-#define SVR_LS1043AE		0x879200
+#define SVR_WO_E		0xFFFFFEu
+#define SVR_LS1043A		0x879204u
+#define SVR_LS1043AE		0x879200u
 
 void get_gic_offset(uint32_t *gicc_base, uint32_t *gicd_base);
 

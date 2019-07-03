@@ -35,7 +35,7 @@ void get_gic_offset(uint32_t *gicc_base, uint32_t *gicd_base)
 			soc_dev_id == (SVR_LS1043AE << 8)) &&
 			((val & 0xff) == REV1_1)) {
 		val = be32toh(mmio_read_32((uintptr_t)gic_align));
-		if (val & (1 << GIC_ADDR_BIT)) {
+		if (val & (1U << GIC_ADDR_BIT)) {
 			*gicc_base = GICC_BASE;
 			*gicd_base = GICD_BASE;
 		} else {
