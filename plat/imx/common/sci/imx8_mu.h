@@ -13,7 +13,7 @@
 #define MU_TR_COUNT1		4
 #define MU_RR_COUNT1		4
 
-#define MU_CR_GIEn_MASK1	(0xF << 28)
+#define MU_CR_GIEn_MASK1	(0xFu << 28)
 #define MU_CR_RIEn_MASK1	(0xF << 24)
 #define MU_CR_TIEn_MASK1	(0xF << 20)
 #define MU_CR_GIRn_MASK1	(0xF << 16)
@@ -23,7 +23,7 @@
 #define MU_SR_TE0_MASK1		(1 << 23)
 #define MU_SR_RF0_MASK1		(1 << 27)
 #define MU_CR_RIE0_MASK1	(1 << 27)
-#define MU_CR_GIE0_MASK1	(1 << 31)
+#define MU_CR_GIE0_MASK1	(1U << 31)
 
 #define MU_TR_COUNT			4
 #define MU_RR_COUNT			4
