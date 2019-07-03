@@ -172,7 +172,7 @@ static __pmusramfunc void override_write_leveling_value(uint32_t ch)
 		mmio_clrsetbits_32(PHY_REG(ch, 8 + (128 * byte)), 0x1 << 16,
 				   1 << 16);
 		mmio_clrsetbits_32(PHY_REG(ch, 63 + (128 * byte)),
-				   0xffff << 16,
+				   0xffffu << 16,
 				   0x200 << 16);
 	}
 
@@ -656,7 +656,7 @@ __pmusramfunc static void pmusram_restore_pll(int pll_id, uint32_t *src)
 	mmio_write_32(CRU_BASE + CRU_PLL_CON(pll_id, 3), src[3] | REG_SOC_WMSK);
 
 	while ((mmio_read_32(CRU_BASE + CRU_PLL_CON(pll_id, 2)) &
-		(1 << 31)) == 0x0)
+		(1U << 31)) == 0x0)
 		;
 }
 

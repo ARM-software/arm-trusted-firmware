@@ -222,7 +222,7 @@
 #define DDRPHY0_SRSTN_REQ(n)   (((0x1 << 0) << 16) | (n << 0))
 
 /* CRU_DPLL_CON2 */
-#define DPLL_STATUS_LOCK		(1 << 31)
+#define DPLL_STATUS_LOCK		(1U << 31)
 
 /* CRU_DPLL_CON3 */
 #define DPLL_POWER_DOWN			((0x1 << (1 + 16)) | (0 << 1))
@@ -237,7 +237,7 @@
 #define DDR_PLL_SRC_MASK		0x13
 
 /* DDR_PCTL_TREFI */
-#define DDR_UPD_REF_ENABLE		(0X1 << 31)
+#define DDR_UPD_REF_ENABLE		(0X1u << 31)
 
 uint32_t ddr_get_resume_code_size(void);
 uint32_t ddr_get_resume_data_size(void);

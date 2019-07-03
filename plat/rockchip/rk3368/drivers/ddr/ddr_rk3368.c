@@ -400,7 +400,7 @@ void ddr_reg_save(uint32_t pllpdstat, uint64_t base_addr)
 		p_ddr_reg->dpllcon[0] = (mmio_read_32(CRU_BASE +
 						      PLL_CONS(DPLL_ID, 0))
 							& 0xffff) |
-					(0xFFFF << 16);
+					(0xFFFFu << 16);
 		p_ddr_reg->dpllcon[1] = (mmio_read_32(CRU_BASE +
 						      PLL_CONS(DPLL_ID, 1))
 							& 0xffff);
@@ -410,7 +410,7 @@ void ddr_reg_save(uint32_t pllpdstat, uint64_t base_addr)
 		p_ddr_reg->dpllcon[3] = (mmio_read_32(CRU_BASE +
 						      PLL_CONS(DPLL_ID, 3))
 							& 0xffff) |
-					(0xFFFF << 16);
+					(0xFFFFu << 16);
 	} else {
 		ddr_get_dpll_cfg(&p_ddr_reg->dpllcon[0]);
 	}
