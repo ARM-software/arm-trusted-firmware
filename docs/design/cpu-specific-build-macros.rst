@@ -226,6 +226,35 @@ For Cortex-A76, the following errata build flags are defined :
 -  ``ERRATA_A76_1275112``: This applies errata 1275112 workaround to Cortex-A76
    CPU. This needs to be enabled only for revision <= r3p0 of the CPU.
 
+For Neoverse N1, the following errata build flags are defined :
+
+-  ``ERRATA_N1_1073348``: This applies errata 1073348 workaround to Neoverse-N1
+   CPU. This needs to be enabled only for revision r0p0 and r1p0 of the CPU.
+
+-  ``ERRATA_N1_1130799``: This applies errata 1130799 workaround to Neoverse-N1
+   CPU. This needs to be enabled only for revision <= r2p0 of the CPU.
+
+-  ``ERRATA_N1_1165347``: This applies errata 1165347 workaround to Neoverse-N1
+   CPU. This needs to be enabled only for revision <= r2p0 of the CPU.
+
+-  ``ERRATA_N1_1207823``: This applies errata 1207823 workaround to Neoverse-N1
+   CPU. This needs to be enabled only for revision <= r2p0 of the CPU.
+
+-  ``ERRATA_N1_1220197``: This applies errata 1220197 workaround to Neoverse-N1
+   CPU. This needs to be enabled only for revision <= r2p0 of the CPU.
+
+-  ``ERRATA_N1_1257314``: This applies errata 1257314 workaround to Neoverse-N1
+   CPU. This needs to be enabled only for revision <= r3p0 of the CPU.
+
+-  ``ERRATA_N1_1262606``: This applies errata 1262606 workaround to Neoverse-N1
+   CPU. This needs to be enabled only for revision <= r3p0 of the CPU.
+
+-  ``ERRATA_N1_1262888``: This applies errata 1262888 workaround to Neoverse-N1
+   CPU. This needs to be enabled only for revision <= r3p0 of the CPU.
+
+-  ``ERRATA_N1_1275112``: This applies errata 1275112 workaround to Neoverse-N1
+   CPU. This needs to be enabled only for revision <= r3p0 of the CPU.
+
 -  ``ERRATA_N1_1315703``: This applies errata 1315703 workaround to Neoverse-N1
    CPU. This needs to be enabled only for revision <= r3p0 of the CPU.
 
