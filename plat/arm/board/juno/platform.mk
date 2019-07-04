@@ -66,7 +66,8 @@ BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				${JUNO_INTERCONNECT_SOURCES}		\
 				${JUNO_SECURITY_SOURCES}
 
-BL2_SOURCES		+=	lib/utils/mem_region.c			\
+BL2_SOURCES		+=	drivers/arm/sp805/sp805.c		\
+				lib/utils/mem_region.c			\
 				plat/arm/board/juno/juno_err.c		\
 				plat/arm/board/juno/juno_bl2_setup.c	\
 				plat/arm/common/arm_nor_psci_mem_protect.c \

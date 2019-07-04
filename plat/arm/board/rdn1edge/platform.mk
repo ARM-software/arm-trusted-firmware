@@ -12,10 +12,12 @@ PLAT_INCLUDES		+=	-I${RDN1EDGE_BASE}/include/
 
 SGI_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_n1.S
 
-BL1_SOURCES		+=	${SGI_CPU_SOURCES}
+BL1_SOURCES		+=	${SGI_CPU_SOURCES}			\
+				${RDN1EDGE_BASE}/rdn1edge_err.c
 
 BL2_SOURCES		+=	${RDN1EDGE_BASE}/rdn1edge_plat.c	\
 				${RDN1EDGE_BASE}/rdn1edge_security.c	\
+				${RDN1EDGE_BASE}/rdn1edge_err.c		\
 				drivers/arm/tzc/tzc_dmc620.c		\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c

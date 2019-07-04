@@ -7,6 +7,7 @@
 #include <errno.h>
 
 #include <arch_helpers.h>
+#include <drivers/arm/sp805.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
@@ -21,7 +22,9 @@ void __dead2 plat_arm_error_handler(int err)
 	/* Propagate the err code in the NV-flags register */
 	*flags_ptr = err;
 
-	/* Loop until the watchdog resets the system */
+	/* Setup the watchdog to reset the system as soon as possible */
+	sp805_refresh(ARM_SP805_TWDG_BASE, 1U);
+
 	for (;;)
 		wfi();
 }

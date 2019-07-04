@@ -131,17 +131,20 @@ BL1_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\
 				plat/arm/board/fvp/${ARCH}/fvp_helpers.S	\
 				plat/arm/board/fvp/fvp_bl1_setup.c		\
+				plat/arm/board/fvp/fvp_err.c			\
 				plat/arm/board/fvp/fvp_io_storage.c		\
 				plat/arm/board/fvp/fvp_trusted_boot.c		\
 				${FVP_CPU_LIBS}					\
 				${FVP_INTERCONNECT_SOURCES}
 
 
-BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
+BL2_SOURCES		+=	drivers/arm/sp805/sp805.c			\
+				drivers/io/io_semihosting.c			\
 				lib/utils/mem_region.c				\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\
 				plat/arm/board/fvp/fvp_bl2_setup.c		\
+				plat/arm/board/fvp/fvp_err.c			\
 				plat/arm/board/fvp/fvp_io_storage.c		\
 				plat/arm/board/fvp/fvp_trusted_boot.c		\
 				plat/arm/common/arm_nor_psci_mem_protect.c	\

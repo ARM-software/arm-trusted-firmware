@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -12,10 +12,12 @@ PLAT_INCLUDES		+=	-I${SGI575_BASE}/include/
 
 SGI_CPU_SOURCES		:=	lib/cpus/aarch64/cortex_a75.S
 
-BL1_SOURCES		+=	${SGI_CPU_SOURCES}
+BL1_SOURCES		+=	${SGI_CPU_SOURCES}			\
+				${SGI575_BASE}/sgi575_err.c
 
 BL2_SOURCES		+=	${SGI575_BASE}/sgi575_plat.c		\
 				${SGI575_BASE}/sgi575_security.c	\
+				${SGI575_BASE}/sgi575_err.c		\
 				drivers/arm/tzc/tzc_dmc620.c		\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c

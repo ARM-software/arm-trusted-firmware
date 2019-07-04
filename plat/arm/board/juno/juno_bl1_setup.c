@@ -98,6 +98,9 @@ __dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved)
 	/* Clear the NV flags register. */
 	*nv_flags_clr = *nv_flags_ptr;
 
+	/* Setup the watchdog to reset the system as soon as possible */
+	sp805_refresh(ARM_SP805_TWDG_BASE, 1U);
+
 	while (1)
 		wfi();
 }
