@@ -632,8 +632,8 @@ New Features
 
    -  Introduce External Abort handling on AArch64
       External Abort routed to EL3 was reported as an unhandled exception
-      and caused a panic. This change enables Arm Trusted Firmware-A to
-      handle External Aborts routed to EL3.
+      and caused a panic. This change enables Trusted Firmware-A to handle
+      External Aborts routed to EL3.
 
    -  Save value of ACTLR_EL1 implementation-defined register in the CPU
       context structure rather than forcing it to 0.

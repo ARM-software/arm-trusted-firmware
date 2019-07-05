@@ -510,9 +510,8 @@ endif
 # Process platform overrideable behaviour
 ################################################################################
 
-# Using the ARM Trusted Firmware BL2 implies that a BL33 image also needs to be
-# supplied for the FIP and Certificate generation tools. This flag can be
-# overridden by the platform.
+# Using BL2 implies that a BL33 image also needs to be supplied for the FIP and
+# Certificate generation tools. This flag can be overridden by the platform.
 ifdef BL2_SOURCES
         ifdef EL3_PAYLOAD_BASE
                 # If booting an EL3 payload there is no need for a BL33 image
