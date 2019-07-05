@@ -392,11 +392,11 @@ This is only allowed if the image is not being executed.
 
 --------------
 
-*Copyright (c) 2015-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2015-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _Trusted Board Boot: ../design/trusted-board-boot.rst
 .. _Porting Guide: ../getting_started/porting-guide.rst
-.. _here: https://github.com/ARM-software/arm-trusted-firmware/wiki/ARM-Trusted-Firmware-Image-Terminology
+.. _here: ../getting_started/image-terminology.rst
 .. _Authentication Framework Design: ../design/auth-framework.rst
 .. _Universally Unique Identifier: https://tools.ietf.org/rfc/rfc4122.txt
 

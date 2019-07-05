@@ -1626,7 +1626,7 @@ New features
    -  `Power Domain Topology Design`_
 
 -  Applied the new image terminology to the code base and documentation, as
-   described on the `TF-A wiki on GitHub`_.
+   described in the `image terminology document`_.
 
 -  The build system has been reworked to improve readability and facilitate
    adding future extensions.
@@ -2420,7 +2420,7 @@ releases of TF-A.
 
 --------------
 
-*Copyright (c) 2013-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _SDEI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
 .. _PSCI Integration Guide: ./getting_started/psci-lib-integration-guide.rst
@@ -2431,7 +2431,7 @@ releases of TF-A.
 .. _Firmware Design: ./design/firmware-design.rst
 .. _TF-A Reset Design: ./design/reset-design.rst
 .. _Power Domain Topology Design: ./design/psci-pd-tree.rst
-.. _TF-A wiki on GitHub: https://github.com/ARM-software/arm-trusted-firmware/wiki/ARM-Trusted-Firmware-Image-Terminology
+.. _image terminology document: ./getting_started/image-terminology.rst
 .. _Authentication Framework: ./design/auth-framework.rst
 .. _OP-TEE Dispatcher: ./spd/optee-dispatcher.rst
 .. _tf-issue#501: https://github.com/ARM-software/tf-issues/issues/501
