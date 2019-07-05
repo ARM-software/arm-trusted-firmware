@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -83,12 +83,4 @@ void bl31_plat_arch_setup(void)
 {
 	uniphier_mmap_setup(BL31_BASE, BL31_SIZE, NULL);
 	enable_mmu_el3(0);
-}
-
-void bl31_plat_runtime_setup(void)
-{
-	/* Suppress any runtime logs unless DEBUG is defined */
-#if !DEBUG
-	console_uninit();
-#endif
 }
