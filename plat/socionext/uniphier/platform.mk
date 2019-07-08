@@ -60,6 +60,7 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
 				plat/common/plat_gicv3.c		\
 				plat/common/plat_psci_common.c		\
 				$(PLAT_PATH)/uniphier_bl31_setup.c	\
+				$(PLAT_PATH)/uniphier_boot_device.c	\
 				$(PLAT_PATH)/uniphier_cci.c		\
 				$(PLAT_PATH)/uniphier_gicv3.c		\
 				$(PLAT_PATH)/uniphier_psci.c		\
