@@ -90,7 +90,7 @@ static const struct _boardcnf *board_cnf;
 static uint32_t ddr_phyvalid;
 static uint32_t ddr_density[DRAM_CH_CNT][CS_CNT];
 static uint32_t ch_have_this_cs[CS_CNT] __aligned(64);
-static uint32_t rdqdm_dly[DRAM_CH_CNT][CS_CNT][SLICE_CNT * 2][9];
+static uint32_t rdqdm_dly[DRAM_CH_CNT][CSAB_CNT][SLICE_CNT * 2][9];
 static uint32_t max_density;
 static uint32_t ddr0800_mul;
 static uint32_t ddr_mul;
@@ -358,15 +358,13 @@ static void pll3_control(uint32_t high)
 	if (high) {
 		tmp_div = 3999 * brd_clkdiv * (brd_clkdiva + 1) /
 			(brd_clk * ddr_mul) / 2;
-		data_mul = (((ddr_mul * tmp_div) - 1) << 24) |
-			(brd_clkdiva << 7);
+		data_mul = ((ddr_mul * tmp_div) - 1) << 24;
 		pll3_mode = 1;
 		loop_max = 2;
 	} else {
 		tmp_div = 3999 * brd_clkdiv * (brd_clkdiva + 1) /
 			(brd_clk * ddr0800_mul) / 2;
-		data_mul = (((ddr0800_mul * tmp_div) - 1) << 24) |
-			(brd_clkdiva << 7);
+		data_mul = ((ddr0800_mul * tmp_div) - 1) << 24;
 		pll3_mode = 0;
 		loop_max = 8;
 	}
@@ -2711,8 +2709,8 @@ static void ddr_register_set(void)
 	uint32_t tmp;
 
 	for (fspwp = 1; fspwp >= 0; fspwp--) {
-		/*MR13,fspwp */
-		send_dbcmd(0x0e840d08 | (fspwp << 6));
+		/*MR13, fspwp */
+		send_dbcmd(0x0e840d08 | ((2 - fspwp) << 6));
 
 		tmp =
 		    ddrtbl_getval(_cnf_DDR_PI_REGSET,
@@ -2745,7 +2743,16 @@ static void ddr_register_set(void)
 		send_dbcmd(0x0e840e00 | tmp);
 		/* MR22 */
 		send_dbcmd(0x0e841616);
+
+		/* ZQCAL start */
+		send_dbcmd(0x0d84004F);
+
+		/* ZQLAT */
+		send_dbcmd(0x0d840051);
 	}
+
+	/* MR13, fspwp */
+	send_dbcmd(0x0e840d08);
 }
 
 /* Training handshake functions */
@@ -3037,12 +3044,6 @@ static uint32_t init_ddr(void)
 
 	/* MRS */
 	ddr_register_set();
-
-	/* ZQCAL start */
-	send_dbcmd(0x0d84004F);
-
-	/* ZQLAT */
-	send_dbcmd(0x0d840051);
 
 	/* Thermal sensor setting */
 	/* THCTR Bit6: PONM=0 , Bit0: THSST=1  */
@@ -3478,17 +3479,21 @@ static uint32_t wdqdm_man(void)
 	const uint32_t retry_max = 0x10;
 	uint32_t ch, ddr_csn, mr14_bkup[4][4];
 
-	ddr_setval_ach(_reg_PI_TDFI_WDQLVL_RW, (DBSC_DBTR(11) & 0xFF) + 12);
+	ddr_setval_ach(_reg_PI_TDFI_WDQLVL_RW,
+		       (mmio_read_32(DBSC_DBTR(11)) & 0xFF) + 19);
 	if (((prr_product == PRR_PRODUCT_H3) && (prr_cut > PRR_PRODUCT_11)) ||
 	    (prr_product == PRR_PRODUCT_M3N) ||
 	    (prr_product == PRR_PRODUCT_V3H)) {
+		ddr_setval_ach(_reg_PI_TDFI_WDQLVL_WR_F0,
+			       (mmio_read_32(DBSC_DBTR(12)) & 0xFF) + 10);
 		ddr_setval_ach(_reg_PI_TDFI_WDQLVL_WR_F1,
-			       (DBSC_DBTR(12) & 0xFF) + 1);
+			       (mmio_read_32(DBSC_DBTR(12)) & 0xFF) + 10);
 	} else {
 		ddr_setval_ach(_reg_PI_TDFI_WDQLVL_WR,
-			       (DBSC_DBTR(12) & 0xFF) + 1);
+			       (mmio_read_32(DBSC_DBTR(12)) & 0xFF) + 10);
 	}
-	ddr_setval_ach(_reg_PI_TRFC_F1, (DBSC_DBTR(13) & 0x1FF));
+	ddr_setval_ach(_reg_PI_TRFC_F0, mmio_read_32(DBSC_DBTR(13)) & 0x1FF);
+	ddr_setval_ach(_reg_PI_TRFC_F1, mmio_read_32(DBSC_DBTR(13)) & 0x1FF);
 
 	retry_cnt = 0;
 	err = 0;

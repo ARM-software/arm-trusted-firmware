@@ -115,7 +115,7 @@ static const uint32_t DDR_PHY_SLICE_REGSET_M3N[DDR_PHY_SLICE_REGSET_NUM_M3N] = {
 	/*0858*/ 0x01000000,
 	/*0859*/ 0x00000200,
 	/*085a*/ 0x00000004,
-	/*085b*/ 0x4041a141,
+	/*085b*/ 0x4041a151,
 	/*085c*/ 0x0141c0a0,
 	/*085d*/ 0x0000c0c0,
 	/*085e*/ 0x0e0c000e,
