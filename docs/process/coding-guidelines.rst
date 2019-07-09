@@ -272,15 +272,15 @@ used (Banned) or are discouraged from use and must be used with care (Caution).
 +------------------------+-----------+--------------------------------------+
 |    libc function       | Status    | Comments                             |
 +========================+===========+======================================+
-| ``strcpy, wcscpy``     | Banned    | use strlcpy instead                  |
+| ``strcpy, wcscpy``,    | Banned    | use strlcpy instead                  |
 | ``strncpy``            |           |                                      |
 +------------------------+-----------+--------------------------------------+
-| ``strcat, wcscat``     | Banned    | use strlcat instead                  |
+| ``strcat, wcscat``,    | Banned    | use strlcat instead                  |
 | ``strncat``            |           |                                      |
-+----------------------- +-----------+--------------------------------------+
++------------------------+-----------+--------------------------------------+
 | ``sprintf, vsprintf``  | Banned    | use snprintf, vsnprintf              |
 |                        |           | instead                              |
-+---------------------- -+-----------+--------------------------------------+
++------------------------+-----------+--------------------------------------+
 | ``snprintf``           | Caution   | ensure result fits in buffer         |
 |                        |           | i.e : snprintf(buf,size...) < size   |
 +------------------------+-----------+--------------------------------------+
