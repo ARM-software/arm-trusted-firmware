@@ -21,7 +21,8 @@ BL1_SOURCES		+=	drivers/io/io_fip.c			\
 				plat/rpi/rpi3/aarch64/plat_helpers.S	\
 				plat/rpi/rpi3/rpi3_bl1_setup.c		\
 				plat/rpi/rpi3/rpi3_io_storage.c		\
-				plat/rpi/rpi3/rpi3_mbox.c
+				drivers/rpi3/mailbox/rpi3_mbox.c	\
+				plat/rpi/rpi3/rpi_mbox_board.c
 
 BL2_SOURCES		+=	common/desc_image_load.c		\
 				drivers/io/io_fip.c			\
