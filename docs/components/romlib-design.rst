@@ -42,7 +42,7 @@ It is also possible to insert reserved spaces in the list by using the keyword
 
 ::
 
-    reserved    reserved
+    reserved
 
 The reserved spaces can be used to add more functions in the future without
 affecting the order and location of functions already existing in the jump
@@ -71,29 +71,41 @@ image(s) is replaced with the wrapper function.
 The "library at ROM" contains a necessary init function that initialises the
 global variables defined by the functions inside "library at ROM".
 
-Scripts
-~~~~~~~
+Script
+~~~~~~
 
-There are several scripts that generate the necessary files for the "library at
-ROM" to work:
+There is a ``romlib_generate.py`` Python script that generates the necessary
+files for the "library at ROM" to work. It implements multiple functions:
 
-1. ``gentbl.sh`` - Generates the jump table by parsing the index file.
+1. ``romlib_generate.py gentbl [args]`` - Generates the jump table by parsing
+   the index file.
 
-2. ``genvar.sh`` - Generates the jump table global variable (**not** the jump
-   table itself) with the absolute address in ROM. This global variable is,
-   basically, a pointer to the jump table.
+2. ``romlib_generator.py genvar [args]`` - Generates the jump table global
+   variable (**not** the jump table itself) with the absolute address in ROM.
+   This global variable is, basically, a pointer to the jump table.
 
-3. ``genwrappers.sh`` - Generates a wrapper function for each entry in the index
-   file except for the ones that contain the keyword ``patch``. The generated
-   wrapper file is called ``<lib>_<fn_name>.S``.
+3. ``romlib_generator.py genwrappers [args]`` - Generates a wrapper function for
+   each entry in the index file except for the ones that contain the keyword
+   ``patch``. The generated wrapper file is called ``<fn_name>.s``.
+
+4. ``romlib_generator.py pre [args]`` - Preprocesses the index file which means
+   it resolves all the include commands in the file recursively. It can also
+   generate a dependency file of the included index files which can be directly
+   used in makefiles.
+
+Each ``romlib_generate.py`` function has its own manual which is accessible by
+runing ``romlib_generator.py [function] --help``.
+
+``romlib_generate.py`` requires Python 3 environment.
+
 
 Patching of functions in library at ROM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``genwrappers.sh`` script does not generate wrappers for the entries in the
-index file that contain the keyword ``patch``. Thus, it allows calling the
-function from the actual library by breaking the link to the  "library at ROM"
-version of this function.
+The ``romlib_generator.py genwrappers`` does not generate wrappers for the
+entries in the index file that contain the keyword ``patch``. Thus, it allows
+calling the function from the actual library by breaking the link to the
+"library at ROM" version of this function.
 
 The calling sequence for a patched function is as follows:
 
@@ -116,12 +128,6 @@ to showcase the benefits of library at ROM - it's not mandatory.
     BL33=</path/to/bl33.bin>                                        \
     USE_ROMLIB=1                                                    \
     all fip
-
-Known issue
------------
-When building library at ROM, a clean build is always required. This is
-necessary when changes are made to the index files, e.g. adding new functions,
-patching existing ones etc.
 
 --------------
 
