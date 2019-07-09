@@ -9,7 +9,7 @@
 #include <assert_macros.S>
 #include <platform_def.h>
 
-#include "../rpi3_hw.h"
+#include "../include/rpi_hw.h"
 
 	.globl	plat_crash_console_flush
 	.globl	plat_crash_console_init

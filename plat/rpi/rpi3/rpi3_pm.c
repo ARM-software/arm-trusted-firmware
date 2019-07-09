@@ -15,7 +15,7 @@
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
 
-#include "rpi3_hw.h"
+#include <rpi_hw.h>
 
 /* Make composite power state parameter till power level 0 */
 #if PSCI_EXTENDED_STATE_ID

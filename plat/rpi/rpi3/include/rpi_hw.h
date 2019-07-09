@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef RPI3_HW_H
-#define RPI3_HW_H
+#ifndef RPI_HW_H
+#define RPI_HW_H
 
 #include <lib/utils_def.h>
 
@@ -107,4 +107,4 @@
 #define RPI3_INTC_PENDING_FIQ_OFFSET		ULL(0x00000070)
 #define RPI3_INTC_PENDING_FIQ_MBOX3		ULL(0x00000080)
 
-#endif /* RPI3_HW_H */
+#endif /* RPI_HW_H */

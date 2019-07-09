@@ -12,7 +12,7 @@
 #include <common/debug.h>
 #include <lib/mmio.h>
 
-#include "rpi3_hw.h"
+#include <rpi_hw.h>
 
 /* This struct must be aligned to 16 bytes */
 typedef struct __packed __aligned(16) rpi3_mbox_request {
