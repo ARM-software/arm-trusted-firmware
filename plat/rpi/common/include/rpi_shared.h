@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef RPI3_PRIVATE_H
-#define RPI3_PRIVATE_H
+#ifndef RPI_SHARED_H
+#define RPI_SHARED_H
 
 #include <stdint.h>
 
