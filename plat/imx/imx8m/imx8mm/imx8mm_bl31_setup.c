@@ -24,6 +24,7 @@
 #include <gpc.h>
 #include <imx_aipstz.h>
 #include <imx_uart.h>
+#include <imx8m_caam.h>
 #include <plat_imx8.h>
 
 static const mmap_region_t imx_mmap[] = {
@@ -92,6 +93,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	}
 
 	imx_aipstz_init(aipstz);
+
+	imx8m_caam_init();
 
 	console_imx_uart_register(IMX_BOOT_UART_BASE, IMX_BOOT_UART_CLK_IN_HZ,
 		IMX_CONSOLE_BAUDRATE, &console);

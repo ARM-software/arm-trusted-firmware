@@ -20,6 +20,7 @@ IMX_GIC_SOURCES		:=	drivers/arm/gic/v3/gicv3_helpers.c	\
 BL31_SOURCES		+=	plat/imx/common/imx8_helpers.S			\
 				plat/imx/imx8m/gpc_common.c			\
 				plat/imx/imx8m/imx_aipstz.c			\
+				plat/imx/imx8m/imx8m_caam.c			\
 				plat/imx/imx8m/imx8m_psci_common.c		\
 				plat/imx/imx8m/imx8mm/imx8mm_bl31_setup.c	\
 				plat/imx/imx8m/imx8mm/imx8mm_psci.c		\

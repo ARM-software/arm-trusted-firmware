@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -70,6 +70,7 @@
 #define IMX_SNVS_BASE			U(0x30370000)
 #define IMX_NOC_BASE			U(0x32700000)
 #define IMX_TZASC_BASE			U(0x32F80000)
+#define IMX_CAAM_BASE			U(0x30900000)
 #define IMX_IOMUX_GPR_BASE		U(0x30340000)
 #define IMX_DDRC_BASE			U(0x3d400000)
 #define IMX_DDRPHY_BASE			U(0x3c000000)
@@ -122,8 +123,3 @@
 
 #define DEBUG_CONSOLE			0
 #define IMX_WDOG_B_RESET
-
-#define CAAM_JR0MID			U(0x30900010)
-#define CAAM_JR1MID			U(0x30900018)
-#define CAAM_JR2MID			U(0x30900020)
-#define CAAM_NS_MID			U(0x1)
