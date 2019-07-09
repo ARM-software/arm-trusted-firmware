@@ -7,7 +7,7 @@
 #ifndef ERRATA_REPORT_H
 #define ERRATA_REPORT_H
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <arch.h>
 #include <arch_helpers.h>
@@ -23,7 +23,7 @@ static inline void print_errata_status(void) {}
 void errata_print_msg(unsigned int status, const char *cpu, const char *id);
 int errata_needs_reporting(spinlock_t *lock, uint32_t *reported);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 /* Errata status */
 #define ERRATA_NOT_APPLIES	0

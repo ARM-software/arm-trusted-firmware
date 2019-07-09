@@ -93,7 +93,7 @@
 #define TZC_400_REGION_SIZE			U(0x20)
 #define TZC_400_ACTION_OFF			U(0x4)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <cdefs.h>
 #include <stdint.h>
@@ -154,6 +154,6 @@ static inline void tzc_disable_filters(void)
 	tzc400_disable_filters();
 }
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* TZC400_H */

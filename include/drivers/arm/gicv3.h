@@ -208,7 +208,7 @@
 #define GITS_CTLR_QUIESCENT_SHIFT	31
 #define GITS_CTLR_QUIESCENT_BIT		BIT_32(GITS_CTLR_QUIESCENT_SHIFT)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -406,5 +406,5 @@ void gicv3_set_interrupt_pending(unsigned int id, unsigned int proc_num);
 void gicv3_clear_interrupt_pending(unsigned int id, unsigned int proc_num);
 unsigned int gicv3_set_pmr(unsigned int mask);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 #endif /* GICV3_H */

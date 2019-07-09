@@ -8,9 +8,9 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stdio.h>
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #include <common/interrupt_props.h>
 #include <drivers/arm/gic_common.h>

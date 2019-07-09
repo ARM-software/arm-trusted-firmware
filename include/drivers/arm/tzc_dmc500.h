@@ -121,7 +121,7 @@
 /* Length of registers for configuring each region */
 #define TZC_DMC500_REGION_SIZE				U(0x018)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -147,5 +147,5 @@ void tzc_dmc500_config_complete(void);
 int tzc_dmc500_verify_complete(void);
 
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 #endif /* TZC_DMC500_H */

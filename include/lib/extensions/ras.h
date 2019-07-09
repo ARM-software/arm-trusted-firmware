@@ -68,7 +68,7 @@
 		.num_intrs = ARRAY_SIZE(_array), \
 	}
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <assert.h>
 
@@ -196,6 +196,6 @@ int ras_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 		void *handle, uint64_t flags);
 void ras_init(void);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* RAS_H */

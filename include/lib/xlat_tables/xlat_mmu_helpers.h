@@ -50,7 +50,7 @@
 #define MMU_CFG_TTBR0		2
 #define MMU_CFG_PARAM_MAX	3
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -86,6 +86,6 @@ void enable_mmu_direct_el3(unsigned int flags);
 bool xlat_arch_is_granule_size_supported(size_t size);
 size_t xlat_arch_get_max_supported_granule_size(void);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* XLAT_MMU_HELPERS_H */

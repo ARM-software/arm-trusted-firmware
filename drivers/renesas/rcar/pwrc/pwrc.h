@@ -38,7 +38,7 @@
 #define	RCAR_CLUSTER_CA53	(1U)
 #define	RCAR_CLUSTER_CA57	(2U)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 void rcar_pwrc_disable_interrupt_wakeup(uint64_t mpidr);
 void rcar_pwrc_enable_interrupt_wakeup(uint64_t mpidr);
 void rcar_pwrc_clusteroff(uint64_t mpidr);

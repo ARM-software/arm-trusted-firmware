@@ -26,7 +26,7 @@
 #define PM_WARM_BOOT_SHT	0
 #define PM_WARM_BOOT_BIT	(1 << PM_WARM_BOOT_SHT)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 struct psram_data_t {
 	uint64_t sp;
@@ -50,6 +50,6 @@ CASSERT(__builtin_offsetof(struct psram_data_t, boot_mpidr) == PSRAM_DT_MPIDR,
 
 extern void *sys_sleep_flag_sram;
 
-#endif  /* __ASSEMBLY__ */
+#endif  /* __ASSEMBLER__ */
 
 #endif

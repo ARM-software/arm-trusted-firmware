@@ -152,7 +152,7 @@
 #define IMX_UART_TS_RXFULL	BIT(3)
 #define IMX_UART_TS_SOFTRST	BIT(0)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 typedef struct {
 	console_t console;
@@ -163,6 +163,6 @@ int console_imx_uart_register(uintptr_t baseaddr,
 			      uint32_t clock,
 			      uint32_t baud,
 			      console_imx_uart_t *console);
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* IMX_UART_H */

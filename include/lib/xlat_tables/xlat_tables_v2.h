@@ -10,7 +10,7 @@
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <lib/xlat_tables/xlat_tables_v2_helpers.h>
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stddef.h>
 #include <stdint.h>
 
@@ -364,5 +364,5 @@ int xlat_get_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
 				uint32_t *attr);
 int xlat_get_mem_attributes(uintptr_t base_va, uint32_t *attr);
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 #endif /* XLAT_TABLES_V2_H */

@@ -9,10 +9,10 @@
 
 #include <common/param_header.h>
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stdint.h>
 #include <lib/cassert.h>
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #include <export/common/ep_info_exp.h>
 
@@ -30,7 +30,7 @@
 #define SET_SECURITY_STATE(x, security) \
 			((x) = ((x) & ~EP_SECURITY_MASK) | (security))
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 /*
  * Compile time assertions related to the 'entry_point_info' structure to
@@ -56,6 +56,6 @@ CASSERT(sizeof(uintptr_t) ==
 		__builtin_offsetof(entry_point_info_t, pc), \
 		assert_entrypoint_and_spsr_should_be_adjacent);
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* EP_INFO_H */

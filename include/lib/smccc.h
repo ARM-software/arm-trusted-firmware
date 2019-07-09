@@ -87,7 +87,7 @@
 #define SMC_FROM_SECURE		(U(0) << 0)
 #define SMC_FROM_NON_SECURE	(U(1) << 0)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -155,5 +155,5 @@ static inline uint32_t smc_uuid_word(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t
 		smc_uuid_word((_uuid).node[2], (_uuid).node[3],			\
 			      (_uuid).node[4], (_uuid).node[5]))
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 #endif /* SMCCC_H */

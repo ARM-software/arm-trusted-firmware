@@ -29,7 +29,7 @@
 #define BOARD_CSS_PLAT_TYPE_EMULATOR		0x02
 #define BOARD_CSS_PLAT_TYPE_FVP			0x03
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <lib/mmio.h>
 
@@ -37,7 +37,7 @@
 	((mmio_read_32(addr) & BOARD_CSS_PLAT_ID_REG_ID_MASK)		\
 	>> BOARD_CSS_PLAT_ID_REG_ID_SHIFT)
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 
 #define MAX_IO_DEVICES			3

@@ -7,7 +7,7 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stdlib.h>
 #endif
 

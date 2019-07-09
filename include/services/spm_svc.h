@@ -63,7 +63,7 @@
 
 #endif /* SPM_MM */
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -85,6 +85,6 @@ uint64_t spm_sp_call(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3);
 
 #endif /* SPM_MM */
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* SPM_SVC_H */

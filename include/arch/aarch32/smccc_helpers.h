@@ -24,7 +24,7 @@
 #define SMC_CTX_PMCR		U(0x88)
 #define SMC_CTX_SIZE		U(0x90)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -156,6 +156,6 @@ void smc_set_next_ctx(unsigned int security_state);
 /* Get the pointer to next `smc_ctx_t` already set by `smc_set_next_ctx()`. */
 void *smc_get_next_ctx(void);
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* SMCCC_HELPERS_H */

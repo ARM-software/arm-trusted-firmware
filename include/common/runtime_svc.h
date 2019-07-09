@@ -39,7 +39,7 @@
  */
 #define MAX_RT_SVCS		U(128)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 /* Prototype for runtime service initializing function */
 typedef int32_t (*rt_svc_init_t)(void);
@@ -134,5 +134,5 @@ void init_crash_reporting(void);
 
 extern uint8_t rt_svc_descs_indices[MAX_RT_SVCS];
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 #endif /* RUNTIME_SVC_H */

@@ -14,7 +14,7 @@
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <drivers/st/stm32mp1_clk.h>
 
 #include <boot_api.h>
@@ -40,7 +40,7 @@
 #endif
 
 /* DDR power initializations */
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 enum ddr_type {
 	STM32MP_DDR3,
 	STM32MP_LPDDR2,
@@ -254,7 +254,7 @@ enum ddr_type {
 #define TAMP_BASE			U(0x5C00A000)
 #define TAMP_BKP_REGISTER_BASE		(TAMP_BASE + U(0x100))
 
-#if !(defined(__LINKER__) || defined(__ASSEMBLY__))
+#if !(defined(__LINKER__) || defined(__ASSEMBLER__))
 static inline uint32_t tamp_bkpr(uint32_t idx)
 {
 	return TAMP_BKP_REGISTER_BASE + (idx << 2);

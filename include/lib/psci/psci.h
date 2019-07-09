@@ -166,7 +166,7 @@
 #define PSCI_RESET2_TYPE_ARCH		(U(0) << PSCI_RESET2_TYPE_VENDOR_SHIFT)
 #define PSCI_RESET2_SYSTEM_WARM_RESET	(PSCI_RESET2_TYPE_ARCH | U(0))
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -348,6 +348,6 @@ int psci_features(unsigned int psci_fid);
 void __dead2 psci_power_down_wfi(void);
 void psci_arch_setup(void);
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* PSCI_H */

@@ -56,7 +56,7 @@
 
 #define CONSOLE_T_A3700_BASE	CONSOLE_T_DRVDATA
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -74,6 +74,6 @@ typedef struct {
 int console_a3700_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
 			   console_a3700_t *console);
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif	/* A3700_CONSOLE_H */

@@ -58,7 +58,7 @@
 #define SDS_REGION_REGIONSIZE_OFFSET		0x4
 #define SDS_REGION_DESC_SIZE			0x8
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stddef.h>
 #include <stdint.h>
 
@@ -95,6 +95,6 @@ typedef struct region_descriptor {
 	& SDS_REGION_SCH_VERSION_MASK)
 #define GET_SDS_REGION_SIZE(region)		((((region_desc_t *)(region))->reg[1]))
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* SDS_PRIVATE_H */

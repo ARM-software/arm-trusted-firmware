@@ -21,7 +21,7 @@
 #define SP805_CTR_RESEN			(U(1) << 1)
 #define SP805_CTR_INTEN			(U(1) << 0)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -31,6 +31,6 @@ void sp805_start(uintptr_t base, unsigned int ticks);
 void sp805_stop(uintptr_t base);
 void sp805_refresh(uintptr_t base, unsigned int ticks);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* SP805_H */

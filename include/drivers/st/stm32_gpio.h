@@ -45,13 +45,13 @@
 #define GPIO_PULL_DOWN		0x02
 #define GPIO_PULL_MASK		U(0x03)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stdint.h>
 
 int dt_set_pinctrl_config(int node);
 void set_gpio(uint32_t bank, uint32_t pin, uint32_t mode, uint32_t speed,
 	      uint32_t pull, uint32_t alternate, uint8_t status);
 void set_gpio_secure_cfg(uint32_t bank, uint32_t pin, bool secure);
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* STM32_GPIO_H */

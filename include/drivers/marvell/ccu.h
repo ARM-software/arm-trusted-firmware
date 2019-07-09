@@ -10,7 +10,7 @@
 #ifndef CCU_H
 #define CCU_H
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <drivers/marvell/addr_map.h>
 #endif
 
@@ -36,7 +36,7 @@
 
 #define CCU_SRAM_WIN_CR				CCU_WIN_CR_OFFSET(MVEBU_AP0, 1)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 int init_ccu(int);
 void ccu_win_check(struct addr_map_win *win);
 void ccu_enable_win(int ap_index, struct addr_map_win *win, uint32_t win_id);

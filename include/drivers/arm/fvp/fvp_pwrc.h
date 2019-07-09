@@ -35,7 +35,7 @@
 
 #define PSYSR_INVALID		U(0xffffffff)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -50,6 +50,6 @@ void fvp_pwrc_clr_wen(u_register_t mpidr);
 unsigned int fvp_pwrc_read_psysr(u_register_t mpidr);
 unsigned int fvp_pwrc_get_cpu_wkr(u_register_t mpidr);
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* FVP_PWRC_H */

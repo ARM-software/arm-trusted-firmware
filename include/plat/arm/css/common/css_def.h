@@ -136,7 +136,7 @@
 #define SPIDEN_INT_CLR_SHIFT	6
 #define SPIDEN_SEL_SET_SHIFT	7
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 /* SSC_VERSION related accessors */
 
@@ -150,7 +150,7 @@
 		(((val) >> SSC_VERSION_CONFIG_SHIFT) &		\
 		SSC_VERSION_CONFIG_MASK)
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 /*************************************************************************
  * Required platform porting definitions common to all

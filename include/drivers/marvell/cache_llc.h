@@ -27,7 +27,7 @@
 #define LLC_EXCLUSIVE_EN		0x100
 #define LLC_WAY_MASK			0xFFFFFFFF
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 void llc_cache_sync(int ap_index);
 void llc_flush_all(int ap_index);
 void llc_clean_all(int ap_index);

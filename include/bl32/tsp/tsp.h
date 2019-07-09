@@ -84,7 +84,7 @@
 #define TOS_CALL_VERSION	0xbf00ff03 /* Trusted OS Call Version */
 
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -106,6 +106,6 @@ typedef struct tsp_vectors {
 
 void tsp_setup(void);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* TSP_H */

@@ -86,7 +86,7 @@
 /* Memory buffer allocator options */
 #define MBEDTLS_MEMORY_ALIGN_MULTIPLE        8
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 /* System headers required to build mbed TLS with the current configuration */
 #include <stdlib.h>
 #include "mbedtls/check_config.h"

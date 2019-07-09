@@ -100,7 +100,7 @@
 
 #define SLAVE_IF_UNUSED			-1
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -121,5 +121,5 @@ void cci_init(uintptr_t base, const int *map, unsigned int num_cci_masters);
 void cci_enable_snoop_dvm_reqs(unsigned int master_id);
 void cci_disable_snoop_dvm_reqs(unsigned int master_id);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 #endif /* CCI_H */

@@ -16,7 +16,7 @@
 #error "Do not include this header file directly. Include xlat_tables_v2.h instead."
 #endif
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -160,6 +160,6 @@ struct xlat_ctx {
 		.initialized = false,					\
 	}
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* XLAT_TABLES_V2_HELPERS_H */

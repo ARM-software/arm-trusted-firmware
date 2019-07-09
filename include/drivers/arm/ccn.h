@@ -46,7 +46,7 @@
  */
 #define CCN_GET_RUN_STATE(pstate)	(pstate & 0xf)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stdint.h>
 
 /*
@@ -109,5 +109,5 @@ unsigned long long ccn_read_node_reg(node_types_t node_type,
 					unsigned int node_id,
 					unsigned int reg_offset);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 #endif /* CCN_H */

@@ -70,7 +70,7 @@
 #define SDS_ERR_STRUCT_NOT_FOUND	-3
 #define SDS_ERR_STRUCT_NOT_FINALIZED	-4
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stddef.h>
 #include <stdint.h>
 
@@ -85,6 +85,6 @@ int sds_struct_read(uint32_t structure_id, unsigned int fld_off, void *data,
 		size_t size, sds_access_mode_t mode);
 int sds_struct_write(uint32_t structure_id, unsigned int fld_off, void *data,
 		size_t size, sds_access_mode_t mode);
-#endif /*__ASSEMBLY__ */
+#endif /*__ASSEMBLER__ */
 
 #endif /* SDS_H */

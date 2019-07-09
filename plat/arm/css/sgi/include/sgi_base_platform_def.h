@@ -187,7 +187,7 @@
 
 /* Platform ID address */
 #define SSC_VERSION                     (SSC_REG_BASE + SSC_VERSION_OFFSET)
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 /* SSC_VERSION related accessors */
 /* Returns the part number of the platform */
 #define GET_SGI_PART_NUM                                       \
@@ -195,7 +195,7 @@
 /* Returns the configuration number of the platform */
 #define GET_SGI_CONFIG_NUM                                     \
 		GET_SSC_VERSION_CONFIG(mmio_read_32(SSC_VERSION))
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 /*******************************************************************************
  * Memprotect definitions

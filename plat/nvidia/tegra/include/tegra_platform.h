@@ -30,7 +30,7 @@
 #define TEGRA_CHIPID_TEGRA21		U(0x21)
 #define TEGRA_CHIPID_TEGRA18		U(0x18)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 /*
  * Tegra chip ID major/minor identifiers
@@ -57,6 +57,6 @@ bool tegra_platform_is_fpga(void);
 bool tegra_platform_is_unit_fpga(void);
 bool tegra_platform_is_virt_dev_kit(void);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* TEGRA_PLATFORM_H */

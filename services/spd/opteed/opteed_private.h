@@ -79,7 +79,7 @@
 #define OPTEED_C_RT_CTX_SIZE		0x60
 #define OPTEED_C_RT_CTX_ENTRIES		(OPTEED_C_RT_CTX_SIZE >> DWORD_SHIFT)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -157,6 +157,6 @@ void opteed_init_optee_ep_state(struct entry_point_info *optee_entry_point,
 extern optee_context_t opteed_sp_context[OPTEED_CORE_COUNT];
 extern uint32_t opteed_rw;
 extern struct optee_vectors *optee_vector_table;
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* OPTEED_PRIVATE_H */

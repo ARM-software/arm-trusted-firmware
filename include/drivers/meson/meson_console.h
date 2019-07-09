@@ -11,7 +11,7 @@
 
 #define CONSOLE_T_MESON_BASE	CONSOLE_T_DRVDATA
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -32,6 +32,6 @@ typedef struct {
 int console_meson_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
 			   console_meson_t *console);
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* MESON_CONSOLE_H */
