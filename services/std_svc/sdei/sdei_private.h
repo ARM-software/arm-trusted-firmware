@@ -22,7 +22,7 @@
 #include <services/sdei.h>
 #include <setjmp.h>
 
-#ifdef AARCH32
+#ifndef __aarch64__
 # error SDEI is implemented only for AArch64 systems
 #endif
 

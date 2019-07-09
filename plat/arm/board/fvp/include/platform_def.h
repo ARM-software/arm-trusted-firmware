@@ -120,7 +120,7 @@
 #define PLAT_ARM_MAX_BL31_SIZE		UL(0x3B000)
 #endif
 
-#ifdef AARCH32
+#ifndef __aarch64__
 /*
  * Since BL32 NOBITS overlays BL2 and BL1-RW, PLAT_ARM_MAX_BL32_SIZE is
  * calculated using the current SP_MIN PROGBITS debug size plus the sizes of
@@ -259,7 +259,7 @@
 /*
  * Physical and virtual address space limits for MMU in AARCH64 & AARCH32 modes
  */
-#ifdef AARCH64
+#ifdef __aarch64__
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 36)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 36)
 #else

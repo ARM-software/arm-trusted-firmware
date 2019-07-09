@@ -62,7 +62,7 @@
 #define OSH			(U(0x2) << 6)
 #define ISH			(U(0x3) << 6)
 
-#ifdef AARCH64
+#ifdef __aarch64__
 /* Guarded Page bit */
 #define GP			(ULL(1) << 50)
 #endif

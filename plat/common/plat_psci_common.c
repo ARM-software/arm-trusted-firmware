@@ -20,10 +20,10 @@
 #define MHZ_TICKS_PER_SEC 1000000U
 
 /* Maximum time-stamp value read from architectural counters */
-#ifdef AARCH32
-#define MAX_TS	UINT32_MAX
-#else
+#ifdef __aarch64__
 #define MAX_TS	UINT64_MAX
+#else
+#define MAX_TS	UINT32_MAX
 #endif
 
 /* Following are used as ID's to capture time-stamp */

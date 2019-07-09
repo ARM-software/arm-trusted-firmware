@@ -35,7 +35,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 	  .next_handoff_image_id = INVALID_IMAGE_ID,
 	},
 #else /* EL3_PAYLOAD_BASE */
-#ifdef AARCH64
+#ifdef __aarch64__
 	/* Fill BL31 related information */
 	{ .image_id = BL31_IMAGE_ID,
 
@@ -59,10 +59,10 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 	  .next_handoff_image_id = BL33_IMAGE_ID,
 # endif
 	},
-#endif /* AARCH64 */
+#endif /* __aarch64__ */
 # ifdef QEMU_LOAD_BL32
 
-#ifdef AARCH64
+#ifdef __aarch64__
 #define BL32_EP_ATTRIBS		(SECURE | EXECUTABLE)
 #define BL32_IMG_ATTRIBS	0
 #else

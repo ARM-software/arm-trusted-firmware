@@ -59,7 +59,7 @@ void bl1_setup(void)
 	/* Perform early platform-specific setup */
 	bl1_early_platform_setup();
 
-#ifdef AARCH64
+#ifdef __aarch64__
 	/*
 	 * Update pointer authentication key before the MMU is enabled. It is
 	 * saved in the rodata section, that can be writen before enabling the
@@ -67,7 +67,7 @@ void bl1_setup(void)
 	 * in the early platform setup.
 	 */
 	bl_handle_pauth();
-#endif /* AARCH64 */
+#endif /* __aarch64__ */
 
 	/* Perform late platform-specific setup */
 	bl1_plat_arch_setup();
@@ -97,10 +97,10 @@ void bl1_main(void)
 	/*
 	 * Ensure that MMU/Caches and coherency are turned on
 	 */
-#ifdef AARCH32
-	val = read_sctlr();
-#else
+#ifdef __aarch64__
 	val = read_sctlr_el3();
+#else
+	val = read_sctlr();
 #endif
 	assert(val & SCTLR_M_BIT);
 	assert(val & SCTLR_C_BIT);
@@ -198,11 +198,11 @@ static void bl1_load_bl2(void)
  ******************************************************************************/
 void bl1_print_next_bl_ep_info(const entry_point_info_t *bl_ep_info)
 {
-#ifdef AARCH32
-	NOTICE("BL1: Booting BL32\n");
-#else
+#ifdef __aarch64__
 	NOTICE("BL1: Booting BL31\n");
-#endif /* AARCH32 */
+#else
+	NOTICE("BL1: Booting BL32\n");
+#endif /* __aarch64__ */
 	print_entry_point_info(bl_ep_info);
 }
 

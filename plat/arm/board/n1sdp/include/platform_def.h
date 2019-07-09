@@ -34,7 +34,7 @@
  * space the physical & virtual address space limits are extended to
  * 40-bits.
  */
-#ifndef AARCH32
+#ifdef __aarch64__
 #define PLAT_PHY_ADDR_SPACE_SIZE		(1ULL << 40)
 #define PLAT_VIRT_ADDR_SPACE_SIZE		(1ULL << 40)
 #else

@@ -520,7 +520,7 @@ static int bl1_fwu_image_execute(unsigned int image_id,
 
 	INFO("BL1-FWU: Executing Secure image\n");
 
-#ifdef AARCH64
+#ifdef __aarch64__
 	/* Save NS-EL1 system registers. */
 	cm_el1_sysregs_context_save(NON_SECURE);
 #endif
@@ -531,7 +531,7 @@ static int bl1_fwu_image_execute(unsigned int image_id,
 	/* Update the secure image id. */
 	sec_exec_image_id = image_id;
 
-#ifdef AARCH64
+#ifdef __aarch64__
 	*handle = cm_get_context(SECURE);
 #else
 	*handle = smc_get_ctx(SECURE);
@@ -584,7 +584,7 @@ static register_t bl1_fwu_image_resume(register_t image_param,
 	INFO("BL1-FWU: Resuming %s world context\n",
 		(resume_sec_state == SECURE) ? "secure" : "normal");
 
-#ifdef AARCH64
+#ifdef __aarch64__
 	/* Save the EL1 system registers of calling world. */
 	cm_el1_sysregs_context_save(caller_sec_state);
 
@@ -641,7 +641,7 @@ static int bl1_fwu_sec_image_done(void **handle, unsigned int flags)
 	sec_exec_image_id = INVALID_IMAGE_ID;
 
 	INFO("BL1-FWU: Resuming Normal world context\n");
-#ifdef AARCH64
+#ifdef __aarch64__
 	/*
 	 * Secure world is done so no need to save the context.
 	 * Just restore the Non-Secure context.

@@ -20,13 +20,13 @@
 /*
  * Platform binary types for linking
  */
-#ifdef AARCH32
-#define PLATFORM_LINKER_FORMAT          "elf32-littlearm"
-#define PLATFORM_LINKER_ARCH            arm
-#else
+#ifdef __aarch64__
 #define PLATFORM_LINKER_FORMAT          "elf64-littleaarch64"
 #define PLATFORM_LINKER_ARCH            aarch64
-#endif /* AARCH32 */
+#else
+#define PLATFORM_LINKER_FORMAT          "elf32-littlearm"
+#define PLATFORM_LINKER_ARCH            arm
+#endif /* __aarch64__ */
 
 /*
  * Generic platform constants

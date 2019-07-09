@@ -7,10 +7,10 @@
 #ifndef XLAT_TABLES_ARCH_H
 #define XLAT_TABLES_ARCH_H
 
-#ifdef AARCH32
-#include "aarch32/xlat_tables_aarch32.h"
-#else
+#ifdef __aarch64__
 #include "aarch64/xlat_tables_aarch64.h"
+#else
+#include "aarch32/xlat_tables_aarch32.h"
 #endif
 
 /*

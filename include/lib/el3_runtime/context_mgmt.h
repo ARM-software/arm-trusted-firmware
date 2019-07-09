@@ -35,7 +35,7 @@ void cm_init_context_by_index(unsigned int cpu_idx,
 void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep);
 void cm_prepare_el3_exit(uint32_t security_state);
 
-#ifndef AARCH32
+#ifdef __aarch64__
 void cm_el1_sysregs_context_save(uint32_t security_state);
 void cm_el1_sysregs_context_restore(uint32_t security_state);
 void cm_set_elr_el3(uint32_t security_state, uintptr_t entrypoint);
@@ -78,6 +78,6 @@ static inline void cm_set_next_context(void *context)
 #else
 void *cm_get_next_context(void);
 void cm_set_next_context(void *context);
-#endif /* AARCH32 */
+#endif /* __aarch64__ */
 
 #endif /* CONTEXT_MGMT_H */

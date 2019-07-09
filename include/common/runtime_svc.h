@@ -20,15 +20,15 @@
  * Constants to allow the assembler access a runtime service
  * descriptor
  */
-#ifdef AARCH32
-#define RT_SVC_SIZE_LOG2	U(4)
-#define RT_SVC_DESC_INIT	U(8)
-#define RT_SVC_DESC_HANDLE	U(12)
-#else
+#ifdef __aarch64__
 #define RT_SVC_SIZE_LOG2	U(5)
 #define RT_SVC_DESC_INIT	U(16)
 #define RT_SVC_DESC_HANDLE	U(24)
-#endif /* AARCH32 */
+#else
+#define RT_SVC_SIZE_LOG2	U(4)
+#define RT_SVC_DESC_INIT	U(8)
+#define RT_SVC_DESC_HANDLE	U(12)
+#endif /* __aarch64__ */
 #define SIZEOF_RT_SVC_DESC	(U(1) << RT_SVC_SIZE_LOG2)
 
 

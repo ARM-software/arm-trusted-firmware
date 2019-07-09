@@ -54,10 +54,10 @@ void ls_bl2_plat_arch_setup(void)
 #endif
 			      );
 
-#ifdef AARCH32
-	enable_mmu_svc_mon(0);
-#else
+#ifdef __aarch64__
 	enable_mmu_el1(0);
+#else
+	enable_mmu_svc_mon(0);
 #endif
 }
 
@@ -74,7 +74,7 @@ int ls_bl2_handle_post_image_load(unsigned int image_id)
 	assert(bl_mem_params);
 
 	switch (image_id) {
-#ifdef AARCH64
+#ifdef __aarch64__
 	case BL32_IMAGE_ID:
 		bl_mem_params->ep_info.spsr = ls_get_spsr_for_bl32_entry();
 		break;

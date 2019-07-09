@@ -17,7 +17,7 @@
 #include "ccn_private.h"
 
 static const ccn_desc_t *ccn_plat_desc;
-#if defined(IMAGE_BL31) || (defined(AARCH32) && defined(IMAGE_BL32))
+#if defined(IMAGE_BL31) || (!defined(__aarch64__) && defined(IMAGE_BL32))
 DEFINE_BAKERY_LOCK(ccn_lock);
 #endif
 
@@ -264,7 +264,7 @@ static void ccn_snoop_dvm_do_op(unsigned long long rn_id_map,
 	assert(ccn_plat_desc);
 	assert(ccn_plat_desc->periphbase);
 
-#if defined(IMAGE_BL31) || (defined(AARCH32) && defined(IMAGE_BL32))
+#if defined(IMAGE_BL31) || (!defined(__aarch64__) && defined(IMAGE_BL32))
 	bakery_lock_get(&ccn_lock);
 #endif
 	start_region_id = region_id;
@@ -284,7 +284,7 @@ static void ccn_snoop_dvm_do_op(unsigned long long rn_id_map,
 						   rn_id_map);
 	}
 
-#if defined(IMAGE_BL31) || (defined(AARCH32) && defined(IMAGE_BL32))
+#if defined(IMAGE_BL31) || (!defined(__aarch64__) && defined(IMAGE_BL32))
 	bakery_lock_release(&ccn_lock);
 #endif
 }

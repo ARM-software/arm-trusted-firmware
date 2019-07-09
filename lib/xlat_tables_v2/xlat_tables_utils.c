@@ -97,7 +97,7 @@ static void xlat_desc_print(const xlat_ctx_t *ctx, uint64_t desc)
 
 	printf(((LOWER_ATTRS(NS) & desc) != 0ULL) ? "-NS" : "-S");
 
-#ifdef AARCH64
+#ifdef __aarch64__
 	/* Check Guarded Page bit */
 	if ((desc & GP) != 0ULL) {
 		printf("-GP");

@@ -41,7 +41,7 @@ CASSERT(ENTRY_POINT_INFO_PC_OFFSET ==
 		__builtin_offsetof(entry_point_info_t, pc), \
 		assert_BL31_pc_offset_mismatch);
 
-#ifdef AARCH32
+#ifndef __aarch64__
 CASSERT(ENTRY_POINT_INFO_LR_SVC_OFFSET ==
 		__builtin_offsetof(entry_point_info_t, lr_svc),
 		assert_entrypoint_lr_offset_error);

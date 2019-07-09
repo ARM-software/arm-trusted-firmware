@@ -93,7 +93,7 @@ static const char *get_el_str(unsigned int el)
  * Returns true if the address points to a virtual address that can be read at
  * the current EL, false otherwise.
  */
-#ifdef AARCH64
+#ifdef __aarch64__
 static bool is_address_readable(uintptr_t addr)
 {
 	unsigned int el = get_current_el();
@@ -123,7 +123,7 @@ static bool is_address_readable(uintptr_t addr)
 
 	return true;
 }
-#else /* if AARCH32 */
+#else /* !__aarch64__ */
 static bool is_address_readable(uintptr_t addr)
 {
 	unsigned int el = get_current_el();
@@ -144,7 +144,7 @@ static bool is_address_readable(uintptr_t addr)
 
 	return true;
 }
-#endif
+#endif /* __aarch64__ */
 
 /*
  * Returns true if all the bytes in a given object are in mapped memory and an
@@ -207,7 +207,7 @@ static bool is_valid_frame_record(struct frame_record *fr)
  */
 static struct frame_record *adjust_frame_record(struct frame_record *fr)
 {
-#ifdef AARCH64
+#ifdef __aarch64__
 	return fr;
 #else
 	return (struct frame_record *)((uintptr_t)fr - 4U);

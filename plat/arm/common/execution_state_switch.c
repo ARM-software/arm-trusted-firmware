@@ -40,7 +40,7 @@ int arm_execution_state_switch(unsigned int smc_fid,
 		void *handle)
 {
 	/* Execution state can be switched only if EL3 is AArch64 */
-#ifdef AARCH64
+#ifdef __aarch64__
 	bool caller_64, thumb = false, from_el2;
 	unsigned int el, endianness;
 	u_register_t spsr, pc, scr, sctlr;
@@ -173,7 +173,7 @@ invalid_param:
 	SMC_RET1(handle, STATE_SW_E_PARAM);
 
 exec_denied:
-#endif
+#endif /* __aarch64__ */
 	/* State switch denied */
 	SMC_RET1(handle, STATE_SW_E_DENIED);
 }

@@ -143,7 +143,7 @@ uint32_t ls_get_spsr_for_bl32_entry(void)
 /*******************************************************************************
  * Gets SPSR for BL33 entry
  ******************************************************************************/
-#ifndef AARCH32
+#ifdef __aarch64__
 uint32_t ls_get_spsr_for_bl33_entry(void)
 {
 	unsigned int mode;
@@ -181,7 +181,7 @@ uint32_t ls_get_spsr_for_bl33_entry(void)
 			SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS);
 	return spsr;
 }
-#endif /* AARCH32 */
+#endif /* __aarch64__ */
 
 /*******************************************************************************
  * Returns Layerscape platform specific memory map regions.

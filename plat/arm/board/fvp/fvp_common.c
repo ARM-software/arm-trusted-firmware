@@ -81,7 +81,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	MAP_DEVICE0,
 	MAP_DEVICE1,
 	ARM_MAP_NS_DRAM1,
-#ifdef AARCH64
+#ifdef __aarch64__
 	ARM_MAP_DRAM2,
 #endif
 #ifdef SPD_tspd
@@ -150,7 +150,7 @@ const mmap_region_t plat_arm_secure_partition_mmap[] = {
 #endif
 #ifdef IMAGE_BL32
 const mmap_region_t plat_arm_mmap[] = {
-#ifdef AARCH32
+#ifndef __aarch64__
 	ARM_MAP_SHARED_RAM,
 	ARM_V2M_MAP_MEM_PROTECT,
 #endif
