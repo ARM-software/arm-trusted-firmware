@@ -86,5 +86,8 @@ void enable_nonsecure_access(void)
 
 	mmio_clrbits_32(S10_CCU_NOC_CPU0_RAMSPACE0_0, 0x03);
 	mmio_clrbits_32(S10_CCU_NOC_IOM_RAMSPACE0_0, 0x03);
+
+	mmio_write_32(S10_SYSMGR_CORE(SYSMGR_MMC), SYSMGR_MMC_DRVSEL(3));
+
 }
 
