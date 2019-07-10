@@ -31,7 +31,7 @@ ifdef VERSAL_BL32_MEM_BASE
     $(eval $(call add_define,VERSAL_BL32_MEM_SIZE))
 endif
 
-VERSAL_PLATFORM ?= versal_virt
+VERSAL_PLATFORM ?= silicon
 $(eval $(call add_define_val,VERSAL_PLATFORM,VERSAL_PLATFORM_ID_${VERSAL_PLATFORM}))
 
 VERSAL_CONSOLE	?=	pl011

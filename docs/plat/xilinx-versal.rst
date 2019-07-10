@@ -14,7 +14,7 @@ To build:
 make RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=versal bl31
 ```
 
-To build ATF for different platform (for now its just versal virtual "versal_virt")
+To build ATF for different platform (supported are "silicon"(default) and "versal_virt")
 ```bash
 make RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=versal VERSAL_PLATFORM=versal_virt bl31
 ```
