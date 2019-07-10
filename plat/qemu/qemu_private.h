@@ -28,9 +28,6 @@ void qemu_configure_mmu_el3(unsigned long total_base, unsigned long total_size,
 void plat_qemu_io_setup(void);
 unsigned int plat_qemu_calc_core_pos(u_register_t mpidr);
 
-int dt_add_psci_node(void *fdt);
-int dt_add_psci_cpu_enable_methods(void *fdt);
-
 void qemu_console_init(void);
 
 void plat_qemu_gic_init(void);
