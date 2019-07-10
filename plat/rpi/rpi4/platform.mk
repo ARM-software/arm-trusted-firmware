@@ -16,6 +16,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a72.S		\
 				plat/rpi/rpi4/aarch64/plat_helpers.S	\
+				plat/rpi/rpi4/aarch64/armstub8_header.S	\
 				drivers/arm/gic/common/gic_common.c     \
 				drivers/arm/gic/v2/gicv2_helpers.c      \
 				drivers/arm/gic/v2/gicv2_main.c         \
@@ -41,6 +42,8 @@ else
     TF_CFLAGS_aarch64	+=	-mtune=cortex-a72
 endif
 
+# Add support for platform supplied linker script for BL31 build
+$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
 
 # Enable all errata workarounds for Cortex-A72
 ERRATA_A72_859971		:= 1
