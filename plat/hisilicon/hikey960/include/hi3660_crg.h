@@ -11,7 +11,7 @@
 #define CRG_PEREN0_REG			(CRG_REG_BASE + 0x000)
 #define CRG_PERDIS0_REG			(CRG_REG_BASE + 0x004)
 #define CRG_PERSTAT0_REG		(CRG_REG_BASE + 0x008)
-#define PEREN0_GT_CLK_AOMM		(1 << 31)
+#define PEREN0_GT_CLK_AOMM		(1U << 31)
 
 #define CRG_PEREN1_REG			(CRG_REG_BASE + 0x010)
 #define CRG_PERDIS1_REG			(CRG_REG_BASE + 0x014)
@@ -62,7 +62,7 @@
 #define CRG_PERRSTSTAT5_REG		(CRG_REG_BASE + 0x0A4)
 
 /* bit fields in CRG_PERI */
-#define PERI_PCLK_PCTRL_BIT		(1 << 31)
+#define PERI_PCLK_PCTRL_BIT		(1U << 31)
 #define PERI_TIMER12_BIT		(1 << 25)
 #define PERI_TIMER11_BIT		(1 << 24)
 #define PERI_TIMER10_BIT		(1 << 23)

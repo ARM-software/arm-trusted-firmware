@@ -138,7 +138,7 @@ static void init_freq(void)
 	mmio_write_32((0xf6504000 + 0x06c), data);
 
 	data = mmio_read_32((0xf6504000 + 0x06c));
-	data &= ~(0xffffff << 8);
+	data &= ~(0xffffffu << 8);
 	data |= 0xc7a << 8;
 	mmio_write_32((0xf6504000 + 0x06c), data);
 
