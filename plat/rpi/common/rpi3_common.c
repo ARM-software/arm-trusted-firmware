@@ -176,18 +176,6 @@ void rpi3_setup_page_tables(uintptr_t total_base, size_t total_size,
 }
 
 /*******************************************************************************
- * Return entrypoint of BL33.
- ******************************************************************************/
-uintptr_t plat_get_ns_image_entrypoint(void)
-{
-#ifdef PRELOADED_BL33_BASE
-	return PRELOADED_BL33_BASE;
-#else
-	return PLAT_RPI3_NS_IMAGE_OFFSET;
-#endif
-}
-
-/*******************************************************************************
  * Gets SPSR for BL32 entry
  ******************************************************************************/
 uint32_t rpi3_get_spsr_for_bl32_entry(void)

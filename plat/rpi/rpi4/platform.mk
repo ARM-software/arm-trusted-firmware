@@ -68,8 +68,8 @@ USE_COHERENT_MEM		:= 1
 # Platform build flags
 # --------------------
 
-# Assume that BL33 isn't the Linux kernel by default
-RPI3_DIRECT_LINUX_BOOT		:= 0
+# There is not much else than a Linux kernel to load at the moment.
+RPI3_DIRECT_LINUX_BOOT		:= 1
 
 # BL33 images are in AArch64 by default
 RPI3_BL33_IN_AARCH32		:= 0
@@ -91,15 +91,6 @@ $(eval $(call add_define,RPI3_PRELOADED_DTB_BASE))
 endif
 $(eval $(call add_define,RPI3_RUNTIME_UART))
 $(eval $(call add_define,RPI3_USE_UEFI_MAP))
-
-# Verify build config
-# -------------------
-#
-ifneq (${RPI3_DIRECT_LINUX_BOOT}, 0)
-  ifndef RPI3_PRELOADED_DTB_BASE
-      $(error Error: RPI3_PRELOADED_DTB_BASE needed if RPI3_DIRECT_LINUX_BOOT=1)
-  endif
-endif
 
 ifeq (${ARCH},aarch32)
   $(error Error: AArch32 not supported on rpi4)
