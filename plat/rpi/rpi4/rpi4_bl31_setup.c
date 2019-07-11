@@ -9,12 +9,15 @@
 #include <libfdt.h>
 
 #include <platform_def.h>
+#include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_mmu_helpers.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
+#include <common/fdt_fixup.h>
+#include <libfdt.h>
 
 #include <drivers/arm/gicv2.h>
 
@@ -180,6 +183,18 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 void bl31_plat_arch_setup(void)
 {
 	/*
+	 * Is the dtb_ptr32 pointer valid? If yes, map the DTB region.
+	 * We map the 2MB region the DTB start address lives in, plus
+	 * the next 2MB, to have enough room for expansion.
+	 */
+	if (stub_magic == 0) {
+		unsigned long long dtb_region = dtb_ptr32;
+
+		dtb_region &= ~0x1fffff;	/* Align to 2 MB. */
+		mmap_add_region(dtb_region, dtb_region, 4U << 20,
+				MT_MEMORY | MT_RW | MT_NS);
+	}
+	/*
 	 * Add the first page of memory, which holds the stub magic,
 	 * the kernel and the DT address.
 	 * This is read-only, as the GPU already populated the header,
@@ -198,8 +213,50 @@ void bl31_plat_arch_setup(void)
 	enable_mmu_el3(0);
 }
 
+static uint32_t dtb_size(const void *dtb)
+{
+	const uint32_t *dtb_header = dtb;
+
+	return fdt32_to_cpu(dtb_header[1]);
+}
+
+static void rpi4_prepare_dtb(void)
+{
+	void *dtb = (void *)rpi4_get_dtb_address();
+	int ret;
+
+	/* Return if no device tree is detected */
+	if (fdt_check_header(dtb) != 0)
+		return;
+
+	ret = fdt_open_into(dtb, dtb, 0x100000);
+	if (ret < 0) {
+		ERROR("Invalid Device Tree at %p: error %d\n", dtb, ret);
+		return;
+	}
+
+	if (dt_add_psci_node(dtb)) {
+		ERROR("Failed to add PSCI Device Tree node\n");
+		return;
+	}
+
+	if (dt_add_psci_cpu_enable_methods(dtb)) {
+		ERROR("Failed to add PSCI cpu enable methods in Device Tree\n");
+		return;
+	}
+
+	ret = fdt_pack(dtb);
+	if (ret < 0)
+		ERROR("Failed to pack Device Tree at %p: error %d\n", dtb, ret);
+
+	clean_dcache_range((uintptr_t)dtb, dtb_size(dtb));
+	INFO("Changed device tree to advertise PSCI.\n");
+}
+
 void bl31_platform_setup(void)
 {
+	rpi4_prepare_dtb();
+
 	/* Configure the interrupt controller */
 	gicv2_driver_init(&rpi4_gic_data);
 	gicv2_distif_init();

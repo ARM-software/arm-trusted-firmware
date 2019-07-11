@@ -25,6 +25,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a72.S		\
 				plat/rpi/common/rpi3_pm.c		\
 				plat/common/plat_psci_common.c		\
 				plat/rpi/common/rpi3_topology.c		\
+				common/fdt_fixup.c			\
 				${LIBFDT_SRCS}
 
 # For now we only support BL31, using the kernel loaded by the GPU firmware.
