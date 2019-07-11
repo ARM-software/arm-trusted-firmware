@@ -89,6 +89,12 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/* Imprecise aborts can be masked in NonSecure */
 	write_scr(read_scr() | SCR_AW_BIT);
 
+	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE,
+			BL_CODE_END - BL_CODE_BASE,
+			MT_CODE | MT_SECURE);
+
+	configure_mmu();
+
 	assert(params_from_bl2 != NULL);
 	assert(params_from_bl2->h.type == PARAM_BL_PARAMS);
 	assert(params_from_bl2->h.version >= VERSION_2);
@@ -136,12 +142,6 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
  ******************************************************************************/
 void sp_min_platform_setup(void)
 {
-	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE,
-			BL_CODE_END - BL_CODE_BASE,
-			MT_CODE | MT_SECURE);
-
-	configure_mmu();
-
 	/* Initialize tzc400 after DDR initialization */
 	stm32mp1_security_setup();
 
