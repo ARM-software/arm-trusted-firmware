@@ -121,11 +121,11 @@
 #define GPSR5_RX2_A		BIT(11)
 #define GPSR5_TX2_A		BIT(10)
 #define GPSR5_SCK2		BIT(9)
-#define GPSR5_RTS1_TANS		BIT(8)
+#define GPSR5_RTS1		BIT(8)
 #define GPSR5_CTS1		BIT(7)
 #define GPSR5_TX1_A		BIT(6)
 #define GPSR5_RX1_A		BIT(5)
-#define GPSR5_RTS0_TANS		BIT(4)
+#define GPSR5_RTS0		BIT(4)
 #define GPSR5_CTS0		BIT(3)
 #define GPSR5_TX0		BIT(2)
 #define GPSR5_RX0		BIT(1)
@@ -162,8 +162,6 @@
 #define GPSR6_SSI_SDATA0	BIT(2)
 #define GPSR6_SSI_WS0129	BIT(1)
 #define GPSR6_SSI_SCK0129	BIT(0)
-#define GPSR7_HDMI1_CEC		BIT(3)
-#define GPSR7_HDMI0_CEC		BIT(2)
 #define GPSR7_AVS2		BIT(1)
 #define GPSR7_AVS1		BIT(0)
 
@@ -325,8 +323,8 @@
 #define DRVCTRL11_D15(x)	((uint32_t)(x) << 24U)
 #define DRVCTRL11_AVS1(x)	((uint32_t)(x) << 20U)
 #define DRVCTRL11_AVS2(x)	((uint32_t)(x) << 16U)
-#define DRVCTRL11_HDMI0_CEC(x)	((uint32_t)(x) << 12U)
-#define DRVCTRL11_HDMI1_CEC(x)	((uint32_t)(x) << 8U)
+#define DRVCTRL11_GP7_02(x)	((uint32_t)(x) << 12U)
+#define DRVCTRL11_GP7_03(x)	((uint32_t)(x) << 8U)
 #define DRVCTRL11_DU_DOTCLKIN0(x)	((uint32_t)(x) << 4U)
 #define DRVCTRL11_DU_DOTCLKIN1(x)	((uint32_t)(x) << 0U)
 #define DRVCTRL12_DU_DOTCLKIN2(x)	((uint32_t)(x) << 28U)
@@ -697,7 +695,6 @@ void pfc_init_h3_v2(void)
 		      | IPSR_24_FUNC(0)
 		      | IPSR_20_FUNC(0)
 		      | IPSR_16_FUNC(0)
-		      | IPSR_12_FUNC(0)
 		      | IPSR_8_FUNC(6)
 		      | IPSR_4_FUNC(6)
 		      | IPSR_0_FUNC(6));
@@ -862,11 +859,11 @@ void pfc_init_h3_v2(void)
 		      | GPSR5_RX2_A
 		      | GPSR5_TX2_A
 		      | GPSR5_SCK2
-		      | GPSR5_RTS1_TANS
+		      | GPSR5_RTS1
 		      | GPSR5_CTS1
 		      | GPSR5_TX1_A
 		      | GPSR5_RX1_A
-		      | GPSR5_RTS0_TANS
+		      | GPSR5_RTS0
 		      | GPSR5_SCK0);
 	pfc_reg_write(PFC_GPSR6, GPSR6_USB30_OVC
 		      | GPSR6_USB30_PWEN
@@ -889,9 +886,7 @@ void pfc_init_h3_v2(void)
 		      | GPSR6_SSI_SDATA0
 		      | GPSR6_SSI_WS0129
 		      | GPSR6_SSI_SCK0129);
-	pfc_reg_write(PFC_GPSR7, GPSR7_HDMI1_CEC
-		      | GPSR7_HDMI0_CEC
-		      | GPSR7_AVS2
+	pfc_reg_write(PFC_GPSR7, GPSR7_AVS2
 		      | GPSR7_AVS1);
 
 	/* initialize POC control register */
@@ -1029,8 +1024,8 @@ void pfc_init_h3_v2(void)
 	       | DRVCTRL11_D15(3)
 	       | DRVCTRL11_AVS1(7)
 	       | DRVCTRL11_AVS2(7)
-	       | DRVCTRL11_HDMI0_CEC(7)
-	       | DRVCTRL11_HDMI1_CEC(7)
+	       | DRVCTRL11_GP7_02(7)
+	       | DRVCTRL11_GP7_03(7)
 	       | DRVCTRL11_DU_DOTCLKIN0(3)
 	       | DRVCTRL11_DU_DOTCLKIN1(3));
 	pfc_reg_write(PFC_DRVCTRL11, reg);
@@ -1186,6 +1181,7 @@ void pfc_init_h3_v2(void)
 	mmio_write_32(GPIO_POSNEG4, 0x00000000U);
 	mmio_write_32(GPIO_POSNEG5, 0x00000000U);
 	mmio_write_32(GPIO_POSNEG6, 0x00000000U);
+	mmio_write_32(GPIO_POSNEG7, 0x00000000U);
 
 	/* initialize general IO/interrupt switching */
 	mmio_write_32(GPIO_IOINTSEL0, 0x00000000U);
@@ -1195,6 +1191,7 @@ void pfc_init_h3_v2(void)
 	mmio_write_32(GPIO_IOINTSEL4, 0x00000000U);
 	mmio_write_32(GPIO_IOINTSEL5, 0x00000000U);
 	mmio_write_32(GPIO_IOINTSEL6, 0x00000000U);
+	mmio_write_32(GPIO_IOINTSEL7, 0x00000000U);
 
 	/* initialize general output register */
 	mmio_write_32(GPIO_OUTDT1, 0x00000000U);
@@ -1215,4 +1212,5 @@ void pfc_init_h3_v2(void)
 	mmio_write_32(GPIO_INOUTSEL5, 0x0000020EU);
 #endif
 	mmio_write_32(GPIO_INOUTSEL6, 0x00013880U);
+	mmio_write_32(GPIO_INOUTSEL7, 0x00000000U);
 }

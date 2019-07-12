@@ -122,7 +122,7 @@
 #define GPSR5_SCK2_A		BIT(7)
 #define GPSR5_TX1		BIT(6)
 #define GPSR5_RX1		BIT(5)
-#define GPSR5_RTS0_TANS_A	BIT(4)
+#define GPSR5_RTS0_A		BIT(4)
 #define GPSR5_CTS0_A		BIT(3)
 #define GPSR5_TX0_A		BIT(2)
 #define GPSR5_RX0_A		BIT(1)
@@ -155,7 +155,7 @@
 #define IPSR_4_FUNC(x)		((uint32_t)(x) << 4U)
 #define IPSR_0_FUNC(x)		((uint32_t)(x) << 0U)
 
-#define IOCTRL30_MASK		(0x0007F000U)
+#define POCCTRL0_MASK		(0x0007F000U)
 #define POC_SD3_DS_33V		BIT(29)
 #define POC_SD3_DAT7_33V	BIT(28)
 #define POC_SD3_DAT6_33V	BIT(27)
@@ -180,7 +180,7 @@
 #define POC_SD0_CMD_33V		BIT(1)
 #define POC_SD0_CLK_33V		BIT(0)
 
-#define IOCTRL32_MASK		(0xFFFFFFFEU)
+#define POCCTRL2_MASK		(0xFFFFFFFEU)
 #define POC2_VREF_33V		BIT(0)
 
 #define MOD_SEL0_ADGB_A		((uint32_t)0U << 29U)
@@ -561,7 +561,7 @@ void pfc_init_e3(void)
 		      | GPSR5_RX2_A
 		      | GPSR5_TX2_A
 		      | GPSR5_SCK2_A
-		      | GPSR5_RTS0_TANS_A
+		      | GPSR5_RTS0_A
 		      | GPSR5_CTS0_A);
 	pfc_reg_write(PFC_GPSR6, GPSR6_USB30_PWEN
 		      | GPSR6_SSI_SDATA6
@@ -581,7 +581,7 @@ void pfc_init_e3(void)
 
 	/* initialize POC control */
 	reg = mmio_read_32(PFC_POCCTRL0);
-	reg = ((reg & IOCTRL30_MASK) | POC_SD1_DAT3_33V
+	reg = ((reg & POCCTRL0_MASK) | POC_SD1_DAT3_33V
 	       | POC_SD1_DAT2_33V
 	       | POC_SD1_DAT1_33V
 	       | POC_SD1_DAT0_33V
@@ -594,9 +594,9 @@ void pfc_init_e3(void)
 	       | POC_SD0_CMD_33V
 	       | POC_SD0_CLK_33V);
 	pfc_reg_write(PFC_POCCTRL0, reg);
-	reg = mmio_read_32(PFC_POCCTRL1);
-	reg = (reg & IOCTRL32_MASK);
-	pfc_reg_write(PFC_POCCTRL1, reg);
+	reg = mmio_read_32(PFC_POCCTRL2);
+	reg = (reg & POCCTRL2_MASK);
+	pfc_reg_write(PFC_POCCTRL2, reg);
 
 	/* initialize LSI pin pull-up/down control */
 	pfc_reg_write(PFC_PUD0, 0xFDF80000U);

@@ -610,7 +610,7 @@ void pfc_init_d3(void)
 
 	/* initialize POC control register */
 	pfc_reg_write(PFC_POCCTRL0,   0xC00FFFFFU);
-	pfc_reg_write(PFC_POCCTRL1,   0XFFFFFFFEU);
+	pfc_reg_write(PFC_POCCTRL2,   0XFFFFFFFEU);
 	pfc_reg_write(PFC_TDSELCTRL0, 0x00000000U);
 
 	/* initialize LSI pin pull-up/down control */

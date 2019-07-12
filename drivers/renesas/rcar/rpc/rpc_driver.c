@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,11 +11,15 @@
 #include <lib/mmio.h>
 
 #include "cpg_registers.h"
-#include "rpc_registers.h"
+#include "rcar_def.h"
 #include "rcar_private.h"
+#include "rpc_registers.h"
 
 #define MSTPSR9_RPC_BIT		(0x00020000U)
 #define RPC_CMNCR_MD_BIT	(0x80000000U)
+#define RPC_PHYCNT_CAL		BIT(31)
+#define RPC_PHYCNT_STRTIM_M3V1	(0x6 << 15UL)
+#define RPC_PHYCNT_STRTIM	(0x7 << 15UL)
 
 static void rpc_enable(void)
 {
@@ -25,8 +29,25 @@ static void rpc_enable(void)
 
 static void rpc_setup(void)
 {
+	uint32_t product, cut, reg, phy_strtim;
+
 	if (mmio_read_32(RPC_CMNCR) & RPC_CMNCR_MD_BIT)
 		mmio_clrbits_32(RPC_CMNCR, RPC_CMNCR_MD_BIT);
+
+	product = mmio_read_32(RCAR_PRR) & RCAR_PRODUCT_MASK;
+	cut = mmio_read_32(RCAR_PRR) & RCAR_CUT_MASK;
+
+	if ((product ==  RCAR_PRODUCT_M3) && (cut < RCAR_CUT_VER30))
+		phy_strtim = RPC_PHYCNT_STRTIM_M3V1;
+	else
+		phy_strtim = RPC_PHYCNT_STRTIM;
+
+	reg = mmio_read_32(RPC_PHYCNT);
+	reg &= ~RPC_PHYCNT_STRTIM;
+	reg |= phy_strtim;
+	mmio_write_32(RPC_PHYCNT, reg);
+	reg |= RPC_PHYCNT_CAL;
+	mmio_write_32(RPC_PHYCNT, reg);
 }
 
 void rcar_rpc_init(void)

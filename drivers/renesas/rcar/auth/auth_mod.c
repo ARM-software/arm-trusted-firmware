@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Renesas Electronics Corporation. All rights
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights
  * reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -25,7 +25,7 @@ extern int32_t rcar_get_certificate(const int32_t name, uint32_t *cert_addr);
 #define RCAR_BOOT_KEY_CERT_NEW	(0xE6300F00U)
 #define	RST_BASE		(0xE6160000U)
 #define	RST_MODEMR		(RST_BASE + 0x0060U)
-#define	MFISSOFTMDR		(0xE6260600U)
+#define	MFISOFTMDR		(0xE6260600U)
 #define	MODEMR_MD5_MASK		(0x00000020U)
 #define	MODEMR_MD5_SHIFT	(5U)
 #define	SOFTMD_BOOTMODE_MASK	(0x00000001U)
@@ -139,7 +139,7 @@ static int32_t normal_boot_verify(uint32_t a, uint32_t b, void *c)
 void auth_mod_init(void)
 {
 #if RCAR_SECURE_BOOT
-	uint32_t soft_md = mmio_read_32(MFISSOFTMDR) & SOFTMD_BOOTMODE_MASK;
+	uint32_t soft_md = mmio_read_32(MFISOFTMDR) & SOFTMD_BOOTMODE_MASK;
 	uint32_t md = mmio_read_32(RST_MODEMR) & MODEMR_MD5_MASK;
 	uint32_t lcs, ret;
 

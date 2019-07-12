@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 
-#define RCAR_E3_DDR_VERSION    "rev.0.11"
+#define RCAR_E3_DDR_VERSION    "rev.0.12"
 
 #ifdef ddr_qos_init_setting
    #define REFRESH_RATE  3900               /*  Average periodic refresh interval[ns]. Support 3900,7800 */

@@ -709,7 +709,7 @@ void pfc_init_v3m(void)
 				   | IOCTRL31_POC_VI0_DATA7
 				   | IOCTRL31_POC_VI0_DATA6);
 
-	pfc_reg_write(PFC_POCCTRL1, 0x00000000);
+	pfc_reg_write(PFC_POCCTRL2, 0x00000000);
 
 	pfc_reg_write(PFC_TDSELCTRL0, 0x00000000);
 
