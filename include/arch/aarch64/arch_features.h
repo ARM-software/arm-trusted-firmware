@@ -54,4 +54,10 @@ static inline bool is_armv8_5_bti_present(void)
 		ID_AA64PFR1_EL1_BT_MASK) == BTI_IMPLEMENTED;
 }
 
+static inline unsigned int get_armv8_5_mte_support(void)
+{
+	return ((read_id_aa64pfr1_el1() >> ID_AA64PFR1_EL1_MTE_SHIFT) &
+		ID_AA64PFR1_EL1_MTE_MASK);
+}
+
 #endif /* ARCH_FEATURES_H */
