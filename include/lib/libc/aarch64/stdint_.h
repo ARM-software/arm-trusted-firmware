@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -116,3 +116,6 @@ typedef unsigned long uintmax_t;
 
 typedef long register_t;
 typedef unsigned long u_register_t;
+
+typedef __int128 int128_t;
+typedef unsigned __int128 uint128_t;
