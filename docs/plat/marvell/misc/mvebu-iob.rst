@@ -10,28 +10,40 @@ When a transaction passes through the IOB, its address is compared to each of
 the enabled windows. If there is a hit and it passes the security checks, it is
 advanced to the target port.
 
-Mandatory functions:
-	- marvell_get_iob_memory_map
-		returns the IOB windows configuration and the number of windows
+Mandatory functions
+-------------------
 
-Mandatory structures:
-	iob_memory_map - Array that include the configuration of the windows
-	  every window/entry is a struct which has 3 parameters:
-	  - Base address of the window
-	  - Size of the window
-	  - Target-ID of the window
+- marvell_get_iob_memory_map
+     Returns the IOB windows configuration and the number of windows
 
-Target ID options:
-	- 0x0 = Internal configuration space
-	- 0x1 = MCI0
-	- 0x2 = PEX1_X1
-	- 0x3 = PEX2_X1
-	- 0x4 = PEX0_X4
-	- 0x5 = NAND flash
-	- 0x6 = RUNIT (NOR/SPI/BootRoom)
-	- 0x7 = MCI1
+Mandatory structures
+--------------------
 
-Example:
+- iob_memory_map
+     Array that includes the configuration of the windows. Every window/entry is
+     a struct which has 3 parameters:
+
+       - Base address of the window
+       - Size of the window
+       - Target-ID of the window
+
+Target ID options
+-----------------
+
+- **0x0** = Internal configuration space
+- **0x1** = MCI0
+- **0x2** = PEX1_X1
+- **0x3** = PEX2_X1
+- **0x4** = PEX0_X4
+- **0x5** = NAND flash
+- **0x6** = RUNIT (NOR/SPI/BootRoom)
+- **0x7** = MCI1
+
+Example
+-------
+
+.. code:: c
+
 	struct addr_map_win iob_memory_map[] = {
 		{0x00000000f7000000,	0x0000000001000000,	PEX1_TID}, /* PEX1_X1 window */
 		{0x00000000f8000000,	0x0000000001000000,	PEX2_TID}, /* PEX2_X1 window */
