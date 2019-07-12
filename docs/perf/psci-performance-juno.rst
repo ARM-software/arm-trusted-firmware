@@ -2,9 +2,9 @@ PSCI Performance Measurements on Arm Juno Development Platform
 ==============================================================
 
 This document summarises the findings of performance measurements of key
-operations in the ARM Trusted Firmware (TF) Power State Coordination Interface
-(PSCI) implementation, using the in-built Performance Measurement Framework
-(PMF) and runtime instrumentation timestamps.
+operations in the Trusted Firmware-A Power State Coordination Interface (PSCI)
+implementation, using the in-built Performance Measurement Framework (PMF) and
+runtime instrumentation timestamps.
 
 Method
 ------
@@ -283,6 +283,10 @@ performance.
 
 We suspect the time for lead CPU 4 is shorter than CPU 5 due to subtle cache
 effects, given that these measurements are at the nano-second level.
+
+--------------
+
+*Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _Juno R1 platform: https://www.arm.com/files/pdf/Juno_r1_ARM_Dev_datasheet.pdf
 .. _TF master as of 31/01/2017: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/?id=c38b36d

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,7 +15,7 @@
 static unsigned int max_log_level = LOG_LEVEL;
 
 /*
- * The common log function which is invoked by ARM Trusted Firmware code.
+ * The common log function which is invoked by TF-A code.
  * This function should not be directly invoked and is meant to be
  * only used by the log macros defined in debug.h. The function
  * expects the first character in the format string to be one of the
