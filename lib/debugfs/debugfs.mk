@@ -9,3 +9,5 @@ DEBUGFS_SRCS	:=	$(addprefix lib/debugfs/,	\
 			devc.c				\
 			devroot.c			\
 			devfip.c)
+
+DEBUGFS_SRCS    += lib/debugfs/debugfs_smc.c

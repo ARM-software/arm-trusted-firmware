@@ -122,6 +122,10 @@ const mmap_region_t plat_arm_mmap[] = {
 #ifdef IMAGE_BL31
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
+#if USE_DEBUGFS
+	/* Required by devfip, can be removed if devfip is not used */
+	V2M_MAP_FLASH0_RW,
+#endif /* USE_DEBUGFS */
 	ARM_MAP_EL3_TZC_DRAM,
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,

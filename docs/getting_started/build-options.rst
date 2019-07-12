@@ -544,6 +544,10 @@ Common build options
    (Coherent memory region is included) or 0 (Coherent memory region is
    excluded). Default is 1.
 
+-  ``USE_DEBUGFS``: When set to 1 this option activates an EXPERIMENTAL feature
+   exposing a virtual filesystem interface through BL31 as a SiP SMC function.
+   Default is 0.
+
 -  ``USE_ROMLIB``: This flag determines whether library at ROM will be used.
    This feature creates a library of functions to be placed in ROM and thus
    reduces SRAM usage. Refer to :ref:`Library at ROM` for further details. Default

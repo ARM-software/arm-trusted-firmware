@@ -291,6 +291,10 @@ else # if AArch64
     endif
 endif
 
+ifeq (${USE_DEBUGFS},1)
+    BL31_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+endif
+
 # Add support for platform supplied linker script for BL31 build
 $(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
 
