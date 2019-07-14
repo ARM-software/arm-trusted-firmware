@@ -9,10 +9,22 @@
 
 #include <common/debug.h>
 
+#include "boot_init_dram.h"
 #include "boot_init_dram_regdef.h"
-#include "ddr_init_e3.h"
 
 #include "../dram_sub_func.h"
+
+#define RCAR_E3_DDR_VERSION    "rev.0.12"
+
+#ifdef ddr_qos_init_setting
+#define REFRESH_RATE	3900	/* Average periodic refresh interval[ns]. Support 3900,7800 */
+#else
+#if RCAR_REF_INT == 1
+#define REFRESH_RATE	7800
+#else
+#define REFRESH_RATE	3900
+#endif
+#endif
 
 /*******************************************************************************
  *  variables
