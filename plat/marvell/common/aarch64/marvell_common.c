@@ -13,7 +13,7 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/mmio.h>
-#include <lib/xlat_tables/xlat_tables.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include <plat_marvell.h>
 
