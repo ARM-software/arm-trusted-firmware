@@ -27,11 +27,6 @@
 #endif
 
 /*******************************************************************************
- *  variables
- ******************************************************************************/
-uint32_t ddrBackup;
-
-/*******************************************************************************
  *  Initialize ddr
  ******************************************************************************/
 uint32_t init_ddr(void)
@@ -820,7 +815,7 @@ if (pdqsr_ctl == 1) {
 } /*  init_ddr */
 
 /*  rev.0.04 add function */
-uint32_t recovery_from_backup_mode(void)
+static uint32_t recovery_from_backup_mode(uint32_t ddrBackup)
 {
    /****************************************************************************
     *  recovery_Step0(DBSC Setting 1) / same "init_ddr"
@@ -1648,6 +1643,7 @@ int32_t rcar_dram_init(void)
     uint32_t failcount;
     uint32_t md = 0;
     uint32_t ddr = 0;
+    uint32_t ddrBackup;
 
     md = *((volatile uint32_t*)RST_MODEMR);
     ddr = (md & 0x00080000) >> 19;
@@ -1660,7 +1656,7 @@ int32_t rcar_dram_init(void)
     rcar_dram_get_boot_status(&ddrBackup);
 
     if (ddrBackup == DRAM_BOOT_STATUS_WARM) {
-        dataL = recovery_from_backup_mode(); /*  WARM boot */
+        dataL = recovery_from_backup_mode(ddrBackup); /*  WARM boot */
     } else {
         dataL = init_ddr();                  /*  COLD boot */
     } /*  ddrBackup */
