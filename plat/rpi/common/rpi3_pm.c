@@ -17,6 +17,10 @@
 
 #include <rpi_hw.h>
 
+#ifdef RPI_HAVE_GIC
+#include <drivers/arm/gicv2.h>
+#endif
+
 /* Make composite power state parameter till power level 0 */
 #if PSCI_EXTENDED_STATE_ID
 
@@ -112,6 +116,13 @@ static void rpi3_cpu_standby(plat_local_state_t cpu_state)
 	wfi();
 }
 
+static void rpi3_pwr_domain_off(const psci_power_state_t *target_state)
+{
+#ifdef RPI_HAVE_GIC
+	gicv2_cpuif_disable();
+#endif
+}
+
 /*******************************************************************************
  * Platform handler called when a power domain is about to be turned on. The
  * mpidr determines the CPU to be turned on.
@@ -144,6 +155,11 @@ static void rpi3_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	assert(target_state->pwr_domain_state[MPIDR_AFFLVL0] ==
 					PLAT_LOCAL_STATE_OFF);
+
+#ifdef RPI_HAVE_GIC
+	gicv2_pcpu_distif_init();
+	gicv2_cpuif_enable();
+#endif
 }
 
 /*******************************************************************************
@@ -207,6 +223,7 @@ static void __dead2 rpi3_system_off(void)
  ******************************************************************************/
 static const plat_psci_ops_t plat_rpi3_psci_pm_ops = {
 	.cpu_standby = rpi3_cpu_standby,
+	.pwr_domain_off = rpi3_pwr_domain_off,
 	.pwr_domain_on = rpi3_pwr_domain_on,
 	.pwr_domain_on_finish = rpi3_pwr_domain_on_finish,
 	.system_off = rpi3_system_off,
