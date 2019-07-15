@@ -9,6 +9,9 @@
  * payloads like BL32 and BL33 (and further down the boot chain).
  * This allows to easily add PSCI nodes, when the original DT does not have
  * it or advertises another method.
+ * Also it supports to add reserved memory nodes to describe memory that
+ * is used by the secure world, so that non-secure software avoids using
+ * that.
  */
 
 #include <string.h>
@@ -123,4 +126,31 @@ int dt_add_psci_cpu_enable_methods(void *fdt)
 	} while (ret > 0);
 
 	return ret;
+}
+
+#define HIGH_BITS(x) ((sizeof(x) > 4) ? ((x) >> 32) : (typeof(x))0)
+
+int fdt_add_reserved_memory(void *dtb, const char *node_name,
+			    uintptr_t base, size_t size)
+{
+	int offs = fdt_path_offset(dtb, "/reserved-memory");
+	uint32_t addresses[3];
+
+	if (offs < 0) {			/* create if not existing yet */
+		offs = fdt_add_subnode(dtb, 0, "reserved-memory");
+		if (offs < 0)
+			return offs;
+		fdt_setprop_u32(dtb, offs, "#address-cells", 2);
+		fdt_setprop_u32(dtb, offs, "#size-cells", 1);
+		fdt_setprop(dtb, offs, "ranges", NULL, 0);
+	}
+
+	addresses[0] = cpu_to_fdt32(HIGH_BITS(base));
+	addresses[1] = cpu_to_fdt32(base & 0xffffffff);
+	addresses[2] = cpu_to_fdt32(size & 0xffffffff);
+	offs = fdt_add_subnode(dtb, offs, node_name);
+	fdt_setprop(dtb, offs, "no-map", NULL, 0);
+	fdt_setprop(dtb, offs, "reg", addresses, 12);
+
+	return 0;
 }
