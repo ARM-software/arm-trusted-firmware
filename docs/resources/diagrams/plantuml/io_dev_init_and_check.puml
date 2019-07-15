@@ -1,0 +1,62 @@
+@startuml
+
+participant arm_io_storage order 1
+participant io_storage order 2
+
+ -> arm_io_storage : plat_get_image_source(image_id, &dev_handle, &image_spec)
+
+group init and check device (image_id)
+
+alt image_id = BL2_IMAGE_ID
+note over arm_io_storage
+	get BL2_IMAGE_ID policy:
+	- fip_dev_handle
+	- open_fip()
+end note
+opt policy->check()
+	arm_io_storage -> arm_io_storage : open_fip(spec)
+	activate arm_io_storage
+	arm_io_storage -> io_storage : io_dev_init(fip_dev_handle, FIP_IMAGE_ID)
+	ref over io_storage : dev_init() on fip device
+
+	arm_io_storage -> io_storage : io_open(fip_dev_handle, spec, &local_image_handle)
+	ref over io_storage : io_open() on fip device
+
+	arm_io_storage -> io_storage : io_close(local_image_handle)
+	ref over io_storage : io_close() on fip device
+
+	hnote over arm_io_storage
+		fip_dev_handle ready
+	end note
+end opt
+deactivate arm_io_storage
+
+else image_id = FIP_IMAGE_ID
+activate arm_io_storage
+note over arm_io_storage
+	get FIP_IMAGE_ID policy:
+	- memmap_dev_handle
+	- open_memmap()
+end note
+opt policy->check()
+	arm_io_storage -> arm_io_storage : open_memmap(spec)
+	activate arm_io_storage
+	arm_io_storage -> io_storage : io_dev_init(memmap_dev_handle, NULL)
+	ref over io_storage : dev_init() on memmap device
+
+	arm_io_storage -> io_storage : io_open(memmap_dev_handle, spec, &local_image_handle)
+	ref over io_storage : io_open() on memmap device
+
+	arm_io_storage -> io_storage : io_close(local_image_handle)
+	ref over io_storage : io_close() on memmap device
+
+	hnote over arm_io_storage
+		memmap_dev_handle ready
+	end note
+	deactivate arm_io_storage
+end  opt
+deactivate arm_io_storage
+end alt
+
+end group
+@enduml

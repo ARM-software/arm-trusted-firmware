@@ -1,0 +1,52 @@
+@startuml
+
+participant arm_io_storage order 1
+participant io_storage order 2
+participant io_fip order 3
+participant io_memmap order 4
+
+ -> arm_io_storage : arm_io_setup()
+
+group io dev registration
+
+arm_io_storage -> io_fip : register_io_dev_fip(&fip_dev_con)
+io_fip -> io_storage : io_register_device(&dev_info_pool[])
+note over io_storage
+	devices[dev_count] = (fip_)dev_info_pool
+	dev_count++
+end note
+
+arm_io_storage -> io_memmap : register_io_dev_memmap(&memmap_dev_con)
+io_memmap -> io_storage : io_register_device(&memmap_dev_info)
+note over io_storage
+	devices[dev_count] = memmap_dev_info
+	dev_count++
+end note
+
+arm_io_storage -> io_storage : io_dev_open(fip_dev_con, NULL, fip_dev_handle)
+ io_storage -> io_storage : dev_open(dev_con, dev_spec, handle)
+activate io_storage
+opt dev_open() on fip device
+	io_storage -> io_fip : fip_dev_open(dev_spec, dev_info)
+	note over io_fip
+		dev_info = one of the
+		"fip_dev_info" from
+		dev_info_pool[]
+	end note
+end opt
+deactivate io_storage
+
+
+arm_io_storage -> io_storage : io_dev_open(memmap_dev_con, NULL, memmap_dev_handle)
+io_storage -> io_storage : dev_open(dev_con, dev_spec, handle)
+activate io_storage
+opt dev_open() on memmap device
+	io_storage -> io_memmap : memmap_dev_open(dev_spec, dev_info)
+	note over io_memmap
+		dev_info = memmap_dev_info
+	end note
+end opt
+deactivate io_storage
+
+end group
+@enduml
