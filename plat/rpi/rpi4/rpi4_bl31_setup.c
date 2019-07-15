@@ -255,6 +255,9 @@ static void rpi4_prepare_dtb(void)
 	gic_int_prop[2] = cpu_to_fdt32(0x0f04);		// all cores, level high
 	fdt_setprop(dtb, offs, "interrupts", gic_int_prop, 12);
 
+	offs = fdt_path_offset(dtb, "/chosen");
+	fdt_setprop_string(dtb, offs, "stdout-path", "serial0");
+
 	ret = fdt_pack(dtb);
 	if (ret < 0)
 		ERROR("Failed to pack Device Tree at %p: error %d\n", dtb, ret);
