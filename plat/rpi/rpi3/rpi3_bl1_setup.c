@@ -10,6 +10,7 @@
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_mmu_helpers.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
@@ -28,6 +29,11 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
  ******************************************************************************/
 void bl1_early_platform_setup(void)
 {
+	/* use the 19.2 MHz clock for the architected timer */
+	mmio_write_32(RPI3_INTC_BASE_ADDRESS + RPI3_INTC_CONTROL_OFFSET, 0);
+	mmio_write_32(RPI3_INTC_BASE_ADDRESS + RPI3_INTC_PRESCALER_OFFSET,
+		      0x80000000);
+
 	/* Initialize the console to provide early debug support */
 	rpi3_console_init();
 
