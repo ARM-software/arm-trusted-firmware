@@ -59,68 +59,10 @@
 #define CACHE_WRITEBACK_GRANULE		(U(1) << CACHE_WRITEBACK_SHIFT)
 
 /*
- * Partition memory into secure ROM, non-secure DRAM, secure "SRAM", and
- * secure DRAM. Note that this is all actually DRAM with different names,
- * there is no Secure RAM in the Raspberry Pi 4.
- */
-#if RPI3_USE_UEFI_MAP
-#define SEC_ROM_BASE			ULL(0x00000000)
-#define SEC_ROM_SIZE			ULL(0x00010000)
-
-/* FIP placed after ROM to append it to BL1 with very little padding. */
-#define PLAT_RPI3_FIP_BASE		ULL(0x00020000)
-#define PLAT_RPI3_FIP_MAX_SIZE		ULL(0x00010000)
-
-/* Reserve 2M of secure SRAM and DRAM, starting at 2M */
-#define SEC_SRAM_BASE			ULL(0x00200000)
-#define SEC_SRAM_SIZE			ULL(0x00100000)
-
-#define SEC_DRAM0_BASE			ULL(0x00300000)
-#define SEC_DRAM0_SIZE			ULL(0x00100000)
-
-/* Windows on ARM requires some RAM at 4M */
-#define NS_DRAM0_BASE			ULL(0x00400000)
-#define NS_DRAM0_SIZE			ULL(0x00C00000)
-#else
-#define SEC_ROM_BASE			ULL(0x00000000)
-#define SEC_ROM_SIZE			ULL(0x00020000)
-
-/* FIP placed after ROM to append it to BL1 with very little padding. */
-#define PLAT_RPI3_FIP_BASE		ULL(0x00020000)
-#define PLAT_RPI3_FIP_MAX_SIZE		ULL(0x001E0000)
-
-/* We have 16M of memory reserved starting at 256M */
-#define SEC_SRAM_BASE			ULL(0x10000000)
-#define SEC_SRAM_SIZE			ULL(0x00100000)
-
-#define SEC_DRAM0_BASE			ULL(0x10100000)
-#define SEC_DRAM0_SIZE			ULL(0x00F00000)
-/* End of reserved memory */
-
-#define NS_DRAM0_BASE			ULL(0x11000000)
-#define NS_DRAM0_SIZE			ULL(0x01000000)
-#endif /* RPI3_USE_UEFI_MAP */
-
-/*
- * BL33 entrypoint.
- */
-#define PLAT_RPI3_NS_IMAGE_OFFSET	NS_DRAM0_BASE
-#define PLAT_RPI3_NS_IMAGE_MAX_SIZE	NS_DRAM0_SIZE
-
-/*
  * I/O registers.
  */
 #define DEVICE0_BASE			RPI_IO_BASE
 #define DEVICE0_SIZE			RPI_IO_SIZE
-
-/*
- * TF-A lives in SRAM, partition it here
- */
-#define SHARED_RAM_BASE			SEC_SRAM_BASE
-#define SHARED_RAM_SIZE			ULL(0x00001000)
-
-#define BL_RAM_BASE			(SHARED_RAM_BASE + SHARED_RAM_SIZE)
-#define BL_RAM_SIZE			(SEC_SRAM_SIZE - SHARED_RAM_SIZE)
 
 /*
  * Mailbox to control the secondary cores. All secondary cores are held in a
@@ -135,10 +77,8 @@
  *
  *     sev();
  */
-#define PLAT_RPI3_TRUSTED_MAILBOX_BASE	SHARED_RAM_BASE
-
 /* The secure entry point to be used on warm reset by all CPUs. */
-#define PLAT_RPI3_TM_ENTRYPOINT		PLAT_RPI3_TRUSTED_MAILBOX_BASE
+#define PLAT_RPI3_TM_ENTRYPOINT		0x100
 #define PLAT_RPI3_TM_ENTRYPOINT_SIZE	ULL(8)
 
 /* Hold entries for each CPU. */
@@ -160,11 +100,11 @@
  * Put BL31 at the top of the Trusted SRAM. BL31_BASE is calculated using the
  * current BL31 debug size plus a little space for growth.
  */
-#define PLAT_MAX_BL31_SIZE		ULL(0x20000)
+#define PLAT_MAX_BL31_SIZE		ULL(0x80000)
 
 #define BL31_BASE			ULL(0x1000)
-#define BL31_LIMIT			ULL(0x100000)
-#define BL31_PROGBITS_LIMIT		ULL(0x100000)
+#define BL31_LIMIT			ULL(0x80000)
+#define BL31_PROGBITS_LIMIT		ULL(0x80000)
 
 #define SEC_SRAM_ID			0
 #define SEC_DRAM_ID			1

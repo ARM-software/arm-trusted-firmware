@@ -197,10 +197,9 @@ void bl31_plat_arch_setup(void)
 	/*
 	 * Add the first page of memory, which holds the stub magic,
 	 * the kernel and the DT address.
-	 * This is read-only, as the GPU already populated the header,
-	 * we just need to read it.
+	 * This also holds the secondary CPU's entrypoints and mailboxes.
 	 */
-	mmap_add_region(0, 0, 4096, MT_MEMORY | MT_RO | MT_SECURE);
+	mmap_add_region(0, 0, 4096, MT_NON_CACHEABLE | MT_RW | MT_SECURE);
 
 	rpi3_setup_page_tables(BL31_BASE, BL31_END - BL31_BASE,
 			       BL_CODE_BASE, BL_CODE_END,
