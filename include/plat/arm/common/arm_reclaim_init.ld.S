@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,10 +27,9 @@ SECTIONS
             "BL31 init has exceeded progbits limit.")
 #endif
 
-#if RECLAIM_INIT_CODE
     ASSERT(__INIT_CODE_END__ <= __STACKS_END__,
         "Init code ends past the end of the stacks")
-#endif
+
 }
 
 #endif /* ARM_RECLAIM_INIT_LD_S */
