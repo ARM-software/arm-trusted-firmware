@@ -34,7 +34,7 @@
 #define CAD_QSPI_CFG_CS(x)			(((x) << 11))
 #define CAD_QSPI_CFG_ENABLE			(1 << 0)
 #define CAD_QSPI_CFG_ENDMA_CLR_MSK		0xffff7fff
-#define CAD_QSPI_CFG_IDLE			(1 << 31)
+#define CAD_QSPI_CFG_IDLE			(1U << 31)
 #define CAD_QSPI_CFG_SELCLKPHASE_CLR_MSK	0xfffffffb
 #define CAD_QSPI_CFG_SELCLKPOL_CLR_MSK		0xfffffffd
 

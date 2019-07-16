@@ -13,7 +13,7 @@
 #define HKADC_DSP_START_CLR_REG			(HKADC_SSI_REG_BASE + 0x01C)
 #define HKADC_WR01_DATA_REG			(HKADC_SSI_REG_BASE + 0x020)
 
-#define WR1_WRITE_MODE				(1 << 31)
+#define WR1_WRITE_MODE				(1U << 31)
 #define WR1_READ_MODE				(0 << 31)
 #define WR1_ADDR(x)				(((x) & 0x7F) << 24)
 #define WR1_DATA(x)				(((x) & 0xFF) << 16)
@@ -47,7 +47,7 @@
 
 #define HKADC_WR01_VALUE			((HKADC_START_ADDR << 24) | \
 						 (0x1 << 16))
-#define HKADC_WR23_VALUE			((0x1 << 31) |		\
+#define HKADC_WR23_VALUE			((0x1u << 31) |		\
 						 (HKADC_DATA0_ADDR << 24) | \
 						 (1 << 15) |		\
 						 (HKADC_DATA1_ADDR << 8))

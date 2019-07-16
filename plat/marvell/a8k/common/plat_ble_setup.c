@@ -77,13 +77,13 @@
 /* VDD limit is 0.82V for all A3900 devices
  * AVS offsets are not the same as in A70x0
  */
-#define AVS_A3900_CLK_VALUE		((0x80 << 24) | \
+#define AVS_A3900_CLK_VALUE		((0x80u << 24) | \
 					 (0x2c2 << 13) | \
 					 (0x2c2 << 3) | \
 					 (0x1 << AVS_SOFT_RESET_OFFSET) | \
 					 (0x1 << AVS_ENABLE_OFFSET))
 /* VDD is 0.88V for 2GHz clock */
-#define AVS_A3900_HIGH_CLK_VALUE	((0x80 << 24) | \
+#define AVS_A3900_HIGH_CLK_VALUE	((0x80u << 24) | \
 					 (0x2f5 << 13) | \
 					 (0x2f5 << 3) | \
 					 (0x1 << AVS_SOFT_RESET_OFFSET) | \

@@ -93,7 +93,7 @@ enum CPU_ID {
 #define PWRC_CPUN_CR_ISO_ENABLE_MASK		\
 			(0x1 << PWRC_CPUN_CR_ISO_ENABLE_OFFSET)
 #define PWRC_CPUN_CR_LDO_BYPASS_RDY_MASK	\
-			(0x1 << PWRC_CPUN_CR_LDO_BYPASS_RDY_OFFSET)
+			(0x1U << PWRC_CPUN_CR_LDO_BYPASS_RDY_OFFSET)
 
 #define CCU_B_PRCRN_REG(cpu_id)			\
 			(MVEBU_REGS_BASE + 0x1A50 + \
@@ -253,7 +253,7 @@ static int plat_marvell_cpu_powerup(u_register_t mpidr)
 
 	/* 3. Assert power ready */
 	reg_val = mmio_read_32(PWRC_CPUN_CR_REG(cpu_id));
-	reg_val |= 0x1 << PWRC_CPUN_CR_LDO_BYPASS_RDY_OFFSET;
+	reg_val |= 0x1U << PWRC_CPUN_CR_LDO_BYPASS_RDY_OFFSET;
 	mmio_write_32(PWRC_CPUN_CR_REG(cpu_id), reg_val);
 
 	/* 4. Read & Validate power ready
@@ -262,7 +262,7 @@ static int plat_marvell_cpu_powerup(u_register_t mpidr)
 	do {
 		reg_val = mmio_read_32(PWRC_CPUN_CR_REG(cpu_id));
 		exit_loop--;
-	} while (!(reg_val & (0x1 << PWRC_CPUN_CR_LDO_BYPASS_RDY_OFFSET)) &&
+	} while (!(reg_val & (0x1U << PWRC_CPUN_CR_LDO_BYPASS_RDY_OFFSET)) &&
 		 exit_loop > 0);
 
 	if (exit_loop <= 0)

@@ -122,8 +122,8 @@ CASSERT(PLAT_PHY_ADDR_SPACE_SIZE == (1ULL << 32), invalid_paddr_space_size);
 #define DACR_DOMAIN_PERM_CLIENT		0x1
 #define DACR_DOMAIN_PERM_MANAGER	0x3
 
-#define NUM_1MB_IN_4GB		(1 << 12)
-#define NUM_4K_IN_1MB		(1 << 8)
+#define NUM_1MB_IN_4GB		(1U << 12)
+#define NUM_4K_IN_1MB		(1U << 8)
 
 #define ONE_MB_SHIFT		20
 

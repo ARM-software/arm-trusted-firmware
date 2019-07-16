@@ -50,7 +50,7 @@ enum plls_id {
 #define PMUSRAM_S		1
 #define STIMER_S_SHIFT		6
 #define STIMER_S		1
-#define SGRF_SOC_CON7_BITS	((0xffff << 16) | \
+#define SGRF_SOC_CON7_BITS	((0xffffu << 16) | \
 				 (PMUSRAM_S << PMUSRAM_S_SHIFT) | \
 				 (STIMER_S << STIMER_S_SHIFT))
 

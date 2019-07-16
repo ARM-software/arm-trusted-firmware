@@ -104,8 +104,8 @@ struct asd_desc {
 #define ASD_DESC_ERR_SET(d, v)					\
 	(ASD_DESC_SET((d)->cfg, v, ASD_DESC_ERR_MASK, ASD_DESC_ERR_OFF))
 
-#define ASD_DESC_OWNER_OFF 31
-#define ASD_DESC_OWNER_MASK 0x1
+#define ASD_DESC_OWNER_OFF 31u
+#define ASD_DESC_OWNER_MASK 0x1u
 #define ASD_DESC_OWNER(d)					\
 	(ASD_DESC_GET((d)->cfg, ASD_DESC_OWNER_MASK, ASD_DESC_OWNER_OFF))
 #define ASD_DESC_OWNER_SET(d, v)				\
@@ -126,7 +126,7 @@ static void asd_compute_sha(struct asd_ctx *ctx, void *data, size_t len,
 	assert((uintptr_t)&desc == (uintptr_t)&desc);
 
 	ASD_DESC_LEN_SET(&desc, len);
-	ASD_DESC_OWNER_SET(&desc, 1);
+	ASD_DESC_OWNER_SET(&desc, 1u);
 	ASD_DESC_ENCONLY_SET(&desc, 1);
 	ASD_DESC_EOD_SET(&desc, 1);
 	if (ctx->started == 0) {

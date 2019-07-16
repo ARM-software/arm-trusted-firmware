@@ -66,12 +66,12 @@ static void ls1043_reset_core(int core_pos)
 	dsb();
 	/* enable core soft reset */
 	mmio_write_32(LS_SCFG_BASE + LS_SCFG_CORESRENCR_OFFSET,
-		      htobe32(1 << 31));
+		      htobe32(1U << 31));
 	dsb();
 	isb();
 	/* reset core */
 	mmio_write_32(LS_SCFG_BASE + LS_SCFG_CORE0_SFT_RST_OFFSET +
-			core_pos * 4, htobe32(1 << 31));
+			core_pos * 4, htobe32(1U << 31));
 	mdelay(10);
 }
 

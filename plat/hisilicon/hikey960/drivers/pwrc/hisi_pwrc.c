@@ -23,7 +23,7 @@
 #define RES2_LOCK_BASE		(SOC_PCTRL_RESOURCE2_LOCK_ADDR(PCTRL_BASE))
 
 #define LOCK_BIT			(0x1 << 28)
-#define LOCK_ID_MASK			(0x7 << 29)
+#define LOCK_ID_MASK			(0x7u << 29)
 #define CPUIDLE_LOCK_ID(core)		(0x6 - (core))
 #define LOCK_UNLOCK_OFFSET		0x4
 #define LOCK_STAT_OFFSET		0x8

@@ -18,10 +18,10 @@
 #define MSTP318			(1 << 18)
 #define MSTP319			(1 << 19)
 #define PMSR			0x5c
-#define PMSR_L1FAEG		(1 << 31)
+#define PMSR_L1FAEG		(1U << 31)
 #define PMSR_PMEL1RX		(1 << 23)
 #define PMCTLR			0x60
-#define PMSR_L1IATN		(1 << 31)
+#define PMSR_L1IATN		(1U << 31)
 
 static int rcar_pcie_fixup(unsigned int controller)
 {

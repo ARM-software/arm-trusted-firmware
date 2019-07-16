@@ -68,7 +68,7 @@ static void cpld_write(uint8_t addr, uint32_t data)
 
 	for (i = 0; i < 32; i++) {
 		/* MSB first */
-		gpio_set_value(GPIO_OUTDT6, MOSI, data & (1 << 31));
+		gpio_set_value(GPIO_OUTDT6, MOSI, data & (1U << 31));
 		gpio_set_value(GPIO_OUTDT6, SCLK, 1);
 		data <<= 1;
 		gpio_set_value(GPIO_OUTDT6, SCLK, 0);

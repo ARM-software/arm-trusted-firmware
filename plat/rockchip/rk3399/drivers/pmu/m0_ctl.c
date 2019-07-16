@@ -45,10 +45,10 @@ void m0_configure_execute_addr(uintptr_t addr)
 	/* set the execute address for M0 */
 	mmio_write_32(SGRF_BASE + SGRF_PMU_CON(3),
 		      BITS_WITH_WMASK((addr >> 12) & 0xffff,
-				      0xffff, 0));
+				      0xffffu, 0));
 	mmio_write_32(SGRF_BASE + SGRF_PMU_CON(7),
 		      BITS_WITH_WMASK((addr >> 28) & 0xf,
-				      0xf, 0));
+				      0xfu, 0));
 }
 
 void m0_start(void)

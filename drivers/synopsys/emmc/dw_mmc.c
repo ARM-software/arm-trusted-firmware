@@ -14,6 +14,7 @@
 #include <drivers/delay_timer.h>
 #include <drivers/mmc.h>
 #include <drivers/synopsys/dw_mmc.h>
+#include <lib/utils_def.h>
 #include <lib/mmio.h>
 
 #define DWMMC_CTRL			(0x00)
@@ -55,7 +56,7 @@
 
 #define DWMMC_CMDARG			(0x28)
 #define DWMMC_CMD			(0x2c)
-#define CMD_START			(1 << 31)
+#define CMD_START			(U(1) << 31)
 #define CMD_USE_HOLD_REG		(1 << 29)	/* 0 if SDR50/100 */
 #define CMD_UPDATE_CLK_ONLY		(1 << 21)
 #define CMD_SEND_INIT			(1 << 15)
@@ -100,7 +101,7 @@
 #define IDMAC_DES0_CH			(1 << 4)
 #define IDMAC_DES0_ER			(1 << 5)
 #define IDMAC_DES0_CES			(1 << 30)
-#define IDMAC_DES0_OWN			(1 << 31)
+#define IDMAC_DES0_OWN			(U(1) << 31)
 #define IDMAC_DES1_BS1(x)		((x) & 0x1fff)
 #define IDMAC_DES2_BS2(x)		(((x) & 0x1fff) << 13)
 
