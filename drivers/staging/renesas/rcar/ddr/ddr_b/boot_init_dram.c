@@ -4221,10 +4221,10 @@ int32_t rcar_dram_init(void)
 	Thermal sensor setting
 	***********************************************************************/
 	dataL = mmio_read_32(CPG_MSTPSR5);
-	if (dataL & BIT22) {	/*  case THS/TSC Standby */
-		dataL &= ~(BIT22);
+	if (dataL & BIT(22)) {	/*  case THS/TSC Standby */
+		dataL &= ~(BIT(22));
 		cpg_write_32(CPG_SMSTPCR5, dataL);
-		while ((BIT22) & mmio_read_32(CPG_MSTPSR5));  /*  wait bit=0 */
+		while ((BIT(22)) & mmio_read_32(CPG_MSTPSR5));  /*  wait bit=0 */
 	}
 
 	/* THCTR Bit6: PONM=0 , Bit0: THSST=0   */

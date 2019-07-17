@@ -1623,12 +1623,7 @@ static const uint32_t TermcodeBySample[20][3] = {
 #define PFC_PUD6	0xE6060458U
 #define GPIO_INDT5	0xE605500CU
 #define GPIO_INDT6	0xE605540CU
-
-#define BIT25 		BIT(25)
-#define BIT22 		BIT(22)
-#define BIT15 		BIT(15)
-#define BIT0  		BIT(0)
-#define GPIO_GPSR6 	(0xE6060118U)
+#define GPIO_GPSR6 	0xE6060118U
 
 #if (RCAR_GEN3_ULCB == 0)
 static void pfc_write_and_poll(uint32_t a, uint32_t v)
@@ -1659,17 +1654,17 @@ static uint32_t opencheck_SSI_WS6(void)
 	pud5_bak = mmio_read_32(PFC_PUD5);
 	dsb_sev();
 
-	dataL = (gpsr6_bak & ~BIT15);
+	dataL = (gpsr6_bak & ~BIT(15));
 	pfc_write_and_poll(GPIO_GPSR6, dataL);
 
 	/* Pull-Up/Down Enable (PUEN5[22]=1) */
 	dataL = puen5_bak;
-	dataL |= (BIT22);
+	dataL |= (BIT(22));
 	pfc_write_and_poll(PFC_PUEN5, dataL);
 
 	/* Pull-Down-Enable (PUD5[22]=0, PUEN5[22]=1) */
 	dataL = pud5_bak;
-	dataL &= ~(BIT22);
+	dataL &= ~(BIT(22));
 	pfc_write_and_poll(PFC_PUD5, dataL);
 	/* GPSR6[15]=SSI_WS6 */
 	rcar_micro_delay(10);
@@ -1678,7 +1673,7 @@ static uint32_t opencheck_SSI_WS6(void)
 
 	/* Pull-Up-Enable (PUD5[22]=1, PUEN5[22]=1) */
 	dataL = pud5_bak;
-	dataL |= (BIT22);
+	dataL |= (BIT(22));
 	pfc_write_and_poll(PFC_PUD5, dataL);
 
 	/* GPSR6[15]=SSI_WS6 */

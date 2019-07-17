@@ -1,10 +1,11 @@
 /*
- * Copyright (c) 2015-2016, Renesas Electronics Corporation
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <lib/utils_def.h>
 #include <stdint.h>
 #include "boot_init_dram.h"
 #include "boot_init_dram_regdef_v3m.h"
@@ -98,7 +99,7 @@ static uint32_t init_ddr_v3m_1600(void)
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000001);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X80010000);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000006);
-   while ( (BIT0 & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
+   while ( (BIT(0) & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
 
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000008);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X000B8000);
@@ -117,19 +118,19 @@ static uint32_t init_ddr_v3m_1600(void)
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000001);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X00010073);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000006);
-   while ( (BIT0 & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
+   while ( (BIT(0) & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
 
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000090);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X0C058900);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000090);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X04058900);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000006);
-   while ( (BIT0 & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
+   while ( (BIT(0) & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
 
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000003);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X0780C700);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000007);
-   while ( (BIT30& ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
+   while ( (BIT(30)& ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
 
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000004);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X08C0C170);
@@ -156,7 +157,7 @@ static uint32_t init_ddr_v3m_1600(void)
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X0000001A);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X13C03C10);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000006);
-   while ( (BIT0 & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
+   while ( (BIT(0) & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
 
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X000000A7);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X0D0D0D0D);
@@ -186,12 +187,12 @@ static uint32_t init_ddr_v3m_1600(void)
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X00010181);
    WriteReg_32(DBSC_V3M_DBCMD,0x08000001);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000006);
-   while ( (BIT0 & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
+   while ( (BIT(0) & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
 
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000001);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X00010601);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000006);
-   while ( (BIT0 & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
+   while ( (BIT(0) & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
 
    for (uint32_t i = 0; i<4; i++)
    {
@@ -238,14 +239,14 @@ static uint32_t init_ddr_v3m_1600(void)
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000001);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X00010801);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000006);
-   while ( (BIT0 & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
+   while ( (BIT(0) & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
 
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000005);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0XC1AA00B8);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000001);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X0001F001);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000006);
-   while ( (BIT0 & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
+   while ( (BIT(0) & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
 
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X000000A0);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X7C000285);
@@ -260,7 +261,7 @@ static uint32_t init_ddr_v3m_1600(void)
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000001);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X00010401);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000006);
-   while ( (BIT0 & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
+   while ( (BIT(0) & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
 
    for (uint32_t i = 0; i < 4; i++)
    {
@@ -309,12 +310,12 @@ static uint32_t init_ddr_v3m_1600(void)
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000001);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X00015001);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000006);
-   while ( (BIT0 & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
+   while ( (BIT(0) & ReadReg_32(DBSC_V3M_DBPDRGD0)) == 0 );
 
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000003);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X0380C700);
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000007);
-   while ( (BIT30& ReadReg_32(DBSC_V3M_DBPDRGD0)) != 0 );
+   while ( (BIT(30)& ReadReg_32(DBSC_V3M_DBPDRGD0)) != 0 );
    WriteReg_32(DBSC_V3M_DBPDRGA0,0X00000021);
    WriteReg_32(DBSC_V3M_DBPDRGD0,0X0024643E);
 

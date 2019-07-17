@@ -75,7 +75,7 @@ uint32_t init_ddr(void)
    }
 
    /*  Judge the DDR bit rate (ddr_md : 0 = 1584Mbps, 1 = 1856Mbps) */
-   ddr_md = (ReadReg_32(RST_MODEMR) >> 19) & BIT0;
+   ddr_md = (ReadReg_32(RST_MODEMR) >> 19) & BIT(0);
 
    /*  1584Mbps setting */
    if (ddr_md == 0) {
@@ -86,7 +86,7 @@ uint32_t init_ddr(void)
       WriteReg_32(CPG_SRCR4, 0x20000000);
 
       WriteReg_32(0xE61500DC, 0xe2200000);  /*  Change to 1584Mbps */
-      while ((BIT11 & ReadReg_32(CPG_PLLECR)) == 0);
+      while ((BIT(11) & ReadReg_32(CPG_PLLECR)) == 0);
 
       WriteReg_32(CPG_SRSTCLR4, 0x20000000);
 
@@ -203,7 +203,7 @@ uint32_t init_ddr(void)
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x80010000);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    /*  rev.0.03 add Comment */
    /****************************************************************************
@@ -240,7 +240,7 @@ uint32_t init_ddr(void)
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00010073);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    /*  rev.0.03 add Comment */
    /****************************************************************************
@@ -265,7 +265,7 @@ uint32_t init_ddr(void)
    } /*  ddr_md */
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000003);
    if (byp_ctl == 1) {
@@ -274,7 +274,7 @@ uint32_t init_ddr(void)
       WriteReg_32(DBSC_E3_DBPDRGD0, 0x0780C700);
    }
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000007);
-   while ((BIT30 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(30) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000004);
 
@@ -358,7 +358,7 @@ uint32_t init_ddr(void)
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x0000001A);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x33C03C10);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x000000A7);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x0D0D0D0D);
@@ -389,7 +389,7 @@ uint32_t init_ddr(void)
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00010181);
    WriteReg_32(DBSC_E3_DBCMD, 0x08840001);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    /*  rev.0.03 add Comment */
    /****************************************************************************
@@ -398,7 +398,7 @@ uint32_t init_ddr(void)
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00010601);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    for (i = 0; i < 4; i++) {
       WriteReg_32(DBSC_E3_DBPDRGA0, 0x000000B1 + i * 0x20);
@@ -462,7 +462,7 @@ uint32_t init_ddr(void)
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00010801);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    /****************************************************************************
     *  Initial_Step5(Read Data Bit Deskew)
@@ -474,7 +474,7 @@ uint32_t init_ddr(void)
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00011001);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
 if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x000000A0);
@@ -505,7 +505,7 @@ if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00012001);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    /****************************************************************************
     *  Initial_Step7(Read Data Eye Training)
@@ -536,7 +536,7 @@ if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00014001);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
 if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x000000A0);
@@ -567,7 +567,7 @@ if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00018001);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    /*  rev.0.03 add Comment */
    /****************************************************************************
@@ -586,7 +586,7 @@ if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00010401);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    for (i = 0; i < 4; i++) {
       WriteReg_32(DBSC_E3_DBPDRGA0, 0x000000B1 + i * 0x20);
@@ -648,7 +648,7 @@ if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00015001);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
 /* rev.0.08 */
    if (lcdl_ctl == 1) {
@@ -732,7 +732,7 @@ if (pdqsr_ctl == 1) {
       WriteReg_32(DBSC_E3_DBPDRGD0, 0x0380C700);
    }
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000007);
-   while ((BIT30 & ReadReg_32(DBSC_E3_DBPDRGD0)) != 0);
+   while ((BIT(30) & ReadReg_32(DBSC_E3_DBPDRGD0)) != 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000021);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x0024643E);
@@ -865,7 +865,7 @@ uint32_t recovery_from_backup_mode(void)
    }
 
    /*  Judge the DDR bit rate (ddr_md : 0 = 1584Mbps, 1 = 1856Mbps) */
-   ddr_md = (ReadReg_32(RST_MODEMR) >> 19) & BIT0;
+   ddr_md = (ReadReg_32(RST_MODEMR) >> 19) & BIT(0);
 
    /*  1584Mbps setting */
    if (ddr_md == 0) {
@@ -876,7 +876,7 @@ uint32_t recovery_from_backup_mode(void)
    WriteReg_32(CPG_SRCR4, 0x20000000);
 
    WriteReg_32(0xE61500DC, 0xe2200000);  /*  Change to 1584Mbps */
-   while ((BIT11 & ReadReg_32(CPG_PLLECR)) == 0);
+   while ((BIT(11) & ReadReg_32(CPG_PLLECR)) == 0);
 
    WriteReg_32(CPG_SRSTCLR4, 0x20000000);
 
@@ -1001,7 +1001,7 @@ uint32_t recovery_from_backup_mode(void)
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x0000001A); /*  DDR_ACIOCR0 */
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x33C03C10);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000007);
-   while ((BIT30 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(30) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000004);
 
@@ -1089,13 +1089,13 @@ uint32_t recovery_from_backup_mode(void)
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000021); /*  DDR_DSGCR */
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x0024641E);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006); /*  DDR_PGSR0 */
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001); /*  DDR_PIR */
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x40010000);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006); /*  DDR_PGSR0 */
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000092); /*  DDR_ZQ0DR */
    WriteReg_32(DBSC_E3_DBPDRGD0, 0xC2C59AB5);
@@ -1125,7 +1125,7 @@ uint32_t recovery_from_backup_mode(void)
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00050001);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006); /*  DDR_PGSR0 */
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    /*  ddr backupmode end */
    if (ddrBackup) {
@@ -1153,19 +1153,19 @@ uint32_t recovery_from_backup_mode(void)
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00000003);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006); /*  DDR_PGSR0 */
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001); /*  DDR_PIR */
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x80010000);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006); /*  DDR_PGSR0 */
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001); /*  DDR_PIR */
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00010073);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006); /*  DDR_PGSR0 */
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000090); /*  DDR_ZQCR */
 
@@ -1193,7 +1193,7 @@ uint32_t recovery_from_backup_mode(void)
     *  recovery_Step2(PHY setting 2)
     ***************************************************************************/
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x000000A7);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x0D0D0D0D);
@@ -1233,21 +1233,21 @@ uint32_t recovery_from_backup_mode(void)
    WriteReg_32(DBSC_E3_DBRFCNF2, 0x00010000);
    WriteReg_32(DBSC_E3_DBRFEN, 0x00000001);
    WriteReg_32(DBSC_E3_DBCMD, 0x0A840001);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBWAIT)) != 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBWAIT)) != 0);
 
    WriteReg_32(DBSC_E3_DBCMD, 0x00000000);
 
    WriteReg_32(DBSC_E3_DBCMD, 0x04840010);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBWAIT)) != 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBWAIT)) != 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006); /*  DDR_PGSR0 */
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001); /*  DDR_PIR */
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00010701);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006); /*  DDR_PGSR0 */
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    for (i = 0; i < 4; i++)
    {
@@ -1309,7 +1309,7 @@ uint32_t recovery_from_backup_mode(void)
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00010801);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000005);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0xC1AA00D8);
@@ -1318,7 +1318,7 @@ uint32_t recovery_from_backup_mode(void)
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00011001);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
 if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x000000A0);
@@ -1346,7 +1346,7 @@ if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00012001);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
 if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x000000A0);
@@ -1374,7 +1374,7 @@ if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00014001);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
 if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x000000A0);
@@ -1402,7 +1402,7 @@ if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00018001);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x000000A0);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x7C000285);
@@ -1417,7 +1417,7 @@ if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00010401);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
    for (i = 0; i < 4; i++) {
       WriteReg_32(DBSC_E3_DBPDRGA0, 0x000000B1 + i * 0x20);
@@ -1476,7 +1476,7 @@ if (pdqsr_ctl == 1) {
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000001);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x00015001);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000006);
-   while ((BIT0 & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
+   while ((BIT(0) & ReadReg_32(DBSC_E3_DBPDRGD0)) == 0);
 
 /* rev.0.08 */
    if (lcdl_ctl == 1) {
@@ -1561,7 +1561,7 @@ if (pdqsr_ctl == 1) {
       WriteReg_32(DBSC_E3_DBPDRGD0, 0x0380C700);
    }
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000007);
-   while ((BIT30 & ReadReg_32(DBSC_E3_DBPDRGD0)) != 0);
+   while ((BIT(30) & ReadReg_32(DBSC_E3_DBPDRGD0)) != 0);
    WriteReg_32(DBSC_E3_DBPDRGA0, 0x00000021);
    WriteReg_32(DBSC_E3_DBPDRGD0, 0x0024643E);
 

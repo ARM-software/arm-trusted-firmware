@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Renesas Electronics Corporation
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -17,9 +17,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#define				BIT0						0x00000001U
-#define				BIT30						0x40000000U
 
 /* DBSC registers */
 
