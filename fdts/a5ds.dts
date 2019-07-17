@@ -1,0 +1,95 @@
+/*
+ * Copyright (c) 2019, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+/ {
+	model = "A5DS";
+	compatible = "arm,A5DS";
+	interrupt-parent = <&gic>;
+	#address-cells = <1>;
+	#size-cells = <1>;
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a5";
+			reg = <0>;
+		};
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x80000000 0x7F000000>;
+	};
+
+	refclk100mhz: refclk100mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+		clock-output-names = "apb_pclk";
+	};
+
+	smbclk: refclk24mhzx2 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <48000000>;
+		clock-output-names = "smclk";
+	};
+
+
+	rtc@1a220000 {
+		compatible = "arm,pl031", "arm,primecell";
+		reg = <0x1a220000 0x1000>;
+		clocks = <&refclk100mhz>;
+		interrupts = <0 6 0xf04>;
+		clock-names = "apb_pclk";
+	};
+
+	gic: interrupt-controller@1c001000 {
+		compatible = "arm,cortex-a9-gic";
+		#interrupt-cells = <3>;
+		#address-cells = <0>;
+		interrupt-controller;
+		reg = <0x1c001000 0x1000>,
+			  <0x1c000100 0x100>;
+		interrupts = <1 9 0xf04>;
+	};
+
+	serial0: uart@1a200000 {
+		compatible = "arm,pl011", "arm,primecell";
+		reg = <0x1a200000 0x1000>;
+		interrupt-parent = <&gic>;
+		interrupts = <0 8 0xf04>;
+		clocks = <&refclk100mhz>;
+		clock-names = "apb_pclk";
+	};
+
+	serial1: uart@1a210000 {
+		compatible = "arm,pl011", "arm,primecell";
+		reg = <0x1a210000 0x1000>;
+		interrupt-parent = <&gic>;
+		interrupts = <0 9 0xf04>;
+		clocks = <&refclk100mhz>;
+		clock-names = "apb_pclk";
+	};
+
+	timer0: timer@1a040000 {
+		compatible = "arm,armv7-timer-mem";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+		reg = <0x1a040000 0x1000>;
+		clock-frequency = <50000000>;
+
+		frame@1a050000 {
+			frame-number = <0>;
+			interrupts = <0 2 0xf04>;
+			reg = <0x1a050000 0x1000>;
+		};
+	};
+};
