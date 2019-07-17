@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -209,7 +209,10 @@ PP			=	$(CC) -E $(TF_CFLAGS_$(ARCH))
 else ifneq ($(findstring clang,$(notdir $(CC))),)
 TF_CFLAGS_aarch32	=	$(target32-directive) $(march32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-elf $(march64-directive)
-LD			=	$(LINKER)
+LD			=	ld.lld
+ifeq (, $(shell which $(LD)))
+$(error "No $(LD) in PATH, make sure it is installed or set LD to a different linker")
+endif
 AS			=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
 CPP			=	$(CC) -E
 PP			=	$(CC) -E
@@ -317,10 +320,13 @@ endif
 
 GCC_V_OUTPUT		:=	$(shell $(CC) -v 2>&1)
 
+# LD = armlink
 ifneq ($(findstring armlink,$(notdir $(LD))),)
 TF_LDFLAGS		+=	--diag_error=warning --lto_level=O1
 TF_LDFLAGS		+=	--remove --info=unused,unusedsymbols
 TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
+
+# LD = gcc (used when GCC LTO is enabled)
 else ifneq ($(findstring gcc,$(notdir $(LD))),)
 # Pass ld options with Wl or Xlinker switches
 TF_LDFLAGS		+=	-Wl,--fatal-warnings -O1
@@ -337,10 +343,16 @@ ifneq (${ERRATA_A53_843419},1)
 endif
 TF_LDFLAGS		+= 	-nostdlib
 TF_LDFLAGS		+=	$(subst --,-Xlinker --,$(TF_LDFLAGS_$(ARCH)))
+
+# LD = gcc-ld (ld) or llvm-ld (ld.lld) or other
 else
 TF_LDFLAGS		+=	--fatal-warnings -O1
 TF_LDFLAGS		+=	--gc-sections
+# ld.lld doesn't recognize the errata flags,
+# therefore don't add those in that case
+ifeq ($(findstring ld.lld,$(notdir $(LD))),)
 TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
+endif
 endif
 
 DTC_FLAGS		+=	-I dts -O dtb

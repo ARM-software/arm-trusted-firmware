@@ -18,9 +18,10 @@ Performing an Initial Build
 
    It is possible to build TF-A using Clang or Arm Compiler 6. To do so
    ``CC`` needs to point to the clang or armclang binary, which will
-   also select the clang or armclang assembler. Be aware that the
-   GNU linker is used by default.  In case of being needed the linker
-   can be overridden using the ``LD`` variable. Clang linker version 6 is
+   also select the clang or armclang assembler. Be aware that for Arm Compiler,
+   the GNU linker is used by default. However for Clang LLVM linker (LLD)
+   is used by default. In case of being needed the linker can be overridden
+   using the ``LD`` variable. LLVM linker (LLD) version 9 is
    known to work with TF-A.
 
    In both cases ``CROSS_COMPILE`` should be set as described above.
@@ -114,4 +115,4 @@ Performing an Initial Build
 
 --------------
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+*Copyright (c) 2020, Arm Limited. All rights reserved.*
