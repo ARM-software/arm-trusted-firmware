@@ -44,3 +44,9 @@ A53_DISABLE_NON_TEMPORAL_HINT := 0
 ERRATA_A53_835769	:=	1
 ERRATA_A53_843419	:=	1
 ERRATA_A53_855873	:=	1
+
+BL32_BASE		?=	0xfe000000
+$(eval $(call add_define,BL32_BASE))
+
+BL32_SIZE		?=	0x2000000
+$(eval $(call add_define,BL32_SIZE))
