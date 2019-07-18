@@ -44,12 +44,11 @@ static const interrupt_prop_t arm_interrupt_props[] = {
 
 /*
  * We save and restore the GICv3 context on system suspend. Allocate the
- * data in the designated EL3 Secure carve-out memory. The `volatile`
- * is used to prevent the compiler from removing the gicv3 contexts even
- * though the DEFINE_LOAD_SYM_ADDR creates a dummy reference to it.
+ * data in the designated EL3 Secure carve-out memory. The `used` attribute
+ * is used to prevent the compiler from removing the gicv3 contexts.
  */
-static volatile gicv3_redist_ctx_t rdist_ctx __section("arm_el3_tzc_dram");
-static volatile gicv3_dist_ctx_t dist_ctx __section("arm_el3_tzc_dram");
+static gicv3_redist_ctx_t rdist_ctx __section("arm_el3_tzc_dram") __used;
+static gicv3_dist_ctx_t dist_ctx __section("arm_el3_tzc_dram") __used;
 
 /* Define accessor function to get reference to the GICv3 context */
 DEFINE_LOAD_SYM_ADDR(rdist_ctx)
