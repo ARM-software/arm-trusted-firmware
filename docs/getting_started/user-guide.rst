@@ -383,6 +383,13 @@ Common build options
    registers to be included when saving and restoring the CPU context. Default
    is 0.
 
+-  ``CTX_INCLUDE_MTE_REGS``: Enables register saving/reloading support for
+   ARMv8.5 Memory Tagging Extension. A value of 0 will disable
+   saving/reloading and restrict the use of MTE to the normal world if the
+   CPU has support, while a value of 1 enables the saving/reloading, allowing
+   the use of MTE in both the secure and non-secure worlds. Default is 0
+   (disabled) and this feature is experimental.
+
 -  ``CTX_INCLUDE_PAUTH_REGS``: Boolean option that, when set to 1, enables
    Pointer Authentication for Secure world. This will cause the ARMv8.3-PAuth
    registers to be included when saving and restoring the CPU context as
@@ -797,6 +804,7 @@ Common build options
    require interconnect programming to enable cache coherency (eg: single
    cluster platforms). If this option is enabled, then warm boot path
    enables D-caches immediately after enabling MMU. This option defaults to 0.
+
 
 Arm development platform specific build options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
