@@ -145,6 +145,17 @@ func el1_sysregs_context_save
 	str	x14, [x0, #CTX_CNTKCTL_EL1]
 #endif
 
+	/* Save MTE system registers if the build has instructed so */
+#if CTX_INCLUDE_MTE_REGS
+	mrs	x15, TFSRE0_EL1
+	mrs	x16, TFSR_EL1
+	stp	x15, x16, [x0, #CTX_TFSRE0_EL1]
+
+	mrs	x9, RGSR_EL1
+	mrs	x10, GCR_EL1
+	stp	x9, x10, [x0, #CTX_RGSR_EL1]
+#endif
+
 	ret
 endfunc el1_sysregs_context_save
 
@@ -228,6 +239,16 @@ func el1_sysregs_context_restore
 
 	ldr	x14, [x0, #CTX_CNTKCTL_EL1]
 	msr	cntkctl_el1, x14
+#endif
+	/* Restore MTE system registers if the build has instructed so */
+#if CTX_INCLUDE_MTE_REGS
+	ldp	x11, x12, [x0, #CTX_TFSRE0_EL1]
+	msr	TFSRE0_EL1, x11
+	msr	TFSR_EL1, x12
+
+	ldp	x13, x14, [x0, #CTX_RGSR_EL1]
+	msr	RGSR_EL1, x13
+	msr	GCR_EL1, x14
 #endif
 
 	/* No explict ISB required here as ERET covers it */

@@ -510,6 +510,14 @@ ifeq ($(ENABLE_BTI),1)
     $(info Branch Protection is an experimental feature)
 endif
 
+ifeq ($(CTX_INCLUDE_MTE_REGS),1)
+    ifneq (${ARCH},aarch64)
+        $(error CTX_INCLUDE_MTE_REGS requires AArch64)
+    else
+        $(info CTX_INCLUDE_MTE_REGS is an experimental feature)
+    endif
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -631,6 +639,7 @@ $(eval $(call assert_boolean,CREATE_KEYS))
 $(eval $(call assert_boolean,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
 $(eval $(call assert_boolean,CTX_INCLUDE_PAUTH_REGS))
+$(eval $(call assert_boolean,CTX_INCLUDE_MTE_REGS))
 $(eval $(call assert_boolean,DEBUG))
 $(eval $(call assert_boolean,DYN_DISABLE_AUTH))
 $(eval $(call assert_boolean,EL3_EXCEPTION_HANDLING))
@@ -686,6 +695,7 @@ $(eval $(call add_define,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call add_define,CTX_INCLUDE_FPREGS))
 $(eval $(call add_define,CTX_INCLUDE_PAUTH_REGS))
 $(eval $(call add_define,EL3_EXCEPTION_HANDLING))
+$(eval $(call add_define,CTX_INCLUDE_MTE_REGS))
 $(eval $(call add_define,ENABLE_AMU))
 $(eval $(call add_define,ENABLE_ASSERTIONS))
 $(eval $(call add_define,ENABLE_BTI))
