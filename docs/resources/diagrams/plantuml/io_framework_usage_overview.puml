@@ -1,0 +1,59 @@
+@startuml
+
+participant bl_common order 1
+participant arm_io_storage order 2
+participant io_storage order 3
+
+== Platform Setup ==
+
+bl1_main -> xxx_bl1_setup : bl1_platform_setup()
+xxx_bl1_setup -> arm_io_storage : plat_arm_io_setup()
+
+arm_io_storage -> arm_io_storage : arm_io_setup()
+ref over arm_io_storage, io_storage : io device registration
+
+== Get Image ==
+bl1_main -> xxx_bl1_setup : bl1_plat_get_next_image_id()
+bl1_main <-- xxx_bl1_setup : BL2_IMAGE_ID
+
+bl1_main -> bl1_main : bl1_load_bl2()
+activate bl1_main
+bl1_main -> plat_bl1_common : bl1_plat_get_image_desc(BL2_IMAGE_ID)
+bl1_main <-- plat_bl1_common : BL2_IMAGE_DESC
+
+bl1_main -> plat_bl1_common : bl1_plat_handle_pre_image_load(BL2_IMAGE_ID)
+
+bl1_main -> bl_common : load_auth_image(BL2_IMAGE_ID, image_info)
+activate bl_common
+bl_common -> bl_common : load_auth_image_internal(BL2_IMAGE_ID, image_info, is_parent_image)
+activate bl_common
+bl_common -> bl_common : load_image(BL2_IMAGE_ID, image_info)
+activate bl_common
+bl_common -> arm_io_storage : plat_get_image_source(BL2_IMAGE_ID, &dev_handle, &image_spec)
+ref over arm_io_storage, io_storage : init and check device (BL2_IMAGE_ID)
+bl_common <-- arm_io_storage : dev_handle
+
+bl_common -> io_storage : io_open(dev_handle, image_spec, &image_handle)
+ref over io_storage : io_open() on fip device
+bl_common <-- io_storage : image_handle
+bl_common -> io_storage : io_size(image_handle, &image_size)
+ref over io_storage : io_size() on fip device
+bl_common -> io_storage : io_read(image_handle, image_base, image_size, &bytes_read)
+ref over io_storage : io_read() on fip device
+bl_common -> io_storage : io_close(image_handle)
+ref over io_storage : io_close() on fip device
+bl_common -> io_storage : io_dev_close(dev_handle)
+ref over io_storage : io_dev_close() on fip device
+
+deactivate bl_common
+deactivate bl_common
+deactivate bl_common
+
+== Prepare Next Image ==
+bl1_main -> plat_bl1_common : bl1_plat_handle_post_image_load(BL2_IMAGE_ID)
+
+deactivate bl1_main
+
+== Jump to next Image ==
+
+@enduml

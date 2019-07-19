@@ -1,0 +1,109 @@
+@startuml
+
+package arm_io_storage {
+
+	class plat_io_policy {
+		dev_handle : uintptr_t*
+		image_spec : uintptr_t
+		{abstract} check() : fctptr
+	}
+
+	class FIP_IMAGE_ID {
+		memmap_dev_handle
+		fip_block_spec
+		open_memmap()
+	}
+
+	class BL2_IMAGE_ID{
+		fip_dev_handle
+		bl2_uuid_spec
+		open_fip()
+	}
+
+	class xxx_IMAGE_ID{
+		fip_dev_handle
+		xxx_uuid_spec
+		open_fip()
+	}
+
+	class arm_io_storage {
+		fip_dev_con : io_dev_connector_t*
+		fip_dev_handle : uintptr_t
+		memmap_dev_con : io_dev_connector_t*
+		memmap_dev_handle : uintptr_t
+
+		fip_block_spec : io_block_spec_t
+
+		policies : plat_io_policy[1..*]
+
+		-open_fip()
+		-open_memmap()
+
+		+arm_io_setup()
+		+plat_get_image_source()
+	}
+
+	FIP_IMAGE_ID -up-|> plat_io_policy
+	BL2_IMAGE_ID -up-|> plat_io_policy
+	xxx_IMAGE_ID -up-|> plat_io_policy
+
+	arm_io_storage *-"1..*" plat_io_policy
+}
+
+package IO {
+	class  io_storage {
+		io_dev_open()
+		io_dev_init()
+		io_dev_close()
+
+		.. synchronous operations ..
+		io_open()
+		io_seek()
+		io_size()
+		io_read()
+		io_write()
+		io_close()
+
+		io_register_device()
+	}
+
+	class io_fip {
+		register_io_dev_fip()
+		.. io_dev_funcs_t interface ..
+		fip_dev_funcs : io_dev_funcs_t
+	}
+
+	class io_memmap {
+		register_io_dev_memmap()
+		.. io_dev_funcs_t interface ..
+		memmap_dev_funcs : io_dev_funcs_t
+	}
+
+	interface io_driver {
+		io_entity_t
+		io_dev_info_t
+
+		.. io_dev_connector_t interface ..
+		dev_open()
+
+		.. io_dev_funcs_t interface ..
+			type()
+			open()
+			seek()
+			size()
+			read()
+			write()
+			close()
+			dev_init()
+			dev_close()
+
+		io_register_device()
+	}
+}
+arm_io_storage .. io_driver
+arm_io_storage .. io_fip
+arm_io_storage .. io_memmap
+arm_io_storage .. io_storage
+
+
+@enduml
