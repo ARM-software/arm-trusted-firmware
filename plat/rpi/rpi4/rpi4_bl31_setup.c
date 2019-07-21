@@ -222,7 +222,8 @@ static uint32_t dtb_size(const void *dtb)
 static void rpi4_prepare_dtb(void)
 {
 	void *dtb = (void *)rpi4_get_dtb_address();
-	int ret;
+	uint32_t gic_int_prop[3];
+	int ret, offs;
 
 	/* Return if no device tree is detected */
 	if (fdt_check_header(dtb) != 0)
@@ -247,6 +248,12 @@ static void rpi4_prepare_dtb(void)
 	/* Reserve memory used by Trusted Firmware. */
 	if (fdt_add_reserved_memory(dtb, "atf@0", 0, 0x80000))
 		WARN("Failed to add reserved memory nodes to DT.\n");
+
+	offs = fdt_node_offset_by_compatible(dtb, 0, "arm,gic-400");
+	gic_int_prop[0] = cpu_to_fdt32(1);		// PPI
+	gic_int_prop[1] = cpu_to_fdt32(9);		// PPI #9
+	gic_int_prop[2] = cpu_to_fdt32(0x0f04);		// all cores, level high
+	fdt_setprop(dtb, offs, "interrupts", gic_int_prop, 12);
 
 	ret = fdt_pack(dtb);
 	if (ret < 0)
