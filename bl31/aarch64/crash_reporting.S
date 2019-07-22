@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,10 +45,14 @@ non_el3_sys_regs:
 		"spsr_irq", "spsr_fiq", "sctlr_el1", "actlr_el1", "cpacr_el1",\
 		"csselr_el1", "sp_el1", "esr_el1", "ttbr0_el1", "ttbr1_el1",\
 		"mair_el1", "amair_el1", "tcr_el1", "tpidr_el1", "tpidr_el0",\
-		"tpidrro_el0", "dacr32_el2", "ifsr32_el2", "par_el1",\
-		"mpidr_el1", "afsr0_el1", "afsr1_el1", "contextidr_el1",\
-		"vbar_el1", "cntp_ctl_el0", "cntp_cval_el0", "cntv_ctl_el0",\
-		"cntv_cval_el0", "cntkctl_el1", "sp_el0", "isr_el1", ""
+		"tpidrro_el0",  "par_el1", "mpidr_el1", "afsr0_el1", "afsr1_el1",\
+		"contextidr_el1", "vbar_el1", "cntp_ctl_el0", "cntp_cval_el0",\
+		"cntv_ctl_el0", "cntv_cval_el0", "cntkctl_el1", "sp_el0", "isr_el1", ""
+
+#if CTX_INCLUDE_AARCH32_REGS
+aarch32_regs:
+	.asciz	"dacr32_el2", "ifsr32_el2", ""
+#endif /* CTX_INCLUDE_AARCH32_REGS */
 
 panic_msg:
 	.asciz "PANIC in EL3 at x30 = 0x"
@@ -299,24 +303,30 @@ func do_crash_reporting
 	mrs	x9, tpidr_el1
 	mrs	x10, tpidr_el0
 	mrs	x11, tpidrro_el0
-	mrs	x12, dacr32_el2
-	mrs	x13, ifsr32_el2
-	mrs	x14, par_el1
-	mrs	x15, mpidr_el1
+	mrs	x12, par_el1
+	mrs	x13, mpidr_el1
+	mrs	x14, afsr0_el1
+	mrs	x15, afsr1_el1
 	bl	str_in_crash_buf_print
-	mrs	x8, afsr0_el1
-	mrs	x9, afsr1_el1
-	mrs	x10, contextidr_el1
-	mrs	x11, vbar_el1
-	mrs	x12, cntp_ctl_el0
-	mrs	x13, cntp_cval_el0
-	mrs	x14, cntv_ctl_el0
-	mrs	x15, cntv_cval_el0
+	mrs	x8, contextidr_el1
+	mrs	x9, vbar_el1
+	mrs	x10, cntp_ctl_el0
+	mrs	x11, cntp_cval_el0
+	mrs	x12, cntv_ctl_el0
+	mrs	x13, cntv_cval_el0
+	mrs	x14, cntkctl_el1
+	mrs	x15, sp_el0
 	bl	str_in_crash_buf_print
-	mrs	x8, cntkctl_el1
-	mrs	x9, sp_el0
-	mrs	x10, isr_el1
+	mrs	x8, isr_el1
 	bl	str_in_crash_buf_print
+
+#if CTX_INCLUDE_AARCH32_REGS
+	/* Print the AArch32 registers */
+	adr	x6, aarch32_regs
+	mrs	x8, dacr32_el2
+	mrs	x9, ifsr32_el2
+	bl	str_in_crash_buf_print
+#endif /* CTX_INCLUDE_AARCH32_REGS */
 
 	/* Get the cpu specific registers to report */
 	bl	do_cpu_reg_dump
