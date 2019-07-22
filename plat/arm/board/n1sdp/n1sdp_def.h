@@ -25,9 +25,17 @@
 #define N1SDP_SDS_BL33_INFO_OFFSET		0
 #define N1SDP_SDS_BL33_INFO_SIZE		12
 
+/* DMC memory command registers */
+#define N1SDP_DMC0_MEMC_CMD_REG			0x4E000008
+#define N1SDP_DMC1_MEMC_CMD_REG			0x4E100008
+
 /* DMC ERR0CTLR0 registers */
 #define N1SDP_DMC0_ERR0CTLR0_REG		0x4E000708
 #define N1SDP_DMC1_ERR0CTLR0_REG		0x4E100708
+
+/* DMC memory commands */
+#define N1SDP_DMC_MEMC_CMD_CONFIG		0
+#define N1SDP_DMC_MEMC_CMD_READY		3
 
 /* DMC ECC enable bit in ERR0CTLR0 register */
 #define N1SDP_DMC_ERR0CTLR0_ECC_EN		0x1
