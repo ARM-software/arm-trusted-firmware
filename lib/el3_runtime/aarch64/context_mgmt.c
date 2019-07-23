@@ -12,6 +12,7 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
+#include <arch_features.h>
 #include <bl31/interrupt_mgmt.h>
 #include <common/bl_common.h>
 #include <context.h>
@@ -135,6 +136,18 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	if (security_state == NON_SECURE)
 		scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
 #endif /* !CTX_INCLUDE_PAUTH_REGS */
+
+	unsigned int mte = get_armv8_5_mte_support();
+
+	/*
+	 * Enable MTE support unilaterally for normal world if the CPU supports
+	 * it.
+	 */
+	if (mte != MTE_UNIMPLEMENTED) {
+		if (security_state == NON_SECURE) {
+			scr_el3 |= SCR_ATA_BIT;
+		}
+	}
 
 #ifdef IMAGE_BL31
 	/*

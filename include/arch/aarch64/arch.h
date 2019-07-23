@@ -219,6 +219,13 @@
 
 #define BTI_IMPLEMENTED		ULL(1)	/* The BTI mechanism is implemented */
 
+#define ID_AA64PFR1_EL1_MTE_SHIFT	U(8)
+#define ID_AA64PFR1_EL1_MTE_MASK	ULL(0xf)
+
+#define MTE_UNIMPLEMENTED	ULL(0)
+#define MTE_IMPLEMENTED_EL0	ULL(1)	/* MTE is only implemented at EL0 */
+#define MTE_IMPLEMENTED_ELX	ULL(2)	/* MTE is implemented at all ELs */
+
 /* ID_PFR1_EL1 definitions */
 #define ID_PFR1_VIRTEXT_SHIFT	U(12)
 #define ID_PFR1_VIRTEXT_MASK	U(0xf)
@@ -278,6 +285,7 @@
 
 /* SCR definitions */
 #define SCR_RES1_BITS		((U(1) << 4) | (U(1) << 5))
+#define SCR_ATA_BIT		(U(1) << 26)
 #define SCR_FIEN_BIT		(U(1) << 21)
 #define SCR_API_BIT		(U(1) << 17)
 #define SCR_APK_BIT		(U(1) << 16)
