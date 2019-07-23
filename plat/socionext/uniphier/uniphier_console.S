@@ -23,15 +23,9 @@ func uniphier_console_putc
 0:	ldr	w2, [x1, #UNIPHIER_UART_LSR]
 	tbz	w2, #UNIPHIER_UART_LSR_THRE_BIT, 0b
 
-	mov	w2, w0
+	str	w0, [x1, #UNIPHIER_UART_TX]
 
-1:	str	w2, [x1, #UNIPHIER_UART_TX]
-
-	cmp	w2, #'\n'
-	b.ne	2f
-	mov	w2, #'\r'	/* Append '\r' to '\n' */
-	b	1b
-2:	ret
+	ret
 endfunc uniphier_console_putc
 
 /*
