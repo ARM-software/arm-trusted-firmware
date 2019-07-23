@@ -252,7 +252,7 @@ void plat_arm_interconnect_enter_coherency(void);
 void plat_arm_interconnect_exit_coherency(void);
 void plat_arm_program_trusted_mailbox(uintptr_t address);
 int plat_arm_bl1_fwu_needed(void);
-void plat_arm_error_handler(int err);
+__dead2 void plat_arm_error_handler(int err);
 
 #if ARM_PLAT_MT
 unsigned int plat_arm_get_cpu_pe_count(u_register_t mpidr);

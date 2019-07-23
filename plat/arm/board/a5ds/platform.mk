@@ -36,6 +36,7 @@ BL1_SOURCES		+=	drivers/io/io_fip.c				\
 				drivers/cfi/v2m/v2m_flash.c			\
 				plat/arm/common/arm_bl1_setup.c			\
 				plat/arm/common/arm_err.c			\
+				plat/arm/board/a5ds/a5ds_err.c			\
 				plat/arm/common/arm_io_storage.c		\
 				plat/arm/board/a5ds/${ARCH}/a5ds_helpers.S	\
 				plat/arm/board/a5ds/a5ds_bl1_setup.c		\
@@ -55,6 +56,7 @@ BL2_SOURCES		+=	lib/aarch32/arm32_aeabi_divmod.c		\
 				plat/arm/board/a5ds/a5ds_bl2_setup.c		\
 				plat/arm/common/arm_bl2_setup.c			\
 				plat/arm/common/arm_err.c			\
+				plat/arm/board/a5ds/a5ds_err.c			\
 				plat/arm/common/arm_io_storage.c		\
 				plat/arm/common/${ARCH}/arm_bl2_mem_params_desc.c	\
 				plat/arm/common/arm_image_load.c		\
