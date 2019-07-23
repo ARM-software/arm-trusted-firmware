@@ -387,3 +387,31 @@ declare_cpu_ops_wa denver, DENVER_MIDR_PN4, \
 	CPU_NO_EXTRA2_FUNC, \
 	denver_core_pwr_dwn, \
 	denver_cluster_pwr_dwn
+
+declare_cpu_ops_wa denver, DENVER_MIDR_PN5, \
+	denver_reset_func, \
+	check_errata_cve_2017_5715, \
+	CPU_NO_EXTRA2_FUNC, \
+	denver_core_pwr_dwn, \
+	denver_cluster_pwr_dwn
+
+declare_cpu_ops_wa denver, DENVER_MIDR_PN6, \
+	denver_reset_func, \
+	check_errata_cve_2017_5715, \
+	CPU_NO_EXTRA2_FUNC, \
+	denver_core_pwr_dwn, \
+	denver_cluster_pwr_dwn
+
+declare_cpu_ops_wa denver, DENVER_MIDR_PN7, \
+	denver_reset_func, \
+	check_errata_cve_2017_5715, \
+	CPU_NO_EXTRA2_FUNC, \
+	denver_core_pwr_dwn, \
+	denver_cluster_pwr_dwn
+
+declare_cpu_ops_wa denver, DENVER_MIDR_PN8, \
+	denver_reset_func, \
+	check_errata_cve_2017_5715, \
+	CPU_NO_EXTRA2_FUNC, \
+	denver_core_pwr_dwn, \
+	denver_cluster_pwr_dwn
