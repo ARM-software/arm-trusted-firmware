@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016-2017, Linaro Limited. All rights reserved.
- * Copyright (c) 2014-2017, Arm Limited. All rights reserved.
+ * Copyright (c) 2014-2019, Arm Limited. All rights reserved.
  * Copyright (c) 2014, STMicroelectronics International N.V.
  * All rights reserved.
  *
@@ -445,7 +445,8 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 			} else {
 				xlat_table = (unsigned long)mmu_l2_base +
 					next_xlat * MMU32B_L2_TABLE_SIZE;
-				assert(++next_xlat <= MAX_XLAT_TABLES);
+				next_xlat++;
+				assert(next_xlat <= MAX_XLAT_TABLES);
 				memset((char *)xlat_table, 0,
 					MMU32B_L2_TABLE_SIZE);
 
