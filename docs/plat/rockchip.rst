@@ -5,6 +5,7 @@ Trusted Firmware-A supports a number of Rockchip ARM SoCs from both
 AARCH32 and AARCH64 fields.
 
 This includes right now:
+-  px30: Quad-Core Cortex-A53
 -  rk3288: Quad-Core Cortex-A17 (past A12)
 -  rk3328: Quad-Core Cortex-A53
 -  rk3368: Octa-Core Cortex-A53
