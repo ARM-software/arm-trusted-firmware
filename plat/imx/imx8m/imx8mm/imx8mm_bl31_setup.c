@@ -24,6 +24,7 @@
 #include <gpc.h>
 #include <imx_aipstz.h>
 #include <imx_uart.h>
+#include <imx_rdc.h>
 #include <imx8m_caam.h>
 #include <plat_imx8.h>
 
@@ -38,6 +39,18 @@ static const struct aipstz_cfg aipstz[] = {
 	{IMX_AIPSTZ2, 0x77777777, 0x77777777, .opacr = {0x0, 0x0, 0x0, 0x0, 0x0}, },
 	{IMX_AIPSTZ3, 0x77777777, 0x77777777, .opacr = {0x0, 0x0, 0x0, 0x0, 0x0}, },
 	{IMX_AIPSTZ4, 0x77777777, 0x77777777, .opacr = {0x0, 0x0, 0x0, 0x0, 0x0}, },
+	{0},
+};
+
+static const struct imx_rdc_cfg rdc[] = {
+	/* Master domain assignment */
+	RDC_MDAn(0x1, DID1),
+
+	/* peripherals domain permission */
+
+	/* memory region */
+
+	/* Sentinel */
 	{0},
 };
 
@@ -93,6 +106,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	}
 
 	imx_aipstz_init(aipstz);
+
+	imx_rdc_init(rdc);
 
 	imx8m_caam_init();
 
