@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <common/desc_image_load.h>
 #include <drivers/console.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
@@ -79,6 +80,7 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 	entry_point_info_t *next_image_info;
 
 	next_image_info = (type == NON_SECURE) ? &bl33_ep_info : &bl32_ep_info;
+	assert(next_image_info->h.type == PARAM_EP);
 
 	/* None of the images on this platform can have 0x0 as the entrypoint */
 	if (next_image_info->pc)
@@ -98,18 +100,11 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
-	struct mtk_bl31_params *arg_from_bl2 = (struct mtk_bl31_params *)arg0;
-
 	console_init(MT8173_UART0_BASE, MT8173_UART_CLOCK, MT8173_BAUDRATE);
 
 	VERBOSE("bl31_setup\n");
 
-	assert(arg_from_bl2 != NULL);
-	assert(arg_from_bl2->h.type == PARAM_BL31);
-	assert(arg_from_bl2->h.version >= VERSION_1);
-
-	bl32_ep_info = *arg_from_bl2->bl32_ep_info;
-	bl33_ep_info = *arg_from_bl2->bl33_ep_info;
+	bl31_params_parse_helper(arg0, &bl32_ep_info, &bl33_ep_info);
 }
 
 /*******************************************************************************

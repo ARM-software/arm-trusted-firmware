@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -30,7 +30,9 @@ RK_GIC_SOURCES         :=	drivers/arm/gic/common/gic_common.c		\
 				plat/common/plat_gicv2.c			\
 				${RK_PLAT}/common/rockchip_gicv2.c
 
-PLAT_BL_COMMON_SOURCES	:=	plat/common/aarch32/crash_console_helpers.S	\
+PLAT_BL_COMMON_SOURCES	:=	common/desc_image_load.c			\
+				lib/bl_aux_params/bl_aux_params.c		\
+				plat/common/aarch32/crash_console_helpers.S	\
 				plat/common/plat_psci_common.c
 
 PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/xlat_tables_common.c		\

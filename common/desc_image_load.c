@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/desc_image_load.h>
+#include <common/tbbr/tbbr_img_def.h>
 
 static bl_load_info_t bl_load_info;
 static bl_params_t next_bl_params;
@@ -273,5 +274,49 @@ void populate_next_bl_params_config(bl_params_t *bl2_to_next_bl_params)
 				params_node->ep_info->args.arg1 =
 								hw_config_base;
 		}
+	}
+}
+
+/*******************************************************************************
+ * Helper to extract BL32/BL33 entry point info from arg0 passed to BL31, for
+ * platforms that are only interested in those. Platforms that need to extract
+ * more information can parse the structures themselves.
+ ******************************************************************************/
+
+void bl31_params_parse_helper(u_register_t param,
+			      entry_point_info_t *bl32_ep_info_out,
+			      entry_point_info_t *bl33_ep_info_out)
+{
+	bl_params_node_t *node;
+	bl_params_t *v2 = (void *)(uintptr_t)param;
+
+#if !ERROR_DEPRECATED
+	if (v2->h.version == PARAM_VERSION_1) {
+		struct { /* Deprecated version 1 parameter structure. */
+			param_header_t h;
+			image_info_t *bl31_image_info;
+			entry_point_info_t *bl32_ep_info;
+			image_info_t *bl32_image_info;
+			entry_point_info_t *bl33_ep_info;
+			image_info_t *bl33_image_info;
+		} *v1 = (void *)(uintptr_t)param;
+		assert(v1->h.type == PARAM_BL31);
+		if (bl32_ep_info_out)
+			*bl32_ep_info_out = *v1->bl32_ep_info;
+		if (bl33_ep_info_out)
+			*bl33_ep_info_out = *v1->bl33_ep_info;
+		return;
+	}
+#endif /* !ERROR_DEPRECATED */
+
+	assert(v2->h.version == PARAM_VERSION_2);
+	assert(v2->h.type == PARAM_BL_PARAMS);
+	for (node = v2->head; node; node = node->next_params_info) {
+		if (node->image_id == BL32_IMAGE_ID)
+			if (bl32_ep_info_out)
+				*bl32_ep_info_out = *node->ep_info;
+		if (node->image_id == BL33_IMAGE_ID)
+			if (bl33_ep_info_out)
+				*bl33_ep_info_out = *node->ep_info;
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -130,6 +130,6 @@ void bl31_plat_arch_setup(void)
 			       BL_COHERENT_RAM_BASE,
 			       BL_COHERENT_RAM_END);
 
-	INFO("Boot BL33 from 0x%lx for %lu Bytes\n",
+	INFO("Boot BL33 from 0x%lx for %llu Bytes\n",
 	     bl33_image_ep_info.pc, bl33_image_ep_info.args.arg2);
 }

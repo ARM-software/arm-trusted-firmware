@@ -16,7 +16,8 @@ PLAT_BL_COMMON_SOURCES := lib/xlat_tables/aarch64/xlat_tables.c       \
                           plat/common/plat_psci_common.c              \
                           plat/common/aarch64/crash_console_helpers.S
 
-BL31_SOURCES    += drivers/arm/cci/cci.c                                 \
+BL31_SOURCES    += common/desc_image_load.c                              \
+                   drivers/arm/cci/cci.c                                 \
                    drivers/arm/gic/common/gic_common.c                   \
                    drivers/arm/gic/v3/arm_gicv3_common.c                 \
                    drivers/arm/gic/v3/gicv3_helpers.c                    \
