@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,19 +11,19 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
-#include <drivers/arm/cryptocell/crypto_driver.h>
-#include <drivers/arm/cryptocell/rsa.h>
-#include <drivers/arm/cryptocell/sbrom_bsv_api.h>
-#include <drivers/arm/cryptocell/secureboot_base_func.h>
-#include <drivers/arm/cryptocell/secureboot_gen_defs.h>
-#include <drivers/arm/cryptocell/util.h>
+#include <drivers/arm/cryptocell/712/crypto_driver.h>
+#include <drivers/arm/cryptocell/712/rsa.h>
+#include <drivers/arm/cryptocell/712/sbrom_bsv_api.h>
+#include <drivers/arm/cryptocell/712/secureboot_base_func.h>
+#include <drivers/arm/cryptocell/712/secureboot_gen_defs.h>
+#include <drivers/arm/cryptocell/712/util.h>
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/auth/mbedtls/mbedtls_common.h>
 #include <lib/utils.h>
 
 #include <mbedtls/oid.h>
 
-#define LIB_NAME		"CryptoCell SBROM"
+#define LIB_NAME		"CryptoCell 712 SBROM"
 #define RSA_SALT_LEN		32
 #define RSA_EXPONENT		65537
 
@@ -302,5 +302,4 @@ static int verify_hash(void *data_ptr, unsigned int data_len,
  * Register crypto library descriptor
  */
 REGISTER_CRYPTO_LIB(LIB_NAME, init, verify_signature, verify_hash);
-
 

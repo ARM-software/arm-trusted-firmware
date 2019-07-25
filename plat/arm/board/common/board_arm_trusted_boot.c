@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -181,12 +181,7 @@ int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr)
 }
 #else /* ARM_CRYPTOCELL_INTEG */
 
-#include <drivers/arm/cryptocell/nvm.h>
-#include <drivers/arm/cryptocell/nvm_otp.h>
-#include <drivers/arm/cryptocell/sbrom_bsv_api.h>
-
-CASSERT(HASH_RESULT_SIZE_IN_BYTES == SHA256_BYTES,
-		assert_mismatch_in_hash_result_size);
+#include <drivers/arm/cryptocell/cc_rotpk.h>
 
 /*
  * Return the ROTPK hash in the following ASN.1 structure in DER format:
@@ -205,90 +200,16 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 			unsigned int *flags)
 {
 	unsigned char *dst;
-	CCError_t error;
-	uint32_t lcs;
 
 	assert(key_ptr != NULL);
 	assert(key_len != NULL);
 	assert(flags != NULL);
 
-	error = NVM_GetLCS(PLAT_CRYPTOCELL_BASE, &lcs);
-	if (error != CC_OK)
-		return 1;
-
-	/* If the lifecycle state is `SD`, return failure */
-	if (lcs == CC_BSV_SECURITY_DISABLED_LCS)
-		return 1;
-
-	/*
-	 * If the lifecycle state is `CM` or `DM`, ROTPK shouldn't be verified.
-	 * Return success after setting ROTPK_NOT_DEPLOYED flag
-	 */
-	if ((lcs == CC_BSV_CHIP_MANUFACTURE_LCS) ||
-			(lcs == CC_BSV_DEVICE_MANUFACTURE_LCS)) {
-		*key_len = 0;
-		*flags = ROTPK_NOT_DEPLOYED;
-		return 0;
-	}
-
 	/* Copy the DER header */
 	memcpy(rotpk_hash_der, rotpk_hash_hdr, rotpk_hash_hdr_len);
 	dst = &rotpk_hash_der[rotpk_hash_hdr_len];
-	error = NVM_ReadHASHPubKey(PLAT_CRYPTOCELL_BASE,
-			CC_SB_HASH_BOOT_KEY_256B,
-			(uint32_t *)dst, HASH_RESULT_SIZE_IN_WORDS);
-	if (error != CC_OK)
-		return 1;
-
 	*key_ptr = rotpk_hash_der;
 	*key_len = sizeof(rotpk_hash_der);
-	*flags = ROTPK_IS_HASH;
-	return 0;
+	return cc_get_rotpk_hash(dst, SHA256_BYTES, flags);
 }
-
-/*
- * Return the non-volatile counter value stored in the platform. The cookie
- * specifies the OID of the counter in the certificate.
- *
- * Return: 0 = success, Otherwise = error
- */
-int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr)
-{
-	CCError_t error = CC_FAIL;
-
-	if (strcmp(cookie, TRUSTED_FW_NVCOUNTER_OID) == 0) {
-		error = NVM_GetSwVersion(PLAT_CRYPTOCELL_BASE,
-				CC_SW_VERSION_COUNTER1, nv_ctr);
-	} else if (strcmp(cookie, NON_TRUSTED_FW_NVCOUNTER_OID) == 0) {
-		error = NVM_GetSwVersion(PLAT_CRYPTOCELL_BASE,
-				CC_SW_VERSION_COUNTER2, nv_ctr);
-	}
-
-	return (error != CC_OK);
-}
-
-/*
- * Store a new non-volatile counter value in the counter specified by the OID
- * in the cookie. This function is not expected to be called if the Lifecycle
- * state is RMA as the values in the certificate are expected to always match
- * the nvcounter values. But if called when the LCS is RMA, the underlying
- * helper functions will return success but without updating the counter.
- *
- * Return: 0 = success, Otherwise = error
- */
-int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr)
-{
-	CCError_t error = CC_FAIL;
-
-	if (strcmp(cookie, TRUSTED_FW_NVCOUNTER_OID) == 0) {
-		error = NVM_SetSwVersion(PLAT_CRYPTOCELL_BASE,
-				CC_SW_VERSION_COUNTER1, nv_ctr);
-	} else if (strcmp(cookie, NON_TRUSTED_FW_NVCOUNTER_OID) == 0) {
-		error = NVM_SetSwVersion(PLAT_CRYPTOCELL_BASE,
-				CC_SW_VERSION_COUNTER2, nv_ctr);
-	}
-
-	return (error != CC_OK);
-}
-
 #endif /* ARM_CRYPTOCELL_INTEG */

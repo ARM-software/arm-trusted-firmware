@@ -17,10 +17,20 @@ ifeq (${CCSBROM_LIB_PATH},)
   $(error Error: CCSBROM_LIB_PATH not set)
 endif
 
+CRYPTOCELL_VERSION ?= 712
+ifeq (${CRYPTOCELL_VERSION},712)
+  CCSBROM_LIB_FILENAME := cc_712sbromx509
+else
+  $(error Error: CRYPTOCELL_VERSION set to invalid version)
+endif
+
+CRYPTOCELL_SRC_DIR	:= drivers/auth/cryptocell/${CRYPTOCELL_VERSION}/
+
+CRYPTOCELL_SOURCES	:= ${CRYPTOCELL_SRC_DIR}/cryptocell_crypto.c \
+			   ${CRYPTOCELL_SRC_DIR}/cryptocell_plat_helpers.c
+
 TF_LDFLAGS		+= -L$(CCSBROM_LIB_PATH)
-LDLIBS			+= -lcc_712sbromx509
+LDLIBS			+= -l$(CCSBROM_LIB_FILENAME)
 
-CRYPTOCELL_SOURCES	:=	drivers/auth/cryptocell/cryptocell_crypto.c
-
-BL1_SOURCES		+=	${CRYPTOCELL_SOURCES}
-BL2_SOURCES		+=	${CRYPTOCELL_SOURCES}
+BL1_SOURCES		+= ${CRYPTOCELL_SOURCES}
+BL2_SOURCES		+= ${CRYPTOCELL_SOURCES}
