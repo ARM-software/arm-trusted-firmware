@@ -419,6 +419,9 @@
 #define SPSR_M_AARCH64		U(0x0)
 #define SPSR_M_AARCH32		U(0x1)
 
+#define SPSR_SSBS_BIT_AARCH64	BIT_64(12)
+#define SPSR_SSBS_BIT_AARCH32	BIT_64(23)
+
 #define DISABLE_ALL_EXCEPTIONS \
 		(DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT | DAIF_DBG_BIT)
 
@@ -543,18 +546,20 @@
 #define GET_SP(mode)		(((mode) >> MODE_SP_SHIFT) & MODE_SP_MASK)
 #define GET_M32(mode)		(((mode) >> MODE32_SHIFT) & MODE32_MASK)
 
-#define SPSR_64(el, sp, daif)				\
-	((MODE_RW_64 << MODE_RW_SHIFT) |		\
-	(((el) & MODE_EL_MASK) << MODE_EL_SHIFT) |	\
-	(((sp) & MODE_SP_MASK) << MODE_SP_SHIFT) |	\
-	(((daif) & SPSR_DAIF_MASK) << SPSR_DAIF_SHIFT))
+#define SPSR_64(el, sp, daif)					\
+	(((MODE_RW_64 << MODE_RW_SHIFT) |			\
+	(((el) & MODE_EL_MASK) << MODE_EL_SHIFT) |		\
+	(((sp) & MODE_SP_MASK) << MODE_SP_SHIFT) |		\
+	(((daif) & SPSR_DAIF_MASK) << SPSR_DAIF_SHIFT)) &	\
+	(~(SPSR_SSBS_BIT_AARCH64)))
 
 #define SPSR_MODE32(mode, isa, endian, aif)		\
-	((MODE_RW_32 << MODE_RW_SHIFT) |		\
+	(((MODE_RW_32 << MODE_RW_SHIFT) |		\
 	(((mode) & MODE32_MASK) << MODE32_SHIFT) |	\
 	(((isa) & SPSR_T_MASK) << SPSR_T_SHIFT) |	\
 	(((endian) & SPSR_E_MASK) << SPSR_E_SHIFT) |	\
-	(((aif) & SPSR_AIF_MASK) << SPSR_AIF_SHIFT))
+	(((aif) & SPSR_AIF_MASK) << SPSR_AIF_SHIFT)) &	\
+	(~(SPSR_SSBS_BIT_AARCH32)))
 
 /*
  * TTBR Definitions

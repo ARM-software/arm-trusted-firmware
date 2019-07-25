@@ -102,7 +102,7 @@ static void flush_smc_and_cpu_ctx(void)
  ******************************************************************************/
 void bl1_prepare_next_image(unsigned int image_id)
 {
-	unsigned int security_state;
+	unsigned int security_state, mode = MODE32_svc;
 	image_desc_t *image_desc;
 	entry_point_info_t *next_bl_ep;
 
@@ -117,19 +117,12 @@ void bl1_prepare_next_image(unsigned int image_id)
 	security_state = GET_SECURITY_STATE(next_bl_ep->h.attr);
 
 	/* Prepare the SPSR for the next BL image. */
-	if (security_state == SECURE) {
-		next_bl_ep->spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
-			SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS);
-	} else {
-		/* Use HYP mode if supported else use SVC. */
-		if (GET_VIRT_EXT(read_id_pfr1())) {
-			next_bl_ep->spsr = SPSR_MODE32(MODE32_hyp, SPSR_T_ARM,
-				SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS);
-		} else {
-			next_bl_ep->spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
-				SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS);
-		}
+	if ((security_state != SECURE) && (GET_VIRT_EXT(read_id_pfr1()))) {
+		mode = MODE32_hyp;
 	}
+
+	next_bl_ep->spsr = SPSR_MODE32(mode, SPSR_T_ARM,
+				SPSR_E_LITTLE, DISABLE_ALL_EXCEPTIONS);
 
 	/* Allow platform to make change */
 	bl1_plat_set_ep_info(image_id, next_bl_ep);
