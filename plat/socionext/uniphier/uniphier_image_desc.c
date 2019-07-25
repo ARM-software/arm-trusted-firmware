@@ -80,7 +80,7 @@ static struct bl_mem_params_node uniphier_image_descs[] = {
 				      VERSION_2, entry_point_info_t,
 				      NON_SECURE | EXECUTABLE),
 		.ep_info.pc = UNIPHIER_BL33_BASE,
-		.ep_info.spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,
+		.ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
 					DISABLE_ALL_EXCEPTIONS),
 
 		.next_handoff_image_id = INVALID_IMAGE_ID,
