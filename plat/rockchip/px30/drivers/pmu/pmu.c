@@ -626,13 +626,13 @@ static void pvtm_32k_config(void)
 
 	/* select pvtm as 32k source */
 	mmio_write_32(PMUCRU_BASE + CRU_PMU_CLKSELS_CON(0),
-		      BITS_WITH_WMASK(1, 0x3, 14));
+		      BITS_WITH_WMASK(1, 0x3U, 14));
 }
 
 static void pvtm_32k_config_restore(void)
 {
 	mmio_write_32(PMUCRU_BASE + CRU_PMU_CLKSELS_CON(0),
-		      ddr_data.pmu_cru_clksel_con0 | BITS_WMSK(0x3, 14));
+		      ddr_data.pmu_cru_clksel_con0 | BITS_WMSK(0x3U, 14));
 
 	mmio_write_32(PMUGRF_BASE + PMUGRF_PVTM_CON0,
 		      WITH_16BITS_WMSK(ddr_data.pgrf_pvtm_con[0]));
@@ -869,7 +869,7 @@ static inline void pm_pll_wait_lock(uint32_t pll_base, uint32_t pll_id)
 static inline void pll_pwr_ctr(uint32_t pll_base, uint32_t pll_id, uint32_t pd)
 {
 	mmio_write_32(pll_base + PLL_CON(1),
-		      BITS_WITH_WMASK(1, 1, 15));
+		      BITS_WITH_WMASK(1, 1U, 15));
 	if (pd)
 		mmio_write_32(pll_base + PLL_CON(1),
 			      BITS_WITH_WMASK(1, 1, 14));
