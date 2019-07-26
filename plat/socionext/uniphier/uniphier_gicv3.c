@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,34 +21,34 @@ static const interrupt_prop_t uniphier_interrupt_props[] = {
 
 	/* SGI0 */
 	INTR_PROP_DESC(8, GIC_HIGHEST_SEC_PRIORITY, INTR_GROUP0,
-			GIC_INTR_CFG_EDGE),
+		       GIC_INTR_CFG_EDGE),
 	/* SGI6 */
 	INTR_PROP_DESC(14, GIC_HIGHEST_SEC_PRIORITY, INTR_GROUP0,
-			GIC_INTR_CFG_EDGE),
+		       GIC_INTR_CFG_EDGE),
 
 	/* G1S interrupts */
 
 	/* Timer */
 	INTR_PROP_DESC(29, GIC_HIGHEST_SEC_PRIORITY, INTR_GROUP1S,
-			GIC_INTR_CFG_LEVEL),
+		       GIC_INTR_CFG_LEVEL),
 	/* SGI1 */
 	INTR_PROP_DESC(9, GIC_HIGHEST_SEC_PRIORITY, INTR_GROUP1S,
-			GIC_INTR_CFG_EDGE),
+		       GIC_INTR_CFG_EDGE),
 	/* SGI2 */
 	INTR_PROP_DESC(10, GIC_HIGHEST_SEC_PRIORITY, INTR_GROUP1S,
-			GIC_INTR_CFG_EDGE),
+		       GIC_INTR_CFG_EDGE),
 	/* SGI3 */
 	INTR_PROP_DESC(11, GIC_HIGHEST_SEC_PRIORITY, INTR_GROUP1S,
-			GIC_INTR_CFG_EDGE),
+		       GIC_INTR_CFG_EDGE),
 	/* SGI4 */
 	INTR_PROP_DESC(12, GIC_HIGHEST_SEC_PRIORITY, INTR_GROUP1S,
-			GIC_INTR_CFG_EDGE),
+		       GIC_INTR_CFG_EDGE),
 	/* SGI5 */
 	INTR_PROP_DESC(13, GIC_HIGHEST_SEC_PRIORITY, INTR_GROUP1S,
-			GIC_INTR_CFG_EDGE),
+		       GIC_INTR_CFG_EDGE),
 	/* SGI7 */
 	INTR_PROP_DESC(15, GIC_HIGHEST_SEC_PRIORITY, INTR_GROUP1S,
-			GIC_INTR_CFG_EDGE)
+		       GIC_INTR_CFG_EDGE)
 };
 
 static unsigned int uniphier_mpidr_to_core_pos(u_register_t mpidr)

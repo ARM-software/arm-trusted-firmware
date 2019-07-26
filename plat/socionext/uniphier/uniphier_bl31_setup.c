@@ -35,7 +35,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	void *from_bl2;
 
-	from_bl2 = (void *) arg0;
+	from_bl2 = (void *)arg0;
 
 	bl_params_node_t *bl_params = ((bl_params_t *)from_bl2)->head;
 
@@ -76,7 +76,7 @@ void bl31_platform_setup(void)
 
 	/* Enable and initialize the System level generic timer */
 	mmio_write_32(UNIPHIER_SYS_CNTCTL_BASE + CNTCR_OFF,
-			CNTCR_FCREQ(0U) | CNTCR_EN);
+		      CNTCR_FCREQ(0U) | CNTCR_EN);
 }
 
 void bl31_plat_arch_setup(void)
