@@ -12,7 +12,7 @@
 
 #include <arch.h>
 #include <common/tbbr/tbbr_img_def.h>
-#include <lib/xlat_tables/xlat_tables.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/common_def.h>
 
 /******************************************************************************

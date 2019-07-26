@@ -20,12 +20,13 @@ $(eval $(call add_define,ARO_ENABLE))
 LLC_ENABLE			:= 1
 $(eval $(call add_define,LLC_ENABLE))
 
+include lib/xlat_tables_v2/xlat_tables.mk
+
 PLAT_INCLUDES		+=	-I$(MARVELL_PLAT_INCLUDE_BASE)/common	\
 				-I$(MARVELL_PLAT_INCLUDE_BASE)/common/aarch64
 
 
-PLAT_BL_COMMON_SOURCES  +=      lib/xlat_tables/xlat_tables_common.c			\
-				lib/xlat_tables/aarch64/xlat_tables.c			\
+PLAT_BL_COMMON_SOURCES  += ${XLAT_TABLES_LIB_SRCS} \
 				$(MARVELL_PLAT_BASE)/common/aarch64/marvell_common.c	\
 				$(MARVELL_PLAT_BASE)/common/aarch64/marvell_helpers.S	\
 				$(MARVELL_COMMON_BASE)/marvell_console.c
