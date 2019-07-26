@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,12 +30,12 @@
 #endif /* ENABLE_ASSERTIONS */
 
 #if PLAT_LOG_LEVEL_ASSERT >= LOG_LEVEL_VERBOSE
-__dead2 void __assert(const char *file, unsigned int line,
+void __dead2 __assert(const char *file, unsigned int line,
 		      const char *assertion);
 #elif PLAT_LOG_LEVEL_ASSERT >= LOG_LEVEL_INFO
-__dead2 void __assert(const char *file, unsigned int line);
+void __dead2 __assert(const char *file, unsigned int line);
 #else
-__dead2 void __assert(void);
+void __dead2 __assert(void);
 #endif
 
 #endif /* ASSERT_H */
