@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,21 +19,21 @@
 static const io_dev_connector_t *fip_dev_con;
 static uintptr_t fip_dev_handle;
 
-#ifndef WARP7_FIP_MMAP
+#ifndef IMX7_FIP_MMAP
 static const io_dev_connector_t *mmc_dev_con;
 static uintptr_t mmc_dev_handle;
 
 static const io_block_spec_t mmc_fip_spec = {
-	.offset = WARP7_FIP_MMC_BASE,
-	.length = WARP7_FIP_SIZE
+	.offset = IMX7_FIP_MMC_BASE,
+	.length = IMX7_FIP_SIZE
 };
 
 static const io_block_dev_spec_t mmc_dev_spec = {
 	/* It's used as temp buffer in block driver. */
 	.buffer		= {
-		.offset	= WARP7_FIP_BASE,
+		.offset	= IMX7_FIP_BASE,
 		/* do we need a new value? */
-		.length = WARP7_FIP_SIZE
+		.length = IMX7_FIP_SIZE
 	},
 	.ops		= {
 		.read	= mmc_read_blocks,
@@ -49,8 +49,8 @@ static const io_dev_connector_t *memmap_dev_con;
 static uintptr_t memmap_dev_handle;
 
 static const io_block_spec_t fip_block_spec = {
-	.offset = WARP7_FIP_BASE,
-	.length = WARP7_FIP_SIZE
+	.offset = IMX7_FIP_BASE,
+	.length = IMX7_FIP_SIZE
 };
 static int open_memmap(const uintptr_t spec);
 #endif
@@ -106,7 +106,7 @@ struct plat_io_policy {
 };
 
 static const struct plat_io_policy policies[] = {
-#ifndef WARP7_FIP_MMAP
+#ifndef IMX7_FIP_MMAP
 	[FIP_IMAGE_ID] = {
 		&mmc_dev_handle,
 		(uintptr_t)&mmc_fip_spec,
@@ -190,7 +190,7 @@ static int open_fip(const uintptr_t spec)
 	return result;
 }
 
-#ifndef WARP7_FIP_MMAP
+#ifndef IMX7_FIP_MMAP
 static int open_mmc(const uintptr_t spec)
 {
 	int result;
@@ -240,11 +240,11 @@ int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
 	return result;
 }
 
-void plat_warp7_io_setup(void)
+void plat_imx7_io_setup(void)
 {
 	int result __unused;
 
-#ifndef WARP7_FIP_MMAP
+#ifndef IMX7_FIP_MMAP
 	result = register_io_dev_block(&mmc_dev_con);
 	assert(result == 0);
 

@@ -16,12 +16,10 @@
 #define PLATFORM_MAX_CPUS_PER_CLUSTER	2
 #define PLATFORM_CLUSTER_COUNT		1
 #define PLATFORM_CLUSTER0_CORE_COUNT	PLATFORM_MAX_CPUS_PER_CLUSTER
-#define PLATFORM_CLUSTER1_CORE_COUNT	0
 
-#define PLATFORM_CORE_COUNT		(PLATFORM_CLUSTER0_CORE_COUNT + \
-					 PLATFORM_CLUSTER1_CORE_COUNT)
+#define PLATFORM_CORE_COUNT		PLATFORM_CLUSTER0_CORE_COUNT
 
-#define WARP7_PRIMARY_CPU		0
+#define PICOPI_PRIMARY_CPU		0
 
 #define PLAT_NUM_PWR_DOMAINS		(PLATFORM_CLUSTER_COUNT + \
 					PLATFORM_CORE_COUNT)
@@ -54,7 +52,7 @@
  * This is known only to the platform as it might have a combination of
  * integrated and external caches.
  * i.MX7 has a 32 byte cacheline size
- * i.MX 7Solo Applications Processor Reference Manual, Rev. 0.1, 08/2016 pg 244
+ * i.MX 7Dual Applications Processor Reference Manual, Rev. 1, 01/2018 pg 298
  */
 #define CACHE_WRITEBACK_SHIFT		4
 #define CACHE_WRITEBACK_GRANULE		(1 << CACHE_WRITEBACK_SHIFT)
@@ -111,7 +109,6 @@
 #define IMX7_DTB_OVERLAY_BASE		IMX7_DTB_LIMIT
 #define IMX7_DTB_OVERLAY_LIMIT		(IMX7_DTB_OVERLAY_BASE + \
 					 IMX7_DTB_OVERLAY_SIZE)
-
 /*
  * BL2 specific defines.
  *
@@ -148,8 +145,6 @@
  *            |       DDR       | BL33/U-BOOT
  * 0x87800000 +-----------------+
  *            |       DDR       | Unallocated
- * 0x83101000 +-----------------+
- *            |       DDR       | DTB Overlay
  * 0x83100000 +-----------------+
  *            |       DDR       | DTB
  * 0x83000000 +-----------------+
@@ -177,38 +172,29 @@
 #define MAX_XLAT_TABLES			6
 #define MAX_IO_DEVICES			2
 #define MAX_IO_HANDLES			3
-#define MAX_IO_BLOCK_DEVICES		1U
+#define MAX_IO_BLOCK_DEVICES		1
 
 /* UART defines */
-#if PLAT_WARP7_UART == 1
-#define PLAT_WARP7_UART_BASE		MXC_UART1_BASE
-#elif PLAT_WARP7_UART == 6
-#define IMX_UART_DTE
-#define PLAT_WARP7_UART_BASE		MXC_UART6_BASE
-#else
-#error "define PLAT_WARP7_UART=1 or PLAT_WARP7_UART=6"
-#endif
-
-#define PLAT_IMX7_BOOT_UART_BASE	PLAT_WARP7_UART_BASE
+#define PLAT_IMX7_BOOT_UART_BASE	MXC_UART5_BASE
 #define PLAT_IMX7_BOOT_UART_CLK_IN_HZ	24000000
 #define PLAT_IMX7_CONSOLE_BAUDRATE	115200
 
 /* MMC defines */
-#ifndef PLAT_WARP7_SD
-#define PLAT_WARP7_SD 3
+#ifndef PLAT_PICOPI_SD
+#define PLAT_PICOPI_SD 3
 #endif
 
-#if PLAT_WARP7_SD == 1
-#define PLAT_WARP7_BOOT_MMC_BASE	USDHC1_BASE
-#endif /* PLAT_WARP7_SD == 1 */
+#if PLAT_PICOPI_SD == 1
+#define PLAT_PICOPI_BOOT_MMC_BASE	USDHC1_BASE
+#endif /* PLAT_PICOPI_SD == 1 */
 
-#if PLAT_WARP7_SD == 2
-#define PLAT_WARP7_BOOT_MMC_BASE	USDHC2_BASE
-#endif /* PLAT_WARP7_SD == 2 */
+#if PLAT_PICOPI_SD == 2
+#define PLAT_PICOPI_BOOT_MMC_BASE	USDHC2_BASE
+#endif /* PLAT_PICOPI_SD == 2 */
 
-#if PLAT_WARP7_SD == 3
-#define PLAT_WARP7_BOOT_MMC_BASE	USDHC3_BASE
-#endif /* PLAT_WARP7_SD == 3 */
+#if PLAT_PICOPI_SD == 3
+#define PLAT_PICOPI_BOOT_MMC_BASE	USDHC3_BASE
+#endif /* PLAT_PICOPI_SD == 3 */
 
 /*
  * System counter

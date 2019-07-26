@@ -8,10 +8,10 @@
 include plat/imx/imx7/common/imx7.mk
 
 # Platform
-PLAT_INCLUDES		+= -Iplat/imx/imx7/warp7/include
+PLAT_INCLUDES		+=	-Iplat/imx/imx7/picopi/include		    \
 
-BL2_SOURCES		+=	drivers/imx/usdhc/imx_usdhc.c			\
-				plat/imx/imx7/warp7/warp7_bl2_el3_setup.c
+BL2_SOURCES		+=	drivers/imx/usdhc/imx_usdhc.c		    \
+				plat/imx/imx7/picopi/picopi_bl2_el3_setup.c \
 
 # Build config flags
 # ------------------
@@ -33,5 +33,8 @@ SEPARATE_CODE_AND_RODATA	:= 1
 # Use Coherent memory
 USE_COHERENT_MEM		:= 1
 
-PLAT_WARP7_UART			:=1
-$(eval $(call add_define,PLAT_WARP7_UART))
+# Use multi console API
+MULTI_CONSOLE_API		:= 1
+
+PLAT_PICOPI_UART		:=5
+$(eval $(call add_define,PLAT_PICOPI_UART))

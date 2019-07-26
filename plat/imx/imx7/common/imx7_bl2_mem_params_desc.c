@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,8 +22,8 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP, VERSION_2,
 				      image_info_t, 0),
 
-		.image_info.image_base = WARP7_OPTEE_BASE,
-		.image_info.image_max_size = WARP7_OPTEE_SIZE,
+		.image_info.image_base = IMX7_OPTEE_BASE,
+		.image_info.image_max_size = IMX7_OPTEE_SIZE,
 
 		.next_handoff_image_id = BL33_IMAGE_ID,
 	},
@@ -36,8 +36,8 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP, VERSION_2,
 				      image_info_t, IMAGE_ATTRIB_SKIP_LOADING),
-		.image_info.image_base = WARP7_OPTEE_BASE,
-		.image_info.image_max_size = WARP7_OPTEE_SIZE,
+		.image_info.image_base = IMX7_OPTEE_BASE,
+		.image_info.image_max_size = IMX7_OPTEE_SIZE,
 
 		.next_handoff_image_id = INVALID_IMAGE_ID,
 	},
@@ -70,8 +70,8 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 
 			SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
 					      VERSION_2, image_info_t, 0),
-			.image_info.image_base = WARP7_UBOOT_BASE,
-			.image_info.image_max_size = WARP7_UBOOT_SIZE,
+			.image_info.image_base = IMX7_UBOOT_BASE,
+			.image_info.image_max_size = IMX7_UBOOT_SIZE,
 		# endif /* PRELOADED_BL33_BASE */
 
 		.next_handoff_image_id = INVALID_IMAGE_ID,
