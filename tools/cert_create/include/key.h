@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,8 +8,6 @@
 #define KEY_H
 
 #include <openssl/ossl_typ.h>
-
-#define RSA_KEY_BITS		2048
 
 /* Error codes */
 enum {
@@ -30,11 +28,24 @@ enum {
 	KEY_ALG_MAX_NUM
 };
 
+/* Maximum number of valid key sizes per algorithm */
+#define KEY_SIZE_MAX_NUM	4
+
 /* Supported hash algorithms */
 enum{
 	HASH_ALG_SHA256,
 	HASH_ALG_SHA384,
 	HASH_ALG_SHA512,
+};
+
+/* Supported key sizes */
+/* NOTE: the first item in each array is the default key size */
+static const unsigned int KEY_SIZES[KEY_ALG_MAX_NUM][KEY_SIZE_MAX_NUM] = {
+	{ 2048, 1024, 3072, 4096 },	/* KEY_ALG_RSA */
+	{ 2048, 1024, 3072, 4096 },	/* KEY_ALG_RSA_1_5 */
+#ifndef OPENSSL_NO_EC
+	{}				/* KEY_ALG_ECDSA */
+#endif /* OPENSSL_NO_EC */
 };
 
 /*
@@ -58,7 +69,7 @@ typedef struct key_s {
 int key_init(void);
 key_t *key_get_by_opt(const char *opt);
 int key_new(key_t *key);
-int key_create(key_t *key, int type);
+int key_create(key_t *key, int type, int key_bits);
 int key_load(key_t *key, unsigned int *err_code);
 int key_store(key_t *key);
 

@@ -41,7 +41,7 @@ int key_new(key_t *key)
 	return 1;
 }
 
-static int key_create_rsa(key_t *key)
+static int key_create_rsa(key_t *key, int key_bits)
 {
 	BIGNUM *e;
 	RSA *rsa = NULL;
@@ -63,7 +63,7 @@ static int key_create_rsa(key_t *key)
 		goto err;
 	}
 
-	if (!RSA_generate_key_ex(rsa, RSA_KEY_BITS, e, NULL)) {
+	if (!RSA_generate_key_ex(rsa, key_bits, e, NULL)) {
 		printf("Cannot generate RSA key\n");
 		goto err;
 	}
@@ -82,7 +82,7 @@ err:
 }
 
 #ifndef OPENSSL_NO_EC
-static int key_create_ecdsa(key_t *key)
+static int key_create_ecdsa(key_t *key, int key_bits)
 {
 	EC_KEY *ec;
 
@@ -109,7 +109,7 @@ err:
 }
 #endif /* OPENSSL_NO_EC */
 
-typedef int (*key_create_fn_t)(key_t *key);
+typedef int (*key_create_fn_t)(key_t *key, int key_bits);
 static const key_create_fn_t key_create_fn[KEY_ALG_MAX_NUM] = {
 	key_create_rsa, 	/* KEY_ALG_RSA */
 	key_create_rsa, 	/* KEY_ALG_RSA_1_5 */
@@ -118,7 +118,7 @@ static const key_create_fn_t key_create_fn[KEY_ALG_MAX_NUM] = {
 #endif /* OPENSSL_NO_EC */
 };
 
-int key_create(key_t *key, int type)
+int key_create(key_t *key, int type, int key_bits)
 {
 	if (type >= KEY_ALG_MAX_NUM) {
 		printf("Invalid key type\n");
@@ -126,7 +126,7 @@ int key_create(key_t *key, int type)
 	}
 
 	if (key_create_fn[type]) {
-		return key_create_fn[type](key);
+		return key_create_fn[type](key, key_bits);
 	}
 
 	return 0;
