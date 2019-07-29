@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,11 @@
 #define TF_MBEDTLS_RSA			1
 #define TF_MBEDTLS_ECDSA		2
 #define TF_MBEDTLS_RSA_AND_ECDSA	3
+
+#define TF_MBEDTLS_USE_RSA (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA \
+		|| TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA)
+#define TF_MBEDTLS_USE_ECDSA (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA \
+		|| TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA)
 
 /*
  * Hash algorithms currently supported on mbed TLS libraries
@@ -54,19 +59,14 @@
 
 #define MBEDTLS_PLATFORM_C
 
-#if (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA)
+#if TF_MBEDTLS_USE_ECDSA
 #define MBEDTLS_ECDSA_C
 #define MBEDTLS_ECP_C
 #define MBEDTLS_ECP_DP_SECP256R1_ENABLED
-#elif (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA)
+#endif
+#if TF_MBEDTLS_USE_RSA
 #define MBEDTLS_RSA_C
 #define MBEDTLS_X509_RSASSA_PSS_SUPPORT
-#elif (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA)
-#define MBEDTLS_RSA_C
-#define MBEDTLS_X509_RSASSA_PSS_SUPPORT
-#define MBEDTLS_ECDSA_C
-#define MBEDTLS_ECP_C
-#define MBEDTLS_ECP_DP_SECP256R1_ENABLED
 #endif
 
 #define MBEDTLS_SHA256_C
@@ -80,11 +80,20 @@
 #define MBEDTLS_X509_CRT_PARSE_C
 
 /* MPI / BIGNUM options */
-#define MBEDTLS_MPI_WINDOW_SIZE              2
-#define MBEDTLS_MPI_MAX_SIZE               256
+#define MBEDTLS_MPI_WINDOW_SIZE			2
+
+#if TF_MBEDTLS_USE_RSA
+#if TF_MBEDTLS_KEY_SIZE <= 2048
+#define MBEDTLS_MPI_MAX_SIZE			256
+#else
+#define MBEDTLS_MPI_MAX_SIZE			512
+#endif
+#else
+#define MBEDTLS_MPI_MAX_SIZE			256
+#endif
 
 /* Memory buffer allocator options */
-#define MBEDTLS_MEMORY_ALIGN_MULTIPLE        8
+#define MBEDTLS_MEMORY_ALIGN_MULTIPLE		8
 
 #ifndef __ASSEMBLER__
 /* System headers required to build mbed TLS with the current configuration */
@@ -95,13 +104,17 @@
 /*
  * Determine Mbed TLS heap size
  * 13312 = 13*1024
- * 7168 = 7*1024
+ * 11264 = 11*1024
+ * 7168  = 7*1024
  */
-#if (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_ECDSA) \
-	|| (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA_AND_ECDSA)
+#if TF_MBEDTLS_USE_ECDSA
 #define TF_MBEDTLS_HEAP_SIZE		U(13312)
-#elif (TF_MBEDTLS_KEY_ALG_ID == TF_MBEDTLS_RSA)
+#elif TF_MBEDTLS_USE_RSA
+#if TF_MBEDTLS_KEY_SIZE <= 2048
 #define TF_MBEDTLS_HEAP_SIZE		U(7168)
+#else
+#define TF_MBEDTLS_HEAP_SIZE		U(11264)
+#endif
 #endif
 
 #endif /* MBEDTLS_CONFIG_H */

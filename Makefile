@@ -694,6 +694,10 @@ $(eval $(call assert_numeric,ARM_ARCH_MAJOR))
 $(eval $(call assert_numeric,ARM_ARCH_MINOR))
 $(eval $(call assert_numeric,BRANCH_PROTECTION))
 
+ifdef KEY_SIZE
+        $(eval $(call assert_numeric,KEY_SIZE))
+endif
+
 ifeq ($(filter $(SANITIZE_UB), on off trap),)
         $(error "Invalid value for SANITIZE_UB: can be one of on, off, trap")
 endif

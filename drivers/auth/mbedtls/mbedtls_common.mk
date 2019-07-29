@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -59,6 +59,16 @@ ifeq (${TF_MBEDTLS_KEY_ALG},)
     endif
 endif
 
+ifeq (${TF_MBEDTLS_KEY_SIZE},)
+    ifneq ($(findstring rsa,${TF_MBEDTLS_KEY_ALG}),)
+	ifeq (${KEY_SIZE},)
+            TF_MBEDTLS_KEY_SIZE		:=	2048
+	else
+            TF_MBEDTLS_KEY_SIZE		:=	${KEY_SIZE}
+	endif
+    endif
+endif
+
 ifeq (${HASH_ALG}, sha384)
     TF_MBEDTLS_HASH_ALG_ID	:=	TF_MBEDTLS_SHA384
 else ifeq (${HASH_ALG}, sha512)
@@ -79,6 +89,7 @@ endif
 
 # Needs to be set to drive mbed TLS configuration correctly
 $(eval $(call add_define,TF_MBEDTLS_KEY_ALG_ID))
+$(eval $(call add_define,TF_MBEDTLS_KEY_SIZE))
 $(eval $(call add_define,TF_MBEDTLS_HASH_ALG_ID))
 
 
