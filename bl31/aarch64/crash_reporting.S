@@ -28,7 +28,7 @@
 	 */
 .section .rodata.crash_prints, "aS"
 print_spacer:
-	.asciz	" =\t\t0x"
+	.asciz	"             = 0x"
 
 gp_regs:
 	.asciz	"x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7",\
@@ -55,11 +55,11 @@ aarch32_regs:
 #endif /* CTX_INCLUDE_AARCH32_REGS */
 
 panic_msg:
-	.asciz "PANIC in EL3 at x30 = 0x"
+	.asciz "PANIC in EL3.\nx30"
 excpt_msg:
-	.asciz "Unhandled Exception in EL3.\nx30 =\t\t0x"
+	.asciz "Unhandled Exception in EL3.\nx30"
 intr_excpt_msg:
-	.asciz "Unhandled Interrupt Exception in EL3.\nx30 =\t\t0x"
+	.asciz "Unhandled Interrupt Exception in EL3.\nx30"
 
 	/*
 	 * Helper function to print newline to console.
@@ -94,10 +94,11 @@ test_size_list:
 	mov	x4, x6
 	/* asm_print_str updates x4 to point to next entry in list */
 	bl	asm_print_str
+	/* x0 = number of symbols printed + 1 */
+	sub	x0, x4, x6
 	/* update x6 with the updated list pointer */
 	mov	x6, x4
-	adr	x4, print_spacer
-	bl	asm_print_str
+	bl	print_alignment
 	ldr	x4, [x7], #REGSZ
 	bl	asm_print_hex
 	bl	print_newline
@@ -106,6 +107,20 @@ exit_size_print:
 	mov	x30, sp
 	ret
 endfunc size_controlled_print
+
+	/* -----------------------------------------------------
+	 * This function calculates and prints required number
+	 * of space characters followed by "= 0x", based on the
+	 * length of ascii register name.
+ 	 * x0: length of ascii register name + 1
+	 * ------------------------------------------------------
+ 	 */
+func print_alignment
+	/* The minimum ascii length is 3, e.g. for "x0" */
+	adr	x4, print_spacer - 3
+	add	x4, x4, x0
+	b	asm_print_str
+endfunc print_alignment
 
 	/*
 	 * Helper function to store x8 - x15 registers to
@@ -189,7 +204,7 @@ endfunc report_unhandled_interrupt
 	 * -----------------------------------------------------
 	 */
 func el3_panic
-	msr	spsel, #1
+	msr	spsel, #MODE_SP_ELX
 	prepare_crash_buf_save_x0_x1
 	adr	x0, panic_msg
 	mov	sp, x0
@@ -230,6 +245,9 @@ func do_crash_reporting
 	/* Print the crash message. sp points to the crash message */
 	mov	x4, sp
 	bl	asm_print_str
+	/* Print spaces to align "x30" string */
+	mov	x0, #4
+	bl	print_alignment
 	/* load the crash buf address */
 	mrs	x0, tpidr_el3
 	/* report x30 first from the crash buf */
