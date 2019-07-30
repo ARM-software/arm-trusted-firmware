@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2020, Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -113,8 +113,9 @@ static enum pm_device_node_idx irq_to_pm_node_idx(unsigned int irq)
 /**
  * pm_client_set_wakeup_sources - Set all devices with enabled interrupts as
  *				  wake sources in the LibPM.
+ * @node_id:	Node id of processor
  */
-static void pm_client_set_wakeup_sources(void)
+static void pm_client_set_wakeup_sources(uint32_t node_id)
 {
 	uint32_t reg_num;
 	uint32_t device_id;
@@ -147,7 +148,7 @@ static void pm_client_set_wakeup_sources(void)
 			    (!pm_wakeup_nodes_set[node_idx])) {
 				/* Get device ID from node index */
 				device_id = PERIPH_DEVID(node_idx);
-				ret = pm_set_wakeup_source(XPM_DEVID_ACPU_0,
+				ret = pm_set_wakeup_source(node_id,
 							   device_id, 1);
 				pm_wakeup_nodes_set[node_idx] = !ret;
 			}
@@ -167,7 +168,7 @@ void pm_client_suspend(const struct pm_proc *proc, unsigned int state)
 	bakery_lock_get(&pm_client_secure_lock);
 
 	if (state == PM_STATE_SUSPEND_TO_RAM)
-		pm_client_set_wakeup_sources();
+		pm_client_set_wakeup_sources(proc->node_id);
 
 	/* Set powerdown request */
 	mmio_write_32(FPD_APU_PWRCTL, mmio_read_32(FPD_APU_PWRCTL) |
