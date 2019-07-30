@@ -193,6 +193,14 @@ static const struct {
 		.id = 0x66,
 		.name = "39DR",
 	},
+	{
+		.id = 0x7b,
+		.name = "48DR",
+	},
+	{
+		.id = 0x7e,
+		.name = "49DR",
+	},
 };
 
 #define ZYNQMP_PL_STATUS_BIT	9
