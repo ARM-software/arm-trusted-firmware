@@ -13,15 +13,8 @@
 
 #include "s10_clock_manager.h"
 #include "s10_handoff.h"
+#include "s10_system_manager.h"
 
-static const CLOCK_SOURCE_CONFIG  clk_source = {
-	/* clk_freq_of_eosc1 */
-	(uint32_t) 25000000,
-	/* clk_freq_of_f2h_free */
-	(uint32_t) 460000000,
-	/* clk_freq_of_cb_intosc_ls */
-	(uint32_t) 50000000,
-};
 
 void wait_pll_lock(void)
 {
@@ -195,24 +188,32 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 	mmio_write_32(ALT_CLKMGR + ALT_CLKMGR_INTRCLR,
 			ALT_CLKMGR_INTRCLR_MAINLOCKLOST_SET_MSK |
 			ALT_CLKMGR_INTRCLR_PERLOCKLOST_SET_MSK);
+
+	/* Pass clock source frequency into scratch register */
+	mmio_write_32(S10_SYSMGR_CORE(SYSMGR_BOOT_SCRATCH_COLD_1),
+			hoff_ptr->hps_osc_clk_h);
+	mmio_write_32(S10_SYSMGR_CORE(SYSMGR_BOOT_SCRATCH_COLD_2),
+			hoff_ptr->fpga_clk_hz);
+
 }
 
-int get_wdt_clk(handoff *hoff_ptr)
+/* Extract reference clock from platform clock source */
+uint32_t get_ref_clk(uint32_t pllglob)
 {
-	int main_noc_base_clk, l3_main_free_clk, l4_sys_free_clk;
-	int data32, mdiv, refclkdiv, ref_clk;
+	uint32_t data32, mdiv, refclkdiv, ref_clk;
+	uint32_t scr_reg;
 
-	data32 = mmio_read_32(ALT_CLKMGR_MAINPLL + ALT_CLKMGR_MAINPLL_PLLGLOB);
-
-	switch (ALT_CLKMGR_MAINPLL_PLLGLOB_PSRC(data32)) {
-	case ALT_CLKMGR_MAINPLL_PLLGLOB_PSRC_EOSC1:
-		ref_clk = clk_source.clk_freq_of_eosc1;
+	switch (ALT_CLKMGR_PSRC(pllglob)) {
+	case ALT_CLKMGR_PLLGLOB_PSRC_EOSC1:
+		scr_reg = S10_SYSMGR_CORE(SYSMGR_BOOT_SCRATCH_COLD_1);
+		ref_clk = mmio_read_32(scr_reg);
 		break;
-	case ALT_CLKMGR_MAINPLL_PLLGLOB_PSRC_INTOSC:
-		ref_clk = clk_source.clk_freq_of_cb_intosc_ls;
+	case ALT_CLKMGR_PLLGLOB_PSRC_INTOSC:
+		ref_clk = ALT_CLKMGR_INTOSC_HZ;
 		break;
-	case ALT_CLKMGR_MAINPLL_PLLGLOB_PSRC_F2S:
-		ref_clk = clk_source.clk_freq_of_f2h_free;
+	case ALT_CLKMGR_PLLGLOB_PSRC_F2S:
+		scr_reg = S10_SYSMGR_CORE(SYSMGR_BOOT_SCRATCH_COLD_2);
+		ref_clk = mmio_read_32(scr_reg);
 		break;
 	default:
 		ref_clk = 0;
@@ -220,14 +221,89 @@ int get_wdt_clk(handoff *hoff_ptr)
 		break;
 	}
 
-	refclkdiv = ALT_CLKMGR_MAINPLL_PLLGLOB_REFCLKDIV(data32);
+	refclkdiv = ALT_CLKMGR_MAINPLL_PLLGLOB_REFCLKDIV(pllglob);
 	data32 = mmio_read_32(ALT_CLKMGR_MAINPLL + ALT_CLKMGR_MAINPLL_FDBCK);
 	mdiv = ALT_CLKMGR_MAINPLL_FDBCK_MDIV(data32);
+
 	ref_clk = (ref_clk / refclkdiv) * (6 + mdiv);
 
-	main_noc_base_clk = ref_clk / (hoff_ptr->main_pll_pllc1 & 0xff);
-	l3_main_free_clk = main_noc_base_clk / (hoff_ptr->main_pll_nocclk + 1);
-	l4_sys_free_clk = l3_main_free_clk / 4;
+	return ref_clk;
+}
 
-	return l4_sys_free_clk;
+/* Calculate L3 interconnect main clock */
+uint32_t get_l3_clk(uint32_t ref_clk)
+{
+	uint32_t noc_base_clk, l3_clk, noc_clk, data32;
+	uint32_t pllc1_reg;
+
+	noc_clk = mmio_read_32(ALT_CLKMGR_MAINPLL + ALT_CLKMGR_MAINPLL_NOCCLK);
+
+	switch (ALT_CLKMGR_PSRC(noc_clk)) {
+	case ALT_CLKMGR_SRC_MAIN:
+		pllc1_reg = ALT_CLKMGR_MAINPLL + ALT_CLKMGR_MAINPLL_PLLC1;
+		break;
+	case ALT_CLKMGR_SRC_PER:
+		pllc1_reg = ALT_CLKMGR_PERPLL + ALT_CLKMGR_PERPLL_PLLC1;
+		break;
+	default:
+		pllc1_reg = 0;
+		assert(0);
+		break;
+	}
+
+	data32 = mmio_read_32(pllc1_reg);
+	noc_base_clk = ref_clk / (data32 & 0xff);
+	l3_clk = noc_base_clk / (noc_clk + 1);
+
+	return l3_clk;
+}
+
+/* Calculate clock frequency to be used for watchdog timer */
+uint32_t get_wdt_clk(void)
+{
+	uint32_t data32, ref_clk, l3_clk, l4_sys_clk;
+
+	data32 = mmio_read_32(ALT_CLKMGR_MAINPLL + ALT_CLKMGR_MAINPLL_PLLGLOB);
+	ref_clk = get_ref_clk(data32);
+
+	l3_clk = get_l3_clk(ref_clk);
+
+	l4_sys_clk = l3_clk / 4;
+
+	return l4_sys_clk;
+}
+
+/* Calculate clock frequency to be used for UART driver */
+uint32_t get_uart_clk(void)
+{
+	uint32_t data32, ref_clk, l3_clk, l4_sp_clk;
+
+	data32 = mmio_read_32(ALT_CLKMGR_PERPLL + ALT_CLKMGR_PERPLL_PLLGLOB);
+	ref_clk = get_ref_clk(data32);
+
+	l3_clk = get_l3_clk(ref_clk);
+
+	data32 = mmio_read_32(ALT_CLKMGR_MAINPLL + ALT_CLKMGR_MAINPLL_NOCDIV);
+	data32 = (data32 >> 16) & 0x3;
+	data32 = 1 << data32;
+
+	l4_sp_clk = (l3_clk / data32);
+
+	return l4_sp_clk;
+}
+
+/* Calculate clock frequency to be used for SDMMC driver */
+uint32_t get_mmc_clk(void)
+{
+	uint32_t data32, ref_clk, l3_clk, mmc_clk;
+
+	data32 = mmio_read_32(ALT_CLKMGR_PERPLL + ALT_CLKMGR_PERPLL_PLLGLOB);
+	ref_clk = get_ref_clk(data32);
+
+	l3_clk = get_l3_clk(ref_clk);
+
+	data32 = mmio_read_32(ALT_CLKMGR_MAINPLL + ALT_CLKMGR_MAINPLL_CNTR6CLK);
+	mmc_clk = (l3_clk / (data32 + 1)) / 4;
+
+	return mmc_clk;
 }
