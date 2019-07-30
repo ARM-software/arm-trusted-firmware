@@ -162,7 +162,8 @@ static void gxbb_pwr_domain_off(const psci_power_state_t *target_state)
 static void __dead2 gxbb_pwr_domain_pwr_down_wfi(const psci_power_state_t
 						 *target_state)
 {
-	unsigned int core = plat_gxbb_calc_core_pos(read_mpidr_el1());
+	u_register_t mpidr = read_mpidr_el1();
+	unsigned int core = plat_gxbb_calc_core_pos(mpidr);
 
 	/* CPU0 can't be turned OFF, emulate it with a WFE loop */
 	if (core == GXBB_PRIMARY_CPU) {
@@ -173,10 +174,19 @@ static void __dead2 gxbb_pwr_domain_pwr_down_wfi(const psci_power_state_t
 
 		VERBOSE("BL31: CPU0 resumed.\n");
 
-		write_rmr_el3(RMR_EL3_RR_BIT | RMR_EL3_AA64_BIT);
+		/*
+		 * Because setting CPU0's warm reset entrypoint through PSCI
+		 * mailbox and/or mmio mapped RVBAR (0xda834650) does not seem
+		 * to work, jump to it manually.
+		 * In order to avoid an assert, mmu has to be disabled.
+		 */
+		disable_mmu_el3();
+		((void(*)(void))gxbb_sec_entrypoint)();
 	}
 
 	dsbsy();
+	gxl_pm_set_reset_addr(mpidr, 0);
+	gxl_pm_reset(mpidr);
 
 	for (;;)
 		wfi();
