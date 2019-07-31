@@ -228,6 +228,13 @@ endif
 ASFLAGS_aarch32		=	$(march32-directive)
 ASFLAGS_aarch64		=	$(march64-directive)
 
+# General warnings
+WARNINGS		:=	-Wall -Wmissing-include-dirs -Wunused	\
+				-Wdisabled-optimization	-Wvla	\
+				-Wno-unused-parameter
+
+# Additional warnings
+# Level 1
 WARNING1 := -Wextra
 WARNING1 += -Wmissing-declarations
 WARNING1 += -Wmissing-format-attribute
@@ -253,17 +260,14 @@ WARNING3 += -Wredundant-decls
 WARNING3 += -Wswitch-default
 
 ifeq (${W},1)
-WARNINGS := $(WARNING1)
+WARNINGS += $(WARNING1)
 else ifeq (${W},2)
-WARNINGS := $(WARNING1) $(WARNING2)
+WARNINGS += $(WARNING1) $(WARNING2)
 else ifeq (${W},3)
-WARNINGS := $(WARNING1) $(WARNING2) $(WARNING3)
+WARNINGS += $(WARNING1) $(WARNING2) $(WARNING3)
 endif
 
-WARNINGS	+=		-Wunused -Wno-unused-parameter	\
-				-Wdisabled-optimization		\
-				-Wvla
-
+# Compiler specific warnings
 ifeq ($(findstring clang,$(notdir $(CC))),)
 # not using clang
 WARNINGS	+=		-Wunused-but-set-variable	\
@@ -279,12 +283,12 @@ ifneq (${E},0)
 ERRORS := -Werror
 endif
 
-CPPFLAGS		=	${DEFINES} ${INCLUDES} ${MBEDTLS_INC} -nostdinc		\
-				-Wmissing-include-dirs $(ERRORS) $(WARNINGS)
+CPPFLAGS		=	${DEFINES} ${INCLUDES} ${MBEDTLS_INC} -nostdinc	\
+				$(ERRORS) $(WARNINGS)
 ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
 				-ffreestanding -Wa,--fatal-warnings
 TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
-				-ffreestanding -fno-builtin -Wall -std=gnu99	\
+				-ffreestanding -fno-builtin -std=gnu99		\
 				-Os -ffunction-sections -fdata-sections
 
 ifeq (${SANITIZE_UB},on)
