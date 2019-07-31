@@ -247,8 +247,6 @@ WARNING2 += -Wcast-align
 WARNING2 += -Wnested-externs
 WARNING2 += -Wshadow
 WARNING2 += -Wlogical-op
-WARNING2 += -Wmissing-field-initializers
-WARNING2 += -Wsign-compare
 
 WARNING3 := -Wbad-function-cast
 WARNING3 += -Wcast-qual
