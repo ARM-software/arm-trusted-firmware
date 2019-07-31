@@ -16,6 +16,35 @@
 #error "cortex_hercules must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+	/* -------------------------------------------------
+	 * The CPU Ops reset function for Cortex-Hercules
+	 * -------------------------------------------------
+	 */
+#if ENABLE_AMU
+func cortex_hercules_reset_func
+	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
+	mrs	x0, actlr_el3
+	bic	x0, x0, #CORTEX_HERCULES_ACTLR_TAM_BIT
+	msr	actlr_el3, x0
+
+	/* Make sure accesses from non-secure EL0/EL1 are not trapped to EL2 */
+	mrs	x0, actlr_el2
+	bic	x0, x0, #CORTEX_HERCULES_ACTLR_TAM_BIT
+	msr	actlr_el2, x0
+
+	/* Enable group0 counters */
+	mov	x0, #CORTEX_HERCULES_AMU_GROUP0_MASK
+	msr	CPUAMCNTENSET0_EL0, x0
+
+	/* Enable group1 counters */
+	mov	x0, #CORTEX_HERCULES_AMU_GROUP1_MASK
+	msr	CPUAMCNTENSET1_EL0, x0
+	isb
+
+	ret
+endfunc cortex_hercules_reset_func
+#endif
+
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------
@@ -60,6 +89,12 @@ func cortex_hercules_cpu_reg_dump
 	ret
 endfunc cortex_hercules_cpu_reg_dump
 
+#if ENABLE_AMU
+#define HERCULES_RESET_FUNC cortex_hercules_reset_func
+#else
+#define HERCULES_RESET_FUNC CPU_NO_RESET_FUNC
+#endif
+
 declare_cpu_ops cortex_hercules, CORTEX_HERCULES_MIDR, \
-	CPU_NO_RESET_FUNC, \
+	HERCULES_RESET_FUNC, \
 	cortex_hercules_core_pwr_dwn
