@@ -30,11 +30,13 @@ RK_GIC_SOURCES         :=	drivers/arm/gic/common/gic_common.c		\
 				plat/common/aarch64/crash_console_helpers.S	\
 				${RK_PLAT}/common/rockchip_gicv2.c
 
-PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
+PLAT_BL_COMMON_SOURCES	:=	lib/bl_aux_params/bl_aux_params.c		\
+				lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
 				plat/common/plat_psci_common.c
 
 BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
+				common/desc_image_load.c			\
 				drivers/arm/cci/cci.c				\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
