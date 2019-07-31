@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -331,7 +331,7 @@ int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
 
 	assert(image_id < ARRAY_SIZE(uniphier_io_policies));
 
-	*dev_handle = *(uniphier_io_policies[image_id].dev_handle);
+	*dev_handle = *uniphier_io_policies[image_id].dev_handle;
 	*image_spec = uniphier_io_policies[image_id].image_spec;
 	init_params = uniphier_io_policies[image_id].init_params;
 
