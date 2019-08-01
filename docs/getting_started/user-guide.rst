@@ -50,12 +50,13 @@ Install the required packages to build TF-A with the following command:
 
 TF-A has been tested with Linaro Release 18.04.
 
-Download and install the AArch32 or AArch64 little-endian GCC cross compiler. If
-you would like to use the latest features available, download GCC 8.2-2019.01
-compiler from `arm Developer page`_. Otherwise, the `Linaro Release Notes`_
-documents which version of the compiler to use for a given Linaro Release. Also,
-these `Linaro instructions`_ provide further guidance and a script, which can be
-used to download Linaro deliverables automatically.
+Download and install the AArch32 (arm-eabi) or AArch64 little-endian
+(aarch64-linux-gnu) GCC cross compiler. If you would like to use the latest
+features available, download GCC 8.3-2019.03 compiler from
+`arm Developer page`_. Otherwise, the `Linaro Release Notes`_ documents which
+version of the compiler to use for a given Linaro Release. Also, these
+`Linaro instructions`_ provide further guidance and a script, which can be used
+to download Linaro deliverables automatically.
 
 Optionally, TF-A can be built using clang version 4.0 or newer or Arm
 Compiler 6. See instructions below on how to switch the default compiler.
@@ -138,7 +139,7 @@ Building TF-A
 
    .. code:: shell
 
-       export CROSS_COMPILE=<path-to-aarch32-gcc>/bin/arm-linux-gnueabihf-
+       export CROSS_COMPILE=<path-to-aarch32-gcc>/bin/arm-eabi-
 
    It is possible to build TF-A using Clang or Arm Compiler 6. To do so
    ``CC`` needs to point to the clang or armclang binary, which will
