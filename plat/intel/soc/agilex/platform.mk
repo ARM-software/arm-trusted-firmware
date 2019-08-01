@@ -37,14 +37,14 @@ BL2_SOURCES     +=	\
 		lib/cpus/aarch64/cortex_a53.S				\
 		plat/intel/soc/agilex/bl2_plat_setup.c			\
 		plat/intel/soc/agilex/socfpga_storage.c			\
-                plat/intel/soc/agilex/bl2_plat_mem_params_desc.c	\
+                plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_handoff.c		\
 		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
 		plat/intel/soc/agilex/soc/agilex_memory_controller.c	\
-		plat/intel/soc/agilex/socfpga_delay_timer.c		\
-		plat/intel/soc/agilex/socfpga_image_load.c		\
+		plat/intel/soc/common/socfpga_delay_timer.c		\
+		plat/intel/soc/common/socfpga_image_load.c		\
 		plat/intel/soc/agilex/soc/agilex_system_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_mailbox.c		\
 		plat/intel/soc/common/drivers/qspi/cadence_qspi.c	\
@@ -59,8 +59,8 @@ BL31_SOURCES	+=	\
 		plat/intel/soc/agilex/socfpga_sip_svc.c			\
 		plat/intel/soc/agilex/bl31_plat_setup.c 		\
 		plat/intel/soc/agilex/socfpga_psci.c			\
-		plat/intel/soc/agilex/socfpga_topology.c		\
-		plat/intel/soc/agilex/socfpga_delay_timer.c		\
+		plat/intel/soc/common/socfpga_topology.c		\
+		plat/intel/soc/common/socfpga_delay_timer.c		\
 		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
 		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\

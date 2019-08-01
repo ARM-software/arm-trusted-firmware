@@ -35,15 +35,15 @@ BL2_SOURCES     +=	\
 		drivers/intel/soc/stratix10/io/s10_memmap_qspi.c	\
 		plat/intel/soc/stratix10/bl2_plat_setup.c		\
 		plat/intel/soc/stratix10/plat_storage.c			\
-                plat/intel/soc/stratix10/bl2_plat_mem_params_desc.c	\
+                plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/stratix10/soc/s10_reset_manager.c	\
 		plat/intel/soc/stratix10/soc/s10_handoff.c		\
 		plat/intel/soc/stratix10/soc/s10_clock_manager.c	\
 		plat/intel/soc/stratix10/soc/s10_pinmux.c		\
 		plat/intel/soc/stratix10/soc/s10_memory_controller.c	\
-		plat/intel/soc/stratix10/plat_delay_timer.c		\
+		plat/intel/soc/common/socfpga_delay_timer.c		\
 		lib/cpus/aarch64/cortex_a53.S				\
-		plat/intel/soc/stratix10/stratix10_image_load.c		\
+		plat/intel/soc/common/socfpga_image_load.c		\
 		plat/intel/soc/stratix10/soc/s10_system_manager.c	\
 		common/desc_image_load.c				\
 		plat/intel/soc/stratix10/soc/s10_mailbox.c		\
@@ -58,8 +58,8 @@ BL31_SOURCES	+=	drivers/arm/cci/cci.c				\
 			plat/intel/soc/stratix10/plat_sip_svc.c		\
 			plat/intel/soc/stratix10/bl31_plat_setup.c 	\
 			plat/intel/soc/stratix10/plat_psci.c		\
-			plat/intel/soc/stratix10/plat_topology.c	\
-			plat/intel/soc/stratix10/plat_delay_timer.c	\
+			plat/intel/soc/common/socfpga_topology.c	\
+			plat/intel/soc/common/socfpga_delay_timer.c	\
 			plat/intel/soc/stratix10/soc/s10_reset_manager.c\
 			plat/intel/soc/stratix10/soc/s10_pinmux.c	\
 			plat/intel/soc/stratix10/soc/s10_clock_manager.c\
