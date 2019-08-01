@@ -15,7 +15,7 @@
 
 
 #define PLAT_CPUID_RELEASE			0xffe1b000
-#define PLAT_AGX_SEC_ENTRY			0xffe1b008
+#define PLAT_SEC_ENTRY				0xffe1b008
 
 /* Define next boot image name and offset */
 #define PLAT_NS_IMAGE_OFFSET			0x50000

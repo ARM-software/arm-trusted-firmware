@@ -7,7 +7,8 @@
 #
 PLAT_INCLUDES		:=	\
 			-Iplat/intel/soc/agilex/include/		\
-			-Iplat/intel/soc/common/drivers/
+			-Iplat/intel/soc/common/drivers/		\
+			-Iplat/intel/soc/common/include/
 
 PLAT_BL_COMMON_SOURCES	:=	\
 			drivers/arm/gic/common/gic_common.c		\
@@ -19,8 +20,8 @@ PLAT_BL_COMMON_SOURCES	:=	\
 			lib/xlat_tables/aarch64/xlat_tables.c 		\
 			lib/xlat_tables/xlat_tables_common.c 		\
 			plat/common/plat_gicv2.c			\
-			plat/intel/soc/agilex/aarch64/platform_common.c \
-			plat/intel/soc/agilex/aarch64/plat_helpers.S	\
+			plat/intel/soc/common/aarch64/platform_common.c \
+			plat/intel/soc/common/aarch64/plat_helpers.S
 
 BL2_SOURCES     +=	\
 		common/desc_image_load.c				\

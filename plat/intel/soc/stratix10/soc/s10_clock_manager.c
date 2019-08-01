@@ -10,7 +10,6 @@
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
 #include <platform_def.h>
-#include <platform_private.h>
 
 #include "s10_clock_manager.h"
 #include "s10_handoff.h"
