@@ -87,6 +87,7 @@ endfunc spin_lock
  */
 func spin_unlock
 	stlr	wzr, [x0]
+    dsb  sy
 	COND_SEV()
 	ret
 endfunc spin_unlock
