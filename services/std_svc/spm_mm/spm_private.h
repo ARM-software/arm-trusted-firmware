@@ -29,7 +29,7 @@
 #define SP_C_RT_CTX_SIZE	0x60
 #define SP_C_RT_CTX_ENTRIES	(SP_C_RT_CTX_SIZE >> DWORD_SHIFT)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -66,6 +66,6 @@ int spm_memory_attributes_set_smc_handler(sp_context_t *sp_ctx,
 					  u_register_t pages_count,
 					  u_register_t smc_attributes);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* SPM_PRIVATE_H */

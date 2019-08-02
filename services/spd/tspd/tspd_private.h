@@ -126,7 +126,7 @@
 #define TSPD_SP_CTX_SIZE	0x90
 #define TSPD_SP_CTX_ENTRIES		(TSPD_SP_CTX_SIZE >> DWORD_SHIFT)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -227,6 +227,6 @@ uint64_t tspd_handle_sp_preemption(void *handle);
 
 extern tsp_context_t tspd_sp_context[TSPD_CORE_COUNT];
 extern tsp_vectors_t *tsp_vectors;
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* TSPD_PRIVATE_H */

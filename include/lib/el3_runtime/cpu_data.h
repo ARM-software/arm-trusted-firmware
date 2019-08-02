@@ -49,7 +49,7 @@
 #define CPU_DATA_PMF_TS0_IDX		0
 #endif
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <arch_helpers.h>
 #include <lib/cassert.h>
@@ -161,5 +161,5 @@ void init_cpu_ops(void);
 						sizeof(((cpu_data_t *)0)->_m))
 
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 #endif /* CPU_DATA_H */

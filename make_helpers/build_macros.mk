@@ -273,7 +273,7 @@ $(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
 
 $(1): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
 	$$(ECHO) "  PP      $$<"
-	$$(Q)$$(CPP) $$(CPPFLAGS) -P -D__ASSEMBLY__ -D__LINKER__ $(MAKE_DEP) -D$(IMAGE) -o $$@ $$<
+	$$(Q)$$(CPP) $$(CPPFLAGS) -P -x assembler-with-cpp -D__LINKER__ $(MAKE_DEP) -D$(IMAGE) -o $$@ $$<
 
 -include $(DEP)
 

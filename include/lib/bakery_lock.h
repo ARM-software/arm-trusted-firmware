@@ -11,7 +11,7 @@
 
 #define BAKERY_LOCK_MAX_CPUS		PLATFORM_CORE_COUNT
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <cdefs.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -101,5 +101,5 @@ void bakery_lock_release(bakery_lock_t *bakery);
 #define DECLARE_BAKERY_LOCK(_name) extern bakery_lock_t _name
 
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 #endif /* BAKERY_LOCK_H */

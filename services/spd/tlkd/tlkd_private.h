@@ -71,7 +71,7 @@
 #define TLKD_C_RT_CTX_SIZE		0x60
 #define TLKD_C_RT_CTX_ENTRIES		(TLKD_C_RT_CTX_SIZE >> DWORD_SHIFT)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -119,6 +119,6 @@ void tlkd_init_tlk_ep_state(struct entry_point_info *tlk_entry_point,
 				uint64_t pc,
 				tlk_context_t *tlk_ctx);
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* TLKD_PRIVATE_H */

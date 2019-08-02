@@ -9,9 +9,9 @@
 
 #include <stdbool.h>
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stdint.h>
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #include <export/common/param_header_exp.h>
 

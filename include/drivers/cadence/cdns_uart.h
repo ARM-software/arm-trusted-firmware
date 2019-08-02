@@ -27,7 +27,7 @@
 
 #define CONSOLE_T_CDNS_BASE	CONSOLE_T_DRVDATA
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -45,6 +45,6 @@ typedef struct {
 int console_cdns_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
 			  console_cdns_t *console);
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* CDNS_UART_H */

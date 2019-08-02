@@ -61,7 +61,7 @@
 #define is_fwu_fid(_fid) \
     ((_fid >= FWU_SMC_FID_START) && (_fid <= FWU_SMC_FID_END))
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <lib/cassert.h>
 
@@ -98,5 +98,5 @@ CASSERT(FWU_NUM_SMC_CALLS == 	\
 void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 			meminfo_t *bl2_mem_layout);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 #endif /* BL1_H */

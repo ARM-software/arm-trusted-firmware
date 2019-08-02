@@ -7,7 +7,7 @@
 #ifndef EHF_H
 #define EHF_H
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <cdefs.h>
 #include <stdint.h>
@@ -87,6 +87,6 @@ void ehf_register_priority_handler(unsigned int pri, ehf_handler_t handler);
 void ehf_allow_ns_preemption(uint64_t preempt_ret_code);
 unsigned int ehf_is_ns_preemption_allowed(void);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* EHF_H */

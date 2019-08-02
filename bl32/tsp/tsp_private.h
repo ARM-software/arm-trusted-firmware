@@ -20,7 +20,7 @@
 #define TSP_ARGS_END		0x40
 
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -148,6 +148,6 @@ tsp_args_t *tsp_system_off_main(uint64_t arg0,
 				uint64_t arg7);
 
 uint64_t tsp_main(void);
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* TSP_PRIVATE_H */

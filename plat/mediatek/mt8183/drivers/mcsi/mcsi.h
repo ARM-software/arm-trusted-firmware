@@ -85,7 +85,7 @@
 
 #define CCI_CLK_CTRL			(MCUCFG_BASE + 0x660)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <plat/common/common_def.h>
 #include <stdint.h>
@@ -112,5 +112,5 @@ void cci_secure_switch(unsigned int ns);
 void cci_init_sf(void);
 unsigned long cci_reg_access(unsigned int op, unsigned long offset, unsigned long val);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 #endif /* MCSI_H */

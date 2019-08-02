@@ -7,7 +7,7 @@
 #ifndef MICRO_DELAY_H
 #define MICRO_DELAY_H
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stdint.h>
 void rcar_micro_delay(uint64_t micro_sec);
 #endif

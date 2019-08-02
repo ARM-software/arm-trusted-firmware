@@ -273,8 +273,7 @@ endif
 CPPFLAGS		=	${DEFINES} ${INCLUDES} ${MBEDTLS_INC} -nostdinc		\
 				-Wmissing-include-dirs $(ERRORS) $(WARNINGS)
 ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
-				-D__ASSEMBLY__ -ffreestanding 			\
-				-Wa,--fatal-warnings
+				-ffreestanding -Wa,--fatal-warnings
 TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
 				-ffreestanding -fno-builtin -Wall -std=gnu99	\
 				-Os -ffunction-sections -fdata-sections
@@ -763,14 +762,16 @@ all: msg_start
 msg_start:
 	@echo "Building ${PLAT}"
 
-# Check if deprecated declarations and cpp warnings should be treated as error or not.
 ifeq (${ERROR_DEPRECATED},0)
+# Check if deprecated declarations and cpp warnings should be treated as error or not.
 ifneq ($(findstring clang,$(notdir $(CC))),)
     CPPFLAGS		+= 	-Wno-error=deprecated-declarations
 else
     CPPFLAGS		+= 	-Wno-error=deprecated-declarations -Wno-error=cpp
 endif
-endif
+# __ASSEMBLY__ is deprecated in favor of the compiler-builtin __ASSEMBLER__.
+ASFLAGS	+= -D__ASSEMBLY__
+endif # !ERROR_DEPRECATED
 
 $(eval $(call MAKE_LIB_DIRS))
 $(eval $(call MAKE_LIB,c))

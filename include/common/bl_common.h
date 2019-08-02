@@ -11,11 +11,11 @@
 #include <common/param_header.h>
 #include <lib/utils_def.h>
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stddef.h>
 #include <stdint.h>
 #include <lib/cassert.h>
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #include <export/common/bl_common_exp.h>
 
@@ -91,7 +91,7 @@
 #define __TEXT_END__			Load$$__TEXT_EPILOGUE__$$Base
 #endif /* USE_ARM_LINK */
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 /*
  * Declarations of linker defined symbols to help determine memory layout of
@@ -178,6 +178,6 @@ void setup_page_tables(const struct mmap_region *bl_regions,
 
 void bl_handle_pauth(void);
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* BL_COMMON_H */

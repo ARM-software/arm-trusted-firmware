@@ -9,12 +9,12 @@
 
 #include <setjmp_.h>
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <cdefs.h>
 
 int setjmp(jmp_buf env);
 __dead2 void longjmp(jmp_buf env, int val);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 #endif /* SETJMP_H */

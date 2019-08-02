@@ -207,7 +207,7 @@
 #define CTX_PAUTH_REGS_END	U(0)
 #endif /* CTX_INCLUDE_PAUTH_REGS */
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -384,6 +384,6 @@ void fpregs_context_save(fp_regs_t *regs);
 void fpregs_context_restore(fp_regs_t *regs);
 #endif
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* CONTEXT_H */

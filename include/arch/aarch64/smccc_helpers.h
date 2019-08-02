@@ -9,7 +9,7 @@
 
 #include <lib/smccc.h>
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdbool.h>
 
@@ -82,6 +82,6 @@
 		_x4 = read_ctx_reg(regs, CTX_GPREG_X4);		\
 	} while (false)
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* SMCCC_HELPERS_H */

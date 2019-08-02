@@ -41,7 +41,7 @@
 #define CORTEX_A75_AMU_GROUP0_MASK	U(0x7)
 #define CORTEX_A75_AMU_GROUP1_MASK	(U(0) << 3)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stdint.h>
 
 uint64_t cortex_a75_amu_cnt_read(int idx);
@@ -50,6 +50,6 @@ unsigned int cortex_a75_amu_read_cpuamcntenset_el0(void);
 unsigned int cortex_a75_amu_read_cpuamcntenclr_el0(void);
 void cortex_a75_amu_write_cpuamcntenset_el0(unsigned int mask);
 void cortex_a75_amu_write_cpuamcntenclr_el0(unsigned int mask);
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* CORTEX_A75_H */

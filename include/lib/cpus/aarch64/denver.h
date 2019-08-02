@@ -34,11 +34,11 @@
 #define DENVER_CPU_PMSTATE_C7		U(0x7)
 #define DENVER_CPU_PMSTATE_MASK		U(0xF)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 /* Disable Dynamic Code Optimisation */
 void denver_disable_dco(void);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* DENVER_H */

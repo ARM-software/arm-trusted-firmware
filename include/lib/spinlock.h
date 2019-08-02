@@ -7,7 +7,7 @@
 #ifndef SPINLOCK_H
 #define SPINLOCK_H
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 

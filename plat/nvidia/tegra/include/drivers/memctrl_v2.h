@@ -9,7 +9,7 @@
 
 #include <tegra_def.h>
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <lib/mmio.h>
 #include <stdint.h>
@@ -173,6 +173,6 @@ tegra_mc_settings_t *tegra_get_mc_settings(void);
  ******************************************************************************/
 void plat_memctrl_tzdram_setup(uint64_t phys_base, uint64_t size_in_bytes);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* MEMCTRL_V2_H */

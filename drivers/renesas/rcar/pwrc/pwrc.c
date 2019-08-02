@@ -148,7 +148,7 @@ RCAR_INSTANTIATE_LOCK
 #define IS_CA57(c) 	((c) == RCAR_CLUSTER_CA57)
 #define IS_CA53(c) 	((c) == RCAR_CLUSTER_CA53)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 IMPORT_SYM(unsigned long, __system_ram_start__, SYSTEM_RAM_START);
 IMPORT_SYM(unsigned long, __system_ram_end__, SYSTEM_RAM_END);
 IMPORT_SYM(unsigned long, __SRAM_COPY_START__, SRAM_COPY_START);

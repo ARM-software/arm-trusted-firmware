@@ -32,7 +32,7 @@
 /* Value returned by spm_sp_synchronous_entry() when a partition is preempted */
 #define SPM_SECURE_PARTITION_PREEMPTED	U(0x1234)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -114,6 +114,6 @@ int spm_response_add(uint16_t client_id, uint16_t handle, uint32_t token,
 int spm_response_get(uint16_t client_id, uint16_t handle, uint32_t token,
 		     u_register_t *x1, u_register_t *x2, u_register_t *x3);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* SPM_PRIVATE_H */

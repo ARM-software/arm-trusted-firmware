@@ -29,7 +29,7 @@
 #define CPUAMEVTYPER3_EL0	S3_3_C15_C10_3
 #define CPUAMEVTYPER4_EL0	S3_3_C15_C10_4
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stdint.h>
 
 uint64_t cpuamu_cnt_read(unsigned int idx);
@@ -43,6 +43,6 @@ int midr_match(unsigned int cpu_midr);
 void cpuamu_context_save(unsigned int nr_counters);
 void cpuamu_context_restore(unsigned int nr_counters);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* CPUAMU_H */

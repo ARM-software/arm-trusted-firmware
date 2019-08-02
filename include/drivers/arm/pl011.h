@@ -83,7 +83,7 @@
 
 #define CONSOLE_T_PL011_BASE	CONSOLE_T_DRVDATA
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -101,6 +101,6 @@ typedef struct {
 int console_pl011_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
 			   console_pl011_t *console);
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* PL011_H */

@@ -32,7 +32,7 @@
  * position @h. For example
  * GENMASK_64(39, 21) gives us the 64bit vector 0x000000ffffe00000.
  */
-#if defined(__LINKER__) || defined(__ASSEMBLY__)
+#if defined(__LINKER__) || defined(__ASSEMBLER__)
 #define GENMASK_32(h, l) \
 	(((0xFFFFFFFF) << (l)) & (0xFFFFFFFF >> (32 - 1 - (h))))
 

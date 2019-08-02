@@ -8,9 +8,9 @@
 #ifndef PLATFORM_DEF_H
 #define PLATFORM_DEF_H
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stdio.h>
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #include <board_marvell_def.h>
 #include <mvebu_def.h>

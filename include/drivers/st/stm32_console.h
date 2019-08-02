@@ -11,7 +11,7 @@
 
 #define CONSOLE_T_STM32_BASE	CONSOLE_T_DRVDATA
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -29,6 +29,6 @@ struct console_stm32 {
 int console_stm32_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
 			   struct console_stm32 *console);
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 
 #endif /* STM32_CONSOLE_H */

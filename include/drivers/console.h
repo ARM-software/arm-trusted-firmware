@@ -28,7 +28,7 @@
 /* Returned by console_xxx() if no registered console implements xxx. */
 #define ERROR_NO_VALID_CONSOLE		(-128)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -75,6 +75,6 @@ int console_getc(void);
 /* Flush all consoles registered for the current state. */
 int console_flush(void);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* CONSOLE_H */

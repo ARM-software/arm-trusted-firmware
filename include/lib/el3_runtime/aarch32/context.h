@@ -24,7 +24,7 @@
 #define CTX_NS_SCTLR		U(0x1C)
 #define CTX_REGS_END		U(0x20)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -65,6 +65,6 @@ typedef struct cpu_context {
 CASSERT(CTX_REGS_OFFSET == __builtin_offsetof(cpu_context_t, regs_ctx), \
 	assert_core_context_regs_offset_mismatch);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* CONTEXT_H */

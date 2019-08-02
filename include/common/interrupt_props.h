@@ -7,7 +7,7 @@
 #ifndef INTERRUPT_PROPS_H
 #define INTERRUPT_PROPS_H
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 /* Create an interrupt property descriptor from various interrupt properties */
 #define INTR_PROP_DESC(num, pri, grp, cfg) \
@@ -25,5 +25,5 @@ typedef struct interrupt_prop {
 	unsigned int intr_cfg:2;
 } interrupt_prop_t;
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 #endif /* INTERRUPT_PROPS_H */

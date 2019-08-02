@@ -7,7 +7,7 @@
 #ifndef PLAT_PRIVATE_H
 #define PLAT_PRIVATE_H
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
@@ -140,7 +140,7 @@ extern const mmap_region_t plat_rk_mmap[];
 
 uint32_t rockchip_get_uart_base(void);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 /******************************************************************************
  * cpu up status

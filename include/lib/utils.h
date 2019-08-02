@@ -11,7 +11,7 @@
  * C code should be put in this part of the header to avoid breaking ASM files
  * or linker scripts including it.
  */
-#if !(defined(__LINKER__) || defined(__ASSEMBLY__))
+#if !(defined(__LINKER__) || defined(__ASSEMBLER__))
 
 #include <stddef.h>
 #include <stdint.h>
@@ -91,6 +91,6 @@ static inline u_register_t load_addr_## _name(void)		\
 /* Helper to invoke the function defined by DEFINE_LOAD_SYM_ADDR() */
 #define LOAD_ADDR_OF(_name)	(typeof(_name) *) load_addr_## _name()
 
-#endif /* !(defined(__LINKER__) || defined(__ASSEMBLY__)) */
+#endif /* !(defined(__LINKER__) || defined(__ASSEMBLER__)) */
 
 #endif /* UTILS_H */

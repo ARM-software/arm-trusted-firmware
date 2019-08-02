@@ -18,13 +18,13 @@
 
 #define JMP_SIZE	(JMP_CTX_END >> 3)
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 #include <cdefs.h>
 
 /* Jump buffer hosting x18 - x30 and sp_el0 registers */
 typedef uint64_t jmp_buf[JMP_SIZE] __aligned(16);
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* SETJMP__H */

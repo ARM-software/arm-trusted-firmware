@@ -9,7 +9,7 @@
 
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 #include <stddef.h>
 #include <stdint.h>
 
@@ -88,5 +88,5 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 		     size_t size, unsigned int attr);
 void mmap_add(const mmap_region_t *mm);
 
-#endif /*__ASSEMBLY__*/
+#endif /*__ASSEMBLER__*/
 #endif /* XLAT_TABLES_H */
