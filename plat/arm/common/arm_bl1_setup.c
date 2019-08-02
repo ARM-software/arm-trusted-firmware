@@ -121,11 +121,11 @@ void arm_bl1_plat_arch_setup(void)
 	};
 
 	setup_page_tables(bl_regions, plat_arm_get_mmap());
-#ifdef AARCH32
-	enable_mmu_svc_mon(0);
-#else
+#ifdef __aarch64__
 	enable_mmu_el3(0);
-#endif /* AARCH32 */
+#else
+	enable_mmu_svc_mon(0);
+#endif /* __aarch64__ */
 
 	arm_setup_romlib();
 }

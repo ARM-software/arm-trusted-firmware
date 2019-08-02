@@ -81,10 +81,10 @@ void bl2_platform_setup(void)
 	/* TODO Initialize timer */
 }
 
-#ifdef AARCH32
-#define QEMU_CONFIGURE_BL2_MMU(...)	qemu_configure_mmu_svc_mon(__VA_ARGS__)
-#else
+#ifdef __aarch64__
 #define QEMU_CONFIGURE_BL2_MMU(...)	qemu_configure_mmu_el1(__VA_ARGS__)
+#else
+#define QEMU_CONFIGURE_BL2_MMU(...)	qemu_configure_mmu_svc_mon(__VA_ARGS__)
 #endif
 
 void bl2_plat_arch_setup(void)
@@ -101,7 +101,7 @@ void bl2_plat_arch_setup(void)
  ******************************************************************************/
 static uint32_t qemu_get_spsr_for_bl32_entry(void)
 {
-#ifdef AARCH64
+#ifdef __aarch64__
 	/*
 	 * The Secure Payload Dispatcher service is responsible for
 	 * setting the SPSR prior to entry into the BL3-2 image.
@@ -119,7 +119,7 @@ static uint32_t qemu_get_spsr_for_bl32_entry(void)
 static uint32_t qemu_get_spsr_for_bl33_entry(void)
 {
 	uint32_t spsr;
-#ifdef AARCH64
+#ifdef __aarch64__
 	unsigned int mode;
 
 	/* Figure out what mode we enter the non-secure world in */

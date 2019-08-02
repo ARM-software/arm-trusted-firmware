@@ -21,10 +21,10 @@
 #define BIT_32(nr)			(U(1) << (nr))
 #define BIT_64(nr)			(ULL(1) << (nr))
 
-#ifdef AARCH32
-#define BIT				BIT_32
-#else
+#ifdef __aarch64__
 #define BIT				BIT_64
+#else
+#define BIT				BIT_32
 #endif
 
 /*
@@ -46,10 +46,10 @@
 	(((~UINT64_C(0)) << (l)) & (~UINT64_C(0) >> (64 - 1 - (h))))
 #endif
 
-#ifdef AARCH32
-#define GENMASK				GENMASK_32
-#else
+#ifdef __aarch64__
 #define GENMASK				GENMASK_64
+#else
+#define GENMASK				GENMASK_32
 #endif
 
 /*
@@ -109,10 +109,10 @@
 	((_u32) > (UINT32_MAX - (_inc)))
 
 /* Register size of the current architecture. */
-#ifdef AARCH32
-#define REGSZ		U(4)
-#else
+#ifdef __aarch64__
 #define REGSZ		U(8)
+#else
+#define REGSZ		U(4)
 #endif
 
 /*

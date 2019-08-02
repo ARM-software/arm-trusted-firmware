@@ -734,12 +734,6 @@ else
                 $(eval $(call add_define,PRELOADED_BL33_BASE))
         endif
 endif
-# Define the AARCH32/AARCH64 flag based on the ARCH flag
-ifeq (${ARCH},aarch32)
-        $(eval $(call add_define,AARCH32))
-else
-        $(eval $(call add_define,AARCH64))
-endif
 
 # Define the DYN_DISABLE_AUTH flag only if set.
 ifeq (${DYN_DISABLE_AUTH},1)
@@ -771,6 +765,12 @@ else
 endif
 # __ASSEMBLY__ is deprecated in favor of the compiler-builtin __ASSEMBLER__.
 ASFLAGS	+= -D__ASSEMBLY__
+# AARCH32/AARCH64 macros are deprecated in favor of the compiler-builtin __aarch64__.
+ifeq (${ARCH},aarch32)
+        $(eval $(call add_define,AARCH32))
+else
+        $(eval $(call add_define,AARCH64))
+endif
 endif # !ERROR_DEPRECATED
 
 $(eval $(call MAKE_LIB_DIRS))

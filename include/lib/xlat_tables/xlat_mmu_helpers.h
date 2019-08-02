@@ -65,14 +65,7 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 		   const uint64_t *base_table, unsigned long long max_pa,
 		   uintptr_t max_va, int xlat_regime);
 
-#ifdef AARCH32
-/* AArch32 specific translation table API */
-void enable_mmu_svc_mon(unsigned int flags);
-void enable_mmu_hyp(unsigned int flags);
-
-void enable_mmu_direct_svc_mon(unsigned int flags);
-void enable_mmu_direct_hyp(unsigned int flags);
-#else
+#ifdef __aarch64__
 /* AArch64 specific translation table APIs */
 void enable_mmu_el1(unsigned int flags);
 void enable_mmu_el2(unsigned int flags);
@@ -81,7 +74,14 @@ void enable_mmu_el3(unsigned int flags);
 void enable_mmu_direct_el1(unsigned int flags);
 void enable_mmu_direct_el2(unsigned int flags);
 void enable_mmu_direct_el3(unsigned int flags);
-#endif /* AARCH32 */
+#else
+/* AArch32 specific translation table API */
+void enable_mmu_svc_mon(unsigned int flags);
+void enable_mmu_hyp(unsigned int flags);
+
+void enable_mmu_direct_svc_mon(unsigned int flags);
+void enable_mmu_direct_hyp(unsigned int flags);
+#endif /* __aarch64__ */
 
 bool xlat_arch_is_granule_size_supported(size_t size);
 size_t xlat_arch_get_max_supported_granule_size(void);

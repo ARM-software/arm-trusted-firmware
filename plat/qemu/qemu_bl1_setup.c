@@ -41,10 +41,10 @@ void bl1_early_platform_setup(void)
  * does basic initialization. Later architectural setup (bl1_arch_setup())
  * does not do anything platform specific.
  *****************************************************************************/
-#ifdef AARCH32
-#define QEMU_CONFIGURE_BL1_MMU(...)	qemu_configure_mmu_svc_mon(__VA_ARGS__)
-#else
+#ifdef __aarch64__
 #define QEMU_CONFIGURE_BL1_MMU(...)	qemu_configure_mmu_el3(__VA_ARGS__)
+#else
+#define QEMU_CONFIGURE_BL1_MMU(...)	qemu_configure_mmu_svc_mon(__VA_ARGS__)
 #endif
 
 void bl1_plat_arch_setup(void)

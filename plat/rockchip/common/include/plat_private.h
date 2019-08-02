@@ -60,16 +60,7 @@ extern uint32_t __sram_incbin_real_end;
 /******************************************************************************
  * Function and variable prototypes
  *****************************************************************************/
-#ifdef AARCH32
-void plat_configure_mmu_svc_mon(unsigned long total_base,
-				unsigned long total_size,
-				unsigned long,
-				unsigned long,
-				unsigned long,
-				unsigned long);
-
-void rockchip_plat_mmu_svc_mon(void);
-#else
+#ifdef __aarch64__
 void plat_configure_mmu_el3(unsigned long total_base,
 			    unsigned long total_size,
 			    unsigned long,
@@ -78,6 +69,15 @@ void plat_configure_mmu_el3(unsigned long total_base,
 			    unsigned long);
 
 void rockchip_plat_mmu_el3(void);
+#else
+void plat_configure_mmu_svc_mon(unsigned long total_base,
+				unsigned long total_size,
+				unsigned long,
+				unsigned long,
+				unsigned long,
+				unsigned long);
+
+void rockchip_plat_mmu_svc_mon(void);
 #endif
 
 void plat_cci_init(void);

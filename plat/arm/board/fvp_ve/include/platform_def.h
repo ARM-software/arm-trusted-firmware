@@ -331,7 +331,7 @@
 /*
  * Physical and virtual address space limits for MMU in AARCH64 & AARCH32 modes
  */
-#ifdef AARCH64
+#ifdef __aarch64__
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 36)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 36)
 #else

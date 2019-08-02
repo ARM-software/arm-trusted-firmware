@@ -40,16 +40,16 @@ static inline u_register_t gicd_irouter_val_from_mpidr(u_register_t mpidr,
  * Macro to convert a GICR_TYPER affinity value into a MPIDR value. Bits[31:24]
  * are zeroes.
  */
-#ifdef AARCH32
-static inline u_register_t mpidr_from_gicr_typer(uint64_t typer_val)
-{
-	return (((typer_val) >> 32) & U(0xffffff));
-}
-#else
+#ifdef __aarch64__
 static inline u_register_t mpidr_from_gicr_typer(uint64_t typer_val)
 {
 	return (((typer_val >> 56) & MPIDR_AFFLVL_MASK) << MPIDR_AFF3_SHIFT) |
 		((typer_val >> 32) & U(0xffffff));
+}
+#else
+static inline u_register_t mpidr_from_gicr_typer(uint64_t typer_val)
+{
+	return (((typer_val) >> 32) & U(0xffffff));
 }
 #endif
 

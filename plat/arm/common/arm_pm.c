@@ -116,7 +116,7 @@ int arm_validate_ns_entrypoint(uintptr_t entrypoint)
 			(ARM_NS_DRAM1_BASE + ARM_NS_DRAM1_SIZE))) {
 		return 0;
 	}
-#ifndef AARCH32
+#ifdef __aarch64__
 	if ((entrypoint >= ARM_DRAM2_BASE) && (entrypoint <
 			(ARM_DRAM2_BASE + ARM_DRAM2_SIZE))) {
 		return 0;

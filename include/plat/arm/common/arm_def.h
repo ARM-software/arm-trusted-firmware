@@ -434,7 +434,7 @@
 #endif
 #endif
 
-#if defined(AARCH32) || JUNO_AARCH32_EL3_RUNTIME
+#if !defined(__aarch64__) || JUNO_AARCH32_EL3_RUNTIME
 /*******************************************************************************
  * BL32 specific defines for EL3 runtime in AArch32 mode
  ******************************************************************************/
@@ -498,17 +498,17 @@
 # else
 #  error "Unsupported ARM_TSP_RAM_LOCATION_ID value"
 # endif
-#endif /* AARCH32 || JUNO_AARCH32_EL3_RUNTIME */
+#endif /* !__aarch64__ || JUNO_AARCH32_EL3_RUNTIME */
 
 /*
  * BL32 is mandatory in AArch32. In AArch64, undefine BL32_BASE if there is no
  * SPD and no SPM, as they are the only ones that can be used as BL32.
  */
-#if !(defined(AARCH32) || JUNO_AARCH32_EL3_RUNTIME)
+#if defined(__aarch64__) && !JUNO_AARCH32_EL3_RUNTIME
 # if defined(SPD_none) && !ENABLE_SPM
 #  undef BL32_BASE
 # endif /* defined(SPD_none) && !ENABLE_SPM */
-#endif /* !(defined(AARCH32) || JUNO_AARCH32_EL3_RUNTIME) */
+#endif /* defined(__aarch64__) && !JUNO_AARCH32_EL3_RUNTIME */
 
 /*******************************************************************************
  * FWU Images: NS_BL1U, BL2U & NS_BL2U defines.

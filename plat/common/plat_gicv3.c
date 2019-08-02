@@ -300,7 +300,7 @@ unsigned int plat_ic_get_interrupt_id(unsigned int raw)
 #pragma weak plat_ic_end_of_interrupt
 
 /* In AArch32, the secure group1 interrupts are targeted to Secure PL1 */
-#ifdef AARCH32
+#ifndef __aarch64__
 #define IS_IN_EL1()	IS_IN_SECURE()
 #endif
 

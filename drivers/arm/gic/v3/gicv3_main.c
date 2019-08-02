@@ -73,12 +73,12 @@ void __init gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 	       plat_driver_data->interrupt_props != NULL : 1);
 
 	/* Check for system register support */
-#ifdef AARCH32
-	assert((read_id_pfr1() & (ID_PFR1_GIC_MASK << ID_PFR1_GIC_SHIFT)) != 0U);
-#else
+#ifdef __aarch64__
 	assert((read_id_aa64pfr0_el1() &
 			(ID_AA64PFR0_GIC_MASK << ID_AA64PFR0_GIC_SHIFT)) != 0U);
-#endif /* AARCH32 */
+#else
+	assert((read_id_pfr1() & (ID_PFR1_GIC_MASK << ID_PFR1_GIC_SHIFT)) != 0U);
+#endif /* __aarch64__ */
 
 	/* The GIC version should be 3.0 */
 	gic_version = gicd_read_pidr2(plat_driver_data->gicd_base);

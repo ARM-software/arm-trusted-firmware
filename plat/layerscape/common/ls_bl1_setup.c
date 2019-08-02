@@ -59,11 +59,11 @@ void ls_bl1_plat_arch_setup(void)
 #endif
 			     );
 	VERBOSE("After setup the page tables\n");
-#ifdef AARCH32
-	enable_mmu_svc_mon(0);
-#else
+#ifdef __aarch64__
 	enable_mmu_el3(0);
-#endif /* AARCH32 */
+#else
+	enable_mmu_svc_mon(0);
+#endif /* __aarch64__ */
 	VERBOSE("After MMU enabled\n");
 }
 

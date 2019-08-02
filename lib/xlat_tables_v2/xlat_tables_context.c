@@ -136,25 +136,7 @@ int xlat_change_mem_attributes(uintptr_t base_va, size_t size, uint32_t attr)
 #define MAX_PHYS_ADDR	tf_xlat_ctx.max_pa
 #endif
 
-#ifdef AARCH32
-
-void enable_mmu_svc_mon(unsigned int flags)
-{
-	setup_mmu_cfg((uint64_t *)&mmu_cfg_params, flags,
-		      tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
-		      tf_xlat_ctx.va_max_address, EL1_EL0_REGIME);
-	enable_mmu_direct_svc_mon(flags);
-}
-
-void enable_mmu_hyp(unsigned int flags)
-{
-	setup_mmu_cfg((uint64_t *)&mmu_cfg_params, flags,
-		      tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
-		      tf_xlat_ctx.va_max_address, EL2_REGIME);
-	enable_mmu_direct_hyp(flags);
-}
-
-#else
+#ifdef __aarch64__
 
 void enable_mmu_el1(unsigned int flags)
 {
@@ -180,4 +162,22 @@ void enable_mmu_el3(unsigned int flags)
 	enable_mmu_direct_el3(flags);
 }
 
-#endif /* AARCH32 */
+#else /* !__aarch64__ */
+
+void enable_mmu_svc_mon(unsigned int flags)
+{
+	setup_mmu_cfg((uint64_t *)&mmu_cfg_params, flags,
+		      tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+		      tf_xlat_ctx.va_max_address, EL1_EL0_REGIME);
+	enable_mmu_direct_svc_mon(flags);
+}
+
+void enable_mmu_hyp(unsigned int flags)
+{
+	setup_mmu_cfg((uint64_t *)&mmu_cfg_params, flags,
+		      tf_xlat_ctx.base_table, MAX_PHYS_ADDR,
+		      tf_xlat_ctx.va_max_address, EL2_REGIME);
+	enable_mmu_direct_hyp(flags);
+}
+
+#endif /* __aarch64__ */

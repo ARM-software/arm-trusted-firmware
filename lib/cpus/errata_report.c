@@ -18,9 +18,9 @@
 
 #ifdef IMAGE_BL1
 # define BL_STRING	"BL1"
-#elif defined(AARCH64) && defined(IMAGE_BL31)
+#elif defined(__aarch64__) && defined(IMAGE_BL31)
 # define BL_STRING	"BL31"
-#elif defined(AARCH32) && defined(IMAGE_BL32)
+#elif !defined(__arch64__) && defined(IMAGE_BL32)
 # define BL_STRING	"BL32"
 #elif defined(IMAGE_BL2) && BL2_AT_EL3
 # define BL_STRING "BL2"

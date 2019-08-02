@@ -11,15 +11,7 @@
 
 #include <bl31/ehf.h>
 
-#ifdef AARCH32
-
-#if CRASH_REPORTING
-#error "Crash reporting is not supported in AArch32"
-#endif
-#define CPU_DATA_CPU_OPS_PTR		0x0
-#define CPU_DATA_CRASH_BUF_OFFSET	0x4
-
-#else /* AARCH32 */
+#ifdef __aarch64__
 
 /* Offsets for the cpu_data structure */
 #define CPU_DATA_CRASH_BUF_OFFSET	0x18
@@ -27,7 +19,15 @@
 #define CPU_DATA_CRASH_BUF_SIZE		64
 #define CPU_DATA_CPU_OPS_PTR		0x10
 
-#endif /* AARCH32 */
+#else /* __aarch64__ */
+
+#if CRASH_REPORTING
+#error "Crash reporting is not supported in AArch32"
+#endif
+#define CPU_DATA_CPU_OPS_PTR		0x0
+#define CPU_DATA_CRASH_BUF_OFFSET	0x4
+
+#endif /* __aarch64__ */
 
 #if CRASH_REPORTING
 #define CPU_DATA_CRASH_BUF_END		(CPU_DATA_CRASH_BUF_OFFSET + \
@@ -84,7 +84,7 @@
  * used for this.
  ******************************************************************************/
 typedef struct cpu_data {
-#ifndef AARCH32
+#ifdef __aarch64__
 	void *cpu_context[2];
 #endif
 	uintptr_t cpu_ops_ptr;
@@ -127,7 +127,7 @@ CASSERT(CPU_DATA_PMF_TS0_OFFSET == __builtin_offsetof
 
 struct cpu_data *_cpu_data_by_index(uint32_t cpu_index);
 
-#ifndef AARCH32
+#ifdef __aarch64__
 /* Return the cpu_data structure for the current CPU. */
 static inline struct cpu_data *_cpu_data(void)
 {

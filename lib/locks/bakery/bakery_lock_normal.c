@@ -167,10 +167,10 @@ void bakery_lock_get(bakery_lock_t *lock)
 	unsigned int their_bakery_data;
 
 	me = plat_my_core_pos();
-#ifdef AARCH32
-	is_cached = read_sctlr() & SCTLR_C_BIT;
-#else
+#ifdef __aarch64__
 	is_cached = read_sctlr_el3() & SCTLR_C_BIT;
+#else
+	is_cached = read_sctlr() & SCTLR_C_BIT;
 #endif
 
 	/* Get a ticket */
@@ -228,10 +228,10 @@ void bakery_lock_get(bakery_lock_t *lock)
 void bakery_lock_release(bakery_lock_t *lock)
 {
 	bakery_info_t *my_bakery_info;
-#ifdef AARCH32
-	unsigned int is_cached = read_sctlr() & SCTLR_C_BIT;
-#else
+#ifdef __aarch64__
 	unsigned int is_cached = read_sctlr_el3() & SCTLR_C_BIT;
+#else
+	unsigned int is_cached = read_sctlr() & SCTLR_C_BIT;
 #endif
 
 	my_bakery_info = get_bakery_info(plat_my_core_pos(), lock);

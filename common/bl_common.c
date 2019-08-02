@@ -236,7 +236,7 @@ void print_entry_point_info(const entry_point_info_t *ep_info)
 	PRINT_IMAGE_ARG(1);
 	PRINT_IMAGE_ARG(2);
 	PRINT_IMAGE_ARG(3);
-#ifndef AARCH32
+#ifdef __aarch64__
 	PRINT_IMAGE_ARG(4);
 	PRINT_IMAGE_ARG(5);
 	PRINT_IMAGE_ARG(6);
@@ -245,7 +245,7 @@ void print_entry_point_info(const entry_point_info_t *ep_info)
 #undef PRINT_IMAGE_ARG
 }
 
-#ifdef AARCH64
+#ifdef __aarch64__
 /*******************************************************************************
  * Handle all possible cases regarding ARMv8.3-PAuth.
  ******************************************************************************/
@@ -293,4 +293,4 @@ void bl_handle_pauth(void)
 
 #endif /* ENABLE_PAUTH */
 }
-#endif /* AARCH64 */
+#endif /* __aarch64__ */

@@ -26,7 +26,7 @@
 
 static mem_region_t arm_ram_ranges[] = {
 	{DRAM1_NS_IMAGE_LIMIT, DRAM1_PROTECTED_SIZE},
-#ifdef AARCH64
+#ifdef __aarch64__
 	{ARM_DRAM2_BASE, 1u << ONE_GB_SHIFT},
 #endif
 };

@@ -15,10 +15,10 @@
 
 #include "bl2_private.h"
 
-#ifdef AARCH32
-#define NEXT_IMAGE	"BL32"
-#else
+#ifdef __aarch64__
 #define NEXT_IMAGE	"BL31"
+#else
+#define NEXT_IMAGE	"BL32"
 #endif
 
 #if !BL2_AT_EL3
@@ -31,7 +31,7 @@ void bl2_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 	/* Perform early platform-specific setup */
 	bl2_early_platform_setup2(arg0, arg1, arg2, arg3);
 
-#ifdef AARCH64
+#ifdef __aarch64__
 	/*
 	 * Update pointer authentication key before the MMU is enabled. It is
 	 * saved in the rodata section, that can be writen before enabling the
@@ -39,7 +39,7 @@ void bl2_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 	 * in the early platform setup.
 	 */
 	bl_handle_pauth();
-#endif /* AARCH64 */
+#endif /* __aarch64__ */
 
 	/* Perform late platform-specific setup */
 	bl2_plat_arch_setup();
@@ -55,7 +55,7 @@ void bl2_el3_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 	/* Perform early platform-specific setup */
 	bl2_el3_early_platform_setup(arg0, arg1, arg2, arg3);
 
-#ifdef AARCH64
+#ifdef __aarch64__
 	/*
 	 * Update pointer authentication key before the MMU is enabled. It is
 	 * saved in the rodata section, that can be writen before enabling the
@@ -63,7 +63,7 @@ void bl2_el3_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 	 * in the early platform setup.
 	 */
 	bl_handle_pauth();
-#endif /* AARCH64 */
+#endif /* __aarch64__ */
 
 	/* Perform late platform-specific setup */
 	bl2_el3_plat_arch_setup();
@@ -97,14 +97,14 @@ void bl2_main(void)
 	next_bl_ep_info = bl2_load_images();
 
 #if !BL2_AT_EL3
-#ifdef AARCH32
+#ifndef __aarch64__
 	/*
 	 * For AArch32 state BL1 and BL2 share the MMU setup.
 	 * Given that BL2 does not map BL1 regions, MMU needs
 	 * to be disabled in order to go back to BL1.
 	 */
 	disable_mmu_icache_secure();
-#endif /* AARCH32 */
+#endif /* !__aarch64__ */
 
 	console_flush();
 

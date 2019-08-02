@@ -107,7 +107,7 @@
 #endif
 
 /* BL32 is mandatory in AArch32 */
-#ifndef AARCH32
+#ifdef __aarch64__
 #ifdef SPD_none
 #undef BL32_BASE
 #endif /* SPD_none */

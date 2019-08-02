@@ -24,7 +24,7 @@ REGISTER_PUBSUB_EVENT(psci_cpu_on_finish);
 REGISTER_PUBSUB_EVENT(psci_suspend_pwrdown_start);
 REGISTER_PUBSUB_EVENT(psci_suspend_pwrdown_finish);
 
-#ifdef AARCH64
+#ifdef __aarch64__
 /*
  * These events are published by the AArch64 context management framework
  * after the secure context is restored/saved via
@@ -40,4 +40,4 @@ REGISTER_PUBSUB_EVENT(cm_exited_secure_world);
  */
 REGISTER_PUBSUB_EVENT(cm_entering_normal_world);
 REGISTER_PUBSUB_EVENT(cm_exited_normal_world);
-#endif /* AARCH64 */
+#endif /* __aarch64__ */
