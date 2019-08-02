@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -91,6 +91,12 @@
 #define GXBB_SYS_CPU_CFG7			UL(0xC8834664)
 
 #define GXBB_AO_RTI_STATUS_REG3			UL(0xDA10001C)
+#define GXBB_AO_RTI_SCP_STAT			UL(0xDA10023C)
+#define GXBB_AO_RTI_SCP_READY_OFF		U(0x14)
+#define GXBB_A0_RTI_SCP_READY_MASK		U(3)
+#define GXBB_AO_RTI_SCP_IS_READY(v)		\
+	((((v) >> GXBB_AO_RTI_SCP_READY_OFF) & \
+	  GXBB_A0_RTI_SCP_READY_MASK) == GXBB_A0_RTI_SCP_READY_MASK)
 
 #define GXBB_HIU_MAILBOX_SET_0			UL(0xDA83C404)
 #define GXBB_HIU_MAILBOX_STAT_0			UL(0xDA83C408)
