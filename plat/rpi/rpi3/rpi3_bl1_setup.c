@@ -35,7 +35,7 @@ void bl1_early_platform_setup(void)
 		      0x80000000);
 
 	/* Initialize the console to provide early debug support */
-	rpi3_console_init();
+	rpi3_console_init(PLAT_RPI3_UART_CLK_IN_HZ);
 
 	/* Allow BL1 to see the whole Trusted RAM */
 	bl1_tzram_layout.total_base = BL_RAM_BASE;
