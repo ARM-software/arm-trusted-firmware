@@ -1125,32 +1125,41 @@ static struct uart_debug uart_save;
 
 void suspend_uart(void)
 {
-	uart_save.uart_lcr = mmio_read_32(PLAT_RK_UART_BASE + UART_LCR);
-	uart_save.uart_ier = mmio_read_32(PLAT_RK_UART_BASE + UART_IER);
-	uart_save.uart_mcr = mmio_read_32(PLAT_RK_UART_BASE + UART_MCR);
-	mmio_write_32(PLAT_RK_UART_BASE + UART_LCR,
+	uint32_t uart_base = rockchip_get_uart_base();
+
+	if (uart_base == 0)
+		return;
+
+	uart_save.uart_lcr = mmio_read_32(uart_base + UART_LCR);
+	uart_save.uart_ier = mmio_read_32(uart_base + UART_IER);
+	uart_save.uart_mcr = mmio_read_32(uart_base + UART_MCR);
+	mmio_write_32(uart_base + UART_LCR,
 		      uart_save.uart_lcr | UARTLCR_DLAB);
-	uart_save.uart_dll = mmio_read_32(PLAT_RK_UART_BASE + UART_DLL);
-	uart_save.uart_dlh = mmio_read_32(PLAT_RK_UART_BASE + UART_DLH);
-	mmio_write_32(PLAT_RK_UART_BASE + UART_LCR, uart_save.uart_lcr);
+	uart_save.uart_dll = mmio_read_32(uart_base + UART_DLL);
+	uart_save.uart_dlh = mmio_read_32(uart_base + UART_DLH);
+	mmio_write_32(uart_base + UART_LCR, uart_save.uart_lcr);
 }
 
 void resume_uart(void)
 {
+	uint32_t uart_base = rockchip_get_uart_base();
 	uint32_t uart_lcr;
 
-	mmio_write_32(PLAT_RK_UART_BASE + UARTSRR,
+	if (uart_base == 0)
+		return;
+
+	mmio_write_32(uart_base + UARTSRR,
 		      XMIT_FIFO_RESET | RCVR_FIFO_RESET | UART_RESET);
 
-	uart_lcr = mmio_read_32(PLAT_RK_UART_BASE + UART_LCR);
-	mmio_write_32(PLAT_RK_UART_BASE + UART_MCR, DIAGNOSTIC_MODE);
-	mmio_write_32(PLAT_RK_UART_BASE + UART_LCR, uart_lcr | UARTLCR_DLAB);
-	mmio_write_32(PLAT_RK_UART_BASE + UART_DLL, uart_save.uart_dll);
-	mmio_write_32(PLAT_RK_UART_BASE + UART_DLH, uart_save.uart_dlh);
-	mmio_write_32(PLAT_RK_UART_BASE + UART_LCR, uart_save.uart_lcr);
-	mmio_write_32(PLAT_RK_UART_BASE + UART_IER, uart_save.uart_ier);
-	mmio_write_32(PLAT_RK_UART_BASE + UART_FCR, UARTFCR_FIFOEN);
-	mmio_write_32(PLAT_RK_UART_BASE + UART_MCR, uart_save.uart_mcr);
+	uart_lcr = mmio_read_32(uart_base + UART_LCR);
+	mmio_write_32(uart_base + UART_MCR, DIAGNOSTIC_MODE);
+	mmio_write_32(uart_base + UART_LCR, uart_lcr | UARTLCR_DLAB);
+	mmio_write_32(uart_base + UART_DLL, uart_save.uart_dll);
+	mmio_write_32(uart_base + UART_DLH, uart_save.uart_dlh);
+	mmio_write_32(uart_base + UART_LCR, uart_save.uart_lcr);
+	mmio_write_32(uart_base + UART_IER, uart_save.uart_ier);
+	mmio_write_32(uart_base + UART_FCR, UARTFCR_FIFOEN);
+	mmio_write_32(uart_base + UART_MCR, uart_save.uart_mcr);
 }
 
 void save_usbphy(void)
