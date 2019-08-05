@@ -26,18 +26,6 @@ static struct bl_aux_gpio_info poweroff_gpio;
 static struct bl_aux_gpio_info suspend_gpio[10];
 uint32_t suspend_gpio_cnt;
 static struct bl_aux_rk_apio_info suspend_apio;
-static uint32_t rk_uart_base = PLAT_RK_UART_BASE;
-static uint32_t rk_uart_baudrate = PLAT_RK_UART_BAUDRATE;
-
-uint32_t rockchip_get_uart_base(void)
-{
-	return rk_uart_base;
-}
-
-uint32_t rockchip_get_uart_baudrate(void)
-{
-	return rk_uart_baudrate;
-}
 
 #if COREBOOT
 static int dt_process_fdt(u_register_t param_from_bl2)
@@ -45,6 +33,9 @@ static int dt_process_fdt(u_register_t param_from_bl2)
 	return -ENODEV;
 }
 #else
+static uint32_t rk_uart_base = PLAT_RK_UART_BASE;
+static uint32_t rk_uart_baudrate = PLAT_RK_UART_BAUDRATE;
+static uint32_t rk_uart_clock = PLAT_RK_UART_CLOCK;
 static uint8_t fdt_buffer[0x10000];
 
 void *plat_get_fdt(void)
@@ -153,6 +144,33 @@ static int dt_process_fdt(u_register_t param_from_bl2)
 	return 0;
 }
 #endif
+
+uint32_t rockchip_get_uart_base(void)
+{
+#if COREBOOT
+	return coreboot_serial.baseaddr;
+#else
+	return rk_uart_base;
+#endif
+}
+
+uint32_t rockchip_get_uart_baudrate(void)
+{
+#if COREBOOT
+	return coreboot_serial.baud;
+#else
+	return rk_uart_baudrate;
+#endif
+}
+
+uint32_t rockchip_get_uart_clock(void)
+{
+#if COREBOOT
+	return coreboot_serial.input_hertz;
+#else
+	return rk_uart_clock;
+#endif
+}
 
 struct bl_aux_gpio_info *plat_get_rockchip_gpio_reset(void)
 {
