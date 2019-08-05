@@ -139,6 +139,7 @@ extern uint32_t cpuson_flags[PLATFORM_CORE_COUNT];
 extern const mmap_region_t plat_rk_mmap[];
 
 uint32_t rockchip_get_uart_base(void);
+uint32_t rockchip_get_uart_baudrate(void);
 
 #endif /* __ASSEMBLY__ */
 

@@ -27,10 +27,16 @@ static struct bl_aux_gpio_info suspend_gpio[10];
 uint32_t suspend_gpio_cnt;
 static struct bl_aux_rk_apio_info suspend_apio;
 static uint32_t rk_uart_base = PLAT_RK_UART_BASE;
+static uint32_t rk_uart_baudrate = PLAT_RK_UART_BAUDRATE;
 
 uint32_t rockchip_get_uart_base(void)
 {
 	return rk_uart_base;
+}
+
+uint32_t rockchip_get_uart_baudrate(void)
+{
+	return rk_uart_baudrate;
 }
 
 #if COREBOOT
@@ -53,9 +59,12 @@ static void plat_rockchip_dt_process_fdt_uart(void *fdt)
 	int node_offset;
 	int stdout_path_len;
 	const char *stdout_path;
+	const char *separator;
+	const char *baud_start;
 	char serial_char;
 	int serial_no;
 	uint32_t uart_base;
+	uint32_t baud;
 
 	node_offset = fdt_path_offset(fdt, path_name);
 	if (node_offset < 0)
@@ -68,7 +77,7 @@ static void plat_rockchip_dt_process_fdt_uart(void *fdt)
 
 	/*
 	 * We expect something like:
-	 *   "serial0:...""
+	 *   "serial0:baudrate"
 	 */
 	if (strncmp("serial", stdout_path, 6) != 0)
 		return;
@@ -106,6 +115,28 @@ static void plat_rockchip_dt_process_fdt_uart(void *fdt)
 	}
 
 	rk_uart_base = uart_base;
+
+	separator = strchr(stdout_path, ':');
+	if (!separator)
+		return;
+
+	baud = 0;
+	baud_start = separator + 1;
+	while (*baud_start != '\0') {
+		/*
+		 * uart binding is <baud>{<parity>{<bits>{...}}}
+		 * So the baudrate either is the whole string, or
+		 * we end in the parity characters.
+		 */
+		if (*baud_start == 'n' || *baud_start == 'o' ||
+		    *baud_start == 'e')
+			break;
+
+		baud = baud * 10 + (*baud_start - '0');
+		baud_start++;
+	}
+
+	rk_uart_baudrate = baud;
 }
 
 static int dt_process_fdt(u_register_t param_from_bl2)

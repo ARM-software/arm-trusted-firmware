@@ -70,7 +70,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				       &console);
 #else
 	console_16550_register(rockchip_get_uart_base(), PLAT_RK_UART_CLOCK,
-			       PLAT_RK_UART_BAUDRATE, &console);
+			       rockchip_get_uart_baudrate(), &console);
 #endif
 
 	VERBOSE("bl31_setup\n");
