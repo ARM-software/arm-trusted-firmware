@@ -96,6 +96,11 @@ static void plat_rockchip_dt_process_fdt_uart(void *fdt)
 		uart_base = UART4_BASE;
 		break;
 #endif
+#ifdef UART5_BASE
+	case 5:
+		uart_base = UART5_BASE;
+		break;
+#endif
 	default:
 		return;
 	}

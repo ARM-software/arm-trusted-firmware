@@ -54,6 +54,9 @@
 #define UART2_BASE		0xff160000
 #define UART2_SIZE		SIZE_K(64)
 
+#define UART5_BASE		0xff178000
+#define UART5_SIZE		SIZE_K(64)
+
 #define I2C0_BASE		0xff180000
 #define I2C0_SIZE		SIZE_K(64)
 
