@@ -1,8 +1,11 @@
 #
-# Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
+
+# Use the GICv2 driver on QEMU by default
+QEMU_USE_GIC_DRIVER	:= QEMU_GICV2
 
 ifeq (${ARM_ARCH_MAJOR},7)
 # ARMv7 Qemu support in trusted firmware expects the Cortex-A15 model.
@@ -120,20 +123,36 @@ ifeq ($(add-lib-optee),yes)
 BL2_SOURCES		+=	lib/optee/optee_utils.c
 endif
 
+QEMU_GICV2_SOURCES	:=	drivers/arm/gic/v2/gicv2_helpers.c	\
+				drivers/arm/gic/v2/gicv2_main.c		\
+				drivers/arm/gic/common/gic_common.c	\
+				plat/common/plat_gicv2.c		\
+				plat/qemu/qemu_gicv2.c
+
+QEMU_GICV3_SOURCES	:=	drivers/arm/gic/v3/gicv3_helpers.c	\
+				drivers/arm/gic/v3/gicv3_main.c		\
+				drivers/arm/gic/common/gic_common.c	\
+				plat/common/plat_gicv3.c		\
+				plat/qemu/qemu_gicv3.c
+
+ifeq (${QEMU_USE_GIC_DRIVER}, QEMU_GICV2)
+QEMU_GIC_SOURCES	:=	${QEMU_GICV2_SOURCES}
+else ifeq (${QEMU_USE_GIC_DRIVER}, QEMU_GICV3)
+QEMU_GIC_SOURCES	:=	${QEMU_GICV3_SOURCES}
+else
+$(error "Incorrect GIC driver chosen for QEMU platform")
+endif
 
 ifeq (${ARM_ARCH_MAJOR},8)
 BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
-				drivers/arm/gic/v2/gicv2_helpers.c	\
-				drivers/arm/gic/v2/gicv2_main.c		\
-				drivers/arm/gic/common/gic_common.c	\
-				plat/common/plat_gicv2.c		\
 				plat/common/plat_psci_common.c		\
 				plat/qemu/qemu_pm.c			\
 				plat/qemu/topology.c			\
 				plat/qemu/aarch64/plat_helpers.S	\
-				plat/qemu/qemu_bl31_setup.c
+				plat/qemu/qemu_bl31_setup.c		\
+				${QEMU_GIC_SOURCES}
 endif
 
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images

@@ -1,18 +1,18 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
-
 #include <platform_def.h>
 
 #include <arch_helpers.h>
 #include <common/debug.h>
-#include <drivers/arm/gicv2.h>
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
+
+#include "qemu_private.h"
 
 /*
  * The secure entry point to be used on warm reset.
@@ -173,11 +173,7 @@ void qemu_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	assert(target_state->pwr_domain_state[MPIDR_AFFLVL0] ==
 					PLAT_LOCAL_STATE_OFF);
 
-	/* TODO: This setup is needed only after a cold boot */
-	gicv2_pcpu_distif_init();
-
-	/* Enable the gic cpu interface */
-	gicv2_cpuif_enable();
+	qemu_pwr_gic_on_finish();
 }
 
 /*******************************************************************************
