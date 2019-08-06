@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -189,8 +189,8 @@ IIC_DVFS_FUNC(start, DVFS_STATE_T * state)
 	mode = mmio_read_8(IIC_DVFS_REG_ICCR) | IIC_DVFS_BIT_ICCR_ENABLE;
 	mmio_write_8(IIC_DVFS_REG_ICCR, mode);
 
-	lsi_product = mmio_read_32(RCAR_PRR) & RCAR_PRODUCT_MASK;
-	if (lsi_product == RCAR_PRODUCT_E3)
+	lsi_product = mmio_read_32(RCAR_PRR) & PRR_PRODUCT_MASK;
+	if (lsi_product == PRR_PRODUCT_E3)
 		goto start;
 
 	reg = mmio_read_32(RCAR_MODEMR) & CHECK_MD13_MD14;

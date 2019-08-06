@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -109,12 +109,12 @@ static void bl2_secure_cpg_init(void)
 #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)
 static void bl2_realtime_cpg_init_h3(void)
 {
-	uint32_t cut = mmio_read_32(RCAR_PRR) & RCAR_CUT_MASK;
+	uint32_t cut = mmio_read_32(RCAR_PRR) & PRR_CUT_MASK;
 	uint32_t cr0, cr8;
 
-	cr0 = (cut == RCAR_CUT_VER10 || cut == RCAR_CUT_VER11) ?
+	cr0 = (cut == PRR_PRODUCT_10 || cut == PRR_PRODUCT_11) ?
 	    0x00200000U : 0x00210000U;
-	cr8 = (cut == RCAR_CUT_VER10 || cut == RCAR_CUT_VER11) ?
+	cr8 = (cut == PRR_PRODUCT_10 || cut == PRR_PRODUCT_11) ?
 	    0x01F1FFF4U : 0x01F1FFF7U;
 
 	cpg_write(RMSTPCR0, cr0);
@@ -329,7 +329,7 @@ void bl2_cpg_init(void)
 {
 	uint32_t boot_cpu = mmio_read_32(RCAR_MODEMR) & MODEMR_BOOT_CPU_MASK;
 #if RCAR_LSI == RCAR_AUTO
-	uint32_t product = mmio_read_32(RCAR_PRR) & RCAR_PRODUCT_MASK;
+	uint32_t product = mmio_read_32(RCAR_PRR) & PRR_PRODUCT_MASK;
 #endif
 	bl2_secure_cpg_init();
 
@@ -338,22 +338,22 @@ void bl2_cpg_init(void)
 #if RCAR_LSI == RCAR_AUTO
 
 		switch (product) {
-		case RCAR_PRODUCT_H3:
+		case PRR_PRODUCT_H3:
 			bl2_realtime_cpg_init_h3();
 			break;
-		case RCAR_PRODUCT_M3:
+		case PRR_PRODUCT_M3:
 			bl2_realtime_cpg_init_m3();
 			break;
-		case RCAR_PRODUCT_M3N:
+		case PRR_PRODUCT_M3N:
 			bl2_realtime_cpg_init_m3n();
 			break;
-		case RCAR_PRODUCT_V3M:
+		case PRR_PRODUCT_V3M:
 			bl2_realtime_cpg_init_v3m();
 			break;
-		case RCAR_PRODUCT_E3:
+		case PRR_PRODUCT_E3:
 			bl2_realtime_cpg_init_e3();
 			break;
-		case RCAR_PRODUCT_D3:
+		case PRR_PRODUCT_D3:
 			bl2_realtime_cpg_init_d3();
 			break;
 		default:
@@ -381,25 +381,25 @@ void bl2_cpg_init(void)
 void bl2_system_cpg_init(void)
 {
 #if RCAR_LSI == RCAR_AUTO
-	uint32_t product = mmio_read_32(RCAR_PRR) & RCAR_PRODUCT_MASK;
+	uint32_t product = mmio_read_32(RCAR_PRR) & PRR_PRODUCT_MASK;
 
 	switch (product) {
-	case RCAR_PRODUCT_H3:
+	case PRR_PRODUCT_H3:
 		bl2_system_cpg_init_h3();
 		break;
-	case RCAR_PRODUCT_M3:
+	case PRR_PRODUCT_M3:
 		bl2_system_cpg_init_m3();
 		break;
-	case RCAR_PRODUCT_M3N:
+	case PRR_PRODUCT_M3N:
 		bl2_system_cpg_init_m3n();
 		break;
-	case RCAR_PRODUCT_V3M:
+	case PRR_PRODUCT_V3M:
 		bl2_system_cpg_init_v3m();
 		break;
-	case RCAR_PRODUCT_E3:
+	case PRR_PRODUCT_E3:
 		bl2_system_cpg_init_e3();
 		break;
-	case RCAR_PRODUCT_D3:
+	case PRR_PRODUCT_D3:
 		bl2_system_cpg_init_d3();
 		break;
 	default:

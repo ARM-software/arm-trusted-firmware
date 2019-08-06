@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -314,16 +314,16 @@ void rcar_pwrc_clusteroff(uint64_t mpidr)
 	rcar_lock_get();
 
 	reg = mmio_read_32(RCAR_PRR);
-	product = reg & RCAR_PRODUCT_MASK;
-	cut = reg & RCAR_CUT_MASK;
+	product = reg & PRR_PRODUCT_MASK;
+	cut = reg & PRR_CUT_MASK;
 
 	c = rcar_pwrc_get_mpidr_cluster(mpidr);
 	dst = IS_CA53(c) ? RCAR_CA53CPUCMCR : RCAR_CA57CPUCMCR;
 
-	if (RCAR_PRODUCT_M3 == product && cut < RCAR_CUT_VER30)
+	if (PRR_PRODUCT_M3 == product && cut < PRR_PRODUCT_30)
 		goto done;
 
-	if (RCAR_PRODUCT_H3 == product && cut <= RCAR_CUT_VER20)
+	if (PRR_PRODUCT_H3 == product && cut <= PRR_PRODUCT_20)
 		goto done;
 
 	/* all of the CPUs in the cluster is in the CoreStandby mode */
@@ -424,13 +424,13 @@ static void __attribute__ ((section(".system_ram")))
 	uint32_t reg = mmio_read_32(RCAR_PRR);
 	uint32_t cut, product;
 
-	product = reg & RCAR_PRODUCT_MASK;
-	cut = reg & RCAR_CUT_MASK;
+	product = reg & PRR_PRODUCT_MASK;
+	cut = reg & PRR_CUT_MASK;
 
-	if (product == RCAR_PRODUCT_M3 && cut < RCAR_CUT_VER30)
+	if (product == PRR_PRODUCT_M3 && cut < PRR_PRODUCT_30)
 		goto self_refresh;
 
-	if (product == RCAR_PRODUCT_H3 && cut < RCAR_CUT_VER20)
+	if (product == PRR_PRODUCT_H3 && cut < PRR_PRODUCT_20)
 		goto self_refresh;
 
 	mmio_write_32(DBSC4_REG_DBSYSCNT0, DBSC4_SET_DBSYSCNT0_WRITE_ENABLE);
@@ -445,16 +445,16 @@ self_refresh:
 	/* Set the Self-Refresh mode */
 	mmio_write_32(DBSC4_REG_DBACEN, 0);
 
-	if (product == RCAR_PRODUCT_H3 && cut < RCAR_CUT_VER20)
+	if (product == PRR_PRODUCT_H3 && cut < PRR_PRODUCT_20)
 		rcar_micro_delay(100);
-	else if (product == RCAR_PRODUCT_H3) {
+	else if (product == PRR_PRODUCT_H3) {
 		mmio_write_32(DBSC4_REG_DBCAM0CTRL0, 1);
 		DBCAM_FLUSH(0);
 		DBCAM_FLUSH(1);
 		DBCAM_FLUSH(2);
 		DBCAM_FLUSH(3);
 		mmio_write_32(DBSC4_REG_DBCAM0CTRL0, 0);
-	} else if (product == RCAR_PRODUCT_M3) {
+	} else if (product == PRR_PRODUCT_M3) {
 		mmio_write_32(DBSC4_REG_DBCAM0CTRL0, 1);
 		DBCAM_FLUSH(0);
 		DBCAM_FLUSH(1);
@@ -499,10 +499,10 @@ self_refresh:
 	mmio_write_32(DBSC4_REG_DBRFEN, 0U);
 	rcar_micro_delay(1U);
 
-	if (product == RCAR_PRODUCT_M3 && cut < RCAR_CUT_VER30)
+	if (product == PRR_PRODUCT_M3 && cut < PRR_PRODUCT_30)
 		return;
 
-	if (product == RCAR_PRODUCT_H3 && cut < RCAR_CUT_VER20)
+	if (product == PRR_PRODUCT_H3 && cut < PRR_PRODUCT_20)
 		return;
 
 	mmio_write_32(DBSC4_REG_DBSYSCNT0, DBSC4_SET_DBSYSCNT0_WRITE_DISABLE);
@@ -648,9 +648,9 @@ void __attribute__ ((section(".system_ram"))) __attribute__ ((noinline))
 	uint32_t reg, product;
 
 	reg = mmio_read_32(RCAR_PRR);
-	product = reg & RCAR_PRODUCT_MASK;
+	product = reg & PRR_PRODUCT_MASK;
 
-	if (product != RCAR_PRODUCT_E3)
+	if (product != PRR_PRODUCT_E3)
 		rcar_pwrc_set_self_refresh();
 	else
 		rcar_pwrc_set_self_refresh_e3();

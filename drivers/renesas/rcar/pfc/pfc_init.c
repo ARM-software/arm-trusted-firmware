@@ -57,8 +57,8 @@ void rcar_pfc_init(void)
 
 	reg = mmio_read_32(RCAR_PRR);
 #if RCAR_LSI == RCAR_AUTO
-	switch (reg & RCAR_PRODUCT_MASK) {
-	case RCAR_PRODUCT_H3:
+	switch (reg & PRR_PRODUCT_MASK) {
+	case PRR_PRODUCT_H3:
 		switch (reg & PRR_CUT_MASK) {
 		case PRR_PRODUCT_10:	/* H3 Ver.1.0 */
 			pfc_init_h3_v1();
@@ -71,13 +71,13 @@ void rcar_pfc_init(void)
 			break;
 		}
 		break;
-	case RCAR_PRODUCT_M3:
+	case PRR_PRODUCT_M3:
 		pfc_init_m3();
 		break;
-	case RCAR_PRODUCT_M3N:
+	case PRR_PRODUCT_M3N:
 		pfc_init_m3n();
 		break;
-	case RCAR_PRODUCT_V3M:
+	case PRR_PRODUCT_V3M:
 		pfc_init_v3m();
 		break;
 	default:

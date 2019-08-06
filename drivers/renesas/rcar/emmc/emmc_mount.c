@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,14 +29,14 @@ static void emmc_set_bootpartition(void)
 {
 	uint32_t reg;
 
-	reg = mmio_read_32(RCAR_PRR) & (RCAR_PRODUCT_MASK | RCAR_CUT_MASK);
-	if (reg == RCAR_PRODUCT_M3_CUT10) {
+	reg = mmio_read_32(RCAR_PRR) & (PRR_PRODUCT_MASK | PRR_CUT_MASK);
+	if (reg == PRR_PRODUCT_M3_CUT10) {
 		mmc_drv_obj.boot_partition_en =
 		    (EMMC_PARTITION_ID) ((mmc_drv_obj.ext_csd_data[179] &
 					  EMMC_BOOT_PARTITION_EN_MASK) >>
 					 EMMC_BOOT_PARTITION_EN_SHIFT);
-	} else if ((reg == RCAR_PRODUCT_H3_CUT20)
-		   || (reg == RCAR_PRODUCT_M3_CUT11)) {
+	} else if ((reg == PRR_PRODUCT_H3_CUT20)
+		   || (reg == PRR_PRODUCT_M3_CUT11)) {
 		mmc_drv_obj.boot_partition_en = mmc_drv_obj.partition_access;
 	} else {
 		if ((mmio_read_32(MFISBTSTSR) & MFISBTSTSR_BOOT_PARTITION) !=
@@ -460,8 +460,8 @@ static void emmc_get_partition_access(void)
 	uint32_t reg;
 	EMMC_ERROR_CODE result;
 
-	reg = mmio_read_32(RCAR_PRR) & (RCAR_PRODUCT_MASK | RCAR_CUT_MASK);
-	if ((reg == RCAR_PRODUCT_H3_CUT20) || (reg == RCAR_PRODUCT_M3_CUT11)) {
+	reg = mmio_read_32(RCAR_PRR) & (PRR_PRODUCT_MASK | PRR_CUT_MASK);
+	if ((reg == PRR_PRODUCT_H3_CUT20) || (reg == PRR_PRODUCT_M3_CUT11)) {
 		SETR_32(SD_OPTION, 0x000060EEU);	/* 8 bits width */
 		/* CMD8 (EXT_CSD) */
 		emmc_make_trans_cmd(CMD8_SEND_EXT_CSD, 0x00000000U,
