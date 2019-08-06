@@ -20,6 +20,7 @@
 #include "boot_init_dram.h"
 #include "dram_sub_func.h"
 #include "micro_delay.h"
+#include "rcar_def.h"
 
 #define DDR_BACKUPMODE
 #define FATAL_MSG(x) NOTICE(x)

@@ -12,6 +12,7 @@
 #include "qos_init.h"
 #include "qos_common.h"
 #include "qos_reg.h"
+#include "rcar_def.h"
 #if RCAR_LSI == RCAR_AUTO
 #include "H3/qos_init_h3_v10.h"
 #include "H3/qos_init_h3_v11.h"
@@ -49,22 +50,6 @@
 #if RCAR_LSI == RCAR_D3		/* D3 */
 #include "D3/qos_init_d3.h"
 #endif
-
- /* Product Register */
-#define PRR			0xFFF00044U
-#define PRR_PRODUCT_MASK	0x00007F00U
-#define PRR_CUT_MASK		0x000000FFU
-#define PRR_PRODUCT_H3		0x00004F00U	/* R-Car H3 */
-#define PRR_PRODUCT_M3		0x00005200U	/* R-Car M3 */
-#define PRR_PRODUCT_V3M		0x00005400U	/* R-Car V3M */
-#define PRR_PRODUCT_M3N		0x00005500U	/* R-Car M3N */
-#define PRR_PRODUCT_E3		0x00005700U	/* R-Car E3 */
-#define PRR_PRODUCT_D3		0x00005800U	/* R-Car D3 */
-#define PRR_PRODUCT_10		0x00U
-#define PRR_PRODUCT_11		0x01U
-#define PRR_PRODUCT_20		0x10U
-#define PRR_PRODUCT_21		0x11U
-#define PRR_PRODUCT_30		0x20U
 
 #if (RCAR_LSI != RCAR_E3) && (RCAR_LSI != RCAR_D3) && (RCAR_LSI != RCAR_V3M)
 
