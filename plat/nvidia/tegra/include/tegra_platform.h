@@ -30,6 +30,7 @@
 #define TEGRA_CHIPID_TEGRA13		U(0x13)
 #define TEGRA_CHIPID_TEGRA21		U(0x21)
 #define TEGRA_CHIPID_TEGRA18		U(0x18)
+#define TEGRA_CHIPID_TEGRA19		U(0x19)
 
 /*******************************************************************************
  * JEDEC Standard Manufacturer's Identification Code and Bank ID
@@ -52,6 +53,7 @@ bool tegra_chipid_is_t132(void);
 bool tegra_chipid_is_t186(void);
 bool tegra_chipid_is_t210(void);
 bool tegra_chipid_is_t210_b01(void);
+bool tegra_chipid_is_t194(void);
 
 /*
  * Tegra platform identifiers
