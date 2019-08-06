@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,9 +13,6 @@ void configure_mmu(void);
 
 void stm32mp1_arch_security_setup(void);
 void stm32mp1_security_setup(void);
-
-void stm32mp1_gic_pcpu_init(void);
-void stm32mp1_gic_init(void);
 
 void stm32mp1_syscfg_init(void);
 void stm32mp1_syscfg_enable_io_compensation_start(void);
