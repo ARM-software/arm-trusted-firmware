@@ -13,7 +13,6 @@
 #include <string.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
-#include <platform_private.h>
 
 #include "s10_handoff.h"
 

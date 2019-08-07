@@ -17,7 +17,7 @@
 #define AGX_RSTMGR_OFST			0xffd11000
 #define AGX_RSTMGR_MPUMODRST_OFST	0x20
 
-uintptr_t *agilex_sec_entry = (uintptr_t *) PLAT_AGX_SEC_ENTRY;
+uintptr_t *agilex_sec_entry = (uintptr_t *) PLAT_SEC_ENTRY;
 uintptr_t *cpuid_release = (uintptr_t *) PLAT_CPUID_RELEASE;
 
 /*******************************************************************************

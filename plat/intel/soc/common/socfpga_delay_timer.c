@@ -9,13 +9,13 @@
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
 
-#define S10_GLOBAL_TIMER	0xffd01000
-#define S10_GLOBAL_TIMER_EN	0x3
+#define SOCFPGA_GLOBAL_TIMER		0xffd01000
+#define SOCFPGA_GLOBAL_TIMER_EN		0x3
 
 /********************************************************************
  * The timer delay function
  ********************************************************************/
-static uint32_t plat_get_timer_value(void)
+static uint32_t socfpga_get_timer_value(void)
 {
 	/*
 	 * Generic delay timer implementation expects the timer to be a down
@@ -27,13 +27,13 @@ static uint32_t plat_get_timer_value(void)
 }
 
 static const timer_ops_t plat_timer_ops = {
-	.get_timer_value    = plat_get_timer_value,
+	.get_timer_value    = socfpga_get_timer_value,
 	.clk_mult           = 1,
 	.clk_div	    = PLAT_SYS_COUNTER_FREQ_IN_MHZ,
 };
 
-void plat_delay_timer_init(void)
+void socfpga_delay_timer_init(void)
 {
 	timer_init(&plat_timer_ops);
-	mmio_write_32(S10_GLOBAL_TIMER, S10_GLOBAL_TIMER_EN);
+	mmio_write_32(SOCFPGA_GLOBAL_TIMER, SOCFPGA_GLOBAL_TIMER_EN);
 }

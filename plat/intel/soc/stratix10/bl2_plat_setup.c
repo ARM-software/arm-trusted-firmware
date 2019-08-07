@@ -19,7 +19,7 @@
 #include <common/image_decompress.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
-#include <platform_private.h>
+#include <socfpga_private.h>
 #include <drivers/synopsys/dw_mmc.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables.h>
@@ -29,7 +29,7 @@
 #include "s10_clock_manager.h"
 #include "s10_handoff.h"
 #include "s10_pinmux.h"
-#include "aarch64/stratix10_private.h"
+#include "stratix10_private.h"
 #include "include/s10_mailbox.h"
 #include "qspi/cadence_qspi.h"
 #include "wdt/watchdog.h"
@@ -78,7 +78,7 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	console_16550_register(PLAT_UART0_BASE, PLAT_UART_CLOCK, PLAT_BAUDRATE,
 		&console);
 
-	plat_delay_timer_init();
+	socfpga_delay_timer_init();
 	init_hard_memory_controller();
 }
 

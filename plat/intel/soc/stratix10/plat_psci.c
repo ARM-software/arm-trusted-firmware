@@ -15,14 +15,13 @@
 #include <lib/psci/psci.h>
 
 #include "platform_def.h"
-#include "platform_private.h"
 #include "s10_reset_manager.h"
 #include "s10_mailbox.h"
 
 #define S10_RSTMGR_OFST			0xffd11000
 #define S10_RSTMGR_MPUMODRST_OFST	0x20
 
-uintptr_t *stratix10_sec_entry = (uintptr_t *) PLAT_S10_SEC_ENTRY;
+uintptr_t *stratix10_sec_entry = (uintptr_t *) PLAT_SEC_ENTRY;
 uintptr_t *cpuid_release = (uintptr_t *) PLAT_CPUID_RELEASE;
 
 /*******************************************************************************

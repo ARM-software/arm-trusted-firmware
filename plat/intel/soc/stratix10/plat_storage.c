@@ -21,7 +21,7 @@
 #include <lib/utils.h>
 #include <common/tbbr/tbbr_img_def.h>
 #include "platform_def.h"
-#include "aarch64/stratix10_private.h"
+#include "stratix10_private.h"
 
 #define STRATIX10_FIP_BASE		(0)
 #define STRATIX10_FIP_MAX_SIZE		(0x1000000)

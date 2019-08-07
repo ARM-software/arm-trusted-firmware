@@ -34,7 +34,7 @@ func plat_secondary_cold_boot_setup
 poll_mailbox:
 	wfi
 
-	mov_imm	x0, PLAT_AGX_SEC_ENTRY
+	mov_imm	x0, PLAT_SEC_ENTRY
 	ldr	x1, [x0]
 	mov_imm	x2, PLAT_CPUID_RELEASE
 	ldr	x3, [x2]
@@ -66,7 +66,7 @@ func plat_my_core_pos
 endfunc plat_my_core_pos
 
 func plat_get_my_entrypoint
-	mov_imm	x1, PLAT_AGX_SEC_ENTRY
+	mov_imm	x1, PLAT_SEC_ENTRY
 	ldr	x0, [x1]
 	ret
 endfunc plat_get_my_entrypoint

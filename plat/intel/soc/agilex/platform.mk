@@ -7,7 +7,8 @@
 #
 PLAT_INCLUDES		:=	\
 			-Iplat/intel/soc/agilex/include/		\
-			-Iplat/intel/soc/common/drivers/
+			-Iplat/intel/soc/common/drivers/		\
+			-Iplat/intel/soc/common/include/
 
 PLAT_BL_COMMON_SOURCES	:=	\
 			drivers/arm/gic/common/gic_common.c		\
@@ -19,8 +20,8 @@ PLAT_BL_COMMON_SOURCES	:=	\
 			lib/xlat_tables/aarch64/xlat_tables.c 		\
 			lib/xlat_tables/xlat_tables_common.c 		\
 			plat/common/plat_gicv2.c			\
-			plat/intel/soc/agilex/aarch64/platform_common.c \
-			plat/intel/soc/agilex/aarch64/plat_helpers.S	\
+			plat/intel/soc/common/aarch64/platform_common.c \
+			plat/intel/soc/common/aarch64/plat_helpers.S
 
 BL2_SOURCES     +=	\
 		common/desc_image_load.c				\
@@ -37,14 +38,14 @@ BL2_SOURCES     +=	\
 		lib/cpus/aarch64/cortex_a53.S				\
 		plat/intel/soc/agilex/bl2_plat_setup.c			\
 		plat/intel/soc/agilex/socfpga_storage.c			\
-                plat/intel/soc/agilex/bl2_plat_mem_params_desc.c	\
+                plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_handoff.c		\
 		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
 		plat/intel/soc/agilex/soc/agilex_memory_controller.c	\
-		plat/intel/soc/agilex/socfpga_delay_timer.c		\
-		plat/intel/soc/agilex/socfpga_image_load.c		\
+		plat/intel/soc/common/socfpga_delay_timer.c		\
+		plat/intel/soc/common/socfpga_image_load.c		\
 		plat/intel/soc/agilex/soc/agilex_system_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_mailbox.c		\
 		plat/intel/soc/common/drivers/qspi/cadence_qspi.c	\
@@ -59,8 +60,8 @@ BL31_SOURCES	+=	\
 		plat/intel/soc/agilex/socfpga_sip_svc.c			\
 		plat/intel/soc/agilex/bl31_plat_setup.c 		\
 		plat/intel/soc/agilex/socfpga_psci.c			\
-		plat/intel/soc/agilex/socfpga_topology.c		\
-		plat/intel/soc/agilex/socfpga_delay_timer.c		\
+		plat/intel/soc/common/socfpga_topology.c		\
+		plat/intel/soc/common/socfpga_delay_timer.c		\
 		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
 		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
