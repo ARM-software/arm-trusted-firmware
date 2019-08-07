@@ -17,7 +17,7 @@ static uint32_t boardcnf_get_brd_type(void)
 #else
 static uint32_t boardcnf_get_brd_type(void)
 {
-	return (1);
+	return 1;
 }
 #endif
 
@@ -1630,7 +1630,8 @@ static void pfc_write_and_poll(uint32_t a, uint32_t v)
 	mmio_write_32(PFC_PMMR, ~v);
 	v = ~mmio_read_32(PFC_PMMR);
 	mmio_write_32(a, v);
-	while (v != mmio_read_32(a));
+	while (v != mmio_read_32(a))
+		;
 	dsb_sev();
 }
 #endif
@@ -1688,10 +1689,10 @@ static uint32_t opencheck_SSI_WS6(void)
 	if (down == up) {
 		/* Same = Connect */
 		return 0;
-	} else {
-		/* Diff = Open */
-		return 1;
 	}
+
+	/* Diff = Open */
+	return 1;
 }
 
 #endif
@@ -1737,12 +1738,12 @@ static uint32_t _board_judge(void)
 		} else if (prr_product == PRR_PRODUCT_M3) {
 			/* RENESAS Kriek board with M3-W */
 			brd = 1;
-		} else if ((prr_product == PRR_PRODUCT_H3)
-			   && (prr_cut <= PRR_PRODUCT_11)) {
+		} else if ((prr_product == PRR_PRODUCT_H3) &&
+			   (prr_cut <= PRR_PRODUCT_11)) {
 			/* RENESAS Kriek board with PM3 */
 			brd = 13;
-		} else if ((prr_product == PRR_PRODUCT_H3)
-			   && (prr_cut > PRR_PRODUCT_20)) {
+		} else if ((prr_product == PRR_PRODUCT_H3) &&
+			   (prr_cut > PRR_PRODUCT_20)) {
 			/* RENESAS Kriek board with H3N */
 			brd = 15;
 		}
