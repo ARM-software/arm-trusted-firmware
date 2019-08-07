@@ -1533,7 +1533,7 @@ void boardcnf_get_brd_clk(uint32_t brd, uint32_t *clk, uint32_t *div)
 {
 	uint32_t md;
 
-	if ((Prr_Product == PRR_PRODUCT_H3) && (Prr_Cut == PRR_PRODUCT_10)) {
+	if ((prr_product == PRR_PRODUCT_H3) && (prr_cut == PRR_PRODUCT_10)) {
 		*clk = 50;
 		*div = 3;
 	} else {
@@ -1599,7 +1599,7 @@ void boardcnf_get_ddr_mbps(uint32_t brd, uint32_t *mbps, uint32_t *div)
 #define M3_SAMPLE_SS_E28        0xB866CC10, 0x3C231421
 #define M3_SAMPLE_SS_E32        0xB866CC10, 0x3C241421
 
-static const uint32_t TermcodeBySample[20][3] = {
+static const uint32_t termcode_by_sample[20][3] = {
 	{M3_SAMPLE_TT_A84, 0x000158D5},
 	{M3_SAMPLE_TT_A85, 0x00015955},
 	{M3_SAMPLE_TT_A86, 0x00015955},
@@ -1701,8 +1701,8 @@ static uint32_t _board_judge(void)
 	uint32_t brd;
 #if (RCAR_GEN3_ULCB == 1)
 	/* Starter Kit */
-	if (Prr_Product == PRR_PRODUCT_H3) {
-		if (Prr_Cut <= PRR_PRODUCT_11) {
+	if (prr_product == PRR_PRODUCT_H3) {
+		if (prr_cut <= PRR_PRODUCT_11) {
 			/* RENESAS Starter Kit(H3 Ver.1.x/SIP) board */
 			brd = 2;
 		} else {
@@ -1713,7 +1713,7 @@ static uint32_t _board_judge(void)
 			brd = 8;
 #endif
 		}
-	} else if (Prr_Product == PRR_PRODUCT_M3) {
+	} else if (prr_product == PRR_PRODUCT_M3) {
 		/* RENESAS Starter Kit(M3-W/SIP 8Gbit 1rank) board */
 		brd = 3;
 	} else {
@@ -1727,31 +1727,31 @@ static uint32_t _board_judge(void)
 
 	/* RENESAS Eva-board */
 	brd = 99;
-	if (Prr_Product == PRR_PRODUCT_V3H) {
+	if (prr_product == PRR_PRODUCT_V3H) {
 		/* RENESAS Condor board */
 		brd = 12;
 	} else if (usb2_ovc_open) {
-		if (Prr_Product == PRR_PRODUCT_M3N) {
+		if (prr_product == PRR_PRODUCT_M3N) {
 			/* RENESAS Kriek board with M3-N */
 			brd = 10;
-		} else if (Prr_Product == PRR_PRODUCT_M3) {
+		} else if (prr_product == PRR_PRODUCT_M3) {
 			/* RENESAS Kriek board with M3-W */
 			brd = 1;
-		} else if ((Prr_Product == PRR_PRODUCT_H3)
-			   && (Prr_Cut <= PRR_PRODUCT_11)) {
+		} else if ((prr_product == PRR_PRODUCT_H3)
+			   && (prr_cut <= PRR_PRODUCT_11)) {
 			/* RENESAS Kriek board with PM3 */
 			brd = 13;
-		} else if ((Prr_Product == PRR_PRODUCT_H3)
-			   && (Prr_Cut > PRR_PRODUCT_20)) {
+		} else if ((prr_product == PRR_PRODUCT_H3)
+			   && (prr_cut > PRR_PRODUCT_20)) {
 			/* RENESAS Kriek board with H3N */
 			brd = 15;
 		}
 	} else {
-		if (Prr_Product == PRR_PRODUCT_H3) {
-			if (Prr_Cut <= PRR_PRODUCT_11) {
+		if (prr_product == PRR_PRODUCT_H3) {
+			if (prr_cut <= PRR_PRODUCT_11) {
 				/* RENESAS SALVATOR-X (H3 Ver.1.x/SIP) */
 				brd = 2;
-			} else if (Prr_Cut < PRR_PRODUCT_30) {
+			} else if (prr_cut < PRR_PRODUCT_30) {
 				/* RENESAS SALVATOR-X (H3 Ver.2.0/SIP) */
 				brd = 7;	//  8Gbit/1rank
 			} else {
@@ -1762,16 +1762,16 @@ static uint32_t _board_judge(void)
 				brd = 8;
 #endif
 			}
-		} else if (Prr_Product == PRR_PRODUCT_M3N) {
+		} else if (prr_product == PRR_PRODUCT_M3N) {
 			/* RENESAS SALVATOR-X (M3-N/SIP) */
 			brd = 11;
-		} else if ((Prr_Product == PRR_PRODUCT_M3) && (Prr_Cut <= PRR_PRODUCT_20)) {
+		} else if ((prr_product == PRR_PRODUCT_M3) && (prr_cut <= PRR_PRODUCT_20)) {
 			/* RENESAS SALVATOR-X (M3-W/SIP) */
 			brd = 0;
-		} else if ((Prr_Product == PRR_PRODUCT_M3) && (Prr_Cut < PRR_PRODUCT_30)) {
+		} else if ((prr_product == PRR_PRODUCT_M3) && (prr_cut < PRR_PRODUCT_30)) {
 			/* RENESAS SALVATOR-X (M3-W Ver.1.x/SIP) */
 			brd = 19;
-		} else if ((Prr_Product == PRR_PRODUCT_M3) && (Prr_Cut >= PRR_PRODUCT_30)) {
+		} else if ((prr_product == PRR_PRODUCT_M3) && (prr_cut >= PRR_PRODUCT_30)) {
 			/* RENESAS SALVATOR-X (M3-W ver.3.0/SIP) */
 			brd = 18;
 		}
