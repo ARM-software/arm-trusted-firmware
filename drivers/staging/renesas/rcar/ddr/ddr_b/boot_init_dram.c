@@ -45,30 +45,30 @@
 #ifndef RCAR_LSI
 #define RCAR_LSI	RCAR_AUTO
 #endif
-#if(RCAR_LSI==RCAR_AUTO)
+#if (RCAR_LSI == RCAR_AUTO)
 static uint32_t Prr_Product;
 static uint32_t Prr_Cut;
 #else
-#if(RCAR_LSI==RCAR_H3)
+#if (RCAR_LSI == RCAR_H3)
 static const uint32_t Prr_Product = PRR_PRODUCT_H3;
-#elif(RCAR_LSI==RCAR_M3)
+#elif(RCAR_LSI == RCAR_M3)
 static const uint32_t Prr_Product = PRR_PRODUCT_M3;
-#elif(RCAR_LSI==RCAR_M3N)
+#elif(RCAR_LSI == RCAR_M3N)
 static const uint32_t Prr_Product = PRR_PRODUCT_M3N;
-#elif(RCAR_LSI==RCAR_H3N)
+#elif(RCAR_LSI == RCAR_H3N)
 static const uint32_t Prr_Product = PRR_PRODUCT_H3;
 #endif /* RCAR_LSI */
 
 #ifndef RCAR_LSI_CUT
 static uint32_t Prr_Cut;
 #else /* RCAR_LSI_CUT */
-#if(RCAR_LSI_CUT==RCAR_CUT_10)
+#if (RCAR_LSI_CUT == RCAR_CUT_10)
 static const uint32_t Prr_Cut = PRR_PRODUCT_10;
-#elif(RCAR_LSI_CUT==RCAR_CUT_11)
+#elif(RCAR_LSI_CUT == RCAR_CUT_11)
 static const uint32_t Prr_Cut = PRR_PRODUCT_11;
-#elif(RCAR_LSI_CUT==RCAR_CUT_20)
+#elif(RCAR_LSI_CUT == RCAR_CUT_20)
 static const uint32_t Prr_Cut = PRR_PRODUCT_20;
-#elif(RCAR_LSI_CUT==RCAR_CUT_30)
+#elif(RCAR_LSI_CUT == RCAR_CUT_30)
 static const uint32_t Prr_Cut = PRR_PRODUCT_30;
 #endif /* RCAR_LSI_CUT */
 #endif /* RCAR_LSI_CUT */
@@ -130,7 +130,7 @@ uint32_t ddrBackup;
 #define OPERATING_FREQ			(400U)	/* Mhz */
 #define BASE_SUB_SLOT_NUM		(0x6U)
 #define SUB_SLOT_CYCLE			(0x7EU)	/* 126 */
-#define QOSWT_WTSET0_CYCLE		((SUB_SLOT_CYCLE * BASE_SUB_SLOT_NUM * 1000U)/OPERATING_FREQ)	/* unit:ns */
+#define QOSWT_WTSET0_CYCLE		((SUB_SLOT_CYCLE * BASE_SUB_SLOT_NUM * 1000U) / OPERATING_FREQ)	/* unit:ns */
 
 uint32_t get_refperiod(void)
 {
@@ -249,21 +249,21 @@ static void ddr_setval_ach_s(uint32_t slice, uint32_t regdef, uint32_t val);
 static void ddr_setval_ach(uint32_t regdef, uint32_t val);
 static void ddr_setval_ach_as(uint32_t regdef, uint32_t val);
 static uint32_t ddr_getval(uint32_t ch, uint32_t regdef);
-static uint32_t ddr_getval_ach(uint32_t regdef, uint32_t * p);
-static uint32_t ddr_getval_ach_as(uint32_t regdef, uint32_t * p);
-static void _tblcopy(uint32_t * to, const uint32_t * from, uint32_t size);
-static void ddrtbl_setval(uint32_t * tbl, uint32_t _regdef, uint32_t val);
-static uint32_t ddrtbl_getval(uint32_t * tbl, uint32_t _regdef);
+static uint32_t ddr_getval_ach(uint32_t regdef, uint32_t *p);
+static uint32_t ddr_getval_ach_as(uint32_t regdef, uint32_t *p);
+static void _tblcopy(uint32_t *to, const uint32_t *from, uint32_t size);
+static void ddrtbl_setval(uint32_t *tbl, uint32_t _regdef, uint32_t val);
+static uint32_t ddrtbl_getval(uint32_t *tbl, uint32_t _regdef);
 static uint32_t ddrphy_regif_chk(void);
-static inline void ddrphy_regif_idle();
+static inline void ddrphy_regif_idle(void);
 static uint16_t _f_scale(uint32_t ddr_mbps, uint32_t ddr_mbpsdiv, uint32_t ps,
 			 uint16_t cyc);
 static void _f_scale_js2(uint32_t ddr_mbps, uint32_t ddr_mbpsdiv,
-			 uint16_t * js2);
+			 uint16_t *js2);
 static int16_t _f_scale_adj(int16_t ps);
 static void ddrtbl_load(void);
 static void ddr_config_sub(void);
-static void get_ca_swizzle(uint32_t ch, uint32_t ddr_csn, uint32_t * p_swz);
+static void get_ca_swizzle(uint32_t ch, uint32_t ddr_csn, uint32_t *p_swz);
 static void ddr_config_sub_h3v1x(void);
 static void ddr_config(void);
 static void dbsc_regset(void);
@@ -297,6 +297,7 @@ struct DdrtData {
 	uint32_t init_cal[4];	/*  Initial io-code (4 is for H3) */
 	uint32_t tcomp_cal[4];	/*  Temperature compensated io-code (4 is for H3) */
 };
+
 struct DdrtData tcal;
 
 static void pvtcode_update(void);
@@ -341,10 +342,10 @@ static inline uint32_t vch_nxt(uint32_t pos)
 }
 
 #define foreach_vch(ch) \
-for(ch=vch_nxt(0);ch<DRAM_CH_CNT;ch=vch_nxt(ch+1))
+for (ch = vch_nxt(0); ch < DRAM_CH_CNT; ch = vch_nxt(ch + 1))
 
 #define foreach_ech(ch) \
-for(ch=0;ch<DRAM_CH_CNT;ch++)
+for (ch = 0; ch < DRAM_CH_CNT; ch++)
 
 /*******************************************************************************
  *	Printing functions
@@ -532,8 +533,8 @@ static uint32_t reg_ddrphy_read(uint32_t phyno, uint32_t regadd)
 	uint32_t loop;
 
 	val = 0;
-	if ((PRR_PRODUCT_M3N != Prr_Product)
-	    && (PRR_PRODUCT_V3H != Prr_Product)) {
+	if ((Prr_Product != PRR_PRODUCT_M3N)
+	    && (Prr_Product != PRR_PRODUCT_V3H)) {
 		mmio_write_32(DBSC_DBPDRGA(phyno), regadd);
 		dsb_sev();
 
@@ -579,8 +580,8 @@ static void reg_ddrphy_write(uint32_t phyno, uint32_t regadd, uint32_t regdata)
 	uint32_t val;
 	uint32_t loop;
 
-	if ((PRR_PRODUCT_M3N != Prr_Product)
-	    && (PRR_PRODUCT_V3H != Prr_Product)) {
+	if ((Prr_Product != PRR_PRODUCT_M3N)
+	    && (Prr_Product != PRR_PRODUCT_V3H)) {
 		mmio_write_32(DBSC_DBPDRGA(phyno), regadd);
 		dsb_sev();
 		for (loop = 0; loop < loop_max; loop++) {
@@ -628,8 +629,8 @@ static void reg_ddrphy_write_a(uint32_t regadd, uint32_t regdata)
 	uint32_t val;
 	uint32_t loop;
 
-	if ((PRR_PRODUCT_M3N != Prr_Product)
-	    && (PRR_PRODUCT_V3H != Prr_Product)) {
+	if ((Prr_Product != PRR_PRODUCT_M3N)
+	    && (Prr_Product != PRR_PRODUCT_V3H)) {
 		foreach_vch(ch) {
 			mmio_write_32(DBSC_DBPDRGA(ch), regadd);
 			dsb_sev();
@@ -653,7 +654,7 @@ static void reg_ddrphy_write_a(uint32_t regadd, uint32_t regdata)
 	}
 }
 
-static inline void ddrphy_regif_idle()
+static inline void ddrphy_regif_idle(void)
 {
 	uint32_t val;
 
@@ -759,7 +760,7 @@ static uint32_t ddr_getval(uint32_t ch, uint32_t regdef)
 	return ddr_getval_s(ch, 0, regdef);
 }
 
-static uint32_t ddr_getval_ach(uint32_t regdef, uint32_t * p)
+static uint32_t ddr_getval_ach(uint32_t regdef, uint32_t *p)
 {
 	uint32_t ch;
 
@@ -768,14 +769,14 @@ static uint32_t ddr_getval_ach(uint32_t regdef, uint32_t * p)
 	return p[0];
 }
 
-static uint32_t ddr_getval_ach_as(uint32_t regdef, uint32_t * p)
+static uint32_t ddr_getval_ach_as(uint32_t regdef, uint32_t *p)
 {
 	uint32_t ch, slice;
 	uint32_t *pp;
 
 	pp = p;
 	foreach_vch(ch)
-	    for (slice = 0; slice < SLICE_CNT; slice++)
+	for (slice = 0; slice < SLICE_CNT; slice++)
 		*pp++ = ddr_getval_s(ch, slice, regdef);
 	return p[0];
 }
@@ -783,7 +784,7 @@ static uint32_t ddr_getval_ach_as(uint32_t regdef, uint32_t * p)
 /*******************************************************************************
  *	handling functions for setteing ddrphy value table
  ******************************************************************************/
-static void _tblcopy(uint32_t * to, const uint32_t * from, uint32_t size)
+static void _tblcopy(uint32_t *to, const uint32_t *from, uint32_t size)
 {
 	uint32_t i;
 
@@ -792,7 +793,7 @@ static void _tblcopy(uint32_t * to, const uint32_t * from, uint32_t size)
 	}
 }
 
-static void ddrtbl_setval(uint32_t * tbl, uint32_t _regdef, uint32_t val)
+static void ddrtbl_setval(uint32_t *tbl, uint32_t _regdef, uint32_t val)
 {
 	uint32_t adr;
 	uint32_t lsb;
@@ -822,7 +823,7 @@ static void ddrtbl_setval(uint32_t * tbl, uint32_t _regdef, uint32_t val)
 	tbl[adr & adrmsk] = tmp;
 }
 
-static uint32_t ddrtbl_getval(uint32_t * tbl, uint32_t _regdef)
+static uint32_t ddrtbl_getval(uint32_t *tbl, uint32_t _regdef)
 {
 	uint32_t adr;
 	uint32_t lsb;
@@ -870,10 +871,10 @@ static uint32_t ddrphy_regif_chk(void)
 		PI_VERSION_CODE = 0x2040;	/* H3 Ver.2.0 or later/M3-N/V3H */
 	}
 
-	ddr_getval_ach(_reg_PI_VERSION, (uint32_t *) tmp_ach);
+	ddr_getval_ach(_reg_PI_VERSION, (uint32_t *)tmp_ach);
 	err = 0;
 	foreach_vch(ch) {
-		if (PI_VERSION_CODE != tmp_ach[ch])
+		if (tmp_ach[ch] != PI_VERSION_CODE)
 			err = 1;
 	}
 	return err;
@@ -892,15 +893,16 @@ struct _jedec_spec1 {
 	uint8_t MR1;
 	uint8_t MR2;
 };
+
 #define JS1_USABLEC_SPEC_LO 2
 #define JS1_USABLEC_SPEC_HI 5
 #define JS1_FREQ_TBL_NUM 8
-#define JS1_MR1(f) (0x04 | ((f)<<4))
-#define JS1_MR2(f) (0x00 | ((f)<<3) | (f))
+#define JS1_MR1(f) (0x04 | ((f) << 4))
+#define JS1_MR2(f) (0x00 | ((f) << 3) | (f))
 const struct _jedec_spec1 js1[JS1_FREQ_TBL_NUM] = {
-	{  800,  6,  6,  4,  6,  8, JS1_MR1(0), JS1_MR2(0)|0x40 }, /*  533.333Mbps */
-	{ 1600, 10, 12,  8, 10,  8, JS1_MR1(1), JS1_MR2(1)|0x40 }, /* 1066.666Mbps */
-	{ 2400, 14, 16, 12, 16,  8, JS1_MR1(2), JS1_MR2(2)|0x40 }, /* 1600.000Mbps */
+	{  800,  6,  6,  4,  6,  8, JS1_MR1(0), JS1_MR2(0) | 0x40 }, /*  533.333Mbps */
+	{ 1600, 10, 12,  8, 10,  8, JS1_MR1(1), JS1_MR2(1) | 0x40 }, /* 1066.666Mbps */
+	{ 2400, 14, 16, 12, 16,  8, JS1_MR1(2), JS1_MR2(2) | 0x40 }, /* 1600.000Mbps */
 	{ 3200, 20, 22, 10, 20,  8, JS1_MR1(3), JS1_MR2(3) },      /* 2133.333Mbps */
 	{ 4000, 24, 28, 12, 24, 10, JS1_MR1(4), JS1_MR2(4) },      /* 2666.666Mbps */
 	{ 4800, 28, 32, 14, 30, 12, JS1_MR1(5), JS1_MR2(5) },      /* 3200.000Mbps */
@@ -938,9 +940,9 @@ struct _jedec_spec2 {
 #define JS2_TBLCNT 22
 
 #define JS2_tRCpb (JS2_TBLCNT)
-#define JS2_tRCab (JS2_TBLCNT+1)
-#define JS2_tRFCab (JS2_TBLCNT+2)
-#define JS2_CNT (JS2_TBLCNT+3)
+#define JS2_tRCab (JS2_TBLCNT + 1)
+#define JS2_tRFCab (JS2_TBLCNT + 2)
+#define JS2_CNT (JS2_TBLCNT + 3)
 
 #ifndef JS2_DERATE
 #define JS2_DERATE 0
@@ -992,7 +994,7 @@ const struct _jedec_spec2 jedec_spec2[2][JS2_TBLCNT] = {
 /*tZQCALns*/ {1000 * 10, 0},
 /*tZQLAT*/ {30000, 10},
 /*tIEdly*/ {12500, 0}
-	     }
+	}
 };
 
 const uint16_t jedec_spec2_tRFC_ab[7] = {
@@ -1011,18 +1013,18 @@ static uint16_t _f_scale(uint32_t ddr_mbps, uint32_t ddr_mbpsdiv, uint32_t ps,
 	uint32_t tmp;
 	uint32_t div;
 
-	tmp = (((uint32_t) (ps) + 9) / 10) * ddr_mbps;
+	tmp = (((uint32_t)(ps) + 9) / 10) * ddr_mbps;
 	div = tmp / (200000 * ddr_mbpsdiv);
 	if (tmp != (div * 200000 * ddr_mbpsdiv))
 		div = div + 1;
 
 	if (div > cyc)
-		return (uint16_t) div;
+		return (uint16_t)div;
 	return cyc;
 }
 
 static void _f_scale_js2(uint32_t ddr_mbps, uint32_t ddr_mbpsdiv,
-			 uint16_t * js2)
+			 uint16_t *js2)
 {
 	int i;
 
@@ -1046,11 +1048,11 @@ static int16_t _f_scale_adj(int16_t ps)
 	   = ps * ddr_mbps / ddr_mbpsdiv *4 / 125 / 125
 	 */
 	tmp =
-	    (int32_t) 4 *(int32_t) ps *(int32_t) ddr_mbps /
-	    (int32_t) ddr_mbpsdiv;
-	tmp = (int32_t) tmp / (int32_t) 15625;
+	    (int32_t)4 * (int32_t)ps * (int32_t)ddr_mbps /
+	    (int32_t)ddr_mbpsdiv;
+	tmp = (int32_t)tmp / (int32_t)15625;
 
-	return (int16_t) tmp;
+	return (int16_t)tmp;
 }
 
 const uint32_t _reg_PI_MR1_DATA_Fx_CSx[2][CSAB_CNT] = {
@@ -1180,7 +1182,7 @@ static void regif_pll_wa(void)
 	}
 
 	reg_ddrphy_write_a(ddr_regdef_adr(_reg_PHY_LPDDR3_CS),
-				_cnf_DDR_PHY_ADR_G_REGSET[ddr_regdef_adr(_reg_PHY_LPDDR3_CS) - DDR_PHY_ADR_G_REGSET_OFS]);
+			   _cnf_DDR_PHY_ADR_G_REGSET[ddr_regdef_adr(_reg_PHY_LPDDR3_CS) - DDR_PHY_ADR_G_REGSET_OFS]);
 
 	/* protect register interface */
 	ddrphy_regif_idle();
@@ -1219,8 +1221,8 @@ static void regif_pll_wa(void)
 	dsb_sev();
 
 	foreach_ech(ch)
-	    if (((Boardcnf->phyvalid) & (1U << ch)))
-		while ((mmio_read_32(DBSC_PLL_LOCK(ch)) & 0x1f) != 0x1f) ;
+	if (((Boardcnf->phyvalid) & (1U << ch)))
+		while ((mmio_read_32(DBSC_PLL_LOCK(ch)) & 0x1f) != 0x1f);
 	dsb_sev();
 }
 
@@ -1245,7 +1247,7 @@ static void ddrtbl_load(void)
 		if (js1[i].fx3 * 2U * ddr_mbpsdiv >= ddr_mbps * 3U)
 			break;
 	}
-	if (JS1_USABLEC_SPEC_HI < i)
+	if (i > JS1_USABLEC_SPEC_HI)
 		js1_ind = JS1_USABLEC_SPEC_HI;
 	else
 		js1_ind = i;
@@ -1533,7 +1535,7 @@ static void ddrtbl_load(void)
 	FREQ_SEL_MULTICAST & PER_CS_TRAINING_MULTICAST SET (for safety)
 	***********************************************************************/
 	reg_ddrphy_write_a(ddr_regdef_adr(_reg_PHY_FREQ_SEL_MULTICAST_EN),
-		(0x01U << ddr_regdef_lsb(_reg_PHY_FREQ_SEL_MULTICAST_EN)));
+			   (0x01U << ddr_regdef_lsb(_reg_PHY_FREQ_SEL_MULTICAST_EN)));
 	ddr_setval_ach_as(_reg_PHY_PER_CS_TRAINING_MULTICAST_EN, 0x01);
 
 	/***********************************************************************
@@ -1624,6 +1626,7 @@ static void ddr_config_sub(void)
 	uint32_t tmp;
 	uint8_t high_byte[SLICE_CNT];
 	const uint32_t _par_CALVL_DEVICE_MAP = 1;
+
 	foreach_vch(ch) {
 	/***********************************************************************
 	BOARD SETTINGS (DQ,DM,VREF_DRIVING)
@@ -1747,11 +1750,12 @@ static void ddr_config_sub(void)
 	}
 }
 
-static void get_ca_swizzle(uint32_t ch, uint32_t ddr_csn, uint32_t * p_swz)
+static void get_ca_swizzle(uint32_t ch, uint32_t ddr_csn, uint32_t *p_swz)
 {
 	uint32_t slice;
 	uint32_t tmp;
 	uint32_t tgt;
+
 	if (ddr_csn / 2) {
 		tgt = 3;
 	} else {
@@ -1920,7 +1924,7 @@ static void ddr_config(void)
 				      _reg_PHY_CLK_CACS_SLAVE_DELAY_X[i],
 				      dataL + adj);
 			reg_ddrphy_write(ch,
-					ddr_regdef_adr(
+					 ddr_regdef_adr(
 					_reg_PHY_CLK_CACS_SLAVE_DELAY_X[i]),
 					_cnf_DDR_PHY_ADR_V_REGSET[
 					ddr_regdef_adr(
@@ -1935,7 +1939,7 @@ static void ddr_config(void)
 				      _reg_PHY_CLK_CACS_SLAVE_DELAY_X[i],
 				      dataL + adj);
 			reg_ddrphy_write(ch,
-					ddr_regdef_adr(
+					 ddr_regdef_adr(
 					_reg_PHY_CLK_CACS_SLAVE_DELAY_X[i]),
 					_cnf_DDR_PHY_ADR_G_REGSET[
 					ddr_regdef_adr(
@@ -1952,7 +1956,7 @@ static void ddr_config(void)
 					      _reg_PHY_CLK_CACS_SLAVE_DELAY_X[i],
 					      dataL + adj);
 				reg_ddrphy_write(ch,
-					ddr_regdef_adr(
+						 ddr_regdef_adr(
 					_reg_PHY_CLK_CACS_SLAVE_DELAY_X[i]) +
 					0x0100,
 					_cnf_DDR_PHY_ADR_V_REGSET[
@@ -1964,7 +1968,7 @@ static void ddr_config(void)
 	}
 
 	reg_ddrphy_write_a(ddr_regdef_adr(_reg_PHY_FREQ_SEL_MULTICAST_EN),
-		(0x01U << ddr_regdef_lsb(_reg_PHY_FREQ_SEL_MULTICAST_EN)));
+			   (0x01U << ddr_regdef_lsb(_reg_PHY_FREQ_SEL_MULTICAST_EN)));
 
 	/***********************************************************************
 	WDQDM DLY
@@ -2037,7 +2041,7 @@ static void dbsc_regset_pre(void)
 	 * set all ranks as density=0(4Gb) for PHY initialization
 	 */
 	foreach_vch(ch)
-	    for (csab = 0; csab < 4; csab++)
+	for (csab = 0; csab < 4; csab++)
 		mmio_write_32(DBSC_DBMEMCONF(ch, csab), DBMEMCONF_REGD(0));
 
 	if (Prr_Product == PRR_PRODUCT_M3) {
@@ -2275,11 +2279,11 @@ static void dbsc_regset(void)
 	if ((Prr_Product == PRR_PRODUCT_M3) && (Prr_Cut < PRR_PRODUCT_30)) {
 		mmio_write_32(DBSC_DBSCHRW1, tmp[0]
 			+ ((mmio_read_32(DBSC_DBTR(22)) & 0x0000FFFF)
-			* 400 * 2 * ddr_mbpsdiv +(ddr_mbps-1))/ddr_mbps - 3);
+			* 400 * 2 * ddr_mbpsdiv + (ddr_mbps - 1)) / ddr_mbps - 3);
 	} else {
 		mmio_write_32(DBSC_DBSCHRW1, tmp[0]
 			+ ((mmio_read_32(DBSC_DBTR(22)) & 0x0000FFFF)
-			* 400 * 2 * ddr_mbpsdiv +(ddr_mbps-1))/ddr_mbps);
+			* 400 * 2 * ddr_mbpsdiv + (ddr_mbps - 1)) / ddr_mbps);
 	}
 
 	/***********************************************************************
@@ -2651,6 +2655,7 @@ static uint32_t set_term_code(void)
 	uint32_t pvtr;
 	uint32_t pvtp;
 	uint32_t pvtn;
+
 	term_code = ddrtbl_getval(_cnf_DDR_PHY_ADR_G_REGSET,
 				  _reg_PHY_PAD_DATA_TERM);
 	override = 0;
@@ -2801,6 +2806,7 @@ static inline uint32_t wait_freqchgreq(uint32_t assert)
 	uint32_t dataL;
 	uint32_t count;
 	uint32_t ch;
+
 	count = 100000;
 
 	/* H3 Ver.1.x cannot see frqchg_req */
@@ -2833,6 +2839,7 @@ static inline void set_freqchgack(uint32_t assert)
 {
 	uint32_t ch;
 	uint32_t dataL;
+
 	if (assert)
 		dataL = 0x0CF20000;
 	else
@@ -2845,6 +2852,7 @@ static inline void set_freqchgack(uint32_t assert)
 static inline void set_dfifrequency(uint32_t freq)
 {
 	uint32_t ch;
+
 	if ((Prr_Product == PRR_PRODUCT_H3) && (Prr_Cut <= PRR_PRODUCT_11)) {
 		foreach_vch(ch)
 		    mmio_clrsetbits_32(DBSC_DBPDCNT1(ch), 0x1fU, freq);
@@ -3404,7 +3412,7 @@ static uint32_t wdqdm_ana1(uint32_t ch, uint32_t ddr_csn)
 					 _reg_PHY_WDQLVL_DQDM_LE_DLY_OBS);
 			wdqdm_le[ch][cs][slice][i] = dataL;
 			win =
-			    (int32_t) wdqdm_te[ch][cs][slice][i] -
+			    (int32_t)wdqdm_te[ch][cs][slice][i] -
 			    wdqdm_le[ch][cs][slice][i];
 			if (min_win > win)
 				min_win = win;
@@ -3825,7 +3833,7 @@ static uint32_t rdqdm_ana1(uint32_t ch, uint32_t ddr_csn)
 				    dataL;
 
 				win =
-				    (int32_t) rdqdm_te[ch][cs][slice +
+				    (int32_t)rdqdm_te[ch][cs][slice +
 							       SLICE_CNT *
 							       k][i] -
 				    rdqdm_le[ch][cs][slice + SLICE_CNT * k][i];
@@ -3881,7 +3889,7 @@ static uint32_t rdqdm_man1(void)
 			if (ch_have_this_cs[ddr_csn] & (1U << ch)) {
 				for (slice = 0; slice < SLICE_CNT; slice++) {
 					if (ddr_getval_s(ch, slice,
-					    _reg_PHY_RDLVL_STATUS_OBS) !=
+							 _reg_PHY_RDLVL_STATUS_OBS) !=
 					    0x0D00FFFF) {
 						err = (1U << ch) |
 							(0x10U << slice);
@@ -4043,7 +4051,7 @@ static uint32_t rx_offset_cal(void)
 			ddr_setval_ach_as(_reg_PHY_RX_CAL_X[index], tmp);
 		}
 		dsb_sev();
-		ddr_getval_ach_as(_reg_PHY_RX_CAL_OBS, (uint32_t *) tmp_ach_as);
+		ddr_getval_ach_as(_reg_PHY_RX_CAL_OBS, (uint32_t *)tmp_ach_as);
 
 		foreach_vch(ch) {
 			for (slice = 0; slice < SLICE_CNT; slice++) {
@@ -4100,7 +4108,7 @@ static uint32_t rx_offset_cal_hw(void)
 			ddr_setval_ach_as(_reg_SC_PHY_RX_CAL_START, 0x01);
 		}
 		foreach_vch(ch)
-		    for (slice = 0; slice < SLICE_CNT; slice++)
+		for (slice = 0; slice < SLICE_CNT; slice++)
 			tmp_ach_as[ch][slice] =
 			    ddr_getval_s(ch, slice, _reg_PHY_RX_CAL_X[9]);
 
@@ -4140,6 +4148,7 @@ static void adjust_rddqs_latency(void)
 	uint32_t maxlatx2;
 	uint32_t tmp;
 	uint32_t rdlat_adjx2[SLICE_CNT];
+
 	foreach_vch(ch) {
 		maxlatx2 = 0;
 		for (slice = 0; slice < SLICE_CNT; slice++) {
@@ -4236,7 +4245,7 @@ int32_t rcar_dram_init(void)
 	Judge product and cut
 	***********************************************************************/
 #ifdef RCAR_DDR_FIXED_LSI_TYPE
-#if(RCAR_LSI==RCAR_AUTO)
+#if (RCAR_LSI == RCAR_AUTO)
 	Prr_Product = mmio_read_32(PRR) & PRR_PRODUCT_MASK;
 	Prr_Cut = mmio_read_32(PRR) & PRR_CUT_MASK;
 #else /* RCAR_LSI */
@@ -4304,7 +4313,7 @@ int32_t rcar_dram_init(void)
 	}
 
 	foreach_ech(ch)
-	    for (cs = 0; cs < CS_CNT; cs++)
+	for (cs = 0; cs < CS_CNT; cs++)
 		ddr_density[ch][cs] = 0xff;
 
 	foreach_vch(ch) {
@@ -4340,9 +4349,8 @@ int32_t rcar_dram_init(void)
 
 	ddr0800_mul = CLK_DIV(800, 2, brd_clk, brd_clkdiv * (brd_clkdiva + 1));
 
-	ddr_mul =
-	    CLK_DIV(ddr_mbps, ddr_mbpsdiv * 2, brd_clk,
-		    brd_clkdiv * (brd_clkdiva + 1));
+	ddr_mul = CLK_DIV(ddr_mbps, ddr_mbpsdiv * 2, brd_clk,
+			  brd_clkdiv * (brd_clkdiva + 1));
 
 	/***********************************************************************
 	Adjust tccd
@@ -4487,6 +4495,7 @@ void pvtcode_update(void)
 void pvtcode_update2(void)
 {
 	uint32_t ch;
+
 	foreach_vch(ch) {
 		reg_ddrphy_write(ch, ddr_regdef_adr(_reg_PHY_PAD_FDBK_TERM),
 				 tcal.init_cal[ch] | 0x00020000);
@@ -4522,27 +4531,27 @@ void ddr_padcal_tcompensate_getinit(uint32_t override)
 		dataL = mmio_read_32(THS1_TEMP);
 		if (dataL < 2800) {
 			tcal.init_temp =
-			    (143 * (int32_t) dataL - 359000) / 1000;
+			    (143 * (int32_t)dataL - 359000) / 1000;
 		} else {
 			tcal.init_temp =
-			    (121 * (int32_t) dataL - 296300) / 1000;
+			    (121 * (int32_t)dataL - 296300) / 1000;
 		}
 
 		foreach_vch(ch) {
 			pvtp = (tcal.init_cal[ch] >> 0) & 0x000003F;
 			pvtn = (tcal.init_cal[ch] >> 6) & 0x000003F;
-			if ((int32_t) pvtp >
+			if ((int32_t)pvtp >
 			    ((tcal.init_temp * 29 - 3625) / 1000))
 				pvtp =
-				    (int32_t) pvtp +
+				    (int32_t)pvtp +
 				    ((3625 - tcal.init_temp * 29) / 1000);
 			else
 				pvtp = 0;
 
-			if ((int32_t) pvtn >
+			if ((int32_t)pvtn >
 			    ((tcal.init_temp * 54 - 6750) / 1000))
 				pvtn =
-				    (int32_t) pvtn +
+				    (int32_t)pvtn +
 				    ((6750 - tcal.init_temp * 54) / 1000);
 			else
 				pvtn = 0;
