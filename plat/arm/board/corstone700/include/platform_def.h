@@ -9,9 +9,22 @@
 
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
+
 #include <plat/arm/board/common/v2m_def.h>
 #include <plat/arm/common/arm_spm_def.h>
 #include <plat/common/common_def.h>
+
+/* PL011 UART related constants */
+#ifdef V2M_IOFPGA_UART0_CLK_IN_HZ
+#undef V2M_IOFPGA_UART0_CLK_IN_HZ
+#endif
+
+#ifdef V2M_IOFPGA_UART1_CLK_IN_HZ
+#undef V2M_IOFPGA_UART1_CLK_IN_HZ
+#endif
+
+#define V2M_IOFPGA_UART0_CLK_IN_HZ		32000000
+#define V2M_IOFPGA_UART1_CLK_IN_HZ		32000000
 
 /* Core/Cluster/Thread counts for Corstone700 */
 #define CORSTONE700_CLUSTER_COUNT		U(1)
