@@ -221,9 +221,11 @@
 #define	CPG_PLL0CR			(CPG_BASE + 0x00D8U)
 #define	CPG_PLL2CR			(CPG_BASE + 0x002CU)
 #define	CPG_PLL4CR			(CPG_BASE + 0x01F4U)
+#define CPG_CPGWPCR			(CPG_BASE + 0x0904U)
 /* RST Registers */
 #define	RST_BASE			(0xE6160000U)
 #define	RST_WDTRSTCR			(RST_BASE + 0x0054U)
+#define RST_MODEMR			(RST_BASE + 0x0060U)
 #define	WDTRSTCR_PASSWORD		(0xA55A0000U)
 #define	WDTRSTCR_RWDT_RSTMSK		((uint32_t)1U << 0U)
 /* MFIS Registers */

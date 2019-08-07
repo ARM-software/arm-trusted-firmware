@@ -8,8 +8,8 @@
 #include <stdint.h>
 #include <lib/mmio.h>
 #include <common/debug.h>
-
-#include "boot_init_dram_regdef.h"
+#include "rcar_def.h"
+#include "../ddr_regs.h"
 
 #define RCAR_DDR_VERSION	"rev.0.01"
 
@@ -23,7 +23,7 @@ static void init_ddr_d3_1866(void)
 
 	mmio_write_32(DBSC_DBSYSCNT0, 0x00001234);
 	mmio_write_32(DBSC_DBKIND, 0x00000007);
-	mmio_write_32(DBSC_DBMEMCONF00, 0x0f030a01);
+	mmio_write_32(DBSC_DBMEMCONF_0_0, 0x0f030a01);
 	mmio_write_32(DBSC_DBPHYCONF0, 0x00000001);
 	mmio_write_32(DBSC_DBTR0, 0x0000000D);
 	mmio_write_32(DBSC_DBTR1, 0x00000009);
@@ -51,249 +51,249 @@ static void init_ddr_d3_1866(void)
 	mmio_write_32(DBSC_DBODT0, 0x00000001);
 	mmio_write_32(DBSC_DBADJ0, 0x00000001);
 	mmio_write_32(DBSC_DBSYSCONF1, 0x00000002);
-	mmio_write_32(DBSC_DBDFICNT0, 0x00000010);
+	mmio_write_32(DBSC_DBDFICNT_0, 0x00000010);
 	mmio_write_32(DBSC_DBBCAMDIS, 0x00000001);
 	mmio_write_32(DBSC_DBSCHRW1, 0x00000046);
 	mmio_write_32(DBSC_SCFCTST0, 0x0D020D04);
 	mmio_write_32(DBSC_SCFCTST1, 0x0306040C);
 
-	mmio_write_32(DBSC_DBPDLK0, 0x0000A55A);
+	mmio_write_32(DBSC_DBPDLK_0, 0x0000A55A);
 	mmio_write_32(DBSC_DBCMD, 0x01000001);
 	mmio_write_32(DBSC_DBCMD, 0x08000000);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x80010000);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x80010000);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000008);
-	mmio_write_32(DBSC_DBPDRGD0, 0x000B8000);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000090);
-	mmio_write_32(DBSC_DBPDRGD0, 0x04058A04);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000091);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0007BB6B);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000095);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0007BBAD);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000099);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0007BB6B);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000090);
-	mmio_write_32(DBSC_DBPDRGD0, 0x04058A00);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000021);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0024641E);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00010073);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000008);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x000B8000);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000090);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x04058A04);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000091);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0007BB6B);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000095);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0007BBAD);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000099);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0007BB6B);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000090);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x04058A00);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000021);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0024641E);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00010073);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000090);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0C058A00);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000090);
-	mmio_write_32(DBSC_DBPDRGD0, 0x04058A00);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000090);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0C058A00);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000090);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x04058A00);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000003);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0780C700);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000007);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(30)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000003);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0780C700);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000007);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(30)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000004);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0A206F89);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000022);
-	mmio_write_32(DBSC_DBPDRGD0, 0x1000040B);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000023);
-	mmio_write_32(DBSC_DBPDRGD0, 0x35A00D77);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000024);
-	mmio_write_32(DBSC_DBPDRGD0, 0x2A8A2C28);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000025);
-	mmio_write_32(DBSC_DBPDRGD0, 0x30005E00);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000026);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0014CB49);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000027);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00000F14);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000028);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00000046);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000029);
-	mmio_write_32(DBSC_DBPDRGD0, 0x000000A0);
-	mmio_write_32(DBSC_DBPDRGA0, 0x0000002C);
-	mmio_write_32(DBSC_DBPDRGD0, 0x81003047);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000020);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00181884);
-	mmio_write_32(DBSC_DBPDRGA0, 0x0000001A);
-	mmio_write_32(DBSC_DBPDRGD0, 0x33C03C10);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000004);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0A206F89);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000022);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x1000040B);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000023);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x35A00D77);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000024);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x2A8A2C28);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000025);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x30005E00);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000026);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0014CB49);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000027);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00000F14);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000028);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00000046);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000029);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x000000A0);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x0000002C);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x81003047);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000020);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00181884);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x0000001A);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x33C03C10);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000A7);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0D0D0D0D);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000A8);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0D0D0D0D);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000A9);
-	mmio_write_32(DBSC_DBPDRGD0, 0x000D0D0D);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000C7);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0D0D0D0D);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000C8);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0D0D0D0D);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000C9);
-	mmio_write_32(DBSC_DBPDRGD0, 0x000D0D0D);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000A7);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0D0D0D0D);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000A8);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0D0D0D0D);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000A9);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x000D0D0D);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000C7);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0D0D0D0D);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000C8);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0D0D0D0D);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000C9);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x000D0D0D);
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x0000000E);
-	r2 = (mmio_read_32(DBSC_DBPDRGD0) & 0x0000FF00) >> 0x9;
+	mmio_write_32(DBSC_DBPDRGA_0, 0x0000000E);
+	r2 = (mmio_read_32(DBSC_DBPDRGD_0) & 0x0000FF00) >> 0x9;
 	r3 = (r2 << 16) + (r2 << 8) + r2;
 	r6 = (r2 << 24) + (r2 << 16) + (r2 << 8) + r2;
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000011);
-	mmio_write_32(DBSC_DBPDRGD0, r3);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000012);
-	mmio_write_32(DBSC_DBPDRGD0, r3);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000016);
-	mmio_write_32(DBSC_DBPDRGD0, r6);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000017);
-	mmio_write_32(DBSC_DBPDRGD0, r6);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000018);
-	mmio_write_32(DBSC_DBPDRGD0, r6);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000019);
-	mmio_write_32(DBSC_DBPDRGD0, r6);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000011);
+	mmio_write_32(DBSC_DBPDRGD_0, r3);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000012);
+	mmio_write_32(DBSC_DBPDRGD_0, r3);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000016);
+	mmio_write_32(DBSC_DBPDRGD_0, r6);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000017);
+	mmio_write_32(DBSC_DBPDRGD_0, r6);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000018);
+	mmio_write_32(DBSC_DBPDRGD_0, r6);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000019);
+	mmio_write_32(DBSC_DBPDRGD_0, r6);
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00010181);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00010181);
 	mmio_write_32(DBSC_DBCMD, 0x08000001);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00010601);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00010601);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
 	for (i = 0; i < 2; i++) {
-		mmio_write_32(DBSC_DBPDRGA0, 0xB1 + i * 0x20);
-		r5 = (mmio_read_32(DBSC_DBPDRGD0) & 0xFF00) >> 0x8;
-		mmio_write_32(DBSC_DBPDRGA0, 0xB4 + i * 0x20);
-		r6 = mmio_read_32(DBSC_DBPDRGD0) & 0xFF;
-		mmio_write_32(DBSC_DBPDRGA0, 0xB3 + i * 0x20);
-		r7 = mmio_read_32(DBSC_DBPDRGD0) & 0x7;
+		mmio_write_32(DBSC_DBPDRGA_0, 0xB1 + i * 0x20);
+		r5 = (mmio_read_32(DBSC_DBPDRGD_0) & 0xFF00) >> 0x8;
+		mmio_write_32(DBSC_DBPDRGA_0, 0xB4 + i * 0x20);
+		r6 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFF;
+		mmio_write_32(DBSC_DBPDRGA_0, 0xB3 + i * 0x20);
+		r7 = mmio_read_32(DBSC_DBPDRGD_0) & 0x7;
 
 		if (r6 > 0) {
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFFF8;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFFF8;
 
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 | ((r7 + 0x1) & 0x7));
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFF00;
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 | r6);
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 | ((r7 + 0x1) & 0x7));
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFF00;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 | r6);
 		} else {
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFFF8;
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 | r7);
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFFF8;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 | r7);
 
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFF00;
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 |
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFF00;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 |
 						     ((r6 + (r5 << 1)) & 0xFF));
 		}
 	}
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000005);
-	mmio_write_32(DBSC_DBPDRGD0, 0xC1AA00C0);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000A0);
-	mmio_write_32(DBSC_DBPDRGD0, 0x7C0002C5);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000C0);
-	mmio_write_32(DBSC_DBPDRGD0, 0x7C0002C5);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00010801);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000005);
+	mmio_write_32(DBSC_DBPDRGD_0, 0xC1AA00C0);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000A0);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x7C0002C5);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000C0);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x7C0002C5);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00010801);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000005);
-	mmio_write_32(DBSC_DBPDRGD0, 0xC1AA00D8);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0001F001);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000005);
+	mmio_write_32(DBSC_DBPDRGD_0, 0xC1AA00D8);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0001F001);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000AF);
-	r2 = mmio_read_32(DBSC_DBPDRGD0);
-	mmio_write_32(DBSC_DBPDRGD0, ((r2 + 0x1) & 0xFF) | (r2 & 0xFFFFFF00));
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000CF);
-	r2 = mmio_read_32(DBSC_DBPDRGD0);
-	mmio_write_32(DBSC_DBPDRGD0, ((r2 + 0x1) & 0xFF) | (r2 & 0xFFFFFF00));
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000AF);
+	r2 = mmio_read_32(DBSC_DBPDRGD_0);
+	mmio_write_32(DBSC_DBPDRGD_0, ((r2 + 0x1) & 0xFF) | (r2 & 0xFFFFFF00));
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000CF);
+	r2 = mmio_read_32(DBSC_DBPDRGD_0);
+	mmio_write_32(DBSC_DBPDRGD_0, ((r2 + 0x1) & 0xFF) | (r2 & 0xFFFFFF00));
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000A0);
-	mmio_write_32(DBSC_DBPDRGD0, 0x7C000285);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000C0);
-	mmio_write_32(DBSC_DBPDRGD0, 0x7C000285);
-	mmio_write_32(DBSC_DBPDRGA0, 0x0000002C);
-	mmio_write_32(DBSC_DBPDRGD0, 0x81003087);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00010401);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000A0);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x7C000285);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000C0);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x7C000285);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x0000002C);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x81003087);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00010401);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
 	for (i = 0; i < 2; i++) {
-		mmio_write_32(DBSC_DBPDRGA0, 0xB1 + i * 0x20);
-		r5 = ((mmio_read_32(DBSC_DBPDRGD0) & 0xFF00) >> 0x8);
-		mmio_write_32(DBSC_DBPDRGA0, 0xB4 + i * 0x20);
-		r6 = mmio_read_32(DBSC_DBPDRGD0) & 0xFF;
+		mmio_write_32(DBSC_DBPDRGA_0, 0xB1 + i * 0x20);
+		r5 = ((mmio_read_32(DBSC_DBPDRGD_0) & 0xFF00) >> 0x8);
+		mmio_write_32(DBSC_DBPDRGA_0, 0xB4 + i * 0x20);
+		r6 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFF;
 
-		mmio_write_32(DBSC_DBPDRGA0, 0xB3 + i * 0x20);
-		r7 = mmio_read_32(DBSC_DBPDRGD0) & 0x7;
+		mmio_write_32(DBSC_DBPDRGA_0, 0xB3 + i * 0x20);
+		r7 = mmio_read_32(DBSC_DBPDRGD_0) & 0x7;
 		r12 = (r5 >> 0x2);
 
 		if (r12 < r6) {
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFFF8;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFFF8;
 
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 | ((r7 + 0x1) & 0x7));
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFF00;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 | ((r7 + 0x1) & 0x7));
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFF00;
 
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 | ((r6 - r12) & 0xFF));
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 | ((r6 - r12) & 0xFF));
 		} else {
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFFF8;
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 | (r7 & 0x7));
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFF00;
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 |
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFFF8;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 | (r7 & 0x7));
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFF00;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 |
 						     ((r6 + r5 +
 						      (r5 >> 1) + r12) & 0xFF));
 		}
 	}
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000A0);
-	mmio_write_32(DBSC_DBPDRGD0, 0x7C0002C5);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000C0);
-	mmio_write_32(DBSC_DBPDRGD0, 0x7C0002C5);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00015001);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000A0);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x7C0002C5);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000C0);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x7C0002C5);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00015001);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000003);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0380C700);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000007);
-	while (mmio_read_32(DBSC_DBPDRGD0) & BIT(30))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000003);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0380C700);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000007);
+	while (mmio_read_32(DBSC_DBPDRGD_0) & BIT(30))
 		;
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000021);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0024643E);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000021);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0024643E);
 
 	mmio_write_32(DBSC_DBBUS0CNF1, 0x00000010);
 	mmio_write_32(DBSC_DBCALCNF, 0x0100401B);
@@ -302,7 +302,7 @@ static void init_ddr_d3_1866(void)
 	mmio_write_32(DBSC_DBDFICUPDCNF, 0x40100001);
 	mmio_write_32(DBSC_DBRFEN, 0x00000001);
 	mmio_write_32(DBSC_DBACEN, 0x00000001);
-	mmio_write_32(DBSC_DBPDLK0, 0x00000000);
+	mmio_write_32(DBSC_DBPDLK_0, 0x00000000);
 	mmio_write_32(DBSC_DBSYSCNT0, 0x00000000);
 
 #ifdef ddr_qos_init_setting // only for non qos_init
@@ -348,7 +348,7 @@ static void init_ddr_d3_1600(void)
 
 	mmio_write_32(DBSC_DBSYSCNT0, 0x00001234);
 	mmio_write_32(DBSC_DBKIND, 0x00000007);
-	mmio_write_32(DBSC_DBMEMCONF00, 0x0f030a01);
+	mmio_write_32(DBSC_DBMEMCONF_0_0, 0x0f030a01);
 	mmio_write_32(DBSC_DBPHYCONF0, 0x00000001);
 	mmio_write_32(DBSC_DBTR0, 0x0000000B);
 	mmio_write_32(DBSC_DBTR1, 0x00000008);
@@ -376,248 +376,248 @@ static void init_ddr_d3_1600(void)
 	mmio_write_32(DBSC_DBODT0, 0x00000001);
 	mmio_write_32(DBSC_DBADJ0, 0x00000001);
 	mmio_write_32(DBSC_DBSYSCONF1, 0x00000002);
-	mmio_write_32(DBSC_DBDFICNT0, 0x00000010);
+	mmio_write_32(DBSC_DBDFICNT_0, 0x00000010);
 	mmio_write_32(DBSC_DBBCAMDIS, 0x00000001);
 	mmio_write_32(DBSC_DBSCHRW1, 0x00000046);
 	mmio_write_32(DBSC_SCFCTST0, 0x0D020C04);
 	mmio_write_32(DBSC_SCFCTST1, 0x0305040C);
 
-	mmio_write_32(DBSC_DBPDLK0, 0x0000A55A);
+	mmio_write_32(DBSC_DBPDLK_0, 0x0000A55A);
 	mmio_write_32(DBSC_DBCMD, 0x01000001);
 	mmio_write_32(DBSC_DBCMD, 0x08000000);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x80010000);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x80010000);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000008);
-	mmio_write_32(DBSC_DBPDRGD0, 0x000B8000);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000090);
-	mmio_write_32(DBSC_DBPDRGD0, 0x04058904);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000091);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0007BB6B);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000095);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0007BBAD);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000099);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0007BB6B);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000090);
-	mmio_write_32(DBSC_DBPDRGD0, 0x04058900);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000021);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0024641E);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00010073);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000008);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x000B8000);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000090);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x04058904);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000091);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0007BB6B);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000095);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0007BBAD);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000099);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0007BB6B);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000090);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x04058900);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000021);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0024641E);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00010073);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000090);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0C058900);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000090);
-	mmio_write_32(DBSC_DBPDRGD0, 0x04058900);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000090);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0C058900);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000090);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x04058900);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000003);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0780C700);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000007);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(30)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000003);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0780C700);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000007);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(30)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000004);
-	mmio_write_32(DBSC_DBPDRGD0, 0x08C05FF0);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000022);
-	mmio_write_32(DBSC_DBPDRGD0, 0x1000040B);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000023);
-	mmio_write_32(DBSC_DBPDRGD0, 0x2D9C0B66);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000024);
-	mmio_write_32(DBSC_DBPDRGD0, 0x2A88C400);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000025);
-	mmio_write_32(DBSC_DBPDRGD0, 0x30005200);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000026);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0014A9C9);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000027);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00000D70);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000028);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00000046);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000029);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00000098);
-	mmio_write_32(DBSC_DBPDRGA0, 0x0000002C);
-	mmio_write_32(DBSC_DBPDRGD0, 0x81003047);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000020);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00181884);
-	mmio_write_32(DBSC_DBPDRGA0, 0x0000001A);
-	mmio_write_32(DBSC_DBPDRGD0, 0x33C03C10);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000004);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x08C05FF0);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000022);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x1000040B);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000023);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x2D9C0B66);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000024);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x2A88C400);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000025);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x30005200);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000026);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0014A9C9);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000027);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00000D70);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000028);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00000046);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000029);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00000098);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x0000002C);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x81003047);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000020);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00181884);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x0000001A);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x33C03C10);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000A7);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0D0D0D0D);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000A8);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0D0D0D0D);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000A9);
-	mmio_write_32(DBSC_DBPDRGD0, 0x000D0D0D);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000C7);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0D0D0D0D);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000C8);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0D0D0D0D);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000C9);
-	mmio_write_32(DBSC_DBPDRGD0, 0x000D0D0D);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000A7);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0D0D0D0D);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000A8);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0D0D0D0D);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000A9);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x000D0D0D);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000C7);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0D0D0D0D);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000C8);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0D0D0D0D);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000C9);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x000D0D0D);
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x0000000E);
-	r2 = (mmio_read_32(DBSC_DBPDRGD0) & 0x0000FF00) >> 0x9;
+	mmio_write_32(DBSC_DBPDRGA_0, 0x0000000E);
+	r2 = (mmio_read_32(DBSC_DBPDRGD_0) & 0x0000FF00) >> 0x9;
 	r3 = (r2 << 16) + (r2 << 8) + r2;
 	r6 = (r2 << 24) + (r2 << 16) + (r2 << 8) + r2;
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000011);
-	mmio_write_32(DBSC_DBPDRGD0, r3);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000012);
-	mmio_write_32(DBSC_DBPDRGD0, r3);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000016);
-	mmio_write_32(DBSC_DBPDRGD0, r6);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000017);
-	mmio_write_32(DBSC_DBPDRGD0, r6);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000018);
-	mmio_write_32(DBSC_DBPDRGD0, r6);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000019);
-	mmio_write_32(DBSC_DBPDRGD0, r6);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000011);
+	mmio_write_32(DBSC_DBPDRGD_0, r3);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000012);
+	mmio_write_32(DBSC_DBPDRGD_0, r3);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000016);
+	mmio_write_32(DBSC_DBPDRGD_0, r6);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000017);
+	mmio_write_32(DBSC_DBPDRGD_0, r6);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000018);
+	mmio_write_32(DBSC_DBPDRGD_0, r6);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000019);
+	mmio_write_32(DBSC_DBPDRGD_0, r6);
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00010181);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00010181);
 	mmio_write_32(DBSC_DBCMD, 0x08000001);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00010601);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00010601);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
 	for (i = 0; i < 2; i++) {
-		mmio_write_32(DBSC_DBPDRGA0, 0xB1 + i * 0x20);
-		r5 = (mmio_read_32(DBSC_DBPDRGD0) & 0xFF00) >> 0x8;
-		mmio_write_32(DBSC_DBPDRGA0, 0xB4 + i * 0x20);
-		r6 = mmio_read_32(DBSC_DBPDRGD0) & 0xFF;
-		mmio_write_32(DBSC_DBPDRGA0, 0xB3 + i * 0x20);
-		r7 = mmio_read_32(DBSC_DBPDRGD0) & 0x7;
+		mmio_write_32(DBSC_DBPDRGA_0, 0xB1 + i * 0x20);
+		r5 = (mmio_read_32(DBSC_DBPDRGD_0) & 0xFF00) >> 0x8;
+		mmio_write_32(DBSC_DBPDRGA_0, 0xB4 + i * 0x20);
+		r6 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFF;
+		mmio_write_32(DBSC_DBPDRGA_0, 0xB3 + i * 0x20);
+		r7 = mmio_read_32(DBSC_DBPDRGD_0) & 0x7;
 		if (r6 > 0) {
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFFF8;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFFF8;
 
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 | ((r7 + 0x1) & 0x7));
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFF00;
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 | r6);
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 | ((r7 + 0x1) & 0x7));
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFF00;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 | r6);
 		} else {
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFFF8;
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 | r7);
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFFF8;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 | r7);
 
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFF00;
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 |
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFF00;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 |
 						     ((r6 + (r5 << 1)) & 0xFF));
 		}
 	}
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000005);
-	mmio_write_32(DBSC_DBPDRGD0, 0xC1AA00C0);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000A0);
-	mmio_write_32(DBSC_DBPDRGD0, 0x7C0002C5);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000C0);
-	mmio_write_32(DBSC_DBPDRGD0, 0x7C0002C5);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00010801);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000005);
+	mmio_write_32(DBSC_DBPDRGD_0, 0xC1AA00C0);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000A0);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x7C0002C5);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000C0);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x7C0002C5);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00010801);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000005);
-	mmio_write_32(DBSC_DBPDRGD0, 0xC1AA00D8);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0001F001);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000005);
+	mmio_write_32(DBSC_DBPDRGD_0, 0xC1AA00D8);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0001F001);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000AF);
-	r2 = mmio_read_32(DBSC_DBPDRGD0);
-	mmio_write_32(DBSC_DBPDRGD0, ((r2 + 0x1) & 0xFF) | (r2 & 0xFFFFFF00));
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000CF);
-	r2 = mmio_read_32(DBSC_DBPDRGD0);
-	mmio_write_32(DBSC_DBPDRGD0, ((r2 + 0x1) & 0xFF) | (r2 & 0xFFFFFF00));
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000AF);
+	r2 = mmio_read_32(DBSC_DBPDRGD_0);
+	mmio_write_32(DBSC_DBPDRGD_0, ((r2 + 0x1) & 0xFF) | (r2 & 0xFFFFFF00));
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000CF);
+	r2 = mmio_read_32(DBSC_DBPDRGD_0);
+	mmio_write_32(DBSC_DBPDRGD_0, ((r2 + 0x1) & 0xFF) | (r2 & 0xFFFFFF00));
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000A0);
-	mmio_write_32(DBSC_DBPDRGD0, 0x7C000285);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000C0);
-	mmio_write_32(DBSC_DBPDRGD0, 0x7C000285);
-	mmio_write_32(DBSC_DBPDRGA0, 0x0000002C);
-	mmio_write_32(DBSC_DBPDRGD0, 0x81003087);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00010401);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000A0);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x7C000285);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000C0);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x7C000285);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x0000002C);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x81003087);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00010401);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
 	for (i = 0; i < 2; i++) {
-		mmio_write_32(DBSC_DBPDRGA0, 0xB1 + i * 0x20);
-		r5 = (mmio_read_32(DBSC_DBPDRGD0) & 0xFF00) >> 0x8;
-		mmio_write_32(DBSC_DBPDRGA0, 0xB4 + i * 0x20);
-		r6 = mmio_read_32(DBSC_DBPDRGD0) & 0xFF;
+		mmio_write_32(DBSC_DBPDRGA_0, 0xB1 + i * 0x20);
+		r5 = (mmio_read_32(DBSC_DBPDRGD_0) & 0xFF00) >> 0x8;
+		mmio_write_32(DBSC_DBPDRGA_0, 0xB4 + i * 0x20);
+		r6 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFF;
 
-		mmio_write_32(DBSC_DBPDRGA0, 0xB3 + i * 0x20);
-		r7 = mmio_read_32(DBSC_DBPDRGD0) & 0x7;
+		mmio_write_32(DBSC_DBPDRGA_0, 0xB3 + i * 0x20);
+		r7 = mmio_read_32(DBSC_DBPDRGD_0) & 0x7;
 		r12 = (r5 >> 0x2);
 
 		if (r12 < r6) {
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFFF8;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFFF8;
 
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 | ((r7 + 0x1) & 0x7));
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFF00;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 | ((r7 + 0x1) & 0x7));
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFF00;
 
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 | ((r6 - r12) & 0xFF));
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 | ((r6 - r12) & 0xFF));
 		} else {
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFFF8;
-			mmio_write_32(DBSC_DBPDRGA0, 0xB2 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 | (r7 & 0x7));
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			r2 = mmio_read_32(DBSC_DBPDRGD0) & 0xFFFFFF00;
-			mmio_write_32(DBSC_DBPDRGA0, 0xB0 + i * 0x20);
-			mmio_write_32(DBSC_DBPDRGD0, r2 |
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFFF8;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB2 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 | (r7 & 0x7));
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			r2 = mmio_read_32(DBSC_DBPDRGD_0) & 0xFFFFFF00;
+			mmio_write_32(DBSC_DBPDRGA_0, 0xB0 + i * 0x20);
+			mmio_write_32(DBSC_DBPDRGD_0, r2 |
 						     ((r6 + r5 +
 						      (r5 >> 1) + r12) & 0xFF));
 		}
 	}
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000A0);
-	mmio_write_32(DBSC_DBPDRGD0, 0x7C0002C5);
-	mmio_write_32(DBSC_DBPDRGA0, 0x000000C0);
-	mmio_write_32(DBSC_DBPDRGD0, 0x7C0002C5);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000001);
-	mmio_write_32(DBSC_DBPDRGD0, 0x00015001);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000006);
-	while (!(mmio_read_32(DBSC_DBPDRGD0) & BIT(0)))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000A0);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x7C0002C5);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000C0);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x7C0002C5);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000001);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x00015001);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000006);
+	while (!(mmio_read_32(DBSC_DBPDRGD_0) & BIT(0)))
 		;
 
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000003);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0380C700);
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000007);
-	while (mmio_read_32(DBSC_DBPDRGD0) & BIT(30))
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000003);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0380C700);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000007);
+	while (mmio_read_32(DBSC_DBPDRGD_0) & BIT(30))
 		;
-	mmio_write_32(DBSC_DBPDRGA0, 0x00000021);
-	mmio_write_32(DBSC_DBPDRGD0, 0x0024643E);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x00000021);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x0024643E);
 
 	mmio_write_32(DBSC_DBBUS0CNF1, 0x00000010);
 	mmio_write_32(DBSC_DBCALCNF, 0x0100401B);
@@ -626,7 +626,7 @@ static void init_ddr_d3_1600(void)
 	mmio_write_32(DBSC_DBDFICUPDCNF, 0x40100001);
 	mmio_write_32(DBSC_DBRFEN, 0x00000001);
 	mmio_write_32(DBSC_DBACEN, 0x00000001);
-	mmio_write_32(DBSC_DBPDLK0, 0x00000000);
+	mmio_write_32(DBSC_DBPDLK_0, 0x00000000);
 	mmio_write_32(DBSC_DBSYSCNT0, 0x00000000);
 
 #ifdef ddr_qos_init_setting // only for non qos_init
