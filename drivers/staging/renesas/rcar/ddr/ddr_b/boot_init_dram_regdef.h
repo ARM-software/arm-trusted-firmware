@@ -1,13 +1,14 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation.
+ * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #define RCAR_DDR_VERSION	"rev.0.36"
-#define DRAM_CH_CNT		(0x04)
-#define SLICE_CNT		(0x04)
-#define CS_CNT			(0x02)
+#define DRAM_CH_CNT		0x04
+#define SLICE_CNT		0x04
+#define CS_CNT			0x02
 
 /* order : CS0A, CS0B, CS1A, CS1B */
 #define CSAB_CNT		(CS_CNT * 2)
@@ -16,15 +17,16 @@
 #define CHAB_CNT		(DRAM_CH_CNT * 2)
 
 /* pll setting */
-#define CLK_DIV(a, diva, b, divb) (((a) * (divb)) /((b) * (diva)))
+#define CLK_DIV(a, diva, b, divb) (((a) * (divb)) / ((b) * (diva)))
 #define CLK_MUL(a, diva, b, divb) (((a) * (b)) / ((diva) * (divb)))
 
 /* for ddr deisity setting */
-#define DBMEMCONF_REG(d3, row, bank, col, dw) 	\
+#define DBMEMCONF_REG(d3, row, bank, col, dw)	\
 	((d3) << 30 | ((row) << 24) | ((bank) << 16) | ((col) << 8) | (dw))
 
-#define DBMEMCONF_REGD(density) 		\
-(DBMEMCONF_REG((density) % 2, ((density) + 1) / 2 + (29-3-10-2), 3, 10, 2))
+#define DBMEMCONF_REGD(density)		\
+	(DBMEMCONF_REG((density) % 2, ((density) + 1) / \
+	2 + (29 - 3 - 10 - 2), 3, 10, 2))
 
 #define DBMEMCONF_VAL(ch, cs) (DBMEMCONF_REGD(DBMEMCONF_DENS(ch, cs)))
 
@@ -44,10 +46,10 @@
 #define CPG_CPGWPR		(CPG_BASE + 0x0900U)
 #define CPG_SRSTCLR4		(CPG_BASE + 0x0950U)
 
-#define CPG_FRQCRB_KICK_BIT	(1U<<31)
-#define CPG_PLLECR_PLL3E_BIT	(1U<<3)
-#define CPG_PLLECR_PLL3ST_BIT	(1U<<11)
-#define CPG_ZB3CKCR_ZB3ST_BIT	(1U<<11)
+#define CPG_FRQCRB_KICK_BIT	BIT(31)
+#define CPG_PLLECR_PLL3E_BIT	BIT(3)
+#define CPG_PLLECR_PLL3ST_BIT	BIT(11)
+#define CPG_ZB3CKCR_ZB3ST_BIT	BIT(11)
 
 #define RST_BASE		(0xE6160000U)
 #define RST_MODEMR		(RST_BASE + 0x0060U)
