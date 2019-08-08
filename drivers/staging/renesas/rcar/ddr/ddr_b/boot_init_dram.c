@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation.
+ * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -155,7 +156,8 @@ static const uint32_t _reg_PHY_RX_CAL_X[_reg_PHY_RX_CAL_X_NUM] = {
 };
 
 #define _reg_PHY_CLK_WRX_SLAVE_DELAY_NUM 10
-static const uint32_t _reg_PHY_CLK_WRX_SLAVE_DELAY[_reg_PHY_CLK_WRX_SLAVE_DELAY_NUM] = {
+static const uint32_t _reg_PHY_CLK_WRX_SLAVE_DELAY
+	[_reg_PHY_CLK_WRX_SLAVE_DELAY_NUM] = {
 	_reg_PHY_CLK_WRDQ0_SLAVE_DELAY,
 	_reg_PHY_CLK_WRDQ1_SLAVE_DELAY,
 	_reg_PHY_CLK_WRDQ2_SLAVE_DELAY,
@@ -169,7 +171,8 @@ static const uint32_t _reg_PHY_CLK_WRX_SLAVE_DELAY[_reg_PHY_CLK_WRX_SLAVE_DELAY_
 };
 
 #define _reg_PHY_RDDQS_X_FALL_SLAVE_DELAY_NUM 9
-static const uint32_t _reg_PHY_RDDQS_X_FALL_SLAVE_DELAY[_reg_PHY_RDDQS_X_FALL_SLAVE_DELAY_NUM] = {
+static const uint32_t _reg_PHY_RDDQS_X_FALL_SLAVE_DELAY
+	[_reg_PHY_RDDQS_X_FALL_SLAVE_DELAY_NUM] = {
 	_reg_PHY_RDDQS_DQ0_FALL_SLAVE_DELAY,
 	_reg_PHY_RDDQS_DQ1_FALL_SLAVE_DELAY,
 	_reg_PHY_RDDQS_DQ2_FALL_SLAVE_DELAY,
@@ -182,7 +185,8 @@ static const uint32_t _reg_PHY_RDDQS_X_FALL_SLAVE_DELAY[_reg_PHY_RDDQS_X_FALL_SL
 };
 
 #define _reg_PHY_RDDQS_X_RISE_SLAVE_DELAY_NUM 9
-static const uint32_t _reg_PHY_RDDQS_X_RISE_SLAVE_DELAY[_reg_PHY_RDDQS_X_RISE_SLAVE_DELAY_NUM] = {
+static const uint32_t _reg_PHY_RDDQS_X_RISE_SLAVE_DELAY
+	[_reg_PHY_RDDQS_X_RISE_SLAVE_DELAY_NUM] = {
 	_reg_PHY_RDDQS_DQ0_RISE_SLAVE_DELAY,
 	_reg_PHY_RDDQS_DQ1_RISE_SLAVE_DELAY,
 	_reg_PHY_RDDQS_DQ2_RISE_SLAVE_DELAY,
@@ -207,7 +211,8 @@ static const uint32_t _reg_PHY_PAD_TERM_X[_reg_PHY_PAD_TERM_X_NUM] = {
 };
 
 #define _reg_PHY_CLK_CACS_SLAVE_DELAY_X_NUM 10
-static const uint32_t _reg_PHY_CLK_CACS_SLAVE_DELAY_X[_reg_PHY_CLK_CACS_SLAVE_DELAY_X_NUM] = {
+static const uint32_t _reg_PHY_CLK_CACS_SLAVE_DELAY_X
+	[_reg_PHY_CLK_CACS_SLAVE_DELAY_X_NUM] = {
 	_reg_PHY_ADR0_CLK_WR_SLAVE_DELAY,
 	_reg_PHY_ADR1_CLK_WR_SLAVE_DELAY,
 	_reg_PHY_ADR2_CLK_WR_SLAVE_DELAY,
@@ -755,8 +760,8 @@ static uint32_t ddr_getval_ach_as(uint32_t regdef, uint32_t *p)
 
 	pp = p;
 	foreach_vch(ch)
-	for (slice = 0; slice < SLICE_CNT; slice++)
-		*pp++ = ddr_getval_s(ch, slice, regdef);
+		for (slice = 0; slice < SLICE_CNT; slice++)
+			*pp++ = ddr_getval_s(ch, slice, regdef);
 	return p[0];
 }
 
@@ -873,14 +878,22 @@ struct _jedec_spec1 {
 #define JS1_MR1(f) (0x04 | ((f) << 4))
 #define JS1_MR2(f) (0x00 | ((f) << 3) | (f))
 const struct _jedec_spec1 js1[JS1_FREQ_TBL_NUM] = {
-	{  800,  6,  6,  4,  6,  8, JS1_MR1(0), JS1_MR2(0) | 0x40 }, /*  533.333Mbps */
-	{ 1600, 10, 12,  8, 10,  8, JS1_MR1(1), JS1_MR2(1) | 0x40 }, /* 1066.666Mbps */
-	{ 2400, 14, 16, 12, 16,  8, JS1_MR1(2), JS1_MR2(2) | 0x40 }, /* 1600.000Mbps */
-	{ 3200, 20, 22, 10, 20,  8, JS1_MR1(3), JS1_MR2(3) },      /* 2133.333Mbps */
-	{ 4000, 24, 28, 12, 24, 10, JS1_MR1(4), JS1_MR2(4) },      /* 2666.666Mbps */
-	{ 4800, 28, 32, 14, 30, 12, JS1_MR1(5), JS1_MR2(5) },      /* 3200.000Mbps */
-	{ 5600, 32, 36, 16, 34, 14, JS1_MR1(6), JS1_MR2(6) },      /* 3733.333Mbps */
-	{ 6400, 36, 40, 18, 40, 16, JS1_MR1(7), JS1_MR2(7) }       /* 4266.666Mbps */
+	/* 533.333Mbps */
+	{  800,  6,  6,  4,  6,  8, JS1_MR1(0), JS1_MR2(0) | 0x40 },
+	/* 1066.666Mbps */
+	{ 1600, 10, 12,  8, 10,  8, JS1_MR1(1), JS1_MR2(1) | 0x40 },
+	/* 1600.000Mbps */
+	{ 2400, 14, 16, 12, 16,  8, JS1_MR1(2), JS1_MR2(2) | 0x40 },
+	/* 2133.333Mbps */
+	{ 3200, 20, 22, 10, 20,  8, JS1_MR1(3), JS1_MR2(3) },
+	/* 2666.666Mbps */
+	{ 4000, 24, 28, 12, 24, 10, JS1_MR1(4), JS1_MR2(4) },
+	/* 3200.000Mbps */
+	{ 4800, 28, 32, 14, 30, 12, JS1_MR1(5), JS1_MR2(5) },
+	/* 3733.333Mbps */
+	{ 5600, 32, 36, 16, 34, 14, JS1_MR1(6), JS1_MR2(6) },
+	/* 4266.666Mbps */
+	{ 6400, 36, 40, 18, 40, 16, JS1_MR1(7), JS1_MR2(7) }
 };
 
 struct _jedec_spec2 {
@@ -1494,7 +1507,7 @@ static void ddrtbl_load(void)
 
 	/* FREQ_SEL_MULTICAST & PER_CS_TRAINING_MULTICAST SET (for safety) */
 	reg_ddrphy_write_a(ddr_regdef_adr(_reg_PHY_FREQ_SEL_MULTICAST_EN),
-			   (0x01U << ddr_regdef_lsb(_reg_PHY_FREQ_SEL_MULTICAST_EN)));
+			   BIT(ddr_regdef_lsb(_reg_PHY_FREQ_SEL_MULTICAST_EN)));
 	ddr_setval_ach_as(_reg_PHY_PER_CS_TRAINING_MULTICAST_EN, 0x01);
 
 	/* SET DATA SLICE TABLE */
@@ -1523,7 +1536,8 @@ static void ddrtbl_load(void)
 			reg_ddrphy_write_a(adr + i,
 					   _cnf_DDR_PHY_ADR_V_REGSET[i]);
 		}
-		ddrtbl_setval(_cnf_DDR_PHY_ADR_G_REGSET, _reg_PHY_ADR_DISABLE, 0x02);
+		ddrtbl_setval(_cnf_DDR_PHY_ADR_G_REGSET,
+			      _reg_PHY_ADR_DISABLE, 0x02);
 		DDR_PHY_ADR_I_NUM -= 1;
 		ddr_phycaslice = 1;
 
@@ -1639,19 +1653,30 @@ static void ddr_config_sub(void)
 
 			/* --- ADR_CALVL_SWIZZLE --- */
 			if (prr_product == PRR_PRODUCT_M3) {
-				ddr_setval_s(ch, 2, _reg_PHY_ADR_CALVL_SWIZZLE0_0, data_l);
-				ddr_setval_s(ch, 2, _reg_PHY_ADR_CALVL_SWIZZLE1_0,
+				ddr_setval_s(ch, 2,
+					     _reg_PHY_ADR_CALVL_SWIZZLE0_0,
+					     data_l);
+				ddr_setval_s(ch, 2,
+					     _reg_PHY_ADR_CALVL_SWIZZLE1_0,
 					     0x00000000);
-				ddr_setval_s(ch, 2, _reg_PHY_ADR_CALVL_SWIZZLE0_1, data_l);
-				ddr_setval_s(ch, 2, _reg_PHY_ADR_CALVL_SWIZZLE1_1,
+				ddr_setval_s(ch, 2,
+					     _reg_PHY_ADR_CALVL_SWIZZLE0_1,
+					     data_l);
+				ddr_setval_s(ch, 2,
+					     _reg_PHY_ADR_CALVL_SWIZZLE1_1,
 					     0x00000000);
-				ddr_setval_s(ch, 2, _reg_PHY_ADR_CALVL_DEVICE_MAP,
+				ddr_setval_s(ch, 2,
+					     _reg_PHY_ADR_CALVL_DEVICE_MAP,
 					     _par_CALVL_DEVICE_MAP);
 			} else {
-				ddr_setval_s(ch, 2, _reg_PHY_ADR_CALVL_SWIZZLE0, data_l);
-				ddr_setval_s(ch, 2, _reg_PHY_ADR_CALVL_SWIZZLE1,
+				ddr_setval_s(ch, 2,
+					     _reg_PHY_ADR_CALVL_SWIZZLE0,
+					     data_l);
+				ddr_setval_s(ch, 2,
+					     _reg_PHY_ADR_CALVL_SWIZZLE1,
 					     0x00000000);
-				ddr_setval_s(ch, 2, _reg_PHY_CALVL_DEVICE_MAP,
+				ddr_setval_s(ch, 2,
+					     _reg_PHY_CALVL_DEVICE_MAP,
 					     _par_CALVL_DEVICE_MAP);
 			}
 
@@ -1739,7 +1764,8 @@ static void ddr_config_sub_h3v1x(void)
 	/* BOARD SETTINGS (DQ,DM,VREF_DRIVING) */
 		csmap = 0;
 		for (slice = 0; slice < SLICE_CNT; slice++) {
-			tmp = (board_cnf->ch[ch].dqs_swap >> (4 * slice)) & 0x0f;
+			tmp = (board_cnf->ch[ch].dqs_swap >> (4 * slice)) &
+			      0x0f;
 			high_byte[slice] = tmp % 2;
 			if (tmp == 1 && (slice >= 2))
 				csmap |= 0x05;
@@ -1821,8 +1847,8 @@ static void ddr_config(void)
 	/* configure ddrphy registers */
 	if ((prr_product == PRR_PRODUCT_H3) && (prr_cut <= PRR_PRODUCT_11)) {
 		ddr_config_sub_h3v1x();
-	} else {
-		ddr_config_sub();	/*  H3 Ver.2.0 or later/M3-N/V3H is same as M3-W */
+	} else {	/*  H3 Ver.2.0 or later/M3-N/V3H is same as M3-W */
+		ddr_config_sub();
 	}
 
 	/* WDQ_USER_PATT */
@@ -1849,9 +1875,10 @@ static void ddr_config(void)
 
 	/* CACS DLY */
 	data_l = board_cnf->cacs_dly + _f_scale_adj(board_cnf->cacs_dly_adj);
-	reg_ddrphy_write_a(ddr_regdef_adr(_reg_PHY_FREQ_SEL_MULTICAST_EN), 0x00U);
+	reg_ddrphy_write_a(ddr_regdef_adr(_reg_PHY_FREQ_SEL_MULTICAST_EN),
+			   0x00U);
 	foreach_vch(ch) {
-		for (i = 0; i < (_reg_PHY_CLK_CACS_SLAVE_DELAY_X_NUM - 4); i++) {
+		for (i = 0; i < _reg_PHY_CLK_CACS_SLAVE_DELAY_X_NUM - 4; i++) {
 			adj = _f_scale_adj(board_cnf->ch[ch].cacs_adj[i]);
 			ddrtbl_setval(_cnf_DDR_PHY_ADR_V_REGSET,
 				      _reg_PHY_CLK_CACS_SLAVE_DELAY_X[i],
@@ -1887,7 +1914,8 @@ static void ddr_config(void)
 					[i +
 					_reg_PHY_CLK_CACS_SLAVE_DELAY_X_NUM]);
 				ddrtbl_setval(_cnf_DDR_PHY_ADR_V_REGSET,
-					      _reg_PHY_CLK_CACS_SLAVE_DELAY_X[i],
+					      _reg_PHY_CLK_CACS_SLAVE_DELAY_X
+					      [i],
 					      data_l + adj);
 				reg_ddrphy_write(ch,
 						 ddr_regdef_adr
@@ -1902,7 +1930,7 @@ static void ddr_config(void)
 	}
 
 	reg_ddrphy_write_a(ddr_regdef_adr(_reg_PHY_FREQ_SEL_MULTICAST_EN),
-			   (0x01U << ddr_regdef_lsb(_reg_PHY_FREQ_SEL_MULTICAST_EN)));
+			   BIT(ddr_regdef_lsb(_reg_PHY_FREQ_SEL_MULTICAST_EN)));
 
 	/* WDQDM DLY */
 	data_l = board_cnf->dqdm_dly_w;
@@ -1966,9 +1994,12 @@ static void dbsc_regset_pre(void)
 	/* DRAM SIZE REGISTER:
 	 * set all ranks as density=0(4Gb) for PHY initialization
 	 */
-	foreach_vch(ch)
-	for (csab = 0; csab < 4; csab++)
-		mmio_write_32(DBSC_DBMEMCONF(ch, csab), DBMEMCONF_REGD(0));
+	foreach_vch(ch) {
+		for (csab = 0; csab < 4; csab++) {
+			mmio_write_32(DBSC_DBMEMCONF(ch, csab),
+				      DBMEMCONF_REGD(0));
+		}
+	}
 
 	if (prr_product == PRR_PRODUCT_M3) {
 		data_l = 0xe4e4e4e4;
@@ -2203,11 +2234,13 @@ static void dbsc_regset(void)
 	if ((prr_product == PRR_PRODUCT_M3) && (prr_cut < PRR_PRODUCT_30)) {
 		mmio_write_32(DBSC_DBSCHRW1, tmp[0]
 			+ ((mmio_read_32(DBSC_DBTR(22)) & 0x0000FFFF)
-			* 400 * 2 * ddr_mbpsdiv + (ddr_mbps - 1)) / ddr_mbps - 3);
+			* 400 * 2 * ddr_mbpsdiv + (ddr_mbps - 1)) /
+			ddr_mbps - 3);
 	} else {
 		mmio_write_32(DBSC_DBSCHRW1, tmp[0]
 			+ ((mmio_read_32(DBSC_DBTR(22)) & 0x0000FFFF)
-			* 400 * 2 * ddr_mbpsdiv + (ddr_mbps - 1)) / ddr_mbps);
+			* 400 * 2 * ddr_mbpsdiv + (ddr_mbps - 1)) /
+			ddr_mbps);
 	}
 
 	/* QOS and CAM */
@@ -2296,9 +2329,8 @@ static void dbsc_regset_post(void)
 					ddr_setval_s(ch, slice,
 						     _reg_PHY_PER_CS_TRAINING_INDEX,
 						     cs);
-					data_l =
-					    ddr_getval_s(ch, slice,
-							 _reg_PHY_RDDQS_LATENCY_ADJUST);
+					data_l = ddr_getval_s(ch, slice,
+							      _reg_PHY_RDDQS_LATENCY_ADJUST);
 					if (data_l > rdlat_max)
 						rdlat_max = data_l;
 					if (data_l < rdlat_min)
@@ -2424,7 +2456,8 @@ static void dbsc_regset_post(void)
 		ddr_setval_ach(_reg_PI_WDQLVL_PERIODIC, 0x01);
 
 		/* DFI_PHYMSTR_ACK , WTmode setting */
-		mmio_write_32(DBSC_DBDFIPMSTRCNF, 0x00000011);	/* DFI_PHYMSTR_ACK: WTmode =b'01 */
+		/* DFI_PHYMSTR_ACK: WTmode =b'01 */
+		mmio_write_32(DBSC_DBDFIPMSTRCNF, 0x00000011);
 	}
 #endif /* RCAR_REWT_TRAINING */
 	/* periodic dram zqcal and phy ctrl update enable */
@@ -2450,8 +2483,7 @@ static void dbsc_regset_post(void)
 	/* dram access enable */
 	mmio_write_32(DBSC_DBACEN, 0x00000001);
 
-	MSG_LF("dbsc_regset_post(done)");
-
+	MSG_LF(__func__ "(done)");
 }
 
 /* DFI_INIT_START */
@@ -2645,7 +2677,8 @@ static uint32_t set_term_code(void)
 						   data_l);
 				}
 			}
-		} else {	/*  M3-W Ver.1.1 or later/H3 Ver.2.0 or later/M3-N/V3H */
+		} else {
+			/* M3-W Ver.1.1 or later/H3 Ver.2.0 or later/M3-N/V3H */
 			foreach_vch(ch) {
 				for (index = 0; index < _reg_PHY_PAD_TERM_X_NUM;
 				     index++) {
@@ -2903,7 +2936,7 @@ static uint32_t init_ddr(void)
 	uint32_t err;
 	int16_t adj;
 
-	MSG_LF("init_ddr:0\n");
+	MSG_LF(__func__ ":0\n");
 
 #ifdef DDR_BACKUPMODE
 	rcar_dram_get_boot_status(&ddr_backup);
@@ -2939,7 +2972,7 @@ static uint32_t init_ddr(void)
 
 	/* dbsc register set */
 	dbsc_regset();
-	MSG_LF("init_ddr:1\n");
+	MSG_LF(__func__ ":1\n");
 
 	/* dfi_reset negate */
 	foreach_vch(ch)
@@ -2951,7 +2984,7 @@ static uint32_t init_ddr(void)
 	if (err) {
 		return INITDRAM_ERR_I;
 	}
-	MSG_LF("init_ddr:2\n");
+	MSG_LF(__func__ ":2\n");
 
 	/* ddr backupmode end */
 #ifdef DDR_BACKUPMODE
@@ -2966,14 +2999,14 @@ static uint32_t init_ddr(void)
 		return INITDRAM_ERR_I;
 	}
 #endif
-	MSG_LF("init_ddr:3\n");
+	MSG_LF(__func__ ":3\n");
 
 	/* override term code after dfi_init_complete */
 	err = set_term_code();
 	if (err) {
 		return INITDRAM_ERR_I;
 	}
-	MSG_LF("init_ddr:4\n");
+	MSG_LF(__func__ ":4\n");
 
 	/* rx offset calibration */
 	if ((prr_cut > PRR_PRODUCT_11) || (prr_product == PRR_PRODUCT_M3N) ||
@@ -2984,7 +3017,7 @@ static uint32_t init_ddr(void)
 	}
 	if (err)
 		return INITDRAM_ERR_O;
-	MSG_LF("init_ddr:5\n");
+	MSG_LF(__func__ ":5\n");
 
 	/* PDX */
 	send_dbcmd(0x08840001);
@@ -2994,7 +3027,7 @@ static uint32_t init_ddr(void)
 	if (err) {
 		return INITDRAM_ERR_O;
 	}
-	MSG_LF("init_ddr:6\n");
+	MSG_LF(__func__ ":6\n");
 
 	/* phy initialize end */
 
@@ -3019,7 +3052,7 @@ static uint32_t init_ddr(void)
 	/* LPDDR4 MODE */
 	change_lpddr4_en(1);
 
-	MSG_LF("init_ddr:7\n");
+	MSG_LF(__func__ ":7\n");
 
 	/* mask CS_MAP if RANKx is not found */
 	foreach_vch(ch) {
@@ -3035,7 +3068,7 @@ static uint32_t init_ddr(void)
 	ddr_setval_ach_as(_reg_PHY_PER_CS_TRAINING_MULTICAST_EN, 0x00);
 
 	if ((prr_product == PRR_PRODUCT_H3) && (prr_cut <= PRR_PRODUCT_11)) {
-	ddr_setval_ach_as(_reg_PHY_PER_CS_TRAINING_EN, 0x01);
+		ddr_setval_ach_as(_reg_PHY_PER_CS_TRAINING_EN, 0x01);
 	} else {
 		foreach_vch(ch) {
 			for (slice = 0; slice < SLICE_CNT; slice++) {
@@ -3053,7 +3086,7 @@ static uint32_t init_ddr(void)
 		return INITDRAM_ERR_T | phytrainingok;
 	}
 
-	MSG_LF("init_ddr:8\n");
+	MSG_LF(__func__ ":8\n");
 
 	/* CACS DLY ADJUST */
 	data_l = board_cnf->cacs_dly + _f_scale_adj(board_cnf->cacs_dly_adj);
@@ -3066,8 +3099,12 @@ static uint32_t init_ddr(void)
 
 		if (ddr_phycaslice == 1) {
 			for (i = 0; i < 6; i++) {
-				adj = _f_scale_adj(board_cnf->ch[ch].cacs_adj[i + _reg_PHY_CLK_CACS_SLAVE_DELAY_X_NUM]);
-				ddr_setval_s(ch, 2, _reg_PHY_CLK_CACS_SLAVE_DELAY_X[i],
+				adj = _f_scale_adj(board_cnf->ch[ch].cacs_adj
+					[i +
+					_reg_PHY_CLK_CACS_SLAVE_DELAY_X_NUM]);
+				ddr_setval_s(ch, 2,
+					     _reg_PHY_CLK_CACS_SLAVE_DELAY_X
+					     [i],
 					     data_l + adj
 				);
 			}
@@ -3075,12 +3112,11 @@ static uint32_t init_ddr(void)
 	}
 
 	update_dly();
-	MSG_LF("init_ddr:9\n");
+	MSG_LF(__func__ ":9\n");
 
 	/* H3 fix rd latency to avoid bug in elasitic buffer */
-	if ((prr_product == PRR_PRODUCT_H3) && (prr_cut <= PRR_PRODUCT_11)) {
+	if ((prr_product == PRR_PRODUCT_H3) && (prr_cut <= PRR_PRODUCT_11))
 		adjust_rddqs_latency();
-	}
 
 	/* Adjust Write path latency */
 	if (ddrtbl_getval
@@ -3088,21 +3124,19 @@ static uint32_t init_ddr(void)
 		adjust_wpath_latency();
 
 	/* RDQLVL Training */
-	if (ddrtbl_getval(_cnf_DDR_PHY_SLICE_REGSET, _reg_PHY_IE_MODE) == 0x00) {
+	if (!ddrtbl_getval(_cnf_DDR_PHY_SLICE_REGSET, _reg_PHY_IE_MODE))
 		ddr_setval_ach_as(_reg_PHY_IE_MODE, 0x01);
-	}
 
 	err = rdqdm_man();
 
-	if (ddrtbl_getval(_cnf_DDR_PHY_SLICE_REGSET, _reg_PHY_IE_MODE) == 0x00) {
+	if (!ddrtbl_getval(_cnf_DDR_PHY_SLICE_REGSET, _reg_PHY_IE_MODE))
 		ddr_setval_ach_as(_reg_PHY_IE_MODE, 0x00);
-	}
 
 	if (err) {
 		return INITDRAM_ERR_T;
 	}
 	update_dly();
-	MSG_LF("init_ddr:10\n");
+	MSG_LF(__func__ ":10\n");
 
 	/* WDQLVL Training */
 	err = wdqdm_man();
@@ -3110,7 +3144,7 @@ static uint32_t init_ddr(void)
 		return INITDRAM_ERR_T;
 	}
 	update_dly();
-	MSG_LF("init_ddr:11\n");
+	MSG_LF(__func__ ":11\n");
 
 	/* training complete, setup DBSC */
 	if (((prr_product == PRR_PRODUCT_H3) && (prr_cut > PRR_PRODUCT_11)) ||
@@ -3121,7 +3155,7 @@ static uint32_t init_ddr(void)
 	}
 
 	dbsc_regset_post();
-	MSG_LF("init_ddr:12\n");
+	MSG_LF(__func__ ":12\n");
 
 	return phytrainingok;
 }
@@ -3270,8 +3304,10 @@ static uint32_t wdqdm_ana1(uint32_t ch, uint32_t ddr_csn)
 				err = 2;
 		}
 		wdqdm_win[ch][cs][slice] = min_win;
-		if ((prr_product == PRR_PRODUCT_H3) && (prr_cut <= PRR_PRODUCT_11)) {
-		ddr_setval_s(ch, slice, _reg_PHY_PER_CS_TRAINING_EN, 0x01);
+		if ((prr_product == PRR_PRODUCT_H3) &&
+		    (prr_cut <= PRR_PRODUCT_11)) {
+			ddr_setval_s(ch, slice, _reg_PHY_PER_CS_TRAINING_EN,
+				     0x01);
 		} else {
 			ddr_setval_s(ch, slice, _reg_PHY_PER_CS_TRAINING_EN,
 				     ((ch_have_this_cs[1]) >> ch) & 0x01);
@@ -3335,7 +3371,8 @@ static uint32_t wdqdm_man1(void)
 		foreach_vch(ch) {
 			high_dq[ch] = 0;
 			for (slice = 0; slice < SLICE_CNT; slice++) {
-				k = (board_cnf->ch[ch].dqs_swap >> (4 * slice)) & 0x0f;
+				k = (board_cnf->ch[ch].dqs_swap >>
+				    (4 * slice)) & 0x0f;
 				if (k >= 2)
 					high_dq[ch] |= (1U << slice);
 			}
@@ -3569,7 +3606,8 @@ static void rdqdm_clr1(uint32_t ch, uint32_t ddr_csn)
 				    [i];
 			} else {
 				rdqdm_dly[ch][cs][slice][i] = data_l;
-				rdqdm_dly[ch][cs][slice + SLICE_CNT][i] = data_l;
+				rdqdm_dly[ch][cs][slice + SLICE_CNT][i] =
+					data_l;
 			}
 			rdqdm_le[ch][cs][slice][i] = 0;
 			rdqdm_le[ch][cs][slice + SLICE_CNT][i] = 0;
@@ -3674,8 +3712,8 @@ static uint32_t rdqdm_ana1(uint32_t ch, uint32_t ddr_csn)
 
 				win =
 				    (int32_t)rdqdm_te[ch][cs][slice +
-							       SLICE_CNT *
-							       k][i] -
+							      SLICE_CNT *
+							      k][i] -
 				    rdqdm_le[ch][cs][slice + SLICE_CNT * k][i];
 				if (i != 8) {
 					if (min_win > win)
@@ -3823,15 +3861,15 @@ static int32_t _find_change(uint64_t val, uint32_t dir)
 				return i;
 		}
 		return VAL_END;
-	} else {
-		startval = (val >> dir) & 0x01;
-		for (i = dir - 1; i >= 0; i--) {
-			curval = (val >> i) & 0x01;
-			if (curval != startval)
-				return i;
-		}
-		return 0;
 	}
+
+	startval = (val >> dir) & 0x01;
+	for (i = dir - 1; i >= 0; i--) {
+		curval = (val >> i) & 0x01;
+		if (curval != startval)
+			return i;
+	}
+	return 0;
 }
 
 static uint32_t _rx_offset_cal_updn(uint32_t code)
@@ -3875,9 +3913,8 @@ static uint32_t rx_offset_cal(void)
 	ddr_setval_ach_as(_reg_PHY_RX_CAL_OVERRIDE, 0x01);
 	foreach_vch(ch) {
 		for (slice = 0; slice < SLICE_CNT; slice++) {
-			for (index = 0; index < _reg_PHY_RX_CAL_X_NUM; index++) {
+			for (index = 0; index < _reg_PHY_RX_CAL_X_NUM; index++)
 				val[ch][slice][index] = 0;
-			}
 		}
 	}
 
@@ -3907,7 +3944,8 @@ static uint32_t rx_offset_cal(void)
 	}
 	foreach_vch(ch) {
 		for (slice = 0; slice < SLICE_CNT; slice++) {
-			for (index = 0; index < _reg_PHY_RX_CAL_X_NUM; index++) {
+			for (index = 0; index < _reg_PHY_RX_CAL_X_NUM;
+			     index++) {
 				tmpval = val[ch][slice][index];
 				lsb = _find_change(tmpval, 0);
 				msb =
@@ -4088,15 +4126,19 @@ int32_t rcar_dram_init(void)
 
 	if (prr_product == PRR_PRODUCT_H3) {
 		if (prr_cut <= PRR_PRODUCT_11) {
-			p_ddr_regdef_tbl = (const uint32_t *)&DDR_REGDEF_TBL[0][0];
+			p_ddr_regdef_tbl =
+				(const uint32_t *)&DDR_REGDEF_TBL[0][0];
 		} else {
-			p_ddr_regdef_tbl = (const uint32_t *)&DDR_REGDEF_TBL[2][0];
+			p_ddr_regdef_tbl =
+				(const uint32_t *)&DDR_REGDEF_TBL[2][0];
 		}
 	} else if (prr_product == PRR_PRODUCT_M3) {
-		p_ddr_regdef_tbl = (const uint32_t *)&DDR_REGDEF_TBL[1][0];
+		p_ddr_regdef_tbl =
+			(const uint32_t *)&DDR_REGDEF_TBL[1][0];
 	} else if ((prr_product == PRR_PRODUCT_M3N) ||
 		   (prr_product == PRR_PRODUCT_V3H)) {
-		p_ddr_regdef_tbl = (const uint32_t *)&DDR_REGDEF_TBL[3][0];
+		p_ddr_regdef_tbl =
+			(const uint32_t *)&DDR_REGDEF_TBL[3][0];
 	} else {
 		FATAL_MSG("BL2: DDR:Unknown Product\n");
 		return 0xff;
@@ -4269,7 +4311,8 @@ void pvtcode_update(void)
 		}
 		if ((prr_product == PRR_PRODUCT_H3) &&
 		    (prr_cut <= PRR_PRODUCT_11)) {
-			data_l = pvtp[ch] | (pvtn[ch] << 6) | (tcal.tcomp_cal[ch] & 0xfffff000);
+			data_l = pvtp[ch] | (pvtn[ch] << 6) |
+				 (tcal.tcomp_cal[ch] & 0xfffff000);
 			reg_ddrphy_write(ch,
 					 ddr_regdef_adr(_reg_PHY_PAD_FDBK_TERM),
 					 data_l | 0x00020000);
@@ -4373,12 +4416,12 @@ void ddr_padcal_tcompensate_getinit(uint32_t override)
 			if ((prr_product == PRR_PRODUCT_H3) &&
 			    (prr_cut <= PRR_PRODUCT_11)) {
 				tcal.init_cal[ch] =
-				    (tcal.
-				     init_cal[ch] & 0xfffff000) | (pvtn << 6) |
-				    (pvtp);
+				    (tcal.init_cal[ch] & 0xfffff000) |
+				    (pvtn << 6) |
+				    pvtp;
 			} else {
 				tcal.init_cal[ch] =
-				    0x00015000 | (pvtn << 6) | (pvtp);
+				    0x00015000 | (pvtn << 6) | pvtp;
 			}
 		}
 		tcal.init_temp = 125;
@@ -4386,7 +4429,7 @@ void ddr_padcal_tcompensate_getinit(uint32_t override)
 }
 
 #ifndef ddr_qos_init_setting
-/*  for QoS init */
+/* For QoS init */
 uint8_t get_boardcnf_phyvalid(void)
 {
 	return ddr_phyvalid;

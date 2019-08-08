@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation.
+ * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -544,7 +545,10 @@ static const struct _boardcnf boardcnfs[BOARDNUM] = {
 	}
 	}
 	 },
-/* boardcnf[7] RENESAS SALVATOR-X board with H3 Ver.2.0 or later/SIP(8Gbit 1rank) */
+/*
+ * boardcnf[7] RENESAS SALVATOR-X board with
+ * H3 Ver.2.0 or later/SIP(8Gbit 1rank)
+ */
 	{
 	 0x0f,
 	 0x01,
@@ -635,7 +639,10 @@ static const struct _boardcnf boardcnfs[BOARDNUM] = {
 	}
 	}
 	 },
-/* boardcnf[8] RENESAS SALVATOR-X board with H3 Ver.2.0 or later/SIP(8Gbit 2rank) */
+/*
+ * boardcnf[8] RENESAS SALVATOR-X board with
+ * H3 Ver.2.0 or later/SIP(8Gbit 2rank)
+ */
 	{
 #if RCAR_DRAM_CHANNEL == 5
 	 0x05,
@@ -1766,13 +1773,16 @@ static uint32_t _board_judge(void)
 		} else if (prr_product == PRR_PRODUCT_M3N) {
 			/* RENESAS SALVATOR-X (M3-N/SIP) */
 			brd = 11;
-		} else if ((prr_product == PRR_PRODUCT_M3) && (prr_cut <= PRR_PRODUCT_20)) {
+		} else if ((prr_product == PRR_PRODUCT_M3) &&
+			   (prr_cut <= PRR_PRODUCT_20)) {
 			/* RENESAS SALVATOR-X (M3-W/SIP) */
 			brd = 0;
-		} else if ((prr_product == PRR_PRODUCT_M3) && (prr_cut < PRR_PRODUCT_30)) {
+		} else if ((prr_product == PRR_PRODUCT_M3) &&
+			   (prr_cut < PRR_PRODUCT_30)) {
 			/* RENESAS SALVATOR-X (M3-W Ver.1.x/SIP) */
 			brd = 19;
-		} else if ((prr_product == PRR_PRODUCT_M3) && (prr_cut >= PRR_PRODUCT_30)) {
+		} else if ((prr_product == PRR_PRODUCT_M3) &&
+			   (prr_cut >= PRR_PRODUCT_30)) {
 			/* RENESAS SALVATOR-X (M3-W ver.3.0/SIP) */
 			brd = 18;
 		}
