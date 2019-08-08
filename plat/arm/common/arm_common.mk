@@ -198,6 +198,9 @@ BL2_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
 				plat/arm/common/arm_err.c			\
 				plat/arm/common/arm_io_storage.c
 
+# Firmware Configuration Framework sources
+include lib/fconf/fconf.mk
+
 # Add `libfdt` and Arm common helpers required for Dynamic Config
 include lib/libfdt/libfdt.mk
 
@@ -270,7 +273,7 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     # Include common TBB sources
     AUTH_SOURCES	:=	drivers/auth/auth_mod.c				\
 				drivers/auth/crypto_mod.c			\
-				drivers/auth/img_parser_mod.c			\
+				drivers/auth/img_parser_mod.c
 
     # Include the selected chain of trust sources.
     ifeq (${COT},tbbr)

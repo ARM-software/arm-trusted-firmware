@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,6 +16,7 @@
 #include <drivers/auth/auth_mod.h>
 #include <drivers/auth/crypto_mod.h>
 #include <drivers/auth/img_parser_mod.h>
+#include <lib/fconf/fconf_tbbr_getter.h>
 #include <plat/common/platform.h>
 
 /* ASN.1 tags */
@@ -302,9 +303,8 @@ int auth_mod_get_parent_id(unsigned int img_id, unsigned int *parent_id)
 	const auth_img_desc_t *img_desc = NULL;
 
 	assert(parent_id != NULL);
-
 	/* Get the image descriptor */
-	img_desc = cot_desc_ptr[img_id];
+	img_desc = FCONF_GET_PROPERTY(tbbr, cot, img_id);
 
 	/* Check if the image has no parent (ROT) */
 	if (img_desc->parent == NULL) {
@@ -353,7 +353,7 @@ int auth_mod_verify_img(unsigned int img_id,
 	int rc, i;
 
 	/* Get the image descriptor from the chain of trust */
-	img_desc = cot_desc_ptr[img_id];
+	img_desc = FCONF_GET_PROPERTY(tbbr, cot, img_id);
 
 	/* Ask the parser to check the image integrity */
 	rc = img_parser_check_integrity(img_desc->img_type, img_ptr, img_len);

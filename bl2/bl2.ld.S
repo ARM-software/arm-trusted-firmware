@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,6 +46,11 @@ SECTIONS
         __RODATA_START__ = .;
         *(SORT_BY_ALIGNMENT(.rodata*))
 
+       . = ALIGN(8);
+        __FCONF_POPULATOR_START__ = .;
+        KEEP(*(.fconf_populator))
+        __FCONF_POPULATOR_END__ = .;
+
         /* Ensure 8-byte alignment for descriptors and ensure inclusion */
         . = ALIGN(8);
         __PARSER_LIB_DESCS_START__ = .;
@@ -61,6 +66,11 @@ SECTIONS
         *bl2_entrypoint.o(.text*)
         *(SORT_BY_ALIGNMENT(.text*))
         *(SORT_BY_ALIGNMENT(.rodata*))
+
+	. = ALIGN(8);
+         __FCONF_POPULATOR_START__ = .;
+         KEEP(*(.fconf_populator))
+         __FCONF_POPULATOR_END__ = .;
 
         /* Ensure 8-byte alignment for descriptors and ensure inclusion */
         . = ALIGN(8);
