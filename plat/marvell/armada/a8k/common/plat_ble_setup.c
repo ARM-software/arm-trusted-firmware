@@ -554,8 +554,18 @@ static void ble_plat_svc_config(void)
 				if (perr[0])
 					goto perror;
 				avs_workpoint = svc[0];
-			} else
+			} else {
+#if MARVELL_SVC_TEST
+				reg_val = mmio_read_32(AVS_EN_CTRL_REG);
+				avs_workpoint = (reg_val &
+					AVS_VDD_LOW_LIMIT_MASK) >>
+					AVS_LOW_VDD_LIMIT_OFFSET;
+				NOTICE("7040 1600Mhz, avs = 0x%x\n",
+					avs_workpoint);
+#else
 				avs_workpoint = 0;
+#endif
+			}
 			break;
 		}
 	} else if (device_id == MVEBU_3900_DEV_ID) {
