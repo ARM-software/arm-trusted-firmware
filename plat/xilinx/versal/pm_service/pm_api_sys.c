@@ -749,6 +749,23 @@ enum pm_ret_status pm_set_wakeup_source(uint32_t target, uint32_t wkup_device,
 }
 
 /**
+ * pm_get_chipid() - Read silicon ID registers
+ * @value       Buffer for return values. Must be large enough
+ *		to hold 8 bytes.
+ *
+ * @return      Returns silicon ID registers
+ */
+enum pm_ret_status pm_get_chipid(uint32_t *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD1(payload, LIBPM_MODULE_ID, PM_GET_CHIPID);
+
+	return pm_ipi_send_sync(primary_proc, payload, value, 2);
+}
+
+/**
  * pm_feature_check() - Returns the supported API version if supported
  * @api_id	API ID to check
  * @value	Returned supported API version
