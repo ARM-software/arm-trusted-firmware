@@ -85,6 +85,22 @@ enum pm_ret_status pm_get_api_version(unsigned int *version)
 }
 
 /**
+ * pm_init_finalize() - Call to notify PMC PM firmware that master has power
+ *			management enabled and that it has finished its
+ *			initialization
+ *
+ * @return	Status returned by the PMU firmware
+ */
+enum pm_ret_status pm_init_finalize(void)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD1(payload, LIBPM_MODULE_ID, PM_INIT_FINALIZE);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
  * pm_self_suspend() - PM call for processor to suspend itself
  * @nid		Node id of the processor or subsystem
  * @latency	Requested maximum wakeup latency (not supported)
@@ -800,7 +816,6 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	switch (api_id) {
 	case PM_GET_CALLBACK_DATA:
 	case PM_GET_TRUSTZONE_VERSION:
-	case PM_INIT_FINALIZE:
 		*version = (PM_API_BASE_VERSION << 16);
 		return PM_RET_SUCCESS;
 	case PM_GET_API_VERSION:
@@ -843,6 +858,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	case PM_PLL_SET_MODE:
 	case PM_PLL_GET_MODE:
 	case PM_FEATURE_CHECK:
+	case PM_INIT_FINALIZE:
 		*version = (PM_API_BASE_VERSION << 16);
 		break;
 	case PM_LOAD_PDI:

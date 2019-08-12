@@ -159,7 +159,8 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	}
 
 	case PM_INIT_FINALIZE:
-		SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS);
+		ret = pm_init_finalize();
+		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_GET_CALLBACK_DATA:
 	{

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2020, Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,7 @@
  **********************************************************/
 
 enum pm_ret_status pm_get_api_version(unsigned int *version);
+enum pm_ret_status pm_init_finalize(void);
 enum pm_ret_status pm_self_suspend(uint32_t nid,
 				   unsigned int latency,
 				   unsigned int state,
