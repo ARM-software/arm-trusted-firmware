@@ -2202,6 +2202,19 @@ immediately before the CPU was turned on. It indicates which power domains
 above the CPU might require initialization due to having previously been in
 low power states. The generic code expects the handler to succeed.
 
+plat_psci_ops.pwr_domain_on_finish_late() [optional]
+...........................................................
+
+This optional function is called by the PSCI implementation after the calling
+CPU is fully powered on with respective data caches enabled. The calling CPU and
+the associated cluster are guaranteed to be participating in coherency. This
+function gives the flexibility to perform any platform-specific actions safely,
+such as initialization or modification of shared data structures, without the
+overhead of explicit cache maintainace operations.
+
+The ``target_state`` has a similar meaning as described in the ``pwr_domain_on_finish()``
+operation. The generic code expects the handler to succeed.
+
 plat_psci_ops.pwr_domain_suspend_finish()
 .........................................
 
