@@ -38,6 +38,8 @@ int spm_response_add(uint16_t client_id, uint16_t handle, uint32_t token,
 		struct sprt_response *resp = &(responses[i]);
 
 		if ((resp->is_valid == 1) && (resp->token == token)) {
+			spin_unlock(&responses_lock);
+
 			return -1;
 		}
 	}
