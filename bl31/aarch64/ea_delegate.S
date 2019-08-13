@@ -68,6 +68,13 @@ func enter_lower_el_sync_ea
 	/* Save GP registers */
 	bl	save_gp_registers
 
+	/*
+	 * If Secure Cycle Counter is not disabled in MDCR_EL3
+	 * when ARMv8.5-PMU is implemented, save PMCR_EL0 and
+	 * disable all event counters and cycle counter.
+	 */
+	bl	save_pmcr_disable_pmu
+
 	/* Save ARMv8.3-PAuth registers and load firmware key */
 #if CTX_INCLUDE_PAUTH_REGS
 	bl	pauth_context_save
@@ -105,6 +112,13 @@ func enter_lower_el_async_ea
 
 	/* Save GP registers */
 	bl	save_gp_registers
+
+	/*
+	 * If Secure Cycle Counter is not disabled in MDCR_EL3
+	 * when ARMv8.5-PMU is implemented, save PMCR_EL0 and
+	 * disable all event counters and cycle counter.
+	 */
+	bl	save_pmcr_disable_pmu
 
 	/* Save ARMv8.3-PAuth registers and load firmware key */
 #if CTX_INCLUDE_PAUTH_REGS

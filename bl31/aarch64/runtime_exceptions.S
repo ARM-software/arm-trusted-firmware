@@ -67,6 +67,14 @@
 
 	/* Save GP registers and restore them afterwards */
 	bl	save_gp_registers
+
+	/*
+	 * If Secure Cycle Counter is not disabled in MDCR_EL3
+	 * when ARMv8.5-PMU is implemented, save PMCR_EL0 and
+	 * disable all event counters and cycle counter.
+	 */
+	bl	save_pmcr_disable_pmu
+
 	bl	handle_lower_el_ea_esb
 	bl	restore_gp_registers
 
@@ -122,6 +130,13 @@
 	.macro	handle_interrupt_exception label
 
 	bl	save_gp_registers
+
+	/*
+	 * If Secure Cycle Counter is not disabled in MDCR_EL3
+	 * when ARMv8.5-PMU is implemented, save PMCR_EL0 and
+	 * disable all event counters and cycle counter.
+	 */
+	bl	save_pmcr_disable_pmu
 
 	/* Save ARMv8.3-PAuth registers and load firmware key */
 #if CTX_INCLUDE_PAUTH_REGS
@@ -334,6 +349,13 @@ smc_handler64:
 
 	/* Save general purpose registers */
 	bl	save_gp_registers
+
+	/*
+	 * If Secure Cycle Counter is not disabled in MDCR_EL3
+	 * when ARMv8.5-PMU is implemented, save PMCR_EL0 and
+	 * disable all event counters and cycle counter.
+	 */
+	bl	save_pmcr_disable_pmu
 
 	/* Save ARMv8.3-PAuth registers and load firmware key */
 #if CTX_INCLUDE_PAUTH_REGS
