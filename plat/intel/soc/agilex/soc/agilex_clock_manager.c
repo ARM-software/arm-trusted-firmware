@@ -12,15 +12,8 @@
 
 #include "agilex_clock_manager.h"
 #include "agilex_handoff.h"
+#include "agilex_system_manager.h"
 
-static const CLOCK_SOURCE_CONFIG  clk_source = {
-	/* clk_freq_of_eosc1 */
-	(uint32_t) 25000000,
-	/* clk_freq_of_f2h_free */
-	(uint32_t) 400000000,
-	/* clk_freq_of_cb_intosc_ls */
-	(uint32_t) 50000000,
-};
 
 uint32_t wait_pll_lock(void)
 {
@@ -114,18 +107,18 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 
 	/* Put both PLL in reset and power down */
 	mmio_clrbits_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_PLLGLOB,
-			CLKMGR_MAINPLL_PLLGLOB_PD_SET_MSK |
-			CLKMGR_MAINPLL_PLLGLOB_RST_SET_MSK);
+			CLKMGR_PLLGLOB_PD_SET_MSK |
+			CLKMGR_PLLGLOB_RST_SET_MSK);
 	mmio_clrbits_32(CLKMGR_PERPLL + CLKMGR_PERPLL_PLLGLOB,
-			CLKMGR_PERPLL_PLLGLOB_PD_SET_MSK |
-			CLKMGR_PERPLL_PLLGLOB_RST_SET_MSK);
+			CLKMGR_PLLGLOB_PD_SET_MSK |
+			CLKMGR_PLLGLOB_RST_SET_MSK);
 
 	/* Setup main PLL dividers */
-	mdiv = CLKMGR_MAINPLL_PLLM_MDIV(hoff_ptr->main_pll_pllm);
+	mdiv = CLKMGR_PLLM_MDIV(hoff_ptr->main_pll_pllm);
 
-	arefclk_div = CLKMGR_MAINPLL_PLLGLOB_AREFCLKDIV(
+	arefclk_div = CLKMGR_PLLGLOB_AREFCLKDIV(
 			hoff_ptr->main_pll_pllglob);
-	drefclk_div = CLKMGR_MAINPLL_PLLGLOB_DREFCLKDIV(
+	drefclk_div = CLKMGR_PLLGLOB_DREFCLKDIV(
 			hoff_ptr->main_pll_pllglob);
 
 	mscnt = 100 / (mdiv / BIT(drefclk_div));
@@ -134,8 +127,8 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 	hscnt = (mdiv * mscnt * BIT(drefclk_div) / arefclk_div) - 4;
 
 	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_VCOCALIB,
-			CLKMGR_MAINPLL_VCOCALIB_HSCNT_SET(hscnt) |
-			CLKMGR_MAINPLL_VCOCALIB_MSCNT_SET(mscnt));
+			CLKMGR_VCOCALIB_HSCNT_SET(hscnt) |
+			CLKMGR_VCOCALIB_MSCNT_SET(mscnt));
 
 	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_NOCDIV,
 			hoff_ptr->main_pll_nocdiv);
@@ -159,11 +152,11 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 			hoff_ptr->main_pll_nocclk);
 
 	/* Setup peripheral PLL dividers */
-	mdiv = CLKMGR_PERPLL_PLLM_MDIV(hoff_ptr->per_pll_pllm);
+	mdiv = CLKMGR_PLLM_MDIV(hoff_ptr->per_pll_pllm);
 
-	arefclk_div = CLKMGR_PERPLL_PLLGLOB_AREFCLKDIV(
+	arefclk_div = CLKMGR_PLLGLOB_AREFCLKDIV(
 			hoff_ptr->per_pll_pllglob);
-	drefclk_div = CLKMGR_PERPLL_PLLGLOB_DREFCLKDIV(
+	drefclk_div = CLKMGR_PLLGLOB_DREFCLKDIV(
 			hoff_ptr->per_pll_pllglob);
 
 	mscnt = 100 / (mdiv / BIT(drefclk_div));
@@ -172,8 +165,8 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 	hscnt = (mdiv * mscnt * BIT(drefclk_div) / arefclk_div) - 4;
 
 	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_VCOCALIB,
-			CLKMGR_PERPLL_VCOCALIB_HSCNT_SET(hscnt) |
-			CLKMGR_PERPLL_VCOCALIB_MSCNT_SET(mscnt));
+			CLKMGR_VCOCALIB_HSCNT_SET(hscnt) |
+			CLKMGR_VCOCALIB_MSCNT_SET(mscnt));
 
 	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_EMACCTL,
 			hoff_ptr->per_pll_emacctl);
@@ -197,11 +190,11 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 
 	/* Take both PLL out of reset and power up */
 	mmio_setbits_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_PLLGLOB,
-			CLKMGR_MAINPLL_PLLGLOB_PD_SET_MSK |
-			CLKMGR_MAINPLL_PLLGLOB_RST_SET_MSK);
+			CLKMGR_PLLGLOB_PD_SET_MSK |
+			CLKMGR_PLLGLOB_RST_SET_MSK);
 	mmio_setbits_32(CLKMGR_PERPLL + CLKMGR_PERPLL_PLLGLOB,
-			CLKMGR_PERPLL_PLLGLOB_PD_SET_MSK |
-			CLKMGR_PERPLL_PLLGLOB_RST_SET_MSK);
+			CLKMGR_PLLGLOB_PD_SET_MSK |
+			CLKMGR_PLLGLOB_RST_SET_MSK);
 
 	wait_pll_lock();
 
@@ -256,24 +249,31 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 			CLKMGR_MAINPLL_EN_RESET);
 	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_EN,
 			CLKMGR_PERPLL_EN_RESET);
+
+	/* Pass clock source frequency into scratch register */
+	mmio_write_32(AGX_SYSMGR_CORE(SYSMGR_BOOT_SCRATCH_COLD_1),
+		hoff_ptr->hps_osc_clk_h);
+	mmio_write_32(AGX_SYSMGR_CORE(SYSMGR_BOOT_SCRATCH_COLD_2),
+		hoff_ptr->fpga_clk_hz);
 }
 
-int get_wdt_clk(handoff *hoff_ptr)
+/* Extract reference clock from platform clock source */
+uint32_t get_ref_clk(uint32_t pllglob)
 {
-	int main_noc_base_clk, l3_main_free_clk, l4_sys_free_clk;
-	int data32, mdiv, arefclkdiv, ref_clk;
+	uint32_t arefclkdiv, ref_clk;
+	uint32_t scr_reg;
 
-	data32 = mmio_read_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_PLLGLOB);
-
-	switch (CLKMGR_MAINPLL_PLLGLOB_PSRC(data32)) {
-	case CLKMGR_MAINPLL_PLLGLOB_PSRC_EOSC1:
-		ref_clk = clk_source.clk_freq_of_eosc1;
+	switch (CLKMGR_PSRC(pllglob)) {
+	case CLKMGR_PLLGLOB_PSRC_EOSC1:
+		scr_reg = AGX_SYSMGR_CORE(SYSMGR_BOOT_SCRATCH_COLD_1);
+		ref_clk = mmio_read_32(scr_reg);
 		break;
-	case CLKMGR_MAINPLL_PLLGLOB_PSRC_INTOSC:
-		ref_clk = clk_source.clk_freq_of_cb_intosc_ls;
+	case CLKMGR_PLLGLOB_PSRC_INTOSC:
+		ref_clk = CLKMGR_INTOSC_HZ;
 		break;
-	case CLKMGR_MAINPLL_PLLGLOB_PSRC_F2S:
-		ref_clk = clk_source.clk_freq_of_f2h_free;
+	case CLKMGR_PLLGLOB_PSRC_F2S:
+		scr_reg = AGX_SYSMGR_CORE(SYSMGR_BOOT_SCRATCH_COLD_2);
+		ref_clk = mmio_read_32(scr_reg);
 		break;
 	default:
 		ref_clk = 0;
@@ -281,13 +281,91 @@ int get_wdt_clk(handoff *hoff_ptr)
 		break;
 	}
 
-	arefclkdiv = CLKMGR_MAINPLL_PLLGLOB_AREFCLKDIV(data32);
-	mdiv = CLKMGR_MAINPLL_PLLM_MDIV(hoff_ptr->main_pll_pllm);
+	arefclkdiv = CLKMGR_PLLGLOB_AREFCLKDIV(pllglob);
+	ref_clk /= arefclkdiv;
 
-	ref_clk = (ref_clk / arefclkdiv) * mdiv;
-	main_noc_base_clk = ref_clk / (hoff_ptr->main_pll_pllc1 & 0x7ff);
-	l3_main_free_clk = main_noc_base_clk / (hoff_ptr->main_pll_nocclk + 1);
-	l4_sys_free_clk = l3_main_free_clk / 4;
+	return ref_clk;
+}
 
-	return l4_sys_free_clk;
+/* Calculate clock frequency based on parameter */
+uint32_t get_clk_freq(uint32_t psrc_reg, uint32_t main_pllc, uint32_t per_pllc)
+{
+	uint32_t clk_psrc, mdiv, ref_clk;
+	uint32_t pllm_reg, pllc_reg, pllc_div, pllglob_reg;
+
+	clk_psrc = mmio_read_32(CLKMGR_MAINPLL + psrc_reg);
+
+	switch (CLKMGR_PSRC(clk_psrc)) {
+	case CLKMGR_PSRC_MAIN:
+		pllm_reg = CLKMGR_MAINPLL + CLKMGR_MAINPLL_PLLM;
+		pllc_reg = CLKMGR_MAINPLL + main_pllc;
+		pllglob_reg = CLKMGR_MAINPLL + CLKMGR_MAINPLL_PLLGLOB;
+		break;
+	case CLKMGR_PSRC_PER:
+		pllm_reg = CLKMGR_PERPLL + CLKMGR_PERPLL_PLLM;
+		pllc_reg = CLKMGR_PERPLL + per_pllc;
+		pllglob_reg = CLKMGR_PERPLL + CLKMGR_PERPLL_PLLGLOB;
+		break;
+	default:
+		return 0;
+	}
+
+	ref_clk = get_ref_clk(mmio_read_32(pllglob_reg));
+	mdiv = CLKMGR_PLLM_MDIV(mmio_read_32(pllm_reg));
+	ref_clk *= mdiv;
+
+	pllc_div = mmio_read_32(pllc_reg) & 0x7ff;
+
+	return ref_clk / pllc_div;
+}
+
+/* Return L3 interconnect clock */
+uint32_t get_l3_clk(void)
+{
+	uint32_t l3_clk;
+
+	l3_clk = get_clk_freq(CLKMGR_MAINPLL_NOCCLK, CLKMGR_MAINPLL_PLLC1,
+				CLKMGR_PERPLL_PLLC1);
+	return l3_clk;
+}
+
+/* Calculate clock frequency to be used for watchdog timer */
+uint32_t get_wdt_clk(void)
+{
+	uint32_t l3_clk, l4_sys_clk;
+
+	l3_clk = get_l3_clk();
+	l4_sys_clk = l3_clk / 4;
+
+	return l4_sys_clk;
+}
+
+/* Calculate clock frequency to be used for UART driver */
+uint32_t get_uart_clk(void)
+{
+	uint32_t data32, l3_clk, l4_sp_clk;
+
+	l3_clk = get_l3_clk();
+
+	data32 = mmio_read_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_NOCDIV);
+	data32 = (data32 >> 16) & 0x3;
+
+	l4_sp_clk = l3_clk >> data32;
+
+	return l4_sp_clk;
+}
+
+/* Calculate clock frequency to be used for SDMMC driver */
+uint32_t get_mmc_clk(void)
+{
+	uint32_t data32, mmc_clk;
+
+	mmc_clk = get_clk_freq(CLKMGR_ALTERA_SDMMCCTR,
+		CLKMGR_MAINPLL_PLLC3, CLKMGR_PERPLL_PLLC3);
+
+	data32 = mmio_read_32(CLKMGR_ALTERA + CLKMGR_ALTERA_SDMMCCTR);
+	data32 = (data32 & 0x7ff) + 1;
+	mmc_clk = (mmc_clk / data32) / 4;
+
+	return mmc_clk;
 }
