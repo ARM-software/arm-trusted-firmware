@@ -80,40 +80,37 @@
 #define CLKMGR_STAT_PERPLLLOCKED(x)		(((x) & 0x00010000) >> 16)
 #define CLKMGR_INTRCLR_MAINLOCKLOST_SET_MSK	0x00000004
 #define CLKMGR_INTRCLR_PERLOCKLOST_SET_MSK	0x00000008
+#define CLKMGR_INTOSC_HZ			460000000
 
 /* Main PLL Macros */
 #define CLKMGR_MAINPLL_EN_RESET			0x000000ff
-#define CLKMGR_MAINPLL_PLLM_MDIV(x)		((x) & 0x000003ff)
-#define CLKMGR_MAINPLL_PLLGLOB_PD_SET_MSK	0x00000001
-#define CLKMGR_MAINPLL_PLLGLOB_RST_SET_MSK	0x00000002
-
-#define CLKMGR_MAINPLL_PLLGLOB_REFCLKDIV(x)	(((x) & 0x00003f00) >> 8)
-#define CLKMGR_MAINPLL_PLLGLOB_AREFCLKDIV(x)	(((x) & 0x00000f00) >> 8)
-#define CLKMGR_MAINPLL_PLLGLOB_DREFCLKDIV(x)	(((x) & 0x00003000) >> 12)
-
-#define CLKMGR_MAINPLL_PLLGLOB_PSRC(x)		(((x) & 0x00030000) >> 16)
-#define CLKMGR_MAINPLL_PLLGLOB_PSRC_EOSC1	0x0
-#define CLKMGR_MAINPLL_PLLGLOB_PSRC_INTOSC	0x1
-#define CLKMGR_MAINPLL_PLLGLOB_PSRC_F2S		0x2
-#define CLKMGR_MAINPLL_VCOCALIB_HSCNT_SET(x)	(((x) << 0) & 0x000003ff)
-#define CLKMGR_MAINPLL_VCOCALIB_MSCNT_SET(x)	(((x) << 16) & 0x00ff0000)
 
 /* Peripheral PLL Macros */
 #define CLKMGR_PERPLL_EN_RESET			0x00000fff
-#define CLKMGR_PERPLL_PLLM_MDIV(x)		((x) & 0x000003ff)
 #define CLKMGR_PERPLL_GPIODIV_GPIODBCLK_SET(x)	(((x) << 0) & 0x0000ffff)
-#define CLKMGR_PERPLL_PLLGLOB_PD_SET_MSK	0x00000001
-
-#define CLKMGR_PERPLL_PLLGLOB_REFCLKDIV(x)	(((x) & 0x00003f00) >> 8)
-#define CLKMGR_PERPLL_PLLGLOB_AREFCLKDIV(x)	(((x) & 0x00000f00) >> 8)
-#define CLKMGR_PERPLL_PLLGLOB_DREFCLKDIV(x)	(((x) & 0x00003000) >> 12)
-
-#define CLKMGR_PERPLL_PLLGLOB_RST_SET_MSK	0x00000002
-#define CLKMGR_PERPLL_VCOCALIB_HSCNT_SET(x)	(((x) << 0) & 0x000003ff)
-#define CLKMGR_PERPLL_VCOCALIB_MSCNT_SET(x)	(((x) << 16) & 0x00ff0000)
 
 /* Altera Macros */
 #define CLKMGR_ALTERA_EXTCNTRST_RESET		0xff
+
+/* Shared Macros */
+#define CLKMGR_PSRC(x)				(((x) & 0x00030000) >> 16)
+#define CLKMGR_PSRC_MAIN			0
+#define CLKMGR_PSRC_PER				1
+
+#define CLKMGR_PLLGLOB_PSRC_EOSC1		0x0
+#define CLKMGR_PLLGLOB_PSRC_INTOSC		0x1
+#define CLKMGR_PLLGLOB_PSRC_F2S			0x2
+
+#define CLKMGR_PLLM_MDIV(x)			((x) & 0x000003ff)
+#define CLKMGR_PLLGLOB_PD_SET_MSK		0x00000001
+#define CLKMGR_PLLGLOB_RST_SET_MSK		0x00000002
+
+#define CLKMGR_PLLGLOB_REFCLKDIV(x)		(((x) & 0x00003f00) >> 8)
+#define CLKMGR_PLLGLOB_AREFCLKDIV(x)		(((x) & 0x00000f00) >> 8)
+#define CLKMGR_PLLGLOB_DREFCLKDIV(x)		(((x) & 0x00003000) >> 12)
+
+#define CLKMGR_VCOCALIB_HSCNT_SET(x)		(((x) << 0) & 0x000003ff)
+#define CLKMGR_VCOCALIB_MSCNT_SET(x)		(((x) << 16) & 0x00ff0000)
 
 
 typedef struct {
@@ -123,6 +120,8 @@ typedef struct {
 } CLOCK_SOURCE_CONFIG;
 
 void config_clkmgr_handoff(handoff *hoff_ptr);
-int get_wdt_clk(handoff *hoff_ptr);
+uint32_t get_wdt_clk(void);
+uint32_t get_uart_clk(void);
+uint32_t get_mmc_clk(void);
 
 #endif

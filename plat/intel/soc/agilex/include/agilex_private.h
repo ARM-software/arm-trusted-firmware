@@ -11,14 +11,13 @@
 #define AGX_MMC_REG_BASE	0xff808000
 
 #define EMMC_DESC_SIZE		(1<<20)
-#define EMMC_INIT_PARAMS(base)			\
+#define EMMC_INIT_PARAMS(base, clk)		\
 	{	.bus_width = MMC_BUS_WIDTH_4,	\
-		.clk_rate = 50000000,		\
+		.clk_rate = (clk),		\
 		.desc_base = (base),		\
 		.desc_size = EMMC_DESC_SIZE,	\
 		.flags = 0,			\
-		.reg_base = AGX_MMC_REG_BASE,	\
-		\
+		.reg_base = AGX_MMC_REG_BASE	\
 	}
 
 typedef enum {
@@ -26,7 +25,7 @@ typedef enum {
 	BOOT_SOURCE_SDMMC,
 	BOOT_SOURCE_NAND,
 	BOOT_SOURCE_RSVD,
-	BOOT_SOURCE_QSPI,
+	BOOT_SOURCE_QSPI
 } boot_source_type;
 
 void enable_nonsecure_access(void);

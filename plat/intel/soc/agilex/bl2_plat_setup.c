@@ -69,9 +69,9 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	deassert_peripheral_reset();
 	config_hps_hs_before_warm_reset();
 
-	watchdog_init(get_wdt_clk(&reverse_handoff_ptr));
+	watchdog_init(get_wdt_clk());
 
-	console_16550_register(PLAT_UART0_BASE, PLAT_UART_CLOCK, PLAT_BAUDRATE,
+	console_16550_register(PLAT_UART0_BASE, get_uart_clk(), PLAT_BAUDRATE,
 		&console);
 
 	socfpga_delay_timer_init();
@@ -105,7 +105,7 @@ void bl2_el3_plat_arch_setup(void)
 
 	enable_mmu_el3(0);
 
-	dw_mmc_params_t params = EMMC_INIT_PARAMS(0x100000);
+	dw_mmc_params_t params = EMMC_INIT_PARAMS(0x100000, get_mmc_clk());
 
 	info.mmc_dev_type = MMC_IS_SD;
 	info.ocr_voltage = OCR_3_3_3_4 | OCR_3_2_3_3;
