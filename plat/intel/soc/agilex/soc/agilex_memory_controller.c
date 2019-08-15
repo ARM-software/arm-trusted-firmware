@@ -19,7 +19,7 @@
 #define MAX_MEM_CAL_RETRY		3
 #define PRE_CALIBRATION_DELAY		1
 #define POST_CALIBRATION_DELAY		1
-#define TIMEOUT_EMIF_CALIBRATION	100
+#define TIMEOUT_EMIF_CALIBRATION	1000
 #define CLEAR_EMIF_DELAY		50000
 #define CLEAR_EMIF_TIMEOUT		0x100000
 #define TIMEOUT_INT_RESP		10000
@@ -109,7 +109,7 @@ static int clear_emif(void)
 
 static int mem_calibration(void)
 {
-	int status = 0;
+	int status;
 	uint32_t data;
 	unsigned long timeout;
 	unsigned long retry = 0;
@@ -125,13 +125,13 @@ static int mem_calibration(void)
 			data = mmio_read_32(AGX_MPFE_HMC_ADP_DDRCALSTAT);
 			if (AGX_MPFE_HMC_ADP_DDRCALSTAT_CAL(data) == 1)
 				break;
-			udelay(1);
+			mdelay(1);
 		} while (++timeout < TIMEOUT_EMIF_CALIBRATION);
 
 		if (AGX_MPFE_HMC_ADP_DDRCALSTAT_CAL(data) == 0) {
 			status = clear_emif();
-		if (status)
-			ERROR("Failed to clear Emif\n");
+			if (status)
+				ERROR("Failed to clear Emif\n");
 		} else {
 			break;
 		}
@@ -348,9 +348,11 @@ void configure_hmc_adaptor_regs(void)
 		mmio_read_32(AGX_MPFE_IOHMC_REG_NIOSRESERVE0_OFST));
 	dram_io_width = (dram_io_width & 0xFF) >> 5;
 
-	mmio_clrsetbits_32(AGX_MPFE_HMC_ADP_DDRIOCTRL,
-		AGX_MPFE_HMC_ADP_DDRIOCTRL_IO_SIZE_MSK,
-		dram_io_width << AGX_MPFE_HMC_ADP_DDRIOCTRL_IO_SIZE_OFST);
+	data = mmio_read_32(AGX_MPFE_IOHMC_CTRLCFG3);
+
+	dram_io_width |= (data & 0x4);
+
+	mmio_write_32(AGX_MPFE_HMC_ADP_DDRIOCTRL, dram_io_width);
 
 	/* Copy dram addr width from IOHMC to HMC ADP */
 	data = mmio_read_32(AGX_MPFE_IOHMC_DRAMADDRW);
@@ -358,10 +360,15 @@ void configure_hmc_adaptor_regs(void)
 
 	/* Enable nonsecure access to DDR */
 	mmio_write_32(AGX_NOC_FW_DDR_SCR_MPUREGION0ADDR_LIMIT,
-			0x4000000 - 1);
+			AGX_DDR_SIZE - 1);
+	mmio_write_32(AGX_NOC_FW_DDR_SCR_MPUREGION0ADDR_LIMITEXT,
+			0x1f);
+
 	mmio_write_32(AGX_NOC_FW_DDR_SCR_NONMPUREGION0ADDR_LIMIT,
-			0x4000000 - 1);
-	mmio_write_32(AGX_SOC_NOC_FW_DDR_SCR_ENABLE, BIT(0) | BIT(8));
+			AGX_DDR_SIZE - 1);
+
+	mmio_write_32(AGX_SOC_NOC_FW_DDR_SCR_ENABLESET, BIT(0) | BIT(8));
+
 
 	/* ECC enablement */
 	data = mmio_read_32(AGX_MPFE_IOHMC_REG_CTRLCFG1);
