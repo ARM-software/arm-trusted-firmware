@@ -15,7 +15,6 @@
 #include <drivers/console.h>
 #include <drivers/generic_delay_timer.h>
 #include <drivers/ti/uart/uart_16550.h>
-#include <lib/coreboot.h>
 #include <lib/mmio.h>
 #include <plat_private.h>
 #include <plat/common/platform.h>
@@ -57,16 +56,11 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	params_early_setup(arg1);
 
-#if COREBOOT
-	if (coreboot_serial.type)
-		console_16550_register(coreboot_serial.baseaddr,
-				       coreboot_serial.input_hertz,
-				       coreboot_serial.baud,
-				       &console);
-#else
-	console_16550_register(rockchip_get_uart_base(), PLAT_RK_UART_CLOCK,
-			       PLAT_RK_UART_BAUDRATE, &console);
-#endif
+	if (rockchip_get_uart_base() != 0)
+		console_16550_register(rockchip_get_uart_base(),
+				       rockchip_get_uart_clock(),
+				       rockchip_get_uart_baudrate(), &console);
+
 	VERBOSE("sp_min_setup\n");
 
 	bl31_params_parse_helper(arg0, NULL, &bl33_ep_info);

@@ -26,12 +26,6 @@ static struct bl_aux_gpio_info poweroff_gpio;
 static struct bl_aux_gpio_info suspend_gpio[10];
 uint32_t suspend_gpio_cnt;
 static struct bl_aux_rk_apio_info suspend_apio;
-static uint32_t rk_uart_base = PLAT_RK_UART_BASE;
-
-uint32_t rockchip_get_uart_base(void)
-{
-	return rk_uart_base;
-}
 
 #if COREBOOT
 static int dt_process_fdt(u_register_t param_from_bl2)
@@ -39,6 +33,9 @@ static int dt_process_fdt(u_register_t param_from_bl2)
 	return -ENODEV;
 }
 #else
+static uint32_t rk_uart_base = PLAT_RK_UART_BASE;
+static uint32_t rk_uart_baudrate = PLAT_RK_UART_BAUDRATE;
+static uint32_t rk_uart_clock = PLAT_RK_UART_CLOCK;
 static uint8_t fdt_buffer[0x10000];
 
 void *plat_get_fdt(void)
@@ -53,9 +50,12 @@ static void plat_rockchip_dt_process_fdt_uart(void *fdt)
 	int node_offset;
 	int stdout_path_len;
 	const char *stdout_path;
+	const char *separator;
+	const char *baud_start;
 	char serial_char;
 	int serial_no;
 	uint32_t uart_base;
+	uint32_t baud;
 
 	node_offset = fdt_path_offset(fdt, path_name);
 	if (node_offset < 0)
@@ -68,7 +68,7 @@ static void plat_rockchip_dt_process_fdt_uart(void *fdt)
 
 	/*
 	 * We expect something like:
-	 *   "serial0:...""
+	 *   "serial0:baudrate"
 	 */
 	if (strncmp("serial", stdout_path, 6) != 0)
 		return;
@@ -96,11 +96,38 @@ static void plat_rockchip_dt_process_fdt_uart(void *fdt)
 		uart_base = UART4_BASE;
 		break;
 #endif
+#ifdef UART5_BASE
+	case 5:
+		uart_base = UART5_BASE;
+		break;
+#endif
 	default:
 		return;
 	}
 
 	rk_uart_base = uart_base;
+
+	separator = strchr(stdout_path, ':');
+	if (!separator)
+		return;
+
+	baud = 0;
+	baud_start = separator + 1;
+	while (*baud_start != '\0') {
+		/*
+		 * uart binding is <baud>{<parity>{<bits>{...}}}
+		 * So the baudrate either is the whole string, or
+		 * we end in the parity characters.
+		 */
+		if (*baud_start == 'n' || *baud_start == 'o' ||
+		    *baud_start == 'e')
+			break;
+
+		baud = baud * 10 + (*baud_start - '0');
+		baud_start++;
+	}
+
+	rk_uart_baudrate = baud;
 }
 
 static int dt_process_fdt(u_register_t param_from_bl2)
@@ -117,6 +144,33 @@ static int dt_process_fdt(u_register_t param_from_bl2)
 	return 0;
 }
 #endif
+
+uint32_t rockchip_get_uart_base(void)
+{
+#if COREBOOT
+	return coreboot_serial.baseaddr;
+#else
+	return rk_uart_base;
+#endif
+}
+
+uint32_t rockchip_get_uart_baudrate(void)
+{
+#if COREBOOT
+	return coreboot_serial.baud;
+#else
+	return rk_uart_baudrate;
+#endif
+}
+
+uint32_t rockchip_get_uart_clock(void)
+{
+#if COREBOOT
+	return coreboot_serial.input_hertz;
+#else
+	return rk_uart_clock;
+#endif
+}
 
 struct bl_aux_gpio_info *plat_get_rockchip_gpio_reset(void)
 {
