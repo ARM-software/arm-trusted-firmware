@@ -192,6 +192,7 @@ static unsigned int get_power_on_target_pwrlvl(void)
 	pwrlvl = psci_get_suspend_pwrlvl();
 	if (pwrlvl == PSCI_INVALID_PWR_LVL)
 		pwrlvl = PLAT_MAX_PWR_LVL;
+	assert(pwrlvl < PSCI_INVALID_PWR_LVL);
 	return pwrlvl;
 }
 
