@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -284,6 +284,7 @@ X509_EXTENSION *ext_new_key(int nid, int crit, EVP_PKEY *k)
 	ex = ext_new(nid, crit, p, sz);
 
 	/* Clean up */
+	BIO_free(mem);
 	OPENSSL_free(p);
 
 	return ex;

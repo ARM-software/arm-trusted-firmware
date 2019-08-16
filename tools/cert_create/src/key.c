@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -73,6 +73,7 @@ static int key_create_rsa(key_t *key)
 		goto err;
 	}
 
+	BN_free(e);
 	return 1;
 err:
 	RSA_free(rsa);
