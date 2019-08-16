@@ -127,6 +127,7 @@ endif
 
 BL1_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
 				drivers/arm/sp805/sp805.c			\
+				drivers/delay_timer/delay_timer.c		\
 				drivers/io/io_semihosting.c			\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\
@@ -137,6 +138,12 @@ BL1_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
 				plat/arm/board/fvp/fvp_trusted_boot.c		\
 				${FVP_CPU_LIBS}					\
 				${FVP_INTERCONNECT_SOURCES}
+
+ifeq (${FVP_USE_SP804_TIMER},1)
+BL1_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
+else
+BL1_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c
+endif
 
 
 BL2_SOURCES		+=	drivers/arm/sp805/sp805.c			\
@@ -167,8 +174,13 @@ endif
 BL2U_SOURCES		+=	plat/arm/board/fvp/fvp_bl2u_setup.c		\
 				${FVP_SECURITY_SOURCES}
 
+ifeq (${FVP_USE_SP804_TIMER},1)
+BL2U_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
+endif
+
 BL31_SOURCES		+=	drivers/arm/fvp/fvp_pwrc.c			\
 				drivers/arm/smmu/smmu_v3.c			\
+				drivers/delay_timer/delay_timer.c		\
 				drivers/cfi/v2m/v2m_flash.c			\
 				lib/utils/mem_region.c				\
 				plat/arm/board/fvp/fvp_bl31_setup.c		\
@@ -180,6 +192,12 @@ BL31_SOURCES		+=	drivers/arm/fvp/fvp_pwrc.c			\
 				${FVP_GIC_SOURCES}				\
 				${FVP_INTERCONNECT_SOURCES}			\
 				${FVP_SECURITY_SOURCES}
+
+ifeq (${FVP_USE_SP804_TIMER},1)
+BL31_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
+else
+BL31_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c
+endif
 
 # Add the FDT_SOURCES and options for Dynamic Config (only for Unix env)
 ifdef UNIX_MK

@@ -10,6 +10,8 @@
 #include <drivers/arm/cci.h>
 #include <drivers/arm/ccn.h>
 #include <drivers/arm/gicv2.h>
+#include <drivers/arm/sp804_delay_timer.h>
+#include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/arm/common/arm_config.h>
@@ -407,3 +409,23 @@ int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 	return arm_get_mbedtls_heap(heap_addr, heap_size);
 }
 #endif
+
+void fvp_timer_init(void)
+{
+#if FVP_USE_SP804_TIMER
+	/* Enable the clock override for SP804 timer 0, which means that no
+	 * clock dividers are applied and the raw (35MHz) clock will be used.
+	 */
+	mmio_write_32(V2M_SP810_BASE, FVP_SP810_CTRL_TIM0_OV);
+
+	/* Initialize delay timer driver using SP804 dual timer 0 */
+	sp804_timer_init(V2M_SP804_TIMER0_BASE,
+			SP804_TIMER_CLKMULT, SP804_TIMER_CLKDIV);
+#else
+	generic_delay_timer_init();
+
+	/* Enable System level generic timer */
+	mmio_write_32(ARM_SYS_CNTCTL_BASE + CNTCR_OFF,
+			CNTCR_FCREQ(0U) | CNTCR_EN);
+#endif /* FVP_USE_SP804_TIMER */
+}
