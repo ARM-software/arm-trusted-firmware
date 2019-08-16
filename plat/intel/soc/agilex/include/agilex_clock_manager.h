@@ -33,6 +33,7 @@
 #define CLKMGR_MAINPLL_PLLC2			0x40
 #define CLKMGR_MAINPLL_PLLC3			0x44
 #define CLKMGR_MAINPLL_PLLM			0x48
+#define CLKMGR_MAINPLL_LOSTLOCK			0x54
 
 /* Peripheral PLL Group */
 #define CLKMGR_PERPLL				0xffd1007c
@@ -50,6 +51,7 @@
 #define CLKMGR_PERPLL_PLLC2			0x3c
 #define CLKMGR_PERPLL_PLLC3			0x40
 #define CLKMGR_PERPLL_PLLM			0x44
+#define CLKMGR_PERPLL_LOSTLOCK			0x50
 
 /* Altera Group */
 #define CLKMGR_ALTERA				0xffd100d0
@@ -112,6 +114,7 @@
 #define CLKMGR_VCOCALIB_HSCNT_SET(x)		(((x) << 0) & 0x000003ff)
 #define CLKMGR_VCOCALIB_MSCNT_SET(x)		(((x) << 16) & 0x00ff0000)
 
+#define CLKMGR_CLR_LOSTLOCK_BYPASS		0x20000000
 
 typedef struct {
 	uint32_t  clk_freq_of_eosc1;

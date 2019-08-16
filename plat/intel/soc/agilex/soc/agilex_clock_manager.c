@@ -222,6 +222,16 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 	mmio_write_32(CLKMGR_ALTERA + CLKMGR_ALTERA_PSIREFCTR,
 			hoff_ptr->alt_psirefctr);
 
+	/* Clear lost lock bypass mode */
+	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_LOSTLOCK, 0x1);
+	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_LOSTLOCK, 0x1);
+
+	mmio_setbits_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_PLLGLOB,
+			CLKMGR_CLR_LOSTLOCK_BYPASS);
+
+	mmio_setbits_32(CLKMGR_PERPLL + CLKMGR_PERPLL_PLLGLOB,
+			CLKMGR_CLR_LOSTLOCK_BYPASS);
+
 	/* Take all PLLs out of bypass */
 	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_BYPASS, 0);
 	wait_fsm();
