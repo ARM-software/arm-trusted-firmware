@@ -48,6 +48,9 @@ void bl1_platform_setup(void)
 {
 	arm_bl1_platform_setup();
 
+	/* Initialize System level generic or SP804 timer */
+	fvp_timer_init();
+
 	/* On FVP RevC, initialize SMMUv3 */
 	if ((arm_config.flags & ARM_CONFIG_FVP_HAS_SMMUV3) != 0U)
 		smmuv3_security_init(PLAT_FVP_SMMUV3_BASE);
