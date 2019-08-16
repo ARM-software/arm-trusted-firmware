@@ -112,6 +112,7 @@
 /* CLIDR definitions */
 #define LOUIS_SHIFT		U(21)
 #define LOC_SHIFT		U(24)
+#define CTYPE_SHIFT(n)		U(3 * (n - 1))
 #define CLIDR_FIELD_WIDTH	U(3)
 
 /* CSSELR definitions */
