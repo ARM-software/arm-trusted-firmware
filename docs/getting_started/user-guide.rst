@@ -684,6 +684,21 @@ Common build options
    file that contains the ROT private key in PEM format. If ``SAVE_KEYS=1``, this
    file name will be used to save the key.
 
+-  ``SANITIZE_UB``: This option enables the Undefined Behaviour sanitizer. It
+   can take 3 values: 'off' (default), 'on' and 'trap'. When using 'trap',
+   gcc and clang will insert calls to ``__builtin_trap`` on detected
+   undefined behaviour, which defaults to a ``brk`` instruction. When using
+   'on', undefined behaviour is translated to a call to special handlers which
+   prints the exact location of the problem and its cause and then panics.
+
+    .. note::
+        Because of the space penalty of the Undefined Behaviour sanitizer,
+        this option will increase the size of the binary. Depending on the
+        memory constraints of the target platform, it may not be possible to
+        enable the sanitizer for all images (BL1 and BL2 are especially
+        likely to be memory constrained). We recommend that the
+        sanitizer is enabled only in debug builds.
+
 -  ``SAVE_KEYS``: This option is used when ``GENERATE_COT=1``. It tells the
    certificate generation tool to save the keys used to establish the Chain of
    Trust. Allowed options are '0' or '1'. Default is '0' (do not save).

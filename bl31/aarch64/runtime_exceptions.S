@@ -220,6 +220,19 @@ vector_base runtime_exceptions
 	 * ---------------------------------------------------------------------
 	 */
 vector_entry sync_exception_sp_el0
+#ifdef MONITOR_TRAPS
+	stp x29, x30, [sp, #-16]!
+
+	mrs	x30, esr_el3
+	ubfx	x30, x30, #ESR_EC_SHIFT, #ESR_EC_LENGTH
+
+	/* Check for BRK */
+	cmp	x30, #EC_BRK
+	b.eq	brk_handler
+
+	ldp x29, x30, [sp], #16
+#endif /* MONITOR_TRAPS */
+
 	/* We don't expect any synchronous exceptions from EL3 */
 	b	report_unhandled_exception
 end_vector_entry sync_exception_sp_el0
@@ -327,6 +340,14 @@ vector_entry serror_aarch32
 	msr	daifclr, #DAIF_ABT_BIT
 	b	enter_lower_el_async_ea
 end_vector_entry serror_aarch32
+
+#ifdef MONITOR_TRAPS
+	.section .rodata.brk_string, "aS"
+brk_location:
+	.asciz "Error at instruction 0x"
+brk_message:
+	.asciz "Unexpected BRK instruction with value 0x"
+#endif /* MONITOR_TRAPS */
 
 	/* ---------------------------------------------------------------------
 	 * The following code handles secure monitor calls.
@@ -455,3 +476,39 @@ rt_svc_fw_critical_error:
 	msr	spsel, #1
 	no_ret	report_unhandled_exception
 endfunc smc_handler
+
+	/* ---------------------------------------------------------------------
+	 * The following code handles exceptions caused by BRK instructions.
+	 * Following a BRK instruction, the only real valid cause of action is
+	 * to print some information and panic, as the code that caused it is
+	 * likely in an inconsistent internal state.
+	 *
+	 * This is initially intended to be used in conjunction with
+	 * __builtin_trap.
+	 * ---------------------------------------------------------------------
+	 */
+#ifdef MONITOR_TRAPS
+func brk_handler
+	/* Extract the ISS */
+	mrs	x10, esr_el3
+	ubfx	x10, x10, #ESR_ISS_SHIFT, #ESR_ISS_LENGTH
+
+	/* Ensure the console is initialized */
+	bl	plat_crash_console_init
+
+	adr	x4, brk_location
+	bl	asm_print_str
+	mrs	x4, elr_el3
+	bl	asm_print_hex
+	bl	asm_print_newline
+
+	adr	x4, brk_message
+	bl	asm_print_str
+	mov	x4, x10
+	mov	x5, #28
+	bl	asm_print_hex_bits
+	bl	asm_print_newline
+
+	no_ret	plat_panic_handler
+endfunc brk_handler
+#endif /* MONITOR_TRAPS */
