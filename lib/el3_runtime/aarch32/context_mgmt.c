@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -281,10 +281,28 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 *
 			 * HDCR.HPMN: Set to value of PMCR.N which is the
 			 *  architecturally-defined reset value.
+			 *
+			 * HDCR.HLP: Set to one so that event counter
+			 *  overflow, that is recorded in PMOVSCLR[0-30],
+			 *  occurs on the increment that changes
+			 *  PMEVCNTR<n>[63] from 1 to 0, when ARMv8.5-PMU is
+			 *  implemented. This bit is RES0 in versions of the
+			 *  architecture earlier than ARMv8.5, setting it to 1
+			 *  doesn't have any effect on them.
+			 *  This bit is Reserved, UNK/SBZP in ARMv7.
+			 *
+			 * HDCR.HPME: Set to zero to disable EL2 Event
+			 *  counters.
 			 */
-			write_hdcr(HDCR_RESET_VAL |
-				((read_pmcr() & PMCR_N_BITS) >> PMCR_N_SHIFT));
-
+#if (ARM_ARCH_MAJOR > 7)
+			write_hdcr((HDCR_RESET_VAL | HDCR_HLP_BIT |
+				   ((read_pmcr() & PMCR_N_BITS) >>
+				    PMCR_N_SHIFT)) & ~HDCR_HPME_BIT);
+#else
+			write_hdcr((HDCR_RESET_VAL |
+				   ((read_pmcr() & PMCR_N_BITS) >>
+				    PMCR_N_SHIFT)) & ~HDCR_HPME_BIT);
+#endif
 			/*
 			 * Set HSTR to its architectural reset value so that
 			 * access to system registers in the cproc=1111

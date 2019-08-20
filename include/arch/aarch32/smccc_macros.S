@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -58,7 +58,6 @@
 	stm	r0!, {r2}
 
 	stcopr	r4, SCR
-	isb
 #else
 	/* Save the banked registers including the current SPSR and LR */
 	mrs	r4, sp_usr
@@ -85,10 +84,34 @@
 	/* lr_mon is already saved by caller */
 
 	ldcopr	r4, SCR
+
+#if ARM_ARCH_MAJOR > 7
+	/*
+	 * Check if earlier initialization of SDCR.SCCD to 1
+	 * failed, meaning that ARMv8-PMU is not implemented,
+	 * cycle counting is not disabled and PMCR should be
+	 * saved in Non-secure context.
+	 */
+	ldcopr	r5, SDCR
+	tst	r5, #SDCR_SCCD_BIT
+	bne	1f
 #endif
-	str	r4, [sp, #SMC_CTX_SCR]
-	ldcopr	r4, PMCR
-	str	r4, [sp, #SMC_CTX_PMCR]
+	/* Secure Cycle Counter is not disabled */
+#endif
+	ldcopr	r5, PMCR
+
+	/* Check caller's security state */
+	tst	r4, #SCR_NS_BIT
+	beq	2f
+
+	/* Save PMCR if called from Non-secure state */
+	str	r5, [sp, #SMC_CTX_PMCR]
+
+	/* Disable cycle counter when event counting is prohibited */
+2:	orr	r5, r5, #PMCR_DP_BIT
+	stcopr	r5, PMCR
+	isb
+1:	str	r4, [sp, #SMC_CTX_SCR]
 	.endm
 
 /*
@@ -114,11 +137,30 @@
 	isb
 
 	/*
+	 * Restore PMCR when returning to Non-secure state
+	 */
+	tst	r1, #SCR_NS_BIT
+	beq	2f
+
+	/*
+	 * Back to Non-secure state
+	 */
+#if ARM_ARCH_MAJOR > 7
+	/*
+	 * Check if earlier initialization SDCR.SCCD to 1
+	 * failed, meaning that ARMv8-PMU is not implemented and
+	 * PMCR should be restored from Non-secure context.
+	 */
+	ldcopr	r1, SDCR
+	tst	r1, #SDCR_SCCD_BIT
+	bne	2f
+#endif
+	/*
 	 * Restore the PMCR register.
 	 */
 	ldr	r1, [r0, #SMC_CTX_PMCR]
 	stcopr	r1, PMCR
-
+2:
 	/* Restore the banked registers including the current SPSR */
 	add	r1, r0, #SMC_CTX_SP_USR
 
