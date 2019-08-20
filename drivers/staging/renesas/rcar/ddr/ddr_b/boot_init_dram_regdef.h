@@ -55,19 +55,6 @@
 
 #define LIFEC_CHIPID(x)		(0xE6110040U + 0x04U * (x))
 
-/* Product Register */
-#define PRR			(0xFFF00044U)
-#define PRR_PRODUCT_MASK	(0x00007F00U)
-#define PRR_CUT_MASK		(0x000000FFU)
-#define PRR_PRODUCT_H3		(0x00004F00U)	/* R-Car H3   */
-#define PRR_PRODUCT_M3		(0x00005200U)	/* R-Car M3-W */
-#define PRR_PRODUCT_M3N		(0x00005500U)	/* R-Car M3-N */
-#define PRR_PRODUCT_V3H		(0x00005600U)	/* R-Car V3H  */
-#define PRR_PRODUCT_10		(0x00U)	/*   Ver.1.0  */
-#define PRR_PRODUCT_11		(0x01U)	/*   Ver.1.1  */
-#define PRR_PRODUCT_20		(0x10U)	/*   Ver.2.0  */
-#define PRR_PRODUCT_30		(0x20U)	/*   Ver.3.0  */
-
 /* DBSC registers */
 #define DBSC_DBSYSCONF1		0xE6790004U
 #define DBSC_DBPHYCONF0		0xE6790010U

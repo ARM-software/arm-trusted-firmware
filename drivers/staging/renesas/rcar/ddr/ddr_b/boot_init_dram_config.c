@@ -1622,7 +1622,6 @@ static const uint32_t TermcodeBySample[20][3] = {
 #define PFC_PUD5	0xE6060454U
 #define PFC_PUD6	0xE6060458U
 #define GPIO_INDT5	0xE605500CU
-#define GPIO_INDT6	0xE605540CU
 #define GPIO_GPSR6 	0xE6060118U
 
 #if (RCAR_GEN3_ULCB == 0)

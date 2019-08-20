@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,15 +8,7 @@
 #include <lib/mmio.h>
 
 #include "dram_sub_func.h"
-
-#define PRR				(0xFFF00044U)
-#define PRR_PRODUCT_MASK		(0x00007F00U)
-#define PRR_CUT_MASK			(0x000000FFU)
-#define PRR_PRODUCT_H3			(0x00004F00U)	/* R-Car H3  */
-#define PRR_PRODUCT_M3			(0x00005200U)	/* R-Car M3  */
-#define PRR_PRODUCT_M3N			(0x00005500U)	/* R-Car M3N */
-#define PRR_PRODUCT_E3			(0x00005700U)	/* R-Car E3  */
-#define PRR_PRODUCT_V3H			(0x00005600U)	/* R-Car V3H */
+#include "rcar_def.h"
 
 #if RCAR_SYSTEM_SUSPEND
 /* Local defines */
@@ -32,11 +24,9 @@
 #endif
 
 #define	GPIO_OUTDT1			(0xE6051008U)
-#define GPIO_INDT1			(0xE605100CU)
 #define GPIO_OUTDT3			(0xE6053008U)
 #define GPIO_INDT3			(0xE605300CU)
 #define GPIO_OUTDT6			(0xE6055408U)
-#define GPIO_INDT6			(0xE605540CU)
 
 #if DRAM_BACKUP_GPIO_USE == 1
 #define GPIO_BKUP_REQB_SHIFT_SALVATOR	(9U)	/* GP1_9 (BKUP_REQB) */
