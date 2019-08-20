@@ -87,6 +87,7 @@
  * UART related constants
  ******************************************************************************/
 #define UART0_BASE    (IO_PHYS + 0x01002000)
+#define UART1_BASE    (IO_PHYS + 0x01003000)
 
 #define UART_BAUDRATE 115200
 #define UART_CLOCK    26000000
