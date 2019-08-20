@@ -34,10 +34,10 @@ static void rpc_setup(void)
 	if (mmio_read_32(RPC_CMNCR) & RPC_CMNCR_MD_BIT)
 		mmio_clrbits_32(RPC_CMNCR, RPC_CMNCR_MD_BIT);
 
-	product = mmio_read_32(RCAR_PRR) & RCAR_PRODUCT_MASK;
-	cut = mmio_read_32(RCAR_PRR) & RCAR_CUT_MASK;
+	product = mmio_read_32(RCAR_PRR) & PRR_PRODUCT_MASK;
+	cut = mmio_read_32(RCAR_PRR) & PRR_CUT_MASK;
 
-	if ((product ==  RCAR_PRODUCT_M3) && (cut < RCAR_CUT_VER30))
+	if ((product ==  PRR_PRODUCT_M3) && (cut < PRR_PRODUCT_30))
 		phy_strtim = RPC_PHYCNT_STRTIM_M3V1;
 	else
 		phy_strtim = RPC_PHYCNT_STRTIM;

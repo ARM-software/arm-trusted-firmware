@@ -615,8 +615,8 @@ static void start_rtdma0_descriptor(void)
 	uint32_t reg;
 
 	reg = mmio_read_32(RCAR_PRR);
-	reg &= (RCAR_PRODUCT_MASK | RCAR_CUT_MASK);
-	if (reg == (RCAR_PRODUCT_M3_CUT10)) {
+	reg &= (PRR_PRODUCT_MASK | PRR_CUT_MASK);
+	if (reg == (PRR_PRODUCT_M3_CUT10)) {
 		/* Enable clock supply to RTDMAC. */
 		mstpcr_write(CPG_SCMSTPCR0, CPG_MSTPSR0, SCMSTPCR0_RTDMAC);
 
@@ -654,14 +654,14 @@ static void pfc_reg_write(uint32_t addr, uint32_t data)
 	uint32_t prr;
 
 	prr = mmio_read_32(RCAR_PRR);
-	prr &= (RCAR_PRODUCT_MASK | RCAR_CUT_MASK);
+	prr &= (PRR_PRODUCT_MASK | PRR_CUT_MASK);
 
 	mmio_write_32(PFC_PMMR, ~data);
-	if (prr == (RCAR_PRODUCT_M3_CUT10)) {
+	if (prr == (PRR_PRODUCT_M3_CUT10)) {
 		mmio_write_16(SCIF3_SCFCR, SCFCR_DATA);	/* Dummy write */
 	}
 	mmio_write_32((uintptr_t)addr, data);
-	if (prr == (RCAR_PRODUCT_M3_CUT10)) {
+	if (prr == (PRR_PRODUCT_M3_CUT10)) {
 		mmio_write_16(SCIF3_SCFCR, SCFCR_DATA);	/* Dummy write */
 	}
 }

@@ -44,9 +44,9 @@ void plat_cci_init(void)
 {
 	uint32_t prd;
 
-	prd = mmio_read_32(RCAR_PRR) & (RCAR_PRODUCT_MASK | RCAR_CUT_MASK);
+	prd = mmio_read_32(RCAR_PRR) & (PRR_PRODUCT_MASK | PRR_CUT_MASK);
 
-	if (RCAR_PRODUCT_H3_CUT10 == prd || RCAR_PRODUCT_H3_CUT11 == prd) {
+	if (PRR_PRODUCT_H3_CUT10 == prd || PRR_PRODUCT_H3_CUT11 == prd) {
 		cci_map[0U] = CCI500_CLUSTER0_SL_IFACE_IX;
 		cci_map[1U] = CCI500_CLUSTER1_SL_IFACE_IX;
 	}
