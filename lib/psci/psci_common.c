@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -198,21 +198,17 @@ static unsigned int get_power_on_target_pwrlvl(void)
 /******************************************************************************
  * Helper function to update the requested local power state array. This array
  * does not store the requested state for the CPU power level. Hence an
- * assertion is added to prevent us from accessing the wrong index.
+ * assertion is added to prevent us from accessing the CPU power level.
  *****************************************************************************/
 static void psci_set_req_local_pwr_state(unsigned int pwrlvl,
 					 unsigned int cpu_idx,
 					 plat_local_state_t req_pwr_state)
 {
-	/*
-	 * This should never happen, we have this here to avoid
-	 * "array subscript is above array bounds" errors in GCC.
-	 */
 	assert(pwrlvl > PSCI_CPU_PWR_LVL);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warray-bounds"
-	psci_req_local_pwr_states[pwrlvl - 1U][cpu_idx] = req_pwr_state;
-#pragma GCC diagnostic pop
+	if ((pwrlvl > PSCI_CPU_PWR_LVL) && (pwrlvl <= PLAT_MAX_PWR_LVL) &&
+			(cpu_idx < PLATFORM_CORE_COUNT)) {
+		psci_req_local_pwr_states[pwrlvl - 1U][cpu_idx] = req_pwr_state;
+	}
 }
 
 /******************************************************************************
@@ -245,7 +241,11 @@ static plat_local_state_t *psci_get_req_local_pwr_states(unsigned int pwrlvl,
 {
 	assert(pwrlvl > PSCI_CPU_PWR_LVL);
 
-	return &psci_req_local_pwr_states[pwrlvl - 1U][cpu_idx];
+	if ((pwrlvl > PSCI_CPU_PWR_LVL) && (pwrlvl <= PLAT_MAX_PWR_LVL) &&
+			(cpu_idx < PLATFORM_CORE_COUNT)) {
+		return &psci_req_local_pwr_states[pwrlvl - 1U][cpu_idx];
+	} else
+		return NULL;
 }
 
 /*
