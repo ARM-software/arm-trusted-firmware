@@ -11,6 +11,7 @@
 	.globl	asm_print_str
 	.globl	asm_print_hex
 	.globl	asm_print_hex_bits
+	.globl	asm_print_newline
 	.globl	asm_assert
 	.globl	do_panic
 
@@ -129,6 +130,15 @@ asm_print_hex_bits:
 	cbnz	x5, 1b
 	ret	x3
 endfunc asm_print_hex
+
+/*
+ * Helper function to print newline to console
+ * Clobber: x0
+ */
+func asm_print_newline
+	mov	x0, '\n'
+	b	plat_crash_console_putc
+endfunc asm_print_newline
 
 	/***********************************************************
 	 * The common implementation of do_panic for all BL stages

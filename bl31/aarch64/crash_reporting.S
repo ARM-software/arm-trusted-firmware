@@ -62,14 +62,6 @@ intr_excpt_msg:
 	.asciz "Unhandled Interrupt Exception in EL3.\nx30"
 
 	/*
-	 * Helper function to print newline to console.
-	 */
-func print_newline
-	mov	x0, '\n'
-	b	plat_crash_console_putc
-endfunc print_newline
-
-	/*
 	 * Helper function to print from crash buf.
 	 * The print loop is controlled by the buf size and
 	 * ascii reg name list which is passed in x6. The
@@ -101,7 +93,7 @@ test_size_list:
 	bl	print_alignment
 	ldr	x4, [x7], #REGSZ
 	bl	asm_print_hex
-	bl	print_newline
+	bl	asm_print_newline
 	b	test_size_list
 exit_size_print:
 	mov	x30, sp
@@ -253,7 +245,7 @@ func do_crash_reporting
 	/* report x30 first from the crash buf */
 	ldr	x4, [x0, #REGSZ * 7]
 	bl	asm_print_hex
-	bl	print_newline
+	bl	asm_print_newline
 	/* Load the crash buf address */
 	mrs	x0, tpidr_el3
 	/* Now mov x7 into crash buf */
