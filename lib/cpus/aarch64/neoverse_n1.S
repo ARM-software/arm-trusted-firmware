@@ -43,6 +43,7 @@ func errata_n1_1043202_wa
 	msr	CPUPMR_EL3, x0
 	ldr	x0, =0x800200071
 	msr	CPUPCR_EL3, x0
+	isb
 1:
 	ret	x17
 endfunc errata_n1_1043202_wa
