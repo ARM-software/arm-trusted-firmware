@@ -23,8 +23,9 @@
 #define IMX_SIP_WAKEUP_SRC_SCU		0x1
 #define IMX_SIP_WAKEUP_SRC_IRQSTEER	0x2
 
-#define IMX_SIP_OTP_READ		0xC200000A
-#define IMX_SIP_OTP_WRITE		0xC200000B
+#define IMX_SIP_OTP			0xC200000A
+#define IMX_SIP_OTP_READ		0x1
+#define IMX_SIP_OTP_WRITE		0x2
 
 #define IMX_SIP_MISC_SET_TEMP		0xC200000C
 
@@ -41,7 +42,7 @@ int imx_srtc_handler(uint32_t smc_fid, void *handle, u_register_t x1,
 int imx_wakeup_src_handler(uint32_t smc_fid, u_register_t x1,
 			   u_register_t x2, u_register_t x3);
 int imx_otp_handler(uint32_t smc_fid, void *handle,
-		    u_register_t x1, u_register_t x2);
+		    u_register_t x1, u_register_t x2, u_register_t x3);
 int imx_misc_set_temp_handler(uint32_t smc_fid, u_register_t x1,
 			      u_register_t x2, u_register_t x3,
 			      u_register_t x4);
