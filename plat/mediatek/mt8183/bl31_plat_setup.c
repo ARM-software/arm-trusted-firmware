@@ -16,6 +16,7 @@
 #include <mt_gic_v3.h>
 #include <lib/coreboot.h>
 #include <lib/mmio.h>
+#include <mtk_mcdi.h>
 #include <mtk_plat_common.h>
 #include <mtspmc.h>
 #include <plat_debug.h>
@@ -148,6 +149,7 @@ void bl31_platform_setup(void)
 	spmc_init();
 #endif
 	spm_boot_init();
+	mcdi_init();
 }
 
 /*******************************************************************************

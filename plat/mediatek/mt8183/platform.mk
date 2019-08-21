@@ -9,6 +9,7 @@ MTK_PLAT_SOC  := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT_SOC}/drivers/                       \
+                 -I${MTK_PLAT_SOC}/drivers/mcdi/                  \
                  -I${MTK_PLAT_SOC}/drivers/spmc/                  \
                  -I${MTK_PLAT_SOC}/drivers/gpio/                  \
                  -I${MTK_PLAT_SOC}/drivers/pmic/                  \
@@ -48,6 +49,7 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT_SOC}/drivers/mcsi/mcsi.c                   \
                    ${MTK_PLAT_SOC}/drivers/pmic/pmic.c                   \
                    ${MTK_PLAT_SOC}/drivers/rtc/rtc.c                     \
+                   ${MTK_PLAT_SOC}/drivers/mcdi/mtk_mcdi.c               \
                    ${MTK_PLAT_SOC}/drivers/spmc/mtspmc.c                 \
                    ${MTK_PLAT_SOC}/drivers/spm/spm.c                     \
                    ${MTK_PLAT_SOC}/drivers/spm/spm_pmic_wrap.c           \
