@@ -5,6 +5,9 @@
 #
 
 # platform configs
+ENABLE_CONSOLE_SPE			:= 0
+$(eval $(call add_define,ENABLE_CONSOLE_SPE))
+
 ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS	:= 0
 $(eval $(call add_define,ENABLE_ROC_FOR_ORDERING_CLIENT_REQUESTS))
 
@@ -42,7 +45,7 @@ $(eval $(call add_define,MAX_MMAP_REGIONS))
 # platform files
 PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/include
 
-BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S	\
+BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S \
 				lib/cpus/aarch64/denver.S		\
 				${COMMON_DIR}/drivers/memctrl/memctrl_v2.c	\
 				${COMMON_DIR}/drivers/smmu/smmu.c	\
@@ -57,3 +60,7 @@ BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S	\
 				${SOC_DIR}/plat_sip_calls.c		\
 				${SOC_DIR}/plat_smmu.c			\
 				${SOC_DIR}/plat_trampoline.S
+
+ifeq (${ENABLE_CONSOLE_SPE},1)
+BL31_SOURCES		+=	${COMMON_DIR}/drivers/spe/shared_console.S
+endif

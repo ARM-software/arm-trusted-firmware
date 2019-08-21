@@ -129,10 +129,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	struct tegra_bl31_params *arg_from_bl2 = (struct tegra_bl31_params *) arg0;
 	plat_params_from_bl2_t *plat_params = (plat_params_from_bl2_t *)arg1;
 	image_info_t bl32_img_info = { {0} };
-	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end, console_base;
-	uint32_t console_clock;
+	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
 	int32_t ret;
-	static console_16550_t console;
 
 	/*
 	 * For RESET_TO_BL31 systems, BL31 is the first bootloader to run so
@@ -182,31 +180,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	}
 
 	/*
-	 * Reference clock used by the FPGAs is a lot slower.
+	 * Enable console for the platform
 	 */
-	if (tegra_platform_is_fpga()) {
-		console_clock = TEGRA_BOOT_UART_CLK_13_MHZ;
-	} else {
-		console_clock = TEGRA_BOOT_UART_CLK_408_MHZ;
-	}
-
-	/*
-	 * Get the base address of the UART controller to be used for the
-	 * console
-	 */
-	console_base = plat_get_console_from_id(plat_params->uart_id);
-
-	if (console_base != 0U) {
-		/*
-		 * Configure the UART port to be used as the console
-		 */
-		(void)console_16550_register(console_base,
-					     console_clock,
-					     TEGRA_CONSOLE_BAUDRATE,
-					     &console);
-		console_set_scope(&console.console, CONSOLE_FLAG_BOOT |
-			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
-	}
+	plat_enable_console(plat_params->uart_id);
 
 	/*
 	 * The previous bootloader passes the base address of the shared memory

@@ -141,19 +141,30 @@ static uint32_t tegra186_uart_addresses[TEGRA186_MAX_UART_PORTS + 1] = {
 };
 
 /*******************************************************************************
- * Retrieve the UART controller base to be used as the console
+ * Enable console corresponding to the console ID
  ******************************************************************************/
-uint32_t plat_get_console_from_id(int32_t id)
+void plat_enable_console(int32_t id)
 {
-	uint32_t ret;
+	static console_16550_t uart_console;
+	uint32_t console_clock;
 
-	if (id > TEGRA186_MAX_UART_PORTS) {
-		ret = 0;
-	} else {
-		ret = tegra186_uart_addresses[id];
+	if ((id > 0) && (id < TEGRA186_MAX_UART_PORTS)) {
+		/*
+		 * Reference clock used by the FPGAs is a lot slower.
+		 */
+		if (tegra_platform_is_fpga()) {
+			console_clock = TEGRA_BOOT_UART_CLK_13_MHZ;
+		} else {
+			console_clock = TEGRA_BOOT_UART_CLK_408_MHZ;
+		}
+
+		(void)console_16550_register(tegra186_uart_addresses[id],
+					     console_clock,
+					     TEGRA_CONSOLE_BAUDRATE,
+					     &uart_console);
+		console_set_scope(&uart_console.console, CONSOLE_FLAG_BOOT |
+			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
 	}
-
-	return ret;
 }
 
 /*******************************************************************************

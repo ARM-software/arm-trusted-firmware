@@ -144,6 +144,12 @@
 #define  RNG1_MUTEX_WATCHDOG_NS_LIMIT	U(0xFE0)
 
 /*******************************************************************************
+ * Tegra hardware synchronization primitives for the SPE engine
+ ******************************************************************************/
+#define TEGRA_AON_HSP_SM_6_7_BASE	U(0x0c190000)
+#define TEGRA_CONSOLE_SPE_BASE		(TEGRA_AON_HSP_SM_6_7_BASE + U(0x8000))
+
+/*******************************************************************************
  * Tegra micro-seconds timer constants
  ******************************************************************************/
 #define TEGRA_TMRUS_BASE		U(0x0C2E0000)

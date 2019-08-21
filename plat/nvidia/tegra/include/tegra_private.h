@@ -76,7 +76,7 @@ int32_t tegra_soc_validate_power_state(uint32_t power_state,
 
 /* Declarations for plat_setup.c */
 const mmap_region_t *plat_get_mmio_map(void);
-uint32_t plat_get_console_from_id(int32_t id);
+void plat_enable_console(int32_t id);
 void plat_gic_setup(void);
 struct tegra_bl31_params *plat_get_bl31_params(void);
 plat_params_from_bl2_t *plat_get_bl31_plat_params(void);

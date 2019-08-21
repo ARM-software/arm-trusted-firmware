@@ -21,11 +21,15 @@
 #include <mce.h>
 #include <mce_private.h>
 #include <plat/common/platform.h>
+#include <spe.h>
 #include <tegra_def.h>
 #include <tegra_mc_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+
+/* ID for spe-console */
+#define TEGRA_CONSOLE_SPE_ID		0xFE
 
 /*******************************************************************************
  * The Tegra power domain tree has a single system level power domain i.e. a
@@ -68,12 +72,14 @@ static const mmap_region_t tegra_mmap[] = {
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_MC_BASE, 0x10000U, /* 64KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+#if !ENABLE_CONSOLE_SPE
 	MAP_REGION_FLAT(TEGRA_UARTA_BASE, 0x20000U, /* 128KB - UART A, B*/
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_UARTC_BASE, 0x20000U, /* 128KB - UART C, G */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_UARTD_BASE, 0x30000U, /* 192KB - UART D, E, F */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+#endif
 	MAP_REGION_FLAT(TEGRA_FUSE_BASE, 0x10000U, /* 64KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_GICD_BASE, 0x20000U, /* 128KB */
@@ -84,6 +90,10 @@ static const mmap_region_t tegra_mmap[] = {
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_RNG1_BASE, 0x10000U, /* 64KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+#if ENABLE_CONSOLE_SPE
+	MAP_REGION_FLAT(TEGRA_AON_HSP_SM_6_7_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+#endif
 	MAP_REGION_FLAT(TEGRA_CAR_RESET_BASE, 0x10000U, /* 64KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_PMC_BASE, 0x40000U, /* 256KB */
@@ -120,6 +130,7 @@ uint32_t plat_get_syscnt_freq2(void)
 	return 31250000;
 }
 
+#if !ENABLE_CONSOLE_SPE
 /*******************************************************************************
  * Maximum supported UART controllers
  ******************************************************************************/
@@ -138,21 +149,47 @@ static uint32_t tegra194_uart_addresses[TEGRA194_MAX_UART_PORTS + 1] = {
 	TEGRA_UARTF_BASE,
 	TEGRA_UARTG_BASE
 };
+#endif
 
 /*******************************************************************************
- * Retrieve the UART controller base to be used as the console
+ * Enable console corresponding to the console ID
  ******************************************************************************/
-uint32_t plat_get_console_from_id(int32_t id)
+void plat_enable_console(int32_t id)
 {
-	uint32_t ret;
+	uint32_t console_clock = 0U;
 
-	if (id > TEGRA194_MAX_UART_PORTS) {
-		ret = 0;
-	} else {
-		ret = tegra194_uart_addresses[id];
+#if ENABLE_CONSOLE_SPE
+	static console_spe_t spe_console;
+
+	if (id == TEGRA_CONSOLE_SPE_ID) {
+		(void)console_spe_register(TEGRA_CONSOLE_SPE_BASE,
+					   console_clock,
+					   TEGRA_CONSOLE_BAUDRATE,
+					   &spe_console);
+		console_set_scope(&spe_console.console, CONSOLE_FLAG_BOOT |
+			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
 	}
+#else
+	static console_16550_t uart_console;
 
-	return ret;
+	if ((id > 0) && (id < TEGRA194_MAX_UART_PORTS)) {
+		/*
+		 * Reference clock used by the FPGAs is a lot slower.
+		 */
+		if (tegra_platform_is_fpga()) {
+			console_clock = TEGRA_BOOT_UART_CLK_13_MHZ;
+		} else {
+			console_clock = TEGRA_BOOT_UART_CLK_408_MHZ;
+		}
+
+		(void)console_16550_register(tegra194_uart_addresses[id],
+					     console_clock,
+					     TEGRA_CONSOLE_BAUDRATE,
+					     &uart_console);
+		console_set_scope(&uart_console.console, CONSOLE_FLAG_BOOT |
+			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
+	}
+#endif
 }
 
 /*******************************************************************************
