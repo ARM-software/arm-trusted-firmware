@@ -136,8 +136,7 @@ static const struct per_cpu_reg SPM_CLUSTER_PWR[] = {
 /*
  * MCU configuration registers
  */
-#define MCUCFG_MP0_AXI_CONFIG	((uintptr_t)&mt8183_mcucfg->mp0_axi_config)
-#define MCUCFG_MP1_AXI_CONFIG	((uintptr_t)&mt8183_mcucfg->mp1_axi_config)
+
 /* bit-fields of MCUCFG_MP?_AXI_CONFIG */
 #define MCUCFG_AXI_CONFIG_BROADCASTINNER	(1 << 0)
 #define MCUCFG_AXI_CONFIG_BROADCASTOUTER	(1 << 1)
@@ -146,11 +145,6 @@ static const struct per_cpu_reg SPM_CLUSTER_PWR[] = {
 #define MCUCFG_AXI_CONFIG_ACINACTM		(1 << 4)
 #define MCUCFG_AXI_CONFIG_AINACTS		(1 << 5)
 
-/* per_cpu registers for MCUCFG_MP?_AXI_CONFIG */
-static const struct per_cpu_reg MCUCFG_SCUCTRL[] = {
-	[0] = { .cluster_addr = MCUCFG_MP0_AXI_CONFIG },
-	[1] = { .cluster_addr = MCUCFG_MP1_AXI_CONFIG },
-};
 
 #define MCUCFG_MP0_MISC_CONFIG2 ((uintptr_t)&mt8183_mcucfg->mp0_misc_config[2])
 #define MCUCFG_MP0_MISC_CONFIG3 ((uintptr_t)&mt8183_mcucfg->mp0_misc_config[3])
