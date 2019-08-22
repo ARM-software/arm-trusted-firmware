@@ -26,6 +26,7 @@
 #include <plat/common/platform.h>
 
 #include <mce.h>
+#include <memctrl.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
@@ -185,12 +186,19 @@ void plat_early_platform_setup(void)
 {
 	uint64_t impl, val;
 	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
+	const struct tegra_bl31_params *arg_from_bl2 = plat_get_bl31_params();
 
 	/* Verify chip id is t186 */
 	assert(tegra_chipid_is_t186());
 
 	/* sanity check MCE firmware compatibility */
 	mce_verify_firmware_version();
+
+	/*
+	 * Do initial security configuration to allow DRAM/device access.
+	 */
+	tegra_memctrl_tzdram_setup(plat_params->tzdram_base,
+			(uint32_t)plat_params->tzdram_size);
 
 	impl = (read_midr() >> MIDR_IMPL_SHIFT) & (uint64_t)MIDR_IMPL_MASK;
 
@@ -205,6 +213,13 @@ void plat_early_platform_setup(void)
 		val |= CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT;
 		write_l2ctlr_el1(val);
 	}
+
+	/*
+	 * The previous bootloader might not have placed the BL32 image
+	 * inside the TZDRAM. Platform handler to allow relocation of BL32
+	 * image to TZDRAM memory. This behavior might change per platform.
+	 */
+	plat_relocate_bl32_image(arg_from_bl2->bl32_image_info);
 }
 
 /*******************************************************************************
