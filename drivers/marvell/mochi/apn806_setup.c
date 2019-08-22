@@ -41,6 +41,14 @@
 						 SEC_MOCHI_IN_ACC_IHB1_EN | \
 						 SEC_MOCHI_IN_ACC_IHB2_EN | \
 						 SEC_MOCHI_IN_ACC_PIDI_EN)
+#define MOCHI_IN_ACC_LEVEL_FORCE_NONSEC		(0)
+#define MOCHI_IN_ACC_LEVEL_FORCE_SEC		(1)
+#define MOCHI_IN_ACC_LEVEL_LEAVE_ORIG		(2)
+#define MOCHI_IN_ACC_LEVEL_MASK_ALL		(3)
+#define SEC_MOCHI_IN_ACC_IHB0_LEVEL(l)		((l) << 1)
+#define SEC_MOCHI_IN_ACC_IHB1_LEVEL(l)		((l) << 4)
+#define SEC_MOCHI_IN_ACC_PIDI_LEVEL(l)		((l) << 10)
+
 
 /* SYSRST_OUTn Config definitions */
 #define MVEBU_SYSRST_OUT_CONFIG_REG		(MVEBU_MISC_SOC_BASE + 0x4)
@@ -67,19 +75,36 @@ enum axi_attr {
 
 static void apn_sec_masters_access_en(uint32_t enable)
 {
-	uint32_t reg;
-
 	/* Open/Close incoming access for all masters.
 	 * The access is disabled in trusted boot mode
 	 * Could only be done in EL3
 	 */
-	reg = mmio_read_32(SEC_MOCHI_IN_ACC_REG);
-	if (enable)
-		mmio_write_32(SEC_MOCHI_IN_ACC_REG, reg |
+	if (enable != 0) {
+		mmio_clrsetbits_32(SEC_MOCHI_IN_ACC_REG, 0x0U, /* no clear */
 			      SEC_IN_ACCESS_ENA_ALL_MASTERS);
-	else
-		mmio_write_32(SEC_MOCHI_IN_ACC_REG, reg &
-			      ~SEC_IN_ACCESS_ENA_ALL_MASTERS);
+#if LLC_SRAM
+		/* Do not change access security level
+		 * for PIDI masters
+		 */
+		mmio_clrsetbits_32(SEC_MOCHI_IN_ACC_REG,
+				   SEC_MOCHI_IN_ACC_PIDI_LEVEL(
+					  MOCHI_IN_ACC_LEVEL_MASK_ALL),
+				   SEC_MOCHI_IN_ACC_PIDI_LEVEL(
+					  MOCHI_IN_ACC_LEVEL_LEAVE_ORIG));
+#endif
+	} else {
+		mmio_clrsetbits_32(SEC_MOCHI_IN_ACC_REG,
+				   SEC_IN_ACCESS_ENA_ALL_MASTERS,
+				   0x0U /* no set */);
+#if LLC_SRAM
+		/* Return PIDI access level to the default */
+		mmio_clrsetbits_32(SEC_MOCHI_IN_ACC_REG,
+				   SEC_MOCHI_IN_ACC_PIDI_LEVEL(
+					  MOCHI_IN_ACC_LEVEL_MASK_ALL),
+				   SEC_MOCHI_IN_ACC_PIDI_LEVEL(
+					  MOCHI_IN_ACC_LEVEL_FORCE_NONSEC));
+#endif
+	}
 }
 
 static void setup_smmu(void)
