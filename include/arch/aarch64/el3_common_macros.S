@@ -116,10 +116,40 @@
 	 * ---------------------------------------------------------------------
 	 */
 	mov_imm	x0, ((MDCR_EL3_RESET_VAL | MDCR_SDD_BIT | \
-		      MDCR_SPD32(MDCR_SPD32_DISABLE) | MDCR_SCCD_BIT) \
-		    & ~(MDCR_TDOSA_BIT | MDCR_TDA_BIT | MDCR_TPM_BIT))
+		      MDCR_SPD32(MDCR_SPD32_DISABLE) | MDCR_SCCD_BIT) & \
+		    ~(MDCR_TDOSA_BIT | MDCR_TDA_BIT | MDCR_TPM_BIT))
 
 	msr	mdcr_el3, x0
+
+	/* ---------------------------------------------------------------------
+	 * Initialise PMCR_EL0 setting all fields rather than relying
+	 * on hw. Some fields are architecturally UNKNOWN on reset.
+	 *
+	 * PMCR_EL0.LP: Set to one so that event counter overflow, that
+	 *  is recorded in PMOVSCLR_EL0[0-30], occurs on the increment
+	 *  that changes PMEVCNTR<n>_EL0[63] from 1 to 0, when ARMv8.5-PMU
+	 *  is implemented. This bit is RES0 in versions of the architecture
+	 *  earlier than ARMv8.5, setting it to 1 doesn't have any effect
+	 *  on them.
+	 *
+	 * PMCR_EL0.LC: Set to one so that cycle counter overflow, that
+	 *  is recorded in PMOVSCLR_EL0[31], occurs on the increment
+	 *  that changes PMCCNTR_EL0[63] from 1 to 0.
+	 *
+	 * PMCR_EL0.DP: Set to one so that the cycle counter,
+	 *  PMCCNTR_EL0 does not count when event counting is prohibited.
+	 *
+	 * PMCR_EL0.X: Set to zero to disable export of events.
+	 *
+	 * PMCR_EL0.D: Set to zero so that, when enabled, PMCCNTR_EL0
+	 *  counts on every clock cycle.
+	 * ---------------------------------------------------------------------
+	 */
+	mov_imm	x0, ((PMCR_EL0_RESET_VAL | PMCR_EL0_LP_BIT | \
+		      PMCR_EL0_LC_BIT | PMCR_EL0_DP_BIT) & \
+		    ~(PMCR_EL0_X_BIT | PMCR_EL0_D_BIT))
+
+	msr	pmcr_el0, x0
 
 	/* ---------------------------------------------------------------------
 	 * Enable External Aborts and SError Interrupts now that the exception
