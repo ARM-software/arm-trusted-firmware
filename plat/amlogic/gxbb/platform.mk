@@ -8,6 +8,7 @@ include lib/xlat_tables_v2/xlat_tables.mk
 
 AML_PLAT		:=	plat/amlogic
 AML_PLAT_SOC		:=	${AML_PLAT}/${PLAT}
+AML_PLAT_COMMON		:=	${AML_PLAT}/common
 
 PLAT_INCLUDES		:=	-I${AML_PLAT_SOC}/include
 
@@ -23,7 +24,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/amlogic/console/aarch64/meson_console.S \
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				plat/common/plat_psci_common.c		\
-				${AML_PLAT_SOC}/aarch64/gxbb_helpers.S	\
+				${AML_PLAT_COMMON}/aarch64/aml_helpers.S	\
 				${AML_PLAT_SOC}/gxbb_bl31_setup.c	\
 				${AML_PLAT_SOC}/gxbb_efuse.c		\
 				${AML_PLAT_SOC}/gxbb_mhu.c		\
