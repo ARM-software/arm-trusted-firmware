@@ -6,35 +6,38 @@
 
 include lib/xlat_tables_v2/xlat_tables.mk
 
+AML_PLAT		:=	plat/amlogic
+AML_PLAT_SOC		:=	${AML_PLAT}/${PLAT}
+
 DOIMAGEPATH		?=	tools/amlogic
 DOIMAGETOOL		?=	${DOIMAGEPATH}/doimage
 
 PLAT_INCLUDES		:=	-Iinclude/drivers/amlogic/		\
-				-Iinclude/drivers/amlogic/gxl		\
-				-Iplat/amlogic/gxl/include
+				-Iinclude/drivers/amlogic/${PLAT}	\
+				-I${AML_PLAT_SOC}/include
 
-GXBB_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
+GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
 				drivers/arm/gic/v2/gicv2_helpers.c	\
 				plat/common/plat_gicv2.c
 
-PLAT_BL_COMMON_SOURCES	:=	drivers/amlogic/console/aarch64/meson_console.S \
-				plat/amlogic/gxl/gxl_common.c		\
-				plat/amlogic/gxl/gxl_topology.c		\
+PLAT_BL_COMMON_SOURCES	:=	drivers/amlogic/console/aarch64/meson_console.S	\
+				${AML_PLAT_SOC}/gxl_common.c		\
+				${AML_PLAT_SOC}/gxl_topology.c		\
 				${XLAT_TABLES_LIB_SRCS}
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				plat/common/plat_psci_common.c		\
-				plat/amlogic/gxl/aarch64/gxl_helpers.S	\
-				plat/amlogic/gxl/gxl_bl31_setup.c		\
-				plat/amlogic/gxl/gxl_efuse.c		\
-				plat/amlogic/gxl/gxl_mhu.c		\
-				plat/amlogic/gxl/gxl_pm.c			\
-				plat/amlogic/gxl/gxl_scpi.c		\
-				plat/amlogic/gxl/gxl_sip_svc.c		\
-				plat/amlogic/gxl/gxl_thermal.c		\
-				drivers/amlogic/gxl/crypto/sha_dma.c	\
-				${GXBB_GIC_SOURCES}
+				${AML_PLAT_SOC}/aarch64/gxl_helpers.S	\
+				${AML_PLAT_SOC}/gxl_bl31_setup.c	\
+				${AML_PLAT_SOC}/gxl_efuse.c		\
+				${AML_PLAT_SOC}/gxl_mhu.c		\
+				${AML_PLAT_SOC}/gxl_pm.c		\
+				${AML_PLAT_SOC}/gxl_scpi.c		\
+				${AML_PLAT_SOC}/gxl_sip_svc.c		\
+				${AML_PLAT_SOC}/gxl_thermal.c		\
+				drivers/amlogic/${PLAT}/crypto/sha_dma.c	\
+				${GIC_SOURCES}
 
 # Tune compiler for Cortex-A53
 ifeq ($(notdir $(CC)),armclang)
@@ -66,11 +69,11 @@ USE_COHERENT_MEM		:= 1
 # -------------------
 
 ifneq (${RESET_TO_BL31}, 0)
-  $(error Error: gxl needs RESET_TO_BL31=0)
+  $(error Error: ${PLAT} needs RESET_TO_BL31=0)
 endif
 
 ifeq (${ARCH},aarch32)
-  $(error Error: AArch32 not supported on gxl)
+  $(error Error: AArch32 not supported on ${PLAT})
 endif
 
 all: ${BUILD_PLAT}/bl31.img
