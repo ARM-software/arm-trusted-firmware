@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #include <asm_macros.S>
 #include <assert_macros.S>
 #include <console_macros.S>
-#include <drivers/meson/meson_console.h>
+#include <drivers/amlogic/meson_console.h>
 
 	.globl console_meson_register
 	.globl console_meson_init

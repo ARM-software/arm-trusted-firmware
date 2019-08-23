@@ -37,16 +37,16 @@ Amlogic Meson S905 (GXBB) platform port
 :M: Andre Przywara <andre.przywara@arm.com>
 :G: `Andre-ARM`_
 :F: docs/plat/meson-gxbb.rst
-:F: drivers/meson/
-:F: plat/meson/gxbb/
+:F: drivers/amlogic/
+:F: plat/amlogic/gxbb/
 
 Amlogic Meson S905x (GXL) platform port
 ---------------------------------------
 :M: Remi Pommarel <repk@triplefau.lt>
 :G: `remi-triplefault`_
 :F: docs/plat/meson-gxl.rst
-:F: drivers/meson/gxl
-:F: plat/meson/gxl/
+:F: drivers/amlogic/gxl
+:F: plat/amlogic/gxl/
 
 Armv7-A architecture port
 -------------------------

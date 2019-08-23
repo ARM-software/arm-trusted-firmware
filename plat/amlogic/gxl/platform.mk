@@ -1,39 +1,39 @@
 #
-# Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 include lib/xlat_tables_v2/xlat_tables.mk
 
-DOIMAGEPATH		?=	tools/meson
+DOIMAGEPATH		?=	tools/amlogic
 DOIMAGETOOL		?=	${DOIMAGEPATH}/doimage
 
-PLAT_INCLUDES		:=	-Iinclude/drivers/meson/		\
-				-Iinclude/drivers/meson/gxl		\
-				-Iplat/meson/gxl/include
+PLAT_INCLUDES		:=	-Iinclude/drivers/amlogic/		\
+				-Iinclude/drivers/amlogic/gxl		\
+				-Iplat/amlogic/gxl/include
 
 GXBB_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
 				drivers/arm/gic/v2/gicv2_helpers.c	\
 				plat/common/plat_gicv2.c
 
-PLAT_BL_COMMON_SOURCES	:=	drivers/meson/console/aarch64/meson_console.S \
-				plat/meson/gxl/gxl_common.c		\
-				plat/meson/gxl/gxl_topology.c		\
+PLAT_BL_COMMON_SOURCES	:=	drivers/amlogic/console/aarch64/meson_console.S \
+				plat/amlogic/gxl/gxl_common.c		\
+				plat/amlogic/gxl/gxl_topology.c		\
 				${XLAT_TABLES_LIB_SRCS}
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				plat/common/plat_psci_common.c		\
-				plat/meson/gxl/aarch64/gxl_helpers.S	\
-				plat/meson/gxl/gxl_bl31_setup.c		\
-				plat/meson/gxl/gxl_efuse.c		\
-				plat/meson/gxl/gxl_mhu.c		\
-				plat/meson/gxl/gxl_pm.c			\
-				plat/meson/gxl/gxl_scpi.c		\
-				plat/meson/gxl/gxl_sip_svc.c		\
-				plat/meson/gxl/gxl_thermal.c		\
-				drivers/meson/gxl/crypto/sha_dma.c	\
+				plat/amlogic/gxl/aarch64/gxl_helpers.S	\
+				plat/amlogic/gxl/gxl_bl31_setup.c		\
+				plat/amlogic/gxl/gxl_efuse.c		\
+				plat/amlogic/gxl/gxl_mhu.c		\
+				plat/amlogic/gxl/gxl_pm.c			\
+				plat/amlogic/gxl/gxl_scpi.c		\
+				plat/amlogic/gxl/gxl_sip_svc.c		\
+				plat/amlogic/gxl/gxl_thermal.c		\
+				drivers/amlogic/gxl/crypto/sha_dma.c	\
 				${GXBB_GIC_SOURCES}
 
 # Tune compiler for Cortex-A53
