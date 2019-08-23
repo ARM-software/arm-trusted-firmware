@@ -25,6 +25,7 @@
 #define MCUCFG_BASE        0x0c530000
 #define CFG_SF_CTRL        0x0c510014
 #define CFG_SF_INI         0x0c510010
+#define EMI_BASE           (IO_PHYS + 0x219000)
 #define EMI_MPU_BASE       (IO_PHYS + 0x226000)
 #define TRNG_base          (IO_PHYS + 0x20f000)
 #define MT_GIC_BASE        0x0c000000
