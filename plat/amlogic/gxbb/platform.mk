@@ -32,7 +32,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				${AML_PLAT_COMMON}/aml_mhu.c		\
 				${AML_PLAT_SOC}/gxbb_pm.c		\
 				${AML_PLAT_COMMON}/aml_scpi.c		\
-				${AML_PLAT_SOC}/gxbb_sip_svc.c		\
+				${AML_PLAT_COMMON}/aml_sip_svc.c	\
 				${AML_PLAT_COMMON}/aml_thermal.c	\
 				${GIC_SOURCES}
 

@@ -5,9 +5,9 @@
  */
 
 #include <common/debug.h>
+#include <common/runtime_svc.h>
 #include <lib/mmio.h>
 #include <platform_def.h>
-#include <common/runtime_svc.h>
 #include <stdint.h>
 
 #include "aml_private.h"
