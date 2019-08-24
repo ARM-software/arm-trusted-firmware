@@ -15,7 +15,7 @@
 #include <platform_def.h>
 #include <lib/psci/psci.h>
 
-#include "gxl_private.h"
+#include "aml_private.h"
 
 #define SCPI_POWER_ON		0
 #define SCPI_POWER_RETENTION	1

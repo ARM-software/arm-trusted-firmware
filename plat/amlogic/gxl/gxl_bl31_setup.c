@@ -13,7 +13,7 @@
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_mmu_helpers.h>
 
-#include "gxl_private.h"
+#include "aml_private.h"
 
 /*
  * Placeholder variables for copying the arguments that have been passed to

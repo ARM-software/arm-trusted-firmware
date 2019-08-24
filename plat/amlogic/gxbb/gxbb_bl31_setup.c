@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,7 +14,7 @@
 #include <lib/xlat_tables/xlat_mmu_helpers.h>
 #include <plat/common/platform.h>
 
-#include "gxbb_private.h"
+#include "aml_private.h"
 
 /*
  * Placeholder variables for copying the arguments that have been passed to

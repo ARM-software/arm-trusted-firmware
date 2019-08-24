@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <stdint.h>
 
-#include "gxbb_private.h"
+#include "aml_private.h"
 
 static int32_t modules_initialized = -1;
 
