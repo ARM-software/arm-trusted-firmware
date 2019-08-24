@@ -21,7 +21,7 @@ GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/amlogic/console/aarch64/meson_console.S \
 				${AML_PLAT_SOC}/gxbb_common.c		\
-				${AML_PLAT_SOC}/gxbb_topology.c		\
+				${AML_PLAT_COMMON}/aml_topology.c	\
 				${XLAT_TABLES_LIB_SRCS}
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
