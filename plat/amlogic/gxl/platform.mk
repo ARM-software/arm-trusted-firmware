@@ -36,7 +36,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				${AML_PLAT_SOC}/gxl_pm.c		\
 				${AML_PLAT_COMMON}/aml_scpi.c		\
 				${AML_PLAT_SOC}/gxl_sip_svc.c		\
-				${AML_PLAT_SOC}/gxl_thermal.c		\
+				${AML_PLAT_COMMON}/aml_thermal.c	\
 				drivers/amlogic/crypto/sha_dma.c	\
 				${GIC_SOURCES}
 
