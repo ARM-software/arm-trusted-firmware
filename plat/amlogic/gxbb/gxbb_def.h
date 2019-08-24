@@ -58,8 +58,8 @@
 /*******************************************************************************
  * GIC-400 and interrupt handling related constants
  ******************************************************************************/
-#define GXBB_GICD_BASE				UL(0xC4301000)
-#define GXBB_GICC_BASE				UL(0xC4302000)
+#define AML_GICD_BASE				UL(0xC4301000)
+#define AML_GICC_BASE				UL(0xC4302000)
 
 #define IRQ_SEC_PHY_TIMER			29
 

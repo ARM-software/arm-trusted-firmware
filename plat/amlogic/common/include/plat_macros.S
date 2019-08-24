@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,7 +33,7 @@ spacer:
 
 	/* GICC registers */
 
-	mov_imm	x17, GXBB_GICC_BASE
+	mov_imm	x17, AML_GICC_BASE
 
 	adr	x6, gicc_regs
 	ldr	w8, [x17, #GICC_HPPIR]
@@ -43,7 +43,7 @@ spacer:
 
 	/* GICD registers */
 
-	mov_imm	x16, GXBB_GICD_BASE
+	mov_imm	x16, AML_GICD_BASE
 
 	add	x7, x16, #GICD_ISPENDR
 	adr	x4, gicd_pend_reg

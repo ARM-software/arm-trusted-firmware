@@ -141,8 +141,8 @@ static const interrupt_prop_t gxbb_interrupt_props[] = {
 };
 
 static const gicv2_driver_data_t gxbb_gic_data = {
-	.gicd_base = GXBB_GICD_BASE,
-	.gicc_base = GXBB_GICC_BASE,
+	.gicd_base = AML_GICD_BASE,
+	.gicc_base = AML_GICC_BASE,
 	.interrupt_props = gxbb_interrupt_props,
 	.interrupt_props_num = ARRAY_SIZE(gxbb_interrupt_props),
 };
