@@ -10,30 +10,29 @@ AML_PLAT		:=	plat/amlogic
 AML_PLAT_SOC		:=	${AML_PLAT}/${PLAT}
 AML_PLAT_COMMON		:=	${AML_PLAT}/common
 
-PLAT_INCLUDES		:=	-Iinclude/drivers/amlogic/		\
-				-I${AML_PLAT_SOC}/include		\
+PLAT_INCLUDES		:=	-Iinclude/drivers/amlogic/			\
+				-I${AML_PLAT_SOC}/include			\
 				-I${AML_PLAT_COMMON}/include
 
-GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
-				drivers/arm/gic/v2/gicv2_main.c		\
-				drivers/arm/gic/v2/gicv2_helpers.c	\
+GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c		\
+				drivers/arm/gic/v2/gicv2_main.c			\
+				drivers/arm/gic/v2/gicv2_helpers.c		\
 				plat/common/plat_gicv2.c
 
-PLAT_BL_COMMON_SOURCES	:=	drivers/amlogic/console/aarch64/meson_console.S \
-				${AML_PLAT_SOC}/gxbb_common.c		\
-				${AML_PLAT_COMMON}/aml_topology.c	\
-				${XLAT_TABLES_LIB_SRCS}
-
-BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
-				plat/common/plat_psci_common.c		\
+BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S			\
+				plat/common/plat_psci_common.c			\
+				drivers/amlogic/console/aarch64/meson_console.S	\
+				${AML_PLAT_SOC}/gxbb_bl31_setup.c		\
+				${AML_PLAT_SOC}/gxbb_pm.c			\
+				${AML_PLAT_SOC}/gxbb_common.c			\
 				${AML_PLAT_COMMON}/aarch64/aml_helpers.S	\
-				${AML_PLAT_SOC}/gxbb_bl31_setup.c	\
-				${AML_PLAT_COMMON}/aml_efuse.c		\
-				${AML_PLAT_COMMON}/aml_mhu.c		\
-				${AML_PLAT_SOC}/gxbb_pm.c		\
-				${AML_PLAT_COMMON}/aml_scpi.c		\
-				${AML_PLAT_COMMON}/aml_sip_svc.c	\
-				${AML_PLAT_COMMON}/aml_thermal.c	\
+				${AML_PLAT_COMMON}/aml_efuse.c			\
+				${AML_PLAT_COMMON}/aml_mhu.c			\
+				${AML_PLAT_COMMON}/aml_scpi.c			\
+				${AML_PLAT_COMMON}/aml_sip_svc.c		\
+				${AML_PLAT_COMMON}/aml_thermal.c		\
+				${AML_PLAT_COMMON}/aml_topology.c		\
+				${XLAT_TABLES_LIB_SRCS}				\
 				${GIC_SOURCES}
 
 # Tune compiler for Cortex-A53
