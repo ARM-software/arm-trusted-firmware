@@ -10,7 +10,9 @@ AML_PLAT		:=	plat/amlogic
 AML_PLAT_SOC		:=	${AML_PLAT}/${PLAT}
 AML_PLAT_COMMON		:=	${AML_PLAT}/common
 
-PLAT_INCLUDES		:=	-I${AML_PLAT_SOC}/include
+PLAT_INCLUDES		:=	-Iinclude/drivers/amlogic/		\
+				-I${AML_PLAT_SOC}/include		\
+				-I${AML_PLAT_COMMON}/include
 
 GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
@@ -29,7 +31,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				${AML_PLAT_SOC}/gxbb_efuse.c		\
 				${AML_PLAT_SOC}/gxbb_mhu.c		\
 				${AML_PLAT_SOC}/gxbb_pm.c		\
-				${AML_PLAT_SOC}/gxbb_scpi.c		\
+				${AML_PLAT_COMMON}/aml_scpi.c		\
 				${AML_PLAT_SOC}/gxbb_sip_svc.c		\
 				${AML_PLAT_SOC}/gxbb_thermal.c		\
 				${GIC_SOURCES}

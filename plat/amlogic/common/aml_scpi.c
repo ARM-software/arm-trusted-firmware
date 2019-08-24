@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
+#include <crypto/sha_dma.h>
 #include <lib/mmio.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 #include <string.h>
-#include <crypto/sha_dma.h>
 
-#include "gxl_private.h"
+#include "aml_private.h"
 
 #define SIZE_SHIFT	20
 #define SIZE_MASK	0x1FF
