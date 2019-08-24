@@ -14,7 +14,6 @@ DOIMAGEPATH		?=	tools/amlogic
 DOIMAGETOOL		?=	${DOIMAGEPATH}/doimage
 
 PLAT_INCLUDES		:=	-Iinclude/drivers/amlogic/		\
-				-Iinclude/drivers/amlogic/${PLAT}	\
 				-I${AML_PLAT_SOC}/include
 
 GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
@@ -37,7 +36,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				${AML_PLAT_SOC}/gxl_scpi.c		\
 				${AML_PLAT_SOC}/gxl_sip_svc.c		\
 				${AML_PLAT_SOC}/gxl_thermal.c		\
-				drivers/amlogic/${PLAT}/crypto/sha_dma.c	\
+				drivers/amlogic/crypto/sha_dma.c	\
 				${GIC_SOURCES}
 
 # Tune compiler for Cortex-A53

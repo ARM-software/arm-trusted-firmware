@@ -4,10 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <assert.h>
 #include <arch_helpers.h>
-#include <lib/mmio.h>
+#include <assert.h>
 #include <crypto/sha_dma.h>
+#include <lib/mmio.h>
 
 #define AML_SHA_DMA_BASE 0xc883e000
 
