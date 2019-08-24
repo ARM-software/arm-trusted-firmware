@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -107,9 +107,9 @@ static console_meson_t gxbb_console;
 
 void gxbb_console_init(void)
 {
-	int rc = console_meson_register(GXBB_UART0_AO_BASE,
-					GXBB_UART0_AO_CLK_IN_HZ,
-					GXBB_UART_BAUDRATE,
+	int rc = console_meson_register(AML_UART0_AO_BASE,
+					AML_UART0_AO_CLK_IN_HZ,
+					AML_UART_BAUDRATE,
 					&gxbb_console);
 	if (rc == 0) {
 		/*

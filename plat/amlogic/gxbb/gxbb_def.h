@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -75,9 +75,9 @@
 /*******************************************************************************
  * UART definitions
  ******************************************************************************/
-#define GXBB_UART0_AO_BASE			UL(0xC81004C0)
-#define GXBB_UART0_AO_CLK_IN_HZ			GXBB_OSC24M_CLK_IN_HZ
-#define GXBB_UART_BAUDRATE			U(115200)
+#define AML_UART0_AO_BASE			UL(0xC81004C0)
+#define AML_UART0_AO_CLK_IN_HZ			GXBB_OSC24M_CLK_IN_HZ
+#define AML_UART_BAUDRATE			U(115200)
 
 /*******************************************************************************
  * Memory-mapped I/O Registers

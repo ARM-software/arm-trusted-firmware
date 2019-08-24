@@ -49,5 +49,5 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 	if (cpu_id >= PLATFORM_MAX_CPUS_PER_CLUSTER)
 		return -1;
 
-	return plat_gxbb_calc_core_pos(mpidr);
+	return plat_calc_core_pos(mpidr);
 }

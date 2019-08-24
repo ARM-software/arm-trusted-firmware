@@ -11,7 +11,7 @@
 #include <stdint.h>
 
 /* Utility functions */
-unsigned int plat_gxbb_calc_core_pos(u_register_t mpidr);
+unsigned int plat_calc_core_pos(u_register_t mpidr);
 void gxbb_console_init(void);
 void gxbb_setup_page_tables(void);
 

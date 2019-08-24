@@ -31,7 +31,7 @@ static volatile uint32_t gxbb_cpu0_go;
 
 static void gxbb_program_mailbox(u_register_t mpidr, uint64_t value)
 {
-	unsigned int core = plat_gxbb_calc_core_pos(mpidr);
+	unsigned int core = plat_calc_core_pos(mpidr);
 	uintptr_t cpu_mailbox_addr = GXBB_PSCI_MAILBOX_BASE + (core << 4);
 
 	mmio_write_64(cpu_mailbox_addr, value);
@@ -86,10 +86,10 @@ static void __dead2 gxbb_system_off(void)
 
 static int32_t gxbb_pwr_domain_on(u_register_t mpidr)
 {
-	unsigned int core = plat_gxbb_calc_core_pos(mpidr);
+	unsigned int core = plat_calc_core_pos(mpidr);
 
 	/* CPU0 can't be turned OFF, emulate it with a WFE loop */
-	if (core == GXBB_PRIMARY_CPU) {
+	if (core == AML_PRIMARY_CPU) {
 		VERBOSE("BL31: Releasing CPU0 from wait loop...\n");
 
 		gxbb_cpu0_go = 1;
@@ -113,12 +113,12 @@ static int32_t gxbb_pwr_domain_on(u_register_t mpidr)
 
 static void gxbb_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
-	unsigned int core = plat_gxbb_calc_core_pos(read_mpidr_el1());
+	unsigned int core = plat_calc_core_pos(read_mpidr_el1());
 
 	assert(target_state->pwr_domain_state[MPIDR_AFFLVL0] ==
 					PLAT_LOCAL_STATE_OFF);
 
-	if (core == GXBB_PRIMARY_CPU) {
+	if (core == AML_PRIMARY_CPU) {
 		gxbb_cpu0_go = 0;
 		flush_dcache_range((uintptr_t)&gxbb_cpu0_go, sizeof(gxbb_cpu0_go));
 		dsb();
@@ -132,7 +132,7 @@ static void gxbb_pwr_domain_on_finish(const psci_power_state_t *target_state)
 static void gxbb_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	u_register_t mpidr = read_mpidr_el1();
-	unsigned int core = plat_gxbb_calc_core_pos(mpidr);
+	unsigned int core = plat_calc_core_pos(mpidr);
 	uintptr_t addr = GXBB_PSCI_MAILBOX_BASE + 8 + (core << 4);
 
 	mmio_write_32(addr, 0xFFFFFFFF);
@@ -141,7 +141,7 @@ static void gxbb_pwr_domain_off(const psci_power_state_t *target_state)
 	gicv2_cpuif_disable();
 
 	/* CPU0 can't be turned OFF, emulate it with a WFE loop */
-	if (core == GXBB_PRIMARY_CPU)
+	if (core == AML_PRIMARY_CPU)
 		return;
 
 	scpi_set_css_power_state(mpidr,
@@ -151,10 +151,10 @@ static void gxbb_pwr_domain_off(const psci_power_state_t *target_state)
 static void __dead2 gxbb_pwr_domain_pwr_down_wfi(const psci_power_state_t
 						 *target_state)
 {
-	unsigned int core = plat_gxbb_calc_core_pos(read_mpidr_el1());
+	unsigned int core = plat_calc_core_pos(read_mpidr_el1());
 
 	/* CPU0 can't be turned OFF, emulate it with a WFE loop */
-	if (core == GXBB_PRIMARY_CPU) {
+	if (core == AML_PRIMARY_CPU) {
 		VERBOSE("BL31: CPU0 entering wait loop...\n");
 
 		while (gxbb_cpu0_go == 0)

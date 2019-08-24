@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,7 +25,7 @@
 #define PLATFORM_CLUSTER0_CORE_COUNT	PLATFORM_MAX_CPUS_PER_CLUSTER
 #define PLATFORM_CORE_COUNT		PLATFORM_CLUSTER0_CORE_COUNT
 
-#define GXBB_PRIMARY_CPU		U(0)
+#define AML_PRIMARY_CPU			U(0)
 
 #define PLAT_MAX_PWR_LVL		MPIDR_AFFLVL1
 #define PLAT_NUM_PWR_DOMAINS		(PLATFORM_CLUSTER_COUNT + \
