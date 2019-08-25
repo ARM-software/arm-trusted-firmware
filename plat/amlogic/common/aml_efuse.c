@@ -11,7 +11,7 @@
 #define EFUSE_BASE	0x140
 #define EFUSE_SIZE	0xC0
 
-uint64_t gxbb_efuse_read(void *dst, uint32_t offset, uint32_t size)
+uint64_t aml_efuse_read(void *dst, uint32_t offset, uint32_t size)
 {
 	if ((uint64_t)(offset + size) > (uint64_t)EFUSE_SIZE)
 		return 0;
@@ -19,7 +19,7 @@ uint64_t gxbb_efuse_read(void *dst, uint32_t offset, uint32_t size)
 	return scpi_efuse_read(dst, offset + EFUSE_BASE, size);
 }
 
-uint64_t gxbb_efuse_user_max(void)
+uint64_t aml_efuse_user_max(void)
 {
 	return EFUSE_SIZE;
 }

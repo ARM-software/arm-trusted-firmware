@@ -32,12 +32,12 @@ static uintptr_t gxbb_sip_handler(uint32_t smc_fid,
 	case GXBB_SM_EFUSE_READ:
 	{
 		void *dst = (void *)GXBB_SHARE_MEM_OUTPUT_BASE;
-		uint64_t ret = gxbb_efuse_read(dst, (uint32_t)x1, x2);
+		uint64_t ret = aml_efuse_read(dst, (uint32_t)x1, x2);
 
 		SMC_RET1(handle, ret);
 	}
 	case GXBB_SM_EFUSE_USER_MAX:
-		SMC_RET1(handle,  gxbb_efuse_user_max());
+		SMC_RET1(handle,  aml_efuse_user_max());
 
 	case GXBB_SM_JTAG_ON:
 		scpi_jtag_set_state(GXBB_JTAG_STATE_ON, x1);

@@ -34,7 +34,7 @@ void scpi_upload_scp_fw(uintptr_t addr, size_t size, int send);
 
 /* Peripherals */
 void gxbb_thermal_unknown(void);
-uint64_t gxbb_efuse_read(void *dst, uint32_t offset, uint32_t size);
-uint64_t gxbb_efuse_user_max(void);
+uint64_t aml_efuse_read(void *dst, uint32_t offset, uint32_t size);
+uint64_t aml_efuse_user_max(void);
 
 #endif /* GXBB_PRIVATE_H */
