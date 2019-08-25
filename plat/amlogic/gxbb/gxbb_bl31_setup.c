@@ -67,7 +67,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	struct gxbb_bl31_param *from_bl2;
 
 	/* Initialize the console to provide early debug support */
-	gxbb_console_init();
+	aml_console_init();
 
 	/*
 	 * In debug builds, we pass a special value in 'arg1' to verify platform
@@ -97,7 +97,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void bl31_plat_arch_setup(void)
 {
-	gxbb_setup_page_tables();
+	aml_setup_page_tables();
 
 	enable_mmu_el3(0);
 }

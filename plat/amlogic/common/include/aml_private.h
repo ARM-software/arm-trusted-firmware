@@ -12,8 +12,8 @@
 
 /* Utility functions */
 unsigned int plat_calc_core_pos(u_register_t mpidr);
-void gxbb_console_init(void);
-void gxbb_setup_page_tables(void);
+void aml_console_init(void);
+void aml_setup_page_tables(void);
 
 /* MHU functions */
 void mhu_secure_message_start(void);

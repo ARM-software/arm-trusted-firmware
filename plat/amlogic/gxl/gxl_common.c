@@ -79,7 +79,7 @@ static const mmap_region_t gxbb_mmap[] = {
 /*******************************************************************************
  * Function that sets up the translation tables.
  ******************************************************************************/
-void gxbb_setup_page_tables(void)
+void aml_setup_page_tables(void)
 {
 #if IMAGE_BL31
 	const mmap_region_t gxbb_bl_mmap[] = {
@@ -105,7 +105,7 @@ void gxbb_setup_page_tables(void)
  ******************************************************************************/
 static console_meson_t gxbb_console;
 
-void gxbb_console_init(void)
+void aml_console_init(void)
 {
 	int rc = console_meson_register(AML_UART0_AO_BASE,
 					AML_UART0_AO_CLK_IN_HZ,
