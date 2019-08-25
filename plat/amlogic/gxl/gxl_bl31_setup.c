@@ -158,5 +158,5 @@ void bl31_platform_setup(void)
 
 	gxl_scp_boot();
 
-	gxbb_thermal_unknown();
+	aml_thermal_unknown();
 }

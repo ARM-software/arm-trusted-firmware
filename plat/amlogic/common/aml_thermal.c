@@ -13,7 +13,7 @@ static int32_t modules_initialized = -1;
 /*******************************************************************************
  * Unknown commands related to something thermal-related
  ******************************************************************************/
-void gxbb_thermal_unknown(void)
+void aml_thermal_unknown(void)
 {
 	uint16_t ret;
 
