@@ -10,6 +10,7 @@
 #include <memctrl_v2.h>
 #include <tegra_mc_def.h>
 #include <tegra_platform.h>
+#include <tegra_private.h>
 
 /*******************************************************************************
  * Array to hold MC context for Tegra194
@@ -23,7 +24,7 @@ static __attribute__((aligned(16))) mc_regs_t tegra194_mc_context[] = {
 /*******************************************************************************
  * Handler to return the pointer to the MC's context struct
  ******************************************************************************/
-static mc_regs_t *tegra194_get_mc_system_suspend_ctx(void)
+mc_regs_t *plat_memctrl_get_sys_suspend_ctx(void)
 {
 	/* index of _END_OF_TABLE_ */
 	tegra194_mc_context[0].val = (uint32_t)ARRAY_SIZE(tegra194_mc_context) - 1U;
@@ -32,18 +33,19 @@ static mc_regs_t *tegra194_get_mc_system_suspend_ctx(void)
 }
 
 /*******************************************************************************
- * Struct to hold the memory controller settings
+ * Handler to restore platform specific settings to the memory controller
  ******************************************************************************/
-static tegra_mc_settings_t tegra194_mc_settings = {
-	.get_mc_system_suspend_ctx = tegra194_get_mc_system_suspend_ctx
-};
+void plat_memctrl_restore(void)
+{
+	UNUSED_FUNC_NOP(); /* do nothing */
+}
 
 /*******************************************************************************
- * Handler to return the pointer to the memory controller's settings struct
+ * Handler to program platform specific settings to the memory controller
  ******************************************************************************/
-tegra_mc_settings_t *tegra_get_mc_settings(void)
+void plat_memctrl_setup(void)
 {
-	return &tegra194_mc_settings;
+	UNUSED_FUNC_NOP(); /* do nothing */
 }
 
 /*******************************************************************************
