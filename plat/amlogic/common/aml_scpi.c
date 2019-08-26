@@ -89,9 +89,9 @@ uint32_t scpi_sys_power_state(uint64_t system_state)
 
 void scpi_jtag_set_state(uint32_t state, uint8_t select)
 {
-	assert(state <= GXBB_JTAG_STATE_OFF);
+	assert(state <= AML_JTAG_STATE_OFF);
 
-	if (select > GXBB_JTAG_A53_EE) {
+	if (select > AML_JTAG_A53_EE) {
 		WARN("BL31: Invalid JTAG select (0x%x).\n", select);
 		return;
 	}

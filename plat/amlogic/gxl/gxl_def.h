@@ -28,8 +28,8 @@
 #define BL31_LIMIT				(BL31_BASE + BL31_SIZE)
 
 /* Shared memory used for SMC services */
-#define GXBB_SHARE_MEM_INPUT_BASE		UL(0x050FE000)
-#define GXBB_SHARE_MEM_OUTPUT_BASE		UL(0x050FF000)
+#define AML_SHARE_MEM_INPUT_BASE		UL(0x050FE000)
+#define AML_SHARE_MEM_OUTPUT_BASE		UL(0x050FF000)
 
 #define GXBB_SEC_DEVICE0_BASE			UL(0xC0000000)
 #define GXBB_SEC_DEVICE0_SIZE			UL(0x09000000)
@@ -108,21 +108,21 @@
 /*******************************************************************************
  * System Monitor Call IDs and arguments
  ******************************************************************************/
-#define GXBB_SM_GET_SHARE_MEM_INPUT_BASE	U(0x82000020)
-#define GXBB_SM_GET_SHARE_MEM_OUTPUT_BASE	U(0x82000021)
+#define AML_SM_GET_SHARE_MEM_INPUT_BASE		U(0x82000020)
+#define AML_SM_GET_SHARE_MEM_OUTPUT_BASE	U(0x82000021)
 
-#define GXBB_SM_EFUSE_READ			U(0x82000030)
-#define GXBB_SM_EFUSE_USER_MAX			U(0x82000033)
+#define AML_SM_EFUSE_READ			U(0x82000030)
+#define AML_SM_EFUSE_USER_MAX			U(0x82000033)
 
-#define GXBB_SM_JTAG_ON				U(0x82000040)
-#define GXBB_SM_JTAG_OFF			U(0x82000041)
+#define AML_SM_JTAG_ON				U(0x82000040)
+#define AML_SM_JTAG_OFF				U(0x82000041)
 
-#define GXBB_JTAG_STATE_ON			U(0)
-#define GXBB_JTAG_STATE_OFF			U(1)
+#define AML_JTAG_STATE_ON			U(0)
+#define AML_JTAG_STATE_OFF			U(1)
 
-#define GXBB_JTAG_M3_AO				U(0)
-#define GXBB_JTAG_M3_EE				U(1)
-#define GXBB_JTAG_A53_AO			U(2)
-#define GXBB_JTAG_A53_EE			U(3)
+#define AML_JTAG_M3_AO				U(0)
+#define AML_JTAG_M3_EE				U(1)
+#define AML_JTAG_A53_AO				U(2)
+#define AML_JTAG_A53_EE				U(3)
 
 #endif /* GXBB_DEF_H */

@@ -15,7 +15,7 @@
 /*******************************************************************************
  * This function is responsible for handling all SiP calls
  ******************************************************************************/
-static uintptr_t gxbb_sip_handler(uint32_t smc_fid,
+static uintptr_t aml_sip_handler(uint32_t smc_fid,
 				  u_register_t x1, u_register_t x2,
 				  u_register_t x3, u_register_t x4,
 				  void *cookie, void *handle,
@@ -23,28 +23,28 @@ static uintptr_t gxbb_sip_handler(uint32_t smc_fid,
 {
 	switch (smc_fid) {
 
-	case GXBB_SM_GET_SHARE_MEM_INPUT_BASE:
-		SMC_RET1(handle, GXBB_SHARE_MEM_INPUT_BASE);
+	case AML_SM_GET_SHARE_MEM_INPUT_BASE:
+		SMC_RET1(handle, AML_SHARE_MEM_INPUT_BASE);
 
-	case GXBB_SM_GET_SHARE_MEM_OUTPUT_BASE:
-		SMC_RET1(handle, GXBB_SHARE_MEM_OUTPUT_BASE);
+	case AML_SM_GET_SHARE_MEM_OUTPUT_BASE:
+		SMC_RET1(handle, AML_SHARE_MEM_OUTPUT_BASE);
 
-	case GXBB_SM_EFUSE_READ:
+	case AML_SM_EFUSE_READ:
 	{
-		void *dst = (void *)GXBB_SHARE_MEM_OUTPUT_BASE;
+		void *dst = (void *)AML_SHARE_MEM_OUTPUT_BASE;
 		uint64_t ret = aml_efuse_read(dst, (uint32_t)x1, x2);
 
 		SMC_RET1(handle, ret);
 	}
-	case GXBB_SM_EFUSE_USER_MAX:
+	case AML_SM_EFUSE_USER_MAX:
 		SMC_RET1(handle,  aml_efuse_user_max());
 
-	case GXBB_SM_JTAG_ON:
-		scpi_jtag_set_state(GXBB_JTAG_STATE_ON, x1);
+	case AML_SM_JTAG_ON:
+		scpi_jtag_set_state(AML_JTAG_STATE_ON, x1);
 		SMC_RET1(handle, 0);
 
-	case GXBB_SM_JTAG_OFF:
-		scpi_jtag_set_state(GXBB_JTAG_STATE_OFF, x1);
+	case AML_SM_JTAG_OFF:
+		scpi_jtag_set_state(AML_JTAG_STATE_OFF, x1);
 		SMC_RET1(handle, 0);
 
 	default:
@@ -56,11 +56,11 @@ static uintptr_t gxbb_sip_handler(uint32_t smc_fid,
 }
 
 DECLARE_RT_SVC(
-	gxbb_sip_handler,
+	aml_sip_handler,
 
 	OEN_SIP_START,
 	OEN_SIP_END,
 	SMC_TYPE_FAST,
 	NULL,
-	gxbb_sip_handler
+	aml_sip_handler
 );
