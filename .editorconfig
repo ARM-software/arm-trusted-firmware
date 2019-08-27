@@ -11,6 +11,8 @@
 # [CONT]        contributing.rst
 # [LCS]         Linux Coding Style
 #               (https://www.kernel.org/doc/html/v4.10/process/coding-style.html)
+# [PEP8]        Style Guide for Python Code
+#		(https://www.python.org/dev/peps/pep-0008)
 
 
 root = true
@@ -60,3 +62,14 @@ max_line_length = 180
 # 180 only selected to prevent changes to existing text.
 tab_width = 4
 
+
+# Adjustment for python which prefers a different style
+[*.py]
+# [PEP8] Indentation
+#	"Use 4 spaces per indentation level."
+indent_size = 4
+indent_style = space
+
+# [PEP8] Maximum Line Length
+#	"Limit all lines to a maximum of 79 characters."
+max_line_length = 79
