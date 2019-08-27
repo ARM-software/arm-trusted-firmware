@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -217,49 +217,6 @@ func platform_mem_init
 	mov	x0, #0
 	ret
 endfunc platform_mem_init
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_init(void)
-	 * Function to initialize the crash console
-	 * without a C Runtime to print crash report.
-	 * Clobber list : x0 - x4
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_init
-	mov	x0, #0
-	adr	x1, tegra_console_base
-	ldr	x1, [x1]
-	cbz	x1, 1f
-	mov	w0, #1
-1:	ret
-endfunc plat_crash_console_init
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_putc(void)
-	 * Function to print a character on the crash
-	 * console without a C Runtime.
-	 * Clobber list : x1, x2
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_putc
-	adr	x1, tegra_console_base
-	ldr	x1, [x1]
-	b	console_core_putc
-endfunc plat_crash_console_putc
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_flush()
-	 * Function to force a write of all buffered
-	 * data that hasn't been output.
-	 * Out : return -1 on error else return 0.
-	 * Clobber list : x0, x1
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_flush
-	adr	x0, tegra_console_base
-	ldr	x0, [x0]
-	b	console_core_flush
-endfunc plat_crash_console_flush
 
 	/* ---------------------------------------------------
 	 * Function to handle a platform reset and store

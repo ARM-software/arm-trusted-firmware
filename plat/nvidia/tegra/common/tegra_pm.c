@@ -26,7 +26,6 @@
 
 extern uint64_t tegra_bl31_phys_base;
 extern uint64_t tegra_sec_entry_point;
-extern uint64_t tegra_console_base;
 
 /*
  * tegra_fake_system_suspend acts as a boolean var controlling whether
@@ -219,7 +218,8 @@ void tegra_pwr_domain_suspend(const psci_power_state_t *target_state)
 	/* Disable console if we are entering deep sleep. */
 	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] ==
 			PSTATE_ID_SOC_POWERDN) {
-		(void)console_uninit();
+		(void)console_flush();
+		console_switch_state(0);
 	}
 
 	/* disable GICC */
@@ -269,7 +269,6 @@ __dead2 void tegra_pwr_domain_power_down_wfi(const psci_power_state_t
 void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	const plat_params_from_bl2_t *plat_params;
-	uint32_t console_clock;
 
 	/*
 	 * Initialize the GIC cpu and distributor interfaces
@@ -282,20 +281,8 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] ==
 			PSTATE_ID_SOC_POWERDN) {
 
-		/*
-		 * Reference clock used by the FPGAs is a lot slower.
-		 */
-		if (tegra_platform_is_fpga()) {
-			console_clock = TEGRA_BOOT_UART_CLK_13_MHZ;
-		} else {
-			console_clock = TEGRA_BOOT_UART_CLK_408_MHZ;
-		}
-
-		/* Initialize the runtime console */
-		if (tegra_console_base != 0ULL) {
-			(void)console_init(tegra_console_base, console_clock,
-				     TEGRA_CONSOLE_BAUDRATE);
-		}
+		/* Restart console output. */
+		console_switch_state(CONSOLE_FLAG_RUNTIME);
 
 		/*
 		 * Restore Memory Controller settings as it loses state

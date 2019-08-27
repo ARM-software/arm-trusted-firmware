@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
+#include <drivers/ti/uart/uart_16550.h>
 #include <lib/psci/psci.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 

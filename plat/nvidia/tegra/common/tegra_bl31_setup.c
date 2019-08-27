@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -49,7 +49,6 @@ IMPORT_SYM(uint64_t, __TEXT_START__,	TEXT_START);
 IMPORT_SYM(uint64_t, __TEXT_END__,	TEXT_END);
 
 extern uint64_t tegra_bl31_phys_base;
-extern uint64_t tegra_console_base;
 
 static entry_point_info_t bl33_image_ep_info, bl32_image_ep_info;
 static plat_params_from_bl2_t plat_bl31_params_from_bl2 = {
@@ -130,9 +129,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	struct tegra_bl31_params *arg_from_bl2 = (struct tegra_bl31_params *) arg0;
 	plat_params_from_bl2_t *plat_params = (plat_params_from_bl2_t *)arg1;
 	image_info_t bl32_img_info = { {0} };
-	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end;
+	uint64_t tzdram_start, tzdram_end, bl32_start, bl32_end, console_base;
 	uint32_t console_clock;
 	int32_t ret;
+	static console_16550_t console;
 
 	/*
 	 * For RESET_TO_BL31 systems, BL31 is the first bootloader to run so
@@ -194,14 +194,18 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 * Get the base address of the UART controller to be used for the
 	 * console
 	 */
-	tegra_console_base = plat_get_console_from_id(plat_params->uart_id);
+	console_base = plat_get_console_from_id(plat_params->uart_id);
 
-	if (tegra_console_base != 0U) {
+	if (console_base != 0U) {
 		/*
 		 * Configure the UART port to be used as the console
 		 */
-		(void)console_init(tegra_console_base, console_clock,
-			     TEGRA_CONSOLE_BAUDRATE);
+		(void)console_16550_register(console_base,
+					     console_clock,
+					     TEGRA_CONSOLE_BAUDRATE,
+					     &console);
+		console_set_scope(&console.console, CONSOLE_FLAG_BOOT |
+			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
 	}
 
 	/*
