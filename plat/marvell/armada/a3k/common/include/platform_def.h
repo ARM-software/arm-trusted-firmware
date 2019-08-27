@@ -70,6 +70,14 @@
  * PLAT_MARVELL_FIP_BASE	= 0x4120000
  */
 
+/*
+ * Since BL33 is loaded by BL2 (and validated by BL31) to DRAM offset 0,
+ * it is allowed to load/copy images to 'NULL' pointers
+ */
+#if defined(IMAGE_BL2) || defined(IMAGE_BL31)
+#define PLAT_ALLOW_ZERO_ADDR_COPY
+#endif
+
 #define PLAT_MARVELL_ATF_BASE			0x4000000
 #define PLAT_MARVELL_ATF_LOAD_ADDR		\
 			(PLAT_MARVELL_ATF_BASE + 0x100000)
