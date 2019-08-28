@@ -18,35 +18,35 @@
 /*******************************************************************************
  * Platform memory map regions
  ******************************************************************************/
-#define MAP_NSDRAM0	MAP_REGION_FLAT(GXBB_NSDRAM0_BASE,		\
-					GXBB_NSDRAM0_SIZE,		\
+#define MAP_NSDRAM0	MAP_REGION_FLAT(AML_NSDRAM0_BASE,		\
+					AML_NSDRAM0_SIZE,		\
 					MT_MEMORY | MT_RW | MT_NS)
 
-#define MAP_NSDRAM1	MAP_REGION_FLAT(GXBB_NSDRAM1_BASE,		\
-					GXBB_NSDRAM1_SIZE,		\
+#define MAP_NSDRAM1	MAP_REGION_FLAT(AML_NSDRAM1_BASE,		\
+					AML_NSDRAM1_SIZE,		\
 					MT_MEMORY | MT_RW | MT_NS)
 
-#define MAP_SEC_DEVICE0	MAP_REGION_FLAT(GXBB_SEC_DEVICE0_BASE,		\
-					GXBB_SEC_DEVICE0_SIZE,		\
+#define MAP_SEC_DEVICE0	MAP_REGION_FLAT(AML_SEC_DEVICE0_BASE,		\
+					AML_SEC_DEVICE0_SIZE,		\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
-#define MAP_SEC_DEVICE1	MAP_REGION_FLAT(GXBB_SEC_DEVICE1_BASE,		\
-					GXBB_SEC_DEVICE1_SIZE,		\
+#define MAP_SEC_DEVICE1	MAP_REGION_FLAT(AML_SEC_DEVICE1_BASE,		\
+					AML_SEC_DEVICE1_SIZE,		\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
-#define MAP_TZRAM	MAP_REGION_FLAT(GXBB_TZRAM_BASE,		\
-					GXBB_TZRAM_SIZE,		\
+#define MAP_TZRAM	MAP_REGION_FLAT(AML_TZRAM_BASE,		\
+					AML_TZRAM_SIZE,		\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
-#define MAP_SEC_DEVICE2	MAP_REGION_FLAT(GXBB_SEC_DEVICE2_BASE,		\
-					GXBB_SEC_DEVICE2_SIZE,		\
+#define MAP_SEC_DEVICE2	MAP_REGION_FLAT(AML_SEC_DEVICE2_BASE,		\
+					AML_SEC_DEVICE2_SIZE,		\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
-#define MAP_SEC_DEVICE3	MAP_REGION_FLAT(GXBB_SEC_DEVICE3_BASE,		\
-					GXBB_SEC_DEVICE3_SIZE,		\
+#define MAP_SEC_DEVICE3	MAP_REGION_FLAT(AML_SEC_DEVICE3_BASE,		\
+					AML_SEC_DEVICE3_SIZE,		\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
-static const mmap_region_t gxbb_mmap[] = {
+static const mmap_region_t gxl_mmap[] = {
 	MAP_NSDRAM0,
 	MAP_NSDRAM1,
 	MAP_SEC_DEVICE0,
@@ -82,7 +82,7 @@ static const mmap_region_t gxbb_mmap[] = {
 void aml_setup_page_tables(void)
 {
 #if IMAGE_BL31
-	const mmap_region_t gxbb_bl_mmap[] = {
+	const mmap_region_t gxl_bl_mmap[] = {
 		MAP_BL31,
 		MAP_BL_CODE,
 		MAP_BL_RO_DATA,
@@ -93,9 +93,9 @@ void aml_setup_page_tables(void)
 	};
 #endif
 
-	mmap_add(gxbb_bl_mmap);
+	mmap_add(gxl_bl_mmap);
 
-	mmap_add(gxbb_mmap);
+	mmap_add(gxl_mmap);
 
 	init_xlat_tables();
 }
@@ -103,14 +103,14 @@ void aml_setup_page_tables(void)
 /*******************************************************************************
  * Function that sets up the console
  ******************************************************************************/
-static console_meson_t gxbb_console;
+static console_meson_t gxl_console;
 
 void aml_console_init(void)
 {
 	int rc = console_meson_register(AML_UART0_AO_BASE,
 					AML_UART0_AO_CLK_IN_HZ,
 					AML_UART_BAUDRATE,
-					&gxbb_console);
+					&gxl_console);
 	if (rc == 0) {
 		/*
 		 * The crash console doesn't use the multi console API, it uses
@@ -120,7 +120,7 @@ void aml_console_init(void)
 		panic();
 	}
 
-	console_set_scope(&gxbb_console.console,
+	console_set_scope(&gxl_console.console,
 			  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
 }
 
@@ -131,13 +131,13 @@ unsigned int plat_get_syscnt_freq2(void)
 {
 	uint32_t val;
 
-	val = mmio_read_32(GXBB_SYS_CPU_CFG7);
+	val = mmio_read_32(AML_SYS_CPU_CFG7);
 	val &= 0xFDFFFFFF;
-	mmio_write_32(GXBB_SYS_CPU_CFG7, val);
+	mmio_write_32(AML_SYS_CPU_CFG7, val);
 
-	val = mmio_read_32(GXBB_AO_TIMESTAMP_CNTL);
+	val = mmio_read_32(AML_AO_TIMESTAMP_CNTL);
 	val &= 0xFFFFFE00;
-	mmio_write_32(GXBB_AO_TIMESTAMP_CNTL, val);
+	mmio_write_32(AML_AO_TIMESTAMP_CNTL, val);
 
-	return GXBB_OSC24M_CLK_IN_HZ;
+	return AML_OSC24M_CLK_IN_HZ;
 }

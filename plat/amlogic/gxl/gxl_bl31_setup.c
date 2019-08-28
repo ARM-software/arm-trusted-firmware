@@ -103,7 +103,7 @@ void bl31_plat_arch_setup(void)
 
 static inline bool gxl_scp_ready(void)
 {
-	return GXBB_AO_RTI_SCP_IS_READY(mmio_read_32(GXBB_AO_RTI_SCP_STAT));
+	return AML_AO_RTI_SCP_IS_READY(mmio_read_32(AML_AO_RTI_SCP_STAT));
 }
 
 static inline void gxl_scp_boot(void)
@@ -119,7 +119,7 @@ static inline void gxl_scp_boot(void)
 /*******************************************************************************
  * GICv2 driver setup information
  ******************************************************************************/
-static const interrupt_prop_t gxbb_interrupt_props[] = {
+static const interrupt_prop_t gxl_interrupt_props[] = {
 	INTR_PROP_DESC(IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY,
 		       GICV2_INTR_GROUP0, GIC_INTR_CFG_LEVEL),
 	INTR_PROP_DESC(IRQ_SEC_SGI_0, GIC_HIGHEST_SEC_PRIORITY,
@@ -140,18 +140,18 @@ static const interrupt_prop_t gxbb_interrupt_props[] = {
 		       GICV2_INTR_GROUP0, GIC_INTR_CFG_LEVEL),
 };
 
-static const gicv2_driver_data_t gxbb_gic_data = {
+static const gicv2_driver_data_t gxl_gic_data = {
 	.gicd_base = AML_GICD_BASE,
 	.gicc_base = AML_GICC_BASE,
-	.interrupt_props = gxbb_interrupt_props,
-	.interrupt_props_num = ARRAY_SIZE(gxbb_interrupt_props),
+	.interrupt_props = gxl_interrupt_props,
+	.interrupt_props_num = ARRAY_SIZE(gxl_interrupt_props),
 };
 
 void bl31_platform_setup(void)
 {
 	aml_mhu_secure_init();
 
-	gicv2_driver_init(&gxbb_gic_data);
+	gicv2_driver_init(&gxl_gic_data);
 	gicv2_distif_init();
 	gicv2_pcpu_distif_init();
 	gicv2_cpuif_enable();

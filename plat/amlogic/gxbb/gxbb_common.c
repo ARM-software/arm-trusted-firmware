@@ -20,32 +20,32 @@
 /*******************************************************************************
  * Platform memory map regions
  ******************************************************************************/
-#define MAP_NSDRAM0	MAP_REGION_FLAT(GXBB_NSDRAM0_BASE,		\
-					GXBB_NSDRAM0_SIZE,		\
+#define MAP_NSDRAM0	MAP_REGION_FLAT(AML_NSDRAM0_BASE,		\
+					AML_NSDRAM0_SIZE,		\
 					MT_MEMORY | MT_RW | MT_NS)
 
-#define MAP_NSDRAM1	MAP_REGION_FLAT(GXBB_NSDRAM1_BASE,		\
-					GXBB_NSDRAM1_SIZE,		\
+#define MAP_NSDRAM1	MAP_REGION_FLAT(AML_NSDRAM1_BASE,		\
+					AML_NSDRAM1_SIZE,		\
 					MT_MEMORY | MT_RW | MT_NS)
 
-#define MAP_SEC_DEVICE0	MAP_REGION_FLAT(GXBB_SEC_DEVICE0_BASE,		\
-					GXBB_SEC_DEVICE0_SIZE,		\
+#define MAP_SEC_DEVICE0	MAP_REGION_FLAT(AML_SEC_DEVICE0_BASE,		\
+					AML_SEC_DEVICE0_SIZE,		\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
-#define MAP_SEC_DEVICE1	MAP_REGION_FLAT(GXBB_SEC_DEVICE1_BASE,		\
-					GXBB_SEC_DEVICE1_SIZE,		\
+#define MAP_SEC_DEVICE1	MAP_REGION_FLAT(AML_SEC_DEVICE1_BASE,		\
+					AML_SEC_DEVICE1_SIZE,		\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
-#define MAP_TZRAM	MAP_REGION_FLAT(GXBB_TZRAM_BASE,		\
-					GXBB_TZRAM_SIZE,		\
+#define MAP_TZRAM	MAP_REGION_FLAT(AML_TZRAM_BASE,		\
+					AML_TZRAM_SIZE,		\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
-#define MAP_SEC_DEVICE2	MAP_REGION_FLAT(GXBB_SEC_DEVICE2_BASE,		\
-					GXBB_SEC_DEVICE2_SIZE,		\
+#define MAP_SEC_DEVICE2	MAP_REGION_FLAT(AML_SEC_DEVICE2_BASE,		\
+					AML_SEC_DEVICE2_SIZE,		\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
-#define MAP_SEC_DEVICE3	MAP_REGION_FLAT(GXBB_SEC_DEVICE3_BASE,		\
-					GXBB_SEC_DEVICE3_SIZE,		\
+#define MAP_SEC_DEVICE3	MAP_REGION_FLAT(AML_SEC_DEVICE3_BASE,		\
+					AML_SEC_DEVICE3_SIZE,		\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
 static const mmap_region_t gxbb_mmap[] = {
@@ -133,13 +133,13 @@ unsigned int plat_get_syscnt_freq2(void)
 {
 	uint32_t val;
 
-	val = mmio_read_32(GXBB_SYS_CPU_CFG7);
+	val = mmio_read_32(AML_SYS_CPU_CFG7);
 	val &= 0xFDFFFFFF;
-	mmio_write_32(GXBB_SYS_CPU_CFG7, val);
+	mmio_write_32(AML_SYS_CPU_CFG7, val);
 
-	val = mmio_read_32(GXBB_AO_TIMESTAMP_CNTL);
+	val = mmio_read_32(AML_AO_TIMESTAMP_CNTL);
 	val &= 0xFFFFFE00;
-	mmio_write_32(GXBB_AO_TIMESTAMP_CNTL, val);
+	mmio_write_32(AML_AO_TIMESTAMP_CNTL, val);
 
-	return GXBB_OSC24M_CLK_IN_HZ;
+	return AML_OSC24M_CLK_IN_HZ;
 }

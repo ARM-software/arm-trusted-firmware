@@ -12,16 +12,16 @@
 /*******************************************************************************
  * System oscillator
  ******************************************************************************/
-#define GXBB_OSC24M_CLK_IN_HZ			ULL(24000000) /* 24 MHz */
+#define AML_OSC24M_CLK_IN_HZ			ULL(24000000) /* 24 MHz */
 
 /*******************************************************************************
  * Memory regions
  ******************************************************************************/
-#define GXBB_NSDRAM0_BASE			UL(0x01000000)
-#define GXBB_NSDRAM0_SIZE			UL(0x0F000000)
+#define AML_NSDRAM0_BASE			UL(0x01000000)
+#define AML_NSDRAM0_SIZE			UL(0x0F000000)
 
-#define GXBB_NSDRAM1_BASE			UL(0x10000000)
-#define GXBB_NSDRAM1_SIZE			UL(0x00100000)
+#define AML_NSDRAM1_BASE			UL(0x10000000)
+#define AML_NSDRAM1_SIZE			UL(0x00100000)
 
 #define BL31_BASE				UL(0x10100000)
 #define BL31_SIZE				UL(0x000C0000)
@@ -31,14 +31,14 @@
 #define AML_SHARE_MEM_INPUT_BASE		UL(0x100FE000)
 #define AML_SHARE_MEM_OUTPUT_BASE		UL(0x100FF000)
 
-#define GXBB_SEC_DEVICE0_BASE			UL(0xC0000000)
-#define GXBB_SEC_DEVICE0_SIZE			UL(0x09000000)
+#define AML_SEC_DEVICE0_BASE			UL(0xC0000000)
+#define AML_SEC_DEVICE0_SIZE			UL(0x09000000)
 
-#define GXBB_SEC_DEVICE1_BASE			UL(0xD0040000)
-#define GXBB_SEC_DEVICE1_SIZE			UL(0x00008000)
+#define AML_SEC_DEVICE1_BASE			UL(0xD0040000)
+#define AML_SEC_DEVICE1_SIZE			UL(0x00008000)
 
-#define GXBB_TZRAM_BASE				UL(0xD9000000)
-#define GXBB_TZRAM_SIZE				UL(0x00014000)
+#define AML_TZRAM_BASE				UL(0xD9000000)
+#define AML_TZRAM_SIZE				UL(0x00014000)
 /* Top 0xC000 bytes (up to 0xD9020000) used by BL2 */
 
 /* Mailboxes */
@@ -46,14 +46,14 @@
 #define AML_MHU_SECURE_AP_TO_SCP_PAYLOAD	UL(0xD9013A00)
 #define AML_PSCI_MAILBOX_BASE			UL(0xD9013F00)
 
-#define GXBB_TZROM_BASE				UL(0xD9040000)
-#define GXBB_TZROM_SIZE				UL(0x00010000)
+#define AML_TZROM_BASE				UL(0xD9040000)
+#define AML_TZROM_SIZE				UL(0x00010000)
 
-#define GXBB_SEC_DEVICE2_BASE			UL(0xDA000000)
-#define GXBB_SEC_DEVICE2_SIZE			UL(0x00200000)
+#define AML_SEC_DEVICE2_BASE			UL(0xDA000000)
+#define AML_SEC_DEVICE2_SIZE			UL(0x00200000)
 
-#define GXBB_SEC_DEVICE3_BASE			UL(0xDA800000)
-#define GXBB_SEC_DEVICE3_SIZE			UL(0x00200000)
+#define AML_SEC_DEVICE3_BASE			UL(0xDA800000)
+#define AML_SEC_DEVICE3_SIZE			UL(0x00200000)
 
 /*******************************************************************************
  * GIC-400 and interrupt handling related constants
@@ -76,15 +76,15 @@
  * UART definitions
  ******************************************************************************/
 #define AML_UART0_AO_BASE			UL(0xC81004C0)
-#define AML_UART0_AO_CLK_IN_HZ			GXBB_OSC24M_CLK_IN_HZ
+#define AML_UART0_AO_CLK_IN_HZ			AML_OSC24M_CLK_IN_HZ
 #define AML_UART_BAUDRATE			U(115200)
 
 /*******************************************************************************
  * Memory-mapped I/O Registers
  ******************************************************************************/
-#define GXBB_AO_TIMESTAMP_CNTL			UL(0xC81000B4)
+#define AML_AO_TIMESTAMP_CNTL			UL(0xC81000B4)
 
-#define GXBB_SYS_CPU_CFG7			UL(0xC8834664)
+#define AML_SYS_CPU_CFG7			UL(0xC8834664)
 
 #define AML_AO_RTI_STATUS_REG3			UL(0xDA10001C)
 
