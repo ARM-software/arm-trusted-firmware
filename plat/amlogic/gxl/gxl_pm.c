@@ -24,13 +24,13 @@
 #define SCPI_SYSTEM_SHUTDOWN	0
 #define SCPI_SYSTEM_REBOOT	1
 
-static uintptr_t gxbb_sec_entrypoint;
-static volatile uint32_t gxbb_cpu0_go;
+static uintptr_t gxl_sec_entrypoint;
+static volatile uint32_t gxl_cpu0_go;
 
 static void gxl_pm_set_reset_addr(u_register_t mpidr, uint64_t value)
 {
 	unsigned int core = plat_calc_core_pos(mpidr);
-	uintptr_t cpu_mailbox_addr = GXBB_PSCI_MAILBOX_BASE + (core << 4);
+	uintptr_t cpu_mailbox_addr = AML_PSCI_MAILBOX_BASE + (core << 4);
 
 	mmio_write_64(cpu_mailbox_addr, value);
 }
@@ -38,17 +38,17 @@ static void gxl_pm_set_reset_addr(u_register_t mpidr, uint64_t value)
 static void gxl_pm_reset(u_register_t mpidr)
 {
 	unsigned int core = plat_calc_core_pos(mpidr);
-	uintptr_t cpu_mailbox_addr = GXBB_PSCI_MAILBOX_BASE + (core << 4) + 8;
+	uintptr_t cpu_mailbox_addr = AML_PSCI_MAILBOX_BASE + (core << 4) + 8;
 
 	mmio_write_32(cpu_mailbox_addr, 0);
 }
 
-static void __dead2 gxbb_system_reset(void)
+static void __dead2 gxl_system_reset(void)
 {
 	INFO("BL31: PSCI_SYSTEM_RESET\n");
 
 	u_register_t mpidr = read_mpidr_el1();
-	uint32_t status = mmio_read_32(GXBB_AO_RTI_STATUS_REG3);
+	uint32_t status = mmio_read_32(AML_AO_RTI_STATUS_REG3);
 	int ret;
 
 	NOTICE("BL31: Reboot reason: 0x%x\n", status);
@@ -57,7 +57,7 @@ static void __dead2 gxbb_system_reset(void)
 
 	console_flush();
 
-	mmio_write_32(GXBB_AO_RTI_STATUS_REG3, status);
+	mmio_write_32(AML_AO_RTI_STATUS_REG3, status);
 
 	ret = aml_scpi_sys_power_state(SCPI_SYSTEM_REBOOT);
 
@@ -74,7 +74,7 @@ static void __dead2 gxbb_system_reset(void)
 	panic();
 }
 
-static void __dead2 gxbb_system_off(void)
+static void __dead2 gxl_system_off(void)
 {
 	INFO("BL31: PSCI_SYSTEM_OFF\n");
 
@@ -97,7 +97,7 @@ static void __dead2 gxbb_system_off(void)
 	panic();
 }
 
-static int32_t gxbb_pwr_domain_on(u_register_t mpidr)
+static int32_t gxl_pwr_domain_on(u_register_t mpidr)
 {
 	unsigned int core = plat_calc_core_pos(mpidr);
 
@@ -105,9 +105,9 @@ static int32_t gxbb_pwr_domain_on(u_register_t mpidr)
 	if (core == AML_PRIMARY_CPU) {
 		VERBOSE("BL31: Releasing CPU0 from wait loop...\n");
 
-		gxbb_cpu0_go = 1;
-		flush_dcache_range((uintptr_t)&gxbb_cpu0_go,
-				sizeof(gxbb_cpu0_go));
+		gxl_cpu0_go = 1;
+		flush_dcache_range((uintptr_t)&gxl_cpu0_go,
+				sizeof(gxl_cpu0_go));
 		dsb();
 		isb();
 
@@ -116,7 +116,7 @@ static int32_t gxbb_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_SUCCESS;
 	}
 
-	gxl_pm_set_reset_addr(mpidr, gxbb_sec_entrypoint);
+	gxl_pm_set_reset_addr(mpidr, gxl_sec_entrypoint);
 	aml_scpi_set_css_power_state(mpidr,
 				     SCPI_POWER_ON, SCPI_POWER_ON, SCPI_POWER_ON);
 	dmbsy();
@@ -125,7 +125,7 @@ static int32_t gxbb_pwr_domain_on(u_register_t mpidr)
 	return PSCI_E_SUCCESS;
 }
 
-static void gxbb_pwr_domain_on_finish(const psci_power_state_t *target_state)
+static void gxl_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	unsigned int core = plat_calc_core_pos(read_mpidr_el1());
 
@@ -133,9 +133,9 @@ static void gxbb_pwr_domain_on_finish(const psci_power_state_t *target_state)
 					PLAT_LOCAL_STATE_OFF);
 
 	if (core == AML_PRIMARY_CPU) {
-		gxbb_cpu0_go = 0;
-		flush_dcache_range((uintptr_t)&gxbb_cpu0_go,
-				sizeof(gxbb_cpu0_go));
+		gxl_cpu0_go = 0;
+		flush_dcache_range((uintptr_t)&gxl_cpu0_go,
+				sizeof(gxl_cpu0_go));
 		dsb();
 		isb();
 	}
@@ -144,7 +144,7 @@ static void gxbb_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	gicv2_cpuif_enable();
 }
 
-static void gxbb_pwr_domain_off(const psci_power_state_t *target_state)
+static void gxl_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	u_register_t mpidr = read_mpidr_el1();
 	unsigned int core = plat_calc_core_pos(mpidr);
@@ -159,7 +159,7 @@ static void gxbb_pwr_domain_off(const psci_power_state_t *target_state)
 				     SCPI_POWER_OFF, SCPI_POWER_ON, SCPI_POWER_ON);
 }
 
-static void __dead2 gxbb_pwr_domain_pwr_down_wfi(const psci_power_state_t
+static void __dead2 gxl_pwr_domain_pwr_down_wfi(const psci_power_state_t
 						 *target_state)
 {
 	u_register_t mpidr = read_mpidr_el1();
@@ -169,7 +169,7 @@ static void __dead2 gxbb_pwr_domain_pwr_down_wfi(const psci_power_state_t
 	if (core == AML_PRIMARY_CPU) {
 		VERBOSE("BL31: CPU0 entering wait loop...\n");
 
-		while (gxbb_cpu0_go == 0)
+		while (gxl_cpu0_go == 0)
 			wfe();
 
 		VERBOSE("BL31: CPU0 resumed.\n");
@@ -181,7 +181,7 @@ static void __dead2 gxbb_pwr_domain_pwr_down_wfi(const psci_power_state_t
 		 * In order to avoid an assert, mmu has to be disabled.
 		 */
 		disable_mmu_el3();
-		((void(*)(void))gxbb_sec_entrypoint)();
+		((void(*)(void))gxl_sec_entrypoint)();
 	}
 
 	dsbsy();
@@ -195,20 +195,20 @@ static void __dead2 gxbb_pwr_domain_pwr_down_wfi(const psci_power_state_t
 /*******************************************************************************
  * Platform handlers and setup function.
  ******************************************************************************/
-static const plat_psci_ops_t gxbb_ops = {
-	.pwr_domain_on			= gxbb_pwr_domain_on,
-	.pwr_domain_on_finish		= gxbb_pwr_domain_on_finish,
-	.pwr_domain_off			= gxbb_pwr_domain_off,
-	.pwr_domain_pwr_down_wfi	= gxbb_pwr_domain_pwr_down_wfi,
-	.system_off			= gxbb_system_off,
-	.system_reset			= gxbb_system_reset,
+static const plat_psci_ops_t gxl_ops = {
+	.pwr_domain_on			= gxl_pwr_domain_on,
+	.pwr_domain_on_finish		= gxl_pwr_domain_on_finish,
+	.pwr_domain_off			= gxl_pwr_domain_off,
+	.pwr_domain_pwr_down_wfi	= gxl_pwr_domain_pwr_down_wfi,
+	.system_off			= gxl_system_off,
+	.system_reset			= gxl_system_reset,
 };
 
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const plat_psci_ops_t **psci_ops)
 {
-	gxbb_sec_entrypoint = sec_entrypoint;
-	*psci_ops = &gxbb_ops;
-	gxbb_cpu0_go = 0;
+	gxl_sec_entrypoint = sec_entrypoint;
+	*psci_ops = &gxl_ops;
+	gxl_cpu0_go = 0;
 	return 0;
 }

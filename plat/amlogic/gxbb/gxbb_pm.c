@@ -32,7 +32,7 @@ static volatile uint32_t gxbb_cpu0_go;
 static void gxbb_program_mailbox(u_register_t mpidr, uint64_t value)
 {
 	unsigned int core = plat_calc_core_pos(mpidr);
-	uintptr_t cpu_mailbox_addr = GXBB_PSCI_MAILBOX_BASE + (core << 4);
+	uintptr_t cpu_mailbox_addr = AML_PSCI_MAILBOX_BASE + (core << 4);
 
 	mmio_write_64(cpu_mailbox_addr, value);
 	flush_dcache_range(cpu_mailbox_addr, sizeof(uint64_t));
@@ -42,7 +42,7 @@ static void __dead2 gxbb_system_reset(void)
 {
 	INFO("BL31: PSCI_SYSTEM_RESET\n");
 
-	uint32_t status = mmio_read_32(GXBB_AO_RTI_STATUS_REG3);
+	uint32_t status = mmio_read_32(AML_AO_RTI_STATUS_REG3);
 
 	NOTICE("BL31: Reboot reason: 0x%x\n", status);
 
@@ -50,7 +50,7 @@ static void __dead2 gxbb_system_reset(void)
 
 	console_flush();
 
-	mmio_write_32(GXBB_AO_RTI_STATUS_REG3, status);
+	mmio_write_32(AML_AO_RTI_STATUS_REG3, status);
 
 	int ret = aml_scpi_sys_power_state(SCPI_SYSTEM_REBOOT);
 
@@ -133,7 +133,7 @@ static void gxbb_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	u_register_t mpidr = read_mpidr_el1();
 	unsigned int core = plat_calc_core_pos(mpidr);
-	uintptr_t addr = GXBB_PSCI_MAILBOX_BASE + 8 + (core << 4);
+	uintptr_t addr = AML_PSCI_MAILBOX_BASE + 8 + (core << 4);
 
 	mmio_write_32(addr, 0xFFFFFFFF);
 	flush_dcache_range(addr, sizeof(uint32_t));
