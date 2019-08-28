@@ -37,12 +37,12 @@ static inline uint32_t scpi_cmd(uint32_t command, uint32_t size)
 
 static void scpi_secure_message_send(uint32_t command, uint32_t size)
 {
-	mhu_secure_message_send(scpi_cmd(command, size));
+	aml_mhu_secure_message_send(scpi_cmd(command, size));
 }
 
 uint32_t scpi_secure_message_receive(void **message_out, size_t *size_out)
 {
-	uint32_t response = mhu_secure_message_wait();
+	uint32_t response = aml_mhu_secure_message_wait();
 
 	size_t size = (response >> SIZE_SHIFT) & SIZE_MASK;
 
@@ -52,7 +52,7 @@ uint32_t scpi_secure_message_receive(void **message_out, size_t *size_out)
 		*size_out = size;
 
 	if (message_out != NULL)
-		*message_out = (void *)GXBB_MHU_SECURE_SCP_TO_AP_PAYLOAD;
+		*message_out = (void *)AML_MHU_SECURE_SCP_TO_AP_PAYLOAD;
 
 	return response;
 }
@@ -66,11 +66,11 @@ void scpi_set_css_power_state(u_register_t mpidr, uint32_t cpu_state,
 			 (cluster_state << 12) |
 			 (css_state << 16);
 
-	mhu_secure_message_start();
-	mmio_write_32(GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD, state);
-	mhu_secure_message_send(scpi_cmd(SCPI_CMD_SET_CSS_POWER_STATE, 4));
-	mhu_secure_message_wait();
-	mhu_secure_message_end();
+	aml_mhu_secure_message_start();
+	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD, state);
+	aml_mhu_secure_message_send(scpi_cmd(SCPI_CMD_SET_CSS_POWER_STATE, 4));
+	aml_mhu_secure_message_wait();
+	aml_mhu_secure_message_end();
 }
 
 uint32_t scpi_sys_power_state(uint64_t system_state)
@@ -78,11 +78,11 @@ uint32_t scpi_sys_power_state(uint64_t system_state)
 	uint32_t *response;
 	size_t size;
 
-	mhu_secure_message_start();
-	mmio_write_8(GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD, system_state);
-	mhu_secure_message_send(scpi_cmd(SCPI_CMD_SET_SYS_POWER_STATE, 1));
+	aml_mhu_secure_message_start();
+	mmio_write_8(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD, system_state);
+	aml_mhu_secure_message_send(scpi_cmd(SCPI_CMD_SET_SYS_POWER_STATE, 1));
 	scpi_secure_message_receive((void *)&response, &size);
-	mhu_secure_message_end();
+	aml_mhu_secure_message_end();
 
 	return *response;
 }
@@ -96,12 +96,12 @@ void scpi_jtag_set_state(uint32_t state, uint8_t select)
 		return;
 	}
 
-	mhu_secure_message_start();
-	mmio_write_32(GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD,
+	aml_mhu_secure_message_start();
+	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD,
 		      (state << 8) | (uint32_t)select);
-	mhu_secure_message_send(scpi_cmd(SCPI_CMD_JTAG_SET_STATE, 4));
-	mhu_secure_message_wait();
-	mhu_secure_message_end();
+	aml_mhu_secure_message_send(scpi_cmd(SCPI_CMD_JTAG_SET_STATE, 4));
+	aml_mhu_secure_message_wait();
+	aml_mhu_secure_message_end();
 }
 
 uint32_t scpi_efuse_read(void *dst, uint32_t base, uint32_t size)
@@ -112,12 +112,12 @@ uint32_t scpi_efuse_read(void *dst, uint32_t base, uint32_t size)
 	if (size > 0x1FC)
 		return 0;
 
-	mhu_secure_message_start();
-	mmio_write_32(GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD, base);
-	mmio_write_32(GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD + 4, size);
-	mhu_secure_message_send(scpi_cmd(SCPI_CMD_EFUSE_READ, 8));
+	aml_mhu_secure_message_start();
+	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD, base);
+	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD + 4, size);
+	aml_mhu_secure_message_send(scpi_cmd(SCPI_CMD_EFUSE_READ, 8));
 	scpi_secure_message_receive((void *)&response, &resp_size);
-	mhu_secure_message_end();
+	aml_mhu_secure_message_end();
 
 	/*
 	 * response[0] is the size of the response message.
@@ -132,57 +132,57 @@ uint32_t scpi_efuse_read(void *dst, uint32_t base, uint32_t size)
 void scpi_unknown_thermal(uint32_t arg0, uint32_t arg1,
 			  uint32_t arg2, uint32_t arg3)
 {
-	mhu_secure_message_start();
-	mmio_write_32(GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD + 0x0, arg0);
-	mmio_write_32(GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD + 0x4, arg1);
-	mmio_write_32(GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD + 0x8, arg2);
-	mmio_write_32(GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD + 0xC, arg3);
-	mhu_secure_message_send(scpi_cmd(0xC3, 16));
-	mhu_secure_message_wait();
-	mhu_secure_message_end();
+	aml_mhu_secure_message_start();
+	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD + 0x0, arg0);
+	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD + 0x4, arg1);
+	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD + 0x8, arg2);
+	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD + 0xC, arg3);
+	aml_mhu_secure_message_send(scpi_cmd(0xC3, 16));
+	aml_mhu_secure_message_wait();
+	aml_mhu_secure_message_end();
 }
 
 static inline void scpi_copy_scp_data(uint8_t *data, size_t len)
 {
-	void *dst = (void *)GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD;
+	void *dst = (void *)AML_MHU_SECURE_AP_TO_SCP_PAYLOAD;
 	size_t sz;
 
-	mmio_write_32(GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD, len);
+	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD, len);
 	scpi_secure_message_send(SCPI_CMD_FW_SIZE, len);
-	mhu_secure_message_wait();
+	aml_mhu_secure_message_wait();
 
 	for (sz = 0; sz < len; sz += SIZE_FWBLK) {
 		memcpy(dst, data + sz, MIN(SIZE_FWBLK, len - sz));
-		mhu_secure_message_send(SCPI_CMD_COPY_FW);
+		aml_mhu_secure_message_send(SCPI_CMD_COPY_FW);
 	}
 }
 
 static inline void scpi_set_scp_addr(uint64_t addr, size_t len)
 {
-	volatile uint64_t *dst = (uint64_t *)GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD;
+	volatile uint64_t *dst = (uint64_t *)AML_MHU_SECURE_AP_TO_SCP_PAYLOAD;
 
 	/*
-	 * It is ok as GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD is mapped as
+	 * It is ok as AML_MHU_SECURE_AP_TO_SCP_PAYLOAD is mapped as
 	 * non cachable
 	 */
 	*dst = addr;
 	scpi_secure_message_send(SCPI_CMD_SET_FW_ADDR, sizeof(addr));
-	mhu_secure_message_wait();
+	aml_mhu_secure_message_wait();
 
-	mmio_write_32(GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD, len);
+	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD, len);
 	scpi_secure_message_send(SCPI_CMD_FW_SIZE, len);
-	mhu_secure_message_wait();
+	aml_mhu_secure_message_wait();
 }
 
 static inline void scpi_send_fw_hash(uint8_t hash[], size_t len)
 {
-	void *dst = (void *)GXBB_MHU_SECURE_AP_TO_SCP_PAYLOAD;
+	void *dst = (void *)AML_MHU_SECURE_AP_TO_SCP_PAYLOAD;
 
 	memcpy(dst, hash, len);
-	mhu_secure_message_send(0xd0);
-	mhu_secure_message_send(0xd1);
-	mhu_secure_message_send(0xd5);
-	mhu_secure_message_end();
+	aml_mhu_secure_message_send(0xd0);
+	aml_mhu_secure_message_send(0xd1);
+	aml_mhu_secure_message_send(0xd5);
+	aml_mhu_secure_message_end();
 }
 
 /**
@@ -201,7 +201,7 @@ void scpi_upload_scp_fw(uintptr_t addr, size_t size, int send)
 	asd_sha_update(&ctx, (void *)addr, size);
 	asd_sha_finalize(&ctx);
 
-	mhu_secure_message_start();
+	aml_mhu_secure_message_start();
 	if (send == 0)
 		scpi_set_scp_addr(addr, size);
 	else

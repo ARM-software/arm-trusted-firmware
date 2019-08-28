@@ -149,7 +149,7 @@ static const gicv2_driver_data_t gxbb_gic_data = {
 
 void bl31_platform_setup(void)
 {
-	mhu_secure_init();
+	aml_mhu_secure_init();
 
 	gicv2_driver_init(&gxbb_gic_data);
 	gicv2_distif_init();

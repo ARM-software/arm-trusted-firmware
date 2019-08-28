@@ -16,11 +16,11 @@ void aml_console_init(void);
 void aml_setup_page_tables(void);
 
 /* MHU functions */
-void mhu_secure_message_start(void);
-void mhu_secure_message_send(uint32_t msg);
-uint32_t mhu_secure_message_wait(void);
-void mhu_secure_message_end(void);
-void mhu_secure_init(void);
+void aml_mhu_secure_message_start(void);
+void aml_mhu_secure_message_send(uint32_t msg);
+uint32_t aml_mhu_secure_message_wait(void);
+void aml_mhu_secure_message_end(void);
+void aml_mhu_secure_init(void);
 
 /* SCPI functions */
 void scpi_set_css_power_state(u_register_t mpidr, uint32_t cpu_state,
