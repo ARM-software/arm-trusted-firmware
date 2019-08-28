@@ -30,17 +30,17 @@
 #define SCPI_CMD_SET_FW_ADDR 0xd3
 #define SCPI_CMD_FW_SIZE 0xd2
 
-static inline uint32_t scpi_cmd(uint32_t command, uint32_t size)
+static inline uint32_t aml_scpi_cmd(uint32_t command, uint32_t size)
 {
 	return command | (size << SIZE_SHIFT);
 }
 
-static void scpi_secure_message_send(uint32_t command, uint32_t size)
+static void aml_scpi_secure_message_send(uint32_t command, uint32_t size)
 {
-	aml_mhu_secure_message_send(scpi_cmd(command, size));
+	aml_mhu_secure_message_send(aml_scpi_cmd(command, size));
 }
 
-uint32_t scpi_secure_message_receive(void **message_out, size_t *size_out)
+static uint32_t aml_scpi_secure_message_receive(void **message_out, size_t *size_out)
 {
 	uint32_t response = aml_mhu_secure_message_wait();
 
@@ -57,7 +57,7 @@ uint32_t scpi_secure_message_receive(void **message_out, size_t *size_out)
 	return response;
 }
 
-void scpi_set_css_power_state(u_register_t mpidr, uint32_t cpu_state,
+void aml_scpi_set_css_power_state(u_register_t mpidr, uint32_t cpu_state,
 			      uint32_t cluster_state, uint32_t css_state)
 {
 	uint32_t state = (mpidr & 0x0F) | /* CPU ID */
@@ -68,26 +68,26 @@ void scpi_set_css_power_state(u_register_t mpidr, uint32_t cpu_state,
 
 	aml_mhu_secure_message_start();
 	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD, state);
-	aml_mhu_secure_message_send(scpi_cmd(SCPI_CMD_SET_CSS_POWER_STATE, 4));
+	aml_mhu_secure_message_send(aml_scpi_cmd(SCPI_CMD_SET_CSS_POWER_STATE, 4));
 	aml_mhu_secure_message_wait();
 	aml_mhu_secure_message_end();
 }
 
-uint32_t scpi_sys_power_state(uint64_t system_state)
+uint32_t aml_scpi_sys_power_state(uint64_t system_state)
 {
 	uint32_t *response;
 	size_t size;
 
 	aml_mhu_secure_message_start();
 	mmio_write_8(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD, system_state);
-	aml_mhu_secure_message_send(scpi_cmd(SCPI_CMD_SET_SYS_POWER_STATE, 1));
-	scpi_secure_message_receive((void *)&response, &size);
+	aml_mhu_secure_message_send(aml_scpi_cmd(SCPI_CMD_SET_SYS_POWER_STATE, 1));
+	aml_scpi_secure_message_receive((void *)&response, &size);
 	aml_mhu_secure_message_end();
 
 	return *response;
 }
 
-void scpi_jtag_set_state(uint32_t state, uint8_t select)
+void aml_scpi_jtag_set_state(uint32_t state, uint8_t select)
 {
 	assert(state <= AML_JTAG_STATE_OFF);
 
@@ -99,12 +99,12 @@ void scpi_jtag_set_state(uint32_t state, uint8_t select)
 	aml_mhu_secure_message_start();
 	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD,
 		      (state << 8) | (uint32_t)select);
-	aml_mhu_secure_message_send(scpi_cmd(SCPI_CMD_JTAG_SET_STATE, 4));
+	aml_mhu_secure_message_send(aml_scpi_cmd(SCPI_CMD_JTAG_SET_STATE, 4));
 	aml_mhu_secure_message_wait();
 	aml_mhu_secure_message_end();
 }
 
-uint32_t scpi_efuse_read(void *dst, uint32_t base, uint32_t size)
+uint32_t aml_scpi_efuse_read(void *dst, uint32_t base, uint32_t size)
 {
 	uint32_t *response;
 	size_t resp_size;
@@ -115,8 +115,8 @@ uint32_t scpi_efuse_read(void *dst, uint32_t base, uint32_t size)
 	aml_mhu_secure_message_start();
 	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD, base);
 	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD + 4, size);
-	aml_mhu_secure_message_send(scpi_cmd(SCPI_CMD_EFUSE_READ, 8));
-	scpi_secure_message_receive((void *)&response, &resp_size);
+	aml_mhu_secure_message_send(aml_scpi_cmd(SCPI_CMD_EFUSE_READ, 8));
+	aml_scpi_secure_message_receive((void *)&response, &resp_size);
 	aml_mhu_secure_message_end();
 
 	/*
@@ -129,26 +129,26 @@ uint32_t scpi_efuse_read(void *dst, uint32_t base, uint32_t size)
 	return *response;
 }
 
-void scpi_unknown_thermal(uint32_t arg0, uint32_t arg1,
-			  uint32_t arg2, uint32_t arg3)
+void aml_scpi_unknown_thermal(uint32_t arg0, uint32_t arg1,
+			      uint32_t arg2, uint32_t arg3)
 {
 	aml_mhu_secure_message_start();
 	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD + 0x0, arg0);
 	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD + 0x4, arg1);
 	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD + 0x8, arg2);
 	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD + 0xC, arg3);
-	aml_mhu_secure_message_send(scpi_cmd(0xC3, 16));
+	aml_mhu_secure_message_send(aml_scpi_cmd(0xC3, 16));
 	aml_mhu_secure_message_wait();
 	aml_mhu_secure_message_end();
 }
 
-static inline void scpi_copy_scp_data(uint8_t *data, size_t len)
+static inline void aml_scpi_copy_scp_data(uint8_t *data, size_t len)
 {
 	void *dst = (void *)AML_MHU_SECURE_AP_TO_SCP_PAYLOAD;
 	size_t sz;
 
 	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD, len);
-	scpi_secure_message_send(SCPI_CMD_FW_SIZE, len);
+	aml_scpi_secure_message_send(SCPI_CMD_FW_SIZE, len);
 	aml_mhu_secure_message_wait();
 
 	for (sz = 0; sz < len; sz += SIZE_FWBLK) {
@@ -157,7 +157,7 @@ static inline void scpi_copy_scp_data(uint8_t *data, size_t len)
 	}
 }
 
-static inline void scpi_set_scp_addr(uint64_t addr, size_t len)
+static inline void aml_scpi_set_scp_addr(uint64_t addr, size_t len)
 {
 	volatile uint64_t *dst = (uint64_t *)AML_MHU_SECURE_AP_TO_SCP_PAYLOAD;
 
@@ -166,15 +166,15 @@ static inline void scpi_set_scp_addr(uint64_t addr, size_t len)
 	 * non cachable
 	 */
 	*dst = addr;
-	scpi_secure_message_send(SCPI_CMD_SET_FW_ADDR, sizeof(addr));
+	aml_scpi_secure_message_send(SCPI_CMD_SET_FW_ADDR, sizeof(addr));
 	aml_mhu_secure_message_wait();
 
 	mmio_write_32(AML_MHU_SECURE_AP_TO_SCP_PAYLOAD, len);
-	scpi_secure_message_send(SCPI_CMD_FW_SIZE, len);
+	aml_scpi_secure_message_send(SCPI_CMD_FW_SIZE, len);
 	aml_mhu_secure_message_wait();
 }
 
-static inline void scpi_send_fw_hash(uint8_t hash[], size_t len)
+static inline void aml_scpi_send_fw_hash(uint8_t hash[], size_t len)
 {
 	void *dst = (void *)AML_MHU_SECURE_AP_TO_SCP_PAYLOAD;
 
@@ -193,7 +193,7 @@ static inline void scpi_send_fw_hash(uint8_t hash[], size_t len)
  * @param send: If set, actually copy the firmware in SCP memory otherwise only
  *  send the firmware address.
  */
-void scpi_upload_scp_fw(uintptr_t addr, size_t size, int send)
+void aml_scpi_upload_scp_fw(uintptr_t addr, size_t size, int send)
 {
 	struct asd_ctx ctx;
 
@@ -203,9 +203,9 @@ void scpi_upload_scp_fw(uintptr_t addr, size_t size, int send)
 
 	aml_mhu_secure_message_start();
 	if (send == 0)
-		scpi_set_scp_addr(addr, size);
+		aml_scpi_set_scp_addr(addr, size);
 	else
-		scpi_copy_scp_data((void *)addr, size);
+		aml_scpi_copy_scp_data((void *)addr, size);
 
-	scpi_send_fw_hash(ctx.digest, sizeof(ctx.digest));
+	aml_scpi_send_fw_hash(ctx.digest, sizeof(ctx.digest));
 }

@@ -16,7 +16,7 @@ uint64_t aml_efuse_read(void *dst, uint32_t offset, uint32_t size)
 	if ((uint64_t)(offset + size) > (uint64_t)EFUSE_SIZE)
 		return 0;
 
-	return scpi_efuse_read(dst, offset + EFUSE_BASE, size);
+	return aml_scpi_efuse_read(dst, offset + EFUSE_BASE, size);
 }
 
 uint64_t aml_efuse_user_max(void)

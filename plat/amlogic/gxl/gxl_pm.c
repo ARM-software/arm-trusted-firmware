@@ -59,7 +59,7 @@ static void __dead2 gxbb_system_reset(void)
 
 	mmio_write_32(GXBB_AO_RTI_STATUS_REG3, status);
 
-	ret = scpi_sys_power_state(SCPI_SYSTEM_REBOOT);
+	ret = aml_scpi_sys_power_state(SCPI_SYSTEM_REBOOT);
 
 	if (ret != 0) {
 		ERROR("BL31: PSCI_SYSTEM_RESET: SCP error: %i\n", ret);
@@ -81,7 +81,7 @@ static void __dead2 gxbb_system_off(void)
 	u_register_t mpidr = read_mpidr_el1();
 	int ret;
 
-	ret = scpi_sys_power_state(SCPI_SYSTEM_SHUTDOWN);
+	ret = aml_scpi_sys_power_state(SCPI_SYSTEM_SHUTDOWN);
 
 	if (ret != 0) {
 		ERROR("BL31: PSCI_SYSTEM_OFF: SCP error %i\n", ret);
@@ -117,8 +117,8 @@ static int32_t gxbb_pwr_domain_on(u_register_t mpidr)
 	}
 
 	gxl_pm_set_reset_addr(mpidr, gxbb_sec_entrypoint);
-	scpi_set_css_power_state(mpidr,
-				 SCPI_POWER_ON, SCPI_POWER_ON, SCPI_POWER_ON);
+	aml_scpi_set_css_power_state(mpidr,
+				     SCPI_POWER_ON, SCPI_POWER_ON, SCPI_POWER_ON);
 	dmbsy();
 	sev();
 
@@ -155,8 +155,8 @@ static void gxbb_pwr_domain_off(const psci_power_state_t *target_state)
 	if (core == AML_PRIMARY_CPU)
 		return;
 
-	scpi_set_css_power_state(mpidr,
-				 SCPI_POWER_OFF, SCPI_POWER_ON, SCPI_POWER_ON);
+	aml_scpi_set_css_power_state(mpidr,
+				     SCPI_POWER_OFF, SCPI_POWER_ON, SCPI_POWER_ON);
 }
 
 static void __dead2 gxbb_pwr_domain_pwr_down_wfi(const psci_power_state_t

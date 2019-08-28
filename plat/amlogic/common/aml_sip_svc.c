@@ -40,11 +40,11 @@ static uintptr_t aml_sip_handler(uint32_t smc_fid,
 		SMC_RET1(handle,  aml_efuse_user_max());
 
 	case AML_SM_JTAG_ON:
-		scpi_jtag_set_state(AML_JTAG_STATE_ON, x1);
+		aml_scpi_jtag_set_state(AML_JTAG_STATE_ON, x1);
 		SMC_RET1(handle, 0);
 
 	case AML_SM_JTAG_OFF:
-		scpi_jtag_set_state(AML_JTAG_STATE_OFF, x1);
+		aml_scpi_jtag_set_state(AML_JTAG_STATE_OFF, x1);
 		SMC_RET1(handle, 0);
 
 	default:

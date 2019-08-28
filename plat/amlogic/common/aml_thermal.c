@@ -18,10 +18,10 @@ void aml_thermal_unknown(void)
 	uint16_t ret;
 
 	if (modules_initialized == -1) {
-		scpi_efuse_read(&ret, 0, 2);
+		aml_scpi_efuse_read(&ret, 0, 2);
 		modules_initialized = ret;
 	}
 
-	scpi_unknown_thermal(10, 2,  /* thermal */
-			     13, 1); /* thermalver */
+	aml_scpi_unknown_thermal(10, 2,  /* thermal */
+				 13, 1); /* thermalver */
 }

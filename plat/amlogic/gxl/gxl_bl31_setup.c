@@ -108,10 +108,10 @@ static inline bool gxl_scp_ready(void)
 
 static inline void gxl_scp_boot(void)
 {
-	scpi_upload_scp_fw(bl30_image_info.image_base,
-			bl30_image_info.image_size, 0);
-	scpi_upload_scp_fw(bl301_image_info.image_base,
-			bl301_image_info.image_size, 1);
+	aml_scpi_upload_scp_fw(bl30_image_info.image_base,
+			       bl30_image_info.image_size, 0);
+	aml_scpi_upload_scp_fw(bl301_image_info.image_base,
+			       bl301_image_info.image_size, 1);
 	while (!gxl_scp_ready())
 		;
 }
