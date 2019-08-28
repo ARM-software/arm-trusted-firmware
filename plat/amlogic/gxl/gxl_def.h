@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef GXBB_DEF_H
-#define GXBB_DEF_H
+#ifndef GXL_DEF_H
+#define GXL_DEF_H
 
 #include <lib/utils_def.h>
 
@@ -125,4 +125,4 @@
 #define AML_JTAG_A53_AO				U(2)
 #define AML_JTAG_A53_EE				U(3)
 
-#endif /* GXBB_DEF_H */
+#endif /* GXL_DEF_H */

@@ -15,9 +15,6 @@
 #define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
 #define PLATFORM_LINKER_ARCH		aarch64
 
-/* Special value used to verify platform parameters from BL2 to BL31 */
-#define GXBB_BL31_PLAT_PARAM_VAL	ULL(0x0F1E2D3C4B5A6978)
-
 #define PLATFORM_STACK_SIZE		UL(0x1000)
 
 #define PLATFORM_MAX_CPUS_PER_CLUSTER	U(4)

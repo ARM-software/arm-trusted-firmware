@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef GXBB_PRIVATE_H
-#define GXBB_PRIVATE_H
+#ifndef AML_PRIVATE_H
+#define AML_PRIVATE_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -37,4 +37,4 @@ void aml_thermal_unknown(void);
 uint64_t aml_efuse_read(void *dst, uint32_t offset, uint32_t size);
 uint64_t aml_efuse_user_max(void);
 
-#endif /* GXBB_PRIVATE_H */
+#endif /* AML_PRIVATE_H */
