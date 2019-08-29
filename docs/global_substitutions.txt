@@ -38,6 +38,7 @@
 .. |SMCCC| replace:: :term:`SMCCC`
 .. |SoC| replace:: :term:`SoC`
 .. |SP| replace:: :term:`SP`
+.. |SPCI| replace:: :term:`SPCI`
 .. |SPD| replace:: :term:`SPD`
 .. |SPM| replace:: :term:`SPM`
 .. |SVE| replace:: :term:`SVE`

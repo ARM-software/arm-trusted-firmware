@@ -129,6 +129,9 @@ You can find additional definitions in the `Arm Glossary`_.
    SP
       Secure Partition
 
+   SPCI
+      Secure Partition Client Interface
+
    SPD
       Secure Payload Dispatcher
 
