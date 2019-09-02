@@ -2218,6 +2218,7 @@ static void sync_earlyboot_clocks_state(void)
 		DDRC2, DDRC2LP,
 		DDRCAPB, DDRPHYCAPB, DDRPHYCAPBLP,
 		DDRPHYC, DDRPHYCLP,
+		RTCAPB,
 		TZC1, TZC2,
 		TZPC,
 		STGEN_K,
@@ -2225,10 +2226,6 @@ static void sync_earlyboot_clocks_state(void)
 
 	for (idx = 0U; idx < ARRAY_SIZE(secure_enable); idx++) {
 		stm32mp_clk_enable(secure_enable[idx]);
-	}
-
-	if (!stm32mp_is_single_core()) {
-		stm32mp1_clk_enable_secure(RTCAPB);
 	}
 }
 
