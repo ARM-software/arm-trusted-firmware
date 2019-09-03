@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2019, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,16 @@
 
 #include <stdint.h>
 #include <stdio.h>
+
+/*
+ * Possible value of boot context field 'auth_status'
+ */
+/* No authentication done */
+#define BOOT_API_CTX_AUTH_NO					0x0U
+/* Authentication done and failed */
+#define BOOT_API_CTX_AUTH_FAILED				0x1U
+/* Authentication done and succeeded */
+#define BOOT_API_CTX_AUTH_SUCCESS				0x2U
 
 /*
  * Possible value of boot context field 'boot_interface_sel'
@@ -114,6 +124,8 @@
 /* Closed = OTP_CFG0[6] */
 #define BOOT_API_OTP_MODE_CLOSED_BIT_POS			6
 
+#define BOOT_API_RETURN_OK					0x66U
+
 /*
  * Boot Context related definitions
  */
@@ -132,7 +144,27 @@ typedef struct {
 	uint16_t boot_interface_instance;
 	uint32_t reserved1[13];
 	uint32_t otp_afmux_values[3];
-	uint32_t reserved[9];
+	uint32_t reserved[5];
+	uint32_t auth_status;
+
+	/*
+	 * Pointers to bootROM External Secure Services
+	 * - ECDSA check key
+	 * - ECDSA verify signature
+	 * - ECDSA verify signature and go
+	 */
+	uint32_t (*bootrom_ecdsa_check_key)(uint8_t *pubkey_in,
+					    uint8_t *pubkey_out);
+	uint32_t (*bootrom_ecdsa_verify_signature)(uint8_t *hash_in,
+						   uint8_t *pubkey_in,
+						   uint8_t *signature,
+						   uint32_t ecc_algo);
+	uint32_t (*bootrom_ecdsa_verify_and_go)(uint8_t *hash_in,
+						uint8_t *pub_key_in,
+						uint8_t *signature,
+						uint32_t ecc_algo,
+						uint32_t *entry_in);
+
 	/*
 	 * Information specific to an SD boot
 	 * Updated each time an SD boot is at least attempted,
