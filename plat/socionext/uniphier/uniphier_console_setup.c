@@ -32,7 +32,8 @@ static struct uniphier_console uniphier_console = {
 #if DEBUG
 			 CONSOLE_FLAG_RUNTIME |
 #endif
-			 CONSOLE_FLAG_CRASH,
+			 CONSOLE_FLAG_CRASH |
+			 CONSOLE_FLAG_TRANSLATE_CRLF,
 		.putc = uniphier_console_putc,
 		.getc = uniphier_console_getc,
 		.flush = uniphier_console_flush,
