@@ -483,7 +483,7 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 	 * Flush image_info to memory so that other
 	 * secure world images can see changes.
 	 */
-	flush_dcache_range((unsigned long)&image_desc->image_info,
+	flush_dcache_range((uintptr_t)&image_desc->image_info,
 		sizeof(image_info_t));
 
 	INFO("BL1-FWU: Authentication was successful\n");

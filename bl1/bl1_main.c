@@ -48,7 +48,7 @@ void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 	bl2_mem_layout->total_base = bl1_mem_layout->total_base;
 	bl2_mem_layout->total_size = BL1_RW_BASE - bl1_mem_layout->total_base;
 
-	flush_dcache_range((unsigned long)bl2_mem_layout, sizeof(meminfo_t));
+	flush_dcache_range((uintptr_t)bl2_mem_layout, sizeof(meminfo_t));
 }
 
 /*******************************************************************************

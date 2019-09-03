@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,7 +23,7 @@ void bl1_arch_setup(void)
  ******************************************************************************/
 void bl1_arch_next_el_setup(void)
 {
-	unsigned long next_sctlr;
+	u_register_t next_sctlr;
 
 	/* Use the same endianness than the current BL */
 	next_sctlr = (read_sctlr_el3() & SCTLR_EE_BIT);
