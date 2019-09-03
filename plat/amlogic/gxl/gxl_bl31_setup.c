@@ -6,12 +6,12 @@
 
 #include <assert.h>
 #include <common/bl_common.h>
-#include <drivers/arm/gicv2.h>
 #include <common/interrupt_props.h>
-#include <plat/common/platform.h>
-#include <platform_def.h>
+#include <drivers/arm/gicv2.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_mmu_helpers.h>
+#include <plat/common/platform.h>
+#include <platform_def.h>
 
 #include "aml_private.h"
 

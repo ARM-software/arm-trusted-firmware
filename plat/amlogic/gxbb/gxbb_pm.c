@@ -4,18 +4,16 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <assert.h>
-#include <errno.h>
-
-#include <platform_def.h>
-
 #include <arch_helpers.h>
+#include <assert.h>
 #include <common/debug.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/console.h>
+#include <errno.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
+#include <platform_def.h>
 
 #include "aml_private.h"
 

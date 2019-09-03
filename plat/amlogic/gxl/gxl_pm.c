@@ -6,14 +6,14 @@
 
 #include <arch_helpers.h>
 #include <assert.h>
-#include <drivers/console.h>
 #include <common/debug.h>
-#include <errno.h>
 #include <drivers/arm/gicv2.h>
+#include <drivers/console.h>
+#include <errno.h>
 #include <lib/mmio.h>
+#include <lib/psci/psci.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
-#include <lib/psci/psci.h>
 
 #include "aml_private.h"
 
