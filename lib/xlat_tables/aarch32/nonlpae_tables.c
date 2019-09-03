@@ -284,10 +284,10 @@ void mmap_add_region(unsigned long long base_pa, uintptr_t base_va,
 }
 
 /* map all memory as shared/global/domain0/no-usr access */
-static unsigned long mmap_desc(unsigned attr, unsigned long addr_pa,
-					unsigned int level)
+static uint32_t mmap_desc(unsigned attr, unsigned int addr_pa,
+		unsigned int level)
 {
-	unsigned long desc;
+	uint32_t desc;
 
 	switch (level) {
 	case 1:
@@ -380,14 +380,14 @@ static unsigned int mmap_region_attr(const mmap_region_t *mm, uintptr_t base_va,
 }
 
 static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
-						unsigned long base_va,
-						unsigned long *table,
+						unsigned int base_va,
+						uint32_t *table,
 						unsigned int level)
 {
 	unsigned int level_size_shift = (level == 1) ?
 					ONE_MB_SHIFT : FOUR_KB_SHIFT;
 	unsigned int level_size = 1 << level_size_shift;
-	unsigned long level_index_mask = (level == 1) ?
+	unsigned int level_index_mask = (level == 1) ?
 					(NUM_1MB_IN_4GB - 1) << ONE_MB_SHIFT :
 					(NUM_4K_IN_1MB - 1) << FOUR_KB_SHIFT;
 
@@ -396,7 +396,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 	VERBOSE("init xlat table at %p (level%1d)\n", (void *)table, level);
 
 	do  {
-		unsigned long desc = MMU32B_UNSET_DESC;
+		uint32_t desc = MMU32B_UNSET_DESC;
 
 		if (mm->base_va + mm->size <= base_va) {
 			/* Area now after the region so skip it */
@@ -427,7 +427,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 		}
 
 		if (desc == MMU32B_UNSET_DESC) {
-			unsigned long xlat_table;
+			uintptr_t xlat_table;
 
 			/*
 			 * Area not covered by a region so need finer table
@@ -443,7 +443,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 						~(MMU32B_L1_TABLE_ALIGN - 1);
 				desc = *table;
 			} else {
-				xlat_table = (unsigned long)mmu_l2_base +
+				xlat_table = (uintptr_t)mmu_l2_base +
 					next_xlat * MMU32B_L2_TABLE_SIZE;
 				next_xlat++;
 				assert(next_xlat <= MAX_XLAT_TABLES);
@@ -456,7 +456,7 @@ static mmap_region_t *init_xlation_table_inner(mmap_region_t *mm,
 			}
 			/* Recurse to fill in new table */
 			mm = init_xlation_table_inner(mm, base_va,
-						(unsigned long *)xlat_table,
+						(uint32_t *)xlat_table,
 						level + 1);
 		}
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
@@ -480,7 +480,7 @@ void init_xlat_tables(void)
 
 	memset(mmu_l1_base, 0, MMU32B_L1_TABLE_SIZE);
 
-	init_xlation_table_inner(mmap, 0, (unsigned long *)mmu_l1_base, 1);
+	init_xlation_table_inner(mmap, 0, (uint32_t *)mmu_l1_base, 1);
 
 	VERBOSE("init xlat - max_va=%p, max_pa=%llx\n",
 			(void *)xlat_max_va, xlat_max_pa);
