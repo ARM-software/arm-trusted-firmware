@@ -30,7 +30,9 @@ static uintptr_t dummy_dev_handle;
 static uintptr_t dummy_dev_spec;
 
 static uintptr_t image_dev_handle;
+static uintptr_t storage_dev_handle;
 
+#if STM32MP_SDMMC || STM32MP_EMMC
 static io_block_spec_t gpt_block_spec = {
 	.offset = 0,
 	.length = 34 * MMC_BLOCK_SIZE, /* Size of GPT table */
@@ -51,8 +53,8 @@ static const io_block_dev_spec_t mmc_block_dev_spec = {
 	.block_size = MMC_BLOCK_SIZE,
 };
 
-static uintptr_t storage_dev_handle;
 static const io_dev_connector_t *mmc_dev_con;
+#endif /* STM32MP_SDMMC || STM32MP_EMMC */
 
 #ifdef AARCH32_SP_OPTEE
 static const struct stm32image_part_info optee_header_partition_spec = {
@@ -96,7 +98,7 @@ enum {
 	IMG_IDX_NUM
 };
 
-static struct stm32image_device_info stm32image_dev_info_spec = {
+static struct stm32image_device_info stm32image_dev_info_spec __unused = {
 	.lba_size = MMC_BLOCK_SIZE,
 	.part_info[IMG_IDX_BL33] = {
 		.name = BL33_IMAGE_NAME,
@@ -123,7 +125,7 @@ static io_block_spec_t stm32image_block_spec = {
 	.length = 0,
 };
 
-static const io_dev_connector_t *stm32image_dev_con;
+static const io_dev_connector_t *stm32image_dev_con __unused;
 
 static int open_dummy(const uintptr_t spec);
 static int open_image(const uintptr_t spec);
@@ -169,11 +171,13 @@ static const struct plat_io_policy policies[] = {
 		.image_spec = (uintptr_t)&bl33_partition_spec,
 		.check = open_image
 	},
+#if STM32MP_SDMMC || STM32MP_EMMC
 	[GPT_IMAGE_ID] = {
 		.dev_handle = &storage_dev_handle,
 		.image_spec = (uintptr_t)&gpt_block_spec,
 		.check = open_storage
 	},
+#endif
 	[STM32_IMAGE_ID] = {
 		.dev_handle = &storage_dev_handle,
 		.image_spec = (uintptr_t)&stm32image_block_spec,
@@ -216,6 +220,7 @@ static void print_boot_device(boot_api_context_t *boot_context)
 	}
 }
 
+#if STM32MP_SDMMC || STM32MP_EMMC
 static void boot_mmc(enum mmc_device_type mmc_dev_type,
 		     uint16_t boot_interface_instance)
 {
@@ -305,6 +310,7 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 				&image_dev_handle);
 	assert(io_result == 0);
 }
+#endif /* STM32MP_SDMMC || STM32MP_EMMC */
 
 void stm32mp_io_setup(void)
 {
@@ -328,14 +334,18 @@ void stm32mp_io_setup(void)
 	assert(io_result == 0);
 
 	switch (boot_context->boot_interface_selected) {
+#if STM32MP_SDMMC
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_SD:
 		dmbsy();
 		boot_mmc(MMC_IS_SD, boot_context->boot_interface_instance);
 		break;
+#endif
+#if STM32MP_EMMC
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_EMMC:
 		dmbsy();
 		boot_mmc(MMC_IS_EMMC, boot_context->boot_interface_instance);
 		break;
+#endif
 
 	default:
 		ERROR("Boot interface %d not supported\n",

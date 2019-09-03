@@ -24,6 +24,19 @@ PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 1)))
 endif
 $(eval $(call add_define,PLAT_PARTITION_MAX_ENTRIES))
 
+# Boot devices
+STM32MP_EMMC		?=	0
+STM32MP_SDMMC		?=	0
+
+ifeq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
+$(error "No boot device driver is enabled")
+endif
+
+$(eval $(call assert_boolean,STM32MP_EMMC))
+$(eval $(call assert_boolean,STM32MP_SDMMC))
+$(eval $(call add_define,STM32MP_EMMC))
+$(eval $(call add_define,STM32MP_SDMMC))
+
 PLAT_INCLUDES		:=	-Iplat/st/common/include/
 PLAT_INCLUDES		+=	-Iplat/st/stm32mp1/include/
 
@@ -77,11 +90,13 @@ BL2_SOURCES		+=	drivers/io/io_block.c					\
 				plat/st/common/bl2_io_storage.c				\
 				plat/st/stm32mp1/bl2_plat_setup.c
 
+ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
 BL2_SOURCES		+=	drivers/mmc/mmc.c					\
 				drivers/partition/gpt.c					\
 				drivers/partition/partition.c				\
 				drivers/st/io/io_mmc.c					\
 				drivers/st/mmc/stm32_sdmmc2.c
+endif
 
 BL2_SOURCES		+=	drivers/st/ddr/stm32mp1_ddr.c				\
 				drivers/st/ddr/stm32mp1_ram.c
