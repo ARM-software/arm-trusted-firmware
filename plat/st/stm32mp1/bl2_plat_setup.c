@@ -272,6 +272,9 @@ void bl2_el3_plat_arch_setup(void)
 		panic();
 	}
 
+	console_set_scope(&console.console, CONSOLE_FLAG_BOOT |
+			  CONSOLE_FLAG_CRASH | CONSOLE_FLAG_TRANSLATE_CRLF);
+
 	stm32mp_print_cpuinfo();
 
 	board_model = dt_get_board_model();
