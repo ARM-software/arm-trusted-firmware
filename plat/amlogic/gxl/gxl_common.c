@@ -7,11 +7,9 @@
 #include <assert.h>
 #include <bl31/interrupt_mgmt.h>
 #include <common/bl_common.h>
-#include <common/debug.h>
 #include <common/ep_info.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
-#include <meson_console.h>
 #include <platform_def.h>
 #include <stdint.h>
 
@@ -98,30 +96,6 @@ void aml_setup_page_tables(void)
 	mmap_add(gxl_mmap);
 
 	init_xlat_tables();
-}
-
-/*******************************************************************************
- * Function that sets up the console
- ******************************************************************************/
-static console_meson_t gxl_console;
-
-void aml_console_init(void)
-{
-	int rc = console_meson_register(AML_UART0_AO_BASE,
-					AML_UART0_AO_CLK_IN_HZ,
-					AML_UART_BAUDRATE,
-					&gxl_console);
-	if (rc == 0) {
-		/*
-		 * The crash console doesn't use the multi console API, it uses
-		 * the core console functions directly. It is safe to call panic
-		 * and let it print debug information.
-		 */
-		panic();
-	}
-
-	console_set_scope(&gxl_console.console,
-			  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
 }
 
 /*******************************************************************************
