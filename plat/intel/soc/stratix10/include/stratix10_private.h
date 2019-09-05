@@ -10,9 +10,9 @@
 #define S10_MMC_REG_BASE	0xff808000
 
 #define EMMC_DESC_SIZE		(1<<20)
-#define EMMC_INIT_PARAMS(base)			\
+#define EMMC_INIT_PARAMS(base, clk)			\
 	{	.bus_width = MMC_BUS_WIDTH_4,	\
-		.clk_rate = 50000000,		\
+		.clk_rate = (clk),		\
 		.desc_base = (base),		\
 		.desc_size = EMMC_DESC_SIZE,	\
 		.flags = 0,			\

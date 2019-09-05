@@ -62,6 +62,9 @@
 #define S10_SYSMGR_CORE(x)			(0xffd12000 + (x))
 #define SYSMGR_MMC				0x28
 #define SYSMGR_MMC_DRVSEL(x)			(((x) & 0x7) << 0)
+#define SYSMGR_BOOT_SCRATCH_COLD_0		0x200
+#define SYSMGR_BOOT_SCRATCH_COLD_1		0x204
+#define SYSMGR_BOOT_SCRATCH_COLD_2		0x208
 
 
 #define DISABLE_L4_FIREWALL	(BIT(0) | BIT(16) | BIT(24))
