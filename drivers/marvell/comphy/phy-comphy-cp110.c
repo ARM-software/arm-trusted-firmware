@@ -898,10 +898,20 @@ static int mvebu_cp110_comphy_xfi_power_on(uint64_t comphy_base,
 	data = 0x1 << SD_EXTERNAL_CONFIG1_RESET_IN_OFFSET;
 	mask |= SD_EXTERNAL_CONFIG1_RESET_CORE_MASK;
 	data |= 0x1 << SD_EXTERNAL_CONFIG1_RESET_CORE_OFFSET;
+	mask |= SD_EXTERNAL_CONFIG1_TX_IDLE_MASK;
+	data |= 0x1 << SD_EXTERNAL_CONFIG1_TX_IDLE_OFFSET;
 	reg_set(sd_ip_addr + SD_EXTERNAL_CONFIG1_REG, data, mask);
 
 	/* Wait 1ms - until band gap and ref clock ready */
 	mdelay(1);
+
+	/*
+	 * Erratum IPCE_COMPHY-1353: toggle TX_IDLE bit in
+	 * addition to the PHY reset
+	 */
+	mask = SD_EXTERNAL_CONFIG1_TX_IDLE_MASK;
+	data = 0x0U;
+	reg_set(sd_ip_addr + SD_EXTERNAL_CONFIG1_REG, data, mask);
 
 	/* Start comphy Configuration */
 	debug("stage: Comphy configuration\n");
