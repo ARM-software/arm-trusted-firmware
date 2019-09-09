@@ -21,7 +21,6 @@ enum {
 /* Supported key algorithms */
 enum {
 	KEY_ALG_RSA,		/* RSA PSS as defined by PKCS#1 v2.1 (default) */
-	KEY_ALG_RSA_1_5,	/* RSA as defined by PKCS#1 v1.5 */
 #ifndef OPENSSL_NO_EC
 	KEY_ALG_ECDSA,
 #endif /* OPENSSL_NO_EC */
@@ -42,7 +41,6 @@ enum{
 /* NOTE: the first item in each array is the default key size */
 static const unsigned int KEY_SIZES[KEY_ALG_MAX_NUM][KEY_SIZE_MAX_NUM] = {
 	{ 2048, 1024, 3072, 4096 },	/* KEY_ALG_RSA */
-	{ 2048, 1024, 3072, 4096 },	/* KEY_ALG_RSA_1_5 */
 #ifndef OPENSSL_NO_EC
 	{}				/* KEY_ALG_ECDSA */
 #endif /* OPENSSL_NO_EC */

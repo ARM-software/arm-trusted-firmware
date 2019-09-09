@@ -112,7 +112,6 @@ err:
 typedef int (*key_create_fn_t)(key_t *key, int key_bits);
 static const key_create_fn_t key_create_fn[KEY_ALG_MAX_NUM] = {
 	key_create_rsa, 	/* KEY_ALG_RSA */
-	key_create_rsa, 	/* KEY_ALG_RSA_1_5 */
 #ifndef OPENSSL_NO_EC
 	key_create_ecdsa, 	/* KEY_ALG_ECDSA */
 #endif /* OPENSSL_NO_EC */

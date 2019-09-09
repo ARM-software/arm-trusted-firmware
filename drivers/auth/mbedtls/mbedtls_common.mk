@@ -48,9 +48,9 @@ LIBMBEDTLS_SRCS		:= $(addprefix ${MBEDTLS_DIR}/library/,	\
 					)
 
 # The platform may define the variable 'TF_MBEDTLS_KEY_ALG' to select the key
-# algorithm to use. If the variable is not defined, select it based on algorithm
-# used for key generation `KEY_ALG`. If `KEY_ALG` is not defined or is
-# defined to `rsa`/`rsa_1_5`, then set the variable to `rsa`.
+# algorithm to use. If the variable is not defined, select it based on
+# algorithm used for key generation `KEY_ALG`. If `KEY_ALG` is not defined,
+# then it is set to `rsa`.
 ifeq (${TF_MBEDTLS_KEY_ALG},)
     ifeq (${KEY_ALG}, ecdsa)
         TF_MBEDTLS_KEY_ALG		:=	ecdsa

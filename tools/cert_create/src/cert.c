@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -93,7 +93,6 @@ int cert_add_ext(X509 *issuer, X509 *subject, int nid, char *value)
 }
 
 int cert_new(
-	int key_alg,
 	int md_alg,
 	cert_t *cert,
 	int days,
@@ -143,10 +142,10 @@ int cert_new(
 	}
 
 	/*
-	 * Set additional parameters if algorithm is RSA PSS. This is not
-	 * required for RSA 1.5 or ECDSA.
+	 * Set additional parameters if issuing public key algorithm is RSA.
+	 * This is not required for ECDSA.
 	 */
-	if (key_alg == KEY_ALG_RSA) {
+	if (EVP_PKEY_base_id(ikey) == EVP_PKEY_RSA) {
 		if (!EVP_PKEY_CTX_set_rsa_padding(pKeyCtx, RSA_PKCS1_PSS_PADDING)) {
 			ERR_print_errors_fp(stdout);
 			goto END;

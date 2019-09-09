@@ -92,7 +92,6 @@ static char *strdup(const char *str)
 
 static const char *key_algs_str[] = {
 	[KEY_ALG_RSA] = "rsa",
-	[KEY_ALG_RSA_1_5] = "rsa_1_5",
 #ifndef OPENSSL_NO_EC
 	[KEY_ALG_ECDSA] = "ecdsa"
 #endif /* OPENSSL_NO_EC */
@@ -277,8 +276,7 @@ static const cmd_opt_t common_cmd_opt[] = {
 	},
 	{
 		{ "key-alg", required_argument, NULL, 'a' },
-		"Key algorithm: 'rsa' (default) - RSAPSS scheme as per \
-PKCS#1 v2.1, 'rsa_1_5' - RSA PKCS#1 v1.5, 'ecdsa'"
+		"Key algorithm: 'rsa' (default)- RSAPSS scheme as per PKCS#1 v2.1, 'ecdsa'"
 	},
 	{
 		{ "key-size", required_argument, NULL, 'b' },
@@ -545,7 +543,7 @@ int main(int argc, char *argv[])
 		}
 
 		/* Create certificate. Signed with corresponding key */
-		if (cert->fn && !cert_new(key_alg, hash_alg, cert, VAL_DAYS, 0, sk)) {
+		if (cert->fn && !cert_new(hash_alg, cert, VAL_DAYS, 0, sk)) {
 			ERROR("Cannot create %s\n", cert->cn);
 			exit(1);
 		}
