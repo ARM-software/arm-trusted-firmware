@@ -19,6 +19,7 @@
 #include <drivers/st/bsec.h>
 #include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32_gpio.h>
+#include <drivers/st/stm32_iwdg.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/el3_runtime/context_mgmt.h>
@@ -88,6 +89,12 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/* Imprecise aborts can be masked in NonSecure */
 	write_scr(read_scr() | SCR_AW_BIT);
 
+	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE,
+			BL_CODE_END - BL_CODE_BASE,
+			MT_CODE | MT_SECURE);
+
+	configure_mmu();
+
 	assert(params_from_bl2 != NULL);
 	assert(params_from_bl2->h.type == PARAM_BL_PARAMS);
 	assert(params_from_bl2->h.version >= VERSION_2);
@@ -127,6 +134,11 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		    0) {
 			panic();
 		}
+
+#ifdef DEBUG
+		console_set_scope(&console.console,
+				  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
+#endif
 	}
 }
 
@@ -135,12 +147,6 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
  ******************************************************************************/
 void sp_min_platform_setup(void)
 {
-	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE,
-			BL_CODE_END - BL_CODE_BASE,
-			MT_CODE | MT_SECURE);
-
-	configure_mmu();
-
 	/* Initialize tzc400 after DDR initialization */
 	stm32mp1_security_setup();
 
@@ -156,6 +162,10 @@ void sp_min_platform_setup(void)
 	/* Set GPIO bank Z as non secure */
 	for (uint32_t pin = 0U; pin < STM32MP_GPIOZ_PIN_MAX_COUNT; pin++) {
 		set_gpio_secure_cfg(GPIO_BANK_Z, pin, false);
+	}
+
+	if (stm32_iwdg_init() < 0) {
+		panic();
 	}
 }
 

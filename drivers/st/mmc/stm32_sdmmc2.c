@@ -71,20 +71,14 @@
 #define SDMMC_DCTRLR_DTEN		BIT(0)
 #define SDMMC_DCTRLR_DTDIR		BIT(1)
 #define SDMMC_DCTRLR_DTMODE		GENMASK(3, 2)
-#define SDMMC_DCTRLR_DBLOCKSIZE_0	BIT(4)
-#define SDMMC_DCTRLR_DBLOCKSIZE_1	BIT(5)
-#define SDMMC_DCTRLR_DBLOCKSIZE_3	BIT(7)
 #define SDMMC_DCTRLR_DBLOCKSIZE		GENMASK(7, 4)
+#define SDMMC_DCTRLR_DBLOCKSIZE_SHIFT	4
 #define SDMMC_DCTRLR_FIFORST		BIT(13)
 
 #define SDMMC_DCTRLR_CLEAR_MASK		(SDMMC_DCTRLR_DTEN | \
 					 SDMMC_DCTRLR_DTDIR | \
 					 SDMMC_DCTRLR_DTMODE | \
 					 SDMMC_DCTRLR_DBLOCKSIZE)
-#define SDMMC_DBLOCKSIZE_8		(SDMMC_DCTRLR_DBLOCKSIZE_0 | \
-					 SDMMC_DCTRLR_DBLOCKSIZE_1)
-#define SDMMC_DBLOCKSIZE_512		(SDMMC_DCTRLR_DBLOCKSIZE_0 | \
-					 SDMMC_DCTRLR_DBLOCKSIZE_3)
 
 /* SDMMC status register */
 #define SDMMC_STAR_CCRCFAIL		BIT(0)
@@ -152,10 +146,14 @@ bool plat_sdmmc2_use_dma(unsigned int instance, unsigned int memory)
 static void stm32_sdmmc2_init(void)
 {
 	uint32_t clock_div;
+	uint32_t freq = STM32MP_MMC_INIT_FREQ;
 	uintptr_t base = sdmmc2_params.reg_base;
 
-	clock_div = div_round_up(sdmmc2_params.clk_rate,
-				 STM32MP_MMC_INIT_FREQ * 2);
+	if (sdmmc2_params.max_freq != 0U) {
+		freq = MIN(sdmmc2_params.max_freq, freq);
+	}
+
+	clock_div = div_round_up(sdmmc2_params.clk_rate, freq * 2U);
 
 	mmio_write_32(base + SDMMC_CLKCR, SDMMC_CLKCR_HWFC_EN | clock_div |
 		      sdmmc2_params.negedge |
@@ -406,7 +404,7 @@ static int stm32_sdmmc2_set_ios(unsigned int clk, unsigned int width)
 {
 	uintptr_t base = sdmmc2_params.reg_base;
 	uint32_t bus_cfg = 0;
-	uint32_t clock_div, max_freq;
+	uint32_t clock_div, max_freq, freq;
 	uint32_t clk_rate = sdmmc2_params.clk_rate;
 	uint32_t max_bus_freq = sdmmc2_params.device_info->max_bus_freq;
 
@@ -438,7 +436,13 @@ static int stm32_sdmmc2_set_ios(unsigned int clk, unsigned int width)
 		}
 	}
 
-	clock_div = div_round_up(clk_rate, max_freq * 2);
+	if (sdmmc2_params.max_freq != 0U) {
+		freq = MIN(sdmmc2_params.max_freq, max_freq);
+	} else {
+		freq = max_freq;
+	}
+
+	clock_div = div_round_up(clk_rate, freq * 2U);
 
 	mmio_write_32(base + SDMMC_CLKCR,
 		      SDMMC_CLKCR_HWFC_EN | clock_div | bus_cfg |
@@ -454,11 +458,14 @@ static int stm32_sdmmc2_prepare(int lba, uintptr_t buf, size_t size)
 	int ret;
 	uintptr_t base = sdmmc2_params.reg_base;
 	uint32_t data_ctrl = SDMMC_DCTRLR_DTDIR;
+	uint32_t arg_size;
 
-	if (size == 8U) {
-		data_ctrl |= SDMMC_DBLOCKSIZE_8;
+	assert(size != 0U);
+
+	if (size > MMC_BLOCK_SIZE) {
+		arg_size = MMC_BLOCK_SIZE;
 	} else {
-		data_ctrl |= SDMMC_DBLOCKSIZE_512;
+		arg_size = size;
 	}
 
 	sdmmc2_params.use_dma = plat_sdmmc2_use_dma(base, buf);
@@ -477,12 +484,7 @@ static int stm32_sdmmc2_prepare(int lba, uintptr_t buf, size_t size)
 	zeromem(&cmd, sizeof(struct mmc_cmd));
 
 	cmd.cmd_idx = MMC_CMD(16);
-	if (size > MMC_BLOCK_SIZE) {
-		cmd.cmd_arg = MMC_BLOCK_SIZE;
-	} else {
-		cmd.cmd_arg = size;
-	}
-
+	cmd.cmd_arg = arg_size;
 	cmd.resp_type = MMC_RESPONSE_R1;
 
 	ret = stm32_sdmmc2_send_cmd(&cmd);
@@ -503,6 +505,8 @@ static int stm32_sdmmc2_prepare(int lba, uintptr_t buf, size_t size)
 
 		flush_dcache_range(buf, size);
 	}
+
+	data_ctrl |= __builtin_ctz(arg_size) << SDMMC_DCTRLR_DBLOCKSIZE_SHIFT;
 
 	mmio_clrsetbits_32(base + SDMMC_DCTRLR,
 			   SDMMC_DCTRLR_CLEAR_MASK,
@@ -690,6 +694,11 @@ static int stm32_sdmmc2_dt_get_config(void)
 		default:
 			break;
 		}
+	}
+
+	cuint = fdt_getprop(fdt, sdmmc_node, "max-frequency", NULL);
+	if (cuint != NULL) {
+		sdmmc2_params.max_freq = fdt32_to_cpu(*cuint);
 	}
 
 	return 0;

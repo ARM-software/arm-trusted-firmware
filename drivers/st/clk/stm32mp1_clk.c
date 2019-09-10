@@ -541,29 +541,19 @@ static const struct stm32mp1_clk_pll *pll_ref(unsigned int idx)
 	return &stm32mp1_clk_pll[idx];
 }
 
-static int stm32mp1_lock_available(void)
-{
-	/* The spinlocks are used only when MMU is enabled */
-	return (read_sctlr() & SCTLR_M_BIT) && (read_sctlr() & SCTLR_C_BIT);
-}
-
 static void stm32mp1_clk_lock(struct spinlock *lock)
 {
-	if (stm32mp1_lock_available() == 0U) {
-		return;
+	if (stm32mp_lock_available()) {
+		/* Assume interrupts are masked */
+		spin_lock(lock);
 	}
-
-	/* Assume interrupts are masked */
-	spin_lock(lock);
 }
 
 static void stm32mp1_clk_unlock(struct spinlock *lock)
 {
-	if (stm32mp1_lock_available() == 0U) {
-		return;
+	if (stm32mp_lock_available()) {
+		spin_unlock(lock);
 	}
-
-	spin_unlock(lock);
 }
 
 bool stm32mp1_rcc_is_secure(void)
@@ -1912,9 +1902,18 @@ static void stm32mp1_osc_init(void)
 	}
 }
 
+static void sync_earlyboot_clocks_state(void)
+{
+	if (!stm32mp_is_single_core()) {
+		stm32mp1_clk_enable_secure(RTCAPB);
+	}
+}
+
 int stm32mp1_clk_probe(void)
 {
 	stm32mp1_osc_init();
+
+	sync_earlyboot_clocks_state();
 
 	return 0;
 }
