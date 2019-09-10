@@ -33,8 +33,7 @@
 &bsec {
 	board_id: board_id@ec {
 		reg = <0xec 0x4>;
-		status = "okay";
-		secure-status = "okay";
+		st,non-secure-otp;
 	};
 };
 
