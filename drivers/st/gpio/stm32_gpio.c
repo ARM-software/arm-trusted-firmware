@@ -165,7 +165,7 @@ int dt_set_pinctrl_config(int node)
 	void *fdt;
 
 	if (fdt_get_address(&fdt) == 0) {
-		return -ENOENT;
+		return -FDT_ERR_NOTFOUND;
 	}
 
 	if (status == DT_DISABLED) {
