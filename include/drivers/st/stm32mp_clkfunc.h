@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,5 +26,6 @@ const fdt32_t *fdt_rcc_read_prop(const char *prop_name, int *lenp);
 bool fdt_get_rcc_secure_status(void);
 
 int fdt_get_clock_id(int node);
+unsigned long fdt_get_uart_clock_freq(uintptr_t instance);
 
 #endif /* STM32MP_CLKFUNC_H */
