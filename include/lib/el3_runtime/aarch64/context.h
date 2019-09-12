@@ -123,10 +123,22 @@
 #define CTX_TIMER_SYSREGS_END	CTX_AARCH32_END
 #endif /* NS_TIMER_SWITCH */
 
+#if CTX_INCLUDE_MTE_REGS
+#define CTX_TFSRE0_EL1		(CTX_TIMER_SYSREGS_END + U(0x0))
+#define CTX_TFSR_EL1		(CTX_TIMER_SYSREGS_END + U(0x8))
+#define CTX_RGSR_EL1		(CTX_TIMER_SYSREGS_END + U(0x10))
+#define CTX_GCR_EL1		(CTX_TIMER_SYSREGS_END + U(0x18))
+
+/* Align to the next 16 byte boundary */
+#define CTX_MTE_REGS_END	(CTX_TIMER_SYSREGS_END + U(0x20))
+#else
+#define CTX_MTE_REGS_END	CTX_TIMER_SYSREGS_END
+#endif /* CTX_INCLUDE_MTE_REGS */
+
 /*
  * End of system registers.
  */
-#define CTX_SYSREGS_END		CTX_TIMER_SYSREGS_END
+#define CTX_SYSREGS_END		CTX_MTE_REGS_END
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'fp_regs'

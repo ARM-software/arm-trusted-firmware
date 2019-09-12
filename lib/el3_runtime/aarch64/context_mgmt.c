@@ -137,17 +137,30 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 		scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
 #endif /* !CTX_INCLUDE_PAUTH_REGS */
 
-	unsigned int mte = get_armv8_5_mte_support();
-
 	/*
-	 * Enable MTE support unilaterally for normal world if the CPU supports
-	 * it.
+	 * Enable MTE support. Support is enabled unilaterally for the normal
+	 * world, and only for the secure world when CTX_INCLUDE_MTE_REGS is
+	 * set.
 	 */
-	if (mte != MTE_UNIMPLEMENTED) {
-		if (security_state == NON_SECURE) {
-			scr_el3 |= SCR_ATA_BIT;
-		}
+	unsigned int mte = get_armv8_5_mte_support();
+#if CTX_INCLUDE_MTE_REGS
+	assert(mte == MTE_IMPLEMENTED_ELX);
+	scr_el3 |= SCR_ATA_BIT;
+#else
+	if (mte == MTE_IMPLEMENTED_EL0) {
+		/*
+		 * Can enable MTE across both worlds as no MTE registers are
+		 * used
+		 */
+		scr_el3 |= SCR_ATA_BIT;
+	} else if (mte == MTE_IMPLEMENTED_ELX && security_state == NON_SECURE) {
+		/*
+		 * Can only enable MTE in Non-Secure world without register
+		 * saving
+		 */
+		scr_el3 |= SCR_ATA_BIT;
 	}
+#endif
 
 #ifdef IMAGE_BL31
 	/*
