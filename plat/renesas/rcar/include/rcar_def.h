@@ -221,9 +221,11 @@
 #define	CPG_PLL0CR			(CPG_BASE + 0x00D8U)
 #define	CPG_PLL2CR			(CPG_BASE + 0x002CU)
 #define	CPG_PLL4CR			(CPG_BASE + 0x01F4U)
+#define CPG_CPGWPCR			(CPG_BASE + 0x0904U)
 /* RST Registers */
 #define	RST_BASE			(0xE6160000U)
 #define	RST_WDTRSTCR			(RST_BASE + 0x0054U)
+#define RST_MODEMR			(RST_BASE + 0x0060U)
 #define	WDTRSTCR_PASSWORD		(0xA55A0000U)
 #define	WDTRSTCR_RWDT_RSTMSK		((uint32_t)1U << 0U)
 /* MFIS Registers */
@@ -267,11 +269,15 @@
 #define MIDR_CA57			(0x0D07U << MIDR_PN_SHIFT)
 #define MIDR_CA53			(0x0D03U << MIDR_PN_SHIFT)
 /* for SuspendToRAM */
-#define	GPIO_BASE			(0xE6050000U)
-#define	GPIO_INDT1			(GPIO_BASE + 0x100CU)
+#define GPIO_BASE			(0xE6050000U)
+#define GPIO_INDT1			(GPIO_BASE + 0x100CU)
+#define GPIO_INDT3			(GPIO_BASE + 0x300CU)
 #define GPIO_INDT6			(GPIO_BASE + 0x540CU)
-#define	RCAR_COLD_BOOT			(0x00U)
-#define	RCAR_WARM_BOOT			(0x01U)
+#define GPIO_OUTDT1			(GPIO_BASE + 0x1008U)
+#define GPIO_OUTDT3			(GPIO_BASE + 0x3008U)
+#define GPIO_OUTDT6			(GPIO_BASE + 0x5408U)
+#define RCAR_COLD_BOOT			(0x00U)
+#define RCAR_WARM_BOOT			(0x01U)
 #if PMIC_ROHM_BD9571 && RCAR_SYSTEM_RESET_KEEPON_DDR
 #define	KEEP10_MAGIC		(0x55U)
 #endif

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2018-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2018-2019, Renesas Electronics Corporation.
+ * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -1178,9 +1179,9 @@
 #define _reg_PI_TSDO_F1                                    0x00000493U
 #define _reg_PI_TSDO_F2                                    0x00000494U
 
-#define DDR_REGDEF_ADR(regdef) ((regdef)&0xffff)
-#define DDR_REGDEF_LEN(regdef) (((regdef)>>16)&0xff)
-#define DDR_REGDEF_LSB(regdef) (((regdef)>>24)&0xff)
+#define DDR_REGDEF_ADR(regdef) ((regdef) & 0xffff)
+#define DDR_REGDEF_LEN(regdef) (((regdef) >> 16) & 0xff)
+#define DDR_REGDEF_LSB(regdef) (((regdef) >> 24) & 0xff)
 
 static const uint32_t DDR_REGDEF_TBL[4][1173] = {
 	{
@@ -5882,5 +5883,5 @@ static const uint32_t DDR_REGDEF_TBL[4][1173] = {
 /*0492*/ 0x0808031dU,
 /*0493*/ 0x1008031dU,
 /*0494*/ 0x1808031dU,
-	 }
+	}
 };
