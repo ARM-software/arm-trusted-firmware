@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables.h>
+#include <plat_ipi.h>
 #include <plat_private.h>
 #include <plat/common/platform.h>
 
@@ -325,6 +326,9 @@ unsigned int zynqmp_get_bootmode(void)
 
 void zynqmp_config_setup(void)
 {
+	/* Configure IPI data for ZynqMP */
+	zynqmp_ipi_config_table_init();
+
 	zynqmp_print_platform_name();
 	generic_delay_timer_init();
 }

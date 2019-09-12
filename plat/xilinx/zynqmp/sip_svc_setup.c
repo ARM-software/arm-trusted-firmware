@@ -9,7 +9,6 @@
 #include <common/runtime_svc.h>
 #include <tools_share/uuid.h>
 
-#include <plat_ipi.h>
 #include "ipi_mailbox_svc.h"
 #include "pm_svc_main.h"
 
@@ -41,9 +40,6 @@ DEFINE_SVC_UUID2(zynqmp_sip_uuid,
  */
 static int32_t sip_svc_setup(void)
 {
-	/* Configure IPI data for ZynqMP */
-	zynqmp_ipi_config_table_init();
-
 	/* PM implementation as SiP Service */
 	pm_setup();
 
