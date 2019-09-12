@@ -33,6 +33,9 @@ BL2_AT_EL3			:= 0
 # when BL2_AT_EL3 is 1.
 BL2_IN_XIP_MEM			:= 0
 
+# Do dcache invalidate upon BL2 entry at EL3
+BL2_INV_DCACHE			:= 1
+
 # Select the branch protection features to use.
 BRANCH_PROTECTION		:= 0
 

@@ -333,7 +333,7 @@
 	 * ---------------------------------------------------------------------
 	 */
 	.if \_init_c_runtime
-#if defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3)
+#if defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3 && BL2_INV_DCACHE)
 		/* -------------------------------------------------------------
 		 * Invalidate the RW memory used by the BL31 image. This
 		 * includes the data and NOBITS sections. This is done to
