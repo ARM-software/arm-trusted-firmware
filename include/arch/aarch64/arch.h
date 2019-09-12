@@ -598,6 +598,8 @@
 #define ESR_EC_SHIFT			U(26)
 #define ESR_EC_MASK			U(0x3f)
 #define ESR_EC_LENGTH			U(6)
+#define ESR_ISS_SHIFT			U(0)
+#define ESR_ISS_LENGTH			U(25)
 #define EC_UNKNOWN			U(0x0)
 #define EC_WFE_WFI			U(0x1)
 #define EC_AARCH32_CP15_MRC_MCR		U(0x3)
@@ -624,6 +626,7 @@
 #define EC_AARCH32_FP			U(0x28)
 #define EC_AARCH64_FP			U(0x2c)
 #define EC_SERROR			U(0x2f)
+#define EC_BRK				U(0x3c)
 
 /*
  * External Abort bit in Instruction and Data Aborts synchronous exception

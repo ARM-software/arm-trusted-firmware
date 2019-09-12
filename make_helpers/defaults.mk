@@ -224,3 +224,5 @@ ifneq (${ARCH},aarch32)
 else
     override ENABLE_SVE_FOR_NS	:= 0
 endif
+
+SANITIZE_UB := off

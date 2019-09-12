@@ -278,6 +278,14 @@ TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
 				-ffreestanding -fno-builtin -Wall -std=gnu99	\
 				-Os -ffunction-sections -fdata-sections
 
+ifeq (${SANITIZE_UB},on)
+TF_CFLAGS		+=	-fsanitize=undefined -fno-sanitize-recover
+endif
+ifeq (${SANITIZE_UB},trap)
+TF_CFLAGS		+=	-fsanitize=undefined -fno-sanitize-recover	\
+				-fsanitize-undefined-trap-on-error
+endif
+
 GCC_V_OUTPUT		:=	$(shell $(CC) -v 2>&1)
 
 ifneq ($(findstring armlink,$(notdir $(LD))),)
@@ -311,6 +319,10 @@ BL_COMMON_SOURCES	+=	common/bl_common.c			\
 
 ifeq ($(notdir $(CC)),armclang)
 BL_COMMON_SOURCES	+=	lib/${ARCH}/armclang_printf.S
+endif
+
+ifeq (${SANITIZE_UB},on)
+BL_COMMON_SOURCES	+=	plat/common/ubsan.c
 endif
 
 INCLUDES		+=	-Iinclude				\
@@ -673,6 +685,10 @@ $(eval $(call assert_numeric,ARM_ARCH_MAJOR))
 $(eval $(call assert_numeric,ARM_ARCH_MINOR))
 $(eval $(call assert_numeric,BRANCH_PROTECTION))
 
+ifeq ($(filter $(SANITIZE_UB), on off trap),)
+        $(error "Invalid value for SANITIZE_UB: can be one of on, off, trap")
+endif
+
 ################################################################################
 # Add definitions to the cpp preprocessor based on the current build options.
 # This is done after including the platform specific makefile to allow the
@@ -723,6 +739,10 @@ $(eval $(call add_define,USE_TBBR_DEFS))
 $(eval $(call add_define,WARMBOOT_ENABLE_DCACHE_EARLY))
 $(eval $(call add_define,BL2_AT_EL3))
 $(eval $(call add_define,BL2_IN_XIP_MEM))
+
+ifeq (${SANITIZE_UB},trap)
+        $(eval $(call add_define,MONITOR_TRAPS))
+endif
 
 # Define the EL3_PAYLOAD_BASE flag only if it is provided.
 ifdef EL3_PAYLOAD_BASE
