@@ -46,6 +46,16 @@ func neoverse_zeus_errata_report
 endfunc neoverse_zeus_errata_report
 #endif
 
+func neoverse_zeus_reset_func
+	mov	x19, x30
+
+	/* Disable speculative loads */
+	msr	SSBS, xzr
+
+	isb
+	ret	x19
+endfunc neoverse_zeus_reset_func
+
 	/* ---------------------------------------------
 	 * This function provides Neoverse-Zeus specific
 	 * register information for crash reporting.
@@ -66,5 +76,5 @@ func neoverse_zeus_cpu_reg_dump
 endfunc neoverse_zeus_cpu_reg_dump
 
 declare_cpu_ops neoverse_zeus, NEOVERSE_ZEUS_MIDR, \
-	CPU_NO_RESET_FUNC, \
+	neoverse_zeus_reset_func, \
 	neoverse_zeus_core_pwr_dwn
