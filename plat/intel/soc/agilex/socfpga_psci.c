@@ -61,18 +61,12 @@ int socfpga_pwr_domain_on(u_register_t mpidr)
  ******************************************************************************/
 void socfpga_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	unsigned int cpu_id = plat_my_core_pos();
-
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
 
-	/* TODO: Prevent interrupts from spuriously waking up this cpu */
-	/* gicv2_cpuif_disable(); */
-
-	/* assert core reset */
-	mmio_setbits_32(AGX_RSTMGR_OFST + AGX_RSTMGR_MPUMODRST_OFST,
-		1 << cpu_id);
+	/* Prevent interrupts from spuriously waking up this cpu */
+	gicv2_cpuif_disable();
 }
 
 /*******************************************************************************
