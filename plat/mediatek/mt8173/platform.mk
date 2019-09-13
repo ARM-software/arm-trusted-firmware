@@ -8,7 +8,6 @@ MTK_PLAT		:=	plat/mediatek
 MTK_PLAT_SOC		:=	${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
-				-I${MTK_PLAT}/common/drivers/uart/		\
 				-Iinclude/plat/arm/common/aarch64		\
 				-I${MTK_PLAT_SOC}/drivers/crypt/		\
 				-I${MTK_PLAT_SOC}/drivers/mtcmos/		\
@@ -21,21 +20,21 @@ PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
 				plat/arm/common/arm_gicv2.c			\
-				plat/common/plat_gicv2.c
+				plat/common/plat_gicv2.c			\
+				plat/common/aarch64/crash_console_helpers.S
 
 BL31_SOURCES		+=	common/desc_image_load.c			\
 				drivers/arm/cci/cci.c				\
 				drivers/arm/gic/common/gic_common.c		\
 				drivers/arm/gic/v2/gicv2_main.c			\
 				drivers/arm/gic/v2/gicv2_helpers.c		\
-				drivers/console/aarch64/console.S		\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
+				drivers/ti/uart/aarch64/16550_console.S		\
 				lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
-				${MTK_PLAT}/common/drivers/uart/8250_console.S	\
 				${MTK_PLAT}/common/mtk_plat_common.c		\
 				${MTK_PLAT}/common/mtk_sip_svc.c		\
 				${MTK_PLAT_SOC}/aarch64/plat_helpers.S		\
@@ -68,3 +67,5 @@ $(eval $(call add_define,MTK_SIP_SET_AUTHORIZED_SECURE_REG_ENABLE))
 
 # Do not enable SVE
 ENABLE_SVE_FOR_NS		:=	0
+
+MULTI_CONSOLE_API		:=	1

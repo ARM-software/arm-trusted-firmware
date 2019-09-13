@@ -11,9 +11,6 @@
 	.globl	plat_report_exception
 	.globl	platform_is_primary_cpu
 	.globl  plat_my_core_pos
-	.globl	plat_crash_console_init
-	.globl	plat_crash_console_putc
-	.globl	plat_crash_console_flush
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
@@ -50,42 +47,3 @@ func plat_my_core_pos
 	add     x0, x1, x0, LSR #6
 	ret
 endfunc plat_my_core_pos
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_init(void)
-	 * Function to initialize the crash console
-	 * without a C Runtime to print crash report.
-	 * Clobber list : x0 - x4
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_init
-	mov_imm	x0, MT8173_UART0_BASE
-	mov_imm	x1, MT8173_UART_CLOCK
-	mov_imm	x2, MT8173_BAUDRATE
-	b	console_core_init
-endfunc plat_crash_console_init
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_putc(void)
-	 * Function to print a character on the crash
-	 * console without a C Runtime.
-	 * Clobber list : x1, x2
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_putc
-	mov_imm x1, MT8173_UART0_BASE
-	b	console_core_putc
-endfunc plat_crash_console_putc
-
-	/* ---------------------------------------------
-	 * int plat_crash_console_flush(int c)
-	 * Function to force a write of all buffered
-	 * data that hasn't been output.
-	 * Out : return -1 on error else return 0.
-	 * Clobber list : x0, x1
-	 * ---------------------------------------------
-	 */
-func plat_crash_console_flush
-	mov_imm	x0, MT8173_UART0_BASE
-	b	console_core_flush
-endfunc plat_crash_console_flush
