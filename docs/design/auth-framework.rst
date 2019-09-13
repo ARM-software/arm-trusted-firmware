@@ -704,7 +704,7 @@ Each image descriptor must specify:
 
 In the ``tbbr_cot.c`` file, a set of buffers are allocated to store the parameters
 extracted from the certificates. In the case of the TBBR CoT, these parameters
-are hashes and public keys. In DER format, an RSA-2048 public key requires 294
+are hashes and public keys. In DER format, an RSA-4096 public key requires 550
 bytes, and a hash requires 51 bytes. Depending on the CoT and the authentication
 process, some of the buffers may be reused at different stages during the boot.
 
@@ -946,12 +946,16 @@ three functions:
     int verify_hash(void *data_ptr, unsigned int data_len,
                     void *digest_info_ptr, unsigned int digest_info_len);
 
-The mbedTLS library algorithm support is configured by the
-``TF_MBEDTLS_KEY_ALG`` variable which can take in 3 values: `rsa`, `ecdsa` or
-`rsa+ecdsa`. This variable allows the Makefile to include the corresponding
-sources in the build for the various algorithms. Setting the variable to
-`rsa+ecdsa` enables support for both rsa and ecdsa algorithms in the mbedTLS
-library.
+The mbedTLS library algorithm support is configured by both the
+``TF_MBEDTLS_KEY_ALG`` and ``TF_MBEDTLS_KEY_SIZE`` variables.
+
+-  ``TF_MBEDTLS_KEY_ALG`` can take in 3 values: `rsa`, `ecdsa` or `rsa+ecdsa`.
+   This variable allows the Makefile to include the corresponding sources in
+   the build for the various algorithms. Setting the variable to `rsa+ecdsa`
+   enables support for both rsa and ecdsa algorithms in the mbedTLS library.
+
+-  ``TF_MBEDTLS_KEY_SIZE`` sets the supported RSA key size for TFA. Valid values
+   include 1024, 2048, 3072 and 4096.
 
 .. note::
    If code size is a concern, the build option ``MBEDTLS_SHA256_SMALLER`` can

@@ -7,6 +7,7 @@
 #include <stddef.h>
 
 #include <platform_def.h>
+#include <drivers/auth/mbedtls/mbedtls_config.h>
 
 #include <drivers/auth/auth_mod.h>
 #if USE_TBBR_DEFS
@@ -19,7 +20,22 @@
 /*
  * Maximum key and hash sizes (in DER format)
  */
+#if TF_MBEDTLS_USE_RSA
+#if TF_MBEDTLS_KEY_SIZE == 1024
+#define PK_DER_LEN			162
+#elif TF_MBEDTLS_KEY_SIZE == 2048
 #define PK_DER_LEN			294
+#elif TF_MBEDTLS_KEY_SIZE == 3072
+#define PK_DER_LEN			422
+#elif TF_MBEDTLS_KEY_SIZE == 4096
+#define PK_DER_LEN			550
+#else
+#error "Invalid value for TF_MBEDTLS_KEY_SIZE"
+#endif
+#else
+#define PK_DER_LEN			294
+#endif
+
 #define HASH_DER_LEN			83
 
 /*
