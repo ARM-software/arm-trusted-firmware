@@ -129,16 +129,20 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	result = dt_get_stdout_uart_info(&dt_uart_info);
 
 	if ((result > 0) && (dt_uart_info.status != 0U)) {
+		unsigned int console_flags;
+
 		if (console_stm32_register(dt_uart_info.base, 0,
 					   STM32MP_UART_BAUDRATE, &console) ==
 		    0) {
 			panic();
 		}
 
+		console_flags = CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH |
+			CONSOLE_FLAG_TRANSLATE_CRLF;
 #ifdef DEBUG
-		console_set_scope(&console.console,
-				  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
+		console_flags |= CONSOLE_FLAG_RUNTIME;
 #endif
+		console_set_scope(&console.console, console_flags);
 	}
 }
 

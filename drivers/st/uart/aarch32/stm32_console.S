@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -138,34 +138,18 @@ func console_stm32_core_putc
 	/* Check the input parameter */
 	cmp	r1, #0
 	beq	putc_error
-	/* Prepend '\r' to '\n' */
-	cmp	r0, #0xA
-	bne	2f
-1:
+
 	/* Check Transmit Data Register Empty */
-txe_loop_1:
+txe_loop:
 	ldr	r2, [r1, #USART_ISR]
 	tst	r2, #USART_ISR_TXE
-	beq	txe_loop_1
-	mov	r2, #0xD
-	str	r2, [r1, #USART_TDR]
-	/* Check transmit complete flag */
-tc_loop_1:
-	ldr	r2, [r1, #USART_ISR]
-	tst	r2, #USART_ISR_TC
-	beq	tc_loop_1
-2:
-	/* Check Transmit Data Register Empty */
-txe_loop_2:
-	ldr	r2, [r1, #USART_ISR]
-	tst	r2, #USART_ISR_TXE
-	beq	txe_loop_2
+	beq	txe_loop
 	str	r0, [r1, #USART_TDR]
 	/* Check transmit complete flag */
-tc_loop_2:
+tc_loop:
 	ldr	r2, [r1, #USART_ISR]
 	tst	r2, #USART_ISR_TC
-	beq	tc_loop_2
+	beq	tc_loop
 	bx	lr
 putc_error:
 	mov	r0, #-1
