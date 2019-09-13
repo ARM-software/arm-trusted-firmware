@@ -205,6 +205,9 @@ void plat_early_platform_setup(void)
 	uint8_t enable_ccplex_lock_step = params_from_bl2->enable_ccplex_lock_step;
 	uint64_t actlr_elx;
 
+	/* Verify chip id is t194 */
+	assert(tegra_chipid_is_t194());
+
 	/* sanity check MCE firmware compatibility */
 	mce_verify_firmware_version();
 

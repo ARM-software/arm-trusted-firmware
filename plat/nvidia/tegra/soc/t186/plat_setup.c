@@ -186,6 +186,9 @@ void plat_early_platform_setup(void)
 	uint64_t impl, val;
 	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
 
+	/* Verify chip id is t186 */
+	assert(tegra_chipid_is_t186());
+
 	/* sanity check MCE firmware compatibility */
 	mce_verify_firmware_version();
 

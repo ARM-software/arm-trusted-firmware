@@ -165,6 +165,9 @@ void plat_early_platform_setup(void)
 	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
 	uint64_t val;
 
+	/* Verify chip id is t210 */
+	assert(tegra_chipid_is_t210());
+
 	/* platform parameter passed by the previous bootloader */
 	if (plat_params->l2_ecc_parity_prot_dis != 1) {
 		/* Enable ECC Parity Protection for Cortex-A57 CPUs */
