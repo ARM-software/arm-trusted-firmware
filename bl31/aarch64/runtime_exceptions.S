@@ -65,19 +65,17 @@
 	mrs	x30, DISR_EL1
 	tbz	x30, #DISR_A_BIT, 1f
 
-	/* Save GP registers and restore them afterwards */
-	bl	save_gp_registers
-
 	/*
-	 * If Secure Cycle Counter is not disabled in MDCR_EL3
-	 * when ARMv8.5-PMU is implemented, save PMCR_EL0 and
-	 * disable all event counters and cycle counter.
+	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
+	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when
+	 * ARMv8.5-PMU is implemented, save PMCR_EL0 and disable Cycle Counter.
 	 */
-	bl	save_pmcr_disable_pmu
+	bl	save_gp_pmcr_pauth_regs
 
 	bl	handle_lower_el_ea_esb
-	bl	restore_gp_registers
 
+	/* Restore general purpose, PMCR_EL0 and ARMv8.3-PAuth registers */
+	bl	restore_gp_pmcr_pauth_regs
 1:
 #else
 	/* Unmask the SError interrupt */
@@ -129,21 +127,16 @@
 	 */
 	.macro	handle_interrupt_exception label
 
-	bl	save_gp_registers
-
 	/*
-	 * If Secure Cycle Counter is not disabled in MDCR_EL3
-	 * when ARMv8.5-PMU is implemented, save PMCR_EL0 and
-	 * disable all event counters and cycle counter.
+	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
+	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when
+	 * ARMv8.5-PMU is implemented, save PMCR_EL0 and disable Cycle Counter.
 	 */
-	bl	save_pmcr_disable_pmu
+	bl	save_gp_pmcr_pauth_regs
 
-	/* Save ARMv8.3-PAuth registers and load firmware key */
-#if CTX_INCLUDE_PAUTH_REGS
-	bl	pauth_context_save
-#endif
 #if ENABLE_PAUTH
-	bl	pauth_load_bl_apiakey
+	/* Load and program APIAKey firmware key */
+	bl	pauth_load_bl31_apiakey
 #endif
 
 	/* Save the EL3 system registers needed to return from this exception */
@@ -154,7 +147,7 @@
 	/* Switch to the runtime stack i.e. SP_EL0 */
 	ldr	x2, [sp, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
 	mov	x20, sp
-	msr	spsel, #0
+	msr	spsel, #MODE_SP_EL0
 	mov	sp, x2
 
 	/*
@@ -368,22 +361,16 @@ smc_handler32:
 smc_handler64:
 	/* NOTE: The code below must preserve x0-x4 */
 
-	/* Save general purpose registers */
-	bl	save_gp_registers
-
 	/*
-	 * If Secure Cycle Counter is not disabled in MDCR_EL3
-	 * when ARMv8.5-PMU is implemented, save PMCR_EL0 and
-	 * disable all event counters and cycle counter.
+	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
+	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when
+	 * ARMv8.5-PMU is implemented, save PMCR_EL0 and disable Cycle Counter.
 	 */
-	bl	save_pmcr_disable_pmu
+	bl	save_gp_pmcr_pauth_regs
 
-	/* Save ARMv8.3-PAuth registers and load firmware key */
-#if CTX_INCLUDE_PAUTH_REGS
-	bl	pauth_context_save
-#endif
 #if ENABLE_PAUTH
-	bl	pauth_load_bl_apiakey
+	/* Load and program APIAKey firmware key */
+	bl	pauth_load_bl31_apiakey
 #endif
 
 	/*
@@ -403,7 +390,7 @@ smc_handler64:
 	ldr	x12, [x6, #CTX_EL3STATE_OFFSET + CTX_RUNTIME_SP]
 
 	/* Switch to SP_EL0 */
-	msr	spsel, #0
+	msr	spsel, #MODE_SP_EL0
 
 	/*
 	 * Save the SPSR_EL3, ELR_EL3, & SCR_EL3 in case there is a world
@@ -471,10 +458,12 @@ smc_prohibited:
 	mov	x0, #SMC_UNK
 	eret
 
+#if DEBUG
 rt_svc_fw_critical_error:
 	/* Switch to SP_ELx */
-	msr	spsel, #1
+	msr	spsel, #MODE_SP_ELX
 	no_ret	report_unhandled_exception
+#endif
 endfunc smc_handler
 
 	/* ---------------------------------------------------------------------

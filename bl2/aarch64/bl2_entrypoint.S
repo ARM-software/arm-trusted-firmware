@@ -117,22 +117,13 @@ func bl2_entrypoint
 	mov	x3, x23
 	bl	bl2_setup
 
-	/* ---------------------------------------------
-	 * Enable pointer authentication
-	 * ---------------------------------------------
-	 */
 #if ENABLE_PAUTH
-	mrs	x0, sctlr_el1
-	orr	x0, x0, #SCTLR_EnIA_BIT
-#if ENABLE_BTI
 	/* ---------------------------------------------
-	 * Enable PAC branch type compatibility
+	 * Program APIAKey_EL1
+	 * and enable pointer authentication.
 	 * ---------------------------------------------
 	 */
-	bic	x0, x0, #(SCTLR_BT0_BIT | SCTLR_BT1_BIT)
-#endif	/* ENABLE_BTI */
-	msr	sctlr_el1, x0
-	isb
+	bl	pauth_init_enable_el1
 #endif /* ENABLE_PAUTH */
 
 	/* ---------------------------------------------

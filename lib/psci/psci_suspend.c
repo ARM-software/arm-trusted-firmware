@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -303,6 +303,12 @@ void psci_cpu_suspend_finish(int cpu_idx, const psci_power_state_t *state_info)
 	/* Re-init the cntfrq_el0 register */
 	counter_freq = plat_get_syscnt_freq2();
 	write_cntfrq_el0(counter_freq);
+
+#if ENABLE_PAUTH
+	/* Store APIAKey_EL1 key */
+	set_cpu_data(apiakey[0], read_apiakeylo_el1());
+	set_cpu_data(apiakey[1], read_apiakeyhi_el1());
+#endif /* ENABLE_PAUTH */
 
 	/*
 	 * Call the cpu suspend finish handler registered by the Secure Payload
