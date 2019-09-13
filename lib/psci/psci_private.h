@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -55,16 +55,16 @@ static inline aff_info_state_t psci_get_aff_info_state(void)
 	return get_cpu_data(psci_svc_cpu_data.aff_info_state);
 }
 
-static inline aff_info_state_t psci_get_aff_info_state_by_idx(int idx)
+static inline aff_info_state_t psci_get_aff_info_state_by_idx(unsigned int idx)
 {
-	return get_cpu_data_by_index((unsigned int)idx,
+	return get_cpu_data_by_index(idx,
 				     psci_svc_cpu_data.aff_info_state);
 }
 
-static inline void psci_set_aff_info_state_by_idx(int idx,
+static inline void psci_set_aff_info_state_by_idx(unsigned int idx,
 						  aff_info_state_t aff_state)
 {
-	set_cpu_data_by_index((unsigned int)idx,
+	set_cpu_data_by_index(idx,
 			      psci_svc_cpu_data.aff_info_state, aff_state);
 }
 
@@ -88,9 +88,10 @@ static inline plat_local_state_t psci_get_cpu_local_state(void)
 	return get_cpu_data(psci_svc_cpu_data.local_state);
 }
 
-static inline plat_local_state_t psci_get_cpu_local_state_by_idx(int idx)
+static inline plat_local_state_t psci_get_cpu_local_state_by_idx(
+		unsigned int idx)
 {
-	return get_cpu_data_by_index((unsigned int)idx,
+	return get_cpu_data_by_index(idx,
 				     psci_svc_cpu_data.local_state);
 }
 
@@ -113,7 +114,7 @@ typedef struct non_cpu_pwr_domain_node {
 	 * Index of the first CPU power domain node level 0 which has this node
 	 * as its parent.
 	 */
-	int cpu_start_idx;
+	unsigned int cpu_start_idx;
 
 	/*
 	 * Number of CPU power domains which are siblings of the domain indexed
@@ -269,7 +270,7 @@ void psci_get_target_local_pwr_states(unsigned int end_pwrlvl,
 				      psci_power_state_t *target_state);
 int psci_validate_entry_point(entry_point_info_t *ep,
 			uintptr_t entrypoint, u_register_t context_id);
-void psci_get_parent_pwr_domain_nodes(int cpu_idx,
+void psci_get_parent_pwr_domain_nodes(unsigned int cpu_idx,
 				      unsigned int end_lvl,
 				      unsigned int *node_index);
 void psci_do_state_coordination(unsigned int end_pwrlvl,

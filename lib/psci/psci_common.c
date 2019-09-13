@@ -159,9 +159,10 @@ void psci_query_sys_suspend_pwrstate(psci_power_state_t *state_info)
  ******************************************************************************/
 unsigned int psci_is_last_on_cpu(void)
 {
-	int cpu_idx, my_idx = (int) plat_my_core_pos();
+	unsigned int cpu_idx, my_idx = plat_my_core_pos();
 
-	for (cpu_idx = 0; cpu_idx < PLATFORM_CORE_COUNT; cpu_idx++) {
+	for (cpu_idx = 0; cpu_idx < (unsigned int)PLATFORM_CORE_COUNT;
+			cpu_idx++) {
 		if (cpu_idx == my_idx) {
 			assert(psci_get_aff_info_state() == AFF_STATE_ON);
 			continue;
@@ -206,7 +207,7 @@ static void psci_set_req_local_pwr_state(unsigned int pwrlvl,
 {
 	assert(pwrlvl > PSCI_CPU_PWR_LVL);
 	if ((pwrlvl > PSCI_CPU_PWR_LVL) && (pwrlvl <= PLAT_MAX_PWR_LVL) &&
-			(cpu_idx < PLATFORM_CORE_COUNT)) {
+			(cpu_idx < (unsigned int) PLATFORM_CORE_COUNT)) {
 		psci_req_local_pwr_states[pwrlvl - 1U][cpu_idx] = req_pwr_state;
 	}
 }
@@ -237,12 +238,12 @@ void __init psci_init_req_local_pwr_states(void)
  * assertion is added to prevent us from accessing the CPU power level.
  *****************************************************************************/
 static plat_local_state_t *psci_get_req_local_pwr_states(unsigned int pwrlvl,
-							 int cpu_idx)
+							 unsigned int cpu_idx)
 {
 	assert(pwrlvl > PSCI_CPU_PWR_LVL);
 
 	if ((pwrlvl > PSCI_CPU_PWR_LVL) && (pwrlvl <= PLAT_MAX_PWR_LVL) &&
-			(cpu_idx < PLATFORM_CORE_COUNT)) {
+			(cpu_idx < (unsigned int) PLATFORM_CORE_COUNT)) {
 		return &psci_req_local_pwr_states[pwrlvl - 1U][cpu_idx];
 	} else
 		return NULL;
@@ -351,7 +352,7 @@ static void psci_set_target_local_pwr_states(unsigned int end_pwrlvl,
 /*******************************************************************************
  * PSCI helper function to get the parent nodes corresponding to a cpu_index.
  ******************************************************************************/
-void psci_get_parent_pwr_domain_nodes(int cpu_idx,
+void psci_get_parent_pwr_domain_nodes(unsigned int cpu_idx,
 				      unsigned int end_lvl,
 				      unsigned int *node_index)
 {
@@ -417,7 +418,7 @@ void psci_do_state_coordination(unsigned int end_pwrlvl,
 				psci_power_state_t *state_info)
 {
 	unsigned int lvl, parent_idx, cpu_idx = plat_my_core_pos();
-	int start_idx;
+	unsigned int start_idx;
 	unsigned int ncpus;
 	plat_local_state_t target_state, *req_states;
 
@@ -763,7 +764,7 @@ int psci_validate_entry_point(entry_point_info_t *ep,
 void psci_warmboot_entrypoint(void)
 {
 	unsigned int end_pwrlvl;
-	int cpu_idx = (int) plat_my_core_pos();
+	unsigned int cpu_idx = plat_my_core_pos();
 	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
 	psci_power_state_t state_info = { {PSCI_LOCAL_STATE_RUN} };
 
