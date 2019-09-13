@@ -99,14 +99,16 @@ ifeq (${ARCH}, aarch64)
 # select a different set of CPU files, depending on whether we compile for
 # hardware assisted coherency cores or not
 ifeq (${HW_ASSISTED_COHERENCY}, 0)
+# Cores used without DSU
 	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a35.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
 				lib/cpus/aarch64/cortex_a73.S
 else
-	# AArch64-only cores
+# Cores used with DSU only
 	ifeq (${CTX_INCLUDE_AARCH32_REGS}, 0)
+	# AArch64-only cores
 		FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a76.S		\
 					lib/cpus/aarch64/cortex_a76ae.S		\
 					lib/cpus/aarch64/cortex_a77.S		\
@@ -114,11 +116,10 @@ else
 					lib/cpus/aarch64/neoverse_e1.S		\
 					lib/cpus/aarch64/neoverse_zeus.S	\
 					lib/cpus/aarch64/cortex_hercules.S
-	# AArch64/AArch32
-	else
-		FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S		\
-					lib/cpus/aarch64/cortex_a75.S
 	endif
+	# AArch64/AArch32 cores
+	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S		\
+				lib/cpus/aarch64/cortex_a75.S
 endif
 
 else
