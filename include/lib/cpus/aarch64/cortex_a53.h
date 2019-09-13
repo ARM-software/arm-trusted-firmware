@@ -73,4 +73,11 @@
  ******************************************************************************/
 #define CORTEX_A53_L2MERRSR_EL1				S3_1_C15_C2_3
 
+/*******************************************************************************
+ * Helper function to access a53_cpuectlr_el1 register on Cortex-A53 CPUs
+ ******************************************************************************/
+#ifndef __ASSEMBLY__
+DEFINE_RENAME_SYSREG_RW_FUNCS(a53_cpuectlr_el1, CORTEX_A53_ECTLR_EL1)
+#endif
+
 #endif /* CORTEX_A53_H */

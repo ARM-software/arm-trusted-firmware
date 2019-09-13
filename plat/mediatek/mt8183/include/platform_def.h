@@ -273,7 +273,7 @@ INTR_PROP_DESC(MT_IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY, grp, \
  ******************************************************************************/
 
 #define TZRAM_BASE          0x54600000
-#define TZRAM_SIZE          0x00020000
+#define TZRAM_SIZE          0x00030000
 
 /*******************************************************************************
  * BL31 specific defines.
@@ -291,7 +291,7 @@ INTR_PROP_DESC(MT_IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY, grp, \
  ******************************************************************************/
 #define PLAT_PHY_ADDR_SPACE_SIZE    (1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE   (1ULL << 32)
-#define MAX_XLAT_TABLES             4
+#define MAX_XLAT_TABLES             16
 #define MAX_MMAP_REGIONS            16
 
 /*******************************************************************************

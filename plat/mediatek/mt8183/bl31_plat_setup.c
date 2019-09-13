@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,9 +14,12 @@
 #include <drivers/generic_delay_timer.h>
 #include <mcucfg.h>
 #include <mt_gic_v3.h>
+#include <lib/coreboot.h>
 #include <lib/mmio.h>
 #include <mtk_plat_common.h>
+#include <mtspmc.h>
 #include <plat_debug.h>
+#include <plat_params.h>
 #include <plat_private.h>
 #include <platform_def.h>
 #include <scu.h>
@@ -73,7 +76,17 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	static console_16550_t console;
 
+	params_early_setup(arg1);
+
+#if COREBOOT
+	if (coreboot_serial.type)
+		console_16550_register(coreboot_serial.baseaddr,
+				       coreboot_serial.input_hertz,
+				       coreboot_serial.baud,
+				       &console);
+#else
 	console_16550_register(UART0_BASE, UART_CLOCK, UART_BAUDRATE, &console);
+#endif
 
 	NOTICE("MT8183 bl31_setup\n");
 
@@ -95,6 +108,10 @@ void bl31_platform_setup(void)
 
 	/* Init mcsi SF */
 	plat_mtk_cci_init_sf();
+
+#if SPMC_MODE == 1
+	spmc_init();
+#endif
 }
 
 /*******************************************************************************
