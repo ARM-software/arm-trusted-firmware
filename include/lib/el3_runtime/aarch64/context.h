@@ -212,8 +212,7 @@
 #define CTX_PACDBKEY_HI		U(0x38)
 #define CTX_PACGAKEY_LO		U(0x40)
 #define CTX_PACGAKEY_HI		U(0x48)
-#define CTX_PACGAKEY_END	U(0x50)
-#define CTX_PAUTH_REGS_END	U(0x60) /* Align to the next 16 byte boundary */
+#define CTX_PAUTH_REGS_END	U(0x50) /* Align to the next 16 byte boundary */
 #else
 #define CTX_PAUTH_REGS_END	U(0)
 #endif /* CTX_INCLUDE_PAUTH_REGS */

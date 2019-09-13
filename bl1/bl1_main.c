@@ -9,6 +9,7 @@
 #include <platform_def.h>
 
 #include <arch.h>
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <bl1/bl1.h>
 #include <common/bl_common.h>
@@ -59,18 +60,16 @@ void bl1_setup(void)
 	/* Perform early platform-specific setup */
 	bl1_early_platform_setup();
 
-#ifdef __aarch64__
-	/*
-	 * Update pointer authentication key before the MMU is enabled. It is
-	 * saved in the rodata section, that can be writen before enabling the
-	 * MMU. This function must be called after the console is initialized
-	 * in the early platform setup.
-	 */
-	bl_handle_pauth();
-#endif /* __aarch64__ */
-
 	/* Perform late platform-specific setup */
 	bl1_plat_arch_setup();
+
+#if CTX_INCLUDE_PAUTH_REGS
+	/*
+	 * Assert that the ARMv8.3-PAuth registers are present or an access
+	 * fault will be triggered when they are being saved or restored.
+	 */
+	assert(is_armv8_3_pauth_present());
+#endif /* CTX_INCLUDE_PAUTH_REGS */
 }
 
 /*******************************************************************************

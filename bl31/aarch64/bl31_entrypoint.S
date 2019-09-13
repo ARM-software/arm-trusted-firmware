@@ -98,26 +98,16 @@ func bl31_entrypoint
 	mov	x3, x23
 	bl	bl31_setup
 
-	/* --------------------------------------------------------------------
-	 * Enable pointer authentication
-	 * --------------------------------------------------------------------
-	 */
 #if ENABLE_PAUTH
-	mrs	x0, sctlr_el3
-	orr	x0, x0, #SCTLR_EnIA_BIT
-#if ENABLE_BTI
 	/* --------------------------------------------------------------------
-	 * Enable PAC branch type compatibility
+	 * Program APIAKey_EL1 and enable pointer authentication
 	 * --------------------------------------------------------------------
 	 */
-	bic	x0, x0, #SCTLR_BT_BIT
-#endif	/* ENABLE_BTI */
-	msr	sctlr_el3, x0
-	isb
+	bl	pauth_init_enable_el3
 #endif /* ENABLE_PAUTH */
 
 	/* --------------------------------------------------------------------
-	 * Jump to main function.
+	 * Jump to main function
 	 * --------------------------------------------------------------------
 	 */
 	bl	bl31_main
@@ -209,24 +199,12 @@ func bl31_warm_entrypoint
 #endif
 	bl	bl31_plat_enable_mmu
 
-	/* --------------------------------------------------------------------
-	 * Enable pointer authentication
-	 * --------------------------------------------------------------------
-	 */
 #if ENABLE_PAUTH
-	bl	pauth_load_bl_apiakey
-
-	mrs	x0, sctlr_el3
-	orr	x0, x0, #SCTLR_EnIA_BIT
-#if ENABLE_BTI
 	/* --------------------------------------------------------------------
-	 * Enable PAC branch type compatibility
+	 * Program APIAKey_EL1 and enable pointer authentication
 	 * --------------------------------------------------------------------
 	 */
-	bic	x0, x0, #SCTLR_BT_BIT
-#endif	/* ENABLE_BTI */
-	msr	sctlr_el3, x0
-	isb
+	bl	pauth_init_enable_el3
 #endif /* ENABLE_PAUTH */
 
 	bl	psci_warmboot_entrypoint

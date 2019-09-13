@@ -156,8 +156,8 @@ Functionality
    The use of pointer authentication in the normal world is enabled whenever
    architectural support is available, without the need for additional build
    flags. Use of pointer authentication in the secure world remains an
-   experimental configuration at this time and requires the ``ENABLE_PAUTH``
-   build flag to be set.
+   experimental configuration at this time and requires the
+   ``BRANCH_PROTECTION`` option to be set to non-zero.
 
 -  Position-Independent Executable (PIE) support. Initially for BL31 only, with
    further support to be added in a future release.

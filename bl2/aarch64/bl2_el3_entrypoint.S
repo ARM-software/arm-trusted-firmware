@@ -43,22 +43,12 @@ func bl2_entrypoint
 	 */
 	bl	bl2_el3_setup
 
-	/* ---------------------------------------------
-	 * Enable pointer authentication
-	 * ---------------------------------------------
-	 */
 #if ENABLE_PAUTH
-	mrs	x0, sctlr_el3
-	orr	x0, x0, #SCTLR_EnIA_BIT
-#if ENABLE_BTI
 	/* ---------------------------------------------
-	 * Enable PAC branch type compatibility
+	 * Program APIAKey_EL1 and enable pointer authentication.
 	 * ---------------------------------------------
 	 */
-	bic	x0, x0, #SCTLR_BT_BIT
-#endif	/* ENABLE_BTI */
-	msr	sctlr_el3, x0
-	isb
+	bl	pauth_init_enable_el3
 #endif /* ENABLE_PAUTH */
 
 	/* ---------------------------------------------
@@ -87,16 +77,13 @@ func bl2_run_next_image
 	tlbi	alle3
 	bl	bl2_el3_plat_prepare_exit
 
+#if ENABLE_PAUTH
 	/* ---------------------------------------------
-	 * Disable pointer authentication before jumping to BL31 or that will
-	 * cause an authentication failure during the early platform init.
+	 * Disable pointer authentication before jumping
+	 * to next boot image.
 	 * ---------------------------------------------
 	 */
-#if ENABLE_PAUTH
-	mrs	x0, sctlr_el3
-	bic	x0, x0, #SCTLR_EnIA_BIT
-	msr	sctlr_el3, x0
-	isb
+	bl	pauth_disable_el3
 #endif /* ENABLE_PAUTH */
 
 	ldp	x0, x1, [x20, #ENTRY_POINT_INFO_PC_OFFSET]

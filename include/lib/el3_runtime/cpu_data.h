@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,23 +11,37 @@
 
 #include <bl31/ehf.h>
 
+/* Size of psci_cpu_data structure */
+#define PSCI_CPU_DATA_SIZE		12
+
 #ifdef __aarch64__
 
-/* Offsets for the cpu_data structure */
-#define CPU_DATA_CRASH_BUF_OFFSET	0x18
-/* need enough space in crash buffer to save 8 registers */
-#define CPU_DATA_CRASH_BUF_SIZE		64
+/* 8-bytes aligned size of psci_cpu_data structure */
+#define PSCI_CPU_DATA_SIZE_ALIGNED	((PSCI_CPU_DATA_SIZE + 7) & ~7)
+
+/* Offset of cpu_ops_ptr, size 8 bytes */
 #define CPU_DATA_CPU_OPS_PTR		0x10
 
-#else /* __aarch64__ */
+#if ENABLE_PAUTH
+/* 8-bytes aligned offset of apiakey[2], size 16 bytes */
+#define	CPU_DATA_APIAKEY_OFFSET		(0x18 + PSCI_CPU_DATA_SIZE_ALIGNED)
+#define CPU_DATA_CRASH_BUF_OFFSET	(CPU_DATA_APIAKEY_OFFSET + 0x10)
+#else
+#define CPU_DATA_CRASH_BUF_OFFSET	(0x18 + PSCI_CPU_DATA_SIZE_ALIGNED)
+#endif	/* ENABLE_PAUTH */
+
+/* need enough space in crash buffer to save 8 registers */
+#define CPU_DATA_CRASH_BUF_SIZE		64
+
+#else	/* !__aarch64__ */
 
 #if CRASH_REPORTING
 #error "Crash reporting is not supported in AArch32"
 #endif
 #define CPU_DATA_CPU_OPS_PTR		0x0
-#define CPU_DATA_CRASH_BUF_OFFSET	0x4
+#define CPU_DATA_CRASH_BUF_OFFSET	(0x4 + PSCI_CPU_DATA_SIZE)
 
-#endif /* __aarch64__ */
+#endif	/* __aarch64__ */
 
 #if CRASH_REPORTING
 #define CPU_DATA_CRASH_BUF_END		(CPU_DATA_CRASH_BUF_OFFSET + \
@@ -88,13 +102,16 @@ typedef struct cpu_data {
 	void *cpu_context[2];
 #endif
 	uintptr_t cpu_ops_ptr;
+	struct psci_cpu_data psci_svc_cpu_data;
+#if ENABLE_PAUTH
+	uint64_t apiakey[2];
+#endif
 #if CRASH_REPORTING
 	u_register_t crash_buf[CPU_DATA_CRASH_BUF_SIZE >> 3];
 #endif
 #if ENABLE_RUNTIME_INSTRUMENTATION
 	uint64_t cpu_data_pmf_ts[CPU_DATA_PMF_TS_COUNT];
 #endif
-	struct psci_cpu_data psci_svc_cpu_data;
 #if PLAT_PCPU_DATA_SIZE
 	uint8_t platform_cpu_data[PLAT_PCPU_DATA_SIZE];
 #endif
@@ -104,6 +121,12 @@ typedef struct cpu_data {
 } __aligned(CACHE_WRITEBACK_GRANULE) cpu_data_t;
 
 extern cpu_data_t percpu_data[PLATFORM_CORE_COUNT];
+
+#if ENABLE_PAUTH
+CASSERT(CPU_DATA_APIAKEY_OFFSET == __builtin_offsetof
+	(cpu_data_t, apiakey),
+	assert_cpu_data_crash_stack_offset_mismatch);
+#endif
 
 #if CRASH_REPORTING
 /* verify assembler offsets match data structures */
