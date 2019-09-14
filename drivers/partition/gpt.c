@@ -52,9 +52,10 @@ int parse_gpt_entry(gpt_entry_t *gpt_entry, partition_entry_t *entry)
 	if (result != 0) {
 		return result;
 	}
-	entry->start = (uint64_t)gpt_entry->first_lba * PARTITION_BLOCK_SIZE;
+	entry->start = (uint64_t)gpt_entry->first_lba *
+		       PLAT_PARTITION_BLOCK_SIZE;
 	entry->length = (uint64_t)(gpt_entry->last_lba -
 				   gpt_entry->first_lba + 1) *
-			PARTITION_BLOCK_SIZE;
+			PLAT_PARTITION_BLOCK_SIZE;
 	return 0;
 }

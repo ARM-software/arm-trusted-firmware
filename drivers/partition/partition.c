@@ -15,7 +15,7 @@
 #include <drivers/partition/mbr.h>
 #include <plat/common/platform.h>
 
-static uint8_t mbr_sector[PARTITION_BLOCK_SIZE];
+static uint8_t mbr_sector[PLAT_PARTITION_BLOCK_SIZE];
 static partition_entry_list_t list;
 
 #if LOG_LEVEL >= LOG_LEVEL_VERBOSE
@@ -57,15 +57,15 @@ static int load_mbr_header(uintptr_t image_handle, mbr_entry_t *mbr_entry)
 		return result;
 	}
 	result = io_read(image_handle, (uintptr_t)&mbr_sector,
-			 PARTITION_BLOCK_SIZE, &bytes_read);
+			 PLAT_PARTITION_BLOCK_SIZE, &bytes_read);
 	if (result != 0) {
 		WARN("Failed to read data (%i)\n", result);
 		return result;
 	}
 
 	/* Check MBR boot signature. */
-	if ((mbr_sector[PARTITION_BLOCK_SIZE - 2] != MBR_SIGNATURE_FIRST) ||
-	    (mbr_sector[PARTITION_BLOCK_SIZE - 1] != MBR_SIGNATURE_SECOND)) {
+	if ((mbr_sector[LEGACY_PARTITION_BLOCK_SIZE - 2] != MBR_SIGNATURE_FIRST) ||
+	    (mbr_sector[LEGACY_PARTITION_BLOCK_SIZE - 1] != MBR_SIGNATURE_SECOND)) {
 		return -ENOENT;
 	}
 	offset = (uintptr_t)&mbr_sector + MBR_PRIMARY_ENTRY_OFFSET;
@@ -120,15 +120,15 @@ static int load_mbr_entry(uintptr_t image_handle, mbr_entry_t *mbr_entry,
 		return result;
 	}
 	result = io_read(image_handle, (uintptr_t)&mbr_sector,
-			 PARTITION_BLOCK_SIZE, &bytes_read);
+			 PLAT_PARTITION_BLOCK_SIZE, &bytes_read);
 	if (result != 0) {
 		WARN("Failed to read data (%i)\n", result);
 		return result;
 	}
 
 	/* Check MBR boot signature. */
-	if ((mbr_sector[PARTITION_BLOCK_SIZE - 2] != MBR_SIGNATURE_FIRST) ||
-	    (mbr_sector[PARTITION_BLOCK_SIZE - 1] != MBR_SIGNATURE_SECOND)) {
+	if ((mbr_sector[LEGACY_PARTITION_BLOCK_SIZE - 2] != MBR_SIGNATURE_FIRST) ||
+	    (mbr_sector[LEGACY_PARTITION_BLOCK_SIZE - 1] != MBR_SIGNATURE_SECOND)) {
 		return -ENOENT;
 	}
 	offset = (uintptr_t)&mbr_sector +
