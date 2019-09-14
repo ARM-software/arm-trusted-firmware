@@ -72,4 +72,6 @@ int hikey_write_serialno(struct random_serial_num *serialno);
 
 void init_acpu_dvfs(void);
 
+int hikey_set_fip_addr(unsigned int image_id, const char *name);
+
 #endif /* HIKEY_PRIVATE_H */
