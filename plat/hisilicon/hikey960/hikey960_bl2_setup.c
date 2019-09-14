@@ -18,6 +18,7 @@
 #include <drivers/delay_timer.h>
 #include <drivers/dw_ufs.h>
 #include <drivers/generic_delay_timer.h>
+#include <drivers/partition/partition.h>
 #include <drivers/ufs.h>
 #include <lib/mmio.h>
 #ifdef SPD_opteed
@@ -263,6 +264,11 @@ int hikey960_bl2_handle_post_image_load(unsigned int image_id)
  * This function can be used by the platforms to update/use image
  * information for given `image_id`.
  ******************************************************************************/
+int bl2_plat_handle_pre_image_load(unsigned int image_id)
+{
+	return hikey960_set_fip_addr(image_id, "fip");
+}
+
 int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	return hikey960_bl2_handle_post_image_load(image_id);

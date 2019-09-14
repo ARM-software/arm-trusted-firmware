@@ -22,11 +22,13 @@ COLD_BOOT_SINGLE_CPU		:=	1
 PLAT_PL061_MAX_GPIOS		:=	176
 PROGRAMMABLE_RESET_ADDRESS	:=	1
 ENABLE_SVE_FOR_NS		:=	0
+PLAT_PARTITION_BLOCK_SIZE	:=	4096
 
 # Process flags
 $(eval $(call add_define,HIKEY960_TSP_RAM_LOCATION_ID))
 $(eval $(call add_define,CRASH_CONSOLE_BASE))
 $(eval $(call add_define,PLAT_PL061_MAX_GPIOS))
+$(eval $(call add_define,PLAT_PARTITION_BLOCK_SIZE))
 
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
 # in the FIP if the platform requires.
@@ -75,6 +77,8 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 				drivers/io/io_block.c			\
 				drivers/io/io_fip.c			\
 				drivers/io/io_storage.c			\
+				drivers/partition/gpt.c			\
+				drivers/partition/partition.c		\
 				drivers/synopsys/ufs/dw_ufs.c		\
 				drivers/ufs/ufs.c			\
 				lib/cpus/aarch64/cortex_a53.S		\
