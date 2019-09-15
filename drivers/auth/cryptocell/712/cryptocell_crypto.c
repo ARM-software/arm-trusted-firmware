@@ -225,7 +225,7 @@ static int verify_signature(void *data_ptr, unsigned int data_len,
 	/* Verify the signature */
 	error = CCSbVerifySignature((uintptr_t)PLAT_CRYPTOCELL_BASE,
 			(uint32_t *)data_ptr, &pk, &signature,
-			data_len, RSA_PSS_2048);
+			data_len, RSA_PSS);
 	if (error != CC_OK)
 		return CRYPTO_ERR_SIGNATURE;
 

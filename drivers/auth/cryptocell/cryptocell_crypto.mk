@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -11,6 +11,8 @@ TF_MBEDTLS_KEY_ALG_ID		:=	TF_MBEDTLS_RSA
 
 # Needs to be set to drive mbed TLS configuration correctly
 $(eval $(call add_define,TF_MBEDTLS_KEY_ALG_ID))
+
+$(eval $(call add_define,KEY_SIZE))
 
 # CCSBROM_LIB_PATH must be set to the Cryptocell SBROM library path
 ifeq (${CCSBROM_LIB_PATH},)

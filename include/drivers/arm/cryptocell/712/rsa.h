@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,18 +21,20 @@ extern "C"
 
 /************************ Defines ******************************/
 
-/* the modulus size ion bits */
+/* the modulus size in bits */
+#if (KEY_SIZE == 2048)
 #define RSA_MOD_SIZE_IN_BITS				2048UL
+#elif (KEY_SIZE == 3072)
+#define RSA_MOD_SIZE_IN_BITS				3072UL
+#else
+#error Unsupported CryptoCell key size requested
+#endif
+
 #define RSA_MOD_SIZE_IN_BYTES				(CALC_FULL_BYTES(RSA_MOD_SIZE_IN_BITS))
 #define RSA_MOD_SIZE_IN_WORDS				(CALC_FULL_32BIT_WORDS(RSA_MOD_SIZE_IN_BITS))
 #define RSA_MOD_SIZE_IN_256BITS				(RSA_MOD_SIZE_IN_WORDS/8)
 #define RSA_EXP_SIZE_IN_BITS				17UL
 #define RSA_EXP_SIZE_IN_BYTES				(CALC_FULL_BYTES(RSA_EXP_SIZE_IN_BITS))
-
-/* size of buffer for Barrett modulus tag NP, used in PKA algorithms */
-#define RSA_HW_PKI_PKA_BARRETT_MOD_TAG_SIZE_IN_BITS	132
-#define RSA_HW_PKI_PKA_BARRETT_MOD_TAG_SIZE_IN_BYTES	(CALC_FULL_BYTES(RSA_HW_PKI_PKA_BARRETT_MOD_TAG_SIZE_IN_BITS))
-#define RSA_HW_PKI_PKA_BARRETT_MOD_TAG_SIZE_IN_WORDS	(CALC_FULL_32BIT_WORDS(RSA_HW_PKI_PKA_BARRETT_MOD_TAG_SIZE_IN_BITS))
 
 /*
  * @brief The RSA_CalcNp calculates Np value and saves it into Np_ptr:
