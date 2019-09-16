@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,15 +17,17 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include <rpi_hw.h>
-#include "rpi3_private.h"
+#include <rpi_shared.h>
 
 #define MAP_DEVICE0	MAP_REGION_FLAT(DEVICE0_BASE,			\
 					DEVICE0_SIZE,			\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
+#ifdef SHARED_RAM_BASE
 #define MAP_SHARED_RAM	MAP_REGION_FLAT(SHARED_RAM_BASE,		\
 					SHARED_RAM_SIZE,		\
 					MT_DEVICE | MT_RW | MT_SECURE)
+#endif
 
 #ifdef RPI3_PRELOADED_DTB_BASE
 #define MAP_NS_DTB	MAP_REGION_FLAT(RPI3_PRELOADED_DTB_BASE, 0x10000, \
@@ -54,7 +56,9 @@
  */
 #ifdef IMAGE_BL1
 static const mmap_region_t plat_rpi3_mmap[] = {
+#ifdef MAP_SHARED_RAM
 	MAP_SHARED_RAM,
+#endif
 	MAP_DEVICE0,
 	MAP_FIP,
 #ifdef SPD_opteed
@@ -66,7 +70,9 @@ static const mmap_region_t plat_rpi3_mmap[] = {
 
 #ifdef IMAGE_BL2
 static const mmap_region_t plat_rpi3_mmap[] = {
+#ifdef MAP_SHARED_RAM
 	MAP_SHARED_RAM,
+#endif
 	MAP_DEVICE0,
 	MAP_FIP,
 	MAP_NS_DRAM0,
@@ -79,7 +85,9 @@ static const mmap_region_t plat_rpi3_mmap[] = {
 
 #ifdef IMAGE_BL31
 static const mmap_region_t plat_rpi3_mmap[] = {
+#ifdef MAP_SHARED_RAM
 	MAP_SHARED_RAM,
+#endif
 	MAP_DEVICE0,
 #ifdef RPI3_PRELOADED_DTB_BASE
 	MAP_NS_DTB,

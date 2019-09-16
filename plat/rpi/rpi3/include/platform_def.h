@@ -110,8 +110,8 @@
 /*
  * I/O registers.
  */
-#define DEVICE0_BASE			RPI3_IO_BASE
-#define DEVICE0_SIZE			RPI3_IO_SIZE
+#define DEVICE0_BASE			RPI_IO_BASE
+#define DEVICE0_SIZE			RPI_IO_SIZE
 
 /*
  * Arm TF lives in SRAM, partition it here

@@ -18,7 +18,6 @@
 	.globl	plat_get_my_entrypoint
 	.globl	plat_is_my_cpu_primary
 	.globl	plat_my_core_pos
-	.globl	plat_reset_handler
 	.globl	plat_rpi3_calc_core_pos
 	.globl	plat_secondary_cold_boot_setup
 
@@ -164,16 +163,3 @@ func plat_crash_console_flush
 	mov_imm	x0, PLAT_RPI3_UART_BASE
 	b	console_16550_core_flush
 endfunc plat_crash_console_flush
-
-	/* ---------------------------------------------
-	 * void plat_reset_handler(void);
-	 * ---------------------------------------------
-	 */
-func plat_reset_handler
-	/* use the 19.2 MHz clock for the architected timer */
-	mov	x0, #RPI3_INTC_BASE_ADDRESS
-	mov	w1, #0x80000000
-	str	wzr, [x0, #RPI3_INTC_CONTROL_OFFSET]
-	str	w1, [x0, #RPI3_INTC_PRESCALER_OFFSET]
-	ret
-endfunc plat_reset_handler

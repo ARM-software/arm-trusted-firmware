@@ -13,14 +13,14 @@
  * Peripherals
  */
 
-#define RPI3_IO_BASE			ULL(0x3F000000)
-#define RPI3_IO_SIZE			ULL(0x01000000)
+#define RPI_IO_BASE			ULL(0x3F000000)
+#define RPI_IO_SIZE			ULL(0x01000000)
 
 /*
  * ARM <-> VideoCore mailboxes
  */
 #define RPI3_MBOX_OFFSET		ULL(0x0000B880)
-#define RPI3_MBOX_BASE			(RPI3_IO_BASE + RPI3_MBOX_OFFSET)
+#define RPI3_MBOX_BASE			(RPI_IO_BASE + RPI3_MBOX_OFFSET)
 /* VideoCore -> ARM */
 #define RPI3_MBOX0_READ_OFFSET		ULL(0x00000000)
 #define RPI3_MBOX0_PEEK_OFFSET		ULL(0x00000010)
@@ -41,7 +41,7 @@
  * Power management, reset controller, watchdog.
  */
 #define RPI3_IO_PM_OFFSET		ULL(0x00100000)
-#define RPI3_PM_BASE			(RPI3_IO_BASE + RPI3_IO_PM_OFFSET)
+#define RPI3_PM_BASE			(RPI_IO_BASE + RPI3_IO_PM_OFFSET)
 /* Registers on top of RPI3_PM_BASE. */
 #define RPI3_PM_RSTC_OFFSET		ULL(0x0000001C)
 #define RPI3_PM_RSTS_OFFSET		ULL(0x00000020)
@@ -62,7 +62,7 @@
  * Hardware random number generator.
  */
 #define RPI3_IO_RNG_OFFSET		ULL(0x00104000)
-#define RPI3_RNG_BASE			(RPI3_IO_BASE + RPI3_IO_RNG_OFFSET)
+#define RPI3_RNG_BASE			(RPI_IO_BASE + RPI3_IO_RNG_OFFSET)
 #define RPI3_RNG_CTRL_OFFSET		ULL(0x00000000)
 #define RPI3_RNG_STATUS_OFFSET		ULL(0x00000004)
 #define RPI3_RNG_DATA_OFFSET		ULL(0x00000008)
@@ -80,20 +80,20 @@
  * Serial port (called 'Mini UART' in the BCM docucmentation).
  */
 #define RPI3_IO_MINI_UART_OFFSET	ULL(0x00215040)
-#define RPI3_MINI_UART_BASE		(RPI3_IO_BASE + RPI3_IO_MINI_UART_OFFSET)
+#define RPI3_MINI_UART_BASE		(RPI_IO_BASE + RPI3_IO_MINI_UART_OFFSET)
 #define RPI3_MINI_UART_CLK_IN_HZ	ULL(500000000)
 
 /*
  * GPIO controller
  */
 #define RPI3_IO_GPIO_OFFSET		ULL(0x00200000)
-#define RPI3_GPIO_BASE			(RPI3_IO_BASE + RPI3_IO_GPIO_OFFSET)
+#define RPI3_GPIO_BASE			(RPI_IO_BASE + RPI3_IO_GPIO_OFFSET)
 
 /*
  * SDHost controller
  */
 #define RPI3_IO_SDHOST_OFFSET           ULL(0x00202000)
-#define RPI3_SDHOST_BASE                (RPI3_IO_BASE + RPI3_IO_SDHOST_OFFSET)
+#define RPI3_SDHOST_BASE                (RPI_IO_BASE + RPI3_IO_SDHOST_OFFSET)
 
 /*
  * Local interrupt controller

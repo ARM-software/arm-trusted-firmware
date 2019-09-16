@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,7 +15,7 @@
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <plat/common/platform.h>
 
-#include "rpi3_private.h"
+#include <rpi_shared.h>
 
 /*
  * Placeholder variables for copying the arguments that have been passed to
