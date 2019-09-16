@@ -96,10 +96,10 @@ const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_BL1_RW,
 #endif
 #endif /* TRUSTED_BOARD_BOOT */
-#if ENABLE_SPM && SPM_MM
+#if SPM_MM
 	ARM_SP_IMAGE_MMAP,
 #endif
-#if ENABLE_SPM && !SPM_MM
+#if ENABLE_SPM
 	PLAT_MAP_SP_PACKAGE_MEM_RW,
 #endif
 #if ARM_BL31_IN_DRAM
@@ -127,16 +127,16 @@ const mmap_region_t plat_arm_mmap[] = {
 	MAP_DEVICE0,
 	MAP_DEVICE1,
 	ARM_V2M_MAP_MEM_PROTECT,
-#if ENABLE_SPM && SPM_MM
+#if SPM_MM
 	ARM_SPM_BUF_EL3_MMAP,
 #endif
-#if ENABLE_SPM && !SPM_MM
+#if ENABLE_SPM
 	PLAT_MAP_SP_PACKAGE_MEM_RO,
 #endif
 	{0}
 };
 
-#if ENABLE_SPM && defined(IMAGE_BL31) && SPM_MM
+#if defined(IMAGE_BL31) && SPM_MM
 const mmap_region_t plat_arm_secure_partition_mmap[] = {
 	V2M_MAP_IOFPGA_EL0, /* for the UART */
 	MAP_REGION_FLAT(DEVICE0_BASE,				\
@@ -190,7 +190,7 @@ static unsigned int get_interconnect_master(void)
 }
 #endif
 
-#if ENABLE_SPM && defined(IMAGE_BL31) && SPM_MM
+#if defined(IMAGE_BL31) && SPM_MM
 /*
  * Boot information passed to a secure partition during initialisation. Linear
  * indices in MP information will be filled at runtime.

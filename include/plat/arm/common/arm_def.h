@@ -500,9 +500,9 @@
  * SPD and no SPM, as they are the only ones that can be used as BL32.
  */
 #if defined(__aarch64__) && !JUNO_AARCH32_EL3_RUNTIME
-# if defined(SPD_none) && !ENABLE_SPM
+# if defined(SPD_none) && !ENABLE_SPM && !SPM_MM
 #  undef BL32_BASE
-# endif /* defined(SPD_none) && !ENABLE_SPM */
+# endif /* defined(SPD_none) && !ENABLE_SPM && !SPM_MM*/
 #endif /* defined(__aarch64__) && !JUNO_AARCH32_EL3_RUNTIME */
 
 /*******************************************************************************

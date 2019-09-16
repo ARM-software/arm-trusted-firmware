@@ -178,11 +178,11 @@ RECLAIM_INIT_CODE		:= 0
 # SPD choice
 SPD				:= none
 
-# For including the Secure Partition Manager
+# Enable the SPCI-based Secure Partition Manager implementation
 ENABLE_SPM			:= 0
 
-# Use the SPM based on MM
-SPM_MM				:= 1
+# Enable the Management Mode (MM)-based Secure Partition Manager implementation
+SPM_MM				:= 0
 
 # Flag to introduce an infinite loop in BL1 just before it exits into the next
 # image. This is meant to help debugging the post-BL2 phase.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -46,7 +46,7 @@ const mmap_region_t plat_arm_mmap[] = {
 #if ARM_BL31_IN_DRAM
 	ARM_MAP_BL31_SEC_DRAM,
 #endif
-#if ENABLE_SPM
+#if SPM_MM
 	ARM_SP_IMAGE_MMAP,
 #endif
 #if TRUSTED_BOARD_BOOT && !BL2_AT_EL3
@@ -61,13 +61,13 @@ const mmap_region_t plat_arm_mmap[] = {
 	V2M_MAP_IOFPGA,
 	CSS_SGI_MAP_DEVICE,
 	SOC_CSS_MAP_DEVICE,
-#if ENABLE_SPM
+#if SPM_MM
 	ARM_SPM_BUF_EL3_MMAP,
 #endif
 	{0}
 };
 
-#if ENABLE_SPM && defined(IMAGE_BL31)
+#if SPM_MM && defined(IMAGE_BL31)
 const mmap_region_t plat_arm_secure_partition_mmap[] = {
 	PLAT_ARM_SECURE_MAP_DEVICE,
 	ARM_SP_IMAGE_MMAP,
@@ -77,12 +77,12 @@ const mmap_region_t plat_arm_secure_partition_mmap[] = {
 	ARM_SPM_BUF_EL0_MMAP,
 	{0}
 };
-#endif /* ENABLE_SPM && defined(IMAGE_BL31) */
+#endif /* SPM_MM && defined(IMAGE_BL31) */
 #endif
 
 ARM_CASSERT_MMAP
 
-#if ENABLE_SPM && defined(IMAGE_BL31)
+#if SPM_MM && defined(IMAGE_BL31)
 /*
  * Boot information passed to a secure partition during initialisation. Linear
  * indices in MP information will be filled at runtime.
@@ -130,7 +130,7 @@ const struct secure_partition_boot_info *plat_get_secure_partition_boot_info(
 {
 	return &plat_arm_secure_partition_boot_info;
 }
-#endif /* ENABLE_SPM && defined(IMAGE_BL31) */
+#endif /* SPM_MM && defined(IMAGE_BL31) */
 
 #if TRUSTED_BOARD_BOOT
 int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)

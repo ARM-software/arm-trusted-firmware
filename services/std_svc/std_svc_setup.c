@@ -45,7 +45,7 @@ static int32_t std_svc_setup(void)
 		ret = 1;
 	}
 
-#if ENABLE_SPM
+#if ENABLE_SPM || SPM_MM
 	if (spm_setup() != 0) {
 		ret = 1;
 	}
@@ -103,7 +103,7 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 		SMC_RET1(handle, ret);
 	}
 
-#if ENABLE_SPM && SPM_MM
+#if SPM_MM
 	/*
 	 * Dispatch SPM calls to SPM SMC handler and return its return
 	 * value

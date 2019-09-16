@@ -282,9 +282,7 @@ else # if AArch64
         BL31_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
     endif
     ifeq (${ENABLE_SPM},1)
-        ifeq (${SPM_MM},0)
             BL31_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
-        endif
     endif
     ifeq (${SPD},trusty)
         BL31_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1

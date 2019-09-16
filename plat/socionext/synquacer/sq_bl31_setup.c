@@ -159,7 +159,7 @@ void bl31_plat_runtime_setup(void)
 void bl31_plat_arch_setup(void)
 {
 	static const mmap_region_t secure_partition_mmap[] = {
-#if ENABLE_SPM && SPM_MM
+#if SPM_MM
 		MAP_REGION_FLAT(PLAT_SPM_BUF_BASE,
 				PLAT_SPM_BUF_SIZE,
 				MT_RW_DATA | MT_SECURE),
@@ -173,7 +173,7 @@ void bl31_plat_arch_setup(void)
 	sq_mmap_setup(BL31_BASE, BL31_SIZE, secure_partition_mmap);
 	enable_mmu_el3(XLAT_TABLE_NC);
 
-#if ENABLE_SPM && SPM_MM
+#if SPM_MM
 	memcpy((void *)SPM_SHIM_EXCEPTIONS_START,
 	       (void *)SPM_SHIM_EXCEPTIONS_LMA,
 	       (uintptr_t)SPM_SHIM_EXCEPTIONS_END -

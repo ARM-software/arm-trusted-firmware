@@ -571,6 +571,14 @@ ifeq ($(CTX_INCLUDE_MTE_REGS),1)
     endif
 endif
 
+# The SPCI-based SPM implementation and the MM-based SPM implementation cannot
+# be enabled at the same time.
+ifeq ($(ENABLE_SPM),1)
+    ifeq ($(SPM_MM),1)
+        $(error Use only one of the ENABLE_SPM and SPM_MM flags)
+    endif
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################

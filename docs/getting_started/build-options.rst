@@ -235,8 +235,9 @@ Common build options
    The default is 1 but is automatically disabled when the target architecture
    is AArch32.
 
--  ``ENABLE_SPM`` : Boolean option to enable the Secure Partition Manager (SPM).
-   Refer to :ref:`Secure Partition Manager` for more details about
+-  ``ENABLE_SPM`` : Boolean option to enable the SPCI-based Secure Partition
+   Manager (SPM) implementation.
+   Refer to the :ref:`Secure Partition Manager` guide for more details about
    this feature. Default is 0.
 
 -  ``ENABLE_SVE_FOR_NS``: Boolean option to enable Scalable Vector Extension
@@ -506,6 +507,9 @@ Common build options
    execution in BL1 just before handing over to BL31. At this point, all
    firmware images have been loaded in memory, and the MMU and caches are
    turned off. Refer to the "Debugging options" section for more details.
+
+-  ``SPM_MM`` : Boolean option to enable the Management Mode (MM)-based Secure
+   Partition Manager (SPM) implementation. The default value is ``0``.
 
 -  ``SP_MIN_WITH_SECURE_FIQ``: Boolean flag to indicate the SP_MIN handles
    secure interrupts (caught through the FIQ line). Platforms can enable
