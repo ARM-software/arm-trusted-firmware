@@ -25,6 +25,7 @@
 
 #define SCPI_CMD_JTAG_SET_STATE		0xC0
 #define SCPI_CMD_EFUSE_READ		0xC2
+#define SCPI_CMD_CHIP_ID		0xC6
 
 #define SCPI_CMD_COPY_FW 0xd4
 #define SCPI_CMD_SET_FW_ADDR 0xd3
@@ -140,6 +141,28 @@ void aml_scpi_unknown_thermal(uint32_t arg0, uint32_t arg1,
 	aml_mhu_secure_message_send(aml_scpi_cmd(0xC3, 16));
 	aml_mhu_secure_message_wait();
 	aml_mhu_secure_message_end();
+}
+
+uint32_t aml_scpi_get_chip_id(uint8_t *obuff, uint32_t osize)
+{
+	uint32_t *response;
+	size_t resp_size;
+
+	if ((osize != 16) && (osize != 12))
+		return 0;
+
+	aml_mhu_secure_message_start();
+	aml_mhu_secure_message_send(aml_scpi_cmd(SCPI_CMD_CHIP_ID, osize));
+	aml_scpi_secure_message_receive((void *)&response, &resp_size);
+	aml_mhu_secure_message_end();
+
+	if (!((resp_size == 16) && (osize == 16)) &&
+	    !((resp_size == 0) && (osize == 12)))
+		return 0;
+
+	memcpy((void *)obuff, (const void *)response, osize);
+
+	return osize;
 }
 
 static inline void aml_scpi_copy_scp_data(uint8_t *data, size_t len)

@@ -116,6 +116,7 @@
 
 #define AML_SM_JTAG_ON				U(0x82000040)
 #define AML_SM_JTAG_OFF				U(0x82000041)
+#define AML_SM_GET_CHIP_ID			U(0x82000044)
 
 #define AML_JTAG_STATE_ON			U(0)
 #define AML_JTAG_STATE_OFF			U(1)
