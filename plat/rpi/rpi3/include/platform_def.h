@@ -12,7 +12,7 @@
 #include <lib/utils_def.h>
 #include <plat/common/common_def.h>
 
-#include "../rpi3_hw.h"
+#include "rpi_hw.h"
 
 /* Special value used to verify platform parameters from BL2 to BL31 */
 #define RPI3_BL31_PLAT_PARAM_VAL	ULL(0x0F1E2D3C4B5A6978)

@@ -9,7 +9,7 @@
 
 #include <lib/mmio.h>
 
-#include "rpi3_hw.h"
+#include <rpi_hw.h>
 
 /* Initial amount of values to discard */
 #define RNG_WARMUP_COUNT	U(0x40000)

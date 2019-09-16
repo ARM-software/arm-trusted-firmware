@@ -16,7 +16,7 @@
 #include <drivers/ti/uart/uart_16550.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
-#include "rpi3_hw.h"
+#include <rpi_hw.h>
 #include "rpi3_private.h"
 
 #define MAP_DEVICE0	MAP_REGION_FLAT(DEVICE0_BASE,			\
