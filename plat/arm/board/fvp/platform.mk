@@ -115,7 +115,8 @@ else
 					lib/cpus/aarch64/neoverse_n1.S		\
 					lib/cpus/aarch64/neoverse_e1.S		\
 					lib/cpus/aarch64/neoverse_zeus.S	\
-					lib/cpus/aarch64/cortex_hercules.S
+					lib/cpus/aarch64/cortex_hercules.S	\
+					lib/cpus/aarch64/cortex_hercules_ae.S
 	endif
 	# AArch64/AArch32 cores
 	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S		\
