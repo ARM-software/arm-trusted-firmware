@@ -278,6 +278,19 @@ bool stm32mp_is_single_core(void)
 	return ret;
 }
 
+/* Return true when device is in closed state */
+bool stm32mp_is_closed_device(void)
+{
+	uint32_t value;
+
+	if ((bsec_shadow_register(DATA0_OTP) != BSEC_OK) ||
+	    (bsec_read_otp(&value, DATA0_OTP) != BSEC_OK)) {
+		return true;
+	}
+
+	return (value & DATA0_OTP_SECURED) == DATA0_OTP_SECURED;
+}
+
 uint32_t stm32_iwdg_get_instance(uintptr_t base)
 {
 	switch (base) {
