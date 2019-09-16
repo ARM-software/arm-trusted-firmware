@@ -7,10 +7,10 @@
 include lib/libfdt/libfdt.mk
 include lib/xlat_tables_v2/xlat_tables.mk
 
-PLAT_INCLUDES		:=	-Iplat/rpi3/include
+PLAT_INCLUDES		:=	-Iplat/rpi/rpi3/include
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
-				plat/rpi3/rpi3_common.c			\
+				plat/rpi/rpi3/rpi3_common.c		\
 				${XLAT_TABLES_LIB_SRCS}
 
 BL1_SOURCES		+=	drivers/io/io_fip.c			\
@@ -18,10 +18,10 @@ BL1_SOURCES		+=	drivers/io/io_fip.c			\
 				drivers/io/io_storage.c			\
 				lib/cpus/aarch64/cortex_a53.S		\
 				plat/common/aarch64/platform_mp_stack.S	\
-				plat/rpi3/aarch64/plat_helpers.S	\
-				plat/rpi3/rpi3_bl1_setup.c		\
-				plat/rpi3/rpi3_io_storage.c		\
-				plat/rpi3/rpi3_mbox.c
+				plat/rpi/rpi3/aarch64/plat_helpers.S	\
+				plat/rpi/rpi3/rpi3_bl1_setup.c		\
+				plat/rpi/rpi3/rpi3_io_storage.c		\
+				plat/rpi/rpi3/rpi3_mbox.c
 
 BL2_SOURCES		+=	common/desc_image_load.c		\
 				drivers/io/io_fip.c			\
@@ -35,18 +35,18 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 				drivers/mmc/mmc.c			\
 				drivers/rpi3/sdhost/rpi3_sdhost.c	\
 				plat/common/aarch64/platform_mp_stack.S	\
-				plat/rpi3/aarch64/plat_helpers.S	\
-				plat/rpi3/aarch64/rpi3_bl2_mem_params_desc.c \
-				plat/rpi3/rpi3_bl2_setup.c		\
-				plat/rpi3/rpi3_image_load.c		\
-				plat/rpi3/rpi3_io_storage.c
+				plat/rpi/rpi3/aarch64/plat_helpers.S	\
+				plat/rpi/rpi3/aarch64/rpi3_bl2_mem_params_desc.c \
+				plat/rpi/rpi3/rpi3_bl2_setup.c		\
+				plat/rpi/rpi3/rpi3_image_load.c		\
+				plat/rpi/rpi3/rpi3_io_storage.c
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				plat/common/plat_psci_common.c		\
-				plat/rpi3/aarch64/plat_helpers.S	\
-				plat/rpi3/rpi3_bl31_setup.c		\
-				plat/rpi3/rpi3_pm.c			\
-				plat/rpi3/rpi3_topology.c		\
+				plat/rpi/rpi3/aarch64/plat_helpers.S	\
+				plat/rpi/rpi3/rpi3_bl31_setup.c		\
+				plat/rpi/rpi3/rpi3_pm.c			\
+				plat/rpi/rpi3/rpi3_topology.c		\
 				${LIBFDT_SRCS}
 
 # Tune compiler for Cortex-A53
@@ -158,8 +158,8 @@ ifeq (${ARCH},aarch32)
 endif
 
 ifneq ($(ENABLE_STACK_PROTECTOR), 0)
-PLAT_BL_COMMON_SOURCES	+=	plat/rpi3/rpi3_rng.c			\
-				plat/rpi3/rpi3_stack_protector.c
+PLAT_BL_COMMON_SOURCES	+=	plat/rpi/rpi3/rpi3_rng.c		\
+				plat/rpi/rpi3/rpi3_stack_protector.c
 endif
 
 ifeq (${SPD},opteed)
@@ -189,13 +189,13 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     BL1_SOURCES		+=	${AUTH_SOURCES}				\
 				bl1/tbbr/tbbr_img_desc.c		\
 				plat/common/tbbr/plat_tbbr.c		\
-				plat/rpi3/rpi3_trusted_boot.c	     	\
-				plat/rpi3/rpi3_rotpk.S
+				plat/rpi/rpi3/rpi3_trusted_boot.c     	\
+				plat/rpi/rpi3/rpi3_rotpk.S
 
     BL2_SOURCES		+=	${AUTH_SOURCES}				\
 				plat/common/tbbr/plat_tbbr.c		\
-				plat/rpi3/rpi3_trusted_boot.c	     	\
-				plat/rpi3/rpi3_rotpk.S
+				plat/rpi/rpi3/rpi3_trusted_boot.c     	\
+				plat/rpi/rpi3/rpi3_rotpk.S
 
     ROT_KEY             = $(BUILD_PLAT)/rot_key.pem
     ROTPK_HASH          = $(BUILD_PLAT)/rotpk_sha256.bin
