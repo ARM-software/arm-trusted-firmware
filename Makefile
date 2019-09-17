@@ -230,7 +230,7 @@ ASFLAGS_aarch64		=	$(march64-directive)
 
 # General warnings
 WARNINGS		:=	-Wall -Wmissing-include-dirs -Wunused	\
-				-Wdisabled-optimization	-Wvla	\
+				-Wdisabled-optimization	-Wvla -Wshadow	\
 				-Wno-unused-parameter
 
 # Additional warnings
@@ -242,10 +242,10 @@ WARNING1 += -Wmissing-prototypes
 WARNING1 += -Wold-style-definition
 WARNING1 += -Wunused-const-variable
 
+# Level 2
 WARNING2 := -Waggregate-return
 WARNING2 += -Wcast-align
 WARNING2 += -Wnested-externs
-WARNING2 += -Wshadow
 WARNING2 += -Wlogical-op
 
 WARNING3 := -Wbad-function-cast

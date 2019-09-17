@@ -254,10 +254,10 @@ static void ddrtbl_setval(uint32_t *tbl, uint32_t _regdef, uint32_t val);
 static uint32_t ddrtbl_getval(uint32_t *tbl, uint32_t _regdef);
 static uint32_t ddrphy_regif_chk(void);
 static inline void ddrphy_regif_idle(void);
-static uint16_t _f_scale(uint32_t ddr_mbps, uint32_t ddr_mbpsdiv, uint32_t ps,
+static uint16_t _f_scale(uint32_t _ddr_mbps, uint32_t _ddr_mbpsdiv, uint32_t ps,
 			 uint16_t cyc);
-static void _f_scale_js2(uint32_t ddr_mbps, uint32_t ddr_mbpsdiv,
-			 uint16_t *js2);
+static void _f_scale_js2(uint32_t _ddr_mbps, uint32_t _ddr_mbpsdiv,
+			 uint16_t *_js2);
 static int16_t _f_scale_adj(int16_t ps);
 static void ddrtbl_load(void);
 static void ddr_config_sub(void);
@@ -991,15 +991,15 @@ static uint16_t js2[JS2_CNT];
 static uint8_t RL;
 static uint8_t WL;
 
-static uint16_t _f_scale(uint32_t ddr_mbps, uint32_t ddr_mbpsdiv, uint32_t ps,
+static uint16_t _f_scale(uint32_t _ddr_mbps, uint32_t _ddr_mbpsdiv, uint32_t ps,
 			 uint16_t cyc)
 {
 	uint32_t tmp;
 	uint32_t div;
 
-	tmp = (((uint32_t)(ps) + 9) / 10) * ddr_mbps;
-	div = tmp / (200000 * ddr_mbpsdiv);
-	if (tmp != (div * 200000 * ddr_mbpsdiv))
+	tmp = (((uint32_t)(ps) + 9) / 10) * _ddr_mbps;
+	div = tmp / (200000 * _ddr_mbpsdiv);
+	if (tmp != (div * 200000 * _ddr_mbpsdiv))
 		div = div + 1;
 
 	if (div > cyc)
@@ -1007,19 +1007,19 @@ static uint16_t _f_scale(uint32_t ddr_mbps, uint32_t ddr_mbpsdiv, uint32_t ps,
 	return cyc;
 }
 
-static void _f_scale_js2(uint32_t ddr_mbps, uint32_t ddr_mbpsdiv,
-			 uint16_t *js2)
+static void _f_scale_js2(uint32_t _ddr_mbps, uint32_t _ddr_mbpsdiv,
+			 uint16_t *_js2)
 {
 	int i;
 
 	for (i = 0; i < JS2_TBLCNT; i++) {
-		js2[i] = _f_scale(ddr_mbps, ddr_mbpsdiv,
+		_js2[i] = _f_scale(_ddr_mbps, _ddr_mbpsdiv,
 				  1UL * jedec_spec2[JS2_DERATE][i].ps,
 				  jedec_spec2[JS2_DERATE][i].cyc);
 	}
 
-	js2[js2_trcpb] = js2[js2_tras] + js2[js2_trppb];
-	js2[js2_trcab] = js2[js2_tras] + js2[js2_trpab];
+	_js2[js2_trcpb] = _js2[js2_tras] + _js2[js2_trppb];
+	_js2[js2_trcab] = _js2[js2_tras] + _js2[js2_trpab];
 }
 
 /* scaler for DELAY value */

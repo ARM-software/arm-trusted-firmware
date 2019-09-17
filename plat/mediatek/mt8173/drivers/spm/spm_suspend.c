@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -239,13 +239,13 @@ static struct pwr_ctrl spm_ctrl = {
 /*
  * go_to_sleep_before_wfi() - trigger SPM to enter suspend scenario
  */
-static void go_to_sleep_before_wfi(const unsigned int spm_flags)
+static void go_to_sleep_before_wfi(const unsigned int flags_spm)
 {
 	struct pwr_ctrl *pwrctrl;
 
 	pwrctrl = &spm_ctrl;
 
-	set_pwrctrl_pcm_flags(pwrctrl, spm_flags);
+	set_pwrctrl_pcm_flags(pwrctrl, flags_spm);
 
 	spm_set_sysclk_settle();
 

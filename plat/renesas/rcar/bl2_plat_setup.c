@@ -408,7 +408,7 @@ struct meminfo *bl2_plat_sec_mem_layout(void)
 	return &bl2_tzram_layout;
 }
 
-static void bl2_populate_compatible_string(void *fdt)
+static void bl2_populate_compatible_string(void *dt)
 {
 	uint32_t board_type;
 	uint32_t board_rev;
@@ -419,32 +419,32 @@ static void bl2_populate_compatible_string(void *fdt)
 	rcar_get_board_type(&board_type, &board_rev);
 	switch (board_type) {
 	case BOARD_SALVATOR_X:
-		ret = fdt_setprop_string(fdt, 0, "compatible",
+		ret = fdt_setprop_string(dt, 0, "compatible",
 					 "renesas,salvator-x");
 		break;
 	case BOARD_SALVATOR_XS:
-		ret = fdt_setprop_string(fdt, 0, "compatible",
+		ret = fdt_setprop_string(dt, 0, "compatible",
 					 "renesas,salvator-xs");
 		break;
 	case BOARD_STARTER_KIT:
-		ret = fdt_setprop_string(fdt, 0, "compatible",
+		ret = fdt_setprop_string(dt, 0, "compatible",
 					 "renesas,m3ulcb");
 		break;
 	case BOARD_STARTER_KIT_PRE:
-		ret = fdt_setprop_string(fdt, 0, "compatible",
+		ret = fdt_setprop_string(dt, 0, "compatible",
 					 "renesas,h3ulcb");
 		break;
 	case BOARD_EAGLE:
-		ret = fdt_setprop_string(fdt, 0, "compatible",
+		ret = fdt_setprop_string(dt, 0, "compatible",
 					 "renesas,eagle");
 		break;
 	case BOARD_EBISU:
 	case BOARD_EBISU_4D:
-		ret = fdt_setprop_string(fdt, 0, "compatible",
+		ret = fdt_setprop_string(dt, 0, "compatible",
 					 "renesas,ebisu");
 		break;
 	case BOARD_DRAAK:
-		ret = fdt_setprop_string(fdt, 0, "compatible",
+		ret = fdt_setprop_string(dt, 0, "compatible",
 					 "renesas,draak");
 		break;
 	default:
@@ -460,27 +460,27 @@ static void bl2_populate_compatible_string(void *fdt)
 	reg = mmio_read_32(RCAR_PRR);
 	switch (reg & PRR_PRODUCT_MASK) {
 	case PRR_PRODUCT_H3:
-		ret = fdt_appendprop_string(fdt, 0, "compatible",
+		ret = fdt_appendprop_string(dt, 0, "compatible",
 					    "renesas,r8a7795");
 		break;
 	case PRR_PRODUCT_M3:
-		ret = fdt_appendprop_string(fdt, 0, "compatible",
+		ret = fdt_appendprop_string(dt, 0, "compatible",
 					    "renesas,r8a7796");
 		break;
 	case PRR_PRODUCT_M3N:
-		ret = fdt_appendprop_string(fdt, 0, "compatible",
+		ret = fdt_appendprop_string(dt, 0, "compatible",
 					    "renesas,r8a77965");
 		break;
 	case PRR_PRODUCT_V3M:
-		ret = fdt_appendprop_string(fdt, 0, "compatible",
+		ret = fdt_appendprop_string(dt, 0, "compatible",
 					    "renesas,r8a77970");
 		break;
 	case PRR_PRODUCT_E3:
-		ret = fdt_appendprop_string(fdt, 0, "compatible",
+		ret = fdt_appendprop_string(dt, 0, "compatible",
 					    "renesas,r8a77990");
 		break;
 	case PRR_PRODUCT_D3:
-		ret = fdt_appendprop_string(fdt, 0, "compatible",
+		ret = fdt_appendprop_string(dt, 0, "compatible",
 					    "renesas,r8a77995");
 		break;
 	default:

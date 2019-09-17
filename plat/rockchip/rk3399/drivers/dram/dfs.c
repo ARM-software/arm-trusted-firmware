@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -78,10 +78,10 @@ static struct rk3399_sdram_default_config lpddr4_default_config = {
 	.zqcsi = 0
 };
 
-static uint32_t get_cs_die_capability(struct rk3399_sdram_params *sdram_config,
+static uint32_t get_cs_die_capability(struct rk3399_sdram_params *ram_config,
 		uint8_t channel, uint8_t cs)
 {
-	struct rk3399_sdram_channel *ch = &sdram_config->ch[channel];
+	struct rk3399_sdram_channel *ch = &ram_config->ch[channel];
 	uint32_t bandwidth;
 	uint32_t die_bandwidth;
 	uint32_t die;

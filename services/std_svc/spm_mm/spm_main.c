@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -86,14 +86,14 @@ int sp_state_try_switch(sp_context_t *sp_ptr, sp_state_t from, sp_state_t to)
  * This function takes an SP context pointer and performs a synchronous entry
  * into it.
  ******************************************************************************/
-static uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx)
+static uint64_t spm_sp_synchronous_entry(sp_context_t *ctx)
 {
 	uint64_t rc;
 
-	assert(sp_ctx != NULL);
+	assert(ctx != NULL);
 
 	/* Assign the context of the SP to this CPU */
-	cm_set_context(&(sp_ctx->cpu_ctx), SECURE);
+	cm_set_context(&(ctx->cpu_ctx), SECURE);
 
 	/* Restore the context assigned above */
 	cm_el1_sysregs_context_restore(SECURE);
@@ -104,7 +104,7 @@ static uint64_t spm_sp_synchronous_entry(sp_context_t *sp_ctx)
 	dsbish();
 
 	/* Enter Secure Partition */
-	rc = spm_secure_partition_enter(&sp_ctx->c_rt_ctx);
+	rc = spm_secure_partition_enter(&ctx->c_rt_ctx);
 
 	/* Save secure state */
 	cm_el1_sysregs_context_save(SECURE);
