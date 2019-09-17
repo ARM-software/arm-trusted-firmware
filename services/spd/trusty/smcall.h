@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -70,5 +71,12 @@
 #define SMC_YC_VDEV_RESET	  SMC_YIELDCALL_NR(SMC_ENTITY_TRUSTED_OS, 23U)
 #define SMC_YC_VDEV_KICK_VQ	  SMC_YIELDCALL_NR(SMC_ENTITY_TRUSTED_OS, 24U)
 #define SMC_YC_SET_ROT_PARAMS	  SMC_YIELDCALL_NR(SMC_ENTITY_TRUSTED_OS, 65535U)
+
+/*
+ * Standard Trusted OS Function IDs that fall under Trusted OS call range
+ * according to SMC calling convention
+ */
+#define SMC_FC64_GET_UUID		SMC_FASTCALL64_NR(63U, 0xFF01U) /* Implementation UID */
+#define SMC_FC_GET_UUID			SMC_FASTCALL_NR(63U, 0xFF01U) /* Implementation.UID */
 
 #endif /* SMCALL_H */
