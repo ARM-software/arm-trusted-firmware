@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -2383,37 +2383,6 @@ static void dbsc_regset_post(void)
 	mmio_write_32(DBSC_DBRFCNF1, 0x00080000 | (data_l & 0x0000ffff));
 	mmio_write_32(DBSC_DBRFCNF2, 0x00010000 | DBSC_REFINTS);
 
-#ifdef DDR_BACKUPMODE
-	if (ddr_backup == DRAM_BOOT_STATUS_WARM) {
-#ifdef DDR_BACKUPMODE_HALF	/* for Half channel(ch0,1 only) */
-		DEBUG(" DEBUG_MESS : DDR_BACKUPMODE_HALF ", 1);
-		send_dbcmd(0x08040001);
-		wait_dbcmd();
-		send_dbcmd(0x0A040001);
-		wait_dbcmd();
-		send_dbcmd(0x04040010);
-		wait_dbcmd();
-
-		if (prr_product == PRR_PRODUCT_H3) {
-			send_dbcmd(0x08140001);
-			wait_dbcmd();
-			send_dbcmd(0x0A140001);
-			wait_dbcmd();
-			send_dbcmd(0x04140010);
-			wait_dbcmd();
-		}
-#else /* DDR_BACKUPMODE_HALF                              //for All channels */
-		send_dbcmd(0x08840001);
-		wait_dbcmd();
-		send_dbcmd(0x0A840001);
-		wait_dbcmd();
-
-		send_dbcmd(0x04840010);
-		wait_dbcmd();
-#endif /* DDR_BACKUPMODE_HALF */
-	}
-#endif /* DDR_BACKUPMODE */
-
 #if RCAR_REWT_TRAINING != 0
 	/* Periodic-WriteDQ Training seeting */
 	if (((prr_product == PRR_PRODUCT_H3) &&
@@ -2422,12 +2391,7 @@ static void dbsc_regset_post(void)
 	     (prr_cut == PRR_PRODUCT_10))) {
 		/* non : H3 Ver.1.x/M3-W Ver.1.0 not support */
 	} else {
-		/*
-		 * H3 Ver.2.0 or later/M3-W Ver.1.1 or
-		 * later/M3-N/V3H -> Periodic-WriteDQ Training seeting
-		 */
-
-		/* Periodic WriteDQ Training seeting */
+		/* H3 Ver.2.0 or later/M3-W Ver.1.1 or later/M3-N/V3H */
 		mmio_write_32(DBSC_DBDFIPMSTRCNF, 0x00000000);
 
 		ddr_setval_ach_as(_reg_PHY_WDQLVL_PATT, 0x04);
@@ -2440,7 +2404,6 @@ static void dbsc_regset_post(void)
 					     _reg_PI_WDQLVL_CS_MAP));
 		ddr_setval_ach(_reg_PI_LONG_COUNT_MASK, 0x1f);
 		ddr_setval_ach(_reg_PI_WDQLVL_VREF_EN, 0x00);
-		ddr_setval_ach(_reg_PI_WDQLVL_INTERVAL, 0x0100);
 		ddr_setval_ach(_reg_PI_WDQLVL_ROTATE, 0x01);
 		ddr_setval_ach(_reg_PI_TREF_F0, 0x0000);
 		ddr_setval_ach(_reg_PI_TREF_F1, 0x0000);
@@ -2458,8 +2421,10 @@ static void dbsc_regset_post(void)
 		mmio_write_32(DBSC_DBDFIPMSTRCNF, 0x00000011);
 	}
 #endif /* RCAR_REWT_TRAINING */
-	/* periodic dram zqcal and phy ctrl update enable */
+	/* periodic dram zqcal enable */
 	mmio_write_32(DBSC_DBCALCNF, 0x01000010);
+
+	/* periodic phy ctrl update enable */
 	if (((prr_product == PRR_PRODUCT_H3) &&
 	     (prr_cut <= PRR_PRODUCT_11)) ||
 	    ((prr_product == PRR_PRODUCT_M3) &&
@@ -2477,7 +2442,36 @@ static void dbsc_regset_post(void)
 #endif /* RCAR_DRAM_SPLIT == 2 */
 	}
 
+#ifdef DDR_BACKUPMODE
+	/* SRX */
+	if (ddr_backup == DRAM_BOOT_STATUS_WARM) {
+#ifdef DDR_BACKUPMODE_HALF		/* for Half channel(ch0, 1 only) */
+		NOTICE("BL2: [DEBUG_MESS] DDR_BACKUPMODE_HALF\n");
+		send_dbcmd(0x0A040001);
+		if (Prr_Product == PRR_PRODUCT_H3)
+			send_dbcmd(0x0A140001);
+#else /* DDR_BACKUPMODE_HALF */		/* for All channels */
+		send_dbcmd(0x0A840001);
+#endif /* DDR_BACKUPMODE_HALF */
+	}
+#endif /* DDR_BACKUPMODE */
+
+	/* set Auto Refresh */
 	mmio_write_32(DBSC_DBRFEN, 0x00000001);
+
+#if RCAR_REWT_TRAINING != 0
+	/* Periodic WriteDQ Traning */
+	if (((prr_product == PRR_PRODUCT_H3) &&
+	     (prr_cut <= PRR_PRODUCT_11)) ||
+	    ((prr_product == PRR_PRODUCT_M3) &&
+	     (prr_cut == PRR_PRODUCT_10))) {
+		/* non : H3 Ver.1.x/M3-W Ver.1.0 not support */
+	} else {
+		/* H3 Ver.2.0 or later/M3-W Ver.1.1 or later/M3-N/V3H */
+		ddr_setval_ach(_reg_PI_WDQLVL_INTERVAL, 0x0100);
+	}
+#endif /* RCAR_REWT_TRAINING */
+
 	/* dram access enable */
 	mmio_write_32(DBSC_DBACEN, 0x00000001);
 
@@ -3025,6 +3019,9 @@ static uint32_t init_ddr(void)
 	if (err)
 		return INITDRAM_ERR_O;
 	MSG_LF(__func__ ":5\n");
+
+	/* Dummy PDE */
+	send_dbcmd(0x08840000);
 
 	/* PDX */
 	send_dbcmd(0x08840001);

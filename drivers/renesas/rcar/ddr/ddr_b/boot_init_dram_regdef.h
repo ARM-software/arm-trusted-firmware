@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define RCAR_DDR_VERSION	"rev.0.37"
+#define RCAR_DDR_VERSION	"rev.0.38"
 #define DRAM_CH_CNT		0x04
 #define SLICE_CNT		0x04
 #define CS_CNT			0x02
@@ -22,7 +22,7 @@
 
 /* for ddr deisity setting */
 #define DBMEMCONF_REG(d3, row, bank, col, dw)	\
-	((d3) << 30 | ((row) << 24) | ((bank) << 16) | ((col) << 8) | (dw))
+	(((d3) << 30) | ((row) << 24) | ((bank) << 16) | ((col) << 8) | (dw))
 
 #define DBMEMCONF_REGD(density)		\
 	(DBMEMCONF_REG((density) % 2, ((density) + 1) / \

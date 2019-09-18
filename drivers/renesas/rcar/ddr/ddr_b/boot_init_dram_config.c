@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -1571,8 +1571,13 @@ void boardcnf_get_ddr_mbps(uint32_t brd, uint32_t *mbps, uint32_t *div)
 {
 	uint32_t md;
 
-	md = (mmio_read_32(RST_MODEMR) >> 17) & 0x5;
-	md = (md | (md >> 1)) & 0x3;
+	if (prr_product == PRR_PRODUCT_V3H) {
+		md = (mmio_read_32(RST_MODEMR) >> 19) & 0x1;
+		md = (md | (md << 1)) & 0x3; /* 0 or 3 */
+	} else {
+		md = (mmio_read_32(RST_MODEMR) >> 17) & 0x5;
+		md = (md | (md >> 1)) & 0x3;
+	}
 	switch (md) {
 	case 0x0:
 		*mbps = 3200;
