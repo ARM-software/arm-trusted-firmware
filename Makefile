@@ -246,7 +246,6 @@ WARNING1 += -Wunused-const-variable
 WARNING2 := -Waggregate-return
 WARNING2 += -Wcast-align
 WARNING2 += -Wnested-externs
-WARNING2 += -Wlogical-op
 
 WARNING3 := -Wbad-function-cast
 WARNING3 += -Wcast-qual
@@ -268,13 +267,13 @@ endif
 # Compiler specific warnings
 ifeq ($(findstring clang,$(notdir $(CC))),)
 # not using clang
-WARNINGS	+=		-Wunused-but-set-variable	\
-				-Wmaybe-uninitialized		\
-				-Wpacked-bitfield-compat	\
-				-Wshift-overflow=2
+WARNINGS	+=		-Wunused-but-set-variable -Wmaybe-uninitialized	\
+				-Wpacked-bitfield-compat -Wshift-overflow=2 \
+				-Wlogical-op
 else
 # using clang
-WARNINGS	+=		-Wshift-overflow -Wshift-sign-overflow
+WARNINGS	+=		-Wshift-overflow -Wshift-sign-overflow \
+				-Wlogical-op-parentheses
 endif
 
 ifneq (${E},0)
