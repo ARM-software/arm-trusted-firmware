@@ -69,7 +69,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	uint32_t scr_el3;
 	el3_state_t *state;
 	gp_regs_t *gp_regs;
-	unsigned long sctlr_elx, actlr_elx;
+	u_register_t sctlr_elx, actlr_elx;
 
 	assert(ctx != NULL);
 
