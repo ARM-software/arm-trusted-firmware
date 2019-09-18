@@ -30,9 +30,8 @@ Several build options can be used to check for security issues. Refer to the
 
   - W=1
 
-    Adds ``Wextra``, ``Wmissing-declarations``, ``Wmissing-format-attribute``,
-    ``Wmissing-prototypes``, ``Wold-style-definition`` and
-    ``Wunused-const-variable``.
+    Adds ``Wextra``, ``Wmissing-format-attribute``, ``Wmissing-prototypes``,
+    ``Wold-style-definition`` and ``Wunused-const-variable``.
 
   - W=2
 
@@ -42,7 +41,7 @@ Several build options can be used to check for security issues. Refer to the
   - W=3
 
     Adds ``Wbad-function-cast``, ``Wcast-qual``, ``Wconversion``, ``Wpacked``,
-    ``Wpadded``, ``Wpointer-arith``, ``Wredundant-decls`` and
+    ``Wpointer-arith``, ``Wredundant-decls`` and
     ``Wswitch-default``.
 
   Refer to the GCC or Clang documentation for more information on the individual
