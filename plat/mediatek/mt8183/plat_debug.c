@@ -9,6 +9,7 @@
 #include <lib/mmio.h>
 #include <plat_debug.h>
 #include <platform_def.h>
+#include <spm.h>
 
 void circular_buffer_setup(void)
 {
