@@ -156,7 +156,7 @@ int stpmic1_register_write(uint8_t register_id, uint8_t value);
 int stpmic1_register_update(uint8_t register_id, uint8_t value, uint8_t mask);
 int stpmic1_regulator_enable(const char *name);
 int stpmic1_regulator_disable(const char *name);
-uint8_t stpmic1_is_regulator_enabled(const char *name);
+bool stpmic1_is_regulator_enabled(const char *name);
 int stpmic1_regulator_voltage_set(const char *name, uint16_t millivolts);
 int stpmic1_regulator_voltage_get(const char *name);
 int stpmic1_regulator_pull_down_set(const char *name);

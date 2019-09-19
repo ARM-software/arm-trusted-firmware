@@ -6,10 +6,6 @@
 
 #include <errno.h>
 
-#include <libfdt.h>
-
-#include <platform_def.h>
-
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <drivers/st/stm32_i2c.h>
@@ -17,6 +13,9 @@
 #include <drivers/st/stpmic1.h>
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
+#include <libfdt.h>
+
+#include <platform_def.h>
 
 #define STPMIC1_LDO12356_OUTPUT_MASK	(uint8_t)(GENMASK(6, 2))
 #define STPMIC1_LDO12356_OUTPUT_SHIFT	2
@@ -175,7 +174,7 @@ int dt_pmic_configure_boot_on_regulators(void)
 			return status;
 		}
 
-		if (stpmic1_is_regulator_enabled(node_name) == 0U) {
+		if (!stpmic1_is_regulator_enabled(node_name)) {
 			status = stpmic1_regulator_enable(node_name);
 			if (status != 0) {
 				return status;
