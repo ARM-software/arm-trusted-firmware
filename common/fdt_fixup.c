@@ -29,6 +29,19 @@ static int append_psci_compatible(void *fdt, int offs, const char *str)
 	return fdt_appendprop(fdt, offs, "compatible", str, strlen(str) + 1);
 }
 
+/*
+ * Those defines are for PSCI v0.1 legacy clients, which we expect to use
+ * the same execution state (AArch32/AArch64) as TF-A.
+ * Kernels running in AArch32 on an AArch64 TF-A should use PSCI v0.2.
+ */
+#ifdef __aarch64__
+#define PSCI_CPU_SUSPEND_FNID	PSCI_CPU_SUSPEND_AARCH64
+#define PSCI_CPU_ON_FNID	PSCI_CPU_ON_AARCH64
+#else
+#define PSCI_CPU_SUSPEND_FNID	PSCI_CPU_SUSPEND_AARCH32
+#define PSCI_CPU_ON_FNID	PSCI_CPU_ON_AARCH32
+#endif
+
 /*******************************************************************************
  * dt_add_psci_node() - Add a PSCI node into an existing device tree
  * @fdt:	pointer to the device tree blob in memory
@@ -66,15 +79,11 @@ int dt_add_psci_node(void *fdt)
 		return -1;
 	if (fdt_setprop_string(fdt, offs, "method", "smc"))
 		return -1;
-	if (fdt_setprop_u32(fdt, offs, "cpu_suspend", PSCI_CPU_SUSPEND_AARCH64))
+	if (fdt_setprop_u32(fdt, offs, "cpu_suspend", PSCI_CPU_SUSPEND_FNID))
 		return -1;
 	if (fdt_setprop_u32(fdt, offs, "cpu_off", PSCI_CPU_OFF))
 		return -1;
-	if (fdt_setprop_u32(fdt, offs, "cpu_on", PSCI_CPU_ON_AARCH64))
-		return -1;
-	if (fdt_setprop_u32(fdt, offs, "sys_poweroff", PSCI_SYSTEM_OFF))
-		return -1;
-	if (fdt_setprop_u32(fdt, offs, "sys_reset", PSCI_SYSTEM_RESET))
+	if (fdt_setprop_u32(fdt, offs, "cpu_on", PSCI_CPU_ON_FNID))
 		return -1;
 	return 0;
 }
