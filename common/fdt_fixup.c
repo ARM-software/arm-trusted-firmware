@@ -29,6 +29,20 @@ static int append_psci_compatible(void *fdt, int offs, const char *str)
 	return fdt_appendprop(fdt, offs, "compatible", str, strlen(str) + 1);
 }
 
+/*******************************************************************************
+ * dt_add_psci_node() - Add a PSCI node into an existing device tree
+ * @fdt:	pointer to the device tree blob in memory
+ *
+ * Add a device tree node describing PSCI into the root level of an existing
+ * device tree blob in memory.
+ * This will add v0.1, v0.2 and v1.0 compatible strings and the standard
+ * function IDs for v0.1 compatibility.
+ * An existing PSCI node will not be touched, the function will return success
+ * in this case. This function will not touch the /cpus enable methods, use
+ * dt_add_psci_cpu_enable_methods() for that.
+ *
+ * Return: 0 on success, -1 otherwise.
+ ******************************************************************************/
 int dt_add_psci_node(void *fdt)
 {
 	int offs;
@@ -113,6 +127,17 @@ static int dt_update_one_cpu_node(void *fdt, int offset)
 	return offs;
 }
 
+/*******************************************************************************
+ * dt_add_psci_cpu_enable_methods() - switch CPU nodes in DT to use PSCI
+ * @fdt:	pointer to the device tree blob in memory
+ *
+ * Iterate over all CPU device tree nodes (/cpus/cpu@x) in memory to change
+ * the enable-method to PSCI. This will add the enable-method properties, if
+ * required, or will change existing properties to read "psci".
+ *
+ * Return: 0 on success, or a negative error value otherwise.
+ ******************************************************************************/
+
 int dt_add_psci_cpu_enable_methods(void *fdt)
 {
 	int offs, ret;
@@ -130,6 +155,25 @@ int dt_add_psci_cpu_enable_methods(void *fdt)
 
 #define HIGH_BITS(x) ((sizeof(x) > 4) ? ((x) >> 32) : (typeof(x))0)
 
+/*******************************************************************************
+ * fdt_add_reserved_memory() - reserve (secure) memory regions in DT
+ * @dtb:	pointer to the device tree blob in memory
+ * @node_name:	name of the subnode to be used
+ * @base:	physical base address of the reserved region
+ * @size:	size of the reserved region
+ *
+ * Add a region of memory to the /reserved-memory node in a device tree in
+ * memory, creating that node if required. Each region goes into a subnode
+ * of that node and has a @node_name, a @base address and a @size.
+ * This will prevent any device tree consumer from using that memory. It
+ * can be used to announce secure memory regions, as it adds the "no-map"
+ * property to prevent mapping and speculative operations on that region.
+ *
+ * See reserved-memory/reserved-memory.txt in the (Linux kernel) DT binding
+ * documentation for details.
+ *
+ * Return: 0 on success, a negative error value otherwise.
+ ******************************************************************************/
 int fdt_add_reserved_memory(void *dtb, const char *node_name,
 			    uintptr_t base, size_t size)
 {
