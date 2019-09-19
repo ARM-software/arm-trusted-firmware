@@ -194,6 +194,9 @@ TRUSTED_BOARD_BOOT		:= 0
 # Build option to choose whether Trusted Firmware uses Coherent memory or not.
 USE_COHERENT_MEM		:= 1
 
+# Build option to add debugfs support
+USE_DEBUGFS			:= 0
+
 # Build option to choose whether Trusted Firmware uses library at ROM
 USE_ROMLIB			:= 0
 
