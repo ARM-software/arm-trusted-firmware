@@ -9,7 +9,7 @@ is outside the scope of this document.
 
 This document assumes that the reader has previous experience running a fully
 bootable Linux software stack on Juno or FVP using the prebuilt binaries and
-filesystems provided by `Linaro`_. Further information may be found in the
+filesystems provided by Linaro. Further information may be found in the
 `Linaro instructions`_. It also assumes that the user understands the role of
 the different software components required to boot a Linux system:
 
@@ -48,15 +48,10 @@ Install the required packages to build TF-A with the following command:
 
     sudo apt-get install device-tree-compiler build-essential gcc make git libssl-dev
 
-TF-A has been tested with Linaro Release 18.04.
-
 Download and install the AArch32 (arm-eabi) or AArch64 little-endian
 (aarch64-linux-gnu) GCC cross compiler. If you would like to use the latest
 features available, download GCC 8.3-2019.03 compiler from
-`arm Developer page`_. Otherwise, the `Linaro Release Notes`_ documents which
-version of the compiler to use for a given Linaro Release. Also, these
-`Linaro instructions`_ provide further guidance and a script, which can be used
-to download Linaro deliverables automatically.
+`Arm Developer page`_.
 
 Optionally, TF-A can be built using clang version 4.0 or newer or Arm
 Compiler 6. See instructions below on how to switch the default compiler.
@@ -72,6 +67,10 @@ In addition, the following optional packages and tools may be needed:
 -  To create and modify the diagram files included in the documentation, `Dia`_.
    This tool can be found in most Linux distributions. Inkscape is needed to
    generate the actual \*.png files.
+
+TF-A has been tested with pre-built binaries and file systems from
+`Linaro Release 19.06`_. Alternatively, you can build the binaries from
+source using instructions provided at the `Arm Platforms User guide`_.
 
 Getting the TF-A source code
 ----------------------------
@@ -127,7 +126,7 @@ Building TF-A
 -------------
 
 -  Before building TF-A, the environment variable ``CROSS_COMPILE`` must point
-   to the Linaro cross compiler.
+   to the cross compiler.
 
    For AArch64:
 
@@ -1401,7 +1400,7 @@ a single FIP binary. It assumes that a `Linaro Release`_ has been installed.
    separately for AArch32.
 
    -  Before building BL32, the environment variable ``CROSS_COMPILE`` must point
-      to the AArch32 Linaro cross compiler.
+      to the AArch32 cross compiler.
 
       .. code:: shell
 
@@ -1422,7 +1421,7 @@ a single FIP binary. It assumes that a `Linaro Release`_ has been installed.
           make realclean
 
    -  Before building BL1 and BL2, the environment variable ``CROSS_COMPILE``
-      must point to the AArch64 Linaro cross compiler.
+      must point to the AArch64 cross compiler.
 
       .. code:: shell
 
@@ -2154,11 +2153,9 @@ Running the software on Juno
 
 This version of TF-A has been tested on variants r0, r1 and r2 of Juno.
 
-To execute the software stack on Juno, the version of the Juno board recovery
-image indicated in the `Linaro Release Notes`_ must be installed. If you have an
-earlier version installed or are unsure which version is installed, please
-re-install the recovery image by following the
-`Instructions for using Linaro's deliverables on Juno`_.
+To execute the software stack on Juno, installing the latest Arm Platforms
+software deliverables is recommended. Please install the deliverables by
+following the `Instructions for using Linaro's deliverables on Juno`_.
 
 Preparing TF-A images
 ~~~~~~~~~~~~~~~~~~~~~
@@ -2193,11 +2190,11 @@ wakeup interrupt from RTC.
 
 *Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
 
-.. _arm Developer page: https://developer.arm.com/open-source/gnu-toolchain/gnu-a/downloads
-.. _Linaro: `Linaro Release Notes`_
-.. _Linaro Release: `Linaro Release Notes`_
-.. _Linaro Release Notes: https://community.arm.com/dev-platforms/w/docs/226/old-release-notes
-.. _Linaro instructions: https://community.arm.com/dev-platforms/w/docs/304/arm-reference-platforms-deliverables
+.. _Arm Developer page: https://developer.arm.com/open-source/gnu-toolchain/gnu-a/downloads
+.. _Linaro Release: http://releases.linaro.org/members/arm/platforms
+.. _Linaro Release 19.06: http://releases.linaro.org/members/arm/platforms/19.06
+.. _Linaro instructions: https://git.linaro.org/landing-teams/working/arm/arm-reference-platforms.git/about
+.. _Arm Platforms User guide: https://git.linaro.org/landing-teams/working/arm/arm-reference-platforms.git/about/docs/user-guide.rst
 .. _Instructions for using Linaro's deliverables on Juno: https://community.arm.com/dev-platforms/w/docs/303/juno
 .. _Arm Platforms Portal: https://community.arm.com/dev-platforms/
 .. _Development Studio 5 (DS-5): https://developer.arm.com/products/software-development-tools/ds-5-development-studio
