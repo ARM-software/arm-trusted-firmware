@@ -10,7 +10,7 @@
 /*******************************************************************************
  * Platform memory map related constants
  ******************************************************************************/
-/* TF txet, ro, rw, Size: 2MB */
+/* TF text, ro, rw, Size: 2MB */
 #define TZRAM_BASE		(0x0)
 #define TZRAM_SIZE		(0x200000)
 
