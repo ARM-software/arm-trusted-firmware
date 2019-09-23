@@ -154,6 +154,8 @@ static int get_part_number(uint32_t *part_nb)
 	uint32_t part_number;
 	uint32_t dev_id;
 
+	assert(part_nb != NULL);
+
 	if (stm32mp1_dbgmcu_get_chip_dev_id(&dev_id) < 0) {
 		return -1;
 	}
@@ -174,6 +176,8 @@ static int get_part_number(uint32_t *part_nb)
 static int get_cpu_package(uint32_t *cpu_package)
 {
 	uint32_t package;
+
+	assert(cpu_package != NULL);
 
 	if (bsec_shadow_read_otp(&package, PACKAGE_OTP) != BSEC_OK) {
 		ERROR("BSEC: PACKAGE_OTP Error\n");
