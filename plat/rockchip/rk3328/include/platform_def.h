@@ -66,7 +66,7 @@
 /*******************************************************************************
  * Platform memory map related constants
  ******************************************************************************/
-/* TF txet, ro, rw, Size: 512KB */
+/* TF text, ro, rw, Size: 512KB */
 #define TZRAM_BASE		(0x0)
 #define TZRAM_SIZE		(0x80000)
 
@@ -76,7 +76,7 @@
 /*
  * Put BL3-1 at the top of the Trusted RAM
  */
-#define BL31_BASE		(TZRAM_BASE + 0x10000)
+#define BL31_BASE		(TZRAM_BASE + 0x40000)
 #define BL31_LIMIT		(TZRAM_BASE + TZRAM_SIZE)
 
 /*******************************************************************************
