@@ -43,10 +43,9 @@ states.
 Users are encouraged to do their own security validation, including penetration
 testing, on any secure world code derived from TF-A.
 
-Arm will continue development in collaboration with interested parties to
-provide a full reference implementation of Secure Monitor code and Arm standards
-to the benefit of all developers working with Armv7-A and Armv8-A TrustZone
-technology.
+In collaboration with interested parties, we will continue to enhance |TF-A|
+with reference implementations of Arm standards to benefit developers working
+with Armv7-A and Armv8-A TrustZone technology.
 
 Functionality
 -------------
@@ -133,8 +132,8 @@ Functionality
    The use of pointer authentication in the normal world is enabled whenever
    architectural support is available, without the need for additional build
    flags. Use of pointer authentication in the secure world remains an
-   experimental configuration at this time and requires the ``ENABLE_PAUTH``
-   build flag to be set.
+   experimental configuration at this time and requires the
+   ``BRANCH_PROTECTION`` option to be set to non-zero.
 
 -  Position-Independent Executable (PIE) support. Initially for BL31 only, with
    further support to be added in a future release.
