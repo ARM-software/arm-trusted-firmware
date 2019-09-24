@@ -32,6 +32,8 @@ uint32_t fdt_read_uint32_default(int node, const char *prop_name,
 				 uint32_t dflt_value);
 int fdt_read_uint32_array(int node, const char *prop_name,
 			  uint32_t *array, uint32_t count);
+int fdt_get_reg_props_by_name(int node, const char *name, uintptr_t *base,
+			      size_t *size);
 int dt_set_stdout_pinctrl(void);
 void dt_fill_device_info(struct dt_node_info *info, int node);
 int dt_get_node(struct dt_node_info *info, int offset, const char *compat);
