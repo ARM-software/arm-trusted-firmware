@@ -340,6 +340,9 @@ enum ddr_type {
 #define NAND_ECC_BIT_NB_8_BITS		U(3)
 #define NAND_ECC_ON_DIE			U(4)
 
+/* NAND number of planes */
+#define NAND_PLANE_BIT_NB_MASK		BIT(14)
+
 /*******************************************************************************
  * STM32MP1 TAMP
  ******************************************************************************/

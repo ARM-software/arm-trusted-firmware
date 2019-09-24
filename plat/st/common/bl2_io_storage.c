@@ -19,9 +19,11 @@
 #include <drivers/mmc.h>
 #include <drivers/partition/partition.h>
 #include <drivers/raw_nand.h>
+#include <drivers/spi_nand.h>
 #include <drivers/st/io_mmc.h>
 #include <drivers/st/io_stm32image.h>
 #include <drivers/st/stm32_fmc2_nand.h>
+#include <drivers/st/stm32_qspi.h>
 #include <drivers/st/stm32_sdmmc2.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
@@ -68,6 +70,17 @@ static io_mtd_dev_spec_t nand_dev_spec = {
 };
 
 static const io_dev_connector_t *nand_dev_con;
+#endif
+
+#if STM32MP_SPI_NAND
+static io_mtd_dev_spec_t spi_nand_dev_spec = {
+	.ops = {
+		.init = spi_nand_init,
+		.read = nand_read,
+	},
+};
+
+static const io_dev_connector_t *spi_dev_con;
 #endif
 
 #ifdef AARCH32_SP_OPTEE
@@ -226,6 +239,9 @@ static void print_boot_device(boot_api_context_t *boot_context)
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_FMC:
 		INFO("Using FMC NAND\n");
 		break;
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_QSPI:
+		INFO("Using SPI NAND\n");
+		break;
 	default:
 		ERROR("Boot interface not found\n");
 		panic();
@@ -382,6 +398,60 @@ static void boot_fmc2_nand(boot_api_context_t *boot_context)
 }
 #endif /* STM32MP_RAW_NAND */
 
+#if STM32MP_SPI_NAND
+static void boot_spi_nand(boot_api_context_t *boot_context)
+{
+	int io_result __unused;
+	uint8_t idx;
+	struct stm32image_part_info *part;
+
+	io_result = stm32_qspi_init();
+	assert(io_result == 0);
+
+	io_result = register_io_dev_mtd(&spi_dev_con);
+	assert(io_result == 0);
+
+	/* Open connections to device */
+	io_result = io_dev_open(spi_dev_con,
+				(uintptr_t)&spi_nand_dev_spec,
+				&storage_dev_handle);
+	assert(io_result == 0);
+
+	stm32image_dev_info_spec.device_size =
+		spi_nand_dev_spec.device_size;
+
+	idx = IMG_IDX_BL33;
+	part = &stm32image_dev_info_spec.part_info[idx];
+	part->part_offset = STM32MP_NAND_BL33_OFFSET;
+	part->bkp_offset = spi_nand_dev_spec.erase_size;
+
+#ifdef AARCH32_SP_OPTEE
+	idx = IMG_IDX_OPTEE_HEADER;
+	part = &stm32image_dev_info_spec.part_info[idx];
+	part->part_offset = STM32MP_NAND_TEEH_OFFSET;
+	part->bkp_offset = spi_nand_dev_spec.erase_size;
+
+	idx = IMG_IDX_OPTEE_PAGED;
+	part = &stm32image_dev_info_spec.part_info[idx];
+	part->part_offset = STM32MP_NAND_TEED_OFFSET;
+	part->bkp_offset = spi_nand_dev_spec.erase_size;
+
+	idx = IMG_IDX_OPTEE_PAGER;
+	part = &stm32image_dev_info_spec.part_info[idx];
+	part->part_offset = STM32MP_NAND_TEEX_OFFSET;
+	part->bkp_offset = spi_nand_dev_spec.erase_size;
+#endif
+
+	io_result = register_io_dev_stm32image(&stm32image_dev_con);
+	assert(io_result == 0);
+
+	io_result = io_dev_open(stm32image_dev_con,
+				(uintptr_t)&stm32image_dev_info_spec,
+				&image_dev_handle);
+	assert(io_result == 0);
+}
+#endif /* STM32MP_SPI_NAND */
+
 void stm32mp_io_setup(void)
 {
 	int io_result __unused;
@@ -420,6 +490,12 @@ void stm32mp_io_setup(void)
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_FMC:
 		dmbsy();
 		boot_fmc2_nand(boot_context);
+		break;
+#endif
+#if STM32MP_SPI_NAND
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_QSPI:
+		dmbsy();
+		boot_spi_nand(boot_context);
 		break;
 #endif
 

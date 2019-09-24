@@ -12,8 +12,8 @@
 
 #define SZ_512		0x200U
 
-#if STM32MP_RAW_NAND
-static int get_data_from_otp(struct nand_device *nand_dev)
+#if STM32MP_RAW_NAND || STM32MP_SPI_NAND
+static int get_data_from_otp(struct nand_device *nand_dev, bool is_slc)
 {
 	int result;
 	uint32_t nand_param;
@@ -81,28 +81,37 @@ static int get_data_from_otp(struct nand_device *nand_dev)
 		NAND_BLOCK_NB_UNIT * nand_dev->block_size;
 
 ecc:
-	switch ((nand_param & NAND_ECC_BIT_NB_MASK) >>
-		NAND_ECC_BIT_NB_SHIFT) {
-	case NAND_ECC_BIT_NB_1_BITS:
-		nand_dev->ecc.max_bit_corr = 1U;
-		break;
+	if (is_slc) {
+		switch ((nand_param & NAND_ECC_BIT_NB_MASK) >>
+			NAND_ECC_BIT_NB_SHIFT) {
+		case NAND_ECC_BIT_NB_1_BITS:
+			nand_dev->ecc.max_bit_corr = 1U;
+			break;
 
-	case NAND_ECC_BIT_NB_4_BITS:
-		nand_dev->ecc.max_bit_corr = 4U;
-		break;
+		case NAND_ECC_BIT_NB_4_BITS:
+			nand_dev->ecc.max_bit_corr = 4U;
+			break;
 
-	case NAND_ECC_BIT_NB_8_BITS:
-		nand_dev->ecc.max_bit_corr = 8U;
-		break;
+		case NAND_ECC_BIT_NB_8_BITS:
+			nand_dev->ecc.max_bit_corr = 8U;
+			break;
 
-	case NAND_ECC_ON_DIE:
-		nand_dev->ecc.mode = NAND_ECC_ONDIE;
-		break;
+		case NAND_ECC_ON_DIE:
+			nand_dev->ecc.mode = NAND_ECC_ONDIE;
+			break;
 
-	default:
-		if (nand_dev->ecc.max_bit_corr == 0U) {
-			ERROR("No valid eccbit number\n");
-			return -EINVAL;
+		default:
+			if (nand_dev->ecc.max_bit_corr == 0U) {
+				ERROR("No valid eccbit number\n");
+				return -EINVAL;
+			}
+		}
+	} else {
+		/* Selected multiple plane NAND */
+		if ((nand_param & NAND_PLANE_BIT_NB_MASK) != 0U) {
+			nand_dev->nb_planes = 2U;
+		} else {
+			nand_dev->nb_planes = 1U;
 		}
 	}
 
@@ -111,7 +120,7 @@ ecc:
 
 	return 0;
 }
-#endif
+#endif /* STM32MP_RAW_NAND || STM32MP_SPI_NAND */
 
 #if STM32MP_RAW_NAND
 int plat_get_raw_nand_data(struct rawnand_device *device)
@@ -119,7 +128,24 @@ int plat_get_raw_nand_data(struct rawnand_device *device)
 	device->nand_dev->ecc.mode = NAND_ECC_HW;
 	device->nand_dev->ecc.size = SZ_512;
 
-	return get_data_from_otp(device->nand_dev);
+	return get_data_from_otp(device->nand_dev, true);
+}
+#endif
+
+#if STM32MP_SPI_NAND
+int plat_get_spi_nand_data(struct spinand_device *device)
+{
+	zeromem(&device->spi_read_cache_op, sizeof(struct spi_mem_op));
+	device->spi_read_cache_op.cmd.opcode = SPI_NAND_OP_READ_FROM_CACHE_4X;
+	device->spi_read_cache_op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
+	device->spi_read_cache_op.addr.nbytes = 2U;
+	device->spi_read_cache_op.addr.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
+	device->spi_read_cache_op.dummy.nbytes = 1U;
+	device->spi_read_cache_op.dummy.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
+	device->spi_read_cache_op.data.buswidth = SPI_MEM_BUSWIDTH_4_LINE;
+	device->spi_read_cache_op.data.dir = SPI_MEM_DATA_IN;
+
+	return get_data_from_otp(device->nand_dev, false);
 }
 #endif
 
