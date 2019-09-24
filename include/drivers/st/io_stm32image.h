@@ -23,7 +23,7 @@ struct stm32image_part_info {
 
 struct stm32image_device_info {
 	struct stm32image_part_info part_info[STM32_PART_NUM];
-	uint32_t device_size;
+	unsigned long long device_size;
 	uint32_t lba_size;
 };
 
