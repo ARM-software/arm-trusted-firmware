@@ -2540,8 +2540,11 @@ Armv8.1-A
 This Architecture Extension is targeted when ``ARM_ARCH_MAJOR`` >= 8, or when
 ``ARM_ARCH_MAJOR`` == 8 and ``ARM_ARCH_MINOR`` >= 1.
 
--  The Compare and Swap instruction is used to implement spinlocks. Otherwise,
-   the load-/store-exclusive instruction pair is used.
+-  By default, a load-/store-exclusive instruction pair is used to implement
+   spinlocks. The ``USE_SPINLOCK_CAS`` build option when set to 1 selects the
+   spinlock implementation using the ARMv8.1-LSE Compare and Swap instruction.
+   Notice this instruction is only available in AArch64 execution state, so
+   the option is only available to AArch64 builds.
 
 Armv8.2-A
 ~~~~~~~~~

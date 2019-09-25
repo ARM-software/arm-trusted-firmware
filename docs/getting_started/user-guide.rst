@@ -820,6 +820,10 @@ Common build options
    reduces SRAM usage. Refer to `Library at ROM`_ for further details. Default
    is 0.
 
+-  ``USE_SPINLOCK_CAS``: Setting this build flag to 1 selects the spinlock
+    implementation variant using the ARMv8.1-LSE compare-and-swap instruction.
+    Notice this option is experimental and only available to AArch64 builds.
+
 -  ``V``: Verbose build. If assigned anything other than 0, the build commands
    are printed. Default is 0.
 

@@ -9,56 +9,38 @@
 	.globl	spin_lock
 	.globl	spin_unlock
 
-#if ARM_ARCH_AT_LEAST(8, 1)
+#if USE_SPINLOCK_CAS
+#if !ARM_ARCH_AT_LEAST(8, 1)
+#error USE_SPINLOCK_CAS option requires at least an ARMv8.1 platform
+#endif
 
 /*
  * When compiled for ARMv8.1 or later, choose spin locks based on Compare and
  * Swap instruction.
  */
-# define USE_CAS	1
-
-/*
- * Lock contenders using CAS, upon failing to acquire the lock, wait with the
- * monitor in open state. Therefore, a normal store upon unlocking won't
- * generate an SEV. Use explicit SEV instruction with CAS unlock.
- */
-# define COND_SEV()	sev
-
-#else
-
-# define USE_CAS	0
-
-/*
- * Lock contenders using exclusive pairs, upon failing to acquire the lock, wait
- * with the monitor in exclusive state. A normal store upon unlocking will
- * implicitly generate an envent; so, no explicit SEV with unlock is required.
- */
-# define COND_SEV()
-
-#endif
-
-#if USE_CAS
 
 /*
  * Acquire lock using Compare and Swap instruction.
  *
- * Compare for 0 with acquire semantics, and swap 1. Wait until CAS returns
- * 0.
+ * Compare for 0 with acquire semantics, and swap 1. If failed to acquire, use
+ * load exclusive semantics to monitor the address and enter WFE.
  *
  * void spin_lock(spinlock_t *lock);
  */
 func spin_lock
 	mov	w2, #1
-	sevl
-1:
+1:	mov	w1, wzr
+2:	casa	w1, w2, [x0]
+	cbz	w1, 3f
+	ldxr	w1, [x0]
+	cbz	w1, 2b
 	wfe
-	mov	w1, wzr
-	casa	w1, w2, [x0]
-	cbnz	w1, 1b
+	b	1b
+3:
 	ret
 endfunc spin_lock
 
-#else /* !USE_CAS */
+#else /* !USE_SPINLOCK_CAS */
 
 /*
  * Acquire lock using load-/store-exclusive instruction pair.
@@ -76,17 +58,18 @@ l2:	ldaxr	w1, [x0]
 	ret
 endfunc spin_lock
 
-#endif /* USE_CAS */
+#endif /* USE_SPINLOCK_CAS */
 
 /*
  * Release lock previously acquired by spin_lock.
  *
- * Unconditionally write 0, and conditionally generate an event.
+ * Use store-release to unconditionally clear the spinlock variable.
+ * Store operation generates an event to all cores waiting in WFE
+ * when address is monitored by the global monitor.
  *
  * void spin_unlock(spinlock_t *lock);
  */
 func spin_unlock
 	stlr	wzr, [x0]
-	COND_SEV()
 	ret
 endfunc spin_unlock
