@@ -67,6 +67,7 @@ Boot trace
 ----------
 
 ::
+
          INFO:    DDR: DRAM calibration success.
          INFO:    ECC is disabled.
          INFO:    Init HPS NOC's DDR Scheduler.

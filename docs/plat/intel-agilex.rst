@@ -67,6 +67,7 @@ Boot trace
 ----------
 
 ::
+
         INFO:    DDR: DRAM calibration success.
         INFO:    ECC is disabled.
         NOTICE:  BL2: v2.1(debug)
