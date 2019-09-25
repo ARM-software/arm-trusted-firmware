@@ -11,6 +11,7 @@
 #include <plat/common/platform.h>
 
 #define SZ_512		0x200U
+#define SZ_64M		0x4000000U
 
 #if STM32MP_RAW_NAND || STM32MP_SPI_NAND
 static int get_data_from_otp(struct nand_device *nand_dev, bool is_slc)
@@ -149,3 +150,21 @@ int plat_get_spi_nand_data(struct spinand_device *device)
 }
 #endif
 
+#if STM32MP_SPI_NOR
+int plat_get_nor_data(struct nor_device *device)
+{
+	device->size = SZ_64M;
+
+	zeromem(&device->read_op, sizeof(struct spi_mem_op));
+	device->read_op.cmd.opcode = SPI_NOR_OP_READ_1_1_4;
+	device->read_op.cmd.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
+	device->read_op.addr.nbytes = 3U;
+	device->read_op.addr.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
+	device->read_op.dummy.nbytes = 1U;
+	device->read_op.dummy.buswidth = SPI_MEM_BUSWIDTH_1_LINE;
+	device->read_op.data.buswidth = SPI_MEM_BUSWIDTH_4_LINE;
+	device->read_op.data.dir = SPI_MEM_DATA_IN;
+
+	return 0;
+}
+#endif
