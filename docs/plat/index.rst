@@ -12,6 +12,7 @@ Platform Ports
    imx8m
    intel-stratix10
    ls1043a
+   marvell/index
    meson-gxbb
    meson-gxl
    mt8183
