@@ -65,8 +65,6 @@ static int hikey960_pwr_domain_on(u_register_t mpidr)
 		(mpidr & MPIDR_CLUSTER_MASK) >> MPIDR_AFFINITY_BITS;
 	int cluster_stat = cluster_is_powered_on(cluster);
 
-	hisi_set_cpu_boot_flag(cluster, core);
-
 	mmio_write_32(CRG_REG_BASE + CRG_RVBAR(cluster, core),
 		      hikey960_sec_entrypoint >> 2);
 
@@ -81,6 +79,12 @@ static int hikey960_pwr_domain_on(u_register_t mpidr)
 static void
 hikey960_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
+    unsigned long mpidr = read_mpidr_el1();
+    unsigned int core = mpidr & MPIDR_CPU_MASK;
+    unsigned int cluster =
+        (mpidr & MPIDR_CLUSTER_MASK) >> MPIDR_AFFINITY_BITS;
+    hisi_set_cpu_boot_flag(cluster, core);
+
 	if (CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE)
 		cci_enable_snoop_dvm_reqs(MPIDR_AFFLVL1_VAL(read_mpidr_el1()));
 
