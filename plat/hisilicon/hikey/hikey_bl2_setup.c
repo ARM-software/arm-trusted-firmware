@@ -114,6 +114,11 @@ uint32_t hikey_get_spsr_for_bl33_entry(void)
 }
 #endif /* __aarch64__ */
 
+int bl2_plat_handle_pre_image_load(unsigned int image_id)
+{
+	return hikey_set_fip_addr(image_id, "fastboot");
+}
+
 int hikey_bl2_handle_post_image_load(unsigned int image_id)
 {
 	int err = 0;

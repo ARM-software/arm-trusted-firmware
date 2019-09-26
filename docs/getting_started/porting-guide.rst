@@ -546,6 +546,13 @@ optionally be defined:
    PLAT_PARTITION_MAX_ENTRIES := 12
    $(eval $(call add_define,PLAT_PARTITION_MAX_ENTRIES))
 
+-  **PLAT_PARTITION_BLOCK_SIZE**
+   The size of partition block. It could be either 512 bytes or 4096 bytes.
+   The default value is 512.
+   `For example, define the build flag in platform.mk`_:
+   PLAT_PARTITION_BLOCK_SIZE := 4096
+   $(eval $(call add_define,PLAT_PARTITION_BLOCK_SIZE))
+
 The following constant is optional. It should be defined to override the default
 behaviour of the ``assert()`` function (for example, to save memory).
 

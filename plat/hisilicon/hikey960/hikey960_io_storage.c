@@ -18,6 +18,7 @@
 #include <drivers/io/io_fip.h>
 #include <drivers/io/io_memmap.h>
 #include <drivers/io/io_storage.h>
+#include <drivers/partition/partition.h>
 #include <lib/mmio.h>
 #include <lib/semihosting.h>
 #include <tools_share/firmware_image_package.h>
@@ -36,9 +37,12 @@ static int check_fip(const uintptr_t spec);
 size_t ufs_read_lun3_blks(int lba, uintptr_t buf, size_t size);
 size_t ufs_write_lun3_blks(int lba, const uintptr_t buf, size_t size);
 
-static const io_block_spec_t ufs_fip_spec = {
-	.offset		= HIKEY960_FIP_BASE,
-	.length		= HIKEY960_FIP_MAX_SIZE,
+static io_block_spec_t ufs_fip_spec;
+
+static const io_block_spec_t ufs_gpt_spec = {
+	.offset		= 0,
+	.length		= PLAT_PARTITION_BLOCK_SIZE *
+			  (PLAT_PARTITION_MAX_ENTRIES / 4 + 2),
 };
 
 static const io_block_dev_spec_t ufs_dev_spec = {
@@ -199,6 +203,11 @@ static const struct plat_io_policy policies[] = {
 		check_fip
 	},
 #endif /* TRUSTED_BOARD_BOOT */
+	[GPT_IMAGE_ID] = {
+		&ufs_dev_handle,
+		(uintptr_t)&ufs_gpt_spec,
+		check_ufs
+	},
 };
 
 static int check_ufs(const uintptr_t spec)
@@ -251,6 +260,23 @@ void hikey960_io_setup(void)
 
 	/* Ignore improbable errors in release builds */
 	(void)result;
+}
+
+int hikey960_set_fip_addr(unsigned int image_id, const char *name)
+{
+	const partition_entry_t *entry;
+
+	if (ufs_fip_spec.length == 0) {
+		partition_init(GPT_IMAGE_ID);
+		entry = get_partition_entry(name);
+		if (entry == NULL) {
+			ERROR("Could NOT find the %s partition!\n", name);
+			return -ENOENT;
+		}
+		ufs_fip_spec.offset = entry->start;
+		ufs_fip_spec.length = entry->length;
+	}
+	return 0;
 }
 
 /* Return an IO device handle and specification which can be used to access
