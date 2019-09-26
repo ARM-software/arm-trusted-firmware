@@ -28,6 +28,7 @@
 
 #include <memctrl.h>
 #include <profiler.h>
+#include <smmu.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
@@ -271,6 +272,13 @@ void bl31_plat_runtime_setup(void)
 	 * disabled before we jump to the non-secure world.
 	 */
 	tegra_memctrl_disable_ahb_redirection();
+
+#if defined(TEGRA_SMMU0_BASE)
+	/*
+	 * Verify the integrity of the previously configured SMMU(s) settings
+	 */
+	tegra_smmu_verify();
+#endif
 
 	/*
 	 * Add final timestamp before exiting BL31.

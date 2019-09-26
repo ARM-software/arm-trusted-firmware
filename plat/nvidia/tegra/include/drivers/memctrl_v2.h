@@ -144,6 +144,7 @@ static inline void tegra_mc_write_32(uint32_t off, uint32_t val)
 	mmio_write_32(TEGRA_MC_BASE + off, val);
 }
 
+#if defined(TEGRA_MC_STREAMID_BASE)
 static inline uint32_t tegra_mc_streamid_read_32(uint32_t off)
 {
 	return mmio_read_32(TEGRA_MC_STREAMID_BASE + off);
@@ -153,6 +154,7 @@ static inline void tegra_mc_streamid_write_32(uint32_t off, uint32_t val)
 {
 	mmio_write_32(TEGRA_MC_STREAMID_BASE + off, val);
 }
+#endif
 
 #define mc_set_pcfifo_unordered_boot_so_mss(id, client) \
 	((uint32_t)~MC_PCFIFO_CLIENT_CONFIG##id##_PCFIFO_##client##_MASK | \

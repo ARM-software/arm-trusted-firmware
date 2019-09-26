@@ -86,6 +86,7 @@ static inline void tegra_smmu_write_32(uint32_t smmu_id,
 }
 
 void tegra_smmu_init(void);
+void tegra_smmu_verify(void);
 uint32_t plat_get_num_smmu_devices(void);
 
 #endif /* SMMU_H */
