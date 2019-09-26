@@ -3,6 +3,7 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+#include <assert.h>
 
 #include <lib/psci/psci.h>
 #include <plat/arm/common/plat_arm.h>
@@ -40,6 +41,18 @@ void a5ds_pwr_domain_on_finish(const psci_power_state_t *target_state)
 }
 
 /*******************************************************************************
+ * Platform handler called when a power domain is about to be turned off. The
+ * target_state encodes the power state that each level should transition to.
+ * a5ds only has always-on power domain and there is no power control present.
+ ******************************************************************************/
+void a5ds_pwr_domain_off(const psci_power_state_t *target_state)
+{
+	ERROR("CPU_OFF not supported on this platform\n");
+	assert(false);
+	panic();
+}
+
+/*******************************************************************************
  * Export the platform handlers via a5ds_psci_pm_ops. The ARM Standard
  * platform layer will take care of registering the handlers with PSCI.
  ******************************************************************************/
@@ -47,7 +60,8 @@ plat_psci_ops_t a5ds_psci_pm_ops = {
 	/* dummy struct */
 	.validate_ns_entrypoint = NULL,
 	.pwr_domain_on = a5ds_pwr_domain_on,
-	.pwr_domain_on_finish = a5ds_pwr_domain_on_finish
+	.pwr_domain_on_finish = a5ds_pwr_domain_on_finish,
+	.pwr_domain_off = a5ds_pwr_domain_off
 };
 
 int __init plat_setup_psci_ops(uintptr_t sec_entrypoint,
