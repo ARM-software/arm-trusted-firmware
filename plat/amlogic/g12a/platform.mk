@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -9,6 +9,9 @@ include lib/xlat_tables_v2/xlat_tables.mk
 AML_PLAT		:=	plat/amlogic
 AML_PLAT_SOC		:=	${AML_PLAT}/${PLAT}
 AML_PLAT_COMMON		:=	${AML_PLAT}/common
+
+DOIMAGEPATH		?=	tools/amlogic
+DOIMAGETOOL		?=	${DOIMAGEPATH}/doimage
 
 PLAT_INCLUDES		:=	-Iinclude/drivers/amlogic/			\
 				-I${AML_PLAT_SOC}/include			\
@@ -33,6 +36,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S			\
 				${AML_PLAT_COMMON}/aml_thermal.c		\
 				${AML_PLAT_COMMON}/aml_topology.c		\
 				${AML_PLAT_COMMON}/aml_console.c		\
+				drivers/amlogic/crypto/sha_dma.c		\
 				${XLAT_TABLES_LIB_SRCS}				\
 				${GIC_SOURCES}
 
@@ -49,11 +53,10 @@ endif
 # ------------------
 
 # Enable all errata workarounds for Cortex-A53
-ERRATA_A53_826319		:= 1
-ERRATA_A53_835769		:= 1
-ERRATA_A53_836870		:= 1
-ERRATA_A53_843419		:= 1
 ERRATA_A53_855873		:= 1
+ERRATA_A53_819472		:= 1
+ERRATA_A53_824069		:= 1
+ERRATA_A53_827319		:= 1
 
 WORKAROUND_CVE_2017_5715	:= 0
 
@@ -73,3 +76,16 @@ endif
 ifeq (${ARCH},aarch32)
   $(error Error: AArch32 not supported on ${PLAT})
 endif
+
+all: ${BUILD_PLAT}/bl31.img
+distclean realclean clean: cleanimage
+
+cleanimage:
+	${Q}${MAKE} -C ${DOIMAGEPATH} clean
+
+${DOIMAGETOOL}:
+	${Q}${MAKE} -C ${DOIMAGEPATH}
+
+${BUILD_PLAT}/bl31.img: ${BUILD_PLAT}/bl31.bin ${DOIMAGETOOL}
+	${DOIMAGETOOL} ${BUILD_PLAT}/bl31.bin ${BUILD_PLAT}/bl31.img
+

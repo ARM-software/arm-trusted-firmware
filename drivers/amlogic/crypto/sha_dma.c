@@ -9,10 +9,7 @@
 #include <crypto/sha_dma.h>
 #include <lib/mmio.h>
 
-#define AML_SHA_DMA_BASE 0xc883e000
-
-#define AML_SHA_DMA_DESC (AML_SHA_DMA_BASE + 0x08)
-#define AML_SHA_DMA_STATUS (AML_SHA_DMA_BASE + 0x18)
+#include "aml_private.h"
 
 #define ASD_MODE_SHA224 0x7
 #define ASD_MODE_SHA256 0x6

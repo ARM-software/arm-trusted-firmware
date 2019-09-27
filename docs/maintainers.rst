@@ -48,6 +48,14 @@ Amlogic Meson S905x (GXL) platform port
 :F: drivers/amlogic/gxl
 :F: plat/amlogic/gxl/
 
+Amlogic Meson S905X2 (G12A) platform port
+---------------------------------------
+:M: Carlo Caione <ccaione@baylibre.com>
+:G: `carlo.caione`_
+:F: docs/plat/meson-g12a.rst
+:F: drivers/amlogic/g12a
+:F: plat/amlogic/g12a/
+
 Armv7-A architecture port
 -------------------------
 :M: Etienne Carriere <etienne.carriere@linaro.org>
