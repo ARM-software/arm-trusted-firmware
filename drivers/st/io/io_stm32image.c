@@ -246,7 +246,7 @@ static int stm32image_partition_size(io_entity_t *entity, size_t *length)
 static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 				     size_t length, size_t *length_read)
 {
-	int result = 0;
+	int result;
 	uint8_t *local_buffer = (uint8_t *)buffer;
 	boot_api_image_header_t *header =
 		(boot_api_image_header_t *)first_lba_buffer;
@@ -339,6 +339,12 @@ static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 			ERROR("Header check failed\n");
 			*length_read = 0;
 			header->magic = 0;
+		}
+
+		result = stm32mp_auth_image(header, buffer);
+		if (result != 0) {
+			ERROR("Authentication Failed (%i)\n", result);
+			return result;
 		}
 
 		io_close(backend_handle);

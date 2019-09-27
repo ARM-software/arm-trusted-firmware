@@ -71,7 +71,9 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 BL2_SOURCES		+=	drivers/io/io_block.c					\
 				drivers/io/io_dummy.c					\
 				drivers/io/io_storage.c					\
+				drivers/st/crypto/stm32_hash.c				\
 				drivers/st/io/io_stm32image.c				\
+				plat/st/common/stm32mp_auth.c				\
 				plat/st/common/bl2_io_storage.c				\
 				plat/st/stm32mp1/bl2_plat_setup.c
 
@@ -102,6 +104,8 @@ STM32_TF_LINKERFILE	:=	$(STM32_TF_STM32:.stm32=.ld)
 STM32_TF_ELF		:=	$(STM32_TF_STM32:.stm32=.elf)
 STM32_TF_DTBFILE	:=      ${BUILD_PLAT}/fdts/${DTB_FILE_NAME}
 STM32_TF_OBJS		:=	${BUILD_PLAT}/stm32mp1.o
+
+BL2_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
 
 # Variables for use with stm32image
 STM32IMAGEPATH		?= tools/stm32image

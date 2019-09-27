@@ -32,6 +32,7 @@
 #include <stm32mp1_dbgmcu.h>
 
 static struct console_stm32 console;
+static struct stm32mp_auth_ops stm32mp1_auth_ops;
 
 static void print_reset_reason(void)
 {
@@ -284,6 +285,12 @@ void bl2_el3_plat_arch_setup(void)
 
 	stm32mp_print_boardinfo();
 
+	if (boot_context->auth_status != BOOT_API_CTX_AUTH_NO) {
+		NOTICE("Bootrom authentication %s\n",
+		       (boot_context->auth_status == BOOT_API_CTX_AUTH_FAILED) ?
+		       "failed" : "succeeded");
+	}
+
 skip_console_init:
 	if (stm32_iwdg_init() < 0) {
 		panic();
@@ -301,6 +308,12 @@ skip_console_init:
 	    0) {
 		ERROR("Cannot save boot interface\n");
 	}
+
+	stm32mp1_auth_ops.check_key = boot_context->bootrom_ecdsa_check_key;
+	stm32mp1_auth_ops.verify_signature =
+		boot_context->bootrom_ecdsa_verify_signature;
+
+	stm32mp_init_auth(&stm32mp1_auth_ops);
 
 	stm32mp1_arch_security_setup();
 

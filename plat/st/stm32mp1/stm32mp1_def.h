@@ -19,6 +19,7 @@
 #include <drivers/st/stm32mp1_clk.h>
 
 #include <boot_api.h>
+#include <stm32mp_auth.h>
 #include <stm32mp_common.h>
 #include <stm32mp_dt.h>
 #include <stm32mp_shres_helpers.h>
@@ -49,6 +50,8 @@
 /*******************************************************************************
  * STM32MP1 memory map related constants
  ******************************************************************************/
+#define STM32MP_ROM_BASE		U(0x00000000)
+#define STM32MP_ROM_SIZE		U(0x00020000)
 
 #define STM32MP_SYSRAM_BASE		U(0x2FFC0000)
 #define STM32MP_SYSRAM_SIZE		U(0x00040000)

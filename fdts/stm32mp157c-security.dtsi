@@ -28,6 +28,10 @@
 	};
 };
 
+&hash1 {
+	secure-status = "okay";
+};
+
 &sdmmc1 {
 	compatible = "st,stm32-sdmmc2";
 };
