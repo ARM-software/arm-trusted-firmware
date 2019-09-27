@@ -640,7 +640,9 @@ void gicv3_distif_save(gicv3_dist_ctx_t * const dist_ctx)
 	num_ints &= TYPER_IT_LINES_NO_MASK;
 	num_ints = (num_ints + 1U) << 5;
 
-	assert(num_ints <= (MAX_SPI_ID + 1U));
+	/* Filter out special INTIDs 1020-1023 */
+	if (num_ints > (MAX_SPI_ID + 1U))
+		num_ints = MAX_SPI_ID + 1U;
 
 	/* Wait for pending write to complete */
 	gicd_wait_for_pending_write(gicd_base);
@@ -648,31 +650,31 @@ void gicv3_distif_save(gicv3_dist_ctx_t * const dist_ctx)
 	/* Save the GICD_CTLR */
 	dist_ctx->gicd_ctlr = gicd_read_ctlr(gicd_base);
 
-	/* Save GICD_IGROUPR for INTIDs 32 - 1020 */
+	/* Save GICD_IGROUPR for INTIDs 32 - 1019 */
 	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, igroupr, IGROUPR);
 
-	/* Save GICD_ISENABLER for INT_IDs 32 - 1020 */
+	/* Save GICD_ISENABLER for INT_IDs 32 - 1019 */
 	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, isenabler, ISENABLER);
 
-	/* Save GICD_ISPENDR for INTIDs 32 - 1020 */
+	/* Save GICD_ISPENDR for INTIDs 32 - 1019 */
 	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, ispendr, ISPENDR);
 
-	/* Save GICD_ISACTIVER for INTIDs 32 - 1020 */
+	/* Save GICD_ISACTIVER for INTIDs 32 - 1019 */
 	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, isactiver, ISACTIVER);
 
-	/* Save GICD_IPRIORITYR for INTIDs 32 - 1020 */
+	/* Save GICD_IPRIORITYR for INTIDs 32 - 1019 */
 	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, ipriorityr, IPRIORITYR);
 
-	/* Save GICD_ICFGR for INTIDs 32 - 1020 */
+	/* Save GICD_ICFGR for INTIDs 32 - 1019 */
 	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, icfgr, ICFGR);
 
-	/* Save GICD_IGRPMODR for INTIDs 32 - 1020 */
+	/* Save GICD_IGRPMODR for INTIDs 32 - 1019 */
 	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, igrpmodr, IGRPMODR);
 
-	/* Save GICD_NSACR for INTIDs 32 - 1020 */
+	/* Save GICD_NSACR for INTIDs 32 - 1019 */
 	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, nsacr, NSACR);
 
-	/* Save GICD_IROUTER for INTIDs 32 - 1024 */
+	/* Save GICD_IROUTER for INTIDs 32 - 1019 */
 	SAVE_GICD_REGS(gicd_base, dist_ctx, num_ints, irouter, IROUTER);
 
 	/*
@@ -718,24 +720,26 @@ void gicv3_distif_init_restore(const gicv3_dist_ctx_t * const dist_ctx)
 	num_ints &= TYPER_IT_LINES_NO_MASK;
 	num_ints = (num_ints + 1U) << 5;
 
-	assert(num_ints <= (MAX_SPI_ID + 1U));
+	/* Filter out special INTIDs 1020-1023 */
+	if (num_ints > (MAX_SPI_ID + 1U))
+		num_ints = MAX_SPI_ID + 1U;
 
-	/* Restore GICD_IGROUPR for INTIDs 32 - 1020 */
+	/* Restore GICD_IGROUPR for INTIDs 32 - 1019 */
 	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, igroupr, IGROUPR);
 
-	/* Restore GICD_IPRIORITYR for INTIDs 32 - 1020 */
+	/* Restore GICD_IPRIORITYR for INTIDs 32 - 1019 */
 	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, ipriorityr, IPRIORITYR);
 
-	/* Restore GICD_ICFGR for INTIDs 32 - 1020 */
+	/* Restore GICD_ICFGR for INTIDs 32 - 1019 */
 	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, icfgr, ICFGR);
 
-	/* Restore GICD_IGRPMODR for INTIDs 32 - 1020 */
+	/* Restore GICD_IGRPMODR for INTIDs 32 - 1019 */
 	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, igrpmodr, IGRPMODR);
 
-	/* Restore GICD_NSACR for INTIDs 32 - 1020 */
+	/* Restore GICD_NSACR for INTIDs 32 - 1019 */
 	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, nsacr, NSACR);
 
-	/* Restore GICD_IROUTER for INTIDs 32 - 1020 */
+	/* Restore GICD_IROUTER for INTIDs 32 - 1019 */
 	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, irouter, IROUTER);
 
 	/*
@@ -743,13 +747,13 @@ void gicv3_distif_init_restore(const gicv3_dist_ctx_t * const dist_ctx)
 	 * configured.
 	 */
 
-	/* Restore GICD_ISENABLER for INT_IDs 32 - 1020 */
+	/* Restore GICD_ISENABLER for INT_IDs 32 - 1019 */
 	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, isenabler, ISENABLER);
 
-	/* Restore GICD_ISPENDR for INTIDs 32 - 1020 */
+	/* Restore GICD_ISPENDR for INTIDs 32 - 1019 */
 	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, ispendr, ISPENDR);
 
-	/* Restore GICD_ISACTIVER for INTIDs 32 - 1020 */
+	/* Restore GICD_ISACTIVER for INTIDs 32 - 1019 */
 	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, isactiver, ISACTIVER);
 
 	/* Restore the GICD_CTLR */
