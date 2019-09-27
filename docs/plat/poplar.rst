@@ -1,5 +1,5 @@
-Description
-===========
+Poplar
+======
 
 Poplar is the first development board compliant with the 96Boards Enterprise
 Edition TV Platform specification.
@@ -35,10 +35,10 @@ must happen prior to invoking Trusted Firmware-A:
     l-loader --> Trusted Firmware-A --> u-boot
 
 How to build
-============
+------------
 
 Code Locations
---------------
+~~~~~~~~~~~~~~
 
 -  Trusted Firmware-A:
    `link <https://github.com/ARM-software/arm-trusted-firmware>`__
@@ -50,7 +50,7 @@ Code Locations
    `link <http://git.denx.de/u-boot.git>`__
 
 Build Procedure
----------------
+~~~~~~~~~~~~~~~
 
 -  Fetch all the above 3 repositories into local host.
    Make all the repositories in the same ${BUILD\_PATH}.
@@ -89,7 +89,7 @@ The system will boot into a u-boot shell which you can then use to write the
 working firmware to eMMC.
 
 Boot trace
-==========
+----------
 
 ::
 

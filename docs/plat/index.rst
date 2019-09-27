@@ -7,24 +7,28 @@ Platform Ports
    :numbered:
 
    allwinner
-   fvp_ve
-   imx8
-   imx8m
-   intel-stratix10
-   ls1043a
-   marvell/index
    meson-gxbb
    meson-gxl
+   fvp_ve
+   hikey
+   hikey960
+   intel-agilex
+   intel-stratix10
+   marvell/index
    mt8183
    nvidia-tegra
+   warp7
+   imx8
+   imx8m
+   ls1043a
+   poplar
    qemu
+   rpi3
    rcar-gen3
    rockchip
-   rpi3
    socionext-uniphier
-   stm32mp1
    synquacer
+   stm32mp1
    ti-k3
-   warp7
    xilinx-versal
    xilinx-zynqmp

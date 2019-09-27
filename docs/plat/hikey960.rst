@@ -1,15 +1,15 @@
-Description
-===========
+HiKey960
+========
 
 HiKey960 is one of 96boards. Hisilicon Hi3660 processor is installed on HiKey960.
 
 More information are listed in `link`_.
 
 How to build
-============
+------------
 
 Code Locations
---------------
+~~~~~~~~~~~~~~
 
 -  Trusted Firmware-A:
    `link <https://github.com/ARM-software/arm-trusted-firmware>`__
@@ -30,7 +30,7 @@ Code Locations
    `link <https://git.linaro.org/uefi/uefi-tools.git>`__
 
 Build Procedure
----------------
+~~~~~~~~~~~~~~~
 
 -  Fetch all the above 5 repositories into local host.
    Make all the repositories in the same ${BUILD\_PATH}.

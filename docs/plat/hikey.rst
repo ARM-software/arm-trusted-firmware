@@ -1,15 +1,15 @@
-Description
-===========
+HiKey
+=====
 
 HiKey is one of 96boards. Hisilicon Kirin6220 processor is installed on HiKey.
 
 More information are listed in `link`_.
 
 How to build
-============
+------------
 
 Code Locations
---------------
+~~~~~~~~~~~~~~
 
 -  Trusted Firmware-A:
    `link <https://github.com/ARM-software/arm-trusted-firmware>`__
@@ -33,7 +33,7 @@ Code Locations
    `link <https://github.com/96boards-hikey/atf-fastboot/tree/master>`__
 
 Build Procedure
----------------
+~~~~~~~~~~~~~~~
 
 -  Fetch all the above repositories into local host.
    Make all the repositories in the same ${BUILD\_PATH}.
