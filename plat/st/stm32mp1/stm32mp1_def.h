@@ -74,7 +74,7 @@ enum ddr_type {
 #endif
 
 /* Section used inside TF binaries */
-#define STM32MP_PARAM_LOAD_SIZE		U(0x00002400)	/* 9 Ko for param */
+#define STM32MP_PARAM_LOAD_SIZE		U(0x00002400)	/* 9 KB for param */
 /* 256 Octets reserved for header */
 #define STM32MP_HEADER_SIZE		U(0x00000100)
 
@@ -95,9 +95,9 @@ enum ddr_type {
 					 STM32MP_OPTEE_BASE)
 #else
 #if STACK_PROTECTOR_ENABLED
-#define STM32MP_BL32_SIZE		U(0x00012000)	/* 72 Ko for BL32 */
+#define STM32MP_BL32_SIZE		U(0x00012000)	/* 72 KB for BL32 */
 #else
-#define STM32MP_BL32_SIZE		U(0x00011000)	/* 68 Ko for BL32 */
+#define STM32MP_BL32_SIZE		U(0x00011000)	/* 68 KB for BL32 */
 #endif
 #endif
 
@@ -107,23 +107,23 @@ enum ddr_type {
 
 #ifdef AARCH32_SP_OPTEE
 #if STACK_PROTECTOR_ENABLED
-#define STM32MP_BL2_SIZE		U(0x00019000)	/* 100 Ko for BL2 */
+#define STM32MP_BL2_SIZE		U(0x00019000)	/* 100 KB for BL2 */
 #else
-#define STM32MP_BL2_SIZE		U(0x00017000)	/* 92 Ko for BL2 */
+#define STM32MP_BL2_SIZE		U(0x00017000)	/* 92 KB for BL2 */
 #endif
 #else
 #if STACK_PROTECTOR_ENABLED
-#define STM32MP_BL2_SIZE		U(0x00018000)	/* 96 Ko for BL2 */
+#define STM32MP_BL2_SIZE		U(0x00018000)	/* 96 KB for BL2 */
 #else
-#define STM32MP_BL2_SIZE		U(0x00016000)	/* 88 Ko for BL2 */
+#define STM32MP_BL2_SIZE		U(0x00016000)	/* 88 KB for BL2 */
 #endif
 #endif
 
 #define STM32MP_BL2_BASE		(STM32MP_BL32_BASE - \
 					 STM32MP_BL2_SIZE)
 
-/* BL2 and BL32/sp_min require 5 tables */
-#define MAX_XLAT_TABLES			5
+/* BL2 and BL32/sp_min require 4 tables */
+#define MAX_XLAT_TABLES			U(4)		/* 16 KB for mapping */
 
 /*
  * MAX_MMAP_REGIONS is usually:
@@ -137,7 +137,7 @@ enum ddr_type {
 #endif
 
 /* DTB initialization value */
-#define STM32MP_DTB_SIZE		U(0x00005000)	/* 20Ko for DTB */
+#define STM32MP_DTB_SIZE		U(0x00005000)	/* 20 KB for DTB */
 
 #define STM32MP_DTB_BASE		(STM32MP_BL2_BASE - \
 					 STM32MP_DTB_SIZE)
