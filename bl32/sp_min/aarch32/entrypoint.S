@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -183,15 +183,6 @@ func sp_min_handle_smc
 	stcopr	r0, SCR
 	isb
 
-	/*
-	 * Set PMCR.DP to 1 to prohibit cycle counting whilst in Secure Mode.
-	 * Also, the PMCR.LC field has an architecturally UNKNOWN value on reset
-	 * and so set to 1 as ARM has deprecated use of PMCR.LC=0.
-	 */
-	ldcopr	r0, PMCR
-	orr	r0, r0, #(PMCR_LC_BIT | PMCR_DP_BIT)
-	stcopr	r0, PMCR
-
 	ldr	r0, [r2, #SMC_CTX_GPREG_R0]	/* smc_fid */
 	/* Check whether an SMC64 is issued */
 	tst	r0, #(FUNCID_CC_MASK << FUNCID_CC_SHIFT)
@@ -235,15 +226,6 @@ func sp_min_handle_fiq
 	bic	r0, #SCR_NS_BIT
 	stcopr	r0, SCR
 	isb
-
-	/*
-	 * Set PMCR.DP to 1 to prohibit cycle counting whilst in Secure Mode.
-	 * Also, the PMCR.LC field has an architecturally UNKNOWN value on reset
-	 * and so set to 1 as ARM has deprecated use of PMCR.LC=0.
-	 */
-	ldcopr	r0, PMCR
-	orr	r0, r0, #(PMCR_LC_BIT | PMCR_DP_BIT)
-	stcopr	r0, PMCR
 
 	push	{r2, r3}
 	bl	sp_min_fiq
