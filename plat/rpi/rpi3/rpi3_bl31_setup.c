@@ -48,6 +48,18 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 }
 
 /*******************************************************************************
+ * Return entrypoint of BL33.
+ ******************************************************************************/
+uintptr_t plat_get_ns_image_entrypoint(void)
+{
+#ifdef PRELOADED_BL33_BASE
+	return PRELOADED_BL33_BASE;
+#else
+	return PLAT_RPI3_NS_IMAGE_OFFSET;
+#endif
+}
+
+/*******************************************************************************
  * Perform any BL31 early platform setup. Here is an opportunity to copy
  * parameters passed by the calling EL (S-EL1 in BL2 & EL3 in BL1) before
  * they are lost (potentially). This needs to be done before the MMU is
@@ -60,7 +72,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 {
 	/* Initialize the console to provide early debug support */
-	rpi3_console_init();
+	rpi3_console_init(PLAT_RPI3_UART_CLK_IN_HZ);
 
 	/*
 	 * In debug builds, a special value is passed in 'arg1' to verify

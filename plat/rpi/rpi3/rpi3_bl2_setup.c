@@ -62,7 +62,7 @@ void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	meminfo_t *mem_layout = (meminfo_t *) arg1;
 
 	/* Initialize the console to provide early debug support */
-	rpi3_console_init();
+	rpi3_console_init(PLAT_RPI3_UART_CLK_IN_HZ);
 
 	/* Enable arch timer */
 	generic_delay_timer_init();
