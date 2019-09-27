@@ -16,7 +16,6 @@
 #include "gicv3_private.h"
 
 const gicv3_driver_data_t *gicv3_driver_data;
-static unsigned int gicv2_compat;
 
 /*
  * Spinlock to guard registers needing read-modify-write. APIs protected by this
@@ -60,51 +59,61 @@ static spinlock_t gic_lock;
 void __init gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 {
 	unsigned int gic_version;
+	unsigned int gicv2_compat;
 
 	assert(plat_driver_data != NULL);
 	assert(plat_driver_data->gicd_base != 0U);
-	assert(plat_driver_data->gicr_base != 0U);
 	assert(plat_driver_data->rdistif_num != 0U);
 	assert(plat_driver_data->rdistif_base_addrs != NULL);
 
 	assert(IS_IN_EL3());
 
-	assert(plat_driver_data->interrupt_props_num > 0 ?
-	       plat_driver_data->interrupt_props != NULL : 1);
+	assert((plat_driver_data->interrupt_props_num != 0U) ?
+	       (plat_driver_data->interrupt_props != NULL) : 1);
 
 	/* Check for system register support */
-#ifdef __aarch64__
+#ifndef __aarch64__
+	assert((read_id_pfr1() &
+			(ID_PFR1_GIC_MASK << ID_PFR1_GIC_SHIFT)) != 0U);
+#else
 	assert((read_id_aa64pfr0_el1() &
 			(ID_AA64PFR0_GIC_MASK << ID_AA64PFR0_GIC_SHIFT)) != 0U);
-#else
-	assert((read_id_pfr1() & (ID_PFR1_GIC_MASK << ID_PFR1_GIC_SHIFT)) != 0U);
-#endif /* __aarch64__ */
+#endif /* !__aarch64__ */
 
 	/* The GIC version should be 3.0 */
 	gic_version = gicd_read_pidr2(plat_driver_data->gicd_base);
-	gic_version >>=	PIDR2_ARCH_REV_SHIFT;
+	gic_version >>= PIDR2_ARCH_REV_SHIFT;
 	gic_version &= PIDR2_ARCH_REV_MASK;
 	assert(gic_version == ARCH_REV_GICV3);
 
 	/*
-	 * Find out whether the GIC supports the GICv2 compatibility mode. The
-	 * ARE_S bit resets to 0 if supported
+	 * Find out whether the GIC supports the GICv2 compatibility mode.
+	 * The ARE_S bit resets to 0 if supported
 	 */
 	gicv2_compat = gicd_read_ctlr(plat_driver_data->gicd_base);
 	gicv2_compat >>= CTLR_ARE_S_SHIFT;
-	gicv2_compat = !(gicv2_compat & CTLR_ARE_S_MASK);
+	gicv2_compat = gicv2_compat & CTLR_ARE_S_MASK;
 
-	/*
-	 * Find the base address of each implemented Redistributor interface.
-	 * The number of interfaces should be equal to the number of CPUs in the
-	 * system. The memory for saving these addresses has to be allocated by
-	 * the platform port
-	 */
-	gicv3_rdistif_base_addrs_probe(plat_driver_data->rdistif_base_addrs,
-					   plat_driver_data->rdistif_num,
-					   plat_driver_data->gicr_base,
-					   plat_driver_data->mpidr_to_core_pos);
-
+	if (plat_driver_data->gicr_base != 0U) {
+		/*
+		 * Find the base address of each implemented Redistributor interface.
+		 * The number of interfaces should be equal to the number of CPUs in the
+		 * system. The memory for saving these addresses has to be allocated by
+		 * the platform port
+		 */
+		gicv3_rdistif_base_addrs_probe(plat_driver_data->rdistif_base_addrs,
+						   plat_driver_data->rdistif_num,
+						   plat_driver_data->gicr_base,
+						   plat_driver_data->mpidr_to_core_pos);
+#if !HW_ASSISTED_COHERENCY
+		/*
+		 * Flush the rdistif_base_addrs[] contents linked to the GICv3 driver.
+		 */
+		flush_dcache_range((uintptr_t)(plat_driver_data->rdistif_base_addrs),
+			plat_driver_data->rdistif_num *
+			sizeof(*(plat_driver_data->rdistif_base_addrs)));
+#endif
+	}
 	gicv3_driver_data = plat_driver_data;
 
 	/*
@@ -112,19 +121,19 @@ void __init gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 	 * enabled. When the secondary CPU boots up, it initializes the
 	 * GICC/GICR interface with the caches disabled. Hence flush the
 	 * driver data to ensure coherency. This is not required if the
-	 * platform has HW_ASSISTED_COHERENCY or WARMBOOT_ENABLE_DCACHE_EARLY
-	 * enabled.
+	 * platform has HW_ASSISTED_COHERENCY enabled.
 	 */
-#if !(HW_ASSISTED_COHERENCY || WARMBOOT_ENABLE_DCACHE_EARLY)
-	flush_dcache_range((uintptr_t) &gicv3_driver_data,
-			sizeof(gicv3_driver_data));
-	flush_dcache_range((uintptr_t) gicv3_driver_data,
-			sizeof(*gicv3_driver_data));
+#if !HW_ASSISTED_COHERENCY
+	flush_dcache_range((uintptr_t)&gicv3_driver_data,
+		sizeof(gicv3_driver_data));
+	flush_dcache_range((uintptr_t)gicv3_driver_data,
+		sizeof(*gicv3_driver_data));
 #endif
 
-	INFO("GICv3 %s legacy support detected."
-			" ARM GICV3 driver initialized in EL3\n",
-			gicv2_compat ? "with" : "without");
+	INFO("GICv3 with%s legacy support detected."
+			" ARM GICv3 driver initialized in EL3\n",
+			(gicv2_compat == 0U) ? "" : "out");
+
 }
 
 /*******************************************************************************
@@ -192,6 +201,7 @@ void gicv3_rdistif_init(unsigned int proc_num)
 	gicv3_rdistif_on(proc_num);
 
 	gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
+	assert(gicr_base != 0U);
 
 	/* Set the default attribute of all SGIs and PPIs */
 	gicv3_ppi_sgi_config_defaults(gicr_base);
@@ -313,6 +323,7 @@ void gicv3_cpuif_disable(unsigned int proc_num)
 
 	/* Mark the connected core as asleep */
 	gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
+	assert(gicr_base != 0U);
 	gicv3_rdistif_mark_core_asleep(gicr_base);
 }
 
@@ -1080,4 +1091,72 @@ unsigned int gicv3_set_pmr(unsigned int mask)
 	write_icc_pmr_el1(mask);
 
 	return old_mask;
+}
+
+/*******************************************************************************
+ * This function delegates the responsibility of discovering the corresponding
+ * Redistributor frames to each CPU itself. It is a modified version of
+ * gicv3_rdistif_base_addrs_probe() and is executed by each CPU in the platform
+ * unlike the previous way in which only the Primary CPU did the discovery of
+ * all the Redistributor frames for every CPU. It also handles the scenario in
+ * which the frames of various CPUs are not contiguous in physical memory.
+ ******************************************************************************/
+int gicv3_rdistif_probe(const uintptr_t gicr_frame)
+{
+	u_register_t mpidr;
+	unsigned int proc_num, proc_self;
+	uint64_t typer_val;
+	uintptr_t rdistif_base;
+	bool gicr_frame_found = false;
+
+	assert(gicv3_driver_data->gicr_base == 0U);
+
+	/* Ensure this function is called with Data Cache enabled */
+#ifndef __aarch64__
+	assert((read_sctlr() & SCTLR_C_BIT) != 0U);
+#else
+	assert((read_sctlr_el3() & SCTLR_C_BIT) != 0U);
+#endif /* !__aarch64__ */
+
+	proc_self = gicv3_driver_data->mpidr_to_core_pos(read_mpidr_el1());
+	rdistif_base = gicr_frame;
+	do {
+		typer_val = gicr_read_typer(rdistif_base);
+		if (gicv3_driver_data->mpidr_to_core_pos != NULL) {
+			mpidr = mpidr_from_gicr_typer(typer_val);
+			proc_num = gicv3_driver_data->mpidr_to_core_pos(mpidr);
+		} else {
+			proc_num = (unsigned int)(typer_val >> TYPER_PROC_NUM_SHIFT) &
+					TYPER_PROC_NUM_MASK;
+		}
+		if (proc_num == proc_self) {
+			/* The base address doesn't need to be initialized on
+			 * every warm boot.
+			 */
+			if (gicv3_driver_data->rdistif_base_addrs[proc_num] != 0U)
+				return 0;
+			gicv3_driver_data->rdistif_base_addrs[proc_num] =
+			rdistif_base;
+			gicr_frame_found = true;
+			break;
+		}
+		rdistif_base += (uintptr_t)(ULL(1) << GICR_PCPUBASE_SHIFT);
+	} while ((typer_val & TYPER_LAST_BIT) == 0U);
+
+	if (!gicr_frame_found)
+		return -1;
+
+	/*
+	 * Flush the driver data to ensure coherency. This is
+	 * not required if platform has HW_ASSISTED_COHERENCY
+	 * enabled.
+	 */
+#if !HW_ASSISTED_COHERENCY
+	/*
+	 * Flush the rdistif_base_addrs[] contents linked to the GICv3 driver.
+	 */
+	flush_dcache_range((uintptr_t)&(gicv3_driver_data->rdistif_base_addrs[proc_num]),
+		sizeof(*(gicv3_driver_data->rdistif_base_addrs)));
+#endif
+	return 0; /* Found matching GICR frame */
 }

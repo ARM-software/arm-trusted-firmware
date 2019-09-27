@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include <platform_def.h>
 
 #include <common/interrupt_props.h>
@@ -67,7 +68,7 @@ static unsigned int arm_gicv3_mpidr_hash(u_register_t mpidr)
 
 static const gicv3_driver_data_t arm_gic_data __unused = {
 	.gicd_base = PLAT_ARM_GICD_BASE,
-	.gicr_base = PLAT_ARM_GICR_BASE,
+	.gicr_base = 0U,
 	.interrupt_props = arm_interrupt_props,
 	.interrupt_props_num = ARRAY_SIZE(arm_interrupt_props),
 	.rdistif_num = PLATFORM_CORE_COUNT,
@@ -86,6 +87,11 @@ void __init plat_arm_gic_driver_init(void)
 #if (!defined(__aarch64__) && defined(IMAGE_BL32)) || \
 	(defined(__aarch64__) && defined(IMAGE_BL31))
 	gicv3_driver_init(&arm_gic_data);
+
+	if (gicv3_rdistif_probe(PLAT_ARM_GICR_BASE) == -1) {
+		ERROR("No GICR base frame found for Primary CPU\n");
+		panic();
+	}
 #endif
 }
 
@@ -116,10 +122,20 @@ void plat_arm_gic_cpuif_disable(void)
 }
 
 /******************************************************************************
- * ARM common helper to initialize the per-cpu redistributor interface in GICv3
+ * ARM common helper function to iterate over all GICR frames and discover the
+ * corresponding per-cpu redistributor frame as well as initialize the
+ * corresponding interface in GICv3. At the moment, Arm platforms do not have
+ * non-contiguous GICR frames.
  *****************************************************************************/
 void plat_arm_gic_pcpu_init(void)
 {
+	int result;
+
+	result = gicv3_rdistif_probe(PLAT_ARM_GICR_BASE);
+	if (result == -1) {
+		ERROR("No GICR base frame found for CPU 0x%lx\n", read_mpidr());
+		panic();
+	}
 	gicv3_rdistif_init(plat_my_core_pos());
 }
 

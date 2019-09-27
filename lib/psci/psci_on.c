@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -180,6 +180,14 @@ void psci_cpu_on_finish(int cpu_idx, const psci_power_state_t *state_info)
 	 */
 	psci_do_pwrup_cache_maintenance();
 #endif
+
+	/*
+	 * Plat. management: Perform any platform specific actions which
+	 * can only be done with the cpu and the cluster guaranteed to
+	 * be coherent.
+	 */
+	if (psci_plat_pm_ops->pwr_domain_on_finish_late != NULL)
+		psci_plat_pm_ops->pwr_domain_on_finish_late(state_info);
 
 	/*
 	 * All the platform specific actions for turning this cpu

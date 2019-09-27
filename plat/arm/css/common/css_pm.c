@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -76,9 +76,6 @@ static void css_pwr_domain_on_finisher_common(
 {
 	assert(CSS_CORE_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF);
 
-	/* Enable the gic cpu interface */
-	plat_arm_gic_cpuif_enable();
-
 	/*
 	 * Perform the common cluster specific operations i.e enable coherency
 	 * if this cluster was off.
@@ -100,10 +97,21 @@ void css_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	/* Assert that the system power domain need not be initialized */
 	assert(css_system_pwr_state(target_state) == ARM_LOCAL_STATE_RUN);
 
+	css_pwr_domain_on_finisher_common(target_state);
+}
+
+/*******************************************************************************
+ * Handler called when a power domain has just been powered on and the cpu
+ * and its cluster are fully participating in coherent transaction on the
+ * interconnect. Data cache must be enabled for CPU at this point.
+ ******************************************************************************/
+void css_pwr_domain_on_finish_late(const psci_power_state_t *target_state)
+{
 	/* Program the gic per-cpu distributor or re-distributor interface */
 	plat_arm_gic_pcpu_init();
 
-	css_pwr_domain_on_finisher_common(target_state);
+	/* Enable the gic cpu interface */
+	plat_arm_gic_cpuif_enable();
 }
 
 /*******************************************************************************
@@ -185,6 +193,9 @@ void css_pwr_domain_suspend_finish(
 		arm_system_pwr_domain_resume();
 
 	css_pwr_domain_on_finisher_common(target_state);
+
+	/* Enable the gic cpu interface */
+	plat_arm_gic_cpuif_enable();
 }
 
 /*******************************************************************************
@@ -306,6 +317,7 @@ static int css_translate_power_state_by_mpidr(u_register_t mpidr,
 plat_psci_ops_t plat_arm_psci_pm_ops = {
 	.pwr_domain_on		= css_pwr_domain_on,
 	.pwr_domain_on_finish	= css_pwr_domain_on_finish,
+	.pwr_domain_on_finish_late = css_pwr_domain_on_finish_late,
 	.pwr_domain_off		= css_pwr_domain_off,
 	.cpu_standby		= css_cpu_standby,
 	.pwr_domain_suspend	= css_pwr_domain_suspend,
