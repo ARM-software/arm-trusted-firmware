@@ -97,9 +97,9 @@
 /* Default number of threads per CPU on A5DS */
 #define A5DS_MAX_PE_PER_CPU	1
 
-#define A5DS_CORE_COUNT 1
+#define A5DS_CORE_COUNT		4
 
-#define A5DS_PRIMARY_CPU			0x0
+#define A5DS_PRIMARY_CPU	0x0
 
 #define FLASH1_BASE			UL(0x8000000)
 #define FLASH1_SIZE			UL(0x2800000)
@@ -229,11 +229,11 @@
 #define BL32_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 
 /* Required platform porting definitions */
-#define PLATFORM_CORE_COUNT 1
-#define PLAT_NUM_PWR_DOMAINS		(A5DS_CLUSTER_COUNT + \
+#define PLATFORM_CORE_COUNT	A5DS_CORE_COUNT
+#define PLAT_NUM_PWR_DOMAINS	(A5DS_CLUSTER_COUNT + \
 					PLATFORM_CORE_COUNT) + 1
 
-#define PLAT_MAX_PWR_LVL		2
+#define PLAT_MAX_PWR_LVL	2
 
 /*
  * Other platform porting definitions are provided by included headers
@@ -325,6 +325,14 @@
 
 /* Mailbox base address */
 #define A5DS_TRUSTED_MAILBOX_BASE	A5DS_SHARED_RAM_BASE
+#define A5DS_TRUSTED_MAILBOX_SIZE	(8 + A5DS_HOLD_SIZE)
+#define A5DS_HOLD_BASE		(A5DS_TRUSTED_MAILBOX_BASE + 8)
+#define A5DS_HOLD_SIZE		(PLATFORM_CORE_COUNT * \
+					 A5DS_HOLD_ENTRY_SIZE)
+#define A5DS_HOLD_ENTRY_SHIFT	3
+#define A5DS_HOLD_ENTRY_SIZE	(1 << A5DS_HOLD_ENTRY_SHIFT)
+#define A5DS_HOLD_STATE_WAIT	0
+#define A5DS_HOLD_STATE_GO	1
 
 /*
  * GIC related constants to cater for GICv2
