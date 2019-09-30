@@ -273,7 +273,8 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     # Include common TBB sources
     AUTH_SOURCES	:=	drivers/auth/auth_mod.c				\
 				drivers/auth/crypto_mod.c			\
-				drivers/auth/img_parser_mod.c
+				drivers/auth/img_parser_mod.c			\
+				lib/fconf/fconf_tbbr_getter.c
 
     # Include the selected chain of trust sources.
     ifeq (${COT},tbbr)

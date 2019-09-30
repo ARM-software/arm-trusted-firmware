@@ -11,7 +11,6 @@
 
 /* Function declarations */
 int arm_dyn_tb_fw_cfg_init(void *dtb, int *node);
-int arm_dyn_get_disable_auth(void *dtb, int node, uint32_t *disable_auth);
 int arm_get_dtb_mbedtls_heap_info(void *dtb, void **heap_addr,
 	size_t *heap_size);
 int arm_set_dtb_mbedtls_heap_info(void *dtb, void *heap_addr,

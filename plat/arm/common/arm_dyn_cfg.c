@@ -207,27 +207,4 @@ void arm_bl2_dyn_cfg_init(void)
 		 */
 		cfg_mem_params->image_info.h.attr &= ~IMAGE_ATTRIB_SKIP_LOADING;
 	}
-
-#if TRUSTED_BOARD_BOOT && defined(DYN_DISABLE_AUTH)
-	uint32_t disable_auth = 0;
-	void *tb_fw_cfg_dtb;
-	int err, tb_fw_node;
-
-	dtb_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
-	tb_fw_cfg_dtb = (void *)dtb_info->config_addr;
-
-	err = arm_dyn_tb_fw_cfg_init(tb_fw_cfg_dtb, &tb_fw_node);
-	if (err < 0) {
-		ERROR("Invalid TB_FW_CONFIG passed from BL1\n");
-		panic();
-	}
-
-	err = arm_dyn_get_disable_auth(tb_fw_cfg_dtb, tb_fw_node,
-					&disable_auth);
-	if (err < 0)
-		return;
-
-	if (disable_auth == 1)
-		dyn_disable_auth();
-#endif
 }
