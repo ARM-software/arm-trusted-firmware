@@ -16,6 +16,8 @@
 
 struct tbbr_dyn_config_t {
 	uint32_t disable_auth;
+	void *mbedtls_heap_addr;
+	size_t mbedtls_heap_size;
 };
 
 extern struct tbbr_dyn_config_t tbbr_dyn_config;

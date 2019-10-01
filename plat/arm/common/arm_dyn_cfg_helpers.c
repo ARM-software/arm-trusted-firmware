@@ -47,47 +47,6 @@ int arm_dyn_tb_fw_cfg_init(void *dtb, int *node)
 }
 
 /*
- * Reads and returns the Mbed TLS shared heap information from the DTB.
- * This function is supposed to be called *only* when a DTB is present.
- * This function is supposed to be called only by BL2.
- *
- * Returns:
- *	0 = success
- *	-1 = error. In this case the values of heap_addr, heap_size should be
- *	    considered as garbage by the caller.
- */
-int arm_get_dtb_mbedtls_heap_info(void *dtb, void **heap_addr,
-	size_t *heap_size)
-{
-	int err, dtb_root;
-
-	/* Verify the DTB is valid and get the root node */
-	err = arm_dyn_tb_fw_cfg_init(dtb, &dtb_root);
-	if (err < 0) {
-		ERROR("Invalid TB_FW_CONFIG. Cannot retrieve Mbed TLS heap information from DTB\n");
-		return -1;
-	}
-
-	/* Retrieve the Mbed TLS heap details from the DTB */
-	err = fdtw_read_cells(dtb, dtb_root,
-		DTB_PROP_MBEDTLS_HEAP_ADDR, 2, heap_addr);
-	if (err < 0) {
-		ERROR("Error while reading %s from DTB\n",
-			DTB_PROP_MBEDTLS_HEAP_ADDR);
-		return -1;
-	}
-	err = fdtw_read_cells(dtb, dtb_root,
-		DTB_PROP_MBEDTLS_HEAP_SIZE, 1, heap_size);
-	if (err < 0) {
-		ERROR("Error while reading %s from DTB\n",
-			DTB_PROP_MBEDTLS_HEAP_SIZE);
-		return -1;
-	}
-	return 0;
-}
-
-
-/*
  * This function writes the Mbed TLS heap address and size in the DTB. When it
  * is called, it is guaranteed that a DTB is available. However it is not
  * guaranteed that the shared Mbed TLS heap implementation is used. Thus we

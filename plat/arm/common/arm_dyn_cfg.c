@@ -18,6 +18,7 @@
 #endif
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
+#include <lib/fconf/fconf_tbbr_getter.h>
 #include <plat/arm/common/arm_dyn_cfg_helpers.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
@@ -56,24 +57,10 @@ int arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 
 #elif defined(IMAGE_BL2)
 
-	int err;
-	void *tb_fw_cfg_dtb;
-
-	/* fconf FW_CONFIG and TB_FW_CONFIG are currently the same DTB*/
-	tb_fw_cfg_dtb = (void *)FCONF_GET_PROPERTY(fconf, dtb, base_addr);
-
 	/* If in BL2, retrieve the already allocated heap's info from DTB */
-	if (tb_fw_cfg_dtb != NULL) {
-		err = arm_get_dtb_mbedtls_heap_info(tb_fw_cfg_dtb, heap_addr,
-			heap_size);
-		if (err < 0) {
-			ERROR("BL2: unable to retrieve shared Mbed TLS heap information from DTB\n");
-			panic();
-		}
-	} else {
-		ERROR("BL2: DTB missing, cannot get Mbed TLS heap\n");
-		panic();
-	}
+	*heap_addr = FCONF_GET_PROPERTY(tbbr, dyn_config, mbedtls_heap_addr);
+	*heap_size = FCONF_GET_PROPERTY(tbbr, dyn_config, mbedtls_heap_size);
+
 #endif
 
 	return 0;
