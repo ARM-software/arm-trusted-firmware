@@ -102,6 +102,15 @@ func bl2u_entrypoint
 	bl	bl2u_early_platform_setup
 	bl	bl2u_plat_arch_setup
 
+#if ENABLE_PAUTH
+	/* ---------------------------------------------
+	 * Program APIAKey_EL1
+	 * and enable pointer authentication.
+	 * ---------------------------------------------
+	 */
+	bl	pauth_init_enable_el1
+#endif
+
 	/* ---------------------------------------------
 	 * Jump to bl2u_main function.
 	 * ---------------------------------------------
