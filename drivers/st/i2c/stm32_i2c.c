@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,17 +8,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#include <libfdt.h>
-
-#include <platform_def.h>
-
 #include <common/debug.h>
+#include <common/fdt_wrappers.h>
 #include <drivers/clk.h>
 #include <drivers/delay_timer.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32_i2c.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
+#include <libfdt.h>
+
+#include <platform_def.h>
 
 /* STM32 I2C registers offsets */
 #define I2C_CR1			0x00U
@@ -97,40 +97,29 @@ static int i2c_config_analog_filter(struct i2c_handle_s *hi2c,
 int stm32_i2c_get_setup_from_fdt(void *fdt, int node,
 				 struct stm32_i2c_init_s *init)
 {
-	const fdt32_t *cuint;
+	uint32_t read_val;
 
-	cuint = fdt_getprop(fdt, node, "i2c-scl-rising-time-ns", NULL);
-	if (cuint == NULL) {
-		init->rise_time = STM32_I2C_RISE_TIME_DEFAULT;
-	} else {
-		init->rise_time = fdt32_to_cpu(*cuint);
-	}
+	init->rise_time = fdt_read_uint32_default(fdt, node,
+						  "i2c-scl-rising-time-ns",
+						  STM32_I2C_RISE_TIME_DEFAULT);
 
-	cuint = fdt_getprop(fdt, node, "i2c-scl-falling-time-ns", NULL);
-	if (cuint == NULL) {
-		init->fall_time = STM32_I2C_FALL_TIME_DEFAULT;
-	} else {
-		init->fall_time = fdt32_to_cpu(*cuint);
-	}
+	init->fall_time = fdt_read_uint32_default(fdt, node,
+						  "i2c-scl-falling-time-ns",
+						  STM32_I2C_FALL_TIME_DEFAULT);
 
-	cuint = fdt_getprop(fdt, node, "clock-frequency", NULL);
-	if (cuint == NULL) {
-		init->speed_mode = STM32_I2C_SPEED_DEFAULT;
-	} else {
-		switch (fdt32_to_cpu(*cuint)) {
-		case STANDARD_RATE:
-			init->speed_mode = I2C_SPEED_STANDARD;
-			break;
-		case FAST_RATE:
-			init->speed_mode = I2C_SPEED_FAST;
-			break;
-		case FAST_PLUS_RATE:
-			init->speed_mode = I2C_SPEED_FAST_PLUS;
-			break;
-		default:
-			init->speed_mode = STM32_I2C_SPEED_DEFAULT;
-			break;
-		}
+	read_val = fdt_read_uint32_default(fdt, node, "clock-frequency",
+					   STANDARD_RATE);
+	switch (read_val) {
+	case FAST_PLUS_RATE:
+		init->speed_mode = I2C_SPEED_FAST_PLUS;
+		break;
+	case FAST_RATE:
+		init->speed_mode = I2C_SPEED_FAST;
+		break;
+	case STANDARD_RATE:
+	default:
+		init->speed_mode = I2C_SPEED_STANDARD;
+		break;
 	}
 
 	return dt_set_pinctrl_config(node);
