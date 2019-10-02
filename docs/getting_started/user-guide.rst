@@ -49,9 +49,7 @@ Install the required packages to build TF-A with the following command:
     sudo apt-get install device-tree-compiler build-essential gcc make git libssl-dev
 
 Download and install the AArch32 (arm-eabi) or AArch64 little-endian
-(aarch64-linux-gnu) GCC cross compiler. If you would like to use the latest
-features available, download GCC 8.3-2019.03 compiler from
-`Arm Developer page`_.
+(aarch64-linux-gnu) GCC 8.3-2019.03 cross compiler from `Arm Developer page`_.
 
 Optionally, TF-A can be built using clang version 4.0 or newer or Arm
 Compiler 6. See instructions below on how to switch the default compiler.
