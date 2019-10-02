@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
-# Copyright (c) 2019, Intel Corporation. All rights reserved.
+# Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -42,6 +42,7 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/common/socfpga_delay_timer.c		\
 		plat/intel/soc/common/socfpga_image_load.c		\
 		plat/intel/soc/common/socfpga_storage.c			\
+		plat/intel/soc/common/soc/socfpga_emac.c		\
 		plat/intel/soc/common/soc/socfpga_handoff.c		\
 		plat/intel/soc/common/soc/socfpga_mailbox.c		\
 		plat/intel/soc/common/soc/socfpga_reset_manager.c	\
