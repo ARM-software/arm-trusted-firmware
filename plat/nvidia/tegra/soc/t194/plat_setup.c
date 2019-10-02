@@ -32,6 +32,27 @@
 #define TEGRA_CONSOLE_SPE_ID		0xFE
 
 /*******************************************************************************
+ * Structure to store the SCR addresses and its expected settings.
+ *******************************************************************************
+ */
+typedef struct {
+	uint32_t scr_addr;
+	uint32_t scr_val;
+} scr_settings_t;
+
+static const scr_settings_t t194_scr_settings[] = {
+	{ SCRATCH_RSV68_SCR, SCRATCH_RSV68_SCR_VAL },
+	{ SCRATCH_RSV71_SCR, SCRATCH_RSV71_SCR_VAL },
+	{ SCRATCH_RSV72_SCR, SCRATCH_RSV72_SCR_VAL },
+	{ SCRATCH_RSV75_SCR, SCRATCH_RSV75_SCR_VAL },
+	{ SCRATCH_RSV81_SCR, SCRATCH_RSV81_SCR_VAL },
+	{ SCRATCH_RSV97_SCR, SCRATCH_RSV97_SCR_VAL },
+	{ SCRATCH_RSV99_SCR, SCRATCH_RSV99_SCR_VAL },
+	{ SCRATCH_RSV109_SCR, SCRATCH_RSV109_SCR_VAL },
+	{ MISCREG_SCR_SCRTZWELCK, MISCREG_SCR_SCRTZWELCK_VAL }
+};
+
+/*******************************************************************************
  * The Tegra power domain tree has a single system level power domain i.e. a
  * single root node. The first entry in the power domain descriptor specifies
  * the number of power domains at the highest power level.
@@ -197,6 +218,24 @@ void plat_enable_console(int32_t id)
 }
 
 /*******************************************************************************
+ * Verify SCR settings
+ ******************************************************************************/
+static inline bool tegra194_is_scr_valid(void)
+{
+	uint32_t scr_val;
+	bool ret = true;
+
+	for (uint8_t i = 0U; i < ARRAY_SIZE(t194_scr_settings); i++) {
+		scr_val = mmio_read_32((uintptr_t)t194_scr_settings[i].scr_addr);
+		if (scr_val != t194_scr_settings[i].scr_val) {
+			ERROR("Mismatch at SCR addr = 0x%x\n", t194_scr_settings[i].scr_addr);
+			ret = false;
+		}
+	}
+	return ret;
+}
+
+/*******************************************************************************
  * Handler for early platform setup
  ******************************************************************************/
 void plat_early_platform_setup(void)
@@ -207,6 +246,11 @@ void plat_early_platform_setup(void)
 
 	/* Verify chip id is t194 */
 	assert(tegra_chipid_is_t194());
+
+	/* Verify SCR settings */
+	if (tegra_platform_is_silicon()) {
+		assert(tegra194_is_scr_valid());
+	}
 
 	/* sanity check MCE firmware compatibility */
 	mce_verify_firmware_version();

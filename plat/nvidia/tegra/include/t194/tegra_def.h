@@ -294,4 +294,26 @@
 #define TEGRA_SID_XUSB_VF2			U(0x5f)
 #define TEGRA_SID_XUSB_VF3			U(0x60)
 
+/*******************************************************************************
+ * SCR addresses and expected settings
+ ******************************************************************************/
+#define SCRATCH_RSV68_SCR			U(0x0C398110)
+#define SCRATCH_RSV68_SCR_VAL			U(0x38000101)
+#define SCRATCH_RSV71_SCR			U(0x0C39811C)
+#define SCRATCH_RSV71_SCR_VAL			U(0x38000101)
+#define SCRATCH_RSV72_SCR			U(0x0C398120)
+#define SCRATCH_RSV72_SCR_VAL			U(0x38000101)
+#define SCRATCH_RSV75_SCR			U(0x0C39812C)
+#define SCRATCH_RSV75_SCR_VAL			U(0x3A000005)
+#define SCRATCH_RSV81_SCR			U(0x0C398144)
+#define SCRATCH_RSV81_SCR_VAL			U(0x3A000105)
+#define SCRATCH_RSV97_SCR			U(0x0C398184)
+#define SCRATCH_RSV97_SCR_VAL			U(0x38000101)
+#define SCRATCH_RSV99_SCR			U(0x0C39818C)
+#define SCRATCH_RSV99_SCR_VAL			U(0x38000101)
+#define SCRATCH_RSV109_SCR			U(0x0C3981B4)
+#define SCRATCH_RSV109_SCR_VAL			U(0x38000101)
+#define MISCREG_SCR_SCRTZWELCK			U(0x00109000)
+#define MISCREG_SCR_SCRTZWELCK_VAL		U(0x30000100)
+
 #endif /* TEGRA_DEF_H */
