@@ -339,7 +339,7 @@
 		bl	zeromem
 #endif
 
-#ifdef IMAGE_BL1
+#if defined(IMAGE_BL1) || (defined(IMAGE_BL2) && BL2_AT_EL3 && BL2_IN_XIP_MEM)
 		/* -----------------------------------------------------
 		 * Copy data from ROM to RAM.
 		 * -----------------------------------------------------
