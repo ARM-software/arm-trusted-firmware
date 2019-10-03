@@ -13,6 +13,7 @@
 	.global	pauth_init_enable_el3
 	.global	pauth_disable_el3
 	.globl	pauth_load_bl31_apiakey
+	.globl	pauth_load_bl1_apiakey_enable
 
 /* -------------------------------------------------------------
  * Program APIAKey_EL1 and enable pointer authentication in EL1
@@ -97,9 +98,9 @@ func pauth_disable_el3
 endfunc pauth_disable_el3
 
 /* -------------------------------------------------------------
- * The following function strictly follows the AArch64 PCS
+ * The following functions strictly follow the AArch64 PCS
  * to use x9-x17 (temporary caller-saved registers) to load
- * the APIAKey_EL1 used by the firmware.
+ * the APIAKey_EL1 and enable pointer authentication.
  * -------------------------------------------------------------
  */
 func pauth_load_bl31_apiakey
@@ -115,3 +116,26 @@ func pauth_load_bl31_apiakey
 	isb
 	ret
 endfunc pauth_load_bl31_apiakey
+
+func pauth_load_bl1_apiakey_enable
+	/* Load instruction key A used by the Trusted Firmware */
+	adrp	x9, bl1_apiakey
+	add	x9, x9, :lo12:bl1_apiakey
+	ldp	x10, x11, [x9]
+
+	/* Program instruction key A */
+	msr	APIAKeyLo_EL1, x10
+	msr	APIAKeyHi_EL1, x11
+
+	/* Enable pointer authentication */
+	mrs	x9, sctlr_el3
+	orr	x9, x9, #SCTLR_EnIA_BIT
+
+#if ENABLE_BTI
+	 /* Enable PAC branch type compatibility */
+	bic	x9, x9, #SCTLR_BT_BIT
+#endif
+	msr	sctlr_el3, x9
+	isb
+	ret
+endfunc pauth_load_bl1_apiakey_enable

@@ -31,6 +31,10 @@ DEFINE_SVC_UUID2(bl1_svc_uid,
 
 static void bl1_load_bl2(void);
 
+#if ENABLE_PAUTH
+uint64_t bl1_apiakey[2];
+#endif
+
 /*******************************************************************************
  * Helper utility to calculate the BL2 memory layout taking into consideration
  * the BL1 RW data assuming that it is at the top of the memory layout.
@@ -130,6 +134,12 @@ void bl1_main(void)
 
 	/* Perform platform setup in BL1. */
 	bl1_platform_setup();
+
+#if ENABLE_PAUTH
+	/* Store APIAKey_EL1 key */
+	bl1_apiakey[0] = read_apiakeylo_el1();
+	bl1_apiakey[1] = read_apiakeyhi_el1();
+#endif /* ENABLE_PAUTH */
 
 	/* Get the image id of next image to load and run. */
 	image_id = bl1_plat_get_next_image_id();
