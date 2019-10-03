@@ -8,6 +8,8 @@
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/desc_image_load.h>
+#include <devapc.h>
+#include <emi_mpu.h>
 #include <plat/common/common_def.h>
 #include <drivers/console.h>
 #include <common/debug.h>
@@ -135,6 +137,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
  ******************************************************************************/
 void bl31_platform_setup(void)
 {
+	devapc_init();
+
+	emi_mpu_init();
+
 	platform_setup_cpu();
 	generic_delay_timer_init();
 
