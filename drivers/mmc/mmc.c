@@ -361,7 +361,7 @@ static int sd_send_op_cond(void)
 			return 0;
 		}
 
-		mdelay(1);
+		mdelay(10);
 	}
 
 	ERROR("ACMD41 failed after %d retries\n", SEND_OP_COND_MAX_RETRIES);
