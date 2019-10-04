@@ -23,8 +23,8 @@ include:
 
 - ``**WARNING: Use of volatile is usually wrong``: see
   `Why the “volatile” type class should not be used`_ . Although this document
-  contains some very useful information, there are several legimate uses of the
-  volatile keyword within the TF codebase.
+  contains some very useful information, there are several legitimate uses of
+  the volatile keyword within the TF codebase.
 
 Headers and inclusion
 ---------------------

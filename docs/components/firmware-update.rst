@@ -7,7 +7,7 @@ Introduction
 This document describes the design of the Firmware Update (FWU) feature, which
 enables authenticated firmware to update firmware images from external
 interfaces such as USB, UART, SD-eMMC, NAND, NOR or Ethernet to SoC Non-Volatile
-memories such as NAND Flash, LPPDR2-NVM or any memory determined by the
+memories such as NAND Flash, LPDDR2-NVM or any memory determined by the
 platform. This feature functions even when the current firmware in the system
 is corrupt or missing; it therefore may be used as a recovery mode. It may also
 be complemented by other, higher level firmware update software.

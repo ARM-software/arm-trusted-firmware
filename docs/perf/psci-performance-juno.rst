@@ -168,7 +168,7 @@ the cache associated with power level 0 is flushed (L1).
 | 5     | 21                  | 17                 | 6                        |
 +-------+---------------------+--------------------+--------------------------+
 
-The ``CLUSH_OVERHEAD`` times for lead CPU 4 and all CPUs in the non-lead cluster
+The ``CFLUSH_OVERHEAD`` times for lead CPU 4 and all CPUs in the non-lead cluster
 are large because all other CPUs in the cluster are powered down during the
 test. The ``CPU_SUSPEND`` call powers down to the cluster level, requiring a
 flush of both L1 and L2 caches.

@@ -49,9 +49,9 @@ Amlogic Meson S905x (GXL) platform port
 :F: plat/amlogic/gxl/
 
 Amlogic Meson S905X2 (G12A) platform port
----------------------------------------
+-----------------------------------------
 :M: Carlo Caione <ccaione@baylibre.com>
-:G: `carlo.caione`_
+:G: `carlocaione`_
 :F: docs/plat/meson-g12a.rst
 :F: drivers/amlogic/g12a
 :F: plat/amlogic/g12a/
@@ -122,7 +122,7 @@ Intel SocFPGA platform ports
 :M: Tien Hock Loh <tien.hock.loh@intel.com>
 :G: `thloh85-intel`_
 :M: Hadi Asyrafi <muhammad.hadi.asyrafi.abdul.halim@intel.com>
-:G: `mabdulha`_
+:G: mabdulha
 :F: plat/intel/soc
 :F: drivers/intel/soc/
 
@@ -282,6 +282,7 @@ Xilinx platform port
 .. _Anson-Huang: https://github.com/Anson-Huang
 .. _bryanodonoghue: https://github.com/bryanodonoghue
 .. _b49020: https://github.com/b49020
+.. _carlocaione: https://github.com/carlocaione
 .. _danh-arm: https://github.com/danh-arm
 .. _etienne-lms: https://github.com/etienne-lms
 .. _glneo: https://github.com/glneo
@@ -308,6 +309,7 @@ Xilinx platform port
 .. _sivadur: https://github.com/sivadur
 .. _smaeul: https://github.com/smaeul
 .. _soby-mathew: https://github.com/soby-mathew
+.. _thloh85-intel: https://github.com/thloh85-intel
 .. _thomas-arm: https://github.com/thomas-arm
 .. _TonyXie06: https://github.com/TonyXie06
 .. _vwadekar: https://github.com/vwadekar

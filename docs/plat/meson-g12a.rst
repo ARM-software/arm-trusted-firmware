@@ -1,5 +1,5 @@
 Amlogic Meson S905X2 (G12A)
-==========================
+===========================
 
 The Amlogic Meson S905X2 is a SoC with a quad core Arm Cortex-A53 running at
 ~1.8GHz. It also contains a Cortex-M3 used as SCP.

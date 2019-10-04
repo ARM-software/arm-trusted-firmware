@@ -1672,7 +1672,7 @@ The following list describes the memory layout on the Arm development platforms:
    point during a cold boot.
 
 -  On Juno, SCP_BL2 is loaded temporarily into the EL3 Runtime Software memory
-   region and transfered to the SCP before being overwritten by EL3 Runtime
+   region and transferred to the SCP before being overwritten by EL3 Runtime
    Software.
 
 -  BL32 (for AArch64) can be loaded in one of the following locations:
@@ -2623,7 +2623,7 @@ Cortex-A architecture through ``ARM_CORTEX_A<X> = yes`` in their
 Cortex-A15 target.
 
 Platform can also set ``ARM_WITH_NEON=yes`` to enable neon support.
-Note that using neon at runtime has constraints on non secure wolrd context.
+Note that using neon at runtime has constraints on non secure world context.
 TF-A does not yet provide VFP context management.
 
 Directive ``ARM_CORTEX_A<x>`` and ``ARM_WITH_NEON`` are used to set

@@ -7,7 +7,7 @@ images referred to in the Trusted Firmware project.
 General Notes
 -------------
 
-- Some of the names and abbreviated names have changed to accomodate new
+- Some of the names and abbreviated names have changed to accommodate new
   requirements. The changed names are as backward compatible as possible to
   minimize confusion. Where applicable, the previous names are indicated. Some
   code, documentation and build artefacts may still refer to the previous names;
@@ -44,7 +44,7 @@ AP Boot ROM: ``AP_BL1``
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Typically, this is the first code to execute on the AP and cannot be modified.
-Its primary purpose is to perform the minimum intialization necessary to load
+Its primary purpose is to perform the minimum initialization necessary to load
 and authenticate an updateable AP firmware image into an executable RAM
 location, then hand-off control to that image.
 
@@ -96,7 +96,7 @@ SCP Boot ROM: ``SCP_BL1`` (previously ``BL0``)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Typically, this is the first code to execute on the SCP and cannot be modified.
-Its primary purpose is to perform the minimum intialization necessary to load
+Its primary purpose is to perform the minimum initialization necessary to load
 and authenticate an updateable SCP firmware image into an executable RAM
 location, then hand-off control to that image. This may be performed in
 conjunction with other processor firmware (for example, ``AP_BL1`` and
@@ -129,7 +129,7 @@ AP Firmware Update Boot ROM: ``AP_NS_BL1U``
 
 Typically, this is the first normal world code to execute on the AP during a
 firmware update operation, and cannot be modified. Its primary purpose is to
-load subequent firmware update images from an external interface and communicate
+load subsequent firmware update images from an external interface and communicate
 with ``AP_BL1`` to authenticate those images.
 
 During firmware update, there are (potentially) multiple transitions between the
