@@ -19,6 +19,7 @@ BLE_SOURCES		+= 	$(BLE_PATH)/ble_main.c				\
 
 PLAT_INCLUDES		+= 	-I$(MV_DDR_PATH)				\
 				-I$(CURDIR)/include				\
+				-I$(CURDIR)/include/arch/aarch64		\
 				-I$(CURDIR)/include/lib/libc			\
 				-I$(CURDIR)/include/lib/libc/aarch64		\
 				-I$(CURDIR)/drivers/marvell
