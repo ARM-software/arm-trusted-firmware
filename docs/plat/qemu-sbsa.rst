@@ -1,5 +1,5 @@
-Trusted Firmware-A for QEMU SBSA target
-========================================
+QEMU SBSA Target
+================
 
 Trusted Firmware-A (TF-A) implements the EL3 firmware layer for QEMU SBSA
 Armv8-A. While running Qemu from command line, we need to supply two Flash

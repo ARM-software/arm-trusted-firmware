@@ -9,6 +9,7 @@ Platform Ports
    allwinner
    meson-gxbb
    meson-gxl
+   meson-g12a
    fvp_ve
    hikey
    hikey960
@@ -23,7 +24,9 @@ Platform Ports
    ls1043a
    poplar
    qemu
+   qemu-sbsa
    rpi3
+   rpi4
    rcar-gen3
    rockchip
    socionext-uniphier
