@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,6 +28,7 @@ spacer:
  * ---------------------------------------------
  */
 .macro plat_crash_print_regs
+#ifdef TEGRA_GICC_BASE
 	mov_imm	x16, TEGRA_GICC_BASE
 
 	/* gicc base address is now in x16 */
@@ -37,7 +39,7 @@ spacer:
 	ldr	w10, [x16, #GICC_CTLR]
 	/* Store to the crash buf and print to cosole */
 	bl	str_in_crash_buf_print
-
+#endif
 	/* Print the GICD_ISPENDR regs */
 	mov_imm	x16, TEGRA_GICD_BASE
 	add	x7, x16, #GICD_ISPENDR
