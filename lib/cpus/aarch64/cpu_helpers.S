@@ -227,6 +227,27 @@ func cpu_rev_var_hs
 	ret
 endfunc cpu_rev_var_hs
 
+/*
+ * Compare the CPU's revision-variant (x0) with a given range (x1 - x2), for errata
+ * application purposes. If the revision-variant is between or includes the given
+ * values, this indicates that errata applies; otherwise not.
+ *
+ * Shall clobber: x0-x4
+ */
+	.globl	cpu_rev_var_range
+func cpu_rev_var_range
+	mov	x3, #ERRATA_APPLIES
+	mov	x4, #ERRATA_NOT_APPLIES
+	cmp	x0, x1
+	csel	x1, x3, x4, hs
+	cbz	x1, 1f
+	cmp	x0, x2
+	csel	x1, x3, x4, ls
+1:
+	mov	x0, x1
+	ret
+endfunc cpu_rev_var_range
+
 #if REPORT_ERRATA
 /*
  * void print_errata_status(void);

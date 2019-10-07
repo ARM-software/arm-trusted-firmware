@@ -278,6 +278,10 @@ ERRATA_N1_1275112	?=0
 # to revisions before r3p1 of the Neoverse N1 cpu.
 ERRATA_N1_1315703	?=1
 
+# Flag to apply erratum 1542419 workaround during reset. This erratum applies
+# to revisions r3p0 - r4p0 of the Neoverse N1 cpu.
+ERRATA_N1_1542419	?=0
+
 # Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
 # Applying the workaround results in higher DSU power consumption on idle.
 ERRATA_DSU_798953	?=0
@@ -506,6 +510,10 @@ $(eval $(call add_define,ERRATA_N1_1275112))
 # Process ERRATA_N1_1315703 flag
 $(eval $(call assert_boolean,ERRATA_N1_1315703))
 $(eval $(call add_define,ERRATA_N1_1315703))
+
+# Process ERRATA_N1_1542419 flag
+$(eval $(call assert_boolean,ERRATA_N1_1542419))
+$(eval $(call add_define,ERRATA_N1_1542419))
 
 # Process ERRATA_DSU_798953 flag
 $(eval $(call assert_boolean,ERRATA_DSU_798953))

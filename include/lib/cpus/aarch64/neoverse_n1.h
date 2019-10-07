@@ -12,6 +12,9 @@
 /* Neoverse N1 MIDR for revision 0 */
 #define NEOVERSE_N1_MIDR		U(0x410fd0c0)
 
+/* Exception Syndrome register EC code for IC Trap */
+#define NEOVERSE_N1_EC_IC_TRAP		U(0x1f)
+
 /*******************************************************************************
  * CPU Power Control register specific definitions.
  ******************************************************************************/
