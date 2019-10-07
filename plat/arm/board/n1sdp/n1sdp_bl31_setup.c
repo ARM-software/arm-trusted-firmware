@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,14 +17,22 @@
 #include "n1sdp_def.h"
 
 /*
- * Memory information structure stored in SDS.
- * This structure holds the total DDR memory size which will be
- * used when zeroing out the entire DDR memory before enabling
- * the ECC capability in DMCs.
+ * Platform information structure stored in SDS.
+ * This structure holds information about platform's DDR
+ * size which will be used to zero out the memory before
+ * enabling the ECC capability as well as information
+ * about multichip setup
+ * 	- multichip mode
+ * 	- slave_count
+ * 	- Local DDR size in GB, DDR memory in master board
+ * 	- Remote DDR size in GB, DDR memory in slave board
  */
-struct n1sdp_mem_info {
-	uint32_t ddr_size_gb;
-};
+struct n1sdp_plat_info {
+	bool multichip_mode;
+	uint8_t slave_count;
+	uint8_t local_ddr_size;
+	uint8_t remote_ddr_size;
+} __packed;
 
 /*
  * BL33 image information structure stored in SDS.
@@ -38,11 +46,11 @@ struct n1sdp_bl33_info {
 };
 
 static scmi_channel_plat_info_t n1sdp_scmi_plat_info = {
-		.scmi_mbx_mem = N1SDP_SCMI_PAYLOAD_BASE,
-		.db_reg_addr = PLAT_CSS_MHU_BASE + CSS_SCMI_MHU_DB_REG_OFF,
-		.db_preserve_mask = 0xfffffffe,
-		.db_modify_mask = 0x1,
-		.ring_doorbell = &mhu_ring_doorbell,
+	.scmi_mbx_mem = N1SDP_SCMI_PAYLOAD_BASE,
+	.db_reg_addr = PLAT_CSS_MHU_BASE + CSS_SCMI_MHU_DB_REG_OFF,
+	.db_preserve_mask = 0xfffffffe,
+	.db_modify_mask = 0x1,
+	.ring_doorbell = &mhu_ring_doorbell
 };
 
 scmi_channel_plat_info_t *plat_css_get_scmi_info()
@@ -112,7 +120,7 @@ void copy_bl33(uint32_t src, uint32_t dst, uint32_t size)
 void bl31_platform_setup(void)
 {
 	int ret;
-	struct n1sdp_mem_info mem_info;
+	struct n1sdp_plat_info plat_info;
 	struct n1sdp_bl33_info bl33_info;
 
 	arm_bl31_platform_setup();
@@ -123,16 +131,25 @@ void bl31_platform_setup(void)
 		panic();
 	}
 
-	ret = sds_struct_read(N1SDP_SDS_MEM_INFO_STRUCT_ID,
-				N1SDP_SDS_MEM_INFO_OFFSET,
-				&mem_info,
-				N1SDP_SDS_MEM_INFO_SIZE,
+	ret = sds_struct_read(N1SDP_SDS_PLATFORM_INFO_STRUCT_ID,
+				N1SDP_SDS_PLATFORM_INFO_OFFSET,
+				&plat_info,
+				N1SDP_SDS_PLATFORM_INFO_SIZE,
 				SDS_ACCESS_MODE_NON_CACHED);
 	if (ret != SDS_OK) {
-		ERROR("Error getting memory info from SDS\n");
+		ERROR("Error getting platform info from SDS\n");
 		panic();
 	}
-	dmc_ecc_setup(mem_info.ddr_size_gb);
+	/* Validate plat_info SDS */
+	if ((plat_info.local_ddr_size == 0)
+		|| (plat_info.local_ddr_size > N1SDP_MAX_DDR_CAPACITY_GB)
+		|| (plat_info.remote_ddr_size > N1SDP_MAX_DDR_CAPACITY_GB)
+		|| (plat_info.slave_count > N1SDP_MAX_SLAVE_COUNT)) {
+		ERROR("platform info SDS is corrupted\n");
+		panic();
+	}
+
+	dmc_ecc_setup(plat_info.local_ddr_size);
 
 	ret = sds_struct_read(N1SDP_SDS_BL33_INFO_STRUCT_ID,
 				N1SDP_SDS_BL33_INFO_OFFSET,
@@ -147,11 +164,11 @@ void bl31_platform_setup(void)
 			bl33_info.bl33_dst_addr,
 			bl33_info.bl33_size);
 	/*
-	 * Pass DDR memory size info to BL33. This method is followed as
+	 * Pass platform information to BL33. This method is followed as
 	 * currently there is no BL1/BL2 involved in boot flow of N1SDP.
 	 * When TBBR is implemented for N1SDP, this method should be removed
-	 * and DDR memory size shoule be passed to BL33 using NT_FW_CONFIG
+	 * and platform information should be passed to BL33 using NT_FW_CONFIG
 	 * passing mechanism.
 	 */
-	mmio_write_32(N1SDP_DDR_MEM_INFO_BASE, mem_info.ddr_size_gb);
+	mmio_write_32(N1SDP_PLATFORM_INFO_BASE, *(uint32_t *)&plat_info);
 }

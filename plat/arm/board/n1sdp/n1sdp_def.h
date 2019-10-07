@@ -15,10 +15,12 @@
 						N1SDP_NS_SRAM_SIZE,	\
 						MT_DEVICE | MT_RW | MT_SECURE)
 
-/* SDS memory information defines */
-#define N1SDP_SDS_MEM_INFO_STRUCT_ID		8
-#define N1SDP_SDS_MEM_INFO_OFFSET		0
-#define N1SDP_SDS_MEM_INFO_SIZE			4
+/* SDS Platform information defines */
+#define N1SDP_SDS_PLATFORM_INFO_STRUCT_ID	8
+#define N1SDP_SDS_PLATFORM_INFO_OFFSET		0
+#define N1SDP_SDS_PLATFORM_INFO_SIZE		4
+#define N1SDP_MAX_DDR_CAPACITY_GB		64
+#define N1SDP_MAX_SLAVE_COUNT			16
 
 /* SDS BL33 image information defines */
 #define N1SDP_SDS_BL33_INFO_STRUCT_ID		9
@@ -40,7 +42,7 @@
 /* DMC ECC enable bit in ERR0CTLR0 register */
 #define N1SDP_DMC_ERR0CTLR0_ECC_EN		0x1
 
-/* Base address of non-secure SRAM where DDR memory size will be filled */
-#define N1SDP_DDR_MEM_INFO_BASE			0x06008000
+/* Base address of non-secure SRAM where Platform information will be filled */
+#define N1SDP_PLATFORM_INFO_BASE		0x06008000
 
 #endif /* N1SDP_DEF_H */
