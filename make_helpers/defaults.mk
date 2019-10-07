@@ -234,3 +234,8 @@ else
 endif
 
 SANITIZE_UB := off
+
+# For ARMv8.1 (AArch64) platforms, enabling this option selects the spinlock
+# implementation variant using the ARMv8.1-LSE compare-and-swap instruction.
+# Default: disabled
+USE_SPINLOCK_CAS := 0
