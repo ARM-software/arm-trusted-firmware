@@ -721,11 +721,11 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	udelay(PLL_SET_DELAY_US);
 
 	if (comphy_index == COMPHY_LANE2) {
-		data = COMPHY_LOOPBACK_REG0 + USB3PHY_LANE2_REG_BASE_OFFSET;
+		data = COMPHY_REG_LANE_STATUS1_ADDR + USB3PHY_LANE2_REG_BASE_OFFSET;
 		mmio_write_32(reg_base + COMPHY_LANE2_INDIR_ADDR_OFFSET,
 			      data);
 
-		addr = COMPHY_LOOPBACK_REG0 + USB3PHY_LANE2_REG_BASE_OFFSET;
+		addr = reg_base + COMPHY_LANE2_INDIR_DATA_OFFSET;
 		ret = polling_with_timeout(addr, TXDCLK_PCLK_EN, TXDCLK_PCLK_EN,
 					   COMPHY_PLL_TIMEOUT, REG_32BIT);
 	} else {
