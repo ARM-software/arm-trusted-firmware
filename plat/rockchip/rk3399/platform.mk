@@ -56,7 +56,6 @@ BL31_SOURCES	+=	${RK_GIC_SOURCES}				\
 			${RK_PLAT_COMMON}/aarch64/platform_common.c	\
 			${RK_PLAT_COMMON}/rockchip_sip_svc.c		\
 			${RK_PLAT_SOC}/plat_sip_calls.c			\
-			${RK_PLAT_SOC}/drivers/dp/cdn_dp.c		\
 			${RK_PLAT_SOC}/drivers/gpio/rk3399_gpio.c	\
 			${RK_PLAT_SOC}/drivers/pmu/pmu.c		\
 			${RK_PLAT_SOC}/drivers/pmu/pmu_fw.c		\
@@ -87,16 +86,20 @@ $(eval $(call add_define,RK3399M0FW))
 RK3399M0PMUFW=${BUILD_M0}/${PLAT_M0}pmu.bin
 $(eval $(call add_define,RK3399M0PMUFW))
 
+ifdef PLAT_RK_DP_HDCP
+BL31_SOURCES	+= ${RK_PLAT_SOC}/drivers/dp/cdn_dp.c
+
 HDCPFW=${RK_PLAT_SOC}/drivers/dp/hdcp.bin
 $(eval $(call add_define,HDCPFW))
+
+${BUILD_PLAT}/bl31/cdn_dp.o: CCACHE_EXTRAFILES=$(HDCPFW)
+${RK_PLAT_SOC}/drivers/dp/cdn_dp.c: $(HDCPFW)
+endif
 
 # CCACHE_EXTRAFILES is needed because ccache doesn't handle .incbin
 export CCACHE_EXTRAFILES
 ${BUILD_PLAT}/bl31/pmu_fw.o: CCACHE_EXTRAFILES=$(RK3399M0FW):$(RK3399M0PMUFW)
 ${RK_PLAT_SOC}/drivers/pmu/pmu_fw.c: $(RK3399M0FW)
-
-${BUILD_PLAT}/bl31/cdn_dp.o: CCACHE_EXTRAFILES=$(HDCPFW)
-${RK_PLAT_SOC}/drivers/dp/cdn_dp.c: $(HDCPFW)
 
 $(eval $(call MAKE_PREREQ_DIR,${BUILD_M0},${BUILD_PLAT}))
 .PHONY: $(RK3399M0FW)
