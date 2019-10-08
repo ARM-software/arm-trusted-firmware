@@ -36,7 +36,7 @@ static inline uint64_t timeout_init_us(uint32_t us)
 {
 	uint64_t cnt = timeout_cnt_us2cnt(us);
 
-	cnt += read_cntfrq_el0();
+	cnt += read_cntpct_el0();
 
 	return cnt;
 }
