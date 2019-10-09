@@ -3,7 +3,7 @@ License
 
 The software is provided under a BSD-3-Clause license (below). Contributions to
 this project are accepted under the same license with developer sign-off as
-described in the :ref:`contributor_guide`.
+described in the :ref:`Contributor's Guide`.
 
 ::
 

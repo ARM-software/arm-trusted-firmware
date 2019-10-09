@@ -42,9 +42,9 @@ depending on project requirement and partner feedback.
 Removal of Deprecated Interfaces
 --------------------------------
 
-As mentioned in the `Platform compatibility policy`_, this is a live document
-cataloging all the deprecated interfaces in TF-A project and the Release version
-after which it will be removed.
+As mentioned in the :ref:`Platform Compatibility Policy`, this is a live
+document cataloging all the deprecated interfaces in TF-A project and the
+Release version after which it will be removed.
 
 +--------------------------------+-------------+---------+---------------------------------------------------------+
 | Interface                      | Deprecation | Removed | Comments                                                |
@@ -54,7 +54,7 @@ after which it will be removed.
 | Legacy Console API             | Jan '18     | v2.1    | Deprecated in favour of ``MULTI_CONSOLE_API``           |
 +--------------------------------+-------------+---------+---------------------------------------------------------+
 | Weak default                   | Oct '18     | v2.1    | The default implementations are defined in              |
-| ``plat_crash_console_*``       |             |         | `crash_console_helpers.S`_. The platforms have to       |
+| ``plat_crash_console_*``       |             |         | ``crash_console_helpers.S``. The platforms have to      |
 | APIs                           |             |         | define ``plat_crash_console_*``.                        |
 +--------------------------------+-------------+---------+---------------------------------------------------------+
 | ``finish_console_register``    | Oct '18     | v2.1    | The old version of the macro is deprecated. See commit  |
@@ -74,9 +74,9 @@ after which it will be removed.
 | Makefile in ``INCLUDES``.      |             |         | header files. More information in commit 09d40e0e0828_. |
 +--------------------------------+-------------+---------+---------------------------------------------------------+
 
+--------------
+
 *Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.*
 
-.. _Platform compatibility policy: platform-compatibility-policy.rst
-.. _crash_console_helpers.S: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/plat/common/aarch64/crash_console_helpers.S
 .. _cc5859c: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/commit/?id=cc5859ca19ff546c35eb0331000dae090b6eabcf
 .. _09d40e0e0828: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/commit/?id=09d40e0e08283a249e7dce0e106c07c5141f9b7e

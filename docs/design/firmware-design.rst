@@ -2,24 +2,27 @@ Firmware Design
 ===============
 
 Trusted Firmware-A (TF-A) implements a subset of the Trusted Board Boot
-Requirements (TBBR) Platform Design Document (PDD) [1]_ for Arm reference
-platforms. The TBB sequence starts when the platform is powered on and runs up
+Requirements (TBBR) Platform Design Document (PDD) for Arm reference
+platforms.
+
+The TBB sequence starts when the platform is powered on and runs up
 to the stage where it hands-off control to firmware running in the normal
 world in DRAM. This is the cold boot path.
 
-TF-A also implements the Power State Coordination Interface PDD [2]_ as a
+TF-A also implements the `Power State Coordination Interface PDD`_ as a
 runtime service. PSCI is the interface from normal world software to firmware
 implementing power management use-cases (for example, secondary CPU boot,
 hotplug and idle). Normal world software can access TF-A runtime services via
 the Arm SMC (Secure Monitor Call) instruction. The SMC instruction must be
-used as mandated by the SMC Calling Convention [3]_.
+used as mandated by the SMC Calling Convention (`SMCCC`_).
 
 TF-A implements a framework for configuring and managing interrupts generated
 in either security state. The details of the interrupt management framework
-and its design can be found in TF-A Interrupt Management Design guide [4]_.
+and its design can be found in :ref:`Interrupt Management Framework`.
 
 TF-A also implements a library for setting up and managing the translation
-tables. The details of this library can be found in `Translation tables design`_.
+tables. The details of this library can be found in
+:ref:`Translation (XLAT) Tables Library`.
 
 TF-A can be built to support either AArch64 or AArch32 execution state.
 
@@ -34,7 +37,7 @@ executed by the primary CPU, other than essential CPU initialization executed by
 all CPUs. The secondary CPUs are kept in a safe platform-specific state until
 the primary CPU has performed enough initialization to boot them.
 
-Refer to the `Reset Design`_ for more information on the effect of the
+Refer to the :ref:`CPU Reset` for more information on the effect of the
 ``COLD_BOOT_SINGLE_CPU`` platform build option.
 
 The cold boot path in this implementation of TF-A depends on the execution
@@ -136,15 +139,15 @@ Determination of boot path
 
 Whenever a CPU is released from reset, BL1 needs to distinguish between a warm
 boot and a cold boot. This is done using platform-specific mechanisms (see the
-``plat_get_my_entrypoint()`` function in the `Porting Guide`_). In the case of a
-warm boot, a CPU is expected to continue execution from a separate
+``plat_get_my_entrypoint()`` function in the :ref:`Porting Guide`). In the case
+of a warm boot, a CPU is expected to continue execution from a separate
 entrypoint. In the case of a cold boot, the secondary CPUs are placed in a safe
 platform-specific state (see the ``plat_secondary_cold_boot_setup()`` function in
-the `Porting Guide`_) while the primary CPU executes the remaining cold boot path
-as described in the following sections.
+the :ref:`Porting Guide`) while the primary CPU executes the remaining cold boot
+path as described in the following sections.
 
 This step only applies when ``PROGRAMMABLE_RESET_ADDRESS=0``. Refer to the
-`Reset Design`_ for more information on the effect of the
+:ref:`CPU Reset` for more information on the effect of the
 ``PROGRAMMABLE_RESET_ADDRESS`` platform build option.
 
 Architectural initialization
@@ -157,8 +160,8 @@ BL1 performs minimal architectural initialization as follows.
    BL1 sets up simple exception vectors for both synchronous and asynchronous
    exceptions. The default behavior upon receiving an exception is to populate
    a status code in the general purpose register ``X0/R0`` and call the
-   ``plat_report_exception()`` function (see the `Porting Guide`_). The status
-   code is one of:
+   ``plat_report_exception()`` function (see the :ref:`Porting Guide`). The
+   status code is one of:
 
    For AArch64:
 
@@ -217,7 +220,7 @@ BL1 performs minimal architectural initialization as follows.
 
    -  ``BL1_SMC_RUN_IMAGE``: This SMC is raised by BL2 to make BL1 pass control
       to EL3 Runtime Software.
-   -  All SMCs listed in section "BL1 SMC Interface" in the `Firmware Update`_
+   -  All SMCs listed in section "BL1 SMC Interface" in the :ref:`Firmware Update (FWU)`
       Design Guide are supported for AArch64 only. These SMCs are currently
       not supported when BL1 is built for AArch32.
 
@@ -307,14 +310,15 @@ Firmware Update detection and execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 After performing platform setup, BL1 common code calls
-``bl1_plat_get_next_image_id()`` to determine if `Firmware Update`_ is required or
-to proceed with the normal boot process. If the platform code returns
-``BL2_IMAGE_ID`` then the normal boot sequence is executed as described in the
-next section, else BL1 assumes that `Firmware Update`_ is required and execution
-passes to the first image in the `Firmware Update`_ process. In either case, BL1
-retrieves a descriptor of the next image by calling ``bl1_plat_get_image_desc()``.
-The image descriptor contains an ``entry_point_info_t`` structure, which BL1
-uses to initialize the execution state of the next image.
+``bl1_plat_get_next_image_id()`` to determine if :ref:`Firmware Update (FWU)` is
+required or to proceed with the normal boot process. If the platform code
+returns ``BL2_IMAGE_ID`` then the normal boot sequence is executed as described
+in the next section, else BL1 assumes that :ref:`Firmware Update (FWU)` is
+required and execution passes to the first image in the
+:ref:`Firmware Update (FWU)` process. In either case, BL1 retrieves a descriptor
+of the next image by calling ``bl1_plat_get_image_desc()``. The image descriptor
+contains an ``entry_point_info_t`` structure, which BL1 uses to initialize the
+execution state of the next image.
 
 BL2 image load and execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -440,7 +444,8 @@ initialization is complete. Hence, BL2 populates a platform-specific area of
 memory with the entrypoint and Saved Program Status Register (``SPSR``) of the
 normal world software image. The entrypoint is the load address of the BL33
 image. The ``SPSR`` is determined as specified in Section 5.13 of the
-`PSCI PDD`_. This information is passed to the EL3 Runtime Software.
+`Power State Coordination Interface PDD`_. This information is passed to the
+EL3 Runtime Software.
 
 AArch64 BL31 (EL3 Runtime Software) execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -539,7 +544,7 @@ It then replaces the exception vectors populated by BL1 with its own. BL31
 exception vectors implement more elaborate support for handling SMCs since this
 is the only mechanism to access the runtime services implemented by BL31 (PSCI
 for example). BL31 checks each SMC for validity as specified by the
-`SMC calling convention PDD`_ before passing control to the required SMC
+`SMC Calling Convention PDD`_ before passing control to the required SMC
 handler routine.
 
 BL31 programs the ``CNTFRQ_EL0`` register with the clock frequency of the system
@@ -812,7 +817,8 @@ data access and all interrupt sources masked:
 
 The warm boot entrypoint may be implemented by using TF-A
 ``psci_warmboot_entrypoint()`` function. In that case, the platform must fulfil
-the pre-requisites mentioned in the `PSCI Library integration guide`_.
+the pre-requisites mentioned in the
+:ref:`PSCI Library Integration guide for Armv8-A AArch32 systems`.
 
 EL3 runtime services framework
 ------------------------------
@@ -1051,7 +1057,9 @@ hooks to be registered with the generic PSCI code to be supported.
 The PSCI implementation in TF-A is a library which can be integrated with
 AArch64 or AArch32 EL3 Runtime Software for Armv8-A systems. A guide to
 integrating PSCI library with AArch32 EL3 Runtime Software can be found
-`here`_.
+at :ref:`PSCI Library Integration guide for Armv8-A AArch32 systems`.
+
+.. _firmware_design_sel1_spd:
 
 Secure-EL1 Payloads and Dispatchers
 -----------------------------------
@@ -1258,7 +1266,7 @@ handling functions.
 
 Details for implementing a CPU specific reset handler can be found in
 Section 8. Details for implementing a platform specific reset handler can be
-found in the `Porting Guide`_ (see the ``plat_reset_handler()`` function).
+found in the :ref:`Porting Guide` (see the ``plat_reset_handler()`` function).
 
 When adding functionality to a reset handler, keep in mind that if a different
 reset handling behavior is required between the first and the subsequent
@@ -1291,6 +1299,8 @@ by the macro ``INTR_PROP_DESC()``. The macro takes the following arguments:
 
 - Interrupt configuration (either ``GIC_INTR_CFG_LEVEL`` or
   ``GIC_INTR_CFG_EDGE``).
+
+.. _firmware_design_cpu_ops_fwk:
 
 CPU specific operations framework
 ---------------------------------
@@ -1333,7 +1343,7 @@ different CPUs during power down and reset handling. The platform can specify
 any CPU optimization it wants to enable for each CPU. It can also specify
 the CPU errata workarounds to be applied for each CPU type during reset
 handling by defining CPU errata compile time macros. Details on these macros
-can be found in `CPU specific build macros`_.
+can be found in the :ref:`Arm CPU Specific Build Macros` document.
 
 The CPU specific operations framework depends on the ``cpu_ops`` structure which
 needs to be exported for each type of CPU in the platform. It is defined in
@@ -1399,6 +1409,8 @@ reporting framework calls ``do_cpu_reg_dump`` which retrieves the matching
 be reported and a pointer to the ASCII list of register names in a format
 expected by the crash reporting framework.
 
+.. _firmware_design_cpu_errata_reporting:
+
 CPU errata status reporting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1408,8 +1420,8 @@ build options. Some errata workarounds have potential run-time implications;
 therefore some are enabled by default, others not. Platform ports shall
 override build options to enable or disable errata as appropriate. The CPU
 drivers take care of applying errata workarounds that are enabled and applicable
-to a given CPU. Refer to the section titled *CPU Errata Workarounds* in `CPUBM`_
-for more information.
+to a given CPU. Refer to :ref:`arm_cpu_macros_errata_workarounds` for more
+information.
 
 Functions in CPU drivers that apply errata workaround must follow the
 conventions listed below.
@@ -1866,7 +1878,7 @@ BL image during boot.
 Library at ROM
 ---------------
 
-Please refer to the `ROMLIB Design`_ document.
+Please refer to the :ref:`Library at ROM` document.
 
 Firmware Image Package (FIP)
 ----------------------------
@@ -1978,11 +1990,11 @@ is the smallest possible size of the coherent memory region.
 
 By default, all data structures which are susceptible to accesses with
 mismatched attributes from various CPUs are allocated in a coherent memory
-region (refer to section 2.1 of `Porting Guide`_). The coherent memory region
-accesses are Outer Shareable, non-cacheable and they can be accessed
-with the Device nGnRE attributes when the MMU is turned on. Hence, at the
-expense of at least an extra page of memory, TF-A is able to work around
-coherency issues due to mismatched memory attributes.
+region (refer to section 2.1 of :ref:`Porting Guide`). The coherent memory
+region accesses are Outer Shareable, non-cacheable and they can be accessed with
+the Device nGnRE attributes when the MMU is turned on. Hence, at the expense of
+at least an extra page of memory, TF-A is able to work around coherency issues
+due to mismatched memory attributes.
 
 The alternative to the above approach is to allocate the susceptible data
 structures in Normal WriteBack WriteAllocate Inner shareable memory. This
@@ -2188,7 +2200,7 @@ As mentioned earlier, almost a page of memory can be saved by disabling
 whether coherent memory should be used. If a platform disables
 ``USE_COHERENT_MEM`` and needs to use bakery locks in the porting layer, it can
 optionally define macro ``PLAT_PERCPU_BAKERY_LOCK_SIZE`` (see the
-`Porting Guide`_). Refer to the reference platform code for examples.
+:ref:`Porting Guide`). Refer to the reference platform code for examples.
 
 Isolating code and read-only data on separate memory pages
 ----------------------------------------------------------
@@ -2381,6 +2393,8 @@ are changed within the ``bl31_plat_runtime_setup`` platform hook. The init
 section section can be reclaimed for any data which is accessed after cold
 boot initialization and it is upto the platform to make the decision.
 
+.. _firmware_design_pmf:
+
 Performance Measurement Framework
 ---------------------------------
 
@@ -2529,7 +2543,7 @@ Architecture Extension-specific code is included in the build. Otherwise, TF-A
 targets the base Armv8.0-A architecture; i.e. as if ``ARM_ARCH_MAJOR`` == 8
 and ``ARM_ARCH_MINOR`` == 0, which are also their respective default values.
 
-See also the *Summary of build options* in `User Guide`_.
+See also the *Summary of build options* in :ref:`User Guide`.
 
 For details on the Architecture Extension and available features, please refer
 to the respective Architecture Extension Supplement.
@@ -2668,37 +2682,26 @@ linker scripts which have the extension ``.ld``.
 FDTs provide a description of the hardware platform and are used by the Linux
 kernel at boot time. These can be found in the ``fdts`` directory.
 
-References
-----------
+.. rubric:: References
 
-.. [#] `Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D)`_
-.. [#] `Power State Coordination Interface PDD`_
-.. [#] `SMC Calling Convention PDD`_
-.. [#] `TF-A Interrupt Management Design guide`_.
+-  `Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D)`_
+
+-  `Power State Coordination Interface PDD`_
+
+-  `SMC Calling Convention PDD`_
+
+-  :ref:`Interrupt Management Framework`
 
 --------------
 
 *Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
 
-.. _Reset Design: ./reset-design.rst
-.. _Porting Guide: ../getting_started/porting-guide.rst
-.. _Firmware Update: ../components/firmware-update.rst
-.. _PSCI PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
-.. _SMC calling convention PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
-.. _PSCI Library integration guide: ../getting_started/psci-lib-integration-guide.rst
+.. _Power State Coordination Interface PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _SMCCC: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
 .. _Power State Coordination Interface PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
-.. _here: ../getting_started/psci-lib-integration-guide.rst
-.. _CPU specific build macros: ./cpu-specific-build-macros.rst
-.. _CPUBM: ./cpu-specific-build-macros.rst
 .. _Arm ARM: http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ddi0487a.e/index.html
-.. _User Guide: ../getting_started/user-guide.rst
 .. _SMC Calling Convention PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
-.. _TF-A Interrupt Management Design guide: ./interrupt-framework-design.rst
-.. _Translation tables design: ../components/xlat-tables-lib-v2-design.rst
-.. _Exception Handling Framework: ../components/exception-handling.rst
-.. _ROMLIB Design: ../components/romlib-design.rst
 .. _Trusted Board Boot Requirements CLIENT (TBBR-CLIENT) Armv8-A (ARM DEN0006D): https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
 
 .. |Image 1| image:: ../resources/diagrams/rt-svc-descs-layout.png

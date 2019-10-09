@@ -13,20 +13,20 @@ Modifications consist of:
 -  Defining certain constants (for example #defines).
 
 The platform-specific functions and variables are declared in
-`include/plat/common/platform.h`_. The firmware provides a default implementation
-of variables and functions to fulfill the optional requirements. These
-implementations are all weakly defined; they are provided to ease the porting
-effort. Each platform port can override them with its own implementation if the
-default implementation is inadequate.
+``include/plat/common/platform.h``. The firmware provides a default
+implementation of variables and functions to fulfill the optional requirements.
+These implementations are all weakly defined; they are provided to ease the
+porting effort. Each platform port can override them with its own implementation
+if the default implementation is inadequate.
 
 Some modifications are common to all Boot Loader (BL) stages. Section 2
 discusses these in detail. The subsequent sections discuss the remaining
 modifications for each BL stage in detail.
 
-This document should be read in conjunction with the TF-A `User Guide`_.
+This document should be read in conjunction with the TF-A :ref:`User Guide`.
 
-Please refer to the `Platform compatibility policy`_ for the policy regarding
-compatibility and deprecation of these porting interfaces.
+Please refer to the :ref:`Platform Compatibility Policy` for the policy
+regarding compatibility and deprecation of these porting interfaces.
 
 Only Arm development platforms (such as FVP and Juno) may use the
 functions/definitions in ``include/plat/arm/common/`` and the corresponding
@@ -98,7 +98,7 @@ Each platform must ensure that a header file of this name is in the system
 include path with the following constants defined. This will require updating
 the list of ``PLAT_INCLUDES`` in the ``platform.mk`` file.
 
-Platform ports may optionally use the file `include/plat/common/common_def.h`_,
+Platform ports may optionally use the file ``include/plat/common/common_def.h``,
 which provides typical values for some of the constants below. These values are
 likely to be suitable for all platform ports.
 
@@ -115,8 +115,8 @@ likely to be suitable for all platform ports.
 -  **#define : PLATFORM_STACK_SIZE**
 
    Defines the normal stack memory available to each CPU. This constant is used
-   by `plat/common/aarch64/platform_mp_stack.S`_ and
-   `plat/common/aarch64/platform_up_stack.S`_.
+   by ``plat/common/aarch64/platform_mp_stack.S`` and
+   ``plat/common/aarch64/platform_up_stack.S``.
 
 -  **define : CACHE_WRITEBACK_GRANULE**
 
@@ -542,7 +542,7 @@ optionally be defined:
    Maximum number of partition entries required by the platform. This allows
    control how much memory is allocated for partition entries. The default
    value is 128.
-   `For example, define the build flag in platform.mk`_:
+   For example, define the build flag in ``platform.mk``:
    PLAT_PARTITION_MAX_ENTRIES := 12
    $(eval $(call add_define,PLAT_PARTITION_MAX_ENTRIES))
 
@@ -828,7 +828,8 @@ runtime environment. This function can clobber x0 - x8 and must preserve
 x9 - x29.
 
 This function plays a crucial role in the power domain topology framework in
-PSCI and details of this can be found in `Power Domain Topology Design`_.
+PSCI and details of this can be found in
+:ref:`PSCI Power Domain Tree Structure`.
 
 Function : plat_core_pos_by_mpidr()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -844,7 +845,7 @@ case the ``MPIDR`` is invalid, this function returns -1. This function will only
 be invoked by BL31 after the power domain topology is initialized and can
 utilize the C runtime environment. For further details about how TF-A
 represents the power domain topology and how this relates to the linear CPU
-index, please refer `Power Domain Topology Design`_.
+index, please refer :ref:`PSCI Power Domain Tree Structure`.
 
 Function : plat_get_mbedtls_heap() [when TRUSTED_BOARD_BOOT == 1]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -895,8 +896,8 @@ of the stack allocated to each CPU is specified by the platform defined
 constant ``PLATFORM_STACK_SIZE``.
 
 Common implementations of this function for the UP and MP BL images are
-provided in `plat/common/aarch64/platform_up_stack.S`_ and
-`plat/common/aarch64/platform_mp_stack.S`_
+provided in ``plat/common/aarch64/platform_up_stack.S`` and
+``plat/common/aarch64/platform_mp_stack.S``
 
 Function : plat_get_my_stack()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -913,8 +914,8 @@ of the stack allocated to each CPU is specified by the platform defined
 constant ``PLATFORM_STACK_SIZE``.
 
 Common implementations of this function for the UP and MP BL images are
-provided in `plat/common/aarch64/platform_up_stack.S`_ and
-`plat/common/aarch64/platform_mp_stack.S`_
+provided in ``plat/common/aarch64/platform_up_stack.S`` and
+``plat/common/aarch64/platform_mp_stack.S``
 
 Function : plat_report_exception()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -937,12 +938,12 @@ about the way the platform displays its status information.
 
 For AArch64, this function receives the exception type as its argument.
 Possible values for exceptions types are listed in the
-`include/common/bl_common.h`_ header file. Note that these constants are not
+``include/common/bl_common.h`` header file. Note that these constants are not
 related to any architectural exception code; they are just a TF-A convention.
 
 For AArch32, this function receives the exception mode as its argument.
 Possible values for exception modes are listed in the
-`include/lib/aarch32/arch.h`_ header file.
+``include/lib/aarch32/arch.h`` header file.
 
 Function : plat_reset_handler()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -958,7 +959,7 @@ specific errata workarounds could also be implemented here. The API should
 preserve the values of callee saved registers x19 to x29.
 
 The default implementation doesn't do anything. If a platform needs to override
-the default implementation, refer to the `Firmware Design`_ for general
+the default implementation, refer to the :ref:`Firmware Design` for general
 guidelines.
 
 Function : plat_disable_acp()
@@ -1475,8 +1476,8 @@ Boot Loader Stage 2 (BL2) at EL3
 
 When the platform has a non-TF-A Boot ROM it is desirable to jump
 directly to BL2 instead of TF-A BL1. In this case BL2 is expected to
-execute at EL3 instead of executing at EL1. Refer to the `Firmware
-Design`_ for more information.
+execute at EL3 instead of executing at EL1. Refer to the :ref:`Firmware Design`
+document for more information.
 
 All mandatory functions of BL2 must be implemented, except the functions
 bl2_early_platform_setup and bl2_el3_plat_arch_setup, because
@@ -1852,6 +1853,8 @@ calculated by the linker then a link time assertion is raised. A compile time
 assertion is raised if the value of the constant is not aligned to the cache
 line boundary.
 
+.. _porting_guide_sdei_requirements:
+
 SDEI porting requirements
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1936,7 +1939,7 @@ example, a CPU) is at level 0. If the *power domain* node above a CPU is a
 logical grouping of CPUs that share some state, then level 1 is that group of
 CPUs (for example, a cluster), and level 2 is a group of clusters (for
 example, the system). More details on the power domain topology and its
-organization can be found in `Power Domain Topology Design`_.
+organization can be found in :ref:`PSCI Power Domain Tree Structure`.
 
 BL31's platform initialization code exports a pointer to the platform-specific
 power management operations required for the PSCI implementation to function
@@ -2048,13 +2051,13 @@ Function : plat_get_power_domain_tree_desc() [mandatory]
 
 This function returns a pointer to the byte array containing the power domain
 topology tree description. The format and method to construct this array are
-described in `Power Domain Topology Design`_. The BL31 PSCI initialization code
-requires this array to be described by the platform, either statically or
-dynamically, to initialize the power domain topology tree. In case the array
-is populated dynamically, then plat_core_pos_by_mpidr() and
-plat_my_core_pos() should also be implemented suitably so that the topology
-tree description matches the CPU indices returned by these APIs. These APIs
-together form the platform interface for the PSCI topology framework.
+described in :ref:`PSCI Power Domain Tree Structure`. The BL31 PSCI
+initialization code requires this array to be described by the platform, either
+statically or dynamically, to initialize the power domain topology tree. In case
+the array is populated dynamically, then plat_core_pos_by_mpidr() and
+plat_my_core_pos() should also be implemented suitably so that the topology tree
+description matches the CPU indices returned by these APIs. These APIs together
+form the platform interface for the PSCI topology framework.
 
 Function : plat_setup_psci_ops() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2076,10 +2079,10 @@ pointer with a pointer to BL31's private ``plat_psci_ops`` structure.
 
 A description of each member of this structure is given below. Please refer to
 the Arm FVP specific implementation of these handlers in
-`plat/arm/board/fvp/fvp_pm.c`_ as an example. For each PSCI function that the
+``plat/arm/board/fvp/fvp_pm.c`` as an example. For each PSCI function that the
 platform wants to support, the associated operation or operations in this
 structure must be provided and implemented (Refer section 4 of
-`Firmware Design`_ for the PSCI API supported in TF-A). To disable a PSCI
+:ref:`Firmware Design` for the PSCI API supported in TF-A). To disable a PSCI
 function in a platform port, the operation should be removed from this
 structure instead of providing an empty implementation.
 
@@ -2367,13 +2370,15 @@ region defined by a base address ``base`` and with a size of ``length``
 bytes is protected by ``MEM_PROTECT``.  If the region is protected
 then it must return 0, otherwise it must return a negative number.
 
+.. _porting_guide_imf_in_bl31:
+
 Interrupt Management framework (in BL31)
 ----------------------------------------
 
 BL31 implements an Interrupt Management Framework (IMF) to manage interrupts
 generated in either security state and targeted to EL1 or EL2 in the non-secure
 state or EL3/S-EL1 in the secure state. The design of this framework is
-described in the `IMF Design Guide`_
+described in the :ref:`Interrupt Management Framework`
 
 A platform should export the following APIs to support the IMF. The following
 text briefly describes each API and its implementation in Arm standard
@@ -2383,7 +2388,7 @@ present in the platform. Arm standard platform layer supports both
 and `3.0 (GICv3)`_. Juno builds the Arm platform layer to use GICv2 and the
 FVP can be configured to use either GICv2 or GICv3 depending on the build flag
 ``FVP_USE_GIC_DRIVER`` (See FVP platform specific build options in
-`User Guide`_ for more details).
+:ref:`User Guide` for more details).
 
 See also: `Interrupt Controller Abstraction APIs`__.
 
@@ -2405,10 +2410,10 @@ the platform IC uses to signal each type of interrupt supported by the framework
 from a given security state. This API must be invoked at EL3.
 
 The first parameter will be one of the ``INTR_TYPE_*`` values (see
-`IMF Design Guide`_) indicating the target type of the interrupt, the second parameter is the
-security state of the originating execution context. The return result is the
-bit position in the ``SCR_EL3`` register of the respective interrupt trap: IRQ=1,
-FIQ=2.
+:ref:`Interrupt Management Framework`) indicating the target type of the
+interrupt, the second parameter is the security state of the originating
+execution context. The return result is the bit position in the ``SCR_EL3``
+register of the respective interrupt trap: IRQ=1, FIQ=2.
 
 In the case of Arm standard platforms using GICv2, S-EL1 interrupts are
 configured as FIQs and Non-secure interrupts as IRQs from either security
@@ -2792,7 +2797,7 @@ storage access is only required by BL1 and BL2 phases and performed inside the
 It is mandatory to implement at least one storage driver. For the Arm
 development platforms the Firmware Image Package (FIP) driver is provided as
 the default means to load data from storage (see the "Firmware Image Package"
-section in the `User Guide`_). The storage layer is described in the header file
+section in the :ref:`User Guide`). The storage layer is described in the header file
 ``include/drivers/io/io_storage.h``. The implementation of the common library
 is in ``drivers/io/io_storage.c`` and the driver files are located in
 ``drivers/io/``.
@@ -2843,22 +2848,7 @@ amount of open resources per driver.
 
 *Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
 
-.. _include/plat/common/platform.h: ../include/plat/common/platform.h
-.. _include/plat/arm/common/plat_arm.h: ../include/plat/arm/common/plat_arm.h%5D
-.. _User Guide: user-guide.rst
-.. _include/plat/common/common_def.h: ../include/plat/common/common_def.h
-.. _include/plat/arm/common/arm_def.h: ../include/plat/arm/common/arm_def.h
-.. _plat/common/aarch64/platform_mp_stack.S: ../plat/common/aarch64/platform_mp_stack.S
-.. _plat/common/aarch64/platform_up_stack.S: ../plat/common/aarch64/platform_up_stack.S
-.. _For example, define the build flag in platform.mk: PLAT_PL061_MAX_GPIOS%20:=%20160
-.. _Power Domain Topology Design: ../design/psci-pd-tree.rst
-.. _include/common/bl_common.h: ../include/common/bl_common.h
-.. _include/lib/aarch32/arch.h: ../include/lib/aarch32/arch.h
-.. _Firmware Design: ../design/firmware-design.rst
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
-.. _plat/arm/board/fvp/fvp_pm.c: ../plat/arm/board/fvp/fvp_pm.c
-.. _Platform compatibility policy: ../process/platform-compatibility-policy.rst
-.. _IMF Design Guide: ../design/interrupt-framework-design.rst
 .. _Arm Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html
 .. _3.0 (GICv3): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0069b/index.html
 .. _FreeBSD: https://www.freebsd.org

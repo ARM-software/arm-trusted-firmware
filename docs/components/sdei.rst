@@ -7,7 +7,7 @@ Trusted Firmware-A (TF-A).
 Introduction
 ------------
 
-`Software Delegated Exception Interface`_ (SDEI) is an Arm specification for
+Software Delegated Exception Interface (|SDEI|) is an Arm specification for
 Non-secure world to register handlers with firmware to receive notifications
 about system events. Firmware will first receive the system events by way of
 asynchronous exceptions and, in response, arranges for the registered handler to
@@ -50,9 +50,6 @@ The remainder of this document only discusses the design and implementation of
 SDEI dispatcher in TF-A, and assumes that the reader is familiar with the SDEI
 specification, the interfaces, and their requirements.
 
-.. [#std-event] Except event 0, which is defined by the SDEI specification as a
-                standard event.
-
 Defining events
 ---------------
 
@@ -78,11 +75,9 @@ event descriptors. Both macros take 3 arguments:
 To define event 0, the macro ``SDEI_DEFINE_EVENT_0()`` should be used. This
 macro takes only one parameter: an SGI number to signal other PEs.
 
-To define an event that's meant to be `explicitly dispatched`__ (i.e., not as a
+To define an event that's meant to be explicitly dispatched (i.e., not as a
 result of receiving an SDEI interrupt), the macro ``SDEI_EXPLICIT_EVENT()``
 should be used. It accepts two parameters:
-
-.. __: `Explicit dispatch of events`_
 
 -  The event number (as above);
 
@@ -110,9 +105,7 @@ Regarding event descriptors:
 
 -  Statically bound shared and private interrupts must be bound to shared and
    private interrupts on the platform, respectively. See the section on
-   `interrupt configuration`__.
-
-   .. __: `Configuration within Exception Handling Framework`_
+   `Configuration within Exception Handling Framework`_.
 
 -  Both arrays should be one-dimensional. The ``REGISTER_SDEI_MAP()`` macro
    takes care of replicating private events for each PE on the platform.
@@ -130,9 +123,8 @@ Event flags
 ~~~~~~~~~~~
 
 Event flags describe the properties of the event. They are bit maps that can be
-``OR``\ ed to form parameters to macros that `define events`__.
-
-.. __: `Defining events`_
+``OR``\ ed to form parameters to macros that define events (see
+`Defining events`_).
 
 -  ``SDEI_MAPF_DYNAMIC``: Marks the event as dynamic. Dynamic events can be
    bound to (or released from) any Non-secure interrupt at runtime via the
@@ -196,7 +188,7 @@ interrupts for the platform:
    be configured as *Group 0*.  Additionally, on GICv2 systems, the build option
    ``GICV2_G0_FOR_EL3`` must be set to ``1``.
 
-See also `SDEI porting requirements`_.
+See also :ref:`porting_guide_sdei_requirements`.
 
 Determining client EL
 ---------------------
@@ -249,10 +241,6 @@ dispatch an event [10] (which the client had already registered for [1]). The
 rest of the sequence is similar to that in the `general SDEI dispatch`_: the
 requested event is dispatched to the client (assuming all the conditions are
 met), and when the handler completes, the preempted execution resumes.
-
-.. [#critical-event] Examples of critical event are *SError*, *Synchronous
-                     External Abort*, *Fault Handling interrupt*, or *Error
-                     Recovery interrupt* from one of RAS nodes in the system.
 
 Conditions for event dispatch
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -307,10 +295,8 @@ dispatcher:
 Porting requirements
 --------------------
 
-The porting requirements of the SDEI dispatcher are outlined in the `porting
-guide`__.
-
-.. __: `SDEI porting requirements`_
+The porting requirements of the SDEI dispatcher are outlined in the
+:ref:`Porting Guide <porting_guide_sdei_requirements>`.
 
 Note on writing SDEI event handlers
 -----------------------------------
@@ -364,10 +350,18 @@ implemented in assembly, following a similar pattern as below:
                 smc     #0
                 b       .
 
-----
+--------------
 
-*Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2019, Arm Limited and Contributors. All rights reserved.*
+
+.. rubric:: Footnotes
+
+.. [#std-event] Except event 0, which is defined by the SDEI specification as a
+                standard event.
+
+.. [#critical-event] Examples of critical events are *SError*, *Synchronous
+                     External Abort*, *Fault Handling interrupt* or *Error
+                     Recovery interrupt* from one of RAS nodes in the system.
 
 .. _SDEI specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
-.. _SDEI porting requirements: ../getting_started/porting-guide.rst#sdei-porting-requirements
 .. _Software Delegated Exception Interface: `SDEI specification`_

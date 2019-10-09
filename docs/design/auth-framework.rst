@@ -637,9 +637,9 @@ all CoTs must present:
 
 The TBBR specifies the additional certificates that must accompany these images
 for a proper authentication. Details about the TBBR CoT may be found in the
-`Trusted Board Boot`_ document.
+:ref:`Trusted Board Boot` document.
 
-Following the `Platform Porting Guide`_, a platform must provide unique
+Following the :ref:`Porting Guide`, a platform must provide unique
 identifiers for all the images and certificates that will be loaded during the
 boot process. If a platform is using the TBBR as a reference for trusted boot,
 these identifiers can be obtained from ``include/common/tbbr/tbbr_img_def.h``.
@@ -967,6 +967,4 @@ The mbedTLS library algorithm support is configured by both the
 
 *Copyright (c) 2017-2019, Arm Limited and Contributors. All rights reserved.*
 
-.. _Trusted Board Boot: ./trusted-board-boot.rst
-.. _Platform Porting Guide: ../getting_started/porting-guide.rst
 .. _TBBR-Client specification: https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a

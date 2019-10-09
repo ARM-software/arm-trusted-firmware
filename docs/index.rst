@@ -43,10 +43,9 @@ states.
 Users are encouraged to do their own security validation, including penetration
 testing, on any secure world code derived from TF-A.
 
-Arm will continue development in collaboration with interested parties to
-provide a full reference implementation of Secure Monitor code and Arm standards
-to the benefit of all developers working with Armv7-A and Armv8-A TrustZone
-technology.
+In collaboration with interested parties, we will continue to enhance |TF-A|
+with reference implementations of Arm standards to benefit developers working
+with Armv7-A and Armv8-A TrustZone technology.
 
 Functionality
 -------------
@@ -133,15 +132,16 @@ Functionality
    The use of pointer authentication in the normal world is enabled whenever
    architectural support is available, without the need for additional build
    flags. Use of pointer authentication in the secure world remains an
-   experimental configuration at this time and requires the ``ENABLE_PAUTH``
-   build flag to be set.
+   experimental configuration at this time and requires the
+   ``BRANCH_PROTECTION`` option to be set to non-zero.
 
 -  Position-Independent Executable (PIE) support. Initially for BL31 only, with
    further support to be added in a future release.
 
 For a full description of functionality and implementation details, please
-see the `Firmware Design`_ and supporting documentation. The `Change Log`_
-provides details of changes made since the last release.
+see :ref:`Firmware Design` and supporting documentation. The
+:ref:`Change Log & Release Notes` provides details of changes made since the
+last release.
 
 Platforms
 ---------
@@ -242,31 +242,32 @@ Still to come
 
 -  Ongoing security hardening, optimization and quality improvements.
 
-For a full list of detailed issues in the current code, please see the `Change
-Log`_ and the `issue tracker`_.
+For a full list of detailed issues in the current code, please see the
+:ref:`Change Log & Release Notes` and the `issue tracker`_.
 
 Getting started
 ---------------
 
-See the `User Guide`_ for instructions on how to download, install, build and
-use TF-A with the Arm `FVP`_\ s.
+See the :ref:`User Guide` for instructions on how to download, install, build
+and use TF-A with the Arm `FVP`_\ s.
 
-See the `Firmware Design`_ for information on how TF-A works.
+See the :ref:`Firmware Design` for information on how TF-A works.
 
-See the `Porting Guide`_ as well for information about how to use this
+See the :ref:`Porting Guide` as well for information about how to use this
 software on another Armv7-A or Armv8-A platform.
 
-See the `Contributing Guidelines`_ for information on how to contribute to this
-project and the `Acknowledgments`_ file for a list of contributors to the
-project.
+See the :ref:`Contributor's Guide` for information on how to contribute to this
+project and the :ref:`Contributor Acknowledgements` file for a list of
+contributors to the project.
 
-Contact us
+Contact Us
 ~~~~~~~~~~
 
 We welcome any feedback on TF-A. If you think you have found a security
 vulnerability, please report this using the process defined in the TF-A
-`Security Center`_. For all other feedback, you can use either the
-`issue tracker`_ or our `mailing list`_.
+:ref:`Security Handling` document.
+
+For all other feedback, please use the `issue tracker`_ or our `mailing list`_.
 
 Arm licensees may contact Arm directly via their partner managers.
 
@@ -294,11 +295,3 @@ Arm licensees may contact Arm directly via their partner managers.
 .. _trustedfirmware.org: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
 .. _issue tracker: https://issues.trustedfirmware.org
 .. _mailing list: https://lists.trustedfirmware.org/mailman/listinfo/tf-a
-.. _Security Center: ./process/security.rst
-.. _license: ./license.rst
-.. _Contributing Guidelines: ./process/contributing.rst
-.. _Acknowledgments: ./acknowledgements.rst
-.. _Firmware Design: ./design/firmware-design.rst
-.. _Change Log: ./change-log.rst
-.. _User Guide: ./getting_started/user-guide.rst
-.. _Porting Guide: ./getting_started/porting-guide.rst

@@ -177,10 +177,10 @@ uses this information to determine whether the IRQ or the FIQ bit should be
 programmed in ``SCR_EL3`` while applying the routing model for a type of
 interrupt. The platform provides this information through the
 ``plat_interrupt_type_to_line()`` API (described in the
-`Porting Guide`_). For example, on the FVP port when the platform uses an Arm GICv2
-interrupt controller, Secure-EL1 interrupts are signaled through the FIQ signal
-while Non-secure interrupts are signaled through the IRQ signal. This applies
-when execution is in either security state.
+:ref:`Porting Guide`). For example, on the FVP port when the platform uses an
+Arm GICv2 interrupt controller, Secure-EL1 interrupts are signaled through the
+FIQ signal while Non-secure interrupts are signaled through the IRQ signal.
+This applies when execution is in either security state.
 
 Effect of mapping of several interrupt types to one signal
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -255,7 +255,7 @@ is expected to be aware of the secure devices present in the system and their
 associated interrupt numbers. It should configure the interrupt controller to
 enable the secure interrupts, ensure that their priority is always higher than
 the non-secure interrupts and target them to the primary CPU. It should also
-export the interface described in the `Porting Guide`_ to enable
+export the interface described in the :ref:`Porting Guide` to enable
 handling of interrupts.
 
 In the remainder of this document, for the sake of simplicity a Arm GICv2 system
@@ -1013,7 +1013,6 @@ TSP by returning ``SMC_UNK`` error.
 
 *Copyright (c) 2014-2019, Arm Limited and Contributors. All rights reserved.*
 
-.. _Porting Guide: ../getting_started/porting-guide.rst
 .. _SMC calling convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
 
 .. |Image 1| image:: ../resources/diagrams/sec-int-handling.png

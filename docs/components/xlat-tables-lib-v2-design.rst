@@ -30,8 +30,8 @@ About version 1 and version 2
 -----------------------------
 
 This document focuses on version 2 of the library, whose sources are available
-in the `lib/xlat_tables_v2`_ directory. Version 1 of the library can still be
-found in `lib/xlat_tables`_ directory but it is less flexible and doesn't
+in the ``lib/xlat_tables_v2`` directory. Version 1 of the library can still be
+found in ``lib/xlat_tables`` directory but it is less flexible and doesn't
 support dynamic mapping. Although potential bug fixes will be applied to both
 versions, future features enhancements will focus on version 2 and might not be
 back-ported to version 1. Therefore, it is recommended to use version 2,
@@ -62,7 +62,7 @@ map. It is one of the key interfaces to the library. It is identified by:
 - its attributes;
 - its mapping granularity (optional).
 
-See the ``struct mmap_region`` type in `xlat_tables_v2.h`_.
+See the ``struct mmap_region`` type in ``xlat_tables_v2.h``.
 
 The user usually provides a list of such mmap regions to map and lets the
 library transpose that in a set of translation tables. As a result, the library
@@ -73,7 +73,7 @@ normal memory) as well as the memory access permissions (read-only or
 read-write, executable or not, secure or non-secure, and so on). In the case of
 the EL1&0 translation regime, the attributes also specify whether the region is
 a User region (EL0) or Privileged region (EL1). See the ``MT_xxx`` definitions
-in `xlat_tables_v2.h`_. Note that for the EL1&0 translation regime the Execute
+in ``xlat_tables_v2.h``. Note that for the EL1&0 translation regime the Execute
 Never attribute is set simultaneously for both EL1 and EL0.
 
 The granularity controls the translation table level to go down to when mapping
@@ -162,7 +162,7 @@ coming (for the most part) from platform-specific defines:
 - size of the virtual address space: ``PLAT_VIRT_ADDR_SPACE_SIZE``;
 - size of the physical address space: ``PLAT_PHY_ADDR_SPACE_SIZE``.
 
-Please refer to the `Porting Guide`_ for more details about these macros.
+Please refer to the :ref:`Porting Guide` for more details about these macros.
 
 
 Static and dynamic memory regions
@@ -201,7 +201,7 @@ Library APIs
 ------------
 
 The external APIs exposed by this library are declared and documented in the
-`xlat_tables_v2.h`_ header file. This should be the reference point for
+``xlat_tables_v2.h`` header file. This should be the reference point for
 getting information about the usage of the different APIs this library
 provides. This section just provides some extra details and clarifications.
 
@@ -284,7 +284,7 @@ The library is divided into 4 modules:
   provides functions such as ``mmap_add_region_ctx`` that let the caller specify
   the translation tables context affected by them.
 
-  See `xlat_tables_core.c`_.
+  See ``xlat_tables_core.c``.
 
 - **Active context module**
 
@@ -293,14 +293,14 @@ The library is divided into 4 modules:
   This module provides functions such as ``mmap_add_region``, that directly
   affect the BL image using them.
 
-  See `xlat_tables_context.c`_.
+  See ``xlat_tables_context.c``.
 
 - **Utilities module**
 
   Provides additional functionality like debug print of the current state of the
   translation tables and helpers to query memory attributes and to modify them.
 
-  See `xlat_tables_utils.c`_.
+  See ``xlat_tables_utils.c``.
 
 - **Architectural module**
 
@@ -309,7 +309,7 @@ The library is divided into 4 modules:
   MMU, or calculate the Physical Address Space size. They do not need a
   translation context to work on.
 
-  See `aarch32/xlat_tables_arch.c`_ and `aarch64/xlat_tables_arch.c`_.
+  See ``aarch32/xlat_tables_arch.c`` and ``aarch64/xlat_tables_arch.c``.
 
 From mmap regions to translation tables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -343,7 +343,7 @@ The mapping function is implemented as a recursive algorithm. It is however
 bound by the level of depth of the translation tables (the Armv8-A architecture
 allows up to 4 lookup levels).
 
-By default [#granularity-ref]_, the algorithm will attempt to minimize the
+By default [#granularity]_, the algorithm will attempt to minimize the
 number of translation tables created to satisfy the user's request. It will
 favour mapping a region using the biggest possible blocks, only creating a
 sub-table if it is strictly necessary. This is to reduce the memory footprint of
@@ -374,9 +374,6 @@ entries in the translation tables are checked to ensure consistency. Please
 refer to the comments in the source code of the core module for more details
 about the sorting algorithm in use.
 
-.. [#granularity-ref] That is, when mmap regions do not enforce their mapping
-                      granularity.
-
 TLB maintenance operations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -402,20 +399,19 @@ descriptor. Given that the TLBs are not architecturally permitted to hold any
 invalid translation table entry [#tlb-no-invalid-entry]_, this means that this
 mapping cannot be cached in the TLBs.
 
-.. [#tlb-reset-ref] See section D4.9 `Translation Lookaside Buffers (TLBs)`, subsection `TLB behavior at reset` in Armv8-A, rev C.a.
-.. [#tlb-no-invalid-entry] See section D4.10.1 `General TLB maintenance requirements` in Armv8-A, rev C.a.
+.. rubric:: Footnotes
+
+.. [#granularity] That is, when mmap regions do not enforce their mapping
+                  granularity.
+
+.. [#tlb-reset-ref] See section D4.9 ``Translation Lookaside Buffers (TLBs)``,
+                    subsection ``TLB behavior at reset`` in Armv8-A, rev C.a.
+
+.. [#tlb-no-invalid-entry] See section D4.10.1 ``General TLB maintenance
+                           requirements`` in Armv8-A, rev C.a.
 
 --------------
 
-*Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2019, Arm Limited and Contributors. All rights reserved.*
 
-.. _lib/xlat_tables_v2: ../../lib/xlat_tables_v2
-.. _lib/xlat_tables: ../../lib/xlat_tables
-.. _xlat_tables_v2.h: ../../include/lib/xlat_tables/xlat_tables_v2.h
-.. _xlat_tables_context.c: ../../lib/xlat_tables_v2/xlat_tables_context.c
-.. _xlat_tables_core.c: ../../lib/xlat_tables_v2/xlat_tables_core.c
-.. _xlat_tables_utils.c: ../../lib/xlat_tables_v2/xlat_tables_utils.c
-.. _aarch32/xlat_tables_arch.c: ../../lib/xlat_tables_v2/aarch32/xlat_tables_arch.c
-.. _aarch64/xlat_tables_arch.c: ../../lib/xlat_tables_v2/aarch64/xlat_tables_arch.c
-.. _Porting Guide: ../getting_started/porting-guide.rst
 .. |Alignment Example| image:: ../resources/diagrams/xlat_align.png

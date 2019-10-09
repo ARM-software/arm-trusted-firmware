@@ -24,9 +24,9 @@ file.
 Performance Measurement Framework (PMF)
 ---------------------------------------
 
-The `Performance Measurement Framework`_
+The :ref:`Performance Measurement Framework <firmware_design_pmf>`
 allows callers to retrieve timestamps captured at various paths in TF-A
-execution. It's described in detail in `Firmware Design document`_.
+execution.
 
 Execution State Switching service
 ---------------------------------
@@ -89,8 +89,6 @@ respectively.
 
 --------------
 
-*Copyright (c) 2017-2018, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2019, Arm Limited and Contributors. All rights reserved.*
 
 .. _SMC Calling Convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
-.. _Performance Measurement Framework: ../design/firmware-design.rst#user-content-performance-measurement-framework
-.. _Firmware Design document: ../design/firmware-design.rst

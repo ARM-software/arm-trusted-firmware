@@ -22,7 +22,7 @@ the different software components required to boot a Linux system:
 This document also assumes that the user is familiar with the `FVP models`_ and
 the different command line options available to launch the model.
 
-This document should be used in conjunction with the `Firmware Design`_.
+This document should be used in conjunction with the :ref:`Firmware Design`.
 
 Host machine requirements
 -------------------------
@@ -86,8 +86,8 @@ Trusted Firmware follows the `Linux Coding Style`_ . When making changes to the
 source, for submission to the project, the source must be in compliance with
 this style guide.
 
-Additional, project-specific guidelines are defined in the `Trusted Firmware-A
-Coding Guidelines`_ document.
+Additional, project-specific guidelines are defined in the
+:ref:`Coding Style & Guidelines` document.
 
 To assist with coding style compliance, the project Makefile contains two
 targets which both utilise the `checkpatch.pl` script that ships with the Linux
@@ -196,7 +196,7 @@ Building TF-A
       an AArch32 EL3 Runtime Software. Some AArch32 EL3 Runtime Software may
       include other runtime services, for example Trusted OS services. A guide
       to integrate PSCI library with AArch32 EL3 Runtime Software can be found
-      `here`_.
+      at :ref:`PSCI Library Integration guide for Armv8-A AArch32 systems`.
 
    -  (AArch64 only) The TSP (Test Secure Payload), corresponding to the BL32
       image, is not compiled in by default. Refer to the
@@ -262,11 +262,11 @@ Common build options
 -  ``ARM_ARCH_MAJOR``: The major version of Arm Architecture to target when
    compiling TF-A. Its value must be numeric, and defaults to 8 . See also,
    *Armv8 Architecture Extensions* and *Armv7 Architecture Extensions* in
-   `Firmware Design`_.
+   :ref:`Firmware Design`.
 
 -  ``ARM_ARCH_MINOR``: The minor version of Arm Architecture to target when
    compiling TF-A. Its value must be a numeric, and defaults to 0. See also,
-   *Armv8 Architecture Extensions* in `Firmware Design`_.
+   *Armv8 Architecture Extensions* in :ref:`Firmware Design`.
 
 -  ``BL2``: This is an optional build option which specifies the path to BL2
    image for the ``fip`` target. In this case, the BL2 in the TF-A will not be
@@ -479,7 +479,7 @@ Common build options
    is AArch32.
 
 -  ``ENABLE_SPM`` : Boolean option to enable the Secure Partition Manager (SPM).
-   Refer to the `Secure Partition Manager Design guide`_ for more details about
+   Refer to :ref:`Secure Partition Manager` for more details about
    this feature. Default is 0.
 
 -  ``ENABLE_SVE_FOR_NS``: Boolean option to enable Scalable Vector Extension
@@ -527,7 +527,7 @@ Common build options
 
 -  ``GENERATE_COT``: Boolean flag used to build and execute the ``cert_create``
    tool to create certificates as per the Chain of Trust described in
-   `Trusted Board Boot`_. The build system then calls ``fiptool`` to
+   :ref:`Trusted Board Boot`. The build system then calls ``fiptool`` to
    include the certificates in the FIP and FWU_FIP. Default value is '0'.
 
    Specify both ``TRUSTED_BOARD_BOOT=1`` and ``GENERATE_COT=1`` to include support
@@ -745,8 +745,8 @@ Common build options
 -  ``SEPARATE_CODE_AND_RODATA``: Whether code and read-only data should be
    isolated on separate memory pages. This is a trade-off between security and
    memory usage. See "Isolating code and read-only data on separate memory
-   pages" section in `Firmware Design`_. This flag is disabled by default and
-   affects all BL images.
+   pages" section in :ref:`Firmware Design`. This flag is disabled by default
+   and affects all BL images.
 
 -  ``SPD``: Choose a Secure Payload Dispatcher component to be built into TF-A.
    This build option is only valid if ``ARCH=aarch64``. The value should be
@@ -784,7 +784,7 @@ Common build options
 
 -  ``TSP_INIT_ASYNC``: Choose BL32 initialization method as asynchronous or
    synchronous, (see "Initializing a BL32 Image" section in
-   `Firmware Design`_). It can take the value 0 (BL32 is initialized using
+   :ref:`Firmware Design`). It can take the value 0 (BL32 is initialized using
    synchronous method) or 1 (BL32 is initialized using asynchronous method).
    Default is 0.
 
@@ -808,14 +808,14 @@ Common build options
 
 -  ``USE_COHERENT_MEM``: This flag determines whether to include the coherent
    memory region in the BL memory map or not (see "Use of Coherent memory in
-   TF-A" section in `Firmware Design`_). It can take the value 1
+   TF-A" section in :ref:`Firmware Design`). It can take the value 1
    (Coherent memory region is included) or 0 (Coherent memory region is
    excluded). Default is 1.
 
 -  ``USE_ROMLIB``: This flag determines whether library at ROM will be used.
    This feature creates a library of functions to be placed in ROM and thus
-   reduces SRAM usage. Refer to `Library at ROM`_ for further details. Default
-   is 0.
+   reduces SRAM usage. Refer to :ref:`Library at ROM` for further details.
+   Default is 0.
 
 -  ``USE_SPINLOCK_CAS``: Setting this build flag to 1 selects the spinlock
     implementation variant using the ARMv8.1-LSE compare-and-swap instruction.
@@ -924,7 +924,7 @@ Arm development platform specific build options
    SBROM library must be specified via ``CCSBROM_LIB_PATH`` flag.
 
 For a better understanding of these options, the Arm development platform memory
-map is explained in the `Firmware Design`_.
+map is explained in the :ref:`Firmware Design`.
 
 Arm CSS platform specific build options
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -978,14 +978,14 @@ Arm FVP platform specific build options
    The default value is 0.
 
 -  ``FVP_HW_CONFIG_DTS`` : Specify the path to the DTS file to be compiled
-   to DTB and packaged in FIP as the HW_CONFIG. See `Firmware Design`_ for
+   to DTB and packaged in FIP as the HW_CONFIG. See :ref:`Firmware Design` for
    details on HW_CONFIG. By default, this is initialized to a sensible DTS
    file in ``fdts/`` folder depending on other build options. But some cases,
    like shifted affinity format for MPIDR, cannot be detected at build time
    and this option is needed to specify the appropriate DTS file.
 
 -  ``FVP_HW_CONFIG`` : Specify the path to the HW_CONFIG blob to be packaged in
-   FIP. See `Firmware Design`_ for details on HW_CONFIG. This option is
+   FIP. See :ref:`Firmware Design` for details on HW_CONFIG. This option is
    similar to the ``FVP_HW_CONFIG_DTS`` option, but it directly specifies the
    HW_CONFIG blob instead of the DTS file. This option is useful to override
    the default HW_CONFIG selected by the build system.
@@ -1017,7 +1017,7 @@ optimizations by using ``-O0``.
 .. warning::
    Using ``-O0`` could cause output images to be larger and base addresses
    might need to be recalculated (see the **Memory layout on Arm development
-   platforms** section in the `Firmware Design`_).
+   platforms** section in the :ref:`Firmware Design`).
 
 Extra debug options can be passed to the build system by setting ``CFLAGS`` or
 ``LDFLAGS``:
@@ -1058,7 +1058,8 @@ Building the Test Secure Payload
 The TSP is coupled with a companion runtime service in the BL31 firmware,
 called the TSPD. Therefore, if you intend to use the TSP, the BL31 image
 must be recompiled as well. For more information on SPs and SPDs, see the
-`Secure-EL1 Payloads and Dispatchers`_ section in the `Firmware Design`_.
+:ref:`Secure-EL1 Payloads and Dispatchers <firmware_design_sel1_spd>` section
+in the :ref:`Firmware Design` document.
 
 First clean the TF-A build directory to get rid of any previous BL31 binary.
 Then to build the TSP image use:
@@ -1176,15 +1177,15 @@ remove operations will automatically overwrite it.
 The unpack operation will fail if the images already exist at the
 destination. In that case, use -f or --force to continue.
 
-More information about FIP can be found in the `Firmware Design`_ document.
+More information about FIP can be found in the :ref:`Firmware Design` document.
 
 Building FIP images with support for Trusted Board Boot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Trusted Board Boot primarily consists of the following two features:
 
--  Image Authentication, described in `Trusted Board Boot`_, and
--  Firmware Update, described in `Firmware Update`_
+-  Image Authentication, described in :ref:`Trusted Board Boot`, and
+-  Firmware Update, described in :ref:`Firmware Update (FWU)`
 
 The following steps should be followed to build FIP and (optionally) FWU_FIP
 images with support for these features:
@@ -1250,9 +1251,9 @@ images with support for these features:
    in the output build directory.
 
 #. The optional FWU_FIP contains any additional images to be loaded from
-   Non-Volatile storage during the `Firmware Update`_ process. To build the
-   FWU_FIP, any FWU images required by the platform must be specified on the
-   command line. On Arm development platforms like Juno, these are:
+   Non-Volatile storage during the :ref:`Firmware Update (FWU)` process. To
+   build the FWU_FIP, any FWU images required by the platform must be specified
+   on the command line. On Arm development platforms like Juno, these are:
 
    -  NS_BL2U. The AP non-secure Firmware Updater image.
    -  SCP_BL2U. The SCP Firmware Update Configuration image.
@@ -1731,6 +1732,8 @@ The Trusted Firmware must be compiled in a similar way as for FVP explained
 above. The process to load binaries to memory is the one explained in
 `Booting an EL3 payload on Juno`_.
 
+.. _user_guide_run_fvp:
+
 Running the software on FVP
 ---------------------------
 
@@ -1903,7 +1906,7 @@ Notes:
 -  BL1 is loaded at the start of the Trusted ROM.
 -  The Firmware Image Package is loaded at the start of NOR FLASH0.
 -  The firmware loads the FDT packaged in FIP to the DRAM. The FDT load address
-   is specified via the ``hw_config_addr`` property in `TB_FW_CONFIG for FVP`_.
+   is specified via the ``hw_config_addr`` property in ``TB_FW_CONFIG`` for FVP.
 -  The default use-case for the Foundation FVP is to use the ``--gicv3`` option
    and enable the GICv3 device in the model. Note that without this option,
    the Foundation FVP defaults to legacy (Versatile Express) memory map which
@@ -2204,18 +2207,9 @@ wakeup interrupt from RTC.
 .. _`Linux Coding Style`: https://www.kernel.org/doc/html/latest/process/coding-style.html
 .. _Linux master tree: https://github.com/torvalds/linux/tree/master/
 .. _Dia: https://wiki.gnome.org/Apps/Dia/Download
-.. _here: psci-lib-integration-guide.rst
-.. _Trusted Board Boot: ../design/trusted-board-boot.rst
-.. _TB_FW_CONFIG for FVP: ../../plat/arm/board/fvp/fdts/fvp_tb_fw_config.dts
-.. _Secure-EL1 Payloads and Dispatchers: ../design/firmware-design.rst#user-content-secure-el1-payloads-and-dispatchers
-.. _Firmware Update: ../components/firmware-update.rst
-.. _Firmware Design: ../design/firmware-design.rst
 .. _mbed TLS Repository: https://github.com/ARMmbed/mbedtls.git
 .. _mbed TLS Security Center: https://tls.mbed.org/security
 .. _Arm's website: `FVP models`_
 .. _FVP models: https://developer.arm.com/products/system-design/fixed-virtual-platforms
 .. _Juno Getting Started Guide: http://infocenter.arm.com/help/topic/com.arm.doc.dui0928e/DUI0928E_juno_arm_development_platform_gsg.pdf
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022d/Power_State_Coordination_Interface_PDD_v1_1_DEN0022D.pdf
-.. _Secure Partition Manager Design guide: ../components/secure-partition-manager-design.rst
-.. _`Trusted Firmware-A Coding Guidelines`: ../process/coding-guidelines.rst
-.. _Library at ROM: ../components/romlib-design.rst

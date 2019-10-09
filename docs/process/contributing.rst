@@ -13,8 +13,8 @@ Getting Started
       raise a separate `issue`_ for this and ensure that the changes that
       include Third Party IP are made on a separate topic branch.
 
--  Clone `Trusted Firmware-A`_ on your own machine as suggested on the
-   `User Guide`_.
+-  Clone `Trusted Firmware-A`_ on your own machine as suggested in the
+   :ref:`User Guide`.
 -  Create a local topic branch based on the `Trusted Firmware-A`_ ``master``
    branch.
 
@@ -23,11 +23,11 @@ Making Changes
 
 -  Make commits of logical units. See these general `Git guidelines`_ for
    contributing to a project.
--  Follow the `Coding Guidelines`_.
+-  Follow the :ref:`Coding Style & Guidelines`.
 
    -  Use the checkpatch.pl script provided with the Linux source tree. A
       Makefile target is provided for convenience (see the "Checking source code
-      style" section in the `User Guide`_).
+      style" section in the :ref:`User Guide`).
 
 -  Keep the commits on topic. If you need to fix another bug or make another
    enhancement, please create a separate `issue`_ and address it on a separate
@@ -38,12 +38,12 @@ Making Changes
    an `issue`_, include a reference.
 -  Where appropriate, please update the documentation.
 
-   -  Consider whether the `User Guide`_, `Porting Guide`_, `Firmware Design`_
-      or other in-source documentation needs updating.
+   -  Consider whether the :ref:`User Guide`, :ref:`Porting Guide`,
+      :ref:`Firmware Design` or other in-source documentation needs updating.
    -  Ensure that each changed file has the correct copyright and license
       information. Files that entirely consist of contributions to this
       project should have a copyright notice and BSD-3-Clause SPDX license
-      identifier of the form as shown in `license.rst`_. Files that contain
+      identifier of the form as shown in :ref:`license`. Files that contain
       changes to imported Third Party IP files should retain their original
       copyright and license notices. For significant contributions you may
       add your own copyright notice in following format:
@@ -57,13 +57,13 @@ Making Changes
       your company name.
    -  If you are submitting new files that you intend to be the technical
       sub-maintainer for (for example, a new platform port), then also update
-      the `Maintainers`_ file.
+      the :ref:`maintainers` file.
    -  For topics with multiple commits, you should make all documentation
       changes (and nothing else) in the last commit of the series. Otherwise,
       include the documentation changes within the single commit.
 
 -  Please test your changes. As a minimum, ensure that Linux boots on the
-   Foundation FVP. See `Running the software on FVP`_ for more information. For
+   Foundation FVP. See :ref:`user_guide_run_fvp` for more information. For
    more extensive testing, consider running the `TF-A Tests`_ against your
    patches.
 
@@ -75,13 +75,14 @@ Submitting Changes
    ``Signed-off-by:`` and ``Author:`` lines must match. If anyone else
    contributes to the commit, they must also add their own ``Signed-off-by:``
    line. By adding this line the contributor certifies the contribution is made
-   under the terms of the `Developer Certificate of Origin (DCO)`_.
+   under the terms of the
+   :download:`Developer Certificate of Origin <../../dco.txt>`.
 
    More details may be found in the `Gerrit Signed-off-by Lines guidelines`_.
 
 -  Ensure that each commit also has a unique ``Change-Id:`` line. If you have
    cloned the repository with the "`Clone with commit-msg hook`" clone method
-   (as advised on the `User Guide`_), this should already be the case.
+   (as advised on the :ref:`User Guide`), this should already be the case.
 
    More details may be found in the `Gerrit Change-Ids documentation`_.
 
@@ -89,22 +90,22 @@ Submitting Changes
    targeting the ``integration`` branch.
 
    -  The changes will then undergo further review and testing by the
-      `Maintainers`_. Any review comments will be made directly on your patch.
-      This may require you to do some rework.
+      :ref:`maintainers`. Any review comments will be made directly on your
+      patch. This may require you to do some rework.
 
    Refer to the `Gerrit Uploading Changes documentation`_ for more details.
 
--  When the changes are accepted, the `Maintainers`_ will integrate them.
+-  When the changes are accepted, the :ref:`maintainers` will integrate them.
 
-   -  Typically, the `Maintainers`_ will merge the changes into the
+   -  Typically, the :ref:`maintainers` will merge the changes into the
       ``integration`` branch.
    -  If the changes are not based on a sufficiently-recent commit, or if they
-      cannot be automatically rebased, then the `Maintainers`_ may rebase it on
-      the ``master`` branch or ask you to do so.
+      cannot be automatically rebased, then the :ref:`maintainers` may rebase it
+      on the ``master`` branch or ask you to do so.
    -  After final integration testing, the changes will make their way into the
       ``master`` branch. If a problem is found during integration, the merge
       commit will be removed from the ``integration`` branch and the
-      `Maintainers`_ will ask you to create a new patch set to resolve the
+      :ref:`maintainers` will ask you to create a new patch set to resolve the
       problem.
 
 Binary Components
@@ -132,15 +133,6 @@ Binary Components
 .. _issue: https://developer.trustedfirmware.org/project/board/1/
 .. _Trusted Firmware-A: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
 .. _Git guidelines: http://git-scm.com/book/ch5-2.html
-.. _Coding Guidelines: ./coding-guidelines.rst
-.. _User Guide: ../getting_started/user-guide.rst
-.. _Porting Guide: ../getting_started/porting-guide.rst
-.. _Firmware Design: ../design/firmware-design.rst
-.. _license.rst: ../license.rst
-.. _Acknowledgements: ../acknowledgements.rst
-.. _Maintainers: ../maintainers.rst
-.. _Running the software on FVP: ../getting_started/user-guide.rst#user-content-running-the-software-on-fvp
-.. _Developer Certificate of Origin (DCO): ../../dco.txt
 .. _Gerrit Uploading Changes documentation: https://review.trustedfirmware.org/Documentation/user-upload.html
 .. _Gerrit Signed-off-by Lines guidelines: https://review.trustedfirmware.org/Documentation/user-signedoffby.html
 .. _Gerrit Change-Ids documentation: https://review.trustedfirmware.org/Documentation/user-changeid.html

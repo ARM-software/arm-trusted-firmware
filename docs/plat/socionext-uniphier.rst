@@ -8,10 +8,11 @@ UniPhier SoC family implements its internal boot ROM, which loads 64KB [1]_
 image from a non-volatile storage to the on-chip SRAM, and jumps over to it.
 TF-A provides a special mode, BL2-AT-EL3, which enables BL2 to execute at EL3.
 It is useful for platforms with non-TF-A boot ROM, like UniPhier. Here, a
-problem is BL2 does not fit in the 64KB limit if `Trusted Board Boot`_ (TBB)
-is enabled. To solve this issue, Socionext provides a first stage loader
-called `UniPhier BL`_. This loader runs in the on-chip SRAM, initializes the
-DRAM, expands BL2 there, and hands the control over to it. Therefore, all images
+problem is BL2 does not fit in the 64KB limit if
+:ref:`Trusted Board Boot (TBB) <Trusted Board Boot>` is enabled.
+To solve this issue, Socionext provides a first stage loader called
+`UniPhier BL`_. This loader runs in the on-chip SRAM, initializes the DRAM,
+expands BL2 there, and hands the control over to it. Therefore, all images
 of TF-A run in DRAM.
 
 The UniPhier platform works with/without TBB. See below for the build process
@@ -50,7 +51,7 @@ Boot Flow
 
 4. BL31, BL32, and BL33
 
-   They all run in the DRAM. See `Firmware Design`_ for details.
+   They all run in the DRAM. See :ref:`Firmware Design` for details.
 
 
 Basic Build
@@ -79,7 +80,7 @@ Optional features
 - Trusted Board Boot
 
   `mbed TLS`_ is needed as the cryptographic and image parser modules.
-  Refer to the `User Guide`_ for the appropriate version of mbed TLS.
+  Refer to the :ref:`User Guide` for the appropriate version of mbed TLS.
 
   To enable TBB, add the following options to the build command::
 
@@ -109,9 +110,6 @@ Optional features
 
 .. [1] Some SoCs can load 80KB, but the software implementation must be aligned
    to the lowest common denominator.
-.. _Trusted Board Boot: ../trusted-board-boot.rst
 .. _UniPhier BL: https://github.com/uniphier/uniphier-bl
-.. _Firmware Design: ../firmware-design.rst
 .. _U-Boot: https://www.denx.de/wiki/U-Boot
 .. _mbed TLS: https://tls.mbed.org/
-.. _User Guide: ../user-guide.rst

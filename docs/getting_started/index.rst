@@ -7,6 +7,7 @@ Getting Started
    :numbered:
 
    user-guide
+   docs-build
    image-terminology
    porting-guide
    psci-lib-integration-guide
