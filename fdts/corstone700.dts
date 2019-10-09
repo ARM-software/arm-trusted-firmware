@@ -14,9 +14,10 @@
 	#size-cells = <1>;
 
 	chosen {
-		bootargs = "console=ttyAMA0 root=/dev/vda2 rw loglevel=9";
-		linux,initrd-start = <0x02a00000>;
-		linux,initrd-end = <0x04000000>;
+		bootargs = "console=ttyAMA0 \
+		root=mtd:physmap-flash.0 \
+		ro \
+		loglevel=9";
 	};
 
 	cpus {
@@ -32,9 +33,9 @@
 
 	};
 
-	memory@2000000 {
+	memory@80000000 {
 		device_type = "memory";
-		reg = <0x02000000 0x02000000>;
+		reg = <0x80000000 0x80000000>;
 	};
 
 	gic: interrupt-controller@1c000000 {
