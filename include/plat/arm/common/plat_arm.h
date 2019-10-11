@@ -254,6 +254,11 @@ void plat_arm_program_trusted_mailbox(uintptr_t address);
 int plat_arm_bl1_fwu_needed(void);
 __dead2 void plat_arm_error_handler(int err);
 
+/*
+ * Optional function in ARM standard platforms
+ */
+void plat_arm_override_gicr_frames(const uintptr_t *plat_gicr_frames);
+
 #if ARM_PLAT_MT
 unsigned int plat_arm_get_cpu_pe_count(u_register_t mpidr);
 #endif

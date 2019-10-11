@@ -28,6 +28,15 @@
 /* The GICv3 driver only needs to be initialized in EL3 */
 static uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 
+/* Default GICR base address to be used for GICR probe. */
+static const uintptr_t gicr_base_addrs[2] = {
+	PLAT_ARM_GICR_BASE,	/* GICR Base address of the primary CPU */
+	0U			/* Zero Termination */
+};
+
+/* List of zero terminated GICR frame addresses which CPUs will probe */
+static const uintptr_t *gicr_frames = gicr_base_addrs;
+
 static const interrupt_prop_t arm_interrupt_props[] = {
 	PLAT_ARM_G1S_IRQ_PROPS(INTR_GROUP1S),
 	PLAT_ARM_G0_IRQ_PROPS(INTR_GROUP0)
@@ -76,6 +85,18 @@ static const gicv3_driver_data_t arm_gic_data __unused = {
 	.mpidr_to_core_pos = arm_gicv3_mpidr_hash
 };
 
+/*
+ * By default, gicr_frames will be pointing to gicr_base_addrs. If
+ * the platform supports a non-contiguous GICR frames (GICR frames located
+ * at uneven offset), plat_arm_override_gicr_frames function can be used by
+ * such platform to override the gicr_frames.
+ */
+void plat_arm_override_gicr_frames(const uintptr_t *plat_gicr_frames)
+{
+	assert(plat_gicr_frames != NULL);
+	gicr_frames = plat_gicr_frames;
+}
+
 void __init plat_arm_gic_driver_init(void)
 {
 	/*
@@ -88,7 +109,7 @@ void __init plat_arm_gic_driver_init(void)
 	(defined(__aarch64__) && defined(IMAGE_BL31))
 	gicv3_driver_init(&arm_gic_data);
 
-	if (gicv3_rdistif_probe(PLAT_ARM_GICR_BASE) == -1) {
+	if (gicv3_rdistif_probe(gicr_base_addrs[0]) == -1) {
 		ERROR("No GICR base frame found for Primary CPU\n");
 		panic();
 	}
@@ -124,14 +145,23 @@ void plat_arm_gic_cpuif_disable(void)
 /******************************************************************************
  * ARM common helper function to iterate over all GICR frames and discover the
  * corresponding per-cpu redistributor frame as well as initialize the
- * corresponding interface in GICv3. At the moment, Arm platforms do not have
- * non-contiguous GICR frames.
+ * corresponding interface in GICv3.
  *****************************************************************************/
 void plat_arm_gic_pcpu_init(void)
 {
 	int result;
+	const uintptr_t *plat_gicr_frames = gicr_frames;
 
-	result = gicv3_rdistif_probe(PLAT_ARM_GICR_BASE);
+	do {
+		result = gicv3_rdistif_probe(*plat_gicr_frames);
+
+		/* If the probe is successful, no need to proceed further */
+		if (result == 0)
+			break;
+
+		plat_gicr_frames++;
+	} while (*plat_gicr_frames != 0U);
+
 	if (result == -1) {
 		ERROR("No GICR base frame found for CPU 0x%lx\n", read_mpidr());
 		panic();
