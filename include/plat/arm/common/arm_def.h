@@ -223,6 +223,14 @@
 						ARM_EL3_TZC_DRAM1_SIZE,	\
 						MT_MEMORY | MT_RW | MT_SECURE)
 
+#if defined(SPD_spmd)
+#define ARM_MAP_TRUSTED_DRAM		MAP_REGION_FLAT(		    \
+						PLAT_ARM_TRUSTED_DRAM_BASE, \
+						PLAT_ARM_TRUSTED_DRAM_SIZE, \
+						MT_MEMORY | MT_RW | MT_SECURE)
+#endif
+
+
 /*
  * Mapping for the BL1 RW region. This mapping is needed by BL2 in order to
  * share the Mbed TLS heap. Since the heap is allocated inside BL1, it resides
@@ -471,6 +479,12 @@
 #  define BL32_BASE			(ARM_AP_TZC_DRAM1_BASE + ULL(0x200000))
 #  define BL32_LIMIT			(ARM_AP_TZC_DRAM1_BASE +	\
 						ARM_AP_TZC_DRAM1_SIZE)
+# elif defined(SPD_spmd)
+#  define TSP_SEC_MEM_BASE		(ARM_AP_TZC_DRAM1_BASE + ULL(0x200000))
+#  define TSP_SEC_MEM_SIZE		(ARM_AP_TZC_DRAM1_SIZE - ULL(0x200000))
+#  define BL32_BASE			PLAT_ARM_TRUSTED_DRAM_BASE
+#  define BL32_LIMIT			(PLAT_ARM_TRUSTED_DRAM_BASE	\
+						+ (UL(1) << 21))
 # elif ARM_BL31_IN_DRAM
 #  define TSP_SEC_MEM_BASE		(ARM_AP_TZC_DRAM1_BASE +	\
 						PLAT_ARM_MAX_BL31_SIZE)
@@ -505,12 +519,12 @@
 
 /*
  * BL32 is mandatory in AArch32. In AArch64, undefine BL32_BASE if there is no
- * SPD and no SPM, as they are the only ones that can be used as BL32.
+ * SPD and no SPM-MM, as they are the only ones that can be used as BL32.
  */
 #if defined(__aarch64__) && !JUNO_AARCH32_EL3_RUNTIME
 # if defined(SPD_none) && !SPM_MM
 #  undef BL32_BASE
-# endif /* defined(SPD_none) && !SPM_MM*/
+# endif /* defined(SPD_none) && !SPM_MM */
 #endif /* defined(__aarch64__) && !JUNO_AARCH32_EL3_RUNTIME */
 
 /*******************************************************************************

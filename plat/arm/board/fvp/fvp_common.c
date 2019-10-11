@@ -86,6 +86,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #ifdef __aarch64__
 	ARM_MAP_DRAM2,
 #endif
+#if defined(SPD_spmd)
+	ARM_MAP_TRUSTED_DRAM,
+#endif
 #ifdef SPD_tspd
 	ARM_MAP_TSP_SEC_MEM,
 #endif
