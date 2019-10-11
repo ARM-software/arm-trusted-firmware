@@ -21,9 +21,7 @@
 #error "Neoverse-N1 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-#if ERRATA_N1_IC_TRAP
 	.global neoverse_n1_errata_ic_trap_handler
-#endif
 
 /* --------------------------------------------------
  * Errata Workaround for Neoverse N1 Erratum 1043202.
@@ -356,7 +354,7 @@ func errata_n1_1542419_wa
 	bl	check_errata_1542419
 	cbz	x0, 1f
 
-        /* Apply instruction patching sequence */
+	/* Apply instruction patching sequence */
 	ldr	x0, =0x0
 	msr	CPUPSELR_EL3, x0
 	ldr	x0, =0xEE670D35
@@ -536,10 +534,10 @@ func neoverse_n1_errata_ic_trap_handler
 	tlbi	vae3is, xzr
 	dsb	sy
 
-        # Skip the IC instruction itself
-        mrs     x3, elr_el3
-        add     x3, x3, #4
-        msr     elr_el3, x3
+	# Skip the IC instruction itself
+	mrs     x3, elr_el3
+	add     x3, x3, #4
+	msr     elr_el3, x3
 
 	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
