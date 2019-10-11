@@ -38,8 +38,8 @@
 /*******************************************************************************
  * Helper function to access a73_cpuectlr_el1 register on Cortex-A73 CPUs
  ******************************************************************************/
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 DEFINE_RENAME_SYSREG_RW_FUNCS(a73_cpuectlr_el1, CORTEX_A73_CPUECTLR_EL1)
-#endif
+#endif /* __ASSEMBLER__ */
 
 #endif /* CORTEX_A73_H */
