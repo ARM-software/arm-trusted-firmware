@@ -181,6 +181,10 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 		scr_el3 |= SCR_HCE_BIT;
 	}
 
+	/* Enable S-EL2 if the next EL is EL2 and security state is secure */
+	if ((security_state == SECURE) && (GET_EL(ep->spsr) == MODE_EL2))
+		scr_el3 |= SCR_EEL2_BIT;
+
 	/*
 	 * Initialise SCTLR_EL1 to the reset value corresponding to the target
 	 * execution state setting all fields rather than relying of the hw.
