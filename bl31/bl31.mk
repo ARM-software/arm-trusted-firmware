@@ -31,6 +31,7 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				services/arm_arch_svc/arm_arch_svc_setup.c	\
 				services/std_svc/std_svc_setup.c		\
 				${PSCI_LIB_SOURCES}				\
+				${SPMD_SOURCES}					\
 				${SPM_SOURCES}
 
 
