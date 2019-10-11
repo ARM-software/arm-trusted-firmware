@@ -51,7 +51,7 @@ the MMU.
 For Cortex-A73 and Cortex-A75 CPUs, the PRs in this advisory invalidate the
 branch predictor when entering EL3 by temporarily dropping into AArch32
 Secure-EL1 and executing the ``BPIALL`` instruction. This workaround is
-signifiantly more complex than the "MMU disable/enable" workaround. The latter
+significantly more complex than the "MMU disable/enable" workaround. The latter
 is not effective at invalidating the branch predictor on Cortex-A73/Cortex-A75.
 
 Note that if other privileged software, for example a Rich OS kernel, implements

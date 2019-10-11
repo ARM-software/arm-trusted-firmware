@@ -549,7 +549,7 @@ optionally be defined:
 -  **PLAT_PARTITION_BLOCK_SIZE**
    The size of partition block. It could be either 512 bytes or 4096 bytes.
    The default value is 512.
-   `For example, define the build flag in platform.mk`_:
+   For example, define the build flag in ``platform.mk``:
    PLAT_PARTITION_BLOCK_SIZE := 4096
    $(eval $(call add_define,PLAT_PARTITION_BLOCK_SIZE))
 
@@ -954,7 +954,7 @@ Function : plat_reset_handler()
     Return   : void
 
 A platform may need to do additional initialization after reset. This function
-allows the platform to do the platform specific intializations. Platform
+allows the platform to do the platform specific initializations. Platform
 specific errata workarounds could also be implemented here. The API should
 preserve the values of callee saved registers x19 to x29.
 
@@ -2777,7 +2777,7 @@ more functionality is required, the needed library functions will need to be
 added to the local implementation.
 
 Some C headers have been obtained from `FreeBSD`_ and `SCC`_, while others have
-been written specifically for TF-A. Fome implementation files have been obtained
+been written specifically for TF-A. Some implementation files have been obtained
 from `FreeBSD`_, others have been written specifically for TF-A as well. The
 files can be found in ``include/lib/libc`` and ``lib/libc``.
 
