@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -215,6 +215,9 @@ void populate_next_bl_params_config(bl_params_t *bl2_to_next_bl_params)
 	bl_params_node_t *params_node;
 	unsigned int fw_config_id;
 	uintptr_t hw_config_base = 0, fw_config_base;
+#if defined(SPD_spmd)
+	uint32_t fw_config_size = 0;
+#endif
 	bl_mem_params_node_t *mem_params;
 
 	assert(bl2_to_next_bl_params != NULL);
@@ -249,10 +252,14 @@ void populate_next_bl_params_config(bl_params_t *bl2_to_next_bl_params)
 
 		if (fw_config_id != INVALID_IMAGE_ID) {
 			mem_params = get_bl_mem_params_node(fw_config_id);
-			if (mem_params != NULL)
+			if (mem_params != NULL) {
 				fw_config_base = mem_params->image_info.image_base;
+#if defined(SPD_spmd)
+				fw_config_size =
+					mem_params->image_info.image_size;
+#endif
+			}
 		}
-
 		/*
 		 * Pass hw and tb_fw config addresses to next images. NOTE - for
 		 * EL3 runtime images (BL31 for AArch64 and BL32 for AArch32),
@@ -273,6 +280,11 @@ void populate_next_bl_params_config(bl_params_t *bl2_to_next_bl_params)
 			if (params_node->ep_info->args.arg1 == 0U)
 				params_node->ep_info->args.arg1 =
 								hw_config_base;
+#if defined(SPD_spmd)
+			if (params_node->ep_info->args.arg2 == 0U)
+				params_node->ep_info->args.arg2 =
+								fw_config_size;
+#endif
 		}
 	}
 }

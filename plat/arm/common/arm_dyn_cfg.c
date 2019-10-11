@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -197,8 +197,8 @@ void arm_bl2_dyn_cfg_init(void)
 			HW_CONFIG_ID,
 			SOC_FW_CONFIG_ID,
 			NT_FW_CONFIG_ID,
-#ifdef SPD_tspd
-			/* Currently tos_fw_config is only present for TSP */
+#if defined(SPD_tspd) || defined(SPD_spmd)
+			/* tos_fw_config is only present for TSPD/SPMD */
 			TOS_FW_CONFIG_ID
 #endif
 	};
