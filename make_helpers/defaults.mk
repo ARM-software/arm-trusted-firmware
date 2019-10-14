@@ -178,9 +178,6 @@ RECLAIM_INIT_CODE		:= 0
 # SPD choice
 SPD				:= none
 
-# Enable the SPCI-based Secure Partition Manager implementation
-ENABLE_SPM			:= 0
-
 # Enable the Management Mode (MM)-based Secure Partition Manager implementation
 SPM_MM				:= 0
 

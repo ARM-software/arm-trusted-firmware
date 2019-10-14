@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -9,8 +9,6 @@ CSS_USE_SCMI_SDS_DRIVER		:=	1
 CSS_ENT_BASE			:=	plat/arm/css/sgi
 
 RAS_EXTENSION			:=	0
-
-ENABLE_SPM			:=	0
 
 SDEI_SUPPORT			:=	0
 

@@ -457,7 +457,7 @@
  * Trusted DRAM (if available) or the DRAM region secured by the TrustZone
  * controller.
  */
-# if ENABLE_SPM
+# if SPM_MM
 #  define TSP_SEC_MEM_BASE		(ARM_AP_TZC_DRAM1_BASE + ULL(0x200000))
 #  define TSP_SEC_MEM_SIZE		(ARM_AP_TZC_DRAM1_SIZE - ULL(0x200000))
 #  define BL32_BASE			(ARM_AP_TZC_DRAM1_BASE + ULL(0x200000))
@@ -500,9 +500,9 @@
  * SPD and no SPM, as they are the only ones that can be used as BL32.
  */
 #if defined(__aarch64__) && !JUNO_AARCH32_EL3_RUNTIME
-# if defined(SPD_none) && !ENABLE_SPM && !SPM_MM
+# if defined(SPD_none) && !SPM_MM
 #  undef BL32_BASE
-# endif /* defined(SPD_none) && !ENABLE_SPM && !SPM_MM*/
+# endif /* defined(SPD_none) && !SPM_MM*/
 #endif /* defined(__aarch64__) && !JUNO_AARCH32_EL3_RUNTIME */
 
 /*******************************************************************************

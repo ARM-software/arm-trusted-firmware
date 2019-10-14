@@ -99,9 +99,6 @@ const mmap_region_t plat_arm_mmap[] = {
 #if SPM_MM
 	ARM_SP_IMAGE_MMAP,
 #endif
-#if ENABLE_SPM
-	PLAT_MAP_SP_PACKAGE_MEM_RW,
-#endif
 #if ARM_BL31_IN_DRAM
 	ARM_MAP_BL31_SEC_DRAM,
 #endif
@@ -129,9 +126,6 @@ const mmap_region_t plat_arm_mmap[] = {
 	ARM_V2M_MAP_MEM_PROTECT,
 #if SPM_MM
 	ARM_SPM_BUF_EL3_MMAP,
-#endif
-#if ENABLE_SPM
-	PLAT_MAP_SP_PACKAGE_MEM_RO,
 #endif
 	{0}
 };

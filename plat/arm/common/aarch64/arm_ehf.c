@@ -24,7 +24,7 @@ ehf_pri_desc_t arm_exceptions[] = {
 	/* Normal priority SDEI */
 	EHF_PRI_DESC(ARM_PRI_BITS, PLAT_SDEI_NORMAL_PRI),
 #endif
-#if ENABLE_SPM || SPM_MM
+#if SPM_MM
 	EHF_PRI_DESC(ARM_PRI_BITS, PLAT_SP_PRI),
 #endif
 };

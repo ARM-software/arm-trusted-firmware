@@ -235,11 +235,6 @@ Common build options
    The default is 1 but is automatically disabled when the target architecture
    is AArch32.
 
--  ``ENABLE_SPM`` : Boolean option to enable the SPCI-based Secure Partition
-   Manager (SPM) implementation.
-   Refer to the :ref:`Secure Partition Manager` guide for more details about
-   this feature. Default is 0.
-
 -  ``ENABLE_SVE_FOR_NS``: Boolean option to enable Scalable Vector Extension
    (SVE) for the Non-secure world only. SVE is an optional architectural feature
    for AArch64. Note that when SVE is enabled for the Non-secure world, access

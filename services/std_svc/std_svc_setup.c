@@ -45,7 +45,7 @@ static int32_t std_svc_setup(void)
 		ret = 1;
 	}
 
-#if ENABLE_SPM || SPM_MM
+#if SPM_MM
 	if (spm_setup() != 0) {
 		ret = 1;
 	}

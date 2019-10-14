@@ -571,14 +571,6 @@ ifeq ($(CTX_INCLUDE_MTE_REGS),1)
     endif
 endif
 
-# The SPCI-based SPM implementation and the MM-based SPM implementation cannot
-# be enabled at the same time.
-ifeq ($(ENABLE_SPM),1)
-    ifeq ($(SPM_MM),1)
-        $(error Use only one of the ENABLE_SPM and SPM_MM flags)
-    endif
-endif
-
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -719,7 +711,6 @@ $(eval $(call assert_boolean,ENABLE_PMF))
 $(eval $(call assert_boolean,ENABLE_PSCI_STAT))
 $(eval $(call assert_boolean,ENABLE_RUNTIME_INSTRUMENTATION))
 $(eval $(call assert_boolean,ENABLE_SPE_FOR_LOWER_ELS))
-$(eval $(call assert_boolean,ENABLE_SPM))
 $(eval $(call assert_boolean,ENABLE_SVE_FOR_NS))
 $(eval $(call assert_boolean,ERROR_DEPRECATED))
 $(eval $(call assert_boolean,FAULT_INJECTION_SUPPORT))
@@ -784,7 +775,6 @@ $(eval $(call add_define,ENABLE_PMF))
 $(eval $(call add_define,ENABLE_PSCI_STAT))
 $(eval $(call add_define,ENABLE_RUNTIME_INSTRUMENTATION))
 $(eval $(call add_define,ENABLE_SPE_FOR_LOWER_ELS))
-$(eval $(call add_define,ENABLE_SPM))
 $(eval $(call add_define,ENABLE_SVE_FOR_NS))
 $(eval $(call add_define,ERROR_DEPRECATED))
 $(eval $(call add_define,FAULT_INJECTION_SUPPORT))
