@@ -18,6 +18,7 @@ N1SDP_CPU_SOURCES	:=	lib/cpus/aarch64/neoverse_n1.S
 N1SDP_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v3/gicv3_main.c		\
 				drivers/arm/gic/v3/gicv3_helpers.c	\
+				drivers/arm/gic/v3/gic600_multichip.c	\
 				plat/common/plat_gicv3.c		\
 				plat/arm/common/arm_gicv3.c		\
 				drivers/arm/gic/v3/gic600.c
