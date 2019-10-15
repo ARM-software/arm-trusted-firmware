@@ -251,6 +251,7 @@ extern const plat_psci_ops_t *psci_plat_pm_ops;
 extern non_cpu_pd_node_t psci_non_cpu_pd_nodes[PSCI_NUM_NON_CPU_PWR_DOMAINS];
 extern cpu_pd_node_t psci_cpu_pd_nodes[PLATFORM_CORE_COUNT];
 extern unsigned int psci_caps;
+extern unsigned int psci_plat_core_count;
 
 /*******************************************************************************
  * SPD's power management hooks registered with PSCI
