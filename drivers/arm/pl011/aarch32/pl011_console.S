@@ -57,7 +57,7 @@ func console_pl011_core_init
 #if (ARM_ARCH_MAJOR == 7) && !defined(ARMV7_SUPPORTS_VIRTUALIZATION)
 	push	{r0,r3}
 	softudiv	r0,r1,r2,r3
-	mov	r1, r0
+	mov	r2, r0
 	pop	{r0,r3}
 #else
 	udiv	r2, r1, r2
