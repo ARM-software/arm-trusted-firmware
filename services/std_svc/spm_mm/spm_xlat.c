@@ -15,7 +15,7 @@
 #include <services/spm_mm_svc.h>
 
 #include "spm_mm_private.h"
-#include "spm_shim_private.h"
+#include "spm_mm_shim_private.h"
 
 /* Place translation tables by default along with the ones used by BL31. */
 #ifndef PLAT_SP_IMAGE_XLAT_SECTION_NAME

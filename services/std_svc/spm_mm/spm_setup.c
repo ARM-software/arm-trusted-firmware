@@ -19,7 +19,7 @@
 #include <services/spm_mm_partition.h>
 
 #include "spm_mm_private.h"
-#include "spm_shim_private.h"
+#include "spm_mm_shim_private.h"
 
 /* Setup context of the Secure Partition */
 void spm_sp_setup(sp_context_t *sp_ctx)
