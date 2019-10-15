@@ -188,8 +188,6 @@ Building TF-A
       `Summary of build options`_ for more information on available build
       options.
 
-   -  (AArch32 only) Currently only ``PLAT=fvp`` is supported.
-
    -  (AArch32 only) ``AARCH32_SP`` is the AArch32 EL3 Runtime Software and it
       corresponds to the BL32 image. A minimal ``AARCH32_SP``, sp_min, is
       provided by TF-A to demonstrate how PSCI Library can be integrated with
@@ -1359,7 +1357,7 @@ a single FIP binary. It assumes that a `Linaro Release`_ has been installed.
        make [DEBUG=1] [V=1] fiptool
 
        # Unpack firmware images from Linaro FIP
-       ./tools/fiptool/fiptool unpack <path-to-linaro-release>/fip.bin
+       ./tools/fiptool/fiptool unpack <path-to-linaro-release>/[SOFTWARE]/fip.bin
 
    The unpack operation will result in a set of binary images extracted to the
    current working directory. The SCP_BL2 image corresponds to
@@ -1406,7 +1404,7 @@ a single FIP binary. It assumes that a `Linaro Release`_ has been installed.
 
       .. code:: shell
 
-          export CROSS_COMPILE=<path-to-aarch32-gcc>/bin/arm-linux-gnueabihf-
+          export CROSS_COMPILE=<path-to-aarch32-gcc>/bin/arm-eabi-
 
    -  Build BL32 in AArch32.
 

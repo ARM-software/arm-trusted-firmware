@@ -154,7 +154,7 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 (64-bit host machine only).
 
 .. note::
-   The FVP models used are Version 11.5 Build 33, unless otherwise stated.
+   The FVP models used are Version 11.6 Build 45, unless otherwise stated.
 
 -  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_AEMv8A-AEMv8A-AEMv8A-AEMv8A-CCN502``
