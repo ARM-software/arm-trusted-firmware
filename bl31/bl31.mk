@@ -12,7 +12,7 @@ ifeq (${SPM_MM},1)
     $(error EL3_EXCEPTION_HANDLING must be 1 for SPM-MM support)
   else
     $(info Including SPM Management Mode (MM) makefile)
-    include services/std_svc/spm_mm/spm.mk
+    include services/std_svc/spm_mm/spm_mm.mk
   endif
 endif
 
