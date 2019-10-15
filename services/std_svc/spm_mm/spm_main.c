@@ -20,7 +20,7 @@
 #include <plat/common/platform.h>
 #include <services/mm_svc.h>
 #include <services/spm_mm_partition.h>
-#include <services/spm_svc.h>
+#include <services/spm_mm_svc.h>
 #include <smccc_helpers.h>
 
 #include "spm_private.h"
@@ -157,7 +157,7 @@ static int32_t spm_init(void)
 /*******************************************************************************
  * Initialize contexts of all Secure Partitions.
  ******************************************************************************/
-int32_t spm_setup(void)
+int32_t spm_mm_setup(void)
 {
 	sp_context_t *ctx;
 
@@ -185,7 +185,7 @@ int32_t spm_setup(void)
 /*******************************************************************************
  * Function to perform a call to a Secure Partition.
  ******************************************************************************/
-uint64_t spm_sp_call(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3)
+uint64_t spm_mm_sp_call(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3)
 {
 	uint64_t rc;
 	sp_context_t *sp_ptr = &sp_ctx;
@@ -223,12 +223,12 @@ static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
 	/* Cookie. Reserved for future use. It must be zero. */
 	if (mm_cookie != 0U) {
 		ERROR("MM_COMMUNICATE: cookie is not zero\n");
-		SMC_RET1(handle, SPM_INVALID_PARAMETER);
+		SMC_RET1(handle, SPM_MM_INVALID_PARAMETER);
 	}
 
 	if (comm_buffer_address == 0U) {
 		ERROR("MM_COMMUNICATE: comm_buffer_address is zero\n");
-		SMC_RET1(handle, SPM_INVALID_PARAMETER);
+		SMC_RET1(handle, SPM_MM_INVALID_PARAMETER);
 	}
 
 	if (comm_size_address != 0U) {
@@ -251,8 +251,8 @@ static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
 	/* Save the Normal world context */
 	cm_el1_sysregs_context_save(NON_SECURE);
 
-	rc = spm_sp_call(smc_fid, comm_buffer_address, comm_size_address,
-			 plat_my_core_pos());
+	rc = spm_mm_sp_call(smc_fid, comm_buffer_address, comm_size_address,
+			    plat_my_core_pos());
 
 	/* Restore non-secure state */
 	cm_el1_sysregs_context_restore(NON_SECURE);
@@ -270,7 +270,7 @@ static uint64_t mm_communicate(uint32_t smc_fid, uint64_t mm_cookie,
 /*******************************************************************************
  * Secure Partition Manager SMC handler.
  ******************************************************************************/
-uint64_t spm_smc_handler(uint32_t smc_fid,
+uint64_t spm_mm_smc_handler(uint32_t smc_fid,
 			 uint64_t x1,
 			 uint64_t x2,
 			 uint64_t x3,
@@ -295,29 +295,29 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 
 		switch (smc_fid) {
 
-		case SPM_VERSION_AARCH32:
-			SMC_RET1(handle, SPM_VERSION_COMPILED);
+		case SPM_MM_VERSION_AARCH32:
+			SMC_RET1(handle, SPM_MM_VERSION_COMPILED);
 
-		case SP_EVENT_COMPLETE_AARCH64:
+		case MM_SP_EVENT_COMPLETE_AARCH64:
 			spm_sp_synchronous_exit(x1);
 
-		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
-			INFO("Received SP_MEMORY_ATTRIBUTES_GET_AARCH64 SMC\n");
+		case MM_SP_MEMORY_ATTRIBUTES_GET_AARCH64:
+			INFO("Received MM_SP_MEMORY_ATTRIBUTES_GET_AARCH64 SMC\n");
 
 			if (sp_ctx.state != SP_STATE_RESET) {
-				WARN("SP_MEMORY_ATTRIBUTES_GET_AARCH64 is available at boot time only\n");
-				SMC_RET1(handle, SPM_NOT_SUPPORTED);
+				WARN("MM_SP_MEMORY_ATTRIBUTES_GET_AARCH64 is available at boot time only\n");
+				SMC_RET1(handle, SPM_MM_NOT_SUPPORTED);
 			}
 			SMC_RET1(handle,
 				 spm_memory_attributes_get_smc_handler(
 					 &sp_ctx, x1));
 
-		case SP_MEMORY_ATTRIBUTES_SET_AARCH64:
-			INFO("Received SP_MEMORY_ATTRIBUTES_SET_AARCH64 SMC\n");
+		case MM_SP_MEMORY_ATTRIBUTES_SET_AARCH64:
+			INFO("Received MM_SP_MEMORY_ATTRIBUTES_SET_AARCH64 SMC\n");
 
 			if (sp_ctx.state != SP_STATE_RESET) {
-				WARN("SP_MEMORY_ATTRIBUTES_SET_AARCH64 is available at boot time only\n");
-				SMC_RET1(handle, SPM_NOT_SUPPORTED);
+				WARN("MM_SP_MEMORY_ATTRIBUTES_SET_AARCH64 is available at boot time only\n");
+				SMC_RET1(handle, SPM_MM_NOT_SUPPORTED);
 			}
 			SMC_RET1(handle,
 				 spm_memory_attributes_set_smc_handler(
@@ -340,10 +340,10 @@ uint64_t spm_smc_handler(uint32_t smc_fid,
 		case MM_COMMUNICATE_AARCH64:
 			return mm_communicate(smc_fid, x1, x2, x3, handle);
 
-		case SP_MEMORY_ATTRIBUTES_GET_AARCH64:
-		case SP_MEMORY_ATTRIBUTES_SET_AARCH64:
+		case MM_SP_MEMORY_ATTRIBUTES_GET_AARCH64:
+		case MM_SP_MEMORY_ATTRIBUTES_SET_AARCH64:
 			/* SMC interfaces reserved for secure callers. */
-			SMC_RET1(handle, SPM_NOT_SUPPORTED);
+			SMC_RET1(handle, SPM_MM_NOT_SUPPORTED);
 
 		default:
 			break;

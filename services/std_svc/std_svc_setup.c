@@ -14,7 +14,7 @@
 #include <lib/psci/psci.h>
 #include <lib/runtime_instr.h>
 #include <services/sdei.h>
-#include <services/spm_svc.h>
+#include <services/spm_mm_svc.h>
 #include <services/std_svc.h>
 #include <smccc_helpers.h>
 #include <tools_share/uuid.h>
@@ -46,7 +46,7 @@ static int32_t std_svc_setup(void)
 	}
 
 #if SPM_MM
-	if (spm_setup() != 0) {
+	if (spm_mm_setup() != 0) {
 		ret = 1;
 	}
 #endif
@@ -108,9 +108,9 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 	 * Dispatch SPM calls to SPM SMC handler and return its return
 	 * value
 	 */
-	if (is_spm_fid(smc_fid)) {
-		return spm_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
-				       handle, flags);
+	if (is_spm_mm_fid(smc_fid)) {
+		return spm_mm_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
+					  handle, flags);
 	}
 #endif
 

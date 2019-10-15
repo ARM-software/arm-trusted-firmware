@@ -12,7 +12,7 @@
 #include <platform_def.h>
 #include <plat/common/platform.h>
 #include <services/spm_mm_partition.h>
-#include <services/spm_svc.h>
+#include <services/spm_mm_svc.h>
 
 #include "spm_private.h"
 #include "spm_shim_private.h"
@@ -50,21 +50,21 @@ static unsigned int smc_attr_to_mmap_attr(unsigned int attributes)
 {
 	unsigned int tf_attr = 0U;
 
-	unsigned int access = (attributes & SP_MEMORY_ATTRIBUTES_ACCESS_MASK)
-			      >> SP_MEMORY_ATTRIBUTES_ACCESS_SHIFT;
+	unsigned int access = (attributes & MM_SP_MEMORY_ATTRIBUTES_ACCESS_MASK)
+			      >> MM_SP_MEMORY_ATTRIBUTES_ACCESS_SHIFT;
 
-	if (access == SP_MEMORY_ATTRIBUTES_ACCESS_RW) {
+	if (access == MM_SP_MEMORY_ATTRIBUTES_ACCESS_RW) {
 		tf_attr |= MT_RW | MT_USER;
-	} else if (access ==  SP_MEMORY_ATTRIBUTES_ACCESS_RO) {
+	} else if (access ==  MM_SP_MEMORY_ATTRIBUTES_ACCESS_RO) {
 		tf_attr |= MT_RO | MT_USER;
 	} else {
 		/* Other values are reserved. */
-		assert(access ==  SP_MEMORY_ATTRIBUTES_ACCESS_NOACCESS);
+		assert(access == MM_SP_MEMORY_ATTRIBUTES_ACCESS_NOACCESS);
 		/* The only requirement is that there's no access from EL0 */
 		tf_attr |= MT_RO | MT_PRIVILEGED;
 	}
 
-	if ((attributes & SP_MEMORY_ATTRIBUTES_NON_EXEC) == 0) {
+	if ((attributes & MM_SP_MEMORY_ATTRIBUTES_NON_EXEC) == 0) {
 		tf_attr |= MT_EXECUTE;
 	} else {
 		tf_attr |= MT_EXECUTE_NEVER;
@@ -85,21 +85,21 @@ static unsigned int smc_mmap_to_smc_attr(unsigned int attr)
 
 	if ((attr & MT_USER) == 0) {
 		/* No access from EL0. */
-		data_access = SP_MEMORY_ATTRIBUTES_ACCESS_NOACCESS;
+		data_access = MM_SP_MEMORY_ATTRIBUTES_ACCESS_NOACCESS;
 	} else {
 		if ((attr & MT_RW) != 0) {
 			assert(MT_TYPE(attr) != MT_DEVICE);
-			data_access = SP_MEMORY_ATTRIBUTES_ACCESS_RW;
+			data_access = MM_SP_MEMORY_ATTRIBUTES_ACCESS_RW;
 		} else {
-			data_access = SP_MEMORY_ATTRIBUTES_ACCESS_RO;
+			data_access = MM_SP_MEMORY_ATTRIBUTES_ACCESS_RO;
 		}
 	}
 
-	smc_attr |= (data_access & SP_MEMORY_ATTRIBUTES_ACCESS_MASK)
-		    << SP_MEMORY_ATTRIBUTES_ACCESS_SHIFT;
+	smc_attr |= (data_access & MM_SP_MEMORY_ATTRIBUTES_ACCESS_MASK)
+		    << MM_SP_MEMORY_ATTRIBUTES_ACCESS_SHIFT;
 
 	if ((attr & MT_EXECUTE_NEVER) != 0U) {
-		smc_attr |= SP_MEMORY_ATTRIBUTES_NON_EXEC;
+		smc_attr |= MM_SP_MEMORY_ATTRIBUTES_NON_EXEC;
 	}
 
 	return smc_attr;
@@ -123,7 +123,7 @@ int32_t spm_memory_attributes_get_smc_handler(sp_context_t *sp_ctx,
 	if (rc == 0) {
 		return (int32_t) smc_mmap_to_smc_attr(attributes);
 	} else {
-		return SPM_INVALID_PARAMETER;
+		return SPM_MM_INVALID_PARAMETER;
 	}
 }
 
@@ -151,5 +151,5 @@ int spm_memory_attributes_set_smc_handler(sp_context_t *sp_ctx,
 	/* Convert error codes of xlat_change_mem_attributes_ctx() into SPM. */
 	assert((ret == 0) || (ret == -EINVAL));
 
-	return (ret == 0) ? SPM_SUCCESS : SPM_INVALID_PARAMETER;
+	return (ret == 0) ? SPM_MM_SUCCESS : SPM_MM_INVALID_PARAMETER;
 }
