@@ -15,7 +15,7 @@
 #include <plat/common/platform.h>
 #include <drivers/arm/sbsa.h>
 #include <sgi_base_platform_def.h>
-#include <services/secure_partition.h>
+#include <services/spm_mm_partition.h>
 
 #define SGI_MAP_FLASH0_RO	MAP_REGION_FLAT(V2M_FLASH0_BASE,\
 						V2M_FLASH0_SIZE,	\
@@ -87,7 +87,7 @@ ARM_CASSERT_MMAP
  * Boot information passed to a secure partition during initialisation. Linear
  * indices in MP information will be filled at runtime.
  */
-static secure_partition_mp_info_t sp_mp_info[] = {
+static spm_mm_mp_info_t sp_mp_info[] = {
 	[0] = {0x81000000, 0},
 	[1] = {0x81000100, 0},
 	[2] = {0x81000200, 0},
@@ -98,10 +98,10 @@ static secure_partition_mp_info_t sp_mp_info[] = {
 	[7] = {0x81010300, 0},
 };
 
-const secure_partition_boot_info_t plat_arm_secure_partition_boot_info = {
+const spm_mm_boot_info_t plat_arm_secure_partition_boot_info = {
 	.h.type              = PARAM_SP_IMAGE_BOOT_INFO,
 	.h.version           = VERSION_1,
-	.h.size              = sizeof(secure_partition_boot_info_t),
+	.h.size              = sizeof(spm_mm_boot_info_t),
 	.h.attr              = 0,
 	.sp_mem_base         = ARM_SP_IMAGE_BASE,
 	.sp_mem_limit        = ARM_SP_IMAGE_LIMIT,
@@ -125,7 +125,7 @@ const struct mmap_region *plat_get_secure_partition_mmap(void *cookie)
 	return plat_arm_secure_partition_mmap;
 }
 
-const struct secure_partition_boot_info *plat_get_secure_partition_boot_info(
+const struct spm_mm_boot_info *plat_get_secure_partition_boot_info(
 		void *cookie)
 {
 	return &plat_arm_secure_partition_boot_info;

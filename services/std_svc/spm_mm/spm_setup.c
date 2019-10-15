@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,7 +16,7 @@
 #include <platform_def.h>
 #include <plat/common/common_def.h>
 #include <plat/common/platform.h>
-#include <services/secure_partition.h>
+#include <services/spm_mm_partition.h>
 
 #include "spm_private.h"
 #include "spm_shim_private.h"
@@ -192,22 +192,22 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	void *shared_buf_ptr = (void *) PLAT_SPM_BUF_BASE;
 
 	/* Copy the boot information into the shared buffer with the SP. */
-	assert((uintptr_t)shared_buf_ptr + sizeof(secure_partition_boot_info_t)
+	assert((uintptr_t)shared_buf_ptr + sizeof(spm_mm_boot_info_t)
 	       <= (PLAT_SPM_BUF_BASE + PLAT_SPM_BUF_SIZE));
 
 	assert(PLAT_SPM_BUF_BASE <= (UINTPTR_MAX - PLAT_SPM_BUF_SIZE + 1));
 
-	const secure_partition_boot_info_t *sp_boot_info =
+	const spm_mm_boot_info_t *sp_boot_info =
 			plat_get_secure_partition_boot_info(NULL);
 
 	assert(sp_boot_info != NULL);
 
 	memcpy((void *) shared_buf_ptr, (const void *) sp_boot_info,
-	       sizeof(secure_partition_boot_info_t));
+	       sizeof(spm_mm_boot_info_t));
 
 	/* Pointer to the MP information from the platform port. */
-	secure_partition_mp_info_t *sp_mp_info =
-		((secure_partition_boot_info_t *) shared_buf_ptr)->mp_info;
+	spm_mm_mp_info_t *sp_mp_info =
+		((spm_mm_boot_info_t *) shared_buf_ptr)->mp_info;
 
 	assert(sp_mp_info != NULL);
 
@@ -215,15 +215,15 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	 * Point the shared buffer MP information pointer to where the info will
 	 * be populated, just after the boot info.
 	 */
-	((secure_partition_boot_info_t *) shared_buf_ptr)->mp_info =
-		(secure_partition_mp_info_t *) ((uintptr_t)shared_buf_ptr
-				+ sizeof(secure_partition_boot_info_t));
+	((spm_mm_boot_info_t *) shared_buf_ptr)->mp_info =
+		(spm_mm_mp_info_t *) ((uintptr_t)shared_buf_ptr
+				+ sizeof(spm_mm_boot_info_t));
 
 	/*
 	 * Update the shared buffer pointer to where the MP information for the
 	 * payload will be populated
 	 */
-	shared_buf_ptr = ((secure_partition_boot_info_t *) shared_buf_ptr)->mp_info;
+	shared_buf_ptr = ((spm_mm_boot_info_t *) shared_buf_ptr)->mp_info;
 
 	/*
 	 * Copy the cpu information into the shared buffer area after the boot
@@ -242,7 +242,7 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	 * Calculate the linear indices of cores in boot information for the
 	 * secure partition and flag the primary CPU
 	 */
-	sp_mp_info = (secure_partition_mp_info_t *) shared_buf_ptr;
+	sp_mp_info = (spm_mm_mp_info_t *) shared_buf_ptr;
 
 	for (unsigned int index = 0; index < sp_boot_info->num_cpus; index++) {
 		u_register_t mpidr = sp_mp_info[index].mpidr;

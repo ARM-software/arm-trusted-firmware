@@ -160,7 +160,7 @@ are implemented.
     Partition.
 
   - ``plat_get_secure_partition_boot_info()`` returns a
-    ``secure_partition_boot_info_t`` struct that is populated by the platform
+    ``spm_mm_boot_info_t`` struct that is populated by the platform
     with information about the memory map of the Secure Partition.
 
 For an example of all the changes in context, you may refer to commit

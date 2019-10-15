@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,7 @@
 
 #include <bl31/ehf.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
-#include <services/secure_partition.h>
+#include <services/spm_mm_partition.h>
 
 static const mmap_region_t plat_arm_secure_partition_mmap[] = {
 	PLAT_SQ_FLASH_MMAP,
@@ -27,7 +27,7 @@ static const mmap_region_t plat_arm_secure_partition_mmap[] = {
  * Boot information passed to a secure partition during initialisation. Linear
  * indices in MP information will be filled at runtime.
  */
-static secure_partition_mp_info_t sp_mp_info[] = {
+static spm_mm_mp_info_t sp_mp_info[] = {
 	{0x80000000, 0}, {0x80000001, 0}, {0x80000100, 0}, {0x80000101, 0},
 	{0x80000200, 0}, {0x80000201, 0}, {0x80000300, 0}, {0x80000301, 0},
 	{0x80000400, 0}, {0x80000401, 0}, {0x80000500, 0}, {0x80000501, 0},
@@ -36,10 +36,10 @@ static secure_partition_mp_info_t sp_mp_info[] = {
 	{0x80000a00, 0}, {0x80000a01, 0}, {0x80000b00, 0}, {0x80000b01, 0},
 };
 
-const secure_partition_boot_info_t plat_arm_secure_partition_boot_info = {
+const spm_mm_boot_info_t plat_arm_secure_partition_boot_info = {
 	.h.type			= PARAM_SP_IMAGE_BOOT_INFO,
 	.h.version		= VERSION_1,
-	.h.size			= sizeof(secure_partition_boot_info_t),
+	.h.size			= sizeof(spm_mm_boot_info_t),
 	.h.attr			= 0,
 	.sp_mem_base		= BL32_BASE,
 	.sp_mem_limit		= BL32_LIMIT,
@@ -63,7 +63,7 @@ const struct mmap_region *plat_get_secure_partition_mmap(void *cookie)
 	return plat_arm_secure_partition_mmap;
 }
 
-const struct secure_partition_boot_info *plat_get_secure_partition_boot_info(
+const struct spm_mm_boot_info *plat_get_secure_partition_boot_info(
 		void *cookie)
 {
 	return &plat_arm_secure_partition_boot_info;
