@@ -4,4 +4,4 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-BL2_SOURCES += drivers/staging/renesas/rcar/ddr/ddr_b/boot_init_dram.c
+BL2_SOURCES += drivers/renesas/rcar/ddr/ddr_b/boot_init_dram.c

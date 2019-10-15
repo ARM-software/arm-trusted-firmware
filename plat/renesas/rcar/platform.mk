@@ -348,12 +348,12 @@ ERRATA_A53_855873  := 1
 ERRATA_A57_859972  := 1
 ERRATA_A57_813419  := 1
 
-include drivers/staging/renesas/rcar/ddr/ddr.mk
+include drivers/renesas/rcar/ddr/ddr.mk
 include drivers/renesas/rcar/qos/qos.mk
 include drivers/renesas/rcar/pfc/pfc.mk
 include lib/libfdt/libfdt.mk
 
-PLAT_INCLUDES	:=	-Idrivers/staging/renesas/rcar/ddr	\
+PLAT_INCLUDES	:=	-Idrivers/renesas/rcar/ddr		\
 			-Idrivers/renesas/rcar/qos		\
 			-Idrivers/renesas/rcar/iic_dvfs		\
 			-Idrivers/renesas/rcar/board		\
