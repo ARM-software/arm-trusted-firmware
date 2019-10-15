@@ -12,7 +12,6 @@
 #include <lib/extensions/ras.h>
 #include <plat/arm/common/arm_spm_def.h>
 #include <plat/common/platform.h>
-#include <services/mm_svc.h>
 #include <services/sdei.h>
 #include <services/spm_mm_svc.h>
 

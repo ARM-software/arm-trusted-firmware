@@ -18,7 +18,6 @@
 #include <lib/utils.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
-#include <services/mm_svc.h>
 #include <services/spm_mm_partition.h>
 #include <services/spm_mm_svc.h>
 #include <smccc_helpers.h>

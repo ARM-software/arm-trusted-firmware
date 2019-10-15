@@ -9,6 +9,23 @@
 
 #include <lib/utils_def.h>
 
+/*
+ * The MM_VERSION_XXX definitions are used when responding to the
+ * MM_VERSION_AARCH32 service request. The version returned is different between
+ * this request and the SPM_MM_VERSION_AARCH32 request - both have been retained
+ * for compatibility.
+ */
+#define MM_VERSION_MAJOR	U(1)
+#define MM_VERSION_MAJOR_SHIFT	16
+#define MM_VERSION_MAJOR_MASK	U(0x7FFF)
+#define MM_VERSION_MINOR	U(0)
+#define MM_VERSION_MINOR_SHIFT	0
+#define MM_VERSION_MINOR_MASK	U(0xFFFF)
+#define MM_VERSION_FORM(major, minor) ((major << MM_VERSION_MAJOR_SHIFT) | \
+				       (minor))
+#define MM_VERSION_COMPILED	MM_VERSION_FORM(MM_VERSION_MAJOR, \
+						MM_VERSION_MINOR)
+
 #define SPM_MM_VERSION_MAJOR		  U(0)
 #define SPM_MM_VERSION_MAJOR_SHIFT	  16
 #define SPM_MM_VERSION_MAJOR_MASK	  U(0x7FFF)
@@ -28,6 +45,15 @@
 #define is_spm_mm_fid(_fid)						 \
 		((((_fid) & SPM_MM_FID_MASK) >= SPM_MM_FID_MIN_VALUE) && \
 		 (((_fid) & SPM_MM_FID_MASK) <= SPM_MM_FID_MAX_VALUE))
+
+/*
+ * SMC IDs defined in [1] for accessing MM services from the Non-secure world.
+ * These FIDs occupy the range 0x40 - 0x5f.
+ * [1] DEN0060A_ARM_MM_Interface_Specification.pdf
+ */
+#define MM_VERSION_AARCH32		U(0x84000040)
+#define MM_COMMUNICATE_AARCH64		U(0xC4000041)
+#define MM_COMMUNICATE_AARCH32		U(0x84000041)
 
 /*
  * SMC IDs defined for accessing services implemented by the Secure Partition
