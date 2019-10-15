@@ -14,9 +14,9 @@ endif
 SPM_SOURCES	:=	$(addprefix services/std_svc/spm_mm/,	\
 			${ARCH}/spm_helpers.S			\
 			${ARCH}/spm_shim_exceptions.S		\
-			spm_main.c				\
-			spm_setup.c				\
-			spm_xlat.c)
+			spm_mm_main.c				\
+			spm_mm_setup.c				\
+			spm_mm_xlat.c)
 
 
 # Let the top-level Makefile know that we intend to include a BL32 image
