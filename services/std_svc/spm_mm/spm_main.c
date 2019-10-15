@@ -22,7 +22,7 @@
 #include <services/spm_mm_svc.h>
 #include <smccc_helpers.h>
 
-#include "spm_private.h"
+#include "spm_mm_private.h"
 
 /*******************************************************************************
  * Secure Partition context information.

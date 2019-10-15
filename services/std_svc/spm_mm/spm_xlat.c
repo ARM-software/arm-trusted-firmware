@@ -14,7 +14,7 @@
 #include <services/spm_mm_partition.h>
 #include <services/spm_mm_svc.h>
 
-#include "spm_private.h"
+#include "spm_mm_private.h"
 #include "spm_shim_private.h"
 
 /* Place translation tables by default along with the ones used by BL31. */
