@@ -197,7 +197,7 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 The Foundation FVP can be downloaded free of charge. The Base FVPs can be
 licensed from Arm. See the `Arm FVP website`_.
 
-All the above platforms have been tested with `Linaro Release 18.04`_.
+All the above platforms have been tested with `Linaro Release 19.06`_.
 
 This release also contains the following platform support:
 
@@ -288,7 +288,7 @@ Arm licensees may contact Arm directly via their partner managers.
 .. _Juno Arm Development Platform: http://www.arm.com/products/tools/development-boards/versatile-express/juno-arm-development-platform.php
 .. _Arm FVP website: FVP_
 .. _FVP: https://developer.arm.com/products/system-design/fixed-virtual-platforms
-.. _Linaro Release 18.04: https://community.arm.com/dev-platforms/b/documents/posts/linaro-release-notes-deprecated#LinaroRelease18.04
+.. _Linaro Release 19.06: http://releases.linaro.org/members/arm/platforms/19.06
 .. _OP-TEE Secure OS: https://github.com/OP-TEE/optee_os
 .. _NVIDIA Trusted Little Kernel: http://nv-tegra.nvidia.com/gitweb/?p=3rdparty/ote_partner/tlk.git;a=summary
 .. _Trusty Secure OS: https://source.android.com/security/trusty
