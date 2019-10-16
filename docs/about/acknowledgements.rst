@@ -15,3 +15,7 @@ Contributor Acknowledgements
 - Socionext Inc.
 - STMicroelectronics
 - Xilinx, Inc.
+
+--------------
+
+*Copyright (c) 2019, Arm Limited. All rights reserved.*
