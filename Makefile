@@ -623,6 +623,13 @@ SPTOOL			?=	${SPTOOLPATH}/sptool${BIN_EXT}
 # Variables for use with ROMLIB
 ROMLIBPATH		?=	lib/romlib
 
+# Variable for use with Python
+PYTHON			?=	python3
+
+# Variables for use with PRINT_MEMORY_MAP
+PRINT_MEMORY_MAP_PATH		?=	tools/memory
+PRINT_MEMORY_MAP		?=	${PRINT_MEMORY_MAP_PATH}/print_memory_map.py
+
 ################################################################################
 # Include BL specific makefiles
 ################################################################################
@@ -795,7 +802,7 @@ endif
 # Build targets
 ################################################################################
 
-.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip fwu_fip certtool dtbs
+.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip fwu_fip certtool dtbs memmap
 .SUFFIXES:
 
 all: msg_start
@@ -989,6 +996,10 @@ ${SPTOOL}:
 romlib.bin: libraries
 	${Q}${MAKE} PLAT_DIR=${PLAT_DIR} BUILD_PLAT=${BUILD_PLAT} ENABLE_BTI=${ENABLE_BTI} ARM_ARCH_MINOR=${ARM_ARCH_MINOR} INCLUDES='${INCLUDES}' DEFINES='${DEFINES}' --no-print-directory -C ${ROMLIBPATH} all
 
+# Call print_memory_map tool
+memmap: all
+	${Q}${PYTHON} $(PRINT_MEMORY_MAP) $(BUILD_PLAT)
+
 cscope:
 	@echo "  CSCOPE"
 	${Q}find ${CURDIR} -name "*.[chsS]" > cscope.files
@@ -1028,6 +1039,7 @@ help:
 	@echo "  fiptool        Build the Firmware Image Package (FIP) creation tool"
 	@echo "  sptool         Build the Secure Partition Package creation tool"
 	@echo "  dtbs           Build the Device Tree Blobs (if required for the platform)"
+	@echo "  memmap         Print the memory map of the built binaries"
 	@echo ""
 	@echo "Note: most build targets require PLAT to be set to a specific platform."
 	@echo ""
