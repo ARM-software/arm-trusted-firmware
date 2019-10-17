@@ -7,18 +7,17 @@
 #include <assert.h>
 
 #include <common/debug.h>
+#include <common/fdt_wrappers.h>
 #include <lib/fconf/fconf.h>
 #include <libfdt.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-static uintptr_t tb_fw_cfg_dtb;
-static size_t tb_fw_cfg_dtb_size;
+struct fconf_dtb_info_t fconf_dtb_info;
 
 void fconf_load_config(void)
 {
 	int err;
-	image_desc_t *desc;
 
 	image_info_t arm_tb_fw_info = {
 		.h.type = (uint8_t)PARAM_IMAGE_BINARY,
@@ -27,7 +26,7 @@ void fconf_load_config(void)
 		.h.attr = 0,
 		.image_base = ARM_TB_FW_CONFIG_BASE,
 		.image_max_size = (uint32_t)
-			(ARM_TB_FW_CONFIG_LIMIT - ARM_TB_FW_CONFIG_BASE)
+				(ARM_TB_FW_CONFIG_LIMIT - ARM_TB_FW_CONFIG_BASE)
 	};
 
 	VERBOSE("FCONF: Loading FW_CONFIG\n");
@@ -39,15 +38,19 @@ void fconf_load_config(void)
 	}
 
 	/* At this point we know that a DTB is indeed available */
-	tb_fw_cfg_dtb = arm_tb_fw_info.image_base;
-	tb_fw_cfg_dtb_size = (size_t)arm_tb_fw_info.image_size;
+	fconf_dtb_info.base_addr = arm_tb_fw_info.image_base;
+	fconf_dtb_info.size = (size_t)arm_tb_fw_info.image_size;
+
+#if !BL2_AT_EL3
+	image_desc_t *desc;
 
 	/* The BL2 ep_info arg0 is modified to point to FW_CONFIG */
 	desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
 	assert(desc != NULL);
-	desc->ep_info.args.arg0 = tb_fw_cfg_dtb;
+	desc->ep_info.args.arg0 = arm_tb_fw_info.image_base;
+#endif
 
-	INFO("FCONF: FW_CONFIG loaded at address = 0x%lx\n", tb_fw_cfg_dtb);
+	INFO("FCONF: FW_CONFIG loaded at address = 0x%lx\n", arm_tb_fw_info.image_base);
 }
 
 void fconf_populate(uintptr_t config)
@@ -76,4 +79,7 @@ void fconf_populate(uintptr_t config)
 			panic();
 		}
 	}
+
+	/* save local pointer to the config dtb */
+	fconf_dtb_info.base_addr = config;
 }

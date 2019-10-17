@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <drivers/generic_delay_timer.h>
+#include <lib/fconf/fconf.h>
 #ifdef SPD_opteed
 #include <lib/optee_utils.h>
 #endif
@@ -58,11 +59,13 @@ void arm_bl2_early_platform_setup(uintptr_t tb_fw_config,
 	/* Setup the BL2 memory layout */
 	bl2_tzram_layout = *mem_layout;
 
+	/* Fill the properties struct with the info from the config dtb */
+	if (tb_fw_config != 0U) {
+		fconf_populate(tb_fw_config);
+	}
+
 	/* Initialise the IO layer and register platform IO devices */
 	plat_arm_io_setup();
-
-	if (tb_fw_config != 0U)
-		arm_bl2_set_tb_cfg_addr((void *)tb_fw_config);
 }
 
 void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1, u_register_t arg2, u_register_t arg3)
