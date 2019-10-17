@@ -76,21 +76,34 @@ ROM code -> BL2 (compiled with BL2_AT_EL3) -> OP-TEE -> BL33 (U-Boot)
 
 Build Instructions
 ------------------
+Boot media(s) supported by BL2 must be specified in the build command.
+Available storage medias are:
+- ``STM32MP_SDMMC``
+- ``STM32MP_EMMC``
+- ``STM32MP_RAW_NAND``
+- ``STM32MP_SPI_NAND``
+- ``STM32MP_SPI_NOR``
 
-To build with SP_min:
+To build with SP_min and support for all bootable devices:
 
 .. code:: bash
 
-    make CROSS_COMPILE=arm-linux-gnueabihf- PLAT=stm32mp1 ARCH=aarch32 ARM_ARCH_MAJOR=7 AARCH32_SP=sp_min DTB_FILE_NAME=stm32mp157c-ev1.dtb
+    make CROSS_COMPILE=arm-linux-gnueabihf- PLAT=stm32mp1 ARCH=aarch32 ARM_ARCH_MAJOR=7 AARCH32_SP=sp_min STM32MP_SDMMC=1 STM32MP_EMMC=1 STM32MP_RAW_NAND=1 STM32MP_SPI_NAND=1
+    STM32MP_SPI_NOR=1 DTB_FILE_NAME=stm32mp157c-ev1.dtb
     cd <u-boot_directory>
     make stm32mp15_trusted_defconfig
     make DEVICE_TREE=stm32mp157c-ev1 all
 
-To build TF-A with with Op-TEE support:
-
+To build TF-A with OP-TEE support for all bootable devices:
 .. code:: bash
 
-    make CROSS_COMPILE=arm-linux-gnueabihf- PLAT=stm32mp1 ARCH=aarch32 ARM_ARCH_MAJOR=7 AARCH32_SP=optee
+    make CROSS_COMPILE=arm-linux-gnueabihf- PLAT=stm32mp1 ARCH=aarch32 ARM_ARCH_MAJOR=7 AARCH32_SP=optee STM32MP_SDMMC=1 STM32MP_EMMC=1 STM32MP_RAW_NAND=1 STM32MP_SPI_NAND=1 STM32MP_SPI_NOR=1 DTB_FILE_NAME=stm32mp157c-ev1.dtb
+    cd <optee_directory>
+    make CROSS_COMPILE=arm-linux-gnueabihf- ARCH=arm PLATFORM=stm32mp1 CFG_EMBED_DTB_SOURCE_FILE=stm32mp157c-ev1.dts
+    cd <u-boot_directory>
+    make stm32mp15_optee_defconfig
+    make DEVICE_TREE=stm32mp157c-ev1 all
+
 
 The following build options are supported:
 
