@@ -35,6 +35,9 @@ struct fconf_populator {
 	int (*populate)(uintptr_t config);
 };
 
+/* Load firmware configuration dtb */
+void fconf_load_config(void);
+
 /* Top level populate function
  *
  * This function takes a configuration dtb and calls all the registered
