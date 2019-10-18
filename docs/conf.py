@@ -15,9 +15,6 @@ import os
 
 project = 'Trusted Firmware-A'
 
-version = '2.1'
-release = version # We don't need these to be distinct
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
