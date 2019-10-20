@@ -322,7 +322,7 @@ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 	return 0;
 }
 
-void __dead2 sunxi_power_down(void)
+void sunxi_power_down(void)
 {
 	switch (pmic) {
 	case GENERIC_H5:
@@ -368,8 +368,4 @@ void __dead2 sunxi_power_down(void)
 		break;
 	}
 
-	udelay(1000);
-	ERROR("PSCI: Cannot turn off system, halting.\n");
-	wfi();
-	panic();
 }
