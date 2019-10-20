@@ -78,7 +78,7 @@ void sunxi_cpu_off(u_register_t mpidr)
 	 * patched into the first instruction.
 	 */
 	sunxi_execute_arisc_code(arisc_core_off, sizeof(arisc_core_off),
-				 0, BIT_32(core));
+				 BIT_32(core));
 }
 
 void sunxi_cpu_on(u_register_t mpidr)

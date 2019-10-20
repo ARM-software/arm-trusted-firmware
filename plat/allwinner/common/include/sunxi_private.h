@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,7 +20,6 @@ void sunxi_security_setup(void);
 uint16_t sunxi_read_soc_id(void);
 void sunxi_set_gpio_out(char port, int pin, bool level_high);
 int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb);
-void sunxi_execute_arisc_code(uint32_t *code, size_t size,
-			      int patch_offset, uint16_t param);
+void sunxi_execute_arisc_code(uint32_t *code, size_t size, uint16_t param);
 
 #endif /* SUNXI_PRIVATE_H */

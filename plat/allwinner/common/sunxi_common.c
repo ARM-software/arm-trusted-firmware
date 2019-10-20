@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -172,8 +172,7 @@ DEFINE_BAKERY_LOCK(arisc_lock);
  * in SRAM, put the address of that into the reset vector and release the
  * arisc reset line. The SCP will execute that code and pull the line up again.
  */
-void sunxi_execute_arisc_code(uint32_t *code, size_t size,
-			      int patch_offset, uint16_t param)
+void sunxi_execute_arisc_code(uint32_t *code, size_t size, uint16_t param)
 {
 	uintptr_t arisc_reset_vec = SUNXI_SRAM_A2_BASE - 0x4000 + 0x100;
 
@@ -187,8 +186,7 @@ void sunxi_execute_arisc_code(uint32_t *code, size_t size,
 	} while (1);
 
 	/* Patch up the code to feed in an input parameter. */
-	if (patch_offset >= 0 && patch_offset <= (size - 4))
-		code[patch_offset] = (code[patch_offset] & ~0xffff) | param;
+	code[0] = (code[0] & ~0xffff) | param;
 	clean_dcache_range((uintptr_t)code, size);
 
 	/*
