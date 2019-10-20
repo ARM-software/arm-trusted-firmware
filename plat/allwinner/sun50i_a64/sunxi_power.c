@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2018, Icenowy Zheng <icenowy@aosc.io>
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -22,6 +22,7 @@
 #include <sunxi_private.h>
 
 static enum pmic_type {
+	UNKNOWN,
 	GENERIC_H5,
 	GENERIC_A64,
 	REF_DESIGN_H5,	/* regulators controlled by GPIO pins on port L */

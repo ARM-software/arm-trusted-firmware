@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2018, Icenowy Zheng <icenowy@aosc.io>
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -21,12 +21,10 @@
 #define AXP805_ADDR	0x36
 #define AXP805_ID	0x03
 
-enum pmic_type {
-	NO_PMIC,
+static enum pmic_type {
+	UNKNOWN,
 	AXP805,
-};
-
-enum pmic_type pmic;
+} pmic;
 
 int axp_i2c_read(uint8_t chip, uint8_t reg, uint8_t *val)
 {
@@ -79,13 +77,12 @@ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 	i2c_init((void *)SUNXI_R_I2C_BASE);
 
 	NOTICE("PMIC: Probing AXP805\n");
-	pmic = AXP805;
 
 	ret = axp805_probe();
 	if (ret)
-		pmic = NO_PMIC;
-	else
-		pmic = AXP805;
+		return ret;
+
+	pmic = AXP805;
 
 	return 0;
 }
