@@ -150,15 +150,15 @@ int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb)
 	/* set both pins to pull-up */
 	mmio_clrsetbits_32(SUNXI_R_PIO_BASE + 0x1c, 0x0fU, 0x5U);
 
-	/* assert, then de-assert reset of I2C/RSB controller */
-	mmio_clrbits_32(SUNXI_R_PRCM_BASE + reset_offset, device_bit);
-	mmio_setbits_32(SUNXI_R_PRCM_BASE + reset_offset, device_bit);
-
 	/* un-gate clock */
 	if (socid != SUNXI_SOC_H6)
 		mmio_setbits_32(SUNXI_R_PRCM_BASE + 0x28, device_bit);
 	else
 		mmio_setbits_32(SUNXI_R_PRCM_BASE + 0x19c, device_bit | BIT(0));
+
+	/* assert, then de-assert reset of I2C/RSB controller */
+	mmio_clrbits_32(SUNXI_R_PRCM_BASE + reset_offset, device_bit);
+	mmio_setbits_32(SUNXI_R_PRCM_BASE + reset_offset, device_bit);
 
 	return 0;
 }
