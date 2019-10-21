@@ -7,14 +7,11 @@
 
 #include <errno.h>
 
-#include <libfdt.h>
-
 #include <platform_def.h>
 
-#include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/allwinner/axp.h>
 #include <drivers/allwinner/sunxi_rsb.h>
-#include <drivers/delay_timer.h>
 #include <lib/mmio.h>
 
 #include <sunxi_def.h>
@@ -114,170 +111,22 @@ static int rsb_init(void)
 		return ret;
 
 	/* Associate the 8-bit runtime address with the 12-bit bus address. */
-	return rsb_assign_runtime_address(AXP803_HW_ADDR,
-					  AXP803_RT_ADDR);
-}
-
-static int axp_write(uint8_t reg, uint8_t val)
-{
-	return rsb_write(AXP803_RT_ADDR, reg, val);
-}
-
-static int axp_clrsetbits(uint8_t reg, uint8_t clr_mask, uint8_t set_mask)
-{
-	uint8_t regval;
-	int ret;
-
-	ret = rsb_read(AXP803_RT_ADDR, reg);
-	if (ret < 0)
+	ret = rsb_assign_runtime_address(AXP803_HW_ADDR,
+					 AXP803_RT_ADDR);
+	if (ret)
 		return ret;
 
-	regval = (ret & ~clr_mask) | set_mask;
-
-	return rsb_write(AXP803_RT_ADDR, reg, regval);
+	return axp_check_id();
 }
 
-#define axp_clrbits(reg, clr_mask) axp_clrsetbits(reg, clr_mask, 0)
-#define axp_setbits(reg, set_mask) axp_clrsetbits(reg, 0, set_mask)
-
-static bool should_enable_regulator(const void *fdt, int node)
+int axp_read(uint8_t reg)
 {
-	if (fdt_getprop(fdt, node, "phandle", NULL) != NULL)
-		return true;
-	if (fdt_getprop(fdt, node, "regulator-always-on", NULL) != NULL)
-		return true;
-	return false;
+	return rsb_read(AXP803_RT_ADDR, reg);
 }
 
-/*
- * Retrieve the voltage from a given regulator DTB node.
- * Both the regulator-{min,max}-microvolt properties must be present and
- * have the same value. Return that value in millivolts.
- */
-static int fdt_get_regulator_millivolt(const void *fdt, int node)
+int axp_write(uint8_t reg, uint8_t val)
 {
-	const fdt32_t *prop;
-	uint32_t min_volt;
-
-	prop = fdt_getprop(fdt, node, "regulator-min-microvolt", NULL);
-	if (prop == NULL)
-		return -EINVAL;
-	min_volt = fdt32_to_cpu(*prop);
-
-	prop = fdt_getprop(fdt, node, "regulator-max-microvolt", NULL);
-	if (prop == NULL)
-		return -EINVAL;
-
-	if (fdt32_to_cpu(*prop) != min_volt)
-		return -EINVAL;
-
-	return min_volt / 1000;
-}
-
-#define NO_SPLIT 0xff
-
-static const struct axp_regulator {
-	char *dt_name;
-	uint16_t min_volt;
-	uint16_t max_volt;
-	uint16_t step;
-	unsigned char split;
-	unsigned char volt_reg;
-	unsigned char switch_reg;
-	unsigned char switch_bit;
-} regulators[] = {
-	{"dcdc1", 1600, 3400, 100, NO_SPLIT, 0x20, 0x10, 0},
-	{"dcdc5",  800, 1840,  10,       32, 0x24, 0x10, 4},
-	{"dcdc6",  600, 1520,  10,       50, 0x25, 0x10, 5},
-	{"dldo1",  700, 3300, 100, NO_SPLIT, 0x15, 0x12, 3},
-	{"dldo2",  700, 4200, 100,       27, 0x16, 0x12, 4},
-	{"dldo3",  700, 3300, 100, NO_SPLIT, 0x17, 0x12, 5},
-	{"dldo4",  700, 3300, 100, NO_SPLIT, 0x18, 0x12, 6},
-	{"fldo1",  700, 1450,  50, NO_SPLIT, 0x1c, 0x13, 2},
-	{}
-};
-
-static int setup_regulator(const void *fdt, int node,
-			   const struct axp_regulator *reg)
-{
-	int mvolt;
-	uint8_t regval;
-
-	mvolt = fdt_get_regulator_millivolt(fdt, node);
-	if (mvolt < reg->min_volt || mvolt > reg->max_volt)
-		return -EINVAL;
-
-	regval = (mvolt / reg->step) - (reg->min_volt / reg->step);
-	if (regval > reg->split)
-		regval = ((regval - reg->split) / 2) + reg->split;
-
-	axp_write(reg->volt_reg, regval);
-	axp_setbits(reg->switch_reg, BIT(reg->switch_bit));
-
-	INFO("PMIC: AXP803: %s voltage: %d.%03dV\n", reg->dt_name,
-	     mvolt / 1000, mvolt % 1000);
-
-	return 0;
-}
-
-static void setup_axp803_rails(const void *fdt)
-{
-	int node;
-	bool dc1sw = false;
-
-	/* locate the PMIC DT node, bail out if not found */
-	node = fdt_node_offset_by_compatible(fdt, -1, "x-powers,axp803");
-	if (node < 0) {
-		WARN("PMIC: No PMIC DT node, skipping setup\n");
-		return;
-	}
-
-	if (fdt_getprop(fdt, node, "x-powers,drive-vbus-en", NULL)) {
-		axp_clrbits(0x8f, BIT(4));
-		axp_setbits(0x30, BIT(2));
-		INFO("PMIC: AXP803: Enabling DRIVEVBUS\n");
-	}
-
-	/* descend into the "regulators" subnode */
-	node = fdt_subnode_offset(fdt, node, "regulators");
-	if (node < 0) {
-		WARN("PMIC: No regulators DT node, skipping setup\n");
-		return;
-	}
-
-	/* iterate over all regulators to find used ones */
-	fdt_for_each_subnode(node, fdt, node) {
-		const struct axp_regulator *reg;
-		const char *name;
-		int length;
-
-		/* We only care if it's always on or referenced. */
-		if (!should_enable_regulator(fdt, node))
-			continue;
-
-		name = fdt_get_name(fdt, node, &length);
-		for (reg = regulators; reg->dt_name; reg++) {
-			if (!strncmp(name, reg->dt_name, length)) {
-				setup_regulator(fdt, node, reg);
-				break;
-			}
-		}
-
-		if (!strncmp(name, "dc1sw", length)) {
-			/* Delay DC1SW enablement to avoid overheating. */
-			dc1sw = true;
-			continue;
-		}
-	}
-
-	/*
-	 * If DLDO2 is enabled after DC1SW, the PMIC overheats and shuts
-	 * down. So always enable DC1SW as the very last regulator.
-	 */
-	if (dc1sw) {
-		INFO("PMIC: AXP803: Enabling DC1SW\n");
-		axp_setbits(0x12, BIT(7));
-	}
+	return rsb_write(AXP803_RT_ADDR, reg, val);
 }
 
 int sunxi_pmic_setup(uint16_t socid, const void *fdt)
@@ -305,9 +154,7 @@ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 			return ret;
 
 		pmic = AXP803_RSB;
-
-		if (fdt)
-			setup_axp803_rails(fdt);
+		axp_setup_regulators(fdt);
 
 		break;
 	default:
@@ -354,9 +201,7 @@ void sunxi_power_down(void)
 		/* (Re-)init RSB in case the rich OS has disabled it. */
 		sunxi_init_platform_r_twi(SUNXI_SOC_A64, true);
 		rsb_init();
-
-		/* Set "power disable control" bit */
-		axp_setbits(0x32, BIT(7));
+		axp_power_off();
 		break;
 	default:
 		break;
