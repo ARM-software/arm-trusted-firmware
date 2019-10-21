@@ -212,8 +212,7 @@ static int setup_regulator(const void *fdt, int node,
 		regval = ((regval - reg->split) / 2) + reg->split;
 
 	axp_write(reg->volt_reg, regval);
-	if (reg->switch_reg < 0xff)
-		axp_setbits(reg->switch_reg, BIT(reg->switch_bit));
+	axp_setbits(reg->switch_reg, BIT(reg->switch_bit));
 
 	INFO("PMIC: AXP803: %s voltage: %d.%03dV\n", reg->dt_name,
 	     mvolt / 1000, mvolt % 1000);
