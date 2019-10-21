@@ -203,9 +203,6 @@ static int setup_regulator(const void *fdt, int node,
 	int mvolt;
 	uint8_t regval;
 
-	if (!should_enable_regulator(fdt, node))
-		return -ENOENT;
-
 	mvolt = fdt_get_regulator_millivolt(fdt, node);
 	if (mvolt < reg->min_volt || mvolt > reg->max_volt)
 		return -EINVAL;
