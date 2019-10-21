@@ -54,13 +54,10 @@ tab_width = 8
 trim_trailing_whitespace = true
 
 
-# Adjustment for existing .rst files with different format
-[*.{rst,md}]
+# Adjustment for ReStructuredText (RST) documentation
+[*.{rst}]
 indent_size = 4
 indent_style = space
-max_line_length = 180
-# 180 only selected to prevent changes to existing text.
-tab_width = 4
 
 
 # Adjustment for python which prefers a different style

@@ -3,7 +3,7 @@ Feature Overview
 
 This page provides an overview of the current |TF-A| feature set. For a full
 description of these features and their implementation details, please see
-:ref:`Firmware Design` and supporting documentation.
+the documents that are part of the *Components* and *System Design* chapters.
 
 The :ref:`Change Log & Release Notes` provides details of changes made since the
 last release.
@@ -34,7 +34,7 @@ Current features
    is also suitable for integration with other AArch32 EL3 Runtime Software,
    for example an AArch32 Secure OS.
 
--  A minimal AArch32 Secure Payload (SP\_MIN) to demonstrate |PSCI| library
+-  A minimal AArch32 Secure Payload (*SP_MIN*) to demonstrate |PSCI| library
    integration with AArch32 EL3 Runtime Software.
 
 -  Secure Monitor library code such as world switching, EL1 context management
@@ -106,8 +106,8 @@ Still to come
 
 -  Refinements to Position Independent Executable (PIE) support.
 
--  Refinements to the SPCI-based SPM implementation as the draft SPCI and SPRT
-   specifications continue to evolve.
+-  Continued support for the draft SPCI specification, to enable the use of
+   secure partition management in the secure world.
 
 -  Documentation enhancements.
 

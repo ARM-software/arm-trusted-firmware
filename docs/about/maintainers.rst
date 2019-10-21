@@ -19,8 +19,8 @@ Main maintainers
 :G: `AlexeiFedorov`_
 :M: Paul Beesley <paul.beesley@arm.com>
 :G: `pbeesley-arm`_
-:M: John Tsichritzis <john.tsichritzis@arm.com>
-:G: `jts-arm`_
+:M: György Szing <gyorgy.szing@arm.com>
+:G: `gyuri-szing`_
 
 Allwinner ARMv8 platform port
 -----------------------------
@@ -287,10 +287,10 @@ Xilinx platform port
 .. _etienne-lms: https://github.com/etienne-lms
 .. _glneo: https://github.com/glneo
 .. _grandpaul: https://github.com/grandpaul
+.. _gyuri-szing: https://github.com/gyuri-szing
 .. _hzhuang1: https://github.com/hzhuang1
 .. _JackyBai: https://github.com/JackyBai
 .. _jenswi-linaro: https://github.com/jenswi-linaro
-.. _jts-arm: https://github.com/jts-arm
 .. _jwerner-chromium: https://github.com/jwerner-chromium
 .. _kostapr: https://github.com/kostapr
 .. _ldts: https://github.com/ldts
