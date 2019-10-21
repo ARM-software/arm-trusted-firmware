@@ -8,6 +8,7 @@
 #include <common/debug.h>
 
 #include "socfpga_mailbox.h"
+#include "socfpga_sip_svc.h"
 
 static int fill_mailbox_circular_buffer(uint32_t header_cmd, uint32_t *args,
 					int len)
@@ -278,3 +279,31 @@ int mailbox_init(void)
 	return 0;
 }
 
+uint32_t intel_mailbox_get_config_status(uint32_t cmd)
+{
+	uint32_t status, res;
+	uint32_t response[6];
+
+	status = mailbox_send_cmd(1, cmd, NULL, 0, 0, response);
+
+	if (status < 0)
+		return INTEL_SIP_SMC_STATUS_ERROR;
+
+	res = response[RECONFIG_STATUS_STATE];
+	if (res && res != MBOX_CFGSTAT_STATE_CONFIG)
+		return INTEL_SIP_SMC_STATUS_ERROR;
+
+	res = response[RECONFIG_STATUS_PIN_STATUS];
+	if (!(res & PIN_STATUS_NSTATUS))
+		return INTEL_SIP_SMC_STATUS_ERROR;
+
+	res = response[RECONFIG_STATUS_SOFTFUNC_STATUS];
+	if (res & SOFTFUNC_STATUS_SEU_ERROR)
+		return INTEL_SIP_SMC_STATUS_ERROR;
+
+	if ((res & SOFTFUNC_STATUS_CONF_DONE) &&
+		(res & SOFTFUNC_STATUS_INIT_DONE))
+		return INTEL_SIP_SMC_STATUS_OK;
+
+	return MBOX_CFGSTAT_STATE_CONFIG;
+}

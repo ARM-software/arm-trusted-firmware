@@ -100,34 +100,7 @@ static int intel_fpga_sdm_write_all(void)
 
 uint32_t intel_mailbox_fpga_config_isdone(void)
 {
-	uint32_t args[2];
-	uint32_t response[6];
-	int status;
-
-	status = mailbox_send_cmd(1, MBOX_RECONFIG_STATUS, args, 0, 0,
-				response);
-
-	if (status < 0)
-		return INTEL_SIP_SMC_STATUS_ERROR;
-
-	if (response[RECONFIG_STATUS_STATE] &&
-		response[RECONFIG_STATUS_STATE] != MBOX_CFGSTAT_STATE_CONFIG)
-		return INTEL_SIP_SMC_STATUS_ERROR;
-
-	if (!(response[RECONFIG_STATUS_PIN_STATUS] & PIN_STATUS_NSTATUS))
-		return INTEL_SIP_SMC_STATUS_ERROR;
-
-	if (response[RECONFIG_STATUS_SOFTFUNC_STATUS] &
-		SOFTFUNC_STATUS_SEU_ERROR)
-		return INTEL_SIP_SMC_STATUS_ERROR;
-
-	if ((response[RECONFIG_STATUS_SOFTFUNC_STATUS] &
-		SOFTFUNC_STATUS_CONF_DONE) &&
-		(response[RECONFIG_STATUS_SOFTFUNC_STATUS] &
-		SOFTFUNC_STATUS_INIT_DONE))
-		return INTEL_SIP_SMC_STATUS_OK;
-
-	return INTEL_SIP_SMC_STATUS_ERROR;
+	return intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS);
 }
 
 static int mark_last_buffer_xfer_completed(uint32_t *buffer_addr_completed)

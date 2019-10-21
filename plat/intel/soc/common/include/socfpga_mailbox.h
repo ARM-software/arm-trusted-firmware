@@ -85,6 +85,7 @@
 #define MBOX_CFGSTAT_STATE_CONFIG	0x10000000
 
 /* Mailbox reconfiguration commands */
+#define MBOX_CONFIG_STATUS	4
 #define MBOX_RECONFIG		6
 #define MBOX_RECONFIG_DATA	8
 #define MBOX_RECONFIG_STATUS	9
@@ -102,5 +103,6 @@ void mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
 int mailbox_read_response(int job_id, uint32_t *response);
 int mailbox_get_qspi_clock(void);
 void mailbox_reset_cold(void);
+uint32_t intel_mailbox_get_config_status(uint32_t cmd);
 
 #endif /* SOCFPGA_MBOX_H */
