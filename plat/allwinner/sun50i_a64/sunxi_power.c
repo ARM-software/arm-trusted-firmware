@@ -39,7 +39,7 @@ static enum pmic_type {
  * disabled.
  * This function only cares about peripherals.
  */
-void sunxi_turn_off_soc(uint16_t socid)
+static void sunxi_turn_off_soc(uint16_t socid)
 {
 	int i;
 
