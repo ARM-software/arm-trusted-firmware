@@ -9,7 +9,9 @@
 
 #define S10_RSTMGR_PER0MODRST				0xffd11024
 #define S10_RSTMGR_PER1MODRST				0xffd11028
-#define S10_RSTMGR_HDSKEN					0xffd11010
+#define S10_RSTMGR_HDSKEN				0xffd11010
+#define S10_RSTMGR_BRGMODRST                            0xffd1102c
+
 
 #define S10_RSTMGR_PER0MODRST_EMAC0			0x00000001
 #define S10_RSTMGR_PER0MODRST_EMAC1			0x00000002
@@ -80,8 +82,18 @@
 #define S10_RSTMGR_PER0MODRST_DMAIF6		0x40000000
 #define S10_RSTMGR_PER0MODRST_DMAIF7		0x80000000
 
+#define BRGMODRST_DDRSCH_MASK			0x40
+#define BRGMODRST_F2SSDRAM2_MASK		0x20
+#define BRGMODRST_F2SSDRAM1_MASK		0x10
+#define BRGMODRST_F2SSDRAM_MASK			0x08
+#define BRGMODRST_FPGA2SOC_MASK			0x04
+#define BRGMODRST_LWHPS2FPGA_MASK		0x02
+#define BRGMODRST_SOC2FPGA_MASK			0x01
+
 void deassert_peripheral_reset(void);
 void config_hps_hs_before_warm_reset(void);
+int socfpga_bridges_enable(void);
+int socfpga_bridges_disable(void);
 
 #endif
 
