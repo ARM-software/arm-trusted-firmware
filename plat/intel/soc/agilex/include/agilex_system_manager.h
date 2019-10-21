@@ -66,6 +66,7 @@
 #define AGX_CCU_NOC_IOM_RAMSPACE0_0		0xf7018628
 
 #define AGX_SYSMGR_CORE(x)                      (0xffd12000 + (x))
+
 #define SYSMGR_BOOT_SCRATCH_COLD_0		0x200
 #define SYSMGR_BOOT_SCRATCH_COLD_1		0x204
 #define SYSMGR_BOOT_SCRATCH_COLD_2		0x208
@@ -73,6 +74,8 @@
 #define DISABLE_BRIDGE_FIREWALL			0x0ffe0101
 #define DISABLE_L4_FIREWALL	(BIT(0) | BIT(16) | BIT(24))
 
+void enable_nonsecure_access(void);
+void enable_ns_peripheral_access(void);
 void enable_ns_bridge_access(void);
 
 #endif

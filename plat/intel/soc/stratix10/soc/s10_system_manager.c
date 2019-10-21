@@ -10,6 +10,12 @@
 
 void enable_nonsecure_access(void)
 {
+	enable_ns_peripheral_access();
+	enable_ns_bridge_access();
+}
+
+void enable_ns_peripheral_access(void)
+{
 	mmio_write_32(S10_NOC_FW_L4_PER_SCR_NAND_REGISTER, DISABLE_L4_FIREWALL);
 	mmio_write_32(S10_NOC_FW_L4_PER_SCR_NAND_DATA, DISABLE_L4_FIREWALL);
 
@@ -91,3 +97,8 @@ void enable_nonsecure_access(void)
 
 }
 
+void enable_ns_bridge_access(void)
+{
+	mmio_write_32(S10_FIREWALL_SOC2FPGA, DISABLE_BRIDGE_FIREWALL);
+	mmio_write_32(S10_FIREWALL_LWSOC2FPGA, DISABLE_BRIDGE_FIREWALL);
+}
