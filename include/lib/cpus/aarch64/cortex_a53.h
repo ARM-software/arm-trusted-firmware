@@ -76,8 +76,8 @@
 /*******************************************************************************
  * Helper function to access a53_cpuectlr_el1 register on Cortex-A53 CPUs
  ******************************************************************************/
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 DEFINE_RENAME_SYSREG_RW_FUNCS(a53_cpuectlr_el1, CORTEX_A53_ECTLR_EL1)
-#endif
+#endif /* __ASSEMBLER__ */
 
 #endif /* CORTEX_A53_H */
