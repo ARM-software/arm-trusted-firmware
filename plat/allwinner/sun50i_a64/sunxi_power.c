@@ -246,9 +246,7 @@ static void setup_axp803_rails(const void *fdt)
 	}
 
 	/* iterate over all regulators to find used ones */
-	for (node = fdt_first_subnode(fdt, node);
-	     node >= 0;
-	     node = fdt_next_subnode(fdt, node)) {
+	fdt_for_each_subnode(node, fdt, node) {
 		const struct axp_regulator *reg;
 		const char *name;
 		int length;
