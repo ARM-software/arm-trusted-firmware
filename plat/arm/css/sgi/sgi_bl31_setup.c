@@ -51,6 +51,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	sgi_plat_info.platform_id = plat_arm_sgi_get_platform_id();
 	sgi_plat_info.config_id = plat_arm_sgi_get_config_id();
+	sgi_plat_info.multi_chip_mode = plat_arm_sgi_get_multi_chip_mode();
 
 	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
 }

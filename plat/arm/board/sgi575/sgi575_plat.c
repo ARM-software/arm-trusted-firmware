@@ -19,6 +19,11 @@ unsigned int plat_arm_sgi_get_config_id(void)
 			& SSC_VERSION_CONFIG_MASK;
 }
 
+unsigned int plat_arm_sgi_get_multi_chip_mode(void)
+{
+	return 0;
+}
+
 void bl31_platform_setup(void)
 {
 	sgi_bl31_common_platform_setup();
