@@ -4,6 +4,422 @@ Change Log & Release Notes
 This document contains a summary of the new features, changes, fixes and known
 issues in each release of Trusted Firmware-A.
 
+Version 2.2
+-----------
+
+New Features
+^^^^^^^^^^^^
+
+- Architecture
+   - Enable Pointer Authentication (PAuth) support for Secure World
+       - Adds support for ARMv8.3-PAuth in BL1 SMC calls and
+         BL2U image for firmware updates.
+
+   - Enable Memory Tagging Extension (MTE) support in both secure and non-secure
+     worlds
+       - Adds support for the new Memory Tagging Extension arriving in
+         ARMv8.5. MTE support is now enabled by default on systems that
+         support it at EL0.
+       - To enable it at ELx for both the non-secure and the secure
+         world, the compiler flag ``CTX_INCLUDE_MTE_REGS`` includes register
+         saving and restoring when necessary in order to prevent information
+         leakage between the worlds.
+
+   - Add support for Branch Target Identification (BTI)
+
+- Build System
+   - Modify FVP makefile for CPUs that support both AArch64/32
+
+   - AArch32: Allow compiling with soft-float toolchain
+
+   - Makefile: Add default warning flags
+
+   - Add Makefile check for PAuth and AArch64
+
+   - Add compile-time errors for HW_ASSISTED_COHERENCY flag
+
+   - Apply compile-time check for AArch64-only CPUs
+
+   - build_macros: Add mechanism to prevent bin generation.
+
+   - Add support for default stack-protector flag
+
+   - spd: opteed: Enable NS_TIMER_SWITCH
+
+   - plat/arm: Skip BL2U if RESET_TO_SP_MIN flag is set
+
+   - Add new build option to let each platform select which implementation of spinlocks
+     it wants to use
+
+- CPU Support
+   - DSU: Workaround for erratum 798953 and 936184
+
+   - Neoverse N1: Force cacheable atomic to near atomic
+   - Neoverse N1: Workaround for erratum 1073348, 1130799, 1165347, 1207823,
+     1220197, 1257314, 1262606, 1262888, 1275112, 1315703, 1542419
+
+   - Neoverse Zeus: Apply the MSR SSBS instruction
+
+   - cortex-a76AE: Support added for Cortex-A76AE CPU
+   - cortex-a76: Workaround for erratum 1257314, 1262606, 1262888, 1275112,
+     1286807
+
+   - cortex-a65/a65AE: Support added for  Cortex-A65 and  Cortex-A65AE CPUs
+   - cortex-a65: Enable AMU for  Cortex-A65
+
+   - cortex-a55: Workaround for erratum 1221012
+
+   - cortex-a35: Workaround for erratum 855472
+
+   - cortex-a9: Workaround for erratum 794073
+
+- Drivers
+   - console: Allow the console to register multiple times
+
+   - delay: Timeout detection support
+
+   - gicv3: Enabled multi-socket GIC redistributor frame discovery and migrated
+     ARM platforms to the new API
+       - Adds ``gicv3_rdistif_probe`` function that delegates the responsibility
+         of discovering the corresponding redistributor base frame to each CPU
+         itself.
+
+   - sbsa: Add SBSA watchdog driver
+
+   - st/stm32_hash: Add HASH driver
+
+   - ti/uart: Add an AArch32 variant
+
+- Library at ROM (romlib)
+   - Introduce BTI support in Library at ROM (romlib)
+
+- New Platforms Support
+   - amlogic: g12a: New platform support added for the S905X2 (G12A) platform
+   - amlogic: meson/gxl: New platform support added for Amlogic Meson
+     S905x (GXL)
+
+   - arm/a5ds: New platform support added for A5 DesignStart
+
+   - arm/corstone: New platform support added for Corstone-700
+
+   - intel: New platform support added for Agilex
+
+   - mediatek:  New platform support added for MediaTek mt8183
+
+   - qemu/qemu_sbsa: New platform support added for QEMU SBSA platform
+
+   - renesas/rcar_gen3: plat: New platform support added for D3
+
+   - rockchip: New platform support added for px30
+   - rockchip: New platform support added for rk3288
+
+   - rpi: New platform support added for Raspberry Pi 4
+
+- Platforms
+   - arm/common: Introduce wrapper functions to setup secure watchdog
+
+   - arm/fvp: Add Delay Timer driver to BL1 and BL31 and option for defining
+     platform DRAM2 base
+   - arm/fvp: Add Linux DTS files for 32 bit threaded FVPs
+
+   - arm/n1sdp: Add code for DDR ECC enablement and BL33 copy to DDR, Initialise CNTFRQ
+     in Non Secure CNTBaseN
+
+   - arm/juno: Use shared mbedtls heap between BL1 and BL2 and add basic support for
+     dynamic config
+
+   - imx: Basic support for PicoPi iMX7D, rdc module init, caam module init,
+     aipstz init, IMX_SIP_GET_SOC_INFO, IMX_SIP_BUILDINFO added
+
+   - intel: Add ncore ccu driver
+
+   - mediatek/mt81*: Use new bl31_params_parse() helper
+
+   - nvidia: tegra: Add support for multi console interface
+
+   - qemu/qemu_sbsa: Adding memory mapping for both FLASH0/FLASH1
+   - qemu: Added gicv3 support, new console interface in AArch32, and sub-platforms
+
+   - renesas/rcar_gen3: plat: Add R-Car V3M support, new board revision for H3ULCB, DBSC4
+     setting before self-refresh mode
+
+   - socionext/uniphier: Support console based on  multi-console
+
+   - st: stm32mp1: Add OP-TEE, Avenger96, watchdog, LpDDR3, authentication support
+     and general SYSCFG management
+
+   - ti/k3: common: Add support for J721E, Use coherent memory for shared data, Trap all
+     asynchronous bus errors to EL3
+
+   - xilinx/zynqmp: Add support for multi console interface, Initialize IPI table from
+     zynqmp_config_setup()
+
+- PSCI
+   - Adding new optional PSCI hook ``pwr_domain_on_finish_late``
+      - This PSCI hook ``pwr_domain_on_finish_late`` is similar to
+        ``pwr_domain_on_finish`` but is guaranteed to be invoked when the
+        respective core and cluster are participating in coherency.
+
+- Security
+   - Speculative Store Bypass Safe (SSBS): Further enhance protection against Spectre
+     variant 4 by disabling speculative loads/stores (SPSR.SSBS bit) by default.
+
+   - UBSAN support and handlers
+      - Adds support for the Undefined Behaviour sanitizer. There are two types of
+        support offered - minimalistic trapping support which essentially immediately
+        crashes on undefined behaviour and full support with full debug messages.
+
+- Tools
+   - cert_create: Add support for bigger RSA key sizes (3KB and 4KB),
+     previously the maximum size was 2KB.
+
+   - fiptool: Add support to build fiptool on Windows.
+
+
+Changed
+^^^^^^^
+
+- Architecture
+   - Refactor ARMv8.3 Pointer Authentication support code
+
+   - backtrace: Strip PAC field when PAUTH is enabled
+
+   - Prettify crash reporting output on AArch64.
+
+   - Rework smc_unknown return code path in smc_handler
+      - Leverage the existing ``el3_exit()`` return routine for smc_unknown return
+        path rather than a custom set of instructions.
+
+- BL-Specific
+   - Invalidate dcache build option for BL2 entry at EL3
+
+   - Add missing support for BL2_AT_EL3 in XIP memory
+
+- Boot Flow
+   - Add helper to parse BL31 parameters (both versions)
+
+   - Factor out cross-BL API into export headers suitable for 3rd party code
+
+   - Introduce lightweight BL platform parameter library
+
+- Drivers
+   - auth: Memory optimization for Chain of Trust (CoT) description
+
+   - bsec: Move bsec_mode_is_closed_device() service to platform
+
+   - cryptocell: Move Cryptocell specific API into driver
+
+   - gicv3: Prevent pending G1S interrupt from becoming G0 interrupt
+
+   - mbedtls: Remove weak heap implementation
+
+   - mmc: Increase delay between ACMD41 retries
+   - mmc: stm32_sdmmc2: Correctly manage block size
+   - mmc: stm32_sdmmc2: Manage max-frequency property from DT
+
+   - synopsys/emmc: Do not change FIFO TH as this breaks some platforms
+   - synopsys: Update synopsys drivers to not rely on undefined overflow behaviour
+
+   - ufs: Extend the delay after reset to wait for some slower chips
+
+- Platforms
+   - amlogic/meson/gxl: Remove BL2 dependency from BL31
+
+   - arm/common: Shorten the Firmware Update (FWU) process
+
+   - arm/fvp: Remove GIC initialisation from secondary core cold boot
+
+   - arm/sgm: Temporarily disable shared Mbed TLS heap for SGM
+
+   - hisilicon: Update hisilicon drivers to not rely on undefined overflow behaviour
+
+   - imx: imx8: Replace PLAT_IMX8* with PLAT_imx8*, remove duplicated linker symbols and
+     deprecated code include, keep only IRQ 32 unmasked, enable all power domain by default
+
+   - marvell: Prevent SError accessing PCIe link, Switch to xlat_tables_v2, do not rely on
+     argument passed via smc, make sure that comphy init will use correct address
+
+   - mediatek: mt8173: Refactor RTC and PMIC drivers
+   - mediatek: mt8173: Apply MULTI_CONSOLE framework
+
+   - nvidia: Tegra: memctrl_v2: fix "overflow before widen" coverity issue
+
+   - qemu: Simplify the image size calculation, Move and generalise FDT PSCI fixup, move
+     gicv2 codes to separate file
+
+   - renesas/rcar_gen3: Convert to multi-console API, update QoS setting, Update IPL and
+     Secure Monitor Rev2.0.4, Change to restore timer counter value at resume, Update DDR
+     setting rev.0.35, qos: change subslot cycle, Change periodic write DQ training option.
+
+   - rockchip: Allow SOCs with undefined wfe check bits, Streamline and complete UARTn_BASE
+     macros, drop rockchip-specific imported linker symbols for bl31, Disable binary generation
+     for all SOCs, Allow console device to be set by DTB, Use new bl31_params_parse functions
+
+   - rpi/rpi3: Move shared rpi3 files into common directory
+
+   - socionext/uniphier: Set CONSOLE_FLAG_TRANSLATE_CRLF and clean up console driver
+   - socionext/uniphier: Replace DIV_ROUND_UP() with div_round_up() from utils_def.h
+
+   - st/stm32mp: Split stm32mp_io_setup function, move stm32_get_gpio_bank_clock() to private
+     file, correctly handle Clock Spreading Generator, move oscillator functions to generic file,
+     realign device tree files with internal devs, enable RTCAPB clock for dual-core chips, use a
+     common function to check spinlock is available, move check_header() to common code
+
+   - ti/k3: Enable SEPARATE_CODE_AND_RODATA by default, Remove shared RAM space,
+     Drop _ADDRESS from K3_USART_BASE to match other defines, Remove MSMC port
+     definitions, Allow USE_COHERENT_MEM for K3, Set L2 latency on A72 cores
+
+- PSCI
+   - PSCI: Lookup list of parent nodes to lock only once
+
+- Secure Partition Manager (SPM): SPCI Prototype
+   - Fix service UUID lookup
+
+   - Adjust size of virtual address space per partition
+
+   - Refactor xlat context creation
+
+   - Move shim layer to TTBR1_EL1
+
+   - Ignore empty regions in resource description
+
+- Security
+   - Refactor SPSR initialisation code
+
+   - SMMUv3: Abort DMA transactions
+      - For security DMA should be blocked at the SMMU by default unless explicitly
+        enabled for a device. SMMU is disabled after reset with all streams bypassing
+        the SMMU, and abortion of all incoming transactions implements a default deny
+        policy on reset.
+      - Moves ``bl1_platform_setup()`` function from arm_bl1_setup.c to FVP platforms'
+        fvp_bl1_setup.c and fvp_ve_bl1_setup.c files.
+
+- Tools
+   - cert_create: Remove RSA PKCS#1 v1.5 support
+
+
+Resolved Issues
+^^^^^^^^^^^^^^^
+
+- Architecture
+   - Fix the CAS spinlock implementation by adding a missing DSB in ``spin_unlock()``
+
+   - AArch64: Fix SCTLR bit definitions
+      - Removes incorrect ``SCTLR_V_BIT`` definition and adds definitions for
+        ARMv8.3-Pauth `EnIB`, `EnDA` and `EnDB` bits.
+
+   - Fix restoration of PAuth context
+      - Replace call to ``pauth_context_save()`` with ``pauth_context_restore()`` in
+        case of unknown SMC call.
+
+- BL-Specific Issues
+   - Fix BL31 crash reporting on AArch64 only platforms
+
+- Build System
+   - Remove several warnings reported with W=2 and W=1
+
+- Code Quality Issues
+   - SCTLR and ACTLR are 32-bit for AArch32 and 64-bit for AArch64
+   - Unify type of "cpu_idx" across PSCI module.
+   - Assert if power level value greater then PSCI_INVALID_PWR_LVL
+   - Unsigned long should not be used as per coding guidelines
+   - Reduce the number of memory leaks in cert_create
+   - Fix type of cot_desc_ptr
+   - Use explicit-width data types in AAPCS parameter structs
+   - Add python configuration for editorconfig
+   - BL1: Fix type consistency
+
+   - Enable -Wshift-overflow=2 to check for undefined shift behavior
+   - Updated upstream platforms to not rely on undefined overflow behaviour
+
+- Coverity Quality Issues
+   - Remove GGC ignore -Warray-bounds
+   - Fix Coverity #261967, Infinite loop
+   - Fix Coverity #343017, Missing unlock
+   - Fix Coverity #343008, Side affect in assertion
+   - Fix Coverity #342970, Uninitialized scalar variable
+
+- CPU Support
+   - cortex-a12: Fix MIDR mask
+
+- Drivers
+   - console: Remove Arm console unregister on suspend
+
+   - gicv3: Fix support for full SPI range
+
+   - scmi: Fix wrong payload length
+
+- Library Code
+   - libc: Fix sparse warning for __assert()
+
+   - libc: Fix memchr implementation
+
+- Platforms
+   - rpi: rpi3: Fix compilation error when stack protector is enabled
+
+   - socionext/uniphier: Fix compilation fail for SPM support build config
+
+   - st/stm32mp1: Fix TZC400 configuration against non-secure DDR
+
+   - ti/k3: common: Fix RO data area size calculation
+
+- Security
+   - AArch32: Disable Secure Cycle Counter
+      - Changes the implementation for disabling Secure Cycle Counter.
+        For ARMv8.5 the counter gets disabled by setting ``SDCR.SCCD`` bit on
+        CPU cold/warm boot. For the earlier architectures PMCR register is
+        saved/restored on secure world entry/exit from/to Non-secure state,
+        and cycle counting gets disabled by setting PMCR.DP bit.
+   - AArch64: Disable Secure Cycle Counter
+      - For ARMv8.5 the counter gets disabled by setting ``MDCR_El3.SCCD`` bit on
+        CPU cold/warm boot. For the earlier architectures PMCR_EL0 register is
+        saved/restored on secure world entry/exit from/to Non-secure state,
+        and cycle counting gets disabled by setting PMCR_EL0.DP bit.
+
+Deprecations
+^^^^^^^^^^^^
+
+- Common Code
+   - Remove MULTI_CONSOLE_API flag and references to it
+
+   - Remove deprecated `plat_crash_console_*`
+
+   - Remove deprecated interfaces `get_afflvl_shift`, `mpidr_mask_lower_afflvls`, `eret`
+
+   - AARCH32/AARCH64 macros are now deprecated in favor of ``__aarch64__``
+
+   - ``__ASSEMBLY__`` macro is now deprecated in favor of ``__ASSEMBLER__``
+
+- Drivers
+   - console: Removed legacy console API
+   - console: Remove deprecated finish_console_register
+
+   - tzc: Remove deprecated types `tzc_action_t` and `tzc_region_attributes_t`
+
+- Secure Partition Manager (SPM):
+   - Prototype SPCI-based SPM (services/std_svc/spm) will be replaced with alternative
+     methods of secure partitioning support.
+
+Known Issues
+^^^^^^^^^^^^
+
+- Build System Issues
+   - dtb: DTB creation not supported when building on a Windows host.
+
+     This step in the build process is skipped when running on a Windows host. A
+     known issue from the 1.6 release.
+
+- Platform Issues
+   - arm/juno: System suspend from Linux does not function as documented in the
+     user guide
+
+     Following the instructions provided in the user guide document does not
+     result in the platform entering system suspend state as expected. A message
+     relating to the hdlcd driver failing to suspend will be emitted on the
+     Linux terminal.
+
+   - mediatek/mt6795: This platform does not build in this release
+
 Version 2.1
 -----------
 
