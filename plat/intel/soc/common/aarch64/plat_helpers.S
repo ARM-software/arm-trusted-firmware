@@ -66,11 +66,33 @@ func plat_my_core_pos
 	ret
 endfunc plat_my_core_pos
 
+func warm_reset_req
+	str	xzr, [x4]
+	bl	plat_is_my_cpu_primary
+	cbz	x0, cpu_in_wfi
+	mov_imm x1, PLAT_SEC_ENTRY
+	str	xzr, [x1]
+	mrs	x1, rmr_el3
+	orr	x1, x1, #0x02
+	msr	rmr_el3, x1
+	isb
+	dsb	sy
+cpu_in_wfi:
+	wfi
+	b	cpu_in_wfi
+endfunc warm_reset_req
+
 func plat_get_my_entrypoint
+	ldr	x4, =L2_RESET_DONE_REG
+	ldr	x5, [x4]
+	ldr	x1, =L2_RESET_DONE_STATUS
+	cmp	x1, x5
+	b.eq	warm_reset_req
 	mov_imm	x1, PLAT_SEC_ENTRY
 	ldr	x0, [x1]
 	ret
 endfunc plat_get_my_entrypoint
+
 
 	/* ---------------------------------------------
 	 * int plat_crash_console_init(void)

@@ -1,0 +1,18 @@
+/*
+ * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef SOCFPGA_RESETMANAGER_H
+#define SOCFPGA_RESETMANAGER_H
+
+#define SOCFPGA_RSTMGR_STAT				0xffd11000
+#define SOCFPGA_RSTMGR_HDSKEN				0xffd11010
+#define SOCFPGA_RSTMGR_COLDMODRST			0xffd11034
+#define SOCFPGA_RSTMGR_HDSKTIMEOUT			0xffd11064
+
+#define SOCFPGA_RSTMGR_HDSKEN_SET			0x0000010D
+#define SOCFPGA_RSTMGR_SDMWARMRST			0x00000002
+
+#endif /* SOCFPGA_RESETMANAGER_H */
