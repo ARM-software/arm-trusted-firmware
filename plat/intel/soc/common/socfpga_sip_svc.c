@@ -10,6 +10,7 @@
 #include <tools_share/uuid.h>
 
 #include "socfpga_mailbox.h"
+#include "socfpga_sip_svc.h"
 
 /* Number of SiP Calls implemented */
 #define SIP_NUM_CALLS		0x3
