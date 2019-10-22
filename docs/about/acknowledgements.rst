@@ -6,7 +6,8 @@ Contributor Acknowledgements
    specific contributors referred to in "Arm Limited and Contributors" copyright
    notices. As contributors are now encouraged to put their name or company name
    directly into the copyright notices, this file is not relevant for new
-   contributions.
+   contributions. See the :ref:`License` document for the correct template to
+   use for new contributions.
 
 - Linaro Limited
 - Marvell International Ltd.

@@ -86,6 +86,7 @@ CPU cores (64-bit host machine only).
 -  ``FVP_Base_Cortex-A76AEx4`` (Tested with internal model)
 -  ``FVP_Base_Cortex-A76AEx8`` (Tested with internal model)
 -  ``FVP_Base_Cortex-A77x4`` (Version 11.7 build 36)
+-  ``FVP_Base_Zeusx4``
 -  ``FVP_Base_Neoverse-N1x4`` (Tested with internal model)
 -  ``FVP_CSS_SGI-575`` (Version 11.3 build 42)
 -  ``FVP_CSS_SGM-775`` (Version 11.3 build 42)
@@ -103,8 +104,8 @@ CPU cores (64-bit host machine only).
 .. note::
    The ``FVP_Base_RevC-2xAEMv8A`` FVP only supports shifted affinities.
 
-The *Foundation* FVP can be downloaded free of charge. The *Base* FVPs can be
-licensed from Arm. See the `Arm FVP website`_.
+The *Foundation* and *Base* FVPs can be downloaded free of charge. See the
+`Arm FVP website`_.
 
 All the above platforms have been tested with `Linaro Release 19.06`_.
 
