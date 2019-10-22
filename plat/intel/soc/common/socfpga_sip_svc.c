@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <common/debug.h>
 #include <common/runtime_svc.h>
+#include <lib/mmio.h>
 #include <tools_share/uuid.h>
 
 #include "socfpga_mailbox.h"
@@ -270,6 +271,79 @@ uint32_t intel_fpga_config_write(uint64_t mem, uint64_t size)
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
+static int is_out_of_sec_range(uint64_t reg_addr)
+{
+	switch (reg_addr) {
+	case(0xF8011100):	/* ECCCTRL1 */
+	case(0xF8011104):	/* ECCCTRL2 */
+	case(0xF8011110):	/* ERRINTEN */
+	case(0xF8011114):	/* ERRINTENS */
+	case(0xF8011118):	/* ERRINTENR */
+	case(0xF801111C):	/* INTMODE */
+	case(0xF8011120):	/* INTSTAT */
+	case(0xF8011124):	/* DIAGINTTEST */
+	case(0xF801112C):	/* DERRADDRA */
+	case(0xFFD12028):	/* SDMMCGRP_CTRL */
+	case(0xFFD12044):	/* EMAC0 */
+	case(0xFFD12048):	/* EMAC1 */
+	case(0xFFD1204C):	/* EMAC2 */
+	case(0xFFD12090):	/* ECC_INT_MASK_VALUE */
+	case(0xFFD12094):	/* ECC_INT_MASK_SET */
+	case(0xFFD12098):	/* ECC_INT_MASK_CLEAR */
+	case(0xFFD1209C):	/* ECC_INTSTATUS_SERR */
+	case(0xFFD120A0):	/* ECC_INTSTATUS_DERR */
+	case(0xFFD120C0):	/* NOC_TIMEOUT */
+	case(0xFFD120C4):	/* NOC_IDLEREQ_SET */
+	case(0xFFD120C8):	/* NOC_IDLEREQ_CLR */
+	case(0xFFD120D0):	/* NOC_IDLEACK */
+	case(0xFFD120D4):	/* NOC_IDLESTATUS */
+	case(0xFFD12200):	/* BOOT_SCRATCH_COLD0 */
+	case(0xFFD12204):	/* BOOT_SCRATCH_COLD1 */
+	case(0xFFD12220):	/* BOOT_SCRATCH_COLD8 */
+	case(0xFFD12224):	/* BOOT_SCRATCH_COLD9 */
+		return 0;
+
+	default:
+		break;
+	}
+
+	return -1;
+}
+
+/* Secure register access */
+uint32_t intel_secure_reg_read(uint64_t reg_addr, uint32_t *retval)
+{
+	if (is_out_of_sec_range(reg_addr))
+		return INTEL_SIP_SMC_STATUS_ERROR;
+
+	*retval = mmio_read_32(reg_addr);
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+uint32_t intel_secure_reg_write(uint64_t reg_addr, uint32_t val,
+				uint32_t *retval)
+{
+	if (is_out_of_sec_range(reg_addr))
+		return INTEL_SIP_SMC_STATUS_ERROR;
+
+	mmio_write_32(reg_addr, val);
+
+	return intel_secure_reg_read(reg_addr, retval);
+}
+
+uint32_t intel_secure_reg_update(uint64_t reg_addr, uint32_t mask,
+				 uint32_t val, uint32_t *retval)
+{
+	if (!intel_secure_reg_read(reg_addr, retval)) {
+		*retval &= ~mask;
+		*retval |= val;
+		return intel_secure_reg_write(reg_addr, *retval, retval);
+	}
+
+	return INTEL_SIP_SMC_STATUS_ERROR;
+}
+
 /*
  * This function is responsible for handling all SiP calls from the NS world
  */
@@ -283,6 +357,7 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 			 void *handle,
 			 u_register_t flags)
 {
+	uint32_t val = 0;
 	uint32_t status = INTEL_SIP_SMC_STATUS_OK;
 	uint32_t completed_addr[3];
 	uint32_t count = 0;
@@ -291,25 +366,25 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 	case SIP_SVC_UID:
 		/* Return UID to the caller */
 		SMC_UUID_RET(handle, intl_svc_uid);
-		break;
+
 	case INTEL_SIP_SMC_FPGA_CONFIG_ISDONE:
 		status = intel_mailbox_fpga_config_isdone();
 		SMC_RET4(handle, status, 0, 0, 0);
-		break;
+
 	case INTEL_SIP_SMC_FPGA_CONFIG_GET_MEM:
 		SMC_RET3(handle, INTEL_SIP_SMC_STATUS_OK,
 			INTEL_SIP_SMC_FPGA_CONFIG_ADDR,
 			INTEL_SIP_SMC_FPGA_CONFIG_SIZE -
 				INTEL_SIP_SMC_FPGA_CONFIG_ADDR);
-		break;
+
 	case INTEL_SIP_SMC_FPGA_CONFIG_START:
 		status = intel_fpga_config_start(x1);
 		SMC_RET4(handle, status, 0, 0, 0);
-		break;
+
 	case INTEL_SIP_SMC_FPGA_CONFIG_WRITE:
 		status = intel_fpga_config_write(x1, x2);
 		SMC_RET4(handle, status, 0, 0, 0);
-		break;
+
 	case INTEL_SIP_SMC_FPGA_CONFIG_COMPLETED_WRITE:
 		status = intel_fpga_config_completed_write(completed_addr,
 								&count);
@@ -317,26 +392,38 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		case 1:
 			SMC_RET4(handle, INTEL_SIP_SMC_STATUS_OK,
 				completed_addr[0], 0, 0);
-			break;
+
 		case 2:
 			SMC_RET4(handle, INTEL_SIP_SMC_STATUS_OK,
 				completed_addr[0],
 				completed_addr[1], 0);
-			break;
+
 		case 3:
 			SMC_RET4(handle, INTEL_SIP_SMC_STATUS_OK,
 				completed_addr[0],
 				completed_addr[1],
 				completed_addr[2]);
-			break;
+
 		case 0:
 			SMC_RET4(handle, status, 0, 0, 0);
-			break;
+
 		default:
 			mailbox_clear_response();
 			SMC_RET1(handle, INTEL_SIP_SMC_STATUS_ERROR);
 		}
-		break;
+
+	case INTEL_SIP_SMC_REG_READ:
+		status = intel_secure_reg_read(x1, &val);
+		SMC_RET3(handle, status, val, x1);
+
+	case INTEL_SIP_SMC_REG_WRITE:
+		status = intel_secure_reg_write(x1, (uint32_t)x2, &val);
+		SMC_RET3(handle, status, val, x1);
+
+	case INTEL_SIP_SMC_REG_UPDATE:
+		status = intel_secure_reg_update(x1, (uint32_t)x2,
+						 (uint32_t)x3, &val);
+		SMC_RET3(handle, status, val, x1);
 
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,
