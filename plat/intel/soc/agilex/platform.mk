@@ -40,10 +40,10 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/agilex/socfpga_storage.c			\
                 plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
-		plat/intel/soc/agilex/soc/agilex_handoff.c		\
 		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
 		plat/intel/soc/agilex/soc/agilex_memory_controller.c	\
+		plat/intel/soc/common/soc/socfpga_handoff.c		\
 		plat/intel/soc/common/socfpga_delay_timer.c		\
 		plat/intel/soc/common/socfpga_image_load.c		\
 		plat/intel/soc/agilex/soc/agilex_system_manager.c	\
@@ -65,7 +65,6 @@ BL31_SOURCES	+=	\
 		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
 		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
-		plat/intel/soc/agilex/soc/agilex_handoff.c		\
 		plat/intel/soc/agilex/soc/agilex_mailbox.c
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0

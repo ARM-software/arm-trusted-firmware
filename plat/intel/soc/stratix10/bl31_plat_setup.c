@@ -23,7 +23,6 @@
 #include <platform_def.h>
 
 #include "stratix10_private.h"
-#include "s10_handoff.h"
 #include "s10_reset_manager.h"
 #include "s10_memory_controller.h"
 #include "s10_pinmux.h"
@@ -82,15 +81,15 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 }
 
 static const interrupt_prop_t s10_interrupt_props[] = {
-	PLAT_INTEL_S10_G1S_IRQ_PROPS(GICV2_INTR_GROUP0),
-	PLAT_INTEL_S10_G0_IRQ_PROPS(GICV2_INTR_GROUP0)
+	PLAT_INTEL_SOCFPGA_G1S_IRQ_PROPS(GICV2_INTR_GROUP0),
+	PLAT_INTEL_SOCFPGA_G0_IRQ_PROPS(GICV2_INTR_GROUP0)
 };
 
 static unsigned int target_mask_array[PLATFORM_CORE_COUNT];
 
 static const gicv2_driver_data_t plat_gicv2_gic_data = {
-	.gicd_base = PLAT_INTEL_S10_GICD_BASE,
-	.gicc_base = PLAT_INTEL_S10_GICC_BASE,
+	.gicd_base = PLAT_INTEL_SOCFPGA_GICD_BASE,
+	.gicc_base = PLAT_INTEL_SOCFPGA_GICC_BASE,
 	.interrupt_props = s10_interrupt_props,
 	.interrupt_props_num = ARRAY_SIZE(s10_interrupt_props),
 	.target_masks = target_mask_array,

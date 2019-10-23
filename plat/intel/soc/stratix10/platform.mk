@@ -37,7 +37,7 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/stratix10/plat_storage.c			\
                 plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/stratix10/soc/s10_reset_manager.c	\
-		plat/intel/soc/stratix10/soc/s10_handoff.c		\
+		plat/intel/soc/common/soc/socfpga_handoff.c		\
 		plat/intel/soc/stratix10/soc/s10_clock_manager.c	\
 		plat/intel/soc/stratix10/soc/s10_pinmux.c		\
 		plat/intel/soc/stratix10/soc/s10_memory_controller.c	\
@@ -63,7 +63,6 @@ BL31_SOURCES	+=	drivers/arm/cci/cci.c				\
 			plat/intel/soc/stratix10/soc/s10_reset_manager.c\
 			plat/intel/soc/stratix10/soc/s10_pinmux.c	\
 			plat/intel/soc/stratix10/soc/s10_clock_manager.c\
-			plat/intel/soc/stratix10/soc/s10_handoff.c	\
 			plat/intel/soc/stratix10/soc/s10_mailbox.c
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0

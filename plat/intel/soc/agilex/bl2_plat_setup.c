@@ -18,7 +18,6 @@
 #include <socfpga_private.h>
 
 #include "agilex_clock_manager.h"
-#include "agilex_handoff.h"
 #include "agilex_mailbox.h"
 #include "agilex_memory_controller.h"
 #include "agilex_pinmux.h"
@@ -28,6 +27,7 @@
 
 #include "ccu/ncore_ccu.h"
 #include "qspi/cadence_qspi.h"
+#include "socfpga_handoff.h"
 #include "wdt/watchdog.h"
 
 
@@ -59,7 +59,7 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 
 	generic_delay_timer_init();
 
-	if (agilex_get_handoff(&reverse_handoff_ptr))
+	if (socfpga_get_handoff(&reverse_handoff_ptr))
 		return;
 	config_pinmux(&reverse_handoff_ptr);
 	boot_source = reverse_handoff_ptr.boot_source;

@@ -27,11 +27,11 @@
 #include "s10_memory_controller.h"
 #include "s10_reset_manager.h"
 #include "s10_clock_manager.h"
-#include "s10_handoff.h"
 #include "s10_pinmux.h"
 #include "stratix10_private.h"
 #include "include/s10_mailbox.h"
 #include "qspi/cadence_qspi.h"
+#include "socfpga_handoff.h"
 #include "wdt/watchdog.h"
 
 
@@ -63,7 +63,7 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 
 	generic_delay_timer_init();
 
-	if (s10_get_handoff(&reverse_handoff_ptr))
+	if (socfpga_get_handoff(&reverse_handoff_ptr))
 		return;
 	config_pinmux(&reverse_handoff_ptr);
 	boot_source = reverse_handoff_ptr.boot_source;
