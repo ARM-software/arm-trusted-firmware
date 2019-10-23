@@ -34,7 +34,7 @@ BL2_SOURCES     +=	\
 		drivers/gpio/gpio.c					\
 		drivers/intel/soc/stratix10/io/s10_memmap_qspi.c	\
 		plat/intel/soc/stratix10/bl2_plat_setup.c		\
-		plat/intel/soc/stratix10/plat_storage.c			\
+		plat/intel/soc/common/socfpga_storage.c			\
                 plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/stratix10/soc/s10_reset_manager.c	\
 		plat/intel/soc/common/soc/socfpga_handoff.c		\

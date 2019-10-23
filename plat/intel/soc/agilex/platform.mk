@@ -37,7 +37,7 @@ BL2_SOURCES     +=	\
 		drivers/intel/soc/stratix10/io/s10_memmap_qspi.c	\
 		lib/cpus/aarch64/cortex_a53.S				\
 		plat/intel/soc/agilex/bl2_plat_setup.c			\
-		plat/intel/soc/agilex/socfpga_storage.c			\
+		plat/intel/soc/common/socfpga_storage.c			\
                 plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
