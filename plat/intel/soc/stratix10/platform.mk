@@ -55,9 +55,9 @@ BL31_SOURCES	+=	drivers/arm/cci/cci.c				\
 			lib/cpus/aarch64/aem_generic.S			\
 			lib/cpus/aarch64/cortex_a53.S			\
 			plat/common/plat_psci_common.c			\
-			plat/intel/soc/stratix10/plat_sip_svc.c		\
+			plat/intel/soc/common/socfpga_sip_svc.c		\
 			plat/intel/soc/stratix10/bl31_plat_setup.c 	\
-			plat/intel/soc/stratix10/plat_psci.c		\
+			plat/intel/soc/common/socfpga_psci.c		\
 			plat/intel/soc/common/socfpga_topology.c	\
 			plat/intel/soc/common/socfpga_delay_timer.c	\
 			plat/intel/soc/stratix10/soc/s10_reset_manager.c\

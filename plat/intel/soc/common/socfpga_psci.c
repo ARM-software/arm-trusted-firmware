@@ -11,13 +11,11 @@
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
 
-#include "agilex_reset_manager.h"
 #include "socfpga_mailbox.h"
+#include "socfpga_plat_def.h"
 
-#define AGX_RSTMGR_OFST			0xffd11000
-#define AGX_RSTMGR_MPUMODRST_OFST	0x20
 
-uintptr_t *agilex_sec_entry = (uintptr_t *) PLAT_SEC_ENTRY;
+uintptr_t *socfpga_sec_entry = (uintptr_t *) PLAT_SEC_ENTRY;
 uintptr_t *cpuid_release = (uintptr_t *) PLAT_CPUID_RELEASE;
 
 /*******************************************************************************
@@ -50,8 +48,7 @@ int socfpga_pwr_domain_on(u_register_t mpidr)
 	*cpuid_release = cpu_id;
 
 	/* release core reset */
-	mmio_setbits_32(AGX_RSTMGR_OFST + AGX_RSTMGR_MPUMODRST_OFST,
-		1 << cpu_id);
+	mmio_setbits_32(SOCFPGA_RSTMGR_MPUMODRST_OFST, 1 << cpu_id);
 	return PSCI_E_SUCCESS;
 }
 
@@ -81,8 +78,7 @@ void socfpga_pwr_domain_suspend(const psci_power_state_t *target_state)
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
 	/* assert core reset */
-	mmio_setbits_32(AGX_RSTMGR_OFST + AGX_RSTMGR_MPUMODRST_OFST,
-		1 << cpu_id);
+	mmio_setbits_32(SOCFPGA_RSTMGR_MPUMODRST_OFST, 1 << cpu_id);
 
 }
 
@@ -121,8 +117,7 @@ void socfpga_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 			__func__, i, target_state->pwr_domain_state[i]);
 
 	/* release core reset */
-	mmio_clrbits_32(AGX_RSTMGR_OFST + AGX_RSTMGR_MPUMODRST_OFST,
-		1 << cpu_id);
+	mmio_clrbits_32(SOCFPGA_RSTMGR_MPUMODRST_OFST, 1 << cpu_id);
 }
 
 /*******************************************************************************
@@ -137,9 +132,6 @@ static void __dead2 socfpga_system_off(void)
 
 static void __dead2 socfpga_system_reset(void)
 {
-	INFO("assert Peripheral from Reset\r\n");
-
-	deassert_peripheral_reset();
 	mailbox_reset_cold();
 
 	while (1)
@@ -191,7 +183,7 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const struct plat_psci_ops **psci_ops)
 {
 	/* Save warm boot entrypoint.*/
-	*agilex_sec_entry = sec_entrypoint;
+	*socfpga_sec_entry = sec_entrypoint;
 
 	*psci_ops = &socfpga_psci_pm_ops;
 	return 0;

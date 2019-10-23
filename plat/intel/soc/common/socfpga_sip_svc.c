@@ -360,7 +360,7 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 }
 
 DECLARE_RT_SVC(
-	agilex_sip_svc,
+	socfpga_sip_svc,
 	OEN_SIP_START,
 	OEN_SIP_END,
 	SMC_TYPE_FAST,
@@ -369,7 +369,7 @@ DECLARE_RT_SVC(
 );
 
 DECLARE_RT_SVC(
-	agilex_sip_svc_std,
+	socfpga_sip_svc_std,
 	OEN_SIP_START,
 	OEN_SIP_END,
 	SMC_TYPE_YIELD,

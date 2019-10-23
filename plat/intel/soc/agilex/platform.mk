@@ -57,9 +57,9 @@ BL31_SOURCES	+=	\
 		lib/cpus/aarch64/cortex_a53.S				\
 		lib/cpus/aarch64/aem_generic.S				\
 		plat/common/plat_psci_common.c				\
-		plat/intel/soc/agilex/socfpga_sip_svc.c			\
+		plat/intel/soc/common/socfpga_sip_svc.c			\
 		plat/intel/soc/agilex/bl31_plat_setup.c 		\
-		plat/intel/soc/agilex/socfpga_psci.c			\
+		plat/intel/soc/common/socfpga_psci.c			\
 		plat/intel/soc/common/socfpga_topology.c		\
 		plat/intel/soc/common/socfpga_delay_timer.c		\
 		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
