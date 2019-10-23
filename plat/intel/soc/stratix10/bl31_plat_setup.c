@@ -16,7 +16,6 @@
 #include <drivers/ti/uart/uart_16550.h>
 #include <drivers/generic_delay_timer.h>
 #include <drivers/arm/gicv2.h>
-#include <s10_mailbox.h>
 #include <lib/xlat_tables/xlat_tables.h>
 #include <lib/mmio.h>
 #include <plat/common/platform.h>

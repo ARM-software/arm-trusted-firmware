@@ -9,7 +9,7 @@
 #include <common/runtime_svc.h>
 #include <tools_share/uuid.h>
 
-#include "agilex_mailbox.h"
+#include "socfpga_mailbox.h"
 
 /* Number of SiP Calls implemented */
 #define SIP_NUM_CALLS		0x3

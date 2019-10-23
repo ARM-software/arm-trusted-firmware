@@ -12,7 +12,7 @@
 #include <plat/common/platform.h>
 
 #include "agilex_reset_manager.h"
-#include "agilex_mailbox.h"
+#include "socfpga_mailbox.h"
 
 #define AGX_RSTMGR_OFST			0xffd11000
 #define AGX_RSTMGR_MPUMODRST_OFST	0x20

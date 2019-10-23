@@ -47,7 +47,7 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/common/socfpga_delay_timer.c		\
 		plat/intel/soc/common/socfpga_image_load.c		\
 		plat/intel/soc/agilex/soc/agilex_system_manager.c	\
-		plat/intel/soc/agilex/soc/agilex_mailbox.c		\
+		plat/intel/soc/common/soc/socfpga_mailbox.c		\
 		plat/intel/soc/common/drivers/qspi/cadence_qspi.c	\
 		plat/intel/soc/common/drivers/wdt/watchdog.c		\
 		plat/intel/soc/common/drivers/ccu/ncore_ccu.c
@@ -65,7 +65,7 @@ BL31_SOURCES	+=	\
 		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
 		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
-		plat/intel/soc/agilex/soc/agilex_mailbox.c
+		plat/intel/soc/common/soc/socfpga_mailbox.c
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 BL2_AT_EL3			:= 1

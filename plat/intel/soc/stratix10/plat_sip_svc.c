@@ -8,7 +8,7 @@
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <lib/mmio.h>
-#include <s10_mailbox.h>
+#include <socfpga_mailbox.h>
 #include <tools_share/uuid.h>
 
 /* Number of SiP Calls implemented */

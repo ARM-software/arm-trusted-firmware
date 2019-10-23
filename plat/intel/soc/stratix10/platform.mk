@@ -46,7 +46,7 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/common/socfpga_image_load.c		\
 		plat/intel/soc/stratix10/soc/s10_system_manager.c	\
 		common/desc_image_load.c				\
-		plat/intel/soc/stratix10/soc/s10_mailbox.c		\
+		plat/intel/soc/common/soc/socfpga_mailbox.c		\
 		plat/intel/soc/common/drivers/qspi/cadence_qspi.c	\
 		plat/intel/soc/common/drivers/wdt/watchdog.c
 
@@ -63,7 +63,7 @@ BL31_SOURCES	+=	drivers/arm/cci/cci.c				\
 			plat/intel/soc/stratix10/soc/s10_reset_manager.c\
 			plat/intel/soc/stratix10/soc/s10_pinmux.c	\
 			plat/intel/soc/stratix10/soc/s10_clock_manager.c\
-			plat/intel/soc/stratix10/soc/s10_mailbox.c
+			plat/intel/soc/common/soc/socfpga_mailbox.c
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 BL2_AT_EL3			:= 1
