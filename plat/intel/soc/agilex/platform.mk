@@ -4,7 +4,7 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
-#
+
 PLAT_INCLUDES		:=	\
 			-Iplat/intel/soc/agilex/include/		\
 			-Iplat/intel/soc/common/drivers/		\
@@ -25,28 +25,26 @@ PLAT_BL_COMMON_SOURCES	:=	\
 
 BL2_SOURCES     +=	\
 		common/desc_image_load.c				\
-		drivers/partition/partition.c				\
-		drivers/partition/gpt.c					\
-		drivers/arm/pl061/pl061_gpio.c				\
 		drivers/mmc/mmc.c					\
-		drivers/synopsys/emmc/dw_mmc.c				\
+		drivers/intel/soc/stratix10/io/s10_memmap_qspi.c	\
 		drivers/io/io_storage.c					\
 		drivers/io/io_block.c					\
 		drivers/io/io_fip.c					\
-		drivers/gpio/gpio.c					\
-		drivers/intel/soc/stratix10/io/s10_memmap_qspi.c	\
+		drivers/partition/partition.c				\
+		drivers/partition/gpt.c					\
+		drivers/synopsys/emmc/dw_mmc.c				\
 		lib/cpus/aarch64/cortex_a53.S				\
 		plat/intel/soc/agilex/bl2_plat_setup.c			\
-		plat/intel/soc/common/socfpga_storage.c			\
-                plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
-		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
-		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
 		plat/intel/soc/agilex/soc/agilex_memory_controller.c	\
-		plat/intel/soc/common/soc/socfpga_handoff.c		\
+		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
+		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
+		plat/intel/soc/agilex/soc/agilex_system_manager.c	\
+                plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/common/socfpga_delay_timer.c		\
 		plat/intel/soc/common/socfpga_image_load.c		\
-		plat/intel/soc/agilex/soc/agilex_system_manager.c	\
+		plat/intel/soc/common/socfpga_storage.c			\
+		plat/intel/soc/common/soc/socfpga_handoff.c		\
 		plat/intel/soc/common/soc/socfpga_mailbox.c		\
 		plat/intel/soc/common/drivers/qspi/cadence_qspi.c	\
 		plat/intel/soc/common/drivers/wdt/watchdog.c		\
@@ -54,18 +52,14 @@ BL2_SOURCES     +=	\
 
 BL31_SOURCES	+=	\
 		drivers/arm/cci/cci.c					\
-		lib/cpus/aarch64/cortex_a53.S				\
 		lib/cpus/aarch64/aem_generic.S				\
+		lib/cpus/aarch64/cortex_a53.S				\
 		plat/common/plat_psci_common.c				\
-		plat/intel/soc/common/socfpga_sip_svc.c			\
 		plat/intel/soc/agilex/bl31_plat_setup.c 		\
 		plat/intel/soc/common/socfpga_psci.c			\
+		plat/intel/soc/common/socfpga_sip_svc.c			\
 		plat/intel/soc/common/socfpga_topology.c		\
-		plat/intel/soc/common/socfpga_delay_timer.c		\
-		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
-		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
-		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
-		plat/intel/soc/common/soc/socfpga_mailbox.c
+		plat/intel/soc/common/soc/socfpga_mailbox.c		\
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 BL2_AT_EL3			:= 1

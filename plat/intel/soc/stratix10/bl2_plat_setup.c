@@ -1,36 +1,29 @@
 /*
  * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch.h>
 #include <arch_helpers.h>
-#include <drivers/arm/gicv2.h>
-
-#include <drivers/generic_delay_timer.h>
-#include <drivers/console.h>
-#include <drivers/ti/uart/uart_16550.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
-#include <errno.h>
-#include <drivers/io/io_storage.h>
-#include <common/image_decompress.h>
-#include <plat/common/platform.h>
-#include <platform_def.h>
+#include <drivers/generic_delay_timer.h>
 #include <drivers/synopsys/dw_mmc.h>
-#include <lib/mmio.h>
+#include <drivers/ti/uart/uart_16550.h>
 #include <lib/xlat_tables/xlat_tables.h>
 
-#include "s10_memory_controller.h"
-#include "s10_reset_manager.h"
-#include "s10_clock_manager.h"
-#include "s10_pinmux.h"
 #include "qspi/cadence_qspi.h"
 #include "socfpga_handoff.h"
 #include "socfpga_mailbox.h"
 #include "socfpga_private.h"
+#include "s10_clock_manager.h"
+#include "s10_memory_controller.h"
+#include "s10_pinmux.h"
+#include "s10_reset_manager.h"
+#include "s10_system_manager.h"
 #include "wdt/watchdog.h"
 
 

@@ -12,7 +12,6 @@
 #include <drivers/arm/gicv2.h>
 #include <drivers/ti/uart/uart_16550.h>
 #include <lib/xlat_tables/xlat_tables.h>
-#include <platform_def.h>
 
 
 static entry_point_info_t bl32_image_ep_info;
@@ -104,7 +103,7 @@ const mmap_region_t plat_agilex_mmap[] = {
 		MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(MEM64_BASE, MEM64_SIZE, MT_DEVICE | MT_RW | MT_NS),
 	MAP_REGION_FLAT(DEVICE4_BASE, DEVICE4_SIZE, MT_DEVICE | MT_RW | MT_NS),
-	{0},
+	{0}
 };
 
 /*******************************************************************************
@@ -126,7 +125,7 @@ void bl31_plat_arch_setup(void)
 			BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,
 			MT_DEVICE | MT_RW | MT_SECURE),
 #endif
-		{0},
+		{0}
 	};
 
 	setup_page_tables(bl_regions, plat_agilex_mmap);

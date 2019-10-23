@@ -1,21 +1,16 @@
 /*
  * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <assert.h>
 #include <arch.h>
 #include <arch_helpers.h>
+#include <assert.h>
 #include <common/bl_common.h>
-#include <common/debug.h>
-#include <drivers/console.h>
-#include <drivers/delay_timer.h>
-#include <drivers/arm/gic_common.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/ti/uart/uart_16550.h>
-#include <drivers/generic_delay_timer.h>
-#include <drivers/arm/gicv2.h>
 #include <lib/xlat_tables/xlat_tables.h>
 #include <lib/mmio.h>
 #include <plat/common/platform.h>

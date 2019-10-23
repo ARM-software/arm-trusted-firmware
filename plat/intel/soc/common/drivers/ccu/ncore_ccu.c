@@ -10,7 +10,6 @@
 #include <lib/mmio.h>
 
 #include "ncore_ccu.h"
-#include <platform_def.h>
 
 uint32_t poll_active_bit(uint32_t dir);
 
