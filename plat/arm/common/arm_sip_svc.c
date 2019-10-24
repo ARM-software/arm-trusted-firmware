@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -50,16 +50,11 @@ static uintptr_t arm_sip_handler(unsigned int smc_fid,
 
 	switch (smc_fid) {
 	case ARM_SIP_SVC_EXE_STATE_SWITCH: {
-		u_register_t pc;
-
+		/* Execution state can be switched only if EL3 is AArch64 */
+#ifdef __aarch64__
 		/* Allow calls from non-secure only */
 		if (!is_caller_non_secure(flags))
 			SMC_RET1(handle, STATE_SW_E_DENIED);
-
-		/* Validate supplied entry point */
-		pc = (u_register_t) ((x1 << 32) | (uint32_t) x2);
-		if (arm_validate_ns_entrypoint(pc) != 0)
-			SMC_RET1(handle, STATE_SW_E_PARAM);
 
 		/*
 		 * Pointers used in execution state switch are all 32 bits wide
@@ -67,6 +62,10 @@ static uintptr_t arm_sip_handler(unsigned int smc_fid,
 		return (uintptr_t) arm_execution_state_switch(smc_fid,
 				(uint32_t) x1, (uint32_t) x2, (uint32_t) x3,
 				(uint32_t) x4, handle);
+#else
+		/* State switch denied */
+		SMC_RET1(handle, STATE_SW_E_DENIED);
+#endif /* __aarch64__ */
 		}
 
 	case ARM_SIP_SVC_CALL_COUNT:
