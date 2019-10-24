@@ -578,6 +578,11 @@ Common build options
    exposing a virtual filesystem interface through BL31 as a SiP SMC function.
    Default is 0.
 
+-  ``USE_FCONF_BASED_IO``: This flag determines whether to use IO based on the
+   firmware configuration framework. This allows moving the io_policies into a
+   configuration device tree, instead of static structure in the code base.
+
+
 -  ``USE_ROMLIB``: This flag determines whether library at ROM will be used.
    This feature creates a library of functions to be placed in ROM and thus
    reduces SRAM usage. Refer to :ref:`Library at ROM` for further details. Default
