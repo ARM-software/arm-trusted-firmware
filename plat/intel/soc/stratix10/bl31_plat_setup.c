@@ -53,23 +53,33 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	void *from_bl2 = (void *) arg0;
 
 	bl_params_t *params_from_bl2 = (bl_params_t *)from_bl2;
-
 	assert(params_from_bl2 != NULL);
-	assert(params_from_bl2->h.type == PARAM_BL_PARAMS);
-	assert(params_from_bl2->h.version >= VERSION_2);
 
 	/*
 	 * Copy BL32 (if populated by BL31) and BL33 entry point information.
 	 * They are stored in Secure RAM, in BL31's address space.
 	 */
 
-	bl_params_node_t *bl_params = params_from_bl2->head;
+	if (params_from_bl2->h.type == PARAM_BL_PARAMS &&
+		params_from_bl2->h.version >= VERSION_2) {
 
-	while (bl_params) {
-		if (bl_params->image_id == BL33_IMAGE_ID)
-			bl33_image_ep_info = *bl_params->ep_info;
+		bl_params_node_t *bl_params = params_from_bl2->head;
 
-		bl_params = bl_params->next_params_info;
+		while (bl_params) {
+			if (bl_params->image_id == BL33_IMAGE_ID)
+				bl33_image_ep_info = *bl_params->ep_info;
+
+			bl_params = bl_params->next_params_info;
+		}
+	} else {
+		struct socfpga_bl31_params *arg_from_bl2 =
+			(struct socfpga_bl31_params *) from_bl2;
+
+		assert(arg_from_bl2->h.type == PARAM_BL31);
+		assert(arg_from_bl2->h.version >= VERSION_1);
+
+		bl32_image_ep_info = *arg_from_bl2->bl32_ep_info;
+		bl33_image_ep_info = *arg_from_bl2->bl33_ep_info;
 	}
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 }

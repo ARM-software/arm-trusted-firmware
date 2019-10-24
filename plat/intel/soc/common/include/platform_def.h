@@ -199,5 +199,16 @@
 #define MAX_IO_DEVICES			4
 #define MAX_IO_BLOCK_DEVICES		2
 
+#ifndef __ASSEMBLER__
+struct socfpga_bl31_params {
+	param_header_t h;
+	image_info_t *bl31_image_info;
+	entry_point_info_t *bl32_ep_info;
+	image_info_t *bl32_image_info;
+	entry_point_info_t *bl33_ep_info;
+	image_info_t *bl33_image_info;
+};
+#endif
+
 #endif /* PLATFORM_DEF_H */
 
