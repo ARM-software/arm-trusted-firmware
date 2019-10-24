@@ -138,7 +138,7 @@ endif
 	@mv -t $(BUILD_PLAT)/$(BUILD_UART) $(TIM_IMAGE) $(DOIMAGE_CFG) $(TIMN_IMAGE) $(TIMNCFG)
 	@find . -name "*_h.*" |xargs cp -ut $(BUILD_PLAT)/$(BUILD_UART)
 	@mv $(subst .bin,_h.bin,$(WTMI_MULTI_IMG)) $(BUILD_PLAT)/$(BUILD_UART)/wtmi_h.bin
-	@tar czf $(BUILD_PLAT)/$(BUILD_UART).tgz -C $(BUILD_PLAT) ./$(BUILD_UART)
+	@tar czf $(BUILD_PLAT)/$(BUILD_UART).tgz.bin -C $(BUILD_PLAT) ./$(BUILD_UART)
 	@echo
 	@echo "Building flash image"
 	$(TIMBUILD) $(TIMBLDARGS)
