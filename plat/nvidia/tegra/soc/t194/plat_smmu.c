@@ -8,6 +8,7 @@
 #include <common/debug.h>
 #include <smmu.h>
 #include <tegra_def.h>
+#include <tegra_mc_def.h>
 
 #define BOARD_SYSTEM_FPGA_BASE		U(1)
 #define BASE_CONFIG_SMMU_DEVICES	U(2)

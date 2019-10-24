@@ -21,6 +21,7 @@
 #include <mce.h>
 #include <plat/common/platform.h>
 #include <tegra_def.h>
+#include <tegra_mc_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
