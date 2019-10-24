@@ -8,7 +8,6 @@
 #include <common/bl_common.h>
 #include <mce.h>
 #include <memctrl_v2.h>
-#include <tegra_mc_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
 

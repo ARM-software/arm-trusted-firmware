@@ -23,7 +23,6 @@
 #include <plat/common/platform.h>
 #include <spe.h>
 #include <tegra_def.h>
-#include <tegra_mc_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
@@ -86,8 +85,6 @@ const uint8_t *plat_get_power_domain_tree_desc(void)
  */
 static const mmap_region_t tegra_mmap[] = {
 	MAP_REGION_FLAT(TEGRA_MISC_BASE, 0x4000U, /* 16KB */
-			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_TSA_BASE, 0x20000U, /* 128KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_GPCDMA_BASE, 0x10000U, /* 64KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
