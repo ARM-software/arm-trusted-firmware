@@ -4,11 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <plat/common/platform.h>
+#include <assert.h>
+#include <stdint.h>
 #include <drivers/arm/sbsa.h>
 #include <lib/mmio.h>
-#include <stdint_.h>
-#include <assert.h>
+#include <plat/common/platform.h>
 
 void sbsa_watchdog_offset_reg_write(uintptr_t base, uint64_t value)
 {
