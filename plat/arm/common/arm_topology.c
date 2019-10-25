@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,7 +24,8 @@ int arm_check_mpidr(u_register_t mpidr)
 
 	valid_mask = ~(MPIDR_AFFLVL_MASK |
 			(MPIDR_AFFLVL_MASK << MPIDR_AFF1_SHIFT) |
-			(MPIDR_AFFLVL_MASK << MPIDR_AFF2_SHIFT));
+			(MPIDR_AFFLVL_MASK << MPIDR_AFF2_SHIFT) |
+			(MPIDR_AFFLVL_MASK << MPIDR_AFF3_SHIFT));
 	cluster_id = (mpidr >> MPIDR_AFF2_SHIFT) & MPIDR_AFFLVL_MASK;
 	cpu_id = (mpidr >> MPIDR_AFF1_SHIFT) & MPIDR_AFFLVL_MASK;
 	pe_id = (mpidr >> MPIDR_AFF0_SHIFT) & MPIDR_AFFLVL_MASK;
