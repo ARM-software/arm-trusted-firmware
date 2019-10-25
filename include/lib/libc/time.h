@@ -11,12 +11,8 @@
 #ifndef TIME_H
 #define TIME_H
 
-#include <time_.h>
+#include <stddef.h>
 
 typedef long int time_t;
-
-#ifndef NULL
-#define NULL ((void *) 0)
-#endif
 
 #endif /* TIME_H */
