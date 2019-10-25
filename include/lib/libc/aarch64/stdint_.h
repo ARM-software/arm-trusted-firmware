@@ -75,7 +75,7 @@
 #define UINT32_C(x) x ## U
 #define UINT64_C(x) x ## ULL
 
-#define INTMAX_C(x)  x ## L
+#define INTMAX_C(x)  x ## LL
 #define UINTMAX_C(x) x ## ULL
 
 typedef signed char int8_t;
@@ -111,8 +111,12 @@ typedef unsigned long long uint64_fast_t;
 typedef long intptr_t;
 typedef unsigned long uintptr_t;
 
-typedef long intmax_t;
-typedef unsigned long uintmax_t;
+/*
+ * Conceptually, these are supposed to be the largest integers representable in C,
+ * but GCC and Clang define them as long long for compatibility.
+ */
+typedef long long intmax_t;
+typedef unsigned long long uintmax_t;
 
 typedef long register_t;
 typedef unsigned long u_register_t;
