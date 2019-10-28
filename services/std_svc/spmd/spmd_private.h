@@ -35,7 +35,9 @@
 
 typedef enum spmc_state {
 	SPMC_STATE_RESET = 0,
-	SPMC_STATE_IDLE
+	SPMC_STATE_OFF,
+	SPMC_STATE_ON_PENDING,
+	SPMC_STATE_ON
 } spmc_state_t;
 
 /*
