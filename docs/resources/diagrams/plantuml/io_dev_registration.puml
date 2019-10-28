@@ -1,9 +1,9 @@
 @startuml
 
-participant arm_io_storage order 1
-participant io_storage order 2
-participant io_fip order 3
-participant io_memmap order 4
+participant arm_io_storage
+participant io_storage
+participant io_fip
+participant io_memmap
 
  -> arm_io_storage : arm_io_setup()
 
