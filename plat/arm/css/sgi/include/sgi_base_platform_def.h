@@ -17,8 +17,9 @@
 #include <plat/arm/soc/common/soc_css_def.h>
 #include <plat/common/common_def.h>
 
-#define PLATFORM_CORE_COUNT		(PLAT_ARM_CLUSTER_COUNT *	\
-					CSS_SGI_MAX_CPUS_PER_CLUSTER * \
+#define PLATFORM_CORE_COUNT		(CSS_SGI_CHIP_COUNT *		\
+					PLAT_ARM_CLUSTER_COUNT *	\
+					CSS_SGI_MAX_CPUS_PER_CLUSTER *	\
 					CSS_SGI_MAX_PE_PER_CPU)
 
 #define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00040000	/* 256 KB */
@@ -38,14 +39,14 @@
 #  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	10
 # else
 #  define PLAT_ARM_MMAP_ENTRIES		8
-#  define MAX_XLAT_TABLES		5
+#  define MAX_XLAT_TABLES		8
 # endif
 #elif defined(IMAGE_BL32)
 # define PLAT_ARM_MMAP_ENTRIES		8
 # define MAX_XLAT_TABLES		5
 #elif !USE_ROMLIB
 # define PLAT_ARM_MMAP_ENTRIES		11
-# define MAX_XLAT_TABLES		5
+# define MAX_XLAT_TABLES		7
 #else
 # define PLAT_ARM_MMAP_ENTRIES		12
 # define MAX_XLAT_TABLES		6

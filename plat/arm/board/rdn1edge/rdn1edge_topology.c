@@ -5,14 +5,19 @@
  */
 
 #include <plat/arm/common/plat_arm.h>
+#include <plat/arm/css/common/css_pm.h>
 
 /******************************************************************************
  * The power domain tree descriptor.
  ******************************************************************************/
 static const unsigned char rdn1edge_pd_tree_desc[] = {
-	PLAT_ARM_CLUSTER_COUNT,
+	(PLAT_ARM_CLUSTER_COUNT) * (CSS_SGI_CHIP_COUNT),
+	CSS_SGI_MAX_CPUS_PER_CLUSTER,
+	CSS_SGI_MAX_CPUS_PER_CLUSTER,
+#if (CSS_SGI_CHIP_COUNT > 1)
 	CSS_SGI_MAX_CPUS_PER_CLUSTER,
 	CSS_SGI_MAX_CPUS_PER_CLUSTER
+#endif
 };
 
 /*******************************************************************************
@@ -28,5 +33,22 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
  * to the SCMI power domain ID implemented by SCP.
  ******************************************************************************/
 const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[] = {
-	0, 1, 2, 3, 4, 5, 6, 7
+	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x0)),
+	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x1)),
+	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x2)),
+	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x3)),
+	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x4)),
+	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x5)),
+	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x6)),
+	(SET_SCMI_CHANNEL_ID(0x0) | SET_SCMI_DOMAIN_ID(0x7)),
+#if (CSS_SGI_CHIP_COUNT > 1)
+	(SET_SCMI_CHANNEL_ID(0x1) | SET_SCMI_DOMAIN_ID(0x0)),
+	(SET_SCMI_CHANNEL_ID(0x1) | SET_SCMI_DOMAIN_ID(0x1)),
+	(SET_SCMI_CHANNEL_ID(0x1) | SET_SCMI_DOMAIN_ID(0x2)),
+	(SET_SCMI_CHANNEL_ID(0x1) | SET_SCMI_DOMAIN_ID(0x3)),
+	(SET_SCMI_CHANNEL_ID(0x1) | SET_SCMI_DOMAIN_ID(0x4)),
+	(SET_SCMI_CHANNEL_ID(0x1) | SET_SCMI_DOMAIN_ID(0x5)),
+	(SET_SCMI_CHANNEL_ID(0x1) | SET_SCMI_DOMAIN_ID(0x6)),
+	(SET_SCMI_CHANNEL_ID(0x1) | SET_SCMI_DOMAIN_ID(0x7)),
+#endif
 };
