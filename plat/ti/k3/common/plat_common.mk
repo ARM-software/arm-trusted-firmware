@@ -31,6 +31,9 @@ HANDLE_EA_EL3_FIRST	:= 1
 # Split out RO data into a non-executable section
 SEPARATE_CODE_AND_RODATA :=    1
 
+# Generate a Position Independent Executable
+ENABLE_PIE		:=	1
+
 TI_16550_MDR_QUIRK	:=	1
 $(eval $(call add_define,TI_16550_MDR_QUIRK))
 
