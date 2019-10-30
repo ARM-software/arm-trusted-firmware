@@ -64,6 +64,25 @@ static void fvp_cluster_pwrdwn_common(void)
 	/* Disable coherency if this cluster is to be turned off */
 	fvp_interconnect_disable();
 
+#if HW_ASSISTED_COHERENCY
+	uint32_t reg;
+
+	/*
+	 * If we have determined this core to be the last man standing and we
+	 * intend to power down the cluster proactively, we provide a hint to
+	 * the power controller that cluster power is not required when all
+	 * cores are powered down.
+	 * Note that this is only an advisory to power controller and is supported
+	 * by SoCs with DynamIQ Shared Units only.
+	 */
+	reg = read_clusterpwrdn();
+
+	/* Clear and set bit 0 : Cluster power not required */
+	reg &= ~DSU_CLUSTER_PWR_MASK;
+	reg |= DSU_CLUSTER_PWR_OFF;
+	write_clusterpwrdn(reg);
+#endif
+
 	/* Program the power controller to turn the cluster off */
 	fvp_pwrc_write_pcoffr(mpidr);
 }
