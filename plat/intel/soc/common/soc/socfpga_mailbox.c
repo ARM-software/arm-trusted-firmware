@@ -18,12 +18,6 @@ static int fill_mailbox_circular_buffer(uint32_t header_cmd, uint32_t *args,
 
 	cmd_free_offset = mmio_read_32(MBOX_OFFSET + MBOX_CIN);
 
-	if (cmd_free_offset >= MBOX_CMD_BUFFER_SIZE) {
-		INFO("Insufficient buffer in mailbox\n");
-		return MBOX_INSUFFICIENT_BUFFER;
-	}
-
-
 	mmio_write_32(MBOX_OFFSET + MBOX_CMD_BUFFER + (cmd_free_offset++ * 4),
 			header_cmd);
 
@@ -109,7 +103,6 @@ int mailbox_poll_response(int job_id, int urgent, uint32_t *response)
 	int resp = 0;
 	int total_resp_len = 0;
 
-	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_TO_SDM, 1);
 
 	while (1) {
 		while (timeout > 0 &&
@@ -159,7 +152,6 @@ int mailbox_poll_response(int job_id, int urgent, uint32_t *response)
 			response_length = MBOX_RESP_LEN(resp);
 
 			while (response_length) {
-
 				response_length--;
 				resp = mmio_read_32(MBOX_OFFSET +
 							MBOX_RESP_BUFFER +
@@ -177,9 +169,11 @@ int mailbox_poll_response(int job_id, int urgent, uint32_t *response)
 	}
 }
 
-void mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
+int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
 			  int len, int urgent)
 {
+	int timeout = 100000;
+
 	if (urgent)
 		mmio_write_32(MBOX_OFFSET + MBOX_URG, 1);
 
@@ -188,29 +182,49 @@ void mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
 					MBOX_CMD_LEN_CMD(len) |
 					MBOX_INDIRECT |
 					cmd, args, len);
+
+	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_TO_SDM, 1);
+
+	while (mmio_read_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM) != 1) {
+		if (timeout-- < 0)
+			return MBOX_NO_RESPONSE;
+	}
+
+	return 0;
 }
 
 int mailbox_send_cmd(int job_id, unsigned int cmd, uint32_t *args,
 			  int len, int urgent, uint32_t *response)
 {
-	int status;
+	int status = 0;
 
 	if (urgent) {
 		urgent |= mmio_read_32(MBOX_OFFSET + MBOX_STATUS) &
 					MBOX_STATUS_UA_MASK;
 		mmio_write_32(MBOX_OFFSET + MBOX_URG, cmd);
-		status = 0;
-	} else {
+	}
+
+	else {
 		status = fill_mailbox_circular_buffer(
 			MBOX_CLIENT_ID_CMD(MBOX_ATF_CLIENT_ID) |
 			MBOX_JOB_ID_CMD(job_id) |
+			MBOX_CMD_LEN_CMD(len) |
 			cmd, args, len);
 	}
 
 	if (status)
 		return status;
 
-	return mailbox_poll_response(job_id, urgent, response);
+	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_TO_SDM, 1);
+	status = mailbox_poll_response(job_id, urgent, response);
+
+	return status;
+}
+
+void mailbox_clear_response(void)
+{
+	mmio_write_32(MBOX_OFFSET + MBOX_ROUT,
+		mmio_read_32(MBOX_OFFSET + MBOX_RIN));
 }
 
 void mailbox_set_int(int interrupt)
@@ -267,14 +281,13 @@ int mailbox_init(void)
 
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE |
 			MBOX_INT_FLAG_UAE);
-	mmio_write_32(MBOX_OFFSET + MBOX_URG, 0);
-	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM, 0);
 	status = mailbox_send_cmd(0, MBOX_CMD_RESTART, 0, 0, 1, 0);
 
 	if (status)
 		return status;
 
-	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
+	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE |
+			MBOX_INT_FLAG_UAE);
 
 	return 0;
 }
@@ -305,5 +318,5 @@ uint32_t intel_mailbox_get_config_status(uint32_t cmd)
 		(res & SOFTFUNC_STATUS_INIT_DONE))
 		return INTEL_SIP_SMC_STATUS_OK;
 
-	return MBOX_CFGSTAT_STATE_CONFIG;
+	return INTEL_SIP_SMC_STATUS_BUSY;
 }

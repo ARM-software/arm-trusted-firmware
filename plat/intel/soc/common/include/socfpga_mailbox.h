@@ -11,6 +11,7 @@
 
 #define MBOX_OFFSET			0xffa30000
 
+#define MBOX_MAX_JOB_ID			0xf
 #define MBOX_ATF_CLIENT_ID		0x1
 #define MBOX_JOB_ID			0x1
 
@@ -66,6 +67,9 @@
 #define MBOX_CMD_GET_IDCODE		16
 #define MBOX_CMD_QSPI_SET_CS		52
 
+/* Mailbox CANCEL command */
+#define MBOX_CMD_CANCEL			0x3
+
 /* Mailbox REBOOT commands */
 #define MBOX_CMD_REBOOT_HPS		71
 
@@ -98,11 +102,13 @@ void mailbox_set_qspi_open(void);
 void mailbox_set_qspi_direct(void);
 int mailbox_send_cmd(int job_id, unsigned int cmd, uint32_t *args,
 				int len, int urgent, uint32_t *response);
-void mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
+int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
 				int len, int urgent);
 int mailbox_read_response(int job_id, uint32_t *response);
 int mailbox_get_qspi_clock(void);
 void mailbox_reset_cold(void);
+void mailbox_clear_response(void);
+
 uint32_t intel_mailbox_get_config_status(uint32_t cmd);
 
 #endif /* SOCFPGA_MBOX_H */
