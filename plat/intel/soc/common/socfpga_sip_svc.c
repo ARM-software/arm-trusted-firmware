@@ -18,13 +18,14 @@
 /* Total buffer the driver can hold */
 #define FPGA_CONFIG_BUFFER_SIZE 4
 
-int current_block;
-int current_buffer;
-int current_id = 1;
-int max_blocks;
-uint32_t bytes_per_block;
-uint32_t blocks_submitted;
-uint32_t blocks_completed;
+static int current_block;
+static int read_block;
+static int current_buffer;
+static int send_id;
+static int rcv_id;
+static int max_blocks;
+static uint32_t bytes_per_block;
+static uint32_t blocks_submitted;
 
 struct fpga_config_info {
 	uint32_t addr;
@@ -68,7 +69,8 @@ static void intel_fpga_sdm_write_buffer(struct fpga_config_info *buffer)
 			buffer->size_written +=
 				buffer->size - buffer->size_written;
 			buffer->subblocks_sent++;
-			mailbox_send_cmd_async(0x4,
+			mailbox_send_cmd_async(
+				send_id++ % MBOX_MAX_JOB_ID,
 				MBOX_RECONFIG_DATA,
 				args, 3, 0);
 			current_buffer++;
@@ -78,7 +80,8 @@ static void intel_fpga_sdm_write_buffer(struct fpga_config_info *buffer)
 			args[1] = buffer->addr + buffer->size_written;
 			args[2] = bytes_per_block;
 			buffer->size_written += bytes_per_block;
-			mailbox_send_cmd_async(0x4,
+			mailbox_send_cmd_async(
+				send_id++ % MBOX_MAX_JOB_ID,
 				MBOX_RECONFIG_DATA,
 				args, 3, 0);
 			buffer->subblocks_sent++;
@@ -134,6 +137,8 @@ unsigned int address_in_ddr(uint32_t *addr)
 	return -1;
 }
 
+int mailbox_poll_response(int job_id, int urgent, uint32_t *response);
+
 int intel_fpga_config_completed_write(uint32_t *completed_addr,
 					uint32_t *count)
 {
@@ -142,30 +147,29 @@ int intel_fpga_config_completed_write(uint32_t *completed_addr,
 	int resp_len = 0;
 	uint32_t resp[5];
 	int all_completed = 1;
-	int count_check = 0;
 
-	if (address_in_ddr(completed_addr) != 0 || address_in_ddr(count) != 0)
-		return INTEL_SIP_SMC_STATUS_ERROR;
+	while (*count < 3) {
 
-	for (count_check = 0; count_check < 3; count_check++)
-		if (address_in_ddr(&completed_addr[*count + count_check]) != 0)
-			return INTEL_SIP_SMC_STATUS_ERROR;
+		resp_len = mailbox_read_response(
+			rcv_id % MBOX_MAX_JOB_ID, resp);
 
-	resp_len = mailbox_read_response(0x4, resp);
+		if (resp_len < 0)
+			break;
 
-	while (resp_len >= 0 && *count < 3) {
 		max_blocks++;
+		rcv_id++;
+
 		if (mark_last_buffer_xfer_completed(
 			&completed_addr[*count]) == 0)
 			*count = *count + 1;
 		else
 			break;
-		resp_len = mailbox_read_response(0x4, resp);
 	}
 
 	if (*count <= 0) {
 		if (resp_len != MBOX_NO_RESPONSE &&
 			resp_len != MBOX_TIMEOUT && resp_len != 0) {
+			mailbox_clear_response();
 			return INTEL_SIP_SMC_STATUS_ERROR;
 		}
 
@@ -197,7 +201,11 @@ int intel_fpga_config_start(uint32_t config_type)
 	uint32_t response[3];
 	int status = 0;
 
-	status = mailbox_send_cmd(2, MBOX_RECONFIG, 0, 0, 0,
+	mailbox_clear_response();
+
+	mailbox_send_cmd(1, MBOX_CMD_CANCEL, 0, 0, 0, response);
+
+	status = mailbox_send_cmd(1, MBOX_RECONFIG, 0, 0, 0,
 			response);
 
 	if (status < 0)
@@ -217,7 +225,10 @@ int intel_fpga_config_start(uint32_t config_type)
 
 	blocks_submitted = 0;
 	current_block = 0;
+	read_block = 0;
 	current_buffer = 0;
+	send_id = 0;
+	rcv_id = 0;
 
 	return 0;
 }
@@ -323,6 +334,7 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 			SMC_RET4(handle, status, 0, 0, 0);
 			break;
 		default:
+			mailbox_clear_response();
 			SMC_RET1(handle, INTEL_SIP_SMC_STATUS_ERROR);
 		}
 		break;
