@@ -1,7 +1,7 @@
 @startuml
 
-participant arm_io_storage order 1
-participant io_storage order 2
+participant arm_io_storage
+participant io_storage
 
  -> arm_io_storage : plat_get_image_source(image_id, &dev_handle, &image_spec)
 

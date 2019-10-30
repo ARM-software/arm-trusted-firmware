@@ -1,8 +1,8 @@
 @startuml
 
-participant bl_common order 1
-participant arm_io_storage order 2
-participant io_storage order 3
+participant bl_common
+participant arm_io_storage
+participant io_storage
 
 == Platform Setup ==
 
