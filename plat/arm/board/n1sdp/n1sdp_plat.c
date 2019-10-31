@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,6 +25,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	N1SDP_MAP_NS_SRAM,
 	ARM_MAP_DRAM1,
 	ARM_MAP_DRAM2,
+	N1SDP_MAP_REMOTE_DEVICE,
+	N1SDP_MAP_REMOTE_DRAM1,
+	N1SDP_MAP_REMOTE_DRAM2,
 	{0}
 };
 
