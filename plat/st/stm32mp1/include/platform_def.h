@@ -51,6 +51,7 @@
 #define MAX_IO_DEVICES			U(4)
 #define MAX_IO_HANDLES			U(4)
 #define MAX_IO_BLOCK_DEVICES		U(1)
+#define MAX_IO_MTD_DEVICES		U(1)
 
 /*******************************************************************************
  * BL2 specific defines.

@@ -33,6 +33,9 @@
 /* Boot occurred on EMMC */
 #define BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_EMMC		0x2U
 
+/* Boot occurred on FMC */
+#define BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_FMC		0x3U
+
 /**
  * @brief  Possible value of boot context field 'EmmcXferStatus'
  */

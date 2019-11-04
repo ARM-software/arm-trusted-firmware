@@ -14,11 +14,14 @@
 #include <drivers/io/io_block.h>
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_dummy.h>
+#include <drivers/io/io_mtd.h>
 #include <drivers/io/io_storage.h>
 #include <drivers/mmc.h>
 #include <drivers/partition/partition.h>
+#include <drivers/raw_nand.h>
 #include <drivers/st/io_mmc.h>
 #include <drivers/st/io_stm32image.h>
+#include <drivers/st/stm32_fmc2_nand.h>
 #include <drivers/st/stm32_sdmmc2.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
@@ -55,6 +58,17 @@ static const io_block_dev_spec_t mmc_block_dev_spec = {
 
 static const io_dev_connector_t *mmc_dev_con;
 #endif /* STM32MP_SDMMC || STM32MP_EMMC */
+
+#if STM32MP_RAW_NAND
+static io_mtd_dev_spec_t nand_dev_spec = {
+	.ops = {
+		.init = nand_raw_init,
+		.read = nand_read,
+	},
+};
+
+static const io_dev_connector_t *nand_dev_con;
+#endif
 
 #ifdef AARCH32_SP_OPTEE
 static const struct stm32image_part_info optee_header_partition_spec = {
@@ -209,6 +223,9 @@ static void print_boot_device(boot_api_context_t *boot_context)
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_EMMC:
 		INFO("Using EMMC\n");
 		break;
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_FMC:
+		INFO("Using FMC NAND\n");
+		break;
 	default:
 		ERROR("Boot interface not found\n");
 		panic();
@@ -312,6 +329,59 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 }
 #endif /* STM32MP_SDMMC || STM32MP_EMMC */
 
+#if STM32MP_RAW_NAND
+static void boot_fmc2_nand(boot_api_context_t *boot_context)
+{
+	int io_result __unused;
+	uint8_t idx;
+	struct stm32image_part_info *part;
+
+	io_result = stm32_fmc2_init();
+	assert(io_result == 0);
+
+	/* Register the IO device on this platform */
+	io_result = register_io_dev_mtd(&nand_dev_con);
+	assert(io_result == 0);
+
+	/* Open connections to device */
+	io_result = io_dev_open(nand_dev_con, (uintptr_t)&nand_dev_spec,
+				&storage_dev_handle);
+	assert(io_result == 0);
+
+	stm32image_dev_info_spec.device_size = nand_dev_spec.device_size;
+
+	idx = IMG_IDX_BL33;
+	part = &stm32image_dev_info_spec.part_info[idx];
+	part->part_offset = STM32MP_NAND_BL33_OFFSET;
+	part->bkp_offset = nand_dev_spec.erase_size;
+
+#ifdef AARCH32_SP_OPTEE
+	idx = IMG_IDX_OPTEE_HEADER;
+	part = &stm32image_dev_info_spec.part_info[idx];
+	part->part_offset = STM32MP_NAND_TEEH_OFFSET;
+	part->bkp_offset = nand_dev_spec.erase_size;
+
+	idx = IMG_IDX_OPTEE_PAGED;
+	part = &stm32image_dev_info_spec.part_info[idx];
+	part->part_offset = STM32MP_NAND_TEED_OFFSET;
+	part->bkp_offset = nand_dev_spec.erase_size;
+
+	idx = IMG_IDX_OPTEE_PAGER;
+	part = &stm32image_dev_info_spec.part_info[idx];
+	part->part_offset = STM32MP_NAND_TEEX_OFFSET;
+	part->bkp_offset = nand_dev_spec.erase_size;
+#endif
+
+	io_result = register_io_dev_stm32image(&stm32image_dev_con);
+	assert(io_result == 0);
+
+	io_result = io_dev_open(stm32image_dev_con,
+				(uintptr_t)&stm32image_dev_info_spec,
+				&image_dev_handle);
+	assert(io_result == 0);
+}
+#endif /* STM32MP_RAW_NAND */
+
 void stm32mp_io_setup(void)
 {
 	int io_result __unused;
@@ -344,6 +414,12 @@ void stm32mp_io_setup(void)
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_EMMC:
 		dmbsy();
 		boot_mmc(MMC_IS_EMMC, boot_context->boot_interface_instance);
+		break;
+#endif
+#if STM32MP_RAW_NAND
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_FMC:
+		dmbsy();
+		boot_fmc2_nand(boot_context);
 		break;
 #endif
 
