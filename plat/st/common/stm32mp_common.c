@@ -135,6 +135,55 @@ int stm32mp_unmap_ddr(void)
 					   STM32MP_DDR_MAX_SIZE);
 }
 
+int stm32_get_otp_index(const char *otp_name, uint32_t *otp_idx,
+			uint32_t *otp_len)
+{
+	assert(otp_name != NULL);
+	assert(otp_idx != NULL);
+
+	return dt_find_otp_name(otp_name, otp_idx, otp_len);
+}
+
+int stm32_get_otp_value(const char *otp_name, uint32_t *otp_val)
+{
+	uint32_t otp_idx;
+
+	assert(otp_name != NULL);
+	assert(otp_val != NULL);
+
+	if (stm32_get_otp_index(otp_name, &otp_idx, NULL) != 0) {
+		return -1;
+	}
+
+	if (stm32_get_otp_value_from_idx(otp_idx, otp_val) != 0) {
+		ERROR("BSEC: %s Read Error\n", otp_name);
+		return -1;
+	}
+
+	return 0;
+}
+
+int stm32_get_otp_value_from_idx(const uint32_t otp_idx, uint32_t *otp_val)
+{
+	uint32_t ret = BSEC_NOT_SUPPORTED;
+
+	assert(otp_val != NULL);
+
+#if defined(IMAGE_BL2)
+	ret = bsec_shadow_read_otp(otp_val, otp_idx);
+#elif defined(IMAGE_BL32)
+	ret = bsec_read_otp(otp_val, otp_idx);
+#else
+#error "Not supported"
+#endif
+	if (ret != BSEC_OK) {
+		ERROR("BSEC: idx=%u Read Error\n", otp_idx);
+		return -1;
+	}
+
+	return 0;
+}
+
 #if  defined(IMAGE_BL2)
 static void reset_uart(uint32_t reset)
 {

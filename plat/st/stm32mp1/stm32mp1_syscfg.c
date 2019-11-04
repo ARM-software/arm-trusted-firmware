@@ -7,11 +7,11 @@
 #include <common/debug.h>
 #include <drivers/clk.h>
 #include <drivers/delay_timer.h>
-#include <drivers/st/bsec.h>
 #include <drivers/st/stpmic1.h>
 #include <lib/mmio.h>
 
 #include <platform_def.h>
+#include <stm32mp_common.h>
 #include <stm32mp_dt.h>
 #include <stm32mp1_private.h>
 
@@ -116,8 +116,9 @@ static void enable_high_speed_mode_low_voltage(void)
 
 static void stm32mp1_syscfg_set_hslv(void)
 {
-	uint32_t otp = 0;
+	uint32_t otp_value;
 	uint32_t vdd_voltage;
+	bool product_below_2v5;
 
 	/*
 	 * High Speed Low Voltage Pad mode Enable for SPI, SDMMC, ETH, QSPI
@@ -134,26 +135,26 @@ static void stm32mp1_syscfg_set_hslv(void)
 	 *   => TF-A enables the low power mode only if VDD < 2.7V (in DT)
 	 *      but this value needs to be consistent with board design.
 	 */
-	if (bsec_read_otp(&otp, HW2_OTP) != BSEC_OK) {
+	if (stm32_get_otp_value(HW2_OTP, &otp_value) != 0) {
 		panic();
 	}
 
-	otp = otp & HW2_OTP_PRODUCT_BELOW_2V5;
+	product_below_2v5 = (otp_value & HW2_OTP_PRODUCT_BELOW_2V5) != 0U;
 
 	/* Get VDD supply */
 	vdd_voltage = dt_get_pwr_vdd_voltage();
 
 	/* Check if VDD is Low Voltage */
 	if (vdd_voltage == 0U) {
-		WARN("VDD unknown");
+		WARN("VDD unknown\n");
 	} else if (vdd_voltage < 2700000U) {
 		enable_high_speed_mode_low_voltage();
 
-		if (otp == 0U) {
+		if (!product_below_2v5) {
 			INFO("Product_below_2v5=0: HSLVEN protected by HW\n");
 		}
 	} else {
-		if (otp != 0U) {
+		if (product_below_2v5) {
 			ERROR("Product_below_2v5=1:\n");
 			ERROR("\tHSLVEN update is destructive,\n");
 			ERROR("\tno update as VDD > 2.7V\n");

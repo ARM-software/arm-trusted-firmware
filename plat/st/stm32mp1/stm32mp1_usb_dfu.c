@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -157,27 +157,28 @@ static void stm32mp1_get_string(const char *desc, uint8_t *unicode, uint16_t *le
 static void update_serial_num_string(void)
 {
 	uint8_t i;
-	uint32_t result;
 	char serial_string[SIZ_STRING_SERIAL + 2U];
-	uint32_t deviceserial[UID_WORD_NB];
+	/* serial number is set to 0 */
+	uint32_t deviceserial[UID_WORD_NB] = {0U, 0U, 0U};
+	uint32_t otp;
+	uint32_t len;
 	uint16_t length;
 
-	for (i = 0U; i < UID_WORD_NB; i++) {
-		result = bsec_shadow_register(i + UID0_OTP);
-		if (result != BSEC_OK) {
-			ERROR("BSEC: UID%d Shadowing Error\n", i);
-			break;
-		}
-		result = bsec_read_otp(&deviceserial[i], i + UID0_OTP);
-		if (result != BSEC_OK) {
-			ERROR("BSEC: UID%d Read Error\n", i);
-			break;
-		}
+	if (stm32_get_otp_index(UID_OTP, &otp, &len) != 0) {
+		ERROR("BSEC: Get UID_OTP number Error\n");
+		return;
 	}
-	/* On bsec error: serial number is set to 0 */
-	if (result != BSEC_OK) {
-		for (i = 0; i < UID_WORD_NB; i++) {
-			deviceserial[i] = 0U;
+
+	if ((len / __WORD_BIT) != UID_WORD_NB) {
+		ERROR("BSEC: Get UID_OTP length Error\n");
+		return;
+	}
+
+	for (i = 0; i < UID_WORD_NB; i++) {
+		if (bsec_shadow_read_otp(&deviceserial[i], i + otp) !=
+		    BSEC_OK) {
+			ERROR("BSEC: UID%d Error\n", i);
+			return;
 		}
 	}
 	/* build serial number with OTP value as in ROM code */

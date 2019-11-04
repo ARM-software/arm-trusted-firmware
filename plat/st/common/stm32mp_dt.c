@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -316,6 +316,73 @@ const char *dt_get_board_model(void)
 	}
 
 	return (const char *)fdt_getprop(fdt, node, "model", NULL);
+}
+
+/*******************************************************************************
+ * dt_find_otp_name: get OTP ID and length in DT.
+ * name: sub-node name to look up.
+ * otp: pointer to read OTP number or NULL.
+ * otp_len: pointer to read OTP length in bits or NULL.
+ * return value: 0 if no error, an FDT error value otherwise.
+ ******************************************************************************/
+int dt_find_otp_name(const char *name, uint32_t *otp, uint32_t *otp_len)
+{
+	int node;
+	int index, len;
+	const fdt32_t *cuint;
+
+	if ((name == NULL) || (otp == NULL)) {
+		return -FDT_ERR_BADVALUE;
+	}
+
+	node = fdt_node_offset_by_compatible(fdt, -1, DT_NVMEM_LAYOUT_COMPAT);
+	if (node < 0) {
+		return node;
+	}
+
+	index = fdt_stringlist_search(fdt, node, "nvmem-cell-names", name);
+	if (index < 0) {
+		return index;
+	}
+
+	cuint = fdt_getprop(fdt, node, "nvmem-cells", &len);
+	if (cuint == NULL) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	if ((index * (int)sizeof(uint32_t)) > len) {
+		return -FDT_ERR_BADVALUE;
+	}
+
+	cuint += index;
+
+	node = fdt_node_offset_by_phandle(fdt, fdt32_to_cpu(*cuint));
+	if (node < 0) {
+		ERROR("Malformed nvmem_layout node: ignored\n");
+		return node;
+	}
+
+	cuint = fdt_getprop(fdt, node, "reg", &len);
+	if ((cuint == NULL) || (len != (2 * (int)sizeof(uint32_t)))) {
+		ERROR("Malformed nvmem_layout node: ignored\n");
+		return -FDT_ERR_BADVALUE;
+	}
+
+	if (fdt32_to_cpu(*cuint) % sizeof(uint32_t)) {
+		ERROR("Misaligned nvmem_layout element: ignored\n");
+		return -FDT_ERR_BADVALUE;
+	}
+
+	if (otp != NULL) {
+		*otp = fdt32_to_cpu(*cuint) / sizeof(uint32_t);
+	}
+
+	if (otp_len != NULL) {
+		cuint++;
+		*otp_len = fdt32_to_cpu(*cuint) * CHAR_BIT;
+	}
+
+	return 0;
 }
 
 /*******************************************************************************
