@@ -7,23 +7,27 @@
 #include <common/debug.h>
 #include <cdefs.h>
 #include <drivers/arm/smmu_v3.h>
+#include <drivers/delay_timer.h>
 #include <lib/mmio.h>
 
 /* SMMU poll number of retries */
-#define SMMU_POLL_RETRY		1000000
+#define SMMU_POLL_TIMEOUT_US	U(1000)
 
 static int __init smmuv3_poll(uintptr_t smmu_reg, uint32_t mask,
 				uint32_t value)
 {
-	uint32_t reg_val, retries = SMMU_POLL_RETRY;
+	uint32_t reg_val;
+	uint64_t timeout;
 
+	/* Set 1ms timeout value */
+	timeout = timeout_init_us(SMMU_POLL_TIMEOUT_US);
 	do {
 		reg_val = mmio_read_32(smmu_reg);
 		if ((reg_val & mask) == value)
 			return 0;
-	} while (--retries != 0U);
+	} while (!timeout_elapsed(timeout));
 
-	ERROR("Failed to poll SMMUv3 register @%p\n", (void *)smmu_reg);
+	ERROR("Timeout polling SMMUv3 register @%p\n", (void *)smmu_reg);
 	ERROR("Read value 0x%x, expected 0x%x\n", reg_val,
 		value == 0U ? reg_val & ~mask : reg_val | mask);
 	return -1;
