@@ -195,6 +195,45 @@ error:
 	ERROR("COMPHY[%d] mode[%d] is invalid\n", comphy_index, mode);
 }
 
+/*
+ * This is something like the inverse of the previous function: for given
+ * lane it returns COMPHY_*_MODE.
+ *
+ * It is useful when powering the phy off.
+ *
+ * This function returns COMPHY_USB3_MODE even if the phy was configured
+ * with COMPHY_USB3D_MODE or COMPHY_USB3H_MODE. (The usb3 phy initialization
+ * code does not differentiate between these modes.)
+ * Also it returns COMPHY_SGMII_MODE even if the phy was configures with
+ * COMPHY_HS_SGMII_MODE. (The sgmii phy initialization code does differentiate
+ * between these modes, but it is irrelevant when powering the phy off.)
+ */
+static int mvebu_a3700_comphy_get_mode(uint8_t comphy_index)
+{
+	uint32_t reg;
+
+	reg = mmio_read_32(MVEBU_COMPHY_REG_BASE + COMPHY_SELECTOR_PHY_REG);
+	switch (comphy_index) {
+	case COMPHY_LANE0:
+		if ((reg & COMPHY_SELECTOR_USB3_GBE1_SEL_BIT) != 0)
+			return COMPHY_USB3_MODE;
+		else
+			return COMPHY_SGMII_MODE;
+	case COMPHY_LANE1:
+		if ((reg & COMPHY_SELECTOR_PCIE_GBE0_SEL_BIT) != 0)
+			return COMPHY_PCIE_MODE;
+		else
+			return COMPHY_SGMII_MODE;
+	case COMPHY_LANE2:
+		if ((reg & COMPHY_SELECTOR_USB3_PHY_SEL_BIT) != 0)
+			return COMPHY_USB3_MODE;
+		else
+			return COMPHY_SATA_MODE;
+	}
+
+	return COMPHY_UNUSED;
+}
+
 /* It is only used for SATA and USB3 on comphy lane2. */
 static void comphy_set_indirect(uintptr_t addr, uint32_t offset, uint16_t data,
 				uint16_t mask, int mode)
@@ -541,6 +580,23 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 				   COMPHY_PLL_TIMEOUT, REG_32BIT);
 	if (ret)
 		ERROR("Failed to init RX of SGMII PHY %d\n", comphy_index);
+
+	debug_exit();
+
+	return ret;
+}
+
+static int mvebu_a3700_comphy_sgmii_power_off(uint8_t comphy_index)
+{
+	int ret = 0;
+	uint32_t mask, data, offset;
+
+	debug_enter();
+
+	data = PIN_RESET_CORE_BIT | PIN_RESET_COMPHY_BIT;
+	mask = 0;
+	offset = MVEBU_COMPHY_REG_BASE + COMPHY_PHY_CFG1_OFFSET(comphy_index);
+	reg_set(offset, data, mask);
 
 	debug_exit();
 
@@ -908,7 +964,20 @@ int mvebu_3700_comphy_power_off(uint8_t comphy_index, uint32_t comphy_mode)
 
 	debug_enter();
 
+	if (!mode) {
+		/*
+		 * The user did not specify which mode should be powered off.
+		 * In this case we can identify this by reading the phy selector
+		 * register.
+		 */
+		mode = mvebu_a3700_comphy_get_mode(comphy_index);
+	}
+
 	switch (mode) {
+	case(COMPHY_SGMII_MODE):
+	case(COMPHY_HS_SGMII_MODE):
+		err = mvebu_a3700_comphy_sgmii_power_off(comphy_index);
+		break;
 	case (COMPHY_USB3_MODE):
 	case (COMPHY_USB3H_MODE):
 		err = mvebu_a3700_comphy_usb3_power_off();
