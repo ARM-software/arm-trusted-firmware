@@ -14,7 +14,7 @@ DOIMAGE_SEC     	:=	tools/doimage/secure/sec_img_8K.cfg
 
 MARVELL_MOCHI_DRV	:=	drivers/marvell/mochi/apn806_setup.c
 
-include plat/marvell/a8k/common/a8k_common.mk
+include plat/marvell/armada/a8k/common/a8k_common.mk
 
-include plat/marvell/common/marvell_common.mk
-PLAT_INCLUDES		+=	-Iplat/marvell/a8k/a80x0/board
+include plat/marvell/armada/common/marvell_common.mk
+PLAT_INCLUDES		+=	-Iplat/marvell/armada/a8k/a80x0/board

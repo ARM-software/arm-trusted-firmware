@@ -5,8 +5,8 @@
 # https://spdx.org/licenses
 #
 
-MARVELL_PLAT_BASE		:= plat/marvell
-MARVELL_PLAT_INCLUDE_BASE	:= include/plat/marvell
+MARVELL_PLAT_BASE		:= plat/marvell/armada
+MARVELL_PLAT_INCLUDE_BASE	:= include/plat/marvell/armada
 PLAT_FAMILY			:= a3700
 PLAT_FAMILY_BASE		:= $(MARVELL_PLAT_BASE)/$(PLAT_FAMILY)
 PLAT_INCLUDE_BASE		:= $(MARVELL_PLAT_INCLUDE_BASE)/$(PLAT_FAMILY)
@@ -15,7 +15,7 @@ MARVELL_DRV_BASE		:= drivers/marvell
 MARVELL_COMMON_BASE		:= $(MARVELL_PLAT_BASE)/common
 HANDLE_EA_EL3_FIRST		:= 1
 
-include $(MARVELL_PLAT_BASE)/marvell.mk
+include plat/marvell/marvell.mk
 
 #*********** A3700 *************
 DOIMAGEPATH	:= $(WTP)

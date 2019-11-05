@@ -5,10 +5,10 @@ Marvell
    :maxdepth: 1
    :caption: Contents
 
-   build
-   porting
-   misc/mvebu-a8k-addr-map
-   misc/mvebu-amb
-   misc/mvebu-ccu
-   misc/mvebu-io-win
-   misc/mvebu-iob
+   armada/build
+   armada/porting
+   armada/misc/mvebu-a8k-addr-map
+   armada/misc/mvebu-amb
+   armada/misc/mvebu-ccu
+   armada/misc/mvebu-io-win
+   armada/misc/mvebu-iob

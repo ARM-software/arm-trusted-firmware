@@ -3,11 +3,11 @@
 # SPDX-License-Identifier:     BSD-3-Clause
 # https://spdx.org/licenses
 
-MARVELL_PLAT_BASE		:= plat/marvell
-MARVELL_PLAT_INCLUDE_BASE	:= include/plat/marvell
+MARVELL_PLAT_BASE		:= plat/marvell/armada
+MARVELL_PLAT_INCLUDE_BASE	:= include/plat/marvell/armada
 
-include $(MARVELL_PLAT_BASE)/version.mk
-include $(MARVELL_PLAT_BASE)/marvell.mk
+include plat/marvell/version.mk
+include plat/marvell/marvell.mk
 
 VERSION_STRING			+=(Marvell-${SUBVERSION})
 

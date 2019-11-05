@@ -84,7 +84,7 @@ There are several build options:
 - BLE_PATH
 
         Points to BLE (Binary ROM extension) sources folder. Only required for A8K builds.
-        The parameter is optional, its default value is ``plat/marvell/a8k/common/ble``.
+        The parameter is optional, its default value is ``plat/marvell/armada/a8k/common/ble``.
 
 - MV_DDR_PATH
 
@@ -192,7 +192,7 @@ Special Build Flags
     In order to build UART recovery image this operation should be disabled for
     a70x0 and a80x0 because of hardware limitation (boot from secondary image
     can interrupt UART recovery process). This MACRO definition is set in
-    ``plat/marvell/a8k/common/include/platform_def.h`` file.
+    ``plat/marvell/armada/a8k/common/include/platform_def.h`` file.
 
 For more information about build options, please refer to the
 :ref:`Build Options` document.

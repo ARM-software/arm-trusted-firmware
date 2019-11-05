@@ -5,7 +5,7 @@
 # https://spdx.org/licenses
 #
 
-PLAT_MARVELL		:=	plat/marvell
+PLAT_MARVELL		:=	plat/marvell/armada
 A8K_MSS_SOURCE		:=	$(PLAT_MARVELL)/a8k/common/mss
 
 BL2_SOURCES		+=	$(A8K_MSS_SOURCE)/mss_bl2_setup.c \

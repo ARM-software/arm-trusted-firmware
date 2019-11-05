@@ -8,13 +8,13 @@ SoC being used is already supported in TF-A.
 Source Code Structure
 ---------------------
 
-- The customer platform specific code shall reside under ``plat/marvell/<soc family>/<soc>_cust``
-  (e.g. 'plat/marvell/a8k/a7040_cust').
+- The customer platform specific code shall reside under ``plat/marvell/armada/<soc family>/<soc>_cust``
+  (e.g. 'plat/marvell/armada/a8k/a7040_cust').
 - The platform name for build purposes is called ``<soc>_cust`` (e.g. ``a7040_cust``).
 - The build system will reuse all files from within the soc directory, and take only the porting
   files from the customer platform directory.
 
-Files that require porting are located at ``plat/marvell/<soc family>/<soc>_cust`` directory.
+Files that require porting are located at ``plat/marvell/armada/<soc family>/<soc>_cust`` directory.
 
 
 Armada-70x0/Armada-80x0 Porting
@@ -64,7 +64,7 @@ boot loader recovery (marvell_plat_config.c)
 - Example:
 
 In A7040-DB specific implementation
-(``plat/marvell/a8k/a70x0/board/marvell_plat_config.c``), the image skip is
+(``plat/marvell/armada/a8k/a70x0/board/marvell_plat_config.c``), the image skip is
 implemented using GPIO: mpp 33 (SW5).
 
 Before resetting the board make sure there is a valid image on the next flash
@@ -91,7 +91,7 @@ The BLE and consequently, the DDR init code is executed at the early stage of
 the boot process.
 
 Each supported platform of the TF-A has its own DDR porting file called
-dram_port.c located at ``atf/plat/marvell/a8k/<platform>/board`` directory.
+dram_port.c located at ``atf/plat/marvell/armada/a8k/<platform>/board`` directory.
 
 Please refer to '<path_to_mv_ddr_sources>/doc/porting_guide.txt' for detailed
 porting description.
@@ -128,7 +128,7 @@ Comphy Porting (phy-porting-layer.h or phy-default-porting-layer.h)
     The porting layer for PHY was introduced in TF-A. There is one file
     ``drivers/marvell/comphy/phy-default-porting-layer.h`` which contains the
     defaults. Those default parameters are used only if there is no appropriate
-    phy-porting-layer.h file under: ``plat/marvell/<soc
+    phy-porting-layer.h file under: ``plat/marvell/armada/<soc
     family>/<platform>/board/phy-porting-layer.h``. If the phy-porting-layer.h
     exists, the phy-default-porting-layer.h is not going to be included.
 
@@ -140,7 +140,7 @@ Comphy Porting (phy-porting-layer.h or phy-default-porting-layer.h)
     The easiest way to prepare the PHY porting layer for custom board is to copy
     existing example to a new platform:
 
-    - cp ``plat/marvell/a8k/a80x0/board/phy-porting-layer.h`` "plat/marvell/<soc family>/<platform>/board/phy-porting-layer.h"
+    - cp ``plat/marvell/armada/a8k/a80x0/board/phy-porting-layer.h`` "plat/marvell/armada/<soc family>/<platform>/board/phy-porting-layer.h"
     - adjust relevant parameters or
     - if different comphy index is used for specific feature, move it to proper table entry and then adjust.
 
@@ -150,7 +150,7 @@ Comphy Porting (phy-porting-layer.h or phy-default-porting-layer.h)
 
 - Example:
     Example porting layer for armada-8040-db is under:
-    ``plat/marvell/a8k/a80x0/board/phy-porting-layer.h``
+    ``plat/marvell/armada/a8k/a80x0/board/phy-porting-layer.h``
 
     .. note::
         If there is no PHY porting layer for new platform (missing

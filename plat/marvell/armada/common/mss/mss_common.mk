@@ -6,7 +6,7 @@
 #
 
 
-PLAT_MARVELL		:= 	plat/marvell
+PLAT_MARVELL		:= 	plat/marvell/armada
 MSS_SOURCE		:= 	$(PLAT_MARVELL)/common/mss
 
 BL2_SOURCES		+=	$(MSS_SOURCE)/mss_scp_bootloader.c		\
