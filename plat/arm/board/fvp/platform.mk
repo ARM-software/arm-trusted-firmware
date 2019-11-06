@@ -244,15 +244,10 @@ ENABLE_AMU			:=	1
 # Enable dynamic mitigation support by default
 DYNAMIC_WORKAROUND_CVE_2018_3639	:=	1
 
+# Enable reclaiming of BL31 initialisation code for secondary cores
+# stacks for FVP.
 ifneq (${RESET_TO_BL31},1)
-# Enable reclaiming of BL31 initialisation code for secondary cores stacks for
-# FVP. We cannot enable PIE for this case because the overlayed init section
-# creates some dynamic relocations which cannot be handled by the fixup
-# logic currently.
 RECLAIM_INIT_CODE	:=	1
-else
-# Enable PIE support when RESET_TO_BL31=1
-ENABLE_PIE		:=	1
 endif
 
 ifeq (${ENABLE_AMU},1)

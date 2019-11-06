@@ -403,21 +403,16 @@
 #define BL31_LIMIT			(ARM_AP_TZC_DRAM1_BASE +	\
 						PLAT_ARM_MAX_BL31_SIZE)
 #elif (RESET_TO_BL31)
-
-# if ENABLE_PIE
+/* Ensure Position Independent support (PIE) is enabled for this config.*/
+# if !ENABLE_PIE
+#  error "BL31 must be a PIE if RESET_TO_BL31=1."
+#endif
 /*
  * Since this is PIE, we can define BL31_BASE to 0x0 since this macro is solely
  * used for building BL31 and not used for loading BL31.
  */
 #  define BL31_BASE			0x0
 #  define BL31_LIMIT			PLAT_ARM_MAX_BL31_SIZE
-# else
-/* Put BL31_BASE in the middle of the Trusted SRAM.*/
-#  define BL31_BASE			(ARM_TRUSTED_SRAM_BASE + \
-					(PLAT_ARM_TRUSTED_SRAM_SIZE >> 1))
-#  define BL31_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
-# endif /* ENABLE_PIE */
-
 #else
 /* Put BL31 below BL2 in the Trusted SRAM.*/
 #define BL31_BASE			((ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)\
