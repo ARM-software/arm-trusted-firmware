@@ -55,6 +55,14 @@ SECTIONS
         KEEP(*(rt_svc_descs))
         __RT_SVC_DESCS_END__ = .;
 
+#if ENABLE_PMF
+        /* Ensure 4-byte alignment for descriptors and ensure inclusion */
+        . = ALIGN(4);
+        __PMF_SVC_DESCS_START__ = .;
+        KEEP(*(pmf_svc_descs))
+        __PMF_SVC_DESCS_END__ = .;
+#endif /* ENABLE_PMF */
+
         /*
          * Ensure 4-byte alignment for cpu_ops so that its fields are also
          * aligned. Also ensure cpu_ops inclusion.
