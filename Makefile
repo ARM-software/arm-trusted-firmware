@@ -621,6 +621,12 @@ ifeq ($(MEASURED_BOOT),1)
     endif
 endif
 
+ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
+    ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
+        $(error "ALLOW_RO_XLAT_TABLES requires translation tables library v2")
+    endif
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -747,6 +753,7 @@ endif
 # Build options checks
 ################################################################################
 
+$(eval $(call assert_boolean,ALLOW_RO_XLAT_TABLES))
 $(eval $(call assert_boolean,COLD_BOOT_SINGLE_CPU))
 $(eval $(call assert_boolean,CREATE_KEYS))
 $(eval $(call assert_boolean,CTX_INCLUDE_AARCH32_REGS))
@@ -814,6 +821,7 @@ endif
 # platform to overwrite the default options
 ################################################################################
 
+$(eval $(call add_define,ALLOW_RO_XLAT_TABLES))
 $(eval $(call add_define,ARM_ARCH_MAJOR))
 $(eval $(call add_define,ARM_ARCH_MINOR))
 $(eval $(call add_define,COLD_BOOT_SINGLE_CPU))

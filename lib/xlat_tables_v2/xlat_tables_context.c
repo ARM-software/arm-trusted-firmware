@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <arch_helpers.h>
 #include <assert.h>
 
 #include <platform_def.h>
@@ -24,8 +25,14 @@ uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
  * Allocate and initialise the default translation context for the BL image
  * currently executing.
  */
+#if PLAT_RO_XLAT_TABLES
+REGISTER_XLAT_CONTEXT_RO_BASE_TABLE(tf, MAX_MMAP_REGIONS, MAX_XLAT_TABLES,
+		PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE,
+		EL_REGIME_INVALID, "xlat_table");
+#else
 REGISTER_XLAT_CONTEXT(tf, MAX_MMAP_REGIONS, MAX_XLAT_TABLES,
 		PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE);
+#endif
 
 void mmap_add_region(unsigned long long base_pa, uintptr_t base_va, size_t size,
 		     unsigned int attr)
@@ -118,6 +125,75 @@ int xlat_change_mem_attributes(uintptr_t base_va, size_t size, uint32_t attr)
 {
 	return xlat_change_mem_attributes_ctx(&tf_xlat_ctx, base_va, size, attr);
 }
+
+#if PLAT_RO_XLAT_TABLES
+/* Change the memory attributes of the descriptors which resolve the address
+ * range that belongs to the translation tables themselves, which are by default
+ * mapped as part of read-write data in the BL image's memory.
+ *
+ * Since the translation tables map themselves via these level 3 (page)
+ * descriptors, any change applied to them with the MMU on would introduce a
+ * chicken and egg problem because of the break-before-make sequence.
+ * Eventually, it would reach the descriptor that resolves the very table it
+ * belongs to and the invalidation (break step) would cause the subsequent write
+ * (make step) to it to generate an MMU fault. Therefore, the MMU is disabled
+ * before making the change.
+ *
+ * No assumption is made about what data this function needs, therefore all the
+ * caches are flushed in order to ensure coherency. A future optimization would
+ * be to only flush the required data to main memory.
+ */
+int xlat_make_tables_readonly(void)
+{
+	assert(tf_xlat_ctx.initialized == true);
+#ifdef __aarch64__
+	if (tf_xlat_ctx.xlat_regime == EL1_EL0_REGIME) {
+		disable_mmu_el1();
+	} else if (tf_xlat_ctx.xlat_regime == EL3_REGIME) {
+		disable_mmu_el3();
+	} else {
+		assert(tf_xlat_ctx.xlat_regime == EL2_REGIME);
+		return -1;
+	}
+
+	/* Flush all caches. */
+	dcsw_op_all(DCCISW);
+#else /* !__aarch64__ */
+	assert(tf_xlat_ctx.xlat_regime == EL1_EL0_REGIME);
+	/* On AArch32, we flush the caches before disabling the MMU. The reason
+	 * for this is that the dcsw_op_all AArch32 function pushes some
+	 * registers onto the stack under the assumption that it is writing to
+	 * cache, which is not true with the MMU off. This would result in the
+	 * stack becoming corrupted and a wrong/junk value for the LR being
+	 * restored at the end of the routine.
+	 */
+	dcsw_op_all(DC_OP_CISW);
+	disable_mmu_secure();
+#endif
+
+	int rc = xlat_change_mem_attributes_ctx(&tf_xlat_ctx,
+				(uintptr_t)tf_xlat_ctx.tables,
+				tf_xlat_ctx.tables_num * XLAT_TABLE_SIZE,
+				MT_RO_DATA | MT_SECURE);
+
+#ifdef __aarch64__
+	if (tf_xlat_ctx.xlat_regime == EL1_EL0_REGIME) {
+		enable_mmu_el1(0U);
+	} else {
+		assert(tf_xlat_ctx.xlat_regime == EL3_REGIME);
+		enable_mmu_el3(0U);
+	}
+#else /* !__aarch64__ */
+	enable_mmu_svc_mon(0U);
+#endif
+
+	if (rc == 0) {
+		tf_xlat_ctx.readonly_tables = true;
+	}
+
+	return rc;
+}
+#endif /* PLAT_RO_XLAT_TABLES */
 
 /*
  * If dynamic allocation of new regions is disabled then by the time we call the

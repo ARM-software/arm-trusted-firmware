@@ -25,6 +25,26 @@
  * conflicts with the definition in plat/common. */
 #pragma weak plat_get_syscnt_freq2
 
+/*******************************************************************************
+ * Changes the memory attributes for the region of mapped memory where the BL
+ * image's translation tables are located such that the tables will have
+ * read-only permissions.
+ ******************************************************************************/
+#if PLAT_RO_XLAT_TABLES
+void arm_xlat_make_tables_readonly(void)
+{
+	int rc = xlat_make_tables_readonly();
+
+	if (rc != 0) {
+		ERROR("Failed to make translation tables read-only at EL%u.\n",
+		      get_current_el());
+		panic();
+	}
+
+	INFO("Translation tables are now read-only at EL%u.\n",
+	     get_current_el());
+}
+#endif
 
 void arm_setup_romlib(void)
 {

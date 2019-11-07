@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,7 +30,7 @@ loop_\op:
 	dc	\op, x0
 	add	x0, x0, x2
 	cmp	x0, x1
-	b.lo    loop_\op
+	b.lo	loop_\op
 	dsb	sy
 exit_loop_\op:
 	ret
@@ -140,7 +140,7 @@ loop3_\_op:
 level_done:
 	add	x10, x10, #2		// increment cache number
 	cmp	x3, x10
-	b.hi    loop1
+	b.hi	loop1
 	msr	csselr_el1, xzr		// select cache level 0 in csselr
 	dsb	sy			// barrier to complete final cache operation
 	isb

@@ -207,6 +207,13 @@ USE_FCONF_BASED_IO		:= 0
 # Build option to choose whether Trusted Firmware uses library at ROM
 USE_ROMLIB			:= 0
 
+# Build option to choose whether the xlat tables of BL images can be read-only.
+# Note that this only serves as a higher level option to PLAT_RO_XLAT_TABLES,
+# which is the per BL-image option that actually enables the read-only tables
+# API. The reason for having this additional option is to have a common high
+# level makefile where we can check for incompatible features/build options.
+ALLOW_RO_XLAT_TABLES		:= 0
+
 # Chain of trust.
 COT				:= tbbr
 
