@@ -314,14 +314,20 @@ void plat_early_platform_setup(void)
 		actlr_elx = read_actlr_el3();
 		actlr_elx |= DENVER_CPU_ENABLE_DUAL_EXEC_EL3;
 		write_actlr_el3(actlr_elx);
+		/* check if the bit is actually set */
+		assert((read_actlr_el3() & DENVER_CPU_ENABLE_DUAL_EXEC_EL3) != 0ULL);
 
 		actlr_elx = read_actlr_el2();
 		actlr_elx |= DENVER_CPU_ENABLE_DUAL_EXEC_EL2;
 		write_actlr_el2(actlr_elx);
+		/* check if the bit is actually set */
+		assert((read_actlr_el2() & DENVER_CPU_ENABLE_DUAL_EXEC_EL2) != 0ULL);
 
 		actlr_elx = read_actlr_el1();
 		actlr_elx |= DENVER_CPU_ENABLE_DUAL_EXEC_EL1;
 		write_actlr_el1(actlr_elx);
+		/* check if the bit is actually set */
+		assert((read_actlr_el1() & DENVER_CPU_ENABLE_DUAL_EXEC_EL1) != 0ULL);
 	}
 }
 
