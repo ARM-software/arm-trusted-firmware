@@ -9,6 +9,7 @@ Components
    spd/index
    arm-sip-service
    exception-handling
+   fconf
    firmware-update
    platform-interrupt-controller-API
    ras

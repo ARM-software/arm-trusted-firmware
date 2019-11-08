@@ -1,0 +1,52 @@
+@startuml
+
+box "BL1 common code"
+	participant bl1_main
+	participant bl_common
+end box
+
+box "arm platform code" #LightBlue
+	participant fvp_bl1_setup
+	participant arm_bl1_setup
+	participant arm_io_storage
+end box
+
+box "platform common code"
+	participant plat_bl1_common
+	participant fconf
+end box
+
+bl1_main -> fvp_bl1_setup : bl1_platform_setup()
+fvp_bl1_setup -> arm_bl1_setup : arm_bl1_platform_setup()
+arm_bl1_setup -> arm_io_storage : plat_arm_io_setup()
+note over arm_io_storage : register and setup fip
+arm_bl1_setup -> fconf : fconf_load_config()
+activate fconf
+	note over fconf
+		create and populate an
+		image_desc_t for TB_FW_CONFIG
+	end note
+	fconf -> bl_common : load_auth_image(TB_FW_CONFIG_ID, &image_info)
+	activate bl_common
+	note over bl_common
+		load and auth image from fip
+		with info from plat_io_policy
+	end note
+	bl_common -> arm_io_storage
+	arm_io_storage -> fconf: FCONF_GET_PROPERTY(arm, arm_io_policies, tb_fw_cfg)
+	note over fconf: use staticaly defined policies in bl1
+	fconf <- bl_common : image_info
+	deactivate bl_common
+	note over fconf : get tb_fw_config_dtb from image_info
+	fconf -> plat_bl1_common : bl1_plat_get_image_desc(BL2_IMAGE_ID)
+	fconf <- plat_bl1_common : BL2_IMAGE_DESC
+	note over fconf
+		set ep_info.args.arg0 of BL2_IMAGE_DESC
+		to TB_FW_CONFIG base address
+	end note
+arm_bl1_setup <- fconf
+deactivate fconf
+
+== load & auth, prepare and jump to BL2 ==
+
+@enduml
