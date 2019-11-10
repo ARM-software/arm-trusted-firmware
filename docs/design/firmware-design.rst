@@ -978,8 +978,8 @@ manipulation; and with ``flags`` indicating the security state of the caller. Th
 framework finally sets up the execution stack for the handler, and invokes the
 services ``handle()`` function.
 
-On return from the handler the result registers are populated in X0-X3 before
-restoring the stack and CPU state and returning from the original SMC.
+On return from the handler the result registers are populated in X0-X7 as needed
+before restoring the stack and CPU state and returning from the original SMC.
 
 Exception Handling Framework
 ----------------------------

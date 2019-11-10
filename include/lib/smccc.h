@@ -20,7 +20,7 @@
 						SMCCC_VERSION_MINOR_SHIFT))
 
 #define SMCCC_MAJOR_VERSION U(1)
-#define SMCCC_MINOR_VERSION U(1)
+#define SMCCC_MINOR_VERSION U(2)
 
 /*******************************************************************************
  * Bit definitions inside the function id as per the SMC calling convention
@@ -82,6 +82,12 @@
 #define SMC_OK				ULL(0)
 #define SMC_UNK				-1
 #define SMC_PREEMPTED			-2	/* Not defined by the SMCCC */
+
+/* Return codes for Arm Architecture Service SMC calls */
+#define SMC_ARCH_CALL_SUCCESS		0
+#define SMC_ARCH_CALL_NOT_SUPPORTED	-1
+#define SMC_ARCH_CALL_NOT_REQUIRED	-2
+#define SMC_ARCH_CALL_INVAL_PARAM	-3
 
 /* Various flags passed to SMC handlers */
 #define SMC_FROM_SECURE		(U(0) << 0)
