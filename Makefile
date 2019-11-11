@@ -716,6 +716,10 @@ include lib/stack_protector/stack_protector.mk
 CRTTOOLPATH		?=	tools/cert_create
 CRTTOOL			?=	${CRTTOOLPATH}/cert_create${BIN_EXT}
 
+# Variables for use with Firmware Encryption Tool
+ENCTOOLPATH		?=	tools/encrypt_fw
+ENCTOOL			?=	${ENCTOOLPATH}/encrypt_fw${BIN_EXT}
+
 # Variables for use with Firmware Image Package
 FIPTOOLPATH		?=	tools/fiptool
 FIPTOOL			?=	${FIPTOOLPATH}/fiptool${BIN_EXT}
@@ -935,7 +939,7 @@ endif
 # Build targets
 ################################################################################
 
-.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip sp fwu_fip certtool dtbs memmap doc
+.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip sp fwu_fip certtool dtbs memmap doc enctool
 .SUFFIXES:
 
 all: msg_start
@@ -1038,6 +1042,7 @@ clean:
 	$(call SHELL_REMOVE_DIR,${BUILD_PLAT})
 	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${ENCTOOLPATH} clean
 	${Q}${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
 realclean distclean:
@@ -1047,6 +1052,7 @@ realclean distclean:
 	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
 	${Q}${MAKE} --no-print-directory -C ${SPTOOLPATH} clean
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${ENCTOOLPATH} realclean
 	${Q}${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
 checkcodebase:		locate-checkpatch
@@ -1148,6 +1154,15 @@ doc:
 	@echo "  BUILD DOCUMENTATION"
 	${Q}${MAKE} --no-print-directory -C ${DOCS_PATH} html
 
+enctool: ${ENCTOOL}
+
+.PHONY: ${ENCTOOL}
+${ENCTOOL}:
+	${Q}${MAKE} PLAT=${PLAT} BUILD_INFO=0 --no-print-directory -C ${ENCTOOLPATH}
+	@${ECHO_BLANK_LINE}
+	@echo "Built $@ successfully"
+	@${ECHO_BLANK_LINE}
+
 cscope:
 	@echo "  CSCOPE"
 	${Q}find ${CURDIR} -name "*.[chsS]" > cscope.files
@@ -1184,6 +1199,7 @@ help:
 	@echo "  cscope         Generate cscope index"
 	@echo "  distclean      Remove all build artifacts for all platforms"
 	@echo "  certtool       Build the Certificate generation tool"
+	@echo "  enctool        Build the Firmware encryption tool"
 	@echo "  fiptool        Build the Firmware Image Package (FIP) creation tool"
 	@echo "  sp             Build the Secure Partition Packages"
 	@echo "  sptool         Build the Secure Partition Package creation tool"
