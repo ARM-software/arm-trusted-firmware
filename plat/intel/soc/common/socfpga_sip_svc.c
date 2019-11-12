@@ -150,8 +150,8 @@ int intel_fpga_config_completed_write(uint32_t *completed_addr,
 
 	while (*count < 3) {
 
-		resp_len = mailbox_read_response(
-			rcv_id % MBOX_MAX_JOB_ID, resp);
+		resp_len = mailbox_read_response(rcv_id % MBOX_MAX_JOB_ID,
+				resp, sizeof(resp) / sizeof(resp[0]));
 
 		if (resp_len < 0)
 			break;
@@ -203,10 +203,10 @@ int intel_fpga_config_start(uint32_t config_type)
 
 	mailbox_clear_response();
 
-	mailbox_send_cmd(1, MBOX_CMD_CANCEL, 0, 0, 0, response);
+	mailbox_send_cmd(1, MBOX_CMD_CANCEL, 0, 0, 0, NULL, 0);
 
 	status = mailbox_send_cmd(1, MBOX_RECONFIG, 0, 0, 0,
-			response);
+			response, sizeof(response) / sizeof(response[0]));
 
 	if (status < 0)
 		return status;
