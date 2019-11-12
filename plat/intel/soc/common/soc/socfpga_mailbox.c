@@ -6,6 +6,7 @@
 
 #include <lib/mmio.h>
 #include <common/debug.h>
+#include <drivers/delay_timer.h>
 
 #include "socfpga_mailbox.h"
 #include "socfpga_sip_svc.h"
@@ -41,21 +42,14 @@ int mailbox_read_response(int job_id, uint32_t *response)
 	int response_length = 0;
 	int resp = 0;
 	int total_resp_len = 0;
-	int timeout = 100000;
 
-	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_TO_SDM, 1);
-
-	while (mmio_read_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM) != 1) {
-		if (timeout-- < 0)
-			return MBOX_NO_RESPONSE;
-	}
-
-	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM, 0);
+	if (mmio_read_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM))
+		mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM, 0);
 
 	rin = mmio_read_32(MBOX_OFFSET + MBOX_RIN);
 	rout = mmio_read_32(MBOX_OFFSET + MBOX_ROUT);
 
-	while (rout != rin) {
+	if (rout != rin) {
 		resp = mmio_read_32(MBOX_OFFSET +
 				    MBOX_RESP_BUFFER + ((rout++)*4));
 
@@ -96,22 +90,22 @@ int mailbox_read_response(int job_id, uint32_t *response)
 
 int mailbox_poll_response(int job_id, int urgent, uint32_t *response)
 {
-	int timeout = 80000;
+	int timeout = 0xFFFFFF;
 	int rin = 0;
 	int rout = 0;
 	int response_length = 0;
 	int resp = 0;
 	int total_resp_len = 0;
 
-
 	while (1) {
+
 		while (timeout > 0 &&
-			mmio_read_32(MBOX_OFFSET +
-				MBOX_DOORBELL_FROM_SDM) != 1) {
+			!(mmio_read_32(MBOX_OFFSET +
+				MBOX_DOORBELL_FROM_SDM) & 1)) {
 			timeout--;
 		}
 
-		if (mmio_read_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM) != 1) {
+		if (!timeout) {
 			INFO("Timed out waiting for SDM");
 			return MBOX_TIMEOUT;
 		}
@@ -119,6 +113,7 @@ int mailbox_poll_response(int job_id, int urgent, uint32_t *response)
 		mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM, 0);
 
 		if (urgent & 1) {
+			mdelay(5);
 			if ((mmio_read_32(MBOX_OFFSET + MBOX_STATUS) &
 				MBOX_STATUS_UA_MASK) ^
 				(urgent & MBOX_STATUS_UA_MASK)) {
@@ -172,8 +167,6 @@ int mailbox_poll_response(int job_id, int urgent, uint32_t *response)
 int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
 			  int len, int urgent)
 {
-	int timeout = 100000;
-
 	if (urgent)
 		mmio_write_32(MBOX_OFFSET + MBOX_URG, 1);
 
@@ -184,11 +177,6 @@ int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
 					cmd, args, len);
 
 	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_TO_SDM, 1);
-
-	while (mmio_read_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM) != 1) {
-		if (timeout-- < 0)
-			return MBOX_NO_RESPONSE;
-	}
 
 	return 0;
 }
@@ -281,6 +269,9 @@ int mailbox_init(void)
 
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE |
 			MBOX_INT_FLAG_UAE);
+	mmio_write_32(MBOX_OFFSET + MBOX_URG, 0);
+	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM, 0);
+
 	status = mailbox_send_cmd(0, MBOX_CMD_RESTART, 0, 0, 1, 0);
 
 	if (status)
