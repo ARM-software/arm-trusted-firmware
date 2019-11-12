@@ -11,7 +11,9 @@ ifeq (${ENABLE_STACK_PROTECTOR},0)
   ENABLE_STACK_PROTECTOR := none
 endif
 
-ifneq (${ENABLE_STACK_PROTECTOR},none)
+ifeq (${ENABLE_STACK_PROTECTOR},none)
+  TF_CFLAGS            +=      -fno-stack-protector
+else
   STACK_PROTECTOR_ENABLED := 1
   BL_COMMON_SOURCES	+=	lib/stack_protector/stack_protector.c	\
 				lib/stack_protector/${ARCH}/asm_stack_protector.S
