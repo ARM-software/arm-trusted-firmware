@@ -239,3 +239,6 @@ SANITIZE_UB := off
 # implementation variant using the ARMv8.1-LSE compare-and-swap instruction.
 # Default: disabled
 USE_SPINLOCK_CAS := 0
+
+# Enable Link Time Optimization
+ENABLE_LTO			:= 0

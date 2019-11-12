@@ -204,6 +204,18 @@ LD			=	$(LINKER)
 AS			=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
 CPP			=	$(CC) -E
 PP			=	$(CC) -E
+else ifneq ($(findstring gcc,$(notdir $(CC))),)
+TF_CFLAGS_aarch32	=	$(march32-directive)
+TF_CFLAGS_aarch64	=	$(march64-directive)
+ifeq ($(ENABLE_LTO),1)
+	# Enable LTO only for aarch64
+	ifeq (${ARCH},aarch64)
+		LTO_CFLAGS	=	-flto
+		# Use gcc as a wrapper for the ld, recommended for LTO
+		LINKER		:=	${CROSS_COMPILE}gcc
+	endif
+endif
+LD			=	$(LINKER)
 else
 TF_CFLAGS_aarch32	=	$(march32-directive)
 TF_CFLAGS_aarch64	=	$(march64-directive)
@@ -300,11 +312,28 @@ GCC_V_OUTPUT		:=	$(shell $(CC) -v 2>&1)
 ifneq ($(findstring armlink,$(notdir $(LD))),)
 TF_LDFLAGS		+=	--diag_error=warning --lto_level=O1
 TF_LDFLAGS		+=	--remove --info=unused,unusedsymbols
+TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
+else ifneq ($(findstring gcc,$(notdir $(LD))),)
+# Pass ld options with Wl or Xlinker switches
+TF_LDFLAGS		+=	-Wl,--fatal-warnings -O1
+TF_LDFLAGS		+=	-Wl,--gc-sections
+ifeq ($(ENABLE_LTO),1)
+	ifeq (${ARCH},aarch64)
+		TF_LDFLAGS	+=	-flto -fuse-linker-plugin
+	endif
+endif
+# GCC automatically adds fix-cortex-a53-843419 flag when used to link
+# which breaks some builds, so disable if errata fix is not explicitly enabled
+ifneq (${ERRATA_A53_843419},1)
+	TF_LDFLAGS	+= 	-mno-fix-cortex-a53-843419
+endif
+TF_LDFLAGS		+= 	-nostdlib
+TF_LDFLAGS		+=	$(subst --,-Xlinker --,$(TF_LDFLAGS_$(ARCH)))
 else
 TF_LDFLAGS		+=	--fatal-warnings -O1
 TF_LDFLAGS		+=	--gc-sections
-endif
 TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
+endif
 
 DTC_FLAGS		+=	-I dts -O dtb
 DTC_CPPFLAGS		+=	-nostdinc -Iinclude -undef -x assembler-with-cpp
@@ -405,7 +434,11 @@ endif
 
 ifeq ($(ENABLE_PIE),1)
     TF_CFLAGS		+=	-fpie
-    TF_LDFLAGS		+=	-pie --no-dynamic-linker
+	ifneq ($(findstring gcc,$(notdir $(LD))),)
+		TF_LDFLAGS	+=	-Wl,-pie -Wl,--no-dynamic-linker
+	else
+		TF_LDFLAGS	+=	-pie --no-dynamic-linker
+	endif
 else
     PIE_FOUND		:=	$(findstring --enable-default-pie,${GCC_V_OUTPUT})
     ifneq ($(PIE_FOUND),)
