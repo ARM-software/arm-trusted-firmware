@@ -56,54 +56,54 @@ uint64_t socfpga_sip_handler(uint32_t smc_fid,
 
 struct fpga_config_info fpga_config_buffers[FPGA_CONFIG_BUFFER_SIZE];
 
-static void intel_fpga_sdm_write_buffer(struct fpga_config_info *buffer)
+static int intel_fpga_sdm_write_buffer(struct fpga_config_info *buffer)
 {
 	uint32_t args[3];
 
 	while (max_blocks > 0 && buffer->size > buffer->size_written) {
-		if (buffer->size - buffer->size_written <=
-			bytes_per_block) {
-			args[0] = (1<<8);
-			args[1] = buffer->addr + buffer->size_written;
+		args[0] = (1<<8);
+		args[1] = buffer->addr + buffer->size_written;
+		if (buffer->size - buffer->size_written <= bytes_per_block) {
 			args[2] = buffer->size - buffer->size_written;
-			buffer->size_written +=
-				buffer->size - buffer->size_written;
-			buffer->subblocks_sent++;
-			mailbox_send_cmd_async(
-				send_id++ % MBOX_MAX_JOB_ID,
-				MBOX_RECONFIG_DATA,
-				args, 3, 0);
 			current_buffer++;
 			current_buffer %= FPGA_CONFIG_BUFFER_SIZE;
-		} else {
-			args[0] = (1<<8);
-			args[1] = buffer->addr + buffer->size_written;
+		} else
 			args[2] = bytes_per_block;
-			buffer->size_written += bytes_per_block;
-			mailbox_send_cmd_async(
-				send_id++ % MBOX_MAX_JOB_ID,
-				MBOX_RECONFIG_DATA,
-				args, 3, 0);
-			buffer->subblocks_sent++;
-		}
+
+		buffer->size_written += args[2];
+		mailbox_send_cmd_async(
+			send_id++ % MBOX_MAX_JOB_ID,
+			MBOX_RECONFIG_DATA,
+			args, 3, 0);
+
+		buffer->subblocks_sent++;
 		max_blocks--;
 	}
+
+	return !max_blocks;
 }
 
 static int intel_fpga_sdm_write_all(void)
 {
-	int i;
-
-	for (i = 0; i < FPGA_CONFIG_BUFFER_SIZE; i++)
-		intel_fpga_sdm_write_buffer(
-			&fpga_config_buffers[current_buffer]);
-
+	for (int i = 0; i < FPGA_CONFIG_BUFFER_SIZE; i++)
+		if (intel_fpga_sdm_write_buffer(
+			&fpga_config_buffers[current_buffer]))
+			break;
 	return 0;
 }
 
 uint32_t intel_mailbox_fpga_config_isdone(void)
 {
-	return intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS);
+	uint32_t ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS);
+
+	if (ret) {
+		if (ret == MBOX_CFGSTAT_STATE_CONFIG)
+			return INTEL_SIP_SMC_STATUS_BUSY;
+		else
+			return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
 }
 
 static int mark_last_buffer_xfer_completed(uint32_t *buffer_addr_completed)
@@ -127,17 +127,6 @@ static int mark_last_buffer_xfer_completed(uint32_t *buffer_addr_completed)
 
 	return -1;
 }
-
-unsigned int address_in_ddr(uint32_t *addr)
-{
-	if (((unsigned long long)addr > DRAM_BASE) &&
-		((unsigned long long)addr < DRAM_BASE + DRAM_SIZE))
-		return 0;
-
-	return -1;
-}
-
-int mailbox_poll_response(int job_id, int urgent, uint32_t *response);
 
 int intel_fpga_config_completed_write(uint32_t *completed_addr,
 					uint32_t *count)
@@ -233,42 +222,52 @@ int intel_fpga_config_start(uint32_t config_type)
 	return 0;
 }
 
+static bool is_fpga_config_buffer_full(void)
+{
+	for (int i = 0; i < FPGA_CONFIG_BUFFER_SIZE; i++)
+		if (!fpga_config_buffers[i].write_requested)
+			return false;
+	return true;
+}
+
+static bool is_address_in_ddr_range(uint64_t addr)
+{
+	if (addr >= DRAM_BASE && addr <= DRAM_BASE + DRAM_SIZE)
+		return true;
+
+	return false;
+}
 
 uint32_t intel_fpga_config_write(uint64_t mem, uint64_t size)
 {
-	int i = 0;
-	uint32_t status = INTEL_SIP_SMC_STATUS_OK;
+	int i;
 
-	if (mem < DRAM_BASE || mem > DRAM_BASE + DRAM_SIZE)
-		status = INTEL_SIP_SMC_STATUS_REJECTED;
+	intel_fpga_sdm_write_all();
 
-	if (mem + size > DRAM_BASE + DRAM_SIZE)
-		status = INTEL_SIP_SMC_STATUS_REJECTED;
+	if (!is_address_in_ddr_range(mem) ||
+		!is_address_in_ddr_range(mem + size) ||
+		is_fpga_config_buffer_full())
+		return INTEL_SIP_SMC_STATUS_REJECTED;
 
 	for (i = 0; i < FPGA_CONFIG_BUFFER_SIZE; i++) {
-		if (!fpga_config_buffers[i].write_requested) {
-			fpga_config_buffers[i].addr = mem;
-			fpga_config_buffers[i].size = size;
-			fpga_config_buffers[i].size_written = 0;
-			fpga_config_buffers[i].write_requested = 1;
-			fpga_config_buffers[i].block_number =
+		int j = (i + current_buffer) % FPGA_CONFIG_BUFFER_SIZE;
+
+		if (!fpga_config_buffers[j].write_requested) {
+			fpga_config_buffers[j].addr = mem;
+			fpga_config_buffers[j].size = size;
+			fpga_config_buffers[j].size_written = 0;
+			fpga_config_buffers[j].write_requested = 1;
+			fpga_config_buffers[j].block_number =
 				blocks_submitted++;
-			fpga_config_buffers[i].subblocks_sent = 0;
+			fpga_config_buffers[j].subblocks_sent = 0;
 			break;
 		}
 	}
 
+	if (is_fpga_config_buffer_full())
+		return INTEL_SIP_SMC_STATUS_BUSY;
 
-	if (i == FPGA_CONFIG_BUFFER_SIZE) {
-		status = INTEL_SIP_SMC_STATUS_REJECTED;
-		return status;
-	} else if (i == FPGA_CONFIG_BUFFER_SIZE - 1) {
-		status = INTEL_SIP_SMC_STATUS_BUSY;
-	}
-
-	intel_fpga_sdm_write_all();
-
-	return status;
+	return INTEL_SIP_SMC_STATUS_OK;
 }
 
 /*
