@@ -80,6 +80,8 @@ void tegra_memctrl_setup(void)
 	 */
 	tegra_mc_write_32(MC_SMMU_BYPASS_CONFIG,
 			  MC_SMMU_BYPASS_CONFIG_SETTINGS);
+	assert(tegra_mc_read_32(MC_SMMU_BYPASS_CONFIG)
+		 == MC_SMMU_BYPASS_CONFIG_SETTINGS);
 
 	/*
 	 * Re-configure MSS to allow ROC to deal with ordering of the
@@ -210,8 +212,12 @@ void tegra_mc_save_context(uint64_t mc_ctx_addr)
 	/* save the MC table address */
 	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_MC_TABLE_ADDR_LO,
 		(uint32_t)mc_ctx_addr);
+	assert(mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_MC_TABLE_ADDR_LO)
+		== (uint32_t)mc_ctx_addr);
 	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_MC_TABLE_ADDR_HI,
 		(uint32_t)(mc_ctx_addr >> 32));
+	assert(mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_MC_TABLE_ADDR_HI)
+		== (uint32_t)(mc_ctx_addr >> 32));
 }
 
 static void tegra_lock_videomem_nonoverlap(uint64_t phys_base,

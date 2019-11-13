@@ -4,11 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
+#include <string.h>
+
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/mmio.h>
+
 #include <mce.h>
-#include <string.h>
 #include <tegra194_private.h>
 #include <tegra_def.h>
 #include <tegra_private.h>
@@ -52,15 +55,21 @@ void plat_secondary_setup(void)
 
 	/* write lower 32 bits first, then the upper 11 bits */
 	mmio_write_32(TEGRA_MISC_BASE + MISCREG_AA64_RST_LOW, addr_low);
+	assert(mmio_read_32(TEGRA_MISC_BASE + MISCREG_AA64_RST_LOW) == addr_low);
 	mmio_write_32(TEGRA_MISC_BASE + MISCREG_AA64_RST_HIGH, addr_high);
+	assert(mmio_read_32(TEGRA_MISC_BASE + MISCREG_AA64_RST_HIGH) == addr_high);
 
 	/* save reset vector to be used during SYSTEM_SUSPEND exit */
 	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_RESET_VECTOR_LO,
 			addr_low);
+	assert(mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_RESET_VECTOR_LO) == addr_low);
 	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_RESET_VECTOR_HI,
 			addr_high);
+	assert(mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_RESET_VECTOR_HI) == addr_high);
 	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV72_LO,
 						(uint32_t)tzdram_addr);
+	assert(mmio_read_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV72_LO) == (uint32_t)tzdram_addr);
 	mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV72_HI,
 						(uint32_t)src_len_bytes);
+	assert(mmio_read_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV72_HI) == (uint32_t)src_len_bytes);
 }
