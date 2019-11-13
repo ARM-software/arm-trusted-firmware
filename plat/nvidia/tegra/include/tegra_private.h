@@ -97,8 +97,6 @@ void tegra_security_setup(void);
 void tegra_security_setup_videomem(uintptr_t base, uint64_t size);
 
 /* Declarations for tegra_pm.c */
-extern uint8_t tegra_fake_system_suspend;
-
 void tegra_pm_system_suspend_entry(void);
 void tegra_pm_system_suspend_exit(void);
 int32_t tegra_system_suspended(void);
