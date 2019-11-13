@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -8,10 +8,6 @@
 #include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
-
-#include <libfdt.h>
-
-#include <platform_def.h>
 
 #include <arch.h>
 #include <arch_helpers.h>
@@ -27,7 +23,10 @@
 #include <lib/mmio.h>
 #include <lib/spinlock.h>
 #include <lib/utils_def.h>
+#include <libfdt.h>
 #include <plat/common/platform.h>
+
+#include <platform_def.h>
 
 #define MAX_HSI_HZ		64000000
 #define USB_PHY_48_MHZ		48000000
@@ -1772,15 +1771,50 @@ static void stm32mp1_pkcs_config(uint32_t pkcs)
 	mmio_clrsetbits_32(address, mask, value);
 }
 
+static int clk_get_pll_settings_from_dt(int plloff, unsigned int *pllcfg,
+					uint32_t *fracv, uint32_t *csg,
+					bool *csg_set)
+{
+	void *fdt;
+	int ret;
+
+	if (fdt_get_address(&fdt) == 0) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	ret = fdt_read_uint32_array(fdt, plloff, "cfg", (uint32_t)PLLCFG_NB,
+				    pllcfg);
+	if (ret < 0) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	*fracv = fdt_read_uint32_default(fdt, plloff, "frac", 0);
+
+	ret = fdt_read_uint32_array(fdt, plloff, "csg", (uint32_t)PLLCSG_NB,
+				    csg);
+
+	*csg_set = (ret == 0);
+
+	if (ret == -FDT_ERR_NOTFOUND) {
+		ret = 0;
+	}
+
+	return ret;
+}
+
 int stm32mp1_clk_init(void)
 {
 	uintptr_t rcc_base = stm32mp_rcc_base();
+	uint32_t pllfracv[_PLL_NB];
+	uint32_t pllcsg[_PLL_NB][PLLCSG_NB];
 	unsigned int clksrc[CLKSRC_NB];
 	unsigned int clkdiv[CLKDIV_NB];
 	unsigned int pllcfg[_PLL_NB][PLLCFG_NB];
 	int plloff[_PLL_NB];
 	int ret, len;
 	enum stm32mp1_pll_id i;
+	bool pllcsg_set[_PLL_NB];
+	bool pllcfg_valid[_PLL_NB];
 	bool lse_css = false;
 	bool pll3_preserve = false;
 	bool pll4_preserve = false;
@@ -1817,14 +1851,16 @@ int stm32mp1_clk_init(void)
 		snprintf(name, sizeof(name), "st,pll@%d", i);
 		plloff[i] = fdt_rcc_subnode_offset(name);
 
-		if (!fdt_check_node(plloff[i])) {
+		pllcfg_valid[i] = fdt_check_node(plloff[i]);
+		if (!pllcfg_valid[i]) {
 			continue;
 		}
 
-		ret = fdt_read_uint32_array(fdt, plloff[i], "cfg",
-					    (int)PLLCFG_NB, pllcfg[i]);
-		if (ret < 0) {
-			return -FDT_ERR_NOTFOUND;
+		ret = clk_get_pll_settings_from_dt(plloff[i], pllcfg[i],
+						   &pllfracv[i], pllcsg[i],
+						   &pllcsg_set[i]);
+		if (ret != 0) {
+			return ret;
 		}
 	}
 
@@ -1976,15 +2012,12 @@ int stm32mp1_clk_init(void)
 
 	/* Configure and start PLLs */
 	for (i = (enum stm32mp1_pll_id)0; i < _PLL_NB; i++) {
-		uint32_t fracv;
-		uint32_t csg[PLLCSG_NB];
-
 		if (((i == _PLL3) && pll3_preserve) ||
 		    ((i == _PLL4) && pll4_preserve && !pll4_bootrom)) {
 			continue;
 		}
 
-		if (!fdt_check_node(plloff[i])) {
+		if (!pllcfg_valid[i]) {
 			continue;
 		}
 
@@ -1994,25 +2027,20 @@ int stm32mp1_clk_init(void)
 			continue;
 		}
 
-		fracv = fdt_read_uint32_default(fdt, plloff[i], "frac", 0);
-
-		ret = stm32mp1_pll_config(i, pllcfg[i], fracv);
+		ret = stm32mp1_pll_config(i, pllcfg[i], pllfracv[i]);
 		if (ret != 0) {
 			return ret;
 		}
-		ret = fdt_read_uint32_array(fdt, plloff[i], "csg",
-					    (uint32_t)PLLCSG_NB, csg);
-		if (ret == 0) {
-			stm32mp1_pll_csg(i, csg);
-		} else if (ret != -FDT_ERR_NOTFOUND) {
-			return ret;
+
+		if (pllcsg_set[i]) {
+			stm32mp1_pll_csg(i, pllcsg[i]);
 		}
 
 		stm32mp1_pll_start(i);
 	}
 	/* Wait and start PLLs ouptut when ready */
 	for (i = (enum stm32mp1_pll_id)0; i < _PLL_NB; i++) {
-		if (!fdt_check_node(plloff[i])) {
+		if (!pllcfg_valid[i]) {
 			continue;
 		}
 
