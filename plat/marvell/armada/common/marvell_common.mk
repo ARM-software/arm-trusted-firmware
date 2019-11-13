@@ -58,6 +58,10 @@ BL2_SOURCES		+=	drivers/io/io_fip.c					\
 				$(MARVELL_PLAT_BASE)/common/aarch64/marvell_bl2_mem_params_desc.c	\
 				$(MARVELL_PLAT_BASE)/common/marvell_image_load.c
 
+ifeq (${SPD},opteed)
+PLAT_INCLUDES		+=	-Iinclude/lib
+BL2_SOURCES		+=	lib/optee/optee_utils.c
+endif
 
 BL31_SOURCES		+=	$(MARVELL_PLAT_BASE)/common/marvell_bl31_setup.c	\
 				$(MARVELL_PLAT_BASE)/common/marvell_pm.c		\
@@ -68,6 +72,15 @@ BL31_SOURCES		+=	$(MARVELL_PLAT_BASE)/common/marvell_bl31_setup.c	\
 
 # PSCI functionality
 $(eval $(call add_define,CONFIG_ARM64))
+
+# Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
+# in the FIP if the platform requires.
+ifneq ($(BL32_EXTRA1),)
+$(eval $(call TOOL_ADD_IMG,bl32_extra1,--tos-fw-extra1))
+endif
+ifneq ($(BL32_EXTRA2),)
+$(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2))
+endif
 
 # MSS (SCP) build
 ifeq (${MSS_SUPPORT}, 1)
