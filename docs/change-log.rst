@@ -60,6 +60,10 @@ New Features
 
    - Neoverse Zeus: Apply the MSR SSBS instruction
 
+   - cortex-Hercules/HerculesAE: Support added for Cortex-Hercules and
+     Cortex-HerculesAE CPUs
+   - cortex-Hercules/HerculesAE: Enable AMU for Cortex-Hercules and Cortex-HerculesAE
+
    - cortex-a76AE: Support added for Cortex-A76AE CPU
    - cortex-a76: Workaround for erratum 1257314, 1262606, 1262888, 1275112,
      1286807
