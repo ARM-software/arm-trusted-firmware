@@ -109,6 +109,18 @@ ENABLE_BTI			:= 0
 # Use BRANCH_PROTECTION to enable PAUTH.
 ENABLE_PAUTH			:= 0
 
+# By default BL31 encryption disabled
+ENCRYPT_BL31			:= 0
+
+# By default BL32 encryption disabled
+ENCRYPT_BL32			:= 0
+
+# Default dummy firmware encryption key
+ENC_KEY	:= 1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+
+# Default dummy nonce for firmware encryption
+ENC_NONCE			:= 1234567890abcdef12345678
+
 # Build flag to treat usage of deprecated platform and framework APIs as error.
 ERROR_DEPRECATED		:= 0
 
@@ -123,6 +135,9 @@ FIP_NAME			:= fip.bin
 
 # Default FWU_FIP file name
 FWU_FIP_NAME			:= fwu_fip.bin
+
+# By default firmware encryption with SSK
+FW_ENC_STATUS			:= 0
 
 # For Chain of Trust
 GENERATE_COT			:= 0
