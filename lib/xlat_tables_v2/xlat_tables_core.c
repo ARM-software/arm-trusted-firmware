@@ -607,7 +607,8 @@ static uintptr_t xlat_tables_map_region(xlat_ctx_t *ctx, mmap_region_t *mm,
 			}
 
 			/* Point to new subtable from this one. */
-			table_base[table_idx] = TABLE_DESC | (unsigned long)subtable;
+			table_base[table_idx] =
+				TABLE_DESC | (uintptr_t)subtable;
 
 			/* Recurse to write into subtable */
 			end_va = xlat_tables_map_region(ctx, mm, table_idx_va,
