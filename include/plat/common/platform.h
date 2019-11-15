@@ -27,6 +27,7 @@ struct bl_params;
 struct mmap_region;
 struct spm_mm_boot_info;
 struct sp_res_desc;
+enum fw_enc_status_t;
 
 /*******************************************************************************
  * plat_get_rotpk_info() flags
@@ -274,6 +275,9 @@ int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr);
 int plat_set_nv_ctr2(void *cookie, const struct auth_img_desc_s *img_desc,
 		unsigned int nv_ctr);
 int get_mbedtls_heap_helper(void **heap_addr, size_t *heap_size);
+int plat_get_enc_key_info(enum fw_enc_status_t fw_enc_status, uint8_t *key,
+			  size_t *key_len, unsigned int *flags,
+			  const uint8_t *img_id, size_t img_id_len);
 
 /*******************************************************************************
  * Secure Partitions functions
