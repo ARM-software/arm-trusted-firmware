@@ -21,10 +21,12 @@ Current limitations:
 
 -  Only cold boot is supported
 -  No build instructions for QEMU\_EFI.fd and rootfs-arm64.cpio.gz
--  No instructions for how to load a BL32 (Secure Payload)
 
 ``QEMU_EFI.fd`` can be dowloaded from
 http://snapshots.linaro.org/components/kernel/leg-virt-tianocore-edk2-upstream/latest/QEMU-KERNEL-AARCH64/RELEASE_GCC5/QEMU_EFI.fd
+
+Booting via semi-hosting option
+-------------------------------
 
 Boot binaries, except BL1, are primarily loaded via semi-hosting so all
 binaries has to reside in the same directory as QEMU is started from. This
@@ -50,3 +52,52 @@ To start (QEMU v4.1.0):
         -append "console=ttyAMA0,38400 keep_bootcon root=/dev/vda2"   \
         -initrd rootfs-arm64.cpio.gz -smp 2 -m 1024 -bios bl1.bin   \
         -d unimp -semihosting-config enable,target=native
+
+Booting via flash based firmwares
+---------------------------------
+
+Boot firmwares are loaded via secure FLASH0 device so ``bl1.bin`` and
+``fip.bin`` should be concatenated to create a ``flash.bin`` that is flashed
+onto secure FLASH0.
+
+-  ``bl32.bin`` -> BL32 (``tee-header_v2.bin``)
+-  ``bl32_extra1.bin`` -> BL32 Extra1 (``tee-pager_v2.bin``)
+-  ``bl32_extra2.bin`` -> BL32 Extra2 (``tee-pageable_v2.bin``)
+-  ``bl33.bin`` -> BL33 (``QEMU_EFI.fd``)
+-  ``Image`` -> linux/arch/arm64/boot/Image
+
+To build:
+
+.. code:: shell
+
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=qemu BL32=bl32.bin \
+        BL32_EXTRA1=bl32_extra1.bin BL32_EXTRA2=bl32_extra2.bin \
+        BL33=bl33.bin BL32_RAM_LOCATION=tdram SPD=opteed all fip
+
+To build with TBBR enabled, BL31 and BL32 encrypted with test key:
+
+.. code:: shell
+
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=qemu BL32=bl32.bin \
+        BL32_EXTRA1=bl32_extra1.bin BL32_EXTRA2=bl32_extra2.bin \
+        BL33=bl33.bin BL32_RAM_LOCATION=tdram SPD=opteed all fip \
+        MBEDTLS_DIR=<path-to-mbedtls-repo> TRUSTED_BOARD_BOOT=1 \
+        GENERATE_COT=1 DECRYPTION_SUPPORT=aes_gcm FW_ENC_STATUS=0 \
+        ENCRYPT_BL31=1 ENCRYPT_BL32=1
+
+To build flash.bin:
+
+.. code:: shell
+
+    dd if=build/qemu/release/bl1.bin of=flash.bin bs=4096 conv=notrunc
+    dd if=build/qemu/release/fip.bin of=flash.bin seek=64 bs=4096 conv=notrunc
+
+To start (QEMU v2.6.0):
+
+.. code:: shell
+
+    qemu-system-aarch64 -nographic -machine virt,secure=on -cpu cortex-a57  \
+        -kernel Image -no-acpi                     \
+        -append 'console=ttyAMA0,38400 keep_bootcon root=/dev/vda2'  \
+        -initrd rootfs-arm64.cpio.gz -smp 2 -m 1024 -bios flash.bin   \
+        -d unimp
