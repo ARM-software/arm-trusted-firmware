@@ -623,7 +623,7 @@ endif
 
 ifeq ($(MEASURED_BOOT),1)
     ifneq (${TRUSTED_BOARD_BOOT},1)
-        $(error MEASURED_BOOT requires TRUSTED_BOARD_BOOT=1")
+        $(error MEASURED_BOOT requires TRUSTED_BOARD_BOOT=1)
     else
         $(info MEASURED_BOOT is an experimental feature)
     endif
@@ -632,6 +632,14 @@ endif
 ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
     ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
         $(error "ALLOW_RO_XLAT_TABLES requires translation tables library v2")
+    endif
+endif
+
+ifneq (${DECRYPTION_SUPPORT},none)
+    ifeq (${TRUSTED_BOARD_BOOT}, 0)
+        $(error TRUSTED_BOARD_BOOT must be enabled for DECRYPTION_SUPPORT to be set)
+    else
+        $(info DECRYPTION_SUPPORT is an experimental feature)
     endif
 endif
 
@@ -843,6 +851,7 @@ $(eval $(call add_define,CTX_INCLUDE_PAUTH_REGS))
 $(eval $(call add_define,EL3_EXCEPTION_HANDLING))
 $(eval $(call add_define,CTX_INCLUDE_MTE_REGS))
 $(eval $(call add_define,CTX_INCLUDE_EL2_REGS))
+$(eval $(call add_define,DECRYPTION_SUPPORT_${DECRYPTION_SUPPORT}))
 $(eval $(call add_define,ENABLE_AMU))
 $(eval $(call add_define,ENABLE_ASSERTIONS))
 $(eval $(call add_define,ENABLE_BTI))

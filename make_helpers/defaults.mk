@@ -65,6 +65,9 @@ CTX_INCLUDE_PAUTH_REGS		:= 0
 # Debug build
 DEBUG				:= 0
 
+# By default disable authenticated decryption support.
+DECRYPTION_SUPPORT		:= none
+
 # Build platform
 DEFAULT_PLAT			:= fvp
 

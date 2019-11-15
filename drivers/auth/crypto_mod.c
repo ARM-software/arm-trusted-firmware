@@ -124,3 +124,35 @@ int crypto_mod_calc_hash(unsigned int alg, void *data_ptr,
 	return crypto_lib_desc.calc_hash(alg, data_ptr, data_len, output);
 }
 #endif	/* MEASURED_BOOT */
+
+/*
+ * Authenticated decryption of data
+ *
+ * Parameters:
+ *
+ *   dec_algo: authenticated decryption algorithm
+ *   data_ptr, len: data to be decrypted (inout param)
+ *   key, key_len, key_flags: symmetric decryption key
+ *   iv, iv_len: initialization vector
+ *   tag, tag_len: authentication tag
+ */
+int crypto_mod_auth_decrypt(enum crypto_dec_algo dec_algo, void *data_ptr,
+			    size_t len, const void *key, unsigned int key_len,
+			    unsigned int key_flags, const void *iv,
+			    unsigned int iv_len, const void *tag,
+			    unsigned int tag_len)
+{
+	assert(crypto_lib_desc.auth_decrypt != NULL);
+	assert(data_ptr != NULL);
+	assert(len != 0U);
+	assert(key != NULL);
+	assert(key_len != 0U);
+	assert(iv != NULL);
+	assert((iv_len != 0U) && (iv_len <= CRYPTO_MAX_IV_SIZE));
+	assert(tag != NULL);
+	assert((tag_len != 0U) && (tag_len <= CRYPTO_MAX_TAG_SIZE));
+
+	return crypto_lib_desc.auth_decrypt(dec_algo, data_ptr, len, key,
+					    key_len, key_flags, iv, iv_len, tag,
+					    tag_len);
+}

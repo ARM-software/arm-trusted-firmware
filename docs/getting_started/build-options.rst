@@ -160,6 +160,12 @@ Common build options
 -  ``DEBUG``: Chooses between a debug and release build. It can take either 0
    (release) or 1 (debug) as values. 0 is the default.
 
+-  ``DECRYPTION_SUPPORT``: This build flag enables the user to select the
+   authenticated decryption algorithm to be used to decrypt firmware/s during
+   boot. It accepts 2 values: ``aes_gcm`` and ``none``. The default value of
+   this flag is ``none`` to disable firmware decryption which is an optional
+   feature as per TBBR. Also, it is an experimental feature.
+
 -  ``DISABLE_BIN_GENERATION``: Boolean option to disable the generation
    of the binary image. If set to 1, then only the ELF image is built.
    0 is the default.

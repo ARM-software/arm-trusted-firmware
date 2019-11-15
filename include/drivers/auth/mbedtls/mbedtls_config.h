@@ -79,6 +79,12 @@
 #define MBEDTLS_X509_USE_C
 #define MBEDTLS_X509_CRT_PARSE_C
 
+#if TF_MBEDTLS_USE_AES_GCM
+#define MBEDTLS_AES_C
+#define MBEDTLS_CIPHER_C
+#define MBEDTLS_GCM_C
+#endif
+
 /* MPI / BIGNUM options */
 #define MBEDTLS_MPI_WINDOW_SIZE			2
 
