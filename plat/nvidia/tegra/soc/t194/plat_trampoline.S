@@ -58,6 +58,13 @@ m_loop1:
 	subs	x2, x2, #1
 	b.ne	m_loop1
 
+	/*
+	 * Synchronization barriers to make sure that memory is flushed out
+	 * before we start execution in SysRAM.
+	 */
+	dsb	sy
+	isb
+
 boot_cpu:
 	adr	x0, __tegra194_cpu_reset_handler_data
 	ldr	x0, [x0]
