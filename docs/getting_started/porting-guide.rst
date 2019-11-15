@@ -872,6 +872,35 @@ twice.
 
 On success the function should return 0 and a negative error code otherwise.
 
+Function : plat_get_enc_key_info() [when FW_ENC_STATUS == 0 or 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Arguments : enum fw_enc_status_t fw_enc_status, uint8_t *key,
+                size_t *key_len, unsigned int *flags, const uint8_t *img_id,
+                size_t img_id_len
+    Return    : int
+
+This function provides a symmetric key (either SSK or BSSK depending on
+fw_enc_status) which is invoked during runtime decryption of encrypted
+firmware images. `plat/common/plat_bl_common.c` provides a dummy weak
+implementation for testing purposes which must be overridden by the platform
+trying to implement a real world firmware encryption use-case.
+
+It also allows the platform to pass symmetric key identifier rather than
+actual symmetric key which is useful in cases where the crypto backend provides
+secure storage for the symmetric key. So in this case ``ENC_KEY_IS_IDENTIFIER``
+flag must be set in ``flags``.
+
+In addition to above a platform may also choose to provide an image specific
+symmetric key/identifier using img_id.
+
+On success the function should return 0 and a negative error code otherwise.
+
+Note that this API depends on ``DECRYPTION_SUPPORT`` build flag which is
+marked as experimental.
+
 Common optional modifications
 -----------------------------
 

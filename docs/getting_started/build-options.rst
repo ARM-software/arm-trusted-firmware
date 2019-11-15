@@ -263,6 +263,22 @@ Common build options
    platform hook needs to be implemented. The value is passed as the last
    component of the option ``-fstack-protector-$ENABLE_STACK_PROTECTOR``.
 
+-  ``ENCRYPT_BL31``: Binary flag to enable encryption of BL31 firmware. This
+   flag depends on ``DECRYPTION_SUPPORT`` build flag which is marked as
+   experimental.
+
+-  ``ENCRYPT_BL32``: Binary flag to enable encryption of Secure BL32 payload.
+   This flag depends on ``DECRYPTION_SUPPORT`` build flag which is marked as
+   experimental.
+
+-  ``ENC_KEY``: A 32-byte (256-bit) symmetric key in hex string format. It could
+   either be SSK or BSSK depending on ``FW_ENC_STATUS`` flag. This value depends
+   on ``DECRYPTION_SUPPORT`` build flag which is marked as experimental.
+
+-  ``ENC_NONCE``: A 12-byte (96-bit) encryption nonce or Initialization Vector
+   (IV) in hex string format. This value depends on ``DECRYPTION_SUPPORT``
+   build flag which is marked as experimental.
+
 -  ``ERROR_DEPRECATED``: This option decides whether to treat the usage of
    deprecated platform APIs, helper functions or drivers within Trusted
    Firmware as error. It can take the value 1 (flag the use of deprecated
@@ -286,6 +302,18 @@ Common build options
 
 -  ``FWU_FIP_NAME``: This is an optional build option which specifies the FWU
    FIP filename for the ``fwu_fip`` target. Default is ``fwu_fip.bin``.
+
+-  ``FW_ENC_STATUS``: Top level firmware's encryption numeric flag, values:
+
+   ::
+
+     0: Encryption is done with Secret Symmetric Key (SSK) which is common
+        for a class of devices.
+     1: Encryption is done with Binding Secret Symmetric Key (BSSK) which is
+        unique per device.
+
+   This flag depends on ``DECRYPTION_SUPPORT`` build flag which is marked as
+   experimental.
 
 -  ``GENERATE_COT``: Boolean flag used to build and execute the ``cert_create``
    tool to create certificates as per the Chain of Trust described in

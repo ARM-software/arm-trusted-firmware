@@ -46,6 +46,7 @@ New Features
 
 - Security
    - Example: "UBSAN support and handlers"
+   - Add support for optional firmware encryption feature (experimental).
 
 - Tools
    - Example: "fiptool: Add support to build fiptool on Windows."
