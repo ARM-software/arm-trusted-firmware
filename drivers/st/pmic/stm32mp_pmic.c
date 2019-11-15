@@ -17,6 +17,7 @@
 
 #include <platform_def.h>
 
+#define PMIC_NODE_NOT_FOUND	1
 #define STPMIC1_LDO12356_OUTPUT_MASK	(uint8_t)(GENMASK(6, 2))
 #define STPMIC1_LDO12356_OUTPUT_SHIFT	2
 #define STPMIC1_LDO3_MODE		(uint8_t)(BIT(7))
@@ -33,13 +34,24 @@ static uint32_t pmic_i2c_addr;
 
 static int dt_get_pmic_node(void *fdt)
 {
-	return fdt_node_offset_by_compatible(fdt, -1, "st,stpmic1");
+	static int node = -FDT_ERR_BADOFFSET;
+
+	if (node == -FDT_ERR_BADOFFSET) {
+		node = fdt_node_offset_by_compatible(fdt, -1, "st,stpmic1");
+	}
+
+	return node;
 }
 
 int dt_pmic_status(void)
 {
+	static int status = -FDT_ERR_BADVALUE;
 	int node;
 	void *fdt;
+
+	if (status != -FDT_ERR_BADVALUE) {
+		return status;
+	}
 
 	if (fdt_get_address(&fdt) == 0) {
 		return -ENOENT;
@@ -47,10 +59,14 @@ int dt_pmic_status(void)
 
 	node = dt_get_pmic_node(fdt);
 	if (node <= 0) {
-		return -FDT_ERR_NOTFOUND;
+		status = -FDT_ERR_NOTFOUND;
+
+		return status;
 	}
 
-	return fdt_get_status(node);
+	status = (int)fdt_get_status(node);
+
+	return status;
 }
 
 static bool dt_pmic_is_secure(void)
@@ -64,37 +80,41 @@ static bool dt_pmic_is_secure(void)
 
 /*
  * Get PMIC and its I2C bus configuration from the device tree.
- * Return 0 on success, negative on error, 1 if no PMIC node is found.
+ * Return 0 on success, negative on error, 1 if no PMIC node is defined.
  */
 static int dt_pmic_i2c_config(struct dt_node_info *i2c_info,
 			      struct stm32_i2c_init_s *init)
 {
-	int pmic_node, i2c_node;
+	static int i2c_node = -FDT_ERR_NOTFOUND;
 	void *fdt;
-	const fdt32_t *cuint;
 
 	if (fdt_get_address(&fdt) == 0) {
-		return -ENOENT;
-	}
-
-	pmic_node = dt_get_pmic_node(fdt);
-	if (pmic_node < 0) {
-		return 1;
-	}
-
-	cuint = fdt_getprop(fdt, pmic_node, "reg", NULL);
-	if (cuint == NULL) {
 		return -FDT_ERR_NOTFOUND;
 	}
 
-	pmic_i2c_addr = fdt32_to_cpu(*cuint) << 1;
-	if (pmic_i2c_addr > UINT16_MAX) {
-		return -EINVAL;
-	}
+	if (i2c_node == -FDT_ERR_NOTFOUND) {
+		int pmic_node;
+		const fdt32_t *cuint;
 
-	i2c_node = fdt_parent_offset(fdt, pmic_node);
-	if (i2c_node < 0) {
-		return -FDT_ERR_NOTFOUND;
+		pmic_node = dt_get_pmic_node(fdt);
+		if (pmic_node < 0) {
+			return PMIC_NODE_NOT_FOUND;
+		}
+
+		cuint = fdt_getprop(fdt, pmic_node, "reg", NULL);
+		if (cuint == NULL) {
+			return -FDT_ERR_NOTFOUND;
+		}
+
+		pmic_i2c_addr = fdt32_to_cpu(*cuint) << 1;
+		if (pmic_i2c_addr > UINT16_MAX) {
+			return -FDT_ERR_BADVALUE;
+		}
+
+		i2c_node = fdt_parent_offset(fdt, pmic_node);
+		if (i2c_node < 0) {
+			return -FDT_ERR_NOTFOUND;
+		}
 	}
 
 	dt_fill_device_info(i2c_info, i2c_node);
