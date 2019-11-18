@@ -28,6 +28,13 @@ PLAT_XLAT_TABLES_DYNAMIC :=	1
 STM32MP_DDR_DUAL_AXI_PORT:=	1
 STM32MP_DDR_32BIT_INTERFACE:=	1
 
+# STM32 image header version v1.0
+STM32_HEADER_VERSION_MAJOR:=	1
+STM32_HEADER_VERSION_MINOR:=	0
+
+# STM32 image header binary type for BL2
+STM32_HEADER_BL2_BINARY_TYPE:=	0x10
+
 ifeq ($(AARCH32_SP),sp_min)
 # Disable Neon support: sp_min runtime may conflict with non-secure world
 TF_CFLAGS		+=	-mfloat-abi=soft
@@ -427,5 +434,8 @@ tf-a-%.stm32: ${STM32IMAGE} tf-a-%.bin
 	$(eval ENTRY = $(shell cat $(@:.stm32=.map) | grep "__BL2_IMAGE_START" | awk '{print $$1}'))
 	${Q}${STM32IMAGE} -s $(word 2,$^) -d $@ \
 		-l $(LOADADDR) -e ${ENTRY} \
-		-v ${STM32_TF_VERSION}
+		-v ${STM32_TF_VERSION} \
+		-m ${STM32_HEADER_VERSION_MAJOR} \
+		-n ${STM32_HEADER_VERSION_MINOR} \
+		-b ${STM32_HEADER_BL2_BINARY_TYPE}
 	@echo
