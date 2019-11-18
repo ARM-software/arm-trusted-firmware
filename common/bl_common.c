@@ -143,26 +143,45 @@ exit:
 	return io_result;
 }
 
-static int load_auth_image_internal(unsigned int image_id,
+/*
+ * Load an image and flush it out to main memory so that it can be executed
+ * later by any CPU, regardless of cache and MMU state.
+ */
+static int load_image_flush(unsigned int image_id,
+			    image_info_t *image_data)
+{
+	int rc;
+
+	rc = load_image(image_id, image_data);
+	if (rc == 0) {
+		flush_dcache_range(image_data->image_base,
+				   image_data->image_size);
+	}
+
+	return rc;
+}
+
+
+#if TRUSTED_BOARD_BOOT
+/*
+ * This function uses recursion to authenticate the parent images up to the root
+ * of trust.
+ */
+static int load_auth_image_recursive(unsigned int image_id,
 				    image_info_t *image_data,
 				    int is_parent_image)
 {
 	int rc;
+	unsigned int parent_id;
 
-#if TRUSTED_BOARD_BOOT
-	if (dyn_is_auth_disabled() == 0) {
-		unsigned int parent_id;
-
-		/* Use recursion to authenticate parent images */
-		rc = auth_mod_get_parent_id(image_id, &parent_id);
-		if (rc == 0) {
-			rc = load_auth_image_internal(parent_id, image_data, 1);
-			if (rc != 0) {
-				return rc;
-			}
+	/* Use recursion to authenticate parent images */
+	rc = auth_mod_get_parent_id(image_id, &parent_id);
+	if (rc == 0) {
+		rc = load_auth_image_recursive(parent_id, image_data, 1);
+		if (rc != 0) {
+			return rc;
 		}
 	}
-#endif /* TRUSTED_BOARD_BOOT */
 
 	/* Load the image */
 	rc = load_image(image_id, image_data);
@@ -170,36 +189,43 @@ static int load_auth_image_internal(unsigned int image_id,
 		return rc;
 	}
 
-#if TRUSTED_BOARD_BOOT
-	if (dyn_is_auth_disabled() == 0) {
-		/* Authenticate it */
-		rc = auth_mod_verify_img(image_id,
-					 (void *)image_data->image_base,
-					 image_data->image_size);
-		if (rc != 0) {
-			/* Authentication error, zero memory and flush it right away. */
-			zero_normalmem((void *)image_data->image_base,
+	/* Authenticate it */
+	rc = auth_mod_verify_img(image_id,
+				 (void *)image_data->image_base,
+				 image_data->image_size);
+	if (rc != 0) {
+		/* Authentication error, zero memory and flush it right away. */
+		zero_normalmem((void *)image_data->image_base,
 			       image_data->image_size);
-			flush_dcache_range(image_data->image_base,
-					   image_data->image_size);
-			return -EAUTH;
-		}
+		flush_dcache_range(image_data->image_base,
+				   image_data->image_size);
+		return -EAUTH;
 	}
-#endif /* TRUSTED_BOARD_BOOT */
 
 	/*
 	 * Flush the image to main memory so that it can be executed later by
-	 * any CPU, regardless of cache and MMU state. If TBB is enabled, then
-	 * the file has been successfully loaded and authenticated and flush
-	 * only for child images, not for the parents (certificates).
+	 * any CPU, regardless of cache and MMU state. This is only needed for
+	 * child images, not for the parents (certificates).
 	 */
 	if (is_parent_image == 0) {
 		flush_dcache_range(image_data->image_base,
 				   image_data->image_size);
 	}
 
-
 	return 0;
+}
+#endif /* TRUSTED_BOARD_BOOT */
+
+static int load_auth_image_internal(unsigned int image_id,
+				    image_info_t *image_data)
+{
+#if TRUSTED_BOARD_BOOT
+	if (dyn_is_auth_disabled() == 0) {
+		return load_auth_image_recursive(image_id, image_data, 0);
+	}
+#endif
+
+	return load_image_flush(image_id, image_data);
 }
 
 /*******************************************************************************
@@ -207,14 +233,14 @@ static int load_auth_image_internal(unsigned int image_id,
  * loaded by calling the 'load_image()' function. Therefore, it returns the
  * same error codes if the loading operation failed, or -EAUTH if the
  * authentication failed. In addition, this function uses recursion to
- * authenticate the parent images up to the root of trust.
+ * authenticate the parent images up to the root of trust (if TBB is enabled).
  ******************************************************************************/
 int load_auth_image(unsigned int image_id, image_info_t *image_data)
 {
 	int err;
 
 	do {
-		err = load_auth_image_internal(image_id, image_data, 0);
+		err = load_auth_image_internal(image_id, image_data);
 	} while ((err != 0) && (plat_try_next_boot_source() != 0));
 
 	return err;
