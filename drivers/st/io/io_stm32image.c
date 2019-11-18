@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -246,7 +246,7 @@ static int stm32image_partition_size(io_entity_t *entity, size_t *length)
 static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 				     size_t length, size_t *length_read)
 {
-	int result;
+	int result = -EINVAL;
 	uint8_t *local_buffer;
 	boot_api_image_header_t *header =
 		(boot_api_image_header_t *)first_lba_buffer;
