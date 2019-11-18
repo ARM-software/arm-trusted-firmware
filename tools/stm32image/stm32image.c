@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,8 +45,6 @@ struct stm32_header {
 	uint8_t binary_type;
 };
 
-static struct stm32_header stm32image_header;
-
 static void stm32image_default_header(struct stm32_header *ptr)
 {
 	if (!ptr) {
@@ -54,10 +52,9 @@ static void stm32image_default_header(struct stm32_header *ptr)
 	}
 
 	ptr->magic_number = HEADER_MAGIC;
-	ptr->header_version[VER_MAJOR] = HEADER_VERSION_V1;
 	ptr->option_flags = HEADER_DEFAULT_OPTION;
-	ptr->ecdsa_algorithm = 1;
-	ptr->version_number = 0;
+	ptr->ecdsa_algorithm = __cpu_to_le32(1);
+	ptr->version_number = __cpu_to_le32(0);
 	ptr->binary_type = TF_BINARY_TYPE;
 }
 
@@ -105,27 +102,33 @@ static void stm32image_print_header(const void *ptr)
 }
 
 static void stm32image_set_header(void *ptr, struct stat *sbuf, int ifd,
-				  uint32_t loadaddr, uint32_t ep, uint32_t ver)
+				  uint32_t loadaddr, uint32_t ep, uint32_t ver,
+				  uint32_t major, uint32_t minor)
 {
 	struct stm32_header *stm32hdr = (struct stm32_header *)ptr;
 
 	stm32image_default_header(stm32hdr);
 
+	stm32hdr->header_version[VER_MAJOR] = major;
+	stm32hdr->header_version[VER_MINOR] = minor;
 	stm32hdr->load_address = __cpu_to_le32(loadaddr);
 	stm32hdr->image_entry_point = __cpu_to_le32(ep);
 	stm32hdr->image_length = __cpu_to_le32((uint32_t)sbuf->st_size -
 					     sizeof(struct stm32_header));
-	stm32hdr->image_checksum = stm32image_checksum(ptr, sbuf->st_size);
+	stm32hdr->image_checksum =
+		__cpu_to_le32(stm32image_checksum(ptr, sbuf->st_size));
 	stm32hdr->version_number = __cpu_to_le32(ver);
 }
 
 static int stm32image_create_header_file(char *srcname, char *destname,
 					 uint32_t loadaddr, uint32_t entry,
-					 uint32_t version)
+					 uint32_t version, uint32_t major,
+					 uint32_t minor)
 {
 	int src_fd, dest_fd;
 	struct stat sbuf;
 	unsigned char *ptr;
+	struct stm32_header stm32image_header;
 
 	dest_fd = open(destname, O_RDWR | O_CREAT | O_TRUNC | O_APPEND, 0666);
 	if (dest_fd == -1) {
@@ -177,11 +180,12 @@ static int stm32image_create_header_file(char *srcname, char *destname,
 		   dest_fd, 0);
 
 	if (ptr == MAP_FAILED) {
-		fprintf(stderr, "Can't read %s\n", srcname);
+		fprintf(stderr, "Can't write %s\n", destname);
 		return -1;
 	}
 
-	stm32image_set_header(ptr, &sbuf, dest_fd, loadaddr, entry, version);
+	stm32image_set_header(ptr, &sbuf, dest_fd, loadaddr, entry, version,
+			      major, minor);
 
 	stm32image_print_header(ptr);
 
@@ -193,9 +197,11 @@ static int stm32image_create_header_file(char *srcname, char *destname,
 int main(int argc, char *argv[])
 {
 	int opt, loadaddr = -1, entry = -1, err = 0, version = 0;
+	int major = HEADER_VERSION_V1;
+	int minor = 0;
 	char *dest = NULL, *src = NULL;
 
-	while ((opt = getopt(argc, argv, ":s:d:l:e:v:")) != -1) {
+	while ((opt = getopt(argc, argv, ":s:d:l:e:v:m:n:")) != -1) {
 		switch (opt) {
 		case 's':
 			src = optarg;
@@ -204,17 +210,23 @@ int main(int argc, char *argv[])
 			dest = optarg;
 			break;
 		case 'l':
-			loadaddr = strtol(optarg, NULL, 16);
+			loadaddr = strtol(optarg, NULL, 0);
 			break;
 		case 'e':
-			entry = strtol(optarg, NULL, 16);
+			entry = strtol(optarg, NULL, 0);
 			break;
 		case 'v':
-			version = strtol(optarg, NULL, 10);
+			version = strtol(optarg, NULL, 0);
+			break;
+		case 'm':
+			major = strtol(optarg, NULL, 0);
+			break;
+		case 'n':
+			minor = strtol(optarg, NULL, 0);
 			break;
 		default:
 			fprintf(stderr,
-				"Usage : %s [-s srcfile] [-d destfile] [-l loadaddr] [-e entry_point]\n",
+				"Usage : %s [-s srcfile] [-d destfile] [-l loadaddr] [-e entry_point] [-m major] [-n minor]\n",
 					argv[0]);
 			return -1;
 		}
@@ -241,7 +253,7 @@ int main(int argc, char *argv[])
 	}
 
 	err = stm32image_create_header_file(src, dest, loadaddr,
-					    entry, version);
+					    entry, version, major, minor);
 
 	return err;
 }
