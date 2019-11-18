@@ -270,14 +270,22 @@ static void register_pmic_shared_peripherals(void)
 
 void initialize_pmic(void)
 {
-	unsigned long pmic_version;
-
 	if (!initialize_pmic_i2c()) {
 		VERBOSE("No PMIC\n");
 		return;
 	}
 
 	register_pmic_shared_peripherals();
+
+	if (dt_pmic_configure_boot_on_regulators() < 0) {
+		panic();
+	};
+}
+
+#if DEBUG
+void print_pmic_info_and_debug(void)
+{
+	unsigned long pmic_version;
 
 	if (stpmic1_get_version(&pmic_version) != 0) {
 		ERROR("Failed to access PMIC\n");
@@ -286,13 +294,8 @@ void initialize_pmic(void)
 
 	INFO("PMIC version = 0x%02lx\n", pmic_version);
 	stpmic1_dump_regulators();
-
-#if defined(IMAGE_BL2)
-	if (dt_pmic_configure_boot_on_regulators() != 0) {
-		panic();
-	};
-#endif
 }
+#endif
 
 int pmic_ddr_power_init(enum ddr_type ddr_type)
 {

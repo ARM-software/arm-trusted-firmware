@@ -273,6 +273,7 @@ void bl2_el3_plat_arch_setup(void)
 skip_console_init:
 	if (dt_pmic_status() > 0) {
 		initialize_pmic();
+		print_pmic_info_and_debug();
 	}
 
 	stm32mp1_syscfg_init();

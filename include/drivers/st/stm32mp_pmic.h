@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,6 +40,14 @@ bool initialize_pmic_i2c(void);
  * Panics on errors
  */
 void initialize_pmic(void);
+
+#if DEBUG
+void print_pmic_info_and_debug(void);
+#else
+static inline void print_pmic_info_and_debug(void)
+{
+}
+#endif
 
 /*
  * pmic_ddr_power_init - Initialize regulators required for DDR
