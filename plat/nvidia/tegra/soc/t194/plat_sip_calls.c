@@ -51,7 +51,7 @@ int plat_sip_handler(uint32_t smc_fid,
 		     uint64_t x2,
 		     uint64_t x3,
 		     uint64_t x4,
-		     void *cookie,
+		     const void *cookie,
 		     void *handle,
 		     uint64_t flags)
 {
