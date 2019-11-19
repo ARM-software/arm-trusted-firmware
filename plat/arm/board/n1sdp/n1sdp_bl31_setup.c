@@ -6,11 +6,11 @@
 
 #include <platform_def.h>
 
+#include <common/debug.h>
 #include <drivers/arm/css/css_mhu_doorbell.h>
 #include <drivers/arm/css/scmi.h>
 #include <drivers/arm/css/sds.h>
 #include <drivers/arm/gic600_multichip.h>
-#include <common/debug.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
 #include <plat/arm/common/plat_arm.h>
