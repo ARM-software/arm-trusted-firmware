@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,7 +36,8 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
 	fvp_power_domain_tree_desc[1] = FVP_CLUSTER_COUNT;
 
 	for (i = 0; i < FVP_CLUSTER_COUNT; i++)
-		fvp_power_domain_tree_desc[i + 2] = FVP_MAX_CPUS_PER_CLUSTER;
+		fvp_power_domain_tree_desc[i + 2] =
+			FVP_MAX_CPUS_PER_CLUSTER * FVP_MAX_PE_PER_CPU;
 
 
 	return fvp_power_domain_tree_desc;
