@@ -14,7 +14,10 @@ include lib/xlat_tables_v2/xlat_tables.mk
 include drivers/arm/gic/v3/gicv3.mk
 
 IMX_DRAM_SOURCES	:=	plat/imx/imx8m/ddr/dram.c		\
-				plat/imx/imx8m/ddr/dram_retention.c
+				plat/imx/imx8m/ddr/clock.c		\
+				plat/imx/imx8m/ddr/dram_retention.c	\
+				plat/imx/imx8m/ddr/ddr4_dvfs.c		\
+				plat/imx/imx8m/ddr/lpddr4_dvfs.c
 
 
 IMX_GIC_SOURCES		:=	${GICV3_SOURCES}			\
