@@ -152,6 +152,21 @@ static bool clst_single_on(int cluster, int cpu)
 	return !(on_stat & (cpu_mask[cluster] & ~BIT(my_idx)));
 }
 
+static void plat_cpu_pwrdwn_common(void)
+{
+	/* Prevent interrupts from spuriously waking up this cpu */
+	mt_gic_rdistif_save();
+	mt_gic_cpuif_disable();
+}
+
+static void plat_cpu_pwron_common(void)
+{
+	/* Enable the gic cpu interface */
+	mt_gic_cpuif_enable();
+	mt_gic_rdistif_init();
+	mt_gic_rdistif_restore();
+}
+
 static void plat_cluster_pwrdwn_common(uint64_t mpidr, int cluster)
 {
 	if (cluster > 0)
@@ -289,13 +304,19 @@ static int plat_mtk_power_domain_on(unsigned long mpidr)
 {
 	int cpu = MPIDR_AFFLVL0_VAL(mpidr);
 	int cluster = MPIDR_AFFLVL1_VAL(mpidr);
+	int clst_pwr = spm_get_cluster_powerstate(cluster);
+	unsigned int i;
 
 	mcdi_ctrl_before_hotplug_on(cluster, cpu);
 	hotplug_ctrl_cluster_on(cluster, cpu);
 
-	/* init cpu reset arch as AARCH64 */
-	mcucfg_init_archstate(cluster, cpu, 1);
-	mcucfg_set_bootaddr(cluster, cpu, secure_entrypoint);
+	if (clst_pwr == 0) {
+		/* init cpu reset arch as AARCH64 of cluster */
+		for (i = 0; i < PLATFORM_MAX_CPUS_PER_CLUSTER; i++) {
+			mcucfg_init_archstate(cluster, i, 1);
+			mcucfg_set_bootaddr(cluster, i, secure_entrypoint);
+		}
+	}
 
 	hotplug_ctrl_cpu_on(cluster, cpu);
 
@@ -312,7 +333,7 @@ static void plat_mtk_power_domain_off(const psci_power_state_t *state)
 	bool cluster_off = (HP_CLUSTER_OFF && afflvl1 &&
 					clst_single_on(cluster, cpu));
 
-	mt_gic_cpuif_disable();
+	plat_cpu_pwrdwn_common();
 
 	if (cluster_off)
 		plat_cluster_pwrdwn_common(mpidr, cluster);
@@ -332,8 +353,7 @@ static void plat_mtk_power_domain_on_finish(const psci_power_state_t *state)
 	if (afflvl1)
 		plat_cluster_pwron_common(mpidr, cluster);
 
-	mt_gic_pcpu_init();
-	mt_gic_cpuif_enable();
+	plat_cpu_pwron_common();
 
 	hotplug_ctrl_cpu_on_finish(cluster, cpu);
 }
@@ -348,12 +368,8 @@ static void plat_mtk_power_domain_suspend(const psci_power_state_t *state)
 	bool afflvl2 = (pds[MPIDR_AFFLVL2] == MTK_LOCAL_STATE_OFF);
 	bool cluster_off = MCDI_C2 && afflvl1 && clst_single_pwr(cluster, cpu);
 
-	/* init cpu reset arch as AARCH64 */
-	mcucfg_init_archstate(cluster, cpu, 1);
-	mcucfg_set_bootaddr(cluster, cpu, secure_entrypoint);
+	plat_cpu_pwrdwn_common();
 
-	mt_gic_cpuif_disable();
-	mt_gic_irq_save();
 	plat_dcm_mcsi_a_backup();
 
 	if (cluster_off || afflvl2)
@@ -376,6 +392,8 @@ static void plat_mtk_power_domain_suspend(const psci_power_state_t *state)
 		if (MCDI_SSPM)
 			while (sspm_ipi_recv_non_blocking(IPI_ID_SUSPEND, d, l))
 				;
+
+		mt_gic_distif_save();
 	} else {
 		mcdi_ctrl_cluster_cpu_off(cluster, cpu, cluster_off);
 	}
@@ -394,7 +412,9 @@ static void plat_mtk_power_domain_suspend_finish(const psci_power_state_t *state
 		uint32_t l = sizeof(spm_d) / sizeof(uint32_t);
 
 		mt_gic_init();
-		mt_gic_irq_restore();
+		mt_gic_distif_restore();
+		mt_gic_rdistif_restore();
+
 		mmio_write_32(EMI_WFIFO, 0xf);
 
 		if (MCDI_SSPM)
@@ -407,6 +427,8 @@ static void plat_mtk_power_domain_suspend_finish(const psci_power_state_t *state
 				;
 
 		mcdi_ctrl_resume();
+	} else {
+		plat_cpu_pwron_common();
 	}
 
 	plat_cluster_pwron_common(mpidr, cluster);
@@ -541,14 +563,22 @@ static const plat_psci_ops_t plat_plat_pm_ops = {
 	.system_off			= plat_mtk_system_off,
 	.system_reset			= plat_mtk_system_reset,
 	.validate_power_state		= plat_mtk_validate_power_state,
-	.get_sys_suspend_power_state	= plat_mtk_get_sys_suspend_power_state,
+	.get_sys_suspend_power_state	= plat_mtk_get_sys_suspend_power_state
 };
 
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const plat_psci_ops_t **psci_ops)
 {
+	unsigned int i;
+
 	*psci_ops = &plat_plat_pm_ops;
 	secure_entrypoint = sec_entrypoint;
+
+	/* Init cpu reset arch as AARCH64 of cluster 0 */
+	for (i = 0; i < PLATFORM_MAX_CPUS_PER_CLUSTER; i++) {
+		mcucfg_init_archstate(0, i, 1);
+		mcucfg_set_bootaddr(0, i, secure_entrypoint);
+	}
 
 	if (!check_mcdi_ctl_stat()) {
 		HP_SSPM_CTRL = false;
