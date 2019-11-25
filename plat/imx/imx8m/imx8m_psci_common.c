@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,7 @@
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 
+#include <dram.h>
 #include <gpc.h>
 #include <imx8m_psci.h>
 #include <plat_imx8.h>
@@ -118,8 +119,10 @@ void imx_domain_suspend(const psci_power_state_t *target_state)
 	if (!is_local_state_run(CLUSTER_PWR_STATE(target_state)))
 		imx_set_cluster_powerdown(core_id, CLUSTER_PWR_STATE(target_state));
 
-	if (is_local_state_off(SYSTEM_PWR_STATE(target_state)))
+	if (is_local_state_off(SYSTEM_PWR_STATE(target_state))) {
 		imx_set_sys_lpm(core_id, true);
+		dram_enter_retention();
+	}
 }
 
 void imx_domain_suspend_finish(const psci_power_state_t *target_state)
@@ -127,8 +130,10 @@ void imx_domain_suspend_finish(const psci_power_state_t *target_state)
 	uint64_t mpidr = read_mpidr_el1();
 	unsigned int core_id = MPIDR_AFFLVL0_VAL(mpidr);
 
-	if (is_local_state_off(SYSTEM_PWR_STATE(target_state)))
+	if (is_local_state_off(SYSTEM_PWR_STATE(target_state))) {
+		dram_exit_retention();
 		imx_set_sys_lpm(core_id, false);
+	}
 
 	if (!is_local_state_run(CLUSTER_PWR_STATE(target_state))) {
 		imx_clear_rbc_count();

@@ -21,6 +21,7 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 
+#include <dram.h>
 #include <gpc.h>
 #include <imx_aipstz.h>
 #include <imx_uart.h>
@@ -34,6 +35,8 @@
 static const mmap_region_t imx_mmap[] = {
 	MAP_REGION_FLAT(IMX_GIC_BASE, IMX_GIC_SIZE, MT_DEVICE | MT_RW),
 	MAP_REGION_FLAT(IMX_AIPS_BASE, IMX_AIPS_SIZE, MT_DEVICE | MT_RW), /* AIPS map */
+	MAP_REGION_FLAT(OCRAM_S_BASE, OCRAM_S_SIZE, MT_DEVICE | MT_RW), /* OCRAM_S */
+	MAP_REGION_FLAT(IMX_DDRPHY_BASE, IMX_DDR_IPS_SIZE, MT_DEVICE | MT_RW), /* DDRMIX */
 	{0},
 };
 
@@ -197,6 +200,9 @@ void bl31_platform_setup(void)
 
 	/* select the CKIL source to 32K OSC */
 	mmio_write_32(IMX_ANAMIX_BASE + ANAMIX_MISC_CTL, 0x1);
+
+	/* Init the dram info */
+	dram_info_init(SAVED_DRAM_TIMING_BASE);
 
 	plat_gic_driver_init();
 	plat_gic_init();
