@@ -31,7 +31,7 @@
  * little space for growth.
  */
 #ifndef VERSAL_ATF_MEM_BASE
-# define BL31_BASE			0xfffea000
+# define BL31_BASE			0xfffe0000
 # define BL31_LIMIT			0xffffffff
 #else
 # define BL31_BASE			(VERSAL_ATF_MEM_BASE)
