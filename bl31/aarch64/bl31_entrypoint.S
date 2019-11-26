@@ -32,17 +32,6 @@ func bl31_entrypoint
 	mov	x22, x2
 	mov	x23, x3
 
-	/* --------------------------------------------------------------------
-	 * If PIE is enabled, fixup the Global descriptor Table and dynamic
-	 * relocations
-	 * --------------------------------------------------------------------
-	 */
-#if ENABLE_PIE
-	mov_imm	x0, BL31_BASE
-	mov_imm	x1, BL31_LIMIT
-	bl	fixup_gdt_reloc
-#endif /* ENABLE_PIE */
-
 #if !RESET_TO_BL31
 	/* ---------------------------------------------------------------------
 	 * For !RESET_TO_BL31 systems, only the primary CPU ever reaches
@@ -59,7 +48,8 @@ func bl31_entrypoint
 		_secondary_cold_boot=0				\
 		_init_memory=0					\
 		_init_c_runtime=1				\
-		_exception_vectors=runtime_exceptions
+		_exception_vectors=runtime_exceptions		\
+		_pie_fixup_size=BL31_LIMIT - BL31_BASE
 #else
 
 	/* ---------------------------------------------------------------------
@@ -74,7 +64,8 @@ func bl31_entrypoint
 		_secondary_cold_boot=!COLD_BOOT_SINGLE_CPU	\
 		_init_memory=1					\
 		_init_c_runtime=1				\
-		_exception_vectors=runtime_exceptions
+		_exception_vectors=runtime_exceptions		\
+		_pie_fixup_size=BL31_LIMIT - BL31_BASE
 
 	/* ---------------------------------------------------------------------
 	 * For RESET_TO_BL31 systems, BL31 is the first bootloader to run so
@@ -174,7 +165,8 @@ func bl31_warm_entrypoint
 		_secondary_cold_boot=0				\
 		_init_memory=0					\
 		_init_c_runtime=0				\
-		_exception_vectors=runtime_exceptions
+		_exception_vectors=runtime_exceptions		\
+		_pie_fixup_size=0
 
 	/*
 	 * We're about to enable MMU and participate in PSCI state coordination.

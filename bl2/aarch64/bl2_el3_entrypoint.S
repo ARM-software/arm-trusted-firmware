@@ -26,7 +26,8 @@ func bl2_entrypoint
 		_secondary_cold_boot=!COLD_BOOT_SINGLE_CPU      \
 		_init_memory=1                                  \
 		_init_c_runtime=1                               \
-		_exception_vectors=bl2_el3_exceptions
+		_exception_vectors=bl2_el3_exceptions		\
+		_pie_fixup_size=0
 
 	/* ---------------------------------------------
 	 * Restore parameters of boot rom
