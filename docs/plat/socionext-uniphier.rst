@@ -80,7 +80,8 @@ Optional features
 - Trusted Board Boot
 
   `mbed TLS`_ is needed as the cryptographic and image parser modules.
-  Refer to the :ref:`User Guide` for the appropriate version of mbed TLS.
+  Refer to the :ref:`Prerequisites` document for the appropriate version of
+  mbed TLS.
 
   To enable TBB, add the following options to the build command::
 

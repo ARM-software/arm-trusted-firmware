@@ -187,8 +187,8 @@ The next step is executed for all the boot loader images.
 
 The Trusted Board Boot implementation spans both generic and platform-specific
 BL1 and BL2 code, and in tool code on the host build machine. The feature is
-enabled through use of specific build flags as described in the
-:ref:`User Guide`.
+enabled through use of specific build flags as described in
+:ref:`Build Options`.
 
 On the host machine, a tool generates the certificates, which are included in
 the FIP along with the boot loader images. These certificates are loaded in
@@ -222,9 +222,12 @@ passed as inputs to the ``fiptool`` utility for creating the FIP.
 The certificates are also stored individually in the in the output build
 directory.
 
-The tool resides in the ``tools/cert_create`` directory. It uses OpenSSL SSL
-library version 1.0.1 or later to generate the X.509 certificates. Instructions
-for building and using the tool can be found in the :ref:`User Guide`.
+The tool resides in the ``tools/cert_create`` directory. It uses the OpenSSL SSL
+library version to generate the X.509 certificates. The specific version of the
+library that is required is given in the :ref:`Prerequisites` document.
+
+Instructions for building and using the tool can be found at
+:ref:`tools_build_cert_create`.
 
 --------------
 

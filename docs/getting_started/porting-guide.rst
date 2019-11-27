@@ -23,8 +23,6 @@ Some modifications are common to all Boot Loader (BL) stages. Section 2
 discusses these in detail. The subsequent sections discuss the remaining
 modifications for each BL stage in detail.
 
-This document should be read in conjunction with the TF-A :ref:`User Guide`.
-
 Please refer to the :ref:`Platform Compatibility Policy` for the policy
 regarding compatibility and deprecation of these porting interfaces.
 
@@ -2387,8 +2385,8 @@ present in the platform. Arm standard platform layer supports both
 `Arm Generic Interrupt Controller version 2.0 (GICv2)`_
 and `3.0 (GICv3)`_. Juno builds the Arm platform layer to use GICv2 and the
 FVP can be configured to use either GICv2 or GICv3 depending on the build flag
-``FVP_USE_GIC_DRIVER`` (See FVP platform specific build options in
-:ref:`User Guide` for more details).
+``FVP_USE_GIC_DRIVER`` (See :ref:`build_options_arm_fvp_platform` for more
+details).
 
 See also: `Interrupt Controller Abstraction APIs`__.
 
@@ -2796,10 +2794,10 @@ storage access is only required by BL1 and BL2 phases and performed inside the
 
 It is mandatory to implement at least one storage driver. For the Arm
 development platforms the Firmware Image Package (FIP) driver is provided as
-the default means to load data from storage (see the "Firmware Image Package"
-section in the :ref:`User Guide`). The storage layer is described in the header file
-``include/drivers/io/io_storage.h``. The implementation of the common library
-is in ``drivers/io/io_storage.c`` and the driver files are located in
+the default means to load data from storage (see :ref:`firmware_design_fip`).
+The storage layer is described in the header file
+``include/drivers/io/io_storage.h``. The implementation of the common library is
+in ``drivers/io/io_storage.c`` and the driver files are located in
 ``drivers/io/``.
 
 .. uml:: ../resources/diagrams/plantuml/io_arm_class_diagram.puml

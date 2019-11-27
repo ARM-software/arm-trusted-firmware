@@ -597,7 +597,7 @@ registered function to initialize BL32 before running BL33. This initialization
 is not necessary for AArch32 SPs.
 
 Details on BL32 initialization and the SPD's role are described in the
-"Secure-EL1 Payloads and Dispatchers" section below.
+:ref:`firmware_design_sel1_spd` section below.
 
 BL33 (Non-trusted Firmware) execution
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -868,7 +868,7 @@ not all been instantiated in the current implementation.
 
    TF-A provides a Test Secure-EL1 Payload (TSP) and its associated Dispatcher
    (TSPD). Details of SPD design and TSP/TSPD operation are described in the
-   "Secure-EL1 Payloads and Dispatchers" section below.
+   :ref:`firmware_design_sel1_spd` section below.
 
 #. CPU implementation service
 
@@ -1875,10 +1875,7 @@ BL image during boot.
                |   MHU    |
     0x04000000 +----------+
 
-Library at ROM
----------------
-
-Please refer to the :ref:`Library at ROM` document.
+.. _firmware_design_fip:
 
 Firmware Image Package (FIP)
 ----------------------------
@@ -2543,7 +2540,7 @@ Architecture Extension-specific code is included in the build. Otherwise, TF-A
 targets the base Armv8.0-A architecture; i.e. as if ``ARM_ARCH_MAJOR`` == 8
 and ``ARM_ARCH_MINOR`` == 0, which are also their respective default values.
 
-See also the *Summary of build options* in :ref:`User Guide`.
+.. seealso:: :ref:`Build Options`
 
 For details on the Architecture Extension and available features, please refer
 to the respective Architecture Extension Supplement.

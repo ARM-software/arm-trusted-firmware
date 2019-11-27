@@ -194,8 +194,8 @@ Special Build Flags
     can interrupt UART recovery process). This MACRO definition is set in
     ``plat/marvell/a8k/common/include/platform_def.h`` file.
 
-For more information about build options, please refer to section
-'Summary of build options' in the :ref:`User Guide`.
+For more information about build options, please refer to the
+:ref:`Build Options` document.
 
 
 Build output
@@ -251,4 +251,3 @@ Armada70x0 and Armada80x0 Builds require installation of an additional component
     (use the "mv_ddr-armada-atf-mainline" branch):
 
     https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
-
