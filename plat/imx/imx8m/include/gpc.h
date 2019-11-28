@@ -39,6 +39,7 @@
 #define IRQ_SRC_C0			BIT(28)
 #define IRQ_SRC_C3			BIT(23)
 #define IRQ_SRC_C2			BIT(22)
+#define CORE_WKUP_FROM_GIC		(IRQ_SRC_C0 | IRQ_SRC_C1 | IRQ_SRC_C2 | IRQ_SRC_C3)
 #define CPU_CLOCK_ON_LPM		BIT(14)
 #define A53_CLK_ON_LPM			BIT(14)
 #define MASTER0_LPM_HSK			BIT(6)
@@ -70,6 +71,10 @@
 
 #define MASTER1_MAPPING			BIT(1)
 #define MASTER2_MAPPING			BIT(2)
+
+#define TMR_TCD2_SHIFT			0
+#define TMC_TMR_SHIFT			10
+#define TRC1_TMC_SHIFT			20
 
 /* helper macro */
 #define A53_LPM_MASK	U(0xF)
