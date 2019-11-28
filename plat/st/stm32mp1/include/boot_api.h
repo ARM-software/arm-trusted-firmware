@@ -124,7 +124,7 @@
 /* Closed = OTP_CFG0[6] */
 #define BOOT_API_OTP_MODE_CLOSED_BIT_POS			6
 
-#define BOOT_API_RETURN_OK					0x66U
+#define BOOT_API_RETURN_OK					0x77U
 
 /*
  * Boot Context related definitions
