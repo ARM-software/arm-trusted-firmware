@@ -244,17 +244,35 @@ The handler is responsible for:
 
    TF-A expects owning entities to follow this recommendation.
 
-#. Returning the result to the caller. The `SMCCC`_ allows for up to 256 bits
-   of return value in SMC64 using X0-X3 and 128 bits in SMC32 using W0-W3. The
-   framework provides a family of macros to set the multi-register return
-   value and complete the handler:
+#. Returning the result to the caller. Based on `SMCCC`_ spec, results are
+   returned in W0-W7(X0-X7) registers for SMC32(SMC64) calls from AArch64
+   state. Results are returned in R0-R7 registers for SMC32 calls from AArch32
+   state. The framework provides a family of macros to set the multi-register
+   return value and complete the handler:
 
    .. code:: c
+
+       AArch64 state:
 
        SMC_RET1(handle, x0);
        SMC_RET2(handle, x0, x1);
        SMC_RET3(handle, x0, x1, x2);
        SMC_RET4(handle, x0, x1, x2, x3);
+       SMC_RET5(handle, x0, x1, x2, x3, x4);
+       SMC_RET6(handle, x0, x1, x2, x3, x4, x5);
+       SMC_RET7(handle, x0, x1, x2, x3, x4, x5, x6);
+       SMC_RET8(handle, x0, x1, x2, x3, x4, x5, x6, x7);
+
+       AArch32 state:
+
+       SMC_RET1(handle, r0);
+       SMC_RET2(handle, r0, r1);
+       SMC_RET3(handle, r0, r1, r2);
+       SMC_RET4(handle, r0, r1, r2, r3);
+       SMC_RET5(handle, r0, r1, r2, r3, r4);
+       SMC_RET6(handle, r0, r1, r2, r3, r4, r5);
+       SMC_RET7(handle, r0, r1, r2, r3, r4, r5, r6);
+       SMC_RET8(handle, r0, r1, r2, r3, r4, r5, r6, r7);
 
 The ``cookie`` parameter to the handler is reserved for future use and can be
 ignored. The ``handle`` is returned by the SMC handler - completion of the
