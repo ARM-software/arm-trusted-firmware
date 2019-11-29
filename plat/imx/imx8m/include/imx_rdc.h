@@ -13,9 +13,9 @@
 
 #define MDAn(x)		(IMX_RDC_BASE + 0x200 + (x) * 4)
 #define PDAPn(x)	(IMX_RDC_BASE + 0x400 + (x) * 4)
-#define MRSAn(x)	(IMX_RDC_BASE + 0x800 + (x) * 4)
-#define MREAn(x)	(IMX_RDC_BASE + 0x804 + (x) * 4)
-#define MRCn(x)		(IMX_RDC_BASE + 0x808 + (x) * 4)
+#define MRSAn(x)	(IMX_RDC_BASE + 0x800 + (x) * 0x10)
+#define MREAn(x)	(IMX_RDC_BASE + 0x804 + (x) * 0x10)
+#define MRCn(x)		(IMX_RDC_BASE + 0x808 + (x) * 0x10)
 
 #define LCK		BIT(31)
 #define SREQ		BIT(30)
