@@ -6,6 +6,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <assert_macros.S>
 #include <context.h>
 
 	.global	el1_sysregs_context_save
@@ -477,6 +478,13 @@ endfunc restore_gp_pmcr_pauth_regs
  * ------------------------------------------------------------------
  */
 func el3_exit
+#if ENABLE_ASSERTIONS
+	/* el3_exit assumes SP_EL0 on entry */
+	mrs	x17, spsel
+	cmp	x17, #MODE_SP_EL0
+	ASM_ASSERT(eq)
+#endif
+
 	/* ----------------------------------------------------------
 	 * Save the current SP_EL0 i.e. the EL3 runtime stack which
 	 * will be used for handling the next SMC.
