@@ -76,6 +76,28 @@ void configure_mmu(void)
 	enable_mmu_svc_mon(0);
 }
 
+uintptr_t stm32_get_gpio_bank_base(unsigned int bank)
+{
+	if (bank == GPIO_BANK_Z) {
+		return GPIOZ_BASE;
+	}
+
+	assert(GPIO_BANK_A == 0 && bank <= GPIO_BANK_K);
+
+	return GPIOA_BASE + (bank * GPIO_BANK_OFFSET);
+}
+
+uint32_t stm32_get_gpio_bank_offset(unsigned int bank)
+{
+	if (bank == GPIO_BANK_Z) {
+		return 0;
+	}
+
+	assert(GPIO_BANK_A == 0 && bank <= GPIO_BANK_K);
+
+	return bank * GPIO_BANK_OFFSET;
+}
+
 unsigned long stm32_get_gpio_bank_clock(unsigned int bank)
 {
 	if (bank == GPIO_BANK_Z) {
