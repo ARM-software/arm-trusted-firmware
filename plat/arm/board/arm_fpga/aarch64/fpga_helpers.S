@@ -20,8 +20,8 @@
 	.globl	plat_crash_console_flush
 
 /* -----------------------------------------------------------------------
- * unsigned long plat_get_my_entrypoint (void);
- * TODO: determine if warm boot should be supported for FPGA images
+ * Indicate a cold boot for every CPU - warm boot is unsupported for the
+ * holding pen PSCI implementation.
  * -----------------------------------------------------------------------
  */
 func plat_get_my_entrypoint
@@ -31,11 +31,26 @@ endfunc plat_get_my_entrypoint
 
 /* -----------------------------------------------------------------------
  * void plat_secondary_cold_boot_setup (void);
- * TODO: add placeholder PSCI implementation for FPGA images
  * -----------------------------------------------------------------------
  */
 func plat_secondary_cold_boot_setup
-	ret
+	/*
+	 * Poll the CPU's hold entry until it indicates to jump
+	 * to the entrypoint address.
+	 */
+	bl	plat_my_core_pos
+	lsl	x0, x0, #PLAT_FPGA_HOLD_ENTRY_SHIFT
+	ldr	x1, =hold_base
+	ldr	x2, =fpga_sec_entrypoint
+poll_hold_entry:
+	ldr	x3, [x1, x0]
+	cmp	x3, #PLAT_FPGA_HOLD_STATE_GO
+	b.ne	1f
+	ldr	x3, [x2]
+	br	x3
+1:
+	wfe
+	b	poll_hold_entry
 endfunc plat_secondary_cold_boot_setup
 
 /* -----------------------------------------------------------------------
@@ -64,11 +79,30 @@ endfunc plat_my_core_pos
 
 /* -----------------------------------------------------------------------
  * unsigned int plat_fpga_calc_core_pos(u_register_t mpidr)
- * TODO: add calculation of the core position for FPGA image CPUs
  * -----------------------------------------------------------------------
  */
 func plat_fpga_calc_core_pos
-	mov	x0, #0
+	/*
+	 * Check for MT bit in MPIDR, which may be either value for images
+	 * running on the FPGA.
+	 *
+	 * If not set, shift MPIDR to left to make it look as if in a
+	 * multi-threaded implementation.
+	 */
+	tst	x0, #MPIDR_MT_MASK
+	lsl	x3, x0, #MPIDR_AFFINITY_BITS
+	csel	x3, x3, x0, eq
+
+	/* Extract individual affinity fields from MPIDR */
+	ubfx	x0, x3, #MPIDR_AFF0_SHIFT, #MPIDR_AFFINITY_BITS
+	ubfx	x1, x3, #MPIDR_AFF1_SHIFT, #MPIDR_AFFINITY_BITS
+	ubfx	x2, x3, #MPIDR_AFF2_SHIFT, #MPIDR_AFFINITY_BITS
+
+	/* Compute linear position */
+	mov	x4, #FPGA_MAX_CPUS_PER_CLUSTER
+	madd	x1, x2, x4, x1
+	mov	x5, #FPGA_MAX_PE_PER_CPU
+	madd	x0, x1, x5, x0
 	ret
 endfunc plat_fpga_calc_core_pos
 
