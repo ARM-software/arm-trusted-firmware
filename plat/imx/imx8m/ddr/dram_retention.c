@@ -145,9 +145,13 @@ void dram_exit_retention(void)
 
 	/* before write Dynamic reg, sw_done should be 0 */
 	mmio_write_32(DDRC_SWCTL(0), 0x0);
+
+#if !PLAT_imx8mn
 	if (dram_info.dram_type == DDRC_LPDDR4) {
 		mmio_write_32(DDRC_DDR_SS_GPR0, 0x01); /*LPDDR4 mode */
 	}
+#endif /* !PLAT_imx8mn */
+
 	mmio_write_32(DDRC_DFIMISC(0), 0x0);
 
 	/* dram phy re-init */
