@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <limits.h>
 #include <string.h>
 
 #include <lib/bl_aux_params/bl_aux_params.h>
@@ -21,8 +22,8 @@
 #include <plat_params.h>
 #include <plat_private.h>
 
-static struct bl_aux_gpio_info rst_gpio;
-static struct bl_aux_gpio_info poweroff_gpio;
+static struct bl_aux_gpio_info rst_gpio = { .index = UINT_MAX } ;
+static struct bl_aux_gpio_info poweroff_gpio = { .index = UINT_MAX };
 static struct bl_aux_gpio_info suspend_gpio[10];
 uint32_t suspend_gpio_cnt;
 static struct bl_aux_rk_apio_info suspend_apio;
@@ -174,11 +175,17 @@ uint32_t rockchip_get_uart_clock(void)
 
 struct bl_aux_gpio_info *plat_get_rockchip_gpio_reset(void)
 {
+	if (rst_gpio.index == UINT_MAX)
+		return NULL;
+
 	return &rst_gpio;
 }
 
 struct bl_aux_gpio_info *plat_get_rockchip_gpio_poweroff(void)
 {
+	if (poweroff_gpio.index == UINT_MAX)
+		return NULL;
+
 	return &poweroff_gpio;
 }
 
