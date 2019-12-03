@@ -66,10 +66,10 @@ int32_t tegra_soc_validate_power_state(uint32_t power_state,
 			<< TEGRA194_WAKE_TIME_SHIFT;
 
 	/*
-	 * Clean percpu_data[cpu] to DRAM. This needs to be done to ensure that
-	 * the correct value is read in tegra_soc_pwr_domain_suspend(), which
-	 * is called with caches disabled. It is possible to read a stale value
-	 * from DRAM in that function, because the L2 cache is not flushed
+	 * Clean t19x_percpu_data[cpu] to DRAM. This needs to be done to ensure
+	 * that the correct value is read in tegra_soc_pwr_domain_suspend(),
+	 * which is called with caches disabled. It is possible to read a stale
+	 * value from DRAM in that function, because the L2 cache is not flushed
 	 * unless the cluster is entering CC6/CC7.
 	 */
 	clean_dcache_range((uint64_t)&t19x_percpu_data[cpu],
@@ -125,7 +125,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		val = (stateid_afflvl0 == PSTATE_ID_CORE_IDLE) ?
 			(uint32_t)TEGRA_NVG_CORE_C6 : (uint32_t)TEGRA_NVG_CORE_C7;
 		ret = mce_command_handler((uint64_t)MCE_CMD_ENTER_CSTATE, (uint64_t)val,
-				percpu_data[cpu].wake_time, 0);
+				t19x_percpu_data[cpu].wake_time, 0);
 		assert(ret == 0);
 
 	} else if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
