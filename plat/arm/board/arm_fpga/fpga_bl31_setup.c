@@ -51,11 +51,12 @@ void bl31_plat_arch_setup(void)
 
 void bl31_platform_setup(void)
 {
+	/* Initialize the GIC driver, cpu and distributor interfaces */
+	plat_fpga_gic_init();
+
 	/* Write frequency to CNTCRL and initialize timer */
 	generic_delay_timer_init();
 	mmio_write_32(FPGA_TIMER_BASE, ((1 << 8) | 1UL));
-
-	/* TODO: initialize GIC using the specifications of the FPGA image */
 }
 
 entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)

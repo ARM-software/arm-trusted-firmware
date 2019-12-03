@@ -9,6 +9,8 @@
 #include <lib/psci/psci.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
+
+#include "fpga_private.h"
 #include <platform_def.h>
 
 /*
@@ -52,8 +54,15 @@ static int fpga_pwr_domain_on(u_register_t mpidr)
 	return PSCI_E_SUCCESS;
 }
 
+void fpga_pwr_domain_on_finish(const psci_power_state_t *target_state)
+{
+	fpga_pwr_gic_on_finish();
+}
+
 static void fpga_pwr_domain_off(const psci_power_state_t *target_state)
 {
+	fpga_pwr_gic_off();
+
 	while (1) {
 		wfi();
 	}
@@ -74,6 +83,7 @@ static void fpga_cpu_standby(plat_local_state_t cpu_state)
 
 plat_psci_ops_t plat_fpga_psci_pm_ops = {
 	.pwr_domain_on = fpga_pwr_domain_on,
+	.pwr_domain_on_finish = fpga_pwr_domain_on_finish,
 	.pwr_domain_off = fpga_pwr_domain_off,
 	.cpu_standby = fpga_cpu_standby
 };
