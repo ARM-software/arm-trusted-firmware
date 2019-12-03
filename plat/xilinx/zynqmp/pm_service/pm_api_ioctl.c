@@ -58,7 +58,7 @@ static enum pm_ret_status pm_ioctl_set_rpu_oper_mode(unsigned int mode)
 {
 	unsigned int val;
 
-	if (mmio_read_32(CRL_APB_RST_LPD_TOP) && CRL_APB_RPU_AMBA_RESET)
+	if (mmio_read_32(CRL_APB_RST_LPD_TOP) & CRL_APB_RPU_AMBA_RESET)
 		return PM_RET_ERROR_ACCESS;
 
 	val = mmio_read_32(ZYNQMP_RPU_GLBL_CNTL);

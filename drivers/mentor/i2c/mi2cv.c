@@ -81,14 +81,14 @@ static void mentor_i2c_interrupt_clear(void)
 	udelay(1);
 }
 
-static int mentor_i2c_interrupt_get(void)
+static bool mentor_i2c_interrupt_get(void)
 {
 	uint32_t reg;
 
 	/* get the interrupt flag bit */
 	reg = mmio_read_32((uintptr_t)&base->control);
 	reg &= I2C_CONTROL_IFLG;
-	return reg && I2C_CONTROL_IFLG;
+	return (reg != 0U);
 }
 
 static int mentor_i2c_wait_interrupt(void)
