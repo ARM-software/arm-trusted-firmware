@@ -37,8 +37,7 @@ Several build options can be used to check for security issues. Refer to the
   - W=2
 
     Adds ``Waggregate-return``, ``Wcast-align``, ``Wnested-externs``,
-    ``Wshadow``, ``Wlogical-op``, ``Wmissing-field-initializers`` and
-    ``Wsign-compare``.
+    ``Wshadow``, ``Wlogical-op``.
 
   - W=3
 
