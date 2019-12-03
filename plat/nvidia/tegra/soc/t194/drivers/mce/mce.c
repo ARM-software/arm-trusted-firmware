@@ -14,13 +14,26 @@
 #include <denver.h>
 #include <mce.h>
 #include <mce_private.h>
-#include <mmio.h>
 #include <platform_def.h>
+#include <stdbool.h>
 #include <string.h>
 #include <errno.h>
 #include <t194_nvg.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>
+#include <tegra_private.h>
+
+/* Handler to check if MCE firmware is supported */
+static bool mce_firmware_not_supported(void)
+{
+	bool status;
+
+	/* these platforms do not load MCE firmware */
+	status = tegra_platform_is_linsim() || tegra_platform_is_qt() ||
+		 tegra_platform_is_virt_dev_kit();
+
+	return status;
+}
 
 /*******************************************************************************
  * Common handler for all MCE commands
@@ -28,16 +41,10 @@
 int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 			uint64_t arg2)
 {
-	uint64_t ret64 = 0, arg3, arg4, arg5;
 	int32_t ret = 0;
-	cpu_context_t *ctx = cm_get_context(NON_SECURE);
-	gp_regs_t *gp_regs = get_gpregs_ctx(ctx);
-
-	assert(ctx);
-	assert(gp_regs);
 
 	switch (cmd) {
-	case MCE_CMD_ENTER_CSTATE:
+	case (uint64_t)MCE_CMD_ENTER_CSTATE:
 		ret = nvg_enter_cstate((uint32_t)arg0, (uint32_t)arg1);
 		if (ret < 0) {
 			ERROR("%s: enter_cstate failed(%d)\n", __func__, ret);
@@ -45,68 +52,15 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_UPDATE_CSTATE_INFO:
-		/*
-		 * get the parameters required for the update cstate info
-		 * command
-		 */
-		arg3 = read_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X4));
-		arg4 = read_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X5));
-		arg5 = read_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X6));
-
-		/* arg0 cluster
-		 * arg1 ccplex
-		 * arg2 system
-		 * arg3 sys_state_force => T19x not support
-		 * arg4 wake_mask
-		 * arg5 update_wake_mask
-		 */
-		nvg_update_cstate_info((uint32_t)arg0, (uint32_t)arg1,
-				(uint32_t)arg2, (uint32_t)arg4, (uint8_t)arg5);
-
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X4), (arg3));
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X5), (arg4));
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X6), (arg5));
-
-		break;
-
-	case MCE_CMD_UPDATE_CROSSOVER_TIME:
-		ret = nvg_update_crossover_time((uint32_t)arg0, (uint32_t)arg1);
-		if (ret < 0) {
-			ERROR("%s: update_crossover_time failed(%d)\n",
-				__func__, ret);
-		}
-
-		break;
-
-	case MCE_CMD_READ_CSTATE_STATS:
-		ret64 = nvg_get_cstate_stat_query_value();
-
-		/* update context to return cstate stats value */
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X1), (ret64));
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X2), (ret64));
-
-		break;
-
-	case MCE_CMD_WRITE_CSTATE_STATS:
-		ret = nvg_set_cstate_stat_query_value(arg0);
-
-		break;
-
-	case MCE_CMD_IS_SC7_ALLOWED:
+	case (uint64_t)MCE_CMD_IS_SC7_ALLOWED:
 		ret = nvg_is_sc7_allowed();
 		if (ret < 0) {
 			ERROR("%s: is_sc7_allowed failed(%d)\n", __func__, ret);
-			break;
 		}
-
-		/* update context to return SC7 status value */
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X1), ((uint64_t)ret));
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X3), ((uint64_t)ret));
 
 		break;
 
-	case MCE_CMD_ONLINE_CORE:
+	case (uint64_t)MCE_CMD_ONLINE_CORE:
 		ret = nvg_online_core((uint32_t)arg0);
 		if (ret < 0) {
 			ERROR("%s: online_core failed(%d)\n", __func__, ret);
@@ -114,55 +68,9 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 
 		break;
 
-	case MCE_CMD_CC3_CTRL:
-		ret = nvg_cc3_ctrl((uint32_t)arg0, (uint8_t)arg2);
-		if (ret < 0) {
-			ERROR("%s: cc3_ctrl failed(%d)\n", __func__, ret);
-		}
-
-		break;
-
-	case MCE_CMD_READ_VERSIONS:
-		/* get the MCE firmware version */
-		ret64 = nvg_get_version();
-
-		/*
-		 * version = minor(63:32) | major(31:0). Update context
-		 * to return major and minor version number.
-		 */
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X1), (ret64 & (uint64_t)0xFFFF));
-		write_ctx_reg(gp_regs, ((uint64_t)CTX_GPREG_X2), (ret64 >> 32));
-
-		break;
-
-	case MCE_CMD_ROC_FLUSH_CACHE_TRBITS:
-		ret = nvg_roc_clean_cache_trbits();
-		if (ret < 0) {
-			ERROR("%s: flush cache_trbits failed(%d)\n", __func__,
-				ret);
-		}
-
-		break;
-
-	case MCE_CMD_ROC_FLUSH_CACHE:
-		ret = nvg_roc_flush_cache();
-		if (ret < 0) {
-			ERROR("%s: flush cache failed(%d)\n", __func__, ret);
-		}
-
-		break;
-
-	case MCE_CMD_ROC_CLEAN_CACHE:
-		ret = nvg_roc_clean_cache();
-		if (ret < 0) {
-			ERROR("%s: clean cache failed(%d)\n", __func__, ret);
-		}
-
-		break;
-
 	default:
 		ERROR("unknown MCE command (%llu)\n", cmd);
-		ret = EINVAL;
+		ret = -EINVAL;
 		break;
 	}
 
@@ -174,7 +82,18 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
  ******************************************************************************/
 int32_t mce_update_gsc_videomem(void)
 {
-	return nvg_update_ccplex_gsc((uint32_t)TEGRA_NVG_GSC_VPR_IDX);
+	int32_t ret;
+
+	/*
+	 * MCE firmware is not running on simulation platforms.
+	 */
+	if (mce_firmware_not_supported()) {
+		ret = -EINVAL;
+	} else {
+		ret = nvg_update_ccplex_gsc((uint32_t)TEGRA_NVG_CHANNEL_UPDATE_GSC_VPR);
+	}
+
+	return ret;
 }
 
 /*******************************************************************************
@@ -182,7 +101,18 @@ int32_t mce_update_gsc_videomem(void)
  ******************************************************************************/
 int32_t mce_update_gsc_tzdram(void)
 {
-	return nvg_update_ccplex_gsc((uint32_t)TEGRA_NVG_GSC_TZ_DRAM_IDX);
+	int32_t ret;
+
+	/*
+	 * MCE firmware is not running on simulation platforms.
+	 */
+	if (mce_firmware_not_supported()) {
+		ret = -EINVAL;
+	} else {
+		ret = nvg_update_ccplex_gsc((uint32_t)TEGRA_NVG_CHANNEL_UPDATE_GSC_TZ_DRAM);
+	}
+
+	return ret;
 }
 
 /*******************************************************************************
@@ -190,7 +120,18 @@ int32_t mce_update_gsc_tzdram(void)
  ******************************************************************************/
 int32_t mce_update_gsc_tzram(void)
 {
-	return nvg_update_ccplex_gsc((uint32_t)TEGRA_NVG_GSC_TZRAM);
+	int32_t ret;
+
+	/*
+	 * MCE firmware is not running on simulation platforms.
+	 */
+	if (mce_firmware_not_supported()) {
+		ret = -EINVAL;
+	} else {
+		ret = nvg_update_ccplex_gsc((uint32_t)TEGRA_NVG_CHANNEL_UPDATE_GSC_TZRAM);
+	}
+
+	return ret;
 }
 
 /*******************************************************************************
@@ -215,9 +156,7 @@ void mce_verify_firmware_version(void)
 	/*
 	 * MCE firmware is not running on simulation platforms.
 	 */
-	if ((tegra_platform_is_linsim() == 1U) ||
-		(tegra_platform_is_virt_dev_kit() == 1U) ||
-		(tegra_platform_is_qt() == 1U)) {
+	if (mce_firmware_not_supported()) {
 		return;
 	}
 
@@ -229,8 +168,8 @@ void mce_verify_firmware_version(void)
 	minor = (uint32_t)version;
 	major = (uint32_t)(version >> 32);
 
-	INFO("MCE Version - HW=%d:%d, SW=%d:%d\n", major, minor,
-		0, 0);
+	INFO("MCE Version - HW=%u:%u, SW=%u:%u\n", major, minor,
+		TEGRA_NVG_VERSION_MAJOR, TEGRA_NVG_VERSION_MINOR);
 
 	/*
 	 * Verify that the MCE firmware version and the interface header
@@ -244,5 +183,55 @@ void mce_verify_firmware_version(void)
 	if (minor < (uint32_t)TEGRA_NVG_VERSION_MINOR) {
 		ERROR("MCE minor version mismatch\n");
 		panic();
+	}
+}
+
+/*******************************************************************************
+ * Handler to enable the strict checking mode
+ ******************************************************************************/
+void mce_enable_strict_checking(void)
+{
+	uint64_t sctlr = read_sctlr_el3();
+	int32_t ret = 0;
+
+	if (tegra_platform_is_silicon() || tegra_platform_is_fpga()) {
+		/*
+		 * Step1: TZ-DRAM and TZRAM should be setup before the MMU is
+		 * enabled.
+		 *
+		 * The common code makes sure that TZDRAM/TZRAM are already
+		 * enabled before calling into this handler. If this is not the
+		 * case, the following sequence must be executed before moving
+		 * on to step 2.
+		 *
+		 * tlbialle1is();
+		 * tlbialle3is();
+		 * dsbsy();
+		 * isb();
+		 *
+		 */
+		if ((sctlr & (uint64_t)SCTLR_M_BIT) == (uint64_t)SCTLR_M_BIT) {
+			tlbialle1is();
+			tlbialle3is();
+			dsbsy();
+			isb();
+		}
+
+		/*
+		 * Step2: SCF flush - Clean and invalidate caches and clear the
+		 * TR-bits
+		 */
+		ret = nvg_roc_clean_cache_trbits();
+		if (ret < 0) {
+			ERROR("%s: flush cache_trbits failed(%d)\n", __func__,
+				ret);
+			return;
+		}
+
+		/*
+		 * Step3: Issue the SECURITY_CONFIG request to MCE to enable
+		 * strict checking mode.
+		 */
+		nvg_enable_strict_checking_mode();
 	}
 }

@@ -4,14 +4,25 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SMMU_PLAT_CONFIG_H
-#define __SMMU_PLAT_CONFIG_H
-
-#include <mmio.h>
-#include <tegra_def.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
 #include <smmu.h>
+#include <tegra_def.h>
+#include <tegra_mc_def.h>
 
-static __attribute__((aligned(16))) smmu_regs_t smmu_ctx_regs[] = {
+#define BOARD_SYSTEM_FPGA_BASE		U(1)
+#define BASE_CONFIG_SMMU_DEVICES	U(2)
+#define MAX_NUM_SMMU_DEVICES		U(3)
+
+static uint32_t tegra_misc_read_32(uint32_t off)
+{
+	return mmio_read_32((uintptr_t)TEGRA_MISC_BASE + off);
+}
+
+/*******************************************************************************
+ * Array to hold SMMU context for Tegra194
+ ******************************************************************************/
+static __attribute__((aligned(16))) smmu_regs_t tegra194_smmu_context[] = {
 	_START_OF_TABLE_,
 	mc_make_sid_security_cfg(HDAR),
 	mc_make_sid_security_cfg(HOST1XDMAR),
@@ -400,29 +411,29 @@ static __attribute__((aligned(16))) smmu_regs_t smmu_ctx_regs[] = {
 	_END_OF_TABLE_,
 };
 
-static inline uint32_t tegra_smmu_read_32(uint32_t smmu_id, uint32_t off)
+/*******************************************************************************
+ * Handler to return the pointer to the SMMU's context struct
+ ******************************************************************************/
+smmu_regs_t *plat_get_smmu_ctx(void)
 {
-	if (smmu_id == 0)
-		return mmio_read_32(TEGRA_SMMU0_BASE + off);
-	else if (smmu_id == 1)
-		return mmio_read_32(TEGRA_SMMU1_BASE + off);
-	else if (smmu_id == 2)
-		return mmio_read_32(TEGRA_SMMU2_BASE + off);
-	else
-		panic();
+	/* index of _END_OF_TABLE_ */
+	tegra194_smmu_context[0].val = (uint32_t)ARRAY_SIZE(tegra194_smmu_context) - 1U;
+
+	return tegra194_smmu_context;
 }
 
-static inline void tegra_smmu_write_32(uint32_t smmu_id,
-			uint32_t off, uint32_t val)
+/*******************************************************************************
+ * Handler to return the support SMMU devices number
+ ******************************************************************************/
+uint32_t plat_get_num_smmu_devices(void)
 {
-	if (smmu_id == 0)
-		mmio_write_32(TEGRA_SMMU0_BASE + off, val);
-	else if (smmu_id == 1)
-		mmio_write_32(TEGRA_SMMU1_BASE + off, val);
-	else if (smmu_id == 2)
-		mmio_write_32(TEGRA_SMMU2_BASE + off, val);
-	else
-		panic();
-}
+	uint32_t ret_num = MAX_NUM_SMMU_DEVICES;
+	uint32_t board_revid = ((tegra_misc_read_32(MISCREG_EMU_REVID) >> \
+							BOARD_SHIFT_BITS) & BOARD_MASK_BITS);
 
-#endif //__SMMU_PLAT_CONFIG_H
+	if (board_revid == BOARD_SYSTEM_FPGA_BASE) {
+		ret_num = BASE_CONFIG_SMMU_DEVICES;
+	}
+
+	return ret_num;
+}
