@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,28 +8,25 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <common/debug.h>
-#include <drivers/mmc.h>
-#include <tools_share/firmware_image_package.h>
+#include <common/tbbr/tbbr_img_def.h>
 #include <drivers/io/io_block.h>
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_fip.h>
 #include <drivers/io/io_memmap.h>
 #include <drivers/io/io_storage.h>
-#include <lib/mmio.h>
+#include <drivers/mmc.h>
 #include <drivers/partition/partition.h>
-#include <lib/semihosting.h>
-#include <string.h>
-#include <lib/utils.h>
-#include <common/tbbr/tbbr_img_def.h>
-#include "platform_def.h"
-#include "stratix10_private.h"
+#include <lib/mmio.h>
+#include <tools_share/firmware_image_package.h>
 
-#define STRATIX10_FIP_BASE		(0)
-#define STRATIX10_FIP_MAX_SIZE		(0x1000000)
-#define STRATIX10_MMC_DATA_BASE		(0xffe3c000)
-#define STRATIX10_MMC_DATA_SIZE		(0x2000)
-#define STRATIX10_QSPI_DATA_BASE	(0x3C00000)
-#define STRATIX10_QSPI_DATA_SIZE	(0x1000000)
+#include "socfpga_private.h"
+
+#define PLAT_FIP_BASE		(0)
+#define PLAT_FIP_MAX_SIZE	(0x1000000)
+#define PLAT_MMC_DATA_BASE	(0xffe3c000)
+#define PLAT_MMC_DATA_SIZE	(0x2000)
+#define PLAT_QSPI_DATA_BASE	(0x3C00000)
+#define PLAT_QSPI_DATA_SIZE	(0x1000000)
 
 
 static const io_dev_connector_t *fip_dev_con;
@@ -64,8 +62,8 @@ static io_block_dev_spec_t boot_dev_spec;
 static int (*register_io_dev)(const io_dev_connector_t **);
 
 static io_block_spec_t fip_spec = {
-	.offset		= STRATIX10_FIP_BASE,
-	.length		= STRATIX10_FIP_MAX_SIZE,
+	.offset		= PLAT_FIP_BASE,
+	.length		= PLAT_FIP_MAX_SIZE,
 };
 
 struct plat_io_policy {
@@ -130,14 +128,14 @@ static int check_fip(const uintptr_t spec)
 	return result;
 }
 
-void stratix10_io_setup(int boot_source)
+void socfpga_io_setup(int boot_source)
 {
 	int result;
 
 	switch (boot_source) {
 	case BOOT_SOURCE_SDMMC:
 		register_io_dev = &register_io_dev_block;
-		boot_dev_spec.buffer.offset	= STRATIX10_MMC_DATA_BASE;
+		boot_dev_spec.buffer.offset	= PLAT_MMC_DATA_BASE;
 		boot_dev_spec.buffer.length	= MMC_BLOCK_SIZE;
 		boot_dev_spec.ops.read		= mmc_read_blocks;
 		boot_dev_spec.ops.write		= mmc_write_blocks;
@@ -146,7 +144,7 @@ void stratix10_io_setup(int boot_source)
 
 	case BOOT_SOURCE_QSPI:
 		register_io_dev = &register_io_dev_memmap;
-		fip_spec.offset = fip_spec.offset + STRATIX10_QSPI_DATA_BASE;
+		fip_spec.offset = fip_spec.offset + PLAT_QSPI_DATA_BASE;
 		break;
 
 	default:

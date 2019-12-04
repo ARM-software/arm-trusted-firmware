@@ -8,7 +8,8 @@
 #include <arch_helpers.h>
 #include <platform_def.h>
 #include <plat/common/platform.h>
-#include <socfpga_private.h>
+
+#include "socfpga_private.h"
 
 
 unsigned int plat_get_syscnt_freq2(void)

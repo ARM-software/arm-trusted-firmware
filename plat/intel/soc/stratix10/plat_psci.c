@@ -16,7 +16,7 @@
 
 #include "platform_def.h"
 #include "s10_reset_manager.h"
-#include "s10_mailbox.h"
+#include "socfpga_mailbox.h"
 
 #define S10_RSTMGR_OFST			0xffd11000
 #define S10_RSTMGR_MPUMODRST_OFST	0x20

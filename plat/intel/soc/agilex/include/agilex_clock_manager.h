@@ -7,7 +7,7 @@
 #ifndef CLOCKMANAGER_H
 #define CLOCKMANAGER_H
 
-#include "agilex_handoff.h"
+#include "socfpga_handoff.h"
 
 /* Clock Manager Registers */
 #define CLKMGR_OFFSET				0xffd10000

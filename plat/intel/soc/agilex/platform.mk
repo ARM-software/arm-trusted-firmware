@@ -37,17 +37,17 @@ BL2_SOURCES     +=	\
 		drivers/intel/soc/stratix10/io/s10_memmap_qspi.c	\
 		lib/cpus/aarch64/cortex_a53.S				\
 		plat/intel/soc/agilex/bl2_plat_setup.c			\
-		plat/intel/soc/agilex/socfpga_storage.c			\
+		plat/intel/soc/common/socfpga_storage.c			\
                 plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
-		plat/intel/soc/agilex/soc/agilex_handoff.c		\
 		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
 		plat/intel/soc/agilex/soc/agilex_memory_controller.c	\
+		plat/intel/soc/common/soc/socfpga_handoff.c		\
 		plat/intel/soc/common/socfpga_delay_timer.c		\
 		plat/intel/soc/common/socfpga_image_load.c		\
 		plat/intel/soc/agilex/soc/agilex_system_manager.c	\
-		plat/intel/soc/agilex/soc/agilex_mailbox.c		\
+		plat/intel/soc/common/soc/socfpga_mailbox.c		\
 		plat/intel/soc/common/drivers/qspi/cadence_qspi.c	\
 		plat/intel/soc/common/drivers/wdt/watchdog.c		\
 		plat/intel/soc/common/drivers/ccu/ncore_ccu.c
@@ -57,16 +57,15 @@ BL31_SOURCES	+=	\
 		lib/cpus/aarch64/cortex_a53.S				\
 		lib/cpus/aarch64/aem_generic.S				\
 		plat/common/plat_psci_common.c				\
-		plat/intel/soc/agilex/socfpga_sip_svc.c			\
+		plat/intel/soc/common/socfpga_sip_svc.c			\
 		plat/intel/soc/agilex/bl31_plat_setup.c 		\
-		plat/intel/soc/agilex/socfpga_psci.c			\
+		plat/intel/soc/common/socfpga_psci.c			\
 		plat/intel/soc/common/socfpga_topology.c		\
 		plat/intel/soc/common/socfpga_delay_timer.c		\
 		plat/intel/soc/agilex/soc/agilex_reset_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
 		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
-		plat/intel/soc/agilex/soc/agilex_handoff.c		\
-		plat/intel/soc/agilex/soc/agilex_mailbox.c
+		plat/intel/soc/common/soc/socfpga_mailbox.c
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 BL2_AT_EL3			:= 1

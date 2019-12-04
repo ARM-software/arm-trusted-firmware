@@ -4,22 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <arch.h>
-#include <arch_helpers.h>
-#include <drivers/arm/gicv2.h>
-#include <assert.h>
-#include <common/bl_common.h>
-#include <lib/mmio.h>
 #include <string.h>
-#include <plat/common/platform.h>
-#include <platform_def.h>
 
-#include "s10_handoff.h"
+#include "socfpga_handoff.h"
 
 #define SWAP_UINT32(x) (((x) >> 24) | (((x) & 0x00FF0000) >> 8) |	\
 				(((x) & 0x0000FF00) << 8) | ((x) << 24))
 
-int s10_get_handoff(handoff *reverse_hoff_ptr)
+int socfpga_get_handoff(handoff *reverse_hoff_ptr)
 {
 	int i;
 	uint32_t *buffer;
@@ -28,7 +20,7 @@ int s10_get_handoff(handoff *reverse_hoff_ptr)
 	memcpy(reverse_hoff_ptr, handoff_ptr, sizeof(handoff));
 	buffer = (uint32_t *)reverse_hoff_ptr;
 
-	/* convert big indian to little indian */
+	/* convert big endian to little endian */
 	for (i = 0; i < sizeof(handoff) / 4; i++)
 		buffer[i] = SWAP_UINT32(buffer[i]);
 

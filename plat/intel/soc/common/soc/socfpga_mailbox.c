@@ -6,7 +6,8 @@
 
 #include <lib/mmio.h>
 #include <common/debug.h>
-#include "s10_mailbox.h"
+
+#include "socfpga_mailbox.h"
 
 static int fill_mailbox_circular_buffer(uint32_t header_cmd, uint32_t *args,
 					int len)
@@ -196,13 +197,14 @@ int mailbox_send_cmd(int job_id, unsigned int cmd, uint32_t *args,
 	if (urgent) {
 		urgent |= mmio_read_32(MBOX_OFFSET + MBOX_STATUS) &
 					MBOX_STATUS_UA_MASK;
-		mmio_write_32(MBOX_OFFSET + MBOX_URG, 1);
-	}
-
-	status = fill_mailbox_circular_buffer(
+		mmio_write_32(MBOX_OFFSET + MBOX_URG, cmd);
+		status = 0;
+	} else {
+		status = fill_mailbox_circular_buffer(
 			MBOX_CLIENT_ID_CMD(MBOX_ATF_CLIENT_ID) |
 			MBOX_JOB_ID_CMD(job_id) |
 			cmd, args, len);
+	}
 
 	if (status)
 		return status;
@@ -262,7 +264,10 @@ int mailbox_init(void)
 {
 	int status = 0;
 
-	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
+	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE |
+			MBOX_INT_FLAG_UAE);
+	mmio_write_32(MBOX_OFFSET + MBOX_URG, 0);
+	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM, 0);
 	status = mailbox_send_cmd(0, MBOX_CMD_RESTART, 0, 0, 1, 0);
 
 	if (status)

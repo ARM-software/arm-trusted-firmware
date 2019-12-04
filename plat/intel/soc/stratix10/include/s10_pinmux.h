@@ -12,7 +12,7 @@
 #define S10_PINMUX_PINMUX_EMAC0_USEFPGA	0xffd13300
 #define S10_PINMUX_IO0_DELAY		0xffd13400
 
-#include "s10_handoff.h"
+#include "socfpga_handoff.h"
 
 void config_pinmux(handoff *handoff);
 
