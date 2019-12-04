@@ -52,6 +52,12 @@ uintptr_t tegra_sip_handler(uint32_t smc_fid,
 		switch (smc_fid) {
 
 		case TEGRA_SIP_NEW_VIDEOMEM_REGION:
+			/* Check whether Video memory resize is enabled */
+			if (mmio_read_32(TEGRA_MC_BASE + MC_VIDEO_PROTECT_REG_CTRL)
+				!= MC_VIDEO_PROTECT_WRITE_ACCESS_ENABLED) {
+				ERROR("Video Memory Resize isn't enabled! \n");
+				SMC_RET1(handle, (uint64_t)-ENOTSUP);
+			}
 
 			/*
 			 * Check if Video Memory overlaps TZDRAM (contains bl31/bl32)

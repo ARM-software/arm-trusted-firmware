@@ -127,9 +127,16 @@ void tegra_memctrl_restore_settings(void)
 	if (video_mem_base != 0ULL) {
 		tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_LO,
 				  (uint32_t)video_mem_base);
+		assert(tegra_mc_read_32(MC_VIDEO_PROTECT_BASE_LO)
+			 == (uint32_t)video_mem_base);
 		tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI,
 				  (uint32_t)(video_mem_base >> 32));
-		tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB, video_mem_size_mb);
+		assert(tegra_mc_read_32(MC_VIDEO_PROTECT_BASE_HI)
+			 == (uint32_t)(video_mem_base >> 32));
+		tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB,
+				  (uint32_t)video_mem_size_mb);
+		assert(tegra_mc_read_32(MC_VIDEO_PROTECT_SIZE_MB)
+			 == (uint32_t)video_mem_size_mb);
 
 		/*
 		 * MCE propagates the VideoMem configuration values across the
@@ -366,6 +373,14 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI,
 			  (uint32_t)(phys_base >> 32));
 	tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB, size_in_bytes >> 20);
+
+	/* Redundancy check for Video Protect setting */
+	assert(tegra_mc_read_32(MC_VIDEO_PROTECT_BASE_LO)
+		 == (uint32_t)phys_base);
+	assert(tegra_mc_read_32(MC_VIDEO_PROTECT_BASE_HI)
+		 == (uint32_t)(phys_base >> 32));
+	assert(tegra_mc_read_32(MC_VIDEO_PROTECT_SIZE_MB)
+		 == (size_in_bytes >> 20));
 
 	/*
 	 * MCE propagates the VideoMem configuration values across the
