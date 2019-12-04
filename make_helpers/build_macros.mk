@@ -236,7 +236,7 @@ $(eval BL_CFLAGS := $(BL$(call uppercase,$(3))_CFLAGS))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
 	$$(ECHO) "  CC      $$<"
-	$$(Q)$$(CC) $$(TF_CFLAGS) $$(CFLAGS) $(BL_CFLAGS) -D$(IMAGE) $(MAKE_DEP) -c $$< -o $$@
+	$$(Q)$$(CC) $$(LTO_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(BL_CFLAGS) -D$(IMAGE) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -433,6 +433,10 @@ ifneq ($(findstring armlink,$(notdir $(LD))),)
 		--map --list="$(MAPFILE)" --scatter=${PLAT_DIR}/scat/bl${1}.scat \
 		$(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS) \
 		$(BUILD_DIR)/build_message.o $(OBJS)
+else ifneq ($(findstring gcc,$(notdir $(LD))),)
+	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) -Wl,-Map=$(MAPFILE) \
+		-Wl,-T$(LINKERFILE) $(BUILD_DIR)/build_message.o \
+		$(OBJS) $(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS)
 else
 	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) -Map=$(MAPFILE) \
 		--script $(LINKERFILE) $(BUILD_DIR)/build_message.o \
