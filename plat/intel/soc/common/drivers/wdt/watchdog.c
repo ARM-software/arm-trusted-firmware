@@ -6,7 +6,6 @@
 
 #include <common/debug.h>
 #include <lib/mmio.h>
-#include <platform_def.h>
 
 #include "watchdog.h"
 

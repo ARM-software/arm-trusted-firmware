@@ -13,7 +13,6 @@
 #include <drivers/console.h>
 
 #include "cadence_qspi.h"
-#include <platform_def.h>
 
 #define LESS(a, b)   (((a) < (b)) ? (a) : (b))
 #define MORE(a, b)   (((a) > (b)) ? (a) : (b))
