@@ -252,7 +252,6 @@ WARNING1 += -Wmissing-declarations
 WARNING1 += -Wmissing-format-attribute
 WARNING1 += -Wmissing-prototypes
 WARNING1 += -Wold-style-definition
-WARNING1 += -Wunused-const-variable
 
 # Level 2
 WARNING2 := -Waggregate-return
