@@ -53,17 +53,17 @@ void fconf_load_config(void)
 	INFO("FCONF: FW_CONFIG loaded at address = 0x%lx\n", arm_tb_fw_info.image_base);
 }
 
-void fconf_populate(uintptr_t config)
+void fconf_populate(const char *config_type, uintptr_t config)
 {
 	assert(config != 0UL);
 
 	/* Check if the pointer to DTB is correct */
 	if (fdt_check_header((void *)config) != 0) {
-		ERROR("FCONF: Invalid DTB file passed for FW_CONFIG\n");
+		ERROR("FCONF: Invalid DTB file passed for %s\n", config_type);
 		panic();
 	}
 
-	INFO("FCONF: Reading firmware configuration file from: 0x%lx\n", config);
+	INFO("FCONF: Reading %s firmware configuration file from: 0x%lx\n", config_type, config);
 
 	/* Go through all registered populate functions */
 	IMPORT_SYM(struct fconf_populator *, __FCONF_POPULATOR_START__, start);
@@ -73,10 +73,12 @@ void fconf_populate(uintptr_t config)
 	for (populator = start; populator != end; populator++) {
 		assert((populator->info != NULL) && (populator->populate != NULL));
 
-		INFO("FCONF: Reading firmware configuration information for: %s\n", populator->info);
-		if (populator->populate(config) != 0) {
-			/* TODO: handle property miss */
-			panic();
+		if (strcmp(populator->config_type, config_type) == 0) {
+			INFO("FCONF: Reading firmware configuration information for: %s\n", populator->info);
+			if (populator->populate(config) != 0) {
+				/* TODO: handle property miss */
+				panic();
+			}
 		}
 	}
 

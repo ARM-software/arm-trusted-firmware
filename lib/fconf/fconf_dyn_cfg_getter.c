@@ -92,4 +92,4 @@ int fconf_populate_dtb_registry(uintptr_t config)
 	return 0;
 }
 
-FCONF_REGISTER_POPULATOR(dyn_cfg, fconf_populate_dtb_registry);
+FCONF_REGISTER_POPULATOR(TB_FW, dyn_cfg, fconf_populate_dtb_registry);

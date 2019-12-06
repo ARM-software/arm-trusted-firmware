@@ -138,6 +138,6 @@ int fconf_populate_arm_io_policies(uintptr_t config)
 	return 0;
 }
 
-FCONF_REGISTER_POPULATOR(arm_io, fconf_populate_arm_io_policies);
+FCONF_REGISTER_POPULATOR(TB_FW, arm_io, fconf_populate_arm_io_policies);
 
 #endif /* IMAGE_BL2 */
