@@ -57,8 +57,7 @@ Arm Platform Build Options
    ``ARM_ROTPK_LOCATION`` are:
 
    -  ``regs`` : return the ROTPK hash stored in the Trusted root-key storage
-      registers. The private key corresponding to this ROTPK hash is not
-      currently available.
+      registers.
    -  ``devel_rsa`` : return a development public key hash embedded in the BL1
       and BL2 binaries. This hash has been obtained from the RSA public key
       ``arm_rotpk_rsa.der``, located in ``plat/arm/board/common/rotpk``. To use
@@ -69,6 +68,12 @@ Arm Platform Build Options
       ``arm_rotpk_ecdsa.der``, located in ``plat/arm/board/common/rotpk``. To
       use this option, ``arm_rotprivk_ecdsa.pem`` must be specified as
       ``ROT_KEY`` when creating the certificates.
+
+-  ``ARM_ROTPK_HASH``: used when ``ARM_ROTPK_LOCATION=devel_*``. Specifies the
+   location of the ROTPK hash. Not expected to be a build option. This defaults to
+   ``plat/arm/board/common/rotpk/*_sha256.bin`` depending on the specified algorithm.
+   Providing ``ROT_KEY`` enforces generation of the hash from the ``ROT_KEY`` and
+   overwrites the default hash file.
 
 -  ``ARM_TSP_RAM_LOCATION``: location of the TSP binary. Options:
 
@@ -111,4 +116,4 @@ Arm CSS Platform-Specific Build Options
 
 --------------
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*

@@ -139,7 +139,6 @@ BL1_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
 				plat/arm/board/fvp/fvp_bl1_setup.c		\
 				plat/arm/board/fvp/fvp_err.c			\
 				plat/arm/board/fvp/fvp_io_storage.c		\
-				plat/arm/board/fvp/fvp_trusted_boot.c		\
 				${FVP_CPU_LIBS}					\
 				${FVP_INTERCONNECT_SOURCES}
 
@@ -158,7 +157,6 @@ BL2_SOURCES		+=	drivers/arm/sp805/sp805.c			\
 				plat/arm/board/fvp/fvp_bl2_setup.c		\
 				plat/arm/board/fvp/fvp_err.c			\
 				plat/arm/board/fvp/fvp_io_storage.c		\
-				plat/arm/board/fvp/fvp_trusted_boot.c		\
 				plat/arm/common/arm_nor_psci_mem_protect.c	\
 				${FVP_SECURITY_SOURCES}
 
@@ -302,8 +300,10 @@ endif
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
 
+ifeq (${TRUSTED_BOARD_BOOT}, 1)
+BL1_SOURCES		+=	plat/arm/board/fvp/fvp_trusted_boot.c
+BL2_SOURCES		+=	plat/arm/board/fvp/fvp_trusted_boot.c
 # FVP being a development platform, enable capability to disable Authentication
 # dynamically if TRUSTED_BOARD_BOOT is set.
-ifeq (${TRUSTED_BOARD_BOOT}, 1)
-        DYN_DISABLE_AUTH	:=	1
+DYN_DISABLE_AUTH	:=	1
 endif

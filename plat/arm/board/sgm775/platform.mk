@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -21,3 +21,8 @@ BL2_SOURCES		+=	lib/utils/mem_region.c                  \
 BL31_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c		\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c
+
+ifeq (${TRUSTED_BOARD_BOOT}, 1)
+BL1_SOURCES		+=	${SGM775_BASE}/sgm775_trusted_boot.c
+BL2_SOURCES		+=	${SGM775_BASE}/sgm775_trusted_boot.c
+endif

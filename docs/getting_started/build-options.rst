@@ -468,7 +468,8 @@ Common build options
    entrypoint) or 1 (CPU reset to SP_MIN entrypoint). The default value is 0.
 
 -  ``ROT_KEY``: This option is used when ``GENERATE_COT=1``. It specifies the
-   file that contains the ROT private key in PEM format. If ``SAVE_KEYS=1``, this
+   file that contains the ROT private key in PEM format and enforces public key
+   hash generation. If ``SAVE_KEYS=1``, this
    file name will be used to save the key.
 
 -  ``SAVE_KEYS``: This option is used when ``GENERATE_COT=1``. It tells the
@@ -657,4 +658,4 @@ commands can be used:
 
 --------------
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*

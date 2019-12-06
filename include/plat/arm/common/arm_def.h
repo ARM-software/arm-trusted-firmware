@@ -18,6 +18,12 @@
  * Definitions common to all ARM standard platforms
  *****************************************************************************/
 
+/*
+ * Root of trust key hash lengths
+ */
+#define ARM_ROTPK_HEADER_LEN		19
+#define ARM_ROTPK_HASH_LEN		32
+
 /* Special value used to verify platform parameters from BL2 to BL31 */
 #define ARM_BL31_PLAT_PARAM_VAL		ULL(0x0f1e2d3c4b5a6978)
 

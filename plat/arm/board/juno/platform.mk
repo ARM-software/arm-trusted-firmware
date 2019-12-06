@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -89,6 +89,11 @@ BL31_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c		\
 
 ifeq (${CSS_USE_SCMI_SDS_DRIVER},1)
 BL1_SOURCES		+=	drivers/arm/css/sds/sds.c
+endif
+
+ifeq (${TRUSTED_BOARD_BOOT}, 1)
+BL1_SOURCES		+=	plat/arm/board/juno/juno_trusted_boot.c
+BL2_SOURCES		+=	plat/arm/board/juno/juno_trusted_boot.c
 endif
 
 endif
