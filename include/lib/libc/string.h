@@ -4,18 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 /*
- * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * Portions copyright (c) 2018-2019, ARM Limited and Contributors.
  * All rights reserved.
  */
 
 #ifndef STRING_H
 #define STRING_H
 
-#include <string_.h>
-
-#ifndef NULL
-#define NULL ((void *) 0)
-#endif
+#include <stddef.h>
 
 void *memcpy(void *dst, const void *src, size_t len);
 void *memmove(void *dst, const void *src, size_t len);

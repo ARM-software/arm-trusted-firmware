@@ -4,17 +4,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 /*
- * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * Portions copyright (c) 2018-2019, ARM Limited and Contributors.
  * All rights reserved.
  */
 
 #ifndef TIME_H
 #define TIME_H
 
-#include <time_.h>
+#include <stddef.h>
 
-#ifndef NULL
-#define NULL ((void *) 0)
-#endif
+typedef long int time_t;
 
 #endif /* TIME_H */

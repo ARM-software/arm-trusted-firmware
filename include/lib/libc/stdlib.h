@@ -4,18 +4,17 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 /*
- * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * Portions copyright (c) 2018-2019, ARM Limited and Contributors.
  * All rights reserved.
  */
 
 #ifndef STDLIB_H
 #define STDLIB_H
 
-#include <stdlib_.h>
+#include <stddef.h>
 
-#ifndef NULL
-#define NULL ((void *) 0)
-#endif
+#define EXIT_FAILURE 1
+#define EXIT_SUCCESS 0
 
 #define _ATEXIT_MAX 1
 

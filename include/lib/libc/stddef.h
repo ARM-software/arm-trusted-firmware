@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 /*
- * Portions copyright (c) 2018, ARM Limited and Contributors.
+ * Portions copyright (c) 2018-2019, ARM Limited and Contributors.
  * All rights reserved.
  */
 
@@ -12,6 +12,11 @@
 #define STDDEF_H
 
 #include <stddef_.h>
+
+#ifndef _PTRDIFF_T
+typedef long ptrdiff_t;
+#define _PTRDIFF_T
+#endif
 
 #ifndef NULL
 #define NULL ((void *) 0)
