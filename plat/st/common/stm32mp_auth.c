@@ -46,6 +46,11 @@ int stm32mp_auth_image(boot_api_image_header_t *header, uintptr_t buffer)
 		INFO("Check signature on Open device\n");
 	}
 
+	if (auth_ops == NULL) {
+		ERROR("Device doesn't support image authentication\n");
+		return -EOPNOTSUPP;
+	}
+
 	ret = mmap_add_dynamic_region(STM32MP_ROM_BASE, STM32MP_ROM_BASE,
 				      STM32MP_ROM_SIZE_2MB_ALIGNED, MT_CODE | MT_SECURE);
 	if (ret != 0) {

@@ -333,11 +333,14 @@ skip_console_init:
 
 	stm32_iwdg_refresh();
 
-	stm32mp1_auth_ops.check_key = boot_context->bootrom_ecdsa_check_key;
-	stm32mp1_auth_ops.verify_signature =
-		boot_context->bootrom_ecdsa_verify_signature;
+	if (stm32mp_is_auth_supported()) {
+		stm32mp1_auth_ops.check_key =
+			boot_context->bootrom_ecdsa_check_key;
+		stm32mp1_auth_ops.verify_signature =
+			boot_context->bootrom_ecdsa_verify_signature;
 
-	stm32mp_init_auth(&stm32mp1_auth_ops);
+		stm32mp_init_auth(&stm32mp1_auth_ops);
+	}
 
 	stm32mp1_arch_security_setup();
 

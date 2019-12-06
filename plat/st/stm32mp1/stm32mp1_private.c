@@ -443,6 +443,27 @@ bool stm32mp_is_closed_device(void)
 	return (value & CFG0_CLOSED_DEVICE) == CFG0_CLOSED_DEVICE;
 }
 
+/* Return true when device supports secure boot */
+bool stm32mp_is_auth_supported(void)
+{
+	bool supported = false;
+
+	switch (get_part_number()) {
+	case STM32MP151C_PART_NB:
+	case STM32MP151F_PART_NB:
+	case STM32MP153C_PART_NB:
+	case STM32MP153F_PART_NB:
+	case STM32MP157C_PART_NB:
+	case STM32MP157F_PART_NB:
+		supported = true;
+		break;
+	default:
+		break;
+	}
+
+	return supported;
+}
+
 uint32_t stm32_iwdg_get_instance(uintptr_t base)
 {
 	switch (base) {
