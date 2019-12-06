@@ -1727,8 +1727,13 @@ static uint32_t _board_judge(void)
 #endif
 		}
 	} else if (prr_product == PRR_PRODUCT_M3) {
-		/* RENESAS Starter Kit(M3-W/SIP 8Gbit 1rank) board */
-		brd = 3;
+		if (prr_cut >= PRR_PRODUCT_30) {
+			/* RENESAS Starter Kit (M3-W Ver.3.0/SIP) */
+			brd = 18;
+		} else {
+			/* RENESAS Starter Kit(M3-W/SIP 8Gbit 1rank) board */
+			brd = 3;
+		}
 	} else {
 		/* RENESAS Starter Kit(M3-N/SIP) board */
 		brd = 11;
