@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #ifndef IMX_CAAM_H
 #define IMX_CAAM_H
 
+#include <cdefs.h>
 #include <stdint.h>
 #include <arch.h>
 #include <imx_regs.h>

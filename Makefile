@@ -296,8 +296,9 @@ CPPFLAGS		=	${DEFINES} ${INCLUDES} ${MBEDTLS_INC} -nostdinc	\
 ASFLAGS			+=	$(CPPFLAGS) $(ASFLAGS_$(ARCH))			\
 				-ffreestanding -Wa,--fatal-warnings
 TF_CFLAGS		+=	$(CPPFLAGS) $(TF_CFLAGS_$(ARCH))		\
-				-ffreestanding -fno-builtin -std=gnu99		\
-				-Os -ffunction-sections -fdata-sections
+				-ffunction-sections -fdata-sections		\
+				-ffreestanding -fno-builtin -fno-common		\
+				-Os -std=gnu99
 
 ifeq (${SANITIZE_UB},on)
 TF_CFLAGS		+=	-fsanitize=undefined -fno-sanitize-recover

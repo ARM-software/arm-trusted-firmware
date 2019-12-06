@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,7 +44,7 @@ SECTIONS
 	*bl2_el3_entrypoint.o(.text*)
 	*(.text.asm.*)
 	__TEXT_RESIDENT_END__ = .;
-        *(.text*)
+        *(SORT_BY_ALIGNMENT(.text*))
         *(.vectors)
         . = ALIGN(PAGE_SIZE);
         __TEXT_END__ = .;
@@ -52,7 +52,7 @@ SECTIONS
 
     .rodata . : {
         __RODATA_START__ = .;
-        *(.rodata*)
+        *(SORT_BY_ALIGNMENT(.rodata*))
 
         /* Ensure 8-byte alignment for descriptors and ensure inclusion */
         . = ALIGN(8);
@@ -82,8 +82,8 @@ SECTIONS
 	*bl2_el3_entrypoint.o(.text*)
 	*(.text.asm.*)
 	__TEXT_RESIDENT_END__ = .;
-        *(.text*)
-        *(.rodata*)
+        *(SORT_BY_ALIGNMENT(.text*))
+        *(SORT_BY_ALIGNMENT(.rodata*))
 
         /*
          * Ensure 8-byte alignment for cpu_ops so that its fields are also
@@ -135,7 +135,7 @@ SECTIONS
      */
     .data . : {
         __DATA_RAM_START__ = .;
-        *(.data*)
+        *(SORT_BY_ALIGNMENT(.data*))
         __DATA_RAM_END__ = .;
     } >RAM AT>ROM
 

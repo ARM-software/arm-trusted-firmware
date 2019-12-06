@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -62,6 +62,6 @@ void sc_ipc_read(sc_ipc_t ipc, void *data);
  */
 void sc_ipc_write(sc_ipc_t ipc, void *data);
 
-sc_ipc_t ipc_handle;
+extern sc_ipc_t ipc_handle;
 
 #endif /* SCI_IPC_H */

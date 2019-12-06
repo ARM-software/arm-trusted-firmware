@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,8 @@
 #include <sci/sci_ipc.h>
 #include <sci/sci_rpc.h>
 #include "imx8_mu.h"
+
+sc_ipc_t ipc_handle;
 
 DEFINE_BAKERY_LOCK(sc_ipc_bakery_lock);
 #define sc_ipc_lock_init()	bakery_lock_init(&sc_ipc_bakery_lock)
