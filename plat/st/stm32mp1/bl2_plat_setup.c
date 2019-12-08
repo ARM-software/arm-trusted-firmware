@@ -31,6 +31,8 @@
 #include <stm32mp1_context.h>
 #include <stm32mp1_dbgmcu.h>
 
+#define RESET_TIMEOUT_US_1MS		1000U
+
 static console_t console;
 static struct stm32mp_auth_ops stm32mp1_auth_ops;
 
@@ -263,9 +265,18 @@ void bl2_el3_plat_arch_setup(void)
 
 	stm32mp_clk_enable((unsigned long)dt_uart_info.clock);
 
-	stm32mp_reset_assert((uint32_t)dt_uart_info.reset);
+	if (stm32mp_reset_assert((uint32_t)dt_uart_info.reset,
+				 RESET_TIMEOUT_US_1MS) != 0) {
+		panic();
+	}
+
 	udelay(2);
-	stm32mp_reset_deassert((uint32_t)dt_uart_info.reset);
+
+	if (stm32mp_reset_deassert((uint32_t)dt_uart_info.reset,
+				   RESET_TIMEOUT_US_1MS) != 0) {
+		panic();
+	}
+
 	mdelay(1);
 
 	clk_rate = stm32mp_clk_get_rate((unsigned long)dt_uart_info.clock);
