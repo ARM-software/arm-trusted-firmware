@@ -123,6 +123,15 @@ static void rpi3_pwr_domain_off(const psci_power_state_t *target_state)
 #endif
 }
 
+void __dead2 plat_secondary_cold_boot_setup(void);
+
+static void __dead2
+rpi3_pwr_domain_pwr_down_wfi(const psci_power_state_t *target_state)
+{
+	disable_mmu_el3();
+	plat_secondary_cold_boot_setup();
+}
+
 /*******************************************************************************
  * Platform handler called when a power domain is about to be turned on. The
  * mpidr determines the CPU to be turned on.
@@ -224,6 +233,7 @@ static void __dead2 rpi3_system_off(void)
 static const plat_psci_ops_t plat_rpi3_psci_pm_ops = {
 	.cpu_standby = rpi3_cpu_standby,
 	.pwr_domain_off = rpi3_pwr_domain_off,
+	.pwr_domain_pwr_down_wfi = rpi3_pwr_domain_pwr_down_wfi,
 	.pwr_domain_on = rpi3_pwr_domain_on,
 	.pwr_domain_on_finish = rpi3_pwr_domain_on_finish,
 	.system_off = rpi3_system_off,
