@@ -21,6 +21,19 @@
 #define LIBPM_MODULE_ID		0x2
 #define LOADER_MODULE_ID	0x7
 
+/* default shutdown/reboot scope is system(2) */
+static unsigned int pm_shutdown_scope = XPM_SHUTDOWN_SUBTYPE_RST_SYSTEM;
+
+/**
+ * pm_get_shutdown_scope() - Get the currently set shutdown scope
+ *
+ * @return	Shutdown scope value
+ */
+unsigned int pm_get_shutdown_scope(void)
+{
+	return pm_shutdown_scope;
+}
+
 /**
  * Assigning of argument values into array elements.
  */
@@ -625,7 +638,7 @@ enum pm_ret_status pm_force_powerdown(uint32_t target, uint8_t ack)
 
 /**
  * pm_system_shutdown() - PM call to request a system shutdown or restart
- * @type	Shutdown or restart? 0=shutdown, 1=restart
+ * @type	Shutdown or restart? 0=shutdown, 1=restart, 2=setscope
  * @subtype	Scope: 0=APU-subsystem, 1=PS, 2=system
  *
  * @return	Returns status, either success or error+reason
@@ -633,6 +646,12 @@ enum pm_ret_status pm_force_powerdown(uint32_t target, uint8_t ack)
 enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	if (type == XPM_SHUTDOWN_TYPE_SETSCOPE_ONLY) {
+		/* Setting scope for subsequent PSCI reboot or shutdown */
+		pm_shutdown_scope = subtype;
+		return PM_RET_SUCCESS;
+	}
 
 	/* Send request to the PMC */
 	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_SYSTEM_SHUTDOWN, type,

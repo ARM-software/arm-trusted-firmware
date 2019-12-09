@@ -12,6 +12,7 @@
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
+#include <plat/arm/common/plat_arm.h>
 
 #include "pm_api_sys.h"
 #include "pm_client.h"
@@ -115,6 +116,34 @@ void versal_pwr_domain_on_finish(const psci_power_state_t *target_state)
 }
 
 /**
+ * versal_system_off() - This function sends the system off request
+ * to firmware.  This function does not return.
+ */
+static void __dead2 versal_system_off(void)
+{
+	/* Send the power down request to the PMC */
+	pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
+			  pm_get_shutdown_scope());
+
+	while (1)
+		wfi();
+}
+
+/**
+ * versal_system_reset() - This function sends the reset request
+ * to firmware for the system to reset.  This function does not return.
+ */
+static void __dead2 versal_system_reset(void)
+{
+	/* Send the system reset request to the PMC */
+	pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
+			  pm_get_shutdown_scope());
+
+	while (1)
+		wfi();
+}
+
+/**
  * versal_pwr_domain_off() - This function performs actions to turn off core
  *
  * @target_state	Targated state
@@ -190,6 +219,8 @@ static const struct plat_psci_ops versal_nopmc_psci_ops = {
 	.pwr_domain_on_finish		= versal_pwr_domain_on_finish,
 	.pwr_domain_suspend		= versal_pwr_domain_suspend,
 	.pwr_domain_suspend_finish	= versal_pwr_domain_suspend_finish,
+	.system_off			= versal_system_off,
+	.system_reset			= versal_system_reset,
 	.validate_power_state		= versal_validate_power_state,
 	.get_sys_suspend_power_state	= versal_get_sys_suspend_power_state,
 };

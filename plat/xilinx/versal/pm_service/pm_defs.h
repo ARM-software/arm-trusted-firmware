@@ -77,6 +77,15 @@
 /* Fractional data portion for PLL */
 #define PM_PLL_PARAM_DATA	2
 
+/* System shutdown macros */
+#define	XPM_SHUTDOWN_TYPE_SHUTDOWN	0U
+#define	XPM_SHUTDOWN_TYPE_RESET		1U
+#define	XPM_SHUTDOWN_TYPE_SETSCOPE_ONLY	2U
+
+#define	XPM_SHUTDOWN_SUBTYPE_RST_SUBSYSTEM	0U
+#define	XPM_SHUTDOWN_SUBTYPE_RST_PS_ONLY	1U
+#define	XPM_SHUTDOWN_SUBTYPE_RST_SYSTEM		2U
+
 /*********************************************************************
  * Enum definitions
  ********************************************************************/
