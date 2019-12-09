@@ -24,10 +24,20 @@
 
 /* PM API ids */
 #define PM_GET_API_VERSION		1U
+#define PM_REQ_SUSPEND			6U
+#define PM_SELF_SUSPEND			7U
+#define PM_ABORT_SUSPEND		9U
 
 /*********************************************************************
  * Enum definitions
  ********************************************************************/
+
+enum pm_abort_reason {
+	ABORT_REASON_WKUP_EVENT = 100,
+	ABORT_REASON_PU_BUSY,
+	ABORT_REASON_NO_PWRDN,
+	ABORT_REASON_UNKNOWN,
+};
 
 /**
  * @PM_RET_SUCCESS:		success
