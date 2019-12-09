@@ -24,11 +24,10 @@ one universal binary (bl31.bin), which can be built with:
 
     CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi4 DEBUG=1
 
-Copy the generated build/rpi4/debug/bl31.bin to the SD card, either
-renaming it to ``armstub8.bin`` or adding an entry starting with ``armstub=``,
-then followed by the respective file name to ``config.txt``.
-You should have AArch64 code in the file loaded as the "kernel", as BL31
-will drop into AArch64/EL2 to the respective load address.
+Copy the generated build/rpi4/debug/bl31.bin to the SD card, adding an entry
+starting with ``armstub=``, then followed by the respective file name to
+``config.txt``. You should have AArch64 code in the file loaded as the
+"kernel", as BL31 will drop into AArch64/EL2 to the respective load address.
 arm64 Linux kernels are known to work this way.
 
 Other options that should be set in ``config.txt`` to properly boot 64-bit
