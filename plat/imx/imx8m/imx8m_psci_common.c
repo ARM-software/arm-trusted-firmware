@@ -122,6 +122,7 @@ void imx_domain_suspend(const psci_power_state_t *target_state)
 	if (is_local_state_off(SYSTEM_PWR_STATE(target_state))) {
 		imx_set_sys_lpm(core_id, true);
 		dram_enter_retention();
+		imx_anamix_override(true);
 	}
 }
 
@@ -131,6 +132,7 @@ void imx_domain_suspend_finish(const psci_power_state_t *target_state)
 	unsigned int core_id = MPIDR_AFFLVL0_VAL(mpidr);
 
 	if (is_local_state_off(SYSTEM_PWR_STATE(target_state))) {
+		imx_anamix_override(false);
 		dram_exit_retention();
 		imx_set_sys_lpm(core_id, false);
 	}

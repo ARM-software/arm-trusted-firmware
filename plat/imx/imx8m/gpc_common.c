@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,8 @@
 #include <gpc.h>
 #include <imx8m_psci.h>
 #include <plat_imx8.h>
+
+#define MAX_PLL_NUM	U(10)
 
 static uint32_t gpc_imr_offset[] = { IMR1_CORE0_A53, IMR1_CORE1_A53, IMR1_CORE2_A53, IMR1_CORE3_A53, };
 
@@ -249,4 +251,42 @@ void imx_clear_rbc_count(void)
 {
 	mmio_clrbits_32(IMX_GPC_BASE + SLPCR, SLPCR_RBC_EN |
 		(0x3f << SLPCR_RBC_COUNT_SHIFT));
+}
+
+struct pll_override {
+	uint32_t reg;
+	uint32_t override_mask;
+};
+
+struct pll_override pll[MAX_PLL_NUM] = {
+	{.reg = 0x0, .override_mask = (1 << 12) | (1 << 8), },
+	{.reg = 0x14, .override_mask = (1 << 12) | (1 << 8), },
+	{.reg = 0x28, .override_mask = (1 << 12) | (1 << 8), },
+	{.reg = 0x50, .override_mask = (1 << 12) | (1 << 8), },
+	{.reg = 0x64, .override_mask = (1 << 10) | (1 << 8), },
+	{.reg = 0x74, .override_mask = (1 << 10) | (1 << 8), },
+	{.reg = 0x84, .override_mask = (1 << 10) | (1 << 8), },
+	{.reg = 0x94, .override_mask = 0x5555500, },
+	{.reg = 0x104, .override_mask = 0x5555500, },
+	{.reg = 0x114, .override_mask = 0x500, },
+};
+
+#define PLL_BYPASS	BIT(4)
+void imx_anamix_override(bool enter)
+{
+	unsigned int i;
+
+	/*
+	 * bypass all the plls & enable the override bit before
+	 * entering DSM mode.
+	 */
+	for (i = 0U; i < MAX_PLL_NUM; i++) {
+		if (enter) {
+			mmio_setbits_32(IMX_ANAMIX_BASE + pll[i].reg, PLL_BYPASS);
+			mmio_setbits_32(IMX_ANAMIX_BASE + pll[i].reg, pll[i].override_mask);
+		} else {
+			mmio_clrbits_32(IMX_ANAMIX_BASE + pll[i].reg, PLL_BYPASS);
+			mmio_clrbits_32(IMX_ANAMIX_BASE + pll[i].reg, pll[i].override_mask);
+		}
+	}
 }
