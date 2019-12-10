@@ -43,6 +43,7 @@ const spd_pm_ops_t *psci_spd_pm;
 static plat_local_state_t
 	psci_req_local_pwr_states[PLAT_MAX_PWR_LVL][PLATFORM_CORE_COUNT];
 
+unsigned int psci_plat_core_count;
 
 /*******************************************************************************
  * Arrays that hold the platform's power domain tree information for state
@@ -161,7 +162,7 @@ unsigned int psci_is_last_on_cpu(void)
 {
 	unsigned int cpu_idx, my_idx = plat_my_core_pos();
 
-	for (cpu_idx = 0; cpu_idx < (unsigned int)PLATFORM_CORE_COUNT;
+	for (cpu_idx = 0; cpu_idx < psci_plat_core_count;
 			cpu_idx++) {
 		if (cpu_idx == my_idx) {
 			assert(psci_get_aff_info_state() == AFF_STATE_ON);
@@ -208,7 +209,7 @@ static void psci_set_req_local_pwr_state(unsigned int pwrlvl,
 {
 	assert(pwrlvl > PSCI_CPU_PWR_LVL);
 	if ((pwrlvl > PSCI_CPU_PWR_LVL) && (pwrlvl <= PLAT_MAX_PWR_LVL) &&
-			(cpu_idx < (unsigned int) PLATFORM_CORE_COUNT)) {
+			(cpu_idx < psci_plat_core_count)) {
 		psci_req_local_pwr_states[pwrlvl - 1U][cpu_idx] = req_pwr_state;
 	}
 }
@@ -220,10 +221,10 @@ void __init psci_init_req_local_pwr_states(void)
 {
 	/* Initialize the requested state of all non CPU power domains as OFF */
 	unsigned int pwrlvl;
-	int core;
+	unsigned int core;
 
 	for (pwrlvl = 0U; pwrlvl < PLAT_MAX_PWR_LVL; pwrlvl++) {
-		for (core = 0; core < PLATFORM_CORE_COUNT; core++) {
+		for (core = 0; core < psci_plat_core_count; core++) {
 			psci_req_local_pwr_states[pwrlvl][core] =
 				PLAT_MAX_OFF_STATE;
 		}
@@ -244,7 +245,7 @@ static plat_local_state_t *psci_get_req_local_pwr_states(unsigned int pwrlvl,
 	assert(pwrlvl > PSCI_CPU_PWR_LVL);
 
 	if ((pwrlvl > PSCI_CPU_PWR_LVL) && (pwrlvl <= PLAT_MAX_PWR_LVL) &&
-			(cpu_idx < (unsigned int) PLATFORM_CORE_COUNT)) {
+			(cpu_idx < psci_plat_core_count)) {
 		return &psci_req_local_pwr_states[pwrlvl - 1U][cpu_idx];
 	} else
 		return NULL;
@@ -888,7 +889,7 @@ int psci_spd_migrate_info(u_register_t *mpidr)
 void psci_print_power_domain_map(void)
 {
 #if LOG_LEVEL >= LOG_LEVEL_INFO
-	int idx;
+	unsigned int idx;
 	plat_local_state_t state;
 	plat_local_state_type_t state_type;
 
@@ -900,7 +901,7 @@ void psci_print_power_domain_map(void)
 	};
 
 	INFO("PSCI Power Domain Map:\n");
-	for (idx = 0; idx < (PSCI_NUM_PWR_DOMAINS - PLATFORM_CORE_COUNT);
+	for (idx = 0; idx < (PSCI_NUM_PWR_DOMAINS - psci_plat_core_count);
 							idx++) {
 		state_type = find_local_state_type(
 				psci_non_cpu_pd_nodes[idx].local_state);
@@ -912,7 +913,7 @@ void psci_print_power_domain_map(void)
 				psci_non_cpu_pd_nodes[idx].local_state);
 	}
 
-	for (idx = 0; idx < PLATFORM_CORE_COUNT; idx++) {
+	for (idx = 0; idx < psci_plat_core_count; idx++) {
 		state = psci_get_cpu_local_state_by_idx(idx);
 		state_type = find_local_state_type(state);
 		INFO("  CPU Node : MPID 0x%llx, parent_node %d,"

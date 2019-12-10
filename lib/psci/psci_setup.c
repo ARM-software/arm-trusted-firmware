@@ -84,11 +84,12 @@ static void __init psci_init_pwr_domain_node(unsigned char node_idx,
  *******************************************************************************/
 static void __init psci_update_pwrlvl_limits(void)
 {
-	int j, cpu_idx;
+	unsigned int cpu_idx;
+	int j;
 	unsigned int nodes_idx[PLAT_MAX_PWR_LVL] = {0};
 	unsigned int temp_index[PLAT_MAX_PWR_LVL];
 
-	for (cpu_idx = 0; cpu_idx < PLATFORM_CORE_COUNT; cpu_idx++) {
+	for (cpu_idx = 0; cpu_idx < psci_plat_core_count; cpu_idx++) {
 		psci_get_parent_pwr_domain_nodes(cpu_idx,
 						 (unsigned int)PLAT_MAX_PWR_LVL,
 						 temp_index);
@@ -109,7 +110,8 @@ static void __init psci_update_pwrlvl_limits(void)
  * informs the number of root power domains. The parent nodes of the root nodes
  * will point to an invalid entry(-1).
  ******************************************************************************/
-static void __init populate_power_domain_tree(const unsigned char *topology)
+static unsigned int __init populate_power_domain_tree(const unsigned char
+							*topology)
 {
 	unsigned int i, j = 0U, num_nodes_at_lvl = 1U, num_nodes_at_next_lvl;
 	unsigned int node_index = 0U, num_children;
@@ -160,7 +162,8 @@ static void __init populate_power_domain_tree(const unsigned char *topology)
 	}
 
 	/* Validate the sanity of array exported by the platform */
-	assert((int) j == PLATFORM_CORE_COUNT);
+	assert(j <= (unsigned int)PLATFORM_CORE_COUNT);
+	return j;
 }
 
 /*******************************************************************************
@@ -199,7 +202,7 @@ int __init psci_setup(const psci_lib_args_t *lib_args)
 	topology_tree = plat_get_power_domain_tree_desc();
 
 	/* Populate the power domain arrays using the platform topology map */
-	populate_power_domain_tree(topology_tree);
+	psci_plat_core_count = populate_power_domain_tree(topology_tree);
 
 	/* Update the CPU limits for each node in psci_non_cpu_pd_nodes */
 	psci_update_pwrlvl_limits();
