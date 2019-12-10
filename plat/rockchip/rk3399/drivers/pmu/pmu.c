@@ -400,6 +400,25 @@ static void pmu_power_domains_resume(void)
 	clk_gate_con_restore();
 }
 
+void pmu_power_domains_on(void)
+{
+	clk_gate_con_disable();
+	pmu_set_power_domain(PD_VDU, pmu_pd_on);
+	pmu_set_power_domain(PD_VCODEC, pmu_pd_on);
+	pmu_set_power_domain(PD_RGA, pmu_pd_on);
+	pmu_set_power_domain(PD_IEP, pmu_pd_on);
+	pmu_set_power_domain(PD_EDP, pmu_pd_on);
+	pmu_set_power_domain(PD_GMAC, pmu_pd_on);
+	pmu_set_power_domain(PD_SDIOAUDIO, pmu_pd_on);
+	pmu_set_power_domain(PD_HDCP, pmu_pd_on);
+	pmu_set_power_domain(PD_ISP1, pmu_pd_on);
+	pmu_set_power_domain(PD_ISP0, pmu_pd_on);
+	pmu_set_power_domain(PD_VO, pmu_pd_on);
+	pmu_set_power_domain(PD_TCPD1, pmu_pd_on);
+	pmu_set_power_domain(PD_TCPD0, pmu_pd_on);
+	pmu_set_power_domain(PD_GPU, pmu_pd_on);
+}
+
 void rk3399_flush_l2_b(void)
 {
 	uint32_t wait_cnt = 0;

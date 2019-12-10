@@ -17,6 +17,7 @@
 #include <dram.h>
 #include <m0_ctl.h>
 #include <plat_private.h>
+#include <pmu.h>
 #include <rk3399_def.h>
 #include <secure.h>
 #include <soc.h>
@@ -327,6 +328,7 @@ void soc_global_soft_reset_init(void)
 
 void __dead2 soc_global_soft_reset(void)
 {
+	pmu_power_domains_on();
 	set_pll_slow_mode(VPLL_ID);
 	set_pll_slow_mode(NPLL_ID);
 	set_pll_slow_mode(GPLL_ID);
