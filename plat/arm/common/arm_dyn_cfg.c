@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
 #include <string.h>
+#include <libfdt.h>
 
 #include <platform_def.h>
 
@@ -21,8 +22,6 @@
 
 /* Variable to store the address to TB_FW_CONFIG passed from BL1 */
 static void *tb_fw_cfg_dtb;
-static size_t tb_fw_cfg_dtb_size;
-
 
 #if TRUSTED_BOARD_BOOT
 
@@ -110,7 +109,7 @@ void arm_bl1_set_mbedtls_heap(void)
 		 * without the heap info.
 		 */
 		flush_dcache_range((uintptr_t)tb_fw_cfg_dtb,
-			tb_fw_cfg_dtb_size);
+			fdt_totalsize(tb_fw_cfg_dtb));
 	}
 }
 
@@ -146,7 +145,6 @@ void arm_load_tb_fw_config(void)
 	/* At this point we know that a DTB is indeed available */
 	config_base = arm_tb_fw_info.image_info.image_base;
 	tb_fw_cfg_dtb = (void *)config_base;
-	tb_fw_cfg_dtb_size = (size_t)arm_tb_fw_info.image_info.image_max_size;
 
 	/* The BL2 ep_info arg0 is modified to point to TB_FW_CONFIG */
 	desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
