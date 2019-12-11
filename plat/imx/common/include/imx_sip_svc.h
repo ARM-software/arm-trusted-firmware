@@ -8,6 +8,8 @@
 #define __IMX_SIP_SVC_H__
 
 /* SMC function IDs for SiP Service queries */
+#define IMX_SIP_GPC			0xC2000000
+
 #define IMX_SIP_CPUFREQ			0xC2000001
 #define IMX_SIP_SET_CPUFREQ		0x00
 
@@ -46,6 +48,9 @@ int imx_soc_info_handler(uint32_t smc_fid, u_register_t x1,
 #if defined(PLAT_imx8mm) || defined(PLAT_imx8mn) || defined(PLAT_imx8mp)
 int dram_dvfs_handler(uint32_t smc_fid, void *handle,
 	u_register_t x1, u_register_t x2, u_register_t x3);
+
+int imx_gpc_handler(uint32_t smc_fid, u_register_t x1,
+		    u_register_t x2, u_register_t x3);
 #endif
 
 #if defined(PLAT_imx8mm) || defined(PLAT_imx8mq)

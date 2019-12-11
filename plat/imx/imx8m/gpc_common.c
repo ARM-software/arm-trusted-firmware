@@ -9,6 +9,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <common/runtime_svc.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 
@@ -21,6 +22,8 @@
 static uint32_t gpc_imr_offset[] = { IMR1_CORE0_A53, IMR1_CORE1_A53, IMR1_CORE2_A53, IMR1_CORE3_A53, };
 
 DEFINE_BAKERY_LOCK(gpc_lock);
+
+#define FSL_SIP_CONFIG_GPC_PM_DOMAIN		0x03
 
 #pragma weak imx_set_cpu_pwr_off
 #pragma weak imx_set_cpu_pwr_on
@@ -289,4 +292,17 @@ void imx_anamix_override(bool enter)
 			mmio_clrbits_32(IMX_ANAMIX_BASE + pll[i].reg, pll[i].override_mask);
 		}
 	}
+}
+
+int imx_gpc_handler(uint32_t smc_fid, u_register_t x1, u_register_t x2, u_register_t x3)
+{
+	switch (x1) {
+	case FSL_SIP_CONFIG_GPC_PM_DOMAIN:
+		imx_gpc_pm_domain_enable(x2, x3);
+		break;
+	default:
+		return SMC_UNK;
+	}
+
+	return 0;
 }

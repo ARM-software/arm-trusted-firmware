@@ -70,5 +70,6 @@ void imx_set_sys_lpm(unsigned last_core, bool retention);
 void imx_set_rbc_count(void);
 void imx_clear_rbc_count(void);
 void imx_anamix_override(bool enter);
+void imx_gpc_pm_domain_enable(uint32_t domain_id, bool on);
 
 #endif /*IMX8M_GPC_H */

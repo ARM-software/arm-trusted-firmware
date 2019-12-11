@@ -170,7 +170,7 @@ static void imx_noc_qos(unsigned int domain_id)
 	}
 }
 
-static void imx_gpc_pm_domain_enable(uint32_t domain_id, bool on)
+void imx_gpc_pm_domain_enable(uint32_t domain_id, bool on)
 {
 	struct imx_pwr_domain *pwr_domain = &pu_domains[domain_id];
 	unsigned int i;
