@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2020, Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -798,6 +798,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	case PM_SET_REQUIREMENT:
 	case PM_RESET_ASSERT:
 	case PM_RESET_GET_STATUS:
+	case PM_GET_CHIPID:
 	case PM_PINCTRL_REQUEST:
 	case PM_PINCTRL_RELEASE:
 	case PM_PINCTRL_GET_FUNCTION:
