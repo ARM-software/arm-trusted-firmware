@@ -89,16 +89,19 @@ endfunc console_16550_core_init
 	.globl console_16550_register
 
 	/* -------------------------------------------------------
-	 * int console_stm32_register(uintptr_t baseaddr,
+	 * int console_16550_register(uintptr_t baseaddr,
 	 *     uint32_t clock, uint32_t baud,
-	 *     struct console_stm32 *console);
-	 * Function to initialize and register a new STM32
+	 *     console_16550_t *console);
+	 * Function to initialize and register a new 16550
 	 * console. Storage passed in for the console struct
 	 * *must* be persistent (i.e. not from the stack).
+	 * If r1 (UART clock) is 0, initialisation will be
+         * skipped, relying on previous code to have done
+         * this already. r2 is ignored then as well.
 	 * In: r0 - UART register base address
 	 *     r1 - UART clock in Hz
-	 *     r2 - Baud rate
-	 *     r3 - pointer to empty console_stm32 struct
+	 *     r2 - Baud rate (ignored if r1 is 0)
+	 *     r3 - pointer to empty console_16550_t struct
 	 * Out: return 1 on success, 0 on error
 	 * Clobber list : r0, r1, r2
 	 * -------------------------------------------------------
@@ -110,10 +113,15 @@ func console_16550_register
 	beq	register_fail
 	str	r0, [r4, #CONSOLE_T_16550_BASE]
 
+	/* A clock rate of zero means to skip the initialisation. */
+	cmp	r1, #0
+	beq	register_16550
+
 	bl	console_16550_core_init
 	cmp	r0, #0
 	beq	register_fail
 
+register_16550:
 	mov	r0, r4
 	pop	{r4, lr}
 	finish_console_register 16550 putc=1, getc=1, flush=1

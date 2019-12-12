@@ -92,9 +92,12 @@ endfunc console_16550_core_init
 	 * Function to initialize and register a new 16550
 	 * console. Storage passed in for the console struct
 	 * *must* be persistent (i.e. not from the stack).
+	 * If w1 (UART clock) is 0, initialisation will be
+	 * skipped, relying on previous code to have done
+	 * this already. w2 is ignored then as well.
 	 * In: x0 - UART register base address
 	 *     w1 - UART clock in Hz
-	 *     w2 - Baud rate
+	 *     w2 - Baud rate (ignored if w1 is 0)
 	 *     x3 - pointer to empty console_16550_t struct
 	 * Out: return 1 on success, 0 on error
 	 * Clobber list : x0, x1, x2, x6, x7, x14
@@ -106,9 +109,13 @@ func console_16550_register
 	cbz	x6, register_fail
 	str	x0, [x6, #CONSOLE_T_16550_BASE]
 
+	/* A clock rate of zero means to skip the initialisation. */
+	cbz	w1, register_16550
+
 	bl	console_16550_core_init
 	cbz	x0, register_fail
 
+register_16550:
 	mov	x0, x6
 	mov	x30, x7
 	finish_console_register 16550 putc=1, getc=1, flush=1
