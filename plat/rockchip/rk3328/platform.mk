@@ -42,7 +42,6 @@ BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 				drivers/delay_timer/generic_delay_timer.c	\
 				lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
-				${RK_PLAT_COMMON}/drivers/parameter/ddr_parameter.c	\
 				${RK_PLAT_COMMON}/aarch64/plat_helpers.S	\
 				${RK_PLAT_COMMON}/params_setup.c		\
 				${RK_PLAT_COMMON}/bl31_plat_setup.c		\
@@ -52,6 +51,10 @@ BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 				${RK_PLAT_COMMON}/aarch64/platform_common.c	\
 				${RK_PLAT_SOC}/drivers/pmu/pmu.c		\
 				${RK_PLAT_SOC}/drivers/soc/soc.c
+
+ifdef PLAT_RK_SECURE_DDR_MINILOADER
+BL31_SOURCES		+=	${RK_PLAT_COMMON}/drivers/parameter/ddr_parameter.c
+endif
 
 include lib/coreboot/coreboot.mk
 include lib/libfdt/libfdt.mk

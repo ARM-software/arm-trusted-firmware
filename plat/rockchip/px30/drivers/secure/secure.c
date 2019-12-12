@@ -62,6 +62,7 @@ void secure_timer_init(void)
 
 void sgrf_init(void)
 {
+#ifdef PLAT_RK_SECURE_DDR_MINILOADER
 	uint32_t i;
 	struct param_ddr_usage usg;
 
@@ -74,6 +75,7 @@ void sgrf_init(void)
 
 	for (i = 0; i < usg.s_nr; i++)
 		secure_ddr_region(7 - i, usg.s_top[i], usg.s_base[i]);
+#endif
 
 	/* secure the trustzone ram */
 	secure_ddr_region(0, TZRAM_BASE, TZRAM_SIZE);

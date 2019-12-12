@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -97,6 +97,7 @@ void secure_timer_init(void)
 
 void sgrf_init(void)
 {
+#ifdef PLAT_RK_SECURE_DDR_MINILOADER
 	uint32_t i, val;
 	struct param_ddr_usage usg;
 
@@ -115,6 +116,7 @@ void sgrf_init(void)
 			      FIREWALL_DDR_FW_DDR_RGN(7 - i),
 			      RG_MAP_SECURE(usg.s_top[i], usg.s_base[i]));
 	}
+#endif
 
 	/* set ddr rgn0_top and rga0_top as 0 */
 	mmio_write_32(FIREWALL_DDR_BASE + FIREWALL_DDR_FW_DDR_RGN(0), 0x0);
