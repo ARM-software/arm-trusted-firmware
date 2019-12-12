@@ -10,6 +10,12 @@
 #include <lib/utils_def.h>
 
 /*******************************************************************************
+ * Chip specific page table and MMU setup constants
+ ******************************************************************************/
+#define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 40)
+#define PLAT_VIRT_ADDR_SPACE_SIZE	(ULL(1) << 40)
+
+/*******************************************************************************
  * These values are used by the PSCI implementation during the `CPU_SUSPEND`
  * and `SYSTEM_SUSPEND` calls as the `state-id` field in the 'power state'
  * parameter.

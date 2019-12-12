@@ -1,6 +1,17 @@
 NVIDIA Tegra
 ============
 
+-  .. rubric:: T194
+      :name: t194
+
+T194 has eight NVIDIA Carmel CPU cores in a coherent multi-processor
+configuration. The Carmel cores support the ARM Architecture version 8.2,
+executing both 64-bit AArch64 code, and 32-bit AArch32 code. The Carmel
+processors are organized as four dual-core clusters, where each cluster has
+a dedicated 2 MiB Level-2 unified cache. A high speed coherency fabric connects
+these processor complexes and allows heterogeneous multi-processing with all
+eight cores if required.
+
 -  .. rubric:: T186
       :name: t186
 
@@ -78,9 +89,10 @@ their dispatchers in the image without changing any makefiles.
 
 These are the supported Trusted OS' by Tegra platforms.
 
-Tegra132: TLK
-Tegra210: TLK and Trusty
-Tegra186: Trusty
+- Tegra132: TLK
+- Tegra210: TLK and Trusty
+- Tegra186: Trusty
+- Tegra194: Trusty
 
 Scatter files
 -------------
@@ -98,7 +110,7 @@ Preparing the BL31 image to run on Tegra SoCs
 .. code:: shell
 
     CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf- make PLAT=tegra \
-    TARGET_SOC=<target-soc e.g. t186|t210|t132> SPD=<dispatcher e.g. trusty|tlkd>
+    TARGET_SOC=<target-soc e.g. t194|t186|t210|t132> SPD=<dispatcher e.g. trusty|tlkd>
     bl31
 
 Platforms wanting to use different TZDRAM\_BASE, can add ``TZDRAM_BASE=<value>``
