@@ -119,8 +119,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 
 {
-	uint32_t div_reg;
-
 	/*
 	 * LOCAL_CONTROL:
 	 * Bit 9 clear: Increment by 1 (vs. 2).
@@ -136,16 +134,12 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	/*
 	 * Initialize the console to provide early debug support.
-	 * Different GPU firmware revisions set up the VPU divider differently,
-	 * so read the actual divider register to learn the UART base clock
-	 * rate. The divider is encoded as a 12.12 fixed point number, but we
-	 * just care about the integer part of it.
+	 * We rely on the GPU firmware to have initialised the UART correctly,
+	 * as the baud base clock rate differs across GPU firmware revisions.
+	 * Providing a base clock of 0 lets the 16550 UART init routine skip
+	 * the initial enablement and baud rate setup.
 	 */
-	div_reg = mmio_read_32(RPI4_CLOCK_BASE + RPI4_VPU_CLOCK_DIVIDER);
-	div_reg = (div_reg >> 12) & 0xfff;
-	if (div_reg == 0)
-		div_reg = 1;
-	rpi3_console_init(PLAT_RPI4_VPU_CLK_RATE / div_reg);
+	rpi3_console_init(0);
 
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
 	bl33_image_ep_info.spsr = rpi3_get_spsr_for_bl33_entry();

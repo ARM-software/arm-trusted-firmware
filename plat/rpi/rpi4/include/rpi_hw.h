@@ -59,13 +59,6 @@
 #define RPI3_PM_RSTS_WRCFG_HALT		U(0x00000555)
 
 /*
- * Clock controller
- */
-#define RPI4_IO_CLOCK_OFFSET		ULL(0x00101000)
-#define RPI4_CLOCK_BASE			(RPI_IO_BASE + RPI4_IO_CLOCK_OFFSET)
-#define RPI4_VPU_CLOCK_DIVIDER		ULL(0x0000000c)
-
-/*
  * Hardware random number generator.
  */
 #define RPI3_IO_RNG_OFFSET		ULL(0x00104000)
@@ -88,7 +81,6 @@
  */
 #define RPI3_IO_MINI_UART_OFFSET	ULL(0x00215040)
 #define RPI3_MINI_UART_BASE		(RPI_IO_BASE + RPI3_IO_MINI_UART_OFFSET)
-#define PLAT_RPI4_VPU_CLK_RATE		ULL(1000000000)
 
 /*
  * GPIO controller
