@@ -191,6 +191,7 @@ static const struct axp_regulator {
 	{"dldo1",  700, 3300, 100, NO_SPLIT, 0x15, 0x12, 3},
 	{"dldo2",  700, 4200, 100,       27, 0x16, 0x12, 4},
 	{"dldo3",  700, 3300, 100, NO_SPLIT, 0x17, 0x12, 5},
+	{"dldo4",  700, 3300, 100, NO_SPLIT, 0x18, 0x12, 6},
 	{"fldo1",  700, 1450,  50, NO_SPLIT, 0x1c, 0x13, 2},
 	{}
 };
