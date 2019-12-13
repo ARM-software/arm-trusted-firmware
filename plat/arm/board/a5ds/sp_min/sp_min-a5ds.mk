@@ -5,7 +5,8 @@
 #
 
 # SP_MIN source files specific to A5DS platform
-BL32_SOURCES	+=	drivers/cfi/v2m/v2m_flash.c			\
+BL32_SOURCES	+=	drivers/arm/scu/scu.c                           \
+			drivers/cfi/v2m/v2m_flash.c			\
 			lib/utils/mem_region.c				\
 			lib/aarch32/arm32_aeabi_divmod.c		\
 			lib/aarch32/arm32_aeabi_divmod_a32.S		\

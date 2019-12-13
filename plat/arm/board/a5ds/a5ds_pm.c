@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include <assert.h>
-
+#include <drivers/arm/gicv2.h>
 #include <lib/psci/psci.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-#include <drivers/arm/gicv2.h>
 
 /*******************************************************************************
  * Platform handler called when a power domain is about to be turned on. The

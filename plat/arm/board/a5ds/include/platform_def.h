@@ -334,6 +334,9 @@
 #define A5DS_HOLD_STATE_WAIT	0
 #define A5DS_HOLD_STATE_GO	1
 
+/* Snoop Control Unit base address */
+#define A5DS_SCU_BASE			0x1C000000
+
 /*
  * GIC related constants to cater for GICv2
  */
