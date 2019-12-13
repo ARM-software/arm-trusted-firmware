@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Marvell International Ltd.
+ * Copyright (C) 2016-2019 Marvell International Ltd.
  *
  * SPDX-License-Identifier:	BSD-3-Clause
  * https://spdx.org/licenses
@@ -78,7 +78,7 @@
 			(PLAT_MARVELL_ATF_LOAD_ADDR + 0x20000)
 #define PLAT_MARVELL_FIP_MAX_SIZE		0x4000000
 
-#define PLAT_MARVELL_CLUSTER_CORE_COUNT		2
+#define PLAT_MARVELL_CLUSTER_CORE_COUNT		U(2)
 /* DRAM[2MB..66MB] is used  as Trusted ROM */
 #define PLAT_MARVELL_TRUSTED_ROM_BASE		PLAT_MARVELL_ATF_LOAD_ADDR
 /* 64 MB TODO: reduce this to minimum needed according to fip image size*/
