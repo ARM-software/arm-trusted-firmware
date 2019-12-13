@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,18 +19,18 @@
 #define FIRMWARE_WELCOME_STR_LS1043_BL32 "Welcome to LS1043 BL32 Phase, TSP\n"
 
 /* Required platform porting definitions */
-#define PLAT_PRIMARY_CPU		0x0
+#define PLAT_PRIMARY_CPU		U(0x0)
 #define PLAT_MAX_PWR_LVL		LS_PWR_LVL1
-#define PLATFORM_CORE_COUNT		4
+#define PLATFORM_CORE_COUNT		U(4)
 #define COUNTER_FREQUENCY		25000000	/* 25MHz */
 
 /*
  * Required LS standard platform porting definitions
  */
-#define PLAT_LS_CLUSTER_COUNT			1
-#define PLAT_LS1043_CCI_CLUSTER0_SL_IFACE_IX	4
-#define LS1043_CLUSTER_COUNT			1
-#define LS1043_MAX_CPUS_PER_CLUSTER		4
+#define PLAT_LS_CLUSTER_COUNT			U(1)
+#define PLAT_LS1043_CCI_CLUSTER0_SL_IFACE_IX	U(4)
+#define LS1043_CLUSTER_COUNT			U(1)
+#define LS1043_MAX_CPUS_PER_CLUSTER		U(4)
 
 #define LS_DRAM1_BASE			0x80000000
 #define LS_DRAM2_BASE			0x880000000
