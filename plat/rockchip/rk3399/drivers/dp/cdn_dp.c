@@ -18,7 +18,7 @@ __asm__(
 	".global hdcp_handler\n"
 	".balign 4\n"
 	"hdcp_handler:\n"
-	".incbin \"" __XSTRING(HDCPFW) "\"\n"
+	".incbin \"" HDCPFW "\"\n"
 	".type hdcp_handler, %function\n"
 	".size hdcp_handler, .- hdcp_handler\n"
 	".popsection\n"
