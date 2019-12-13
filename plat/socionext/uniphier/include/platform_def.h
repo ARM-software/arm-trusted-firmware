@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,8 +17,8 @@
 #define CACHE_WRITEBACK_GRANULE		(1 << (CACHE_WRITEBACK_SHIFT))
 
 /* topology */
-#define UNIPHIER_MAX_CPUS_PER_CLUSTER	4
-#define UNIPHIER_CLUSTER_COUNT		2
+#define UNIPHIER_MAX_CPUS_PER_CLUSTER	U(4)
+#define UNIPHIER_CLUSTER_COUNT		U(2)
 
 #define PLATFORM_CORE_COUNT		\
 	((UNIPHIER_MAX_CPUS_PER_CLUSTER) * (UNIPHIER_CLUSTER_COUNT))
