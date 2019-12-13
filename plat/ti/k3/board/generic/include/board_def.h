@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,10 +10,10 @@
 #include <lib/utils_def.h>
 
 /* The ports must be in order and contiguous */
-#define K3_CLUSTER0_CORE_COUNT		2
-#define K3_CLUSTER1_CORE_COUNT		2
-#define K3_CLUSTER2_CORE_COUNT		2
-#define K3_CLUSTER3_CORE_COUNT		2
+#define K3_CLUSTER0_CORE_COUNT		U(2)
+#define K3_CLUSTER1_CORE_COUNT		U(2)
+#define K3_CLUSTER2_CORE_COUNT		U(2)
+#define K3_CLUSTER3_CORE_COUNT		U(2)
 
 /*
  * This RAM will be used for the bootloader including code, bss, and stacks.
