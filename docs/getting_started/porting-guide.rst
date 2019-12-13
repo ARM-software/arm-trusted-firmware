@@ -1999,7 +1999,7 @@ Function : plat_psci_stat_get_residency() [optional]
 
 ::
 
-    Argument : unsigned int, const psci_power_state_t *, int
+    Argument : unsigned int, const psci_power_state_t *, unsigned int
     Return   : u_register_t
 
 This is an optional interface that is is invoked after resuming from a low power

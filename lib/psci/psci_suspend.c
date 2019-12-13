@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,7 +25,7 @@
  * This function does generic and platform specific operations after a wake-up
  * from standby/retention states at multiple power levels.
  ******************************************************************************/
-static void psci_suspend_to_standby_finisher(int cpu_idx,
+static void psci_suspend_to_standby_finisher(unsigned int cpu_idx,
 					     unsigned int end_pwrlvl)
 {
 	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
@@ -157,7 +157,7 @@ void psci_cpu_suspend_start(const entry_point_info_t *ep,
 			    unsigned int is_power_down_state)
 {
 	int skip_wfi = 0;
-	int idx = (int) plat_my_core_pos();
+	unsigned int idx = plat_my_core_pos();
 	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
 
 	/*
@@ -276,7 +276,7 @@ exit:
  * are called by the common finisher routine in psci_common.c. The `state_info`
  * is the psci_power_state from which this CPU has woken up from.
  ******************************************************************************/
-void psci_cpu_suspend_finish(int cpu_idx, const psci_power_state_t *state_info)
+void psci_cpu_suspend_finish(unsigned int cpu_idx, const psci_power_state_t *state_info)
 {
 	unsigned int counter_freq;
 	unsigned int max_off_lvl;

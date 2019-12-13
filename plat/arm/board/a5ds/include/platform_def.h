@@ -89,15 +89,15 @@
 #define A5DS_IRQ_SEC_SYS_TIMER		57
 
 /* Default cluster count for A5DS */
-#define A5DS_CLUSTER_COUNT	1
+#define A5DS_CLUSTER_COUNT	U(1)
 
 /* Default number of CPUs per cluster on A5DS */
-#define A5DS_MAX_CPUS_PER_CLUSTER	4
+#define A5DS_MAX_CPUS_PER_CLUSTER	U(4)
 
 /* Default number of threads per CPU on A5DS */
-#define A5DS_MAX_PE_PER_CPU	1
+#define A5DS_MAX_PE_PER_CPU	U(1)
 
-#define A5DS_CORE_COUNT		4
+#define A5DS_CORE_COUNT		U(4)
 
 #define A5DS_PRIMARY_CPU	0x0
 
@@ -231,7 +231,7 @@
 /* Required platform porting definitions */
 #define PLATFORM_CORE_COUNT	A5DS_CORE_COUNT
 #define PLAT_NUM_PWR_DOMAINS	(A5DS_CLUSTER_COUNT + \
-					PLATFORM_CORE_COUNT) + 1
+				PLATFORM_CORE_COUNT) + U(1)
 
 #define PLAT_MAX_PWR_LVL	2
 

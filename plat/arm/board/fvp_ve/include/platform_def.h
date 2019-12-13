@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -211,9 +211,9 @@
 #define BL32_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
 
 /* Required platform porting definitions */
-#define PLATFORM_CORE_COUNT		1
+#define PLATFORM_CORE_COUNT		FVP_VE_CLUSTER_COUNT
 #define PLAT_NUM_PWR_DOMAINS		((FVP_VE_CLUSTER_COUNT + \
-					PLATFORM_CORE_COUNT) + 1)
+					PLATFORM_CORE_COUNT) + U(1))
 
 #define PLAT_MAX_PWR_LVL		2
 

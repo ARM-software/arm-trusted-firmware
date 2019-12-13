@@ -21,7 +21,7 @@
 /* Special value used to verify platform parameters from BL2 to BL31 */
 #define ARM_BL31_PLAT_PARAM_VAL		ULL(0x0f1e2d3c4b5a6978)
 
-#define ARM_SYSTEM_COUNT		1
+#define ARM_SYSTEM_COUNT		U(1)
 
 #define ARM_CACHE_WRITEBACK_SHIFT	6
 
