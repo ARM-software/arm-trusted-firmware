@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -145,13 +145,13 @@
 #define PLAT_MAX_OFF_STATE	U(2)
 
 #define PLATFORM_CACHE_LINE_SIZE      64
-#define PLATFORM_SYSTEM_COUNT         1
-#define PLATFORM_CLUSTER_COUNT        2
-#define PLATFORM_CLUSTER0_CORE_COUNT  4
-#define PLATFORM_CLUSTER1_CORE_COUNT  4
+#define PLATFORM_SYSTEM_COUNT         U(1)
+#define PLATFORM_CLUSTER_COUNT        U(2)
+#define PLATFORM_CLUSTER0_CORE_COUNT  U(4)
+#define PLATFORM_CLUSTER1_CORE_COUNT  U(4)
 #define PLATFORM_CORE_COUNT   (PLATFORM_CLUSTER1_CORE_COUNT + \
 					PLATFORM_CLUSTER0_CORE_COUNT)
-#define PLATFORM_MAX_CPUS_PER_CLUSTER 4
+#define PLATFORM_MAX_CPUS_PER_CLUSTER U(4)
 #define PLATFORM_NUM_AFFS   (PLATFORM_SYSTEM_COUNT +  \
 					PLATFORM_CLUSTER_COUNT + \
 					PLATFORM_CORE_COUNT)
