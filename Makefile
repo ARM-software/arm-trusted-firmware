@@ -261,7 +261,6 @@ WARNING3 := -Wbad-function-cast
 WARNING3 += -Wcast-qual
 WARNING3 += -Wconversion
 WARNING3 += -Wpacked
-WARNING3 += -Wpadded
 WARNING3 += -Wpointer-arith
 WARNING3 += -Wredundant-decls
 WARNING3 += -Wswitch-default
