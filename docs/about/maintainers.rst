@@ -17,10 +17,18 @@ Main maintainers
 :G: `sandrine-bailleux-arm`_
 :M: Alexei Fedorov <alexei.fedorov@arm.com>
 :G: `AlexeiFedorov`_
-:M: Paul Beesley <paul.beesley@arm.com>
-:G: `pbeesley-arm`_
 :M: György Szing <gyorgy.szing@arm.com>
 :G: `gyuri-szing`_
+:M: Manish Pandey <manish.pandey2@arm.com>
+:G: `manish-pandey-arm`_
+:M: Mark Dykes <mark.dykes@arm.com>
+:G: `mardyk01`_
+:M: Olivier Deprez <olivier.deprez@arm.com>
+:G: `odeprez`_
+:M: Bipin Ravi <bipin.ravi@arm.com>
+:G: `bipinravi-arm`_
+:M: Joanna Farley <joanna.farley@arm.com>
+:G: `joannafarley-arm`_
 
 Allwinner ARMv8 platform port
 -----------------------------
@@ -300,7 +308,6 @@ Xilinx platform port
 .. _mtk09422: https://github.com/mtk09422
 .. _niej: https://github.com/niej
 .. _npoushin: https://github.com/npoushin
-.. _pbeesley-arm: https://github.com/pbeesley-arm
 .. _qoriq-open-source: https://github.com/qoriq-open-source
 .. _remi-triplefault: https://github.com/repk
 .. _rockchip-linux: https://github.com/rockchip-linux
@@ -314,3 +321,8 @@ Xilinx platform port
 .. _TonyXie06: https://github.com/TonyXie06
 .. _vwadekar: https://github.com/vwadekar
 .. _Yann-lms: https://github.com/Yann-lms
+.. _manish-pandey-arm: https://github.com/manish-pandey-arm
+.. _mardyk01: https://github.com/mardyk01
+.. _odeprez: https://github.com/odeprez
+.. _bipinravi-arm: https://github.com/bipinravi-arm
+.. _joannafarley-arm: https://github.com/joannafarley-arm
