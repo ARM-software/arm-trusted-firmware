@@ -9,6 +9,10 @@ ifeq (${RESET_TO_BL31}, 0)
 $(error "This is a BL31-only port; RESET_TO_BL31 must be enabled")
 endif
 
+ifeq (${ENABLE_PIE}, 1)
+override SEPARATE_CODE_AND_RODATA := 1
+endif
+
 CTX_INCLUDE_AARCH32_REGS := 0
 ifeq (${CTX_INCLUDE_AARCH32_REGS}, 1)
 $(error "This is an AArch64-only port; CTX_INCLUDE_AARCH32_REGS must be disabled")
