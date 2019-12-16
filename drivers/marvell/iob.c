@@ -44,6 +44,10 @@
 #define IOB_WIN_ALR_OFFSET(win)		(iob_base + 0x8 + (0x20 * win))
 #define IOB_WIN_AHR_OFFSET(win)		(iob_base + 0xC + (0x20 * win))
 
+#define IOB_WIN_DIOB_CR_OFFSET(win)	(iob_base + 0x10 + (0x20 * win))
+#define IOB_WIN_XOR0_DIOB_EN		BIT(0)
+#define IOB_WIN_XOR1_DIOB_EN		BIT(1)
+
 uintptr_t iob_base;
 
 static void iob_win_check(struct addr_map_win *win, uint32_t win_num)
@@ -71,6 +75,17 @@ static void iob_enable_win(struct addr_map_win *win, uint32_t win_id)
 	uint32_t iob_win_reg;
 	uint32_t alr, ahr;
 	uint64_t end_addr;
+	uint32_t reg_en;
+
+	/* move XOR (DMA) to use WIN1 which is used for PCI-EP address space */
+	reg_en = IOB_WIN_XOR0_DIOB_EN | IOB_WIN_XOR1_DIOB_EN;
+	iob_win_reg = mmio_read_32(IOB_WIN_DIOB_CR_OFFSET(0));
+	iob_win_reg &= ~reg_en;
+	mmio_write_32(IOB_WIN_DIOB_CR_OFFSET(0), iob_win_reg);
+
+	iob_win_reg = mmio_read_32(IOB_WIN_DIOB_CR_OFFSET(1));
+	iob_win_reg |= reg_en;
+	mmio_write_32(IOB_WIN_DIOB_CR_OFFSET(1), iob_win_reg);
 
 	end_addr = (win->base_addr + win->win_size - 1);
 	alr = (uint32_t)((win->base_addr >> ADDRESS_SHIFT) & ADDRESS_MASK);
