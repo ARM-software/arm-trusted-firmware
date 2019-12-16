@@ -72,7 +72,7 @@
 #define PTRDIFF_MIN LONG_MIN
 #define PTRDIFF_MAX LONG_MAX
 
-#define SIZE_MAX UINT64_MAX
+#define SIZE_MAX ULONG_MAX
 
 #define INT8_C(x)  x
 #define INT16_C(x) x
