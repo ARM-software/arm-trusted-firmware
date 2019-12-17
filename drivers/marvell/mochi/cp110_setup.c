@@ -186,8 +186,9 @@ static void cp110_pcie_clk_cfg(uintptr_t base)
 	pcie0_clk = (reg & SAR_PCIE0_CLK_CFG_MASK) >> SAR_PCIE0_CLK_CFG_OFFSET;
 	pcie1_clk = (reg & SAR_PCIE1_CLK_CFG_MASK) >> SAR_PCIE1_CLK_CFG_OFFSET;
 
-	/* CP110 revision A2 */
-	if (cp110_rev_id_get(base) == MVEBU_CP110_REF_ID_A2) {
+	/* CP110 revision A2 or CN913x */
+	if (cp110_rev_id_get(base) == MVEBU_CP110_REF_ID_A2 ||
+	    cp110_device_id_get(base) == MVEBU_CN9130_DEV_ID) {
 		/*
 		 * PCIe Reference Clock Buffer Control register must be
 		 * set according to the clock direction (input/output)
