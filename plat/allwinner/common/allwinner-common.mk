@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -20,7 +20,8 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/${ARCH}/16550_console.S	\
 				${AW_PLAT}/common/plat_helpers.S	\
 				${AW_PLAT}/common/sunxi_common.c
 
-BL31_SOURCES		+=	drivers/arm/gic/common/gic_common.c	\
+BL31_SOURCES		+=	drivers/allwinner/axp/common.c		\
+				drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_helpers.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
 				drivers/delay_timer/delay_timer.c	\

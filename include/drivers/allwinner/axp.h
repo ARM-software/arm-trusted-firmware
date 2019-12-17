@@ -13,6 +13,7 @@
 
 enum {
 	AXP803_CHIP_ID = 0x41,
+	AXP805_CHIP_ID = 0x40,
 };
 
 struct axp_regulator {

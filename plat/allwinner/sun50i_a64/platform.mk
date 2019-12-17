@@ -8,5 +8,4 @@
 include plat/allwinner/common/allwinner-common.mk
 
 BL31_SOURCES		+=	drivers/allwinner/axp/axp803.c		\
-				drivers/allwinner/axp/common.c		\
 				drivers/allwinner/sunxi_rsb.c

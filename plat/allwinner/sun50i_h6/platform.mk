@@ -7,4 +7,5 @@
 # The differences between the platform are covered by the include files.
 include plat/allwinner/common/allwinner-common.mk
 
-BL31_SOURCES		+=	drivers/mentor/i2c/mi2cv.c
+BL31_SOURCES		+=	drivers/allwinner/axp/axp805.c		\
+				drivers/mentor/i2c/mi2cv.c
