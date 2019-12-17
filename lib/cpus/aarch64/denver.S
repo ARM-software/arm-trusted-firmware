@@ -372,3 +372,4 @@ denver_cpu_ops_wa DENVER_MIDR_PN5
 denver_cpu_ops_wa DENVER_MIDR_PN6
 denver_cpu_ops_wa DENVER_MIDR_PN7
 denver_cpu_ops_wa DENVER_MIDR_PN8
+denver_cpu_ops_wa DENVER_MIDR_PN9
