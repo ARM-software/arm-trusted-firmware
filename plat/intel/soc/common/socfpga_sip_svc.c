@@ -365,6 +365,41 @@ uint32_t intel_secure_reg_update(uint64_t reg_addr, uint32_t mask,
 	return INTEL_SIP_SMC_STATUS_ERROR;
 }
 
+/* Intel Remote System Update (RSU) services */
+uint64_t intel_rsu_update_address;
+
+static uint32_t intel_rsu_status(uint64_t *respbuf, uint32_t respbuf_sz)
+{
+	if (mailbox_rsu_status((uint32_t *)respbuf, respbuf_sz) < 0)
+		return INTEL_SIP_SMC_STATUS_ERROR;
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+static uint32_t intel_rsu_update(uint64_t update_address)
+{
+	intel_rsu_update_address = update_address;
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+static uint32_t intel_rsu_notify(uint64_t execution_stage)
+{
+	if (mailbox_hps_stage_notify((uint32_t)execution_stage) < 0)
+		return INTEL_SIP_SMC_STATUS_ERROR;
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+static uint32_t intel_rsu_retry_counter(uint32_t *respbuf, uint32_t respbuf_sz,
+					uint32_t *ret_stat)
+{
+	if (mailbox_rsu_status((uint32_t *)respbuf, respbuf_sz) < 0)
+		return INTEL_SIP_SMC_STATUS_ERROR;
+
+	*ret_stat = respbuf[8];
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 /*
  * This function is responsible for handling all SiP calls from the NS world
  */
@@ -381,6 +416,7 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 	uint32_t val = 0;
 	uint32_t status = INTEL_SIP_SMC_STATUS_OK;
 	uint32_t completed_addr[3];
+	uint64_t rsu_respbuf[9];
 	uint32_t count = 0;
 
 	switch (smc_fid) {
@@ -445,6 +481,33 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 		status = intel_secure_reg_update(x1, (uint32_t)x2,
 						 (uint32_t)x3, &val);
 		SMC_RET3(handle, status, val, x1);
+
+	case INTEL_SIP_SMC_RSU_STATUS:
+		status = intel_rsu_status(rsu_respbuf,
+					ARRAY_SIZE(rsu_respbuf));
+		if (status) {
+			SMC_RET1(handle, status);
+		} else {
+			SMC_RET4(handle, rsu_respbuf[0], rsu_respbuf[1],
+					rsu_respbuf[2], rsu_respbuf[3]);
+		}
+
+	case INTEL_SIP_SMC_RSU_UPDATE:
+		status = intel_rsu_update(x1);
+		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_RSU_NOTIFY:
+		status = intel_rsu_notify(x1);
+		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_RSU_RETRY_COUNTER:
+		status = intel_rsu_retry_counter((uint32_t *)rsu_respbuf,
+						ARRAY_SIZE(rsu_respbuf), &val);
+		if (status) {
+			SMC_RET1(handle, status);
+		} else {
+			SMC_RET2(handle, status, val);
+		}
 
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,
