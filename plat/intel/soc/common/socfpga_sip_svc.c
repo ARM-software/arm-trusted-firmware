@@ -42,7 +42,7 @@ DEFINE_SVC_UUID2(intl_svc_uid,
 		0xa85273b0, 0xe85a, 0x4862, 0xa6, 0x2a,
 		0xfa, 0x88, 0x88, 0x17, 0x68, 0x81);
 
-uint64_t socfpga_sip_handler(uint32_t smc_fid,
+static uint64_t socfpga_sip_handler(uint32_t smc_fid,
 				   uint64_t x1,
 				   uint64_t x2,
 				   uint64_t x3,
@@ -93,7 +93,7 @@ static int intel_fpga_sdm_write_all(void)
 	return 0;
 }
 
-uint32_t intel_mailbox_fpga_config_isdone(void)
+static uint32_t intel_mailbox_fpga_config_isdone(void)
 {
 	uint32_t ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS);
 
@@ -129,7 +129,7 @@ static int mark_last_buffer_xfer_completed(uint32_t *buffer_addr_completed)
 	return -1;
 }
 
-int intel_fpga_config_completed_write(uint32_t *completed_addr,
+static int intel_fpga_config_completed_write(uint32_t *completed_addr,
 					uint32_t *count)
 {
 	uint32_t status = INTEL_SIP_SMC_STATUS_OK;
@@ -186,7 +186,7 @@ int intel_fpga_config_completed_write(uint32_t *completed_addr,
 	return status;
 }
 
-int intel_fpga_config_start(uint32_t config_type)
+static int intel_fpga_config_start(uint32_t config_type)
 {
 	uint32_t response[3];
 	int status = 0;
@@ -239,7 +239,7 @@ static bool is_address_in_ddr_range(uint64_t addr)
 	return false;
 }
 
-uint32_t intel_fpga_config_write(uint64_t mem, uint64_t size)
+static uint32_t intel_fpga_config_write(uint64_t mem, uint64_t size)
 {
 	int i;
 
