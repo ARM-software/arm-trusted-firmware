@@ -190,12 +190,12 @@ void bl2_el3_plat_arch_setup(void)
 	/* Prevent corruption of preloaded BL32 */
 	mmap_add_region(BL32_BASE, BL32_BASE,
 			BL32_LIMIT - BL32_BASE,
-			MT_MEMORY | MT_RO | MT_SECURE);
+			MT_RO_DATA | MT_SECURE);
 #endif
 	/* Prevent corruption of preloaded Device Tree */
 	mmap_add_region(DTB_BASE, DTB_BASE,
 			DTB_LIMIT - DTB_BASE,
-			MT_MEMORY | MT_RO | MT_SECURE);
+			MT_RO_DATA | MT_SECURE);
 
 	configure_mmu();
 
