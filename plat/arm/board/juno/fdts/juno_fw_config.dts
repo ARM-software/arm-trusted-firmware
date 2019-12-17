@@ -1,31 +1,30 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <export/common/tbbr/tbbr_img_def_exp.h>
+
 /dts-v1/;
 
 / {
-	/* Platform Config */
-	plat_arm_bl2 {
+	dtb-registry {
+		compatible = "arm,dyn_cfg-dtb_registry";
+
+		/* tb_fw_config is temporarily contained on this dtb */
+		tb_fw-config {
+			load-address = <0x0 0x4001010>;
+			max-size = <0x200>;
+			id = <TB_FW_CONFIG_ID>;
+		};
+	};
+
+	tb_fw-config {
+		/* Platform Config */
 		compatible = "arm,tb_fw";
-		hw_config_addr = <0x0 0x82000000>;
-		hw_config_max_size = <0x01000000>;
 		/* Disable authentication for development */
 		disable_auth = <0x0>;
-		/*
-		 * Load SoC and TOS firmware configs at the base of
-		 * non shared SRAM. The runtime checks ensure we don't
-		 * overlap BL2, BL31 or BL32. The NT firmware config
-		 * is loaded at base of DRAM.
-		 */
-		soc_fw_config_addr = <0x0 0x04001000>;
-		soc_fw_config_max_size = <0x200>;
-		tos_fw_config_addr = <0x0 0x04001200>;
-		tos_fw_config_max_size = <0x200>;
-		nt_fw_config_addr = <0x0 0x80000000>;
-		nt_fw_config_max_size = <0x200>;
 		/*
 		 * The following two entries are placeholders for Mbed TLS
 		 * heap information. The default values don't matter since

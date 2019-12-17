@@ -18,7 +18,7 @@ struct fconf_dtb_info_t fconf_dtb_info;
 void fconf_load_config(void)
 {
 	int err;
-
+	/* fconf FW_CONFIG and TB_FW_CONFIG are currently the same DTB */
 	image_info_t arm_tb_fw_info = {
 		.h.type = (uint8_t)PARAM_IMAGE_BINARY,
 		.h.version = (uint8_t)VERSION_2,
