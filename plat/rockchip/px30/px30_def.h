@@ -11,6 +11,7 @@
 #define MINOR_VERSION		(0)
 
 #define SIZE_K(n)		((n) * 1024)
+#define SIZE_M(n)		((n) * 1024 * 1024)
 
 #define WITH_16BITS_WMSK(bits)	(0xffff0000 | (bits))
 

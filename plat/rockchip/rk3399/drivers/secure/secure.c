@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,6 +45,8 @@ static void sgrf_ddr_rgn_global_bypass(uint32_t bypass)
  *                bypass, 1: enable bypass
  *
  * @rgn - the DDR regions 0 ~ 7 which are can be configured.
+ * @st - start address to set as secure
+ * @sz - length of area to set as secure
  * The @st_mb and @ed_mb indicate the start and end addresses for which to set
  * the security, and the unit is megabyte. When the st_mb == 0, ed_mb == 0, the
  * address range 0x0 ~ 0xfffff is secure.
@@ -53,8 +55,9 @@ static void sgrf_ddr_rgn_global_bypass(uint32_t bypass)
  * DDR_RGN0, then rgn == 0, st_mb == 0, ed_mb == 31.
  */
 static void sgrf_ddr_rgn_config(uint32_t rgn,
-				uintptr_t st, uintptr_t ed)
+				uintptr_t st, size_t sz)
 {
+	uintptr_t ed = st + sz;
 	uintptr_t st_mb, ed_mb;
 
 	assert(rgn <= 7);

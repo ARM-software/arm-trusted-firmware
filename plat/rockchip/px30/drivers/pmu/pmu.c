@@ -22,6 +22,7 @@
 #include <plat_private.h>
 #include <pmu.h>
 #include <px30_def.h>
+#include <secure.h>
 #include <soc.h>
 
 DEFINE_BAKERY_LOCK(rockchip_pd_lock);
