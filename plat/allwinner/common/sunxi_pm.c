@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -65,6 +65,11 @@ static void __dead2 sunxi_system_off(void)
 	sunxi_disable_secondary_cpus(read_mpidr());
 
 	sunxi_power_down();
+
+	udelay(1000);
+	ERROR("PSCI: Cannot turn off system, halting\n");
+	wfi();
+	panic();
 }
 
 static void __dead2 sunxi_system_reset(void)
