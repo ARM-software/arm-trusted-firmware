@@ -244,7 +244,7 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	/*
 	 * Initialize the GIC cpu and distributor interfaces
 	 */
-	tegra_gic_init();
+	tegra_gic_pcpu_init();
 
 	/*
 	 * Check if we are exiting from deep sleep.
