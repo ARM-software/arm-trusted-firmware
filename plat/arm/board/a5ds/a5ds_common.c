@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,18 +23,18 @@
 #ifdef IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
-	MAP_FLASH1_RW,
 	MAP_PERIPHBASE,
 	MAP_A5_PERIPHERALS,
+	MAP_BOOT_RW,
 	{0}
 };
 #endif
 #ifdef IMAGE_BL2
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
-	MAP_FLASH1_RW,
 	MAP_PERIPHBASE,
 	MAP_A5_PERIPHERALS,
+	MAP_BOOT_RW,
 	ARM_MAP_NS_DRAM1,
 	{0}
 };

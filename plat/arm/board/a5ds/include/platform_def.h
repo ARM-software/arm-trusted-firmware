@@ -21,14 +21,6 @@
 #define ARM_DRAM1_END			(ARM_DRAM1_BASE +		\
 					 ARM_DRAM1_SIZE - 1)
 
-#define ARM_NS_DRAM1_BASE		ARM_DRAM1_BASE
-/*
- * The last 2MB is meant to be NOLOAD and will not be zero
- * initialized.
- */
-#define ARM_NS_DRAM1_SIZE		(ARM_DRAM1_SIZE -		\
-					 0x00200000)
-
 #define SRAM_BASE	0x2000000
 #define SRAM_SIZE	0x200000
 
@@ -101,16 +93,22 @@
 
 #define A5DS_PRIMARY_CPU	0x0
 
-#define FLASH1_BASE			UL(0x8000000)
-#define FLASH1_SIZE			UL(0x2800000)
+#define BOOT_BASE			ARM_DRAM1_BASE
+#define BOOT_SIZE			UL(0x2800000)
 
-#define MAP_FLASH1_RW		MAP_REGION_FLAT(FLASH1_BASE,\
-						FLASH1_SIZE,	\
+#define ARM_NS_DRAM1_BASE		(ARM_DRAM1_BASE + BOOT_SIZE)
+/*
+ * The last 2MB is meant to be NOLOAD and will not be zero
+ * initialized.
+ */
+#define ARM_NS_DRAM1_SIZE		(ARM_DRAM1_SIZE -		\
+					 BOOT_SIZE -			\
+					 0x00200000)
+
+#define MAP_BOOT_RW          		MAP_REGION_FLAT(		\
+						BOOT_BASE,		\
+						BOOT_SIZE,    		\
 						MT_DEVICE | MT_RW | MT_SECURE)
-
-#define MAP_FLASH1_RO		MAP_REGION_FLAT(FLASH1_BASE,\
-						FLASH1_SIZE,	\
-						MT_RO_DATA | MT_SECURE)
 
 #define ARM_MAP_SHARED_RAM		MAP_REGION_FLAT(		\
 						A5DS_SHARED_RAM_BASE,	\
@@ -122,9 +120,9 @@
 						ARM_NS_DRAM1_SIZE,	\
 						MT_MEMORY | MT_RW | MT_NS)
 
-#define ARM_MAP_SRAM		MAP_REGION_FLAT(		\
-						SRAM_BASE,	\
-						SRAM_SIZE,	\
+#define ARM_MAP_SRAM			MAP_REGION_FLAT(		\
+						SRAM_BASE,		\
+						SRAM_SIZE,		\
 						MT_MEMORY | MT_RW | MT_NS)
 
 /*
@@ -300,11 +298,11 @@
 #define MAX_IO_HANDLES			4
 
 /* Reserve the last block of flash for PSCI MEM PROTECT flag */
-#define PLAT_ARM_FIP_BASE		FLASH1_BASE
-#define PLAT_ARM_FIP_MAX_SIZE		(FLASH1_SIZE - V2M_FLASH_BLOCK_SIZE)
+#define PLAT_ARM_FIP_BASE		BOOT_BASE
+#define PLAT_ARM_FIP_MAX_SIZE		(BOOT_SIZE - V2M_FLASH_BLOCK_SIZE)
 
-#define PLAT_ARM_NVM_BASE		FLASH1_BASE
-#define PLAT_ARM_NVM_SIZE		(FLASH1_SIZE - V2M_FLASH_BLOCK_SIZE)
+#define PLAT_ARM_NVM_BASE		BOOT_BASE
+#define PLAT_ARM_NVM_SIZE		(BOOT_SIZE - V2M_FLASH_BLOCK_SIZE)
 
 /*
  * PL011 related constants
