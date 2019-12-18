@@ -28,6 +28,13 @@ SYSCNT_FREQ := $(GENTIMER_ACTUAL_CLOCK)
 $(eval $(call add_define,SYSCNT_FREQ))
 endif
 
+# Process ARM_BL31_IN_DRAM flag
+ifeq (${ARM_BL31_IN_DRAM},)
+ARM_BL31_IN_DRAM		:=	0
+endif
+$(eval $(call assert_boolean,ARM_BL31_IN_DRAM))
+$(eval $(call add_define,ARM_BL31_IN_DRAM))
+
 ifeq (${STANDALONE_BL2},yes)
 $(eval $(call add_define,MMU_DISABLED))
 endif
@@ -50,7 +57,8 @@ SEPARATE_CODE_AND_RODATA	:=	1
 # Use generic OID definition (tbbr_oid.h)
 USE_TBBR_DEFS			:=	1
 
-PLAT_INCLUDES		+=	-Iplat/brcm/board/common
+PLAT_INCLUDES		+=	-Iplat/brcm/board/common \
+				-Iinclude/drivers/brcm
 
 PLAT_BL_COMMON_SOURCES	+=	plat/brcm/common/brcm_common.c \
 				plat/brcm/board/common/cmn_sec.c \
@@ -71,6 +79,24 @@ BL2_SOURCES		+=	plat/brcm/common/brcm_bl2_mem_params_desc.c \
 				common/desc_image_load.c
 
 BL2_SOURCES		+= 	plat/brcm/common/brcm_bl2_setup.c
+
+BL31_SOURCES		+=	plat/brcm/common/brcm_bl31_setup.c
+
+#M0 runtime firmware
+ifdef SCP_BL2
+$(eval $(call add_define,NEED_SCP_BL2))
+SCP_CFG_DIR=$(dir ${SCP_BL2})
+PLAT_INCLUDES += -I${SCP_CFG_DIR}
+endif
+
+ifneq (${NEED_BL33},yes)
+# If there is no BL33, BL31 will jump to this address.
+ifeq (${USE_DDR},yes)
+PRELOADED_BL33_BASE := 0x80000000
+else
+PRELOADED_BL33_BASE := 0x74000000
+endif
+endif
 
 # Use translation tables library v1 by default
 ARM_XLAT_TABLES_LIB_V1		:=	1
