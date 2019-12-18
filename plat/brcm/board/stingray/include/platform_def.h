@@ -12,10 +12,8 @@
 #include <plat/common/common_def.h>
 
 #include <brcm_def.h>
-
-#include <cmn_plat_def.h>
-
 #include "sr_def.h"
+#include <cmn_plat_def.h>
 
 /*
  * Most platform porting definitions provided by included headers

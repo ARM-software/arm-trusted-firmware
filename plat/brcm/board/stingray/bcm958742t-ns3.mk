@@ -14,3 +14,9 @@ include plat/brcm/board/stingray/bcm958742t.mk
 ifneq (${BL33_OVERRIDE_LOAD_ADDR},)
 $(eval $(call add_define_val,BL33_OVERRIDE_LOAD_ADDR,0xFF000000))
 endif
+
+# Nitro DDR secure memory
+# Nitro FW and config 0x8AE00000 - 0x8B000000
+# Nitro Crash dump 0x8B000000 - 0x8D000000
+DDR_NITRO_SECURE_REGION_START := 0x8AE00000
+DDR_NITRO_SECURE_REGION_END := 0x8D000000

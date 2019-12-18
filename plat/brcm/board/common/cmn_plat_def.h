@@ -7,6 +7,56 @@
 #ifndef CMN_PLAT_DEF_H
 #define CMN_PLAT_DEF_H
 
+#include <bcm_elog.h>
+
+#ifndef GET_LOG_LEVEL
+#define GET_LOG_LEVEL() LOG_LEVEL
+#endif
+
+#ifndef SET_LOG_LEVEL
+#define SET_LOG_LEVEL(x) ((void)(x))
+#endif
+
+#define PLAT_LOG_NOTICE(...)						 \
+		do {							 \
+			if (GET_LOG_LEVEL() >= LOG_LEVEL_NOTICE) {	 \
+				bcm_elog(LOG_MARKER_NOTICE __VA_ARGS__); \
+				tf_log(LOG_MARKER_NOTICE __VA_ARGS__);	 \
+			}						 \
+		} while (0)
+
+#define PLAT_LOG_ERROR(...)						 \
+		do {							 \
+			if (GET_LOG_LEVEL() >= LOG_LEVEL_ERROR) {	 \
+				bcm_elog(LOG_MARKER_ERROR, __VA_ARGS__); \
+				tf_log(LOG_MARKER_ERROR __VA_ARGS__);	 \
+			}						 \
+		} while (0)
+
+#define PLAT_LOG_WARN(...)						 \
+		do {							 \
+			if (GET_LOG_LEVEL() >= LOG_LEVEL_WARNING) {	 \
+				bcm_elog(LOG_MARKER_WARNING, __VA_ARGS__);\
+				tf_log(LOG_MARKER_WARNING __VA_ARGS__);	 \
+			}						 \
+		} while (0)
+
+#define PLAT_LOG_INFO(...)						 \
+		do {							 \
+			if (GET_LOG_LEVEL() >= LOG_LEVEL_INFO) {	 \
+				bcm_elog(LOG_MARKER_INFO __VA_ARGS__);	 \
+				tf_log(LOG_MARKER_INFO  __VA_ARGS__);    \
+			}						 \
+		} while (0)
+
+#define PLAT_LOG_VERBOSE(...)						 \
+		do {							 \
+			if (GET_LOG_LEVEL()  >= LOG_LEVEL_VERBOSE) {	 \
+				bcm_elog(LOG_MARKER_VERBOSE __VA_ARGS__);\
+				tf_log(LOG_MARKER_VERBOSE __VA_ARGS__);	 \
+			}						 \
+		} while (0)
+
 /* Print file and line number on assert */
 #define PLAT_LOG_LEVEL_ASSERT LOG_LEVEL_INFO
 

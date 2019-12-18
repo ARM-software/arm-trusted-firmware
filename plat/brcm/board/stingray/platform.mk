@@ -4,6 +4,19 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# Set the toc_flags to 1 for 100% speed operation
+# Set the toc_flags to 2 for 50% speed operation
+# Set the toc_flags to 3 for 25% speed operation
+# Set the toc_flags bit 3 to indicate ignore the fip in UEFI copy mode
+PLAT_TOC_FLAGS := 0x0
+
+# Set the IHOST_PLL_FREQ to,
+# 1 for full speed
+# 2 for 50% speed
+# 3 for 25% speed
+# 0 for bypass
+$(eval $(call add_define_val,IHOST_PLL_FREQ,1))
+
 # Enable workaround for ERRATA_A72_859971
 ERRATA_A72_859971 := 1
 
@@ -16,14 +29,40 @@ ARM_BL31_IN_DRAM	:=	1
 
 USE_CRMU_SRAM := yes
 
+# Enable error logging by default for Stingray
+BCM_ELOG := yes
+
+# Enable FRU support by default for Stingray
+ifeq (${USE_FRU},)
+USE_FRU := no
+endif
+
 # Use single cluster
 ifeq (${USE_SINGLE_CLUSTER},yes)
 $(info Using Single Cluster)
 $(eval $(call add_define,USE_SINGLE_CLUSTER))
 endif
 
+# Use DDR
+ifeq (${USE_DDR},yes)
+$(info Using DDR)
+$(eval $(call add_define,USE_DDR))
+endif
+
 ifeq (${BOARD_CFG},)
 BOARD_CFG := bcm958742k
+endif
+
+# Use NAND
+ifeq (${USE_NAND},$(filter yes, ${USE_NAND}))
+$(info Using NAND)
+$(eval $(call add_define,USE_NAND))
+endif
+
+# Enable Broadcom error logging support
+ifeq (${BCM_ELOG},yes)
+$(info Using BCM_ELOG)
+$(eval $(call add_define,BCM_ELOG))
 endif
 
 # BL31 build for standalone mode
@@ -43,6 +82,9 @@ endif
 # Default soft reset is L3
 $(eval $(call add_define,CONFIG_SOFT_RESET_L3))
 
+# Enable Chip OTP driver
+DRIVER_OCOTP_ENABLE := 1
+
 include plat/brcm/board/common/board_common.mk
 
 SOC_DIR			:= 	brcm/board/stingray
@@ -58,6 +100,17 @@ PLAT_BL_COMMON_SOURCES	+=	lib/cpus/aarch64/cortex_a72.S \
 				drivers/arm/tzc/tzc400.c \
 				plat/${SOC_DIR}/src/topology.c
 
+BL2_SOURCES		+=	plat/${SOC_DIR}/driver/ihost_pll_config.c \
+				plat/${SOC_DIR}/src/bl2_setup.c \
+				plat/${SOC_DIR}/driver/swreg.c
+
+
+ifeq (${USE_DDR},yes)
+PLAT_INCLUDES		+=	-Iplat/${SOC_DIR}/driver/ddr/soc/include
+else
+PLAT_INCLUDES		+=	-Iplat/${SOC_DIR}/driver/ext_sram_init
+BL2_SOURCES		+=	plat/${SOC_DIR}/driver/ext_sram_init/ext_sram_init.c
+endif
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
@@ -77,6 +130,12 @@ BL31_SOURCES		+=	\
 ifdef SCP_BL2
 PLAT_INCLUDES		+=	-Iplat/brcm/common/
 
+BL2_SOURCES		+=	plat/brcm/common/brcm_mhu.c \
+				plat/brcm/common/brcm_scpi.c \
+				plat/${SOC_DIR}/src/scp_utils.c \
+				plat/${SOC_DIR}/src/scp_cmd.c \
+				drivers/brcm/scp.c
+
 BL31_SOURCES		+=	plat/brcm/common/brcm_mhu.c \
 				plat/brcm/common/brcm_scpi.c \
 				plat/${SOC_DIR}/src/brcm_pm_ops.c
@@ -85,5 +144,19 @@ BL31_SOURCES		+=	plat/${SOC_DIR}/src/ihost_pm.c \
 				plat/${SOC_DIR}/src/pm.c
 endif
 
+ifeq (${ELOG_SUPPORT},1)
+ifeq (${ELOG_STORE_MEDIA},DDR)
+BL2_SOURCES		+=	plat/brcm/board/common/bcm_elog_ddr.c
+endif
+endif
+
 # Do not execute the startup code on warm reset.
 PROGRAMMABLE_RESET_ADDRESS	:=	1
+
+# Nitro FW, config and Crash log uses secure DDR memory
+# Inaddition to above, Nitro master and slave is also secure
+ifneq ($(NITRO_SECURE_ACCESS),)
+$(eval $(call add_define,NITRO_SECURE_ACCESS))
+$(eval $(call add_define,DDR_NITRO_SECURE_REGION_START))
+$(eval $(call add_define,DDR_NITRO_SECURE_REGION_END))
+endif
