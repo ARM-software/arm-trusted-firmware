@@ -16,9 +16,11 @@
 #include <lib/spinlock.h>
 
 #include <brcm_scpi.h>
+#include <chimp.h>
 #include <cmn_plat_util.h>
 #include <plat_brcm.h>
 #include <platform_def.h>
+#include <sr_utils.h>
 
 #include "m0_cfg.h"
 
@@ -280,7 +282,14 @@ static void __dead2 brcm_scp_sys_reset(unsigned int reset_type)
 
 static void __dead2 brcm_system_reset(void)
 {
-	brcm_scp_sys_reset(SOFT_SYS_RESET_L1);
+	unsigned int reset_type;
+
+	if (bcm_chimp_is_nic_mode())
+		reset_type = SOFT_RESET_L3;
+	else
+		reset_type = SOFT_SYS_RESET_L1;
+
+	brcm_scp_sys_reset(reset_type);
 }
 
 static int brcm_system_reset2(int is_vendor, int reset_type,
@@ -289,6 +298,11 @@ static int brcm_system_reset2(int is_vendor, int reset_type,
 	if (!is_vendor) {
 		/* Architectural warm boot: only warm reset is supported */
 		reset_type = SOFT_RESET_L3;
+	} else {
+		uint32_t boot_source = (uint32_t)cookie;
+
+		boot_source &= BOOT_SOURCE_MASK;
+		brcm_stingray_set_straps(boot_source);
 	}
 	brcm_scp_sys_reset(reset_type);
 

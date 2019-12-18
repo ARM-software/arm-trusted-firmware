@@ -80,6 +80,10 @@ ifneq (${BL2_LOG_LEVEL},)
 $(eval $(call add_define,BL2_LOG_LEVEL))
 endif
 
+ifneq (${BL31_LOG_LEVEL},)
+$(eval $(call add_define,BL31_LOG_LEVEL))
+endif
+
 # Use CRMU SRAM from iHOST
 ifneq (${USE_CRMU_SRAM},)
 $(eval $(call add_define,USE_CRMU_SRAM))
@@ -123,6 +127,7 @@ BL31_SOURCES		+=	plat/brcm/common/brcm_bl31_setup.c
 ifeq (${BCM_ELOG},yes)
 ELOG_SOURCES		+= 	plat/brcm/board/common/bcm_elog.c
 BL2_SOURCES		+= 	${ELOG_SOURCES}
+BL31_SOURCES		+= 	${ELOG_SOURCES}
 endif
 
 ifeq (${DRIVER_OCOTP_ENABLE},1)
