@@ -102,9 +102,11 @@ func enter_lower_el_sync_ea
 	/* Setup exception class and syndrome arguments for platform handler */
 	mov	x0, #ERROR_EA_SYNC
 	mrs	x1, esr_el3
-	adr	x30, el3_exit
-	b	delegate_sync_ea
+	bl	delegate_sync_ea
 
+	/* el3_exit assumes SP_EL0 on entry */
+	msr	spsel, #MODE_SP_EL0
+	b	el3_exit
 2:
 	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
 	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
@@ -146,8 +148,11 @@ func enter_lower_el_async_ea
 	/* Setup exception class and syndrome arguments for platform handler */
 	mov	x0, #ERROR_EA_ASYNC
 	mrs	x1, esr_el3
-	adr	x30, el3_exit
-	b	delegate_async_ea
+	bl	delegate_async_ea
+
+	/* el3_exit assumes SP_EL0 on entry */
+	msr	spsel, #MODE_SP_EL0
+	b	el3_exit
 endfunc enter_lower_el_async_ea
 
 
