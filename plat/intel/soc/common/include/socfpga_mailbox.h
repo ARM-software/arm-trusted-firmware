@@ -84,32 +84,11 @@
 #define SOFTFUNC_STATUS_CONF_DONE	(1 << 0)
 #define MBOX_CFGSTAT_STATE_CONFIG	0x10000000
 
-/* SMC function IDs for SiP Service queries */
-#define SIP_SVC_CALL_COUNT	0x8200ff00
-#define SIP_SVC_UID		0x8200ff01
-#define SIP_SVC_VERSION		0x8200ff03
-
-/* SiP Service Calls version numbers */
-#define SIP_SVC_VERSION_MAJOR	0
-#define SIP_SVC_VERSION_MINOR	1
-
 /* Mailbox reconfiguration commands */
 #define MBOX_RECONFIG		6
 #define MBOX_RECONFIG_DATA	8
 #define MBOX_RECONFIG_STATUS	9
 
-/* Sip get memory */
-#define INTEL_SIP_SMC_FPGA_CONFIG_START			0xC2000001
-#define INTEL_SIP_SMC_FPGA_CONFIG_GET_MEM		0xC2000005
-#define INTEL_SIP_SMC_FPGA_CONFIG_ISDONE		0xC2000004
-#define INTEL_SIP_SMC_FPGA_CONFIG_WRITE			0x42000002
-#define INTEL_SIP_SMC_FPGA_CONFIG_COMPLETED_WRITE	0xC2000003
-#define INTEL_SIP_SMC_STATUS_OK				0
-#define INTEL_SIP_SMC_STATUS_ERROR			0x4
-#define INTEL_SIP_SMC_STATUS_BUSY			0x1
-#define INTEL_SIP_SMC_STATUS_REJECTED			0x2
-#define INTEL_SIP_SMC_FPGA_CONFIG_ADDR			0x1000
-#define INTEL_SIP_SMC_FPGA_CONFIG_SIZE			16777216
 
 void mailbox_set_int(int interrupt_input);
 int mailbox_init(void);
