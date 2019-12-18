@@ -15,8 +15,6 @@
 #include "socfpga_plat_def.h"
 
 
-uintptr_t *socfpga_sec_entry = (uintptr_t *) PLAT_SEC_ENTRY;
-uintptr_t *cpuid_release = (uintptr_t *) PLAT_CPUID_RELEASE;
 
 /*******************************************************************************
  * plat handler called when a CPU is about to enter standby.
@@ -45,7 +43,7 @@ int socfpga_pwr_domain_on(u_register_t mpidr)
 	if (cpu_id == -1)
 		return PSCI_E_INTERN_FAIL;
 
-	*cpuid_release = cpu_id;
+	mmio_write_64(PLAT_CPUID_RELEASE, cpu_id);
 
 	/* release core reset */
 	mmio_setbits_32(SOCFPGA_RSTMGR_MPUMODRST_OFST, 1 << cpu_id);
@@ -183,8 +181,8 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const struct plat_psci_ops **psci_ops)
 {
 	/* Save warm boot entrypoint.*/
-	*socfpga_sec_entry = sec_entrypoint;
-
+	mmio_write_64(PLAT_SEC_ENTRY, sec_entrypoint);
 	*psci_ops = &socfpga_psci_pm_ops;
+
 	return 0;
 }

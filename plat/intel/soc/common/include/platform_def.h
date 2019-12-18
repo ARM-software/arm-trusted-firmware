@@ -16,8 +16,8 @@
 #define PLAT_SOCFPGA_STRATIX10			1
 #define PLAT_SOCFPGA_AGILEX			2
 
-#define PLAT_CPUID_RELEASE			0xffe1b000
-#define PLAT_SEC_ENTRY				0xffe1b008
+/* sysmgr.boot_scratch_cold4 & 5 used for CPU release address for SPL */
+#define PLAT_CPU_RELEASE_ADDR			0xffd12210
 
 /* Define next boot image name and offset */
 #define PLAT_NS_IMAGE_OFFSET			0x50000
@@ -106,19 +106,24 @@
  */
 
 
-#define FIRMWARE_WELCOME_STR		"Booting Trusted Firmware\n"
+#define FIRMWARE_WELCOME_STR	"Booting Trusted Firmware\n"
 
-#define BL1_RO_BASE	(0xffe00000)
-#define BL1_RO_LIMIT	(0xffe0f000)
-#define BL1_RW_BASE	(0xffe10000)
-#define BL1_RW_LIMIT	(0xffe1ffff)
-#define BL1_RW_SIZE	(0x14000)
+#define BL1_RO_BASE		(0xffe00000)
+#define BL1_RO_LIMIT		(0xffe0f000)
+#define BL1_RW_BASE		(0xffe10000)
+#define BL1_RW_LIMIT		(0xffe1ffff)
+#define BL1_RW_SIZE		(0x14000)
 
-#define BL2_BASE	(0xffe00000)
-#define BL2_LIMIT	(0xffe1b000)
+#define BL2_BASE		(0xffe00000)
+#define BL2_LIMIT		(0xffe1b000)
 
-#define BL31_BASE	(0xffe1c000)
-#define BL31_LIMIT	(0xffe3bfff)
+#define BL31_BASE		(0x1000)
+#define BL31_LIMIT		(0x81000)
+
+#define BL_DATA_LIMIT		PLAT_HANDOFF_OFFSET
+
+#define PLAT_CPUID_RELEASE	(BL_DATA_LIMIT - 16)
+#define PLAT_SEC_ENTRY		(BL_DATA_LIMIT - 8)
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
@@ -193,6 +198,17 @@
 #define MAX_IO_HANDLES			4
 #define MAX_IO_DEVICES			4
 #define MAX_IO_BLOCK_DEVICES		2
+
+#ifndef __ASSEMBLER__
+struct socfpga_bl31_params {
+	param_header_t h;
+	image_info_t *bl31_image_info;
+	entry_point_info_t *bl32_ep_info;
+	image_info_t *bl32_image_info;
+	entry_point_info_t *bl33_ep_info;
+	image_info_t *bl33_image_info;
+};
+#endif
 
 #endif /* PLATFORM_DEF_H */
 

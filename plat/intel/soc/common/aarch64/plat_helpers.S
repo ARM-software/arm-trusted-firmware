@@ -8,6 +8,7 @@
 #include <asm_macros.S>
 #include <cpu_macros.S>
 #include <platform_def.h>
+#include <el3_common_macros.S>
 
 	.globl	plat_secondary_cold_boot_setup
 	.globl	platform_is_primary_cpu
@@ -17,6 +18,7 @@
 	.globl	plat_crash_console_putc
 	.globl  plat_crash_console_flush
 	.globl	platform_mem_init
+	.globl	plat_secondary_cpus_bl31_entry
 
 	.globl plat_get_my_entrypoint
 
@@ -33,7 +35,6 @@ func plat_secondary_cold_boot_setup
 	/* Wait until the it gets reset signal from rstmgr gets populated */
 poll_mailbox:
 	wfi
-
 	mov_imm	x0, PLAT_SEC_ENTRY
 	ldr	x1, [x0]
 	mov_imm	x2, PLAT_CPUID_RELEASE
@@ -114,3 +115,14 @@ func platform_mem_init
 	mov	x0, #0
 	ret
 endfunc platform_mem_init
+
+func plat_secondary_cpus_bl31_entry
+	el3_entrypoint_common                                   \
+		_init_sctlr=0                                   \
+		_warm_boot_mailbox=!PROGRAMMABLE_RESET_ADDRESS  \
+		_secondary_cold_boot=!COLD_BOOT_SINGLE_CPU      \
+		_init_memory=1                                  \
+		_init_c_runtime=1                               \
+		_exception_vectors=runtime_exceptions		\
+		_pie_fixup_size=BL31_LIMIT - BL31_BASE
+endfunc plat_secondary_cpus_bl31_entry
