@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -47,7 +47,7 @@
 #define A5_PERIPHERALS_BASE 0x1c000000
 #define A5_PERIPHERALS_SIZE  0x10000
 
-#define ARM_CACHE_WRITEBACK_SHIFT	6
+#define ARM_CACHE_WRITEBACK_SHIFT	5
 
 #define ARM_IRQ_SEC_PHY_TIMER		29
 
@@ -162,7 +162,7 @@
 					 ARM_BL_REGIONS)
 
 /* Memory mapped Generic timer interfaces  */
-#define A5DS_TIMER_BASE_FREQUENCY		UL(24000000)
+#define A5DS_TIMER_BASE_FREQUENCY		UL(7500000)
 
 #define ARM_CONSOLE_BAUDRATE		115200
 
@@ -310,15 +310,15 @@
  * PL011 related constants
  */
 #define PLAT_ARM_BOOT_UART_BASE		0x1A200000
-#define PLAT_ARM_BOOT_UART_CLK_IN_HZ	24000000
+#define PLAT_ARM_BOOT_UART_CLK_IN_HZ	UL(7500000)
 
 #define PLAT_ARM_RUN_UART_BASE		0x1A210000
-#define PLAT_ARM_RUN_UART_CLK_IN_HZ	24000000
+#define PLAT_ARM_RUN_UART_CLK_IN_HZ	UL(7500000)
 
 #define PLAT_ARM_CRASH_UART_BASE	PLAT_ARM_RUN_UART_BASE
 #define PLAT_ARM_CRASH_UART_CLK_IN_HZ	PLAT_ARM_RUN_UART_CLK_IN_HZ
 
-#define A5DS_TIMER_BASE_FREQUENCY	UL(24000000)
+#define A5DS_TIMER_BASE_FREQUENCY	UL(7500000)
 
 /* System timer related constants */
 #define PLAT_ARM_NSTIMER_FRAME_ID		1

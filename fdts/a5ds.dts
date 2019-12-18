@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -64,10 +64,17 @@
 		arm,tag-latency = <1 1 1>;
 	};
 
-	refclk100mhz: refclk100mhz {
+	refclk7500khz: refclk7500khz {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
-		clock-frequency = <100000000>;
+		clock-frequency = <7500000>;
+		clock-output-names = "apb_pclk";
+	};
+
+	refclk24mhz: refclk24mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
 		clock-output-names = "apb_pclk";
 	};
 
@@ -82,7 +89,7 @@
 	rtc@1a220000 {
 		compatible = "arm,pl031", "arm,primecell";
 		reg = <0x1a220000 0x1000>;
-		clocks = <&refclk100mhz>;
+		clocks = <&refclk24mhz>;
 		interrupts = <0 6 0xf04>;
 		clock-names = "apb_pclk";
 	};
@@ -102,7 +109,7 @@
 		reg = <0x1a200000 0x1000>;
 		interrupt-parent = <&gic>;
 		interrupts = <0 8 0xf04>;
-		clocks = <&refclk100mhz>;
+		clocks = <&refclk7500khz>;
 		clock-names = "apb_pclk";
 	};
 
@@ -111,7 +118,7 @@
 		reg = <0x1a210000 0x1000>;
 		interrupt-parent = <&gic>;
 		interrupts = <0 9 0xf04>;
-		clocks = <&refclk100mhz>;
+		clocks = <&refclk7500khz>;
 		clock-names = "apb_pclk";
 	};
 
