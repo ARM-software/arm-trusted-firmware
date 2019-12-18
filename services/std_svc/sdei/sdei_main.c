@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -226,6 +226,7 @@ static void sdei_class_init(sdei_class_t class)
 /* SDEI dispatcher initialisation */
 void sdei_init(void)
 {
+	plat_sdei_setup();
 	sdei_class_init(SDEI_CRITICAL);
 	sdei_class_init(SDEI_NORMAL);
 
@@ -328,8 +329,11 @@ finish:
 }
 
 /* Register handler and argument for an SDEI event */
-static int64_t sdei_event_register(int ev_num, uint64_t ep, uint64_t arg,
-		uint64_t flags, uint64_t mpidr)
+static int64_t sdei_event_register(int ev_num,
+				uint64_t ep,
+				uint64_t arg,
+				uint64_t flags,
+				uint64_t mpidr)
 {
 	int ret;
 	unsigned int routing;

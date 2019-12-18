@@ -565,6 +565,13 @@
 /* SGI used for SDEI signalling */
 #define ARM_SDEI_SGI			ARM_IRQ_SEC_SGI_0
 
+#if SDEI_IN_FCONF
+/* ARM SDEI dynamic private event max count */
+#define ARM_SDEI_DP_EVENT_MAX_CNT	3
+
+/* ARM SDEI dynamic shared event max count */
+#define ARM_SDEI_DS_EVENT_MAX_CNT	3
+#else
 /* ARM SDEI dynamic private event numbers */
 #define ARM_SDEI_DP_EVENT_0		1000
 #define ARM_SDEI_DP_EVENT_1		1001
@@ -585,5 +592,6 @@
 	SDEI_SHARED_EVENT(ARM_SDEI_DS_EVENT_0, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC), \
 	SDEI_SHARED_EVENT(ARM_SDEI_DS_EVENT_1, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC), \
 	SDEI_SHARED_EVENT(ARM_SDEI_DS_EVENT_2, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC)
+#endif /* SDEI_IN_FCONF */
 
 #endif /* ARM_DEF_H */

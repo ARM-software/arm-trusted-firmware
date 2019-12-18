@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <services/sdei_flags.h>
+
 /memreserve/ 0x80000000 0x00010000;
 
 / {
@@ -35,6 +37,30 @@
 		sys_reset = <0x84000009>;
 		max-pwr-lvl = <2>;
 	};
+
+#if SDEI_IN_FCONF
+	firmware {
+		sdei {
+			compatible = "arm,sdei-1.0";
+			method = "smc";
+			private_event_count = <3>;
+			shared_event_count = <3>;
+			/*
+			 * Each event descriptor has typically 3 fields:
+			 * 1. Event number
+			 * 2. Interrupt number the event is bound to or
+			 *    if event is dynamic, specified as SDEI_DYN_IRQ
+			 * 3. Bit map of event flags
+			 */
+			private_events =	<1000 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>,
+						<1001 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>,
+						<1002 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>;
+			shared_events =		<2000 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>,
+						<2001 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>,
+						<2002 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>;
+		};
+	};
+#endif /* SDEI_IN_FCONF */
 
 	cpus {
 		#address-cells = <2>;
