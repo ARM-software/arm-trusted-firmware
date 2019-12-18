@@ -54,8 +54,9 @@ static entry_point_info_t bl33_image_ep_info, bl32_image_ep_info;
 static plat_params_from_bl2_t plat_bl31_params_from_bl2 = {
 	.tzdram_size = TZDRAM_SIZE
 };
-static unsigned long bl32_mem_size;
-static unsigned long bl32_boot_params;
+#ifdef SPD_trusty
+static aapcs64_params_t bl32_args;
+#endif
 
 /*******************************************************************************
  * This variable holds the non-secure image entry address
@@ -155,8 +156,10 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	if (arg_from_bl2->bl32_ep_info != NULL) {
 		bl32_image_ep_info = *arg_from_bl2->bl32_ep_info;
-		bl32_mem_size = arg_from_bl2->bl32_ep_info->args.arg0;
-		bl32_boot_params = arg_from_bl2->bl32_ep_info->args.arg2;
+#ifdef SPD_trusty
+		/* save BL32 boot parameters */
+		memcpy(&bl32_args, &arg_from_bl2->bl32_ep_info->args, sizeof(bl32_args));
+#endif
 	}
 
 	/*
@@ -273,17 +276,20 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 #ifdef SPD_trusty
 void plat_trusty_set_boot_args(aapcs64_params_t *args)
 {
-	args->arg0 = bl32_mem_size;
-	args->arg1 = bl32_boot_params;
-	args->arg2 = TRUSTY_PARAMS_LEN_BYTES;
+	/*
+	* arg0 = TZDRAM aperture available for BL32
+	* arg1 = BL32 boot params
+	* arg2 = EKS Blob Length
+	* arg3 = Boot Profiler Carveout Base
+	*/
+	args->arg0 = bl32_args.arg0;
+	args->arg1 = bl32_args.arg2;
 
 	/* update EKS size */
-	if (args->arg4 != 0U) {
-		args->arg2 = args->arg4;
-	}
+	args->arg2 = bl32_args.arg4;
 
 	/* Profiler Carveout Base */
-	args->arg3 = args->arg5;
+	args->arg3 = bl32_args.arg5;
 }
 #endif
 
