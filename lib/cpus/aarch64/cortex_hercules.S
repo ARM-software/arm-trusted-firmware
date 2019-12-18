@@ -16,12 +16,49 @@
 #error "cortex_hercules must be compiled with HW_ASSISTED_COHERENCY enabled"
 #endif
 
+
+/* --------------------------------------------------
+ * Errata Workaround for Hercules Erratum 1688305.
+ * This applies to revision r0p0 and r1p0 of Hercules.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
+func errata_hercules_1688305_wa
+	/* Compare x0 against revision r1p0 */
+	mov	x17, x30
+	bl	check_errata_1688305
+	cbz	x0, 1f
+	mrs     x1, CORTEX_HERCULES_ACTLR2_EL1
+	orr	x1, x1, CORTEX_HERCULES_ACTLR2_EL1_BIT_1
+	msr     CORTEX_HERCULES_ACTLR2_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_hercules_1688305_wa
+
+func check_errata_1688305
+	/* Applies to r0p0 and r1p0 */
+	mov	x1, #0x10
+	b	cpu_rev_var_ls
+endfunc check_errata_1688305
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-Hercules
 	 * -------------------------------------------------
 	 */
-#if ENABLE_AMU
 func cortex_hercules_reset_func
+	mov	x19, x30
+	bl	cpu_get_rev_var
+	mov	x18, x0
+
+#if ERRATA_HERCULES_1688305
+	mov     x0, x18
+	bl	errata_hercules_1688305_wa
+#endif
+
+#if ENABLE_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
 	mrs	x0, actlr_el3
 	bic	x0, x0, #CORTEX_HERCULES_ACTLR_TAM_BIT
@@ -39,11 +76,11 @@ func cortex_hercules_reset_func
 	/* Enable group1 counters */
 	mov	x0, #CORTEX_HERCULES_AMU_GROUP1_MASK
 	msr	CPUAMCNTENSET1_EL0, x0
-	isb
-
-	ret
-endfunc cortex_hercules_reset_func
 #endif
+
+	isb
+	ret	x19
+endfunc cortex_hercules_reset_func
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -66,6 +103,18 @@ endfunc cortex_hercules_core_pwr_dwn
 	 */
 #if REPORT_ERRATA
 func cortex_hercules_errata_report
+	stp	x8, x30, [sp, #-16]!
+
+	bl	cpu_get_rev_var
+	mov	x8, x0
+
+	/*
+	 * Report all errata. The revision-variant information is passed to
+	 * checking functions of each errata.
+	 */
+	report_errata ERRATA_HERCULES_1688305, cortex_hercules, 1688305
+
+	ldp	x8, x30, [sp], #16
 	ret
 endfunc cortex_hercules_errata_report
 #endif
@@ -89,12 +138,6 @@ func cortex_hercules_cpu_reg_dump
 	ret
 endfunc cortex_hercules_cpu_reg_dump
 
-#if ENABLE_AMU
-#define HERCULES_RESET_FUNC cortex_hercules_reset_func
-#else
-#define HERCULES_RESET_FUNC CPU_NO_RESET_FUNC
-#endif
-
 declare_cpu_ops cortex_hercules, CORTEX_HERCULES_MIDR, \
-	HERCULES_RESET_FUNC, \
+	cortex_hercules_reset_func, \
 	cortex_hercules_core_pwr_dwn
