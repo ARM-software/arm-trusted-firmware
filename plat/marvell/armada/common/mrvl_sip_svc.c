@@ -16,6 +16,7 @@
 #include <plat_marvell.h>
 
 #include "comphy/phy-comphy-cp110.h"
+#include "secure_dfx_access/dfx.h"
 #include <stdbool.h>
 
 /* #define DEBUG_COMPHY */
@@ -37,6 +38,7 @@
 #define MV_SIP_LLC_ENABLE	0x82000011
 #define MV_SIP_PMU_IRQ_ENABLE	0x82000012
 #define MV_SIP_PMU_IRQ_DISABLE	0x82000013
+#define MV_SIP_DFX		0x82000014
 
 /* TRNG */
 #define MV_SIP_RNG_64		0xC200FF11
@@ -71,7 +73,7 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 			       void *handle,
 			       u_register_t flags)
 {
-	u_register_t ret;
+	u_register_t ret, read;
 	uint32_t w2[2] = {0, 0};
 	int i;
 
@@ -136,6 +138,9 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 		mvebu_pmu_interrupt_disable();
 		SMC_RET1(handle, 0);
 #endif
+	case MV_SIP_DFX:
+		ret = mvebu_dfx_handle(x1, &read, x2, x3);
+		SMC_RET2(handle, ret, read);
 	case MV_SIP_RNG_64:
 		ret = eip76_rng_get_random((uint8_t *)&w2, 4 * (x1 % 2 + 1));
 		SMC_RET3(handle, ret, w2[0], w2[1]);
