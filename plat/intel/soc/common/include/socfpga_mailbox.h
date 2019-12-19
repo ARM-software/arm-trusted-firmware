@@ -11,6 +11,7 @@
 
 #define MBOX_OFFSET			0xffa30000
 
+#define MBOX_MAX_JOB_ID			0xf
 #define MBOX_ATF_CLIENT_ID		0x1
 #define MBOX_JOB_ID			0x1
 
@@ -66,6 +67,9 @@
 #define MBOX_CMD_GET_IDCODE		16
 #define MBOX_CMD_QSPI_SET_CS		52
 
+/* Mailbox CANCEL command */
+#define MBOX_CMD_CANCEL			0x3
+
 /* Mailbox REBOOT commands */
 #define MBOX_CMD_REBOOT_HPS		71
 
@@ -75,16 +79,27 @@
 #define MBOX_WRONG_ID			-3
 
 /* Mailbox status */
-#define RECONFIG_STATUS_STATE		0
-#define RECONFIG_STATUS_PIN_STATUS	2
-#define RECONFIG_STATUS_SOFTFUNC_STATUS 3
-#define PIN_STATUS_NSTATUS		(U(1) << 31)
-#define SOFTFUNC_STATUS_SEU_ERROR	(1 << 3)
-#define SOFTFUNC_STATUS_INIT_DONE	(1 << 1)
-#define SOFTFUNC_STATUS_CONF_DONE	(1 << 0)
-#define MBOX_CFGSTAT_STATE_CONFIG	0x10000000
+#define RECONFIG_STATUS_STATE				0
+#define RECONFIG_STATUS_PIN_STATUS			2
+#define RECONFIG_STATUS_SOFTFUNC_STATUS			3
+#define PIN_STATUS_NSTATUS				(U(1) << 31)
+#define SOFTFUNC_STATUS_SEU_ERROR			(1 << 3)
+#define SOFTFUNC_STATUS_INIT_DONE			(1 << 1)
+#define SOFTFUNC_STATUS_CONF_DONE			(1 << 0)
+#define MBOX_CFGSTAT_STATE_IDLE				0x00000000
+#define MBOX_CFGSTAT_STATE_CONFIG			0x10000000
+#define MBOX_CFGSTAT_STATE_FAILACK			0x08000000
+#define MBOX_CFGSTAT_STATE_ERROR_INVALID		0xf0000001
+#define MBOX_CFGSTAT_STATE_ERROR_CORRUPT		0xf0000002
+#define MBOX_CFGSTAT_STATE_ERROR_AUTH			0xf0000003
+#define MBOX_CFGSTAT_STATE_ERROR_CORE_IO		0xf0000004
+#define MBOX_CFGSTAT_STATE_ERROR_HARDWARE		0xf0000005
+#define MBOX_CFGSTAT_STATE_ERROR_FAKE			0xf0000006
+#define MBOX_CFGSTAT_STATE_ERROR_BOOT_INFO		0xf0000007
+#define MBOX_CFGSTAT_STATE_ERROR_QSPI_ERROR		0xf0000008
 
 /* Mailbox reconfiguration commands */
+#define MBOX_CONFIG_STATUS	4
 #define MBOX_RECONFIG		6
 #define MBOX_RECONFIG_DATA	8
 #define MBOX_RECONFIG_STATUS	9
@@ -96,11 +111,14 @@ void mailbox_set_qspi_close(void);
 void mailbox_set_qspi_open(void);
 void mailbox_set_qspi_direct(void);
 int mailbox_send_cmd(int job_id, unsigned int cmd, uint32_t *args,
-				int len, int urgent, uint32_t *response);
-void mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
+			int len, int urgent, uint32_t *response, int resp_len);
+int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
 				int len, int urgent);
-int mailbox_read_response(int job_id, uint32_t *response);
+int mailbox_read_response(int job_id, uint32_t *response, int resp_len);
 int mailbox_get_qspi_clock(void);
 void mailbox_reset_cold(void);
+void mailbox_clear_response(void);
+
+uint32_t intel_mailbox_get_config_status(uint32_t cmd);
 
 #endif /* SOCFPGA_MBOX_H */

@@ -30,7 +30,7 @@
 #define INTEL_SIP_SMC_RSU_RETRY_COUNTER			0xC200000F
 
 /* FPGA config helpers */
-#define INTEL_SIP_SMC_FPGA_CONFIG_ADDR			0x1000
+#define INTEL_SIP_SMC_FPGA_CONFIG_ADDR			0x400000
 #define INTEL_SIP_SMC_FPGA_CONFIG_SIZE			16777216
 
 /* SMC function IDs for SiP Service queries */
