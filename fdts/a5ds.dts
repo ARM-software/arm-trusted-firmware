@@ -22,31 +22,28 @@
 	cpus {
 		#address-cells = <1>;
 		#size-cells = <0>;
+		enable-method = "psci";
 		cpu@0 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a5";
-			enable-method = "psci";
 			reg = <0>;
 			next-level-cache = <&L2>;
 		};
 		cpu@1 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a5";
-			enable-method = "psci";
 			reg = <1>;
 			next-level-cache = <&L2>;
 		};
 		cpu@2 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a5";
-			enable-method = "psci";
 			reg = <2>;
 			next-level-cache = <&L2>;
 		};
 		cpu@3 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a5";
-			enable-method = "psci";
 			reg = <3>;
 			next-level-cache = <&L2>;
 		};
