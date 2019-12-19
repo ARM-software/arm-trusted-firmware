@@ -36,6 +36,7 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT_SOC}/plat_pm.c                             \
                    ${MTK_PLAT_SOC}/plat_topology.c                       \
                    ${MTK_PLAT_SOC}/plat_mt_gic.c                         \
+                   ${MTK_PLAT_SOC}/plat_mt_cirq.c                        \
                    ${MTK_PLAT_SOC}/drivers/gpio/mtgpio.c
 
 

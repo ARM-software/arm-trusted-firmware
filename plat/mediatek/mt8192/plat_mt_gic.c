@@ -175,3 +175,22 @@ void mt_gic_init(void)
 	gicv3_rdistif_init(plat_my_core_pos());
 	gicv3_cpuif_enable(plat_my_core_pos());
 }
+
+uint32_t mt_irq_get_pending(uint32_t irq)
+{
+	uint32_t val;
+
+	val = mmio_read_32(BASE_GICD_BASE + GICD_ISPENDR +
+		irq / 32 * 4);
+	val = (val >> (irq % 32)) & 1U;
+	return val;
+}
+
+
+void mt_irq_set_pending(uint32_t irq)
+{
+	uint32_t bit = 1U << (irq % 32);
+
+	mmio_write_32(BASE_GICD_BASE + GICD_ISPENDR +
+		irq / 32 * 4, bit);
+}
