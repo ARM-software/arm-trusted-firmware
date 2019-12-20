@@ -215,12 +215,17 @@ BL2U_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
 BL31_SOURCES		+=	plat/arm/common/arm_bl31_setup.c		\
 				plat/arm/common/arm_pm.c			\
 				plat/arm/common/arm_topology.c			\
-				plat/arm/common/execution_state_switch.c	\
 				plat/common/plat_psci_common.c
 
 ifeq (${ENABLE_PMF}, 1)
-BL31_SOURCES		+=	plat/arm/common/arm_sip_svc.c			\
+ifeq (${ARCH}, aarch64)
+BL31_SOURCES		+=	plat/arm/common/aarch64/execution_state_switch.c\
+				plat/arm/common/arm_sip_svc.c			\
 				lib/pmf/pmf_smc.c
+else
+BL32_SOURCES		+=	plat/arm/common/arm_sip_svc.c			\
+				lib/pmf/pmf_smc.c
+endif
 endif
 
 ifeq (${EL3_EXCEPTION_HANDLING},1)

@@ -39,14 +39,17 @@ int arm_execution_state_switch(unsigned int smc_fid,
 		uint32_t cookie_lo,
 		void *handle)
 {
-	/* Execution state can be switched only if EL3 is AArch64 */
-#ifdef __aarch64__
 	bool caller_64, thumb = false, from_el2;
 	unsigned int el, endianness;
 	u_register_t spsr, pc, scr, sctlr;
 	entry_point_info_t ep;
 	cpu_context_t *ctx = (cpu_context_t *) handle;
 	el3_state_t *el3_ctx = get_el3state_ctx(ctx);
+
+	/* Validate supplied entry point */
+	pc = (u_register_t) (((uint64_t) pc_hi << 32) | pc_lo);
+	if (arm_validate_ns_entrypoint(pc) != 0)
+		goto invalid_param;
 
 	/* That the SMC originated from NS is already validated by the caller */
 
@@ -173,7 +176,6 @@ invalid_param:
 	SMC_RET1(handle, STATE_SW_E_PARAM);
 
 exec_denied:
-#endif /* __aarch64__ */
 	/* State switch denied */
 	SMC_RET1(handle, STATE_SW_E_DENIED);
 }
