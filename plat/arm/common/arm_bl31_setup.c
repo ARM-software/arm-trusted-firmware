@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/console.h>
+#include <lib/debugfs.h>
 #include <lib/extensions/ras.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
@@ -231,6 +232,10 @@ void arm_bl31_platform_setup(void)
 #if RAS_EXTENSION
 	ras_init();
 #endif
+
+#if USE_DEBUGFS
+	debugfs_init();
+#endif /* USE_DEBUGFS */
 }
 
 /*******************************************************************************
