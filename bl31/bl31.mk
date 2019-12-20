@@ -38,6 +38,11 @@ ifeq (${ENABLE_PMF}, 1)
 BL31_SOURCES		+=	lib/pmf/pmf_main.c
 endif
 
+include lib/debugfs/debugfs.mk
+ifeq (${USE_DEBUGFS},1)
+	BL31_SOURCES	+= $(DEBUGFS_SRCS)
+endif
+
 ifeq (${EL3_EXCEPTION_HANDLING},1)
 BL31_SOURCES		+=	bl31/ehf.c
 endif
