@@ -248,16 +248,6 @@ PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c	\
 				lib/extensions/pauth/pauth_helpers.S
 endif
 
-# SPM uses libfdt in Arm platforms
-ifeq (${SPM_MM},0)
-ifeq (${ENABLE_SPM},1)
-BL31_SOURCES		+=	common/fdt_wrappers.c			\
-				plat/common/plat_spm_rd.c		\
-				plat/common/plat_spm_sp.c		\
-				${LIBFDT_SRCS}
-endif
-endif
-
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # Include common TBB sources

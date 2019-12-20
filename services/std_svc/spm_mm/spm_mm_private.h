@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SPM_PRIVATE_H
-#define SPM_PRIVATE_H
+#ifndef SPM_MM_PRIVATE_H
+#define SPM_MM_PRIVATE_H
 
 #include <context.h>
 
@@ -68,4 +68,4 @@ int spm_memory_attributes_set_smc_handler(sp_context_t *sp_ctx,
 
 #endif /* __ASSEMBLER__ */
 
-#endif /* SPM_PRIVATE_H */
+#endif /* SPM_MM_PRIVATE_H */

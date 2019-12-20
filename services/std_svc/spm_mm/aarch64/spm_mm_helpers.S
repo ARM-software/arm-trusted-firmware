@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <asm_macros.S>
-#include "../spm_private.h"
+#include "../spm_mm_private.h"
 
 	.global spm_secure_partition_enter
 	.global spm_secure_partition_exit

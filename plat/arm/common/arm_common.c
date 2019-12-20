@@ -16,7 +16,7 @@
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-#include <services/secure_partition.h>
+#include <services/spm_mm_partition.h>
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak plat_get_ns_image_entrypoint

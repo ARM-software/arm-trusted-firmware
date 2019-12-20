@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SPM_SHIM_PRIVATE_H
-#define SPM_SHIM_PRIVATE_H
+#ifndef SPM_MM_SHIM_PRIVATE_H
+#define SPM_MM_SHIM_PRIVATE_H
 
 #include <stdint.h>
 
@@ -23,4 +23,4 @@ IMPORT_SYM(uintptr_t, __SPM_SHIM_EXCEPTIONS_END__,	SPM_SHIM_EXCEPTIONS_END);
 #define SPM_SHIM_EXCEPTIONS_SIZE	\
 	(SPM_SHIM_EXCEPTIONS_END - SPM_SHIM_EXCEPTIONS_START)
 
-#endif /* SPM_SHIM_PRIVATE_H */
+#endif /* SPM_MM_SHIM_PRIVATE_H */

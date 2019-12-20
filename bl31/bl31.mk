@@ -5,21 +5,16 @@
 #
 
 ################################################################################
-# Include SPM Makefile
+# Include Makefile for the SPM-MM implementation
 ################################################################################
-ifeq (${ENABLE_SPM},1)
-  ifeq (${SPM_MM},1)
-    ifeq (${EL3_EXCEPTION_HANDLING},0)
-      $(error EL3_EXCEPTION_HANDLING must be 1 for SPM support)
-    endif
-    $(info Including makefile of SPM based on MM)
-    include services/std_svc/spm_mm/spm.mk
+ifeq (${SPM_MM},1)
+  ifeq (${EL3_EXCEPTION_HANDLING},0)
+    $(error EL3_EXCEPTION_HANDLING must be 1 for SPM-MM support)
   else
-    $(info Including SPM makefile)
-    include services/std_svc/spm/spm.mk
+    $(info Including SPM Management Mode (MM) makefile)
+    include services/std_svc/spm_mm/spm_mm.mk
   endif
 endif
-
 
 include lib/psci/psci_lib.mk
 

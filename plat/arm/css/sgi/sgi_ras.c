@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,9 +12,8 @@
 #include <lib/extensions/ras.h>
 #include <plat/arm/common/arm_spm_def.h>
 #include <plat/common/platform.h>
-#include <services/mm_svc.h>
 #include <services/sdei.h>
-#include <services/spm_svc.h>
+#include <services/spm_mm_svc.h>
 
 #include <sgi_ras.h>
 
@@ -142,11 +141,11 @@ static int sgi_ras_intr_handler(const struct err_record_info *err_rec,
 	       sizeof(ras_map->ras_ev_num));
 	header->message_len = 4;
 
-	spm_sp_call(MM_COMMUNICATE_AARCH64, (uint64_t)header, 0,
-		    plat_my_core_pos());
+	spm_mm_sp_call(MM_COMMUNICATE_AARCH64, (uint64_t)header, 0,
+		       plat_my_core_pos());
 
 	/*
-	 * Do an EOI of the RAS interuupt. This allows the
+	 * Do an EOI of the RAS interrupt. This allows the
 	 * sdei event to be dispatched at the SDEI event's
 	 * priority.
 	 */

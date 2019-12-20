@@ -95,7 +95,7 @@ LR_RO_DATA +0
 	/* cpu_ops must always be defined */
 	ScatterAssert(ImageLength(__CPU_OPS__) > 0)
 
-#if ENABLE_SPM
+#if SPM_MM
 LR_SPM +0
 {
 	/*

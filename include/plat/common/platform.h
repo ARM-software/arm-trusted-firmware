@@ -22,7 +22,7 @@ struct image_desc;
 struct bl_load_info;
 struct bl_params;
 struct mmap_region;
-struct secure_partition_boot_info;
+struct spm_mm_boot_info;
 struct sp_res_desc;
 
 /*******************************************************************************
@@ -267,7 +267,7 @@ int get_mbedtls_heap_helper(void **heap_addr, size_t *heap_size);
  * Secure Partitions functions
  ******************************************************************************/
 const struct mmap_region *plat_get_secure_partition_mmap(void *cookie);
-const struct secure_partition_boot_info *plat_get_secure_partition_boot_info(
+const struct spm_mm_boot_info *plat_get_secure_partition_boot_info(
 		void *cookie);
 int plat_spm_sp_rd_load(struct sp_res_desc *rd, const void *ptr, size_t size);
 int plat_spm_sp_get_next_address(void **sp_base, size_t *sp_size,
