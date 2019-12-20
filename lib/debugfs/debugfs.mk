@@ -7,4 +7,5 @@
 DEBUGFS_SRCS	:=	$(addprefix lib/debugfs/,	\
 			dev.c				\
 			devc.c				\
-			devroot.c)
+			devroot.c			\
+			devfip.c)
