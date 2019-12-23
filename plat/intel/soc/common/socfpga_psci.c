@@ -47,7 +47,7 @@ int socfpga_pwr_domain_on(u_register_t mpidr)
 	mmio_write_64(PLAT_CPUID_RELEASE, cpu_id);
 
 	/* release core reset */
-	mmio_setbits_32(SOCFPGA_RSTMGR_MPUMODRST_OFST, 1 << cpu_id);
+	mmio_setbits_32(SOCFPGA_RSTMGR(MPUMODRST), 1 << cpu_id);
 	return PSCI_E_SUCCESS;
 }
 
@@ -78,7 +78,7 @@ void socfpga_pwr_domain_suspend(const psci_power_state_t *target_state)
 			__func__, i, target_state->pwr_domain_state[i]);
 
 	/* assert core reset */
-	mmio_setbits_32(SOCFPGA_RSTMGR_MPUMODRST_OFST, 1 << cpu_id);
+	mmio_setbits_32(SOCFPGA_RSTMGR(MPUMODRST), 1 << cpu_id);
 
 }
 
@@ -117,7 +117,7 @@ void socfpga_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
 			__func__, i, target_state->pwr_domain_state[i]);
 
 	/* release core reset */
-	mmio_clrbits_32(SOCFPGA_RSTMGR_MPUMODRST_OFST, 1 << cpu_id);
+	mmio_clrbits_32(SOCFPGA_RSTMGR(MPUMODRST), 1 << cpu_id);
 }
 
 /*******************************************************************************
@@ -148,13 +148,13 @@ static int socfpga_system_reset2(int is_vendor, int reset_type,
 	mmio_write_32(L2_RESET_DONE_REG, L2_RESET_DONE_STATUS);
 
 	/* Increase timeout */
-	mmio_write_32(SOCFPGA_RSTMGR_HDSKTIMEOUT, 0xffffff);
+	mmio_write_32(SOCFPGA_RSTMGR(HDSKTIMEOUT), 0xffffff);
 
 	/* Enable handshakes */
-	mmio_setbits_32(SOCFPGA_RSTMGR_HDSKEN, SOCFPGA_RSTMGR_HDSKEN_SET);
+	mmio_setbits_32(SOCFPGA_RSTMGR(HDSKEN), RSTMGR_HDSKEN_SET);
 
 	/* Reset L2 module */
-	mmio_setbits_32(SOCFPGA_RSTMGR_COLDMODRST, 0x100);
+	mmio_setbits_32(SOCFPGA_RSTMGR(COLDMODRST), 0x100);
 
 	while (1)
 		wfi();

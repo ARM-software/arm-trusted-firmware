@@ -15,7 +15,7 @@
 #include <string.h>
 
 #include "s10_memory_controller.h"
-#include "s10_reset_manager.h"
+#include "socfpga_reset_manager.h"
 
 #define ALT_CCU_NOC_DI_SET_MSK 0x10
 
@@ -185,7 +185,7 @@ int init_hard_memory_controller(void)
 		return status;
 	}
 
-	mmio_clrbits_32(S10_RSTMGR_BRGMODRST, BRGMODRST_DDRSCH_MASK);
+	mmio_clrbits_32(SOCFPGA_RSTMGR(BRGMODRST), RSTMGR_FIELD(BRG, DDRSCH));
 
 	status = mem_calibration();
 	if (status) {

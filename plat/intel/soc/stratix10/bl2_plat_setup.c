@@ -19,10 +19,10 @@
 #include "socfpga_handoff.h"
 #include "socfpga_mailbox.h"
 #include "socfpga_private.h"
+#include "socfpga_reset_manager.h"
 #include "s10_clock_manager.h"
 #include "s10_memory_controller.h"
 #include "s10_pinmux.h"
-#include "s10_reset_manager.h"
 #include "s10_system_manager.h"
 #include "wdt/watchdog.h"
 
