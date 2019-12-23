@@ -7,6 +7,9 @@
 #include <errno.h>
 
 #include <drivers/nand.h>
+#include <drivers/raw_nand.h>
+#include <drivers/spi_nand.h>
+#include <drivers/spi_nor.h>
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 

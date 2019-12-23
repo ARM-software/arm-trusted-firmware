@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2018-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,12 +39,19 @@
 #include "rcar_version.h"
 #include "rom_api.h"
 
-IMPORT_SYM(unsigned long, __RO_START__, BL2_RO_BASE)
-IMPORT_SYM(unsigned long, __RO_END__, BL2_RO_LIMIT)
+#if RCAR_BL2_DCACHE == 1
+/*
+ * Following symbols are only used during plat_arch_setup() only
+ * when RCAR_BL2_DCACHE is enabled.
+ */
+static const uint64_t BL2_RO_BASE		= BL_CODE_BASE;
+static const uint64_t BL2_RO_LIMIT		= BL_CODE_END;
 
 #if USE_COHERENT_MEM
-IMPORT_SYM(unsigned long, __COHERENT_RAM_START__, BL2_COHERENT_RAM_BASE)
-IMPORT_SYM(unsigned long, __COHERENT_RAM_END__, BL2_COHERENT_RAM_LIMIT)
+static const uint64_t BL2_COHERENT_RAM_BASE	= BL_COHERENT_RAM_BASE;
+static const uint64_t BL2_COHERENT_RAM_LIMIT	= BL_COHERENT_RAM_END;
+#endif
+
 #endif
 
 extern void plat_rcar_gic_driver_init(void);
