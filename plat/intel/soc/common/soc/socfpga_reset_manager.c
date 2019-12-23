@@ -8,9 +8,9 @@
 #include <errno.h>
 #include <lib/mmio.h>
 
-#include "s10_system_manager.h"
 #include "socfpga_mailbox.h"
 #include "socfpga_reset_manager.h"
+#include "socfpga_system_manager.h"
 
 
 void deassert_peripheral_reset(void)
@@ -107,13 +107,13 @@ int socfpga_bridges_enable(void)
 
 	if (!status) {
 		/* Clear idle request */
-		mmio_setbits_32(S10_SYSMGR_CORE(SYSMGR_NOC_IDLEREQ_CLR), ~0);
+		mmio_setbits_32(SOCFPGA_SYSMGR(NOC_IDLEREQ_CLR), ~0);
 
 		/* De-assert all bridges */
 		mmio_clrbits_32(SOCFPGA_RSTMGR(BRGMODRST), ~0);
 
 		/* Wait until idle ack becomes 0 */
-		poll_addr = S10_SYSMGR_CORE(SYSMGR_NOC_IDLEACK);
+		poll_addr = SOCFPGA_SYSMGR(NOC_IDLEACK);
 
 		return poll_idle_status(poll_addr, IDLE_DATA_MASK, 0);
 	}
@@ -125,18 +125,18 @@ int socfpga_bridges_disable(void)
 	uint32_t poll_addr;
 
 	/* Set idle request */
-	mmio_write_32(S10_SYSMGR_CORE(SYSMGR_NOC_IDLEREQ_SET), ~0);
+	mmio_write_32(SOCFPGA_SYSMGR(NOC_IDLEREQ_SET), ~0);
 
 	/* Enable NOC timeout */
-	mmio_setbits_32(SYSMGR_NOC_TIMEOUT, 1);
+	mmio_setbits_32(SOCFPGA_SYSMGR(NOC_TIMEOUT), 1);
 
 	/* Wait until each idle ack bit toggle to 1 */
-	poll_addr = S10_SYSMGR_CORE(SYSMGR_NOC_IDLEACK);
+	poll_addr = SOCFPGA_SYSMGR(NOC_IDLEACK);
 	if (poll_idle_status(poll_addr, IDLE_DATA_MASK, IDLE_DATA_MASK))
 		return -ETIMEDOUT;
 
 	/* Wait until each idle status bit toggle to 1 */
-	poll_addr = S10_SYSMGR_CORE(SYSMGR_NOC_IDLESTATUS);
+	poll_addr = SOCFPGA_SYSMGR(NOC_IDLESTATUS);
 	if (poll_idle_status(poll_addr, IDLE_DATA_MASK, IDLE_DATA_MASK))
 		return -ETIMEDOUT;
 
@@ -150,7 +150,7 @@ int socfpga_bridges_disable(void)
 #endif
 
 	/* Disable NOC timeout */
-	mmio_clrbits_32(S10_SYSMGR_CORE(SYSMGR_NOC_TIMEOUT), 1);
+	mmio_clrbits_32(SOCFPGA_SYSMGR(NOC_TIMEOUT), 1);
 
 	return 0;
 }

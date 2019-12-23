@@ -38,7 +38,6 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/stratix10/soc/s10_clock_manager.c	\
 		plat/intel/soc/stratix10/soc/s10_memory_controller.c	\
 		plat/intel/soc/stratix10/soc/s10_pinmux.c		\
-		plat/intel/soc/stratix10/soc/s10_system_manager.c	\
                 plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/common/socfpga_delay_timer.c		\
 		plat/intel/soc/common/socfpga_image_load.c		\
@@ -46,6 +45,7 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/common/soc/socfpga_handoff.c		\
 		plat/intel/soc/common/soc/socfpga_mailbox.c		\
 		plat/intel/soc/common/soc/socfpga_reset_manager.c	\
+		plat/intel/soc/common/soc/socfpga_system_manager.c	\
 		plat/intel/soc/common/drivers/qspi/cadence_qspi.c	\
 		plat/intel/soc/common/drivers/wdt/watchdog.c
 

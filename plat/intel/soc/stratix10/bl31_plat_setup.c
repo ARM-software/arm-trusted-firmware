@@ -18,10 +18,10 @@
 
 #include "socfpga_private.h"
 #include "socfpga_reset_manager.h"
+#include "socfpga_system_manager.h"
 #include "s10_memory_controller.h"
 #include "s10_pinmux.h"
 #include "s10_clock_manager.h"
-#include "s10_system_manager.h"
 
 
 static entry_point_info_t bl32_image_ep_info;
