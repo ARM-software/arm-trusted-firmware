@@ -120,5 +120,6 @@ void mailbox_reset_cold(void);
 void mailbox_clear_response(void);
 
 uint32_t intel_mailbox_get_config_status(uint32_t cmd);
+int intel_mailbox_is_fpga_not_ready(void);
 
 #endif /* SOCFPGA_MBOX_H */

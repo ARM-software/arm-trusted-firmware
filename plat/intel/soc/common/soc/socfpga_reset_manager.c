@@ -101,29 +101,19 @@ static int poll_idle_status(uint32_t addr, uint32_t mask, uint32_t match)
 
 int socfpga_bridges_enable(void)
 {
-	uint32_t status, poll_addr;
+	/* Clear idle request */
+	mmio_setbits_32(SOCFPGA_SYSMGR(NOC_IDLEREQ_CLR), ~0);
 
-	status = intel_mailbox_get_config_status(MBOX_CONFIG_STATUS);
+	/* De-assert all bridges */
+	mmio_clrbits_32(SOCFPGA_RSTMGR(BRGMODRST), ~0);
 
-	if (!status) {
-		/* Clear idle request */
-		mmio_setbits_32(SOCFPGA_SYSMGR(NOC_IDLEREQ_CLR), ~0);
-
-		/* De-assert all bridges */
-		mmio_clrbits_32(SOCFPGA_RSTMGR(BRGMODRST), ~0);
-
-		/* Wait until idle ack becomes 0 */
-		poll_addr = SOCFPGA_SYSMGR(NOC_IDLEACK);
-
-		return poll_idle_status(poll_addr, IDLE_DATA_MASK, 0);
-	}
-	return status;
+	/* Wait until idle ack becomes 0 */
+	return poll_idle_status(SOCFPGA_SYSMGR(NOC_IDLEACK),
+				IDLE_DATA_MASK, 0);
 }
 
 int socfpga_bridges_disable(void)
 {
-	uint32_t poll_addr;
-
 	/* Set idle request */
 	mmio_write_32(SOCFPGA_SYSMGR(NOC_IDLEREQ_SET), ~0);
 
@@ -131,13 +121,13 @@ int socfpga_bridges_disable(void)
 	mmio_setbits_32(SOCFPGA_SYSMGR(NOC_TIMEOUT), 1);
 
 	/* Wait until each idle ack bit toggle to 1 */
-	poll_addr = SOCFPGA_SYSMGR(NOC_IDLEACK);
-	if (poll_idle_status(poll_addr, IDLE_DATA_MASK, IDLE_DATA_MASK))
+	if (poll_idle_status(SOCFPGA_SYSMGR(NOC_IDLEACK),
+				IDLE_DATA_MASK, IDLE_DATA_MASK))
 		return -ETIMEDOUT;
 
 	/* Wait until each idle status bit toggle to 1 */
-	poll_addr = SOCFPGA_SYSMGR(NOC_IDLESTATUS);
-	if (poll_idle_status(poll_addr, IDLE_DATA_MASK, IDLE_DATA_MASK))
+	if (poll_idle_status(SOCFPGA_SYSMGR(NOC_IDLESTATUS),
+				IDLE_DATA_MASK, IDLE_DATA_MASK))
 		return -ETIMEDOUT;
 
 	/* Assert all bridges */
