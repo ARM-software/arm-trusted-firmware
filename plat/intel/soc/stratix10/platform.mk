@@ -59,6 +59,7 @@ BL31_SOURCES	+=	\
 		plat/intel/soc/common/socfpga_sip_svc.c			\
 		plat/intel/soc/common/socfpga_topology.c		\
 		plat/intel/soc/common/soc/socfpga_mailbox.c		\
+		plat/intel/soc/common/soc/socfpga_reset_manager.c
 
 PROGRAMMABLE_RESET_ADDRESS	:= 0
 BL2_AT_EL3			:= 1

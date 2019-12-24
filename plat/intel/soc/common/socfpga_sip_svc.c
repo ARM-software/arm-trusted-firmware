@@ -11,6 +11,7 @@
 #include <tools_share/uuid.h>
 
 #include "socfpga_mailbox.h"
+#include "socfpga_reset_manager.h"
 #include "socfpga_sip_svc.h"
 
 /* Number of SiP Calls implemented */
@@ -27,6 +28,7 @@ static int rcv_id;
 static int max_blocks;
 static uint32_t bytes_per_block;
 static uint32_t blocks_submitted;
+static int is_partial_reconfig;
 
 struct fpga_config_info {
 	uint32_t addr;
@@ -107,6 +109,12 @@ static uint32_t intel_mailbox_fpga_config_isdone(uint32_t query_type)
 			return INTEL_SIP_SMC_STATUS_BUSY;
 		else
 			return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	if (query_type != 1) {
+		/* full reconfiguration */
+		if (!is_partial_reconfig)
+			socfpga_bridges_enable();	/* Enable bridge */
 	}
 
 	return INTEL_SIP_SMC_STATUS_OK;
@@ -196,6 +204,8 @@ static int intel_fpga_config_start(uint32_t config_type)
 	uint32_t response[3];
 	int status = 0;
 
+	is_partial_reconfig = config_type;
+
 	mailbox_clear_response();
 
 	mailbox_send_cmd(1, MBOX_CMD_CANCEL, 0, 0, 0, NULL, 0);
@@ -224,6 +234,12 @@ static int intel_fpga_config_start(uint32_t config_type)
 	current_buffer = 0;
 	send_id = 0;
 	rcv_id = 0;
+
+	/* full reconfiguration */
+	if (!is_partial_reconfig) {
+		/* Disable bridge */
+		socfpga_bridges_disable();
+	}
 
 	return 0;
 }
