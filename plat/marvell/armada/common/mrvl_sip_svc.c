@@ -17,6 +17,7 @@
 
 #include "comphy/phy-comphy-cp110.h"
 #include "secure_dfx_access/dfx.h"
+#include "ddr_phy_access.h"
 #include <stdbool.h>
 
 /* #define DEBUG_COMPHY */
@@ -39,6 +40,8 @@
 #define MV_SIP_PMU_IRQ_ENABLE	0x82000012
 #define MV_SIP_PMU_IRQ_DISABLE	0x82000013
 #define MV_SIP_DFX		0x82000014
+#define MV_SIP_DDR_PHY_WRITE	0x82000015
+#define MV_SIP_DDR_PHY_READ	0x82000016
 
 /* TRNG */
 #define MV_SIP_RNG_64		0xC200FF11
@@ -145,6 +148,13 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 			SMC_RET2(handle, ret, read);
 		}
 		SMC_RET1(handle, SMC_UNK);
+	case MV_SIP_DDR_PHY_WRITE:
+		ret = mvebu_ddr_phy_write(x1, x2);
+		SMC_RET1(handle, ret);
+	case MV_SIP_DDR_PHY_READ:
+		read = 0;
+		ret = mvebu_ddr_phy_read(x1, (uint16_t *)&read);
+		SMC_RET2(handle, ret, read);
 	case MV_SIP_RNG_64:
 		ret = eip76_rng_get_random((uint8_t *)&w2, 4 * (x1 % 2 + 1));
 		SMC_RET3(handle, ret, w2[0], w2[1]);
