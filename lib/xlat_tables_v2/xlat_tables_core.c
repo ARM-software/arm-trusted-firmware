@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -688,10 +688,10 @@ static int mmap_add_region_check(const xlat_ctx_t *ctx, const mmap_region_t *mm)
 	if ((base_pa > end_pa) || (base_va > end_va))
 		return -ERANGE;
 
-	if ((base_va + (uintptr_t)size - (uintptr_t)1) > ctx->va_max_address)
+	if (end_va > ctx->va_max_address)
 		return -ERANGE;
 
-	if ((base_pa + (unsigned long long)size - 1ULL) > ctx->pa_max_address)
+	if (end_pa > ctx->pa_max_address)
 		return -ERANGE;
 
 	/* Check that there is space in the ctx->mmap array */
