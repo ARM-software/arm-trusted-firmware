@@ -2080,8 +2080,8 @@ static void dbsc_regset(void)
 	/* DBTR9.TRDPR : tRTP */
 	mmio_write_32(DBSC_DBTR(9), js2[js2_trtp]);
 
-	/* DBTR10.TWR : nWR + 1 */
-	mmio_write_32(DBSC_DBTR(10), js1[js1_ind].nwr + 1);
+	/* DBTR10.TWR : nWR */
+	mmio_write_32(DBSC_DBTR(10), js1[js1_ind].nwr);
 
 	/*
 	 * DBTR11.TRDWR : RL +  BL / 2 + Rounddown(tRPST) + PHY_ODTLoff -

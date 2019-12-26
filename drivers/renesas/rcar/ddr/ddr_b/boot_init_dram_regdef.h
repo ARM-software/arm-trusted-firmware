@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define RCAR_DDR_VERSION	"rev.0.39"
+#define RCAR_DDR_VERSION	"rev.0.40"
 #define DRAM_CH_CNT		0x04
 #define SLICE_CNT		0x04
 #define CS_CNT			0x02
