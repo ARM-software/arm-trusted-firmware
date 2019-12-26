@@ -114,6 +114,11 @@ Arm CSS Platform-Specific Build Options
    management operations and for SCP RAM Firmware transfer. If this option
    is set to 1, then SCMI/SDS drivers will be used. Default is 0.
 
+ - ``CSS_SGI_CHIP_COUNT``: Configures the number of chips on a SGI/RD platform
+   which supports multi-chip operation. If ``CSS_SGI_CHIP_COUNT`` is set to any
+   valid value greater than 1, the platform code performs required configuration
+   to support multi-chip operation.
+
 --------------
 
 *Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
