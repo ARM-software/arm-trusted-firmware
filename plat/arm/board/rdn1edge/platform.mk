@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -24,6 +24,7 @@ BL2_SOURCES		+=	${RDN1EDGE_BASE}/rdn1edge_plat.c	\
 
 BL31_SOURCES		+=	${SGI_CPU_SOURCES}			\
 				${RDN1EDGE_BASE}/rdn1edge_plat.c	\
+				${RDN1EDGE_BASE}/rdn1edge_topology.c	\
 				drivers/cfi/v2m/v2m_flash.c		\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c
