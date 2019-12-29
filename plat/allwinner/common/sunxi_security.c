@@ -39,8 +39,8 @@ void sunxi_security_setup(void)
 	/* set MBUS clocks, bus clocks (AXI/AHB/APB) and PLLs to non-secure */
 	mmio_write_32(SUNXI_CCU_SEC_SWITCH_REG, 0x7);
 
-	/* set R_PRCM clocks to non-secure */
-	mmio_write_32(SUNXI_R_PRCM_BASE + R_PRCM_SEC_SWITCH_REG, 0x7);
+	/* Set R_PRCM bus clocks to non-secure */
+	mmio_write_32(SUNXI_R_PRCM_BASE + R_PRCM_SEC_SWITCH_REG, 0x1);
 
 	/* Set all DMA channels (16 max.) to non-secure */
 	mmio_write_32(SUNXI_DMA_BASE + DMA_SEC_REG, 0xffff);
