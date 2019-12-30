@@ -10,7 +10,8 @@
 #include <platform_def.h>
 
 /* Platform Setting */
-#define PLATFORM_MODEL		PLAT_SOCFPGA_STRATIX10
+#define PLATFORM_MODEL				PLAT_SOCFPGA_STRATIX10
+#define BOOT_SOURCE				BOOT_SOURCE_SDMMC
 
 /* Register Mapping */
 #define SOCFPGA_MMC_REG_BASE                    0xff808000
