@@ -27,6 +27,9 @@
  ******************************************************************************/
 #define CORTEX_HERCULES_ACTLR_TAM_BIT				(ULL(1) << 30)
 
+#define CORTEX_HERCULES_ACTLR2_EL1				S3_0_C15_C1_1
+#define CORTEX_HERCULES_ACTLR2_EL1_BIT_1			(ULL(1) << 1)
+
 /*******************************************************************************
  * CPU Activity Monitor Unit register specific definitions.
  ******************************************************************************/

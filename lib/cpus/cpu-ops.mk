@@ -234,6 +234,10 @@ ERRATA_A76_1275112	?=0
 # only to revision <= r3p0 of the Cortex A76 cpu.
 ERRATA_A76_1286807	?=0
 
+# Flag to apply erratum 1688305 workaround during reset. This erratum applies
+# to revisions r0p0 - r1p0 of the Hercules cpu.
+ERRATA_HERCULES_1688305	?=0
+
 # Flag to apply T32 CLREX workaround during reset. This erratum applies
 # only to r0p0 and r1p0 of the Neoverse N1 cpu.
 ERRATA_N1_1043202	?=1
@@ -466,6 +470,10 @@ $(eval $(call add_define,ERRATA_A76_1275112))
 # Process ERRATA_A76_1286807 flag
 $(eval $(call assert_boolean,ERRATA_A76_1286807))
 $(eval $(call add_define,ERRATA_A76_1286807))
+
+# Process ERRATA_HERCULES_1688305 flag
+$(eval $(call assert_boolean,ERRATA_HERCULES_1688305))
+$(eval $(call add_define,ERRATA_HERCULES_1688305))
 
 # Process ERRATA_N1_1043202 flag
 $(eval $(call assert_boolean,ERRATA_N1_1043202))
