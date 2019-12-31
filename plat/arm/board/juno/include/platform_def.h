@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -224,7 +224,6 @@
 
 /* MHU related constants */
 #define PLAT_CSS_MHU_BASE		UL(0x2b1f0000)
-#define PLAT_MHUV2_BASE			PLAT_CSS_MHU_BASE
 
 /*
  * Base address of the first memory region used for communication between AP

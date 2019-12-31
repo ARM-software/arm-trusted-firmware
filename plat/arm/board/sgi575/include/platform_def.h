@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,7 +16,6 @@
 #define CSS_SGI_MAX_PE_PER_CPU		U(1)
 
 #define PLAT_CSS_MHU_BASE		UL(0x45000000)
-#define PLAT_MHUV2_BASE			PLAT_CSS_MHU_BASE
 
 /* Base address of DMC-620 instances */
 #define SGI575_DMC620_BASE0		UL(0x4e000000)

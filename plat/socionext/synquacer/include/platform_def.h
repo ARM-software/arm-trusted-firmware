@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -80,7 +80,6 @@
 #define DRAMINFO_BASE			0x2E00FFC0
 
 #define PLAT_SQ_MHU_BASE		0x45000000
-#define PLAT_MHUV2_BASE			0xFFFFFFFF /* MHUV2 is not supported */
 
 #define PLAT_SQ_SCP_COM_SHARED_MEM_BASE		0x45400000
 #define SCPI_CMD_GET_DRAMINFO			0x1

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -86,7 +86,6 @@
 
 /* MHU related constants */
 #define PLAT_CSS_MHU_BASE		0x2b1f0000
-#define PLAT_MHUV2_BASE			PLAT_CSS_MHU_BASE
 
 #define PLAT_ARM_TRUSTED_ROM_BASE	0x00000000
 #define PLAT_ARM_TRUSTED_ROM_SIZE	0x00080000
