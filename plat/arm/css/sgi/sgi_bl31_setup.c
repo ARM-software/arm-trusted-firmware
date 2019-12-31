@@ -36,7 +36,7 @@ static scmi_channel_plat_info_t rd_n1e1_edge_scmi_plat_info = {
 		.ring_doorbell = &mhuv2_ring_doorbell,
 };
 
-scmi_channel_plat_info_t *plat_css_get_scmi_info(void)
+scmi_channel_plat_info_t *plat_css_get_scmi_info(int channel_id)
 {
 	if (sgi_plat_info.platform_id == RD_N1E1_EDGE_SID_VER_PART_NUM)
 		return &rd_n1e1_edge_scmi_plat_info;

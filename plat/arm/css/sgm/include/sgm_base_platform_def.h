@@ -238,4 +238,7 @@
 /* System power domain level */
 #define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2
 
+/* Number of SCMI channels on the platform */
+#define PLAT_ARM_SCMI_CHANNEL_COUNT	U(1)
+
 #endif /* SGM_BASE_PLATFORM_DEF_H */

@@ -300,4 +300,7 @@
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
 #endif
 
+/* Number of SCMI channels on the platform */
+#define PLAT_ARM_SCMI_CHANNEL_COUNT	U(1)
+
 #endif /* PLATFORM_DEF_H */

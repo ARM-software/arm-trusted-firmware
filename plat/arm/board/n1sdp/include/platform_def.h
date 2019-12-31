@@ -143,4 +143,7 @@
 #define SBSA_SECURE_WDOG_BASE			UL(0x2A480000)
 #define SBSA_SECURE_WDOG_TIMEOUT		UL(100)
 
+/* Number of SCMI channels on the platform */
+#define PLAT_ARM_SCMI_CHANNEL_COUNT		U(1)
+
 #endif /* PLATFORM_DEF_H */
