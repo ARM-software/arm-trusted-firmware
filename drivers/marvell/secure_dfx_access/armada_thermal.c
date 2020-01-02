@@ -217,8 +217,8 @@ static void armada_is_valid(u_register_t *read)
 	*read = (mmio_read_32(TSEN_STATUS) & TSEN_STATUS_VALID_MASK);
 }
 
-int mvebu_dfx_handle(u_register_t func, u_register_t *read, u_register_t x2,
-		     u_register_t x3)
+int mvebu_dfx_thermal_handle(u_register_t func, u_register_t *read,
+			     u_register_t x2, u_register_t x3)
 {
 	debug_enter();
 

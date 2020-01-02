@@ -139,8 +139,12 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 		SMC_RET1(handle, 0);
 #endif
 	case MV_SIP_DFX:
-		ret = mvebu_dfx_handle(x1, &read, x2, x3);
-		SMC_RET2(handle, ret, read);
+		if (x1 >= MV_SIP_DFX_THERMAL_INIT &&
+		    x1 <= MV_SIP_DFX_THERMAL_SEL_CHANNEL) {
+			ret = mvebu_dfx_thermal_handle(x1, &read, x2, x3);
+			SMC_RET2(handle, ret, read);
+		}
+		SMC_RET1(handle, SMC_UNK);
 	case MV_SIP_RNG_64:
 		ret = eip76_rng_get_random((uint8_t *)&w2, 4 * (x1 % 2 + 1));
 		SMC_RET3(handle, ret, w2[0], w2[1]);
