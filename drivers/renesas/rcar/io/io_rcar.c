@@ -28,9 +28,6 @@
 extern int32_t plat_get_drv_source(uint32_t id, uintptr_t *dev,
 				   uintptr_t *image_spec);
 
-extern int auth_mod_verify_img(unsigned int img_id, void *ptr,
-				unsigned int len);
-
 static int32_t rcar_dev_open(const uintptr_t dev_spec __attribute__ ((unused)),
 			     io_dev_info_t **dev_info);
 static int32_t rcar_dev_close(io_dev_info_t *dev_info);

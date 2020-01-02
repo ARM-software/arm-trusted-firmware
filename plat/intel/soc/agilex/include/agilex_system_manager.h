@@ -73,7 +73,6 @@
 #define DISABLE_BRIDGE_FIREWALL			0x0ffe0101
 #define DISABLE_L4_FIREWALL	(BIT(0) | BIT(16) | BIT(24))
 
-void enable_nonsecure_access(void);
 void enable_ns_bridge_access(void);
 
 #endif

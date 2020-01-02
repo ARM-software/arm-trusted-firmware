@@ -16,8 +16,6 @@
 #define TIMER_INTSTATUS		0x18
 #define TIMER_EN		0x1
 
-extern const unsigned char rockchip_power_domain_tree_desc[];
-
 /**************************** read/write **************************************/
 #ifndef BITS_WMSK
 #define BITS_WMSK(msk, shift)	((msk) << (shift + REG_MSK_SHIFT))
