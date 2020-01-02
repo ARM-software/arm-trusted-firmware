@@ -8,8 +8,7 @@ include lib/xlat_tables_v2/xlat_tables.mk
 
 AW_PLAT			:=	plat/allwinner
 
-PLAT_INCLUDES		:=	-Iinclude/plat/arm/common		\
-				-Iinclude/plat/arm/common/aarch64	\
+PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/aarch64	\
 				-I${AW_PLAT}/common/include		\
 				-I${AW_PLAT}/${PLAT}/include
 
