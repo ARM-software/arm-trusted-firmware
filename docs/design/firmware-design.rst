@@ -1500,6 +1500,11 @@ sections then the resulting binary file would contain zero bytes in place of
 this NOBITS section, making the image unnecessarily bigger. Smaller images
 allow faster loading from the FIP to the main memory.
 
+For BL31, a platform can specify an alternate location for NOBITS sections
+(other than immediately following PROGBITS sections) by setting
+``SEPARATE_NOBITS_REGION`` to 1 and defining ``BL31_NOBITS_BASE`` and
+``BL31_NOBITS_LIMIT``.
+
 Linker scripts and symbols
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 

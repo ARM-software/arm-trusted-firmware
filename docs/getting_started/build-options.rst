@@ -491,6 +491,13 @@ Common build options
    pages" section in :ref:`Firmware Design`. This flag is disabled by default and
    affects all BL images.
 
+-  ``SEPARATE_NOBITS_REGION``: Setting this option to ``1`` allows the NOBITS
+   sections of BL31 (.bss, stacks, page tables, and coherent memory) to be
+   allocated in RAM discontiguous from the loaded firmware image. When set, the
+   platform is expected to provide definitons for ``BL31_NOBITS_BASE`` and
+   ``BL31_NOBITS_LIMIT``. When the option is ``0`` (the default), NOBITS
+   sections are placed in RAM immediately following the loaded firmware image.
+
 -  ``SPD``: Choose a Secure Payload Dispatcher component to be built into TF-A.
    This build option is only valid if ``ARCH=aarch64``. The value should be
    the path to the directory containing the SPD source, relative to
