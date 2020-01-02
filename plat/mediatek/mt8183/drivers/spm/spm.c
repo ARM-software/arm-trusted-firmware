@@ -12,6 +12,12 @@
 
 DEFINE_BAKERY_LOCK(spm_lock);
 
+/* SPM_DVS_LEVEL */
+#define SPM_VMODEM_LEVEL_MASK	(0xff << 16)
+#define SPM_VMODEM_LEVEL	(1U << 18)
+#define SPM_VCORE_LEVEL_MASK	(0xff)
+#define SPM_VCORE_LEVEL		(1U << 1)
+
 /* CLK_SCP_CFG_0 */
 #define SPM_CK_OFF_CONTROL	(0x3FF)
 
@@ -338,6 +344,11 @@ void spm_boot_init(void)
 
 	spm_lock_init();
 	mt_spm_pmic_wrap_set_phase(PMIC_WRAP_PHASE_ALLINONE);
+
+	/* Set Vmodem / Vcore DVS init level */
+	mmio_clrsetbits_32(SPM_DVS_LEVEL,
+			   SPM_VMODEM_LEVEL_MASK | SPM_VCORE_LEVEL_MASK,
+			   SPM_VMODEM_LEVEL | SPM_VCORE_LEVEL);
 
 	/* switch ck_off/axi_26m control to SPM */
 	mmio_setbits_32(CLK_SCP_CFG_0, SPM_CK_OFF_CONTROL);
