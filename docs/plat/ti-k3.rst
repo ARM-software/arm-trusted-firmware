@@ -27,7 +27,7 @@ TF-A:
 
 .. code:: shell
 
-    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=k3 SPD=opteed all
+    make CROSS_COMPILE=aarch64-none-elf- PLAT=k3 SPD=opteed all
 
 OP-TEE:
 

@@ -28,7 +28,7 @@ Build Procedure
 
    .. code:: shell
 
-       CROSS_COMPILE=aarch64-linux-gnu- make PLAT=<Target_SoC> bl31
+       CROSS_COMPILE=aarch64-none-elf- make PLAT=<Target_SoC> bl31
 
    Target_SoC should be "imx8mq" for i.MX8MQ SoC.
    Target_SoC should be "imx8mm" for i.MX8MM SoC.

@@ -136,7 +136,7 @@ a single FIP binary. It assumes that a Linaro release has been installed.
 
       .. code:: shell
 
-          export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
+          export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf-
 
    -  The following parameters should be used to build BL1 and BL2 in AArch64
       and point to the BL32 file.
