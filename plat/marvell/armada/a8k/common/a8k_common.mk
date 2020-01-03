@@ -116,6 +116,7 @@ MARVELL_DRV		:= 	$(MARVELL_DRV_BASE)/io_win.c	\
 				$(MARVELL_DRV_BASE)/mc_trustzone/mc_trustzone.c	\
 				$(MARVELL_DRV_BASE)/mg_conf_cm3/mg_conf_cm3.c	\
 				$(MARVELL_DRV_BASE)/secure_dfx_access/armada_thermal.c	\
+				$(MARVELL_DRV_BASE)/secure_dfx_access/misc_dfx.c	\
 				$(MARVELL_DRV_BASE)/ddr_phy_access.c	\
 				drivers/rambus/trng_ip_76.c
 
