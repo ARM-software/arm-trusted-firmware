@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -165,7 +165,7 @@ int32_t nvg_online_core(uint32_t core)
 	/* sanity check the core ID value */
 	if (core > (uint32_t)PLATFORM_CORE_COUNT) {
 		ERROR("%s: unknown core id (%d)\n", __func__, core);
-		ret = EINVAL;
+		ret = -EINVAL;
 	} else {
 		/* get a core online */
 		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_ONLINE_CORE,
@@ -183,15 +183,15 @@ int32_t nvg_online_core(uint32_t core)
  */
 int32_t nvg_update_ccplex_gsc(uint32_t gsc_idx)
 {
-	int32_t ret;
+	int32_t ret = 0;
 
 	/* sanity check GSC ID */
 	if (gsc_idx > (uint32_t)TEGRA_NVG_CHANNEL_UPDATE_GSC_VPR) {
 		ERROR("%s: unknown gsc_idx (%u)\n", __func__, gsc_idx);
-		ret = EINVAL;
+		ret = -EINVAL;
 	} else {
 		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_UPDATE_CCPLEX_GSC,
-								(uint64_t)gsc_idx);
+				     (uint64_t)gsc_idx);
 	}
 
 	return ret;
@@ -209,11 +209,12 @@ int32_t nvg_roc_clean_cache(void)
 			ID_AFR0_EL1_CACHE_OPS_MASK) == 1U) {
 		if (nvg_cache_clean() == 0U) {
 			ERROR("%s: failed\n", __func__);
-			ret = EINVAL;
+			ret = -ENODEV;
 		}
 	} else {
-		ret = EINVAL;
+		ret = -ENOTSUP;
 	}
+
 	return ret;
 }
 
@@ -229,11 +230,12 @@ int32_t nvg_roc_flush_cache(void)
 			ID_AFR0_EL1_CACHE_OPS_MASK) == 1U) {
 		if (nvg_cache_clean_inval() == 0U) {
 			ERROR("%s: failed\n", __func__);
-			ret = EINVAL;
+			ret = -ENODEV;
 		}
 	} else {
-		ret = EINVAL;
+		ret = -ENOTSUP;
 	}
+
 	return ret;
 }
 
@@ -249,11 +251,12 @@ int32_t nvg_roc_clean_cache_trbits(void)
 			ID_AFR0_EL1_CACHE_OPS_MASK) == 1U) {
 		if (nvg_cache_inval_all() == 0U) {
 			ERROR("%s: failed\n", __func__);
-			ret = EINVAL;
+			ret = -ENODEV;
 		}
 	} else {
-		ret = EINVAL;
+		ret = -ENOTSUP;
 	}
+
 	return ret;
 }
 
@@ -271,8 +274,8 @@ int32_t nvg_enter_cstate(uint32_t state, uint32_t wake_time)
 	    (state != (uint32_t)TEGRA_NVG_CORE_C6) &&
 		(state != (uint32_t)TEGRA_NVG_CORE_C7))
 	{
-		ERROR("%s: unknown cstate (%d)\n", __func__, state);
-		ret = EINVAL;
+		ERROR("%s: unknown cstate (%u)\n", __func__, state);
+		ret = -EINVAL;
 	} else {
 		/* time (TSC ticks) until the core is expected to get a wake event */
 		nvg_set_wake_time(wake_time);
