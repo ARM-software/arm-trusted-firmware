@@ -169,6 +169,12 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/brcm/spi/iproc_spi.c \
 				drivers/brcm/spi/iproc_qspi.c
 endif
 
+# Add spi nor/flash driver
+ifeq (${DRIVER_SPI_NOR_ENABLE},1)
+PLAT_BL_COMMON_SOURCES	+=	drivers/brcm/spi_sf.c \
+				drivers/brcm/spi_flash.c
+endif
+
 ifeq (${DRIVER_OCOTP_ENABLE},1)
 $(eval $(call add_define,DRIVER_OCOTP_ENABLE))
 BL2_SOURCES		+= drivers/brcm/ocotp.c
