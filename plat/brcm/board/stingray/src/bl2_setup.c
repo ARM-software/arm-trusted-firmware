@@ -15,6 +15,7 @@
 #include <chip_id.h>
 #include <cmn_plat_util.h>
 #include <dmu.h>
+#include <emmc_api.h>
 #include <fru.h>
 #ifdef USE_GPIO
 #include <drivers/gpio.h>

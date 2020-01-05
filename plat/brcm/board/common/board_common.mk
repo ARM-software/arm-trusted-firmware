@@ -28,6 +28,10 @@ SYSCNT_FREQ := $(GENTIMER_ACTUAL_CLOCK)
 $(eval $(call add_define,SYSCNT_FREQ))
 endif
 
+ifeq (${DRIVER_EMMC_ENABLE},)
+DRIVER_EMMC_ENABLE :=1
+endif
+
 # By default, Trusted Watchdog is always enabled unless SPIN_ON_BL1_EXIT is set
 ifeq (${BRCM_DISABLE_TRUSTED_WDOG},)
 BRCM_DISABLE_TRUSTED_WDOG	:=	0
@@ -89,6 +93,14 @@ ifneq (${USE_CRMU_SRAM},)
 $(eval $(call add_define,USE_CRMU_SRAM))
 endif
 
+# Use PIO mode if DDR is not used
+ifeq (${USE_DDR},yes)
+EMMC_USE_DMA	:=	1
+else
+EMMC_USE_DMA	:=	0
+endif
+$(eval $(call add_define,EMMC_USE_DMA))
+
 # On BRCM platforms, separate the code and read-only data sections to allow
 # mapping the former as executable and the latter as execute-never.
 SEPARATE_CODE_AND_RODATA	:=	1
@@ -97,7 +109,8 @@ SEPARATE_CODE_AND_RODATA	:=	1
 USE_TBBR_DEFS			:=	1
 
 PLAT_INCLUDES		+=	-Iplat/brcm/board/common \
-				-Iinclude/drivers/brcm
+				-Iinclude/drivers/brcm \
+				-Iinclude/drivers/brcm/emmc
 
 PLAT_BL_COMMON_SOURCES	+=	plat/brcm/common/brcm_common.c \
 				plat/brcm/board/common/cmn_sec.c \
@@ -115,6 +128,22 @@ PLAT_BL_COMMON_SOURCES	+=	plat/brcm/common/brcm_common.c \
 				plat/brcm/board/common/err.c \
 				plat/brcm/board/common/sbl_util.c \
 				drivers/arm/sp805/sp805.c
+
+# Add eMMC driver
+ifeq (${DRIVER_EMMC_ENABLE},1)
+$(eval $(call add_define,DRIVER_EMMC_ENABLE))
+
+EMMC_SOURCES		+=	drivers/brcm/emmc/emmc_chal_sd.c \
+				drivers/brcm/emmc/emmc_csl_sdcard.c \
+				drivers/brcm/emmc/emmc_csl_sdcmd.c \
+				drivers/brcm/emmc/emmc_pboot_hal_memory_drv.c
+
+PLAT_BL_COMMON_SOURCES += ${EMMC_SOURCES}
+
+ifeq (${DRIVER_EMMC_ENABLE_DATA_WIDTH_8BIT},)
+$(eval $(call add_define,DRIVER_EMMC_ENABLE_DATA_WIDTH_8BIT))
+endif
+endif
 
 BL2_SOURCES		+=	plat/brcm/common/brcm_bl2_mem_params_desc.c \
 				plat/brcm/common/brcm_image_load.c \

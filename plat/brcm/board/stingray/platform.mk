@@ -24,6 +24,13 @@ ERRATA_A72_859971 := 1
 DRIVER_CC_ENABLE := 1
 $(eval $(call add_define,DRIVER_CC_ENABLE))
 
+# Enable to erase eMMC
+INCLUDE_EMMC_DRIVER_ERASE_CODE := 0
+
+ifeq (${INCLUDE_EMMC_DRIVER_ERASE_CODE},1)
+$(eval $(call add_define,INCLUDE_EMMC_DRIVER_ERASE_CODE))
+endif
+
 # BL31 is in DRAM
 ARM_BL31_IN_DRAM	:=	1
 
@@ -178,6 +185,7 @@ PLAT_BL_COMMON_SOURCES	+=	lib/cpus/aarch64/cortex_a72.S \
 				drivers/ti/uart/aarch64/16550_console.S \
 				plat/${SOC_DIR}/src/tz_sec.c \
 				drivers/arm/tzc/tzc400.c \
+				plat/${SOC_DIR}/driver/plat_emmc.c \
 				plat/${SOC_DIR}/src/topology.c
 
 ifeq (${USE_CHIMP},yes)
