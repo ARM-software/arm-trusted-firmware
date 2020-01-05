@@ -172,6 +172,10 @@ $(eval $(call add_define,CONFIG_SOFT_RESET_L3))
 # Enable Chip OTP driver
 DRIVER_OCOTP_ENABLE := 1
 
+ifneq (${WARMBOOT_DDR_S3_SUPPORT},)
+DRIVER_SPI_ENABLE := 1
+endif
+
 include plat/brcm/board/common/board_common.mk
 
 SOC_DIR			:= 	brcm/board/stingray

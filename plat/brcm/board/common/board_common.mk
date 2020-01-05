@@ -32,6 +32,10 @@ ifeq (${DRIVER_EMMC_ENABLE},)
 DRIVER_EMMC_ENABLE :=1
 endif
 
+ifeq (${DRIVER_SPI_ENABLE},)
+DRIVER_SPI_ENABLE := 0
+endif
+
 # By default, Trusted Watchdog is always enabled unless SPIN_ON_BL1_EXIT is set
 ifeq (${BRCM_DISABLE_TRUSTED_WDOG},)
 BRCM_DISABLE_TRUSTED_WDOG	:=	0
@@ -157,6 +161,12 @@ ifeq (${BCM_ELOG},yes)
 ELOG_SOURCES		+= 	plat/brcm/board/common/bcm_elog.c
 BL2_SOURCES		+= 	${ELOG_SOURCES}
 BL31_SOURCES		+= 	${ELOG_SOURCES}
+endif
+
+# Add spi driver
+ifeq (${DRIVER_SPI_ENABLE},1)
+PLAT_BL_COMMON_SOURCES	+=	drivers/brcm/spi/iproc_spi.c \
+				drivers/brcm/spi/iproc_qspi.c
 endif
 
 ifeq (${DRIVER_OCOTP_ENABLE},1)
