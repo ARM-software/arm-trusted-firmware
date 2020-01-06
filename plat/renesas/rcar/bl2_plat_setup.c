@@ -415,6 +415,9 @@ static void bl2_populate_compatible_string(void *dt)
 	uint32_t reg;
 	int ret;
 
+	fdt_setprop_u32(dt, 0, "#address-cells", 2);
+	fdt_setprop_u32(dt, 0, "#size-cells", 2);
+
 	/* Populate compatible string */
 	rcar_get_board_type(&board_type, &board_rev);
 	switch (board_type) {
