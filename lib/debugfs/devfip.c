@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -100,10 +100,6 @@ static int get_entry(chan_t *c, struct fip_entry *entry)
 	}
 
 	if (n != sizeof(struct fip_entry)) {
-		return -1;
-	}
-
-	if ((entry->size > LONG_MAX) || (entry->offset_address > LONG_MAX)) {
 		return -1;
 	}
 
