@@ -315,7 +315,7 @@ Then compile TF-A. For a 32-bit kernel, use the following command line:
 
 .. code:: shell
 
-    CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
+    CROSS_COMPILE=aarch64-none-elf- make PLAT=rpi3             \
     RPI3_BL33_IN_AARCH32=1                                      \
     BL33=../rpi3-arm-tf-bootstrap/aarch32/el2-bootstrap.bin
 
@@ -323,7 +323,7 @@ For a 64-bit kernel, use this other command line:
 
 .. code:: shell
 
-    CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
+    CROSS_COMPILE=aarch64-none-elf- make PLAT=rpi3             \
     BL33=../rpi3-arm-tf-bootstrap/aarch64/el2-bootstrap.bin
 
 However, enabling PSCI support in a 64-bit kernel is really easy. In the
@@ -340,7 +340,7 @@ For a 64-bit kernel:
 
 .. code:: shell
 
-    CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
+    CROSS_COMPILE=aarch64-none-elf- make PLAT=rpi3             \
     PRELOADED_BL33_BASE=0x02000000                              \
     RPI3_PRELOADED_DTB_BASE=0x01000000                          \
     RPI3_DIRECT_LINUX_BOOT=1
@@ -349,7 +349,7 @@ For a 32-bit kernel:
 
 .. code:: shell
 
-    CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi3             \
+    CROSS_COMPILE=aarch64-none-elf- make PLAT=rpi3             \
     PRELOADED_BL33_BASE=0x02000000                              \
     RPI3_PRELOADED_DTB_BASE=0x01000000                          \
     RPI3_DIRECT_LINUX_BOOT=1                                    \

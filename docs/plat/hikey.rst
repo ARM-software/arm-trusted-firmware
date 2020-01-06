@@ -78,7 +78,7 @@ Build Procedure
        EDK2_OUTPUT_DIR=${EDK2_DIR}/Build/HiKey/${BUILD_OPTION}_${AARCH64_TOOLCHAIN}
        # Build fastboot for Trusted Firmware-A. It's used for recovery mode.
        cd ${BUILD_PATH}/atf-fastboot
-       CROSS_COMPILE=aarch64-linux-gnu- make PLAT=hikey DEBUG=1
+       CROSS_COMPILE=aarch64-none-elf- make PLAT=hikey DEBUG=1
        # Convert DEBUG/RELEASE to debug/release
        FASTBOOT_BUILD_OPTION=$(echo ${BUILD_OPTION} | tr '[A-Z]' '[a-z]')
        cd ${EDK2_DIR}

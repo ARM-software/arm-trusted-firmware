@@ -22,7 +22,7 @@ one universal binary (bl31.bin), which can be built with:
 
 .. code:: shell
 
-    CROSS_COMPILE=aarch64-linux-gnu- make PLAT=rpi4 DEBUG=1
+    CROSS_COMPILE=aarch64-none-elf- make PLAT=rpi4 DEBUG=1
 
 Copy the generated build/rpi4/debug/bl31.bin to the SD card, either
 renaming it to ``armstub8.bin`` or adding an entry starting with ``armstub=``,
