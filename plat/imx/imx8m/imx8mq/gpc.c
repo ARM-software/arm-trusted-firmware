@@ -19,9 +19,14 @@
 /* use wfi power down the core */
 void imx_set_cpu_pwr_off(unsigned int core_id)
 {
+	bakery_lock_get(&gpc_lock);
+
 	/* enable the wfi power down of the core */
 	mmio_setbits_32(IMX_GPC_BASE + LPCR_A53_AD, COREx_WFI_PDN(core_id) |
 			(1 << (core_id + 20)));
+
+	bakery_lock_release(&gpc_lock);
+
 	/* assert the pcg pcr bit of the core */
 	mmio_setbits_32(IMX_GPC_BASE + COREx_PGC_PCR(core_id), 0x1);
 };
@@ -29,6 +34,8 @@ void imx_set_cpu_pwr_off(unsigned int core_id)
 /* if out of lpm, we need to do reverse steps */
 void imx_set_cpu_lpm(unsigned int core_id, bool pdn)
 {
+	bakery_lock_get(&gpc_lock);
+
 	if (pdn) {
 		/* enable the core WFI PDN & IRQ PUP */
 		mmio_setbits_32(IMX_GPC_BASE + LPCR_A53_AD, COREx_WFI_PDN(core_id) |
@@ -42,6 +49,8 @@ void imx_set_cpu_lpm(unsigned int core_id, bool pdn)
 		/* deassert the pcg pcr bit of the core */
 		mmio_setbits_32(IMX_GPC_BASE + COREx_PGC_PCR(core_id), 0x1);
 	}
+
+	bakery_lock_release(&gpc_lock);
 }
 
 void imx_pup_pdn_slot_config(int last_core, bool pdn)
