@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,12 +12,6 @@
 #include <openssl/conf.h>
 #include <openssl/evp.h>
 #include <openssl/pem.h>
-
-#if USE_TBBR_DEFS
-#include <tbbr_oid.h>
-#else
-#include <platform_oid.h>
-#endif
 
 #include "cert.h"
 #include "cmd_opt.h"
