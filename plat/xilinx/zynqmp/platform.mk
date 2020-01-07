@@ -82,10 +82,10 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/common/plat_psci_common.c			\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				plat/xilinx/common/pm_service/pm_ipi.c		\
+				plat/xilinx/common/plat_startup.c		\
 				plat/xilinx/zynqmp/bl31_zynqmp_setup.c		\
 				plat/xilinx/zynqmp/plat_psci.c			\
 				plat/xilinx/zynqmp/plat_zynqmp.c		\
-				plat/xilinx/zynqmp/plat_startup.c		\
 				plat/xilinx/zynqmp/plat_topology.c		\
 				plat/xilinx/zynqmp/sip_svc_setup.c		\
 				plat/xilinx/zynqmp/pm_service/pm_svc_main.c	\

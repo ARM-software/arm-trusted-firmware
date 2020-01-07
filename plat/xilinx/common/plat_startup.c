@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,10 +8,8 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
-#include <lib/mmio.h>
-#include <plat_private.h>
+#include <plat_startup.h>
 
-#include "zynqmp_def.h"
 
 /*
  * ATFHandoffParams
@@ -147,6 +145,7 @@ static int get_fsbl_estate(const struct xfsbl_partition *partition)
  * Populates the bl32 and bl33 image info structures
  * @bl32:	BL32 image info structure
  * @bl33:	BL33 image info structure
+ * atf_handoff_addr:  ATF handoff address
  *
  * Process the handoff paramters from the FSBL and populate the BL32 and BL33
  * image info structures accordingly.
@@ -154,12 +153,11 @@ static int get_fsbl_estate(const struct xfsbl_partition *partition)
  * Return: Return the status of the handoff. The value will be from the
  *         fsbl_handoff enum.
  */
-enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32, entry_point_info_t *bl33)
+enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32,
+					entry_point_info_t *bl33,
+					uint64_t atf_handoff_addr)
 {
-	uint64_t atf_handoff_addr;
 	const struct xfsbl_atf_handoff_params *ATFHandoffParams;
-
-	atf_handoff_addr = mmio_read_32(PMU_GLOBAL_GEN_STORAGE6);
 	assert((atf_handoff_addr < BL31_BASE) ||
 	       (atf_handoff_addr > (uint64_t)&__BL31_END__));
 	if (!atf_handoff_addr) {
