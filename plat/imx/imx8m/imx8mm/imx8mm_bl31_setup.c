@@ -26,6 +26,7 @@
 #include <imx_uart.h>
 #include <imx_rdc.h>
 #include <imx8m_caam.h>
+#include <imx8m_csu.h>
 #include <plat_imx8.h>
 
 static const mmap_region_t imx_mmap[] = {
@@ -54,6 +55,20 @@ static const struct imx_rdc_cfg rdc[] = {
 
 	/* Sentinel */
 	{0},
+};
+
+static const struct imx_csu_cfg csu_cfg[] = {
+	/* peripherals csl setting */
+	CSU_CSLx(0x1, CSU_SEC_LEVEL_0, UNLOCKED),
+
+	/* master HP0~1 */
+
+	/* SA setting */
+
+	/* HP control setting */
+
+	/* Sentinel */
+	{0}
 };
 
 static entry_point_info_t bl32_image_ep_info;
@@ -110,6 +125,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	imx_aipstz_init(aipstz);
 
 	imx_rdc_init(rdc);
+
+	imx_csu_init(csu_cfg);
 
 	imx8m_caam_init();
 

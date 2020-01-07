@@ -24,6 +24,7 @@
 #include <imx_uart.h>
 #include <imx_rdc.h>
 #include <imx8m_caam.h>
+#include <imx8m_csu.h>
 #include <platform_def.h>
 #include <plat_imx8.h>
 
@@ -55,6 +56,22 @@ static const struct imx_rdc_cfg rdc[] = {
 	/* Sentinel */
 	{0},
 };
+
+static const struct imx_csu_cfg csu_cfg[] = {
+	/* peripherals csl setting */
+	CSU_CSLx(CSU_CSL_OCRAM, CSU_SEC_LEVEL_2, UNLOCKED),
+	CSU_CSLx(CSU_CSL_OCRAM_S, CSU_SEC_LEVEL_2, UNLOCKED),
+
+	/* master HP0~1 */
+
+	/* SA setting */
+
+	/* HP control setting */
+
+	/* Sentinel */
+	{0}
+};
+
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
@@ -110,6 +127,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	imx_aipstz_init(aipstz);
 
 	imx_rdc_init(rdc);
+
+	imx_csu_init(csu_cfg);
+
+	/* config the ocram memory range for secure access */
+	mmio_write_32(IMX_IOMUX_GPR_BASE + 0x2c, 0xc1);
 
 	imx8m_caam_init();
 
