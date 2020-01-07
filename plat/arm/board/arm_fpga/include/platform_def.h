@@ -8,6 +8,8 @@
 #define PLATFORM_DEF_H
 
 #include <arch.h>
+#include <plat/common/common_def.h>
+#include <platform_def.h>
 #include "../fpga_def.h"
 
 #define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
@@ -25,8 +27,13 @@
 #define PLAT_NUM_PWR_DOMAINS		(FPGA_MAX_CLUSTER_COUNT + \
 					PLATFORM_CORE_COUNT) + 1
 
+#if !ENABLE_PIE
 #define BL31_BASE			UL(0x80000000)
 #define BL31_LIMIT			UL(0x80100000)
+#else
+#define BL31_BASE			UL(0x0)
+#define BL31_LIMIT			UL(0x01000000)
+#endif
 
 #define GICD_BASE			0x30000000
 #define GICR_BASE			0x30040000
