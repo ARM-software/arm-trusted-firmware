@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -216,6 +216,15 @@
 #endif
 	msr	\reg, x1
 	ret
+	.endm
+
+	/*
+	 * Macro for mitigating against speculative execution beyond ERET.
+	 */
+	.macro exception_return
+	eret
+	dsb nsh
+	isb
 	.endm
 
 #endif /* ASM_MACROS_S */

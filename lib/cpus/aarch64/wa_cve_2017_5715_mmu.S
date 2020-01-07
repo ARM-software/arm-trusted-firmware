@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -48,7 +48,7 @@ vector_base wa_cve_2017_5715_mmu_vbar
 		ccmp	w0, w1, #0, eq
 		/* Static predictor will predict a fall through */
 		bne	1f
-		eret
+		exception_return
 1:
 	.endif
 

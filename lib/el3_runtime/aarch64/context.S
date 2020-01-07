@@ -534,6 +534,6 @@ func el3_exit
 	 */
 	esb
 #endif
-	eret
+	exception_return
 
 endfunc el3_exit
