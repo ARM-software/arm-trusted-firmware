@@ -20,6 +20,11 @@ struct dram_info dram_info;
 /* lock used for DDR DVFS */
 spinlock_t dfs_lock;
 
+#if defined(PLAT_imx8mq)
+/* ocram used to dram timing */
+static uint8_t dram_timing_saved[13 * 1024] __aligned(8);
+#endif
+
 static volatile uint32_t wfe_done;
 static volatile bool wait_ddrc_hwffc_done = true;
 static unsigned int dev_fsp = 0x1;
@@ -29,6 +34,31 @@ static uint32_t fsp_init_reg[3][4] = {
 	{ DDRC_FREQ1_INIT3(0), DDRC_FREQ1_INIT4(0), DDRC_FREQ1_INIT6(0), DDRC_FREQ1_INIT7(0) },
 	{ DDRC_FREQ2_INIT3(0), DDRC_FREQ2_INIT4(0), DDRC_FREQ2_INIT6(0), DDRC_FREQ2_INIT7(0) },
 };
+
+#if defined(PLAT_imx8mq)
+static inline struct dram_cfg_param *get_cfg_ptr(void *ptr,
+		void *old_base, void *new_base)
+{
+	uintptr_t offset = (uintptr_t)ptr & ~((uintptr_t)old_base);
+
+	return (struct dram_cfg_param *)(offset + new_base);
+}
+
+/* copy the dram timing info from DRAM to OCRAM */
+void imx8mq_dram_timing_copy(struct dram_timing_info *from)
+{
+	struct dram_timing_info *info = (struct dram_timing_info *)dram_timing_saved;
+
+	/* copy the whole 13KB content used for dram timing info */
+	memcpy(dram_timing_saved, from, sizeof(dram_timing_saved));
+
+	/* correct the header after copied into ocram */
+	info->ddrc_cfg = get_cfg_ptr(info->ddrc_cfg, from, dram_timing_saved);
+	info->ddrphy_cfg = get_cfg_ptr(info->ddrphy_cfg, from, dram_timing_saved);
+	info->ddrphy_trained_csr = get_cfg_ptr(info->ddrphy_trained_csr, from, dram_timing_saved);
+	info->ddrphy_pie = get_cfg_ptr(info->ddrphy_pie, from, dram_timing_saved);
+}
+#endif
 
 #if defined(PLAT_imx8mp)
 static uint32_t lpddr4_mr_read(unsigned int mr_rank, unsigned int mr_addr)
@@ -200,6 +230,10 @@ void dram_info_init(unsigned long dram_timing_base)
 	dram_info.boot_fsp = current_fsp;
 	dram_info.current_fsp = current_fsp;
 
+#if defined(PLAT_imx8mq)
+	imx8mq_dram_timing_copy((struct dram_timing_info *)dram_timing_base);
+	dram_timing_base = (unsigned long) dram_timing_saved;
+#endif
 	get_mr_values(dram_info.mr_table);
 
 	dram_info.timing_info = (struct dram_timing_info *)dram_timing_base;

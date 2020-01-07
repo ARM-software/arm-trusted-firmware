@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <lib/utils_def.h>
 #include <plat/common/common_def.h>
 
 #define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
@@ -82,6 +83,9 @@
 #define IMX_DDRC_BASE			U(0x3d400000)
 #define IMX_DDRPHY_BASE			U(0x3c000000)
 #define IMX_DDR_IPS_BASE		U(0x3d000000)
+#define IMX_DDR_IPS_SIZE		U(0x1800000)
+#define IMX_DRAM_BASE			U(0x40000000)
+#define IMX_DRAM_SIZE			U(0xc0000000)
 
 #define IMX_ROM_BASE			U(0x00000000)
 #define IMX_ROM_SIZE			U(0x20000)
@@ -119,6 +123,12 @@
 #define SNVS_LPCR_DP_EN			BIT(5)
 #define SNVS_LPCR_TOP			BIT(6)
 
+#define SAVED_DRAM_TIMING_BASE		U(0x40000000)
+
+#define HW_DRAM_PLL_CFG0		(IMX_ANAMIX_BASE + 0x60)
+#define HW_DRAM_PLL_CFG1		(IMX_ANAMIX_BASE + 0x64)
+#define HW_DRAM_PLL_CFG2		(IMX_ANAMIX_BASE + 0x68)
+#define DRAM_PLL_CTRL			HW_DRAM_PLL_CFG0
 
 #define IOMUXC_GPR10			U(0x28)
 #define GPR_TZASC_EN			BIT(0)

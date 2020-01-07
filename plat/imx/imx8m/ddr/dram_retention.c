@@ -23,8 +23,6 @@
 #define CCM_CCGR(n)		(CCM_CCGR_OFFSET + 0x10 * (n))
 #define CCM_TARGET_ROOT(n)	(CCM_TARGET_ROOT_OFFSET + 0x80 * (n))
 
-#define DRAM_PLL_CTRL		(IMX_ANAMIX_BASE + 0x50)
-
 #define DBGCAM_EMPTY		0x36000000
 
 static void rank_setting_update(void)
