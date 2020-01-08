@@ -59,13 +59,13 @@ Build Procedure
 
    .. code:: shell
 
-       CROSS_COMPILE=aarch64-none-elf- make PLAT=ls1043 bl1
+       CROSS_COMPILE=aarch64-linux-gnu- make PLAT=ls1043 bl1
 
    Build fip:
 
    .. code:: shell
 
-       CROSS_COMPILE=aarch64-none-elf- make PLAT=ls1043 fip \
+       CROSS_COMPILE=aarch64-linux-gnu- make PLAT=ls1043 fip \
        BL33=u-boot.bin NEED_BL32=yes BL32=tee.bin SPD=opteed
 
 Deploy TF-A Images

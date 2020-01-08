@@ -8,13 +8,13 @@ Performing an Initial Build
 
    .. code:: shell
 
-       export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf-
+       export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
 
    For AArch32:
 
    .. code:: shell
 
-       export CROSS_COMPILE=<path-to-aarch32-gcc>/bin/arm-none-eabi-
+       export CROSS_COMPILE=<path-to-aarch32-gcc>/bin/arm-eabi-
 
    It is possible to build TF-A using Clang or Arm Compiler 6. To do so
    ``CC`` needs to point to the clang or armclang binary, which will
@@ -32,7 +32,7 @@ Performing an Initial Build
 
    .. code:: shell
 
-       export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf-
+       export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
        make CC=<path-to-armclang>/bin/armclang PLAT=<platform> all
 
    Clang will be selected when the base name of the path assigned to ``CC``
@@ -43,7 +43,7 @@ Performing an Initial Build
 
    .. code:: shell
 
-       export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-none-elf-
+       export CROSS_COMPILE=<path-to-aarch64-gcc>/bin/aarch64-linux-gnu-
        make CC=<path-to-clang>/bin/clang PLAT=<platform> all
 
 -  Change to the root directory of the TF-A source tree and build.

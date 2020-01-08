@@ -68,7 +68,7 @@ Build Procedure
 
 .. code:: bash
 
-       make CROSS_COMPILE=aarch64-none-elf- all fip SPD=none PLAT=poplar
+       make CROSS_COMPILE=aarch64-linux-gnu-  all fip SPD=none PLAT=poplar
        BL33=u-boot.bin
 
 -  Build l-loader (generated the final fastboot.bin)

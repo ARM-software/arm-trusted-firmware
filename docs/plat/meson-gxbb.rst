@@ -17,7 +17,7 @@ In order to build it:
 
 .. code:: shell
 
-    CROSS_COMPILE=aarch64-none-elf- make DEBUG=1 PLAT=gxbb bl31
+    CROSS_COMPILE=aarch64-linux-gnu- make DEBUG=1 PLAT=gxbb bl31
 
 This port has been tested in a ODROID-C2. After building it, follow the
 instructions in the `U-Boot repository`_, replacing the mentioned **bl31.bin**

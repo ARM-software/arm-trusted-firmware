@@ -41,7 +41,7 @@ Build Procedure
 
 .. code:: bash
 
-       make CROSS_COMPILE=aarch64-none-elf- bl2 fip PLAT=agilex
+       make CROSS_COMPILE=aarch64-linux-gnu- bl2 fip PLAT=agilex
        BL33=PEI.ROM
 
 Install Procedure
