@@ -9,6 +9,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 
@@ -38,6 +39,21 @@ int imx_validate_power_state(unsigned int power_state,
 	}
 
 	return PSCI_E_SUCCESS;
+}
+
+void imx_pwr_domain_off(const psci_power_state_t *target_state)
+{
+	uint64_t mpidr = read_mpidr_el1();
+	unsigned int core_id = MPIDR_AFFLVL0_VAL(mpidr);
+
+	plat_gic_cpuif_disable();
+	imx_set_cpu_pwr_off(core_id);
+
+	/*
+	 *  TODO: Find out why this is still
+	 * needed in order not to break suspend
+	 */
+	udelay(50);
 }
 
 void imx_domain_suspend(const psci_power_state_t *target_state)
@@ -88,6 +104,8 @@ void imx_domain_suspend_finish(const psci_power_state_t *target_state)
 
 	/* check the core level power status */
 	if (is_local_state_off(CORE_PWR_STATE(target_state))) {
+		/* mark this core as awake by masking IRQ0 */
+		imx_gpc_set_a53_core_awake(core_id);
 		/* clear the core lpm setting */
 		imx_set_cpu_lpm(core_id, false);
 		/* enable the gic cpu interface */

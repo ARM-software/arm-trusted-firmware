@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,6 +29,9 @@ DEFINE_BAKERY_LOCK(gpc_lock);
 #pragma weak imx_set_cpu_pwr_on
 #pragma weak imx_set_cpu_lpm
 #pragma weak imx_set_cluster_powerdown
+#pragma weak imx_set_sys_wakeup
+#pragma weak imx_noc_slot_config
+#pragma weak imx_gpc_handler
 
 void imx_set_cpu_secure_entry(unsigned int core_id, uintptr_t sec_entrypoint)
 {
@@ -211,7 +214,6 @@ void imx_set_sys_wakeup(unsigned int last_core, bool pdn)
 	}
 }
 
-#pragma weak imx_noc_slot_config
 /*
  * this function only need to be override by platform
  * that support noc power down, for example: imx8mm.

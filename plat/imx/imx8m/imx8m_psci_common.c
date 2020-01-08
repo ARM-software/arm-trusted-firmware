@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,6 +24,7 @@
  * reuse below ones.
  */
 #pragma weak imx_validate_power_state
+#pragma weak imx_pwr_domain_off
 #pragma weak imx_domain_suspend
 #pragma weak imx_domain_suspend_finish
 #pragma weak imx_get_sys_suspend_power_state
