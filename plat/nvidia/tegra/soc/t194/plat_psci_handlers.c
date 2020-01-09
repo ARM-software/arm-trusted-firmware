@@ -26,7 +26,6 @@
 #include <tegra_platform.h>
 #include <tegra_private.h>
 
-extern void tegra194_cpu_reset_handler(void);
 extern uint32_t __tegra194_cpu_reset_handler_data,
 		__tegra194_cpu_reset_handler_end;
 

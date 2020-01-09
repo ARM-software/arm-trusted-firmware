@@ -137,7 +137,6 @@ int32_t bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes);
 void tegra_delay_timer_init(void);
 
 void tegra_secure_entrypoint(void);
-void tegra186_cpu_reset_handler(void);
 
 /* Declarations for tegra_sip_calls.c */
 uintptr_t tegra_sip_handler(uint32_t smc_fid,

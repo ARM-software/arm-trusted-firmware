@@ -30,9 +30,6 @@
 
 #pragma weak plat_set_nv_ctr2
 
-/* Pointer to CoT */
-extern const auth_img_desc_t *const *const cot_desc_ptr;
-extern unsigned int auth_img_flags[MAX_NUMBER_IDS];
 
 static int cmp_auth_param_type_desc(const auth_param_type_desc_t *a,
 		const auth_param_type_desc_t *b)

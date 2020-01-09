@@ -320,7 +320,6 @@ void spm_register_init(void);
 void spm_go_to_hotplug(void);
 void spm_init_event_vector(const struct pcm_desc *pcmdesc);
 void spm_kick_im_to_fetch(const struct pcm_desc *pcmdesc);
-void spm_set_sysclk_settle(void);
 int is_mcdi_ready(void);
 int is_hotplug_ready(void);
 int is_suspend_ready(void);

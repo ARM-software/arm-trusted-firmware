@@ -66,7 +66,6 @@ uint64_t nvg_get_result(void);
 uint64_t nvg_cache_clean(void);
 uint64_t nvg_cache_clean_inval(void);
 uint64_t nvg_cache_inval_all(void);
-int32_t nvg_roc_clean_cache_trbits(void);
 void nvg_enable_strict_checking_mode(void);
 
 /* MCE helper functions */
