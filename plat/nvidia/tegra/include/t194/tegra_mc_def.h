@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2019, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TEGRA_MC_DEF_H__
-#define __TEGRA_MC_DEF_H__
+#ifndef TEGRA_MC_DEF_H
+#define TEGRA_MC_DEF_H
 
 /*******************************************************************************
  * Memory Controller Order_id registers
@@ -647,4 +647,4 @@
 #define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK			(ULL(0x3) << 11)
 #define TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU			(ULL(0) << 11)
 
-#endif /* __TEGRA_MC_DEF_H__ */
+#endif /* TEGRA_MC_DEF_H */
