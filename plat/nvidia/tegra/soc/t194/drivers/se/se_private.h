@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __SE_PRIVATE_H__
-#define __SE_PRIVATE_H__
+#ifndef SE_PRIVATE_H
+#define SE_PRIVATE_H
 
 #include <lib/utils_def.h>
 
@@ -82,4 +82,4 @@ static inline void tegra_se_write_32(uint32_t offset, uint32_t val)
 	mmio_write_32(TEGRA_SE0_BASE + offset, val);
 }
 
-#endif /* __SE_PRIVATE_H__ */
+#endif /* SE_PRIVATE_H */
