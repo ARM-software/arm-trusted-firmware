@@ -27,6 +27,8 @@ OBJECTS := src/cert.o \
 # Chain of trust.
 ifeq (${COT},tbbr)
   include src/tbbr/tbbr.mk
+else ifeq (${COT},dualroot)
+  include src/dualroot/cot.mk
 else
   $(error Unknown chain of trust ${COT})
 endif
