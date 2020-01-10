@@ -24,6 +24,7 @@
 #define COREx_LPM_PUP(core_id)		((core_id) < 2 ? (1 << ((core_id) * 2 + 9)) : (1 << ((core_id) * 2 + 21)))
 #define SLTx_CFG(n)			((SLT0_CFG + ((n) * 4)))
 #define SLT_COREx_PUP(core_id)		(0x2 << ((core_id) * 2))
+#define SLT_COREx_PUP_ACK(core_id)	((core_id) < 2 ? (1 << ((core_id) + 16)) : (1 << ((core_id) + 27)))
 
 #define IMR_MASK_ALL	0xffffffff
 

@@ -261,7 +261,7 @@ void imx_pup_pdn_slot_config(int last_core, bool pdn)
 		mmio_setbits_32(IMX_GPC_BASE + SLTx_CFG(2), SLT_COREx_PUP(last_core));
 		/* ACK setting: PLAT ACK for PDN, CORE ACK for PUP */
 		mmio_clrsetbits_32(IMX_GPC_BASE + PGC_ACK_SEL_A53, 0xFFFFFFFF,
-			A53_PLAT_PDN_ACK | A53_PLAT_PUP_ACK);
+			A53_PLAT_PDN_ACK | SLT_COREx_PUP_ACK(last_core));
 	} else {
 		mmio_clrbits_32(IMX_GPC_BASE + SLTx_CFG(0), 0xFFFFFFFF);
 		mmio_clrbits_32(IMX_GPC_BASE + SLTx_CFG(1), 0xFFFFFFFF);
