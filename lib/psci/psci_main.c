@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -219,16 +219,19 @@ int psci_cpu_off(void)
 int psci_affinity_info(u_register_t target_affinity,
 		       unsigned int lowest_affinity_level)
 {
-	int target_idx;
+	int ret;
+	unsigned int target_idx;
 
 	/* We dont support level higher than PSCI_CPU_PWR_LVL */
 	if (lowest_affinity_level > PSCI_CPU_PWR_LVL)
 		return PSCI_E_INVALID_PARAMS;
 
 	/* Calculate the cpu index of the target */
-	target_idx = plat_core_pos_by_mpidr(target_affinity);
-	if (target_idx == -1)
+	ret = plat_core_pos_by_mpidr(target_affinity);
+	if (ret == -1) {
 		return PSCI_E_INVALID_PARAMS;
+	}
+	target_idx = (unsigned int)ret;
 
 	/*
 	 * Generic management:
@@ -245,7 +248,7 @@ int psci_affinity_info(u_register_t target_affinity,
 	 * target CPUs shutdown was not seen by the current CPU's cluster. And
 	 * so the cache may contain stale data for the target CPU.
 	 */
-	flush_cpu_data_by_index((unsigned int)target_idx,
+	flush_cpu_data_by_index(target_idx,
 				psci_svc_cpu_data.aff_info_state);
 
 	return psci_get_aff_info_state_by_idx(target_idx);

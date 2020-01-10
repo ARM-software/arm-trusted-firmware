@@ -10,17 +10,17 @@
 #include <lib/utils_def.h>
 
 /* Default cluster count for FVP VE */
-#define FVP_VE_CLUSTER_COUNT	1
+#define FVP_VE_CLUSTER_COUNT		U(1)
 
 /* Default number of CPUs per cluster on FVP VE */
-#define FVP_VE_MAX_CPUS_PER_CLUSTER	1
+#define FVP_VE_MAX_CPUS_PER_CLUSTER	U(1)
 
 /* Default number of threads per CPU on FVP VE */
-#define FVP_VE_MAX_PE_PER_CPU	1
+#define FVP_VE_MAX_PE_PER_CPU		U(1)
 
-#define FVP_VE_CORE_COUNT 1
+#define FVP_VE_CORE_COUNT		U(1)
 
-#define FVP_VE_PRIMARY_CPU			0x0
+#define FVP_VE_PRIMARY_CPU		0x0
 
 /*******************************************************************************
  * FVP memory map related constants

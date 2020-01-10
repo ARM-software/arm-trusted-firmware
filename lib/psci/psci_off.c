@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,7 +43,7 @@ static void psci_set_power_off_state(psci_power_state_t *state_info)
 int psci_do_cpu_off(unsigned int end_pwrlvl)
 {
 	int rc = PSCI_E_SUCCESS;
-	int idx = (int) plat_my_core_pos();
+	unsigned int idx = plat_my_core_pos();
 	psci_power_state_t state_info;
 	unsigned int parent_nodes[PLAT_MAX_PWR_LVL] = {0};
 

@@ -186,7 +186,7 @@ void css_scp_off(const struct psci_power_state *target_state)
 void css_scp_on(u_register_t mpidr)
 {
 	unsigned int lvl = 0;
-	int ret, core_pos;
+	int core_pos, ret;
 	uint32_t scmi_pwr_state = 0;
 
 	for (; lvl <= PLAT_MAX_PWR_LVL; lvl++)
@@ -196,7 +196,8 @@ void css_scp_on(u_register_t mpidr)
 	SCMI_SET_PWR_STATE_MAX_PWR_LVL(scmi_pwr_state, lvl - 1);
 
 	core_pos = plat_core_pos_by_mpidr(mpidr);
-	assert(core_pos >= 0 && core_pos < PLATFORM_CORE_COUNT);
+	assert((core_pos >= 0) &&
+		(((unsigned int)core_pos) < PLATFORM_CORE_COUNT));
 
 	ret = scmi_pwr_state_set(scmi_handle,
 		plat_css_core_pos_to_scmi_dmn_id_map[core_pos],

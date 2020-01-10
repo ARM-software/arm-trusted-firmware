@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,7 +28,7 @@ typedef struct psci_stat {
  * that goes to power down in non cpu power domains.
  */
 static int last_cpu_in_non_cpu_pd[PSCI_NUM_NON_CPU_PWR_DOMAINS] = {
-		[0 ... PSCI_NUM_NON_CPU_PWR_DOMAINS - 1] = -1};
+		[0 ... PSCI_NUM_NON_CPU_PWR_DOMAINS - 1U] = -1};
 
 /*
  * Following are used to store PSCI STAT values for
@@ -77,7 +77,7 @@ void psci_stats_update_pwr_down(unsigned int end_pwrlvl,
 			const psci_power_state_t *state_info)
 {
 	unsigned int lvl, parent_idx;
-	int cpu_idx = (int) plat_my_core_pos();
+	unsigned int cpu_idx = plat_my_core_pos();
 
 	assert(end_pwrlvl <= PLAT_MAX_PWR_LVL);
 	assert(state_info != NULL);
@@ -94,7 +94,7 @@ void psci_stats_update_pwr_down(unsigned int end_pwrlvl,
 		 * The power domain is entering a low power state, so this is
 		 * the last CPU for this power domain
 		 */
-		last_cpu_in_non_cpu_pd[parent_idx] = cpu_idx;
+		last_cpu_in_non_cpu_pd[parent_idx] = (int)cpu_idx;
 
 		parent_idx = psci_non_cpu_pd_nodes[parent_idx].parent_node;
 	}
@@ -110,7 +110,7 @@ void psci_stats_update_pwr_up(unsigned int end_pwrlvl,
 			const psci_power_state_t *state_info)
 {
 	unsigned int lvl, parent_idx;
-	int cpu_idx = (int) plat_my_core_pos();
+	unsigned int cpu_idx = plat_my_core_pos();
 	int stat_idx;
 	plat_local_state_t local_state;
 	u_register_t residency;
@@ -150,7 +150,7 @@ void psci_stats_update_pwr_up(unsigned int end_pwrlvl,
 
 		/* Call into platform interface to calculate residency. */
 		residency = plat_psci_stat_get_residency(lvl, state_info,
-					last_cpu_in_non_cpu_pd[parent_idx]);
+			(unsigned int)last_cpu_in_non_cpu_pd[parent_idx]);
 
 		/* Initialize back to reset value */
 		last_cpu_in_non_cpu_pd[parent_idx] = -1;

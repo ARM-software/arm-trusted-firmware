@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,8 +17,8 @@
 #include <plat/common/common_def.h>
 
 /* CPU topology */
-#define PLAT_ARM_CLUSTER_COUNT		1
-#define PLAT_ARM_CLUSTER_CORE_COUNT	8
+#define PLAT_ARM_CLUSTER_COUNT		U(1)
+#define PLAT_ARM_CLUSTER_CORE_COUNT	U(8)
 #define PLATFORM_CORE_COUNT		PLAT_ARM_CLUSTER_CORE_COUNT
 
 #define PLAT_MAX_PWR_LVL		ARM_PWR_LVL2
