@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -344,7 +344,7 @@ TF_LDFLAGS		+=	$(TF_LDFLAGS_$(ARCH))
 endif
 
 DTC_FLAGS		+=	-I dts -O dtb
-DTC_CPPFLAGS		+=	-nostdinc -Iinclude -undef -x assembler-with-cpp
+DTC_CPPFLAGS		+=	-P -nostdinc -Iinclude -Ifdts -undef -x assembler-with-cpp
 
 ################################################################################
 # Common sources and include directories
