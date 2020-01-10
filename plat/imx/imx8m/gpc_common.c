@@ -236,7 +236,7 @@ void imx_set_sys_lpm(unsigned int last_core, bool retention)
 
 	if (retention)
 		val |= (SLPCR_EN_DSM | SLPCR_VSTBY | SLPCR_SBYOS |
-			SLPCR_BYPASS_PMIC_READY | SLPCR_A53_FASTWUP_STOP_MODE);
+			SLPCR_BYPASS_PMIC_READY);
 
 	mmio_write_32(IMX_GPC_BASE + SLPCR, val);
 
