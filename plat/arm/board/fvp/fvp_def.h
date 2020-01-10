@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,15 +10,15 @@
 #include <lib/utils_def.h>
 
 #ifndef FVP_CLUSTER_COUNT
-#define FVP_CLUSTER_COUNT		2
+#error "FVP_CLUSTER_COUNT is not set in makefile"
 #endif
 
 #ifndef FVP_MAX_CPUS_PER_CLUSTER
-#define FVP_MAX_CPUS_PER_CLUSTER	4
+#error "FVP_MAX_CPUS_PER_CLUSTER is not set in makefile"
 #endif
 
 #ifndef FVP_MAX_PE_PER_CPU
-# define FVP_MAX_PE_PER_CPU		1
+#error "FVP_MAX_PE_PER_CPU is not set in makefile"
 #endif
 
 #define FVP_PRIMARY_CPU			0x0
