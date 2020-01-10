@@ -1,5 +1,5 @@
-﻿/*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+/*
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2017, NVIDIA CORPORATION.  All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
