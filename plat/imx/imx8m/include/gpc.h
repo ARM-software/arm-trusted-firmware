@@ -54,6 +54,11 @@ struct imx_pwr_domain {
 	bool always_on;
 };
 
+struct pll_override {
+	uint32_t reg;
+	uint32_t override_mask;
+};
+
 DECLARE_BAKERY_LOCK(gpc_lock);
 
 /* function declare */

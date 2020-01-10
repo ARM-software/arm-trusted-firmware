@@ -32,6 +32,7 @@ DEFINE_BAKERY_LOCK(gpc_lock);
 #pragma weak imx_set_sys_wakeup
 #pragma weak imx_noc_slot_config
 #pragma weak imx_gpc_handler
+#pragma weak imx_anamix_override
 
 void imx_set_cpu_secure_entry(unsigned int core_id, uintptr_t sec_entrypoint)
 {
@@ -257,11 +258,6 @@ void imx_clear_rbc_count(void)
 	mmio_clrbits_32(IMX_GPC_BASE + SLPCR, SLPCR_RBC_EN |
 		(0x3f << SLPCR_RBC_COUNT_SHIFT));
 }
-
-struct pll_override {
-	uint32_t reg;
-	uint32_t override_mask;
-};
 
 struct pll_override pll[MAX_PLL_NUM] = {
 	{.reg = 0x0, .override_mask = (1 << 12) | (1 << 8), },

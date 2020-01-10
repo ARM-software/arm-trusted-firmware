@@ -320,6 +320,39 @@ void imx_set_cluster_powerdown(unsigned int last_core, uint8_t power_state)
 	}
 }
 
+#define MAX_PLL_NUM	U(12)
+
+static const struct pll_override imx8mq_pll[MAX_PLL_NUM] = {
+	{.reg = 0x0, .override_mask = 0x140000, },
+	{.reg = 0x8, .override_mask = 0x140000, },
+	{.reg = 0x10, .override_mask = 0x140000, },
+	{.reg = 0x18, .override_mask = 0x140000, },
+	{.reg = 0x20, .override_mask = 0x140000, },
+	{.reg = 0x28, .override_mask = 0x140000, },
+	{.reg = 0x30, .override_mask = 0x1555540, },
+	{.reg = 0x3c, .override_mask = 0x1555540, },
+	{.reg = 0x48, .override_mask = 0x140, },
+	{.reg = 0x54, .override_mask = 0x140, },
+	{.reg = 0x60, .override_mask = 0x140, },
+	{.reg = 0x70, .override_mask = 0xa, },
+};
+
+void imx_anamix_override(bool enter)
+{
+	unsigned int i;
+
+	/* enable the pll override bit before entering DSM mode */
+	for (i = 0; i < MAX_PLL_NUM; i++) {
+		if (enter) {
+			mmio_setbits_32(IMX_ANAMIX_BASE + imx8mq_pll[i].reg,
+				imx8mq_pll[i].override_mask);
+		} else {
+			mmio_clrbits_32(IMX_ANAMIX_BASE + imx8mq_pll[i].reg,
+				imx8mq_pll[i].override_mask);
+		}
+	}
+}
+
 int imx_gpc_handler(uint32_t smc_fid,
 			  u_register_t x1,
 			  u_register_t x2,
