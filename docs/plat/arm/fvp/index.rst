@@ -223,7 +223,7 @@ address ``0x82000000``, the firmware can be built like this:
 
 .. code:: shell
 
-    CROSS_COMPILE=aarch64-none-elf-  \
+    CROSS_COMPILE=aarch64-linux-gnu-  \
     make PLAT=fvp DEBUG=1             \
     RESET_TO_BL31=1                   \
     ARM_LINUX_KERNEL_AS_BL33=1        \

@@ -17,4 +17,4 @@ How to Build
 
 .. code:: shell
 
-    make CROSS_COMPILE=aarch64-none-elf- PLAT=mt8183 DEBUG=1
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=mt8183 DEBUG=1

@@ -9,7 +9,7 @@ Build Instructions
 
     .. code:: shell
 
-        > export CROSS_COMPILE=/path/to/toolchain/aarch64-none-elf-
+        > export CROSS_COMPILE=/path/to/toolchain/aarch64-linux-gnu-
 
 (2) Set path for FIP images:
 

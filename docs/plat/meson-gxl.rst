@@ -17,7 +17,7 @@ In order to build it:
 
 .. code:: shell
 
-    CROSS_COMPILE=aarch64-none-elf- make DEBUG=1 PLAT=gxl
+    CROSS_COMPILE=aarch64-linux-gnu- make DEBUG=1 PLAT=gxl
 
 This port has been tested on a Lepotato. After building it, follow the
 instructions in the `gxlimg repository` or `U-Boot repository`_, replacing the

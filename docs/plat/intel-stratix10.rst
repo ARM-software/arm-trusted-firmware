@@ -41,7 +41,7 @@ Build Procedure
 
 .. code:: bash
 
-       make CROSS_COMPILE=aarch64-none-elf- bl2 fip PLAT=stratix10
+       make CROSS_COMPILE=aarch64-linux-gnu- bl2 fip PLAT=stratix10
        BL33=PEI.ROM
 
 Install Procedure

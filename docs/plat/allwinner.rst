@@ -26,13 +26,13 @@ To build for machines with an A64 or H5 SoC:
 
 .. code:: shell
 
-    make CROSS_COMPILE=aarch64-none-elf- PLAT=sun50i_a64 DEBUG=1 bl31
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sun50i_a64 DEBUG=1 bl31
 
 To build for machines with an H6 SoC:
 
 .. code:: shell
 
-    make CROSS_COMPILE=aarch64-none-elf- PLAT=sun50i_h6 DEBUG=1 bl31
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sun50i_h6 DEBUG=1 bl31
 
 .. _U-Boot documentation: http://git.denx.de/?p=u-boot.git;f=board/sunxi/README.sunxi64;hb=HEAD
 

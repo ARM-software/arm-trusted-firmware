@@ -27,7 +27,7 @@ To build TF-A:
 
     git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git tfa
     cd tfa
-    export CROSS_COMPILE=aarch64-none-elf-
+    export CROSS_COMPILE=aarch64-linux-gnu-
     make PLAT=qemu_sbsa all fip
 
 Images will be placed at build/qemu_sbsa/release (bl1.bin and fip.bin).
