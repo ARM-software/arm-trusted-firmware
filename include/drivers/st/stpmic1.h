@@ -148,6 +148,7 @@
 #define OCP_LIMIT_HIGH			BIT(3)
 #define SWIN_SWOUT_ENABLED		BIT(2)
 #define USBSW_OTG_SWITCH_ENABLED	BIT(1)
+#define BOOST_ENABLED			BIT(0)
 
 int stpmic1_powerctrl_on(void);
 int stpmic1_switch_off(void);
