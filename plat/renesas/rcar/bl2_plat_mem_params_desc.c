@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -53,6 +53,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 			entry_point_info_t, SECURE | EXECUTABLE),
 		.ep_info.pc = BL32_BASE,
 		.ep_info.spsr = 0,
+		.ep_info.args.arg3 = (uintptr_t)fdt_blob,
 
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP, VERSION_2,
 			image_info_t, 0),
