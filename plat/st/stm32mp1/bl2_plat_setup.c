@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -130,6 +130,7 @@ void bl2_el3_early_platform_setup(u_register_t arg0,
 void bl2_platform_setup(void)
 {
 	int ret;
+	uint32_t ddr_ns_size;
 
 	if (dt_pmic_status() > 0) {
 		initialize_pmic();
@@ -141,8 +142,24 @@ void bl2_platform_setup(void)
 		panic();
 	}
 
+	ddr_ns_size = stm32mp_get_ddr_ns_size();
+	assert(ddr_ns_size > 0U);
+
+	/* Map non secure DDR for BL33 load, now with cacheable attribute */
+	ret = mmap_add_dynamic_region(STM32MP_DDR_BASE, STM32MP_DDR_BASE,
+				      ddr_ns_size, MT_MEMORY | MT_RW | MT_NS);
+	assert(ret == 0);
+
 #ifdef AARCH32_SP_OPTEE
 	INFO("BL2 runs OP-TEE setup\n");
+
+	/* Map secure DDR for OP-TEE paged area */
+	ret = mmap_add_dynamic_region(STM32MP_DDR_BASE + ddr_ns_size,
+				      STM32MP_DDR_BASE + ddr_ns_size,
+				      STM32MP_DDR_S_SIZE,
+				      MT_MEMORY | MT_RW | MT_SECURE);
+	assert(ret == 0);
+
 	/* Initialize tzc400 after DDR initialization */
 	stm32mp1_security_setup();
 #else
@@ -166,14 +183,6 @@ void bl2_el3_plat_arch_setup(void)
 			MT_CODE | MT_SECURE);
 
 #ifdef AARCH32_SP_OPTEE
-	/* OP-TEE image needs post load processing: keep RAM read/write */
-	mmap_add_region(STM32MP_DDR_BASE + dt_get_ddr_size() -
-			STM32MP_DDR_S_SIZE - STM32MP_DDR_SHMEM_SIZE,
-			STM32MP_DDR_BASE + dt_get_ddr_size() -
-			STM32MP_DDR_S_SIZE - STM32MP_DDR_SHMEM_SIZE,
-			STM32MP_DDR_S_SIZE,
-			MT_MEMORY | MT_RW | MT_SECURE);
-
 	mmap_add_region(STM32MP_OPTEE_BASE, STM32MP_OPTEE_BASE,
 			STM32MP_OPTEE_SIZE,
 			MT_MEMORY | MT_RW | MT_SECURE);
@@ -182,14 +191,7 @@ void bl2_el3_plat_arch_setup(void)
 	mmap_add_region(BL32_BASE, BL32_BASE,
 			BL32_LIMIT - BL32_BASE,
 			MT_MEMORY | MT_RO | MT_SECURE);
-
 #endif
-	/* Map non secure DDR for BL33 load and DDR training area restore */
-	mmap_add_region(STM32MP_DDR_BASE,
-			STM32MP_DDR_BASE,
-			STM32MP_DDR_MAX_SIZE,
-			MT_MEMORY | MT_RW | MT_NS);
-
 	/* Prevent corruption of preloaded Device Tree */
 	mmap_add_region(DTB_BASE, DTB_BASE,
 			DTB_LIMIT - DTB_BASE,

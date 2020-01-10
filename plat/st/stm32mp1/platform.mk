@@ -11,6 +11,11 @@ USE_COHERENT_MEM	:=	0
 
 STM32_TF_VERSION	?=	0
 
+# Enable dynamic memory mapping
+PLAT_XLAT_TABLES_DYNAMIC :=	1
+$(eval $(call assert_boolean,PLAT_XLAT_TABLES_DYNAMIC))
+$(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
+
 # Not needed for Cortex-A7
 WORKAROUND_CVE_2017_5715:=	0
 
@@ -151,8 +156,6 @@ endif
 STM32_TF_ELF_LDFLAGS	:=	--hash-style=gnu --as-needed
 STM32_TF_STM32		:=	$(addprefix ${BUILD_PLAT}/tf-a-, $(patsubst %.dtb,%.stm32,$(DTB_FILE_NAME)))
 STM32_TF_LINKERFILE	:=	${BUILD_PLAT}/stm32mp1.ld
-
-BL2_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
 
 # Variables for use with stm32image
 STM32IMAGEPATH		?= tools/stm32image
