@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -245,9 +245,11 @@ ENABLE_AMU			:=	1
 DYNAMIC_WORKAROUND_CVE_2018_3639	:=	1
 
 # Enable reclaiming of BL31 initialisation code for secondary cores
-# stacks for FVP.
+# stacks for FVP. However, don't enable reclaiming for clang.
 ifneq (${RESET_TO_BL31},1)
+ifeq ($(findstring clang,$(notdir $(CC))),)
 RECLAIM_INIT_CODE	:=	1
+endif
 endif
 
 ifeq (${ENABLE_AMU},1)
