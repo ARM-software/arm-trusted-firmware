@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2017, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2017-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch_helpers.h>
 #include <assert.h>
-#include <debug.h>
+#include <common/debug.h>
 #include <errno.h>
 #include <stddef.h>
 #include <string.h>
