@@ -124,5 +124,6 @@ int marvell_get_iob_memory_map(struct addr_map_win **win,
 			       uint32_t *size, uintptr_t base);
 int marvell_get_ccu_memory_map(int ap_idx, struct addr_map_win **win,
 			       uint32_t *size);
+int system_power_off(void);
 
 #endif /* ARMADA_COMMON_H */
