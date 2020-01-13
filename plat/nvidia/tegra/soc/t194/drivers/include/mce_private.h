@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __MCE_PRIVATE_H__
-#define __MCE_PRIVATE_H__
+#ifndef MCE_PRIVATE_H
+#define MCE_PRIVATE_H
 
 #include <tegra_def.h>
 
@@ -71,4 +71,4 @@ void nvg_enable_strict_checking_mode(void);
 /* MCE helper functions */
 void mce_enable_strict_checking(void);
 
-#endif /* __MCE_PRIVATE_H__ */
+#endif /* MCE_PRIVATE_H */

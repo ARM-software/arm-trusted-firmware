@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __TEGRA_DEF_H__
-#define __TEGRA_DEF_H__
+#ifndef TEGRA_DEF_H
+#define TEGRA_DEF_H
 
 #include <lib/utils_def.h>
 
@@ -237,4 +237,4 @@
 #define TEGRA_SID_XUSB_VF2			U(0x5f)
 #define TEGRA_SID_XUSB_VF3			U(0x60)
 
-#endif /* __TEGRA_DEF_H__ */
+#endif /* TEGRA_DEF_H */
