@@ -87,6 +87,11 @@ typedef struct {
  * framework. The |console| pointer must point to storage that will be valid
  * for the lifetime of the console, such as a global or static local variable.
  * Its contents will be reinitialized from scratch.
+ * When |clock| has a value of 0, the UART will *not* be initialised. This
+ * means the UART should already be enabled and the baudrate and clock setup
+ * should have been done already, either by platform specific code or by
+ * previous firmware stages. The |baud| parameter will be ignored in this
+ * case as well.
  */
 int console_16550_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
 			   console_16550_t *console);
