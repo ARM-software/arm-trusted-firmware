@@ -22,10 +22,9 @@
 #define MAX_MEM_CAL_RETRY		3
 #define PRE_CALIBRATION_DELAY		1
 #define POST_CALIBRATION_DELAY		1
-#define TIMEOUT_EMIF_CALIBRATION	100
-#define CLEAR_EMIF_DELAY		50000
-#define CLEAR_EMIF_TIMEOUT		0x100000
-#define TIMEOUT_INT_RESP		10000
+#define TIMEOUT_EMIF_CALIBRATION	1000
+#define CLEAR_EMIF_DELAY		1000
+#define CLEAR_EMIF_TIMEOUT		1000
 
 #define DDR_CONFIG(A, B, C, R)	(((A) << 24) | ((B) << 16) | ((C) << 8) | (R))
 #define DDR_CONFIG_ELEMENTS	(sizeof(ddr_config)/sizeof(uint32_t))
@@ -128,13 +127,13 @@ static int mem_calibration(void)
 			data = mmio_read_32(S10_MPFE_HMC_ADP_DDRCALSTAT);
 			if (S10_MPFE_HMC_ADP_DDRCALSTAT_CAL(data) == 1)
 				break;
-			udelay(1);
+			udelay(500);
 		} while (++timeout < TIMEOUT_EMIF_CALIBRATION);
 
 		if (S10_MPFE_HMC_ADP_DDRCALSTAT_CAL(data) == 0) {
 			status = clear_emif();
-		if (status)
-			ERROR("Failed to clear Emif\n");
+			if (status)
+				ERROR("Failed to clear Emif\n");
 		} else {
 			break;
 		}
