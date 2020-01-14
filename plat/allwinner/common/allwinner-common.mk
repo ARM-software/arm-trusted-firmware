@@ -55,6 +55,9 @@ PROGRAMMABLE_RESET_ADDRESS	:=	1
 # Allow mapping read-only data as execute-never.
 SEPARATE_CODE_AND_RODATA	:=	1
 
+# Put NOBITS memory in SRAM A1, overwriting U-Boot's SPL.
+SEPARATE_NOBITS_REGION		:=	1
+
 # BL31 gets loaded alongside BL33 (U-Boot) by U-Boot's SPL
 RESET_TO_BL31			:=	1
 
