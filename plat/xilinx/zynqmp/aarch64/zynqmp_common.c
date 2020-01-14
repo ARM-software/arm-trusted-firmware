@@ -189,6 +189,18 @@ static const struct {
 		.id = 0x65,
 		.name = "25DR",
 	},
+	{
+		.id = 0x66,
+		.name = "39DR",
+	},
+	{
+		.id = 0x7b,
+		.name = "48DR",
+	},
+	{
+		.id = 0x7e,
+		.name = "49DR",
+	},
 };
 
 #define ZYNQMP_PL_STATUS_BIT	9
@@ -338,7 +350,7 @@ unsigned int plat_get_syscnt_freq2(void)
 	unsigned int ver = zynqmp_get_silicon_ver();
 
 	if (ver == ZYNQMP_CSU_VERSION_QEMU)
-		return 50000000;
+		return 65000000;
 	else
 		return mmio_read_32(IOU_SCNTRS_BASEFREQ);
 }
