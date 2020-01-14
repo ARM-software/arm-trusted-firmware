@@ -76,7 +76,7 @@ void dram_pll_init(unsigned int drate)
 
 	/* unbypass the PLL */
 	mmio_clrbits_32(HW_DRAM_PLL_CFG0, 0x30);
-	while (!(mmio_read_32(HW_DRAM_PLL_CFG0) & (1 << 31))) {
+	while (!(mmio_read_32(HW_DRAM_PLL_CFG0) & BIT(31))) {
 		;
 	}
 }
