@@ -13,6 +13,7 @@
 
 #include "socfpga_mailbox.h"
 #include "socfpga_plat_def.h"
+#include "socfpga_reset_manager.h"
 
 
 
@@ -75,6 +76,7 @@ void socfpga_pwr_domain_suspend(const psci_power_state_t *target_state)
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
+
 	/* assert core reset */
 	mmio_setbits_32(SOCFPGA_RSTMGR_MPUMODRST_OFST, 1 << cpu_id);
 
@@ -136,6 +138,31 @@ static void __dead2 socfpga_system_reset(void)
 		wfi();
 }
 
+static int socfpga_system_reset2(int is_vendor, int reset_type,
+					u_register_t cookie)
+{
+	/* disable cpuif */
+	gicv2_cpuif_disable();
+
+	/* Store magic number */
+	mmio_write_32(L2_RESET_DONE_REG, L2_RESET_DONE_STATUS);
+
+	/* Increase timeout */
+	mmio_write_32(SOCFPGA_RSTMGR_HDSKTIMEOUT, 0xffffff);
+
+	/* Enable handshakes */
+	mmio_setbits_32(SOCFPGA_RSTMGR_HDSKEN, SOCFPGA_RSTMGR_HDSKEN_SET);
+
+	/* Reset L2 module */
+	mmio_setbits_32(SOCFPGA_RSTMGR_COLDMODRST, 0x100);
+
+	while (1)
+		wfi();
+
+	/* Should not reach here */
+	return 0;
+}
+
 int socfpga_validate_power_state(unsigned int power_state,
 				psci_power_state_t *req_state)
 {
@@ -169,6 +196,7 @@ const plat_psci_ops_t socfpga_psci_pm_ops = {
 	.pwr_domain_suspend_finish = socfpga_pwr_domain_suspend_finish,
 	.system_off = socfpga_system_off,
 	.system_reset = socfpga_system_reset,
+	.system_reset2 = socfpga_system_reset2,
 	.validate_power_state = socfpga_validate_power_state,
 	.validate_ns_entrypoint = socfpga_validate_ns_entrypoint,
 	.get_sys_suspend_power_state = socfpga_get_sys_suspend_power_state
