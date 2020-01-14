@@ -29,6 +29,7 @@ BL31_SOURCES		+=	plat/imx/common/imx8_helpers.S			\
 				plat/imx/imx8m/imx8mq/imx8mq_bl31_setup.c	\
 				plat/imx/imx8m/imx8mq/imx8mq_psci.c		\
 				plat/imx/imx8m/gpc_common.c			\
+				plat/imx/imx8m/imx_hab.c			\
 				plat/imx/imx8m/imx_aipstz.c			\
 				plat/imx/imx8m/imx8m_caam.c			\
 				plat/imx/imx8m/imx8m_ccm.c			\
