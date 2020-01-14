@@ -6,6 +6,7 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <errno.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
 
@@ -113,16 +114,26 @@ static const struct plat_psci_ops uniphier_psci_ops = {
 int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 			const struct plat_psci_ops **psci_ops)
 {
+	unsigned int soc;
+
+	soc = uniphier_get_soc_id();
+	if (soc == UNIPHIER_SOC_UNKNOWN) {
+		ERROR("unsupported SoC\n");
+		return -ENOTSUP;
+	}
+
+	if (uniphier_get_boot_master(soc) == UNIPHIER_BOOT_MASTER_SCP) {
+		uniphier_psci_scp_mode = uniphier_scp_is_running();
+		flush_dcache_range((uint64_t)&uniphier_psci_scp_mode,
+				   sizeof(uniphier_psci_scp_mode));
+
+		if (uniphier_psci_scp_mode)
+			uniphier_scp_open_com();
+	}
+
 	uniphier_sec_entrypoint = sec_entrypoint;
 	flush_dcache_range((uint64_t)&uniphier_sec_entrypoint,
 			   sizeof(uniphier_sec_entrypoint));
-
-	uniphier_psci_scp_mode = uniphier_scp_is_running();
-	flush_dcache_range((uint64_t)&uniphier_psci_scp_mode,
-			   sizeof(uniphier_psci_scp_mode));
-
-	if (uniphier_psci_scp_mode)
-		uniphier_scp_open_com();
 
 	*psci_ops = &uniphier_psci_ops;
 
