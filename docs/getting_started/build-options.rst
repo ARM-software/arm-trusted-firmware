@@ -522,6 +522,11 @@ Common build options
 -  ``SPM_MM`` : Boolean option to enable the Management Mode (MM)-based Secure
    Partition Manager (SPM) implementation. The default value is ``0``.
 
+-  ``SP_LAYOUT_FILE``: Platform provided path to JSON file containing the
+   description of secure partitions. Build system will parse this file and
+   package all secure partition blobs in FIP. This file not necessarily be
+   part of TF-A tree. Only avaialbe when ``SPD=spmd``.
+
 -  ``SP_MIN_WITH_SECURE_FIQ``: Boolean flag to indicate the SP_MIN handles
    secure interrupts (caught through the FIQ line). Platforms can enable
    this directive if they need to handle such interruption. When enabled,
