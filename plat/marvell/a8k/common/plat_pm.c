@@ -792,8 +792,20 @@ __dead2 a8k_pwr_domain_pwr_down_wfi(const psci_power_state_t *target_state)
  * A8K handlers to shutdown/reboot the system
  *****************************************************************************
  */
+
+/* Set a weak stub for platforms that don't configure system power off */
+#pragma weak system_power_off
+int system_power_off(void)
+{
+	return 0;
+}
+
 static void __dead2 a8k_system_off(void)
 {
+	/* Call the platform specific system power off function */
+	system_power_off();
+
+	/* board doesn't have a system off implementation */
 	ERROR("%s:  needs to be implemented\n", __func__);
 	panic();
 }

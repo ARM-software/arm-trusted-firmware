@@ -37,6 +37,13 @@ DOIMAGETOOL		?=	${DOIMAGEPATH}/doimage
 ROM_BIN_EXT ?= $(BUILD_PLAT)/ble.bin
 DOIMAGE_FLAGS	+= -b $(ROM_BIN_EXT) $(NAND_DOIMAGE_FLAGS) $(DOIMAGE_SEC_FLAGS)
 
+# Check whether to build system_power.c for the platform
+ifneq ("$(wildcard $(PLAT_FAMILY_BASE)/$(PLAT)/board/system_power.c)","")
+SYSTEM_POWER_SUPPORT = 1
+else
+SYSTEM_POWER_SUPPORT = 0
+endif
+
 # This define specifies DDR type for BLE
 $(eval $(call add_define,CONFIG_DDR4))
 
@@ -81,6 +88,10 @@ MARVELL_DRV		:= 	$(MARVELL_DRV_BASE)/io_win.c	\
 				$(MARVELL_DRV_BASE)/mc_trustzone/mc_trustzone.c
 
 BL31_PORTING_SOURCES	:=	$(PLAT_FAMILY_BASE)/$(PLAT)/board/marvell_plat_config.c
+
+ifeq ($(SYSTEM_POWER_SUPPORT),1)
+BL31_PORTING_SOURCES	+=	$(PLAT_FAMILY_BASE)/$(PLAT)/board/system_power.c
+endif
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a72.S		       \
 				$(PLAT_COMMON_BASE)/aarch64/plat_helpers.S     \
