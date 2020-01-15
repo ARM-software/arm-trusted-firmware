@@ -23,6 +23,7 @@
 #define SEMIHOSTING_SYS_REMOVE          0x0E
 #define SEMIHOSTING_SYS_SYSTEM          0x12
 #define SEMIHOSTING_SYS_ERRNO           0x13
+#define SEMIHOSTING_SYS_EXIT            0x18
 
 #define FOPEN_MODE_R			0x0
 #define FOPEN_MODE_RB			0x1
@@ -54,5 +55,6 @@ long semihosting_download_file(const char *file_name,
 void semihosting_write_char(char character);
 void semihosting_write_string(char *string);
 char semihosting_read_char(void);
+void semihosting_exit(uint32_t reason, uint32_t subcode);
 
 #endif /* SEMIHOSTING_H */

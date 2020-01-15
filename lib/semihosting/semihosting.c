@@ -15,7 +15,7 @@
 #endif
 
 long semihosting_call(unsigned long operation,
-			void *system_block_address);
+			uintptr_t system_block_address);
 
 typedef struct {
 	const char *file_name;
@@ -53,7 +53,7 @@ long semihosting_file_open(const char *file_name, size_t mode)
 	open_block.name_length = strlen(file_name);
 
 	return semihosting_call(SEMIHOSTING_SYS_OPEN,
-				(void *) &open_block);
+				(uintptr_t) &open_block);
 }
 
 long semihosting_file_seek(long file_handle, ssize_t offset)
@@ -65,7 +65,7 @@ long semihosting_file_seek(long file_handle, ssize_t offset)
 	seek_block.location = offset;
 
 	result = semihosting_call(SEMIHOSTING_SYS_SEEK,
-				  (void *) &seek_block);
+				  (uintptr_t) &seek_block);
 
 	if (result)
 		result = semihosting_call(SEMIHOSTING_SYS_ERRNO, 0);
@@ -86,7 +86,7 @@ long semihosting_file_read(long file_handle, size_t *length, uintptr_t buffer)
 	read_block.length = *length;
 
 	result = semihosting_call(SEMIHOSTING_SYS_READ,
-				  (void *) &read_block);
+				  (uintptr_t) &read_block);
 
 	if (result == *length) {
 		return -EINVAL;
@@ -112,7 +112,7 @@ long semihosting_file_write(long file_handle,
 	write_block.length = *length;
 
 	result = semihosting_call(SEMIHOSTING_SYS_WRITE,
-				   (void *) &write_block);
+				   (uintptr_t) &write_block);
 
 	*length = result;
 
@@ -122,28 +122,28 @@ long semihosting_file_write(long file_handle,
 long semihosting_file_close(long file_handle)
 {
 	return semihosting_call(SEMIHOSTING_SYS_CLOSE,
-				(void *) &file_handle);
+				(uintptr_t) &file_handle);
 }
 
 long semihosting_file_length(long file_handle)
 {
 	return semihosting_call(SEMIHOSTING_SYS_FLEN,
-				(void *) &file_handle);
+				(uintptr_t) &file_handle);
 }
 
 char semihosting_read_char(void)
 {
-	return semihosting_call(SEMIHOSTING_SYS_READC, NULL);
+	return semihosting_call(SEMIHOSTING_SYS_READC, 0);
 }
 
 void semihosting_write_char(char character)
 {
-	semihosting_call(SEMIHOSTING_SYS_WRITEC, (void *) &character);
+	semihosting_call(SEMIHOSTING_SYS_WRITEC, (uintptr_t) &character);
 }
 
 void semihosting_write_string(char *string)
 {
-	semihosting_call(SEMIHOSTING_SYS_WRITE0, (void *) string);
+	semihosting_call(SEMIHOSTING_SYS_WRITE0, (uintptr_t) string);
 }
 
 long semihosting_system(char *command_line)
@@ -154,7 +154,7 @@ long semihosting_system(char *command_line)
 	system_block.command_length = strlen(command_line);
 
 	return semihosting_call(SEMIHOSTING_SYS_SYSTEM,
-				(void *) &system_block);
+				(uintptr_t) &system_block);
 }
 
 long semihosting_get_flen(const char *file_name)
@@ -215,4 +215,16 @@ long semihosting_download_file(const char *file_name,
 semihosting_fail:
 	semihosting_file_close(file_handle);
 	return ret;
+}
+
+void semihosting_exit(uint32_t reason, uint32_t subcode)
+{
+#ifdef __aarch64__
+	uint64_t parameters[] = {reason, subcode};
+
+	(void) semihosting_call(SEMIHOSTING_SYS_EXIT, (uintptr_t) &parameters);
+#else
+	/* The subcode is not supported on AArch32. */
+	(void) semihosting_call(SEMIHOSTING_SYS_EXIT, reason);
+#endif
 }
