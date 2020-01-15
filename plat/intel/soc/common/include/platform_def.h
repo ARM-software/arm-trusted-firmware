@@ -29,7 +29,7 @@
 #define L2_RESET_DONE_STATUS			0x1228E5E7
 
 /* Define next boot image name and offset */
-#define PLAT_NS_IMAGE_OFFSET			0x50000
+#define PLAT_NS_IMAGE_OFFSET			0x10000000
 #define PLAT_HANDOFF_OFFSET			0xFFE3F000
 
 /*******************************************************************************
