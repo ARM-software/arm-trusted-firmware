@@ -47,7 +47,7 @@
 	do { \
 		v = OBJ_txt2nid(oid); \
 		if (v == NID_undef) { \
-			ERROR("Cannot find TBB extension %s\n", oid); \
+			ERROR("Cannot find extension %s\n", oid); \
 			exit(1); \
 		} \
 	} while (0)
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
 
 	/* Initialize the new types and register OIDs for the extensions */
 	if (ext_init() != 0) {
-		ERROR("Cannot initialize TBB extensions\n");
+		ERROR("Cannot initialize extensions\n");
 		exit(1);
 	}
 
