@@ -57,6 +57,10 @@ void sunxi_configure_mmu_el3(int flags)
 	mmap_add_region(BL_RO_DATA_BASE, BL_RO_DATA_BASE,
 			BL_RO_DATA_END - BL_RO_DATA_BASE,
 			MT_RO_DATA | MT_SECURE);
+	mmap_add_region(BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_BASE,
+			BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,
+			MT_DEVICE | MT_RW | MT_SECURE | MT_EXECUTE_NEVER);
+
 	mmap_add(sunxi_mmap);
 	init_xlat_tables();
 

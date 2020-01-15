@@ -61,8 +61,5 @@ SEPARATE_NOBITS_REGION		:=	1
 # BL31 gets loaded alongside BL33 (U-Boot) by U-Boot's SPL
 RESET_TO_BL31			:=	1
 
-# We are short on memory, so save 3.5KB by not having an extra coherent page.
-USE_COHERENT_MEM		:=	0
-
 # This platform is single-cluster and does not require coherency setup.
 WARMBOOT_ENABLE_DCACHE_EARLY	:=	1
