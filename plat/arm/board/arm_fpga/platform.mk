@@ -35,11 +35,36 @@ endif
 # Treating this as a memory-constrained port for now
 USE_COHERENT_MEM	:=	0
 
-# The CPU in the initial image makes use of this feature
+# This can be overridden depending on CPU(s) used in the FPGA image
 HW_ASSISTED_COHERENCY	:=	1
 
-FPGA_CPU_LIBS		:=	lib/cpus/${ARCH}/aem_generic.S		\
-				lib/cpus/aarch64/neoverse_zeus.S
+FPGA_CPU_LIBS	:=	lib/cpus/${ARCH}/aem_generic.S
+
+# select a different set of CPU files, depending on whether we compile for
+# hardware assisted coherency cores or not
+ifeq (${HW_ASSISTED_COHERENCY}, 0)
+# Cores used without DSU
+	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a35.S	\
+				lib/cpus/aarch64/cortex_a53.S	\
+				lib/cpus/aarch64/cortex_a57.S	\
+				lib/cpus/aarch64/cortex_a72.S	\
+				lib/cpus/aarch64/cortex_a73.S
+else
+# AArch64-only cores
+	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a76.S		\
+				lib/cpus/aarch64/cortex_a76ae.S		\
+				lib/cpus/aarch64/cortex_a77.S		\
+				lib/cpus/aarch64/neoverse_n1.S		\
+				lib/cpus/aarch64/neoverse_e1.S		\
+				lib/cpus/aarch64/neoverse_zeus.S	\
+				lib/cpus/aarch64/cortex_hercules.S	\
+				lib/cpus/aarch64/cortex_hercules_ae.S	\
+				lib/cpus/aarch64/cortex_a65.S		\
+				lib/cpus/aarch64/cortex_a65ae.S
+# AArch64/AArch32 cores
+	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S	\
+				lib/cpus/aarch64/cortex_a75.S
+endif
 
 FPGA_GIC_SOURCES	:=	drivers/arm/gic/v3/gicv3_helpers.c	\
 				drivers/arm/gic/v3/gicdv3_helpers.c     \
