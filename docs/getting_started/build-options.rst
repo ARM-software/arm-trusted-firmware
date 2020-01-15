@@ -128,6 +128,9 @@ Common build options
    ``plat_secondary_cold_boot_setup()`` platform porting interfaces do not need
    to be implemented in this case.
 
+-  ``COT``: When Trusted Boot is enabled, selects the desired chain of trust.
+   Defaults to ``tbbr``.
+
 -  ``CRASH_REPORTING``: A non-zero value enables a console dump of processor
    register state when an unexpected exception occurs during execution of
    BL31. This option defaults to the value of ``DEBUG`` - i.e. by default

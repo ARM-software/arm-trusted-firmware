@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -200,6 +200,9 @@ USE_DEBUGFS			:= 0
 
 # Build option to choose whether Trusted Firmware uses library at ROM
 USE_ROMLIB			:= 0
+
+# Chain of trust.
+COT				:= tbbr
 
 # Use tbbr_oid.h instead of platform_oid.h
 USE_TBBR_DEFS			:= 1

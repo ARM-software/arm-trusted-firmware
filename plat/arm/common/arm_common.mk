@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -254,7 +254,13 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     AUTH_SOURCES	:=	drivers/auth/auth_mod.c				\
 				drivers/auth/crypto_mod.c			\
 				drivers/auth/img_parser_mod.c			\
-				drivers/auth/tbbr/tbbr_cot.c			\
+
+    # Include the selected chain of trust sources.
+    ifeq (${COT},tbbr)
+        AUTH_SOURCES	+=	drivers/auth/tbbr/tbbr_cot.c
+    else
+        $(error Unknown chain of trust ${COT})
+    endif
 
     BL1_SOURCES		+=	${AUTH_SOURCES}					\
 				bl1/tbbr/tbbr_img_desc.c			\
