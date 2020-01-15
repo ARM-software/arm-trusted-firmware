@@ -97,5 +97,13 @@ PRELOADED_BL33_BASE	?= 0x10000000
 BL32_RAM_LOCATION_ID	= SEC_SRAM_ID
 $(eval $(call add_define,BL32_RAM_LOCATION_ID))
 
+# Don't have the Linux kernel as a BL33 image by default
+ARM_LINUX_KERNEL_AS_BL33	:=	0
+$(eval $(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33))
+$(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
+
+ARM_PRELOADED_DTB_BASE := PLAT_QEMU_DT_BASE
+$(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
+
 # Do not enable SVE
 ENABLE_SVE_FOR_NS	:= 0
