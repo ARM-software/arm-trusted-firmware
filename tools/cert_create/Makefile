@@ -10,6 +10,7 @@ V		?= 0
 DEBUG		:= 0
 BINARY		:= ${PROJECT}${BIN_EXT}
 OPENSSL_DIR	:= /usr
+COT		:= tbbr
 
 MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
@@ -23,8 +24,12 @@ OBJECTS := src/cert.o \
            src/main.o \
            src/sha.o
 
-# TBBR chain of trust definitions.
-include src/tbbr/tbbr.mk
+# Chain of trust.
+ifeq (${COT},tbbr)
+  include src/tbbr/tbbr.mk
+else
+  $(error Unknown chain of trust ${COT})
+endif
 
 HOSTCCFLAGS := -Wall -std=c99
 
