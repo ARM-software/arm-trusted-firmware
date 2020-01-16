@@ -37,30 +37,30 @@ static void k3_cpu_standby(plat_local_state_t cpu_state)
 
 static int k3_pwr_domain_on(u_register_t mpidr)
 {
-	int core_id, proc, device, ret;
+	int core, proc_id, device_id, ret;
 
-	core_id = plat_core_pos_by_mpidr(mpidr);
-	if (core_id < 0) {
-		ERROR("Could not get target core id: %d\n", core_id);
+	core = plat_core_pos_by_mpidr(mpidr);
+	if (core < 0) {
+		ERROR("Could not get target core id: %d\n", core);
 		return PSCI_E_INTERN_FAIL;
 	}
 
-	proc = PLAT_PROC_START_ID + core_id;
-	device = PLAT_PROC_DEVICE_START_ID + core_id;
+	proc_id = PLAT_PROC_START_ID + core;
+	device_id = PLAT_PROC_DEVICE_START_ID + core;
 
-	ret = ti_sci_proc_request(proc);
+	ret = ti_sci_proc_request(proc_id);
 	if (ret) {
 		ERROR("Request for processor failed: %d\n", ret);
 		return PSCI_E_INTERN_FAIL;
 	}
 
-	ret = ti_sci_proc_set_boot_cfg(proc, k3_sec_entrypoint, 0, 0);
+	ret = ti_sci_proc_set_boot_cfg(proc_id, k3_sec_entrypoint, 0, 0);
 	if (ret) {
 		ERROR("Request to set core boot address failed: %d\n", ret);
 		return PSCI_E_INTERN_FAIL;
 	}
 
-	ret = ti_sci_device_get(device);
+	ret = ti_sci_device_get(device_id);
 	if (ret) {
 		ERROR("Request to start core failed: %d\n", ret);
 		return PSCI_E_INTERN_FAIL;
@@ -71,17 +71,17 @@ static int k3_pwr_domain_on(u_register_t mpidr)
 
 void k3_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	int core_id, proc, device, ret;
+	int core, proc_id, device_id, ret;
 
 	/* Prevent interrupts from spuriously waking up this cpu */
 	k3_gic_cpuif_disable();
 
-	core_id = plat_my_core_pos();
-	proc = PLAT_PROC_START_ID + core_id;
-	device = PLAT_PROC_DEVICE_START_ID + core_id;
+	core = plat_my_core_pos();
+	proc_id = PLAT_PROC_START_ID + core;
+	device_id = PLAT_PROC_DEVICE_START_ID + core;
 
 	/* Start by sending wait for WFI command */
-	ret = ti_sci_proc_wait_boot_status_no_wait(proc,
+	ret = ti_sci_proc_wait_boot_status_no_wait(proc_id,
 			/*
 			 * Wait maximum time to give us the best chance to get
 			 * to WFI before this command timeouts
@@ -95,7 +95,7 @@ void k3_pwr_domain_off(const psci_power_state_t *target_state)
 	}
 
 	/* Now queue up the core shutdown request */
-	ret = ti_sci_device_put_no_wait(device);
+	ret = ti_sci_device_put_no_wait(device_id);
 	if (ret) {
 		ERROR("Sending core shutdown message failed (%d)\n", ret);
 		return;
