@@ -20,6 +20,9 @@
 #include "ti_sci_protocol.h"
 #include "ti_sci.h"
 
+#if USE_COHERENT_MEM
+__section("tzfw_coherent_mem")
+#endif
 static uint8_t message_sequence;
 
 /**
