@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -9,6 +9,7 @@ override COLD_BOOT_SINGLE_CPU		:= 1
 override PROGRAMMABLE_RESET_ADDRESS	:= 1
 override USE_COHERENT_MEM		:= 1
 override ENABLE_SVE_FOR_NS		:= 0
+override ENABLE_PIE			:= 1
 
 # Cortex-A53 revision r0p4-51rel0
 # needed for LD20, unneeded for LD11, PXs3 (no ACE)
