@@ -21,9 +21,10 @@
 
 #include "uniphier.h"
 
-#define UNIPHIER_IMAGE_BUF_BASE		0x84300000UL
+#define UNIPHIER_IMAGE_BUF_OFFSET	0x04300000UL
 #define UNIPHIER_IMAGE_BUF_SIZE		0x00100000UL
 
+static uintptr_t uniphier_mem_base = UNIPHIER_MEM_BASE;
 static int uniphier_bl2_kick_scp;
 
 void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
@@ -41,13 +42,16 @@ void bl2_el3_plat_arch_setup(void)
 	uniphier_mmap_setup();
 	enable_mmu_el3(0);
 
+	/* add relocation offset (run-time-address - link-address) */
+	uniphier_mem_base += BL_CODE_BASE - BL2_BASE;
+
 	soc = uniphier_get_soc_id();
 	if (soc == UNIPHIER_SOC_UNKNOWN) {
 		ERROR("unsupported SoC\n");
 		plat_error_handler(-ENOTSUP);
 	}
 
-	ret = uniphier_io_setup(soc);
+	ret = uniphier_io_setup(soc, uniphier_mem_base);
 	if (ret) {
 		ERROR("failed to setup io devices\n");
 		plat_error_handler(ret);
@@ -110,19 +114,19 @@ bl_params_t *plat_get_next_bl_params(void)
 void bl2_plat_preload_setup(void)
 {
 #ifdef UNIPHIER_DECOMPRESS_GZIP
+	uintptr_t buf_base = uniphier_mem_base + UNIPHIER_IMAGE_BUF_OFFSET;
 	int ret;
 
-	ret = mmap_add_dynamic_region(UNIPHIER_IMAGE_BUF_BASE,
-				      UNIPHIER_IMAGE_BUF_BASE,
+	ret = mmap_add_dynamic_region(buf_base, buf_base,
 				      UNIPHIER_IMAGE_BUF_SIZE,
 				      MT_MEMORY | MT_RW | MT_NS);
 	if (ret)
 		plat_error_handler(ret);
 
-	image_decompress_init(UNIPHIER_IMAGE_BUF_BASE,
-			      UNIPHIER_IMAGE_BUF_SIZE,
-			      gunzip);
+	image_decompress_init(buf_base, UNIPHIER_IMAGE_BUF_SIZE, gunzip);
 #endif
+
+	uniphier_init_image_descs(uniphier_mem_base);
 }
 
 int bl2_plat_handle_pre_image_load(unsigned int image_id)

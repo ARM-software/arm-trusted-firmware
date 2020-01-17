@@ -42,8 +42,9 @@ int uniphier_nand_init(struct io_block_dev_spec **block_dev_spec);
 int uniphier_usb_init(unsigned int soc,
 		      struct io_block_dev_spec **block_dev_spec);
 
-int uniphier_io_setup(unsigned int soc);
+int uniphier_io_setup(unsigned int soc, uintptr_t mem_base);
 
+void uniphier_init_image_descs(uintptr_t mem_base);
 struct image_info;
 struct image_info *uniphier_get_image_info(unsigned int image_id);
 
@@ -66,12 +67,5 @@ void uniphier_gic_cpuif_disable(void);
 void uniphier_gic_pcpu_init(void);
 
 unsigned int uniphier_calc_core_pos(u_register_t mpidr);
-
-#define UNIPHIER_BL33_BASE		0x84000000
-#define UNIPHIER_BL33_MAX_SIZE		0x00100000
-
-#define UNIPHIER_SCP_BASE		((UNIPHIER_BL33_BASE) + \
-					 (UNIPHIER_BL33_MAX_SIZE))
-#define UNIPHIER_SCP_MAX_SIZE		0x00020000
 
 #endif /* UNIPHIER_H */
