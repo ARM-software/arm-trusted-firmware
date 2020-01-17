@@ -15,6 +15,7 @@ Trusted Firmware-A Documentation
    perf/index
    security_advisories/index
    change-log
+   change-log-upcoming
    glossary
    license
 
