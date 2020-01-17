@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,8 +10,6 @@
 #include <lib/xlat_tables/xlat_mmu_helpers.h>
 
 #include "../uniphier.h"
-
-#define BL32_SIZE		((BL32_END) - (BL32_BASE))
 
 void tsp_early_platform_setup(void)
 {
@@ -24,6 +22,6 @@ void tsp_platform_setup(void)
 
 void tsp_plat_arch_setup(void)
 {
-	uniphier_mmap_setup(BL32_BASE, BL32_SIZE, NULL);
+	uniphier_mmap_setup();
 	enable_mmu_el1(0);
 }

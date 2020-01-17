@@ -21,8 +21,6 @@
 
 #include "uniphier.h"
 
-#define BL2_SIZE		((BL2_END) - (BL2_BASE))
-
 #define UNIPHIER_IMAGE_BUF_BASE		0x84300000UL
 #define UNIPHIER_IMAGE_BUF_SIZE		0x00100000UL
 
@@ -40,7 +38,7 @@ void bl2_el3_plat_arch_setup(void)
 	int skip_scp = 0;
 	int ret;
 
-	uniphier_mmap_setup(BL2_BASE, BL2_SIZE, NULL);
+	uniphier_mmap_setup();
 	enable_mmu_el3(0);
 
 	soc = uniphier_get_soc_id();
