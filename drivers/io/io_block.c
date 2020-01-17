@@ -19,17 +19,17 @@
 typedef struct {
 	io_block_dev_spec_t	*dev_spec;
 	uintptr_t		base;
-	size_t			file_pos;
-	size_t			size;
+	unsigned long long	file_pos;
+	unsigned long long	size;
 } block_dev_state_t;
 
-#define is_power_of_2(x)	((x != 0) && ((x & (x - 1)) == 0))
+#define is_power_of_2(x)	(((x) != 0U) && (((x) & ((x) - 1U)) == 0U))
 
 io_type_t device_type_block(void);
 
 static int block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 		      io_entity_t *entity);
-static int block_seek(io_entity_t *entity, int mode, ssize_t offset);
+static int block_seek(io_entity_t *entity, int mode, signed long long offset);
 static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 		      size_t *length_read);
 static int block_write(io_entity_t *entity, const uintptr_t buffer,
@@ -148,21 +148,21 @@ static int block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 }
 
 /* parameter offset is relative address at here */
-static int block_seek(io_entity_t *entity, int mode, ssize_t offset)
+static int block_seek(io_entity_t *entity, int mode, signed long long offset)
 {
 	block_dev_state_t *cur;
 
 	assert(entity->info != (uintptr_t)NULL);
 
 	cur = (block_dev_state_t *)entity->info;
-	assert((offset >= 0) && (offset < cur->size));
+	assert((offset >= 0) && ((unsigned long long)offset < cur->size));
 
 	switch (mode) {
 	case IO_SEEK_SET:
-		cur->file_pos = offset;
+		cur->file_pos = (unsigned long long)offset;
 		break;
 	case IO_SEEK_CUR:
-		cur->file_pos += offset;
+		cur->file_pos += (unsigned long long)offset;
 		break;
 	default:
 		return -EINVAL;
@@ -270,7 +270,7 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 	buf = &(cur->dev_spec->buffer);
 	block_size = cur->dev_spec->block_size;
 	assert((length <= cur->size) &&
-	       (length > 0) &&
+	       (length > 0U) &&
 	       (ops->read != 0));
 
 	/*
@@ -279,7 +279,7 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 	 * on the low level driver.
 	 */
 	count = 0;
-	for (left = length; left > 0; left -= nbytes) {
+	for (left = length; left > 0U; left -= nbytes) {
 		/*
 		 * We must only request operations aligned to the block
 		 * size. Therefore if file_pos is not block-aligned,
@@ -288,7 +288,7 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 		 * similarly, the number of bytes requested must be a
 		 * block size multiple
 		 */
-		skip = cur->file_pos & (block_size - 1);
+		skip = cur->file_pos & (block_size - 1U);
 
 		/*
 		 * Calculate the block number containing file_pos
@@ -296,7 +296,7 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 		 */
 		lba = (cur->file_pos + cur->base) / block_size;
 
-		if (skip + left > buf->length) {
+		if ((skip + left) > buf->length) {
 			/*
 			 * The underlying read buffer is too small to
 			 * read all the required data - limit to just
@@ -311,7 +311,8 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 			 * block size.
 			 */
 			request = skip + left;
-			request = (request + (block_size - 1)) & ~(block_size - 1);
+			request = (request + (block_size - 1U)) &
+				~(block_size - 1U);
 		}
 		request = ops->read(lba, buf->offset, request);
 
@@ -330,7 +331,7 @@ static int block_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 		 * the read data when copying to the user buffer.
 		 */
 		nbytes = request - skip;
-		padding = (nbytes > left) ? nbytes - left : 0;
+		padding = (nbytes > left) ? nbytes - left : 0U;
 		nbytes -= padding;
 
 		memcpy((void *)(buffer + count),
@@ -381,7 +382,7 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 	buf = &(cur->dev_spec->buffer);
 	block_size = cur->dev_spec->block_size;
 	assert((length <= cur->size) &&
-	       (length > 0) &&
+	       (length > 0U) &&
 	       (ops->read != 0) &&
 	       (ops->write != 0));
 
@@ -391,7 +392,7 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 	 * on the low level driver.
 	 */
 	count = 0;
-	for (left = length; left > 0; left -= nbytes) {
+	for (left = length; left > 0U; left -= nbytes) {
 		/*
 		 * We must only request operations aligned to the block
 		 * size. Therefore if file_pos is not block-aligned,
@@ -400,7 +401,7 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 		 * similarly, the number of bytes requested must be a
 		 * block size multiple
 		 */
-		skip = cur->file_pos & (block_size - 1);
+		skip = cur->file_pos & (block_size - 1U);
 
 		/*
 		 * Calculate the block number containing file_pos
@@ -408,7 +409,7 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 		 */
 		lba = (cur->file_pos + cur->base) / block_size;
 
-		if (skip + left > buf->length) {
+		if ((skip + left) > buf->length) {
 			/*
 			 * The underlying read buffer is too small to
 			 * read all the required data - limit to just
@@ -423,7 +424,8 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 			 * block size.
 			 */
 			request = skip + left;
-			request = (request + (block_size - 1)) & ~(block_size - 1);
+			request = (request + (block_size - 1U)) &
+				~(block_size - 1U);
 		}
 
 		/*
@@ -432,7 +434,7 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 		 * of the current request.
 		 */
 		nbytes = request - skip;
-		padding = (nbytes > left) ? nbytes - left : 0;
+		padding = (nbytes > left) ? nbytes - left : 0U;
 		nbytes -= padding;
 
 		/*
@@ -440,14 +442,14 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 		 * some content and it means that we have to read before
 		 * writing
 		 */
-		if (skip > 0 || padding > 0) {
+		if ((skip > 0U) || (padding > 0U)) {
 			request = ops->read(lba, buf->offset, request);
 			/*
 			 * The read may return size less than
 			 * requested. Round down to the nearest block
 			 * boundary
 			 */
-			request &= ~(block_size-1);
+			request &= ~(block_size - 1U);
 			if (request <= skip) {
 				/*
 				 * We couldn't read enough bytes to jump over
@@ -458,7 +460,7 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 				return -EIO;
 			}
 			nbytes = request - skip;
-			padding = (nbytes > left) ? nbytes - left : 0;
+			padding = (nbytes > left) ? nbytes - left : 0U;
 			nbytes -= padding;
 		}
 
@@ -477,7 +479,7 @@ static int block_write(io_entity_t *entity, const uintptr_t buffer,
 		 * buffer
 		 */
 		nbytes = request - skip;
-		padding = (nbytes > left) ? nbytes - left : 0;
+		padding = (nbytes > left) ? nbytes - left : 0U;
 		nbytes -= padding;
 
 		cur->file_pos += nbytes;
@@ -505,7 +507,7 @@ static int block_dev_open(const uintptr_t dev_spec, io_dev_info_t **dev_info)
 
 	assert(dev_info != NULL);
 	result = allocate_dev_info(&info);
-	if (result)
+	if (result != 0)
 		return -ENOENT;
 
 	cur = (block_dev_state_t *)info->info;
@@ -513,10 +515,10 @@ static int block_dev_open(const uintptr_t dev_spec, io_dev_info_t **dev_info)
 	cur->dev_spec = (io_block_dev_spec_t *)dev_spec;
 	buffer = &(cur->dev_spec->buffer);
 	block_size = cur->dev_spec->block_size;
-	assert((block_size > 0) &&
-	       (is_power_of_2(block_size) != 0) &&
-	       ((buffer->offset % block_size) == 0) &&
-	       ((buffer->length % block_size) == 0));
+	assert((block_size > 0U) &&
+	       (is_power_of_2(block_size) != 0U) &&
+	       ((buffer->offset % block_size) == 0U) &&
+	       ((buffer->length % block_size) == 0U));
 
 	*dev_info = info;	/* cast away const */
 	(void)block_size;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,7 +28,7 @@ static int32_t memdrv_dev_close(io_dev_info_t *dev_info);
 typedef struct {
 	uint32_t in_use;
 	uintptr_t base;
-	ssize_t file_pos;
+	signed long long file_pos;
 } file_state_t;
 
 static file_state_t current_file = { 0 };
@@ -47,7 +47,7 @@ static int32_t memdrv_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 	 * spec at a time. When we have dynamic memory we can malloc and set
 	 * entity->info.
 	 */
-	if (current_file.in_use)
+	if (current_file.in_use != 0U)
 		return IO_RESOURCES_EXHAUSTED;
 
 	/* File cursor offset for seek and incremental reads etc. */
@@ -61,7 +61,7 @@ static int32_t memdrv_block_open(io_dev_info_t *dev_info, const uintptr_t spec,
 }
 
 static int32_t memdrv_block_seek(io_entity_t *entity, int32_t mode,
-				 ssize_t offset)
+				 signed long long offset)
 {
 	if (mode != IO_SEEK_SET)
 		return IO_FAIL;
@@ -78,16 +78,17 @@ static int32_t memdrv_block_read(io_entity_t *entity, uintptr_t buffer,
 
 	fp = (file_state_t *) entity->info;
 
-	NOTICE("BL2: dst=0x%lx src=0x%lx len=%ld(0x%lx)\n",
-	       buffer, fp->base + fp->file_pos, length, length);
+	NOTICE("BL2: dst=0x%lx src=0x%llx len=%ld(0x%lx)\n",
+	       buffer, (unsigned long long)fp->base +
+	       (unsigned long long)fp->file_pos, length, length);
 
-	if (FLASH_MEMORY_SIZE < fp->file_pos + length) {
+	if (FLASH_MEMORY_SIZE < (fp->file_pos + (signed long long)length)) {
 		ERROR("BL2: check load image (source address)\n");
 		return IO_FAIL;
 	}
 
-	rcar_dma_exec(buffer, fp->base + fp->file_pos, length);
-	fp->file_pos += length;
+	rcar_dma_exec(buffer, fp->base + (uintptr_t)fp->file_pos, length);
+	fp->file_pos += (signed long long)length;
 	*cnt = length;
 
 	return IO_SUCCESS;

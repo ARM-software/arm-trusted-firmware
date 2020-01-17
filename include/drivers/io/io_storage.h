@@ -86,7 +86,7 @@ int io_dev_close(uintptr_t dev_handle);
 /* Synchronous operations */
 int io_open(uintptr_t dev_handle, const uintptr_t spec, uintptr_t *handle);
 
-int io_seek(uintptr_t handle, io_seek_mode_t mode, ssize_t offset);
+int io_seek(uintptr_t handle, io_seek_mode_t mode, signed long long offset);
 
 int io_size(uintptr_t handle, size_t *length);
 
