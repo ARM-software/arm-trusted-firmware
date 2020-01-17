@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
+#include <platform_def.h>
 
 #include <arch.h>
 #include <asm_macros.S>
@@ -45,6 +47,24 @@
 	.endm
 
 func tsp_entrypoint _align=3
+
+#if ENABLE_PIE
+		/*
+		 * ------------------------------------------------------------
+		 * If PIE is enabled fixup the Global descriptor Table only
+		 * once during primary core cold boot path.
+		 *
+		 * Compile time base address, required for fixup, is calculated
+		 * using "pie_fixup" label present within first page.
+		 * ------------------------------------------------------------
+		 */
+	pie_fixup:
+		ldr	x0, =pie_fixup
+		and	x0, x0, #~(PAGE_SIZE - 1)
+		mov_imm	x1, (BL32_LIMIT - BL32_BASE)
+		add	x1, x1, x0
+		bl	fixup_gdt_reloc
+#endif /* ENABLE_PIE */
 
 	/* ---------------------------------------------
 	 * Set the exception vector to something sane.

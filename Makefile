@@ -472,6 +472,10 @@ endif
 endif
 	BL31_CFLAGS	+=	-fpie
 	BL31_LDFLAGS	+=	$(PIE_LDFLAGS)
+ifeq ($(ARCH),aarch64)
+	BL32_CFLAGS	+=	-fpie
+	BL32_LDFLAGS	+=	$(PIE_LDFLAGS)
+endif
 endif
 
 # Include the CPU specific operations makefile, which provides default

@@ -213,7 +213,7 @@ Common build options
 
 -  ``ENABLE_PIE``: Boolean option to enable Position Independent Executable(PIE)
    support within generic code in TF-A. This option is currently only supported
-   in BL2_AT_EL3 and BL31. Default is 0.
+   in BL2_AT_EL3, BL31, and BL32 (TSP). Default is 0.
 
 -  ``ENABLE_PMF``: Boolean option to enable support for optional Performance
    Measurement Framework(PMF). Default is 0.

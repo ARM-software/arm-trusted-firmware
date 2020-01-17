@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,6 +36,17 @@ SECTIONS
     .rodata . : {
         __RODATA_START__ = .;
         *(.rodata*)
+
+        /*
+         * Keep the .got section in the RO section as it is patched
+         * prior to enabling the MMU and having the .got in RO is better for
+         * security. GOT is a table of addresses so ensure 8-byte alignment.
+         */
+        . = ALIGN(8);
+        __GOT_START__ = .;
+        *(.got)
+        __GOT_END__ = .;
+
         . = ALIGN(PAGE_SIZE);
         __RODATA_END__ = .;
     } >RAM
@@ -45,7 +56,19 @@ SECTIONS
         *tsp_entrypoint.o(.text*)
         *(.text*)
         *(.rodata*)
+
+        /*
+         * Keep the .got section in the RO section as it is patched
+         * prior to enabling the MMU and having the .got in RO is better for
+         * security. GOT is a table of addresses so ensure 8-byte alignment.
+         */
+        . = ALIGN(8);
+        __GOT_START__ = .;
+        *(.got)
+        __GOT_END__ = .;
+
         *(.vectors)
+
         __RO_END_UNALIGNED__ = .;
         /*
          * Memory page(s) mapped to this section will be marked as
@@ -68,6 +91,17 @@ SECTIONS
         *(.data*)
         __DATA_END__ = .;
     } >RAM
+
+    /*
+     * .rela.dyn needs to come after .data for the read-elf utility to parse
+     * this section correctly. Ensure 8-byte alignment so that the fields of
+     * RELA data structure are aligned.
+     */
+    . = ALIGN(8);
+    __RELA_START__ = .;
+    .rela.dyn . : {
+    } >RAM
+    __RELA_END__ = .;
 
 #ifdef TSP_PROGBITS_LIMIT
     ASSERT(. <= TSP_PROGBITS_LIMIT, "TSP progbits has exceeded its limit.")
@@ -128,6 +162,10 @@ SECTIONS
      */
     __RW_END__ = .;
     __BL32_END__ = .;
+
+    /DISCARD/ : {
+        *(.dynsym .dynstr .hash .gnu.hash)
+    }
 
     __BSS_SIZE__ = SIZEOF(.bss);
 #if USE_COHERENT_MEM
