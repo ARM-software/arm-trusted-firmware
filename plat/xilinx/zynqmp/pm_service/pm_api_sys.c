@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -627,6 +627,22 @@ enum pm_ret_status pm_aes_engine(uint32_t address_high,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD3(payload, PM_SECURE_AES, address_high, address_low);
 	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+}
+
+/**
+ * pm_get_callbackdata() - Read from IPI response buffer
+ * @data - array of PAYLOAD_ARG_CNT elements
+ *
+ * Read value from ipi buffer response buffer.
+ */
+void pm_get_callbackdata(uint32_t *data, size_t count)
+{
+	/* Return if interrupt is not from PMU */
+	if (!pm_ipi_irq_status(primary_proc))
+		return;
+
+	pm_ipi_buff_read_callb(data, count);
+	pm_ipi_irq_clear(primary_proc);
 }
 
 /**
