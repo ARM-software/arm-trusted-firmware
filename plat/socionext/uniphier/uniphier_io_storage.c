@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -194,6 +194,13 @@ static int uniphier_io_block_setup(size_t fip_offset, uintptr_t block_dev_spec)
 	int ret;
 
 	uniphier_fip_spec.offset = fip_offset;
+
+	ret = mmap_add_dynamic_region(UNIPHIER_BLOCK_BUF_BASE,
+				      UNIPHIER_BLOCK_BUF_BASE,
+				      UNIPHIER_BLOCK_BUF_SIZE,
+				      MT_MEMORY | MT_RW | MT_NS);
+	if (ret)
+		return ret;
 
 	ret = register_io_dev_block(&uniphier_backend_dev_con);
 	if (ret)

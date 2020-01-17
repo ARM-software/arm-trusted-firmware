@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,11 +33,6 @@
 
 /* 0x80080000-0x81000000: reserved for DSP */
 
-#define UNIPHIER_SEC_DRAM_BASE		0x81000000ULL
-#define UNIPHIER_SEC_DRAM_LIMIT		0x82000000ULL
-#define UNIPHIER_SEC_DRAM_SIZE		((UNIPHIER_SEC_DRAM_LIMIT) - \
-					 (UNIPHIER_SEC_DRAM_BASE))
-
 #define BL31_BASE			ULL(0x81000000)
 #define BL31_LIMIT			ULL(0x81080000)
 
@@ -48,8 +43,8 @@
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
 
 #define PLAT_XLAT_TABLES_DYNAMIC	1
-#define MAX_XLAT_TABLES			7
-#define MAX_MMAP_REGIONS		7
+#define MAX_XLAT_TABLES			9
+#define MAX_MMAP_REGIONS		13
 
 #define MAX_IO_HANDLES			2
 #define MAX_IO_DEVICES			2

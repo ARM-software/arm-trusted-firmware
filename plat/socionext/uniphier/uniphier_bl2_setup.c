@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,6 +23,9 @@
 
 #define BL2_SIZE		((BL2_END) - (BL2_BASE))
 
+#define UNIPHIER_IMAGE_BUF_BASE		0x84300000UL
+#define UNIPHIER_IMAGE_BUF_SIZE		0x00100000UL
+
 static int uniphier_bl2_kick_scp;
 
 void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
@@ -31,23 +34,13 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	uniphier_console_setup();
 }
 
-static const struct mmap_region uniphier_bl2_mmap[] = {
-	/* for BL31, BL32 */
-	MAP_REGION_FLAT(UNIPHIER_SEC_DRAM_BASE, UNIPHIER_SEC_DRAM_SIZE,
-			MT_MEMORY | MT_RW | MT_SECURE),
-	/* for SCP, BL33 */
-	MAP_REGION_FLAT(UNIPHIER_NS_DRAM_BASE, UNIPHIER_NS_DRAM_SIZE,
-			MT_MEMORY | MT_RW | MT_NS),
-	{ .size = 0 },
-};
-
 void bl2_el3_plat_arch_setup(void)
 {
 	unsigned int soc;
 	int skip_scp = 0;
 	int ret;
 
-	uniphier_mmap_setup(BL2_BASE, BL2_SIZE, uniphier_bl2_mmap);
+	uniphier_mmap_setup(BL2_BASE, BL2_SIZE, NULL);
 	enable_mmu_el3(0);
 
 	soc = uniphier_get_soc_id();
@@ -119,6 +112,15 @@ bl_params_t *plat_get_next_bl_params(void)
 void bl2_plat_preload_setup(void)
 {
 #ifdef UNIPHIER_DECOMPRESS_GZIP
+	int ret;
+
+	ret = mmap_add_dynamic_region(UNIPHIER_IMAGE_BUF_BASE,
+				      UNIPHIER_IMAGE_BUF_BASE,
+				      UNIPHIER_IMAGE_BUF_SIZE,
+				      MT_MEMORY | MT_RW | MT_NS);
+	if (ret)
+		plat_error_handler(ret);
+
 	image_decompress_init(UNIPHIER_IMAGE_BUF_BASE,
 			      UNIPHIER_IMAGE_BUF_SIZE,
 			      gunzip);
@@ -127,8 +129,20 @@ void bl2_plat_preload_setup(void)
 
 int bl2_plat_handle_pre_image_load(unsigned int image_id)
 {
+	struct image_info *image_info;
+	int ret;
+
+	image_info = uniphier_get_image_info(image_id);
+
+	ret = mmap_add_dynamic_region(image_info->image_base,
+				      image_info->image_base,
+				      image_info->image_max_size,
+				      MT_MEMORY | MT_RW | MT_NS);
+	if (ret)
+		return ret;
+
 #ifdef UNIPHIER_DECOMPRESS_GZIP
-	image_decompress_prepare(uniphier_get_image_info(image_id));
+	image_decompress_prepare(image_info);
 #endif
 	return 0;
 }
