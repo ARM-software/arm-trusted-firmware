@@ -204,9 +204,4 @@ void imx_gpc_init(void)
 	 * only need to do it once.
 	 */
 	mmio_clrbits_32(IMX_SRC_BASE + SRC_OTG1PHY_SCR, 0x1);
-
-	/* enable all the power domain by default */
-	for (i = 0; i < 103; i++)
-		mmio_write_32(IMX_CCM_BASE + CCGR(i), 0x3);
-	mmio_write_32(IMX_GPC_BASE + PU_PGC_UP_TRG, 0x485);
 }
