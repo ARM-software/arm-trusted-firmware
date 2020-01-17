@@ -149,11 +149,9 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 
 int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
+	struct image_info *image_info = uniphier_get_image_info(image_id);
 #ifdef UNIPHIER_DECOMPRESS_GZIP
-	struct image_info *image_info;
 	int ret;
-
-	image_info = uniphier_get_image_info(image_id);
 
 	if (!(image_info->h.attr & IMAGE_ATTRIB_SKIP_LOADING)) {
 		ret = image_decompress(uniphier_get_image_info(image_id));
@@ -163,7 +161,7 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 #endif
 
 	if (image_id == SCP_BL2_IMAGE_ID && uniphier_bl2_kick_scp)
-		uniphier_scp_start();
+		uniphier_scp_start(image_info->image_base);
 
 	return 0;
 }

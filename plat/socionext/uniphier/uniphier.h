@@ -48,7 +48,7 @@ struct image_info;
 struct image_info *uniphier_get_image_info(unsigned int image_id);
 
 int uniphier_scp_is_running(void);
-void uniphier_scp_start(void);
+void uniphier_scp_start(uint32_t scp_base);
 void uniphier_scp_open_com(void);
 void uniphier_scp_system_off(void);
 void uniphier_scp_system_reset(void);

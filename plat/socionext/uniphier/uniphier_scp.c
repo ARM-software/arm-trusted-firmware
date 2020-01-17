@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,11 +28,11 @@ int uniphier_scp_is_running(void)
 	return mmio_read_32(UNIPHIER_STMBE2COM) == UNIPHIER_SCP_READY_MAGIC;
 }
 
-void uniphier_scp_start(void)
+void uniphier_scp_start(uint32_t scp_base)
 {
 	uint32_t tmp;
 
-	mmio_write_32(UNIPHIER_STMBE2COM + 4, UNIPHIER_SCP_BASE);
+	mmio_write_32(UNIPHIER_STMBE2COM + 4, scp_base);
 	mmio_write_32(UNIPHIER_STMBE2COM, UNIPHIER_SCP_READY_MAGIC);
 
 	do {
