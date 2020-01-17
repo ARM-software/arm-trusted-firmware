@@ -452,18 +452,20 @@ ifeq (${ARM_ARCH_MAJOR},7)
 include make_helpers/armv7-a-cpus.mk
 endif
 
-ifeq ($(ENABLE_PIE),1)
-    TF_CFLAGS		+=	-fpie
-	ifneq ($(findstring gcc,$(notdir $(LD))),)
-		TF_LDFLAGS	+=	-Wl,-pie -Wl,--no-dynamic-linker
-	else
-		TF_LDFLAGS	+=	-pie --no-dynamic-linker
-	endif
+PIE_FOUND		:=	$(findstring --enable-default-pie,${GCC_V_OUTPUT})
+ifneq ($(PIE_FOUND),)
+	TF_CFLAGS	+=	-fno-PIE
+endif
+
+ifneq ($(findstring gcc,$(notdir $(LD))),)
+	PIE_LDFLAGS	+=	-Wl,-pie -Wl,--no-dynamic-linker
 else
-    PIE_FOUND		:=	$(findstring --enable-default-pie,${GCC_V_OUTPUT})
-    ifneq ($(PIE_FOUND),)
-        TF_CFLAGS		+=	-fno-PIE
-    endif
+	PIE_LDFLAGS	+=	-pie --no-dynamic-linker
+endif
+
+ifeq ($(ENABLE_PIE),1)
+	BL31_CFLAGS	+=	-fpie
+	BL31_LDFLAGS	+=	$(PIE_LDFLAGS)
 endif
 
 # Include the CPU specific operations makefile, which provides default
