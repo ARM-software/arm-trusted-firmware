@@ -69,6 +69,16 @@ SECTIONS
         KEEP(*(cpu_ops))
         __CPU_OPS_END__ = .;
 
+        /*
+         * Keep the .got section in the RO section as it is patched
+         * prior to enabling the MMU and having the .got in RO is better for
+         * security. GOT is a table of addresses so ensure 8-byte alignment.
+         */
+        . = ALIGN(8);
+        __GOT_START__ = .;
+        *(.got)
+        __GOT_END__ = .;
+
         . = ALIGN(PAGE_SIZE);
         __RODATA_END__ = .;
     } >ROM
@@ -99,6 +109,16 @@ SECTIONS
         __PARSER_LIB_DESCS_START__ = .;
         KEEP(*(.img_parser_lib_descs))
         __PARSER_LIB_DESCS_END__ = .;
+
+        /*
+         * Keep the .got section in the RO section as it is patched
+         * prior to enabling the MMU and having the .got in RO is better for
+         * security. GOT is a table of addresses so ensure 8-byte alignment.
+         */
+        . = ALIGN(8);
+        __GOT_START__ = .;
+        *(.got)
+        __GOT_END__ = .;
 
         *(.vectors)
         __RO_END_UNALIGNED__ = .;
@@ -138,6 +158,17 @@ SECTIONS
         *(SORT_BY_ALIGNMENT(.data*))
         __DATA_RAM_END__ = .;
     } >RAM AT>ROM
+
+    /*
+     * .rela.dyn needs to come after .data for the read-elf utility to parse
+     * this section correctly. Ensure 8-byte alignment so that the fields of
+     * RELA data structure are aligned.
+     */
+    . = ALIGN(8);
+    __RELA_START__ = .;
+    .rela.dyn . : {
+    } >RAM
+    __RELA_END__ = .;
 
     stacks (NOLOAD) : {
         __STACKS_START__ = .;
@@ -194,6 +225,10 @@ SECTIONS
      */
     __RW_END__ = .;
     __BL2_END__ = .;
+
+    /DISCARD/ : {
+        *(.dynsym .dynstr .hash .gnu.hash)
+    }
 
 #if BL2_IN_XIP_MEM
     __BL2_RAM_START__ = ADDR(.data);

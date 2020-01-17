@@ -464,6 +464,12 @@ else
 endif
 
 ifeq ($(ENABLE_PIE),1)
+ifeq ($(BL2_AT_EL3),1)
+ifneq ($(BL2_IN_XIP_MEM),1)
+	BL2_CFLAGS	+=	-fpie
+	BL2_LDFLAGS	+=	$(PIE_LDFLAGS)
+endif
+endif
 	BL31_CFLAGS	+=	-fpie
 	BL31_LDFLAGS	+=	$(PIE_LDFLAGS)
 endif

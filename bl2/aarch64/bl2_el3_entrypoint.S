@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <platform_def.h>
+
 #include <arch.h>
 #include <asm_macros.S>
 #include <common/bl_common.h>
@@ -12,6 +14,12 @@
 	.globl	bl2_entrypoint
 	.globl	bl2_el3_run_image
 	.globl	bl2_run_next_image
+
+#if BL2_IN_XIP_MEM
+#define FIXUP_SIZE	0
+#else
+#define FIXUP_SIZE	((BL2_LIMIT) - (BL2_BASE))
+#endif
 
 func bl2_entrypoint
 	/* Save arguments x0-x3 from previous Boot loader */
@@ -27,7 +35,7 @@ func bl2_entrypoint
 		_init_memory=1                                  \
 		_init_c_runtime=1                               \
 		_exception_vectors=bl2_el3_exceptions		\
-		_pie_fixup_size=0
+		_pie_fixup_size=FIXUP_SIZE
 
 	/* ---------------------------------------------
 	 * Restore parameters of boot rom
