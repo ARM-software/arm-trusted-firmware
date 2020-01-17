@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -224,10 +224,6 @@ static size_t uniphier_nand_read(int lba, uintptr_t buf, size_t size)
 }
 
 static struct io_block_dev_spec uniphier_nand_dev_spec = {
-	.buffer = {
-		.offset = UNIPHIER_BLOCK_BUF_BASE,
-		.length = UNIPHIER_BLOCK_BUF_SIZE,
-	},
 	.ops = {
 		.read = uniphier_nand_read,
 	},
@@ -259,7 +255,7 @@ static int uniphier_nand_hw_init(struct uniphier_nand *nand)
 	return 0;
 }
 
-int uniphier_nand_init(uintptr_t *block_dev_spec)
+int uniphier_nand_init(struct io_block_dev_spec **block_dev_spec)
 {
 	int ret;
 
@@ -269,7 +265,7 @@ int uniphier_nand_init(uintptr_t *block_dev_spec)
 
 	uniphier_nand_dev_spec.block_size = uniphier_nand.page_size;
 
-	*block_dev_spec = (uintptr_t)&uniphier_nand_dev_spec;
+	*block_dev_spec = &uniphier_nand_dev_spec;
 
 	return 0;
 }

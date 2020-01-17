@@ -36,9 +36,11 @@ unsigned int uniphier_get_boot_master(unsigned int soc);
 
 void uniphier_console_setup(void);
 
-int uniphier_emmc_init(uintptr_t *block_dev_spec);
-int uniphier_nand_init(uintptr_t *block_dev_spec);
-int uniphier_usb_init(unsigned int soc, uintptr_t *block_dev_spec);
+struct io_block_dev_spec;
+int uniphier_emmc_init(struct io_block_dev_spec **block_dev_spec);
+int uniphier_nand_init(struct io_block_dev_spec **block_dev_spec);
+int uniphier_usb_init(unsigned int soc,
+		      struct io_block_dev_spec **block_dev_spec);
 
 int uniphier_io_setup(unsigned int soc);
 
@@ -73,9 +75,5 @@ unsigned int uniphier_calc_core_pos(u_register_t mpidr);
 #define UNIPHIER_SCP_BASE		((UNIPHIER_BL33_BASE) + \
 					 (UNIPHIER_BL33_MAX_SIZE))
 #define UNIPHIER_SCP_MAX_SIZE		0x00020000
-
-#define UNIPHIER_BLOCK_BUF_BASE		((UNIPHIER_SCP_BASE) + \
-					 (UNIPHIER_SCP_MAX_SIZE))
-#define UNIPHIER_BLOCK_BUF_SIZE		0x00100000
 
 #endif /* UNIPHIER_H */
