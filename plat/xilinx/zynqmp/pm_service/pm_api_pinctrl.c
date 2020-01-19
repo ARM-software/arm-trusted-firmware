@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -1477,6 +1477,7 @@ static struct zynqmp_pin_group zynqmp_pin_groups[MAX_PIN] = {
 	},
 	[PINCTRL_PIN_26] = {
 		.groups = &((uint16_t []) {
+			PINCTRL_GRP_ETHERNET0_0,
 			PINCTRL_GRP_GEMTSU0_0,
 			PINCTRL_GRP_NAND0_1_CE,
 			PINCTRL_GRP_PMU0_0,
