@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -77,6 +77,12 @@ int32_t tegra_soc_validate_power_state(uint32_t power_state,
 	/* Sanity check the requested state id */
 	switch (state_id) {
 	case PSTATE_ID_CORE_IDLE:
+
+		/* Core idle request */
+		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_RET_STATE;
+		req_state->pwr_domain_state[MPIDR_AFFLVL1] = PSCI_LOCAL_STATE_RUN;
+		break;
+
 	case PSTATE_ID_CORE_POWERDN:
 
 		/* Core powerdown request */
@@ -94,6 +100,25 @@ int32_t tegra_soc_validate_power_state(uint32_t power_state,
 	return ret;
 }
 
+int32_t tegra_soc_cpu_standby(plat_local_state_t cpu_state)
+{
+	uint32_t cpu = plat_my_core_pos();
+	mce_cstate_info_t cstate_info = { 0 };
+
+	/* Program default wake mask */
+	cstate_info.wake_mask = TEGRA194_CORE_WAKE_MASK;
+	cstate_info.update_wake_mask = 1;
+	mce_update_cstate_info(&cstate_info);
+
+	/* Enter CPU idle */
+	(void)mce_command_handler((uint64_t)MCE_CMD_ENTER_CSTATE,
+				  (uint64_t)TEGRA_NVG_CORE_C6,
+				  t19x_percpu_data[cpu].wake_time,
+				  0U);
+
+	return PSCI_E_SUCCESS;
+}
+
 int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
 	const plat_local_state_t *pwr_domain_state;
@@ -103,6 +128,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	uint32_t val;
 	mce_cstate_info_t sc7_cstate_info = {
 		.cluster = (uint32_t)TEGRA_NVG_CLUSTER_CC6,
+		.ccplex = (uint32_t)TEGRA_NVG_CG_CG7,
 		.system = (uint32_t)TEGRA_NVG_SYSTEM_SC7,
 		.system_state_force = 1U,
 		.update_wake_mask = 1U,
@@ -117,15 +143,13 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
 		TEGRA194_STATE_ID_MASK;
 
-	if ((stateid_afflvl0 == PSTATE_ID_CORE_IDLE) ||
-	    (stateid_afflvl0 == PSTATE_ID_CORE_POWERDN)) {
+	if ((stateid_afflvl0 == PSTATE_ID_CORE_POWERDN)) {
 
-		/* Enter CPU idle/powerdown */
-		val = (stateid_afflvl0 == PSTATE_ID_CORE_IDLE) ?
-			(uint32_t)TEGRA_NVG_CORE_C6 : (uint32_t)TEGRA_NVG_CORE_C7;
-		ret = mce_command_handler((uint64_t)MCE_CMD_ENTER_CSTATE, (uint64_t)val,
-				t19x_percpu_data[cpu].wake_time, 0);
-		assert(ret == 0);
+		/* Enter CPU powerdown */
+		(void)mce_command_handler((uint64_t)MCE_CMD_ENTER_CSTATE,
+					  (uint64_t)TEGRA_NVG_CORE_C7,
+					  t19x_percpu_data[cpu].wake_time,
+					  0U);
 
 	} else if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 
@@ -357,17 +381,65 @@ int32_t tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	 */
 	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 
+#if ENABLE_STRICT_CHECKING_MODE
 		/*
 		 * Enable strict checking after programming the GSC for
 		 * enabling TZSRAM and TZDRAM
 		 */
 		mce_enable_strict_checking();
+#endif
 
 		/* Init SMMU */
 		tegra_smmu_init();
 
 		/* Resume SE, RNG1 and PKA1 */
 		tegra_se_resume();
+
+		/*
+		 * Program XUSB STREAMIDs
+		 * ======================
+		 * T19x XUSB has support for XUSB virtualization. It will
+		 * have one physical function (PF) and four Virtual functions
+		 * (VF)
+		 *
+		 * There were below two SIDs for XUSB until T186.
+		 * 1) #define TEGRA_SID_XUSB_HOST    0x1bU
+		 * 2) #define TEGRA_SID_XUSB_DEV    0x1cU
+		 *
+		 * We have below four new SIDs added for VF(s)
+		 * 3) #define TEGRA_SID_XUSB_VF0    0x5dU
+		 * 4) #define TEGRA_SID_XUSB_VF1    0x5eU
+		 * 5) #define TEGRA_SID_XUSB_VF2    0x5fU
+		 * 6) #define TEGRA_SID_XUSB_VF3    0x60U
+		 *
+		 * When virtualization is enabled then we have to disable SID
+		 * override and program above SIDs in below newly added SID
+		 * registers in XUSB PADCTL MMIO space. These registers are
+		 * TZ protected and so need to be done in ATF.
+		 *
+		 * a) #define XUSB_PADCTL_HOST_AXI_STREAMID_PF_0 (0x136cU)
+		 * b) #define XUSB_PADCTL_DEV_AXI_STREAMID_PF_0  (0x139cU)
+		 * c) #define XUSB_PADCTL_HOST_AXI_STREAMID_VF_0 (0x1370U)
+		 * d) #define XUSB_PADCTL_HOST_AXI_STREAMID_VF_1 (0x1374U)
+		 * e) #define XUSB_PADCTL_HOST_AXI_STREAMID_VF_2 (0x1378U)
+		 * f) #define XUSB_PADCTL_HOST_AXI_STREAMID_VF_3 (0x137cU)
+		 *
+		 * This change disables SID override and programs XUSB SIDs
+		 * in above registers to support both virtualization and
+		 * non-virtualization platforms
+		 */
+		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_HOST);
+		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_VF_0, TEGRA_SID_XUSB_VF0);
+		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_VF_1, TEGRA_SID_XUSB_VF1);
+		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_VF_2, TEGRA_SID_XUSB_VF2);
+		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_VF_3, TEGRA_SID_XUSB_VF3);
+		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_DEV_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_DEV);
 
 		/*
 		 * Reset power state info for the last core doing SC7
@@ -403,8 +475,7 @@ int32_t tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 __dead2 void tegra_soc_prepare_system_off(void)
 {
 	/* System power off */
-
-	/* SC8 */
+	mce_system_shutdown();
 
 	wfi();
 
@@ -416,5 +487,8 @@ __dead2 void tegra_soc_prepare_system_off(void)
 
 int32_t tegra_soc_prepare_system_reset(void)
 {
+	/* System reboot */
+	mce_system_reboot();
+
 	return PSCI_E_SUCCESS;
 }

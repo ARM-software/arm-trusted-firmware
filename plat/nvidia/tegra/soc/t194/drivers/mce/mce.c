@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -186,6 +186,7 @@ void mce_verify_firmware_version(void)
 	}
 }
 
+#if ENABLE_STRICT_CHECKING_MODE
 /*******************************************************************************
  * Handler to enable the strict checking mode
  ******************************************************************************/
@@ -234,4 +235,21 @@ void mce_enable_strict_checking(void)
 		 */
 		nvg_enable_strict_checking_mode();
 	}
+}
+#endif
+
+/*******************************************************************************
+ * Handler to power down the entire system
+ ******************************************************************************/
+void mce_system_shutdown(void)
+{
+	nvg_system_shutdown();
+}
+
+/*******************************************************************************
+ * Handler to reboot the entire system
+ ******************************************************************************/
+void mce_system_reboot(void)
+{
+	nvg_system_reboot();
 }

@@ -7,6 +7,7 @@
 #ifndef MCE_PRIVATE_H
 #define MCE_PRIVATE_H
 
+#include <stdbool.h>
 #include <tegra_def.h>
 
 /*******************************************************************************
@@ -67,8 +68,12 @@ uint64_t nvg_cache_clean(void);
 uint64_t nvg_cache_clean_inval(void);
 uint64_t nvg_cache_inval_all(void);
 void nvg_enable_strict_checking_mode(void);
+void nvg_system_shutdown(void);
+void nvg_system_reboot(void);
 
 /* MCE helper functions */
 void mce_enable_strict_checking(void);
+void mce_system_shutdown(void);
+void mce_system_reboot(void);
 
 #endif /* MCE_PRIVATE_H */

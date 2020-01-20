@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -127,6 +127,11 @@ typedef enum {
 	TEGRA_NVG_SYSTEM_SC7 = 7,
 	TEGRA_NVG_SYSTEM_SC8 = 8
 } tegra_nvg_system_sleep_state_t;
+
+typedef enum {
+    TEGRA_NVG_SHUTDOWN = 0U,
+    TEGRA_NVG_REBOOT = 1U,
+} tegra_nvg_shutdown_reboot_state_t;
 
 // ---------------------------------------------------------------------------
 // NVG Data subformats

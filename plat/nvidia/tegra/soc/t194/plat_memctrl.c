@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -478,8 +478,9 @@ static void tegra194_memctrl_reconfig_mss_clients(void)
 	mc_set_txn_override(VICSRD, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
 	mc_set_txn_override(VICSRD1, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
 	mc_set_txn_override(VICSWR, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
-	mc_set_txn_override(VIFALR, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
-	mc_set_txn_override(VIFALW, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
+	mc_set_txn_override(VIW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(VIFALR, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
+	mc_set_txn_override(VIFALW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT, FORCE_NON_COHERENT);
 	mc_set_txn_override(XUSB_DEVR, CGID_TAG_DEFAULT, SO_DEV_ZERO, NO_OVERRIDE, NO_OVERRIDE);
 	mc_set_txn_override(XUSB_DEVW, CGID_TAG_DEFAULT, SO_DEV_ZERO, FORCE_NON_COHERENT,
 			     FORCE_COHERENT_SNOOP);
@@ -577,36 +578,29 @@ static void tegra194_memctrl_reconfig_mss_clients(void)
 	tegra_mc_write_32(MC_PCFIFO_CLIENT_CONFIG7, reg_val);
 
 	/* Set Order Id only for the clients having non zero order id */
-	reg_val = MC_CLIENT_ORDER_ID_9_RESET_VAL &
-		mc_client_order_id(9, XUSB_HOSTW);
+	reg_val = mc_client_order_id(MC_CLIENT_ORDER_ID_9_RESET_VAL, 9, XUSB_HOSTW);
 	tegra_mc_write_32(MC_CLIENT_ORDER_ID_9, reg_val);
 
-	reg_val = MC_CLIENT_ORDER_ID_27_RESET_VAL &
-		mc_client_order_id(27, PCIE0W);
+	reg_val = mc_client_order_id(MC_CLIENT_ORDER_ID_27_RESET_VAL, 27, PCIE0W);
 	tegra_mc_write_32(MC_CLIENT_ORDER_ID_27, reg_val);
 
-	reg_val = MC_CLIENT_ORDER_ID_28_RESET_VAL &
-		mc_client_order_id(28, PCIE4W) &
-		mc_client_order_id(28, PCIE5W);
+	reg_val = mc_client_order_id(MC_CLIENT_ORDER_ID_28_RESET_VAL, 28, PCIE4W);
+	reg_val = mc_client_order_id(reg_val, 28, PCIE5W);
 	tegra_mc_write_32(MC_CLIENT_ORDER_ID_28, reg_val);
 
-	/* Set VC Id only for the clients having different reset values */
-	reg_val = MC_HUB_PC_VC_ID_0_RESET_VAL &
-		/*
-		 * SDMMCRAB, SDMMCWAB, SESRD, SESWR, TSECSRD,TSECSRDB,
-		 * TSECSWR and TSECSWRB clients
-		 */
-		mc_hub_vc_id(0, APB);
+	/*
+	 * Set VC Id only for the clients having different reset values like
+	 * SDMMCRAB, SDMMCWAB, SESRD, SESWR, TSECSRD,TSECSRDB, TSECSWR and
+	 * TSECSWRB clients
+	 */
+	reg_val = mc_hub_vc_id(MC_HUB_PC_VC_ID_0_RESET_VAL, 0, APB);
 	tegra_mc_write_32(MC_HUB_PC_VC_ID_0, reg_val);
 
-	reg_val = MC_HUB_PC_VC_ID_2_RESET_VAL &
 	/* SDMMCRAB and SDMMCWAB clients */
-		mc_hub_vc_id(2, SD);
+	reg_val = mc_hub_vc_id(MC_HUB_PC_VC_ID_2_RESET_VAL, 2, SD);
 	tegra_mc_write_32(MC_HUB_PC_VC_ID_2, reg_val);
 
-	reg_val = MC_HUB_PC_VC_ID_4_RESET_VAL &
-	 /* AXIR and AXIW clients */
-		mc_hub_vc_id(4, NIC);
+	reg_val = mc_hub_vc_id(MC_HUB_PC_VC_ID_4_RESET_VAL, 4, NIC);
 	tegra_mc_write_32(MC_HUB_PC_VC_ID_4, reg_val);
 
 	wdata_0 = MC_CLIENT_HOTRESET_CTRL0_RESET_VAL;
@@ -617,6 +611,9 @@ static void tegra194_memctrl_reconfig_mss_clients(void)
 
 	wdata_2 = MC_CLIENT_HOTRESET_CTRL2_RESET_VAL;
 	tegra_mc_write_32(MC_CLIENT_HOTRESET_CTRL2, wdata_2);
+
+	reg_val = MC_COALESCE_CTRL_COALESCER_ENABLE;
+	tegra_mc_write_32(MC_COALESCE_CTRL, reg_val);
 }
 
 /*******************************************************************************

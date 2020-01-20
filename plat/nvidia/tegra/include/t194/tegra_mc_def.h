@@ -27,8 +27,8 @@
 #define  MC_CLIENT_ORDER_ID_28_PCIE5W_MASK		(0x3U << 12)
 #define  MC_CLIENT_ORDER_ID_28_PCIE5W_ORDER_ID		(2U << 12)
 
-#define mc_client_order_id(id, client) \
-	(~MC_CLIENT_ORDER_ID_##id##_##client##_MASK | \
+#define mc_client_order_id(val, id, client) \
+	((val & ~MC_CLIENT_ORDER_ID_##id##_##client##_MASK) | \
 	MC_CLIENT_ORDER_ID_##id##_##client##_ORDER_ID)
 
 /*******************************************************************************
@@ -53,8 +53,8 @@
 #define  MC_HUB_PC_VC_ID_4_NIC_VC_ID_MASK		(0x3U << 28)
 #define  MC_HUB_PC_VC_ID_4_NIC_VC_ID			(VC_NISO << 28)
 
-#define mc_hub_vc_id(id, client) \
-	(~MC_HUB_PC_VC_ID_##id##_##client##_VC_ID_MASK | \
+#define mc_hub_vc_id(val, id, client) \
+	((val & ~MC_HUB_PC_VC_ID_##id##_##client##_VC_ID_MASK) | \
 	MC_HUB_PC_VC_ID_##id##_##client##_VC_ID)
 
 /*******************************************************************************
@@ -529,6 +529,9 @@
 #define  MC_CLIENT_HOTRESET_CTRL2_PCIE0A2_FLUSH_ENB		(1U << 23)
 #define  MC_CLIENT_HOTRESET_CTRL2_PCIE4A_FLUSH_ENB		(1U << 25)
 #define MC_CLIENT_HOTRESET_STATUS2				0x1898U
+
+#define MC_COALESCE_CTRL					0x2930U
+#define  MC_COALESCE_CTRL_COALESCER_ENABLE			(1U << 31)
 
 /*******************************************************************************
  * Tegra TSA Controller constants

@@ -288,6 +288,7 @@ int32_t nvg_enter_cstate(uint32_t state, uint32_t wake_time)
 	return ret;
 }
 
+#if ENABLE_STRICT_CHECKING_MODE
 /*
  * Enable strict checking mode
  *
@@ -299,4 +300,27 @@ void nvg_enable_strict_checking_mode(void)
 				     STRICT_CHECKING_LOCKED_SET);
 
 	nvg_set_request_data(TEGRA_NVG_CHANNEL_SECURITY_CONFIG, params);
+}
+#endif
+
+/*
+ * Request a reboot
+ *
+ * NVGDATA[0]: reboot command
+ */
+void nvg_system_reboot(void)
+{
+	/* issue command for reboot */
+	nvg_set_request_data(TEGRA_NVG_CHANNEL_SHUTDOWN, TEGRA_NVG_REBOOT);
+}
+
+/*
+ * Request a shutdown
+ *
+ * NVGDATA[0]: shutdown command
+ */
+void nvg_system_shutdown(void)
+{
+	/* issue command for shutdown */
+	nvg_set_request_data(TEGRA_NVG_CHANNEL_SHUTDOWN, TEGRA_NVG_SHUTDOWN);
 }
