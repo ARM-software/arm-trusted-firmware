@@ -24,6 +24,29 @@ PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 1)))
 endif
 $(eval $(call add_define,PLAT_PARTITION_MAX_ENTRIES))
 
+# Boot devices
+STM32MP_EMMC		?=	0
+STM32MP_SDMMC		?=	0
+STM32MP_RAW_NAND	?=	0
+STM32MP_SPI_NAND	?=	0
+STM32MP_SPI_NOR		?=	0
+
+ifeq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC} ${STM32MP_RAW_NAND} \
+	${STM32MP_SPI_NAND} ${STM32MP_SPI_NOR}),)
+$(error "No boot device driver is enabled")
+endif
+
+$(eval $(call assert_boolean,STM32MP_EMMC))
+$(eval $(call assert_boolean,STM32MP_SDMMC))
+$(eval $(call assert_boolean,STM32MP_RAW_NAND))
+$(eval $(call assert_boolean,STM32MP_SPI_NAND))
+$(eval $(call assert_boolean,STM32MP_SPI_NOR))
+$(eval $(call add_define,STM32MP_EMMC))
+$(eval $(call add_define,STM32MP_SDMMC))
+$(eval $(call add_define,STM32MP_RAW_NAND))
+$(eval $(call add_define,STM32MP_SPI_NAND))
+$(eval $(call add_define,STM32MP_SPI_NOR))
+
 PLAT_INCLUDES		:=	-Iplat/st/common/include/
 PLAT_INCLUDES		+=	-Iplat/st/stm32mp1/include/
 
@@ -70,6 +93,7 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 
 BL2_SOURCES		+=	drivers/io/io_block.c					\
 				drivers/io/io_dummy.c					\
+				drivers/io/io_mtd.c					\
 				drivers/io/io_storage.c					\
 				drivers/st/crypto/stm32_hash.c				\
 				drivers/st/io/io_stm32image.c				\
@@ -77,11 +101,40 @@ BL2_SOURCES		+=	drivers/io/io_block.c					\
 				plat/st/common/bl2_io_storage.c				\
 				plat/st/stm32mp1/bl2_plat_setup.c
 
+ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
 BL2_SOURCES		+=	drivers/mmc/mmc.c					\
 				drivers/partition/gpt.c					\
 				drivers/partition/partition.c				\
 				drivers/st/io/io_mmc.c					\
 				drivers/st/mmc/stm32_sdmmc2.c
+endif
+
+ifeq (${STM32MP_RAW_NAND},1)
+$(eval $(call add_define_val,NAND_ONFI_DETECT,1))
+BL2_SOURCES		+=	drivers/mtd/nand/raw_nand.c				\
+				drivers/st/fmc/stm32_fmc2_nand.c
+endif
+
+ifeq (${STM32MP_SPI_NAND},1)
+BL2_SOURCES		+=	drivers/mtd/nand/spi_nand.c
+endif
+
+ifeq (${STM32MP_SPI_NOR},1)
+BL2_SOURCES		+=	drivers/mtd/nor/spi_nor.c
+endif
+
+ifneq ($(filter 1,${STM32MP_SPI_NAND} ${STM32MP_SPI_NOR}),)
+BL2_SOURCES		+=	drivers/mtd/spi-mem/spi_mem.c				\
+				drivers/st/spi/stm32_qspi.c
+endif
+
+ifneq ($(filter 1,${STM32MP_RAW_NAND} ${STM32MP_SPI_NAND}),)
+BL2_SOURCES		+=	drivers/mtd/nand/core.c
+endif
+
+ifneq ($(filter 1,${STM32MP_RAW_NAND} ${STM32MP_SPI_NAND} ${STM32MP_SPI_NOR}),)
+BL2_SOURCES		+=	plat/st/stm32mp1/stm32mp1_boot_device.c
+endif
 
 BL2_SOURCES		+=	drivers/st/ddr/stm32mp1_ddr.c				\
 				drivers/st/ddr/stm32mp1_ram.c

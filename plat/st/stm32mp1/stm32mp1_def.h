@@ -23,6 +23,7 @@
 #include <stm32mp_common.h>
 #include <stm32mp_dt.h>
 #include <stm32mp_shres_helpers.h>
+#include <stm32mp1_boot_device.h>
 #include <stm32mp1_dbgmcu.h>
 #include <stm32mp1_private.h>
 #endif
@@ -74,7 +75,7 @@ enum ddr_type {
 #endif
 
 /* Section used inside TF binaries */
-#define STM32MP_PARAM_LOAD_SIZE		U(0x00002400)	/* 9 Ko for param */
+#define STM32MP_PARAM_LOAD_SIZE		U(0x00002400)	/* 9 KB for param */
 /* 256 Octets reserved for header */
 #define STM32MP_HEADER_SIZE		U(0x00000100)
 
@@ -95,9 +96,9 @@ enum ddr_type {
 					 STM32MP_OPTEE_BASE)
 #else
 #if STACK_PROTECTOR_ENABLED
-#define STM32MP_BL32_SIZE		U(0x00012000)	/* 72 Ko for BL32 */
+#define STM32MP_BL32_SIZE		U(0x00012000)	/* 72 KB for BL32 */
 #else
-#define STM32MP_BL32_SIZE		U(0x00011000)	/* 68 Ko for BL32 */
+#define STM32MP_BL32_SIZE		U(0x00011000)	/* 68 KB for BL32 */
 #endif
 #endif
 
@@ -107,23 +108,23 @@ enum ddr_type {
 
 #ifdef AARCH32_SP_OPTEE
 #if STACK_PROTECTOR_ENABLED
-#define STM32MP_BL2_SIZE		U(0x00019000)	/* 100 Ko for BL2 */
+#define STM32MP_BL2_SIZE		U(0x0001A000)	/* 100 KB for BL2 */
 #else
-#define STM32MP_BL2_SIZE		U(0x00017000)	/* 92 Ko for BL2 */
+#define STM32MP_BL2_SIZE		U(0x00018000)	/* 92 KB for BL2 */
 #endif
 #else
 #if STACK_PROTECTOR_ENABLED
-#define STM32MP_BL2_SIZE		U(0x00018000)	/* 96 Ko for BL2 */
+#define STM32MP_BL2_SIZE		U(0x00019000)	/* 96 KB for BL2 */
 #else
-#define STM32MP_BL2_SIZE		U(0x00016000)	/* 88 Ko for BL2 */
+#define STM32MP_BL2_SIZE		U(0x00017000)	/* 88 KB for BL2 */
 #endif
 #endif
 
 #define STM32MP_BL2_BASE		(STM32MP_BL32_BASE - \
 					 STM32MP_BL2_SIZE)
 
-/* BL2 and BL32/sp_min require 5 tables */
-#define MAX_XLAT_TABLES			5
+/* BL2 and BL32/sp_min require 4 tables */
+#define MAX_XLAT_TABLES			U(4)		/* 16 KB for mapping */
 
 /*
  * MAX_MMAP_REGIONS is usually:
@@ -137,12 +138,32 @@ enum ddr_type {
 #endif
 
 /* DTB initialization value */
-#define STM32MP_DTB_SIZE		U(0x00005000)	/* 20Ko for DTB */
+#define STM32MP_DTB_SIZE		U(0x00005000)	/* 20 KB for DTB */
 
 #define STM32MP_DTB_BASE		(STM32MP_BL2_BASE - \
 					 STM32MP_DTB_SIZE)
 
 #define STM32MP_BL33_BASE		(STM32MP_DDR_BASE + U(0x100000))
+
+/* Define maximum page size for NAND devices */
+#define PLATFORM_MTD_MAX_PAGE_SIZE	U(0x1000)
+
+/*******************************************************************************
+ * STM32MP1 RAW partition offset for MTD devices
+ ******************************************************************************/
+#define STM32MP_NOR_BL33_OFFSET		U(0x00080000)
+#ifdef AARCH32_SP_OPTEE
+#define STM32MP_NOR_TEEH_OFFSET		U(0x00280000)
+#define STM32MP_NOR_TEED_OFFSET		U(0x002C0000)
+#define STM32MP_NOR_TEEX_OFFSET		U(0x00300000)
+#endif
+
+#define STM32MP_NAND_BL33_OFFSET	U(0x00200000)
+#ifdef AARCH32_SP_OPTEE
+#define STM32MP_NAND_TEEH_OFFSET	U(0x00600000)
+#define STM32MP_NAND_TEED_OFFSET	U(0x00680000)
+#define STM32MP_NAND_TEEX_OFFSET	U(0x00700000)
+#endif
 
 /*******************************************************************************
  * STM32MP1 device/io map related constants (used for MMU)
@@ -266,6 +287,7 @@ enum ddr_type {
 /* OTP offsets */
 #define DATA0_OTP			U(0)
 #define PART_NUMBER_OTP			U(1)
+#define NAND_OTP			U(9)
 #define PACKAGE_OTP			U(16)
 #define HW2_OTP				U(18)
 
@@ -288,6 +310,45 @@ enum ddr_type {
 
 /* HW2 OTP */
 #define HW2_OTP_PRODUCT_BELOW_2V5	BIT(13)
+
+/* NAND OTP */
+/* NAND parameter storage flag */
+#define NAND_PARAM_STORED_IN_OTP	BIT(31)
+
+/* NAND page size in bytes */
+#define NAND_PAGE_SIZE_MASK		GENMASK_32(30, 29)
+#define NAND_PAGE_SIZE_SHIFT		29
+#define NAND_PAGE_SIZE_2K		U(0)
+#define NAND_PAGE_SIZE_4K		U(1)
+#define NAND_PAGE_SIZE_8K		U(2)
+
+/* NAND block size in pages */
+#define NAND_BLOCK_SIZE_MASK		GENMASK_32(28, 27)
+#define NAND_BLOCK_SIZE_SHIFT		27
+#define NAND_BLOCK_SIZE_64_PAGES	U(0)
+#define NAND_BLOCK_SIZE_128_PAGES	U(1)
+#define NAND_BLOCK_SIZE_256_PAGES	U(2)
+
+/* NAND number of block (in unit of 256 blocs) */
+#define NAND_BLOCK_NB_MASK		GENMASK_32(26, 19)
+#define NAND_BLOCK_NB_SHIFT		19
+#define NAND_BLOCK_NB_UNIT		U(256)
+
+/* NAND bus width in bits */
+#define NAND_WIDTH_MASK			BIT(18)
+#define NAND_WIDTH_SHIFT		18
+
+/* NAND number of ECC bits per 512 bytes */
+#define NAND_ECC_BIT_NB_MASK		GENMASK_32(17, 15)
+#define NAND_ECC_BIT_NB_SHIFT		15
+#define NAND_ECC_BIT_NB_UNSET		U(0)
+#define NAND_ECC_BIT_NB_1_BITS		U(1)
+#define NAND_ECC_BIT_NB_4_BITS		U(2)
+#define NAND_ECC_BIT_NB_8_BITS		U(3)
+#define NAND_ECC_ON_DIE			U(4)
+
+/* NAND number of planes */
+#define NAND_PLANE_BIT_NB_MASK		BIT(14)
 
 /*******************************************************************************
  * STM32MP1 TAMP
