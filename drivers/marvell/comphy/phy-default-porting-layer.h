@@ -45,6 +45,7 @@ static const struct sata_params
 		.g3_rx_selmupf = 0x2,
 		.g1_rx_selmupi = 0x0, .g2_rx_selmupi = 0x0,
 		.g3_rx_selmupi = 0x2,
+		.polarity_invert = COMPHY_POLARITY_NO_INVERT,
 		.valid = 0x1
 	},
 };

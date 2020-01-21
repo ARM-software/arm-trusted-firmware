@@ -131,6 +131,7 @@ SATA_PARAMS sata_static_values_tab[AP_NUM][CP_NUM][MAX_LANE_NR] = {
 		.g3_rx_selmupf = 0x2,
 		.g1_rx_selmupi = 0x0, .g2_rx_selmupi = 0x0,
 		.g3_rx_selmupi = 0x2,
+		.polarity_invert = COMPHY_POLARITY_NO_INVERT,
 		.valid = 0x1
 	},
 };

@@ -76,6 +76,8 @@ struct sata_params {
 	uint8_t g2_rx_selmupi;
 	uint8_t g3_rx_selmupi;
 
+	uint8_t polarity_invert;
+
 	_Bool valid;
 };
 
@@ -89,3 +91,7 @@ int mvebu_cp110_comphy_xfi_rx_training(uint64_t comphy_base,
 				       uint8_t comphy_index);
 int mvebu_cp110_comphy_digital_reset(uint64_t comphy_base, uint8_t comphy_index,
 				     uint32_t comphy_mode, uint32_t command);
+
+#define COMPHY_POLARITY_NO_INVERT	0
+#define COMPHY_POLARITY_TXD_INVERT	1
+#define COMPHY_POLARITY_RXD_INVERT	2

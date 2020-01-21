@@ -323,12 +323,33 @@ int mvebu_cp110_comphy_is_pll_locked(uint64_t comphy_base, uint8_t comphy_index)
 	return ret;
 }
 
+static void mvebu_cp110_polarity_invert(uintptr_t addr, uint8_t phy_polarity_invert)
+{
+	uint32_t mask, data;
+
+	/* Set RX / TX polarity */
+	data = mask = 0x0U;
+	if ((phy_polarity_invert & COMPHY_POLARITY_TXD_INVERT) != 0) {
+		data |= (1 << HPIPE_SYNC_PATTERN_TXD_INV_OFFSET);
+		mask |= HPIPE_SYNC_PATTERN_TXD_INV_MASK;
+		debug("%s: inverting TX polarity\n", __func__);
+	}
+
+	if ((phy_polarity_invert & COMPHY_POLARITY_RXD_INVERT) != 0) {
+		data |= (1 << HPIPE_SYNC_PATTERN_RXD_INV_OFFSET);
+		mask |= HPIPE_SYNC_PATTERN_RXD_INV_MASK;
+		debug("%s: inverting RX polarity\n", __func__);
+	}
+
+	reg_set(addr, data, mask);
+}
+
 static int mvebu_cp110_comphy_sata_power_on(uint64_t comphy_base,
 				     uint8_t comphy_index, uint32_t comphy_mode)
 {
 	uintptr_t hpipe_addr, sd_ip_addr, comphy_addr;
 	uint32_t mask, data;
-	uint8_t ap_nr, cp_nr;
+	uint8_t ap_nr, cp_nr, phy_polarity_invert;
 	int ret = 0;
 
 	debug_enter();
@@ -338,6 +359,7 @@ static int mvebu_cp110_comphy_sata_power_on(uint64_t comphy_base,
 	const struct sata_params *sata_static_values =
 			&sata_static_values_tab[ap_nr][cp_nr][comphy_index];
 
+	phy_polarity_invert = sata_static_values->polarity_invert;
 
 	/* configure phy selector for SATA */
 	mvebu_cp110_comphy_set_phy_selector(comphy_base,
@@ -629,6 +651,11 @@ static int mvebu_cp110_comphy_sata_power_on(uint64_t comphy_base,
 	reg_set(hpipe_addr + HPIPE_PWR_CTR_REG,
 		0x0 << HPIPE_PWR_CTR_RST_DFE_OFFSET,
 		HPIPE_PWR_CTR_RST_DFE_MASK);
+
+	if (phy_polarity_invert != 0)
+		mvebu_cp110_polarity_invert(hpipe_addr + HPIPE_SYNC_PATTERN_REG,
+					    phy_polarity_invert);
+
 	/* SW reset for interrupt logic */
 	reg_set(hpipe_addr + HPIPE_PWR_CTR_REG,
 		0x1 << HPIPE_PWR_CTR_SFT_RST_OFFSET,
