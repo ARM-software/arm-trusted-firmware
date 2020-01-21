@@ -32,7 +32,6 @@
 
 #define BL31_BASE			U(0x910000)
 #define BL31_LIMIT			U(0x920000)
-#define BL32_BASE			U(0xfe000000)
 
 /* non-secure uboot base */
 #define PLAT_NS_IMAGE_OFFSET		U(0x40200000)

@@ -20,9 +20,7 @@
 uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 
 static const interrupt_prop_t g01s_interrupt_props[] = {
-	INTR_PROP_DESC(6, GIC_HIGHEST_SEC_PRIORITY,
-		       INTR_GROUP1S, GIC_INTR_CFG_LEVEL),
-	INTR_PROP_DESC(7, GIC_HIGHEST_SEC_PRIORITY,
+	INTR_PROP_DESC(8, GIC_HIGHEST_SEC_PRIORITY,
 		       INTR_GROUP0, GIC_INTR_CFG_LEVEL),
 };
 
