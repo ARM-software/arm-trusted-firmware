@@ -81,6 +81,10 @@ struct sata_params {
 	_Bool valid;
 };
 
+struct usb_params {
+	uint8_t polarity_invert;
+};
+
 int mvebu_cp110_comphy_is_pll_locked(uint64_t comphy_base,
 				     uint8_t comphy_index);
 int mvebu_cp110_comphy_power_off(uint64_t comphy_base,

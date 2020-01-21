@@ -136,4 +136,10 @@ SATA_PARAMS sata_static_values_tab[AP_NUM][CP_NUM][MAX_LANE_NR] = {
 	},
 };
 
+static const struct usb_params
+	usb_static_values_tab[AP_NUM][CP_NUM][MAX_LANE_NR] = {
+	[0 ... AP_NUM-1][0 ... CP_NUM-1][0 ... MAX_LANE_NR-1] = {
+		.polarity_invert = COMPHY_POLARITY_NO_INVERT
+	},
+};
 #endif /* __PHY_PORTING_LAYER_H */

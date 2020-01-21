@@ -1922,6 +1922,7 @@ static int mvebu_cp110_comphy_usb3_power_on(uint64_t comphy_base,
 {
 	uintptr_t hpipe_addr, comphy_addr, addr;
 	uint32_t mask, data;
+	uint8_t ap_nr, cp_nr, phy_polarity_invert;
 	int ret = 0;
 
 	debug_enter();
@@ -1929,6 +1930,13 @@ static int mvebu_cp110_comphy_usb3_power_on(uint64_t comphy_base,
 	/* Configure PIPE selector for USB3 */
 	mvebu_cp110_comphy_set_pipe_selector(comphy_base, comphy_index,
 					     comphy_mode);
+
+	mvebu_cp110_get_ap_and_cp_nr(&ap_nr, &cp_nr, comphy_base);
+
+	const struct usb_params *usb_static_values =
+			&usb_static_values_tab[ap_nr][cp_nr][comphy_index];
+
+	phy_polarity_invert = usb_static_values->polarity_invert;
 
 	hpipe_addr = HPIPE_ADDR(COMPHY_PIPE_FROM_COMPHY_ADDR(comphy_base),
 				comphy_index);
@@ -2008,6 +2016,13 @@ static int mvebu_cp110_comphy_usb3_power_on(uint64_t comphy_base,
 	reg_set(hpipe_addr + HPIPE_TST_MODE_CTRL_REG,
 		0x1 << HPIPE_TST_MODE_CTRL_MODE_MARGIN_OFFSET,
 		HPIPE_TST_MODE_CTRL_MODE_MARGIN_MASK);
+
+	/* The polarity inversion for USB was not tested due to lack of hw
+	 * design which requires it. Support is added for customer needs.
+	 */
+	if (phy_polarity_invert)
+		mvebu_cp110_polarity_invert(hpipe_addr + HPIPE_SYNC_PATTERN_REG,
+					    phy_polarity_invert);
 
 	/* Start analog parameters from ETP(HW) */
 	debug("stage: Analog parameters from ETP(HW)\n");
