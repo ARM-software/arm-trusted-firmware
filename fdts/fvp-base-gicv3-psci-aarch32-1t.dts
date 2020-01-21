@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 /dts-v1/;
 
-/include/ "fvp-base-gicv3-psci-aarch32-common.dtsi"
+#include "fvp-base-gicv3-psci-aarch32-common.dtsi"
 
 &CPU0 {
 	reg = <0x0>;
