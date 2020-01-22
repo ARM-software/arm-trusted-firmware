@@ -240,7 +240,7 @@ ERRATA_HERCULES_1688305	?=0
 
 # Flag to apply T32 CLREX workaround during reset. This erratum applies
 # only to r0p0 and r1p0 of the Neoverse N1 cpu.
-ERRATA_N1_1043202	?=1
+ERRATA_N1_1043202	?=0
 
 # Flag to apply erratum 1073348 workaround during reset. This erratum applies
 # only to revision r0p0 and r1p0 of the Neoverse N1 cpu.
@@ -280,7 +280,7 @@ ERRATA_N1_1275112	?=0
 
 # Flag to apply erratum 1315703 workaround during reset. This erratum applies
 # to revisions before r3p1 of the Neoverse N1 cpu.
-ERRATA_N1_1315703	?=1
+ERRATA_N1_1315703	?=0
 
 # Flag to apply erratum 1542419 workaround during reset. This erratum applies
 # to revisions r3p0 - r4p0 of the Neoverse N1 cpu.
