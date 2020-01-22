@@ -31,33 +31,48 @@ ifdef VERSAL_BL32_MEM_BASE
     $(eval $(call add_define,VERSAL_BL32_MEM_SIZE))
 endif
 
-VERSAL_PLATFORM ?= versal_virt
+VERSAL_PLATFORM ?= silicon
 $(eval $(call add_define_val,VERSAL_PLATFORM,VERSAL_PLATFORM_ID_${VERSAL_PLATFORM}))
 
 VERSAL_CONSOLE	?=	pl011
 $(eval $(call add_define_val,VERSAL_CONSOLE,VERSAL_CONSOLE_ID_${VERSAL_CONSOLE}))
 
-PLAT_INCLUDES		:=	-Iplat/xilinx/versal/include/
+PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
+				-Iplat/xilinx/common/include/			\
+				-Iplat/xilinx/common/ipi_mailbox_service/	\
+				-Iplat/xilinx/versal/include/			\
+				-Iplat/xilinx/versal/pm_service/
 
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
 				drivers/arm/gic/common/gic_common.c		\
+				drivers/arm/gic/v3/arm_gicv3_common.c		\
+				drivers/arm/gic/v3/gic500.c			\
 				drivers/arm/gic/v3/gicv3_main.c			\
 				drivers/arm/gic/v3/gicv3_helpers.c		\
 				drivers/arm/pl011/aarch64/pl011_console.S	\
 				plat/common/aarch64/crash_console_helpers.S	\
+				plat/arm/common/arm_cci.c			\
 				plat/common/plat_gicv3.c			\
 				plat/xilinx/versal/aarch64/versal_helpers.S	\
 				plat/xilinx/versal/aarch64/versal_common.c
 
-BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S			\
+BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
+				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
 				plat/common/plat_psci_common.c			\
+				plat/xilinx/common/ipi.c			\
+				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
+				plat/xilinx/common/pm_service/pm_ipi.c		\
 				plat/xilinx/versal/bl31_versal_setup.c		\
 				plat/xilinx/versal/plat_psci.c			\
 				plat/xilinx/versal/plat_versal.c		\
 				plat/xilinx/versal/plat_topology.c		\
 				plat/xilinx/versal/sip_svc_setup.c		\
-				plat/xilinx/versal/versal_gicv3.c
+				plat/xilinx/versal/versal_gicv3.c		\
+				plat/xilinx/versal/versal_ipi.c			\
+				plat/xilinx/versal/pm_service/pm_svc_main.c	\
+				plat/xilinx/versal/pm_service/pm_api_sys.c	\
+				plat/xilinx/versal/pm_service/pm_client.c

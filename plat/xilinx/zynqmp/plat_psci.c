@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -100,9 +100,8 @@ static void zynqmp_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++)
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
-
+	plat_arm_gic_pcpu_init();
 	gicv2_cpuif_enable();
-	gicv2_pcpu_distif_init();
 }
 
 static void zynqmp_pwr_domain_suspend_finish(const psci_power_state_t *target_state)

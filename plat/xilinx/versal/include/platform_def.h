@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,8 +8,7 @@
 #define PLATFORM_DEF_H
 
 #include <arch.h>
-
-#include "../versal_def.h"
+#include "versal_def.h"
 
 /*******************************************************************************
  * Generic platform constants
@@ -32,7 +31,7 @@
  * little space for growth.
  */
 #ifndef VERSAL_ATF_MEM_BASE
-# define BL31_BASE			0xfffea000
+# define BL31_BASE			0xfffe0000
 # define BL31_LIMIT			0xffffffff
 #else
 # define BL31_BASE			(VERSAL_ATF_MEM_BASE)
@@ -76,7 +75,7 @@
  ******************************************************************************/
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ull << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ull << 32)
-#define MAX_MMAP_REGIONS		7
+#define MAX_MMAP_REGIONS		8
 #define MAX_XLAT_TABLES			5
 
 #define CACHE_WRITEBACK_SHIFT	6

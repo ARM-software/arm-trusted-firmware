@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,7 @@
 
 /* List all supported platforms */
 #define VERSAL_PLATFORM_ID_versal_virt	1
+#define VERSAL_PLATFORM_ID_silicon	4
 
 #define VERSAL_PLATFORM_IS(con)	(VERSAL_PLATFORM_ID_ ## con == VERSAL_PLATFORM)
 
@@ -35,13 +36,10 @@
 
 /* CRL */
 #define VERSAL_CRL				0xFF5E0000
-#define VERSAL_CRL_IOU_SWITCH_CTRL		(VERSAL_CRL + 0x114)
 #define VERSAL_CRL_TIMESTAMP_REF_CTRL		(VERSAL_CRL + 0x14C)
 #define VERSAL_CRL_RST_TIMESTAMP_OFFSET	(VERSAL_CRL + 0x348)
 
 #define VERSAL_CRL_APB_TIMESTAMP_REF_CTRL_CLKACT_BIT	(1 << 25)
-#define VERSAL_IOU_SWITCH_CTRL_CLKACT_BIT		(1 << 25)
-#define VERSAL_IOU_SWITCH_CTRL_DIVISOR0_SHIFT		8
 
 /* IOU SCNTRS */
 #define VERSAL_IOU_SCNTRS			 0xFF140000
@@ -54,6 +52,13 @@
  * IRQ constants
  ******************************************************************************/
 #define VERSAL_IRQ_SEC_PHY_TIMER		29
+
+/*******************************************************************************
+ * CCI-400 related constants
+ ******************************************************************************/
+#define PLAT_ARM_CCI_BASE		0xFD000000
+#define PLAT_ARM_CCI_CLUSTER0_SL_IFACE_IX	4
+#define PLAT_ARM_CCI_CLUSTER1_SL_IFACE_IX	5
 
 /*******************************************************************************
  * UART related constants
@@ -80,7 +85,12 @@
 # define PLATFORM_NAME		"Versal Virt"
 # define VERSAL_UART_CLOCK	25000000
 # define VERSAL_UART_BAUDRATE	115200
-# define VERSAL_CPU_CLOCK	62500000
+# define VERSAL_CPU_CLOCK	2720000
+#elif VERSAL_PLATFORM_IS(silicon)
+# define PLATFORM_NAME		"Versal Silicon"
+# define VERSAL_UART_CLOCK	100000000
+# define VERSAL_UART_BAUDRATE	115200
+# define VERSAL_CPU_CLOCK	100000000
 #endif
 
 /* Access control register defines */
@@ -97,6 +107,9 @@
 #define CRF_RST_APU_ACPU_RESET		(1 << 0)
 #define CRF_RST_APU_ACPU_PWRON_RESET	(1 << 10)
 
+#define FPD_MAINCCI_BASE	0xFD000000
+#define FPD_MAINCCI_SIZE	0x00100000
+
 /* APU registers and bitfields */
 #define FPD_APU_BASE		0xFD5C0000
 #define FPD_APU_CONFIG_0	(FPD_APU_BASE + 0x20)
@@ -105,5 +118,22 @@
 #define FPD_APU_PWRCTL		(FPD_APU_BASE + 0x90)
 
 #define FPD_APU_CONFIG_0_VINITHI_SHIFT	8
+#define APU_0_PWRCTL_CPUPWRDWNREQ_MASK	1
+#define APU_1_PWRCTL_CPUPWRDWNREQ_MASK	2
+
+/* IPI registers and bitfields */
+#define IPI0_REG_BASE		0xFF330000
+#define IPI0_TRIG_BIT		(1 << 2)
+#define PMC_IPI_TRIG_BIT	(1 << 1)
+#define IPI1_REG_BASE		0xFF340000
+#define IPI1_TRIG_BIT		(1 << 3)
+#define IPI2_REG_BASE		0xFF350000
+#define IPI2_TRIG_BIT		(1 << 4)
+#define IPI3_REG_BASE		0xFF360000
+#define IPI3_TRIG_BIT		(1 << 5)
+#define IPI4_REG_BASE		0xFF370000
+#define IPI4_TRIG_BIT		(1 << 5)
+#define IPI5_REG_BASE		0xFF380000
+#define IPI5_TRIG_BIT		(1 << 6)
 
 #endif /* VERSAL_DEF_H */

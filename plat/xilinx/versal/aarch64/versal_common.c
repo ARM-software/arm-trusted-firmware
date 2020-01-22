@@ -1,17 +1,17 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <plat_ipi.h>
+#include <versal_def.h>
+#include <plat_private.h>
 #include <common/debug.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables.h>
 #include <plat/common/platform.h>
-
-#include "../versal_def.h"
-#include "../versal_private.h"
 
 /*
  * Table of regions to map using the MMU.
@@ -22,6 +22,8 @@ const mmap_region_t plat_versal_mmap[] = {
 	MAP_REGION_FLAT(DEVICE0_BASE, DEVICE0_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(DEVICE1_BASE, DEVICE1_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(CRF_BASE, CRF_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(FPD_MAINCCI_BASE, FPD_MAINCCI_SIZE, MT_DEVICE | MT_RW |
+			MT_SECURE),
 	{ 0 }
 };
 
@@ -39,11 +41,10 @@ void versal_config_setup(void)
 {
 	uint32_t val;
 
-	versal_print_platform_name();
+	/* Configure IPI data for versal */
+	versal_ipi_config_table_init();
 
-	mmio_write_32(VERSAL_CRL_IOU_SWITCH_CTRL,
-		      VERSAL_IOU_SWITCH_CTRL_CLKACT_BIT |
-		      (0x20 << VERSAL_IOU_SWITCH_CTRL_DIVISOR0_SHIFT));
+	versal_print_platform_name();
 
 	/* Global timer init - Program time stamp reference clk */
 	val = mmio_read_32(VERSAL_CRL_TIMESTAMP_REF_CTRL);

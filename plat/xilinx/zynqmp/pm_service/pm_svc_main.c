@@ -77,8 +77,12 @@ static void trigger_wdt_restart(void)
 
 	INFO("Active Cores: %d\n", active_cores);
 
-	/* trigger SGI to active cores */
-	gicv2_raise_sgi(ARM_IRQ_SEC_SGI_7, target_cpu_list);
+	for (i = PLATFORM_CORE_COUNT - 1; i >= 0; i--) {
+		if (target_cpu_list & (1 << i)) {
+			/* trigger SGI to active cores */
+			plat_ic_raise_el3_sgi(ARM_IRQ_SEC_SGI_7, i);
+		}
+	}
 }
 
 /**
@@ -105,6 +109,8 @@ static uint64_t ttc_fiq_handler(uint32_t id, uint32_t flags, void *handle,
                                void *cookie)
 {
 	INFO("BL31: Got TTC FIQ\n");
+
+	plat_ic_end_of_interrupt(id);
 
 	/* Clear TTC interrupt by reading interrupt register */
 	mmio_read_32(TTC3_INTR_REGISTER_1);
