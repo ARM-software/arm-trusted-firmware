@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -124,6 +124,23 @@ ENABLE_PMF			:=	1
 # On ARM platforms, separate the code and read-only data sections to allow
 # mapping the former as executable and the latter as execute-never.
 SEPARATE_CODE_AND_RODATA	:=	1
+
+# On ARM platforms, disable SEPARATE_NOBITS_REGION by default. Both PROGBITS
+# and NOBITS sections of BL31 image are adjacent to each other and loaded
+# into Trusted SRAM.
+SEPARATE_NOBITS_REGION		:=	0
+
+# In order to support SEPARATE_NOBITS_REGION for Arm platforms, we need to load
+# BL31 PROGBITS into secure DRAM space and BL31 NOBITS into SRAM. Hence mandate
+# the build to require that ARM_BL31_IN_DRAM is enabled as well.
+ifeq ($(SEPARATE_NOBITS_REGION),1)
+    ifneq ($(ARM_BL31_IN_DRAM),1)
+         $(error For SEPARATE_NOBITS_REGION, ARM_BL31_IN_DRAM must be enabled)
+    endif
+    ifneq ($(RECLAIM_INIT_CODE),0)
+          $(error For SEPARATE_NOBITS_REGION, RECLAIM_INIT_CODE cannot be supported)
+    endif
+endif
 
 # Disable ARM Cryptocell by default
 ARM_CRYPTOCELL_INTEG		:=	0
