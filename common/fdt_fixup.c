@@ -95,7 +95,7 @@ int dt_add_psci_node(void *fdt)
  * or none have to be patched in the first place.
  * Returns 1 if *one* such subnode has been found and successfully changed
  * to "psci".
- * Returns -1 on error.
+ * Returns negative values on error.
  *
  * Call in a loop until it returns 0. Recalculate the node offset after
  * it has returned 1.
@@ -109,20 +109,23 @@ static int dt_update_one_cpu_node(void *fdt, int offset)
 	     offs = fdt_next_subnode(fdt, offs)) {
 		const char *prop;
 		int len;
+		int ret;
 
 		prop = fdt_getprop(fdt, offs, "device_type", &len);
-		if (!prop)
+		if (prop == NULL)
 			continue;
-		if (memcmp(prop, "cpu", 4) != 0 || len != 4)
+		if ((strcmp(prop, "cpu") != 0) || (len != 4))
 			continue;
 
 		/* Ignore any nodes which already use "psci". */
 		prop = fdt_getprop(fdt, offs, "enable-method", &len);
-		if (prop && memcmp(prop, "psci", 5) == 0 && len == 5)
+		if ((prop != NULL) &&
+		    (strcmp(prop, "psci") == 0) && (len == 5))
 			continue;
 
-		if (fdt_setprop_string(fdt, offs, "enable-method", "psci"))
-			return -1;
+		ret = fdt_setprop_string(fdt, offs, "enable-method", "psci");
+		if (ret < 0)
+			return ret;
 		/*
 		 * Subnode found and patched.
 		 * Restart to accommodate potentially changed offsets.
