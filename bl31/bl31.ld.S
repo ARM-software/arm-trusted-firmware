@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -208,7 +208,6 @@ SECTIONS
      * Define a linker symbol to mark end of the RW memory area for this
      * image.
      */
-    . = ALIGN(PAGE_SIZE);
     __RW_END__ = .;
     __BL31_END__ = .;
 
