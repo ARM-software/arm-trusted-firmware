@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -395,21 +395,13 @@
 /*******************************************************************************
  * BL31 specific defines.
  ******************************************************************************/
-#if ARM_BL31_IN_DRAM || SEPARATE_NOBITS_REGION
+#if ARM_BL31_IN_DRAM
 /*
  * Put BL31 at the bottom of TZC secured DRAM
  */
 #define BL31_BASE			ARM_AP_TZC_DRAM1_BASE
 #define BL31_LIMIT			(ARM_AP_TZC_DRAM1_BASE +	\
 						PLAT_ARM_MAX_BL31_SIZE)
-/*
- * For SEPARATE_NOBITS_REGION, BL31 PROGBITS are loaded in TZC secured DRAM.
- * And BL31 NOBITS are loaded in Trusted SRAM such that BL2 is overwritten.
- */
-#if SEPARATE_NOBITS_REGION
-#define BL31_NOBITS_BASE		BL2_BASE
-#define BL31_NOBITS_LIMIT		BL2_LIMIT
-#endif /* SEPARATE_NOBITS_REGION */
 #elif (RESET_TO_BL31)
 /* Ensure Position Independent support (PIE) is enabled for this config.*/
 # if !ENABLE_PIE
