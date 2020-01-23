@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -67,11 +67,3 @@ unsigned int plat_get_syscnt_freq2(void)
 	return VERSAL_CPU_CLOCK;
 }
 
-uintptr_t plat_get_ns_image_entrypoint(void)
-{
-#ifdef PRELOADED_BL33_BASE
-	return PRELOADED_BL33_BASE;
-#else
-	return PLAT_VERSAL_NS_IMAGE_OFFSET;
-#endif
-}

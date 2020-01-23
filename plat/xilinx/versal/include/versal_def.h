@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -120,6 +120,10 @@
 #define FPD_APU_CONFIG_0_VINITHI_SHIFT	8
 #define APU_0_PWRCTL_CPUPWRDWNREQ_MASK	1
 #define APU_1_PWRCTL_CPUPWRDWNREQ_MASK	2
+
+/* PMC registers and bitfields */
+#define PMC_GLOBAL_BASE			0xF1110000
+#define PMC_GLOBAL_GLOB_GEN_STORAGE4	(PMC_GLOBAL_BASE + 0x40)
 
 /* IPI registers and bitfields */
 #define IPI0_REG_BASE		0xFF330000
