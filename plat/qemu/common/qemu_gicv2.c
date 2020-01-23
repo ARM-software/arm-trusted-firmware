@@ -37,3 +37,8 @@ void qemu_pwr_gic_on_finish(void)
 	/* Enable the gic cpu interface */
 	gicv2_cpuif_enable();
 }
+
+void qemu_pwr_gic_off(void)
+{
+	gicv2_cpuif_disable();
+}

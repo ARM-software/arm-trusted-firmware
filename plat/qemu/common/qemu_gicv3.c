@@ -44,3 +44,9 @@ void qemu_pwr_gic_on_finish(void)
 	gicv3_rdistif_init(plat_my_core_pos());
 	gicv3_cpuif_enable(plat_my_core_pos());
 }
+
+void qemu_pwr_gic_off(void)
+{
+	gicv3_cpuif_disable(plat_my_core_pos());
+	gicv3_rdistif_off(plat_my_core_pos());
+}

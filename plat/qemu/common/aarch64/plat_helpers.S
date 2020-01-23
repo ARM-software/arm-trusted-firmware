@@ -70,6 +70,12 @@ func plat_secondary_cold_boot_setup
 poll_mailbox:
 	ldr	x1, [x2, x0]
 	cbz	x1, 1f
+
+	/* Clear the mailbox again ready for next time. */
+	mov x1, #PLAT_QEMU_HOLD_STATE_WAIT
+	str x1, [x2, x0]
+
+	/* Jump to the provided entrypoint. */
 	mov_imm	x0, PLAT_QEMU_TRUSTED_MAILBOX_BASE
 	ldr	x1, [x0]
 	br	x1

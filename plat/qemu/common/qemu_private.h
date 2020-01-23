@@ -32,5 +32,6 @@ void qemu_console_init(void);
 
 void plat_qemu_gic_init(void);
 void qemu_pwr_gic_on_finish(void);
+void qemu_pwr_gic_off(void);
 
 #endif /* QEMU_PRIVATE_H */
