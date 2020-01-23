@@ -179,10 +179,11 @@ STM32IMAGE		?= ${STM32IMAGEPATH}/stm32image${BIN_EXT}
 
 all: check_dtc_version ${STM32_TF_STM32} stm32image
 
+ASFLAGS			+= -DBL2_BIN_PATH=\"${BUILD_PLAT}/bl2.bin\"
 ifeq ($(AARCH32_SP),sp_min)
 # BL32 is built only if using SP_MIN
 BL32_DEP		:= bl32
-BL32_PATH		:= -DBL32_BIN_PATH=\"${BUILD_PLAT}/bl32.bin\"
+ASFLAGS			+= -DBL32_BIN_PATH=\"${BUILD_PLAT}/bl32.bin\"
 endif
 
 distclean realclean clean: clean_stm32image
@@ -205,8 +206,6 @@ check_dtc_version:
 ${BUILD_PLAT}/stm32mp1-%.o:	${BUILD_PLAT}/fdts/%.dtb plat/st/stm32mp1/stm32mp1.S bl2 ${BL32_DEP}
 			@echo "  AS      stm32mp1.S"
 			${Q}${AS} ${ASFLAGS} ${TF_CFLAGS} \
-				${BL32_PATH} \
-				-DBL2_BIN_PATH=\"${BUILD_PLAT}/bl2.bin\" \
 				-DDTB_BIN_PATH=\"$<\" \
 				-c plat/st/stm32mp1/stm32mp1.S -o $@
 
