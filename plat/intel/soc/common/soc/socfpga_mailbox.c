@@ -316,3 +316,13 @@ uint32_t intel_mailbox_get_config_status(uint32_t cmd)
 
 	return MBOX_CFGSTAT_STATE_CONFIG;
 }
+
+int intel_mailbox_is_fpga_not_ready(void)
+{
+	int ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS);
+
+	if (ret && ret != MBOX_CFGSTAT_STATE_CONFIG)
+		ret = intel_mailbox_get_config_status(MBOX_CONFIG_STATUS);
+
+	return ret;
+}

@@ -15,8 +15,14 @@
 /* Register Mapping */
 #define SOCFPGA_MMC_REG_BASE                    0xff808000
 
-#define SOCFPGA_RSTMGR_OFST                     0xffd11000
-#define SOCFPGA_RSTMGR_MPUMODRST_OFST           0xffd11020
+#define SOCFPGA_RSTMGR_REG_BASE			0xffd11000
+#define SOCFPGA_SYSMGR_REG_BASE			0xffd12000
+
+#define SOCFPGA_L4_PER_SCR_REG_BASE		0xffd21000
+#define SOCFPGA_L4_SYS_SCR_REG_BASE		0xffd21100
+#define SOCFPGA_SOC2FPGA_SCR_REG_BASE		0xffd21200
+#define SOCFPGA_LWSOC2FPGA_SCR_REG_BASE		0xffd21300
+
 
 #endif /* PLATSOCFPGA_DEF_H */
 

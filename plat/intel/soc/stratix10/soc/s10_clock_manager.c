@@ -12,8 +12,8 @@
 #include <platform_def.h>
 
 #include "s10_clock_manager.h"
-#include "s10_system_manager.h"
 #include "socfpga_handoff.h"
+#include "socfpga_system_manager.h"
 
 
 void wait_pll_lock(void)
@@ -190,9 +190,9 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 			ALT_CLKMGR_INTRCLR_PERLOCKLOST_SET_MSK);
 
 	/* Pass clock source frequency into scratch register */
-	mmio_write_32(S10_SYSMGR_CORE(SYSMGR_BOOT_SCRATCH_COLD_1),
+	mmio_write_32(SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_1),
 			hoff_ptr->hps_osc_clk_h);
-	mmio_write_32(S10_SYSMGR_CORE(SYSMGR_BOOT_SCRATCH_COLD_2),
+	mmio_write_32(SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_2),
 			hoff_ptr->fpga_clk_hz);
 
 }
@@ -205,14 +205,14 @@ uint32_t get_ref_clk(uint32_t pllglob)
 
 	switch (ALT_CLKMGR_PSRC(pllglob)) {
 	case ALT_CLKMGR_PLLGLOB_PSRC_EOSC1:
-		scr_reg = S10_SYSMGR_CORE(SYSMGR_BOOT_SCRATCH_COLD_1);
+		scr_reg = SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_1);
 		ref_clk = mmio_read_32(scr_reg);
 		break;
 	case ALT_CLKMGR_PLLGLOB_PSRC_INTOSC:
 		ref_clk = ALT_CLKMGR_INTOSC_HZ;
 		break;
 	case ALT_CLKMGR_PLLGLOB_PSRC_F2S:
-		scr_reg = S10_SYSMGR_CORE(SYSMGR_BOOT_SCRATCH_COLD_2);
+		scr_reg = SOCFPGA_SYSMGR(BOOT_SCRATCH_COLD_2);
 		ref_clk = mmio_read_32(scr_reg);
 		break;
 	default:
