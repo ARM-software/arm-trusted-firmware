@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,13 +21,6 @@ unsigned int zynqmp_calc_core_pos(u_register_t mpidr);
 unsigned int zynqmp_get_uart_clk(void);
 unsigned int zynqmp_get_bootmode(void);
 
-/* For FSBL handover */
-enum fsbl_handoff {
-	FSBL_HANDOFF_SUCCESS = 0,
-	FSBL_HANDOFF_NO_STRUCT,
-	FSBL_HANDOFF_INVAL_STRUCT,
-	FSBL_HANDOFF_TOO_MANY_PARTS,
-};
 
 #if ZYNQMP_WDT_RESTART
 /*
@@ -36,8 +29,5 @@ enum fsbl_handoff {
  */
 int request_intr_type_el3(uint32_t, interrupt_type_handler_t);
 #endif
-
-enum fsbl_handoff fsbl_atf_handover(entry_point_info_t *bl32_image_ep_info,
-		       entry_point_info_t *bl33_image_ep_info);
 
 #endif /* PLAT_PRIVATE_H */
