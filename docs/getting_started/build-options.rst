@@ -387,6 +387,11 @@ Common build options
    All log output up to and including the selected log level is compiled into
    the build. The default value is 40 in debug builds and 20 in release builds.
 
+-  ``MEASURED_BOOT``: Boolean flag to include support for the Measured Boot
+   feature. If this flag is enabled ``TRUSTED_BOARD_BOOT`` must be set.
+   This option defaults to 0 and is an experimental feature in the stage of
+   development.
+
 -  ``NON_TRUSTED_WORLD_KEY``: This option is used when ``GENERATE_COT=1``. It
    specifies the file that contains the Non-Trusted World private key in PEM
    format. If ``SAVE_KEYS=1``, this file name will be used to save the key.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -103,3 +103,24 @@ int crypto_mod_verify_hash(void *data_ptr, unsigned int data_len,
 	return crypto_lib_desc.verify_hash(data_ptr, data_len,
 					   digest_info_ptr, digest_info_len);
 }
+
+#if MEASURED_BOOT
+/*
+ * Calculate a hash
+ *
+ * Parameters:
+ *
+ *   alg: message digest algorithm
+ *   data_ptr, data_len: data to be hashed
+ *   output: resulting hash
+ */
+int crypto_mod_calc_hash(unsigned int alg, void *data_ptr,
+			 unsigned int data_len, unsigned char *output)
+{
+	assert(data_ptr != NULL);
+	assert(data_len != 0);
+	assert(output != NULL);
+
+	return crypto_lib_desc.calc_hash(alg, data_ptr, data_len, output);
+}
+#endif	/* MEASURED_BOOT */
