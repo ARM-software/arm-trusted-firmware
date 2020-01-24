@@ -35,9 +35,6 @@
 #define BL31_LIMIT			UL(0x01000000)
 #endif
 
-#define GICD_BASE			0x30000000
-#define GICR_BASE			0x30040000
-
 #define PLAT_SDEI_NORMAL_PRI		0x70
 
 #define ARM_IRQ_SEC_PHY_TIMER		29
