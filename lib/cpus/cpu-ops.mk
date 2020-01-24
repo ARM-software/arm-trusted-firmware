@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -19,6 +19,10 @@ A57_DISABLE_NON_TEMPORAL_HINT	?=1
 WORKAROUND_CVE_2017_5715	?=1
 WORKAROUND_CVE_2018_3639	?=1
 DYNAMIC_WORKAROUND_CVE_2018_3639	?=0
+
+# Flag to indicate internal or external Last level cache
+# By default internal
+NEOVERSE_N1_EXTERNAL_LLC	?=0
 
 # Process SKIP_A57_L1_FLUSH_PWR_DWN flag
 $(eval $(call assert_boolean,SKIP_A57_L1_FLUSH_PWR_DWN))
@@ -42,6 +46,9 @@ $(eval $(call add_define,WORKAROUND_CVE_2018_3639))
 
 $(eval $(call assert_boolean,DYNAMIC_WORKAROUND_CVE_2018_3639))
 $(eval $(call add_define,DYNAMIC_WORKAROUND_CVE_2018_3639))
+
+$(eval $(call assert_boolean,NEOVERSE_N1_EXTERNAL_LLC))
+$(eval $(call add_define,NEOVERSE_N1_EXTERNAL_LLC))
 
 ifneq (${DYNAMIC_WORKAROUND_CVE_2018_3639},0)
     ifeq (${WORKAROUND_CVE_2018_3639},0)
