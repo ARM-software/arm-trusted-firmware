@@ -8,8 +8,11 @@
 ENABLE_CONSOLE_SPE			:= 0
 $(eval $(call add_define,ENABLE_CONSOLE_SPE))
 
-ENABLE_STRICT_CHECKING_MODE	:= 1
+ENABLE_STRICT_CHECKING_MODE		:= 1
 $(eval $(call add_define,ENABLE_STRICT_CHECKING_MODE))
+
+USE_GPC_DMA				:= 1
+$(eval $(call add_define,USE_GPC_DMA))
 
 RESET_TO_BL31				:= 1
 
@@ -38,6 +41,9 @@ PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/include
 
 BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S \
 				lib/cpus/aarch64/denver.S		\
+				${COMMON_DIR}/drivers/bpmp_ipc/intf.c	\
+				${COMMON_DIR}/drivers/bpmp_ipc/ivc.c	\
+				${COMMON_DIR}/drivers/gpcdma/gpcdma.c	\
 				${COMMON_DIR}/drivers/memctrl/memctrl_v2.c	\
 				${COMMON_DIR}/drivers/smmu/smmu.c	\
 				${SOC_DIR}/drivers/mce/mce.c		\

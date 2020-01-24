@@ -31,54 +31,6 @@ uint64_t nvg_get_version(void)
 }
 
 /*
- * Enable the perf per watt mode.
- *
- * NVGDATA[0]: SW(RW), 1 = enable perf per watt mode
- */
-int32_t nvg_enable_power_perf_mode(void)
-{
-	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_POWER_PERF, 1U);
-
-	return 0;
-}
-
-/*
- * Disable the perf per watt mode.
- *
- * NVGDATA[0]: SW(RW), 0 = disable perf per watt mode
- */
-int32_t nvg_disable_power_perf_mode(void)
-{
-	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_POWER_PERF, 0U);
-
-	return 0;
-}
-
-/*
- * Enable the battery saver mode.
- *
- * NVGDATA[2]: SW(RW), 1 = enable battery saver mode
- */
-int32_t nvg_enable_power_saver_modes(void)
-{
-	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_POWER_MODES, 1U);
-
-	return 0;
-}
-
-/*
- * Disable the battery saver mode.
- *
- * NVGDATA[2]: SW(RW), 0 = disable battery saver mode
- */
-int32_t nvg_disable_power_saver_modes(void)
-{
-	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_POWER_MODES, 0U);
-
-	return 0;
-}
-
-/*
  * Set the expected wake time in TSC ticks for the next low-power state the
  * core enters.
  *
@@ -192,48 +144,6 @@ int32_t nvg_update_ccplex_gsc(uint32_t gsc_idx)
 	} else {
 		nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_UPDATE_CCPLEX_GSC,
 				     (uint64_t)gsc_idx);
-	}
-
-	return ret;
-}
-
-/*
- * Cache clean operation for all CCPLEX caches.
- */
-int32_t nvg_roc_clean_cache(void)
-{
-	int32_t ret = 0;
-
-	/* check if cache flush through mts is supported */
-	if (((read_id_afr0_el1() >> ID_AFR0_EL1_CACHE_OPS_SHIFT) &
-			ID_AFR0_EL1_CACHE_OPS_MASK) == 1U) {
-		if (nvg_cache_clean() == 0U) {
-			ERROR("%s: failed\n", __func__);
-			ret = -ENODEV;
-		}
-	} else {
-		ret = -ENOTSUP;
-	}
-
-	return ret;
-}
-
-/*
- * Cache clean and invalidate operation for all CCPLEX caches.
- */
-int32_t nvg_roc_flush_cache(void)
-{
-	int32_t ret = 0;
-
-	/* check if cache flush through mts is supported */
-	if (((read_id_afr0_el1() >> ID_AFR0_EL1_CACHE_OPS_SHIFT) &
-			ID_AFR0_EL1_CACHE_OPS_MASK) == 1U) {
-		if (nvg_cache_clean_inval() == 0U) {
-			ERROR("%s: failed\n", __func__);
-			ret = -ENODEV;
-		}
-	} else {
-		ret = -ENOTSUP;
 	}
 
 	return ret;

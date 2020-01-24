@@ -64,13 +64,15 @@ const uint8_t *plat_get_power_domain_tree_desc(void)
  * Table of regions to map using the MMU.
  */
 static const mmap_region_t tegra_mmap[] = {
-	MAP_REGION_FLAT(TEGRA_MISC_BASE, 0x10000U, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_MISC_BASE, 0x4000U, /* 16KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_TSA_BASE, 0x20000U, /* 128KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_MC_STREAMID_BASE, 0x10000U, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_GPCDMA_BASE, 0x10000U, /* 64KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_MC_BASE, 0x10000U, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_MC_STREAMID_BASE, 0x8000U, /* 32KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_MC_BASE, 0x8000U, /* 32KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 #if !ENABLE_CONSOLE_SPE
 	MAP_REGION_FLAT(TEGRA_UARTA_BASE, 0x20000U, /* 128KB - UART A, B*/
@@ -80,35 +82,37 @@ static const mmap_region_t tegra_mmap[] = {
 	MAP_REGION_FLAT(TEGRA_UARTD_BASE, 0x30000U, /* 192KB - UART D, E, F */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 #endif
-	MAP_REGION_FLAT(TEGRA_FUSE_BASE, 0x10000U, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_XUSB_PADCTL_BASE, 0x2000U, /* 8KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_GICD_BASE, 0x20000U, /* 128KB */
+	MAP_REGION_FLAT(TEGRA_GICD_BASE, 0x1000, /* 4KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_SE0_BASE, 0x10000U, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_GICC_BASE, 0x1000, /* 4KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_PKA1_BASE, 0x10000U, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_SE0_BASE, 0x1000U, /* 4KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_RNG1_BASE, 0x10000U, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_PKA1_BASE, 0x1000U, /* 4KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_RNG1_BASE, 0x1000U, /* 4KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_HSP_DBELL_BASE, 0x1000U, /* 4KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 #if ENABLE_CONSOLE_SPE
-	MAP_REGION_FLAT(TEGRA_AON_HSP_SM_6_7_BASE, 0x10000U, /* 64KB */
+	MAP_REGION_FLAT(TEGRA_CONSOLE_SPE_BASE, 0x1000U, /* 4KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 #endif
+	MAP_REGION_FLAT(TEGRA_TMRUS_BASE, TEGRA_TMRUS_SIZE, /* 4KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_SCRATCH_BASE, 0x1000U, /* 4KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_SMMU2_BASE, 0x800000U, /* 8MB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_SMMU1_BASE, 0x800000U, /* 8MB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_SMMU0_BASE, 0x800000U, /* 8MB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
+	MAP_REGION_FLAT(TEGRA_BPMP_IPC_TX_PHYS_BASE, 0x10000U, /* 64KB */
+			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_CAR_RESET_BASE, 0x10000U, /* 64KB */
-			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_PMC_BASE, 0x40000U, /* 256KB */
-			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_SCRATCH_BASE, 0x10000U, /* 64KB */
-			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_MMCRAB_BASE, 0x60000U, /* 384KB */
-			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_SMMU0_BASE, 0x1000000U, /* 64KB */
-			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_SMMU1_BASE, 0x1000000U, /* 64KB */
-			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_SMMU2_BASE, 0x1000000U, /* 64KB */
-			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_XUSB_PADCTL_BASE, 0x10000U, /* 64KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	{0}
 };
@@ -231,18 +235,21 @@ void plat_early_platform_setup(void)
 	 * above registers to support both virtualization and
 	 * non-virtualization platforms
 	 */
-	mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
-		XUSB_PADCTL_HOST_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_HOST);
-	mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
-		XUSB_PADCTL_HOST_AXI_STREAMID_VF_0, TEGRA_SID_XUSB_VF0);
-	mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
-		XUSB_PADCTL_HOST_AXI_STREAMID_VF_1, TEGRA_SID_XUSB_VF1);
-	mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
-		XUSB_PADCTL_HOST_AXI_STREAMID_VF_2, TEGRA_SID_XUSB_VF2);
-	mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
-		XUSB_PADCTL_HOST_AXI_STREAMID_VF_3, TEGRA_SID_XUSB_VF3);
-	mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
-		XUSB_PADCTL_DEV_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_DEV);
+	if (tegra_platform_is_silicon() || tegra_platform_is_fpga()) {
+
+		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_HOST);
+		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_VF_0, TEGRA_SID_XUSB_VF0);
+		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_VF_1, TEGRA_SID_XUSB_VF1);
+		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_VF_2, TEGRA_SID_XUSB_VF2);
+		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_VF_3, TEGRA_SID_XUSB_VF3);
+		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_DEV_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_DEV);
+	}
 }
 
 /* Secure IRQs for Tegra194 */
@@ -272,9 +279,12 @@ void plat_gic_setup(void)
  ******************************************************************************/
 struct tegra_bl31_params *plat_get_bl31_params(void)
 {
-	uint32_t val;
+	uint64_t val;
 
-	val = mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PARAMS_ADDR);
+	val = (mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PARAMS_HI_ADDR) &
+		SCRATCH_BL31_PARAMS_HI_ADDR_MASK) >> SCRATCH_BL31_PARAMS_HI_ADDR_SHIFT;
+	val <<= 32;
+	val |= mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PARAMS_LO_ADDR);
 
 	return (struct tegra_bl31_params *)(uintptr_t)val;
 }
@@ -284,9 +294,12 @@ struct tegra_bl31_params *plat_get_bl31_params(void)
  ******************************************************************************/
 plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
 {
-	uint32_t val;
+	uint64_t val;
 
-	val = mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PLAT_PARAMS_ADDR);
+	val = (mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PLAT_PARAMS_HI_ADDR) &
+		SCRATCH_BL31_PLAT_PARAMS_HI_ADDR_MASK) >> SCRATCH_BL31_PLAT_PARAMS_HI_ADDR_SHIFT;
+	val <<= 32;
+	val |= mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_BL31_PLAT_PARAMS_LO_ADDR);
 
 	return (plat_params_from_bl2_t *)(uintptr_t)val;
 }

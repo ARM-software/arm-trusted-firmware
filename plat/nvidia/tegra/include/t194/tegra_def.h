@@ -54,6 +54,11 @@
 #define MISCREG_PFCFG			U(0x200C)
 
 /*******************************************************************************
+ * Tegra General Purpose Centralised DMA constants
+ ******************************************************************************/
+#define TEGRA_GPCDMA_BASE		U(0x02610000)
+
+/*******************************************************************************
  * Tegra Memory Controller constants
  ******************************************************************************/
 #define TEGRA_MC_STREAMID_BASE		U(0x02C00000)
@@ -127,6 +132,18 @@
 #define TEGRA_UARTG_BASE		U(0x0C290000)
 
 /*******************************************************************************
+ * XUSB PADCTL
+ ******************************************************************************/
+#define TEGRA_XUSB_PADCTL_BASE			U(0x03520000)
+#define TEGRA_XUSB_PADCTL_SIZE			U(0x10000)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_PF_0	U(0x136c)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_0	U(0x1370)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_1	U(0x1374)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_2	U(0x1378)
+#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_3	U(0x137c)
+#define XUSB_PADCTL_DEV_AXI_STREAMID_PF_0	U(0x139c)
+
+/*******************************************************************************
  * Tegra Fuse Controller related constants
  ******************************************************************************/
 #define TEGRA_FUSE_BASE			U(0x03820000)
@@ -152,6 +169,14 @@
 #define  RNG1_MUTEX_WATCHDOG_NS_LIMIT	U(0xFE0)
 
 /*******************************************************************************
+ * Tegra HSP doorbell #0 constants
+ ******************************************************************************/
+#define TEGRA_HSP_DBELL_BASE		U(0x03C90000)
+#define  HSP_DBELL_1_ENABLE		U(0x104)
+#define  HSP_DBELL_3_TRIGGER		U(0x300)
+#define  HSP_DBELL_3_ENABLE		U(0x304)
+
+/*******************************************************************************
  * Tegra hardware synchronization primitives for the SPE engine
  ******************************************************************************/
 #define TEGRA_AON_HSP_SM_6_7_BASE	U(0x0c190000)
@@ -172,6 +197,7 @@
  * Tegra scratch registers constants
  ******************************************************************************/
 #define TEGRA_SCRATCH_BASE		U(0x0C390000)
+#define  SECURE_SCRATCH_RSV75   	U(0x2BC)
 #define  SECURE_SCRATCH_RSV81_LO	U(0x2EC)
 #define  SECURE_SCRATCH_RSV81_HI	U(0x2F0)
 #define  SECURE_SCRATCH_RSV97		U(0x36C)
@@ -180,8 +206,14 @@
 #define  SECURE_SCRATCH_RSV109_LO	U(0x3CC)
 #define  SECURE_SCRATCH_RSV109_HI	U(0x3D0)
 
-#define SCRATCH_BL31_PARAMS_ADDR	SECURE_SCRATCH_RSV81_LO
-#define SCRATCH_BL31_PLAT_PARAMS_ADDR	SECURE_SCRATCH_RSV81_HI
+#define SCRATCH_BL31_PARAMS_HI_ADDR	SECURE_SCRATCH_RSV75
+#define  SCRATCH_BL31_PARAMS_HI_ADDR_MASK  U(0xFFFF)
+#define  SCRATCH_BL31_PARAMS_HI_ADDR_SHIFT U(0)
+#define SCRATCH_BL31_PARAMS_LO_ADDR	SECURE_SCRATCH_RSV81_LO
+#define SCRATCH_BL31_PLAT_PARAMS_HI_ADDR SECURE_SCRATCH_RSV75
+#define  SCRATCH_BL31_PLAT_PARAMS_HI_ADDR_MASK  U(0xFFFF0000)
+#define  SCRATCH_BL31_PLAT_PARAMS_HI_ADDR_SHIFT U(16)
+#define SCRATCH_BL31_PLAT_PARAMS_LO_ADDR SECURE_SCRATCH_RSV81_HI
 #define SCRATCH_SECURE_BOOTP_FCFG	SECURE_SCRATCH_RSV97
 #define SCRATCH_SMMU_TABLE_ADDR_LO	SECURE_SCRATCH_RSV99_LO
 #define SCRATCH_SMMU_TABLE_ADDR_HI	SECURE_SCRATCH_RSV99_HI
@@ -207,6 +239,13 @@
 #define TEGRA_TZRAM_SIZE		U(0x40000)
 
 /*******************************************************************************
+ * Tegra CCPLEX-BPMP IPC constants
+ ******************************************************************************/
+#define TEGRA_BPMP_IPC_TX_PHYS_BASE	U(0x4004C000)
+#define TEGRA_BPMP_IPC_RX_PHYS_BASE	U(0x4004D000)
+#define TEGRA_BPMP_IPC_CH_MAP_SIZE	U(0x1000) /* 4KB */
+
+/*******************************************************************************
  * Tegra Clock and Reset Controller constants
  ******************************************************************************/
 #define TEGRA_CAR_RESET_BASE		U(0x20000000)
@@ -214,18 +253,8 @@
 #define TEGRA_GPU_RESET_GPU_SET_OFFSET  U(0x1C)
 #define  GPU_RESET_BIT			(U(1) << 0)
 #define  GPU_SET_BIT			(U(1) << 0)
-
-/*******************************************************************************
- * XUSB PADCTL
- ******************************************************************************/
-#define TEGRA_XUSB_PADCTL_BASE			U(0x3520000)
-#define TEGRA_XUSB_PADCTL_SIZE			U(0x10000)
-#define XUSB_PADCTL_HOST_AXI_STREAMID_PF_0	U(0x136c)
-#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_0	U(0x1370)
-#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_1	U(0x1374)
-#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_2	U(0x1378)
-#define XUSB_PADCTL_HOST_AXI_STREAMID_VF_3	U(0x137c)
-#define XUSB_PADCTL_DEV_AXI_STREAMID_PF_0	U(0x139c)
+#define TEGRA_GPCDMA_RST_SET_REG_OFFSET	U(0x6A0004)
+#define TEGRA_GPCDMA_RST_CLR_REG_OFFSET	U(0x6A0008)
 
 /*******************************************************************************
  * XUSB STREAMIDs

@@ -251,6 +251,8 @@ static plat_local_state_t tegra_get_afflvl1_pwr_state(const plat_local_state_t *
 
 			/* Enable CC6 state and turn off wake mask */
 			cstate_info.cluster = (uint32_t)TEGRA_NVG_CLUSTER_CC6;
+			cstate_info.ccplex = (uint32_t)TEGRA_NVG_CG_CG7;
+			cstate_info.system_state_force = 1;
 			cstate_info.update_wake_mask = 1U;
 			mce_update_cstate_info(&cstate_info);
 
@@ -428,18 +430,21 @@ int32_t tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 		 * in above registers to support both virtualization and
 		 * non-virtualization platforms
 		 */
-		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
-			XUSB_PADCTL_HOST_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_HOST);
-		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
-			XUSB_PADCTL_HOST_AXI_STREAMID_VF_0, TEGRA_SID_XUSB_VF0);
-		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
-			XUSB_PADCTL_HOST_AXI_STREAMID_VF_1, TEGRA_SID_XUSB_VF1);
-		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
-			XUSB_PADCTL_HOST_AXI_STREAMID_VF_2, TEGRA_SID_XUSB_VF2);
-		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
-			XUSB_PADCTL_HOST_AXI_STREAMID_VF_3, TEGRA_SID_XUSB_VF3);
-		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
-			XUSB_PADCTL_DEV_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_DEV);
+		if (tegra_platform_is_silicon() || tegra_platform_is_fpga()) {
+
+			mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+				XUSB_PADCTL_HOST_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_HOST);
+			mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+				XUSB_PADCTL_HOST_AXI_STREAMID_VF_0, TEGRA_SID_XUSB_VF0);
+			mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+				XUSB_PADCTL_HOST_AXI_STREAMID_VF_1, TEGRA_SID_XUSB_VF1);
+			mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+				XUSB_PADCTL_HOST_AXI_STREAMID_VF_2, TEGRA_SID_XUSB_VF2);
+			mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+				XUSB_PADCTL_HOST_AXI_STREAMID_VF_3, TEGRA_SID_XUSB_VF3);
+			mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
+				XUSB_PADCTL_DEV_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_DEV);
+		}
 
 		/*
 		 * Reset power state info for the last core doing SC7

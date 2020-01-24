@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,7 +12,7 @@
 
 #define TEGRA194_STATE_SYSTEM_SUSPEND	0x5C7
 #define TEGRA194_STATE_SYSTEM_RESUME	0x600D
-#define TEGRA194_SMMU_CTX_SIZE		0x80B
+#define TEGRA194_SMMU_CTX_SIZE		0x80D
 
 	.align 4
 	.globl	tegra194_cpu_reset_handler
