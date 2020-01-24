@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -236,7 +236,7 @@ static void mt_platform_restore_context(unsigned long mpidr)
 
 static void plat_cpu_standby(plat_local_state_t cpu_state)
 {
-	unsigned int scr;
+	u_register_t scr;
 
 	scr = read_scr_el3();
 	write_scr_el3(scr | SCR_IRQ_BIT);

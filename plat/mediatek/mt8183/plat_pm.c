@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2019-2020, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -197,7 +197,7 @@ static void plat_cluster_pwron_common(uint64_t mpidr, int cluster)
 
 static void plat_cpu_standby(plat_local_state_t cpu_state)
 {
-	unsigned int scr;
+	u_register_t scr;
 
 	scr = read_scr_el3();
 	write_scr_el3(scr | SCR_IRQ_BIT | SCR_FIQ_BIT);

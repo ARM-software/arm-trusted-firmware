@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -235,7 +235,7 @@ void gicv3_rdistif_on(unsigned int proc_num)
 void gicv3_cpuif_enable(unsigned int proc_num)
 {
 	uintptr_t gicr_base;
-	unsigned int scr_el3;
+	u_register_t scr_el3;
 	unsigned int icc_sre_el3;
 
 	assert(gicv3_driver_data != NULL);
@@ -258,7 +258,7 @@ void gicv3_cpuif_enable(unsigned int proc_num)
 	icc_sre_el3 |= (ICC_SRE_EN_BIT | ICC_SRE_SRE_BIT);
 	write_icc_sre_el3(read_icc_sre_el3() | icc_sre_el3);
 
-	scr_el3 = (uint32_t) read_scr_el3();
+	scr_el3 = read_scr_el3();
 
 	/*
 	 * Switch to NS state to write Non secure ICC_SRE_EL1 and

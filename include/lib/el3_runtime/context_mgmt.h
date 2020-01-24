@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,7 +45,7 @@ void cm_write_scr_el3_bit(uint32_t security_state,
 			  uint32_t bit_pos,
 			  uint32_t value);
 void cm_set_next_eret_context(uint32_t security_state);
-uint32_t cm_get_scr_el3(uint32_t security_state);
+u_register_t cm_get_scr_el3(uint32_t security_state);
 
 /* Inline definitions */
 

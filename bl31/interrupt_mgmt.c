@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +17,11 @@
  * registered interrupt handlers for each interrupt type.
  * The field descriptions are:
  *
+ * 'scr_el3[2]'  : Mapping of the routing model in the 'flags' field to the
+ *                 value of the SCR_EL3.IRQ or FIQ bit for each security state.
+ *                 There are two instances of this field corresponding to the
+ *                 two security states.
+ *
  * 'flags' : Bit[0], Routing model for this interrupt type when execution is
  *                   not in EL3 in the secure state. '1' implies that this
  *                   interrupt will be routed to EL3. '0' implies that this
@@ -28,16 +33,11 @@
  *                   interrupt will be routed to the current exception level.
  *
  *           All other bits are reserved and SBZ.
- *
- * 'scr_el3[2]'  : Mapping of the routing model in the 'flags' field to the
- *                 value of the SCR_EL3.IRQ or FIQ bit for each security state.
- *                 There are two instances of this field corresponding to the
- *                 two security states.
  ******************************************************************************/
 typedef struct intr_type_desc {
 	interrupt_type_handler_t handler;
+	u_register_t scr_el3[2];
 	uint32_t flags;
-	uint32_t scr_el3[2];
 } intr_type_desc_t;
 
 static intr_type_desc_t intr_type_descs[MAX_INTR_TYPES];
@@ -78,9 +78,9 @@ static int32_t validate_routing_model(uint32_t type, uint32_t flags)
  * routing model (expressed through the IRQ and FIQ bits) for a security state
  * which was stored through a call to 'set_routing_model()' earlier.
  ******************************************************************************/
-uint32_t get_scr_el3_from_routing_model(uint32_t security_state)
+u_register_t get_scr_el3_from_routing_model(uint32_t security_state)
 {
-	uint32_t scr_el3;
+	u_register_t scr_el3;
 
 	assert(sec_state_is_valid(security_state));
 	scr_el3 = intr_type_descs[INTR_TYPE_NS].scr_el3[security_state];
@@ -103,7 +103,7 @@ static void set_scr_el3_from_rm(uint32_t type,
 
 	flag = get_interrupt_rm_flag(interrupt_type_flags, security_state);
 	bit_pos = plat_interrupt_type_to_line(type, security_state);
-	intr_type_descs[type].scr_el3[security_state] = flag << bit_pos;
+	intr_type_descs[type].scr_el3[security_state] = (u_register_t)flag << bit_pos;
 
 	/*
 	 * Update scr_el3 only if there is a context available. If not, it

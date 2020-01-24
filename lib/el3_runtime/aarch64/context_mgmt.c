@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -66,7 +66,7 @@ void __init cm_init(void)
 void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 {
 	unsigned int security_state;
-	uint32_t scr_el3;
+	u_register_t scr_el3;
 	el3_state_t *state;
 	gp_regs_t *gp_regs;
 	u_register_t sctlr_elx, actlr_elx;
@@ -87,7 +87,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	 * the required value depending on the state of the SPSR_EL3 and the
 	 * Security state and entrypoint attributes of the next EL.
 	 */
-	scr_el3 = (uint32_t)read_scr();
+	scr_el3 = read_scr();
 	scr_el3 &= ~(SCR_NS_BIT | SCR_RW_BIT | SCR_FIQ_BIT | SCR_IRQ_BIT |
 			SCR_ST_BIT | SCR_HCE_BIT);
 	/*
@@ -326,7 +326,7 @@ void cm_init_my_context(const entry_point_info_t *ep)
  ******************************************************************************/
 void cm_prepare_el3_exit(uint32_t security_state)
 {
-	uint32_t sctlr_elx, scr_el3, mdcr_el2;
+	u_register_t sctlr_elx, scr_el3, mdcr_el2;
 	cpu_context_t *ctx = cm_get_context(security_state);
 	bool el2_unused = false;
 	uint64_t hcr_el2 = 0U;
@@ -334,11 +334,11 @@ void cm_prepare_el3_exit(uint32_t security_state)
 	assert(ctx != NULL);
 
 	if (security_state == NON_SECURE) {
-		scr_el3 = (uint32_t)read_ctx_reg(get_el3state_ctx(ctx),
+		scr_el3 = read_ctx_reg(get_el3state_ctx(ctx),
 						 CTX_SCR_EL3);
 		if ((scr_el3 & SCR_HCE_BIT) != 0U) {
 			/* Use SCTLR_EL1.EE value to initialise sctlr_el2 */
-			sctlr_elx = (uint32_t)read_ctx_reg(get_sysregs_ctx(ctx),
+			sctlr_elx = read_ctx_reg(get_sysregs_ctx(ctx),
 							   CTX_SCTLR_EL1);
 			sctlr_elx &= SCTLR_EE_BIT;
 			sctlr_elx |= SCTLR_EL2_RES1;
@@ -618,7 +618,7 @@ void cm_write_scr_el3_bit(uint32_t security_state,
 {
 	cpu_context_t *ctx;
 	el3_state_t *state;
-	uint32_t scr_el3;
+	u_register_t scr_el3;
 
 	ctx = cm_get_context(security_state);
 	assert(ctx != NULL);
@@ -634,9 +634,9 @@ void cm_write_scr_el3_bit(uint32_t security_state,
 	 * and set it to its new value.
 	 */
 	state = get_el3state_ctx(ctx);
-	scr_el3 = (uint32_t)read_ctx_reg(state, CTX_SCR_EL3);
+	scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
 	scr_el3 &= ~(1U << bit_pos);
-	scr_el3 |= value << bit_pos;
+	scr_el3 |= (u_register_t)value << bit_pos;
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 }
 
@@ -644,7 +644,7 @@ void cm_write_scr_el3_bit(uint32_t security_state,
  * This function retrieves SCR_EL3 member of 'cpu_context' pertaining to the
  * given security state.
  ******************************************************************************/
-uint32_t cm_get_scr_el3(uint32_t security_state)
+u_register_t cm_get_scr_el3(uint32_t security_state)
 {
 	cpu_context_t *ctx;
 	el3_state_t *state;
@@ -654,7 +654,7 @@ uint32_t cm_get_scr_el3(uint32_t security_state)
 
 	/* Populate EL3 state so that ERET jumps to the correct entry */
 	state = get_el3state_ctx(ctx);
-	return (uint32_t)read_ctx_reg(state, CTX_SCR_EL3);
+	return read_ctx_reg(state, CTX_SCR_EL3);
 }
 
 /*******************************************************************************

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -56,7 +56,7 @@ static void rcar_program_mailbox(uint64_t mpidr, uint64_t address)
 
 static void rcar_cpu_standby(plat_local_state_t cpu_state)
 {
-	uint32_t scr_el3 = read_scr_el3();
+	u_register_t scr_el3 = read_scr_el3();
 
 	write_scr_el3(scr_el3 | SCR_IRQ_BIT);
 	dsb();

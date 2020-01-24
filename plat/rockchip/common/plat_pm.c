@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -182,7 +182,7 @@ void rockchip_get_sys_suspend_power_state(psci_power_state_t *req_state)
  ******************************************************************************/
 void rockchip_cpu_standby(plat_local_state_t cpu_state)
 {
-	unsigned int scr;
+	u_register_t scr;
 
 	assert(cpu_state == PLAT_MAX_RET_STATE);
 
