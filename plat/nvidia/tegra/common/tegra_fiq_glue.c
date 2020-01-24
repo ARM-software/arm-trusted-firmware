@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -155,7 +155,7 @@ int32_t tegra_fiq_get_intr_context(void)
 {
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	gp_regs_t *gpregs_ctx = get_gpregs_ctx(ctx);
-	const el1_sys_regs_t *el1state_ctx = get_sysregs_ctx(ctx);
+	const el1_sysregs_t *el1state_ctx = get_el1_sysregs_ctx(ctx);
 	uint32_t cpu = plat_my_core_pos();
 	uint64_t val;
 
