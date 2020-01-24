@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,9 +34,9 @@
 #define BOOT_EMMC_NAME			"l-loader.bin"
 
 #define PLATFORM_CACHE_LINE_SIZE	(64)
-#define PLATFORM_CLUSTER_COUNT		(1)
-#define PLATFORM_CORE_COUNT		(4)
-#define PLATFORM_MAX_CPUS_PER_CLUSTER	(4)
+#define PLATFORM_CLUSTER_COUNT		U(1)
+#define PLATFORM_CORE_COUNT		U(4)
+#define PLATFORM_MAX_CPUS_PER_CLUSTER	U(4)
 
 /* IO framework user */
 #define MAX_IO_DEVICES			(4)
