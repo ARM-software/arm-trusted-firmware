@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -64,7 +64,7 @@
 	smc	#0
 interrupt_exit_\label:
 	restore_caller_regs_and_lr
-	eret
+	exception_return
 	.endm
 
 	.globl	tsp_exceptions

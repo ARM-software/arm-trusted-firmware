@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -87,7 +87,7 @@ vector_entry SynchronousExceptionA64, .spm_shim_exceptions
 do_smc:
 	mrs	x30, tpidr_el1
 	smc	#0
-	eret
+	exception_return
 
 	/* AArch64 system instructions trap are handled as a panic for now */
 handle_sys_trap:

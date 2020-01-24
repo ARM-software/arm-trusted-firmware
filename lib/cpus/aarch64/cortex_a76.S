@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -85,7 +85,7 @@
 		bic	x3, x2, #CORTEX_A76_CPUACTLR2_EL1_DISABLE_LOAD_PASS_STORE
 		csel	x3, x3, x1, eq
 		msr	CORTEX_A76_CPUACTLR2_EL1, x3
-		eret	/* ERET implies ISB */
+		exception_return /* exception_return contains ISB */
 	.endif
 1:
 	/*

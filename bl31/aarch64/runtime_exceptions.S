@@ -456,7 +456,7 @@ smc_unknown:
 smc_prohibited:
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	mov	x0, #SMC_UNK
-	eret
+	exception_return
 
 #if DEBUG
 rt_svc_fw_critical_error:
