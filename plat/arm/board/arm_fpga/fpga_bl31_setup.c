@@ -5,8 +5,11 @@
  */
 
 #include <assert.h>
-#include <lib/mmio.h>
+
+#include <common/fdt_wrappers.h>
 #include <drivers/generic_delay_timer.h>
+#include <lib/mmio.h>
+#include <libfdt.h>
 
 #include <plat/common/platform.h>
 #include <platform_def.h>
@@ -76,7 +79,16 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 
 unsigned int plat_get_syscnt_freq2(void)
 {
-	return FPGA_TIMER_FREQUENCY;
+	const void *fdt = (void *)(uintptr_t)FPGA_PRELOADED_DTB_BASE;
+	int node;
+
+	node = fdt_node_offset_by_compatible(fdt, 0, "arm,armv8-timer");
+	if (node < 0) {
+		return FPGA_DEFAULT_TIMER_FREQUENCY;
+	}
+
+	return fdt_read_uint32_default(fdt, node, "clock-frequency",
+				       FPGA_DEFAULT_TIMER_FREQUENCY);
 }
 
 void bl31_plat_enable_mmu(uint32_t flags)

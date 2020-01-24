@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+include lib/libfdt/libfdt.mk
+
 RESET_TO_BL31 := 1
 ifeq (${RESET_TO_BL31}, 0)
 $(error "This is a BL31-only port; RESET_TO_BL31 must be enabled")
@@ -82,7 +84,8 @@ PLAT_INCLUDES		:=	-Iplat/arm/board/arm_fpga/include
 
 PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/arm_fpga/${ARCH}/fpga_helpers.S
 
-BL31_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
+BL31_SOURCES		+=	common/fdt_wrappers.c				\
+				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
 				drivers/arm/pl011/${ARCH}/pl011_console.S	\
 				plat/common/plat_psci_common.c			\
