@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,8 +21,8 @@
 /* Size of cacheable stacks */
 #define PLATFORM_STACK_SIZE 0x440
 
-#define PLATFORM_CORE_COUNT		4
-#define PLAT_NUM_POWER_DOMAINS		5
+#define PLATFORM_CORE_COUNT		U(4)
+#define PLAT_NUM_POWER_DOMAINS		U(5)
 #define PLAT_MAX_PWR_LVL		U(1)
 #define PLAT_MAX_RET_STATE		U(1)
 #define PLAT_MAX_OFF_STATE		U(2)
