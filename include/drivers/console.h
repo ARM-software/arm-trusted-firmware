@@ -14,7 +14,8 @@
 #define CONSOLE_T_PUTC			(U(2) * REGSZ)
 #define CONSOLE_T_GETC			(U(3) * REGSZ)
 #define CONSOLE_T_FLUSH			(U(4) * REGSZ)
-#define CONSOLE_T_DRVDATA		(U(5) * REGSZ)
+#define CONSOLE_T_BASE			(U(5) * REGSZ)
+#define CONSOLE_T_DRVDATA		(U(6) * REGSZ)
 
 #define CONSOLE_FLAG_BOOT		(U(1) << 0)
 #define CONSOLE_FLAG_RUNTIME		(U(1) << 1)
@@ -43,6 +44,7 @@ typedef struct console {
 	int (*const putc)(int character, struct console *console);
 	int (*const getc)(struct console *console);
 	int (*const flush)(struct console *console);
+	uintptr_t base;
 	/* Additional private driver data may follow here. */
 } console_t;
 
