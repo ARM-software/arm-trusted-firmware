@@ -35,7 +35,7 @@
  ******************************************************************************/
 static entry_point_info_t bl33_image_ep_info;
 
-static struct console_stm32 console;
+static console_t console;
 
 /*******************************************************************************
  * Interrupt handler for FIQ (secure IRQ)
@@ -142,7 +142,7 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 #ifdef DEBUG
 		console_flags |= CONSOLE_FLAG_RUNTIME;
 #endif
-		console_set_scope(&console.console, console_flags);
+		console_set_scope(&console, console_flags);
 	}
 }
 

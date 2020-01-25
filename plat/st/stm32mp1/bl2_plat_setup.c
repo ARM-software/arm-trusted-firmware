@@ -31,7 +31,7 @@
 #include <stm32mp1_context.h>
 #include <stm32mp1_dbgmcu.h>
 
-static struct console_stm32 console;
+static console_t console;
 static struct stm32mp_auth_ops stm32mp1_auth_ops;
 
 static void print_reset_reason(void)
@@ -273,7 +273,7 @@ void bl2_el3_plat_arch_setup(void)
 		panic();
 	}
 
-	console_set_scope(&console.console, CONSOLE_FLAG_BOOT |
+	console_set_scope(&console, CONSOLE_FLAG_BOOT |
 			  CONSOLE_FLAG_CRASH | CONSOLE_FLAG_TRANSLATE_CRLF);
 
 	stm32mp_print_cpuinfo();
