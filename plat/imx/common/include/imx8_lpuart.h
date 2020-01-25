@@ -54,13 +54,8 @@
 
 #include <stdint.h>
 
-typedef struct {
-	console_t console;
-	uintptr_t base;
-} console_lpuart_t;
-
 int console_lpuart_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
-			   console_lpuart_t *console);
+			   console_t *console);
 #endif /*__ASSEMBLER__*/
 
 #endif /* IMX8_LPUART_H */

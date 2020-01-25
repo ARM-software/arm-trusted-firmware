@@ -154,15 +154,10 @@
 
 #ifndef __ASSEMBLER__
 
-typedef struct {
-	console_t console;
-	uintptr_t base;
-} console_imx_uart_t;
-
 int console_imx_uart_register(uintptr_t baseaddr,
 			      uint32_t clock,
 			      uint32_t baud,
-			      console_imx_uart_t *console);
+			      console_t *console);
 #endif /*__ASSEMBLER__*/
 
 #endif /* IMX_UART_H */
