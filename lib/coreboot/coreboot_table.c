@@ -75,7 +75,7 @@ static void expand_and_mmap(uintptr_t baseaddr, size_t size)
 static void setup_cbmem_console(uintptr_t baseaddr)
 {
 	static console_cbmc_t console;
-	assert(!console.base);		/* should only have one CBMEM console */
+	assert(!console.console.base);	/* should only have one CBMEM console */
 
 	/* CBMEM console structure stores its size in first header field. */
 	uint32_t size = *(uint32_t *)baseaddr;

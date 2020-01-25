@@ -35,7 +35,7 @@
 	 * -----------------------------------------------
 	 */
 func console_cbmc_register
-	str	x0, [x1, #CONSOLE_T_CBMC_BASE]
+	str	x0, [x1, #CONSOLE_T_BASE]
 	ldr	w2, [x0]
 	str	w2, [x1, #CONSOLE_T_CBMC_SIZE]
 	mov	x0, x1
@@ -54,7 +54,7 @@ endfunc console_cbmc_register
 	 */
 func console_cbmc_putc
 	ldr	w2, [x1, #CONSOLE_T_CBMC_SIZE]
-	ldr	x1, [x1, #CONSOLE_T_CBMC_BASE]
+	ldr	x1, [x1, #CONSOLE_T_BASE]
 	add	x1, x1, #8		/* keep address of body in x1 */
 
 	ldr	w16, [x1, #-4]		/* load cursor (one u32 before body) */
@@ -93,7 +93,7 @@ endfunc	console_cbmc_putc
 func console_cbmc_flush
 	mov	x5, x30
 	ldr	x1, [x0, #CONSOLE_T_CBMC_SIZE]
-	ldr	x0, [x0, #CONSOLE_T_CBMC_BASE]
+	ldr	x0, [x0, #CONSOLE_T_BASE]
 	add	x1, x1, #8		/* add size of console header */
 	bl	clean_dcache_range	/* (clobbers x2 and x3) */
 	mov	x0, #0
