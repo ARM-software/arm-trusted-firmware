@@ -50,7 +50,7 @@ func console_xxx_register
 	 * by later console callback (e.g. putc).
 	 * Example:
 	 */
-	str	x1, [x0, #CONSOLE_T_XXX_BASE]
+	str	x1, [x0, #CONSOLE_T_BASE]
 	str	x2, [x0, #CONSOLE_T_XXX_SOME_OTHER_VALUE]
 
 	/*
@@ -87,7 +87,7 @@ func console_xxx_putc
 	 * console_xxx_t structure pointed to by x1.
 	 * Example:
 	 */
-	ldr	x1, [x1, #CONSOLE_T_XXX_BASE]
+	ldr	x1, [x1, #CONSOLE_T_BASE]
 
 	/*
 	 * Write w0 to hardware.
@@ -125,7 +125,7 @@ func console_xxx_getc
 	 * console_xxx_t structure pointed to by x0.
 	 * Example:
 	 */
-	ldr	x1, [x0, #CONSOLE_T_XXX_BASE]
+	ldr	x1, [x0, #CONSOLE_T_BASE]
 
 	/*
 	 * Try to read character into w0 from hardware.
@@ -159,7 +159,7 @@ func console_xxx_flush
 	 * console_xxx_t structure pointed to by x0.
 	 * Example:
 	 */
-	ldr	x1, [x0, #CONSOLE_T_XXX_BASE]
+	ldr	x1, [x0, #CONSOLE_T_BASE]
 
 	/*
 	 * Flush all remaining output from hardware FIFOs. Do not return until
