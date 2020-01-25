@@ -170,7 +170,7 @@ void plat_enable_console(int32_t id)
 					   console_clock,
 					   TEGRA_CONSOLE_BAUDRATE,
 					   &spe_console);
-		console_set_scope(&spe_console.console, CONSOLE_FLAG_BOOT |
+		console_set_scope(&spe_console, CONSOLE_FLAG_BOOT |
 			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
 	}
 #else
@@ -190,7 +190,7 @@ void plat_enable_console(int32_t id)
 					     console_clock,
 					     TEGRA_CONSOLE_BAUDRATE,
 					     &uart_console);
-		console_set_scope(&uart_console.console, CONSOLE_FLAG_BOOT |
+		console_set_scope(&uart_console, CONSOLE_FLAG_BOOT |
 			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
 	}
 #endif

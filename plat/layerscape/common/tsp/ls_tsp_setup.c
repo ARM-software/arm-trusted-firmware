@@ -30,7 +30,7 @@ gicv2_driver_data_t ls_gic_data = {
  ******************************************************************************/
 void ls_tsp_early_platform_setup(void)
 {
-	static console_ls_16550_t console;
+	static console_t console;
 	/*
 	 * Initialize a different console than already in use to display
 	 * messages from TSP

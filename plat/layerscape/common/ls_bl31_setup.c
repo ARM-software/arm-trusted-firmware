@@ -67,7 +67,7 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 void ls_bl31_early_platform_setup(void *from_bl2,
 				void *plat_params_from_bl2)
 {
-	static console_ls_16550_t console;
+	static console_t console;
 
 	/* Initialize the console to provide early debug support */
 	console_ls_16550_register(LS_TF_UART_BASE, LS_TF_UART_CLOCK,
@@ -182,7 +182,7 @@ void ls_bl31_platform_setup(void)
  ******************************************************************************/
 void ls_bl31_plat_runtime_setup(void)
 {
-	static console_ls_16550_t console;
+	static console_t console;
 
 	/* Initialize the runtime console */
 	console_ls_16550_register(PLAT_LS1043_UART_BASE, PLAT_LS1043_UART_CLOCK,

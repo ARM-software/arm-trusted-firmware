@@ -23,7 +23,7 @@ meminfo_t *bl1_plat_sec_mem_layout(void)
  ******************************************************************************/
 void ls_bl1_early_platform_setup(void)
 {
-	static console_ls_16550_t console;
+	static console_t console;
 
 #if !LS1043_DISABLE_TRUSTED_WDOG
 	/* TODO: Enable watchdog */
