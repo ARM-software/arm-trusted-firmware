@@ -21,12 +21,12 @@ void tsp_early_platform_setup(void)
 	 * Register a different console than already in use to display
 	 * messages from TSP
 	 */
-	static console_cdns_t tsp_boot_console;
+	static console_t tsp_boot_console;
 	(void)console_cdns_register(ZYNQMP_UART_BASE,
 				       zynqmp_get_uart_clk(),
 				       ZYNQMP_UART_BAUDRATE,
 				       &tsp_boot_console);
-	console_set_scope(&tsp_boot_console.console,
+	console_set_scope(&tsp_boot_console,
 			  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_BOOT);
 
 	/* Initialize the platform config for future decision making */
