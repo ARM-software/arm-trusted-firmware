@@ -11,7 +11,7 @@
 /*******************************************************************************
  * Function that sets up the console
  ******************************************************************************/
-static console_meson_t aml_console;
+static console_t aml_console;
 
 void aml_console_init(void)
 {
@@ -28,6 +28,6 @@ void aml_console_init(void)
 		panic();
 	}
 
-	console_set_scope(&aml_console.console,
+	console_set_scope(&aml_console,
 			  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
 }
