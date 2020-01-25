@@ -29,7 +29,7 @@
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
-static console_pl011_t console;
+static console_t console;
 
 static void hisi_tzpc_sec_init(void)
 {

@@ -16,7 +16,7 @@
 #include <lib/mmio.h>
 #include <sq_common.h>
 
-static console_pl011_t console;
+static console_t console;
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
 
@@ -69,8 +69,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 			       PLAT_SQ_BOOT_UART_CLK_IN_HZ,
 			       SQ_CONSOLE_BAUDRATE, &console);
 
-	console_set_scope(&console.console, CONSOLE_FLAG_BOOT |
-			  CONSOLE_FLAG_RUNTIME);
+	console_set_scope(&console, CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
 
 	/* There are no parameters from BL2 if BL31 is a reset vector */
 	assert(arg0 == 0U);

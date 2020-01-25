@@ -25,7 +25,7 @@
 #include "plat_private.h"
 
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
-static console_pl011_t console;
+static console_t console;
 
 /*******************************************************************************
  * Transfer SCP_BL2 from Trusted RAM using the SCP Download protocol.

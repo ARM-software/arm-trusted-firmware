@@ -28,7 +28,7 @@
 /*******************************************************************************
  * Initialize the UART
  ******************************************************************************/
-static console_pl011_t arm_tsp_runtime_console;
+static console_t arm_tsp_runtime_console;
 
 void arm_tsp_early_platform_setup(void)
 {
@@ -43,7 +43,7 @@ void arm_tsp_early_platform_setup(void)
 	if (rc == 0)
 		panic();
 
-	console_set_scope(&arm_tsp_runtime_console.console,
+	console_set_scope(&arm_tsp_runtime_console,
 			  CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME);
 }
 

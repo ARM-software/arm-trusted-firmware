@@ -33,7 +33,7 @@
 #define AXI_CONF_BASE		0x820
 
 static unsigned int uart_base;
-static console_pl011_t console;
+static console_t console;
 static uintptr_t hikey960_sec_entrypoint;
 
 static void hikey960_pwr_domain_standby(plat_local_state_t cpu_state)

@@ -41,7 +41,7 @@ enum {
 
 /* Data structure which holds the extents of the trusted RAM for BL1 */
 static meminfo_t bl1_tzram_layout;
-static console_pl011_t console;
+static console_t console;
 
 /******************************************************************************
  * On a GICv2 system, the Group 1 secure interrupts are treated as Group 0
