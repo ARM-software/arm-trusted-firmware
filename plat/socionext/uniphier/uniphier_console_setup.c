@@ -17,28 +17,21 @@
 #define UNIPHIER_UART_OFFSET	0x100
 #define UNIPHIER_UART_NR_PORTS	4
 
-struct uniphier_console {
-	struct console console;
-	uintptr_t base;
-};
-
 /* These callbacks are implemented in assembly to use crash_console_helpers.S */
 int uniphier_console_putc(int character, struct console *console);
 int uniphier_console_getc(struct console *console);
 int uniphier_console_flush(struct console *console);
 
-static struct uniphier_console uniphier_console = {
-	.console = {
-		.flags = CONSOLE_FLAG_BOOT |
+static console_t uniphier_console = {
+	.flags = CONSOLE_FLAG_BOOT |
 #if DEBUG
-			 CONSOLE_FLAG_RUNTIME |
+		 CONSOLE_FLAG_RUNTIME |
 #endif
-			 CONSOLE_FLAG_CRASH |
-			 CONSOLE_FLAG_TRANSLATE_CRLF,
-		.putc = uniphier_console_putc,
-		.getc = uniphier_console_getc,
-		.flush = uniphier_console_flush,
-	},
+		 CONSOLE_FLAG_CRASH |
+		 CONSOLE_FLAG_TRANSLATE_CRLF,
+	.putc = uniphier_console_putc,
+	.getc = uniphier_console_getc,
+	.flush = uniphier_console_flush,
 };
 
 static const uintptr_t uniphier_uart_base[] = {
@@ -86,7 +79,7 @@ void uniphier_console_setup(unsigned int soc)
 		plat_error_handler(-EINVAL);
 
 	uniphier_console.base = base;
-	console_register(&uniphier_console.console);
+	console_register(&uniphier_console);
 
 	/*
 	 * The hardware might be still printing characters queued up in the
