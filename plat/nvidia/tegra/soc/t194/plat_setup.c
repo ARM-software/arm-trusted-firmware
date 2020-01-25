@@ -174,7 +174,7 @@ void plat_enable_console(int32_t id)
 			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
 	}
 #else
-	static console_16550_t uart_console;
+	static console_t uart_console;
 
 	if ((id > 0) && (id < TEGRA194_MAX_UART_PORTS)) {
 		/*
