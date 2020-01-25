@@ -163,7 +163,7 @@ void plat_enable_console(int32_t id)
 	uint32_t console_clock = 0U;
 
 #if ENABLE_CONSOLE_SPE
-	static console_spe_t spe_console;
+	static console_t spe_console;
 
 	if (id == TEGRA_CONSOLE_SPE_ID) {
 		(void)console_spe_register(TEGRA_CONSOLE_SPE_BASE,
