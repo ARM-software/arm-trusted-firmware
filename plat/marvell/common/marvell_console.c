@@ -14,15 +14,14 @@
 
 #ifdef PLAT_a3700
 #include <drivers/marvell/uart/a3700_console.h>
-
-static console_t marvell_boot_console;
-static console_t marvell_runtime_console;
+#define console_marvell_register console_a3700_register
 #else
 #include <drivers/ti/uart/uart_16550.h>
+#define console_marvell_register console_16550_register
+#endif
 
 static console_t marvell_boot_console;
 static console_t marvell_runtime_console;
-#endif
 
 /*******************************************************************************
  * Functions that set up the console
@@ -32,15 +31,10 @@ static console_t marvell_runtime_console;
 void marvell_console_boot_init(void)
 {
 	int rc =
-#ifdef PLAT_a3700
-	console_a3700_register(
-#else
-	console_16550_register(
-#endif
-				PLAT_MARVELL_BOOT_UART_BASE,
-				PLAT_MARVELL_BOOT_UART_CLK_IN_HZ,
-				MARVELL_CONSOLE_BAUDRATE,
-				&marvell_boot_console);
+	console_marvell_register(PLAT_MARVELL_BOOT_UART_BASE,
+				 PLAT_MARVELL_BOOT_UART_CLK_IN_HZ,
+				 MARVELL_CONSOLE_BAUDRATE,
+				 &marvell_boot_console);
 	if (rc == 0) {
 		/*
 		 * The crash console doesn't use the multi console API, it uses
@@ -64,15 +58,10 @@ void marvell_console_boot_end(void)
 void marvell_console_runtime_init(void)
 {
 	int rc =
-#ifdef PLAT_a3700
-	console_a3700_register(
-#else
-	console_16550_register(
-#endif
-				PLAT_MARVELL_BOOT_UART_BASE,
-				PLAT_MARVELL_BOOT_UART_CLK_IN_HZ,
-				MARVELL_CONSOLE_BAUDRATE,
-				&marvell_runtime_console);
+	console_marvell_register(PLAT_MARVELL_BOOT_UART_BASE,
+				 PLAT_MARVELL_BOOT_UART_CLK_IN_HZ,
+				 MARVELL_CONSOLE_BAUDRATE,
+				 &marvell_runtime_console);
 	if (rc == 0)
 		panic();
 
