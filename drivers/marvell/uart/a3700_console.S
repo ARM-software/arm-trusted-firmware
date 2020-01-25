@@ -110,7 +110,7 @@ endfunc console_a3700_core_init
 	.globl console_a3700_register
 
 	/* -----------------------------------------------
-	 * int console_a3700_register(console_16550_t *console,
+	 * int console_a3700_register(console_t *console,
 		uintptr_t base, uint32_t clk, uint32_t baud)
 	 * Function to initialize and register a new a3700
 	 * console. Storage passed in for the console struct
@@ -118,7 +118,7 @@ endfunc console_a3700_core_init
 	 * In: x0 - UART register base address
 	 *     w1 - UART clock in Hz
 	 *     w2 - Baud rate
-	 *     x3 - pointer to empty console_a3700_t struct
+	 *     x3 - pointer to empty console_t struct
 	 * Out: return 1 on success, 0 on error
 	 * Clobber list : x0, x1, x2, x6, x7, x14
 	 * -----------------------------------------------
@@ -127,7 +127,7 @@ func console_a3700_register
 	mov	x7, x30
 	mov	x6, x3
 	cbz	x6, register_fail
-	str	x0, [x6, #CONSOLE_T_A3700_BASE]
+	str	x0, [x6, #CONSOLE_T_BASE]
 
 	bl	console_a3700_core_init
 	cbz	x0, register_fail
@@ -178,7 +178,7 @@ putc_error:
 endfunc console_a3700_core_putc
 
 	/* --------------------------------------------------------
-	 * int console_a3700_putc(int c, console_a3700_t *console)
+	 * int console_a3700_putc(int c, console_t *console)
 	 * Function to output a character over the console. It
 	 * returns the character printed on success or -1 on error.
 	 * In : w0 - character to be printed
@@ -188,7 +188,7 @@ endfunc console_a3700_core_putc
 	 * --------------------------------------------------------
 	 */
 func console_a3700_putc
-	ldr	x1, [x1, #CONSOLE_T_A3700_BASE]
+	ldr	x1, [x1, #CONSOLE_T_BASE]
 	b	console_a3700_core_putc
 endfunc console_a3700_putc
 
@@ -208,7 +208,7 @@ func console_a3700_core_getc
 endfunc console_a3700_core_getc
 
 	/* ---------------------------------------------
-	 * int console_a3700_getc(console_a3700_t *console)
+	 * int console_a3700_getc(console_t *console)
 	 * Function to get a character from the console.
 	 * It returns the character grabbed on success
 	 * or -1 on if no character is available.
@@ -218,7 +218,7 @@ endfunc console_a3700_core_getc
 	 * ---------------------------------------------
 	 */
 func console_a3700_getc
-	ldr	x0, [x0, #CONSOLE_T_A3700_BASE]
+	ldr	x0, [x0, #CONSOLE_T_BASE]
 	b	console_a3700_core_getc
 endfunc console_a3700_getc
 
@@ -237,7 +237,7 @@ func console_a3700_core_flush
 endfunc console_a3700_core_flush
 
 	/* ---------------------------------------------
-	 * int console_a3700_flush(console_a3700_t *console)
+	 * int console_a3700_flush(console_t *console)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - pointer to console_t structure
@@ -246,7 +246,7 @@ endfunc console_a3700_core_flush
 	 * ---------------------------------------------
 	 */
 func console_a3700_flush
-	ldr	x0, [x0, #CONSOLE_T_A3700_BASE]
+	ldr	x0, [x0, #CONSOLE_T_BASE]
 	b	console_a3700_core_flush
 endfunc console_a3700_flush
 

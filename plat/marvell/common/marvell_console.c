@@ -15,8 +15,8 @@
 #ifdef PLAT_a3700
 #include <drivers/marvell/uart/a3700_console.h>
 
-static console_a3700_t marvell_boot_console;
-static console_a3700_t marvell_runtime_console;
+static console_t marvell_boot_console;
+static console_t marvell_runtime_console;
 #else
 #include <drivers/ti/uart/uart_16550.h>
 
