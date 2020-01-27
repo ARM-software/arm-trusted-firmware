@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -110,13 +110,17 @@ func bl31_entrypoint
 	 * caches and participate in coherency.
 	 * --------------------------------------------------------------------
 	 */
-	adr	x0, __DATA_START__
-	adr	x1, __DATA_END__
+	adrp	x0, __DATA_START__
+	add	x0, x0, :lo12:__DATA_START__
+	adrp	x1, __DATA_END__
+	add	x1, x1, :lo12:__DATA_END__
 	sub	x1, x1, x0
 	bl	clean_dcache_range
 
-	adr	x0, __BSS_START__
-	adr	x1, __BSS_END__
+	adrp	x0, __BSS_START__
+	add	x0, x0, :lo12:__BSS_START__
+	adrp	x1, __BSS_END__
+	add	x1, x1, :lo12:__BSS_END__
 	sub	x1, x1, x0
 	bl	clean_dcache_range
 
