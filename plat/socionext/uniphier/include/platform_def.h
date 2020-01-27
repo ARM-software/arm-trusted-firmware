@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,28 +28,43 @@
 #define PLAT_MAX_OFF_STATE		U(2)
 #define PLAT_MAX_RET_STATE		U(1)
 
-#define BL2_BASE			ULL(0x80000000)
-#define BL2_LIMIT			ULL(0x80080000)
+#define UNIPHIER_BL2_OFFSET		UL(0x00000000)
+#define UNIPHIER_BL2_MAX_SIZE		UL(0x00080000)
 
-/* 0x80080000-0x81000000: reserved for DSP */
+/* 0x00080000-0x01000000: reserved for DSP */
 
-#define UNIPHIER_SEC_DRAM_BASE		0x81000000ULL
-#define UNIPHIER_SEC_DRAM_LIMIT		0x82000000ULL
-#define UNIPHIER_SEC_DRAM_SIZE		((UNIPHIER_SEC_DRAM_LIMIT) - \
-					 (UNIPHIER_SEC_DRAM_BASE))
+#define UNIPHIER_BL31_OFFSET		UL(0x01000000)
+#define UNIPHIER_BL31_MAX_SIZE		UL(0x00080000)
 
-#define BL31_BASE			ULL(0x81000000)
-#define BL31_LIMIT			ULL(0x81080000)
+#define UNIPHIER_BL32_OFFSET		UL(0x01080000)
+#define UNIPHIER_BL32_MAX_SIZE		UL(0x00100000)
 
-#define BL32_BASE			ULL(0x81080000)
-#define BL32_LIMIT			ULL(0x81180000)
+/*
+ * The link addresses are determined by UNIPHIER_MEM_BASE + offset.
+ * When ENABLE_PIE is set, all the TF images can be loaded anywhere, so
+ * UNIPHIER_MEM_BASE is arbitrary.
+ *
+ * When ENABLE_PIE is unset, UNIPHIER_MEM_BASE should be chosen so that
+ * BL2_BASE matches to the physical address where BL2 is loaded, that is,
+ * UNIPHIER_MEM_BASE should be the base address of the DRAM region.
+ */
+#define UNIPHIER_MEM_BASE		UL(0x00000000)
+
+#define BL2_BASE		(UNIPHIER_MEM_BASE + UNIPHIER_BL2_OFFSET)
+#define BL2_LIMIT		(BL2_BASE + UNIPHIER_BL2_MAX_SIZE)
+
+#define BL31_BASE		(UNIPHIER_MEM_BASE + UNIPHIER_BL31_OFFSET)
+#define BL31_LIMIT		(BL31_BASE + UNIPHIER_BL31_MAX_SIZE)
+
+#define BL32_BASE		(UNIPHIER_MEM_BASE + UNIPHIER_BL32_OFFSET)
+#define BL32_LIMIT		(BL32_BASE + UNIPHIER_BL32_MAX_SIZE)
 
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
 
 #define PLAT_XLAT_TABLES_DYNAMIC	1
-#define MAX_XLAT_TABLES			7
-#define MAX_MMAP_REGIONS		7
+#define MAX_XLAT_TABLES			9
+#define MAX_MMAP_REGIONS		13
 
 #define MAX_IO_HANDLES			2
 #define MAX_IO_DEVICES			2

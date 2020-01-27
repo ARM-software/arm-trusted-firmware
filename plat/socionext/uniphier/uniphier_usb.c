@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -158,17 +158,14 @@ static size_t uniphier_usb_read(int lba, uintptr_t buf, size_t size)
 }
 
 static struct io_block_dev_spec uniphier_usb_dev_spec = {
-	.buffer = {
-		.offset = UNIPHIER_BLOCK_BUF_BASE,
-		.length = UNIPHIER_BLOCK_BUF_SIZE,
-	},
 	.ops = {
 		.read = uniphier_usb_read,
 	},
 	.block_size = 512,
 };
 
-int uniphier_usb_init(unsigned int soc, uintptr_t *block_dev_spec)
+int uniphier_usb_init(unsigned int soc,
+		      struct io_block_dev_spec **block_dev_spec)
 {
 	const struct uniphier_usb_rom_param *param;
 
@@ -180,7 +177,7 @@ int uniphier_usb_init(unsigned int soc, uintptr_t *block_dev_spec)
 
 	__uniphier_usb_read = param->read;
 
-	*block_dev_spec = (uintptr_t)&uniphier_usb_dev_spec;
+	*block_dev_spec = &uniphier_usb_dev_spec;
 
 	return 0;
 }

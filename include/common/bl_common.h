@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -106,6 +106,7 @@ IMPORT_SYM(uintptr_t, __RODATA_END__,		BL_RO_DATA_END);
 IMPORT_SYM(uintptr_t, __RO_START__,		BL_CODE_BASE);
 IMPORT_SYM(uintptr_t, __RO_END__,		BL_CODE_END);
 #endif
+IMPORT_SYM(uintptr_t, __RW_END__,		BL_END);
 
 #if defined(IMAGE_BL1)
 IMPORT_SYM(uintptr_t, __BL1_ROM_END__,		BL1_ROM_END);

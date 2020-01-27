@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,8 +21,10 @@
 
 #include "uniphier.h"
 
-#define BL2_SIZE		((BL2_END) - (BL2_BASE))
+#define UNIPHIER_IMAGE_BUF_OFFSET	0x04300000UL
+#define UNIPHIER_IMAGE_BUF_SIZE		0x00100000UL
 
+static uintptr_t uniphier_mem_base = UNIPHIER_MEM_BASE;
 static int uniphier_bl2_kick_scp;
 
 void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
@@ -31,24 +33,17 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	uniphier_console_setup();
 }
 
-static const struct mmap_region uniphier_bl2_mmap[] = {
-	/* for BL31, BL32 */
-	MAP_REGION_FLAT(UNIPHIER_SEC_DRAM_BASE, UNIPHIER_SEC_DRAM_SIZE,
-			MT_MEMORY | MT_RW | MT_SECURE),
-	/* for SCP, BL33 */
-	MAP_REGION_FLAT(UNIPHIER_NS_DRAM_BASE, UNIPHIER_NS_DRAM_SIZE,
-			MT_MEMORY | MT_RW | MT_NS),
-	{ .size = 0 },
-};
-
 void bl2_el3_plat_arch_setup(void)
 {
 	unsigned int soc;
 	int skip_scp = 0;
 	int ret;
 
-	uniphier_mmap_setup(BL2_BASE, BL2_SIZE, uniphier_bl2_mmap);
+	uniphier_mmap_setup();
 	enable_mmu_el3(0);
+
+	/* add relocation offset (run-time-address - link-address) */
+	uniphier_mem_base += BL_CODE_BASE - BL2_BASE;
 
 	soc = uniphier_get_soc_id();
 	if (soc == UNIPHIER_SOC_UNKNOWN) {
@@ -56,7 +51,7 @@ void bl2_el3_plat_arch_setup(void)
 		plat_error_handler(-ENOTSUP);
 	}
 
-	ret = uniphier_io_setup(soc);
+	ret = uniphier_io_setup(soc, uniphier_mem_base);
 	if (ret) {
 		ERROR("failed to setup io devices\n");
 		plat_error_handler(ret);
@@ -119,27 +114,46 @@ bl_params_t *plat_get_next_bl_params(void)
 void bl2_plat_preload_setup(void)
 {
 #ifdef UNIPHIER_DECOMPRESS_GZIP
-	image_decompress_init(UNIPHIER_IMAGE_BUF_BASE,
-			      UNIPHIER_IMAGE_BUF_SIZE,
-			      gunzip);
+	uintptr_t buf_base = uniphier_mem_base + UNIPHIER_IMAGE_BUF_OFFSET;
+	int ret;
+
+	ret = mmap_add_dynamic_region(buf_base, buf_base,
+				      UNIPHIER_IMAGE_BUF_SIZE,
+				      MT_MEMORY | MT_RW | MT_NS);
+	if (ret)
+		plat_error_handler(ret);
+
+	image_decompress_init(buf_base, UNIPHIER_IMAGE_BUF_SIZE, gunzip);
 #endif
+
+	uniphier_init_image_descs(uniphier_mem_base);
 }
 
 int bl2_plat_handle_pre_image_load(unsigned int image_id)
 {
+	struct image_info *image_info;
+	int ret;
+
+	image_info = uniphier_get_image_info(image_id);
+
+	ret = mmap_add_dynamic_region(image_info->image_base,
+				      image_info->image_base,
+				      image_info->image_max_size,
+				      MT_MEMORY | MT_RW | MT_NS);
+	if (ret)
+		return ret;
+
 #ifdef UNIPHIER_DECOMPRESS_GZIP
-	image_decompress_prepare(uniphier_get_image_info(image_id));
+	image_decompress_prepare(image_info);
 #endif
 	return 0;
 }
 
 int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
+	struct image_info *image_info = uniphier_get_image_info(image_id);
 #ifdef UNIPHIER_DECOMPRESS_GZIP
-	struct image_info *image_info;
 	int ret;
-
-	image_info = uniphier_get_image_info(image_id);
 
 	if (!(image_info->h.attr & IMAGE_ATTRIB_SKIP_LOADING)) {
 		ret = image_decompress(uniphier_get_image_info(image_id));
@@ -149,7 +163,7 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 #endif
 
 	if (image_id == SCP_BL2_IMAGE_ID && uniphier_bl2_kick_scp)
-		uniphier_scp_start();
+		uniphier_scp_start(image_info->image_base);
 
 	return 0;
 }
