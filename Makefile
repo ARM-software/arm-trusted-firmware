@@ -1000,6 +1000,8 @@ endif
 
 ifeq (${NEED_BL31},yes)
 BL31_SOURCES += ${SPD_SOURCES}
+# Sort BL31 source files to remove duplicates
+BL31_SOURCES := $(sort ${BL31_SOURCES})
 ifneq (${DECRYPTION_SUPPORT},none)
 $(if ${BL31}, $(eval $(call TOOL_ADD_IMG,bl31,--soc-fw,,$(ENCRYPT_BL31))),\
 	$(eval $(call MAKE_BL,31,soc-fw,,$(ENCRYPT_BL31))))
@@ -1013,7 +1015,8 @@ endif
 # build system will call TOOL_ADD_IMG to print a warning message and abort the
 # process. Note that the dependency on BL32 applies to the FIP only.
 ifeq (${NEED_BL32},yes)
-
+# Sort BL32 source files to remove duplicates
+BL32_SOURCES := $(sort ${BL32_SOURCES})
 BUILD_BL32 := $(if $(BL32),,$(if $(BL32_SOURCES),1))
 
 ifneq (${DECRYPTION_SUPPORT},none)

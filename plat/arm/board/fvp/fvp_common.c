@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -134,6 +134,8 @@ const mmap_region_t plat_arm_mmap[] = {
 #if SPM_MM
 	ARM_SPM_BUF_EL3_MMAP,
 #endif
+	/* Required by fconf APIs to read HW_CONFIG dtb loaded into DRAM */
+	ARM_MAP_NS_DRAM1,
 	{0}
 };
 
@@ -160,6 +162,8 @@ const mmap_region_t plat_arm_mmap[] = {
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
 	MAP_DEVICE1,
+	/* Required by fconf APIs to read HW_CONFIG dtb loaded into DRAM */
+	ARM_MAP_NS_DRAM1,
 	{0}
 };
 #endif

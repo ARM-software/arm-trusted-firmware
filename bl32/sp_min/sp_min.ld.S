@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -55,6 +55,11 @@ SECTIONS
         KEEP(*(rt_svc_descs))
         __RT_SVC_DESCS_END__ = .;
 
+        . = ALIGN(8);
+         __FCONF_POPULATOR_START__ = .;
+        KEEP(*(.fconf_populator))
+         __FCONF_POPULATOR_END__ = .;
+
 #if ENABLE_PMF
         /* Ensure 4-byte alignment for descriptors and ensure inclusion */
         . = ALIGN(4);
@@ -91,6 +96,11 @@ SECTIONS
         __RT_SVC_DESCS_START__ = .;
         KEEP(*(rt_svc_descs))
         __RT_SVC_DESCS_END__ = .;
+
+        . = ALIGN(8);
+         __FCONF_POPULATOR_START__ = .;
+        KEEP(*(.fconf_populator))
+         __FCONF_POPULATOR_END__ = .;
 
         /*
          * Ensure 4-byte alignment for cpu_ops so that its fields are also
