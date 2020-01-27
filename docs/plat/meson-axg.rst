@@ -18,6 +18,7 @@ In order to build it:
 .. code:: shell
 
     CROSS_COMPILE=aarch64-none-elf- make DEBUG=1 PLAT=axg [SPD=opteed]
+         [AML_USE_ATOS=1 when using ATOS as BL32]
 
 This port has been tested on a A113D board. After building it, follow the
 instructions in the `U-Boot repository`_, replacing the mentioned **bl31.img**

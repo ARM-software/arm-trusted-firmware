@@ -84,6 +84,17 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	bl32_image_ep_info = *from_bl2->bl32_ep_info;
 	bl33_image_ep_info = *from_bl2->bl33_ep_info;
 
+#if AML_USE_ATOS
+	/*
+	 * BL2 is unconditionally setting 0 (OPTEE_AARCH64) in arg0 even when
+	 * the BL32 image is 32bit (OPTEE_AARCH32). This is causing the boot to
+	 * hang when ATOS (32bit Amlogic BL32 binary-only TEE OS) is used.
+	 *
+	 * Hardcode to OPTEE_AARCH32 / MODE_RW_32.
+	 */
+	bl32_image_ep_info.args.arg0 = MODE_RW_32;
+#endif
+
 	if (bl33_image_ep_info.pc == 0U) {
 		ERROR("BL31: BL33 entrypoint not obtained from BL2\n");
 		panic();
