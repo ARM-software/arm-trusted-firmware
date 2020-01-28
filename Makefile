@@ -604,6 +604,14 @@ ifeq ($(CTX_INCLUDE_MTE_REGS),1)
     endif
 endif
 
+ifeq ($(MEASURED_BOOT),1)
+    ifneq (${TRUSTED_BOARD_BOOT},1)
+        $(error MEASURED_BOOT requires TRUSTED_BOARD_BOOT=1")
+    else
+        $(info MEASURED_BOOT is an experimental feature)
+    endif
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -751,6 +759,7 @@ $(eval $(call assert_boolean,GENERATE_COT))
 $(eval $(call assert_boolean,GICV2_G0_FOR_EL3))
 $(eval $(call assert_boolean,HANDLE_EA_EL3_FIRST))
 $(eval $(call assert_boolean,HW_ASSISTED_COHERENCY))
+$(eval $(call assert_boolean,MEASURED_BOOT))
 $(eval $(call assert_boolean,NS_TIMER_SWITCH))
 $(eval $(call assert_boolean,OVERRIDE_LIBC))
 $(eval $(call assert_boolean,PL011_GENERIC_UART))
@@ -817,6 +826,7 @@ $(eval $(call add_define,GICV2_G0_FOR_EL3))
 $(eval $(call add_define,HANDLE_EA_EL3_FIRST))
 $(eval $(call add_define,HW_ASSISTED_COHERENCY))
 $(eval $(call add_define,LOG_LEVEL))
+$(eval $(call add_define,MEASURED_BOOT))
 $(eval $(call add_define,NS_TIMER_SWITCH))
 $(eval $(call add_define,PL011_GENERIC_UART))
 $(eval $(call add_define,PLAT_${PLAT}))
