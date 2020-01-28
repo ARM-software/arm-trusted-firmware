@@ -56,21 +56,28 @@ as root or using ``sudo``.
 Building rendered documentation
 -------------------------------
 
-From the ``docs`` directory of the project, run the following commands. It is
-important to note that you will not get the correct result if the commands are
-run from the project root directory, as that would invoke the top-level Makefile
-for |TF-A| itself.
+Documents can be built into HTML-formatted pages from project root directory by
+running the following command.
 
 .. code:: shell
 
-   make clean
-   make html
+   make doc
 
 Output from the build process will be placed in:
 
 ::
 
-   <tf-a root>/docs/build/html/
+   docs/build/html/
+
+We also support building documentation in other formats. From the ``docs``
+directory of the project, run the following command to see the supported
+formats. It is important to note that you will not get the correct result if
+the command is run from the project root directory, as that would invoke the
+top-level Makefile for |TF-A| itself.
+
+.. code:: shell
+
+   make help
 
 --------------
 

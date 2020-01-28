@@ -23,7 +23,7 @@ New Features
    - Example: "Add support for Branch Target Identification (BTI)"
 
 - Build System
-   - Example: "Add support for default stack-protector flag"
+   - Add support for documentation build as a target in Makefile
 
 - CPU Support
    - Example: "cortex-a55: Workaround for erratum 1221012"

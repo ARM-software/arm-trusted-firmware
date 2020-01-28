@@ -695,6 +695,9 @@ PYTHON			?=	python3
 PRINT_MEMORY_MAP_PATH		?=	tools/memory
 PRINT_MEMORY_MAP		?=	${PRINT_MEMORY_MAP_PATH}/print_memory_map.py
 
+# Variables for use with documentation build using Sphinx tool
+DOCS_PATH		?=	docs
+
 ################################################################################
 # Include BL specific makefiles
 ################################################################################
@@ -869,7 +872,7 @@ endif
 # Build targets
 ################################################################################
 
-.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip fwu_fip certtool dtbs memmap
+.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip fwu_fip certtool dtbs memmap doc
 .SUFFIXES:
 
 all: msg_start
@@ -1067,6 +1070,10 @@ romlib.bin: libraries
 memmap: all
 	${Q}${PYTHON} $(PRINT_MEMORY_MAP) $(BUILD_PLAT)
 
+doc:
+	@echo "  BUILD DOCUMENTATION"
+	${Q}${MAKE} --no-print-directory -C ${DOCS_PATH} html
+
 cscope:
 	@echo "  CSCOPE"
 	${Q}find ${CURDIR} -name "*.[chsS]" > cscope.files
@@ -1107,6 +1114,7 @@ help:
 	@echo "  sptool         Build the Secure Partition Package creation tool"
 	@echo "  dtbs           Build the Device Tree Blobs (if required for the platform)"
 	@echo "  memmap         Print the memory map of the built binaries"
+	@echo "  doc            Build html based documentation using Sphinx tool"
 	@echo ""
 	@echo "Note: most build targets require PLAT to be set to a specific platform."
 	@echo ""
