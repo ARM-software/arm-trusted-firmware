@@ -324,6 +324,11 @@ architecture that can be enabled by the platform as desired.
    as recommended in section "4.7 Non-Temporal Loads/Stores" of the
    `Cortex-A57 Software Optimization Guide`_.
 
+-  ``NEOVERSE_N1_EXTERNAL_LLC``: This flag indicates that an external last
+   level cache(LLC) is present in the system, and that the DataSource field
+   on the master CHI interface indicates when data is returned from the LLC.
+   This is used to control how the LL_CACHE* PMU events count.
+
 --------------
 
 *Copyright (c) 2014-2019, Arm Limited and Contributors. All rights reserved.*
