@@ -20,32 +20,10 @@
 #include "ti_sci_protocol.h"
 #include "ti_sci.h"
 
-/**
- * struct ti_sci_desc - Description of SoC integration
- * @host_id:		Host identifier representing the compute entity
- * @max_msg_size:	Maximum size of data per message that can be handled
- */
-struct ti_sci_desc {
-	uint8_t host_id;
-	int max_msg_size;
-};
-
-/**
- * struct ti_sci_info - Structure representing a TI SCI instance
- * @desc:	SoC description for this instance
- * @seq:	Seq id used for verification for tx and rx message
- */
-struct ti_sci_info {
-	const struct ti_sci_desc desc;
-	uint8_t seq;
-};
-
-static struct ti_sci_info info = {
-	.desc = {
-		.host_id = TI_SCI_HOST_ID,
-		.max_msg_size = TI_SCI_MAX_MESSAGE_SIZE,
-	},
-};
+#if USE_COHERENT_MEM
+__section("tzfw_coherent_mem")
+#endif
+static uint8_t message_sequence;
 
 /**
  * struct ti_sci_xfer - Structure representing a message flow
@@ -82,16 +60,16 @@ static int ti_sci_setup_one_xfer(uint16_t msg_type, uint32_t msg_flags,
 	struct ti_sci_msg_hdr *hdr;
 
 	/* Ensure we have sane transfer sizes */
-	if (rx_message_size > info.desc.max_msg_size ||
-	    tx_message_size > info.desc.max_msg_size ||
+	if (rx_message_size > TI_SCI_MAX_MESSAGE_SIZE ||
+	    tx_message_size > TI_SCI_MAX_MESSAGE_SIZE ||
 	    rx_message_size < sizeof(*hdr) ||
 	    tx_message_size < sizeof(*hdr))
 		return -ERANGE;
 
 	hdr = (struct ti_sci_msg_hdr *)tx_buf;
-	hdr->seq = ++info.seq;
+	hdr->seq = ++message_sequence;
 	hdr->type = msg_type;
-	hdr->host = info.desc.host_id;
+	hdr->host = TI_SCI_HOST_ID;
 	hdr->flags = msg_flags | TI_SCI_FLAG_REQ_ACK_ON_PROCESSED;
 
 	xfer->tx_message.buf = tx_buf;
@@ -131,7 +109,7 @@ static inline int ti_sci_get_response(struct ti_sci_xfer *xfer,
 		hdr = (struct ti_sci_msg_hdr *)msg->buf;
 
 		/* Sanity check for message response */
-		if (hdr->seq == info.seq)
+		if (hdr->seq == message_sequence)
 			break;
 		else
 			WARN("Message with sequence ID %u is not expected\n", hdr->seq);
@@ -141,9 +119,9 @@ static inline int ti_sci_get_response(struct ti_sci_xfer *xfer,
 		return -EINVAL;
 	}
 
-	if (msg->len > info.desc.max_msg_size) {
+	if (msg->len > TI_SCI_MAX_MESSAGE_SIZE) {
 		ERROR("Unable to handle %lu xfer (max %d)\n",
-		      msg->len, info.desc.max_msg_size);
+		      msg->len, TI_SCI_MAX_MESSAGE_SIZE);
 		return -EINVAL;
 	}
 
@@ -425,13 +403,13 @@ int ti_sci_device_put_no_wait(uint32_t id)
 	int ret;
 
 	/* Ensure we have sane transfer size */
-	if (sizeof(req) > info.desc.max_msg_size)
+	if (sizeof(req) > TI_SCI_MAX_MESSAGE_SIZE)
 		return -ERANGE;
 
 	hdr = (struct ti_sci_msg_hdr *)&req;
-	hdr->seq = ++info.seq;
+	hdr->seq = ++message_sequence;
 	hdr->type = TI_SCI_MSG_SET_DEVICE_STATE;
-	hdr->host = info.desc.host_id;
+	hdr->host = TI_SCI_HOST_ID;
 	/* Setup with NORESPONSE flag to keep response queue clean */
 	hdr->flags = TI_SCI_FLAG_REQ_GENERIC_NORESPONSE;
 
@@ -1408,13 +1386,13 @@ int ti_sci_proc_set_boot_ctrl_no_wait(uint8_t proc_id,
 	int ret;
 
 	/* Ensure we have sane transfer size */
-	if (sizeof(req) > info.desc.max_msg_size)
+	if (sizeof(req) > TI_SCI_MAX_MESSAGE_SIZE)
 		return -ERANGE;
 
 	hdr = (struct ti_sci_msg_hdr *)&req;
-	hdr->seq = ++info.seq;
+	hdr->seq = ++message_sequence;
 	hdr->type = TISCI_MSG_SET_PROC_BOOT_CTRL;
-	hdr->host = info.desc.host_id;
+	hdr->host = TI_SCI_HOST_ID;
 	/* Setup with NORESPONSE flag to keep response queue clean */
 	hdr->flags = TI_SCI_FLAG_REQ_GENERIC_NORESPONSE;
 
@@ -1650,13 +1628,13 @@ int ti_sci_proc_wait_boot_status_no_wait(uint8_t proc_id,
 	int ret;
 
 	/* Ensure we have sane transfer size */
-	if (sizeof(req) > info.desc.max_msg_size)
+	if (sizeof(req) > TI_SCI_MAX_MESSAGE_SIZE)
 		return -ERANGE;
 
 	hdr = (struct ti_sci_msg_hdr *)&req;
-	hdr->seq = ++info.seq;
+	hdr->seq = ++message_sequence;
 	hdr->type = TISCI_MSG_WAIT_PROC_BOOT_STATUS;
-	hdr->host = info.desc.host_id;
+	hdr->host = TI_SCI_HOST_ID;
 	/* Setup with NORESPONSE flag to keep response queue clean */
 	hdr->flags = TI_SCI_FLAG_REQ_GENERIC_NORESPONSE;
 

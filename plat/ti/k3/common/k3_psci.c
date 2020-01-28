@@ -17,6 +17,10 @@
 #include <k3_gicv3.h>
 #include <ti_sci.h>
 
+#define CORE_PWR_STATE(state) ((state)->pwr_domain_state[MPIDR_AFFLVL0])
+#define CLUSTER_PWR_STATE(state) ((state)->pwr_domain_state[MPIDR_AFFLVL1])
+#define SYSTEM_PWR_STATE(state) ((state)->pwr_domain_state[PLAT_MAX_PWR_LVL])
+
 uintptr_t k3_sec_entrypoint;
 
 static void k3_cpu_standby(plat_local_state_t cpu_state)
@@ -37,30 +41,40 @@ static void k3_cpu_standby(plat_local_state_t cpu_state)
 
 static int k3_pwr_domain_on(u_register_t mpidr)
 {
-	int core_id, proc, device, ret;
+	int core, proc_id, device_id, ret;
 
-	core_id = plat_core_pos_by_mpidr(mpidr);
-	if (core_id < 0) {
-		ERROR("Could not get target core id: %d\n", core_id);
+	core = plat_core_pos_by_mpidr(mpidr);
+	if (core < 0) {
+		ERROR("Could not get target core id: %d\n", core);
 		return PSCI_E_INTERN_FAIL;
 	}
 
-	proc = PLAT_PROC_START_ID + core_id;
-	device = PLAT_PROC_DEVICE_START_ID + core_id;
+	proc_id = PLAT_PROC_START_ID + core;
+	device_id = PLAT_PROC_DEVICE_START_ID + core;
 
-	ret = ti_sci_proc_request(proc);
+	ret = ti_sci_proc_request(proc_id);
 	if (ret) {
 		ERROR("Request for processor failed: %d\n", ret);
 		return PSCI_E_INTERN_FAIL;
 	}
 
-	ret = ti_sci_proc_set_boot_cfg(proc, k3_sec_entrypoint, 0, 0);
+	ret = ti_sci_proc_set_boot_cfg(proc_id, k3_sec_entrypoint, 0, 0);
 	if (ret) {
 		ERROR("Request to set core boot address failed: %d\n", ret);
 		return PSCI_E_INTERN_FAIL;
 	}
 
-	ret = ti_sci_device_get(device);
+	/* sanity check these are off before starting a core */
+	ret = ti_sci_proc_set_boot_ctrl(proc_id,
+			0, PROC_BOOT_CTRL_FLAG_ARMV8_L2FLUSHREQ |
+			   PROC_BOOT_CTRL_FLAG_ARMV8_AINACTS |
+			   PROC_BOOT_CTRL_FLAG_ARMV8_ACINACTM);
+	if (ret) {
+		ERROR("Request to clear boot configuration failed: %d\n", ret);
+		return PSCI_E_INTERN_FAIL;
+	}
+
+	ret = ti_sci_device_get(device_id);
 	if (ret) {
 		ERROR("Request to start core failed: %d\n", ret);
 		return PSCI_E_INTERN_FAIL;
@@ -71,17 +85,35 @@ static int k3_pwr_domain_on(u_register_t mpidr)
 
 void k3_pwr_domain_off(const psci_power_state_t *target_state)
 {
-	int core_id, proc, device, ret;
+	int core, cluster, proc_id, device_id, cluster_id, ret;
+
+	/* At very least the local core should be powering down */
+	assert(CORE_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE);
 
 	/* Prevent interrupts from spuriously waking up this cpu */
 	k3_gic_cpuif_disable();
 
-	core_id = plat_my_core_pos();
-	proc = PLAT_PROC_START_ID + core_id;
-	device = PLAT_PROC_DEVICE_START_ID + core_id;
+	core = plat_my_core_pos();
+	cluster = MPIDR_AFFLVL1_VAL(read_mpidr_el1());
+	proc_id = PLAT_PROC_START_ID + core;
+	device_id = PLAT_PROC_DEVICE_START_ID + core;
+	cluster_id = PLAT_CLUSTER_DEVICE_START_ID + (cluster * 2);
+
+	/*
+	 * If we are the last core in the cluster then we take a reference to
+	 * the cluster device so that it does not get shutdown before we
+	 * execute the entire cluster L2 cleaning sequence below.
+	 */
+	if (CLUSTER_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE) {
+		ret = ti_sci_device_get(cluster_id);
+		if (ret) {
+			ERROR("Request to get cluster failed: %d\n", ret);
+			return;
+		}
+	}
 
 	/* Start by sending wait for WFI command */
-	ret = ti_sci_proc_wait_boot_status_no_wait(proc,
+	ret = ti_sci_proc_wait_boot_status_no_wait(proc_id,
 			/*
 			 * Wait maximum time to give us the best chance to get
 			 * to WFI before this command timeouts
@@ -95,9 +127,70 @@ void k3_pwr_domain_off(const psci_power_state_t *target_state)
 	}
 
 	/* Now queue up the core shutdown request */
-	ret = ti_sci_device_put_no_wait(device);
+	ret = ti_sci_device_put_no_wait(device_id);
 	if (ret) {
 		ERROR("Sending core shutdown message failed (%d)\n", ret);
+		return;
+	}
+
+	/* If our cluster is not going down we stop here */
+	if (CLUSTER_PWR_STATE(target_state) != PLAT_MAX_OFF_STATE)
+		return;
+
+	/* set AINACTS */
+	ret = ti_sci_proc_set_boot_ctrl_no_wait(proc_id,
+			PROC_BOOT_CTRL_FLAG_ARMV8_AINACTS, 0);
+	if (ret) {
+		ERROR("Sending set control message failed (%d)\n", ret);
+		return;
+	}
+
+	/* set L2FLUSHREQ */
+	ret = ti_sci_proc_set_boot_ctrl_no_wait(proc_id,
+			PROC_BOOT_CTRL_FLAG_ARMV8_L2FLUSHREQ, 0);
+	if (ret) {
+		ERROR("Sending set control message failed (%d)\n", ret);
+		return;
+	}
+
+	/* wait for L2FLUSHDONE*/
+	ret = ti_sci_proc_wait_boot_status_no_wait(proc_id,
+			UINT8_MAX, 2, UINT8_MAX, UINT8_MAX,
+			PROC_BOOT_STATUS_FLAG_ARMV8_L2F_DONE, 0, 0, 0);
+	if (ret) {
+		ERROR("Sending wait message failed (%d)\n", ret);
+		return;
+	}
+
+	/* clear L2FLUSHREQ */
+	ret = ti_sci_proc_set_boot_ctrl_no_wait(proc_id,
+			0, PROC_BOOT_CTRL_FLAG_ARMV8_L2FLUSHREQ);
+	if (ret) {
+		ERROR("Sending set control message failed (%d)\n", ret);
+		return;
+	}
+
+	/* set ACINACTM */
+	ret = ti_sci_proc_set_boot_ctrl_no_wait(proc_id,
+			PROC_BOOT_CTRL_FLAG_ARMV8_ACINACTM, 0);
+	if (ret) {
+		ERROR("Sending set control message failed (%d)\n", ret);
+		return;
+	}
+
+	/* wait for STANDBYWFIL2 */
+	ret = ti_sci_proc_wait_boot_status_no_wait(proc_id,
+			UINT8_MAX, 2, UINT8_MAX, UINT8_MAX,
+			PROC_BOOT_STATUS_FLAG_ARMV8_STANDBYWFIL2, 0, 0, 0);
+	if (ret) {
+		ERROR("Sending wait message failed (%d)\n", ret);
+		return;
+	}
+
+	/* Now queue up the cluster shutdown request */
+	ret = ti_sci_device_put_no_wait(cluster_id);
+	if (ret) {
+		ERROR("Sending cluster shutdown message failed (%d)\n", ret);
 		return;
 	}
 }
