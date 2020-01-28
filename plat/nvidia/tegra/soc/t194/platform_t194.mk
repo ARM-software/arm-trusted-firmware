@@ -5,7 +5,7 @@
 #
 
 # platform configs
-ENABLE_CONSOLE_SPE			:= 0
+ENABLE_CONSOLE_SPE			:= 1
 $(eval $(call add_define,ENABLE_CONSOLE_SPE))
 
 ENABLE_STRICT_CHECKING_MODE		:= 1
