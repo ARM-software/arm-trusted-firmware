@@ -33,6 +33,20 @@
 #include <stm32mp_common.h>
 #include <stm32mp1_dbgmcu.h>
 
+#if DEBUG
+static const char debug_msg[] = {
+	"***************************************************\n"
+	"** DEBUG ACCESS PORT IS OPEN!                    **\n"
+	"** This boot image is only for debugging purpose **\n"
+	"** and is unsafe for production use.             **\n"
+	"**                                               **\n"
+	"** If you see this message and you are not       **\n"
+	"** debugging report this immediately to your     **\n"
+	"** vendor!                                       **\n"
+	"***************************************************\n"
+};
+#endif
+
 static struct stm32mp_auth_ops stm32mp1_auth_ops;
 
 static void print_reset_reason(void)
@@ -332,6 +346,16 @@ skip_console_init:
 	}
 
 	stm32_iwdg_refresh();
+
+	if (bsec_read_debug_conf() != 0U) {
+		if (stm32mp_is_closed_device()) {
+#if DEBUG
+			WARN("\n%s", debug_msg);
+#else
+			ERROR("***Debug opened on closed chip***\n");
+#endif
+		}
+	}
 
 	if (stm32mp_is_auth_supported()) {
 		stm32mp1_auth_ops.check_key =
