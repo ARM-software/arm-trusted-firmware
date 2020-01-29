@@ -775,7 +775,7 @@ void psci_warmboot_entrypoint(void)
 	 * suspend.
 	 */
 	if (psci_get_aff_info_state() == AFF_STATE_OFF) {
-		ERROR("Unexpected affinity info state");
+		ERROR("Unexpected affinity info state.\n");
 		panic();
 	}
 
