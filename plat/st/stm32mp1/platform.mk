@@ -152,7 +152,6 @@ STM32_TF_ELF_LDFLAGS	:=	--hash-style=gnu --as-needed
 STM32_DT_BASENAME	:=	$(DTB_FILE_NAME:.dtb=)
 STM32_TF_STM32		:=	${BUILD_PLAT}/tf-a-${STM32_DT_BASENAME}.stm32
 STM32_TF_BINARY		:=	$(STM32_TF_STM32:.stm32=.bin)
-STM32_TF_MAPFILE	:=	$(STM32_TF_STM32:.stm32=.map)
 STM32_TF_LINKERFILE	:=	${BUILD_PLAT}/stm32mp1.ld
 STM32_TF_ELF		:=	$(STM32_TF_STM32:.stm32=.elf)
 STM32_TF_DTBFILE	:=      ${BUILD_PLAT}/fdts/${DTB_FILE_NAME}
@@ -206,7 +205,7 @@ ${STM32_TF_LINKERFILE}:	plat/st/stm32mp1/stm32mp1.ld.S ${BUILD_PLAT}
 
 ${STM32_TF_ELF}:	${STM32_TF_OBJS} ${STM32_TF_LINKERFILE}
 			@echo "  LDS     $<"
-			${Q}${LD} -o $@ ${STM32_TF_ELF_LDFLAGS} -Map=${STM32_TF_MAPFILE} --script ${STM32_TF_LINKERFILE} ${STM32_TF_OBJS}
+			${Q}${LD} -o $@ ${STM32_TF_ELF_LDFLAGS} -Map=$(@:.elf=.map) --script ${STM32_TF_LINKERFILE} ${STM32_TF_OBJS}
 
 ${STM32_TF_BINARY}:	${STM32_TF_ELF}
 			${Q}${OC} -O binary ${STM32_TF_ELF} $@
@@ -217,7 +216,7 @@ ${STM32_TF_BINARY}:	${STM32_TF_ELF}
 ${STM32_TF_STM32}:	stm32image ${STM32_TF_BINARY}
 			@echo
 			@echo "Generated $@"
-			$(eval LOADADDR =  $(shell cat ${STM32_TF_MAPFILE} | grep RAM | awk '{print $$2}'))
-			$(eval ENTRY =  $(shell cat ${STM32_TF_MAPFILE} | grep "__BL2_IMAGE_START" | awk '{print $$1}'))
+			$(eval LOADADDR =  $(shell cat $(@:.stm32=.map) | grep RAM | awk '{print $$2}'))
+			$(eval ENTRY =  $(shell cat $(@:.stm32=.map) | grep "__BL2_IMAGE_START" | awk '{print $$1}'))
 			${STM32IMAGE} -s ${STM32_TF_BINARY} -d $@ -l $(LOADADDR) -e ${ENTRY} -v ${STM32_TF_VERSION}
 			@echo
