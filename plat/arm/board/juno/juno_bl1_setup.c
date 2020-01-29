@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -60,17 +60,13 @@ static int is_watchdog_reset(void)
  * The following function checks if Firmware update is needed,
  * by checking if TOC in FIP image is valid or watchdog reset happened.
  ******************************************************************************/
-int plat_arm_bl1_fwu_needed(void)
+bool plat_arm_bl1_fwu_needed(void)
 {
 	const int32_t *nv_flags_ptr = (const int32_t *)V2M_SYS_NVFLAGS_ADDR;
 
 	/* Check if TOC is invalid or watchdog reset happened. */
-	if ((arm_io_is_toc_valid() != 1) ||
-		(((*nv_flags_ptr == -EAUTH) || (*nv_flags_ptr == -ENOENT))
-		&& is_watchdog_reset()))
-		return 1;
-
-	return 0;
+	return (!arm_io_is_toc_valid() || (((*nv_flags_ptr == -EAUTH) ||
+		(*nv_flags_ptr == -ENOENT)) && is_watchdog_reset()));
 }
 
 /*******************************************************************************

@@ -128,15 +128,7 @@ int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
  * See if a Firmware Image Package is available,
  * by checking if TOC is valid or not.
  */
-int arm_io_is_toc_valid(void)
+bool arm_io_is_toc_valid(void)
 {
-	int result;
-
-	result = io_dev_init(fip_dev_handle, (uintptr_t)FIP_IMAGE_ID);
-
-	if (result == 0) {
-		return 1UL;
-	} else {
-		return 0UL;
-	}
+	return (io_dev_init(fip_dev_handle, (uintptr_t)FIP_IMAGE_ID) == 0);
 }

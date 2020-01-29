@@ -188,9 +188,9 @@ void bl1_plat_prepare_exit(entry_point_info_t *ep_info)
  * On Arm platforms, the FWU process is triggered when the FIP image has
  * been tampered with.
  */
-int plat_arm_bl1_fwu_needed(void)
+bool plat_arm_bl1_fwu_needed(void)
 {
-	return (arm_io_is_toc_valid() != 1);
+	return !arm_io_is_toc_valid();
 }
 
 /*******************************************************************************
@@ -199,8 +199,5 @@ int plat_arm_bl1_fwu_needed(void)
  ******************************************************************************/
 unsigned int bl1_plat_get_next_image_id(void)
 {
-	if (plat_arm_bl1_fwu_needed() != 0)
-		return NS_BL1U_IMAGE_ID;
-
-	return BL2_IMAGE_ID;
+	return plat_arm_bl1_fwu_needed() ? NS_BL1U_IMAGE_ID : BL2_IMAGE_ID;
 }
