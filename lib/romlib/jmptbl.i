@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -17,6 +17,7 @@ fdt	fdt_getprop_namelen
 fdt	fdt_setprop_inplace
 fdt	fdt_check_header
 fdt	fdt_node_offset_by_compatible
+fdt     fdt_setprop_inplace_namelen_partial
 mbedtls	mbedtls_asn1_get_alg
 mbedtls	mbedtls_asn1_get_alg_null
 mbedtls	mbedtls_asn1_get_bitstring_null
