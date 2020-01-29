@@ -7,12 +7,15 @@
 #include <plat/arm/common/plat_arm.h>
 
 /******************************************************************************
- * The power domain tree descriptor.
+ * The power domain tree descriptor. RD-E1-Edge platform consists of two
+ * clusters with eight CPUs in each cluster. The CPUs are multi-threaded with
+ * two threads per CPU.
  ******************************************************************************/
 static const unsigned char rde1edge_pd_tree_desc[] = {
+	CSS_SGI_CHIP_COUNT,
 	PLAT_ARM_CLUSTER_COUNT,
-	CSS_SGI_MAX_CPUS_PER_CLUSTER,
-	CSS_SGI_MAX_CPUS_PER_CLUSTER
+	CSS_SGI_MAX_CPUS_PER_CLUSTER * CSS_SGI_MAX_PE_PER_CPU,
+	CSS_SGI_MAX_CPUS_PER_CLUSTER * CSS_SGI_MAX_PE_PER_CPU
 };
 
 /******************************************************************************
