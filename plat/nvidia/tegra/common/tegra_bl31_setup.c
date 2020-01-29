@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,11 +42,12 @@ extern void memcpy16(void *dest, const void *src, unsigned int length);
  ******************************************************************************/
 
 IMPORT_SYM(uint64_t, __RW_START__,	BL31_RW_START);
-IMPORT_SYM(uint64_t, __RW_END__,	BL31_RW_END);
-IMPORT_SYM(uint64_t, __RODATA_START__,	BL31_RODATA_BASE);
-IMPORT_SYM(uint64_t, __RODATA_END__,	BL31_RODATA_END);
-IMPORT_SYM(uint64_t, __TEXT_START__,	TEXT_START);
-IMPORT_SYM(uint64_t, __TEXT_END__,	TEXT_END);
+
+static const uint64_t BL31_RW_END	= BL_END;
+static const uint64_t BL31_RODATA_BASE	= BL_RO_DATA_BASE;
+static const uint64_t BL31_RODATA_END	= BL_RO_DATA_END;
+static const uint64_t TEXT_START	= BL_CODE_BASE;
+static const uint64_t TEXT_END		= BL_CODE_END;
 
 extern uint64_t tegra_bl31_phys_base;
 

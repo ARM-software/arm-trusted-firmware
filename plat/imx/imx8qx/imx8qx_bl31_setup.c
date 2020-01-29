@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,12 +27,13 @@
 #include <sci/sci.h>
 #include <sec_rsrc.h>
 
-IMPORT_SYM(unsigned long, __COHERENT_RAM_START__, BL31_COHERENT_RAM_START);
-IMPORT_SYM(unsigned long, __COHERENT_RAM_END__, BL31_COHERENT_RAM_END);
-IMPORT_SYM(unsigned long, __RO_START__, BL31_RO_START);
-IMPORT_SYM(unsigned long, __RO_END__, BL31_RO_END);
+static const unsigned long BL31_COHERENT_RAM_START	= BL_COHERENT_RAM_BASE;
+static const unsigned long BL31_COHERENT_RAM_END	= BL_COHERENT_RAM_END;
+static const unsigned long BL31_RO_START		= BL_CODE_BASE;
+static const unsigned long BL31_RO_END			= BL_CODE_END;
+static const unsigned long BL31_RW_END			= BL_END;
+
 IMPORT_SYM(unsigned long, __RW_START__, BL31_RW_START);
-IMPORT_SYM(unsigned long, __RW_END__, BL31_RW_END);
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;

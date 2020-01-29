@@ -23,7 +23,6 @@
 #include <stm32mp_common.h>
 #include <stm32mp_dt.h>
 #include <stm32mp_shres_helpers.h>
-#include <stm32mp1_boot_device.h>
 #include <stm32mp1_dbgmcu.h>
 #include <stm32mp1_private.h>
 #endif
