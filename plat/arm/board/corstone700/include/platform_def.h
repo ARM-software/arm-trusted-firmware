@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -87,6 +87,10 @@
 /* GIC related constants */
 #define PLAT_ARM_GICD_BASE			0x1C010000
 #define PLAT_ARM_GICC_BASE			0x1C02F000
+
+/* MHUv2 Secure Channel receiver and sender */
+#define PLAT_SDK700_MHU0_SEND			0x1B800000
+#define PLAT_SDK700_MHU0_RECV			0x1B810000
 
 /* Timer/watchdog related constants */
 #define ARM_SYS_CNTCTL_BASE			UL(0x1a200000)

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+# Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -11,16 +11,19 @@ BL32_SOURCES		+=	plat/arm/common/aarch32/arm_helpers.S	\
 				plat/arm/common/arm_common.c	\
 				lib/xlat_tables/aarch32/xlat_tables.c	\
 				lib/xlat_tables/xlat_tables_common.c	\
-				${CORSTONE700_CPU_LIBS}
+				${CORSTONE700_CPU_LIBS}	\
+				plat/arm/board/corstone700/drivers/mhu/mhu.c
 
-PLAT_INCLUDES		:=	-Iplat/arm/board/corstone700/include
+PLAT_INCLUDES		:=	-Iplat/arm/board/corstone700/include	\
+				-Iinclude/plat/arm/common	\
+				-Iplat/arm/board/corstone700/drivers/mhu
 
 NEED_BL32		:=	yes
 
-CORSTONE700_GIC_SOURCES      :=	drivers/arm/gic/common/gic_common.c     \
-				drivers/arm/gic/v2/gicv2_main.c         \
-				drivers/arm/gic/v2/gicv2_helpers.c      \
-				plat/common/plat_gicv2.c                \
+CORSTONE700_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
+				drivers/arm/gic/v2/gicv2_main.c		\
+				drivers/arm/gic/v2/gicv2_helpers.c	\
+				plat/common/plat_gicv2.c		\
 				plat/arm/common/arm_gicv2.c
 
 # BL1/BL2 Image not a part of the capsule Image for Corstone700
