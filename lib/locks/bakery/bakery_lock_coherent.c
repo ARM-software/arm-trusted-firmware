@@ -137,10 +137,11 @@ void bakery_lock_get(bakery_lock_t *bakery)
 	}
 
 	/*
-	 * Lock acquired. Ensure that any reads from a shared resource in the
-	 * critical section read values after the lock is acquired.
+	 * Lock acquired. Ensure that any reads and writes from a shared
+	 * resource in the critical section read/write values after the lock is
+	 * acquired.
 	 */
-	dmbld();
+	dmbish();
 }
 
 
@@ -154,11 +155,14 @@ void bakery_lock_release(bakery_lock_t *bakery)
 
 	/*
 	 * Ensure that other observers see any stores in the critical section
-	 * before releasing the lock. Release the lock by resetting ticket.
-	 * Then signal other waiting contenders.
+	 * before releasing the lock. Also ensure all loads in the critical
+	 * section are complete before releasing the lock. Release the lock by
+	 * resetting ticket. Then signal other waiting contenders.
 	 */
-	dmbst();
+	dmbish();
 	bakery->lock_data[me] = 0U;
+
+	/* Required to ensure ordering of the following sev */
 	dsb();
 	sev();
 }
