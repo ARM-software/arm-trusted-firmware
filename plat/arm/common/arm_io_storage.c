@@ -292,32 +292,41 @@ static int open_memmap(const uintptr_t spec)
 }
 
 
-void arm_io_setup(void)
+int arm_io_setup(void)
 {
 	int io_result;
 
 	io_result = register_io_dev_fip(&fip_dev_con);
-	assert(io_result == 0);
+	if (io_result < 0) {
+		return io_result;
+	}
 
 	io_result = register_io_dev_memmap(&memmap_dev_con);
-	assert(io_result == 0);
+	if (io_result < 0) {
+		return io_result;
+	}
 
 	/* Open connections to devices and cache the handles */
 	io_result = io_dev_open(fip_dev_con, (uintptr_t)NULL,
 				&fip_dev_handle);
-	assert(io_result == 0);
+	if (io_result < 0) {
+		return io_result;
+	}
 
 	io_result = io_dev_open(memmap_dev_con, (uintptr_t)NULL,
 				&memmap_dev_handle);
-	assert(io_result == 0);
 
-	/* Ignore improbable errors in release builds */
-	(void)io_result;
+	return io_result;
 }
 
 void plat_arm_io_setup(void)
 {
-	arm_io_setup();
+	int err;
+
+	err = arm_io_setup();
+	if (err < 0) {
+		panic();
+	}
 }
 
 int plat_arm_get_alt_image_source(

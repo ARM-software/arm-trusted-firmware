@@ -149,7 +149,7 @@ void arm_setup_romlib(void);
 #define ARM_ROTPK_DEVEL_ECDSA_ID	3
 
 /* IO storage utility functions */
-void arm_io_setup(void);
+int arm_io_setup(void);
 
 /* Security utility functions */
 void arm_tzc400_setup(const arm_tzc_regions_info_t *tzc_regions);
