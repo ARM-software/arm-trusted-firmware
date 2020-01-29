@@ -149,8 +149,7 @@ endif
 
 # Macros and rules to build TF binary
 STM32_TF_ELF_LDFLAGS	:=	--hash-style=gnu --as-needed
-STM32_DT_BASENAME	:=	$(DTB_FILE_NAME:.dtb=)
-STM32_TF_STM32		:=	${BUILD_PLAT}/tf-a-${STM32_DT_BASENAME}.stm32
+STM32_TF_STM32		:=	$(addprefix ${BUILD_PLAT}/tf-a-, $(patsubst %.dtb,%.stm32,$(DTB_FILE_NAME)))
 STM32_TF_LINKERFILE	:=	${BUILD_PLAT}/stm32mp1.ld
 
 BL2_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
