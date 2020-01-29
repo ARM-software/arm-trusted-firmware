@@ -10,9 +10,12 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/psci/psci.h>
+#include <lib/semihosting.h>
 #include <plat/common/platform.h>
 
 #include "qemu_private.h"
+
+#define ADP_STOPPED_APPLICATION_EXIT 0x20026
 
 /*
  * The secure entry point to be used on warm reset.
@@ -191,7 +194,8 @@ void qemu_pwr_domain_suspend_finish(const psci_power_state_t *target_state)
  ******************************************************************************/
 static void __dead2 qemu_system_off(void)
 {
-	ERROR("QEMU System Off: operation not handled.\n");
+	semihosting_exit(ADP_STOPPED_APPLICATION_EXIT, 0);
+	ERROR("QEMU System Off: semihosting call unexpectedly returned.\n");
 	panic();
 }
 

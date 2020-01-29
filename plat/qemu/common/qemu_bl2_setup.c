@@ -51,7 +51,7 @@ static void security_setup(void)
 static void update_dt(void)
 {
 	int ret;
-	void *fdt = (void *)(uintptr_t)PLAT_QEMU_DT_BASE;
+	void *fdt = (void *)(uintptr_t)ARM_PRELOADED_DTB_BASE;
 
 	ret = fdt_open_into(fdt, fdt, PLAT_QEMU_DT_MAX_SIZE);
 	if (ret < 0) {
@@ -172,12 +172,12 @@ static int qemu_bl2_handle_post_image_load(unsigned int image_id)
 		 * OP-TEE expect to receive DTB address in x2.
 		 * This will be copied into x2 by dispatcher.
 		 */
-		bl_mem_params->ep_info.args.arg3 = PLAT_QEMU_DT_BASE;
+		bl_mem_params->ep_info.args.arg3 = ARM_PRELOADED_DTB_BASE;
 #else /* case AARCH32_SP_OPTEE */
 		bl_mem_params->ep_info.args.arg0 =
 					bl_mem_params->ep_info.args.arg1;
 		bl_mem_params->ep_info.args.arg1 = 0;
-		bl_mem_params->ep_info.args.arg2 = PLAT_QEMU_DT_BASE;
+		bl_mem_params->ep_info.args.arg2 = ARM_PRELOADED_DTB_BASE;
 		bl_mem_params->ep_info.args.arg3 = 0;
 #endif
 #endif
@@ -192,8 +192,23 @@ static int qemu_bl2_handle_post_image_load(unsigned int image_id)
 		pager_mem_params->ep_info.lr_svc = bl_mem_params->ep_info.pc;
 #endif
 
+#if ARM_LINUX_KERNEL_AS_BL33
+		/*
+		 * According to the file ``Documentation/arm64/booting.txt`` of
+		 * the Linux kernel tree, Linux expects the physical address of
+		 * the device tree blob (DTB) in x0, while x1-x3 are reserved
+		 * for future use and must be 0.
+		 */
+		bl_mem_params->ep_info.args.arg0 =
+			(u_register_t)ARM_PRELOADED_DTB_BASE;
+		bl_mem_params->ep_info.args.arg1 = 0U;
+		bl_mem_params->ep_info.args.arg2 = 0U;
+		bl_mem_params->ep_info.args.arg3 = 0U;
+#else
 		/* BL33 expects to receive the primary CPU MPID (through r0) */
 		bl_mem_params->ep_info.args.arg0 = 0xffff & read_mpidr();
+#endif
+
 		bl_mem_params->ep_info.spsr = qemu_get_spsr_for_bl33_entry();
 		break;
 	default:
