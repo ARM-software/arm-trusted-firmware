@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,11 +33,11 @@ DECLARE_ASN1_FUNCTIONS(HASH)
 IMPLEMENT_ASN1_FUNCTIONS(HASH)
 
 /*
- * This function adds the TBB extensions to the internal extension list
+ * This function adds the CoT extensions to the internal extension list
  * maintained by OpenSSL so they can be used later.
  *
  * It also initializes the methods to print the contents of the extension. If an
- * alias is specified in the TBB extension, we reuse the methods of the alias.
+ * alias is specified in the CoT extension, we reuse the methods of the alias.
  * Otherwise, only methods for V_ASN1_INTEGER and V_ASN1_OCTET_STRING are
  * provided. Any other type will be printed as a raw ascii string.
  *

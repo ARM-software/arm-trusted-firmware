@@ -204,6 +204,9 @@ USE_DEBUGFS			:= 0
 # Build option to choose whether Trusted Firmware uses library at ROM
 USE_ROMLIB			:= 0
 
+# Chain of trust.
+COT				:= tbbr
+
 # Use tbbr_oid.h instead of platform_oid.h
 USE_TBBR_DEFS			:= 1
 
