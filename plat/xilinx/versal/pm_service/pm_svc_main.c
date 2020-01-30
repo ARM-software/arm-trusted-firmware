@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2020, Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -165,7 +165,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	{
 		uint32_t result[4] = {0};
 
-		pm_get_callbackdata(result, sizeof(result));
+		pm_get_callbackdata(result, ARRAY_SIZE(result));
 		SMC_RET2(handle,
 			 (uint64_t)result[0] | ((uint64_t)result[1] << 32),
 			 (uint64_t)result[2] | ((uint64_t)result[3] << 32));
