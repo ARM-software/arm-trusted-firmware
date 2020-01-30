@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,7 +25,7 @@ uintptr_t k3_sec_entrypoint;
 
 static void k3_cpu_standby(plat_local_state_t cpu_state)
 {
-	unsigned int scr;
+	u_register_t scr;
 
 	scr = read_scr_el3();
 	/* Enable the Non secure interrupt to wake the CPU */
