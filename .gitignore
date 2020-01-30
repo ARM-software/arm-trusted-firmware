@@ -34,3 +34,7 @@ GPATH
 GRTAGS
 GSYMS
 GTAGS
+
+# Ctags
+tags
+
