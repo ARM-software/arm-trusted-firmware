@@ -310,8 +310,8 @@ Common build options
    EL1 for handling. The default value of this option is ``0``, which means the
    Group 0 interrupts are assumed to be handled by Secure EL1.
 
-   .. __: `platform-interrupt-controller-API.rst`
-   .. __: `interrupt-framework-design.rst`
+   .. __: platform-interrupt-controller-API.rst
+   .. __: interrupt-framework-design.rst
 
 -  ``HANDLE_EA_EL3_FIRST``: When set to ``1``, External Aborts and SError
    Interrupts will be always trapped in EL3 i.e. in BL31 at runtime. When set to
@@ -657,4 +657,4 @@ commands can be used:
 
 --------------
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
