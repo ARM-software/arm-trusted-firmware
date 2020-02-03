@@ -38,7 +38,8 @@ unsigned int uniphier_get_boot_master(unsigned int soc);
 void uniphier_console_setup(void);
 
 struct io_block_dev_spec;
-int uniphier_emmc_init(struct io_block_dev_spec **block_dev_spec);
+int uniphier_emmc_init(unsigned int soc,
+		       struct io_block_dev_spec **block_dev_spec);
 int uniphier_nand_init(struct io_block_dev_spec **block_dev_spec);
 int uniphier_usb_init(unsigned int soc,
 		      struct io_block_dev_spec **block_dev_spec);
