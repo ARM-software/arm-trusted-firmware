@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,8 +17,6 @@
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/extensions/amu.h>
 #include <lib/utils.h>
-#include <plat/common/platform.h>
-#include <smccc_helpers.h>
 
 /*******************************************************************************
  * Context management library initialisation routine. This library is used by

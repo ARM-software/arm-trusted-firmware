@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,7 +14,6 @@
 #include <lib/cpus/errata_report.h>
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/spinlock.h>
-#include <lib/utils.h>
 
 #ifdef IMAGE_BL1
 # define BL_STRING	"BL1"
