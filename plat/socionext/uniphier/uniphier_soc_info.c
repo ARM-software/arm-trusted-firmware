@@ -4,18 +4,25 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/bl_common.h>
 #include <lib/mmio.h>
 
 #include "uniphier.h"
 
-#define UNIPHIER_REVISION		0x5f800000
+#define UNIPHIER_REVISION		0x5f800000UL
+#define UNIPHIER_REVISION_NEW		0x1f800000UL
 
 static unsigned int uniphier_get_revision_field(unsigned int mask,
 						unsigned int shift)
 {
-	uint32_t revision = mmio_read_32(UNIPHIER_REVISION);
+	uintptr_t reg;
 
-	return (revision >> shift) & mask;
+	if (BL_CODE_BASE >= 0x80000000UL)
+		reg = UNIPHIER_REVISION;
+	else
+		reg = UNIPHIER_REVISION_NEW;
+
+	return (mmio_read_32(reg) >> shift) & mask;
 }
 
 unsigned int uniphier_get_soc_type(void)
