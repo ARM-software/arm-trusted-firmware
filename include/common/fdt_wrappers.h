@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,5 +20,9 @@ int fdtw_read_string(const void *dtb, int node, const char *prop,
 		char *str, size_t size);
 int fdtw_write_inplace_cells(void *dtb, int node, const char *prop,
 		unsigned int cells, void *value);
+int fdtw_read_bytes(const void *dtb, int node, const char *prop,
+		unsigned int length, void *value);
+int fdtw_write_inplace_bytes(void *dtb, int node, const char *prop,
+		unsigned int length, const void *data);
 
 #endif /* FDT_WRAPPERS_H */
