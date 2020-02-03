@@ -69,6 +69,8 @@ void uniphier_gic_cpuif_enable(void);
 void uniphier_gic_cpuif_disable(void);
 void uniphier_gic_pcpu_init(void);
 
+void uniphier_psci_init(unsigned int soc);
+
 unsigned int uniphier_calc_core_pos(u_register_t mpidr);
 
 #endif /* UNIPHIER_H */

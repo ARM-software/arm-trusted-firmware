@@ -80,6 +80,8 @@ void bl31_platform_setup(void)
 
 	/* Enable and initialize the System level generic timer */
 	mmio_write_32(cntctl_base + CNTCR_OFF, CNTCR_FCREQ(0U) | CNTCR_EN);
+
+	uniphier_psci_init(uniphier_soc);
 }
 
 void bl31_plat_arch_setup(void)
