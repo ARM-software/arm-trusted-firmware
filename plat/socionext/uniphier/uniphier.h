@@ -25,7 +25,8 @@ unsigned int uniphier_get_boot_device(unsigned int soc);
 #define UNIPHIER_BOOT_DEVICE_EMMC	0
 #define UNIPHIER_BOOT_DEVICE_NAND	1
 #define UNIPHIER_BOOT_DEVICE_NOR	2
-#define UNIPHIER_BOOT_DEVICE_USB	3
+#define UNIPHIER_BOOT_DEVICE_SD		3
+#define UNIPHIER_BOOT_DEVICE_USB	4
 #define UNIPHIER_BOOT_DEVICE_RSV	0xffffffff
 
 unsigned int uniphier_get_boot_master(unsigned int soc);
