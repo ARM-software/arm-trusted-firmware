@@ -35,7 +35,7 @@ unsigned int uniphier_get_boot_master(unsigned int soc);
 #define UNIPHIER_BOOT_MASTER_SCP	1
 #define UNIPHIER_BOOT_MASTER_EXT	2
 
-void uniphier_console_setup(void);
+void uniphier_console_setup(unsigned int soc);
 
 struct io_block_dev_spec;
 int uniphier_emmc_init(unsigned int soc,

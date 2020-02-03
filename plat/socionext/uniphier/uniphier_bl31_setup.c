@@ -21,6 +21,7 @@
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
+static unsigned int uniphier_soc = UNIPHIER_SOC_UNKNOWN;
 
 entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
@@ -37,7 +38,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	bl_params_node_t *bl_params = ((bl_params_t *)from_bl2)->head;
 
-	uniphier_console_setup();
+	uniphier_soc = uniphier_get_soc_id();
+	if (uniphier_soc == UNIPHIER_SOC_UNKNOWN)
+		plat_error_handler(-ENOTSUP);
+
+	uniphier_console_setup(uniphier_soc);
 
 	while (bl_params) {
 		if (bl_params->image_id == BL32_IMAGE_ID)
@@ -57,19 +62,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 void bl31_platform_setup(void)
 {
-	unsigned int soc;
-
-	soc = uniphier_get_soc_id();
-	if (soc == UNIPHIER_SOC_UNKNOWN) {
-		ERROR("unsupported SoC\n");
-		plat_error_handler(-ENOTSUP);
-	}
-
-	uniphier_cci_init(soc);
+	uniphier_cci_init(uniphier_soc);
 	uniphier_cci_enable();
 
 	/* Initialize the GIC driver, cpu and distributor interfaces */
-	uniphier_gic_driver_init(soc);
+	uniphier_gic_driver_init(uniphier_soc);
 	uniphier_gic_init();
 
 	/* Enable and initialize the System level generic timer */
