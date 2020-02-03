@@ -157,11 +157,6 @@
 				MT_DEVICE | MT_RW | MT_SECURE			\
 			)
 
-/* GIC related constants */
-#define PLAT_ARM_GICD_BASE		0x30000000
-#define PLAT_ARM_GICC_BASE		0x2C000000
-#define PLAT_ARM_GICR_BASE		0x300C0000
-
 /* Map the secure region for access from S-EL0 */
 #define PLAT_ARM_SECURE_MAP_DEVICE	MAP_REGION_FLAT(	\
 					SOC_CSS_DEVICE_BASE,	\
