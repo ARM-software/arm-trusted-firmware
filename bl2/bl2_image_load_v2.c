@@ -68,7 +68,8 @@ struct entry_point_info *bl2_load_images(void)
 			err = load_auth_image(bl2_node_info->image_id,
 				bl2_node_info->image_info);
 			if (err) {
-				ERROR("BL2: Failed to load image (%i)\n", err);
+				ERROR("BL2: Failed to load image id %d (%i)\n",
+				      bl2_node_info->image_id, err);
 				plat_error_handler(err);
 			}
 		} else {
