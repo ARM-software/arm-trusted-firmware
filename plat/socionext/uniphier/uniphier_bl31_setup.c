@@ -58,10 +58,16 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 }
 
-#define UNIPHIER_SYS_CNTCTL_BASE	0x60E00000
+static const uintptr_t uniphier_cntctl_base[] = {
+	[UNIPHIER_SOC_LD11] = 0x60e00000,
+	[UNIPHIER_SOC_LD20] = 0x60e00000,
+	[UNIPHIER_SOC_PXS3] = 0x60e00000,
+};
 
 void bl31_platform_setup(void)
 {
+	uintptr_t cntctl_base;
+
 	uniphier_cci_init(uniphier_soc);
 	uniphier_cci_enable();
 
@@ -69,9 +75,11 @@ void bl31_platform_setup(void)
 	uniphier_gic_driver_init(uniphier_soc);
 	uniphier_gic_init();
 
+	assert(uniphier_soc < ARRAY_SIZE(uniphier_cntctl_base));
+	cntctl_base = uniphier_cntctl_base[uniphier_soc];
+
 	/* Enable and initialize the System level generic timer */
-	mmio_write_32(UNIPHIER_SYS_CNTCTL_BASE + CNTCR_OFF,
-		      CNTCR_FCREQ(0U) | CNTCR_EN);
+	mmio_write_32(cntctl_base + CNTCR_OFF, CNTCR_FCREQ(0U) | CNTCR_EN);
 }
 
 void bl31_plat_arch_setup(void)
