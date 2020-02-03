@@ -87,7 +87,7 @@ struct uniphier_mmc_cmd {
 	unsigned int is_data;
 };
 
-static int uniphier_emmc_block_addressing;
+static bool uniphier_emmc_block_addressing;
 
 static int uniphier_emmc_send_cmd(uintptr_t host_base,
 				  struct uniphier_mmc_cmd *cmd)
@@ -157,7 +157,8 @@ static int uniphier_emmc_switch_part(uintptr_t host_base, int part_num)
 	return uniphier_emmc_send_cmd(host_base, &cmd);
 }
 
-static int uniphier_emmc_is_over_2gb(uintptr_t host_base)
+static int uniphier_emmc_check_device_size(uintptr_t host_base,
+					   bool *is_block_addressing)
 {
 	struct uniphier_mmc_cmd cmd = {0};
 	uint32_t csd40, csd72;	/* CSD[71:40], CSD[103:72] */
@@ -174,7 +175,10 @@ static int uniphier_emmc_is_over_2gb(uintptr_t host_base)
 	csd40 = mmio_read_32(host_base + SDHCI_RESPONSE + 4);
 	csd72 = mmio_read_32(host_base + SDHCI_RESPONSE + 8);
 
-	return !(~csd40 & 0xffc00380) && !(~csd72 & 0x3);
+	/* C_SIZE == 0xfff && C_SIZE_MULT == 0x7 ? */
+	*is_block_addressing = !(~csd40 & 0xffc00380) && !(~csd72 & 0x3);
+
+	return 0;
 }
 
 static int uniphier_emmc_load_image(uintptr_t host_base,
@@ -253,11 +257,10 @@ static int uniphier_emmc_hw_init(void)
 	while (mmio_read_8(host_base + SDHCI_SOFTWARE_RESET))
 		;
 
-	ret = uniphier_emmc_is_over_2gb(host_base);
-	if (ret < 0)
+	ret = uniphier_emmc_check_device_size(host_base,
+					      &uniphier_emmc_block_addressing);
+	if (ret)
 		return ret;
-
-	uniphier_emmc_block_addressing = ret;
 
 	cmd.cmdarg = UNIPHIER_EMMC_RCA << 16;
 
