@@ -31,6 +31,6 @@ void tsp_platform_setup(void)
 
 void tsp_plat_arch_setup(void)
 {
-	uniphier_mmap_setup();
+	uniphier_mmap_setup(uniphier_soc);
 	enable_mmu_el1(0);
 }

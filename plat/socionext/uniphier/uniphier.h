@@ -57,7 +57,7 @@ void uniphier_scp_open_com(void);
 void uniphier_scp_system_off(void);
 void uniphier_scp_system_reset(void);
 
-void uniphier_mmap_setup(void);
+void uniphier_mmap_setup(unsigned int soc);
 
 void uniphier_cci_init(unsigned int soc);
 void uniphier_cci_enable(void);

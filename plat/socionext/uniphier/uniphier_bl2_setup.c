@@ -43,7 +43,7 @@ void bl2_el3_plat_arch_setup(void)
 	int skip_scp = 0;
 	int ret;
 
-	uniphier_mmap_setup();
+	uniphier_mmap_setup(uniphier_soc);
 	enable_mmu_el3(0);
 
 	/* add relocation offset (run-time-address - link-address) */
