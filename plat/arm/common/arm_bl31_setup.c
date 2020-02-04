@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -56,6 +56,14 @@ IMPORT_SYM(unsigned long, __INIT_CODE_END__, BL_INIT_CODE_END);
 					MT_CODE | MT_SECURE)
 #endif
 
+#if SEPARATE_NOBITS_REGION
+#define MAP_BL31_NOBITS		MAP_REGION_FLAT(			\
+					BL31_NOBITS_BASE,		\
+					BL31_NOBITS_LIMIT 		\
+						- BL31_NOBITS_BASE,	\
+					MT_MEMORY | MT_RW | MT_SECURE)
+
+#endif
 /*******************************************************************************
  * Return a pointer to the 'entry_point_info' structure of the next image for the
  * security state specified. BL33 corresponds to the non-secure image type
@@ -294,6 +302,9 @@ void __init arm_bl31_plat_arch_setup(void)
 		MAP_BL31_TOTAL,
 #if RECLAIM_INIT_CODE
 		MAP_BL_INIT_CODE,
+#endif
+#if SEPARATE_NOBITS_REGION
+		MAP_BL31_NOBITS,
 #endif
 		ARM_MAP_BL_RO,
 #if USE_ROMLIB
