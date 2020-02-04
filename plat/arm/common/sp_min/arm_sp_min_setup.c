@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,7 +11,6 @@
 #include <bl32/sp_min/platform_sp_min.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
-#include <drivers/arm/pl011.h>
 #include <drivers/console.h>
 #include <lib/mmio.h>
 #include <plat/arm/common/plat_arm.h>

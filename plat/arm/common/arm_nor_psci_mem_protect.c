@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,7 +9,6 @@
 #include <common/debug.h>
 #include <drivers/cfi/v2m_flash.h>
 #include <lib/psci/psci.h>
-#include <lib/mmio.h>
 #include <lib/utils.h>
 #include <plat/arm/common/plat_arm.h>
 

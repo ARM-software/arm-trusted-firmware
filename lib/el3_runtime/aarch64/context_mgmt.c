@@ -23,8 +23,6 @@
 #include <lib/extensions/spe.h>
 #include <lib/extensions/sve.h>
 #include <lib/utils.h>
-#include <plat/common/platform.h>
-#include <smccc_helpers.h>
 
 
 /*******************************************************************************

@@ -1,12 +1,11 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <platform_def.h>
 
-#include <bl1/bl1.h>
 #include <bl1/tbbr/tbbr_img_desc.h>
 #include <common/bl_common.h>
 

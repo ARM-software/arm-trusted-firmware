@@ -1,15 +1,12 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
-#include <errno.h>
 
-#include <arch_helpers.h>
 #include <common/debug.h>
-#include <common/desc_image_load.h>
 #include <lib/optee_utils.h>
 
 /*
