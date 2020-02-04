@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,7 +19,8 @@
  * When booting an EL3 payload, this is simplified: we configure region 0 with
  * secure access only and do not enable any other region.
  ******************************************************************************/
-void arm_tzc400_setup(const arm_tzc_regions_info_t *tzc_regions)
+void arm_tzc400_setup(uintptr_t tzc_base,
+			const arm_tzc_regions_info_t *tzc_regions)
 {
 #ifndef EL3_PAYLOAD_BASE
 	unsigned int region_index = 1U;
@@ -32,7 +33,7 @@ void arm_tzc400_setup(const arm_tzc_regions_info_t *tzc_regions)
 
 	INFO("Configuring TrustZone Controller\n");
 
-	tzc400_init(PLAT_ARM_TZC_BASE);
+	tzc400_init(tzc_base);
 
 	/* Disable filters. */
 	tzc400_disable_filters();
@@ -74,5 +75,5 @@ void arm_tzc400_setup(const arm_tzc_regions_info_t *tzc_regions)
 
 void plat_arm_security_setup(void)
 {
-	arm_tzc400_setup(NULL);
+	arm_tzc400_setup(PLAT_ARM_TZC_BASE, NULL);
 }
