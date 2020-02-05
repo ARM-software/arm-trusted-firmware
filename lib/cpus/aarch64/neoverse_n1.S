@@ -22,6 +22,19 @@
 #endif
 
 	.global neoverse_n1_errata_ic_trap_handler
+	.global is_scu_present_in_dsu
+
+/*
+ * Check DSU is configured with SCU and L3 unit
+ * 1-> SCU present
+ * 0-> SCU not present
+ */
+func is_scu_present_in_dsu
+	mrs	x0, CPUCFR_EL1
+	ubfx	x0, x0, #SCU_SHIFT, #1
+	eor	x0, x0, #1
+	ret
+endfunc is_scu_present_in_dsu
 
 /* --------------------------------------------------
  * Errata Workaround for Neoverse N1 Erratum 1043202.
