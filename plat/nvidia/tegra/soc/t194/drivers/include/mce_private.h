@@ -56,6 +56,7 @@ int32_t nvg_update_ccplex_gsc(uint32_t gsc_idx);
 int32_t nvg_enter_cstate(uint32_t state, uint32_t wake_time);
 int32_t nvg_roc_clean_cache_trbits(void);
 void nvg_enable_strict_checking_mode(void);
+void nvg_verify_strict_checking_mode(void);
 void nvg_system_shutdown(void);
 void nvg_system_reboot(void);
 void nvg_clear_hsm_corr_status(void);
@@ -70,6 +71,7 @@ uint64_t nvg_cache_inval_all(void);
 
 /* MCE helper functions */
 void mce_enable_strict_checking(void);
+void mce_verify_strict_checking(void);
 void mce_system_shutdown(void);
 void mce_system_reboot(void);
 void mce_clear_hsm_corr_status(void);

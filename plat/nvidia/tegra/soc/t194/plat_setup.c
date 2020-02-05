@@ -406,6 +406,7 @@ void plat_late_platform_setup(void)
 	 * enabling TZSRAM and TZDRAM
 	 */
 	mce_enable_strict_checking();
+	mce_verify_strict_checking();
 #endif
 }
 
