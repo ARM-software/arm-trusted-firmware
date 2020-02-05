@@ -16,8 +16,12 @@
 #include <plat/common/common_def.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
-#include <tools_share/tbbr_oid.h>
 
+#if defined(ARM_COT_tbbr)
+#include <tools_share/tbbr_oid.h>
+#elif defined(ARM_COT_dualroot)
+#include <tools_share/dualroot_oid.h>
+#endif
 
 #if !ARM_CRYPTOCELL_INTEG
 #if !ARM_ROTPK_LOCATION_ID
@@ -108,10 +112,10 @@ int arm_get_rotpk_info_cc(void **key_ptr, unsigned int *key_len,
 #endif
 
 /*
- * Wraper function for most Arm platforms to get ROTPK hash.
+ * Wrapper function for most Arm platforms to get ROTPK hash.
  */
-int arm_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
-			unsigned int *flags)
+static int get_rotpk_info(void **key_ptr, unsigned int *key_len,
+				unsigned int *flags)
 {
 #if ARM_CRYPTOCELL_INTEG
 	return arm_get_rotpk_info_cc(key_ptr, key_len, flags);
@@ -125,9 +129,43 @@ int arm_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 #else
 	return 1;
 #endif
-
 #endif /* ARM_CRYPTOCELL_INTEG */
 }
+
+#if defined(ARM_COT_tbbr)
+
+int arm_get_rotpk_info(void *cookie __unused, void **key_ptr,
+		       unsigned int *key_len, unsigned int *flags)
+{
+	return get_rotpk_info(key_ptr, key_len, flags);
+}
+
+#elif defined(ARM_COT_dualroot)
+
+int arm_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
+		       unsigned int *flags)
+{
+	/*
+	 * Return the right root of trust key hash based on the cookie value:
+	 *  - NULL means the primary ROTPK.
+	 *  - Otherwise, interpret cookie as the OID of the certificate
+	 *    extension containing the key.
+	 */
+	if (cookie == NULL) {
+		return get_rotpk_info(key_ptr, key_len, flags);
+	} else if (strcmp(cookie, PROT_PK_OID) == 0) {
+		extern unsigned char arm_protpk_hash[];
+		extern unsigned char arm_protpk_hash_end[];
+		*key_ptr = arm_protpk_hash;
+		*key_len = arm_protpk_hash_end - arm_protpk_hash;
+		*flags = ROTPK_IS_HASH;
+		return 0;
+	} else {
+		/* Invalid key ID. */
+		return 1;
+	}
+}
+#endif
 
 /*
  * Return the non-volatile counter value stored in the platform. The cookie
