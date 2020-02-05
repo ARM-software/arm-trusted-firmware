@@ -653,15 +653,17 @@ static void stm32mp1_clk_unlock(struct spinlock *lock)
 bool stm32mp1_rcc_is_secure(void)
 {
 	uintptr_t rcc_base = stm32mp_rcc_base();
+	uint32_t mask = RCC_TZCR_TZEN;
 
-	return (mmio_read_32(rcc_base + RCC_TZCR) & RCC_TZCR_TZEN) != 0;
+	return (mmio_read_32(rcc_base + RCC_TZCR) & mask) == mask;
 }
 
 bool stm32mp1_rcc_is_mckprot(void)
 {
 	uintptr_t rcc_base = stm32mp_rcc_base();
+	uint32_t mask = RCC_TZCR_TZEN | RCC_TZCR_MCKPROT;
 
-	return (mmio_read_32(rcc_base + RCC_TZCR) & RCC_TZCR_MCKPROT) != 0;
+	return (mmio_read_32(rcc_base + RCC_TZCR) & mask) == mask;
 }
 
 void stm32mp1_clk_rcc_regs_lock(void)
