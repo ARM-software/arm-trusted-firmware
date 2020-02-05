@@ -15,8 +15,8 @@
 #include <t194_nvg.h>
 #include <tegra_private.h>
 
-#define	ID_AFR0_EL1_CACHE_OPS_SHIFT	12
-#define	ID_AFR0_EL1_CACHE_OPS_MASK	0xFU
+#define	ID_AFR0_EL1_CACHE_OPS_SHIFT	U(12)
+#define	ID_AFR0_EL1_CACHE_OPS_MASK	U(0xF)
 /*
  * Reports the major and minor version of this interface.
  *
@@ -209,7 +209,7 @@ void nvg_enable_strict_checking_mode(void)
 	uint64_t params = (uint64_t)(STRICT_CHECKING_ENABLED_SET |
 				     STRICT_CHECKING_LOCKED_SET);
 
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_SECURITY_CONFIG, params);
+	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_SECURITY_CONFIG, params);
 }
 #endif
 
@@ -221,7 +221,8 @@ void nvg_enable_strict_checking_mode(void)
 void nvg_system_reboot(void)
 {
 	/* issue command for reboot */
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_SHUTDOWN, TEGRA_NVG_REBOOT);
+	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_SHUTDOWN,
+			     (uint64_t)TEGRA_NVG_REBOOT);
 }
 
 /*
@@ -232,5 +233,6 @@ void nvg_system_reboot(void)
 void nvg_system_shutdown(void)
 {
 	/* issue command for shutdown */
-	nvg_set_request_data(TEGRA_NVG_CHANNEL_SHUTDOWN, TEGRA_NVG_SHUTDOWN);
+	nvg_set_request_data((uint64_t)TEGRA_NVG_CHANNEL_SHUTDOWN,
+			     (uint64_t)TEGRA_NVG_SHUTDOWN);
 }

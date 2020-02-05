@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2017, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2017-2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef IVC_H
-#define IVC_H
+#ifndef BPMP_IVC_H
+#define BPMP_IVC_H
 
 #include <lib/utils_def.h>
 #include <stdint.h>
@@ -15,21 +15,20 @@
 #define IVC_CHHDR_TX_FIELDS	U(16)
 #define IVC_CHHDR_RX_FIELDS	U(16)
 
-struct ivc;
 struct ivc_channel_header;
-
-/* callback handler for notify on receiving a response */
-typedef void (* ivc_notify_function)(const struct ivc *);
 
 struct ivc {
 	struct ivc_channel_header *rx_channel;
 	struct ivc_channel_header *tx_channel;
 	uint32_t w_pos;
 	uint32_t r_pos;
-	ivc_notify_function notify;
+	void (*notify)(const struct ivc *);
 	uint32_t nframes;
 	uint32_t frame_size;
 };
+
+/* callback handler for notify on receiving a response */
+typedef void (* ivc_notify_function)(const struct ivc *);
 
 int32_t tegra_ivc_init(struct ivc *ivc, uintptr_t rx_base, uintptr_t tx_base,
 		uint32_t nframes, uint32_t frame_size,
@@ -48,4 +47,4 @@ bool tegra_ivc_tx_empty(const struct ivc *ivc);
 bool tegra_ivc_can_write(const struct ivc *ivc);
 bool tegra_ivc_can_read(const struct ivc *ivc);
 
-#endif /* IVC_H */
+#endif /* BPMP_IVC_H */

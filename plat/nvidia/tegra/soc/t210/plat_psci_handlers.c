@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -182,6 +183,12 @@ plat_local_state_t tegra_soc_get_target_pwr_state(unsigned int lvl,
 	}
 
 	return target;
+}
+
+int32_t tegra_soc_cpu_standby(plat_local_state_t cpu_state)
+{
+	(void)cpu_state;
+	return PSCI_E_SUCCESS;
 }
 
 int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
@@ -412,6 +419,11 @@ int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
 	return PSCI_E_SUCCESS;
 }
 
+int32_t tegra_soc_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_state)
+{
+	return PSCI_E_NOT_SUPPORTED;
+}
+
 int tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
 	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
@@ -567,5 +579,16 @@ int tegra_soc_prepare_system_reset(void)
 	/* Wait 1 ms to make sure clock source/device logic is stabilized. */
 	mdelay(1);
 
+	/*
+	 * Program the PMC in order to restart the system.
+	 */
+	tegra_pmc_system_reset();
+
 	return PSCI_E_SUCCESS;
+}
+
+__dead2 void tegra_soc_prepare_system_off(void)
+{
+	ERROR("Tegra System Off: operation not handled.\n");
+	panic();
 }

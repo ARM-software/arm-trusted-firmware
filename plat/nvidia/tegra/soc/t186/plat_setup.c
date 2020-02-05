@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -191,6 +192,14 @@ void plat_early_platform_setup(void)
 		val |= CORTEX_A57_L2_ECC_PARITY_PROTECTION_BIT;
 		write_l2ctlr_el1(val);
 	}
+}
+
+/*******************************************************************************
+ * Handler for late platform setup
+ ******************************************************************************/
+void plat_late_platform_setup(void)
+{
+	; /* do nothing */
 }
 
 /* Secure IRQs for Tegra186 */

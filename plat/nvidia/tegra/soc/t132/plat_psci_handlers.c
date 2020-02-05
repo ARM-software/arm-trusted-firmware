@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,6 +35,30 @@
 #define SCLK_BURST_POLICY_DEFAULT	0x10000000
 
 static int cpu_powergate_mask[PLATFORM_MAX_CPUS_PER_CLUSTER];
+
+plat_local_state_t tegra_soc_get_target_pwr_state(uint32_t lvl,
+					     const plat_local_state_t *states,
+					     uint32_t ncpu)
+{
+	plat_local_state_t target = PLAT_MAX_OFF_STATE, temp;
+	uint32_t num_cpu = ncpu;
+	const plat_local_state_t *local_state = states;
+
+	(void)lvl;
+
+	assert(ncpu != 0U);
+
+	do {
+		temp = *local_state;
+		if ((temp < target)) {
+			target = temp;
+		}
+		--num_cpu;
+		local_state++;
+	} while (num_cpu != 0U);
+
+	return target;
+}
 
 int32_t tegra_soc_validate_power_state(unsigned int power_state,
 					psci_power_state_t *req_state)
@@ -112,6 +137,12 @@ int tegra_soc_pwr_domain_off(const psci_power_state_t *target_state)
 	return PSCI_E_SUCCESS;
 }
 
+int32_t tegra_soc_cpu_standby(plat_local_state_t cpu_state)
+{
+	(void)cpu_state;
+	return PSCI_E_SUCCESS;
+}
+
 int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
 	uint64_t val;
@@ -139,6 +170,16 @@ int tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	return PSCI_E_SUCCESS;
 }
 
+int32_t tegra_soc_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_state)
+{
+	return PSCI_E_NOT_SUPPORTED;
+}
+
+int tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_state)
+{
+	return PSCI_E_SUCCESS;
+}
+
 int tegra_soc_prepare_system_reset(void)
 {
 	/*
@@ -152,5 +193,16 @@ int tegra_soc_prepare_system_reset(void)
 	/* Wait 1 ms to make sure clock source/device logic is stabilized. */
 	mdelay(1);
 
+	/*
+	 * Program the PMC in order to restart the system.
+	 */
+	tegra_pmc_system_reset();
+
 	return PSCI_E_SUCCESS;
+}
+
+__dead2 void tegra_soc_prepare_system_off(void)
+{
+	ERROR("Tegra System Off: operation not handled.\n");
+	panic();
 }

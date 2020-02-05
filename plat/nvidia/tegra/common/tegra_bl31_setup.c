@@ -65,35 +65,6 @@ static aapcs64_params_t bl32_args;
 extern uint64_t ns_image_entrypoint;
 
 /*******************************************************************************
- * The following platform setup functions are weakly defined. They
- * provide typical implementations that will be overridden by a SoC.
- ******************************************************************************/
-#pragma weak plat_early_platform_setup
-#pragma weak plat_get_bl31_params
-#pragma weak plat_get_bl31_plat_params
-#pragma weak plat_late_platform_setup
-
-void plat_early_platform_setup(void)
-{
-	; /* do nothing */
-}
-
-struct tegra_bl31_params *plat_get_bl31_params(void)
-{
-	return NULL;
-}
-
-plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
-{
-	return NULL;
-}
-
-void plat_late_platform_setup(void)
-{
-	; /* do nothing */
-}
-
-/*******************************************************************************
  * Return a pointer to the 'entry_point_info' structure of the next image for
  * security state specified. BL33 corresponds to the non-secure image type
  * while BL32 corresponds to the secure image type.
@@ -137,8 +108,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/*
 	 * For RESET_TO_BL31 systems, BL31 is the first bootloader to run so
 	 * there's no argument to relay from a previous bootloader. Platforms
-	 * might use custom ways to get arguments, so provide handlers which
-	 * they can override.
+	 * might use custom ways to get arguments.
 	 */
 	if (arg_from_bl2 == NULL) {
 		arg_from_bl2 = plat_get_bl31_params();

@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -33,6 +34,7 @@ BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S		\
 				${COMMON_DIR}/drivers/bpmp/bpmp.c		\
 				${COMMON_DIR}/drivers/flowctrl/flowctrl.c	\
 				${COMMON_DIR}/drivers/memctrl/memctrl_v1.c	\
+				${COMMON_DIR}/drivers/pmc/pmc.c			\
 				${SOC_DIR}/plat_psci_handlers.c			\
 				${SOC_DIR}/plat_setup.c				\
 				${SOC_DIR}/drivers/se/security_engine.c		\

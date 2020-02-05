@@ -25,7 +25,6 @@ BL31_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
 				plat/common/aarch64/crash_console_helpers.S	\
 				${TEGRA_GICv2_SOURCES}				\
 				${COMMON_DIR}/aarch64/tegra_helpers.S		\
-				${COMMON_DIR}/drivers/pmc/pmc.c			\
 				${COMMON_DIR}/lib/debug/profiler.c		\
 				${COMMON_DIR}/tegra_bl31_setup.c		\
 				${COMMON_DIR}/tegra_delay_timer.c		\
