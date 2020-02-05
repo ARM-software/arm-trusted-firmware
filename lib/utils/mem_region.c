@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,7 +32,7 @@ void clear_mem_regions(mem_region_t *tbl, size_t nregions)
 {
 	size_t i;
 
-	assert(tbl);
+	assert(tbl != NULL);
 	assert(nregions > 0);
 
 	for (i = 0; i < nregions; i++) {
@@ -114,7 +114,7 @@ int mem_region_in_array_chk(mem_region_t *tbl, size_t nregions,
 	uintptr_t region_start, region_end, start, end;
 	size_t i;
 
-	assert(tbl);
+	assert(tbl != NULL);
 	assert(nbytes > 0);
 	assert(!check_uptr_overflow(addr, nbytes-1));
 
