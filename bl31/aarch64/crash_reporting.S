@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -244,6 +244,11 @@ func do_crash_reporting
 	mrs	x0, tpidr_el3
 	/* report x30 first from the crash buf */
 	ldr	x4, [x0, #REGSZ * 7]
+
+#if ENABLE_PAUTH
+	/* Demangle address */
+	xpaci	x4
+#endif
 	bl	asm_print_hex
 	bl	asm_print_newline
 	/* Load the crash buf address */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -67,6 +67,13 @@ static inline void write_ ## _name(u_register_t v)			\
 static inline void _op(void)				\
 {							\
 	__asm__ (#_op);					\
+}
+
+/* Define function for system instruction with register parameter */
+#define DEFINE_SYSOP_PARAM_FUNC(_op)			\
+static inline void _op(uint64_t v)			\
+{							\
+	 __asm__ (#_op "  %0" : : "r" (v));		\
 }
 
 /* Define function for system instruction with type specifier */
@@ -210,6 +217,11 @@ DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s12e0w)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s1e1r)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s1e2r)
 DEFINE_SYSOP_TYPE_PARAM_FUNC(at, s1e3r)
+
+/*******************************************************************************
+ * Strip Pointer Authentication Code
+ ******************************************************************************/
+DEFINE_SYSOP_PARAM_FUNC(xpaci)
 
 void flush_dcache_range(uintptr_t addr, size_t size);
 void clean_dcache_range(uintptr_t addr, size_t size);

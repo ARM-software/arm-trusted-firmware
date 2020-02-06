@@ -189,7 +189,7 @@ Common build options
    that is only required for the assertion and does not fit in the assertion
    itself.
 
--  ``ENABLE_BACKTRACE``: This option controls whether to enables backtrace
+-  ``ENABLE_BACKTRACE``: This option controls whether to enable backtrace
    dumps or not. It is supported in both AArch64 and AArch32. However, in
    AArch32 the format of the frame records are not defined in the AAPCS and they
    are defined by the implementation. This implementation of backtrace only
