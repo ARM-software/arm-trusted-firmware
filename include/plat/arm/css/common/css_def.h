@@ -189,9 +189,6 @@
 /* Load address of Non-Secure Image for CSS platform ports */
 #define PLAT_ARM_NS_IMAGE_BASE		U(0xE0000000)
 
-/* TZC related constants */
-#define PLAT_ARM_TZC_FILTERS		TZC_400_REGION_ATTR_FILTER_BIT_ALL
-
 /*
  * Parsing of CPU and Cluster states, as returned by 'Get CSS Power State' SCP
  * command

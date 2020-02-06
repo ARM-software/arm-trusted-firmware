@@ -212,6 +212,9 @@
 		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_GPU)	|	\
 		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CORESIGHT))
 
+/* TZC related constants */
+#define PLAT_ARM_TZC_FILTERS		TZC_400_REGION_ATTR_FILTER_BIT_ALL
+
 /*
  * Required ARM CSS based platform porting definitions
  */
