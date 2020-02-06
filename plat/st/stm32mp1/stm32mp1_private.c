@@ -444,6 +444,10 @@ void stm32mp_print_boardinfo(void)
 /* Return true when SoC provides a single Cortex-A7 core, and false otherwise */
 bool stm32mp_is_single_core(void)
 {
+#if STM32MP13
+	return true;
+#endif
+#if STM32MP15
 	bool single_core = false;
 
 	switch (get_part_number()) {
@@ -458,6 +462,7 @@ bool stm32mp_is_single_core(void)
 	}
 
 	return single_core;
+#endif
 }
 
 /* Return true when device is in closed state */
