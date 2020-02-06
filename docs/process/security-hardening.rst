@@ -1,9 +1,29 @@
-Security hardening
-==================
+Secure Development Guidelines
+=============================
 
 This page contains guidance on what to check for additional security measures,
 including build options that can be modified to improve security or catch issues
 early in development.
+
+Security considerations
+-----------------------
+
+Part of the security of a platform is handling errors correctly, as described in
+the previous section. There are several other security considerations covered in
+this section.
+
+Do not leak secrets to the normal world
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The secure world **must not** leak secrets to the normal world, for example in
+response to an SMC.
+
+Handling Denial of Service attacks
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The secure world **should never** crash or become unusable due to receiving too
+many normal world requests (a *Denial of Service* or *DoS* attack). It should
+have a mechanism for throttling or ignoring normal world requests.
 
 Build options
 -------------
@@ -53,4 +73,4 @@ Several build options can be used to check for security issues. Refer to the
 
 --------------
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*

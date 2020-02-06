@@ -23,7 +23,7 @@ Making Changes
 
 -  Make commits of logical units. See these general `Git guidelines`_ for
    contributing to a project.
--  Follow the :ref:`Coding Style & Guidelines`.
+-  Follow the :ref:`Coding Style` and :ref:`Coding Guidelines`.
 
    -  Use the checkpatch.pl script provided with the Linux source tree. A
       Makefile target is provided for convenience.
@@ -128,7 +128,7 @@ Binary Components
 
 --------------
 
-*Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.*
 
 .. _developer.trustedfirmware.org: https://developer.trustedfirmware.org
 .. _issue: https://developer.trustedfirmware.org/project/board/1/

@@ -2763,6 +2763,19 @@ build system.
    to ``no``. If any of the options ``EL3_PAYLOAD_BASE`` or ``PRELOADED_BL33_BASE``
    are used, this flag will be set to ``no`` automatically.
 
+Platform include paths
+----------------------
+
+Platforms are allowed to add more include paths to be passed to the compiler.
+The ``PLAT_INCLUDES`` variable is used for this purpose. This is needed in
+particular for the file ``platform_def.h``.
+
+Example:
+
+.. code:: c
+
+  PLAT_INCLUDES  += -Iinclude/plat/myplat/include
+
 C Library
 ---------
 
@@ -2844,7 +2857,7 @@ amount of open resources per driver.
 
 --------------
 
-*Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.*
 
 .. _PSCI: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _Arm Generic Interrupt Controller version 2.0 (GICv2): http://infocenter.arm.com/help/topic/com.arm.doc.ihi0048b/index.html
