@@ -467,7 +467,7 @@ SMCs from Non-secure world are synchronous exceptions, and are mechanisms for
 Non-secure world to request Secure services. They're broadly classified as
 *Fast* or *Yielding* (see `SMCCC`__).
 
-.. __: `http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html`
+.. __: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
 
 -  *Fast* SMCs are atomic from the caller's point of view. I.e., they return
    to the caller only when the Secure world has finished serving the request.
@@ -621,6 +621,6 @@ The |EHF| has the following limitations:
 
 --------------
 
-*Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.*
 
 .. _SDEI specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
