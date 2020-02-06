@@ -110,7 +110,7 @@ int arm_get_rotpk_info_cc(void **key_ptr, unsigned int *key_len,
 /*
  * Wraper function for most Arm platforms to get ROTPK hash.
  */
-int arm_get_rotpk_info(void **key_ptr, unsigned int *key_len,
+int arm_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 			unsigned int *flags)
 {
 #if ARM_CRYPTOCELL_INTEG
