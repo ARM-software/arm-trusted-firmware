@@ -11,6 +11,7 @@
 
 #include <common/debug.h>
 #include <common/fdt_wrappers.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <platform_def.h>
 #include <services/spm_core_manifest.h>
 
@@ -110,28 +111,75 @@ static int manifest_parse_root(spmc_manifest_attribute_t *manifest,
  * Platform handler to parse a SPM Core manifest.
  ******************************************************************************/
 int plat_spm_core_manifest_load(spmc_manifest_attribute_t *manifest,
-				const void *ptr,
-				size_t size)
+				const void *pm_addr)
 {
-	int rc;
+	int rc, unmap_ret;
+	uintptr_t pm_base, pm_base_align;
+	size_t mapped_size;
 
 	assert(manifest != NULL);
-	assert(ptr != NULL);
+	assert(pm_addr != NULL);
 
-	INFO("Reading SPM Core manifest at address %p\n", ptr);
+	/*
+	 * Assume TOS_FW_CONFIG is not necessarily aligned to a page
+	 * boundary, thus calculate the remaining space between SPMC
+	 * manifest start address and upper page limit.
+	 *
+	 */
+	pm_base = (uintptr_t)pm_addr;
+	pm_base_align = page_align(pm_base, UP);
+	mapped_size = pm_base_align - pm_base;
 
-	rc = fdt_check_header(ptr);
+	/* Check space within the page at least maps the FDT header */
+	if (mapped_size < sizeof(struct fdt_header)) {
+		ERROR("Error while mapping SPM Core manifest.\n");
+		return -EINVAL;
+	}
+
+	/* Map first SPMC manifest page in the SPMD translation regime */
+	pm_base_align = page_align(pm_base, DOWN);
+	rc = mmap_add_dynamic_region((unsigned long long)pm_base_align,
+				     pm_base_align,
+				     PAGE_SIZE,
+				     MT_RO_DATA);
 	if (rc != 0) {
-		ERROR("Wrong format for SPM Core manifest (%d).\n", rc);
+		ERROR("Error while mapping SPM Core manifest (%d).\n", rc);
 		return rc;
 	}
 
-	rc = fdt_node_offset_by_compatible(ptr, -1,
+	rc = fdt_check_header(pm_addr);
+	if (rc != 0) {
+		ERROR("Wrong format for SPM Core manifest (%d).\n", rc);
+		goto exit_unmap;
+	}
+
+	/* Check SPMC manifest fits within the upper mapped page boundary */
+	if (mapped_size < fdt_totalsize(pm_addr)) {
+		ERROR("SPM Core manifest too large.\n");
+		rc = -EINVAL;
+		goto exit_unmap;
+	}
+
+	VERBOSE("Reading SPM Core manifest at address %p\n", pm_addr);
+
+	rc = fdt_node_offset_by_compatible(pm_addr, -1,
 				"arm,spci-core-manifest-1.0");
 	if (rc < 0) {
 		ERROR("Unrecognized SPM Core manifest\n");
-		return rc;
+		goto exit_unmap;
 	}
 
-	return manifest_parse_root(manifest, ptr, rc);
+	rc = manifest_parse_root(manifest, pm_addr, rc);
+
+exit_unmap:
+	unmap_ret = mmap_remove_dynamic_region(pm_base_align, PAGE_SIZE);
+	if (unmap_ret != 0) {
+		ERROR("Error while unmapping SPM Core manifest (%d).\n",
+			unmap_ret);
+		if (rc == 0) {
+			rc = unmap_ret;
+		}
+	}
+
+	return rc;
 }

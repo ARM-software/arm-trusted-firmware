@@ -17,7 +17,6 @@
 #include <lib/smccc.h>
 #include <lib/spinlock.h>
 #include <lib/utils.h>
-#include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/common_def.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
@@ -56,8 +55,7 @@ spmd_spm_core_context_t *spmd_get_context(void)
  * Static function declaration.
  ******************************************************************************/
 static int32_t spmd_init(void);
-static int spmd_spmc_init(void *rd_base,
-			  size_t rd_size);
+static int spmd_spmc_init(void *pm_addr);
 static uint64_t spmd_spci_error_return(void *handle,
 				       int error_code);
 static uint64_t spmd_smc_forward(uint32_t smc_fid,
@@ -146,14 +144,14 @@ static int32_t spmd_init(void)
 /*******************************************************************************
  * Loads SPMC manifest and inits SPMC.
  ******************************************************************************/
-static int spmd_spmc_init(void *rd_base, size_t rd_size)
+static int spmd_spmc_init(void *pm_addr)
 {
 	spmd_spm_core_context_t *spm_ctx = spmd_get_context();
 	uint32_t ep_attr;
 	int rc;
 
 	/* Load the SPM Core manifest */
-	rc = plat_spm_core_manifest_load(&spmc_attrs, rd_base, rd_size);
+	rc = plat_spm_core_manifest_load(&spmc_attrs, pm_addr);
 	if (rc != 0) {
 		WARN("No or invalid SPM Core manifest image provided by BL2\n");
 		return rc;
@@ -170,7 +168,7 @@ static int spmd_spmc_init(void *rd_base, size_t rd_size)
 		return -EINVAL;
 	}
 
-	VERBOSE("SPCI version (%u.%u).\n", spmc_attrs.major_version,
+	VERBOSE("SPCI version (%u.%u)\n", spmc_attrs.major_version,
 	     spmc_attrs.minor_version);
 
 	VERBOSE("SPM Core run time EL%x.\n",
@@ -186,12 +184,13 @@ static int spmd_spmc_init(void *rd_base, size_t rd_size)
 	/* Validate the SPM Core execution state */
 	if ((spmc_attrs.exec_state != MODE_RW_64) &&
 	    (spmc_attrs.exec_state != MODE_RW_32)) {
-		WARN("Unsupported SPM Core execution state 0x%x.\n",
+		WARN("Unsupported %s%x.\n", "SPM Core execution state 0x",
 		     spmc_attrs.exec_state);
 		return -EINVAL;
 	}
 
-	VERBOSE("SPM Core execution state 0x%x.\n", spmc_attrs.exec_state);
+	VERBOSE("%s%x.\n", "SPM Core execution state 0x",
+		spmc_attrs.exec_state);
 
 #if SPMD_SPM_AT_SEL2
 	/* Ensure manifest has not requested AArch32 state in S-EL2 */
@@ -260,11 +259,8 @@ static int spmd_spmc_init(void *rd_base, size_t rd_size)
  ******************************************************************************/
 int spmd_setup(void)
 {
+	void *spmc_manifest;
 	int rc;
-	void *rd_base;
-	size_t rd_size;
-	uintptr_t rd_base_align;
-	uintptr_t rd_size_align;
 
 	spmc_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
 	if (spmc_ep_info == NULL) {
@@ -279,49 +275,19 @@ int spmd_setup(void)
 	 * Check if BL32 ep_info has a reference to 'tos_fw_config'. This will
 	 * be used as a manifest for the SPM Core at the next lower EL/mode.
 	 */
-	if (spmc_ep_info->args.arg0 == 0U || spmc_ep_info->args.arg2 == 0U) {
-		ERROR("Invalid or absent SPM core manifest\n");
-		panic();
-	}
-
-	/* Obtain whereabouts of SPM Core manifest */
-	rd_base = (void *) spmc_ep_info->args.arg0;
-	rd_size = spmc_ep_info->args.arg2;
-
-	rd_base_align = page_align((uintptr_t) rd_base, DOWN);
-	rd_size_align = page_align((uintptr_t) rd_size, UP);
-
-	/* Map the manifest in the SPMD translation regime first */
-	VERBOSE("SPM core manifest base : 0x%lx\n", rd_base_align);
-	VERBOSE("SPM core manifest size : 0x%lx\n", rd_size_align);
-	rc = mmap_add_dynamic_region((unsigned long long) rd_base_align,
-				     (uintptr_t) rd_base_align,
-				     rd_size_align,
-				     MT_RO_DATA);
-	if (rc != 0) {
-		ERROR("Error while mapping SPM core manifest (%d).\n", rc);
-		panic();
+	spmc_manifest = (void *)spmc_ep_info->args.arg0;
+	if (spmc_manifest == NULL) {
+		ERROR("Invalid or absent SPM Core manifest.\n");
+		return -EINVAL;
 	}
 
 	/* Load manifest, init SPMC */
-	rc = spmd_spmc_init(rd_base, rd_size);
+	rc = spmd_spmc_init(spmc_manifest);
 	if (rc != 0) {
-		int mmap_rc;
-
 		WARN("Booting device without SPM initialization.\n");
-
-		mmap_rc = mmap_remove_dynamic_region(rd_base_align,
-						     rd_size_align);
-		if (mmap_rc != 0) {
-			ERROR("Error while unmapping SPM core manifest (%d).\n",
-			      mmap_rc);
-			panic();
-		}
-
-		return rc;
 	}
 
-	return 0;
+	return rc;
 }
 
 /*******************************************************************************

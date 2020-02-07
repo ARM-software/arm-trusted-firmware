@@ -290,8 +290,7 @@ int plat_spm_sp_get_next_address(void **sp_base, size_t *sp_size,
 				 void **rd_base, size_t *rd_size);
 #if defined(SPD_spmd)
 int plat_spm_core_manifest_load(spmc_manifest_attribute_t *manifest,
-				const void *ptr,
-				size_t size);
+				const void *pm_addr);
 #endif
 /*******************************************************************************
  * Mandatory BL image load functions(may be overridden).
