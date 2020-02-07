@@ -15,6 +15,7 @@ ifeq (${ARM_ARCH_MAJOR},7)
 MARCH32_DIRECTIVE 	:= 	-mcpu=cortex-a15
 $(eval $(call add_define,ARMV7_SUPPORTS_LARGE_PAGE_ADDRESSING))
 $(eval $(call add_define,ARMV7_SUPPORTS_GENERIC_TIMER))
+$(eval $(call add_define,ARMV7_SUPPORTS_VFP))
 # Qemu expects a BL32 boot stage.
 NEED_BL32		:=	yes
 endif # ARMv7
