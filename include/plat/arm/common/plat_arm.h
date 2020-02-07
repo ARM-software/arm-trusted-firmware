@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -142,6 +142,11 @@ void arm_setup_romlib(void);
 #define STATE_SW_E_PARAM		(-2)
 #define STATE_SW_E_DENIED		(-3)
 
+/* plat_get_rotpk_info() flags */
+#define ARM_ROTPK_REGS_ID		1
+#define ARM_ROTPK_DEVEL_RSA_ID		2
+#define ARM_ROTPK_DEVEL_ECDSA_ID	3
+
 /* IO storage utility functions */
 void arm_io_setup(void);
 
@@ -255,9 +260,17 @@ int plat_arm_bl1_fwu_needed(void);
 __dead2 void plat_arm_error_handler(int err);
 
 /*
- * Optional function in ARM standard platforms
+ * Optional functions in ARM standard platforms
  */
 void plat_arm_override_gicr_frames(const uintptr_t *plat_gicr_frames);
+int arm_get_rotpk_info(void **key_ptr, unsigned int *key_len,
+	unsigned int *flags);
+int arm_get_rotpk_info_regs(void **key_ptr, unsigned int *key_len,
+	unsigned int *flags);
+int arm_get_rotpk_info_cc(void **key_ptr, unsigned int *key_len,
+	unsigned int *flags);
+int arm_get_rotpk_info_dev(void **key_ptr, unsigned int *key_len,
+	unsigned int *flags);
 
 #if ARM_PLAT_MT
 unsigned int plat_arm_get_cpu_pe_count(u_register_t mpidr);

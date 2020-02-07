@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,135 +8,125 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <common/debug.h>
+#include <drivers/arm/cryptocell/cc_rotpk.h>
+#include <drivers/delay_timer.h>
 #include <lib/cassert.h>
+#include <plat/arm/common/plat_arm.h>
+#include <plat/common/common_def.h>
 #include <plat/common/platform.h>
-#include <tools_share/tbbr_oid.h>
 #include <platform_def.h>
+#include <tools_share/tbbr_oid.h>
 
-/* SHA256 algorithm */
-#define SHA256_BYTES			32
 
-/* ROTPK locations */
-#define ARM_ROTPK_REGS_ID		1
-#define ARM_ROTPK_DEVEL_RSA_ID		2
-#define ARM_ROTPK_DEVEL_ECDSA_ID	3
-
-static const unsigned char rotpk_hash_hdr[] =		\
-		"\x30\x31\x30\x0D\x06\x09\x60\x86\x48"	\
-		"\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20";
-static const unsigned int rotpk_hash_hdr_len = sizeof(rotpk_hash_hdr) - 1;
-static unsigned char rotpk_hash_der[sizeof(rotpk_hash_hdr) - 1 + SHA256_BYTES];
-
-/* Use the cryptocell variants if Cryptocell is present */
 #if !ARM_CRYPTOCELL_INTEG
 #if !ARM_ROTPK_LOCATION_ID
   #error "ARM_ROTPK_LOCATION_ID not defined"
+#endif
 #endif
 
 /* Weak definition may be overridden in specific platform */
 #pragma weak plat_get_nv_ctr
 #pragma weak plat_set_nv_ctr
 
-#if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID)
-static const unsigned char arm_devel_rotpk_hash[] =	\
-		"\xB0\xF3\x82\x09\x12\x97\xD8\x3A"	\
-		"\x37\x7A\x72\x47\x1B\xEC\x32\x73"	\
-		"\xE9\x92\x32\xE2\x49\x59\xF6\x5E"	\
-		"\x8B\x4A\x4A\x46\xD8\x22\x9A\xDA";
-#elif (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID)
-static const unsigned char arm_devel_rotpk_hash[] =	\
-		"\x2E\x40\xBF\x6E\xF9\x12\xBB\x98"	\
-		"\x31\x71\x09\x0E\x1E\x15\x3D\x0B"	\
-		"\xFD\xD1\xCC\x69\x4A\x98\xEB\x8B"	\
-		"\xA0\xB0\x20\x86\x4E\x6C\x07\x17";
-#endif
+extern unsigned char arm_rotpk_header[], arm_rotpk_hash_end[];
+
+static unsigned char rotpk_hash_der[ARM_ROTPK_HEADER_LEN + ARM_ROTPK_HASH_LEN];
 
 /*
- * Return the ROTPK hash in the following ASN.1 structure in DER format:
- *
- * AlgorithmIdentifier  ::=  SEQUENCE  {
- *     algorithm         OBJECT IDENTIFIER,
- *     parameters        ANY DEFINED BY algorithm OPTIONAL
- * }
- *
- * DigestInfo ::= SEQUENCE {
- *     digestAlgorithm   AlgorithmIdentifier,
- *     digest            OCTET STRING
- * }
+ * Return the ROTPK hash stored in dedicated registers.
  */
-int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
+int arm_get_rotpk_info_regs(void **key_ptr, unsigned int *key_len,
 			unsigned int *flags)
 {
 	uint8_t *dst;
+	uint32_t *src, tmp;
+	unsigned int words, i;
 
 	assert(key_ptr != NULL);
 	assert(key_len != NULL);
 	assert(flags != NULL);
 
 	/* Copy the DER header */
-	memcpy(rotpk_hash_der, rotpk_hash_hdr, rotpk_hash_hdr_len);
-	dst = (uint8_t *)&rotpk_hash_der[rotpk_hash_hdr_len];
 
-#if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID) \
-	|| (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID)
-	memcpy(dst, arm_devel_rotpk_hash, SHA256_BYTES);
-#elif (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_REGS_ID)
-	uint32_t *src, tmp;
-	unsigned int words, i;
+	memcpy(rotpk_hash_der, arm_rotpk_header, ARM_ROTPK_HEADER_LEN);
+	dst = (uint8_t *)&rotpk_hash_der[ARM_ROTPK_HEADER_LEN];
 
-	/*
-	 * Append the hash from Trusted Root-Key Storage registers. The hash has
-	 * not been written linearly into the registers, so we have to do a bit
-	 * of byte swapping:
-	 *
-	 *     0x00    0x04    0x08    0x0C    0x10    0x14    0x18    0x1C
-	 * +---------------------------------------------------------------+
-	 * | Reg0  | Reg1  | Reg2  | Reg3  | Reg4  | Reg5  | Reg6  | Reg7  |
-	 * +---------------------------------------------------------------+
-	 *  | ...                    ... |   | ...                   ...  |
-	 *  |       +--------------------+   |                    +-------+
-	 *  |       |                        |                    |
-	 *  +----------------------------+   +----------------------------+
-	 *          |                    |                        |       |
-	 *  +-------+                    |   +--------------------+       |
-	 *  |                            |   |                            |
-	 *  v                            v   v                            v
-	 * +---------------------------------------------------------------+
-	 * |                               |                               |
-	 * +---------------------------------------------------------------+
-	 *  0                           15  16                           31
-	 *
-	 * Additionally, we have to access the registers in 32-bit words
-	 */
-	words = SHA256_BYTES >> 3;
+	words = ARM_ROTPK_HASH_LEN >> 2;
 
-	/* Swap bytes 0-15 (first four registers) */
 	src = (uint32_t *)TZ_PUB_KEY_HASH_BASE;
 	for (i = 0 ; i < words ; i++) {
 		tmp = src[words - 1 - i];
 		/* Words are read in little endian */
-		*dst++ = (uint8_t)((tmp >> 24) & 0xFF);
-		*dst++ = (uint8_t)((tmp >> 16) & 0xFF);
-		*dst++ = (uint8_t)((tmp >> 8) & 0xFF);
 		*dst++ = (uint8_t)(tmp & 0xFF);
-	}
-
-	/* Swap bytes 16-31 (last four registers) */
-	src = (uint32_t *)(TZ_PUB_KEY_HASH_BASE + SHA256_BYTES / 2);
-	for (i = 0 ; i < words ; i++) {
-		tmp = src[words - 1 - i];
-		*dst++ = (uint8_t)((tmp >> 24) & 0xFF);
-		*dst++ = (uint8_t)((tmp >> 16) & 0xFF);
 		*dst++ = (uint8_t)((tmp >> 8) & 0xFF);
-		*dst++ = (uint8_t)(tmp & 0xFF);
+		*dst++ = (uint8_t)((tmp >> 16) & 0xFF);
+		*dst++ = (uint8_t)((tmp >> 24) & 0xFF);
 	}
-#endif /* (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID) \
-		  || (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID) */
 
 	*key_ptr = (void *)rotpk_hash_der;
 	*key_len = (unsigned int)sizeof(rotpk_hash_der);
 	*flags = ROTPK_IS_HASH;
 	return 0;
+}
+
+#if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID) || \
+    (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID)
+/*
+ * Return development ROTPK hash generated from ROT_KEY.
+ */
+int arm_get_rotpk_info_dev(void **key_ptr, unsigned int *key_len,
+			unsigned int *flags)
+{
+	*key_ptr = arm_rotpk_header;
+	*key_len = arm_rotpk_hash_end - arm_rotpk_header;
+	*flags = ROTPK_IS_HASH;
+	return 0;
+}
+#endif
+
+#if ARM_CRYPTOCELL_INTEG
+/*
+ * Return ROTPK hash from CryptoCell.
+ */
+int arm_get_rotpk_info_cc(void **key_ptr, unsigned int *key_len,
+			unsigned int *flags)
+{
+	unsigned char *dst;
+
+	assert(key_ptr != NULL);
+	assert(key_len != NULL);
+	assert(flags != NULL);
+
+	/* Copy the DER header */
+	memcpy(rotpk_hash_der, arm_rotpk_header, ARM_ROTPK_HEADER_LEN);
+	dst = &rotpk_hash_der[ARM_ROTPK_HEADER_LEN];
+	*key_ptr = rotpk_hash_der;
+	*key_len = sizeof(rotpk_hash_der);
+	return cc_get_rotpk_hash(dst, ARM_ROTPK_HASH_LEN, flags);
+}
+#endif
+
+/*
+ * Wraper function for most Arm platforms to get ROTPK hash.
+ */
+int arm_get_rotpk_info(void **key_ptr, unsigned int *key_len,
+			unsigned int *flags)
+{
+#if ARM_CRYPTOCELL_INTEG
+	return arm_get_rotpk_info_cc(key_ptr, key_len, flags);
+#else
+
+#if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID) || \
+    (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID)
+	return arm_get_rotpk_info_dev(key_ptr, key_len, flags);
+#elif (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_REGS_ID)
+	return arm_get_rotpk_info_regs(key_ptr, key_len, flags);
+#else
+	return 1;
+#endif
+
+#endif /* ARM_CRYPTOCELL_INTEG */
 }
 
 /*
@@ -179,37 +169,3 @@ int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr)
 {
 	return 1;
 }
-#else /* ARM_CRYPTOCELL_INTEG */
-
-#include <drivers/arm/cryptocell/cc_rotpk.h>
-
-/*
- * Return the ROTPK hash in the following ASN.1 structure in DER format:
- *
- * AlgorithmIdentifier  ::=  SEQUENCE  {
- *     algorithm         OBJECT IDENTIFIER,
- *     parameters        ANY DEFINED BY algorithm OPTIONAL
- * }
- *
- * DigestInfo ::= SEQUENCE {
- *     digestAlgorithm   AlgorithmIdentifier,
- *     digest            OCTET STRING
- * }
- */
-int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
-			unsigned int *flags)
-{
-	unsigned char *dst;
-
-	assert(key_ptr != NULL);
-	assert(key_len != NULL);
-	assert(flags != NULL);
-
-	/* Copy the DER header */
-	memcpy(rotpk_hash_der, rotpk_hash_hdr, rotpk_hash_hdr_len);
-	dst = &rotpk_hash_der[rotpk_hash_hdr_len];
-	*key_ptr = rotpk_hash_der;
-	*key_len = sizeof(rotpk_hash_der);
-	return cc_get_rotpk_hash(dst, SHA256_BYTES, flags);
-}
-#endif /* ARM_CRYPTOCELL_INTEG */

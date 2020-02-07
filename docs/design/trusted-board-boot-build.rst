@@ -33,7 +33,7 @@ images with support for these features:
    -  ``GENERATE_COT=1``
 
    In the case of Arm platforms, the location of the ROTPK hash must also be
-   specified at build time. Two locations are currently supported (see
+   specified at build time. The following locations are currently supported (see
    ``ARM_ROTPK_LOCATION`` build option):
 
    -  ``ARM_ROTPK_LOCATION=regs``: the ROTPK hash is obtained from the Trusted
@@ -41,17 +41,16 @@ images with support for these features:
       registers are read-only. On FVP Base and Cortex models, the registers
       are read-only, but the value can be specified using the command line
       option ``bp.trusted_key_storage.public_key`` when launching the model.
-      On both Juno and FVP models, the default value corresponds to an
-      ECDSA-SECP256R1 public key hash, whose private part is not currently
-      available.
+      On Juno board, the default value corresponds to an ECDSA-SECP256R1 public
+      key hash, whose private part is not currently available.
 
-   -  ``ARM_ROTPK_LOCATION=devel_rsa``: use the ROTPK hash that is hardcoded
-      in the Arm platform port. The private/public RSA key pair may be
-      found in ``plat/arm/board/common/rotpk``.
+   -  ``ARM_ROTPK_LOCATION=devel_rsa``: use the default hash located in
+      plat/arm/board/common/rotpk/arm_rotpk_rsa_sha256.bin. Enforce generation
+      of the new hash if ROT_KEY is specified.
 
-   -  ``ARM_ROTPK_LOCATION=devel_ecdsa``: use the ROTPK hash that is hardcoded
-      in the Arm platform port. The private/public ECDSA key pair may be
-      found in ``plat/arm/board/common/rotpk``.
+   -  ``ARM_ROTPK_LOCATION=devel_ecdsa``: use the default hash located in
+      plat/arm/board/common/rotpk/arm_rotpk_ecdsa_sha256.bin. Enforce generation
+      of the new hash if ROT_KEY is specified.
 
    Example of command line using RSA development keys:
 
@@ -108,7 +107,7 @@ images with support for these features:
 
 --------------
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
 
 .. _mbed TLS Repository: https://github.com/ARMmbed/mbedtls.git
 .. _mbed TLS Security Center: https://tls.mbed.org/security
