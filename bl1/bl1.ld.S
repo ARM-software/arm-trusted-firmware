@@ -65,8 +65,13 @@ SECTIONS
          * No need to pad out the .rodata section to a page boundary. Next is
          * the .data section, which can mapped in ROM with the same memory
          * attributes as the .rodata section.
+         *
+         * Pad out to 16 bytes though as .data section needs to be 16 byte
+         * aligned and lld does not align the LMA to the aligment specified
+         * on the .data section.
          */
         __RODATA_END__ = .;
+         . = ALIGN(16);
     } >ROM
 #else
     ro . : {
@@ -92,6 +97,13 @@ SECTIONS
 
         *(.vectors)
         __RO_END__ = .;
+
+        /*
+         * Pad out to 16 bytes as .data section needs to be 16 byte aligned and
+         * lld does not align the LMA to the aligment specified on the .data
+         * section.
+         */
+         . = ALIGN(16);
     } >ROM
 #endif
 
