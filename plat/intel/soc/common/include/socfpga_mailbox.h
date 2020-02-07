@@ -73,6 +73,29 @@
 /* Mailbox REBOOT commands */
 #define MBOX_CMD_REBOOT_HPS		71
 
+/* Mailbox RSU commands */
+#define MBOX_GET_SUBPARTITION_TABLE	90
+#define MBOX_RSU_STATUS			91
+#define MBOX_RSU_UPDATE			92
+
+/* Mailbox RSU macros */
+#define RSU_VERSION_ACMF		BIT(8)
+#define RSU_VERSION_ACMF_MASK		0xff00
+
+/* HPS stage notify command */
+#define MBOX_HPS_STAGE_NOTIFY		93
+
+/* Execution states for HPS_STAGE_NOTIFY */
+#define HPS_EXECUTION_STATE_FSBL	0
+#define HPS_EXECUTION_STATE_SSBL	1
+#define HPS_EXECUTION_STATE_OS		2
+
+/* Mailbox reconfiguration commands */
+#define MBOX_CONFIG_STATUS		4
+#define MBOX_RECONFIG			6
+#define MBOX_RECONFIG_DATA		8
+#define MBOX_RECONFIG_STATUS		9
+
 /* Generic error handling */
 #define MBOX_TIMEOUT			-2047
 #define MBOX_NO_RESPONSE		-2
@@ -98,13 +121,6 @@
 #define MBOX_CFGSTAT_STATE_ERROR_BOOT_INFO		0xf0000007
 #define MBOX_CFGSTAT_STATE_ERROR_QSPI_ERROR		0xf0000008
 
-/* Mailbox reconfiguration commands */
-#define MBOX_CONFIG_STATUS	4
-#define MBOX_RECONFIG		6
-#define MBOX_RECONFIG_DATA	8
-#define MBOX_RECONFIG_STATUS	9
-
-
 void mailbox_set_int(int interrupt_input);
 int mailbox_init(void);
 void mailbox_set_qspi_close(void);
@@ -121,5 +137,10 @@ void mailbox_clear_response(void);
 
 uint32_t intel_mailbox_get_config_status(uint32_t cmd);
 int intel_mailbox_is_fpga_not_ready(void);
+
+int mailbox_rsu_get_spt_offset(uint32_t *resp_buf, uint32_t resp_buf_len);
+int mailbox_rsu_status(uint32_t *resp_buf, uint32_t resp_buf_len);
+int mailbox_rsu_update(uint32_t *flash_offset);
+int mailbox_hps_stage_notify(uint32_t execution_stage);
 
 #endif /* SOCFPGA_MBOX_H */

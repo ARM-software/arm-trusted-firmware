@@ -267,6 +267,55 @@ void mailbox_reset_cold(void)
 	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_REBOOT_HPS, 0, 0, 0, NULL, 0);
 }
 
+int mailbox_rsu_get_spt_offset(uint32_t *resp_buf, uint32_t resp_buf_len)
+{
+	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_GET_SUBPARTITION_TABLE,
+				NULL, 0, 0, (uint32_t *)resp_buf,
+				resp_buf_len);
+}
+
+struct rsu_status_info {
+	uint64_t current_image;
+	uint64_t fail_image;
+	uint32_t state;
+	uint32_t version;
+	uint32_t error_location;
+	uint32_t error_details;
+	uint32_t retry_counter;
+};
+
+int mailbox_rsu_status(uint32_t *resp_buf, uint32_t resp_buf_len)
+{
+	int ret;
+	struct rsu_status_info *info = (struct rsu_status_info *)resp_buf;
+
+	info->retry_counter = ~0;
+
+	ret = mailbox_send_cmd(MBOX_JOB_ID, MBOX_RSU_STATUS, NULL, 0, 0,
+			       (uint32_t *)resp_buf, resp_buf_len);
+
+	if (ret < 0)
+		return ret;
+
+	if (info->retry_counter != ~0)
+		if (!(info->version & RSU_VERSION_ACMF_MASK))
+			info->version |= RSU_VERSION_ACMF;
+
+	return ret;
+}
+
+int mailbox_rsu_update(uint32_t *flash_offset)
+{
+	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_RSU_UPDATE,
+				(uint32_t *)flash_offset, 2, 0, NULL, 0);
+}
+
+int mailbox_hps_stage_notify(uint32_t execution_stage)
+{
+	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_HPS_STAGE_NOTIFY,
+				&execution_stage, 1, 0, NULL, 0);
+}
+
 int mailbox_init(void)
 {
 	int status = 0;

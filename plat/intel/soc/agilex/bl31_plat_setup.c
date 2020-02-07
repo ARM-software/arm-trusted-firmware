@@ -14,6 +14,7 @@
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables.h>
 
+#include "socfpga_mailbox.h"
 #include "socfpga_private.h"
 
 static entry_point_info_t bl32_image_ep_info;
@@ -107,6 +108,8 @@ void bl31_platform_setup(void)
 	/* Signal secondary CPUs to jump to BL31 (BL2 = U-boot SPL) */
 	mmio_write_64(PLAT_CPU_RELEASE_ADDR,
 		(uint64_t)plat_secondary_cpus_bl31_entry);
+
+	mailbox_hps_stage_notify(HPS_EXECUTION_STATE_SSBL);
 }
 
 const mmap_region_t plat_agilex_mmap[] = {

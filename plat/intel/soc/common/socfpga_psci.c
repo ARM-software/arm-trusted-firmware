@@ -130,9 +130,14 @@ static void __dead2 socfpga_system_off(void)
 	panic();
 }
 
+extern uint64_t intel_rsu_update_address;
+
 static void __dead2 socfpga_system_reset(void)
 {
-	mailbox_reset_cold();
+	if (intel_rsu_update_address)
+		mailbox_rsu_update((uint32_t *)&intel_rsu_update_address);
+	else
+		mailbox_reset_cold();
 
 	while (1)
 		wfi();
