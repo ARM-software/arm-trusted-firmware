@@ -10,7 +10,7 @@
 #include <arch_helpers.h>
 
 #define VERSION_OF_RENESAS		"2.0.6"
-#define	VERSION_OF_RENESAS_MAXLEN	(128)
+#define VERSION_OF_RENESAS_MAXLEN	128
 
 extern const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN];
 
