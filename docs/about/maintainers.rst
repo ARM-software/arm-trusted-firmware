@@ -64,6 +64,14 @@ Amlogic Meson S905X2 (G12A) platform port
 :F: drivers/amlogic/g12a
 :F: plat/amlogic/g12a/
 
+Amlogic Meson A113D (AXG) platform port
+-----------------------------------------
+:M: Carlo Caione <ccaione@baylibre.com>
+:G: `carlocaione`_
+:F: docs/plat/meson-axg.rst
+:F: drivers/amlogic/axg
+:F: plat/amlogic/axg/
+
 Armv7-A architecture port
 -------------------------
 :M: Etienne Carriere <etienne.carriere@linaro.org>
