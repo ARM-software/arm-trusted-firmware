@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,7 +26,7 @@
 
 /* BL1 Service UUID */
 DEFINE_SVC_UUID2(bl1_svc_uid,
-	0xd46739fd, 0xcb72, 0x9a4d, 0xb5, 0x75,
+	U(0xd46739fd), 0xcb72, 0x9a4d, 0xb5, 0x75,
 	0x67, 0x15, 0xd6, 0xf4, 0xbb, 0x4a);
 
 static void bl1_load_bl2(void);
@@ -172,7 +172,7 @@ static void bl1_load_bl2(void)
 
 	/* Get the image descriptor */
 	image_desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
-	assert(image_desc);
+	assert(image_desc != NULL);
 
 	/* Get the image info */
 	image_info = &image_desc->image_info;
@@ -276,7 +276,7 @@ register_t bl1_smc_wrapper(uint32_t smc_fid,
 {
 	register_t x1, x2, x3, x4;
 
-	assert(handle);
+	assert(handle != NULL);
 
 	get_smc_params_from_ctx(handle, x1, x2, x3, x4);
 	return bl1_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle, flags);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,7 +69,7 @@ void bl1_prepare_next_image(unsigned int image_id)
 	security_state = GET_SECURITY_STATE(next_bl_ep->h.attr);
 
 	/* Setup the Secure/Non-Secure context if not done already. */
-	if (!cm_get_context(security_state))
+	if (cm_get_context(security_state) == NULL)
 		cm_set_context(&bl1_cpu_context[security_state], security_state);
 
 	/* Prepare the SPSR for the next BL image. */

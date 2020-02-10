@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -301,9 +301,9 @@ void bl31_params_parse_helper(u_register_t param,
 			image_info_t *bl33_image_info;
 		} *v1 = (void *)(uintptr_t)param;
 		assert(v1->h.type == PARAM_BL31);
-		if (bl32_ep_info_out)
+		if (bl32_ep_info_out != NULL)
 			*bl32_ep_info_out = *v1->bl32_ep_info;
-		if (bl33_ep_info_out)
+		if (bl33_ep_info_out != NULL)
 			*bl33_ep_info_out = *v1->bl33_ep_info;
 		return;
 	}
@@ -311,12 +311,12 @@ void bl31_params_parse_helper(u_register_t param,
 
 	assert(v2->h.version == PARAM_VERSION_2);
 	assert(v2->h.type == PARAM_BL_PARAMS);
-	for (node = v2->head; node; node = node->next_params_info) {
+	for (node = v2->head; node != NULL; node = node->next_params_info) {
 		if (node->image_id == BL32_IMAGE_ID)
-			if (bl32_ep_info_out)
+			if (bl32_ep_info_out != NULL)
 				*bl32_ep_info_out = *node->ep_info;
 		if (node->image_id == BL33_IMAGE_ID)
-			if (bl33_ep_info_out)
+			if (bl33_ep_info_out != NULL)
 				*bl33_ep_info_out = *node->ep_info;
 	}
 }

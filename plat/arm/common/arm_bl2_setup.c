@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -150,7 +150,7 @@ int arm_bl2_handle_post_image_load(unsigned int image_id)
 	bl_mem_params_node_t *pager_mem_params = NULL;
 	bl_mem_params_node_t *paged_mem_params = NULL;
 #endif
-	assert(bl_mem_params);
+	assert(bl_mem_params != NULL);
 
 	switch (image_id) {
 #ifdef __aarch64__

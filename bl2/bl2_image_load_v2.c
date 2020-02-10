@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,13 +35,13 @@ struct entry_point_info *bl2_load_images(void)
 	 * Get information about the images to load.
 	 */
 	bl2_load_info = plat_get_bl_image_load_info();
-	assert(bl2_load_info);
-	assert(bl2_load_info->head);
+	assert(bl2_load_info != NULL);
+	assert(bl2_load_info->head != NULL);
 	assert(bl2_load_info->h.type == PARAM_BL_LOAD_INFO);
 	assert(bl2_load_info->h.version >= VERSION_2);
 	bl2_node_info = bl2_load_info->head;
 
-	while (bl2_node_info) {
+	while (bl2_node_info != NULL) {
 		/*
 		 * Perform platform setup before loading the image,
 		 * if indicated in the image attributes AND if NOT
@@ -91,11 +91,11 @@ struct entry_point_info *bl2_load_images(void)
 	 * Get information to pass to the next image.
 	 */
 	bl2_to_next_bl_params = plat_get_next_bl_params();
-	assert(bl2_to_next_bl_params);
-	assert(bl2_to_next_bl_params->head);
+	assert(bl2_to_next_bl_params != NULL);
+	assert(bl2_to_next_bl_params->head != NULL);
 	assert(bl2_to_next_bl_params->h.type == PARAM_BL_PARAMS);
 	assert(bl2_to_next_bl_params->h.version >= VERSION_2);
-	assert(bl2_to_next_bl_params->head->ep_info);
+	assert(bl2_to_next_bl_params->head->ep_info != NULL);
 
 	/* Populate arg0 for the next BL image if not already provided */
 	if (bl2_to_next_bl_params->head->ep_info->args.arg0 == (u_register_t)0)
