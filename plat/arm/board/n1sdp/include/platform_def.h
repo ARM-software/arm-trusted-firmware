@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -90,7 +90,6 @@
 
 #define PLAT_ARM_NSTIMER_FRAME_ID		0
 #define PLAT_CSS_MHU_BASE			0x45000000
-#define PLAT_MHUV2_BASE				PLAT_CSS_MHU_BASE
 #define PLAT_MAX_PWR_LVL			2
 
 #define PLAT_ARM_G1S_IRQS			ARM_G1S_IRQS,			\
@@ -143,5 +142,8 @@
 /* Secure Watchdog Constants */
 #define SBSA_SECURE_WDOG_BASE			UL(0x2A480000)
 #define SBSA_SECURE_WDOG_TIMEOUT		UL(100)
+
+/* Number of SCMI channels on the platform */
+#define PLAT_ARM_SCMI_CHANNEL_COUNT		U(1)
 
 #endif /* PLATFORM_DEF_H */

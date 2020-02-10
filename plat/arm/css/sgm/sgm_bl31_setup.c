@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,7 +20,7 @@ static scmi_channel_plat_info_t sgm775_scmi_plat_info = {
 		.ring_doorbell = &mhu_ring_doorbell,
 };
 
-scmi_channel_plat_info_t *plat_css_get_scmi_info()
+scmi_channel_plat_info_t *plat_css_get_scmi_info(int channel_id)
 {
 	return &sgm775_scmi_plat_info;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,7 +20,8 @@ unsigned int plat_arm_sgi_get_config_id(void)
 
 unsigned int plat_arm_sgi_get_multi_chip_mode(void)
 {
-	return 0;
+	return (mmio_read_32(SID_REG_BASE + SID_NODE_ID_OFFSET) &
+			SID_MULTI_CHIP_MODE_MASK) >> SID_MULTI_CHIP_MODE_SHIFT;
 }
 
 void bl31_platform_setup(void)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 /dts-v1/;
 / {
 	/* compatible string */
-	compatible = "arm,rd-e1edge";
+	compatible = "arm,rd-daniel";
 
 	/*
 	 * Place holder for system-id node with default values. The
@@ -19,5 +19,4 @@
 		config-id = <0x0>;
 		multi-chip-mode = <0x0>;
 	};
-
 };

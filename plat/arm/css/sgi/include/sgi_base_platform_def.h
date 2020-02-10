@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,11 +17,15 @@
 #include <plat/arm/soc/common/soc_css_def.h>
 #include <plat/common/common_def.h>
 
-#define PLATFORM_CORE_COUNT		(PLAT_ARM_CLUSTER_COUNT *	\
-					CSS_SGI_MAX_CPUS_PER_CLUSTER * \
+#define PLATFORM_CORE_COUNT		(CSS_SGI_CHIP_COUNT *		\
+					PLAT_ARM_CLUSTER_COUNT *	\
+					CSS_SGI_MAX_CPUS_PER_CLUSTER *	\
 					CSS_SGI_MAX_PE_PER_CPU)
 
 #define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00040000	/* 256 KB */
+
+/* Remote chip address offset (4TB per chip) */
+#define CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n)	((ULL(1) << 42) * (n))
 
 /*
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
@@ -35,14 +39,14 @@
 #  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	10
 # else
 #  define PLAT_ARM_MMAP_ENTRIES		8
-#  define MAX_XLAT_TABLES		5
+#  define MAX_XLAT_TABLES		8
 # endif
 #elif defined(IMAGE_BL32)
 # define PLAT_ARM_MMAP_ENTRIES		8
 # define MAX_XLAT_TABLES		5
 #elif !USE_ROMLIB
 # define PLAT_ARM_MMAP_ENTRIES		11
-# define MAX_XLAT_TABLES		5
+# define MAX_XLAT_TABLES		7
 #else
 # define PLAT_ARM_MMAP_ENTRIES		12
 # define MAX_XLAT_TABLES		6
@@ -129,10 +133,29 @@
 					CSS_SGI_DEVICE_SIZE,	\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
-/* GIC related constants */
-#define PLAT_ARM_GICD_BASE		0x30000000
-#define PLAT_ARM_GICC_BASE		0x2C000000
-#define PLAT_ARM_GICR_BASE		0x300C0000
+#define ARM_MAP_SHARED_RAM_REMOTE_CHIP(n)					\
+			MAP_REGION_FLAT(					\
+				CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) +		\
+				ARM_SHARED_RAM_BASE,				\
+				ARM_SHARED_RAM_SIZE,				\
+				MT_MEMORY | MT_RW | MT_SECURE			\
+			)
+
+#define CSS_SGI_MAP_DEVICE_REMOTE_CHIP(n)					\
+			MAP_REGION_FLAT(					\
+				CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) +		\
+				CSS_SGI_DEVICE_BASE,				\
+				CSS_SGI_DEVICE_SIZE,				\
+				MT_DEVICE | MT_RW | MT_SECURE			\
+			)
+
+#define SOC_CSS_MAP_DEVICE_REMOTE_CHIP(n)					\
+			MAP_REGION_FLAT(					\
+				CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) +		\
+				SOC_CSS_DEVICE_BASE,				\
+				SOC_CSS_DEVICE_SIZE,				\
+				MT_DEVICE | MT_RW | MT_SECURE			\
+			)
 
 /* Map the secure region for access from S-EL0 */
 #define PLAT_ARM_SECURE_MAP_DEVICE	MAP_REGION_FLAT(	\
@@ -211,5 +234,8 @@
 /*Secure Watchdog Constants */
 #define SBSA_SECURE_WDOG_BASE		UL(0x2A480000)
 #define SBSA_SECURE_WDOG_TIMEOUT	UL(100)
+
+/* Number of SCMI channels on the platform */
+#define PLAT_ARM_SCMI_CHANNEL_COUNT	CSS_SGI_CHIP_COUNT
 
 #endif /* SGI_BASE_PLATFORM_DEF_H */

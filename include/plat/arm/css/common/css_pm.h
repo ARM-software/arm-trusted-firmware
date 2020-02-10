@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,5 +43,16 @@ int css_node_hw_state(u_register_t mpidr, unsigned int power_level);
  * a given index maps that core to an SCMI power domain.
  */
 extern const uint32_t plat_css_core_pos_to_scmi_dmn_id_map[];
+
+#define SCMI_DOMAIN_ID_MASK		U(0xFFFF)
+#define SCMI_CHANNEL_ID_MASK		U(0xFFFF)
+#define SCMI_CHANNEL_ID_SHIFT		U(16)
+
+#define SET_SCMI_CHANNEL_ID(n)		(((n) & SCMI_CHANNEL_ID_MASK) << \
+					 SCMI_CHANNEL_ID_SHIFT)
+#define SET_SCMI_DOMAIN_ID(n)		((n) & SCMI_DOMAIN_ID_MASK)
+#define GET_SCMI_CHANNEL_ID(n)		(((n) >> SCMI_CHANNEL_ID_SHIFT) & \
+					 SCMI_CHANNEL_ID_MASK)
+#define GET_SCMI_DOMAIN_ID(n)		((n) & SCMI_DOMAIN_ID_MASK)
 
 #endif /* CSS_PM_H */

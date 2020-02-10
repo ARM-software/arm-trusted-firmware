@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,13 +11,13 @@
 
 #include <lib/mmio.h>
 
-/* MHUv2 Base Address */
-#define MHUV2_BASE_ADDR		PLAT_MHUV2_BASE
+/* MHUv2 Frame Base Mask */
+#define MHU_V2_FRAME_BASE_MASK			UL(~0xFFF)
 
 /* MHUv2 Control Registers Offsets */
-#define MHU_V2_MSG_NO_CAP_OFFSET		0xF80
-#define MHU_V2_ACCESS_REQ_OFFSET		0xF88
-#define MHU_V2_ACCESS_READY_OFFSET		0xF8C
+#define MHU_V2_MSG_NO_CAP_OFFSET		UL(0xF80)
+#define MHU_V2_ACCESS_REQ_OFFSET		UL(0xF88)
+#define MHU_V2_ACCESS_READY_OFFSET		UL(0xF8C)
 
 #define SENDER_REG_STAT(_channel)	(0x20 * (_channel))
 #define SENDER_REG_SET(_channel)	((0x20 * (_channel)) + 0xC)
