@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -139,13 +139,13 @@
 # if TRUSTED_BOARD_BOOT
 #  define PLATFORM_STACK_SIZE		UL(0x1000)
 # else
-#  define PLATFORM_STACK_SIZE		UL(0x440)
+#  define PLATFORM_STACK_SIZE		UL(0x500)
 # endif
 #elif defined(IMAGE_BL2)
 # if TRUSTED_BOARD_BOOT
 #  define PLATFORM_STACK_SIZE		UL(0x1000)
 # else
-#  define PLATFORM_STACK_SIZE		UL(0x400)
+#  define PLATFORM_STACK_SIZE		UL(0x440)
 # endif
 #elif defined(IMAGE_BL2U)
 # define PLATFORM_STACK_SIZE		UL(0x400)
