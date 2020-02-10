@@ -252,12 +252,16 @@ static bool is_fpga_config_buffer_full(void)
 	return true;
 }
 
-static bool is_address_in_ddr_range(uint64_t addr)
+static bool is_address_in_ddr_range(uint64_t addr, uint64_t size)
 {
-	if (addr >= DRAM_BASE && addr <= DRAM_BASE + DRAM_SIZE)
-		return true;
+	if (size > (UINT64_MAX - addr))
+		return false;
+	if (addr < DRAM_BASE)
+		return false;
+	if (addr + size > DRAM_BASE + DRAM_SIZE)
+		return false;
 
-	return false;
+	return true;
 }
 
 static uint32_t intel_fpga_config_write(uint64_t mem, uint64_t size)
@@ -266,8 +270,7 @@ static uint32_t intel_fpga_config_write(uint64_t mem, uint64_t size)
 
 	intel_fpga_sdm_write_all();
 
-	if (!is_address_in_ddr_range(mem) ||
-		!is_address_in_ddr_range(mem + size) ||
+	if (!is_address_in_ddr_range(mem, size) ||
 		is_fpga_config_buffer_full())
 		return INTEL_SIP_SMC_STATUS_REJECTED;
 
@@ -406,11 +409,16 @@ static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args, int len,
 				    int resp_len, int *mbox_status,
 				    int *len_in_resp)
 {
+	*len_in_resp = 0;
+	*mbox_status = 0;
+
+	if (!is_address_in_ddr_range((uint64_t)args, sizeof(uint32_t) * len))
+		return INTEL_SIP_SMC_STATUS_REJECTED;
+
 	int status = mailbox_send_cmd(MBOX_JOB_ID, cmd, args, len, urgent,
 				      response, resp_len);
 
 	if (status < 0) {
-		*len_in_resp = 0;
 		*mbox_status = -status;
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
