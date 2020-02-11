@@ -17,7 +17,7 @@ ifneq (${ARM_CRYPTOCELL_INTEG}, 1)
 ifeq (${ARM_ROTPK_LOCATION}, regs)
 	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_REGS_ID
 else ifeq (${ARM_ROTPK_LOCATION}, devel_rsa)
-	KEY_ALG := rsa
+	CRYPTO_ALG=rsa
 	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_DEVEL_RSA_ID
 	ARM_ROTPK_HASH = plat/arm/board/common/rotpk/arm_rotpk_rsa_sha256.bin
 $(eval $(call add_define_val,ARM_ROTPK_HASH,'"$(ARM_ROTPK_HASH)"'))
@@ -25,7 +25,7 @@ $(BUILD_PLAT)/bl2/arm_dev_rotpk.o : $(ARM_ROTPK_HASH)
 $(warning Development keys support for FVP is deprecated. Use `regs` \
 option instead)
 else ifeq (${ARM_ROTPK_LOCATION}, devel_ecdsa)
-	KEY_ALG := ecdsa
+	CRYPTO_ALG=ec
 	ARM_ROTPK_LOCATION_ID = ARM_ROTPK_DEVEL_ECDSA_ID
 	ARM_ROTPK_HASH = plat/arm/board/common/rotpk/arm_rotpk_ecdsa_sha256.bin
 $(eval $(call add_define_val,ARM_ROTPK_HASH,'"$(ARM_ROTPK_HASH)"'))
@@ -50,7 +50,7 @@ $(ARM_ROTPK_HASH) : $(HASH_PREREQUISITES)
 ifndef ROT_KEY
 	$(error Cannot generate hash: no ROT_KEY defined)
 endif
-	openssl rsa -in $< -pubout -outform DER | openssl dgst \
+	openssl ${CRYPTO_ALG} -in $< -pubout -outform DER | openssl dgst \
 		-sha256 -binary > $@
 
 # Certificate NV-Counters. Use values corresponding to tied off values in
