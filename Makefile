@@ -418,11 +418,20 @@ ifdef EL3_PAYLOAD_BASE
         $(warning "SPD and EL3_PAYLOAD_BASE are incompatible build options.")
         $(warning "The SPD and its BL32 companion will be present but ignored.")
 endif
-        # We expect to locate an spd.mk under the specified SPD directory
-        SPD_MAKE	:=	$(wildcard services/spd/${SPD}/${SPD}.mk)
+	ifeq (${SPD},spmd)
+		# SPMD is located in std_svc directory
+		SPD_DIR := std_svc
+	else
+		# All other SPDs in spd directory
+		SPD_DIR := spd
+	endif
+
+	# We expect to locate an spd.mk under the specified SPD directory
+	SPD_MAKE	:=	$(wildcard services/${SPD_DIR}/${SPD}/${SPD}.mk)
+
 
         ifeq (${SPD_MAKE},)
-                $(error Error: No services/spd/${SPD}/${SPD}.mk located)
+                $(error Error: No services/${SPD_DIR}/${SPD}/${SPD}.mk located)
         endif
         $(info Including ${SPD_MAKE})
         include ${SPD_MAKE}

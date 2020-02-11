@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,9 @@
 #include <stdint.h>
 
 #include <lib/psci/psci.h>
+#if defined(SPD_spmd)
+ #include <services/spm_core_manifest.h>
+#endif
 
 /*******************************************************************************
  * Forward declarations
@@ -272,7 +275,11 @@ const struct spm_mm_boot_info *plat_get_secure_partition_boot_info(
 int plat_spm_sp_rd_load(struct sp_res_desc *rd, const void *ptr, size_t size);
 int plat_spm_sp_get_next_address(void **sp_base, size_t *sp_size,
 				 void **rd_base, size_t *rd_size);
-
+#if defined(SPD_spmd)
+int plat_spm_core_manifest_load(spmc_manifest_sect_attribute_t *manifest,
+				const void *ptr,
+				size_t size);
+#endif
 /*******************************************************************************
  * Mandatory BL image load functions(may be overridden).
  ******************************************************************************/

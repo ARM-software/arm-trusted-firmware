@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,7 @@
 #include <lib/runtime_instr.h>
 #include <services/sdei.h>
 #include <services/spm_mm_svc.h>
+#include <services/spmd_svc.h>
 #include <services/std_svc.h>
 #include <smccc_helpers.h>
 #include <tools_share/uuid.h>
@@ -47,6 +48,12 @@ static int32_t std_svc_setup(void)
 
 #if SPM_MM
 	if (spm_mm_setup() != 0) {
+		ret = 1;
+	}
+#endif
+
+#if defined(SPD_spmd)
+	if (spmd_setup() != 0) {
 		ret = 1;
 	}
 #endif
@@ -111,6 +118,17 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 	if (is_spm_mm_fid(smc_fid)) {
 		return spm_mm_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
 					  handle, flags);
+	}
+#endif
+
+#if defined(SPD_spmd)
+	/*
+	 * Dispatch SPCI calls to the SPCI SMC handler implemented by the SPM
+	 * dispatcher and return its return value
+	 */
+	if (is_spci_fid(smc_fid)) {
+		return spmd_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
+					handle, flags);
 	}
 #endif
 

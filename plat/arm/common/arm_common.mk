@@ -265,6 +265,13 @@ PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/aarch64/arm_pauth.c	\
 				lib/extensions/pauth/pauth_helpers.S
 endif
 
+ifeq (${SPD},spmd)
+BL31_SOURCES		+=	plat/common/plat_spmd_manifest.c	\
+				common/fdt_wrappers.c			\
+				${LIBFDT_SRCS}
+
+endif
+
 ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # Include common TBB sources
