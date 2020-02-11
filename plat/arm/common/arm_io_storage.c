@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -292,32 +292,41 @@ static int open_memmap(const uintptr_t spec)
 }
 
 
-void arm_io_setup(void)
+int arm_io_setup(void)
 {
 	int io_result;
 
 	io_result = register_io_dev_fip(&fip_dev_con);
-	assert(io_result == 0);
+	if (io_result < 0) {
+		return io_result;
+	}
 
 	io_result = register_io_dev_memmap(&memmap_dev_con);
-	assert(io_result == 0);
+	if (io_result < 0) {
+		return io_result;
+	}
 
 	/* Open connections to devices and cache the handles */
 	io_result = io_dev_open(fip_dev_con, (uintptr_t)NULL,
 				&fip_dev_handle);
-	assert(io_result == 0);
+	if (io_result < 0) {
+		return io_result;
+	}
 
 	io_result = io_dev_open(memmap_dev_con, (uintptr_t)NULL,
 				&memmap_dev_handle);
-	assert(io_result == 0);
 
-	/* Ignore improbable errors in release builds */
-	(void)io_result;
+	return io_result;
 }
 
 void plat_arm_io_setup(void)
 {
-	arm_io_setup();
+	int err;
+
+	err = arm_io_setup();
+	if (err < 0) {
+		panic();
+	}
 }
 
 int plat_arm_get_alt_image_source(
@@ -357,12 +366,8 @@ int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
  * See if a Firmware Image Package is available,
  * by checking if TOC is valid or not.
  */
-int arm_io_is_toc_valid(void)
+bool arm_io_is_toc_valid(void)
 {
-	int result;
-
-	result = io_dev_init(fip_dev_handle, (uintptr_t)FIP_IMAGE_ID);
-
-	return (result == 0);
+	return (io_dev_init(fip_dev_handle, (uintptr_t)FIP_IMAGE_ID) == 0);
 }
 

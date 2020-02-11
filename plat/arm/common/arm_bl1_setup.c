@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 #include <arch.h>
 #include <bl1/bl1.h>
 #include <common/bl_common.h>
+#include <lib/fconf/fconf.h>
 #include <lib/utils.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/arm/common/plat_arm.h>
@@ -143,7 +144,10 @@ void arm_bl1_platform_setup(void)
 {
 	/* Initialise the IO layer and register platform IO devices */
 	plat_arm_io_setup();
-	arm_load_tb_fw_config();
+
+	/* Load fw config */
+	fconf_load_config();
+
 #if TRUSTED_BOARD_BOOT
 	/* Share the Mbed TLS heap info with other images */
 	arm_bl1_set_mbedtls_heap();
@@ -184,9 +188,9 @@ void bl1_plat_prepare_exit(entry_point_info_t *ep_info)
  * On Arm platforms, the FWU process is triggered when the FIP image has
  * been tampered with.
  */
-int plat_arm_bl1_fwu_needed(void)
+bool plat_arm_bl1_fwu_needed(void)
 {
-	return (arm_io_is_toc_valid() != 1);
+	return !arm_io_is_toc_valid();
 }
 
 /*******************************************************************************
@@ -195,8 +199,5 @@ int plat_arm_bl1_fwu_needed(void)
  ******************************************************************************/
 unsigned int bl1_plat_get_next_image_id(void)
 {
-	if (plat_arm_bl1_fwu_needed() != 0)
-		return NS_BL1U_IMAGE_ID;
-
-	return BL2_IMAGE_ID;
+	return plat_arm_bl1_fwu_needed() ? NS_BL1U_IMAGE_ID : BL2_IMAGE_ID;
 }

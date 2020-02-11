@@ -1,0 +1,41 @@
+@startuml
+
+box "BL2 common code"
+	participant bl2_entrypoint
+	participant bl2_main
+end box
+
+box "platform common code"
+	participant fconf
+	participant fconf_tbbr_getter
+end box
+
+box "arm platform code" #LightBlue
+	participant arm_bl2_setup
+	participant arm_io_storage
+	participant arm_fconf_io
+end box
+
+== bl2 setup ==
+bl2_entrypoint -> bl2_main : bl2_setup()
+bl2_main -> arm_bl2_setup : bl2_early_platform_setup2(\n\t arg0, arg1, arg2, arg3)
+note over arm_bl2_setup
+	arg0 = tb_fw_config
+	arg1 = mem_layout
+end note
+arm_bl2_setup -> arm_bl2_setup : arm_bl2_early_platform_setup(\n\t tb_fw_config, mem_layout)
+activate arm_bl2_setup
+	arm_bl2_setup -> fconf: fconf_polulate(tb_fw_config)
+	activate fconf
+		fconf -> fconf_tbbr_getter: fconf_populate_tbbr_dyn_config(uintptr_t dtb)
+		note over fconf_tbbr_getter: read tbbr propeties from dtb
+		fconf -> arm_fconf_io: fconf_populate_arm_io_policies(uintptr_t dtb)
+		note over arm_fconf_io: read arm io propeties from dtb
+	deactivate fconf
+	arm_bl2_setup -> arm_io_storage : plat_arm_io_setup()
+	note over arm_io_storage: use populated properties
+deactivate arm_bl2_setup
+
+== bl2 main ==
+
+@enduml

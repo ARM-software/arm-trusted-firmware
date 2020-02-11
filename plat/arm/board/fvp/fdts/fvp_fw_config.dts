@@ -1,0 +1,96 @@
+/*
+ * Copyright (c) 2019-2020, ARM Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <export/common/tbbr/tbbr_img_def_exp.h>
+
+/dts-v1/;
+
+/ {
+	dtb-registry {
+		compatible = "arm,dyn_cfg-dtb_registry";
+
+		/* tb_fw_config is temporarily contained on this dtb */
+		tb_fw-config {
+			load-address = <0x0 0x4001010>;
+			max-size = <0x200>;
+			id = <TB_FW_CONFIG_ID>;
+		};
+
+		hw-config {
+			load-address = <0x0 0x82000000>;
+			max-size = <0x01000000>;
+			id = <HW_CONFIG_ID>;
+		};
+
+		/*
+		 * Load SoC and TOS firmware configs at the base of
+		 * non shared SRAM. The runtime checks ensure we don't
+		 * overlap BL2, BL31 or BL32. The NT firmware config
+		 * is loaded at base of DRAM.
+		 */
+		soc_fw-config {
+			load-address = <0x0 0x04001000>;
+			max-size = <0x200>;
+			id = <SOC_FW_CONFIG_ID>;
+		};
+
+		tos_fw-config {
+			load-address = <0x0 0x04001200>;
+			max-size = <0x200>;
+			id = <TOS_FW_CONFIG_ID>;
+		};
+
+		nt_fw-config {
+			load-address = <0x0 0x80000000>;
+			max-size = <0x200>;
+			id = <NT_FW_CONFIG_ID>;
+		};
+	};
+
+	tb_fw-config {
+		compatible = "arm,tb_fw";
+
+		/* Disable authentication for development */
+		disable_auth = <0x0>;
+
+		/*
+		 * The following two entries are placeholders for Mbed TLS
+		 * heap information. The default values don't matter since
+		 * they will be overwritten by BL1.
+		 * In case of having shared Mbed TLS heap between BL1 and BL2,
+		 * BL1 will populate these two properties with the respective
+		 * info about the shared heap. This info will be available for
+		 * BL2 in order to locate and re-use the heap.
+		 */
+		mbedtls_heap_addr = <0x0 0x0>;
+		mbedtls_heap_size = <0x0>;
+	};
+
+	arm-io_policies {
+		fip-handles {
+			compatible = "arm,io-fip-handle";
+			scp_bl2_uuid = <0x3dfd6697 0x49e8be89 0xa1785dae 0x13826040>;
+			bl31_uuid = <0x6d08d447 0x4698fe4c 0x5029959b 0x005abdcb>;
+			bl32_uuid = <0x89e1d005 0x4713dc53 0xa502b8d 0x383e7a4b>;
+			bl32_extra1_uuid = <0x9bc2700b 0x40785a2a 0x560a659f 0x88827382>;
+			bl32_extra2_uuid = <0xb17ba88e 0x4d3fa2cf 0xbbe7fd85 0xd92002a5>;
+			bl33_uuid = <0xa7eed0d6 0x4bd5eafc 0x34998297 0xe4b634f2>;
+			hw_cfg_uuid = <0xd9f1b808 0x4993cfc9 0xbc6f62a9 0xcc65726b>;
+			soc_fw_cfg_uuid = <0x4b817999 0x46fb7603 0x268d8e8c 0xe059787f>;
+			tos_fw_cfg_uuid = <0x1a7c2526 0x477fc6db 0xc4c4968d 0x218024b0>;
+			nt_fw_cfg_uuid = <0x1598da28 0x447ee893 0xaf1a66ac 0xf9501580>;
+			t_key_cert_uuid = <0x90e87e82 0x11e460f8 0x7a77b4a1 0x4cf9b421>;
+			scp_fw_key_uuid = <0xa1214202 0x11e460f8 0x3cf39b8d 0x14a0150e>;
+			soc_fw_key_uuid = <0xccbeb88a 0x11e460f9 0x48ebd09a 0xf8dcd822>;
+			tos_fw_key_cert_uuid = <0x3d67794 0x11e460fb 0x10b7dd85 0x4ee8c5b>;
+			nt_fw_key_cert_uuid = <0x2a83d58a 0x11e460fb 0x30dfaf8a 0x5998c4bb>;
+			scp_fw_content_cert_uuid = <0x046fbe44 0x11e4635e 0xd8738bb2 0x5696aeea>;
+			soc_fw_content_cert_uuid = <0x200cb2e2 0x11e4635e 0xccabe89c 0x66b62bf9>;
+			tos_fw_content_cert_uuid = <0x11449fa4 0x11e4635e 0x53f2887 0x3df32a72>;
+			nt_fw_content_cert_uuid = <0xf3c1c48e 0x11e4635d 0xee87a9a7 0xa73fb240>;
+		};
+	};
+};

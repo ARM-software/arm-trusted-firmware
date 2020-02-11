@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2020, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -72,9 +72,9 @@ BL2_SOURCES		+=	plat/arm/board/fvp_ve/fvp_ve_bl2_setup.c		\
 # Add the FDT_SOURCES and options for Dynamic Config (only for Unix env)
 ifdef UNIX_MK
 
-FDT_SOURCES		+=	plat/arm/board/fvp_ve/fdts/fvp_ve_tb_fw_config.dts
+FDT_SOURCES		+=	plat/arm/board/fvp_ve/fdts/fvp_ve_fw_config.dts
 
-FVP_TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/fvp_ve_tb_fw_config.dtb
+FVP_TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/fvp_ve_fw_config.dtb
 
 # Add the TB_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_TB_FW_CONFIG},--tb-fw-config))
@@ -115,6 +115,9 @@ else
 	include lib/xlat_tables_v2/xlat_tables.mk
 	PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 endif
+
+# Firmware Configuration Framework sources
+include lib/fconf/fconf.mk
 
 # Add `libfdt` and Arm common helpers required for Dynamic Config
 include lib/libfdt/libfdt.mk

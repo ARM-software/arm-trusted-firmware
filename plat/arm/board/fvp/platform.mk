@@ -10,6 +10,11 @@ FVP_USE_GIC_DRIVER	:= FVP_GICV3
 # Use the SP804 timer instead of the generic one
 FVP_USE_SP804_TIMER	:= 0
 
+# Use fconf based io for FVP
+ifeq ($(BL2_AT_EL3), 0)
+USE_FCONF_BASED_IO	:= 1
+endif
+
 # Default cluster count for FVP
 FVP_CLUSTER_COUNT	:= 2
 
@@ -205,12 +210,12 @@ endif
 ifdef UNIX_MK
 FVP_HW_CONFIG_DTS	:=	fdts/${FVP_DT_PREFIX}.dts
 FDT_SOURCES		+=	$(addprefix plat/arm/board/fvp/fdts/,	\
-					${PLAT}_tb_fw_config.dts	\
+					${PLAT}_fw_config.dts		\
 					${PLAT}_soc_fw_config.dts	\
 					${PLAT}_nt_fw_config.dts	\
 				)
 
-FVP_TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
+FVP_TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_fw_config.dtb
 FVP_SOC_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_soc_fw_config.dtb
 FVP_NT_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_nt_fw_config.dtb
 

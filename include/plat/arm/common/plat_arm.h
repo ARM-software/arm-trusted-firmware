@@ -6,6 +6,7 @@
 #ifndef PLAT_ARM_H
 #define PLAT_ARM_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include <drivers/arm/tzc_common.h>
@@ -148,7 +149,7 @@ void arm_setup_romlib(void);
 #define ARM_ROTPK_DEVEL_ECDSA_ID	3
 
 /* IO storage utility functions */
-void arm_io_setup(void);
+int arm_io_setup(void);
 
 /* Security utility functions */
 void arm_tzc400_setup(const arm_tzc_regions_info_t *tzc_regions);
@@ -222,11 +223,9 @@ void arm_sp_min_early_platform_setup(void *from_bl2, uintptr_t tos_fw_config,
 void arm_sp_min_plat_runtime_setup(void);
 
 /* FIP TOC validity check */
-int arm_io_is_toc_valid(void);
+bool arm_io_is_toc_valid(void);
 
 /* Utility functions for Dynamic Config */
-void arm_load_tb_fw_config(void);
-void arm_bl2_set_tb_cfg_addr(void *dtb);
 void arm_bl2_dyn_cfg_init(void);
 void arm_bl1_set_mbedtls_heap(void);
 int arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size);
@@ -256,7 +255,7 @@ void plat_arm_interconnect_init(void);
 void plat_arm_interconnect_enter_coherency(void);
 void plat_arm_interconnect_exit_coherency(void);
 void plat_arm_program_trusted_mailbox(uintptr_t address);
-int plat_arm_bl1_fwu_needed(void);
+bool plat_arm_bl1_fwu_needed(void);
 __dead2 void plat_arm_error_handler(int err);
 
 /*
