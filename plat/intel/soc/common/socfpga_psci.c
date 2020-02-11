@@ -135,7 +135,7 @@ extern uint64_t intel_rsu_update_address;
 static void __dead2 socfpga_system_reset(void)
 {
 	if (intel_rsu_update_address)
-		mailbox_rsu_update((uint32_t *)&intel_rsu_update_address);
+		mailbox_rsu_update(&intel_rsu_update_address);
 	else
 		mailbox_reset_cold();
 
