@@ -8,6 +8,7 @@ Components
 
    spd/index
    arm-sip-service
+   debugfs-design
    exception-handling
    fconf
    firmware-update
