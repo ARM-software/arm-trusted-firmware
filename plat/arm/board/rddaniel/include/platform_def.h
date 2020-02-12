@@ -21,6 +21,21 @@
 #define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2
 #define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1
 
+/* TZC Related Constants */
+#define PLAT_ARM_TZC_BASE		UL(0x21830000)
+#define PLAT_ARM_TZC_FILTERS		TZC_400_REGION_ATTR_FILTER_BIT(0)
+
+#define TZC400_OFFSET			UL(0x1000000)
+#define TZC400_COUNT			4
+
+#define TZC400_BASE(n)			(PLAT_ARM_TZC_BASE + \
+					 (n * TZC400_OFFSET))
+
+#define TZC_NSAID_ALL_AP		U(0)
+
+#define PLAT_ARM_TZC_NS_DEV_ACCESS	\
+		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_ALL_AP))
+
 /*
  * Physical and virtual address space limits for MMU in AARCH64 & AARCH32 modes
  */

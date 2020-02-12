@@ -18,6 +18,8 @@ BL2_SOURCES		+=	${RDDANIEL_BASE}/rddaniel_plat.c	\
 				${RDDANIEL_BASE}/rddaniel_security.c	\
 				${RDDANIEL_BASE}/rddaniel_err.c		\
 				lib/utils/mem_region.c			\
+				drivers/arm/tzc/tzc400.c		\
+				plat/arm/common/arm_tzc400.c		\
 				plat/arm/common/arm_nor_psci_mem_protect.c
 
 BL31_SOURCES		+=	${SGI_CPU_SOURCES}			\
