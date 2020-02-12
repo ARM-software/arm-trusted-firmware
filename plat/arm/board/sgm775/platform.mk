@@ -8,7 +8,7 @@ include plat/arm/css/sgm/sgm-common.mk
 
 SGM775_BASE= plat/arm/board/sgm775
 
-FDT_SOURCES += ${SGM775_BASE}/fdts/sgm775_tb_fw_config.dts
+FDT_SOURCES += ${SGM775_BASE}/fdts/sgm775_fw_config.dts
 
 PLAT_INCLUDES +=-I${SGM775_BASE}/include/
 
