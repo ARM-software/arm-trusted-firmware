@@ -182,9 +182,11 @@ enum ddr_type {
 #define GPIOG_BASE			U(0x50008000)
 #define GPIOH_BASE			U(0x50009000)
 #define GPIOI_BASE			U(0x5000A000)
+#if STM32MP15
 #define GPIOJ_BASE			U(0x5000B000)
 #define GPIOK_BASE			U(0x5000C000)
 #define GPIOZ_BASE			U(0x54004000)
+#endif
 #define GPIO_BANK_OFFSET		U(0x1000)
 
 /* Bank IDs used in GPIO driver API */
@@ -197,11 +199,13 @@ enum ddr_type {
 #define GPIO_BANK_G			U(6)
 #define GPIO_BANK_H			U(7)
 #define GPIO_BANK_I			U(8)
+#if STM32MP15
 #define GPIO_BANK_J			U(9)
 #define GPIO_BANK_K			U(10)
 #define GPIO_BANK_Z			U(25)
 
 #define STM32MP_GPIOZ_PIN_MAX_COUNT	8
+#endif
 
 /*******************************************************************************
  * STM32MP1 UART

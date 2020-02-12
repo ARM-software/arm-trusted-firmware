@@ -303,8 +303,12 @@ BL2_SOURCES		+=	drivers/io/io_block.c					\
 				drivers/io/io_mtd.c					\
 				drivers/io/io_storage.c					\
 				drivers/st/crypto/stm32_hash.c				\
-				plat/st/common/stm32mp_auth.c				\
 				plat/st/stm32mp1/bl2_plat_setup.c
+
+
+ifeq ($(STM32MP15),1)
+BL2_SOURCES		+=	plat/st/common/stm32mp_auth.c
+endif
 
 ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
 BL2_SOURCES		+=	drivers/mmc/mmc.c					\

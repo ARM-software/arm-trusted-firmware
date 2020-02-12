@@ -19,8 +19,10 @@
  * SYSCFG REGISTER OFFSET (base relative)
  */
 #define SYSCFG_BOOTR				0x00U
+#if STM32MP15
 #define SYSCFG_IOCTRLSETR			0x18U
 #define SYSCFG_ICNR				0x1CU
+#endif
 #define SYSCFG_CMPCR				0x20U
 #define SYSCFG_CMPENSETR			0x24U
 #define SYSCFG_CMPENCLRR			0x28U
@@ -32,8 +34,11 @@
  * SYSCFG_BOOTR Register
  */
 #define SYSCFG_BOOTR_BOOT_MASK			GENMASK(2, 0)
+#if STM32MP15
 #define SYSCFG_BOOTR_BOOTPD_MASK		GENMASK(6, 4)
 #define SYSCFG_BOOTR_BOOTPD_SHIFT		4
+#endif
+
 /*
  * SYSCFG_IOCTRLSETR Register
  */
@@ -106,12 +111,14 @@ static void disable_io_comp_cell(uintptr_t cmpcr_off)
 
 static void enable_high_speed_mode_low_voltage(void)
 {
+#if STM32MP15
 	mmio_write_32(SYSCFG_BASE + SYSCFG_IOCTRLSETR,
 		      SYSCFG_IOCTRLSETR_HSLVEN_TRACE |
 		      SYSCFG_IOCTRLSETR_HSLVEN_QUADSPI |
 		      SYSCFG_IOCTRLSETR_HSLVEN_ETH |
 		      SYSCFG_IOCTRLSETR_HSLVEN_SDMMC |
 		      SYSCFG_IOCTRLSETR_HSLVEN_SPI);
+#endif
 }
 
 static void stm32mp1_syscfg_set_hslv(void)
@@ -165,6 +172,7 @@ static void stm32mp1_syscfg_set_hslv(void)
 
 void stm32mp1_syscfg_init(void)
 {
+#if STM32MP15
 	uint32_t bootr;
 
 	/*
@@ -178,6 +186,7 @@ void stm32mp1_syscfg_init(void)
 		SYSCFG_BOOTR_BOOT_MASK;
 	mmio_clrsetbits_32(SYSCFG_BASE + SYSCFG_BOOTR, SYSCFG_BOOTR_BOOTPD_MASK,
 			   bootr << SYSCFG_BOOTR_BOOTPD_SHIFT);
+#endif
 
 	stm32mp1_syscfg_set_hslv();
 
