@@ -13,8 +13,6 @@ STM32_TF_VERSION	?=	0
 
 # Enable dynamic memory mapping
 PLAT_XLAT_TABLES_DYNAMIC :=	1
-$(eval $(call assert_boolean,PLAT_XLAT_TABLES_DYNAMIC))
-$(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
 
 ifeq ($(AARCH32_SP),sp_min)
 # Disable Neon support: sp_min runtime may conflict with non-secure world
@@ -26,13 +24,11 @@ WORKAROUND_CVE_2017_5715:=	0
 
 # Number of TF-A copies in the device
 STM32_TF_A_COPIES		:=	2
-$(eval $(call add_define,STM32_TF_A_COPIES))
 ifeq ($(AARCH32_SP),optee)
 PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 4)))
 else
 PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 1)))
 endif
-$(eval $(call add_define,PLAT_PARTITION_MAX_ENTRIES))
 
 # Boot devices
 STM32MP_EMMC		?=	0
@@ -46,31 +42,59 @@ ifeq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC} ${STM32MP_RAW_NAND} \
 $(error "No boot device driver is enabled")
 endif
 
-$(eval $(call assert_booleans,\
-    $(sort \
-        STM32MP_EMMC \
-        STM32MP_SDMMC \
-        STM32MP_RAW_NAND \
-        STM32MP_SPI_NAND \
-        STM32MP_SPI_NOR \
-)))
-
-$(eval $(call add_defines,\
-    $(sort \
-        STM32MP_EMMC \
-        STM32MP_SDMMC \
-        STM32MP_RAW_NAND \
-        STM32MP_SPI_NAND \
-        STM32MP_SPI_NOR \
-)))
-
-PLAT_INCLUDES		:=	-Iplat/st/common/include/
-PLAT_INCLUDES		+=	-Iplat/st/stm32mp1/include/
-
 # Device tree
 DTB_FILE_NAME		?=	stm32mp157c-ev1.dtb
 FDT_SOURCES		:=	$(addprefix fdts/, $(patsubst %.dtb,%.dts,$(DTB_FILE_NAME)))
 DTC_FLAGS		+=	-Wno-unit_address_vs_reg
+
+# Macros and rules to build TF binary
+STM32_TF_ELF_LDFLAGS	:=	--hash-style=gnu --as-needed
+STM32_TF_STM32		:=	$(addprefix ${BUILD_PLAT}/tf-a-, $(patsubst %.dtb,%.stm32,$(DTB_FILE_NAME)))
+STM32_TF_LINKERFILE	:=	${BUILD_PLAT}/stm32mp1.ld
+
+ASFLAGS			+= -DBL2_BIN_PATH=\"${BUILD_PLAT}/bl2.bin\"
+ifeq ($(AARCH32_SP),sp_min)
+# BL32 is built only if using SP_MIN
+BL32_DEP		:= bl32
+ASFLAGS			+= -DBL32_BIN_PATH=\"${BUILD_PLAT}/bl32.bin\"
+endif
+
+# Variables for use with stm32image
+STM32IMAGEPATH		?= tools/stm32image
+STM32IMAGE		?= ${STM32IMAGEPATH}/stm32image${BIN_EXT}
+
+# Enable flags for C files
+$(eval $(call assert_booleans,\
+	$(sort \
+		STM32MP_EMMC \
+		STM32MP_SDMMC \
+		STM32MP_RAW_NAND \
+		STM32MP_SPI_NAND \
+		STM32MP_SPI_NOR \
+		PLAT_XLAT_TABLES_DYNAMIC \
+)))
+
+$(eval $(call assert_numerics,\
+	$(sort \
+		STM32_TF_A_COPIES \
+		PLAT_PARTITION_MAX_ENTRIES \
+)))
+
+$(eval $(call add_defines,\
+	$(sort \
+		STM32MP_EMMC \
+		STM32MP_SDMMC \
+		STM32MP_RAW_NAND \
+		STM32MP_SPI_NAND \
+		STM32MP_SPI_NOR \
+		PLAT_XLAT_TABLES_DYNAMIC \
+		STM32_TF_A_COPIES \
+		PLAT_PARTITION_MAX_ENTRIES \
+)))
+
+# Include paths and source files
+PLAT_INCLUDES		:=	-Iplat/st/common/include/
+PLAT_INCLUDES		+=	-Iplat/st/stm32mp1/include/
 
 include lib/libfdt/libfdt.mk
 
@@ -165,26 +189,11 @@ ifeq ($(AARCH32_SP),optee)
 BL2_SOURCES		+=	lib/optee/optee_utils.c
 endif
 
-# Macros and rules to build TF binary
-STM32_TF_ELF_LDFLAGS	:=	--hash-style=gnu --as-needed
-STM32_TF_STM32		:=	$(addprefix ${BUILD_PLAT}/tf-a-, $(patsubst %.dtb,%.stm32,$(DTB_FILE_NAME)))
-STM32_TF_LINKERFILE	:=	${BUILD_PLAT}/stm32mp1.ld
-
-# Variables for use with stm32image
-STM32IMAGEPATH		?= tools/stm32image
-STM32IMAGE		?= ${STM32IMAGEPATH}/stm32image${BIN_EXT}
-
-.PHONY:			check_dtc_version stm32image clean_stm32image
+# Compilation rules
+.PHONY: check_dtc_version stm32image clean_stm32image
 .SUFFIXES:
 
 all: check_dtc_version ${STM32_TF_STM32} stm32image
-
-ASFLAGS			+= -DBL2_BIN_PATH=\"${BUILD_PLAT}/bl2.bin\"
-ifeq ($(AARCH32_SP),sp_min)
-# BL32 is built only if using SP_MIN
-BL32_DEP		:= bl32
-ASFLAGS			+= -DBL32_BIN_PATH=\"${BUILD_PLAT}/bl32.bin\"
-endif
 
 distclean realclean clean: clean_stm32image
 
