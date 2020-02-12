@@ -125,7 +125,6 @@ typedef struct handoff_t {
 	uint32_t	misc_magic;
 	uint32_t	misc_length;
 	uint32_t	_pad_0x618_0x620[2];
-	uint32_t	boot_source;
 } handoff;
 
 int verify_handoff_image(handoff *hoff_ptr, handoff *reverse_hoff_ptr);

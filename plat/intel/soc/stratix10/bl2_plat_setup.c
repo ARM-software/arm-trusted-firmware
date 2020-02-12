@@ -45,7 +45,7 @@ const mmap_region_t plat_stratix10_mmap[] = {
 	{0},
 };
 
-boot_source_type boot_source;
+boot_source_type boot_source = BOOT_SOURCE;
 
 void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 				u_register_t x2, u_register_t x4)
@@ -58,7 +58,6 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	if (socfpga_get_handoff(&reverse_handoff_ptr))
 		return;
 	config_pinmux(&reverse_handoff_ptr);
-	boot_source = reverse_handoff_ptr.boot_source;
 
 	config_clkmgr_handoff(&reverse_handoff_ptr);
 	enable_nonsecure_access();
