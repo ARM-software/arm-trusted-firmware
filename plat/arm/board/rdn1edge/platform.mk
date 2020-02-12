@@ -51,8 +51,9 @@ NT_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_nt_fw_config.dtb
 # Add the NT_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config))
 
-ifneq ($(CSS_SGI_CHIP_COUNT),$(filter $(CSS_SGI_CHIP_COUNT),1 2))
- $(error  "Chip count for RDN1Edge platform should either 1 or 2, currently \
+$(eval $(call CREATE_SEQ,SEQ,2))
+ifneq ($(CSS_SGI_CHIP_COUNT),$(filter $(CSS_SGI_CHIP_COUNT),$(SEQ)))
+ $(error  "Chip count for RDN1Edge platform should be one of $(SEQ), currently \
    set to ${CSS_SGI_CHIP_COUNT}.")
 endif
 
