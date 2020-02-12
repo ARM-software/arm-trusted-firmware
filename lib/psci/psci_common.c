@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -601,7 +601,7 @@ void psci_release_pwr_domain_locks(unsigned int end_pwrlvl,
 	unsigned int level;
 
 	/* Unlock top down. No unlocking required for level 0. */
-	for (level = end_pwrlvl; level >= PSCI_CPU_PWR_LVL + 1U; level--) {
+	for (level = end_pwrlvl; level >= (PSCI_CPU_PWR_LVL + 1U); level--) {
 		parent_idx = parent_nodes[level - 1U];
 		psci_lock_release(&psci_non_cpu_pd_nodes[parent_idx]);
 	}

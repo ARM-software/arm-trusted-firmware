@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -230,7 +230,7 @@
 #define DWORD_SHIFT		U(3)
 #define DEFINE_REG_STRUCT(name, num_regs)	\
 	typedef struct name {			\
-		uint64_t _regs[num_regs];	\
+		uint64_t ctx_regs[num_regs];	\
 	}  __aligned(16) name##_t
 
 /* Constants to determine the size of individual context structures */
@@ -288,8 +288,8 @@ DEFINE_REG_STRUCT(pauth, CTX_PAUTH_REGS_ALL);
  * Macros to access members of any of the above structures using their
  * offsets
  */
-#define read_ctx_reg(ctx, offset)	((ctx)->_regs[(offset) >> DWORD_SHIFT])
-#define write_ctx_reg(ctx, offset, val)	(((ctx)->_regs[(offset) >> DWORD_SHIFT]) \
+#define read_ctx_reg(ctx, offset)	((ctx)->ctx_regs[(offset) >> DWORD_SHIFT])
+#define write_ctx_reg(ctx, offset, val)	(((ctx)->ctx_regs[(offset) >> DWORD_SHIFT]) \
 					 = (uint64_t) (val))
 
 /*

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -126,7 +126,7 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 	 * interrupt handling.
 	 */
 	if (get_yield_smc_active_flag(tsp_ctx->state)) {
-		tsp_ctx->saved_spsr_el3 = SMC_GET_EL3(&tsp_ctx->cpu_ctx,
+		tsp_ctx->saved_spsr_el3 = (uint32_t)SMC_GET_EL3(&tsp_ctx->cpu_ctx,
 						      CTX_SPSR_EL3);
 		tsp_ctx->saved_elr_el3 = SMC_GET_EL3(&tsp_ctx->cpu_ctx,
 						     CTX_ELR_EL3);

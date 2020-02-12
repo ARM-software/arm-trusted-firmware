@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -67,16 +67,16 @@
 
 struct entry_point_info;
 
-register_t bl1_smc_wrapper(uint32_t smc_fid,
+u_register_t bl1_smc_wrapper(uint32_t smc_fid,
 	void *cookie,
 	void *handle,
 	unsigned int flags);
 
-register_t bl1_smc_handler(unsigned int smc_fid,
-	register_t x1,
-	register_t x2,
-	register_t x3,
-	register_t x4,
+u_register_t bl1_smc_handler(unsigned int smc_fid,
+	u_register_t x1,
+	u_register_t x2,
+	u_register_t x3,
+	u_register_t x4,
 	void *cookie,
 	void *handle,
 	unsigned int flags);
