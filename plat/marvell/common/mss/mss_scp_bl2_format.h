@@ -8,7 +8,7 @@
 #ifndef MSS_SCP_BL2_FORMAT_H
 #define MSS_SCP_BL2_FORMAT_H
 
-#define MAX_NR_OF_FILES	5
+#define MAX_NR_OF_FILES	8
 #define FILE_MAGIC	0xddd01ff
 #define HEADER_VERSION	0x1
 
@@ -31,6 +31,7 @@ enum cm3_t {
 	MSS_CP3,
 	MG_CP0,
 	MG_CP1,
+	MG_CP2,
 };
 
 typedef struct img_header {
