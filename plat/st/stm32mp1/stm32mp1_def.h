@@ -36,6 +36,23 @@
 /*******************************************************************************
  * CHIP ID
  ******************************************************************************/
+#if STM32MP13
+#define STM32MP1_CHIP_ID	U(0x501)
+
+#define STM32MP135C_PART_NB	U(0x05010000)
+#define STM32MP135A_PART_NB	U(0x05010001)
+#define STM32MP133C_PART_NB	U(0x050100C0)
+#define STM32MP133A_PART_NB	U(0x050100C1)
+#define STM32MP131C_PART_NB	U(0x050106C8)
+#define STM32MP131A_PART_NB	U(0x050106C9)
+#define STM32MP135F_PART_NB	U(0x05010800)
+#define STM32MP135D_PART_NB	U(0x05010801)
+#define STM32MP133F_PART_NB	U(0x050108C0)
+#define STM32MP133D_PART_NB	U(0x050108C1)
+#define STM32MP131F_PART_NB	U(0x05010EC8)
+#define STM32MP131D_PART_NB	U(0x05010EC9)
+#endif
+#if STM32MP15
 #define STM32MP1_CHIP_ID	U(0x500)
 
 #define STM32MP157C_PART_NB	U(0x05000000)
@@ -50,6 +67,7 @@
 #define STM32MP153D_PART_NB	U(0x050000A5)
 #define STM32MP151F_PART_NB	U(0x050000AE)
 #define STM32MP151D_PART_NB	U(0x050000AF)
+#endif
 
 #define STM32MP1_REV_B		U(0x2000)
 #if STM32MP13
@@ -62,10 +80,12 @@
 /*******************************************************************************
  * PACKAGE ID
  ******************************************************************************/
+#if STM32MP15
 #define PKG_AA_LFBGA448		U(4)
 #define PKG_AB_LFBGA354		U(3)
 #define PKG_AC_TFBGA361		U(2)
 #define PKG_AD_TFBGA257		U(1)
+#endif
 
 /*******************************************************************************
  * STM32MP1 memory map related constants
@@ -370,7 +390,9 @@ enum ddr_type {
 /* OTP labels */
 #define CFG0_OTP			"cfg0_otp"
 #define PART_NUMBER_OTP			"part_number_otp"
+#if STM32MP15
 #define PACKAGE_OTP			"package_otp"
+#endif
 #define HW2_OTP				"hw2_otp"
 #define NAND_OTP			"nand_otp"
 #define MONOTONIC_OTP			"monotonic_otp"
@@ -382,12 +404,19 @@ enum ddr_type {
 #define CFG0_CLOSED_DEVICE		BIT(6)
 
 /* PART NUMBER */
+#if STM32MP13
+#define PART_NUMBER_OTP_PART_MASK	GENMASK_32(11, 0)
+#endif
+#if STM32MP15
 #define PART_NUMBER_OTP_PART_MASK	GENMASK_32(7, 0)
+#endif
 #define PART_NUMBER_OTP_PART_SHIFT	0
 
 /* PACKAGE */
+#if STM32MP15
 #define PACKAGE_OTP_PKG_MASK		GENMASK_32(29, 27)
 #define PACKAGE_OTP_PKG_SHIFT		27
+#endif
 
 /* IWDG OTP */
 #define HW2_OTP_IWDG_HW_POS		U(3)

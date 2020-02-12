@@ -319,6 +319,7 @@ static uint32_t get_part_number(void)
 	return part_number;
 }
 
+#if STM32MP15
 static uint32_t get_cpu_package(void)
 {
 	uint32_t package;
@@ -332,6 +333,7 @@ static uint32_t get_cpu_package(void)
 
 	return package;
 }
+#endif
 
 void stm32mp_get_soc_name(char name[STM32_SOC_NAME_SIZE])
 {
@@ -339,6 +341,45 @@ void stm32mp_get_soc_name(char name[STM32_SOC_NAME_SIZE])
 
 	/* MPUs Part Numbers */
 	switch (get_part_number()) {
+#if STM32MP13
+	case STM32MP135F_PART_NB:
+		cpu_s = "135F";
+		break;
+	case STM32MP135D_PART_NB:
+		cpu_s = "135D";
+		break;
+	case STM32MP135C_PART_NB:
+		cpu_s = "135C";
+		break;
+	case STM32MP135A_PART_NB:
+		cpu_s = "135A";
+		break;
+	case STM32MP133F_PART_NB:
+		cpu_s = "133F";
+		break;
+	case STM32MP133D_PART_NB:
+		cpu_s = "133D";
+		break;
+	case STM32MP133C_PART_NB:
+		cpu_s = "133C";
+		break;
+	case STM32MP133A_PART_NB:
+		cpu_s = "133A";
+		break;
+	case STM32MP131F_PART_NB:
+		cpu_s = "131F";
+		break;
+	case STM32MP131D_PART_NB:
+		cpu_s = "131D";
+		break;
+	case STM32MP131C_PART_NB:
+		cpu_s = "131C";
+		break;
+	case STM32MP131A_PART_NB:
+		cpu_s = "131A";
+		break;
+#endif
+#if STM32MP15
 	case STM32MP157C_PART_NB:
 		cpu_s = "157C";
 		break;
@@ -375,12 +416,18 @@ void stm32mp_get_soc_name(char name[STM32_SOC_NAME_SIZE])
 	case STM32MP151D_PART_NB:
 		cpu_s = "151D";
 		break;
+#endif
 	default:
 		cpu_s = "????";
 		break;
 	}
 
 	/* Package */
+#if STM32MP13
+	/* On STM32MP13, package is not present in OTP */
+	pkg = "";
+#endif
+#if STM32MP15
 	switch (get_cpu_package()) {
 	case PKG_AA_LFBGA448:
 		pkg = "AA";
@@ -398,6 +445,7 @@ void stm32mp_get_soc_name(char name[STM32_SOC_NAME_SIZE])
 		pkg = "??";
 		break;
 	}
+#endif
 
 	/* REVISION */
 	switch (stm32mp_get_chip_version()) {
@@ -488,12 +536,22 @@ bool stm32mp_is_auth_supported(void)
 	bool supported = false;
 
 	switch (get_part_number()) {
+#if STM32MP13
+	case STM32MP131C_PART_NB:
+	case STM32MP131F_PART_NB:
+	case STM32MP133C_PART_NB:
+	case STM32MP133F_PART_NB:
+	case STM32MP135C_PART_NB:
+	case STM32MP135F_PART_NB:
+#endif
+#if STM32MP15
 	case STM32MP151C_PART_NB:
 	case STM32MP151F_PART_NB:
 	case STM32MP153C_PART_NB:
 	case STM32MP153F_PART_NB:
 	case STM32MP157C_PART_NB:
 	case STM32MP157F_PART_NB:
+#endif
 		supported = true;
 		break;
 	default:
