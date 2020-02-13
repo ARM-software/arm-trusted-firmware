@@ -35,8 +35,8 @@ struct param_ddr_usage {
 	uint64_t ns_top[DDR_REGION_NR_MAX];
 
 	uint32_t s_nr;
-	uint64_t s_base[DDR_REGION_NR_MAX];
-	uint64_t s_top[DDR_REGION_NR_MAX];
+	uint64_t s_base[DDR_REGION_NR_MAX + 1];
+	uint64_t s_top[DDR_REGION_NR_MAX + 1];
 };
 
 struct param_ddr_usage ddr_region_usage_parse(uint64_t addr, uint64_t max_mb);
