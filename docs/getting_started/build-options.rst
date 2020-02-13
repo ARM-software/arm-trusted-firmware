@@ -340,6 +340,11 @@ Common build options
    translation library (xlat tables v2) must be used; version 1 of translation
    library is not supported.
 
+-  ``INVERTED_MEMMAP``: memmap tool print by default lower addresses at the
+   bottom, higher addresses at the top. This buid flag can be set to '1' to
+   invert this behavior. Lower addresses will be printed at the top and higher
+   addresses at the bottom.
+
 -  ``JUNO_AARCH32_EL3_RUNTIME``: This build flag enables you to execute EL3
    runtime software in AArch32 mode, which is required to run AArch32 on Juno.
    By default this flag is set to '0'. Enabling this flag builds BL1 and BL2 in

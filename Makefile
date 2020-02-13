@@ -770,6 +770,7 @@ $(eval $(call assert_boolean,GENERATE_COT))
 $(eval $(call assert_boolean,GICV2_G0_FOR_EL3))
 $(eval $(call assert_boolean,HANDLE_EA_EL3_FIRST))
 $(eval $(call assert_boolean,HW_ASSISTED_COHERENCY))
+$(eval $(call assert_boolean,INVERTED_MEMMAP))
 $(eval $(call assert_boolean,MEASURED_BOOT))
 $(eval $(call assert_boolean,NS_TIMER_SWITCH))
 $(eval $(call assert_boolean,OVERRIDE_LIBC))
@@ -1088,7 +1089,7 @@ romlib.bin: libraries
 
 # Call print_memory_map tool
 memmap: all
-	${Q}${PYTHON} $(PRINT_MEMORY_MAP) $(BUILD_PLAT)
+	${Q}${PYTHON} ${PRINT_MEMORY_MAP} ${BUILD_PLAT} ${INVERTED_MEMMAP}
 
 doc:
 	@echo "  BUILD DOCUMENTATION"

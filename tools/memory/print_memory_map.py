@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (c) 2019, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2020, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -22,6 +22,7 @@ blx_symbols = ['__BL1_RAM_START__', '__BL1_RAM_END__',
                 '__DATA_START__', '__DATA_END__',
                 '__STACKS_START__', '__STACKS_END__',
                 '__BSS_END',
+                '__COHERENT_RAM_START__', '__COHERENT_RAM_END__',
                ]
 
 # Regex to extract address from map file
@@ -31,8 +32,11 @@ address_pattern = re.compile(r"\b0x\w*")
 address_list = []
 
 # Get the directory from command line or use a default one
+inverted_print = True
 if len(sys.argv) >= 2:
     build_dir = sys.argv[1]
+    if len(sys.argv) >= 3:
+        inverted_print = sys.argv[2] == '0'
 else:
     build_dir = 'build/fvp/debug'
 
@@ -43,7 +47,10 @@ for image in bl_images:
         with open (file_path, 'rt') as mapfile:
             for line in mapfile:
                 for symbol in blx_symbols:
-                    if line.find(symbol) > 0 and line.find("ASSERT") < 0:
+                    # Regex to find symbol definition
+                    line_pattern = re.compile(r"\b0x\w*\s*" + symbol + "\s= .")
+                    match = line_pattern.search(line)
+                    if match:
                         # Extract address from line
                         match = address_pattern.search(line)
                         if match:
@@ -52,17 +59,21 @@ for image in bl_images:
 # Sort by address
 address_list.sort(key=operator.itemgetter(0))
 
-# Generate memory view
-print('{:-^87}'.format('Memory Map from: ' + build_dir))
-for address in reversed(address_list):
-    if "bl1" in address[2]:
-        print(address[0], '+{:-^20}+ |{:^20}| |{:^20}|'.format(address[1], '', ''))
-    elif "bl2" in address[2]:
-        print(address[0], '|{:^20}| +{:-^20}+ |{:^20}|'.format('', address[1], ''))
-    elif "bl31" in address[2]:
-        print(address[0], '|{:^20}| |{:^20}| +{:-^20}+'.format('', '', address[1]))
-    else:
-        print(address[0], '|{:^20}| |{:^20}| +{:-^20}+'.format('', '', address[1]))
+# Invert list for lower address at bottom
+if inverted_print:
+    address_list = reversed(address_list)
 
-print('{:^20}{:_^20}   {:_^20}   {:_^20}'.format('', '', '', ''))
-print('{:^20}{:^20}   {:^20}   {:^20}'.format('address', 'bl1', 'bl2', 'bl31'))
+# Generate memory view
+print('{:-^93}'.format('Memory Map from: ' + build_dir))
+for address in address_list:
+    if "bl1" in address[2]:
+        print(address[0], '+{:-^22}+ |{:^22}| |{:^22}|'.format(address[1], '', ''))
+    elif "bl2" in address[2]:
+        print(address[0], '|{:^22}| +{:-^22}+ |{:^22}|'.format('', address[1], ''))
+    elif "bl31" in address[2]:
+        print(address[0], '|{:^22}| |{:^22}| +{:-^22}+'.format('', '', address[1]))
+    else:
+        print(address[0], '|{:^22}| |{:^22}| +{:-^22}+'.format('', '', address[1]))
+
+print('{:^20}{:_^22}   {:_^22}   {:_^22}'.format('', '', '', ''))
+print('{:^20}{:^22}   {:^22}   {:^22}'.format('address', 'bl1', 'bl2', 'bl31'))
