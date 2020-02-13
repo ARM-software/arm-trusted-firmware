@@ -39,7 +39,7 @@
 		#address-cells = <2>;
 		#size-cells = <0>;
 
-		cpu-map {
+		CPU_MAP:cpu-map {
 			cluster0 {
 				core0 {
 					cpu = <&CPU0>;
