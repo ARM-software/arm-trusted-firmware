@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,17 +16,17 @@
 #define UNIPHIER_PINMON0		0x5f900100
 #define UNIPHIER_PINMON2		0x5f900108
 
-static int uniphier_ld11_is_usb_boot(uint32_t pinmon)
+static bool uniphier_ld11_is_usb_boot(uint32_t pinmon)
 {
 	return !!(~pinmon & 0x00000080);
 }
 
-static int uniphier_ld20_is_usb_boot(uint32_t pinmon)
+static bool uniphier_ld20_is_usb_boot(uint32_t pinmon)
 {
 	return !!(~pinmon & 0x00000780);
 }
 
-static int uniphier_pxs3_is_usb_boot(uint32_t pinmon)
+static bool uniphier_pxs3_is_usb_boot(uint32_t pinmon)
 {
 	uint32_t pinmon2 = mmio_read_32(UNIPHIER_PINMON2);
 
@@ -106,20 +106,25 @@ static unsigned int uniphier_pxs3_get_boot_device(uint32_t pinmon)
 }
 
 struct uniphier_boot_device_info {
-	int (*is_usb_boot)(uint32_t pinmon);
+	bool have_boot_swap;
+	bool (*is_sd_boot)(uint32_t pinmon);
+	bool (*is_usb_boot)(uint32_t pinmon);
 	unsigned int (*get_boot_device)(uint32_t pinmon);
 };
 
 static const struct uniphier_boot_device_info uniphier_boot_device_info[] = {
 	[UNIPHIER_SOC_LD11] = {
+		.have_boot_swap = true,
 		.is_usb_boot = uniphier_ld11_is_usb_boot,
 		.get_boot_device = uniphier_ld11_get_boot_device,
 	},
 	[UNIPHIER_SOC_LD20] = {
+		.have_boot_swap = true,
 		.is_usb_boot = uniphier_ld20_is_usb_boot,
 		.get_boot_device = uniphier_ld11_get_boot_device,
 	},
 	[UNIPHIER_SOC_PXS3] = {
+		.have_boot_swap = true,
 		.is_usb_boot = uniphier_pxs3_is_usb_boot,
 		.get_boot_device = uniphier_pxs3_get_boot_device,
 	},
@@ -135,10 +140,13 @@ unsigned int uniphier_get_boot_device(unsigned int soc)
 
 	pinmon = mmio_read_32(UNIPHIER_PINMON0);
 
-	if (!(pinmon & BIT(29)))
+	if (info->have_boot_swap && !(pinmon & BIT(29)))
 		return UNIPHIER_BOOT_DEVICE_NOR;
 
-	if (info->is_usb_boot(pinmon))
+	if (info->is_sd_boot && info->is_sd_boot(pinmon))
+		return UNIPHIER_BOOT_DEVICE_SD;
+
+	if (info->is_usb_boot && info->is_usb_boot(pinmon))
 		return UNIPHIER_BOOT_DEVICE_USB;
 
 	return info->get_boot_device(pinmon);
