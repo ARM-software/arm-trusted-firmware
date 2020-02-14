@@ -249,24 +249,24 @@ static int uniphier_io_fip_setup(void)
 	return io_dev_open(uniphier_fip_dev_con, 0, &uniphier_fip_dev_handle);
 }
 
-static int uniphier_io_emmc_setup(unsigned int soc_id, size_t buffer_offset)
+static int uniphier_io_emmc_setup(unsigned int soc, size_t buffer_offset)
 {
 	struct io_block_dev_spec *block_dev_spec;
 	int ret;
 
-	ret = uniphier_emmc_init(&block_dev_spec);
+	ret = uniphier_emmc_init(soc, &block_dev_spec);
 	if (ret)
 		return ret;
 
 	return uniphier_io_block_setup(0x20000, block_dev_spec, buffer_offset);
 }
 
-static int uniphier_io_nand_setup(unsigned int soc_id, size_t buffer_offset)
+static int uniphier_io_nand_setup(unsigned int soc, size_t buffer_offset)
 {
 	struct io_block_dev_spec *block_dev_spec;
 	int ret;
 
-	ret = uniphier_nand_init(&block_dev_spec);
+	ret = uniphier_nand_init(soc, &block_dev_spec);
 	if (ret)
 		return ret;
 

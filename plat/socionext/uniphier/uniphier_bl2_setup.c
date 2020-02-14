@@ -25,39 +25,37 @@
 #define UNIPHIER_IMAGE_BUF_SIZE		0x00100000UL
 
 static uintptr_t uniphier_mem_base = UNIPHIER_MEM_BASE;
+static unsigned int uniphier_soc = UNIPHIER_SOC_UNKNOWN;
 static int uniphier_bl2_kick_scp;
 
 void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 				  u_register_t x2, u_register_t x3)
 {
-	uniphier_console_setup();
+	uniphier_soc = uniphier_get_soc_id();
+	if (uniphier_soc == UNIPHIER_SOC_UNKNOWN)
+		plat_error_handler(-ENOTSUP);
+
+	uniphier_console_setup(uniphier_soc);
 }
 
 void bl2_el3_plat_arch_setup(void)
 {
-	unsigned int soc;
 	int skip_scp = 0;
 	int ret;
 
-	uniphier_mmap_setup();
+	uniphier_mmap_setup(uniphier_soc);
 	enable_mmu_el3(0);
 
 	/* add relocation offset (run-time-address - link-address) */
 	uniphier_mem_base += BL_CODE_BASE - BL2_BASE;
 
-	soc = uniphier_get_soc_id();
-	if (soc == UNIPHIER_SOC_UNKNOWN) {
-		ERROR("unsupported SoC\n");
-		plat_error_handler(-ENOTSUP);
-	}
-
-	ret = uniphier_io_setup(soc, uniphier_mem_base);
+	ret = uniphier_io_setup(uniphier_soc, uniphier_mem_base);
 	if (ret) {
 		ERROR("failed to setup io devices\n");
 		plat_error_handler(ret);
 	}
 
-	switch (uniphier_get_boot_master(soc)) {
+	switch (uniphier_get_boot_master(uniphier_soc)) {
 	case UNIPHIER_BOOT_MASTER_THIS:
 		INFO("Booting from this SoC\n");
 		skip_scp = 1;
