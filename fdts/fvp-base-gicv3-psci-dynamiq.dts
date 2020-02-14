@@ -6,7 +6,7 @@
 
 /dts-v1/;
 
-#include "fvp-base-gicv3-psci-common.dtsi"
+#include "fvp-base-gicv3-psci-dynamiq-common.dtsi"
 
 &CPU0 {
 	reg = <0x0 0x0>;
