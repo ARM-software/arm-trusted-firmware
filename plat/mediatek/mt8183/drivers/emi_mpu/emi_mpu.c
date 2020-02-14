@@ -138,15 +138,9 @@ void emi_mpu_init(void)
 				(FORBIDDEN << 6));
 	emi_mpu_set_region_protection(0x52900000UL, 0x5FFFFFFFUL, 2,
 				(FORBIDDEN << 3 | FORBIDDEN << 6));
-	emi_mpu_set_region_protection(0x60000000UL, 0x7FFFFFFFUL, 3,
+	emi_mpu_set_region_protection(0x60000000UL, 0xFFFFFFFFUL, 3,
 				(FORBIDDEN << 3 | FORBIDDEN << 6));
-	emi_mpu_set_region_protection(0x80000000UL, 0x9FFFFFFFUL, 4,
-				(FORBIDDEN << 3 | FORBIDDEN << 6));
-	emi_mpu_set_region_protection(0xA0000000UL, 0xBFFFFFFFUL, 5,
-				(FORBIDDEN << 3 | FORBIDDEN << 6));
-	emi_mpu_set_region_protection(0xC0000000UL, 0xDFFFFFFFUL, 6,
-				(FORBIDDEN << 3 | FORBIDDEN << 6));
-	emi_mpu_set_region_protection(0xE0000000UL, 0xFFFFFFFFUL, 7,
+	emi_mpu_set_region_protection(0x100000000UL, 0x23FFFFFFFUL, 4,
 				(FORBIDDEN << 3 | FORBIDDEN << 6));
 	dump_emi_mpu_regions();
 }
