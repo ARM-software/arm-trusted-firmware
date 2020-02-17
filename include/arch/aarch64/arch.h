@@ -107,12 +107,8 @@
 #define HFGITR_EL2		S3_4_C1_C1_6
 #define HFGRTR_EL2		S3_4_C1_C1_4
 #define HFGWTR_EL2		S3_4_C1_C1_5
-#define ICH_EISR_EL2		S3_4_C12_C11_3
-#define ICH_ELRSR_EL2		S3_4_C12_C11_5
 #define ICH_HCR_EL2		S3_4_C12_C11_0
-#define ICH_MISR_EL2		S3_4_C12_C11_2
 #define ICH_VMCR_EL2		S3_4_C12_C11_7
-#define ICH_VTR_EL2		S3_4_C12_C11_1
 #define MPAMVPM0_EL2		S3_4_C10_C5_0
 #define MPAMVPM1_EL2		S3_4_C10_C5_1
 #define MPAMVPM2_EL2		S3_4_C10_C5_2
@@ -122,6 +118,9 @@
 #define MPAMVPM6_EL2		S3_4_C10_C5_6
 #define MPAMVPM7_EL2		S3_4_C10_C5_7
 #define MPAMVPMV_EL2		S3_4_C10_C4_1
+#define TRFCR_EL2		S3_4_C1_C2_1
+#define PMSCR_EL2		S3_4_C9_C9_0
+#define TFSR_EL2		S3_4_C5_C6_0
 
 /*******************************************************************************
  * Generic timer memory mapped registers & offsets

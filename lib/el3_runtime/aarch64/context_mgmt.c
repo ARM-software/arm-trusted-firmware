@@ -234,7 +234,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	 * and other EL2 registers are set up by cm_prepare_ns_entry() as they
 	 * are not part of the stored cpu_context.
 	 */
-	write_ctx_reg(get_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_elx);
+	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_elx);
 
 	/*
 	 * Base the context ACTLR_EL1 on the current value, as it is
@@ -244,7 +244,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	 * be zero.
 	 */
 	actlr_elx = read_actlr_el1();
-	write_ctx_reg((get_sysregs_ctx(ctx)), (CTX_ACTLR_EL1), (actlr_elx));
+	write_ctx_reg((get_el1_sysregs_ctx(ctx)), (CTX_ACTLR_EL1), (actlr_elx));
 
 	/*
 	 * Populate EL3 state so that we've the right context
@@ -336,7 +336,7 @@ void cm_prepare_el3_exit(uint32_t security_state)
 						 CTX_SCR_EL3);
 		if ((scr_el3 & SCR_HCE_BIT) != 0U) {
 			/* Use SCTLR_EL1.EE value to initialise sctlr_el2 */
-			sctlr_elx = read_ctx_reg(get_sysregs_ctx(ctx),
+			sctlr_elx = read_ctx_reg(get_el1_sysregs_ctx(ctx),
 							   CTX_SCTLR_EL1);
 			sctlr_elx &= SCTLR_EE_BIT;
 			sctlr_elx |= SCTLR_EL2_RES1;
@@ -549,7 +549,7 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 		ctx = cm_get_context(security_state);
 		assert(ctx != NULL);
 
-		el2_sysregs_context_save(get_sysregs_ctx(ctx));
+		el2_sysregs_context_save(get_el2_sysregs_ctx(ctx));
 	}
 }
 
@@ -571,7 +571,7 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 		ctx = cm_get_context(security_state);
 		assert(ctx != NULL);
 
-		el2_sysregs_context_restore(get_sysregs_ctx(ctx));
+		el2_sysregs_context_restore(get_el2_sysregs_ctx(ctx));
 	}
 }
 #endif /* CTX_INCLUDE_EL2_REGS */
@@ -588,7 +588,7 @@ void cm_el1_sysregs_context_save(uint32_t security_state)
 	ctx = cm_get_context(security_state);
 	assert(ctx != NULL);
 
-	el1_sysregs_context_save(get_sysregs_ctx(ctx));
+	el1_sysregs_context_save(get_el1_sysregs_ctx(ctx));
 
 #if IMAGE_BL31
 	if (security_state == SECURE)
@@ -605,7 +605,7 @@ void cm_el1_sysregs_context_restore(uint32_t security_state)
 	ctx = cm_get_context(security_state);
 	assert(ctx != NULL);
 
-	el1_sysregs_context_restore(get_sysregs_ctx(ctx));
+	el1_sysregs_context_restore(get_el1_sysregs_ctx(ctx));
 
 #if IMAGE_BL31
 	if (security_state == SECURE)
