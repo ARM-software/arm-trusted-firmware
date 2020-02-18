@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -55,11 +55,11 @@ static unsigned int sec_exec_image_id = INVALID_IMAGE_ID;
 /*******************************************************************************
  * Top level handler for servicing FWU SMCs.
  ******************************************************************************/
-register_t bl1_fwu_smc_handler(unsigned int smc_fid,
-			register_t x1,
-			register_t x2,
-			register_t x3,
-			register_t x4,
+u_register_t bl1_fwu_smc_handler(unsigned int smc_fid,
+			u_register_t x1,
+			u_register_t x2,
+			u_register_t x3,
+			u_register_t x4,
 			void *cookie,
 			void *handle,
 			unsigned int flags)
@@ -76,7 +76,7 @@ register_t bl1_fwu_smc_handler(unsigned int smc_fid,
 		SMC_RET1(handle, bl1_fwu_image_execute(x1, &handle, flags));
 
 	case FWU_SMC_IMAGE_RESUME:
-		SMC_RET1(handle, bl1_fwu_image_resume(x1, &handle, flags));
+		SMC_RET1(handle, bl1_fwu_image_resume((register_t)x1, &handle, flags));
 
 	case FWU_SMC_SEC_IMAGE_DONE:
 		SMC_RET1(handle, bl1_fwu_sec_image_done(&handle, flags));
