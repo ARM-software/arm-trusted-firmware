@@ -207,9 +207,10 @@ AS			=	$(CC) -c -x assembler-with-cpp $(TF_CFLAGS_$(ARCH))
 CPP			=	$(CC) -E $(TF_CFLAGS_$(ARCH))
 PP			=	$(CC) -E $(TF_CFLAGS_$(ARCH))
 else ifneq ($(findstring clang,$(notdir $(CC))),)
+CLANG_CCDIR		=	$(if $(filter-out ./,$(dir $(CC))),$(dir $(CC)),)
 TF_CFLAGS_aarch32	=	$(target32-directive) $(march32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-elf $(march64-directive)
-LD			=	ld.lld
+LD			=	$(CLANG_CCDIR)ld.lld
 ifeq (, $(shell which $(LD)))
 $(error "No $(LD) in PATH, make sure it is installed or set LD to a different linker")
 endif

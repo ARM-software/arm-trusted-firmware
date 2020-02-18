@@ -390,6 +390,10 @@ static const spd_pm_ops_t trusty_pm = {
 
 void plat_trusty_set_boot_args(aapcs64_params_t *args);
 
+#if !defined(TSP_SEC_MEM_SIZE) && defined(BL32_MEM_SIZE)
+#define TSP_SEC_MEM_SIZE BL32_MEM_SIZE
+#endif
+
 #ifdef TSP_SEC_MEM_SIZE
 #pragma weak plat_trusty_set_boot_args
 void plat_trusty_set_boot_args(aapcs64_params_t *args)
