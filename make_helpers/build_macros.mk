@@ -67,6 +67,17 @@ $(foreach d,$(0-9),$(eval __numeric := $(subst $(d),,$(__numeric))))
 $(if $(__numeric),$(error $(1) must be numeric))
 endef
 
+# CREATE_SEQ is a recursive function to create sequence of numbers from 1 to
+# $(2) and assign the sequence to $(1)
+define CREATE_SEQ
+$(if $(word $(2), $($(1))),\
+  $(eval $(1) += $(words $($(1))))\
+  $(eval $(1) := $(filter-out 0,$($(1)))),\
+  $(eval $(1) += $(words $($(1))))\
+  $(call CREATE_SEQ,$(1),$(2))\
+)
+endef
+
 # IMG_LINKERFILE defines the linker script corresponding to a BL stage
 #   $(1) = BL stage (2, 30, 31, 32, 33)
 define IMG_LINKERFILE
