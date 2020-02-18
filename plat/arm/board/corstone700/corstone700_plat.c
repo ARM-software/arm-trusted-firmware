@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <common/bl_common.h>
+
+#include <mhu.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
@@ -26,6 +28,7 @@ const mmap_region_t plat_arm_mmap[] = {
  */
 void __init plat_arm_pwrc_setup(void)
 {
+	mhu_secure_init();
 }
 
 unsigned int plat_get_syscnt_freq2(void)

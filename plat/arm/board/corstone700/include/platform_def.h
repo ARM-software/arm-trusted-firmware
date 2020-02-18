@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,19 +9,34 @@
 
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
+
 #include <plat/arm/board/common/v2m_def.h>
 #include <plat/arm/common/arm_spm_def.h>
 #include <plat/common/common_def.h>
+
+/* PL011 UART related constants */
+#ifdef V2M_IOFPGA_UART0_CLK_IN_HZ
+#undef V2M_IOFPGA_UART0_CLK_IN_HZ
+#endif
+
+#ifdef V2M_IOFPGA_UART1_CLK_IN_HZ
+#undef V2M_IOFPGA_UART1_CLK_IN_HZ
+#endif
+
+#define V2M_IOFPGA_UART0_CLK_IN_HZ		32000000
+#define V2M_IOFPGA_UART1_CLK_IN_HZ		32000000
 
 /* Core/Cluster/Thread counts for Corstone700 */
 #define CORSTONE700_CLUSTER_COUNT		U(1)
 #define CORSTONE700_MAX_CPUS_PER_CLUSTER	U(4)
 #define CORSTONE700_MAX_PE_PER_CPU		U(1)
-#define CORSTONE700_CORE_COUNT		(CORSTONE700_CLUSTER_COUNT *	\
-					CORSTONE700_MAX_CPUS_PER_CLUSTER * \
-					CORSTONE700_MAX_PE_PER_CPU)
-#define PLATFORM_CORE_COUNT		CORSTONE700_CORE_COUNT
+
 #define PLAT_ARM_CLUSTER_COUNT		CORSTONE700_CLUSTER_COUNT
+
+#define PLATFORM_CORE_COUNT		(PLAT_ARM_CLUSTER_COUNT *       \
+					CORSTONE700_MAX_CPUS_PER_CLUSTER *   \
+					CORSTONE700_MAX_PE_PER_CPU)
+
 
 /* UART related constants */
 #define PLAT_ARM_BOOT_UART_BASE		0x1a510000
@@ -85,8 +100,12 @@
 					ARM_BL_REGIONS)
 
 /* GIC related constants */
-#define PLAT_ARM_GICD_BASE			0x1C010000
-#define PLAT_ARM_GICC_BASE			0x1C02F000
+#define PLAT_ARM_GICD_BASE		0x1C010000
+#define PLAT_ARM_GICC_BASE		0x1C02F000
+
+/* MHUv2 Secure Channel receiver and sender */
+#define PLAT_SDK700_MHU0_SEND		0x1B800000
+#define PLAT_SDK700_MHU0_RECV		0x1B810000
 
 /* Timer/watchdog related constants */
 #define ARM_SYS_CNTCTL_BASE			UL(0x1a200000)
@@ -101,46 +120,46 @@
  * Macros mapping the MPIDR Affinity levels to ARM Platform Power levels. The
  * power levels have a 1:1 mapping with the MPIDR affinity levels.
  */
-#define ARM_PWR_LVL0		MPIDR_AFFLVL0
-#define ARM_PWR_LVL1		MPIDR_AFFLVL1
-#define ARM_PWR_LVL2		MPIDR_AFFLVL2
+#define ARM_PWR_LVL0				MPIDR_AFFLVL0
+#define ARM_PWR_LVL1				MPIDR_AFFLVL1
+#define ARM_PWR_LVL2				MPIDR_AFFLVL2
 
 /*
  *  Macros for local power states in ARM platforms encoded by State-ID field
  *  within the power-state parameter.
  */
 /* Local power state for power domains in Run state. */
-#define ARM_LOCAL_STATE_RUN	U(0)
+#define ARM_LOCAL_STATE_RUN			U(0)
 /* Local power state for retention. Valid only for CPU power domains */
-#define ARM_LOCAL_STATE_RET	U(1)
+#define ARM_LOCAL_STATE_RET			U(1)
 /* Local power state for OFF/power-down. Valid for CPU and cluster
  * power domains
  */
-#define ARM_LOCAL_STATE_OFF	U(2)
+#define ARM_LOCAL_STATE_OFF			U(2)
 
-#define PLAT_ARM_TRUSTED_MAILBOX_BASE	ARM_TRUSTED_SRAM_BASE
-#define PLAT_ARM_NSTIMER_FRAME_ID	U(1)
+#define PLAT_ARM_TRUSTED_MAILBOX_BASE		ARM_TRUSTED_SRAM_BASE
+#define PLAT_ARM_NSTIMER_FRAME_ID		U(1)
 
-#define PLAT_ARM_NS_IMAGE_OFFSET	(ARM_DRAM1_BASE + UL(0x8000000))
+#define PLAT_ARM_NS_IMAGE_OFFSET		(ARM_DRAM1_BASE + UL(0x8000000))
 
-#define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
-#define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
+#define PLAT_PHY_ADDR_SPACE_SIZE		(1ULL << 32)
+#define PLAT_VIRT_ADDR_SPACE_SIZE		(1ULL << 32)
 
 /*
  * This macro defines the deepest retention state possible. A higher state
  * ID will represent an invalid or a power down state.
  */
-#define PLAT_MAX_RET_STATE		1
+#define PLAT_MAX_RET_STATE			1
 
 /*
  * This macro defines the deepest power down states possible. Any state ID
  * higher than this is invalid.
  */
-#define PLAT_MAX_OFF_STATE		2
+#define PLAT_MAX_OFF_STATE			2
 
-#define PLATFORM_STACK_SIZE		UL(0x440)
+#define PLATFORM_STACK_SIZE			UL(0x440)
 
-#define ARM_MAP_SHARED_RAM		MAP_REGION_FLAT(		\
+#define ARM_MAP_SHARED_RAM			MAP_REGION_FLAT(	\
 						ARM_SHARED_RAM_BASE,	\
 						ARM_SHARED_RAM_SIZE,	\
 						MT_DEVICE | MT_RW | MT_SECURE)
@@ -170,21 +189,21 @@
 
 #define CORSTONE700_DEVICE_BASE		(0x1A000000)
 #define CORSTONE700_DEVICE_SIZE		(0x26000000)
-#define CORSTONE700_MAP_DEVICE	MAP_REGION_FLAT(			\
-					CORSTONE700_DEVICE_BASE,	\
-					CORSTONE700_DEVICE_SIZE,	\
-					MT_DEVICE | MT_RW | MT_SECURE)
+#define CORSTONE700_MAP_DEVICE		MAP_REGION_FLAT(		\
+						CORSTONE700_DEVICE_BASE,\
+						CORSTONE700_DEVICE_SIZE,\
+						MT_DEVICE | MT_RW | MT_SECURE)
 
-#define ARM_IRQ_SEC_PHY_TIMER		29
+#define ARM_IRQ_SEC_PHY_TIMER			29
 
-#define ARM_IRQ_SEC_SGI_0		8
-#define ARM_IRQ_SEC_SGI_1		9
-#define ARM_IRQ_SEC_SGI_2		10
-#define ARM_IRQ_SEC_SGI_3		11
-#define ARM_IRQ_SEC_SGI_4		12
-#define ARM_IRQ_SEC_SGI_5		13
-#define ARM_IRQ_SEC_SGI_6		14
-#define ARM_IRQ_SEC_SGI_7		15
+#define ARM_IRQ_SEC_SGI_0			8
+#define ARM_IRQ_SEC_SGI_1			9
+#define ARM_IRQ_SEC_SGI_2			10
+#define ARM_IRQ_SEC_SGI_3			11
+#define ARM_IRQ_SEC_SGI_4			12
+#define ARM_IRQ_SEC_SGI_5			13
+#define ARM_IRQ_SEC_SGI_6			14
+#define ARM_IRQ_SEC_SGI_7			15
 
 /*
  * Define a list of Group 1 Secure and Group 0 interrupt properties as per GICv3
@@ -192,7 +211,7 @@
  * as Group 0 interrupts.
  */
 #define ARM_G1S_IRQ_PROPS(grp) \
-	INTR_PROP_DESC(ARM_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY,	\
+	INTR_PROP_DESC(ARM_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY, \
 		(grp), GIC_INTR_CFG_LEVEL), \
 	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_1, GIC_HIGHEST_SEC_PRIORITY,	\
 		(grp), GIC_INTR_CFG_EDGE), \
@@ -217,11 +236,11 @@
  * as Group 0 interrupts.
  */
 #define PLAT_ARM_G1S_IRQ_PROPS(grp)	\
-	ARM_G1S_IRQ_PROPS(grp),	\
-	INTR_PROP_DESC(CORSTONE700_IRQ_TZ_WDOG,	\
-		GIC_HIGHEST_SEC_PRIORITY, (grp), GIC_INTR_CFG_LEVEL),	\
-	INTR_PROP_DESC(CORSTONE700_IRQ_SEC_SYS_TIMER,	\
-		GIC_HIGHEST_SEC_PRIORITY, (grp), GIC_INTR_CFG_LEVEL)	\
+	ARM_G1S_IRQ_PROPS(grp), \
+	INTR_PROP_DESC(CORSTONE700_IRQ_TZ_WDOG, GIC_HIGHEST_SEC_PRIORITY, \
+			(grp), GIC_INTR_CFG_LEVEL), \
+	INTR_PROP_DESC(CORSTONE700_IRQ_SEC_SYS_TIMER, \
+			GIC_HIGHEST_SEC_PRIORITY, (grp), GIC_INTR_CFG_LEVEL)
 
 #define PLAT_ARM_G0_IRQ_PROPS(grp)	ARM_G0_IRQ_PROPS(grp)
 
