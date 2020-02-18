@@ -116,12 +116,18 @@
 # define PLAT_ARM_MAX_BL2_SIZE	(UL(0x11000) - FVP_BL2_ROMLIB_OPTIMIZATION)
 #endif
 
+#if RESET_TO_BL31
+/* Size of Trusted SRAM - the first 4KB of shared memory */
+#define PLAT_ARM_MAX_BL31_SIZE		(PLAT_ARM_TRUSTED_SRAM_SIZE - \
+					 ARM_SHARED_RAM_SIZE)
+#else
 /*
  * Since BL31 NOBITS overlays BL2 and BL1-RW, PLAT_ARM_MAX_BL31_SIZE is
  * calculated using the current BL31 PROGBITS debug size plus the sizes of
  * BL2 and BL1-RW
  */
 #define PLAT_ARM_MAX_BL31_SIZE		UL(0x3B000)
+#endif /* RESET_TO_BL31 */
 
 #ifndef __aarch64__
 /*
