@@ -16,6 +16,8 @@
 #include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <drivers/console.h>
+#include <drivers/io/io_driver.h>
+#include <drivers/io/io_storage.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <plat/common/platform.h>
@@ -33,6 +35,7 @@
 #endif
 
 #include "io_common.h"
+#include "io_rcar.h"
 #include "qos_init.h"
 #include "rcar_def.h"
 #include "rcar_private.h"
@@ -382,10 +385,28 @@ cold_boot:
 	return 0;
 }
 
+static uint64_t rcar_get_dest_addr_from_cert(uint32_t certid, uintptr_t *dest)
+{
+	uint32_t cert, len;
+	int ret;
+
+	ret = rcar_get_certificate(certid, &cert);
+	if (ret) {
+		ERROR("%s : cert file load error", __func__);
+		return 1;
+	}
+
+	rcar_read_certificate((uint64_t) cert, &len, dest);
+
+	return 0;
+}
+
 int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	static bl2_to_bl31_params_mem_t *params;
 	bl_mem_params_node_t *bl_mem_params;
+	uintptr_t dest;
+	int ret;
 
 	if (!params) {
 		params = (bl2_to_bl31_params_mem_t *) PARAMS_BASE;
@@ -396,8 +417,17 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 
 	switch (image_id) {
 	case BL31_IMAGE_ID:
+		ret = rcar_get_dest_addr_from_cert(SOC_FW_CONTENT_CERT_ID,
+						   &dest);
+		if (!ret)
+			bl_mem_params->image_info.image_base = dest;
 		break;
 	case BL32_IMAGE_ID:
+		ret = rcar_get_dest_addr_from_cert(TRUSTED_OS_FW_CONTENT_CERT_ID,
+						   &dest);
+		if (!ret)
+			bl_mem_params->image_info.image_base = dest;
+
 		memcpy(&params->bl32_ep_info, &bl_mem_params->ep_info,
 			sizeof(entry_point_info_t));
 		break;
