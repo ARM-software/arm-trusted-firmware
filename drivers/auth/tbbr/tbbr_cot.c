@@ -41,7 +41,15 @@
 #define PK_DER_LEN			91
 #endif
 
+#if TF_MBEDTLS_HASH_ALG_ID == TF_MBEDTLS_SHA256
+#define HASH_DER_LEN			51
+#elif TF_MBEDTLS_HASH_ALG_ID == TF_MBEDTLS_SHA384
+#define HASH_DER_LEN			67
+#elif TF_MBEDTLS_HASH_ALG_ID == TF_MBEDTLS_SHA512
 #define HASH_DER_LEN			83
+#else
+#error "Invalid value for TF_MBEDTLS_HASH_ALG_ID"
+#endif
 
 /*
  * The platform must allocate buffers to store the authentication parameters
