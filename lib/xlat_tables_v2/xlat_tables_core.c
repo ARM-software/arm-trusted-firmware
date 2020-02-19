@@ -109,6 +109,7 @@ uint64_t xlat_desc(const xlat_ctx_t *ctx, uint32_t attr,
 {
 	uint64_t desc;
 	uint32_t mem_type;
+	uint32_t shareability_type;
 
 	/* Make sure that the granularity is fine enough to map this address. */
 	assert((addr_pa & XLAT_BLOCK_MASK(level)) == 0U);
@@ -194,8 +195,16 @@ uint64_t xlat_desc(const xlat_ctx_t *ctx, uint32_t attr,
 			desc |= xlat_arch_regime_get_xn_desc(ctx->xlat_regime);
 		}
 
+		shareability_type = MT_SHAREABILITY(attr);
 		if (mem_type == MT_MEMORY) {
-			desc |= LOWER_ATTRS(ATTR_IWBWA_OWBWA_NTR_INDEX | ISH);
+			desc |= LOWER_ATTRS(ATTR_IWBWA_OWBWA_NTR_INDEX);
+			if (shareability_type == MT_SHAREABILITY_NSH) {
+				desc |= LOWER_ATTRS(NSH);
+			} else if (shareability_type == MT_SHAREABILITY_OSH) {
+				desc |= LOWER_ATTRS(OSH);
+			} else {
+				desc |= LOWER_ATTRS(ISH);
+			}
 
 			/* Check if Branch Target Identification is enabled */
 #if ENABLE_BTI
