@@ -1,8 +1,11 @@
 #
-# Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
+
+# Translation tables library
+include lib/xlat_tables_v2/xlat_tables.mk
 
 PLAT_INCLUDES		:=	-Iplat/imx/imx8qm/include		\
 				-Iplat/imx/common/include		\
@@ -23,11 +26,10 @@ BL31_SOURCES		+=	plat/imx/common/lpuart_console.S	\
 				plat/imx/common/imx8_psci.c		\
 				plat/imx/common/imx_sip_svc.c		\
 				plat/imx/common/imx_sip_handler.c	\
-				lib/xlat_tables/aarch64/xlat_tables.c		\
-				lib/xlat_tables/xlat_tables_common.c		\
 				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
 				drivers/arm/cci/cci.c				\
+				${XLAT_TABLES_LIB_SRCS}				\
 				${IMX_GIC_SOURCES}				\
 
 include plat/imx/common/sci/sci_api.mk

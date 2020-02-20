@@ -61,3 +61,7 @@ ifeq (${SDEI_SUPPORT}, 1)
 BL31_SOURCES 		+= 	plat/imx/common/imx_ehf.c	\
 				plat/imx/common/imx_sdei.c
 endif
+
+ifeq (${SPD},trusty)
+	BL31_CFLAGS    +=      -DPLAT_XLAT_TABLES_DYNAMIC=1
+endif
