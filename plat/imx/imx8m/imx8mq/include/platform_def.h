@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,8 +43,13 @@
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ull << 32)
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ull << 32)
 
+#ifdef SPD_trusty
+#define MAX_XLAT_TABLES			5
+#define MAX_MMAP_REGIONS		15
+#else
 #define MAX_XLAT_TABLES			4
 #define MAX_MMAP_REGIONS		14
+#endif
 
 #define HAB_RVT_BASE			U(0x00000880) /* HAB_RVT for i.MX8MQ */
 
