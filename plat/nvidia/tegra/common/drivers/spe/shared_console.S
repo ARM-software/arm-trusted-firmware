@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +11,7 @@
 #define CONSOLE_FLUSH_DATA_TO_PORT	(1 << 26)
 #define CONSOLE_RING_DOORBELL		(1 << 31)
 #define CONSOLE_IS_BUSY			(1 << 31)
+#define CONSOLE_TIMEOUT			0xC000		/* approx. 50 ms */
 #define CONSOLE_WRITE			(CONSOLE_RING_DOORBELL | CONSOLE_FLUSH_DATA_TO_PORT)
 
 	/*
@@ -30,6 +32,20 @@
 	.globl	console_spe_flush
 	.globl	console_spe_register
 
+.macro	check_if_console_is_ready base, tmp1, tmp2, label
+	/* wait until spe is ready or timeout expires */
+	mrs	\tmp2, cntps_tval_el1
+1:	ldr	\tmp1, [\base]
+	and	\tmp1, \tmp1, #CONSOLE_IS_BUSY
+	cbz	\tmp1, 2f
+	mrs	\tmp1, cntps_tval_el1
+	sub	\tmp1, \tmp2, \tmp1
+	cmp	\tmp1, #CONSOLE_TIMEOUT
+	b.lt	1b
+	b	\label
+2:
+.endm
+
 	/* -------------------------------------------------
 	 * int console_spe_register(uintptr_t baseaddr,
 	 *     uint32_t clock, uint32_t baud,
@@ -46,6 +62,12 @@
 	 * -------------------------------------------------
 	 */
 func console_spe_register
+	/* Check the input base address */
+	cbz	x0, register_fail
+
+	/* Dont use clock or baud rate, so ok to overwrite them */
+	check_if_console_is_ready x0, x1, x2, register_fail
+
 	cbz	x3, register_fail
 	str	x0, [x3, #CONSOLE_T_DRVDATA]
 	mov	x0, x3
@@ -63,7 +85,7 @@ endfunc console_spe_register
 	 * In : w0 - character to be printed
 	 *      x1 - console base address
 	 * Out : return -1 on error else return character.
-	 * Clobber list : x2
+	 * Clobber list : x2, x3
 	 * --------------------------------------------------------
 	 */
 func console_spe_core_putc
@@ -72,12 +94,9 @@ func console_spe_core_putc
 
 	/* Prepend '\r' to '\n' */
 	cmp	w0, #0xA
-	b.ne	2f
+	b.ne	not_eol
 
-	/* wait until spe is ready */
-1:	ldr	w2, [x1]
-	and	w2, w2, #CONSOLE_IS_BUSY
-	cbnz	w2, 1b
+	check_if_console_is_ready x1, x2, x3, putc_error
 
 	/* spe is ready */
 	mov	w2, #0xD		/* '\r' */
@@ -86,10 +105,8 @@ func console_spe_core_putc
 	orr	w2, w2, w3
 	str	w2, [x1]
 
-	/* wait until spe is ready */
-2:	ldr	w2, [x1]
-	and	w2, w2, #CONSOLE_IS_BUSY
-	cbnz	w2, 2b
+not_eol:
+	check_if_console_is_ready x1, x2, x3, putc_error
 
 	/* spe is ready */
 	mov	w2, w0

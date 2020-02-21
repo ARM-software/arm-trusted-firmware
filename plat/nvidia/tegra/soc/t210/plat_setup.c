@@ -236,6 +236,13 @@ void plat_late_platform_setup(void)
 		val |= PMC_SECURITY_EN_BIT;
 		mmio_write_32(TEGRA_MISC_BASE + APB_SLAVE_SECURITY_ENABLE, val);
 	}
+
+	if (!tegra_chipid_is_t210_b01()) {
+		/* restrict PMC access to secure world */
+		val = mmio_read_32(TEGRA_MISC_BASE + APB_SLAVE_SECURITY_ENABLE);
+		val |= PMC_SECURITY_EN_BIT;
+		mmio_write_32(TEGRA_MISC_BASE + APB_SLAVE_SECURITY_ENABLE, val);
+	}
 }
 
 /*******************************************************************************
@@ -254,4 +261,22 @@ void plat_gic_setup(void)
 	 * the GICD.
 	 */
 	tegra_fc_enable_fiq_to_ccplex_routing();
+}
+/*******************************************************************************
+ * Handler to indicate support for System Suspend
+ ******************************************************************************/
+bool plat_supports_system_suspend(void)
+{
+	const plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
+
+	/*
+	 * sc7entry-fw is only supported by Tegra210 SoCs.
+	 */
+	if (!tegra_chipid_is_t210_b01() && (plat_params->sc7entry_fw_base != 0U)) {
+		return true;
+	} else if (tegra_chipid_is_t210_b01()) {
+		return true;
+	} else {
+		return false;
+	}
 }

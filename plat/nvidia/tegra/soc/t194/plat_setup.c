@@ -304,6 +304,9 @@ plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
 	return (plat_params_from_bl2_t *)(uintptr_t)val;
 }
 
+/*******************************************************************************
+ * Handler for late platform setup
+ ******************************************************************************/
 void plat_late_platform_setup(void)
 {
 #if ENABLE_STRICT_CHECKING_MODE
@@ -313,4 +316,12 @@ void plat_late_platform_setup(void)
 	 */
 	mce_enable_strict_checking();
 #endif
+}
+
+/*******************************************************************************
+ * Handler to indicate support for System Suspend
+ ******************************************************************************/
+bool plat_supports_system_suspend(void)
+{
+	return true;
 }

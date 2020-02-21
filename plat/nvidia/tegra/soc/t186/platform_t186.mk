@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -16,6 +17,8 @@ RESET_TO_BL31				:= 1
 PROGRAMMABLE_RESET_ADDRESS		:= 1
 
 COLD_BOOT_SINGLE_CPU			:= 1
+
+RELOCATE_BL32_IMAGE			:= 1
 
 # platform settings
 TZDRAM_BASE				:= 0x30000000
@@ -64,3 +67,6 @@ ERRATA_A57_826977		:=	1
 ERRATA_A57_828024		:=	1
 ERRATA_A57_829520		:=	1
 ERRATA_A57_833471		:=	1
+
+# Enable higher performance Non-cacheable load forwarding
+A57_ENABLE_NONCACHEABLE_LOAD_FWD	:=	1

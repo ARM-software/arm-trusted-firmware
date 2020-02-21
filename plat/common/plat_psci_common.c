@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,15 +10,13 @@
 #include <arch.h>
 #include <lib/pmf/pmf.h>
 #include <lib/psci/psci.h>
+#include <lib/utils_def.h>
 #include <plat/common/platform.h>
 
 #if ENABLE_PSCI_STAT && ENABLE_PMF
 #pragma weak plat_psci_stat_accounting_start
 #pragma weak plat_psci_stat_accounting_stop
 #pragma weak plat_psci_stat_get_residency
-
-/* Ticks elapsed in one second by a signal of 1 MHz */
-#define MHZ_TICKS_PER_SEC 1000000U
 
 /* Maximum time-stamp value read from architectural counters */
 #ifdef __aarch64__

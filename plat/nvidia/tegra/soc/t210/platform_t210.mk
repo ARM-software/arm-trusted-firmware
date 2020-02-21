@@ -57,3 +57,6 @@ ERRATA_A53_855873		:=	1
 
 # Skip L1 $ flush when powering down Cortex-A57 CPUs
 SKIP_A57_L1_FLUSH_PWR_DWN	:=	1
+
+# Enable higher performance Non-cacheable load forwarding
+A57_ENABLE_NONCACHEABLE_LOAD_FWD	:=	1
