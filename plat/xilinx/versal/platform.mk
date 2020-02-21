@@ -52,6 +52,8 @@ PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				drivers/arm/gic/v3/gic500.c			\
 				drivers/arm/gic/v3/gicv3_main.c			\
 				drivers/arm/gic/v3/gicv3_helpers.c		\
+				drivers/arm/gic/v3/gicdv3_helpers.c	\
+				drivers/arm/gic/v3/gicrv3_helpers.c	\
 				drivers/arm/pl011/aarch64/pl011_console.S	\
 				plat/common/aarch64/crash_console_helpers.S	\
 				plat/arm/common/arm_cci.c			\

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -33,6 +33,8 @@ PLAT_BL_COMMON_SOURCES	+=	$(PLAT_PATH)/sq_helpers.S		\
 BL31_SOURCES		+=	drivers/arm/ccn/ccn.c			\
 				drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v3/gicv3_helpers.c	\
+				drivers/arm/gic/v3/gicdv3_helpers.c	\
+				drivers/arm/gic/v3/gicrv3_helpers.c	\
 				drivers/arm/gic/v3/gicv3_main.c		\
 				lib/cpus/aarch64/cortex_a53.S		\
 				plat/common/plat_gicv3.c		\

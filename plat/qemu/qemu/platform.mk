@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -140,6 +140,8 @@ QEMU_GICV2_SOURCES	:=	drivers/arm/gic/v2/gicv2_helpers.c	\
 				${PLAT_QEMU_COMMON_PATH}/qemu_gicv2.c
 
 QEMU_GICV3_SOURCES	:=	drivers/arm/gic/v3/gicv3_helpers.c	\
+				drivers/arm/gic/v3/gicdv3_helpers.c	\
+				drivers/arm/gic/v3/gicrv3_helpers.c	\
 				drivers/arm/gic/v3/gicv3_main.c		\
 				drivers/arm/gic/common/gic_common.c	\
 				plat/common/plat_gicv3.c		\

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -25,6 +25,8 @@ PLAT_INCLUDES		+=	-I${CSS_ENT_BASE}/include
 ENT_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v3/gicv3_main.c		\
 				drivers/arm/gic/v3/gicv3_helpers.c	\
+				drivers/arm/gic/v3/gicdv3_helpers.c	\
+				drivers/arm/gic/v3/gicrv3_helpers.c	\
 				plat/common/plat_gicv3.c		\
 				plat/arm/common/arm_gicv3.c		\
 				drivers/arm/gic/v3/gic600.c

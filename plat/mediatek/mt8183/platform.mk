@@ -31,6 +31,8 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    drivers/arm/gic/common/gic_common.c                   \
                    drivers/arm/gic/v3/arm_gicv3_common.c                 \
                    drivers/arm/gic/v3/gicv3_helpers.c                    \
+                   drivers/arm/gic/v3/gicdv3_helpers.c			 \
+                   drivers/arm/gic/v3/gicrv3_helpers.c			 \
                    drivers/arm/gic/v3/gic500.c                           \
                    drivers/arm/gic/v3/gicv3_main.c                       \
                    drivers/delay_timer/delay_timer.c                     \

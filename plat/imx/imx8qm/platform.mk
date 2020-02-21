@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,6 +8,8 @@ PLAT_INCLUDES		:=	-Iplat/imx/imx8qm/include		\
 				-Iplat/imx/common/include		\
 
 IMX_GIC_SOURCES	:=		drivers/arm/gic/v3/gicv3_helpers.c	\
+				drivers/arm/gic/v3/gicdv3_helpers.c	\
+				drivers/arm/gic/v3/gicrv3_helpers.c	\
 				drivers/arm/gic/v3/arm_gicv3_common.c   \
 				drivers/arm/gic/v3/gic500.c             \
 				drivers/arm/gic/v3/gicv3_main.c		\
