@@ -66,7 +66,7 @@ static int32_t smccc_arch_features(u_register_t arg)
 		return 0;
 #else
 		/* Either the CPUs are unaffected or permanently mitigated */
-		return SMCCC_ARCH_NOT_REQUIRED;
+		return SMC_ARCH_CALL_NOT_REQUIRED;
 #endif
 	}
 #endif
