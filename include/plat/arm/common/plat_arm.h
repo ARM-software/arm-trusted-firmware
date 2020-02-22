@@ -148,6 +148,12 @@ void arm_setup_romlib(void);
 #define ARM_ROTPK_DEVEL_RSA_ID		2
 #define ARM_ROTPK_DEVEL_ECDSA_ID	3
 
+/* Defines used to retrieve ARM SOC revision */
+#define ARM_SOC_CONTINUATION_CODE	U(0x4)
+#define ARM_SOC_IDENTIFICATION_CODE	U(0x3B)
+#define ARM_SOC_CONTINUATION_SHIFT	U(24)
+#define ARM_SOC_IDENTIFICATION_SHIFT	U(16)
+
 /* IO storage utility functions */
 int arm_io_setup(void);
 
@@ -322,5 +328,8 @@ extern const unsigned int arm_pm_idle_states[];
 /* secure watchdog */
 void plat_arm_secure_wdt_start(void);
 void plat_arm_secure_wdt_stop(void);
+
+/* Get SOC-ID of ARM platform */
+uint32_t plat_arm_get_soc_id(void);
 
 #endif /* PLAT_ARM_H */
