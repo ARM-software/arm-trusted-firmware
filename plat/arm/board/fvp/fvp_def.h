@@ -52,8 +52,10 @@
 #define DEVICE1_BASE			UL(0x2e000000)
 #define DEVICE1_SIZE			UL(0x1A00000)
 #else
-#define DEVICE1_BASE			UL(0x2f000000)
-#define DEVICE1_SIZE			UL(0x200000)
+/* GICv2 and GICv3 mapping: GICD + CORE_COUNT * 128KB */
+#define DEVICE1_BASE			BASE_GICD_BASE
+#define DEVICE1_SIZE			((BASE_GICR_BASE - BASE_GICD_BASE) + \
+					 (PLATFORM_CORE_COUNT * 0x20000))
 #define NSRAM_BASE			UL(0x2e000000)
 #define NSRAM_SIZE			UL(0x10000)
 #endif
@@ -110,7 +112,7 @@
 #define FVP_SP810_CTRL_TIM3_OV		BIT_32(22)
 
 /*******************************************************************************
- * GIC-400 & interrupt handling related constants
+ * GIC & interrupt handling related constants
  ******************************************************************************/
 /* VE compatible GIC memory map */
 #define VE_GICD_BASE			UL(0x2c001000)
@@ -127,7 +129,6 @@
 
 #define FVP_IRQ_TZ_WDOG			56
 #define FVP_IRQ_SEC_SYS_TIMER		57
-
 
 /*******************************************************************************
  * TrustZone address space controller related constants
