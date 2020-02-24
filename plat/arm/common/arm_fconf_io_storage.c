@@ -12,7 +12,6 @@
 #include <drivers/io/io_memmap.h>
 #include <drivers/io/io_storage.h>
 #include <lib/utils.h>
-#include <tools_share/firmware_image_package.h>
 
 #include <plat/arm/common/arm_fconf_getter.h>
 #include <plat/arm/common/arm_fconf_io_storage.h>

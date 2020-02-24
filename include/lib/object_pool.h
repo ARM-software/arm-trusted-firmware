@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -56,13 +56,13 @@ struct object_pool {
  */
 static inline void *pool_alloc_n(struct object_pool *pool, size_t count)
 {
-	if (pool->used + count > pool->capacity) {
+	if ((pool->used + count) > pool->capacity) {
 		ERROR("Cannot allocate %zu objects out of pool (%zu objects left).\n",
 		      count, pool->capacity - pool->used);
 		panic();
 	}
 
-	void *obj = (char *)(pool->objects) + pool->obj_size * pool->used;
+	void *obj = (char *)(pool->objects) + (pool->obj_size * pool->used);
 	pool->used += count;
 	return obj;
 }
