@@ -701,6 +701,7 @@ FIPTOOL			?=	${FIPTOOLPATH}/fiptool${BIN_EXT}
 # Variables for use with sptool
 SPTOOLPATH		?=	tools/sptool
 SPTOOL			?=	${SPTOOLPATH}/sptool${BIN_EXT}
+SP_MK_GEN		?=	${SPTOOLPATH}/sp_mk_generator.py
 
 # Variables for use with ROMLIB
 ROMLIBPATH		?=	lib/romlib
@@ -889,11 +890,22 @@ ifneq ($(findstring armlink,$(notdir $(LD))),)
 $(eval $(call add_define,USE_ARM_LINK))
 endif
 
+# Generate and include sp_gen.mk if SPD is spmd and SP_LAYOUT_FILE is defined
+ifdef SP_LAYOUT_FILE
+ifeq (${SPD},spmd)
+        -include $(BUILD_PLAT)/sp_gen.mk
+        FIP_DEPS += sp
+        NEED_SP_PKG := yes
+else
+        $(error "SP_LAYOUT_FILE will be used only if SPD=spmd")
+endif
+endif
+
 ################################################################################
 # Build targets
 ################################################################################
 
-.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip fwu_fip certtool dtbs memmap doc
+.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip sp fwu_fip certtool dtbs memmap doc
 .SUFFIXES:
 
 all: msg_start
@@ -969,6 +981,17 @@ endif
 # Expand build macros for the different images
 ifeq (${NEED_FDT},yes)
     $(eval $(call MAKE_DTBS,$(BUILD_PLAT)/fdts,$(FDT_SOURCES)))
+endif
+
+# Add Secure Partition packages
+ifeq (${NEED_SP_PKG},yes)
+$(BUILD_PLAT)/sp_gen.mk: ${SP_MK_GEN} ${SP_LAYOUT_FILE} | ${BUILD_PLAT}
+	${Q}${PYTHON} "$<" "$@" $(filter-out $<,$^) $(BUILD_PLAT)
+sp: $(SPTOOL) $(DTBS) $(BUILD_PLAT)/sp_gen.mk
+	${Q}$(SPTOOL) $(SPTOOL_ARGS)
+	@${ECHO_BLANK_LINE}
+	@echo "Built SP Images successfully"
+	@${ECHO_BLANK_LINE}
 endif
 
 locate-checkpatch:
@@ -1132,6 +1155,7 @@ help:
 	@echo "  distclean      Remove all build artifacts for all platforms"
 	@echo "  certtool       Build the Certificate generation tool"
 	@echo "  fiptool        Build the Firmware Image Package (FIP) creation tool"
+	@echo "  sp             Build the Secure Partition Packages"
 	@echo "  sptool         Build the Secure Partition Package creation tool"
 	@echo "  dtbs           Build the Device Tree Blobs (if required for the platform)"
 	@echo "  memmap         Print the memory map of the built binaries"
