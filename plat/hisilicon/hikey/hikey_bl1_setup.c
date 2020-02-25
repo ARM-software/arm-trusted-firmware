@@ -26,7 +26,7 @@
 
 /* Data structure which holds the extents of the trusted RAM for BL1 */
 static meminfo_t bl1_tzram_layout;
-static console_pl011_t console;
+static console_t console;
 
 enum {
 	BOOT_NORMAL = 0,

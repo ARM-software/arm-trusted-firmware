@@ -32,7 +32,7 @@
 #define BL2_RW_BASE		(BL_CODE_END)
 
 static meminfo_t bl2_el3_tzram_layout;
-static console_pl011_t console;
+static console_t console;
 
 enum {
 	BOOT_MODE_RECOVERY = 0,
