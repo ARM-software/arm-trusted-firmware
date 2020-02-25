@@ -188,6 +188,9 @@ SPD				:= none
 # Enable the Management Mode (MM)-based Secure Partition Manager implementation
 SPM_MM				:= 0
 
+# Use SPM at S-EL2 as a default config for SPMD
+SPMD_SPM_AT_SEL2		:= 1
+
 # Flag to introduce an infinite loop in BL1 just before it exits into the next
 # image. This is meant to help debugging the post-BL2 phase.
 SPIN_ON_BL1_EXIT		:= 0

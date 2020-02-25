@@ -65,19 +65,19 @@ uint64_t spmd_spm_core_sync_entry(spmd_spm_core_context_t *spmc_ctx)
 
 	/* Restore the context assigned above */
 	cm_el1_sysregs_context_restore(SECURE);
+#if SPMD_SPM_AT_SEL2
 	cm_el2_sysregs_context_restore(SECURE);
+#endif
 	cm_set_next_eret_context(SECURE);
 
-	/* Invalidate TLBs at EL1. */
-	tlbivmalle1();
-	dsbish();
-
-	/* Enter Secure Partition */
+	/* Enter SPMC */
 	rc = spmd_spm_core_enter(&spmc_ctx->c_rt_ctx);
 
 	/* Save secure state */
 	cm_el1_sysregs_context_save(SECURE);
+#if SPMD_SPM_AT_SEL2
 	cm_el2_sysregs_context_save(SECURE);
+#endif
 
 	return rc;
 }
@@ -159,16 +159,8 @@ static int spmd_spmc_init(void *rd_base, size_t rd_size)
 	INFO("SPCI version (%x.%x).\n", spmc_attrs.major_version,
 	     spmc_attrs.minor_version);
 
-	/* Validate the SPM core runtime EL */
-	if ((spmc_attrs.runtime_el != MODE_EL1) &&
-	    (spmc_attrs.runtime_el != MODE_EL2)) {
-		WARN("Unsupported SPM core run time EL%x specified in "
-		     "manifest image provided by BL2 boot loader.\n",
-		     spmc_attrs.runtime_el);
-		return 1;
-	}
-
-	INFO("SPM core run time EL%x.\n", spmc_attrs.runtime_el);
+	INFO("SPM core run time EL%x.\n",
+	     SPMD_SPM_AT_SEL2 ? MODE_EL2 : MODE_EL1);
 
 	/* Validate the SPM core execution state */
 	if ((spmc_attrs.exec_state != MODE_RW_64) &&
@@ -181,12 +173,10 @@ static int spmd_spmc_init(void *rd_base, size_t rd_size)
 
 	INFO("SPM core execution state %x.\n", spmc_attrs.exec_state);
 
-	/* Ensure manifest has not requested S-EL2 in AArch32 state */
-	if ((spmc_attrs.exec_state == MODE_RW_32) &&
-	    (spmc_attrs.runtime_el == MODE_EL2)) {
-		WARN("Invalid combination of SPM core execution state (%x) "
-		     "and run time EL (%x).\n", spmc_attrs.exec_state,
-		     spmc_attrs.runtime_el);
+#if SPMD_SPM_AT_SEL2
+	/* Ensure manifest has not requested AArch32 state in S-EL2 */
+	if (spmc_attrs.exec_state == MODE_RW_32) {
+		WARN("AArch32 state at S-EL2 is not supported.\n");
 		return 1;
 	}
 
@@ -194,19 +184,16 @@ static int spmd_spmc_init(void *rd_base, size_t rd_size)
 	 * Check if S-EL2 is supported on this system if S-EL2
 	 * is required for SPM
 	 */
-	if (spmc_attrs.runtime_el == MODE_EL2) {
-		uint64_t sel2 = read_id_aa64pfr0_el1();
+	uint64_t sel2 = read_id_aa64pfr0_el1();
 
-		sel2 >>= ID_AA64PFR0_SEL2_SHIFT;
-		sel2 &= ID_AA64PFR0_SEL2_MASK;
+	sel2 >>= ID_AA64PFR0_SEL2_SHIFT;
+	sel2 &= ID_AA64PFR0_SEL2_MASK;
 
-		if (!sel2) {
-			WARN("SPM core run time EL: S-EL%x is not supported "
-			     "but specified in manifest image provided by "
-			     "BL2 boot loader.\n", spmc_attrs.runtime_el);
-			return 1;
-		}
+	if (!sel2) {
+		WARN("SPM core run time S-EL2 is not supported.");
+		return 1;
 	}
+#endif /* SPMD_SPM_AT_SEL2 */
 
 	/* Initialise an entrypoint to set up the CPU context */
 	ep_attr = SECURE | EP_ST_ENABLE;
@@ -228,7 +215,13 @@ static int spmd_spmc_init(void *rd_base, size_t rd_size)
 						 DAIF_IRQ_BIT |
 						 DAIF_ABT_BIT);
 	} else {
-		spmc_ep_info->spsr = SPSR_64(spmc_attrs.runtime_el,
+
+#if SPMD_SPM_AT_SEL2
+		static const uint32_t runtime_el = MODE_EL2;
+#else
+		static const uint32_t runtime_el = MODE_EL1;
+#endif
+		spmc_ep_info->spsr = SPSR_64(runtime_el,
 					     MODE_SP_ELX,
 					     DISABLE_ALL_EXCEPTIONS);
 	}
@@ -332,11 +325,15 @@ static uint64_t spmd_smc_forward(uint32_t smc_fid, bool secure_origin,
 
 	/* Save incoming security state */
 	cm_el1_sysregs_context_save(secure_state_in);
+#if SPMD_SPM_AT_SEL2
 	cm_el2_sysregs_context_save(secure_state_in);
+#endif
 
 	/* Restore outgoing security state */
 	cm_el1_sysregs_context_restore(secure_state_out);
+#if SPMD_SPM_AT_SEL2
 	cm_el2_sysregs_context_restore(secure_state_out);
+#endif
 	cm_set_next_eret_context(secure_state_out);
 
 	SMC_RET8(cm_get_context(secure_state_out), smc_fid, x1, x2, x3, x4,

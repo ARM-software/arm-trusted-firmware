@@ -422,11 +422,14 @@ ifneq (${SPD},none)
     endif
 
     ifeq (${SPD},spmd)
+        $(warning "SPMD is an experimental feature")
         # SPMD is located in std_svc directory
         SPD_DIR := std_svc
 
-        ifeq ($(CTX_INCLUDE_EL2_REGS),0)
-            $(error spmd requires CTX_INCLUDE_EL2_REGS option)
+        ifeq ($(SPMD_SPM_AT_SEL2),1)
+            ifeq ($(CTX_INCLUDE_EL2_REGS),0)
+                $(error SPMD with SPM at S-EL2 requires CTX_INCLUDE_EL2_REGS option)
+            endif
         endif
     else
         # All other SPDs in spd directory
@@ -799,6 +802,7 @@ $(eval $(call assert_boolean,SEPARATE_CODE_AND_RODATA))
 $(eval $(call assert_boolean,SEPARATE_NOBITS_REGION))
 $(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
 $(eval $(call assert_boolean,SPM_MM))
+$(eval $(call assert_boolean,SPMD_SPM_AT_SEL2))
 $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
 $(eval $(call assert_boolean,USE_COHERENT_MEM))
 $(eval $(call assert_boolean,USE_DEBUGFS))
@@ -870,6 +874,7 @@ $(eval $(call add_define,RECLAIM_INIT_CODE))
 $(eval $(call add_define,SPD_${SPD}))
 $(eval $(call add_define,SPIN_ON_BL1_EXIT))
 $(eval $(call add_define,SPM_MM))
+$(eval $(call add_define,SPMD_SPM_AT_SEL2))
 $(eval $(call add_define,TRUSTED_BOARD_BOOT))
 $(eval $(call add_define,USE_COHERENT_MEM))
 $(eval $(call add_define,USE_DEBUGFS))
