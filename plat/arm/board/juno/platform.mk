@@ -155,6 +155,14 @@ else
     endif
 endif
 
+ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
+    ifeq (${JUNO_AARCH32_EL3_RUNTIME}, 1)
+        BL32_CFLAGS	+=	-DPLAT_RO_XLAT_TABLES=1
+    else
+        BL31_CFLAGS	+=	-DPLAT_RO_XLAT_TABLES=1
+    endif
+endif
+
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES		+=	plat/arm/board/juno/fdts/${PLAT}_fw_config.dts
 TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_fw_config.dtb

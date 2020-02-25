@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -344,6 +344,16 @@ int mmap_remove_dynamic_region_ctx(xlat_ctx_t *ctx,
 int xlat_change_mem_attributes_ctx(const xlat_ctx_t *ctx, uintptr_t base_va,
 				   size_t size, uint32_t attr);
 int xlat_change_mem_attributes(uintptr_t base_va, size_t size, uint32_t attr);
+
+#if PLAT_RO_XLAT_TABLES
+/*
+ * Change the memory attributes of the memory region encompassing the higher
+ * level translation tables to secure read-only data.
+ *
+ * Return 0 on success, a negative error code on error.
+ */
+int xlat_make_tables_readonly(void);
+#endif
 
 /*
  * Query the memory attributes of a memory page in a set of translation tables.

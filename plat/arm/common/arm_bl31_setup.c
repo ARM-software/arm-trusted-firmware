@@ -256,8 +256,13 @@ void arm_bl31_plat_runtime_setup(void)
 
 	/* Initialize the runtime console */
 	arm_console_runtime_init();
+
 #if RECLAIM_INIT_CODE
 	arm_free_init_memory();
+#endif
+
+#if PLAT_RO_XLAT_TABLES
+	arm_xlat_make_tables_readonly();
 #endif
 }
 

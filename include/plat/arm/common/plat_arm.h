@@ -237,6 +237,11 @@ int arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size);
 void arm_free_init_memory(void);
 
 /*
+ * Make the higher level translation tables read-only
+ */
+void arm_xlat_make_tables_readonly(void);
+
+/*
  * Mandatory functions required in ARM standard platforms
  */
 unsigned int plat_arm_get_cluster_core_count(u_register_t mpidr);

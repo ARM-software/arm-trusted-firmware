@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -13,3 +13,7 @@ XLAT_TABLES_LIB_SRCS	:=	$(addprefix lib/xlat_tables_v2/,	\
 
 XLAT_TABLES_LIB_V2	:=	1
 $(eval $(call add_define,XLAT_TABLES_LIB_V2))
+
+ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
+    include lib/xlat_tables_v2/ro_xlat_tables.mk
+endif
