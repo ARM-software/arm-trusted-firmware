@@ -12,7 +12,6 @@
 #include <drivers/st/stm32_gpio.h>
 
 #define GPIO_TX_SHIFT		(DEBUG_UART_TX_GPIO_PORT << 1)
-#define GPIO_TX_ALT_SHIFT	((DEBUG_UART_TX_GPIO_PORT - GPIO_ALT_LOWER_LIMIT) << 2)
 
 	.globl	platform_mem_init
 	.globl	plat_report_exception
@@ -170,10 +169,19 @@ func plat_crash_console_init
 	bic	r2, r2, #(GPIO_PULL_MASK << GPIO_TX_SHIFT)
 	str	r2, [r1, #GPIO_PUPD_OFFSET]
 	/* Set alternate */
+#if DEBUG_UART_TX_GPIO_PORT >= GPIO_ALT_LOWER_LIMIT
 	ldr	r2, [r1, #GPIO_AFRH_OFFSET]
-	bic	r2, r2, #(GPIO_ALTERNATE_MASK << GPIO_TX_ALT_SHIFT)
-	orr	r2, r2, #(DEBUG_UART_TX_GPIO_ALTERNATE << GPIO_TX_ALT_SHIFT)
+	bic	r2, r2, #(GPIO_ALTERNATE_MASK << \
+				((DEBUG_UART_TX_GPIO_PORT - GPIO_ALT_LOWER_LIMIT) << 2))
+	orr	r2, r2, #(DEBUG_UART_TX_GPIO_ALTERNATE << \
+				((DEBUG_UART_TX_GPIO_PORT - GPIO_ALT_LOWER_LIMIT) << 2))
 	str	r2, [r1, #GPIO_AFRH_OFFSET]
+#else
+	ldr	r2, [r1, #GPIO_AFRL_OFFSET]
+	bic	r2, r2, #(GPIO_ALTERNATE_MASK << (DEBUG_UART_TX_GPIO_PORT << 2))
+	orr	r2, r2, #(DEBUG_UART_TX_GPIO_ALTERNATE << (DEBUG_UART_TX_GPIO_PORT << 2))
+	str	r2, [r1, #GPIO_AFRL_OFFSET]
+#endif
 	/* Enable UART clock, with its source */
 	ldr	r1, =(RCC_BASE + DEBUG_UART_TX_CLKSRC_REG)
 	mov	r2, #DEBUG_UART_TX_CLKSRC
