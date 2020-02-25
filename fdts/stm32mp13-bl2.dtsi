@@ -1,0 +1,111 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+/*
+ * Copyright (C) STMicroelectronics 2022 - All Rights Reserved
+ */
+
+/ {
+	aliases {
+#if !STM32MP_EMMC && !STM32MP_SDMMC
+		/delete-property/ mmc0;
+		/delete-property/ mmc1;
+#endif
+		/delete-property/ ethernet0;
+		/delete-property/ ethernet1;
+	};
+
+	cpus {
+		cpu@0 {
+			/delete-property/ operating-points-v2;
+		};
+	};
+
+	/delete-node/ cpu0-opp-table;
+	/delete-node/ psci;
+
+	soc {
+		/delete-node/ sram@30000000;
+		/delete-node/ timer@40000000;
+		/delete-node/ timer@40001000;
+		/delete-node/ timer@40002000;
+		/delete-node/ timer@40003000;
+		/delete-node/ timer@40004000;
+		/delete-node/ timer@40005000;
+		/delete-node/ timer@40009000;
+		/delete-node/ spi@4000b000;
+		/delete-node/ audio-controller@4000b000;
+		/delete-node/ spi@4000c000;
+		/delete-node/ audio-controller@4000c000;
+		/delete-node/ audio-controller@4000d000;
+		/delete-node/ i2c@40012000;
+		/delete-node/ i2c@40013000;
+		/delete-node/ timer@44000000;
+		/delete-node/ timer@44001000;
+		/delete-node/ spi@44004000;
+		/delete-node/ audio-controller@44004000;
+		/delete-node/ sai@4400a000;
+		/delete-node/ sai@4400b000;
+		/delete-node/ dfsdm@4400d000;
+		/delete-node/ can@4400e000;
+		/delete-node/ can@4400f000;
+		/delete-node/ dma-controller@48000000;
+		/delete-node/ dma-controller@48001000;
+		/delete-node/ dma-router@48002000;
+		/delete-node/ adc@48003000;
+		/delete-node/ adc@48004000;
+		/delete-node/ dma@48005000;
+		/delete-node/ dma-router@48006000;
+#if !STM32MP_USB_PROGRAMMER
+		/delete-node/ usb-otg@49000000;
+#endif
+		/delete-node/ spi@4c002000;
+		/delete-node/ spi@4c003000;
+		/delete-node/ timer@4c007000;
+		/delete-node/ timer@4c008000;
+		/delete-node/ timer@4c009000;
+		/delete-node/ timer@4c00a000;
+		/delete-node/ timer@4c00b000;
+		/delete-node/ timer@4c00c000;
+		/delete-node/ timer@50021000;
+		/delete-node/ timer@50022000;
+		/delete-node/ timer@50023000;
+		/delete-node/ timer@50024000;
+		/delete-node/ vrefbuf@50025000;
+		/delete-node/ thermal@50028000;
+		/delete-node/ hdp@5002a000;
+		/delete-node/ dma-controller@58000000;
+#if !STM32MP_RAW_NAND
+		/delete-node/ memory-controller@58002000;
+#endif
+#if !STM32MP_SPI_NAND && !STM32MP_SPI_NOR
+		/delete-node/ spi@58003000;
+#endif
+#if !STM32MP_EMMC && !STM32MP_SDMMC
+		/delete-node/ mmc@58005000;
+		/delete-node/ mmc@58007000;
+#endif
+		/delete-node/ crc@58009000;
+		/delete-node/ stmmac-axi-config;
+		/delete-node/ eth1@5800a000;
+#if !STM32MP_USB_PROGRAMMER
+		/delete-node/ usbh-ohci@5800c000;
+		/delete-node/ usbh-ehci@5800d000;
+#endif
+		/delete-node/ eth2@5800e000;
+		/delete-node/ dcmipp@5a000000;
+		/delete-node/ display-controller@5a001000;
+#if !STM32MP_USB_PROGRAMMER
+		/delete-node/ usbphyc@5a006000;
+#endif
+		/delete-node/ perf@5a007000;
+		/delete-node/ rtc@5c004000;
+		/delete-node/ tamp@5c00a000;
+		/delete-node/ stgen@5c008000;
+
+		pin-controller@50002000 {
+#if !STM32MP_EMMC && !STM32MP_SDMMC
+			/delete-node/ sdmmc1-b4-0;
+			/delete-node/ sdmmc2-b4-0;
+#endif
+		};
+	};
+};

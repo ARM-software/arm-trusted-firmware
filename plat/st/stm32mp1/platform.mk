@@ -106,6 +106,11 @@ STM32MP_USB_PROGRAMMER	?=	0
 STM32MP_UART_PROGRAMMER	?=	0
 
 # Device tree
+ifeq ($(STM32MP13),1)
+DTB_FILE_NAME		?=	stm32mp135f-dk.dtb
+BL2_DTSI		:=	stm32mp13-bl2.dtsi
+FDT_SOURCES		:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DTB_FILE_NAME)))
+else
 DTB_FILE_NAME		?=	stm32mp157c-ev1.dtb
 ifeq ($(STM32MP_USE_STM32IMAGE),1)
 ifeq ($(AARCH32_SP),optee)
@@ -120,6 +125,7 @@ FDT_SOURCES		:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DT
 ifeq ($(AARCH32_SP),sp_min)
 BL32_DTSI		:=	stm32mp15-bl32.dtsi
 FDT_SOURCES		+=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl32.dts,$(DTB_FILE_NAME)))
+endif
 endif
 endif
 
