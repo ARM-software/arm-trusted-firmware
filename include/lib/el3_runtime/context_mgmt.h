@@ -36,6 +36,11 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep);
 void cm_prepare_el3_exit(uint32_t security_state);
 
 #ifdef __aarch64__
+#if CTX_INCLUDE_EL2_REGS
+void cm_el2_sysregs_context_save(uint32_t security_state);
+void cm_el2_sysregs_context_restore(uint32_t security_state);
+#endif
+
 void cm_el1_sysregs_context_save(uint32_t security_state);
 void cm_el1_sysregs_context_restore(uint32_t security_state);
 void cm_set_elr_el3(uint32_t security_state, uintptr_t entrypoint);

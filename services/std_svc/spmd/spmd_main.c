@@ -49,6 +49,7 @@ uint64_t spmd_spm_core_sync_entry(spmd_spm_core_context_t *spmc_ctx)
 
 	/* Restore the context assigned above */
 	cm_el1_sysregs_context_restore(SECURE);
+	cm_el2_sysregs_context_restore(SECURE);
 	cm_set_next_eret_context(SECURE);
 
 	/* Invalidate TLBs at EL1. */
@@ -60,6 +61,7 @@ uint64_t spmd_spm_core_sync_entry(spmd_spm_core_context_t *spmc_ctx)
 
 	/* Save secure state */
 	cm_el1_sysregs_context_save(SECURE);
+	cm_el2_sysregs_context_save(SECURE);
 
 	return rc;
 }
@@ -321,9 +323,11 @@ uint64_t spmd_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 
 		/* Save incoming security state */
 		cm_el1_sysregs_context_save(in_sstate);
+		cm_el2_sysregs_context_save(in_sstate);
 
 		/* Restore outgoing security state */
 		cm_el1_sysregs_context_restore(out_sstate);
+		cm_el2_sysregs_context_restore(out_sstate);
 		cm_set_next_eret_context(out_sstate);
 
 		SMC_RET8(cm_get_context(out_sstate), smc_fid, x1, x2, x3, x4,
@@ -366,9 +370,11 @@ uint64_t spmd_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		if (in_sstate == NON_SECURE) {
 			/* Save incoming security state */
 			cm_el1_sysregs_context_save(in_sstate);
+			cm_el2_sysregs_context_save(in_sstate);
 
 			/* Restore outgoing security state */
 			cm_el1_sysregs_context_restore(out_sstate);
+			cm_el2_sysregs_context_restore(out_sstate);
 			cm_set_next_eret_context(out_sstate);
 
 			SMC_RET8(cm_get_context(out_sstate), smc_fid,
@@ -432,9 +438,11 @@ uint64_t spmd_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 
 		/* Save incoming security state */
 		cm_el1_sysregs_context_save(in_sstate);
+		cm_el2_sysregs_context_save(in_sstate);
 
 		/* Restore outgoing security state */
 		cm_el1_sysregs_context_restore(out_sstate);
+		cm_el2_sysregs_context_restore(out_sstate);
 		cm_set_next_eret_context(out_sstate);
 
 		SMC_RET8(cm_get_context(out_sstate), smc_fid, x1, x2, x3, x4,
@@ -466,9 +474,11 @@ uint64_t spmd_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 
 		/* Save incoming security state */
 		cm_el1_sysregs_context_save(in_sstate);
+		cm_el2_sysregs_context_save(in_sstate);
 
 		/* Restore outgoing security state */
 		cm_el1_sysregs_context_restore(out_sstate);
+		cm_el2_sysregs_context_restore(out_sstate);
 		cm_set_next_eret_context(out_sstate);
 
 		SMC_RET8(cm_get_context(out_sstate), smc_fid, x1, x2, x3, x4,
