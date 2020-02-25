@@ -164,7 +164,7 @@ BL2_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
 STM32IMAGEPATH		?= tools/stm32image
 STM32IMAGE		?= ${STM32IMAGEPATH}/stm32image${BIN_EXT}
 
-.PHONY:			${STM32_TF_STM32}
+.PHONY:			check_dtc_version stm32image clean_stm32image
 .SUFFIXES:
 
 all: check_dtc_version ${STM32_TF_STM32} stm32image
