@@ -56,14 +56,14 @@ endfunc console_cdns_core_init
 	/* -----------------------------------------------
 	 * int console_cdns_register(uintptr_t baseaddr,
 	 *     uint32_t clock, uint32_t baud,
-	 *     console_cdns_t *console);
+	 *     console_t *console);
 	 * Function to initialize and register a new CDNS
 	 * console. Storage passed in for the console struct
 	 * *must* be persistent (i.e. not from the stack).
 	 * In: x0 - UART register base address
 	 *     w1 - UART clock in Hz
 	 *     w2 - Baud rate
-	 *     x3 - pointer to empty console_16550_t struct
+	 *     x3 - pointer to empty console_t struct
 	 * Out: return 1 on success, 0 on error
 	 * Clobber list : x0, x1, x2, x6, x7, x14
 	 * -----------------------------------------------
@@ -72,7 +72,7 @@ func console_cdns_register
 	mov	x7, x30
 	mov	x6, x3
 	cbz	x6, register_fail
-	str	x0, [x6, #CONSOLE_T_CDNS_BASE]
+	str	x0, [x6, #CONSOLE_T_BASE]
 
 	bl	console_cdns_core_init
 	cbz	x0, register_fail
@@ -119,7 +119,7 @@ func console_cdns_core_putc
 endfunc console_cdns_core_putc
 
 	/* --------------------------------------------------------
-	 * int console_cdns_putc(int c, console_cdns_t *cdns)
+	 * int console_cdns_putc(int c, console_t *cdns)
 	 * Function to output a character over the console. It
 	 * returns the character printed on success or -1 on error.
 	 * In : w0 - character to be printed
@@ -133,7 +133,7 @@ func console_cdns_putc
 	cmp	x1, #0
 	ASM_ASSERT(ne)
 #endif /* ENABLE_ASSERTIONS */
-	ldr	x1, [x1, #CONSOLE_T_CDNS_BASE]
+	ldr	x1, [x1, #CONSOLE_T_BASE]
 	b	console_cdns_core_putc
 endfunc console_cdns_putc
 
@@ -165,7 +165,7 @@ no_char:
 endfunc console_cdns_core_getc
 
 	/* ---------------------------------------------
-	 * int console_cdns_getc(console_cdns_t *console)
+	 * int console_cdns_getc(console_t *console)
 	 * Function to get a character from the console.
 	 * It returns the character grabbed on success
 	 * or -1 if no character is available.
@@ -179,7 +179,7 @@ func console_cdns_getc
 	cmp	x0, #0
 	ASM_ASSERT(ne)
 #endif /* ENABLE_ASSERTIONS */
-	ldr	x0, [x0, #CONSOLE_T_CDNS_BASE]
+	ldr	x0, [x0, #CONSOLE_T_BASE]
 	b	console_cdns_core_getc
 endfunc console_cdns_getc
 
@@ -203,7 +203,7 @@ func console_cdns_core_flush
 endfunc console_cdns_core_flush
 
 	/* ---------------------------------------------
-	 * int console_cdns_flush(console_pl011_t *console)
+	 * int console_cdns_flush(console_t *console)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - pointer to console_t structure
@@ -216,6 +216,6 @@ func console_cdns_flush
 	cmp	x0, #0
 	ASM_ASSERT(ne)
 #endif /* ENABLE_ASSERTIONS */
-	ldr	x0, [x0, #CONSOLE_T_CDNS_BASE]
+	ldr	x0, [x0, #CONSOLE_T_BASE]
 	b	console_cdns_core_flush
 endfunc console_cdns_flush
