@@ -9,16 +9,9 @@
 
 #include <drivers/console.h>
 
-#define CONSOLE_T_MESON_BASE	CONSOLE_T_DRVDATA
-
 #ifndef __ASSEMBLER__
 
 #include <stdint.h>
-
-typedef struct {
-	console_t console;
-	uintptr_t base;
-} console_meson_t;
 
 /*
  * Initialize a new meson console instance and register it with the console
@@ -30,7 +23,7 @@ typedef struct {
  * order to make this function future-proof.
  */
 int console_meson_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
-			   console_meson_t *console);
+			   console_t *console);
 
 #endif /*__ASSEMBLER__*/
 
