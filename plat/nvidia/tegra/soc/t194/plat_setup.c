@@ -163,18 +163,18 @@ void plat_enable_console(int32_t id)
 	uint32_t console_clock = 0U;
 
 #if ENABLE_CONSOLE_SPE
-	static console_spe_t spe_console;
+	static console_t spe_console;
 
 	if (id == TEGRA_CONSOLE_SPE_ID) {
 		(void)console_spe_register(TEGRA_CONSOLE_SPE_BASE,
 					   console_clock,
 					   TEGRA_CONSOLE_BAUDRATE,
 					   &spe_console);
-		console_set_scope(&spe_console.console, CONSOLE_FLAG_BOOT |
+		console_set_scope(&spe_console, CONSOLE_FLAG_BOOT |
 			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
 	}
 #else
-	static console_16550_t uart_console;
+	static console_t uart_console;
 
 	if ((id > 0) && (id < TEGRA194_MAX_UART_PORTS)) {
 		/*
@@ -190,7 +190,7 @@ void plat_enable_console(int32_t id)
 					     console_clock,
 					     TEGRA_CONSOLE_BAUDRATE,
 					     &uart_console);
-		console_set_scope(&uart_console.console, CONSOLE_FLAG_BOOT |
+		console_set_scope(&uart_console, CONSOLE_FLAG_BOOT |
 			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
 	}
 #endif

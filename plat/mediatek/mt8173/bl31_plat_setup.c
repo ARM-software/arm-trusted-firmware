@@ -100,7 +100,7 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
-	static console_16550_t console;
+	static console_t console;
 
 	console_16550_register(MT8173_UART0_BASE, MT8173_UART_CLOCK, MT8173_BAUDRATE, &console);
 

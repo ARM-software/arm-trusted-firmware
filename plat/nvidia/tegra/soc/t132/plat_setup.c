@@ -92,7 +92,7 @@ static uint32_t tegra132_uart_addresses[TEGRA132_MAX_UART_PORTS + 1] = {
  ******************************************************************************/
 void plat_enable_console(int32_t id)
 {
-	static console_16550_t uart_console;
+	static console_t uart_console;
 	uint32_t console_clock;
 
 	if ((id > 0) && (id < TEGRA132_MAX_UART_PORTS)) {
@@ -109,7 +109,7 @@ void plat_enable_console(int32_t id)
 					     console_clock,
 					     TEGRA_CONSOLE_BAUDRATE,
 					     &uart_console);
-		console_set_scope(&uart_console.console, CONSOLE_FLAG_BOOT |
+		console_set_scope(&uart_console, CONSOLE_FLAG_BOOT |
 			CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_CRASH);
 	}
 }

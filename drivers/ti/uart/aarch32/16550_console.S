@@ -91,7 +91,7 @@ endfunc console_16550_core_init
 	/* -------------------------------------------------------
 	 * int console_16550_register(uintptr_t baseaddr,
 	 *     uint32_t clock, uint32_t baud,
-	 *     console_16550_t *console);
+	 *     console_t *console);
 	 * Function to initialize and register a new 16550
 	 * console. Storage passed in for the console struct
 	 * *must* be persistent (i.e. not from the stack).
@@ -101,7 +101,7 @@ endfunc console_16550_core_init
 	 * In: r0 - UART register base address
 	 *     r1 - UART clock in Hz
 	 *     r2 - Baud rate (ignored if r1 is 0)
-	 *     r3 - pointer to empty console_16550_t struct
+	 *     r3 - pointer to empty console_t struct
 	 * Out: return 1 on success, 0 on error
 	 * Clobber list : r0, r1, r2
 	 * -------------------------------------------------------
@@ -111,7 +111,7 @@ func console_16550_register
 	mov	r4, r3
 	cmp	r4, #0
 	beq	register_fail
-	str	r0, [r4, #CONSOLE_T_16550_BASE]
+	str	r0, [r4, #CONSOLE_T_BASE]
 
 	/* A clock rate of zero means to skip the initialisation. */
 	cmp	r1, #0
@@ -167,7 +167,7 @@ func console_16550_core_putc
 endfunc console_16550_core_putc
 
 	/* --------------------------------------------------------
-	 * int console_16550_putc(int c, console_16550_t *console)
+	 * int console_16550_putc(int c, console_t *console)
 	 * Function to output a character over the console. It
 	 * returns the character printed on success or -1 on error.
 	 * In : r0 - character to be printed
@@ -181,7 +181,7 @@ func console_16550_putc
 	cmp	r1, #0
 	ASM_ASSERT(ne)
 #endif /* ENABLE_ASSERTIONS */
-	ldr	r1, [r1, #CONSOLE_T_16550_BASE]
+	ldr	r1, [r1, #CONSOLE_T_BASE]
 	b	console_16550_core_putc
 endfunc console_16550_putc
 
@@ -213,7 +213,7 @@ no_char:
 endfunc console_16550_core_getc
 
 	/* ---------------------------------------------
-	 * int console_16550_getc(console_16550_t *console)
+	 * int console_16550_getc(console_t *console)
 	 * Function to get a character from the console.
 	 * It returns the character grabbed on success
 	 * or -1 on if no character is available.
@@ -227,7 +227,7 @@ func console_16550_getc
 	cmp	r0, #0
 	ASM_ASSERT(ne)
 #endif /* ENABLE_ASSERTIONS */
-	ldr	r0, [r0, #CONSOLE_T_16550_BASE]
+	ldr	r0, [r0, #CONSOLE_T_BASE]
 	b	console_16550_core_getc
 endfunc console_16550_getc
 
@@ -257,7 +257,7 @@ func console_16550_core_flush
 endfunc console_16550_core_flush
 
 	/* ---------------------------------------------
-	 * int console_16550_flush(console_pl011_t *console)
+	 * int console_16550_flush(console_t *console)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : r0 - pointer to console_t structure
@@ -270,6 +270,6 @@ func console_16550_flush
 	cmp	r0, #0
 	ASM_ASSERT(ne)
 #endif /* ENABLE_ASSERTIONS */
-	ldr	r0, [r0, #CONSOLE_T_16550_BASE]
+	ldr	r0, [r0, #CONSOLE_T_BASE]
 	b	console_16550_core_flush
 endfunc console_16550_flush

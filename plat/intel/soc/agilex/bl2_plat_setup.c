@@ -51,7 +51,7 @@ boot_source_type boot_source = BOOT_SOURCE;
 void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 				u_register_t x2, u_register_t x4)
 {
-	static console_16550_t console;
+	static console_t console;
 	handoff reverse_handoff_ptr;
 
 	generic_delay_timer_init();

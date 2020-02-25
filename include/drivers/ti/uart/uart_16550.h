@@ -71,16 +71,9 @@
 #define UARTLSR_RDR_BIT		(0)		/* Rx Data Ready Bit */
 #define UARTLSR_RDR		(1 << UARTLSR_RDR_BIT)	/* Rx Data Ready */
 
-#define CONSOLE_T_16550_BASE	CONSOLE_T_DRVDATA
-
 #ifndef __ASSEMBLER__
 
 #include <stdint.h>
-
-typedef struct {
-	console_t console;
-	uintptr_t base;
-} console_16550_t;
 
 /*
  * Initialize a new 16550 console instance and register it with the console
@@ -94,7 +87,7 @@ typedef struct {
  * case as well.
  */
 int console_16550_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
-			   console_16550_t *console);
+			   console_t *console);
 
 #endif /*__ASSEMBLER__*/
 

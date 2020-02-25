@@ -17,7 +17,7 @@
  */
 	.globl	uniphier_console_putc
 func uniphier_console_putc
-	ldr	x1, [x1, #CONSOLE_T_DRVDATA]
+	ldr	x1, [x1, #CONSOLE_T_BASE]
 
 	/* Wait until the transmitter FIFO gets empty */
 0:	ldr	w2, [x1, #UNIPHIER_UART_LSR]
@@ -36,7 +36,7 @@ endfunc uniphier_console_putc
  */
 	.globl	uniphier_console_getc
 func uniphier_console_getc
-	ldr	x0, [x0, #CONSOLE_T_DRVDATA]
+	ldr	x0, [x0, #CONSOLE_T_BASE]
 
 	ldr	w1, [x0, #UNIPHIER_UART_LSR]
 	tbz	w1, #UNIPHIER_UART_LSR_DR_BIT, 0f
@@ -55,7 +55,7 @@ endfunc uniphier_console_getc
  */
 	.global uniphier_console_flush
 func uniphier_console_flush
-	ldr	x0, [x0, #CONSOLE_T_DRVDATA]
+	ldr	x0, [x0, #CONSOLE_T_BASE]
 
 	/* wait until the transmitter gets empty */
 0:	ldr	w1, [x0, #UNIPHIER_UART_LSR]

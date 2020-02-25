@@ -23,7 +23,7 @@ static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
  ******************************************************************************/
 void ls_bl2_early_platform_setup(meminfo_t *mem_layout)
 {
-	static console_ls_16550_t console;
+	static console_t console;
 
 	/* Initialize the console to provide early debug support */
 	console_ls_16550_register(LS_TF_UART_BASE, LS_TF_UART_CLOCK,

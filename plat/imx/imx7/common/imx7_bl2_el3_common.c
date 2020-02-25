@@ -150,7 +150,7 @@ static void imx7_setup_wdog_clocks(void)
 void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 				  u_register_t arg3, u_register_t arg4)
 {
-	static console_imx_uart_t console;
+	static console_t console;
 	int console_scope = CONSOLE_FLAG_BOOT | CONSOLE_FLAG_RUNTIME;
 
 	/* Initialize common components */
@@ -170,7 +170,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 				  PLAT_IMX7_BOOT_UART_CLK_IN_HZ,
 				  PLAT_IMX7_CONSOLE_BAUDRATE,
 				  &console);
-	console_set_scope(&console.console, console_scope);
+	console_set_scope(&console, console_scope);
 
 	/* Open handles to persistent storage */
 	plat_imx7_io_setup();

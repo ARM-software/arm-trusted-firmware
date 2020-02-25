@@ -7,16 +7,9 @@
 #ifndef RCAR_PRINTF_H
 #define RCAR_PRINTF_H
 
-#define CONSOLE_T_RCAR_BASE	CONSOLE_T_DRVDATA
-
 #ifndef __ASSEMBLER__
 
 #include <stdint.h>
-
-typedef struct {
-	console_t console;
-	uintptr_t base;
-} console_rcar_t;
 
 /*
  * Initialize a new rcar console instance and register it with the console
@@ -25,7 +18,7 @@ typedef struct {
  * Its contents will be reinitialized from scratch.
  */
 int console_rcar_register(uintptr_t baseaddr, uint32_t clock, uint32_t baud,
-			  console_rcar_t *console);
+			  console_t *console);
 
 #endif /*__ASSEMBLER__*/
 

@@ -57,7 +57,7 @@ void params_early_setup(u_register_t plat_param_from_bl2)
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
-	static console_16550_t console;
+	static console_t console;
 
 	params_early_setup(arg1);
 

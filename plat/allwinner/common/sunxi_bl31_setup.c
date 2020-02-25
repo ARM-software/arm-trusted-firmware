@@ -28,7 +28,7 @@
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
 
-static console_16550_t console;
+static console_t console;
 
 static const gicv2_driver_data_t sunxi_gic_data = {
 	.gicd_base = SUNXI_GICD_BASE,

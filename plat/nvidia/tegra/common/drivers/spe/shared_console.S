@@ -49,14 +49,14 @@
 	/* -------------------------------------------------
 	 * int console_spe_register(uintptr_t baseaddr,
 	 *     uint32_t clock, uint32_t baud,
-	 *     console_spe_t *console);
+	 *     console_t *console);
 	 * Function to initialize and register a new spe
 	 * console. Storage passed in for the console struct
 	 * *must* be persistent (i.e. not from the stack).
 	 * In: x0 - UART register base address
 	 *     w1 - UART clock in Hz
 	 *     w2 - Baud rate
-	 *     x3 - pointer to empty console_spe_t struct
+	 *     x3 - pointer to empty console_t struct
 	 * Out: return 1 on success, 0 on error
 	 * Clobber list : x0, x1, x2, x6, x7, x14
 	 * -------------------------------------------------
@@ -122,7 +122,7 @@ putc_error:
 endfunc console_spe_core_putc
 
 	/* --------------------------------------------------------
-	 * int console_spe_putc(int c, console_spe_t *console)
+	 * int console_spe_putc(int c, console_t *console)
 	 * Function to output a character over the console. It
 	 * returns the character printed on success or -1 on error.
 	 * In : w0 - character to be printed
@@ -137,7 +137,7 @@ func console_spe_putc
 endfunc console_spe_putc
 
 	/* ---------------------------------------------
-	 * int console_spe_getc(console_spe_t *console)
+	 * int console_spe_getc(console_t *console)
 	 * Function to get a character from the console.
 	 * It returns the character grabbed on success
 	 * or -1 if no character is available.
@@ -174,7 +174,7 @@ flush_error:
 endfunc console_spe_core_flush
 
 	/* ---------------------------------------------
-	 * int console_spe_flush(console_spe_t *console)
+	 * int console_spe_flush(console_t *console)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - pointer to console_t structure

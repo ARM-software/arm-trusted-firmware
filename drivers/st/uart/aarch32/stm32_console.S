@@ -91,14 +91,14 @@ endfunc console_stm32_core_init
 	/* -------------------------------------------------------
 	 * int console_stm32_register(uintptr_t baseaddr,
 	 *     uint32_t clock, uint32_t baud,
-	 *     struct console_stm32 *console);
+	 *     console_t *console);
 	 * Function to initialize and register a new STM32
 	 * console. Storage passed in for the console struct
 	 * *must* be persistent (i.e. not from the stack).
 	 * In: r0 - UART register base address
 	 *     r1 - UART clock in Hz
 	 *     r2 - Baud rate
-	 *     r3 - pointer to empty console_stm32 struct
+	 *     r3 - pointer to empty console_t struct
 	 * Out: return 1 on success, 0 on error
 	 * Clobber list : r0, r1, r2
 	 * -------------------------------------------------------
@@ -108,7 +108,7 @@ func console_stm32_register
 	mov	r4, r3
 	cmp	r4, #0
 	beq	register_fail
-	str	r0, [r4, #CONSOLE_T_STM32_BASE]
+	str	r0, [r4, #CONSOLE_T_BASE]
 
 	bl console_stm32_core_init
 	cmp	r0, #0
@@ -157,7 +157,7 @@ putc_error:
 endfunc console_stm32_core_putc
 
 	/* ------------------------------------------------------------
-	 * int console_stm32_putc(int c, struct console_stm32 *console)
+	 * int console_stm32_putc(int c, console_t *console)
 	 * Function to output a character over the console. It
 	 * returns the character printed on success or -1 on error.
 	 * In: r0 - character to be printed
@@ -171,7 +171,7 @@ func console_stm32_putc
 	cmp	r1, #0
 	ASM_ASSERT(ne)
 #endif /* ENABLE_ASSERTIONS */
-	ldr	r1, [r1, #CONSOLE_T_STM32_BASE]
+	ldr	r1, [r1, #CONSOLE_T_BASE]
 	b	console_stm32_core_putc
 endfunc console_stm32_putc
 
@@ -219,7 +219,7 @@ flush_error:
 endfunc console_stm32_core_flush
 
 	/* ------------------------------------------------------
-	 * int console_stm32_flush(struct console_stm32 *console)
+	 * int console_stm32_flush(console_t *console)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : r0 - pointer to console_t structure
@@ -232,6 +232,6 @@ func console_stm32_flush
 	cmp	r0, #0
 	ASM_ASSERT(ne)
 #endif /* ENABLE_ASSERTIONS */
-	ldr	r0, [r0, #CONSOLE_T_STM32_BASE]
+	ldr	r0, [r0, #CONSOLE_T_BASE]
 	b	console_stm32_core_flush
 endfunc console_stm32_flush

@@ -102,7 +102,7 @@ static const mmap_region_t plat_rpi3_mmap[] = {
 /*******************************************************************************
  * Function that sets up the console
  ******************************************************************************/
-static console_16550_t rpi3_console;
+static console_t rpi3_console;
 
 void rpi3_console_init(unsigned int base_clk_rate)
 {
@@ -123,7 +123,7 @@ void rpi3_console_init(unsigned int base_clk_rate)
 		panic();
 	}
 
-	console_set_scope(&rpi3_console.console, console_scope);
+	console_set_scope(&rpi3_console, console_scope);
 }
 
 /*******************************************************************************
