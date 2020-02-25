@@ -13,7 +13,7 @@
 
 #include <sunxi_mmap.h>
 
-#define BL31_BASE			SUNXI_SRAM_A2_BASE
+#define BL31_BASE			(SUNXI_SRAM_A2_BASE + 0x4000)
 #define BL31_LIMIT			(SUNXI_SRAM_A2_BASE + SUNXI_SRAM_A2_SIZE)
 
 /* Overwrite U-Boot SPL, but reserve the first page for the SPL header. */
