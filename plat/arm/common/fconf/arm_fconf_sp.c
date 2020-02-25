@@ -7,6 +7,7 @@
 #include <assert.h>
 
 #include <common/debug.h>
+#include <common/desc_image_load.h>
 #include <common/fdt_wrappers.h>
 #include <drivers/io/io_storage.h>
 #include <lib/object_pool.h>
@@ -19,12 +20,16 @@
 
 #ifdef IMAGE_BL2
 
+bl_mem_params_node_t sp_mem_params_descs[MAX_SP_IDS];
+
 struct arm_sp_t arm_sp;
 
 int fconf_populate_arm_sp(uintptr_t config)
 {
 	int sp_node, node, err;
 	union uuid_helper_t uuid_helper;
+	unsigned int index = 0;
+	const unsigned int sp_start_index = MAX_NUMBER_IDS - MAX_SP_IDS;
 
 	/* As libfdt use void *, we can't avoid this cast */
 	const void *dtb = (void *)config;
@@ -46,10 +51,10 @@ int fconf_populate_arm_sp(uintptr_t config)
 			return -1;
 		}
 
-		arm_sp.uuids[arm_sp.number_of_sp] = uuid_helper;
+		arm_sp.uuids[index] = uuid_helper;
 
 		err = fdtw_read_cells(dtb, sp_node, "load-address", 1,
-			&arm_sp.load_addr[arm_sp.number_of_sp]);
+			&arm_sp.load_addr[index]);
 		if (err < 0) {
 			ERROR("FCONF: cannot read SP load address\n");
 			return -1;
@@ -61,11 +66,28 @@ int fconf_populate_arm_sp(uintptr_t config)
 			uuid_helper.word[1],
 			uuid_helper.word[2],
 			uuid_helper.word[3],
-			arm_sp.load_addr[arm_sp.number_of_sp]);
+			arm_sp.load_addr[index]);
 
-		arm_sp.number_of_sp++;
+		/* Add SP information in mem param descriptor */
+		sp_mem_params_descs[index].image_id = sp_start_index + index;
+		SET_PARAM_HEAD(&sp_mem_params_descs[index].image_info,
+					PARAM_IMAGE_BINARY, VERSION_2, 0);
+		sp_mem_params_descs[index].image_info.image_max_size =
+							ARM_SP_MAX_SIZE;
+		sp_mem_params_descs[index].next_handoff_image_id =
+							INVALID_IMAGE_ID;
+		sp_mem_params_descs[index].image_info.image_base =
+							arm_sp.load_addr[index];
 
-		if (arm_sp.number_of_sp >= MAX_SP_IDS) {
+		/* Add SP information in IO policies structure */
+		policies[sp_start_index + index].image_spec =
+						(uintptr_t)&arm_sp.uuids[index];
+		policies[sp_start_index + index].dev_handle = &fip_dev_handle;
+		policies[sp_start_index + index].check = open_fip;
+
+		index++;
+
+		if (index >= MAX_SP_IDS) {
 			ERROR("FCONF: reached max number of SPs\n");
 			return -1;
 		}
@@ -76,6 +98,7 @@ int fconf_populate_arm_sp(uintptr_t config)
 		return sp_node;
 	}
 
+	arm_sp.number_of_sp = index;
 	return 0;
 }
 
