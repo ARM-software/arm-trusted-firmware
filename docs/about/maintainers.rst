@@ -53,7 +53,6 @@ Amlogic Meson S905x (GXL) platform port
 :M: Remi Pommarel <repk@triplefau.lt>
 :G: `remi-triplefault`_
 :F: docs/plat/meson-gxl.rst
-:F: drivers/amlogic/gxl
 :F: plat/amlogic/gxl/
 
 Amlogic Meson S905X2 (G12A) platform port
@@ -61,7 +60,6 @@ Amlogic Meson S905X2 (G12A) platform port
 :M: Carlo Caione <ccaione@baylibre.com>
 :G: `carlocaione`_
 :F: docs/plat/meson-g12a.rst
-:F: drivers/amlogic/g12a
 :F: plat/amlogic/g12a/
 
 Amlogic Meson A113D (AXG) platform port
@@ -69,7 +67,6 @@ Amlogic Meson A113D (AXG) platform port
 :M: Carlo Caione <ccaione@baylibre.com>
 :G: `carlocaione`_
 :F: docs/plat/meson-axg.rst
-:F: drivers/amlogic/axg
 :F: plat/amlogic/axg/
 
 Armv7-A architecture port
@@ -152,7 +149,7 @@ Marvell platform ports and SoC drivers
 --------------------------------------
 :M: Konstantin Porotchkin <kostap@marvell.com>
 :G: `kostapr`_
-:F: docs/marvell/
+:F: docs/plat/marvell/
 :F: plat/marvell/
 :F: drivers/marvell/
 :F: tools/marvell/
@@ -197,14 +194,14 @@ NXP i.MX8M platform port
 ------------------------
 :M: Jacky Bai <ping.bai@nxp.com>
 :G: `JackyBai`_
-:F: doc/plat/imx8m.rst
+:F: docs/plat/imx8m.rst
 :F: plat/imx/imx8m/
 
 OP-TEE dispatcher
 -----------------
 :M: Jens Wiklander <jens.wiklander@linaro.org>
 :G: `jenswi-linaro`_
-:F: docs/spd/optee-dispatcher.rst
+:F: docs/components/spd/optee-dispatcher.rst
 :F: services/spd/opteed/
 
 QEMU platform port
@@ -219,7 +216,7 @@ Raspberry Pi 3 platform port
 :M: Ying-Chun Liu (PaulLiu) <paul.liu@linaro.org>
 :G: `grandpaul`_
 :F: docs/plat/rpi3.rst
-:F: plat/rpi3/
+:F: plat/rpi/rpi3/
 :F: drivers/rpi3/
 :F: include/drivers/rpi3/
 
@@ -273,8 +270,8 @@ TLK/Trusty secure payloads
 --------------------------
 :M: Varun Wadekar <vwadekar@nvidia.com>
 :G: `vwadekar`_
-:F: docs/spd/tlk-dispatcher.rst
-:F: docs/spd/trusty-dispatcher.rst
+:F: docs/components/spd/tlk-dispatcher.rst
+:F: docs/components/spd/trusty-dispatcher.rst
 :F: include/bl32/payloads/tlk.h
 :F: services/spd/tlkd/
 :F: services/spd/trusty/
