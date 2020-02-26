@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,4 +21,5 @@ void stm32mp1_syscfg_init(void);
 void stm32mp1_syscfg_enable_io_compensation(void);
 void stm32mp1_syscfg_disable_io_compensation(void);
 
+uint32_t stm32mp_get_ddr_ns_size(void);
 #endif /* STM32MP1_PRIVATE_H */

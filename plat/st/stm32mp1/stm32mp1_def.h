@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -62,6 +62,9 @@
 #ifdef AARCH32_SP_OPTEE
 #define STM32MP_DDR_S_SIZE		U(0x01E00000)	/* 30 MB */
 #define STM32MP_DDR_SHMEM_SIZE		U(0x00200000)	/* 2 MB */
+#else
+#define STM32MP_DDR_S_SIZE		U(0)
+#define STM32MP_DDR_SHMEM_SIZE		U(0)
 #endif
 
 /* DDR power initializations */
