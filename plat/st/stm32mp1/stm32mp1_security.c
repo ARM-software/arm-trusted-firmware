@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -35,29 +35,30 @@ static void init_tzc400(void)
 {
 	unsigned long long region_base, region_top;
 	unsigned long long ddr_base = STM32MP_DDR_BASE;
-	unsigned long long ddr_size = (unsigned long long)dt_get_ddr_size();
-	unsigned long long ddr_top = ddr_base + (ddr_size - 1U);
+	unsigned long long ddr_ns_size =
+		(unsigned long long)stm32mp_get_ddr_ns_size();
+	unsigned long long ddr_ns_top = ddr_base + (ddr_ns_size - 1U);
 
 	tzc400_init(STM32MP1_TZC_BASE);
 
 	tzc400_disable_filters();
 
-#ifdef AARCH32_SP_OPTEE
 	/*
 	 * Region 1 set to cover all non-secure DRAM at 0xC000_0000. Apply the
 	 * same configuration to all filters in the TZC.
 	 */
 	region_base = ddr_base;
-	region_top = ddr_top - STM32MP_DDR_S_SIZE - STM32MP_DDR_SHMEM_SIZE;
+	region_top = ddr_ns_top;
 	tzc400_configure_region(STM32MP1_FILTER_BIT_ALL, 1,
 				region_base,
 				region_top,
 				TZC_REGION_S_NONE,
 				TZC_REGION_NSEC_ALL_ACCESS_RDWR);
 
+#ifdef AARCH32_SP_OPTEE
 	/* Region 2 set to cover all secure DRAM. */
 	region_base = region_top + 1U;
-	region_top = ddr_top - STM32MP_DDR_SHMEM_SIZE;
+	region_top += STM32MP_DDR_S_SIZE;
 	tzc400_configure_region(STM32MP1_FILTER_BIT_ALL, 2,
 				region_base,
 				region_top,
@@ -66,20 +67,8 @@ static void init_tzc400(void)
 
 	/* Region 3 set to cover non-secure shared memory DRAM. */
 	region_base = region_top + 1U;
-	region_top = ddr_top;
+	region_top += STM32MP_DDR_SHMEM_SIZE;
 	tzc400_configure_region(STM32MP1_FILTER_BIT_ALL, 3,
-				region_base,
-				region_top,
-				TZC_REGION_S_NONE,
-				TZC_REGION_NSEC_ALL_ACCESS_RDWR);
-#else
-	/*
-	 * Region 1 set to cover all DRAM at 0xC000_0000. Apply the
-	 * same configuration to all filters in the TZC.
-	 */
-	region_base = ddr_base;
-	region_top = ddr_top;
-	tzc400_configure_region(STM32MP1_FILTER_BIT_ALL, 1,
 				region_base,
 				region_top,
 				TZC_REGION_S_NONE,

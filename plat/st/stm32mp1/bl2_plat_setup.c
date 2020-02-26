@@ -353,8 +353,7 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		paged_mem_params = get_bl_mem_params_node(BL32_EXTRA2_IMAGE_ID);
 		assert(paged_mem_params != NULL);
 		paged_mem_params->image_info.image_base = STM32MP_DDR_BASE +
-			(dt_get_ddr_size() - STM32MP_DDR_S_SIZE -
-			 STM32MP_DDR_SHMEM_SIZE);
+			stm32mp_get_ddr_ns_size();
 		paged_mem_params->image_info.image_max_size =
 			STM32MP_DDR_S_SIZE;
 
