@@ -80,7 +80,7 @@ debug_loop:
 
 	add	r8, r8, #ENTRY_POINT_INFO_ARGS_OFFSET
 	ldm	r8, {r0, r1, r2, r3}
-	eret
+	exception_return
 endfunc bl1_aarch32_smc_handler
 
 	/* -----------------------------------------------------
