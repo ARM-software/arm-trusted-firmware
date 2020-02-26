@@ -9,6 +9,7 @@ Platform Ports
 
    allwinner
    arm/index
+   meson-axg
    meson-gxbb
    meson-gxl
    meson-g12a
@@ -53,4 +54,4 @@ documentation associated with them.
 
 --------------
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
