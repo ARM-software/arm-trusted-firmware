@@ -23,11 +23,12 @@ $(eval $(call add_define,MAX_MMAP_REGIONS))
 # platform files
 PLAT_INCLUDES		+=	-Iplat/nvidia/tegra/include/t132
 
-BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S		\
+BL31_SOURCES		+=	${TEGRA_GICv2_SOURCES}			\
+				drivers/ti/uart/aarch64/16550_console.S	\
 				lib/cpus/aarch64/denver.S		\
 				${TEGRA_DRIVERS}/flowctrl/flowctrl.c	\
 				${TEGRA_DRIVERS}/memctrl/memctrl_v1.c	\
-				${TEGRA_DRIVERS}/pmc/pmc.c			\
+				${TEGRA_DRIVERS}/pmc/pmc.c		\
 				${SOC_DIR}/plat_psci_handlers.c		\
 				${SOC_DIR}/plat_sip_calls.c		\
 				${SOC_DIR}/plat_setup.c			\
