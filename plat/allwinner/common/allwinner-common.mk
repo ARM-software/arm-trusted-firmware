@@ -20,6 +20,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/${ARCH}/16550_console.S	\
 				${AW_PLAT}/common/sunxi_common.c
 
 BL31_SOURCES		+=	drivers/allwinner/axp/common.c		\
+				drivers/allwinner/sunxi_msgbox.c	\
 				drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_helpers.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
