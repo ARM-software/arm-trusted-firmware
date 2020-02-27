@@ -374,7 +374,7 @@ uint64_t intel_rsu_update_address;
 static uint32_t intel_rsu_status(uint64_t *respbuf, uint32_t respbuf_sz)
 {
 	if (mailbox_rsu_status((uint32_t *)respbuf, respbuf_sz) < 0)
-		return INTEL_SIP_SMC_STATUS_ERROR;
+		return INTEL_SIP_SMC_RSU_ERROR;
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
@@ -388,7 +388,7 @@ static uint32_t intel_rsu_update(uint64_t update_address)
 static uint32_t intel_rsu_notify(uint64_t execution_stage)
 {
 	if (mailbox_hps_stage_notify(execution_stage) < 0)
-		return INTEL_SIP_SMC_STATUS_ERROR;
+		return INTEL_SIP_SMC_RSU_ERROR;
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
@@ -397,7 +397,7 @@ static uint32_t intel_rsu_retry_counter(uint32_t *respbuf, uint32_t respbuf_sz,
 					uint32_t *ret_stat)
 {
 	if (mailbox_rsu_status((uint32_t *)respbuf, respbuf_sz) < 0)
-		return INTEL_SIP_SMC_STATUS_ERROR;
+		return INTEL_SIP_SMC_RSU_ERROR;
 
 	*ret_stat = respbuf[8];
 	return INTEL_SIP_SMC_STATUS_OK;

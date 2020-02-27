@@ -10,9 +10,11 @@
 
 /* SiP status response */
 #define INTEL_SIP_SMC_STATUS_OK				0
-#define INTEL_SIP_SMC_STATUS_ERROR			0x4
 #define INTEL_SIP_SMC_STATUS_BUSY			0x1
 #define INTEL_SIP_SMC_STATUS_REJECTED			0x2
+#define INTEL_SIP_SMC_STATUS_ERROR			0x4
+#define INTEL_SIP_SMC_RSU_ERROR				0x7
+
 
 /* SMC SiP service function identifier */
 #define INTEL_SIP_SMC_FPGA_CONFIG_START			0xC2000001
