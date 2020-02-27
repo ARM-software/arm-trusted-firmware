@@ -79,32 +79,32 @@ $(if $(word $(2), $($(1))),\
 endef
 
 # IMG_LINKERFILE defines the linker script corresponding to a BL stage
-#   $(1) = BL stage (2, 30, 31, 32, 33)
+#   $(1) = BL stage (1, 2, 2u, 31, 32)
 define IMG_LINKERFILE
     ${BUILD_DIR}/bl$(1).ld
 endef
 
 # IMG_MAPFILE defines the output file describing the memory map corresponding
 # to a BL stage
-#   $(1) = BL stage (2, 30, 31, 32, 33)
+#   $(1) = BL stage (1, 2, 2u, 31, 32)
 define IMG_MAPFILE
     ${BUILD_DIR}/bl$(1).map
 endef
 
 # IMG_ELF defines the elf file corresponding to a BL stage
-#   $(1) = BL stage (2, 30, 31, 32, 33)
+#   $(1) = BL stage (1, 2, 2u, 31, 32)
 define IMG_ELF
     ${BUILD_DIR}/bl$(1).elf
 endef
 
 # IMG_DUMP defines the symbols dump file corresponding to a BL stage
-#   $(1) = BL stage (2, 30, 31, 32, 33)
+#   $(1) = BL stage (1, 2, 2u, 31, 32)
 define IMG_DUMP
     ${BUILD_DIR}/bl$(1).dump
 endef
 
 # IMG_BIN defines the default image file corresponding to a BL stage
-#   $(1) = BL stage (2, 30, 31, 32, 33)
+#   $(1) = BL stage (1, 2, 2u, 31, 32)
 define IMG_BIN
     ${BUILD_PLAT}/bl$(1).bin
 endef
@@ -237,7 +237,7 @@ endef
 # MAKE_C builds a C source file and generates the dependency file
 #   $(1) = output directory
 #   $(2) = source file (%.c)
-#   $(3) = BL stage (2, 2u, 30, 31, 32, 33)
+#   $(3) = BL stage (1, 2, 2u, 31, 32)
 define MAKE_C
 
 $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
@@ -257,7 +257,7 @@ endef
 # MAKE_S builds an assembly source file and generates the dependency file
 #   $(1) = output directory
 #   $(2) = assembly file (%.S)
-#   $(3) = BL stage (2, 2u, 30, 31, 32, 33)
+#   $(3) = BL stage (1, 2, 2u, 31, 32)
 define MAKE_S
 
 $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
@@ -276,7 +276,7 @@ endef
 # MAKE_LD generate the linker script using the C preprocessor
 #   $(1) = output linker script
 #   $(2) = input template
-#   $(3) = BL stage (2, 2u, 30, 31, 32, 33)
+#   $(3) = BL stage (1, 2, 2u, 31, 32)
 define MAKE_LD
 
 $(eval DEP := $(1).d)
@@ -310,7 +310,7 @@ endef
 # MAKE_OBJS builds both C and assembly source files
 #   $(1) = output directory
 #   $(2) = list of source files (both C and assembly)
-#   $(3) = BL stage (2, 30, 31, 32, 33)
+#   $(3) = BL stage (1, 2, 2u, 31, 32)
 define MAKE_OBJS
         $(eval C_OBJS := $(filter %.c,$(2)))
         $(eval REMAIN := $(filter-out %.c,$(2)))
@@ -387,7 +387,7 @@ endef
 
 # MAKE_BL macro defines the targets and options to build each BL image.
 # Arguments:
-#   $(1) = BL stage (2, 2u, 30, 31, 32, 33)
+#   $(1) = BL stage (1, 2, 2u, 31, 32)
 #   $(2) = FIP command line option (if empty, image will not be included in the FIP)
 #   $(3) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
 define MAKE_BL
