@@ -850,9 +850,7 @@ static unsigned long get_clock_rate(int p)
 
 			reg = mmio_read_32(rcc_base + RCC_MPCKDIVR);
 			clkdiv = reg & RCC_MPUDIV_MASK;
-			if (clkdiv != 0U) {
-				clock /= stm32mp1_mpu_div[clkdiv];
-			}
+			clock >>= stm32mp1_mpu_div[clkdiv];
 			break;
 		default:
 			break;
