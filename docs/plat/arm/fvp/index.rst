@@ -26,6 +26,8 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_Cortex-A57x2-A53x4``
 -  ``FVP_Base_Cortex-A57x4-A53x4``
 -  ``FVP_Base_Cortex-A57x4``
+-  ``FVP_Base_Cortex-A65x4`` (Version 11.9 build 41)
+-  ``FVP_Base_Cortex-A65AEx8`` (Version 11.9 build 41)
 -  ``FVP_Base_Cortex-A72x4-A53x4``
 -  ``FVP_Base_Cortex-A72x4``
 -  ``FVP_Base_Cortex-A73x4-A53x4``
@@ -628,7 +630,7 @@ boot Linux with 4 CPUs using the AArch32 build of TF-A.
 
 --------------
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
 
 .. _TB_FW_CONFIG for FVP: ../plat/arm/board/fvp/fdts/fvp_tb_fw_config.dts
 .. _Arm's website: `FVP models`_
