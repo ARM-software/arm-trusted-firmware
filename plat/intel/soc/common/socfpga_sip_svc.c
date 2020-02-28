@@ -61,7 +61,7 @@ struct fpga_config_info fpga_config_buffers[FPGA_CONFIG_BUFFER_SIZE];
 
 static int intel_fpga_sdm_write_buffer(struct fpga_config_info *buffer)
 {
-	uint64_t args[3];
+	uint32_t args[3];
 
 	while (max_blocks > 0 && buffer->size > buffer->size_written) {
 		args[0] = (1<<8);
@@ -385,7 +385,7 @@ static uint32_t intel_rsu_update(uint64_t update_address)
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
-static uint32_t intel_rsu_notify(uint64_t execution_stage)
+static uint32_t intel_rsu_notify(uint32_t execution_stage)
 {
 	if (mailbox_hps_stage_notify(execution_stage) < 0)
 		return INTEL_SIP_SMC_RSU_ERROR;
@@ -404,7 +404,7 @@ static uint32_t intel_rsu_retry_counter(uint32_t *respbuf, uint32_t respbuf_sz,
 }
 
 /* Mailbox services */
-static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint64_t *args, int len,
+static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args, int len,
 				    int urgent, uint32_t *response,
 				    int resp_len, int *mbox_status,
 				    int *len_in_resp)
@@ -542,7 +542,7 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 	case INTEL_SIP_SMC_MBOX_SEND_CMD:
 		x5 = SMC_GET_GP(handle, CTX_GPREG_X5);
 		x6 = SMC_GET_GP(handle, CTX_GPREG_X6);
-		status = intel_mbox_send_cmd(x1, (uint64_t *)x2, x3, x4,
+		status = intel_mbox_send_cmd(x1, (uint32_t *)x2, x3, x4,
 					     (uint32_t *)x5, x6, &mbox_status,
 					     &len_in_resp);
 		SMC_RET4(handle, status, mbox_status, x5, len_in_resp);

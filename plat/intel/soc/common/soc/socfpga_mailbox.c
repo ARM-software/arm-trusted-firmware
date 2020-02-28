@@ -11,7 +11,7 @@
 #include "socfpga_mailbox.h"
 #include "socfpga_sip_svc.h"
 
-static int fill_mailbox_circular_buffer(uint32_t header_cmd, uint64_t *args,
+static int fill_mailbox_circular_buffer(uint32_t header_cmd, uint32_t *args,
 					int len)
 {
 	uint32_t cmd_free_offset;
@@ -167,7 +167,7 @@ int mailbox_poll_response(int job_id, int urgent, uint32_t *response,
 	}
 }
 
-int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint64_t *args,
+int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
 			  int len, int urgent)
 {
 	if (urgent)
@@ -184,7 +184,7 @@ int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint64_t *args,
 	return 0;
 }
 
-int mailbox_send_cmd(int job_id, unsigned int cmd, uint64_t *args,
+int mailbox_send_cmd(int job_id, unsigned int cmd, uint32_t *args,
 			int len, int urgent, uint32_t *response, int resp_len)
 {
 	int status = 0;
@@ -252,7 +252,7 @@ int mailbox_get_qspi_clock(void)
 
 void mailbox_qspi_set_cs(int device_select)
 {
-	uint64_t cs_setting = device_select;
+	uint32_t cs_setting = device_select;
 
 	/* QSPI device select settings at 31:28 */
 	cs_setting = (cs_setting << 28);
@@ -304,13 +304,13 @@ int mailbox_rsu_status(uint32_t *resp_buf, uint32_t resp_buf_len)
 	return ret;
 }
 
-int mailbox_rsu_update(uint64_t *flash_offset)
+int mailbox_rsu_update(uint32_t *flash_offset)
 {
 	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_RSU_UPDATE,
 				flash_offset, 2, 0, NULL, 0);
 }
 
-int mailbox_hps_stage_notify(uint64_t execution_stage)
+int mailbox_hps_stage_notify(uint32_t execution_stage)
 {
 	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_HPS_STAGE_NOTIFY,
 				&execution_stage, 1, 0, NULL, 0);
