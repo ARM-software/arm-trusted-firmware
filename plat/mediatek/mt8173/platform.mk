@@ -15,6 +15,7 @@ PLAT_INCLUDES		:=	-I${MTK_PLAT}/common/				\
 				-I${MTK_PLAT_SOC}/drivers/rtc/			\
 				-I${MTK_PLAT_SOC}/drivers/spm/			\
 				-I${MTK_PLAT_SOC}/drivers/timer/		\
+				-I${MTK_PLAT_SOC}/drivers/wdt/			\
 				-I${MTK_PLAT_SOC}/include/
 
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
@@ -50,6 +51,7 @@ BL31_SOURCES		+=	common/desc_image_load.c			\
 				${MTK_PLAT_SOC}/drivers/spm/spm_mcdi.c		\
 				${MTK_PLAT_SOC}/drivers/spm/spm_suspend.c	\
 				${MTK_PLAT_SOC}/drivers/timer/mt_cpuxgpt.c	\
+				${MTK_PLAT_SOC}/drivers/wdt/wdt.c		\
 				${MTK_PLAT_SOC}/plat_pm.c			\
 				${MTK_PLAT_SOC}/plat_sip_calls.c		\
 				${MTK_PLAT_SOC}/plat_topology.c			\
