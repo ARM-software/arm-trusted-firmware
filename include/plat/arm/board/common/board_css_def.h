@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -49,13 +49,6 @@
 
 #define PLAT_ARM_NVM_BASE		V2M_FLASH0_BASE
 #define PLAT_ARM_NVM_SIZE		(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
-
-/*
- * Required platform porting definitions common to all ARM CSS-based
- * development platforms
- */
-#define PLAT_ARM_DRAM2_BASE			ULL(0x880000000)
-#define PLAT_ARM_DRAM2_SIZE			ULL(0x180000000)
 
 /* UART related constants */
 #define PLAT_ARM_BOOT_UART_BASE			SOC_CSS_UART0_BASE

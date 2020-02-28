@@ -50,6 +50,9 @@
 #define NSRAM_BASE			UL(0x2e000000)
 #define NSRAM_SIZE			UL(0x00008000)	/* 32KB */
 
+#define PLAT_ARM_DRAM2_BASE		ULL(0x880000000)
+#define PLAT_ARM_DRAM2_SIZE		ULL(0x180000000)
+
 /* virtual address used by dynamic mem_protect for chunk_base */
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xc0000000)
 
@@ -211,6 +214,9 @@
 		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_AP)		|	\
 		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_GPU)	|	\
 		TZC_REGION_ACCESS_RDWR(TZC400_NSAID_CORESIGHT))
+
+/* TZC related constants */
+#define PLAT_ARM_TZC_FILTERS		TZC_400_REGION_ATTR_FILTER_BIT_ALL
 
 /*
  * Required ARM CSS based platform porting definitions

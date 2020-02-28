@@ -152,7 +152,8 @@ void arm_setup_romlib(void);
 int arm_io_setup(void);
 
 /* Security utility functions */
-void arm_tzc400_setup(const arm_tzc_regions_info_t *tzc_regions);
+void arm_tzc400_setup(uintptr_t tzc_base,
+			const arm_tzc_regions_info_t *tzc_regions);
 struct tzc_dmc500_driver_data;
 void arm_tzc_dmc500_setup(struct tzc_dmc500_driver_data *plat_driver_data,
 			const arm_tzc_regions_info_t *tzc_regions);
