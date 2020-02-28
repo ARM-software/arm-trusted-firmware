@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -167,6 +167,14 @@
 
 #define PLAT_BAUDRATE		(115200)
 #define PLAT_UART_CLOCK		(100000000)
+
+/*******************************************************************************
+ * PHY related constants
+ ******************************************************************************/
+
+#define EMAC0_PHY_MODE			PHY_INTERFACE_MODE_RGMII
+#define EMAC1_PHY_MODE			PHY_INTERFACE_MODE_RGMII
+#define EMAC2_PHY_MODE			PHY_INTERFACE_MODE_RGMII
 
 /*******************************************************************************
  * System counter frequency related constants

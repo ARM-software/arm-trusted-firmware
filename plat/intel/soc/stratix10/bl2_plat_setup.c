@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,6 +16,7 @@
 #include <lib/xlat_tables/xlat_tables.h>
 
 #include "qspi/cadence_qspi.h"
+#include "socfpga_emac.h"
 #include "socfpga_handoff.h"
 #include "socfpga_mailbox.h"
 #include "socfpga_private.h"
@@ -69,6 +70,7 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	console_16550_register(PLAT_UART0_BASE, get_uart_clk(), PLAT_BAUDRATE,
 		&console);
 
+	socfpga_emac_init();
 	socfpga_delay_timer_init();
 	init_hard_memory_controller();
 	mailbox_init();
