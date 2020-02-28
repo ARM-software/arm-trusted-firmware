@@ -14,9 +14,9 @@
 
 #define FCONF_REGISTER_POPULATOR(name, callback)				\
 	__attribute__((used, section(".fconf_populator")))			\
-	const struct fconf_populator name##__populator = {			\
-		.info = #name,							\
-		.populate = callback						\
+	const struct fconf_populator (name##__populator) = {			\
+		.info = (#name),						\
+		.populate = (callback)						\
 	};
 
 /*

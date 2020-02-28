@@ -21,7 +21,6 @@
 #include <lib/fconf/fconf_tbbr_getter.h>
 #include <plat/arm/common/arm_dyn_cfg_helpers.h>
 #include <plat/arm/common/plat_arm.h>
-#include <plat/common/platform.h>
 
 #if TRUSTED_BOARD_BOOT
 
