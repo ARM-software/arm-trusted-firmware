@@ -42,6 +42,7 @@ BL1_SOURCES		+=	drivers/arm/sp805/sp805.c			\
 				plat/arm/common/arm_err.c			\
 				plat/arm/board/fvp_ve/fvp_ve_err.c		\
 				plat/arm/common/arm_io_storage.c		\
+				plat/arm/common/fconf/arm_fconf_io.c		\
 				drivers/cfi/v2m/v2m_flash.c			\
 				plat/arm/board/fvp_ve/${ARCH}/fvp_ve_helpers.S	\
 				plat/arm/board/fvp_ve/fvp_ve_bl1_setup.c	\
@@ -63,6 +64,7 @@ BL2_SOURCES		+=	plat/arm/board/fvp_ve/fvp_ve_bl2_setup.c		\
 				plat/arm/common/arm_err.c			\
 				plat/arm/board/fvp_ve/fvp_ve_err.c		\
 				plat/arm/common/arm_io_storage.c		\
+				plat/arm/common/fconf/arm_fconf_io.c		\
 				plat/arm/common/${ARCH}/arm_bl2_mem_params_desc.c	\
 				plat/arm/common/arm_image_load.c		\
 				common/desc_image_load.c			\

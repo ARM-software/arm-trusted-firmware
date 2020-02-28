@@ -75,6 +75,7 @@
 	 * stored in machine order (little endian).
 	 * This will be fixed in future.
 	 */
+#if ARM_IO_IN_DTB
 	arm-io_policies {
 		fip-handles {
 			compatible = "arm,io-fip-handle";
@@ -99,6 +100,7 @@
 			nt_fw_content_cert_uuid = <0xf3c1c48e 0x11e4635d 0xee87a9a7 0xa73fb240>;
 		};
 	};
+#endif /* ARM_IO_IN_DTB */
 
 	secure-partitions {
 		compatible = "arm,sp";

@@ -10,11 +10,6 @@ FVP_USE_GIC_DRIVER	:= FVP_GICV3
 # Use the SP804 timer instead of the generic one
 FVP_USE_SP804_TIMER	:= 0
 
-# Use fconf based io for FVP
-ifeq ($(BL2_AT_EL3), 0)
-USE_FCONF_BASED_IO	:= 1
-endif
-
 # Default cluster count for FVP
 FVP_CLUSTER_COUNT	:= 2
 
