@@ -39,7 +39,7 @@
 
 		tos_fw-config {
 			load-address = <0x0 0x04001200>;
-			max-size = <0x200>;
+			max-size = <0x1000>;
 			id = <TOS_FW_CONFIG_ID>;
 		};
 
