@@ -166,6 +166,7 @@ void bl31_platform_setup(void)
 
 	hikey960_edma_init();
 	hikey960_iomcu_dma_init();
+	hikey960_gpio_init();
 
 	hisi_ipc_init();
 }

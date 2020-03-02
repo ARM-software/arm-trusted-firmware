@@ -11,6 +11,7 @@
 #include <drivers/arm/cci.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/arm/pl011.h>
+#include <drivers/arm/pl061_gpio.h>
 #include <drivers/delay_timer.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
@@ -114,6 +115,13 @@ void hikey960_pwr_domain_off(const psci_power_state_t *target_state)
 
 		hisi_powerdn_cluster(cluster, core);
 	}
+}
+
+static void __dead2 hikey960_system_off(void)
+{
+	gpio_set_direction(176, GPIO_DIR_OUT);
+	gpio_set_value(176, GPIO_LEVEL_LOW);
+	panic();
 }
 
 static void __dead2 hikey960_system_reset(void)
@@ -293,7 +301,7 @@ static const plat_psci_ops_t hikey960_psci_ops = {
 	.pwr_domain_off			= hikey960_pwr_domain_off,
 	.pwr_domain_suspend		= hikey960_pwr_domain_suspend,
 	.pwr_domain_suspend_finish	= hikey960_pwr_domain_suspend_finish,
-	.system_off			= NULL,
+	.system_off			= hikey960_system_off,
 	.system_reset			= hikey960_system_reset,
 	.validate_power_state		= hikey960_validate_power_state,
 	.validate_ns_entrypoint		= hikey960_validate_ns_entrypoint,

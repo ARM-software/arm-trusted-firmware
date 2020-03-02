@@ -466,6 +466,13 @@ void hikey960_gpio_init(void)
 	pl061_gpio_register(GPIO19_BASE, 19);
 	pl061_gpio_register(GPIO20_BASE, 20);
 	pl061_gpio_register(GPIO21_BASE, 21);
+	pl061_gpio_register(GPIO22_BASE, 22);
+	pl061_gpio_register(GPIO23_BASE, 23);
+	pl061_gpio_register(GPIO24_BASE, 24);
+	pl061_gpio_register(GPIO25_BASE, 25);
+	pl061_gpio_register(GPIO26_BASE, 26);
+	pl061_gpio_register(GPIO27_BASE, 27);
+	pl061_gpio_register(GPIO28_BASE, 28);
 
 	/* PCIE_PERST_N output low */
 	gpio_set_direction(89, GPIO_DIR_OUT);
