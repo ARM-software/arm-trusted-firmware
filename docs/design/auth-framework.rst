@@ -621,7 +621,7 @@ The TBBR CoT
 
 The CoT can be found in ``drivers/auth/tbbr/tbbr_cot.c``. This CoT consists of
 an array of pointers to image descriptors and it is registered in the framework
-using the macro ``REGISTER_COT(cot_desc)``, where 'cot_desc' must be the name
+using the macro ``REGISTER_COT(cot_desc)``, where ``cot_desc`` must be the name
 of the array (passing a pointer or any other type of indirection will cause the
 registration process to fail).
 
@@ -870,32 +870,32 @@ Once the signature has been checked and the certificate authenticated, the
 Trusted World public key needs to be extracted from the certificate. A new entry
 is created in the ``authenticated_data`` array for that purpose. In that entry,
 the corresponding parameter descriptor must be specified along with the buffer
-address to store the parameter value. In this case, the ``tz_world_pk`` descriptor
-is used to extract the public key from an x509v3 extension with OID
+address to store the parameter value. In this case, the ``trusted_world_pk``
+descriptor is used to extract the public key from an x509v3 extension with OID
 ``TRUSTED_WORLD_PK_OID``. The BL31 key certificate will use this descriptor as
 parameter in the signature authentication method. The key is stored in the
-``plat_tz_world_pk_buf`` buffer.
+``trusted_world_pk_buf`` buffer.
 
 The **BL31 Key certificate** is authenticated by checking its digital signature
 using the Trusted World public key obtained previously from the Trusted Key
 certificate. In the image descriptor, we specify a single authentication method
-by signature whose public key is the ``tz_world_pk``. Once this certificate has
-been authenticated, we have to extract the BL31 public key, stored in the
-extension specified by ``bl31_content_pk``. This key will be copied to the
-``plat_content_pk`` buffer.
+by signature whose public key is the ``trusted_world_pk``. Once this certificate
+has been authenticated, we have to extract the BL31 public key, stored in the
+extension specified by ``soc_fw_content_pk``. This key will be copied to the
+``content_pk_buf`` buffer.
 
 The **BL31 certificate** is authenticated by checking its digital signature
 using the BL31 public key obtained previously from the BL31 Key certificate.
-We specify the authentication method using ``bl31_content_pk`` as public key.
+We specify the authentication method using ``soc_fw_content_pk`` as public key.
 After authentication, we need to extract the BL31 hash, stored in the extension
-specified by ``bl31_hash``. This hash will be copied to the ``plat_bl31_hash_buf``
-buffer.
+specified by ``soc_fw_hash``. This hash will be copied to the
+``soc_fw_hash_buf`` buffer.
 
 The **BL31 image** is authenticated by calculating its hash and matching it
 with the hash obtained from the BL31 certificate. The image descriptor contains
 a single authentication method by hash. The parameters to the hash method are
-the reference hash, ``bl31_hash``, and the data to be hashed. In this case, it is
-the whole image, so we specify ``raw_data``.
+the reference hash, ``soc_fw_hash``, and the data to be hashed. In this case,
+it is the whole image, so we specify ``raw_data``.
 
 The image parser library
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -965,6 +965,6 @@ The mbedTLS library algorithm support is configured by both the
 
 --------------
 
-*Copyright (c) 2017-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2020, Arm Limited and Contributors. All rights reserved.*
 
 .. _TBBR-Client specification: https://developer.arm.com/docs/den0006/latest/trusted-board-boot-requirements-client-tbbr-client-armv8-a
