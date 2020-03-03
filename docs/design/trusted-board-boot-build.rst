@@ -32,25 +32,28 @@ images with support for these features:
    -  ``TRUSTED_BOARD_BOOT=1``
    -  ``GENERATE_COT=1``
 
+   By default, this will use the Chain of Trust described in the TBBR-client
+   document. To select a different one, use the ``COT`` build option.
+
    In the case of Arm platforms, the location of the ROTPK hash must also be
    specified at build time. The following locations are currently supported (see
    ``ARM_ROTPK_LOCATION`` build option):
 
    -  ``ARM_ROTPK_LOCATION=regs``: the ROTPK hash is obtained from the Trusted
-      root-key storage registers present in the platform. On Juno, this
+      root-key storage registers present in the platform. On Juno, these
       registers are read-only. On FVP Base and Cortex models, the registers
-      are read-only, but the value can be specified using the command line
+      are also read-only, but the value can be specified using the command line
       option ``bp.trusted_key_storage.public_key`` when launching the model.
       On Juno board, the default value corresponds to an ECDSA-SECP256R1 public
       key hash, whose private part is not currently available.
 
    -  ``ARM_ROTPK_LOCATION=devel_rsa``: use the default hash located in
-      plat/arm/board/common/rotpk/arm_rotpk_rsa_sha256.bin. Enforce generation
-      of the new hash if ROT_KEY is specified.
+      ``plat/arm/board/common/rotpk/arm_rotpk_rsa_sha256.bin``. Enforce
+      generation of the new hash if ``ROT_KEY`` is specified.
 
    -  ``ARM_ROTPK_LOCATION=devel_ecdsa``: use the default hash located in
-      plat/arm/board/common/rotpk/arm_rotpk_ecdsa_sha256.bin. Enforce generation
-      of the new hash if ROT_KEY is specified.
+      ``plat/arm/board/common/rotpk/arm_rotpk_ecdsa_sha256.bin``. Enforce
+      generation of the new hash if ``ROT_KEY`` is specified.
 
    Example of command line using RSA development keys:
 
@@ -64,9 +67,8 @@ images with support for these features:
        all fip
 
    The result of this build will be the bl1.bin and the fip.bin binaries. This
-   FIP will include the certificates corresponding to the Chain of Trust
-   described in the TBBR-client document. These certificates can also be found
-   in the output build directory.
+   FIP will include the certificates corresponding to the selected Chain of
+   Trust. These certificates can also be found in the output build directory.
 
 #. The optional FWU_FIP contains any additional images to be loaded from
    Non-Volatile storage during the :ref:`Firmware Update (FWU)` process. To build the
@@ -102,8 +104,8 @@ images with support for these features:
 
    The result of this build will be bl1.bin, fip.bin and fwu_fip.bin binaries.
    Both the FIP and FWU_FIP will include the certificates corresponding to the
-   Chain of Trust described in the TBBR-client document. These certificates
-   can also be found in the output build directory.
+   selected Chain of Trust. These certificates can also be found in the output
+   build directory.
 
 --------------
 
