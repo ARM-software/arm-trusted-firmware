@@ -37,7 +37,7 @@ struct frame_record {
 	uintptr_t return_addr;
 };
 
-static const char *get_el_str(unsigned int el)
+const char *get_el_str(unsigned int el)
 {
 	if (el == 3U) {
 		return "EL3";
