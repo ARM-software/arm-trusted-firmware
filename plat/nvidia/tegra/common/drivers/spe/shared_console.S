@@ -69,7 +69,7 @@ func console_spe_register
 	check_if_console_is_ready x0, x1, x2, register_fail
 
 	cbz	x3, register_fail
-	str	x0, [x3, #CONSOLE_T_DRVDATA]
+	str	x0, [x3, #CONSOLE_T_BASE]
 	mov	x0, x3
 	finish_console_register spe putc=1, getc=1, flush=1
 
@@ -132,7 +132,7 @@ endfunc console_spe_core_putc
 	 * --------------------------------------------------------
 	 */
 func console_spe_putc
-	ldr	x1, [x1, #CONSOLE_T_DRVDATA]
+	ldr	x1, [x1, #CONSOLE_T_BASE]
 	b	console_spe_core_putc
 endfunc console_spe_putc
 
@@ -183,6 +183,6 @@ endfunc console_spe_core_flush
 	 * ---------------------------------------------
 	 */
 func console_spe_flush
-	ldr	x0, [x0, #CONSOLE_T_DRVDATA]
+	ldr	x0, [x0, #CONSOLE_T_BASE]
 	b	console_spe_core_flush
 endfunc console_spe_flush
