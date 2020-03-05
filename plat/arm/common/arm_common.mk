@@ -182,6 +182,9 @@ ARM_IO_SOURCES		+=	plat/arm/common/arm_io_storage.c
 else
 ARM_IO_SOURCES		+=	plat/arm/common/arm_fconf_io_storage.c		\
 				plat/arm/common/fconf/arm_fconf_io.c
+ifeq (${SPD},spmd)
+ARM_IO_SOURCES		+=	plat/arm/common/fconf/arm_fconf_sp.c
+endif
 endif
 
 BL1_SOURCES		+=	drivers/io/io_fip.c				\

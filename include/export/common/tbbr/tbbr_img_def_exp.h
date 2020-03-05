@@ -86,6 +86,11 @@
 #define STM32_IMAGE_ID			U(29)
 
 /* Define size of the array */
+#if defined(SPD_spmd)
+#define MAX_SP_IDS			U(8)
+#define MAX_NUMBER_IDS			MAX_SP_IDS + U(30)
+#else
 #define MAX_NUMBER_IDS			U(30)
+#endif
 
 #endif /* ARM_TRUSTED_FIRMWARE_EXPORT_COMMON_TBBR_TBBR_IMG_DEF_EXP_H */

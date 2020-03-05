@@ -69,6 +69,12 @@
 		mbedtls_heap_size = <0x0>;
 	};
 
+	/*
+	 * Though TF-A is UUID RFC 4122 compliant meaning fields are stored in
+	 * network order (big endian), UUID's mentioned in this file are are
+	 * stored in machine order (little endian).
+	 * This will be fixed in future.
+	 */
 	arm-io_policies {
 		fip-handles {
 			compatible = "arm,io-fip-handle";
@@ -91,6 +97,19 @@
 			soc_fw_content_cert_uuid = <0x200cb2e2 0x11e4635e 0xccabe89c 0x66b62bf9>;
 			tos_fw_content_cert_uuid = <0x11449fa4 0x11e4635e 0x53f2887 0x3df32a72>;
 			nt_fw_content_cert_uuid = <0xf3c1c48e 0x11e4635d 0xee87a9a7 0xa73fb240>;
+		};
+	};
+
+	secure-partitions {
+		compatible = "arm,sp";
+		cactus {
+			uuid = <0x1e67b5b4 0xe14f904a 0x13fb1fb8 0xcbdae1da>;
+			load-address = <0x7000000>;
+		};
+
+		ivy {
+			uuid = <0x092358d1 0xb94723f0 0x64447c82 0xc88f57f5>;
+			load-address = <0x7100000>;
 		};
 	};
 };
