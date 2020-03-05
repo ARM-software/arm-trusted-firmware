@@ -20,7 +20,7 @@ func console_imx_uart_register
 	mov	r4, r3
 	cmp	r4, #0
 	beq	register_fail
-	str	r0, [r4, #CONSOLE_T_DRVDATA]
+	str	r0, [r4, #CONSOLE_T_BASE]
 
 	bl	console_imx_uart_core_init
 	cmp	r0, #0
@@ -35,16 +35,16 @@ register_fail:
 endfunc console_imx_uart_register
 
 func console_imx_uart_putc
-	ldr	r1, [r1, #CONSOLE_T_DRVDATA]
+	ldr	r1, [r1, #CONSOLE_T_BASE]
 	b console_imx_uart_core_putc
 endfunc console_imx_uart_putc
 
 func console_imx_uart_getc
-	ldr	r0, [r0, #CONSOLE_T_DRVDATA]
+	ldr	r0, [r0, #CONSOLE_T_BASE]
 	b console_imx_uart_core_getc
 endfunc console_imx_uart_getc
 
 func console_imx_uart_flush
-	ldr	r0, [r0, #CONSOLE_T_DRVDATA]
+	ldr	r0, [r0, #CONSOLE_T_BASE]
 	b console_imx_uart_core_flush
 endfunc console_imx_uart_flush

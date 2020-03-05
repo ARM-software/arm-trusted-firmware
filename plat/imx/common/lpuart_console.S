@@ -20,7 +20,7 @@ func console_lpuart_register
 	mov	x7, x30
 	mov	x6, x3
 	cbz	x6, register_fail
-	str	x0, [x6, #CONSOLE_T_DRVDATA]
+	str	x0, [x6, #CONSOLE_T_BASE]
 
 	bl	console_lpuart_init
 	cbz	x0, register_fail
@@ -39,7 +39,7 @@ func console_lpuart_init
 endfunc console_lpuart_init
 
 func console_lpuart_putc
-	ldr	x1, [x1, #CONSOLE_T_DRVDATA]
+	ldr	x1, [x1, #CONSOLE_T_BASE]
 	cbz	x1, putc_error
 	/* Prepare '\r' to '\n' */
 	cmp	w0, #0xA
@@ -62,7 +62,7 @@ putc_error:
 endfunc console_lpuart_putc
 
 func console_lpuart_getc
-	ldr	x0, [x0, #CONSOLE_T_DRVDATA]
+	ldr	x0, [x0, #CONSOLE_T_BASE]
 	cbz	x0, getc_error
 	/* Check if the receive FIFO state */
 	ret
