@@ -412,40 +412,48 @@ INCLUDE_TBBR_MK		:=	1
 ################################################################################
 
 ifneq (${SPD},none)
-ifeq (${ARCH},aarch32)
+    ifeq (${ARCH},aarch32)
         $(error "Error: SPD is incompatible with AArch32.")
-endif
-ifdef EL3_PAYLOAD_BASE
+    endif
+
+    ifdef EL3_PAYLOAD_BASE
         $(warning "SPD and EL3_PAYLOAD_BASE are incompatible build options.")
         $(warning "The SPD and its BL32 companion will be present but ignored.")
-endif
-	ifeq (${SPD},spmd)
-		# SPMD is located in std_svc directory
-		SPD_DIR := std_svc
-	else
-		# All other SPDs in spd directory
-		SPD_DIR := spd
-	endif
+    endif
 
-	# We expect to locate an spd.mk under the specified SPD directory
-	SPD_MAKE	:=	$(wildcard services/${SPD_DIR}/${SPD}/${SPD}.mk)
+    ifeq (${SPD},spmd)
+        $(warning "SPMD is an experimental feature")
+        # SPMD is located in std_svc directory
+        SPD_DIR := std_svc
 
-
-        ifeq (${SPD_MAKE},)
-                $(error Error: No services/${SPD_DIR}/${SPD}/${SPD}.mk located)
+        ifeq ($(SPMD_SPM_AT_SEL2),1)
+            ifeq ($(CTX_INCLUDE_EL2_REGS),0)
+                $(error SPMD with SPM at S-EL2 requires CTX_INCLUDE_EL2_REGS option)
+            endif
         endif
-        $(info Including ${SPD_MAKE})
-        include ${SPD_MAKE}
+    else
+        # All other SPDs in spd directory
+        SPD_DIR := spd
+    endif
 
-        # If there's BL32 companion for the chosen SPD, we expect that the SPD's
-        # Makefile would set NEED_BL32 to "yes". In this case, the build system
-        # supports two mutually exclusive options:
-        # * BL32 is built from source: then BL32_SOURCES must contain the list
-        #   of source files to build BL32
-        # * BL32 is a prebuilt binary: then BL32 must point to the image file
-        #   that will be included in the FIP
-        # If both BL32_SOURCES and BL32 are defined, the binary takes precedence
-        # over the sources.
+    # We expect to locate an spd.mk under the specified SPD directory
+    SPD_MAKE	:=	$(wildcard services/${SPD_DIR}/${SPD}/${SPD}.mk)
+
+    ifeq (${SPD_MAKE},)
+        $(error Error: No services/${SPD_DIR}/${SPD}/${SPD}.mk located)
+    endif
+    $(info Including ${SPD_MAKE})
+    include ${SPD_MAKE}
+
+    # If there's BL32 companion for the chosen SPD, we expect that the SPD's
+    # Makefile would set NEED_BL32 to "yes". In this case, the build system
+    # supports two mutually exclusive options:
+    # * BL32 is built from source: then BL32_SOURCES must contain the list
+    #   of source files to build BL32
+    # * BL32 is a prebuilt binary: then BL32 must point to the image file
+    #   that will be included in the FIP
+    # If both BL32_SOURCES and BL32 are defined, the binary takes precedence
+    # over the sources.
 endif
 
 ################################################################################
@@ -761,6 +769,7 @@ $(eval $(call assert_boolean,CTX_INCLUDE_AARCH32_REGS))
 $(eval $(call assert_boolean,CTX_INCLUDE_FPREGS))
 $(eval $(call assert_boolean,CTX_INCLUDE_PAUTH_REGS))
 $(eval $(call assert_boolean,CTX_INCLUDE_MTE_REGS))
+$(eval $(call assert_boolean,CTX_INCLUDE_EL2_REGS))
 $(eval $(call assert_boolean,DEBUG))
 $(eval $(call assert_boolean,DYN_DISABLE_AUTH))
 $(eval $(call assert_boolean,EL3_EXCEPTION_HANDLING))
@@ -793,6 +802,7 @@ $(eval $(call assert_boolean,SEPARATE_CODE_AND_RODATA))
 $(eval $(call assert_boolean,SEPARATE_NOBITS_REGION))
 $(eval $(call assert_boolean,SPIN_ON_BL1_EXIT))
 $(eval $(call assert_boolean,SPM_MM))
+$(eval $(call assert_boolean,SPMD_SPM_AT_SEL2))
 $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
 $(eval $(call assert_boolean,USE_COHERENT_MEM))
 $(eval $(call assert_boolean,USE_DEBUGFS))
@@ -832,6 +842,7 @@ $(eval $(call add_define,CTX_INCLUDE_FPREGS))
 $(eval $(call add_define,CTX_INCLUDE_PAUTH_REGS))
 $(eval $(call add_define,EL3_EXCEPTION_HANDLING))
 $(eval $(call add_define,CTX_INCLUDE_MTE_REGS))
+$(eval $(call add_define,CTX_INCLUDE_EL2_REGS))
 $(eval $(call add_define,ENABLE_AMU))
 $(eval $(call add_define,ENABLE_ASSERTIONS))
 $(eval $(call add_define,ENABLE_BTI))
@@ -863,6 +874,7 @@ $(eval $(call add_define,RECLAIM_INIT_CODE))
 $(eval $(call add_define,SPD_${SPD}))
 $(eval $(call add_define,SPIN_ON_BL1_EXIT))
 $(eval $(call add_define,SPM_MM))
+$(eval $(call add_define,SPMD_SPM_AT_SEL2))
 $(eval $(call add_define,TRUSTED_BOARD_BOOT))
 $(eval $(call add_define,USE_COHERENT_MEM))
 $(eval $(call add_define,USE_DEBUGFS))

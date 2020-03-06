@@ -97,6 +97,32 @@
 #define ICC_SGI0R_EL1		S3_0_c12_c11_7
 
 /*******************************************************************************
+ * Definitions for EL2 system registers for save/restore routine
+ ******************************************************************************/
+
+#define CNTPOFF_EL2		S3_4_C14_C0_6
+#define HAFGRTR_EL2		S3_4_C3_C1_6
+#define HDFGRTR_EL2		S3_4_C3_C1_4
+#define HDFGWTR_EL2		S3_4_C3_C1_5
+#define HFGITR_EL2		S3_4_C1_C1_6
+#define HFGRTR_EL2		S3_4_C1_C1_4
+#define HFGWTR_EL2		S3_4_C1_C1_5
+#define ICH_HCR_EL2		S3_4_C12_C11_0
+#define ICH_VMCR_EL2		S3_4_C12_C11_7
+#define MPAMVPM0_EL2		S3_4_C10_C5_0
+#define MPAMVPM1_EL2		S3_4_C10_C5_1
+#define MPAMVPM2_EL2		S3_4_C10_C5_2
+#define MPAMVPM3_EL2		S3_4_C10_C5_3
+#define MPAMVPM4_EL2		S3_4_C10_C5_4
+#define MPAMVPM5_EL2		S3_4_C10_C5_5
+#define MPAMVPM6_EL2		S3_4_C10_C5_6
+#define MPAMVPM7_EL2		S3_4_C10_C5_7
+#define MPAMVPMV_EL2		S3_4_C10_C4_1
+#define TRFCR_EL2		S3_4_C1_C2_1
+#define PMSCR_EL2		S3_4_C9_C9_0
+#define TFSR_EL2		S3_4_C5_C6_0
+
+/*******************************************************************************
  * Generic timer memory mapped registers & offsets
  ******************************************************************************/
 #define CNTCR_OFF			U(0x000)

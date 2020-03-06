@@ -188,6 +188,9 @@ SPD				:= none
 # Enable the Management Mode (MM)-based Secure Partition Manager implementation
 SPM_MM				:= 0
 
+# Use SPM at S-EL2 as a default config for SPMD
+SPMD_SPM_AT_SEL2		:= 1
+
 # Flag to introduce an infinite loop in BL1 just before it exits into the next
 # image. This is meant to help debugging the post-BL2 phase.
 SPIN_ON_BL1_EXIT		:= 0
@@ -262,3 +265,8 @@ USE_SPINLOCK_CAS := 0
 
 # Enable Link Time Optimization
 ENABLE_LTO			:= 0
+
+# Build flag to include EL2 registers in cpu context save and restore during
+# S-EL2 firmware entry/exit. This flag is to be used with SPD=spmd option.
+# Default is 0.
+CTX_INCLUDE_EL2_REGS		:= 0

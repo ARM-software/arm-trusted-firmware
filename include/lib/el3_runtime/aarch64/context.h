@@ -68,7 +68,7 @@
  * registers are only 32-bits wide but are stored as 64-bit values for
  * convenience
  ******************************************************************************/
-#define CTX_SYSREGS_OFFSET	(CTX_EL3STATE_OFFSET + CTX_EL3STATE_END)
+#define CTX_EL1_SYSREGS_OFFSET	(CTX_EL3STATE_OFFSET + CTX_EL3STATE_END)
 #define CTX_SPSR_EL1		U(0x0)
 #define CTX_ELR_EL1		U(0x8)
 #define CTX_SCTLR_EL1		U(0x10)
@@ -138,13 +138,118 @@
 /*
  * End of system registers.
  */
-#define CTX_SYSREGS_END		CTX_MTE_REGS_END
+#define CTX_EL1_SYSREGS_END		CTX_MTE_REGS_END
+
+/*
+ * EL2 register set
+ */
+
+#if CTX_INCLUDE_EL2_REGS
+/* For later discussion
+ * ICH_AP0R<n>_EL2
+ * ICH_AP1R<n>_EL2
+ * AMEVCNTVOFF0<n>_EL2
+ * AMEVCNTVOFF1<n>_EL2
+ * ICH_LR<n>_EL2
+ */
+#define CTX_EL2_SYSREGS_OFFSET	(CTX_EL1_SYSREGS_OFFSET + CTX_EL1_SYSREGS_END)
+
+#define CTX_ACTLR_EL2		U(0x0)
+#define CTX_AFSR0_EL2		U(0x8)
+#define CTX_AFSR1_EL2		U(0x10)
+#define CTX_AMAIR_EL2		U(0x18)
+#define CTX_CNTHCTL_EL2		U(0x20)
+#define CTX_CNTHP_CTL_EL2	U(0x28)
+#define CTX_CNTHP_CVAL_EL2	U(0x30)
+#define CTX_CNTHP_TVAL_EL2	U(0x38)
+#define CTX_CNTVOFF_EL2		U(0x40)
+#define CTX_CPTR_EL2		U(0x48)
+#define CTX_DBGVCR32_EL2	U(0x50)
+#define CTX_ELR_EL2		U(0x58)
+#define CTX_ESR_EL2		U(0x60)
+#define CTX_FAR_EL2		U(0x68)
+#define CTX_FPEXC32_EL2		U(0x70)
+#define CTX_HACR_EL2		U(0x78)
+#define CTX_HCR_EL2		U(0x80)
+#define CTX_HPFAR_EL2		U(0x88)
+#define CTX_HSTR_EL2		U(0x90)
+#define CTX_ICC_SRE_EL2		U(0x98)
+#define CTX_ICH_HCR_EL2		U(0xa0)
+#define CTX_ICH_VMCR_EL2	U(0xa8)
+#define CTX_MAIR_EL2		U(0xb0)
+#define CTX_MDCR_EL2		U(0xb8)
+#define CTX_PMSCR_EL2		U(0xc0)
+#define CTX_SCTLR_EL2		U(0xc8)
+#define CTX_SPSR_EL2		U(0xd0)
+#define CTX_SP_EL2		U(0xd8)
+#define CTX_TCR_EL2		U(0xe0)
+#define CTX_TRFCR_EL2		U(0xe8)
+#define CTX_TTBR0_EL2		U(0xf0)
+#define CTX_VBAR_EL2		U(0xf8)
+#define CTX_VMPIDR_EL2		U(0x100)
+#define CTX_VPIDR_EL2		U(0x108)
+#define CTX_VTCR_EL2		U(0x110)
+#define CTX_VTTBR_EL2		U(0x118)
+
+// Only if MTE registers in use
+#define CTX_TFSR_EL2		U(0x120)
+
+// Only if ENABLE_MPAM_FOR_LOWER_ELS==1
+#define CTX_MPAM2_EL2		U(0x128)
+#define CTX_MPAMHCR_EL2		U(0x130)
+#define CTX_MPAMVPM0_EL2	U(0x138)
+#define CTX_MPAMVPM1_EL2	U(0x140)
+#define CTX_MPAMVPM2_EL2	U(0x148)
+#define CTX_MPAMVPM3_EL2	U(0x150)
+#define CTX_MPAMVPM4_EL2	U(0x158)
+#define CTX_MPAMVPM5_EL2	U(0x160)
+#define CTX_MPAMVPM6_EL2	U(0x168)
+#define CTX_MPAMVPM7_EL2	U(0x170)
+#define CTX_MPAMVPMV_EL2	U(0x178)
+
+// Starting with Armv8.6
+#define CTX_HAFGRTR_EL2		U(0x180)
+#define CTX_HDFGRTR_EL2		U(0x188)
+#define CTX_HDFGWTR_EL2		U(0x190)
+#define CTX_HFGITR_EL2		U(0x198)
+#define CTX_HFGRTR_EL2		U(0x1a0)
+#define CTX_HFGWTR_EL2		U(0x1a8)
+#define CTX_CNTPOFF_EL2		U(0x1b0)
+
+// Starting with Armv8.4
+#define CTX_CNTHPS_CTL_EL2	U(0x1b8)
+#define CTX_CNTHPS_CVAL_EL2	U(0x1c0)
+#define CTX_CNTHPS_TVAL_EL2	U(0x1c8)
+#define CTX_CNTHVS_CTL_EL2	U(0x1d0)
+#define CTX_CNTHVS_CVAL_EL2	U(0x1d8)
+#define CTX_CNTHVS_TVAL_EL2	U(0x1e0)
+#define CTX_CNTHV_CTL_EL2	U(0x1e8)
+#define CTX_CNTHV_CVAL_EL2	U(0x1f0)
+#define CTX_CNTHV_TVAL_EL2	U(0x1f8)
+#define CTX_CONTEXTIDR_EL2	U(0x200)
+#define CTX_SDER32_EL2		U(0x208)
+#define CTX_TTBR1_EL2		U(0x210)
+#define CTX_VDISR_EL2		U(0x218)
+#define CTX_VNCR_EL2		U(0x220)
+#define CTX_VSESR_EL2		U(0x228)
+#define CTX_VSTCR_EL2		U(0x230)
+#define CTX_VSTTBR_EL2		U(0x238)
+
+// Starting with Armv8.5
+#define CTX_SCXTNUM_EL2		U(0x240)
+/* Align to the next 16 byte boundary */
+#define CTX_EL2_SYSREGS_END	U(0x250)
+#endif /* CTX_INCLUDE_EL2_REGS */
 
 /*******************************************************************************
  * Constants that allow assembler code to access members of and the 'fp_regs'
  * structure at their correct offsets.
  ******************************************************************************/
-#define CTX_FPREGS_OFFSET	(CTX_SYSREGS_OFFSET + CTX_SYSREGS_END)
+#if CTX_INCLUDE_EL2_REGS
+# define CTX_FPREGS_OFFSET	(CTX_EL2_SYSREGS_OFFSET + CTX_EL2_SYSREGS_END)
+#else
+# define CTX_FPREGS_OFFSET	(CTX_EL1_SYSREGS_OFFSET + CTX_EL1_SYSREGS_END)
+#endif
 #if CTX_INCLUDE_FPREGS
 #define CTX_FP_Q0		U(0x0)
 #define CTX_FP_Q1		U(0x10)
@@ -235,7 +340,10 @@
 
 /* Constants to determine the size of individual context structures */
 #define CTX_GPREG_ALL		(CTX_GPREGS_END >> DWORD_SHIFT)
-#define CTX_SYSREG_ALL		(CTX_SYSREGS_END >> DWORD_SHIFT)
+#define CTX_EL1_SYSREGS_ALL	(CTX_EL1_SYSREGS_END >> DWORD_SHIFT)
+#if CTX_INCLUDE_EL2_REGS
+# define CTX_EL2_SYSREGS_ALL	(CTX_EL2_SYSREGS_END >> DWORD_SHIFT)
+#endif
 #if CTX_INCLUDE_FPREGS
 # define CTX_FPREG_ALL		(CTX_FPREGS_END >> DWORD_SHIFT)
 #endif
@@ -256,10 +364,18 @@ DEFINE_REG_STRUCT(gp_regs, CTX_GPREG_ALL);
 
 /*
  * AArch64 EL1 system register context structure for preserving the
- * architectural state during switches from one security state to
- * another in EL1.
+ * architectural state during world switches.
  */
-DEFINE_REG_STRUCT(el1_sys_regs, CTX_SYSREG_ALL);
+DEFINE_REG_STRUCT(el1_sysregs, CTX_EL1_SYSREGS_ALL);
+
+
+/*
+ * AArch64 EL2 system register context structure for preserving the
+ * architectural state during world switches.
+ */
+#if CTX_INCLUDE_EL2_REGS
+DEFINE_REG_STRUCT(el2_sysregs, CTX_EL2_SYSREGS_ALL);
+#endif
 
 /*
  * AArch64 floating point register context structure for preserving
@@ -304,7 +420,10 @@ DEFINE_REG_STRUCT(pauth, CTX_PAUTH_REGS_ALL);
 typedef struct cpu_context {
 	gp_regs_t gpregs_ctx;
 	el3_state_t el3state_ctx;
-	el1_sys_regs_t sysregs_ctx;
+	el1_sysregs_t el1_sysregs_ctx;
+#if CTX_INCLUDE_EL2_REGS
+	el2_sysregs_t el2_sysregs_ctx;
+#endif
 #if CTX_INCLUDE_FPREGS
 	fp_regs_t fpregs_ctx;
 #endif
@@ -319,7 +438,10 @@ typedef struct cpu_context {
 #if CTX_INCLUDE_FPREGS
 # define get_fpregs_ctx(h)	(&((cpu_context_t *) h)->fpregs_ctx)
 #endif
-#define get_sysregs_ctx(h)	(&((cpu_context_t *) h)->sysregs_ctx)
+#define get_el1_sysregs_ctx(h)	(&((cpu_context_t *) h)->el1_sysregs_ctx)
+#if CTX_INCLUDE_EL2_REGS
+# define get_el2_sysregs_ctx(h)	(&((cpu_context_t *) h)->el2_sysregs_ctx)
+#endif
 #define get_gpregs_ctx(h)	(&((cpu_context_t *) h)->gpregs_ctx)
 #define get_cve_2018_3639_ctx(h)	(&((cpu_context_t *) h)->cve_2018_3639_ctx)
 #if CTX_INCLUDE_PAUTH_REGS
@@ -333,8 +455,12 @@ typedef struct cpu_context {
  */
 CASSERT(CTX_GPREGS_OFFSET == __builtin_offsetof(cpu_context_t, gpregs_ctx), \
 	assert_core_context_gp_offset_mismatch);
-CASSERT(CTX_SYSREGS_OFFSET == __builtin_offsetof(cpu_context_t, sysregs_ctx), \
-	assert_core_context_sys_offset_mismatch);
+CASSERT(CTX_EL1_SYSREGS_OFFSET == __builtin_offsetof(cpu_context_t, el1_sysregs_ctx), \
+	assert_core_context_el1_sys_offset_mismatch);
+#if CTX_INCLUDE_EL2_REGS
+CASSERT(CTX_EL2_SYSREGS_OFFSET == __builtin_offsetof(cpu_context_t, el2_sysregs_ctx), \
+	assert_core_context_el2_sys_offset_mismatch);
+#endif
 #if CTX_INCLUDE_FPREGS
 CASSERT(CTX_FPREGS_OFFSET == __builtin_offsetof(cpu_context_t, fpregs_ctx), \
 	assert_core_context_fp_offset_mismatch);
@@ -387,8 +513,14 @@ CASSERT(CTX_PAUTH_REGS_OFFSET == __builtin_offsetof(cpu_context_t, pauth_ctx), \
 /*******************************************************************************
  * Function prototypes
  ******************************************************************************/
-void el1_sysregs_context_save(el1_sys_regs_t *regs);
-void el1_sysregs_context_restore(el1_sys_regs_t *regs);
+void el1_sysregs_context_save(el1_sysregs_t *regs);
+void el1_sysregs_context_restore(el1_sysregs_t *regs);
+
+#if CTX_INCLUDE_EL2_REGS
+void el2_sysregs_context_save(el2_sysregs_t *regs);
+void el2_sysregs_context_restore(el2_sysregs_t *regs);
+#endif
+
 #if CTX_INCLUDE_FPREGS
 void fpregs_context_save(fp_regs_t *regs);
 void fpregs_context_restore(fp_regs_t *regs);

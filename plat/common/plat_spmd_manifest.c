@@ -37,12 +37,6 @@ static int manifest_parse_attribute(spmc_manifest_sect_attribute_t *attr,
 		return -ENOENT;
 	}
 
-	rc = fdtw_read_cells(fdt, node, "runtime_el", 1, &attr->runtime_el);
-	if (rc) {
-		ERROR("Missing SPM core runtime EL in manifest.\n");
-		return -ENOENT;
-	}
-
 	rc = fdtw_read_cells(fdt, node, "exec_state", 1, &attr->exec_state);
 	if (rc)
 		NOTICE("Execution state not specified in SPM core manifest.\n");
@@ -61,7 +55,6 @@ static int manifest_parse_attribute(spmc_manifest_sect_attribute_t *attr,
 
 	VERBOSE("SPM core manifest attribute section:\n");
 	VERBOSE("  version: %x.%x\n", attr->major_version, attr->minor_version);
-	VERBOSE("  runtime_el: 0x%x\n", attr->runtime_el);
 	VERBOSE("  binary_size: 0x%x\n", attr->binary_size);
 	VERBOSE("  load_address: 0x%llx\n", attr->load_address);
 	VERBOSE("  entrypoint: 0x%llx\n", attr->entrypoint);

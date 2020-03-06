@@ -11,7 +11,7 @@
 #include <services/spci_svc.h>
 #include <stdint.h>
 
-int32_t spmd_setup(void);
+int spmd_setup(void);
 uint64_t spmd_smc_handler(uint32_t smc_fid,
 			  uint64_t x1,
 			  uint64_t x2,

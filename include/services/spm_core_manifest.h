@@ -21,13 +21,6 @@ typedef struct spm_core_manifest_sect_attribute {
 	uint32_t minor_version;
 
 	/*
-	 * Run-Time Exception Level (mandatory):
-	 * - 1: SEL1
-	 * - 2: SEL2
-	 */
-	uint32_t runtime_el;
-
-	/*
 	 * Run-Time Execution state (optional):
 	 * - 0: AArch64 (default)
 	 * - 1: AArch32

@@ -33,7 +33,23 @@ spmd_spm_core_context_t spm_core_context[PLATFORM_CORE_COUNT];
 /*******************************************************************************
  * SPM Core attribute information read from its manifest.
  ******************************************************************************/
-spmc_manifest_sect_attribute_t spmc_attrs;
+static spmc_manifest_sect_attribute_t spmc_attrs;
+
+/*******************************************************************************
+ * SPM Core entry point information. Discovered on the primary core and reused
+ * on secondary cores.
+ ******************************************************************************/
+static entry_point_info_t *spmc_ep_info;
+
+/*******************************************************************************
+ * Static function declaration.
+ ******************************************************************************/
+static int32_t	spmd_init(void);
+static int	spmd_spmc_init(void *rd_base, size_t rd_size);
+static uint64_t	spmd_spci_error_return(void *handle, int error_code);
+static uint64_t	spmd_smc_forward(uint32_t smc_fid, bool secure_origin,
+				 uint64_t x1, uint64_t x2, uint64_t x3,
+				 uint64_t x4, void *handle);
 
 /*******************************************************************************
  * This function takes an SP context pointer and performs a synchronous entry
@@ -49,17 +65,19 @@ uint64_t spmd_spm_core_sync_entry(spmd_spm_core_context_t *spmc_ctx)
 
 	/* Restore the context assigned above */
 	cm_el1_sysregs_context_restore(SECURE);
+#if SPMD_SPM_AT_SEL2
+	cm_el2_sysregs_context_restore(SECURE);
+#endif
 	cm_set_next_eret_context(SECURE);
 
-	/* Invalidate TLBs at EL1. */
-	tlbivmalle1();
-	dsbish();
-
-	/* Enter Secure Partition */
+	/* Enter SPMC */
 	rc = spmd_spm_core_enter(&spmc_ctx->c_rt_ctx);
 
 	/* Save secure state */
 	cm_el1_sysregs_context_save(SECURE);
+#if SPMD_SPM_AT_SEL2
+	cm_el2_sysregs_context_save(SECURE);
+#endif
 
 	return rc;
 }
@@ -109,17 +127,129 @@ static int32_t spmd_init(void)
 }
 
 /*******************************************************************************
+ * Load SPMC manifest, init SPMC.
+ ******************************************************************************/
+static int spmd_spmc_init(void *rd_base, size_t rd_size)
+{
+	int rc;
+	uint32_t ep_attr;
+	unsigned int linear_id = plat_my_core_pos();
+	spmd_spm_core_context_t *spm_ctx = &spm_core_context[linear_id];
+
+	/* Load the SPM core manifest */
+	rc = plat_spm_core_manifest_load(&spmc_attrs, rd_base, rd_size);
+	if (rc != 0) {
+		WARN("No or invalid SPM core manifest image provided by BL2 "
+		     "boot loader. ");
+		return 1;
+	}
+
+	/*
+	 * Ensure that the SPM core version is compatible with the SPM
+	 * dispatcher version
+	 */
+	if ((spmc_attrs.major_version != SPCI_VERSION_MAJOR) ||
+	    (spmc_attrs.minor_version > SPCI_VERSION_MINOR)) {
+		WARN("Unsupported SPCI version (%x.%x) specified in SPM core "
+		     "manifest image provided by BL2 boot loader.\n",
+		     spmc_attrs.major_version, spmc_attrs.minor_version);
+		return 1;
+	}
+
+	INFO("SPCI version (%x.%x).\n", spmc_attrs.major_version,
+	     spmc_attrs.minor_version);
+
+	INFO("SPM core run time EL%x.\n",
+	     SPMD_SPM_AT_SEL2 ? MODE_EL2 : MODE_EL1);
+
+	/* Validate the SPM core execution state */
+	if ((spmc_attrs.exec_state != MODE_RW_64) &&
+	    (spmc_attrs.exec_state != MODE_RW_32)) {
+		WARN("Unsupported SPM core execution state %x specified in "
+		     "manifest image provided by BL2 boot loader.\n",
+		     spmc_attrs.exec_state);
+		return 1;
+	}
+
+	INFO("SPM core execution state %x.\n", spmc_attrs.exec_state);
+
+#if SPMD_SPM_AT_SEL2
+	/* Ensure manifest has not requested AArch32 state in S-EL2 */
+	if (spmc_attrs.exec_state == MODE_RW_32) {
+		WARN("AArch32 state at S-EL2 is not supported.\n");
+		return 1;
+	}
+
+	/*
+	 * Check if S-EL2 is supported on this system if S-EL2
+	 * is required for SPM
+	 */
+	uint64_t sel2 = read_id_aa64pfr0_el1();
+
+	sel2 >>= ID_AA64PFR0_SEL2_SHIFT;
+	sel2 &= ID_AA64PFR0_SEL2_MASK;
+
+	if (!sel2) {
+		WARN("SPM core run time S-EL2 is not supported.");
+		return 1;
+	}
+#endif /* SPMD_SPM_AT_SEL2 */
+
+	/* Initialise an entrypoint to set up the CPU context */
+	ep_attr = SECURE | EP_ST_ENABLE;
+	if (read_sctlr_el3() & SCTLR_EE_BIT) {
+		ep_attr |= EP_EE_BIG;
+	}
+
+	SET_PARAM_HEAD(spmc_ep_info, PARAM_EP, VERSION_1, ep_attr);
+	assert(spmc_ep_info->pc == BL32_BASE);
+
+	/*
+	 * Populate SPSR for SPM core based upon validated parameters from the
+	 * manifest
+	 */
+	if (spmc_attrs.exec_state == MODE_RW_32) {
+		spmc_ep_info->spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
+						 SPSR_E_LITTLE,
+						 DAIF_FIQ_BIT |
+						 DAIF_IRQ_BIT |
+						 DAIF_ABT_BIT);
+	} else {
+
+#if SPMD_SPM_AT_SEL2
+		static const uint32_t runtime_el = MODE_EL2;
+#else
+		static const uint32_t runtime_el = MODE_EL1;
+#endif
+		spmc_ep_info->spsr = SPSR_64(runtime_el,
+					     MODE_SP_ELX,
+					     DISABLE_ALL_EXCEPTIONS);
+	}
+
+	/* Initialise SPM core context with this entry point information */
+	cm_setup_context(&spm_ctx->cpu_ctx, spmc_ep_info);
+
+	/* Reuse PSCI affinity states to mark this SPMC context as off */
+	spm_ctx->state = AFF_STATE_OFF;
+
+	INFO("SPM core setup done.\n");
+
+	/* Register init function for deferred init.  */
+	bl31_register_bl32_init(&spmd_init);
+
+	return 0;
+}
+
+/*******************************************************************************
  * Initialize context of SPM core.
  ******************************************************************************/
-int32_t spmd_setup(void)
+int spmd_setup(void)
 {
 	int rc;
 	void *rd_base;
 	size_t rd_size;
-	entry_point_info_t *spmc_ep_info;
 	uintptr_t rd_base_align;
 	uintptr_t rd_size_align;
-	uint32_t ep_attr;
 
 	spmc_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
 	if (!spmc_ep_info) {
@@ -155,130 +285,72 @@ int32_t spmd_setup(void)
 				     (uintptr_t) rd_base_align,
 				     rd_size_align,
 				     MT_RO_DATA);
-	if (rc < 0) {
+	if (rc != 0) {
 		ERROR("Error while mapping SPM core manifest (%d).\n", rc);
 		panic();
 	}
 
-	/* Load the SPM core manifest */
-	rc = plat_spm_core_manifest_load(&spmc_attrs, rd_base, rd_size);
-	if (rc < 0) {
-		WARN("No or invalid SPM core manifest image provided by BL2 "
-		     "boot loader. ");
-		goto error;
-	}
+	/* Load manifest, init SPMC */
+	rc = spmd_spmc_init(rd_base, rd_size);
+	if (rc != 0) {
+		int mmap_rc;
 
-	/*
-	 * Ensure that the SPM core version is compatible with the SPM
-	 * dispatcher version
-	 */
-	if ((spmc_attrs.major_version != SPCI_VERSION_MAJOR) ||
-	    (spmc_attrs.minor_version > SPCI_VERSION_MINOR)) {
-		WARN("Unsupported SPCI version (%x.%x) specified in SPM core "
-		     "manifest image provided by BL2 boot loader.\n",
-		     spmc_attrs.major_version, spmc_attrs.minor_version);
-		goto error;
-	}
+		WARN("Booting device without SPM initialization. "
+		     "SPCI SMCs destined for SPM core will return "
+		     "ENOTSUPPORTED\n");
 
-	INFO("SPCI version (%x.%x).\n", spmc_attrs.major_version,
-	     spmc_attrs.minor_version);
-
-	/* Validate the SPM core runtime EL */
-	if ((spmc_attrs.runtime_el != MODE_EL1) &&
-	    (spmc_attrs.runtime_el != MODE_EL2)) {
-		WARN("Unsupported SPM core run time EL%x specified in "
-		     "manifest image provided by BL2 boot loader.\n",
-		     spmc_attrs.runtime_el);
-		goto error;
-	}
-
-	INFO("SPM core run time EL%x.\n", spmc_attrs.runtime_el);
-
-	/* Validate the SPM core execution state */
-	if ((spmc_attrs.exec_state != MODE_RW_64) &&
-	    (spmc_attrs.exec_state != MODE_RW_32)) {
-		WARN("Unsupported SPM core execution state %x specified in "
-		     "manifest image provided by BL2 boot loader.\n",
-		     spmc_attrs.exec_state);
-		goto error;
-	}
-
-	INFO("SPM core execution state %x.\n", spmc_attrs.exec_state);
-
-	/* Ensure manifest has not requested S-EL2 in AArch32 state */
-	if ((spmc_attrs.exec_state == MODE_RW_32) &&
-	    (spmc_attrs.runtime_el == MODE_EL2)) {
-		WARN("Invalid combination of SPM core execution state (%x) "
-		     "and run time EL (%x).\n", spmc_attrs.exec_state,
-		     spmc_attrs.runtime_el);
-		goto error;
-	}
-
-	/*
-	 * Check if S-EL2 is supported on this system if S-EL2
-	 * is required for SPM
-	 */
-	if (spmc_attrs.runtime_el == MODE_EL2) {
-		uint64_t sel2 = read_id_aa64pfr0_el1();
-
-		sel2 >>= ID_AA64PFR0_SEL2_SHIFT;
-		sel2 &= ID_AA64PFR0_SEL2_MASK;
-
-		if (!sel2) {
-			WARN("SPM core run time EL: S-EL%x is not supported "
-			     "but specified in manifest image provided by "
-			     "BL2 boot loader.\n", spmc_attrs.runtime_el);
-			goto error;
+		mmap_rc = mmap_remove_dynamic_region(rd_base_align,
+						     rd_size_align);
+		if (mmap_rc != 0) {
+			ERROR("Error while unmapping SPM core manifest (%d).\n",
+			      mmap_rc);
+			panic();
 		}
+
+		return rc;
 	}
-
-	/* Initialise an entrypoint to set up the CPU context */
-	ep_attr = SECURE | EP_ST_ENABLE;
-	if (read_sctlr_el3() & SCTLR_EE_BIT)
-		ep_attr |= EP_EE_BIG;
-	SET_PARAM_HEAD(spmc_ep_info, PARAM_EP, VERSION_1, ep_attr);
-	assert(spmc_ep_info->pc == BL32_BASE);
-
-	/*
-	 * Populate SPSR for SPM core based upon validated parameters from the
-	 * manifest
-	 */
-	if (spmc_attrs.exec_state == MODE_RW_32) {
-		spmc_ep_info->spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
-						 SPSR_E_LITTLE,
-						 DAIF_FIQ_BIT |
-						 DAIF_IRQ_BIT |
-						 DAIF_ABT_BIT);
-	} else {
-		spmc_ep_info->spsr = SPSR_64(spmc_attrs.runtime_el,
-					     MODE_SP_ELX,
-					     DISABLE_ALL_EXCEPTIONS);
-	}
-
-	/* Initialise SPM core context with this entry point information */
-	cm_setup_context(&(spm_core_context[plat_my_core_pos()].cpu_ctx),
-			 spmc_ep_info);
-
-	INFO("SPM core setup done.\n");
-
-	/* Register init function for deferred init.  */
-	bl31_register_bl32_init(&spmd_init);
 
 	return 0;
+}
 
-error:
-	WARN("Booting device without SPM initialization. "
-	     "SPCI SMCs destined for SPM core will return "
-	     "ENOTSUPPORTED\n");
+/*******************************************************************************
+ * Forward SMC to the other security state
+ ******************************************************************************/
+static uint64_t spmd_smc_forward(uint32_t smc_fid, bool secure_origin,
+				 uint64_t x1, uint64_t x2, uint64_t x3,
+				 uint64_t x4, void *handle)
+{
+	uint32_t secure_state_in = (secure_origin) ? SECURE : NON_SECURE;
+	uint32_t secure_state_out = (!secure_origin) ? SECURE : NON_SECURE;
 
-	rc = mmap_remove_dynamic_region(rd_base_align, rd_size_align);
-	if (rc < 0) {
-		ERROR("Error while unmapping SPM core manifest (%d).\n",
-		      rc);
-		panic();
-	}
+	/* Save incoming security state */
+	cm_el1_sysregs_context_save(secure_state_in);
+#if SPMD_SPM_AT_SEL2
+	cm_el2_sysregs_context_save(secure_state_in);
+#endif
 
-	return 1;
+	/* Restore outgoing security state */
+	cm_el1_sysregs_context_restore(secure_state_out);
+#if SPMD_SPM_AT_SEL2
+	cm_el2_sysregs_context_restore(secure_state_out);
+#endif
+	cm_set_next_eret_context(secure_state_out);
+
+	SMC_RET8(cm_get_context(secure_state_out), smc_fid, x1, x2, x3, x4,
+			SMC_GET_GP(handle, CTX_GPREG_X5),
+			SMC_GET_GP(handle, CTX_GPREG_X6),
+			SMC_GET_GP(handle, CTX_GPREG_X7));
+}
+
+/*******************************************************************************
+ * Return SPCI_ERROR with specified error code
+ ******************************************************************************/
+static uint64_t spmd_spci_error_return(void *handle, int error_code)
+{
+	SMC_RET8(handle, SPCI_ERROR,
+		 SPCI_TARGET_INFO_MBZ, error_code,
+		 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ, SPCI_PARAM_MBZ,
+		 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ);
 }
 
 /*******************************************************************************
@@ -289,19 +361,12 @@ uint64_t spmd_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 			  uint64_t x3, uint64_t x4, void *cookie, void *handle,
 			  uint64_t flags)
 {
-	uint32_t in_sstate;
-	uint32_t out_sstate;
-	int32_t ret;
 	spmd_spm_core_context_t *ctx = &spm_core_context[plat_my_core_pos()];
+	bool secure_origin;
+	int32_t ret;
 
 	/* Determine which security state this SMC originated from */
-	if (is_caller_secure(flags)) {
-		in_sstate = SECURE;
-		out_sstate = NON_SECURE;
-	} else {
-		in_sstate = NON_SECURE;
-		out_sstate = SECURE;
-	}
+	secure_origin = is_caller_secure(flags);
 
 	INFO("SPM: 0x%x, 0x%llx, 0x%llx, 0x%llx, 0x%llx, "
 	     "0x%llx, 0x%llx, 0x%llx\n",
@@ -316,20 +381,12 @@ uint64_t spmd_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		 * this CPU. If so, then indicate that the SPM core initialised
 		 * unsuccessfully.
 		 */
-		if ((in_sstate == SECURE) && (ctx->state == SPMC_STATE_RESET))
+		if (secure_origin && (ctx->state == SPMC_STATE_RESET)) {
 			spmd_spm_core_sync_exit(x2);
+		}
 
-		/* Save incoming security state */
-		cm_el1_sysregs_context_save(in_sstate);
-
-		/* Restore outgoing security state */
-		cm_el1_sysregs_context_restore(out_sstate);
-		cm_set_next_eret_context(out_sstate);
-
-		SMC_RET8(cm_get_context(out_sstate), smc_fid, x1, x2, x3, x4,
-			 SMC_GET_GP(handle, CTX_GPREG_X5),
-			 SMC_GET_GP(handle, CTX_GPREG_X6),
-			 SMC_GET_GP(handle, CTX_GPREG_X7));
+		return spmd_smc_forward(smc_fid, secure_origin,
+					x1, x2, x3, x4, handle);
 		break; /* not reached */
 
 	case SPCI_VERSION:
@@ -353,29 +410,18 @@ uint64_t spmd_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		 */
 
 		/*
-		 * Check if w1 holds a valid SPCI fid. This is an
+		 * Check if x1 holds a valid SPCI fid. This is an
 		 * optimization.
 		 */
-		if (!is_spci_fid(x1))
-			SMC_RET8(handle, SPCI_ERROR,
-				 SPCI_TARGET_INFO_MBZ, SPCI_ERROR_NOT_SUPPORTED,
-				 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ, SPCI_PARAM_MBZ,
-				 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ);
+		if (!is_spci_fid(x1)) {
+			return spmd_spci_error_return(handle,
+						      SPCI_ERROR_NOT_SUPPORTED);
+		}
 
 		/* Forward SMC from Normal world to the SPM core */
-		if (in_sstate == NON_SECURE) {
-			/* Save incoming security state */
-			cm_el1_sysregs_context_save(in_sstate);
-
-			/* Restore outgoing security state */
-			cm_el1_sysregs_context_restore(out_sstate);
-			cm_set_next_eret_context(out_sstate);
-
-			SMC_RET8(cm_get_context(out_sstate), smc_fid,
-				 x1, x2, x3, x4,
-				 SMC_GET_GP(handle, CTX_GPREG_X5),
-				 SMC_GET_GP(handle, CTX_GPREG_X6),
-				 SMC_GET_GP(handle, CTX_GPREG_X7));
+		if (!secure_origin) {
+			return spmd_smc_forward(smc_fid, secure_origin,
+						x1, x2, x3, x4, handle);
 		} else {
 			/*
 			 * Return success if call was from secure world i.e. all
@@ -387,6 +433,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 				 SMC_GET_GP(handle, CTX_GPREG_X6),
 				 SMC_GET_GP(handle, CTX_GPREG_X7));
 		}
+
 		break; /* not reached */
 
 	case SPCI_RX_RELEASE:
@@ -395,11 +442,9 @@ uint64_t spmd_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	case SPCI_RXTX_UNMAP:
 	case SPCI_MSG_RUN:
 		/* This interface must be invoked only by the Normal world */
-		if (in_sstate == SECURE) {
-			SMC_RET8(handle, SPCI_ERROR,
-				 SPCI_TARGET_INFO_MBZ, SPCI_ERROR_NOT_SUPPORTED,
-				 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ, SPCI_PARAM_MBZ,
-				 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ);
+		if (secure_origin) {
+			return spmd_spci_error_return(handle,
+						      SPCI_ERROR_NOT_SUPPORTED);
 		}
 
 		/* Fall through to forward the call to the other world */
@@ -430,17 +475,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		 * simply forward the call to the Normal world.
 		 */
 
-		/* Save incoming security state */
-		cm_el1_sysregs_context_save(in_sstate);
-
-		/* Restore outgoing security state */
-		cm_el1_sysregs_context_restore(out_sstate);
-		cm_set_next_eret_context(out_sstate);
-
-		SMC_RET8(cm_get_context(out_sstate), smc_fid, x1, x2, x3, x4,
-			 SMC_GET_GP(handle, CTX_GPREG_X5),
-			 SMC_GET_GP(handle, CTX_GPREG_X6),
-			 SMC_GET_GP(handle, CTX_GPREG_X7));
+		return spmd_smc_forward(smc_fid, secure_origin,
+					x1, x2, x3, x4, handle);
 		break; /* not reached */
 
 	case SPCI_MSG_WAIT:
@@ -449,39 +485,25 @@ uint64_t spmd_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		 * this CPU from the Secure world. If so, then indicate that the
 		 * SPM core initialised successfully.
 		 */
-		if ((in_sstate == SECURE) && (ctx->state == SPMC_STATE_RESET)) {
+		if (secure_origin && (ctx->state == SPMC_STATE_RESET)) {
 			spmd_spm_core_sync_exit(0);
 		}
 
-		/* Intentional fall-through */
+		/* Fall through to forward the call to the other world */
 
 	case SPCI_MSG_YIELD:
 		/* This interface must be invoked only by the Secure world */
-		if (in_sstate == NON_SECURE) {
-			SMC_RET8(handle, SPCI_ERROR,
-				 SPCI_TARGET_INFO_MBZ, SPCI_ERROR_NOT_SUPPORTED,
-				 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ, SPCI_PARAM_MBZ,
-				 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ);
+		if (!secure_origin) {
+			return spmd_spci_error_return(handle,
+						      SPCI_ERROR_NOT_SUPPORTED);
 		}
 
-		/* Save incoming security state */
-		cm_el1_sysregs_context_save(in_sstate);
-
-		/* Restore outgoing security state */
-		cm_el1_sysregs_context_restore(out_sstate);
-		cm_set_next_eret_context(out_sstate);
-
-		SMC_RET8(cm_get_context(out_sstate), smc_fid, x1, x2, x3, x4,
-			 SMC_GET_GP(handle, CTX_GPREG_X5),
-			 SMC_GET_GP(handle, CTX_GPREG_X6),
-			 SMC_GET_GP(handle, CTX_GPREG_X7));
+		return spmd_smc_forward(smc_fid, secure_origin,
+					x1, x2, x3, x4, handle);
 		break; /* not reached */
 
 	default:
 		WARN("SPM: Unsupported call 0x%08x\n", smc_fid);
-		SMC_RET8(handle, SPCI_ERROR,
-			 SPCI_TARGET_INFO_MBZ, SPCI_ERROR_NOT_SUPPORTED,
-			 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ, SPCI_PARAM_MBZ,
-			 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ);
+		return spmd_spci_error_return(handle, SPCI_ERROR_NOT_SUPPORTED);
 	}
 }
