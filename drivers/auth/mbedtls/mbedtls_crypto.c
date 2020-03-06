@@ -12,6 +12,7 @@
 #include <mbedtls/memory_buffer_alloc.h>
 #include <mbedtls/oid.h>
 #include <mbedtls/platform.h>
+#include <mbedtls/x509.h>
 
 #include <common/debug.h>
 #include <drivers/auth/crypto_mod.h>
