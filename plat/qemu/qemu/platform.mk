@@ -128,6 +128,11 @@ ifeq ($(add-lib-optee),yes)
 BL2_SOURCES		+=	lib/optee/optee_utils.c
 endif
 
+ifneq (${DECRYPTION_SUPPORT},none)
+BL1_SOURCES		+=	drivers/io/io_encrypted.c
+BL2_SOURCES		+=	drivers/io/io_encrypted.c
+endif
+
 QEMU_GICV2_SOURCES	:=	drivers/arm/gic/v2/gicv2_helpers.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
 				drivers/arm/gic/common/gic_common.c	\
@@ -165,10 +170,18 @@ endif
 # Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
 # in the FIP if the platform requires.
 ifneq ($(BL32_EXTRA1),)
+ifneq (${DECRYPTION_SUPPORT},none)
+$(eval $(call TOOL_ADD_IMG,bl32_extra1,--tos-fw-extra1,,$(ENCRYPT_BL32)))
+else
 $(eval $(call TOOL_ADD_IMG,bl32_extra1,--tos-fw-extra1))
 endif
+endif
 ifneq ($(BL32_EXTRA2),)
+ifneq (${DECRYPTION_SUPPORT},none)
+$(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2,,$(ENCRYPT_BL32)))
+else
 $(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2))
+endif
 endif
 
 SEPARATE_CODE_AND_RODATA := 1

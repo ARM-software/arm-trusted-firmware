@@ -135,6 +135,33 @@ verbose. The following command should be used to obtain help about the tool:
 
     ./tools/cert_create/cert_create -h
 
+.. _tools_build_enctool:
+
+Building the Firmware Encryption Tool
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``encrypt_fw`` tool is built as part of the TF-A build process when the
+``fip`` make target is specified, DECRYPTION_SUPPORT and TBB are enabled, but
+it can also be built separately with the following command:
+
+.. code:: shell
+
+    make PLAT=<platform> [DEBUG=1] [V=1] enctool
+
+``DEBUG=1`` builds the tool in debug mode. ``V=1`` makes the build process more
+verbose. The following command should be used to obtain help about the tool:
+
+.. code:: shell
+
+    ./tools/encrypt_fw/encrypt_fw -h
+
+Note that the enctool in its current implementation only supports encryption
+key to be provided in plain format. A typical implementation can very well
+extend this tool to support custom techniques to protect encryption key.
+
+Also, a user may choose to provide encryption key or nonce as an input file
+via using ``cat <filename>`` instead of a hex string.
+
 --------------
 
 *Copyright (c) 2019, Arm Limited. All rights reserved.*

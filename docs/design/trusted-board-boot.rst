@@ -229,6 +229,34 @@ library that is required is given in the :ref:`Prerequisites` document.
 Instructions for building and using the tool can be found at
 :ref:`tools_build_cert_create`.
 
+Authenticated Encryption Framework
+----------------------------------
+
+The authenticated encryption framework included in TF-A provides support to
+implement the optional firmware encryption feature. This feature can be
+optionally enabled on platforms to implement the optional requirement:
+R060_TBBR_FUNCTION as specified in the `Trusted Board Boot Requirements (TBBR)`_
+document.
+
+Note that due to security considerations and complexity of this feature, it is
+marked as experimental.
+
+Firmware Encryption Tool
+------------------------
+
+The ``encrypt_fw`` tool is built and runs on the host machine as part of the
+TF-A build process when ``DECRYPTION_SUPPORT != none``. It takes the plain
+firmware image as input and generates the encrypted firmware image which can
+then be passed as input to the ``fiptool`` utility for creating the FIP.
+
+The encrypted firmwares are also stored individually in the output build
+directory.
+
+The tool resides in the ``tools/encrypt_fw`` directory. It uses OpenSSL SSL
+library version 1.0.1 or later to do authenticated encryption operation.
+Instructions for building and using the tool can be found in the
+:ref:`tools_build_enctool`.
+
 --------------
 
 *Copyright (c) 2015-2019, Arm Limited and Contributors. All rights reserved.*

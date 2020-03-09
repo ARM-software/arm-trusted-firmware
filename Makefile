@@ -159,6 +159,14 @@ else
 endif
 endif
 
+ifneq (${DECRYPTION_SUPPORT},none)
+ENC_ARGS += -f ${FW_ENC_STATUS}
+ENC_ARGS += -k ${ENC_KEY}
+ENC_ARGS += -n ${ENC_NONCE}
+FIP_DEPS += enctool
+FWU_FIP_DEPS += enctool
+endif
+
 ################################################################################
 # Toolchain
 ################################################################################
@@ -623,7 +631,7 @@ endif
 
 ifeq ($(MEASURED_BOOT),1)
     ifneq (${TRUSTED_BOARD_BOOT},1)
-        $(error MEASURED_BOOT requires TRUSTED_BOARD_BOOT=1")
+        $(error MEASURED_BOOT requires TRUSTED_BOARD_BOOT=1)
     else
         $(info MEASURED_BOOT is an experimental feature)
     endif
@@ -632,6 +640,14 @@ endif
 ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
     ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
         $(error "ALLOW_RO_XLAT_TABLES requires translation tables library v2")
+    endif
+endif
+
+ifneq (${DECRYPTION_SUPPORT},none)
+    ifeq (${TRUSTED_BOARD_BOOT}, 0)
+        $(error TRUSTED_BOARD_BOOT must be enabled for DECRYPTION_SUPPORT to be set)
+    else
+        $(info DECRYPTION_SUPPORT is an experimental feature)
     endif
 endif
 
@@ -707,6 +723,10 @@ include lib/stack_protector/stack_protector.mk
 # Variables for use with Certificate Generation Tool
 CRTTOOLPATH		?=	tools/cert_create
 CRTTOOL			?=	${CRTTOOLPATH}/cert_create${BIN_EXT}
+
+# Variables for use with Firmware Encryption Tool
+ENCTOOLPATH		?=	tools/encrypt_fw
+ENCTOOL			?=	${ENCTOOLPATH}/encrypt_fw${BIN_EXT}
 
 # Variables for use with Firmware Image Package
 FIPTOOLPATH		?=	tools/fiptool
@@ -814,10 +834,13 @@ $(eval $(call assert_boolean,BL2_AT_EL3))
 $(eval $(call assert_boolean,BL2_IN_XIP_MEM))
 $(eval $(call assert_boolean,BL2_INV_DCACHE))
 $(eval $(call assert_boolean,USE_SPINLOCK_CAS))
+$(eval $(call assert_boolean,ENCRYPT_BL31))
+$(eval $(call assert_boolean,ENCRYPT_BL32))
 
 $(eval $(call assert_numeric,ARM_ARCH_MAJOR))
 $(eval $(call assert_numeric,ARM_ARCH_MINOR))
 $(eval $(call assert_numeric,BRANCH_PROTECTION))
+$(eval $(call assert_numeric,FW_ENC_STATUS))
 
 ifdef KEY_SIZE
         $(eval $(call assert_numeric,KEY_SIZE))
@@ -843,6 +866,7 @@ $(eval $(call add_define,CTX_INCLUDE_PAUTH_REGS))
 $(eval $(call add_define,EL3_EXCEPTION_HANDLING))
 $(eval $(call add_define,CTX_INCLUDE_MTE_REGS))
 $(eval $(call add_define,CTX_INCLUDE_EL2_REGS))
+$(eval $(call add_define,DECRYPTION_SUPPORT_${DECRYPTION_SUPPORT}))
 $(eval $(call add_define,ENABLE_AMU))
 $(eval $(call add_define,ENABLE_ASSERTIONS))
 $(eval $(call add_define,ENABLE_BTI))
@@ -854,6 +878,8 @@ $(eval $(call add_define,ENABLE_PSCI_STAT))
 $(eval $(call add_define,ENABLE_RUNTIME_INSTRUMENTATION))
 $(eval $(call add_define,ENABLE_SPE_FOR_LOWER_ELS))
 $(eval $(call add_define,ENABLE_SVE_FOR_NS))
+$(eval $(call add_define,ENCRYPT_BL31))
+$(eval $(call add_define,ENCRYPT_BL32))
 $(eval $(call add_define,ERROR_DEPRECATED))
 $(eval $(call add_define,FAULT_INJECTION_SUPPORT))
 $(eval $(call add_define,GICV2_G0_FOR_EL3))
@@ -926,7 +952,7 @@ endif
 # Build targets
 ################################################################################
 
-.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip sp fwu_fip certtool dtbs memmap doc
+.PHONY:	all msg_start clean realclean distclean cscope locate-checkpatch checkcodebase checkpatch fiptool sptool fip sp fwu_fip certtool dtbs memmap doc enctool
 .SUFFIXES:
 
 all: msg_start
@@ -974,8 +1000,13 @@ endif
 
 ifeq (${NEED_BL31},yes)
 BL31_SOURCES += ${SPD_SOURCES}
+ifneq (${DECRYPTION_SUPPORT},none)
+$(if ${BL31}, $(eval $(call TOOL_ADD_IMG,bl31,--soc-fw,,$(ENCRYPT_BL31))),\
+	$(eval $(call MAKE_BL,31,soc-fw,,$(ENCRYPT_BL31))))
+else
 $(if ${BL31}, $(eval $(call TOOL_ADD_IMG,bl31,--soc-fw)),\
 	$(eval $(call MAKE_BL,31,soc-fw)))
+endif
 endif
 
 # If a BL32 image is needed but neither BL32 nor BL32_SOURCES is defined, the
@@ -985,8 +1016,13 @@ ifeq (${NEED_BL32},yes)
 
 BUILD_BL32 := $(if $(BL32),,$(if $(BL32_SOURCES),1))
 
+ifneq (${DECRYPTION_SUPPORT},none)
+$(if ${BUILD_BL32}, $(eval $(call MAKE_BL,32,tos-fw,,$(ENCRYPT_BL32))),\
+	$(eval $(call TOOL_ADD_IMG,bl32,--tos-fw,,$(ENCRYPT_BL32))))
+else
 $(if ${BUILD_BL32}, $(eval $(call MAKE_BL,32,tos-fw)),\
 	$(eval $(call TOOL_ADD_IMG,bl32,--tos-fw)))
+endif
 endif
 
 # Add the BL33 image if required by the platform
@@ -1029,6 +1065,7 @@ clean:
 	$(call SHELL_REMOVE_DIR,${BUILD_PLAT})
 	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${ENCTOOLPATH} clean
 	${Q}${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
 realclean distclean:
@@ -1038,6 +1075,7 @@ realclean distclean:
 	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
 	${Q}${MAKE} --no-print-directory -C ${SPTOOLPATH} clean
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
+	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${ENCTOOLPATH} realclean
 	${Q}${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
 
 checkcodebase:		locate-checkpatch
@@ -1139,6 +1177,15 @@ doc:
 	@echo "  BUILD DOCUMENTATION"
 	${Q}${MAKE} --no-print-directory -C ${DOCS_PATH} html
 
+enctool: ${ENCTOOL}
+
+.PHONY: ${ENCTOOL}
+${ENCTOOL}:
+	${Q}${MAKE} PLAT=${PLAT} BUILD_INFO=0 --no-print-directory -C ${ENCTOOLPATH}
+	@${ECHO_BLANK_LINE}
+	@echo "Built $@ successfully"
+	@${ECHO_BLANK_LINE}
+
 cscope:
 	@echo "  CSCOPE"
 	${Q}find ${CURDIR} -name "*.[chsS]" > cscope.files
@@ -1175,6 +1222,7 @@ help:
 	@echo "  cscope         Generate cscope index"
 	@echo "  distclean      Remove all build artifacts for all platforms"
 	@echo "  certtool       Build the Certificate generation tool"
+	@echo "  enctool        Build the Firmware encryption tool"
 	@echo "  fiptool        Build the Firmware Image Package (FIP) creation tool"
 	@echo "  sp             Build the Secure Partition Packages"
 	@echo "  sptool         Build the Secure Partition Package creation tool"

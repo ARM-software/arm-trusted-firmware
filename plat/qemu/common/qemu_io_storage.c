@@ -12,6 +12,7 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/io/io_driver.h>
+#include <drivers/io/io_encrypted.h>
 #include <drivers/io/io_fip.h>
 #include <drivers/io/io_memmap.h>
 #include <drivers/io/io_semihosting.h>
@@ -47,6 +48,10 @@ static const io_dev_connector_t *memmap_dev_con;
 static uintptr_t memmap_dev_handle;
 static const io_dev_connector_t *sh_dev_con;
 static uintptr_t sh_dev_handle;
+#ifndef DECRYPTION_SUPPORT_none
+static const io_dev_connector_t *enc_dev_con;
+static uintptr_t enc_dev_handle;
+#endif
 
 static const io_block_spec_t fip_block_spec = {
 	.offset = PLAT_QEMU_FIP_BASE,
@@ -172,10 +177,11 @@ static const io_file_spec_t sh_file_spec[] = {
 #endif /* TRUSTED_BOARD_BOOT */
 };
 
-
-
 static int open_fip(const uintptr_t spec);
 static int open_memmap(const uintptr_t spec);
+#ifndef DECRYPTION_SUPPORT_none
+static int open_enc_fip(const uintptr_t spec);
+#endif
 
 struct plat_io_policy {
 	uintptr_t *dev_handle;
@@ -190,16 +196,46 @@ static const struct plat_io_policy policies[] = {
 		(uintptr_t)&fip_block_spec,
 		open_memmap
 	},
+	[ENC_IMAGE_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)NULL,
+		open_fip
+	},
 	[BL2_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl2_uuid_spec,
 		open_fip
 	},
+#if ENCRYPT_BL31 && !defined(DECRYPTION_SUPPORT_none)
+	[BL31_IMAGE_ID] = {
+		&enc_dev_handle,
+		(uintptr_t)&bl31_uuid_spec,
+		open_enc_fip
+	},
+#else
 	[BL31_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl31_uuid_spec,
 		open_fip
 	},
+#endif
+#if ENCRYPT_BL32 && !defined(DECRYPTION_SUPPORT_none)
+	[BL32_IMAGE_ID] = {
+		&enc_dev_handle,
+		(uintptr_t)&bl32_uuid_spec,
+		open_enc_fip
+	},
+	[BL32_EXTRA1_IMAGE_ID] = {
+		&enc_dev_handle,
+		(uintptr_t)&bl32_extra1_uuid_spec,
+		open_enc_fip
+	},
+	[BL32_EXTRA2_IMAGE_ID] = {
+		&enc_dev_handle,
+		(uintptr_t)&bl32_extra2_uuid_spec,
+		open_enc_fip
+	},
+#else
 	[BL32_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl32_uuid_spec,
@@ -215,6 +251,7 @@ static const struct plat_io_policy policies[] = {
 		(uintptr_t)&bl32_extra2_uuid_spec,
 		open_fip
 	},
+#endif
 	[BL33_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl33_uuid_spec,
@@ -271,7 +308,7 @@ static int open_fip(const uintptr_t spec)
 
 	/* See if a Firmware Image Package is available */
 	result = io_dev_init(fip_dev_handle, (uintptr_t)FIP_IMAGE_ID);
-	if (result == 0) {
+	if (result == 0 && spec != (uintptr_t)NULL) {
 		result = io_open(fip_dev_handle, spec, &local_image_handle);
 		if (result == 0) {
 			VERBOSE("Using FIP\n");
@@ -280,6 +317,25 @@ static int open_fip(const uintptr_t spec)
 	}
 	return result;
 }
+
+#ifndef DECRYPTION_SUPPORT_none
+static int open_enc_fip(const uintptr_t spec)
+{
+	int result;
+	uintptr_t local_image_handle;
+
+	/* See if an encrypted FIP is available */
+	result = io_dev_init(enc_dev_handle, (uintptr_t)ENC_IMAGE_ID);
+	if (result == 0) {
+		result = io_open(enc_dev_handle, spec, &local_image_handle);
+		if (result == 0) {
+			VERBOSE("Using encrypted FIP\n");
+			io_close(local_image_handle);
+		}
+	}
+	return result;
+}
+#endif
 
 static int open_memmap(const uintptr_t spec)
 {
@@ -332,6 +388,15 @@ void plat_qemu_io_setup(void)
 	io_result = io_dev_open(memmap_dev_con, (uintptr_t)NULL,
 				&memmap_dev_handle);
 	assert(io_result == 0);
+
+#ifndef DECRYPTION_SUPPORT_none
+	io_result = register_io_dev_enc(&enc_dev_con);
+	assert(io_result == 0);
+
+	io_result = io_dev_open(enc_dev_con, (uintptr_t)NULL,
+				&enc_dev_handle);
+	assert(io_result == 0);
+#endif
 
 	/* Register the additional IO devices on this platform */
 	io_result = register_io_dev_sh(&sh_dev_con);

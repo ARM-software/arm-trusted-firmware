@@ -934,7 +934,7 @@ i.e. verify a hash or a digital signature. Arm platforms will use a library
 based on mbed TLS, which can be found in
 ``drivers/auth/mbedtls/mbedtls_crypto.c``. This library is registered in the
 authentication framework using the macro ``REGISTER_CRYPTO_LIB()`` and exports
-three functions:
+four functions:
 
 .. code:: c
 
@@ -945,6 +945,11 @@ three functions:
                          void *pk_ptr, unsigned int pk_len);
     int verify_hash(void *data_ptr, unsigned int data_len,
                     void *digest_info_ptr, unsigned int digest_info_len);
+    int auth_decrypt(enum crypto_dec_algo dec_algo, void *data_ptr,
+                     size_t len, const void *key, unsigned int key_len,
+                     unsigned int key_flags, const void *iv,
+                     unsigned int iv_len, const void *tag,
+                     unsigned int tag_len)
 
 The mbedTLS library algorithm support is configured by both the
 ``TF_MBEDTLS_KEY_ALG`` and ``TF_MBEDTLS_KEY_SIZE`` variables.
@@ -956,6 +961,9 @@ The mbedTLS library algorithm support is configured by both the
 
 -  ``TF_MBEDTLS_KEY_SIZE`` sets the supported RSA key size for TFA. Valid values
    include 1024, 2048, 3072 and 4096.
+
+-  ``TF_MBEDTLS_USE_AES_GCM`` enables the authenticated decryption support based
+   on AES-GCM algorithm. Valid values are 0 and 1.
 
 .. note::
    If code size is a concern, the build option ``MBEDTLS_SHA256_SMALLER`` can

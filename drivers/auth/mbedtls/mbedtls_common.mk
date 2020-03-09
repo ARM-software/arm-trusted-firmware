@@ -23,13 +23,17 @@ MBEDTLS_SOURCES	+=		drivers/auth/mbedtls/mbedtls_common.c
 
 
 LIBMBEDTLS_SRCS		:= $(addprefix ${MBEDTLS_DIR}/library/,	\
+					aes.c 					\
 					asn1parse.c 				\
 					asn1write.c 				\
+					cipher.c 				\
+					cipher_wrap.c 				\
 					memory_buffer_alloc.c			\
 					oid.c 					\
 					platform.c 				\
 					platform_util.c				\
 					bignum.c				\
+					gcm.c 					\
 					md.c					\
 					md_wrap.c				\
 					pk.c 					\
@@ -87,11 +91,17 @@ else
     $(error "TF_MBEDTLS_KEY_ALG=${TF_MBEDTLS_KEY_ALG} not supported on mbed TLS")
 endif
 
+ifeq (${DECRYPTION_SUPPORT}, aes_gcm)
+    TF_MBEDTLS_USE_AES_GCM	:=	1
+else
+    TF_MBEDTLS_USE_AES_GCM	:=	0
+endif
+
 # Needs to be set to drive mbed TLS configuration correctly
 $(eval $(call add_define,TF_MBEDTLS_KEY_ALG_ID))
 $(eval $(call add_define,TF_MBEDTLS_KEY_SIZE))
 $(eval $(call add_define,TF_MBEDTLS_HASH_ALG_ID))
-
+$(eval $(call add_define,TF_MBEDTLS_USE_AES_GCM))
 
 $(eval $(call MAKE_LIB,mbedtls))
 
