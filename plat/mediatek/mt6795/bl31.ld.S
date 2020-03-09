@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/bl_common.ld.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <platform_def.h>
 
@@ -131,15 +132,7 @@ SECTIONS
 
     ASSERT(. <= BL31_LIMIT, "BL3-1 image has exceeded its limit.")
 
-    /*
-     * The xlat_table section is for full, aligned page tables (4K).
-     * Removing them from .bss avoids forcing 4K alignment on
-     * the .bss section. The tables are initialized to zero by the translation
-     * tables library.
-     */
-    xlat_table (NOLOAD) : {
-        *(xlat_table)
-    } >RAM2
+    XLAT_TABLE_SECTION >RAM2
 
 #if USE_COHERENT_MEM
     /*
