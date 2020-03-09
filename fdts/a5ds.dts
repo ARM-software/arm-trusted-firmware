@@ -136,4 +136,23 @@
 			reg = <0x1a050000 0x1000>;
 		};
 	};
+	v2m_fixed_3v3: fixed-regulator-0 {
+		compatible = "regulator-fixed";
+		regulator-name = "3V3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	ethernet@4020000 {
+		compatible = "smsc,lan9220", "smsc,lan9115";
+		reg = <0x40200000 0x10000>;
+		interrupt-parent = <&gic>;
+		interrupts = <0 43 0xf04>;
+		reg-io-width = <4>;
+		phy-mode = "mii";
+		smsc,irq-active-high;
+		vdd33a-supply = <&v2m_fixed_3v3>;
+		vddvario-supply = <&v2m_fixed_3v3>;
+       };
 };
