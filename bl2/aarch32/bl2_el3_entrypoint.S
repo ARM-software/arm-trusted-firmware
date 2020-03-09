@@ -87,5 +87,5 @@ func bl2_run_next_image
 
 	add	r8, r8, #ENTRY_POINT_INFO_ARGS_OFFSET
 	ldm	r8, {r0, r1, r2, r3}
-	eret
+	exception_return
 endfunc bl2_run_next_image
