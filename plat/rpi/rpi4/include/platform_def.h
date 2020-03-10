@@ -126,8 +126,8 @@
 /*
  * Serial-related constants.
  */
-#define PLAT_RPI3_UART_BASE		RPI3_MINI_UART_BASE
-#define PLAT_RPI3_UART_BAUDRATE		ULL(115200)
+#define PLAT_RPI_MINI_UART_BASE		RPI4_MINI_UART_BASE
+#define PLAT_RPI_UART_BAUDRATE          ULL(115200)
 
 /*
  * System counter

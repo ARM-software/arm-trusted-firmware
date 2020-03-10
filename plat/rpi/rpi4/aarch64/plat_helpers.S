@@ -10,8 +10,6 @@
 #include <platform_def.h>
 #include <cortex_a72.h>
 
-#include "../include/rpi_hw.h"
-
 	.globl	plat_crash_console_flush
 	.globl	plat_crash_console_init
 	.globl	plat_crash_console_putc
@@ -135,7 +133,7 @@ endfunc platform_mem_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-	mov_imm	x0, PLAT_RPI3_UART_BASE
+	mov_imm	x0, PLAT_RPI_MINI_UART_BASE
 	mov	x1, xzr
 	mov	x2, xzr
 	b	console_16550_core_init
@@ -149,7 +147,7 @@ endfunc plat_crash_console_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_putc
-	mov_imm	x1, PLAT_RPI3_UART_BASE
+	mov_imm	x1, PLAT_RPI_MINI_UART_BASE
 	b	console_16550_core_putc
 endfunc plat_crash_console_putc
 
@@ -162,7 +160,7 @@ endfunc plat_crash_console_putc
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_flush
-	mov_imm	x0, PLAT_RPI3_UART_BASE
+	mov_imm	x0, PLAT_RPI_MINI_UART_BASE
 	b	console_16550_core_flush
 endfunc plat_crash_console_flush
 

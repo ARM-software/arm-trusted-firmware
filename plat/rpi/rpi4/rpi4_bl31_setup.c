@@ -132,14 +132,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	/* Early GPU firmware revisions need a little break here. */
 	ldelay(100000);
 
-	/*
-	 * Initialize the console to provide early debug support.
-	 * We rely on the GPU firmware to have initialised the UART correctly,
-	 * as the baud base clock rate differs across GPU firmware revisions.
-	 * Providing a base clock of 0 lets the 16550 UART init routine skip
-	 * the initial enablement and baud rate setup.
-	 */
-	rpi3_console_init(0);
+	/* Initialize the console to provide early debug support. */
+	rpi3_console_init();
 
 	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
 	bl33_image_ep_info.spsr = rpi3_get_spsr_for_bl33_entry();

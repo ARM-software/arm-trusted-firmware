@@ -79,8 +79,8 @@
 /*
  * Serial port (called 'Mini UART' in the Broadcom documentation).
  */
-#define RPI3_IO_MINI_UART_OFFSET	ULL(0x00215040)
-#define RPI3_MINI_UART_BASE		(RPI_IO_BASE + RPI3_IO_MINI_UART_OFFSET)
+#define RPI4_IO_MINI_UART_OFFSET	ULL(0x00215040)
+#define RPI4_MINI_UART_BASE		(RPI_IO_BASE + RPI4_IO_MINI_UART_OFFSET)
 
 /*
  * GPIO controller

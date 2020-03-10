@@ -72,7 +72,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 {
 	/* Initialize the console to provide early debug support */
-	rpi3_console_init(PLAT_RPI3_UART_CLK_IN_HZ);
+	rpi3_console_init();
 
 	/*
 	 * In debug builds, a special value is passed in 'arg1' to verify

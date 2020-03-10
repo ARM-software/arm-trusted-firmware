@@ -104,16 +104,19 @@ static const mmap_region_t plat_rpi3_mmap[] = {
  ******************************************************************************/
 static console_t rpi3_console;
 
-void rpi3_console_init(unsigned int base_clk_rate)
+void rpi3_console_init(void)
 {
 	int console_scope = CONSOLE_FLAG_BOOT;
-#if RPI3_RUNTIME_UART != -1
-	console_scope |= CONSOLE_FLAG_RUNTIME;
-#endif
-	int rc = console_16550_register(PLAT_RPI3_UART_BASE,
-					base_clk_rate,
-					PLAT_RPI3_UART_BAUDRATE,
-					&rpi3_console);
+	int rc;
+
+	if (RPI3_RUNTIME_UART != -1)
+		console_scope |= CONSOLE_FLAG_RUNTIME;
+
+	rc = console_16550_register(PLAT_RPI_MINI_UART_BASE,
+				    0,
+				    PLAT_RPI_UART_BAUDRATE,
+				    &rpi3_console);
+
 	if (rc == 0) {
 		/*
 		 * The crash console doesn't use the multi console API, it uses
