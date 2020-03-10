@@ -14,6 +14,7 @@
 #include <bl31/interrupt_mgmt.h>
 #include <drivers/console.h>
 #include <drivers/ti/uart/uart_16550.h>
+#include <drivers/arm/pl011.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include <rpi_hw.h>
@@ -104,6 +105,11 @@ static const mmap_region_t plat_rpi3_mmap[] = {
  ******************************************************************************/
 static console_t rpi3_console;
 
+static bool rpi3_use_mini_uart(void)
+{
+	return true;
+}
+
 void rpi3_console_init(void)
 {
 	int console_scope = CONSOLE_FLAG_BOOT;
@@ -112,10 +118,16 @@ void rpi3_console_init(void)
 	if (RPI3_RUNTIME_UART != -1)
 		console_scope |= CONSOLE_FLAG_RUNTIME;
 
-	rc = console_16550_register(PLAT_RPI_MINI_UART_BASE,
-				    0,
-				    PLAT_RPI_UART_BAUDRATE,
-				    &rpi3_console);
+	if (rpi3_use_mini_uart())
+		rc = console_16550_register(PLAT_RPI_MINI_UART_BASE,
+					    0,
+					    PLAT_RPI_UART_BAUDRATE,
+					    &rpi3_console);
+	else
+		rc = console_pl011_register(PLAT_RPI_PL011_UART_BASE,
+					    PLAT_RPI_PL011_UART_CLOCK,
+					    PLAT_RPI_UART_BAUDRATE,
+					    &rpi3_console);
 
 	if (rc == 0) {
 		/*
