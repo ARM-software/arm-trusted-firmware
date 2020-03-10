@@ -121,6 +121,9 @@ int dt_pmic_configure_boot_on_regulators(void)
 	}
 
 	regulators_node = fdt_subnode_offset(fdt, pmic_node, "regulators");
+	if (regulators_node < 0) {
+		return -ENOENT;
+	}
 
 	fdt_for_each_subnode(regulator_node, fdt, regulators_node) {
 		const fdt32_t *cuint;
