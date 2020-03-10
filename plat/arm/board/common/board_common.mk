@@ -68,4 +68,25 @@ BL1_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c \
 BL2_SOURCES		+=	plat/arm/board/common/board_arm_trusted_boot.c \
 				plat/arm/board/common/rotpk/arm_dev_rotpk.S
 
+# Allows platform code to provide implementation variants depending on the
+# selected chain of trust.
+$(eval $(call add_define,ARM_COT_${COT}))
+
+ifeq (${COT},dualroot)
+# Platform Root of Trust key files.
+ARM_PROT_KEY		:=	plat/arm/board/common/protpk/arm_protprivk_rsa.pem
+ARM_PROTPK_HASH		:=	plat/arm/board/common/protpk/arm_protpk_rsa_sha256.bin
+
+# Provide the private key to cert_create tool. It needs it to sign the images.
+PROT_KEY		:=	${ARM_PROT_KEY}
+
+$(eval $(call add_define_val,ARM_PROTPK_HASH,'"$(ARM_PROTPK_HASH)"'))
+
+BL1_SOURCES		+=	plat/arm/board/common/protpk/arm_dev_protpk.S
+BL2_SOURCES		+=	plat/arm/board/common/protpk/arm_dev_protpk.S
+
+$(BUILD_PLAT)/bl1/arm_dev_protpk.o: $(ARM_PROTPK_HASH)
+$(BUILD_PLAT)/bl2/arm_dev_protpk.o: $(ARM_PROTPK_HASH)
+endif
+
 endif

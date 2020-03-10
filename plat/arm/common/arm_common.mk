@@ -297,6 +297,8 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     # Include the selected chain of trust sources.
     ifeq (${COT},tbbr)
         AUTH_SOURCES	+=	drivers/auth/tbbr/tbbr_cot.c
+    else ifeq (${COT},dualroot)
+        AUTH_SOURCES	+=	drivers/auth/dualroot/cot.c
     else
         $(error Unknown chain of trust ${COT})
     endif

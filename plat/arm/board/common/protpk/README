@@ -1,0 +1,14 @@
+This directory contains some development keys to be used as the platform
+root-of-trust key.
+
+* arm_protprivk_rsa.pem is a 2K RSA private key in PEM format. It has been
+  generated using the openssl command line tool:
+
+  openssl genrsa 2048 > arm_protprivk_rsa.pem
+
+* arm_protpk_rsa_sha256.bin is the SHA-256 hash of the DER-encoded public key
+  associated with the above private key. It has been generated using the openssl
+  command line tool:
+
+  openssl rsa -in arm_protprivk_rsa.pem -pubout -outform DER | \
+    openssl dgst -sha256 -binary > arm_protpk_rsa_sha256.bin
