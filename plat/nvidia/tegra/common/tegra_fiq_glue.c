@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,7 +13,6 @@
 #include <common/debug.h>
 #include <context.h>
 #include <denver.h>
-#include <lib/bakery_lock.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <plat/common/platform.h>
 
@@ -24,8 +24,6 @@
 
 /* Legacy FIQ used by earlier Tegra platforms */
 #define LEGACY_FIQ_PPI_WDT		28U
-
-static DEFINE_BAKERY_LOCK(tegra_fiq_lock);
 
 /*******************************************************************************
  * Static variables
@@ -56,8 +54,6 @@ static uint64_t tegra_fiq_interrupt_handler(uint32_t id,
 	 * Read the pending interrupt ID
 	 */
 	irq = plat_ic_get_pending_interrupt_id();
-
-	bakery_lock_get(&tegra_fiq_lock);
 
 	/*
 	 * Jump to NS world only if the NS world's FIQ handler has
@@ -106,8 +102,6 @@ static uint64_t tegra_fiq_interrupt_handler(uint32_t id,
 		(void)plat_ic_acknowledge_interrupt();
 		plat_ic_end_of_interrupt(irq);
 	}
-
-	bakery_lock_release(&tegra_fiq_lock);
 
 	return 0;
 }

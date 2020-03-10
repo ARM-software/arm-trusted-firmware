@@ -213,6 +213,14 @@
 #define  RNG_MUTEX_WATCHDOG_NS_LIMIT	U(0xFE0)
 
 /*******************************************************************************
+ * Tegra HSP doorbell #0 constants
+ ******************************************************************************/
+#define TEGRA_HSP_DBELL_BASE		U(0x03C90000)
+#define HSP_DBELL_1_ENABLE		U(0x104)
+#define HSP_DBELL_3_TRIGGER		U(0x300)
+#define HSP_DBELL_3_ENABLE		U(0x304)
+
+/*******************************************************************************
  * Tegra Clock and Reset Controller constants
  ******************************************************************************/
 #define TEGRA_CAR_RESET_BASE		U(0x05000000)
@@ -238,6 +246,7 @@
  * Tegra scratch registers constants
  ******************************************************************************/
 #define TEGRA_SCRATCH_BASE		U(0x0C390000)
+#define  SECURE_SCRATCH_RSV0_HI		U(0x654)
 #define  SECURE_SCRATCH_RSV1_LO		U(0x658)
 #define  SECURE_SCRATCH_RSV1_HI		U(0x65C)
 #define  SECURE_SCRATCH_RSV6		U(0x680)
@@ -247,6 +256,15 @@
 #define  SECURE_SCRATCH_RSV53_HI	U(0x7FC)
 #define  SECURE_SCRATCH_RSV55_LO	U(0x808)
 #define  SECURE_SCRATCH_RSV55_HI	U(0x80C)
+#define  SECURE_SCRATCH_RSV63_LO	U(0x848)
+#define  SECURE_SCRATCH_RSV63_HI	U(0x84C)
+#define  SECURE_SCRATCH_RSV64_LO	U(0x850)
+#define  SECURE_SCRATCH_RSV64_HI	U(0x854)
+#define  SECURE_SCRATCH_RSV65_LO	U(0x858)
+#define  SECURE_SCRATCH_RSV65_HI	U(0x85c)
+#define  SECURE_SCRATCH_RSV66_LO	U(0x860)
+#define  SECURE_SCRATCH_RSV66_HI	U(0x864)
+#define  SECURE_SCRATCH_RSV68_LO	U(0x870)
 
 #define SCRATCH_RESET_VECTOR_LO		SECURE_SCRATCH_RSV1_LO
 #define SCRATCH_RESET_VECTOR_HI		SECURE_SCRATCH_RSV1_HI
@@ -279,6 +297,13 @@
  ******************************************************************************/
 #define TEGRA_TZRAM_BASE		U(0x30000000)
 #define TEGRA_TZRAM_SIZE		U(0x40000)
+
+/*******************************************************************************
+ * Tegra CCPLEX-BPMP IPC constants
+ ******************************************************************************/
+#define TEGRA_BPMP_IPC_TX_PHYS_BASE	U(0x3004C000)
+#define TEGRA_BPMP_IPC_RX_PHYS_BASE	U(0x3004D000)
+#define TEGRA_BPMP_IPC_CH_MAP_SIZE	U(0x1000) /* 4KB */
 
 /*******************************************************************************
  * Tegra DRAM memory base address

@@ -6,6 +6,7 @@
  */
 
 #include <assert.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include <arch.h>
@@ -19,9 +20,10 @@
 #include <lib/psci/psci.h>
 #include <plat/common/platform.h>
 
+#include <bpmp_ipc.h>
 #include <mce.h>
+#include <security_engine.h>
 #include <smmu.h>
-#include <stdbool.h>
 #include <t18x_ari.h>
 #include <tegra186_private.h>
 #include <tegra_private.h>
@@ -280,8 +282,33 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 	uint8_t stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
 		TEGRA186_STATE_ID_MASK;
 	uint64_t val;
+	uint64_t src_len_in_bytes = (uint64_t)(((uintptr_t)(&__BL31_END__) -
+					(uintptr_t)BL31_BASE));
+	int32_t ret;
 
 	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
+		val = params_from_bl2->tzdram_base +
+		      tegra186_get_cpu_reset_handler_size();
+
+		/* Initialise communication channel with BPMP */
+		assert(tegra_bpmp_ipc_init() == 0);
+
+		/* Enable SE clock */
+		ret = tegra_bpmp_ipc_enable_clock(TEGRA_CLK_SE);
+		if (ret != 0) {
+			ERROR("Failed to enable clock\n");
+			return ret;
+		}
+
+		/*
+		 * Generate/save SHA256 of ATF during SC7 entry
+		 */
+		if (tegra_se_save_sha256_hash(BL31_BASE,
+					(uint32_t)src_len_in_bytes) != 0) {
+			ERROR("Hash calculation failed. Reboot\n");
+			(void)tegra_soc_prepare_system_reset();
+		}
+
 		/*
 		 * The TZRAM loses power when we enter system suspend. To
 		 * allow graceful exit from system suspend, we need to copy
@@ -291,6 +318,12 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 			tegra186_get_cpu_reset_handler_size();
 		memcpy16((void *)(uintptr_t)val, (void *)(uintptr_t)BL31_BASE,
 			 (uintptr_t)BL31_END - (uintptr_t)BL31_BASE);
+
+		ret = tegra_bpmp_ipc_disable_clock(TEGRA_CLK_SE);
+		if (ret != 0) {
+			ERROR("Failed to disable clock\n");
+			return ret;
+		}
 	}
 
 	return PSCI_E_SUCCESS;

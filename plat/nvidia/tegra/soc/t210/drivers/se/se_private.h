@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2017, NVIDIA CORPORATION.  All rights reserved.
+ * Copyright (c) 2017-2020, NVIDIA CORPORATION.  All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,9 @@
 /*
  * PMC registers
  */
+
+/* SC7 context save scratch register for T210 */
+#define PMC_SCRATCH43_REG_OFFSET		U(0x22C)
 
 /* Secure scratch registers */
 #define PMC_SECURE_SCRATCH4_OFFSET		0xC0U
@@ -435,6 +438,7 @@
 		((x) & ((0x1U) << SE_TZRAM_OP_REQ_SHIFT))
 
 /* SE Interrupt */
+#define SE_INT_ENABLE_REG_OFFSET		U(0xC)
 #define SE_INT_STATUS_REG_OFFSET		0x10U
 #define SE_INT_OP_DONE_SHIFT			4
 #define SE_INT_OP_DONE_CLEAR	\

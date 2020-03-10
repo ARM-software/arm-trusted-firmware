@@ -30,10 +30,10 @@ $(eval $(call add_define,PLATFORM_CLUSTER_COUNT))
 PLATFORM_MAX_CPUS_PER_CLUSTER		:= 4
 $(eval $(call add_define,PLATFORM_MAX_CPUS_PER_CLUSTER))
 
-MAX_XLAT_TABLES				:= 24
+MAX_XLAT_TABLES				:= 25
 $(eval $(call add_define,MAX_XLAT_TABLES))
 
-MAX_MMAP_REGIONS			:= 25
+MAX_MMAP_REGIONS			:= 27
 $(eval $(call add_define,MAX_MMAP_REGIONS))
 
 # platform files
@@ -42,6 +42,8 @@ PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/include
 BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S	\
 				lib/cpus/aarch64/denver.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
+				${COMMON_DIR}/drivers/bpmp_ipc/intf.c   \
+				${COMMON_DIR}/drivers/bpmp_ipc/ivc.c    \
 				${COMMON_DIR}/drivers/gpcdma/gpcdma.c	\
 				${COMMON_DIR}/drivers/memctrl/memctrl_v2.c \
 				${COMMON_DIR}/drivers/smmu/smmu.c	\
@@ -49,6 +51,7 @@ BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S	\
 				${SOC_DIR}/drivers/mce/ari.c		\
 				${SOC_DIR}/drivers/mce/nvg.c		\
 				${SOC_DIR}/drivers/mce/aarch64/nvg_helpers.S \
+				$(SOC_DIR)/drivers/se/se.c \
 				${SOC_DIR}/plat_memctrl.c		\
 				${SOC_DIR}/plat_psci_handlers.c		\
 				${SOC_DIR}/plat_setup.c			\
