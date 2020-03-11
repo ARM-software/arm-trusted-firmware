@@ -26,13 +26,14 @@ uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
  * currently executing.
  */
 #if PLAT_RO_XLAT_TABLES
-REGISTER_XLAT_CONTEXT_RO_BASE_TABLE(tf, MAX_MMAP_REGIONS, MAX_XLAT_TABLES,
-		PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE,
-		EL_REGIME_INVALID, "xlat_table");
+#define BASE_XLAT_TABLE_SECTION		".rodata"
 #else
-REGISTER_XLAT_CONTEXT(tf, MAX_MMAP_REGIONS, MAX_XLAT_TABLES,
-		PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE);
+#define BASE_XLAT_TABLE_SECTION		".bss"
 #endif
+
+REGISTER_XLAT_CONTEXT(tf, MAX_MMAP_REGIONS, MAX_XLAT_TABLES,
+		      PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE,
+		      BASE_XLAT_TABLE_SECTION);
 
 void mmap_add_region(unsigned long long base_pa, uintptr_t base_va, size_t size,
 		     unsigned int attr)
