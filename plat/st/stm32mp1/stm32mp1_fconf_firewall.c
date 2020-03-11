@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,8 +31,13 @@ struct dt_id_attr {
 
 void stm32mp1_arch_security_setup(void)
 {
+#if STM32MP13
+	clk_enable(TZC);
+#endif
+#if STM32MP15
 	clk_enable(TZC1);
 	clk_enable(TZC2);
+#endif
 
 	tzc400_init(STM32MP1_TZC_BASE);
 	tzc400_disable_filters();

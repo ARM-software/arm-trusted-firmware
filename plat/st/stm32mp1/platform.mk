@@ -258,7 +258,6 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 				drivers/delay_timer/generic_delay_timer.c		\
 				drivers/st/bsec/bsec2.c					\
 				drivers/st/clk/stm32mp_clkfunc.c			\
-				drivers/st/clk/stm32mp1_clk.c				\
 				drivers/st/ddr/stm32mp_ddr.c				\
 				drivers/st/ddr/stm32mp1_ddr_helpers.c			\
 				drivers/st/gpio/stm32_gpio.c				\
@@ -273,6 +272,13 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 				plat/st/stm32mp1/stm32mp1_dbgmcu.c			\
 				plat/st/stm32mp1/stm32mp1_helper.S			\
 				plat/st/stm32mp1/stm32mp1_syscfg.c
+
+ifeq ($(STM32MP13),1)
+PLAT_BL_COMMON_SOURCES	+=	drivers/st/clk/clk-stm32-core.c				\
+				drivers/st/clk/clk-stm32mp13.c
+else
+PLAT_BL_COMMON_SOURCES	+=	drivers/st/clk/stm32mp1_clk.c
+endif
 
 ifneq (${STM32MP_USE_STM32IMAGE},1)
 BL2_SOURCES		+=	${FCONF_SOURCES} ${FCONF_DYN_SOURCES}
