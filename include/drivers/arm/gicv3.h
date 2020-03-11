@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,7 +32,7 @@
 #define GICD_SETSPI_NSR		U(0x40)
 #define GICD_CLRSPI_NSR		U(0x48)
 #define GICD_SETSPI_SR		U(0x50)
-#define GICD_CLRSPI_SR		U(0x50)
+#define GICD_CLRSPI_SR		U(0x58)
 #define GICD_IGRPMODR		U(0xd00)
 /*
  * GICD_IROUTER<n> register is at 0x6000 + 8n, where n is the interrupt id and
@@ -79,7 +79,7 @@
 #define NUM_OF_DIST_REGS	30
 
 /*******************************************************************************
- * GICv3 Re-distributor interface registers & constants
+ * GICv3 Redistributor interface registers & constants
  ******************************************************************************/
 #define GICR_PCPUBASE_SHIFT	0x11
 #define GICR_SGIBASE_OFFSET	U(65536)	/* 64 KB */
