@@ -24,6 +24,8 @@ New Features
 
 - Build System
    - Add support for documentation build as a target in Makefile
+   - Add ``COT`` build option to select the chain of trust to use when the
+     Trusted Boot feature is enabled (default: ``tbbr``).
 
 - CPU Support
    - Example: "cortex-a55: Workaround for erratum 1221012"
@@ -40,6 +42,7 @@ New Features
 
 - Platforms
    - Example: "arm/common: Introduce wrapper functions to setup secure watchdog"
+   - plat/arm: Add support for the new `dualroot` chain of trust.
 
 - PSCI
    - Example: "Adding new optional PSCI hook ``pwr_domain_on_finish_late``"
@@ -47,6 +50,7 @@ New Features
 - Security
    - Example: "UBSAN support and handlers"
    - Add support for optional firmware encryption feature (experimental).
+   - Introduce a new `dualroot` chain of trust.
 
 - Tools
    - Example: "fiptool: Add support to build fiptool on Windows."
