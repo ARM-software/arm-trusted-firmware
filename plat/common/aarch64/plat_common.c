@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -64,6 +64,18 @@ int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
 }
 #endif
 
+#if !ENABLE_BACKTRACE
+static const char *get_el_str(unsigned int el)
+{
+	if (el == MODE_EL3) {
+		return "EL3";
+	} else if (el == MODE_EL2) {
+		return "EL2";
+	}
+	return "S-EL1";
+}
+#endif /* !ENABLE_BACKTRACE */
+
 /* RAS functions common to AArch64 ARM platforms */
 void plat_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 		void *handle, uint64_t flags)
@@ -74,9 +86,17 @@ void plat_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 	if (handled != 0)
 		return;
 #endif
+	unsigned int level = (unsigned int)GET_EL(read_spsr_el3());
 
-	ERROR("Unhandled External Abort received on 0x%lx at EL3!\n",
-			read_mpidr_el1());
-	ERROR(" exception reason=%u syndrome=0x%llx\n", ea_reason, syndrome);
+	ERROR("Unhandled External Abort received on 0x%lx from %s\n",
+		read_mpidr_el1(), get_el_str(level));
+	ERROR("exception reason=%u syndrome=0x%llx\n", ea_reason, syndrome);
+#if HANDLE_EA_EL3_FIRST
+	/* Skip backtrace for lower EL */
+	if (level != MODE_EL3) {
+		(void)console_flush();
+		do_panic();
+	}
+#endif
 	panic();
 }

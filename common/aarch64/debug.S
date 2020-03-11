@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -156,16 +156,32 @@ endfunc asm_print_newline
 
 /* This is for the non el3 BL stages to compile through */
 	.weak el3_panic
+	.weak elx_panic
 
 func do_panic
 #if CRASH_REPORTING
 	str	x0, [sp, #-0x10]!
 	mrs	x0, currentel
-	ubfx	x0, x0, #2, #2
-	cmp	x0, #0x3
+	ubfx	x0, x0, #MODE_EL_SHIFT, #MODE_EL_WIDTH
+	cmp	x0, #MODE_EL3
+#if !HANDLE_EA_EL3_FIRST
 	ldr	x0, [sp], #0x10
 	b.eq	el3_panic
-#endif
+#else
+	b.ne	to_panic_common
+
+	/* Check EL the exception taken from */
+	mrs	x0, spsr_el3
+	ubfx	x0, x0, #SPSR_EL_SHIFT, #SPSR_EL_WIDTH
+	cmp	x0, #MODE_EL3
+	b.ne	elx_panic
+	ldr	x0, [sp], #0x10
+	b	el3_panic
+
+to_panic_common:
+	ldr	x0, [sp], #0x10
+#endif /* HANDLE_EA_EL3_FIRST */
+#endif /* CRASH_REPORTING */
 
 panic_common:
 /*

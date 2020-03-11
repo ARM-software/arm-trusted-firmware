@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -452,6 +452,9 @@
 #define SPSR_M_AARCH64		U(0x0)
 #define SPSR_M_AARCH32		U(0x1)
 
+#define SPSR_EL_SHIFT		U(2)
+#define SPSR_EL_WIDTH		U(2)
+
 #define SPSR_SSBS_BIT_AARCH64	BIT_64(12)
 #define SPSR_SSBS_BIT_AARCH32	BIT_64(23)
 
@@ -557,6 +560,7 @@
 
 #define MODE_EL_SHIFT		U(0x2)
 #define MODE_EL_MASK		U(0x3)
+#define MODE_EL_WIDTH		U(0x2)
 #define MODE_EL3		U(0x3)
 #define MODE_EL2		U(0x2)
 #define MODE_EL1		U(0x1)

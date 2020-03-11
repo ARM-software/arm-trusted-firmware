@@ -16,6 +16,7 @@
 	.globl	report_unhandled_exception
 	.globl	report_unhandled_interrupt
 	.globl	el3_panic
+	.globl	elx_panic
 
 #if CRASH_REPORTING
 
@@ -59,7 +60,11 @@ panic_msg:
 excpt_msg:
 	.asciz "Unhandled Exception in EL3.\nx30"
 intr_excpt_msg:
-	.asciz "Unhandled Interrupt Exception in EL3.\nx30"
+	.ascii "Unhandled Interrupt Exception in EL3.\n"
+x30_msg:
+	.asciz "x30"
+excpt_msg_el:
+	.asciz "Unhandled Exception from EL"
 
 	/*
 	 * Helper function to print from crash buf.
@@ -170,7 +175,6 @@ func report_unhandled_exception
 	b	do_crash_reporting
 endfunc report_unhandled_exception
 
-
 	/* -----------------------------------------------------
 	 * This function allows to report a crash (if crash
 	 * reporting is enabled) when an unhandled interrupt
@@ -188,6 +192,112 @@ func report_unhandled_interrupt
 endfunc report_unhandled_interrupt
 
 	/* -----------------------------------------------------
+	 * This function allows to report a crash from the lower
+	 * exception level (if crash reporting is enabled) when
+	 * panic() is invoked from C Runtime.
+	 * It prints the CPU state via the crash console making
+	 * use of 'cpu_context' structure where general purpose
+	 * registers are saved and the crash buf.
+	 * This function will not return.
+	 *
+ 	 * x0: Exception level
+	 * -----------------------------------------------------
+	 */
+func elx_panic
+	msr	spsel, #MODE_SP_ELX
+	mov	x8, x0
+
+	/* Print the crash message */
+	adr	x4, excpt_msg_el
+	bl	asm_print_str
+
+	/* Print exception level */
+	add	x0, x8, #'0'
+	bl	plat_crash_console_putc
+	bl	asm_print_newline
+
+	/* Report x0 - x29 values stored in 'gpregs_ctx' structure */
+	/* Store the ascii list pointer in x6 */
+	adr	x6, gp_regs
+	add	x7, sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0
+
+print_next:
+	ldrb	w4, [x6]
+	/* Test whether we are at end of list */
+	cbz	w4, print_x30
+	mov	x4, x6
+	/* asm_print_str updates x4 to point to next entry in list */
+	bl	asm_print_str
+	/* x0 = number of symbols printed + 1 */
+	sub	x0, x4, x6
+	/* Update x6 with the updated list pointer */
+	mov	x6, x4
+	bl	print_alignment
+	ldr	x4, [x7], #REGSZ
+	bl	asm_print_hex
+	bl	asm_print_newline
+	b	print_next
+
+print_x30:
+	adr	x4, x30_msg
+	bl	asm_print_str
+
+	/* Print spaces to align "x30" string */
+	mov	x0, #4
+	bl	print_alignment
+
+	/* Report x30 */
+	ldr	x4, [x7]
+
+	/* ----------------------------------------------------------------
+	 * Different virtual address space size can be defined for each EL.
+	 * Ensure that we use the proper one by reading the corresponding
+	 * TCR_ELx register.
+	 * ----------------------------------------------------------------
+	 */
+	cmp	x8, #MODE_EL2
+	b.lt	from_el1	/* EL1 */
+	mrs	x2, sctlr_el2
+	mrs	x1, tcr_el2
+
+	/* ----------------------------------------------------------------
+	 * Check if pointer authentication is enabled at the specified EL.
+	 * If it isn't, we can then skip stripping a PAC code.
+	 * ----------------------------------------------------------------
+	 */
+test_pauth:
+	tst	x2, #(SCTLR_EnIA_BIT | SCTLR_EnIB_BIT)
+	b.eq	no_pauth
+
+	/* Demangle address */
+	and	x1, x1, #0x3F	/* T0SZ = TCR_ELx[5:0] */
+	sub	x1, x1, #64
+	neg	x1, x1		/* bottom_pac_bit = 64 - T0SZ */
+	mov	x2, #-1
+	lsl	x2, x2, x1
+	bic	x4, x4, x2
+
+no_pauth:
+	bl	asm_print_hex
+	bl	asm_print_newline
+
+	/* tpidr_el3 contains the address to cpu_data structure */
+	mrs	x0, tpidr_el3
+	/* Calculate the Crash buffer offset in cpu_data */
+	add	x0, x0, #CPU_DATA_CRASH_BUF_OFFSET
+	/* Store crash buffer address in tpidr_el3 */
+	msr	tpidr_el3, x0
+
+	/* Print the rest of crash dump */
+	b	print_el3_sys_regs
+
+from_el1:
+	mrs	x2, sctlr_el1
+	mrs	x1, tcr_el1
+	b	test_pauth
+endfunc	elx_panic
+
+	/* -----------------------------------------------------
 	 * This function allows to report a crash (if crash
 	 * reporting is enabled) when panic() is invoked from
 	 * C Runtime. It prints the CPU state via the crash
@@ -200,9 +310,7 @@ func el3_panic
 	prepare_crash_buf_save_x0_x1
 	adr	x0, panic_msg
 	mov	sp, x0
-	/* This call will not return */
-	b	do_crash_reporting
-endfunc el3_panic
+	/* Fall through to 'do_crash_reporting' */
 
 	/* ------------------------------------------------------------
 	 * The common crash reporting functionality. It requires x0
@@ -223,7 +331,7 @@ endfunc el3_panic
 	 *     the crash buf to the crash console.
 	 * ------------------------------------------------------------
 	 */
-func do_crash_reporting
+do_crash_reporting:
 	/* Retrieve the crash buf from tpidr_el3 */
 	mrs	x0, tpidr_el3
 	/* Store x2 - x6, x30 in the crash buffer */
@@ -240,9 +348,9 @@ func do_crash_reporting
 	/* Print spaces to align "x30" string */
 	mov	x0, #4
 	bl	print_alignment
-	/* load the crash buf address */
+	/* Load the crash buf address */
 	mrs	x0, tpidr_el3
-	/* report x30 first from the crash buf */
+	/* Report x30 first from the crash buf */
 	ldr	x4, [x0, #REGSZ * 7]
 
 #if ENABLE_PAUTH
@@ -256,7 +364,7 @@ func do_crash_reporting
 	/* Now mov x7 into crash buf */
 	str	x7, [x0, #REGSZ * 7]
 
-	/* Report x0 - x29 values stored in crash buf*/
+	/* Report x0 - x29 values stored in crash buf */
 	/* Store the ascii list pointer in x6 */
 	adr	x6, gp_regs
 	/* Print x0 to x7 from the crash buf */
@@ -279,6 +387,7 @@ func do_crash_reporting
 	bl	size_controlled_print
 
 	/* Print the el3 sys registers */
+print_el3_sys_regs:
 	adr	x6, el3_sys_regs
 	mrs	x8, scr_el3
 	mrs	x9, sctlr_el3
@@ -354,7 +463,7 @@ func do_crash_reporting
 
 	/* Done reporting */
 	no_ret	plat_panic_handler
-endfunc do_crash_reporting
+endfunc el3_panic
 
 #else	/* CRASH_REPORTING */
 func report_unhandled_exception
@@ -362,7 +471,6 @@ report_unhandled_interrupt:
 	no_ret	plat_panic_handler
 endfunc report_unhandled_exception
 #endif	/* CRASH_REPORTING */
-
 
 func crash_panic
 	no_ret	plat_panic_handler
