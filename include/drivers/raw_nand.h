@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2020, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,6 +7,7 @@
 #ifndef DRIVERS_RAW_NAND_H
 #define DRIVERS_RAW_NAND_H
 
+#include <cdefs.h>
 #include <stdint.h>
 
 #include <drivers/nand.h>
