@@ -149,14 +149,8 @@ endif
 
 # Macros and rules to build TF binary
 STM32_TF_ELF_LDFLAGS	:=	--hash-style=gnu --as-needed
-STM32_DT_BASENAME	:=	$(DTB_FILE_NAME:.dtb=)
-STM32_TF_STM32		:=	${BUILD_PLAT}/tf-a-${STM32_DT_BASENAME}.stm32
-STM32_TF_BINARY		:=	$(STM32_TF_STM32:.stm32=.bin)
-STM32_TF_MAPFILE	:=	$(STM32_TF_STM32:.stm32=.map)
-STM32_TF_LINKERFILE	:=	$(STM32_TF_STM32:.stm32=.ld)
-STM32_TF_ELF		:=	$(STM32_TF_STM32:.stm32=.elf)
-STM32_TF_DTBFILE	:=      ${BUILD_PLAT}/fdts/${DTB_FILE_NAME}
-STM32_TF_OBJS		:=	${BUILD_PLAT}/stm32mp1.o
+STM32_TF_STM32		:=	$(addprefix ${BUILD_PLAT}/tf-a-, $(patsubst %.dtb,%.stm32,$(DTB_FILE_NAME)))
+STM32_TF_LINKERFILE	:=	${BUILD_PLAT}/stm32mp1.ld
 
 BL2_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
 
@@ -164,7 +158,7 @@ BL2_CFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
 STM32IMAGEPATH		?= tools/stm32image
 STM32IMAGE		?= ${STM32IMAGEPATH}/stm32image${BIN_EXT}
 
-.PHONY:			${STM32_TF_STM32}
+.PHONY:			check_dtc_version stm32image clean_stm32image
 .SUFFIXES:
 
 all: check_dtc_version ${STM32_TF_STM32} stm32image
@@ -192,32 +186,32 @@ check_dtc_version:
 	fi
 
 
-${STM32_TF_OBJS}:	plat/st/stm32mp1/stm32mp1.S bl2 ${BL32_DEP} ${STM32_TF_DTBFILE}
-			@echo "  AS      $<"
+${BUILD_PLAT}/stm32mp1-%.o:	${BUILD_PLAT}/fdts/%.dtb plat/st/stm32mp1/stm32mp1.S bl2 ${BL32_DEP}
+			@echo "  AS      stm32mp1.S"
 			${Q}${AS} ${ASFLAGS} ${TF_CFLAGS} \
 				${BL32_PATH} \
 				-DBL2_BIN_PATH=\"${BUILD_PLAT}/bl2.bin\" \
-				-DDTB_BIN_PATH=\"${STM32_TF_DTBFILE}\" \
+				-DDTB_BIN_PATH=\"$<\" \
 				-c plat/st/stm32mp1/stm32mp1.S -o $@
 
 ${STM32_TF_LINKERFILE}:	plat/st/stm32mp1/stm32mp1.ld.S ${BUILD_PLAT}
 			@echo "  LDS     $<"
 			${Q}${AS} ${ASFLAGS} ${TF_CFLAGS} -P -E $< -o $@
 
-${STM32_TF_ELF}:	${STM32_TF_OBJS} ${STM32_TF_LINKERFILE}
+tf-a-%.elf:		stm32mp1-%.o ${STM32_TF_LINKERFILE}
 			@echo "  LDS     $<"
-			${Q}${LD} -o $@ ${STM32_TF_ELF_LDFLAGS} -Map=${STM32_TF_MAPFILE} --script ${STM32_TF_LINKERFILE} ${STM32_TF_OBJS}
+			${Q}${LD} -o $@ ${STM32_TF_ELF_LDFLAGS} -Map=$(@:.elf=.map) --script ${STM32_TF_LINKERFILE} $<
 
-${STM32_TF_BINARY}:	${STM32_TF_ELF}
-			${Q}${OC} -O binary ${STM32_TF_ELF} $@
+tf-a-%.bin:		tf-a-%.elf
+			${Q}${OC} -O binary $< $@
 			@echo
 			@echo "Built $@ successfully"
 			@echo
 
-${STM32_TF_STM32}:	stm32image ${STM32_TF_BINARY}
+tf-a-%.stm32:		tf-a-%.bin stm32image
 			@echo
 			@echo "Generated $@"
-			$(eval LOADADDR =  $(shell cat ${STM32_TF_MAPFILE} | grep RAM | awk '{print $$2}'))
-			$(eval ENTRY =  $(shell cat ${STM32_TF_MAPFILE} | grep "__BL2_IMAGE_START" | awk '{print $$1}'))
-			${STM32IMAGE} -s ${STM32_TF_BINARY} -d $@ -l $(LOADADDR) -e ${ENTRY} -v ${STM32_TF_VERSION}
+			$(eval LOADADDR =  $(shell cat $(@:.stm32=.map) | grep RAM | awk '{print $$2}'))
+			$(eval ENTRY =  $(shell cat $(@:.stm32=.map) | grep "__BL2_IMAGE_START" | awk '{print $$1}'))
+			${STM32IMAGE} -s $< -d $@ -l $(LOADADDR) -e ${ENTRY} -v ${STM32_TF_VERSION}
 			@echo
