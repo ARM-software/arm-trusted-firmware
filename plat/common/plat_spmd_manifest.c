@@ -37,6 +37,12 @@ static int manifest_parse_attribute(spmc_manifest_sect_attribute_t *attr,
 		return -ENOENT;
 	}
 
+	rc = fdtw_read_cells(fdt, node, "spmc_id", 1, &attr->spmc_id);
+	if (rc) {
+		ERROR("Missing SPMC ID in manifest.\n");
+		return -ENOENT;
+	}
+
 	rc = fdtw_read_cells(fdt, node, "exec_state", 1, &attr->exec_state);
 	if (rc)
 		NOTICE("Execution state not specified in SPM core manifest.\n");
@@ -55,6 +61,7 @@ static int manifest_parse_attribute(spmc_manifest_sect_attribute_t *attr,
 
 	VERBOSE("SPM core manifest attribute section:\n");
 	VERBOSE("  version: %x.%x\n", attr->major_version, attr->minor_version);
+	VERBOSE("  spmc_id: %x\n", attr->spmc_id);
 	VERBOSE("  binary_size: 0x%x\n", attr->binary_size);
 	VERBOSE("  load_address: 0x%llx\n", attr->load_address);
 	VERBOSE("  entrypoint: 0x%llx\n", attr->entrypoint);

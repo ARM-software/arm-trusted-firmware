@@ -55,6 +55,15 @@ typedef struct spmd_spm_core_context {
 } spmd_spm_core_context_t;
 
 /*
+ * Reserve ID for NS physical SPCI Endpoint.
+ */
+#define SPCI_NS_ENDPOINT_ID		U(0)
+
+/* Mask and shift to check valid secure SPCI Endpoint ID. */
+#define SPMC_SECURE_ID_MASK		0x1
+#define SPMC_SECURE_ID_SHIFT		15
+
+/*
  * Data structure used by the SPM dispatcher (SPMD) in EL3 to track sequence of
  * SPCI calls from lower ELs.
  *

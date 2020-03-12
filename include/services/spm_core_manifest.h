@@ -43,6 +43,11 @@ typedef struct spm_core_manifest_sect_attribute {
 	 */
 	uint32_t binary_size;
 
+	/*
+	 * ID of the SPMD (mandatory)
+	 */
+	uint16_t spmc_id;
+
 } spmc_manifest_sect_attribute_t;
 
 #endif /* SPMC_MANIFEST_H */
