@@ -153,6 +153,7 @@
 
 #define PLAT_RPI3_TM_HOLD_STATE_WAIT	ULL(0)
 #define PLAT_RPI3_TM_HOLD_STATE_GO	ULL(1)
+#define PLAT_RPI3_TM_HOLD_STATE_BSP_OFF	ULL(2)
 
 /*
  * BL1 specific defines.

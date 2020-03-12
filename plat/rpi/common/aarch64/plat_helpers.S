@@ -63,21 +63,23 @@ func plat_is_my_cpu_primary
 endfunc plat_is_my_cpu_primary
 
 	/* -----------------------------------------------------
-	 * void plat_secondary_cold_boot_setup (void);
+	 * void plat_wait_for_warm_boot (void);
 	 *
 	 * This function performs any platform specific actions
-	 * needed for a secondary cpu after a cold reset e.g
-	 * mark the cpu's presence, mechanism to place it in a
-	 * holding pen etc.
+	 * needed for a CPU to be put into holding pen to wait
+	 * for a warm boot request.
+	 * The function will never return.
 	 * -----------------------------------------------------
 	 */
-func plat_secondary_cold_boot_setup
-	/* Calculate address of our hold entry */
+func plat_wait_for_warm_boot
+	/*
+	 * Calculate address of our hold entry.
+	 * As the function will never return, there is no need to save LR.
+	 */
 	bl	plat_my_core_pos
 	lsl	x0, x0, #3
 	mov_imm	x2, PLAT_RPI3_TM_HOLD_BASE
 	add	x0, x0, x2
-
 	/*
 	 * This code runs way before requesting the warmboot of this core,
 	 * so it is possible to clear the mailbox before getting a request
@@ -97,6 +99,19 @@ poll_mailbox:
 	mov_imm	x0, PLAT_RPI3_TM_ENTRYPOINT
 	ldr	x1, [x0]
 	br	x1
+endfunc plat_wait_for_warm_boot
+
+	/* -----------------------------------------------------
+	 * void plat_secondary_cold_boot_setup (void);
+	 *
+	 * This function performs any platform specific actions
+	 * needed for a secondary cpu after a cold reset e.g
+	 * mark the cpu's presence, mechanism to place it in a
+	 * holding pen etc.
+	 * -----------------------------------------------------
+	 */
+func plat_secondary_cold_boot_setup
+	b	plat_wait_for_warm_boot
 endfunc plat_secondary_cold_boot_setup
 
 	/* ---------------------------------------------------------------------
@@ -111,9 +126,24 @@ endfunc plat_secondary_cold_boot_setup
 	 * ---------------------------------------------------------------------
 	 */
 func plat_get_my_entrypoint
-	/* TODO: support warm boot */
-	mov	x0, #0
-	ret
+	mov	x1, x30
+	bl	plat_is_my_cpu_primary
+	/*
+	 * Secondaries always cold boot.
+	*/
+	cbz	w0, 1f
+	/*
+	 * Primaries warm boot if they are requested
+	 * to power off.
+	 */
+	mov_imm	x0, PLAT_RPI3_TM_HOLD_BASE
+	ldr	x0, [x0]
+	cmp	x0, PLAT_RPI3_TM_HOLD_STATE_BSP_OFF
+	adr	x0, plat_wait_for_warm_boot
+	csel	x0, x0, xzr, eq
+	ret	x1
+1:	mov	x0, #0
+	ret	x1
 endfunc plat_get_my_entrypoint
 
 	/* ---------------------------------------------
