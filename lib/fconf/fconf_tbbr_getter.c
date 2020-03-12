@@ -72,4 +72,4 @@ int fconf_populate_tbbr_dyn_config(uintptr_t config)
 	return 0;
 }
 
-FCONF_REGISTER_POPULATOR(tbbr, fconf_populate_tbbr_dyn_config);
+FCONF_REGISTER_POPULATOR(TB_FW, tbbr, fconf_populate_tbbr_dyn_config);

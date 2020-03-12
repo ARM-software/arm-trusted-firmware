@@ -28,29 +28,45 @@ Examples namespace can be:
 - (|TBBR|) Chain of Trust data: tbbr.cot.trusted_boot_fw_cert
 - (|TBBR|) dynamic configuration info: tbbr.dyn_config.disable_auth
 - Arm io policies: arm.io_policies.bl2_image
+- GICv3 properties: hw_config.gicv3_config.gicr_base
 
 Properties can be accessed with the ``FCONF_GET_PROPERTY(a,b,property)`` macro.
 
 Defining properties
 ~~~~~~~~~~~~~~~~~~~
 
-Properties composing the |FCONF| have to be stored in C structures. If another
-backing store is wanted to be used, the platform has to provide a ``populate()``
-function to fill the corresponding C structure.
+Properties composing the |FCONF| have to be stored in C structures. If
+properties originate from a different backend source such as a device tree,
+then the platform has to provide a ``populate()`` function which essentially
+captures the property and stores them into a corresponding |FCONF| based C
+structure.
 
-The ``populate()`` function must be registered to the |FCONF| framework with
-the ``FCONF_REGISTER_POPULATOR()`` macro. This ensures that the function would
-be called inside the generic ``fconf_populate()`` function during
+Such a ``populate()`` function is usually platform specific and is associated
+with a specific backend source. For example, a populator function which
+captures the hardware topology of the platform from the HW_CONFIG device tree.
+Hence each ``populate()`` function must be registered with a specific
+``config_type`` identifier. It broadly represents a logical grouping of
+configuration properties which is usually a device tree file.
+
+Example:
+ - TB_FW: properties related to trusted firmware such as IO policies,
+   base address of other DTBs, mbedtls heap info etc.
+ - HW_CONFIG: properties related to hardware configuration of the SoC
+   such as topology, GIC controller, PSCI hooks, CPU ID etc.
+
+Hence the ``populate()`` callback must be registered to the (|FCONF|) framework
+with the ``FCONF_REGISTER_POPULATOR()`` macro. This ensures that the function
+would be called inside the generic ``fconf_populate()`` function during
 initialization.
 
 ::
 
-    int fconf_populate_tbbr_dyn_config(uintptr_t config)
+    int fconf_populate_topology(uintptr_t config)
     {
-        /* read dtb and fill tbbr_dyn_config struct */
+        /* read hw config dtb and fill soc_topology struct */
     }
 
-    FCONF_REGISTER_POPULATOR(fconf_populate_tbbr_dyn_config);
+    FCONF_REGISTER_POPULATOR(HW_CONFIG, topology, fconf_populate_topology);
 
 Then, a wrapper has to be provided to match the ``FCONF_GET_PROPERTY()`` macro:
 
@@ -60,7 +76,7 @@ Then, a wrapper has to be provided to match the ``FCONF_GET_PROPERTY()`` macro:
     #define FCONF_GET_PROPERTY(a,b,property)	a##__##b##_getter(property)
 
     /* my specific getter */
-    #define tbbr__dyn_config_getter(id)	tbbr_dyn_config.id
+    #define hw_config__topology_getter(prop) soc_topology.prop
 
 This second level wrapper can be used to remap the ``FCONF_GET_PROPERTY()`` to
 anything appropriate: structure, array, function, etc..
@@ -80,6 +96,6 @@ Populating the properties
 Once a valid device tree is available, the ``fconf_populate(config)`` function
 can be used to fill the C data structure with the data from the config |DTB|.
 This function will call all the ``populate()`` callbacks which have been
-registered with ``FCONF_REGISTER_POPULATOR()``.
+registered with ``FCONF_REGISTER_POPULATOR()`` as described above.
 
 .. uml:: ../resources/diagrams/plantuml/fconf_bl2_populate.puml

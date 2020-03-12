@@ -35,6 +35,7 @@
 		cpu_on = <0xc4000003>;
 		sys_poweroff = <0x84000008>;
 		sys_reset = <0x84000009>;
+		max-pwr-lvl = <2>;
 	};
 
 	cpus {

@@ -12,9 +12,16 @@
 /* Public API */
 #define FCONF_GET_PROPERTY(a, b, c)	a##__##b##_getter(c)
 
-#define FCONF_REGISTER_POPULATOR(name, callback)				\
+/*
+ * This macro takes three arguments:
+ *   config:	Configuration identifier
+ *   name:	property namespace
+ *   callback:	populate() function
+ */
+#define FCONF_REGISTER_POPULATOR(config, name, callback)			\
 	__attribute__((used, section(".fconf_populator")))			\
 	const struct fconf_populator (name##__populator) = {			\
+		.config_type = (#config),					\
 		.info = (#name),						\
 		.populate = (callback)						\
 	};
@@ -27,6 +34,7 @@
  */
 struct fconf_populator {
 	/* Description of the data loaded by the callback */
+	const char *config_type;
 	const char *info;
 
 	/* Callback used by fconf_populate function with a provided config dtb.
@@ -45,7 +53,7 @@ void fconf_load_config(void);
  *
  *  Panic on error.
  */
-void fconf_populate(uintptr_t config);
+void fconf_populate(const char *config_type, uintptr_t config);
 
 /* FCONF specific getter */
 #define fconf__dtb_getter(prop)	fconf_dtb_info.prop

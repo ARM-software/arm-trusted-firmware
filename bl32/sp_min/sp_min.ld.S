@@ -56,6 +56,11 @@ SECTIONS
         KEEP(*(rt_svc_descs))
         __RT_SVC_DESCS_END__ = .;
 
+        . = ALIGN(8);
+         __FCONF_POPULATOR_START__ = .;
+        KEEP(*(.fconf_populator))
+         __FCONF_POPULATOR_END__ = .;
+
 #if ENABLE_PMF
         /* Ensure 4-byte alignment for descriptors and ensure inclusion */
         . = ALIGN(4);
@@ -92,6 +97,11 @@ SECTIONS
         __RT_SVC_DESCS_START__ = .;
         KEEP(*(rt_svc_descs))
         __RT_SVC_DESCS_END__ = .;
+
+        . = ALIGN(8);
+         __FCONF_POPULATOR_START__ = .;
+        KEEP(*(.fconf_populator))
+         __FCONF_POPULATOR_END__ = .;
 
         /*
          * Ensure 4-byte alignment for cpu_ops so that its fields are also

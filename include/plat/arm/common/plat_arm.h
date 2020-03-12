@@ -222,6 +222,7 @@ void arm_tsp_early_platform_setup(void);
 void arm_sp_min_early_platform_setup(void *from_bl2, uintptr_t tos_fw_config,
 				uintptr_t hw_config, void *plat_params_from_bl2);
 void arm_sp_min_plat_runtime_setup(void);
+void arm_sp_min_plat_arch_setup(void);
 
 /* FIP TOC validity check */
 bool arm_io_is_toc_valid(void);

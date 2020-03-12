@@ -102,6 +102,6 @@ int fconf_populate_arm_sp(uintptr_t config)
 	return 0;
 }
 
-FCONF_REGISTER_POPULATOR(arm_sp, fconf_populate_arm_sp);
+FCONF_REGISTER_POPULATOR(TB_FW, arm_sp, fconf_populate_arm_sp);
 
 #endif /* IMAGE_BL2 */

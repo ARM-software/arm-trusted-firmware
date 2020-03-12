@@ -217,7 +217,7 @@ void sp_min_plat_runtime_setup(void)
  * Perform the very early platform specific architectural setup here. At the
  * moment this only initializes the MMU
  ******************************************************************************/
-void sp_min_plat_arch_setup(void)
+void arm_sp_min_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
 		MAP_BL_SP_MIN_TOTAL,
@@ -231,4 +231,9 @@ void sp_min_plat_arch_setup(void)
 	setup_page_tables(bl_regions, plat_arm_get_mmap());
 
 	enable_mmu_svc_mon(0);
+}
+
+void sp_min_plat_arch_setup(void)
+{
+	arm_sp_min_plat_arch_setup();
 }

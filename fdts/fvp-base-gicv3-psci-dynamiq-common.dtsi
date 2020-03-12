@@ -11,6 +11,9 @@
 /* DynamIQ based designs have upto 8 CPUs in each cluster */
 
 &CPU_MAP {
+	/delete-node/ cluster0;
+	/delete-node/ cluster1;
+
 	cluster0 {
 		core0 {
 			cpu = <&CPU0>;

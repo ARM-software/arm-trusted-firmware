@@ -61,7 +61,7 @@ void arm_bl2_early_platform_setup(uintptr_t tb_fw_config,
 
 	/* Fill the properties struct with the info from the config dtb */
 	if (tb_fw_config != 0U) {
-		fconf_populate(tb_fw_config);
+		fconf_populate("TB_FW", tb_fw_config);
 	}
 
 	/* Initialise the IO layer and register platform IO devices */

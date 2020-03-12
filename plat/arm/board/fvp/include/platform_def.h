@@ -63,12 +63,12 @@
  */
 #if defined(IMAGE_BL31)
 # if SPM_MM
-#  define PLAT_ARM_MMAP_ENTRIES		9
+#  define PLAT_ARM_MMAP_ENTRIES		10
 #  define MAX_XLAT_TABLES		9
 #  define PLAT_SP_IMAGE_MMAP_REGIONS	30
 #  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	10
 # else
-#  define PLAT_ARM_MMAP_ENTRIES		8
+#  define PLAT_ARM_MMAP_ENTRIES		9
 #  if USE_DEBUGFS
 #   define MAX_XLAT_TABLES		6
 #  else
@@ -76,7 +76,7 @@
 #  endif
 # endif
 #elif defined(IMAGE_BL32)
-# define PLAT_ARM_MMAP_ENTRIES		8
+# define PLAT_ARM_MMAP_ENTRIES		9
 # define MAX_XLAT_TABLES		5
 #elif !USE_ROMLIB
 # define PLAT_ARM_MMAP_ENTRIES		11
