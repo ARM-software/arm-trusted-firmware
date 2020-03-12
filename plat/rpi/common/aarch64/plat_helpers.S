@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include <asm_macros.S>
 #include <assert_macros.S>
 #include <platform_def.h>
+#include <cortex_a72.h>
 
 	.globl	plat_crash_console_flush
 	.globl	plat_crash_console_init
@@ -16,8 +17,10 @@
 	.globl	plat_get_my_entrypoint
 	.globl	plat_is_my_cpu_primary
 	.globl	plat_my_core_pos
+	.globl	plat_reset_handler
 	.globl	plat_rpi3_calc_core_pos
 	.globl	plat_secondary_cold_boot_setup
+	.globl	plat_rpi_get_model
 
 	/* -----------------------------------------------------
 	 *  unsigned int plat_my_core_pos(void)
@@ -54,7 +57,7 @@ endfunc plat_rpi3_calc_core_pos
 func plat_is_my_cpu_primary
 	mrs	x0, mpidr_el1
 	and	x0, x0, #(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)
-	cmp	x0, #RPI3_PRIMARY_CPU
+	cmp	x0, #RPI_PRIMARY_CPU
 	cset	w0, eq
 	ret
 endfunc plat_is_my_cpu_primary
@@ -161,3 +164,51 @@ func plat_crash_console_flush
 	mov_imm	x0, PLAT_RPI_MINI_UART_BASE
 	b	console_16550_core_flush
 endfunc plat_crash_console_flush
+
+	/* ---------------------------------------------
+	 * int plat_rpi_get_model()
+	 * Macro to determine whether we are running on
+	 * a Raspberry Pi 3 or 4. Just checks the MIDR for
+	 * being either a Cortex-A72 or a Cortex-A53.
+	 * Out : return 4 if RPi4, 3 otherwise.
+	 * Clobber list : x0
+	 * ---------------------------------------------
+	 */
+	.macro _plat_rpi_get_model
+	mrs	x0, midr_el1
+	and	x0, x0, #0xf0	/* Isolate low byte of part number */
+	cmp	w0, #0x80	/* Cortex-A72 (RPi4) is 0xd08, A53 is 0xd03 */
+	mov	w0, #3
+	csinc	w0, w0, w0, ne
+	.endm
+
+	func plat_rpi_get_model
+	_plat_rpi_get_model
+	ret
+	endfunc plat_rpi_get_model
+
+	/* ---------------------------------------------
+	 * void plat_reset_handler(void);
+	 * ---------------------------------------------
+	 */
+func plat_reset_handler
+	/* L2 cache setup only needed on RPi4 */
+	_plat_rpi_get_model
+	cmp	w0, #4
+	b.ne	1f
+
+	/* ------------------------------------------------
+	 * Set L2 read/write cache latency:
+	 * - L2 Data RAM latency: 3 cycles (0b010)
+	 * - L2 Data RAM setup: 1 cycle (bit 5)
+	 * ------------------------------------------------
+	 */
+	mrs	x0, CORTEX_A72_L2CTLR_EL1
+	mov	x1, #0x22
+	orr	x0, x0, x1
+	msr	CORTEX_A72_L2CTLR_EL1, x0
+	isb
+
+1:
+	ret
+endfunc plat_reset_handler

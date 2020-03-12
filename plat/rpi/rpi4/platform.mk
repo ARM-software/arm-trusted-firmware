@@ -16,7 +16,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 				${XLAT_TABLES_LIB_SRCS}
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a72.S		\
-				plat/rpi/rpi4/aarch64/plat_helpers.S	\
+				plat/rpi/common/aarch64/plat_helpers.S	\
 				plat/rpi/rpi4/aarch64/armstub8_header.S	\
 				drivers/arm/gic/common/gic_common.c     \
 				drivers/arm/gic/v2/gicv2_helpers.c      \

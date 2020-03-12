@@ -15,6 +15,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 				drivers/gpio/gpio.c			\
 				drivers/delay_timer/delay_timer.c	\
 				drivers/rpi3/gpio/rpi3_gpio.c		\
+				plat/rpi/common/aarch64/plat_helpers.S	\
 				plat/rpi/common/rpi3_common.c		\
 				${XLAT_TABLES_LIB_SRCS}
 
@@ -23,7 +24,6 @@ BL1_SOURCES		+=	drivers/io/io_fip.c			\
 				drivers/io/io_storage.c			\
 				lib/cpus/aarch64/cortex_a53.S		\
 				plat/common/aarch64/platform_mp_stack.S	\
-				plat/rpi/rpi3/aarch64/plat_helpers.S	\
 				plat/rpi/rpi3/rpi3_bl1_setup.c		\
 				plat/rpi/common/rpi3_io_storage.c	\
 				drivers/rpi3/mailbox/rpi3_mbox.c	\
@@ -38,7 +38,6 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 				drivers/mmc/mmc.c			\
 				drivers/rpi3/sdhost/rpi3_sdhost.c	\
 				plat/common/aarch64/platform_mp_stack.S	\
-				plat/rpi/rpi3/aarch64/plat_helpers.S	\
 				plat/rpi/rpi3/aarch64/rpi3_bl2_mem_params_desc.c \
 				plat/rpi/rpi3/rpi3_bl2_setup.c		\
 				plat/rpi/common/rpi3_image_load.c	\
@@ -46,7 +45,6 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				plat/common/plat_psci_common.c		\
-				plat/rpi/rpi3/aarch64/plat_helpers.S	\
 				plat/rpi/rpi3/rpi3_bl31_setup.c		\
 				plat/rpi/common/rpi3_pm.c		\
 				plat/rpi/common/rpi3_topology.c		\

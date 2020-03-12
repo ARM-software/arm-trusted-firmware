@@ -36,4 +36,6 @@ void plat_rpi3_io_setup(void);
 /* VideoCore firmware commands */
 int rpi3_vc_hardware_get_board_revision(uint32_t *revision);
 
+int plat_rpi_get_model(void);
+
 #endif /* RPI3_PRIVATE_H */
