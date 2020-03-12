@@ -21,6 +21,7 @@
 #include <smmu.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>
+#include <tegra_private.h>
 
 /* Video Memory base and size (live values) */
 static uint64_t video_mem_base;
@@ -221,6 +222,58 @@ void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	 * CCPLEX.
 	 */
 	mce_update_gsc_tzram();
+}
+
+/*
+ * Save MC settings before "System Suspend" to TZDRAM
+ */
+void tegra_mc_save_context(uint64_t mc_ctx_addr)
+{
+	const tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
+	uint32_t i, num_entries = 0;
+	mc_regs_t *mc_ctx_regs;
+	const plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
+	uint64_t tzdram_base = params_from_bl2->tzdram_base;
+	uint64_t tzdram_end = tzdram_base + params_from_bl2->tzdram_size;
+
+	assert((mc_ctx_addr >= tzdram_base) && (mc_ctx_addr <= tzdram_end));
+
+	/* get MC context table */
+	mc_ctx_regs = plat_mc_settings->get_mc_system_suspend_ctx();
+	assert(mc_ctx_regs != NULL);
+
+	/*
+	 * mc_ctx_regs[0].val contains the size of the context table minus
+	 * the last entry. Sanity check the table size before we start with
+	 * the context save operation.
+	 */
+	while (mc_ctx_regs[num_entries].reg != 0xFFFFFFFFU) {
+		num_entries++;
+	}
+
+	/* panic if the sizes do not match */
+	if (num_entries != mc_ctx_regs[0].val) {
+		ERROR("MC context size mismatch!");
+		panic();
+	}
+
+	/* save MC register values */
+	for (i = 1U; i < num_entries; i++) {
+		mc_ctx_regs[i].val = mmio_read_32(mc_ctx_regs[i].reg);
+	}
+
+	/* increment by 1 to take care of the last entry */
+	num_entries++;
+
+	/* Save MC config settings */
+	(void)memcpy((void *)mc_ctx_addr, mc_ctx_regs,
+			sizeof(mc_regs_t) * num_entries);
+
+	/* save the MC table address */
+	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_MC_TABLE_ADDR_LO,
+		(uint32_t)mc_ctx_addr);
+	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_MC_TABLE_ADDR_HI,
+		(uint32_t)(mc_ctx_addr >> 32));
 }
 
 static void tegra_lock_videomem_nonoverlap(uint64_t phys_base,

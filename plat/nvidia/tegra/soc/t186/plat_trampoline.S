@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,7 +14,7 @@
 
 #define TEGRA186_STATE_SYSTEM_SUSPEND	0x5C7
 #define TEGRA186_STATE_SYSTEM_RESUME	0x600D
-#define TEGRA186_SMMU_CTX_SIZE		0x420
+#define TEGRA186_MC_CTX_SIZE		0x93
 
 	.globl	tegra186_cpu_reset_handler
 
@@ -69,8 +70,8 @@ endfunc tegra186_cpu_reset_handler
 	 *
 	 * 0x000: secure world's entrypoint
 	 * 0x008: BL31 size (RO + RW)
-	 * 0x00C: SMMU context start
-	 * 0x42C: SMMU context end
+	 * 0x00C: MC context start
+	 * 0x42C: MC context end
 	 */
 
 	.align 4
@@ -85,9 +86,9 @@ __tegra186_system_suspend_state:
 	.quad	0
 
 	.align 4
-	.globl	__tegra186_smmu_context
-__tegra186_smmu_context:
-	.rept	TEGRA186_SMMU_CTX_SIZE
+	.globl	__tegra186_mc_context
+__tegra186_mc_context:
+	.rept	TEGRA186_MC_CTX_SIZE
 	.quad	0
 	.endr
 	.size	__tegra186_cpu_reset_handler_data, \
@@ -99,7 +100,7 @@ __tegra186_cpu_reset_handler_end:
 
 	.globl tegra186_get_cpu_reset_handler_size
 	.globl tegra186_get_cpu_reset_handler_base
-	.globl tegra186_get_smmu_ctx_offset
+	.globl tegra186_get_mc_ctx_offset
 	.globl tegra186_set_system_suspend_entry
 
 /* return size of the CPU reset handler */
@@ -116,13 +117,13 @@ func tegra186_get_cpu_reset_handler_base
 	ret
 endfunc tegra186_get_cpu_reset_handler_base
 
-/* return the size of the SMMU context */
-func tegra186_get_smmu_ctx_offset
-	adr	x0, __tegra186_smmu_context
+/* return the size of the MC context */
+func tegra186_get_mc_ctx_offset
+	adr	x0, __tegra186_mc_context
 	adr	x1, tegra186_cpu_reset_handler
 	sub	x0, x0, x1
 	ret
-endfunc tegra186_get_smmu_ctx_offset
+endfunc tegra186_get_mc_ctx_offset
 
 /* set system suspend state before SC7 entry */
 func tegra186_set_system_suspend_entry

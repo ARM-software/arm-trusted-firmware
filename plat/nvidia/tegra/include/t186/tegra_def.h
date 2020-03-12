@@ -73,6 +73,12 @@
 #define TEGRA186_SEC_IRQ_TARGET_MASK	U(0xF3) /* 4 A57 - 2 Denver */
 
 /*******************************************************************************
+ * Clock identifier for the SE device
+ ******************************************************************************/
+#define TEGRA186_CLK_SE			U(103)
+#define TEGRA_CLK_SE			TEGRA186_CLK_SE
+
+/*******************************************************************************
  * Tegra Miscellanous register constants
  ******************************************************************************/
 #define TEGRA_MISC_BASE			U(0x00100000)
@@ -269,8 +275,8 @@
 #define SCRATCH_RESET_VECTOR_LO		SECURE_SCRATCH_RSV1_LO
 #define SCRATCH_RESET_VECTOR_HI		SECURE_SCRATCH_RSV1_HI
 #define SCRATCH_SECURE_BOOTP_FCFG	SECURE_SCRATCH_RSV6
-#define SCRATCH_SMMU_TABLE_ADDR_LO	SECURE_SCRATCH_RSV11_LO
-#define SCRATCH_SMMU_TABLE_ADDR_HI	SECURE_SCRATCH_RSV11_HI
+#define SCRATCH_MC_TABLE_ADDR_LO	SECURE_SCRATCH_RSV11_LO
+#define SCRATCH_MC_TABLE_ADDR_HI	SECURE_SCRATCH_RSV11_HI
 #define SCRATCH_BL31_PARAMS_ADDR	SECURE_SCRATCH_RSV53_LO
 #define SCRATCH_BL31_PLAT_PARAMS_ADDR	SECURE_SCRATCH_RSV53_HI
 #define SCRATCH_TZDRAM_ADDR_LO		SECURE_SCRATCH_RSV55_LO

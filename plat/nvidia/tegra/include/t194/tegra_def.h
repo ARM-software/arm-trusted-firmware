@@ -43,6 +43,12 @@
 #define TEGRA194_SEC_IRQ_TARGET_MASK	U(0xFF) /* 8 Carmel */
 
 /*******************************************************************************
+ * Clock identifier for the SE device
+ ******************************************************************************/
+#define TEGRA194_CLK_SE			U(124)
+#define TEGRA_CLK_SE			TEGRA194_CLK_SE
+
+/*******************************************************************************
  * Tegra Miscellanous register constants
  ******************************************************************************/
 #define TEGRA_MISC_BASE			U(0x00100000)
@@ -197,6 +203,16 @@
  * Tegra scratch registers constants
  ******************************************************************************/
 #define TEGRA_SCRATCH_BASE		U(0x0C390000)
+#define  SECURE_SCRATCH_RSV68_LO	U(0x284)
+#define  SECURE_SCRATCH_RSV68_HI	U(0x288)
+#define  SECURE_SCRATCH_RSV69_LO	U(0x28C)
+#define  SECURE_SCRATCH_RSV69_HI	U(0x290)
+#define  SECURE_SCRATCH_RSV70_LO	U(0x294)
+#define  SECURE_SCRATCH_RSV70_HI	U(0x298)
+#define  SECURE_SCRATCH_RSV71_LO	U(0x29C)
+#define  SECURE_SCRATCH_RSV71_HI	U(0x2A0)
+#define  SECURE_SCRATCH_RSV72_LO	U(0x2A4)
+#define  SECURE_SCRATCH_RSV72_HI	U(0x2A8)
 #define  SECURE_SCRATCH_RSV75   	U(0x2BC)
 #define  SECURE_SCRATCH_RSV81_LO	U(0x2EC)
 #define  SECURE_SCRATCH_RSV81_HI	U(0x2F0)
@@ -215,8 +231,8 @@
 #define  SCRATCH_BL31_PLAT_PARAMS_HI_ADDR_SHIFT U(16)
 #define SCRATCH_BL31_PLAT_PARAMS_LO_ADDR SECURE_SCRATCH_RSV81_HI
 #define SCRATCH_SECURE_BOOTP_FCFG	SECURE_SCRATCH_RSV97
-#define SCRATCH_SMMU_TABLE_ADDR_LO	SECURE_SCRATCH_RSV99_LO
-#define SCRATCH_SMMU_TABLE_ADDR_HI	SECURE_SCRATCH_RSV99_HI
+#define SCRATCH_MC_TABLE_ADDR_LO	SECURE_SCRATCH_RSV99_LO
+#define SCRATCH_MC_TABLE_ADDR_HI	SECURE_SCRATCH_RSV99_HI
 #define SCRATCH_RESET_VECTOR_LO		SECURE_SCRATCH_RSV109_LO
 #define SCRATCH_RESET_VECTOR_HI		SECURE_SCRATCH_RSV109_HI
 

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,121 +18,8 @@
 
 extern void memcpy16(void *dest, const void *src, unsigned int length);
 
-/* SMMU IDs currently supported by the driver */
-enum {
-	TEGRA_SMMU0 = 0U,
-	TEGRA_SMMU1,
-	TEGRA_SMMU2
-};
-
-static uint32_t tegra_smmu_read_32(uint32_t smmu_id, uint32_t off)
-{
-	uint32_t ret = 0U;
-
-#if defined(TEGRA_SMMU0_BASE)
-	if (smmu_id == TEGRA_SMMU0) {
-		ret = mmio_read_32(TEGRA_SMMU0_BASE + (uint64_t)off);
-	}
-#endif
-
-#if defined(TEGRA_SMMU1_BASE)
-	if (smmu_id == TEGRA_SMMU1) {
-		ret = mmio_read_32(TEGRA_SMMU1_BASE + (uint64_t)off);
-	}
-#endif
-
-#if defined(TEGRA_SMMU2_BASE)
-	if (smmu_id == TEGRA_SMMU2) {
-		ret = mmio_read_32(TEGRA_SMMU2_BASE + (uint64_t)off);
-	}
-#endif
-
-	return ret;
-}
-
-static void tegra_smmu_write_32(uint32_t smmu_id,
-			uint32_t off, uint32_t val)
-{
-#if defined(TEGRA_SMMU0_BASE)
-	if (smmu_id == TEGRA_SMMU0) {
-		mmio_write_32(TEGRA_SMMU0_BASE + (uint64_t)off, val);
-	}
-#endif
-
-#if defined(TEGRA_SMMU1_BASE)
-	if (smmu_id == TEGRA_SMMU1) {
-		mmio_write_32(TEGRA_SMMU1_BASE + (uint64_t)off, val);
-	}
-#endif
-
-#if defined(TEGRA_SMMU2_BASE)
-	if (smmu_id == TEGRA_SMMU2) {
-		mmio_write_32(TEGRA_SMMU2_BASE + (uint64_t)off, val);
-	}
-#endif
-}
-
-/*
- * Save SMMU settings before "System Suspend" to TZDRAM
- */
-void tegra_smmu_save_context(uint64_t smmu_ctx_addr)
-{
-	uint32_t i, num_entries = 0;
-	smmu_regs_t *smmu_ctx_regs;
-	const plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
-	uint64_t tzdram_base = params_from_bl2->tzdram_base;
-	uint64_t tzdram_end = tzdram_base + params_from_bl2->tzdram_size;
-	uint32_t reg_id1, pgshift, cb_size;
-
-	/* sanity check SMMU settings c*/
-	reg_id1 = mmio_read_32((TEGRA_SMMU0_BASE + SMMU_GNSR0_IDR1));
-	pgshift = ((reg_id1 & ID1_PAGESIZE) != 0U) ? 16U : 12U;
-	cb_size = ((uint32_t)2 << pgshift) * \
-	((uint32_t)1 << (((reg_id1 >> ID1_NUMPAGENDXB_SHIFT) & ID1_NUMPAGENDXB_MASK) + 1U));
-
-	assert(!((pgshift != PGSHIFT) || (cb_size != CB_SIZE)));
-	assert((smmu_ctx_addr >= tzdram_base) && (smmu_ctx_addr <= tzdram_end));
-
-	/* get SMMU context table */
-	smmu_ctx_regs = plat_get_smmu_ctx();
-	assert(smmu_ctx_regs != NULL);
-
-	/*
-	 * smmu_ctx_regs[0].val contains the size of the context table minus
-	 * the last entry. Sanity check the table size before we start with
-	 * the context save operation.
-	 */
-	while ((smmu_ctx_regs[num_entries].reg != 0xFFFFFFFFU)) {
-		num_entries++;
-	}
-
-	/* panic if the sizes do not match */
-	if (num_entries != smmu_ctx_regs[0].val) {
-		ERROR("SMMU context size mismatch!");
-		panic();
-	}
-
-	/* save SMMU register values */
-	for (i = 1U; i < num_entries; i++) {
-		smmu_ctx_regs[i].val = mmio_read_32(smmu_ctx_regs[i].reg);
-	}
-
-	/* increment by 1 to take care of the last entry */
-	num_entries++;
-
-	/* Save SMMU config settings */
-	(void)memcpy16((uint8_t *)smmu_ctx_addr, (uint8_t *)smmu_ctx_regs,
-			(sizeof(smmu_regs_t) * num_entries));
-
-	/* save the SMMU table address */
-	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SMMU_TABLE_ADDR_LO,
-		(uint32_t)smmu_ctx_addr);
-	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SMMU_TABLE_ADDR_HI,
-		(uint32_t)(smmu_ctx_addr >> 32));
-}
-
-#define SMMU_NUM_CONTEXTS		64
-#define SMMU_CONTEXT_BANK_MAX_IDX	64
+#define SMMU_NUM_CONTEXTS		64U
+#define SMMU_CONTEXT_BANK_MAX_IDX	64U
 
 /*
  * Init SMMU during boot or "System Suspend" exit

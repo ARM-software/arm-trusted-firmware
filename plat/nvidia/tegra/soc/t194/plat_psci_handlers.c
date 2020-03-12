@@ -10,14 +10,17 @@
 #include <string.h>
 
 #include <arch_helpers.h>
+#include <bpmp_ipc.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <context.h>
+#include <drivers/delay_timer.h>
 #include <denver.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/psci/psci.h>
 #include <mce.h>
 #include <mce_private.h>
+#include <memctrl_v2.h>
 #include <plat/common/platform.h>
 #include <se.h>
 #include <smmu.h>
@@ -116,7 +119,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	const plat_local_state_t *pwr_domain_state;
 	uint8_t stateid_afflvl0, stateid_afflvl2;
 	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
-	uint64_t smmu_ctx_base;
+	uint64_t mc_ctx_base;
 	uint32_t val;
 	mce_cstate_info_t sc7_cstate_info = {
 		.cluster = (uint32_t)TEGRA_NVG_CLUSTER_CC6,
@@ -135,7 +138,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
 		TEGRA194_STATE_ID_MASK;
 
-	if ((stateid_afflvl0 == PSTATE_ID_CORE_POWERDN)) {
+	if (stateid_afflvl0 == PSTATE_ID_CORE_POWERDN) {
 
 		/* Enter CPU powerdown */
 		(void)mce_command_handler((uint64_t)MCE_CMD_ENTER_CSTATE,
@@ -149,10 +152,10 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		val = mmio_read_32(TEGRA_MISC_BASE + MISCREG_PFCFG);
 		mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SECURE_BOOTP_FCFG, val);
 
-		/* save SMMU context */
-		smmu_ctx_base = params_from_bl2->tzdram_base +
-				tegra194_get_smmu_ctx_offset();
-		tegra_smmu_save_context((uintptr_t)smmu_ctx_base);
+		/* save MC context */
+		mc_ctx_base = params_from_bl2->tzdram_base +
+				tegra194_get_mc_ctx_offset();
+		tegra_mc_save_context((uintptr_t)mc_ctx_base);
 
 		/*
 		 * Suspend SE, RNG1 and PKA1 only on silcon and fpga,
@@ -289,9 +292,34 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 	plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 	uint8_t stateid_afflvl2 = pwr_domain_state[PLAT_MAX_PWR_LVL] &
 		TEGRA194_STATE_ID_MASK;
+	uint64_t src_len_in_bytes = (uintptr_t)&__BL31_END__ - (uintptr_t)BL31_BASE;
 	uint64_t val;
+	int32_t ret = PSCI_E_SUCCESS;
 
 	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
+		val = params_from_bl2->tzdram_base +
+		      tegra194_get_cpu_reset_handler_size();
+
+		/* initialise communication channel with BPMP */
+		ret = tegra_bpmp_ipc_init();
+		assert(ret == 0);
+
+		/* Enable SE clock before SE context save */
+		ret = tegra_bpmp_ipc_enable_clock(TEGRA194_CLK_SE);
+		assert(ret == 0);
+
+		/*
+		 * It is very unlikely that the BL31 image would be
+		 * bigger than 2^32 bytes
+		 */
+		assert(src_len_in_bytes < UINT32_MAX);
+
+		if (tegra_se_calculate_save_sha256(BL31_BASE,
+					(uint32_t)src_len_in_bytes) != 0) {
+			ERROR("Hash calculation failed. Reboot\n");
+			(void)tegra_soc_prepare_system_reset();
+		}
+
 		/*
 		 * The TZRAM loses power when we enter system suspend. To
 		 * allow graceful exit from system suspend, we need to copy
@@ -300,10 +328,14 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		val = params_from_bl2->tzdram_base +
 		      tegra194_get_cpu_reset_handler_size();
 		memcpy((void *)(uintptr_t)val, (void *)(uintptr_t)BL31_BASE,
-		       (uintptr_t)&__BL31_END__ - (uintptr_t)BL31_BASE);
+		       src_len_in_bytes);
+
+		/* Disable SE clock after SE context save */
+		ret = tegra_bpmp_ipc_disable_clock(TEGRA194_CLK_SE);
+		assert(ret == 0);
 	}
 
-	return PSCI_E_SUCCESS;
+	return ret;
 }
 
 int32_t tegra_soc_pwr_domain_suspend_pwrdown_early(const psci_power_state_t *target_state)

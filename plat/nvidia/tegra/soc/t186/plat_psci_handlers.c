@@ -22,6 +22,7 @@
 
 #include <bpmp_ipc.h>
 #include <mce.h>
+#include <memctrl_v2.h>
 #include <security_engine.h>
 #include <smmu.h>
 #include <t18x_ari.h>
@@ -99,7 +100,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 	uint32_t cpu = plat_my_core_pos();
 	const plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
 	mce_cstate_info_t cstate_info = { 0 };
-	uint64_t smmu_ctx_base;
+	uint64_t mc_ctx_base;
 	uint32_t val;
 
 	/* get the state ID */
@@ -132,10 +133,10 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		val = mmio_read_32(TEGRA_MISC_BASE + MISCREG_PFCFG);
 		mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SECURE_BOOTP_FCFG, val);
 
-		/* save SMMU context to TZDRAM */
-		smmu_ctx_base = params_from_bl2->tzdram_base +
-				tegra186_get_smmu_ctx_offset();
-		tegra_smmu_save_context((uintptr_t)smmu_ctx_base);
+		/* save MC context to TZDRAM */
+		mc_ctx_base = params_from_bl2->tzdram_base +
+				tegra186_get_mc_ctx_offset();
+		tegra_mc_save_context((uintptr_t)mc_ctx_base);
 
 		/* Prepare for system suspend */
 		cstate_info.cluster = (uint32_t)TEGRA_ARI_CLUSTER_CC7;
@@ -294,7 +295,7 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		assert(tegra_bpmp_ipc_init() == 0);
 
 		/* Enable SE clock */
-		ret = tegra_bpmp_ipc_enable_clock(TEGRA_CLK_SE);
+		ret = tegra_bpmp_ipc_enable_clock(TEGRA186_CLK_SE);
 		if (ret != 0) {
 			ERROR("Failed to enable clock\n");
 			return ret;
@@ -319,7 +320,7 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		memcpy16((void *)(uintptr_t)val, (void *)(uintptr_t)BL31_BASE,
 			 (uintptr_t)BL31_END - (uintptr_t)BL31_BASE);
 
-		ret = tegra_bpmp_ipc_disable_clock(TEGRA_CLK_SE);
+		ret = tegra_bpmp_ipc_disable_clock(TEGRA186_CLK_SE);
 		if (ret != 0) {
 			ERROR("Failed to disable clock\n");
 			return ret;

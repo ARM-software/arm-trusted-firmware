@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
  * responsible for initialising and maintaining communication with the SP.
  ******************************************************************************/
 #include <assert.h>
+#include <bl31/interrupt_mgmt.h>
 #include <errno.h>
 #include <stddef.h>
 
@@ -49,6 +50,50 @@ DEFINE_SVC_UUID2(tlk_uuid,
 static int32_t tlkd_init(void);
 
 /*******************************************************************************
+ * Secure Payload Dispatcher's timer interrupt handler
+ ******************************************************************************/
+static uint64_t tlkd_interrupt_handler(uint32_t id,
+					uint32_t flags,
+					void *handle,
+					void *cookie)
+{
+	cpu_context_t *s_cpu_context;
+	int irq = plat_ic_get_pending_interrupt_id();
+
+	/* acknowledge the interrupt and mark it complete */
+	(void)plat_ic_acknowledge_interrupt();
+	plat_ic_end_of_interrupt(irq);
+
+	/*
+	 * Disable the routing of NS interrupts from secure world to
+	 * EL3 while interrupted on this core.
+	 */
+	disable_intr_rm_local(INTR_TYPE_S_EL1, SECURE);
+
+	/* Check the security state when the exception was generated */
+	assert(get_interrupt_src_ss(flags) == NON_SECURE);
+	assert(handle == cm_get_context(NON_SECURE));
+
+	/* Save non-secure state */
+	cm_el1_sysregs_context_save(NON_SECURE);
+
+	/* Get a reference to the secure context */
+	s_cpu_context = cm_get_context(SECURE);
+	assert(s_cpu_context);
+
+	/*
+	 * Restore non-secure state. There is no need to save the
+	 * secure system register context since the SP was supposed
+	 * to preserve it during S-EL1 interrupt handling.
+	 */
+	cm_el1_sysregs_context_restore(SECURE);
+	cm_set_next_eret_context(SECURE);
+
+	/* Provide the IRQ number to the SPD */
+	SMC_RET4(s_cpu_context, (uint32_t)TLK_IRQ_FIRED, 0, (uint32_t)irq, 0);
+}
+
+/*******************************************************************************
  * Secure Payload Dispatcher setup. The SPD finds out the SP entrypoint and type
  * (aarch32/aarch64) if not already known and initialises the context for entry
  * into the SP for its initialisation.
@@ -56,6 +101,8 @@ static int32_t tlkd_init(void);
 static int32_t tlkd_setup(void)
 {
 	entry_point_info_t *tlk_ep_info;
+	uint32_t flags;
+	int32_t ret;
 
 	/*
 	 * Get information about the Secure Payload (BL32) image. Its
@@ -85,6 +132,18 @@ static int32_t tlkd_setup(void)
 		(tlk_ep_info->spsr >> MODE_RW_SHIFT) & MODE_RW_MASK,
 		tlk_ep_info->pc,
 		&tlk_ctx);
+
+	/* get a list of all S-EL1 IRQs from the platform */
+
+	/* register interrupt handler */
+	flags = 0;
+	set_interrupt_rm_flag(flags, NON_SECURE);
+	ret = register_interrupt_type_handler(INTR_TYPE_S_EL1,
+					      tlkd_interrupt_handler,
+					      flags);
+	if (ret != 0) {
+		ERROR("failed to register tlkd interrupt handler (%d)\n", ret);
+	}
 
 	/*
 	 * All TLK SPD initialization done. Now register our init function
@@ -383,6 +442,34 @@ static uintptr_t tlkd_smc_handler(uint32_t smc_fid,
 		 */
 		tlkd_synchronous_sp_exit(&tlk_ctx, x1);
 		break;
+
+	/*
+	 * This function ID is used by SP to indicate that it has completed
+	 * handling the secure interrupt.
+	 */
+	case TLK_IRQ_DONE:
+
+		if (ns)
+			SMC_RET1(handle, SMC_UNK);
+
+		assert(handle == cm_get_context(SECURE));
+
+		/* save secure world context */
+		cm_el1_sysregs_context_save(SECURE);
+
+		/* Get a reference to the non-secure context */
+		ns_cpu_context = cm_get_context(NON_SECURE);
+		assert(ns_cpu_context);
+
+		/*
+		 * Restore non-secure state. There is no need to save the
+		 * secure system register context since the SP was supposed
+		 * to preserve it during S-EL1 interrupt handling.
+		 */
+		cm_el1_sysregs_context_restore(NON_SECURE);
+		cm_set_next_eret_context(NON_SECURE);
+
+		SMC_RET0(ns_cpu_context);
 
 	/*
 	 * Return the number of service function IDs implemented to
