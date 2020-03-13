@@ -9,6 +9,7 @@
 	compatible = "spci-core-manifest-1.0";
 
 	attribute {
+		spmc_id = <0x8000>;
 		maj_ver = <0x0>;
 		min_ver = <0x9>;
 		exec_state = <0x0>;
