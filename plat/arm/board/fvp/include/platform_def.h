@@ -52,6 +52,13 @@
 #define PLAT_ARM_DRAM2_BASE		ULL(0x880000000)
 #define PLAT_ARM_DRAM2_SIZE		UL(0x80000000)
 
+#define PLAT_HW_CONFIG_DTB_BASE		ULL(0x82000000)
+#define PLAT_HW_CONFIG_DTB_SIZE		ULL(0x8000)
+
+#define ARM_DTB_DRAM_NS			MAP_REGION_FLAT(		\
+					PLAT_HW_CONFIG_DTB_BASE,	\
+					PLAT_HW_CONFIG_DTB_SIZE,	\
+					MT_MEMORY | MT_RO | MT_NS)
 /*
  * Load address of BL33 for this platform port
  */
@@ -70,14 +77,14 @@
 # else
 #  define PLAT_ARM_MMAP_ENTRIES		9
 #  if USE_DEBUGFS
-#   define MAX_XLAT_TABLES		6
+#   define MAX_XLAT_TABLES		8
 #  else
-#   define MAX_XLAT_TABLES		5
+#   define MAX_XLAT_TABLES		7
 #  endif
 # endif
 #elif defined(IMAGE_BL32)
 # define PLAT_ARM_MMAP_ENTRIES		9
-# define MAX_XLAT_TABLES		5
+# define MAX_XLAT_TABLES		6
 #elif !USE_ROMLIB
 # define PLAT_ARM_MMAP_ENTRIES		11
 # define MAX_XLAT_TABLES		5
@@ -126,7 +133,7 @@
  * calculated using the current BL31 PROGBITS debug size plus the sizes of
  * BL2 and BL1-RW
  */
-#define PLAT_ARM_MAX_BL31_SIZE		UL(0x3B000)
+#define PLAT_ARM_MAX_BL31_SIZE		UL(0x3E000)
 #endif /* RESET_TO_BL31 */
 
 #ifndef __aarch64__
