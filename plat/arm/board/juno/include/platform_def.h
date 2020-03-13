@@ -249,16 +249,12 @@
 #endif
 
 /*
- * PLAT_CSS_MAX_SCP_BL2_SIZE is calculated using the current
- * SCP_BL2 size plus a little space for growth.
+ * SCP_BL2 uses up whatever remaining space is available as it is loaded before
+ * anything else in this memory region and is handed over to the SCP before
+ * BL31 is loaded over the top.
  */
-#define PLAT_CSS_MAX_SCP_BL2_SIZE	UL(0x14000)
-
-/*
- * PLAT_CSS_MAX_SCP_BL2U_SIZE is calculated using the current
- * SCP_BL2U size plus a little space for growth.
- */
-#define PLAT_CSS_MAX_SCP_BL2U_SIZE	UL(0x14000)
+#define PLAT_CSS_MAX_SCP_BL2_SIZE	(SCP_BL2_LIMIT - ARM_TB_FW_CONFIG_LIMIT)
+#define PLAT_CSS_MAX_SCP_BL2U_SIZE	PLAT_CSS_MAX_SCP_BL2_SIZE
 
 #define PLAT_ARM_G1S_IRQ_PROPS(grp) \
 	CSS_G1S_IRQ_PROPS(grp), \
