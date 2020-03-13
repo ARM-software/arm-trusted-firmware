@@ -2,3 +2,4 @@
 host=review.trustedfirmware.org
 port=29418
 project=TF-A/trusted-firmware-a
+defaultbranch=integration
