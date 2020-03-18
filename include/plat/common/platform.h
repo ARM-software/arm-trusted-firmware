@@ -322,4 +322,14 @@ void plat_flush_next_bl_params(void);
  */
 unsigned int platform_core_pos_helper(unsigned long mpidr);
 
+/*
+ * Optional function to get SOC version
+ */
+int32_t plat_get_soc_version(void);
+
+/*
+ * Optional function to get SOC revision
+ */
+int32_t plat_get_soc_revision(void);
+
 #endif /* PLATFORM_H */

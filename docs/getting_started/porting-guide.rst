@@ -1116,6 +1116,35 @@ can override the common implementation to define a different prefix string for
 the log output. The implementation should be robust to future changes that
 increase the number of log levels.
 
+Function : plat_get_soc_version()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : int32_t
+
+This function returns soc version which mainly consist of below fields
+
+::
+
+    soc_version[30:24] = JEP-106 continuation code for the SiP
+    soc_version[23:16] = JEP-106 identification code with parity bit for the SiP
+
+Function : plat_get_soc_revision()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : void
+    Return   : int32_t
+
+This function returns soc revision in below format
+
+::
+
+    soc_revision[0:30] = SOC revision of specific SOC
+
 Modifications specific to a Boot Loader stage
 ---------------------------------------------
 

@@ -25,6 +25,9 @@
  * conflicts with the definition in plat/common. */
 #pragma weak plat_get_syscnt_freq2
 
+/* Get ARM SOC-ID */
+#pragma weak plat_arm_get_soc_id
+
 /*******************************************************************************
  * Changes the memory attributes for the region of mapped memory where the BL
  * image's translation tables are located such that the tables will have
@@ -231,3 +234,22 @@ int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
 	return arm_validate_ns_entrypoint(pa);
 }
 #endif
+
+/*
+ * Weak function to get ARM platform SOC-ID, Always return SOC-ID=0
+ * ToDo: Get proper SOC-ID for every ARM platform and define this
+ *       function separately for every ARM platform.
+ */
+uint32_t plat_arm_get_soc_id(void)
+{
+	return 0U;
+}
+
+/* Get SOC version */
+int32_t plat_get_soc_version(void)
+{
+	return (int32_t)
+		((ARM_SOC_IDENTIFICATION_CODE << ARM_SOC_IDENTIFICATION_SHIFT)
+		 | (ARM_SOC_CONTINUATION_CODE << ARM_SOC_CONTINUATION_SHIFT)
+		 | plat_arm_get_soc_id());
+}
