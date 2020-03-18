@@ -469,7 +469,7 @@ uint32_t dt_get_pwr_vdd_voltage(void)
 	}
 
 	pwr_regulators_node = fdt_subnode_offset(fdt, node, "pwr-regulators");
-	if (node < 0) {
+	if (pwr_regulators_node < 0) {
 		INFO("%s: Cannot read pwr-regulators node in DT\n", __func__);
 		return 0;
 	}
