@@ -135,7 +135,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	ARM_SPM_BUF_EL3_MMAP,
 #endif
 	/* Required by fconf APIs to read HW_CONFIG dtb loaded into DRAM */
-	ARM_MAP_NS_DRAM1,
+	ARM_DTB_DRAM_NS,
 	{0}
 };
 
@@ -163,7 +163,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	MAP_DEVICE0,
 	MAP_DEVICE1,
 	/* Required by fconf APIs to read HW_CONFIG dtb loaded into DRAM */
-	ARM_MAP_NS_DRAM1,
+	ARM_DTB_DRAM_NS,
 	{0}
 };
 #endif
