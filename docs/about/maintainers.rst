@@ -217,6 +217,17 @@ Raspberry Pi 3 platform port
 :G: `grandpaul`_
 :F: docs/plat/rpi3.rst
 :F: plat/rpi/rpi3/
+:F: plat/rpi/common/
+:F: drivers/rpi3/
+:F: include/drivers/rpi3/
+
+Raspberry Pi 4 platform port
+----------------------------
+:M: Andre Przywara <andre.przywara@arm.com>
+:G: `Andre-ARM`_
+:F: docs/plat/rpi4.rst
+:F: plat/rpi/rpi4/
+:F: plat/rpi/common/
 :F: drivers/rpi3/
 :F: include/drivers/rpi3/
 

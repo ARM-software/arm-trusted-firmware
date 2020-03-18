@@ -11,7 +11,7 @@
 #include <drivers/delay_timer.h>
 #include <drivers/rpi3/gpio/rpi3_gpio.h>
 
-static struct rpi3_gpio_params rpi3_gpio_params;
+static uintptr_t reg_base;
 
 static int rpi3_gpio_get_direction(int gpio);
 static void rpi3_gpio_set_direction(int gpio, int direction);
@@ -43,7 +43,6 @@ static const gpio_ops_t rpi3_gpio_ops = {
 int rpi3_gpio_get_select(int gpio)
 {
 	int ret;
-	uintptr_t reg_base = rpi3_gpio_params.reg_base;
 	int regN = gpio / 10;
 	int shift = 3 * (gpio % 10);
 	uintptr_t reg_sel = reg_base + RPI3_GPIO_GPFSEL(regN);
@@ -69,7 +68,6 @@ int rpi3_gpio_get_select(int gpio)
  */
 void rpi3_gpio_set_select(int gpio, int fsel)
 {
-	uintptr_t reg_base = rpi3_gpio_params.reg_base;
 	int regN = gpio / 10;
 	int shift = 3 * (gpio % 10);
 	uintptr_t reg_sel = reg_base + RPI3_GPIO_GPFSEL(regN);
@@ -106,7 +104,6 @@ static void rpi3_gpio_set_direction(int gpio, int direction)
 
 static int rpi3_gpio_get_value(int gpio)
 {
-	uintptr_t reg_base = rpi3_gpio_params.reg_base;
 	int regN = gpio / 32;
 	int shift = gpio % 32;
 	uintptr_t reg_lev = reg_base + RPI3_GPIO_GPLEV(regN);
@@ -119,7 +116,6 @@ static int rpi3_gpio_get_value(int gpio)
 
 static void rpi3_gpio_set_value(int gpio, int value)
 {
-	uintptr_t reg_base = rpi3_gpio_params.reg_base;
 	int regN = gpio / 32;
 	int shift = gpio % 32;
 	uintptr_t reg_set = reg_base + RPI3_GPIO_GPSET(regN);
@@ -137,7 +133,6 @@ static void rpi3_gpio_set_value(int gpio, int value)
 
 static void rpi3_gpio_set_pull(int gpio, int pull)
 {
-	uintptr_t reg_base = rpi3_gpio_params.reg_base;
 	int regN = gpio / 32;
 	int shift = gpio % 32;
 	uintptr_t reg_pud = reg_base + RPI3_GPIO_GPPUD;
@@ -161,9 +156,8 @@ static void rpi3_gpio_set_pull(int gpio, int pull)
 	mmio_write_32(reg_pud, 0x0);
 }
 
-void rpi3_gpio_init(struct rpi3_gpio_params *params)
+void rpi3_gpio_init(void)
 {
-	assert(params != 0);
-	memcpy(&rpi3_gpio_params, params, sizeof(struct rpi3_gpio_params));
+	reg_base = RPI3_GPIO_BASE;
 	gpio_init(&rpi3_gpio_ops);
 }

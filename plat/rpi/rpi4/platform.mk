@@ -11,6 +11,7 @@ PLAT_INCLUDES		:=	-Iplat/rpi/common/include		\
 				-Iplat/rpi/rpi4/include
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
+				drivers/arm/pl011/aarch64/pl011_console.S \
 				plat/rpi/common/rpi3_common.c		\
 				${XLAT_TABLES_LIB_SRCS}
 
@@ -20,6 +21,9 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a72.S		\
 				drivers/arm/gic/common/gic_common.c     \
 				drivers/arm/gic/v2/gicv2_helpers.c      \
 				drivers/arm/gic/v2/gicv2_main.c         \
+				drivers/delay_timer/delay_timer.c	\
+				drivers/gpio/gpio.c			\
+				drivers/rpi3/gpio/rpi3_gpio.c		\
 				plat/common/plat_gicv2.c                \
 				plat/rpi/rpi4/rpi4_bl31_setup.c		\
 				plat/rpi/common/rpi3_pm.c		\

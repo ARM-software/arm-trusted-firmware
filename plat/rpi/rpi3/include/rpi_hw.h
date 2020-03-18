@@ -77,11 +77,15 @@
 #define RPI3_RNG_INT_MASK_DISABLE	U(0x1)
 
 /*
- * Serial port (called 'Mini UART' in the BCM docucmentation).
+ * Serial ports:
+ * 'Mini UART' in the BCM docucmentation is the 8250 compatible UART.
+ * There is also a PL011 UART, multiplexed to the same pins.
  */
 #define RPI3_IO_MINI_UART_OFFSET	ULL(0x00215040)
 #define RPI3_MINI_UART_BASE		(RPI_IO_BASE + RPI3_IO_MINI_UART_OFFSET)
-#define RPI3_MINI_UART_CLK_IN_HZ	ULL(500000000)
+#define RPI3_IO_PL011_UART_OFFSET	ULL(0x00201000)
+#define RPI3_PL011_UART_BASE		(RPI_IO_BASE + RPI3_IO_PL011_UART_OFFSET)
+#define RPI3_PL011_UART_CLOCK		ULL(48000000)
 
 /*
  * GPIO controller

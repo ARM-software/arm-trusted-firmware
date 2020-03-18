@@ -11,6 +11,10 @@ PLAT_INCLUDES		:=	-Iplat/rpi/common/include		\
 				-Iplat/rpi/rpi3/include
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
+				drivers/arm/pl011/aarch64/pl011_console.S \
+				drivers/gpio/gpio.c			\
+				drivers/delay_timer/delay_timer.c	\
+				drivers/rpi3/gpio/rpi3_gpio.c		\
 				plat/rpi/common/rpi3_common.c		\
 				${XLAT_TABLES_LIB_SRCS}
 
@@ -29,10 +33,7 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 				drivers/io/io_fip.c			\
 				drivers/io/io_memmap.c			\
 				drivers/io/io_storage.c			\
-				drivers/gpio/gpio.c			\
-				drivers/delay_timer/delay_timer.c	\
 				drivers/delay_timer/generic_delay_timer.c \
-				drivers/rpi3/gpio/rpi3_gpio.c		\
 				drivers/io/io_block.c			\
 				drivers/mmc/mmc.c			\
 				drivers/rpi3/sdhost/rpi3_sdhost.c	\

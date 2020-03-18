@@ -24,17 +24,6 @@
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 
-/* rpi3 GPIO setup function. */
-static void rpi3_gpio_setup(void)
-{
-	struct rpi3_gpio_params params;
-
-	memset(&params, 0, sizeof(struct rpi3_gpio_params));
-	params.reg_base = RPI3_GPIO_BASE;
-
-	rpi3_gpio_init(&params);
-}
-
 /* Data structure which holds the MMC info */
 static struct mmc_device_info mmc_info;
 
@@ -62,13 +51,13 @@ void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	meminfo_t *mem_layout = (meminfo_t *) arg1;
 
 	/* Initialize the console to provide early debug support */
-	rpi3_console_init(PLAT_RPI3_UART_CLK_IN_HZ);
+	rpi3_console_init();
 
 	/* Enable arch timer */
 	generic_delay_timer_init();
 
 	/* Setup GPIO driver */
-	rpi3_gpio_setup();
+	rpi3_gpio_init();
 
 	/* Setup the BL2 memory layout */
 	bl2_tzram_layout = *mem_layout;

@@ -13,7 +13,9 @@
 #include <common/debug.h>
 #include <bl31/interrupt_mgmt.h>
 #include <drivers/console.h>
+#include <drivers/rpi3/gpio/rpi3_gpio.h>
 #include <drivers/ti/uart/uart_16550.h>
+#include <drivers/arm/pl011.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include <rpi_hw.h>
@@ -104,16 +106,33 @@ static const mmap_region_t plat_rpi3_mmap[] = {
  ******************************************************************************/
 static console_t rpi3_console;
 
-void rpi3_console_init(unsigned int base_clk_rate)
+
+static bool rpi3_use_mini_uart(void)
+{
+	return rpi3_gpio_get_select(14) == RPI3_GPIO_FUNC_ALT5;
+}
+
+void rpi3_console_init(void)
 {
 	int console_scope = CONSOLE_FLAG_BOOT;
-#if RPI3_RUNTIME_UART != -1
-	console_scope |= CONSOLE_FLAG_RUNTIME;
-#endif
-	int rc = console_16550_register(PLAT_RPI3_UART_BASE,
-					base_clk_rate,
-					PLAT_RPI3_UART_BAUDRATE,
-					&rpi3_console);
+	int rc;
+
+	if (RPI3_RUNTIME_UART != -1)
+		console_scope |= CONSOLE_FLAG_RUNTIME;
+
+	rpi3_gpio_init();
+
+	if (rpi3_use_mini_uart())
+		rc = console_16550_register(PLAT_RPI_MINI_UART_BASE,
+					    0,
+					    PLAT_RPI_UART_BAUDRATE,
+					    &rpi3_console);
+	else
+		rc = console_pl011_register(PLAT_RPI_PL011_UART_BASE,
+					    PLAT_RPI_PL011_UART_CLOCK,
+					    PLAT_RPI_UART_BAUDRATE,
+					    &rpi3_console);
+
 	if (rc == 0) {
 		/*
 		 * The crash console doesn't use the multi console API, it uses
