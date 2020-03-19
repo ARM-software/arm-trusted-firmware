@@ -134,8 +134,7 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_SECURE_BOOTP_FCFG, val);
 
 		/* save MC context to TZDRAM */
-		mc_ctx_base = params_from_bl2->tzdram_base +
-				tegra186_get_mc_ctx_offset();
+		mc_ctx_base = params_from_bl2->tzdram_base;
 		tegra_mc_save_context((uintptr_t)mc_ctx_base);
 
 		/* Prepare for system suspend */
@@ -157,9 +156,6 @@ int32_t tegra_soc_pwr_domain_suspend(const psci_power_state_t *target_state)
 		/* Instruct the MCE to enter system suspend state */
 		(void)mce_command_handler((uint64_t)MCE_CMD_ENTER_CSTATE,
 			(uint64_t)TEGRA_ARI_CORE_C7, MCE_CORE_SLEEP_TIME_INFINITE, 0U);
-
-		/* set system suspend state for house-keeping */
-		tegra186_set_system_suspend_entry();
 
 	} else {
 		; /* do nothing */
@@ -289,7 +285,7 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 
 	if (stateid_afflvl2 == PSTATE_ID_SOC_POWERDN) {
 		val = params_from_bl2->tzdram_base +
-		      tegra186_get_cpu_reset_handler_size();
+			tegra186_get_mc_ctx_size();
 
 		/* Initialise communication channel with BPMP */
 		assert(tegra_bpmp_ipc_init() == 0);
@@ -316,9 +312,18 @@ int32_t tegra_soc_pwr_domain_power_down_wfi(const psci_power_state_t *target_sta
 		 * BL3-1 over to TZDRAM.
 		 */
 		val = params_from_bl2->tzdram_base +
-			tegra186_get_cpu_reset_handler_size();
+			tegra186_get_mc_ctx_size();
 		memcpy16((void *)(uintptr_t)val, (void *)(uintptr_t)BL31_BASE,
 			 (uintptr_t)BL31_END - (uintptr_t)BL31_BASE);
+
+		/*
+		 * Save code base and size; this would be used by SC7-RF to
+		 * verify binary
+		 */
+		mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV68_LO,
+				(uint32_t)val);
+		mmio_write_32(TEGRA_SCRATCH_BASE + SECURE_SCRATCH_RSV0_HI,
+				(uint32_t)src_len_in_bytes);
 
 		ret = tegra_bpmp_ipc_disable_clock(TEGRA186_CLK_SE);
 		if (ret != 0) {

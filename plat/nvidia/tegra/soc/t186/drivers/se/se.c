@@ -12,7 +12,6 @@
 #include <bpmp_ipc.h>
 #include <pmc.h>
 #include <security_engine.h>
-#include <tegra186_private.h>
 #include <tegra_private.h>
 
 #include "se_private.h"

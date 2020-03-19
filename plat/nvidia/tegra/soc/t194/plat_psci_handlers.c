@@ -368,7 +368,11 @@ int32_t tegra_soc_pwr_domain_on(u_register_t mpidr)
 
 int32_t tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 {
+	const plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
+	uint8_t enable_ccplex_lock_step = params_from_bl2->enable_ccplex_lock_step;
 	uint8_t stateid_afflvl2 = target_state->pwr_domain_state[PLAT_MAX_PWR_LVL];
+	cpu_context_t *ctx = cm_get_context(NON_SECURE);
+	uint64_t actlr_elx;
 
 	/*
 	 * Reset power state info for CPUs when onlining, we set
@@ -377,6 +381,10 @@ int32_t tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	 * will re-init this info from non-secure software when the
 	 * core come online.
 	 */
+	actlr_elx = read_ctx_reg((get_el1_sysregs_ctx(ctx)), (CTX_ACTLR_EL1));
+	actlr_elx &= ~DENVER_CPU_PMSTATE_MASK;
+	actlr_elx |= DENVER_CPU_PMSTATE_C1;
+	write_ctx_reg((get_el1_sysregs_ctx(ctx)), (CTX_ACTLR_EL1), (actlr_elx));
 
 	/*
 	 * Check if we are exiting from deep sleep and restore SE
@@ -446,13 +454,23 @@ int32_t tegra_soc_pwr_domain_on_finish(const psci_power_state_t *target_state)
 			mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
 				XUSB_PADCTL_DEV_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_DEV);
 		}
+	}
 
-		/*
-		 * Reset power state info for the last core doing SC7
-		 * entry and exit, we set deepest power state as CC7
-		 * and SC7 for SC7 entry which may not be requested by
-		 * non-secure SW which controls idle states.
-		 */
+	/*
+	 * Enable dual execution optimized translations for all ELx.
+	 */
+	if (enable_ccplex_lock_step != 0U) {
+		actlr_elx = read_actlr_el3();
+		actlr_elx |= DENVER_CPU_ENABLE_DUAL_EXEC_EL3;
+		write_actlr_el3(actlr_elx);
+
+		actlr_elx = read_actlr_el2();
+		actlr_elx |= DENVER_CPU_ENABLE_DUAL_EXEC_EL2;
+		write_actlr_el2(actlr_elx);
+
+		actlr_elx = read_actlr_el1();
+		actlr_elx |= DENVER_CPU_ENABLE_DUAL_EXEC_EL1;
+		write_actlr_el1(actlr_elx);
 	}
 
 	return PSCI_E_SUCCESS;

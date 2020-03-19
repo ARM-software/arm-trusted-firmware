@@ -201,6 +201,10 @@ void plat_enable_console(int32_t id)
  ******************************************************************************/
 void plat_early_platform_setup(void)
 {
+	const plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
+	uint8_t enable_ccplex_lock_step = params_from_bl2->enable_ccplex_lock_step;
+	uint64_t actlr_elx;
+
 	/* sanity check MCE firmware compatibility */
 	mce_verify_firmware_version();
 
@@ -249,6 +253,23 @@ void plat_early_platform_setup(void)
 			XUSB_PADCTL_HOST_AXI_STREAMID_VF_3, TEGRA_SID_XUSB_VF3);
 		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
 			XUSB_PADCTL_DEV_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_DEV);
+	}
+
+	/*
+	 * Enable dual execution optimized translations for all ELx.
+	 */
+	if (enable_ccplex_lock_step != 0U) {
+		actlr_elx = read_actlr_el3();
+		actlr_elx |= DENVER_CPU_ENABLE_DUAL_EXEC_EL3;
+		write_actlr_el3(actlr_elx);
+
+		actlr_elx = read_actlr_el2();
+		actlr_elx |= DENVER_CPU_ENABLE_DUAL_EXEC_EL2;
+		write_actlr_el2(actlr_elx);
+
+		actlr_elx = read_actlr_el1();
+		actlr_elx |= DENVER_CPU_ENABLE_DUAL_EXEC_EL1;
+		write_actlr_el1(actlr_elx);
 	}
 }
 
