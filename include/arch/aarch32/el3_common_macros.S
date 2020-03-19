@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -329,6 +329,11 @@
 		bl	inv_dcache_range
 #endif
 
+		/*
+		 * zeromem uses r12 whereas it is used to save previous BL arg3,
+		 * save it in r7
+		 */
+		mov	r7, r12
 		ldr	r0, =__BSS_START__
 		ldr	r1, =__BSS_SIZE__
 		bl	zeromem
@@ -338,6 +343,9 @@
 		ldr	r1, =__COHERENT_RAM_UNALIGNED_SIZE__
 		bl	zeromem
 #endif
+
+		/* Restore r12 */
+		mov	r12, r7
 
 #if defined(IMAGE_BL1) || (defined(IMAGE_BL2) && BL2_AT_EL3 && BL2_IN_XIP_MEM)
 		/* -----------------------------------------------------
