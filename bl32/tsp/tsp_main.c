@@ -371,12 +371,16 @@ tsp_args_t *tsp_smc_handler(uint64_t func,
 	tsp_stats[linear_id].smc_count++;
 	tsp_stats[linear_id].eret_count++;
 
+#if LOG_LEVEL >= LOG_LEVEL_INFO
+	spin_lock(&console_lock);
 	INFO("TSP: cpu 0x%lx received %s smc 0x%llx\n", read_mpidr(),
 		((func >> 31) & 1) == 1 ? "fast" : "yielding",
 		func);
 	INFO("TSP: cpu 0x%lx: %d smcs, %d erets\n", read_mpidr(),
 		tsp_stats[linear_id].smc_count,
 		tsp_stats[linear_id].eret_count);
+	spin_unlock(&console_lock);
+#endif
 
 	/* Render secure services and obtain results here */
 	results[0] = arg1;
