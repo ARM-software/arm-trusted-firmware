@@ -6,7 +6,7 @@
 /dts-v1/;
 
 / {
-	compatible = "spci-core-manifest-1.0";
+	compatible = "arm,spci-core-manifest-1.0";
 
 	attribute {
 		spmc_id = <0x8000>;
@@ -15,5 +15,53 @@
 		exec_state = <0x0>;
 		load_address = <0x0 0x6000000>;
 		entrypoint = <0x0 0x6000000>;
+	};
+
+	chosen {
+		linux,initrd-start = <0>;
+		linux,initrd-end = <0>;
+	};
+
+	hypervisor {
+		compatible = "hafnium,hafnium";
+		vm1 {
+			is_spci_partition;
+			debug_name = "cactus-primary";
+			load-addr = <0x7000000>;
+		};
+		vm2 {
+			is_spci_partition;
+			debug_name = "cactus-secondary";
+			load-addr = <0x7100000>;
+			vcpu_count = <2>;
+			mem_size = <1048576>;
+		};
+	};
+
+	cpus {
+		#address-cells = <0x2>;
+		#size-cells = <0x0>;
+
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <0x2>;
+				};
+			};
+		};
+
+		cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0 0x0>;
+			enable-method = "psci";
+			next-level-cache = <0xc>;
+			phandle = <0x2>;
+		};
+	};
+
+	memory@60000000 {
+		device_type = "memory";
+		reg = <0x6000000 0x2000000>; /* Trusted DRAM */
 	};
 };
