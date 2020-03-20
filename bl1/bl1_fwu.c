@@ -67,28 +67,32 @@ u_register_t bl1_fwu_smc_handler(unsigned int smc_fid,
 
 	switch (smc_fid) {
 	case FWU_SMC_IMAGE_COPY:
-		SMC_RET1(handle, bl1_fwu_image_copy(x1, x2, x3, x4, flags));
+		SMC_RET1(handle, bl1_fwu_image_copy((uint32_t)x1, x2,
+			(uint32_t)x3, (uint32_t)x4, flags));
 
 	case FWU_SMC_IMAGE_AUTH:
-		SMC_RET1(handle, bl1_fwu_image_auth(x1, x2, x3, flags));
+		SMC_RET1(handle, bl1_fwu_image_auth((uint32_t)x1, x2,
+			(uint32_t)x3, flags));
 
 	case FWU_SMC_IMAGE_EXECUTE:
-		SMC_RET1(handle, bl1_fwu_image_execute(x1, &handle, flags));
+		SMC_RET1(handle, bl1_fwu_image_execute((uint32_t)x1, &handle,
+			flags));
 
 	case FWU_SMC_IMAGE_RESUME:
-		SMC_RET1(handle, bl1_fwu_image_resume((register_t)x1, &handle, flags));
+		SMC_RET1(handle, bl1_fwu_image_resume((register_t)x1, &handle,
+			flags));
 
 	case FWU_SMC_SEC_IMAGE_DONE:
 		SMC_RET1(handle, bl1_fwu_sec_image_done(&handle, flags));
 
 	case FWU_SMC_IMAGE_RESET:
-		SMC_RET1(handle, bl1_fwu_image_reset(x1, flags));
+		SMC_RET1(handle, bl1_fwu_image_reset((uint32_t)x1, flags));
 
 	case FWU_SMC_UPDATE_DONE:
 		bl1_fwu_done((void *)x1, NULL);
 
 	default:
-		assert(0); /* Unreachable */
+		assert(false); /* Unreachable */
 		break;
 	}
 
@@ -159,14 +163,14 @@ static int bl1_fwu_remove_loaded_id(unsigned int image_id)
  ******************************************************************************/
 static int bl1_fwu_image_check_overlaps(unsigned int image_id)
 {
-	const image_desc_t *image_desc, *checked_image_desc;
+	const image_desc_t *desc, *checked_desc;
 	const image_info_t *info, *checked_info;
 
 	uintptr_t image_base, image_end;
 	uintptr_t checked_image_base, checked_image_end;
 
-	checked_image_desc = bl1_plat_get_image_desc(image_id);
-	checked_info = &checked_image_desc->image_info;
+	checked_desc = bl1_plat_get_image_desc(image_id);
+	checked_info = &checked_desc->image_info;
 
 	/* Image being checked mustn't be empty. */
 	assert(checked_info->image_size != 0);
@@ -182,12 +186,12 @@ static int bl1_fwu_image_check_overlaps(unsigned int image_id)
 				(bl1_fwu_loaded_ids[i] == image_id))
 			continue;
 
-		image_desc = bl1_plat_get_image_desc(bl1_fwu_loaded_ids[i]);
+		desc = bl1_plat_get_image_desc(bl1_fwu_loaded_ids[i]);
 
 		/* Only check images that are loaded or being loaded. */
-		assert (image_desc && image_desc->state != IMAGE_STATE_RESET);
+		assert ((desc != NULL) && (desc->state != IMAGE_STATE_RESET));
 
-		info = &image_desc->image_info;
+		info = &desc->image_info;
 
 		/* There cannot be overlaps with an empty image. */
 		if (info->image_size == 0)
@@ -203,10 +207,10 @@ static int bl1_fwu_image_check_overlaps(unsigned int image_id)
 		assert (image_end > image_base);
 
 		/* Check if there are overlaps. */
-		if (!(image_end < checked_image_base ||
-		    checked_image_end < image_base)) {
+		if (!((image_end < checked_image_base) ||
+		    (checked_image_end < image_base))) {
 			VERBOSE("Image with ID %d overlaps existing image with ID %d",
-				checked_image_desc->image_id, image_desc->image_id);
+				checked_desc->image_id, desc->image_id);
 			return -EPERM;
 		}
 	}
@@ -225,10 +229,11 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 {
 	uintptr_t dest_addr;
 	unsigned int remaining;
+	image_desc_t *desc;
 
 	/* Get the image descriptor. */
-	image_desc_t *image_desc = bl1_plat_get_image_desc(image_id);
-	if (!image_desc) {
+	desc = bl1_plat_get_image_desc(image_id);
+	if (desc == NULL) {
 		WARN("BL1-FWU: Invalid image ID %u\n", image_id);
 		return -EPERM;
 	}
@@ -241,66 +246,66 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 		WARN("BL1-FWU: Copy not allowed from secure world.\n");
 		return -EPERM;
 	}
-	if (GET_SECURITY_STATE(image_desc->ep_info.h.attr) == NON_SECURE) {
+	if (GET_SECURITY_STATE(desc->ep_info.h.attr) == NON_SECURE) {
 		WARN("BL1-FWU: Copy not allowed for non-secure images.\n");
 		return -EPERM;
 	}
 
 	/* Check whether the FWU state machine is in the correct state. */
-	if ((image_desc->state != IMAGE_STATE_RESET) &&
-	    (image_desc->state != IMAGE_STATE_COPYING)) {
+	if ((desc->state != IMAGE_STATE_RESET) &&
+	    (desc->state != IMAGE_STATE_COPYING)) {
 		WARN("BL1-FWU: Copy not allowed at this point of the FWU"
 			" process.\n");
 		return -EPERM;
 	}
 
-	if ((!image_src) || (!block_size) ||
+	if ((image_src == 0U) || (block_size == 0U) ||
 	    check_uptr_overflow(image_src, block_size - 1)) {
 		WARN("BL1-FWU: Copy not allowed due to invalid image source"
 			" or block size\n");
 		return -ENOMEM;
 	}
 
-	if (image_desc->state == IMAGE_STATE_COPYING) {
+	if (desc->state == IMAGE_STATE_COPYING) {
 		/*
 		 * There must have been at least 1 copy operation for this image
 		 * previously.
 		 */
-		assert(image_desc->copied_size != 0);
+		assert(desc->copied_size != 0U);
 		/*
 		 * The image size must have been recorded in the 1st copy
 		 * operation.
 		 */
-		image_size = image_desc->image_info.image_size;
+		image_size = desc->image_info.image_size;
 		assert(image_size != 0);
-		assert(image_desc->copied_size < image_size);
+		assert(desc->copied_size < image_size);
 
 		INFO("BL1-FWU: Continuing image copy in blocks\n");
-	} else { /* image_desc->state == IMAGE_STATE_RESET */
+	} else { /* desc->state == IMAGE_STATE_RESET */
 		INFO("BL1-FWU: Initial call to copy an image\n");
 
 		/*
 		 * image_size is relevant only for the 1st copy request, it is
 		 * then ignored for subsequent calls for this image.
 		 */
-		if (!image_size) {
+		if (image_size == 0) {
 			WARN("BL1-FWU: Copy not allowed due to invalid image"
 				" size\n");
 			return -ENOMEM;
 		}
 
 		/* Check that the image size to load is within limit */
-		if (image_size > image_desc->image_info.image_max_size) {
+		if (image_size > desc->image_info.image_max_size) {
 			WARN("BL1-FWU: Image size out of bounds\n");
 			return -ENOMEM;
 		}
 
 		/* Save the given image size. */
-		image_desc->image_info.image_size = image_size;
+		desc->image_info.image_size = image_size;
 
 		/* Make sure the image doesn't overlap other images. */
-		if (bl1_fwu_image_check_overlaps(image_id)) {
-			image_desc->image_info.image_size = 0;
+		if (bl1_fwu_image_check_overlaps(image_id) != 0) {
+			desc->image_info.image_size = 0;
 			WARN("BL1-FWU: This image overlaps another one\n");
 			return -EPERM;
 		}
@@ -310,32 +315,32 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 		 * FWU code doesn't necessarily do it when it resets the state
 		 * machine.
 		 */
-		image_desc->copied_size = 0;
+		desc->copied_size = 0;
 	}
 
 	/*
 	 * If the given block size is more than the total image size
 	 * then clip the former to the latter.
 	 */
-	remaining = image_size - image_desc->copied_size;
+	remaining = image_size - desc->copied_size;
 	if (block_size > remaining) {
 		WARN("BL1-FWU: Block size is too big, clipping it.\n");
 		block_size = remaining;
 	}
 
 	/* Make sure the source image is mapped in memory. */
-	if (bl1_plat_mem_check(image_src, block_size, flags)) {
+	if (bl1_plat_mem_check(image_src, block_size, flags) != 0) {
 		WARN("BL1-FWU: Source image is not mapped.\n");
 		return -ENOMEM;
 	}
 
-	if (bl1_fwu_add_loaded_id(image_id)) {
+	if (bl1_fwu_add_loaded_id(image_id) != 0) {
 		WARN("BL1-FWU: Too many images loaded at the same time.\n");
 		return -ENOMEM;
 	}
 
 	/* Allow the platform to handle pre-image load before copying */
-	if (image_desc->state == IMAGE_STATE_RESET) {
+	if (desc->state == IMAGE_STATE_RESET) {
 		if (bl1_plat_handle_pre_image_load(image_id) != 0) {
 			ERROR("BL1-FWU: Failure in pre-image load of image id %d\n",
 					image_id);
@@ -344,12 +349,12 @@ static int bl1_fwu_image_copy(unsigned int image_id,
 	}
 
 	/* Everything looks sane. Go ahead and copy the block of data. */
-	dest_addr = image_desc->image_info.image_base + image_desc->copied_size;
-	memcpy((void *) dest_addr, (const void *) image_src, block_size);
+	dest_addr = desc->image_info.image_base + desc->copied_size;
+	(void)memcpy((void *) dest_addr, (const void *) image_src, block_size);
 	flush_dcache_range(dest_addr, block_size);
 
-	image_desc->copied_size += block_size;
-	image_desc->state = (block_size == remaining) ?
+	desc->copied_size += block_size;
+	desc->state = (block_size == remaining) ?
 		IMAGE_STATE_COPIED : IMAGE_STATE_COPYING;
 
 	INFO("BL1-FWU: Copy operation successful.\n");
@@ -367,27 +372,28 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 	int result;
 	uintptr_t base_addr;
 	unsigned int total_size;
+	image_desc_t *desc;
 
 	/* Get the image descriptor. */
-	image_desc_t *image_desc = bl1_plat_get_image_desc(image_id);
-	if (!image_desc)
+	desc = bl1_plat_get_image_desc(image_id);
+	if (desc ==  NULL)
 		return -EPERM;
 
 	if (GET_SECURITY_STATE(flags) == SECURE) {
-		if (image_desc->state != IMAGE_STATE_RESET) {
+		if (desc->state != IMAGE_STATE_RESET) {
 			WARN("BL1-FWU: Authentication from secure world "
 				"while in invalid state\n");
 			return -EPERM;
 		}
 	} else {
-		if (GET_SECURITY_STATE(image_desc->ep_info.h.attr) == SECURE) {
-			if (image_desc->state != IMAGE_STATE_COPIED) {
+		if (GET_SECURITY_STATE(desc->ep_info.h.attr) == SECURE) {
+			if (desc->state != IMAGE_STATE_COPIED) {
 				WARN("BL1-FWU: Authentication of secure image "
 					"from non-secure world while not in copied state\n");
 				return -EPERM;
 			}
 		} else {
-			if (image_desc->state != IMAGE_STATE_RESET) {
+			if (desc->state != IMAGE_STATE_RESET) {
 				WARN("BL1-FWU: Authentication of non-secure image "
 					"from non-secure world while in invalid state\n");
 				return -EPERM;
@@ -395,15 +401,15 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 		}
 	}
 
-	if (image_desc->state == IMAGE_STATE_COPIED) {
+	if (desc->state == IMAGE_STATE_COPIED) {
 		/*
 		 * Image is in COPIED state.
 		 * Use the stored address and size.
 		 */
-		base_addr = image_desc->image_info.image_base;
-		total_size = image_desc->image_info.image_size;
+		base_addr = desc->image_info.image_base;
+		total_size = desc->image_info.image_size;
 	} else {
-		if ((!image_src) || (!image_size) ||
+		if ((image_src == 0U) || (image_size == 0U) ||
 		    check_uptr_overflow(image_src, image_size - 1)) {
 			WARN("BL1-FWU: Auth not allowed due to invalid"
 				" image source/size\n");
@@ -415,12 +421,12 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 		 * Check the parameters and authenticate the source image in place.
 		 */
 		if (bl1_plat_mem_check(image_src, image_size,	\
-					image_desc->ep_info.h.attr)) {
+					desc->ep_info.h.attr) != 0) {
 			WARN("BL1-FWU: Authentication arguments source/size not mapped\n");
 			return -ENOMEM;
 		}
 
-		if (bl1_fwu_add_loaded_id(image_id)) {
+		if (bl1_fwu_add_loaded_id(image_id) != 0) {
 			WARN("BL1-FWU: Too many images loaded at the same time.\n");
 			return -ENOMEM;
 		}
@@ -429,7 +435,7 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 		total_size = image_size;
 
 		/* Update the image size in the descriptor. */
-		image_desc->image_info.image_size = total_size;
+		desc->image_info.image_size = total_size;
 	}
 
 	/*
@@ -446,13 +452,13 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 		 * This is to prevent an attack where this contains
 		 * some malicious code that can somehow be executed later.
 		 */
-		if (image_desc->state == IMAGE_STATE_COPIED) {
+		if (desc->state == IMAGE_STATE_COPIED) {
 			/* Clear the memory.*/
 			zero_normalmem((void *)base_addr, total_size);
 			flush_dcache_range(base_addr, total_size);
 
 			/* Indicate that image can be copied again*/
-			image_desc->state = IMAGE_STATE_RESET;
+			desc->state = IMAGE_STATE_RESET;
 		}
 
 		/*
@@ -460,12 +466,12 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 		 * The image cannot be in RESET state here, it is checked at the
 		 * beginning of the function.
 		 */
-		bl1_fwu_remove_loaded_id(image_id);
+		(void)bl1_fwu_remove_loaded_id(image_id);
 		return -EAUTH;
 	}
 
 	/* Indicate that image is in authenticated state. */
-	image_desc->state = IMAGE_STATE_AUTHENTICATED;
+	desc->state = IMAGE_STATE_AUTHENTICATED;
 
 	/* Allow the platform to handle post-image load */
 	result = bl1_plat_handle_post_image_load(image_id);
@@ -483,7 +489,7 @@ static int bl1_fwu_image_auth(unsigned int image_id,
 	 * Flush image_info to memory so that other
 	 * secure world images can see changes.
 	 */
-	flush_dcache_range((uintptr_t)&image_desc->image_info,
+	flush_dcache_range((uintptr_t)&desc->image_info,
 		sizeof(image_info_t));
 
 	INFO("BL1-FWU: Authentication was successful\n");
@@ -499,7 +505,7 @@ static int bl1_fwu_image_execute(unsigned int image_id,
 			unsigned int flags)
 {
 	/* Get the image descriptor. */
-	image_desc_t *image_desc = bl1_plat_get_image_desc(image_id);
+	image_desc_t *desc = bl1_plat_get_image_desc(image_id);
 
 	/*
 	 * Execution is NOT allowed if:
@@ -509,11 +515,11 @@ static int bl1_fwu_image_execute(unsigned int image_id,
 	 * Image is Non-Executable OR
 	 * Image is NOT in AUTHENTICATED state.
 	 */
-	if ((!image_desc) ||
+	if ((desc == NULL) ||
 	    (GET_SECURITY_STATE(flags) == SECURE) ||
-	    (GET_SECURITY_STATE(image_desc->ep_info.h.attr) == NON_SECURE) ||
-	    (EP_GET_EXE(image_desc->ep_info.h.attr) == NON_EXECUTABLE) ||
-	    (image_desc->state != IMAGE_STATE_AUTHENTICATED)) {
+	    (GET_SECURITY_STATE(desc->ep_info.h.attr) == NON_SECURE) ||
+	    (EP_GET_EXE(desc->ep_info.h.attr) == NON_EXECUTABLE) ||
+	    (desc->state != IMAGE_STATE_AUTHENTICATED)) {
 		WARN("BL1-FWU: Execution not allowed due to invalid state/args\n");
 		return -EPERM;
 	}
@@ -547,37 +553,37 @@ static register_t bl1_fwu_image_resume(register_t image_param,
 			void **handle,
 			unsigned int flags)
 {
-	image_desc_t *image_desc;
+	image_desc_t *desc;
 	unsigned int resume_sec_state;
 	unsigned int caller_sec_state = GET_SECURITY_STATE(flags);
 
 	/* Get the image descriptor for last executed secure image id. */
-	image_desc = bl1_plat_get_image_desc(sec_exec_image_id);
+	desc = bl1_plat_get_image_desc(sec_exec_image_id);
 	if (caller_sec_state == NON_SECURE) {
-		if (!image_desc) {
+		if (desc == NULL) {
 			WARN("BL1-FWU: Resume not allowed due to no available"
 				"secure image\n");
 			return -EPERM;
 		}
 	} else {
-		/* image_desc must be valid for secure world callers */
-		assert(image_desc);
+		/* desc must be valid for secure world callers */
+		assert(desc != NULL);
 	}
 
-	assert(GET_SECURITY_STATE(image_desc->ep_info.h.attr) == SECURE);
-	assert(EP_GET_EXE(image_desc->ep_info.h.attr) == EXECUTABLE);
+	assert(GET_SECURITY_STATE(desc->ep_info.h.attr) == SECURE);
+	assert(EP_GET_EXE(desc->ep_info.h.attr) == EXECUTABLE);
 
 	if (caller_sec_state == SECURE) {
-		assert(image_desc->state == IMAGE_STATE_EXECUTED);
+		assert(desc->state == IMAGE_STATE_EXECUTED);
 
 		/* Update the flags. */
-		image_desc->state = IMAGE_STATE_INTERRUPTED;
+		desc->state = IMAGE_STATE_INTERRUPTED;
 		resume_sec_state = NON_SECURE;
 	} else {
-		assert(image_desc->state == IMAGE_STATE_INTERRUPTED);
+		assert(desc->state == IMAGE_STATE_INTERRUPTED);
 
 		/* Update the flags. */
-		image_desc->state = IMAGE_STATE_EXECUTED;
+		desc->state = IMAGE_STATE_EXECUTED;
 		resume_sec_state = SECURE;
 	}
 
@@ -612,7 +618,7 @@ static register_t bl1_fwu_image_resume(register_t image_param,
  ******************************************************************************/
 static int bl1_fwu_sec_image_done(void **handle, unsigned int flags)
 {
-	image_desc_t *image_desc;
+	image_desc_t *desc;
 
 	/* Make sure caller is from the secure world */
 	if (GET_SECURITY_STATE(flags) == NON_SECURE) {
@@ -621,13 +627,13 @@ static int bl1_fwu_sec_image_done(void **handle, unsigned int flags)
 	}
 
 	/* Get the image descriptor for last executed secure image id */
-	image_desc = bl1_plat_get_image_desc(sec_exec_image_id);
+	desc = bl1_plat_get_image_desc(sec_exec_image_id);
 
-	/* image_desc must correspond to a valid secure executing image */
-	assert(image_desc);
-	assert(GET_SECURITY_STATE(image_desc->ep_info.h.attr) == SECURE);
-	assert(EP_GET_EXE(image_desc->ep_info.h.attr) == EXECUTABLE);
-	assert(image_desc->state == IMAGE_STATE_EXECUTED);
+	/* desc must correspond to a valid secure executing image */
+	assert(desc != NULL);
+	assert(GET_SECURITY_STATE(desc->ep_info.h.attr) == SECURE);
+	assert(EP_GET_EXE(desc->ep_info.h.attr) == EXECUTABLE);
+	assert(desc->state == IMAGE_STATE_EXECUTED);
 
 #if ENABLE_ASSERTIONS
 	int rc = bl1_fwu_remove_loaded_id(sec_exec_image_id);
@@ -637,7 +643,7 @@ static int bl1_fwu_sec_image_done(void **handle, unsigned int flags)
 #endif
 
 	/* Update the flags. */
-	image_desc->state = IMAGE_STATE_RESET;
+	desc->state = IMAGE_STATE_RESET;
 	sec_exec_image_id = INVALID_IMAGE_ID;
 
 	INFO("BL1-FWU: Resuming Normal world context\n");
@@ -676,7 +682,7 @@ __dead2 static void bl1_fwu_done(void *client_cookie, void *reserved)
 	 * Call platform done function.
 	 */
 	bl1_plat_fwu_done(client_cookie, reserved);
-	assert(0);
+	assert(false);
 }
 
 /*******************************************************************************
@@ -685,14 +691,14 @@ __dead2 static void bl1_fwu_done(void *client_cookie, void *reserved)
  ******************************************************************************/
 static int bl1_fwu_image_reset(unsigned int image_id, unsigned int flags)
 {
-	image_desc_t *image_desc = bl1_plat_get_image_desc(image_id);
+	image_desc_t *desc = bl1_plat_get_image_desc(image_id);
 
-	if ((!image_desc) || (GET_SECURITY_STATE(flags) == SECURE)) {
+	if ((desc == NULL) || (GET_SECURITY_STATE(flags) == SECURE)) {
 		WARN("BL1-FWU: Reset not allowed due to invalid args\n");
 		return -EPERM;
 	}
 
-	switch (image_desc->state) {
+	switch (desc->state) {
 
 	case IMAGE_STATE_RESET:
 		/* Nothing to do. */
@@ -703,25 +709,26 @@ static int bl1_fwu_image_reset(unsigned int image_id, unsigned int flags)
 	case IMAGE_STATE_COPIED:
 	case IMAGE_STATE_COPYING:
 
-		if (bl1_fwu_remove_loaded_id(image_id)) {
+		if (bl1_fwu_remove_loaded_id(image_id) != 0) {
 			WARN("BL1-FWU: Image reset couldn't find the image ID\n");
 			return -EPERM;
 		}
 
-		if (image_desc->copied_size) {
+		if (desc->copied_size != 0U) {
 			/* Clear the memory if the image is copied */
-			assert(GET_SECURITY_STATE(image_desc->ep_info.h.attr) == SECURE);
+			assert(GET_SECURITY_STATE(desc->ep_info.h.attr)
+				== SECURE);
 
-			zero_normalmem((void *)image_desc->image_info.image_base,
-					image_desc->copied_size);
-			flush_dcache_range(image_desc->image_info.image_base,
-					image_desc->copied_size);
+			zero_normalmem((void *)desc->image_info.image_base,
+					desc->copied_size);
+			flush_dcache_range(desc->image_info.image_base,
+					desc->copied_size);
 		}
 
 		/* Reset status variables */
-		image_desc->copied_size = 0;
-		image_desc->image_info.image_size = 0;
-		image_desc->state = IMAGE_STATE_RESET;
+		desc->copied_size = 0;
+		desc->image_info.image_size = 0;
+		desc->state = IMAGE_STATE_RESET;
 
 		/* Clear authentication state */
 		auth_img_flags[image_id] = 0;
@@ -730,7 +737,7 @@ static int bl1_fwu_image_reset(unsigned int image_id, unsigned int flags)
 
 	case IMAGE_STATE_EXECUTED:
 	default:
-		assert(0); /* Unreachable */
+		assert(false); /* Unreachable */
 		break;
 	}
 
