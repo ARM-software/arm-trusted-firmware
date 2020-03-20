@@ -26,9 +26,6 @@ Code Locations
 -  l-loader:
    `link <https://github.com/96boards-hikey/l-loader/tree/testing/hikey960_v1.2>`__
 
--  uefi-tools:
-   `link <https://git.linaro.org/uefi/uefi-tools.git>`__
-
 -  atf-fastboot:
    `link <https://github.com/96boards-hikey/atf-fastboot/tree/master>`__
 
@@ -45,7 +42,6 @@ Build Procedure
        git clone https://github.com/96boards-hikey/edk2 -b testing/hikey960_v2.5
        git clone https://github.com/96boards-hikey/OpenPlatformPkg -b testing/hikey960_v1.3.4
        git clone https://github.com/96boards-hikey/l-loader -b testing/hikey960_v1.2
-       git clone https://git.linaro.org/uefi/uefi-tools
        git clone https://github.com/96boards-hikey/atf-fastboot
 
 -  Create the symbol link to OpenPlatformPkg in edk2.
@@ -57,13 +53,12 @@ Build Procedure
 
 -  Prepare AARCH64 && AARCH32 toolchain. Prepare python.
 
--  If your hikey hardware is built by CircuitCo, update *uefi-tools/platform.config* first. *(optional)*
-   **Uncomment the below sentence. Otherwise, UEFI can't output messages on serial
+-  If your hikey hardware is built by CircuitCo, update *OpenPlatformPkg/Platforms/Hisilicon/HiKey/HiKey.dsc* first. *(optional)*
    console on hikey.**
 
    .. code:: shell
 
-       BUILDFLAGS=-DSERIAL_BASE=0xF8015000
+       DEFINE SERIAL_BASE=0xF8015000
 
    If your hikey hardware is built by LeMaker, nothing to do.
 
@@ -71,19 +66,8 @@ Build Procedure
 
    .. code:: shell
 
-       BUILD_OPTION=DEBUG
-       export AARCH64_TOOLCHAIN=GCC5
-       export UEFI_TOOLS_DIR=${BUILD_PATH}/uefi-tools
-       export EDK2_DIR=${BUILD_PATH}/edk2
-       EDK2_OUTPUT_DIR=${EDK2_DIR}/Build/HiKey/${BUILD_OPTION}_${AARCH64_TOOLCHAIN}
-       # Build fastboot for Trusted Firmware-A. It's used for recovery mode.
-       cd ${BUILD_PATH}/atf-fastboot
-       CROSS_COMPILE=aarch64-linux-gnu- make PLAT=hikey DEBUG=1
-       # Convert DEBUG/RELEASE to debug/release
-       FASTBOOT_BUILD_OPTION=$(echo ${BUILD_OPTION} | tr '[A-Z]' '[a-z]')
-       cd ${EDK2_DIR}
-       # Build UEFI & Trusted Firmware-A
-       ${UEFI_TOOLS_DIR}/uefi-build.sh -b ${BUILD_OPTION} -a ../arm-trusted-firmware -s ../optee_os hikey
+       cd {BUILD_PATH}/arm-trusted-firmware
+       sh ../l-loader/build_uefi.sh hikey
 
 -  Generate l-loader.bin and partition table for aosp. The eMMC capacity is either 8GB or 4GB. Just change "aosp-8g" to "linux-8g" for debian.
 
