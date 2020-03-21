@@ -140,11 +140,14 @@ static int rpi3_pwr_domain_on(u_register_t mpidr)
 {
 	int rc = PSCI_E_SUCCESS;
 	unsigned int pos = plat_core_pos_by_mpidr(mpidr);
-	uint64_t *hold_base = (uint64_t *)PLAT_RPI3_TM_HOLD_BASE;
+	uintptr_t hold_base = PLAT_RPI3_TM_HOLD_BASE;
 
 	assert(pos < PLATFORM_CORE_COUNT);
 
-	hold_base[pos] = PLAT_RPI3_TM_HOLD_STATE_GO;
+	hold_base += pos * PLAT_RPI3_TM_HOLD_ENTRY_SIZE;
+
+	mmio_write_64(hold_base, PLAT_RPI3_TM_HOLD_STATE_GO);
+	/* No cache maintenance here, hold_base is mapped as device memory. */
 
 	/* Make sure that the write has completed */
 	dsb();
