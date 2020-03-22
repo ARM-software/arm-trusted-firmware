@@ -187,6 +187,34 @@ march64-directive	= 	-march=armv8.${ARM_ARCH_MINOR}-a
 endif
 endif
 
+# Memory tagging is supported in architecture Armv8.5-A AArch64 and onwards
+ifeq ($(ARCH), aarch64)
+ifeq ($(shell test $(ARM_ARCH_MAJOR) -gt 8; echo $$?),0)
+mem_tag_arch_support	= 	yes
+else ifeq ($(shell test $(ARM_ARCH_MAJOR) -eq 8 -a $(ARM_ARCH_MINOR) -ge 5; \
+	   echo $$?),0)
+mem_tag_arch_support	= 	yes
+endif
+endif
+
+# Enabled required option for memory stack tagging. Currently, these options are
+# enabled only for clang and armclang compiler.
+ifeq (${SUPPORT_STACK_MEMTAG},yes)
+ifdef mem_tag_arch_support
+ifneq ( ,$(filter $(notdir $(CC)),armclang clang))
+march64-directive       =       -march=armv${ARM_ARCH_MAJOR}.${ARM_ARCH_MINOR}-a+memtag
+ifeq ($(notdir $(CC)),armclang)
+TF_CFLAGS		+=	-mmemtag-stack
+else ifeq ($(notdir $(CC)),clang)
+TF_CFLAGS		+=	-fsanitize=memtag
+endif
+endif
+else
+$(error "Error: stack memory tagging is not supported for architecture \
+	${ARCH},armv${ARM_ARCH_MAJOR}.${ARM_ARCH_MINOR}-a")
+endif
+endif
+
 ifneq ($(findstring armclang,$(notdir $(CC))),)
 TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi $(march32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi $(march64-directive)

@@ -667,6 +667,11 @@ Common build options
    cluster platforms). If this option is enabled, then warm boot path
    enables D-caches immediately after enabling MMU. This option defaults to 0.
 
+-  ``SUPPORT_STACK_MEMTAG``: This flag determines whether to enable memory
+   tagging for stack or not. It accepts 2 values: ``yes`` and ``no``. The
+   default value of this flag is ``no``. Note this option must be enabled only
+   for ARM architecture greater than Armv8.5-A.
+
 GICv3 driver options
 --------------------
 
