@@ -173,7 +173,7 @@ typedef struct pmf_svc_desc {
 			unsigned int tid,				\
 			unsigned long long ts)				\
 	{								\
-		CASSERT(_flags, select_proper_config);			\
+		CASSERT(_flags != 0, select_proper_config);		\
 		PMF_VALIDATE_TID(_name, tid);				\
 		uintptr_t base_addr = (uintptr_t) pmf_ts_mem_ ## _name;	\
 		if (((_flags) & PMF_STORE_ENABLE) != 0)			\
@@ -185,7 +185,7 @@ typedef struct pmf_svc_desc {
 			unsigned int tid,				\
 			unsigned long long ts)				\
 	{								\
-		CASSERT(_flags, select_proper_config);			\
+		CASSERT(_flags != 0, select_proper_config);		\
 		PMF_VALIDATE_TID(_name, tid);				\
 		uintptr_t base_addr = (uintptr_t) pmf_ts_mem_ ## _name;	\
 		if (((_flags) & PMF_STORE_ENABLE) != 0)			\
