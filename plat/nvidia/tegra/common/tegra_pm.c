@@ -152,15 +152,17 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	const plat_params_from_bl2_t *plat_params;
 
 	/*
-	 * Initialize the GIC cpu and distributor interfaces
-	 */
-	tegra_gic_pcpu_init();
-
-	/*
 	 * Check if we are exiting from deep sleep.
 	 */
 	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] ==
 			PSTATE_ID_SOC_POWERDN) {
+
+		/*
+		 * On entering System Suspend state, the GIC loses power
+		 * completely. Initialize the GIC global distributor and
+		 * GIC cpu interfaces.
+		 */
+		tegra_gic_init();
 
 		/* Restart console output. */
 		console_switch_state(CONSOLE_FLAG_RUNTIME);
@@ -183,6 +185,11 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 		 * access
 		 */
 		tegra_memctrl_tzram_setup(TEGRA_TZRAM_BASE, TEGRA_TZRAM_SIZE);
+	} else {
+		/*
+		 * Initialize the GIC cpu and distributor interfaces
+		 */
+		tegra_gic_pcpu_init();
 	}
 
 	/*
