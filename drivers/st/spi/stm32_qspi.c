@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2020, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -12,6 +12,7 @@
 #include <drivers/delay_timer.h>
 #include <drivers/spi_mem.h>
 #include <drivers/st/stm32_gpio.h>
+#include <drivers/st/stm32_qspi.h>
 #include <drivers/st/stm32mp_reset.h>
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
@@ -172,9 +173,8 @@ static void stm32_qspi_write_fifo(uint8_t *val, uintptr_t addr)
 static int stm32_qspi_poll(const struct spi_mem_op *op)
 {
 	void (*fifo)(uint8_t *val, uintptr_t addr);
-	uint32_t len = op->data.nbytes;
+	uint32_t len;
 	uint8_t *buf;
-	uint64_t timeout;
 
 	if (op->data.dir == SPI_MEM_DATA_IN) {
 		fifo = stm32_qspi_read_fifo;
@@ -185,7 +185,8 @@ static int stm32_qspi_poll(const struct spi_mem_op *op)
 	buf = (uint8_t *)op->data.buf;
 
 	for (len = op->data.nbytes; len != 0U; len--) {
-		timeout = timeout_init_us(QSPI_FIFO_TIMEOUT_US);
+		uint64_t timeout = timeout_init_us(QSPI_FIFO_TIMEOUT_US);
+
 		while ((mmio_read_32(qspi_base() + QSPI_SR) &
 			QSPI_SR_FTF) == 0U) {
 			if (timeout_elapsed(timeout)) {

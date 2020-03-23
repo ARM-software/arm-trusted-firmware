@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2020, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -365,7 +365,7 @@ static int stm32_fmc2_ham_correct(uint8_t *buffer, uint8_t *eccbuffer,
 	xor_ecc_2b = ecc[1] ^ eccbuffer[1];
 	xor_ecc_3b = ecc[2] ^ eccbuffer[2];
 
-	xor_ecc.val = 0L;
+	xor_ecc.val = 0U;
 	xor_ecc.bytes[2] = xor_ecc_3b;
 	xor_ecc.bytes[1] = xor_ecc_2b;
 	xor_ecc.bytes[0] = xor_ecc_1b;

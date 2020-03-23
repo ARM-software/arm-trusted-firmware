@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -92,6 +92,7 @@ uint8_t fdt_get_status(int node)
 	return status;
 }
 
+#if ENABLE_ASSERTIONS
 /*******************************************************************************
  * This function returns the address cells from the node parent.
  * Returns:
@@ -100,7 +101,7 @@ uint8_t fdt_get_status(int node)
  * - a default value if undefined #address-cells property as per libfdt
  *   implementation.
  ******************************************************************************/
-int fdt_get_node_parent_address_cells(int node)
+static int fdt_get_node_parent_address_cells(int node)
 {
 	int parent;
 
@@ -120,7 +121,7 @@ int fdt_get_node_parent_address_cells(int node)
  * - a default value if undefined #size-cells property as per libfdt
  *   implementation.
  ******************************************************************************/
-int fdt_get_node_parent_size_cells(int node)
+static int fdt_get_node_parent_size_cells(int node)
 {
 	int parent;
 
@@ -131,6 +132,7 @@ int fdt_get_node_parent_size_cells(int node)
 
 	return fdt_size_cells(fdt, parent);
 }
+#endif
 
 /*******************************************************************************
  * This function reads a value of a node property (generic use of fdt
@@ -467,7 +469,7 @@ uint32_t dt_get_pwr_vdd_voltage(void)
 	}
 
 	pwr_regulators_node = fdt_subnode_offset(fdt, node, "pwr-regulators");
-	if (node < 0) {
+	if (pwr_regulators_node < 0) {
 		INFO("%s: Cannot read pwr-regulators node in DT\n", __func__);
 		return 0;
 	}
