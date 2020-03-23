@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# GIC-600 configuration
+GICV3_IMPL_GIC600_MULTICHIP	:=	1
+
 include plat/arm/css/sgi/sgi-common.mk
 
 RDN1EDGE_BASE		=	plat/arm/board/rdn1edge
@@ -26,7 +29,6 @@ BL31_SOURCES		+=	${SGI_CPU_SOURCES}			\
 				${RDN1EDGE_BASE}/rdn1edge_plat.c	\
 				${RDN1EDGE_BASE}/rdn1edge_topology.c	\
 				drivers/cfi/v2m/v2m_flash.c		\
-				drivers/arm/gic/v3/gic600_multichip.c	\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c
 

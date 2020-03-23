@@ -22,15 +22,15 @@ INTERCONNECT_SOURCES	:=	${CSS_ENT_BASE}/sgi_interconnect.c
 
 PLAT_INCLUDES		+=	-I${CSS_ENT_BASE}/include
 
-ENT_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
-				drivers/arm/gic/v3/gicv3_main.c		\
-				drivers/arm/gic/v3/gicv3_helpers.c	\
-				drivers/arm/gic/v3/gicdv3_helpers.c	\
-				drivers/arm/gic/v3/gicrv3_helpers.c	\
-				plat/common/plat_gicv3.c		\
-				plat/arm/common/arm_gicv3.c		\
-				drivers/arm/gic/v3/gic600.c
+# GIC-600 configuration
+GICV3_IMPL			:=	GIC600
 
+# Include GICv3 driver files
+include drivers/arm/gic/v3/gicv3.mk
+
+ENT_GIC_SOURCES		:=	${GICV3_SOURCES}		\
+				plat/common/plat_gicv3.c	\
+				plat/arm/common/arm_gicv3.c
 
 PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/sgi_plat.c	\
 				${CSS_ENT_BASE}/aarch64/sgi_helper.S

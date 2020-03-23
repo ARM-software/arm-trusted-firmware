@@ -48,21 +48,23 @@ endif
 
 $(eval $(call add_define,FVP_INTERCONNECT_DRIVER))
 
-FVP_GICV3_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
-				drivers/arm/gic/v3/gicv3_main.c		\
-				drivers/arm/gic/v3/gicv3_helpers.c	\
-				drivers/arm/gic/v3/gicdv3_helpers.c	\
-				drivers/arm/gic/v3/gicrv3_helpers.c	\
+# Choose the GIC sources depending upon the how the FVP will be invoked
+ifeq (${FVP_USE_GIC_DRIVER},$(filter ${FVP_USE_GIC_DRIVER},FVP_GICV3 FVP_GIC600))
+	ifeq (${FVP_USE_GIC_DRIVER}, FVP_GIC600)
+		GICV3_IMPL	:=	GIC600
+	endif
+
+# GIC500 is the default option in case GICV3_IMPL is not set
+
+GICV3_OVERRIDE_DISTIF_PWR_OPS	:=	1
+
+# Include GICv3 driver files
+include drivers/arm/gic/v3/gicv3.mk
+
+FVP_GIC_SOURCES		:=	${GICV3_SOURCES}			\
 				plat/common/plat_gicv3.c		\
 				plat/arm/common/arm_gicv3.c
 
-# Choose the GIC sources depending upon the how the FVP will be invoked
-ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV3)
-FVP_GIC_SOURCES		:=	${FVP_GICV3_SOURCES}			\
-				drivers/arm/gic/v3/gic500.c
-else ifeq (${FVP_USE_GIC_DRIVER},FVP_GIC600)
-FVP_GIC_SOURCES		:=	${FVP_GICV3_SOURCES}			\
-				drivers/arm/gic/v3/gic600.c
 else ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV2)
 FVP_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
