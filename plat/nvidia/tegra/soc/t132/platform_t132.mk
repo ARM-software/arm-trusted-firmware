@@ -20,6 +20,9 @@ $(eval $(call add_define,MAX_XLAT_TABLES))
 MAX_MMAP_REGIONS		:= 8
 $(eval $(call add_define,MAX_MMAP_REGIONS))
 
+# platform files
+PLAT_INCLUDES		+=	-Iplat/nvidia/tegra/include/t132
+
 BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S		\
 				lib/cpus/aarch64/denver.S		\
 				${COMMON_DIR}/drivers/flowctrl/flowctrl.c	\

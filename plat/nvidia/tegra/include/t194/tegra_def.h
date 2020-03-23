@@ -10,6 +10,12 @@
 #include <lib/utils_def.h>
 
 /*******************************************************************************
+ * Chip specific cluster and cpu numbers
+ ******************************************************************************/
+#define PLATFORM_CLUSTER_COUNT		U(4)
+#define PLATFORM_MAX_CPUS_PER_CLUSTER	U(2)
+
+/*******************************************************************************
  * Chip specific page table and MMU setup constants
  ******************************************************************************/
 #define PLAT_PHY_ADDR_SPACE_SIZE	(ULL(1) << 40)

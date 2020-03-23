@@ -23,10 +23,10 @@ $(eval $(call add_define,MAX_XLAT_TABLES))
 MAX_MMAP_REGIONS			:= 16
 $(eval $(call add_define,MAX_MMAP_REGIONS))
 
-ENABLE_WDT_LEGACY_FIQ_HANDLING		:= 1
-$(eval $(call add_define,ENABLE_WDT_LEGACY_FIQ_HANDLING))
+ENABLE_TEGRA_WDT_LEGACY_FIQ_HANDLING	:= 1
 
-PLAT_INCLUDES		+=	-I${SOC_DIR}/drivers/se
+PLAT_INCLUDES		+=	-Iplat/nvidia/tegra/include/t210 \
+				-I${SOC_DIR}/drivers/se
 
 BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S		\
 				lib/cpus/aarch64/cortex_a53.S			\

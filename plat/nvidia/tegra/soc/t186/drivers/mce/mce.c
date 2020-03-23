@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -383,14 +384,6 @@ int32_t mce_update_gsc_videomem(void)
 int32_t mce_update_gsc_tzdram(void)
 {
 	return mce_update_ccplex_gsc(TEGRA_ARI_GSC_TZ_DRAM_IDX);
-}
-
-/*******************************************************************************
- * Handler to update carveout values for TZ SysRAM aperture
- ******************************************************************************/
-int32_t mce_update_gsc_tzram(void)
-{
-	return mce_update_ccplex_gsc(TEGRA_ARI_GSC_TZRAM);
 }
 
 /*******************************************************************************

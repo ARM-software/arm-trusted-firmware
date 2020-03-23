@@ -16,11 +16,13 @@
 #include <common/runtime_svc.h>
 #include <tegra_private.h>
 #include <tegra_platform.h>
+#include <smmu.h>
 #include <stdbool.h>
 
 /*******************************************************************************
  * Tegra194 SiP SMCs
  ******************************************************************************/
+#define TEGRA_SIP_GET_SMMU_PER		0xC200FF00U
 
 /*******************************************************************************
  * This function is responsible for handling all T194 SiP calls
@@ -34,13 +36,43 @@ int32_t plat_sip_handler(uint32_t smc_fid,
 		     void *handle,
 		     uint64_t flags)
 {
-	int32_t ret = -ENOTSUP;
+	int32_t ret = 0;
+	uint32_t i, smmu_per[6] = {0};
+	uint32_t num_smmu_devices = plat_get_num_smmu_devices();
+	uint64_t per[3] = {0ULL};
 
-	(void)smc_fid;
 	(void)x1;
 	(void)x4;
 	(void)cookie;
 	(void)flags;
+
+	switch (smc_fid) {
+	case TEGRA_SIP_GET_SMMU_PER:
+
+		/* make sure we dont go past the array length */
+		assert(num_smmu_devices <= ARRAY_SIZE(smmu_per));
+
+		/* read all supported SMMU_PER records */
+		for (i = 0U; i < num_smmu_devices; i++) {
+			smmu_per[i] = tegra_smmu_read_32(i, SMMU_GSR0_PER);
+		}
+
+		/* pack results into 3 64bit variables. */
+		per[0] = smmu_per[0] | ((uint64_t)smmu_per[1] << 32U);
+		per[1] = smmu_per[2] | ((uint64_t)smmu_per[3] << 32U);
+		per[2] = smmu_per[4] | ((uint64_t)smmu_per[5] << 32U);
+
+		/* provide the results via X1-X3 CPU registers */
+		write_ctx_reg(get_gpregs_ctx(handle), CTX_GPREG_X1, per[0]);
+		write_ctx_reg(get_gpregs_ctx(handle), CTX_GPREG_X2, per[1]);
+		write_ctx_reg(get_gpregs_ctx(handle), CTX_GPREG_X3, per[2]);
+
+		break;
+
+	default:
+		ret = -ENOTSUP;
+		break;
+	}
 
 	return ret;
 }

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +12,19 @@
 #include <lib/utils_def.h>
 
 #include <tegra_def.h>
+
+/*******************************************************************************
+ * Check and error if SEPARATE_CODE_AND_RODATA is not set to 1
+ ******************************************************************************/
+#if !SEPARATE_CODE_AND_RODATA
+#error "SEPARATE_CODE_AND_RODATA should be set to 1"
+#endif
+
+/*
+ * Platform binary types for linking
+ */
+#define PLATFORM_LINKER_FORMAT		"elf64-littleaarch64"
+#define PLATFORM_LINKER_ARCH		aarch64
 
 /*
  * Platform binary types for linking
@@ -33,7 +47,7 @@
 #define PLATFORM_CORE_COUNT		(PLATFORM_CLUSTER_COUNT * \
 					 PLATFORM_MAX_CPUS_PER_CLUSTER)
 #define PLAT_NUM_PWR_DOMAINS		(PLATFORM_CORE_COUNT + \
-					 PLATFORM_CLUSTER_COUNT + 1)
+					 PLATFORM_CLUSTER_COUNT + U(1))
 
 /*******************************************************************************
  * Platform console related constants
@@ -71,5 +85,6 @@
  ******************************************************************************/
 #define MAX_IO_DEVICES			U(0)
 #define MAX_IO_HANDLES			U(0)
+
 
 #endif /* PLATFORM_DEF_H */
