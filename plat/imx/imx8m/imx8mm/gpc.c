@@ -19,46 +19,7 @@
 #include <gpc.h>
 #include <imx_sip_svc.h>
 
-#define MIPI_PWR_REQ		BIT(0)
-#define PCIE_PWR_REQ		BIT(1)
-#define OTG1_PWR_REQ		BIT(2)
-#define OTG2_PWR_REQ		BIT(3)
-#define HSIOMIX_PWR_REQ		BIT(4)
-#define GPU2D_PWR_REQ		BIT(6)
-#define GPUMIX_PWR_REQ		BIT(7)
-#define VPUMIX_PWR_REQ		BIT(8)
-#define GPU3D_PWR_REQ		BIT(9)
-#define DISPMIX_PWR_REQ		BIT(10)
-#define VPU_G1_PWR_REQ		BIT(11)
-#define VPU_G2_PWR_REQ		BIT(12)
-#define VPU_H1_PWR_REQ		BIT(13)
-
-#define HSIOMIX_ADB400_SYNC	(0x3 << 5)
-#define DISPMIX_ADB400_SYNC	BIT(7)
-#define VPUMIX_ADB400_SYNC	BIT(8)
-#define GPU3D_ADB400_SYNC	BIT(9)
-#define GPU2D_ADB400_SYNC	BIT(10)
-#define GPUMIX_ADB400_SYNC	BIT(11)
-#define HSIOMIX_ADB400_ACK	(0x3 << 23)
-#define DISPMIX_ADB400_ACK	BIT(25)
-#define VPUMIX_ADB400_ACK	BIT(26)
-#define GPU3D_ADB400_ACK	BIT(27)
-#define GPU2D_ADB400_ACK	BIT(28)
-#define GPUMIX_ADB400_ACK	BIT(29)
-
-#define MIPI_PGC		0xc00
-#define PCIE_PGC		0xc40
-#define OTG1_PGC		0xc80
-#define OTG2_PGC		0xcc0
-#define HSIOMIX_PGC	        0xd00
-#define GPU2D_PGC		0xd80
-#define GPUMIX_PGC		0xdc0
-#define VPUMIX_PGC		0xe00
-#define GPU3D_PGC		0xe40
-#define DISPMIX_PGC		0xe80
-#define VPU_G1_PGC		0xec0
-#define VPU_G2_PGC		0xf00
-#define VPU_H1_PGC		0xf40
+#define CCGR(x)		(0x4000 + (x) * 16)
 
 enum pu_domain_id {
 	HSIOMIX,
