@@ -44,6 +44,22 @@ static entry_point_info_t bl33_image_ep_info;
 			(SC_PAD_28FDSOI_DSE_DV_LOW << PADRING_DSE_SHIFT) | \
 			(SC_PAD_28FDSOI_PS_PD << PADRING_PULL_SHIFT))
 
+#if defined(IMX_USE_UART0)
+#define IMX_RES_UART			SC_R_UART_0
+#define IMX_PAD_UART_RX			SC_P_UART0_RX
+#define IMX_PAD_UART_TX			SC_P_UART0_TX
+#define IMX_PAD_UART_RTS_B		SC_P_UART0_RTS_B
+#define IMX_PAD_UART_CTS_B		SC_P_UART0_CTS_B
+#elif defined(IMX_USE_UART1)
+#define IMX_RES_UART			SC_R_UART_1
+#define IMX_PAD_UART_RX			SC_P_UART1_RX
+#define IMX_PAD_UART_TX			SC_P_UART1_TX
+#define IMX_PAD_UART_RTS_B		SC_P_UART1_RTS_B
+#define IMX_PAD_UART_CTS_B		SC_P_UART1_CTS_B
+#else
+#error "Provide proper UART number in IMX_DEBUG_UART"
+#endif
+
 const static int imx8qm_cci_map[] = {
 	CLUSTER0_CCI_SLVAE_IFACE,
 	CLUSTER1_CCI_SLVAE_IFACE
@@ -79,7 +95,7 @@ static void lpuart32_serial_setbrg(unsigned int base, int baudrate)
 	if (baudrate == 0)
 		panic();
 
-	sc_pm_get_clock_rate(ipc_handle, SC_R_UART_0, 2, &rate);
+	sc_pm_get_clock_rate(ipc_handle, IMX_RES_UART, 2, &rate);
 
 	baud_diff = baudrate;
 	osr = 0;
@@ -301,16 +317,17 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 
 #if DEBUG_CONSOLE_A53
-	sc_pm_set_resource_power_mode(ipc_handle, SC_R_UART_0, SC_PM_PW_MODE_ON);
+	sc_pm_set_resource_power_mode(ipc_handle, IMX_RES_UART,
+				      SC_PM_PW_MODE_ON);
 	sc_pm_clock_rate_t rate = 80000000;
-	sc_pm_set_clock_rate(ipc_handle, SC_R_UART_0, 2, &rate);
-	sc_pm_clock_enable(ipc_handle, SC_R_UART_0, 2, true, false);
+	sc_pm_set_clock_rate(ipc_handle, IMX_RES_UART, 2, &rate);
+	sc_pm_clock_enable(ipc_handle, IMX_RES_UART, 2, true, false);
 
 	/* configure UART pads */
-	sc_pad_set(ipc_handle, SC_P_UART0_RX, UART_PAD_CTRL);
-	sc_pad_set(ipc_handle, SC_P_UART0_TX, UART_PAD_CTRL);
-	sc_pad_set(ipc_handle, SC_P_UART0_RTS_B, UART_PAD_CTRL);
-	sc_pad_set(ipc_handle, SC_P_UART0_CTS_B, UART_PAD_CTRL);
+	sc_pad_set(ipc_handle, IMX_PAD_UART_RX, UART_PAD_CTRL);
+	sc_pad_set(ipc_handle, IMX_PAD_UART_TX, UART_PAD_CTRL);
+	sc_pad_set(ipc_handle, IMX_PAD_UART_RTS_B, UART_PAD_CTRL);
+	sc_pad_set(ipc_handle, IMX_PAD_UART_CTS_B, UART_PAD_CTRL);
 	lpuart32_serial_init(IMX_BOOT_UART_BASE);
 #endif
 

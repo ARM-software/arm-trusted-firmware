@@ -43,3 +43,9 @@ ERRATA_A72_859971	:=	1
 ERRATA_A53_835769	:=	1
 ERRATA_A53_843419	:=	1
 ERRATA_A53_855873	:=	1
+
+IMX_DEBUG_UART		?= 	0
+$(eval $(call add_define,IMX_USE_UART${IMX_DEBUG_UART}))
+
+DEBUG_CONSOLE		?= 	0
+$(eval $(call add_define,DEBUG_CONSOLE))
