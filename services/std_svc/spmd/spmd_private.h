@@ -78,11 +78,14 @@ extern const spd_pm_ops_t spmd_pm;
 /* SPMC entry point information helper */
 entry_point_info_t *spmd_spmc_ep_info_get(void);
 
+/* SPMC ID getter */
+uint16_t spmd_spmc_id_get(void);
+
 /* SPMC context on current CPU get helper */
 spmd_spm_core_context_t *spmd_get_context(void);
 
-int32_t spmd_pm_secondary_core_set_ep(uint64_t mpidr, uintptr_t entry_point,
-				      uint64_t context);
+int spmd_pm_secondary_core_set_ep(unsigned long long mpidr,
+		uintptr_t entry_point, unsigned long long context);
 bool spmd_check_address_in_binary_image(uint64_t address);
 
 #endif /* __ASSEMBLER__ */

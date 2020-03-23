@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <lib/el3_runtime/context_mgmt.h>
 #include "spmd_private.h"
 
 struct spmd_pm_secondary_ep_t {
@@ -17,10 +18,25 @@ struct spmd_pm_secondary_ep_t {
 static struct spmd_pm_secondary_ep_t spmd_pm_secondary_ep[PLATFORM_CORE_COUNT];
 
 /*******************************************************************************
+ * spmd_build_spmc_message
+ *
+ * Builds an SPMD to SPMC direct message request.
+ ******************************************************************************/
+static void spmd_build_spmc_message(gp_regs_t *gpregs, unsigned long long message)
+{
+	write_ctx_reg(gpregs, CTX_GPREG_X0, FFA_MSG_SEND_DIRECT_REQ_SMC32);
+	write_ctx_reg(gpregs, CTX_GPREG_X1,
+		(SPMD_DIRECT_MSG_ENDPOINT_ID << FFA_DIRECT_MSG_SOURCE_SHIFT) |
+		spmd_spmc_id_get());
+	write_ctx_reg(gpregs, CTX_GPREG_X2, FFA_PARAM_MBZ);
+	write_ctx_reg(gpregs, CTX_GPREG_X3, message);
+}
+
+/*******************************************************************************
  * spmd_pm_secondary_core_set_ep
  ******************************************************************************/
-int32_t spmd_pm_secondary_core_set_ep(uint64_t mpidr, uintptr_t entry_point,
-				      uint64_t context)
+int spmd_pm_secondary_core_set_ep(unsigned long long mpidr,
+		uintptr_t entry_point, unsigned long long context)
 {
 	int id = plat_core_pos_by_mpidr(mpidr);
 
@@ -63,21 +79,77 @@ int32_t spmd_pm_secondary_core_set_ep(uint64_t mpidr, uintptr_t entry_point,
  ******************************************************************************/
 static void spmd_cpu_on_finish_handler(u_register_t unused)
 {
-	unsigned int linear_id = plat_my_core_pos();
+	entry_point_info_t *spmc_ep_info = spmd_spmc_ep_info_get();
 	spmd_spm_core_context_t *ctx = spmd_get_context();
+	unsigned int linear_id = plat_my_core_pos();
 	int rc;
 
+	assert(ctx != NULL);
 	assert(ctx->state != SPMC_STATE_ON);
+	assert(spmc_ep_info != NULL);
+
+	/*
+	 * TODO: this might require locking the spmc_ep_info structure,
+	 * or provisioning one structure per cpu
+	 */
+	if (spmd_pm_secondary_ep[linear_id].entry_point == 0) {
+		goto exit;
+	}
+
+	spmc_ep_info->pc = spmd_pm_secondary_ep[linear_id].entry_point;
+	cm_setup_context(&ctx->cpu_ctx, spmc_ep_info);
+	write_ctx_reg(get_gpregs_ctx(&ctx->cpu_ctx), CTX_GPREG_X0,
+		      spmd_pm_secondary_ep[linear_id].context);
+
+	/* Mark CPU as initiating ON operation */
+	ctx->state = SPMC_STATE_ON_PENDING;
 
 	rc = spmd_spm_core_sync_entry(ctx);
 	if (rc != 0) {
-		ERROR("SPMC initialisation failed (%d) on CPU%u\n", rc,
-		      linear_id);
+		ERROR("%s failed failed (%d) on CPU%u\n", __func__, rc,
+			linear_id);
 		ctx->state = SPMC_STATE_OFF;
 		return;
 	}
 
+exit:
 	ctx->state = SPMC_STATE_ON;
+
+	VERBOSE("CPU %u on!\n", linear_id);
+}
+
+/*******************************************************************************
+ * spmd_cpu_off_handler
+ ******************************************************************************/
+static int32_t spmd_cpu_off_handler(u_register_t unused)
+{
+	spmd_spm_core_context_t *ctx = spmd_get_context();
+	unsigned int linear_id = plat_my_core_pos();
+	int32_t rc;
+
+	assert(ctx != NULL);
+	assert(ctx->state != SPMC_STATE_OFF);
+
+	if (spmd_pm_secondary_ep[linear_id].entry_point == 0) {
+		goto exit;
+	}
+
+	/* Build an SPMD to SPMC direct message request. */
+	spmd_build_spmc_message(get_gpregs_ctx(&ctx->cpu_ctx), PSCI_CPU_OFF);
+
+	rc = spmd_spm_core_sync_entry(ctx);
+	if (rc != 0) {
+		ERROR("%s failed (%d) on CPU%u\n", __func__, rc, linear_id);
+	}
+
+	/* TODO expect FFA_DIRECT_MSG_RESP returned from SPMC */
+
+exit:
+	ctx->state = SPMC_STATE_OFF;
+
+	VERBOSE("CPU %u off!\n", linear_id);
+
+	return 0;
 }
 
 /*******************************************************************************
@@ -86,4 +158,5 @@ static void spmd_cpu_on_finish_handler(u_register_t unused)
  ******************************************************************************/
 const spd_pm_ops_t spmd_pm = {
 	.svc_on_finish = spmd_cpu_on_finish_handler,
+	.svc_off = spmd_cpu_off_handler
 };
