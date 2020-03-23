@@ -38,7 +38,15 @@
 
 #define PLAT_GICD_BASE			0x51a00000
 #define PLAT_GICR_BASE			0x51b00000
+
+#if defined(IMX_USE_UART0)
 #define IMX_BOOT_UART_BASE		0x5a060000
+#elif defined(IMX_USE_UART3)
+#define IMX_BOOT_UART_BASE		0x5a090000
+#else
+#error "Provide proper UART configuration in IMX_DEBUG_UART"
+#endif
+
 #define IMX_BOOT_UART_BAUDRATE		115200
 #define IMX_BOOT_UART_CLK_IN_HZ		24000000
 #define PLAT_CRASH_UART_BASE		IMX_BOOT_UART_BASE
@@ -55,8 +63,6 @@
 
 /* non-secure u-boot base */
 #define PLAT_NS_IMAGE_OFFSET		0x80020000
-
-#define DEBUG_CONSOLE			0
-#define DEBUG_CONSOLE_A35		0
+#define DEBUG_CONSOLE_A35		DEBUG_CONSOLE
 
 #endif /* PLATFORM_DEF_H */

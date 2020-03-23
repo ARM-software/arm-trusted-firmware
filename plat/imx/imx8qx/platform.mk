@@ -35,3 +35,9 @@ include plat/imx/common/sci/sci_api.mk
 
 USE_COHERENT_MEM	:=	1
 RESET_TO_BL31		:=	1
+
+IMX_DEBUG_UART		?= 	0
+$(eval $(call add_define,IMX_USE_UART${IMX_DEBUG_UART}))
+
+DEBUG_CONSOLE		?= 	0
+$(eval $(call add_define,DEBUG_CONSOLE))
