@@ -1,9 +1,10 @@
 /*
- * Copyright (c) 2016-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <errno.h>
 #include <string.h>
 
 #include <common/debug.h>
@@ -653,6 +654,7 @@ int stpmic1_regulator_voltage_get(const char *name)
 	const struct regul_struct *regul = get_regulator_data(name);
 	uint8_t value;
 	uint8_t mask;
+	int status;
 
 	/* Voltage can be set for buck<N> or ldo<N> (except ldo4) regulators */
 	if (strncmp(name, "buck", 4) == 0) {
@@ -664,13 +666,16 @@ int stpmic1_regulator_voltage_get(const char *name)
 		return 0;
 	}
 
-	if (stpmic1_register_read(regul->control_reg, &value))
-		return -1;
+	status = stpmic1_register_read(regul->control_reg, &value);
+	if (status < 0) {
+		return status;
+	}
 
 	value = (value & mask) >> LDO_BUCK_VOLTAGE_SHIFT;
 
-	if (value > regul->voltage_table_size)
-		return -1;
+	if (value > regul->voltage_table_size) {
+		return -ERANGE;
+	}
 
 	return (int)regul->voltage_table[value];
 }
@@ -706,7 +711,7 @@ int stpmic1_register_write(uint8_t register_id, uint8_t value)
 		}
 
 		if (readval != value) {
-			return -1;
+			return -EIO;
 		}
 	}
 #endif
@@ -751,12 +756,12 @@ void stpmic1_dump_regulators(void)
 
 int stpmic1_get_version(unsigned long *version)
 {
-	int rc;
 	uint8_t read_val;
+	int status;
 
-	rc = stpmic1_register_read(VERSION_STATUS_REG, &read_val);
-	if (rc) {
-		return -1;
+	status = stpmic1_register_read(VERSION_STATUS_REG, &read_val);
+	if (status < 0) {
+		return status;
 	}
 
 	*version = (unsigned long)read_val;
