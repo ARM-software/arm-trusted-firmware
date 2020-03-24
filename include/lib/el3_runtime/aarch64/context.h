@@ -183,7 +183,7 @@
 #define CTX_SPSR_EL2		U(0xd0)
 #define CTX_SP_EL2		U(0xd8)
 #define CTX_TCR_EL2		U(0xe0)
-#define CTX_TRFCR_EL2		U(0xe8)
+#define CTX_TPIDR_EL2		U(0xe8)
 #define CTX_TTBR0_EL2		U(0xf0)
 #define CTX_VBAR_EL2		U(0xf8)
 #define CTX_VMPIDR_EL2		U(0x100)
@@ -234,11 +234,13 @@
 #define CTX_VSESR_EL2		U(0x228)
 #define CTX_VSTCR_EL2		U(0x230)
 #define CTX_VSTTBR_EL2		U(0x238)
+#define CTX_TRFCR_EL2		U(0x240)
 
 // Starting with Armv8.5
-#define CTX_SCXTNUM_EL2		U(0x240)
+#define CTX_SCXTNUM_EL2		U(0x248)
 /* Align to the next 16 byte boundary */
 #define CTX_EL2_SYSREGS_END	U(0x250)
+
 #endif /* CTX_INCLUDE_EL2_REGS */
 
 /*******************************************************************************

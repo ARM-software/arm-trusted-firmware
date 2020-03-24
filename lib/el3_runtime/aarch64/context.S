@@ -100,7 +100,7 @@ func el2_sysregs_context_save
 	stp	x10, x11, [x0, #CTX_SPSR_EL2]
 
 	mrs	x12, tcr_el2
-	mrs	x13, TRFCR_EL2
+	mrs	x13, tpidr_el2
 	stp	x12, x13, [x0, #CTX_TCR_EL2]
 
 	mrs	x14, ttbr0_el2
@@ -204,11 +204,14 @@ func el2_sysregs_context_save
 
 	mrs	x16, vsttbr_el2
 	str	x16, [x0, #CTX_VSTTBR_EL2]
+
+	mrs	x17, TRFCR_EL2
+	str	x17, [x0, #CTX_TRFCR_EL2]
 #endif
 
 #if ARM_ARCH_AT_LEAST(8, 5)
-	mrs	x17, scxtnum_el2
-	str	x17, [x0, #CTX_SCXTNUM_EL2]
+	mrs	x9, scxtnum_el2
+	str	x9, [x0, #CTX_SCXTNUM_EL2]
 #endif
 
 	ret
@@ -289,7 +292,7 @@ func el2_sysregs_context_restore
 
 	ldp	x12, x13, [x0, #CTX_TCR_EL2]
 	msr	tcr_el2, x12
-	msr	TRFCR_EL2, x13
+	msr	tpidr_el2, x13
 
 	ldp	x14, x15, [x0, #CTX_TTBR0_EL2]
 	msr	ttbr0_el2, x14
@@ -391,11 +394,14 @@ func el2_sysregs_context_restore
 
 	ldr	x16, [x0, #CTX_VSTTBR_EL2]
 	msr	vsttbr_el2, x16
+
+	ldr	x17, [x0, #CTX_TRFCR_EL2]
+	msr	TRFCR_EL2, x17
 #endif
 
 #if ARM_ARCH_AT_LEAST(8, 5)
-	ldr	x17, [x0, #CTX_SCXTNUM_EL2]
-	msr	scxtnum_el2, x17
+	ldr	x9, [x0, #CTX_SCXTNUM_EL2]
+	msr	scxtnum_el2, x9
 #endif
 
 	ret
