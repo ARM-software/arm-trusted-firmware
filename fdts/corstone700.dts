@@ -15,8 +15,6 @@
 
 	chosen {
 		bootargs = "console=ttyAMA0 \
-		root=mtd:physmap-flash.0 \
-		ro \
 		loglevel=9";
 	};
 
