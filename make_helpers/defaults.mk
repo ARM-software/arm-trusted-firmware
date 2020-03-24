@@ -223,7 +223,7 @@ USE_COHERENT_MEM		:= 1
 USE_DEBUGFS			:= 0
 
 # Build option to fconf based io
-USE_FCONF_BASED_IO		:= 0
+ARM_IO_IN_DTB		:= 0
 
 # Build option to choose whether Trusted Firmware uses library at ROM
 USE_ROMLIB			:= 0

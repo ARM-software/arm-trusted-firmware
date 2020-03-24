@@ -622,8 +622,8 @@ Common build options
    exposing a virtual filesystem interface through BL31 as a SiP SMC function.
    Default is 0.
 
--  ``USE_FCONF_BASED_IO``: This flag determines whether to use IO based on the
-   firmware configuration framework. This allows moving the io_policies into a
+-  ``ARM_IO_IN_DTB``: This flag determines whether to use IO based on the
+   firmware configuration framework. This will move the io_policies into a
    configuration device tree, instead of static structure in the code base.
 
 

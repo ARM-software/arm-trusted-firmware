@@ -364,7 +364,8 @@ endif
 endif
 
 DTC_FLAGS		+=	-I dts -O dtb
-DTC_CPPFLAGS		+=	-P -nostdinc -Iinclude -Ifdts -undef -x assembler-with-cpp
+DTC_CPPFLAGS		+=	-P -nostdinc -Iinclude -Ifdts -undef \
+				-x assembler-with-cpp $(DEFINES)
 
 ################################################################################
 # Common sources and include directories
@@ -826,7 +827,7 @@ $(eval $(call assert_boolean,SPMD_SPM_AT_SEL2))
 $(eval $(call assert_boolean,TRUSTED_BOARD_BOOT))
 $(eval $(call assert_boolean,USE_COHERENT_MEM))
 $(eval $(call assert_boolean,USE_DEBUGFS))
-$(eval $(call assert_boolean,USE_FCONF_BASED_IO))
+$(eval $(call assert_boolean,ARM_IO_IN_DTB))
 $(eval $(call assert_boolean,USE_ROMLIB))
 $(eval $(call assert_boolean,USE_TBBR_DEFS))
 $(eval $(call assert_boolean,WARMBOOT_ENABLE_DCACHE_EARLY))
@@ -904,7 +905,7 @@ $(eval $(call add_define,SPMD_SPM_AT_SEL2))
 $(eval $(call add_define,TRUSTED_BOARD_BOOT))
 $(eval $(call add_define,USE_COHERENT_MEM))
 $(eval $(call add_define,USE_DEBUGFS))
-$(eval $(call add_define,USE_FCONF_BASED_IO))
+$(eval $(call add_define,ARM_IO_IN_DTB))
 $(eval $(call add_define,USE_ROMLIB))
 $(eval $(call add_define,USE_TBBR_DEFS))
 $(eval $(call add_define,WARMBOOT_ENABLE_DCACHE_EARLY))

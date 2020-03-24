@@ -25,8 +25,31 @@ const io_block_spec_t fip_block_spec = {
 const io_uuid_spec_t arm_uuid_spec[MAX_NUMBER_IDS] = {
 	[BL2_IMAGE_ID] = {UUID_TRUSTED_BOOT_FIRMWARE_BL2},
 	[TB_FW_CONFIG_ID] = {UUID_TB_FW_CONFIG},
+#if !ARM_IO_IN_DTB
+	[SCP_BL2_IMAGE_ID] = {UUID_SCP_FIRMWARE_SCP_BL2},
+	[BL31_IMAGE_ID] = {UUID_EL3_RUNTIME_FIRMWARE_BL31},
+	[BL32_IMAGE_ID] = {UUID_SECURE_PAYLOAD_BL32},
+	[BL32_EXTRA1_IMAGE_ID] = {UUID_SECURE_PAYLOAD_BL32_EXTRA1},
+	[BL32_EXTRA2_IMAGE_ID] = {UUID_SECURE_PAYLOAD_BL32_EXTRA2},
+	[BL33_IMAGE_ID] = {UUID_NON_TRUSTED_FIRMWARE_BL33},
+	[HW_CONFIG_ID] = {UUID_HW_CONFIG},
+	[SOC_FW_CONFIG_ID] = {UUID_SOC_FW_CONFIG},
+	[TOS_FW_CONFIG_ID] = {UUID_TOS_FW_CONFIG},
+	[NT_FW_CONFIG_ID] = {UUID_NT_FW_CONFIG},
+#endif /* ARM_IO_IN_DTB */
 #if TRUSTED_BOARD_BOOT
 	[TRUSTED_BOOT_FW_CERT_ID] = {UUID_TRUSTED_BOOT_FW_CERT},
+#if !ARM_IO_IN_DTB
+	[TRUSTED_KEY_CERT_ID] = {UUID_TRUSTED_KEY_CERT},
+	[SCP_FW_KEY_CERT_ID] = {UUID_SCP_FW_KEY_CERT},
+	[SOC_FW_KEY_CERT_ID] = {UUID_SOC_FW_KEY_CERT},
+	[TRUSTED_OS_FW_KEY_CERT_ID] = {UUID_TRUSTED_OS_FW_KEY_CERT},
+	[NON_TRUSTED_FW_KEY_CERT_ID] = {UUID_NON_TRUSTED_FW_KEY_CERT},
+	[SCP_FW_CONTENT_CERT_ID] = {UUID_SCP_FW_CONTENT_CERT},
+	[SOC_FW_CONTENT_CERT_ID] = {UUID_SOC_FW_CONTENT_CERT},
+	[TRUSTED_OS_FW_CONTENT_CERT_ID] = {UUID_TRUSTED_OS_FW_CONTENT_CERT},
+	[NON_TRUSTED_FW_CONTENT_CERT_ID] = {UUID_NON_TRUSTED_FW_CONTENT_CERT},
+#endif /* ARM_IO_IN_DTB */
 #endif /* TRUSTED_BOARD_BOOT */
 };
 
@@ -47,12 +70,111 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 		(uintptr_t)&arm_uuid_spec[TB_FW_CONFIG_ID],
 		open_fip
 	},
+#if !ARM_IO_IN_DTB
+	[SCP_BL2_IMAGE_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[SCP_BL2_IMAGE_ID],
+		open_fip
+	},
+	[BL31_IMAGE_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[BL31_IMAGE_ID],
+		open_fip
+	},
+	[BL32_IMAGE_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[BL32_IMAGE_ID],
+		open_fip
+	},
+	[BL32_EXTRA1_IMAGE_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[BL32_EXTRA1_IMAGE_ID],
+		open_fip
+	},
+	[BL32_EXTRA2_IMAGE_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[BL32_EXTRA2_IMAGE_ID],
+		open_fip
+	},
+	[BL33_IMAGE_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[BL33_IMAGE_ID],
+		open_fip
+	},
+	[HW_CONFIG_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[HW_CONFIG_ID],
+		open_fip
+	},
+	[SOC_FW_CONFIG_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[SOC_FW_CONFIG_ID],
+		open_fip
+	},
+	[TOS_FW_CONFIG_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[TOS_FW_CONFIG_ID],
+		open_fip
+	},
+	[NT_FW_CONFIG_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[NT_FW_CONFIG_ID],
+		open_fip
+	},
+#endif /* ARM_IO_IN_DTB */
 #if TRUSTED_BOARD_BOOT
 	[TRUSTED_BOOT_FW_CERT_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&arm_uuid_spec[TRUSTED_BOOT_FW_CERT_ID],
 		open_fip
 	},
+#if !ARM_IO_IN_DTB
+	[TRUSTED_KEY_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[TRUSTED_KEY_CERT_ID],
+		open_fip
+	},
+	[SCP_FW_KEY_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[SCP_FW_KEY_CERT_ID],
+		open_fip
+	},
+	[SOC_FW_KEY_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[SOC_FW_KEY_CERT_ID],
+		open_fip
+	},
+	[TRUSTED_OS_FW_KEY_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[TRUSTED_OS_FW_KEY_CERT_ID],
+		open_fip
+	},
+	[NON_TRUSTED_FW_KEY_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[NON_TRUSTED_FW_KEY_CERT_ID],
+		open_fip
+	},
+	[SCP_FW_CONTENT_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[SCP_FW_CONTENT_CERT_ID],
+		open_fip
+	},
+	[SOC_FW_CONTENT_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[SOC_FW_CONTENT_CERT_ID],
+		open_fip
+	},
+	[TRUSTED_OS_FW_CONTENT_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[TRUSTED_OS_FW_CONTENT_CERT_ID],
+		open_fip
+	},
+	[NON_TRUSTED_FW_CONTENT_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[NON_TRUSTED_FW_CONTENT_CERT_ID],
+		open_fip
+	},
+#endif /* ARM_IO_IN_DTB */
 #endif /* TRUSTED_BOARD_BOOT */
 };
 
@@ -138,6 +260,8 @@ int fconf_populate_arm_io_policies(uintptr_t config)
 	return 0;
 }
 
+#if ARM_IO_IN_DTB
 FCONF_REGISTER_POPULATOR(TB_FW, arm_io, fconf_populate_arm_io_policies);
+#endif /* ARM_IO_IN_DTB */
 
 #endif /* IMAGE_BL2 */
