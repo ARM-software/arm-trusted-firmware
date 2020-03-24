@@ -938,13 +938,18 @@ $(eval $(call add_define,USE_ARM_LINK))
 endif
 
 # Generate and include sp_gen.mk if SPD is spmd and SP_LAYOUT_FILE is defined
-ifdef SP_LAYOUT_FILE
 ifeq (${SPD},spmd)
+ifdef SP_LAYOUT_FILE
+        ifeq (${SPMD_SPM_AT_SEL2},0)
+            $(error "SPMD with SPM at S-EL1 does not require SP_LAYOUT_FILE")
+        endif
         -include $(BUILD_PLAT)/sp_gen.mk
         FIP_DEPS += sp
         NEED_SP_PKG := yes
 else
-        $(error "SP_LAYOUT_FILE will be used only if SPD=spmd")
+        ifeq (${SPMD_SPM_AT_SEL2},1)
+            $(error "SPMD with SPM at S-EL2 require SP_LAYOUT_FILE")
+        endif
 endif
 endif
 

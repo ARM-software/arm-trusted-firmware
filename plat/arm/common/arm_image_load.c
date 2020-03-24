@@ -32,11 +32,11 @@ void plat_flush_next_bl_params(void)
 		next_bl_params_cpy_ptr);
 }
 
-#if defined(SPD_spmd)
+#if defined(SPD_spmd) && SPMD_SPM_AT_SEL2
 /*******************************************************************************
  * This function appends Secure Partitions to list of loadable images.
  ******************************************************************************/
-void plat_add_sp_images_load_info(struct bl_load_info *load_info)
+static void plat_add_sp_images_load_info(struct bl_load_info *load_info)
 {
 	bl_load_info_node_t *node_info = load_info->head;
 	unsigned int index = 0;
@@ -78,7 +78,7 @@ void plat_add_sp_images_load_info(struct bl_load_info *load_info)
  ******************************************************************************/
 struct bl_load_info *plat_get_bl_image_load_info(void)
 {
-#if defined(SPD_spmd)
+#if defined(SPD_spmd) && SPMD_SPM_AT_SEL2
 	bl_load_info_t *bl_load_info;
 
 	bl_load_info = get_bl_load_info_from_mem_params_desc();
