@@ -14,6 +14,8 @@
 
 #define hw_config__topology_getter(prop) soc_topology.prop
 
+#define hw_config__uart_serial_config_getter(prop) uart_serial_config.prop
+
 struct gicv3_config_t {
 	uintptr_t gicd_base;
 	uintptr_t gicr_base;
@@ -26,10 +28,17 @@ struct hw_topology_t {
 	uint32_t plat_max_pwr_level;
 };
 
+struct uart_serial_config_t {
+	uint64_t uart_base;
+	uint32_t uart_clk;
+};
+
 int fconf_populate_gicv3_config(uintptr_t config);
 int fconf_populate_topology(uintptr_t config);
+int fconf_populate_uart_config(uintptr_t config);
 
 extern struct gicv3_config_t gicv3_config;
 extern struct hw_topology_t soc_topology;
+extern struct uart_serial_config_t uart_serial_config;
 
 #endif /* FCONF_HW_CONFIG_GETTER_H */

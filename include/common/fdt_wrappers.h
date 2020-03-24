@@ -34,4 +34,7 @@ int fdt_get_reg_props_by_name(const void *dtb, int node, const char *name,
 			      uintptr_t *base, size_t *size);
 int fdt_get_stdout_node_offset(const void *dtb);
 
+uint64_t fdtw_translate_address(const void *dtb, int bus_node,
+				uint64_t base_address);
+
 #endif /* FDT_WRAPPERS_H */
