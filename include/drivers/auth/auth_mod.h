@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,8 @@
 #include <common/tbbr/tbbr_img_def.h>
 #include <drivers/auth/auth_common.h>
 #include <drivers/auth/img_parser_mod.h>
+
+#include <lib/utils_def.h>
 
 /*
  * Image flags
@@ -41,9 +43,11 @@ int auth_mod_verify_img(unsigned int img_id,
 /* Macro to register a CoT defined as an array of auth_img_desc_t pointers */
 #define REGISTER_COT(_cot) \
 	const auth_img_desc_t *const *const cot_desc_ptr = (_cot); \
+	const size_t cot_desc_size = ARRAY_SIZE(_cot);		   \
 	unsigned int auth_img_flags[MAX_NUMBER_IDS]
 
 extern const auth_img_desc_t *const *const cot_desc_ptr;
+extern const size_t cot_desc_size;
 extern unsigned int auth_img_flags[MAX_NUMBER_IDS];
 
 #endif /* TRUSTED_BOARD_BOOT */
