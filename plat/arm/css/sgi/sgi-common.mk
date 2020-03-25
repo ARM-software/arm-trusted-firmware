@@ -23,7 +23,7 @@ INTERCONNECT_SOURCES	:=	${CSS_ENT_BASE}/sgi_interconnect.c
 PLAT_INCLUDES		+=	-I${CSS_ENT_BASE}/include
 
 # GIC-600 configuration
-GICV3_IMPL			:=	GIC600
+GICV3_SUPPORT_GIC600	:=	1
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk

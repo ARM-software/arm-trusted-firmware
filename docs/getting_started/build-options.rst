@@ -711,8 +711,10 @@ GICv3 driver files are included using directive:
 The driver can be configured with the following options set in the platform
 makefile:
 
--  ``GICV3_IMPL``: Selects between GIC-500 and GIC-600 variants of GICv3.
-   This option can take values GIC500 and GIC600 with default set to GIC500.
+-  ``GICV3_SUPPORT_GIC600``: Add support for the GIC-600 variants of GICv3.
+   Enabling this option will add runtime detection support for the
+   GIC-600, so is safe to select even for a GIC500 implementation.
+   This option defaults to 0.
 
 -  ``GICV3_IMPL_GIC600_MULTICHIP``: Selects GIC-600 variant with multichip
    functionality. This option defaults to 0

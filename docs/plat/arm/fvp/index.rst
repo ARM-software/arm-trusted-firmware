@@ -116,7 +116,6 @@ Arm FVP Platform Specific Build Options
 
 -  ``FVP_USE_GIC_DRIVER`` : Selects the GIC driver to be built. Options:
 
-   -  ``FVP_GIC600`` : The GIC600 implementation of GICv3 is selected
    -  ``FVP_GICV2`` : The GICv2 only driver is selected
    -  ``FVP_GICV3`` : The GICv3 only driver is selected (default option)
 

@@ -25,7 +25,8 @@ USE_COHERENT_MEM	:=	0
 GIC_ENABLE_V4_EXTN	:=      1
 
 # GIC-600 configuration
-GICV3_IMPL		:=	GIC600
+GICV3_SUPPORT_GIC600	:=	1
+
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
