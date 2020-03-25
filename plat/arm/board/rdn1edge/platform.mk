@@ -36,7 +36,7 @@ BL2_SOURCES		+=	${RDN1EDGE_BASE}/rdn1edge_trusted_boot.c
 endif
 
 # Enable dynamic addition of MMAP regions in BL31
-BL31_CFLAGS		+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+BL31_CPPFLAGS		+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
 
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES		+=	${RDN1EDGE_BASE}/fdts/${PLAT}_fw_config.dts
