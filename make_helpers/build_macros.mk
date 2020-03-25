@@ -273,12 +273,12 @@ define MAKE_C
 
 $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
-$(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
+$(eval BL_CPPFLAGS := $(BL$(call uppercase,$(3))_CPPFLAGS) -DIMAGE_BL$(call uppercase,$(3)))
 $(eval BL_CFLAGS := $(BL$(call uppercase,$(3))_CFLAGS))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
 	$$(ECHO) "  CC      $$<"
-	$$(Q)$$(CC) $$(LTO_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(BL_CFLAGS) -D$(IMAGE) $(MAKE_DEP) -c $$< -o $$@
+	$$(Q)$$(CC) $$(LTO_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(BL_CPPFLAGS) $(BL_CFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -293,11 +293,12 @@ define MAKE_S
 
 $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
-$(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
+$(eval BL_CPPFLAGS := $(BL$(call uppercase,$(3))_CPPFLAGS) -DIMAGE_BL$(call uppercase,$(3)))
+$(eval BL_ASFLAGS := $(BL$(call uppercase,$(3))_ASFLAGS))
 
 $(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
 	$$(ECHO) "  AS      $$<"
-	$$(Q)$$(AS) $$(ASFLAGS) -D$(IMAGE) $(MAKE_DEP) -c $$< -o $$@
+	$$(Q)$$(AS) $$(ASFLAGS) $(BL_CPPFLAGS) $(BL_ASFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
 -include $(DEP)
 
@@ -311,11 +312,11 @@ endef
 define MAKE_LD
 
 $(eval DEP := $(1).d)
-$(eval IMAGE := IMAGE_BL$(call uppercase,$(3)))
+$(eval BL_CPPFLAGS := $(BL$(call uppercase,$(3))_CPPFLAGS) -DIMAGE_BL$(call uppercase,$(3)))
 
 $(1): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
 	$$(ECHO) "  PP      $$<"
-	$$(Q)$$(CPP) $$(CPPFLAGS) $(TF_CFLAGS_$(ARCH)) -P -x assembler-with-cpp -D__LINKER__ $(MAKE_DEP) -D$(IMAGE) -o $$@ $$<
+	$$(Q)$$(CPP) $$(CPPFLAGS) $(BL_CPPFLAGS) $(TF_CFLAGS_$(ARCH)) -P -x assembler-with-cpp -D__LINKER__ $(MAKE_DEP) -o $$@ $$<
 
 -include $(DEP)
 
