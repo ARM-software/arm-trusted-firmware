@@ -56,7 +56,7 @@ SECTIONS
         KEEP(*(rt_svc_descs))
         __RT_SVC_DESCS_END__ = .;
 
-        . = ALIGN(8);
+        . = ALIGN(4);
          __FCONF_POPULATOR_START__ = .;
         KEEP(*(.fconf_populator))
          __FCONF_POPULATOR_END__ = .;
@@ -98,7 +98,7 @@ SECTIONS
         KEEP(*(rt_svc_descs))
         __RT_SVC_DESCS_END__ = .;
 
-        . = ALIGN(8);
+        . = ALIGN(4);
          __FCONF_POPULATOR_START__ = .;
         KEEP(*(.fconf_populator))
          __FCONF_POPULATOR_END__ = .;
