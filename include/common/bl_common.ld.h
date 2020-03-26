@@ -56,6 +56,14 @@
 	*(.got)						\
 	__GOT_END__ = .;
 
+#define RODATA_COMMON					\
+	RT_SVC_DESCS					\
+	FCONF_POPULATOR					\
+	PMF_SVC_DESCS					\
+	PARSER_LIB_DESCS				\
+	CPU_OPS						\
+	GOT
+
 #define STACK_SECTION					\
 	stacks (NOLOAD) : {				\
 		__STACKS_START__ = .;			\

@@ -47,11 +47,7 @@ SECTIONS
         __RODATA_START__ = .;
         *(SORT_BY_ALIGNMENT(.rodata*))
 
-	RT_SVC_DESCS
-	FCONF_POPULATOR
-	PMF_SVC_DESCS
-	CPU_OPS
-	GOT
+	RODATA_COMMON
 
         /* Place pubsub sections for events */
         . = ALIGN(8);
@@ -67,11 +63,7 @@ SECTIONS
         *(SORT_BY_ALIGNMENT(.text*))
         *(SORT_BY_ALIGNMENT(.rodata*))
 
-	RT_SVC_DESCS
-	FCONF_POPULATOR
-	PMF_SVC_DESCS
-	CPU_OPS
-	GOT
+	RODATA_COMMON
 
         /* Place pubsub sections for events */
         . = ALIGN(8);

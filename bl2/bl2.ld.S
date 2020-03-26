@@ -45,8 +45,7 @@ SECTIONS
         __RODATA_START__ = .;
         *(SORT_BY_ALIGNMENT(.rodata*))
 
-	FCONF_POPULATOR
-	PARSER_LIB_DESCS
+	RODATA_COMMON
 
         . = ALIGN(PAGE_SIZE);
         __RODATA_END__ = .;
@@ -58,8 +57,7 @@ SECTIONS
         *(SORT_BY_ALIGNMENT(.text*))
         *(SORT_BY_ALIGNMENT(.rodata*))
 
-	FCONF_POPULATOR
-	PARSER_LIB_DESCS
+	RODATA_COMMON
 
         *(.vectors)
         __RO_END_UNALIGNED__ = .;

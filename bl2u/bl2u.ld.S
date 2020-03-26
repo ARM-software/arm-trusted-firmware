@@ -46,6 +46,9 @@ SECTIONS
     .rodata . : {
         __RODATA_START__ = .;
         *(SORT_BY_ALIGNMENT(.rodata*))
+
+	RODATA_COMMON
+
         . = ALIGN(PAGE_SIZE);
         __RODATA_END__ = .;
     } >RAM
@@ -55,6 +58,8 @@ SECTIONS
         *bl2u_entrypoint.o(.text*)
         *(SORT_BY_ALIGNMENT(.text*))
         *(SORT_BY_ALIGNMENT(.rodata*))
+
+	RODATA_COMMON
 
         *(.vectors)
         __RO_END_UNALIGNED__ = .;

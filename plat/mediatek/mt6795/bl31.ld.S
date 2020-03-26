@@ -38,8 +38,7 @@ SECTIONS
         *(.text*)
         *(.rodata*)
 
-	RT_SVC_DESCS
-	CPU_OPS
+	RODATA_COMMON
 
         __RO_END_UNALIGNED__ = .;
         /*
