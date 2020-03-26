@@ -239,6 +239,23 @@ void enable_mmu_el3(unsigned int flags)
 	enable_mmu_direct_el3(flags);
 }
 
+void enable_mmu(unsigned int flags)
+{
+	switch (get_current_el_maybe_constant()) {
+	case 1:
+		enable_mmu_el1(flags);
+		break;
+	case 2:
+		enable_mmu_el2(flags);
+		break;
+	case 3:
+		enable_mmu_el3(flags);
+		break;
+	default:
+		panic();
+	}
+}
+
 #else /* !__aarch64__ */
 
 void enable_mmu_svc_mon(unsigned int flags)
