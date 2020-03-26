@@ -44,7 +44,6 @@ void bl2_el3_plat_arch_setup(void)
 	int ret;
 
 	uniphier_mmap_setup(uniphier_soc);
-	enable_mmu_el3(0);
 
 	/* add relocation offset (run-time-address - link-address) */
 	uniphier_mem_base += BL_CODE_BASE - BL2_BASE;

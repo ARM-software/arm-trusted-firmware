@@ -14,7 +14,6 @@
 #include <common/debug.h>
 #include <drivers/console.h>
 #include <lib/mmio.h>
-#include <lib/xlat_tables/xlat_mmu_helpers.h>
 #include <plat/common/platform.h>
 
 #include "uniphier.h"
@@ -87,5 +86,4 @@ void bl31_platform_setup(void)
 void bl31_plat_arch_setup(void)
 {
 	uniphier_mmap_setup(uniphier_soc);
-	enable_mmu_el3(0);
 }

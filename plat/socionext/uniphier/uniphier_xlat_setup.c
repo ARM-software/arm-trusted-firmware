@@ -63,4 +63,6 @@ void uniphier_mmap_setup(unsigned int soc)
 			MT_DEVICE | MT_RW | MT_SECURE);
 
 	init_xlat_tables();
+
+	enable_mmu(0);
 }
