@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <platform_def.h>
-
 #include <common/bl_common.ld.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
@@ -47,20 +45,8 @@ SECTIONS
         __RODATA_START__ = .;
         *(SORT_BY_ALIGNMENT(.rodata*))
 
-        /* Ensure 8-byte alignment for descriptors and ensure inclusion */
-        . = ALIGN(8);
-        __PARSER_LIB_DESCS_START__ = .;
-        KEEP(*(.img_parser_lib_descs))
-        __PARSER_LIB_DESCS_END__ = .;
-
-        /*
-         * Ensure 8-byte alignment for cpu_ops so that its fields are also
-         * aligned. Also ensure cpu_ops inclusion.
-         */
-        . = ALIGN(8);
-        __CPU_OPS_START__ = .;
-        KEEP(*(cpu_ops))
-        __CPU_OPS_END__ = .;
+	PARSER_LIB_DESCS
+	CPU_OPS
 
         /*
          * No need to pad out the .rodata section to a page boundary. Next is
@@ -81,20 +67,8 @@ SECTIONS
         *(SORT_BY_ALIGNMENT(.text*))
         *(SORT_BY_ALIGNMENT(.rodata*))
 
-        /* Ensure 8-byte alignment for descriptors and ensure inclusion */
-        . = ALIGN(8);
-        __PARSER_LIB_DESCS_START__ = .;
-        KEEP(*(.img_parser_lib_descs))
-        __PARSER_LIB_DESCS_END__ = .;
-
-        /*
-         * Ensure 8-byte alignment for cpu_ops so that its fields are also
-         * aligned. Also ensure cpu_ops inclusion.
-         */
-        . = ALIGN(8);
-        __CPU_OPS_START__ = .;
-        KEEP(*(cpu_ops))
-        __CPU_OPS_END__ = .;
+	PARSER_LIB_DESCS
+	CPU_OPS
 
         *(.vectors)
         __RO_END__ = .;

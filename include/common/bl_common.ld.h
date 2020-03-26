@@ -7,6 +7,118 @@
 #ifndef BL_COMMON_LD_H
 #define BL_COMMON_LD_H
 
+#include <platform_def.h>
+
+#ifdef __aarch64__
+#define STRUCT_ALIGN	8
+#else
+#define STRUCT_ALIGN	4
+#endif
+
+#define CPU_OPS						\
+	. = ALIGN(STRUCT_ALIGN);			\
+	__CPU_OPS_START__ = .;				\
+	KEEP(*(cpu_ops))				\
+	__CPU_OPS_END__ = .;
+
+#define PARSER_LIB_DESCS				\
+	. = ALIGN(STRUCT_ALIGN);			\
+	__PARSER_LIB_DESCS_START__ = .;			\
+	KEEP(*(.img_parser_lib_descs))			\
+	__PARSER_LIB_DESCS_END__ = .;
+
+#define RT_SVC_DESCS					\
+	. = ALIGN(STRUCT_ALIGN);			\
+	__RT_SVC_DESCS_START__ = .;			\
+	KEEP(*(rt_svc_descs))				\
+	__RT_SVC_DESCS_END__ = .;
+
+#define PMF_SVC_DESCS					\
+	. = ALIGN(STRUCT_ALIGN);			\
+	__PMF_SVC_DESCS_START__ = .;			\
+	KEEP(*(pmf_svc_descs))				\
+	__PMF_SVC_DESCS_END__ = .;
+
+#define FCONF_POPULATOR					\
+	. = ALIGN(STRUCT_ALIGN);			\
+	__FCONF_POPULATOR_START__ = .;			\
+	KEEP(*(.fconf_populator))			\
+	__FCONF_POPULATOR_END__ = .;
+
+/*
+ * Keep the .got section in the RO section as it is patched prior to enabling
+ * the MMU and having the .got in RO is better for security. GOT is a table of
+ * addresses so ensure pointer size alignment.
+ */
+#define GOT						\
+	. = ALIGN(STRUCT_ALIGN);			\
+	__GOT_START__ = .;				\
+	*(.got)						\
+	__GOT_END__ = .;
+
+#define STACK_SECTION					\
+	stacks (NOLOAD) : {				\
+		__STACKS_START__ = .;			\
+		*(tzfw_normal_stacks)			\
+		__STACKS_END__ = .;			\
+	}
+
+/*
+ * If BL doesn't use any bakery lock then __PERCPU_BAKERY_LOCK_SIZE__
+ * will be zero. For this reason, the only two valid values for
+ * __PERCPU_BAKERY_LOCK_SIZE__ are 0 or the platform defined value
+ * PLAT_PERCPU_BAKERY_LOCK_SIZE.
+ */
+#ifdef PLAT_PERCPU_BAKERY_LOCK_SIZE
+#define BAKERY_LOCK_SIZE_CHECK				\
+	ASSERT((__PERCPU_BAKERY_LOCK_SIZE__ == 0) ||	\
+	       (__PERCPU_BAKERY_LOCK_SIZE__ == PLAT_PERCPU_BAKERY_LOCK_SIZE), \
+	       "PLAT_PERCPU_BAKERY_LOCK_SIZE does not match bakery lock requirements");
+#else
+#define BAKERY_LOCK_SIZE_CHECK
+#endif
+
+/*
+ * Bakery locks are stored in normal .bss memory
+ *
+ * Each lock's data is spread across multiple cache lines, one per CPU,
+ * but multiple locks can share the same cache line.
+ * The compiler will allocate enough memory for one CPU's bakery locks,
+ * the remaining cache lines are allocated by the linker script
+ */
+#if !USE_COHERENT_MEM
+#define BAKERY_LOCK_NORMAL				\
+	. = ALIGN(CACHE_WRITEBACK_GRANULE);		\
+	__BAKERY_LOCK_START__ = .;			\
+	__PERCPU_BAKERY_LOCK_START__ = .;		\
+	*(bakery_lock)					\
+	. = ALIGN(CACHE_WRITEBACK_GRANULE);		\
+	__PERCPU_BAKERY_LOCK_END__ = .;			\
+	__PERCPU_BAKERY_LOCK_SIZE__ = ABSOLUTE(__PERCPU_BAKERY_LOCK_END__ - __PERCPU_BAKERY_LOCK_START__); \
+	. = . + (__PERCPU_BAKERY_LOCK_SIZE__ * (PLATFORM_CORE_COUNT - 1)); \
+	__BAKERY_LOCK_END__ = .;			\
+	BAKERY_LOCK_SIZE_CHECK
+#else
+#define BAKERY_LOCK_NORMAL
+#endif
+
+/*
+ * Time-stamps are stored in normal .bss memory
+ *
+ * The compiler will allocate enough memory for one CPU's time-stamps,
+ * the remaining memory for other CPUs is allocated by the
+ * linker script
+ */
+#define PMF_TIMESTAMP					\
+	. = ALIGN(CACHE_WRITEBACK_GRANULE);		\
+	__PMF_TIMESTAMP_START__ = .;			\
+	KEEP(*(pmf_timestamp_array))			\
+	. = ALIGN(CACHE_WRITEBACK_GRANULE);		\
+	__PMF_PERCPU_TIMESTAMP_END__ = .;		\
+	__PERCPU_TIMESTAMP_SIZE__ = ABSOLUTE(. - __PMF_TIMESTAMP_START__); \
+	. = . + (__PERCPU_TIMESTAMP_SIZE__ * (PLATFORM_CORE_COUNT - 1)); \
+	__PMF_TIMESTAMP_END__ = .;
+
 /*
  * The xlat_table section is for full, aligned page tables (4K).
  * Removing them from .bss avoids forcing 4K alignment on

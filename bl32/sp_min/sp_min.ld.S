@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <platform_def.h>
-
 #include <common/bl_common.ld.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
@@ -50,33 +48,10 @@ SECTIONS
         __RODATA_START__ = .;
         *(.rodata*)
 
-        /* Ensure 4-byte alignment for descriptors and ensure inclusion */
-        . = ALIGN(4);
-        __RT_SVC_DESCS_START__ = .;
-        KEEP(*(rt_svc_descs))
-        __RT_SVC_DESCS_END__ = .;
-
-        . = ALIGN(4);
-         __FCONF_POPULATOR_START__ = .;
-        KEEP(*(.fconf_populator))
-         __FCONF_POPULATOR_END__ = .;
-
-#if ENABLE_PMF
-        /* Ensure 4-byte alignment for descriptors and ensure inclusion */
-        . = ALIGN(4);
-        __PMF_SVC_DESCS_START__ = .;
-        KEEP(*(pmf_svc_descs))
-        __PMF_SVC_DESCS_END__ = .;
-#endif /* ENABLE_PMF */
-
-        /*
-         * Ensure 4-byte alignment for cpu_ops so that its fields are also
-         * aligned. Also ensure cpu_ops inclusion.
-         */
-        . = ALIGN(4);
-        __CPU_OPS_START__ = .;
-        KEEP(*(cpu_ops))
-        __CPU_OPS_END__ = .;
+	RT_SVC_DESCS
+	FCONF_POPULATOR
+	PMF_SVC_DESCS
+	CPU_OPS
 
         /* Place pubsub sections for events */
         . = ALIGN(8);
@@ -92,25 +67,9 @@ SECTIONS
         *(.text*)
         *(.rodata*)
 
-        /* Ensure 4-byte alignment for descriptors and ensure inclusion */
-        . = ALIGN(4);
-        __RT_SVC_DESCS_START__ = .;
-        KEEP(*(rt_svc_descs))
-        __RT_SVC_DESCS_END__ = .;
-
-        . = ALIGN(4);
-         __FCONF_POPULATOR_START__ = .;
-        KEEP(*(.fconf_populator))
-         __FCONF_POPULATOR_END__ = .;
-
-        /*
-         * Ensure 4-byte alignment for cpu_ops so that its fields are also
-         * aligned. Also ensure cpu_ops inclusion.
-         */
-        . = ALIGN(4);
-        __CPU_OPS_START__ = .;
-        KEEP(*(cpu_ops))
-        __CPU_OPS_END__ = .;
+	RT_SVC_DESCS
+	FCONF_POPULATOR
+	CPU_OPS
 
         /* Place pubsub sections for events */
         . = ALIGN(8);
@@ -162,48 +121,8 @@ SECTIONS
         __BSS_START__ = .;
         *(.bss*)
         *(COMMON)
-#if !USE_COHERENT_MEM
-        /*
-         * Bakery locks are stored in normal .bss memory
-         *
-         * Each lock's data is spread across multiple cache lines, one per CPU,
-         * but multiple locks can share the same cache line.
-         * The compiler will allocate enough memory for one CPU's bakery locks,
-         * the remaining cache lines are allocated by the linker script
-         */
-        . = ALIGN(CACHE_WRITEBACK_GRANULE);
-        __BAKERY_LOCK_START__ = .;
-        __PERCPU_BAKERY_LOCK_START__ = .;
-        *(bakery_lock)
-        . = ALIGN(CACHE_WRITEBACK_GRANULE);
-        __PERCPU_BAKERY_LOCK_END__ = .;
-        __PERCPU_BAKERY_LOCK_SIZE__ = ABSOLUTE(__PERCPU_BAKERY_LOCK_END__ - __PERCPU_BAKERY_LOCK_START__);
-        . = . + (__PERCPU_BAKERY_LOCK_SIZE__ * (PLATFORM_CORE_COUNT - 1));
-        __BAKERY_LOCK_END__ = .;
-#ifdef PLAT_PERCPU_BAKERY_LOCK_SIZE
-    ASSERT(__PERCPU_BAKERY_LOCK_SIZE__ == PLAT_PERCPU_BAKERY_LOCK_SIZE,
-        "PLAT_PERCPU_BAKERY_LOCK_SIZE does not match bakery lock requirements");
-#endif
-#endif
-
-#if ENABLE_PMF
-        /*
-         * Time-stamps are stored in normal .bss memory
-         *
-         * The compiler will allocate enough memory for one CPU's time-stamps,
-         * the remaining memory for other CPUs is allocated by the
-         * linker script
-         */
-        . = ALIGN(CACHE_WRITEBACK_GRANULE);
-        __PMF_TIMESTAMP_START__ = .;
-        KEEP(*(pmf_timestamp_array))
-        . = ALIGN(CACHE_WRITEBACK_GRANULE);
-        __PMF_PERCPU_TIMESTAMP_END__ = .;
-        __PERCPU_TIMESTAMP_SIZE__ = ABSOLUTE(. - __PMF_TIMESTAMP_START__);
-        . = . + (__PERCPU_TIMESTAMP_SIZE__ * (PLATFORM_CORE_COUNT - 1));
-        __PMF_TIMESTAMP_END__ = .;
-#endif /* ENABLE_PMF */
-
+	BAKERY_LOCK_NORMAL
+	PMF_TIMESTAMP
         __BSS_END__ = .;
     } >RAM
 
