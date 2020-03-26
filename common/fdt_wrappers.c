@@ -276,3 +276,21 @@ int fdt_get_reg_props_by_index(const void *dtb, int node, int index,
 
 	return 0;
 }
+
+/*******************************************************************************
+ * This function fills reg node info (base & size) with an index found by
+ * checking the reg-names node.
+ * Returns 0 on success and a negative FDT error code on failure.
+ ******************************************************************************/
+int fdt_get_reg_props_by_name(const void *dtb, int node, const char *name,
+			      uintptr_t *base, size_t *size)
+{
+	int index;
+
+	index = fdt_stringlist_search(dtb, node, "reg-names", name);
+	if (index < 0) {
+		return index;
+	}
+
+	return fdt_get_reg_props_by_index(dtb, node, index, base, size);
+}

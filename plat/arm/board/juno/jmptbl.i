@@ -24,6 +24,7 @@ fdt     fdt_setprop_inplace_namelen_partial
 fdt     fdt_first_subnode
 fdt     fdt_next_subnode
 fdt     fdt_parent_offset
+fdt     fdt_stringlist_search
 mbedtls mbedtls_asn1_get_alg
 mbedtls mbedtls_asn1_get_alg_null
 mbedtls mbedtls_asn1_get_bitstring_null

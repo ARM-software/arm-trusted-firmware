@@ -28,6 +28,7 @@ fdt     fdt_subnode_offset
 fdt     fdt_address_cells
 fdt     fdt_size_cells
 fdt     fdt_parent_offset
+fdt     fdt_stringlist_search
 mbedtls mbedtls_asn1_get_alg
 mbedtls mbedtls_asn1_get_alg_null
 mbedtls mbedtls_asn1_get_bitstring_null

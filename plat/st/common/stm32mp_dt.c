@@ -136,46 +136,6 @@ static int fdt_get_node_parent_size_cells(int node)
 #endif
 
 /*******************************************************************************
- * This function fills reg node info (base & size) with an index found by
- * checking the reg-names node.
- * Returns 0 on success and a negative FDT error code on failure.
- ******************************************************************************/
-int fdt_get_reg_props_by_name(int node, const char *name, uintptr_t *base,
-			      size_t *size)
-{
-	const fdt32_t *cuint;
-	int index, len;
-
-	assert((fdt_get_node_parent_address_cells(node) == 1) &&
-	       (fdt_get_node_parent_size_cells(node) == 1));
-
-	index = fdt_stringlist_search(fdt, node, "reg-names", name);
-	if (index < 0) {
-		return index;
-	}
-
-	cuint = fdt_getprop(fdt, node, "reg", &len);
-	if (cuint == NULL) {
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	if ((index * (int)sizeof(uint32_t)) > len) {
-		return -FDT_ERR_BADVALUE;
-	}
-
-	cuint += index << 1;
-	if (base != NULL) {
-		*base = fdt32_to_cpu(*cuint);
-	}
-	cuint++;
-	if (size != NULL) {
-		*size = fdt32_to_cpu(*cuint);
-	}
-
-	return 0;
-}
-
-/*******************************************************************************
  * This function gets the stdout path node.
  * It reads the value indicated inside the device tree.
  * Returns node offset on success and a negative FDT error code on failure.
