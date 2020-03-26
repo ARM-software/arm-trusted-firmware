@@ -18,7 +18,7 @@ int fconf_populate_gicv3_config(uintptr_t config)
 {
 	int err;
 	int node;
-	uint32_t addr[20];
+	uintptr_t addr;
 
 	/* Necessary to work with libfdt APIs */
 	const void *hw_config_dtb = (const void *)config;
@@ -33,19 +33,24 @@ int fconf_populate_gicv3_config(uintptr_t config)
 		WARN("FCONF: Unable to locate node with arm,gic-v3 compatible property\n");
 		return 0;
 	}
-	/* Read the reg cell holding base address of GIC controller modules
-	A sample reg cell array is shown here:
-		reg = <0x0 0x2f000000 0 0x10000>,	// GICD
-		      <0x0 0x2f100000 0 0x200000>,	// GICR
-		      <0x0 0x2c000000 0 0x2000>,	// GICC
-		      <0x0 0x2c010000 0 0x2000>,	// GICH
-		      <0x0 0x2c02f000 0 0x2000>;	// GICV
-	*/
-
-	err = fdt_read_uint32_array(hw_config_dtb, node, "reg", 20, addr);
+	/* The GICv3 DT binding holds at least two address/size pairs,
+	 * the first describing the distributor, the second the redistributors.
+	 * See: bindings/interrupt-controller/arm,gic-v3.yaml
+	 */
+	err = fdt_get_reg_props_by_index(hw_config_dtb, node, 0, &addr, NULL);
 	if (err < 0) {
-		ERROR("FCONF: Failed to read reg property of GIC node\n");
+		ERROR("FCONF: Failed to read GICD reg property of GIC node\n");
+		return err;
 	}
+	gicv3_config.gicd_base = addr;
+
+	err = fdt_get_reg_props_by_index(hw_config_dtb, node, 1, &addr, NULL);
+	if (err < 0) {
+		ERROR("FCONF: Failed to read GICR reg property of GIC node\n");
+	} else {
+		gicv3_config.gicr_base = addr;
+	}
+
 	return err;
 }
 

@@ -15,8 +15,8 @@
 #define hw_config__topology_getter(prop) soc_topology.prop
 
 struct gicv3_config_t {
-	void *gicd_base;
-	void *gicr_base;
+	uintptr_t gicd_base;
+	uintptr_t gicr_base;
 };
 
 struct hw_topology_t {
