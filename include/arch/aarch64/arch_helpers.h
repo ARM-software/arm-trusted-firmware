@@ -531,6 +531,23 @@ static inline unsigned int get_current_el(void)
 	return GET_EL(read_CurrentEl());
 }
 
+static inline unsigned int get_current_el_maybe_constant(void)
+{
+#if defined(IMAGE_AT_EL1)
+	return 1;
+#elif defined(IMAGE_AT_EL2)
+	return 2;	/* no use-case in TF-A */
+#elif defined(IMAGE_AT_EL3)
+	return 3;
+#else
+	/*
+	 * If we do not know which exception level this is being built for
+	 * (e.g. built for library), fall back to run-time detection.
+	 */
+	return get_current_el();
+#endif
+}
+
 /*
  * Check if an EL is implemented from AA64PFR0 register fields.
  */
