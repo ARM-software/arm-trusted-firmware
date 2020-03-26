@@ -164,20 +164,15 @@ typedef struct xlat_ctx xlat_ctx_t;
  *   Would typically be PLAT_VIRT_ADDR_SPACE_SIZE
  *   (resp. PLAT_PHY_ADDR_SPACE_SIZE) for the translation context describing the
  *   BL image currently executing.
-
- * _base_table_section:
- *   Specify the name of the section where the base translation tables have to
- *   be placed by the linker.
  */
 #define REGISTER_XLAT_CONTEXT(_ctx_name, _mmap_count, _xlat_tables_count, \
-			      _virt_addr_space_size, _phy_addr_space_size, \
-			      _base_table_section)			\
+			      _virt_addr_space_size, _phy_addr_space_size) \
 	REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, (_mmap_count),	\
 					 (_xlat_tables_count),		\
 					 (_virt_addr_space_size),	\
 					 (_phy_addr_space_size),	\
 					 EL_REGIME_INVALID,		\
-					 "xlat_table", (_base_table_section))
+					 "xlat_table", "base_xlat_table")
 
 /*
  * Same as REGISTER_XLAT_CONTEXT plus the additional parameters:

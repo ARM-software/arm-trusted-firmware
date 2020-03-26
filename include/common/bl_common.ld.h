@@ -58,13 +58,32 @@
 	*(.got)						\
 	__GOT_END__ = .;
 
+/*
+ * The base xlat table
+ *
+ * It is put into the rodata section if PLAT_RO_XLAT_TABLES=1,
+ * or into the bss section otherwise.
+ */
+#define BASE_XLAT_TABLE					\
+	. = ALIGN(16);					\
+	*(base_xlat_table)
+
+#if PLAT_RO_XLAT_TABLES
+#define BASE_XLAT_TABLE_RO		BASE_XLAT_TABLE
+#define BASE_XLAT_TABLE_BSS
+#else
+#define BASE_XLAT_TABLE_RO
+#define BASE_XLAT_TABLE_BSS		BASE_XLAT_TABLE
+#endif
+
 #define RODATA_COMMON					\
 	RT_SVC_DESCS					\
 	FCONF_POPULATOR					\
 	PMF_SVC_DESCS					\
 	PARSER_LIB_DESCS				\
 	CPU_OPS						\
-	GOT
+	GOT						\
+	BASE_XLAT_TABLE_RO
 
 #define STACK_SECTION					\
 	stacks (NOLOAD) : {				\
@@ -142,6 +161,7 @@
 		*(COMMON)				\
 		BAKERY_LOCK_NORMAL			\
 		PMF_TIMESTAMP				\
+		BASE_XLAT_TABLE_BSS			\
 		__BSS_END__ = .;			\
 	}
 

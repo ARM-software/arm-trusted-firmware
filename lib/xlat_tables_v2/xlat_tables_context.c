@@ -25,15 +25,8 @@ uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
  * Allocate and initialise the default translation context for the BL image
  * currently executing.
  */
-#if PLAT_RO_XLAT_TABLES
-#define BASE_XLAT_TABLE_SECTION		".rodata"
-#else
-#define BASE_XLAT_TABLE_SECTION		".bss"
-#endif
-
 REGISTER_XLAT_CONTEXT(tf, MAX_MMAP_REGIONS, MAX_XLAT_TABLES,
-		      PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE,
-		      BASE_XLAT_TABLE_SECTION);
+		      PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE);
 
 void mmap_add_region(unsigned long long base_pa, uintptr_t base_va, size_t size,
 		     unsigned int attr)
