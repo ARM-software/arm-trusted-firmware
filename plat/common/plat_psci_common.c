@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -63,7 +63,6 @@ static u_register_t calc_stat_residency(unsigned long long pwrupts,
 
 /*
  * Capture timestamp before entering a low power state.
- * No cache maintenance is required when capturing the timestamp.
  * Cache maintenance may be needed when reading these timestamps.
  */
 void plat_psci_stat_accounting_start(
@@ -71,12 +70,11 @@ void plat_psci_stat_accounting_start(
 {
 	assert(state_info != NULL);
 	PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_ENTER_LOW_PWR,
-		PMF_NO_CACHE_MAINT);
+		PMF_CACHE_MAINT);
 }
 
 /*
  * Capture timestamp after exiting a low power state.
- * No cache maintenance is required when capturing the timestamp.
  * Cache maintenance may be needed when reading these timestamps.
  */
 void plat_psci_stat_accounting_stop(
@@ -84,7 +82,7 @@ void plat_psci_stat_accounting_stop(
 {
 	assert(state_info != NULL);
 	PMF_CAPTURE_TIMESTAMP(psci_svc, PSCI_STAT_ID_EXIT_LOW_PWR,
-		PMF_NO_CACHE_MAINT);
+		PMF_CACHE_MAINT);
 }
 
 /*
