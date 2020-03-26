@@ -25,6 +25,9 @@ fdt     fdt_first_subnode
 fdt     fdt_next_subnode
 fdt     fdt_parent_offset
 fdt     fdt_stringlist_search
+fdt     fdt_get_alias_namelen
+fdt     fdt_path_offset
+fdt     fdt_path_offset_namelen
 mbedtls mbedtls_asn1_get_alg
 mbedtls mbedtls_asn1_get_alg_null
 mbedtls mbedtls_asn1_get_bitstring_null

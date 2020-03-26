@@ -294,3 +294,50 @@ int fdt_get_reg_props_by_name(const void *dtb, int node, const char *name,
 
 	return fdt_get_reg_props_by_index(dtb, node, index, base, size);
 }
+
+/*******************************************************************************
+ * This function gets the stdout path node.
+ * It reads the value indicated inside the device tree.
+ * Returns node offset on success and a negative FDT error code on failure.
+ ******************************************************************************/
+int fdt_get_stdout_node_offset(const void *dtb)
+{
+	int node;
+	const char *prop, *path;
+	int len;
+
+	/* The /secure-chosen node takes precedence over the standard one. */
+	node = fdt_path_offset(dtb, "/secure-chosen");
+	if (node < 0) {
+		node = fdt_path_offset(dtb, "/chosen");
+		if (node < 0) {
+			return -FDT_ERR_NOTFOUND;
+		}
+	}
+
+	prop = fdt_getprop(dtb, node, "stdout-path", NULL);
+	if (prop == NULL) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	/* Determine the actual path length, as a colon terminates the path. */
+	path = strchr(prop, ':');
+	if (path == NULL) {
+		len = strlen(prop);
+	} else {
+		len = path - prop;
+	}
+
+	/* Aliases cannot start with a '/', so it must be the actual path. */
+	if (prop[0] == '/') {
+		return fdt_path_offset_namelen(dtb, prop, len);
+	}
+
+	/* Lookup the alias, as this contains the actual path. */
+	path = fdt_get_alias_namelen(dtb, prop, len);
+	if (path == NULL) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	return fdt_path_offset(dtb, path);
+}
