@@ -164,20 +164,7 @@ SECTIONS
         __STACKS_END__ = .;
     } >NOBITS
 
-    /*
-     * The .bss section gets initialised to 0 at runtime.
-     * Its base address should be 16-byte aligned for better performance of the
-     * zero-initialization code.
-     */
-    .bss (NOLOAD) : ALIGN(16) {
-        __BSS_START__ = .;
-        *(SORT_BY_ALIGNMENT(.bss*))
-        *(COMMON)
-	BAKERY_LOCK_NORMAL
-	PMF_TIMESTAMP
-        __BSS_END__ = .;
-    } >NOBITS
-
+    BSS_SECTION >NOBITS
     XLAT_TABLE_SECTION >NOBITS
 
 #if USE_COHERENT_MEM

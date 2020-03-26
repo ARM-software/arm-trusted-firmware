@@ -107,20 +107,7 @@ SECTIONS
         __STACKS_END__ = .;
     } >RAM
 
-    /*
-     * The .bss section gets initialised to 0 at runtime.
-     * Its base address should be 8-byte aligned for better performance of the
-     * zero-initialization code.
-     */
-    .bss (NOLOAD) : ALIGN(8) {
-        __BSS_START__ = .;
-        *(.bss*)
-        *(COMMON)
-	BAKERY_LOCK_NORMAL
-	PMF_TIMESTAMP
-        __BSS_END__ = .;
-    } >RAM
-
+    BSS_SECTION >RAM
     XLAT_TABLE_SECTION >RAM
 
      __BSS_SIZE__ = SIZEOF(.bss);

@@ -80,19 +80,8 @@ SECTIONS
         __STACKS_END__ = .;
     } >RAM
 
-    /*
-     * The .bss section gets initialised to 0 at runtime.
-     * Its base address should be 16-byte aligned for better performance of the
-     * zero-initialization code.
-     */
-    .bss (NOLOAD) : ALIGN(16) {
-        __BSS_START__ = .;
-        *(.bss*)
-        *(COMMON)
-	BAKERY_LOCK_NORMAL
-        __BSS_END__ = .;
-        __RW_END__ = .;
-    } >RAM
+    BSS_SECTION >RAM
+    __RW_END__ = __BSS_END__;
 
     ASSERT(. <= BL31_LIMIT, "BL3-1 image has exceeded its limit.")
 
