@@ -1240,7 +1240,8 @@ static bool stm32mp1_check_pll_conf(enum stm32mp1_pll_id pll_id,
 	uintptr_t clksrc_address = rcc_base + (clksrc >> 4);
 	unsigned long refclk;
 	uint32_t ifrge = 0U;
-	uint32_t src, value, fracv;
+	uint32_t src, value, fracv = 0;
+	void *fdt;
 
 	/* Check PLL output */
 	if (mmio_read_32(pllxcr) != RCC_PLLNCR_PLLON) {
@@ -1279,7 +1280,9 @@ static bool stm32mp1_check_pll_conf(enum stm32mp1_pll_id pll_id,
 	}
 
 	/* Fractional configuration */
-	fracv = fdt_read_uint32_default(plloff, "frac", 0);
+	if (fdt_get_address(&fdt) == 1) {
+		fracv = fdt_read_uint32_default(fdt, plloff, "frac", 0);
+	}
 
 	value = fracv << RCC_PLLNFRACR_FRACV_SHIFT;
 	value |= RCC_PLLNFRACR_FRACLE;
@@ -1800,7 +1803,7 @@ int stm32mp1_clk_init(void)
 			continue;
 		}
 
-		fracv = fdt_read_uint32_default(plloff[i], "frac", 0);
+		fracv = fdt_read_uint32_default(fdt, plloff[i], "frac", 0);
 
 		ret = stm32mp1_pll_config(i, pllcfg[i], fracv);
 		if (ret != 0) {

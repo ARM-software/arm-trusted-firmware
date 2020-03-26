@@ -136,26 +136,6 @@ static int fdt_get_node_parent_size_cells(int node)
 #endif
 
 /*******************************************************************************
- * This function reads a value of a node property (generic use of fdt
- * library).
- * Returns value if success, and a default value if property not found.
- * Default value is passed as parameter.
- ******************************************************************************/
-uint32_t fdt_read_uint32_default(int node, const char *prop_name,
-				 uint32_t dflt_value)
-{
-	const fdt32_t *cuint;
-	int lenp;
-
-	cuint = fdt_getprop(fdt, node, prop_name, &lenp);
-	if (cuint == NULL) {
-		return dflt_value;
-	}
-
-	return fdt32_to_cpu(*cuint);
-}
-
-/*******************************************************************************
  * This function fills reg node info (base & size) with an index found by
  * checking the reg-names node.
  * Returns 0 on success and a negative FDT error code on failure.
@@ -343,7 +323,7 @@ uint32_t dt_get_ddr_size(void)
 		return 0;
 	}
 
-	return fdt_read_uint32_default(node, "st,mem-size", 0);
+	return fdt_read_uint32_default(fdt, node, "st,mem-size", 0);
 }
 
 /*******************************************************************************

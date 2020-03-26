@@ -151,7 +151,8 @@ uint32_t fdt_osc_read_uint32_default(enum stm32mp_osc_id osc_id,
 			continue;
 		}
 
-		return fdt_read_uint32_default(subnode, prop_name, dflt_value);
+		return fdt_read_uint32_default(fdt, subnode, prop_name,
+					       dflt_value);
 	}
 
 	return dflt_value;

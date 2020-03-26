@@ -206,13 +206,13 @@ static int stm32mp1_ddr_setup(void)
 		return -EINVAL;
 	}
 
-	config.info.speed = fdt_read_uint32_default(node, "st,mem-speed", 0);
-	if (!config.info.speed) {
+	ret = fdt_read_uint32(fdt, node, "st,mem-speed", &config.info.speed);
+	if (ret < 0) {
 		VERBOSE("%s: no st,mem-speed\n", __func__);
 		return -EINVAL;
 	}
-	config.info.size = fdt_read_uint32_default(node, "st,mem-size", 0);
-	if (!config.info.size) {
+	ret = fdt_read_uint32(fdt, node, "st,mem-size", &config.info.size);
+	if (ret < 0) {
 		VERBOSE("%s: no st,mem-size\n", __func__);
 		return -EINVAL;
 	}

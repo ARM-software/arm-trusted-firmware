@@ -56,6 +56,19 @@ int fdt_read_uint32(const void *dtb, int node, const char *prop_name,
 	return fdt_read_uint32_array(dtb, node, prop_name, 1, value);
 }
 
+uint32_t fdt_read_uint32_default(const void *dtb, int node,
+				 const char *prop_name, uint32_t dflt_value)
+{
+	uint32_t ret = dflt_value;
+	int err = fdt_read_uint32(dtb, node, prop_name, &ret);
+
+	if (err < 0) {
+		return dflt_value;
+	}
+
+	return ret;
+}
+
 int fdt_read_uint64(const void *dtb, int node, const char *prop_name,
 		    uint64_t *value)
 {
