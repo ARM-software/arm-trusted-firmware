@@ -15,55 +15,6 @@
 #include <common/fdt_wrappers.h>
 
 /*
- * Read cells from a given property of the given node. At most 2 cells of the
- * property are read, and pointer is updated. Returns 0 on success, and -1 upon
- * error
- */
-int fdtw_read_cells(const void *dtb, int node, const char *prop,
-		unsigned int cells, void *value)
-{
-	const uint32_t *value_ptr;
-	uint32_t hi = 0, lo;
-	int value_len;
-
-	assert(dtb != NULL);
-	assert(prop != NULL);
-	assert(value != NULL);
-	assert(node >= 0);
-
-	/* We expect either 1 or 2 cell property */
-	assert(cells <= 2U);
-
-	/* Access property and obtain its length (in bytes) */
-	value_ptr = fdt_getprop_namelen(dtb, node, prop, (int)strlen(prop),
-			&value_len);
-	if (value_ptr == NULL) {
-		WARN("Couldn't find property %s in dtb\n", prop);
-		return -1;
-	}
-
-	/* Verify that property length accords with cell length */
-	if (NCELLS((unsigned int)value_len) != cells) {
-		WARN("Property length mismatch\n");
-		return -1;
-	}
-
-	if (cells == 2U) {
-		hi = fdt32_to_cpu(*value_ptr);
-		value_ptr++;
-	}
-
-	lo = fdt32_to_cpu(*value_ptr);
-
-	if (cells == 2U)
-		*((uint64_t *) value) = ((uint64_t) hi << 32) | lo;
-	else
-		*((uint32_t *) value) = lo;
-
-	return 0;
-}
-
-/*
  * Read cells from a given property of the given node. Any number of 32-bit
  * cells of the property can be read. Returns 0 on success, or a negative
  * FDT error value otherwise.
@@ -96,6 +47,27 @@ int fdt_read_uint32_array(const void *dtb, int node, const char *prop_name,
 		value[i] = fdt32_to_cpu(prop[i]);
 	}
 
+	return 0;
+}
+
+int fdt_read_uint32(const void *dtb, int node, const char *prop_name,
+		    uint32_t *value)
+{
+	return fdt_read_uint32_array(dtb, node, prop_name, 1, value);
+}
+
+int fdt_read_uint64(const void *dtb, int node, const char *prop_name,
+		    uint64_t *value)
+{
+	uint32_t array[2] = {0, 0};
+	int ret;
+
+	ret = fdt_read_uint32_array(dtb, node, prop_name, 2, array);
+	if (ret < 0) {
+		return ret;
+	}
+
+	*value = ((uint64_t)array[0] << 32) | array[1];
 	return 0;
 }
 

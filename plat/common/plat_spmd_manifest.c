@@ -21,41 +21,43 @@ static int manifest_parse_attribute(spmc_manifest_sect_attribute_t *attr,
 				    const void *fdt,
 				    int node)
 {
+	uint32_t val32;
 	int rc = 0;
 
 	assert(attr && fdt);
 
-	rc = fdtw_read_cells(fdt, node, "maj_ver", 1, &attr->major_version);
+	rc = fdt_read_uint32(fdt, node, "maj_ver", &attr->major_version);
 	if (rc) {
 		ERROR("Missing SPCI major version in SPM core manifest.\n");
 		return -ENOENT;
 	}
 
-	rc = fdtw_read_cells(fdt, node, "min_ver", 1, &attr->minor_version);
+	rc = fdt_read_uint32(fdt, node, "min_ver", &attr->minor_version);
 	if (rc) {
 		ERROR("Missing SPCI minor version in SPM core manifest.\n");
 		return -ENOENT;
 	}
 
-	rc = fdtw_read_cells(fdt, node, "spmc_id", 1, &attr->spmc_id);
+	rc = fdt_read_uint32(fdt, node, "spmc_id", &val32);
 	if (rc) {
 		ERROR("Missing SPMC ID in manifest.\n");
 		return -ENOENT;
 	}
+	attr->spmc_id = val32;
 
-	rc = fdtw_read_cells(fdt, node, "exec_state", 1, &attr->exec_state);
+	rc = fdt_read_uint32(fdt, node, "exec_state", &attr->exec_state);
 	if (rc)
 		NOTICE("Execution state not specified in SPM core manifest.\n");
 
-	rc = fdtw_read_cells(fdt, node, "binary_size", 1, &attr->binary_size);
+	rc = fdt_read_uint32(fdt, node, "binary_size", &attr->binary_size);
 	if (rc)
 		NOTICE("Binary size not specified in SPM core manifest.\n");
 
-	rc = fdtw_read_cells(fdt, node, "load_address", 2, &attr->load_address);
+	rc = fdt_read_uint64(fdt, node, "load_address", &attr->load_address);
 	if (rc)
 		NOTICE("Load address not specified in SPM core manifest.\n");
 
-	rc = fdtw_read_cells(fdt, node, "entrypoint", 2, &attr->entrypoint);
+	rc = fdt_read_uint64(fdt, node, "entrypoint", &attr->entrypoint);
 	if (rc)
 		NOTICE("Entrypoint not specified in SPM core manifest.\n");
 

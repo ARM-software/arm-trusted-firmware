@@ -51,8 +51,9 @@ int fconf_populate_gicv3_config(uintptr_t config)
 
 int fconf_populate_topology(uintptr_t config)
 {
-	int err, node, cluster_node, core_node, thread_node, max_pwr_lvl = 0;
+	int err, node, cluster_node, core_node, thread_node;
 	uint32_t cluster_count = 0, max_cpu_per_cluster = 0, total_cpu_count = 0;
+	uint32_t max_pwr_lvl = 0;
 
 	/* Necessary to work with libfdt APIs */
 	const void *hw_config_dtb = (const void *)config;
@@ -64,7 +65,7 @@ int fconf_populate_topology(uintptr_t config)
 		return node;
 	}
 
-	err = fdtw_read_cells(hw_config_dtb, node, "max-pwr-lvl", 1, &max_pwr_lvl);
+	err = fdt_read_uint32(hw_config_dtb, node, "max-pwr-lvl", &max_pwr_lvl);
 	if (err < 0) {
 		/*
 		 * Some legacy FVP dts may not have this property. Assign the default
@@ -74,7 +75,7 @@ int fconf_populate_topology(uintptr_t config)
 		max_pwr_lvl = 2;
 	}
 
-	assert((uint32_t)max_pwr_lvl <= MPIDR_AFFLVL2);
+	assert(max_pwr_lvl <= MPIDR_AFFLVL2);
 
 	/* Find the offset of the "cpus" node */
 	node = fdt_path_offset(hw_config_dtb, "/cpus");
@@ -156,7 +157,7 @@ int fconf_populate_topology(uintptr_t config)
 		return -1;
 	}
 
-	soc_topology.plat_max_pwr_level = (uint32_t)max_pwr_lvl;
+	soc_topology.plat_max_pwr_level = max_pwr_lvl;
 	soc_topology.plat_cluster_count = cluster_count;
 	soc_topology.cluster_cpu_count = max_cpu_per_cluster;
 	soc_topology.plat_cpu_count = total_cpu_count;
