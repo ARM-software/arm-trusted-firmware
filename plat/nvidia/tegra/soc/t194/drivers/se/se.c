@@ -23,12 +23,11 @@
 /*******************************************************************************
  * Constants and Macros
  ******************************************************************************/
-#define ERR_STATUS_SW_CLEAR	U(0xFFFFFFFF)
-#define INT_STATUS_SW_CLEAR	U(0xFFFFFFFF)
-#define MAX_TIMEOUT_MS		U(100)	/* Timeout in 100ms */
-#define NUM_SE_REGS_TO_SAVE	U(4)
+#define ERR_STATUS_SW_CLEAR		U(0xFFFFFFFF)
+#define INT_STATUS_SW_CLEAR		U(0xFFFFFFFF)
+#define MAX_TIMEOUT_MS			U(1000)	/* Max. timeout of 1s */
+#define NUM_SE_REGS_TO_SAVE		U(4)
 
-#define SE0_MAX_BUSY_TIMEOUT_MS		U(100)	/* 100ms Timeout Expired */
 #define BYTES_IN_WORD			U(4)
 #define SHA256_MAX_HASH_RESULT		U(7)
 #define SHA256_DST_SIZE			U(32)
