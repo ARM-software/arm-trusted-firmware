@@ -16,6 +16,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <common/fdt_wrappers.h>
 #include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
 #include <drivers/st/stm32mp_clkfunc.h>
@@ -1600,20 +1601,25 @@ int stm32mp1_clk_init(void)
 	bool pll4_preserve = false;
 	bool pll4_bootrom = false;
 	const fdt32_t *pkcs_cell;
+	void *fdt;
+
+	if (fdt_get_address(&fdt) == 0) {
+		return false;
+	}
 
 	/* Check status field to disable security */
 	if (!fdt_get_rcc_secure_status()) {
 		mmio_write_32(rcc_base + RCC_TZCR, 0);
 	}
 
-	ret = fdt_rcc_read_uint32_array("st,clksrc", clksrc,
-					(uint32_t)CLKSRC_NB);
+	ret = fdt_rcc_read_uint32_array("st,clksrc", (uint32_t)CLKSRC_NB,
+					clksrc);
 	if (ret < 0) {
 		return -FDT_ERR_NOTFOUND;
 	}
 
-	ret = fdt_rcc_read_uint32_array("st,clkdiv", clkdiv,
-					(uint32_t)CLKDIV_NB);
+	ret = fdt_rcc_read_uint32_array("st,clkdiv", (uint32_t)CLKDIV_NB,
+					clkdiv);
 	if (ret < 0) {
 		return -FDT_ERR_NOTFOUND;
 	}
@@ -1628,8 +1634,8 @@ int stm32mp1_clk_init(void)
 			continue;
 		}
 
-		ret = fdt_read_uint32_array(plloff[i], "cfg",
-					    pllcfg[i], (int)PLLCFG_NB);
+		ret = fdt_read_uint32_array(fdt, plloff[i], "cfg",
+					    (int)PLLCFG_NB, pllcfg[i]);
 		if (ret < 0) {
 			return -FDT_ERR_NOTFOUND;
 		}
@@ -1800,8 +1806,8 @@ int stm32mp1_clk_init(void)
 		if (ret != 0) {
 			return ret;
 		}
-		ret = fdt_read_uint32_array(plloff[i], "csg", csg,
-					    (uint32_t)PLLCSG_NB);
+		ret = fdt_read_uint32_array(fdt, plloff[i], "csg",
+					    (uint32_t)PLLCSG_NB, csg);
 		if (ret == 0) {
 			stm32mp1_pll_csg(i, csg);
 		} else if (ret != -FDT_ERR_NOTFOUND) {

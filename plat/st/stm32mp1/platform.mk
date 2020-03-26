@@ -62,7 +62,8 @@ DTC_FLAGS		+=	-Wno-unit_address_vs_reg
 
 include lib/libfdt/libfdt.mk
 
-PLAT_BL_COMMON_SOURCES	:=	plat/st/common/stm32mp_common.c				\
+PLAT_BL_COMMON_SOURCES	:=	common/fdt_wrappers.c					\
+				plat/st/common/stm32mp_common.c				\
 				plat/st/stm32mp1/stm32mp1_private.c
 
 PLAT_BL_COMMON_SOURCES	+=	drivers/st/uart/aarch32/stm32_console.S

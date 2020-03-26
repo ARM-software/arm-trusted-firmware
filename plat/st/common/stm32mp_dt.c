@@ -12,6 +12,7 @@
 #include <platform_def.h>
 
 #include <common/debug.h>
+#include <common/fdt_wrappers.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32mp1_ddr.h>
 #include <drivers/st/stm32mp1_ram.h>
@@ -152,39 +153,6 @@ uint32_t fdt_read_uint32_default(int node, const char *prop_name,
 	}
 
 	return fdt32_to_cpu(*cuint);
-}
-
-/*******************************************************************************
- * This function reads a series of parameters in a node property
- * (generic use of fdt library).
- * It reads the values inside the device tree, from property name and node.
- * The number of parameters is also indicated as entry parameter.
- * Returns 0 on success and a negative FDT error code on failure.
- * If success, values are stored at the third parameter address.
- ******************************************************************************/
-int fdt_read_uint32_array(int node, const char *prop_name, uint32_t *array,
-			  uint32_t count)
-{
-	const fdt32_t *cuint;
-	int len;
-	uint32_t i;
-
-	cuint = fdt_getprop(fdt, node, prop_name, &len);
-	if (cuint == NULL) {
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	if ((uint32_t)len != (count * sizeof(uint32_t))) {
-		return -FDT_ERR_BADLAYOUT;
-	}
-
-	for (i = 0; i < ((uint32_t)len / sizeof(uint32_t)); i++) {
-		*array = fdt32_to_cpu(*cuint);
-		array++;
-		cuint++;
-	}
-
-	return 0;
 }
 
 /*******************************************************************************
@@ -396,7 +364,7 @@ uintptr_t dt_get_ddrctrl_base(void)
 	assert((fdt_get_node_parent_address_cells(node) == 1) &&
 	       (fdt_get_node_parent_size_cells(node) == 1));
 
-	if (fdt_read_uint32_array(node, "reg", array, 4) < 0) {
+	if (fdt_read_uint32_array(fdt, node, "reg", 4, array) < 0) {
 		return 0;
 	}
 
@@ -421,7 +389,7 @@ uintptr_t dt_get_ddrphyc_base(void)
 	assert((fdt_get_node_parent_address_cells(node) == 1) &&
 	       (fdt_get_node_parent_size_cells(node) == 1));
 
-	if (fdt_read_uint32_array(node, "reg", array, 4) < 0) {
+	if (fdt_read_uint32_array(fdt, node, "reg", 4, array) < 0) {
 		return 0;
 	}
 

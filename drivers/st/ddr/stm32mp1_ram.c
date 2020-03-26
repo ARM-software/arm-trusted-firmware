@@ -12,6 +12,7 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <common/fdt_wrappers.h>
 #include <drivers/st/stm32mp1_ddr.h>
 #include <drivers/st/stm32mp1_ddr_helpers.h>
 #include <drivers/st/stm32mp1_ram.h>
@@ -223,10 +224,10 @@ static int stm32mp1_ddr_setup(void)
 	INFO("RAM: %s\n", config.info.name);
 
 	for (idx = 0; idx < ARRAY_SIZE(param); idx++) {
-		ret = fdt_read_uint32_array(node, param[idx].name,
+		ret = fdt_read_uint32_array(fdt, node, param[idx].name,
+					    param[idx].size,
 					    (void *)((uintptr_t)&config +
-						     param[idx].offset),
-					    param[idx].size);
+						     param[idx].offset));
 
 		VERBOSE("%s: %s[0x%x] = %d\n", __func__,
 			param[idx].name, param[idx].size, ret);

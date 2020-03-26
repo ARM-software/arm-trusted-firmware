@@ -30,8 +30,6 @@ bool fdt_check_node(int node);
 uint8_t fdt_get_status(int node);
 uint32_t fdt_read_uint32_default(int node, const char *prop_name,
 				 uint32_t dflt_value);
-int fdt_read_uint32_array(int node, const char *prop_name,
-			  uint32_t *array, uint32_t count);
 int fdt_get_reg_props_by_name(int node, const char *name, uintptr_t *base,
 			      size_t *size);
 int dt_set_stdout_pinctrl(void);
