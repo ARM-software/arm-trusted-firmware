@@ -146,6 +146,12 @@ Common build options
    is on hardware that does not implement AArch32, or at least not at EL1 and
    higher ELs). Default value is 1.
 
+-  ``CTX_INCLUDE_EL2_REGS`` : This boolean option provides context save/restore
+   operations when entering/exiting an EL2 execution context. This is of primary
+   interest when Armv8.4-SecEL2 extension is implemented. Default is 0 (disabled).
+   This option must be equal to 1 (enabled) when ``SPD=spmd`` and
+   ``SPMD_SPM_AT_SEL2`` is set.
+
 -  ``CTX_INCLUDE_FPREGS``: Boolean option that, when set to 1, will cause the FP
    registers to be included when saving and restoring the CPU context. Default
    is 0.
@@ -536,8 +542,8 @@ Common build options
 -  ``SEPARATE_CODE_AND_RODATA``: Whether code and read-only data should be
    isolated on separate memory pages. This is a trade-off between security and
    memory usage. See "Isolating code and read-only data on separate memory
-   pages" section in :ref:`Firmware Design`. This flag is disabled by default and
-   affects all BL images.
+   pages" section in :ref:`Firmware Design`. This flag is disabled by default
+   and affects all BL images.
 
 -  ``SEPARATE_NOBITS_REGION``: Setting this option to ``1`` allows the NOBITS
    sections of BL31 (.bss, stacks, page tables, and coherent memory) to be
@@ -550,7 +556,9 @@ Common build options
    This build option is only valid if ``ARCH=aarch64``. The value should be
    the path to the directory containing the SPD source, relative to
    ``services/spd/``; the directory is expected to contain a makefile called
-   ``<spd-value>.mk``.
+   ``<spd-value>.mk``. The SPM Dispatcher standard service is located in
+   services/std_svc/spmd and enabled by ``SPD=spmd``. The SPM Dispatcher
+   cannot be enabled when the ``SPM_MM`` option is enabled.
 
 -  ``SPIN_ON_BL1_EXIT``: This option introduces an infinite loop in BL1. It can
    take either 0 (no loop) or 1 (add a loop). 0 is the default. This loop stops
@@ -558,13 +566,23 @@ Common build options
    firmware images have been loaded in memory, and the MMU and caches are
    turned off. Refer to the "Debugging options" section for more details.
 
+-  ``SPMD_SPM_AT_SEL2`` : this boolean option is used jointly with the SPM
+   Dispatcher option (``SPD=spmd``). When enabled (1) it indicates the SPMC
+   component runs at the S-EL2 execution state provided by the Armv8.4-SecEL2
+   extension. This is the default when enabling the SPM Dispatcher. When
+   disabled (0) it indicates the SPMC component runs at the S-EL1 execution
+   state. This latter configuration supports pre-Armv8.4 platforms (aka not
+   implementing the Armv8.4-SecEL2 extension).
+
 -  ``SPM_MM`` : Boolean option to enable the Management Mode (MM)-based Secure
-   Partition Manager (SPM) implementation. The default value is ``0``.
+   Partition Manager (SPM) implementation. The default value is ``0``
+   (disabled). This option cannot be enabled (``1``) when SPM Dispatcher is
+   enabled (``SPD=spmd``).
 
 -  ``SP_LAYOUT_FILE``: Platform provided path to JSON file containing the
-   description of secure partitions. Build system will parse this file and
-   package all secure partition blobs in FIP. This file not necessarily be
-   part of TF-A tree. Only avaialbe when ``SPD=spmd``.
+   description of secure partitions. The build system will parse this file and
+   package all secure partition blobs into the FIP. This file is not
+   necessarily part of TF-A tree. Only available when ``SPD=spmd``.
 
 -  ``SP_MIN_WITH_SECURE_FIQ``: Boolean flag to indicate the SP_MIN handles
    secure interrupts (caught through the FIQ line). Platforms can enable
