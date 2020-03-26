@@ -36,6 +36,7 @@ New Features
 - Libraries
    - Example: "Introduce BTI support in Library at ROM (romlib)"
    - Add Firmware Configuration Framework (fconf).
+   - Add DebugFS functionality
 
 - New Platforms Support
    - Example: "qemu/qemu_sbsa: New platform support added for QEMU SBSA platform"
