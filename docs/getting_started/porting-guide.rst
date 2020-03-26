@@ -1117,7 +1117,7 @@ the log output. The implementation should be robust to future changes that
 increase the number of log levels.
 
 Function : plat_get_soc_version()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
@@ -1132,7 +1132,7 @@ This function returns soc version which mainly consist of below fields
     soc_version[23:16] = JEP-106 identification code with parity bit for the SiP
 
 Function : plat_get_soc_revision()
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ::
 
