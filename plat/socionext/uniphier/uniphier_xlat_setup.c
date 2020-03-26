@@ -10,6 +10,7 @@
 
 #include <common/debug.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+#include <plat/common/platform.h>
 
 #include "uniphier.h"
 
@@ -65,4 +66,16 @@ void uniphier_mmap_setup(unsigned int soc)
 	init_xlat_tables();
 
 	enable_mmu(0);
+
+#if PLAT_RO_XLAT_TABLES
+	{
+		int ret;
+
+		ret = xlat_make_tables_readonly();
+		if (ret) {
+			ERROR("Failed to make translation tables read-only.");
+			plat_error_handler(ret);
+		}
+	}
+#endif
 }

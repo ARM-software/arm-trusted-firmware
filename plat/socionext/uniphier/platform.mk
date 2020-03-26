@@ -14,6 +14,13 @@ override ENABLE_SVE_FOR_NS		:= 0
 # UNIPHIER_MEM_BASE so that all TF images are loaded at their link addresses.
 override ENABLE_PIE			:= 1
 
+ALLOW_RO_XLAT_TABLES			:= 1
+
+ifeq ($(ALLOW_RO_XLAT_TABLES),1)
+BL31_CFLAGS += -DPLAT_RO_XLAT_TABLES=1
+BL32_CFLAGS += -DPLAT_RO_XLAT_TABLES=1
+endif
+
 # Cortex-A53 revision r0p4-51rel0
 # needed for LD20, unneeded for LD11, PXs3 (no ACE)
 ERRATA_A53_855873		:= 1
