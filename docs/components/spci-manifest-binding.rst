@@ -16,6 +16,7 @@ spci-manifest-partition
      minor versions fo the device tree binding for the SPCI manifest represented
      by this node. The minor number is incremented if the binding changes in a
      backwards compatible manner.
+
       - X is an integer representing the major version number of this document.
       - Y is an integer representing the minor version number of this document.
 
@@ -23,6 +24,7 @@ spci-manifest-partition
    - value type: <u32>
    - Must be two 16 bits values (X, Y), concatenated as 31:16 -> X,
      15:0 -> Y, where:
+
       - X is the major version of PSA-FF-A expected by the partition at the SPCI
         instance it will execute.
       - Y is the minor version of PSA-FF-A expected by the partition at the SPCI
@@ -34,10 +36,12 @@ spci-manifest-partition
      implemented by this partition. The UUID format is described in RFC 4122.
      UUID can be shared by multiple instances of partitions that offer the same
      service For example:
+
       - If there are multiple instances of a Trusted OS, then the UUID can be
         shared by all instances.
       - The TEE driver in the HLOS can use the UUID with the
         SPCI_PARTITION_INFO_GET interface to determine the:
+
          - Number of Trusted OSs
          - The partition ID of each instance of the Trusted OS
 
@@ -56,6 +60,7 @@ spci-manifest-partition
 - execution-ctx-count [mandatory]
    - value type: <u32>
    - Number of vCPUs that a VM or SP wants to instantiate.
+
       - In the absence of virtualization, this is the number of execution
         contexts that a partition implements.
       - If value of this field = 1 and number of PEs > 1 then the partition is
@@ -66,6 +71,7 @@ spci-manifest-partition
 - exception-level [mandatory]
    - value type: <u32>
    - The target exception level for the partition:
+
       - 0x0: EL1
       - 0x1: S_EL0
       - 0x2: S_EL1
@@ -76,6 +82,7 @@ spci-manifest-partition
 - execution-state [mandatory]
    - value type: <u32>
    - The target execution state of the partition:
+
       - 0: AArch64
       - 1: AArch32
 
@@ -94,6 +101,7 @@ spci-manifest-partition
 - xlat-granule [mandatory]
    - value type: <u32>
    - Translation granule used with the partition:
+
       - 0x0: 4k
       - 0x1: 16k
       - 0x2: 32k
@@ -113,6 +121,7 @@ spci-manifest-partition
 - messaging-method [mandatory]
    - value type: <u32>
    - Specifies which messaging methods are supported by the partition:
+
       - 0x0: direct messaging method
       - 0x1: indirect messaging method
       - 0x2: both direct and indirect messaging methods
@@ -125,6 +134,7 @@ spci-manifest-partition
 - run-time-model
    - value type: <u32>
    - Run time model that the SPM must enforce for this SP:
+
       - 0x0: Run to completion
       - 0x1: Preemptible
 
@@ -195,6 +205,7 @@ device-regions
 - reg [mandatory]
    - value type: <prop-encoded-array>
    - A (address, num-pages) pair describing the device, where:
+
       - address: The physical base address <u64> value of the device MMIO
         region.
       - num-pages: The <u32> number of pages of the region. The total size of
@@ -214,15 +225,18 @@ device-regions
 - stream-ids [mandatory]
    - value type: <prop-encoded-array>
    - A list of (id, mem-manage) pair, where:
+
       - id: A unique <u32> value amongst all devices assigned to the partition.
       - mem-manage: A <u32> value used in memory management operations.
 
 - interrupts [mandatory]
    - value type: <prop-encoded-array>
    - A list of (id, attributes) pair describing the device interrupts, where:
+
       - id: The <u32> interrupt IDs.
       - attributes: A ?? TO DEFINE value,
         containing the attributes for each interrupt ID:
+
          - Interrupt type: SPI, PPI, SGI
          - Interrupt configuration: Edge triggered, Level triggered
          - Interrupt security state: Secure, Non-secure

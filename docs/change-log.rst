@@ -17,6 +17,7 @@ New Features
 
    - Enable Memory Tagging Extension (MTE) support in both secure and non-secure
      worlds
+
        - Adds support for the new Memory Tagging Extension arriving in
          ARMv8.5. MTE support is now enabled by default on systems that
          support it at EL0.
@@ -84,6 +85,7 @@ New Features
 
    - gicv3: Enabled multi-socket GIC redistributor frame discovery and migrated
      ARM platforms to the new API
+
        - Adds ``gicv3_rdistif_probe`` function that delegates the responsibility
          of discovering the corresponding redistributor base frame to each CPU
          itself.
@@ -2841,7 +2843,7 @@ releases of TF-A.
 
 --------------
 
-*Copyright (c) 2013-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.*
 
 .. _SDEI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
 .. _tf-issue#501: https://github.com/ARM-software/tf-issues/issues/501

@@ -17,4 +17,5 @@ Components
    romlib-design
    sdei
    secure-partition-manager-design
+   spci-manifest-binding
    xlat-tables-lib-v2-design
