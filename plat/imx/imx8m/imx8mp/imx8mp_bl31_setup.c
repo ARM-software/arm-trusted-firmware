@@ -163,6 +163,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 #ifdef SPD_trusty
 	bl32_image_ep_info.args.arg0 = BL32_SIZE;
 	bl32_image_ep_info.args.arg1 = BL32_BASE;
+#else
+	/* Make sure memory is clean */
+	mmio_write_32(BL32_FDT_OVERLAY_ADDR, 0);
+	bl33_image_ep_info.args.arg3 = BL32_FDT_OVERLAY_ADDR;
+	bl32_image_ep_info.args.arg3 = BL32_FDT_OVERLAY_ADDR;
 #endif
 #endif
 
