@@ -40,6 +40,7 @@ New Features
 
 - CPU Support
    - Example: "cortex-a55: Workaround for erratum 1221012"
+   - Use Speculation Barrier instruction for v8.5+ cores
 
 - Drivers
    - Example: "console: Allow the console to register multiple times"
@@ -55,6 +56,8 @@ New Features
 - Platforms
    - Example: "arm/common: Introduce wrapper functions to setup secure watchdog"
    - plat/arm: Add support for the new `dualroot` chain of trust.
+   - plat/arm/fvp: Add support for fconf in BL31 and SP_MIN. Populate power
+     domain desciptor dynamically by leveraging fconf APIs.
 
 - PSCI
    - Example: "Adding new optional PSCI hook ``pwr_domain_on_finish_late``"
@@ -63,6 +66,7 @@ New Features
    - Example: "UBSAN support and handlers"
    - Add support for optional firmware encryption feature (experimental).
    - Introduce a new `dualroot` chain of trust.
+   - aarch32: stop speculative execution past exception returns.
 
 - SPCI
    - Introduced the SPM Dispatcher (SPMD) component as a new standard service.
