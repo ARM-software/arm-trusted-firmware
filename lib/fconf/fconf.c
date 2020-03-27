@@ -33,7 +33,7 @@ void fconf_load_config(void)
 	err = load_auth_image(TB_FW_CONFIG_ID, &arm_tb_fw_info);
 	if (err != 0) {
 		/* Return if FW_CONFIG is not loaded */
-		WARN("Failed to load FW_CONFIG\n");
+		VERBOSE("FW_CONFIG not loaded, continuing without it\n");
 		return;
 	}
 
