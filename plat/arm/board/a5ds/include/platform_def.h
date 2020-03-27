@@ -11,6 +11,7 @@
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <plat/arm/board/common/v2m_def.h>
+#include <plat/arm/common/smccc_def.h>
 #include <plat/common/common_def.h>
 
 /* Memory location options for TSP */
