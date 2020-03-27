@@ -20,12 +20,12 @@ end box
 bl2_entrypoint -> bl2_main : bl2_setup()
 bl2_main -> arm_bl2_setup : bl2_early_platform_setup2(\n\t arg0, arg1, arg2, arg3)
 note over arm_bl2_setup
-	arg0 = tb_fw_config
+	arg0 = fw_config
 	arg1 = mem_layout
 end note
-arm_bl2_setup -> arm_bl2_setup : arm_bl2_early_platform_setup(\n\t tb_fw_config, mem_layout)
+arm_bl2_setup -> arm_bl2_setup : arm_bl2_early_platform_setup(\n\t fw_config, mem_layout)
 activate arm_bl2_setup
-	arm_bl2_setup -> fconf: fconf_polulate(tb_fw_config)
+	arm_bl2_setup -> fconf: fconf_polulate("TB_FW", fw_config)
 	activate fconf
 		fconf -> fconf_tbbr_getter: fconf_populate_tbbr_dyn_config(uintptr_t dtb)
 		note over fconf_tbbr_getter: read tbbr propeties from dtb

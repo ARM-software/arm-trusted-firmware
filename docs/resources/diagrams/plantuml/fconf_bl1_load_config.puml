@@ -24,9 +24,9 @@ arm_bl1_setup -> fconf : fconf_load_config()
 activate fconf
 	note over fconf
 		create and populate an
-		image_desc_t for TB_FW_CONFIG
+		image_desc_t for FW_CONFIG
 	end note
-	fconf -> bl_common : load_auth_image(TB_FW_CONFIG_ID, &image_info)
+	fconf -> bl_common : load_auth_image(FW_CONFIG_ID, &image_info)
 	activate bl_common
 	note over bl_common
 		load and auth image from fip
@@ -42,7 +42,7 @@ activate fconf
 	fconf <- plat_bl1_common : BL2_IMAGE_DESC
 	note over fconf
 		set ep_info.args.arg0 of BL2_IMAGE_DESC
-		to TB_FW_CONFIG base address
+		to FW_CONFIG base address
 	end note
 arm_bl1_setup <- fconf
 deactivate fconf
