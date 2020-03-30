@@ -18,12 +18,6 @@
 			max-size = <0x200>;
 			id = <TB_FW_CONFIG_ID>;
 		};
-
-		hw-config {
-			load-address = <0x0 0x83000000>;
-			max-size = <0x01000000>;
-			id = <HW_CONFIG_ID>;
-		};
 	};
 
 	tb_fw-config {
@@ -31,5 +25,17 @@
 
 		/* Disable authentication for development */
 		disable_auth = <0x0>;
+
+		/*
+		 * The following two entries are placeholders for Mbed TLS
+		 * heap information. The default values don't matter since
+		 * they will be overwritten by BL1.
+		 * In case of having shared Mbed TLS heap between BL1 and BL2,
+		 * BL1 will populate these two properties with the respective
+		 * info about the shared heap. This info will be available for
+		 * BL2 in order to locate and re-use the heap.
+		 */
+		mbedtls_heap_addr = <0x0 0x0>;
+		mbedtls_heap_size = <0x0>;
 	};
 };
