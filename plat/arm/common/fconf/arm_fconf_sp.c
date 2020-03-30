@@ -44,8 +44,8 @@ int fconf_populate_arm_sp(uintptr_t config)
 	}
 
 	fdt_for_each_subnode(sp_node, dtb, node) {
-		err = fdtw_read_array(dtb, sp_node, "uuid", 4,
-				      &uuid_helper.word);
+		err = fdt_read_uint32_array(dtb, sp_node, "uuid", 4,
+					    uuid_helper.word);
 		if (err < 0) {
 			ERROR("FCONF: cannot read SP uuid\n");
 			return -1;

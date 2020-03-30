@@ -15,6 +15,7 @@
 # fdt	fdt_getprop_namelen	patch
 
 rom     rom_lib_init
+fdt     fdt_getprop
 fdt     fdt_getprop_namelen
 fdt     fdt_setprop_inplace
 fdt     fdt_check_header

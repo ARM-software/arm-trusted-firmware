@@ -18,7 +18,7 @@ int fconf_populate_gicv3_config(uintptr_t config)
 {
 	int err;
 	int node;
-	int addr[20];
+	uint32_t addr[20];
 
 	/* Necessary to work with libfdt APIs */
 	const void *hw_config_dtb = (const void *)config;
@@ -42,7 +42,7 @@ int fconf_populate_gicv3_config(uintptr_t config)
 		      <0x0 0x2c02f000 0 0x2000>;	// GICV
 	*/
 
-	err = fdtw_read_array(hw_config_dtb, node, "reg", 20, &addr);
+	err = fdt_read_uint32_array(hw_config_dtb, node, "reg", 20, addr);
 	if (err < 0) {
 		ERROR("FCONF: Failed to read reg property of GIC node\n");
 	}

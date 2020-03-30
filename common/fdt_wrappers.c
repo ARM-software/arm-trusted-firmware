@@ -65,38 +65,35 @@ int fdtw_read_cells(const void *dtb, int node, const char *prop,
 
 /*
  * Read cells from a given property of the given node. Any number of 32-bit
- * cells of the property can be read. The fdt pointer is updated. Returns 0 on
- * success, and -1 on error.
+ * cells of the property can be read. Returns 0 on success, or a negative
+ * FDT error value otherwise.
  */
-int fdtw_read_array(const void *dtb, int node, const char *prop,
-		unsigned int cells, void *value)
+int fdt_read_uint32_array(const void *dtb, int node, const char *prop_name,
+			  unsigned int cells, uint32_t *value)
 {
-	const uint32_t *value_ptr;
+	const fdt32_t *prop;
 	int value_len;
 
 	assert(dtb != NULL);
-	assert(prop != NULL);
+	assert(prop_name != NULL);
 	assert(value != NULL);
 	assert(node >= 0);
 
 	/* Access property and obtain its length (in bytes) */
-	value_ptr = fdt_getprop_namelen(dtb, node, prop, (int)strlen(prop),
-			&value_len);
-	if (value_ptr == NULL) {
-		WARN("Couldn't find property %s in dtb\n", prop);
-		return -1;
+	prop = fdt_getprop(dtb, node, prop_name, &value_len);
+	if (prop == NULL) {
+		WARN("Couldn't find property %s in dtb\n", prop_name);
+		return -FDT_ERR_NOTFOUND;
 	}
 
-	/* Verify that property length accords with cell length */
-	if (NCELLS((unsigned int)value_len) != cells) {
+	/* Verify that property length can fill the entire array. */
+	if (NCELLS((unsigned int)value_len) < cells) {
 		WARN("Property length mismatch\n");
-		return -1;
+		return -FDT_ERR_BADVALUE;
 	}
-
-	uint32_t *dst = value;
 
 	for (unsigned int i = 0U; i < cells; i++) {
-		dst[i] = fdt32_to_cpu(value_ptr[i]);
+		value[i] = fdt32_to_cpu(prop[i]);
 	}
 
 	return 0;
