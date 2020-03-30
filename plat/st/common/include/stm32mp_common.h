@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2020, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -86,5 +86,9 @@ void stm32mp_io_setup(void);
  * @return: 0 on success, negative value in case of error
  */
 int stm32mp_check_header(boot_api_image_header_t *header, uintptr_t buffer);
+
+/* Functions to map DDR in MMU with non-cacheable attribute, and unmap it */
+int stm32mp_map_ddr_non_cacheable(void);
+int stm32mp_unmap_ddr(void);
 
 #endif /* STM32MP_COMMON_H */

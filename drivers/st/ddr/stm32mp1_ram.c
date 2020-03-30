@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2020, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -250,8 +250,9 @@ static int stm32mp1_ddr_setup(void)
 	VERBOSE("%s : ram size(%x, %x)\n", __func__,
 		(uint32_t)priv->info.base, (uint32_t)priv->info.size);
 
-	write_sctlr(read_sctlr() & ~SCTLR_C_BIT);
-	dcsw_op_all(DC_OP_CISW);
+	if (stm32mp_map_ddr_non_cacheable() != 0) {
+		panic();
+	}
 
 	uret = ddr_test_data_bus();
 	if (uret != 0U) {
@@ -274,7 +275,9 @@ static int stm32mp1_ddr_setup(void)
 		panic();
 	}
 
-	write_sctlr(read_sctlr() | SCTLR_C_BIT);
+	if (stm32mp_unmap_ddr() != 0) {
+		panic();
+	}
 
 	return 0;
 }
