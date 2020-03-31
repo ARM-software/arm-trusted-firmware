@@ -40,7 +40,7 @@ depending on project requirement and partner feedback.
 +-----------------+---------------------------+------------------------------+
 | v2.2            | 4th week of Oct '19       | 1st week of Oct '19          |
 +-----------------+---------------------------+------------------------------+
-| v2.3            | 4th week of Mar '20       | 1st week of Mar '20          |
+| v2.3            | 4th week of Apr '20       | 1st week of Apr '20          |
 +-----------------+---------------------------+------------------------------+
 
 Removal of Deprecated Interfaces
@@ -65,4 +65,4 @@ Release version after which it will be removed.
 
 --------------
 
-*Copyright (c) 2018-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.*
