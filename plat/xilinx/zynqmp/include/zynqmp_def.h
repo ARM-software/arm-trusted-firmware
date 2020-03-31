@@ -7,6 +7,7 @@
 #ifndef ZYNQMP_DEF_H
 #define ZYNQMP_DEF_H
 
+#include <plat/arm/common/smccc_def.h>
 #include <plat/common/common_def.h>
 
 #define ZYNQMP_CONSOLE_ID_cadence	1

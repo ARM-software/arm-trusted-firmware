@@ -7,6 +7,7 @@
 #ifndef VERSAL_DEF_H
 #define VERSAL_DEF_H
 
+#include <plat/arm/common/smccc_def.h>
 #include <plat/common/common_def.h>
 
 /* List all consoles */
