@@ -508,6 +508,18 @@ ifeq ($(ARCH),aarch64)
 endif
 endif
 
+ifeq (${ARCH},aarch64)
+BL1_CFLAGS += -DIMAGE_AT_EL3
+ifeq ($(BL2_AT_EL3),1)
+BL2_CFLAGS += -DIMAGE_AT_EL3
+else
+BL2_CFLAGS += -DIMAGE_AT_EL1
+endif
+BL2U_CFLAGS += -DIMAGE_AT_EL1
+BL31_CFLAGS += -DIMAGE_AT_EL3
+BL32_CFLAGS += -DIMAGE_AT_EL1
+endif
+
 # Include the CPU specific operations makefile, which provides default
 # values for all CPU errata workarounds and CPU specific optimisations.
 # This can be overridden by the platform.
