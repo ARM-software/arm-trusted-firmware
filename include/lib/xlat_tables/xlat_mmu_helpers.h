@@ -56,6 +56,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include <arch_helpers.h>
+
 /*
  * Return the values that the MMU configuration registers must contain for the
  * specified translation context. `params` must be a pointer to array of size
@@ -70,6 +72,7 @@ void setup_mmu_cfg(uint64_t *params, unsigned int flags,
 void enable_mmu_el1(unsigned int flags);
 void enable_mmu_el2(unsigned int flags);
 void enable_mmu_el3(unsigned int flags);
+void enable_mmu(unsigned int flags);
 
 void enable_mmu_direct_el1(unsigned int flags);
 void enable_mmu_direct_el2(unsigned int flags);
