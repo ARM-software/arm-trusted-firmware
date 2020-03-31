@@ -5,8 +5,8 @@
 #
 
 # Add Firmware Configuration files
-FCONF_SOURCES		:=	lib/fconf/fconf.c				\
-				lib/fconf/fconf_dyn_cfg_getter.c
+FCONF_SOURCES		:=	lib/fconf/fconf.c
+FCONF_DYN_SOURCES	:=	lib/fconf/fconf_dyn_cfg_getter.c
 
 BL1_SOURCES		+=	${FCONF_SOURCES}
-BL2_SOURCES		+=	${FCONF_SOURCES}
+BL2_SOURCES		+=	${FCONF_SOURCES} ${FCONF_DYN_SOURCES}
