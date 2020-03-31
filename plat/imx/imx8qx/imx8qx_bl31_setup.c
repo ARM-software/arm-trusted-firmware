@@ -38,11 +38,43 @@ IMPORT_SYM(unsigned long, __RW_START__, BL31_RW_START);
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
 
+/* Default configuration for i.MX8QM/QXP MEK */
+#if defined(IMX_USE_UART0)
 #define UART_PAD_CTRL	(PADRING_IFMUX_EN_MASK | PADRING_GP_EN_MASK | \
 			(SC_PAD_CONFIG_OUT_IN << PADRING_CONFIG_SHIFT) | \
 			(SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
 			(SC_PAD_28FDSOI_DSE_DV_LOW << PADRING_DSE_SHIFT) | \
 			(SC_PAD_28FDSOI_PS_PD << PADRING_PULL_SHIFT))
+#define IMX_RES_UART			SC_R_UART_0
+#define IMX_PAD_UART_RX			SC_P_UART0_RX
+#define IMX_PAD_UART_TX			SC_P_UART0_TX
+
+/*
+ * On Toradex Colibri i.MX8QXP UART3 on the FLEXCAN2.
+ * Use custom pad control for this
+ */
+#elif defined(IMX_USE_UART3)
+/*
+ * FLEXCAN2_RX/TX pads are muxed to ADMA_UART3_RX/TX,
+ * For ref:
+ * 000b - ADMA_FLEXCAN2_RX
+ * 001b - ADMA_SAI3_RXD
+ * 010b - ADMA_UART3_RX
+ * 011b - ADMA_SAI1_RXFS
+ * 100b - LSIO_GPIO1_IO19
+ */
+#define UART_PAD_CTRL	(PADRING_IFMUX_EN_MASK | PADRING_GP_EN_MASK | \
+			(SC_PAD_CONFIG_OUT_IN << PADRING_CONFIG_SHIFT) | \
+			(2U << PADRING_IFMUX_SHIFT) | \
+			(SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+			(SC_PAD_28FDSOI_DSE_DV_LOW << PADRING_DSE_SHIFT) | \
+			(SC_PAD_28FDSOI_PS_PD << PADRING_PULL_SHIFT))
+#define IMX_RES_UART			SC_R_UART_3
+#define IMX_PAD_UART_RX			SC_P_FLEXCAN2_RX
+#define IMX_PAD_UART_TX			SC_P_FLEXCAN2_TX
+#else
+#error "Provide proper UART configuration in IMX_DEBUG_UART"
+#endif
 
 static const mmap_region_t imx_mmap[] = {
 	MAP_REGION_FLAT(IMX_REG_BASE, IMX_REG_SIZE, MT_DEVICE | MT_RW),
@@ -74,7 +106,7 @@ static void lpuart32_serial_setbrg(unsigned int base, int baudrate)
 	if (baudrate == 0)
 		panic();
 
-	sc_pm_get_clock_rate(ipc_handle, SC_R_UART_0, 2, &rate);
+	sc_pm_get_clock_rate(ipc_handle, IMX_RES_UART, 2, &rate);
 
 	baud_diff = baudrate;
 	osr = 0;
@@ -261,14 +293,15 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		panic();
 
 #if DEBUG_CONSOLE_A35
-	sc_pm_set_resource_power_mode(ipc_handle, SC_R_UART_0, SC_PM_PW_MODE_ON);
+	sc_pm_set_resource_power_mode(ipc_handle, IMX_RES_UART,
+				      SC_PM_PW_MODE_ON);
 	sc_pm_clock_rate_t rate = 80000000;
-	sc_pm_set_clock_rate(ipc_handle, SC_R_UART_0, 2, &rate);
-	sc_pm_clock_enable(ipc_handle, SC_R_UART_0, 2, true, false);
+	sc_pm_set_clock_rate(ipc_handle, IMX_RES_UART, 2, &rate);
+	sc_pm_clock_enable(ipc_handle, IMX_RES_UART, 2, true, false);
 
 	/* Configure UART pads */
-	sc_pad_set(ipc_handle, SC_P_UART0_RX, UART_PAD_CTRL);
-	sc_pad_set(ipc_handle, SC_P_UART0_TX, UART_PAD_CTRL);
+	sc_pad_set(ipc_handle, IMX_PAD_UART_RX, UART_PAD_CTRL);
+	sc_pad_set(ipc_handle, IMX_PAD_UART_TX, UART_PAD_CTRL);
 	lpuart32_serial_init(IMX_BOOT_UART_BASE);
 #endif
 
