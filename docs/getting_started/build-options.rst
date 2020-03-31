@@ -667,6 +667,27 @@ Common build options
    cluster platforms). If this option is enabled, then warm boot path
    enables D-caches immediately after enabling MMU. This option defaults to 0.
 
+GICv3 driver options
+--------------------
+
+GICv3 driver files are included using directive:
+
+``include drivers/arm/gic/v3/gicv3.mk``
+
+The driver can be configured with the following options set in the platform
+makefile:
+
+-  ``GICV3_IMPL``: Selects between GIC-500 and GIC-600 variants of GICv3.
+   This option can take values GIC500 and GIC600 with default set to GIC500.
+
+-  ``GICV3_IMPL_GIC600_MULTICHIP``: Selects GIC-600 variant with multichip
+   functionality. This option defaults to 0
+
+-  ``GICV3_OVERRIDE_DISTIF_PWR_OPS``: Allows override of default implementation
+   of ``arm_gicv3_distif_pre_save`` and ``arm_gicv3_distif_post_restore``
+   functions. This is required for FVP platform which need to simulate GIC save
+   and restore during SYSTEM_SUSPEND without powering down GIC. Default is 0.
+
 Debugging options
 -----------------
 

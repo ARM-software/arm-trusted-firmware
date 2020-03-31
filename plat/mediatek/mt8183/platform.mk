@@ -26,15 +26,12 @@ PLAT_BL_COMMON_SOURCES := lib/xlat_tables/aarch64/xlat_tables.c       \
                           plat/common/plat_psci_common.c              \
                           plat/common/aarch64/crash_console_helpers.S
 
+# Include GICv3 driver files
+include drivers/arm/gic/v3/gicv3.mk
+
 BL31_SOURCES    += common/desc_image_load.c                              \
                    drivers/arm/cci/cci.c                                 \
-                   drivers/arm/gic/common/gic_common.c                   \
-                   drivers/arm/gic/v3/arm_gicv3_common.c                 \
-                   drivers/arm/gic/v3/gicv3_helpers.c                    \
-                   drivers/arm/gic/v3/gicdv3_helpers.c			 \
-                   drivers/arm/gic/v3/gicrv3_helpers.c			 \
-                   drivers/arm/gic/v3/gic500.c                           \
-                   drivers/arm/gic/v3/gicv3_main.c                       \
+                   ${GICV3_SOURCES}					 \
                    drivers/delay_timer/delay_timer.c                     \
                    drivers/delay_timer/generic_delay_timer.c             \
                    drivers/gpio/gpio.c                                   \

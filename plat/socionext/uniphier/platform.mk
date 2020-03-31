@@ -55,12 +55,11 @@ BL2_SOURCES		+=	common/desc_image_load.c		\
 				$(PLAT_PATH)/uniphier_scp.c		\
 				$(PLAT_PATH)/uniphier_usb.c
 
+# Include GICv3 driver files
+include drivers/arm/gic/v3/gicv3.mk
+
 BL31_SOURCES		+=	drivers/arm/cci/cci.c			\
-				drivers/arm/gic/common/gic_common.c	\
-				drivers/arm/gic/v3/gicv3_helpers.c	\
-				drivers/arm/gic/v3/gicdv3_helpers.c	\
-				drivers/arm/gic/v3/gicrv3_helpers.c	\
-				drivers/arm/gic/v3/gicv3_main.c		\
+				${GICV3_SOURCES}			\
 				lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
 				plat/common/plat_gicv3.c		\

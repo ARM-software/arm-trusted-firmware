@@ -78,14 +78,11 @@ $(eval $(call add_define,CONFIG_GICV3))
 # CCI-400
 $(eval $(call add_define,USE_CCI))
 
-MARVELL_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
-				drivers/arm/gic/v3/gicv3_main.c		\
-				drivers/arm/gic/v3/gicv3_helpers.c	\
-				drivers/arm/gic/v3/gicdv3_helpers.c	\
-				drivers/arm/gic/v3/gicrv3_helpers.c	\
-				drivers/arm/gic/v3/arm_gicv3_common.c	\
-				plat/common/plat_gicv3.c		\
-				drivers/arm/gic/v3/gic500.c
+# Include GICv3 driver files
+include drivers/arm/gic/v3/gicv3.mk
+
+MARVELL_GIC_SOURCES	:=	${GICV3_SOURCES}			\
+				plat/common/plat_gicv3.c
 
 PLAT_INCLUDES		:=	-I$(PLAT_FAMILY_BASE)/$(PLAT)		\
 				-I$(PLAT_COMMON_BASE)/include		\

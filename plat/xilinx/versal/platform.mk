@@ -43,17 +43,14 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/versal/include/			\
 				-Iplat/xilinx/versal/pm_service/
 
+# Include GICv3 driver files
+include drivers/arm/gic/v3/gicv3.mk
+
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
-				drivers/arm/gic/common/gic_common.c		\
-				drivers/arm/gic/v3/arm_gicv3_common.c		\
-				drivers/arm/gic/v3/gic500.c			\
-				drivers/arm/gic/v3/gicv3_main.c			\
-				drivers/arm/gic/v3/gicv3_helpers.c		\
-				drivers/arm/gic/v3/gicdv3_helpers.c	\
-				drivers/arm/gic/v3/gicrv3_helpers.c	\
+				${GICV3_SOURCES}				\
 				drivers/arm/pl011/aarch64/pl011_console.S	\
 				plat/common/aarch64/crash_console_helpers.S	\
 				plat/arm/common/arm_cci.c			\
