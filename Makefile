@@ -84,26 +84,6 @@ endif
 
 export Q ECHO
 
-# Process Debug flag
-$(eval $(call add_define,DEBUG))
-ifneq (${DEBUG}, 0)
-        BUILD_TYPE	:=	debug
-        TF_CFLAGS	+= 	-g
-
-        ifneq ($(findstring clang,$(notdir $(CC))),)
-             ASFLAGS		+= 	-g
-        else
-             ASFLAGS		+= 	-g -Wa,--gdwarf-2
-        endif
-
-        # Use LOG_LEVEL_INFO by default for debug builds
-        LOG_LEVEL	:=	40
-else
-        BUILD_TYPE	:=	release
-        # Use LOG_LEVEL_NOTICE by default for release builds
-        LOG_LEVEL	:=	20
-endif
-
 # Default build string (git branch and commit)
 ifeq (${BUILD_STRING},)
         BUILD_STRING	:=	$(shell git describe --always --dirty --tags 2> /dev/null)
@@ -241,6 +221,26 @@ else
 TF_CFLAGS_aarch32	=	$(march32-directive)
 TF_CFLAGS_aarch64	=	$(march64-directive)
 LD			=	$(LINKER)
+endif
+
+# Process Debug flag
+$(eval $(call add_define,DEBUG))
+ifneq (${DEBUG}, 0)
+        BUILD_TYPE	:=	debug
+        TF_CFLAGS	+= 	-g
+
+        ifneq ($(findstring clang,$(notdir $(CC))),)
+             ASFLAGS		+= 	-g
+        else
+             ASFLAGS		+= 	-g -Wa,--gdwarf-2
+        endif
+
+        # Use LOG_LEVEL_INFO by default for debug builds
+        LOG_LEVEL	:=	40
+else
+        BUILD_TYPE	:=	release
+        # Use LOG_LEVEL_NOTICE by default for release builds
+        LOG_LEVEL	:=	20
 endif
 
 ifeq (${AARCH32_INSTRUCTION_SET},A32)
