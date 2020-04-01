@@ -25,10 +25,6 @@
 /* Word size for 64-bit CPUs */
 #define CPU_WORD_SIZE			8
 
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31) ||(defined(IMAGE_BL2) && BL2_AT_EL3)
-#define IMAGE_AT_EL3
-#endif
-
 /*
  * Whether errata status needs reporting. Errata status is printed in debug
  * builds for both BL1 and BL31 images.
