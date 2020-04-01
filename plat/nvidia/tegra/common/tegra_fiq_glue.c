@@ -9,6 +9,7 @@
 
 #include <arch_helpers.h>
 #include <bl31/interrupt_mgmt.h>
+#include <bl31/ehf.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <context.h>
@@ -25,6 +26,15 @@
 /* Legacy FIQ used by earlier Tegra platforms */
 #define LEGACY_FIQ_PPI_WDT		28U
 
+/* Install priority level descriptors for each dispatcher */
+ehf_pri_desc_t plat_exceptions[] = {
+	EHF_PRI_DESC(PLAT_PRI_BITS, PLAT_TEGRA_WDT_PRIO),
+};
+
+/* Expose priority descriptors to Exception Handling Framework */
+EHF_REGISTER_PRIORITIES(plat_exceptions, ARRAY_SIZE(plat_exceptions),
+	PLAT_PRI_BITS);
+
 /*******************************************************************************
  * Static variables
  ******************************************************************************/
@@ -35,25 +45,16 @@ static pcpu_fiq_state_t fiq_state[PLATFORM_CORE_COUNT];
 /*******************************************************************************
  * Handler for FIQ interrupts
  ******************************************************************************/
-static uint64_t tegra_fiq_interrupt_handler(uint32_t id,
-					  uint32_t flags,
-					  void *handle,
-					  void *cookie)
+static int tegra_fiq_interrupt_handler(unsigned int id, unsigned int flags,
+		void *handle, void *cookie)
 {
 	cpu_context_t *ctx = cm_get_context(NON_SECURE);
 	el3_state_t *el3state_ctx = get_el3state_ctx(ctx);
 	uint32_t cpu = plat_my_core_pos();
-	uint32_t irq;
 
-	(void)id;
 	(void)flags;
 	(void)handle;
 	(void)cookie;
-
-	/*
-	 * Read the pending interrupt ID
-	 */
-	irq = plat_ic_get_pending_interrupt_id();
 
 	/*
 	 * Jump to NS world only if the NS world's FIQ handler has
@@ -90,7 +91,7 @@ static uint64_t tegra_fiq_interrupt_handler(uint32_t id,
 	 * disable the routing so that we can mark it as "complete" in the
 	 * GIC later.
 	 */
-	if (irq == LEGACY_FIQ_PPI_WDT) {
+	if (id == LEGACY_FIQ_PPI_WDT) {
 		tegra_fc_disable_fiq_to_ccplex_routing();
 	}
 #endif
@@ -98,10 +99,7 @@ static uint64_t tegra_fiq_interrupt_handler(uint32_t id,
 	/*
 	 * Mark this interrupt as complete to avoid a FIQ storm.
 	 */
-	if (irq < 1022U) {
-		(void)plat_ic_acknowledge_interrupt();
-		plat_ic_end_of_interrupt(irq);
-	}
+	plat_ic_end_of_interrupt(id);
 
 	return 0;
 }
@@ -111,23 +109,13 @@ static uint64_t tegra_fiq_interrupt_handler(uint32_t id,
  ******************************************************************************/
 void tegra_fiq_handler_setup(void)
 {
-	uint32_t flags;
-	int32_t rc;
-
 	/* return if already registered */
 	if (fiq_handler_active == 0U) {
 		/*
 		 * Register an interrupt handler for FIQ interrupts generated for
 		 * NS interrupt sources
 		 */
-		flags = 0U;
-		set_interrupt_rm_flag((flags), (NON_SECURE));
-		rc = register_interrupt_type_handler(INTR_TYPE_EL3,
-					tegra_fiq_interrupt_handler,
-					flags);
-		if (rc != 0) {
-			panic();
-		}
+		ehf_register_priority_handler(PLAT_TEGRA_WDT_PRIO, tegra_fiq_interrupt_handler);
 
 		/* handler is now active */
 		fiq_handler_active = 1;

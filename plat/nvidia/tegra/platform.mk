@@ -20,6 +20,10 @@ $(eval $(call add_define,PLAT_LOG_LEVEL_ASSERT))
 PLAT_XLAT_TABLES_DYNAMIC :=	1
 $(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
 
+# Enable exception handling at EL3
+EL3_EXCEPTION_HANDLING	:=	1
+GICV2_G0_FOR_EL3	:=	1
+
 # Enable PSCI v1.0 extended state ID format
 PSCI_EXTENDED_STATE_ID	:=	1
 

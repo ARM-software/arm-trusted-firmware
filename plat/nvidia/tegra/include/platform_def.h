@@ -86,5 +86,10 @@
 #define MAX_IO_DEVICES			U(0)
 #define MAX_IO_HANDLES			U(0)
 
+/*******************************************************************************
+ * Platform macros to support exception handling framework
+ ******************************************************************************/
+#define PLAT_PRI_BITS			U(3)
+#define PLAT_TEGRA_WDT_PRIO		U(0x40)
 
 #endif /* PLATFORM_DEF_H */
