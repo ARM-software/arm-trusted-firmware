@@ -140,11 +140,14 @@ static int rpi3_pwr_domain_on(u_register_t mpidr)
 {
 	int rc = PSCI_E_SUCCESS;
 	unsigned int pos = plat_core_pos_by_mpidr(mpidr);
-	uint64_t *hold_base = (uint64_t *)PLAT_RPI3_TM_HOLD_BASE;
+	uintptr_t hold_base = PLAT_RPI3_TM_HOLD_BASE;
 
 	assert(pos < PLATFORM_CORE_COUNT);
 
-	hold_base[pos] = PLAT_RPI3_TM_HOLD_STATE_GO;
+	hold_base += pos * PLAT_RPI3_TM_HOLD_ENTRY_SIZE;
+
+	mmio_write_64(hold_base, PLAT_RPI3_TM_HOLD_STATE_GO);
+	/* No cache maintenance here, hold_base is mapped as device memory. */
 
 	/* Make sure that the write has completed */
 	dsb();
@@ -169,6 +172,32 @@ static void rpi3_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	gicv2_pcpu_distif_init();
 	gicv2_cpuif_enable();
 #endif
+}
+
+static void __dead2 rpi3_pwr_down_wfi(
+		const psci_power_state_t *target_state)
+{
+	uintptr_t hold_base = PLAT_RPI3_TM_HOLD_BASE;
+	unsigned int pos = plat_my_core_pos();
+
+	if (pos == 0) {
+		/*
+		 * The secondaries will always be in a wait
+		 * for warm boot on reset, but the BSP needs
+		 * to be able to distinguish between waiting
+		 * for warm boot (e.g. after psci_off, waiting
+		 * for psci_on) and a cold boot.
+		 */
+		mmio_write_64(hold_base, PLAT_RPI3_TM_HOLD_STATE_BSP_OFF);
+		/* No cache maintenance here, we run with caches off already. */
+		dsb();
+		isb();
+	}
+
+	write_rmr_el3(RMR_EL3_RR_BIT | RMR_EL3_AA64_BIT);
+
+	while (1)
+		;
 }
 
 /*******************************************************************************
@@ -236,6 +265,7 @@ static const plat_psci_ops_t plat_rpi3_psci_pm_ops = {
 	.pwr_domain_pwr_down_wfi = rpi3_pwr_domain_pwr_down_wfi,
 	.pwr_domain_on = rpi3_pwr_domain_on,
 	.pwr_domain_on_finish = rpi3_pwr_domain_on_finish,
+	.pwr_domain_pwr_down_wfi = rpi3_pwr_down_wfi,
 	.system_off = rpi3_system_off,
 	.system_reset = rpi3_system_reset,
 	.validate_power_state = rpi3_validate_power_state,
