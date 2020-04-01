@@ -297,30 +297,30 @@ endif
 # Enable the dynamic translation tables library.
 ifeq (${ARCH},aarch32)
     ifeq (${RESET_TO_SP_MIN},1)
-        BL32_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+        BL32_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC
     endif
 else # AArch64
     ifeq (${RESET_TO_BL31},1)
-        BL31_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+        BL31_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC
     endif
     ifeq (${SPD},trusty)
-        BL31_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+        BL31_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC
     endif
 endif
 
 ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
     ifeq (${ARCH},aarch32)
-        BL32_CPPFLAGS	+=	-DPLAT_RO_XLAT_TABLES=1
+        BL32_CPPFLAGS	+=	-DPLAT_RO_XLAT_TABLES
     else # AArch64
-        BL31_CPPFLAGS	+=	-DPLAT_RO_XLAT_TABLES=1
+        BL31_CPPFLAGS	+=	-DPLAT_RO_XLAT_TABLES
         ifeq (${SPD},tspd)
-            BL32_CPPFLAGS +=	-DPLAT_RO_XLAT_TABLES=1
+            BL32_CPPFLAGS +=	-DPLAT_RO_XLAT_TABLES
         endif
     endif
 endif
 
 ifeq (${USE_DEBUGFS},1)
-    BL31_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+    BL31_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC
 endif
 
 # Add support for platform supplied linker script for BL31 build

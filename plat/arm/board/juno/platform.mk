@@ -147,19 +147,19 @@ ENABLE_SVE_FOR_NS		:=	0
 # Enable the dynamic translation tables library.
 ifeq (${ARCH},aarch32)
     ifeq (${RESET_TO_SP_MIN},1)
-        BL32_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+        BL32_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC
     endif
 else
     ifeq (${RESET_TO_BL31},1)
-        BL31_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC=1
+        BL31_CPPFLAGS	+=	-DPLAT_XLAT_TABLES_DYNAMIC
     endif
 endif
 
 ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
     ifeq (${JUNO_AARCH32_EL3_RUNTIME}, 1)
-        BL32_CPPFLAGS	+=	-DPLAT_RO_XLAT_TABLES=1
+        BL32_CPPFLAGS	+=	-DPLAT_RO_XLAT_TABLES
     else
-        BL31_CPPFLAGS	+=	-DPLAT_RO_XLAT_TABLES=1
+        BL31_CPPFLAGS	+=	-DPLAT_RO_XLAT_TABLES
     endif
 endif
 
