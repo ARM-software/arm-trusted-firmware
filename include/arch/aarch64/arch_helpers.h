@@ -226,6 +226,7 @@ DEFINE_SYSOP_PARAM_FUNC(xpaci)
 void flush_dcache_range(uintptr_t addr, size_t size);
 void clean_dcache_range(uintptr_t addr, size_t size);
 void inv_dcache_range(uintptr_t addr, size_t size);
+bool is_dcache_enabled(void);
 
 void dcsw_op_louis(u_register_t op_type);
 void dcsw_op_all(u_register_t op_type);
