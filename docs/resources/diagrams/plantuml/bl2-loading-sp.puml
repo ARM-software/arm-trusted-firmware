@@ -1,0 +1,44 @@
+/'
+ ' Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ '
+ ' SPDX-License-Identifier: BSD-3-Clause
+ '/
+
+@startuml
+participant bl1
+participant FIP
+
+bl1 -> FIP : read(FW_CONFIG)
+create FW_CONFIG
+bl1 -> FW_CONFIG : load
+
+bl1 -> FIP : read(bl2)
+create bl2
+bl1 -> bl2 : load
+bl1 --> bl2 : hand off (FW_CONFIG)
+
+bl2 -> FW_CONFIG : read_node(SPKs)
+loop for each spkg subnode
+  bl2 -> FW_CONFIG : read(UUID)
+  bl2 -> FW_CONFIG : read(load_address)
+  bl2 -> FIP : read(spkg@UUID)
+  create SPKG
+  bl2 -> SPKG : load
+end loop
+
+bl2 -> FW_CONFIG : read_node(TOS_FW_CONFIG)
+create TOS_FW_CONFIG
+bl2 -> TOS_FW_CONFIG : load
+
+bl2 -> FIP : read(bl32/SPMC)
+create SPMC
+bl2 -> SPMC : load
+
+bl2 -> FIP : read(bl31)
+create bl31
+bl2 -> bl31 : load
+bl2 --> bl31 : hand off (TOS_FW_CONFIG)
+
+bl31 --> SPMC : hand off (TOS_FW_CONFIG)
+
+@enduml
