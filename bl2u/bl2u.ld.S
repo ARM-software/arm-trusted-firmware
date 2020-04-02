@@ -46,6 +46,9 @@ SECTIONS
     .rodata . : {
         __RODATA_START__ = .;
         *(SORT_BY_ALIGNMENT(.rodata*))
+
+	RODATA_COMMON
+
         . = ALIGN(PAGE_SIZE);
         __RODATA_END__ = .;
     } >RAM
@@ -55,6 +58,8 @@ SECTIONS
         *bl2u_entrypoint.o(.text*)
         *(SORT_BY_ALIGNMENT(.text*))
         *(SORT_BY_ALIGNMENT(.rodata*))
+
+	RODATA_COMMON
 
         *(.vectors)
         __RO_END_UNALIGNED__ = .;
@@ -91,18 +96,7 @@ SECTIONS
         __STACKS_END__ = .;
     } >RAM
 
-    /*
-     * The .bss section gets initialised to 0 at runtime.
-     * Its base address should be 16-byte aligned for better performance of the
-     * zero-initialization code.
-     */
-    .bss : ALIGN(16) {
-        __BSS_START__ = .;
-        *(SORT_BY_ALIGNMENT(.bss*))
-        *(COMMON)
-        __BSS_END__ = .;
-    } >RAM
-
+    BSS_SECTION >RAM
     XLAT_TABLE_SECTION >RAM
 
 #if USE_COHERENT_MEM

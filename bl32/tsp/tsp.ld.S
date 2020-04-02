@@ -6,7 +6,6 @@
 
 #include <common/bl_common.ld.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
-#include <platform_def.h>
 
 OUTPUT_FORMAT(PLATFORM_LINKER_FORMAT)
 OUTPUT_ARCH(PLATFORM_LINKER_ARCH)
@@ -38,15 +37,7 @@ SECTIONS
         __RODATA_START__ = .;
         *(.rodata*)
 
-        /*
-         * Keep the .got section in the RO section as it is patched
-         * prior to enabling the MMU and having the .got in RO is better for
-         * security. GOT is a table of addresses so ensure 8-byte alignment.
-         */
-        . = ALIGN(8);
-        __GOT_START__ = .;
-        *(.got)
-        __GOT_END__ = .;
+	RODATA_COMMON
 
         . = ALIGN(PAGE_SIZE);
         __RODATA_END__ = .;
@@ -58,15 +49,7 @@ SECTIONS
         *(.text*)
         *(.rodata*)
 
-        /*
-         * Keep the .got section in the RO section as it is patched
-         * prior to enabling the MMU and having the .got in RO is better for
-         * security. GOT is a table of addresses so ensure 8-byte alignment.
-         */
-        . = ALIGN(8);
-        __GOT_START__ = .;
-        *(.got)
-        __GOT_END__ = .;
+	RODATA_COMMON
 
         *(.vectors)
 
@@ -114,18 +97,7 @@ SECTIONS
         __STACKS_END__ = .;
     } >RAM
 
-    /*
-     * The .bss section gets initialised to 0 at runtime.
-     * Its base address should be 16-byte aligned for better performance of the
-     * zero-initialization code.
-     */
-    .bss : ALIGN(16) {
-        __BSS_START__ = .;
-        *(SORT_BY_ALIGNMENT(.bss*))
-        *(COMMON)
-        __BSS_END__ = .;
-    } >RAM
-
+    BSS_SECTION >RAM
     XLAT_TABLE_SECTION >RAM
 
 #if USE_COHERENT_MEM

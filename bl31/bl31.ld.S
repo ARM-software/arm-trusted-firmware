@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <platform_def.h>
-
 #include <common/bl_common.ld.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
@@ -49,43 +47,7 @@ SECTIONS
         __RODATA_START__ = .;
         *(SORT_BY_ALIGNMENT(.rodata*))
 
-        /* Ensure 8-byte alignment for descriptors and ensure inclusion */
-        . = ALIGN(8);
-        __RT_SVC_DESCS_START__ = .;
-        KEEP(*(rt_svc_descs))
-        __RT_SVC_DESCS_END__ = .;
-
-        . = ALIGN(8);
-         __FCONF_POPULATOR_START__ = .;
-        KEEP(*(.fconf_populator))
-         __FCONF_POPULATOR_END__ = .;
-
-#if ENABLE_PMF
-        /* Ensure 8-byte alignment for descriptors and ensure inclusion */
-        . = ALIGN(8);
-        __PMF_SVC_DESCS_START__ = .;
-        KEEP(*(pmf_svc_descs))
-        __PMF_SVC_DESCS_END__ = .;
-#endif /* ENABLE_PMF */
-
-        /*
-         * Ensure 8-byte alignment for cpu_ops so that its fields are also
-         * aligned. Also ensure cpu_ops inclusion.
-         */
-        . = ALIGN(8);
-        __CPU_OPS_START__ = .;
-        KEEP(*(cpu_ops))
-        __CPU_OPS_END__ = .;
-
-        /*
-         * Keep the .got section in the RO section as it is patched
-         * prior to enabling the MMU and having the .got in RO is better for
-         * security. GOT is a table of addresses so ensure 8-byte alignment.
-         */
-        . = ALIGN(8);
-        __GOT_START__ = .;
-        *(.got)
-        __GOT_END__ = .;
+	RODATA_COMMON
 
         /* Place pubsub sections for events */
         . = ALIGN(8);
@@ -101,43 +63,7 @@ SECTIONS
         *(SORT_BY_ALIGNMENT(.text*))
         *(SORT_BY_ALIGNMENT(.rodata*))
 
-        /* Ensure 8-byte alignment for descriptors and ensure inclusion */
-        . = ALIGN(8);
-        __RT_SVC_DESCS_START__ = .;
-        KEEP(*(rt_svc_descs))
-        __RT_SVC_DESCS_END__ = .;
-
-        . = ALIGN(8);
-         __FCONF_POPULATOR_START__ = .;
-        KEEP(*(.fconf_populator))
-         __FCONF_POPULATOR_END__ = .;
-
-#if ENABLE_PMF
-        /* Ensure 8-byte alignment for descriptors and ensure inclusion */
-        . = ALIGN(8);
-        __PMF_SVC_DESCS_START__ = .;
-        KEEP(*(pmf_svc_descs))
-        __PMF_SVC_DESCS_END__ = .;
-#endif /* ENABLE_PMF */
-
-        /*
-         * Ensure 8-byte alignment for cpu_ops so that its fields are also
-         * aligned. Also ensure cpu_ops inclusion.
-         */
-        . = ALIGN(8);
-        __CPU_OPS_START__ = .;
-        KEEP(*(cpu_ops))
-        __CPU_OPS_END__ = .;
-
-        /*
-         * Keep the .got section in the RO section as it is patched
-         * prior to enabling the MMU and having the .got in RO is better for
-         * security. GOT is a table of addresses so ensure 8-byte alignment.
-         */
-        . = ALIGN(8);
-        __GOT_START__ = .;
-        *(.got)
-        __GOT_END__ = .;
+	RODATA_COMMON
 
         /* Place pubsub sections for events */
         . = ALIGN(8);
@@ -238,66 +164,7 @@ SECTIONS
         __STACKS_END__ = .;
     } >NOBITS
 
-    /*
-     * The .bss section gets initialised to 0 at runtime.
-     * Its base address should be 16-byte aligned for better performance of the
-     * zero-initialization code.
-     */
-    .bss (NOLOAD) : ALIGN(16) {
-        __BSS_START__ = .;
-        *(SORT_BY_ALIGNMENT(.bss*))
-        *(COMMON)
-#if !USE_COHERENT_MEM
-        /*
-         * Bakery locks are stored in normal .bss memory
-         *
-         * Each lock's data is spread across multiple cache lines, one per CPU,
-         * but multiple locks can share the same cache line.
-         * The compiler will allocate enough memory for one CPU's bakery locks,
-         * the remaining cache lines are allocated by the linker script
-         */
-        . = ALIGN(CACHE_WRITEBACK_GRANULE);
-        __BAKERY_LOCK_START__ = .;
-        __PERCPU_BAKERY_LOCK_START__ = .;
-        *(bakery_lock)
-        . = ALIGN(CACHE_WRITEBACK_GRANULE);
-        __PERCPU_BAKERY_LOCK_END__ = .;
-        __PERCPU_BAKERY_LOCK_SIZE__ = ABSOLUTE(__PERCPU_BAKERY_LOCK_END__ - __PERCPU_BAKERY_LOCK_START__);
-        . = . + (__PERCPU_BAKERY_LOCK_SIZE__ * (PLATFORM_CORE_COUNT - 1));
-        __BAKERY_LOCK_END__ = .;
-
-	/*
-	 * If BL31 doesn't use any bakery lock then __PERCPU_BAKERY_LOCK_SIZE__
-	 * will be zero. For this reason, the only two valid values for
-	 * __PERCPU_BAKERY_LOCK_SIZE__ are 0 or the platform defined value
-	 * PLAT_PERCPU_BAKERY_LOCK_SIZE.
-	 */
-#ifdef PLAT_PERCPU_BAKERY_LOCK_SIZE
-    ASSERT((__PERCPU_BAKERY_LOCK_SIZE__ == 0) || (__PERCPU_BAKERY_LOCK_SIZE__ == PLAT_PERCPU_BAKERY_LOCK_SIZE),
-        "PLAT_PERCPU_BAKERY_LOCK_SIZE does not match bakery lock requirements");
-#endif
-#endif
-
-#if ENABLE_PMF
-        /*
-         * Time-stamps are stored in normal .bss memory
-         *
-         * The compiler will allocate enough memory for one CPU's time-stamps,
-         * the remaining memory for other CPUs is allocated by the
-         * linker script
-         */
-        . = ALIGN(CACHE_WRITEBACK_GRANULE);
-        __PMF_TIMESTAMP_START__ = .;
-        KEEP(*(pmf_timestamp_array))
-        . = ALIGN(CACHE_WRITEBACK_GRANULE);
-        __PMF_PERCPU_TIMESTAMP_END__ = .;
-        __PERCPU_TIMESTAMP_SIZE__ = ABSOLUTE(. - __PMF_TIMESTAMP_START__);
-        . = . + (__PERCPU_TIMESTAMP_SIZE__ * (PLATFORM_CORE_COUNT - 1));
-        __PMF_TIMESTAMP_END__ = .;
-#endif /* ENABLE_PMF */
-        __BSS_END__ = .;
-    } >NOBITS
-
+    BSS_SECTION >NOBITS
     XLAT_TABLE_SECTION >NOBITS
 
 #if USE_COHERENT_MEM
