@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -135,7 +135,7 @@ bool is_mmu_enabled_ctx(const xlat_ctx_t *ctx)
 
 bool is_dcache_enabled(void)
 {
-	unsigned int el = (unsigned int)GET_EL(read_CurrentEl());
+	unsigned int el = get_current_el_maybe_constant();
 
 	if (el == 1U) {
 		return (read_sctlr_el1() & SCTLR_C_BIT) != 0U;
