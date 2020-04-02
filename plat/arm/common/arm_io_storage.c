@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <assert.h>
-
 #include <common/debug.h>
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_fip.h>
@@ -115,8 +113,6 @@ int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
 {
 	int result;
 	const struct plat_io_policy *policy;
-
-	assert(image_id < MAX_NUMBER_IDS);
 
 	policy = FCONF_GET_PROPERTY(arm, io_policies, image_id);
 	result = policy->check(policy->image_spec);
