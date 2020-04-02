@@ -41,8 +41,12 @@ uintptr_t fpga_sec_entrypoint;
  */
 static int fpga_pwr_domain_on(u_register_t mpidr)
 {
-	unsigned int pos = plat_core_pos_by_mpidr(mpidr);
+	int pos = plat_core_pos_by_mpidr(mpidr);
 	unsigned long current_mpidr = read_mpidr_el1();
+
+	if (pos < 0) {
+		panic();
+	}
 
 	if (mpidr == current_mpidr) {
 		return PSCI_E_ALREADY_ON;
