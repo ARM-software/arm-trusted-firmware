@@ -187,7 +187,7 @@
 #if TRUSTED_BOARD_BOOT
 # define PLAT_ARM_MAX_BL2_SIZE		0x1D000
 #else
-# define PLAT_ARM_MAX_BL2_SIZE		0x11000
+# define PLAT_ARM_MAX_BL2_SIZE		0x12000
 #endif
 
 /*
