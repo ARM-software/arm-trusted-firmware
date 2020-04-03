@@ -66,6 +66,11 @@
 #define MT_EXECUTE_SHIFT	U(5)
 /* In the EL1&0 translation regime, User (EL0) or Privileged (EL1). */
 #define MT_USER_SHIFT		U(6)
+
+/* Shareability attribute for the memory region */
+#define MT_SHAREABILITY_SHIFT	U(7)
+#define MT_SHAREABILITY_MASK	(U(3) << MT_SHAREABILITY_SHIFT)
+#define MT_SHAREABILITY(_attr)	((_attr) & MT_SHAREABILITY_MASK)
 /* All other bits are reserved */
 
 /*
@@ -105,6 +110,18 @@
  */
 #define MT_USER			(U(1) << MT_USER_SHIFT)
 #define MT_PRIVILEGED		(U(0) << MT_USER_SHIFT)
+
+/*
+ * Shareability defines the visibility of any cache changes to
+ * all masters belonging to a shareable domain.
+ *
+ * MT_SHAREABILITY_ISH: For inner shareable domain
+ * MT_SHAREABILITY_OSH: For outer shareable domain
+ * MT_SHAREABILITY_NSH: For non shareable domain
+ */
+#define MT_SHAREABILITY_ISH	(U(1) << MT_SHAREABILITY_SHIFT)
+#define MT_SHAREABILITY_OSH	(U(2) << MT_SHAREABILITY_SHIFT)
+#define MT_SHAREABILITY_NSH	(U(3) << MT_SHAREABILITY_SHIFT)
 
 /* Compound attributes for most common usages */
 #define MT_CODE			(MT_MEMORY | MT_RO | MT_EXECUTE)
