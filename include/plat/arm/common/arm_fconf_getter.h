@@ -7,10 +7,15 @@
 #ifndef ARM_FCONF_GETTER
 #define ARM_FCONF_GETTER
 
+#include <assert.h>
+
 #include <lib/fconf/fconf.h>
 
 /* ARM io policies */
-#define arm__io_policies_getter(id)	&policies[id]
+#define arm__io_policies_getter(id) __extension__ ({	\
+	assert((id) < MAX_NUMBER_IDS);			\
+	&policies[id];					\
+})
 
 struct plat_io_policy {
 	uintptr_t *dev_handle;
