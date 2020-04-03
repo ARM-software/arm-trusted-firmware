@@ -66,12 +66,13 @@ else
 				lib/cpus/aarch64/cortex_a75.S
 endif
 
-FPGA_GIC_SOURCES	:=	drivers/arm/gic/v3/gicv3_helpers.c	\
-				drivers/arm/gic/v3/gicdv3_helpers.c     \
-                                drivers/arm/gic/v3/gicrv3_helpers.c     \
-                                drivers/arm/gic/v3/gicv3_main.c         \
-				drivers/arm/gic/v3/gic600.c		\
-				drivers/arm/gic/common/gic_common.c     \
+# GIC-600 configuration
+GICV3_IMPL		:=	GIC600
+
+# Include GICv3 driver files
+include drivers/arm/gic/v3/gicv3.mk
+
+FPGA_GIC_SOURCES	:=	${GICV3_SOURCES}			\
 				plat/common/plat_gicv3.c		\
 				plat/arm/board/arm_fpga/fpga_gicv3.c
 
