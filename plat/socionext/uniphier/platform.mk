@@ -21,6 +21,9 @@ BL31_CPPFLAGS += -DPLAT_RO_XLAT_TABLES
 BL32_CPPFLAGS += -DPLAT_RO_XLAT_TABLES
 endif
 
+# The dynamic xlat table is only used in BL2
+BL2_CPPFLAGS += -DPLAT_XLAT_TABLES_DYNAMIC
+
 # Cortex-A53 revision r0p4-51rel0
 # needed for LD20, unneeded for LD11, PXs3 (no ACE)
 ERRATA_A53_855873		:= 1
