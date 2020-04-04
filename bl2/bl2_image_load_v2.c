@@ -47,8 +47,9 @@ struct entry_point_info *bl2_load_images(void)
 		 * if indicated in the image attributes AND if NOT
 		 * already done before.
 		 */
-		if (bl2_node_info->image_info->h.attr & IMAGE_ATTRIB_PLAT_SETUP) {
-			if (plat_setup_done) {
+		if ((bl2_node_info->image_info->h.attr &
+		    IMAGE_ATTRIB_PLAT_SETUP) != 0U) {
+			if (plat_setup_done != 0) {
 				WARN("BL2: Platform setup already done!!\n");
 			} else {
 				INFO("BL2: Doing platform setup\n");
@@ -58,16 +59,17 @@ struct entry_point_info *bl2_load_images(void)
 		}
 
 		err = bl2_plat_handle_pre_image_load(bl2_node_info->image_id);
-		if (err) {
+		if (err != 0) {
 			ERROR("BL2: Failure in pre image load handling (%i)\n", err);
 			plat_error_handler(err);
 		}
 
-		if (!(bl2_node_info->image_info->h.attr & IMAGE_ATTRIB_SKIP_LOADING)) {
+		if ((bl2_node_info->image_info->h.attr &
+		    IMAGE_ATTRIB_SKIP_LOADING) == 0U) {
 			INFO("BL2: Loading image id %d\n", bl2_node_info->image_id);
 			err = load_auth_image(bl2_node_info->image_id,
 				bl2_node_info->image_info);
-			if (err) {
+			if (err != 0) {
 				ERROR("BL2: Failed to load image id %d (%i)\n",
 				      bl2_node_info->image_id, err);
 				plat_error_handler(err);
@@ -78,7 +80,7 @@ struct entry_point_info *bl2_load_images(void)
 
 		/* Allow platform to handle image information. */
 		err = bl2_plat_handle_post_image_load(bl2_node_info->image_id);
-		if (err) {
+		if (err != 0) {
 			ERROR("BL2: Failure in post image load handling (%i)\n", err);
 			plat_error_handler(err);
 		}
