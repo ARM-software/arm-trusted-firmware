@@ -70,7 +70,7 @@ $(eval $(call add_define,USE_DDR))
 endif
 
 ifeq (${BOARD_CFG},)
-BOARD_CFG := bcm958742k
+BOARD_CFG := bcm958742t
 endif
 
 # Use PAXB
