@@ -116,12 +116,20 @@ void __init gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 			(ID_AA64PFR0_GIC_MASK << ID_AA64PFR0_GIC_SHIFT)) != 0U);
 #endif /* !__aarch64__ */
 
-	/* The GIC version should be 3 */
 	gic_version = gicd_read_pidr2(plat_driver_data->gicd_base);
 	gic_version >>= PIDR2_ARCH_REV_SHIFT;
 	gic_version &= PIDR2_ARCH_REV_MASK;
-	assert(gic_version == ARCH_REV_GICV3);
 
+	/* Check GIC version */
+#if GIC_ENABLE_V4_EXTN
+	assert(gic_version == ARCH_REV_GICV4);
+
+	/* GICv4 supports Direct Virtual LPI injection */
+	assert((gicd_read_typer(plat_driver_data->gicd_base)
+					& TYPER_DVIS) != 0);
+#else
+	assert(gic_version == ARCH_REV_GICV3);
+#endif
 	/*
 	 * Find out whether the GIC supports the GICv2 compatibility mode.
 	 * The ARE_S bit resets to 0 if supported
@@ -165,10 +173,9 @@ void __init gicv3_driver_init(const gicv3_driver_data_t *plat_driver_data)
 	flush_dcache_range((uintptr_t)gicv3_driver_data,
 		sizeof(*gicv3_driver_data));
 #endif
-
-	INFO("GICv3 with%s legacy support detected."
-			" ARM GICv3 driver initialized in EL3\n",
-			(gicv2_compat == 0U) ? "" : "out");
+	INFO("GICv%u with%s legacy support detected.\n", gic_version,
+				(gicv2_compat == 0U) ? "" : "out");
+	INFO("ARM GICv%u driver initialized in EL3\n", gic_version);
 }
 
 /*******************************************************************************
