@@ -18,6 +18,20 @@
  ******************************************************************************/
 
 /*
+ * Accessors to read/write the GIC Redistributor IPRIORITYR and IPRIORITYRE
+ * register corresponding to the interrupt `id`, 4 interrupts IDs at a time.
+ */
+unsigned int gicr_read_ipriorityr(uintptr_t base, unsigned int id)
+{
+	return GICR_READ(IPRIORITY, base, id);
+}
+
+void gicr_write_ipriorityr(uintptr_t base, unsigned int id, unsigned int val)
+{
+	GICR_WRITE(IPRIORITY, base, id, val);
+}
+
+/*
  * Accessor to set the byte corresponding to interrupt `id`
  * in GIC Redistributor IPRIORITYR and IPRIORITYRE.
  */
