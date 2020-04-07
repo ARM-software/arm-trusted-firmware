@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,27 @@ typedef struct {
 } coreboot_serial_t;
 extern coreboot_serial_t coreboot_serial;
 
+#define COREBOOT_MAX_MEMRANGES	32	/* libpayload also uses this limit */
+
+typedef struct __packed {
+	uint64_t start;
+	uint64_t size;
+	uint32_t type;
+} coreboot_memrange_t;
+extern coreboot_memrange_t coreboot_memranges[COREBOOT_MAX_MEMRANGES];
+
+typedef enum {
+	CB_MEM_NONE		= 0,	/* coreboot will never report this */
+	CB_MEM_RAM		= 1,
+	CB_MEM_RESERVED		= 2,
+	CB_MEM_ACPI		= 3,
+	CB_MEM_NVS		= 4,
+	CB_MEM_UNUSABLE		= 5,
+	CB_MEM_VENDOR_RSVD	= 6,
+	CB_MEM_TABLE		= 16,
+} coreboot_memory_t;
+
+coreboot_memory_t coreboot_get_memory_type(uintptr_t address);
 void coreboot_table_setup(void *base);
 
 #endif /* COREBOOT_H */

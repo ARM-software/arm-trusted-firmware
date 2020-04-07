@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,6 +29,7 @@ typedef struct {
 } cb_header_t;
 
 typedef enum {
+	CB_TAG_MEMORY = 0x1,
 	CB_TAG_SERIAL = 0xf,
 	CB_TAG_CBMEM_CONSOLE = 0x17,
 } cb_tag_t;
@@ -37,11 +38,13 @@ typedef struct {
 	uint32_t tag;
 	uint32_t size;
 	union {
+		coreboot_memrange_t memranges[COREBOOT_MAX_MEMRANGES];
 		coreboot_serial_t serial;
 		uint64_t uint64;
 	};
 } cb_entry_t;
 
+coreboot_memrange_t coreboot_memranges[COREBOOT_MAX_MEMRANGES];
 coreboot_serial_t coreboot_serial;
 
 /*
@@ -86,6 +89,23 @@ static void setup_cbmem_console(uintptr_t baseaddr)
 					    CONSOLE_FLAG_CRASH);
 }
 
+coreboot_memory_t coreboot_get_memory_type(uintptr_t address)
+{
+	int i;
+
+	for (i = 0; i < COREBOOT_MAX_MEMRANGES; i++) {
+		coreboot_memrange_t *range = &coreboot_memranges[i];
+
+		if (range->type == CB_MEM_NONE)
+			break;	/* end of table reached */
+		if (address >= range->start &&
+		    address - range->start < range->size)
+			return range->type;
+	}
+
+	return CB_MEM_NONE;
+}
+
 void coreboot_table_setup(void *base)
 {
 	cb_header_t *header = base;
@@ -99,6 +119,7 @@ void coreboot_table_setup(void *base)
 
 	ptr = base + header->header_bytes;
 	for (i = 0; i < header->table_entries; i++) {
+		size_t size;
 		cb_entry_t *entry = ptr;
 
 		if (ptr - base >= header->header_bytes + header->table_bytes) {
@@ -107,6 +128,15 @@ void coreboot_table_setup(void *base)
 		}
 
 		switch (read_le32(&entry->tag)) {
+		case CB_TAG_MEMORY:
+			size = read_le32(&entry->size) -
+			       offsetof(cb_entry_t, memranges);
+			if (size > sizeof(coreboot_memranges)) {
+				ERROR("Need to truncate coreboot memranges!\n");
+				size = sizeof(coreboot_memranges);
+			}
+			memcpy(&coreboot_memranges, &entry->memranges, size);
+			break;
 		case CB_TAG_SERIAL:
 			memcpy(&coreboot_serial, &entry->serial,
 			       sizeof(coreboot_serial));
