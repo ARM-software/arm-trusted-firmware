@@ -158,12 +158,7 @@ SECTIONS
     __NOBITS_START__ = .;
 #endif
 
-    stacks (NOLOAD) : {
-        __STACKS_START__ = .;
-        *(tzfw_normal_stacks)
-        __STACKS_END__ = .;
-    } >NOBITS
-
+    STACK_SECTION >NOBITS
     BSS_SECTION >NOBITS
     XLAT_TABLE_SECTION >NOBITS
 
