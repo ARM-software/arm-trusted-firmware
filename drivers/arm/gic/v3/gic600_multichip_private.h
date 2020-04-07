@@ -24,10 +24,20 @@
 
 /* GIC600 GICD multichip related shifts */
 #define GICD_CHIPRx_ADDR_SHIFT		16
-#define GICD_CHIPRx_SPI_BLOCK_MIN_SHIFT	10
-#define GICD_CHIPRx_SPI_BLOCKS_SHIFT	5
 #define GICD_CHIPSR_RTS_SHIFT		4
 #define GICD_DCHIPR_RT_OWNER_SHIFT	4
+
+/*
+ * If GIC v4 extension is enabled, then use SPI macros specific to GIC-Clayton.
+ * Other shifts and mask remains same between GIC-600 and GIC-Clayton.
+ */
+#if GIC_ENABLE_V4_EXTN
+#define GICD_CHIPRx_SPI_BLOCK_MIN_SHIFT	9
+#define GICD_CHIPRx_SPI_BLOCKS_SHIFT	3
+#else
+#define GICD_CHIPRx_SPI_BLOCK_MIN_SHIFT	10
+#define GICD_CHIPRx_SPI_BLOCKS_SHIFT	5
+#endif
 
 #define GICD_CHIPSR_RTS_STATE_DISCONNECTED	U(0)
 #define GICD_CHIPSR_RTS_STATE_UPDATING		U(1)
