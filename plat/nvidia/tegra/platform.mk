@@ -33,9 +33,6 @@ SEPARATE_CODE_AND_RODATA :=	1
 # do not use coherent memory
 USE_COHERENT_MEM	:=	0
 
-# do not enable SVE
-ENABLE_SVE_FOR_NS	:=	0
-
 # enable D-cache early during CPU warmboot
 WARMBOOT_ENABLE_DCACHE_EARLY := 1
 
