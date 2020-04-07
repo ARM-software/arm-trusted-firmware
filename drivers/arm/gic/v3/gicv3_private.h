@@ -126,7 +126,7 @@
 
 #define GICR_OFFSET(REG, id)	\
 	(GICR_##REG##R + (((uintptr_t)(id) >> REG##R_SHIFT) << 2))
-#endif
+#endif /* GIC_EXT_INTID */
 
 /* Read/Write GIC Redistributor register corresponding to its interrupt ID */
 #define GICR_READ(REG, base, id)			\
@@ -136,7 +136,7 @@
 	mmio_write_8((base) + GICR_OFFSET_8(REG, (id)), (val))
 
 #define GICR_WRITE(REG, base, id, val)			\
-	mmio_write((base) + GICR_OFFSET(REG, (id)), (val))
+	mmio_write_32((base) + GICR_OFFSET(REG, (id)), (val))
 
 /*
  * Bit operations on GIC Redistributor register
@@ -202,7 +202,9 @@ extern const gicv3_driver_data_t *gicv3_driver_data;
  * the number of interrupt IDs involved depends on the register accessed.
  ******************************************************************************/
 unsigned int gicd_read_igrpmodr(uintptr_t base, unsigned int id);
+unsigned int gicr_read_ipriorityr(uintptr_t base, unsigned int id);
 void gicd_write_igrpmodr(uintptr_t base, unsigned int id, unsigned int val);
+void gicr_write_ipriorityr(uintptr_t base, unsigned int id, unsigned int val);
 
 /*******************************************************************************
  * Private GICv3 function prototypes for accessing the GIC registers
@@ -358,6 +360,19 @@ void arm_gicv3_distif_post_restore(unsigned int rdist_proc_num);
  ******************************************************************************/
 
 /*
+ * Accessors to read/write GIC Redistributor ICENABLER0 register
+ */
+static inline unsigned int gicr_read_icenabler0(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_ICENABLER0);
+}
+
+static inline void gicr_write_icenabler0(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_ICENABLER0, val);
+}
+
+/*
  * Accessors to read/write GIC Redistributor ICENABLER0 and ICENABLERE
  * register corresponding to its number
  */
@@ -374,7 +389,30 @@ static inline void gicr_write_icenabler(uintptr_t base, unsigned int reg_num,
 }
 
 /*
- * Accessor to read/write GIC Redistributor ICFGR0, ICFGR1 and ICFGRE
+ * Accessors to read/write GIC Redistributor ICFGR0, ICFGR1 registers
+ */
+static inline unsigned int gicr_read_icfgr0(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_ICFGR0);
+}
+
+static inline unsigned int gicr_read_icfgr1(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_ICFGR1);
+}
+
+static inline void gicr_write_icfgr0(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_ICFGR0, val);
+}
+
+static inline void gicr_write_icfgr1(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_ICFGR1, val);
+}
+
+/*
+ * Accessors to read/write GIC Redistributor ICFGR0, ICFGR1 and ICFGRE
  * register corresponding to its number
  */
 static inline unsigned int gicr_read_icfgr(uintptr_t base, unsigned int reg_num)
@@ -386,6 +424,37 @@ static inline void gicr_write_icfgr(uintptr_t base, unsigned int reg_num,
 					unsigned int val)
 {
 	mmio_write_32(base + GICR_ICFGR + (reg_num << 2), val);
+}
+
+/*
+ * Accessor to write GIC Redistributor ICPENDR0 register
+ */
+static inline void gicr_write_icpendr0(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_ICPENDR0, val);
+}
+
+/*
+ * Accessor to write GIC Redistributor ICPENDR0 and ICPENDRE
+ * register corresponding to its number
+ */
+static inline void gicr_write_icpendr(uintptr_t base, unsigned int reg_num,
+					unsigned int val)
+{
+	mmio_write_32(base + GICR_ICPENDR + (reg_num << 2), val);
+}
+
+/*
+ * Accessors to read/write GIC Redistributor IGROUPR0 register
+ */
+static inline unsigned int gicr_read_igroupr0(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_IGROUPR0);
+}
+
+static inline void gicr_write_igroupr0(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_IGROUPR0, val);
 }
 
 /*
@@ -402,6 +471,19 @@ static inline void gicr_write_igroupr(uintptr_t base, unsigned int reg_num,
 						unsigned int val)
 {
 	mmio_write_32(base + GICR_IGROUPR + (reg_num << 2), val);
+}
+
+/*
+ * Accessors to read/write GIC Redistributor IGRPMODR0 register
+ */
+static inline unsigned int gicr_read_igrpmodr0(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_IGRPMODR0);
+}
+
+static inline void gicr_write_igrpmodr0(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_IGRPMODR0, val);
 }
 
 /*
@@ -424,16 +506,29 @@ static inline void gicr_write_igrpmodr(uintptr_t base, unsigned int reg_num,
  * Accessors to read/write the GIC Redistributor IPRIORITYR(E) register
  * corresponding to its number, 4 interrupts IDs at a time.
  */
-static inline unsigned int gicr_read_ipriorityr(uintptr_t base,
+static inline unsigned int gicr_ipriorityr_read(uintptr_t base,
 						unsigned int reg_num)
 {
 	return mmio_read_32(base + GICR_IPRIORITYR + (reg_num << 2));
 }
 
-static inline void gicr_write_ipriorityr(uintptr_t base, unsigned int reg_num,
+static inline void gicr_ipriorityr_write(uintptr_t base, unsigned int reg_num,
 						unsigned int val)
 {
 	mmio_write_32(base + GICR_IPRIORITYR + (reg_num << 2), val);
+}
+
+/*
+ * Accessors to read/write GIC Redistributor ISACTIVER0 register
+ */
+static inline unsigned int gicr_read_isactiver0(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_ISACTIVER0);
+}
+
+static inline void gicr_write_isactiver0(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_ISACTIVER0, val);
 }
 
 /*
@@ -453,6 +548,19 @@ static inline void gicr_write_isactiver(uintptr_t base, unsigned int reg_num,
 }
 
 /*
+ * Accessors to read/write GIC Redistributor ISENABLER0 register
+ */
+static inline unsigned int gicr_read_isenabler0(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_ISENABLER0);
+}
+
+static inline void gicr_write_isenabler0(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_ISENABLER0, val);
+}
+
+/*
  * Accessors to read/write GIC Redistributor ISENABLER0 and ISENABLERE
  * register corresponding to its number
  */
@@ -466,6 +574,19 @@ static inline void gicr_write_isenabler(uintptr_t base, unsigned int reg_num,
 					unsigned int val)
 {
 	mmio_write_32(base + GICR_ISENABLER + (reg_num << 2), val);
+}
+
+/*
+ * Accessors to read/write GIC Redistributor ISPENDR0 register
+ */
+static inline unsigned int gicr_read_ispendr0(uintptr_t base)
+{
+	return mmio_read_32(base + GICR_ISPENDR0);
+}
+
+static inline void gicr_write_ispendr0(uintptr_t base, unsigned int val)
+{
+	mmio_write_32(base + GICR_ISPENDR0, val);
 }
 
 /*
