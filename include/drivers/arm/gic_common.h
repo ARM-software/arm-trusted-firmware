@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -40,7 +40,7 @@
 #define GIC_HIGHEST_NS_PRIORITY		U(0x80)
 
 /*******************************************************************************
- * GIC Distributor interface register offsets that are common to GICv3 & GICv2
+ * Common GIC Distributor interface register offsets
  ******************************************************************************/
 #define GICD_CTLR		U(0x0)
 #define GICD_TYPER		U(0x4)
@@ -61,19 +61,17 @@
 #define CTLR_ENABLE_G0_MASK		U(0x1)
 #define CTLR_ENABLE_G0_BIT		BIT_32(CTLR_ENABLE_G0_SHIFT)
 
-
 /*******************************************************************************
- * GIC Distributor interface register constants that are common to GICv3 & GICv2
+ * Common GIC Distributor interface register constants
  ******************************************************************************/
 #define PIDR2_ARCH_REV_SHIFT	4
 #define PIDR2_ARCH_REV_MASK	U(0xf)
 
-/* GICv3 revision as reported by the PIDR2 register */
-#define ARCH_REV_GICV3		U(0x3)
-/* GICv2 revision as reported by the PIDR2 register */
-#define ARCH_REV_GICV2		U(0x2)
-/* GICv1 revision as reported by the PIDR2 register */
+/* GIC revision as reported by PIDR2.ArchRev register field */
 #define ARCH_REV_GICV1		U(0x1)
+#define ARCH_REV_GICV2		U(0x2)
+#define ARCH_REV_GICV3		U(0x3)
+#define ARCH_REV_GICV4		U(0x4)
 
 #define IGROUPR_SHIFT		5
 #define ISENABLER_SHIFT		5

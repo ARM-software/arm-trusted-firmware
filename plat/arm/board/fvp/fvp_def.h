@@ -52,10 +52,18 @@
 #define DEVICE1_BASE			UL(0x2e000000)
 #define DEVICE1_SIZE			UL(0x1A00000)
 #else
-/* GICv2 and GICv3 mapping: GICD + CORE_COUNT * 128KB */
 #define DEVICE1_BASE			BASE_GICD_BASE
+
+#if GIC_ENABLE_V4_EXTN
+/* GICv4 mapping: GICD + CORE_COUNT * 256KB */
+#define DEVICE1_SIZE			((BASE_GICR_BASE - BASE_GICD_BASE) + \
+					 (PLATFORM_CORE_COUNT * 0x40000))
+#else
+/* GICv2 and GICv3 mapping: GICD + CORE_COUNT * 128KB */
 #define DEVICE1_SIZE			((BASE_GICR_BASE - BASE_GICD_BASE) + \
 					 (PLATFORM_CORE_COUNT * 0x20000))
+#endif /* GIC_ENABLE_V4_EXTN */
+
 #define NSRAM_BASE			UL(0x2e000000)
 #define NSRAM_SIZE			UL(0x10000)
 #endif

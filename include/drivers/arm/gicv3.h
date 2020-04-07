@@ -8,7 +8,7 @@
 #define GICV3_H
 
 /*******************************************************************************
- * GICv3 miscellaneous definitions
+ * GICv3 and 3.1 miscellaneous definitions
  ******************************************************************************/
 /* Interrupt group definitions */
 #define INTR_GROUP1S		U(0)
@@ -25,20 +25,85 @@
 /* GICv3 can only target up to 16 PEs with SGI */
 #define GICV3_MAX_SGI_TARGETS	U(16)
 
+/* PPIs INTIDs 16-31 */
+#define MAX_PPI_ID		U(31)
+
+#if GIC_EXT_INTID
+
+/* GICv3.1 extended PPIs INTIDs 1056-1119 */
+#define MIN_EPPI_ID		U(1056)
+#define MAX_EPPI_ID		U(1119)
+
+/* Total number of GICv3.1 EPPIs */
+#define TOTAL_EPPI_INTR_NUM	(MAX_EPPI_ID - MIN_EPPI_ID + U(1))
+
+/* Total number of GICv3.1 PPIs and EPPIs */
+#define TOTAL_PRIVATE_INTR_NUM	(TOTAL_PCPU_INTR_NUM + TOTAL_EPPI_INTR_NUM)
+
+/* GICv3.1 extended SPIs INTIDs 4096 - 5119 */
+#define MIN_ESPI_ID		U(4096)
+#define MAX_ESPI_ID		U(5119)
+
+/* Total number of GICv3.1 ESPIs */
+#define TOTAL_ESPI_INTR_NUM	(MAX_ESPI_ID - MIN_ESPI_ID + U(1))
+
+/* Total number of GICv3.1 SPIs and ESPIs */
+#define	TOTAL_SHARED_INTR_NUM	(TOTAL_SPI_INTR_NUM + TOTAL_ESPI_INTR_NUM)
+
+/* SGIs: 0-15, PPIs: 16-31, EPPIs: 1056-1119 */
+#define	IS_SGI_PPI(id)		(((id) <= MAX_PPI_ID)  || \
+				(((id) >= MIN_EPPI_ID) && \
+				 ((id) <= MAX_EPPI_ID)))
+
+/* SPIs: 32-1019, ESPIs: 4096-5119 */
+#define	IS_SPI(id)		((((id) >= MIN_SPI_ID)  && \
+				  ((id) <= MAX_SPI_ID)) || \
+				 (((id) >= MIN_ESPI_ID) && \
+				  ((id) <= MAX_ESPI_ID)))
+#else	/* GICv3 */
+
+/* Total number of GICv3 PPIs */
+#define TOTAL_PRIVATE_INTR_NUM	TOTAL_PCPU_INTR_NUM
+
+/* Total number of GICv3 SPIs */
+#define	TOTAL_SHARED_INTR_NUM	TOTAL_SPI_INTR_NUM
+
+/* SGIs: 0-15, PPIs: 16-31 */
+#define	IS_SGI_PPI(id)		((id) <= MAX_PPI_ID)
+
+/* SPIs: 32-1019 */
+#define	IS_SPI(id)		(((id) >= MIN_SPI_ID) && ((id) <= MAX_SPI_ID))
+
+#endif	/* GIC_EXT_INTID */
+
 /*******************************************************************************
- * GICv3 specific Distributor interface register offsets and constants.
+ * GICv3 and 3.1 specific Distributor interface register offsets and constants
  ******************************************************************************/
+#define GICD_TYPER2		U(0x0c)
 #define GICD_STATUSR		U(0x10)
 #define GICD_SETSPI_NSR		U(0x40)
 #define GICD_CLRSPI_NSR		U(0x48)
 #define GICD_SETSPI_SR		U(0x50)
 #define GICD_CLRSPI_SR		U(0x58)
 #define GICD_IGRPMODR		U(0xd00)
+#define GICD_IGROUPRE		U(0x1000)
+#define GICD_ISENABLERE		U(0x1200)
+#define GICD_ICENABLERE		U(0x1400)
+#define GICD_ISPENDRE		U(0x1600)
+#define GICD_ICPENDRE		U(0x1800)
+#define GICD_ISACTIVERE		U(0x1a00)
+#define GICD_ICACTIVERE		U(0x1c00)
+#define GICD_IPRIORITYRE	U(0x2000)
+#define GICD_ICFGRE		U(0x3000)
+#define GICD_IGRPMODRE		U(0x3400)
+#define GICD_NSACRE		U(0x3600)
 /*
- * GICD_IROUTER<n> register is at 0x6000 + 8n, where n is the interrupt id and
- * n >= 32, making the effective offset as 0x6100.
+ * GICD_IROUTER<n> register is at 0x6000 + 8n, where n is the interrupt ID
+ * and n >= 32, making the effective offset as 0x6100
  */
 #define GICD_IROUTER		U(0x6000)
+#define GICD_IROUTERE		U(0x8000)
+
 #define GICD_PIDR2_GICV3	U(0xffe8)
 
 #define IGRPMODR_SHIFT		5
@@ -78,14 +143,26 @@
 
 #define NUM_OF_DIST_REGS	30
 
+/* GICD_TYPER shifts and masks */
+#define	TYPER_ESPI		U(1 << 8)
+#define	TYPER_DVIS		U(1 << 18)
+#define	TYPER_ESPI_RANGE_MASK	U(0x1f)
+#define	TYPER_ESPI_RANGE_SHIFT	U(27)
+#define	TYPER_ESPI_RANGE	U(TYPER_ESPI_MASK << TYPER_ESPI_SHIFT)
+
 /*******************************************************************************
- * GICv3 Redistributor interface registers & constants
+ * Common GIC Redistributor interface registers & constants
  ******************************************************************************/
+#if GIC_ENABLE_V4_EXTN
+#define GICR_PCPUBASE_SHIFT	0x12
+#else
 #define GICR_PCPUBASE_SHIFT	0x11
+#endif
 #define GICR_SGIBASE_OFFSET	U(65536)	/* 64 KB */
 #define GICR_CTLR		U(0x0)
 #define GICR_IIDR		U(0x04)
 #define GICR_TYPER		U(0x08)
+#define GICR_STATUSR		U(0x10)
 #define GICR_WAKER		U(0x14)
 #define GICR_PROPBASER		U(0x70)
 #define GICR_PENDBASER		U(0x78)
@@ -101,6 +178,16 @@
 #define GICR_ICFGR1		(GICR_SGIBASE_OFFSET + U(0xc04))
 #define GICR_IGRPMODR0		(GICR_SGIBASE_OFFSET + U(0xd00))
 #define GICR_NSACR		(GICR_SGIBASE_OFFSET + U(0xe00))
+
+#define GICR_IGROUPR		GICR_IGROUPR0
+#define GICR_ISENABLER		GICR_ISENABLER0
+#define GICR_ICENABLER		GICR_ICENABLER0
+#define GICR_ISPENDR		GICR_ISPENDR0
+#define GICR_ICPENDR		GICR_ICPENDR0
+#define GICR_ISACTIVER		GICR_ISACTIVER0
+#define GICR_ICACTIVER		GICR_ICACTIVER0
+#define GICR_ICFGR		GICR_ICFGR0
+#define GICR_IGRPMODR		GICR_IGRPMODR0
 
 /* GICR_CTLR bit definitions */
 #define GICR_CTLR_UWP_SHIFT	31
@@ -132,12 +219,13 @@
 
 #define TYPER_LAST_BIT		BIT_32(TYPER_LAST_SHIFT)
 
-#define NUM_OF_REDIST_REGS	30
+#define TYPER_PPI_NUM_SHIFT	U(27)
+#define TYPER_PPI_NUM_MASK	U(0x1f)
 
 /*******************************************************************************
- * GICv3 CPU interface registers & constants
+ * GICv3 and 3.1 CPU interface registers & constants
  ******************************************************************************/
-/* ICC_SRE bit definitions*/
+/* ICC_SRE bit definitions */
 #define ICC_SRE_EN_BIT		BIT_32(3)
 #define ICC_SRE_DIB_BIT		BIT_32(2)
 #define ICC_SRE_DFB_BIT		BIT_32(1)
@@ -192,9 +280,8 @@
 	 ((_tgt) & SGIR_TGT_MASK))
 
 /*****************************************************************************
- * GICv3 ITS registers and constants
+ * GICv3 and 3.1 ITS registers and constants
  *****************************************************************************/
-
 #define GITS_CTLR			U(0x0)
 #define GITS_IIDR			U(0x4)
 #define GITS_TYPER			U(0x8)
@@ -205,8 +292,7 @@
 
 /* GITS_CTLR bit definitions */
 #define GITS_CTLR_ENABLED_BIT		BIT_32(0)
-#define GITS_CTLR_QUIESCENT_SHIFT	31
-#define GITS_CTLR_QUIESCENT_BIT		BIT_32(GITS_CTLR_QUIESCENT_SHIFT)
+#define GITS_CTLR_QUIESCENT_BIT		BIT_32(1)
 
 #ifndef __ASSEMBLER__
 
@@ -224,7 +310,7 @@ static inline bool gicv3_is_intr_id_special_identifier(unsigned int id)
 }
 
 /*******************************************************************************
- * Helper GICv3 macros for SEL1
+ * Helper GICv3 and 3.1 macros for SEL1
  ******************************************************************************/
 static inline uint32_t gicv3_acknowledge_interrupt_sel1(void)
 {
@@ -255,14 +341,14 @@ static inline void gicv3_end_of_interrupt(unsigned int id)
 }
 
 /*
- * This macro returns the total number of GICD registers corresponding to
- * the name.
+ * This macro returns the total number of GICD/GICR registers corresponding to
+ * the register name
  */
 #define GICD_NUM_REGS(reg_name)	\
-	DIV_ROUND_UP_2EVAL(TOTAL_SPI_INTR_NUM, (1 << reg_name ## _SHIFT))
+	DIV_ROUND_UP_2EVAL(TOTAL_SHARED_INTR_NUM, (1 << reg_name##_SHIFT))
 
 #define GICR_NUM_REGS(reg_name)	\
-	DIV_ROUND_UP_2EVAL(TOTAL_PCPU_INTR_NUM, (1 << reg_name ## _SHIFT))
+	DIV_ROUND_UP_2EVAL(TOTAL_PRIVATE_INTR_NUM, (1 << reg_name##_SHIFT))
 
 /* Interrupt ID mask for HPPIR, AHPPIR, IAR and AIAR CPU Interface registers */
 #define INT_ID_MASK	U(0xffffff)
@@ -325,20 +411,19 @@ typedef struct gicv3_redist_ctx {
 
 	/* 32 bits registers */
 	uint32_t gicr_ctlr;
-	uint32_t gicr_igroupr0;
-	uint32_t gicr_isenabler0;
-	uint32_t gicr_ispendr0;
-	uint32_t gicr_isactiver0;
+	uint32_t gicr_igroupr[GICR_NUM_REGS(IGROUPR)];
+	uint32_t gicr_isenabler[GICR_NUM_REGS(ISENABLER)];
+	uint32_t gicr_ispendr[GICR_NUM_REGS(ISPENDR)];
+	uint32_t gicr_isactiver[GICR_NUM_REGS(ISACTIVER)];
 	uint32_t gicr_ipriorityr[GICR_NUM_REGS(IPRIORITYR)];
-	uint32_t gicr_icfgr0;
-	uint32_t gicr_icfgr1;
-	uint32_t gicr_igrpmodr0;
+	uint32_t gicr_icfgr[GICR_NUM_REGS(ICFGR)];
+	uint32_t gicr_igrpmodr[GICR_NUM_REGS(IGRPMODR)];
 	uint32_t gicr_nsacr;
 } gicv3_redist_ctx_t;
 
 typedef struct gicv3_dist_ctx {
 	/* 64 bits registers */
-	uint64_t gicd_irouter[TOTAL_SPI_INTR_NUM];
+	uint64_t gicd_irouter[TOTAL_SHARED_INTR_NUM];
 
 	/* 32 bits registers */
 	uint32_t gicd_ctlr;

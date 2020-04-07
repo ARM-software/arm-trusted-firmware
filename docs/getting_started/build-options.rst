@@ -693,6 +693,12 @@ makefile:
    functions. This is required for FVP platform which need to simulate GIC save
    and restore during SYSTEM_SUSPEND without powering down GIC. Default is 0.
 
+-  ``GIC_ENABLE_V4_EXTN`` : Enables GICv4 related changes in GICv3 driver.
+   This option defaults to 0.
+
+-  ``GIC_EXT_INTID``: When set to ``1``, GICv3 driver will support extended
+   PPI (1056-1119) and SPI (4096-5119) range. This option defaults to 0.
+
 Debugging options
 -----------------
 
