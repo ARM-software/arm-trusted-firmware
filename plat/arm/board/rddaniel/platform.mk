@@ -3,6 +3,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# RD-Daniel platform uses GIC-Clayton which is based on GICv4.1
+GIC_ENABLE_V4_EXTN	:=	1
+
 include plat/arm/css/sgi/sgi-common.mk
 
 RDDANIEL_BASE		=	plat/arm/board/rddaniel
