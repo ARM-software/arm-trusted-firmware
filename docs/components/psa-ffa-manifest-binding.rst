@@ -7,8 +7,8 @@ according to the PSA FF-A specification.
 Version 1.0
 -----------
 
-psa-ffa-manifest-partition
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Partition Properties
+^^^^^^^^^^^^^^^^^^^^
 
 - compatible [mandatory]
    - value type: <string>
@@ -34,16 +34,6 @@ psa-ffa-manifest-partition
    - value type: <prop-encoded-array>
    - An array consisting of 4 <u32> values, identifying the UUID of the service
      implemented by this partition. The UUID format is described in RFC 4122.
-     UUID can be shared by multiple instances of partitions that offer the same
-     service For example:
-
-      - If there are multiple instances of a Trusted OS, then the UUID can be
-        shared by all instances.
-      - The TEE driver in the HLOS can use the UUID with the
-        FFA_PARTITION_INFO_GET interface to determine the:
-
-         - Number of Trusted OSs
-         - The partition ID of each instance of the Trusted OS
 
 - id
    - value type: <u32>
@@ -75,9 +65,6 @@ psa-ffa-manifest-partition
       - 0x0: EL1
       - 0x1: S_EL0
       - 0x2: S_EL1
-      - 0x3: EL2
-      - 0x4: Supervisor mode
-      - 0x5: Secure User mode
 
 - execution-state [mandatory]
    - value type: <u32>
@@ -104,7 +91,7 @@ psa-ffa-manifest-partition
 
       - 0x0: 4k
       - 0x1: 16k
-      - 0x2: 32k
+      - 0x2: 64k
 
 - boot-order
    - value type: <u32>
@@ -159,7 +146,7 @@ psa-ffa-manifest-partition
    - List of <u32> tuples, identifying the IDs this partition is acting as
      proxy for.
 
-memory-regions
+Memory Regions
 --------------
 
 - compatible [mandatory]
@@ -177,7 +164,11 @@ memory-regions
 
 - attributes [mandatory]
    - value type: <u32>
-   - ?? TO DEFINE
+   - Mapping modes: ORed to get required permission
+
+      - 0x1: Read
+      - 0x2: Write
+      - 0x4: Execute
 
 - base-address
    - value type: <u64>
@@ -191,7 +182,7 @@ memory-regions
      then communicate the region properties (including the base address chosen
      by the partition manager) to the partition.
 
-device-regions
+Device Regions
 --------------
 
 - compatible [mandatory]
@@ -213,7 +204,11 @@ device-regions
 
 - attributes [mandatory]
    - value type: <u32>
-   - ?? TO DEFINE
+   - Mapping modes: ORed to get required permission
+
+     - 0x1: Read
+     - 0x2: Write
+     - 0x4: Execute
 
 - smmu-id
    - value type: <u32>
@@ -222,19 +217,18 @@ device-regions
      upstream of. If the field is omitted then it is assumed that the device is
      not upstream of any SMMU.
 
-- stream-ids [mandatory]
+- stream-ids
    - value type: <prop-encoded-array>
    - A list of (id, mem-manage) pair, where:
 
       - id: A unique <u32> value amongst all devices assigned to the partition.
-      - mem-manage: A <u32> value used in memory management operations.
 
 - interrupts [mandatory]
    - value type: <prop-encoded-array>
    - A list of (id, attributes) pair describing the device interrupts, where:
 
       - id: The <u32> interrupt IDs.
-      - attributes: A ?? TO DEFINE value,
+      - attributes: A <u32> value,
         containing the attributes for each interrupt ID:
 
          - Interrupt type: SPI, PPI, SGI
