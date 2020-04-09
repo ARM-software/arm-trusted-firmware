@@ -108,8 +108,6 @@ endfunc plat_fpga_calc_core_pos
 
 func plat_crash_console_init
 	mov_imm	x0, PLAT_FPGA_CRASH_UART_BASE
-	mov_imm	x1, PLAT_FPGA_CRASH_UART_CLK_IN_HZ
-	mov_imm	x2, PLAT_FPGA_CONSOLE_BAUDRATE
 	b	console_pl011_core_init
 endfunc plat_crash_console_init
 

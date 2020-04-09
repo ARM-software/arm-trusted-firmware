@@ -38,6 +38,8 @@ USE_COHERENT_MEM	:=	0
 # This can be overridden depending on CPU(s) used in the FPGA image
 HW_ASSISTED_COHERENCY	:=	1
 
+PL011_GENERIC_UART	:=	1
+
 FPGA_CPU_LIBS	:=	lib/cpus/${ARCH}/aem_generic.S
 
 # select a different set of CPU files, depending on whether we compile for
