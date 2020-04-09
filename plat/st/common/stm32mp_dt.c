@@ -136,52 +136,6 @@ static int fdt_get_node_parent_size_cells(int node)
 #endif
 
 /*******************************************************************************
- * This function gets the stdout path node.
- * It reads the value indicated inside the device tree.
- * Returns node offset on success and a negative FDT error code on failure.
- ******************************************************************************/
-static int dt_get_stdout_node_offset(void)
-{
-	int node;
-	const char *cchar;
-
-	node = fdt_path_offset(fdt, "/secure-chosen");
-	if (node < 0) {
-		node = fdt_path_offset(fdt, "/chosen");
-		if (node < 0) {
-			return -FDT_ERR_NOTFOUND;
-		}
-	}
-
-	cchar = fdt_getprop(fdt, node, "stdout-path", NULL);
-	if (cchar == NULL) {
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	node = -FDT_ERR_NOTFOUND;
-	if (strchr(cchar, (int)':') != NULL) {
-		const char *name;
-		char *str = (char *)cchar;
-		int len = 0;
-
-		while (strncmp(":", str, 1)) {
-			len++;
-			str++;
-		}
-
-		name = fdt_get_alias_namelen(fdt, cchar, len);
-
-		if (name != NULL) {
-			node = fdt_path_offset(fdt, name);
-		}
-	} else {
-		node = fdt_path_offset(fdt, cchar);
-	}
-
-	return node;
-}
-
-/*******************************************************************************
  * This function gets the stdout pin configuration information from the DT.
  * And then calls the sub-function to treat it and set GPIO registers.
  * Returns 0 on success and a negative FDT error code on failure.
@@ -190,7 +144,7 @@ int dt_set_stdout_pinctrl(void)
 {
 	int node;
 
-	node = dt_get_stdout_node_offset();
+	node = fdt_get_stdout_node_offset(fdt);
 	if (node < 0) {
 		return -FDT_ERR_NOTFOUND;
 	}
@@ -259,7 +213,7 @@ int dt_get_stdout_uart_info(struct dt_node_info *info)
 {
 	int node;
 
-	node = dt_get_stdout_node_offset();
+	node = fdt_get_stdout_node_offset(fdt);
 	if (node < 0) {
 		return -FDT_ERR_NOTFOUND;
 	}
