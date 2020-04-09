@@ -643,6 +643,7 @@ Common build options
 -  ``ARM_IO_IN_DTB``: This flag determines whether to use IO based on the
    firmware configuration framework. This will move the io_policies into a
    configuration device tree, instead of static structure in the code base.
+   This is currently an experimental feature.
 
 
 -  ``USE_ROMLIB``: This flag determines whether library at ROM will be used.
