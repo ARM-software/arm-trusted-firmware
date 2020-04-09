@@ -27,9 +27,11 @@
  * FPGA image memory map related constants
  ******************************************************************************/
 
-/* UART base address, as configured by the image */
-#define PLAT_FPGA_BOOT_UART_BASE 		0x7ff80000
-#define PLAT_FPGA_CRASH_UART_BASE		PLAT_FPGA_BOOT_UART_BASE
+/*
+ * UART base address, just for the crash console, as a fallback.
+ * The actual console UART address is taken from the DT.
+ */
+#define PLAT_FPGA_CRASH_UART_BASE		0x7ff80000
 
 #define FPGA_DEFAULT_TIMER_FREQUENCY		10000000
 
