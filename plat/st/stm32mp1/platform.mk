@@ -16,6 +16,11 @@ PLAT_XLAT_TABLES_DYNAMIC :=	1
 $(eval $(call assert_boolean,PLAT_XLAT_TABLES_DYNAMIC))
 $(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
 
+ifeq ($(AARCH32_SP),sp_min)
+# Disable Neon support: sp_min runtime may conflict with non-secure world
+TF_CFLAGS		+=      -mfloat-abi=soft
+endif
+
 # Not needed for Cortex-A7
 WORKAROUND_CVE_2017_5715:=	0
 
