@@ -44,7 +44,7 @@
 
 /* FPGA config helpers */
 #define INTEL_SIP_SMC_FPGA_CONFIG_ADDR			0x400000
-#define INTEL_SIP_SMC_FPGA_CONFIG_SIZE			16777216
+#define INTEL_SIP_SMC_FPGA_CONFIG_SIZE			0x2000000
 
 /* SMC function IDs for SiP Service queries */
 #define SIP_SVC_CALL_COUNT	0x8200ff00
