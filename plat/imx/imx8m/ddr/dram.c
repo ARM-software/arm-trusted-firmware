@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 NXP
+ * Copyright 2019-2023 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -129,7 +129,8 @@ void dram_info_init(unsigned long dram_timing_base)
 	ddrc_mstr = mmio_read_32(DDRC_MSTR(0));
 
 	dram_info.dram_type = ddrc_mstr & DDR_TYPE_MASK;
-	dram_info.num_rank = (ddrc_mstr >> 24) & ACTIVE_RANK_MASK;
+	dram_info.num_rank = ((ddrc_mstr >> 24) & ACTIVE_RANK_MASK) == 0x3 ?
+		DDRC_ACTIVE_TWO_RANK : DDRC_ACTIVE_ONE_RANK;
 
 	/* Get current fsp info */
 	current_fsp = mmio_read_32(DDRC_DFIMISC(0)) & 0xf;

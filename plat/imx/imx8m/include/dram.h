@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 NXP
+ * Copyright 2019-2023 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,8 @@
 #define DDRC_DDR3L		BIT(0)
 #define DDR_TYPE_MASK		U(0x3f)
 #define ACTIVE_RANK_MASK	U(0x3)
+#define DDRC_ACTIVE_ONE_RANK	U(0x1)
+#define DDRC_ACTIVE_TWO_RANK	U(0x2)
 
 /* reg & config param */
 struct dram_cfg_param {
