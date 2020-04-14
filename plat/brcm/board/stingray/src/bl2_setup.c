@@ -682,7 +682,7 @@ void plat_bcm_bl2_plat_arch_setup(void)
 	bcm_board_detect();
 #ifdef DRIVER_EMMC_ENABLE
 	/* Initialize the card, if it is not */
-	if (bcm_emmc_init(true) < 0)
+	if (bcm_emmc_init(true) == 0)
 		WARN("eMMC Card Initialization Failed!!!\n");
 #endif
 

@@ -485,7 +485,7 @@ static void pcie_ss_reset(void)
  */
 static int pcie_cores_init(void)
 {
-	int ret;
+	int ret = 0;
 	uint32_t core_idx;
 
 	if (paxb->pipemux_init) {
