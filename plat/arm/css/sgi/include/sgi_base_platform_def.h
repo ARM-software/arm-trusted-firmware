@@ -38,8 +38,8 @@
 #  define PLAT_SP_IMAGE_MMAP_REGIONS	7
 #  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	10
 # else
-#  define PLAT_ARM_MMAP_ENTRIES		8
-#  define MAX_XLAT_TABLES		8
+#  define PLAT_ARM_MMAP_ENTRIES		(5 + ((CSS_SGI_CHIP_COUNT - 1) * 3))
+#  define MAX_XLAT_TABLES		(5 + ((CSS_SGI_CHIP_COUNT - 1) * 3))
 # endif
 #elif defined(IMAGE_BL32)
 # define PLAT_ARM_MMAP_ENTRIES		8
