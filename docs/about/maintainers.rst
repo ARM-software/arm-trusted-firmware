@@ -17,8 +17,6 @@ Main maintainers
 :G: `sandrine-bailleux-arm`_
 :M: Alexei Fedorov <alexei.fedorov@arm.com>
 :G: `AlexeiFedorov`_
-:M: György Szing <gyorgy.szing@arm.com>
-:G: `gyuri-szing`_
 :M: Manish Pandey <manish.pandey2@arm.com>
 :G: `manish-pandey-arm`_
 :M: Mark Dykes <mark.dykes@arm.com>
@@ -311,7 +309,6 @@ Xilinx platform port
 .. _etienne-lms: https://github.com/etienne-lms
 .. _glneo: https://github.com/glneo
 .. _grandpaul: https://github.com/grandpaul
-.. _gyuri-szing: https://github.com/gyuri-szing
 .. _hzhuang1: https://github.com/hzhuang1
 .. _JackyBai: https://github.com/JackyBai
 .. _jenswi-linaro: https://github.com/jenswi-linaro

@@ -86,8 +86,8 @@ Current features
    in ROM but is accessed through a jump-table that may be stored
    in read-write memory, allowing for the library code to be patched.
 
--  A prototype implementation of a Secure Partition Manager (SPM) that is based
-   on the SPCI Alpha 1 and SPRT draft specifications.
+-  Support for the Secure Partition Manager Dispatcher (SPMD) component as a
+   new standard service.
 
 -  Support for ARMv8.3 pointer authentication in the normal and secure worlds.
    The use of pointer authentication in the normal world is enabled whenever
@@ -96,8 +96,8 @@ Current features
    experimental configuration at this time and requires the
    ``BRANCH_PROTECTION`` option to be set to non-zero.
 
--  Position-Independent Executable (PIE) support. Initially for BL31 only, with
-   further support to be added in a future release.
+-  Position-Independent Executable (PIE) support. Currently for BL2, BL31, and
+   TSP, with further support to be added in a future release.
 
 Still to come
 -------------
@@ -124,4 +124,4 @@ Still to come
 
 --------------
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+*Copyright (c) 2020, Arm Limited. All rights reserved.*
