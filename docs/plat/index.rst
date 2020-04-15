@@ -37,6 +37,7 @@ Platform Ports
    ti-k3
    xilinx-versal
    xilinx-zynqmp
+   brcm-stingray
 
 This section provides a list of supported upstream *platform ports* and the
 documentation associated with them.
