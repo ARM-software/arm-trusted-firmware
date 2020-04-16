@@ -289,7 +289,7 @@ int plat_spm_sp_rd_load(struct sp_res_desc *rd, const void *ptr, size_t size);
 int plat_spm_sp_get_next_address(void **sp_base, size_t *sp_size,
 				 void **rd_base, size_t *rd_size);
 #if defined(SPD_spmd)
-int plat_spm_core_manifest_load(spmc_manifest_sect_attribute_t *manifest,
+int plat_spm_core_manifest_load(spmc_manifest_attribute_t *manifest,
 				const void *ptr,
 				size_t size);
 #endif

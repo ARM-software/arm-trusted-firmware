@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SPMC_MANIFEST_H
-#define SPMC_MANIFEST_H
+#ifndef SPM_CORE_MANIFEST_H
+#define SPM_CORE_MANIFEST_H
 
 #include <stdint.h>
 
@@ -28,18 +28,18 @@ typedef struct spm_core_manifest_sect_attribute {
 	uint32_t exec_state;
 
 	/*
-	 * Address of binary image containing SPM core in bytes (optional).
+	 * Address of binary image containing SPM Core (optional).
 	 */
 	uint64_t load_address;
 
 	/*
 	 * Offset from the base of the partition's binary image to the entry
-	 * point of the partition.
+	 * point of the partition (optional).
 	 */
 	uint64_t entrypoint;
 
 	/*
-	 * Size of binary image containing SPM core in bytes (mandatory).
+	 * Size of binary image containing SPM Core in bytes (mandatory).
 	 */
 	uint32_t binary_size;
 
@@ -48,6 +48,6 @@ typedef struct spm_core_manifest_sect_attribute {
 	 */
 	uint16_t spmc_id;
 
-} spmc_manifest_sect_attribute_t;
+} spmc_manifest_attribute_t;
 
-#endif /* SPMC_MANIFEST_H */
+#endif /* SPM_CORE_MANIFEST_H */

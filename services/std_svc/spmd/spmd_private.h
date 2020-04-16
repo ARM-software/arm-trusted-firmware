@@ -33,12 +33,6 @@
 #include <services/spci_svc.h>
 #include <stdint.h>
 
-/*
- * Convert a function no. in a FID to a bit position. All function nos. are
- * between 0 and 0x1f
- */
-#define SPCI_FNO_TO_BIT_POS(_fid)	(1 << ((_fid) & U(0x1f)))
-
 typedef enum spmc_state {
 	SPMC_STATE_RESET = 0,
 	SPMC_STATE_IDLE
@@ -60,27 +54,19 @@ typedef struct spmd_spm_core_context {
 #define SPCI_NS_ENDPOINT_ID		U(0)
 
 /* Mask and shift to check valid secure SPCI Endpoint ID. */
-#define SPMC_SECURE_ID_MASK		0x1
-#define SPMC_SECURE_ID_SHIFT		15
+#define SPMC_SECURE_ID_MASK		U(1)
+#define SPMC_SECURE_ID_SHIFT		U(15)
 
-/*
- * Data structure used by the SPM dispatcher (SPMD) in EL3 to track sequence of
- * SPCI calls from lower ELs.
- *
- * next_smc_bit_map: Per-cpu bit map of SMCs from each world that are expected
- *                   next.
- */
-typedef struct spmd_spci_context {
-	uint32_t next_smc_bit_map[2];
-} spmd_spci_context_t;
-
-/* Functions used to enter/exit a Secure Partition synchronously */
+/* Functions used to enter/exit SPMC synchronously */
 uint64_t spmd_spm_core_sync_entry(spmd_spm_core_context_t *ctx);
 __dead2 void spmd_spm_core_sync_exit(uint64_t rc);
 
 /* Assembly helpers */
 uint64_t spmd_spm_core_enter(uint64_t *c_rt_ctx);
 void __dead2 spmd_spm_core_exit(uint64_t c_rt_ctx, uint64_t ret);
+
+/* SPMC context on current CPU get helper */
+spmd_spm_core_context_t *spmd_get_context(void);
 
 #endif /* __ASSEMBLER__ */
 
