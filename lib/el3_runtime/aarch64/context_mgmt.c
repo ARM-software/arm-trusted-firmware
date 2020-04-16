@@ -173,11 +173,18 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	 * SCR_EL3.HCE: Enable HVC instructions if next execution state is
 	 * AArch64 and next EL is EL2, or if next execution state is AArch32 and
 	 * next mode is Hyp.
+	 * SCR_EL3.FGTEn: Enable Fine Grained Virtualization Traps under the
+	 * same conditions as HVC instructions and when the processor supports
+	 * ARMv8.6-FGT.
 	 */
 	if (((GET_RW(ep->spsr) == MODE_RW_64) && (GET_EL(ep->spsr) == MODE_EL2))
 	    || ((GET_RW(ep->spsr) != MODE_RW_64)
 		&& (GET_M32(ep->spsr) == MODE32_hyp))) {
 		scr_el3 |= SCR_HCE_BIT;
+
+		if (is_armv8_6_fgt_present()) {
+			scr_el3 |= SCR_FGTEN_BIT;
+		}
 	}
 
 	/* Enable S-EL2 if the next EL is EL2 and security state is secure */

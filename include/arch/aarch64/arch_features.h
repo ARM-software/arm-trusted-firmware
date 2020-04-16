@@ -64,6 +64,12 @@ static inline bool is_armv8_6_twed_present(void)
 		ID_AA64MMFR1_EL1_TWED_MASK) == ID_AA64MMFR1_EL1_TWED_SUPPORTED);
 }
 
+static inline bool is_armv8_6_fgt_present(void)
+{
+	return ((read_id_aa64mmfr0_el1() >> ID_AA64MMFR0_EL1_FGT_SHIFT) &
+		ID_AA64MMFR0_EL1_FGT_MASK) == ID_AA64MMFR0_EL1_FGT_SUPPORTED;
+}
+
 /*
  * Return MPAM version:
  *
