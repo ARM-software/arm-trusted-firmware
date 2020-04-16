@@ -12,7 +12,7 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 (64-bit host machine only).
 
 .. note::
-   The FVP models used are Version 11.6 Build 45, unless otherwise stated.
+   The FVP models used are Version 11.9 Build 41, unless otherwise stated.
 
 -  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_AEMv8A-AEMv8A-AEMv8A-AEMv8A-CCN502``
@@ -26,8 +26,8 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_Cortex-A57x2-A53x4``
 -  ``FVP_Base_Cortex-A57x4-A53x4``
 -  ``FVP_Base_Cortex-A57x4``
--  ``FVP_Base_Cortex-A65x4`` (Version 11.9 build 41)
--  ``FVP_Base_Cortex-A65AEx8`` (Version 11.9 build 41)
+-  ``FVP_Base_Cortex-A65x4``
+-  ``FVP_Base_Cortex-A65AEx8``
 -  ``FVP_Base_Cortex-A72x4-A53x4``
 -  ``FVP_Base_Cortex-A72x4``
 -  ``FVP_Base_Cortex-A73x4-A53x4``
@@ -36,13 +36,13 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_Cortex-A76x4``
 -  ``FVP_Base_Cortex-A76AEx4``
 -  ``FVP_Base_Cortex-A76AEx8``
--  ``FVP_Base_Cortex-A77x4`` (Version 11.7 build 36)
+-  ``FVP_Base_Cortex-A77x4``
 -  ``FVP_Base_Neoverse-N1x4``
 -  ``FVP_Base_Zeusx4``
--  ``FVP_CSS_SGI-575`` (Version 11.3 build 42)
--  ``FVP_CSS_SGM-775`` (Version 11.3 build 42)
--  ``FVP_RD_E1Edge`` (Version 11.3 build 42)
--  ``FVP_RD_N1Edge``
+-  ``FVP_CSS_SGI-575`` (Version 11.10 build 25)
+-  ``FVP_CSS_SGM-775``
+-  ``FVP_RD_E1Edge``
+-  ``FVP_RD_N1Edge`` (Version 11.10 build 25)
 -  ``Foundation_Platform``
 
 The latest version of the AArch32 build of TF-A has been tested on the
