@@ -201,6 +201,7 @@ BL31_SOURCES		+=	drivers/arm/fvp/fvp_pwrc.c			\
 				drivers/cfi/v2m/v2m_flash.c			\
 				lib/utils/mem_region.c				\
 				plat/arm/board/fvp/fvp_bl31_setup.c		\
+				plat/arm/board/fvp/fvp_console.c		\
 				plat/arm/board/fvp/fvp_pm.c			\
 				plat/arm/board/fvp/fvp_topology.c		\
 				plat/arm/board/fvp/aarch64/fvp_helpers.S	\
