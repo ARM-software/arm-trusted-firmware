@@ -55,11 +55,14 @@ typedef struct spmd_spm_core_context {
 /*
  * Reserve ID for NS physical FFA Endpoint.
  */
-#define FFA_NS_ENDPOINT_ID		U(0)
+#define FFA_NS_ENDPOINT_ID			U(0)
 
-/* Mask and shift to check valid secure FFA Endpoint ID. */
-#define SPMC_SECURE_ID_MASK		U(1)
-#define SPMC_SECURE_ID_SHIFT		U(15)
+/* Mask and shift to check valid secure FF-A Endpoint ID. */
+#define SPMC_SECURE_ID_MASK			U(1)
+#define SPMC_SECURE_ID_SHIFT			U(15)
+
+#define SPMD_DIRECT_MSG_ENDPOINT_ID		U(FFA_ENDPOINT_ID_MAX - 1)
+#define SPMD_DIRECT_MSG_SET_ENTRY_POINT		U(1)
 
 /* Functions used to enter/exit SPMC synchronously */
 uint64_t spmd_spm_core_sync_entry(spmd_spm_core_context_t *ctx);

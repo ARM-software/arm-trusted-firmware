@@ -322,8 +322,8 @@ static uint64_t spmd_smc_forward(uint32_t smc_fid,
 				 uint64_t x4,
 				 void *handle)
 {
-	uint32_t secure_state_in = (secure_origin) ? SECURE : NON_SECURE;
-	uint32_t secure_state_out = (!secure_origin) ? SECURE : NON_SECURE;
+	unsigned int secure_state_in = (secure_origin) ? SECURE : NON_SECURE;
+	unsigned int secure_state_out = (!secure_origin) ? SECURE : NON_SECURE;
 
 	/* Save incoming security state */
 	cm_el1_sysregs_context_save(secure_state_in);
@@ -353,6 +353,15 @@ static uint64_t spmd_ffa_error_return(void *handle, int error_code)
 		 FFA_TARGET_INFO_MBZ, error_code,
 		 FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ,
 		 FFA_PARAM_MBZ, FFA_PARAM_MBZ);
+}
+
+/******************************************************************************
+ * spmd_is_spmc_message
+ *****************************************************************************/
+static bool spmd_is_spmc_message(unsigned int ep)
+{
+	return ((ffa_endpoint_destination(ep) == SPMD_DIRECT_MSG_ENDPOINT_ID)
+		&& (ffa_endpoint_source(ep) == spmc_attrs.spmc_id));
 }
 
 /*******************************************************************************
