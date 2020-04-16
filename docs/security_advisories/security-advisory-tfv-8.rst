@@ -99,5 +99,5 @@ line 19 (referring to the version of the code as of `commit c385955`_):
 
 .. _CVE-2018-19440: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-19440
 .. _commit c385955: https://github.com/ARM-software/arm-trusted-firmware/commit/c385955
-.. _SMC Calling Convention: http://arminfo.emea.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
+.. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
 .. _Pull Request #1710: https://github.com/ARM-software/arm-trusted-firmware/pull/1710

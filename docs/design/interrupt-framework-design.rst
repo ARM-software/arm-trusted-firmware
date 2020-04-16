@@ -1011,9 +1011,9 @@ TSP by returning ``SMC_UNK`` error.
 
 --------------
 
-*Copyright (c) 2014-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2020, Arm Limited and Contributors. All rights reserved.*
 
-.. _SMC calling convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
+.. _SMC calling convention: https://developer.arm.com/docs/den0028/latest
 
 .. |Image 1| image:: ../resources/diagrams/sec-int-handling.png
 .. |Image 2| image:: ../resources/diagrams/non-sec-int-handling.png

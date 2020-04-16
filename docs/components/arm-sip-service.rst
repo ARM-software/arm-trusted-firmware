@@ -430,6 +430,6 @@ uint32_t        w1: On success, debugfs interface version, 32 bits
 
 --------------
 
-*Copyright (c) 2017-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2020, Arm Limited and Contributors. All rights reserved.*
 
-.. _SMC Calling Convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
+.. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
