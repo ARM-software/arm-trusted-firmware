@@ -7,7 +7,7 @@ of this file will be moved to the collective change-log.rst file at the time of
 release code freeze.
 
 
-Upcoming Release Version 2.3
+Upcoming Release Version 2.4
 ----------------------------
 
 **Trusted Firmware-A Contributors,
@@ -20,56 +20,35 @@ New Features
 ^^^^^^^^^^^^
 
 - Arm Architecture
-   - Add support for Armv8.4-SecEL2 extension through the SPCI defined SPMD/SPMC
-     components.
-   - Build option to support EL2 context save and restore in the secure world
-     (CTX_INCLUDE_EL2_REGS).
    - Example: "Add support for Branch Target Identification (BTI)"
 
 - BL-specific
-   - Enhanced BL2 bootloader flow to load secure partitions based on firmware
-     configuration data (fconf).
+   - Example: "Enhanced BL2 bootloader flow to load secure partitions based
+     on firmware configuration data (fconf)."
 
 - Build System
-   - Add support for documentation build as a target in Makefile
-   - Add ``COT`` build option to select the chain of trust to use when the
-     Trusted Boot feature is enabled (default: ``tbbr``).
-   - Added creation and injection of secure partition packages into the FIP.
-   - Build option to support SPMC component loading and run at S-EL1
-     or S-EL2 (SPMD_SPM_AT_SEL2).
+   - Example: "Modify FVP makefile for CPUs that support both AArch64/32"
 
 - CPU Support
    - Example: "cortex-a55: Workaround for erratum 1221012"
-   - Use Speculation Barrier instruction for v8.5+ cores
 
 - Drivers
    - Example: "console: Allow the console to register multiple times"
 
 - Libraries
    - Example: "Introduce BTI support in Library at ROM (romlib)"
-   - Add Firmware Configuration Framework (fconf).
-   - Add DebugFS functionality
 
 - New Platforms Support
    - Example: "qemu/qemu_sbsa: New platform support added for QEMU SBSA platform"
 
 - Platforms
    - Example: "arm/common: Introduce wrapper functions to setup secure watchdog"
-   - plat/arm: Add support for the new `dualroot` chain of trust.
-   - plat/arm/fvp: Add support for fconf in BL31 and SP_MIN. Populate power
-     domain desciptor dynamically by leveraging fconf APIs.
 
 - PSCI
    - Example: "Adding new optional PSCI hook ``pwr_domain_on_finish_late``"
 
 - Security
    - Example: "UBSAN support and handlers"
-   - Add support for optional firmware encryption feature (experimental).
-   - Introduce a new `dualroot` chain of trust.
-   - aarch32: stop speculative execution past exception returns.
-
-- SPCI
-   - Introduced the SPM Dispatcher (SPMD) component as a new standard service.
 
 - Tools
    - Example: "fiptool: Add support to build fiptool on Windows."
@@ -103,7 +82,6 @@ Changed
    - Example: "Refactor SPSR initialisation code"
 
 - Tools
-   - sptool updated to accomodate building secure partition packages.
    - Example: "cert_create: Remove RSA PKCS#1 v1.5 support"
 
 
