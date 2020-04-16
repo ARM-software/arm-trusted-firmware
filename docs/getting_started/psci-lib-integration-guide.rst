@@ -538,9 +538,9 @@ workarounds.
 
 --------------
 
-*Copyright (c) 2016-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2016-2020, Arm Limited and Contributors. All rights reserved.*
 
 .. _PSCI spec: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
-.. _SMCCC: https://silver.arm.com/download/ARM_and_AMBA_Architecture/AR570-DA-80002-r0p0-00rel0/ARM_DEN0028A_SMC_Calling_Convention.pdf
+.. _SMCCC: https://developer.arm.com/docs/den0028/latest
 .. _PSCI specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf
 .. _PSCI Specification: http://infocenter.arm.com/help/topic/com.arm.doc.den0022c/DEN0022C_Power_State_Coordination_Interface.pdf

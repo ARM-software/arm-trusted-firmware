@@ -117,11 +117,11 @@ Still to come
 
 -  Ongoing security hardening, optimization and quality improvements.
 
-.. _SMC Calling Convention: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/ARM_DEN0028B_SMC_Calling_Convention.pdf
+.. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
 .. _OP-TEE Secure OS: https://github.com/OP-TEE/optee_os
 .. _NVIDIA Trusted Little Kernel: http://nv-tegra.nvidia.com/gitweb/?p=3rdparty/ote_partner/tlk.git;a=summary
 .. _Trusty Secure OS: https://source.android.com/security/trusty
 
 --------------
 
-*Copyright (c) 2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*

@@ -467,7 +467,7 @@ SMCs from Non-secure world are synchronous exceptions, and are mechanisms for
 Non-secure world to request Secure services. They're broadly classified as
 *Fast* or *Yielding* (see `SMCCC`__).
 
-.. __: http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
+.. __: https://developer.arm.com/docs/den0028/latest
 
 -  *Fast* SMCs are atomic from the caller's point of view. I.e., they return
    to the caller only when the Secure world has finished serving the request.

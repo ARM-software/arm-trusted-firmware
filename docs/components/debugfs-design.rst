@@ -119,7 +119,7 @@ The SMC interface is accessible from an NS environment, that is:
 
 *Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.*
 
-.. _SMC Calling Convention PDD: http://infocenter.arm.com/help/topic/com.arm.doc.den0028b/
+.. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
 .. _Notes on the Plan 9 Kernel Source: http://lsub.org/who/nemo/9.pdf
 .. _Linux 9p remote filesystem protocol: https://www.kernel.org/doc/Documentation/filesystems/9p.txt
 .. _ARM SiP Services: arm-sip-service.rst
