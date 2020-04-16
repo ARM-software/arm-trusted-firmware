@@ -140,7 +140,7 @@ static int32_t spmd_init(void)
 	ctx->state = SPMC_STATE_ON_PENDING;
 
 	/* Set the SPMC context state on other CPUs to OFF */
-	for (core_id = 0; core_id < PLATFORM_CORE_COUNT; core_id++) {
+	for (core_id = 0U; core_id < PLATFORM_CORE_COUNT; core_id++) {
 		if (core_id != linear_id) {
 			spm_core_context[core_id].state = SPMC_STATE_OFF;
 		}
@@ -355,6 +355,17 @@ static uint64_t spmd_ffa_error_return(void *handle, int error_code)
 		 FFA_PARAM_MBZ, FFA_PARAM_MBZ);
 }
 
+/*******************************************************************************
+ * spmd_check_address_in_binary_image
+ ******************************************************************************/
+bool spmd_check_address_in_binary_image(uint64_t address)
+{
+	assert(!check_uptr_overflow(spmc_attrs.load_address, spmc_attrs.binary_size));
+
+	return ((address >= spmc_attrs.load_address) &&
+		(address < (spmc_attrs.load_address + spmc_attrs.binary_size)));
+}
+
 /******************************************************************************
  * spmd_is_spmc_message
  *****************************************************************************/
@@ -362,6 +373,26 @@ static bool spmd_is_spmc_message(unsigned int ep)
 {
 	return ((ffa_endpoint_destination(ep) == SPMD_DIRECT_MSG_ENDPOINT_ID)
 		&& (ffa_endpoint_source(ep) == spmc_attrs.spmc_id));
+}
+
+/******************************************************************************
+ * spmd_handle_spmc_message
+ *****************************************************************************/
+static int32_t spmd_handle_spmc_message(uint64_t msg, uint64_t parm1,
+					uint64_t parm2, uint64_t parm3,
+					uint64_t parm4)
+{
+	VERBOSE("%s %llx %llx %llx %llx %llx\n", __func__,
+		msg, parm1, parm2, parm3, parm4);
+
+	switch (msg) {
+	case SPMD_DIRECT_MSG_SET_ENTRY_POINT:
+		return spmd_pm_secondary_core_set_ep(parm1, parm2, parm3);
+	default:
+		break;
+	}
+
+	return -EINVAL;
 }
 
 /*******************************************************************************
@@ -481,6 +512,35 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 		break; /* not reached */
 
+	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
+		if (secure_origin && spmd_is_spmc_message(x1)) {
+			ret = spmd_handle_spmc_message(x3, x4,
+				SMC_GET_GP(handle, CTX_GPREG_X5),
+				SMC_GET_GP(handle, CTX_GPREG_X6),
+				SMC_GET_GP(handle, CTX_GPREG_X7));
+
+			SMC_RET8(handle, FFA_SUCCESS_SMC32,
+				FFA_TARGET_INFO_MBZ, ret,
+				FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+				FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+				FFA_PARAM_MBZ);
+		} else {
+			/* Forward direct message to the other world */
+			return spmd_smc_forward(smc_fid, secure_origin,
+				x1, x2, x3, x4, handle);
+		}
+		break; /* Not reached */
+
+	case FFA_MSG_SEND_DIRECT_RESP_SMC32:
+		if (secure_origin && spmd_is_spmc_message(x1)) {
+			spmd_spm_core_sync_exit(0);
+		} else {
+			/* Forward direct message to the other world */
+			return spmd_smc_forward(smc_fid, secure_origin,
+				x1, x2, x3, x4, handle);
+		}
+		break; /* Not reached */
+
 	case FFA_RX_RELEASE:
 	case FFA_RXTX_MAP_SMC32:
 	case FFA_RXTX_MAP_SMC64:
@@ -496,9 +556,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 	case FFA_PARTITION_INFO_GET:
 	case FFA_MSG_SEND:
-	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
 	case FFA_MSG_SEND_DIRECT_REQ_SMC64:
-	case FFA_MSG_SEND_DIRECT_RESP_SMC32:
 	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
 	case FFA_MEM_DONATE_SMC32:
 	case FFA_MEM_DONATE_SMC64:

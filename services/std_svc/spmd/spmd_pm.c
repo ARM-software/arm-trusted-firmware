@@ -5,7 +5,55 @@
  */
 
 #include <assert.h>
+#include <errno.h>
 #include "spmd_private.h"
+
+struct spmd_pm_secondary_ep_t {
+	uintptr_t entry_point;
+	uintptr_t context;
+	bool locked;
+};
+
+static struct spmd_pm_secondary_ep_t spmd_pm_secondary_ep[PLATFORM_CORE_COUNT];
+
+/*******************************************************************************
+ * spmd_pm_secondary_core_set_ep
+ ******************************************************************************/
+int32_t spmd_pm_secondary_core_set_ep(uint64_t mpidr, uintptr_t entry_point,
+				      uint64_t context)
+{
+	int id = plat_core_pos_by_mpidr(mpidr);
+
+	if ((id < 0) || (id >= PLATFORM_CORE_COUNT)) {
+		ERROR("%s inconsistent MPIDR (%llx)\n", __func__, mpidr);
+		return -EINVAL;
+	}
+
+	if (spmd_pm_secondary_ep[id].locked) {
+		ERROR("%s entry locked (%llx)\n", __func__, mpidr);
+		return -EINVAL;
+	}
+
+	/*
+	 * Check entry_point address is a PA within
+	 * load_address <= entry_point < load_address + binary_size
+	 */
+	if (!spmd_check_address_in_binary_image(entry_point)) {
+		ERROR("%s entry point is not within image boundaries (%llx)\n",
+		      __func__, mpidr);
+		return -EINVAL;
+	}
+
+	/* Fill new entry to corresponding secondary core id and lock it */
+	spmd_pm_secondary_ep[id].entry_point = entry_point;
+	spmd_pm_secondary_ep[id].context = context;
+	spmd_pm_secondary_ep[id].locked = true;
+
+	VERBOSE("%s %d %llx %lx %llx\n",
+		__func__, id, mpidr, entry_point, context);
+
+	return 0;
+}
 
 /*******************************************************************************
  * This CPU has been turned on. Enter SPMC to initialise S-EL1 or S-EL2. As part
