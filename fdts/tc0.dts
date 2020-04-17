@@ -1,0 +1,316 @@
+/*
+ * Copyright (c) 2020, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+/ {
+	compatible = "arm,tc0";
+	interrupt-parent = <&gic>;
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	aliases {
+		serial0 = &soc_uart0;
+	};
+
+	chosen {
+		stdout-path = "soc_uart0:115200n8";
+	};
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <&CPU0>;
+				};
+				core1 {
+					cpu = <&CPU1>;
+				};
+				core2 {
+					cpu = <&CPU2>;
+				};
+				core3 {
+					cpu = <&CPU3>;
+				};
+			};
+		};
+
+		CPU0:cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 0>;
+		};
+
+		CPU1:cpu@100 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x100>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 0>;
+		};
+
+		CPU2:cpu@200 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x200>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 0>;
+		};
+
+		CPU3:cpu@300 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x300>;
+			enable-method = "psci";
+			clocks = <&scmi_dvfs 0>;
+		};
+
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x0 0x80000000 0x0 0x80000000>;
+	};
+
+	psci {
+		compatible = "arm,psci-1.0", "arm,psci-0.2", "arm,psci";
+		method = "smc";
+	};
+
+	sram: sram@6000000 {
+		compatible = "mmio-sram";
+		reg = <0x0 0x06000000 0x0 0x8000>;
+
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0x0 0x06000000 0x8000>;
+
+		cpu_scp_scmi_mem: scp-shmem@0 {
+			compatible = "arm,scmi-shmem";
+			reg = <0x0 0x80>;
+		};
+	};
+
+	mbox_db_rx: mhu@45010000 {
+		compatible = "arm,mhuv2","arm,primecell";
+		reg = <0x0 0x45010000 0x0 0x1000>;
+		clocks = <&soc_refclk100mhz>;
+		clock-names = "apb_pclk";
+		#mbox-cells = <1>;
+		interrupts = <0 316 4>;
+		interrupt-names = "mhu_rx";
+		mhu-protocol = "doorbell";
+	};
+
+	mbox_db_tx: mhu@45000000 {
+		compatible = "arm,mhuv2","arm,primecell";
+		reg = <0x0 0x45000000 0x0 0x1000>;
+		clocks = <&soc_refclk100mhz>;
+		clock-names = "apb_pclk";
+		#mbox-cells = <1>;
+		interrupt-names = "mhu_tx";
+		mhu-protocol = "doorbell";
+	};
+
+	scmi {
+		compatible = "arm,scmi";
+		method = "mailbox-doorbell";
+		mbox-names = "tx", "rx";
+		mboxes = <&mbox_db_tx 0 &mbox_db_rx 0>;
+		shmem = <&cpu_scp_scmi_mem &cpu_scp_scmi_mem>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		scmi_dvfs: protocol@13 {
+			reg = <0x13>;
+			#clock-cells = <1>;
+		};
+
+		scmi_clk: protocol@14 {
+			reg = <0x14>;
+			#clock-cells = <1>;
+		};
+	};
+
+	gic: interrupt-controller@2c010000 {
+		compatible = "arm,gic-600", "arm,gic-v3";
+		#address-cells = <2>;
+		#interrupt-cells = <3>;
+		#size-cells = <2>;
+		ranges;
+		interrupt-controller;
+		reg = <0x0 0x30000000 0 0x10000>, /* GICD */
+		      <0x0 0x30140000 0 0x200000>; /* GICR */
+		interrupts = <0x1 0x9 0x4>;
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <0x1 13 0x8>,
+			     <0x1 14 0x8>,
+			     <0x1 11 0x8>,
+			     <0x1 10 0x8>;
+	};
+
+	soc_refclk100mhz: refclk100mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+		clock-output-names = "apb_pclk";
+	};
+
+	soc_refclk60mhz: refclk60mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <60000000>;
+		clock-output-names = "iofpga_clk";
+	};
+
+	soc_uartclk:  uartclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <50000000>;
+		clock-output-names = "uartclk";
+	};
+
+	soc_uart0: uart@7ff80000 {
+		compatible = "arm,pl011", "arm,primecell";
+		reg = <0x0 0x7ff80000 0x0 0x1000>;
+		interrupts = <0x0 116 0x4>;
+		clocks = <&soc_uartclk>, <&soc_refclk100mhz>;
+		clock-names = "uartclk", "apb_pclk";
+		status = "okay";
+	};
+
+	vencoder {
+		compatible = "drm,virtual-encoder";
+
+		port {
+			vencoder_in: endpoint {
+				remote-endpoint = <&hdlcd_out>;
+			};
+		};
+
+		display-timings {
+			panel-timing {
+				clock-frequency = <25175000>;
+				hactive = <640>;
+				vactive = <480>;
+				hfront-porch = <16>;
+				hback-porch = <48>;
+				hsync-len = <96>;
+				vfront-porch = <10>;
+				vback-porch = <33>;
+				vsync-len = <2>;
+			};
+		};
+
+	};
+
+	hdlcd: hdlcd@7ff60000 {
+		compatible = "arm,hdlcd";
+		reg = <0x0 0x7ff60000 0x0 0x1000>;
+		interrupts = <0x0 117 0x4>;
+		clocks = <&fake_hdlcd_clk>;
+		clock-names = "pxlclk";
+		status = "ok";
+
+		port {
+			hdlcd_out: endpoint {
+				remote-endpoint = <&vencoder_in>;
+			};
+		};
+	};
+
+	fake_hdlcd_clk: fake-hdlcd-clk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <25175000>;
+		clock-output-names = "pxlclk";
+	};
+
+	ethernet@18000000 {
+		compatible = "smsc,lan91c111";
+		reg = <0x0 0x18000000 0x0 0x10000>;
+		interrupts = <0 109 4>;
+	};
+
+	kmi@1c060000 {
+		compatible = "arm,pl050", "arm,primecell";
+		reg = <0x0 0x001c060000 0x0 0x1000>;
+		interrupts = <0 197 4>;
+		clocks = <&bp_clock24mhz>, <&bp_clock24mhz>;
+		clock-names = "KMIREFCLK", "apb_pclk";
+	};
+
+	kmi@1c070000 {
+		compatible = "arm,pl050", "arm,primecell";
+		reg = <0x0 0x001c070000 0x0 0x1000>;
+		interrupts = <0 103 4>;
+		clocks = <&bp_clock24mhz>, <&bp_clock24mhz>;
+		clock-names = "KMIREFCLK", "apb_pclk";
+	};
+
+	bp_clock24mhz: clock24mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+		clock-output-names = "bp:clock24mhz";
+	};
+
+	virtio_block@1c130000 {
+		compatible = "virtio,mmio";
+		reg = <0x0 0x1c130000 0x0 0x200>;
+		interrupts = <0 204 4>;
+	};
+
+	dp0: display@2cc00000 {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		compatible = "arm,mali-d71";
+		reg = <0 0x2cc00000 0 0x20000>;
+		interrupts = <0 69 4>;
+		interrupt-names = "DPU";
+		clocks = <&scmi_clk 0>;
+		clock-names = "aclk";
+		status = "disabled";
+		pl0: pipeline@0 {
+			reg = <0>;
+			clocks = <&scmi_clk 1>;
+			clock-names = "pxclk";
+			pl_id = <0>;
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				port@0 {
+					reg = <0>;
+					dp_pl0_out0: endpoint {
+						remote-endpoint = <&vencoder_in>;
+					};
+				};
+			};
+		};
+
+		pl1: pipeline@1 {
+			reg = <1>;
+			clocks = <&scmi_clk 2>;
+			clock-names = "pxclk";
+			pl_id = <1>;
+			ports {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				port@0 {
+					reg = <0>;
+				};
+			};
+		};
+	};
+};
