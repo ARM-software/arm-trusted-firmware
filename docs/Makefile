@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019, ARM Limited. All rights reserved.
+# Copyright (c) 2019-2020, ARM Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -7,7 +7,7 @@
 #
 
 # You can set these variables from the command line.
-SPHINXOPTS    =
+SPHINXOPTS    = -W
 SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = TrustedFirmware-A
 SOURCEDIR     = .
