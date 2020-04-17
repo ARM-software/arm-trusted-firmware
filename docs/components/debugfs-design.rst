@@ -78,7 +78,7 @@ SMC interface
 -------------
 
 The communication with the 9p layer in BL31 is made through an SMC conduit
-(`SMC Calling Convention PDD`_), using a specific SiP Function Id. An NS
+(`SMC Calling Convention`_), using a specific SiP Function Id. An NS
 shared buffer is used to pass path string parameters, or e.g. to exchange
 data on a read operation. Refer to `ARM SiP Services`_ for a description
 of the SMC interface.

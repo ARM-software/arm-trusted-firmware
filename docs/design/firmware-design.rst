@@ -544,7 +544,7 @@ It then replaces the exception vectors populated by BL1 with its own. BL31
 exception vectors implement more elaborate support for handling SMCs since this
 is the only mechanism to access the runtime services implemented by BL31 (PSCI
 for example). BL31 checks each SMC for validity as specified by the
-`SMC Calling Convention PDD`_ before passing control to the required SMC
+`SMC Calling Convention`_ before passing control to the required SMC
 handler routine.
 
 BL31 programs the ``CNTFRQ_EL0`` register with the clock frequency of the system
@@ -2711,7 +2711,7 @@ kernel at boot time. These can be found in the ``fdts`` directory.
 
 -  `Power State Coordination Interface PDD`_
 
--  `SMC Calling Convention PDD`_
+-  `SMC Calling Convention`_
 
 -  :ref:`Interrupt Management Framework`
 
