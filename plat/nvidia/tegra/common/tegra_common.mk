@@ -28,11 +28,13 @@ BL31_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
 				${COMMON_DIR}/lib/debug/profiler.c		\
 				${COMMON_DIR}/tegra_bl31_setup.c		\
 				${COMMON_DIR}/tegra_delay_timer.c		\
+				${COMMON_DIR}/tegra_ehf.c			\
 				${COMMON_DIR}/tegra_fiq_glue.c			\
 				${COMMON_DIR}/tegra_io_storage.c		\
 				${COMMON_DIR}/tegra_platform.c			\
 				${COMMON_DIR}/tegra_pm.c			\
-				${COMMON_DIR}/tegra_sip_calls.c
+				${COMMON_DIR}/tegra_sip_calls.c			\
+				${COMMON_DIR}/tegra_sdei.c
 
 ifneq ($(ENABLE_STACK_PROTECTOR), 0)
 BL31_SOURCES		+=	${COMMON_DIR}/tegra_stack_protector.c
