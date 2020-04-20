@@ -10,7 +10,7 @@
 
 / {
 	dtb-registry {
-		compatible = "arm,dyn_cfg-dtb_registry";
+		compatible = "fconf,dyn_cfg-dtb_registry";
 
 		/* tb_fw_config is temporarily contained on this dtb */
 		tb_fw-config {

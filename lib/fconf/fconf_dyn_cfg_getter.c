@@ -48,8 +48,8 @@ int fconf_populate_dtb_registry(uintptr_t config)
 	/* As libfdt use void *, we can't avoid this cast */
 	const void *dtb = (void *)config;
 
-	/* Find the node offset point to "arm,dyn_cfg-dtb_registry" compatible property */
-	const char *compatible_str = "arm,dyn_cfg-dtb_registry";
+	/* Find the node offset point to "fconf,dyn_cfg-dtb_registry" compatible property */
+	const char *compatible_str = "fconf,dyn_cfg-dtb_registry";
 	node = fdt_node_offset_by_compatible(dtb, -1, compatible_str);
 	if (node < 0) {
 		ERROR("FCONF: Can't find %s compatible in dtb\n", compatible_str);
