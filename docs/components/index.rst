@@ -10,7 +10,7 @@ Components
    arm-sip-service
    debugfs-design
    exception-handling
-   fconf
+   fconf/index
    firmware-update
    platform-interrupt-controller-API
    ras
