@@ -9,6 +9,7 @@
 #include <drivers/delay_timer.h>
 #include <drivers/st/stpmic1.h>
 #include <lib/mmio.h>
+#include <lib/utils_def.h>
 
 #include <platform_def.h>
 #include <stm32mp_common.h>
@@ -26,6 +27,7 @@
 #define SYSCFG_CMPCR				0x20U
 #define SYSCFG_CMPENSETR			0x24U
 #define SYSCFG_CMPENCLRR			0x28U
+#define SYSCFG_IDC				0x380U
 
 #define CMPCR_CMPENSETR_OFFSET			0x4U
 #define CMPCR_CMPENCLRR_OFFSET			0x8U
@@ -69,6 +71,13 @@
  * SYSCFG_CMPENSETR Register
  */
 #define SYSCFG_CMPENSETR_MPU_EN			BIT(0)
+
+/*
+ * SYSCFG_IDC Register
+ */
+#define SYSCFG_IDC_DEV_ID_MASK			GENMASK(11, 0)
+#define SYSCFG_IDC_REV_ID_MASK			GENMASK(31, 16)
+#define SYSCFG_IDC_REV_ID_SHIFT			16
 
 static void enable_io_comp_cell_finish(uintptr_t cmpcr_off)
 {
@@ -224,4 +233,23 @@ void stm32mp1_syscfg_disable_io_compensation(void)
 	disable_io_comp_cell(SYSCFG_CMPCR);
 
 	clk_disable(SYSCFG);
+}
+
+/*
+ * @brief  Get silicon revision from SYSCFG registers.
+ * @retval chip version (REV_ID).
+ */
+uint32_t stm32mp1_syscfg_get_chip_version(void)
+{
+	return (mmio_read_32(SYSCFG_BASE + SYSCFG_IDC) &
+		SYSCFG_IDC_REV_ID_MASK) >> SYSCFG_IDC_REV_ID_SHIFT;
+}
+
+/*
+ * @brief  Get device ID from SYSCFG registers.
+ * @retval device ID (DEV_ID).
+ */
+uint32_t stm32mp1_syscfg_get_chip_dev_id(void)
+{
+	return mmio_read_32(SYSCFG_BASE + SYSCFG_IDC) & SYSCFG_IDC_DEV_ID_MASK;
 }

@@ -289,6 +289,10 @@ void stm32mp1_deconfigure_uart_pins(void)
 
 uint32_t stm32mp_get_chip_version(void)
 {
+#if STM32MP13
+	return stm32mp1_syscfg_get_chip_version();
+#endif
+#if STM32MP15
 	uint32_t version = 0U;
 
 	if (stm32mp1_dbgmcu_get_chip_version(&version) < 0) {
@@ -297,10 +301,15 @@ uint32_t stm32mp_get_chip_version(void)
 	}
 
 	return version;
+#endif
 }
 
 uint32_t stm32mp_get_chip_dev_id(void)
 {
+#if STM32MP13
+	return stm32mp1_syscfg_get_chip_dev_id();
+#endif
+#if STM32MP15
 	uint32_t dev_id;
 
 	if (stm32mp1_dbgmcu_get_chip_dev_id(&dev_id) < 0) {
@@ -309,6 +318,7 @@ uint32_t stm32mp_get_chip_dev_id(void)
 	}
 
 	return dev_id;
+#endif
 }
 
 static uint32_t get_part_number(void)

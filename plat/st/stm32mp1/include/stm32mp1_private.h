@@ -21,6 +21,8 @@ void stm32mp1_syscfg_init(void);
 void stm32mp1_syscfg_enable_io_compensation_start(void);
 void stm32mp1_syscfg_enable_io_compensation_finish(void);
 void stm32mp1_syscfg_disable_io_compensation(void);
+uint32_t stm32mp1_syscfg_get_chip_version(void);
+uint32_t stm32mp1_syscfg_get_chip_dev_id(void);
 
 void stm32mp1_deconfigure_uart_pins(void);
 
