@@ -101,16 +101,9 @@ SECTIONS
      */
     __RW_START__ = . ;
 
-    /*
-     * .data must be placed at a lower address than the stacks if the stack
-     * protector is enabled. Alternatively, the .data.stack_protector_canary
-     * section can be placed independently of the main .data section.
-     */
-    .data . : {
-        __DATA_RAM_START__ = .;
-        *(SORT_BY_ALIGNMENT(.data*))
-        __DATA_RAM_END__ = .;
-    } >RAM AT>ROM
+    DATA_SECTION >RAM AT>ROM
+    __DATA_RAM_START__ = __DATA_START__;
+    __DATA_RAM_END__ = __DATA_END__;
 
     /*
      * .rela.dyn needs to come after .data for the read-elf utility to parse

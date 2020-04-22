@@ -91,11 +91,7 @@ SECTIONS
      */
     __RW_START__ = . ;
 
-    .data . : {
-        __DATA_START__ = .;
-        *(.data*)
-        __DATA_END__ = .;
-    } >RAM
+    DATA_SECTION >RAM
 
 #ifdef BL32_PROGBITS_LIMIT
     ASSERT(. <= BL32_PROGBITS_LIMIT, "BL32 progbits has exceeded its limit.")

@@ -17,6 +17,10 @@
 #define BSS_ALIGN	8
 #endif
 
+#ifndef DATA_ALIGN
+#define DATA_ALIGN	1
+#endif
+
 #define CPU_OPS						\
 	. = ALIGN(STRUCT_ALIGN);			\
 	__CPU_OPS_START__ = .;				\
@@ -84,6 +88,18 @@
 	CPU_OPS						\
 	GOT						\
 	BASE_XLAT_TABLE_RO
+
+/*
+ * .data must be placed at a lower address than the stacks if the stack
+ * protector is enabled. Alternatively, the .data.stack_protector_canary
+ * section can be placed independently of the main .data section.
+ */
+#define DATA_SECTION					\
+	.data . : ALIGN(DATA_ALIGN) {			\
+		__DATA_START__ = .;			\
+		*(SORT_BY_ALIGNMENT(.data*))		\
+		__DATA_END__ = .;			\
+	}
 
 #define STACK_SECTION					\
 	stacks (NOLOAD) : {				\

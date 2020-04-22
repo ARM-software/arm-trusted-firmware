@@ -70,11 +70,7 @@ SECTIONS
      */
     __RW_START__ = . ;
 
-    .data . : {
-        __DATA_START__ = .;
-        *(.data*)
-        __DATA_END__ = .;
-    } >RAM
+    DATA_SECTION >RAM
 
     /*
      * .rela.dyn needs to come after .data for the read-elf utility to parse
