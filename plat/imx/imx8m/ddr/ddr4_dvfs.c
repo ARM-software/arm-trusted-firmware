@@ -9,7 +9,8 @@
 
 #include <dram.h>
 
-void ddr4_mr_write(uint32_t mr, uint32_t data, uint32_t mr_type, uint32_t rank)
+void ddr4_mr_write(uint32_t mr, uint32_t data, uint32_t mr_type,
+	uint32_t rank, uint32_t dram_type)
 {
 	uint32_t val, mr_mirror, data_mirror;
 
@@ -28,9 +29,15 @@ void ddr4_mr_write(uint32_t mr, uint32_t data, uint32_t mr_type, uint32_t rank)
 	val = mmio_read_32(DDRC_DIMMCTL(0));
 	if ((val & 0x2) && (rank == 0x2)) {
 		mr_mirror = (mr & 0x4) | ((mr & 0x1) << 1) | ((mr & 0x2) >> 1); /* BA0, BA1 swap */
-		data_mirror = (data & 0x1607) | ((data & 0x8) << 1) | ((data & 0x10) >> 1) |
+		if (dram_type == DDRC_DDR4) {
+			data_mirror = (data & 0x1607) | ((data & 0x8) << 1) | ((data & 0x10) >> 1) |
 				((data & 0x20) << 1) | ((data & 0x40) >> 1) | ((data & 0x80) << 1) |
-				 ((data & 0x100) >> 1) | ((data & 0x800) << 2) | ((data & 0x2000) >> 2) ;
+				((data & 0x100) >> 1) | ((data & 0x800) << 2) | ((data & 0x2000) >> 2) ;
+		} else {
+			data_mirror = (data & 0xfe07) | ((data & 0x8) << 1) | ((data & 0x10) >> 1) |
+				 ((data & 0x20) << 1) | ((data & 0x40) >> 1) | ((data & 0x80) << 1) |
+				 ((data & 0x100) >> 1);
+		}
 	} else {
 		mr_mirror = mr;
 		data_mirror = data;
@@ -56,6 +63,7 @@ void ddr4_mr_write(uint32_t mr, uint32_t data, uint32_t mr_type, uint32_t rank)
 void dram_cfg_all_mr(struct dram_info *info, uint32_t pstate)
 {
 	uint32_t num_rank = info->num_rank;
+	uint32_t dram_type = info->dram_type;
 	/*
 	 * 15. Perform MRS commands as required to re-program
 	 * timing registers in the SDRAM for the new frequency
@@ -64,9 +72,9 @@ void dram_cfg_all_mr(struct dram_info *info, uint32_t pstate)
 
 	for (int i = 1; i <= num_rank; i++) {
 		for (int j = 0; j < 6; j++) {
-			ddr4_mr_write(j, info->mr_table[pstate][j], 0, i);
+			ddr4_mr_write(j, info->mr_table[pstate][j], 0, i, dram_type);
 		}
-		ddr4_mr_write(6, info->mr_table[pstate][7], 0, i);
+		ddr4_mr_write(6, info->mr_table[pstate][7], 0, i, dram_type);
 	}
 }
 
