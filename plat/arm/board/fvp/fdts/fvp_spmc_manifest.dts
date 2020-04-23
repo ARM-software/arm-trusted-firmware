@@ -27,12 +27,12 @@
 		vm1 {
 			is_spci_partition;
 			debug_name = "cactus-primary";
-			load-addr = <0x7000000>;
+			load_address = <0x7000000>;
 		};
 		vm2 {
 			is_spci_partition;
 			debug_name = "cactus-secondary";
-			load-addr = <0x7100000>;
+			load_address = <0x7100000>;
 			vcpu_count = <2>;
 			mem_size = <1048576>;
 		};
