@@ -134,6 +134,8 @@
 #define PLAT_CPUID_RELEASE	(BL_DATA_LIMIT - 16)
 #define PLAT_SEC_ENTRY		(BL_DATA_LIMIT - 8)
 
+#define PLAT_SEC_WARM_ENTRY	0
+
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
