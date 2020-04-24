@@ -947,4 +947,14 @@
 #define RGSR_EL1		S3_0_C1_C0_5
 #define GCR_EL1			S3_0_C1_C0_6
 
+/*******************************************************************************
+ * Definitions for DynamicIQ Shared Unit registers
+ ******************************************************************************/
+#define CLUSTERPWRDN_EL1	S3_0_c15_c3_6
+
+/* CLUSTERPWRDN_EL1 register definitions */
+#define DSU_CLUSTER_PWR_OFF	0
+#define DSU_CLUSTER_PWR_ON	1
+#define DSU_CLUSTER_PWR_MASK	U(1)
+
 #endif /* ARCH_H */

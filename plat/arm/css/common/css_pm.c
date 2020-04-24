@@ -124,8 +124,28 @@ static void css_power_down_common(const psci_power_state_t *target_state)
 	plat_arm_gic_cpuif_disable();
 
 	/* Cluster is to be turned off, so disable coherency */
-	if (CSS_CLUSTER_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF)
+	if (CSS_CLUSTER_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF) {
 		plat_arm_interconnect_exit_coherency();
+
+#if HW_ASSISTED_COHERENCY
+		uint32_t reg;
+
+		/*
+		 * If we have determined this core to be the last man standing and we
+		 * intend to power down the cluster proactively, we provide a hint to
+		 * the power controller that cluster power is not required when all
+		 * cores are powered down.
+		 * Note that this is only an advisory to power controller and is supported
+		 * by SoCs with DynamIQ Shared Units only.
+		 */
+		reg = read_clusterpwrdn();
+
+		/* Clear and set bit 0 : Cluster power not required */
+		reg &= ~DSU_CLUSTER_PWR_MASK;
+		reg |= DSU_CLUSTER_PWR_OFF;
+		write_clusterpwrdn(reg);
+#endif
+	}
 }
 
 /*******************************************************************************

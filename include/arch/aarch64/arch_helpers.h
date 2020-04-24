@@ -520,6 +520,9 @@ DEFINE_RENAME_SYSREG_RW_FUNCS(tfsr_el1, TFSR_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(rgsr_el1, RGSR_EL1)
 DEFINE_RENAME_SYSREG_RW_FUNCS(gcr_el1, GCR_EL1)
 
+/* DynamIQ Shared Unit power management */
+DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpwrdn_el1, CLUSTERPWRDN_EL1)
+
 #define IS_IN_EL(x) \
 	(GET_EL(read_CurrentEl()) == MODE_EL##x)
 
@@ -581,5 +584,8 @@ static inline uint64_t el_implemented(unsigned int el)
 
 #define read_cpacr()		read_cpacr_el1()
 #define write_cpacr(_v)		write_cpacr_el1(_v)
+
+#define read_clusterpwrdn()	read_clusterpwrdn_el1()
+#define write_clusterpwrdn(_v)	write_clusterpwrdn_el1(_v)
 
 #endif /* ARCH_HELPERS_H */

@@ -336,6 +336,11 @@ DEFINE_DCOP_PARAM_FUNC(cvac, DCCIMVAC)
 DEFINE_DCOP_PARAM_FUNC(cvac, DCCMVAC)
 #endif
 
+/*
+ * DynamIQ Shared Unit power management
+ */
+DEFINE_COPROCR_RW_FUNCS(clusterpwrdn, CLUSTERPWRDN)
+
 /* Previously defined accessor functions with incomplete register names  */
 #define dsb()			dsbsy()
 #define dmb()			dmbsy()
