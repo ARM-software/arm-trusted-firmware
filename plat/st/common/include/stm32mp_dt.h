@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020, STMicroelectronics - All Rights Reserved
  * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -39,5 +40,6 @@ uintptr_t dt_get_pwr_base(void);
 uint32_t dt_get_pwr_vdd_voltage(void);
 uintptr_t dt_get_syscfg_base(void);
 const char *dt_get_board_model(void);
+int fdt_get_gpio_bank_pin_count(unsigned int bank);
 
 #endif /* STM32MP_DT_H */

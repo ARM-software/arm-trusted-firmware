@@ -393,3 +393,51 @@ const char *dt_get_board_model(void)
 
 	return (const char *)fdt_getprop(fdt, node, "model", NULL);
 }
+
+/*******************************************************************************
+ * This function gets the pin count for a GPIO bank based from the FDT.
+ * It also checks node consistency.
+ ******************************************************************************/
+int fdt_get_gpio_bank_pin_count(unsigned int bank)
+{
+	int pinctrl_node;
+	int node;
+	uint32_t bank_offset;
+
+	pinctrl_node = stm32_get_gpio_bank_pinctrl_node(fdt, bank);
+	if (pinctrl_node < 0) {
+		return -FDT_ERR_NOTFOUND;
+	}
+
+	bank_offset = stm32_get_gpio_bank_offset(bank);
+
+	fdt_for_each_subnode(node, fdt, pinctrl_node) {
+		const fdt32_t *cuint;
+
+		if (fdt_getprop(fdt, node, "gpio-controller", NULL) == NULL) {
+			continue;
+		}
+
+		cuint = fdt_getprop(fdt, node, "reg", NULL);
+		if (cuint == NULL) {
+			continue;
+		}
+
+		if (fdt32_to_cpu(*cuint) != bank_offset) {
+			continue;
+		}
+
+		if (fdt_get_status(node) == DT_DISABLED) {
+			return 0;
+		}
+
+		cuint = fdt_getprop(fdt, node, "ngpios", NULL);
+		if (cuint == NULL) {
+			return -FDT_ERR_NOTFOUND;
+		}
+
+		return (int)fdt32_to_cpu(*cuint);
+	}
+
+	return 0;
+}
