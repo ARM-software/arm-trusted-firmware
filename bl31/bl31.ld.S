@@ -114,16 +114,7 @@ SECTIONS
      */
     __RW_START__ = . ;
 
-    /*
-     * .data must be placed at a lower address than the stacks if the stack
-     * protector is enabled. Alternatively, the .data.stack_protector_canary
-     * section can be placed independently of the main .data section.
-     */
-   .data . : {
-        __DATA_START__ = .;
-        *(SORT_BY_ALIGNMENT(.data*))
-        __DATA_END__ = .;
-    } >RAM
+    DATA_SECTION >RAM
 
     /*
      * .rela.dyn needs to come after .data for the read-elf utility to parse
@@ -158,12 +149,7 @@ SECTIONS
     __NOBITS_START__ = .;
 #endif
 
-    stacks (NOLOAD) : {
-        __STACKS_START__ = .;
-        *(tzfw_normal_stacks)
-        __STACKS_END__ = .;
-    } >NOBITS
-
+    STACK_SECTION >NOBITS
     BSS_SECTION >NOBITS
     XLAT_TABLE_SECTION >NOBITS
 

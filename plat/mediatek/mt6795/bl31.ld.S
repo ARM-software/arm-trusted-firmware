@@ -59,27 +59,13 @@ SECTIONS
      */
     __RW_START__ = . ;
 
-    /*
-     * .data must be placed at a lower address than the stacks if the stack
-     * protector is enabled. Alternatively, the .data.stack_protector_canary
-     * section can be placed independently of the main .data section.
-     */
-    .data . : {
-        __DATA_START__ = .;
-        *(.data*)
-        __DATA_END__ = .;
-    } >RAM
+    DATA_SECTION >RAM
 
 #ifdef BL31_PROGBITS_LIMIT
     ASSERT(. <= BL31_PROGBITS_LIMIT, "BL3-1 progbits has exceeded its limit.")
 #endif
 
-    stacks (NOLOAD) : {
-        __STACKS_START__ = .;
-        *(tzfw_normal_stacks)
-        __STACKS_END__ = .;
-    } >RAM
-
+    STACK_SECTION >RAM
     BSS_SECTION >RAM
     __RW_END__ = __BSS_END__;
 

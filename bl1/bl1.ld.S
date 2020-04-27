@@ -4,6 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+/*
+ * The .data section gets copied from ROM to RAM at runtime.
+ * Its LMA should be 16-byte aligned to allow efficient copying of 16-bytes
+ * aligned regions in it.
+ * Its VMA must be page-aligned as it marks the first read/write page.
+ */
+#define DATA_ALIGN	16
+
 #include <common/bl_common.ld.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 
@@ -87,28 +95,11 @@ SECTIONS
     ASSERT(BL1_RW_BASE == ALIGN(PAGE_SIZE),
            "BL1_RW_BASE address is not aligned on a page boundary.")
 
-    /*
-     * The .data section gets copied from ROM to RAM at runtime.
-     * Its LMA should be 16-byte aligned to allow efficient copying of 16-bytes
-     * aligned regions in it.
-     * Its VMA must be page-aligned as it marks the first read/write page.
-     *
-     * It must be placed at a lower address than the stacks if the stack
-     * protector is enabled. Alternatively, the .data.stack_protector_canary
-     * section can be placed independently of the main .data section.
-     */
-    .data . : ALIGN(16) {
-        __DATA_RAM_START__ = .;
-        *(SORT_BY_ALIGNMENT(.data*))
-        __DATA_RAM_END__ = .;
-    } >RAM AT>ROM
+    DATA_SECTION >RAM AT>ROM
+    __DATA_RAM_START__ = __DATA_START__;
+    __DATA_RAM_END__ = __DATA_END__;
 
-    stacks . (NOLOAD) : {
-        __STACKS_START__ = .;
-        *(tzfw_normal_stacks)
-        __STACKS_END__ = .;
-    } >RAM
-
+    STACK_SECTION >RAM
     BSS_SECTION >RAM
     XLAT_TABLE_SECTION >RAM
 

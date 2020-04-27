@@ -70,11 +70,7 @@ SECTIONS
      */
     __RW_START__ = . ;
 
-    .data . : {
-        __DATA_START__ = .;
-        *(.data*)
-        __DATA_END__ = .;
-    } >RAM
+    DATA_SECTION >RAM
 
     /*
      * .rela.dyn needs to come after .data for the read-elf utility to parse
@@ -91,12 +87,7 @@ SECTIONS
     ASSERT(. <= TSP_PROGBITS_LIMIT, "TSP progbits has exceeded its limit.")
 #endif
 
-    stacks (NOLOAD) : {
-        __STACKS_START__ = .;
-        *(tzfw_normal_stacks)
-        __STACKS_END__ = .;
-    } >RAM
-
+    STACK_SECTION >RAM
     BSS_SECTION >RAM
     XLAT_TABLE_SECTION >RAM
 
