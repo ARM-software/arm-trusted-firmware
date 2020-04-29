@@ -145,6 +145,7 @@ int mailbox_send_cmd(uint32_t job_id, unsigned int cmd, uint32_t *args,
 int mailbox_send_cmd_async(uint32_t *job_id, unsigned int cmd, uint32_t *args,
 				int len, int indirect);
 int mailbox_read_response(uint32_t *job_id, uint32_t *response, int resp_len);
+int iterate_resp(int mbox_resp_len, uint32_t *resp_buf, int resp_len);
 void mailbox_reset_cold(void);
 void mailbox_clear_response(void);
 

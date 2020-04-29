@@ -45,10 +45,7 @@ int mailbox_read_response(uint32_t *job_id, uint32_t *response, int resp_len)
 {
 	int rin = 0;
 	int rout = 0;
-	int mbox_resp_len = 0;
 	int resp_data = 0;
-	int total_resp_len = 0;
-	uint32_t *resp_buf = response;
 
 	if (mmio_read_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM))
 		mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM, 0);
@@ -74,26 +71,10 @@ int mailbox_read_response(uint32_t *job_id, uint32_t *response, int resp_len)
 			INFO("Error in response: %x\n", resp_data);
 			return -resp_data;
 		}
-		mbox_resp_len = MBOX_RESP_LEN(resp_data);
 
-		while (mbox_resp_len > 0) {
-
-			mbox_resp_len--;
-			resp_data = mmio_read_32(MBOX_OFFSET +
-						MBOX_RESP_BUFFER +
-						(rout)*4);
-			if (resp_buf && resp_len) {
-				*(resp_buf + total_resp_len) = resp_data;
-				resp_len--;
-				total_resp_len++;
-			}
-			rout++;
-			rout %= MBOX_RESP_BUFFER_SIZE;
-			mmio_write_32(MBOX_OFFSET + MBOX_ROUT, rout);
-		}
-		return total_resp_len;
+		return iterate_resp(MBOX_RESP_LEN(resp_data),
+					response, resp_len);
 	}
-
 	return MBOX_NO_RESPONSE;
 }
 
@@ -104,10 +85,7 @@ int mailbox_poll_response(uint32_t job_id, int urgent, uint32_t *response,
 	int timeout = 0xFFFFFF;
 	int rin = 0;
 	int rout = 0;
-	int mbox_resp_len = 0;
 	int resp_data = 0;
-	int total_resp_len = 0;
-	uint32_t *resp_buf = response;
 
 	while (1) {
 
@@ -118,7 +96,7 @@ int mailbox_poll_response(uint32_t job_id, int urgent, uint32_t *response,
 		}
 
 		if (!timeout) {
-			INFO("Timed out waiting for SDM");
+			INFO("Timed out waiting for SDM\n");
 			return MBOX_TIMEOUT;
 		}
 
@@ -156,26 +134,47 @@ int mailbox_poll_response(uint32_t job_id, int urgent, uint32_t *response,
 				INFO("Error in response: %x\n", resp_data);
 				return -MBOX_RESP_ERR(resp_data);
 			}
-			mbox_resp_len = MBOX_RESP_LEN(resp_data);
 
-			while (mbox_resp_len > 0) {
-				mbox_resp_len--;
-				resp_data = mmio_read_32(MBOX_OFFSET +
-							MBOX_RESP_BUFFER +
-							(rout)*4);
-				if (resp_buf && resp_len) {
-					*(resp_buf + total_resp_len)
-							= resp_data;
-					resp_len--;
-					total_resp_len++;
-				}
-				rout++;
-				rout %= MBOX_RESP_BUFFER_SIZE;
-				mmio_write_32(MBOX_OFFSET + MBOX_ROUT, rout);
-			}
-			return total_resp_len;
+			return iterate_resp(MBOX_RESP_LEN(resp_data),
+						response, resp_len);
 		}
 	}
+}
+
+int iterate_resp(int mbox_resp_len, uint32_t *resp_buf, int resp_len)
+{
+	uint32_t timeout;
+	int resp_data = 0, total_resp_len = 0;
+	int rin = mmio_read_32(MBOX_OFFSET + MBOX_RIN);
+	int rout = mmio_read_32(MBOX_OFFSET + MBOX_ROUT);
+
+	while (mbox_resp_len > 0) {
+		timeout = 0xFFFFFF;
+		mbox_resp_len--;
+		resp_data = mmio_read_32(MBOX_OFFSET +
+					MBOX_RESP_BUFFER +
+					(rout)*4);
+		if (resp_buf && resp_len) {
+			*(resp_buf + total_resp_len)
+					= resp_data;
+			resp_len--;
+			total_resp_len++;
+		}
+		rout++;
+		rout %= MBOX_RESP_BUFFER_SIZE;
+		mmio_write_32(MBOX_OFFSET + MBOX_ROUT, rout);
+
+		do {
+			timeout--;
+			rin = mmio_read_32(MBOX_OFFSET + MBOX_RIN);
+		} while ((rout == rin) && (mbox_resp_len > 0) && (timeout > 0));
+
+		if (timeout == 0) {
+			INFO("Timed out waiting for SDM\n");
+			return MBOX_TIMEOUT;
+		}
+	}
+	return total_resp_len;
 }
 
 int mailbox_send_cmd_async(uint32_t *job_id, unsigned int cmd, uint32_t *args,
