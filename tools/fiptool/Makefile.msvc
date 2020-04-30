@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2019, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2020, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -7,24 +7,31 @@
 CC = cl.exe
 LD = link.exe
 
-FIPTOOL = fiptool.exe
-OBJECTS = fiptool.obj tbbr_config.obj win_posix.obj
+# FIPTOOLPATH and FIPTOOL are passed from the main makefile.
 
-INC = -I. -I..\..\include\tools_share
+OBJECTS = $(FIPTOOLPATH)\fiptool.obj     \
+          $(FIPTOOLPATH)\tbbr_config.obj \
+          $(FIPTOOLPATH)\win_posix.obj
+
+INC = -I$(FIPTOOLPATH) -Iinclude\tools_share
+
 CFLAGS = $(CFLAGS) /nologo /Za /Zi /c /O2 /MT
 
 all: $(FIPTOOL)
 
 $(FIPTOOL): $(OBJECTS)
-	$(LD) /INCREMENTAL:NO /debug /nodefaultlib:libc.lib /out:$@ $(LIBS) $**
+	$(LD) /nologo /INCREMENTAL:NO /debug /nodefaultlib:libc.lib /out:$@ $(LIBS) $**
 
 .PHONY: clean realclean
 
 clean:
-	del /f /q $(OBJECTS) > nul
+	-@del /f /q $(OBJECTS) > nul
+	-@del /f /q $(FIPTOOLPATH)\*.pdb > nul
 
 realclean:
-	del /f /q $(OBJECTS) $(FIPTOOL) > nul
+	-@del /f /q $(OBJECTS) > nul
+	-@del /f /q $(FIPTOOLPATH)\*.pdb > nul
+	-@del /f /q $(FIPTOOL) > nul
 
 .c.obj:
 	$(CC) -c $(CFLAGS) $(INC) $< -Fo$@

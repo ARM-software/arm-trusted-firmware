@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -85,4 +85,6 @@ define MAKE_BUILD_STRINGS
 	@echo $$(BUILT_TIME_DATE_STRING) $$(VERSION_STRING_MESSAGE) | \
 		$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -x c -c - -o $1
 endef
+
+MSVC_NMAKE := nmake.exe
 
