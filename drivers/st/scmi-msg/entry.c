@@ -41,6 +41,9 @@ void scmi_process_message(struct scmi_msg *msg)
 	case SCMI_PROTOCOL_ID_BASE:
 		handler = scmi_msg_get_base_handler(msg);
 		break;
+	case SCMI_PROTOCOL_ID_CLOCK:
+		handler = scmi_msg_get_clock_handler(msg);
+		break;
 	default:
 		break;
 	}
