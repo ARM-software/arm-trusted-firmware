@@ -141,4 +141,41 @@ int32_t plat_scmi_clock_get_state(unsigned int agent_id, unsigned int scmi_id);
 int32_t plat_scmi_clock_set_state(unsigned int agent_id, unsigned int scmi_id,
 				  bool enable_not_disable);
 
+/* Handlers for SCMI Reset Domain protocol services */
+
+/*
+ * Return number of reset domains for the agent
+ * @agent_id: SCMI agent ID
+ * Return number of reset domains
+ */
+size_t plat_scmi_rstd_count(unsigned int agent_id);
+
+/*
+ * Get reset domain string ID (aka name)
+ * @agent_id: SCMI agent ID
+ * @scmi_id: SCMI reset domain ID
+ * Return pointer to name or NULL
+ */
+const char *plat_scmi_rstd_get_name(unsigned int agent_id, unsigned int scmi_id);
+
+/*
+ * Perform a reset cycle on a target reset domain
+ * @agent_id: SCMI agent ID
+ * @scmi_id: SCMI reset domain ID
+ * @state: Target reset state (see SCMI specification, 0 means context loss)
+ * Return a compliant SCMI error code
+ */
+int32_t plat_scmi_rstd_autonomous(unsigned int agent_id, unsigned int scmi_id,
+				  unsigned int state);
+
+/*
+ * Assert or deassert target reset domain
+ * @agent_id: SCMI agent ID
+ * @scmi_id: SCMI reset domain ID
+ * @assert_not_deassert: Assert domain if true, otherwise deassert domain
+ * Return a compliant SCMI error code
+ */
+int32_t plat_scmi_rstd_set_state(unsigned int agent_id, unsigned int scmi_id,
+				 bool assert_not_deassert);
+
 #endif /* SCMI_MSG_H */
