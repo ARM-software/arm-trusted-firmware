@@ -241,7 +241,8 @@ int fconf_populate_arm_io_policies(uintptr_t config)
 	/* Locate the uuid cells and read the value for all the load info uuid */
 	for (i = 0; i < FCONF_ARM_IO_UUID_NUMBER; i++) {
 		uuid_ptr = pool_alloc(&fconf_arm_uuids_pool);
-		err = fdtw_read_array(dtb, node, load_info[i].name, 4, &uuid_helper.word);
+		err = fdt_read_uint32_array(dtb, node, load_info[i].name,
+					    4, uuid_helper.word);
 		if (err < 0) {
 			WARN("FCONF: Read cell failed for %s\n", load_info[i].name);
 			return err;

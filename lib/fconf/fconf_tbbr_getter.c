@@ -17,6 +17,8 @@ int fconf_populate_tbbr_dyn_config(uintptr_t config)
 {
 	int err;
 	int node;
+	uint64_t val64;
+	uint32_t val32;
 
 	/* As libfdt use void *, we can't avoid this cast */
 	const void *dtb = (void *)config;
@@ -30,7 +32,7 @@ int fconf_populate_tbbr_dyn_config(uintptr_t config)
 	}
 
 	/* Locate the disable_auth cell and read the value */
-	err = fdtw_read_cells(dtb, node, "disable_auth", 1, &tbbr_dyn_config.disable_auth);
+	err = fdt_read_uint32(dtb, node, "disable_auth", &tbbr_dyn_config.disable_auth);
 	if (err < 0) {
 		WARN("FCONF: Read cell failed for `disable_auth`\n");
 		return err;
@@ -48,19 +50,19 @@ int fconf_populate_tbbr_dyn_config(uintptr_t config)
 #endif
 
 	/* Retrieve the Mbed TLS heap details from the DTB */
-	err = fdtw_read_cells(dtb, node,
-		"mbedtls_heap_addr", 2, &tbbr_dyn_config.mbedtls_heap_addr);
+	err = fdt_read_uint64(dtb, node, "mbedtls_heap_addr", &val64);
 	if (err < 0) {
 		ERROR("FCONF: Read cell failed for mbedtls_heap\n");
 		return err;
 	}
+	tbbr_dyn_config.mbedtls_heap_addr = (void *)(uintptr_t)val64;
 
-	err = fdtw_read_cells(dtb, node,
-		"mbedtls_heap_size", 1, &tbbr_dyn_config.mbedtls_heap_size);
+	err = fdt_read_uint32(dtb, node, "mbedtls_heap_size", &val32);
 	if (err < 0) {
 		ERROR("FCONF: Read cell failed for mbedtls_heap\n");
 		return err;
 	}
+	tbbr_dyn_config.mbedtls_heap_size = val32;
 
 	VERBOSE("FCONF:tbbr.disable_auth cell found with value = %d\n",
 					tbbr_dyn_config.disable_auth);

@@ -15,6 +15,7 @@
 # fdt	fdt_getprop_namelen	patch
 
 rom     rom_lib_init
+fdt     fdt_getprop
 fdt     fdt_getprop_namelen
 fdt     fdt_setprop_inplace
 fdt     fdt_check_header
@@ -24,6 +25,9 @@ fdt     fdt_first_subnode
 fdt     fdt_next_subnode
 fdt     fdt_path_offset
 fdt     fdt_subnode_offset
+fdt     fdt_address_cells
+fdt     fdt_size_cells
+fdt     fdt_parent_offset
 mbedtls mbedtls_asn1_get_alg
 mbedtls mbedtls_asn1_get_alg_null
 mbedtls mbedtls_asn1_get_bitstring_null

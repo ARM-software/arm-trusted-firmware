@@ -10,6 +10,7 @@
 
 #include <platform_def.h>
 
+#include <common/fdt_wrappers.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32mp_clkfunc.h>
 
@@ -150,7 +151,8 @@ uint32_t fdt_osc_read_uint32_default(enum stm32mp_osc_id osc_id,
 			continue;
 		}
 
-		return fdt_read_uint32_default(subnode, prop_name, dflt_value);
+		return fdt_read_uint32_default(fdt, subnode, prop_name,
+					       dflt_value);
 	}
 
 	return dflt_value;
@@ -200,8 +202,8 @@ uint32_t fdt_rcc_read_addr(void)
  * @param count: number of parameters to be read
  * @return: 0 on succes or a negative value on error
  */
-int fdt_rcc_read_uint32_array(const char *prop_name,
-			      uint32_t *array, uint32_t count)
+int fdt_rcc_read_uint32_array(const char *prop_name, uint32_t count,
+			      uint32_t *array)
 {
 	int node;
 	void *fdt;
@@ -215,7 +217,7 @@ int fdt_rcc_read_uint32_array(const char *prop_name,
 		return -FDT_ERR_NOTFOUND;
 	}
 
-	return fdt_read_uint32_array(node, prop_name, array, count);
+	return fdt_read_uint32_array(fdt, node, prop_name, count, array);
 }
 
 /*

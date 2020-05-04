@@ -29,6 +29,7 @@ int fconf_populate_arm_sp(uintptr_t config)
 	int sp_node, node, err;
 	union uuid_helper_t uuid_helper;
 	unsigned int index = 0;
+	uint32_t val32;
 	const unsigned int sp_start_index = MAX_NUMBER_IDS - MAX_SP_IDS;
 
 	/* As libfdt use void *, we can't avoid this cast */
@@ -44,8 +45,8 @@ int fconf_populate_arm_sp(uintptr_t config)
 	}
 
 	fdt_for_each_subnode(sp_node, dtb, node) {
-		err = fdtw_read_array(dtb, sp_node, "uuid", 4,
-				      &uuid_helper.word);
+		err = fdt_read_uint32_array(dtb, sp_node, "uuid", 4,
+					    uuid_helper.word);
 		if (err < 0) {
 			ERROR("FCONF: cannot read SP uuid\n");
 			return -1;
@@ -53,12 +54,12 @@ int fconf_populate_arm_sp(uintptr_t config)
 
 		arm_sp.uuids[index] = uuid_helper;
 
-		err = fdtw_read_cells(dtb, sp_node, "load-address", 1,
-			&arm_sp.load_addr[index]);
+		err = fdt_read_uint32(dtb, sp_node, "load-address", &val32);
 		if (err < 0) {
 			ERROR("FCONF: cannot read SP load address\n");
 			return -1;
 		}
+		arm_sp.load_addr[index] = val32;
 
 		VERBOSE("FCONF: %s UUID %x-%x-%x-%x load_addr=%lx\n",
 			__func__,

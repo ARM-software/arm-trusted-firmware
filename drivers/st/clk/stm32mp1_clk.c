@@ -16,6 +16,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <common/fdt_wrappers.h>
 #include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
 #include <drivers/st/stm32mp_clkfunc.h>
@@ -1239,7 +1240,8 @@ static bool stm32mp1_check_pll_conf(enum stm32mp1_pll_id pll_id,
 	uintptr_t clksrc_address = rcc_base + (clksrc >> 4);
 	unsigned long refclk;
 	uint32_t ifrge = 0U;
-	uint32_t src, value, fracv;
+	uint32_t src, value, fracv = 0;
+	void *fdt;
 
 	/* Check PLL output */
 	if (mmio_read_32(pllxcr) != RCC_PLLNCR_PLLON) {
@@ -1278,7 +1280,9 @@ static bool stm32mp1_check_pll_conf(enum stm32mp1_pll_id pll_id,
 	}
 
 	/* Fractional configuration */
-	fracv = fdt_read_uint32_default(plloff, "frac", 0);
+	if (fdt_get_address(&fdt) == 1) {
+		fracv = fdt_read_uint32_default(fdt, plloff, "frac", 0);
+	}
 
 	value = fracv << RCC_PLLNFRACR_FRACV_SHIFT;
 	value |= RCC_PLLNFRACR_FRACLE;
@@ -1600,20 +1604,25 @@ int stm32mp1_clk_init(void)
 	bool pll4_preserve = false;
 	bool pll4_bootrom = false;
 	const fdt32_t *pkcs_cell;
+	void *fdt;
+
+	if (fdt_get_address(&fdt) == 0) {
+		return false;
+	}
 
 	/* Check status field to disable security */
 	if (!fdt_get_rcc_secure_status()) {
 		mmio_write_32(rcc_base + RCC_TZCR, 0);
 	}
 
-	ret = fdt_rcc_read_uint32_array("st,clksrc", clksrc,
-					(uint32_t)CLKSRC_NB);
+	ret = fdt_rcc_read_uint32_array("st,clksrc", (uint32_t)CLKSRC_NB,
+					clksrc);
 	if (ret < 0) {
 		return -FDT_ERR_NOTFOUND;
 	}
 
-	ret = fdt_rcc_read_uint32_array("st,clkdiv", clkdiv,
-					(uint32_t)CLKDIV_NB);
+	ret = fdt_rcc_read_uint32_array("st,clkdiv", (uint32_t)CLKDIV_NB,
+					clkdiv);
 	if (ret < 0) {
 		return -FDT_ERR_NOTFOUND;
 	}
@@ -1628,8 +1637,8 @@ int stm32mp1_clk_init(void)
 			continue;
 		}
 
-		ret = fdt_read_uint32_array(plloff[i], "cfg",
-					    pllcfg[i], (int)PLLCFG_NB);
+		ret = fdt_read_uint32_array(fdt, plloff[i], "cfg",
+					    (int)PLLCFG_NB, pllcfg[i]);
 		if (ret < 0) {
 			return -FDT_ERR_NOTFOUND;
 		}
@@ -1794,14 +1803,14 @@ int stm32mp1_clk_init(void)
 			continue;
 		}
 
-		fracv = fdt_read_uint32_default(plloff[i], "frac", 0);
+		fracv = fdt_read_uint32_default(fdt, plloff[i], "frac", 0);
 
 		ret = stm32mp1_pll_config(i, pllcfg[i], fracv);
 		if (ret != 0) {
 			return ret;
 		}
-		ret = fdt_read_uint32_array(plloff[i], "csg", csg,
-					    (uint32_t)PLLCSG_NB);
+		ret = fdt_read_uint32_array(fdt, plloff[i], "csg",
+					    (uint32_t)PLLCSG_NB, csg);
 		if (ret == 0) {
 			stm32mp1_pll_csg(i, csg);
 		} else if (ret != -FDT_ERR_NOTFOUND) {
