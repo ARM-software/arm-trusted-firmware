@@ -134,6 +134,7 @@ static void unsigned_num_print(unsigned long long int unum, unsigned int radix,
 
 	while (--i >= 0)
 		*string++ = num_buf[i];
+	*string = 0;
 }
 
 #if (RCAR_LOSSY_ENABLE == 1)
