@@ -81,6 +81,10 @@ Then, a wrapper has to be provided to match the ``FCONF_GET_PROPERTY()`` macro:
 This second level wrapper can be used to remap the ``FCONF_GET_PROPERTY()`` to
 anything appropriate: structure, array, function, etc..
 
+To ensure a good interpretation of the properties, this documentation must
+explain how the properties are described for a specific backend. Refer to the
+:ref:`binding-document` section for more information and example.
+
 Loading the property device tree
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -88,7 +92,7 @@ The ``fconf_load_config()`` must be called to load the device tree containing
 the properties' values. This must be done after the io layer is initialized, as
 the |DTB| is stored on an external device (FIP).
 
-.. uml:: ../resources/diagrams/plantuml/fconf_bl1_load_config.puml
+.. uml:: ../../resources/diagrams/plantuml/fconf_bl1_load_config.puml
 
 Populating the properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -98,7 +102,7 @@ can be used to fill the C data structure with the data from the config |DTB|.
 This function will call all the ``populate()`` callbacks which have been
 registered with ``FCONF_REGISTER_POPULATOR()`` as described above.
 
-.. uml:: ../resources/diagrams/plantuml/fconf_bl2_populate.puml
+.. uml:: ../../resources/diagrams/plantuml/fconf_bl2_populate.puml
 
 Namespace guidance
 ~~~~~~~~~~~~~~~~~~
@@ -129,3 +133,12 @@ belong.
 Example:
  - Arm io framework: arm.io_policies.bl31_id
 
+.. _binding-document:
+
+Properties binding information
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. toctree::
+  :maxdepth: 1
+
+  fconf_properties
