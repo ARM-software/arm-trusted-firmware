@@ -506,6 +506,7 @@ static inline uint32_t tamp_bkpr(uint32_t idx)
 /*******************************************************************************
  * Miscellaneous STM32MP1 peripherals base address
  ******************************************************************************/
+#define BSEC_BASE			U(0x5C005000)
 #define CRYP1_BASE			U(0x54001000)
 #define DBGMCU_BASE			U(0x50081000)
 #define HASH1_BASE			U(0x54002000)
@@ -514,6 +515,8 @@ static inline uint32_t tamp_bkpr(uint32_t idx)
 #define RNG1_BASE			U(0x54003000)
 #define RTC_BASE			U(0x5c004000)
 #define SPI6_BASE			U(0x5c001000)
+#define STGEN_BASE			U(0x5c008000)
+#define SYSCFG_BASE			U(0x50020000)
 
 /*******************************************************************************
  * Device Tree defines
@@ -522,6 +525,5 @@ static inline uint32_t tamp_bkpr(uint32_t idx)
 #define DT_IWDG_COMPAT			"st,stm32mp1-iwdg"
 #define DT_PWR_COMPAT			"st,stm32mp1,pwr-reg"
 #define DT_RCC_CLK_COMPAT		"st,stm32mp1-rcc"
-#define DT_SYSCFG_COMPAT		"st,stm32mp157-syscfg"
 
 #endif /* STM32MP1_DEF_H */

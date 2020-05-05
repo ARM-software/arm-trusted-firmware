@@ -39,54 +39,22 @@ uintptr_t stm32mp_get_boot_ctx_address(void)
 
 uintptr_t stm32mp_ddrctrl_base(void)
 {
-	static uintptr_t ddrctrl_base;
-
-	if (ddrctrl_base == 0) {
-		ddrctrl_base = dt_get_ddrctrl_base();
-
-		assert(ddrctrl_base == DDRCTRL_BASE);
-	}
-
-	return ddrctrl_base;
+	return DDRCTRL_BASE;
 }
 
 uintptr_t stm32mp_ddrphyc_base(void)
 {
-	static uintptr_t ddrphyc_base;
-
-	if (ddrphyc_base == 0) {
-		ddrphyc_base = dt_get_ddrphyc_base();
-
-		assert(ddrphyc_base == DDRPHYC_BASE);
-	}
-
-	return ddrphyc_base;
+	return DDRPHYC_BASE;
 }
 
 uintptr_t stm32mp_pwr_base(void)
 {
-	static uintptr_t pwr_base;
-
-	if (pwr_base == 0) {
-		pwr_base = dt_get_pwr_base();
-
-		assert(pwr_base == PWR_BASE);
-	}
-
-	return pwr_base;
+	return PWR_BASE;
 }
 
 uintptr_t stm32mp_rcc_base(void)
 {
-	static uintptr_t rcc_base;
-
-	if (rcc_base == 0) {
-		rcc_base = fdt_rcc_read_addr();
-
-		assert(rcc_base == RCC_BASE);
-	}
-
-	return rcc_base;
+	return RCC_BASE;
 }
 
 bool stm32mp_lock_available(void)

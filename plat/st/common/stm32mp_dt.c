@@ -113,26 +113,6 @@ static int fdt_get_node_parent_address_cells(int node)
 
 	return fdt_address_cells(fdt, parent);
 }
-
-/*******************************************************************************
- * This function returns the size cells from the node parent.
- * Returns:
- * - #size-cells value if success.
- * - invalid value if error.
- * - a default value if undefined #size-cells property as per libfdt
- *   implementation.
- ******************************************************************************/
-static int fdt_get_node_parent_size_cells(int node)
-{
-	int parent;
-
-	parent = fdt_parent_offset(fdt, node);
-	if (parent < 0) {
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	return fdt_size_cells(fdt, parent);
-}
 #endif
 
 /*******************************************************************************
@@ -241,81 +221,6 @@ uint32_t dt_get_ddr_size(void)
 }
 
 /*******************************************************************************
- * This function gets DDRCTRL base address information from the DT.
- * Returns value on success, and 0 on failure.
- ******************************************************************************/
-uintptr_t dt_get_ddrctrl_base(void)
-{
-	int node;
-	uint32_t array[4];
-
-	node = fdt_node_offset_by_compatible(fdt, -1, DT_DDR_COMPAT);
-	if (node < 0) {
-		INFO("%s: Cannot read DDR node in DT\n", __func__);
-		return 0;
-	}
-
-	assert((fdt_get_node_parent_address_cells(node) == 1) &&
-	       (fdt_get_node_parent_size_cells(node) == 1));
-
-	if (fdt_read_uint32_array(fdt, node, "reg", 4, array) < 0) {
-		return 0;
-	}
-
-	return array[0];
-}
-
-/*******************************************************************************
- * This function gets DDRPHYC base address information from the DT.
- * Returns value on success, and 0 on failure.
- ******************************************************************************/
-uintptr_t dt_get_ddrphyc_base(void)
-{
-	int node;
-	uint32_t array[4];
-
-	node = fdt_node_offset_by_compatible(fdt, -1, DT_DDR_COMPAT);
-	if (node < 0) {
-		INFO("%s: Cannot read DDR node in DT\n", __func__);
-		return 0;
-	}
-
-	assert((fdt_get_node_parent_address_cells(node) == 1) &&
-	       (fdt_get_node_parent_size_cells(node) == 1));
-
-	if (fdt_read_uint32_array(fdt, node, "reg", 4, array) < 0) {
-		return 0;
-	}
-
-	return array[2];
-}
-
-/*******************************************************************************
- * This function gets PWR base address information from the DT.
- * Returns value on success, and 0 on failure.
- ******************************************************************************/
-uintptr_t dt_get_pwr_base(void)
-{
-	int node;
-	const fdt32_t *cuint;
-
-	node = fdt_node_offset_by_compatible(fdt, -1, DT_PWR_COMPAT);
-	if (node < 0) {
-		INFO("%s: Cannot read PWR node in DT\n", __func__);
-		return 0;
-	}
-
-	assert(fdt_get_node_parent_address_cells(node) == 1);
-
-	cuint = fdt_getprop(fdt, node, "reg", NULL);
-	if (cuint == NULL) {
-		return 0;
-	}
-
-	return fdt32_to_cpu(*cuint);
-}
-
-/*******************************************************************************
  * This function gets PWR VDD regulator voltage information from the DT.
  * Returns value in microvolts on success, and 0 on failure.
  ******************************************************************************/
@@ -347,31 +252,6 @@ uint32_t dt_get_pwr_vdd_voltage(void)
 	}
 
 	cuint = fdt_getprop(fdt, node, "regulator-min-microvolt", NULL);
-	if (cuint == NULL) {
-		return 0;
-	}
-
-	return fdt32_to_cpu(*cuint);
-}
-
-/*******************************************************************************
- * This function gets SYSCFG base address information from the DT.
- * Returns value on success, and 0 on failure.
- ******************************************************************************/
-uintptr_t dt_get_syscfg_base(void)
-{
-	int node;
-	const fdt32_t *cuint;
-
-	node = fdt_node_offset_by_compatible(fdt, -1, DT_SYSCFG_COMPAT);
-	if (node < 0) {
-		INFO("%s: Cannot read SYSCFG node in DT\n", __func__);
-		return 0;
-	}
-
-	assert(fdt_get_node_parent_address_cells(node) == 1);
-
-	cuint = fdt_getprop(fdt, node, "reg", NULL);
 	if (cuint == NULL) {
 		return 0;
 	}
