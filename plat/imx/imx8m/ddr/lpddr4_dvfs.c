@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 NXP
+ * Copyright 2018-2023 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,6 +37,7 @@ void lpddr4_swffc(struct dram_info *info, unsigned int init_fsp,
 	uint32_t val;
 	uint32_t derate_backup[3];
 	uint32_t (*mr_data)[8];
+	uint32_t phy_master;
 
 	/* 1. program targetd UMCTL2_REGS_FREQ1/2/3,already done, skip it. */
 
@@ -56,6 +57,8 @@ void lpddr4_swffc(struct dram_info *info, unsigned int init_fsp,
 
 	/* 12. set PWRCTL.selfref_en=0 */
 	mmio_clrbits_32(DDRC_PWRCTL(0), 0xf);
+
+	phy_master = mmio_read_32(DDRC_DFIPHYMSTR(0));
 
 	/* It is more safe to config it here */
 	mmio_clrbits_32(DDRC_DFIPHYMSTR(0), 0x1);
@@ -225,8 +228,8 @@ void lpddr4_swffc(struct dram_info *info, unsigned int init_fsp,
 	emr3 = (emr3 & 0x00f7) | 0x0d00;
 	lpddr4_mr_write(3, 13, emr3);
 
-	/* enable PHY master */
-	mmio_write_32(DDRC_DFIPHYMSTR(0), 0x1);
+	/* restore the PHY master */
+	mmio_write_32(DDRC_DFIPHYMSTR(0), phy_master);
 
 	/* 32. issue ZQ if required: zq_calib_short, bit 4 */
 	/* polling zq_calib_short_busy */
