@@ -8,7 +8,7 @@
 #define SPMD_SVC_H
 
 #ifndef __ASSEMBLER__
-#include <services/spci_svc.h>
+#include <services/ffa_svc.h>
 #include <stdint.h>
 
 int spmd_setup(void);

@@ -31,14 +31,14 @@ static int manifest_parse_attribute(spmc_manifest_attribute_t *attr,
 
 	rc = fdt_read_uint32(fdt, node, "maj_ver", &attr->major_version);
 	if (rc != 0) {
-		ERROR("Missing SPCI %s version in SPM Core manifest.\n",
+		ERROR("Missing FFA %s version in SPM Core manifest.\n",
 			"major");
 		return rc;
 	}
 
 	rc = fdt_read_uint32(fdt, node, "min_ver", &attr->minor_version);
 	if (rc != 0) {
-		ERROR("Missing SPCI %s version in SPM Core manifest.\n",
+		ERROR("Missing FFA %s version in SPM Core manifest.\n",
 			"minor");
 		return rc;
 	}
@@ -163,7 +163,7 @@ int plat_spm_core_manifest_load(spmc_manifest_attribute_t *manifest,
 	VERBOSE("Reading SPM Core manifest at address %p\n", pm_addr);
 
 	rc = fdt_node_offset_by_compatible(pm_addr, -1,
-				"arm,spci-core-manifest-1.0");
+				"arm,ffa-core-manifest-1.0");
 	if (rc < 0) {
 		ERROR("Unrecognized SPM Core manifest\n");
 		goto exit_unmap;

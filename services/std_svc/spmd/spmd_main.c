@@ -20,7 +20,7 @@
 #include <plat/common/common_def.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
-#include <services/spci_svc.h>
+#include <services/ffa_svc.h>
 #include <services/spmd_svc.h>
 #include <smccc_helpers.h>
 #include "spmd_private.h"
@@ -56,7 +56,7 @@ spmd_spm_core_context_t *spmd_get_context(void)
  ******************************************************************************/
 static int32_t spmd_init(void);
 static int spmd_spmc_init(void *pm_addr);
-static uint64_t spmd_spci_error_return(void *handle,
+static uint64_t spmd_ffa_error_return(void *handle,
 				       int error_code);
 static uint64_t spmd_smc_forward(uint32_t smc_fid,
 				 bool secure_origin,
@@ -161,14 +161,14 @@ static int spmd_spmc_init(void *pm_addr)
 	 * Ensure that the SPM Core version is compatible with the SPM
 	 * Dispatcher version.
 	 */
-	if ((spmc_attrs.major_version != SPCI_VERSION_MAJOR) ||
-	    (spmc_attrs.minor_version > SPCI_VERSION_MINOR)) {
-		WARN("Unsupported SPCI version (%u.%u)\n",
+	if ((spmc_attrs.major_version != FFA_VERSION_MAJOR) ||
+	    (spmc_attrs.minor_version > FFA_VERSION_MINOR)) {
+		WARN("Unsupported FFA version (%u.%u)\n",
 		     spmc_attrs.major_version, spmc_attrs.minor_version);
 		return -EINVAL;
 	}
 
-	VERBOSE("SPCI version (%u.%u)\n", spmc_attrs.major_version,
+	VERBOSE("FFA version (%u.%u)\n", spmc_attrs.major_version,
 	     spmc_attrs.minor_version);
 
 	VERBOSE("SPM Core run time EL%x.\n",
@@ -324,18 +324,18 @@ static uint64_t spmd_smc_forward(uint32_t smc_fid,
 }
 
 /*******************************************************************************
- * Return SPCI_ERROR with specified error code
+ * Return FFA_ERROR with specified error code
  ******************************************************************************/
-static uint64_t spmd_spci_error_return(void *handle, int error_code)
+static uint64_t spmd_ffa_error_return(void *handle, int error_code)
 {
-	SMC_RET8(handle, SPCI_ERROR,
-		 SPCI_TARGET_INFO_MBZ, error_code,
-		 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ, SPCI_PARAM_MBZ,
-		 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ);
+	SMC_RET8(handle, FFA_ERROR,
+		 FFA_TARGET_INFO_MBZ, error_code,
+		 FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+		 FFA_PARAM_MBZ, FFA_PARAM_MBZ);
 }
 
 /*******************************************************************************
- * This function handles all SMCs in the range reserved for SPCI. Each call is
+ * This function handles all SMCs in the range reserved for FFA. Each call is
  * either forwarded to the other security state or handled by the SPM dispatcher
  ******************************************************************************/
 uint64_t spmd_smc_handler(uint32_t smc_fid,
@@ -360,7 +360,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	     SMC_GET_GP(handle, CTX_GPREG_X7));
 
 	switch (smc_fid) {
-	case SPCI_ERROR:
+	case FFA_ERROR:
 		/*
 		 * Check if this is the first invocation of this interface on
 		 * this CPU. If so, then indicate that the SPM Core initialised
@@ -374,33 +374,33 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 					x1, x2, x3, x4, handle);
 		break; /* not reached */
 
-	case SPCI_VERSION:
+	case FFA_VERSION:
 		/*
 		 * TODO: This is an optimization that the version information
 		 * provided by the SPM Core manifest is returned by the SPM
 		 * dispatcher. It might be a better idea to simply forward this
 		 * call to the SPM Core and wash our hands completely.
 		 */
-		ret = MAKE_SPCI_VERSION(spmc_attrs.major_version,
+		ret = MAKE_FFA_VERSION(spmc_attrs.major_version,
 					spmc_attrs.minor_version);
-		SMC_RET8(handle, SPCI_SUCCESS_SMC32, SPCI_TARGET_INFO_MBZ, ret,
-			 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ, SPCI_PARAM_MBZ,
-			 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ);
+		SMC_RET8(handle, FFA_SUCCESS_SMC32, FFA_TARGET_INFO_MBZ, ret,
+			 FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+			 FFA_PARAM_MBZ, FFA_PARAM_MBZ);
 		break; /* not reached */
 
-	case SPCI_FEATURES:
+	case FFA_FEATURES:
 		/*
 		 * This is an optional interface. Do the minimal checks and
 		 * forward to SPM Core which will handle it if implemented.
 		 */
 
 		/*
-		 * Check if x1 holds a valid SPCI fid. This is an
+		 * Check if x1 holds a valid FFA fid. This is an
 		 * optimization.
 		 */
-		if (!is_spci_fid(x1)) {
-			return spmd_spci_error_return(handle,
-						      SPCI_ERROR_NOT_SUPPORTED);
+		if (!is_ffa_fid(x1)) {
+			return spmd_ffa_error_return(handle,
+						      FFA_ERROR_NOT_SUPPORTED);
 		}
 
 		/* Forward SMC from Normal world to the SPM Core */
@@ -411,68 +411,68 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 		/*
 		 * Return success if call was from secure world i.e. all
-		 * SPCI functions are supported. This is essentially a
+		 * FFA functions are supported. This is essentially a
 		 * nop.
 		 */
-		SMC_RET8(handle, SPCI_SUCCESS_SMC32, x1, x2, x3, x4,
+		SMC_RET8(handle, FFA_SUCCESS_SMC32, x1, x2, x3, x4,
 			 SMC_GET_GP(handle, CTX_GPREG_X5),
 			 SMC_GET_GP(handle, CTX_GPREG_X6),
 			 SMC_GET_GP(handle, CTX_GPREG_X7));
 
 		break; /* not reached */
 
-	case SPCI_ID_GET:
+	case FFA_ID_GET:
 		/*
-		 * Returns the ID of the calling SPCI component.
+		 * Returns the ID of the calling FFA component.
 		 */
 		if (!secure_origin) {
-			SMC_RET8(handle, SPCI_SUCCESS_SMC32,
-				 SPCI_TARGET_INFO_MBZ, SPCI_NS_ENDPOINT_ID,
-				 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ,
-				 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ,
-				 SPCI_PARAM_MBZ);
+			SMC_RET8(handle, FFA_SUCCESS_SMC32,
+				 FFA_TARGET_INFO_MBZ, FFA_NS_ENDPOINT_ID,
+				 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+				 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+				 FFA_PARAM_MBZ);
 		}
 
-		SMC_RET8(handle, SPCI_SUCCESS_SMC32,
-			 SPCI_TARGET_INFO_MBZ, spmc_attrs.spmc_id,
-			 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ,
-			 SPCI_PARAM_MBZ, SPCI_PARAM_MBZ,
-			 SPCI_PARAM_MBZ);
+		SMC_RET8(handle, FFA_SUCCESS_SMC32,
+			 FFA_TARGET_INFO_MBZ, spmc_attrs.spmc_id,
+			 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+			 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+			 FFA_PARAM_MBZ);
 
 		break; /* not reached */
 
-	case SPCI_RX_RELEASE:
-	case SPCI_RXTX_MAP_SMC32:
-	case SPCI_RXTX_MAP_SMC64:
-	case SPCI_RXTX_UNMAP:
-	case SPCI_MSG_RUN:
+	case FFA_RX_RELEASE:
+	case FFA_RXTX_MAP_SMC32:
+	case FFA_RXTX_MAP_SMC64:
+	case FFA_RXTX_UNMAP:
+	case FFA_MSG_RUN:
 		/* This interface must be invoked only by the Normal world */
 		if (secure_origin) {
-			return spmd_spci_error_return(handle,
-						      SPCI_ERROR_NOT_SUPPORTED);
+			return spmd_ffa_error_return(handle,
+						      FFA_ERROR_NOT_SUPPORTED);
 		}
 
 		/* Fall through to forward the call to the other world */
 
-	case SPCI_PARTITION_INFO_GET:
-	case SPCI_MSG_SEND:
-	case SPCI_MSG_SEND_DIRECT_REQ_SMC32:
-	case SPCI_MSG_SEND_DIRECT_REQ_SMC64:
-	case SPCI_MSG_SEND_DIRECT_RESP_SMC32:
-	case SPCI_MSG_SEND_DIRECT_RESP_SMC64:
-	case SPCI_MEM_DONATE_SMC32:
-	case SPCI_MEM_DONATE_SMC64:
-	case SPCI_MEM_LEND_SMC32:
-	case SPCI_MEM_LEND_SMC64:
-	case SPCI_MEM_SHARE_SMC32:
-	case SPCI_MEM_SHARE_SMC64:
-	case SPCI_MEM_RETRIEVE_REQ_SMC32:
-	case SPCI_MEM_RETRIEVE_REQ_SMC64:
-	case SPCI_MEM_RETRIEVE_RESP:
-	case SPCI_MEM_RELINQUISH:
-	case SPCI_MEM_RECLAIM:
-	case SPCI_SUCCESS_SMC32:
-	case SPCI_SUCCESS_SMC64:
+	case FFA_PARTITION_INFO_GET:
+	case FFA_MSG_SEND:
+	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
+	case FFA_MSG_SEND_DIRECT_REQ_SMC64:
+	case FFA_MSG_SEND_DIRECT_RESP_SMC32:
+	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
+	case FFA_MEM_DONATE_SMC32:
+	case FFA_MEM_DONATE_SMC64:
+	case FFA_MEM_LEND_SMC32:
+	case FFA_MEM_LEND_SMC64:
+	case FFA_MEM_SHARE_SMC32:
+	case FFA_MEM_SHARE_SMC64:
+	case FFA_MEM_RETRIEVE_REQ_SMC32:
+	case FFA_MEM_RETRIEVE_REQ_SMC64:
+	case FFA_MEM_RETRIEVE_RESP:
+	case FFA_MEM_RELINQUISH:
+	case FFA_MEM_RECLAIM:
+	case FFA_SUCCESS_SMC32:
+	case FFA_SUCCESS_SMC64:
 		/*
 		 * TODO: Assume that no requests originate from EL3 at the
 		 * moment. This will change if a SP service is required in
@@ -484,7 +484,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 					x1, x2, x3, x4, handle);
 		break; /* not reached */
 
-	case SPCI_MSG_WAIT:
+	case FFA_MSG_WAIT:
 		/*
 		 * Check if this is the first invocation of this interface on
 		 * this CPU from the Secure world. If so, then indicate that the
@@ -496,11 +496,11 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 		/* Fall through to forward the call to the other world */
 
-	case SPCI_MSG_YIELD:
+	case FFA_MSG_YIELD:
 		/* This interface must be invoked only by the Secure world */
 		if (!secure_origin) {
-			return spmd_spci_error_return(handle,
-						      SPCI_ERROR_NOT_SUPPORTED);
+			return spmd_ffa_error_return(handle,
+						      FFA_ERROR_NOT_SUPPORTED);
 		}
 
 		return spmd_smc_forward(smc_fid, secure_origin,
@@ -509,6 +509,6 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 	default:
 		WARN("SPM: Unsupported call 0x%08x\n", smc_fid);
-		return spmd_spci_error_return(handle, SPCI_ERROR_NOT_SUPPORTED);
+		return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
 	}
 }
