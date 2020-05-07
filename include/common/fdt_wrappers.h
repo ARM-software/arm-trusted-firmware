@@ -30,5 +30,8 @@ int fdtw_write_inplace_bytes(void *dtb, int node, const char *prop,
 		unsigned int length, const void *data);
 int fdt_get_reg_props_by_index(const void *dtb, int node, int index,
 			       uintptr_t *base, size_t *size);
+int fdt_get_reg_props_by_name(const void *dtb, int node, const char *name,
+			      uintptr_t *base, size_t *size);
+int fdt_get_stdout_node_offset(const void *dtb);
 
 #endif /* FDT_WRAPPERS_H */
