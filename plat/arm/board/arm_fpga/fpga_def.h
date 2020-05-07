@@ -23,18 +23,16 @@
 #define FPGA_MAX_PE_PER_CPU			4
 
 #define FPGA_PRIMARY_CPU			0x0
-
 /*******************************************************************************
  * FPGA image memory map related constants
  ******************************************************************************/
 
-/* UART base address and clock frequency, as configured by the image */
-#define PLAT_FPGA_BOOT_UART_BASE 		0x7ff80000
-#define PLAT_FPGA_BOOT_UART_CLK_IN_HZ 		10000000
+/*
+ * UART base address, just for the crash console, as a fallback.
+ * The actual console UART address is taken from the DT.
+ */
+#define PLAT_FPGA_CRASH_UART_BASE		0x7ff80000
 
-#define PLAT_FPGA_CRASH_UART_BASE		PLAT_FPGA_BOOT_UART_BASE
-#define PLAT_FPGA_CRASH_UART_CLK_IN_HZ		PLAT_FPGA_BOOT_UART_CLK_IN_HZ
-
-#define FPGA_TIMER_FREQUENCY			10000000
+#define FPGA_DEFAULT_TIMER_FREQUENCY		10000000
 
 #endif
