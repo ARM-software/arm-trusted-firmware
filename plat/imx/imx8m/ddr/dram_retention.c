@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 NXP
+ * Copyright 2018-2023 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,6 +24,28 @@
 #define DRAM_PLL_CTRL		(IMX_ANAMIX_BASE + 0x50)
 
 #define DBGCAM_EMPTY		0x36000000
+
+static void rank_setting_update(void)
+{
+	uint32_t i, offset;
+	uint32_t pstate_num = dram_info.num_fsp;
+
+	for (i = 0U; i < pstate_num; i++) {
+		offset = i ? (i + 1) * 0x1000 : 0U;
+		mmio_write_32(DDRC_DRAMTMG2(0) + offset, dram_info.rank_setting[i][0]);
+		if (dram_info.dram_type != DDRC_LPDDR4) {
+			mmio_write_32(DDRC_DRAMTMG9(0) + offset, dram_info.rank_setting[i][1]);
+		}
+
+#if !defined(PLAT_imx8mq)
+		mmio_write_32(DDRC_RANKCTL(0) + offset,
+			dram_info.rank_setting[i][2]);
+#endif
+	}
+#if defined(PLAT_imx8mq)
+		mmio_write_32(DDRC_RANKCTL(0), dram_info.rank_setting[0][2]);
+#endif
+}
 
 void dram_enter_retention(void)
 {
@@ -156,6 +178,9 @@ void dram_exit_retention(void)
 
 	/* dram phy re-init */
 	dram_phy_init(dram_info.timing_info);
+
+	/* workaround for rank-to-rank issue */
+	rank_setting_update();
 
 	/* DWC_DDRPHYA_APBONLY0_MicroContMuxSel */
 	dwc_ddrphy_apb_wr(0xd0000, 0x0);

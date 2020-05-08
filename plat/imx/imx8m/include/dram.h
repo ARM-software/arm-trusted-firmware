@@ -59,6 +59,8 @@ struct dram_info {
 	struct dram_timing_info *timing_info;
 	/* mr, emr, emr2, emr3, mr11, mr12, mr22, mr14 */
 	uint32_t mr_table[3][8];
+	/* used for workaround for rank to rank issue */
+	uint32_t rank_setting[3][3];
 };
 
 extern struct dram_info dram_info;

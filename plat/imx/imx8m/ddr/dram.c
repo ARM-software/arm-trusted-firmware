@@ -44,6 +44,25 @@ static void get_mr_values(uint32_t (*mr_value)[8])
 	}
 }
 
+static void save_rank_setting(void)
+{
+	uint32_t i, offset;
+	uint32_t pstate_num = dram_info.num_fsp;
+
+	for (i = 0U; i < pstate_num; i++) {
+		offset = i ? (i + 1) * 0x1000 : 0U;
+		dram_info.rank_setting[i][0] = mmio_read_32(DDRC_DRAMTMG2(0) + offset);
+		if (dram_info.dram_type != DDRC_LPDDR4) {
+			dram_info.rank_setting[i][1] = mmio_read_32(DDRC_DRAMTMG9(0) + offset);
+		}
+#if !defined(PLAT_imx8mq)
+		dram_info.rank_setting[i][2] = mmio_read_32(DDRC_RANKCTL(0) + offset);
+#endif
+	}
+#if defined(PLAT_imx8mq)
+	dram_info.rank_setting[0][2] = mmio_read_32(DDRC_RANKCTL(0));
+#endif
+}
 /* Restore the ddrc configs */
 void dram_umctl2_init(struct dram_timing_info *timing)
 {
@@ -149,6 +168,9 @@ void dram_info_init(unsigned long dram_timing_base)
 		idx = i;
 	}
 	dram_info.num_fsp = i;
+
+	/* save the DRAMTMG2/9 for rank to rank workaround */
+	save_rank_setting();
 
 	/* check if has bypass mode support */
 	if (dram_info.timing_info->fsp_table[idx] < 666) {
