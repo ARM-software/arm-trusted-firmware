@@ -46,6 +46,7 @@ int mailbox_read_response(uint32_t *job_id, uint32_t *response, int resp_len)
 	int rin = 0;
 	int rout = 0;
 	int resp_data = 0;
+	int ret_resp_len;
 
 	if (mmio_read_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM))
 		mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM, 0);
@@ -67,13 +68,19 @@ int mailbox_read_response(uint32_t *job_id, uint32_t *response, int resp_len)
 
 		*job_id = MBOX_RESP_JOB_ID(resp_data);
 
+		ret_resp_len = MBOX_RESP_LEN(resp_data);
+
+		if (ret_resp_len != 0) {
+			ret_resp_len = iterate_resp(ret_resp_len, response,
+						    resp_len);
+		}
+
 		if (MBOX_RESP_ERR(resp_data) > 0) {
 			INFO("Error in response: %x\n", resp_data);
 			return -resp_data;
 		}
 
-		return iterate_resp(MBOX_RESP_LEN(resp_data),
-					response, resp_len);
+		return ret_resp_len;
 	}
 	return MBOX_NO_RESPONSE;
 }
@@ -86,6 +93,7 @@ int mailbox_poll_response(uint32_t job_id, int urgent, uint32_t *response,
 	int rin = 0;
 	int rout = 0;
 	int resp_data = 0;
+	int ret_resp_len;
 
 	while (1) {
 
@@ -130,13 +138,20 @@ int mailbox_poll_response(uint32_t job_id, int urgent, uint32_t *response,
 				|| MBOX_RESP_JOB_ID(resp_data) != job_id)
 				continue;
 
+			ret_resp_len = MBOX_RESP_LEN(resp_data);
+
+			if (ret_resp_len != 0) {
+				ret_resp_len = iterate_resp(ret_resp_len,
+							    response,
+							    resp_len);
+			}
+
 			if (MBOX_RESP_ERR(resp_data) > 0) {
 				INFO("Error in response: %x\n", resp_data);
 				return -MBOX_RESP_ERR(resp_data);
 			}
 
-			return iterate_resp(MBOX_RESP_LEN(resp_data),
-						response, resp_len);
+			return ret_resp_len;
 		}
 	}
 }
