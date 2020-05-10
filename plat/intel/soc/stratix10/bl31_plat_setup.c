@@ -109,6 +109,8 @@ static const gicv2_driver_data_t plat_gicv2_gic_data = {
  ******************************************************************************/
 void bl31_platform_setup(void)
 {
+	socfpga_delay_timer_init();
+
 	/* Initialize the gic cpu and distributor interfaces */
 	gicv2_driver_init(&plat_gicv2_gic_data);
 	gicv2_distif_init();
