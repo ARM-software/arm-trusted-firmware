@@ -127,6 +127,7 @@
 #define MBOX_JOB_ID_CMD(JOB_ID)		(JOB_ID<<24)
 #define MBOX_CMD_LEN_CMD(CMD_LEN)	((CMD_LEN) << 12)
 #define MBOX_INDIRECT(val)		((val) << 11)
+#define MBOX_CMD_MASK(header)		((header) & 0x7ff)
 
 /* RSU Macros */
 #define RSU_VERSION_ACMF		BIT(8)

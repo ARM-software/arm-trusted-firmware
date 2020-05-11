@@ -94,7 +94,7 @@ static int fill_mailbox_circular_buffer(uint32_t header_cmd, uint32_t *args,
 	ret = write_mailbox_cmd_buffer(&cmd_free_offset, sdm_read_offset,
 				       header_cmd, &is_doorbell_triggered);
 	if (ret != 0) {
-		return ret;
+		goto restart_mailbox;
 	}
 
 	for (i = 0U; i < len; i++) {
@@ -103,7 +103,7 @@ static int fill_mailbox_circular_buffer(uint32_t header_cmd, uint32_t *args,
 					       sdm_read_offset, args[i],
 					       &is_doorbell_triggered);
 		if (ret != 0) {
-			return ret;
+			goto restart_mailbox;
 		}
 	}
 
@@ -112,6 +112,22 @@ static int fill_mailbox_circular_buffer(uint32_t header_cmd, uint32_t *args,
 	}
 
 	return MBOX_RET_OK;
+
+restart_mailbox:
+	/*
+	 * Attempt to restart mailbox if the driver not able to write
+	 * into mailbox command buffer
+	 */
+	if (MBOX_CMD_MASK(header_cmd) != MBOX_CMD_RESTART) {
+		INFO("Mailbox timed out: Attempting mailbox reset\n");
+		ret = mailbox_init();
+
+		if (ret == MBOX_TIMEOUT) {
+			INFO("Error: Mailbox fail to restart\n");
+		}
+	}
+
+	return MBOX_TIMEOUT;
 }
 
 int mailbox_read_response(uint32_t *job_id, uint32_t *response, int resp_len)
@@ -150,7 +166,7 @@ int mailbox_read_response(uint32_t *job_id, uint32_t *response, int resp_len)
 
 		if (MBOX_RESP_ERR(resp_data) > 0) {
 			INFO("Error in response: %x\n", resp_data);
-			return -resp_data;
+			return -MBOX_RESP_ERR(resp_data);
 		}
 
 		return ret_resp_len;
