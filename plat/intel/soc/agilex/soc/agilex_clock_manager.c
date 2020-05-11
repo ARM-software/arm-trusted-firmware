@@ -47,14 +47,14 @@ uint32_t wait_fsm(void)
 	return 0;
 }
 
-uint32_t pll_source_sync_config(uint32_t pll_mem_offset)
+uint32_t pll_source_sync_config(uint32_t pll_mem_offset, uint32_t data)
 {
 	uint32_t val = 0;
 	uint32_t count = 0;
 	uint32_t req_status = 0;
 
 	val = (CLKMGR_MEM_WR | CLKMGR_MEM_REQ |
-		CLKMGR_MEM_WDAT << CLKMGR_MEM_WDAT_OFFSET | CLKMGR_MEM_ADDR);
+		(data << CLKMGR_MEM_WDAT_OFFSET) | CLKMGR_MEM_ADDR);
 	mmio_write_32(pll_mem_offset, val);
 
 	do {
@@ -89,14 +89,17 @@ uint32_t pll_source_sync_read(uint32_t pll_mem_offset)
 	rdata = mmio_read_32(pll_mem_offset + 0x4);
 	INFO("rdata (%x) = %x\n", pll_mem_offset + 0x4, rdata);
 
-	return 0;
+	return rdata;
 }
 
 void config_clkmgr_handoff(handoff *hoff_ptr)
 {
 	uint32_t mdiv, mscnt, hscnt;
-	uint32_t arefclk_div, drefclk_div;
+	uint32_t drefclk_div, refclk_div, rdata;
 
+	/* Set clock maanger into boot mode before running configuration */
+	mmio_setbits_32(CLKMGR_OFFSET + CLKMGR_CTRL,
+		CLKMGR_CTRL_BOOTMODE_SET_MSK);
 	/* Bypass all mainpllgrp's clocks */
 	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_BYPASS, 0x7);
 	wait_fsm();
@@ -116,26 +119,24 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 	/* Setup main PLL dividers */
 	mdiv = CLKMGR_PLLM_MDIV(hoff_ptr->main_pll_pllm);
 
-	arefclk_div = CLKMGR_PLLGLOB_AREFCLKDIV(
-			hoff_ptr->main_pll_pllglob);
 	drefclk_div = CLKMGR_PLLGLOB_DREFCLKDIV(
 			hoff_ptr->main_pll_pllglob);
+	refclk_div = CLKMGR_PLLGLOB_REFCLKDIV(
+			hoff_ptr->main_pll_pllglob);
 
-	mscnt = 100 / (mdiv / BIT(drefclk_div));
+	mscnt = 100 / (mdiv * BIT(drefclk_div));
 	if (!mscnt)
 		mscnt = 1;
-	hscnt = (mdiv * mscnt * BIT(drefclk_div) / arefclk_div) - 4;
+	hscnt = (mdiv * mscnt * BIT(drefclk_div) / refclk_div) - 4;
 
+	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_PLLGLOB,
+			hoff_ptr->main_pll_pllglob &
+			~CLKMGR_PLLGLOB_RST_SET_MSK);
+	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_FDBCK,
+			hoff_ptr->main_pll_fdbck);
 	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_VCOCALIB,
 			CLKMGR_VCOCALIB_HSCNT_SET(hscnt) |
 			CLKMGR_VCOCALIB_MSCNT_SET(mscnt));
-
-	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_NOCDIV,
-			hoff_ptr->main_pll_nocdiv);
-	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_PLLGLOB,
-			hoff_ptr->main_pll_pllglob);
-	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_FDBCK,
-			hoff_ptr->main_pll_fdbck);
 	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_PLLC0,
 			hoff_ptr->main_pll_pllc0);
 	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_PLLC1,
@@ -150,33 +151,33 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 			hoff_ptr->main_pll_mpuclk);
 	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_NOCCLK,
 			hoff_ptr->main_pll_nocclk);
+	mmio_write_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_NOCDIV,
+			hoff_ptr->main_pll_nocdiv);
 
 	/* Setup peripheral PLL dividers */
 	mdiv = CLKMGR_PLLM_MDIV(hoff_ptr->per_pll_pllm);
 
-	arefclk_div = CLKMGR_PLLGLOB_AREFCLKDIV(
-			hoff_ptr->per_pll_pllglob);
 	drefclk_div = CLKMGR_PLLGLOB_DREFCLKDIV(
 			hoff_ptr->per_pll_pllglob);
+	refclk_div = CLKMGR_PLLGLOB_REFCLKDIV(
+			hoff_ptr->per_pll_pllglob);
 
-	mscnt = 100 / (mdiv / BIT(drefclk_div));
+
+	mscnt = 100 / (mdiv * BIT(drefclk_div));
 	if (!mscnt)
 		mscnt = 1;
-	hscnt = (mdiv * mscnt * BIT(drefclk_div) / arefclk_div) - 4;
+	hscnt = (mdiv * mscnt * BIT(drefclk_div) / refclk_div) - 4;
+
+	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_PLLGLOB,
+			hoff_ptr->per_pll_pllglob &
+			~CLKMGR_PLLGLOB_RST_SET_MSK);
+	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_FDBCK,
+			hoff_ptr->per_pll_fdbck);
 
 	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_VCOCALIB,
 			CLKMGR_VCOCALIB_HSCNT_SET(hscnt) |
 			CLKMGR_VCOCALIB_MSCNT_SET(mscnt));
 
-	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_EMACCTL,
-			hoff_ptr->per_pll_emacctl);
-	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_GPIODIV,
-			CLKMGR_PERPLL_GPIODIV_GPIODBCLK_SET(
-			hoff_ptr->per_pll_gpiodiv));
-	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_PLLGLOB,
-			hoff_ptr->per_pll_pllglob);
-	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_FDBCK,
-			hoff_ptr->per_pll_fdbck);
 	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_PLLC0,
 			hoff_ptr->per_pll_pllc0);
 	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_PLLC1,
@@ -187,6 +188,10 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 			hoff_ptr->per_pll_pllc3);
 	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_PLLM,
 			hoff_ptr->per_pll_pllm);
+	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_EMACCTL,
+			hoff_ptr->per_pll_emacctl);
+	mmio_write_32(CLKMGR_PERPLL + CLKMGR_PERPLL_GPIODIV,
+			hoff_ptr->per_pll_gpiodiv);
 
 	/* Take both PLL out of reset and power up */
 	mmio_setbits_32(CLKMGR_MAINPLL + CLKMGR_MAINPLL_PLLGLOB,
@@ -196,13 +201,16 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 			CLKMGR_PLLGLOB_PD_SET_MSK |
 			CLKMGR_PLLGLOB_RST_SET_MSK);
 
+	rdata = pll_source_sync_read(CLKMGR_MAINPLL +
+		CLKMGR_MAINPLL_MEM);
+	pll_source_sync_config(CLKMGR_MAINPLL + CLKMGR_MAINPLL_MEM,
+		rdata | 0x80);
+
+	rdata = pll_source_sync_read(CLKMGR_PERPLL + CLKMGR_PERPLL_MEM);
+	pll_source_sync_config(CLKMGR_PERPLL + CLKMGR_PERPLL_MEM,
+		rdata | 0x80);
+
 	wait_pll_lock();
-
-	pll_source_sync_config(CLKMGR_MAINPLL + CLKMGR_MAINPLL_MEM);
-	pll_source_sync_read(CLKMGR_MAINPLL + CLKMGR_MAINPLL_MEM);
-
-	pll_source_sync_config(CLKMGR_PERPLL + CLKMGR_PERPLL_MEM);
-	pll_source_sync_read(CLKMGR_PERPLL + CLKMGR_PERPLL_MEM);
 
 	/*Configure Ping Pong counters in altera group */
 	mmio_write_32(CLKMGR_ALTERA + CLKMGR_ALTERA_EMACACTR,
@@ -241,7 +249,7 @@ void config_clkmgr_handoff(handoff *hoff_ptr)
 
 	/* Clear loss lock  interrupt status register that */
 	/* might be set during configuration */
-	mmio_setbits_32(CLKMGR_OFFSET + CLKMGR_INTRCLR,
+	mmio_clrbits_32(CLKMGR_OFFSET + CLKMGR_INTRCLR,
 			CLKMGR_INTRCLR_MAINLOCKLOST_SET_MSK |
 			CLKMGR_INTRCLR_PERLOCKLOST_SET_MSK);
 
