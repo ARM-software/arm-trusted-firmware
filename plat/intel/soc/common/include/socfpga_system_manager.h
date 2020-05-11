@@ -32,6 +32,7 @@
 /* Field Masking */
 
 #define SYSMGR_SDMMC_DRVSEL(x)			(((x) & 0x7) << 0)
+#define SYSMGR_SDMMC_SMPLSEL(x)			(((x) & 0x7) << 4)
 
 #define IDLE_DATA_LWSOC2FPGA				BIT(0)
 #define IDLE_DATA_SOC2FPGA				BIT(4)

@@ -15,6 +15,7 @@
 #include <drivers/ti/uart/uart_16550.h>
 #include <lib/xlat_tables/xlat_tables.h>
 
+#include "agilex_mmc.h"
 #include "agilex_clock_manager.h"
 #include "agilex_memory_controller.h"
 #include "agilex_pinmux.h"
@@ -76,6 +77,7 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 	socfpga_emac_init();
 	init_hard_memory_controller();
 	mailbox_init();
+	agx_mmc_init();
 
 	if (!intel_mailbox_is_fpga_not_ready())
 		socfpga_bridges_enable();

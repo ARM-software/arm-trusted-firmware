@@ -37,6 +37,7 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/agilex/bl2_plat_setup.c			\
 		plat/intel/soc/agilex/soc/agilex_clock_manager.c	\
 		plat/intel/soc/agilex/soc/agilex_memory_controller.c	\
+		plat/intel/soc/agilex/soc/agilex_mmc.c			\
 		plat/intel/soc/agilex/soc/agilex_pinmux.c		\
                 plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
 		plat/intel/soc/common/socfpga_delay_timer.c		\
