@@ -4,8 +4,8 @@ Contributor's Guide
 Getting Started
 ---------------
 
--  Make sure you have a Github account and you are logged on
-   `developer.trustedfirmware.org`_.
+-  Make sure you have a Github account and you are logged on both
+   `developer.trustedfirmware.org`_ and `review.trustedfirmware.org`_.
 -  Create an `issue`_ for your work if one does not already exist. This gives
    everyone visibility of whether others are working on something similar.
 
@@ -55,9 +55,9 @@ Making Changes
       where XXXX is the year of first contribution (if different to YYYY) and
       YYYY is the year of most recent contribution. <OWNER> is your name or
       your company name.
-   -  If you are submitting new files that you intend to be the technical
-      sub-maintainer for (for example, a new platform port), then also update
-      the :ref:`maintainers` file.
+   -  If you are submitting new files that you intend to be the code owner for
+      (for example, a new platform port), then also update the
+      :ref:`code owners` file.
    -  For topics with multiple commits, you should make all documentation
       changes (and nothing else) in the last commit of the series. Otherwise,
       include the documentation changes within the single commit.
@@ -91,8 +91,10 @@ Submitting Changes
    targeting the ``integration`` branch.
 
    -  The changes will then undergo further review and testing by the
-      :ref:`maintainers`. Any review comments will be made directly on your
-      patch. This may require you to do some rework.
+      :ref:`code owners` and :ref:`maintainers`. Any review comments will be
+      made directly on your patch. This may require you to do some rework. For
+      controversial changes, the discussion might be moved to the `TF-A mailing
+      list`_ to involve more of the community.
 
    Refer to the `Gerrit Uploading Changes documentation`_ for more details.
 
@@ -102,12 +104,12 @@ Submitting Changes
       ``integration`` branch.
    -  If the changes are not based on a sufficiently-recent commit, or if they
       cannot be automatically rebased, then the :ref:`maintainers` may rebase it
-      on the ``master`` branch or ask you to do so.
+      on the ``integration`` branch or ask you to do so.
    -  After final integration testing, the changes will make their way into the
-      ``master`` branch. If a problem is found during integration, the merge
-      commit will be removed from the ``integration`` branch and the
-      :ref:`maintainers` will ask you to create a new patch set to resolve the
-      problem.
+      ``master`` branch. If a problem is found during integration, the
+      :ref:`maintainers` will request your help to solve the issue. They may
+      revert your patches and ask you to resubmit a reworked version of them or
+      they may ask you to provide a fix-up patch.
 
 Binary Components
 -----------------
@@ -131,12 +133,14 @@ Binary Components
 *Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.*
 
 .. _developer.trustedfirmware.org: https://developer.trustedfirmware.org
+.. _review.trustedfirmware.org: https://review.trustedfirmware.org
 .. _issue: https://developer.trustedfirmware.org/project/board/1/
 .. _Trusted Firmware-A: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
 .. _Git guidelines: http://git-scm.com/book/ch5-2.html
 .. _Gerrit Uploading Changes documentation: https://review.trustedfirmware.org/Documentation/user-upload.html
 .. _Gerrit Signed-off-by Lines guidelines: https://review.trustedfirmware.org/Documentation/user-signedoffby.html
 .. _Gerrit Change-Ids documentation: https://review.trustedfirmware.org/Documentation/user-changeid.html
-.. _TF-A Tests: https://git.trustedfirmware.org/TF-A/tf-a-tests.git/about/
+.. _TF-A Tests: https://trustedfirmware-a-tests.readthedocs.io
 .. _Trusted Firmware binary repository: https://review.trustedfirmware.org/admin/repos/tf-binaries
 .. _tf-binaries-readme: https://git.trustedfirmware.org/tf-binaries.git/tree/readme.rst
+.. _TF-A mailing list: https://lists.trustedfirmware.org/mailman/listinfo/tf-a

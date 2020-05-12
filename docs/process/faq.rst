@@ -70,12 +70,10 @@ What are these strange comments in my changes?
 All the comments from ``ci-bot-user`` are associated with Continuous Integration
 infrastructure. The links published on the comment are not currently accessible,
 but would be after the CI has been transitioned to `trustedfirmware.org`_.
-Please refer to https://github.com/ARM-software/tf-issues/issues/681 for more
-details on the timelines.
 
 --------------
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
 
 .. _Gerrit Upload Patch Set documentation: https://review.trustedfirmware.org/Documentation/intro-user.html#upload-patch-set
 .. _Gerrit Replace Changes documentation: https://review.trustedfirmware.org/Documentation/user-upload.html#push_replace
