@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Marvell International Ltd.
+ * Copyright (C) 2018-2020 Marvell International Ltd.
  *
  * SPDX-License-Identifier:     BSD-3-Clause
  * https://spdx.org/licenses
@@ -130,6 +130,7 @@ enum axi_attr {
 #define USB3H_1_STREAM_ID_REG	(RFU_STREAM_ID_BASE + 0x10)
 #define SATA_0_STREAM_ID_REG	(RFU_STREAM_ID_BASE + 0x14)
 #define SATA_1_STREAM_ID_REG	(RFU_STREAM_ID_BASE + 0x18)
+#define SDIO_0_STREAM_ID_REG	(RFU_STREAM_ID_BASE + 0x28)
 
 #define CP_DMA_0_STREAM_ID_REG  (0x6B0010)
 #define CP_DMA_1_STREAM_ID_REG  (0x6D0010)
@@ -144,6 +145,7 @@ uintptr_t stream_id_reg[] = {
 	CP_DMA_1_STREAM_ID_REG,
 	SATA_0_STREAM_ID_REG,
 	SATA_1_STREAM_ID_REG,
+	SDIO_0_STREAM_ID_REG,
 	0
 };
 
