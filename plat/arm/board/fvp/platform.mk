@@ -65,6 +65,10 @@ FVP_GIC_SOURCES		:=	${GICV3_SOURCES}			\
 				plat/common/plat_gicv3.c		\
 				plat/arm/common/arm_gicv3.c
 
+	ifeq ($(filter 1,${BL2_AT_EL3} ${RESET_TO_BL31} ${RESET_TO_SP_MIN}),)
+		FVP_GIC_SOURCES += plat/arm/board/fvp/fvp_gicv3.c
+	endif
+
 else ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV2)
 
 # No GICv4 extension
