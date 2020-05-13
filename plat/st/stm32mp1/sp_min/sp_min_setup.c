@@ -82,19 +82,12 @@ entry_point_info_t *sp_min_plat_get_bl33_ep_info(void)
 
 static void stm32mp1_etzpc_early_setup(void)
 {
-	unsigned int n;
-
 	if (etzpc_init() != 0) {
 		panic();
 	}
 
 	etzpc_configure_tzma(STM32MP1_ETZPC_TZMA_ROM, TZMA0_SECURE_RANGE);
 	etzpc_configure_tzma(STM32MP1_ETZPC_TZMA_SYSRAM, TZMA1_SECURE_RANGE);
-
-	/* Release security on all shared resources */
-	for (n = 0; n < STM32MP1_ETZPC_SEC_ID_LIMIT; n++) {
-		etzpc_configure_decprot(n, ETZPC_DECPROT_NS_RW);
-	}
 }
 
 /*******************************************************************************
@@ -181,14 +174,11 @@ void sp_min_platform_setup(void)
 
 	stm32mp1_gic_init();
 
-	/* Set GPIO bank Z as non secure */
-	for (uint32_t pin = 0U; pin < STM32MP_GPIOZ_PIN_MAX_COUNT; pin++) {
-		set_gpio_secure_cfg(GPIO_BANK_Z, pin, false);
-	}
-
 	if (stm32_iwdg_init() < 0) {
 		panic();
 	}
+
+	stm32mp_lock_periph_registering();
 }
 
 void sp_min_plat_arch_setup(void)

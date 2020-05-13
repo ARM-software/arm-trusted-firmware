@@ -15,4 +15,7 @@ bool stm32mp_nsec_can_access_clock(unsigned long clock_id);
 /* Return true if and only if @reset_id relates to a non-secure peripheral */
 bool stm32mp_nsec_can_access_reset(unsigned int reset_id);
 
+/* Consolidate peripheral states and lock against new peripheral registering */
+void stm32mp_lock_periph_registering(void);
+
 #endif /* STM32MP_SHARED_RESOURCES_H */
