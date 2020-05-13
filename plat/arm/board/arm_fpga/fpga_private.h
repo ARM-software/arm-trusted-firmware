@@ -7,12 +7,23 @@
 #ifndef FPGA_PRIVATE_H
 #define FPGA_PRIVATE_H
 
-unsigned int plat_fpga_calc_core_pos(u_register_t mpidr);
+#include "../fpga_def.h"
+#include <platform_def.h>
+
+#define C_RUNTIME_READY_KEY	(0xaa55aa55)
+#define VALID_MPID		(1U)
+
+#ifndef __ASSEMBLER__
+
+extern unsigned char fpga_valid_mpids[PLATFORM_CORE_COUNT];
 
 void fpga_console_init(void);
 
 void plat_fpga_gic_init(void);
 void fpga_pwr_gic_on_finish(void);
 void fpga_pwr_gic_off(void);
+unsigned int plat_fpga_calc_core_pos(uint32_t mpid);
 
-#endif
+#endif /* __ASSEMBLER__ */
+
+#endif /* FPGA_PRIVATE_H */
