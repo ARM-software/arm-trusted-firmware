@@ -40,6 +40,54 @@ Maintainers
 Code owners
 -----------
 
+Core Code
+~~~~~~~~~
+
+.. note::
+   This section is incomplete right now.
+
+Armv7-A architecture port
+^^^^^^^^^^^^^^^^^^^^^^^^^
+:M: Etienne Carriere <etienne.carriere@linaro.org>
+:G: `etienne-lms`_
+
+
+Drivers, Libraries and Framework Code
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Console API framework
+^^^^^^^^^^^^^^^^^^^^^
+:M: Julius Werner <jwerner@chromium.org>
+:G: `jwerner-chromium`_
+:F: drivers/console/
+:F: include/drivers/console.h
+:F: plat/common/aarch64/crash_console_helpers.S
+
+coreboot support libraries
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+:M: Julius Werner <jwerner@chromium.org>
+:G: `jwerner-chromium`_
+:F: drivers/coreboot/
+:F: include/drivers/coreboot/
+:F: include/lib/coreboot.h
+:F: lib/coreboot/
+
+eMMC/UFS drivers
+^^^^^^^^^^^^^^^^
+:M: Haojian Zhuang <haojian.zhuang@linaro.org>
+:G: `hzhuang1`_
+:F: drivers/partition/
+:F: drivers/synopsys/emmc/
+:F: drivers/synopsys/ufs/
+:F: drivers/ufs/
+:F: include/drivers/dw_ufs.h
+:F: include/drivers/ufs.h
+:F: include/drivers/synopsys/dw_mmc.h
+
+
+Platform Ports
+~~~~~~~~~~~~~~
+
 Allwinner ARMv8 platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Andre Przywara <andre.przywara@arm.com>
@@ -79,11 +127,6 @@ Amlogic Meson A113D (AXG) platform port
 :F: docs/plat/meson-axg.rst
 :F: plat/amlogic/axg/
 
-Armv7-A architecture port
-^^^^^^^^^^^^^^^^^^^^^^^^^
-:M: Etienne Carriere <etienne.carriere@linaro.org>
-:G: `etienne-lms`_
-
 Arm System Guidance for Infrastructure / Mobile FVP platforms
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Nariman Poushin <nariman.poushin@linaro.org>
@@ -94,35 +137,6 @@ Arm System Guidance for Infrastructure / Mobile FVP platforms
 :F: plat/arm/css/sgm/
 :F: plat/arm/board/sgi575/
 :F: plat/arm/board/sgm775/
-
-Console API framework
-^^^^^^^^^^^^^^^^^^^^^
-:M: Julius Werner <jwerner@chromium.org>
-:G: `jwerner-chromium`_
-:F: drivers/console/
-:F: include/drivers/console.h
-:F: plat/common/aarch64/crash_console_helpers.S
-
-coreboot support libraries
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-:M: Julius Werner <jwerner@chromium.org>
-:G: `jwerner-chromium`_
-:F: drivers/coreboot/
-:F: include/drivers/coreboot/
-:F: include/lib/coreboot.h
-:F: lib/coreboot/
-
-eMMC/UFS drivers
-^^^^^^^^^^^^^^^^
-:M: Haojian Zhuang <haojian.zhuang@linaro.org>
-:G: `hzhuang1`_
-:F: drivers/partition/
-:F: drivers/synopsys/emmc/
-:F: drivers/synopsys/ufs/
-:F: drivers/ufs/
-:F: include/drivers/dw_ufs.h
-:F: include/drivers/ufs.h
-:F: include/drivers/synopsys/dw_mmc.h
 
 HiSilicon HiKey and HiKey960 platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -207,13 +221,6 @@ NXP i.MX8M platform port
 :F: docs/plat/imx8m.rst
 :F: plat/imx/imx8m/
 
-OP-TEE dispatcher
-^^^^^^^^^^^^^^^^^
-:M: Jens Wiklander <jens.wiklander@linaro.org>
-:G: `jenswi-linaro`_
-:F: docs/components/spd/optee-dispatcher.rst
-:F: services/spd/opteed/
-
 QEMU platform port
 ^^^^^^^^^^^^^^^^^^
 :M: Jens Wiklander <jens.wiklander@linaro.org>
@@ -287,16 +294,6 @@ Texas Instruments platform port
 :F: docs/plat/ti-k3.rst
 :F: plat/ti/
 
-TLK/Trusty secure payloads
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-:M: Varun Wadekar <vwadekar@nvidia.com>
-:G: `vwadekar`_
-:F: docs/components/spd/tlk-dispatcher.rst
-:F: docs/components/spd/trusty-dispatcher.rst
-:F: include/bl32/payloads/tlk.h
-:F: services/spd/tlkd/
-:F: services/spd/trusty/
-
 UniPhier platform port
 ^^^^^^^^^^^^^^^^^^^^^^
 :M: Masahiro Yamada <yamada.masahiro@socionext.com>
@@ -310,6 +307,28 @@ Xilinx platform port
 :G: `sivadur`_
 :F: docs/plat/xilinx-zynqmp.rst
 :F: plat/xilinx/
+
+
+Secure Payload Dispatchers
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+OP-TEE dispatcher
+^^^^^^^^^^^^^^^^^
+:M: Jens Wiklander <jens.wiklander@linaro.org>
+:G: `jenswi-linaro`_
+:F: docs/components/spd/optee-dispatcher.rst
+:F: services/spd/opteed/
+
+TLK/Trusty secure payloads
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+:M: Varun Wadekar <vwadekar@nvidia.com>
+:G: `vwadekar`_
+:F: docs/components/spd/tlk-dispatcher.rst
+:F: docs/components/spd/trusty-dispatcher.rst
+:F: include/bl32/payloads/tlk.h
+:F: services/spd/tlkd/
+:F: services/spd/trusty/
+
 
 .. _AlexeiFedorov: https://github.com/AlexeiFedorov
 .. _Andre-ARM: https://github.com/Andre-ARM
