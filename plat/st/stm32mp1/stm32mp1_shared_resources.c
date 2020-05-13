@@ -233,10 +233,83 @@ void stm32mp_register_non_secure_periph(enum stm32mp_shres id)
 	register_periph(id, SHRES_NON_SECURE);
 }
 
-/* Currently allow full access by non-secure to platform clock services */
+static bool stm32mp_gpio_bank_is_secure(unsigned int bank)
+{
+	unsigned int secure = 0U;
+	unsigned int i;
+
+	lock_registering();
+
+	if (bank != GPIO_BANK_Z) {
+		return false;
+	}
+
+	for (i = 0U; i < get_gpioz_nbpin(); i++) {
+		if (periph_is_secure(STM32MP1_SHRES_GPIOZ(i))) {
+			secure++;
+		}
+	}
+
+	return secure == get_gpioz_nbpin();
+}
+
 bool stm32mp_nsec_can_access_clock(unsigned long clock_id)
 {
-	return true;
+	enum stm32mp_shres shres_id = STM32MP1_SHRES_COUNT;
+
+	switch (clock_id) {
+	case CK_CSI:
+	case CK_HSE:
+	case CK_HSE_DIV2:
+	case CK_HSI:
+	case CK_LSE:
+	case CK_LSI:
+	case PLL1_P:
+	case PLL1_Q:
+	case PLL1_R:
+	case PLL2_P:
+	case PLL2_Q:
+	case PLL2_R:
+	case PLL3_P:
+	case PLL3_Q:
+	case PLL3_R:
+	case RTCAPB:
+		return true;
+	case GPIOZ:
+		/* Allow clock access if at least one pin is non-secure */
+		return !stm32mp_gpio_bank_is_secure(GPIO_BANK_Z);
+	case CRYP1:
+		shres_id = STM32MP1_SHRES_CRYP1;
+		break;
+	case HASH1:
+		shres_id = STM32MP1_SHRES_HASH1;
+		break;
+	case I2C4_K:
+		shres_id = STM32MP1_SHRES_I2C4;
+		break;
+	case I2C6_K:
+		shres_id = STM32MP1_SHRES_I2C6;
+		break;
+	case IWDG1:
+		shres_id = STM32MP1_SHRES_IWDG1;
+		break;
+	case RNG1_K:
+		shres_id = STM32MP1_SHRES_RNG1;
+		break;
+	case RTC:
+		shres_id = STM32MP1_SHRES_RTC;
+		break;
+	case SPI6_K:
+		shres_id = STM32MP1_SHRES_SPI6;
+		break;
+	case USART1_K:
+		shres_id = STM32MP1_SHRES_USART1;
+		break;
+	default:
+		return false;
+	}
+
+	return periph_is_non_secure(shres_id);
 }
 
 /* Currently allow full access by non-secure to platform reset services */
