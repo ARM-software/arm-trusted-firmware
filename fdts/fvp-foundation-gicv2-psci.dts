@@ -4,7 +4,14 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+/* Configuration: 1 cluster with up to 4 CPUs */
+
 /dts-v1/;
+
+#define	AFF
+#define	CLUSTER_COUNT	1
+
+#include "fvp-defs.dtsi"
 
 /memreserve/ 0x80000000 0x00010000;
 
@@ -42,22 +49,7 @@
 		#address-cells = <2>;
 		#size-cells = <0>;
 
-		cpu-map {
-			cluster0 {
-				core0 {
-					cpu = <&CPU0>;
-				};
-				core1 {
-					cpu = <&CPU1>;
-				};
-				core2 {
-					cpu = <&CPU2>;
-				};
-				core3 {
-					cpu = <&CPU3>;
-				};
-			};
-		};
+		CPU_MAP
 
 		idle-states {
 			entry-method = "arm,psci";
@@ -81,41 +73,7 @@
 			};
 		};
 
-		CPU0:cpu@0 {
-			device_type = "cpu";
-			compatible = "arm,armv8";
-			reg = <0x0 0x0>;
-			enable-method = "psci";
-			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
-			next-level-cache = <&L2_0>;
-		};
-
-		CPU1:cpu@1 {
-			device_type = "cpu";
-			compatible = "arm,armv8";
-			reg = <0x0 0x1>;
-			enable-method = "psci";
-			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
-			next-level-cache = <&L2_0>;
-		};
-
-		CPU2:cpu@2 {
-			device_type = "cpu";
-			compatible = "arm,armv8";
-			reg = <0x0 0x2>;
-			enable-method = "psci";
-			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
-			next-level-cache = <&L2_0>;
-		};
-
-		CPU3:cpu@3 {
-			device_type = "cpu";
-			compatible = "arm,armv8";
-			reg = <0x0 0x3>;
-			enable-method = "psci";
-			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
-			next-level-cache = <&L2_0>;
-		};
+		CPUS
 
 		L2_0: l2-cache0 {
 			compatible = "cache";

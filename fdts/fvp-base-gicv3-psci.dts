@@ -4,6 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+/* Configuration: max 4 clusters with up to 4 CPUs */
+
 /dts-v1/;
 
+#define	AFF
+
+#include "fvp-defs.dtsi"
 #include "fvp-base-gicv3-psci-common.dtsi"
