@@ -1,14 +1,20 @@
-Maintainers
-===========
+Project Maintenance
+===================
 
-Trusted Firmware-A (TF-A) is an Arm maintained project. All contributions are
-ultimately merged by the maintainers listed below. Technical ownership of some
-parts of the codebase is delegated to the sub-maintainers listed below. An
-acknowledgement from these sub-maintainers may be required before the
+Trusted Firmware-A (TF-A) is an open governance community project. All
+contributions are ultimately merged by the maintainers listed below. Technical
+ownership of most parts of the codebase falls on the code owners listed
+below. An acknowledgement from these code owners is required before the
 maintainers merge a contribution.
 
-Main maintainers
-----------------
+More details may be found in the `Project Maintenance Process`_ document.
+
+
+.. _maintainers:
+
+Maintainers
+-----------
+
 :M: Dan Handley <dan.handley@arm.com>
 :G: `danh-arm`_
 :M: Soby Mathew <soby.mathew@arm.com>
@@ -28,8 +34,14 @@ Main maintainers
 :M: Joanna Farley <joanna.farley@arm.com>
 :G: `joannafarley-arm`_
 
+
+.. _code owners:
+
+Code owners
+-----------
+
 Allwinner ARMv8 platform port
------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Andre Przywara <andre.przywara@arm.com>
 :G: `Andre-ARM`_
 :M: Samuel Holland <samuel@sholland.org>
@@ -39,7 +51,7 @@ Allwinner ARMv8 platform port
 :F: drivers/allwinner/
 
 Amlogic Meson S905 (GXBB) platform port
----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Andre Przywara <andre.przywara@arm.com>
 :G: `Andre-ARM`_
 :F: docs/plat/meson-gxbb.rst
@@ -47,33 +59,33 @@ Amlogic Meson S905 (GXBB) platform port
 :F: plat/amlogic/gxbb/
 
 Amlogic Meson S905x (GXL) platform port
----------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Remi Pommarel <repk@triplefau.lt>
 :G: `remi-triplefault`_
 :F: docs/plat/meson-gxl.rst
 :F: plat/amlogic/gxl/
 
 Amlogic Meson S905X2 (G12A) platform port
------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Carlo Caione <ccaione@baylibre.com>
 :G: `carlocaione`_
 :F: docs/plat/meson-g12a.rst
 :F: plat/amlogic/g12a/
 
 Amlogic Meson A113D (AXG) platform port
------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Carlo Caione <ccaione@baylibre.com>
 :G: `carlocaione`_
 :F: docs/plat/meson-axg.rst
 :F: plat/amlogic/axg/
 
 Armv7-A architecture port
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Etienne Carriere <etienne.carriere@linaro.org>
 :G: `etienne-lms`_
 
 Arm System Guidance for Infrastructure / Mobile FVP platforms
--------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Nariman Poushin <nariman.poushin@linaro.org>
 :G: `npoushin`_
 :M: Thomas Abraham <thomas.abraham@arm.com>
@@ -84,7 +96,7 @@ Arm System Guidance for Infrastructure / Mobile FVP platforms
 :F: plat/arm/board/sgm775/
 
 Console API framework
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 :M: Julius Werner <jwerner@chromium.org>
 :G: `jwerner-chromium`_
 :F: drivers/console/
@@ -92,7 +104,7 @@ Console API framework
 :F: plat/common/aarch64/crash_console_helpers.S
 
 coreboot support libraries
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Julius Werner <jwerner@chromium.org>
 :G: `jwerner-chromium`_
 :F: drivers/coreboot/
@@ -101,7 +113,7 @@ coreboot support libraries
 :F: lib/coreboot/
 
 eMMC/UFS drivers
-----------------
+^^^^^^^^^^^^^^^^
 :M: Haojian Zhuang <haojian.zhuang@linaro.org>
 :G: `hzhuang1`_
 :F: drivers/partition/
@@ -113,7 +125,7 @@ eMMC/UFS drivers
 :F: include/drivers/synopsys/dw_mmc.h
 
 HiSilicon HiKey and HiKey960 platform ports
--------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Haojian Zhuang <haojian.zhuang@linaro.org>
 :G: `hzhuang1`_
 :F: docs/plat/hikey.rst
@@ -122,14 +134,14 @@ HiSilicon HiKey and HiKey960 platform ports
 :F: plat/hisilicon/hikey960/
 
 HiSilicon Poplar platform port
-------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Shawn Guo <shawn.guo@linaro.org>
 :G: `shawnguo2`_
 :F: docs/plat/poplar.rst
 :F: plat/hisilicon/poplar/
 
 Intel SocFPGA platform ports
-----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Tien Hock Loh <tien.hock.loh@intel.com>
 :G: `thloh85-intel`_
 :M: Hadi Asyrafi <muhammad.hadi.asyrafi.abdul.halim@intel.com>
@@ -138,13 +150,13 @@ Intel SocFPGA platform ports
 :F: drivers/intel/soc/
 
 MediaTek platform ports
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
 :M: Yidi Lin (林以廸) <yidi.lin@mediatek.com>
 :G: `mtk09422`_
 :F: plat/mediatek/
 
 Marvell platform ports and SoC drivers
---------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Konstantin Porotchkin <kostap@marvell.com>
 :G: `kostapr`_
 :F: docs/plat/marvell/
@@ -153,7 +165,7 @@ Marvell platform ports and SoC drivers
 :F: tools/marvell/
 
 NVidia platform ports
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 :M: Varun Wadekar <vwadekar@nvidia.com>
 :G: `vwadekar`_
 :F: docs/plat/nvidia-tegra.rst
@@ -162,14 +174,14 @@ NVidia platform ports
 :F: plat/nvidia/
 
 NXP QorIQ Layerscape platform ports
------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Jiafei Pan <jiafei.pan@nxp.com>
 :G: `qoriq-open-source`_
 :F: docs/plat/ls1043a.rst
 :F: plat/layerscape/
 
 NXP i.MX 7 WaRP7 platform port and SoC drivers
-----------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 :G: `bryanodonoghue`_
 :M: Jun Nie <jun.nie@linaro.org>
@@ -182,35 +194,35 @@ NXP i.MX 7 WaRP7 platform port and SoC drivers
 :F: drivers/imx/usdhc/
 
 NXP i.MX 8 platform port
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Anson Huang <Anson.Huang@nxp.com>
 :G: `Anson-Huang`_
 :F: docs/plat/imx8.rst
 :F: plat/imx/
 
 NXP i.MX8M platform port
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Jacky Bai <ping.bai@nxp.com>
 :G: `JackyBai`_
 :F: docs/plat/imx8m.rst
 :F: plat/imx/imx8m/
 
 OP-TEE dispatcher
------------------
+^^^^^^^^^^^^^^^^^
 :M: Jens Wiklander <jens.wiklander@linaro.org>
 :G: `jenswi-linaro`_
 :F: docs/components/spd/optee-dispatcher.rst
 :F: services/spd/opteed/
 
 QEMU platform port
-------------------
+^^^^^^^^^^^^^^^^^^
 :M: Jens Wiklander <jens.wiklander@linaro.org>
 :G: `jenswi-linaro`_
 :F: docs/plat/qemu.rst
 :F: plat/qemu/
 
 Raspberry Pi 3 platform port
-----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Ying-Chun Liu (PaulLiu) <paul.liu@linaro.org>
 :G: `grandpaul`_
 :F: docs/plat/rpi3.rst
@@ -220,7 +232,7 @@ Raspberry Pi 3 platform port
 :F: include/drivers/rpi3/
 
 Raspberry Pi 4 platform port
-----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Andre Przywara <andre.przywara@arm.com>
 :G: `Andre-ARM`_
 :F: docs/plat/rpi4.rst
@@ -230,7 +242,7 @@ Raspberry Pi 4 platform port
 :F: include/drivers/rpi3/
 
 Renesas rcar-gen3 platform port
--------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Jorge Ramirez-Ortiz  <jramirez@baylibre.com>
 :G: `ldts`_
 :M: Marek Vasut <marek.vasut@gmail.com>
@@ -241,7 +253,7 @@ Renesas rcar-gen3 platform port
 :F: tools/renesas/rcar_layout_create
 
 RockChip platform port
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 :M: Tony Xie <tony.xie@rock-chips.com>
 :G: `TonyXie06`_
 :G: `rockchip-linux`_
@@ -250,7 +262,7 @@ RockChip platform port
 :F: plat/rockchip/
 
 STM32MP1 platform port
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 :M: Yann Gautier <yann.gautier@st.com>
 :G: `Yann-lms`_
 :F: docs/plat/stm32mp1.rst
@@ -262,21 +274,21 @@ STM32MP1 platform port
 :F: tools/stm32image/
 
 Synquacer platform port
------------------------
+^^^^^^^^^^^^^^^^^^^^^^^
 :M: Sumit Garg <sumit.garg@linaro.org>
 :G: `b49020`_
 :F: docs/plat/synquacer.rst
 :F: plat/socionext/synquacer/
 
 Texas Instruments platform port
--------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Andrew F. Davis <afd@ti.com>
 :G: `glneo`_
 :F: docs/plat/ti-k3.rst
 :F: plat/ti/
 
 TLK/Trusty secure payloads
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Varun Wadekar <vwadekar@nvidia.com>
 :G: `vwadekar`_
 :F: docs/components/spd/tlk-dispatcher.rst
@@ -286,14 +298,14 @@ TLK/Trusty secure payloads
 :F: services/spd/trusty/
 
 UniPhier platform port
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 :M: Masahiro Yamada <yamada.masahiro@socionext.com>
 :G: `masahir0y`_
 :F: docs/plat/socionext-uniphier.rst
 :F: plat/socionext/uniphier/
 
 Xilinx platform port
---------------------
+^^^^^^^^^^^^^^^^^^^^
 :M: Siva Durga Prasad Paladugu <siva.durga.paladugu@xilinx.com>
 :G: `sivadur`_
 :F: docs/plat/xilinx-zynqmp.rst
@@ -339,3 +351,5 @@ Xilinx platform port
 .. _odeprez: https://github.com/odeprez
 .. _bipinravi-arm: https://github.com/bipinravi-arm
 .. _joannafarley-arm: https://github.com/joannafarley-arm
+
+.. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
