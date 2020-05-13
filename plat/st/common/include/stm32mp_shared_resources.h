@@ -29,6 +29,10 @@ void stm32mp_register_non_secure_periph(enum stm32mp_shres id);
 void stm32mp_register_secure_periph_iomem(uintptr_t base);
 void stm32mp_register_non_secure_periph_iomem(uintptr_t base);
 
+/* Register a GPIO as secure or non-secure based on its bank and pin numbers */
+void stm32mp_register_secure_gpio(unsigned int bank, unsigned int pin);
+void stm32mp_register_non_secure_gpio(unsigned int bank, unsigned int pin);
+
 /* Consolidate peripheral states and lock against new peripheral registering */
 void stm32mp_lock_periph_registering(void);
 #else
@@ -38,6 +42,16 @@ static inline void stm32mp_register_secure_periph_iomem(uintptr_t base __unused)
 
 static inline
 void stm32mp_register_non_secure_periph_iomem(uintptr_t base __unused)
+{
+}
+
+static inline void stm32mp_register_secure_gpio(unsigned int bank __unused,
+						unsigned int pin __unused)
+{
+}
+
+static inline void stm32mp_register_non_secure_gpio(unsigned int bank __unused,
+						    unsigned int pin __unused)
 {
 }
 #endif /* STM32MP_SHARED_RESOURCES */
