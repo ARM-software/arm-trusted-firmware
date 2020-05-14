@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -210,9 +210,7 @@ ${BUILD_PLAT}/stm32mp1-%.o:	${BUILD_PLAT}/fdts/%.dtb plat/st/stm32mp1/stm32mp1.S
 				-DDTB_BIN_PATH=\"$<\" \
 				-c plat/st/stm32mp1/stm32mp1.S -o $@
 
-${STM32_TF_LINKERFILE}:	plat/st/stm32mp1/stm32mp1.ld.S ${BUILD_PLAT}
-			@echo "  LDS     $<"
-			${Q}${AS} ${ASFLAGS} ${TF_CFLAGS} -P -E $< -o $@
+$(eval $(call MAKE_LD,${STM32_TF_LINKERFILE},plat/st/stm32mp1/stm32mp1.ld.S,2))
 
 tf-a-%.elf:		stm32mp1-%.o ${STM32_TF_LINKERFILE}
 			@echo "  LDS     $<"
