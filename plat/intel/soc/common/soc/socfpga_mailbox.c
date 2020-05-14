@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2020, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,7 +32,7 @@ static int fill_mailbox_circular_buffer(uint32_t header_cmd, uint32_t *args,
 	cmd_free_offset %= MBOX_CMD_BUFFER_SIZE;
 	mmio_write_32(MBOX_OFFSET + MBOX_CIN, cmd_free_offset);
 
-	return 0;
+	return MBOX_RET_OK;
 }
 
 int mailbox_read_response(int job_id, uint32_t *response, int resp_len)
@@ -120,12 +120,12 @@ int mailbox_poll_response(int job_id, int urgent, uint32_t *response,
 				MBOX_STATUS_UA_MASK) ^
 				(urgent & MBOX_STATUS_UA_MASK)) {
 				mmio_write_32(MBOX_OFFSET + MBOX_URG, 0);
-				return 0;
+				return MBOX_RET_OK;
 			}
 
 			mmio_write_32(MBOX_OFFSET + MBOX_URG, 0);
 			INFO("Error: Mailbox did not get UA");
-			return -1;
+			return MBOX_RET_ERROR;
 		}
 
 		rin = mmio_read_32(MBOX_OFFSET + MBOX_RIN);
@@ -168,7 +168,7 @@ int mailbox_poll_response(int job_id, int urgent, uint32_t *response,
 }
 
 int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
-			  int len, int urgent)
+			  int len, int urgent, int indirect)
 {
 	if (urgent)
 		mmio_write_32(MBOX_OFFSET + MBOX_URG, 1);
@@ -176,12 +176,12 @@ int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
 	fill_mailbox_circular_buffer(MBOX_CLIENT_ID_CMD(MBOX_ATF_CLIENT_ID) |
 					MBOX_JOB_ID_CMD(job_id) |
 					MBOX_CMD_LEN_CMD(len) |
-					MBOX_INDIRECT |
+					MBOX_INDIRECT(indirect) |
 					cmd, args, len);
 
 	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_TO_SDM, 1);
 
-	return 0;
+	return MBOX_RET_OK;
 }
 
 int mailbox_send_cmd(int job_id, unsigned int cmd, uint32_t *args,
@@ -229,25 +229,21 @@ void mailbox_set_int(int interrupt)
 void mailbox_set_qspi_open(void)
 {
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
-	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_QSPI_OPEN, 0, 0, 0, NULL, 0);
+	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_QSPI_OPEN, NULL, 0,
+				CMD_CASUAL, NULL, 0);
 }
 
 void mailbox_set_qspi_direct(void)
 {
-	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_QSPI_DIRECT, 0, 0, 0, NULL, 0);
+	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_QSPI_DIRECT, NULL, 0,
+				CMD_CASUAL, NULL, 0);
 }
 
 void mailbox_set_qspi_close(void)
 {
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
-	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_QSPI_CLOSE, 0, 0, 0, NULL, 0);
-}
-
-int mailbox_get_qspi_clock(void)
-{
-	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
-	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_QSPI_DIRECT, 0, 0, 0,
-				NULL, 0);
+	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_QSPI_CLOSE, NULL, 0,
+				CMD_CASUAL, NULL, 0);
 }
 
 void mailbox_qspi_set_cs(int device_select)
@@ -258,19 +254,20 @@ void mailbox_qspi_set_cs(int device_select)
 	cs_setting = (cs_setting << 28);
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
 	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_QSPI_SET_CS, &cs_setting,
-				1, 0, NULL, 0);
+				1, CMD_CASUAL, NULL, 0);
 }
 
 void mailbox_reset_cold(void)
 {
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE);
-	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_REBOOT_HPS, 0, 0, 0, NULL, 0);
+	mailbox_send_cmd(MBOX_JOB_ID, MBOX_CMD_REBOOT_HPS, NULL, 0,
+				CMD_CASUAL, NULL, 0);
 }
 
 int mailbox_rsu_get_spt_offset(uint32_t *resp_buf, uint32_t resp_buf_len)
 {
 	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_GET_SUBPARTITION_TABLE,
-				NULL, 0, 0, (uint32_t *)resp_buf,
+				NULL, 0, CMD_CASUAL, (uint32_t *)resp_buf,
 				resp_buf_len);
 }
 
@@ -291,8 +288,9 @@ int mailbox_rsu_status(uint32_t *resp_buf, uint32_t resp_buf_len)
 
 	info->retry_counter = ~0;
 
-	ret = mailbox_send_cmd(MBOX_JOB_ID, MBOX_RSU_STATUS, NULL, 0, 0,
-			       (uint32_t *)resp_buf, resp_buf_len);
+	ret = mailbox_send_cmd(MBOX_JOB_ID, MBOX_RSU_STATUS, NULL, 0,
+				CMD_CASUAL, (uint32_t *)resp_buf,
+				resp_buf_len);
 
 	if (ret < 0)
 		return ret;
@@ -307,13 +305,15 @@ int mailbox_rsu_status(uint32_t *resp_buf, uint32_t resp_buf_len)
 int mailbox_rsu_update(uint32_t *flash_offset)
 {
 	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_RSU_UPDATE,
-				flash_offset, 2, 0, NULL, 0);
+				flash_offset, 2,
+				CMD_CASUAL, NULL, 0);
 }
 
 int mailbox_hps_stage_notify(uint32_t execution_stage)
 {
 	return mailbox_send_cmd(MBOX_JOB_ID, MBOX_HPS_STAGE_NOTIFY,
-				&execution_stage, 1, 0, NULL, 0);
+				&execution_stage, 1, CMD_CASUAL,
+				NULL, 0);
 }
 
 int mailbox_init(void)
@@ -325,7 +325,8 @@ int mailbox_init(void)
 	mmio_write_32(MBOX_OFFSET + MBOX_URG, 0);
 	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_FROM_SDM, 0);
 
-	status = mailbox_send_cmd(0, MBOX_CMD_RESTART, 0, 0, 1, NULL, 0);
+	status = mailbox_send_cmd(0, MBOX_CMD_RESTART, NULL, 0,
+					CMD_URGENT, NULL, 0);
 
 	if (status)
 		return status;
@@ -333,7 +334,7 @@ int mailbox_init(void)
 	mailbox_set_int(MBOX_INT_FLAG_COE | MBOX_INT_FLAG_RIE |
 			MBOX_INT_FLAG_UAE);
 
-	return 0;
+	return MBOX_RET_OK;
 }
 
 int intel_mailbox_get_config_status(uint32_t cmd)
@@ -341,8 +342,8 @@ int intel_mailbox_get_config_status(uint32_t cmd)
 	int status;
 	uint32_t res, response[6];
 
-	status = mailbox_send_cmd(1, cmd, NULL, 0, 0, response,
-		sizeof(response) / sizeof(response[0]));
+	status = mailbox_send_cmd(MBOX_JOB_ID, cmd, NULL, 0, CMD_CASUAL, response,
+				ARRAY_SIZE(response));
 
 	if (status < 0)
 		return status;
@@ -361,7 +362,7 @@ int intel_mailbox_get_config_status(uint32_t cmd)
 
 	if ((res & SOFTFUNC_STATUS_CONF_DONE) &&
 		(res & SOFTFUNC_STATUS_INIT_DONE))
-		return 0;
+		return MBOX_RET_OK;
 
 	return MBOX_CFGSTAT_STATE_CONFIG;
 }

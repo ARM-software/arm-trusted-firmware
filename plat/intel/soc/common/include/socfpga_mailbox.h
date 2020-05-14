@@ -64,6 +64,7 @@
 /* Mailbox Definitions */
 
 #define CMD_DIRECT			0
+#define CMD_INDIRECT			1
 #define CMD_CASUAL			0
 #define CMD_URGENT			1
 
@@ -123,7 +124,7 @@
 #define MBOX_CLIENT_ID_CMD(CLIENT_ID)	((CLIENT_ID) << 28)
 #define MBOX_JOB_ID_CMD(JOB_ID)		(JOB_ID<<24)
 #define MBOX_CMD_LEN_CMD(CMD_LEN)	((CMD_LEN) << 12)
-#define MBOX_INDIRECT			(1 << 11)
+#define MBOX_INDIRECT(val)		((val) << 11)
 
 /* RSU Macros */
 #define RSU_VERSION_ACMF		BIT(8)
@@ -140,7 +141,7 @@ void mailbox_set_qspi_direct(void);
 int mailbox_send_cmd(int job_id, unsigned int cmd, uint32_t *args,
 			int len, int urgent, uint32_t *response, int resp_len);
 int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
-				int len, int urgent);
+				int len, int urgent, int indirect);
 int mailbox_read_response(int job_id, uint32_t *response, int resp_len);
 void mailbox_reset_cold(void);
 void mailbox_clear_response(void);

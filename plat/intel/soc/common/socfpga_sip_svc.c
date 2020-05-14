@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -74,10 +74,9 @@ static int intel_fpga_sdm_write_buffer(struct fpga_config_info *buffer)
 			args[2] = bytes_per_block;
 
 		buffer->size_written += args[2];
-		mailbox_send_cmd_async(
-			send_id++ % MBOX_MAX_JOB_ID,
-			MBOX_RECONFIG_DATA,
-			args, 3, 0);
+		mailbox_send_cmd_async(send_id++ % MBOX_MAX_JOB_ID,
+					MBOX_RECONFIG_DATA, args, 3,
+					CMD_CASUAL, CMD_INDIRECT);
 
 		buffer->subblocks_sent++;
 		max_blocks--;
@@ -154,7 +153,7 @@ static int intel_fpga_config_completed_write(uint32_t *completed_addr,
 	while (*count < 3) {
 
 		resp_len = mailbox_read_response(rcv_id % MBOX_MAX_JOB_ID,
-				resp, sizeof(resp) / sizeof(resp[0]));
+				resp, ARRAY_SIZE(resp));
 
 		if (resp_len < 0)
 			break;
@@ -208,10 +207,10 @@ static int intel_fpga_config_start(uint32_t config_type)
 
 	mailbox_clear_response();
 
-	mailbox_send_cmd(1, MBOX_CMD_CANCEL, 0, 0, 0, NULL, 0);
+	mailbox_send_cmd(1, MBOX_CMD_CANCEL, NULL, 0, CMD_CASUAL, NULL, 0);
 
-	status = mailbox_send_cmd(1, MBOX_RECONFIG, 0, 0, 0,
-			response, sizeof(response) / sizeof(response[0]));
+	status = mailbox_send_cmd(1, MBOX_RECONFIG, NULL, 0, CMD_CASUAL,
+			response, ARRAY_SIZE(response));
 
 	if (status < 0)
 		return status;
@@ -448,6 +447,7 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 	uint32_t count = 0;
 	u_register_t x5, x6;
 	int mbox_status, len_in_resp;
+
 
 	switch (smc_fid) {
 	case SIP_SVC_UID:
