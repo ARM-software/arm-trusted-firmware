@@ -226,4 +226,17 @@
 /* Number of SCMI channels on the platform */
 #define PLAT_ARM_SCMI_CHANNEL_COUNT	CSS_SGI_CHIP_COUNT
 
+/*
+ * Mapping definition of the TrustZone Controller for ARM SGI/RD platforms
+ * where both the DRAM regions are marked for non-secure access. This applies
+ * to multi-chip platforms.
+ */
+#define SGI_PLAT_TZC_NS_REMOTE_REGIONS_DEF(n)				\
+	{CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM1_BASE,		\
+		CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM1_END,	\
+		ARM_TZC_NS_DRAM_S_ACCESS, PLAT_ARM_TZC_NS_DEV_ACCESS},	\
+	{CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM2_BASE,		\
+		CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) + ARM_DRAM2_END,	\
+		ARM_TZC_NS_DRAM_S_ACCESS, PLAT_ARM_TZC_NS_DEV_ACCESS}
+
 #endif /* SGI_BASE_PLATFORM_DEF_H */
