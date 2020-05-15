@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,6 +30,12 @@
 #define TEGRA_CHIPID_TEGRA13		U(0x13)
 #define TEGRA_CHIPID_TEGRA21		U(0x21)
 #define TEGRA_CHIPID_TEGRA18		U(0x18)
+
+/*******************************************************************************
+ * JEDEC Standard Manufacturer's Identification Code and Bank ID
+ ******************************************************************************/
+#define JEDEC_NVIDIA_MFID		U(0x6B)
+#define JEDEC_NVIDIA_BKID		U(3)
 
 #ifndef __ASSEMBLER__
 
