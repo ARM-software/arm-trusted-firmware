@@ -1882,22 +1882,24 @@ int stm32mp1_clk_init(void)
 		stm32mp1_lsi_set(true);
 	}
 	if (stm32mp1_osc[_LSE] != 0U) {
+		const char *name = stm32mp_osc_node_label[_LSE];
 		bool bypass, digbyp;
 		uint32_t lsedrv;
 
-		bypass = fdt_osc_read_bool(_LSE, "st,bypass");
-		digbyp = fdt_osc_read_bool(_LSE, "st,digbypass");
-		lse_css = fdt_osc_read_bool(_LSE, "st,css");
-		lsedrv = fdt_osc_read_uint32_default(_LSE, "st,drive",
+		bypass = fdt_clk_read_bool(name, "st,bypass");
+		digbyp = fdt_clk_read_bool(name, "st,digbypass");
+		lse_css = fdt_clk_read_bool(name, "st,css");
+		lsedrv = fdt_clk_read_uint32_default(name, "st,drive",
 						     LSEDRV_MEDIUM_HIGH);
 		stm32mp1_lse_enable(bypass, digbyp, lsedrv);
 	}
 	if (stm32mp1_osc[_HSE] != 0U) {
+		const char *name = stm32mp_osc_node_label[_HSE];
 		bool bypass, digbyp, css;
 
-		bypass = fdt_osc_read_bool(_HSE, "st,bypass");
-		digbyp = fdt_osc_read_bool(_HSE, "st,digbypass");
-		css = fdt_osc_read_bool(_HSE, "st,css");
+		bypass = fdt_clk_read_bool(name, "st,bypass");
+		digbyp = fdt_clk_read_bool(name, "st,digbypass");
+		css = fdt_clk_read_bool(name, "st,css");
 		stm32mp1_hse_enable(bypass, digbyp, css);
 	}
 	/*
