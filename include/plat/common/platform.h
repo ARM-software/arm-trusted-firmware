@@ -132,6 +132,7 @@ struct meminfo *bl1_plat_sec_mem_layout(void);
 
 /* SDEI platform functions */
 #if SDEI_SUPPORT
+void plat_sdei_setup(void);
 int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode);
 void plat_sdei_handle_masked_trigger(uint64_t mpidr, unsigned int intr);
 #endif

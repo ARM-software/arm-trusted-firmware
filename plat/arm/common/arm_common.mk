@@ -263,6 +263,9 @@ endif
 
 ifeq (${SDEI_SUPPORT},1)
 BL31_SOURCES		+=	plat/arm/common/aarch64/arm_sdei.c
+ifeq (${SDEI_IN_FCONF},1)
+BL31_SOURCES		+=	plat/arm/common/fconf/fconf_sdei_getter.c
+endif
 endif
 
 # RAS sources

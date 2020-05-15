@@ -645,6 +645,11 @@ Common build options
    configuration device tree, instead of static structure in the code base.
    This is currently an experimental feature.
 
+-  ``SDEI_IN_FCONF``: This flag determines whether to configure SDEI setup in
+   runtime using firmware configuration framework. The platform specific SDEI
+   shared and private events configuration is retrieved from device tree rather
+   than static C structures at compile time. This is currently an experimental
+   feature and is only supported if SDEI_SUPPORT build flag is enabled.
 
 -  ``USE_ROMLIB``: This flag determines whether library at ROM will be used.
    This feature creates a library of functions to be placed in ROM and thus
