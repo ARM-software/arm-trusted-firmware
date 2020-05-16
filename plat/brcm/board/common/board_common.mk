@@ -213,7 +213,8 @@ KEY_ALG := rsa_1_5
 AUTH_SOURCES	+= 	drivers/auth/auth_mod.c \
 			drivers/auth/crypto_mod.c \
 			drivers/auth/img_parser_mod.c \
-			drivers/auth/tbbr/tbbr_cot.c
+			drivers/auth/tbbr/tbbr_cot_common.c \
+			drivers/auth/tbbr/tbbr_cot_bl2.c
 
 BL2_SOURCES	+=	${AUTH_SOURCES}
 

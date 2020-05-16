@@ -92,7 +92,8 @@ include drivers/auth/mbedtls/mbedtls_x509.mk
 BL2_SOURCES		+=	drivers/auth/auth_mod.c			\
 				drivers/auth/crypto_mod.c		\
 				drivers/auth/img_parser_mod.c		\
-				drivers/auth/tbbr/tbbr_cot.c		\
+				drivers/auth/tbbr/tbbr_cot_common.c	\
+				drivers/auth/tbbr/tbbr_cot_bl2.c	\
 				plat/common/tbbr/plat_tbbr.c		\
 				$(PLAT_PATH)/uniphier_rotpk.S		\
 				$(PLAT_PATH)/uniphier_tbbr.c

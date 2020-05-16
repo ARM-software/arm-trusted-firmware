@@ -59,18 +59,20 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     AUTH_SOURCES	:=	drivers/auth/auth_mod.c			\
 				drivers/auth/crypto_mod.c		\
 				drivers/auth/img_parser_mod.c		\
-				drivers/auth/tbbr/tbbr_cot.c
+				drivers/auth/tbbr/tbbr_cot_common.c
 
     BL1_SOURCES		+=	${AUTH_SOURCES}				\
 				bl1/tbbr/tbbr_img_desc.c		\
 				plat/common/tbbr/plat_tbbr.c		\
 				${PLAT_QEMU_COMMON_PATH}/qemu_trusted_boot.c	     	\
-				$(PLAT_QEMU_COMMON_PATH)/qemu_rotpk.S
+				$(PLAT_QEMU_COMMON_PATH)/qemu_rotpk.S	\
+				drivers/auth/tbbr/tbbr_cot_bl1.c
 
     BL2_SOURCES		+=	${AUTH_SOURCES}				\
 				plat/common/tbbr/plat_tbbr.c		\
 				${PLAT_QEMU_COMMON_PATH}/qemu_trusted_boot.c	     	\
-				$(PLAT_QEMU_COMMON_PATH)/qemu_rotpk.S
+				$(PLAT_QEMU_COMMON_PATH)/qemu_rotpk.S	\
+				drivers/auth/tbbr/tbbr_cot_bl2.c
 
     ROT_KEY             = $(BUILD_PLAT)/rot_key.pem
     ROTPK_HASH          = $(BUILD_PLAT)/rotpk_sha256.bin
