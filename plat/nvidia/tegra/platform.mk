@@ -49,6 +49,9 @@ ENABLE_TEGRA_WDT_LEGACY_FIQ_HANDLING	?= 0
 # Flag to allow relocation of BL32 image to TZDRAM during boot
 RELOCATE_BL32_IMAGE		?= 0
 
+# Enable stack protection
+ENABLE_STACK_PROTECTOR		:=	strong
+
 include plat/nvidia/tegra/common/tegra_common.mk
 include ${SOC_DIR}/platform_${TARGET_SOC}.mk
 
