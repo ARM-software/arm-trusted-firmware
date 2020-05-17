@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 
 #include <arch.h>
 #include <asm_macros.S>
+#include <lib/xlat_tables/xlat_tables_defs.h>
 
 	/*
 	 * Helper macro to initialise EL3 registers we care about.
