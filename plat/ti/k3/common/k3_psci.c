@@ -203,6 +203,13 @@ void k3_pwr_domain_on_finish(const psci_power_state_t *target_state)
 	k3_gic_cpuif_enable();
 }
 
+static void __dead2 k3_system_off(void)
+{
+	ERROR("System Off: operation not handled.\n");
+	while (true)
+		wfi();
+}
+
 static void __dead2 k3_system_reset(void)
 {
 	/* Send the system reset request to system firmware */
@@ -232,6 +239,7 @@ static const plat_psci_ops_t k3_plat_psci_ops = {
 	.pwr_domain_on = k3_pwr_domain_on,
 	.pwr_domain_off = k3_pwr_domain_off,
 	.pwr_domain_on_finish = k3_pwr_domain_on_finish,
+	.system_off = k3_system_off,
 	.system_reset = k3_system_reset,
 	.validate_power_state = k3_validate_power_state,
 	.validate_ns_entrypoint = k3_validate_ns_entrypoint
