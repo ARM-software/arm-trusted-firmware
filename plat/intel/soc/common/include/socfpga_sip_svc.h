@@ -55,4 +55,19 @@
 #define SIP_SVC_VERSION_MAJOR	0
 #define SIP_SVC_VERSION_MINOR	1
 
+
+/* Structure Definitions */
+struct fpga_config_info {
+	uint32_t addr;
+	int size;
+	int size_written;
+	uint32_t write_requested;
+	int subblocks_sent;
+	int block_number;
+};
+
+/* Function Definitions */
+
+bool is_address_in_ddr_range(uint64_t addr, uint64_t size);
+
 #endif /* SOCFPGA_SIP_SVC_H */

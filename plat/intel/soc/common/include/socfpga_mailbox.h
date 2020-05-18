@@ -12,9 +12,10 @@
 
 #define MBOX_OFFSET			0xffa30000
 
-#define MBOX_MAX_JOB_ID			0xf
-#define MBOX_ATF_CLIENT_ID		0x1
-#define MBOX_JOB_ID			0x1
+#define MBOX_ATF_CLIENT_ID		0x1U
+#define MBOX_MAX_JOB_ID			0xFU
+#define MBOX_MAX_IND_JOB_ID		(MBOX_MAX_JOB_ID - 1U)
+#define MBOX_JOB_ID			MBOX_MAX_JOB_ID
 
 
 /* Mailbox Shared Memory Register Map */
@@ -81,6 +82,7 @@
 #define MBOX_RET_ERROR			-1
 #define MBOX_NO_RESPONSE		-2
 #define MBOX_WRONG_ID			-3
+#define MBOX_BUFFER_FULL		-4
 #define MBOX_TIMEOUT			-2047
 
 /* Reconfig Status Response */
@@ -138,11 +140,11 @@ int mailbox_init(void);
 void mailbox_set_qspi_close(void);
 void mailbox_set_qspi_open(void);
 void mailbox_set_qspi_direct(void);
-int mailbox_send_cmd(int job_id, unsigned int cmd, uint32_t *args,
+int mailbox_send_cmd(uint32_t job_id, unsigned int cmd, uint32_t *args,
 			int len, int urgent, uint32_t *response, int resp_len);
-int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
+int mailbox_send_cmd_async(uint32_t *job_id, unsigned int cmd, uint32_t *args,
 				int len, int indirect);
-int mailbox_read_response(int job_id, uint32_t *response, int resp_len);
+int mailbox_read_response(uint32_t *job_id, uint32_t *response, int resp_len);
 void mailbox_reset_cold(void);
 void mailbox_clear_response(void);
 
