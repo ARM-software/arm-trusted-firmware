@@ -76,7 +76,7 @@ static int intel_fpga_sdm_write_buffer(struct fpga_config_info *buffer)
 		buffer->size_written += args[2];
 		mailbox_send_cmd_async(send_id++ % MBOX_MAX_JOB_ID,
 					MBOX_RECONFIG_DATA, args, 3,
-					CMD_CASUAL, CMD_INDIRECT);
+					CMD_INDIRECT);
 
 		buffer->subblocks_sent++;
 		max_blocks--;

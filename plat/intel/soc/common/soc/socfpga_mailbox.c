@@ -168,11 +168,8 @@ int mailbox_poll_response(int job_id, int urgent, uint32_t *response,
 }
 
 int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
-			  int len, int urgent, int indirect)
+			  int len, int indirect)
 {
-	if (urgent)
-		mmio_write_32(MBOX_OFFSET + MBOX_URG, 1);
-
 	fill_mailbox_circular_buffer(MBOX_CLIENT_ID_CMD(MBOX_ATF_CLIENT_ID) |
 					MBOX_JOB_ID_CMD(job_id) |
 					MBOX_CMD_LEN_CMD(len) |
