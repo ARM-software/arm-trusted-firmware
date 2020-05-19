@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -117,7 +117,7 @@ void gicv3_spis_config_defaults(uintptr_t gicd_base)
 		 * Maximum ESPI INTID is 32 * (GICD_TYPER.ESPI_range + 1) + 4095
 		 */
 		num_eints = ((((typer_reg >> TYPER_ESPI_RANGE_SHIFT) &
-			TYPER_ESPI_RANGE_MASK) + 1U) << 5) + MIN_ESPI_ID - 1;
+			TYPER_ESPI_RANGE_MASK) + 1U) << 5) + MIN_ESPI_ID;
 
 		for (i = MIN_ESPI_ID; i < num_eints;
 					i += (1U << IGROUPR_SHIFT)) {

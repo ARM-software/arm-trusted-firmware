@@ -757,7 +757,7 @@ void gicv3_distif_save(gicv3_dist_ctx_t * const dist_ctx)
 		 * Maximum ESPI INTID is 32 * (GICD_TYPER.ESPI_range + 1) + 4095
 		 */
 		num_eints = ((((typer_reg >> TYPER_ESPI_RANGE_SHIFT) &
-			TYPER_ESPI_RANGE_MASK) + 1U) << 5) + MIN_ESPI_ID - 1;
+			TYPER_ESPI_RANGE_MASK) + 1U) << 5) + MIN_ESPI_ID;
 	} else {
 		num_eints = 0U;
 	}
@@ -881,7 +881,7 @@ void gicv3_distif_init_restore(const gicv3_dist_ctx_t * const dist_ctx)
 		 * Maximum ESPI INTID is 32 * (GICD_TYPER.ESPI_range + 1) + 4095
 		 */
 		num_eints = ((((typer_reg >> TYPER_ESPI_RANGE_SHIFT) &
-			TYPER_ESPI_RANGE_MASK) + 1U) << 5) + MIN_ESPI_ID - 1;
+			TYPER_ESPI_RANGE_MASK) + 1U) << 5) + MIN_ESPI_ID;
 	} else {
 		num_eints = 0U;
 	}
