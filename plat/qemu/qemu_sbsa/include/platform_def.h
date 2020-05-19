@@ -233,7 +233,7 @@
  * DT related constants
  */
 #define PLAT_QEMU_DT_BASE		NS_DRAM0_BASE
-#define PLAT_QEMU_DT_MAX_SIZE		0x10000
+#define PLAT_QEMU_DT_MAX_SIZE		0x100000
 
 /*
  * System counter
