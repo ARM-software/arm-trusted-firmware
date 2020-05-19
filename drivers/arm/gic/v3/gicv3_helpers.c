@@ -105,6 +105,15 @@ void gicv3_spis_config_defaults(uintptr_t gicd_base)
 	/* Maximum SPI INTID is 32 * (GICD_TYPER.ITLinesNumber + 1) - 1 */
 	num_ints = ((typer_reg & TYPER_IT_LINES_NO_MASK) + 1U) << 5;
 
+	/*
+	 * The GICv3 architecture allows GICD_TYPER.ITLinesNumber to be 31, so
+	 * the maximum possible value for num_ints is 1024. Limit the value to
+	 * MAX_SPI_ID + 1 to avoid getting wrong address in GICD_OFFSET() macro.
+	 */
+	if (num_ints > MAX_SPI_ID + 1U) {
+		num_ints = MAX_SPI_ID + 1U;
+	}
+
 	/* Treat all (E)SPIs as G1NS by default. We do 32 at a time. */
 	for (i = MIN_SPI_ID; i < num_ints; i += (1U << IGROUPR_SHIFT)) {
 		gicd_write_igroupr(gicd_base, i, ~0U);
