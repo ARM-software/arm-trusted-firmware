@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -48,7 +48,8 @@
 #define	GICD_OFFSET_64(REG, id)						\
 	(((id) <= MAX_SPI_ID) ?						\
 	GICD_##REG##R + (((uintptr_t)(id) >> REG##R_SHIFT) << 3) :	\
-	GICD_##REG##RE + (((uintptr_t)(id) - MIN_ESPI_ID) << 3))
+	GICD_##REG##RE + ((((uintptr_t)(id) - MIN_ESPI_ID) >>		\
+					REG##R_SHIFT) << 3))
 
 #else	/* GICv3 */
 #define	GICD_OFFSET_8(REG, id)	\
