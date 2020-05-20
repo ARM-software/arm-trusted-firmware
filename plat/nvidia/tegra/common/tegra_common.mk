@@ -1,5 +1,6 @@
 #
 # Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -32,3 +33,7 @@ BL31_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
 				${COMMON_DIR}/tegra_platform.c			\
 				${COMMON_DIR}/tegra_pm.c			\
 				${COMMON_DIR}/tegra_sip_calls.c
+
+ifneq ($(ENABLE_STACK_PROTECTOR), 0)
+BL31_SOURCES		+=	${COMMON_DIR}/tegra_stack_protector.c
+endif
