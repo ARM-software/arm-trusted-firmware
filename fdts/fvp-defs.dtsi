@@ -1,0 +1,400 @@
+/*
+ * Copyright (c) 2020, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef	FVP_DEFS_DTSI
+#define	FVP_DEFS_DTSI
+
+/* Set default topology values if not passed from platform's makefile */
+#ifndef	CLUSTER_COUNT
+#ifdef	FVP_CLUSTER_COUNT
+#define	CLUSTER_COUNT		FVP_CLUSTER_COUNT
+#else
+#define	CLUSTER_COUNT		2
+#endif
+#endif	/* CLUSTER_COUNT */
+
+#ifndef CPUS_PER_CLUSTER
+#ifdef FVP_MAX_CPUS_PER_CLUSTER
+#define	CPUS_PER_CLUSTER	FVP_MAX_CPUS_PER_CLUSTER
+#else
+#define	CPUS_PER_CLUSTER	4
+#endif
+#endif	/* CPUS_PER_CLUSTER */
+
+/* Get platform's topology */
+#define	CPUS_COUNT		(CLUSTER_COUNT * CPUS_PER_CLUSTER)
+
+#define CONCAT(x, y)	x##y
+#define CONC(x, y)	CONCAT(x, y)
+
+/* CPU's cluster */
+#define	CLS(n)	(n / CPUS_PER_CLUSTER)
+
+/* CPU's position in cluster */
+#define	POS(n)	(n % CPUS_PER_CLUSTER)
+
+#define	ADR(n, c, p)	\
+	CPU##n:cpu@CONC(c, CONC(p, AFF)) {
+
+#define	PRE			\
+	device_type = "cpu";	\
+	compatible = "arm,armv8";
+
+#ifdef	REG_32
+/* 32-bit address */
+#define	REG(c, p)	\
+	reg = <CONC(0x, CONC(c, CONC(p, AFF)))>;
+#else
+/* 64-bit address */
+#define	REG(c, p)	\
+	reg = <0x0 CONC(0x, CONC(c, CONC(p, AFF)))>;
+#endif	/* REG_32 */
+
+#define	POST				\
+	enable-method = "psci";		\
+	cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;	\
+	next-level-cache = <&L2_0>;	\
+	};
+
+#ifdef	REG_32
+#define	CPU_0		\
+	CPU0:cpu@0 {	\
+	PRE		\
+	reg = <0x0>;	\
+	POST
+#else
+#define	CPU_0		\
+	CPU0:cpu@0 {	\
+	PRE		\
+	reg = <0x0 0x0>;\
+	POST
+#endif	/* REG_32 */
+
+/*
+ * n - CPU number
+ */
+#define	CPU(n, c, p)	\
+	ADR(n, c, p)	\
+	PRE		\
+	REG(c, p)	\
+	POST
+
+/* 2 CPUs */
+#if (CPUS_COUNT > 1)
+#if (CLS(1) == 0)
+#define c1
+#define	p1	1
+#else
+#define	c1	10
+#define p1	0
+#endif
+
+#define	CPU_1	CPU(1, c1, p1)	/* CPU1: 0.1; 1.0 */
+
+/* 3 CPUs */
+#if (CPUS_COUNT > 2)
+#if (CLS(2) == 0)
+#define c2
+#define p2	2
+#elif (CLS(2) == 1)
+#define	c2	10
+#define p2	0
+#else
+#define	c2	20
+#define p2	0
+#endif
+
+#define	CPU_2	CPU(2, c2, p2)	/* CPU2: 0.2; 1.0; 2.0 */
+
+/* 4 CPUs */
+#if (CPUS_COUNT > 3)
+#if (CLS(3) == 0)
+#define c3
+#elif (CLS(3) == 1)
+#define	c3	10
+#else
+#define	c3	30
+#endif
+
+#if (POS(3) == 0)
+#define p3	0
+#elif (POS(3) == 1)
+#define	p3	1
+#else
+#define	p3	3
+#endif
+
+#define	CPU_3	CPU(3, c3, p3)	/* CPU3: 0.3; 1.0; 1.1; 3.0 */
+
+/* 6 CPUs */
+#if (CPUS_COUNT > 4)
+#if (CLS(4) == 1)
+#define	c4	10
+#else
+#define	c4	20
+#endif
+
+#if (POS(4) == 0)
+#define p4	0
+#else
+#define	p4	1
+#endif
+
+#if (CLS(5) == 1)
+#define	c5	10
+#else
+#define	c5	20
+#endif
+
+#if (POS(5) == 1)
+#define	p5	1
+#else
+#define	p5	2
+#endif
+
+#define	CPU_4	CPU(4, c4, p4)	/* CPU4: 1.0; 1.1; 2.0 */
+#define	CPU_5	CPU(5, c5, p5)	/* CPU5: 1.1; 1.2; 2.1 */
+
+/* 8 CPUs */
+#if (CPUS_COUNT > 6)
+#if (CLS(6) == 1)
+#define	c6	10
+#define	p6	2
+#elif (CLS(6) == 2)
+#define	c6	20
+#define	p6	0
+#else
+#define	c6	30
+#define	p6	0
+#endif
+
+#if (CLS(7) == 1)
+#define	c7	10
+#define	p7	3
+#elif (CLS(7) == 2)
+#define	c7	20
+#define	p7	1
+#else
+#define	c7	30
+#define	p7	1
+#endif
+
+#define	CPU_6	CPU(6, c6, p6)	/* CPU6: 1.2; 2.0; 3.0 */
+#define	CPU_7	CPU(7, c7, p7)	/* CPU7: 1.3; 2.1; 3.1 */
+
+/* 9 CPUs */
+#if (CPUS_COUNT > 8)
+#if (POS(8) == 0)
+#define	p8	0
+#else
+#define	p8	2
+#endif
+
+#define	CPU_8	CPU(8, 20, p8)	/* CPU8: 2.0; 2.2 */
+
+/* 12 CPUs */
+#if (CPUS_COUNT > 9)
+#if (CLS(9) == 2)
+#define	c9	20
+#define	p9	1
+#else
+#define	c9	30
+#define	p9	0
+#endif
+
+#if (CLS(10) == 2)
+#define	c10	20
+#define	p10	2
+#else
+#define	c10	30
+#define	p10	1
+#endif
+
+#if (CLS(11) == 2)
+#define	c11	20
+#define	p11	3
+#else
+#define	c11	30
+#define	p11	2
+#endif
+
+#define	CPU_9	CPU(9, c9, p9)		/* CPU9:  2.1; 3.0 */
+#define	CPU_10	CPU(10, c10, p10)	/* CPU10: 2.2; 3.1 */
+#define	CPU_11	CPU(11, c11, p11)	/* CPU11: 2.3; 3.2 */
+
+/* 16 CPUs */
+#if (CPUS_COUNT > 12)
+#define	CPU_12	CPU(12, 30, 0)		/* CPU12: 3.0 */
+#define	CPU_13	CPU(13, 30, 1)		/* CPU13: 3.1 */
+#define	CPU_14	CPU(14, 30, 2)		/* CPU14: 3.2 */
+#define	CPU_15	CPU(15, 30, 3)		/* CPU15: 3.3 */
+#endif	/* > 12 */
+#endif	/* > 9 */
+#endif	/* > 8 */
+#endif	/* > 6 */
+#endif	/* > 4 */
+#endif	/* > 3 */
+#endif	/* > 2 */
+#endif	/* > 1 */
+
+#if (CPUS_COUNT == 1)
+#define	CPUS	\
+	CPU_0
+
+#elif (CPUS_COUNT == 2)
+#define	CPUS	\
+	CPU_0	\
+	CPU_1
+
+#elif (CPUS_COUNT == 3)
+#define	CPUS	\
+	CPU_0	\
+	CPU_1	\
+	CPU_2
+
+#elif (CPUS_COUNT == 4)
+#define	CPUS	\
+	CPU_0	\
+	CPU_1	\
+	CPU_2	\
+	CPU_3
+
+#elif (CPUS_COUNT == 6)
+#define	CPUS	\
+	CPU_0	\
+	CPU_1	\
+	CPU_2	\
+	CPU_3	\
+	CPU_4	\
+	CPU_5
+
+#elif (CPUS_COUNT == 8)
+#define	CPUS	\
+	CPU_0	\
+	CPU_1	\
+	CPU_2	\
+	CPU_3	\
+	CPU_4	\
+	CPU_5	\
+	CPU_6	\
+	CPU_7
+
+#elif (CPUS_COUNT == 9)
+#define	CPUS	\
+	CPU_0	\
+	CPU_1	\
+	CPU_2	\
+	CPU_3	\
+	CPU_4	\
+	CPU_5	\
+	CPU_6	\
+	CPU_7	\
+	CPU_8
+
+#elif (CPUS_COUNT == 12)
+#define	CPUS	\
+	CPU_0	\
+	CPU_1	\
+	CPU_2	\
+	CPU_3	\
+	CPU_4	\
+	CPU_5	\
+	CPU_6	\
+	CPU_7	\
+	CPU_8	\
+	CPU_9	\
+	CPU_10	\
+	CPU_11
+
+#else
+#define	CPUS	\
+	CPU_0	\
+	CPU_1	\
+	CPU_2	\
+	CPU_3	\
+	CPU_4	\
+	CPU_5	\
+	CPU_6	\
+	CPU_7	\
+	CPU_8	\
+	CPU_9	\
+	CPU_10	\
+	CPU_11	\
+	CPU_12	\
+	CPU_13	\
+	CPU_14	\
+	CPU_15
+#endif	/* CPUS_COUNT */
+
+#define	CORE(n)		\
+	core##n {	\
+		cpu = <&CONC(CPU, __COUNTER__)>;	\
+	};
+
+/* Max 4 CPUs per cluster */
+#if (CPUS_PER_CLUSTER == 1)
+#define	CLUSTER(n)		\
+	cluster##n {		\
+		CORE(0)		\
+	};
+#elif (CPUS_PER_CLUSTER == 2)
+#define	CLUSTER(n)		\
+	cluster##n {		\
+		CORE(0)		\
+		CORE(1)		\
+	};
+
+#elif (CPUS_PER_CLUSTER == 3)
+#define	CLUSTER(n)		\
+	cluster##n {		\
+		CORE(0)		\
+		CORE(1)		\
+		CORE(2)		\
+	};
+
+#else
+#define	CLUSTER(n)		\
+	cluster##n {		\
+		CORE(0)		\
+		CORE(1)		\
+		CORE(2)		\
+		CORE(3)		\
+	};
+#endif	/* CPUS_PER_CLUSTER */
+
+/* Max 4 clusters */
+#if (CLUSTER_COUNT == 1)
+#define	CPU_MAP			\
+	cpu-map {		\
+		CLUSTER(0)	\
+	};
+
+#elif (CLUSTER_COUNT == 2)
+#define	CPU_MAP			\
+	cpu-map {		\
+		CLUSTER(0)	\
+		CLUSTER(1)	\
+	};
+
+#elif (CLUSTER_COUNT == 3)
+#define	CPU_MAP			\
+	cpu-map {		\
+		CLUSTER(0)	\
+		CLUSTER(1)	\
+		CLUSTER(2)	\
+	};
+
+#else
+#define	CPU_MAP			\
+	cpu-map {		\
+		CLUSTER(0)	\
+		CLUSTER(1)	\
+		CLUSTER(2)	\
+		CLUSTER(3)	\
+	};
+#endif	/* CLUSTER_COUNT */
+
+#endif	/* FVP_DEFS_DTSI */

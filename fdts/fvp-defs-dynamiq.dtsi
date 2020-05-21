@@ -1,0 +1,289 @@
+/*
+ * Copyright (c) 2020, Arm Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef	FVP_DEFS_DYNAMIQ_DTSI
+#define	FVP_DEFS_DYNAMIQ_DTSI
+
+/* Set default topology values if not passed from platform's makefile */
+#ifdef	FVP_CLUSTER_COUNT
+#define	CLUSTER_COUNT		FVP_CLUSTER_COUNT
+#else
+#define	CLUSTER_COUNT		1
+#endif
+
+#ifdef FVP_MAX_CPUS_PER_CLUSTER
+#define	CPUS_PER_CLUSTER	FVP_MAX_CPUS_PER_CLUSTER
+#else
+#define	CPUS_PER_CLUSTER	8
+#endif
+
+#define CONCAT(x, y)	x##y
+#define CONC(x, y)	CONCAT(x, y)
+
+/*
+ * n - CPU number
+ * r - MPID
+ */
+#define	CPU(n, r)			\
+	CPU##n:cpu@r## {		\
+	device_type = "cpu";		\
+	compatible = "arm,armv8";	\
+	reg = <0x0 0x##r>;		\
+	enable-method = "psci";		\
+	cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;	\
+	next-level-cache = <&L2_0>;	\
+	};
+
+#if (PE_PER_CPU == 2)
+#define THREAD(n)		\
+	thread##n {		\
+		cpu = <&CONC(CPU, __COUNTER__)>;	\
+	};
+
+#define	CORE(n)			\
+	core##n {		\
+		THREAD(0)	\
+		THREAD(1)	\
+	};
+
+#else	/* PE_PER_CPU == 1 */
+#define	CORE(n)			\
+	core##n {		\
+		cpu = <&CPU##n>;\
+	};
+#endif	/* PE_PER_CORE */
+
+#if (CPUS_PER_CLUSTER == 1)
+#if (PE_PER_CPU == 1)
+#define	CPUS		\
+	CPU(0, 0)
+#else
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 1)
+#endif
+#define	CLUSTER(n)	\
+	cluster##n {	\
+		CORE(0)	\
+	};
+
+#elif (CPUS_PER_CLUSTER == 2)
+#if (PE_PER_CPU == 1)
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 100)
+#else
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 1)	\
+	CPU(2, 100)	\
+	CPU(3, 101)
+#endif
+#define	CLUSTER(n)	\
+	cluster##n {	\
+		CORE(0)	\
+		CORE(1)	\
+	};
+
+#elif (CPUS_PER_CLUSTER == 3)
+#if (PE_PER_CPU == 1)
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 100)	\
+	CPU(2, 200)
+#else
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 1)	\
+	CPU(2, 100)	\
+	CPU(3, 101)	\
+	CPU(4, 200)	\
+	CPU(5, 201)
+#endif
+#define	CLUSTER(n)	\
+	cluster##n {	\
+		CORE(0)	\
+		CORE(1)	\
+		CORE(2)	\
+	};
+
+#elif (CPUS_PER_CLUSTER == 4)
+#if (PE_PER_CPU == 1)
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 100)	\
+	CPU(2, 200)	\
+	CPU(3, 300)
+#else
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 1)	\
+	CPU(2, 100)	\
+	CPU(3, 101)	\
+	CPU(4, 200)	\
+	CPU(5, 201)	\
+	CPU(6, 300)	\
+	CPU(7, 301)
+#endif
+#define	CLUSTER(n)	\
+	cluster##n {	\
+		CORE(0)	\
+		CORE(1)	\
+		CORE(2)	\
+		CORE(3)	\
+	};
+
+#elif (CPUS_PER_CLUSTER == 5)
+#if (PE_PER_CPU == 1)
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 100)	\
+	CPU(2, 200)	\
+	CPU(3, 300)	\
+	CPU(4, 400)
+#else
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 1)	\
+	CPU(2, 100)	\
+	CPU(3, 101)	\
+	CPU(4, 200)	\
+	CPU(5, 201)	\
+	CPU(6, 300)	\
+	CPU(7, 301)	\
+	CPU(8, 400)	\
+	CPU(9, 401)
+#endif
+#define	CLUSTER(n)	\
+	cluster##n {	\
+		CORE(0)	\
+		CORE(1)	\
+		CORE(2)	\
+		CORE(3)	\
+		CORE(4)	\
+	};
+
+#elif (CPUS_PER_CLUSTER == 6)
+#if (PE_PER_CPU == 1)
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 100)	\
+	CPU(2, 200)	\
+	CPU(3, 300)	\
+	CPU(4, 400)	\
+	CPU(5, 500)
+#else
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 1)	\
+	CPU(2, 100)	\
+	CPU(3, 101)	\
+	CPU(4, 200)	\
+	CPU(5, 201)	\
+	CPU(6, 300)	\
+	CPU(7, 301)	\
+	CPU(8, 400)	\
+	CPU(9, 401)	\
+	CPU(10, 500)	\
+	CPU(11, 501)
+#endif
+#define	CLUSTER(n)	\
+	cluster##n {	\
+		CORE(0)	\
+		CORE(1)	\
+		CORE(2)	\
+		CORE(3)	\
+		CORE(4)	\
+		CORE(5)	\
+	};
+
+#elif (CPUS_PER_CLUSTER == 7)
+#if (PE_PER_CPU == 1)
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 100)	\
+	CPU(2, 200)	\
+	CPU(3, 300)	\
+	CPU(4, 400)	\
+	CPU(5, 500)	\
+	CPU(6, 600)
+#else
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 1)	\
+	CPU(2, 100)	\
+	CPU(3, 101)	\
+	CPU(4, 200)	\
+	CPU(5, 201)	\
+	CPU(6, 300)	\
+	CPU(7, 301)	\
+	CPU(8, 400)	\
+	CPU(9, 401)	\
+	CPU(10, 500)	\
+	CPU(11, 501)	\
+	CPU(12, 600)	\
+	CPU(13, 601)
+#endif
+#define	CLUSTER(n)	\
+	cluster##n {	\
+		CORE(0)	\
+		CORE(1)	\
+		CORE(2)	\
+		CORE(3)	\
+		CORE(4)	\
+		CORE(5)	\
+		CORE(6)	\
+	};
+
+#else
+#if (PE_PER_CPU == 1)
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 100)	\
+	CPU(2, 200)	\
+	CPU(3, 300)	\
+	CPU(4, 400)	\
+	CPU(5, 500)	\
+	CPU(6, 600)	\
+	CPU(7, 700)
+#else
+#define	CPUS		\
+	CPU(0, 0)	\
+	CPU(1, 1)	\
+	CPU(2, 100)	\
+	CPU(3, 101)	\
+	CPU(4, 200)	\
+	CPU(5, 201)	\
+	CPU(6, 300)	\
+	CPU(7, 301)	\
+	CPU(8, 400)	\
+	CPU(9, 401)	\
+	CPU(10, 500)	\
+	CPU(11, 501)	\
+	CPU(12, 600)	\
+	CPU(13, 601)	\
+	CPU(14, 700)	\
+	CPU(15, 701)
+#endif
+#define	CLUSTER(n)	\
+	cluster##n {	\
+		CORE(0)	\
+		CORE(1)	\
+		CORE(2)	\
+		CORE(3)	\
+		CORE(4)	\
+		CORE(5)	\
+		CORE(6)	\
+		CORE(7)	\
+	};
+#endif	/* CPUS_PER_CLUSTER */
+
+#define	CPU_MAP			\
+	cpu-map {		\
+		CLUSTER(0)	\
+	};
+
+#endif	/* FVP_DEFS_DYNAMIQ_DTSI */
