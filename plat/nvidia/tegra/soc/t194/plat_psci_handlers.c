@@ -73,6 +73,11 @@ int32_t tegra_soc_validate_power_state(uint32_t power_state,
 	switch (state_id) {
 	case PSTATE_ID_CORE_IDLE:
 
+		if (psci_get_pstate_type(power_state) != PSTATE_TYPE_STANDBY) {
+			ret = PSCI_E_INVALID_PARAMS;
+			break;
+		}
+
 		/* Core idle request */
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = PLAT_MAX_RET_STATE;
 		req_state->pwr_domain_state[MPIDR_AFFLVL1] = PSCI_LOCAL_STATE_RUN;
