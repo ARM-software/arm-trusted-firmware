@@ -26,15 +26,6 @@
 /* Legacy FIQ used by earlier Tegra platforms */
 #define LEGACY_FIQ_PPI_WDT		28U
 
-/* Install priority level descriptors for each dispatcher */
-ehf_pri_desc_t plat_exceptions[] = {
-	EHF_PRI_DESC(PLAT_PRI_BITS, PLAT_TEGRA_WDT_PRIO),
-};
-
-/* Expose priority descriptors to Exception Handling Framework */
-EHF_REGISTER_PRIORITIES(plat_exceptions, ARRAY_SIZE(plat_exceptions),
-	PLAT_PRI_BITS);
-
 /*******************************************************************************
  * Static variables
  ******************************************************************************/

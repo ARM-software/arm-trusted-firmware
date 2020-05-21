@@ -1,0 +1,56 @@
+/*
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/* SDEI configuration for Tegra platforms */
+
+#include <platform_def.h>
+
+#include <bl31/ehf.h>
+#include <common/bl_common.h>
+#include <common/debug.h>
+#include <lib/utils_def.h>
+#include <services/sdei.h>
+
+/* Private event mappings */
+static sdei_ev_map_t tegra_sdei_private[] = {
+	/* Event 0 definition */
+	SDEI_DEFINE_EVENT_0(TEGRA_SDEI_SGI_PRIVATE),
+
+	/* Dynamic private events */
+	SDEI_PRIVATE_EVENT(TEGRA_SDEI_DP_EVENT_0, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC),
+	SDEI_PRIVATE_EVENT(TEGRA_SDEI_DP_EVENT_1, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC),
+	SDEI_PRIVATE_EVENT(TEGRA_SDEI_DP_EVENT_2, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC),
+
+	/* General purpose explicit events */
+	SDEI_EXPLICIT_EVENT(TEGRA_SDEI_EP_EVENT_0, SDEI_MAPF_CRITICAL),
+	SDEI_EXPLICIT_EVENT(TEGRA_SDEI_EP_EVENT_1, SDEI_MAPF_CRITICAL),
+	SDEI_EXPLICIT_EVENT(TEGRA_SDEI_EP_EVENT_2, SDEI_MAPF_CRITICAL),
+	SDEI_EXPLICIT_EVENT(TEGRA_SDEI_EP_EVENT_3, SDEI_MAPF_CRITICAL),
+	SDEI_EXPLICIT_EVENT(TEGRA_SDEI_EP_EVENT_4, SDEI_MAPF_CRITICAL),
+	SDEI_EXPLICIT_EVENT(TEGRA_SDEI_EP_EVENT_5, SDEI_MAPF_CRITICAL),
+	SDEI_EXPLICIT_EVENT(TEGRA_SDEI_EP_EVENT_6, SDEI_MAPF_CRITICAL),
+	SDEI_EXPLICIT_EVENT(TEGRA_SDEI_EP_EVENT_7, SDEI_MAPF_CRITICAL),
+	SDEI_EXPLICIT_EVENT(TEGRA_SDEI_EP_EVENT_8, SDEI_MAPF_CRITICAL),
+	SDEI_EXPLICIT_EVENT(TEGRA_SDEI_EP_EVENT_9, SDEI_MAPF_CRITICAL),
+	SDEI_EXPLICIT_EVENT(TEGRA_SDEI_EP_EVENT_10, SDEI_MAPF_CRITICAL),
+	SDEI_EXPLICIT_EVENT(TEGRA_SDEI_EP_EVENT_11, SDEI_MAPF_CRITICAL)
+};
+
+/* Shared event mappings */
+static sdei_ev_map_t tegra_sdei_shared[] = {
+	/* Dynamic shared events */
+	SDEI_SHARED_EVENT(TEGRA_SDEI_DS_EVENT_0, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC),
+	SDEI_SHARED_EVENT(TEGRA_SDEI_DS_EVENT_1, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC),
+	SDEI_SHARED_EVENT(TEGRA_SDEI_DS_EVENT_2, SDEI_DYN_IRQ, SDEI_MAPF_DYNAMIC)
+};
+
+void plat_sdei_setup(void)
+{
+	INFO("SDEI platform setup\n");
+}
+
+/* Export Tegra SDEI events */
+REGISTER_SDEI_MAP(tegra_sdei_private, tegra_sdei_shared);

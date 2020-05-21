@@ -87,9 +87,43 @@
 #define MAX_IO_HANDLES			U(0)
 
 /*******************************************************************************
+ * Platforms macros to support SDEI
+ ******************************************************************************/
+#define TEGRA_SDEI_SGI_PRIVATE		U(8)
+
+/*******************************************************************************
  * Platform macros to support exception handling framework
  ******************************************************************************/
 #define PLAT_PRI_BITS			U(3)
+#define PLAT_SDEI_CRITICAL_PRI		U(0x20)
+#define PLAT_SDEI_NORMAL_PRI		U(0x30)
 #define PLAT_TEGRA_WDT_PRIO		U(0x40)
+
+/*******************************************************************************
+ * SDEI events
+ ******************************************************************************/
+/* SDEI dynamic private event numbers */
+#define TEGRA_SDEI_DP_EVENT_0		U(100)
+#define TEGRA_SDEI_DP_EVENT_1		U(101)
+#define TEGRA_SDEI_DP_EVENT_2		U(102)
+
+/* SDEI dynamic shared event numbers */
+#define TEGRA_SDEI_DS_EVENT_0		U(200)
+#define TEGRA_SDEI_DS_EVENT_1		U(201)
+#define TEGRA_SDEI_DS_EVENT_2		U(202)
+
+/* SDEI explicit events */
+#define TEGRA_SDEI_EP_EVENT_0		U(300)
+#define TEGRA_SDEI_EP_EVENT_1		U(301)
+#define TEGRA_SDEI_EP_EVENT_2		U(302)
+#define TEGRA_SDEI_EP_EVENT_3		U(303)
+#define TEGRA_SDEI_EP_EVENT_4		U(304)
+#define TEGRA_SDEI_EP_EVENT_5		U(305)
+#define TEGRA_SDEI_EP_EVENT_6		U(306)
+#define TEGRA_SDEI_EP_EVENT_7		U(307)
+#define TEGRA_SDEI_EP_EVENT_8		U(308)
+#define TEGRA_SDEI_EP_EVENT_9		U(309)
+#define TEGRA_SDEI_EP_EVENT_10		U(310)
+#define TEGRA_SDEI_EP_EVENT_11		U(311)
 
 #endif /* PLATFORM_DEF_H */

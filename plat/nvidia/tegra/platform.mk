@@ -52,6 +52,9 @@ RELOCATE_BL32_IMAGE		?= 0
 # Enable stack protection
 ENABLE_STACK_PROTECTOR		:=	strong
 
+# Enable SDEI
+SDEI_SUPPORT			:= 1
+
 include plat/nvidia/tegra/common/tegra_common.mk
 include ${SOC_DIR}/platform_${TARGET_SOC}.mk
 
@@ -66,6 +69,7 @@ TF_CFLAGS	+= -Wsign-compare -nostdlib
 
 # override with necessary libc files for the Tegra platform
 override LIBC_SRCS :=	$(addprefix lib/libc/,		\
+			aarch64/setjmp.S		\
 			assert.c			\
 			memcpy.c			\
 			memmove.c			\
