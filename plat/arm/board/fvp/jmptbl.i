@@ -16,6 +16,7 @@
 
 rom     rom_lib_init
 fdt     fdt_getprop
+fdt     fdt_get_property
 fdt     fdt_getprop_namelen
 fdt     fdt_setprop_inplace
 fdt     fdt_check_header
@@ -31,6 +32,9 @@ fdt     fdt_size_cells
 fdt     fdt_parent_offset
 fdt     fdt_stringlist_search
 fdt     fdt_get_alias_namelen
+fdt     fdt_get_name
+fdt     fdt_get_alias
+fdt     fdt_node_offset_by_phandle
 mbedtls mbedtls_asn1_get_alg
 mbedtls mbedtls_asn1_get_alg_null
 mbedtls mbedtls_asn1_get_bitstring_null
