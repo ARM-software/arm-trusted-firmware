@@ -13,6 +13,9 @@
 #include <drivers/console.h>
 #include <plat/arm/common/plat_arm.h>
 
+#pragma weak arm_console_runtime_init
+#pragma weak arm_console_runtime_end
+
 /*******************************************************************************
  * Functions that set up the console
  ******************************************************************************/
