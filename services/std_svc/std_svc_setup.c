@@ -123,10 +123,10 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 
 #if defined(SPD_spmd)
 	/*
-	 * Dispatch SPCI calls to the SPCI SMC handler implemented by the SPM
+	 * Dispatch FFA calls to the FFA SMC handler implemented by the SPM
 	 * dispatcher and return its return value
 	 */
-	if (is_spci_fid(smc_fid)) {
+	if (is_ffa_fid(smc_fid)) {
 		return spmd_smc_handler(smc_fid, x1, x2, x3, x4, cookie,
 					handle, flags);
 	}

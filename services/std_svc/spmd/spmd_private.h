@@ -30,7 +30,7 @@
 #define SPMD_C_RT_CTX_ENTRIES		(SPMD_C_RT_CTX_SIZE >> DWORD_SHIFT)
 
 #ifndef __ASSEMBLER__
-#include <services/spci_svc.h>
+#include <services/ffa_svc.h>
 #include <stdint.h>
 
 typedef enum spmc_state {
@@ -49,11 +49,11 @@ typedef struct spmd_spm_core_context {
 } spmd_spm_core_context_t;
 
 /*
- * Reserve ID for NS physical SPCI Endpoint.
+ * Reserve ID for NS physical FFA Endpoint.
  */
-#define SPCI_NS_ENDPOINT_ID		U(0)
+#define FFA_NS_ENDPOINT_ID		U(0)
 
-/* Mask and shift to check valid secure SPCI Endpoint ID. */
+/* Mask and shift to check valid secure FFA Endpoint ID. */
 #define SPMC_SECURE_ID_MASK		U(1)
 #define SPMC_SECURE_ID_SHIFT		U(15)
 

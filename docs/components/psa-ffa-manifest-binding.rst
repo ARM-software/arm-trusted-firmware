@@ -1,33 +1,33 @@
-SPCI manifest binding to device tree
-====================================
+PSA FF-A manifest binding to device tree
+========================================
 
 This document defines the nodes and properties used to define a partition,
-according to the SPCI specification.
+according to the PSA FF-A specification.
 
 Version 1.0
 -----------
 
-spci-manifest-partition
-^^^^^^^^^^^^^^^^^^^^^^^
+psa-ffa-manifest-partition
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - compatible [mandatory]
    - value type: <string>
-   - Must be the string "arm,spci-manifest-X.Y" which specifies the major and
-     minor versions fo the device tree binding for the SPCI manifest represented
+   - Must be the string "arm,ffa-manifest-X.Y" which specifies the major and
+     minor versions fo the device tree binding for the FFA manifest represented
      by this node. The minor number is incremented if the binding changes in a
      backwards compatible manner.
 
       - X is an integer representing the major version number of this document.
       - Y is an integer representing the minor version number of this document.
 
-- spci-version [mandatory]
+- ffa-version [mandatory]
    - value type: <u32>
    - Must be two 16 bits values (X, Y), concatenated as 31:16 -> X,
      15:0 -> Y, where:
 
-      - X is the major version of PSA-FF-A expected by the partition at the SPCI
+      - X is the major version of PSA-FF-A expected by the partition at the FFA
         instance it will execute.
-      - Y is the minor version of PSA-FF-A expected by the partition at the SPCI
+      - Y is the minor version of PSA-FF-A expected by the partition at the FFA
         instance it will execute.
 
 - uuid [mandatory]
@@ -40,7 +40,7 @@ spci-manifest-partition
       - If there are multiple instances of a Trusted OS, then the UUID can be
         shared by all instances.
       - The TEE driver in the HLOS can use the UUID with the
-        SPCI_PARTITION_INFO_GET interface to determine the:
+        FFA_PARTITION_INFO_GET interface to determine the:
 
          - Number of Trusted OSs
          - The partition ID of each instance of the Trusted OS
@@ -116,7 +116,7 @@ spci-manifest-partition
    - value type: "memory-regions" node
    - Specific "memory-regions" nodes that describe the RX/TX buffers expected
      by the partition.
-     The "compatible" must be the string "arm,spci-manifest-rx_tx-buffer".
+     The "compatible" must be the string "arm,ffa-manifest-rx_tx-buffer".
 
 - messaging-method [mandatory]
    - value type: <u32>
@@ -146,7 +146,7 @@ spci-manifest-partition
 - gp-register-num
    - value type: <u32>
    - Presence of this field indicates that the partition expects the
-     spci_init_info structure to be passed in via the specified general purpose
+     ffa_init_info structure to be passed in via the specified general purpose
      register.
      The field specifies the general purpose register number but not its width.
      The width is derived from the partition's execution state, as specified in
@@ -164,7 +164,7 @@ memory-regions
 
 - compatible [mandatory]
    - value type: <string>
-   - Must be the string "arm,spci-manifest-memory-regions".
+   - Must be the string "arm,ffa-manifest-memory-regions".
 
 - description
    - value type: <string>
@@ -184,7 +184,7 @@ memory-regions
    - Base address of the region. The address must be aligned to the translation
      granule size.
      The address given may be a Physical Address (PA), Virtual Address (VA), or
-     Intermediate Physical Address (IPA). Refer to the SPCI specification for
+     Intermediate Physical Address (IPA). Refer to the FFA specification for
      more information on the restrictions around the address type.
      If the base address is omitted then the partition manager must map a memory
      region of the specified size into the partition's translation regime and
@@ -196,7 +196,7 @@ device-regions
 
 - compatible [mandatory]
    - value type: <string>
-   - Must be the string "arm,spci-manifest-device-regions".
+   - Must be the string "arm,ffa-manifest-device-regions".
 
 - description
    - value type: <string>

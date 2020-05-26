@@ -108,8 +108,8 @@ Still to come
 
 -  Refinements to Position Independent Executable (PIE) support.
 
--  Continued support for the draft SPCI specification, to enable the use of
-   secure partition management in the secure world.
+-  Continued support for the PSA FF-A v1.0 (formally known as SPCI) specification, to enable the
+   use of secure partition management in the secure world.
 
 -  Documentation enhancements.
 

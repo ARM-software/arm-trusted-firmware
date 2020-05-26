@@ -15,7 +15,7 @@
 
 typedef struct spm_core_manifest_sect_attribute {
 	/*
-	 * SPCI version (mandatory).
+	 * FFA version (mandatory).
 	 */
 	uint32_t major_version;
 	uint32_t minor_version;
