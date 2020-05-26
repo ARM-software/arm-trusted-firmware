@@ -65,9 +65,13 @@ func el2_sysregs_context_save
 	mrs	x9, cptr_el2
 	stp	x17, x9, [x0, #CTX_CNTVOFF_EL2]
 
-	mrs	x10, dbgvcr32_el2
 	mrs	x11, elr_el2
+#if CTX_INCLUDE_AARCH32_REGS
+	mrs	x10, dbgvcr32_el2
 	stp	x10, x11, [x0, #CTX_DBGVCR32_EL2]
+#else
+	str	x11, [x0, #CTX_ELR_EL2]
+#endif
 
 	mrs	x14, esr_el2
 	mrs	x15, far_el2
@@ -185,8 +189,10 @@ func el2_sysregs_context_save
 	mrs	x9, contextidr_el2
 	stp	x17, x9, [x0, #CTX_CNTHV_TVAL_EL2]
 
+#if CTX_INCLUDE_AARCH32_REGS
 	mrs	x10, sder32_el2
 	str	x10, [x0, #CTX_SDER32_EL2]
+#endif
 
 	mrs	x11, ttbr1_el2
 	str	x11, [x0, #CTX_TTBR1_EL2]
@@ -255,8 +261,12 @@ func el2_sysregs_context_restore
 	msr	cntvoff_el2, x17
 	msr	cptr_el2, x9
 
+#if CTX_INCLUDE_AARCH32_REGS
 	ldp	x10, x11, [x0, #CTX_DBGVCR32_EL2]
 	msr	dbgvcr32_el2, x10
+#else
+	ldr	x11, [x0, #CTX_ELR_EL2]
+#endif
 	msr	elr_el2, x11
 
 	ldp	x14, x15, [x0, #CTX_ESR_EL2]
@@ -374,8 +384,10 @@ func el2_sysregs_context_restore
 	msr	cnthv_tval_el2, x9
 	msr	contextidr_el2, x10
 
+#if CTX_INCLUDE_AARCH32_REGS
 	ldr	x11, [x0, #CTX_SDER32_EL2]
 	msr	sder32_el2, x11
+#endif
 
 	ldr	x12, [x0, #CTX_TTBR1_EL2]
 	msr	ttbr1_el2, x12
