@@ -13,44 +13,6 @@
 #include <tools_share/dualroot_oid.h>
 
 /*
- * TODO: Remove dependency on mbedTLS. The chain of trust should be agnostic of
- * the specific cryptographic library in use.
-*/
-/*
- * Maximum key and hash sizes (in DER format).
- *
- * Both RSA and ECDSA keys may be used at the same time. In this case, the key
- * buffers must be big enough to hold either. As RSA keys are bigger than ECDSA
- * ones for all key sizes we support, they impose the minimum size of these
- * buffers.
- */
-#if TF_MBEDTLS_USE_RSA
-#if TF_MBEDTLS_KEY_SIZE == 1024
-#define PK_DER_LEN			162
-#elif TF_MBEDTLS_KEY_SIZE == 2048
-#define PK_DER_LEN			294
-#elif TF_MBEDTLS_KEY_SIZE == 3072
-#define PK_DER_LEN			422
-#elif TF_MBEDTLS_KEY_SIZE == 4096
-#define PK_DER_LEN			550
-#else
-#error "Invalid value for TF_MBEDTLS_KEY_SIZE"
-#endif
-#else /* Only using ECDSA keys. */
-#define PK_DER_LEN			91
-#endif
-
-#if TF_MBEDTLS_HASH_ALG_ID == TF_MBEDTLS_SHA256
-#define HASH_DER_LEN			51
-#elif TF_MBEDTLS_HASH_ALG_ID == TF_MBEDTLS_SHA384
-#define HASH_DER_LEN			67
-#elif TF_MBEDTLS_HASH_ALG_ID == TF_MBEDTLS_SHA512
-#define HASH_DER_LEN			83
-#else
-#error "Invalid value for TF_MBEDTLS_HASH_ALG_ID"
-#endif
-
-/*
  * Allocate static buffers to store the authentication parameters extracted from
  * the certificates.
  */

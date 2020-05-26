@@ -619,11 +619,13 @@ recommended to read this guide along with the source code.
 The TBBR CoT
 ~~~~~~~~~~~~
 
-The CoT can be found in ``drivers/auth/tbbr/tbbr_cot.c``. This CoT consists of
-an array of pointers to image descriptors and it is registered in the framework
-using the macro ``REGISTER_COT(cot_desc)``, where ``cot_desc`` must be the name
-of the array (passing a pointer or any other type of indirection will cause the
-registration process to fail).
+CoT specific to BL1 and BL2 can be found in ``drivers/auth/tbbr/tbbr_cot_bl1.c``
+and ``drivers/auth/tbbr/tbbr_cot_bl2.c`` respectively. The common CoT used across
+BL1 and BL2 can be found in ``drivers/auth/tbbr/tbbr_cot_common.c``.
+This CoT consists of an array of pointers to image descriptors and it is
+registered in the framework using the macro ``REGISTER_COT(cot_desc)``, where
+``cot_desc`` must be the name of the array (passing a pointer or any other
+type of indirection will cause the registration process to fail).
 
 The number of images participating in the boot process depends on the CoT.
 There is, however, a minimum set of images that are mandatory in TF-A and thus
@@ -702,7 +704,7 @@ Each image descriptor must specify:
    address/size to store the parameter. The CoT is responsible for allocating
    the required memory to store the parameters. This pointer may be NULL.
 
-In the ``tbbr_cot.c`` file, a set of buffers are allocated to store the parameters
+In the ``tbbr_cot*.c`` file, a set of buffers are allocated to store the parameters
 extracted from the certificates. In the case of the TBBR CoT, these parameters
 are hashes and public keys. In DER format, an RSA-4096 public key requires 550
 bytes, and a hash requires 51 bytes. Depending on the CoT and the authentication

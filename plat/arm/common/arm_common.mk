@@ -297,7 +297,7 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # Include the selected chain of trust sources.
     ifeq (${COT},tbbr)
-        AUTH_SOURCES	+=	drivers/auth/tbbr/tbbr_cot.c
+        AUTH_SOURCES	+=	drivers/auth/tbbr/tbbr_cot_common.c
     else ifeq (${COT},dualroot)
         AUTH_SOURCES	+=	drivers/auth/dualroot/cot.c
     else
@@ -307,10 +307,12 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
     BL1_SOURCES		+=	${AUTH_SOURCES}					\
 				bl1/tbbr/tbbr_img_desc.c			\
 				plat/arm/common/arm_bl1_fwu.c			\
+				drivers/auth/tbbr/tbbr_cot_bl1.c		\
 				plat/common/tbbr/plat_tbbr.c
 
     BL2_SOURCES		+=	${AUTH_SOURCES}					\
-				plat/common/tbbr/plat_tbbr.c
+				plat/common/tbbr/plat_tbbr.c			\
+				drivers/auth/tbbr/tbbr_cot_bl2.c
 
     $(eval $(call TOOL_ADD_IMG,ns_bl2u,--fwu,FWU_))
 

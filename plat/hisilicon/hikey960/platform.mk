@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -118,17 +118,19 @@ include drivers/auth/mbedtls/mbedtls_x509.mk
 AUTH_SOURCES		:=	drivers/auth/auth_mod.c			\
 				drivers/auth/crypto_mod.c		\
 				drivers/auth/img_parser_mod.c		\
-				drivers/auth/tbbr/tbbr_cot.c
+				drivers/auth/tbbr/tbbr_cot_common.c
 
 BL1_SOURCES		+=	${AUTH_SOURCES}				\
 				plat/common/tbbr/plat_tbbr.c		\
 				plat/hisilicon/hikey960/hikey960_tbbr.c	\
-				plat/hisilicon/hikey960/hikey960_rotpk.S
+				plat/hisilicon/hikey960/hikey960_rotpk.S \
+				drivers/auth/tbbr/tbbr_cot_bl1.c
 
 BL2_SOURCES		+=	${AUTH_SOURCES}				\
 				plat/common/tbbr/plat_tbbr.c		\
 				plat/hisilicon/hikey960/hikey960_tbbr.c	\
-				plat/hisilicon/hikey960/hikey960_rotpk.S
+				plat/hisilicon/hikey960/hikey960_rotpk.S \
+				drivers/auth/tbbr/tbbr_cot_bl2.c
 
 ROT_KEY		=	$(BUILD_PLAT)/rot_key.pem
 ROTPK_HASH		=	$(BUILD_PLAT)/rotpk_sha256.bin
