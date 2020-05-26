@@ -1010,6 +1010,7 @@ ifdef SP_LAYOUT_FILE
         endif
         -include $(BUILD_PLAT)/sp_gen.mk
         FIP_DEPS += sp
+        CRT_DEPS += sp
         NEED_SP_PKG := yes
 else
         ifeq (${SPMD_SPM_AT_SEL2},1)
