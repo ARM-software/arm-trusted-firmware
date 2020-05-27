@@ -106,9 +106,60 @@ enum stm32mp1_parent_sel {
 	_MCUS_SEL,
 	_USBPHY_SEL,
 	_USBO_SEL,
+	_MPU_SEL,
+	_PER_SEL,
 	_PARENT_SEL_NB,
 	_UNKNOWN_SEL = 0xff,
 };
+
+/* State the parent clock ID straight related to a clock */
+static const uint8_t parent_id_clock_id[_PARENT_NB] = {
+	[_HSE] = CK_HSE,
+	[_HSI] = CK_HSI,
+	[_CSI] = CK_CSI,
+	[_LSE] = CK_LSE,
+	[_LSI] = CK_LSI,
+	[_I2S_CKIN] = _UNKNOWN_ID,
+	[_USB_PHY_48] = _UNKNOWN_ID,
+	[_HSI_KER] = CK_HSI,
+	[_HSE_KER] = CK_HSE,
+	[_HSE_KER_DIV2] = CK_HSE_DIV2,
+	[_CSI_KER] = CK_CSI,
+	[_PLL1_P] = PLL1_P,
+	[_PLL1_Q] = PLL1_Q,
+	[_PLL1_R] = PLL1_R,
+	[_PLL2_P] = PLL2_P,
+	[_PLL2_Q] = PLL2_Q,
+	[_PLL2_R] = PLL2_R,
+	[_PLL3_P] = PLL3_P,
+	[_PLL3_Q] = PLL3_Q,
+	[_PLL3_R] = PLL3_R,
+	[_PLL4_P] = PLL4_P,
+	[_PLL4_Q] = PLL4_Q,
+	[_PLL4_R] = PLL4_R,
+	[_ACLK] = CK_AXI,
+	[_PCLK1] = CK_AXI,
+	[_PCLK2] = CK_AXI,
+	[_PCLK3] = CK_AXI,
+	[_PCLK4] = CK_AXI,
+	[_PCLK5] = CK_AXI,
+	[_CK_PER] = CK_PER,
+	[_CK_MPU] = CK_MPU,
+	[_CK_MCU] = CK_MCU,
+};
+
+static unsigned int clock_id2parent_id(unsigned long id)
+{
+	unsigned int n;
+
+	for (n = 0U; n < ARRAY_SIZE(parent_id_clock_id); n++) {
+		if (parent_id_clock_id[n] == id) {
+			return n;
+		}
+	}
+
+	return _UNKNOWN_ID;
+}
 
 enum stm32mp1_pll_id {
 	_PLL1,
@@ -281,19 +332,6 @@ struct stm32mp1_clk_pll {
 		.refclk[3] = (p4),			\
 	}
 
-static const uint8_t stm32mp1_clks[][2] = {
-	{ CK_PER, _CK_PER },
-	{ CK_MPU, _CK_MPU },
-	{ CK_AXI, _ACLK },
-	{ CK_MCU, _CK_MCU },
-	{ CK_HSE, _HSE },
-	{ CK_CSI, _CSI },
-	{ CK_LSI, _LSI },
-	{ CK_LSE, _LSE },
-	{ CK_HSI, _HSI },
-	{ CK_HSE_DIV2, _HSE_KER_DIV2 },
-};
-
 #define NB_GATES	ARRAY_SIZE(stm32mp1_clk_gate)
 
 static const struct stm32mp1_clk_gate stm32mp1_clk_gate[] = {
@@ -440,6 +478,14 @@ static const uint8_t usbo_parents[] = {
 	_PLL4_R, _USB_PHY_48
 };
 
+static const uint8_t mpu_parents[] = {
+	_HSI, _HSE, _PLL1_P, _PLL1_P /* specific div */
+};
+
+static const uint8_t per_parents[] = {
+	_HSI, _HSE, _CSI,
+};
+
 static const struct stm32mp1_clk_sel stm32mp1_clk_sel[_PARENT_SEL_NB] = {
 	_CLK_PARENT_SEL(I2C12, RCC_I2C12CKSELR, i2c12_parents),
 	_CLK_PARENT_SEL(I2C35, RCC_I2C35CKSELR, i2c35_parents),
@@ -448,6 +494,8 @@ static const struct stm32mp1_clk_sel stm32mp1_clk_sel[_PARENT_SEL_NB] = {
 	_CLK_PARENT_SEL(SPI6, RCC_SPI6CKSELR, spi6_parents),
 	_CLK_PARENT_SEL(UART1, RCC_UART1CKSELR, usart1_parents),
 	_CLK_PARENT_SEL(RNG1, RCC_RNG1CKSELR, rng1_parents),
+	_CLK_PARENT_SEL(MPU, RCC_MPCKSELR, mpu_parents),
+	_CLK_PARENT_SEL(PER, RCC_CPERCKSELR, per_parents),
 	_CLK_PARENT_SEL(UART6, RCC_UART6CKSELR, uart6_parents),
 	_CLK_PARENT_SEL(UART24, RCC_UART24CKSELR, uart234578_parents),
 	_CLK_PARENT_SEL(UART35, RCC_UART35CKSELR, uart234578_parents),
@@ -618,16 +666,16 @@ static enum stm32mp1_parent_id stm32mp1_clk_get_fixed_parent(int i)
 static int stm32mp1_clk_get_parent(unsigned long id)
 {
 	const struct stm32mp1_clk_sel *sel;
-	uint32_t j, p_sel;
+	uint32_t p_sel;
 	int i;
 	enum stm32mp1_parent_id p;
 	enum stm32mp1_parent_sel s;
 	uintptr_t rcc_base = stm32mp_rcc_base();
 
-	for (j = 0U; j < ARRAY_SIZE(stm32mp1_clks); j++) {
-		if (stm32mp1_clks[j][0] == id) {
-			return (int)stm32mp1_clks[j][1];
-		}
+	/* Few non gateable clock have a static parent ID, find them */
+	i = (int)clock_id2parent_id(id);
+	if (i != _UNKNOWN_ID) {
+		return i;
 	}
 
 	i = stm32mp1_clk_get_gated_id(id);
