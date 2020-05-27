@@ -8,6 +8,7 @@ Arm Development Platforms
    juno/index
    fvp/index
    fvp-ve/index
+   tc0/index
    arm-build-options
 
 This chapter holds documentation related to Arm's development platforms,
