@@ -30,7 +30,7 @@ int fconf_populate_arm_sp(uintptr_t config)
 	union uuid_helper_t uuid_helper;
 	unsigned int index = 0;
 	uint32_t val32;
-	const unsigned int sp_start_index = MAX_NUMBER_IDS - MAX_SP_IDS;
+	const unsigned int sp_start_index = SP_CONTENT_CERT_ID + 1;
 
 	/* As libfdt use void *, we can't avoid this cast */
 	const void *dtb = (void *)config;

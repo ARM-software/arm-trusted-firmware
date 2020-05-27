@@ -49,6 +49,9 @@ const io_uuid_spec_t arm_uuid_spec[MAX_NUMBER_IDS] = {
 	[SOC_FW_CONTENT_CERT_ID] = {UUID_SOC_FW_CONTENT_CERT},
 	[TRUSTED_OS_FW_CONTENT_CERT_ID] = {UUID_TRUSTED_OS_FW_CONTENT_CERT},
 	[NON_TRUSTED_FW_CONTENT_CERT_ID] = {UUID_NON_TRUSTED_FW_CONTENT_CERT},
+#if defined(SPD_spmd)
+	[SP_CONTENT_CERT_ID] = {UUID_SIP_SECURE_PARTITION_CONTENT_CERT},
+#endif
 #endif /* ARM_IO_IN_DTB */
 #endif /* TRUSTED_BOARD_BOOT */
 };
@@ -174,6 +177,13 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 		(uintptr_t)&arm_uuid_spec[NON_TRUSTED_FW_CONTENT_CERT_ID],
 		open_fip
 	},
+#if defined(SPD_spmd)
+	[SP_CONTENT_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[SP_CONTENT_CERT_ID],
+		open_fip
+	},
+#endif
 #endif /* ARM_IO_IN_DTB */
 #endif /* TRUSTED_BOARD_BOOT */
 };
@@ -181,7 +191,7 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 #ifdef IMAGE_BL2
 
 #if TRUSTED_BOARD_BOOT
-#define FCONF_ARM_IO_UUID_NUMBER	U(19)
+#define FCONF_ARM_IO_UUID_NUMBER	U(20)
 #else
 #define FCONF_ARM_IO_UUID_NUMBER	U(10)
 #endif
@@ -216,6 +226,9 @@ static const struct policies_load_info load_info[FCONF_ARM_IO_UUID_NUMBER] = {
 	{SOC_FW_CONTENT_CERT_ID, "soc_fw_content_cert_uuid"},
 	{TRUSTED_OS_FW_CONTENT_CERT_ID, "tos_fw_content_cert_uuid"},
 	{NON_TRUSTED_FW_CONTENT_CERT_ID, "nt_fw_content_cert_uuid"},
+#if defined(SPD_spmd)
+	{SP_CONTENT_CERT_ID, "sp_content_cert_uuid"},
+#endif
 #endif /* TRUSTED_BOARD_BOOT */
 };
 
