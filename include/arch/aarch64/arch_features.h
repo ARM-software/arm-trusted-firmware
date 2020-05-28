@@ -64,4 +64,21 @@ static inline bool is_armv8_6_twed_present(void)
 		ID_AA64MMFR1_EL1_TWED_MASK) == ID_AA64MMFR1_EL1_TWED_SUPPORTED);
 }
 
+/*
+ * Return MPAM version:
+ *
+ * 0x00: None Armv8.0 or later
+ * 0x01: v0.1 Armv8.4 or later
+ * 0x10: v1.0 Armv8.2 or later
+ * 0x11: v1.1 Armv8.4 or later
+ *
+ */
+static inline unsigned int get_mpam_version(void)
+{
+	return (unsigned int)((((read_id_aa64pfr0_el1() >>
+		ID_AA64PFR0_MPAM_SHIFT) & ID_AA64PFR0_MPAM_MASK) << 4) |
+				((read_id_aa64pfr1_el1() >>
+		ID_AA64PFR1_MPAM_FRAC_SHIFT) & ID_AA64PFR1_MPAM_FRAC_MASK));
+}
+
 #endif /* ARCH_FEATURES_H */
