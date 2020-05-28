@@ -988,18 +988,20 @@ static void __clk_enable(struct stm32mp1_clk_gate const *gate)
 {
 	uintptr_t rcc_base = stm32mp_rcc_base();
 
+	VERBOSE("Enable clock %u\n", gate->index);
+
 	if (gate->set_clr != 0U) {
 		mmio_write_32(rcc_base + gate->offset, BIT(gate->bit));
 	} else {
 		mmio_setbits_32(rcc_base + gate->offset, BIT(gate->bit));
 	}
-
-	VERBOSE("Clock %d has been enabled", gate->index);
 }
 
 static void __clk_disable(struct stm32mp1_clk_gate const *gate)
 {
 	uintptr_t rcc_base = stm32mp_rcc_base();
+
+	VERBOSE("Disable clock %u\n", gate->index);
 
 	if (gate->set_clr != 0U) {
 		mmio_write_32(rcc_base + gate->offset + RCC_MP_ENCLRR_OFFSET,
@@ -1007,8 +1009,6 @@ static void __clk_disable(struct stm32mp1_clk_gate const *gate)
 	} else {
 		mmio_clrbits_32(rcc_base + gate->offset, BIT(gate->bit));
 	}
-
-	VERBOSE("Clock %d has been disabled", gate->index);
 }
 
 static bool __clk_is_enabled(struct stm32mp1_clk_gate const *gate)
