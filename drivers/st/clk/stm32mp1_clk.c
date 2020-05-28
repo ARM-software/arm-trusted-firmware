@@ -310,7 +310,8 @@ struct stm32mp1_clk_pll {
 	[_ ## _label ## _SEL] = {				\
 		.offset = _rcc_selr,				\
 		.src = _rcc_selr ## _ ## _label ## SRC_SHIFT,	\
-		.msk = _rcc_selr ## _ ## _label ## SRC_MASK,	\
+		.msk = (_rcc_selr ## _ ## _label ## SRC_MASK) >> \
+		       (_rcc_selr ## _ ## _label ## SRC_SHIFT), \
 		.parent = (_parents),				\
 		.nb_parent = ARRAY_SIZE(_parents)		\
 	}
@@ -697,7 +698,8 @@ static int stm32mp1_clk_get_parent(unsigned long id)
 	}
 
 	sel = clk_sel_ref(s);
-	p_sel = (mmio_read_32(rcc_base + sel->offset) & sel->msk) >> sel->src;
+	p_sel = (mmio_read_32(rcc_base + sel->offset) &
+		 (sel->msk << sel->src)) >> sel->src;
 	if (p_sel < sel->nb_parent) {
 		return (int)sel->parent[p_sel];
 	}
