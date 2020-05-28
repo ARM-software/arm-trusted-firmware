@@ -200,8 +200,10 @@ func el2_sysregs_context_save
 	mrs	x12, vdisr_el2
 	str	x12, [x0, #CTX_VDISR_EL2]
 
+#if CTX_INCLUDE_NEVE_REGS
 	mrs	x13, vncr_el2
 	str	x13, [x0, #CTX_VNCR_EL2]
+#endif
 
 	mrs	x14, vsesr_el2
 	str	x14, [x0, #CTX_VSESR_EL2]
@@ -395,8 +397,10 @@ func el2_sysregs_context_restore
 	ldr	x13, [x0, #CTX_VDISR_EL2]
 	msr	vdisr_el2, x13
 
+#if CTX_INCLUDE_NEVE_REGS
 	ldr	x14, [x0, #CTX_VNCR_EL2]
 	msr	vncr_el2, x14
+#endif
 
 	ldr	x15, [x0, #CTX_VSESR_EL2]
 	msr	vsesr_el2, x15

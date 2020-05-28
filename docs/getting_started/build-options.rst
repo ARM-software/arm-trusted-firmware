@@ -161,6 +161,10 @@ Common build options
    registers to be included when saving and restoring the CPU context. Default
    is 0.
 
+-  ``CTX_INCLUDE_NEVE_REGS``: Boolean option that, when set to 1, will cause the
+   Armv8.4-NV registers to be saved/restored when entering/exiting an EL2
+   execution context. Default value is 0.
+
 -  ``CTX_INCLUDE_PAUTH_REGS``: Boolean option that, when set to 1, enables
    Pointer Authentication for Secure world. This will cause the ARMv8.3-PAuth
    registers to be included when saving and restoring the CPU context as
