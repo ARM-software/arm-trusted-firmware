@@ -82,6 +82,11 @@ struct fpga_config_info {
 	int block_number;
 };
 
+typedef enum {
+	FULL_CONFIG = 0,
+	PARTIAL_CONFIG,
+} config_type;
+
 /* Function Definitions */
 
 bool is_address_in_ddr_range(uint64_t addr, uint64_t size);
