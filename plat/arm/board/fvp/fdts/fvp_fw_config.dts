@@ -31,14 +31,14 @@
 		 * is loaded at base of DRAM.
 		 */
 		soc_fw-config {
-			load-address = <0x0 0x04001000>;
+			load-address = <0x0 0x04001300>;
 			max-size = <0x200>;
 			id = <SOC_FW_CONFIG_ID>;
 		};
 
 		tos_fw-config {
-			load-address = <0x0 0x04001200>;
-			max-size = <0x1000>;
+			load-address = <0x0 0x04001500>;
+			max-size = <0xB00>;
 			id = <TOS_FW_CONFIG_ID>;
 		};
 
