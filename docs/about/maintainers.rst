@@ -33,6 +33,16 @@ Maintainers
 :G: `bipinravi-arm`_
 :M: Joanna Farley <joanna.farley@arm.com>
 :G: `joannafarley-arm`_
+:M: Julius Werner <jwerner@chromium.org>
+:G: `jwerner-chromium`_
+:M: Varun Wadekar <vwadekar@nvidia.com>
+:G: `vwadekar`_
+:M: Andre Przywara <andre.przywara@arm.com>
+:G: `Andre-ARM`_
+:M: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
+:G: `laurenw-arm`_
+:M: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:G: `madhukar-Arm`_
 
 
 .. _code owners:
