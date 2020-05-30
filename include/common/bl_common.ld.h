@@ -101,12 +101,14 @@
 		__DATA_END__ = .;			\
 	}
 
+#if !(defined(IMAGE_BL31) && RECLAIM_INIT_CODE)
 #define STACK_SECTION					\
 	stacks (NOLOAD) : {				\
 		__STACKS_START__ = .;			\
 		*(tzfw_normal_stacks)			\
 		__STACKS_END__ = .;			\
 	}
+#endif
 
 /*
  * If BL doesn't use any bakery lock then __PERCPU_BAKERY_LOCK_SIZE__
