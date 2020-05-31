@@ -83,11 +83,11 @@
 #define ARM_CACHE_WRITEBACK_SHIFT	6
 
 /*
- * To enable TB_FW_CONFIG to be loaded by BL1, define the corresponding base
+ * To enable FW_CONFIG to be loaded by BL1, define the corresponding base
  * and limit. Leave enough space for BL2 meminfo.
  */
-#define ARM_TB_FW_CONFIG_BASE		(ARM_BL_RAM_BASE + sizeof(meminfo_t))
-#define ARM_TB_FW_CONFIG_LIMIT		(ARM_BL_RAM_BASE + (PAGE_SIZE / 2U))
+#define ARM_FW_CONFIG_BASE		(ARM_BL_RAM_BASE + sizeof(meminfo_t))
+#define ARM_FW_CONFIG_LIMIT		(ARM_BL_RAM_BASE + (PAGE_SIZE / 2U))
 
 /*
  * The max number of regions like RO(code), coherent and data required by

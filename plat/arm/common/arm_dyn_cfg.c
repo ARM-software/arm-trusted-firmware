@@ -170,8 +170,8 @@ void arm_bl1_set_bl2_hash(image_desc_t *image_desc)
 
 /*
  * BL2 utility function to initialize dynamic configuration specified by
- * TB_FW_CONFIG. Populate the bl_mem_params_node_t of other FW_CONFIGs if
- * specified in TB_FW_CONFIG.
+ * FW_CONFIG. Populate the bl_mem_params_node_t of other FW_CONFIGs if
+ * specified in FW_CONFIG.
  */
 void arm_bl2_dyn_cfg_init(void)
 {

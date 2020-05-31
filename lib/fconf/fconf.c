@@ -24,9 +24,9 @@ void fconf_load_config(void)
 		.h.version = (uint8_t)VERSION_2,
 		.h.size = (uint16_t)sizeof(image_info_t),
 		.h.attr = 0,
-		.image_base = ARM_TB_FW_CONFIG_BASE,
+		.image_base = ARM_FW_CONFIG_BASE,
 		.image_max_size = (uint32_t)
-				(ARM_TB_FW_CONFIG_LIMIT - ARM_TB_FW_CONFIG_BASE)
+				(ARM_FW_CONFIG_LIMIT - ARM_FW_CONFIG_BASE)
 	};
 
 	VERBOSE("FCONF: Loading FW_CONFIG\n");
