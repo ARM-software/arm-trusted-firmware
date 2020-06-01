@@ -227,11 +227,10 @@ For Cortex-A76, the following errata build flags are defined :
 -  ``ERRATA_A76_1275112``: This applies errata 1275112 workaround to Cortex-A76
    CPU. This needs to be enabled only for revision <= r3p0 of the CPU.
 
-For Hercules, the following errata build flags are defined :
+For Cortex-A78, the following errata build flags are defined :
 
--  ``ERRATA_HERCULES_1688305``: This applies errata 1688305 workaround to
-   Hercules CPU. This needs to be enabled only for revision r0p0 - r1p0 of
-   the CPU.
+-  ``ERRATA_A78_1688305``: This applies errata 1688305 workaround to Cortex-A78
+   CPU. This needs to be enabled only for revision r0p0 - r1p0 of the CPU.
 
 For Neoverse N1, the following errata build flags are defined :
 
@@ -338,7 +337,7 @@ architecture that can be enabled by the platform as desired.
 
 --------------
 
-*Copyright (c) 2014-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2020, Arm Limited and Contributors. All rights reserved.*
 
 .. _CVE-2017-5715: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5715
 .. _CVE-2018-3639: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3639

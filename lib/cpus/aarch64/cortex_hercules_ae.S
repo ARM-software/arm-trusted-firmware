@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2020, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,20 +24,20 @@
 func cortex_hercules_ae_reset_func
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
 	mrs	x0, actlr_el3
-	bic	x0, x0, #CORTEX_HERCULES_ACTLR_TAM_BIT
+	bic	x0, x0, #CORTEX_A78_ACTLR_TAM_BIT
 	msr	actlr_el3, x0
 
 	/* Make sure accesses from non-secure EL0/EL1 are not trapped to EL2 */
 	mrs	x0, actlr_el2
-	bic	x0, x0, #CORTEX_HERCULES_ACTLR_TAM_BIT
+	bic	x0, x0, #CORTEX_A78_ACTLR_TAM_BIT
 	msr	actlr_el2, x0
 
 	/* Enable group0 counters */
-	mov	x0, #CORTEX_HERCULES_AMU_GROUP0_MASK
+	mov	x0, #CORTEX_A78_AMU_GROUP0_MASK
 	msr	CPUAMCNTENSET0_EL0, x0
 
 	/* Enable group1 counters */
-	mov	x0, #CORTEX_HERCULES_AMU_GROUP1_MASK
+	mov	x0, #CORTEX_A78_AMU_GROUP1_MASK
 	msr	CPUAMCNTENSET1_EL0, x0
 	isb
 
@@ -54,9 +54,9 @@ func cortex_hercules_ae_core_pwr_dwn
 	 * Enable CPU power down bit in power control register
 	 * -------------------------------------------------------
 	 */
-	mrs	x0, CORTEX_HERCULES_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_HERCULES_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
-	msr	CORTEX_HERCULES_CPUPWRCTLR_EL1, x0
+	mrs	x0, CORTEX_A78_CPUPWRCTLR_EL1
+	orr	x0, x0, #CORTEX_A78_CPUPWRCTLR_EL1_CORE_PWRDN_EN_BIT
+	msr	CORTEX_A78_CPUPWRCTLR_EL1, x0
 	isb
 	ret
 endfunc cortex_hercules_ae_core_pwr_dwn
@@ -85,7 +85,7 @@ cortex_hercules_ae_regs:  /* The ascii list of register names to be reported */
 
 func cortex_hercules_ae_cpu_reg_dump
 	adr	x6, cortex_hercules_ae_regs
-	mrs	x8, CORTEX_HERCULES_CPUECTLR_EL1
+	mrs	x8, CORTEX_A78_CPUECTLR_EL1
 	ret
 endfunc cortex_hercules_ae_cpu_reg_dump
 
