@@ -21,13 +21,17 @@
 #ifndef PLAT_SP_IMAGE_XLAT_SECTION_NAME
 #define PLAT_SP_IMAGE_XLAT_SECTION_NAME	"xlat_table"
 #endif
+#ifndef PLAT_SP_IMAGE_BASE_XLAT_SECTION_NAME
+#define PLAT_SP_IMAGE_BASE_XLAT_SECTION_NAME	".bss"
+#endif
 
 /* Allocate and initialise the translation context for the secure partitions. */
 REGISTER_XLAT_CONTEXT2(sp,
 		       PLAT_SP_IMAGE_MMAP_REGIONS,
 		       PLAT_SP_IMAGE_MAX_XLAT_TABLES,
 		       PLAT_VIRT_ADDR_SPACE_SIZE, PLAT_PHY_ADDR_SPACE_SIZE,
-		       EL1_EL0_REGIME, PLAT_SP_IMAGE_XLAT_SECTION_NAME);
+		       EL1_EL0_REGIME, PLAT_SP_IMAGE_XLAT_SECTION_NAME,
+		       PLAT_SP_IMAGE_BASE_XLAT_SECTION_NAME);
 
 /* Lock used for SP_MEMORY_ATTRIBUTES_GET and SP_MEMORY_ATTRIBUTES_SET */
 static spinlock_t mem_attr_smc_lock;

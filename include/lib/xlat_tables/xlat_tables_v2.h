@@ -201,16 +201,20 @@ typedef struct xlat_ctx xlat_ctx_t;
  * _section_name:
  *   Specify the name of the section where the translation tables have to be
  *   placed by the linker.
+ *
+ * _base_table_section_name:
+ *   Specify the name of the section where the base translation tables have to
+ *   be placed by the linker.
  */
 #define REGISTER_XLAT_CONTEXT2(_ctx_name, _mmap_count, _xlat_tables_count, \
 			_virt_addr_space_size, _phy_addr_space_size,	\
-			_xlat_regime, _section_name)			\
+			_xlat_regime, _section_name, _base_table_section_name) \
 	REGISTER_XLAT_CONTEXT_FULL_SPEC(_ctx_name, (_mmap_count),	\
 					 (_xlat_tables_count),		\
 					 (_virt_addr_space_size),	\
 					 (_phy_addr_space_size),	\
 					 (_xlat_regime),		\
-					 (_section_name), ".bss"	\
+					 (_section_name), (_base_table_section_name) \
 )
 
 /******************************************************************************
