@@ -11,32 +11,105 @@
 #include "socfpga_mailbox.h"
 #include "socfpga_sip_svc.h"
 
+
+static bool is_mailbox_cmdbuf_full(uint32_t cin)
+{
+	uint32_t cout = mmio_read_32(MBOX_OFFSET + MBOX_COUT);
+
+	return (((cin + 1U) % MBOX_CMD_BUFFER_SIZE) == cout);
+}
+
+static bool is_mailbox_cmdbuf_empty(uint32_t cin)
+{
+	uint32_t cout = mmio_read_32(MBOX_OFFSET + MBOX_COUT);
+
+	return (((cout + 1U) % MBOX_CMD_BUFFER_SIZE) == cin);
+}
+
+static int wait_for_mailbox_cmdbuf_empty(uint32_t cin)
+{
+	uint32_t timeout = 200U;
+
+	do {
+		if (is_mailbox_cmdbuf_empty(cin)) {
+			break;
+		}
+		mdelay(10U);
+	} while (--timeout != 0U);
+
+	if (timeout == 0U) {
+		return MBOX_TIMEOUT;
+	}
+
+	return MBOX_RET_OK;
+}
+
+static int write_mailbox_cmd_buffer(uint32_t *cin, uint32_t cout,
+				    uint32_t data,
+				    bool *is_doorbell_triggered)
+{
+	uint32_t timeout = 100U;
+
+	do {
+		if (is_mailbox_cmdbuf_full(*cin)) {
+			if (!(*is_doorbell_triggered)) {
+				mmio_write_32(MBOX_OFFSET +
+					      MBOX_DOORBELL_TO_SDM, 1);
+				*is_doorbell_triggered = true;
+			}
+			mdelay(10U);
+		} else {
+			mmio_write_32(MBOX_OFFSET + MBOX_CMD_BUFFER +
+				      (*cin * 4), data);
+			(*cin)++;
+			*cin %= MBOX_CMD_BUFFER_SIZE;
+			mmio_write_32(MBOX_OFFSET + MBOX_CIN, *cin);
+			break;
+		}
+	} while (--timeout != 0U);
+
+	if (timeout == 0U) {
+		return MBOX_TIMEOUT;
+	}
+
+	if (*is_doorbell_triggered) {
+		int ret = wait_for_mailbox_cmdbuf_empty(*cin);
+		return ret;
+	}
+
+	return MBOX_RET_OK;
+}
+
 static int fill_mailbox_circular_buffer(uint32_t header_cmd, uint32_t *args,
 					int len)
 {
 	uint32_t sdm_read_offset, cmd_free_offset;
-	int i;
+	uint32_t i;
+	int ret;
+	bool is_doorbell_triggered = false;
 
 	cmd_free_offset = mmio_read_32(MBOX_OFFSET + MBOX_CIN);
 	sdm_read_offset = mmio_read_32(MBOX_OFFSET + MBOX_COUT);
 
-	if ((cmd_free_offset < sdm_read_offset) &&
-		(cmd_free_offset + len > sdm_read_offset)) {
-		return MBOX_BUFFER_FULL;
+	ret = write_mailbox_cmd_buffer(&cmd_free_offset, sdm_read_offset,
+				       header_cmd, &is_doorbell_triggered);
+	if (ret != 0) {
+		return ret;
 	}
 
-	mmio_write_32(MBOX_OFFSET + MBOX_CMD_BUFFER + (cmd_free_offset++ * 4),
-			header_cmd);
-
-
-	for (i = 0; i < len; i++) {
-		cmd_free_offset %= MBOX_CMD_BUFFER_SIZE;
-		mmio_write_32(MBOX_OFFSET + MBOX_CMD_BUFFER +
-				(cmd_free_offset++ * 4), args[i]);
+	for (i = 0U; i < len; i++) {
+		is_doorbell_triggered = false;
+		ret = write_mailbox_cmd_buffer(&cmd_free_offset,
+					       sdm_read_offset, args[i],
+					       &is_doorbell_triggered);
+		if (ret != 0) {
+			return ret;
+		}
 	}
 
-	cmd_free_offset %= MBOX_CMD_BUFFER_SIZE;
-	mmio_write_32(MBOX_OFFSET + MBOX_CIN, cmd_free_offset);
+	if (!is_doorbell_triggered) {
+		mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_TO_SDM, 1);
+	}
 
 	return MBOX_RET_OK;
 }
@@ -103,7 +176,7 @@ int mailbox_poll_response(uint32_t job_id, int urgent, uint32_t *response,
 			    & 1) {
 				break;
 			}
-			mdelay(25);
+			mdelay(10U);
 		} while (--timeout != 0U);
 
 		if (timeout == 0U) {
@@ -171,7 +244,7 @@ int iterate_resp(int mbox_resp_len, uint32_t *resp_buf, int resp_len)
 	int rout = mmio_read_32(MBOX_OFFSET + MBOX_ROUT);
 
 	while (mbox_resp_len > 0) {
-		timeout = 40;
+		timeout = 100U;
 		mbox_resp_len--;
 		resp_data = mmio_read_32(MBOX_OFFSET +
 					MBOX_RESP_BUFFER +
@@ -189,7 +262,7 @@ int iterate_resp(int mbox_resp_len, uint32_t *resp_buf, int resp_len)
 		do {
 			rin = mmio_read_32(MBOX_OFFSET + MBOX_RIN);
 			if (rout == rin) {
-				mdelay(25);
+				mdelay(10U);
 			} else {
 				break;
 			}
@@ -219,7 +292,6 @@ int mailbox_send_cmd_async(uint32_t *job_id, unsigned int cmd, uint32_t *args,
 		return status;
 	}
 
-	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_TO_SDM, 1);
 	*job_id = (*job_id + 1) % MBOX_MAX_IND_JOB_ID;
 
 	return MBOX_RET_OK;
@@ -234,6 +306,7 @@ int mailbox_send_cmd(uint32_t job_id, unsigned int cmd, uint32_t *args,
 		urgent |= mmio_read_32(MBOX_OFFSET + MBOX_STATUS) &
 					MBOX_STATUS_UA_MASK;
 		mmio_write_32(MBOX_OFFSET + MBOX_URG, cmd);
+		mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_TO_SDM, 1);
 	}
 
 	else {
@@ -247,7 +320,6 @@ int mailbox_send_cmd(uint32_t job_id, unsigned int cmd, uint32_t *args,
 	if (status)
 		return status;
 
-	mmio_write_32(MBOX_OFFSET + MBOX_DOORBELL_TO_SDM, 1);
 	status = mailbox_poll_response(job_id, urgent, response, resp_len);
 
 	return status;
