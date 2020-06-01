@@ -18,6 +18,9 @@
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
 
+/* Timeout for device interface reset */
+#define TIMEOUT_US_1_MS			1000U
+
 /* QUADSPI registers */
 #define QSPI_CR			0x00U
 #define QSPI_DCR		0x04U
@@ -492,8 +495,14 @@ int stm32_qspi_init(void)
 
 	stm32mp_clk_enable(stm32_qspi.clock_id);
 
-	stm32mp_reset_assert(stm32_qspi.reset_id);
-	stm32mp_reset_deassert(stm32_qspi.reset_id);
+	ret = stm32mp_reset_assert(stm32_qspi.reset_id, TIMEOUT_US_1_MS);
+	if (ret != 0) {
+		panic();
+	}
+	ret = stm32mp_reset_deassert(stm32_qspi.reset_id, TIMEOUT_US_1_MS);
+	if (ret != 0) {
+		panic();
+	}
 
 	mmio_write_32(qspi_base() + QSPI_CR, QSPI_CR_SSHIFT);
 	mmio_write_32(qspi_base() + QSPI_DCR, QSPI_DCR_FSIZE_MASK);

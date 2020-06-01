@@ -113,6 +113,7 @@
 					 SDMMC_STAR_IDMATE   | \
 					 SDMMC_STAR_IDMABTC)
 
+#define TIMEOUT_US_1_MS			1000U
 #define TIMEOUT_US_10_MS		10000U
 #define TIMEOUT_US_1_S			1000000U
 
@@ -711,6 +712,8 @@ unsigned long long stm32_sdmmc2_mmc_get_device_size(void)
 
 int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params)
 {
+	int rc;
+
 	assert((params != NULL) &&
 	       ((params->reg_base & MMC_BLOCK_MASK) == 0U) &&
 	       ((params->bus_width == MMC_BUS_WIDTH_1) ||
@@ -726,9 +729,15 @@ int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params)
 
 	stm32mp_clk_enable(sdmmc2_params.clock_id);
 
-	stm32mp_reset_assert(sdmmc2_params.reset_id);
+	rc = stm32mp_reset_assert(sdmmc2_params.reset_id, TIMEOUT_US_1_MS);
+	if (rc != 0) {
+		panic();
+	}
 	udelay(2);
-	stm32mp_reset_deassert(sdmmc2_params.reset_id);
+	rc = stm32mp_reset_deassert(sdmmc2_params.reset_id, TIMEOUT_US_1_MS);
+	if (rc != 0) {
+		panic();
+	}
 	mdelay(1);
 
 	sdmmc2_params.clk_rate = stm32mp_clk_get_rate(sdmmc2_params.clock_id);
