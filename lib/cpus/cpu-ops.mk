@@ -254,6 +254,10 @@ ERRATA_A76_1286807	?=0
 # only to revision <= r4p0 of the Cortex A76 cpu.
 ERRATA_A76_1791580	?=0
 
+# Flag to apply erratum 1800710 workaround during reset. This erratum applies
+# only to revision <= r4p0 of the Cortex A76 cpu.
+ERRATA_A76_1800710	?=0
+
 # Flag to apply erratum 1688305 workaround during reset. This erratum applies
 # to revisions r0p0 - r1p0 of the A78 cpu.
 ERRATA_A78_1688305	?=0
@@ -494,6 +498,10 @@ $(eval $(call add_define,ERRATA_A76_1286807))
 # Process ERRATA_A76_1791580 flag
 $(eval $(call assert_boolean,ERRATA_A76_1791580))
 $(eval $(call add_define,ERRATA_A76_1791580))
+
+# Process ERRATA_A76_1800710 flag
+$(eval $(call assert_boolean,ERRATA_A76_1800710))
+$(eval $(call add_define,ERRATA_A76_1800710))
 
 # Process ERRATA_A78_1688305 flag
 $(eval $(call assert_boolean,ERRATA_A78_1688305))
