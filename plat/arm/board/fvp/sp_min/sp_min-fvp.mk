@@ -25,6 +25,11 @@ ifeq ($(filter 1,${BL2_AT_EL3} ${RESET_TO_SP_MIN}),)
 BL32_SOURCES		+=	common/fdt_wrappers.c				\
 				lib/fconf/fconf.c				\
 				plat/arm/board/fvp/fconf/fconf_hw_config_getter.c
+
+ifeq (${SEC_INT_DESC_IN_FCONF},1)
+BL32_SOURCES		+=	plat/arm/common/fconf/fconf_sec_intr_config.c
+endif
+
 endif
 
 include plat/arm/common/sp_min/arm_sp_min.mk

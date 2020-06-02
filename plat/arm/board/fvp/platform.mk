@@ -221,6 +221,11 @@ ifeq ($(filter 1,${BL2_AT_EL3} ${RESET_TO_BL31}),)
 BL31_SOURCES		+=	common/fdt_wrappers.c				\
 				lib/fconf/fconf.c				\
 				plat/arm/board/fvp/fconf/fconf_hw_config_getter.c
+
+ifeq (${SEC_INT_DESC_IN_FCONF},1)
+BL31_SOURCES		+=	plat/arm/common/fconf/fconf_sec_intr_config.c
+endif
+
 endif
 
 ifeq (${FVP_USE_SP804_TIMER},1)

@@ -6,6 +6,11 @@
 
 #include <services/sdei_flags.h>
 
+#define LEVEL	0
+#define EDGE	2
+#define SDEI_NORMAL	0x70
+#define HIGHEST_SEC	0
+
 /memreserve/ 0x80000000 0x00010000;
 
 / {
@@ -38,8 +43,9 @@
 		max-pwr-lvl = <2>;
 	};
 
-#if SDEI_IN_FCONF
+#if SDEI_IN_FCONF || SEC_INT_DESC_IN_FCONF
 	firmware {
+#if SDEI_IN_FCONF
 		sdei {
 			compatible = "arm,sdei-1.0";
 			method = "smc";
@@ -59,8 +65,37 @@
 						<2001 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>,
 						<2002 SDEI_DYN_IRQ SDEI_MAPF_DYNAMIC>;
 		};
-	};
 #endif /* SDEI_IN_FCONF */
+
+#if SEC_INT_DESC_IN_FCONF
+		sec_interrupts {
+			compatible = "arm,secure_interrupt_desc";
+			/* Number of G0 and G1 secure interrupts defined by the platform */
+			g0_intr_cnt = <2>;
+			g1s_intr_cnt = <9>;
+			/*
+			 * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
+			 * terminology. Each interrupt property descriptor has 3 fields:
+			 * 1. Interrupt number
+			 * 2. Interrupt priority
+			 * 3. Type of interrupt (Edge or Level configured)
+			 */
+			g0_intr_desc =	< 8 SDEI_NORMAL EDGE>,
+					<14 HIGHEST_SEC EDGE>;
+
+			g1s_intr_desc =	< 9 HIGHEST_SEC EDGE>,
+					<10 HIGHEST_SEC EDGE>,
+					<11 HIGHEST_SEC EDGE>,
+					<12 HIGHEST_SEC EDGE>,
+					<13 HIGHEST_SEC EDGE>,
+					<15 HIGHEST_SEC EDGE>,
+					<29 HIGHEST_SEC LEVEL>,
+					<56 HIGHEST_SEC LEVEL>,
+					<57 HIGHEST_SEC LEVEL>;
+		};
+#endif /* SEC_INT_DESC_IN_FCONF */
+	};
+#endif /* SDEI_IN_FCONF || SEC_INT_DESC_IN_FCONF */
 
 	cpus {
 		#address-cells = <2>;
