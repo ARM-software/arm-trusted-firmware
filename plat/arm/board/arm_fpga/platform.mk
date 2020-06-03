@@ -58,10 +58,10 @@ else
 	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a76.S		\
 				lib/cpus/aarch64/cortex_a76ae.S		\
 				lib/cpus/aarch64/cortex_a77.S		\
+				lib/cpus/aarch64/cortex_a78.S		\
 				lib/cpus/aarch64/neoverse_n1.S		\
 				lib/cpus/aarch64/neoverse_e1.S		\
 				lib/cpus/aarch64/neoverse_zeus.S	\
-				lib/cpus/aarch64/cortex_hercules.S	\
 				lib/cpus/aarch64/cortex_hercules_ae.S	\
 				lib/cpus/aarch64/cortex_a65.S		\
 				lib/cpus/aarch64/cortex_a65ae.S

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2020, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <common/bl_common.h>
-#include <cortex_hercules.h>
+#include <cortex_a78.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
