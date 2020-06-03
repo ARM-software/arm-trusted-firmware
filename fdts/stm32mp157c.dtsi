@@ -362,5 +362,13 @@
 			#size-cells = <0>;
 			status = "disabled";
 		};
+
+		etzpc: etzpc@5c007000 {
+			compatible = "st,stm32-etzpc";
+			reg = <0x5C007000 0x400>;
+			clocks = <&rcc TZPC>;
+			status = "disabled";
+			secure-status = "okay";
+		};
 	};
 };
