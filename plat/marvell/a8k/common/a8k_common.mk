@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016 - 2018 Marvell International Ltd.
+# Copyright (C) 2016 - 2020 Marvell International Ltd.
 #
 # SPDX-License-Identifier:     BSD-3-Clause
 # https://spdx.org/licenses
@@ -22,7 +22,7 @@ ERRATA_A72_859971	:= 1
 MSS_SUPPORT		:= 1
 
 # Disable EL3 cache for power management
-BL31_CACHE_DISABLE	:= 1
+BL31_CACHE_DISABLE	:= 0
 $(eval $(call add_define,BL31_CACHE_DISABLE))
 
 $(eval $(call add_define,PCI_EP_SUPPORT))
