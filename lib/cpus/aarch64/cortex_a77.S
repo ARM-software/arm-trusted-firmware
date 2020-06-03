@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,53 @@
 #if CTX_INCLUDE_AARCH32_REGS == 1
 #error "Cortex-A77 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
+
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A77 Errata #1800714.
+	 * This applies to revision <= r1p1 of Cortex A77.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_a77_1800714_wa
+	/* Compare x0 against revision <= r1p1 */
+	mov	x17, x30
+	bl	check_errata_1800714
+	cbz	x0, 1f
+
+	/* Disable allocation of splintered pages in the L2 TLB */
+	mrs	x1, CORTEX_A77_CPUECTLR_EL1
+	orr	x1, x1, CORTEX_A77_CPUECTLR_EL1_BIT_53
+	msr	CORTEX_A77_CPUECTLR_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a77_1800714_wa
+
+func check_errata_1800714
+	/* Applies to everything <= r1p1 */
+	mov	x1, #0x11
+	b	cpu_rev_var_ls
+endfunc check_errata_1800714
+
+	/* -------------------------------------------------
+	 * The CPU Ops reset function for Cortex-A77.
+	 * Shall clobber: x0-x19
+	 * -------------------------------------------------
+	 */
+func cortex_a77_reset_func
+	mov	x19, x30
+	bl	cpu_get_rev_var
+	mov	x18, x0
+
+#if ERRATA_A77_1800714
+	mov	x0, x18
+	bl	errata_a77_1800714_wa
+#endif
+
+	ret	x19
+endfunc cortex_a77_reset_func
 
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
@@ -42,6 +89,18 @@ endfunc cortex_a77_core_pwr_dwn
  * Errata printing function for Cortex-A77. Must follow AAPCS.
  */
 func cortex_a77_errata_report
+	stp	x8, x30, [sp, #-16]!
+
+	bl	cpu_get_rev_var
+	mov	x8, x0
+
+	/*
+	 * Report all errata. The revision-variant information is passed to
+	 * checking functions of each errata.
+	 */
+	report_errata ERRATA_A77_1800714, cortex_a77, 1800714
+
+	ldp	x8, x30, [sp], #16
 	ret
 endfunc cortex_a77_errata_report
 #endif
@@ -67,5 +126,5 @@ func cortex_a77_cpu_reg_dump
 endfunc cortex_a77_cpu_reg_dump
 
 declare_cpu_ops cortex_a77, CORTEX_A77_MIDR, \
-	CPU_NO_RESET_FUNC, \
+	cortex_a77_reset_func, \
 	cortex_a77_core_pwr_dwn
