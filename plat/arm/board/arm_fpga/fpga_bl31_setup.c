@@ -5,7 +5,9 @@
  */
 
 #include <assert.h>
+#include <errno.h>
 
+#include <common/fdt_fixup.h>
 #include <common/fdt_wrappers.h>
 #include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
@@ -190,6 +192,24 @@ static void fpga_prepare_dtb(void)
 			if (err) {
 				ERROR("Could not set command line: %d\n", err);
 			}
+		}
+	}
+
+	if (err < 0) {
+		ERROR("Error %d extending Device Tree\n", err);
+		panic();
+	}
+
+	err = fdt_add_cpus_node(fdt, FPGA_MAX_PE_PER_CPU,
+				FPGA_MAX_CPUS_PER_CLUSTER,
+				FPGA_MAX_CLUSTER_COUNT);
+
+	if (err == -EEXIST) {
+		WARN("Not overwriting already existing /cpus node in DTB\n");
+	} else {
+		if (err < 0) {
+			ERROR("Error %d creating the /cpus DT node\n", err);
+			panic();
 		}
 	}
 
