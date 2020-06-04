@@ -25,7 +25,6 @@ SECTIONS
 	 */
 	sp_xlat_table (NOLOAD) : ALIGN(PAGE_SIZE) {
 		*(sp_xlat_table)
-		*(.bss.sp_base_xlat_table)
 	} >SP_DRAM
 }
 
