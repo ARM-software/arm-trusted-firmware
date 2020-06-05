@@ -14,9 +14,9 @@
 #include "uniphier.h"
 
 #define UNIPHIER_BL33_OFFSET		0x04000000UL
-#define UNIPHIER_BL33_MAX_SIZE		0x00100000UL
+#define UNIPHIER_BL33_MAX_SIZE		0x00800000UL
 
-#define UNIPHIER_SCP_OFFSET		0x04100000UL
+#define UNIPHIER_SCP_OFFSET		0x04800000UL
 #define UNIPHIER_SCP_MAX_SIZE		0x00020000UL
 
 static struct bl_mem_params_node uniphier_image_descs[] = {
