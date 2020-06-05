@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,6 +69,7 @@
 #define CMD_CASUAL			0
 #define CMD_URGENT			1
 
+#define MBOX_WORD_BYTE			4U
 #define MBOX_RESP_BUFFER_SIZE		16
 #define MBOX_CMD_BUFFER_SIZE		32
 
@@ -107,6 +108,9 @@
 
 
 /* Mailbox Macros */
+
+#define MBOX_ENTRY_TO_ADDR(_buf, ptr)	(MBOX_OFFSET + (MBOX_##_buf##_BUFFER) \
+						+ MBOX_WORD_BYTE * (ptr))
 
 /* Mailbox interrupt flags and masks */
 #define MBOX_INT_FLAG_COE		0x1

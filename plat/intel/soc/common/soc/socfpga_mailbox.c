@@ -59,9 +59,7 @@ static int write_mailbox_cmd_buffer(uint32_t *cin, uint32_t cout,
 			}
 			mdelay(10U);
 		} else {
-			mmio_write_32(MBOX_OFFSET + MBOX_CMD_BUFFER +
-				      (*cin * 4), data);
-			(*cin)++;
+			mmio_write_32(MBOX_ENTRY_TO_ADDR(CMD, (*cin)++), data);
 			*cin %= MBOX_CMD_BUFFER_SIZE;
 			mmio_write_32(MBOX_OFFSET + MBOX_CIN, *cin);
 			break;
@@ -144,8 +142,7 @@ int mailbox_read_response(unsigned int *job_id, uint32_t *response,
 	rout = mmio_read_32(MBOX_OFFSET + MBOX_ROUT);
 
 	if (rout != rin) {
-		resp_data = mmio_read_32(MBOX_OFFSET +
-				    MBOX_RESP_BUFFER + ((rout++)*4U));
+		resp_data = mmio_read_32(MBOX_ENTRY_TO_ADDR(RESP, (rout)++));
 
 		rout %= MBOX_RESP_BUFFER_SIZE;
 		mmio_write_32(MBOX_OFFSET + MBOX_ROUT, rout);
@@ -219,8 +216,8 @@ int mailbox_poll_response(uint32_t job_id, uint32_t urgent, uint32_t *response,
 		rout = mmio_read_32(MBOX_OFFSET + MBOX_ROUT);
 
 		while (rout != rin) {
-			resp_data = mmio_read_32(MBOX_OFFSET +
-					    MBOX_RESP_BUFFER + ((rout++)*4U));
+			resp_data = mmio_read_32(MBOX_ENTRY_TO_ADDR(RESP,
+								(rout)++));
 
 			rout %= MBOX_RESP_BUFFER_SIZE;
 			mmio_write_32(MBOX_OFFSET + MBOX_ROUT, rout);
@@ -264,9 +261,7 @@ unsigned int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
 	while (mbox_resp_len > 0U) {
 		timeout = 100U;
 		mbox_resp_len--;
-		resp_data = mmio_read_32(MBOX_OFFSET +
-					MBOX_RESP_BUFFER +
-					(rout)*4U);
+		resp_data = mmio_read_32(MBOX_ENTRY_TO_ADDR(RESP, (rout)++));
 
 		if ((resp_buf != NULL) && (resp_len != 0U)) {
 			*(resp_buf + total_resp_len)
@@ -274,7 +269,6 @@ unsigned int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
 			resp_len--;
 			total_resp_len++;
 		}
-		rout++;
 		rout %= MBOX_RESP_BUFFER_SIZE;
 		mmio_write_32(MBOX_OFFSET + MBOX_ROUT, rout);
 
