@@ -91,7 +91,7 @@
 
 /* Platform default console definitions */
 #ifndef K3_USART_BASE
-#define K3_USART_BASE 0x02800000
+#define K3_USART_BASE			(0x02800000 + 0x10000 * K3_USART)
 #endif
 
 /* USART has a default size for address space */

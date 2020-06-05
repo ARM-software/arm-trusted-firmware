@@ -37,6 +37,9 @@ ENABLE_PIE		:=	1
 TI_16550_MDR_QUIRK	:=	1
 $(eval $(call add_define,TI_16550_MDR_QUIRK))
 
+K3_USART		:=	0
+$(eval $(call add_define,K3_USART))
+
 # Allow customizing the UART baud rate
 K3_USART_BAUD		:=	115200
 $(eval $(call add_define,K3_USART_BAUD))
