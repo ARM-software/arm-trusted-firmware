@@ -35,14 +35,12 @@ uint32_t directory_init(void)
 	uint32_t dir, sf, ret;
 
 	for (dir = 0; dir < subsystem_id.num_directory; dir++) {
-
-		dir_sf_mtn = DIRECTORY_UNIT(dir, NCORE_DIRUSFMCR);
-		dir_sf_en = DIRECTORY_UNIT(dir, NCORE_DIRUSFER);
-
 		for (sf = 0; sf < subsystem_id.num_snoop_filter; sf++) {
+			dir_sf_mtn = DIRECTORY_UNIT(dir, NCORE_DIRUSFMCR);
+			dir_sf_en = DIRECTORY_UNIT(dir, NCORE_DIRUSFER);
 
 			/* Initialize All Entries */
-			mmio_write_32(dir_sf_mtn, SNOOP_FILTER_ID(sf));
+			mmio_write_32(dir_sf_mtn, SNOOP_FILTER_ID(dir));
 
 			/* Poll Active Bit */
 			ret = poll_active_bit(dir);
@@ -52,7 +50,7 @@ uint32_t directory_init(void)
 			}
 
 			/* Snoope Filter Enable */
-			mmio_write_32(dir_sf_en, BIT(sf));
+			mmio_setbits_32(dir_sf_en, BIT(sf));
 		}
 	}
 
@@ -64,11 +62,8 @@ uint32_t coherent_agent_intfc_init(void)
 	uint32_t dir, ca, ca_id, ca_type, ca_snoop_en;
 
 	for (dir = 0; dir < subsystem_id.num_directory; dir++) {
-
-		ca_snoop_en = DIRECTORY_UNIT(dir, NCORE_DIRUCASER0);
-
 		for (ca = 0; ca < subsystem_id.num_coh_agent; ca++) {
-
+			ca_snoop_en = DIRECTORY_UNIT(ca, NCORE_DIRUCASER0);
 			ca_id = mmio_read_32(COH_AGENT_UNIT(ca, NCORE_CAIUIDR));
 
 			/* Coh Agent Snoop Enable */

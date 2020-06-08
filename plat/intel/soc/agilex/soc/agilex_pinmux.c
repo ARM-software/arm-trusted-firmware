@@ -7,6 +7,7 @@
 #include <lib/mmio.h>
 
 #include "agilex_pinmux.h"
+#include "socfpga_system_manager.h"
 
 const uint32_t sysmgr_pinmux_array_sel[] = {
 	0x00000000, 0x00000001, /* usb */
@@ -185,6 +186,12 @@ const uint32_t sysmgr_pinmux_array_iodelay[] = {
 	0x0000011c, 0x00000000
 };
 
+void config_fpgaintf_mod(void)
+{
+	mmio_write_32(SOCFPGA_SYSMGR(FPGAINTF_EN_2), 1<<8);
+}
+
+
 void config_pinmux(handoff *hoff_ptr)
 {
 	unsigned int i;
@@ -213,5 +220,6 @@ void config_pinmux(handoff *hoff_ptr)
 			hoff_ptr->pinmux_iodelay_array[i+1]);
 	}
 
+	config_fpgaintf_mod();
 }
 
