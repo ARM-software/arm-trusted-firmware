@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <export/common/tbbr/tbbr_img_def_exp.h>
+#include <common/tbbr/tbbr_img_def.h>
 
 /dts-v1/;
 
