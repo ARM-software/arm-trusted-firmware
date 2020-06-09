@@ -222,6 +222,14 @@
 #define TYPER_PPI_NUM_SHIFT	U(27)
 #define TYPER_PPI_NUM_MASK	U(0x1f)
 
+/* GICR_IIDR bit definitions */
+#define IIDR_PRODUCT_ID_MASK	0xff000000
+#define IIDR_VARIANT_MASK	0x000f0000
+#define IIDR_REVISION_MASK	0x0000f000
+#define IIDR_IMPLEMENTER_MASK	0x00000fff
+#define IIDR_MODEL_MASK		(IIDR_PRODUCT_ID_MASK | \
+				 IIDR_IMPLEMENTER_MASK)
+
 /*******************************************************************************
  * GICv3 and 3.1 CPU interface registers & constants
  ******************************************************************************/

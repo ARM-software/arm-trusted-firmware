@@ -70,8 +70,8 @@ else
 				lib/cpus/aarch64/cortex_a75.S
 endif
 
-# GIC-600 configuration
-GICV3_IMPL		:=	GIC600
+# Allow detection of GIC-600
+GICV3_SUPPORT_GIC600	:=	1
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk

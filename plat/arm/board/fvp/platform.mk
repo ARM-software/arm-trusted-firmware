@@ -49,13 +49,10 @@ endif
 $(eval $(call add_define,FVP_INTERCONNECT_DRIVER))
 
 # Choose the GIC sources depending upon the how the FVP will be invoked
-ifeq (${FVP_USE_GIC_DRIVER},$(filter ${FVP_USE_GIC_DRIVER},FVP_GICV3 FVP_GIC600))
+ifeq (${FVP_USE_GIC_DRIVER}, FVP_GICV3)
 
-	# GIC500 is the default option in case GICV3_IMPL is not set
-	ifeq (${FVP_USE_GIC_DRIVER}, FVP_GIC600)
-		GICV3_IMPL	:=	GIC600
-	endif
-
+# The GIC model (GIC-600 or GIC-500) will be detected at runtime
+GICV3_SUPPORT_GIC600		:=	1
 GICV3_OVERRIDE_DISTIF_PWR_OPS	:=	1
 
 # Include GICv3 driver files

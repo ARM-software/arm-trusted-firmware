@@ -23,7 +23,7 @@ SGM_CPU_SOURCES		:=	lib/cpus/aarch64/cortex_a55.S		\
 INTERCONNECT_SOURCES	:=	${CSS_SGM_BASE}/sgm_interconnect.c
 
 # GIC-600 configuration
-GICV3_IMPL		:=	GIC600
+GICV3_SUPPORT_GIC600	:=	1
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
