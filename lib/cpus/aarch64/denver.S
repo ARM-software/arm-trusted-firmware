@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,6 +33,12 @@ vector_base workaround_bpflush_runtime_exceptions
 
 	.macro	apply_workaround
 	stp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
+
+	/* Disable cycle counter when event counting is prohibited */
+	mrs	x1, pmcr_el0
+	orr	x0, x1, #PMCR_EL0_DP_BIT
+	msr	pmcr_el0, x0
+	isb
 
 	/* -------------------------------------------------
 	 * A new write-only system register where a write of
