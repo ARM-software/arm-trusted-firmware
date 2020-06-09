@@ -12,7 +12,7 @@
 #include "ext.h"
 #include "key.h"
 
-#define CERT_MAX_EXT			5
+#define CERT_MAX_EXT			9
 
 /*
  * This structure contains information related to the generation of the

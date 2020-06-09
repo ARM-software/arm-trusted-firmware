@@ -11,7 +11,8 @@ Layout file can exist outside of TF-A tree and the paths of Image and PM files
 must be relative to it.
 
 This script parses the layout file and generates a make file which updates
-FDT_SOURCES, FIP_ARGS and SPTOOL_ARGS which are used in later build steps.
+FDT_SOURCES, FIP_ARGS, CRT_ARGS and SPTOOL_ARGS which are used in later build
+steps.
 This script also gets SP "uuid" from parsing its PM and converting it to a
 standard format.
 
@@ -24,6 +25,7 @@ Secure Partition entry
     FDT_SOURCES +=  sp1.dts
     SPTOOL_ARGS += -i sp1.bin:sp1.dtb -o sp1.pkg
     FIP_ARGS += --blob uuid=XXXXX-XXX...,file=sp1.pkg
+    CRT_ARGS += --sp-pkg1 sp1.pkg
 
 A typical SP_LAYOUT_FILE file will look like
 {
@@ -59,7 +61,7 @@ dtb_dir = out_dir + "/fdts/"
 print(dtb_dir)
 
 with open(gen_file, 'w') as out_file:
-    for key in data.keys():
+    for idx, key in enumerate(data.keys()):
 
         """
         Append FDT_SOURCES
@@ -97,4 +99,9 @@ with open(gen_file, 'w') as out_file:
         Append FIP_ARGS
         """
         out_file.write("FIP_ARGS += --blob uuid=" + uuid_std + ",file=" + dst + "\n")
+
+        """
+        Append CRT_ARGS
+        """
+        out_file.write("CRT_ARGS += --sp-pkg" + str(idx + 1) + " " + dst + "\n")
         out_file.write("\n")

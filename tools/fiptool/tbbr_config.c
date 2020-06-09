@@ -152,6 +152,11 @@ toc_entry_t toc_entries[] = {
 		.cmdline_name = "nt-fw-cert"
 	},
 	{
+		.name = "SiP owned Secure Partition content certificate",
+		.uuid = UUID_SIP_SECURE_PARTITION_CONTENT_CERT,
+		.cmdline_name = "sip-sp-cert"
+	},
+	{
 		.name = NULL,
 		.uuid = { {0} },
 		.cmdline_name = NULL,

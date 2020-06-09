@@ -111,6 +111,7 @@
 			soc_fw_content_cert_uuid = <0x200cb2e2 0x11e4635e 0xccabe89c 0x66b62bf9>;
 			tos_fw_content_cert_uuid = <0x11449fa4 0x11e4635e 0x53f2887 0x3df32a72>;
 			nt_fw_content_cert_uuid = <0xf3c1c48e 0x11e4635d 0xee87a9a7 0xa73fb240>;
+			sp_content_cert_uuid = <0x44fd6d77 0x3b4c9786 0x3ec1eb91 0x6f2a5a02>;
 		};
 	};
 #endif /* ARM_IO_IN_DTB */
