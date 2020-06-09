@@ -37,7 +37,8 @@ static int dt_process_fdt(u_register_t param_from_bl2)
 static uint32_t rk_uart_base = PLAT_RK_UART_BASE;
 static uint32_t rk_uart_baudrate = PLAT_RK_UART_BAUDRATE;
 static uint32_t rk_uart_clock = PLAT_RK_UART_CLOCK;
-static uint8_t fdt_buffer[0x10000];
+#define FDT_BUFFER_SIZE 0x20000
+static uint8_t fdt_buffer[FDT_BUFFER_SIZE];
 
 void *plat_get_fdt(void)
 {
@@ -136,7 +137,7 @@ static int dt_process_fdt(u_register_t param_from_bl2)
 	void *fdt = plat_get_fdt();
 	int ret;
 
-	ret = fdt_open_into((void *)param_from_bl2, fdt, 0x10000);
+	ret = fdt_open_into((void *)param_from_bl2, fdt, FDT_BUFFER_SIZE);
 	if (ret < 0)
 		return ret;
 
