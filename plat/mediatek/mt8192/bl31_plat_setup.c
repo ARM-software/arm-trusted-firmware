@@ -15,6 +15,7 @@
 #include <lib/coreboot.h>
 
 /* Platform Includes */
+#include <mt_gic_v3.h>
 #include <plat_params.h>
 #include <plat_private.h>
 
@@ -79,6 +80,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
  ******************************************************************************/
 void bl31_platform_setup(void)
 {
+	/* Initialize the GIC driver, CPU and distributor interfaces */
+	mt_gic_driver_init();
+	mt_gic_init();
 }
 
 /*******************************************************************************

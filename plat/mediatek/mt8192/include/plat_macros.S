@@ -24,8 +24,8 @@ cci_iface_regs:
 	.asciz "cci_snoop_ctrl_cluster0", "cci_snoop_ctrl_cluster1" , ""
 
 	/* ---------------------------------------------
-	 * The below macro prints out relevant GIC and
-	 * CCI registers whenever an unhandled exception
+	 * The below macro prints out relevant GIC
+	 * registers whenever an unhandled exception
 	 * is taken in BL31.
 	 * Clobbers: x0 - x10, x26, x27, sp
 	 * ---------------------------------------------

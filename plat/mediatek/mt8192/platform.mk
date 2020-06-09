@@ -10,6 +10,7 @@ MTK_PLAT_SOC  := ${MTK_PLAT}/${PLAT}
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT_SOC}/include/
 
+GICV3_SUPPORT_GIC600        :=      1
 include drivers/arm/gic/v3/gicv3.mk
 include lib/xlat_tables_v2/xlat_tables.mk
 
@@ -30,7 +31,8 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                    ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
                    ${MTK_PLAT_SOC}/plat_pm.c                             \
-                   ${MTK_PLAT_SOC}/plat_topology.c
+                   ${MTK_PLAT_SOC}/plat_topology.c                       \
+                   ${MTK_PLAT_SOC}/plat_mt_gic.c
 
 
 # Configs for A76 and A55
