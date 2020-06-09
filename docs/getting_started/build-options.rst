@@ -651,6 +651,12 @@ Common build options
    than static C structures at compile time. This is currently an experimental
    feature and is only supported if SDEI_SUPPORT build flag is enabled.
 
+-  ``SEC_INT_DESC_IN_FCONF``: This flag determines whether to configure Group 0
+   and Group1 secure interrupts using the firmware configuration framework. The
+   platform specific secure interrupt property descriptor is retrieved from
+   device tree in runtime rather than depending on static C structure at compile
+   time. This is currently an experimental feature.
+
 -  ``USE_ROMLIB``: This flag determines whether library at ROM will be used.
    This feature creates a library of functions to be placed in ROM and thus
    reduces SRAM usage. Refer to :ref:`Library at ROM` for further details. Default

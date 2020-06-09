@@ -226,7 +226,10 @@ USE_DEBUGFS			:= 0
 ARM_IO_IN_DTB			:= 0
 
 # Build option to support SDEI through fconf
-SDEI_IN_FCONF			:=0
+SDEI_IN_FCONF			:= 0
+
+# Build option to support Secure Interrupt descriptors through fconf
+SEC_INT_DESC_IN_FCONF		:= 0
 
 # Build option to choose whether Trusted Firmware uses library at ROM
 USE_ROMLIB			:= 0
