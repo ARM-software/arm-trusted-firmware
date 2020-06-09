@@ -350,7 +350,7 @@
  * and limit. Leave enough space of BL2 meminfo.
  */
 #define ARM_FW_CONFIG_BASE		(ARM_BL_RAM_BASE + sizeof(meminfo_t))
-#define ARM_FW_CONFIG_LIMIT		(ARM_BL_RAM_BASE + (PAGE_SIZE / 2U))
+#define ARM_FW_CONFIG_LIMIT		(ARM_BL_RAM_BASE + PAGE_SIZE)
 
 /*
  * Boot parameters passed from BL2 to BL31/BL32 are stored here
@@ -363,7 +363,7 @@
  * Define limit of firmware configuration memory:
  * ARM_FW_CONFIG + ARM_BL2_MEM_DESC memory
  */
-#define ARM_FW_CONFIGS_LIMIT		(ARM_BL_RAM_BASE + PAGE_SIZE)
+#define ARM_FW_CONFIGS_LIMIT		(ARM_BL_RAM_BASE + (PAGE_SIZE * 2))
 
 /*******************************************************************************
  * BL1 specific defines.

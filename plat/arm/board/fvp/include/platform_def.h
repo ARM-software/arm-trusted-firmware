@@ -133,7 +133,7 @@
  * calculated using the current BL31 PROGBITS debug size plus the sizes of
  * BL2 and BL1-RW
  */
-#define PLAT_ARM_MAX_BL31_SIZE		UL(0x3E000)
+#define PLAT_ARM_MAX_BL31_SIZE		UL(0x3D000)
 #endif /* RESET_TO_BL31 */
 
 #ifndef __aarch64__
