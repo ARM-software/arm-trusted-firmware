@@ -145,4 +145,16 @@
 /* NonTrustedFirmwareConfigHash - NT_FW_CONFIG */
 #define NON_TRUSTED_FW_CONFIG_HASH_OID		"1.3.6.1.4.1.4128.2100.1202"
 
+/*
+ * Secure Partitions Content Certificate
+ */
+#define SP_PKG1_HASH_OID			"1.3.6.1.4.1.4128.2100.1301"
+#define SP_PKG2_HASH_OID			"1.3.6.1.4.1.4128.2100.1302"
+#define SP_PKG3_HASH_OID			"1.3.6.1.4.1.4128.2100.1303"
+#define SP_PKG4_HASH_OID			"1.3.6.1.4.1.4128.2100.1304"
+#define SP_PKG5_HASH_OID			"1.3.6.1.4.1.4128.2100.1305"
+#define SP_PKG6_HASH_OID			"1.3.6.1.4.1.4128.2100.1306"
+#define SP_PKG7_HASH_OID			"1.3.6.1.4.1.4128.2100.1307"
+#define SP_PKG8_HASH_OID			"1.3.6.1.4.1.4128.2100.1308"
+
 #endif /* TBBR_OID_H */

@@ -203,6 +203,86 @@ static ext_t tbb_ext[] = {
 		.type = EXT_TYPE_HASH,
 		.optional = 1
 	},
+	[SP_PKG1_HASH_EXT] = {
+		.oid = SP_PKG1_HASH_OID,
+		.opt = "sp-pkg1",
+		.help_msg = "Secure Partition Package1 file",
+		.sn = "SPPkg1Hash",
+		.ln = "SP Pkg1 hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
+	[SP_PKG2_HASH_EXT] = {
+		.oid = SP_PKG2_HASH_OID,
+		.opt = "sp-pkg2",
+		.help_msg = "Secure Partition Package2 file",
+		.sn = "SPPkg2Hash",
+		.ln = "SP Pkg2 hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
+	[SP_PKG3_HASH_EXT] = {
+		.oid = SP_PKG3_HASH_OID,
+		.opt = "sp-pkg3",
+		.help_msg = "Secure Partition Package3 file",
+		.sn = "SPPkg3Hash",
+		.ln = "SP Pkg3 hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
+	[SP_PKG4_HASH_EXT] = {
+		.oid = SP_PKG4_HASH_OID,
+		.opt = "sp-pkg4",
+		.help_msg = "Secure Partition Package4 file",
+		.sn = "SPPkg4Hash",
+		.ln = "SP Pkg4 hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
+	[SP_PKG5_HASH_EXT] = {
+		.oid = SP_PKG5_HASH_OID,
+		.opt = "sp-pkg5",
+		.help_msg = "Secure Partition Package5 file",
+		.sn = "SPPkg5Hash",
+		.ln = "SP Pkg5 hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
+	[SP_PKG6_HASH_EXT] = {
+		.oid = SP_PKG6_HASH_OID,
+		.opt = "sp-pkg6",
+		.help_msg = "Secure Partition Package6 file",
+		.sn = "SPPkg6Hash",
+		.ln = "SP Pkg6 hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
+	[SP_PKG7_HASH_EXT] = {
+		.oid = SP_PKG7_HASH_OID,
+		.opt = "sp-pkg7",
+		.help_msg = "Secure Partition Package7 file",
+		.sn = "SPPkg7Hash",
+		.ln = "SP Pkg7 hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
+	[SP_PKG8_HASH_EXT] = {
+		.oid = SP_PKG8_HASH_OID,
+		.opt = "sp-pkg8",
+		.help_msg = "Secure Partition Package8 file",
+		.sn = "SPPkg8Hash",
+		.ln = "SP Pkg8 hash (SHA256)",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
 	[SCP_FWU_CFG_HASH_EXT] = {
 		.oid = SCP_FWU_CFG_HASH_OID,
 		.opt = "scp-fwu-cfg",
