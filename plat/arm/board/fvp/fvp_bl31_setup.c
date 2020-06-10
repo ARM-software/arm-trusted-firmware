@@ -7,7 +7,9 @@
 #include <assert.h>
 #include <common/debug.h>
 #include <drivers/arm/smmu_v3.h>
+#include <fconf_hw_config_getter.h>
 #include <lib/fconf/fconf.h>
+#include <lib/mmio.h>
 #include <plat/arm/common/arm_config.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
@@ -64,4 +66,27 @@ void __init bl31_plat_arch_setup(void)
 	INFO("BL31 FCONF: HW_CONFIG address = %p\n", (void *)hw_config_dtb);
 	fconf_populate("HW_CONFIG", hw_config_dtb);
 #endif
+}
+
+unsigned int plat_get_syscnt_freq2(void)
+{
+	unsigned int counter_base_frequency;
+
+#if !RESET_TO_BL31 && !BL2_AT_EL3
+	/* Get the frequency through FCONF API for HW_CONFIG */
+	counter_base_frequency = FCONF_GET_PROPERTY(hw_config, cpu_timer, clock_freq);
+	if (counter_base_frequency > 0U) {
+		return counter_base_frequency;
+	}
+#endif
+
+	/* Read the frequency from Frequency modes table */
+	counter_base_frequency = mmio_read_32(ARM_SYS_CNTCTL_BASE + CNTFID_OFF);
+
+	/* The first entry of the frequency modes table must not be 0 */
+	if (counter_base_frequency == 0U) {
+		panic();
+	}
+
+	return counter_base_frequency;
 }
