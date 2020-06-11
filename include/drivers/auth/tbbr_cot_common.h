@@ -10,8 +10,6 @@
 #include <drivers/auth/auth_mod.h>
 
 extern unsigned char tb_fw_hash_buf[HASH_DER_LEN];
-extern unsigned char tb_fw_config_hash_buf[HASH_DER_LEN];
-extern unsigned char hw_config_hash_buf[HASH_DER_LEN];
 extern unsigned char scp_fw_hash_buf[HASH_DER_LEN];
 extern unsigned char nt_world_bl_hash_buf[HASH_DER_LEN];
 
@@ -23,7 +21,7 @@ extern auth_param_type_desc_t raw_data;
 
 extern auth_param_type_desc_t tb_fw_hash;
 extern auth_param_type_desc_t tb_fw_config_hash;
-extern auth_param_type_desc_t hw_config_hash;
+extern auth_param_type_desc_t fw_config_hash;
 
 extern const auth_img_desc_t trusted_boot_fw_cert;
 extern const auth_img_desc_t hw_config;

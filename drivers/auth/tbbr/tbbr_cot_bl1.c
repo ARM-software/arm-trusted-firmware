@@ -150,6 +150,21 @@ static const auth_img_desc_t tb_fw_config = {
 	}
 };
 
+static const auth_img_desc_t fw_config = {
+	.img_id = FW_CONFIG_ID,
+	.img_type = IMG_RAW,
+	.parent = &trusted_boot_fw_cert,
+	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
+		[0] = {
+			.type = AUTH_METHOD_HASH,
+			.param.hash = {
+				.data = &raw_data,
+				.hash = &fw_config_hash
+			}
+		}
+	}
+};
+
 /*
  * TBBR Chain of trust definition
  */
@@ -158,6 +173,7 @@ static const auth_img_desc_t * const cot_desc[] = {
 	[BL2_IMAGE_ID]				=	&bl2_image,
 	[HW_CONFIG_ID]				=	&hw_config,
 	[TB_FW_CONFIG_ID]			=	&tb_fw_config,
+	[FW_CONFIG_ID]				=	&fw_config,
 	[FWU_CERT_ID]				=	&fwu_cert,
 	[SCP_BL2U_IMAGE_ID]			=	&scp_bl2u_image,
 	[BL2U_IMAGE_ID]				=	&bl2u_image,
