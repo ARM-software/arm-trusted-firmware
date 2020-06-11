@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,6 +43,7 @@
 #define TRUSTED_BOOT_FW_HASH_OID		"1.3.6.1.4.1.4128.2100.201"
 #define TRUSTED_BOOT_FW_CONFIG_HASH_OID		"1.3.6.1.4.1.4128.2100.202"
 #define HW_CONFIG_HASH_OID			"1.3.6.1.4.1.4128.2100.203"
+#define FW_CONFIG_HASH_OID			"1.3.6.1.4.1.4128.2100.204"
 
 /*
  * Trusted Key Certificate

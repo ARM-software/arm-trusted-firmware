@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,9 +28,10 @@ static cert_t tbb_certs[] = {
 			TRUSTED_FW_NVCOUNTER_EXT,
 			TRUSTED_BOOT_FW_HASH_EXT,
 			TRUSTED_BOOT_FW_CONFIG_HASH_EXT,
-			HW_CONFIG_HASH_EXT
+			HW_CONFIG_HASH_EXT,
+			FW_CONFIG_HASH_EXT
 		},
-		.num_ext = 4
+		.num_ext = 5
 	},
 	[TRUSTED_KEY_CERT] = {
 		.id = TRUSTED_KEY_CERT,

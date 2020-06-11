@@ -30,9 +30,10 @@ static cert_t cot_certs[] = {
 			TRUSTED_FW_NVCOUNTER_EXT,
 			TRUSTED_BOOT_FW_HASH_EXT,
 			TRUSTED_BOOT_FW_CONFIG_HASH_EXT,
-			HW_CONFIG_HASH_EXT
+			HW_CONFIG_HASH_EXT,
+			FW_CONFIG_HASH_EXT
 		},
-		.num_ext = 4
+		.num_ext = 5
 	},
 
 	[TRUSTED_KEY_CERT] = {
@@ -234,6 +235,17 @@ static ext_t cot_ext[] = {
 		.help_msg = "HW Config file",
 		.sn = "HWConfigHash",
 		.ln = "HW Config hash",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
+
+	[FW_CONFIG_HASH_EXT] = {
+		.oid = FW_CONFIG_HASH_OID,
+		.opt = "fw-config",
+		.help_msg = "Firmware Config file",
+		.sn = "FirmwareConfigHash",
+		.ln = "Firmware Config hash",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH,
 		.optional = 1

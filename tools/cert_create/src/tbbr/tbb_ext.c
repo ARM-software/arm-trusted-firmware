@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -65,6 +65,16 @@ static ext_t tbb_ext[] = {
 		.help_msg = "HW Config file",
 		.sn = "HWConfigHash",
 		.ln = "HW Config hash",
+		.asn1_type = V_ASN1_OCTET_STRING,
+		.type = EXT_TYPE_HASH,
+		.optional = 1
+	},
+	[FW_CONFIG_HASH_EXT] = {
+		.oid = FW_CONFIG_HASH_OID,
+		.opt = "fw-config",
+		.help_msg = "Firmware Config file",
+		.sn = "FirmwareConfigHash",
+		.ln = "Firmware Config hash",
 		.asn1_type = V_ASN1_OCTET_STRING,
 		.type = EXT_TYPE_HASH,
 		.optional = 1
