@@ -44,7 +44,7 @@ struct fconf_populator {
 };
 
 /* This function supports to load tb_fw_config and fw_config dtb */
-void fconf_load_config(unsigned int image_id);
+int fconf_load_config(unsigned int image_id);
 
 /* Top level populate function
  *
