@@ -77,6 +77,7 @@ void arm_bl1_set_mbedtls_heap(void)
 {
 	int err;
 	uintptr_t tb_fw_cfg_dtb;
+	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
 
 	/*
 	 * If tb_fw_cfg_dtb==NULL then DTB is not present for the current
@@ -91,8 +92,8 @@ void arm_bl1_set_mbedtls_heap(void)
 	 * the default heap's address and size.
 	 */
 
-	/* fconf FW_CONFIG and TB_FW_CONFIG are currently the same DTB */
-	tb_fw_cfg_dtb = FCONF_GET_PROPERTY(fconf, dtb, base_addr);
+	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
+	tb_fw_cfg_dtb = tb_fw_config_info->config_addr;
 
 	if ((tb_fw_cfg_dtb != 0UL) && (mbedtls_heap_addr != NULL)) {
 		/* As libfdt use void *, we can't avoid this cast */
@@ -130,9 +131,10 @@ void arm_bl1_set_bl2_hash(image_desc_t *image_desc)
 	image_info_t image_info = image_desc->image_info;
 	uintptr_t tb_fw_cfg_dtb;
 	int err;
+	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
 
-	/* fconf FW_CONFIG and TB_FW_CONFIG are currently the same DTB */
-	tb_fw_cfg_dtb = FCONF_GET_PROPERTY(fconf, dtb, base_addr);
+	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
+	tb_fw_cfg_dtb = tb_fw_config_info->config_addr;
 
 	/*
 	 * If tb_fw_cfg_dtb==NULL then DTB is not present for the current

@@ -145,8 +145,8 @@ void arm_bl1_platform_setup(void)
 	/* Initialise the IO layer and register platform IO devices */
 	plat_arm_io_setup();
 
-	/* Load fw config */
-	fconf_load_config();
+	/* Fill the properties struct with the info from the config dtb */
+	fconf_load_config(FW_CONFIG_ID);
 
 #if TRUSTED_BOARD_BOOT
 	/* Share the Mbed TLS heap info with other images */
