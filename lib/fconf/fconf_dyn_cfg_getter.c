@@ -12,11 +12,25 @@
 #include <lib/object_pool.h>
 #include <libfdt.h>
 
-/* We currently use TB_FW, SOC_FW, TOS_FW, NS_fw and HW configs  */
-#define MAX_DTB_INFO	U(5)
+/* We currently use FW, TB_FW, SOC_FW, TOS_FW, NS_fw and HW configs  */
+#define MAX_DTB_INFO	U(6)
 
+#ifdef IMAGE_BL1
+static struct dyn_cfg_dtb_info_t dtb_infos[MAX_DTB_INFO] = {
+	[0] = {
+		.config_addr = ARM_FW_CONFIG_BASE,
+		.config_max_size = (uint32_t)
+				(ARM_FW_CONFIG_LIMIT - ARM_FW_CONFIG_BASE),
+		.config_id = FW_CONFIG_ID
+	},
+};
+/* Create an object pool starting at the second element */
+static OBJECT_POOL(dtb_info_pool, &dtb_infos[1],
+		sizeof(struct dyn_cfg_dtb_info_t), MAX_DTB_INFO-1);
+#else
 static struct dyn_cfg_dtb_info_t dtb_infos[MAX_DTB_INFO];
 static OBJECT_POOL_ARRAY(dtb_info_pool, dtb_infos);
+#endif
 
 struct dyn_cfg_dtb_info_t *dyn_cfg_dtb_info_getter(unsigned int config_id)
 {
@@ -55,6 +69,15 @@ int fconf_populate_dtb_registry(uintptr_t config)
 		ERROR("FCONF: Can't find %s compatible in dtb\n", compatible_str);
 		return node;
 	}
+
+#ifndef IMAGE_BL1
+	/* Save config dtb information */
+	dtb_info = pool_alloc(&dtb_info_pool);
+
+	dtb_info->config_addr = config;
+	dtb_info->config_max_size = fdt_totalsize(dtb);
+	dtb_info->config_id = FW_CONFIG_ID;
+#endif
 
 	fdt_for_each_subnode(child, dtb, node) {
 		uint32_t val32;

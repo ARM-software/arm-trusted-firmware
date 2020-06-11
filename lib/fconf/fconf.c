@@ -9,48 +9,40 @@
 #include <common/debug.h>
 #include <common/fdt_wrappers.h>
 #include <lib/fconf/fconf.h>
+#include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <libfdt.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
 
-struct fconf_dtb_info_t fconf_dtb_info;
-
-void fconf_load_config(void)
+void fconf_load_config(unsigned int image_id)
 {
 	int err;
-	/* fconf FW_CONFIG and TB_FW_CONFIG are currently the same DTB */
-	image_info_t arm_tb_fw_info = {
+	struct dyn_cfg_dtb_info_t *config_info;
+
+	assert((image_id == FW_CONFIG_ID) || (image_id == TB_FW_CONFIG_ID));
+
+	image_info_t image_info = {
 		.h.type = (uint8_t)PARAM_IMAGE_BINARY,
 		.h.version = (uint8_t)VERSION_2,
 		.h.size = (uint16_t)sizeof(image_info_t),
-		.h.attr = 0,
-		.image_base = ARM_FW_CONFIG_BASE,
-		.image_max_size = (uint32_t)
-				(ARM_FW_CONFIG_LIMIT - ARM_FW_CONFIG_BASE)
+		.h.attr = 0
 	};
 
-	VERBOSE("FCONF: Loading FW_CONFIG\n");
-	err = load_auth_image(TB_FW_CONFIG_ID, &arm_tb_fw_info);
+	config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, image_id);
+	image_info.image_base = config_info->config_addr;
+	image_info.image_max_size = config_info->config_max_size;
+
+	VERBOSE("FCONF: Loading config with image ID: %d\n", image_id);
+	err = load_auth_image(image_id, &image_info);
 	if (err != 0) {
-		/* Return if FW_CONFIG is not loaded */
-		VERBOSE("FW_CONFIG not loaded, continuing without it\n");
+		VERBOSE("Failed to load config %d, continuing without it\n",
+			image_id);
 		return;
 	}
 
-	/* At this point we know that a DTB is indeed available */
-	fconf_dtb_info.base_addr = arm_tb_fw_info.image_base;
-	fconf_dtb_info.size = (size_t)arm_tb_fw_info.image_size;
+	INFO("FCONF: Config file with image ID:%d loaded at address = 0x%lx\n",
+		image_id, image_info.image_base);
 
-#if !BL2_AT_EL3
-	image_desc_t *desc;
-
-	/* The BL2 ep_info arg0 is modified to point to FW_CONFIG */
-	desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
-	assert(desc != NULL);
-	desc->ep_info.args.arg0 = arm_tb_fw_info.image_base;
-#endif
-
-	INFO("FCONF: FW_CONFIG loaded at address = 0x%lx\n", arm_tb_fw_info.image_base);
 }
 
 void fconf_populate(const char *config_type, uintptr_t config)
@@ -81,7 +73,4 @@ void fconf_populate(const char *config_type, uintptr_t config)
 			}
 		}
 	}
-
-	/* save local pointer to the config dtb */
-	fconf_dtb_info.base_addr = config;
 }
