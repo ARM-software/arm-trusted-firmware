@@ -15,6 +15,7 @@
 #include <common/desc_image_load.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/fconf/fconf.h>
+#include <lib/fconf/fconf_dyn_cfg_getter.h>
 #ifdef SPD_opteed
 #include <lib/optee_utils.h>
 #endif
@@ -53,6 +54,7 @@ CASSERT(BL2_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
 void arm_bl2_early_platform_setup(uintptr_t fw_config,
 				  struct meminfo *mem_layout)
 {
+	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
 	/* Initialize the console to provide early debug support */
 	arm_console_boot_init();
 
@@ -61,7 +63,13 @@ void arm_bl2_early_platform_setup(uintptr_t fw_config,
 
 	/* Fill the properties struct with the info from the config dtb */
 	if (fw_config != 0U) {
-		fconf_populate("TB_FW", fw_config);
+		fconf_populate("FW_CONFIG", fw_config);
+	}
+
+	/* TB_FW_CONFIG was also loaded by BL1 */
+	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
+	if (tb_fw_config_info != NULL) {
+		fconf_populate("TB_FW", tb_fw_config_info->config_addr);
 	}
 
 	/* Initialise the IO layer and register platform IO devices */
