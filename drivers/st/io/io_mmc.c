@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -97,14 +97,21 @@ static int mmc_block_seek(io_entity_t *entity, int mode,
 static int mmc_block_read(io_entity_t *entity, uintptr_t buffer,
 			  size_t length, size_t *length_read)
 {
-	*length_read = mmc_read_blocks(seek_offset / MMC_BLOCK_SIZE,
-				       buffer, length);
+	uint8_t retries;
 
-	if (*length_read != length) {
-		return -EIO;
+	for (retries = 0U; retries < 3U; retries++) {
+		*length_read = mmc_read_blocks(seek_offset / MMC_BLOCK_SIZE,
+					       buffer, length);
+
+		if (*length_read == length) {
+			return 0;
+		}
+		WARN("%s: length_read = %lu (!= %lu), retry %u\n", __func__,
+		     (unsigned long)*length_read, (unsigned long)length,
+		     retries + 1U);
 	}
 
-	return 0;
+	return -EIO;
 }
 
 /* Close a file on the mmc device */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2018-2020, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -373,15 +373,15 @@ err_exit:
 
 static int stm32_sdmmc2_send_cmd(struct mmc_cmd *cmd)
 {
-	int8_t retry;
-	int err = 0;
+	uint8_t retry;
+	int err;
 
 	assert(cmd != NULL);
 
-	for (retry = 0; retry <= 3; retry++) {
+	for (retry = 0U; retry < 3U; retry++) {
 		err = stm32_sdmmc2_send_cmd_req(cmd);
 		if (err == 0) {
-			return err;
+			return 0;
 		}
 
 		if ((cmd->cmd_idx == MMC_CMD(1)) ||
@@ -390,12 +390,12 @@ static int stm32_sdmmc2_send_cmd(struct mmc_cmd *cmd)
 		}
 
 		/* Command 8 is expected to fail for eMMC */
-		if (!(cmd->cmd_idx == MMC_CMD(8))) {
-			WARN(" CMD%d, Retry: %d, Error: %d\n",
-			     cmd->cmd_idx, retry, err);
+		if (cmd->cmd_idx != MMC_CMD(8)) {
+			WARN(" CMD%u, Retry: %u, Error: %d\n",
+			     cmd->cmd_idx, retry + 1U, err);
 		}
 
-		udelay(10);
+		udelay(10U);
 	}
 
 	return err;
