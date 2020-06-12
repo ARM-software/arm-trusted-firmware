@@ -108,6 +108,14 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	if (EP_GET_ST(ep->h.attr) != 0U)
 		scr_el3 |= SCR_ST_BIT;
 
+#if RAS_TRAP_LOWER_EL_ERR_ACCESS
+	/*
+	 * SCR_EL3.TERR: Trap Error record accesses. Accesses to the RAS ERR
+	 * and RAS ERX registers from EL1 and EL2 are trapped to EL3.
+	 */
+	scr_el3 |= SCR_TERR_BIT;
+#endif
+
 #if !HANDLE_EA_EL3_FIRST
 	/*
 	 * SCR_EL3.EA: Do not route External Abort and SError Interrupt External
