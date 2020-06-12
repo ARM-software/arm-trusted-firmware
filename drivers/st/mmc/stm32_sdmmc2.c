@@ -258,6 +258,18 @@ static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd)
 		break;
 	}
 
+	mmio_write_32(base + SDMMC_ICR, SDMMC_STATIC_FLAGS);
+
+	/*
+	 * Clear the SDMMC_DCTRLR if the command does not await data.
+	 * Skip CMD55 as the next command could be data related, and
+	 * the register could have been set in prepare function.
+	 */
+	if (((cmd_reg & SDMMC_CMDR_CMDTRANS) == 0U) &&
+	    (cmd->cmd_idx != MMC_CMD(55))) {
+		mmio_write_32(base + SDMMC_DCTRLR, 0U);
+	}
+
 	if ((cmd->resp_type & MMC_RSP_BUSY) != 0U) {
 		mmio_write_32(base + SDMMC_DTIMER, UINT32_MAX);
 	}
