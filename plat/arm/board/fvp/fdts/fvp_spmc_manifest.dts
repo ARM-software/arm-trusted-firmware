@@ -5,6 +5,14 @@
  */
 /dts-v1/;
 
+#define AFF 00
+
+#include "fvp-defs.dtsi"
+#undef POST
+#define POST \
+		enable-method = "psci"; \
+		};
+
 / {
 	compatible = "arm,ffa-core-manifest-1.0";
 	#address-cells = <2>;
@@ -17,6 +25,7 @@
 		exec_state = <0x0>;
 		load_address = <0x0 0x6000000>;
 		entrypoint = <0x0 0x6000000>;
+		binary_size = <0x80000>;
 	};
 
 	chosen {
@@ -51,22 +60,15 @@
 		#address-cells = <0x2>;
 		#size-cells = <0x0>;
 
-		cpu-map {
-			cluster0 {
-				core0 {
-					cpu = <0x2>;
-				};
-			};
-		};
-
-		cpu@0 {
-			device_type = "cpu";
-			compatible = "arm,armv8";
-			reg = <0x0 0x0>;
-			enable-method = "psci";
-			next-level-cache = <0xc>;
-			phandle = <0x2>;
-		};
+		CPU_0
+		/* SPM(Hafnium) requires secondary cpu nodes are declared in descending order */
+		CPU_7
+		CPU_6
+		CPU_5
+		CPU_4
+		CPU_3
+		CPU_2
+		CPU_1
 	};
 
 	memory@60000000 {
