@@ -164,6 +164,27 @@ static cert_t tbb_certs[] = {
 		},
 		.num_ext = 3
 	},
+	[SIP_SECURE_PARTITION_CONTENT_CERT] = {
+		.id = SIP_SECURE_PARTITION_CONTENT_CERT,
+		.opt = "sip-sp-cert",
+		.help_msg = "SiP owned Secure Partition Content Certificate (output file)",
+		.fn = NULL,
+		.cn = "SiP owned Secure Partition Content Certificate",
+		.key = TRUSTED_WORLD_KEY,
+		.issuer = SIP_SECURE_PARTITION_CONTENT_CERT,
+		.ext = {
+			TRUSTED_FW_NVCOUNTER_EXT,
+			SP_PKG1_HASH_EXT,
+			SP_PKG2_HASH_EXT,
+			SP_PKG3_HASH_EXT,
+			SP_PKG4_HASH_EXT,
+			SP_PKG5_HASH_EXT,
+			SP_PKG6_HASH_EXT,
+			SP_PKG7_HASH_EXT,
+			SP_PKG8_HASH_EXT,
+		},
+		.num_ext = 9
+	},
 	[FWU_CERT] = {
 		.id = FWU_CERT,
 		.opt = "fwu-cert",
