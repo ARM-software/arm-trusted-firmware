@@ -43,6 +43,8 @@ Maintainers
 :G: `laurenw-arm`_
 :M: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
 :G: `madhukar-Arm`_
+:M: Raghu Krishnamurthy <raghu.ncstate@icloud.com>
+:G: `raghuncstate`_
 
 
 .. _code owners:
@@ -610,6 +612,7 @@ Build system
 .. _J-Alves: https://github.com/J-Alves
 .. _madhukar-Arm: https://github.com/madhukar-Arm
 .. _john-powell-arm: https://github.com/john-powell-arm
+.. _raghuncstate: https://github.com/raghuncstate
 
 
 .. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
