@@ -27,6 +27,7 @@
 
 #include <mce.h>
 #include <memctrl.h>
+#include <smmu.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
@@ -362,4 +363,35 @@ void plat_relocate_bl32_image(const image_info_t *bl32_img_info)
 bool plat_supports_system_suspend(void)
 {
 	return true;
+}
+/*******************************************************************************
+ * Platform specific runtime setup.
+ ******************************************************************************/
+void plat_runtime_setup(void)
+{
+	/*
+	 * During cold boot, it is observed that the arbitration
+	 * bit is set in the Memory controller leading to false
+	 * error interrupts in the non-secure world. To avoid
+	 * this, clean the interrupt status register before
+	 * booting into the non-secure world
+	 */
+	tegra_memctrl_clear_pending_interrupts();
+
+	/*
+	 * During boot, USB3 and flash media (SDMMC/SATA) devices need
+	 * access to IRAM. Because these clients connect to the MC and
+	 * do not have a direct path to the IRAM, the MC implements AHB
+	 * redirection during boot to allow path to IRAM. In this mode
+	 * accesses to a programmed memory address aperture are directed
+	 * to the AHB bus, allowing access to the IRAM. This mode must be
+	 * disabled before we jump to the non-secure world.
+	 */
+	tegra_memctrl_disable_ahb_redirection();
+
+	/*
+	 * Verify the integrity of the previously configured SMMU(s)
+	 * settings
+	 */
+	tegra_smmu_verify();
 }

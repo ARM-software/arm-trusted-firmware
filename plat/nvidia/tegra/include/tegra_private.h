@@ -87,6 +87,7 @@ void plat_early_platform_setup(void);
 void plat_late_platform_setup(void);
 void plat_relocate_bl32_image(const image_info_t *bl32_img_info);
 bool plat_supports_system_suspend(void);
+void plat_runtime_setup(void);
 
 /* Declarations for plat_secondary.c */
 void plat_secondary_setup(void);
