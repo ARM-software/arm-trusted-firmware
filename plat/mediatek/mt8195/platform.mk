@@ -10,6 +10,7 @@ MTK_PLAT_SOC := ${MTK_PLAT}/${PLAT}
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/common/drivers/gic600/             \
                  -I${MTK_PLAT}/common/drivers/timer/              \
+                 -I${MTK_PLAT_SOC}/drivers/spmc/                  \
                  -I${MTK_PLAT_SOC}/include/
 
 GICV3_SUPPORT_GIC600        :=      1
@@ -38,6 +39,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT_SOC}/aarch64/platform_common.c             \
                 ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                 ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
+                ${MTK_PLAT_SOC}/drivers/spmc/mtspmc.c                 \
                 ${MTK_PLAT_SOC}/plat_pm.c                             \
                 ${MTK_PLAT_SOC}/plat_topology.c
 
