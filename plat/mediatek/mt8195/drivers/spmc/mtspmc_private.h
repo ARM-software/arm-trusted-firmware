@@ -122,19 +122,18 @@ static const struct per_cpu_reg MCUCFG_INITARCH[] = {
 };
 
 #define MCUCFG_INITARCH_CPU_BIT(cpu)	BIT(16U + cpu)
-#define LAST_PC_REG(cpu)		(MCUCFG_REG(0x308) + (cpu * 0x800))
-
 /* === CPC control */
 #define MCUCFG_CPC_FLOW_CTRL_CFG	MCUCFG_REG(0xa814)
 #define MCUCFG_CPC_SPMC_PWR_STATUS	MCUCFG_REG(0xa840)
 
 /* bit fields of CPC_FLOW_CTRL_CFG */
 #define CPC_CTRL_ENABLE			BIT(16)
+#define SSPM_CORE_PWR_ON_EN		BIT(7) /* for cpu-hotplug */
 #define SSPM_ALL_PWR_CTRL_EN		BIT(13) /* for cpu-hotplug */
 #define GIC_WAKEUP_IGNORE(cpu)		BIT(21 + cpu)
 
 /* bit fields of CPC_SPMC_PWR_STATUS */
-#define CORE_SPMC_PWR_ON_ACK		GENMASK(15, 0)
+#define CORE_SPMC_PWR_ON_ACK		GENMASK(11, 0)
 
 /* === APB Module infracfg_ao */
 #define INFRA_TOPAXI_PROTECTEN		INFRACFG_AO_REG(0x0220)

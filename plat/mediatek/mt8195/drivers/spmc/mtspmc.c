@@ -15,31 +15,31 @@
 #include <mtspmc_private.h>
 
 
-void mcucfg_disable_gic_wakeup(uint32_t cluster, uint32_t cpu)
+void mcucfg_disable_gic_wakeup(unsigned int cluster, unsigned int cpu)
 {
 	mmio_setbits_32(MCUCFG_CPC_FLOW_CTRL_CFG, GIC_WAKEUP_IGNORE(cpu));
 }
 
-void mcucfg_enable_gic_wakeup(uint32_t cluster, uint32_t cpu)
+void mcucfg_enable_gic_wakeup(unsigned int cluster, unsigned int cpu)
 {
 	mmio_clrbits_32(MCUCFG_CPC_FLOW_CTRL_CFG, GIC_WAKEUP_IGNORE(cpu));
 }
 
-void mcucfg_set_bootaddr(uint32_t cluster, uint32_t cpu, uintptr_t bootaddr)
+void mcucfg_set_bootaddr(unsigned int cluster, unsigned int cpu, uintptr_t bootaddr)
 {
 	assert(cluster == 0U);
 
 	mmio_write_32(per_cpu(cluster, cpu, MCUCFG_BOOTADDR), bootaddr);
 }
 
-uintptr_t mcucfg_get_bootaddr(uint32_t cluster, uint32_t cpu)
+uintptr_t mcucfg_get_bootaddr(unsigned int cluster, unsigned int cpu)
 {
 	assert(cluster == 0U);
 
 	return (uintptr_t)mmio_read_32(per_cpu(cluster, cpu, MCUCFG_BOOTADDR));
 }
 
-void mcucfg_init_archstate(uint32_t cluster, uint32_t cpu, bool arm64)
+void mcucfg_init_archstate(unsigned int cluster, unsigned int cpu, bool arm64)
 {
 	uint32_t reg;
 
@@ -57,7 +57,7 @@ void mcucfg_init_archstate(uint32_t cluster, uint32_t cpu, bool arm64)
 /**
  * Return subsystem's power state.
  *
- * @mask: mask to SPM_CPU_PWR_STATUS to query the power state
+ * @mask: mask to MCUCFG_CPC_SPMC_PWR_STATUS to query the power state
  *        of one subsystem.
  * RETURNS:
  * 0 (the subsys was powered off)
@@ -65,17 +65,17 @@ void mcucfg_init_archstate(uint32_t cluster, uint32_t cpu, bool arm64)
  */
 bool spm_get_powerstate(uint32_t mask)
 {
-	return (mmio_read_32(SPM_CPU_PWR_STATUS) & mask) != 0U;
+	return (mmio_read_32(MCUCFG_CPC_SPMC_PWR_STATUS) & mask) != 0U;
 }
 
-bool spm_get_cluster_powerstate(uint32_t cluster)
+bool spm_get_cluster_powerstate(unsigned int cluster)
 {
 	assert(cluster == 0U);
 
-	return spm_get_powerstate(MP0_CPUTOP);
+	return spm_get_powerstate(BIT(14));
 }
 
-bool spm_get_cpu_powerstate(uint32_t cluster, uint32_t cpu)
+bool spm_get_cpu_powerstate(unsigned int cluster, unsigned int cpu)
 {
 	uint32_t mask = BIT(cpu);
 
@@ -98,19 +98,12 @@ int spmc_init(void)
 	mmio_setbits_32(per_cpu(0, 6, SPM_CPU_PWR), PWR_RST_B);
 	mmio_setbits_32(per_cpu(0, 7, SPM_CPU_PWR), PWR_RST_B);
 
-	mmio_setbits_32(MCUCFG_CPC_FLOW_CTRL_CFG, GIC_WAKEUP_IGNORE(1));
-	mmio_setbits_32(MCUCFG_CPC_FLOW_CTRL_CFG, GIC_WAKEUP_IGNORE(2));
-	mmio_setbits_32(MCUCFG_CPC_FLOW_CTRL_CFG, GIC_WAKEUP_IGNORE(3));
-	mmio_setbits_32(MCUCFG_CPC_FLOW_CTRL_CFG, GIC_WAKEUP_IGNORE(4));
-	mmio_setbits_32(MCUCFG_CPC_FLOW_CTRL_CFG, GIC_WAKEUP_IGNORE(5));
-	mmio_setbits_32(MCUCFG_CPC_FLOW_CTRL_CFG, GIC_WAKEUP_IGNORE(6));
-	mmio_setbits_32(MCUCFG_CPC_FLOW_CTRL_CFG, GIC_WAKEUP_IGNORE(7));
-
 	mmio_clrbits_32(SPM_MCUSYS_PWR_CON, RESETPWRON_CONFIG);
 	mmio_clrbits_32(SPM_MP0_CPUTOP_PWR_CON, RESETPWRON_CONFIG);
 	mmio_clrbits_32(per_cpu(0, 0, SPM_CPU_PWR), RESETPWRON_CONFIG);
 
 	mmio_setbits_32(MCUCFG_CPC_FLOW_CTRL_CFG, CPC_CTRL_ENABLE);
+	mmio_setbits_32(MCUCFG_CPC_FLOW_CTRL_CFG, SSPM_CORE_PWR_ON_EN);
 
 	return 0;
 }
@@ -121,24 +114,20 @@ int spmc_init(void)
  * @cluster: the cluster ID of the CPU which to be powered on
  * @cpu: the CPU ID of the CPU which to be powered on
  */
-void spm_poweron_cpu(uint32_t cluster, uint32_t cpu)
+void spm_poweron_cpu(unsigned int cluster, unsigned int cpu)
 {
+	uintptr_t cpu_pwr_con = per_cpu(cluster, cpu, SPM_CPU_PWR);
+
 	/* set to 0 after BIG VPROC bulk on & before B-core power on seq. */
 	if (cpu >= 4U) {
 		mmio_write_32(DREQ20_BIG_VPROC_ISO, 0U);
 	}
 
-	mmio_setbits_32(MCUCFG_CPC_FLOW_CTRL_CFG, SSPM_ALL_PWR_CTRL_EN);
-	mmio_setbits_32(per_cpu(cluster, cpu, SPM_CPU_PWR), PWR_ON);
+	mmio_setbits_32(cpu_pwr_con, PWR_ON);
 
 	while (!spm_get_cpu_powerstate(cluster, cpu)) {
-	}
-
-	mmio_clrbits_32(MCUCFG_CPC_FLOW_CTRL_CFG, SSPM_ALL_PWR_CTRL_EN);
-
-	/* Enable Big CPU Last PC */
-	if (cpu >= 4U) {
-		mmio_clrbits_32(LAST_PC_REG(cpu), BIT(3));
+		mmio_clrbits_32(cpu_pwr_con, PWR_ON);
+		mmio_setbits_32(cpu_pwr_con, PWR_ON);
 	}
 }
 
@@ -148,7 +137,7 @@ void spm_poweron_cpu(uint32_t cluster, uint32_t cpu)
  * @cluster: the cluster ID of the CPU which to be powered off
  * @cpu: the CPU ID of the CPU which to be powered off
  */
-void spm_poweroff_cpu(uint32_t cluster, uint32_t cpu)
+void spm_poweroff_cpu(unsigned int cluster, unsigned int cpu)
 {
 	/* Set mp0_spmc_pwr_on_cpuX = 0 */
 	mmio_clrbits_32(per_cpu(cluster, cpu, SPM_CPU_PWR), PWR_ON);
@@ -159,7 +148,7 @@ void spm_poweroff_cpu(uint32_t cluster, uint32_t cpu)
  *
  * @cluster: the cluster index which to be powered off
  */
-void spm_poweroff_cluster(uint32_t cluster)
+void spm_poweroff_cluster(unsigned int cluster)
 {
 	/* No need to power on/off cluster on single cluster platform */
 	assert(false);
@@ -170,7 +159,7 @@ void spm_poweroff_cluster(uint32_t cluster)
  *
  * @cluster: the cluster index which to be powered on
  */
-void spm_poweron_cluster(uint32_t cluster)
+void spm_poweron_cluster(unsigned int cluster)
 {
 	/* No need to power on/off cluster on single cluster platform */
 	assert(false);
