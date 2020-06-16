@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -192,6 +193,7 @@ static inline int ras_err_ser_probe_sysreg(const struct err_record_info *info,
 			probe_data);
 }
 
+const char *ras_serr_to_str(unsigned int serr);
 int ras_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 		void *handle, uint64_t flags);
 void ras_init(void);

@@ -707,6 +707,10 @@ Common build options
    | 1530924 |  Cortex-A53  |
    +---------+--------------+
 
+- ``RAS_TRAP_LOWER_EL_ERR_ACCESS``: This flag enables/disables the SCR_EL3.TERR
+  bit, to trap access to the RAS ERR and RAS ERX registers from lower ELs.
+  This flag is disabled by default.
+
 GICv3 driver options
 --------------------
 

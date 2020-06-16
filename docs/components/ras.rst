@@ -32,7 +32,8 @@ introduced by the RAS extensions.
 
 The build option ``RAS_EXTENSION`` when set to ``1`` includes the RAS in run
 time firmware; ``EL3_EXCEPTION_HANDLING`` and ``HANDLE_EA_EL3_FIRST`` must also
-be set ``1``.
+be set ``1``. ``RAS_TRAP_LOWER_EL_ERR_ACCESS`` controls the access to the RAS
+error record registers from lower ELs.
 
 .. _ras-figure:
 

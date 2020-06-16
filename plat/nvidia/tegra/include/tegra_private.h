@@ -89,7 +89,7 @@ int32_t plat_lock_cpu_vectors(void);
 
 /* Declarations for tegra_fiq_glue.c */
 void tegra_fiq_handler_setup(void);
-int tegra_fiq_get_intr_context(void);
+int32_t tegra_fiq_get_intr_context(void);
 void tegra_fiq_set_ns_entrypoint(uint64_t entrypoint);
 
 /* Declarations for tegra_security.c */
@@ -156,5 +156,10 @@ int plat_sip_handler(uint32_t smc_fid,
 		     const void *cookie,
 		     void *handle,
 		     uint64_t flags);
+
+#if RAS_EXTENSION
+void tegra194_ras_enable(void);
+void tegra194_ras_corrected_err_clear(void);
+#endif
 
 #endif /* TEGRA_PRIVATE_H */

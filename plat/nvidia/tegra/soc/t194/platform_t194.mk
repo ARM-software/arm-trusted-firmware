@@ -30,6 +30,10 @@ $(eval $(call add_define,MAX_XLAT_TABLES))
 MAX_MMAP_REGIONS			:= 30
 $(eval $(call add_define,MAX_MMAP_REGIONS))
 
+# enable RAS handling
+HANDLE_EA_EL3_FIRST			:= 1
+RAS_EXTENSION				:= 1
+
 # platform files
 PLAT_INCLUDES		+=	-Iplat/nvidia/tegra/include/t194 \
 				-I${SOC_DIR}/drivers/include
@@ -55,4 +59,11 @@ BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S \
 
 ifeq (${ENABLE_CONSOLE_SPE},1)
 BL31_SOURCES		+=	${COMMON_DIR}/drivers/spe/shared_console.S
+endif
+
+# RAS sources
+ifeq (${RAS_EXTENSION},1)
+BL31_SOURCES		+=	lib/extensions/ras/std_err_record.c		\
+				lib/extensions/ras/ras_common.c			\
+				${SOC_DIR}/plat_ras.c
 endif

@@ -234,3 +234,11 @@ void mce_system_reboot(void)
 {
 	nvg_system_reboot();
 }
+
+/*******************************************************************************
+ * Handler to clear CCPLEX->HSM correctable RAS error signal.
+ ******************************************************************************/
+void mce_clear_hsm_corr_status(void)
+{
+	nvg_clear_hsm_corr_status();
+}

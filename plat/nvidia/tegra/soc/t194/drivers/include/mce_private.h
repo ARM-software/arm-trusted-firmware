@@ -58,6 +58,7 @@ int32_t nvg_roc_clean_cache_trbits(void);
 void nvg_enable_strict_checking_mode(void);
 void nvg_system_shutdown(void);
 void nvg_system_reboot(void);
+void nvg_clear_hsm_corr_status(void);
 
 /* declarations for assembly functions */
 void nvg_set_request_data(uint64_t req, uint64_t data);
@@ -71,5 +72,6 @@ uint64_t nvg_cache_inval_all(void);
 void mce_enable_strict_checking(void);
 void mce_system_shutdown(void);
 void mce_system_reboot(void);
+void mce_clear_hsm_corr_status(void);
 
 #endif /* MCE_PRIVATE_H */

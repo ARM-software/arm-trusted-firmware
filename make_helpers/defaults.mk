@@ -302,3 +302,6 @@ SUPPORT_STACK_MEMTAG		:= no
 
 # Select workaround for AT speculative behaviour.
 ERRATA_SPECULATIVE_AT           := 0
+
+# Trap RAS error record access from lower EL
+RAS_TRAP_LOWER_EL_ERR_ACCESS	:= 0

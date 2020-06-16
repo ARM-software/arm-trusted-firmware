@@ -12,6 +12,7 @@
 #include <common/debug.h>
 #include <errno.h>
 #include <mce.h>
+#include <mce_private.h>
 #include <memctrl.h>
 #include <common/runtime_svc.h>
 #include <tegra_private.h>
@@ -23,6 +24,7 @@
  * Tegra194 SiP SMCs
  ******************************************************************************/
 #define TEGRA_SIP_GET_SMMU_PER		0xC200FF00U
+#define TEGRA_SIP_CLEAR_RAS_CORRECTED_ERRORS	0xC200FF01U
 
 /*******************************************************************************
  * This function is responsible for handling all T194 SiP calls
@@ -68,6 +70,15 @@ int32_t plat_sip_handler(uint32_t smc_fid,
 		write_ctx_reg(get_gpregs_ctx(handle), CTX_GPREG_X3, per[2]);
 
 		break;
+
+#if RAS_EXTENSION
+	case TEGRA_SIP_CLEAR_RAS_CORRECTED_ERRORS:
+		/* clear all RAS error records for corrected errors at first. */
+		tegra194_ras_corrected_err_clear();
+		/* clear HSM corrected error status. */
+		mce_clear_hsm_corr_status();
+		break;
+#endif
 
 	default:
 		ret = -ENOTSUP;
