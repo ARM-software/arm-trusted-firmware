@@ -7,7 +7,7 @@
 
 /* Those are parameters for xfi mode, which need to be tune for each board type.
  * For known DB boards the parameters was already calibrated and placed under
- * the plat/marvell/a8k/<board_type>/board/phy-porting-layer.h
+ * the plat/marvell/armada/a8k/<board_type>/board/phy-porting-layer.h
  */
 struct xfi_params {
 	uint8_t g1_ffe_res_sel;

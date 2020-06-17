@@ -250,3 +250,6 @@ int ap_get_count(void)
 	return 1;
 }
 
+void update_cp110_default_win(int cp_id)
+{
+}

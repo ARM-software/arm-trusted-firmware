@@ -2236,7 +2236,7 @@ int mvebu_cp110_comphy_xfi_rx_training(uint64_t comphy_base,
 
 	printf("########################################################\n");
 	printf("# To use trained values update the ATF sources:\n");
-	printf("# plat/marvell/a8k/<board_type>/board/phy-porting-layer.h ");
+	printf("# plat/marvell/armada/a8k/<board_type>/board/phy-porting-layer.h ");
 	printf("file\n# with new values as below (for appropriate AP nr %d",
 	       ap_nr);
 	printf("and CP nr: %d comphy_index %d\n\n",

@@ -571,21 +571,21 @@ static int mci_enable_simultaneous_transactions(int mci_index)
 
 	debug_enter();
 	/* ID assignment (assigning global ID offset to CP) */
-	mci_mmio_write_32(MCI_WRITE_READ_DATA_REG(0),
+	mci_mmio_write_32(MCI_WRITE_READ_DATA_REG(mci_index),
 			  MCI_DID_GLOBAL_ASSIGN_REQ_MCI_LOCAL_ID(2) |
 			  MCI_DID_GLOBAL_ASSIGN_REQ_MCI_COUNT(2) |
 			  MCI_DID_GLOBAL_ASSIGN_REQ_HOPS_NUM(2));
-	mci_mmio_write_32(MCI_ACCESS_CMD_REG(0),
+	mci_mmio_write_32(MCI_ACCESS_CMD_REG(mci_index),
 			  MCI_INDIRECT_REG_CTRL_ADDR(
 				MCI_DID_GLOBAL_ASSIGNMENT_REQUEST_REG) |
 			  MCI_INDIRECT_CTRL_ASSIGN_CMD);
 	ret |= mci_poll_command_completion(mci_index, MCI_CMD_WRITE);
 
 	/* Assigning dest. ID=3 to all transactions entering from AXI at AP */
-	mci_mmio_write_32(MCI_WRITE_READ_DATA_REG(0),
+	mci_mmio_write_32(MCI_WRITE_READ_DATA_REG(mci_index),
 			  MCI_HB_CTRL_WIN0_DEST_VALID_FLAG(1) |
 			  MCI_HB_CTRL_WIN0_DEST_ID(3));
-	mci_mmio_write_32(MCI_ACCESS_CMD_REG(0),
+	mci_mmio_write_32(MCI_ACCESS_CMD_REG(mci_index),
 			  MCI_INDIRECT_REG_CTRL_ADDR(
 				MCI_HB_CTRL_WIN0_DESTINATION_REG_NUM) |
 			  MCI_INDIRECT_CTRL_HOPID(GID_AXI_HB) |
@@ -593,10 +593,10 @@ static int mci_enable_simultaneous_transactions(int mci_index)
 	ret |= mci_poll_command_completion(mci_index, MCI_CMD_WRITE);
 
 	/* Assigning dest. ID=1 to all transactions entering from AXI at CP */
-	mci_mmio_write_32(MCI_WRITE_READ_DATA_REG(0),
+	mci_mmio_write_32(MCI_WRITE_READ_DATA_REG(mci_index),
 			  MCI_HB_CTRL_WIN0_DEST_VALID_FLAG(1) |
 			  MCI_HB_CTRL_WIN0_DEST_ID(1));
-	mci_mmio_write_32(MCI_ACCESS_CMD_REG(0),
+	mci_mmio_write_32(MCI_ACCESS_CMD_REG(mci_index),
 			  MCI_INDIRECT_REG_CTRL_ADDR(
 				MCI_HB_CTRL_WIN0_DESTINATION_REG_NUM) |
 			  MCI_INDIRECT_CTRL_HOPID(GID_IHB_EXT) |
@@ -607,8 +607,8 @@ static int mci_enable_simultaneous_transactions(int mci_index)
 	 * This will lead to get match for any AXI address
 	 * and receive destination ID=3
 	 */
-	mci_mmio_write_32(MCI_WRITE_READ_DATA_REG(0), 0xffffffff);
-	mci_mmio_write_32(MCI_ACCESS_CMD_REG(0),
+	mci_mmio_write_32(MCI_WRITE_READ_DATA_REG(mci_index), 0xffffffff);
+	mci_mmio_write_32(MCI_ACCESS_CMD_REG(mci_index),
 			  MCI_INDIRECT_REG_CTRL_ADDR(
 				MCI_HB_CTRL_WIN0_ADDRESS_MASK_REG_NUM) |
 			  MCI_INDIRECT_CTRL_HOPID(GID_AXI_HB) |
@@ -619,8 +619,8 @@ static int mci_enable_simultaneous_transactions(int mci_index)
 	 * This will lead to get match for any AXI address
 	 * and receive destination ID=1
 	 */
-	mci_mmio_write_32(MCI_WRITE_READ_DATA_REG(0), 0xffffffff);
-	mci_mmio_write_32(MCI_ACCESS_CMD_REG(0),
+	mci_mmio_write_32(MCI_WRITE_READ_DATA_REG(mci_index), 0xffffffff);
+	mci_mmio_write_32(MCI_ACCESS_CMD_REG(mci_index),
 			  MCI_INDIRECT_REG_CTRL_ADDR(
 				MCI_HB_CTRL_WIN0_ADDRESS_MASK_REG_NUM) |
 			  MCI_INDIRECT_CTRL_HOPID(GID_IHB_EXT) |
@@ -653,7 +653,7 @@ static _Bool mci_simulatenous_trans_missing(int mci_index)
 	 * performed by BootROM.
 	 */
 	debug_enter();
-	mci_mmio_write_32(MCI_ACCESS_CMD_REG(0),
+	mci_mmio_write_32(MCI_ACCESS_CMD_REG(mci_index),
 			  MCI_INDIRECT_REG_CTRL_ADDR(
 				MCI_HB_CTRL_WIN0_DESTINATION_REG_NUM) |
 			  MCI_INDIRECT_CTRL_HOPID(GID_AXI_HB) |
@@ -697,7 +697,8 @@ int mci_configure(int mci_index)
 	 * wasn't already enabled in bootrom.
 	 */
 	if (mci_simulatenous_trans_missing(mci_index)) {
-		VERBOSE("Enabling MCI simultaneous transaction\n");
+		VERBOSE("Enabling MCI simultaneous transaction for mci%d\n",
+		       mci_index);
 		/* set MCI to support read/write transactions
 		 * to arrive at the same time
 		 */
@@ -819,7 +820,7 @@ void mci_turn_link_on(void)
 }
 
 /* Initialize MCI for performance improvements */
-int mci_initialize(int mci_index)
+int mci_link_tune(int mci_index)
 {
 	int ret;
 
