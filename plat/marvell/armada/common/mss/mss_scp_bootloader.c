@@ -161,6 +161,11 @@ static int mss_image_load(uint32_t src_addr, uint32_t size,
 
 	bl2_plat_configure_mss_windows(mss_regs);
 
+	/* Wipe the MSS SRAM after using it as copy buffer */
+	if (sram) {
+		memset((void *)sram, 0, MSS_SRAM_SIZE);
+	}
+
 	/* Release M3 from reset */
 	mmio_write_32(MSS_M3_RSTCR(mss_regs),
 		     (MSS_M3_RSTCR_RST_OFF << MSS_M3_RSTCR_RST_OFFSET));
