@@ -157,6 +157,11 @@ HW_ASSISTED_COHERENCY		:= 0
 # Set the default algorithm for the generation of Trusted Board Boot keys
 KEY_ALG				:= rsa
 
+# Set the default key size in case KEY_ALG is rsa
+ifeq ($(KEY_ALG),rsa)
+KEY_SIZE			:= 2048
+endif
+
 # Option to build TF with Measured Boot support
 MEASURED_BOOT			:= 0
 
