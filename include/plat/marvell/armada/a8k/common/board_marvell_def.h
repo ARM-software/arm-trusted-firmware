@@ -71,7 +71,4 @@
 #define MAX_IO_DEVICES			3
 #define MAX_IO_HANDLES			4
 
-#define PLAT_MARVELL_TRUSTED_SRAM_SIZE	0x80000	/* 512 KB */
-
-
 #endif /* BOARD_MARVELL_DEF_H */

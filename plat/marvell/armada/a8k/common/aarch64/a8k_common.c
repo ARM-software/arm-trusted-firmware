@@ -18,14 +18,14 @@
  */
 #if IMAGE_BL1
 const mmap_region_t plat_marvell_mmap[] = {
-	MARVELL_MAP_SHARED_RAM,
+	MARVELL_MAP_SECURE_RAM,
 	MAP_DEVICE0,
 	{0}
 };
 #endif
 #if IMAGE_BL2
 const mmap_region_t plat_marvell_mmap[] = {
-	MARVELL_MAP_SHARED_RAM,
+	MARVELL_MAP_SECURE_RAM,
 	MAP_DEVICE0,
 	MARVELL_MAP_DRAM,
 	{0}
@@ -34,6 +34,7 @@ const mmap_region_t plat_marvell_mmap[] = {
 
 #if IMAGE_BL2U
 const mmap_region_t plat_marvell_mmap[] = {
+	MARVELL_MAP_SECURE_RAM,
 	MAP_DEVICE0,
 	{0}
 };
@@ -48,7 +49,7 @@ const mmap_region_t plat_marvell_mmap[] = {
 
 #if IMAGE_BL31
 const mmap_region_t plat_marvell_mmap[] = {
-	MARVELL_MAP_SHARED_RAM,
+	MARVELL_MAP_SECURE_RAM,
 	MAP_DEVICE0,
 	MARVELL_MAP_DRAM,
 	{0}
@@ -56,6 +57,7 @@ const mmap_region_t plat_marvell_mmap[] = {
 #endif
 #if IMAGE_BL32
 const mmap_region_t plat_marvell_mmap[] = {
+	MARVELL_MAP_SECURE_RAM,
 	MAP_DEVICE0,
 	{0}
 };
