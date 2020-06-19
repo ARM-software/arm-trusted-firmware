@@ -121,6 +121,10 @@ else ifeq (${BRANCH_PROTECTION},3)
 	# Extend the signing to include leaf functions
 	BP_OPTION := pac-ret+leaf
 	ENABLE_PAUTH := 1
+else ifeq (${BRANCH_PROTECTION},4)
+	# Turn on branch target identification mechanism
+	BP_OPTION := bti
+	ENABLE_BTI := 1
 else
         $(error Unknown BRANCH_PROTECTION value ${BRANCH_PROTECTION})
 endif
