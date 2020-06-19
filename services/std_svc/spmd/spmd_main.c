@@ -42,13 +42,19 @@ static spmc_manifest_attribute_t spmc_attrs;
 static entry_point_info_t *spmc_ep_info;
 
 /*******************************************************************************
+ * SPM Core context on CPU based on mpidr.
+ ******************************************************************************/
+spmd_spm_core_context_t *spmd_get_context_by_mpidr(uint64_t mpidr)
+{
+	return &spm_core_context[plat_core_pos_by_mpidr(mpidr)];
+}
+
+/*******************************************************************************
  * SPM Core context on current CPU get helper.
  ******************************************************************************/
 spmd_spm_core_context_t *spmd_get_context(void)
 {
-	unsigned int linear_id = plat_my_core_pos();
-
-	return &spm_core_context[linear_id];
+	return spmd_get_context_by_mpidr(read_mpidr());
 }
 
 /*******************************************************************************
@@ -151,6 +157,7 @@ static int32_t spmd_init(void)
 	for (core_id = 0U; core_id < PLATFORM_CORE_COUNT; core_id++) {
 		if (core_id != linear_id) {
 			spm_core_context[core_id].state = SPMC_STATE_OFF;
+			spm_core_context[core_id].secondary_ep.entry_point = 0UL;
 		}
 	}
 

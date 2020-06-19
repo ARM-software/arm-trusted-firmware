@@ -42,6 +42,12 @@ typedef enum spmc_state {
 	SPMC_STATE_ON
 } spmc_state_t;
 
+typedef struct spmd_pm_secondary_ep {
+	uintptr_t entry_point;
+	uintptr_t context;
+	bool locked;
+} spmd_pm_secondary_ep_t;
+
 /*
  * Data structure used by the SPM dispatcher (SPMD) in EL3 to track context of
  * the SPM core (SPMC) at the next lower EL.
@@ -50,6 +56,7 @@ typedef struct spmd_spm_core_context {
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
 	spmc_state_t state;
+	spmd_pm_secondary_ep_t secondary_ep;
 } spmd_spm_core_context_t;
 
 /*
@@ -80,6 +87,9 @@ entry_point_info_t *spmd_spmc_ep_info_get(void);
 
 /* SPMC ID getter */
 uint16_t spmd_spmc_id_get(void);
+
+/* SPMC context on CPU based on mpidr */
+spmd_spm_core_context_t *spmd_get_context_by_mpidr(uint64_t mpidr);
 
 /* SPMC context on current CPU get helper */
 spmd_spm_core_context_t *spmd_get_context(void);
