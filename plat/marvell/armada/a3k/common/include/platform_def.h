@@ -81,8 +81,8 @@
 #define PLAT_MARVELL_CLUSTER_CORE_COUNT		U(2)
 /* DRAM[2MB..66MB] is used  as Trusted ROM */
 #define PLAT_MARVELL_TRUSTED_ROM_BASE		PLAT_MARVELL_ATF_LOAD_ADDR
-/* 64 MB TODO: reduce this to minimum needed according to fip image size*/
-#define PLAT_MARVELL_TRUSTED_ROM_SIZE		0x04000000
+/* 4 MB for FIP image */
+#define PLAT_MARVELL_TRUSTED_ROM_SIZE		0x00400000
 /* Reserve 16M for SCP (Secure PayLoad) Trusted DRAM */
 #define PLAT_MARVELL_TRUSTED_RAM_BASE		0x04400000
 #define PLAT_MARVELL_TRUSTED_RAM_SIZE		0x01000000	/* 16 MB */
