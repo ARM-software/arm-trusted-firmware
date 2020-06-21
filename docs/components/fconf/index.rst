@@ -49,8 +49,10 @@ Hence each ``populate()`` function must be registered with a specific
 configuration properties which is usually a device tree file.
 
 Example:
+ - FW_CONFIG: properties related to base address, maximum size and image id
+   of other DTBs etc.
  - TB_FW: properties related to trusted firmware such as IO policies,
-   base address of other DTBs, mbedtls heap info etc.
+   mbedtls heap info etc.
  - HW_CONFIG: properties related to hardware configuration of the SoC
    such as topology, GIC controller, PSCI hooks, CPU ID etc.
 
@@ -88,9 +90,10 @@ explain how the properties are described for a specific backend. Refer to the
 Loading the property device tree
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``fconf_load_config()`` must be called to load the device tree containing
-the properties' values. This must be done after the io layer is initialized, as
-the |DTB| is stored on an external device (FIP).
+The ``fconf_load_config(image_id)`` must be called to load fw_config and
+tb_fw_config devices tree containing the properties' values. This must be done
+after the io layer is initialized, as the |DTB| is stored on an external
+device (FIP).
 
 .. uml:: ../../resources/diagrams/plantuml/fconf_bl1_load_config.puml
 

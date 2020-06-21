@@ -8,6 +8,7 @@ end box
 box "platform common code"
 	participant fconf
 	participant fconf_tbbr_getter
+participant fconf_dyn_cfg_getter
 end box
 
 box "arm platform code" #LightBlue
@@ -25,10 +26,17 @@ note over arm_bl2_setup
 end note
 arm_bl2_setup -> arm_bl2_setup : arm_bl2_early_platform_setup(\n\t fw_config, mem_layout)
 activate arm_bl2_setup
-	arm_bl2_setup -> fconf: fconf_polulate("TB_FW", fw_config)
+	arm_bl2_setup -> fconf: fconf_populate("FW_CONFIG", fw_config)
 	activate fconf
+		fconf -> fconf_dyn_cfg_getter: populate_dtb_registry(uintptr_t dtb)
+		note over fconf_dyn_cfg_getter: read dtb_registry properties from dtb
+		fconf_dyn_cfg_getter -> arm_bl2_setup
+		arm_bl2_setup -> fconf: FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID)
+		fconf -> fconf_dyn_cfg_getter: dyn_cfg_dtb_info_getter(TB_FW_CONFIG_ID)
+		fconf_dyn_cfg_getter -> arm_bl2_setup: tb_fw_config_info
+		arm_bl2_setup -> fconf: fconf_populate("TB_FW_CONFIG", tb_fw_config)
 		fconf -> fconf_tbbr_getter: fconf_populate_tbbr_dyn_config(uintptr_t dtb)
-		note over fconf_tbbr_getter: read tbbr propeties from dtb
+		note over fconf_tbbr_getter: read tbbr properties from dtb
 		fconf -> arm_fconf_io: fconf_populate_arm_io_policies(uintptr_t dtb)
 		note over arm_fconf_io: read arm io propeties from dtb
 	deactivate fconf
