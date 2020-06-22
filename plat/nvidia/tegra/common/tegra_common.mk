@@ -14,6 +14,12 @@ PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 
 COMMON_DIR		:=	plat/nvidia/tegra/common
 
+# Include GICv3 driver files
+include drivers/arm/gic/v3/gicv3.mk
+TEGRA_GICv3_SOURCES	:=	$(GICV3_SOURCES)				\
+				plat/common/plat_gicv3.c			\
+				${COMMON_DIR}/tegra_gicv3.c
+
 TEGRA_GICv2_SOURCES	:=	drivers/arm/gic/common/gic_common.c		\
 				drivers/arm/gic/v2/gicv2_main.c			\
 				drivers/arm/gic/v2/gicv2_helpers.c		\
