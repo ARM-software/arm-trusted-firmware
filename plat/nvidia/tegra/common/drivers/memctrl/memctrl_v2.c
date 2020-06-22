@@ -280,55 +280,31 @@ static void tegra_clear_videomem(uintptr_t non_overlap_area_start,
 {
 	int ret;
 
+	INFO("Cleaning previous Video Memory Carveout\n");
+
 	/*
 	 * Map the NS memory first, clean it and then unmap it.
 	 */
 	ret = mmap_add_dynamic_region(non_overlap_area_start, /* PA */
 				non_overlap_area_start, /* VA */
 				non_overlap_area_size, /* size */
-				MT_NS | MT_RW | MT_EXECUTE_NEVER |
-				MT_NON_CACHEABLE); /* attrs */
+				MT_DEVICE | MT_RW | MT_NS); /* attrs */
 	assert(ret == 0);
 
-	zero_normalmem((void *)non_overlap_area_start, non_overlap_area_size);
+	zeromem((void *)non_overlap_area_start, non_overlap_area_size);
 	flush_dcache_range(non_overlap_area_start, non_overlap_area_size);
 
-	(void)mmap_remove_dynamic_region(non_overlap_area_start,
+	ret = mmap_remove_dynamic_region(non_overlap_area_start,
 		non_overlap_area_size);
+	assert(ret == 0);
 }
 
-/*
- * Program the Video Memory carveout region
- *
- * phys_base = physical base of aperture
- * size_in_bytes = size of aperture in bytes
- */
-void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
+static void tegra_clear_videomem_nonoverlap(uintptr_t phys_base,
+		unsigned long size_in_bytes)
 {
 	uintptr_t vmem_end_old = video_mem_base + (video_mem_size_mb << 20);
 	uintptr_t vmem_end_new = phys_base + size_in_bytes;
 	unsigned long long non_overlap_area_size;
-
-	/*
-	 * Setup the Memory controller to restrict CPU accesses to the Video
-	 * Memory region
-	 */
-	INFO("Configuring Video Memory Carveout\n");
-
-	/*
-	 * Configure Memory Controller directly for the first time.
-	 */
-	if (video_mem_base == 0U)
-		goto done;
-
-	/*
-	 * Lock the non overlapping memory being cleared so that other masters
-	 * do not accidently write to it. The memory would be unlocked once
-	 * the non overlapping region is cleared and the new memory
-	 * settings take effect.
-	 */
-	tegra_lock_videomem_nonoverlap(video_mem_base,
-				       video_mem_size_mb << 20);
 
 	/*
 	 * Clear the old regions now being exposed. The following cases
@@ -338,8 +314,6 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	 * 2. clear old sub-region below new base
 	 * 3. clear old sub-region above new end
 	 */
-	INFO("Cleaning previous Video Memory Carveout\n");
-
 	if ((phys_base > vmem_end_old) || (video_mem_base > vmem_end_new)) {
 		tegra_clear_videomem(video_mem_base,
 				     video_mem_size_mb << 20U);
@@ -353,26 +327,55 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 			tegra_clear_videomem(vmem_end_new, non_overlap_area_size);
 		}
 	}
+}
 
-done:
+/*
+ * Program the Video Memory carveout region
+ *
+ * phys_base = physical base of aperture
+ * size_in_bytes = size of aperture in bytes
+ */
+void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
+{
+	/*
+	 * Setup the Memory controller to restrict CPU accesses to the Video
+	 * Memory region
+	 */
+
+	INFO("Configuring Video Memory Carveout\n");
+
+	if (video_mem_base != 0U) {
+		/*
+		 * Lock the non overlapping memory being cleared so that
+		 * other masters do not accidently write to it. The memory
+		 * would be unlocked once the non overlapping region is
+		 * cleared and the new memory settings take effect.
+		 */
+		tegra_lock_videomem_nonoverlap(video_mem_base,
+			video_mem_size_mb << 20);
+	}
+
 	/* program the Videomem aperture */
 	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_LO, (uint32_t)phys_base);
 	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI,
 			  (uint32_t)(phys_base >> 32));
 	tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB, size_in_bytes >> 20);
 
-	/* unlock the previous locked nonoverlapping aperture */
-	tegra_unlock_videomem_nonoverlap();
-
-	/* store new values */
-	video_mem_base = phys_base;
-	video_mem_size_mb = size_in_bytes >> 20;
-
 	/*
 	 * MCE propagates the VideoMem configuration values across the
 	 * CCPLEX.
 	 */
-	mce_update_gsc_videomem();
+	(void)mce_update_gsc_videomem();
+
+	/* Clear the non-overlapping memory */
+	if (video_mem_base != 0U) {
+		tegra_clear_videomem_nonoverlap(phys_base, size_in_bytes);
+		tegra_unlock_videomem_nonoverlap();
+	}
+
+	/* store new values */
+	video_mem_base = phys_base;
+	video_mem_size_mb = (uint64_t)size_in_bytes >> 20;
 }
 
 /*
