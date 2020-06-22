@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2020, ARM Limited. All rights reserved.
+# Copyright (c) 2016-2021, ARM Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -208,6 +208,9 @@ SAVE_KEYS			:= 0
 
 # Software Delegated Exception support
 SDEI_SUPPORT            	:= 0
+
+# True Random Number firmware Interface
+TRNG_SUPPORT            	:= 0
 
 # Whether code and read-only data should be put on separate memory pages. The
 # platform Makefile is free to override this value.

@@ -56,6 +56,7 @@
 .. |TF-M| replace:: :term:`TF-M`
 .. |TLB| replace:: :term:`TLB`
 .. |TLK| replace:: :term:`TLK`
+.. |TRNG| replace:: :term:`TRNG`
 .. |TSP| replace:: :term:`TSP`
 .. |TZC| replace:: :term:`TZC`
 .. |UBSAN| replace:: :term:`UBSAN`

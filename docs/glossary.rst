@@ -193,6 +193,9 @@ You can find additional definitions in the `Arm Glossary`_.
    TLK
       Trusted Little Kernel. A Trusted OS from NVIDIA.
 
+   TRNG
+      True Randon Number Generator (hardware based)
+
    TSP
       Test Secure Payload
 
