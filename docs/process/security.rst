@@ -20,40 +20,13 @@ Found a Security Issue?
 Although we try to keep TF-A secure, we can only do so with the help of the
 community of developers and security researchers.
 
-If you think you have found a security vulnerability, please **do not** report it
-in the `issue tracker`_. Instead send an email to
-trusted-firmware-security@arm.com
-
-Please include:
-
-* Trusted Firmware-A version (or commit) affected
-
-* A description of the concern or vulnerability
-
-* Details on how to replicate the vulnerability, including:
-
-  - Configuration details
-
-  - Proof of concept exploit code
-
-  - Any additional software or tools required
-
-We recommend using :download:`this PGP/GPG key <./security-reporting.asc>` for
-encrypting the information. This key is also available at
-http://keyserver.pgp.com and LDAP port 389 of the same server.
-
-The fingerprint for this key is:
-
-::
-
-    1309 2C19 22B4 8E87 F17B FE5C 3AB7 EFCB 45A0 DFD0
-
-If you would like replies to be encrypted, please provide your public key.
-
-Please give us the time to respond to you and fix the vulnerability before going
-public. We do our best to respond and fix any issues quickly. We also need to
-ensure providers of products that use TF-A have a chance to consider the
-implications of the vulnerability and its remedy.
+If you think you have found a security vulnerability, please **do not** report
+it in the `issue tracker`_. Instead, please follow the `TrustedFirmware.org
+security incident process`_. One of the goals of this process is to ensure
+providers of products that use TF-A have a chance to consider the implications
+of the vulnerability and its remedy before it is made public. As such, please
+follow the disclosure plan outlined in the process. We do our best to respond
+and fix any issues quickly.
 
 Afterwards, we encourage you to write-up your findings about the TF-A source
 code.
@@ -61,8 +34,8 @@ code.
 Attribution
 -----------
 
-We will name and thank you in the :ref:`Change Log & Release Notes` distributed with the source
-code and in any published security advisory.
+We will name and thank you in the :ref:`Change Log & Release Notes` distributed
+with the source code and in any published security advisory.
 
 Security Advisories
 -------------------
@@ -96,7 +69,6 @@ Security Advisories
 +-----------+------------------------------------------------------------------+
 
 .. _issue tracker: https://developer.trustedfirmware.org/project/board/1/
-.. _this PGP/GPG key: security-reporting.asc
 
 .. |TFV-1| replace:: :ref:`Advisory TFV-1 (CVE-2016-10319)`
 .. |TFV-2| replace:: :ref:`Advisory TFV-2 (CVE-2017-7564)`
@@ -107,6 +79,8 @@ Security Advisories
 .. |TFV-7| replace:: :ref:`Advisory TFV-7 (CVE-2018-3639)`
 .. |TFV-8| replace:: :ref:`Advisory TFV-8 (CVE-2018-19440)`
 
+.. _TrustedFirmware.org security incident process: https://developer.trustedfirmware.org/w/collaboration/security_center/
+
 --------------
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
