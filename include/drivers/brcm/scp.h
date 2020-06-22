@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef SCP_H_
+#ifndef SCP_H
 #define SCP_H
 
 #include <stdint.h>
