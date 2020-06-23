@@ -19,3 +19,4 @@ Components
    secure-partition-manager-design
    psa-ffa-manifest-binding
    xlat-tables-lib-v2-design
+   cot-binding
