@@ -227,6 +227,12 @@ For Cortex-A76, the following errata build flags are defined :
 -  ``ERRATA_A76_1275112``: This applies errata 1275112 workaround to Cortex-A76
    CPU. This needs to be enabled only for revision <= r3p0 of the CPU.
 
+-  ``ERRATA_A76_1791580``: This applies errata 1791580 workaround to Cortex-A76
+   CPU. This needs to be enabled only for revision <= r4p0 of the CPU.
+
+-  ``ERRATA_A76_1800710``: This applies errata 1800710 workaround to Cortex-A76
+   CPU. This needs to be enabled only for revision <= r4p0 of the CPU.
+
 For Cortex-A78, the following errata build flags are defined :
 
 -  ``ERRATA_A78_1688305``: This applies errata 1688305 workaround to Cortex-A78
