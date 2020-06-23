@@ -12,13 +12,13 @@
 #include <tools_share/uuid.h>
 
 /* FFA error codes. */
-#define FFA_ERROR_NOT_SUPPORTED	-1
+#define FFA_ERROR_NOT_SUPPORTED		-1
 #define FFA_ERROR_INVALID_PARAMETER	-2
 #define FFA_ERROR_NO_MEMORY		-3
 #define FFA_ERROR_BUSY			-4
 #define FFA_ERROR_INTERRUPTED		-5
 #define FFA_ERROR_DENIED		-6
-#define FFA_ERROR_RETRY		-7
+#define FFA_ERROR_RETRY			-7
 
 /* The macros below are used to identify FFA calls from the SMC function ID */
 #define FFA_FNUM_MIN_VALUE	U(0x60)
@@ -30,13 +30,15 @@
 
 /* FFA_VERSION helpers */
 #define FFA_VERSION_MAJOR		U(1)
-#define FFA_VERSION_MAJOR_SHIFT	16
+#define FFA_VERSION_MAJOR_SHIFT		16
 #define FFA_VERSION_MAJOR_MASK		U(0x7FFF)
 #define FFA_VERSION_MINOR		U(0)
-#define FFA_VERSION_MINOR_SHIFT	0
+#define FFA_VERSION_MINOR_SHIFT		0
 #define FFA_VERSION_MINOR_MASK		U(0xFFFF)
+#define FFA_VERSION_BIT31_MASK 		U(0x1u << 31)
 
-#define MAKE_FFA_VERSION(major, minor) \
+
+#define MAKE_FFA_VERSION(major, minor) 	\
 	((((major) & FFA_VERSION_MAJOR_MASK) <<  FFA_VERSION_MAJOR_SHIFT) | \
 	 (((minor) & FFA_VERSION_MINOR_MASK) << FFA_VERSION_MINOR_SHIFT))
 #define FFA_VERSION_COMPILED		MAKE_FFA_VERSION(FFA_VERSION_MAJOR, \

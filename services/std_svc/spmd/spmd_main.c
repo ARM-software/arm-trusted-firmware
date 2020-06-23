@@ -350,6 +350,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	spmd_spm_core_context_t *ctx = spmd_get_context();
 	bool secure_origin;
 	int32_t ret;
+	uint32_t input_version;
 
 	/* Determine which security state this SMC originated from */
 	secure_origin = is_caller_secure(flags);
@@ -375,15 +376,24 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		break; /* not reached */
 
 	case FFA_VERSION:
+		input_version = (uint32_t)(0xFFFFFFFF & x1);
 		/*
-		 * TODO: This is an optimization that the version information
-		 * provided by the SPM Core manifest is returned by the SPM
-		 * dispatcher. It might be a better idea to simply forward this
-		 * call to the SPM Core and wash our hands completely.
+		 * If caller is secure and SPMC was initialized,
+		 * return FFA_VERSION of SPMD.
+		 * If caller is non secure and SPMC was initialized,
+		 * return SPMC's version.
+		 * Sanity check to "input_version".
 		 */
-		ret = MAKE_FFA_VERSION(spmc_attrs.major_version,
-					spmc_attrs.minor_version);
-		SMC_RET8(handle, FFA_SUCCESS_SMC32, FFA_TARGET_INFO_MBZ, ret,
+		if ((input_version & FFA_VERSION_BIT31_MASK) ||
+			(ctx->state == SPMC_STATE_RESET)) {
+			ret = FFA_ERROR_NOT_SUPPORTED;
+		} else if (!secure_origin) {
+			ret = MAKE_FFA_VERSION(spmc_attrs.major_version, spmc_attrs.minor_version);
+		} else {
+			ret = MAKE_FFA_VERSION(FFA_VERSION_MAJOR, FFA_VERSION_MINOR);
+		}
+
+		SMC_RET8(handle, ret, FFA_TARGET_INFO_MBZ, FFA_TARGET_INFO_MBZ,
 			 FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ,
 			 FFA_PARAM_MBZ, FFA_PARAM_MBZ);
 		break; /* not reached */
