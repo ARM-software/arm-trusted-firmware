@@ -923,7 +923,7 @@ void plat_bcm_bl31_early_platform_setup(void *from_bl2,
 
 	scp_image_info.image_base = PRELOADED_SCP_BASE;
 	scp_image_info.image_size = PRELOADED_SCP_SIZE;
-	bcm_bl2_plat_handle_scp_bl2(&scp_image_info);
+	plat_bcm_bl2_plat_handle_scp_bl2(&scp_image_info);
 #endif
 	/*
 	 * In BL31, logs are saved to DDR and we have much larger space to
