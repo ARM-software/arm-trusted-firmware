@@ -61,6 +61,11 @@
 					SAR_RST_PCIE1_CLOCK_CONFIG_CP1_OFFSET)
 #define SAR_STATUS_0_REG			200
 #define DFX_FROM_COMPHY_ADDR(x)			((x & ~0xffffff) + DFX_BASE)
+/* Common Phy training  */
+#define COMPHY_TRX_TRAIN_COMPHY_OFFS		0x1000
+#define COMPHY_TRX_TRAIN_RX_TRAIN_ENABLE	0x1
+#define COMPHY_TRX_RELATIVE_ADDR(comphy_index)	(comphy_train_base + \
+			(comphy_index) * COMPHY_TRX_TRAIN_COMPHY_OFFS)
 
 /* The same Units Soft Reset Config register are accessed in all PCIe ports
  * initialization, so a spin lock is defined in case when more than 1 CPUs
@@ -829,7 +834,8 @@ static int mvebu_cp110_comphy_sgmii_power_on(uint64_t comphy_base,
 
 static int mvebu_cp110_comphy_xfi_power_on(uint64_t comphy_base,
 					   uint8_t comphy_index,
-					   uint32_t comphy_mode)
+					   uint32_t comphy_mode,
+					   uint64_t comphy_train_base)
 {
 	uintptr_t hpipe_addr, sd_ip_addr, comphy_addr, addr;
 	uint32_t mask, data, speed = COMPHY_GET_SPEED(comphy_mode);
@@ -837,7 +843,6 @@ static int mvebu_cp110_comphy_xfi_power_on(uint64_t comphy_base,
 	uint8_t ap_nr, cp_nr;
 
 	debug_enter();
-
 	mvebu_cp110_get_ap_and_cp_nr(&ap_nr, &cp_nr, comphy_base);
 
 	if (rx_trainng_done[ap_nr][cp_nr][comphy_index]) {
@@ -1233,6 +1238,14 @@ static int mvebu_cp110_comphy_xfi_power_on(uint64_t comphy_base,
 	mask |= SD_EXTERNAL_CONFIG1_RF_RESET_IN_MASK;
 	data |= 0x1 << SD_EXTERNAL_CONFIG1_RF_RESET_IN_OFFSET;
 	reg_set(sd_ip_addr + SD_EXTERNAL_CONFIG1_REG, data, mask);
+
+	/* Force rx training on 10G port */
+	data = mmio_read_32(COMPHY_TRX_RELATIVE_ADDR(comphy_index));
+	data |= COMPHY_TRX_TRAIN_RX_TRAIN_ENABLE;
+	mmio_write_32(COMPHY_TRX_RELATIVE_ADDR(comphy_index), data);
+	mdelay(200);
+	data &= ~COMPHY_TRX_TRAIN_RX_TRAIN_ENABLE;
+	mmio_write_32(COMPHY_TRX_RELATIVE_ADDR(comphy_index), data);
 
 	debug_exit();
 
@@ -2348,8 +2361,10 @@ int mvebu_cp110_comphy_digital_reset(uint64_t comphy_base,
 	return 0;
 }
 
-int mvebu_cp110_comphy_power_on(uint64_t comphy_base, uint8_t comphy_index,
-				uint64_t comphy_mode)
+int mvebu_cp110_comphy_power_on(uint64_t comphy_base,
+				uint8_t comphy_index,
+				uint64_t comphy_mode,
+				uint64_t comphy_train_base)
 {
 	int mode = COMPHY_GET_MODE(comphy_mode);
 	int err = 0;
@@ -2373,7 +2388,8 @@ int mvebu_cp110_comphy_power_on(uint64_t comphy_base, uint8_t comphy_index,
 	case (COMPHY_SFI_MODE):
 		err = mvebu_cp110_comphy_xfi_power_on(comphy_base,
 						      comphy_index,
-						      comphy_mode);
+						      comphy_mode,
+						      comphy_train_base);
 		break;
 	case (COMPHY_PCIE_MODE):
 		err = mvebu_cp110_comphy_pcie_power_on(comphy_base,
