@@ -77,7 +77,25 @@ entry_point_info_t *sp_min_plat_get_bl33_ep_info(void)
 	return next_image_info;
 }
 
+CASSERT((STM32MP_SEC_SYSRAM_BASE == STM32MP_SYSRAM_BASE) &&
+	((STM32MP_SEC_SYSRAM_BASE + STM32MP_SEC_SYSRAM_SIZE) <=
+	 (STM32MP_SYSRAM_BASE + STM32MP_SYSRAM_SIZE)),
+	assert_secure_sysram_fits_at_begining_of_sysram);
+
+#ifdef STM32MP_NS_SYSRAM_BASE
+CASSERT((STM32MP_NS_SYSRAM_BASE >= STM32MP_SEC_SYSRAM_BASE) &&
+	((STM32MP_NS_SYSRAM_BASE + STM32MP_NS_SYSRAM_SIZE) ==
+	 (STM32MP_SYSRAM_BASE + STM32MP_SYSRAM_SIZE)),
+	assert_non_secure_sysram_fits_at_end_of_sysram);
+
+CASSERT((STM32MP_NS_SYSRAM_BASE & (PAGE_SIZE_4KB - U(1))) == 0U,
+	assert_non_secure_sysram_base_is_4kbyte_aligned);
+
+#define TZMA1_SECURE_RANGE \
+	(((STM32MP_NS_SYSRAM_BASE - STM32MP_SYSRAM_BASE) >> FOUR_KB_SHIFT) - 1U)
+#else
 #define TZMA1_SECURE_RANGE		STM32MP1_ETZPC_TZMA_ALL_SECURE
+#endif /* STM32MP_NS_SYSRAM_BASE */
 #define TZMA0_SECURE_RANGE		STM32MP1_ETZPC_TZMA_ALL_SECURE
 
 static void stm32mp1_etzpc_early_setup(void)
