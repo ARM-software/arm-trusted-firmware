@@ -25,3 +25,6 @@ BL32_SOURCES		+=	plat/common/plat_psci_common.c
 # stm32mp1 specific services
 BL32_SOURCES		+=	plat/st/stm32mp1/services/bsec_svc.c		\
 				plat/st/stm32mp1/services/stm32mp1_svc_setup.c
+
+# Arm Archtecture services
+BL32_SOURCES		+=	services/arm_arch_svc/arm_arch_svc_setup.c
