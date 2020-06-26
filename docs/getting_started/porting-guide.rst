@@ -1424,7 +1424,7 @@ are platform specific.
 
 On Arm standard platforms, the arguments received are :
 
-    arg0 - Points to load address of HW_CONFIG if present
+    arg0 - Points to load address of FW_CONFIG
 
     arg1 - ``meminfo`` structure populated by BL1. The platform copies
     the contents of ``meminfo`` as it may be subsequently overwritten by BL2.
@@ -1736,6 +1736,10 @@ In Arm standard platforms, the arguments received are :
     which is list of executable images following BL31,
 
     arg1 - Points to load address of SOC_FW_CONFIG if present
+           except in case of Arm FVP platform.
+
+           In case of Arm FVP platform, Points to load address
+           of FW_CONFIG.
 
     arg2 - Points to load address of HW_CONFIG if present
 
