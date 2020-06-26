@@ -15,6 +15,7 @@
 #include <common/desc_image_load.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/fconf/fconf.h>
+#include <lib/fconf/fconf_dyn_cfg_getter.h>
 #ifdef SPD_opteed
 #include <lib/optee_utils.h>
 #endif
@@ -26,10 +27,10 @@
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 
 /*
- * Check that BL2_BASE is above ARM_TB_FW_CONFIG_LIMIT. This reserved page is
+ * Check that BL2_BASE is above ARM_FW_CONFIG_LIMIT. This reserved page is
  * for `meminfo_t` data structure and fw_configs passed from BL1.
  */
-CASSERT(BL2_BASE >= ARM_TB_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
+CASSERT(BL2_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak bl2_early_platform_setup2
@@ -50,9 +51,10 @@ CASSERT(BL2_BASE >= ARM_TB_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
  * in x0. This memory layout is sitting at the base of the free trusted SRAM.
  * Copy it to a safe location before its reclaimed by later BL2 functionality.
  ******************************************************************************/
-void arm_bl2_early_platform_setup(uintptr_t tb_fw_config,
+void arm_bl2_early_platform_setup(uintptr_t fw_config,
 				  struct meminfo *mem_layout)
 {
+	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
 	/* Initialize the console to provide early debug support */
 	arm_console_boot_init();
 
@@ -60,8 +62,14 @@ void arm_bl2_early_platform_setup(uintptr_t tb_fw_config,
 	bl2_tzram_layout = *mem_layout;
 
 	/* Fill the properties struct with the info from the config dtb */
-	if (tb_fw_config != 0U) {
-		fconf_populate("TB_FW", tb_fw_config);
+	if (fw_config != 0U) {
+		fconf_populate("FW_CONFIG", fw_config);
+	}
+
+	/* TB_FW_CONFIG was also loaded by BL1 */
+	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
+	if (tb_fw_config_info != NULL) {
+		fconf_populate("TB_FW", tb_fw_config_info->config_addr);
 	}
 
 	/* Initialise the IO layer and register platform IO devices */

@@ -190,7 +190,7 @@ void arm_bl1_platform_setup(void);
 void arm_bl1_plat_arch_setup(void);
 
 /* BL2 utility functions */
-void arm_bl2_early_platform_setup(uintptr_t tb_fw_config, struct meminfo *mem_layout);
+void arm_bl2_early_platform_setup(uintptr_t fw_config, struct meminfo *mem_layout);
 void arm_bl2_platform_setup(void);
 void arm_bl2_plat_arch_setup(void);
 uint32_t arm_get_spsr_for_bl32_entry(void);

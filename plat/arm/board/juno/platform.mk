@@ -164,9 +164,14 @@ ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
 endif
 
 # Add the FDT_SOURCES and options for Dynamic Config
-FDT_SOURCES		+=	plat/arm/board/juno/fdts/${PLAT}_fw_config.dts
-TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_fw_config.dtb
+FDT_SOURCES		+=	plat/arm/board/juno/fdts/${PLAT}_fw_config.dts	\
+				plat/arm/board/juno/fdts/${PLAT}_tb_fw_config.dts
 
+FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_fw_config.dtb
+TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
+
+# Add the FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config))
 # Add the TB_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config))
 

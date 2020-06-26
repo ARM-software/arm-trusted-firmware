@@ -43,8 +43,8 @@ struct fconf_populator {
 	int (*populate)(uintptr_t config);
 };
 
-/* Load firmware configuration dtb */
-void fconf_load_config(void);
+/* This function supports to load tb_fw_config and fw_config dtb */
+int fconf_load_config(unsigned int image_id);
 
 /* Top level populate function
  *

@@ -25,6 +25,7 @@ const io_block_spec_t fip_block_spec = {
 const io_uuid_spec_t arm_uuid_spec[MAX_NUMBER_IDS] = {
 	[BL2_IMAGE_ID] = {UUID_TRUSTED_BOOT_FIRMWARE_BL2},
 	[TB_FW_CONFIG_ID] = {UUID_TB_FW_CONFIG},
+	[FW_CONFIG_ID] = {UUID_FW_CONFIG},
 #if !ARM_IO_IN_DTB
 	[SCP_BL2_IMAGE_ID] = {UUID_SCP_FIRMWARE_SCP_BL2},
 	[BL31_IMAGE_ID] = {UUID_EL3_RUNTIME_FIRMWARE_BL31},
@@ -71,6 +72,11 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 	[TB_FW_CONFIG_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&arm_uuid_spec[TB_FW_CONFIG_ID],
+		open_fip
+	},
+	[FW_CONFIG_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[FW_CONFIG_ID],
 		open_fip
 	},
 #if !ARM_IO_IN_DTB

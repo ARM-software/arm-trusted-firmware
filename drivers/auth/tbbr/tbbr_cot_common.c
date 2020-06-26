@@ -23,9 +23,10 @@
  * established, we can reuse some of the buffers on different stages
  */
 
+static unsigned char fw_config_hash_buf[HASH_DER_LEN];
+static unsigned char tb_fw_config_hash_buf[HASH_DER_LEN];
+static unsigned char hw_config_hash_buf[HASH_DER_LEN];
 unsigned char tb_fw_hash_buf[HASH_DER_LEN];
-unsigned char tb_fw_config_hash_buf[HASH_DER_LEN];
-unsigned char hw_config_hash_buf[HASH_DER_LEN];
 unsigned char scp_fw_hash_buf[HASH_DER_LEN];
 unsigned char nt_world_bl_hash_buf[HASH_DER_LEN];
 
@@ -48,7 +49,9 @@ auth_param_type_desc_t tb_fw_hash = AUTH_PARAM_TYPE_DESC(
 	AUTH_PARAM_HASH, TRUSTED_BOOT_FW_HASH_OID);
 auth_param_type_desc_t tb_fw_config_hash = AUTH_PARAM_TYPE_DESC(
 	AUTH_PARAM_HASH, TRUSTED_BOOT_FW_CONFIG_HASH_OID);
-auth_param_type_desc_t hw_config_hash = AUTH_PARAM_TYPE_DESC(
+auth_param_type_desc_t fw_config_hash = AUTH_PARAM_TYPE_DESC(
+	AUTH_PARAM_HASH, FW_CONFIG_HASH_OID);
+static auth_param_type_desc_t hw_config_hash = AUTH_PARAM_TYPE_DESC(
 	AUTH_PARAM_HASH, HW_CONFIG_HASH_OID);
 
 /* trusted_boot_fw_cert */
@@ -93,6 +96,13 @@ const auth_img_desc_t trusted_boot_fw_cert = {
 			.type_desc = &hw_config_hash,
 			.data = {
 				.ptr = (void *)hw_config_hash_buf,
+				.len = (unsigned int)HASH_DER_LEN
+			}
+		},
+		[3] = {
+			.type_desc = &fw_config_hash,
+			.data = {
+				.ptr = (void *)fw_config_hash_buf,
 				.len = (unsigned int)HASH_DER_LEN
 			}
 		}

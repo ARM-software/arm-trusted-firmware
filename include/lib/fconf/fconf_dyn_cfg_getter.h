@@ -21,4 +21,7 @@ struct dyn_cfg_dtb_info_t {
 struct dyn_cfg_dtb_info_t *dyn_cfg_dtb_info_getter(unsigned int config_id);
 int fconf_populate_dtb_registry(uintptr_t config);
 
+/* Set fw_config information in global DTB array */
+void set_fw_config_info(uintptr_t config_addr, uint32_t config_max_size);
+
 #endif /* FCONF_DYN_CFG_GETTER_H */

@@ -139,7 +139,7 @@
 # define PLAT_ARM_MAX_BL2_SIZE	(UL(0x1D000) - JUNO_BL2_ROMLIB_OPTIMIZATION)
 #endif
 #else
-# define PLAT_ARM_MAX_BL2_SIZE	(UL(0x11000) - JUNO_BL2_ROMLIB_OPTIMIZATION)
+# define PLAT_ARM_MAX_BL2_SIZE	(UL(0x13000) - JUNO_BL2_ROMLIB_OPTIMIZATION)
 #endif
 
 /*
@@ -148,7 +148,7 @@
  * BL2 and BL1-RW.  SCP_BL2 image is loaded into the space BL31 -> BL2_BASE.
  * Hence the BL31 PROGBITS size should be >= PLAT_CSS_MAX_SCP_BL2_SIZE.
  */
-#define PLAT_ARM_MAX_BL31_SIZE		UL(0x3E000)
+#define PLAT_ARM_MAX_BL31_SIZE		UL(0x3D000)
 
 #if JUNO_AARCH32_EL3_RUNTIME
 /*
@@ -157,7 +157,7 @@
  * BL2 and BL1-RW.  SCP_BL2 image is loaded into the space BL32 -> BL2_BASE.
  * Hence the BL32 PROGBITS size should be >= PLAT_CSS_MAX_SCP_BL2_SIZE.
  */
-#define PLAT_ARM_MAX_BL32_SIZE		UL(0x3E000)
+#define PLAT_ARM_MAX_BL32_SIZE		UL(0x3D000)
 #endif
 
 /*
@@ -254,7 +254,7 @@
  * BL31 is loaded over the top.
  */
 #define PLAT_CSS_MAX_SCP_BL2_SIZE \
-	((SCP_BL2_LIMIT - ARM_TB_FW_CONFIG_LIMIT) & ~PAGE_SIZE_MASK)
+	((SCP_BL2_LIMIT - ARM_FW_CONFIG_LIMIT) & ~PAGE_SIZE_MASK)
 
 #define PLAT_CSS_MAX_SCP_BL2U_SIZE	PLAT_CSS_MAX_SCP_BL2_SIZE
 

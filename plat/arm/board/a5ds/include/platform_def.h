@@ -188,11 +188,11 @@
 #define CACHE_WRITEBACK_GRANULE		(U(1) << ARM_CACHE_WRITEBACK_SHIFT)
 
 /*
- * To enable TB_FW_CONFIG to be loaded by BL1, define the corresponding base
+ * To enable FW_CONFIG to be loaded by BL1, define the corresponding base
  * and limit. Leave enough space of BL2 meminfo.
  */
-#define ARM_TB_FW_CONFIG_BASE		(ARM_BL_RAM_BASE + sizeof(meminfo_t))
-#define ARM_TB_FW_CONFIG_LIMIT		(ARM_BL_RAM_BASE + PAGE_SIZE)
+#define ARM_FW_CONFIG_BASE		(ARM_BL_RAM_BASE + sizeof(meminfo_t))
+#define ARM_FW_CONFIG_LIMIT		(ARM_BL_RAM_BASE + PAGE_SIZE)
 
 /*******************************************************************************
  * BL1 specific defines.
@@ -220,7 +220,7 @@
 #define BL2_LIMIT			BL1_RW_BASE
 
 /* Put BL32 below BL2 in NS DRAM.*/
-#define ARM_BL2_MEM_DESC_BASE		ARM_TB_FW_CONFIG_LIMIT
+#define ARM_BL2_MEM_DESC_BASE		ARM_FW_CONFIG_LIMIT
 
 #define BL32_BASE			((ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)\
 						- PLAT_ARM_MAX_BL32_SIZE)

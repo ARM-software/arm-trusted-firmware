@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -51,13 +51,13 @@ typedef struct {
  * All CSS platforms load SCP_BL2/SCP_BL2U just below BL2 (this is where BL31
  * usually resides except when ARM_BL31_IN_DRAM is
  * set). Ensure that SCP_BL2/SCP_BL2U do not overflow into shared RAM and
- * the tb_fw_config.
+ * the fw_config.
  */
 CASSERT(SCP_BL2_LIMIT <= BL2_BASE, assert_scp_bl2_overwrite_bl2);
 CASSERT(SCP_BL2U_LIMIT <= BL2_BASE, assert_scp_bl2u_overwrite_bl2);
 
-CASSERT(SCP_BL2_BASE >= ARM_TB_FW_CONFIG_LIMIT, assert_scp_bl2_overflow);
-CASSERT(SCP_BL2U_BASE >= ARM_TB_FW_CONFIG_LIMIT, assert_scp_bl2u_overflow);
+CASSERT(SCP_BL2_BASE >= ARM_FW_CONFIG_LIMIT, assert_scp_bl2_overflow);
+CASSERT(SCP_BL2U_BASE >= ARM_FW_CONFIG_LIMIT, assert_scp_bl2u_overflow);
 
 static void scp_boot_message_start(void)
 {

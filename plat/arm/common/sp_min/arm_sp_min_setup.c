@@ -29,10 +29,10 @@ static entry_point_info_t bl33_image_ep_info;
 					MT_MEMORY | MT_RW | MT_SECURE)
 
 /*
- * Check that BL32_BASE is above ARM_TB_FW_CONFIG_LIMIT. The reserved page
+ * Check that BL32_BASE is above ARM_FW_CONFIG_LIMIT. The reserved page
  * is required for SOC_FW_CONFIG/TOS_FW_CONFIG passed from BL2.
  */
-CASSERT(BL32_BASE >= ARM_TB_FW_CONFIG_LIMIT, assert_bl32_base_overflows);
+CASSERT(BL32_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl32_base_overflows);
 
 /*******************************************************************************
  * Return a pointer to the 'entry_point_info' structure of the next image for the

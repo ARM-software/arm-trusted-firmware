@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,6 +68,11 @@ toc_entry_t toc_entries[] = {
 		.cmdline_name = "nt-fw"
 	},
 	/* Dynamic Configs */
+	{
+		.name = "FW_CONFIG",
+		.uuid = UUID_FW_CONFIG,
+		.cmdline_name = "fw-config"
+	},
 	{
 		.name = "HW_CONFIG",
 		.uuid = UUID_HW_CONFIG,

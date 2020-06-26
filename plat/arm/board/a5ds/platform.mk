@@ -72,10 +72,13 @@ BL2_SOURCES		+=	lib/aarch32/arm32_aeabi_divmod.c		\
 # Add the FDT_SOURCES and options for Dynamic Config (only for Unix env)
 ifdef UNIX_MK
 
-FVP_TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/a5ds_fw_config.dtb
+FW_CONFIG	:=      ${BUILD_PLAT}/fdts/a5ds_fw_config.dtb
+TB_FW_CONFIG	:=	${BUILD_PLAT}/fdts/a5ds_tb_fw_config.dtb
 
 # Add the TB_FW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_PAYLOAD,${FVP_TB_FW_CONFIG},--tb-fw-config))
+$(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config))
+# Add the FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config))
 
 $(eval FVP_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb, \
 	fdts/$(notdir ${FVP_HW_CONFIG_DTS})))
@@ -83,6 +86,7 @@ $(eval FVP_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb, \
 $(eval $(call TOOL_ADD_PAYLOAD,${FVP_HW_CONFIG},--hw-config))
 
 FDT_SOURCES		+=	plat/arm/board/a5ds/fdts/a5ds_fw_config.dts \
+				plat/arm/board/a5ds/fdts/a5ds_tb_fw_config.dts \
 					${FVP_HW_CONFIG_DTS}
 endif
 

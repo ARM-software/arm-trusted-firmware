@@ -1,0 +1,16 @@
+/*
+ * Copyright (c) 2020, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+/ {
+	tb_fw-config {
+		compatible = "arm,tb_fw";
+
+		/* Disable authentication for development */
+		disable_auth = <0x0>;
+	};
+};
