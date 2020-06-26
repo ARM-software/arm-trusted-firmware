@@ -46,6 +46,7 @@ void ccu_dram_win_config(int ap_index, struct addr_map_win *win);
 void ccu_dram_target_set(int ap_index, uint32_t target);
 void ccu_save_win_all(int ap_id);
 void ccu_restore_win_all(int ap_id);
+int ccu_is_win_enabled(int ap_index, uint32_t win_id);
 #endif
 
 #endif /* CCU_H */

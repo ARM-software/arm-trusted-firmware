@@ -10,6 +10,7 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/marvell/ccu.h>
+#include <drivers/marvell/mochi/ap_setup.h>
 #include <drivers/marvell/mochi/cp110_setup.h>
 #include <lib/mmio.h>
 
@@ -17,9 +18,6 @@
 #include <marvell_plat_priv.h> /* timer functionality */
 
 #include "mss_scp_bootloader.h"
-
-/* IO windows configuration */
-#define IOW_GCR_OFFSET		(0x70)
 
 /* MSS windows configuration */
 #define MSS_AEBR(base)			(base + 0x160)
@@ -51,7 +49,7 @@ struct addr_map_win ccu_mem_map[] = {
  */
 static int bl2_plat_mmap_init(void)
 {
-	int cfg_num, win_id, cfg_idx;
+	int cfg_num, win_id, cfg_idx, cp;
 
 	cfg_num =  ARRAY_SIZE(ccu_mem_map);
 
@@ -65,20 +63,29 @@ static int bl2_plat_mmap_init(void)
 	 * Do not touch CCU window 0,
 	 * it's used for the internal registers access
 	 */
-	for (cfg_idx = 0, win_id = 1; cfg_idx < cfg_num; cfg_idx++, win_id++) {
+	for (cfg_idx = 0, win_id = 1;
+	     (win_id < MVEBU_CCU_MAX_WINS) && (cfg_idx < cfg_num); win_id++) {
+		/* Skip already enabled CCU windows */
+		if (ccu_is_win_enabled(MVEBU_AP0, win_id))
+			continue;
 		/* Enable required CCU windows */
 		ccu_win_check(&ccu_mem_map[cfg_idx]);
 		ccu_enable_win(MVEBU_AP0, &ccu_mem_map[cfg_idx], win_id);
+		cfg_idx++;
 	}
 
-	/* Set the default target id to PIDI */
-	mmio_write_32(MVEBU_IO_WIN_BASE(MVEBU_AP0) + IOW_GCR_OFFSET, PIDI_TID);
+	/* Config address for each cp other than cp0 */
+	for (cp = 1; cp < CP_COUNT; cp++)
+		update_cp110_default_win(cp);
+
+	/* There is need to configure IO_WIN windows again to overwrite
+	 * temporary configuration done during update_cp110_default_win
+	 */
+	init_io_win(MVEBU_AP0);
 
 	/* Open AMB bridge required for MG access */
-	cp110_amb_init(MVEBU_CP_REGS_BASE(0));
-
-	if (CP_COUNT == 2)
-		cp110_amb_init(MVEBU_CP_REGS_BASE(1));
+	for (cp = 0; cp < CP_COUNT; cp++)
+		cp110_amb_init(MVEBU_CP_REGS_BASE(cp));
 
 	return 0;
 }

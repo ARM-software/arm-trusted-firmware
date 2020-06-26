@@ -49,15 +49,17 @@
  */
 #define MARVELL_LOCAL_STATE_OFF	2
 
+/* This leaves a gap between end of DRAM and start of ROM block */
+#define MARVELL_TRUSTED_DRAM_SIZE	0x80000	/* 512 KB */
+
 /* The first 4KB of Trusted SRAM are used as shared memory */
-#define MARVELL_TRUSTED_SRAM_BASE	PLAT_MARVELL_ATF_BASE
-#define MARVELL_SHARED_RAM_BASE		MARVELL_TRUSTED_SRAM_BASE
+#define MARVELL_SHARED_RAM_BASE		PLAT_MARVELL_ATF_BASE
 #define MARVELL_SHARED_RAM_SIZE		0x00001000	/* 4 KB */
 
 /* The remaining Trusted SRAM is used to load the BL images */
 #define MARVELL_BL_RAM_BASE		(MARVELL_SHARED_RAM_BASE + \
 					 MARVELL_SHARED_RAM_SIZE)
-#define MARVELL_BL_RAM_SIZE		(PLAT_MARVELL_TRUSTED_SRAM_SIZE - \
+#define MARVELL_BL_RAM_SIZE		(MARVELL_TRUSTED_DRAM_SIZE - \
 					 MARVELL_SHARED_RAM_SIZE)
 
 #define MARVELL_DRAM_BASE		ULL(0x0)
@@ -65,7 +67,7 @@
 #define MARVELL_DRAM_END		(MARVELL_DRAM_BASE + \
 					 MARVELL_DRAM_SIZE - 1)
 
-#define MARVELL_IRQ_SEC_PHY_TIMER		29
+#define MARVELL_IRQ_SEC_PHY_TIMER	29
 
 #define MARVELL_IRQ_SEC_SGI_0		8
 #define MARVELL_IRQ_SEC_SGI_1		9
@@ -85,7 +87,6 @@
 						MARVELL_DRAM_BASE,	\
 						MARVELL_DRAM_SIZE,	\
 						MT_MEMORY | MT_RW | MT_NS)
-
 
 /*
  * The number of regions like RO(code), coherent and data required by
@@ -173,5 +174,15 @@
 #define BL31_LIMIT			(MARVELL_BL_RAM_BASE +	\
 					 MARVELL_BL_RAM_SIZE)
 
+/*****************************************************************************
+ * BL32 specific defines.
+ *****************************************************************************
+ */
+#define BL32_BASE		PLAT_MARVELL_TRUSTED_RAM_BASE
+#define BL32_LIMIT		(BL32_BASE + PLAT_MARVELL_TRUSTED_RAM_SIZE)
+
+#ifdef SPD_none
+#undef BL32_BASE
+#endif /* SPD_none */
 
 #endif /* MARVELL_DEF_H */

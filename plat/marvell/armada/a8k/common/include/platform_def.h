@@ -92,13 +92,16 @@
 #define PLAT_MARVELL_CORE_COUNT			(PLAT_MARVELL_CLUSTER_COUNT * \
 						PLAT_MARVELL_CLUSTER_CORE_COUNT)
 
-/* DRAM[2MB..66MB] is used as Trusted ROM */
+/* Part of DRAM that is used as Trusted ROM */
 #define PLAT_MARVELL_TRUSTED_ROM_BASE		PLAT_MARVELL_ATF_LOAD_ADDR
-/* 64 MB TODO: reduce this to minimum needed according to fip image size */
-#define PLAT_MARVELL_TRUSTED_ROM_SIZE		0x04000000
-/* Reserve 16M for SCP (Secure PayLoad) Trusted DRAM */
-#define PLAT_MARVELL_TRUSTED_DRAM_BASE		0x04400000
-#define PLAT_MARVELL_TRUSTED_DRAM_SIZE		0x01000000	/* 16 MB */
+/* 4 MB for FIP image */
+#define PLAT_MARVELL_TRUSTED_ROM_SIZE		0x00400000
+/* Reserve 16M for SCP (Secure PayLoad) Trusted RAM */
+#define PLAT_MARVELL_TRUSTED_RAM_BASE		0x04400000
+#define PLAT_MARVELL_TRUSTED_RAM_SIZE		0x01000000	/* 16 MB DRAM */
+
+#define PLAT_MARVELL_LLC_SRAM_BASE		PLAT_MARVELL_TRUSTED_RAM_BASE
+#define PLAT_MARVELL_LLC_SRAM_SIZE		0x00100000	/* 1 MB SRAM */
 
 /*
  * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
@@ -182,21 +185,13 @@
 /* Mailbox base address (note the lower memory space
  * is reserved for BLE data)
  */
-#define PLAT_MARVELL_MAILBOX_BASE		(MARVELL_TRUSTED_SRAM_BASE \
-							+ 0x400)
+#define PLAT_MARVELL_MAILBOX_BASE		(MARVELL_SHARED_RAM_BASE  \
+						+ 0x400)
 #define PLAT_MARVELL_MAILBOX_SIZE		0x100
 #define PLAT_MARVELL_MAILBOX_MAGIC_NUM		0x6D72766C	/* mrvl */
 
 /* Securities */
 #define IRQ_SEC_OS_TICK_INT			MARVELL_IRQ_SEC_PHY_TIMER
-
-#define TRUSTED_DRAM_BASE			PLAT_MARVELL_TRUSTED_DRAM_BASE
-#define TRUSTED_DRAM_SIZE			PLAT_MARVELL_TRUSTED_DRAM_SIZE
-
-#ifdef BL32
-#define BL32_BASE				TRUSTED_DRAM_BASE
-#define BL32_LIMIT				TRUSTED_DRAM_SIZE
-#endif
 
 #define MVEBU_PMU_IRQ_WA
 

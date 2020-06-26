@@ -185,7 +185,7 @@ func disable_sram
 
 	/* Invalidate all ways */
 	ldr	w1, =LLC_WAY_MASK
-	ldr	x0, =MASTER_L2X0_INV_WAY
+	ldr	x0, =MASTER_LLC_INV_WAY
 	str	w1, [x0]
 
 	/* Finally disable LLC */

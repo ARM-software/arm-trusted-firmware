@@ -47,15 +47,17 @@
  */
 #define MARVELL_LOCAL_STATE_OFF	2
 
+/* This leaves a gap between end of DRAM and start of ROM block */
+#define MARVELL_TRUSTED_DRAM_SIZE	0x80000	/* 512 KB */
+
 /* The first 4KB of Trusted SRAM are used as shared memory */
-#define MARVELL_TRUSTED_SRAM_BASE	PLAT_MARVELL_ATF_BASE
-#define MARVELL_SHARED_RAM_BASE		MARVELL_TRUSTED_SRAM_BASE
+#define MARVELL_SHARED_RAM_BASE		PLAT_MARVELL_ATF_BASE
 #define MARVELL_SHARED_RAM_SIZE		0x00001000	/* 4 KB */
 
 /* The remaining Trusted SRAM is used to load the BL images */
 #define MARVELL_BL_RAM_BASE		(MARVELL_SHARED_RAM_BASE +	\
 					 MARVELL_SHARED_RAM_SIZE)
-#define MARVELL_BL_RAM_SIZE		(PLAT_MARVELL_TRUSTED_SRAM_SIZE - \
+#define MARVELL_BL_RAM_SIZE		(MARVELL_TRUSTED_DRAM_SIZE - \
 					 MARVELL_SHARED_RAM_SIZE)
 /* Non-shared DRAM */
 #define MARVELL_DRAM_BASE		ULL(0x0)
@@ -75,16 +77,46 @@
 #define MARVELL_IRQ_SEC_SGI_6		14
 #define MARVELL_IRQ_SEC_SGI_7		15
 
-#define MARVELL_MAP_SHARED_RAM		MAP_REGION_FLAT(		\
-						MARVELL_SHARED_RAM_BASE,\
-						MARVELL_SHARED_RAM_SIZE,\
+#ifdef SPD_opteed
+/*
+ * BL2 needs to map 4MB at the end of TZC_DRAM1 in order to
+ * load/authenticate the trusted os extra image. The first 512KB of
+ * TZC_DRAM1 are reserved for trusted os (OPTEE). The extra image loading
+ * for OPTEE is paged image which only include the paging part using
+ * virtual memory but without "init" data. OPTEE will copy the "init" data
+ * (from pager image) to the first 512KB of TZC_DRAM, and then copy the
+ * extra image behind the "init" data.
+ */
+#define MARVELL_OPTEE_PAGEABLE_LOAD_BASE	\
+					(PLAT_MARVELL_TRUSTED_RAM_BASE + \
+					 PLAT_MARVELL_TRUSTED_RAM_SIZE - \
+					 MARVELL_OPTEE_PAGEABLE_LOAD_SIZE)
+#define MARVELL_OPTEE_PAGEABLE_LOAD_SIZE	0x400000
+#define MARVELL_OPTEE_PAGEABLE_LOAD_MEM		\
+					MAP_REGION_FLAT(		  \
+					MARVELL_OPTEE_PAGEABLE_LOAD_BASE, \
+					MARVELL_OPTEE_PAGEABLE_LOAD_SIZE, \
+					MT_MEMORY | MT_RW | MT_SECURE)
+
+/*
+ * Map the memory for the OP-TEE core (also known as OP-TEE pager when paging
+ * support is enabled).
+ */
+#define MARVELL_MAP_OPTEE_CORE_MEM	MAP_REGION_FLAT(		\
+						BL32_BASE,		\
+						BL32_LIMIT - BL32_BASE,	\
+						MT_MEMORY | MT_RW | MT_SECURE)
+#endif /* SPD_opteed */
+
+#define MARVELL_MAP_SECURE_RAM		MAP_REGION_FLAT(		 \
+						MARVELL_SHARED_RAM_BASE, \
+						MARVELL_SHARED_RAM_SIZE, \
 						MT_MEMORY | MT_RW | MT_SECURE)
 
 #define MARVELL_MAP_DRAM		MAP_REGION_FLAT(		\
 						MARVELL_DRAM_BASE,	\
 						MARVELL_DRAM_SIZE,	\
 						MT_MEMORY | MT_RW | MT_NS)
-
 
 /*
  * The number of regions like RO(code), coherent and data required by
@@ -177,5 +209,14 @@
 #define BL31_LIMIT			(MARVELL_BL_RAM_BASE +	\
 					 MARVELL_BL_RAM_SIZE)
 
+/*******************************************************************************
+ * BL32 specific defines.
+ ******************************************************************************/
+#define BL32_BASE		PLAT_MARVELL_TRUSTED_RAM_BASE
+#define BL32_LIMIT		(BL32_BASE + PLAT_MARVELL_TRUSTED_RAM_SIZE)
+
+#ifdef SPD_none
+#undef BL32_BASE
+#endif /* SPD_none */
 
 #endif /* MARVELL_DEF_H */
