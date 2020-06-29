@@ -62,15 +62,13 @@ void arm_bl2_early_platform_setup(uintptr_t fw_config,
 	bl2_tzram_layout = *mem_layout;
 
 	/* Fill the properties struct with the info from the config dtb */
-	if (fw_config != 0U) {
-		fconf_populate("FW_CONFIG", fw_config);
-	}
+	fconf_populate("FW_CONFIG", fw_config);
 
 	/* TB_FW_CONFIG was also loaded by BL1 */
 	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
-	if (tb_fw_config_info != NULL) {
-		fconf_populate("TB_FW", tb_fw_config_info->config_addr);
-	}
+	assert(tb_fw_config_info != NULL);
+
+	fconf_populate("TB_FW", tb_fw_config_info->config_addr);
 
 	/* Initialise the IO layer and register platform IO devices */
 	plat_arm_io_setup();

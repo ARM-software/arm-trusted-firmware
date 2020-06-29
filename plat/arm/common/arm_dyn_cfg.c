@@ -93,6 +93,8 @@ void arm_bl1_set_mbedtls_heap(void)
 	 */
 
 	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
+	assert(tb_fw_config_info != NULL);
+
 	tb_fw_cfg_dtb = tb_fw_config_info->config_addr;
 
 	if ((tb_fw_cfg_dtb != 0UL) && (mbedtls_heap_addr != NULL)) {
@@ -134,6 +136,8 @@ void arm_bl1_set_bl2_hash(image_desc_t *image_desc)
 	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
 
 	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
+	assert(tb_fw_config_info != NULL);
+
 	tb_fw_cfg_dtb = tb_fw_config_info->config_addr;
 
 	/*
