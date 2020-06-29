@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
-# Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
+# Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -73,4 +73,5 @@ PROGRAMMABLE_RESET_ADDRESS	:= 0
 BL2_AT_EL3			:= 1
 BL2_INV_DCACHE			:= 0
 MULTI_CONSOLE_API		:= 1
+SIMICS_BUILD			:= 0
 USE_COHERENT_MEM		:= 1

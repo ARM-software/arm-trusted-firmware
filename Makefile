@@ -945,6 +945,9 @@ PRINT_MEMORY_MAP		?=	${PRINT_MEMORY_MAP_PATH}/print_memory_map.py
 # Variables for use with documentation build using Sphinx tool
 DOCS_PATH		?=	docs
 
+# Defination of SIMICS flag
+SIMICS_BUILD	?=	0
+
 ################################################################################
 # Include BL specific makefiles
 ################################################################################
@@ -1055,6 +1058,7 @@ $(eval $(call assert_booleans,\
         ENABLE_FEAT_FGT \
         ENABLE_FEAT_AMUv1 \
         ENABLE_FEAT_ECV \
+        SIMICS_BUILD \
 )))
 
 $(eval $(call assert_numerics,\
@@ -1172,6 +1176,7 @@ $(eval $(call add_defines,\
         ENABLE_FEAT_FGT \
         ENABLE_FEAT_AMUv1 \
         ENABLE_FEAT_ECV \
+        SIMICS_BUILD \
 )))
 
 ifeq (${SANITIZE_UB},trap)

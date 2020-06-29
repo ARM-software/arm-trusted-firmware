@@ -169,8 +169,15 @@
 
 #define CRASH_CONSOLE_BASE	PLAT_UART0_BASE
 
+#ifndef SIMICS_BUILD
 #define PLAT_BAUDRATE		(115200)
 #define PLAT_UART_CLOCK		(100000000)
+
+#else
+#define PLAT_BAUDRATE		(4800)
+#define PLAT_UART_CLOCK		(76800)
+
+#endif
 
 /*******************************************************************************
  * PHY related constants
