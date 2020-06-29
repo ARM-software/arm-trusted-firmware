@@ -305,3 +305,6 @@ ERRATA_SPECULATIVE_AT           := 0
 
 # Trap RAS error record access from lower EL
 RAS_TRAP_LOWER_EL_ERR_ACCESS	:= 0
+
+# Build option to create cot descriptors using fconf
+COT_DESC_IN_DTB			:= 0

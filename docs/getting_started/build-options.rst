@@ -648,6 +648,13 @@ Common build options
    configuration device tree, instead of static structure in the code base.
    This is currently an experimental feature.
 
+-  ``COT_DESC_IN_DTB``: This flag determines whether to create COT descriptors
+   at runtime using fconf. If this flag is enabled, COT descriptors are
+   statically captured in tb_fw_config file in the form of device tree nodes
+   and properties. Currently, COT descriptors used by BL2 are moved to the
+   device tree and COT descriptors used by BL1 are retained in the code
+   base statically. This is currently an experimental feature.
+
 -  ``SDEI_IN_FCONF``: This flag determines whether to configure SDEI setup in
    runtime using firmware configuration framework. The platform specific SDEI
    shared and private events configuration is retrieved from device tree rather

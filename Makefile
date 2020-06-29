@@ -659,6 +659,10 @@ $(error "SDEI_IN_FCONF is an experimental feature and is only supported when \
 	SDEI_SUPPORT is enabled")
 endif
 
+ifeq ($(COT_DESC_IN_DTB),1)
+    $(info CoT in device tree is an experimental feature)
+endif
+
 # If pointer authentication is used in the firmware, make sure that all the
 # registers associated to it are also saved and restored.
 # Not doing it would leak the value of the keys used by EL3 to EL1 and S-EL1.
@@ -903,6 +907,7 @@ $(eval $(call assert_boolean,ENCRYPT_BL31))
 $(eval $(call assert_boolean,ENCRYPT_BL32))
 $(eval $(call assert_boolean,ERRATA_SPECULATIVE_AT))
 $(eval $(call assert_boolean,RAS_TRAP_LOWER_EL_ERR_ACCESS))
+$(eval $(call assert_boolean,COT_DESC_IN_DTB))
 
 $(eval $(call assert_numeric,ARM_ARCH_MAJOR))
 $(eval $(call assert_numeric,ARM_ARCH_MINOR))
@@ -983,6 +988,7 @@ $(eval $(call add_define,BL2_INV_DCACHE))
 $(eval $(call add_define,USE_SPINLOCK_CAS))
 $(eval $(call add_define,ERRATA_SPECULATIVE_AT))
 $(eval $(call add_define,RAS_TRAP_LOWER_EL_ERR_ACCESS))
+$(eval $(call add_define,COT_DESC_IN_DTB))
 
 ifeq (${SANITIZE_UB},trap)
         $(eval $(call add_define,MONITOR_TRAPS))
