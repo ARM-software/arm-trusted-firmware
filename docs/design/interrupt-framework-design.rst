@@ -138,6 +138,8 @@ Non-secure interrupts
    reason to route the interrupt to EL3 software and then hand it back to
    non-secure software for handling.
 
+.. _EL3 interrupts:
+
 EL3 interrupts
 ^^^^^^^^^^^^^^
 

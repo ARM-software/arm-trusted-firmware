@@ -9,10 +9,8 @@ In conjunction with the |EHF|, support for RAS extension enables firmware-first
 paradigm for handling platform errors: exceptions resulting from errors are
 routed to and handled in EL3. Said errors are Synchronous External Abort (SEA),
 Asynchronous External Abort (signalled as SErrors), Fault Handling and Error
-Recovery interrupts.  The |EHF| document mentions various `error handling
-use-cases`__.
-
-.. __: exception-handling.rst#delegation-use-cases
+Recovery interrupts.  The |EHF| document mentions various :ref:`error handling
+use-cases <delegation-use-cases>` .
 
 For the description of Arm RAS extensions, Standard Error Records, and the
 precise definition of RAS terminology, please refer to the Arm Architecture
@@ -46,9 +44,7 @@ Platform APIs
 
 The RAS framework allows the platform to define handlers for External Abort,
 Uncontainable Errors, Double Fault, and errors rising from EL3 execution. Please
-refer to the porting guide for the `RAS platform API descriptions`__.
-
-.. __: ../getting_started/porting-guide.rst#external-abort-handling-and-ras-support
+refer to :ref:`RAS Porting Guide <External Abort handling and RAS Support>`.
 
 Registering RAS error records
 -----------------------------
@@ -114,9 +110,8 @@ The error handler must have the following prototype:
 
 The ``data`` constant parameter describes the various properties of the error,
 including the reason for the error, exception syndrome, and also ``flags``,
-``cookie``, and ``handle`` parameters from the `top-level exception handler`__.
-
-.. __: interrupt-framework-design.rst#el3-interrupts
+``cookie``, and ``handle`` parameters from the :ref:`top-level exception handler
+<EL3 interrupts>`.
 
 The platform is expected populate an array using the macros above, and register
 the it with the RAS framework using the macro ``REGISTER_ERR_RECORD_INFO()``,
@@ -229,21 +224,17 @@ Interaction with Exception Handling Framework
 
 As mentioned in earlier sections, RAS framework interacts with the |EHF| to
 arbitrate handling of RAS exceptions with others that are routed to EL3. This
-means that the platform must partition a `priority level`__ for handling RAS
-exceptions. The platform must then define the macro ``PLAT_RAS_PRI`` to the
-priority level used for RAS exceptions. Platforms would typically want to
-allocate the highest secure priority for RAS handling.
+means that the platform must partition a :ref:`priority level <Partitioning
+priority levels>` for handling RAS exceptions. The platform must then define
+the macro ``PLAT_RAS_PRI`` to the priority level used for RAS exceptions.
+Platforms would typically want to allocate the highest secure priority for
+RAS handling.
 
-.. __: exception-handling.rst#partitioning-priority-levels
-
-Handling of both `interrupt`__ and `non-interrupt`__ exceptions follow the
-sequences outlined in the |EHF| documentation. I.e., for interrupts, the
-priority management is implicit; but for non-interrupt exceptions, they're
-explicit using `EHF APIs`__.
-
-.. __: exception-handling.rst#interrupt-flow
-.. __: exception-handling.rst#non-interrupt-flow
-.. __: exception-handling.rst#activating-and-deactivating-priorities
+Handling of both :ref:`interrupt <interrupt-flow>` and :ref:`non-interrupt
+<non-interrupt-flow>` exceptions follow the sequences outlined in the |EHF|
+documentation. I.e., for interrupts, the priority management is implicit; but
+for non-interrupt exceptions, they're explicit using :ref:`EHF APIs
+<Activating and Deactivating priorities>`.
 
 --------------
 
