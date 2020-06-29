@@ -197,10 +197,8 @@ endif
 
 # Memory tagging is supported in architecture Armv8.5-A AArch64 and onwards
 ifeq ($(ARCH), aarch64)
-ifeq ($(shell test $(ARM_ARCH_MAJOR) -gt 8; echo $$?),0)
-mem_tag_arch_support	= 	yes
-else ifeq ($(shell test $(ARM_ARCH_MAJOR) -eq 8 -a $(ARM_ARCH_MINOR) -ge 5; \
-	   echo $$?),0)
+# Check if revision is greater than or equal to 8.5
+ifeq "8.5" "$(word 1, $(sort 8.5 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
 mem_tag_arch_support	= 	yes
 endif
 endif
