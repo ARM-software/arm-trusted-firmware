@@ -105,17 +105,7 @@ SECTIONS
     __DATA_RAM_START__ = __DATA_START__;
     __DATA_RAM_END__ = __DATA_END__;
 
-    /*
-     * .rela.dyn needs to come after .data for the read-elf utility to parse
-     * this section correctly. Ensure 8-byte alignment so that the fields of
-     * RELA data structure are aligned.
-     */
-    . = ALIGN(8);
-    __RELA_START__ = .;
-    .rela.dyn . : {
-    } >RAM
-    __RELA_END__ = .;
-
+    RELA_SECTION >RAM
     STACK_SECTION >RAM
     BSS_SECTION >RAM
     XLAT_TABLE_SECTION >RAM
