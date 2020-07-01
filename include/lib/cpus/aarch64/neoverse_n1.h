@@ -35,6 +35,7 @@
 
 #define NEOVERSE_N1_WS_THR_L2_MASK	(ULL(3) << 24)
 #define NEOVERSE_N1_CPUECTLR_EL1_MM_TLBPF_DIS_BIT	(ULL(1) << 51)
+#define NEOVERSE_N1_CPUECTLR_EL1_BIT_53			(ULL(1) << 53)
 #define NEOVERSE_N1_CPUECTLR_EL1_EXTLLC_BIT		(ULL(1) << 0)
 
 /*******************************************************************************
