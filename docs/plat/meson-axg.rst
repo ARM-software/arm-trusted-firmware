@@ -24,4 +24,4 @@ This port has been tested on a A113D board. After building it, follow the
 instructions in the `U-Boot repository`_, replacing the mentioned **bl31.img**
 by the one built from this port.
 
-.. _U-Boot repository: https://github.com/u-boot/u-boot/blob/master/board/amlogic/s400/README
+.. _U-Boot repository: https://github.com/u-boot/u-boot/blob/master/doc/board/amlogic/s400.rst

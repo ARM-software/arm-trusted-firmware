@@ -34,7 +34,7 @@ To build for machines with an H6 SoC:
 
     make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sun50i_h6 DEBUG=1 bl31
 
-.. _U-Boot documentation: http://git.denx.de/?p=u-boot.git;f=board/sunxi/README.sunxi64;hb=HEAD
+.. _U-Boot documentation: https://gitlab.denx.de/u-boot/u-boot/-/blob/master/board/sunxi/README.sunxi64
 
 Trusted OS dispatcher
 ---------------------
