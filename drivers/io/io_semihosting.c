@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -51,8 +51,7 @@ static const io_dev_funcs_t sh_dev_funcs = {
 };
 
 
-/* No state associated with this device so structure can be const */
-static const io_dev_info_t sh_dev_info = {
+static io_dev_info_t sh_dev_info = {
 	.funcs = &sh_dev_funcs,
 	.info = (uintptr_t)NULL
 };
@@ -63,7 +62,7 @@ static int sh_dev_open(const uintptr_t dev_spec __unused,
 		io_dev_info_t **dev_info)
 {
 	assert(dev_info != NULL);
-	*dev_info = (io_dev_info_t *)&sh_dev_info; /* cast away const */
+	*dev_info = &sh_dev_info;
 	return 0;
 }
 
