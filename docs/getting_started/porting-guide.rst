@@ -2729,6 +2729,8 @@ data on the designated crash console. It should only use general purpose
 registers x0 through x5 to do its work. The return value is 0 on successful
 completion; otherwise the return value is -1.
 
+.. _External Abort handling and RAS Support:
+
 External Abort handling and RAS Support
 ---------------------------------------
 

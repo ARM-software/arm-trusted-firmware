@@ -176,6 +176,8 @@ dispatcher may register more than one priority level.
 
 Dispatchers are assigned interrupt priority levels in two steps:
 
+.. _Partitioning priority levels:
+
 Partitioning priority levels
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -364,6 +366,8 @@ assign interrupts to fictitious dispatchers:
    ...
 
 See also the `Build-time flow`_ and the `Run-time flow`_.
+
+.. _Activating and Deactivating priorities:
 
 Activating and Deactivating priorities
 --------------------------------------
