@@ -20,8 +20,8 @@ In order to build it:
     CROSS_COMPILE=aarch64-linux-gnu- make DEBUG=1 PLAT=gxl
 
 This port has been tested on a Lepotato. After building it, follow the
-instructions in the `gxlimg repository` or `U-Boot repository`_, replacing the
+instructions in the `gxlimg repository`_ or `U-Boot repository`_, replacing the
 mentioned **bl31.img** by the one built from this port.
 
 .. _gxlimg repository: https://github.com/repk/gxlimg/blob/master/README
-.. _U-Boot repository: https://github.com/u-boot/u-boot/blob/master/board/amlogic/p212/README.libretech-cc
+.. _U-Boot repository: https://github.com/u-boot/u-boot/blob/master/doc/board/amlogic/p212.rst

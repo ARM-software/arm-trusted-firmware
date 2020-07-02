@@ -286,7 +286,7 @@ effects, given that these measurements are at the nano-second level.
 
 --------------
 
-*Copyright (c) 2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.*
 
-.. _Juno R1 platform: https://www.arm.com/files/pdf/Juno_r1_ARM_Dev_datasheet.pdf
+.. _Juno R1 platform: https://static.docs.arm.com/100122/0100/arm_versatile_express_juno_r1_development_platform_(v2m_juno_r1)_technical_reference_manual_100122_0100_05_en.pdf
 .. _TF master as of 31/01/2017: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/?id=c38b36d

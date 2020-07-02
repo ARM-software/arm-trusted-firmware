@@ -20,8 +20,8 @@ In order to build it:
     CROSS_COMPILE=aarch64-linux-gnu- make DEBUG=1 PLAT=g12a
 
 This port has been tested on a SEI510 board. After building it, follow the
-instructions in the `gxlimg repository` or `U-Boot repository`_, replacing the
+instructions in the `gxlimg repository`_ or `U-Boot repository`_, replacing the
 mentioned **bl31.img** by the one built from this port.
 
 .. _gxlimg repository: https://github.com/repk/gxlimg/blob/master/README.g12a
-.. _U-Boot repository: https://github.com/u-boot/u-boot/blob/master/board/amlogic/sei510/README
+.. _U-Boot repository: https://github.com/u-boot/u-boot/blob/master/doc/board/amlogic/sei510.rst
