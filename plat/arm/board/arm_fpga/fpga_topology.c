@@ -26,7 +26,7 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
 	fpga_power_domain_tree_desc[1] = FPGA_MAX_CLUSTER_COUNT;
 
 	for (i = 0; i < FPGA_MAX_CLUSTER_COUNT; i++) {
-		fpga_power_domain_tree_desc[i + 2] = FPGA_MAX_CPUS_PER_CLUSTER;
+		fpga_power_domain_tree_desc[i + 2] = FPGA_MAX_CPUS_PER_CLUSTER * FPGA_MAX_PE_PER_CPU;
 	}
 
 	return fpga_power_domain_tree_desc;
@@ -36,35 +36,37 @@ int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
 	unsigned int cluster_id, cpu_id, thread_id;
 
-	mpidr &= MPIDR_AFFINITY_MASK;
-	if (mpidr & ~(MPIDR_CLUSTER_MASK | MPIDR_CPU_MASK)) {
-		return -1;
-	}
-
-	if (mpidr & MPIDR_MT_MASK) {
-		thread_id = MPIDR_AFFLVL0_VAL(mpidr);
-	} else {
-		thread_id = 0;
-	}
-
-	cpu_id = MPIDR_AFFLVL1_VAL(mpidr);
-	cluster_id = MPIDR_AFFLVL2_VAL(mpidr);
-
-	if (cluster_id >= FPGA_MAX_CLUSTER_COUNT) {
-		return -1;
-	} else if (cpu_id >= FPGA_MAX_CPUS_PER_CLUSTER) {
-		return -1;
-	} else if (thread_id >= FPGA_MAX_PE_PER_CPU) {
-		return -1;
-	}
-
 	/*
-	 * The image running on the FPGA may or may not implement multithreading,
-	 * and it shouldn't be assumed this is consistent across all CPUs.
+	 * The image running on the FPGA may or may not implement
+	 * multithreading, and it shouldn't be assumed this is consistent
+	 * across all CPUs.
 	 * This ensures that any passed mpidr values reflect the status of the
 	 * primary CPU's MT bit.
 	 */
 	mpidr |= (read_mpidr_el1() & MPIDR_MT_MASK);
+	mpidr &= MPID_MASK;
+
+	if (mpidr & MPIDR_MT_MASK) {
+		thread_id = MPIDR_AFFLVL0_VAL(mpidr);
+		cpu_id = MPIDR_AFFLVL1_VAL(mpidr);
+		cluster_id = MPIDR_AFFLVL2_VAL(mpidr);
+	} else {
+		thread_id = 0;
+		cpu_id = MPIDR_AFFLVL0_VAL(mpidr);
+		cluster_id = MPIDR_AFFLVL1_VAL(mpidr);
+	}
+
+	if (cluster_id >= FPGA_MAX_CLUSTER_COUNT) {
+		return -1;
+	}
+
+	if (cpu_id >= FPGA_MAX_CPUS_PER_CLUSTER) {
+		return -1;
+	}
+
+	if (thread_id >= FPGA_MAX_PE_PER_CPU) {
+		return -1;
+	}
 
 	/* Calculate the correct core, catering for multi-threaded images */
 	return (int) plat_fpga_calc_core_pos(mpidr);
