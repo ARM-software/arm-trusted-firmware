@@ -10,7 +10,8 @@ MTK_PLAT_SOC  := ${MTK_PLAT}/${PLAT}
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT_SOC}/include/                       \
                  -I${MTK_PLAT_SOC}/drivers/                       \
-                 -I${MTK_PLAT_SOC}/drivers/gpio/
+                 -I${MTK_PLAT_SOC}/drivers/gpio/                  \
+                 -I${MTK_PLAT_SOC}/drivers/timer/
 
 GICV3_SUPPORT_GIC600        :=      1
 include drivers/arm/gic/v3/gicv3.mk
@@ -37,7 +38,8 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT_SOC}/plat_topology.c                       \
                    ${MTK_PLAT_SOC}/plat_mt_gic.c                         \
                    ${MTK_PLAT_SOC}/plat_mt_cirq.c                        \
-                   ${MTK_PLAT_SOC}/drivers/gpio/mtgpio.c
+                   ${MTK_PLAT_SOC}/drivers/gpio/mtgpio.c                 \
+                   ${MTK_PLAT_SOC}/drivers/timer/mt_timer.c
 
 
 # Configs for A76 and A55
