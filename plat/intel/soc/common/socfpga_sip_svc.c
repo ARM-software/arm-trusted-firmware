@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -234,6 +234,9 @@ static bool is_fpga_config_buffer_full(void)
 
 bool is_address_in_ddr_range(uint64_t addr, uint64_t size)
 {
+	if (!addr && !size) {
+		return true;
+	}
 	if (size > (UINT64_MAX - addr))
 		return false;
 	if (addr < BL31_LIMIT)
