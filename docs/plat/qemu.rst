@@ -78,7 +78,7 @@ To build:
 
     make CROSS_COMPILE=aarch64-none-elf- PLAT=qemu
 
-To start (QEMU v4.1.0):
+To start (QEMU v5.0.0):
 
 .. code:: shell
 
@@ -127,7 +127,7 @@ To build flash.bin:
     dd if=build/qemu/release/bl1.bin of=flash.bin bs=4096 conv=notrunc
     dd if=build/qemu/release/fip.bin of=flash.bin seek=64 bs=4096 conv=notrunc
 
-To start (QEMU v2.6.0):
+To start (QEMU v5.0.0):
 
 .. code:: shell
 
