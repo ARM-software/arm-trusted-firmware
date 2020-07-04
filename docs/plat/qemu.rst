@@ -84,7 +84,7 @@ To start (QEMU v4.1.0):
 
     qemu-system-aarch64 -nographic -machine virt,secure=on -cpu cortex-a57  \
         -kernel Image                           \
-        -append "console=ttyAMA0,38400 keep_bootcon root=/dev/vda2"   \
+        -append "console=ttyAMA0,38400 keep_bootcon"   \
         -initrd rootfs.cpio.gz -smp 2 -m 1024 -bios bl1.bin   \
         -d unimp -semihosting-config enable,target=native
 
@@ -133,6 +133,6 @@ To start (QEMU v2.6.0):
 
     qemu-system-aarch64 -nographic -machine virt,secure=on -cpu cortex-a57  \
         -kernel Image -no-acpi                     \
-        -append 'console=ttyAMA0,38400 keep_bootcon root=/dev/vda2'  \
+        -append 'console=ttyAMA0,38400 keep_bootcon'  \
         -initrd rootfs.cpio.gz -smp 2 -m 1024 -bios flash.bin   \
         -d unimp
