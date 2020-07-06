@@ -1,0 +1,92 @@
+// SPDX-License-Identifier: (GPL-2.0 or BSD-3-Clause)
+/*
+ * Copyright (c) 2019-2020, Arm Limited.
+ */
+
+/dts-v1/;
+
+#include "n1sdp.dtsi"
+
+/ {
+	model = "Arm Neoverse N1 System Development Platform";
+	compatible = "arm,neoverse-n1-sdp", "arm,neoverse-n1-soc";
+
+	aliases {
+		serial0 = &soc_uart0;
+	};
+
+	chosen {
+		stdout-path = "soc_uart0:115200n8";
+	};
+
+	/* This configuration assumes that standard setup with two DIMM modules.
+	 * In the first 2GB of DRAM bank the top 16MB are reserved by firmware as secure memory.
+	 * This configuration assumes 16GB of total DRAM being populated.
+	 */
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x00000000 0x80000000 0x0 0x7f000000>,
+			<0x00000080 0x80000000 0x3 0x80000000>;
+		numa-node-id = <0>;
+	};
+
+	soc_refclk60mhz: refclk60mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <60000000>;
+		clock-output-names = "iofpga_clk";
+	};
+
+	soc_hdlcdclk:  hdlcdclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <23750000>;
+		clock-output-names = "hdlcdclk";
+	};
+
+	hdlcd: hdlcd@1c050000 {
+		compatible = "arm,hdlcd";
+		reg = <0 0x1c050000 0 0x1000>;
+		interrupts = <GIC_SPI 97 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&soc_hdlcdclk>;
+		clock-names = "pxlclk";
+
+		port {
+			hdlcd0_output: endpoint {
+				remote-endpoint = <&tda998x_0_input>;
+			};
+		};
+	};
+
+	i2c@1c0f0000 {
+		compatible = "arm,versatile-i2c";
+		reg = <0x0 0x1c0f0000 0x0 0x1000>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+		clock-frequency = <400000>;
+		i2c-sda-hold-time-ns = <500>;
+		clocks = <&soc_refclk60mhz>;
+
+		hdmi-transmitter@70 {
+			compatible = "nxp,tda998x";
+			reg = <0x70>;
+			port {
+				tda998x_0_input: endpoint {
+					remote-endpoint = <&hdlcd0_output>;
+				};
+			};
+		};
+	};
+};
+
+&pcie_ctlr {
+	status = "okay";
+};
+
+&ccix_pcie_ctlr {
+	status = "okay";
+};
+
+&soc_uart0 {
+	status = "okay";
+};

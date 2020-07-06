@@ -1,0 +1,63 @@
+// SPDX-License-Identifier: (GPL-2.0 or BSD-3-Clause)
+/*
+ * Copyright (c) 2019-2020, Arm Limited.
+ */
+
+#include "n1sdp-single-chip.dts"
+
+/ {
+	cpus {
+		cpu4@100000000 {
+			compatible = "arm,neoverse-n1";
+			reg = <0x1 0x0>;
+			device_type = "cpu";
+			enable-method = "psci";
+			numa-node-id = <1>;
+		};
+		cpu5@100000100 {
+			compatible = "arm,neoverse-n1";
+			reg = <0x1 0x00000100>;
+			device_type = "cpu";
+			enable-method = "psci";
+			numa-node-id = <1>;
+		};
+		cpu6@100010000 {
+			compatible = "arm,neoverse-n1";
+			reg = <0x1 0x00010000>;
+			device_type = "cpu";
+			enable-method = "psci";
+			numa-node-id = <1>;
+		};
+		cpu7@100010100 {
+			compatible = "arm,neoverse-n1";
+			reg = <0x1 0x00010100>;
+			device_type = "cpu";
+			enable-method = "psci";
+			numa-node-id = <1>;
+		};
+	};
+
+	/* Remote N1SDP board address is mapped at offset 4TB.
+	 * First DRAM Bank of remote N1SDP board is mapped at 4TB + 2GB.
+	 */
+	memory@40080000000 {
+		device_type = "memory";
+		reg = <0x00000400 0x80000000 0x0 0x80000000>,
+			<0x00000480 0x80000000 0x3 0x80000000>;
+		numa-node-id = <1>;
+	};
+
+	distance-map {
+		compatible = "numa-distance-map-v1";
+		distance-matrix =   <0 0 10>,
+				    <0 1 20>,
+				    <1 1 10>;
+	};
+};
+
+&gic {
+	#redistributor-regions = <2>;
+	reg =   <0x0 0x30000000 0 0x10000>,	/* GICD */
+		<0x0 0x300c0000 0 0x80000>,	/* GICR */
+		<0x400 0x300c0000 0 0x80000>;	/* GICR */
+};
