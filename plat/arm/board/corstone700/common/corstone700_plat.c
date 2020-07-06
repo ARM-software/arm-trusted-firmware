@@ -18,6 +18,7 @@
 
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
+	ARM_MAP_NS_SHARED_RAM,
 	ARM_MAP_NS_DRAM1,
 	CORSTONE700_MAP_DEVICE,
 	{0}
@@ -33,5 +34,6 @@ void __init plat_arm_pwrc_setup(void)
 
 unsigned int plat_get_syscnt_freq2(void)
 {
-	return CORSTONE700_TIMER_BASE_FREQUENCY;
+	/* Returning the Generic Timer Frequency */
+	return SYS_COUNTER_FREQ_IN_TICKS;
 }

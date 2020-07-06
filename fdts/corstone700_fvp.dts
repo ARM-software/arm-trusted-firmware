@@ -1,0 +1,40 @@
+/*
+ * Copyright (c) 2020, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+#include "corstone700.dtsi"
+
+/ {
+	model = "corstone700-fvp";
+
+	/*
+	* Intel StrataFlash J3 NOR flash: 2 x 16-bit interleaved components
+	* Flash total size: 32 MB
+	* Allocated flash space: 8 MB
+	*/
+
+	flash@8500000 {
+		compatible = "cfi-flash";
+		reg = <0x8500000 0x800000>;
+		bank-width = <4>;
+		device-width= <2>;
+	};
+
+	ethernet: eth@4010000 {
+		compatible = "smsc,lan91c111";
+		reg = <0x40100000 0x10000>;
+		phy-mode = "mii";
+		interrupt-parent = <&gic>;
+		interrupts = <GIC_SPI 116 0xf04>;
+		reg-io-width = <2>;
+		smsc,irq-push-pull;
+	};
+};
+
+&refclk {
+	clock-frequency = <50000000>;
+};
