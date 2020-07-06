@@ -5,6 +5,7 @@
  */
 
 #include <arch_helpers.h>
+#include <lib/mmio.h>
 #include <mt_timer.h>
 #include <platform_def.h>
 
@@ -27,4 +28,11 @@ uint64_t sched_clock(void)
 	cval = ((rel_base * 1000U) / SYS_COUNTER_FREQ_IN_MHZ)
 		- normal_time_base;
 	return cval;
+}
+
+void mt_systimer_init(void)
+{
+	/* Enable access in NS mode */
+	mmio_write_32(CNTWACR_REG, CNT_WRITE_ACCESS_CTL_MASK);
+	mmio_write_32(CNTRACR_REG, CNT_READ_ACCESS_CTL_MASK);
 }
