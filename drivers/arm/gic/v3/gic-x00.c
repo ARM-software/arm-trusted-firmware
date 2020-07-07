@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,26 +21,27 @@
 #include "gicv3_private.h"
 
 /* GIC-600 specific register offsets */
-#define GICR_PWRR		0x24
-#define IIDR_MODEL_ARM_GIC_600	0x0200043b
+#define GICR_PWRR			0x24
+#define IIDR_MODEL_ARM_GIC_600		(0x0200043b)
+#define IIDR_MODEL_ARM_GIC_600AE	(0x0300043b)
 
 /* GICR_PWRR fields */
-#define PWRR_RDPD_SHIFT		0
-#define PWRR_RDAG_SHIFT		1
-#define PWRR_RDGPD_SHIFT	2
-#define PWRR_RDGPO_SHIFT	3
+#define PWRR_RDPD_SHIFT			0
+#define PWRR_RDAG_SHIFT			1
+#define PWRR_RDGPD_SHIFT		2
+#define PWRR_RDGPO_SHIFT		3
 
-#define PWRR_RDPD	(1 << PWRR_RDPD_SHIFT)
-#define PWRR_RDAG	(1 << PWRR_RDAG_SHIFT)
-#define PWRR_RDGPD	(1 << PWRR_RDGPD_SHIFT)
-#define PWRR_RDGPO	(1 << PWRR_RDGPO_SHIFT)
+#define PWRR_RDPD			(1 << PWRR_RDPD_SHIFT)
+#define PWRR_RDAG			(1 << PWRR_RDAG_SHIFT)
+#define PWRR_RDGPD			(1 << PWRR_RDGPD_SHIFT)
+#define PWRR_RDGPO			(1 << PWRR_RDGPO_SHIFT)
 
 /*
  * Values to write to GICR_PWRR register to power redistributor
  * for operating through the core (GICR_PWRR.RDAG = 0)
  */
-#define PWRR_ON		(0 << PWRR_RDPD_SHIFT)
-#define PWRR_OFF	(1 << PWRR_RDPD_SHIFT)
+#define PWRR_ON				(0 << PWRR_RDPD_SHIFT)
+#define PWRR_OFF			(1 << PWRR_RDPD_SHIFT)
 
 #if GICV3_SUPPORT_GIC600
 
@@ -115,7 +117,8 @@ static bool gicv3_is_gic600(uintptr_t gicr_base)
 {
 	uint32_t reg = mmio_read_32(gicr_base + GICR_IIDR);
 
-	return (reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_600;
+	return (((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_600) ||
+		((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_600AE));
 }
 
 #endif
