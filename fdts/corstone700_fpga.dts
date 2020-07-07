@@ -1,0 +1,27 @@
+/*
+ * Copyright (c) 2020, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/dts-v1/;
+
+#include "corstone700.dtsi"
+
+/ {
+	model = "corstone700-fpga";
+
+	ethernet: eth@40100000 {
+		compatible = "smsc,lan9115";
+		reg = <0x40100000 0x10000>;
+		phy-mode = "mii";
+		interrupt-parent = <&gic>;
+		interrupts = <GIC_SPI 116 IRQ_TYPE_LEVEL_HIGH>;
+		reg-io-width = <2>;
+		smsc,irq-push-pull;
+	};
+};
+
+&refclk {
+	clock-frequency = <32000000>;
+};
