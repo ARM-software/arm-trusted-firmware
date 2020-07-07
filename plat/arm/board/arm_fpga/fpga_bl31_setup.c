@@ -128,6 +128,84 @@ unsigned int plat_get_syscnt_freq2(void)
 				       FPGA_DEFAULT_TIMER_FREQUENCY);
 }
 
+static void fpga_prepare_dtb(void)
+{
+	void *fdt = (void *)(uintptr_t)FPGA_PRELOADED_DTB_BASE;
+	const char *cmdline = (void *)(uintptr_t)FPGA_PRELOADED_CMD_LINE;
+	int err;
+
+	err = fdt_open_into(fdt, fdt, FPGA_MAX_DTB_SIZE);
+	if (err < 0) {
+		ERROR("cannot open devicetree at %p: %d\n", fdt, err);
+		panic();
+	}
+
+	/* Check for the command line signature. */
+	if (!strncmp(cmdline, "CMD:", 4)) {
+		int chosen;
+
+		INFO("using command line at 0x%x\n", FPGA_PRELOADED_CMD_LINE);
+
+		chosen = fdt_add_subnode(fdt, 0, "chosen");
+		if (chosen == -FDT_ERR_EXISTS) {
+			chosen = fdt_path_offset(fdt, "/chosen");
+		}
+		if (chosen < 0) {
+			ERROR("cannot find /chosen node: %d\n", chosen);
+		} else {
+			const char *eol;
+			char nul = 0;
+			int slen;
+
+			/*
+			 * There is most likely an EOL at the end of the
+			 * command line, make sure we terminate the line there.
+			 * We can't replace the EOL with a NUL byte in the
+			 * source, as this is in read-only memory. So we first
+			 * create the property without any termination, then
+			 * append a single NUL byte.
+			 */
+			eol = strchr(cmdline, '\n');
+			if (!eol) {
+				eol = strchr(cmdline, 0);
+			}
+			/* Skip the signature and omit the EOL/NUL byte. */
+			slen = eol - (cmdline + 4);
+
+			/*
+			 * Let's limit the size of the property, just in case
+			 * we find the signature by accident. The Linux kernel
+			 * limits to 4096 characters at most (in fact 2048 for
+			 * arm64), so that sounds like a reasonable number.
+			 */
+			if (slen > 4095) {
+				slen = 4095;
+			}
+			err = fdt_setprop(fdt, chosen, "bootargs",
+					  cmdline + 4, slen);
+			if (!err) {
+				err = fdt_appendprop(fdt, chosen, "bootargs",
+						     &nul, 1);
+			}
+			if (err) {
+				ERROR("Could not set command line: %d\n", err);
+			}
+		}
+	}
+
+	err = fdt_pack(fdt);
+	if (err < 0) {
+		ERROR("Failed to pack Device Tree at %p: error %d\n", fdt, err);
+	}
+
+	clean_dcache_range((uintptr_t)fdt, fdt_blob_size(fdt));
+}
+
+void bl31_plat_runtime_setup(void)
+{
+	fpga_prepare_dtb();
+}
+
 void bl31_plat_enable_mmu(uint32_t flags)
 {
 	/* TODO: determine if MMU needs to be enabled */

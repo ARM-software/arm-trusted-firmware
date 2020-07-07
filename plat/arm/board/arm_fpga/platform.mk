@@ -29,6 +29,9 @@ PRELOADED_BL33_BASE := 0x80080000
 FPGA_PRELOADED_DTB_BASE := 0x80070000
 $(eval $(call add_define,FPGA_PRELOADED_DTB_BASE))
 
+FPGA_PRELOADED_CMD_LINE := 0x1000
+$(eval $(call add_define,FPGA_PRELOADED_CMD_LINE))
+
 # Treating this as a memory-constrained port for now
 USE_COHERENT_MEM	:=	0
 
