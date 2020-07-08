@@ -128,7 +128,13 @@ int plat_spm_core_manifest_load(spmc_manifest_attribute_t *manifest,
 	 */
 	pm_base = (uintptr_t)pm_addr;
 	pm_base_align = page_align(pm_base, UP);
-	mapped_size = pm_base_align - pm_base;
+
+	if (pm_base == pm_base_align) {
+		/* Page aligned */
+		mapped_size = PAGE_SIZE;
+	} else {
+		mapped_size = pm_base_align - pm_base;
+	}
 
 	/* Check space within the page at least maps the FDT header */
 	if (mapped_size < sizeof(struct fdt_header)) {
