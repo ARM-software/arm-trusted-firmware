@@ -67,17 +67,6 @@ void qtiseclib_panic(void)
 {
 }
 
-int qtiseclib_prng_get_data(uint8_t *out, uint32_t out_len)
-{
-	/* fill dummy data to avoid assert and print
-	 * stub implementation in setup call
-	 */
-	for (int i = 0; i < out_len; i++) {
-		out[i] = 0x11;
-	}
-	return 0;
-}
-
 int
 qtiseclib_mem_assign(const memprot_info_t *mem_info,
 		     uint32_t mem_info_list_cnt,

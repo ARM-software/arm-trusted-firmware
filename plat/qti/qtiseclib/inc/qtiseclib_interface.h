@@ -63,7 +63,6 @@ void qtiseclib_kryo4_silver_reset_asm(void);
 void qtiseclib_bl31_platform_setup(void);
 void qtiseclib_invoke_isr(uint32_t irq, void *handle);
 void qtiseclib_panic(void);
-int qtiseclib_prng_get_data(uint8_t *out, uint32_t out_len);
 
 int qtiseclib_mem_assign(const memprot_info_t *mem_info,
 			 uint32_t mem_info_list_cnt,
