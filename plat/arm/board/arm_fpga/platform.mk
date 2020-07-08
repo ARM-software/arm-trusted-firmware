@@ -24,15 +24,10 @@ ifeq (${TRUSTED_BOARD_BOOT}, 1)
 $(error "TRUSTED_BOARD_BOOT must be disabled")
 endif
 
-ifndef PRELOADED_BL33_BASE
-$(error "PRELOADED_BL33_BASE is not set")
-endif
+PRELOADED_BL33_BASE := 0x80080000
 
-ifndef FPGA_PRELOADED_DTB_BASE
-$(error "FPGA_PRELOADED_DTB_BASE is not set")
-else
+FPGA_PRELOADED_DTB_BASE := 0x80070000
 $(eval $(call add_define,FPGA_PRELOADED_DTB_BASE))
-endif
 
 # Treating this as a memory-constrained port for now
 USE_COHERENT_MEM	:=	0
