@@ -29,6 +29,8 @@ fdt     fdt_stringlist_search
 fdt     fdt_get_alias_namelen
 fdt     fdt_path_offset
 fdt     fdt_path_offset_namelen
+fdt     fdt_address_cells
+fdt     fdt_size_cells
 fdt     fdt_get_name
 fdt     fdt_get_alias
 fdt     fdt_node_offset_by_phandle
