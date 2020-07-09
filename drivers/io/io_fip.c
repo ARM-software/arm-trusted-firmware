@@ -302,7 +302,7 @@ static int fip_file_open(io_dev_info_t *dev_info, const uintptr_t spec,
 	 */
 	if (current_file.entry.offset_address != 0) {
 		WARN("fip_file_open : Only one open file at a time.\n");
-		return -ENOMEM;
+		return -ENFILE;
 	}
 
 	/* Attempt to access the FIP image */
