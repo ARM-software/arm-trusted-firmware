@@ -9,6 +9,8 @@
 #ifndef FDT_WRAPPERS_H
 #define FDT_WRAPPERS_H
 
+#include <libfdt_env.h>
+
 /* Number of cells, given total length in bytes. Each cell is 4 bytes long */
 #define NCELLS(len) ((len) / 4U)
 
@@ -36,5 +38,12 @@ int fdt_get_stdout_node_offset(const void *dtb);
 
 uint64_t fdtw_translate_address(const void *dtb, int bus_node,
 				uint64_t base_address);
+
+static inline uint32_t fdt_blob_size(const void *dtb)
+{
+	const uint32_t *dtb_header = dtb;
+
+	return fdt32_to_cpu(dtb_header[1]);
+}
 
 #endif /* FDT_WRAPPERS_H */
