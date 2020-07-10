@@ -60,6 +60,14 @@ Armv7-A architecture port
 :M: Etienne Carriere <etienne.carriere@linaro.org>
 :G: `etienne-lms`_
 
+Build Definitions for CMake Build System
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:M: Javier Almansa Sobrino <Javier.AlmansaSobrino@arm.com>
+:G: `javieralso-arm`_
+:M: Jack Bond-Preston <Jack.Bond-Preston@arm.com>
+:G: `jackbondpreston-arm`_
+:F: /
+
 Software Delegated Exception Interface (SDEI)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Mark Dykes <mark.dykes@arm.com>
@@ -621,6 +629,6 @@ Build system
 .. _madhukar-Arm: https://github.com/madhukar-Arm
 .. _john-powell-arm: https://github.com/john-powell-arm
 .. _raghuncstate: https://github.com/raghuncstate
-
+.. _jackbondpreston-arm: https://github.com/jackbondpreston-arm
 
 .. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
