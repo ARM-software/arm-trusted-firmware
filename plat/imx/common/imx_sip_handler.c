@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <arch.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <services/std_svc.h>
@@ -12,6 +13,7 @@
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <imx_sip_svc.h>
+#include <lib/el3_runtime/context_mgmt.h>
 #include <sci/sci.h>
 
 #if defined(PLAT_imx8qm) || defined(PLAT_imx8qx)
@@ -184,4 +186,38 @@ uint64_t imx_buildinfo_handler(uint32_t smc_fid,
 	}
 
 	return ret;
+}
+
+int imx_kernel_entry_handler(uint32_t smc_fid,
+		u_register_t x1,
+		u_register_t x2,
+		u_register_t x3,
+		u_register_t x4)
+{
+	static entry_point_info_t bl33_image_ep_info;
+	entry_point_info_t *next_image_info;
+	unsigned int mode;
+
+	if (x1 < (PLAT_NS_IMAGE_OFFSET & 0xF0000000))
+		return SMC_UNK;
+
+	mode = MODE32_svc;
+
+	next_image_info = &bl33_image_ep_info;
+
+	next_image_info->pc = x1;
+
+	next_image_info->spsr = SPSR_MODE32(mode, SPSR_T_ARM, SPSR_E_LITTLE,
+			(DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT));
+
+	next_image_info->args.arg0 = 0;
+	next_image_info->args.arg1 = 0;
+	next_image_info->args.arg2 = x3;
+
+	SET_SECURITY_STATE(next_image_info->h.attr, NON_SECURE);
+
+	cm_init_my_context(next_image_info);
+	cm_prepare_el3_exit(NON_SECURE);
+
+	return 0;
 }

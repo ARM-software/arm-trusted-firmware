@@ -26,6 +26,9 @@ static uintptr_t imx_sip_handler(unsigned int smc_fid,
 			u_register_t flags)
 {
 	switch (smc_fid) {
+	case IMX_SIP_AARCH32:
+		SMC_RET1(handle, imx_kernel_entry_handler(smc_fid, x1, x2, x3, x4));
+		break;
 #if defined(PLAT_imx8mq)
 	case IMX_SIP_GET_SOC_INFO:
 		SMC_RET1(handle, imx_soc_info_handler(smc_fid, x1, x2, x3));
