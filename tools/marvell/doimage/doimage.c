@@ -51,7 +51,7 @@
 /* Number of address pairs in control array */
 #define CP_CTRL_EL_ARRAY_SZ	32
 
-#define VERSION_STRING		"Marvell(C) doimage utility version 3.2"
+#define VERSION_STRING		"Marvell(C) doimage utility version 3.3"
 
 /* A8K definitions */
 
@@ -303,7 +303,7 @@ int create_rsa_signature(mbedtls_pk_context	*pk_ctx,
 				MBEDTLS_RSA_PKCS_V21, MBEDTLS_MD_SHA256);
 
 	/* First compute the SHA256 hash for the input blob */
-	mbedtls_sha256(input, ilen, hash, 0);
+	mbedtls_sha256_ret(input, ilen, hash, 0);
 
 	/* Then calculate the hash signature */
 	rval = mbedtls_rsa_rsassa_pss_sign(mbedtls_pk_rsa(*pk_ctx),
@@ -354,6 +354,7 @@ int verify_rsa_signature(const unsigned char	*pub_key,
 	mbedtls_pk_context		pk_ctx;
 	unsigned char			hash[32];
 	int				rval;
+	unsigned char			*pkey = (unsigned char *)pub_key;
 
 	/* Not sure this is required,
 	 * but it's safer to start with empty buffer
@@ -373,8 +374,7 @@ int verify_rsa_signature(const unsigned char	*pub_key,
 	}
 
 	/* Check ability to read the public key */
-	rval = mbedtls_pk_parse_public_key(&pk_ctx, pub_key,
-					   MAX_RSA_DER_BYTE_LEN);
+	rval = mbedtls_pk_parse_subpubkey(&pkey, pub_key + klen, &pk_ctx);
 	if (rval != 0) {
 		fprintf(stderr, " Failed in pk_parse_public_key (%#x)!\n",
 			rval);
@@ -387,7 +387,7 @@ int verify_rsa_signature(const unsigned char	*pub_key,
 				MBEDTLS_MD_SHA256);
 
 	/* Compute the SHA256 hash for the input buffer */
-	mbedtls_sha256(input, ilen, hash, 0);
+	mbedtls_sha256_ret(input, ilen, hash, 0);
 
 	rval = mbedtls_rsa_rsassa_pss_verify(mbedtls_pk_rsa(pk_ctx),
 					     mbedtls_ctr_drbg_random,
@@ -458,7 +458,7 @@ int image_encrypt(uint8_t *buf, uint32_t blen)
 	/* compute SHA-256 digest of the results
 	 * and use it as the init vector (IV)
 	 */
-	mbedtls_sha256(IV, AES_BLOCK_SZ, digest, 0);
+	mbedtls_sha256_ret(IV, AES_BLOCK_SZ, digest, 0);
 	memcpy(IV, digest, AES_BLOCK_SZ);
 	mbedtls_aes_setkey_enc(&aes_ctx, opts.sec_opts->aes_key,
 			       AES_KEY_BIT_LEN);
@@ -880,11 +880,13 @@ int format_sec_ext(char *filename, FILE *out_fd)
 				fname);
 			return 1;
 		}
+
 		/* Data in the output buffer is aligned to the buffer end */
 		der_buf_start = output_buf + sizeof(output_buf) - output_len;
 		/* In the header DER data is aligned
 		 * to the start of appropriate field
 		 */
+		bzero(out_der_key, MAX_RSA_DER_BYTE_LEN);
 		memcpy(out_der_key, der_buf_start, output_len);
 
 	} /* for every private key file */
@@ -899,8 +901,10 @@ int format_sec_ext(char *filename, FILE *out_fd)
 		fprintf(stderr, "Failed to sign CSK keys block!\n");
 		return 1;
 	}
+
 	/* Check that everything is correct */
-	if (verify_rsa_signature(sec_ext.kak_key, MAX_RSA_DER_BYTE_LEN,
+	if (verify_rsa_signature(sec_ext.kak_key,
+				 MAX_RSA_DER_BYTE_LEN,
 				 &sec_ext.csk_keys[0][0],
 				 sizeof(sec_ext.csk_keys),
 				 opts.sec_opts->kak_key_file,
@@ -1333,7 +1337,7 @@ int parse_image(uint8_t *buf, int size)
 					goto error;
 				}
 
-				mbedtls_sha256(sec_entry->kak_key,
+				mbedtls_sha256_ret(sec_entry->kak_key,
 					       MAX_RSA_DER_BYTE_LEN, hash, 0);
 				fprintf(stdout,
 					">>>>>>>>>> KAK KEY HASH >>>>>>>>>>\n");
@@ -1559,13 +1563,9 @@ error:
 
 int write_boot_image(uint8_t *buf, uint32_t image_size, FILE *out_fd)
 {
-	int aligned_size;
 	int written;
 
-	/* Image size must be aligned to 4 bytes */
-	aligned_size = (image_size + 3) & (~0x3);
-
-	written = fwrite(buf, aligned_size, 1, out_fd);
+	written = fwrite(buf, image_size, 1, out_fd);
 	if (written != 1) {
 		fprintf(stderr, "Error: Failed to write boot image\n");
 		goto error;
@@ -1587,7 +1587,7 @@ int main(int argc, char *argv[])
 	int ext_cnt = 0;
 	int opt;
 	int ret = 0;
-	int image_size;
+	int image_size, file_size;
 	uint8_t *image_buf = NULL;
 	int read;
 	size_t len;
@@ -1683,16 +1683,18 @@ int main(int argc, char *argv[])
 		goto main_exit;
 	}
 
-	/* Read the input file to buffer */
-	image_size = get_file_size(in_file);
-	image_buf = calloc((image_size + AES_BLOCK_SZ - 1) &
-			   ~(AES_BLOCK_SZ - 1), 1);
+	/* Read the input file to buffer
+	 * Always align the image to 16 byte boundary
+	 */
+	file_size  = get_file_size(in_file);
+	image_size = (file_size + AES_BLOCK_SZ - 1) & ~(AES_BLOCK_SZ - 1);
+	image_buf  = calloc(image_size, 1);
 	if (image_buf == NULL) {
 		fprintf(stderr, "Error: failed allocating input buffer\n");
 		return 1;
 	}
 
-	read = fread(image_buf, image_size, 1, in_fd);
+	read = fread(image_buf, file_size, 1, in_fd);
 	if (read != 1) {
 		fprintf(stderr, "Error: failed to read input file\n");
 		goto main_exit;

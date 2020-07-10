@@ -78,12 +78,8 @@ struct addr_map_win io_win_memory_map[] = {
 	/* CP1 (MCI0) internal regs */
 	{0x00000000f4000000,		0x2000000,  MCI_0_TID},
 #ifndef IMAGE_BLE
-	/* PCIe0 and SPI1_CS0 (RUNIT) on CP1*/
-	{0x00000000f9000000,		0x2000000,  MCI_0_TID},
-	/* PCIe1 on CP1*/
-	{0x00000000fb000000,		0x1000000,  MCI_0_TID},
-	/* PCIe2 on CP1*/
-	{0x00000000fc000000,		0x1000000,  MCI_0_TID},
+	/* PCIe0-2 and SPI1_CS0 (RUNIT) on CP1*/
+	{0x00000000f9000000,		0x4000000,  MCI_0_TID},
 	/* MCI 0 indirect window */
 	{MVEBU_MCI_REG_BASE_REMAP(0),	0x100000,   MCI_0_TID},
 	/* MCI 1 indirect window */
@@ -166,7 +162,10 @@ struct addr_map_win ccu_memory_map[] = {
 	{0x00000000f2000000,	0x4000000,  IO_0_TID}, /* IO window */
 #else
 #if LLC_SRAM
-	{PLAT_MARVELL_LLC_SRAM_BASE, PLAT_MARVELL_LLC_SRAM_SIZE, SRAM_TID},
+	/* This entry is prepared for OP-TEE OS that enables the LLC SRAM
+	 * and changes the window target to SRAM_TID.
+	 */
+	{PLAT_MARVELL_LLC_SRAM_BASE, PLAT_MARVELL_LLC_SRAM_SIZE, DRAM_0_TID},
 #endif
 	{0x00000000f2000000,	0xe000000,  IO_0_TID}, /* IO window */
 	{0x00000000c0000000,	0x30000000,  IO_0_TID}, /* IO window */

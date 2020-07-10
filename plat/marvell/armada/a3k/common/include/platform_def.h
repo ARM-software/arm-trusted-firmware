@@ -83,9 +83,11 @@
 #define PLAT_MARVELL_TRUSTED_ROM_BASE		PLAT_MARVELL_ATF_LOAD_ADDR
 /* 4 MB for FIP image */
 #define PLAT_MARVELL_TRUSTED_ROM_SIZE		0x00400000
-/* Reserve 16M for SCP (Secure PayLoad) Trusted DRAM */
+/* Reserve 12M for SCP (Secure PayLoad) Trusted RAM
+ * OP-TEE SHMEM follows this region
+ */
 #define PLAT_MARVELL_TRUSTED_RAM_BASE		0x04400000
-#define PLAT_MARVELL_TRUSTED_RAM_SIZE		0x01000000	/* 16 MB */
+#define PLAT_MARVELL_TRUSTED_RAM_SIZE		0x00C00000	/* 12 MB DRAM */
 
 /*
  * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size

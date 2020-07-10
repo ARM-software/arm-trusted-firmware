@@ -22,15 +22,7 @@ LLC_SRAM			:= 0
 $(eval $(call add_define,LLC_SRAM))
 
 # Enable/Disable LLC
-ifeq (${LLC_SRAM}, 0)
 LLC_ENABLE			:= 1
-else
-# When LLC_SRAM=1, the entire LLC converted to SRAM and enabled at BL1.
-# All existing cases activating LLC at BL31 stage should be disabled.
-# The below assignment does not allow changing the LLC_ENABLE
-# value in the command line.
-LLC_ENABLE			= 0
-endif
 $(eval $(call add_define,LLC_ENABLE))
 
 include lib/xlat_tables_v2/xlat_tables.mk
@@ -66,6 +58,10 @@ BL2_SOURCES		+=	drivers/io/io_fip.c					\
 				$(MARVELL_PLAT_BASE)/common/aarch64/marvell_bl2_mem_params_desc.c	\
 				$(MARVELL_PLAT_BASE)/common/marvell_image_load.c
 
+ifeq (${SPD},opteed)
+PLAT_INCLUDES		+=	-Iinclude/lib
+BL2_SOURCES		+=	lib/optee/optee_utils.c
+endif
 
 BL31_SOURCES		+=	$(MARVELL_PLAT_BASE)/common/marvell_bl31_setup.c	\
 				$(MARVELL_PLAT_BASE)/common/marvell_pm.c		\
@@ -76,6 +72,15 @@ BL31_SOURCES		+=	$(MARVELL_PLAT_BASE)/common/marvell_bl31_setup.c	\
 
 # PSCI functionality
 $(eval $(call add_define,CONFIG_ARM64))
+
+# Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
+# in the FIP if the platform requires.
+ifneq ($(BL32_EXTRA1),)
+$(eval $(call TOOL_ADD_IMG,bl32_extra1,--tos-fw-extra1))
+endif
+ifneq ($(BL32_EXTRA2),)
+$(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2))
+endif
 
 # MSS (SCP) build
 ifeq (${MSS_SUPPORT}, 1)

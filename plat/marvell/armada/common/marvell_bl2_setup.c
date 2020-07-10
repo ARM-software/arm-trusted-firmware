@@ -17,6 +17,9 @@
 #include <drivers/console.h>
 #include <lib/utils.h>
 
+#ifdef SPD_opteed
+#include <optee_utils.h>
+#endif
 #include <marvell_def.h>
 #include <plat_marvell.h>
 
@@ -97,9 +100,29 @@ int marvell_bl2_handle_post_image_load(unsigned int image_id)
 	int err = 0;
 	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
 
+#ifdef SPD_opteed
+	bl_mem_params_node_t *pager_mem_params = NULL;
+	bl_mem_params_node_t *paged_mem_params = NULL;
+#endif /* SPD_opteed */
 	assert(bl_mem_params);
 
 	switch (image_id) {
+	case BL32_IMAGE_ID:
+#ifdef SPD_opteed
+		pager_mem_params = get_bl_mem_params_node(BL32_EXTRA1_IMAGE_ID);
+		assert(pager_mem_params);
+
+		paged_mem_params = get_bl_mem_params_node(BL32_EXTRA2_IMAGE_ID);
+		assert(paged_mem_params);
+
+		err = parse_optee_header(&bl_mem_params->ep_info,
+					 &pager_mem_params->image_info,
+					 &paged_mem_params->image_info);
+		if (err != 0)
+			WARN("OPTEE header parse error.\n");
+#endif /* SPD_opteed */
+		bl_mem_params->ep_info.spsr = marvell_get_spsr_for_bl32_entry();
+		break;
 
 	case BL33_IMAGE_ID:
 		/* BL33 expects to receive the primary CPU MPID (through r0) */

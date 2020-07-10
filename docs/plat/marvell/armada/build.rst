@@ -79,10 +79,12 @@ There are several build options:
 
 - LLC_SRAM
 
-        Flag defining the LLC (L3) cache SRAM support. The feature is
-        disabled by default (``LLC_ENABLE=0``).
-        When LLC SRAM is enabled, the secure payload (BL32) is loaded into this
-        SRAM area instead of the DRAM.
+        Flag enabling the LLC (L3) cache SRAM support. The LLC SRAM is activated and used
+        by Trusted OS (OP-TEE OS, BL32). The TF-A only prepares CCU address translation windows
+        for SRAM address range at BL31 execution stage with window target set to DRAM-0.
+        When Trusted OS activates LLC SRAM, the CCU window target is changed to SRAM.
+        There is no reason to enable this feature if OP-TEE OS built with CFG_WITH_PAGER=n.
+        Only set LLC_SRAM=1 if OP-TEE OS is built with CFG_WITH_PAGER=y.
 
 - MARVELL_SECURE_BOOT
 

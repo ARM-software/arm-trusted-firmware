@@ -41,7 +41,7 @@
 #define LLC_BLK_ALOC_WAY_DATA_DSBL	(0x0 << 6)
 #define LLC_BLK_ALOC_WAY_DATA_CLR	(0x1 << 6)
 #define LLC_BLK_ALOC_WAY_DATA_SET	(0x3 << 6)
-#define LLC_BLK_ALOC_BASE_ADDR(addr)	((addr) & (LLC_WAY_SIZE - 1))
+#define LLC_BLK_ALOC_BASE_ADDR(addr)	((addr) & ~(LLC_WAY_SIZE - 1))
 
 #ifndef __ASSEMBLER__
 void llc_cache_sync(int ap_index);
@@ -53,8 +53,9 @@ void llc_enable(int ap_index, int excl_mode);
 int llc_is_exclusive(int ap_index);
 void llc_runtime_enable(int ap_index);
 #if LLC_SRAM
-void llc_sram_enable(int ap_index);
+int llc_sram_enable(int ap_index, int size);
 void llc_sram_disable(int ap_index);
+int llc_sram_test(int ap_index, int size, char *msg);
 #endif /* LLC_SRAM */
 #endif /* __ASSEMBLY__ */
 

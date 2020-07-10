@@ -11,6 +11,7 @@
 
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
+#include <mg_conf_cm3/mg_conf_cm3.h>
 #include <lib/mmio.h>
 #include <lib/spinlock.h>
 
@@ -2231,6 +2232,7 @@ static int mvebu_cp110_comphy_ap_power_on(uint64_t comphy_base,
 					  uint32_t comphy_mode)
 {
 	uint32_t mask, data;
+	uint8_t ap_nr, cp_nr;
 	uintptr_t comphy_addr = comphy_addr =
 				COMPHY_ADDR(comphy_base, comphy_index);
 
@@ -2246,6 +2248,10 @@ static int mvebu_cp110_comphy_ap_power_on(uint64_t comphy_base,
 	data |= 0x0 << COMMON_PHY_CFG1_PIPE_SELECT_OFFSET;
 	reg_set(comphy_addr + COMMON_PHY_CFG1_REG, data, mask);
 	debug_exit();
+
+	/* Start AP Firmware */
+	mvebu_cp110_get_ap_and_cp_nr(&ap_nr, &cp_nr, comphy_base);
+	mg_start_ap_fw(cp_nr, comphy_index);
 
 	return 0;
 }
