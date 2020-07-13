@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,7 +27,9 @@
 #pragma weak bl1_plat_fwu_done
 #pragma weak bl1_plat_handle_pre_image_load
 #pragma weak bl1_plat_handle_post_image_load
-
+#if MEASURED_BOOT
+#pragma weak bl1_plat_set_bl2_hash
+#endif
 
 unsigned int bl1_plat_get_next_image_id(void)
 {
@@ -116,3 +118,12 @@ int bl1_plat_handle_post_image_load(unsigned int image_id)
 		(void *) bl2_tzram_layout);
 	return 0;
 }
+
+#if MEASURED_BOOT
+/*
+ * Calculates and writes BL2 hash data to TB_FW_CONFIG DTB.
+ */
+void bl1_plat_set_bl2_hash(const image_desc_t *image_desc)
+{
+}
+#endif
