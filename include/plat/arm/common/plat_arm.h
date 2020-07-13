@@ -235,8 +235,20 @@ int arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size);
 
 #if MEASURED_BOOT
 /* Measured boot related functions */
-void arm_bl1_set_bl2_hash(image_desc_t *image_desc);
+void arm_bl1_set_bl2_hash(const image_desc_t *image_desc);
+void arm_bl2_get_hash(void *data);
+int arm_set_tos_fw_info(uintptr_t config_base, uintptr_t log_addr,
+			size_t log_size);
+int arm_set_nt_fw_info(uintptr_t config_base,
+/*
+ * Currently OP-TEE does not support reading DTBs from Secure memory
+ * and this option should be removed when feature is supported.
+ */
+#ifdef SPD_opteed
+			uintptr_t log_addr,
 #endif
+			size_t log_size, uintptr_t *ns_log_addr);
+#endif /* MEASURED_BOOT */
 
 /*
  * Free the memory storing initialization code only used during an images boot
