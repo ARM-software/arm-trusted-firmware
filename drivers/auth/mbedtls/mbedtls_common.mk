@@ -75,19 +75,10 @@ endif
 
 ifeq (${HASH_ALG}, sha384)
     TF_MBEDTLS_HASH_ALG_ID	:=	TF_MBEDTLS_SHA384
-    MBEDTLS_MD_ID		:=	MBEDTLS_MD_SHA384
-    TPM_ALG_ID			:=	TPM_ALG_SHA384
-    TCG_DIGEST_SIZE		:=	48
 else ifeq (${HASH_ALG}, sha512)
     TF_MBEDTLS_HASH_ALG_ID	:=	TF_MBEDTLS_SHA512
-    MBEDTLS_MD_ID		:=	MBEDTLS_MD_SHA512
-    TPM_ALG_ID			:=	TPM_ALG_SHA512
-    TCG_DIGEST_SIZE		:=	64
 else
     TF_MBEDTLS_HASH_ALG_ID	:=	TF_MBEDTLS_SHA256
-    MBEDTLS_MD_ID		:=	MBEDTLS_MD_SHA256
-    TPM_ALG_ID			:=	TPM_ALG_SHA256
-    TCG_DIGEST_SIZE		:=	32
 endif
 
 ifeq (${TF_MBEDTLS_KEY_ALG},ecdsa)
@@ -111,11 +102,6 @@ $(eval $(call add_define,TF_MBEDTLS_KEY_ALG_ID))
 $(eval $(call add_define,TF_MBEDTLS_KEY_SIZE))
 $(eval $(call add_define,TF_MBEDTLS_HASH_ALG_ID))
 $(eval $(call add_define,TF_MBEDTLS_USE_AES_GCM))
-
-# Set definitions for measured boot driver
-$(eval $(call add_define,MBEDTLS_MD_ID))
-$(eval $(call add_define,TPM_ALG_ID))
-$(eval $(call add_define,TCG_DIGEST_SIZE))
 
 $(eval $(call MAKE_LIB,mbedtls))
 
