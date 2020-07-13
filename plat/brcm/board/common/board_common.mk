@@ -133,6 +133,12 @@ PLAT_BL_COMMON_SOURCES	+=	plat/brcm/common/brcm_common.c \
 				plat/brcm/board/common/sbl_util.c \
 				drivers/arm/sp805/sp805.c
 
+# Add RNG driver
+DRIVER_RNG_ENABLE := 1
+ifeq (${DRIVER_RNG_ENABLE},1)
+PLAT_BL_COMMON_SOURCES	+=	drivers/brcm/rng.c
+endif
+
 # Add eMMC driver
 ifeq (${DRIVER_EMMC_ENABLE},1)
 $(eval $(call add_define,DRIVER_EMMC_ENABLE))
