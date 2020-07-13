@@ -1,0 +1,12 @@
+/*
+ * Copyright (c) 2020, ARM Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/* TPM Event Log Config */
+event_log: tpm_event_log {
+	compatible = "arm,tpm_event_log";
+	tpm_event_log_addr = <0x0 0x0>;
+	tpm_event_log_size = <0x0>;
+};

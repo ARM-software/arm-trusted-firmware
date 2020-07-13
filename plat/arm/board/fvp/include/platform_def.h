@@ -243,8 +243,8 @@
 
 /*
  * GIC related constants to cater for both GICv2 and GICv3 instances of an
- * FVP. They could be overriden at runtime in case the FVP implements the legacy
- * VE memory map.
+ * FVP. They could be overridden at runtime in case the FVP implements the
+ * legacy VE memory map.
  */
 #define PLAT_ARM_GICD_BASE		BASE_GICD_BASE
 #define PLAT_ARM_GICR_BASE		BASE_GICR_BASE

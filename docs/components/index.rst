@@ -12,6 +12,7 @@ Components
    exception-handling
    fconf/index
    firmware-update
+   measured_boot/index
    platform-interrupt-controller-API
    ras
    romlib-design
