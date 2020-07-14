@@ -216,7 +216,7 @@ int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
 		 * Translate entry point to Physical Address using the EL1&0
 		 * translation regime, including stage 2.
 		 */
-		ats12e1r(ep);
+		AT(ats12e1r, ep);
 	}
 	isb();
 	par = read_par_el1();

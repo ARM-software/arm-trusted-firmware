@@ -38,16 +38,16 @@ uint64_t tlkd_va_translate(uintptr_t va, int type)
 	int at = type & AT_MASK;
 	switch (at) {
 	case 0:
-		ats12e1r(va);
+		AT(ats12e1r, va);
 		break;
 	case 1:
-		ats12e1w(va);
+		AT(ats12e1w, va);
 		break;
 	case 2:
-		ats12e0r(va);
+		AT(ats12e0r, va);
 		break;
 	case 3:
-		ats12e0w(va);
+		AT(ats12e0w, va);
 		break;
 	default:
 		assert(0); /* Unreachable */
