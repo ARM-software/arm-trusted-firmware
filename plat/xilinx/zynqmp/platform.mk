@@ -14,6 +14,8 @@ override RESET_TO_BL31 := 1
 override GICV2_G0_FOR_EL3 := 1
 override WARMBOOT_ENABLE_DCACHE_EARLY := 1
 
+EL3_EXCEPTION_HANDLING := $(SDEI_SUPPORT)
+
 # Do not enable SVE
 ENABLE_SVE_FOR_NS	:= 0
 
@@ -106,6 +108,11 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/xilinx/zynqmp/pm_service/pm_api_ioctl.c	\
 				plat/xilinx/zynqmp/pm_service/pm_api_clock.c	\
 				plat/xilinx/zynqmp/pm_service/pm_client.c
+
+ifeq (${SDEI_SUPPORT},1)
+BL31_SOURCES		+=	plat/xilinx/zynqmp/zynqmp_ehf.c			\
+				plat/xilinx/zynqmp/zynqmp_sdei.c
+endif
 
 BL31_CPPFLAGS		+=	-fno-jump-tables
 
