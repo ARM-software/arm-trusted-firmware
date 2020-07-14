@@ -32,6 +32,11 @@ BL31_SOURCES		+=	${SGI_CPU_SOURCES}			\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c
 
+ifeq (${TRUSTED_BOARD_BOOT}, 1)
+BL1_SOURCES		+=	${RDDANIELXLR_BASE}/rddanielxlr_trusted_boot.c
+BL2_SOURCES		+=	${RDDANIELXLR_BASE}/rddanielxlr_trusted_boot.c
+endif
+
 # Enable dynamic addition of MMAP regions in BL31
 BL31_CFLAGS		+=	-DPLAT_XLAT_TABLES_DYNAMIC
 
