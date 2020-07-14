@@ -4,14 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#pragma message __FILE__ " is deprecated, use gicv2.mk instead"
-
 #include <assert.h>
 
 #include <drivers/arm/gic_common.h>
 #include <lib/mmio.h>
 
-#include "gic_common_private.h"
+#include "../common/gic_common_private.h"
 
 /*******************************************************************************
  * GIC Distributor interface accessors for reading entire registers

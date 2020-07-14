@@ -11,10 +11,11 @@ $(eval $(call add_define,FVP_VE_USE_SP804_TIMER))
 BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
 endif
 
-FVP_VE_GIC_SOURCES		:=	drivers/arm/gic/common/gic_common.c	\
-				drivers/arm/gic/v2/gicv2_main.c		\
-				drivers/arm/gic/v2/gicv2_helpers.c	\
-				plat/common/plat_gicv2.c		\
+# Include GICv2 driver files
+include drivers/arm/gic/v2/gicv2.mk
+
+FVP_VE_GIC_SOURCES	:=	${GICV2_SOURCES}		\
+				plat/common/plat_gicv2.c	\
 				plat/arm/common/arm_gicv2.c
 
 FVP_VE_SECURITY_SOURCES	:=	plat/arm/board/fvp_ve/fvp_ve_security.c
