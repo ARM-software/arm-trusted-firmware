@@ -95,6 +95,8 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				plat/xilinx/zynqmp/pm_service/pm_api_clock.c	\
 				plat/xilinx/zynqmp/pm_service/pm_client.c
 
+BL31_CPPFLAGS		+=	-fno-jump-tables
+
 ifneq (${RESET_TO_BL31},1)
   $(error "Using BL31 as the reset vector is only one option supported on ZynqMP. Please set RESET_TO_BL31 to 1.")
 endif
