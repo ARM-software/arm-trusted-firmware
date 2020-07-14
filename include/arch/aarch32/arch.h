@@ -701,6 +701,16 @@
 #define AMEVTYPER1E	p15, 0, c13, c15, 6
 #define AMEVTYPER1F	p15, 0, c13, c15, 7
 
+/* AMCFGR definitions */
+#define AMCFGR_NCG_SHIFT	U(28)
+#define AMCFGR_NCG_MASK		U(0xf)
+#define AMCFGR_N_SHIFT		U(0)
+#define AMCFGR_N_MASK		U(0xff)
+
+/* AMCGCR definitions */
+#define AMCGCR_CG1NC_SHIFT	U(8)
+#define AMCGCR_CG1NC_MASK	U(0xff)
+
 /*******************************************************************************
  * Definitions for DynamicIQ Shared Unit registers
  ******************************************************************************/

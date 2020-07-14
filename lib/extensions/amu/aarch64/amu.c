@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,38 +9,68 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
+
 #include <lib/el3_runtime/pubsub_events.h>
 #include <lib/extensions/amu.h>
 #include <lib/extensions/amu_private.h>
+
 #include <plat/common/platform.h>
-
-#define AMU_GROUP0_NR_COUNTERS	4
-
-struct amu_ctx {
-	uint64_t group0_cnts[AMU_GROUP0_NR_COUNTERS];
-	uint64_t group1_cnts[AMU_GROUP1_NR_COUNTERS];
-};
 
 static struct amu_ctx amu_ctxs[PLATFORM_CORE_COUNT];
 
+/* Check if AMUv1 for Armv8.4 or 8.6 is implemented */
 bool amu_supported(void)
 {
-	uint64_t features;
+	uint64_t features = read_id_aa64pfr0_el1() >> ID_AA64PFR0_AMU_SHIFT;
 
-	features = read_id_aa64pfr0_el1() >> ID_AA64PFR0_AMU_SHIFT;
-	return (features & ID_AA64PFR0_AMU_MASK) == 1U;
+	features &= ID_AA64PFR0_AMU_MASK;
+	return ((features == 1U) || (features == 2U));
 }
 
+#if AMU_GROUP1_NR_COUNTERS
+/* Check if group 1 counters is implemented */
+bool amu_group1_supported(void)
+{
+	uint64_t features = read_amcfgr_el0() >> AMCFGR_EL0_NCG_SHIFT;
+
+	return (features & AMCFGR_EL0_NCG_MASK) == 1U;
+}
+#endif
+
 /*
- * Enable counters.  This function is meant to be invoked
+ * Enable counters. This function is meant to be invoked
  * by the context management library before exiting from EL3.
  */
 void amu_enable(bool el2_unused)
 {
 	uint64_t v;
 
-	if (!amu_supported())
+	if (!amu_supported()) {
+		INFO("AMU is not implemented\n");
 		return;
+	}
+
+#if AMU_GROUP1_NR_COUNTERS
+	/* Check and set presence of group 1 counters */
+	if (!amu_group1_supported()) {
+		ERROR("AMU Counter Group 1 is not implemented\n");
+		panic();
+	}
+
+	/* Check number of group 1 counters */
+	uint64_t cnt_num = (read_amcgcr_el0() >> AMCGCR_EL0_CG1NC_SHIFT) &
+				AMCGCR_EL0_CG1NC_MASK;
+	VERBOSE("%s%llu. %s%u\n",
+		"Number of AMU Group 1 Counters ", cnt_num,
+		"Requested number ", AMU_GROUP1_NR_COUNTERS);
+
+	if (cnt_num < AMU_GROUP1_NR_COUNTERS) {
+		ERROR("%s%llu is less than %s%u\n",
+		"Number of AMU Group 1 Counters ", cnt_num,
+		"Requested number ", AMU_GROUP1_NR_COUNTERS);
+		panic();
+	}
+#endif
 
 	if (el2_unused) {
 		/*
@@ -62,43 +92,49 @@ void amu_enable(bool el2_unused)
 
 	/* Enable group 0 counters */
 	write_amcntenset0_el0(AMU_GROUP0_COUNTERS_MASK);
+
+#if AMU_GROUP1_NR_COUNTERS
 	/* Enable group 1 counters */
 	write_amcntenset1_el0(AMU_GROUP1_COUNTERS_MASK);
+#endif
 }
 
 /* Read the group 0 counter identified by the given `idx`. */
-uint64_t amu_group0_cnt_read(int idx)
+uint64_t amu_group0_cnt_read(unsigned int idx)
 {
 	assert(amu_supported());
-	assert((idx >= 0) && (idx < AMU_GROUP0_NR_COUNTERS));
+	assert(idx < AMU_GROUP0_NR_COUNTERS);
 
 	return amu_group0_cnt_read_internal(idx);
 }
 
-/* Write the group 0 counter identified by the given `idx` with `val`. */
-void amu_group0_cnt_write(int idx, uint64_t val)
+/* Write the group 0 counter identified by the given `idx` with `val` */
+void amu_group0_cnt_write(unsigned  int idx, uint64_t val)
 {
 	assert(amu_supported());
-	assert((idx >= 0) && (idx < AMU_GROUP0_NR_COUNTERS));
+	assert(idx < AMU_GROUP0_NR_COUNTERS);
 
 	amu_group0_cnt_write_internal(idx, val);
 	isb();
 }
 
-/* Read the group 1 counter identified by the given `idx`. */
-uint64_t amu_group1_cnt_read(int idx)
+#if AMU_GROUP1_NR_COUNTERS
+/* Read the group 1 counter identified by the given `idx` */
+uint64_t amu_group1_cnt_read(unsigned  int idx)
 {
 	assert(amu_supported());
-	assert((idx >= 0) && (idx < AMU_GROUP1_NR_COUNTERS));
+	assert(amu_group1_supported());
+	assert(idx < AMU_GROUP1_NR_COUNTERS);
 
 	return amu_group1_cnt_read_internal(idx);
 }
 
-/* Write the group 1 counter identified by the given `idx` with `val`. */
-void amu_group1_cnt_write(int idx, uint64_t val)
+/* Write the group 1 counter identified by the given `idx` with `val` */
+void amu_group1_cnt_write(unsigned  int idx, uint64_t val)
 {
 	assert(amu_supported());
-	assert((idx >= 0) && (idx < AMU_GROUP1_NR_COUNTERS));
+	assert(amu_group1_supported());
+	assert(idx < AMU_GROUP1_NR_COUNTERS);
 
 	amu_group1_cnt_write_internal(idx, val);
 	isb();
@@ -106,78 +142,106 @@ void amu_group1_cnt_write(int idx, uint64_t val)
 
 /*
  * Program the event type register for the given `idx` with
- * the event number `val`.
+ * the event number `val`
  */
-void amu_group1_set_evtype(int idx, unsigned int val)
+void amu_group1_set_evtype(unsigned int idx, unsigned int val)
 {
 	assert(amu_supported());
-	assert((idx >= 0) && (idx < AMU_GROUP1_NR_COUNTERS));
+	assert(amu_group1_supported());
+	assert(idx < AMU_GROUP1_NR_COUNTERS);
 
 	amu_group1_set_evtype_internal(idx, val);
 	isb();
 }
+#endif	/* AMU_GROUP1_NR_COUNTERS */
 
 static void *amu_context_save(const void *arg)
 {
 	struct amu_ctx *ctx = &amu_ctxs[plat_my_core_pos()];
-	int i;
+	unsigned int i;
 
-	if (!amu_supported())
+	if (!amu_supported()) {
 		return (void *)-1;
+	}
 
+#if AMU_GROUP1_NR_COUNTERS
+	if (!amu_group1_supported()) {
+		return (void *)-1;
+	}
+#endif
 	/* Assert that group 0/1 counter configuration is what we expect */
-	assert((read_amcntenset0_el0() == AMU_GROUP0_COUNTERS_MASK) &&
-	       (read_amcntenset1_el0() == AMU_GROUP1_COUNTERS_MASK));
+	assert(read_amcntenset0_el0() == AMU_GROUP0_COUNTERS_MASK);
 
-	assert(((sizeof(int) * 8) - __builtin_clz(AMU_GROUP1_COUNTERS_MASK))
-		<= AMU_GROUP1_NR_COUNTERS);
-
+#if AMU_GROUP1_NR_COUNTERS
+	assert(read_amcntenset1_el0() == AMU_GROUP1_COUNTERS_MASK);
+#endif
 	/*
 	 * Disable group 0/1 counters to avoid other observers like SCP sampling
 	 * counter values from the future via the memory mapped view.
 	 */
 	write_amcntenclr0_el0(AMU_GROUP0_COUNTERS_MASK);
+
+#if AMU_GROUP1_NR_COUNTERS
 	write_amcntenclr1_el0(AMU_GROUP1_COUNTERS_MASK);
+#endif
 	isb();
 
-	/* Save group 0 counters */
-	for (i = 0; i < AMU_GROUP0_NR_COUNTERS; i++)
+	/* Save all group 0 counters */
+	for (i = 0U; i < AMU_GROUP0_NR_COUNTERS; i++) {
 		ctx->group0_cnts[i] = amu_group0_cnt_read(i);
+	}
 
+#if AMU_GROUP1_NR_COUNTERS
 	/* Save group 1 counters */
-	for (i = 0; i < AMU_GROUP1_NR_COUNTERS; i++)
-		ctx->group1_cnts[i] = amu_group1_cnt_read(i);
-
+	for (i = 0U; i < AMU_GROUP1_NR_COUNTERS; i++) {
+		if ((AMU_GROUP1_COUNTERS_MASK & (1U << i)) != 0U) {
+			ctx->group1_cnts[i] = amu_group1_cnt_read(i);
+		}
+	}
+#endif
 	return (void *)0;
 }
 
 static void *amu_context_restore(const void *arg)
 {
 	struct amu_ctx *ctx = &amu_ctxs[plat_my_core_pos()];
-	int i;
+	unsigned int i;
 
-	if (!amu_supported())
+	if (!amu_supported()) {
 		return (void *)-1;
+	}
 
+#if AMU_GROUP1_NR_COUNTERS
+	if (!amu_group1_supported()) {
+		return (void *)-1;
+	}
+#endif
 	/* Counters were disabled in `amu_context_save()` */
-	assert((read_amcntenset0_el0() == 0U) && (read_amcntenset1_el0() == 0U));
+	assert(read_amcntenset0_el0() == 0U);
 
-	assert(((sizeof(int) * 8U) - __builtin_clz(AMU_GROUP1_COUNTERS_MASK))
-		<= AMU_GROUP1_NR_COUNTERS);
+#if AMU_GROUP1_NR_COUNTERS
+	assert(read_amcntenset1_el0() == 0U);
+#endif
 
-	/* Restore group 0 counters */
-	for (i = 0; i < AMU_GROUP0_NR_COUNTERS; i++)
-		if ((AMU_GROUP0_COUNTERS_MASK & (1U << i)) != 0U)
-			amu_group0_cnt_write(i, ctx->group0_cnts[i]);
+	/* Restore all group 0 counters */
+	for (i = 0U; i < AMU_GROUP0_NR_COUNTERS; i++) {
+		amu_group0_cnt_write(i, ctx->group0_cnts[i]);
+	}
 
-	/* Restore group 1 counters */
-	for (i = 0; i < AMU_GROUP1_NR_COUNTERS; i++)
-		if ((AMU_GROUP1_COUNTERS_MASK & (1U << i)) != 0U)
-			amu_group1_cnt_write(i, ctx->group1_cnts[i]);
-
-	/* Restore group 0/1 counter configuration */
+	/* Restore group 0 counter configuration */
 	write_amcntenset0_el0(AMU_GROUP0_COUNTERS_MASK);
+
+#if AMU_GROUP1_NR_COUNTERS
+	/* Restore group 1 counters */
+	for (i = 0U; i < AMU_GROUP1_NR_COUNTERS; i++) {
+		if ((AMU_GROUP1_COUNTERS_MASK & (1U << i)) != 0U) {
+			amu_group1_cnt_write(i, ctx->group1_cnts[i]);
+		}
+	}
+
+	/* Restore group 1 counter configuration */
 	write_amcntenset1_el0(AMU_GROUP1_COUNTERS_MASK);
+#endif
 
 	return (void *)0;
 }

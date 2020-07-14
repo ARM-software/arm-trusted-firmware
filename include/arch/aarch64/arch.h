@@ -898,9 +898,14 @@
 #define AMEVTYPER1E_EL0		S3_3_C13_C15_6
 #define AMEVTYPER1F_EL0		S3_3_C13_C15_7
 
+/* AMCFGR_EL0 definitions */
+#define AMCFGR_EL0_NCG_SHIFT	U(28)
+#define AMCFGR_EL0_NCG_MASK	U(0xf)
+#define AMCFGR_EL0_N_SHIFT	U(0)
+#define AMCFGR_EL0_N_MASK	U(0xff)
+
 /* AMCGCR_EL0 definitions */
 #define AMCGCR_EL0_CG1NC_SHIFT	U(8)
-#define AMCGCR_EL0_CG1NC_LENGTH	U(8)
 #define AMCGCR_EL0_CG1NC_MASK	U(0xff)
 
 /* MPAM register definitions */
