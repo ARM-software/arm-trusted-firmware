@@ -163,7 +163,7 @@ void arm_bl1_platform_setup(void)
 
 	/* Set global DTB info for fixed fw_config information */
 	fw_config_max_size = ARM_FW_CONFIG_LIMIT - ARM_FW_CONFIG_BASE;
-	set_fw_config_info(ARM_FW_CONFIG_BASE, fw_config_max_size);
+	set_config_info(ARM_FW_CONFIG_BASE, fw_config_max_size, FW_CONFIG_ID);
 
 	/* Fill the device tree information struct with the info from the config dtb */
 	err = fconf_load_config(FW_CONFIG_ID);
