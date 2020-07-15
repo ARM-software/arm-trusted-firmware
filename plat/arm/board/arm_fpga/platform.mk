@@ -24,15 +24,10 @@ ifeq (${TRUSTED_BOARD_BOOT}, 1)
 $(error "TRUSTED_BOARD_BOOT must be disabled")
 endif
 
-ifndef PRELOADED_BL33_BASE
-$(error "PRELOADED_BL33_BASE is not set")
-endif
+PRELOADED_BL33_BASE := 0x80080000
 
-ifndef FPGA_PRELOADED_DTB_BASE
-$(error "FPGA_PRELOADED_DTB_BASE is not set")
-else
+FPGA_PRELOADED_DTB_BASE := 0x80070000
 $(eval $(call add_define,FPGA_PRELOADED_DTB_BASE))
-endif
 
 # Treating this as a memory-constrained port for now
 USE_COHERENT_MEM	:=	0
@@ -64,7 +59,10 @@ else
 				lib/cpus/aarch64/neoverse_zeus.S	\
 				lib/cpus/aarch64/cortex_hercules_ae.S	\
 				lib/cpus/aarch64/cortex_a65.S		\
-				lib/cpus/aarch64/cortex_a65ae.S
+				lib/cpus/aarch64/cortex_a65ae.S		\
+				lib/cpus/aarch64/cortex_klein.S		\
+				lib/cpus/aarch64/cortex_matterhorn.S
+
 # AArch64/AArch32 cores
 	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S	\
 				lib/cpus/aarch64/cortex_a75.S
