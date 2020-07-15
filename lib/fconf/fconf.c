@@ -32,8 +32,7 @@ int fconf_load_config(unsigned int image_id)
 	assert(config_info != NULL);
 
 	config_image_info.image_base = config_info->config_addr;
-	config_image_info.image_max_size =
-		(uint32_t)config_info->config_max_size;
+	config_image_info.image_max_size = config_info->config_max_size;
 
 	VERBOSE("FCONF: Loading config with image ID: %d\n", image_id);
 	err = load_auth_image(image_id, &config_image_info);

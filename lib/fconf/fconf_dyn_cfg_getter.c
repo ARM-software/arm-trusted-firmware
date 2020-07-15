@@ -125,7 +125,7 @@ int fconf_populate_dtb_registry(uintptr_t config)
 
 		VERBOSE("FCONF: dyn_cfg.dtb_registry cell found with:\n");
 		VERBOSE("\tload-address = %lx\n", dtb_info->config_addr);
-		VERBOSE("\tmax-size = 0x%zx\n", dtb_info->config_max_size);
+		VERBOSE("\tmax-size = 0x%x\n", dtb_info->config_max_size);
 		VERBOSE("\tconfig-id = %u\n", dtb_info->config_id);
 	}
 

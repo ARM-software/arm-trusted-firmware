@@ -14,7 +14,7 @@
 
 struct dyn_cfg_dtb_info_t {
 	uintptr_t config_addr;
-	size_t config_max_size;
+	uint32_t config_max_size;
 	unsigned int config_id;
 };
 
