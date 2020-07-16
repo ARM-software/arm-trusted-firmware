@@ -26,6 +26,9 @@
 /* Data structure which holds the extents of the trusted SRAM for BL2 */
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 
+/* Base address of fw_config received from BL1 */
+static uintptr_t fw_config_base;
+
 /*
  * Check that BL2_BASE is above ARM_FW_CONFIG_LIMIT. This reserved page is
  * for `meminfo_t` data structure and fw_configs passed from BL1.
@@ -57,21 +60,13 @@ CASSERT(BL2_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
 void arm_bl2_early_platform_setup(uintptr_t fw_config,
 				  struct meminfo *mem_layout)
 {
-	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
 	/* Initialize the console to provide early debug support */
 	arm_console_boot_init();
 
 	/* Setup the BL2 memory layout */
 	bl2_tzram_layout = *mem_layout;
 
-	/* Fill the properties struct with the info from the config dtb */
-	fconf_populate("FW_CONFIG", fw_config);
-
-	/* TB_FW_CONFIG was also loaded by BL1 */
-	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
-	assert(tb_fw_config_info != NULL);
-
-	fconf_populate("TB_FW", tb_fw_config_info->config_addr);
+	fw_config_base = fw_config;
 
 	/* Initialise the IO layer and register platform IO devices */
 	plat_arm_io_setup();
@@ -135,6 +130,7 @@ void arm_bl2_plat_arch_setup(void)
 #if ARM_CRYPTOCELL_INTEG
 		ARM_MAP_BL_COHERENT_RAM,
 #endif
+		ARM_MAP_BL_CONFIG_REGION,
 		{0}
 	};
 
@@ -151,7 +147,18 @@ void arm_bl2_plat_arch_setup(void)
 
 void bl2_plat_arch_setup(void)
 {
+	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
+
 	arm_bl2_plat_arch_setup();
+
+	/* Fill the properties struct with the info from the config dtb */
+	fconf_populate("FW_CONFIG", fw_config_base);
+
+	/* TB_FW_CONFIG was also loaded by BL1 */
+	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
+	assert(tb_fw_config_info != NULL);
+
+	fconf_populate("TB_FW", tb_fw_config_info->config_addr);
 }
 
 int arm_bl2_handle_post_image_load(unsigned int image_id)

@@ -93,10 +93,23 @@
 #define ARM_FW_CONFIG_LIMIT		(ARM_BL_RAM_BASE + (PAGE_SIZE / 2U))
 
 /*
+ * Boot parameters passed from BL2 to BL31/BL32 are stored here
+ */
+#define ARM_BL2_MEM_DESC_BASE		(ARM_FW_CONFIG_LIMIT)
+#define ARM_BL2_MEM_DESC_LIMIT		(ARM_BL2_MEM_DESC_BASE \
+					+ (PAGE_SIZE / 2U))
+
+/*
+ * Define limit of firmware configuration memory:
+ * ARM_FW_CONFIG + ARM_BL2_MEM_DESC memory
+ */
+#define ARM_FW_CONFIGS_LIMIT		(ARM_BL_RAM_BASE + (PAGE_SIZE * 2))
+
+/*
  * The max number of regions like RO(code), coherent and data required by
  * different BL stages which need to be mapped in the MMU.
  */
-#define ARM_BL_REGIONS			2
+#define ARM_BL_REGIONS			3
 #define PLAT_ARM_MMAP_ENTRIES		8
 #define MAX_XLAT_TABLES			5
 #define MAX_MMAP_REGIONS		(PLAT_ARM_MMAP_ENTRIES +        \
@@ -200,6 +213,14 @@
 						- BL_COHERENT_RAM_BASE,	\
 						MT_DEVICE | MT_RW | MT_SECURE)
 #endif
+
+/*
+ * Map the region for device tree configuration with read and write permissions
+ */
+#define ARM_MAP_BL_CONFIG_REGION	MAP_REGION_FLAT(ARM_BL_RAM_BASE,	\
+						(ARM_FW_CONFIGS_LIMIT		\
+							- ARM_BL_RAM_BASE),	\
+						MT_MEMORY | MT_RW | MT_SECURE)
 
 #define CORSTONE700_DEVICE_BASE		(0x1A000000)
 #define CORSTONE700_DEVICE_SIZE		(0x26000000)

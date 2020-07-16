@@ -294,12 +294,19 @@
 #define ARM_V2M_MAP_MEM_PROTECT		MAP_REGION_FLAT(PLAT_ARM_MEM_PROT_ADDR,	\
 						V2M_FLASH_BLOCK_SIZE,		\
 						MT_DEVICE | MT_RW | MT_SECURE)
+/*
+ * Map the region for device tree configuration with read and write permissions
+ */
+#define ARM_MAP_BL_CONFIG_REGION	MAP_REGION_FLAT(ARM_BL_RAM_BASE,	\
+						(ARM_FW_CONFIGS_LIMIT		\
+							- ARM_BL_RAM_BASE),	\
+						MT_MEMORY | MT_RW | MT_SECURE)
 
 /*
  * The max number of regions like RO(code), coherent and data required by
  * different BL stages which need to be mapped in the MMU.
  */
-#define ARM_BL_REGIONS			5
+#define ARM_BL_REGIONS			6
 
 #define MAX_MMAP_REGIONS		(PLAT_ARM_MMAP_ENTRIES +	\
 					 ARM_BL_REGIONS)
