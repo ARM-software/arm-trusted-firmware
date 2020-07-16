@@ -311,6 +311,29 @@ void stm32mp_register_non_secure_periph_iomem(uintptr_t base)
 	register_periph_iomem(base, SHRES_NON_SECURE);
 }
 
+void stm32mp_register_secure_gpio(unsigned int bank, unsigned int pin)
+{
+	switch (bank) {
+	case GPIO_BANK_Z:
+		register_periph(STM32MP1_SHRES_GPIOZ(pin), SHRES_SECURE);
+		break;
+	default:
+		ERROR("GPIO bank %u cannot be secured\n", bank);
+		panic();
+	}
+}
+
+void stm32mp_register_non_secure_gpio(unsigned int bank, unsigned int pin)
+{
+	switch (bank) {
+	case GPIO_BANK_Z:
+		register_periph(STM32MP1_SHRES_GPIOZ(pin), SHRES_NON_SECURE);
+		break;
+	default:
+		break;
+	}
+}
+
 static bool stm32mp_gpio_bank_is_non_secure(unsigned int bank)
 {
 	unsigned int non_secure = 0U;
