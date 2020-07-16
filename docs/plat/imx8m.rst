@@ -33,6 +33,7 @@ Build Procedure
    Target_SoC should be "imx8mq" for i.MX8MQ SoC.
    Target_SoC should be "imx8mm" for i.MX8MM SoC.
    Target_SoC should be "imx8mn" for i.MX8MN SoC.
+   Target_SoC should be "imx8mp" for i.MX8MP SoC.
 
 Deploy TF-A Images
 ~~~~~~~~~~~~~~~~~~
