@@ -300,7 +300,9 @@ int stm32_hash_register(void)
 			break;
 		}
 #else
+		/* BL32 uses hash if it is assigned only to secure world */
 		if (hash_info.status == DT_SECURE) {
+			stm32mp_register_secure_periph_iomem(hash_info.base);
 			break;
 		}
 #endif
