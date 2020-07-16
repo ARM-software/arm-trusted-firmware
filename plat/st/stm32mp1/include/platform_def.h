@@ -196,4 +196,11 @@
  ******************************************************************************/
 #define PLAT_PCPU_DATA_SIZE	2
 
+/*******************************************************************************
+ * Number of parallel entry slots in SMT SCMI server entry context. For this
+ * platform, SCMI server is reached through SMC only, hence the number of
+ * entry slots.
+ ******************************************************************************/
+#define PLAT_SMT_ENTRY_COUNT		PLATFORM_CORE_COUNT
+
 #endif /* PLATFORM_DEF_H */
