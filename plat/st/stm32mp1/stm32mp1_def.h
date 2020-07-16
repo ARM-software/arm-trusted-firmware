@@ -494,14 +494,16 @@ static inline uint32_t tamp_bkpr(uint32_t idx)
 #define IWDG2_BASE			U(0x5A002000)
 
 /*******************************************************************************
- * STM32MP1 I2C4
+ * Miscellaneous STM32MP1 peripherals base address
  ******************************************************************************/
-#define I2C4_BASE			U(0x5C002000)
-
-/*******************************************************************************
- * STM32MP1 DBGMCU
- ******************************************************************************/
+#define CRYP1_BASE			U(0x54001000)
 #define DBGMCU_BASE			U(0x50081000)
+#define HASH1_BASE			U(0x54002000)
+#define I2C4_BASE			U(0x5C002000)
+#define I2C6_BASE			U(0x5c009000)
+#define RNG1_BASE			U(0x54003000)
+#define RTC_BASE			U(0x5c004000)
+#define SPI6_BASE			U(0x5c001000)
 
 /*******************************************************************************
  * Device Tree defines

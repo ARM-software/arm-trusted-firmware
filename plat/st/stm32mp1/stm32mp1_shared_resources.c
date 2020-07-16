@@ -233,6 +233,84 @@ void stm32mp_register_non_secure_periph(enum stm32mp_shres id)
 	register_periph(id, SHRES_NON_SECURE);
 }
 
+static void register_periph_iomem(uintptr_t base, unsigned int state)
+{
+	enum stm32mp_shres id;
+
+	switch (base) {
+	case CRYP1_BASE:
+		id = STM32MP1_SHRES_CRYP1;
+		break;
+	case HASH1_BASE:
+		id = STM32MP1_SHRES_HASH1;
+		break;
+	case I2C4_BASE:
+		id = STM32MP1_SHRES_I2C4;
+		break;
+	case I2C6_BASE:
+		id = STM32MP1_SHRES_I2C6;
+		break;
+	case IWDG1_BASE:
+		id = STM32MP1_SHRES_IWDG1;
+		break;
+	case RNG1_BASE:
+		id = STM32MP1_SHRES_RNG1;
+		break;
+	case RTC_BASE:
+		id = STM32MP1_SHRES_RTC;
+		break;
+	case SPI6_BASE:
+		id = STM32MP1_SHRES_SPI6;
+		break;
+	case USART1_BASE:
+		id = STM32MP1_SHRES_USART1;
+		break;
+
+	case GPIOA_BASE:
+	case GPIOB_BASE:
+	case GPIOC_BASE:
+	case GPIOD_BASE:
+	case GPIOE_BASE:
+	case GPIOF_BASE:
+	case GPIOG_BASE:
+	case GPIOH_BASE:
+	case GPIOI_BASE:
+	case GPIOJ_BASE:
+	case GPIOK_BASE:
+	case USART2_BASE:
+	case USART3_BASE:
+	case UART4_BASE:
+	case UART5_BASE:
+	case USART6_BASE:
+	case UART7_BASE:
+	case UART8_BASE:
+	case IWDG2_BASE:
+		/* Allow drivers to register some non-secure resources */
+		VERBOSE("IO for non-secure resource 0x%x\n",
+			(unsigned int)base);
+		if (state != SHRES_NON_SECURE) {
+			panic();
+		}
+
+		return;
+
+	default:
+		panic();
+	}
+
+	register_periph(id, state);
+}
+
+void stm32mp_register_secure_periph_iomem(uintptr_t base)
+{
+	register_periph_iomem(base, SHRES_SECURE);
+}
+
+void stm32mp_register_non_secure_periph_iomem(uintptr_t base)
+{
+	register_periph_iomem(base, SHRES_NON_SECURE);
+}
+
 static bool stm32mp_gpio_bank_is_non_secure(unsigned int bank)
 {
 	unsigned int non_secure = 0U;

@@ -8,6 +8,7 @@
 #define STM32MP_SHARED_RESOURCES_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #ifdef STM32MP_SHARED_RESOURCES
 enum stm32mp_shres;
@@ -24,7 +25,20 @@ void stm32mp_register_secure_periph(enum stm32mp_shres id);
 /* Register a shared resource assigned to the non-secure world */
 void stm32mp_register_non_secure_periph(enum stm32mp_shres id);
 
+/* Register a peripheral as secure or non-secure based on IO base address */
+void stm32mp_register_secure_periph_iomem(uintptr_t base);
+void stm32mp_register_non_secure_periph_iomem(uintptr_t base);
+
 /* Consolidate peripheral states and lock against new peripheral registering */
 void stm32mp_lock_periph_registering(void);
+#else
+static inline void stm32mp_register_secure_periph_iomem(uintptr_t base __unused)
+{
+}
+
+static inline
+void stm32mp_register_non_secure_periph_iomem(uintptr_t base __unused)
+{
+}
 #endif /* STM32MP_SHARED_RESOURCES */
 #endif /* STM32MP_SHARED_RESOURCES_H */
