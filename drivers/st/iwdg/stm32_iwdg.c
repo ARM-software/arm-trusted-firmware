@@ -137,6 +137,12 @@ int stm32_iwdg_init(void)
 			((dt_info.status & DT_NON_SECURE) != 0) ?
 			"non-" : "");
 
+		if ((dt_info.status & DT_NON_SECURE) != 0) {
+			stm32mp_register_non_secure_periph_iomem(iwdg->base);
+		} else {
+			stm32mp_register_secure_periph_iomem(iwdg->base);
+		}
+
 #if defined(IMAGE_BL2)
 		if (stm32_iwdg_shadow_update(idx, iwdg->flags) != BSEC_OK) {
 			return -1;
