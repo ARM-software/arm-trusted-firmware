@@ -44,6 +44,49 @@ enum shres_state {
 /* Force uint8_t array for array of enum shres_state for size considerations */
 static uint8_t shres_state[STM32MP1_SHRES_COUNT];
 
+static const char *shres2str_id_tbl[STM32MP1_SHRES_COUNT] __unused = {
+	[STM32MP1_SHRES_GPIOZ(0)] = "GPIOZ0",
+	[STM32MP1_SHRES_GPIOZ(1)] = "GPIOZ1",
+	[STM32MP1_SHRES_GPIOZ(2)] = "GPIOZ2",
+	[STM32MP1_SHRES_GPIOZ(3)] = "GPIOZ3",
+	[STM32MP1_SHRES_GPIOZ(4)] = "GPIOZ4",
+	[STM32MP1_SHRES_GPIOZ(5)] = "GPIOZ5",
+	[STM32MP1_SHRES_GPIOZ(6)] = "GPIOZ6",
+	[STM32MP1_SHRES_GPIOZ(7)] = "GPIOZ7",
+	[STM32MP1_SHRES_IWDG1] = "IWDG1",
+	[STM32MP1_SHRES_USART1] = "USART1",
+	[STM32MP1_SHRES_SPI6] = "SPI6",
+	[STM32MP1_SHRES_I2C4] = "I2C4",
+	[STM32MP1_SHRES_RNG1] = "RNG1",
+	[STM32MP1_SHRES_HASH1] = "HASH1",
+	[STM32MP1_SHRES_CRYP1] = "CRYP1",
+	[STM32MP1_SHRES_I2C6] = "I2C6",
+	[STM32MP1_SHRES_RTC] = "RTC",
+	[STM32MP1_SHRES_MCU] = "MCU",
+	[STM32MP1_SHRES_MDMA] = "MDMA",
+	[STM32MP1_SHRES_PLL3] = "PLL3",
+};
+
+static const char __unused *shres2str_id(enum stm32mp_shres id)
+{
+	assert(id < ARRAY_SIZE(shres2str_id_tbl));
+
+	return shres2str_id_tbl[id];
+}
+
+static const char __unused *shres2str_state_tbl[] = {
+	[SHRES_UNREGISTERED] = "unregistered",
+	[SHRES_NON_SECURE] = "non-secure",
+	[SHRES_SECURE] = "secure",
+};
+
+static const char __unused *shres2str_state(unsigned int state)
+{
+	assert(state < ARRAY_SIZE(shres2str_state_tbl));
+
+	return shres2str_state_tbl[state];
+}
+
 /* Get resource state: these accesses lock the registering support */
 static void lock_registering(void)
 {
@@ -170,10 +213,10 @@ static void check_rcc_secure_configuration(void)
 		}
 
 		if (!secure || (mckprot_protects_periph(n) && (!mckprot))) {
-			ERROR("RCC %s MCKPROT %s and %u secure\n",
+			ERROR("RCC %s MCKPROT %s and %s secure\n",
 			      secure ? "secure" : "non-secure",
 			      mckprot ? "set" : "not set",
-			      n);
+			      shres2str_id(n));
 			error++;
 		}
 	}
@@ -201,14 +244,14 @@ static void print_shared_resources_state(void)
 	for (id = 0U; id < STM32MP1_SHRES_COUNT; id++) {
 		switch (shres_state[id]) {
 		case SHRES_SECURE:
-			INFO("stm32mp1 %u is secure\n", id);
+			INFO("stm32mp1 %s is secure\n", shres2str_id(id));
 			break;
 		case SHRES_NON_SECURE:
 		case SHRES_UNREGISTERED:
-			VERBOSE("stm32mp %u is non-secure\n", id);
+			VERBOSE("stm32mp %s is non-secure\n", shres2str_id(id));
 			break;
 		default:
-			VERBOSE("stm32mp %u is invalid\n", id);
+			VERBOSE("stm32mp %s is invalid\n", shres2str_id(id));
 			panic();
 		}
 	}
