@@ -577,6 +577,43 @@ static const uint8_t stm32mp1_axi_div[8] = {
 	1, 2, 3, 4, 4, 4, 4, 4
 };
 
+static const char * const stm32mp1_clk_parent_name[_PARENT_NB] __unused = {
+	[_HSI] = "HSI",
+	[_HSE] = "HSE",
+	[_CSI] = "CSI",
+	[_LSI] = "LSI",
+	[_LSE] = "LSE",
+	[_I2S_CKIN] = "I2S_CKIN",
+	[_HSI_KER] = "HSI_KER",
+	[_HSE_KER] = "HSE_KER",
+	[_HSE_KER_DIV2] = "HSE_KER_DIV2",
+	[_CSI_KER] = "CSI_KER",
+	[_PLL1_P] = "PLL1_P",
+	[_PLL1_Q] = "PLL1_Q",
+	[_PLL1_R] = "PLL1_R",
+	[_PLL2_P] = "PLL2_P",
+	[_PLL2_Q] = "PLL2_Q",
+	[_PLL2_R] = "PLL2_R",
+	[_PLL3_P] = "PLL3_P",
+	[_PLL3_Q] = "PLL3_Q",
+	[_PLL3_R] = "PLL3_R",
+	[_PLL4_P] = "PLL4_P",
+	[_PLL4_Q] = "PLL4_Q",
+	[_PLL4_R] = "PLL4_R",
+	[_ACLK] = "ACLK",
+	[_PCLK1] = "PCLK1",
+	[_PCLK2] = "PCLK2",
+	[_PCLK3] = "PCLK3",
+	[_PCLK4] = "PCLK4",
+	[_PCLK5] = "PCLK5",
+	[_HCLK6] = "KCLK6",
+	[_HCLK2] = "HCLK2",
+	[_CK_PER] = "CK_PER",
+	[_CK_MPU] = "CK_MPU",
+	[_CK_MCU] = "CK_MCU",
+	[_USB_PHY_48] = "USB_PHY_48",
+};
+
 /* RCC clock device driver private */
 static unsigned long stm32mp1_osc[NB_OSC];
 static struct spinlock reg_lock;
@@ -2006,6 +2043,165 @@ static void stm32mp1_osc_init(void)
 		stm32mp1_osc_clk_init(stm32mp_osc_node_label[i], i);
 	}
 }
+
+#ifdef STM32MP_SHARED_RESOURCES
+/*
+ * Get the parent ID of the target parent clock, for tagging as secure
+ * shared clock dependencies.
+ */
+static int get_parent_id_parent(unsigned int parent_id)
+{
+	enum stm32mp1_parent_sel s = _UNKNOWN_SEL;
+	enum stm32mp1_pll_id pll_id;
+	uint32_t p_sel;
+	uintptr_t rcc_base = stm32mp_rcc_base();
+
+	switch (parent_id) {
+	case _ACLK:
+	case _PCLK4:
+	case _PCLK5:
+		s = _AXIS_SEL;
+		break;
+	case _PLL1_P:
+	case _PLL1_Q:
+	case _PLL1_R:
+		pll_id = _PLL1;
+		break;
+	case _PLL2_P:
+	case _PLL2_Q:
+	case _PLL2_R:
+		pll_id = _PLL2;
+		break;
+	case _PLL3_P:
+	case _PLL3_Q:
+	case _PLL3_R:
+		pll_id = _PLL3;
+		break;
+	case _PLL4_P:
+	case _PLL4_Q:
+	case _PLL4_R:
+		pll_id = _PLL4;
+		break;
+	case _PCLK1:
+	case _PCLK2:
+	case _HCLK2:
+	case _HCLK6:
+	case _CK_PER:
+	case _CK_MPU:
+	case _CK_MCU:
+	case _USB_PHY_48:
+		/* We do not expect to access these */
+		panic();
+		break;
+	default:
+		/* Other parents have no parent */
+		return -1;
+	}
+
+	if (s != _UNKNOWN_SEL) {
+		const struct stm32mp1_clk_sel *sel = clk_sel_ref(s);
+
+		p_sel = (mmio_read_32(rcc_base + sel->offset) >> sel->src) &
+			sel->msk;
+
+		if (p_sel < sel->nb_parent) {
+			return (int)sel->parent[p_sel];
+		}
+	} else {
+		const struct stm32mp1_clk_pll *pll = pll_ref(pll_id);
+
+		p_sel = mmio_read_32(rcc_base + pll->rckxselr) &
+			RCC_SELR_REFCLK_SRC_MASK;
+
+		if (pll->refclk[p_sel] != _UNKNOWN_OSC_ID) {
+			return (int)pll->refclk[p_sel];
+		}
+	}
+
+	VERBOSE("No parent selected for %s\n",
+		stm32mp1_clk_parent_name[parent_id]);
+
+	return -1;
+}
+
+static void secure_parent_clocks(unsigned long parent_id)
+{
+	int grandparent_id;
+
+	switch (parent_id) {
+	case _PLL3_P:
+	case _PLL3_Q:
+	case _PLL3_R:
+		stm32mp_register_secure_periph(STM32MP1_SHRES_PLL3);
+		break;
+
+	/* These clocks are always secure when RCC is secure */
+	case _ACLK:
+	case _HCLK2:
+	case _HCLK6:
+	case _PCLK4:
+	case _PCLK5:
+	case _PLL1_P:
+	case _PLL1_Q:
+	case _PLL1_R:
+	case _PLL2_P:
+	case _PLL2_Q:
+	case _PLL2_R:
+	case _HSI:
+	case _HSI_KER:
+	case _LSI:
+	case _CSI:
+	case _CSI_KER:
+	case _HSE:
+	case _HSE_KER:
+	case _HSE_KER_DIV2:
+	case _LSE:
+		break;
+
+	default:
+		VERBOSE("Cannot secure parent clock %s\n",
+			stm32mp1_clk_parent_name[parent_id]);
+		panic();
+	}
+
+	grandparent_id = get_parent_id_parent(parent_id);
+	if (grandparent_id >= 0) {
+		secure_parent_clocks(grandparent_id);
+	}
+}
+
+void stm32mp1_register_clock_parents_secure(unsigned long clock_id)
+{
+	int parent_id;
+
+	if (!stm32mp1_rcc_is_secure()) {
+		return;
+	}
+
+	switch (clock_id) {
+	case PLL1:
+	case PLL2:
+		/* PLL1/PLL2 are always secure: nothing to do */
+		break;
+	case PLL3:
+		stm32mp_register_secure_periph(STM32MP1_SHRES_PLL3);
+		break;
+	case PLL4:
+		ERROR("PLL4 cannot be secured\n");
+		panic();
+		break;
+	default:
+		/* Others are expected gateable clock */
+		parent_id = stm32mp1_clk_get_parent(clock_id);
+		if (parent_id < 0) {
+			INFO("No parent found for clock %lu\n", clock_id);
+		} else {
+			secure_parent_clocks(parent_id);
+		}
+		break;
+	}
+}
+#endif /* STM32MP_SHARED_RESOURCES */
 
 static void sync_earlyboot_clocks_state(void)
 {
