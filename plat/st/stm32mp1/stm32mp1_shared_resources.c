@@ -135,6 +135,104 @@ static unsigned int get_gpioz_nbpin(void)
 	return get_gpio_nbpin(GPIO_BANK_Z);
 }
 
+static void register_periph(enum stm32mp_shres id, unsigned int state)
+{
+	assert((id < STM32MP1_SHRES_COUNT) &&
+	       ((state == SHRES_SECURE) || (state == SHRES_NON_SECURE)));
+
+	if (registering_locked) {
+		if (shres_state[id] == state) {
+			return;
+		}
+		panic();
+	}
+
+	if ((shres_state[id] != SHRES_UNREGISTERED) &&
+	    (shres_state[id] != state)) {
+		VERBOSE("Cannot change %s from %s to %s\n",
+			shres2str_id(id),
+			shres2str_state(shres_state[id]),
+			shres2str_state(state));
+		panic();
+	}
+
+	if (shres_state[id] == SHRES_UNREGISTERED) {
+		VERBOSE("Register %s as %s\n",
+			shres2str_id(id), shres2str_state(state));
+	}
+
+	if ((id >= STM32MP1_SHRES_GPIOZ(0)) &&
+	    (id <= STM32MP1_SHRES_GPIOZ(7)) &&
+	    ((id - STM32MP1_SHRES_GPIOZ(0)) >= get_gpioz_nbpin())) {
+		ERROR("Invalid GPIO pin %u, %u pin(s) available\n",
+		      id - STM32MP1_SHRES_GPIOZ(0), get_gpioz_nbpin());
+		panic();
+	}
+
+	shres_state[id] = (uint8_t)state;
+
+	/* Explore clock tree to lock dependencies */
+	if (state == SHRES_SECURE) {
+		enum stm32mp_shres clock_res_id;
+
+		switch (id) {
+		case STM32MP1_SHRES_GPIOZ(0):
+		case STM32MP1_SHRES_GPIOZ(1):
+		case STM32MP1_SHRES_GPIOZ(2):
+		case STM32MP1_SHRES_GPIOZ(3):
+		case STM32MP1_SHRES_GPIOZ(4):
+		case STM32MP1_SHRES_GPIOZ(5):
+		case STM32MP1_SHRES_GPIOZ(6):
+		case STM32MP1_SHRES_GPIOZ(7):
+			clock_res_id = GPIOZ;
+			break;
+		case STM32MP1_SHRES_IWDG1:
+			clock_res_id = IWDG1;
+			break;
+		case STM32MP1_SHRES_USART1:
+			clock_res_id = USART1_K;
+			break;
+		case STM32MP1_SHRES_SPI6:
+			clock_res_id = SPI6_K;
+			break;
+		case STM32MP1_SHRES_I2C4:
+			clock_res_id = I2C4_K;
+			break;
+		case STM32MP1_SHRES_RNG1:
+			clock_res_id = RNG1_K;
+			break;
+		case STM32MP1_SHRES_HASH1:
+			clock_res_id = HASH1;
+			break;
+		case STM32MP1_SHRES_CRYP1:
+			clock_res_id = CRYP1;
+			break;
+		case STM32MP1_SHRES_I2C6:
+			clock_res_id = I2C6_K;
+			break;
+		case STM32MP1_SHRES_RTC:
+			clock_res_id = RTC;
+			break;
+		default:
+			/* No clock resource dependency */
+			return;
+		}
+
+		stm32mp1_register_clock_parents_secure(clock_res_id);
+	}
+}
+
+/* Register resource by ID */
+void stm32mp_register_secure_periph(enum stm32mp_shres id)
+{
+	register_periph(id, SHRES_SECURE);
+}
+
+void stm32mp_register_non_secure_periph(enum stm32mp_shres id)
+{
+	register_periph(id, SHRES_NON_SECURE);
+}
+
 /* Currently allow full access by non-secure to platform clock services */
 bool stm32mp_nsec_can_access_clock(unsigned long clock_id)
 {
