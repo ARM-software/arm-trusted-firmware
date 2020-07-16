@@ -25,8 +25,8 @@
 
 #define UNIPHIER_OCM_REGION_SIZE	0x00040000ULL
 
-#define UNIPHIER_BLOCK_BUF_OFFSET	0x04200000UL
-#define UNIPHIER_BLOCK_BUF_SIZE		0x00100000UL
+#define UNIPHIER_BLOCK_BUF_OFFSET	0x03000000UL
+#define UNIPHIER_BLOCK_BUF_SIZE		0x00800000UL
 
 static const io_dev_connector_t *uniphier_fip_dev_con;
 static uintptr_t uniphier_fip_dev_handle;

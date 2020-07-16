@@ -21,8 +21,8 @@
 
 #include "uniphier.h"
 
-#define UNIPHIER_IMAGE_BUF_OFFSET	0x04300000UL
-#define UNIPHIER_IMAGE_BUF_SIZE		0x00100000UL
+#define UNIPHIER_IMAGE_BUF_OFFSET	0x03800000UL
+#define UNIPHIER_IMAGE_BUF_SIZE		0x00800000UL
 
 static uintptr_t uniphier_mem_base = UNIPHIER_MEM_BASE;
 static unsigned int uniphier_soc = UNIPHIER_SOC_UNKNOWN;
