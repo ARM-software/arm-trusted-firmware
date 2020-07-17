@@ -38,6 +38,13 @@
 			vcpu_count = <2>;
 			mem_size = <1048576>;
 		};
+		vm3 {
+			is_ffa_partition;
+			debug_name = "cactus-tertiary";
+			load_address = <0x7200000>;
+			vcpu_count = <2>;
+			mem_size = <1048576>;
+		};
 	};
 
 	cpus {

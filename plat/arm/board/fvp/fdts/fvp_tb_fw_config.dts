@@ -92,6 +92,11 @@
 			load-address = <0x7100000>;
 			owner = "Plat";
 		};
+
+		cactus-tertiary {
+			uuid = <0x735cb579 0xb9448c1d 0xe1619385 0xd2d80a77>;
+			load-address = <0x7200000>;
+		};
 #endif
 	};
 
