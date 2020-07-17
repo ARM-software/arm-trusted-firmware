@@ -17,6 +17,7 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <plat/common/platform.h>
 #include <common/fdt_fixup.h>
+#include <common/fdt_wrappers.h>
 #include <libfdt.h>
 
 #include <drivers/arm/gicv2.h>
@@ -200,13 +201,6 @@ void bl31_plat_arch_setup(void)
 	enable_mmu_el3(0);
 }
 
-static uint32_t dtb_size(const void *dtb)
-{
-	const uint32_t *dtb_header = dtb;
-
-	return fdt32_to_cpu(dtb_header[1]);
-}
-
 static void rpi4_prepare_dtb(void)
 {
 	void *dtb = (void *)rpi4_get_dtb_address();
@@ -250,7 +244,7 @@ static void rpi4_prepare_dtb(void)
 	if (ret < 0)
 		ERROR("Failed to pack Device Tree at %p: error %d\n", dtb, ret);
 
-	clean_dcache_range((uintptr_t)dtb, dtb_size(dtb));
+	clean_dcache_range((uintptr_t)dtb, fdt_blob_size(dtb));
 	INFO("Changed device tree to advertise PSCI.\n");
 }
 
