@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,8 +18,9 @@
 typedef struct {
 	io_mtd_dev_spec_t	*dev_spec;
 	uintptr_t		base;
-	unsigned long long	offset;		/* Offset in bytes */
-	unsigned long long	size;	/* Size of device in bytes */
+	unsigned long long	pos;		/* Offset in bytes */
+	unsigned long long	size;		/* Size of device in bytes */
+	unsigned long long	extra_offset;	/* Extra offset in bytes */
 } mtd_dev_state_t;
 
 io_type_t device_type_mtd(void);
@@ -110,16 +111,47 @@ static int free_dev_info(io_dev_info_t *dev_info)
 	return 0;
 }
 
+static int mtd_add_extra_offset(mtd_dev_state_t *cur, size_t *extra_offset)
+{
+	io_mtd_ops_t *ops = &cur->dev_spec->ops;
+	int ret;
+
+	if (ops->seek == NULL) {
+		return 0;
+	}
+
+	ret = ops->seek(cur->base, cur->pos, extra_offset);
+	if (ret != 0) {
+		ERROR("%s: Seek error %d\n", __func__, ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 static int mtd_open(io_dev_info_t *dev_info, const uintptr_t spec,
 		    io_entity_t *entity)
 {
 	mtd_dev_state_t *cur;
+	io_block_spec_t *region;
+	size_t extra_offset = 0U;
+	int ret;
 
 	assert((dev_info->info != 0UL) && (entity->info == 0UL));
 
+	region = (io_block_spec_t *)spec;
 	cur = (mtd_dev_state_t *)dev_info->info;
 	entity->info = (uintptr_t)cur;
-	cur->offset = 0U;
+	cur->base = region->offset;
+	cur->pos = 0U;
+	cur->extra_offset = 0U;
+
+	ret = mtd_add_extra_offset(cur, &extra_offset);
+	if (ret != 0) {
+		return ret;
+	}
+
+	cur->base += extra_offset;
 
 	return 0;
 }
@@ -128,6 +160,8 @@ static int mtd_open(io_dev_info_t *dev_info, const uintptr_t spec,
 static int mtd_seek(io_entity_t *entity, int mode, signed long long offset)
 {
 	mtd_dev_state_t *cur;
+	size_t extra_offset = 0U;
+	int ret;
 
 	assert((entity->info != (uintptr_t)NULL) && (offset >= 0));
 
@@ -140,21 +174,28 @@ static int mtd_seek(io_entity_t *entity, int mode, signed long long offset)
 			return -EINVAL;
 		}
 
-		cur->offset = offset;
+		cur->pos = offset;
 		break;
 	case IO_SEEK_CUR:
-		if (((cur->offset + (unsigned long long)offset) >=
+		if (((cur->base + cur->pos + (unsigned long long)offset) >=
 		     cur->size) ||
-		    ((cur->offset + (unsigned long long)offset) <
-		     cur->offset)) {
+		    ((cur->base + cur->pos + (unsigned long long)offset) <
+		     cur->base + cur->pos)) {
 			return -EINVAL;
 		}
 
-		cur->offset += (unsigned long long)offset;
+		cur->pos += (unsigned long long)offset;
 		break;
 	default:
 		return -EINVAL;
 	}
+
+	ret = mtd_add_extra_offset(cur, &extra_offset);
+	if (ret != 0) {
+		return ret;
+	}
+
+	cur->extra_offset = extra_offset;
 
 	return 0;
 }
@@ -174,18 +215,19 @@ static int mtd_read(io_entity_t *entity, uintptr_t buffer, size_t length,
 	assert(ops->read != NULL);
 
 	VERBOSE("Read at %llx into %lx, length %zi\n",
-		cur->offset, buffer, length);
-	if ((cur->offset + length) > cur->dev_spec->device_size) {
+		cur->base + cur->pos, buffer, length);
+	if ((cur->base + cur->pos + length) > cur->dev_spec->device_size) {
 		return -EINVAL;
 	}
 
-	ret = ops->read(cur->offset, buffer, length, out_length);
+	ret = ops->read(cur->base + cur->pos + cur->extra_offset, buffer,
+			length, out_length);
 	if (ret < 0) {
 		return ret;
 	}
 
 	assert(*out_length == length);
-	cur->offset += *out_length;
+	cur->pos += *out_length;
 
 	return 0;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -44,11 +44,22 @@ typedef struct io_mtd_ops {
 	 * Return 0 on success, a negative error code otherwise.
 	 */
 	int (*write)(unsigned int offset, uintptr_t buffer, size_t length);
+
+	/*
+	 * Look for an offset to be added to the given offset.
+	 *
+	 * @base: Base address of the area.
+	 * @offset: Offset in bytes to start read operation.
+	 * @extra_offset: [out] Offset to be added to the previous offset.
+	 * Return 0 on success, a negative error code otherwise.
+	 */
+	int (*seek)(uintptr_t base, unsigned int offset, size_t *extra_offset);
 } io_mtd_ops_t;
 
 typedef struct io_mtd_dev_spec {
 	unsigned long long device_size;
 	unsigned int erase_size;
+	size_t offset;
 	io_mtd_ops_t ops;
 } io_mtd_dev_spec_t;
 
