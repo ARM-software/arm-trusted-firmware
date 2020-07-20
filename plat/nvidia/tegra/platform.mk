@@ -55,14 +55,14 @@ ENABLE_STACK_PROTECTOR		:=	strong
 # Enable SDEI
 SDEI_SUPPORT			:= 1
 
+# modify BUILD_PLAT to point to SoC specific build directory
+BUILD_PLAT	:=	${BUILD_BASE}/${PLAT}/${TARGET_SOC}/${BUILD_TYPE}
+
 include plat/nvidia/tegra/common/tegra_common.mk
 include ${SOC_DIR}/platform_${TARGET_SOC}.mk
 
 $(eval $(call add_define,ENABLE_TEGRA_WDT_LEGACY_FIQ_HANDLING))
 $(eval $(call add_define,RELOCATE_BL32_IMAGE))
-
-# modify BUILD_PLAT to point to SoC specific build directory
-BUILD_PLAT	:=	$(abspath ${BUILD_BASE})/${PLAT}/${TARGET_SOC}/${BUILD_TYPE}
 
 # platform cflags (enable signed comparisons, disable stdlib)
 TF_CFLAGS	+= -nostdlib
@@ -71,11 +71,14 @@ TF_CFLAGS	+= -nostdlib
 override LIBC_SRCS :=	$(addprefix lib/libc/,		\
 			aarch64/setjmp.S		\
 			assert.c			\
+			memchr.c			\
+			memcmp.c			\
 			memcpy.c			\
 			memmove.c			\
 			memset.c			\
 			printf.c			\
 			putchar.c			\
+			strrchr.c			\
 			strlen.c			\
 			snprintf.c)
 
