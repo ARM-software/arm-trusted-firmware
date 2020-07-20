@@ -21,7 +21,7 @@ Maintainers
 :G: `soby-mathew`_
 :M: Sandrine Bailleux <sandrine.bailleux@arm.com>
 :G: `sandrine-bailleux-arm`_
-:M: Alexei Fedorov <alexei.fedorov@arm.com>
+:M: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :G: `AlexeiFedorov`_
 :M: Manish Pandey <manish.pandey2@arm.com>
 :G: `manish-pandey-arm`_
@@ -185,7 +185,7 @@ Reliability Availability Serviceabilty (RAS) framework
 
 Activity Monitors Unit (AMU) extensions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:M: Alexei Fedorov <alexei.fedorov@arm.com>
+:M: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :G: `AlexeiFedorov`_
 :F: lib/extensions/amu/
 
@@ -199,7 +199,7 @@ Memory Partitioning And Monitoring (MPAM) extensions
 
 Pointer Authentication (PAuth) and Branch Target Identification (BTI) extensions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:M: Alexei Fedorov <alexei.fedorov@arm.com>
+:M: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :G: `AlexeiFedorov`_
 :M: Zelalem Aweke <Zelalem.Aweke@arm.com>
 :G: `zelalem-aweke`_
@@ -221,7 +221,7 @@ Scalable Vector Extension (SVE)
 
 Standard C library
 ^^^^^^^^^^^^^^^^^^
-:M: Alexei Fedorov <alexei.fedorov@arm.com>
+:M: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :G: `AlexeiFedorov`_
 :M: John Powell <John.Powell@arm.com>
 :G: `john-powell-arm`_
@@ -251,7 +251,7 @@ IO abstraction layer
 
 GIC driver
 ^^^^^^^^^^
-:M: Alexei Fedorov <alexei.fedorov@arm.com>
+:M: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :G: `AlexeiFedorov`_
 :M: Manish Pandey <manish.pandey2@arm.com>
 :G: `manish-pandey-arm`_
@@ -277,6 +277,15 @@ Firmware Encryption Framework
 :F: include/drivers/io/io_encrypted.h
 :F: include/tools_share/firmware_encrypted.h
 
+Measured Boot
+^^^^^^^^^^^^^
+:M: Alexei Fedorov <Alexei.Fedorov@arm.com>
+:G: `AlexeiFedorov`_
+:M: Javier Almansa Sobrino <Javier.AlmansaSobrino@arm.com>
+:G: `javieralso-arm`_
+:F: drivers/measured_boot
+:F: include/drivers/measured_boot
+:F: plat/arm/board/fvp/fvp_measured_boot.c
 
 Platform Ports
 ~~~~~~~~~~~~~~
