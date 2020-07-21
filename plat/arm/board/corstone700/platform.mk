@@ -25,9 +25,10 @@ PLAT_INCLUDES		:=	-Iplat/arm/board/corstone700/common/include	\
 
 NEED_BL32		:=	yes
 
-CORSTONE700_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
-				drivers/arm/gic/v2/gicv2_main.c		\
-				drivers/arm/gic/v2/gicv2_helpers.c	\
+# Include GICv2 driver files
+include drivers/arm/gic/v2/gicv2.mk
+
+CORSTONE700_GIC_SOURCES	:=	${GICV2_SOURCES}			\
 				plat/common/plat_gicv2.c		\
 				plat/arm/common/arm_gicv2.c
 
