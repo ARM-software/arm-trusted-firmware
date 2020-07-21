@@ -32,6 +32,11 @@ BL31_SOURCES		+=	${SGI_CPU_SOURCES}			\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c
 
+ifeq (${TRUSTED_BOARD_BOOT}, 1)
+BL1_SOURCES		+=	${RDDANIEL_BASE}/rddaniel_trusted_boot.c
+BL2_SOURCES		+=	${RDDANIEL_BASE}/rddaniel_trusted_boot.c
+endif
+
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES		+=	${RDDANIEL_BASE}/fdts/${PLAT}_fw_config.dts	\
 				${RDDANIEL_BASE}/fdts/${PLAT}_tb_fw_config.dts
