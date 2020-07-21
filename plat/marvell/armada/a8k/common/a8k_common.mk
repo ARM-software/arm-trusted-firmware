@@ -37,7 +37,7 @@ ROM_BIN_EXT ?= $(BUILD_PLAT)/ble.bin
 DOIMAGE_FLAGS	+= -b $(ROM_BIN_EXT) $(NAND_DOIMAGE_FLAGS) $(DOIMAGE_SEC_FLAGS)
 
 # Check whether to build system_power.c for the platform
-ifneq ("$(wildcard $(PLAT_FAMILY_BASE)/$(PLAT)/board/system_power.c)","")
+ifneq ("$(wildcard $(BOARD_DIR)/board/system_power.c)","")
 SYSTEM_POWER_SUPPORT = 1
 else
 SYSTEM_POWER_SUPPORT = 0
@@ -91,7 +91,7 @@ MARVELL_DRV		:= 	$(MARVELL_DRV_BASE)/io_win.c	\
 BL31_PORTING_SOURCES	:=	$(BOARD_DIR)/board/marvell_plat_config.c
 
 ifeq ($(SYSTEM_POWER_SUPPORT),1)
-BL31_PORTING_SOURCES	+=	$(PLAT_FAMILY_BASE)/$(PLAT)/board/system_power.c
+BL31_PORTING_SOURCES	+=	$(BOARD_DIR)/board/system_power.c
 endif
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a72.S		       \
