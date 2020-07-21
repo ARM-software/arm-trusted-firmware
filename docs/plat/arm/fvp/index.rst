@@ -37,6 +37,9 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_Cortex-A76AEx4``
 -  ``FVP_Base_Cortex-A76AEx8``
 -  ``FVP_Base_Cortex-A77x4``
+-  ``FVP_Base_Neoverse-E1x1``
+-  ``FVP_Base_Neoverse-E1x2``
+-  ``FVP_Base_Neoverse-E1x4``
 -  ``FVP_Base_Neoverse-N1x4``
 -  ``FVP_Base_Zeusx4``
 -  ``FVP_CSS_SGI-575`` (Version 11.10 build 25)
