@@ -24,6 +24,7 @@
 #define GICR_PWRR			0x24
 #define IIDR_MODEL_ARM_GIC_600		(0x0200043b)
 #define IIDR_MODEL_ARM_GIC_600AE	(0x0300043b)
+#define IIDR_MODEL_ARM_GIC_CLAYTON	(0x0400043b)
 
 /* GICR_PWRR fields */
 #define PWRR_RDPD_SHIFT			0
@@ -45,7 +46,7 @@
 
 #if GICV3_SUPPORT_GIC600
 
-/* GIC-600 specific accessor functions */
+/* GIC-600/Clayton specific accessor functions */
 static void gicr_write_pwrr(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICR_PWRR, val);
@@ -113,12 +114,17 @@ static uintptr_t get_gicr_base(unsigned int proc_num)
 	return gicr_base;
 }
 
-static bool gicv3_is_gic600(uintptr_t gicr_base)
+static bool gicv3_redists_need_power_mgmt(uintptr_t gicr_base)
 {
 	uint32_t reg = mmio_read_32(gicr_base + GICR_IIDR);
 
+	/*
+	 * The Arm GIC-600 and GIC-Clayton models have their redistributors
+	 * powered down at reset.
+	 */
 	return (((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_600) ||
-		((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_600AE));
+		((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_600AE) ||
+		((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_CLAYTON));
 }
 
 #endif
@@ -143,7 +149,7 @@ void gicv3_rdistif_off(unsigned int proc_num)
 	uintptr_t gicr_base = get_gicr_base(proc_num);
 
 	/* Attempt to power redistributor off */
-	if (gicv3_is_gic600(gicr_base)) {
+	if (gicv3_redists_need_power_mgmt(gicr_base)) {
 		gic600_pwr_off(gicr_base);
 	}
 #endif
@@ -158,7 +164,7 @@ void gicv3_rdistif_on(unsigned int proc_num)
 	uintptr_t gicr_base = get_gicr_base(proc_num);
 
 	/* Power redistributor on */
-	if (gicv3_is_gic600(gicr_base)) {
+	if (gicv3_redists_need_power_mgmt(gicr_base)) {
 		gic600_pwr_on(gicr_base);
 	}
 #endif
