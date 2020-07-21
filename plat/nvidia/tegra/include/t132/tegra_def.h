@@ -11,6 +11,11 @@
 #include <lib/utils_def.h>
 
 /*******************************************************************************
+ * Platform BL31 specific defines.
+ ******************************************************************************/
+#define BL31_SIZE			U(0x40000)
+
+/*******************************************************************************
  * This value is used by the PSCI implementation during the `SYSTEM_SUSPEND`
  * call as the `state-id` field in the 'power state' parameter.
  ******************************************************************************/
