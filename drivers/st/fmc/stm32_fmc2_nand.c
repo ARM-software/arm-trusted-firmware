@@ -908,7 +908,12 @@ int stm32_fmc2_init(void)
 			WARN("Chip select not well defined\n");
 			return -FDT_ERR_BADVALUE;
 		}
+
 		stm32_fmc2.cs_sel = fdt32_to_cpu(*cuint);
+		if (stm32_fmc2.cs_sel >= MAX_CS) {
+			return -FDT_ERR_BADVALUE;
+		}
+
 		VERBOSE("NAND CS %i\n", stm32_fmc2.cs_sel);
 	}
 
