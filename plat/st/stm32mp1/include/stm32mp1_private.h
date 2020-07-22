@@ -22,4 +22,6 @@ void stm32mp1_syscfg_enable_io_compensation(void);
 void stm32mp1_syscfg_disable_io_compensation(void);
 
 uint32_t stm32mp_get_ddr_ns_size(void);
+
+void stm32mp1_init_scmi_server(void);
 #endif /* STM32MP1_PRIVATE_H */

@@ -29,6 +29,16 @@
  */
 #define STM32_SMC_BSEC			0x82001003
 
+/*
+ * STM32_SIP_SMC_SCMI_AGENT0
+ * STM32_SIP_SMC_SCMI_AGENT1
+ * Process SCMI message pending in SCMI shared memory buffer.
+ *
+ * Argument a0: (input) SMCC ID
+ */
+#define STM32_SIP_SMC_SCMI_AGENT0	0x82002000
+#define STM32_SIP_SMC_SCMI_AGENT1	0x82002001
+
 /* SMC function IDs for SiP Service queries */
 #define STM32_SIP_SVC_CALL_COUNT	0x8200ff00
 #define STM32_SIP_SVC_UID		0x8200ff01
@@ -40,7 +50,7 @@
 #define STM32_SIP_SVC_VERSION_MINOR	0x1
 
 /* Number of STM32 SiP Calls implemented */
-#define STM32_COMMON_SIP_NUM_CALLS	4
+#define STM32_COMMON_SIP_NUM_CALLS	3
 
 /* Service for BSEC */
 #define STM32_SMC_READ_SHADOW		0x01
