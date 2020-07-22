@@ -70,6 +70,14 @@ __dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved)
 
 #if MEASURED_BOOT
 /*
+ * Calculates and writes BL2 hash data to TB_FW_CONFIG DTB.
+ */
+void bl1_plat_set_bl2_hash(const image_desc_t *image_desc)
+{
+	arm_bl1_set_bl2_hash(image_desc);
+}
+
+/*
  * Implementation for bl1_plat_handle_post_image_load(). This function
  * populates the default arguments to BL2. The BL2 memory layout structure
  * is allocated and the calculated layout is populated in arg1 to BL2.
@@ -90,7 +98,7 @@ int bl1_plat_handle_post_image_load(unsigned int image_id)
 	assert(image_desc != NULL);
 
 	/* Calculate BL2 hash and set it in TB_FW_CONFIG */
-	arm_bl1_set_bl2_hash(image_desc);
+	bl1_plat_set_bl2_hash(image_desc);
 
 	/* Get the entry point info */
 	ep_info = &image_desc->ep_info;

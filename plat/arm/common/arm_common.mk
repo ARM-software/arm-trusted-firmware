@@ -337,3 +337,9 @@ ifeq (${RECLAIM_INIT_CODE}, 1)
         $(error "To reclaim init code xlat tables v2 must be used")
     endif
 endif
+
+ifeq (${MEASURED_BOOT},1)
+    MEASURED_BOOT_MK := drivers/measured_boot/measured_boot.mk
+    $(info Including ${MEASURED_BOOT_MK})
+    include ${MEASURED_BOOT_MK}
+endif
