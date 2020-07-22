@@ -106,4 +106,6 @@
 #define GPUMIX_PGC			0xdc0
 #define DISPMIX_PGC			0xe80
 
+#define IRQ_IMR_NUM			U(4)
+
 #endif /* GPC_REG_H */

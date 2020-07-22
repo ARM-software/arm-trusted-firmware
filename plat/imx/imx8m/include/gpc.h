@@ -25,7 +25,6 @@
 #define SLTx_CFG(n)			((SLT0_CFG + ((n) * 4)))
 #define SLT_COREx_PUP(core_id)		(0x2 << ((core_id) * 2))
 
-#define IRQ_IMR_NUM	4
 #define IMR_MASK_ALL	0xffffffff
 
 #define IMX_PD_DOMAIN(name, on)				\

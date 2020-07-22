@@ -84,4 +84,6 @@
 #define MASTER1_MAPPING			BIT(1)
 #define MASTER2_MAPPING			BIT(2)
 
+#define IRQ_IMR_NUM			U(4)
+
 #endif /* GPC_REG_H */
