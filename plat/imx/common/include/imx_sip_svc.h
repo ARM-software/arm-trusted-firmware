@@ -28,6 +28,11 @@
 
 #define IMX_SIP_MISC_SET_TEMP		0xC200000C
 
+#define IMX_SIP_AARCH32			0xC20000FD
+
+int imx_kernel_entry_handler(uint32_t smc_fid, u_register_t x1,
+			     u_register_t x2, u_register_t x3,
+			     u_register_t x4);
 #if defined(PLAT_imx8mq)
 int imx_soc_info_handler(uint32_t smc_fid, u_register_t x1,
 			 u_register_t x2, u_register_t x3);
