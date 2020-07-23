@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -149,17 +149,16 @@ m_loop4:
 	blo	m_loop1
 	ldr	r3, [r1], #4
 	str	r3, [r0], #4
-	sub	r2, r2, #4
-	b	m_loop4
+	subs	r2, r2, #4
+	bne	m_loop4
+	bx	lr
+
 /* copy byte per byte */
 m_loop1:
-	cmp	r2,#0
-	beq	m_end
 	ldrb	r3, [r1], #1
 	strb	r3, [r0], #1
 	subs	r2, r2, #1
 	bne	m_loop1
-m_end:
 	bx	lr
 endfunc memcpy4
 
