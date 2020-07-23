@@ -14,14 +14,15 @@
 
 struct dyn_cfg_dtb_info_t {
 	uintptr_t config_addr;
-	size_t config_max_size;
+	uint32_t config_max_size;
 	unsigned int config_id;
 };
 
 struct dyn_cfg_dtb_info_t *dyn_cfg_dtb_info_getter(unsigned int config_id);
 int fconf_populate_dtb_registry(uintptr_t config);
 
-/* Set fw_config information in global DTB array */
-void set_fw_config_info(uintptr_t config_addr, uint32_t config_max_size);
+/* Set config information in global DTB array */
+void set_config_info(uintptr_t config_addr, uint32_t config_max_size,
+			unsigned int config_id);
 
 #endif /* FCONF_DYN_CFG_GETTER_H */

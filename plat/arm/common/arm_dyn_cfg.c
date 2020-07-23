@@ -203,7 +203,7 @@ void arm_bl2_dyn_cfg_init(void)
 	unsigned int i;
 	bl_mem_params_node_t *cfg_mem_params = NULL;
 	uintptr_t image_base;
-	size_t image_size;
+	uint32_t image_size;
 	const unsigned int config_ids[] = {
 			HW_CONFIG_ID,
 			SOC_FW_CONFIG_ID,

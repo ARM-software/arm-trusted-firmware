@@ -54,6 +54,9 @@
 /* Data structure which holds the extents of the trusted SRAM for BL1*/
 static meminfo_t bl1_tzram_layout;
 
+/* Boolean variable to hold condition whether firmware update needed or not */
+static bool is_fwu_needed;
+
 struct meminfo *bl1_plat_sec_mem_layout(void)
 {
 	return &bl1_tzram_layout;
@@ -152,15 +155,15 @@ void arm_bl1_platform_setup(void)
 	plat_arm_io_setup();
 
 	/* Check if we need FWU before further processing */
-	err = plat_arm_bl1_fwu_needed();
-	if (err) {
+	is_fwu_needed = plat_arm_bl1_fwu_needed();
+	if (is_fwu_needed) {
 		ERROR("Skip platform setup as FWU detected\n");
 		return;
 	}
 
 	/* Set global DTB info for fixed fw_config information */
 	fw_config_max_size = ARM_FW_CONFIG_LIMIT - ARM_FW_CONFIG_BASE;
-	set_fw_config_info(ARM_FW_CONFIG_BASE, fw_config_max_size);
+	set_config_info(ARM_FW_CONFIG_BASE, fw_config_max_size, FW_CONFIG_ID);
 
 	/* Fill the device tree information struct with the info from the config dtb */
 	err = fconf_load_config(FW_CONFIG_ID);
@@ -247,5 +250,5 @@ bool plat_arm_bl1_fwu_needed(void)
  ******************************************************************************/
 unsigned int bl1_plat_get_next_image_id(void)
 {
-	return plat_arm_bl1_fwu_needed() ? NS_BL1U_IMAGE_ID : BL2_IMAGE_ID;
+	return  is_fwu_needed ? NS_BL1U_IMAGE_ID : BL2_IMAGE_ID;
 }
