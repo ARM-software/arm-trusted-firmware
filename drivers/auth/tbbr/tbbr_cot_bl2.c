@@ -558,8 +558,8 @@ static const auth_img_desc_t nt_fw_config = {
 };
 /* Secure Partitions */
 #if defined(SPD_spmd)
-static const auth_img_desc_t sp_content_cert = {
-	.img_id = SP_CONTENT_CERT_ID,
+static const auth_img_desc_t sip_sp_content_cert = {
+	.img_id = SIP_SP_CONTENT_CERT_ID,
 	.img_type = IMG_CERT,
 	.parent = &trusted_key_cert,
 	.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) {
@@ -640,14 +640,14 @@ static const auth_img_desc_t sp_content_cert = {
 	}
 };
 
-DEFINE_SP_PKG(1);
-DEFINE_SP_PKG(2);
-DEFINE_SP_PKG(3);
-DEFINE_SP_PKG(4);
-DEFINE_SP_PKG(5);
-DEFINE_SP_PKG(6);
-DEFINE_SP_PKG(7);
-DEFINE_SP_PKG(8);
+DEFINE_SIP_SP_PKG(1);
+DEFINE_SIP_SP_PKG(2);
+DEFINE_SIP_SP_PKG(3);
+DEFINE_SIP_SP_PKG(4);
+DEFINE_SIP_SP_PKG(5);
+DEFINE_SIP_SP_PKG(6);
+DEFINE_SIP_SP_PKG(7);
+DEFINE_SIP_SP_PKG(8);
 #endif /* SPD_spmd */
 
 static const auth_img_desc_t * const cot_desc[] = {
@@ -672,15 +672,15 @@ static const auth_img_desc_t * const cot_desc[] = {
 	[BL33_IMAGE_ID]				=	&bl33_image,
 	[NT_FW_CONFIG_ID]			=	&nt_fw_config,
 #if defined(SPD_spmd)
-	[SP_CONTENT_CERT_ID]			=	&sp_content_cert,
-	[SP_CONTENT_CERT_ID + 1]		=	&sp_pkg1,
-	[SP_CONTENT_CERT_ID + 2]		=	&sp_pkg2,
-	[SP_CONTENT_CERT_ID + 3]		=	&sp_pkg3,
-	[SP_CONTENT_CERT_ID + 4]		=	&sp_pkg4,
-	[SP_CONTENT_CERT_ID + 5]		=	&sp_pkg5,
-	[SP_CONTENT_CERT_ID + 6]		=	&sp_pkg6,
-	[SP_CONTENT_CERT_ID + 7]		=	&sp_pkg7,
-	[SP_CONTENT_CERT_ID + 8]		=       &sp_pkg8,
+	[SIP_SP_CONTENT_CERT_ID]		=	&sip_sp_content_cert,
+	[SP_PKG1_ID]				=	&sp_pkg1,
+	[SP_PKG2_ID]				=	&sp_pkg2,
+	[SP_PKG3_ID]				=	&sp_pkg3,
+	[SP_PKG4_ID]				=	&sp_pkg4,
+	[SP_PKG5_ID]				=	&sp_pkg5,
+	[SP_PKG6_ID]				=	&sp_pkg6,
+	[SP_PKG7_ID]				=	&sp_pkg7,
+	[SP_PKG8_ID]				=       &sp_pkg8,
 #endif
 };
 

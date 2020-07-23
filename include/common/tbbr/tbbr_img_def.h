@@ -10,7 +10,7 @@
 #include <export/common/tbbr/tbbr_img_def_exp.h>
 
 #if defined(SPD_spmd)
-#define SP_CONTENT_CERT_ID		MAX_IMAGE_IDS
+#define SIP_SP_CONTENT_CERT_ID		MAX_IMAGE_IDS
 #define SP_PKG1_ID			(MAX_IMAGE_IDS + 1)
 #define SP_PKG2_ID			(MAX_IMAGE_IDS + 2)
 #define SP_PKG3_ID			(MAX_IMAGE_IDS + 3)

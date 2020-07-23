@@ -51,7 +51,7 @@ const io_uuid_spec_t arm_uuid_spec[MAX_NUMBER_IDS] = {
 	[TRUSTED_OS_FW_CONTENT_CERT_ID] = {UUID_TRUSTED_OS_FW_CONTENT_CERT},
 	[NON_TRUSTED_FW_CONTENT_CERT_ID] = {UUID_NON_TRUSTED_FW_CONTENT_CERT},
 #if defined(SPD_spmd)
-	[SP_CONTENT_CERT_ID] = {UUID_SIP_SECURE_PARTITION_CONTENT_CERT},
+	[SIP_SP_CONTENT_CERT_ID] = {UUID_SIP_SECURE_PARTITION_CONTENT_CERT},
 #endif
 #endif /* ARM_IO_IN_DTB */
 #endif /* TRUSTED_BOARD_BOOT */
@@ -184,9 +184,9 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 		open_fip
 	},
 #if defined(SPD_spmd)
-	[SP_CONTENT_CERT_ID] = {
+	[SIP_SP_CONTENT_CERT_ID] = {
 		&fip_dev_handle,
-		(uintptr_t)&arm_uuid_spec[SP_CONTENT_CERT_ID],
+		(uintptr_t)&arm_uuid_spec[SIP_SP_CONTENT_CERT_ID],
 		open_fip
 	},
 #endif
@@ -233,7 +233,7 @@ static const struct policies_load_info load_info[FCONF_ARM_IO_UUID_NUMBER] = {
 	{TRUSTED_OS_FW_CONTENT_CERT_ID, "tos_fw_content_cert_uuid"},
 	{NON_TRUSTED_FW_CONTENT_CERT_ID, "nt_fw_content_cert_uuid"},
 #if defined(SPD_spmd)
-	{SP_CONTENT_CERT_ID, "sp_content_cert_uuid"},
+	{SIP_SP_CONTENT_CERT_ID, "sip_sp_content_cert_uuid"},
 #endif
 #endif /* TRUSTED_BOARD_BOOT */
 };

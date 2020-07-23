@@ -146,8 +146,8 @@ cot {
 		};
 
 #if defined(SPD_spmd)
-		sp_content_cert: sp_content_cert {
-			image-id = <SP_CONTENT_CERT_ID>;
+		sip_sp_content_cert: sip_sp_content_cert {
+			image-id = <SIP_SP_CONTENT_CERT_ID>;
 			parent = <&trusted_key_cert>;
 			signing-key = <&trusted_world_pk>;
 			antirollback-counter = <&trusted_nv_counter>;
@@ -251,50 +251,50 @@ cot {
 
 #if defined(SPD_spmd)
 		sp_pkg1 {
-			image-id = <SP_CONTENT_CERT_ID + 1>;
-			parent = <&sp_content_cert>;
+			image-id = <SP_PKG1_ID>;
+			parent = <&sip_sp_content_cert>;
 			hash = <&sp_pkg1_hash>;
 		};
 
 		sp_pkg2 {
-			image-id = <SP_CONTENT_CERT_ID + 2>;
-			parent = <&sp_content_cert>;
+			image-id = <SP_PKG2_ID>;
+			parent = <&sip_sp_content_cert>;
 			hash = <&sp_pkg2_hash>;
 		};
 
 		sp_pkg3 {
-			image-id = <SP_CONTENT_CERT_ID + 3>;
-			parent = <&sp_content_cert>;
+			image-id = <SP_PKG3_ID>;
+			parent = <&sip_sp_content_cert>;
 			hash = <&sp_pkg3_hash>;
 		};
 
 		sp_pkg4 {
-			image-id = <SP_CONTENT_CERT_ID + 4>;
-			parent = <&sp_content_cert>;
+			image-id = <SP_PKG4_ID>;
+			parent = <&sip_sp_content_cert>;
 			hash = <&sp_pkg4_hash>;
 		};
 
 		sp_pkg5 {
-			image-id = <SP_CONTENT_CERT_ID + 5>;
-			parent = <&sp_content_cert>;
+			image-id = <SP_PKG5_ID>;
+			parent = <&sip_sp_content_cert>;
 			hash = <&sp_pkg5_hash>;
 		};
 
 		sp_pkg6 {
-			image-id = <SP_CONTENT_CERT_ID + 6>;
-			parent = <&sp_content_cert>;
+			image-id = <SP_PKG6_ID>;
+			parent = <&sip_sp_content_cert>;
 			hash = <&sp_pkg6_hash>;
 		};
 
 		sp_pkg7 {
-			image-id = <SP_CONTENT_CERT_ID + 7>;
-			parent = <&sp_content_cert>;
+			image-id = <SP_PKG7_ID>;
+			parent = <&sip_sp_content_cert>;
 			hash = <&sp_pkg7_hash>;
 		};
 
 		sp_pkg8 {
-			image-id = <SP_CONTENT_CERT_ID + 8>;
-			parent = <&sp_content_cert>;
+			image-id = <SP_PKG8_ID>;
+			parent = <&sip_sp_content_cert>;
 			hash = <&sp_pkg8_hash>;
 		};
 #endif
