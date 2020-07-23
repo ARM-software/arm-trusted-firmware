@@ -297,9 +297,14 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # Include the selected chain of trust sources.
     ifeq (${COT},tbbr)
-        AUTH_SOURCES	+=	drivers/auth/tbbr/tbbr_cot_common.c
-	BL1_SOURCES     +=      drivers/auth/tbbr/tbbr_cot_bl1.c
-	BL2_SOURCES     +=      drivers/auth/tbbr/tbbr_cot_bl2.c
+	BL1_SOURCES     +=      drivers/auth/tbbr/tbbr_cot_common.c		\
+				drivers/auth/tbbr/tbbr_cot_bl1.c
+        ifneq (${COT_DESC_IN_DTB},0)
+            BL2_SOURCES	+=	lib/fconf/fconf_cot_getter.c
+        else
+            BL2_SOURCES	+=	drivers/auth/tbbr/tbbr_cot_common.c	\
+				drivers/auth/tbbr/tbbr_cot_bl2.c
+        endif
     else ifeq (${COT},dualroot)
         AUTH_SOURCES	+=	drivers/auth/dualroot/cot.c
     else

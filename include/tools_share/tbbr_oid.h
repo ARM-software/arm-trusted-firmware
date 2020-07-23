@@ -7,6 +7,8 @@
 #ifndef TBBR_OID_H
 #define TBBR_OID_H
 
+#define	MAX_OID_NAME_LEN	30
+
 /*
  * The following is a list of OID values defined and reserved by ARM, which
  * are used to define the extension fields of the certificate structure, as

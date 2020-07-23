@@ -21,7 +21,18 @@
  */
 #define IMG_FLAG_AUTHENTICATED		(1 << 0)
 
-
+#if COT_DESC_IN_DTB && !IMAGE_BL1
+/*
+ * Authentication image descriptor
+ */
+typedef struct auth_img_desc_s {
+	unsigned int img_id;
+	img_type_t img_type;
+	const struct auth_img_desc_s *parent;
+	auth_method_desc_t *img_auth_methods;
+	auth_param_desc_t *authenticated_data;
+} auth_img_desc_t;
+#else
 /*
  * Authentication image descriptor
  */
@@ -32,6 +43,7 @@ typedef struct auth_img_desc_s {
 	const auth_method_desc_t *const img_auth_methods;
 	const auth_param_desc_t *const authenticated_data;
 } auth_img_desc_t;
+#endif /* COT_DESC_IN_DTB && !IMAGE_BL1 */
 
 /* Public functions */
 void auth_mod_init(void);
