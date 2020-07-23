@@ -12,6 +12,7 @@
 #include <bl31/interrupt_mgmt.h>
 #include <common/runtime_svc.h>
 #include <context.h>
+#include <el3_common_macros.S>
 #include <lib/el3_runtime/cpu_data.h>
 #include <lib/smccc.h>
 
@@ -285,21 +286,25 @@ vector_entry sync_exception_aarch64
 	 * to a valid cpu context where the general purpose and system register
 	 * state can be saved.
 	 */
+	apply_at_speculative_wa
 	check_and_unmask_ea
 	handle_sync_exception
 end_vector_entry sync_exception_aarch64
 
 vector_entry irq_aarch64
+	apply_at_speculative_wa
 	check_and_unmask_ea
 	handle_interrupt_exception irq_aarch64
 end_vector_entry irq_aarch64
 
 vector_entry fiq_aarch64
+	apply_at_speculative_wa
 	check_and_unmask_ea
 	handle_interrupt_exception fiq_aarch64
 end_vector_entry fiq_aarch64
 
 vector_entry serror_aarch64
+	apply_at_speculative_wa
 	msr	daifclr, #DAIF_ABT_BIT
 	b	enter_lower_el_async_ea
 end_vector_entry serror_aarch64
@@ -315,21 +320,25 @@ vector_entry sync_exception_aarch32
 	 * to a valid cpu context where the general purpose and system register
 	 * state can be saved.
 	 */
+	apply_at_speculative_wa
 	check_and_unmask_ea
 	handle_sync_exception
 end_vector_entry sync_exception_aarch32
 
 vector_entry irq_aarch32
+	apply_at_speculative_wa
 	check_and_unmask_ea
 	handle_interrupt_exception irq_aarch32
 end_vector_entry irq_aarch32
 
 vector_entry fiq_aarch32
+	apply_at_speculative_wa
 	check_and_unmask_ea
 	handle_interrupt_exception fiq_aarch32
 end_vector_entry fiq_aarch32
 
 vector_entry serror_aarch32
+	apply_at_speculative_wa
 	msr	daifclr, #DAIF_ABT_BIT
 	b	enter_lower_el_async_ea
 end_vector_entry serror_aarch32
@@ -455,6 +464,8 @@ smc_unknown:
 	b	el3_exit
 
 smc_prohibited:
+	restore_ptw_el1_sys_regs
+	ldp	x28, x29, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X28]
 	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 	mov	x0, #SMC_UNK
 	exception_return

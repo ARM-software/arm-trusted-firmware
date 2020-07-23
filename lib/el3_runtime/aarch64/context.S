@@ -8,6 +8,7 @@
 #include <asm_macros.S>
 #include <assert_macros.S>
 #include <context.h>
+#include <el3_common_macros.S>
 
 #if CTX_INCLUDE_EL2_REGS
 	.global	el2_sysregs_context_save
@@ -22,6 +23,7 @@
 #endif
 	.global	save_gp_pmcr_pauth_regs
 	.global	restore_gp_pmcr_pauth_regs
+	.global save_and_update_ptw_el1_sys_regs
 	.global	el3_exit
 
 #if CTX_INCLUDE_EL2_REGS
@@ -420,9 +422,11 @@ func el1_sysregs_context_save
 	mrs	x10, elr_el1
 	stp	x9, x10, [x0, #CTX_SPSR_EL1]
 
+#if !ERRATA_SPECULATIVE_AT
 	mrs	x15, sctlr_el1
 	mrs	x16, tcr_el1
 	stp	x15, x16, [x0, #CTX_SCTLR_EL1]
+#endif
 
 	mrs	x17, cpacr_el1
 	mrs	x9, csselr_el1
@@ -517,9 +521,11 @@ func el1_sysregs_context_restore
 	msr	spsr_el1, x9
 	msr	elr_el1, x10
 
+#if !ERRATA_SPECULATIVE_AT
 	ldp	x15, x16, [x0, #CTX_SCTLR_EL1]
 	msr	sctlr_el1, x15
 	msr	tcr_el1, x16
+#endif
 
 	ldp	x17, x9, [x0, #CTX_CPACR_EL1]
 	msr	cpacr_el1, x17
@@ -859,6 +865,48 @@ func restore_gp_pmcr_pauth_regs
 	ret
 endfunc restore_gp_pmcr_pauth_regs
 
+/*
+ * In case of ERRATA_SPECULATIVE_AT, save SCTLR_EL1 and TCR_EL1
+ * registers and update EL1 registers to disable stage1 and stage2
+ * page table walk
+ */
+func save_and_update_ptw_el1_sys_regs
+	/* ----------------------------------------------------------
+	 * Save only sctlr_el1 and tcr_el1 registers
+	 * ----------------------------------------------------------
+	 */
+	mrs	x29, sctlr_el1
+	str	x29, [sp, #(CTX_EL1_SYSREGS_OFFSET + CTX_SCTLR_EL1)]
+	mrs	x29, tcr_el1
+	str	x29, [sp, #(CTX_EL1_SYSREGS_OFFSET + CTX_TCR_EL1)]
+
+	/* ------------------------------------------------------------
+	 * Must follow below order in order to disable page table
+	 * walk for lower ELs (EL1 and EL0). First step ensures that
+	 * page table walk is disabled for stage1 and second step
+	 * ensures that page table walker should use TCR_EL1.EPDx
+	 * bits to perform address translation. ISB ensures that CPU
+	 * does these 2 steps in order.
+	 *
+	 * 1. Update TCR_EL1.EPDx bits to disable page table walk by
+	 *    stage1.
+	 * 2. Enable MMU bit to avoid identity mapping via stage2
+	 *    and force TCR_EL1.EPDx to be used by the page table
+	 *    walker.
+	 * ------------------------------------------------------------
+	 */
+	orr	x29, x29, #(TCR_EPD0_BIT)
+	orr	x29, x29, #(TCR_EPD1_BIT)
+	msr	tcr_el1, x29
+	isb
+	mrs	x29, sctlr_el1
+	orr	x29, x29, #SCTLR_M_BIT
+	msr	sctlr_el1, x29
+	isb
+
+	ret
+endfunc save_and_update_ptw_el1_sys_regs
+
 /* ------------------------------------------------------------------
  * This routine assumes that the SP_EL3 is pointing to a valid
  * context structure from where the gp regs and other special
@@ -903,6 +951,8 @@ func el3_exit
 	blr	x17
 1:
 #endif
+	restore_ptw_el1_sys_regs
+
 	/* ----------------------------------------------------------
 	 * Restore general purpose (including x30), PMCR_EL0 and
 	 * ARMv8.3-PAuth registers.
