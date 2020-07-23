@@ -24,8 +24,9 @@ static int32_t smccc_arch_features(u_register_t arg1)
 	switch (arg1) {
 	case SMCCC_VERSION:
 	case SMCCC_ARCH_FEATURES:
+		return SMC_ARCH_CALL_SUCCESS;
 	case SMCCC_ARCH_SOC_ID:
-		return SMC_OK;
+		return plat_is_smccc_feature_available(arg1);
 #if WORKAROUND_CVE_2017_5715
 	case SMCCC_ARCH_WORKAROUND_1:
 		if (check_wa_cve_2017_5715() == ERRATA_NOT_APPLIES)

@@ -341,4 +341,9 @@ int32_t plat_get_soc_version(void);
  */
 int32_t plat_get_soc_revision(void);
 
+/*
+ * Optional function to check for SMCCC function availability for platform
+ */
+int32_t plat_is_smccc_feature_available(u_register_t fid);
+
 #endif /* PLATFORM_H */

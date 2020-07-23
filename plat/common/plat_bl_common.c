@@ -11,6 +11,7 @@
 #include <common/debug.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/common/platform.h>
+#include <services/arm_arch_svc.h>
 #include <smccc_helpers.h>
 #include <tools_share/firmware_encrypted.h>
 
@@ -25,6 +26,7 @@
 #pragma weak bl2_plat_handle_post_image_load
 #pragma weak plat_try_next_boot_source
 #pragma weak plat_get_enc_key_info
+#pragma weak plat_is_smccc_feature_available
 #pragma weak plat_get_soc_version
 #pragma weak plat_get_soc_revision
 
@@ -34,6 +36,11 @@ int32_t plat_get_soc_version(void)
 }
 
 int32_t plat_get_soc_revision(void)
+{
+	return SMC_ARCH_CALL_NOT_SUPPORTED;
+}
+
+int32_t plat_is_smccc_feature_available(u_register_t fid __unused)
 {
 	return SMC_ARCH_CALL_NOT_SUPPORTED;
 }
