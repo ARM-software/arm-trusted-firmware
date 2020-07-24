@@ -76,7 +76,8 @@ static const struct uuidnames uuidnames[] = {
 	{"fw.cfg",		UUID_FW_CONFIG},
 	{"rot-k.crt",		UUID_ROT_KEY_CERT},
 	{"nt-k.crt",		UUID_NON_TRUSTED_WORLD_KEY_CERT},
-	{"sip-sp.crt",		UUID_SIP_SECURE_PARTITION_CONTENT_CERT}
+	{"sip-sp.crt",		UUID_SIP_SECURE_PARTITION_CONTENT_CERT},
+	{"plat-sp.crt",		UUID_PLAT_SECURE_PARTITION_CONTENT_CERT}
 };
 
 /*******************************************************************************

@@ -162,6 +162,11 @@ toc_entry_t toc_entries[] = {
 		.cmdline_name = "sip-sp-cert"
 	},
 	{
+		.name = "Platform owned Secure Partition content certificate",
+		.uuid = UUID_PLAT_SECURE_PARTITION_CONTENT_CERT,
+		.cmdline_name = "plat-sp-cert"
+	},
+	{
 		.name = NULL,
 		.uuid = { {0} },
 		.cmdline_name = NULL,

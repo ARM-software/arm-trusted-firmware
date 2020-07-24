@@ -152,12 +152,27 @@ static cert_t cot_certs[] = {
 			SP_PKG2_HASH_EXT,
 			SP_PKG3_HASH_EXT,
 			SP_PKG4_HASH_EXT,
+		},
+		.num_ext = 5
+	},
+
+	[PLAT_SECURE_PARTITION_CONTENT_CERT] = {
+		.id = PLAT_SECURE_PARTITION_CONTENT_CERT,
+		.opt = "plat-sp-cert",
+		.help_msg = "Platform owned Secure Partition Content Certificate (output file)",
+		.fn = NULL,
+		.cn = "Platform owned Secure Partition Content Certificate",
+		.key = PROT_KEY,
+		.issuer = PLAT_SECURE_PARTITION_CONTENT_CERT,
+		.ext = {
+			NON_TRUSTED_FW_NVCOUNTER_EXT,
 			SP_PKG5_HASH_EXT,
 			SP_PKG6_HASH_EXT,
 			SP_PKG7_HASH_EXT,
 			SP_PKG8_HASH_EXT,
+			PROT_PK_EXT,
 		},
-		.num_ext = 9
+		.num_ext = 6
 	},
 
 	[FWU_CERT] = {
