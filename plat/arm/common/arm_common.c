@@ -13,7 +13,9 @@
 #include <common/debug.h>
 #include <common/romlib.h>
 #include <lib/mmio.h>
+#include <lib/smccc.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
+#include <services/arm_arch_svc.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
@@ -234,6 +236,23 @@ int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
 	return arm_validate_ns_entrypoint(pa);
 }
 #endif
+
+/*****************************************************************************
+ * plat_is_smccc_feature_available() - This function checks whether SMCCC
+ *                                     feature is availabile for platform.
+ * @fid: SMCCC function id
+ *
+ * Return SMC_OK if SMCCC feature is available and SMC_ARCH_CALL_NOT_SUPPORTED
+ * otherwise.
+ *****************************************************************************/
+int32_t plat_is_smccc_feature_available(u_register_t fid)
+{
+	switch (fid) {
+	case SMCCC_ARCH_SOC_ID:
+	default:
+		return SMC_ARCH_CALL_NOT_SUPPORTED;
+	}
+}
 
 /*
  * Weak function to get ARM platform SOC-ID, Always return SOC-ID=0
