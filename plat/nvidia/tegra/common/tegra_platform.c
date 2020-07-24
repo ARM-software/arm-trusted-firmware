@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -8,6 +8,8 @@
 #include <arch_helpers.h>
 #include <assert.h>
 #include <lib/mmio.h>
+#include <lib/smccc.h>
+#include <services/arm_arch_svc.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
@@ -285,4 +287,22 @@ int32_t plat_get_soc_version(void)
 int32_t plat_get_soc_revision(void)
 {
 	return (int32_t)((tegra_get_chipid_major() << 8) | tegra_get_chipid_minor());
+}
+
+/*****************************************************************************
+ * plat_smccc_feature_available() - This function checks whether SMCCC feature
+ *                                  is availabile for the platform or not.
+ * @fid: SMCCC function id
+ *
+ * Return SMC_ARCH_CALL_SUCCESS if SMCCC feature is available and
+ * SMC_ARCH_CALL_NOT_SUPPORTED otherwise.
+ *****************************************************************************/
+int32_t plat_smccc_feature_available(u_register_t fid)
+{
+	switch (fid) {
+	case SMCCC_ARCH_SOC_ID:
+		return SMC_ARCH_CALL_SUCCESS;
+	default:
+		return SMC_ARCH_CALL_NOT_SUPPORTED;
+	}
 }
