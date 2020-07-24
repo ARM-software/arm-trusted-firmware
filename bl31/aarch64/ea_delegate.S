@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,7 @@
 #include <context.h>
 
 	.globl	handle_lower_el_ea_esb
+	.globl  handle_lower_el_async_ea
 	.globl	enter_lower_el_sync_ea
 	.globl	enter_lower_el_async_ea
 
@@ -133,6 +134,7 @@ func enter_lower_el_async_ea
 	 */
 	str	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
 
+handle_lower_el_async_ea:
 	/*
 	 * Save general purpose and ARMv8.3-PAuth registers (if enabled).
 	 * If Secure Cycle Counter is not disabled in MDCR_EL3 when

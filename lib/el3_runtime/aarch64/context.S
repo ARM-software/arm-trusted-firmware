@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -995,6 +995,11 @@ func el3_exit
  	 * ----------------------------------------------------------
 	 */
 	esb
+#else
+	dsb	sy
+#endif
+#ifdef IMAGE_BL31
+	str	xzr, [sp, #CTX_EL3STATE_OFFSET + CTX_IS_IN_EL3]
 #endif
 	exception_return
 
