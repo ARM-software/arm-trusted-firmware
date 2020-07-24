@@ -114,6 +114,18 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
 	bl32_image_ep_info.pc = BL32_BASE;
 	bl32_image_ep_info.spsr = arm_get_spsr_for_bl32_entry();
+
+#if defined(SPD_spmd)
+	/* SPM (hafnium in secure world) expects SPM Core manifest base address
+	 * in x0, which in !RESET_TO_BL31 case loaded after base of non shared
+	 * SRAM(after 4KB offset of SRAM). But in RESET_TO_BL31 case all non
+	 * shared SRAM is allocated to BL31, so to avoid overwriting of manifest
+	 * keep it in the last page.
+	 */
+	bl32_image_ep_info.args.arg0 = ARM_TRUSTED_SRAM_BASE +
+				PLAT_ARM_TRUSTED_SRAM_SIZE - PAGE_SIZE;
+#endif
+
 # endif /* BL32_BASE */
 
 	/* Populate entry point information for BL33 */
@@ -129,6 +141,14 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 
 	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
+
+#if defined(SPD_spmd) && !(ARM_LINUX_KERNEL_AS_BL33)
+	/*
+	 * Hafnium in normal world expects its manifest address in x0, which
+	 * is loaded at base of DRAM.
+	 */
+	bl33_image_ep_info.args.arg0 = (u_register_t)ARM_DRAM1_BASE;
+#endif
 
 # if ARM_LINUX_KERNEL_AS_BL33
 	/*
