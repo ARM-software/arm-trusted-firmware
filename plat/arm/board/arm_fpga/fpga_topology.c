@@ -5,15 +5,20 @@
  */
 
 #include <arch_helpers.h>
+#include <common/debug.h>
+#include <lib/spinlock.h>
 
 #include "fpga_private.h"
+#include <plat/common/platform.h>
 #include <platform_def.h>
 
-static unsigned char fpga_power_domain_tree_desc[FPGA_MAX_CLUSTER_COUNT + 2];
+unsigned char fpga_power_domain_tree_desc[FPGA_MAX_CLUSTER_COUNT + 2];
+unsigned char fpga_valid_mpids[PLATFORM_CORE_COUNT];
 
 const unsigned char *plat_get_power_domain_tree_desc(void)
 {
-	int i;
+	unsigned int i;
+
 	/*
 	* The highest level is the system level. The next level is constituted
 	* by clusters and then cores in clusters.
@@ -21,12 +26,26 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
 	* This description of the power domain topology is aligned with the CPU
 	* indices returned by the plat_core_pos_by_mpidr() and plat_my_core_pos()
 	* APIs.
+	*
+	* A description of the topology tree can be found at
+	* https://trustedfirmware-a.readthedocs.io/en/latest/design/psci-pd-tree.html#design
 	*/
-	fpga_power_domain_tree_desc[0] = 1;
-	fpga_power_domain_tree_desc[1] = FPGA_MAX_CLUSTER_COUNT;
 
-	for (i = 0; i < FPGA_MAX_CLUSTER_COUNT; i++) {
-		fpga_power_domain_tree_desc[i + 2] = FPGA_MAX_CPUS_PER_CLUSTER * FPGA_MAX_PE_PER_CPU;
+	if (fpga_power_domain_tree_desc[0] == 0U) {
+		/*
+		 * As fpga_power_domain_tree_desc[0] == 0, assume that the
+		 * Power Domain Topology Tree has not been initialized, so
+		 * perform the initialization here.
+		 */
+
+		fpga_power_domain_tree_desc[0] = 1U;
+		fpga_power_domain_tree_desc[1] = FPGA_MAX_CLUSTER_COUNT;
+
+		for (i = 0U; i < FPGA_MAX_CLUSTER_COUNT; i++) {
+			fpga_power_domain_tree_desc[2 + i] =
+				(FPGA_MAX_CPUS_PER_CLUSTER *
+				 FPGA_MAX_PE_PER_CPU);
+		}
 	}
 
 	return fpga_power_domain_tree_desc;
@@ -34,40 +53,25 @@ const unsigned char *plat_get_power_domain_tree_desc(void)
 
 int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
-	unsigned int cluster_id, cpu_id, thread_id;
+	unsigned int core_pos;
 
-	/*
-	 * The image running on the FPGA may or may not implement
-	 * multithreading, and it shouldn't be assumed this is consistent
-	 * across all CPUs.
-	 * This ensures that any passed mpidr values reflect the status of the
-	 * primary CPU's MT bit.
-	 */
+	mpidr &= (MPID_MASK & ~(MPIDR_AFFLVL_MASK << MPIDR_AFF3_SHIFT));
 	mpidr |= (read_mpidr_el1() & MPIDR_MT_MASK);
-	mpidr &= MPID_MASK;
 
-	if (mpidr & MPIDR_MT_MASK) {
-		thread_id = MPIDR_AFFLVL0_VAL(mpidr);
-		cpu_id = MPIDR_AFFLVL1_VAL(mpidr);
-		cluster_id = MPIDR_AFFLVL2_VAL(mpidr);
-	} else {
-		thread_id = 0;
-		cpu_id = MPIDR_AFFLVL0_VAL(mpidr);
-		cluster_id = MPIDR_AFFLVL1_VAL(mpidr);
+	if ((MPIDR_AFFLVL2_VAL(mpidr) >= FPGA_MAX_CLUSTER_COUNT) ||
+	    (MPIDR_AFFLVL1_VAL(mpidr) >= FPGA_MAX_CPUS_PER_CLUSTER) ||
+	    (MPIDR_AFFLVL0_VAL(mpidr) >= FPGA_MAX_PE_PER_CPU)) {
+		ERROR ("Invalid mpidr: 0x%08x\n", (uint32_t)mpidr);
+		panic();
 	}
 
-	if (cluster_id >= FPGA_MAX_CLUSTER_COUNT) {
+	/* Calculate the core position, based on the maximum topology. */
+	core_pos = plat_fpga_calc_core_pos(mpidr);
+
+	/* Check whether this core is actually present. */
+	if (fpga_valid_mpids[core_pos] != VALID_MPID) {
 		return -1;
 	}
 
-	if (cpu_id >= FPGA_MAX_CPUS_PER_CLUSTER) {
-		return -1;
-	}
-
-	if (thread_id >= FPGA_MAX_PE_PER_CPU) {
-		return -1;
-	}
-
-	/* Calculate the correct core, catering for multi-threaded images */
-	return (int) plat_fpga_calc_core_pos(mpidr);
+	return core_pos;
 }
