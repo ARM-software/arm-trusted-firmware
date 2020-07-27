@@ -22,6 +22,10 @@ uintptr_t rdistif_base_addrs[PLATFORM_CORE_COUNT];
 static const interrupt_prop_t g01s_interrupt_props[] = {
 	INTR_PROP_DESC(8, GIC_HIGHEST_SEC_PRIORITY,
 		       INTR_GROUP0, GIC_INTR_CFG_LEVEL),
+#if SDEI_SUPPORT
+	INTR_PROP_DESC(PLAT_SDEI_SGI_PRIVATE, PLAT_SDEI_NORMAL_PRI,
+		       INTR_GROUP0, GIC_INTR_CFG_LEVEL),
+#endif
 };
 
 static unsigned int plat_imx_mpidr_to_core_pos(unsigned long mpidr)

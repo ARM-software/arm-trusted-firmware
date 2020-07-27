@@ -29,6 +29,8 @@ BL31_SOURCES		+=	plat/imx/common/imx8_helpers.S			\
 				plat/imx/common/imx_sip_handler.c		\
 				plat/imx/common/imx_sip_svc.c			\
 				plat/imx/common/imx_uart_console.S		\
+				plat/imx/common/imx_ehf.c                       \
+				plat/imx/common/imx_sdei.c                      \
 				lib/xlat_tables/aarch64/xlat_tables.c		\
 				lib/xlat_tables/xlat_tables_common.c		\
 				lib/cpus/aarch64/cortex_a53.S			\
@@ -53,3 +55,6 @@ $(eval $(call add_define,BL32_SIZE))
 
 IMX_BOOT_UART_BASE	?=	0x30890000
 $(eval $(call add_define,IMX_BOOT_UART_BASE))
+
+EL3_EXCEPTION_HANDLING := 1
+SDEI_SUPPORT := 1
