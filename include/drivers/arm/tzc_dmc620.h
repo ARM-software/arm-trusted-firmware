@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,16 +32,16 @@
 /* Address offsets of access address next registers */
 #define DMC620_ACC_ADDR_MIN_31_00_NEXT(region_no)	\
 		(DMC620_ACC_ADDR_MIN_31_00_NEXT_BASE +	\
-			(region_no * DMC620_ACC_ADDR_NEXT_SIZE))
+			((region_no) * DMC620_ACC_ADDR_NEXT_SIZE))
 #define DMC620_ACC_ADDR_MIN_47_32_NEXT(region_no)	\
 		(DMC620_ACC_ADDR_MIN_47_32_NEXT_BASE +	\
-			(region_no * DMC620_ACC_ADDR_NEXT_SIZE))
+			((region_no) * DMC620_ACC_ADDR_NEXT_SIZE))
 #define DMC620_ACC_ADDR_MAX_31_00_NEXT(region_no)	\
 		(DMC620_ACC_ADDR_MAX_31_00_NEXT_BASE +	\
-			(region_no * DMC620_ACC_ADDR_NEXT_SIZE))
+			((region_no) * DMC620_ACC_ADDR_NEXT_SIZE))
 #define DMC620_ACC_ADDR_MAX_47_32_NEXT(region_no)	\
 		(DMC620_ACC_ADDR_MAX_47_32_NEXT_BASE +	\
-			(region_no * DMC620_ACC_ADDR_NEXT_SIZE))
+			((region_no) * DMC620_ACC_ADDR_NEXT_SIZE))
 
 /* Number of TZC address regions in DMC-620 */
 #define DMC620_ACC_ADDR_COUNT	U(8)
