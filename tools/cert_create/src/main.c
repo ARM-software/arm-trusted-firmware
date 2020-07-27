@@ -581,6 +581,13 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	/* If we got here, then we must have filled the key array completely.
+	 * We can then safely call free on all of the keys in the array
+	 */
+	for (i = 0; i < num_keys; i++) {
+		EVP_PKEY_free(keys[i].key);
+	}
+
 #ifndef OPENSSL_NO_ENGINE
 	ENGINE_cleanup();
 #endif
