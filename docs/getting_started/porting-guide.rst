@@ -1130,6 +1130,7 @@ This function returns soc version which mainly consist of below fields
 
     soc_version[30:24] = JEP-106 continuation code for the SiP
     soc_version[23:16] = JEP-106 identification code with parity bit for the SiP
+    soc_version[15:0]  = Implementation defined SoC ID
 
 Function : plat_get_soc_revision()
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1144,6 +1145,18 @@ This function returns soc revision in below format
 ::
 
     soc_revision[0:30] = SOC revision of specific SOC
+
+Function : plat_is_smccc_feature_available()
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : u_register_t
+    Return   : int32_t
+
+This function returns SMC_ARCH_CALL_SUCCESS if the platform supports
+the SMCCC function specified in the argument; otherwise returns
+SMC_ARCH_CALL_NOT_SUPPORTED.
 
 Modifications specific to a Boot Loader stage
 ---------------------------------------------
