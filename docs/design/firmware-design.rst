@@ -988,7 +988,7 @@ before restoring the stack and CPU state and returning from the original SMC.
 Exception Handling Framework
 ----------------------------
 
-Please refer to the `Exception Handling Framework`_ document.
+Please refer to the :ref:`Exception Handling Framework` document.
 
 Power State Coordination Interface
 ----------------------------------
