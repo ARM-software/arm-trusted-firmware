@@ -6,10 +6,8 @@ Foreword
 
 Two implementations of a Secure Partition Manager co-exist in the TF-A codebase:
 
--  SPM based on the PSA FF-A specification (`Secure Partition Manager`__).
+-  SPM based on the PSA FF-A specification (:ref:`Secure Partition Manager`).
 -  SPM based on the MM interface.
-
-.. __: secure-partition-manager.html
 
 Both implementations differ in their architectures and only one can be selected
 at build time.

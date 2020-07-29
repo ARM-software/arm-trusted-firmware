@@ -150,10 +150,8 @@ EL3 interrupts
 
    However, when ``EL3_EXCEPTION_HANDLING`` is ``1``, this routing model is
    invalid as EL3 interrupts are unconditionally routed to EL3, and EL3
-   interrupts will always preempt Secure EL1/EL0 execution. See `exception
-   handling`__ documentation.
-
-   .. __: exception-handling.rst#interrupt-handling
+   interrupts will always preempt Secure EL1/EL0 execution. See :ref:`exception
+   handling<interrupt-handling>` documentation.
 
 #. **CSS=0, TEL3=1**. Interrupt is routed to EL3 when execution is in
    Secure-EL1/Secure-EL0. This is a valid routing model as secure software
@@ -302,6 +300,8 @@ Interrupt registration
 This section describes in detail the role of each software component (see
 `Software components`_) during the registration of a handler for an interrupt
 type.
+
+.. _el3-runtime-firmware:
 
 EL3 runtime firmware
 ~~~~~~~~~~~~~~~~~~~~
@@ -901,14 +901,14 @@ it is generated during execution in the TSP with ``PSTATE.I`` = 0 when the
 
 |Image 2|
 
-Secure payload
-~~~~~~~~~~~~~~
+.. _sp-synchronous-int:
+
+Secure payload interrupt handling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The SP should implement one or both of the synchronous and asynchronous
 interrupt handling models depending upon the interrupt routing model it has
-chosen (as described in section `Secure Payload`__).
-
-.. __: #sp-int-registration
+chosen (as described in section :ref:`Secure Payload <sp-int-registration>`).
 
 In the synchronous model, it should begin handling a Secure-EL1 interrupt after
 receiving control from the SPD service at an entrypoint agreed upon during build
