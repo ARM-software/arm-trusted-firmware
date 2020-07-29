@@ -721,6 +721,10 @@ Common build options
   bit, to trap access to the RAS ERR and RAS ERX registers from lower ELs.
   This flag is disabled by default.
 
+- ``OPENSSL_DIR``: This flag is used to provide the installed openssl directory
+  path on the host machine which is used to build certificate generation and
+  firmware encryption tool.
+
 GICv3 driver options
 --------------------
 
