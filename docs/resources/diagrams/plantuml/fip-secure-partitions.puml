@@ -1,0 +1,122 @@
+/'
+ ' Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ '
+ ' SPDX-License-Identifier: BSD-3-Clause
+ '/
+
+@startuml
+
+folder SP_vendor_1 {
+ artifact sp_binary_1
+ artifact sp_manifest_1 [
+ sp_manifest_1
+ ===
+ UUID = xxx
+ load_address = 0xaaa
+ ...
+ ]
+}
+
+folder SP_vendor_2 {
+ artifact sp_binary_2
+ artifact sp_manifest_2 [
+ sp_manifest_2
+ ===
+ UUID = yyy
+ load_address = 0xbbb
+ ]
+}
+
+artifact config.json [
+ SP_LAYOUT.json
+ ===
+ path to sp_binary_1
+ path to sp_manifest_1
+ ---
+ path to sp_binary_2
+ path to sp_manifest_2
+ ---
+ ...
+]
+
+control sp_mk_generator
+
+artifact fconf_node [
+ fconf_sp.dts
+ ===
+ spkg_1 UUID
+ spkg_1 load_address
+ ---
+ spkg_2 UUID
+ spkg_2 load_address
+]
+
+artifact sp_gen [
+ sp_gen.mk
+ ===
+ FDT_SOURCE = ...
+ SPTOOL_ARGS = ...
+ FIP_ARG = ...
+]
+
+control dtc
+control sptool
+
+artifact FW_CONFIG
+
+artifact spkg_1 [
+ spkg_1.bin
+ ===
+ <i>header</i>
+ ---
+ manifest
+ ---
+ binary
+]
+
+artifact spkg_2 [
+ spkg_2.bin
+ ===
+ <i>header</i>
+ ---
+ manifest
+ ---
+ binary
+]
+
+control fiptool
+
+artifact fip [
+ fip.bin
+ ===
+ FW_CONFIG.dtb
+ ---
+ ...
+ ---
+ SPKG1
+ ---
+ SPKG2
+ ---
+ ...
+]
+
+config.json .up.> SP_vendor_1
+config.json .up.> SP_vendor_2
+config.json --> sp_mk_generator
+sp_mk_generator --> fconf_node
+sp_mk_generator --> sp_gen
+
+sp_gen --> sptool
+sptool --> spkg_1
+sptool --> spkg_2
+
+fconf_node -down-> dtc
+dtc --> FW_CONFIG
+
+sp_gen --> fiptool
+FW_CONFIG --> fiptool
+spkg_1 -down-> fiptool
+spkg_2 -down-> fiptool
+fiptool -down-> fip
+
+@enduml
