@@ -38,6 +38,8 @@ BL31_SOURCES		:=	${N1SDP_CPU_SOURCES}			\
 				${N1SDP_BASE}/n1sdp_security.c		\
 				drivers/arm/css/sds/sds.c
 
+FDT_SOURCES		+=	fdts/${PLAT}-single-chip.dts	\
+				fdts/${PLAT}-multi-chip.dts
 
 # TF-A not required to load the SCP Images
 override CSS_LOAD_SCP_IMAGES	  	:=	0
