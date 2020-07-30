@@ -33,7 +33,7 @@ void clear_mem_regions(mem_region_t *tbl, size_t nregions)
 	size_t i;
 
 	assert(tbl != NULL);
-	assert(nregions > 0);
+	assert(nregions > 0U);
 
 	for (i = 0; i < nregions; i++) {
 		assert(tbl->nbytes > 0);
@@ -64,28 +64,32 @@ void clear_map_dyn_mem_regions(struct mem_region *regions,
 	const unsigned int attr = MT_MEMORY | MT_RW | MT_NS;
 
 	assert(regions != NULL);
-	assert(nregions > 0 && chunk > 0);
+	assert(nregions != 0U);
+	assert(chunk != 0U);
 
-	for ( ; nregions--; regions++) {
-		begin = regions->base;
-		size = regions->nbytes;
-		if ((begin & (chunk-1)) != 0 || (size & (chunk-1)) != 0) {
+	for (unsigned int i = 0U; i < nregions; i++) {
+		begin = regions[i].base;
+		size = regions[i].nbytes;
+		if (((begin & (chunk-1U)) != 0U) ||
+				((size & (chunk-1U)) != 0U)) {
 			INFO("PSCI: Not correctly aligned region\n");
 			panic();
 		}
 
-		while (size > 0) {
+		while (size > 0U) {
 			r = mmap_add_dynamic_region(begin, va, chunk, attr);
 			if (r != 0) {
-				INFO("PSCI: mmap_add_dynamic_region failed with %d\n", r);
+				INFO("PSCI: %s failed with %d\n",
+					"mmap_add_dynamic_region", r);
 				panic();
 			}
 
-			zero_normalmem((void *) va, chunk);
+			zero_normalmem((void *)va, chunk);
 
 			r = mmap_remove_dynamic_region(va, chunk);
 			if (r != 0) {
-				INFO("PSCI: mmap_remove_dynamic_region failed with %d\n", r);
+				INFO("PSCI: %s failed with %d\n",
+					"mmap_remove_dynamic_region", r);
 				panic();
 			}
 
@@ -115,18 +119,19 @@ int mem_region_in_array_chk(mem_region_t *tbl, size_t nregions,
 	size_t i;
 
 	assert(tbl != NULL);
-	assert(nbytes > 0);
+	assert(nbytes != 0U);
 	assert(!check_uptr_overflow(addr, nbytes-1));
 
 	region_start = addr;
-	region_end = addr + (nbytes - 1);
-	for (i = 0; i < nregions; i++) {
+	region_end = addr + (nbytes - 1U);
+	for (i = 0U; i < nregions; i++) {
 		assert(tbl->nbytes > 0);
 		assert(!check_uptr_overflow(tbl->base, tbl->nbytes-1));
 		start = tbl->base;
 		end = start + (tbl->nbytes - 1);
-		if (region_start >= start && region_end <= end)
+		if ((region_start >= start) && (region_end <= end)) {
 			return 0;
+		}
 		tbl++;
 	}
 
