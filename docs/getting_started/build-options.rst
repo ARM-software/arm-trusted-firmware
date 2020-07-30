@@ -119,6 +119,8 @@ Common build options
 -  ``BUILD_STRING``: Input string for VERSION_STRING, which allows the TF-A
    build to be uniquely identified. Defaults to the current git commit id.
 
+-  ``BUILD_BASE``: Output directory for the build. Defaults to ``./build``
+
 -  ``CFLAGS``: Extra user options appended on the compiler's command line in
    addition to the options set by the build system.
 

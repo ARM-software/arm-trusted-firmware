@@ -55,8 +55,8 @@ with open(sys.argv[2],'r') as in_file:
     data = json.load(in_file)
 json_file = os.path.abspath(sys.argv[2])
 json_dir = os.path.dirname(json_file)
-gen_file = sys.argv[1]
-out_dir = sys.argv[3][2:]
+gen_file = os.path.abspath(sys.argv[1])
+out_dir = os.path.abspath(sys.argv[3])
 dtb_dir = out_dir + "/fdts/"
 print(dtb_dir)
 

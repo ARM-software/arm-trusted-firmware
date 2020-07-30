@@ -5,9 +5,9 @@
 
 MV_DDR_PATH		?=	drivers/marvell/mv_ddr
 
-MV_DDR_LIB		= 	$(CURDIR)/$(BUILD_PLAT)/ble/mv_ddr_lib.a
-LIBC_LIB		=	$(CURDIR)/$(BUILD_PLAT)/lib/libc.a
-BLE_LIBS		= 	$(MV_DDR_LIB) $(LIBC_LIB)
+MV_DDR_LIB		=	$(BUILD_PLAT)/ble/mv_ddr_lib.a
+LIBC_LIB		=	$(BUILD_PLAT)/lib/libc.a
+BLE_LIBS		=	$(MV_DDR_LIB) $(LIBC_LIB)
 PLAT_MARVELL		=	plat/marvell/armada
 
 BLE_SOURCES		+= 	$(BLE_PATH)/ble_main.c				\
@@ -29,4 +29,4 @@ BLE_LINKERFILE		:=	$(BLE_PATH)/ble.ld.S
 FORCE:
 
 $(MV_DDR_LIB): FORCE
-	@+make -C $(MV_DDR_PATH) --no-print-directory PLAT_INCLUDES="$(PLAT_INCLUDES)" PLATFORM=$(PLAT) ARCH=AARCH64 OBJ_DIR=$(CURDIR)/$(BUILD_PLAT)/ble
+	@+make -C $(MV_DDR_PATH) --no-print-directory PLAT_INCLUDES="$(PLAT_INCLUDES)" PLATFORM=$(PLAT) ARCH=AARCH64 OBJ_DIR=$(BUILD_PLAT)/ble
