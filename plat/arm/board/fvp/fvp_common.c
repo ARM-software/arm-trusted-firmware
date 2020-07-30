@@ -18,7 +18,10 @@
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
+
+#if SPM_MM
 #include <services/spm_mm_partition.h>
+#endif
 
 #include "fvp_private.h"
 

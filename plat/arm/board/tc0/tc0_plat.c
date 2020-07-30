@@ -15,7 +15,10 @@
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <drivers/arm/sbsa.h>
+
+#if SPM_MM
 #include <services/spm_mm_partition.h>
+#endif
 
 /*
  * Table of regions for different BL stages to map using the MMU.
