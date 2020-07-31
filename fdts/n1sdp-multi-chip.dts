@@ -53,6 +53,42 @@
 				    <0 1 20>,
 				    <1 1 10>;
 	};
+
+	smmu_slave_pcie: iommu@4004f400000 {
+		compatible = "arm,smmu-v3";
+		reg = <0x400 0x4f400000 0 0x40000>;
+		interrupts = <GIC_SPI 715 IRQ_TYPE_EDGE_RISING>,
+				<GIC_SPI 716 IRQ_TYPE_EDGE_RISING>,
+				<GIC_SPI 717 IRQ_TYPE_EDGE_RISING>;
+		interrupt-names = "eventq", "cmdq-sync", "gerror";
+		msi-parent = <&its2_slave 0>;
+		#iommu-cells = <1>;
+		dma-coherent;
+	};
+
+	pcie_slave_ctlr: pcie@40070000000 {
+		compatible = "arm,n1sdp-pcie";
+		device_type = "pci";
+		reg = <0x400 0x70000000 0 0x1200000>;
+		bus-range = <0 0xff>;
+		linux,pci-domain = <2>;
+		#address-cells = <3>;
+		#size-cells = <2>;
+		dma-coherent;
+		ranges = <0x01000000 0x00 0x00000000 0x400 0x75200000 0x00 0x00010000>,
+			 <0x02000000 0x00 0x71200000 0x400 0x71200000 0x00 0x04000000>,
+			 <0x42000000 0x09 0x00000000 0x409 0x00000000 0x20 0x00000000>;
+		#interrupt-cells = <1>;
+		interrupt-map-mask = <0 0 0 7>;
+		interrupt-map = <0 0 0 1 &gic 0 0 0 649 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 0 2 &gic 0 0 0 650 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 0 3 &gic 0 0 0 651 IRQ_TYPE_LEVEL_HIGH>,
+				<0 0 0 4 &gic 0 0 0 652 IRQ_TYPE_LEVEL_HIGH>;
+		msi-map = <0 &its_slave_pcie 0 0x10000>;
+		iommu-map = <0 &smmu_slave_pcie 0 0x10000>;
+		status = "okay";
+	};
+
 };
 
 &gic {
@@ -60,4 +96,18 @@
 	reg =   <0x0 0x30000000 0 0x10000>,	/* GICD */
 		<0x0 0x300c0000 0 0x80000>,	/* GICR */
 		<0x400 0x300c0000 0 0x80000>;	/* GICR */
+
+	its2_slave: its@40030060000 {
+		compatible = "arm,gic-v3-its";
+		msi-controller;
+		#msi-cells = <1>;
+		reg = <0x400 0x30060000 0x0 0x20000>;
+	};
+
+	its_slave_pcie: its@400300a0000 {
+		compatible = "arm,gic-v3-its";
+		msi-controller;
+		#msi-cells = <1>;
+		reg = <0x400 0x300a0000 0x0 0x20000>;
+	};
 };
