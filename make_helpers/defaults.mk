@@ -308,3 +308,6 @@ RAS_TRAP_LOWER_EL_ERR_ACCESS	:= 0
 
 # Build option to create cot descriptors using fconf
 COT_DESC_IN_DTB			:= 0
+
+# Build option to provide openssl directory path
+OPENSSL_DIR			:= /usr
