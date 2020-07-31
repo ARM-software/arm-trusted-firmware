@@ -51,11 +51,15 @@ extern const size_t cot_desc_size;
 extern unsigned int auth_img_flags[MAX_NUMBER_IDS];
 
 #if defined(SPD_spmd)
-#define DEFINE_SIP_SP_PKG(n) \
+
+#define DEFINE_SIP_SP_PKG(n)		DEFINE_SP_PKG(n, sip_sp_content_cert)
+#define DEFINE_PLAT_SP_PKG(n)		DEFINE_SP_PKG(n, plat_sp_content_cert)
+
+#define DEFINE_SP_PKG(n, cert) \
 	static const auth_img_desc_t sp_pkg##n = { \
 		.img_id = SP_PKG##n##_ID, \
 		.img_type = IMG_RAW, \
-		.parent = &sip_sp_content_cert, \
+		.parent = &cert, \
 		.img_auth_methods = (const auth_method_desc_t[AUTH_METHOD_NUM]) { \
 			[0] = { \
 				.type = AUTH_METHOD_HASH, \
@@ -66,6 +70,7 @@ extern unsigned int auth_img_flags[MAX_NUMBER_IDS];
 			} \
 		} \
 	}
+
 #endif
 
 #endif /* TRUSTED_BOARD_BOOT */
