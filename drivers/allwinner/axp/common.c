@@ -105,6 +105,25 @@ static bool should_enable_regulator(const void *fdt, int node)
 	return false;
 }
 
+static bool board_uses_usb0_host_mode(const void *fdt)
+{
+	int node, length;
+	const char *prop;
+
+	node = fdt_node_offset_by_compatible(fdt, -1,
+					     "allwinner,sun8i-a33-musb");
+	if (node < 0) {
+		return false;
+	}
+
+	prop = fdt_getprop(fdt, node, "dr_mode", &length);
+	if (!prop) {
+		return false;
+	}
+
+	return !strncmp(prop, "host", length);
+}
+
 void axp_setup_regulators(const void *fdt)
 {
 	int node;
@@ -121,7 +140,8 @@ void axp_setup_regulators(const void *fdt)
 	}
 
 	/* This applies to AXP803 only. */
-	if (fdt_getprop(fdt, node, "x-powers,drive-vbus-en", NULL)) {
+	if (fdt_getprop(fdt, node, "x-powers,drive-vbus-en", NULL) &&
+	    board_uses_usb0_host_mode(fdt)) {
 		axp_clrbits(0x8f, BIT(4));
 		axp_setbits(0x30, BIT(2));
 		INFO("PMIC: Enabling DRIVEVBUS\n");
