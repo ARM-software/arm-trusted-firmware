@@ -80,7 +80,6 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 			       u_register_t flags)
 {
 	u_register_t ret, read, x5 = x1;
-	uint32_t w2[2] = {0, 0};
 	int i;
 
 	debug("%s: got SMC (0x%x) x1 0x%lx, x2 0x%lx, x3 0x%lx\n",
@@ -165,8 +164,13 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 		ret = mvebu_ddr_phy_read(x1, (uint16_t *)&read);
 		SMC_RET2(handle, ret, read);
 	case MV_SIP_RNG_64:
-		ret = eip76_rng_get_random((uint8_t *)&w2, 4 * (x1 % 2 + 1));
-		SMC_RET3(handle, ret, w2[0], w2[1]);
+		if ((x1 % 2 + 1) > sizeof(read)/4) {
+			ERROR("%s: Maximum %ld random bytes per SMC call\n",
+			      __func__, sizeof(read));
+			SMC_RET1(handle, SMC_UNK);
+		}
+		ret = eip76_rng_get_random((uint8_t *)&read, 4 * (x1 % 2 + 1));
+		SMC_RET2(handle, ret, read);
 	default:
 		ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
 		SMC_RET1(handle, SMC_UNK);
