@@ -12,6 +12,7 @@
 #include <drivers/arm/gicv3.h>
 #include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
+#include <lib/extensions/spe.h>
 #include <libfdt.h>
 
 #include "fpga_private.h"
@@ -221,6 +222,16 @@ static void fpga_prepare_dtb(void)
 			if (err < 0) {
 				ERROR("Error %d fixing up GIC DT node\n", err);
 			}
+		}
+	}
+
+	/* Check whether we support the SPE PMU. Remove the DT node if not. */
+	if (!spe_supported()) {
+		int node = fdt_node_offset_by_compatible(fdt, 0,
+				     "arm,statistical-profiling-extension-v1");
+
+		if (node >= 0) {
+			fdt_del_node(fdt, node);
 		}
 	}
 
