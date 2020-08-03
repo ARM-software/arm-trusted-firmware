@@ -152,7 +152,8 @@ void dram_info_init(unsigned long dram_timing_base)
 		DDRC_ACTIVE_TWO_RANK : DDRC_ACTIVE_ONE_RANK;
 
 	/* Get current fsp info */
-	current_fsp = mmio_read_32(DDRC_DFIMISC(0)) & 0xf;
+	current_fsp = mmio_read_32(DDRC_DFIMISC(0));
+	current_fsp = (current_fsp >> 8) & 0xf;
 	dram_info.boot_fsp = current_fsp;
 	dram_info.current_fsp = current_fsp;
 
