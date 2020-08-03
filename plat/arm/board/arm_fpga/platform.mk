@@ -100,4 +100,6 @@ BL31_SOURCES		+=	common/fdt_wrappers.c				\
 				${FPGA_CPU_LIBS}				\
 				${FPGA_GIC_SOURCES}
 
+$(eval $(call MAKE_S,$(BUILD_PLAT),plat/arm/board/arm_fpga/rom_trampoline.S,31))
+
 all: bl31
