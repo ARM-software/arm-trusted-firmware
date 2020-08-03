@@ -12,6 +12,7 @@
 
 #define C_RUNTIME_READY_KEY	(0xaa55aa55)
 #define VALID_MPID		(1U)
+#define FPGA_MAX_DTB_SIZE	0x10000
 
 #ifndef __ASSEMBLER__
 
