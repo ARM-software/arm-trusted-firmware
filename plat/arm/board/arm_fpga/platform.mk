@@ -81,6 +81,8 @@ FPGA_GIC_SOURCES	:=	${GICV3_SOURCES}			\
 				plat/common/plat_gicv3.c		\
 				plat/arm/board/arm_fpga/fpga_gicv3.c
 
+FDT_SOURCES		:=	fdts/arm_fpga.dts
+
 PLAT_INCLUDES		:=	-Iplat/arm/board/arm_fpga/include
 
 PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/arm_fpga/${ARCH}/fpga_helpers.S

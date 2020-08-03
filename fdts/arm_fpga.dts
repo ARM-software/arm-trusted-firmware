@@ -1,0 +1,102 @@
+// SPDX-License-Identifier: (GPL-2.0 or BSD-3-Clause)
+/*
+ * Copyright (c) 2020, Arm Limited. All rights reserved.
+ *
+ * Devicetree for the Arm Ltd. FPGA platform
+ * Number and kind of CPU cores differs from image to image, so the
+ * topology is auto-detected by BL31, and the /cpus node is created and
+ * populated accordingly at runtime.
+ */
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+
+/dts-v1/;
+
+/ {
+	model = "ARM FPGA";
+	compatible = "arm,fpga", "arm,vexpress";
+	interrupt-parent = <&gic>;
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	aliases {
+		serial0 = &dbg_uart;
+	};
+
+	chosen {
+		stdout-path = "serial0:38400n8";
+		bootargs = "console=ttyAMA0,38400n8 earlycon";
+		/* Allow to upload a generous 100MB initrd payload. */
+		linux,initrd-start = <0x0 0x84000000>;
+		linux,initrd-end = <0x0 0x85400000>;
+	};
+
+	/* /cpus node will be added by BL31 at runtime. */
+
+	psci {
+		compatible = "arm,psci-0.2";
+		method = "smc";
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		clock-frequency = <10000000>;
+		interrupts = <GIC_PPI 13 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_PPI 14 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_PPI 11 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_PPI 10 IRQ_TYPE_LEVEL_LOW>;
+	};
+
+	pmu {
+		compatible = "arm,armv8-pmuv3";
+		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	/* This node will be removed at runtime on cores without SPE. */
+	spe-pmu {
+		compatible = "arm,statistical-profiling-extension-v1";
+		interrupts = <GIC_PPI 5 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x0 0x80000000 0x0 0x80000000>,
+		      <0x8 0x80000000 0x1 0x80000000>;
+	};
+
+
+	bus_refclk: refclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+		clock-output-names = "apb_pclk";
+	};
+
+	uartclk: baudclock {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <10000000>;
+		clock-output-names = "uartclk";
+	};
+
+	dbg_uart: serial@7ff80000 {
+		compatible = "arm,pl011", "arm,primecell";
+		reg = <0x0 0x7ff80000 0x0 0x00001000>;
+		interrupts = <GIC_SPI 115 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&uartclk>, <&bus_refclk>;
+		clock-names = "uartclk", "apb_pclk";
+	};
+
+	gic: interrupt-controller@30000000 {
+		compatible = "arm,gic-v3";
+		#address-cells = <2>;
+		#interrupt-cells = <3>;
+		#size-cells = <2>;
+		ranges;
+		interrupt-controller;
+		reg = <0x0 0x30000000 0x0 0x00010000>,	/* GICD */
+	/* The GICR size will be adjusted at runtime to match the cores. */
+		      <0x0 0x30040000 0x0 0x00020000>;	/* GICR for one core */
+		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
+	};
+};
