@@ -27,9 +27,9 @@ You can see a `summary of all the lists`_ on the TrustedFirmware.org website.
 Issue Tracker
 ^^^^^^^^^^^^^
 
-Specific issues may be raised using the `issue tracker`_ on the
-TrustedFirmware.org website. Using this tracker makes it easy for the
-maintainers to prioritise and respond to your ticket.
+Bug reports may be filed on the `issue tracker`_ on the TrustedFirmware.org
+website. Using this tracker gives everyone visibility of the known issues in
+TF-A.
 
 Arm Licensees
 ^^^^^^^^^^^^^
@@ -44,4 +44,4 @@ via their partner managers.
 
 --------------
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*

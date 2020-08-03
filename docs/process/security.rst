@@ -21,12 +21,12 @@ Although we try to keep TF-A secure, we can only do so with the help of the
 community of developers and security researchers.
 
 If you think you have found a security vulnerability, please **do not** report
-it in the `issue tracker`_. Instead, please follow the `TrustedFirmware.org
-security incident process`_. One of the goals of this process is to ensure
-providers of products that use TF-A have a chance to consider the implications
-of the vulnerability and its remedy before it is made public. As such, please
-follow the disclosure plan outlined in the process. We do our best to respond
-and fix any issues quickly.
+it in the `issue tracker`_ or on the `mailing list`_. Instead, please follow the
+`TrustedFirmware.org security incident process`_. One of the goals of this
+process is to ensure providers of products that use TF-A have a chance to
+consider the implications of the vulnerability and its remedy before it is made
+public. As such, please follow the disclosure plan outlined in the process. We
+do our best to respond and fix any issues quickly.
 
 Afterwards, we encourage you to write-up your findings about the TF-A source
 code.
@@ -69,6 +69,7 @@ Security Advisories
 +-----------+------------------------------------------------------------------+
 
 .. _issue tracker: https://developer.trustedfirmware.org/project/board/1/
+.. _mailing list: https://lists.trustedfirmware.org/mailman/listinfo/tf-a
 
 .. |TFV-1| replace:: :ref:`Advisory TFV-1 (CVE-2016-10319)`
 .. |TFV-2| replace:: :ref:`Advisory TFV-2 (CVE-2017-7564)`
