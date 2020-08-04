@@ -957,6 +957,8 @@ Function ID call type and OEN onto a specific service handler in the
 
 |Image 1|
 
+.. _handling-an-smc:
+
 Handling an SMC
 ~~~~~~~~~~~~~~~
 
@@ -1299,6 +1301,8 @@ invocations of the reset handling code, this should be detected at runtime.
 In other words, the reset handler should be able to detect whether an action has
 already been performed and act as appropriate. Possible courses of actions are,
 e.g. skip the action the second time, or undo/redo it.
+
+.. _configuring-secure-interrupts:
 
 Configuring secure interrupts
 -----------------------------

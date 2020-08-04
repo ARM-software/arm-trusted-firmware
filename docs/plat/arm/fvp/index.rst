@@ -635,7 +635,7 @@ boot Linux with 4 CPUs using the AArch32 build of TF-A.
 
 *Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
 
-.. _TB_FW_CONFIG for FVP: ../plat/arm/board/fvp/fdts/fvp_tb_fw_config.dts
+.. _TB_FW_CONFIG for FVP: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/plat/arm/board/fvp/fdts/fvp_tb_fw_config.dts
 .. _Arm's website: `FVP models`_
 .. _FVP models: https://developer.arm.com/products/system-design/fixed-virtual-platforms
 .. _Linaro Release 19.06: http://releases.linaro.org/members/arm/platforms/19.06

@@ -205,6 +205,8 @@ will only allow SDEI calls to be made from:
 
 See the function ``sdei_client_el()`` in ``sdei_private.h``.
 
+.. _explicit-dispatch-of-events:
+
 Explicit dispatch of events
 ---------------------------
 

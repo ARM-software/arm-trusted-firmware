@@ -286,6 +286,8 @@ inserts to order memory updates before updating mask, then writes to the GIC
 *Priority Mask Register*, and make sure memory updates are visible before
 potential trigger due to mask update.
 
+.. _plat_ic_get_interrupt_id:
+
 Function: unsigned int plat_ic_get_interrupt_id(unsigned int raw); [optional]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

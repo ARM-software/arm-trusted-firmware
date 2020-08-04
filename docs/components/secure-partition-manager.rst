@@ -833,9 +833,7 @@ References
 
 .. _[2]:
 
-[2] `Secure Partition Manager using MM interface`__
-
-.. __: secure-partition-manager-mm.html
+[2] :ref:`Secure Partition Manager using MM interface<Secure Partition Manager (MM)>`
 
 .. _[3]:
 

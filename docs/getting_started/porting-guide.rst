@@ -2482,9 +2482,7 @@ FVP can be configured to use either GICv2 or GICv3 depending on the build flag
 ``FVP_USE_GIC_DRIVER`` (See :ref:`build_options_arm_fvp_platform` for more
 details).
 
-See also: `Interrupt Controller Abstraction APIs`__.
-
-.. __: ../design/platform-interrupt-controller-API.rst
+See also: :ref:`Interrupt Controller Abstraction APIs<Platform Interrupt Controller API>`.
 
 Function : plat_interrupt_type_to_line() [mandatory]
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -2609,9 +2607,7 @@ This API is used by the CPU to indicate to the platform IC that processing of
 the highest pending interrupt has begun. It should return the raw, unmodified
 value obtained from the interrupt controller when acknowledging an interrupt.
 The actual interrupt number shall be extracted from this raw value using the API
-`plat_ic_get_interrupt_id()`__.
-
-.. __: ../design/platform-interrupt-controller-API.rst#function-unsigned-int-plat-ic-get-interrupt-id-unsigned-int-raw-optional
+`plat_ic_get_interrupt_id()<plat_ic_get_interrupt_id>`.
 
 This function in Arm standard platforms using GICv2, reads the *Interrupt
 Acknowledge Register* (``GICC_IAR``). This changes the state of the highest
