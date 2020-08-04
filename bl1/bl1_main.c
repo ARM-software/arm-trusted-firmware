@@ -24,11 +24,6 @@
 
 #include "bl1_private.h"
 
-/* BL1 Service UUID */
-DEFINE_SVC_UUID2(bl1_svc_uid,
-	U(0xd46739fd), 0xcb72, 0x9a4d, 0xb5, 0x75,
-	0x67, 0x15, 0xd6, 0xf4, 0xbb, 0x4a);
-
 static void bl1_load_bl2(void);
 
 #if ENABLE_PAUTH
@@ -234,6 +229,11 @@ u_register_t bl1_smc_handler(unsigned int smc_fid,
 	void *handle,
 	unsigned int flags)
 {
+	/* BL1 Service UUID */
+	DEFINE_SVC_UUID2(bl1_svc_uid,
+		U(0xd46739fd), 0xcb72, 0x9a4d, 0xb5, 0x75,
+		0x67, 0x15, 0xd6, 0xf4, 0xbb, 0x4a);
+
 
 #if TRUSTED_BOARD_BOOT
 	/*
