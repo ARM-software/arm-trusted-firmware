@@ -75,6 +75,12 @@
 
 	secure-partitions {
 		compatible = "arm,sp";
+#ifdef OPTEE_SP_FW_CONFIG
+		op-tee {
+			uuid = <0xe0786148 0xe311f8e7 0x02005ebc 0x1bc5d5a5>;
+			load-address = <0x6280000>;
+		};
+#else
 		cactus-primary {
 			uuid = <0x1e67b5b4 0xe14f904a 0x13fb1fb8 0xcbdae1da>;
 			load-address = <0x7000000>;
@@ -84,6 +90,7 @@
 			uuid = <0x092358d1 0xb94723f0 0x64447c82 0xc88f57f5>;
 			load-address = <0x7100000>;
 		};
+#endif
 	};
 
 #if COT_DESC_IN_DTB

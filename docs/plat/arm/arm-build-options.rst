@@ -91,6 +91,9 @@ Arm Platform Build Options
    platforms. If this option is specified, then the path to the CryptoCell
    SBROM library must be specified via ``CCSBROM_LIB_PATH`` flag.
 
+-  ``ARM_SPMC_MANIFEST_DTS`` : path to an alternate manifest file used as the
+   SPMC Core manifest. Valid when ``SPD=spmd`` is selected.
+
 For a better understanding of these options, the Arm development platform memory
 map is explained in the :ref:`Firmware Design`.
 

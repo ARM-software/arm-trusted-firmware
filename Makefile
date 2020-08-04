@@ -484,6 +484,10 @@ ifneq (${SPD},none)
                 $(error SPMD with SPM at S-EL2 requires CTX_INCLUDE_EL2_REGS option)
             endif
         endif
+
+        ifeq ($(findstring optee_sp,$(ARM_SPMC_MANIFEST_DTS)),optee_sp)
+            DTC_CPPFLAGS	+=	-DOPTEE_SP_FW_CONFIG
+        endif
     else
         # All other SPDs in spd directory
         SPD_DIR := spd
