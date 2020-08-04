@@ -13,15 +13,17 @@
 #include <drivers/arm/sp804_delay_timer.h>
 #include <drivers/generic_delay_timer.h>
 #include <lib/mmio.h>
+#include <lib/smccc.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
-#include <plat/arm/common/arm_config.h>
-#include <plat/arm/common/plat_arm.h>
-#include <plat/common/platform.h>
 #include <platform_def.h>
-
+#include <services/arm_arch_svc.h>
 #if SPM_MM
 #include <services/spm_mm_partition.h>
 #endif
+
+#include <plat/arm/common/arm_config.h>
+#include <plat/arm/common/plat_arm.h>
+#include <plat/common/platform.h>
 
 #include "fvp_private.h"
 
@@ -436,4 +438,41 @@ void fvp_timer_init(void)
 	mmio_write_32(ARM_SYS_CNTCTL_BASE + CNTCR_OFF,
 			CNTCR_FCREQ(0U) | CNTCR_EN);
 #endif /* USE_SP804_TIMER */
+}
+
+/*****************************************************************************
+ * plat_is_smccc_feature_available() - This function checks whether SMCCC
+ *                                     feature is availabile for platform.
+ * @fid: SMCCC function id
+ *
+ * Return SMC_ARCH_CALL_SUCCESS if SMCCC feature is available and
+ * SMC_ARCH_CALL_NOT_SUPPORTED otherwise.
+ *****************************************************************************/
+int32_t plat_is_smccc_feature_available(u_register_t fid)
+{
+	switch (fid) {
+	case SMCCC_ARCH_SOC_ID:
+		return SMC_ARCH_CALL_SUCCESS;
+	default:
+		return SMC_ARCH_CALL_NOT_SUPPORTED;
+	}
+}
+
+/* Get SOC version */
+int32_t plat_get_soc_version(void)
+{
+	return (int32_t)
+		((ARM_SOC_IDENTIFICATION_CODE << ARM_SOC_IDENTIFICATION_SHIFT)
+		 | (ARM_SOC_CONTINUATION_CODE << ARM_SOC_CONTINUATION_SHIFT)
+		 | FVP_SOC_ID);
+}
+
+/* Get SOC revision */
+int32_t plat_get_soc_revision(void)
+{
+	unsigned int sys_id;
+
+	sys_id = mmio_read_32(V2M_SYSREGS_BASE + V2M_SYS_ID);
+	return (int32_t)((sys_id >> V2M_SYS_ID_REV_SHIFT) &
+			V2M_SYS_ID_REV_MASK);
 }
