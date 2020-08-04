@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,7 +15,10 @@
 #include <plat/common/platform.h>
 #include <drivers/arm/sbsa.h>
 #include <sgi_base_platform_def.h>
+
+#if SPM_MM
 #include <services/spm_mm_partition.h>
+#endif
 
 #define SGI_MAP_FLASH0_RO	MAP_REGION_FLAT(V2M_FLASH0_BASE,\
 						V2M_FLASH0_SIZE,	\
