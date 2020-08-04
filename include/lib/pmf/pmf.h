@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,13 +14,13 @@
 /*
  * Constants used for/by PMF services.
  */
-#define PMF_ARM_TIF_IMPL_ID	U(0x41)
+#define PMF_ARM_TIF_IMPL_ID	UL(0x41)
 #define PMF_TID_SHIFT		0
-#define PMF_TID_MASK		(U(0xFF) << PMF_TID_SHIFT)
+#define PMF_TID_MASK		(UL(0xFF) << PMF_TID_SHIFT)
 #define PMF_SVC_ID_SHIFT	10
-#define PMF_SVC_ID_MASK		(U(0x3F) << PMF_SVC_ID_SHIFT)
+#define PMF_SVC_ID_MASK		(UL(0x3F) << PMF_SVC_ID_SHIFT)
 #define PMF_IMPL_ID_SHIFT	24
-#define PMF_IMPL_ID_MASK	(U(0xFF) << PMF_IMPL_ID_SHIFT)
+#define PMF_IMPL_ID_MASK	(UL(0xFF) << PMF_IMPL_ID_SHIFT)
 
 /*
  * Flags passed to PMF_REGISTER_SERVICE

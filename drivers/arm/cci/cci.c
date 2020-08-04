@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,11 +52,11 @@ static bool validate_cci_map(const int *map)
 			return false;
 		}
 
-		if ((valid_cci_map & (1U << slave_if_id)) != 0U) {
+		if ((valid_cci_map & (1UL << slave_if_id)) != 0U) {
 			ERROR("Multiple masters are assigned same slave interface ID\n");
 			return false;
 		}
-		valid_cci_map |= 1U << slave_if_id;
+		valid_cci_map |= 1UL << slave_if_id;
 	}
 
 	if (valid_cci_map == 0U) {

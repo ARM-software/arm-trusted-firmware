@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -496,7 +496,7 @@ func fixup_gdt_reloc
 	/* Test if the limits are 4K aligned */
 #if ENABLE_ASSERTIONS
 	orr	x0, x0, x1
-	tst	x0, #(PAGE_SIZE - 1)
+	tst	x0, #(PAGE_SIZE_MASK)
 	ASM_ASSERT(eq)
 #endif
 	/*
@@ -504,7 +504,7 @@ func fixup_gdt_reloc
 	 * Assume that this function is called within a page at the start of
 	 * fixup region.
 	 */
-	and	x2, x30, #~(PAGE_SIZE - 1)
+	and	x2, x30, #~(PAGE_SIZE_MASK)
 	sub	x0, x2, x6	/* Diff(S) = Current Address - Compiled Address */
 
 	adrp	x1, __GOT_START__

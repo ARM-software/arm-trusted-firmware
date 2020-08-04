@@ -78,8 +78,8 @@
 #define SMC_64				U(1)
 #define SMC_32				U(0)
 
-#define SMC_TYPE_FAST			ULL(1)
-#define SMC_TYPE_YIELD			ULL(0)
+#define SMC_TYPE_FAST			UL(1)
+#define SMC_TYPE_YIELD			UL(0)
 
 #define SMC_OK				ULL(0)
 #define SMC_UNK				-1
@@ -112,7 +112,8 @@
 
 /* The macro below is used to identify a valid Fast SMC call */
 #define is_valid_fast_smc(_fid)		((!(((_fid) >> 16) & U(0xff))) && \
-					   (GET_SMC_TYPE(_fid) == SMC_TYPE_FAST))
+					   (GET_SMC_TYPE(_fid)		\
+					    == (uint32_t)SMC_TYPE_FAST))
 
 /*
  * Macro to define UUID for services. Apart from defining and initializing a

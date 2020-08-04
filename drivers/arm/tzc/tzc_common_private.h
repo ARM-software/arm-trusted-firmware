@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -30,13 +30,13 @@
 		mmio_write_32(base +					\
 			TZC_REGION_OFFSET(				\
 				TZC_##macro_name##_REGION_SIZE,		\
-				region_no) +				\
+				(u_register_t)region_no) +		\
 			TZC_##macro_name##_REGION_BASE_LOW_0_OFFSET,	\
 			(uint32_t)region_base);				\
 		mmio_write_32(base +					\
 			TZC_REGION_OFFSET(				\
 				TZC_##macro_name##_REGION_SIZE,		\
-				region_no) +				\
+				(u_register_t)region_no) +		\
 			TZC_##macro_name##_REGION_BASE_HIGH_0_OFFSET,	\
 			(uint32_t)(region_base >> 32));			\
 	}
@@ -48,15 +48,15 @@
 					unsigned long long region_top)	\
 	{								\
 		mmio_write_32(base +					\
-			TZC_REGION_OFFSET				\
-				(TZC_##macro_name##_REGION_SIZE,	\
-				region_no) +				\
+			TZC_REGION_OFFSET(				\
+				TZC_##macro_name##_REGION_SIZE,		\
+				(u_register_t)region_no) +		\
 			TZC_##macro_name##_REGION_TOP_LOW_0_OFFSET,	\
 			(uint32_t)region_top);				\
 		mmio_write_32(base +					\
 			TZC_REGION_OFFSET(				\
 				TZC_##macro_name##_REGION_SIZE,		\
-				region_no) +				\
+				(u_register_t)region_no) +		\
 			TZC_##macro_name##_REGION_TOP_HIGH_0_OFFSET,	\
 			(uint32_t)(region_top >> 32));			\
 	}
@@ -70,7 +70,7 @@
 		mmio_write_32(base +					\
 			TZC_REGION_OFFSET(				\
 				TZC_##macro_name##_REGION_SIZE,		\
-				region_no) +				\
+				(u_register_t)region_no) +		\
 			TZC_##macro_name##_REGION_ATTR_0_OFFSET,	\
 			attr);						\
 	}
@@ -84,7 +84,7 @@
 		mmio_write_32(base +					\
 			TZC_REGION_OFFSET(				\
 				TZC_##macro_name##_REGION_SIZE,		\
-				region_no) +				\
+				(u_register_t)region_no) +		\
 			TZC_##macro_name##_REGION_ID_ACCESS_0_OFFSET,	\
 			val);						\
 	}

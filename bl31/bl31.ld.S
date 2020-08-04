@@ -37,7 +37,7 @@ SECTIONS
     .text . : {
         __TEXT_START__ = .;
         *bl31_entrypoint.o(.text*)
-        *(SORT_BY_ALIGNMENT(.text*))
+        *(SORT_BY_ALIGNMENT(SORT(.text*)))
         *(.vectors)
         . = ALIGN(PAGE_SIZE);
         __TEXT_END__ = .;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -74,8 +74,8 @@
  * 64KB. However, only 4KB are supported at the moment.
  */
 #define PAGE_SIZE_SHIFT		FOUR_KB_SHIFT
-#define PAGE_SIZE		(U(1) << PAGE_SIZE_SHIFT)
-#define PAGE_SIZE_MASK		(PAGE_SIZE - U(1))
+#define PAGE_SIZE		(UL(1) << PAGE_SIZE_SHIFT)
+#define PAGE_SIZE_MASK		(PAGE_SIZE - UL(1))
 #define IS_PAGE_ALIGNED(addr)	(((addr) & PAGE_SIZE_MASK) == U(0))
 
 #if (ARM_ARCH_MAJOR == 7) && !ARMV7_SUPPORTS_LARGE_PAGE_ADDRESSING

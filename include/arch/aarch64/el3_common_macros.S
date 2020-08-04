@@ -305,7 +305,7 @@
 		 */
 	pie_fixup:
 		ldr	x0, =pie_fixup
-		and	x0, x0, #~(PAGE_SIZE - 1)
+		and	x0, x0, #~(PAGE_SIZE_MASK)
 		mov_imm	x1, \_pie_fixup_size
 		add	x1, x1, x0
 		bl	fixup_gdt_reloc

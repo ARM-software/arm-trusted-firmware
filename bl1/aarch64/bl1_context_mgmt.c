@@ -78,8 +78,8 @@ void bl1_prepare_next_image(unsigned int image_id)
 		mode = MODE_EL2;
 	}
 
-	next_bl_ep->spsr = (uint32_t)SPSR_64(mode, MODE_SP_ELX,
-		DISABLE_ALL_EXCEPTIONS);
+	next_bl_ep->spsr = (uint32_t)SPSR_64((uint64_t) mode,
+		(uint64_t)MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
 
 	/* Allow platform to make change */
 	bl1_plat_set_ep_info(image_id, next_bl_ep);
