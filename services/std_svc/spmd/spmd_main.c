@@ -11,6 +11,7 @@
 #include <arch_helpers.h>
 #include <arch/aarch64/arch_features.h>
 #include <bl31/bl31.h>
+#include <bl31/interrupt_mgmt.h>
 #include <common/debug.h>
 #include <common/runtime_svc.h>
 #include <lib/el3_runtime/context_mgmt.h>
@@ -168,13 +169,69 @@ static int32_t spmd_init(void)
 }
 
 /*******************************************************************************
+ * spmd_secure_interrupt_handler
+ * Enter the SPMC for further handling of the secure interrupt by the SPMC
+ * itself or a Secure Partition.
+ ******************************************************************************/
+static uint64_t spmd_secure_interrupt_handler(uint32_t id,
+					      uint32_t flags,
+					      void *handle,
+					      void *cookie)
+{
+	spmd_spm_core_context_t *ctx = spmd_get_context();
+	gp_regs_t *gpregs = get_gpregs_ctx(&ctx->cpu_ctx);
+	unsigned int linear_id = plat_my_core_pos();
+	int64_t rc;
+
+	/* Sanity check the security state when the exception was generated */
+	assert(get_interrupt_src_ss(flags) == NON_SECURE);
+
+	/* Sanity check the pointer to this cpu's context */
+	assert(handle == cm_get_context(NON_SECURE));
+
+	/* Save the non-secure context before entering SPMC */
+	cm_el1_sysregs_context_save(NON_SECURE);
+#if SPMD_SPM_AT_SEL2
+	cm_el2_sysregs_context_save(NON_SECURE);
+#endif
+
+	/* Convey the event to the SPMC through the FFA_INTERRUPT interface. */
+	write_ctx_reg(gpregs, CTX_GPREG_X0, FFA_INTERRUPT);
+	write_ctx_reg(gpregs, CTX_GPREG_X1, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X2, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X3, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X4, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X5, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X6, 0);
+	write_ctx_reg(gpregs, CTX_GPREG_X7, 0);
+
+	/* Mark current core as handling a secure interrupt. */
+	ctx->secure_interrupt_ongoing = true;
+
+	rc = spmd_spm_core_sync_entry(ctx);
+	if (rc != 0ULL) {
+		ERROR("%s failed (%llu) on CPU%u\n", __func__, rc, linear_id);
+	}
+
+	ctx->secure_interrupt_ongoing = false;
+
+	cm_el1_sysregs_context_restore(NON_SECURE);
+#if SPMD_SPM_AT_SEL2
+	cm_el2_sysregs_context_restore(NON_SECURE);
+#endif
+	cm_set_next_eret_context(NON_SECURE);
+
+	SMC_RET0(&ctx->cpu_ctx);
+}
+
+/*******************************************************************************
  * Loads SPMC manifest and inits SPMC.
  ******************************************************************************/
 static int spmd_spmc_init(void *pm_addr)
 {
 	cpu_context_t *cpu_ctx;
 	unsigned int core_id;
-	uint32_t ep_attr;
+	uint32_t ep_attr, flags;
 	int rc;
 
 	/* Load the SPM Core manifest */
@@ -289,6 +346,19 @@ static int spmd_spmc_init(void *pm_addr)
 	bl31_register_bl32_init(&spmd_init);
 
 	INFO("SPM Core setup done.\n");
+
+	/*
+	 * Register an interrupt handler routing secure interrupts to SPMD
+	 * while the NWd is running.
+	 */
+	flags = 0;
+	set_interrupt_rm_flag(flags, NON_SECURE);
+	rc = register_interrupt_type_handler(INTR_TYPE_S_EL1,
+					     spmd_secure_interrupt_handler,
+					     flags);
+	if (rc != 0) {
+		panic();
+	}
 
 	return 0;
 }
@@ -603,7 +673,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 	case FFA_MSG_SEND_DIRECT_RESP_SMC32:
 		if (secure_origin && spmd_is_spmc_message(x1)) {
-			spmd_spm_core_sync_exit(0);
+			spmd_spm_core_sync_exit(0ULL);
 		} else {
 			/* Forward direct message to the other world */
 			return spmd_smc_forward(smc_fid, secure_origin,
@@ -675,7 +745,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		 * SPM Core initialised successfully.
 		 */
 		if (secure_origin && (ctx->state == SPMC_STATE_ON_PENDING)) {
-			spmd_spm_core_sync_exit(0);
+			spmd_spm_core_sync_exit(0ULL);
 		}
 
 		/* Fall through to forward the call to the other world */
@@ -690,6 +760,14 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		return spmd_smc_forward(smc_fid, secure_origin,
 					x1, x2, x3, x4, handle);
 		break; /* not reached */
+
+	case FFA_NORMAL_WORLD_RESUME:
+		if (secure_origin && ctx->secure_interrupt_ongoing) {
+			spmd_spm_core_sync_exit(0ULL);
+		} else {
+			return spmd_ffa_error_return(handle, FFA_ERROR_DENIED);
+		}
+		break; /* Not reached */
 
 	default:
 		WARN("SPM: Unsupported call 0x%08x\n", smc_fid);

@@ -50,6 +50,7 @@ typedef struct spmd_spm_core_context {
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
 	spmc_state_t state;
+	bool secure_interrupt_ongoing;
 } spmd_spm_core_context_t;
 
 /*
