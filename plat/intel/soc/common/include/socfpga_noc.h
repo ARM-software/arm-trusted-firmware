@@ -90,5 +90,6 @@
 void enable_ns_peripheral_access(void);
 void enable_ns_bridge_access(void);
 void enable_ns_ocram_access(void);
+void enable_ocram_firewall(void);
 
 #endif

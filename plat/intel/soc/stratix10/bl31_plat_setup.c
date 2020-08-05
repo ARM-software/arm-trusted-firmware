@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,6 +17,7 @@
 #include <platform_def.h>
 
 #include "socfpga_mailbox.h"
+#include "socfpga_noc.h"
 #include "socfpga_private.h"
 #include "socfpga_reset_manager.h"
 #include "socfpga_system_manager.h"
@@ -122,6 +123,8 @@ void bl31_platform_setup(void)
 		(uint64_t)plat_secondary_cpus_bl31_entry);
 
 	mailbox_hps_stage_notify(HPS_EXECUTION_STATE_SSBL);
+
+	enable_ocram_firewall();
 }
 
 const mmap_region_t plat_stratix10_mmap[] = {
