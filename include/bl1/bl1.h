@@ -26,8 +26,8 @@
 /*
  * BL1 SMC version
  */
-#define BL1_SMC_MAJOR_VER		0x0
-#define BL1_SMC_MINOR_VER		0x1
+#define BL1_SMC_MAJOR_VER		UL(0x0)
+#define BL1_SMC_MINOR_VER		UL(0x1)
 
 /*
  * Defines for FWU SMC function ids.
