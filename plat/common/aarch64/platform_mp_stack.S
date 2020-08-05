@@ -59,7 +59,8 @@ func plat_get_my_stack
 	bic	x0, x0, #(CACHE_WRITEBACK_GRANULE - 1)
 	ret	x10
 #endif
-	.word	platform_normal_stacks
+	/* Prevent linker from removal of stack section */
+	.quad	platform_normal_stacks
 
 #else /* !(IMAGE_BL31 && RECLAIM_INIT_CODE) */
 	mov	x10, x30
