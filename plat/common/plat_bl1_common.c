@@ -83,8 +83,8 @@ int bl1_plat_mem_check(uintptr_t mem_base, unsigned int mem_size,
  */
 int bl1_plat_handle_post_image_load(unsigned int image_id)
 {
-	meminfo_t *bl2_tzram_layout;
-	meminfo_t *bl1_tzram_layout;
+	meminfo_t *bl2_secram_layout;
+	meminfo_t *bl1_secram_layout;
 	image_desc_t *image_desc;
 	entry_point_info_t *ep_info;
 
@@ -99,7 +99,7 @@ int bl1_plat_handle_post_image_load(unsigned int image_id)
 	ep_info = &image_desc->ep_info;
 
 	/* Find out how much free trusted ram remains after BL1 load */
-	bl1_tzram_layout = bl1_plat_sec_mem_layout();
+	bl1_secram_layout = bl1_plat_sec_mem_layout();
 
 	/*
 	 * Create a new layout of memory for BL2 as seen by BL1 i.e.
@@ -108,14 +108,14 @@ int bl1_plat_handle_post_image_load(unsigned int image_id)
 	 * to BL2. BL2 will read the memory layout before using its
 	 * memory for other purposes.
 	 */
-	bl2_tzram_layout = (meminfo_t *) bl1_tzram_layout->total_base;
+	bl2_secram_layout = (meminfo_t *) bl1_secram_layout->total_base;
 
-	bl1_calc_bl2_mem_layout(bl1_tzram_layout, bl2_tzram_layout);
+	bl1_calc_bl2_mem_layout(bl1_secram_layout, bl2_secram_layout);
 
-	ep_info->args.arg1 = (uintptr_t)bl2_tzram_layout;
+	ep_info->args.arg1 = (uintptr_t)bl2_secram_layout;
 
 	VERBOSE("BL1: BL2 memory layout address = %p\n",
-		(void *) bl2_tzram_layout);
+		(void *) bl2_secram_layout);
 	return 0;
 }
 

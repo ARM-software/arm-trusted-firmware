@@ -27,7 +27,7 @@
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 
 /* Base address of fw_config received from BL1 */
-static uintptr_t fw_config_base;
+static uintptr_t config_base;
 
 /*
  * Check that BL2_BASE is above ARM_FW_CONFIG_LIMIT. This reserved page is
@@ -66,7 +66,7 @@ void arm_bl2_early_platform_setup(uintptr_t fw_config,
 	/* Setup the BL2 memory layout */
 	bl2_tzram_layout = *mem_layout;
 
-	fw_config_base = fw_config;
+	config_base = fw_config;
 
 	/* Initialise the IO layer and register platform IO devices */
 	plat_arm_io_setup();
@@ -152,7 +152,7 @@ void bl2_plat_arch_setup(void)
 	arm_bl2_plat_arch_setup();
 
 	/* Fill the properties struct with the info from the config dtb */
-	fconf_populate("FW_CONFIG", fw_config_base);
+	fconf_populate("FW_CONFIG", config_base);
 
 	/* TB_FW_CONFIG was also loaded by BL1 */
 	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
