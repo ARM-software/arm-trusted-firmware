@@ -19,6 +19,7 @@ Platform Ports
    intel-stratix10
    marvell/index
    mt8183
+   mt8192
    nvidia-tegra
    warp7
    imx8
