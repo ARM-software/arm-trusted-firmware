@@ -96,6 +96,9 @@ static int32_t tegra_pwr_domain_on(u_register_t mpidr)
 static void tegra_pwr_domain_off(const psci_power_state_t *target_state)
 {
 	(void)tegra_soc_pwr_domain_off(target_state);
+
+	/* disable GICC */
+	tegra_gic_cpuif_deactivate();
 }
 
 /*******************************************************************************
