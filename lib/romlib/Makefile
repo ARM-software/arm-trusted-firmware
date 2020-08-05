@@ -10,14 +10,14 @@ LD          = $(CROSS_COMPILE)ld
 OC          = $(CROSS_COMPILE)objcopy
 CPP         = $(CROSS_COMPILE)cpp
 ROMLIB_GEN  = ./romlib_generator.py
-BUILD_DIR   = ../../$(BUILD_PLAT)/romlib
-LIB_DIR     = ../../$(BUILD_PLAT)/lib
-WRAPPER_DIR = ../../$(BUILD_PLAT)/libwrapper
+BUILD_DIR   = $(BUILD_PLAT)/romlib
+LIB_DIR     = $(BUILD_PLAT)/lib
+WRAPPER_DIR = $(BUILD_PLAT)/libwrapper
 LIBS        = -lmbedtls -lfdt -lc
 INC         = $(INCLUDES:-I%=-I../../%)
 PPFLAGS     = $(INC) $(DEFINES) -P -x assembler-with-cpp -D__LINKER__ -MD -MP -MT $(BUILD_DIR)/romlib.ld
 OBJS        = $(BUILD_DIR)/jmptbl.o $(BUILD_DIR)/init.o
-MAPFILE     = ../../$(BUILD_PLAT)/romlib/romlib.map
+MAPFILE     = $(BUILD_PLAT)/romlib/romlib.map
 
 ifneq ($(PLAT_DIR),)
   WRAPPER_SOURCES   = $(shell $(ROMLIB_GEN) genwrappers -b $(WRAPPER_DIR) --list ../../$(PLAT_DIR)/jmptbl.i)
