@@ -25,6 +25,8 @@ PLAT_BL_COMMON_SOURCES := ${GICV3_SOURCES}                              \
                           plat/common/plat_psci_common.c
 
 BL31_SOURCES    += common/desc_image_load.c                              \
+                   drivers/delay_timer/delay_timer.c                     \
+                   drivers/delay_timer/generic_delay_timer.c             \
                    drivers/ti/uart/aarch64/16550_console.S               \
                    drivers/gpio/gpio.c                                   \
                    lib/bl_aux_params/bl_aux_params.c                     \

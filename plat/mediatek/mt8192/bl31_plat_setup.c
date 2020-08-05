@@ -11,6 +11,7 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
+#include <drivers/generic_delay_timer.h>
 #include <drivers/ti/uart/uart_16550.h>
 #include <lib/coreboot.h>
 
@@ -88,6 +89,7 @@ void bl31_platform_setup(void)
 
 	plat_mt8192_gpio_init();
 	mt_systimer_init();
+	generic_delay_timer_init();
 }
 
 /*******************************************************************************
