@@ -171,12 +171,11 @@ int console_imx_uart_core_getc(uintptr_t base_addr)
  * Function to force a write of all buffered
  * data that hasn't been output.
  * In : r0 - console base address
- * Out : return -1 on error else return 0.
+ * Out : void
  * Clobber list : r0, r1
  * ---------------------------------------------
  */
-int console_imx_uart_core_flush(uintptr_t base_addr)
+void console_imx_uart_core_flush(uintptr_t base_addr)
 {
-	return 0;
 }
 

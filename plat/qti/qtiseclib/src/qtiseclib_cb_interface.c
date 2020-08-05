@@ -121,7 +121,7 @@ void qtiseclib_cb_udelay(uint32_t usec)
 	udelay(usec);
 }
 
-int qtiseclib_cb_console_flush(void)
+void qtiseclib_cb_console_flush(void)
 {
 	return console_flush();
 }

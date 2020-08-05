@@ -49,6 +49,6 @@ void arm_console_runtime_init(void)
 
 void arm_console_runtime_end(void)
 {
-	(void)console_flush();
+	console_flush();
 	(void)console_unregister(&fvp_runtime_console);
 }

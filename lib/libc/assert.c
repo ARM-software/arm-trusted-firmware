@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,7 +23,7 @@ void __dead2 __assert(const char *file, unsigned int line,
 {
 	printf("ASSERT: %s:%d:%s\n", file, line, assertion);
 	backtrace("assert");
-	(void)console_flush();
+	console_flush();
 	plat_panic_handler();
 }
 #elif PLAT_LOG_LEVEL_ASSERT >= LOG_LEVEL_INFO
@@ -31,14 +31,14 @@ void __dead2 __assert(const char *file, unsigned int line)
 {
 	printf("ASSERT: %s:%d\n", file, line);
 	backtrace("assert");
-	(void)console_flush();
+	console_flush();
 	plat_panic_handler();
 }
 #else
 void __dead2 __assert(void)
 {
 	backtrace("assert");
-	(void)console_flush();
+	console_flush();
 	plat_panic_handler();
 }
 #endif

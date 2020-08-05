@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -138,7 +138,7 @@ static __dead2 void tegra_pwr_domain_power_down_wfi(const psci_power_state_t
 	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] ==
 			PSTATE_ID_SOC_POWERDN) {
 		INFO("%s: complete. Entering System Suspend...\n", __func__);
-		(void)console_flush();
+		console_flush();
 		console_switch_state(0);
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -61,6 +61,5 @@ func uniphier_console_flush
 0:	ldr	w1, [x0, #UNIPHIER_UART_LSR]
 	tbz	w1, #UNIPHIER_UART_LSR_TEMT_BIT, 0b
 
-	mov	w0, #0
 	ret
 endfunc uniphier_console_flush

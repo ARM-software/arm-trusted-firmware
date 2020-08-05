@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -145,11 +145,11 @@ getc_error:
 endfunc console_xxx_getc
 
 	/* ---------------------------------------------
-	 * int console_xxx_flush(console_xxx_t *console)
+	 * void console_xxx_flush(console_xxx_t *console)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - pointer to console_xxx_t struct
-	 * Out: w0 - 0 on success, < 0 on error
+	 * Out: void
 	 * Clobber list : x0, x1, x2, x3, x4, x5
 	 * ---------------------------------------------
 	 */
@@ -166,11 +166,5 @@ func console_xxx_flush
 	 * all data has been flushed or there was an unrecoverable error.
 	 */
 
-	mov	w0, #0
-	ret
-
-	/* Jump here if an unrecoverable error has been encountered. */
-flush_error:
-	mov	w0, #-1
 	ret
 endfunc console_xxx_flush

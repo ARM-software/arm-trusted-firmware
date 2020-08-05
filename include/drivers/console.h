@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,7 +43,7 @@ typedef struct console {
 	u_register_t flags;
 	int (*const putc)(int character, struct console *console);
 	int (*const getc)(struct console *console);
-	int (*const flush)(struct console *console);
+	void (*const flush)(struct console *console);
 	uintptr_t base;
 	/* Additional private driver data may follow here. */
 } console_t;
@@ -76,7 +76,7 @@ int console_putc(int c);
 /* Read a character (blocking) from any console registered for current state. */
 int console_getc(void);
 /* Flush all consoles registered for the current state. */
-int console_flush(void);
+void console_flush(void);
 
 #endif /* __ASSEMBLER__ */
 

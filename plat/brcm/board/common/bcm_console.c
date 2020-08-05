@@ -39,7 +39,7 @@ void bcm_console_boot_init(void)
 
 void bcm_console_boot_end(void)
 {
-	(void)console_flush();
+	console_flush();
 
 	(void)console_unregister(&bcm_boot_console);
 }
@@ -59,7 +59,7 @@ void bcm_console_runtime_init(void)
 
 void bcm_console_runtime_end(void)
 {
-	(void)console_flush();
+	console_flush();
 
 	(void)console_unregister(&bcm_runtime_console);
 }

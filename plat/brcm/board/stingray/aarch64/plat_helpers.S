@@ -182,7 +182,7 @@ func plat_crash_console_putc
 endfunc plat_crash_console_putc
 
 	/* ---------------------------------------------
-	 * int plat_crash_console_flush(void)
+	 * void plat_crash_console_flush(void)
 	 * Function to flush crash console
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------

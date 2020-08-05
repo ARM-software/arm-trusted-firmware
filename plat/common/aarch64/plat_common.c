@@ -96,7 +96,7 @@ void plat_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 #if HANDLE_EA_EL3_FIRST
 	/* Skip backtrace for lower EL */
 	if (level != MODE_EL3) {
-		(void)console_flush();
+		console_flush();
 		do_panic();
 	}
 #endif
