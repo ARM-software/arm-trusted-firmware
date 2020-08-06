@@ -42,13 +42,6 @@
 #define IDLE_DATA_SOC2FPGA				BIT(4)
 #define IDLE_DATA_MASK		(IDLE_DATA_LWSOC2FPGA | IDLE_DATA_SOC2FPGA)
 
-#define SCR_AXI_AP_MASK					BIT(24)
-#define SCR_FPGA2SOC_MASK				BIT(16)
-#define SCR_MPU_MASK					BIT(0)
-#define DISABLE_L4_FIREWALL	(SCR_AXI_AP_MASK | SCR_FPGA2SOC_MASK \
-					| SCR_MPU_MASK)
-#define DISABLE_BRIDGE_FIREWALL				0x0ffe0101
-
 #define SYSMGR_ECC_OCRAM_MASK				BIT(1)
 #define SYSMGR_ECC_DDR0_MASK				BIT(16)
 #define SYSMGR_ECC_DDR1_MASK				BIT(17)
@@ -57,9 +50,5 @@
 
 #define SOCFPGA_SYSMGR(_reg)		(SOCFPGA_SYSMGR_REG_BASE \
 						+ (SOCFPGA_SYSMGR_##_reg))
-
-
-void enable_ns_peripheral_access(void);
-void enable_ns_bridge_access(void);
 
 #endif /* SOCFPGA_SYSTEMMANAGER_H */

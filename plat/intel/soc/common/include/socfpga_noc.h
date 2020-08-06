@@ -8,6 +8,13 @@
 #define SOCFPGA_NOC_H
 
 /* Macros */
+#define SCR_AXI_AP_MASK					BIT(24)
+#define SCR_FPGA2SOC_MASK				BIT(16)
+#define SCR_MPU_MASK					BIT(0)
+#define DISABLE_L4_FIREWALL		(SCR_AXI_AP_MASK | SCR_FPGA2SOC_MASK \
+						| SCR_MPU_MASK)
+#define DISABLE_BRIDGE_FIREWALL				0x0ffe0101
+
 #define SOCFPGA_CCU_NOC(_ctrl, _dev)	(SOCFPGA_CCU_NOC_REG_BASE \
 					+ (SOCFPGA_CCU_NOC_##_ctrl##_##_dev))
 
@@ -78,5 +85,10 @@
 #define SOCFPGA_CCU_NOC_ADMASK_P_MASK				BIT(0)
 #define SOCFPGA_CCU_NOC_ADMASK_NS_MASK				BIT(1)
 
-#endif
+/* Function Definitions */
 
+void enable_ns_peripheral_access(void);
+void enable_ns_bridge_access(void);
+void enable_ns_ocram_access(void);
+
+#endif
