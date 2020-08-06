@@ -97,7 +97,7 @@ __dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved)
 	/* Setup the watchdog to reset the system as soon as possible */
 	sp805_refresh(ARM_SP805_TWDG_BASE, 1U);
 
-	while (1)
+	while (true)
 		wfi();
 }
 

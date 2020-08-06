@@ -11,7 +11,7 @@
  */
 void __dead2 plat_arm_error_handler(int err)
 {
-	while (1) {
+	while (true) {
 		wfi();
 	}
 }

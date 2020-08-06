@@ -60,7 +60,7 @@ struct image_desc *bl1_plat_get_image_desc(unsigned int image_id)
 
 __dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved)
 {
-	while (1)
+	while (true)
 		wfi();
 }
 

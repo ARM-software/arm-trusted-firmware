@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,7 +11,7 @@
  */
 void __dead2 plat_arm_error_handler(int err)
 {
-	while (1) {
+	while (true) {
 		wfi();
 	}
 }
