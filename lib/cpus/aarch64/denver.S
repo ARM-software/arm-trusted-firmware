@@ -161,13 +161,19 @@ endfunc denver_disable_ext_debug
 	 * ----------------------------------------------------
 	 */
 func denver_enable_dco
+	/* DCO is not supported on PN5 and later */
+	mrs	x1, midr_el1
+	mov_imm	x2, DENVER_MIDR_PN4
+	cmp	x1, x2
+	b.hi	1f
+
 	mov	x18, x30
 	bl	plat_my_core_pos
 	mov	x1, #1
 	lsl	x1, x1, x0
 	msr	s3_0_c15_c0_2, x1
 	mov	x30, x18
-	ret
+1:	ret
 endfunc denver_enable_dco
 
 	/* ----------------------------------------------------
@@ -175,10 +181,14 @@ endfunc denver_enable_dco
 	 * ----------------------------------------------------
 	 */
 func denver_disable_dco
-
-	mov	x18, x30
+	/* DCO is not supported on PN5 and later */
+	mrs	x1, midr_el1
+	mov_imm	x2, DENVER_MIDR_PN4
+	cmp	x1, x2
+	b.hi	2f
 
 	/* turn off background work */
+	mov	x18, x30
 	bl	plat_my_core_pos
 	mov	x1, #1
 	lsl	x1, x1, x0
@@ -194,7 +204,7 @@ func denver_disable_dco
 	cbnz	x2, 1b
 
 	mov	x30, x18
-	ret
+2:	ret
 endfunc denver_disable_dco
 
 func check_errata_cve_2017_5715
