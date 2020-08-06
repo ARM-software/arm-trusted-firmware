@@ -126,7 +126,7 @@ The following TF-A build options are provisioned:
    restoring) the EL2 system register context before entering (resp.
    after leaving) the SPMC. It is mandatory when ``SPMD_SPM_AT_SEL2`` is
    enabled. The context save/restore routine and exhaustive list of
-   registers is visible at `[4] <#References>`__.
+   registers is visible at `[4]`_.
 -  **SP_LAYOUT_FILE**: this option provides a text description file
    providing paths to SP binary images and DTS format manifests
    (see `Specifying partition binary image and DT`_). It

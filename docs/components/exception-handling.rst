@@ -233,12 +233,11 @@ The text in `Partitioning priority levels`_ only describes how the platform
 expresses the required levels of priority. It however doesn't choose interrupts
 nor program the required priority in GIC.
 
-The `Firmware Design guide`__ explains methods for configuring secure
-interrupts. |EHF| requires the platform to enumerate interrupt properties (as
-opposed to just numbers) of Secure interrupts. The priority of secure interrupts
-must match that as determined in the `Partitioning priority levels`_ section above.
-
-.. __: firmware-design.rst#configuring-secure-interrupts
+The :ref:`Firmware Design guide<configuring-secure-interrupts>` explains methods
+for configuring secure interrupts. |EHF| requires the platform to enumerate
+interrupt properties (as opposed to just numbers) of Secure interrupts. The
+priority of secure interrupts must match that as determined in the
+`Partitioning priority levels`_ section above.
 
 See `Limitations`_, and also refer to `Interrupt handling example`_ for
 illustration.
