@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,8 +14,7 @@
 #define SEMIHOSTING_SUPPORTED  1
 #endif
 
-long semihosting_call(unsigned long operation,
-			uintptr_t system_block_address);
+long semihosting_call(unsigned long operation, uintptr_t system_block_address);
 
 typedef struct {
 	const char *file_name;
@@ -52,8 +51,7 @@ long semihosting_file_open(const char *file_name, size_t mode)
 	open_block.mode = mode;
 	open_block.name_length = strlen(file_name);
 
-	return semihosting_call(SEMIHOSTING_SYS_OPEN,
-				(uintptr_t) &open_block);
+	return semihosting_call(SEMIHOSTING_SYS_OPEN, (uintptr_t)&open_block);
 }
 
 long semihosting_file_seek(long file_handle, ssize_t offset)
@@ -64,11 +62,11 @@ long semihosting_file_seek(long file_handle, ssize_t offset)
 	seek_block.handle = file_handle;
 	seek_block.location = offset;
 
-	result = semihosting_call(SEMIHOSTING_SYS_SEEK,
-				  (uintptr_t) &seek_block);
+	result = semihosting_call(SEMIHOSTING_SYS_SEEK, (uintptr_t)&seek_block);
 
-	if (result)
+	if (result != 0) {
 		result = semihosting_call(SEMIHOSTING_SYS_ERRNO, 0);
+	}
 
 	return result;
 }
@@ -78,41 +76,42 @@ long semihosting_file_read(long file_handle, size_t *length, uintptr_t buffer)
 	smh_file_read_write_block_t read_block;
 	long result = -EINVAL;
 
-	if ((length == NULL) || (buffer == (uintptr_t)NULL))
+	if ((length == NULL) || (buffer == (uintptr_t)NULL)) {
 		return result;
+	}
 
 	read_block.handle = file_handle;
 	read_block.buffer = buffer;
 	read_block.length = *length;
 
-	result = semihosting_call(SEMIHOSTING_SYS_READ,
-				  (uintptr_t) &read_block);
+	result = semihosting_call(SEMIHOSTING_SYS_READ, (uintptr_t)&read_block);
 
 	if (result == *length) {
 		return -EINVAL;
 	} else if (result < *length) {
 		*length -= result;
 		return 0;
-	} else
+	} else {
 		return result;
+	}
 }
 
-long semihosting_file_write(long file_handle,
-			    size_t *length,
-			    const uintptr_t buffer)
+long semihosting_file_write(long file_handle, size_t *length,
+				const uintptr_t buffer)
 {
 	smh_file_read_write_block_t write_block;
 	long result = -EINVAL;
 
-	if ((length == NULL) || (buffer == (uintptr_t)NULL))
+	if ((length == NULL) || (buffer == (uintptr_t)NULL)) {
 		return -EINVAL;
+	}
 
 	write_block.handle = file_handle;
 	write_block.buffer = (uintptr_t)buffer; /* cast away const */
 	write_block.length = *length;
 
 	result = semihosting_call(SEMIHOSTING_SYS_WRITE,
-				   (uintptr_t) &write_block);
+		(uintptr_t)&write_block);
 
 	*length = result;
 
@@ -121,14 +120,12 @@ long semihosting_file_write(long file_handle,
 
 long semihosting_file_close(long file_handle)
 {
-	return semihosting_call(SEMIHOSTING_SYS_CLOSE,
-				(uintptr_t) &file_handle);
+	return semihosting_call(SEMIHOSTING_SYS_CLOSE, (uintptr_t)&file_handle);
 }
 
 long semihosting_file_length(long file_handle)
 {
-	return semihosting_call(SEMIHOSTING_SYS_FLEN,
-				(uintptr_t) &file_handle);
+	return semihosting_call(SEMIHOSTING_SYS_FLEN, (uintptr_t)&file_handle);
 }
 
 char semihosting_read_char(void)
@@ -138,12 +135,12 @@ char semihosting_read_char(void)
 
 void semihosting_write_char(char character)
 {
-	semihosting_call(SEMIHOSTING_SYS_WRITEC, (uintptr_t) &character);
+	semihosting_call(SEMIHOSTING_SYS_WRITEC, (uintptr_t)&character);
 }
 
 void semihosting_write_string(char *string)
 {
-	semihosting_call(SEMIHOSTING_SYS_WRITE0, (uintptr_t) string);
+	semihosting_call(SEMIHOSTING_SYS_WRITE0, (uintptr_t)string);
 }
 
 long semihosting_system(char *command_line)
@@ -154,7 +151,7 @@ long semihosting_system(char *command_line)
 	system_block.command_length = strlen(command_line);
 
 	return semihosting_call(SEMIHOSTING_SYS_SYSTEM,
-				(uintptr_t) &system_block);
+		(uintptr_t)&system_block);
 }
 
 long semihosting_get_flen(const char *file_name)
@@ -162,16 +159,17 @@ long semihosting_get_flen(const char *file_name)
 	long file_handle;
 	long length;
 
-	assert(semihosting_connection_supported());
+	assert(semihosting_connection_supported() != 0);
 
 	file_handle = semihosting_file_open(file_name, FOPEN_MODE_RB);
-	if (file_handle == -1)
+	if (file_handle == -1) {
 		return file_handle;
+	}
 
 	/* Find the length of the file */
 	length = semihosting_file_length(file_handle);
 
-	return semihosting_file_close(file_handle) ? -1 : length;
+	return (semihosting_file_close(file_handle) != 0) ? -1 : length;
 }
 
 long semihosting_download_file(const char *file_name,
@@ -183,23 +181,27 @@ long semihosting_download_file(const char *file_name,
 	long file_handle;
 
 	/* Null pointer check */
-	if (!buf)
+	if (buf == 0U) {
 		return ret;
+	}
 
-	assert(semihosting_connection_supported());
+	assert(semihosting_connection_supported() != 0);
 
 	file_handle = semihosting_file_open(file_name, FOPEN_MODE_RB);
-	if (file_handle == -1)
+	if (file_handle == -1) {
 		return ret;
+	}
 
 	/* Find the actual length of the file */
 	length = semihosting_file_length(file_handle);
-	if (length == -1)
+	if (length == (size_t)(-1)) {
 		goto semihosting_fail;
+	}
 
 	/* Signal error if we do not have enough space for the file */
-	if (length > buf_size)
+	if (length > buf_size) {
 		goto semihosting_fail;
+	}
 
 	/*
 	 * A successful read will return 0 in which case we pass back
@@ -207,10 +209,11 @@ long semihosting_download_file(const char *file_name,
 	 * value indicating an error.
 	 */
 	ret = semihosting_file_read(file_handle, &length, buf);
-	if (ret)
+	if (ret != 0) {
 		goto semihosting_fail;
-	else
-		ret = length;
+	} else {
+		ret = (long)length;
+	}
 
 semihosting_fail:
 	semihosting_file_close(file_handle);
@@ -222,9 +225,9 @@ void semihosting_exit(uint32_t reason, uint32_t subcode)
 #ifdef __aarch64__
 	uint64_t parameters[] = {reason, subcode};
 
-	(void) semihosting_call(SEMIHOSTING_SYS_EXIT, (uintptr_t) &parameters);
+	(void)semihosting_call(SEMIHOSTING_SYS_EXIT, (uintptr_t)&parameters);
 #else
 	/* The subcode is not supported on AArch32. */
-	(void) semihosting_call(SEMIHOSTING_SYS_EXIT, reason);
+	(void)semihosting_call(SEMIHOSTING_SYS_EXIT, reason);
 #endif
 }
