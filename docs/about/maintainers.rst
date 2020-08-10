@@ -446,6 +446,15 @@ QEMU platform port
 :F: docs/plat/qemu.rst
 :F: plat/qemu/
 
+QTI platform port
+^^^^^^^^^^^^^^^^^
+:M: Saurabh Gorecha <sgorecha@codeaurora.org>
+:G: `sgorecha`_
+:M: Debasish Mandal <dmandal@codeaurora.org>
+:M: QTI TF Maintainers <qti.trustedfirmware.maintainers@codeaurora.org>
+:F: docs/plat/qti.rst
+:F: plat/qti/
+
 Raspberry Pi 3 platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Ying-Chun Liu (PaulLiu) <paul.liu@linaro.org>
@@ -614,6 +623,7 @@ Build system
 .. _remi-triplefault: https://github.com/repk
 .. _rockchip-linux: https://github.com/rockchip-linux
 .. _sandrine-bailleux-arm: https://github.com/sandrine-bailleux-arm
+.. _sgorecha: https://github.com/sgorecha
 .. _shawnguo2: https://github.com/shawnguo2
 .. _sivadur: https://github.com/sivadur
 .. _smaeul: https://github.com/smaeul

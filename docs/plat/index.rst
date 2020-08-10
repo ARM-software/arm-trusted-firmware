@@ -28,6 +28,7 @@ Platform Ports
    poplar
    qemu
    qemu-sbsa
+   qti
    rpi3
    rpi4
    rcar-gen3
