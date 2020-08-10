@@ -48,6 +48,7 @@ static struct mv_ddr_topology_map board_topology_map = {
 	   MV_DDR_TEMP_LOW} },		/* temperature */
 	   MV_DDR_64BIT_BUS_MASK,	/* subphys mask */
 	   MV_DDR_CFG_SPD,		/* ddr configuration data source */
+	NOT_COMBINED,			/* ddr twin-die combined*/
 	{ {0} },			/* raw spd data */
 	{0},				/* timing parameters */
 	{				/* electrical configuration */

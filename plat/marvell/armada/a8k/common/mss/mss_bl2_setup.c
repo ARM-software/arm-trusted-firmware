@@ -138,6 +138,8 @@ uint32_t bl2_plat_get_cp_count(int ap_idx)
 	if (revision == MVEBU_80X0_DEV_ID ||
 	    revision == MVEBU_80X0_CP115_DEV_ID)
 		return 2;
+	else if (revision == MVEBU_CN9130_DEV_ID)
+		return CP_COUNT;
 	else
 		return 1;
 }

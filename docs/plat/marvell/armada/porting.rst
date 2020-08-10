@@ -36,7 +36,7 @@ memory map is required.
 .. note::
    For a detailed information on how CCU, IOWIN, AXI-MBUS & IOB work, please
    refer to the SoC functional spec, and under
-   ``docs/marvell/misc/mvebu-[ccu/iob/amb/io-win].txt`` files.
+   ``docs/plat/marvell/armada/misc/mvebu-[ccu/iob/amb/io-win].rst`` files.
 
 boot loader recovery (marvell_plat_config.c)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -109,11 +109,6 @@ Comphy Porting (phy-porting-layer.h or phy-default-porting-layer.h)
     all relevant comphy parameters. The PHY porting layer specifies which
     parameters need to be suited and the board designer should provide relevant
     values.
-
-    .. seealso::
-        For XFI/SFI comphy type there is procedure "rx_training" which eases
-        process of suiting some of the parameters. Please see *uboot_cmd*
-        section: rx_training.
 
     The PHY porting layer simplifies updating static values per board type,
     which are now grouped in one place.
