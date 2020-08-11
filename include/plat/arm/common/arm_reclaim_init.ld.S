@@ -13,8 +13,6 @@ SECTIONS
             . = ALIGN(PAGE_SIZE);
             __INIT_CODE_START__ = .;
 	    *(*text.init*);
-            __INIT_CODE_UNALIGNED__ = .;
-            .  = ALIGN(PAGE_SIZE);
             __INIT_CODE_END__ = .;
         } >RAM
 
@@ -42,6 +40,7 @@ SECTIONS
 	/* Offset mask */						\
 	MASK = ABS(SIGN >> 63) - 1;					\
 	. +=  ABS(OFFSET) & ABS(MASK);					\
+	.  = ALIGN(PAGE_SIZE);						\
 	__STACKS_END__ = .;						\
 	/* Total stack size */						\
 	SIZE = ABS(. - __STACKS_START__);				\
