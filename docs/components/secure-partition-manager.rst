@@ -283,18 +283,25 @@ A description file (json format) is passed to the build flow specifying
 paths to the SP binary image and associated DTS partition manifest file.
 The latter is going through the dtc compiler to generate the dtb fed into
 the SP package.
+This file also specifies the owner of the SP, which is an optional field and
+identifies the signing domain in case of dualroot CoT.
+The possible owner of an SP could either be Silicon Provider or Platform, and
+the corresponding "owner" field value could either be "SiP" or "Plat".
+In absence of "owner" field, it defaults to "SiP".
 
 .. code:: shell
 
     {
         "tee1" : {
             "image": "tee1.bin",
-             "pm": "tee1.dts"
+             "pm": "tee1.dts",
+             "owner": "SiP"
         },
 
         "tee2" : {
             "image": "tee2.bin",
-            "pm": "tee2.dts"
+            "pm": "tee2.dts",
+            "owner": "Plat"
         }
     }
 
@@ -376,8 +383,9 @@ Refer to TBBR specification `[3]`_.
 The multiple-signing domain feature (in current state dual signing domain) allows
 the use of two root keys namely S-ROTPK and NS-ROTPK (see `[8]`_):
 
--  SPMC(BL32), SPMC manifest, SPs may be signed by the SiP using the S-ROTPK.
+-  SPMC (BL32) and SPMC manifest are signed by the SiP using the S-ROTPK.
 -  BL33 may be signed by the OEM using NS-ROTPK.
+-  An SP may be signed either by SiP (using S-ROTPK) or by OEM (using NS-ROTPK).
 
 Longer term multiple signing domain will allow additional signing keys, e.g.
 if SPs originate from different parties.
