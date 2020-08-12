@@ -20,13 +20,15 @@ Found a Security Issue?
 Although we try to keep TF-A secure, we can only do so with the help of the
 community of developers and security researchers.
 
-If you think you have found a security vulnerability, please **do not** report
-it in the `issue tracker`_ or on the `mailing list`_. Instead, please follow the
-`TrustedFirmware.org security incident process`_. One of the goals of this
-process is to ensure providers of products that use TF-A have a chance to
-consider the implications of the vulnerability and its remedy before it is made
-public. As such, please follow the disclosure plan outlined in the process. We
-do our best to respond and fix any issues quickly.
+.. warning::
+   If you think you have found a security vulnerability, please **do not**
+   report it in the `issue tracker`_ or on the `mailing list`_. Instead, please
+   follow the `TrustedFirmware.org security incident process`_.
+
+One of the goals of this process is to ensure providers of products that use
+TF-A have a chance to consider the implications of the vulnerability and its
+remedy before it is made public. As such, please follow the disclosure plan
+outlined in the process. We do our best to respond and fix any issues quickly.
 
 Afterwards, we encourage you to write-up your findings about the TF-A source
 code.
