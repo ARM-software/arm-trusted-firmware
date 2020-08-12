@@ -311,3 +311,6 @@ COT_DESC_IN_DTB			:= 0
 
 # Build option to provide openssl directory path
 OPENSSL_DIR			:= /usr
+
+# Build option to use the SP804 timer instead of the generic one
+USE_SP804_TIMER			:= 0

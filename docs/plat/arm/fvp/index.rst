@@ -123,10 +123,6 @@ Arm FVP Platform Specific Build Options
    -  ``FVP_GICV2`` : The GICv2 only driver is selected
    -  ``FVP_GICV3`` : The GICv3 only driver is selected (default option)
 
--  ``FVP_USE_SP804_TIMER`` : Use the SP804 timer instead of the Generic Timer
-   for functions that wait for an arbitrary time length (udelay and mdelay).
-   The default value is 0.
-
 -  ``FVP_HW_CONFIG_DTS`` : Specify the path to the DTS file to be compiled
    to DTB and packaged in FIP as the HW_CONFIG. See :ref:`Firmware Design` for
    details on HW_CONFIG. By default, this is initialized to a sensible DTS

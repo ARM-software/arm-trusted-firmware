@@ -725,6 +725,10 @@ Common build options
   path on the host machine which is used to build certificate generation and
   firmware encryption tool.
 
+- ``USE_SP804_TIMER``: Use the SP804 timer instead of the Generic Timer for
+  functions that wait for an arbitrary time length (udelay and mdelay). The
+  default value is 0.
+
 GICv3 driver options
 --------------------
 
