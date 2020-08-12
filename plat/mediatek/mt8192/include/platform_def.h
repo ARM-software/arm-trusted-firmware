@@ -28,6 +28,7 @@
 
 #define GPIO_BASE        (IO_PHYS + 0x00005000)
 #define SPM_BASE         (IO_PHYS + 0x00006000)
+#define PMIC_WRAP_BASE   (IO_PHYS + 0x00026000)
 #define IOCFG_RM_BASE    (IO_PHYS + 0x01C20000)
 #define IOCFG_BM_BASE    (IO_PHYS + 0x01D10000)
 #define IOCFG_BL_BASE    (IO_PHYS + 0x01D30000)
