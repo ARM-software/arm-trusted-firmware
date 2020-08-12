@@ -568,7 +568,7 @@
 #define PLAT_SDEI_NORMAL_PRI		0x70
 
 /* ARM platforms use 3 upper bits of secure interrupt priority */
-#define ARM_PRI_BITS			3
+#define PLAT_PRI_BITS			3
 
 /* SGI used for SDEI signalling */
 #define ARM_SDEI_SGI			ARM_IRQ_SEC_SGI_0

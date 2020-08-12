@@ -258,7 +258,7 @@ endif
 endif
 
 ifeq (${EL3_EXCEPTION_HANDLING},1)
-BL31_SOURCES		+=	plat/arm/common/aarch64/arm_ehf.c
+BL31_SOURCES		+=	plat/common/aarch64/plat_ehf.c
 endif
 
 ifeq (${SDEI_SUPPORT},1)
