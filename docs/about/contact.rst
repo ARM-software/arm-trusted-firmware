@@ -24,6 +24,15 @@ The relevant lists for the TF-A project are:
 
 You can see a `summary of all the lists`_ on the TrustedFirmware.org website.
 
+Open Tech Forum Call
+^^^^^^^^^^^^^^^^^^^^
+
+Every other week, we organize a call with all interested TF-A contributors.
+Anyone is welcome to join. This is an opportunity to discuss any technical
+topic within the community. More details can be found `here`_.
+
+.. _here: https://www.trustedfirmware.org/meetings/tf-a-technical-forum/
+
 Issue Tracker
 ^^^^^^^^^^^^^
 
