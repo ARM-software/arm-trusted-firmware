@@ -27,8 +27,6 @@
 	 * table.
 	 * -------------------------------------------------
 	 */
-	.globl	workaround_bpflush_runtime_exceptions
-
 vector_base workaround_bpflush_runtime_exceptions
 
 	.macro	apply_workaround
