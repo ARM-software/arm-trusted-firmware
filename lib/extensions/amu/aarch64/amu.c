@@ -46,7 +46,6 @@ void amu_enable(bool el2_unused)
 	uint64_t v;
 
 	if (!amu_supported()) {
-		INFO("AMU is not implemented\n");
 		return;
 	}
 

@@ -44,7 +44,6 @@ bool amu_group1_supported(void)
 void amu_enable(bool el2_unused)
 {
 	if (!amu_supported()) {
-		INFO("AMU is not implemented\n");
 		return;
 	}
 
