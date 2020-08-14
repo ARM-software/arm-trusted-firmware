@@ -40,11 +40,10 @@ PLAT_INCLUDES		+=	-Iplat/nvidia/tegra/include/t194 \
 
 BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S \
 				lib/cpus/aarch64/denver.S		\
-				${COMMON_DIR}/drivers/bpmp_ipc/intf.c	\
-				${COMMON_DIR}/drivers/bpmp_ipc/ivc.c	\
-				${COMMON_DIR}/drivers/gpcdma/gpcdma.c	\
-				${COMMON_DIR}/drivers/memctrl/memctrl_v2.c	\
-				${COMMON_DIR}/drivers/smmu/smmu.c	\
+				${TEGRA_DRIVERS}/bpmp_ipc/intf.c	\
+				${TEGRA_DRIVERS}/bpmp_ipc/ivc.c		\
+				${TEGRA_DRIVERS}/memctrl/memctrl_v2.c	\
+				${TEGRA_DRIVERS}/smmu/smmu.c		\
 				${SOC_DIR}/drivers/mce/mce.c		\
 				${SOC_DIR}/drivers/mce/nvg.c		\
 				${SOC_DIR}/drivers/mce/aarch64/nvg_helpers.S \
@@ -57,8 +56,12 @@ BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S \
 				${SOC_DIR}/plat_smmu.c			\
 				${SOC_DIR}/plat_trampoline.S
 
+ifeq (${USE_GPC_DMA}, 1)
+BL31_SOURCES		+=	${TEGRA_DRIVERS}/gpcdma/gpcdma.c
+endif
+
 ifeq (${ENABLE_CONSOLE_SPE},1)
-BL31_SOURCES		+=	${COMMON_DIR}/drivers/spe/shared_console.S
+BL31_SOURCES		+=	${TEGRA_DRIVERS}/spe/shared_console.S
 endif
 
 # RAS sources

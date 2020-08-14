@@ -180,11 +180,6 @@ void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state)
 		tegra_memctrl_tzdram_setup(plat_params->tzdram_base,
 			(uint32_t)plat_params->tzdram_size);
 
-		/*
-		 * Set up the TZRAM memory aperture to allow only secure world
-		 * access
-		 */
-		tegra_memctrl_tzram_setup(TEGRA_TZRAM_BASE, TEGRA_TZRAM_SIZE);
 	} else {
 		/*
 		 * Initialize the GIC cpu and distributor interfaces
