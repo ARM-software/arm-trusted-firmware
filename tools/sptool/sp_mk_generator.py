@@ -19,6 +19,7 @@ standard format.
 param1: Generated mk file "sp_gen.mk"
 param2: "SP_LAYOUT_FILE", json file containing platform provided information
 param3: plat out directory
+param4: CoT parameter
 
 Generated "sp_gen.mk" file contains triplet of following information for each
 Secure Partition entry
@@ -58,10 +59,38 @@ json_dir = os.path.dirname(json_file)
 gen_file = os.path.abspath(sys.argv[1])
 out_dir = os.path.abspath(sys.argv[3])
 dtb_dir = out_dir + "/fdts/"
+MAX_SP = 8
+dualroot = sys.argv[4].lower() == "dualroot"
+split = int(MAX_SP / 2)
 print(dtb_dir)
+platform_count = 1
+sip_count = 1
 
 with open(gen_file, 'w') as out_file:
     for idx, key in enumerate(data.keys()):
+
+        pkg_num = idx + 1
+
+        if (pkg_num > MAX_SP):
+            print("WARNING: Too many secure partitions\n")
+            exit(-1)
+
+        if dualroot:
+            owner = data[key].get('owner')
+            if owner == "Plat":
+                if (platform_count > split):
+                    print("WARNING: Maximum Secure partitions by Plat " +
+                    "have been exceeded (" + str(split) + ")\n")
+                    exit(-1)
+                pkg_num = split + platform_count
+                platform_count += 1
+            elif (sip_count > split):
+                print("WARNING: Maximum Secure partitions by SiP " +
+                "have been exceeded (" + str(split) + ")\n")
+                exit(-1)
+            else:
+                pkg_num = sip_count
+                sip_count += 1
 
         """
         Append FDT_SOURCES
@@ -81,10 +110,10 @@ with open(gen_file, 'w') as out_file:
         Extract uuid from partition manifest
         """
         pm_file = open(dts)
-        key = "uuid"
+        uuid_key = "uuid"
 
         for line in pm_file:
-            if key in line:
+            if uuid_key in line:
                 uuid_hex = re.findall(r'\<(.+?)\>', line)[0];
 
         # PM has uuid in format 0xABC... 0x... 0x... 0x...
@@ -103,5 +132,6 @@ with open(gen_file, 'w') as out_file:
         """
         Append CRT_ARGS
         """
-        out_file.write("CRT_ARGS += --sp-pkg" + str(idx + 1) + " " + dst + "\n")
+
+        out_file.write("CRT_ARGS += --sp-pkg" + str(pkg_num) + " " + dst + "\n")
         out_file.write("\n")

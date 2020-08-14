@@ -1135,7 +1135,7 @@ endif
 # Add Secure Partition packages
 ifeq (${NEED_SP_PKG},yes)
 $(BUILD_PLAT)/sp_gen.mk: ${SP_MK_GEN} ${SP_LAYOUT_FILE} | ${BUILD_PLAT}
-	${Q}${PYTHON} "$<" "$@" $(filter-out $<,$^) $(BUILD_PLAT)
+	${Q}${PYTHON} "$<" "$@" $(filter-out $<,$^) $(BUILD_PLAT) ${COT}
 sp: $(SPTOOL) $(DTBS) $(BUILD_PLAT)/sp_gen.mk
 	${Q}$(SPTOOL) $(SPTOOL_ARGS)
 	@${ECHO_BLANK_LINE}
