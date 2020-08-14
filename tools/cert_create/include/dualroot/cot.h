@@ -23,6 +23,7 @@ enum {
 
 	/* Certificates owned by the platform owner. */
 	NON_TRUSTED_FW_CONTENT_CERT,
+	PLAT_SECURE_PARTITION_CONTENT_CERT,
 };
 
 /* Certificate extensions. */
