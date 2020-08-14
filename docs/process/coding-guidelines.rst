@@ -19,6 +19,7 @@ support its functionality through plugins.
 
 Use of the EditorConfig file is suggested but is not required.
 
+.. _automatic-compliance-checking:
 
 Automatic Compliance Checking
 -----------------------------
