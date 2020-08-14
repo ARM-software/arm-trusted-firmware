@@ -122,7 +122,8 @@
  */
 #define DEFINE_SVC_UUID2(_name, _tl, _tm, _th, _cl, _ch,		\
 		_n0, _n1, _n2, _n3, _n4, _n5)				\
-	CASSERT((uint32_t)(_tl) != (uint32_t)SMC_UNK, invalid_svc_uuid);\
+	CASSERT((uint32_t)(_tl) != (uint32_t)SMC_UNK,			\
+		invalid_svc_uuid_##_name);				\
 	static const uuid_t _name = {					\
 		{((_tl) >> 24) & 0xFF,					\
 		 ((_tl) >> 16) & 0xFF,					\
