@@ -16,9 +16,9 @@ BL32_SOURCES		+=	drivers/st/etzpc/etzpc.c			\
 				plat/st/stm32mp1/stm32mp1_topology.c
 
 # Generic GIC v2
-BL32_SOURCES		+=	drivers/arm/gic/common/gic_common.c	\
-				drivers/arm/gic/v2/gicv2_helpers.c	\
-				drivers/arm/gic/v2/gicv2_main.c		\
+include drivers/arm/gic/v2/gicv2.mk
+
+BL32_SOURCES		+=	${GICV2_SOURCES}			\
 				plat/common/plat_gicv2.c		\
 				plat/st/stm32mp1/stm32mp1_gic.c
 
