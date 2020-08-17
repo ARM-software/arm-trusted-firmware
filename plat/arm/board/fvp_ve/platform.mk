@@ -6,8 +6,7 @@
 
 ifdef ARM_CORTEX_A5
 # Use the SP804 timer instead of the generic one
-FVP_VE_USE_SP804_TIMER	:= 1
-$(eval $(call add_define,FVP_VE_USE_SP804_TIMER))
+USE_SP804_TIMER	:= 1
 BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
 endif
 

@@ -7,9 +7,6 @@
 # Use the GICv3 driver on the FVP by default
 FVP_USE_GIC_DRIVER	:= FVP_GICV3
 
-# Use the SP804 timer instead of the generic one
-FVP_USE_SP804_TIMER	:= 0
-
 # Default cluster count for FVP
 FVP_CLUSTER_COUNT	:= 2
 
@@ -20,9 +17,6 @@ FVP_MAX_CPUS_PER_CLUSTER	:= 4
 FVP_MAX_PE_PER_CPU	:= 1
 
 FVP_DT_PREFIX		:= fvp-base-gicv3-psci
-
-$(eval $(call assert_boolean,FVP_USE_SP804_TIMER))
-$(eval $(call add_define,FVP_USE_SP804_TIMER))
 
 # The FVP platform depends on this macro to build with correct GIC driver.
 $(eval $(call add_define,FVP_USE_GIC_DRIVER))
@@ -155,7 +149,7 @@ BL1_SOURCES		+=	drivers/arm/smmu/smmu_v3.c			\
 				${FVP_CPU_LIBS}					\
 				${FVP_INTERCONNECT_SOURCES}
 
-ifeq (${FVP_USE_SP804_TIMER},1)
+ifeq (${USE_SP804_TIMER},1)
 BL1_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
 else
 BL1_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c
@@ -182,14 +176,14 @@ BL2_SOURCES		+=	plat/arm/board/fvp/${ARCH}/fvp_helpers.S	\
 				${FVP_INTERCONNECT_SOURCES}
 endif
 
-ifeq (${FVP_USE_SP804_TIMER},1)
+ifeq (${USE_SP804_TIMER},1)
 BL2_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
 endif
 
 BL2U_SOURCES		+=	plat/arm/board/fvp/fvp_bl2u_setup.c		\
 				${FVP_SECURITY_SOURCES}
 
-ifeq (${FVP_USE_SP804_TIMER},1)
+ifeq (${USE_SP804_TIMER},1)
 BL2U_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
 endif
 
@@ -223,7 +217,7 @@ endif
 
 endif
 
-ifeq (${FVP_USE_SP804_TIMER},1)
+ifeq (${USE_SP804_TIMER},1)
 BL31_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
 else
 BL31_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c

@@ -420,7 +420,7 @@ int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
 
 void fvp_timer_init(void)
 {
-#if FVP_USE_SP804_TIMER
+#if USE_SP804_TIMER
 	/* Enable the clock override for SP804 timer 0, which means that no
 	 * clock dividers are applied and the raw (35MHz) clock will be used.
 	 */
@@ -435,5 +435,5 @@ void fvp_timer_init(void)
 	/* Enable System level generic timer */
 	mmio_write_32(ARM_SYS_CNTCTL_BASE + CNTCR_OFF,
 			CNTCR_FCREQ(0U) | CNTCR_EN);
-#endif /* FVP_USE_SP804_TIMER */
+#endif /* USE_SP804_TIMER */
 }

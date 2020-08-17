@@ -25,7 +25,7 @@ void bl2_platform_setup(void)
 {
 	arm_bl2_platform_setup();
 
-#ifdef FVP_VE_USE_SP804_TIMER
+#if USE_SP804_TIMER
 	/*
 	 * Enable the clock override for SP804 timer 0, which means that no
 	 * clock dividers are applied and the raw (35 MHz) clock will be used
@@ -37,5 +37,5 @@ void bl2_platform_setup(void)
 			SP804_TIMER_CLKMULT, SP804_TIMER_CLKDIV);
 #else
 	generic_delay_timer_init();
-#endif /* FVP_VE_USE_SP804_TIMER */
+#endif /* USE_SP804_TIMER */
 }
