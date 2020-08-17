@@ -12,6 +12,7 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <context.h>
+#include <drivers/delay_timer.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/utils.h>
 #include <plat/common/platform.h>
@@ -972,4 +973,50 @@ void psci_do_pwrdown_sequence(unsigned int power_level)
 	 */
 	psci_do_pwrdown_cache_maintenance(power_level);
 #endif
+}
+
+/*******************************************************************************
+ * This function invokes the callback 'stop_func()' with the 'mpidr' of each
+ * online PE. Caller can pass suitable method to stop a remote core.
+ *
+ * 'wait_ms' is the timeout value in milliseconds for the other cores to
+ * transition to power down state. Passing '0' makes it non-blocking.
+ *
+ * The function returns 'PSCI_E_DENIED' if some cores failed to stop within the
+ * given timeout.
+ ******************************************************************************/
+int psci_stop_other_cores(unsigned int wait_ms,
+				   void (*stop_func)(u_register_t mpidr))
+{
+	unsigned int idx, this_cpu_idx;
+
+	this_cpu_idx = plat_my_core_pos();
+
+	/* Invoke stop_func for each core */
+	for (idx = 0U; idx < psci_plat_core_count; idx++) {
+		/* skip current CPU */
+		if (idx == this_cpu_idx) {
+			continue;
+		}
+
+		/* Check if the CPU is ON */
+		if (psci_get_aff_info_state_by_idx(idx) == AFF_STATE_ON) {
+			(*stop_func)(psci_cpu_pd_nodes[idx].mpidr);
+		}
+	}
+
+	/* Need to wait for other cores to shutdown */
+	if (wait_ms != 0U) {
+		while ((wait_ms-- != 0U) && (psci_is_last_on_cpu() != 0U)) {
+			mdelay(1U);
+		}
+
+		if (psci_is_last_on_cpu() != 0U) {
+			WARN("Failed to stop all cores!\n");
+			psci_print_power_domain_map();
+			return PSCI_E_DENIED;
+		}
+	}
+
+	return PSCI_E_SUCCESS;
 }
