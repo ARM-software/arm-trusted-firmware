@@ -11,5 +11,6 @@ Processes & Policies
    coding-style
    coding-guidelines
    contributing
+   code-review-guidelines
    faq
    security-hardening

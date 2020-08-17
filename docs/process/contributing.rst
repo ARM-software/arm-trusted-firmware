@@ -90,6 +90,8 @@ Making Changes
       (and nothing else) in the last commit of the series. Otherwise, include
       the documentation changes within the single commit.
 
+.. _copyright-license-guidance:
+
 -  Ensure that each changed file has the correct copyright and license
    information. Files that entirely consist of contributions to this project
    should have a copyright notice and BSD-3-Clause SPDX license identifier of
