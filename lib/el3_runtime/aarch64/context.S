@@ -421,7 +421,7 @@ func el1_sysregs_context_save
 	stp	x9, x10, [x0, #CTX_SPSR_EL1]
 
 	mrs	x15, sctlr_el1
-	mrs	x16, actlr_el1
+	mrs	x16, tcr_el1
 	stp	x15, x16, [x0, #CTX_SCTLR_EL1]
 
 	mrs	x17, cpacr_el1
@@ -440,9 +440,9 @@ func el1_sysregs_context_save
 	mrs	x15, amair_el1
 	stp	x14, x15, [x0, #CTX_MAIR_EL1]
 
-	mrs	x16, tcr_el1
+	mrs	x16, actlr_el1
 	mrs	x17, tpidr_el1
-	stp	x16, x17, [x0, #CTX_TCR_EL1]
+	stp	x16, x17, [x0, #CTX_ACTLR_EL1]
 
 	mrs	x9, tpidr_el0
 	mrs	x10, tpidrro_el0
@@ -519,7 +519,7 @@ func el1_sysregs_context_restore
 
 	ldp	x15, x16, [x0, #CTX_SCTLR_EL1]
 	msr	sctlr_el1, x15
-	msr	actlr_el1, x16
+	msr	tcr_el1, x16
 
 	ldp	x17, x9, [x0, #CTX_CPACR_EL1]
 	msr	cpacr_el1, x17
@@ -537,8 +537,8 @@ func el1_sysregs_context_restore
 	msr	mair_el1, x14
 	msr	amair_el1, x15
 
-	ldp 	x16, x17, [x0, #CTX_TCR_EL1]
-	msr	tcr_el1, x16
+	ldp 	x16, x17, [x0, #CTX_ACTLR_EL1]
+	msr	actlr_el1, x16
 	msr	tpidr_el1, x17
 
 	ldp	x9, x10, [x0, #CTX_TPIDR_EL0]
