@@ -1,4 +1,4 @@
-# Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2020, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -61,6 +61,8 @@ BL2_SOURCES		+=	${TC0_BASE}/tc0_security.c	\
 				${TC0_BASE}/tc0_err.c		\
 				${TC0_BASE}/tc0_trusted_boot.c		\
 				lib/utils/mem_region.c			\
+				drivers/arm/tzc/tzc400.c		\
+				plat/arm/common/arm_tzc400.c		\
 				plat/arm/common/arm_nor_psci_mem_protect.c
 
 BL31_SOURCES		+=	${INTERCONNECT_SOURCES}	\
