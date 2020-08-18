@@ -134,7 +134,7 @@
 		clocks = <&soc_refclk100mhz>;
 		clock-names = "apb_pclk";
 		#mbox-cells = <1>;
-		interrupts = <0 316 4>;
+		interrupts = <0 317 4>;
 		interrupt-names = "mhu_rx";
 		mhu-protocol = "doorbell";
 	};
