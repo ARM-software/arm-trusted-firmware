@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,8 +69,11 @@ func bl2u_entrypoint
 	 *   - the coherent memory section.
 	 * ---------------------------------------------
 	 */
-	ldr	x0, =__BSS_START__
-	ldr	x1, =__BSS_SIZE__
+	adrp	x0, __BSS_START__
+	add	x0, x0, :lo12:__BSS_START__
+	adrp	x1, __BSS_END__
+	add	x1, x1, :lo12:__BSS_END__
+	sub	x1, x1, x0
 	bl	zeromem
 
 	/* --------------------------------------------
