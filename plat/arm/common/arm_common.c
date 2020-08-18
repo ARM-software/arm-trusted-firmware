@@ -237,38 +237,3 @@ int plat_sdei_validate_entry_point(uintptr_t ep, unsigned int client_mode)
 }
 #endif
 
-/*****************************************************************************
- * plat_is_smccc_feature_available() - This function checks whether SMCCC
- *                                     feature is availabile for platform.
- * @fid: SMCCC function id
- *
- * Return SMC_OK if SMCCC feature is available and SMC_ARCH_CALL_NOT_SUPPORTED
- * otherwise.
- *****************************************************************************/
-int32_t plat_is_smccc_feature_available(u_register_t fid)
-{
-	switch (fid) {
-	case SMCCC_ARCH_SOC_ID:
-	default:
-		return SMC_ARCH_CALL_NOT_SUPPORTED;
-	}
-}
-
-/*
- * Weak function to get ARM platform SOC-ID, Always return SOC-ID=0
- * ToDo: Get proper SOC-ID for every ARM platform and define this
- *       function separately for every ARM platform.
- */
-uint32_t plat_arm_get_soc_id(void)
-{
-	return 0U;
-}
-
-/* Get SOC version */
-int32_t plat_get_soc_version(void)
-{
-	return (int32_t)
-		((ARM_SOC_IDENTIFICATION_CODE << ARM_SOC_IDENTIFICATION_SHIFT)
-		 | (ARM_SOC_CONTINUATION_CODE << ARM_SOC_CONTINUATION_SHIFT)
-		 | plat_arm_get_soc_id());
-}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,11 @@
 #define JUNO_DEF_H
 
 #include <lib/utils_def.h>
+
+/******************************************************************************
+ * Definition of platform soc id
+ *****************************************************************************/
+#define JUNO_SOC_ID     1
 
 /*******************************************************************************
  * Juno memory map related constants
