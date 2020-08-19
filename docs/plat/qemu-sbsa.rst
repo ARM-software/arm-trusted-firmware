@@ -19,7 +19,6 @@ and also enable methods for the CPUs.
 Current limitations:
 
 -  Only cold boot is supported
--  No instructions for how to load a BL32 (Secure Payload)
 
 To build TF-A:
 
@@ -27,8 +26,17 @@ To build TF-A:
 
     git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git tfa
     cd tfa
-    export CROSS_COMPILE=aarch64-linux-gnu-
+    export CROSS_COMPILE=aarch64-none-elf-
     make PLAT=qemu_sbsa all fip
+
+To build TF-A with BL32 and SPM enabled(StandaloneMM as a Secure Payload):
+
+::
+
+    git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git tfa
+    cd tfa
+    export CROSS_COMPILE=aarch64-none-elf-
+    make PLAT=qemu_sbsa BL32=../STANDALONE_MM.fd SPM_MM=1 EL3_EXCEPTION_HANDLING=1 all fip
 
 Images will be placed at build/qemu_sbsa/release (bl1.bin and fip.bin).
 Need to copy them into top directory for EDK2 compilation.
