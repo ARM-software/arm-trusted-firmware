@@ -5,14 +5,14 @@
 #
 
 include lib/xlat_tables_v2/xlat_tables.mk
+include lib/libfdt/libfdt.mk
+include drivers/arm/gic/v2/gicv2.mk
 
 AW_PLAT			:=	plat/allwinner
 
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/aarch64	\
 				-I${AW_PLAT}/common/include		\
 				-I${AW_PLAT}/${PLAT}/include
-
-include lib/libfdt/libfdt.mk
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/${ARCH}/16550_console.S	\
 				${XLAT_TABLES_LIB_SRCS}			\
@@ -22,9 +22,7 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/${ARCH}/16550_console.S	\
 BL31_SOURCES		+=	drivers/allwinner/axp/common.c		\
 				drivers/allwinner/sunxi_msgbox.c	\
 				drivers/arm/css/scpi/css_scpi.c		\
-				drivers/arm/gic/common/gic_common.c	\
-				drivers/arm/gic/v2/gicv2_helpers.c	\
-				drivers/arm/gic/v2/gicv2_main.c		\
+				${GICV2_SOURCES}			\
 				drivers/delay_timer/delay_timer.c	\
 				drivers/delay_timer/generic_delay_timer.c \
 				lib/cpus/${ARCH}/cortex_a53.S		\
