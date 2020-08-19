@@ -585,7 +585,7 @@ void cm_el2_sysregs_context_save(uint32_t security_state)
 	 * S-EL2 context if S-EL2 is enabled.
 	 */
 	if ((security_state == NON_SECURE) ||
-	    ((scr_el3 & SCR_EEL2_BIT) != 0U)) {
+	    ((security_state == SECURE) && ((scr_el3 & SCR_EEL2_BIT) != 0U))) {
 		cpu_context_t *ctx;
 
 		ctx = cm_get_context(security_state);
@@ -607,7 +607,7 @@ void cm_el2_sysregs_context_restore(uint32_t security_state)
 	 * S-EL2 context if S-EL2 is enabled.
 	 */
 	if ((security_state == NON_SECURE) ||
-	    ((scr_el3 & SCR_EEL2_BIT) != 0U)) {
+	    ((security_state == SECURE) && ((scr_el3 & SCR_EEL2_BIT) != 0U))) {
 		cpu_context_t *ctx;
 
 		ctx = cm_get_context(security_state);
