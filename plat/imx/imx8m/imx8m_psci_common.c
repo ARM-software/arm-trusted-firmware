@@ -192,7 +192,7 @@ void __dead2 imx_pwr_domain_pwr_down_wfi(const psci_power_state_t *target_state)
 	 * drived by the 32K OSC, so delay 30us to make sure the counter
 	 * is really running.
 	 */
-	if (!is_local_state_run(CLUSTER_PWR_STATE(target_state))) {
+	if (is_local_state_off(CLUSTER_PWR_STATE(target_state))) {
 		imx_set_rbc_count();
 		udelay(30);
 	}

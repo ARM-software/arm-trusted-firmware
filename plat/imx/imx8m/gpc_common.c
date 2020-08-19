@@ -16,7 +16,7 @@
 #include <imx8m_psci.h>
 #include <plat_imx8.h>
 
-static uint32_t gpc_imr_offset[] = { 0x30, 0x40, 0x1c0, 0x1d0, };
+static uint32_t gpc_imr_offset[] = { IMR1_CORE0_A53, IMR1_CORE1_A53, IMR1_CORE2_A53, IMR1_CORE3_A53, };
 
 #pragma weak imx_set_cpu_pwr_off
 #pragma weak imx_set_cpu_pwr_on
@@ -133,14 +133,12 @@ void imx_set_cluster_powerdown(unsigned int last_core, uint8_t power_state)
 		val = mmio_read_32(IMX_GPC_BASE + LPCR_A53_AD);
 		val &= ~EN_L2_WFI_PDN;
 		/* L2 cache memory is on in WAIT mode */
-		if (is_local_state_off(power_state))
+		if (is_local_state_off(power_state)) {
 			val |= (L2PGE | EN_PLAT_PDN);
-		else
-			val |= EN_PLAT_PDN;
+			imx_a53_plat_slot_config(true);
+		}
 
 		mmio_write_32(IMX_GPC_BASE + LPCR_A53_AD, val);
-
-		imx_a53_plat_slot_config(true);
 	} else {
 		/* clear the slot and ack for cluster power down */
 		imx_a53_plat_slot_config(false);

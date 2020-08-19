@@ -124,4 +124,6 @@
 #define VPU_G2_PGC			0xf00
 #define VPU_H1_PGC			0xf40
 
+#define IRQ_IMR_NUM			U(4)
+
 #endif /* GPC_REG_H */
