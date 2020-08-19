@@ -108,6 +108,13 @@ bool tegra_chipid_is_t210_b01(void)
 	return (tegra_chipid_is_t210() && (tegra_get_chipid_major() == 0x2U));
 }
 
+bool tegra_chipid_is_t194(void)
+{
+	uint32_t chip_id = (tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK;
+
+	return (chip_id == TEGRA_CHIPID_TEGRA19);
+}
+
 /*
  * Read the chip ID value and derive the platform
  */

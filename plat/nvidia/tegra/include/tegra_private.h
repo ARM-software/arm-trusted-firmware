@@ -112,19 +112,6 @@ __dead2 void tegra_soc_prepare_system_off(void);
 plat_local_state_t tegra_soc_get_target_pwr_state(uint32_t lvl,
 					     const plat_local_state_t *states,
 					     uint32_t ncpu);
-void tegra_get_sys_suspend_power_state(psci_power_state_t *req_state);
-void tegra_cpu_standby(plat_local_state_t cpu_state);
-int32_t tegra_pwr_domain_on(u_register_t mpidr);
-void tegra_pwr_domain_off(const psci_power_state_t *target_state);
-void tegra_pwr_domain_suspend(const psci_power_state_t *target_state);
-void __dead2 tegra_pwr_domain_power_down_wfi(const psci_power_state_t *target_state);
-void tegra_pwr_domain_on_finish(const psci_power_state_t *target_state);
-void tegra_pwr_domain_suspend_finish(const psci_power_state_t *target_state);
-__dead2 void tegra_system_off(void);
-__dead2 void tegra_system_reset(void);
-int32_t tegra_validate_power_state(uint32_t power_state,
-				   psci_power_state_t *req_state);
-int32_t tegra_validate_ns_entrypoint(uintptr_t entrypoint);
 
 /* Declarations for tegraXXX_pm.c */
 int tegra_prepare_cpu_suspend(unsigned int id, unsigned int afflvl);
