@@ -7,7 +7,7 @@
 #ifndef QTI_RNG_H
 #define QTI_RNG_H
 
-#include <stdinit.h>
+#include <stdint.h>
 
 int qti_rng_get_data(uint8_t *out, uint32_t out_len);
 
