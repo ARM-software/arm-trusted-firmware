@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -13,7 +13,6 @@ LIBC_SRCS	:=	$(addprefix lib/libc/,		\
 			memcpy.c			\
 			memmove.c			\
 			memrchr.c			\
-			memset.c			\
 			printf.c			\
 			putchar.c			\
 			puts.c				\
@@ -28,7 +27,13 @@ LIBC_SRCS	:=	$(addprefix lib/libc/,		\
 
 ifeq (${ARCH},aarch64)
 LIBC_SRCS	+=	$(addprefix lib/libc/aarch64/,	\
+			memset.S			\
 			setjmp.S)
+endif
+
+ifeq (${ARCH},aarch32)
+LIBC_SRCS	+=	$(addprefix lib/libc/aarch32/,	\
+			memset.S)
 endif
 
 INCLUDES	+=	-Iinclude/lib/libc		\
