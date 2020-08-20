@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -396,6 +396,20 @@ func check_errata_cve_2018_3639
 	ret
 endfunc check_errata_cve_2018_3639
 
+	/* --------------------------------------------------
+	 * Errata workaround for Cortex A57 Errata #1319537.
+	 * This applies to all revisions of Cortex A57.
+	 * --------------------------------------------------
+	 */
+func check_errata_1319537
+#if ERRATA_A57_1319537
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_1319537
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A57.
 	 * Shall clobber: x0-x19
@@ -613,6 +627,7 @@ func cortex_a57_errata_report
 	report_errata ERRATA_A57_829520, cortex_a57, 829520
 	report_errata ERRATA_A57_833471, cortex_a57, 833471
 	report_errata ERRATA_A57_859972, cortex_a57, 859972
+	report_errata ERRATA_A57_1319537, cortex_a57, 1319537
 	report_errata WORKAROUND_CVE_2017_5715, cortex_a57, cve_2017_5715
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a57, cve_2018_3639
 

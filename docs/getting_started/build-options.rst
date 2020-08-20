@@ -694,28 +694,36 @@ Common build options
    default value of this flag is ``no``. Note this option must be enabled only
    for ARM architecture greater than Armv8.5-A.
 
--  ``ERRATA_SPECULATIVE_AT``: This flag enables/disables page table walk during
-   context restore as speculative AT instructions using an out-of-context
-   translation regime could cause subsequent requests to generate an incorrect
-   translation.
-   System registers are not updated during context save, hence this workaround
-   need not be applied in the context save path.
+-  ``ERRATA_SPECULATIVE_AT``: This flag determines whether to enable ``AT``
+   speculative errata workaround or not. It accepts 2 values: ``1`` and ``0``.
+   The default value of this flag is ``0``.
+
+   ``AT`` speculative errata workaround disables stage1 page table walk for
+   lower ELs (EL1 and EL0) in EL3 so that ``AT`` speculative fetch at any point
+   produces either the correct result or failure without TLB allocation.
 
    This boolean option enables errata for all below CPUs.
 
-   +---------+--------------+
-   | Errata  |      CPU     |
-   +=========+==============+
-   | 1165522 |  Cortex-A76  |
-   +---------+--------------+
-   | 1319367 |  Cortex-A72  |
-   +---------+--------------+
-   | 1319537 |  Cortex-A57  |
-   +---------+--------------+
-   | 1530923 |  Cortex-A55  |
-   +---------+--------------+
-   | 1530924 |  Cortex-A53  |
-   +---------+--------------+
+   +---------+--------------+-------------------------+
+   | Errata  |      CPU     |     Workaround Define   |
+   +=========+==============+=========================+
+   | 1165522 |  Cortex-A76  |  ``ERRATA_A76_1165522`` |
+   +---------+--------------+-------------------------+
+   | 1319367 |  Cortex-A72  |  ``ERRATA_A72_1319367`` |
+   +---------+--------------+-------------------------+
+   | 1319537 |  Cortex-A57  |  ``ERRATA_A57_1319537`` |
+   +---------+--------------+-------------------------+
+   | 1530923 |  Cortex-A55  |  ``ERRATA_A55_1530923`` |
+   +---------+--------------+-------------------------+
+   | 1530924 |  Cortex-A53  |  ``ERRATA_A53_1530924`` |
+   +---------+--------------+-------------------------+
+
+   .. note::
+      This option is enabled by build only if platform sets any of above defines
+      mentioned in ’Workaround Define' column in the table.
+      If this option is enabled for the EL3 software then EL2 software also must
+      implement this workaround due to the behaviour of the errata mentioned
+      in new SDEN document which will get published soon.
 
 - ``RAS_TRAP_LOWER_EL_ERR_ACCESS``: This flag enables/disables the SCR_EL3.TERR
   bit, to trap access to the RAS ERR and RAS ERX registers from lower ELs.

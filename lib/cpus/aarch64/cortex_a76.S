@@ -465,6 +465,23 @@ func cortex_a76_disable_wa_cve_2018_3639
 	ret
 endfunc cortex_a76_disable_wa_cve_2018_3639
 
+	/* --------------------------------------------------------------
+	 * Errata Workaround for Cortex A76 Errata #1165522.
+	 * This applies only to revisions <= r3p0 of Cortex A76.
+	 * Due to the nature of the errata it is applied unconditionally
+	 * when built in, report it as applicable in this case
+	 * --------------------------------------------------------------
+	 */
+func check_errata_1165522
+#if ERRATA_A76_1165522
+	mov	x0, #ERRATA_APPLIES
+	ret
+#else
+	mov	x1, #0x30
+	b	cpu_rev_var_ls
+#endif
+endfunc check_errata_1165522
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A76.
 	 * Shall clobber: x0-x19
@@ -597,6 +614,7 @@ func cortex_a76_errata_report
 	report_errata ERRATA_A76_1286807, cortex_a76, 1286807
 	report_errata ERRATA_A76_1791580, cortex_a76, 1791580
 	report_errata ERRATA_A76_1800710, cortex_a76, 1800710
+	report_errata ERRATA_A76_1165522, cortex_a76, 1165522
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a76, cve_2018_3639
 	report_errata ERRATA_DSU_798953, cortex_a76, dsu_798953
 	report_errata ERRATA_DSU_936184, cortex_a76, dsu_936184

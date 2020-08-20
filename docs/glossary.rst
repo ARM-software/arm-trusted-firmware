@@ -18,6 +18,9 @@ You can find additional definitions in the `Arm Glossary`_.
    API
       Application Programming Interface
 
+   AT
+      Address Translation
+
    BTI
       Branch Target Identification. An Armv8.5 extension providing additional
       control flow integrity around indirect branches and their targets.

@@ -127,6 +127,9 @@ For Cortex-A53, the following errata build flags are defined :
    Earlier revisions of the CPU have other errata which require the same
    workaround in software, so they should be covered anyway.
 
+-  ``ERRATA_A53_1530924``: This applies errata 1530924 workaround to all
+   revisions of Cortex-A53 CPU.
+
 For Cortex-A55, the following errata build flags are defined :
 
 -  ``ERRATA_A55_768277``: This applies errata 768277 workaround to Cortex-A55
@@ -146,6 +149,9 @@ For Cortex-A55, the following errata build flags are defined :
 
 -  ``ERRATA_A55_1221012``: This applies errata 1221012 workaround to Cortex-A55
    CPU. This needs to be enabled only for revision <= r1p0 of the CPU.
+
+-  ``ERRATA_A55_1530923``: This applies errata 1530923 workaround to all
+   revisions of Cortex-A55 CPU.
 
 For Cortex-A57, the following errata build flags are defined :
 
@@ -182,11 +188,16 @@ For Cortex-A57, the following errata build flags are defined :
 -  ``ERRATA_A57_859972``: This applies errata 859972 workaround to Cortex-A57
    CPU. This needs to be enabled only for revision <= r1p3 of the CPU.
 
+-  ``ERRATA_A57_1319537``: This applies errata 1319537 workaround to all
+   revisions of Cortex-A57 CPU.
 
 For Cortex-A72, the following errata build flags are defined :
 
 -  ``ERRATA_A72_859971``: This applies errata 859971 workaround to Cortex-A72
    CPU. This needs to be enabled only for revision <= r0p3 of the CPU.
+
+-  ``ERRATA_A72_1319367``: This applies errata 1319367 workaround to all
+   revisions of Cortex-A72 CPU.
 
 For Cortex-A73, the following errata build flags are defined :
 
@@ -232,6 +243,11 @@ For Cortex-A76, the following errata build flags are defined :
 
 -  ``ERRATA_A76_1800710``: This applies errata 1800710 workaround to Cortex-A76
    CPU. This needs to be enabled only for revision <= r4p0 of the CPU.
+
+-  ``ERRATA_A76_1165522``: This applies errata 1165522 workaround to all
+   revisions of Cortex-A76 CPU. This errata is fixed in r3p0 but due to
+   limitation of errata framework this errata is applied to all revisions
+   of Cortex-A76 CPU.
 
 For Cortex-A77, the following errata build flags are defined :
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -239,6 +239,20 @@ exit_check_errata_843419:
 	ret
 endfunc check_errata_843419
 
+	/* --------------------------------------------------
+	 * Errata workaround for Cortex A53 Errata #1530924.
+	 * This applies to all revisions of Cortex A53.
+	 * --------------------------------------------------
+	 */
+func check_errata_1530924
+#if ERRATA_A53_1530924
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_1530924
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A53.
 	 * Shall clobber: x0-x19
@@ -359,6 +373,7 @@ func cortex_a53_errata_report
 	report_errata ERRATA_A53_836870, cortex_a53, disable_non_temporal_hint
 	report_errata ERRATA_A53_843419, cortex_a53, 843419
 	report_errata ERRATA_A53_855873, cortex_a53, 855873
+	report_errata ERRATA_A53_1530924, cortex_a53, 1530924
 
 	ldp	x8, x30, [sp], #16
 	ret

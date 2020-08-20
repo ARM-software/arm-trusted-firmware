@@ -590,4 +590,24 @@ static inline uint64_t el_implemented(unsigned int el)
 #define read_clusterpwrdn()	read_clusterpwrdn_el1()
 #define write_clusterpwrdn(_v)	write_clusterpwrdn_el1(_v)
 
+#if ERRATA_SPECULATIVE_AT
+/*
+ * Assuming SCTLR.M bit is already enabled
+ * 1. Enable page table walk by clearing TCR_EL1.EPDx bits
+ * 2. Execute AT instruction for lower EL1/0
+ * 3. Disable page table walk by setting TCR_EL1.EPDx bits
+ */
+#define AT(_at_inst, _va)	\
+{	\
+	assert((read_sctlr_el1() & SCTLR_M_BIT) != 0ULL);	\
+	write_tcr_el1(read_tcr_el1() & ~(TCR_EPD0_BIT | TCR_EPD1_BIT));	\
+	isb();	\
+	_at_inst(_va);	\
+	write_tcr_el1(read_tcr_el1() | (TCR_EPD0_BIT | TCR_EPD1_BIT));	\
+	isb();	\
+}
+#else
+#define AT(_at_inst, _va)	_at_inst(_va);
+#endif
+
 #endif /* ARCH_HELPERS_H */

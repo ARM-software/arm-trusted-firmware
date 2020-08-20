@@ -70,7 +70,7 @@ static bool is_address_readable(uintptr_t addr)
 	} else if (el == 2U) {
 		ats1e2r(addr);
 	} else {
-		ats1e1r(addr);
+		AT(ats1e1r, addr);
 	}
 
 	isb();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -222,6 +222,20 @@ func check_errata_1221012
 	b	cpu_rev_var_ls
 endfunc check_errata_1221012
 
+	/* --------------------------------------------------
+	 * Errata workaround for Cortex A55 Errata #1530923.
+	 * This applies to all revisions of Cortex A55.
+	 * --------------------------------------------------
+	 */
+func check_errata_1530923
+#if ERRATA_A55_1530923
+	mov	x0, #ERRATA_APPLIES
+#else
+	mov	x0, #ERRATA_MISSING
+#endif
+	ret
+endfunc check_errata_1530923
+
 func cortex_a55_reset_func
 	mov	x19, x30
 
@@ -306,6 +320,7 @@ func cortex_a55_errata_report
 	report_errata ERRATA_A55_846532, cortex_a55, 846532
 	report_errata ERRATA_A55_903758, cortex_a55, 903758
 	report_errata ERRATA_A55_1221012, cortex_a55, 1221012
+	report_errata ERRATA_A55_1530923, cortex_a55, 1530923
 
 	ldp	x8, x30, [sp], #16
 	ret
