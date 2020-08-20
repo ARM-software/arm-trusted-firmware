@@ -18,6 +18,8 @@
 
 static uint32_t gpc_imr_offset[] = { IMR1_CORE0_A53, IMR1_CORE1_A53, IMR1_CORE2_A53, IMR1_CORE3_A53, };
 
+DEFINE_BAKERY_LOCK(gpc_lock);
+
 #pragma weak imx_set_cpu_pwr_off
 #pragma weak imx_set_cpu_pwr_on
 #pragma weak imx_set_cpu_lpm
@@ -38,16 +40,27 @@ void imx_set_cpu_secure_entry(unsigned int core_id, uintptr_t sec_entrypoint)
 
 void imx_set_cpu_pwr_off(unsigned int core_id)
 {
+
+	bakery_lock_get(&gpc_lock);
+
 	/* enable the wfi power down of the core */
 	mmio_setbits_32(IMX_GPC_BASE + LPCR_A53_AD, COREx_WFI_PDN(core_id));
+
+	bakery_lock_release(&gpc_lock);
+
 	/* assert the pcg pcr bit of the core */
 	mmio_setbits_32(IMX_GPC_BASE + COREx_PGC_PCR(core_id), 0x1);
 }
 
 void imx_set_cpu_pwr_on(unsigned int core_id)
 {
+	bakery_lock_get(&gpc_lock);
+
 	/* clear the wfi power down bit of the core */
 	mmio_clrbits_32(IMX_GPC_BASE + LPCR_A53_AD, COREx_WFI_PDN(core_id));
+
+	bakery_lock_release(&gpc_lock);
+
 	/* assert the ncpuporeset */
 	mmio_clrbits_32(IMX_SRC_BASE + SRC_A53RCR1, (1 << core_id));
 	/* assert the pcg pcr bit of the core */
@@ -67,6 +80,8 @@ void imx_set_cpu_pwr_on(unsigned int core_id)
 
 void imx_set_cpu_lpm(unsigned int core_id, bool pdn)
 {
+	bakery_lock_get(&gpc_lock);
+
 	if (pdn) {
 		/* enable the core WFI PDN & IRQ PUP */
 		mmio_setbits_32(IMX_GPC_BASE + LPCR_A53_AD, COREx_WFI_PDN(core_id) |
@@ -80,6 +95,8 @@ void imx_set_cpu_lpm(unsigned int core_id, bool pdn)
 		/* deassert the pcg pcr bit of the core */
 		mmio_clrbits_32(IMX_GPC_BASE + COREx_PGC_PCR(core_id), 0x1);
 	}
+
+	bakery_lock_release(&gpc_lock);
 }
 
 /*

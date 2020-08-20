@@ -54,6 +54,8 @@ struct imx_pwr_domain {
 	bool always_on;
 };
 
+DECLARE_BAKERY_LOCK(gpc_lock);
+
 /* function declare */
 void imx_gpc_init(void);
 void imx_set_cpu_secure_entry(unsigned int core_index, uintptr_t sec_entrypoint);
