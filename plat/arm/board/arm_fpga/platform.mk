@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2020, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -40,6 +40,8 @@ HW_ASSISTED_COHERENCY	:=	1
 
 PL011_GENERIC_UART	:=	1
 
+SUPPORT_UNKNOWN_MPID	?=	1
+
 FPGA_CPU_LIBS	:=	lib/cpus/${ARCH}/aem_generic.S
 
 # select a different set of CPU files, depending on whether we compile for
@@ -69,6 +71,12 @@ else
 # AArch64/AArch32 cores
 	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S	\
 				lib/cpus/aarch64/cortex_a75.S
+endif
+
+ifeq (${SUPPORT_UNKNOWN_MPID}, 1)
+# Add support for unknown/invalid MPIDs (aarch64 only)
+$(eval $(call add_define,SUPPORT_UNKNOWN_MPID))
+	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/generic.S
 endif
 
 # Allow detection of GIC-600

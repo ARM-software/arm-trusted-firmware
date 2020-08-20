@@ -7,6 +7,12 @@
 ################################################################################
 # Include Makefile for the SPM-MM implementation
 ################################################################################
+ifeq (${SUPPORT_UNKNOWN_MPID},1)
+  ifeq (${DEBUG},0)
+    $(warning WARNING: SUPPORT_UNKNOWN_MPID enabled)
+  endif
+endif
+
 ifeq (${SPM_MM},1)
   ifeq (${EL3_EXCEPTION_HANDLING},0)
     $(error EL3_EXCEPTION_HANDLING must be 1 for SPM-MM support)
