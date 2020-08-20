@@ -441,6 +441,25 @@ unsigned integer on all systems, cast it to ``unsigned int``.
 
 These guidelines should be updated if additional types are needed.
 
+Favor C language over assembly language
+---------------------------------------
+
+Generally, prefer code written in C over assembly. Assembly code is less
+portable, harder to understand, maintain and audit security wise. Also, static
+analysis tools generally don't analyze assembly code.
+
+There are, however, legitimate uses of assembly language. These include:
+
+  - Early boot code executed before the C runtime environment is setup.
+
+  - Exception handling code.
+
+  - Low-level code where the exact sequence of instructions executed on the CPU
+    matters, such as CPU reset sequences.
+
+  - Low-level code where specific system-level instructions must be used, such
+    as cache maintenance operations.
+
 --------------
 
 *Copyright (c) 2020, Arm Limited and Contributors. All rights reserved.*
