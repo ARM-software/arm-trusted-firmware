@@ -138,4 +138,43 @@
  */
 #define FFA_PARAM_MBZ			U(0x0)
 
+/*
+ * Maximum FF-A endpoint id value
+ */
+#define FFA_ENDPOINT_ID_MAX			U(1 << 16)
+
+/*
+ * Mask for source and destination endpoint id in
+ * a direct message request/response.
+ */
+#define FFA_DIRECT_MSG_ENDPOINT_ID_MASK		U(0xffff)
+
+/*
+ * Bit shift for destination endpoint id in a direct message request/response.
+ */
+#define FFA_DIRECT_MSG_DESTINATION_SHIFT	U(0)
+
+/*
+ * Bit shift for source endpoint id in a direct message request/response.
+ */
+#define FFA_DIRECT_MSG_SOURCE_SHIFT		U(16)
+
+/******************************************************************************
+ * ffa_endpoint_destination
+ *****************************************************************************/
+static inline uint16_t ffa_endpoint_destination(unsigned int ep)
+{
+	return (ep >> FFA_DIRECT_MSG_DESTINATION_SHIFT) &
+		FFA_DIRECT_MSG_ENDPOINT_ID_MASK;
+}
+
+/******************************************************************************
+ * ffa_endpoint_source
+ *****************************************************************************/
+static inline uint16_t ffa_endpoint_source(unsigned int ep)
+{
+	return (ep >> FFA_DIRECT_MSG_SOURCE_SHIFT) &
+		FFA_DIRECT_MSG_ENDPOINT_ID_MASK;
+}
+
 #endif /* FFA_SVC_H */

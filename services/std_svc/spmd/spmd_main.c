@@ -42,13 +42,35 @@ static spmc_manifest_attribute_t spmc_attrs;
 static entry_point_info_t *spmc_ep_info;
 
 /*******************************************************************************
+ * SPM Core context on CPU based on mpidr.
+ ******************************************************************************/
+spmd_spm_core_context_t *spmd_get_context_by_mpidr(uint64_t mpidr)
+{
+	return &spm_core_context[plat_core_pos_by_mpidr(mpidr)];
+}
+
+/*******************************************************************************
  * SPM Core context on current CPU get helper.
  ******************************************************************************/
 spmd_spm_core_context_t *spmd_get_context(void)
 {
-	unsigned int linear_id = plat_my_core_pos();
+	return spmd_get_context_by_mpidr(read_mpidr());
+}
 
-	return &spm_core_context[linear_id];
+/*******************************************************************************
+ * SPM Core entry point information get helper.
+ ******************************************************************************/
+entry_point_info_t *spmd_spmc_ep_info_get(void)
+{
+	return spmc_ep_info;
+}
+
+/*******************************************************************************
+ * SPM Core ID getter.
+ ******************************************************************************/
+uint16_t spmd_spmc_id_get(void)
+{
+	return spmc_attrs.spmc_id;
 }
 
 /*******************************************************************************
@@ -125,9 +147,19 @@ static int32_t spmd_init(void)
 {
 	spmd_spm_core_context_t *ctx = spmd_get_context();
 	uint64_t rc;
+	unsigned int linear_id = plat_my_core_pos();
+	unsigned int core_id;
 
 	VERBOSE("SPM Core init start.\n");
-	ctx->state = SPMC_STATE_RESET;
+	ctx->state = SPMC_STATE_ON_PENDING;
+
+	/* Set the SPMC context state on other CPUs to OFF */
+	for (core_id = 0U; core_id < PLATFORM_CORE_COUNT; core_id++) {
+		if (core_id != linear_id) {
+			spm_core_context[core_id].state = SPMC_STATE_OFF;
+			spm_core_context[core_id].secondary_ep.entry_point = 0UL;
+		}
+	}
 
 	rc = spmd_spm_core_sync_entry(ctx);
 	if (rc != 0ULL) {
@@ -135,7 +167,8 @@ static int32_t spmd_init(void)
 		return 0;
 	}
 
-	ctx->state = SPMC_STATE_IDLE;
+	ctx->state = SPMC_STATE_ON;
+
 	VERBOSE("SPM Core init end.\n");
 
 	return 1;
@@ -248,6 +281,9 @@ static int spmd_spmc_init(void *pm_addr)
 
 	INFO("SPM Core setup done.\n");
 
+	/* Register power management hooks with PSCI */
+	psci_register_spd_pm_hook(&spmd_pm);
+
 	/* Register init function for deferred init. */
 	bl31_register_bl32_init(&spmd_init);
 
@@ -301,8 +337,8 @@ static uint64_t spmd_smc_forward(uint32_t smc_fid,
 				 uint64_t x4,
 				 void *handle)
 {
-	uint32_t secure_state_in = (secure_origin) ? SECURE : NON_SECURE;
-	uint32_t secure_state_out = (!secure_origin) ? SECURE : NON_SECURE;
+	unsigned int secure_state_in = (secure_origin) ? SECURE : NON_SECURE;
+	unsigned int secure_state_out = (!secure_origin) ? SECURE : NON_SECURE;
 
 	/* Save incoming security state */
 	cm_el1_sysregs_context_save(secure_state_in);
@@ -332,6 +368,46 @@ static uint64_t spmd_ffa_error_return(void *handle, int error_code)
 		 FFA_TARGET_INFO_MBZ, error_code,
 		 FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ,
 		 FFA_PARAM_MBZ, FFA_PARAM_MBZ);
+}
+
+/*******************************************************************************
+ * spmd_check_address_in_binary_image
+ ******************************************************************************/
+bool spmd_check_address_in_binary_image(uint64_t address)
+{
+	assert(!check_uptr_overflow(spmc_attrs.load_address, spmc_attrs.binary_size));
+
+	return ((address >= spmc_attrs.load_address) &&
+		(address < (spmc_attrs.load_address + spmc_attrs.binary_size)));
+}
+
+/******************************************************************************
+ * spmd_is_spmc_message
+ *****************************************************************************/
+static bool spmd_is_spmc_message(unsigned int ep)
+{
+	return ((ffa_endpoint_destination(ep) == SPMD_DIRECT_MSG_ENDPOINT_ID)
+		&& (ffa_endpoint_source(ep) == spmc_attrs.spmc_id));
+}
+
+/******************************************************************************
+ * spmd_handle_spmc_message
+ *****************************************************************************/
+static int spmd_handle_spmc_message(unsigned long long msg,
+		unsigned long long parm1, unsigned long long parm2,
+		unsigned long long parm3, unsigned long long parm4)
+{
+	VERBOSE("%s %llx %llx %llx %llx %llx\n", __func__,
+		msg, parm1, parm2, parm3, parm4);
+
+	switch (msg) {
+	case SPMD_DIRECT_MSG_SET_ENTRY_POINT:
+		return spmd_pm_secondary_core_set_ep(parm1, parm2, parm3);
+	default:
+		break;
+	}
+
+	return -EINVAL;
 }
 
 /*******************************************************************************
@@ -367,7 +443,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		 * this CPU. If so, then indicate that the SPM Core initialised
 		 * unsuccessfully.
 		 */
-		if (secure_origin && (ctx->state == SPMC_STATE_RESET)) {
+		if (secure_origin && (ctx->state == SPMC_STATE_ON_PENDING)) {
 			spmd_spm_core_sync_exit(x2);
 		}
 
@@ -451,6 +527,35 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 		break; /* not reached */
 
+	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
+		if (secure_origin && spmd_is_spmc_message(x1)) {
+			ret = spmd_handle_spmc_message(x3, x4,
+				SMC_GET_GP(handle, CTX_GPREG_X5),
+				SMC_GET_GP(handle, CTX_GPREG_X6),
+				SMC_GET_GP(handle, CTX_GPREG_X7));
+
+			SMC_RET8(handle, FFA_SUCCESS_SMC32,
+				FFA_TARGET_INFO_MBZ, ret,
+				FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+				FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+				FFA_PARAM_MBZ);
+		} else {
+			/* Forward direct message to the other world */
+			return spmd_smc_forward(smc_fid, secure_origin,
+				x1, x2, x3, x4, handle);
+		}
+		break; /* Not reached */
+
+	case FFA_MSG_SEND_DIRECT_RESP_SMC32:
+		if (secure_origin && spmd_is_spmc_message(x1)) {
+			spmd_spm_core_sync_exit(0);
+		} else {
+			/* Forward direct message to the other world */
+			return spmd_smc_forward(smc_fid, secure_origin,
+				x1, x2, x3, x4, handle);
+		}
+		break; /* Not reached */
+
 	case FFA_RX_RELEASE:
 	case FFA_RXTX_MAP_SMC32:
 	case FFA_RXTX_MAP_SMC64:
@@ -466,9 +571,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 
 	case FFA_PARTITION_INFO_GET:
 	case FFA_MSG_SEND:
-	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
 	case FFA_MSG_SEND_DIRECT_REQ_SMC64:
-	case FFA_MSG_SEND_DIRECT_RESP_SMC32:
 	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
 	case FFA_MEM_DONATE_SMC32:
 	case FFA_MEM_DONATE_SMC64:
@@ -500,7 +603,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		 * this CPU from the Secure world. If so, then indicate that the
 		 * SPM Core initialised successfully.
 		 */
-		if (secure_origin && (ctx->state == SPMC_STATE_RESET)) {
+		if (secure_origin && (ctx->state == SPMC_STATE_ON_PENDING)) {
 			spmd_spm_core_sync_exit(0);
 		}
 
