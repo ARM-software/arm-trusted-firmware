@@ -369,7 +369,7 @@ Architectural initialization
 
 For AArch64, BL2 performs the minimal architectural initialization required
 for subsequent stages of TF-A and normal world software. EL1 and EL0 are given
-access to Floating Point and Advanced SIMD registers by clearing the
+access to Floating Point and Advanced SIMD registers by setting the
 ``CPACR.FPEN`` bits.
 
 For AArch32, the minimal architectural initialization required for subsequent
