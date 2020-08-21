@@ -95,10 +95,13 @@ By default, all logging statements with a log level ``<= LOG_LEVEL_INFO`` will
 be compiled into debug builds and all statements with a log level
 ``<= LOG_LEVEL_NOTICE`` will be compiled into release builds. This can be
 overridden from the command line or by the platform makefile (although it may be
-necessary to clean the build directory first). For example, to enable
-``VERBOSE`` logging on FVP:
+necessary to clean the build directory first).
 
-``make PLAT=fvp LOG_LEVEL=50 all``
+For example, to enable ``VERBOSE`` logging on FVP:
+
+.. code:: shell
+
+  make PLAT=fvp LOG_LEVEL=50 all
 
 Use const data where possible
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
