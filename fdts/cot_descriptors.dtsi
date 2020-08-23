@@ -6,6 +6,7 @@
 
 #include <tools_share/tbbr_oid.h>
 #include <common/tbbr/tbbr_img_def.h>
+#include <common/nv_cntr_ids.h>
 
 cot {
 	manifests {
@@ -301,18 +302,19 @@ cot {
 	};
 };
 
-non-volatile-counters {
+non_volatile_counters: non_volatile_counters {
 	compatible = "arm, non-volatile-counter";
 
 	#address-cells = <1>;
 	#size-cells = <0>;
 
-	counters {
-		trusted_nv_counter: trusted_nv_counter {
-			oid = TRUSTED_FW_NVCOUNTER_OID;
-		};
-		non_trusted_nv_counter: non_trusted_nv_counter {
-			oid = NON_TRUSTED_FW_NVCOUNTER_OID;
-		};
+	trusted_nv_counter: trusted_nv_counter {
+		id  = <TRUSTED_NV_CTR_ID>;
+		oid = TRUSTED_FW_NVCOUNTER_OID;
+	};
+
+	non_trusted_nv_counter: non_trusted_nv_counter {
+		id  = <NON_TRUSTED_NV_CTR_ID>;
+		oid = NON_TRUSTED_FW_NVCOUNTER_OID;
 	};
 };
