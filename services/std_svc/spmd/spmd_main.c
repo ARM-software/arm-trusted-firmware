@@ -560,16 +560,22 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	case FFA_RXTX_MAP_SMC32:
 	case FFA_RXTX_MAP_SMC64:
 	case FFA_RXTX_UNMAP:
+	case FFA_PARTITION_INFO_GET:
+		/*
+		 * Should not be allowed to forward FFA_PARTITION_INFO_GET
+		 * from Secure world to Normal world
+		 *
+		 * Fall through to forward the call to the other world
+		 */
 	case FFA_MSG_RUN:
 		/* This interface must be invoked only by the Normal world */
+
 		if (secure_origin) {
 			return spmd_ffa_error_return(handle,
-						      FFA_ERROR_NOT_SUPPORTED);
+						     FFA_ERROR_NOT_SUPPORTED);
 		}
 
 		/* Fall through to forward the call to the other world */
-
-	case FFA_PARTITION_INFO_GET:
 	case FFA_MSG_SEND:
 	case FFA_MSG_SEND_DIRECT_REQ_SMC64:
 	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
