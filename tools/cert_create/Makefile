@@ -4,11 +4,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-PROJECT		:= cert_create
 PLAT		:= none
 V		?= 0
 DEBUG		:= 0
-BINARY		:= ${PROJECT}${BIN_EXT}
+BINARY		:= $(notdir ${CRTTOOL})
 OPENSSL_DIR	:= /usr
 COT		:= tbbr
 

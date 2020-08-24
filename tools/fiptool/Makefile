@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,7 +8,7 @@ MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 
-PROJECT := fiptool${BIN_EXT}
+PROJECT := $(notdir ${FIPTOOL})
 OBJECTS := fiptool.o tbbr_config.o
 V ?= 0
 

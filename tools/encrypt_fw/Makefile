@@ -1,14 +1,13 @@
 #
-# Copyright (c) 2019, Linaro Limited. All rights reserved.
+# Copyright (c) 2019-2020, Linaro Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-PROJECT		:= encrypt_fw
 V		?= 0
 BUILD_INFO	?= 1
 DEBUG		:= 0
-BINARY		:= ${PROJECT}${BIN_EXT}
+BINARY		:= $(notdir ${ENCTOOL})
 OPENSSL_DIR	:= /usr
 
 OBJECTS := src/encrypt.o \
