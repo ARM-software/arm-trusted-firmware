@@ -196,7 +196,7 @@ void bl2_el3_plat_arch_setup(void)
 
 	configure_mmu();
 
-	if (dt_open_and_check() < 0) {
+	if (dt_open_and_check(STM32MP_DTB_BASE) < 0) {
 		panic();
 	}
 

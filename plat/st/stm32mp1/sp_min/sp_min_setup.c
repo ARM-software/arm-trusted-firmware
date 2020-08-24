@@ -146,7 +146,7 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		bl_params = bl_params->next_params_info;
 	}
 
-	if (dt_open_and_check() < 0) {
+	if (dt_open_and_check(STM32MP_DTB_BASE) < 0) {
 		panic();
 	}
 
