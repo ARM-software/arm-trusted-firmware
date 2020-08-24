@@ -24,6 +24,7 @@ void plat_fpga_gic_init(void);
 void fpga_pwr_gic_on_finish(void);
 void fpga_pwr_gic_off(void);
 unsigned int plat_fpga_calc_core_pos(uint32_t mpid);
+unsigned int fpga_get_nr_gic_cores(void);
 
 #endif /* __ASSEMBLER__ */
 

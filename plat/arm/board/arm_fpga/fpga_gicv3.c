@@ -77,3 +77,8 @@ void fpga_pwr_gic_off(void)
 	gicv3_cpuif_disable(plat_my_core_pos());
 	gicv3_rdistif_off(plat_my_core_pos());
 }
+
+unsigned int fpga_get_nr_gic_cores(void)
+{
+	return gicv3_rdistif_get_number_frames(fpga_gicv3_driver_data.gicr_base);
+}
