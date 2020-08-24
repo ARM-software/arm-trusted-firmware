@@ -65,7 +65,7 @@ $(eval $(call add_define,RELOCATE_BL32_IMAGE))
 BUILD_PLAT	:=	$(abspath ${BUILD_BASE})/${PLAT}/${TARGET_SOC}/${BUILD_TYPE}
 
 # platform cflags (enable signed comparisons, disable stdlib)
-TF_CFLAGS	+= -Wsign-compare -nostdlib
+TF_CFLAGS	+= -nostdlib
 
 # override with necessary libc files for the Tegra platform
 override LIBC_SRCS :=	$(addprefix lib/libc/,		\
