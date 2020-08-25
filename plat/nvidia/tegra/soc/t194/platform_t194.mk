@@ -70,3 +70,13 @@ BL31_SOURCES		+=	lib/extensions/ras/std_err_record.c		\
 				lib/extensions/ras/ras_common.c			\
 				${SOC_DIR}/plat_ras.c
 endif
+
+# SPM dispatcher
+ifeq (${SPD},spmd)
+# include device tree helper library
+include lib/libfdt/libfdt.mk
+# sources to support spmd
+BL31_SOURCES		+=	plat/common/plat_spmd_manifest.c	\
+				common/fdt_wrappers.c			\
+				${LIBFDT_SRCS}
+endif

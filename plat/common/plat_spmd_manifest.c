@@ -9,6 +9,7 @@
 #include <string.h>
 #include <libfdt.h>
 
+#include <common/bl_common.h>
 #include <common/debug.h>
 #include <common/fdt_wrappers.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
