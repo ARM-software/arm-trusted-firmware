@@ -79,7 +79,7 @@ include lib/coreboot/coreboot.mk
 PSCI_SOURCES		:=	plat/common/plat_psci_common.c				\
 
 # GIC-600 configuration
-GICV3_IMPL			:=	GIC600
+GICV3_SUPPORT_GIC600	:=	1
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
 
