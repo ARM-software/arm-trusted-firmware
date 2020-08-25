@@ -4,9 +4,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <inttypes.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stddef.h>
 
 #include <arch_helpers.h>
 #include <lib/mmio.h>
@@ -521,7 +523,7 @@ static int xfer_data(struct sd_handle *handle,
 {
 	int rc = SD_OK;
 
-	VERBOSE("XFER: dest: 0x%llx, addr: 0x%x, size: 0x%x bytes\n",
+	VERBOSE("XFER: dest: 0x%" PRIx64 ", addr: 0x%x, size: 0x%x bytes\n",
 		(uint64_t)base, addr, length);
 
 	if ((length / handle->device->cfg.blockSize) > 1) {

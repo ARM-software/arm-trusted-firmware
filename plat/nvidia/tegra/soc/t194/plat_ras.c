@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -54,7 +55,7 @@ static void tegra194_ea_handler(unsigned int ea_reason, uint64_t syndrome,
 
 	ras_lock();
 
-	ERROR("MPIDR 0x%lx: exception reason=%u syndrome=0x%llx\n",
+	ERROR("MPIDR 0x%lx: exception reason=%u syndrome=0x%" PRIx64 "\n",
 		read_mpidr(), ea_reason, syndrome);
 
 	/* Call RAS EA handler */
@@ -146,7 +147,7 @@ void tegra194_ras_enable(void)
 			/* enable the supported errors */
 			err_ctrl |= err_fr;
 
-			VERBOSE("errselr_el1:0x%x, erxfr:0x%llx, err_ctrl:0x%llx\n",
+			VERBOSE("errselr_el1:0x%x, erxfr:0x%" PRIx64 ", err_ctrl:0x%" PRIx64 "\n",
 				idx_start + j, err_fr, err_ctrl);
 
 			/* enable specified errors, or set to 0 if no supported error */
@@ -288,7 +289,7 @@ static int32_t tegra194_ras_node_handler(uint32_t errselr, const char *name,
 	/* keep the log print same as linux arm64_ras driver. */
 	ERROR("**************************************\n");
 	ERROR("RAS Error in %s, ERRSELR_EL1=0x%x:\n", name, errselr);
-	ERROR("\tStatus = 0x%llx\n", status);
+	ERROR("\tStatus = 0x%" PRIx64 "\n", status);
 
 	/* Print uncorrectable errror information. */
 	if (ERR_STATUS_GET_FIELD(status, UE) != 0U) {

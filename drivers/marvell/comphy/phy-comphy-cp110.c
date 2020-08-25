@@ -8,6 +8,8 @@
 /* Marvell CP110 SoC COMPHY unit driver */
 
 #include <errno.h>
+#include <inttypes.h>
+#include <stdint.h>
 
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
@@ -102,7 +104,7 @@ static void mvebu_cp110_get_ap_and_cp_nr(uint8_t *ap_nr, uint8_t *cp_nr,
 	*cp_nr = (((comphy_base & ~0xffffff) - MVEBU_AP_IO_BASE(*ap_nr)) /
 		 MVEBU_CP_OFFSET);
 
-	debug("cp_base 0x%llx, ap_io_base 0x%lx, cp_offset 0x%lx\n",
+	debug("cp_base 0x%" PRIx64 ", ap_io_base 0x%lx, cp_offset 0x%lx\n",
 	       comphy_base, (unsigned long)MVEBU_AP_IO_BASE(*ap_nr),
 	       (unsigned long)MVEBU_CP_OFFSET);
 }

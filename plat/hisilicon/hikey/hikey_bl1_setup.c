@@ -6,6 +6,8 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <inttypes.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <arch_helpers.h>
@@ -155,7 +157,7 @@ void bl1_plat_set_ep_info(unsigned int image_id,
 		__asm__ volatile ("msr	cpacr_el1, %0" : : "r"(data));
 		__asm__ volatile ("mrs	%0, cpacr_el1" : "=r"(data));
 	} while ((data & (3 << 20)) != (3 << 20));
-	INFO("cpacr_el1:0x%llx\n", data);
+	INFO("cpacr_el1:0x%" PRIx64 "\n", data);
 
 	ep_info->args.arg0 = 0xffff & read_mpidr();
 	ep_info->spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,

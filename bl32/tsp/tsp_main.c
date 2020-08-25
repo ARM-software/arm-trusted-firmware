@@ -5,6 +5,8 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
+#include <stdint.h>
 
 #include <arch_features.h>
 #include <arch_helpers.h>
@@ -271,7 +273,7 @@ tsp_args_t *tsp_cpu_resume_main(uint64_t max_off_pwrlvl,
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	INFO("TSP: cpu 0x%lx resumed. maximum off power level %lld\n",
+	INFO("TSP: cpu 0x%lx resumed. maximum off power level %" PRId64 "\n",
 	     read_mpidr(), max_off_pwrlvl);
 	INFO("TSP: cpu 0x%lx: %d smcs, %d erets %d cpu resume requests\n",
 		read_mpidr(),
@@ -375,7 +377,7 @@ tsp_args_t *tsp_smc_handler(uint64_t func,
 
 #if LOG_LEVEL >= LOG_LEVEL_INFO
 	spin_lock(&console_lock);
-	INFO("TSP: cpu 0x%lx received %s smc 0x%llx\n", read_mpidr(),
+	INFO("TSP: cpu 0x%lx received %s smc 0x%" PRIx64 "\n", read_mpidr(),
 		((func >> 31) & 1) == 1 ? "fast" : "yielding",
 		func);
 	INFO("TSP: cpu 0x%lx: %d smcs, %d erets\n", read_mpidr(),

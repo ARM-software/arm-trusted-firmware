@@ -6,6 +6,8 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <inttypes.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <arch_helpers.h>
@@ -49,7 +51,7 @@ spmd_spm_core_context_t *spmd_get_context_by_mpidr(uint64_t mpidr)
 	int core_idx = plat_core_pos_by_mpidr(mpidr);
 
 	if (core_idx < 0) {
-		ERROR("Invalid mpidr: %llx, returned ID: %d\n", mpidr, core_idx);
+		ERROR("Invalid mpidr: %" PRIx64 ", returned ID: %d\n", mpidr, core_idx);
 		panic();
 	}
 
@@ -156,7 +158,7 @@ static int32_t spmd_init(void)
 
 	rc = spmd_spm_core_sync_entry(ctx);
 	if (rc != 0ULL) {
-		ERROR("SPMC initialisation failed 0x%llx\n", rc);
+		ERROR("SPMC initialisation failed 0x%" PRIx64 "\n", rc);
 		return 0;
 	}
 
@@ -436,12 +438,12 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	/* Determine which security state this SMC originated from */
 	secure_origin = is_caller_secure(flags);
 
-	VERBOSE("SPM(%u): 0x%x 0x%llx 0x%llx 0x%llx 0x%llx "
-		"0x%llx 0x%llx 0x%llx\n",
-		linear_id, smc_fid, x1, x2, x3, x4,
-		SMC_GET_GP(handle, CTX_GPREG_X5),
-		SMC_GET_GP(handle, CTX_GPREG_X6),
-		SMC_GET_GP(handle, CTX_GPREG_X7));
+	VERBOSE("SPM(%u): 0x%x 0x%" PRIx64 " 0x%" PRIx64 " 0x%" PRIx64 " 0x%" PRIx64
+		" 0x%" PRIx64 " 0x%" PRIx64 " 0x%" PRIx64 "\n",
+		    linear_id, smc_fid, x1, x2, x3, x4,
+		    SMC_GET_GP(handle, CTX_GPREG_X5),
+		    SMC_GET_GP(handle, CTX_GPREG_X6),
+		    SMC_GET_GP(handle, CTX_GPREG_X7));
 
 	switch (smc_fid) {
 	case FFA_ERROR:

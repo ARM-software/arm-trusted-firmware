@@ -6,8 +6,10 @@
 
 #include <assert.h>
 #include <errno.h>
-#include <string.h>
+#include <inttypes.h>
 #include <libfdt.h>
+#include <stdint.h>
+#include <string.h>
 
 #include <common/bl_common.h>
 #include <common/debug.h>
@@ -80,8 +82,8 @@ static int manifest_parse_attribute(spmc_manifest_attribute_t *attr,
 	VERBOSE("  version: %u.%u\n", attr->major_version, attr->minor_version);
 	VERBOSE("  spmc_id: 0x%x\n", attr->spmc_id);
 	VERBOSE("  binary_size: 0x%x\n", attr->binary_size);
-	VERBOSE("  load_address: 0x%llx\n", attr->load_address);
-	VERBOSE("  entrypoint: 0x%llx\n", attr->entrypoint);
+	VERBOSE("  load_address: 0x%" PRIx64 "\n", attr->load_address);
+	VERBOSE("  entrypoint: 0x%" PRIx64 "\n", attr->entrypoint);
 
 	return 0;
 }

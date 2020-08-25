@@ -5,6 +5,9 @@
  * https://spdx.org/licenses
  */
 
+#include <inttypes.h>
+#include <stdint.h>
+
 #include <common/debug.h>
 #include <drivers/marvell/addr_map.h>
 #include <lib/mmio.h>
@@ -39,7 +42,7 @@ void tz_enable_win(int ap_index, const struct addr_map_win *win, int win_id)
 	/* map the window size to trustzone register convention */
 	tz_size = fls(TZ_SIZE(win->win_size));
 
-	VERBOSE("%s: window size = 0x%llx maps to tz_size %d\n",
+	VERBOSE("%s: window size = 0x%" PRIx64 " maps to tz_size %d\n",
 		__func__, win->win_size, tz_size);
 	if (tz_size < 0 || tz_size > 31) {
 		ERROR("Using not allowed size for MC TrustZone window %d!\n",
@@ -49,7 +52,7 @@ void tz_enable_win(int ap_index, const struct addr_map_win *win, int win_id)
 
 	if (base & 0xfff) {
 		base = base & ~0xfff;
-		WARN("Attempt to open MC TZ win. at 0x%llx, truncate to 0x%x\n",
+		WARN("Attempt to open MC TZ win. at 0x%" PRIx64 ", truncate to 0x%x\n",
 		     win->base_addr, base);
 	}
 

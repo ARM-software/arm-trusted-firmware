@@ -6,7 +6,9 @@
 
 #include <assert.h>
 #include <cdefs.h>
+#include <inttypes.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "../amu_private.h"
 #include <arch.h>
@@ -343,7 +345,7 @@ static bool amu_group0_voffset_supported(uint64_t idx)
 
 	default:
 		ERROR("AMU: can't set up virtual offset for unknown "
-		      "architected counter %llu!\n", idx);
+		      "architected counter %" PRIu64 "!\n", idx);
 
 		panic();
 	}

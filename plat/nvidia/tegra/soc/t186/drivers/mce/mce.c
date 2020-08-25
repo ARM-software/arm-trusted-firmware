@@ -7,6 +7,8 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <inttypes.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <arch.h>
@@ -341,7 +343,7 @@ int32_t mce_command_handler(uint64_t cmd, uint64_t arg0, uint64_t arg1,
 		break;
 
 	default:
-		ERROR("unknown MCE command (%llu)\n", cmd);
+		ERROR("unknown MCE command (%" PRIu64 ")\n", cmd);
 		ret = EINVAL;
 		break;
 	}

@@ -8,6 +8,8 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <inttypes.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <libfdt.h>
@@ -402,7 +404,7 @@ static bool fdtw_xlat_hit(const uint32_t *value, int child_addr_size,
 	addr_range = fdt_read_prop_cells(value + child_addr_size +
 				parent_addr_size,
 				range_size);
-	VERBOSE("DT: Address %llx mapped to %llx with range %llx\n",
+	VERBOSE("DT: Address %" PRIx64 " mapped to %" PRIx64 " with range %" PRIx64 "\n",
 		local_address, parent_address, addr_range);
 
 	/* Perform range check */
@@ -413,8 +415,8 @@ static bool fdtw_xlat_hit(const uint32_t *value, int child_addr_size,
 
 	/* Found hit for the addr range that needs to be translated */
 	*translated_addr = parent_address + (base_address - local_address);
-	VERBOSE("DT: child address %llx mapped to %llx in parent bus\n",
-			local_address, parent_address);
+	VERBOSE("DT: child address %" PRIx64 "mapped to %" PRIx64 " in parent bus\n",
+		local_address, parent_address);
 	return true;
 }
 
@@ -470,8 +472,8 @@ static uint64_t fdtw_search_all_xlat_entries(const void *dtb,
 		next_entry = next_entry + ncells_xlat;
 	}
 
-	INFO("DT: No translation found for address %llx in node %s\n",
-		base_address, fdt_get_name(dtb, local_bus, NULL));
+	INFO("DT: No translation found for address %" PRIx64 " in node %s\n",
+	     base_address, fdt_get_name(dtb, local_bus, NULL));
 	return ILLEGAL_ADDR;
 }
 

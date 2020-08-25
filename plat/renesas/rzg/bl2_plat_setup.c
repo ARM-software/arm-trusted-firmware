@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <inttypes.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <arch_helpers.h>
@@ -531,7 +533,7 @@ static void bl2_advertise_dram_entries(uint64_t dram_config[8])
 			continue;
 		}
 
-		NOTICE("BL2: CH%d: %llx - %llx, %lld %siB\n",
+		NOTICE("BL2: CH%d: %" PRIx64 " - %" PRIx64 ", %" PRId64 " %siB\n",
 		       chan, start, start + size - 1U,
 		       (size >> 30) ? : size >> 20,
 		       (size >> 30) ? "G" : "M");

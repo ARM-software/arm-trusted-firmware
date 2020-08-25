@@ -7,6 +7,7 @@
 
 #include <assert.h>
 #include <errno.h>
+#include <inttypes.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -336,7 +337,7 @@ int32_t bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes)
 	 * Sanity check the input values
 	 */
 	if ((base == 0U) || (size_in_bytes == 0U)) {
-		ERROR("NS address 0x%llx (%lld bytes) is invalid\n",
+		ERROR("NS address 0x%" PRIx64 " (%" PRId64 " bytes) is invalid\n",
 			base, size_in_bytes);
 		return -EINVAL;
 	}
@@ -347,7 +348,7 @@ int32_t bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes)
 	if ((base < TEGRA_DRAM_BASE) || (base >= TEGRA_DRAM_END) ||
 	    (end > TEGRA_DRAM_END)) {
 
-		ERROR("NS address 0x%llx is out-of-bounds!\n", base);
+		ERROR("NS address 0x%" PRIx64 " is out-of-bounds!\n", base);
 		return -EFAULT;
 	}
 
@@ -356,7 +357,7 @@ int32_t bl31_check_ns_address(uint64_t base, uint64_t size_in_bytes)
 	 * to check if the NS DRAM range overlaps the TZDRAM aperture.
 	 */
 	if ((base < (uint64_t)TZDRAM_END) && (end > tegra_bl31_phys_base)) {
-		ERROR("NS address 0x%llx overlaps TZDRAM!\n", base);
+		ERROR("NS address 0x%" PRIx64 " overlaps TZDRAM!\n", base);
 		return -ENOTSUP;
 	}
 

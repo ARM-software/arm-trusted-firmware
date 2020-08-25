@@ -7,6 +7,9 @@
 
 /* AXI to M-Bridge decoding unit driver for Marvell Armada 8K and 8K+ SoCs */
 
+#include <inttypes.h>
+#include <stdint.h>
+
 #include <common/debug.h>
 #include <lib/mmio.h>
 
@@ -44,10 +47,10 @@ static void amb_check_win(struct addr_map_win *win, uint32_t win_num)
 
 	/* make sure the base address is in 16-bit range */
 	if (win->base_addr > AMB_BASE_ADDR_MASK) {
-		WARN("Window %d: base address is too big 0x%llx\n",
+		WARN("Window %d: base address is too big 0x%" PRIx64 "\n",
 		       win_num, win->base_addr);
 		win->base_addr = AMB_BASE_ADDR_MASK;
-		WARN("Set the base address to 0x%llx\n", win->base_addr);
+		WARN("Set the base address to 0x%" PRIx64 "\n", win->base_addr);
 	}
 
 	base_addr  = win->base_addr << AMB_BASE_OFFSET;
@@ -57,15 +60,15 @@ static void amb_check_win(struct addr_map_win *win, uint32_t win_num)
 		win->base_addr = ALIGN_UP(base_addr, AMB_WIN_ALIGNMENT_1M);
 		WARN("Window %d: base address unaligned to 0x%x\n",
 		       win_num, AMB_WIN_ALIGNMENT_1M);
-		WARN("Align up the base address to 0x%llx\n", win->base_addr);
+		WARN("Align up the base address to 0x%" PRIx64 "\n", win->base_addr);
 	}
 
 	/* size parameter validity check */
 	if (!IS_POWER_OF_2(win->win_size)) {
-		WARN("Window %d: window size is not power of 2 (0x%llx)\n",
+		WARN("Window %d: window size is not power of 2 (0x%" PRIx64 ")\n",
 		       win_num, win->win_size);
 		win->win_size = ROUND_UP_TO_POW_OF_2(win->win_size);
-		WARN("Rounding size to 0x%llx\n", win->win_size);
+		WARN("Rounding size to 0x%" PRIx64 "\n", win->win_size);
 	}
 }
 

@@ -5,6 +5,8 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
+#include <stdint.h>
 #include <string.h>
 
 #include <arch_helpers.h>
@@ -459,8 +461,8 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 		 * Interrupts received while this PE was masked can't be
 		 * dispatched.
 		 */
-		SDEI_LOG("interrupt %u on %llx while PE masked\n", map->intr,
-				mpidr);
+		SDEI_LOG("interrupt %u on %" PRIx64 " while PE masked\n",
+			 map->intr, mpidr);
 		if (is_event_shared(map))
 			sdei_map_lock(map);
 
@@ -531,8 +533,8 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 	if (is_event_shared(map))
 		sdei_map_unlock(map);
 
-	SDEI_LOG("ACK %llx, ev:0x%x ss:%d spsr:%lx ELR:%lx\n", mpidr, map->ev_num,
-			sec_state, read_spsr_el3(), read_elr_el3());
+	SDEI_LOG("ACK %" PRIx64 ", ev:0x%x ss:%d spsr:%lx ELR:%lx\n",
+		 mpidr, map->ev_num, sec_state, read_spsr_el3(), read_elr_el3());
 
 	ctx = handle;
 
@@ -703,7 +705,7 @@ int sdei_event_complete(bool resume, uint64_t pc)
 	/* Having done sanity checks, pop dispatch */
 	(void) pop_dispatch();
 
-	SDEI_LOG("EOI:%lx, 0x%x spsr:%lx elr:%lx\n", read_mpidr_el1(),
+	SDEI_LOG("EOI:%lx, %d spsr:%lx elr:%lx\n", read_mpidr_el1(),
 			map->ev_num, read_spsr_el3(), read_elr_el3());
 
 	/*
