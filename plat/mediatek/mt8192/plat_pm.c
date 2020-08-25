@@ -14,6 +14,7 @@
 
 /* platform specific headers */
 #include <mt_gic_v3.h>
+#include <mtk_ptp3_common.h>
 #include <mtspmc.h>
 #include <plat/common/platform.h>
 #include <plat_mtk_lpm.h>
@@ -72,6 +73,8 @@ static void plat_cpu_pwrdwn_common(unsigned int cpu,
 	mt_gic_rdistif_save();
 	gicv3_cpuif_disable(cpu);
 	gicv3_rdistif_off(cpu);
+	/* PTP3 config */
+	ptp3_deinit(cpu);
 }
 
 static void plat_cpu_pwron_common(unsigned int cpu,
@@ -97,6 +100,9 @@ static void plat_cpu_pwron_common(unsigned int cpu,
 	} else {
 		mt_gic_rdistif_restore();
 	}
+
+	/* PTP3 config */
+	ptp3_init(cpu);
 }
 
 /*
