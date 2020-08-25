@@ -28,6 +28,7 @@
 
 #include <memctrl.h>
 #include <profiler.h>
+#include <smmu.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
@@ -180,21 +181,6 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	plat_early_platform_setup();
 
 	/*
-	 * Do initial security configuration to allow DRAM/device access.
-	 */
-	tegra_memctrl_tzdram_setup(plat_bl31_params_from_bl2.tzdram_base,
-			(uint32_t)plat_bl31_params_from_bl2.tzdram_size);
-
-#if RELOCATE_BL32_IMAGE
-	/*
-	 * The previous bootloader might not have placed the BL32 image
-	 * inside the TZDRAM. Platform handler to allow relocation of BL32
-	 * image to TZDRAM memory. This behavior might change per platform.
-	 */
-	plat_relocate_bl32_image(arg_from_bl2->bl32_image_info);
-#endif
-
-	/*
 	 * Add timestamp for platform early setup exit.
 	 */
 	boot_profiler_add_record("[TF] early setup exit");
@@ -286,6 +272,13 @@ void bl31_plat_runtime_setup(void)
 	 * disabled before we jump to the non-secure world.
 	 */
 	tegra_memctrl_disable_ahb_redirection();
+
+#if defined(TEGRA_SMMU0_BASE)
+	/*
+	 * Verify the integrity of the previously configured SMMU(s) settings
+	 */
+	tegra_smmu_verify();
+#endif
 
 	/*
 	 * Add final timestamp before exiting BL31.

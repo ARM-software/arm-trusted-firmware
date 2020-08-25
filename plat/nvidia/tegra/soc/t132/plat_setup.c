@@ -6,9 +6,11 @@
  */
 
 #include <arch_helpers.h>
+#include <assert.h>
 #include <common/bl_common.h>
 #include <drivers/console.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+#include <memctrl.h>
 #include <plat/common/platform.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>
@@ -144,7 +146,16 @@ plat_params_from_bl2_t *plat_get_bl31_plat_params(void)
  ******************************************************************************/
 void plat_early_platform_setup(void)
 {
-	; /* do nothing */
+	plat_params_from_bl2_t *plat_params = bl31_get_plat_params();
+
+	/* Verify chip id is t132 */
+	assert(tegra_chipid_is_t132());
+
+	/*
+	 * Do initial security configuration to allow DRAM/device access.
+	 */
+	tegra_memctrl_tzdram_setup(plat_params->tzdram_base,
+			(uint32_t)plat_params->tzdram_size);
 }
 
 /*******************************************************************************

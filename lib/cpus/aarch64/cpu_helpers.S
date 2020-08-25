@@ -78,6 +78,10 @@ func prepare_cpu_pwr_dwn
 	mov	x1, #CPU_PWR_DWN_OPS
 	add	x1, x1, x2, lsl #3
 	ldr	x1, [x0, x1]
+#if ENABLE_ASSERTIONS
+	cmp	x1, #0
+	ASM_ASSERT(ne)
+#endif
 	br	x1
 endfunc prepare_cpu_pwr_dwn
 
@@ -171,6 +175,10 @@ func get_cpu_ops_ptr
 
 	/* Subtract the increment and offset to get the cpu-ops pointer */
 	sub	x0, x4, #(CPU_OPS_SIZE + CPU_MIDR)
+#if ENABLE_ASSERTIONS
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
 error_exit:
 	ret
 endfunc get_cpu_ops_ptr
@@ -276,7 +284,15 @@ func print_errata_status
 	 * turn.
 	 */
 	mrs	x0, tpidr_el3
+#if ENABLE_ASSERTIONS
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
 	ldr	x1, [x0, #CPU_DATA_CPU_OPS_PTR]
+#if ENABLE_ASSERTIONS
+	cmp	x1, #0
+	ASM_ASSERT(ne)
+#endif
 	ldr	x0, [x1, #CPU_ERRATA_FUNC]
 	cbz	x0, .Lnoprint
 
@@ -326,6 +342,10 @@ func check_wa_cve_2017_5715
 	ASM_ASSERT(ne)
 #endif
 	ldr	x0, [x0, #CPU_DATA_CPU_OPS_PTR]
+#if ENABLE_ASSERTIONS
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
 	ldr	x0, [x0, #CPU_EXTRA1_FUNC]
 	/*
 	 * If the reserved function pointer is NULL, this CPU
@@ -359,6 +379,10 @@ func wa_cve_2018_3639_get_disable_ptr
 	ASM_ASSERT(ne)
 #endif
 	ldr	x0, [x0, #CPU_DATA_CPU_OPS_PTR]
+#if ENABLE_ASSERTIONS
+	cmp	x0, #0
+	ASM_ASSERT(ne)
+#endif
 	ldr	x0, [x0, #CPU_EXTRA2_FUNC]
 	ret
 endfunc wa_cve_2018_3639_get_disable_ptr

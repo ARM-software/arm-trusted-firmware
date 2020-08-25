@@ -11,8 +11,7 @@
 #define CONSOLE_FLUSH_DATA_TO_PORT	(1 << 26)
 #define CONSOLE_RING_DOORBELL		(1 << 31)
 #define CONSOLE_IS_BUSY			(1 << 31)
-#define CONSOLE_TIMEOUT			0xC000		/* approx. 50 ms */
-#define CONSOLE_WRITE			(CONSOLE_RING_DOORBELL | CONSOLE_FLUSH_DATA_TO_PORT)
+#define CONSOLE_TIMEOUT			0xC000		/* 50 ms */
 
 	/*
 	 * This file contains a driver implementation to make use of the
@@ -101,7 +100,7 @@ func console_spe_core_putc
 	/* spe is ready */
 	mov	w2, #0xD		/* '\r' */
 	and	w2, w2, #0xFF
-	mov	w3, #(CONSOLE_WRITE | (1 << CONSOLE_NUM_BYTES_SHIFT))
+	mov	w3, #(CONSOLE_RING_DOORBELL | (1 << CONSOLE_NUM_BYTES_SHIFT))
 	orr	w2, w2, w3
 	str	w2, [x1]
 
@@ -111,7 +110,7 @@ not_eol:
 	/* spe is ready */
 	mov	w2, w0
 	and	w2, w2, #0xFF
-	mov	w3, #(CONSOLE_WRITE | (1 << CONSOLE_NUM_BYTES_SHIFT))
+	mov	w3, #(CONSOLE_RING_DOORBELL | (1 << CONSOLE_NUM_BYTES_SHIFT))
 	orr	w2, w2, w3
 	str	w2, [x1]
 
@@ -164,7 +163,7 @@ func console_spe_core_flush
 	cbz	x0, flush_error
 
 	/* flush console */
-	mov	w1, #CONSOLE_WRITE
+	mov	w1, #(CONSOLE_RING_DOORBELL | CONSOLE_FLUSH_DATA_TO_PORT)
 	str	w1, [x0]
 	mov	w0, #0
 	ret

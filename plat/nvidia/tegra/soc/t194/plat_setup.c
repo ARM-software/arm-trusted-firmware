@@ -205,6 +205,9 @@ void plat_early_platform_setup(void)
 	uint8_t enable_ccplex_lock_step = params_from_bl2->enable_ccplex_lock_step;
 	uint64_t actlr_elx;
 
+	/* Verify chip id is t194 */
+	assert(tegra_chipid_is_t194());
+
 	/* sanity check MCE firmware compatibility */
 	mce_verify_firmware_version();
 
@@ -283,8 +286,6 @@ static const interrupt_prop_t tegra194_interrupt_props[] = {
 	INTR_PROP_DESC(TEGRA_SDEI_SGI_PRIVATE, PLAT_SDEI_CRITICAL_PRI,
 			GICV2_INTR_GROUP0, GIC_INTR_CFG_EDGE),
 	INTR_PROP_DESC(TEGRA194_TOP_WDT_IRQ, PLAT_TEGRA_WDT_PRIO,
-			GICV2_INTR_GROUP0, GIC_INTR_CFG_EDGE),
-	INTR_PROP_DESC(TEGRA194_AON_WDT_IRQ, PLAT_TEGRA_WDT_PRIO,
 			GICV2_INTR_GROUP0, GIC_INTR_CFG_EDGE)
 };
 
