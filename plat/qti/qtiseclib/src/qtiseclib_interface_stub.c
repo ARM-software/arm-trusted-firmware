@@ -108,18 +108,6 @@ void qtiseclib_psci_node_suspend_finish(const uint8_t *states)
 {
 }
 
-void qtiseclib_psci_system_off(void)
-{
-	while (1) {
-	};
-}
-
-void qtiseclib_psci_system_reset(void)
-{
-	while (1) {
-	};
-}
-
 void qtiseclib_disable_cluster_coherency(uint8_t state)
 {
 }

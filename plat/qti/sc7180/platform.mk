@@ -51,6 +51,7 @@ QTI_BL31_SOURCES	:=	$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_helpers.S	\
 				$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_kryo4_silver.S	\
 				$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_kryo4_gold.S	\
 				$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_uart_console.S	\
+				$(QTI_PLAT_PATH)/common/src/pm8998.c			\
 				$(QTI_PLAT_PATH)/common/src/qti_stack_protector.c	\
 				$(QTI_PLAT_PATH)/common/src/qti_common.c		\
 				$(QTI_PLAT_PATH)/common/src/qti_bl31_setup.c		\
@@ -60,6 +61,7 @@ QTI_BL31_SOURCES	:=	$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_helpers.S	\
 				$(QTI_PLAT_PATH)/common/src/qti_topology.c		\
 				$(QTI_PLAT_PATH)/common/src/qti_pm.c			\
 				$(QTI_PLAT_PATH)/common/src/qti_rng.c			\
+				$(QTI_PLAT_PATH)/common/src/spmi_arb.c			\
 				$(QTI_PLAT_PATH)/qtiseclib/src/qtiseclib_cb_interface.c	\
 
 
@@ -79,7 +81,7 @@ include lib/coreboot/coreboot.mk
 PSCI_SOURCES		:=	plat/common/plat_psci_common.c				\
 
 # GIC-600 configuration
-GICV3_IMPL			:=	GIC600
+GICV3_SUPPORT_GIC600	:=	1
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
 

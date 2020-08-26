@@ -50,4 +50,7 @@ unsigned int plat_qti_my_cluster_pos(void);
 
 void gic_set_spi_routing(unsigned int id, unsigned int irm, u_register_t mpidr);
 
+void qti_pmic_prepare_reset(void);
+void qti_pmic_prepare_shutdown(void);
+
 #endif /* QTI_PLAT_H */
