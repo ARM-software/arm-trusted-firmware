@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2020, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -190,7 +190,7 @@ static int nand_status(uint8_t *status)
 	return ret;
 }
 
-int nand_wait_ready(unsigned long delay)
+int nand_wait_ready(unsigned int delay_ms)
 {
 	uint8_t status;
 	int ret;
@@ -204,7 +204,7 @@ int nand_wait_ready(unsigned long delay)
 		return ret;
 	}
 
-	timeout = timeout_init_us(delay);
+	timeout = timeout_init_us(delay_ms * 1000U);
 	while (!timeout_elapsed(timeout)) {
 		ret = nand_read_data(&status, 1U, true);
 		if (ret != 0) {
