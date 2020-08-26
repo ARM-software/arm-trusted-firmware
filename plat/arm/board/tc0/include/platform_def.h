@@ -249,6 +249,17 @@
 #define PLAT_ARM_TZC_NS_DEV_ACCESS	\
 		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_DEFAULT))
 
+/*
+ * The first region below, TC0_TZC_DRAM1_BASE (0xfd000000) to
+ * ARM_SCP_TZC_DRAM1_END (0xffffffff) will mark the last 48 MB of DRAM as
+ * secure. The second region gives non secure access to rest of DRAM.
+ */
+#define TC0_TZC_REGIONS_DEF						\
+	{TC0_TZC_DRAM1_BASE, ARM_SCP_TZC_DRAM1_END,			\
+		TZC_REGION_S_RDWR, PLAT_ARM_TZC_NS_DEV_ACCESS},		\
+	{TC0_NS_DRAM1_BASE, TC0_NS_DRAM1_END, ARM_TZC_NS_DRAM_S_ACCESS, \
+		PLAT_ARM_TZC_NS_DEV_ACCESS}
+
 /* virtual address used by dynamic mem_protect for chunk_base */
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xc0000000)
 
