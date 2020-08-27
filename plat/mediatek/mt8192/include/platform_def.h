@@ -59,6 +59,8 @@
 #define PLATFORM_CORE_COUNT             (PLATFORM_CLUSTER0_CORE_COUNT)
 #define PLATFORM_MAX_CPUS_PER_CLUSTER   U(8)
 
+#define SOC_CHIP_ID			U(0x8192)
+
 /*******************************************************************************
  * Platform memory map related constants
  ******************************************************************************/

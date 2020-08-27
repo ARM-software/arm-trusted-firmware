@@ -18,6 +18,9 @@
 #define LINUX_KERNEL_32 0
 #define SMC32_PARAM_MASK		(0xFFFFFFFF)
 
+#define JEDEC_MTK_BKID U(4)
+#define JEDEC_MTK_MFID U(0x26)
+
 struct atf_arg_t {
 	unsigned int atf_magic;
 	unsigned int tee_support;

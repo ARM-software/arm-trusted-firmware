@@ -279,6 +279,8 @@ INTR_PROP_DESC(MT_IRQ_SEC_SGI_7, GIC_HIGHEST_SEC_PRIORITY, grp, \
 					 PLATFORM_CLUSTER_COUNT + \
 					 PLATFORM_CORE_COUNT)
 
+#define SOC_CHIP_ID                     U(0x8183)
+
 /*******************************************************************************
  * Platform memory map related constants
  ******************************************************************************/
