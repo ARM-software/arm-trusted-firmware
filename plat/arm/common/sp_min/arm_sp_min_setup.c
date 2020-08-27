@@ -186,7 +186,7 @@ void sp_min_platform_setup(void)
 	 * Do initial security configuration to allow DRAM/device access
 	 * (if earlier BL has not already done so).
 	 */
-#if RESET_TO_SP_MIN
+#if RESET_TO_SP_MIN && !JUNO_AARCH32_EL3_RUNTIME
 	plat_arm_security_setup();
 
 #if defined(PLAT_ARM_MEM_PROT_ADDR)
