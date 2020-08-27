@@ -28,15 +28,24 @@ unsigned int plat_get_syscnt_freq2(void)
 }
 
 static uintptr_t boot_ctx_address;
+static uint16_t boot_itf_selected;
 
 void stm32mp_save_boot_ctx_address(uintptr_t address)
 {
+	boot_api_context_t *boot_context = (boot_api_context_t *)address;
+
 	boot_ctx_address = address;
+	boot_itf_selected = boot_context->boot_interface_selected;
 }
 
 uintptr_t stm32mp_get_boot_ctx_address(void)
 {
 	return boot_ctx_address;
+}
+
+uint16_t stm32mp_get_boot_itf_selected(void)
+{
+	return boot_itf_selected;
 }
 
 uintptr_t stm32mp_ddrctrl_base(void)
