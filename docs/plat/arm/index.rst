@@ -9,6 +9,7 @@ Arm Development Platforms
    fvp/index
    fvp-ve/index
    tc0/index
+   arm_fpga/index
    arm-build-options
 
 This chapter holds documentation related to Arm's development platforms,
