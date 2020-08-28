@@ -161,10 +161,10 @@
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ull << 42)
 #if SPM_MM
 #define MAX_MMAP_REGIONS		12
-#define MAX_XLAT_TABLES			11
+#define MAX_XLAT_TABLES			12
 #else
 #define MAX_MMAP_REGIONS		11
-#define MAX_XLAT_TABLES			10
+#define MAX_XLAT_TABLES			11
 #endif
 #define MAX_IO_DEVICES			3
 #define MAX_IO_HANDLES			4
@@ -207,7 +207,10 @@
 #define DEVICE0_SIZE			0x04080000
 /* This is map from NORMAL_UART up to SECURE_UART_MM */
 #define DEVICE1_BASE			0x60000000
-#define DEVICE1_SIZE			0x00041000
+#define DEVICE1_SIZE			0x10041000
+/* This is a map for SECURE_EC */
+#define DEVICE2_BASE			0x50000000
+#define DEVICE2_SIZE			0x00001000
 
 /*
  * GIC related constants

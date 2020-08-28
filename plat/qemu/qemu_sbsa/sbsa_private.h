@@ -11,4 +11,7 @@
 
 unsigned int plat_qemu_calc_core_pos(u_register_t mpidr);
 
+void qemu_pwr_gic_on_finish(void);
+void qemu_pwr_gic_off(void);
+
 #endif /* SBSA_PRIVATE_H */
