@@ -16,20 +16,17 @@
 
 #define PLATFORM_STACK_SIZE		0x1000
 
-#define PLATFORM_MAX_CPUS_PER_CLUSTER	U(4)
+#define PLATFORM_MAX_CPUS_PER_CLUSTER	U(8)
 /*
  * Define the number of cores per cluster used in calculating core position.
  * The cluster number is shifted by this value and added to the core ID,
  * so its value represents log2(cores/cluster).
- * Default is 2**(2) = 4 cores per cluster.
+ * Default is 2**(3) = 8 cores per cluster.
  */
-#define PLATFORM_CPU_PER_CLUSTER_SHIFT	U(2)
-#define PLATFORM_CLUSTER_COUNT		U(2)
-#define PLATFORM_CLUSTER0_CORE_COUNT	PLATFORM_MAX_CPUS_PER_CLUSTER
-#define PLATFORM_CLUSTER1_CORE_COUNT	PLATFORM_MAX_CPUS_PER_CLUSTER
-#define PLATFORM_CORE_COUNT		(PLATFORM_CLUSTER0_CORE_COUNT + \
-					 PLATFORM_CLUSTER1_CORE_COUNT)
-
+#define PLATFORM_CPU_PER_CLUSTER_SHIFT	U(3)
+#define PLATFORM_CLUSTER_COUNT		U(64)
+#define PLATFORM_CORE_COUNT		(PLATFORM_CLUSTER_COUNT * \
+					PLATFORM_MAX_CPUS_PER_CLUSTER)
 #define QEMU_PRIMARY_CPU		U(0)
 
 #define PLAT_NUM_PWR_DOMAINS		(PLATFORM_CLUSTER_COUNT + \
@@ -137,7 +134,7 @@
  * Put BL3-1 at the top of the Trusted SRAM. BL31_BASE is calculated using the
  * current BL3-1 debug size plus a little space for growth.
  */
-#define BL31_SIZE			0x50000
+#define BL31_SIZE			0x300000
 #define BL31_BASE			(BL31_LIMIT - BL31_SIZE)
 #define BL31_LIMIT			(BL1_RW_BASE)
 #define BL31_PROGBITS_LIMIT		BL1_RW_BASE
