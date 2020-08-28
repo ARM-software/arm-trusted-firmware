@@ -73,11 +73,25 @@ int32_t plat_sip_handler(uint32_t smc_fid,
 
 #if RAS_EXTENSION
 	case TEGRA_SIP_CLEAR_RAS_CORRECTED_ERRORS:
-		/* clear all RAS error records for corrected errors at first. */
-		tegra194_ras_corrected_err_clear();
-		/* clear HSM corrected error status. */
-		mce_clear_hsm_corr_status();
+	{
+		/*
+		 * clear all RAS error records for corrected errors at first.
+		 * x1 shall be 0 for first SMC call after FHI is asserted.
+		 * */
+		uint64_t local_x1 = x1;
+
+		tegra194_ras_corrected_err_clear(&local_x1);
+		if (local_x1 == 0ULL) {
+			/* clear HSM corrected error status after all corrected
+			 * RAS errors are cleared.
+			 */
+			mce_clear_hsm_corr_status();
+		}
+
+		write_ctx_reg(get_gpregs_ctx(handle), CTX_GPREG_X1, local_x1);
+
 		break;
+	}
 #endif
 
 	default:

@@ -23,13 +23,33 @@
 #include <plat/common/platform.h>
 #include <spe.h>
 #include <tegra_def.h>
-#include <tegra_mc_def.h>
 #include <tegra_platform.h>
 #include <tegra_private.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
 /* ID for spe-console */
 #define TEGRA_CONSOLE_SPE_ID		0xFE
+
+/*******************************************************************************
+ * Structure to store the SCR addresses and its expected settings.
+ *******************************************************************************
+ */
+typedef struct {
+	uint32_t scr_addr;
+	uint32_t scr_val;
+} scr_settings_t;
+
+static const scr_settings_t t194_scr_settings[] = {
+	{ SCRATCH_RSV68_SCR, SCRATCH_RSV68_SCR_VAL },
+	{ SCRATCH_RSV71_SCR, SCRATCH_RSV71_SCR_VAL },
+	{ SCRATCH_RSV72_SCR, SCRATCH_RSV72_SCR_VAL },
+	{ SCRATCH_RSV75_SCR, SCRATCH_RSV75_SCR_VAL },
+	{ SCRATCH_RSV81_SCR, SCRATCH_RSV81_SCR_VAL },
+	{ SCRATCH_RSV97_SCR, SCRATCH_RSV97_SCR_VAL },
+	{ SCRATCH_RSV99_SCR, SCRATCH_RSV99_SCR_VAL },
+	{ SCRATCH_RSV109_SCR, SCRATCH_RSV109_SCR_VAL },
+	{ MISCREG_SCR_SCRTZWELCK, MISCREG_SCR_SCRTZWELCK_VAL }
+};
 
 /*******************************************************************************
  * The Tegra power domain tree has a single system level power domain i.e. a
@@ -65,8 +85,6 @@ const uint8_t *plat_get_power_domain_tree_desc(void)
  */
 static const mmap_region_t tegra_mmap[] = {
 	MAP_REGION_FLAT(TEGRA_MISC_BASE, 0x4000U, /* 16KB */
-			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
-	MAP_REGION_FLAT(TEGRA_TSA_BASE, 0x20000U, /* 128KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
 	MAP_REGION_FLAT(TEGRA_GPCDMA_BASE, 0x10000U, /* 64KB */
 			(uint8_t)MT_DEVICE | (uint8_t)MT_RW | (uint8_t)MT_SECURE),
@@ -197,6 +215,24 @@ void plat_enable_console(int32_t id)
 }
 
 /*******************************************************************************
+ * Verify SCR settings
+ ******************************************************************************/
+static inline bool tegra194_is_scr_valid(void)
+{
+	uint32_t scr_val;
+	bool ret = true;
+
+	for (uint8_t i = 0U; i < ARRAY_SIZE(t194_scr_settings); i++) {
+		scr_val = mmio_read_32((uintptr_t)t194_scr_settings[i].scr_addr);
+		if (scr_val != t194_scr_settings[i].scr_val) {
+			ERROR("Mismatch at SCR addr = 0x%x\n", t194_scr_settings[i].scr_addr);
+			ret = false;
+		}
+	}
+	return ret;
+}
+
+/*******************************************************************************
  * Handler for early platform setup
  ******************************************************************************/
 void plat_early_platform_setup(void)
@@ -207,6 +243,11 @@ void plat_early_platform_setup(void)
 
 	/* Verify chip id is t194 */
 	assert(tegra_chipid_is_t194());
+
+	/* Verify SCR settings */
+	if (tegra_platform_is_silicon()) {
+		assert(tegra194_is_scr_valid());
+	}
 
 	/* sanity check MCE firmware compatibility */
 	mce_verify_firmware_version();
@@ -251,16 +292,28 @@ void plat_early_platform_setup(void)
 
 		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
 			XUSB_PADCTL_HOST_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_HOST);
+		assert(mmio_read_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_PF_0) == TEGRA_SID_XUSB_HOST);
 		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
 			XUSB_PADCTL_HOST_AXI_STREAMID_VF_0, TEGRA_SID_XUSB_VF0);
+		assert(mmio_read_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_VF_0) == TEGRA_SID_XUSB_VF0);
 		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
 			XUSB_PADCTL_HOST_AXI_STREAMID_VF_1, TEGRA_SID_XUSB_VF1);
+		assert(mmio_read_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_VF_1) == TEGRA_SID_XUSB_VF1);
 		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
 			XUSB_PADCTL_HOST_AXI_STREAMID_VF_2, TEGRA_SID_XUSB_VF2);
+		assert(mmio_read_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_VF_2) == TEGRA_SID_XUSB_VF2);
 		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
 			XUSB_PADCTL_HOST_AXI_STREAMID_VF_3, TEGRA_SID_XUSB_VF3);
+		assert(mmio_read_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_HOST_AXI_STREAMID_VF_3) == TEGRA_SID_XUSB_VF3);
 		mmio_write_32(TEGRA_XUSB_PADCTL_BASE +
 			XUSB_PADCTL_DEV_AXI_STREAMID_PF_0, TEGRA_SID_XUSB_DEV);
+		assert(mmio_read_32(TEGRA_XUSB_PADCTL_BASE +
+			XUSB_PADCTL_DEV_AXI_STREAMID_PF_0) == TEGRA_SID_XUSB_DEV);
 	}
 
 	/*
@@ -270,14 +323,20 @@ void plat_early_platform_setup(void)
 		actlr_elx = read_actlr_el3();
 		actlr_elx |= DENVER_CPU_ENABLE_DUAL_EXEC_EL3;
 		write_actlr_el3(actlr_elx);
+		/* check if the bit is actually set */
+		assert((read_actlr_el3() & DENVER_CPU_ENABLE_DUAL_EXEC_EL3) != 0ULL);
 
 		actlr_elx = read_actlr_el2();
 		actlr_elx |= DENVER_CPU_ENABLE_DUAL_EXEC_EL2;
 		write_actlr_el2(actlr_elx);
+		/* check if the bit is actually set */
+		assert((read_actlr_el2() & DENVER_CPU_ENABLE_DUAL_EXEC_EL2) != 0ULL);
 
 		actlr_elx = read_actlr_el1();
 		actlr_elx |= DENVER_CPU_ENABLE_DUAL_EXEC_EL1;
 		write_actlr_el1(actlr_elx);
+		/* check if the bit is actually set */
+		assert((read_actlr_el1() & DENVER_CPU_ENABLE_DUAL_EXEC_EL1) != 0ULL);
 	}
 }
 
@@ -344,6 +403,7 @@ void plat_late_platform_setup(void)
 	 * enabling TZSRAM and TZDRAM
 	 */
 	mce_enable_strict_checking();
+	mce_verify_strict_checking();
 #endif
 }
 

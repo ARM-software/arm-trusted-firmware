@@ -402,15 +402,7 @@ static void tegra186_memctrl_reconfig_mss_clients(void)
 
 static void tegra186_memctrl_set_overrides(void)
 {
-	const tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
-	const mc_txn_override_cfg_t *mc_txn_override_cfgs;
-	uint32_t num_txn_override_cfgs;
 	uint32_t i, val;
-
-	/* Get the settings from the platform */
-	assert(plat_mc_settings != NULL);
-	mc_txn_override_cfgs = plat_mc_settings->txn_override_cfg;
-	num_txn_override_cfgs = plat_mc_settings->num_txn_override_cfgs;
 
 	/*
 	 * Set the MC_TXN_OVERRIDE registers for write clients.
@@ -443,11 +435,11 @@ static void tegra186_memctrl_set_overrides(void)
 		/*
 		 * Settings for Tegra186 silicon rev. A02 and onwards.
 		 */
-		for (i = 0; i < num_txn_override_cfgs; i++) {
-			val = tegra_mc_read_32(mc_txn_override_cfgs[i].offset);
+		for (i = 0; i < ARRAY_SIZE(tegra186_txn_override_cfgs); i++) {
+			val = tegra_mc_read_32(tegra186_txn_override_cfgs[i].offset);
 			val &= (uint32_t)~MC_TXN_OVERRIDE_CGID_TAG_MASK;
-			tegra_mc_write_32(mc_txn_override_cfgs[i].offset,
-				val | mc_txn_override_cfgs[i].cgid_tag);
+			tegra_mc_write_32(tegra186_txn_override_cfgs[i].offset,
+				val | tegra186_txn_override_cfgs[i].cgid_tag);
 		}
 	}
 }
@@ -609,7 +601,7 @@ static __attribute__((aligned(16))) mc_regs_t tegra186_mc_context[] = {
 /*******************************************************************************
  * Handler to return the pointer to the MC's context struct
  ******************************************************************************/
-static mc_regs_t *tegra186_get_mc_system_suspend_ctx(void)
+mc_regs_t *plat_memctrl_get_sys_suspend_ctx(void)
 {
 	/* index of _END_OF_TABLE_ */
 	tegra186_mc_context[0].val = (uint32_t)(ARRAY_SIZE(tegra186_mc_context)) - 1U;
@@ -617,27 +609,52 @@ static mc_regs_t *tegra186_get_mc_system_suspend_ctx(void)
 	return tegra186_mc_context;
 }
 
-/*******************************************************************************
- * Struct to hold the memory controller settings
- ******************************************************************************/
-static tegra_mc_settings_t tegra186_mc_settings = {
-	.streamid_override_cfg = tegra186_streamid_override_regs,
-	.num_streamid_override_cfgs = (uint32_t)ARRAY_SIZE(tegra186_streamid_override_regs),
-	.streamid_security_cfg = tegra186_streamid_sec_cfgs,
-	.num_streamid_security_cfgs = (uint32_t)ARRAY_SIZE(tegra186_streamid_sec_cfgs),
-	.txn_override_cfg = tegra186_txn_override_cfgs,
-	.num_txn_override_cfgs = (uint32_t)ARRAY_SIZE(tegra186_txn_override_cfgs),
-	.reconfig_mss_clients = tegra186_memctrl_reconfig_mss_clients,
-	.set_txn_overrides = tegra186_memctrl_set_overrides,
-	.get_mc_system_suspend_ctx = tegra186_get_mc_system_suspend_ctx,
-};
+void plat_memctrl_setup(void)
+{
+	uint32_t val;
+	unsigned int i;
+
+	/* Program all the Stream ID overrides */
+	for (i = 0U; i < ARRAY_SIZE(tegra186_streamid_override_regs); i++) {
+		tegra_mc_streamid_write_32(tegra186_streamid_override_regs[i],
+			MC_STREAM_ID_MAX);
+	}
+
+	/* Program the security config settings for all Stream IDs */
+	for (i = 0U; i < ARRAY_SIZE(tegra186_streamid_sec_cfgs); i++) {
+		val = (tegra186_streamid_sec_cfgs[i].override_enable << 16) |
+		      (tegra186_streamid_sec_cfgs[i].override_client_inputs << 8) |
+		      (tegra186_streamid_sec_cfgs[i].override_client_ns_flag << 0);
+		tegra_mc_streamid_write_32(tegra186_streamid_sec_cfgs[i].offset, val);
+	}
+
+	/*
+	 * Re-configure MSS to allow ROC to deal with ordering of the
+	 * Memory Controller traffic. This is needed as the Memory Controller
+	 * boots with MSS having all control, but ROC provides a performance
+	 * boost as compared to MSS.
+	 */
+	tegra186_memctrl_reconfig_mss_clients();
+
+	/* Program overrides for MC transactions */
+	tegra186_memctrl_set_overrides();
+}
 
 /*******************************************************************************
- * Handler to return the pointer to the memory controller's settings struct
+ * Handler to restore platform specific settings to the memory controller
  ******************************************************************************/
-tegra_mc_settings_t *tegra_get_mc_settings(void)
+void plat_memctrl_restore(void)
 {
-	return &tegra186_mc_settings;
+	/*
+	 * Re-configure MSS to allow ROC to deal with ordering of the
+	 * Memory Controller traffic. This is needed as the Memory Controller
+	 * boots with MSS having all control, but ROC provides a performance
+	 * boost as compared to MSS.
+	 */
+	tegra186_memctrl_reconfig_mss_clients();
+
+	/* Program overrides for MC transactions */
+	tegra186_memctrl_set_overrides();
 }
 
 /*******************************************************************************

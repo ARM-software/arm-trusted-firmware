@@ -68,6 +68,11 @@ struct tegra_bl31_params {
        image_info_t *bl33_image_info;
 };
 
+/*******************************************************************************
+* To suppress Coverity MISRA C-2012 Rule 2.2 violations
+*******************************************************************************/
+#define UNUSED_FUNC_NOP()	asm("nop")
+
 /* Declarations for plat_psci_handlers.c */
 int32_t tegra_soc_validate_power_state(uint32_t power_state,
 		psci_power_state_t *req_state);
@@ -146,7 +151,7 @@ int plat_sip_handler(uint32_t smc_fid,
 
 #if RAS_EXTENSION
 void tegra194_ras_enable(void);
-void tegra194_ras_corrected_err_clear(void);
+void tegra194_ras_corrected_err_clear(uint64_t *cookie);
 #endif
 
 #endif /* TEGRA_PRIVATE_H */

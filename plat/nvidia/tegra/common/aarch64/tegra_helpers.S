@@ -4,12 +4,13 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
-#include <cpu_macros.S>
-#include <cortex_a53.h>
 #include <cortex_a57.h>
+#include <cpu_macros.S>
+
 #include <platform_def.h>
 #include <tegra_def.h>
 #include <tegra_platform.h>

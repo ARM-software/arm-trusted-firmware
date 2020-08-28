@@ -39,7 +39,7 @@ TEGRA_GICv3_SOURCES	:=	drivers/arm/gic/common/gic_common.c		\
 BL31_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
 				drivers/io/io_storage.c				\
 				plat/common/aarch64/crash_console_helpers.S	\
-				${TEGRA_GICv2_SOURCES}				\
+				${TEGRA_LIBS}/debug/profiler.c			\
 				${TEGRA_COMMON}/aarch64/tegra_helpers.S		\
 				${TEGRA_LIBS}/debug/profiler.c			\
 				${TEGRA_COMMON}/tegra_bl31_setup.c		\

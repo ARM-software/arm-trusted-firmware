@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2017-2020, NVIDIA CORPORATION. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -281,5 +281,118 @@
 #define  MC_CLIENT_HOTRESET_CTRL1_AON_FLUSH_ENB			(1U << 23)
 #define  MC_CLIENT_HOTRESET_CTRL1_SCE_FLUSH_ENB			(1U << 24)
 #define MC_CLIENT_HOTRESET_STATUS1				0x974U
+
+#ifndef __ASSEMBLY__
+
+/*******************************************************************************
+ * Structure to hold the transaction override settings to use to override
+ * client inputs
+ ******************************************************************************/
+typedef struct mc_txn_override_cfg {
+	uint32_t offset;
+	uint8_t cgid_tag;
+} mc_txn_override_cfg_t;
+
+#define mc_make_txn_override_cfg(off, val) \
+	{ \
+		.offset = MC_TXN_OVERRIDE_CONFIG_ ## off, \
+		.cgid_tag = MC_TXN_OVERRIDE_ ## val \
+	}
+
+/*******************************************************************************
+ * Structure to hold the Stream ID to use to override client inputs
+ ******************************************************************************/
+typedef struct mc_streamid_override_cfg {
+	uint32_t offset;
+	uint8_t stream_id;
+} mc_streamid_override_cfg_t;
+
+/*******************************************************************************
+ * Structure to hold the Stream ID Security Configuration settings
+ ******************************************************************************/
+typedef struct mc_streamid_security_cfg {
+	char *name;
+	uint32_t offset;
+	uint32_t override_enable;
+	uint32_t override_client_inputs;
+	uint32_t override_client_ns_flag;
+} mc_streamid_security_cfg_t;
+
+#define OVERRIDE_DISABLE				1U
+#define OVERRIDE_ENABLE					0U
+#define CLIENT_FLAG_SECURE				0U
+#define CLIENT_FLAG_NON_SECURE				1U
+#define CLIENT_INPUTS_OVERRIDE				1U
+#define CLIENT_INPUTS_NO_OVERRIDE			0U
+
+/*******************************************************************************
+ * StreamID to indicate no SMMU translations (requests to be steered on the
+ * SMMU bypass path)
+ ******************************************************************************/
+#define MC_STREAM_ID_MAX			0x7FU
+
+#define mc_make_sec_cfg(off, ns, ovrrd, access) \
+	{ \
+		.name = # off, \
+		.offset = MC_STREAMID_OVERRIDE_TO_SECURITY_CFG( \
+				MC_STREAMID_OVERRIDE_CFG_ ## off), \
+		.override_client_ns_flag = CLIENT_FLAG_ ## ns, \
+		.override_client_inputs = CLIENT_INPUTS_ ## ovrrd, \
+		.override_enable = OVERRIDE_ ## access \
+	}
+
+#define mc_make_sid_override_cfg(name) \
+	{ \
+		.reg = TEGRA_MC_STREAMID_BASE + MC_STREAMID_OVERRIDE_CFG_ ## name, \
+		.val = 0x00000000U, \
+	}
+
+#define mc_make_sid_security_cfg(name) \
+	{ \
+		.reg = TEGRA_MC_STREAMID_BASE + MC_STREAMID_OVERRIDE_TO_SECURITY_CFG(MC_STREAMID_OVERRIDE_CFG_ ## name), \
+		.val = 0x00000000U, \
+	}
+
+#define mc_set_pcfifo_unordered_boot_so_mss(id, client) \
+	((uint32_t)~MC_PCFIFO_CLIENT_CONFIG##id##_PCFIFO_##client##_MASK | \
+	 MC_PCFIFO_CLIENT_CONFIG##id##_PCFIFO_##client##_UNORDERED)
+
+#define mc_set_pcfifo_ordered_boot_so_mss(id, client) \
+	 MC_PCFIFO_CLIENT_CONFIG##id##_PCFIFO_##client##_ORDERED
+
+#define mc_set_tsa_passthrough(client) \
+	do { \
+		mmio_write_32(TEGRA_TSA_BASE + TSA_CONFIG_STATIC0_CSW_##client, \
+			(TSA_CONFIG_STATIC0_CSW_##client##_RESET & \
+			 (uint32_t)~TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK) | \
+			(uint32_t)TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU); \
+	} while (0)
+
+#define mc_set_tsa_w_passthrough(client) \
+	do { \
+		mmio_write_32(TEGRA_TSA_BASE + TSA_CONFIG_STATIC0_CSW_##client, \
+			(TSA_CONFIG_STATIC0_CSW_RESET_W & \
+			 (uint32_t)~TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK) | \
+			(uint32_t)TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU); \
+	} while (0)
+
+#define mc_set_tsa_r_passthrough(client) \
+	{ \
+		mmio_write_32(TEGRA_TSA_BASE + TSA_CONFIG_STATIC0_CSR_##client, \
+			(TSA_CONFIG_STATIC0_CSR_RESET_R & \
+			 (uint32_t)~TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_MASK) | \
+			(uint32_t)TSA_CONFIG_CSW_MEMTYPE_OVERRIDE_PASTHRU); \
+	} while (0)
+
+#define mc_set_txn_override(client, normal_axi_id, so_dev_axi_id, normal_override, so_dev_override) \
+	do { \
+		tegra_mc_write_32(MC_TXN_OVERRIDE_CONFIG_##client, \
+				  MC_TXN_OVERRIDE_##normal_axi_id | \
+				  MC_TXN_OVERRIDE_CONFIG_COH_PATH_##so_dev_override##_SO_DEV | \
+				  MC_TXN_OVERRIDE_CONFIG_COH_PATH_##normal_override##_NORMAL | \
+				  MC_TXN_OVERRIDE_CONFIG_CGID_##so_dev_axi_id); \
+	} while (0)
+
+#endif /* __ASSEMBLY__ */
 
 #endif /* TEGRA_MC_DEF_H */

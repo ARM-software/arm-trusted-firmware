@@ -117,13 +117,6 @@ static void tegra_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
 	(void)tegra_soc_pwr_domain_suspend(target_state);
 
-	/* Disable console if we are entering deep sleep. */
-	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] ==
-			PSTATE_ID_SOC_POWERDN) {
-		(void)console_flush();
-		console_switch_state(0);
-	}
-
 	/* disable GICC */
 	tegra_gic_cpuif_deactivate();
 }
@@ -137,6 +130,14 @@ static __dead2 void tegra_pwr_domain_power_down_wfi(const psci_power_state_t
 {
 	/* call the chip's power down handler */
 	(void)tegra_soc_pwr_domain_power_down_wfi(target_state);
+
+	/* Disable console if we are entering deep sleep. */
+	if (target_state->pwr_domain_state[PLAT_MAX_PWR_LVL] ==
+			PSTATE_ID_SOC_POWERDN) {
+		INFO("%s: complete. Entering System Suspend...\n", __func__);
+		(void)console_flush();
+		console_switch_state(0);
+	}
 
 	wfi();
 	panic();

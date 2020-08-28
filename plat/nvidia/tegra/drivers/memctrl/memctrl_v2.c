@@ -32,38 +32,13 @@ static uint64_t video_mem_size_mb;
  */
 void tegra_memctrl_setup(void)
 {
-	uint32_t val;
-	const uint32_t *mc_streamid_override_regs;
-	uint32_t num_streamid_override_regs;
-	const mc_streamid_security_cfg_t *mc_streamid_sec_cfgs;
-	uint32_t num_streamid_sec_cfgs;
-	const tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
-	uint32_t i;
-
 	INFO("Tegra Memory Controller (v2)\n");
 
-	/* Program the SMMU pagesize */
+	/* Initialize the System memory management unit */
 	tegra_smmu_init();
 
-	/* Get the settings from the platform */
-	assert(plat_mc_settings != NULL);
-	mc_streamid_override_regs = plat_mc_settings->streamid_override_cfg;
-	num_streamid_override_regs = plat_mc_settings->num_streamid_override_cfgs;
-	mc_streamid_sec_cfgs = plat_mc_settings->streamid_security_cfg;
-	num_streamid_sec_cfgs = plat_mc_settings->num_streamid_security_cfgs;
-
-	/* Program all the Stream ID overrides */
-	for (i = 0; i < num_streamid_override_regs; i++)
-		tegra_mc_streamid_write_32(mc_streamid_override_regs[i],
-			MC_STREAM_ID_MAX);
-
-	/* Program the security config settings for all Stream IDs */
-	for (i = 0; i < num_streamid_sec_cfgs; i++) {
-		val = mc_streamid_sec_cfgs[i].override_enable << 16 |
-		      mc_streamid_sec_cfgs[i].override_client_inputs << 8 |
-		      mc_streamid_sec_cfgs[i].override_client_ns_flag << 0;
-		tegra_mc_streamid_write_32(mc_streamid_sec_cfgs[i].offset, val);
-	}
+	/* allow platforms to program custom memory controller settings */
+	plat_memctrl_setup();
 
 	/*
 	 * All requests at boot time, and certain requests during
@@ -80,21 +55,6 @@ void tegra_memctrl_setup(void)
 	 */
 	tegra_mc_write_32(MC_SMMU_BYPASS_CONFIG,
 			  MC_SMMU_BYPASS_CONFIG_SETTINGS);
-
-	/*
-	 * Re-configure MSS to allow ROC to deal with ordering of the
-	 * Memory Controller traffic. This is needed as the Memory Controller
-	 * boots with MSS having all control, but ROC provides a performance
-	 * boost as compared to MSS.
-	 */
-	if (plat_mc_settings->reconfig_mss_clients != NULL) {
-		plat_mc_settings->reconfig_mss_clients();
-	}
-
-	/* Program overrides for MC transactions */
-	if (plat_mc_settings->set_txn_overrides != NULL) {
-		plat_mc_settings->set_txn_overrides();
-	}
 }
 
 /*
@@ -102,32 +62,23 @@ void tegra_memctrl_setup(void)
  */
 void tegra_memctrl_restore_settings(void)
 {
-	const tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
-
-	assert(plat_mc_settings != NULL);
-
-	/*
-	 * Re-configure MSS to allow ROC to deal with ordering of the
-	 * Memory Controller traffic. This is needed as the Memory Controller
-	 * resets during System Suspend with MSS having all control, but ROC
-	 * provides a performance boost as compared to MSS.
-	 */
-	if (plat_mc_settings->reconfig_mss_clients != NULL) {
-		plat_mc_settings->reconfig_mss_clients();
-	}
-
-	/* Program overrides for MC transactions */
-	if (plat_mc_settings->set_txn_overrides != NULL) {
-		plat_mc_settings->set_txn_overrides();
-	}
+	/* restore platform's memory controller settings */
+	plat_memctrl_restore();
 
 	/* video memory carveout region */
 	if (video_mem_base != 0ULL) {
 		tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_LO,
 				  (uint32_t)video_mem_base);
+		assert(tegra_mc_read_32(MC_VIDEO_PROTECT_BASE_LO)
+			 == (uint32_t)video_mem_base);
 		tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI,
 				  (uint32_t)(video_mem_base >> 32));
-		tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB, video_mem_size_mb);
+		assert(tegra_mc_read_32(MC_VIDEO_PROTECT_BASE_HI)
+			 == (uint32_t)(video_mem_base >> 32));
+		tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB,
+				  (uint32_t)video_mem_size_mb);
+		assert(tegra_mc_read_32(MC_VIDEO_PROTECT_SIZE_MB)
+			 == (uint32_t)video_mem_size_mb);
 
 		/*
 		 * MCE propagates the VideoMem configuration values across the
@@ -167,7 +118,6 @@ void tegra_memctrl_tzram_setup(uint64_t phys_base, uint32_t size_in_bytes)
  */
 void tegra_mc_save_context(uint64_t mc_ctx_addr)
 {
-	const tegra_mc_settings_t *plat_mc_settings = tegra_get_mc_settings();
 	uint32_t i, num_entries = 0;
 	mc_regs_t *mc_ctx_regs;
 	const plat_params_from_bl2_t *params_from_bl2 = bl31_get_plat_params();
@@ -177,7 +127,7 @@ void tegra_mc_save_context(uint64_t mc_ctx_addr)
 	assert((mc_ctx_addr >= tzdram_base) && (mc_ctx_addr <= tzdram_end));
 
 	/* get MC context table */
-	mc_ctx_regs = plat_mc_settings->get_mc_system_suspend_ctx();
+	mc_ctx_regs = plat_memctrl_get_sys_suspend_ctx();
 	assert(mc_ctx_regs != NULL);
 
 	/*
@@ -210,8 +160,12 @@ void tegra_mc_save_context(uint64_t mc_ctx_addr)
 	/* save the MC table address */
 	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_MC_TABLE_ADDR_LO,
 		(uint32_t)mc_ctx_addr);
+	assert(mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_MC_TABLE_ADDR_LO)
+		== (uint32_t)mc_ctx_addr);
 	mmio_write_32(TEGRA_SCRATCH_BASE + SCRATCH_MC_TABLE_ADDR_HI,
 		(uint32_t)(mc_ctx_addr >> 32));
+	assert(mmio_read_32(TEGRA_SCRATCH_BASE + SCRATCH_MC_TABLE_ADDR_HI)
+		== (uint32_t)(mc_ctx_addr >> 32));
 }
 
 static void tegra_lock_videomem_nonoverlap(uint64_t phys_base,
@@ -360,6 +314,14 @@ void tegra_memctrl_videomem_setup(uint64_t phys_base, uint32_t size_in_bytes)
 	tegra_mc_write_32(MC_VIDEO_PROTECT_BASE_HI,
 			  (uint32_t)(phys_base >> 32));
 	tegra_mc_write_32(MC_VIDEO_PROTECT_SIZE_MB, size_in_bytes >> 20);
+
+	/* Redundancy check for Video Protect setting */
+	assert(tegra_mc_read_32(MC_VIDEO_PROTECT_BASE_LO)
+		 == (uint32_t)phys_base);
+	assert(tegra_mc_read_32(MC_VIDEO_PROTECT_BASE_HI)
+		 == (uint32_t)(phys_base >> 32));
+	assert(tegra_mc_read_32(MC_VIDEO_PROTECT_SIZE_MB)
+		 == (size_in_bytes >> 20));
 
 	/*
 	 * MCE propagates the VideoMem configuration values across the

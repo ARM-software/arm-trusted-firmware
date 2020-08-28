@@ -217,6 +217,15 @@ void mce_enable_strict_checking(void)
 		nvg_enable_strict_checking_mode();
 	}
 }
+void mce_verify_strict_checking(void)
+{
+	bool is_silicon = tegra_platform_is_silicon();
+	bool is_fpga = tegra_platform_is_fpga();
+
+	if (is_silicon || is_fpga) {
+		nvg_verify_strict_checking_mode();
+	}
+}
 #endif
 
 /*******************************************************************************

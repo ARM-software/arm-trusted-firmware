@@ -9,6 +9,7 @@
 
 #include <common/debug.h>
 #include <lib/bakery_lock.h>
+#include <lib/cassert.h>
 #include <lib/extensions/ras.h>
 #include <lib/utils_def.h>
 #include <services/sdei.h>
@@ -25,6 +26,17 @@
  * by setting corresponding bits in ERR<n>CTLR
  */
 #define ERR_FR_EN_BITS_MASK	0xFFFFFFFF00000000ULL
+
+/*
+ * Number of RAS errors will be cleared per 'tegra194_ras_corrected_err_clear'
+ * function call.
+ */
+#define RAS_ERRORS_PER_CALL	8
+
+/*
+ * the max possible RAS node index value.
+ */
+#define RAS_NODE_INDEX_MAX	0x1FFFFFFFU
 
 /* bakery lock for platform RAS handler. */
 static DEFINE_BAKERY_LOCK(ras_handler_lock);
@@ -151,12 +163,41 @@ void tegra194_ras_enable(void)
 
 /*
  * Function to clear RAS ERR<n>STATUS for corrected RAS error.
- * This function ignores any new RAS error signaled during clearing; it is not
- * multi-core safe(no ras_lock is taken to reduce overhead).
+ *
+ * This function clears number of 'RAS_ERRORS_PER_CALL' RAS errors at most.
+ * 'cookie' - in/out cookie parameter to specify/store last visited RAS
+ *            error record index. it is set to '0' to indicate no more RAS
+ *            error record to clear.
  */
-void tegra194_ras_corrected_err_clear(void)
+void tegra194_ras_corrected_err_clear(uint64_t *cookie)
 {
+	/*
+	 * 'last_node' and 'last_idx' represent last visited RAS node index from
+	 * previous function call. they are set to 0 when first smc call is made
+	 * or all RAS error are visited by followed multipile smc calls.
+	 */
+	union prev_record {
+		struct record {
+			uint32_t last_node;
+			uint32_t last_idx;
+		} rec;
+		uint64_t value;
+	} prev;
+
 	uint64_t clear_ce_status = 0ULL;
+	int32_t nerrs_per_call = RAS_ERRORS_PER_CALL;
+	uint32_t i;
+
+	if (cookie == NULL) {
+		return;
+	}
+
+	prev.value = *cookie;
+
+	if ((prev.rec.last_node >= RAS_NODE_INDEX_MAX) ||
+		(prev.rec.last_idx >= RAS_NODE_INDEX_MAX)) {
+		return;
+	}
 
 	ERR_STATUS_SET_FIELD(clear_ce_status, AV, 0x1UL);
 	ERR_STATUS_SET_FIELD(clear_ce_status, V, 0x1UL);
@@ -164,16 +205,26 @@ void tegra194_ras_corrected_err_clear(void)
 	ERR_STATUS_SET_FIELD(clear_ce_status, MV, 0x1UL);
 	ERR_STATUS_SET_FIELD(clear_ce_status, CE, 0x3UL);
 
-	for (uint32_t i = 0U; i < err_record_mappings.num_err_records; i++) {
+
+	for (i = prev.rec.last_node; i < err_record_mappings.num_err_records; i++) {
 
 		const struct err_record_info *info = &err_record_mappings.err_records[i];
 		uint32_t idx_start = info->sysreg.idx_start;
 		uint32_t num_idx = info->sysreg.num_idx;
 
-		for (uint32_t j = 0U; j < num_idx; j++) {
+		uint32_t j;
+
+		j = (i == prev.rec.last_node && prev.value != 0UL) ?
+				(prev.rec.last_idx + 1U) : 0U;
+
+		for (; j < num_idx; j++) {
 
 			uint64_t status;
 			uint32_t err_idx = idx_start + j;
+
+			if (err_idx >= RAS_NODE_INDEX_MAX) {
+				return;
+			}
 
 			write_errselr_el1(err_idx);
 			status = read_erxstatus_el1();
@@ -181,8 +232,29 @@ void tegra194_ras_corrected_err_clear(void)
 			if (ERR_STATUS_GET_FIELD(status, CE) != 0U) {
 				write_erxstatus_el1(clear_ce_status);
 			}
+
+			--nerrs_per_call;
+
+			/* only clear 'nerrs_per_call' errors each time. */
+			if (nerrs_per_call <= 0) {
+				prev.rec.last_idx = j;
+				prev.rec.last_node = i;
+				/* save last visited error record index
+				 * into cookie.
+				 */
+				*cookie = prev.value;
+
+				return;
+			}
 		}
 	}
+
+	/*
+	 * finish if all ras error records are checked or provided index is out
+	 * of range.
+	 */
+	*cookie = 0ULL;
+	return;
 }
 
 /* Function to probe an error from error record group. */
@@ -330,18 +402,26 @@ CCPLEX_RAS_NODE_LIST(DEFINE_ONE_RAS_NODE)
 static struct ras_aux_data per_core_ras_group[] = {
 	PER_CORE_RAS_GROUP_NODES
 };
+CASSERT(ARRAY_SIZE(per_core_ras_group) < RAS_NODE_INDEX_MAX,
+	assert_max_per_core_ras_group_size);
 
 static struct ras_aux_data per_cluster_ras_group[] = {
 	PER_CLUSTER_RAS_GROUP_NODES
 };
+CASSERT(ARRAY_SIZE(per_cluster_ras_group) < RAS_NODE_INDEX_MAX,
+	assert_max_per_cluster_ras_group_size);
 
 static struct ras_aux_data scf_l3_ras_group[] = {
 	SCF_L3_BANK_RAS_GROUP_NODES
 };
+CASSERT(ARRAY_SIZE(scf_l3_ras_group) < RAS_NODE_INDEX_MAX,
+	assert_max_scf_l3_ras_group_size);
 
 static struct ras_aux_data ccplex_ras_group[] = {
     CCPLEX_RAS_GROUP_NODES
 };
+CASSERT(ARRAY_SIZE(ccplex_ras_group) < RAS_NODE_INDEX_MAX,
+	assert_max_ccplex_ras_group_size);
 
 /*
  * We have same probe and handler for each error record group, use a macro to
@@ -394,6 +474,9 @@ static struct err_record_info carmel_ras_records[] = {
 	 */
 	ADD_ONE_ERR_GROUP(0x400, ccplex_ras_group),
 };
+
+CASSERT(ARRAY_SIZE(carmel_ras_records) < RAS_NODE_INDEX_MAX,
+	assert_max_carmel_ras_records_size);
 
 REGISTER_ERR_RECORD_INFO(carmel_ras_records);
 

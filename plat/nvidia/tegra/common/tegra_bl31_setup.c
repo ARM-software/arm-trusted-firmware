@@ -17,7 +17,6 @@
 #include <bl31/bl31.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
-#include <cortex_a53.h>
 #include <cortex_a57.h>
 #include <denver.h>
 #include <drivers/console.h>

@@ -28,7 +28,8 @@ ENABLE_TEGRA_WDT_LEGACY_FIQ_HANDLING	:= 1
 PLAT_INCLUDES		+=	-Iplat/nvidia/tegra/include/t210		\
 				-I${SOC_DIR}/drivers/se
 
-BL31_SOURCES		+=	drivers/ti/uart/aarch64/16550_console.S		\
+BL31_SOURCES		+=	${TEGRA_GICv2_SOURCES}				\
+				drivers/ti/uart/aarch64/16550_console.S		\
 				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a57.S			\
 				${TEGRA_DRIVERS}/bpmp/bpmp.c			\
