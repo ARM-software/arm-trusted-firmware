@@ -353,65 +353,22 @@ func denver_cpu_reg_dump
 	ret
 endfunc denver_cpu_reg_dump
 
-declare_cpu_ops_wa denver, DENVER_MIDR_PN0, \
-	denver_reset_func, \
-	check_errata_cve_2017_5715, \
-	CPU_NO_EXTRA2_FUNC, \
-	denver_core_pwr_dwn, \
-	denver_cluster_pwr_dwn
+/* macro to declare cpu_ops for Denver SKUs */
+.macro	denver_cpu_ops_wa midr
+	declare_cpu_ops_wa denver, \midr, \
+		denver_reset_func, \
+		check_errata_cve_2017_5715, \
+		CPU_NO_EXTRA2_FUNC, \
+		denver_core_pwr_dwn, \
+		denver_cluster_pwr_dwn
+.endm
 
-declare_cpu_ops_wa denver, DENVER_MIDR_PN1, \
-	denver_reset_func, \
-	check_errata_cve_2017_5715, \
-	CPU_NO_EXTRA2_FUNC, \
-	denver_core_pwr_dwn, \
-	denver_cluster_pwr_dwn
-
-declare_cpu_ops_wa denver, DENVER_MIDR_PN2, \
-	denver_reset_func, \
-	check_errata_cve_2017_5715, \
-	CPU_NO_EXTRA2_FUNC, \
-	denver_core_pwr_dwn, \
-	denver_cluster_pwr_dwn
-
-declare_cpu_ops_wa denver, DENVER_MIDR_PN3, \
-	denver_reset_func, \
-	check_errata_cve_2017_5715, \
-	CPU_NO_EXTRA2_FUNC, \
-	denver_core_pwr_dwn, \
-	denver_cluster_pwr_dwn
-
-declare_cpu_ops_wa denver, DENVER_MIDR_PN4, \
-	denver_reset_func, \
-	check_errata_cve_2017_5715, \
-	CPU_NO_EXTRA2_FUNC, \
-	denver_core_pwr_dwn, \
-	denver_cluster_pwr_dwn
-
-declare_cpu_ops_wa denver, DENVER_MIDR_PN5, \
-	denver_reset_func, \
-	check_errata_cve_2017_5715, \
-	CPU_NO_EXTRA2_FUNC, \
-	denver_core_pwr_dwn, \
-	denver_cluster_pwr_dwn
-
-declare_cpu_ops_wa denver, DENVER_MIDR_PN6, \
-	denver_reset_func, \
-	check_errata_cve_2017_5715, \
-	CPU_NO_EXTRA2_FUNC, \
-	denver_core_pwr_dwn, \
-	denver_cluster_pwr_dwn
-
-declare_cpu_ops_wa denver, DENVER_MIDR_PN7, \
-	denver_reset_func, \
-	check_errata_cve_2017_5715, \
-	CPU_NO_EXTRA2_FUNC, \
-	denver_core_pwr_dwn, \
-	denver_cluster_pwr_dwn
-
-declare_cpu_ops_wa denver, DENVER_MIDR_PN8, \
-	denver_reset_func, \
-	check_errata_cve_2017_5715, \
-	CPU_NO_EXTRA2_FUNC, \
-	denver_core_pwr_dwn, \
-	denver_cluster_pwr_dwn
+denver_cpu_ops_wa DENVER_MIDR_PN0
+denver_cpu_ops_wa DENVER_MIDR_PN1
+denver_cpu_ops_wa DENVER_MIDR_PN2
+denver_cpu_ops_wa DENVER_MIDR_PN3
+denver_cpu_ops_wa DENVER_MIDR_PN4
+denver_cpu_ops_wa DENVER_MIDR_PN5
+denver_cpu_ops_wa DENVER_MIDR_PN6
+denver_cpu_ops_wa DENVER_MIDR_PN7
+denver_cpu_ops_wa DENVER_MIDR_PN8
