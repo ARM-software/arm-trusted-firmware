@@ -41,12 +41,38 @@
 			};
 		};
 
+		/*
+		 * The timings below are just to demonstrate working cpuidle.
+		 * These values may be inaccurate.
+		 */
+		idle-states {
+			entry-method = "arm,psci";
+
+			CPU_SLEEP_0: cpu-sleep-0 {
+				compatible = "arm,idle-state";
+				arm,psci-suspend-param = <0x0010000>;
+				local-timer-stop;
+				entry-latency-us = <300>;
+				exit-latency-us = <1200>;
+				min-residency-us = <2000>;
+			};
+			CLUSTER_SLEEP_0: cluster-sleep-0 {
+				compatible = "arm,idle-state";
+				arm,psci-suspend-param = <0x1010000>;
+				local-timer-stop;
+				entry-latency-us = <400>;
+				exit-latency-us = <1200>;
+				min-residency-us = <2500>;
+			};
+		};
+
 		CPU0:cpu@0 {
 			device_type = "cpu";
 			compatible = "arm,armv8";
 			reg = <0x0>;
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 		};
 
 		CPU1:cpu@100 {
@@ -55,6 +81,7 @@
 			reg = <0x100>;
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 		};
 
 		CPU2:cpu@200 {
@@ -63,6 +90,7 @@
 			reg = <0x200>;
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 		};
 
 		CPU3:cpu@300 {
@@ -71,6 +99,7 @@
 			reg = <0x300>;
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
+			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 		};
 
 	};
@@ -270,6 +299,35 @@
 		compatible = "virtio,mmio";
 		reg = <0x0 0x1c130000 0x0 0x200>;
 		interrupts = <0 204 4>;
+	};
+
+	sysreg: sysreg@1c010000 {
+		compatible = "arm,vexpress-sysreg";
+		reg = <0x0 0x001c010000 0x0 0x1000>;
+		gpio-controller;
+		#gpio-cells = <2>;
+	};
+
+	fixed_3v3: v2m-3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "3V3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
+	mmci@1c050000 {
+		compatible = "arm,pl180", "arm,primecell";
+		reg = <0x0 0x001c050000 0x0 0x1000>;
+		interrupts = <0 107 0x4>,
+			     <0 108 0x4>;
+		cd-gpios = <&sysreg 0 0>;
+		wp-gpios = <&sysreg 1 0>;
+		bus-width = <8>;
+		max-frequency = <12000000>;
+		vmmc-supply = <&fixed_3v3>;
+		clocks = <&bp_clock24mhz>, <&bp_clock24mhz>;
+		clock-names = "mclk", "apb_pclk";
 	};
 
 	dp0: display@2cc00000 {
