@@ -523,8 +523,7 @@ Texas Instruments platform port
 
 UniPhier platform port
 ^^^^^^^^^^^^^^^^^^^^^^
-:M: Masahiro Yamada <yamada.masahiro@socionext.com>
-:G: `masahir0y`_
+:M: Orphan
 :F: docs/plat/socionext-uniphier.rst
 :F: plat/socionext/uniphier/
 
