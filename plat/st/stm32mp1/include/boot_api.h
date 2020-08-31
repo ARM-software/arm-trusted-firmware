@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2023, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -47,7 +47,7 @@
 #define BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_FMC		0x3U
 
 /* Boot occurred on QSPI NOR */
-#define BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NOR_QSPI		0x4U
+#define BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NOR_SPI		0x4U
 
 /* Boot occurred on UART */
 #define BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_UART		0x5U
@@ -56,7 +56,7 @@
 #define BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_USB		0x6U
 
 /* Boot occurred on QSPI NAND */
-#define BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_QSPI		0x7U
+#define BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_SPI		0x7U
 
 /**
  * @brief  Possible value of boot context field 'EmmcXferStatus'
