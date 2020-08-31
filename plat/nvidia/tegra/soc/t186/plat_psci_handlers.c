@@ -72,6 +72,11 @@ int32_t tegra_soc_validate_power_state(uint32_t power_state,
 	case PSTATE_ID_CORE_IDLE:
 	case PSTATE_ID_CORE_POWERDN:
 
+		if (psci_get_pstate_type(power_state) != PSTATE_TYPE_POWERDOWN) {
+			ret = PSCI_E_INVALID_PARAMS;
+			break;
+		}
+
 		/* Core powerdown request */
 		req_state->pwr_domain_state[MPIDR_AFFLVL0] = state_id;
 		req_state->pwr_domain_state[MPIDR_AFFLVL1] = state_id;

@@ -17,6 +17,7 @@
 #define DENVER_MIDR_PN6			U(0x4E0F0060)
 #define DENVER_MIDR_PN7			U(0x4E0F0070)
 #define DENVER_MIDR_PN8			U(0x4E0F0080)
+#define DENVER_MIDR_PN9			U(0x4E0F0090)
 
 /* Implementer code in the MIDR register */
 #define DENVER_IMPL			U(0x4E)

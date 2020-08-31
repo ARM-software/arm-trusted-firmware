@@ -22,11 +22,9 @@ static uint32_t tegra_timer_get_value(void)
 
 	/*
 	 * Generic delay timer implementation expects the timer to be a down
-	 * counter. We apply bitwise NOT operator to the tick values returned
-	 * by read_cntps_tval_el1() to simulate the down counter. The value is
-	 * clipped from 64 to 32 bits.
+	 * counter. The value is clipped from 64 to 32 bits.
 	 */
-	return (uint32_t)(~read_cntps_tval_el1());
+	return (uint32_t)(read_cntps_tval_el1());
 }
 
 /*
