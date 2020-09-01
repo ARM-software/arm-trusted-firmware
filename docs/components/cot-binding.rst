@@ -279,6 +279,10 @@ non-volatile counter node binding definition
                     Description: Contains various non-volatile counters present in the platform.
 
             PROPERTIES
+                - id
+                    Usage: Required for every nv-counter with unique id.
+
+                    Value type: <u32>
 
                 - reg
                     Usage:
@@ -301,21 +305,21 @@ Below is non-volatile counters example for ARM platform
 
 .. code:: c
 
-   non-volatile-counters {
+   non_volatile_counters: non_volatile_counters {
         compatible = "arm, non-volatile-counter";
         #address-cells = <1>;
         #size-cells = <0>;
 
-        counters {
-            trusted-nv-counter: trusted_nv_counter {
-                reg = <TFW_NVCTR_BASE>;
-                oid = TRUSTED_FW_NVCOUNTER_OID;
-            };
-            non_trusted_nv_counter: non_trusted_nv_counter {
-                reg = <NTFW_CTR_BASE>;
-                oid = NON_TRUSTED_FW_NVCOUNTER_OID;
+        trusted-nv-counter: trusted_nv_counter {
+           id  = <TRUSTED_NV_CTR_ID>;
+           reg = <TFW_NVCTR_BASE>;
+           oid = TRUSTED_FW_NVCOUNTER_OID;
+        };
 
-            };
+        non_trusted_nv_counter: non_trusted_nv_counter {
+           id  = <NON_TRUSTED_NV_CTR_ID>;
+           reg = <NTFW_CTR_BASE>;
+           oid = NON_TRUSTED_FW_NVCOUNTER_OID;
         };
    };
 
