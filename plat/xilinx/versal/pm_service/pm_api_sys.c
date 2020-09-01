@@ -571,6 +571,22 @@ enum pm_ret_status pm_clock_get_parent(uint32_t clk_id, uint32_t *parent)
 
 	return pm_ipi_send_sync(primary_proc, payload, parent, 1);
 }
+/**
+ * pm_clock_get_rate() - Get the rate value for the clock
+ * @clk_id	Clock ID
+ * @rate:	Buffer to store clock rate value
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_clock_get_rate(uint32_t clk_id, uint32_t *clk_rate)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, PM_CLOCK_GETRATE, clk_id);
+
+	return pm_ipi_send_sync(primary_proc, payload, clk_rate, 2);
+}
 
 /**
  * pm_pll_set_param() - Set PLL parameter
@@ -853,6 +869,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	case PM_CLOCK_GETDIVIDER:
 	case PM_CLOCK_SETPARENT:
 	case PM_CLOCK_GETPARENT:
+	case PM_CLOCK_GETRATE:
 	case PM_PLL_SET_PARAMETER:
 	case PM_PLL_GET_PARAMETER:
 	case PM_PLL_SET_MODE:

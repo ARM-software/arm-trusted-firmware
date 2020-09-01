@@ -264,6 +264,15 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
 	}
 
+	case PM_CLOCK_GETRATE:
+	{
+		uint32_t rate[2] = { 0 };
+
+		ret = pm_clock_get_rate(pm_arg[0], rate);
+		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)rate[0] << 32),
+			 rate[1]);
+	}
+
 	case PM_PLL_SET_PARAMETER:
 		ret = pm_pll_set_param(pm_arg[0], pm_arg[1], pm_arg[2]);
 		SMC_RET1(handle, (uint64_t)ret);
