@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,15 +14,20 @@
  * that.
  */
 
+#include <errno.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <libfdt.h>
 
+#include <arch.h>
 #include <common/debug.h>
+#include <common/fdt_fixup.h>
+#include <common/fdt_wrappers.h>
 #include <drivers/console.h>
 #include <lib/psci/psci.h>
+#include <plat/common/platform.h>
 
-#include <common/fdt_fixup.h>
 
 static int append_psci_compatible(void *fdt, int offs, const char *str)
 {
@@ -209,4 +214,166 @@ int fdt_add_reserved_memory(void *dtb, const char *node_name,
 	fdt_setprop(dtb, offs, "reg", addresses, 12);
 
 	return 0;
+}
+
+/*******************************************************************************
+ * fdt_add_cpu()	Add a new CPU node to the DT
+ * @dtb:		Pointer to the device tree blob in memory
+ * @parent:		Offset of the parent node
+ * @mpidr:		MPIDR for the current CPU
+ *
+ * Create and add a new cpu node to a DTB.
+ *
+ * Return the offset of the new node or a negative value in case of error
+ ******************************************************************************/
+
+static int fdt_add_cpu(void *dtb, int parent, u_register_t mpidr)
+{
+	int cpu_offs;
+	int err;
+	char snode_name[15];
+	uint64_t reg_prop;
+
+	reg_prop = mpidr & MPID_MASK & ~MPIDR_MT_MASK;
+
+	snprintf(snode_name, sizeof(snode_name), "cpu@%x",
+					(unsigned int)reg_prop);
+
+	cpu_offs = fdt_add_subnode(dtb, parent, snode_name);
+	if (cpu_offs < 0) {
+		ERROR ("FDT: add subnode \"%s\" failed: %i\n",
+							snode_name, cpu_offs);
+		return cpu_offs;
+	}
+
+	err = fdt_setprop_string(dtb, cpu_offs, "compatible", "arm,armv8");
+	if (err < 0) {
+		ERROR ("FDT: write to \"%s\" property of node at offset %i failed\n",
+			"compatible", cpu_offs);
+		return err;
+	}
+
+	err = fdt_setprop_u64(dtb, cpu_offs, "reg", reg_prop);
+	if (err < 0) {
+		ERROR ("FDT: write to \"%s\" property of node at offset %i failed\n",
+			"reg", cpu_offs);
+		return err;
+	}
+
+	err = fdt_setprop_string(dtb, cpu_offs, "device_type", "cpu");
+	if (err < 0) {
+		ERROR ("FDT: write to \"%s\" property of node at offset %i failed\n",
+			"device_type", cpu_offs);
+		return err;
+	}
+
+	err = fdt_setprop_string(dtb, cpu_offs, "enable-method", "psci");
+	if (err < 0) {
+		ERROR ("FDT: write to \"%s\" property of node at offset %i failed\n",
+			"enable-method", cpu_offs);
+		return err;
+	}
+
+	return cpu_offs;
+}
+
+/******************************************************************************
+ * fdt_add_cpus_node() - Add the cpus node to the DTB
+ * @dtb:		pointer to the device tree blob in memory
+ * @afflv0:		Maximum number of threads per core (affinity level 0).
+ * @afflv1:		Maximum number of CPUs per cluster (affinity level 1).
+ * @afflv2:		Maximum number of clusters (affinity level 2).
+ *
+ * Iterate over all the possible MPIDs given the maximum affinity levels and
+ * add a cpus node to the DTB with all the valid CPUs on the system.
+ * If there is already a /cpus node, exit gracefully
+ *
+ * A system with two CPUs would generate a node equivalent or similar to:
+ *
+ *	cpus {
+ *		#address-cells = <2>;
+ *		#size-cells = <0>;
+ *
+ *		cpu0: cpu@0 {
+ *			compatible = "arm,armv8";
+ *			reg = <0x0 0x0>;
+ *			device_type = "cpu";
+ *			enable-method = "psci";
+ *		};
+ *		cpu1: cpu@10000 {
+ *			compatible = "arm,armv8";
+ *			reg = <0x0 0x100>;
+ *			device_type = "cpu";
+ *			enable-method = "psci";
+ *		};
+ *	};
+ *
+ * Full documentation about the CPU bindings can be found at:
+ * https://www.kernel.org/doc/Documentation/devicetree/bindings/arm/cpus.txt
+ *
+ * Return the offset of the node or a negative value on error.
+ ******************************************************************************/
+
+int fdt_add_cpus_node(void *dtb, unsigned int afflv0,
+		      unsigned int afflv1, unsigned int afflv2)
+{
+	int offs;
+	int err;
+	unsigned int i, j, k;
+	u_register_t mpidr;
+	int cpuid;
+
+	if (fdt_path_offset(dtb, "/cpus") >= 0) {
+		return -EEXIST;
+	}
+
+	offs = fdt_add_subnode(dtb, 0, "cpus");
+	if (offs < 0) {
+		ERROR ("FDT: add subnode \"cpus\" node to parent node failed");
+		return offs;
+	}
+
+	err = fdt_setprop_u32(dtb, offs, "#address-cells", 2);
+	if (err < 0) {
+		ERROR ("FDT: write to \"%s\" property of node at offset %i failed\n",
+			"#address-cells", offs);
+		return err;
+	}
+
+	err = fdt_setprop_u32(dtb, offs, "#size-cells", 0);
+	if (err < 0) {
+		ERROR ("FDT: write to \"%s\" property of node at offset %i failed\n",
+			"#size-cells", offs);
+		return err;
+	}
+
+	/*
+	 * Populate the node with the CPUs.
+	 * As libfdt prepends subnodes within a node, reverse the index count
+	 * so the CPU nodes would be better ordered.
+	 */
+	for (i = afflv2; i > 0U; i--) {
+		for (j = afflv1; j > 0U; j--) {
+			for (k = afflv0; k > 0U; k--) {
+				mpidr = ((i - 1) << MPIDR_AFF2_SHIFT) |
+					((j - 1) << MPIDR_AFF1_SHIFT) |
+					((k - 1) << MPIDR_AFF0_SHIFT) |
+					(read_mpidr_el1() & MPIDR_MT_MASK);
+
+				cpuid = plat_core_pos_by_mpidr(mpidr);
+				if (cpuid >= 0) {
+					/* Valid MPID found */
+					err = fdt_add_cpu(dtb, offs, mpidr);
+					if (err < 0) {
+						ERROR ("FDT: %s 0x%08x\n",
+							"error adding CPU",
+							(uint32_t)mpidr);
+						return err;
+					}
+				}
+			}
+		}
+	}
+
+	return offs;
 }
