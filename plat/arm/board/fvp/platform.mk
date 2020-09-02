@@ -168,6 +168,9 @@ BL2_SOURCES		+=	drivers/arm/sp805/sp805.c			\
 				${FVP_SECURITY_SOURCES}
 
 
+ifeq (${COT_DESC_IN_DTB},1)
+BL2_SOURCES		+=	plat/arm/common/fconf/fconf_nv_cntr_getter.c
+endif
 
 ifeq (${BL2_AT_EL3},1)
 BL2_SOURCES		+=	plat/arm/board/fvp/${ARCH}/fvp_helpers.S	\
