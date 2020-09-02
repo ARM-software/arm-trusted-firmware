@@ -86,6 +86,7 @@ PLAT_INCLUDES		:=	-Iplat/arm/board/arm_fpga/include
 PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/arm_fpga/${ARCH}/fpga_helpers.S
 
 BL31_SOURCES		+=	common/fdt_wrappers.c				\
+				common/fdt_fixup.c				\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
 				drivers/arm/pl011/${ARCH}/pl011_console.S	\
