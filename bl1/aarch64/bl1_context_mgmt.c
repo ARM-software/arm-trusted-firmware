@@ -14,12 +14,6 @@
 
 #include "../bl1_private.h"
 
-/*
- * Following array will be used for context management.
- * There are 2 instances, for the Secure and Non-Secure contexts.
- */
-static cpu_context_t bl1_cpu_context[2];
-
 /* Following contains the cpu context pointers. */
 static void *bl1_cpu_context_ptr[2];
 
@@ -42,6 +36,13 @@ void cm_set_context(void *context, uint32_t security_state)
  ******************************************************************************/
 void bl1_prepare_next_image(unsigned int image_id)
 {
+
+	/*
+	 * Following array will be used for context management.
+	 * There are 2 instances, for the Secure and Non-Secure contexts.
+	 */
+	static cpu_context_t bl1_cpu_context[2];
+
 	unsigned int security_state, mode = MODE_EL1;
 	image_desc_t *desc;
 	entry_point_info_t *next_bl_ep;
