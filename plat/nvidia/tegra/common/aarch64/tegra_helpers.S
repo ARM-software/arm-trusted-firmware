@@ -215,7 +215,8 @@ func plat_reset_handler
 	 */
 	mov	x0, x17
 	mov	x1, x18
-	mov	x2, #BL31_SIZE
+	adr	x2, __RELA_END__
+	sub	x2, x2, x18
 _loop16:
 	cmp	x2, #16
 	b.lo	_loop1
