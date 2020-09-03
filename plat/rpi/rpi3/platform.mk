@@ -210,7 +210,7 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
     certificates: $(ROT_KEY)
 
-    $(ROT_KEY):
+    $(ROT_KEY): | $(BUILD_PLAT)
 	@echo "  OPENSSL $@"
 	$(Q)openssl genrsa 2048 > $@ 2>/dev/null
 
