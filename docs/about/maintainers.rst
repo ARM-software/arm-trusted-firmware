@@ -64,6 +64,8 @@ Build Definitions for CMake Build System
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Javier Almansa Sobrino <Javier.AlmansaSobrino@arm.com>
 :G: `javieralso-arm`_
+:M: Chris Kay <chris.kay@arm.com>
+:G: `CJkay`_
 :F: /
 
 Software Delegated Exception Interface (SDEI)
@@ -645,5 +647,6 @@ Build system
 .. _madhukar-Arm: https://github.com/madhukar-Arm
 .. _john-powell-arm: https://github.com/john-powell-arm
 .. _raghuncstate: https://github.com/raghuncstate
+.. _CJKay: https://github.com/cjkay
 
 .. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
