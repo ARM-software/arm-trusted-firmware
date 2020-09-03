@@ -64,4 +64,12 @@
 #define CPUPOR_EL3	S3_6_C15_C8_2
 #define CPUPMR_EL3	S3_6_C15_C8_3
 
+/******************************************************************************
+ * CPU Configuration register definitions.
+ *****************************************************************************/
+#define CPUCFR_EL1	S3_0_C15_C0_0
+
+/* SCU bit of CPU Configuration Register, EL1 */
+#define SCU_SHIFT	U(2)
+
 #endif /* NEOVERSE_N1_H */
