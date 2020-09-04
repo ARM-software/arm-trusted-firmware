@@ -1744,6 +1744,8 @@ int stm32mp1_clk_init(void)
 	bool pll4_bootrom = false;
 	const fdt32_t *pkcs_cell;
 	void *fdt;
+	int stgen_p = stm32mp1_clk_get_parent(STGEN_K);
+	int usbphy_p = stm32mp1_clk_get_parent(USBPHY_K);
 
 	if (fdt_get_address(&fdt) == 0) {
 		return -FDT_ERR_NOTFOUND;
@@ -1842,6 +1844,13 @@ int stm32mp1_clk_init(void)
 							clksrc[CLKSRC_PLL4],
 							pllcfg[_PLL4],
 							plloff[_PLL4]);
+	}
+	/* Don't initialize PLL4, when used by BOOTROM */
+	if ((stm32mp_get_boot_itf_selected() ==
+	     BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_USB) &&
+	    ((stgen_p == (int)_PLL4_R) || (usbphy_p == (int)_PLL4_R))) {
+		pll4_bootrom = true;
+		pll4_preserve = true;
 	}
 
 	for (i = (enum stm32mp1_pll_id)0; i < _PLL_NB; i++) {
@@ -1994,6 +2003,11 @@ int stm32mp1_clk_init(void)
 	if (pkcs_cell != NULL) {
 		bool ckper_disabled = false;
 		uint32_t j;
+		uint32_t usbreg_bootrom = 0U;
+
+		if (pll4_bootrom) {
+			usbreg_bootrom = mmio_read_32(rcc_base + RCC_USBCKSELR);
+		}
 
 		for (j = 0; j < ((uint32_t)len / sizeof(uint32_t)); j++) {
 			uint32_t pkcs = fdt32_to_cpu(pkcs_cell[j]);
@@ -2013,6 +2027,25 @@ int stm32mp1_clk_init(void)
 		 */
 		if (ckper_disabled) {
 			stm32mp1_pkcs_config(CLK_CKPER_DISABLED);
+		}
+
+		if (pll4_bootrom) {
+			uint32_t usbreg_value, usbreg_mask;
+			const struct stm32mp1_clk_sel *sel;
+
+			sel = clk_sel_ref(_USBPHY_SEL);
+			usbreg_mask = (uint32_t)sel->msk << sel->src;
+			sel = clk_sel_ref(_USBO_SEL);
+			usbreg_mask |= (uint32_t)sel->msk << sel->src;
+
+			usbreg_value = mmio_read_32(rcc_base + RCC_USBCKSELR) &
+				       usbreg_mask;
+			usbreg_bootrom &= usbreg_mask;
+			if (usbreg_bootrom != usbreg_value) {
+				VERBOSE("forbidden new USB clk path\n");
+				VERBOSE("vs bootrom on USB boot\n");
+				return -FDT_ERR_BADVALUE;
+			}
 		}
 	}
 
