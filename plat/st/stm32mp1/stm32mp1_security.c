@@ -29,10 +29,13 @@
 
 static unsigned int region_nb;
 
-static void init_tzc400_begin(void)
+static void init_tzc400_begin(unsigned int region0_attr)
 {
 	tzc400_init(STM32MP1_TZC_BASE);
 	tzc400_disable_filters();
+
+	/* Region 0 set to cover all DRAM at 0xC000_0000 */
+	tzc400_configure_region0(region0_attr, 0);
 
 	region_nb = 1U;
 }
@@ -76,7 +79,7 @@ static void init_tzc400(void)
 	unsigned long long ddr_ns_top = ddr_base + (ddr_ns_size - 1U);
 	unsigned long long ddr_top __unused;
 
-	init_tzc400_begin();
+	init_tzc400_begin(TZC_REGION_S_NONE);
 
 	/*
 	 * Region 1 set to cover all non-secure DRAM at 0xC000_0000. Apply the
@@ -118,16 +121,8 @@ static void early_init_tzc400(void)
 	stm32mp_clk_enable(TZC1);
 	stm32mp_clk_enable(TZC2);
 
-	init_tzc400_begin();
-
-	/* Region 1 set to cover Non-Secure DRAM at 0xC000_0000 */
-	tzc400_configure_region(STM32MP1_FILTER_BIT_ALL, 1,
-				STM32MP_DDR_BASE,
-				STM32MP_DDR_BASE +
-				(STM32MP_DDR_MAX_SIZE - 1U),
-				TZC_REGION_S_NONE,
-				TZC_REGION_ACCESS_RDWR(STM32MP1_TZC_A7_ID) |
-				TZC_REGION_ACCESS_RDWR(STM32MP1_TZC_SDMMC_ID));
+	/* Region 0 set to cover all DRAM secure at 0xC000_0000 */
+	init_tzc400_begin(TZC_REGION_S_RDWR);
 
 	/* Raise an exception if a NS device tries to access secure memory */
 	init_tzc400_end(TZC_ACTION_ERR);

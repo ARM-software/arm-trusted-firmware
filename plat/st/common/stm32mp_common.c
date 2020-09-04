@@ -105,7 +105,7 @@ int stm32mp_map_ddr_non_cacheable(void)
 {
 	return  mmap_add_dynamic_region(STM32MP_DDR_BASE, STM32MP_DDR_BASE,
 					STM32MP_DDR_MAX_SIZE,
-					MT_NON_CACHEABLE | MT_RW | MT_NS);
+					MT_NON_CACHEABLE | MT_RW | MT_SECURE);
 }
 
 int stm32mp_unmap_ddr(void)
