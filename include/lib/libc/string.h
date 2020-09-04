@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 /*
- * Portions copyright (c) 2018-2019, ARM Limited and Contributors.
+ * Portions copyright (c) 2018-2020, ARM Limited and Contributors.
  * All rights reserved.
  */
 
@@ -26,5 +26,6 @@ size_t strlen(const char *s);
 size_t strnlen(const char *s, size_t maxlen);
 char *strrchr(const char *p, int ch);
 size_t strlcpy(char * dst, const char * src, size_t dsize);
+size_t strlcat(char * dst, const char * src, size_t dsize);
 
 #endif /* STRING_H */
