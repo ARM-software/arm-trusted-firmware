@@ -7,6 +7,7 @@
 V		?= 0
 BUILD_INFO	?= 1
 DEBUG		:= 0
+ENCTOOL		?= encrypt_fw${BIN_EXT}
 BINARY		:= $(notdir ${ENCTOOL})
 OPENSSL_DIR	:= /usr
 

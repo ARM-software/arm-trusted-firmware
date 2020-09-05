@@ -8,6 +8,7 @@ MAKE_HELPERS_DIRECTORY := ../../make_helpers/
 include ${MAKE_HELPERS_DIRECTORY}build_macros.mk
 include ${MAKE_HELPERS_DIRECTORY}build_env.mk
 
+SPTOOL  ?= sptool${BIN_EXT}
 PROJECT := $(notdir ${SPTOOL})
 OBJECTS := sptool.o
 V ?= 0

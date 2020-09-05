@@ -7,6 +7,7 @@
 PLAT		:= none
 V		?= 0
 DEBUG		:= 0
+CRTTOOL		?= cert_create${BIN_EXT}
 BINARY		:= $(notdir ${CRTTOOL})
 OPENSSL_DIR	:= /usr
 COT		:= tbbr
