@@ -23,6 +23,8 @@
 #define DDRC_ACTIVE_ONE_RANK	U(0x1)
 #define DDRC_ACTIVE_TWO_RANK	U(0x2)
 
+#define MAX_FSP_NUM		U(3)
+
 /* reg & config param */
 struct dram_cfg_param {
 	unsigned int reg;
