@@ -19,6 +19,7 @@
 #include <gpio/mtgpio.h>
 #include <mt_gic_v3.h>
 #include <mt_timer.h>
+#include <mtk_dcm.h>
 #include <plat_params.h>
 #include <plat_private.h>
 
@@ -83,6 +84,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
  ******************************************************************************/
 void bl31_platform_setup(void)
 {
+	/* Set dcm on */
+	if (!dcm_set_default()) {
+		ERROR("Failed to set default dcm on!!\n");
+	}
+
 	/* Initialize the GIC driver, CPU and distributor interfaces */
 	mt_gic_driver_init();
 	mt_gic_init();
