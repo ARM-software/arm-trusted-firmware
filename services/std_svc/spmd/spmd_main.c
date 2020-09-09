@@ -46,7 +46,14 @@ static entry_point_info_t *spmc_ep_info;
  ******************************************************************************/
 spmd_spm_core_context_t *spmd_get_context_by_mpidr(uint64_t mpidr)
 {
-	return &spm_core_context[plat_core_pos_by_mpidr(mpidr)];
+	int core_idx = plat_core_pos_by_mpidr(mpidr);
+
+	if (core_idx < 0) {
+		ERROR("Invalid mpidr: %llx, returned ID: %d\n", mpidr, core_idx);
+		panic();
+	}
+
+	return &spm_core_context[core_idx];
 }
 
 /*******************************************************************************
