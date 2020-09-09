@@ -48,7 +48,7 @@ FDT_SOURCES			+=	${CORSTONE700_HW_CONFIG_DTS}
 $(eval CORSTONE700_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(CORSTONE700_HW_CONFIG_DTS)))
 
 # Add the HW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_PAYLOAD,${CORSTONE700_HW_CONFIG},--hw-config))
+$(eval $(call TOOL_ADD_PAYLOAD,${CORSTONE700_HW_CONFIG},--hw-config,${CORSTONE700_HW_CONFIG}))
 
 # Check for Linux kernel as a BL33 image by default
 $(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
