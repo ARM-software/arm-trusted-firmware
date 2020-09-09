@@ -77,7 +77,7 @@ static void unsigned_num_print(char **s, size_t n, size_t *chars_printed,
 }
 
 /*******************************************************************
- * Reduced snprintf to be used for Trusted firmware.
+ * Reduced vsnprintf to be used for Trusted firmware.
  * The following type specifiers are supported:
  *
  * %x (or %X) - hexadecimal format
@@ -97,9 +97,8 @@ static void unsigned_num_print(char **s, size_t n, size_t *chars_printed,
  * buffer was big enough. If it returns a value lower than n, the
  * whole string has been written.
  *******************************************************************/
-int snprintf(char *s, size_t n, const char *fmt, ...)
+int vsnprintf(char *s, size_t n, const char *fmt, va_list args)
 {
-	va_list args;
 	int num;
 	unsigned long long int unum;
 	char *str;
@@ -120,7 +119,6 @@ int snprintf(char *s, size_t n, const char *fmt, ...)
 		n--;
 	}
 
-	va_start(args, fmt);
 	while (*fmt != '\0') {
 		left = false;
 		padc ='\0';
@@ -221,10 +219,42 @@ loop:
 		chars_printed++;
 	}
 
-	va_end(args);
-
-	if (n > 0U)
+	if (n > 0U) {
 		*s = '\0';
+	}
 
 	return (int)chars_printed;
+}
+
+/*******************************************************************
+ * Reduced snprintf to be used for Trusted firmware.
+ * The following type specifiers are supported:
+ *
+ * %x (or %X) - hexadecimal format
+ * %d or %i - signed decimal format
+ * %s - string format
+ * %u - unsigned decimal format
+ * %p - pointer format
+ *
+ * The following padding specifiers are supported by this print
+ * %0NN - Left-pad the number with 0s (NN is a decimal number)
+ * %NN - Left-pad the number or string with spaces (NN is a decimal number)
+ * %-NN - Right-pad the number or string with spaces (NN is a decimal number)
+ *
+ * The function panics on all other formats specifiers.
+ *
+ * It returns the number of characters that would be written if the
+ * buffer was big enough. If it returns a value lower than n, the
+ * whole string has been written.
+ *******************************************************************/
+int snprintf(char *s, size_t n, const char *fmt, ...)
+{
+	int count;
+	va_list all_args;
+
+	va_start(all_args, fmt);
+	count = vsnprintf(s, n, fmt, all_args);
+	va_end(all_args);
+
+	return count;
 }
