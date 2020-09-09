@@ -10,8 +10,10 @@
 #include <drivers/arm/cci.h>
 #include <drivers/console.h>
 #include <lib/mmio.h>
+#include <lib/smccc.h>
 #include <lib/xlat_tables/xlat_tables.h>
 #include <plat/common/platform.h>
+#include <services/arm_arch_svc.h>
 
 #include <mtk_plat_common.h>
 #include <mtk_sip_svc.h>
@@ -115,4 +117,34 @@ uint32_t plat_get_spsr_for_bl33_entry(void)
 
 	spsr = SPSR_MODE32(mode, 0, ee, daif);
 	return spsr;
+}
+
+/*****************************************************************************
+ * plat_is_smccc_feature_available() - This function checks whether SMCCC
+ *                                     feature is availabile for platform.
+ * @fid: SMCCC function id
+ *
+ * Return SMC_OK if SMCCC feature is available and SMC_ARCH_CALL_NOT_SUPPORTED
+ * otherwise.
+ *****************************************************************************/
+int32_t plat_is_smccc_feature_available(u_register_t fid)
+{
+	switch (fid) {
+	case SMCCC_ARCH_SOC_ID:
+		return SMC_ARCH_CALL_SUCCESS;
+	default:
+		return SMC_ARCH_CALL_NOT_SUPPORTED;
+	}
+}
+
+int32_t plat_get_soc_version(void)
+{
+	uint32_t manfid = (JEDEC_MTK_BKID << 24U) | (JEDEC_MTK_MFID << 16U);
+
+	return (int32_t)(manfid | (SOC_CHIP_ID & 0xFFFFU));
+}
+
+int32_t plat_get_soc_revision(void)
+{
+	return 0;
 }
