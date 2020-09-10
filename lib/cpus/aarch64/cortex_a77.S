@@ -114,6 +114,35 @@ func check_errata_1800714
 	b	cpu_rev_var_ls
 endfunc check_errata_1800714
 
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A77 Errata #1925769.
+	 * This applies to revision <= r1p1 of Cortex A77.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_a77_1925769_wa
+	/* Compare x0 against revision <= r1p1 */
+	mov	x17, x30
+	bl	check_errata_1925769
+	cbz	x0, 1f
+
+	/* Set bit 8 in ECTLR_EL1 */
+	mrs	x1, CORTEX_A77_CPUECTLR_EL1
+	orr	x1, x1, #CORTEX_A77_CPUECTLR_EL1_BIT_8
+	msr	CORTEX_A77_CPUECTLR_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a77_1925769_wa
+
+func check_errata_1925769
+	/* Applies to everything <= r1p1 */
+	mov	x1, #0x11
+	b	cpu_rev_var_ls
+endfunc check_errata_1925769
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A77.
 	 * Shall clobber: x0-x19
@@ -132,6 +161,11 @@ func cortex_a77_reset_func
 #if ERRATA_A77_1800714
 	mov	x0, x18
 	bl	errata_a77_1800714_wa
+#endif
+
+#if ERRATA_A77_1925769
+	mov	x0, x18
+	bl	errata_a77_1925769_wa
 #endif
 
 	ret	x19
@@ -169,6 +203,7 @@ func cortex_a77_errata_report
 	 */
 	report_errata ERRATA_A77_1508412, cortex_a77, 1508412
 	report_errata ERRATA_A77_1800714, cortex_a77, 1800714
+	report_errata ERRATA_A77_1925769, cortex_a77, 1925769
 
 	ldp	x8, x30, [sp], #16
 	ret
