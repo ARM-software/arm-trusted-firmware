@@ -16,6 +16,9 @@
 
 /* Standard Library API's */
 void *qtiseclib_cb_memcpy(void *dst, const void *src, size_t len);
+int qtiseclib_cb_strcmp(const char *s1, const char *s2);
+void *qtiseclib_cb_memset(void *s, int c, size_t n);
+void *qtiseclib_cb_memmove(void *dest, const void *src, size_t n);
 
 #define QTISECLIB_CB_ERROR(...)		qtiseclib_cb_log(QTISECLIB_LOG_LEVEL_ERROR, __VA_ARGS__)
 #define QTISECLIB_CB_NOTICE(...)	qtiseclib_cb_log(QTISECLIB_LOG_LEVEL_NOTICE, __VA_ARGS__)
@@ -40,6 +43,8 @@ void qtiseclib_cb_set_spi_routing(unsigned int id, unsigned int irm,
 void qtiseclib_cb_switch_console_to_crash_state(void);
 
 void qtiseclib_cb_udelay(uint32_t usec);
+
+int qtiseclib_cb_console_flush(void);
 
 #if QTI_SDI_BUILD
 int qtiseclib_cb_mmap_remove_dynamic_region(uintptr_t base_va, size_t size);
