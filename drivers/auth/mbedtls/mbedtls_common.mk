@@ -98,10 +98,13 @@ else
 endif
 
 # Needs to be set to drive mbed TLS configuration correctly
-$(eval $(call add_define,TF_MBEDTLS_KEY_ALG_ID))
-$(eval $(call add_define,TF_MBEDTLS_KEY_SIZE))
-$(eval $(call add_define,TF_MBEDTLS_HASH_ALG_ID))
-$(eval $(call add_define,TF_MBEDTLS_USE_AES_GCM))
+$(eval $(call add_defines,\
+    $(sort \
+        TF_MBEDTLS_KEY_ALG_ID \
+        TF_MBEDTLS_KEY_SIZE \
+        TF_MBEDTLS_HASH_ALG_ID \
+        TF_MBEDTLS_USE_AES_GCM \
+)))
 
 $(eval $(call MAKE_LIB,mbedtls))
 

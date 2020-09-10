@@ -89,10 +89,16 @@ ifndef CRASH_REPORTING
 CRASH_REPORTING		:=	$(DEBUG)
 endif
 
-$(eval $(call assert_boolean,CRASH_REPORTING))
-$(eval $(call assert_boolean,EL3_EXCEPTION_HANDLING))
-$(eval $(call assert_boolean,SDEI_SUPPORT))
+$(eval $(call assert_booleans,\
+    $(sort \
+	CRASH_REPORTING \
+	EL3_EXCEPTION_HANDLING \
+	SDEI_SUPPORT \
+)))
 
-$(eval $(call add_define,CRASH_REPORTING))
-$(eval $(call add_define,EL3_EXCEPTION_HANDLING))
-$(eval $(call add_define,SDEI_SUPPORT))
+$(eval $(call add_defines,\
+    $(sort \
+        CRASH_REPORTING \
+        EL3_EXCEPTION_HANDLING \
+        SDEI_SUPPORT \
+)))
