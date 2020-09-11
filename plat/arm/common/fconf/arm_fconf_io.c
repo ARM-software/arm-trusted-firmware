@@ -249,6 +249,7 @@ int fconf_populate_arm_io_policies(uintptr_t config)
 {
 	int err, node;
 	unsigned int i;
+	unsigned int j;
 
 	union uuid_helper_t uuid_helper;
 	io_uuid_spec_t *uuid_ptr;
@@ -272,6 +273,15 @@ int fconf_populate_arm_io_policies(uintptr_t config)
 		if (err < 0) {
 			WARN("FCONF: Read cell failed for %s\n", load_info[i].name);
 			return err;
+		}
+
+		/* Convert uuid from big endian to little endian */
+		for (j = 0U; j < 4U; j++) {
+			uuid_helper.word[j] =
+				((uuid_helper.word[j] >> 24U) & 0xff) |
+				((uuid_helper.word[j] << 8U) & 0xff0000) |
+				((uuid_helper.word[j] >> 8U) & 0xff00) |
+				((uuid_helper.word[j] << 24U) & 0xff000000);
 		}
 
 		VERBOSE("FCONF: arm-io_policies.%s cell found with value = 0x%x 0x%x 0x%x 0x%x\n",

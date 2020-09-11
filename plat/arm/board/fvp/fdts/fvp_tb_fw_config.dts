@@ -40,35 +40,34 @@
 	};
 
 	/*
-	 * Though TF-A is UUID RFC 4122 compliant meaning fields are stored in
-	 * network order (big endian), UUID's mentioned in this file are are
-	 * stored in machine order (little endian).
-	 * This will be fixed in future.
+	 * UUID's here are UUID RFC 4122 compliant meaning fieds are stored in
+	 * network order (big endian)
 	 */
+
 #if ARM_IO_IN_DTB
 	arm-io_policies {
 		fip-handles {
 			compatible = "arm,io-fip-handle";
-			scp_bl2_uuid = <0x3dfd6697 0x49e8be89 0xa1785dae 0x13826040>;
-			bl31_uuid = <0x6d08d447 0x4698fe4c 0x5029959b 0x005abdcb>;
-			bl32_uuid = <0x89e1d005 0x4713dc53 0xa502b8d 0x383e7a4b>;
-			bl32_extra1_uuid = <0x9bc2700b 0x40785a2a 0x560a659f 0x88827382>;
-			bl32_extra2_uuid = <0xb17ba88e 0x4d3fa2cf 0xbbe7fd85 0xd92002a5>;
-			bl33_uuid = <0xa7eed0d6 0x4bd5eafc 0x34998297 0xe4b634f2>;
-			hw_cfg_uuid = <0xd9f1b808 0x4993cfc9 0xbc6f62a9 0xcc65726b>;
-			soc_fw_cfg_uuid = <0x4b817999 0x46fb7603 0x268d8e8c 0xe059787f>;
-			tos_fw_cfg_uuid = <0x1a7c2526 0x477fc6db 0xc4c4968d 0x218024b0>;
-			nt_fw_cfg_uuid = <0x1598da28 0x447ee893 0xaf1a66ac 0xf9501580>;
-			t_key_cert_uuid = <0x90e87e82 0x11e460f8 0x7a77b4a1 0x4cf9b421>;
-			scp_fw_key_uuid = <0xa1214202 0x11e460f8 0x3cf39b8d 0x14a0150e>;
-			soc_fw_key_uuid = <0xccbeb88a 0x11e460f9 0x48ebd09a 0xf8dcd822>;
-			tos_fw_key_cert_uuid = <0x3d67794 0x11e460fb 0x10b7dd85 0x4ee8c5b>;
-			nt_fw_key_cert_uuid = <0x2a83d58a 0x11e460fb 0x30dfaf8a 0x5998c4bb>;
-			scp_fw_content_cert_uuid = <0x046fbe44 0x11e4635e 0xd8738bb2 0x5696aeea>;
-			soc_fw_content_cert_uuid = <0x200cb2e2 0x11e4635e 0xccabe89c 0x66b62bf9>;
-			tos_fw_content_cert_uuid = <0x11449fa4 0x11e4635e 0x53f2887 0x3df32a72>;
-			nt_fw_content_cert_uuid = <0xf3c1c48e 0x11e4635d 0xee87a9a7 0xa73fb240>;
-			sp_content_cert_uuid = <0x44fd6d77 0x3b4c9786 0x3ec1eb91 0x6f2a5a02>;
+			scp_bl2_uuid = <0x9766fd3d 0x89bee849 0xae5d78a1 0x40608213>;
+			bl31_uuid = <0x47d4086d 0x4cfe9846 0x9b952950 0xcbbd5a00>;
+			bl32_uuid = <0x05d0e189 0x53dc1347 0x8d2b500a 0x4b7a3e38>;
+			bl32_extra1_uuid = <0x0b70c28b 0x2a5a7840 0x9f650a56 0x82738288>;
+			bl32_extra2_uuid = <0x8ea87bb1 0xcfa23f4d 0x85fde7bb 0xa50220d9>;
+			bl33_uuid = <0xd6d0eea7 0xfcead54b 0x97829934 0xf234b6e4>;
+			hw_cfg_uuid = <0x08b8f1d9 0xc9cf9349 0xa9626fbc 0x6b7265cc>;
+			soc_fw_cfg_uuid = <0x9979814b 0x0376fb46 0x8c8e8d26 0x7f7859e0>;
+			tos_fw_cfg_uuid = <0x26257c1a 0xdbc67f47 0x8d96c4c4 0xb0248021>;
+			nt_fw_cfg_uuid = <0x28da9815 0x93e87e44 0xac661aaf 0x801550f9>;
+			t_key_cert_uuid = <0x827ee890 0xf860e411 0xa1b477a7 0x21b4f94c>;
+			scp_fw_key_uuid = <0x024221a1 0xf860e411 0x8d9bf33c 0x0e15a014>;
+			soc_fw_key_uuid = <0x8ab8becc 0xf960e411 0x9ad0eb48 0x22d8dcf8>;
+			tos_fw_key_cert_uuid = <0x9477d603 0xfb60e411 0x85ddb710 0x5b8cee04>;
+			nt_fw_key_cert_uuid = <0x8ad5832a 0xfb60e411 0x8aafdf30 0xbbc49859>;
+			scp_fw_content_cert_uuid = <0x44be6f04 0x5e63e411 0xb28b73d8 0xeaae9656>;
+			soc_fw_content_cert_uuid = <0xe2b20c20 0x5e63e411 0x9ce8abcc 0xf92bb666>;
+			tos_fw_content_cert_uuid = <0xa49f4411 0x5e63e411 0x87283f05 0x722af33d>;
+			nt_fw_content_cert_uuid = <0x8ec4c1f3 0x5d63e411 0xa7a987ee 0x40b23fa7>;
+			sp_content_cert_uuid = <0x776dfd44 0x86974c3b 0x91ebc13e 0x025a2a6f>;
 		};
 	};
 #endif /* ARM_IO_IN_DTB */
@@ -77,24 +76,24 @@
 		compatible = "arm,sp";
 #ifdef OPTEE_SP_FW_CONFIG
 		op-tee {
-			uuid = <0xe0786148 0xe311f8e7 0x02005ebc 0x1bc5d5a5>;
+			uuid = <0x486178e0 0xe7f811e3 0xbc5e0002 0xa5d5c51b>;
 			load-address = <0x6280000>;
 		};
 #else
 		cactus-primary {
-			uuid = <0x1e67b5b4 0xe14f904a 0x13fb1fb8 0xcbdae1da>;
+			uuid = <0xb4b5671e 0x4a904fe1 0xb81ffb13 0xdae1dacb>;
 			load-address = <0x7000000>;
 			owner = "SiP";
 		};
 
 		cactus-secondary {
-			uuid = <0x092358d1 0xb94723f0 0x64447c82 0xc88f57f5>;
+			uuid = <0xd1582309 0xf02347b9 0x827c4464 0xf5578fc8>;
 			load-address = <0x7100000>;
 			owner = "Plat";
 		};
 
 		cactus-tertiary {
-			uuid = <0x735cb579 0xb9448c1d 0xe1619385 0xd2d80a77>;
+			uuid = <0x79b55c73 0x1d8c44b9 0x859361e1 0x770ad8d2>;
 			load-address = <0x7200000>;
 		};
 #endif
