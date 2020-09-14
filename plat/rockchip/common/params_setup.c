@@ -230,12 +230,27 @@ static bool rk_aux_param_handler(struct bl_aux_param_header *param)
 
 void params_early_setup(u_register_t plat_param_from_bl2)
 {
+	int ret;
+
 	/*
 	 * Test if this is a FDT passed as a platform-specific parameter
 	 * block.
 	 */
-	if (!dt_process_fdt(plat_param_from_bl2))
+	ret = dt_process_fdt(plat_param_from_bl2);
+	if (!ret) {
 		return;
+	} else if (ret != -FDT_ERR_BADMAGIC) {
+		/*
+		 * If we found an FDT but couldn't parse it (e.g. corrupt, not
+		 * enough space), return and don't attempt to parse the param
+		 * as something else, since we know that will also fail. All
+		 * we're doing is setting up UART, this doesn't need to be
+		 * fatal.
+		 */
+		WARN("%s: found FDT but could not parse: error %d\n",
+		     __func__, ret);
+		return;
+	}
 
 	bl_aux_params_parse(plat_param_from_bl2, rk_aux_param_handler);
 }
