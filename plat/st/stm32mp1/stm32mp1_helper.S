@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -148,6 +148,19 @@ endfunc plat_my_core_pos
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
+	/* Reset UART peripheral */
+	ldr	r1, =(RCC_BASE + DEBUG_UART_RST_REG)
+	ldr	r2, =DEBUG_UART_RST_BIT
+	str	r2, [r1]
+1:
+	ldr	r0, [r1]
+	ands	r2, r0, r2
+	beq	1b
+	str	r2, [r1, #4] /* RSTCLR register */
+2:
+	ldr	r0, [r1]
+	ands	r2, r0, r2
+	bne	2b
 	/* Enable GPIOs for UART TX */
 	ldr	r1, =(RCC_BASE + DEBUG_UART_TX_GPIO_BANK_CLK_REG)
 	ldr	r2, [r1]

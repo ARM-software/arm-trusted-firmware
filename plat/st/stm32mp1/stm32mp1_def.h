@@ -205,6 +205,8 @@ enum ddr_type {
 #define DEBUG_UART_TX_CLKSRC		RCC_UART24CKSELR_HSI
 #define DEBUG_UART_TX_EN_REG		RCC_MP_APB1ENSETR
 #define DEBUG_UART_TX_EN		RCC_MP_APB1ENSETR_UART4EN
+#define DEBUG_UART_RST_REG		RCC_APB1RSTSETR
+#define DEBUG_UART_RST_BIT		RCC_APB1RSTSETR_UART4RST
 
 /*******************************************************************************
  * STM32MP1 ETZPC
