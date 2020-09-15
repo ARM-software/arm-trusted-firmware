@@ -1157,7 +1157,13 @@ endif
 clean:
 	@echo "  CLEAN"
 	$(call SHELL_REMOVE_DIR,${BUILD_PLAT})
+ifdef UNIX_MK
 	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
+else
+# Clear the MAKEFLAGS as we do not want
+# to pass the gnumake flags to nmake.
+	${Q}set MAKEFLAGS= && ${MSVC_NMAKE} /nologo /f ${FIPTOOLPATH}/Makefile.msvc FIPTOOLPATH=$(subst /,\,$(FIPTOOLPATH)) FIPTOOL=$(subst /,\,$(FIPTOOL)) clean
+endif
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${ENCTOOLPATH} clean
 	${Q}${MAKE} --no-print-directory -C ${ROMLIBPATH} clean
@@ -1166,7 +1172,13 @@ realclean distclean:
 	@echo "  REALCLEAN"
 	$(call SHELL_REMOVE_DIR,${BUILD_BASE})
 	$(call SHELL_DELETE_ALL, ${CURDIR}/cscope.*)
+ifdef UNIX_MK
 	${Q}${MAKE} --no-print-directory -C ${FIPTOOLPATH} clean
+else
+# Clear the MAKEFLAGS as we do not want
+# to pass the gnumake flags to nmake.
+	${Q}set MAKEFLAGS= && ${MSVC_NMAKE} /nologo /f ${FIPTOOLPATH}/Makefile.msvc FIPTOOLPATH=$(subst /,\,$(FIPTOOLPATH)) FIPTOOL=$(subst /,\,$(FIPTOOL)) realclean
+endif
 	${Q}${MAKE} --no-print-directory -C ${SPTOOLPATH} clean
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${CRTTOOLPATH} clean
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${ENCTOOLPATH} realclean
@@ -1252,7 +1264,16 @@ fwu_fip: ${BUILD_PLAT}/${FWU_FIP_NAME}
 
 .PHONY: ${FIPTOOL}
 ${FIPTOOL}:
+	@${ECHO_BLANK_LINE}
+	@echo "Building $@"
+ifdef UNIX_MK
 	${Q}${MAKE} CPPFLAGS="-DVERSION='\"${VERSION_STRING}\"'" FIPTOOL=${FIPTOOL} --no-print-directory -C ${FIPTOOLPATH}
+else
+# Clear the MAKEFLAGS as we do not want
+# to pass the gnumake flags to nmake.
+	${Q}set MAKEFLAGS= && ${MSVC_NMAKE} /nologo /f ${FIPTOOLPATH}/Makefile.msvc FIPTOOLPATH=$(subst /,\,$(FIPTOOLPATH)) FIPTOOL=$(subst /,\,$(FIPTOOL))
+endif
+	@${ECHO_BLANK_LINE}
 
 sptool: ${SPTOOL}
 .PHONY: ${SPTOOL}

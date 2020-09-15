@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017 - 2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -137,7 +137,8 @@ int getopt(int argc,
  * Note that we only match over the shorter length of the pair, to allow
  * for abbreviation or say --match=value
  * Long option names may be abbreviated if the abbreviation is unique or an
- * exact match for some defined option.
+ * exact match for some defined option. This function does not check that the
+ * abbreviations are unique and should be handled by the caller.
  * A long option may take a parameter, of the form --opt=param or --opt param.
 */
 static
@@ -160,42 +161,72 @@ int getopt_1long(const int argc,
 {
 	int result = RET_UNKNOWN_OPT;
 	size_t loptn = 0;
+	bool match_found = false;
 
-	while (longopts[loptn].name != 0) {
-		if (optmatch(optname, longopts[loptn].name) == 0) {
-			/* We found a match. */
-			result = longopts[loptn].val;
-			if (indexptr != 0)
-				*indexptr = loptn;
-			switch (longopts[loptn].has_arg) {
-			case required_argument:
-				if ((optind + 1) >= argc) {
-					/* Missing argument. */
-					optopt = result;
-					return RET_NO_PARAM;
-				}
-				/* Fallthrough to get option value. */
+	/*
+	 * Long option names may be abbreviated if the abbreviation
+	 * is unique or an exact match for some defined option.
+	 * To handle this:
+	 * - First search for an exact match.
+	 * - If exact match was not found search for a abbreviated match.
+	 * By doing this an incorrect option selection can be avoided.
+	 */
 
-			case optional_argument:
-				if ((argc - optind) > 0) {
-					/* Found argument. */
-					optarg = argv[++optind];
-				}
-				/* Fallthrough to handle flag. */
-
-			case no_argument:
-				optind++;
-				if (longopts[loptn].flag != 0) {
-					*longopts[loptn].flag = result;
-					result = 0;
-				}
-				break;
-
-			}
-			return result;
+	/* 1. Search for an exact match. */
+	while (longopts[loptn].name != NULL) {
+		if (strcmp(optname, longopts[loptn].name) == 0) {
+			match_found = true;
+			break;
 		}
 		++loptn;
 	}
+
+	/* 2. If exact match was not found search for a abbreviated match. */
+	if (!match_found) {
+		loptn = 0;
+		while (longopts[loptn].name != NULL) {
+			if (optmatch(optname, longopts[loptn].name) == 0) {
+				match_found = true;
+				break;
+			}
+			++loptn;
+		}
+	}
+
+	if (match_found) {
+		/* We found a match. */
+		result = longopts[loptn].val;
+		if (indexptr != 0) {
+			*indexptr = loptn;
+		}
+		switch (longopts[loptn].has_arg) {
+		case required_argument:
+			if ((optind + 1) >= argc) {
+				/* Missing argument. */
+				optopt = result;
+				return RET_NO_PARAM;
+			}
+			/* Fallthrough to get option value. */
+
+		case optional_argument:
+			if ((argc - optind) > 0) {
+				/* Found argument. */
+				optarg = argv[++optind];
+			}
+			/* Fallthrough to handle flag. */
+
+		case no_argument:
+			optind++;
+			if (longopts[loptn].flag != 0) {
+				*longopts[loptn].flag = result;
+				result = 0;
+			}
+			break;
+
+		}
+		return result;
+	}
+
 	/*
 	 * If getopt finds an option character in argv that was not included
 	 * in options, ... it returns '?' and sets the external variable
