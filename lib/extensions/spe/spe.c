@@ -25,7 +25,7 @@ bool spe_supported(void)
 	uint64_t features;
 
 	features = read_id_aa64dfr0_el1() >> ID_AA64DFR0_PMS_SHIFT;
-	return (features & ID_AA64DFR0_PMS_MASK) == 1U;
+	return (features & ID_AA64DFR0_PMS_MASK) > 0ULL;
 }
 
 void spe_enable(bool el2_unused)
