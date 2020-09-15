@@ -44,14 +44,14 @@
 			is_ffa_partition;
 			debug_name = "cactus-secondary";
 			load_address = <0x7100000>;
-			vcpu_count = <2>;
+			vcpu_count = <8>;
 			mem_size = <1048576>;
 		};
 		vm3 {
 			is_ffa_partition;
 			debug_name = "cactus-tertiary";
 			load_address = <0x7200000>;
-			vcpu_count = <2>;
+			vcpu_count = <8>;
 			mem_size = <1048576>;
 		};
 	};
