@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,7 +32,48 @@ func platform_mem_init
 endfunc platform_mem_init
 
 func plat_report_exception
+#if DEBUG
+	mov	r8, lr
+
+	/* Test if an abort occurred */
+	cmp	r0, #MODE32_abt
+	bne	undef_inst_lbl
+	ldr	r4, =abort_str
+	bl	asm_print_str
+	mrs	r4, lr_abt
+	sub	r4, r4, #4
+	b	print_exception_info
+
+undef_inst_lbl:
+	/* Test for an undefined instruction */
+	cmp	r0, #MODE32_und
+	bne	other_exception_lbl
+	ldr	r4, =undefined_str
+	bl	asm_print_str
+	mrs	r4, lr_und
+	b	print_exception_info
+
+other_exception_lbl:
+	/* Other exceptions */
+	mov	r9, r0
+	ldr	r4, =exception_start_str
+	bl	asm_print_str
+	mov	r4, r9
+	bl	asm_print_hex
+	ldr	r4, =exception_end_str
+	bl	asm_print_str
+	mov	r4, r6
+
+print_exception_info:
+	bl	asm_print_hex
+
+	ldr	r4, =end_error_str
+	bl	asm_print_str
+
+	bx	r8
+#else
 	bx	lr
+#endif
 endfunc plat_report_exception
 
 func plat_reset_handler
@@ -174,3 +215,17 @@ func plat_crash_console_putc
 	ldr	r1, =STM32MP_DEBUG_USART_BASE
 	b	console_stm32_core_putc
 endfunc plat_crash_console_putc
+
+#if DEBUG
+.section .rodata.rev_err_str, "aS"
+abort_str:
+	.asciz "\nAbort at: 0x"
+undefined_str:
+	.asciz "\nUndefined instruction at: 0x"
+exception_start_str:
+	.asciz "\nException mode=0x"
+exception_end_str:
+	.asciz " at: 0x"
+end_error_str:
+	.asciz "\n\r"
+#endif
