@@ -128,6 +128,7 @@ struct stm32mp1_ddrctl {
 	uint32_t pcfgwqos1_0;	/* 0x4a0 Write QoS Configuration 1 */
 	uint8_t reserved4a4[0x4b4 - 0x4a4];
 
+#if STM32MP_DDR_DUAL_AXI_PORT
 	/* PORT 1 */
 	uint32_t pcfgr_1;	/* 0x4b4 Configuration Read */
 	uint32_t pcfgw_1;	/* 0x4b8 Configuration Write */
@@ -137,6 +138,7 @@ struct stm32mp1_ddrctl {
 	uint32_t pcfgqos1_1;	/* 0x548 Read QoS Configuration 1 */
 	uint32_t pcfgwqos0_1;	/* 0x54c Write QoS Configuration 0 */
 	uint32_t pcfgwqos1_1;	/* 0x550 Write QoS Configuration 1 */
+#endif
 } __packed;
 
 /* DDR Physical Interface Control (DDRPHYC) registers*/
@@ -214,6 +216,7 @@ struct stm32mp1_ddrphy {
 	uint32_t dx1dqtr;	/* 0x210 Byte lane 1 DQ Timing */
 	uint32_t dx1dqstr;	/* 0x214 Byte lane 1 QS Timing */
 	uint8_t res6[0x240 - 0x218];	/* 0x218 */
+#if STM32MP_DDR_32BIT_INTERFACE
 	uint32_t dx2gcr;	/* 0x240 Byte lane 2 General Configuration */
 	uint32_t dx2gsr0;	/* 0x244 Byte lane 2 General Status 0 */
 	uint32_t dx2gsr1;	/* 0x248 Byte lane 2 General Status 1 */
@@ -227,6 +230,7 @@ struct stm32mp1_ddrphy {
 	uint32_t dx3dllcr;	/* 0x28c Byte lane 3 DLL Control */
 	uint32_t dx3dqtr;	/* 0x290 Byte lane 3 DQ Timing */
 	uint32_t dx3dqstr;	/* 0x294 Byte lane 3 QS Timing */
+#endif
 } __packed;
 
 /* DDR Controller registers offsets */
@@ -249,7 +253,9 @@ struct stm32mp1_ddrphy {
 #define DDRCTRL_SWSTAT				0x324
 #define DDRCTRL_PSTAT				0x3FC
 #define DDRCTRL_PCTRL_0				0x490
+#if STM32MP_DDR_DUAL_AXI_PORT
 #define DDRCTRL_PCTRL_1				0x540
+#endif
 
 /* DDR Controller Register fields */
 #define DDRCTRL_MSTR_DDR3			BIT(0)
@@ -339,10 +345,12 @@ struct stm32mp1_ddrphy {
 #define DDRPHYC_DX0DLLCR			0x1CC
 #define DDRPHYC_DX1GCR				0x200
 #define DDRPHYC_DX1DLLCR			0x20C
+#if STM32MP_DDR_32BIT_INTERFACE
 #define DDRPHYC_DX2GCR				0x240
 #define DDRPHYC_DX2DLLCR			0x24C
 #define DDRPHYC_DX3GCR				0x280
 #define DDRPHYC_DX3DLLCR			0x28C
+#endif
 
 /* DDR PHY Register fields */
 #define DDRPHYC_PIR_INIT			BIT(0)

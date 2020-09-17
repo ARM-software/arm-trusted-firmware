@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -22,6 +22,10 @@ STM32_TF_VERSION	?=	0
 
 # Enable dynamic memory mapping
 PLAT_XLAT_TABLES_DYNAMIC :=	1
+
+# DDR controller with dual AXI port and 32-bit interface
+STM32MP_DDR_DUAL_AXI_PORT:=	1
+STM32MP_DDR_32BIT_INTERFACE:=	1
 
 ifeq ($(AARCH32_SP),sp_min)
 # Disable Neon support: sp_min runtime may conflict with non-secure world
@@ -127,6 +131,8 @@ endif
 $(eval $(call assert_booleans,\
 	$(sort \
 		PLAT_XLAT_TABLES_DYNAMIC \
+		STM32MP_DDR_32BIT_INTERFACE \
+		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_EMMC \
 		STM32MP_EMMC_BOOT \
 		STM32MP_RAW_NAND \
@@ -151,6 +157,8 @@ $(eval $(call add_defines,\
 		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32_TF_A_COPIES \
 		STM32_TF_VERSION \
+		STM32MP_DDR_32BIT_INTERFACE \
+		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_EMMC \
 		STM32MP_EMMC_BOOT \
 		STM32MP_RAW_NAND \

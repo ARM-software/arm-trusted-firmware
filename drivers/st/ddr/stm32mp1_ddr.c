@@ -54,9 +54,17 @@ struct reg_desc {
 #define DDRCTL_REG_REG_SIZE	25	/* st,ctl-reg */
 #define DDRCTL_REG_TIMING_SIZE	12	/* st,ctl-timing */
 #define DDRCTL_REG_MAP_SIZE	9	/* st,ctl-map */
+#if STM32MP_DDR_DUAL_AXI_PORT
 #define DDRCTL_REG_PERF_SIZE	17	/* st,ctl-perf */
+#else
+#define DDRCTL_REG_PERF_SIZE	11	/* st,ctl-perf */
+#endif
 
+#if STM32MP_DDR_32BIT_INTERFACE
 #define DDRPHY_REG_REG_SIZE	11	/* st,phy-reg */
+#else
+#define DDRPHY_REG_REG_SIZE	9	/* st,phy-reg */
+#endif
 #define	DDRPHY_REG_TIMING_SIZE	10	/* st,phy-timing */
 
 #define DDRCTL_REG_REG(x)	DDRCTL_REG(x, stm32mp1_ddrctrl_reg)
@@ -130,12 +138,14 @@ static const struct reg_desc ddr_perf[DDRCTL_REG_PERF_SIZE] = {
 	DDRCTL_REG_PERF(pcfgqos1_0),
 	DDRCTL_REG_PERF(pcfgwqos0_0),
 	DDRCTL_REG_PERF(pcfgwqos1_0),
+#if STM32MP_DDR_DUAL_AXI_PORT
 	DDRCTL_REG_PERF(pcfgr_1),
 	DDRCTL_REG_PERF(pcfgw_1),
 	DDRCTL_REG_PERF(pcfgqos0_1),
 	DDRCTL_REG_PERF(pcfgqos1_1),
 	DDRCTL_REG_PERF(pcfgwqos0_1),
 	DDRCTL_REG_PERF(pcfgwqos1_1),
+#endif
 };
 
 #define DDRPHY_REG_REG(x)	DDRPHY_REG(x, stm32mp1_ddrphy_reg)
@@ -149,8 +159,10 @@ static const struct reg_desc ddrphy_reg[DDRPHY_REG_REG_SIZE] = {
 	DDRPHY_REG_REG(zq0cr1),
 	DDRPHY_REG_REG(dx0gcr),
 	DDRPHY_REG_REG(dx1gcr),
+#if STM32MP_DDR_32BIT_INTERFACE
 	DDRPHY_REG_REG(dx2gcr),
 	DDRPHY_REG_REG(dx3gcr),
+#endif
 };
 
 #define DDRPHY_REG_TIMING(x)	DDRPHY_REG(x, stm32mp1_ddrphy_timing)
@@ -587,10 +599,12 @@ static void stm32mp1_ddr3_dll_off(struct ddr_info *priv)
 			DDRPHYC_DXNDLLCR_DLLDIS);
 	mmio_setbits_32((uintptr_t)&priv->phy->dx1dllcr,
 			DDRPHYC_DXNDLLCR_DLLDIS);
+#if STM32MP_DDR_32BIT_INTERFACE
 	mmio_setbits_32((uintptr_t)&priv->phy->dx2dllcr,
 			DDRPHYC_DXNDLLCR_DLLDIS);
 	mmio_setbits_32((uintptr_t)&priv->phy->dx3dllcr,
 			DDRPHYC_DXNDLLCR_DLLDIS);
+#endif
 
 	/* 12. Exit the self-refresh state by setting PWRCTL.selfref_sw = 0. */
 	mmio_clrbits_32((uintptr_t)&priv->ctl->pwrctl,
@@ -861,10 +875,12 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 		(uintptr_t)&priv->ctl->pctrl_0,
 		mmio_read_32((uintptr_t)&priv->ctl->pctrl_0));
 
+#if STM32MP_DDR_DUAL_AXI_PORT
 	/* Enable uMCTL2 AXI port 1 */
 	mmio_setbits_32((uintptr_t)&priv->ctl->pctrl_1,
 			DDRCTRL_PCTRL_N_PORT_EN);
 	VERBOSE("[0x%lx] pctrl_1 = 0x%x\n",
 		(uintptr_t)&priv->ctl->pctrl_1,
 		mmio_read_32((uintptr_t)&priv->ctl->pctrl_1));
+#endif
 }
