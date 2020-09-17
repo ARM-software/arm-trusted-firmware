@@ -130,10 +130,6 @@ void bl2_platform_setup(void)
 {
 	int ret;
 
-	if (dt_pmic_status() > 0) {
-		initialize_pmic();
-	}
-
 	ret = stm32mp1_ddr_probe();
 	if (ret < 0) {
 		ERROR("Invalid DDR init: error %d\n", ret);
@@ -247,8 +243,6 @@ void bl2_el3_plat_arch_setup(void)
 		panic();
 	}
 
-	stm32mp1_syscfg_init();
-
 	stm32_save_boot_interface(boot_context->boot_interface_selected,
 				  boot_context->boot_interface_instance);
 
@@ -277,6 +271,12 @@ void bl2_el3_plat_arch_setup(void)
 	}
 
 skip_console_init:
+	if (dt_pmic_status() > 0) {
+		initialize_pmic();
+	}
+
+	stm32mp1_syscfg_init();
+
 	if (stm32_iwdg_init() < 0) {
 		panic();
 	}
