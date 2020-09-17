@@ -24,11 +24,15 @@ WORKAROUND_CVE_2017_5715:=	0
 
 # Number of TF-A copies in the device
 STM32_TF_A_COPIES		:=	2
+STM32_BL33_PARTS_NUM		:=	1
 ifeq ($(AARCH32_SP),optee)
-PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 4)))
+STM32_RUNTIME_PARTS_NUM		:=	3
 else
-PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + 1)))
+STM32_RUNTIME_PARTS_NUM		:=	0
 endif
+PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + \
+							 $(STM32_BL33_PARTS_NUM) + \
+							 $(STM32_RUNTIME_PARTS_NUM))))
 
 # Boot devices
 STM32MP_EMMC		?=	0
