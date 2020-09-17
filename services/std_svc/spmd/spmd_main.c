@@ -256,7 +256,6 @@ static int spmd_spmc_init(void *pm_addr)
 	}
 
 	SET_PARAM_HEAD(spmc_ep_info, PARAM_EP, VERSION_1, ep_attr);
-	assert(spmc_ep_info->pc == BL32_BASE);
 
 	/*
 	 * Populate SPSR for SPM Core based upon validated parameters from the
