@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -381,7 +381,8 @@ enum ddr_type {
 #define STM32MP1_TZC_ETH_ID		U(10)
 #define STM32MP1_TZC_DAP_ID		U(15)
 
-#define STM32MP1_FILTER_BIT_ALL		U(3)
+#define STM32MP1_FILTER_BIT_ALL		(TZC_400_REGION_ATTR_FILTER_BIT(0) | \
+					 TZC_400_REGION_ATTR_FILTER_BIT(1))
 
 /*******************************************************************************
  * STM32MP1 SDMMC
