@@ -16,7 +16,7 @@ PLAT_XLAT_TABLES_DYNAMIC :=	1
 
 ifeq ($(AARCH32_SP),sp_min)
 # Disable Neon support: sp_min runtime may conflict with non-secure world
-TF_CFLAGS		+=      -mfloat-abi=soft
+TF_CFLAGS		+=	-mfloat-abi=soft
 endif
 
 # Not needed for Cortex-A7
@@ -218,30 +218,30 @@ check_dtc_version:
 	fi
 
 
-${BUILD_PLAT}/stm32mp1-%.o:	${BUILD_PLAT}/fdts/%.dtb plat/st/stm32mp1/stm32mp1.S bl2 ${BL32_DEP}
-			@echo "  AS      stm32mp1.S"
-			${Q}${AS} ${ASFLAGS} ${TF_CFLAGS} \
-				-DDTB_BIN_PATH=\"$<\" \
-				-c plat/st/stm32mp1/stm32mp1.S -o $@
+${BUILD_PLAT}/stm32mp1-%.o: ${BUILD_PLAT}/fdts/%.dtb plat/st/stm32mp1/stm32mp1.S bl2 ${BL32_DEP}
+	@echo "  AS      stm32mp1.S"
+	${Q}${AS} ${ASFLAGS} ${TF_CFLAGS} \
+		-DDTB_BIN_PATH=\"$<\" \
+		-c plat/st/stm32mp1/stm32mp1.S -o $@
 
 $(eval $(call MAKE_LD,${STM32_TF_LINKERFILE},plat/st/stm32mp1/stm32mp1.ld.S,2))
 
-tf-a-%.elf:		stm32mp1-%.o ${STM32_TF_LINKERFILE}
-			@echo "  LDS     $<"
-			${Q}${LD} -o $@ ${STM32_TF_ELF_LDFLAGS} -Map=$(@:.elf=.map) --script ${STM32_TF_LINKERFILE} $<
+tf-a-%.elf: stm32mp1-%.o ${STM32_TF_LINKERFILE}
+	@echo "  LDS     $<"
+	${Q}${LD} -o $@ ${STM32_TF_ELF_LDFLAGS} -Map=$(@:.elf=.map) --script ${STM32_TF_LINKERFILE} $<
 
-tf-a-%.bin:		tf-a-%.elf
-			${Q}${OC} -O binary $< $@
-			@echo
-			@echo "Built $@ successfully"
-			@echo
+tf-a-%.bin: tf-a-%.elf
+	${Q}${OC} -O binary $< $@
+	@echo
+	@echo "Built $@ successfully"
+	@echo
 
-tf-a-%.stm32:		${STM32IMAGE} tf-a-%.bin
-			@echo
-			@echo "Generate $@"
-			$(eval LOADADDR =  $(shell cat $(@:.stm32=.map) | grep RAM | awk '{print $$2}'))
-			$(eval ENTRY =  $(shell cat $(@:.stm32=.map) | grep "__BL2_IMAGE_START" | awk '{print $$1}'))
-			${Q}${STM32IMAGE} -s $(word 2,$^) -d $@ \
-				-l $(LOADADDR) -e ${ENTRY} \
-				-v ${STM32_TF_VERSION}
-			@echo
+tf-a-%.stm32: ${STM32IMAGE} tf-a-%.bin
+	@echo
+	@echo "Generate $@"
+	$(eval LOADADDR = $(shell cat $(@:.stm32=.map) | grep RAM | awk '{print $$2}'))
+	$(eval ENTRY = $(shell cat $(@:.stm32=.map) | grep "__BL2_IMAGE_START" | awk '{print $$1}'))
+	${Q}${STM32IMAGE} -s $(word 2,$^) -d $@ \
+		-l $(LOADADDR) -e ${ENTRY} \
+		-v ${STM32_TF_VERSION}
+	@echo
