@@ -4,6 +4,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+# Default log level to dump the event log (LOG_LEVEL_INFO)
+EVENT_LOG_LEVEL         ?= 40
+
 # TPM hash algorithm
 TPM_HASH_ALG			:=	sha256
 
@@ -31,6 +34,7 @@ $(eval $(call add_defines,\
         TPM_ALG_ID \
         TCG_DIGEST_SIZE \
         EVENT_LOG_SIZE \
+        EVENT_LOG_LEVEL \
 )))
 
 ifeq (${HASH_ALG}, sha256)
