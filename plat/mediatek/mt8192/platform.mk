@@ -8,7 +8,9 @@ MTK_PLAT      := plat/mediatek
 MTK_PLAT_SOC  := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
-                 -I${MTK_PLAT_SOC}/include/
+                 -I${MTK_PLAT_SOC}/include/                       \
+                 -I${MTK_PLAT_SOC}/drivers/                       \
+                 -I${MTK_PLAT_SOC}/drivers/gpio/
 
 GICV3_SUPPORT_GIC600        :=      1
 include drivers/arm/gic/v3/gicv3.mk
@@ -21,6 +23,7 @@ PLAT_BL_COMMON_SOURCES := ${GICV3_SOURCES}                              \
 
 BL31_SOURCES    += common/desc_image_load.c                              \
                    drivers/ti/uart/aarch64/16550_console.S               \
+                   drivers/gpio/gpio.c                                   \
                    lib/bl_aux_params/bl_aux_params.c                     \
                    lib/cpus/aarch64/cortex_a55.S                         \
                    lib/cpus/aarch64/cortex_a76.S                         \
@@ -32,7 +35,8 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
                    ${MTK_PLAT_SOC}/plat_pm.c                             \
                    ${MTK_PLAT_SOC}/plat_topology.c                       \
-                   ${MTK_PLAT_SOC}/plat_mt_gic.c
+                   ${MTK_PLAT_SOC}/plat_mt_gic.c                         \
+                   ${MTK_PLAT_SOC}/drivers/gpio/mtgpio.c
 
 
 # Configs for A76 and A55
