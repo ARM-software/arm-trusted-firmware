@@ -1,41 +1,31 @@
 // SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
 /*
- * Copyright (C) STMicroelectronics 2017-2019 - All Rights Reserved
- * Author: Ludovic Barre <ludovic.barre@st.com> for STMicroelectronics.
+ * Copyright (C) STMicroelectronics 2019 - All Rights Reserved
+ * Author: Alexandre Torgue <alexandre.torgue@st.com> for STMicroelectronics.
  */
-/dts-v1/;
 
-#include "stm32mp157.dtsi"
-#include "stm32mp15xc.dtsi"
-#include "stm32mp15-pinctrl.dtsi"
-#include "stm32mp15xxaa-pinctrl.dtsi"
 #include <dt-bindings/clock/stm32mp1-clksrc.h>
-#include "stm32mp15-ddr3-2x4Gb-1066-binG.dtsi"
+#include "stm32mp15-ddr3-1x4Gb-1066-binG.dtsi"
 
 / {
-	model = "STMicroelectronics STM32MP157C eval daughter";
-	compatible = "st,stm32mp157c-ed1", "st,stm32mp157";
-
-	chosen {
-		stdout-path = "serial0:115200n8";
-	};
-
-
 	memory@c0000000 {
 		device_type = "memory";
-		reg = <0xC0000000 0x40000000>;
+		reg = <0xc0000000 0x20000000>;
 	};
 
-	aliases {
-		serial0 = &uart4;
+	vin: vin {
+		compatible = "regulator-fixed";
+		regulator-name = "vin";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		regulator-always-on;
 	};
 };
 
 &bsec {
 	board_id: board_id@ec {
 		reg = <0xec 0x4>;
-		status = "okay";
-		secure-status = "okay";
+		st,non-secure-otp;
 	};
 };
 
@@ -43,16 +33,16 @@
 	st,digbypass;
 };
 
-&cpu0 {
+&cpu0{
 	cpu-supply = <&vddcore>;
 };
 
-&cpu1 {
+&cpu1{
 	cpu-supply = <&vddcore>;
 };
 
-&cryp1 {
-	status="okay";
+&hash1 {
+	status = "okay";
 };
 
 &i2c4 {
@@ -73,11 +63,18 @@
 
 		regulators {
 			compatible = "st,stpmic1-regulators";
+			buck1-supply = <&vin>;
+			buck2-supply = <&vin>;
+			buck3-supply = <&vin>;
+			buck4-supply = <&vin>;
 			ldo1-supply = <&v3v3>;
-			ldo2-supply = <&v3v3>;
+			ldo2-supply = <&vin>;
 			ldo3-supply = <&vdd_ddr>;
-			ldo5-supply = <&v3v3>;
+			ldo4-supply = <&vin>;
+			ldo5-supply = <&vin>;
 			ldo6-supply = <&v3v3>;
+			vref_ddr-supply = <&vin>;
+			boost-supply = <&vin>;
 			pwr_sw1-supply = <&bst_out>;
 			pwr_sw2-supply = <&bst_out>;
 
@@ -118,16 +115,18 @@
 				regulator-initial-mode = <0>;
 			};
 
-			vdda: ldo1 {
-				regulator-name = "vdda";
-				regulator-min-microvolt = <2900000>;
-				regulator-max-microvolt = <2900000>;
+			v1v8_audio: ldo1 {
+				regulator-name = "v1v8_audio";
+				regulator-min-microvolt = <1800000>;
+				regulator-max-microvolt = <1800000>;
+				regulator-always-on;
 			};
 
-			v2v8: ldo2 {
-				regulator-name = "v2v8";
-				regulator-min-microvolt = <2800000>;
-				regulator-max-microvolt = <2800000>;
+			v3v3_hdmi: ldo2 {
+				regulator-name = "v3v3_hdmi";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
 			};
 
 			vtt_ddr: ldo3 {
@@ -140,24 +139,29 @@
 
 			vdd_usb: ldo4 {
 				regulator-name = "vdd_usb";
+				regulator-min-microvolt = <3300000>;
+				regulator-max-microvolt = <3300000>;
+				regulator-always-on;
 			};
 
-			vdd_sd: ldo5 {
-				regulator-name = "vdd_sd";
+			vdda: ldo5 {
+				regulator-name = "vdda";
 				regulator-min-microvolt = <2900000>;
 				regulator-max-microvolt = <2900000>;
 				regulator-boot-on;
 			};
 
-			v1v8: ldo6 {
-				regulator-name = "v1v8";
-				regulator-min-microvolt = <1800000>;
-				regulator-max-microvolt = <1800000>;
+			v1v2_hdmi: ldo6 {
+				regulator-name = "v1v2_hdmi";
+				regulator-min-microvolt = <1200000>;
+				regulator-max-microvolt = <1200000>;
+				regulator-always-on;
 			};
 
 			vref_ddr: vref_ddr {
 				regulator-name = "vref_ddr";
 				regulator-always-on;
+				regulator-over-current-protection;
 			};
 
 			bst_out: boost {
@@ -166,23 +170,12 @@
 
 			vbus_otg: pwr_sw1 {
 				regulator-name = "vbus_otg";
-			 };
+			};
 
-			 vbus_sw: pwr_sw2 {
+			vbus_sw: pwr_sw2 {
 				regulator-name = "vbus_sw";
 				regulator-active-discharge = <1>;
-			 };
-		};
-
-		onkey {
-			compatible = "st,stpmic1-onkey";
-			power-off-time-sec = <10>;
-			status = "okay";
-		};
-
-		watchdog {
-			compatible = "st,stpmic1-wdt";
-			status = "disabled";
+			};
 		};
 	};
 };
@@ -190,6 +183,7 @@
 &iwdg2 {
 	timeout-sec = <32>;
 	status = "okay";
+	secure-status = "okay";
 };
 
 &pwr_regulators {
@@ -265,25 +259,33 @@
 
 	/* VCO = 1300.0 MHz => P = 650 (CPU) */
 	pll1: st,pll@0 {
+		compatible = "st,stm32mp1-pll";
+		reg = <0>;
 		cfg = < 2 80 0 0 0 PQR(1,0,0) >;
 		frac = < 0x800 >;
 	};
 
 	/* VCO = 1066.0 MHz => P = 266 (AXI), Q = 533 (GPU), R = 533 (DDR) */
 	pll2: st,pll@1 {
-		cfg = < 2 65 1 0 0 PQR(1,1,1) >;
-		frac = < 0x1400 >;
+		compatible = "st,stm32mp1-pll";
+		reg = <1>;
+		cfg = <2 65 1 0 0 PQR(1,1,1)>;
+		frac = <0x1400>;
 	};
 
 	/* VCO = 417.8 MHz => P = 209, Q = 24, R = 11 */
 	pll3: st,pll@2 {
-		cfg = < 1 33 1 16 36 PQR(1,1,1) >;
-		frac = < 0x1a04 >;
+		compatible = "st,stm32mp1-pll";
+		reg = <2>;
+		cfg = <1 33 1 16 36 PQR(1,1,1)>;
+		frac = <0x1a04>;
 	};
 
 	/* VCO = 594.0 MHz => P = 99, Q = 74, R = 74 */
 	pll4: st,pll@3 {
-		cfg = < 3 98 5 7 7 PQR(1,1,1) >;
+		compatible = "st,stm32mp1-pll";
+		reg = <3>;
+		cfg = <3 98 5 7 7 PQR(1,1,1)>;
 	};
 };
 
@@ -297,36 +299,52 @@
 
 &sdmmc1 {
 	pinctrl-names = "default";
-	pinctrl-0 = <&sdmmc1_b4_pins_a &sdmmc1_dir_pins_a>;
+	pinctrl-0 = <&sdmmc1_b4_pins_a>;
 	disable-wp;
-	st,sig-dir;
 	st,neg-edge;
-	st,use-ckin;
 	bus-width = <4>;
-	vmmc-supply = <&vdd_sd>;
-	sd-uhs-sdr12;
-	sd-uhs-sdr25;
-	sd-uhs-sdr50;
-	sd-uhs-ddr50;
+	vmmc-supply = <&v3v3>;
 	status = "okay";
 };
 
-&sdmmc2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&sdmmc2_b4_pins_a &sdmmc2_d47_pins_a>;
-	non-removable;
-	no-sd;
-	no-sdio;
-	st,neg-edge;
-	bus-width = <8>;
-	vmmc-supply = <&v3v3>;
-	vqmmc-supply = <&vdd>;
-	mmc-ddr-3_3v;
-	status = "okay";
+&timers15 {
+	secure-status = "okay";
 };
 
 &uart4 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart4_pins_a>;
 	status = "okay";
+};
+
+&uart7 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart7_pins_b>;
+	status = "disabled";
+};
+
+&usart3 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&usart3_pins_b>;
+	uart-has-rtscts;
+	status = "disabled";
+};
+
+&usbotg_hs {
+	phys = <&usbphyc_port1 0>;
+	phy-names = "usb2-phy";
+	usb-role-switch;
+	status = "okay";
+};
+
+&usbphyc {
+	status = "okay";
+};
+
+&usbphyc_port0 {
+	phy-supply = <&vdd_usb>;
+};
+
+&usbphyc_port1 {
+	phy-supply = <&vdd_usb>;
 };
