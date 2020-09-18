@@ -55,6 +55,7 @@ static struct imx_rdc_cfg rdc[] = {
 
 	/* peripherals domain permission */
 	RDC_PDAPn(RDC_PDAP_UART2, D0R | D0W),
+	RDC_PDAPn(RDC_PDAP_WDOG1, D0R | D0W),
 
 	/* memory region */
 
