@@ -197,11 +197,13 @@ endif
 .PHONY: check_dtc_version stm32image clean_stm32image
 .SUFFIXES:
 
-all: check_dtc_version ${STM32_TF_STM32} stm32image
+all: check_dtc_version stm32image ${STM32_TF_STM32}
 
 distclean realclean clean: clean_stm32image
 
-stm32image:
+stm32image: ${STM32IMAGE}
+
+${STM32IMAGE}: ${STM32IMAGE_SRC}
 	${Q}${MAKE} CPPFLAGS="" --no-print-directory -C ${STM32IMAGEPATH}
 
 clean_stm32image:
@@ -234,10 +236,12 @@ tf-a-%.bin:		tf-a-%.elf
 			@echo "Built $@ successfully"
 			@echo
 
-tf-a-%.stm32:		tf-a-%.bin stm32image
+tf-a-%.stm32:		${STM32IMAGE} tf-a-%.bin
 			@echo
-			@echo "Generated $@"
+			@echo "Generate $@"
 			$(eval LOADADDR =  $(shell cat $(@:.stm32=.map) | grep RAM | awk '{print $$2}'))
 			$(eval ENTRY =  $(shell cat $(@:.stm32=.map) | grep "__BL2_IMAGE_START" | awk '{print $$1}'))
-			${STM32IMAGE} -s $< -d $@ -l $(LOADADDR) -e ${ENTRY} -v ${STM32_TF_VERSION}
+			${Q}${STM32IMAGE} -s $(word 2,$^) -d $@ \
+				-l $(LOADADDR) -e ${ENTRY} \
+				-v ${STM32_TF_VERSION}
 			@echo
