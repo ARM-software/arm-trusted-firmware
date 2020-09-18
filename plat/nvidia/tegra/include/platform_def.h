@@ -99,6 +99,9 @@
 #define PLAT_SDEI_NORMAL_PRI		U(0x30)
 #define PLAT_TEGRA_WDT_PRIO		U(0x40)
 
+#define PLAT_EHF_DESC			EHF_PRI_DESC(PLAT_PRI_BITS,\
+						     PLAT_TEGRA_WDT_PRIO)
+
 /*******************************************************************************
  * SDEI events
  ******************************************************************************/

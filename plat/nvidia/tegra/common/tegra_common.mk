@@ -44,7 +44,6 @@ BL31_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
 				${TEGRA_LIBS}/debug/profiler.c			\
 				${TEGRA_COMMON}/tegra_bl31_setup.c		\
 				${TEGRA_COMMON}/tegra_delay_timer.c		\
-				${TEGRA_COMMON}/tegra_ehf.c			\
 				${TEGRA_COMMON}/tegra_fiq_glue.c		\
 				${TEGRA_COMMON}/tegra_io_storage.c		\
 				${TEGRA_COMMON}/tegra_platform.c		\
@@ -54,4 +53,7 @@ BL31_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
 
 ifneq ($(ENABLE_STACK_PROTECTOR), 0)
 BL31_SOURCES		+=	${TEGRA_COMMON}/tegra_stack_protector.c
+endif
+ifeq (${EL3_EXCEPTION_HANDLING},1)
+BL31_SOURCES		+=	plat/common/aarch64/plat_ehf.c
 endif
