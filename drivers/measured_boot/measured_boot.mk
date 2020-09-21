@@ -25,10 +25,13 @@ endif
 EVENT_LOG_SIZE			:= 1024
 
 # Set definitions for mbed TLS library and Measured Boot driver
-$(eval $(call add_define,MBEDTLS_MD_ID))
-$(eval $(call add_define,TPM_ALG_ID))
-$(eval $(call add_define,TCG_DIGEST_SIZE))
-$(eval $(call add_define,EVENT_LOG_SIZE))
+$(eval $(call add_defines,\
+    $(sort \
+        MBEDTLS_MD_ID \
+        TPM_ALG_ID \
+        TCG_DIGEST_SIZE \
+        EVENT_LOG_SIZE \
+)))
 
 ifeq (${HASH_ALG}, sha256)
 ifneq (${TPM_HASH_ALG}, sha256)

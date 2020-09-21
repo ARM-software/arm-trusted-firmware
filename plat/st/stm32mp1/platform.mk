@@ -46,16 +46,23 @@ ifeq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC} ${STM32MP_RAW_NAND} \
 $(error "No boot device driver is enabled")
 endif
 
-$(eval $(call assert_boolean,STM32MP_EMMC))
-$(eval $(call assert_boolean,STM32MP_SDMMC))
-$(eval $(call assert_boolean,STM32MP_RAW_NAND))
-$(eval $(call assert_boolean,STM32MP_SPI_NAND))
-$(eval $(call assert_boolean,STM32MP_SPI_NOR))
-$(eval $(call add_define,STM32MP_EMMC))
-$(eval $(call add_define,STM32MP_SDMMC))
-$(eval $(call add_define,STM32MP_RAW_NAND))
-$(eval $(call add_define,STM32MP_SPI_NAND))
-$(eval $(call add_define,STM32MP_SPI_NOR))
+$(eval $(call assert_booleans,\
+    $(sort \
+        STM32MP_EMMC \
+        STM32MP_SDMMC \
+        STM32MP_RAW_NAND \
+        STM32MP_SPI_NAND \
+        STM32MP_SPI_NOR \
+)))
+
+$(eval $(call add_defines,\
+    $(sort \
+        STM32MP_EMMC \
+        STM32MP_SDMMC \
+        STM32MP_RAW_NAND \
+        STM32MP_SPI_NAND \
+        STM32MP_SPI_NOR \
+)))
 
 PLAT_INCLUDES		:=	-Iplat/st/common/include/
 PLAT_INCLUDES		+=	-Iplat/st/stm32mp1/include/

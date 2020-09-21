@@ -44,6 +44,13 @@ define add_define
     DEFINES			+=	-D$(1)$(if $(value $(1)),=$(value $(1)),)
 endef
 
+
+# Convenience function for addding multiple build definitions
+# $(eval $(call add_defines,FOO BOO))
+define add_defines
+    $(foreach def,$1,$(eval $(call add_define,$(def))))
+endef
+
 # Convenience function for adding build definitions
 # $(eval $(call add_define_val,FOO,BAR)) will have:
 # -DFOO=BAR
@@ -57,6 +64,12 @@ define assert_boolean
     $(if $(filter-out 0 1,$($1)),$(error $1 must be boolean))
 endef
 
+# Convenience function for verifying options have boolean values
+# $(eval $(call assert_booleans,FOO BOO)) will assert FOO and BOO for 0 or 1 values
+define assert_booleans
+    $(foreach bool,$1,$(eval $(call assert_boolean,$(bool))))
+endef
+
 0-9 := 0 1 2 3 4 5 6 7 8 9
 
 # Function to verify that a given option $(1) contains a numeric value
@@ -65,6 +78,12 @@ $(if $($(1)),,$(error $(1) must not be empty))
 $(eval __numeric := $($(1)))
 $(foreach d,$(0-9),$(eval __numeric := $(subst $(d),,$(__numeric))))
 $(if $(__numeric),$(error $(1) must be numeric))
+endef
+
+# Convenience function for verifying options have numeric values
+# $(eval $(call assert_numerics,FOO BOO)) will assert FOO and BOO contain numeric values
+define assert_numerics
+    $(foreach num,$1,$(eval $(call assert_numeric,$(num))))
 endef
 
 # CREATE_SEQ is a recursive function to create sequence of numbers from 1 to
