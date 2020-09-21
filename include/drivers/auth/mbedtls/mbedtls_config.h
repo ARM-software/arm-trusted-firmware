@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -63,6 +63,7 @@
 #define MBEDTLS_ECDSA_C
 #define MBEDTLS_ECP_C
 #define MBEDTLS_ECP_DP_SECP256R1_ENABLED
+#define MBEDTLS_ECP_NO_INTERNAL_RNG
 #endif
 #if TF_MBEDTLS_USE_RSA
 #define MBEDTLS_RSA_C
@@ -100,6 +101,12 @@
 
 /* Memory buffer allocator options */
 #define MBEDTLS_MEMORY_ALIGN_MULTIPLE		8
+
+/*
+ * Prevent the use of 128-bit division which
+ * creates dependency on external libraries.
+ */
+#define MBEDTLS_NO_UDBL_DIVISION
 
 #ifndef __ASSEMBLER__
 /* System headers required to build mbed TLS with the current configuration */
