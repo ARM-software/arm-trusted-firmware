@@ -38,7 +38,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	TC0_FLASH0_RO,
 	TC0_MAP_DEVICE,
-	ARM_MAP_NS_DRAM1,
+	TC0_MAP_NS_DRAM1,
 #if ARM_BL31_IN_DRAM
 	ARM_MAP_BL31_SEC_DRAM,
 #endif

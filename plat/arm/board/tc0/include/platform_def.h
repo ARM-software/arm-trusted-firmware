@@ -22,6 +22,41 @@
 #define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00080000	/* 512 KB */
 
 /*
+ * The top 16MB of ARM_DRAM1 is configured as secure access only using the TZC,
+ * its base is ARM_AP_TZC_DRAM1_BASE.
+ *
+ * Reserve 32MB below ARM_AP_TZC_DRAM1_BASE for:
+ *   - BL32_BASE when SPD_spmd is enabled
+ *   - Region to load Trusted OS
+ */
+#define TC0_TZC_DRAM1_BASE		(ARM_AP_TZC_DRAM1_BASE -	\
+					 TC0_TZC_DRAM1_SIZE)
+#define TC0_TZC_DRAM1_SIZE		UL(0x02000000)	/* 32 MB */
+#define TC0_TZC_DRAM1_END		(TC0_TZC_DRAM1_BASE +		\
+					 TC0_TZC_DRAM1_SIZE - 1)
+
+#define TC0_NS_DRAM1_BASE		ARM_DRAM1_BASE
+#define TC0_NS_DRAM1_SIZE		(ARM_DRAM1_SIZE -		\
+					 ARM_TZC_DRAM1_SIZE -		\
+					 TC0_TZC_DRAM1_SIZE)
+#define TC0_NS_DRAM1_END		(TC0_NS_DRAM1_BASE +		\
+					 TC0_NS_DRAM1_SIZE - 1)
+
+/*
+ * Mappings for TC0 DRAM1 (non-secure) and TC0 TZC DRAM1 (secure)
+ */
+#define TC0_MAP_NS_DRAM1		MAP_REGION_FLAT(		\
+						TC0_NS_DRAM1_BASE,	\
+						TC0_NS_DRAM1_SIZE,	\
+						MT_MEMORY | MT_RW | MT_NS)
+
+
+#define TC0_MAP_TZC_DRAM1		MAP_REGION_FLAT(		\
+						TC0_TZC_DRAM1_BASE,	\
+						TC0_TZC_DRAM1_SIZE,	\
+						MT_MEMORY | MT_RW | MT_SECURE)
+
+/*
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
  * plat_arm_mmap array defined for each BL stage.
  */
