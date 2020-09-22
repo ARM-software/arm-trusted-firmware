@@ -55,6 +55,14 @@
 						TC0_TZC_DRAM1_BASE,	\
 						TC0_TZC_DRAM1_SIZE,	\
 						MT_MEMORY | MT_RW | MT_SECURE)
+/*
+ * Max size of SPMC is 2MB for tc0. With SPMD enabled this value corresponds to
+ * max size of BL32 image.
+ */
+#if defined(SPD_spmd)
+#define PLAT_ARM_SPMC_BASE		TC0_TZC_DRAM1_BASE
+#define PLAT_ARM_SPMC_SIZE		UL(0x200000)  /* 2 MB */
+#endif
 
 /*
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
@@ -106,7 +114,7 @@
 #if TRUSTED_BOARD_BOOT
 # define PLAT_ARM_MAX_BL2_SIZE		0x1E000
 #else
-# define PLAT_ARM_MAX_BL2_SIZE		0x11000
+# define PLAT_ARM_MAX_BL2_SIZE		0x14000
 #endif
 
 /*
@@ -240,5 +248,8 @@
 
 #define PLAT_ARM_TZC_NS_DEV_ACCESS	\
 		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_DEFAULT))
+
+/* virtual address used by dynamic mem_protect for chunk_base */
+#define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xc0000000)
 
 #endif /* PLATFORM_DEF_H */

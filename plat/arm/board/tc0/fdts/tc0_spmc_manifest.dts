@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) 2020, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+/dts-v1/;
+
+/ {
+	compatible = "arm,ffa-core-manifest-1.0";
+	#address-cells = <2>;
+	#size-cells = <1>;
+
+	attribute {
+		spmc_id = <0x8000>;
+		maj_ver = <0x1>;
+		min_ver = <0x0>;
+		exec_state = <0x0>;
+		load_address = <0x0 0xfd000000>;
+		entrypoint = <0x0 0xfd000000>;
+		binary_size = <0x80000>;
+	};
+
+	chosen {
+		linux,initrd-start = <0>;
+		linux,initrd-end = <0>;
+	};
+
+	hypervisor {
+		compatible = "hafnium,hafnium";
+		vm1 {
+			is_ffa_partition;
+			debug_name = "cactus-primary";
+			load_address = <0xfe000000>;
+		};
+		vm2 {
+			is_ffa_partition;
+			debug_name = "cactus-secondary";
+			load_address = <0xfe100000>;
+			vcpu_count = <4>;
+			mem_size = <1048576>;
+		};
+		vm3 {
+			is_ffa_partition;
+			debug_name = "cactus-tertiary";
+			load_address = <0xfe200000>;
+			vcpu_count = <4>;
+			mem_size = <1048576>;
+		};
+	};
+
+	cpus {
+		#address-cells = <0x2>;
+		#size-cells = <0x0>;
+
+		CPU0:cpu@0 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0 0x0>;
+			enable-method = "psci";
+		};
+
+		/*
+		 * SPM(Hafnium) requires secondary cpu nodes are declared in
+		 * descending order
+		 */
+		CPU3:cpu@300 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0 0x300>;
+			enable-method = "psci";
+		};
+
+		CPU2:cpu@200 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0 0x200>;
+			enable-method = "psci";
+		};
+
+		CPU1:cpu@100 {
+			device_type = "cpu";
+			compatible = "arm,armv8";
+			reg = <0x0 0x100>;
+			enable-method = "psci";
+		};
+	};
+
+	/* 32MB of TC0_TZC_DRAM1_BASE */
+	memory@fd000000 {
+		device_type = "memory";
+		reg = <0x0 0xfd000000 0x2000000>;
+	};
+};

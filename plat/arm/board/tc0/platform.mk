@@ -85,6 +85,14 @@ $(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
 # Add the TB_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
 
+ifeq (${SPD},spmd)
+FDT_SOURCES		+=	${TC0_BASE}/fdts/${PLAT}_spmc_manifest.dts
+TC0_TOS_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_spmc_manifest.dtb
+
+# Add the TOS_FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${TC0_TOS_FW_CONFIG},--tos-fw-config,${TC0_TOS_FW_CONFIG}))
+endif
+
 #Device tree
 TC0_HW_CONFIG_DTS	:=	fdts/tc0.dts
 TC0_HW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}.dtb
