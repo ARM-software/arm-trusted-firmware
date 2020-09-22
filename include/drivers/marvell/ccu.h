@@ -47,6 +47,7 @@ void ccu_dram_target_set(int ap_index, uint32_t target);
 void ccu_save_win_all(int ap_id);
 void ccu_restore_win_all(int ap_id);
 int ccu_is_win_enabled(int ap_index, uint32_t win_id);
+void errata_wa_init(void);
 #endif
 
 #endif /* CCU_H */
