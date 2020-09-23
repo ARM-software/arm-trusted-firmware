@@ -300,10 +300,13 @@
 /*
  * Shared memory between Normal world and S-EL0 for
  * passing data during service requests. It will be marked as RW and NS.
+ * This buffer is allocated at the top of NS_DRAM, the base address is
+ * overridden in SPM initialization.
  */
 #define PLAT_QEMU_SP_IMAGE_NS_BUF_BASE	(PLAT_QEMU_DT_BASE +		\
 						PLAT_QEMU_DT_MAX_SIZE)
-#define PLAT_QEMU_SP_IMAGE_NS_BUF_SIZE	ULL(0x10000)
+#define PLAT_QEMU_SP_IMAGE_NS_BUF_SIZE	ULL(0x200000)
+
 #define QEMU_SP_IMAGE_NS_BUF_MMAP	MAP_REGION2( \
 					PLAT_QEMU_SP_IMAGE_NS_BUF_BASE, \
 					PLAT_QEMU_SP_IMAGE_NS_BUF_BASE, \
@@ -333,6 +336,19 @@
 					MT_RW_DATA | MT_SECURE | \
 					MT_USER, \
 					PAGE_SIZE)
+
+/*
+ * Secure variable storage is located at Secure Flash.
+ */
+#if SPM_MM
+#define QEMU_SECURE_VARSTORE_BASE 0x01000000
+#define QEMU_SECURE_VARSTORE_SIZE 0x00100000
+#define MAP_SECURE_VARSTORE		MAP_REGION_FLAT( \
+					QEMU_SECURE_VARSTORE_BASE, \
+					QEMU_SECURE_VARSTORE_SIZE, \
+					MT_MEMORY | MT_RW | \
+					MT_SECURE | MT_USER)
+#endif
 
 /* Total number of memory regions with distinct properties */
 #define PLAT_QEMU_SP_IMAGE_NUM_MEM_REGIONS	6
