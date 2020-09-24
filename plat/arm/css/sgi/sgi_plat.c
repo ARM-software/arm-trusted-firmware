@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -43,6 +43,9 @@ const mmap_region_t plat_arm_mmap[] = {
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	SGI_MAP_FLASH0_RO,
+#ifdef PLAT_ARM_MEM_PROT_ADDR
+	ARM_V2M_MAP_MEM_PROTECT,
+#endif
 	CSS_SGI_MAP_DEVICE,
 	SOC_CSS_MAP_DEVICE,
 	ARM_MAP_NS_DRAM1,
@@ -63,6 +66,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	V2M_MAP_IOFPGA,
 	CSS_SGI_MAP_DEVICE,
+#ifdef PLAT_ARM_MEM_PROT_ADDR
+	ARM_V2M_MAP_MEM_PROTECT,
+#endif
 	SOC_CSS_MAP_DEVICE,
 #if SPM_MM
 	ARM_SPM_BUF_EL3_MMAP,
