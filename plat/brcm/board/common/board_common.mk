@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015 - 2020, Broadcom
+# Copyright (c) 2015 - 2021, Broadcom
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -114,7 +114,8 @@ USE_TBBR_DEFS			:=	1
 
 PLAT_INCLUDES		+=	-Iplat/brcm/board/common \
 				-Iinclude/drivers/brcm \
-				-Iinclude/drivers/brcm/emmc
+				-Iinclude/drivers/brcm/emmc \
+				-Iinclude/drivers/brcm/mdio
 
 PLAT_BL_COMMON_SOURCES	+=	plat/brcm/common/brcm_common.c \
 				plat/brcm/board/common/cmn_sec.c \
