@@ -73,6 +73,12 @@ ifeq (${BOARD_CFG},)
 BOARD_CFG := bcm958742t
 endif
 
+# Use USB
+ifeq (${USE_USB},yes)
+$(info Using USB)
+$(eval $(call add_define,USE_USB))
+endif
+
 # Use PAXB
 ifeq (${USE_PAXB},yes)
 $(info Using PAXB)
@@ -197,10 +203,14 @@ ifeq (${USE_CHIMP},yes)
 PLAT_BL_COMMON_SOURCES	+=	drivers/brcm/chimp.c
 endif
 
+ifeq (${USE_USB},yes)
+PLAT_BL_COMMON_SOURCES	+=	plat/${SOC_DIR}/driver/usb.c \
+				plat/${SOC_DIR}/driver/usb_phy.c
+endif
+
 BL2_SOURCES		+=	plat/${SOC_DIR}/driver/ihost_pll_config.c \
 				plat/${SOC_DIR}/src/bl2_setup.c \
 				plat/${SOC_DIR}/driver/swreg.c
-
 
 ifeq (${USE_DDR},yes)
 PLAT_INCLUDES		+=	-Iplat/${SOC_DIR}/driver/ddr/soc/include
