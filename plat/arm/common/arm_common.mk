@@ -121,6 +121,12 @@ endif
 ENABLE_PSCI_STAT		:=	1
 ENABLE_PMF			:=	1
 
+# Override the standard libc with optimised libc_asm
+OVERRIDE_LIBC			:=	1
+ifeq (${OVERRIDE_LIBC},1)
+    include lib/libc/libc_asm.mk
+endif
+
 # On ARM platforms, separate the code and read-only data sections to allow
 # mapping the former as executable and the latter as execute-never.
 SEPARATE_CODE_AND_RODATA	:=	1
