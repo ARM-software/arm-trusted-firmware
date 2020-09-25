@@ -268,23 +268,6 @@ void imx_gpc_pm_domain_enable(uint32_t domain_id, bool on)
 		/* set the PGC bit */
 		mmio_setbits_32(IMX_GPC_BASE + pwr_domain->pgc_offset, 0x1);
 
-		/*
-		 * leave the G1, G2, H1 power domain on until VPUMIX power off,
-		 * otherwise system will hang due to VPUMIX ACK
-		 */
-		if (domain_id == VPU_H1 || domain_id == VPU_G1 || domain_id == VPU_G2) {
-			return;
-		}
-
-		if (domain_id == VPUMIX) {
-			mmio_write_32(IMX_GPC_BASE + PU_PGC_DN_TRG, VPU_G1_PWR_REQ |
-				 VPU_G2_PWR_REQ | VPU_H1_PWR_REQ);
-
-			while (mmio_read_32(IMX_GPC_BASE + PU_PGC_DN_TRG) & (VPU_G1_PWR_REQ |
-					VPU_G2_PWR_REQ | VPU_H1_PWR_REQ))
-				;
-		}
-
 		/* power down the domain */
 		mmio_setbits_32(IMX_GPC_BASE + PU_PGC_DN_TRG, pwr_domain->pwr_req);
 
