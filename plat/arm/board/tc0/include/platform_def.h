@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -190,5 +190,20 @@
  * SCP_BL2U size plus a little space for growth.
  */
 #define PLAT_CSS_MAX_SCP_BL2U_SIZE	0x20000
+
+/* TZC Related Constants */
+#define PLAT_ARM_TZC_BASE		UL(0x25000000)
+#define PLAT_ARM_TZC_FILTERS		TZC_400_REGION_ATTR_FILTER_BIT(0)
+
+#define TZC400_OFFSET			UL(0x1000000)
+#define TZC400_COUNT			4
+
+#define TZC400_BASE(n)			(PLAT_ARM_TZC_BASE + \
+					 (n * TZC400_OFFSET))
+
+#define TZC_NSAID_DEFAULT		U(0)
+
+#define PLAT_ARM_TZC_NS_DEV_ACCESS	\
+		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_DEFAULT))
 
 #endif /* PLATFORM_DEF_H */
