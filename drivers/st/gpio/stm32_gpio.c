@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2020, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -161,13 +161,14 @@ int dt_set_pinctrl_config(int node)
 	const fdt32_t *cuint;
 	int lenp = 0;
 	uint32_t i;
-	uint8_t status = fdt_get_status(node);
+	uint8_t status;
 	void *fdt;
 
 	if (fdt_get_address(&fdt) == 0) {
 		return -FDT_ERR_NOTFOUND;
 	}
 
+	status = fdt_get_status(node);
 	if (status == DT_DISABLED) {
 		return -FDT_ERR_NOTFOUND;
 	}

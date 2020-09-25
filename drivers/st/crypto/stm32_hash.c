@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2020, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -252,6 +252,8 @@ int stm32_hash_final(uint8_t *digest)
 		mmio_clrsetbits_32(hash_base() + HASH_STR, HASH_STR_NBLW_MASK,
 				   8U * stm32_remain.length);
 		zeromem(&stm32_remain, sizeof(stm32_remain));
+	} else {
+		mmio_clrbits_32(hash_base() + HASH_STR, HASH_STR_NBLW_MASK);
 	}
 
 	mmio_setbits_32(hash_base() + HASH_STR, HASH_STR_DCAL);

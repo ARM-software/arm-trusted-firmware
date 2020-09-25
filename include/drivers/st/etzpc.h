@@ -7,6 +7,9 @@
 #ifndef DRIVERS_ST_ETZPC_H
 #define DRIVERS_ST_ETZPC_H
 
+#include <stdbool.h>
+#include <stdint.h>
+
 /* Define security level for each peripheral (DECPROT) */
 enum etzpc_decprot_attributes {
 	ETZPC_DECPROT_S_RW = 0,
