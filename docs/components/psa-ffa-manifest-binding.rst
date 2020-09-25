@@ -112,6 +112,8 @@ Partition Properties
       - 0x0: direct messaging method
       - 0x1: indirect messaging method
       - 0x2: both direct and indirect messaging methods
+      - 0x3: direct messaging method with managed exit support
+      - 0x4: both messaging methods with managed exit support
 
 - has-primary-scheduler
    - value type: <empty>
@@ -244,4 +246,4 @@ Device Regions
 
 --------------
 
-*Copyright (c) 2019-2020, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2019-2021, Arm Limited and Contributors. All rights reserved.*
