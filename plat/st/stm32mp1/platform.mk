@@ -189,7 +189,6 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 				plat/st/stm32mp1/stm32mp1_context.c			\
 				plat/st/stm32mp1/stm32mp1_dbgmcu.c			\
 				plat/st/stm32mp1/stm32mp1_helper.S			\
-				plat/st/stm32mp1/stm32mp1_security.c			\
 				plat/st/stm32mp1/stm32mp1_syscfg.c
 
 ifneq (${STM32MP_USE_STM32IMAGE},1)
@@ -198,12 +197,14 @@ BL2_SOURCES		+=	drivers/io/io_fip.c					\
 				lib/fconf/fconf_dyn_cfg_getter.c			\
 				plat/st/common/bl2_io_storage.c				\
 				plat/st/common/stm32mp_fconf_io.c			\
-				plat/st/stm32mp1/plat_bl2_mem_params_desc.c
+				plat/st/stm32mp1/plat_bl2_mem_params_desc.c		\
+				plat/st/stm32mp1/stm32mp1_fconf_firewall.c
 else
 BL2_SOURCES		+=	drivers/io/io_dummy.c					\
 				drivers/st/io/io_stm32image.c				\
 				plat/st/common/bl2_stm32_io_storage.c			\
-				plat/st/stm32mp1/plat_bl2_stm32_mem_params_desc.c
+				plat/st/stm32mp1/plat_bl2_stm32_mem_params_desc.c	\
+				plat/st/stm32mp1/stm32mp1_security.c
 endif
 
 BL2_SOURCES		+=	drivers/io/io_block.c					\

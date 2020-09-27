@@ -452,6 +452,7 @@ uint32_t stm32_iwdg_shadow_update(uint32_t iwdg_inst, uint32_t flags)
 }
 #endif
 
+#if STM32MP_USE_STM32IMAGE
 /* Get the non-secure DDR size */
 uint32_t stm32mp_get_ddr_ns_size(void)
 {
@@ -472,3 +473,4 @@ uint32_t stm32mp_get_ddr_ns_size(void)
 
 	return ddr_ns_size;
 }
+#endif /* STM32MP_USE_STM32IMAGE */
