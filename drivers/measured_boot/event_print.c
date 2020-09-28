@@ -28,7 +28,7 @@ static void id_event_print(uint8_t **log_addr, size_t *log_size)
 	uint32_t event_size, number_of_algorithms;
 	size_t digest_len;
 #if ENABLE_ASSERTIONS
-	const uint8_t *end_ptr = *log_addr + *log_size;
+	const uint8_t *end_ptr = (uint8_t *)((uintptr_t)*log_addr + *log_size);
 	bool valid = true;
 #endif
 
@@ -90,7 +90,7 @@ static void id_event_print(uint8_t **log_addr, size_t *log_size)
 
 	/* Size of DigestSizes[] */
 	digest_len = number_of_algorithms * sizeof(id_event_algorithm_size_t);
-	assert(((uint8_t *)alg_ptr + digest_len) <= end_ptr);
+	assert(((uintptr_t)alg_ptr + digest_len) <= (uintptr_t)end_ptr);
 
 	LOG_EVENT("  DigestSizes        :\n");
 	for (i = 0U; i < number_of_algorithms; ++i) {
@@ -118,14 +118,14 @@ static void id_event_print(uint8_t **log_addr, size_t *log_size)
 	}
 
 	/* Address of VendorInfoSize */
-	info_size_ptr = (uint8_t *)alg_ptr + digest_len;
-	assert(info_size_ptr <= end_ptr);
+	info_size_ptr = (uint8_t *)((uintptr_t)alg_ptr + digest_len);
+	assert((uintptr_t)info_size_ptr <= (uintptr_t)end_ptr);
 
 	info_size = *info_size_ptr++;
 	LOG_EVENT("  VendorInfoSize     : %u\n", info_size);
 
 	/* Check VendorInfo end address */
-	assert((info_size_ptr + info_size) <= end_ptr);
+	assert(((uintptr_t)info_size_ptr + info_size) <= (uintptr_t)end_ptr);
 
 	/* Check EventSize */
 	assert(event_size == (sizeof(id_event_struct_t) +
@@ -154,7 +154,7 @@ static void event2_print(uint8_t **log_addr, size_t *log_size)
 	size_t sha_size, digests_size = 0U;
 	void *ptr = *log_addr;
 #if ENABLE_ASSERTIONS
-	const uint8_t *end_ptr = *log_addr + *log_size;
+	const uint8_t *end_ptr = (uint8_t *)((uintptr_t)*log_addr + *log_size);
 #endif
 
 	assert(*log_size >= sizeof(event2_header_t));
@@ -174,7 +174,8 @@ static void event2_print(uint8_t **log_addr, size_t *log_size)
 
 	for (unsigned int i = 0U; i < count; ++i) {
 		/* Check AlgorithmId address */
-		assert(((uint8_t *)ptr + offsetof(tpmt_ha, digest)) <= end_ptr);
+		assert(((uintptr_t)ptr +
+			offsetof(tpmt_ha, digest)) <= (uintptr_t)end_ptr);
 
 		LOG_EVENT("    #%u AlgorithmId   : SHA", i);
 		switch (((tpmt_ha *)ptr)->algorithm_id) {
@@ -198,8 +199,8 @@ static void event2_print(uint8_t **log_addr, size_t *log_size)
 		}
 
 		/* End of Digest[] */
-		ptr = (uint8_t *)ptr + offsetof(tpmt_ha, digest);
-		assert(((uint8_t *)ptr + sha_size) <= end_ptr);
+		ptr = (uint8_t *)((uintptr_t)ptr + offsetof(tpmt_ha, digest));
+		assert(((uintptr_t)ptr + sha_size) <= (uintptr_t)end_ptr);
 
 		/* Total size of all digests */
 		digests_size += sha_size;
@@ -217,16 +218,16 @@ static void event2_print(uint8_t **log_addr, size_t *log_size)
 	}
 
 	/* TCG_PCR_EVENT2.EventSize */
-	assert(((uint8_t *)ptr + offsetof(event2_data_t, event)) <= end_ptr);
+	assert(((uintptr_t)ptr + offsetof(event2_data_t, event)) <= (uintptr_t)end_ptr);
 
 	event_size = ((event2_data_t *)ptr)->event_size;
 	LOG_EVENT("  EventSize          : %u\n", event_size);
 
 	/* Address of TCG_PCR_EVENT2.Event[EventSize] */
-	ptr = (uint8_t *)ptr + offsetof(event2_data_t, event);
+	ptr = (uint8_t *)((uintptr_t)ptr + offsetof(event2_data_t, event));
 
 	/* End of TCG_PCR_EVENT2.Event[EventSize] */
-	assert(((uint8_t *)ptr + event_size) <= end_ptr);
+	assert(((uintptr_t)ptr + event_size) <= (uintptr_t)end_ptr);
 
 	if ((event_size == sizeof(startup_locality_event_t)) &&
 	     (strcmp((const char *)ptr, TCG_STARTUP_LOCALITY_SIGNATURE) == 0)) {
