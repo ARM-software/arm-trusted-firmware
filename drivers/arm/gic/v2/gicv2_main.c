@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -296,8 +296,8 @@ void gicv2_set_pe_target_mask(unsigned int proc_num)
 	assert(driver_data != NULL);
 	assert(driver_data->gicd_base != 0U);
 	assert(driver_data->target_masks != NULL);
-	assert((unsigned int)proc_num < GICV2_MAX_TARGET_PE);
-	assert((unsigned int)proc_num < driver_data->target_masks_num);
+	assert(proc_num < GICV2_MAX_TARGET_PE);
+	assert(proc_num < driver_data->target_masks_num);
 
 	/* Return if the target mask is already populated */
 	if (driver_data->target_masks[proc_num] != 0U)
@@ -422,7 +422,8 @@ void gicv2_raise_sgi(int sgi_num, int proc_num)
 	unsigned int sgir_val, target;
 
 	assert(driver_data != NULL);
-	assert((unsigned int)proc_num < GICV2_MAX_TARGET_PE);
+	assert(proc_num >= 0);
+	assert(proc_num < (int)GICV2_MAX_TARGET_PE);
 	assert(driver_data->gicd_base != 0U);
 
 	/*
@@ -430,7 +431,7 @@ void gicv2_raise_sgi(int sgi_num, int proc_num)
 	 * should be valid.
 	 */
 	assert(driver_data->target_masks != NULL);
-	assert((unsigned int)proc_num < driver_data->target_masks_num);
+	assert(proc_num < (int)driver_data->target_masks_num);
 
 	/* Don't raise SGI if the mask hasn't been populated */
 	target = driver_data->target_masks[proc_num];
@@ -466,8 +467,9 @@ void gicv2_set_spi_routing(unsigned int id, int proc_num)
 	 * should be valid.
 	 */
 	assert(driver_data->target_masks != NULL);
-	assert((unsigned int)proc_num < GICV2_MAX_TARGET_PE);
-	assert((unsigned int)proc_num < driver_data->target_masks_num);
+	assert(proc_num < (int)GICV2_MAX_TARGET_PE);
+	assert(driver_data->target_masks_num < INT_MAX);
+	assert(proc_num < (int)driver_data->target_masks_num);
 
 	if (proc_num < 0) {
 		/* Target all PEs */
