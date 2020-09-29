@@ -720,7 +720,7 @@ static int  ble_skip_current_image(void)
 
 int ble_plat_setup(int *skip)
 {
-	int ret;
+	int ret, cp;
 	unsigned int freq_mode;
 
 	/* Power down unused CPUs */
@@ -744,6 +744,10 @@ int ble_plat_setup(int *skip)
 #endif
 	/* Do required CP-110 setups for BLE stage */
 	cp110_ble_init(MVEBU_CP_REGS_BASE(0));
+
+	/* Config address for each cp other than cp0 */
+	for (cp = 1; cp < CP_COUNT; cp++)
+		update_cp110_default_win(cp);
 
 	/* Setup AVS */
 	ble_plat_svc_config();

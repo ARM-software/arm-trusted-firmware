@@ -46,15 +46,19 @@ int marvell_get_amb_memory_map(struct addr_map_win **win, uint32_t *size,
  *****************************************************************************
  */
 struct addr_map_win io_win_memory_map[] = {
+#if (CP_COUNT > 1)
+	/* SB (MCi0) internal regs */
+	{0x00000000f4000000,		0x2000000,	MCI_0_TID},
+#if (CP_COUNT > 2)
+	/* SB (MCi1) internal regs */
+	{0x00000000f6000000,		0x2000000,	MCI_1_TID},
+#endif
+#endif
 #ifndef IMAGE_BLE
 	/* SB (MCi0) PCIe0-2 on CP1 */
 	{0x00000000e2000000,		0x3000000,	MCI_0_TID},
 	/* SB (MCi1) PCIe0-2 on CP2 */
 	{0x00000000e5000000,		0x3000000,	MCI_1_TID},
-	/* SB (MCi0) internal regs */
-	{0x00000000f4000000,		0x2000000,	MCI_0_TID},
-	/* SB (MCi1) internal regs */
-	{0x00000000f6000000,		0x2000000,	MCI_1_TID},
 	/* MCI 0 indirect window */
 	{MVEBU_MCI_REG_BASE_REMAP(0),	0x100000,	MCI_0_TID},
 	/* MCI 1 indirect window */
