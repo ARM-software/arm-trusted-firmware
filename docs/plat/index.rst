@@ -54,6 +54,7 @@ documentation associated with them.
    - Arm Neoverse Reference Design E1 Edge (RD-E1-Edge) FVP
    - Arm SGI-575 and SGM-775
    - MediaTek MT6795 and MT8173 SoCs
+   - Arm Morello Platform
 
 --------------
 

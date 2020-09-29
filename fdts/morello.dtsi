@@ -1,0 +1,106 @@
+/*
+ * Copyright (c) 2020, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+
+/ {
+	compatible = "arm,morello";
+
+	interrupt-parent = <&gic>;
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	aliases {
+		serial0 = &soc_uart0;
+	};
+
+	gic: interrupt-controller@2c010000 {
+		compatible = "arm,gic-600", "arm,gic-v3";
+		#address-cells = <2>;
+		#interrupt-cells = <3>;
+		#size-cells = <2>;
+		ranges;
+		interrupt-controller;
+	};
+
+	pmu {
+		compatible = "arm,armv8-pmuv3";
+		interrupts = <GIC_PPI 7 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	spe-pmu {
+		compatible = "arm,statistical-profiling-extension-v1";
+		interrupts = <GIC_PPI 5 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
+	psci {
+		compatible = "arm,psci-0.2";
+		method = "smc";
+	};
+
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <GIC_PPI 13 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_PPI 14 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_PPI 11 IRQ_TYPE_LEVEL_LOW>,
+			     <GIC_PPI 10 IRQ_TYPE_LEVEL_LOW>;
+	};
+
+	mailbox: mhu@45000000 {
+		compatible = "arm,mhu-doorbell", "arm,primecell";
+		reg = <0x0 0x45000000 0x0 0x1000>;
+		interrupts = <GIC_SPI 318 IRQ_TYPE_LEVEL_HIGH>,
+			     <GIC_SPI 316 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = "mhu_lpri_rx",
+				  "mhu_hpri_rx";
+		#mbox-cells = <2>;
+		mbox-name = "ARM-MHU";
+		clocks = <&soc_refclk100mhz>;
+		clock-names = "apb_pclk";
+	};
+
+	sram: sram@45200000 {
+		compatible = "mmio-sram";
+		reg = <0x0 0x45200000 0x0 0x8000>;
+
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges = <0 0x0 0x45200000 0x8000>;
+
+		cpu_scp_hpri0: scp-shmem@0 {
+			compatible = "arm,scmi-shmem";
+			reg = <0x0 0x80>;
+		};
+
+		cpu_scp_hpri1: scp-shmem@80 {
+			compatible = "arm,scmi-shmem";
+			reg = <0x80 0x80>;
+		};
+	};
+
+	soc_refclk100mhz: refclk100mhz {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <100000000>;
+		clock-output-names = "apb_pclk";
+	};
+
+	soc_uartclk:  uartclk {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <50000000>;
+		clock-output-names = "uartclk";
+	};
+
+	soc_uart0: uart@2a400000 {
+		compatible = "arm,pl011", "arm,primecell";
+		reg = <0x0 0x2a400000 0x0 0x1000>;
+		interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&soc_uartclk>, <&soc_refclk100mhz>;
+		clock-names = "uartclk", "apb_pclk";
+		status = "okay";
+	};
+};
