@@ -22,6 +22,70 @@
 #endif
 
 	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A77 Errata #1508412.
+	 * This applies only to revision <= r1p0 of Cortex A77.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_a77_1508412_wa
+	/*
+	 * Compare x0 against revision r1p0
+	 */
+	mov	x17, x30
+	bl	check_errata_1508412
+	cbz	x0, 3f
+	/*
+	 * Compare x0 against revision r0p0
+	 */
+	bl	check_errata_1508412_0
+	cbz	x0, 1f
+	ldr	x0, =0x0
+	msr	CORTEX_A77_CPUPSELR_EL3, x0
+	ldr 	x0, =0x00E8400000
+	msr	CORTEX_A77_CPUPOR_EL3, x0
+	ldr	x0, =0x00FFE00000
+	msr	CORTEX_A77_CPUPMR_EL3, x0
+	ldr	x0, =0x4004003FF
+	msr	CORTEX_A77_CPUPCR_EL3, x0
+	ldr	x0, =0x1
+	msr	CORTEX_A77_CPUPSELR_EL3, x0
+	ldr	x0, =0x00E8C00040
+	msr	CORTEX_A77_CPUPOR_EL3, x0
+	ldr	x0, =0x00FFE00040
+	msr	CORTEX_A77_CPUPMR_EL3, x0
+	b	2f
+1:
+	ldr	x0, =0x0
+	msr	CORTEX_A77_CPUPSELR_EL3, x0
+	ldr	x0, =0x00E8400000
+	msr	CORTEX_A77_CPUPOR_EL3, x0
+	ldr	x0, =0x00FF600000
+	msr	CORTEX_A77_CPUPMR_EL3, x0
+	ldr	x0, =0x00E8E00080
+	msr	CORTEX_A77_CPUPOR2_EL3, x0
+	ldr	x0, =0x00FFE000C0
+	msr	CORTEX_A77_CPUPMR2_EL3, x0
+2:
+	ldr	x0, =0x04004003FF
+	msr	CORTEX_A77_CPUPCR_EL3, x0
+	isb
+3:
+	ret	x17
+endfunc errata_a77_1508412_wa
+
+func check_errata_1508412
+	mov	x1, #0x10
+	b	cpu_rev_var_ls
+endfunc check_errata_1508412
+
+func check_errata_1508412_0
+	mov	x1, #0x0
+	b	cpu_rev_var_ls
+endfunc check_errata_1508412_0
+
+	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A77 Errata #1800714.
 	 * This applies to revision <= r1p1 of Cortex A77.
 	 * Inputs:
@@ -59,6 +123,11 @@ func cortex_a77_reset_func
 	mov	x19, x30
 	bl	cpu_get_rev_var
 	mov	x18, x0
+
+#if ERRATA_A77_1508412
+	mov	x0, x18
+	bl	errata_a77_1508412_wa
+#endif
 
 #if ERRATA_A77_1800714
 	mov	x0, x18
@@ -98,6 +167,7 @@ func cortex_a77_errata_report
 	 * Report all errata. The revision-variant information is passed to
 	 * checking functions of each errata.
 	 */
+	report_errata ERRATA_A77_1508412, cortex_a77, 1508412
 	report_errata ERRATA_A77_1800714, cortex_a77, 1800714
 
 	ldp	x8, x30, [sp], #16
