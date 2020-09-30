@@ -13,7 +13,7 @@ RDDANIELXLR_BASE	=	plat/arm/board/rddanielxlr
 
 PLAT_INCLUDES		+=	-I${RDDANIELXLR_BASE}/include/
 
-SGI_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_zeus.S
+SGI_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_v1.S
 
 BL1_SOURCES		+=	${SGI_CPU_SOURCES}			\
 				${RDDANIELXLR_BASE}/rddanielxlr_err.c
