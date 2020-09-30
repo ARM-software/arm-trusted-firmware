@@ -377,3 +377,64 @@ int fdt_add_cpus_node(void *dtb, unsigned int afflv0,
 
 	return offs;
 }
+
+/**
+ * fdt_adjust_gic_redist() - Adjust GICv3 redistributor size
+ * @dtb: Pointer to the DT blob in memory
+ * @nr_cores: Number of CPU cores on this system.
+ * @gicr_frame_size: Size of the GICR frame per core
+ *
+ * On a GICv3 compatible interrupt controller, the redistributor provides
+ * a number of 64k pages per each supported core. So with a dynamic topology,
+ * this size cannot be known upfront and thus can't be hardcoded into the DTB.
+ *
+ * Find the DT node describing the GICv3 interrupt controller, and adjust
+ * the size of the redistributor to match the number of actual cores on
+ * this system.
+ * A GICv4 compatible redistributor uses four 64K pages per core, whereas GICs
+ * without support for direct injection of virtual interrupts use two 64K pages.
+ * The @gicr_frame_size parameter should be 262144 and 131072, respectively.
+ *
+ * Return: 0 on success, negative error value otherwise.
+ */
+int fdt_adjust_gic_redist(void *dtb, unsigned int nr_cores,
+			  unsigned int gicr_frame_size)
+{
+	int offset = fdt_node_offset_by_compatible(dtb, 0, "arm,gic-v3");
+	uint64_t redist_size_64;
+	uint32_t redist_size_32;
+	void *val;
+	int parent;
+	int ac, sc;
+
+	if (offset < 0) {
+		return offset;
+	}
+
+	parent = fdt_parent_offset(dtb, offset);
+	if (parent < 0) {
+		return parent;
+	}
+	ac = fdt_address_cells(dtb, parent);
+	sc = fdt_size_cells(dtb, parent);
+	if (ac < 0 || sc < 0) {
+		return -EINVAL;
+	}
+
+	if (sc == 1) {
+		redist_size_32 = cpu_to_fdt32(nr_cores * gicr_frame_size);
+		val = &redist_size_32;
+	} else {
+		redist_size_64 = cpu_to_fdt64(nr_cores * gicr_frame_size);
+		val = &redist_size_64;
+	}
+
+	/*
+	 * The redistributor is described in the second "reg" entry.
+	 * So we have to skip one address and one size cell, then another
+	 * address cell to get to the second size cell.
+	 */
+	return fdt_setprop_inplace_namelen_partial(dtb, offset, "reg", 3,
+						   (ac + sc + ac) * 4,
+						   val, sc * 4);
+}

@@ -488,6 +488,7 @@ void gicv3_distif_init(void);
 void gicv3_rdistif_init(unsigned int proc_num);
 void gicv3_rdistif_on(unsigned int proc_num);
 void gicv3_rdistif_off(unsigned int proc_num);
+unsigned int gicv3_rdistif_get_number_frames(const uintptr_t gicr_frame);
 void gicv3_cpuif_enable(unsigned int proc_num);
 void gicv3_cpuif_disable(unsigned int proc_num);
 unsigned int gicv3_get_pending_interrupt_type(void);

@@ -326,3 +326,33 @@ unsigned int gicv3_secure_ppi_sgi_config_props(uintptr_t gicr_base,
 
 	return ctlr_enable;
 }
+
+/**
+ * gicv3_rdistif_get_number_frames() - determine size of GICv3 GICR region
+ * @gicr_frame: base address of the GICR region to check
+ *
+ * This iterates over the GICR_TYPER registers of multiple GICR frames in
+ * a GICR region, to find the instance which has the LAST bit set. For most
+ * systems this corresponds to the number of cores handled by a redistributor,
+ * but there could be disabled cores among them.
+ * It assumes that each GICR region is fully accessible (till the LAST bit
+ * marks the end of the region).
+ * If a platform has multiple GICR regions, this function would need to be
+ * called multiple times, providing the respective GICR base address each time.
+ *
+ * Return: number of valid GICR frames (at least 1, up to PLATFORM_CORE_COUNT)
+ ******************************************************************************/
+unsigned int gicv3_rdistif_get_number_frames(const uintptr_t gicr_frame)
+{
+	uintptr_t rdistif_base = gicr_frame;
+	unsigned int count;
+
+	for (count = 1; count < PLATFORM_CORE_COUNT; count++) {
+		if ((gicr_read_typer(rdistif_base) & TYPER_LAST_BIT) != 0U) {
+			break;
+		}
+		rdistif_base += (1U << GICR_PCPUBASE_SHIFT);
+	}
+
+	return count;
+}
