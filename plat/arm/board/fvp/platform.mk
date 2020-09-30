@@ -121,7 +121,7 @@ else
 					lib/cpus/aarch64/neoverse_n1.S		\
 					lib/cpus/aarch64/neoverse_e1.S		\
 					lib/cpus/aarch64/neoverse_zeus.S	\
-					lib/cpus/aarch64/cortex_hercules_ae.S	\
+					lib/cpus/aarch64/cortex_a78_ae.S	\
 					lib/cpus/aarch64/cortex_klein.S	        \
 					lib/cpus/aarch64/cortex_matterhorn.S	\
 					lib/cpus/aarch64/cortex_a65.S		\
