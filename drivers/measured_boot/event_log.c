@@ -147,13 +147,14 @@ static int add_event2(const uint8_t *hash, const image_data_t *image_ptr)
 	((tpml_digest_values *)ptr)->count = HASH_ALG_COUNT;
 
 	/* TCG_PCR_EVENT2.Digests[] */
-	ptr = (uint8_t *)ptr + offsetof(tpml_digest_values, digests);
+	ptr = (uint8_t *)((uintptr_t)ptr +
+			offsetof(tpml_digest_values, digests));
 
 	/* TCG_PCR_EVENT2.Digests[].AlgorithmId */
 	((tpmt_ha *)ptr)->algorithm_id = TPM_ALG_ID;
 
 	/* TCG_PCR_EVENT2.Digests[].Digest[] */
-	ptr = (uint8_t *)ptr + offsetof(tpmt_ha, digest);
+	ptr = (uint8_t *)((uintptr_t)ptr + offsetof(tpmt_ha, digest));
 
 	/* Check for space in Event Log buffer */
 	if (((uintptr_t)ptr + TCG_DIGEST_SIZE) > EVENT_LOG_END) {
@@ -170,7 +171,7 @@ static int add_event2(const uint8_t *hash, const image_data_t *image_ptr)
 	}
 
 	/* TCG_PCR_EVENT2.EventSize */
-	ptr = (uint8_t *)ptr + TCG_DIGEST_SIZE;
+	ptr = (uint8_t *)((uintptr_t)ptr + TCG_DIGEST_SIZE);
 	((event2_data_t *)ptr)->event_size = name_len;
 
 	/* Copy event data to TCG_PCR_EVENT2.Event */
@@ -178,7 +179,8 @@ static int add_event2(const uint8_t *hash, const image_data_t *image_ptr)
 			(const void *)image_ptr->name, name_len);
 
 	/* End of event data */
-	log_ptr = (uint8_t *)ptr + offsetof(event2_data_t, event) + name_len;
+	log_ptr = (uint8_t *)((uintptr_t)ptr +
+			offsetof(event2_data_t, event) + name_len);
 
 	return 0;
 }
@@ -205,19 +207,20 @@ void event_log_init(void)
 	 */
 	(void)memcpy(ptr, (const void *)&id_event_header,
 			sizeof(id_event_header));
-	ptr = (uint8_t *)ptr + sizeof(id_event_header);
+	ptr = (uint8_t *)((uintptr_t)ptr + sizeof(id_event_header));
 
 	/* TCG_EfiSpecIdEventAlgorithmSize structure */
 	((id_event_algorithm_size_t *)ptr)->algorithm_id = TPM_ALG_ID;
 	((id_event_algorithm_size_t *)ptr)->digest_size = TCG_DIGEST_SIZE;
-	ptr = (uint8_t *)ptr + sizeof(id_event_algorithm_size_t);
+	ptr = (uint8_t *)((uintptr_t)ptr + sizeof(id_event_algorithm_size_t));
 
 	/*
 	 * TCG_EfiSpecIDEventStruct.vendorInfoSize
 	 * No vendor data
 	 */
 	((id_event_struct_data_t *)ptr)->vendor_info_size = 0;
-	ptr = (uint8_t *)ptr + offsetof(id_event_struct_data_t, vendor_info);
+	ptr = (uint8_t *)((uintptr_t)ptr +
+			offsetof(id_event_struct_data_t, vendor_info));
 	if ((uintptr_t)ptr != ((uintptr_t)event_log + ID_EVENT_SIZE)) {
 		panic();
 	}
@@ -234,19 +237,20 @@ void event_log_init(void)
 	/* Copy Startup Locality Event Header */
 	(void)memcpy(ptr, (const void *)&locality_event_header,
 			sizeof(locality_event_header));
-	ptr = (uint8_t *)ptr + sizeof(locality_event_header);
+	ptr = (uint8_t *)((uintptr_t)ptr + sizeof(locality_event_header));
 
 	/* TCG_PCR_EVENT2.Digests[].AlgorithmId */
 	((tpmt_ha *)ptr)->algorithm_id = TPM_ALG_ID;
 
 	/* TCG_PCR_EVENT2.Digests[].Digest[] */
 	(void)memset(&((tpmt_ha *)ptr)->digest, 0, TPM_ALG_ID);
-	ptr = (uint8_t *)ptr + offsetof(tpmt_ha, digest) + TCG_DIGEST_SIZE;
+	ptr = (uint8_t *)((uintptr_t)ptr +
+			offsetof(tpmt_ha, digest) + TCG_DIGEST_SIZE);
 
 	/* TCG_PCR_EVENT2.EventSize */
 	((event2_data_t *)ptr)->event_size =
 		(uint32_t)sizeof(startup_locality_event_t);
-	ptr = (uint8_t *)ptr + offsetof(event2_data_t, event);
+	ptr = (uint8_t *)((uintptr_t)ptr + offsetof(event2_data_t, event));
 
 	/* TCG_EfiStartupLocalityEvent.Signature */
 	(void)memcpy(ptr, (const void *)locality_signature,
@@ -257,7 +261,7 @@ void event_log_init(void)
 	 * the platform's boot firmware
 	 */
 	((startup_locality_event_t *)ptr)->startup_locality = 0U;
-	ptr = (uint8_t *)ptr + sizeof(startup_locality_event_t);
+	ptr = (uint8_t *)((uintptr_t)ptr + sizeof(startup_locality_event_t));
 	if ((uintptr_t)ptr != ((uintptr_t)start_ptr + LOC_EVENT_SIZE)) {
 		panic();
 	}
