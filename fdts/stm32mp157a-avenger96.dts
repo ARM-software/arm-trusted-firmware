@@ -9,21 +9,30 @@
 
 /dts-v1/;
 
-#include "stm32mp157c.dtsi"
-#include "stm32mp157cac-pinctrl.dtsi"
+#include "stm32mp157.dtsi"
+#include "stm32mp15-pinctrl.dtsi"
+#include "stm32mp15xxac-pinctrl.dtsi"
+#include <dt-bindings/clock/stm32mp1-clksrc.h>
+#include "stm32mp15-ddr3-2x4Gb-1066-binG.dtsi"
 
 / {
 	model = "Arrow Electronics STM32MP157A Avenger96 board";
-	compatible = "st,stm32mp157a-avenger96", "st,stm32mp157";
+	compatible = "arrow,stm32mp157a-avenger96", "st,stm32mp157";
 
 	aliases {
+		mmc0 = &sdmmc1;
 		serial0 = &uart4;
+		serial1 = &uart7;
 	};
 
 	chosen {
 		stdout-path = "serial0:115200n8";
 	};
 
+	memory@c0000000 {
+		device_type = "memory";
+		reg = <0xc0000000 0x40000000>;
+	};
 };
 
 &i2c4 {
@@ -43,16 +52,17 @@
 
 		st,main-control-register = <0x04>;
 		st,vin-control-register = <0xc0>;
-		st,usb-control-register = <0x20>;
+		st,usb-control-register = <0x30>;
 
 		regulators {
 			compatible = "st,stpmic1-regulators";
-
 			ldo1-supply = <&v3v3>;
 			ldo2-supply = <&v3v3>;
 			ldo3-supply = <&vdd_ddr>;
 			ldo5-supply = <&v3v3>;
 			ldo6-supply = <&v3v3>;
+			pwr_sw1-supply = <&bst_out>;
+			pwr_sw2-supply = <&bst_out>;
 
 			vddcore: buck1 {
 				regulator-name = "vddcore";
@@ -135,6 +145,19 @@
 				regulator-always-on;
 				regulator-over-current-protection;
 			};
+
+			bst_out: boost {
+				regulator-name = "bst_out";
+			};
+
+			vbus_otg: pwr_sw1 {
+				regulator-name = "vbus_otg";
+			};
+
+			vbus_sw: pwr_sw2 {
+				regulator-name = "vbus_sw";
+				regulator-active-discharge = <1>;
+			};
 		};
 	};
 };
@@ -142,56 +165,14 @@
 &iwdg2 {
 	timeout-sec = <32>;
 	status = "okay";
+	secure-status = "okay";
 };
 
-&rng1 {
-	status = "okay";
+&pwr_regulators {
+	vdd-supply = <&vdd>;
+	vdd_3v3_usbfs-supply = <&vdd_usb>;
 };
 
-&rtc {
-	status = "okay";
-};
-
-&sdmmc1 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&sdmmc1_b4_pins_a &sdmmc1_dir_pins_a>;
-	broken-cd;
-	st,sig-dir;
-	st,neg-edge;
-	st,use-ckin;
-	bus-width = <4>;
-	vmmc-supply = <&vdda>;
-	status = "okay";
-};
-
-&uart4 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&uart4_pins_b>;
-	status = "okay";
-};
-
-/* ATF Specific */
-#include <dt-bindings/clock/stm32mp1-clksrc.h>
-#include "stm32mp15-ddr3-2x4Gb-1066-binG.dtsi"
-#include "stm32mp157c-security.dtsi"
-
-/ {
-	aliases {
-		gpio0 = &gpioa;
-		gpio1 = &gpiob;
-		gpio2 = &gpioc;
-		gpio3 = &gpiod;
-		gpio4 = &gpioe;
-		gpio5 = &gpiof;
-		gpio6 = &gpiog;
-		gpio7 = &gpioh;
-		gpio8 = &gpioi;
-		gpio25 = &gpioz;
-		i2c3 = &i2c4;
-	};
-};
-
-/* CLOCK init */
 &rcc {
 	secure-status = "disabled";
 	st,clksrc = <
@@ -260,24 +241,67 @@
 
 	/* VCO = 1300.0 MHz => P = 650 (CPU) */
 	pll1: st,pll@0 {
-		cfg = < 2 80 0 0 0 PQR(1,0,0) >;
-		frac = < 0x800 >;
+		compatible = "st,stm32mp1-pll";
+		reg = <0>;
+		cfg = <2 80 0 0 0 PQR(1,0,0)>;
+		frac = <0x800>;
 	};
 
 	/* VCO = 1066.0 MHz => P = 266 (AXI), Q = 533 (GPU), R = 533 (DDR) */
 	pll2: st,pll@1 {
-		cfg = < 2 65 1 0 0 PQR(1,1,1) >;
-		frac = < 0x1400 >;
+		compatible = "st,stm32mp1-pll";
+		reg = <1>;
+		cfg = <2 65 1 0 0 PQR(1,1,1)>;
+		frac = <0x1400>;
 	};
 
 	/* VCO = 417.8 MHz => P = 209, Q = 24, R = 11 */
 	pll3: st,pll@2 {
-		cfg = < 1 33 1 16 36 PQR(1,1,1) >;
-		frac = < 0x1a04 >;
+		compatible = "st,stm32mp1-pll";
+		reg = <2>;
+		cfg = <1 33 1 16 36 PQR(1,1,1)>;
+		frac = <0x1a04>;
 	};
 
 	/* VCO = 480.0 MHz => P = 120, Q = 40, R = 96 */
 	pll4: st,pll@3 {
-		cfg = < 1 39 3 11 4 PQR(1,1,1) >;
+		compatible = "st,stm32mp1-pll";
+		reg = <3>;
+		cfg = <1 39 3 11 4 PQR(1,1,1)>;
 	};
+};
+
+&rng1 {
+	status = "okay";
+};
+
+&rtc {
+	status = "okay";
+};
+
+&sdmmc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc1_b4_pins_a &sdmmc1_dir_pins_a>;
+	st,sig-dir;
+	st,neg-edge;
+	st,use-ckin;
+	bus-width = <4>;
+	vmmc-supply = <&vdd_sd>;
+	status = "okay";
+};
+
+&uart4 {
+	/* On Low speed expansion header */
+	label = "LS-UART1";
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart4_pins_b>;
+	status = "okay";
+};
+
+&uart7 {
+	/* On Low speed expansion header */
+	label = "LS-UART0";
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart7_pins_a>;
+	status = "okay";
 };

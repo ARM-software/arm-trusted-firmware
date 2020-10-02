@@ -26,6 +26,7 @@
 #define AF14	0xf
 #define AF15	0x10
 #define ANALOG	0x11
+#define RSVD	0x12
 
 /* define Pins number*/
 #define PIN_NO(port, line)	(((port) - 'A') * 0x10 + (line))
@@ -33,9 +34,9 @@
 #define STM32_PINMUX(port, line, mode) (((PIN_NO(port, line)) << 8) | (mode))
 
 /*  package information */
-#define STM32MP157CAA	0x1
-#define STM32MP157CAB	0x2
-#define STM32MP157CAC	0x4
-#define STM32MP157CAD	0x8
+#define STM32MP_PKG_AA	0x1
+#define STM32MP_PKG_AB	0x2
+#define STM32MP_PKG_AC	0x4
+#define STM32MP_PKG_AD	0x8
 
 #endif /* _DT_BINDINGS_STM32_PINFUNC_H */

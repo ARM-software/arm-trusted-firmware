@@ -513,7 +513,7 @@ static inline uint32_t tamp_bkpr(uint32_t idx)
  ******************************************************************************/
 #define DT_BSEC_COMPAT			"st,stm32mp15-bsec"
 #define DT_IWDG_COMPAT			"st,stm32mp1-iwdg"
-#define DT_PWR_COMPAT			"st,stm32mp1-pwr"
+#define DT_PWR_COMPAT			"st,stm32mp1,pwr-reg"
 #define DT_RCC_CLK_COMPAT		"st,stm32mp1-rcc"
 #define DT_SYSCFG_COMPAT		"st,stm32mp157-syscfg"
 
