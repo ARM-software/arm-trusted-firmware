@@ -375,6 +375,29 @@
 	ands	\reg, \reg, #(ID_AA64PFR0_AMU_MASK << ID_AA64PFR0_AMU_SHIFT)
 	.endm
 
+	/*
+	 * There are various places where Morello requires simple switchovers for
+	 * system registers. For eg morello uses celr_el3 vs elr_el3, cvbar_el3 vs
+	 * vbar_el3 etc., this macro simplifies that operation and makes the code
+	 * more readable.
+	 */
+	.macro	msr_wide_reg _sysreg:req, _gp_reg:req
+#if ENABLE_FEAT_MORELLO
+#if ENABLE_FEAT_MORELLO == 2
+	is_feat_morello_present_asm	x10
+	beq 1f
+#endif /* ENABLE_FEAT_MORELLO == 2 */
+	cvtp	c\_gp_reg, x\_gp_reg
+	msr	c\_sysreg, c\_gp_reg
+	b	2f
+1:
+#endif /* ENABLE_FEAT_MORELLO */
+#if ENABLE_FEAT_MORELLO != 1
+	msr	\_sysreg, x\_gp_reg
+#endif /* ENABLE_FEAT_MORELLO != 1 */
+2:
+	.endm
+
 .macro call_reset_handler
 #if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && RESET_TO_BL2)
 	/* ---------------------------------------------------------------------

@@ -130,7 +130,11 @@ ifeq (${ARM_ARCH_MAJOR},7)
 include make_helpers/armv7-a-cpus.mk
 endif
 
-cflags-common		+=	$(march-directive)
+ifneq ($(ENABLE_FEAT_MORELLO),0)
+        TF_CFLAGS	+=	-march=morello
+else
+        cflags-common	+=	$(march-directive)
+endif
 
 ifneq ($(PIE_FOUND),)
         cflags-common	+=	-fno-PIE
