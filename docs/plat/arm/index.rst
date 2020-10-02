@@ -11,6 +11,7 @@ Arm Development Platforms
    tc0/index
    arm_fpga/index
    arm-build-options
+   morello/index
 
 This chapter holds documentation related to Arm's development platforms,
 including both software models (FVPs) and hardware development boards
