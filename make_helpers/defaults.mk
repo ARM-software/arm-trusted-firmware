@@ -291,9 +291,10 @@ endif
 # Include Memory Tagging Extension registers in cpu context. This must be set
 # to 1 if the platform wants to use this feature in the Secure world and MTE is
 # enabled at ELX.
-CTX_INCLUDE_MTE_REGS := 0
+CTX_INCLUDE_MTE_REGS		:= 0
 
 ENABLE_AMU			:= 0
+AMU_RESTRICT_COUNTERS		:= 0
 
 # By default, enable Scalable Vector Extension if implemented for Non-secure
 # lower ELs

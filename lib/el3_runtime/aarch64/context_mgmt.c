@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -214,6 +214,16 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 		}
 
 		scr_el3 |= SCR_EEL2_BIT;
+	}
+
+	/*
+	 * FEAT_AMUv1p1 virtual offset registers are only accessible from EL3
+	 * and EL2, when clear, this bit traps accesses from EL2 so we set it
+	 * to 1 when EL2 is present.
+	 */
+	if (is_armv8_6_feat_amuv1p1_present() &&
+		(el_implemented(2) != EL_IMPL_NONE)) {
+		scr_el3 |= SCR_AMVOFFEN_BIT;
 	}
 
 	/*

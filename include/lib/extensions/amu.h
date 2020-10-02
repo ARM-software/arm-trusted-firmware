@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -66,18 +66,30 @@ CASSERT(AMU_GROUP1_COUNTERS_MASK <= 0xffff, invalid_amu_group1_counters_mask);
 
 struct amu_ctx {
 	uint64_t group0_cnts[AMU_GROUP0_NR_COUNTERS];
+#if __aarch64__
+	/* Architected event counter 1 does not have an offset register. */
+	uint64_t group0_voffsets[AMU_GROUP0_NR_COUNTERS-1];
+#endif
 
 #if AMU_GROUP1_NR_COUNTERS
 	uint64_t group1_cnts[AMU_GROUP1_NR_COUNTERS];
+#if __aarch64__
+	uint64_t group1_voffsets[AMU_GROUP1_NR_COUNTERS];
+#endif
 #endif
 };
 
-bool amu_supported(void);
+unsigned int amu_get_version(void);
 void amu_enable(bool el2_unused);
 
 /* Group 0 configuration helpers */
 uint64_t amu_group0_cnt_read(unsigned int idx);
 void amu_group0_cnt_write(unsigned int idx, uint64_t val);
+
+#if __aarch64__
+uint64_t amu_group0_voffset_read(unsigned int idx);
+void amu_group0_voffset_write(unsigned int idx, uint64_t val);
+#endif
 
 #if AMU_GROUP1_NR_COUNTERS
 bool amu_group1_supported(void);
@@ -86,6 +98,12 @@ bool amu_group1_supported(void);
 uint64_t amu_group1_cnt_read(unsigned int idx);
 void amu_group1_cnt_write(unsigned int idx, uint64_t val);
 void amu_group1_set_evtype(unsigned int idx, unsigned int val);
+
+#if __aarch64__
+uint64_t amu_group1_voffset_read(unsigned int idx);
+void amu_group1_voffset_write(unsigned int idx, uint64_t val);
+#endif
+
 #endif
 
 #endif /* AMU_H */

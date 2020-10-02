@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -116,6 +116,9 @@
 #define ID_PFR0_AMU_SHIFT	U(20)
 #define ID_PFR0_AMU_LENGTH	U(4)
 #define ID_PFR0_AMU_MASK	U(0xf)
+#define ID_PFR0_AMU_NOT_SUPPORTED	U(0x0)
+#define ID_PFR0_AMU_V1		U(0x1)
+#define ID_PFR0_AMU_V1P1	U(0x2)
 
 #define ID_PFR0_DIT_SHIFT	U(24)
 #define ID_PFR0_DIT_LENGTH	U(4)
@@ -653,7 +656,7 @@
 #define PAR_ADDR_MASK	(BIT_64(40) - ULL(1)) /* 40-bits-wide page address */
 
 /*******************************************************************************
- * Definitions for system register interface to AMU for ARMv8.4 onwards
+ * Definitions for system register interface to AMU for FEAT_AMUv1
  ******************************************************************************/
 #define AMCR		p15, 0, c13, c2, 0
 #define AMCFGR		p15, 0, c13, c2, 1
@@ -711,6 +714,9 @@
 #define AMEVTYPER1D	p15, 0, c13, c15, 5
 #define AMEVTYPER1E	p15, 0, c13, c15, 6
 #define AMEVTYPER1F	p15, 0, c13, c15, 7
+
+/* AMCR definitions */
+#define AMCR_CG1RZ_BIT		(ULL(1) << 17)
 
 /* AMCFGR definitions */
 #define AMCFGR_NCG_SHIFT	U(28)

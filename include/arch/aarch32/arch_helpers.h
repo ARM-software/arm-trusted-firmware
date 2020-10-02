@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -303,6 +303,7 @@ DEFINE_COPROCR_RW_FUNCS(dacr, DACR)
 /* Coproc registers for 32bit AMU support */
 DEFINE_COPROCR_READ_FUNC(amcfgr, AMCFGR)
 DEFINE_COPROCR_READ_FUNC(amcgcr, AMCGCR)
+DEFINE_COPROCR_RW_FUNCS(amcr, AMCR)
 
 DEFINE_COPROCR_RW_FUNCS(amcntenset0, AMCNTENSET0)
 DEFINE_COPROCR_RW_FUNCS(amcntenset1, AMCNTENSET1)
