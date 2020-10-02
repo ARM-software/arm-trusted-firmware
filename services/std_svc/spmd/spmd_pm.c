@@ -32,7 +32,7 @@ int spmd_pm_secondary_core_set_ep(unsigned long long mpidr,
 {
 	int id = plat_core_pos_by_mpidr(mpidr);
 
-	if ((id < 0) || (id >= PLATFORM_CORE_COUNT)) {
+	if ((id < 0) || ((unsigned int)id >= PLATFORM_CORE_COUNT)) {
 		ERROR("%s inconsistent MPIDR (%llx)\n", __func__, mpidr);
 		return -EINVAL;
 	}
