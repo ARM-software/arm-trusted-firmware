@@ -101,7 +101,7 @@ To build TF-A with OP-TEE support for all bootable devices:
     cd <optee_directory>
     make CROSS_COMPILE=arm-linux-gnueabihf- ARCH=arm PLATFORM=stm32mp1 CFG_EMBED_DTB_SOURCE_FILE=stm32mp157c-ev1.dts
     cd <u-boot_directory>
-    make stm32mp15_optee_defconfig
+    make stm32mp15_trusted_defconfig
     make DEVICE_TREE=stm32mp157c-ev1 all
 
 
@@ -120,6 +120,12 @@ It should contain at least those partitions:
 - ssbl: to copy the u-boot.stm32 binary
 
 Usually, two copies of fsbl are used (fsbl1 and fsbl2) instead of one partition fsbl.
+
+OP-TEE artifacts go into separate partitions as follows:
+
+- teeh: tee-header_v2.stm32
+- teed: tee-pageable_v2.stm32
+- teex: tee-pager_v2.stm32
 
 
 .. _STM32MP1 Series: https://www.st.com/en/microcontrollers-microprocessors/stm32mp1-series.html
