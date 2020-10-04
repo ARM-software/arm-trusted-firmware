@@ -259,7 +259,7 @@ Armada37x0 Builds require installation of 3 components
         > export CROSS_CM3=/opt/arm-cross/bin/arm-linux-gnueabi
 
 (2) DDR initialization library sources (mv_ddr) available at the following repository
-    (use the "mv_ddr-armada-atf-mainline" branch):
+    (use the "mv_ddr-armada-18.12" branch):
 
     https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
 
@@ -271,6 +271,6 @@ Armada70x0 and Armada80x0 Builds require installation of an additional component
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 (1) DDR initialization library sources (mv_ddr) available at the following repository
-    (use the "mv_ddr-armada-atf-mainline" branch):
+    (use the "mv_ddr-armada-18.12" branch):
 
     https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
