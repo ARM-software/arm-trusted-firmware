@@ -37,6 +37,7 @@
 #define FMC2_PATT			0x8CU
 #define FMC2_HECCR			0x94U
 #define FMC2_BCHISR			0x254U
+#define FMC2_BCHICR			0x258U
 #define FMC2_BCHDSR0			0x27CU
 #define FMC2_BCHDSR1			0x280U
 #define FMC2_BCHDSR2			0x284U
@@ -82,6 +83,8 @@
 #define FMC2_PATT_DEFAULT		0x0A0A0A0AU
 /* FMC2_BCHISR register */
 #define FMC2_BCHISR_DERF		BIT(1)
+/* FMC2_BCHICR register */
+#define FMC2_BCHICR_CLEAR_IRQ		GENMASK_32(4, 0)
 /* FMC2_BCHDSR0 register */
 #define FMC2_BCHDSR0_DUE		BIT(0)
 #define FMC2_BCHDSR0_DEF		BIT(1)
@@ -500,6 +503,7 @@ static void stm32_fmc2_hwctl(struct nand_device *nand)
 
 	if (nand->ecc.max_bit_corr != FMC2_ECC_HAM) {
 		mmio_clrbits_32(fmc2_base() + FMC2_PCR, FMC2_PCR_WEN);
+		mmio_write_32(fmc2_base() + FMC2_BCHICR, FMC2_BCHICR_CLEAR_IRQ);
 	}
 
 	stm32_fmc2_set_ecc(true);
