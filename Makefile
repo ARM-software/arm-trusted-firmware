@@ -579,10 +579,8 @@ endif
 endif
 	BL31_CFLAGS	+=	-fpie
 	BL31_LDFLAGS	+=	$(PIE_LDFLAGS)
-ifeq ($(ARCH),aarch64)
 	BL32_CFLAGS	+=	-fpie
 	BL32_LDFLAGS	+=	$(PIE_LDFLAGS)
-endif
 endif
 
 ifeq (${ARCH},aarch64)

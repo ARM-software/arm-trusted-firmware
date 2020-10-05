@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -92,6 +92,7 @@ SECTIONS
     __RW_START__ = . ;
 
     DATA_SECTION >RAM
+    RELA_SECTION >RAM
 
 #ifdef BL32_PROGBITS_LIMIT
     ASSERT(. <= BL32_PROGBITS_LIMIT, "BL32 progbits has exceeded its limit.")
@@ -140,6 +141,10 @@ SECTIONS
     __RW_END__ = .;
 
     __BL32_END__ = .;
+
+    /DISCARD/ : {
+        *(.dynsym .dynstr .hash .gnu.hash)
+    }
 
     ASSERT(. <= BL32_LIMIT, "BL32 image has exceeded its limit.")
 }

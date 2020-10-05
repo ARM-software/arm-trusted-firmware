@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -105,10 +105,18 @@
  * .rela.dyn needs to come after .data for the read-elf utility to parse
  * this section correctly.
  */
+#if __aarch64__
+#define RELA_DYN_NAME		.rela.dyn
+#define RELOC_SECTIONS_PATTERN	*(.rela*)
+#else
+#define RELA_DYN_NAME		.rel.dyn
+#define RELOC_SECTIONS_PATTERN	*(.rel*)
+#endif
+
 #define RELA_SECTION					\
-	.rela.dyn : ALIGN(STRUCT_ALIGN) {		\
+	RELA_DYN_NAME : ALIGN(STRUCT_ALIGN) {		\
 		__RELA_START__ = .;			\
-		*(.rela*)				\
+		RELOC_SECTIONS_PATTERN			\
 		__RELA_END__ = .;			\
 	}
 
