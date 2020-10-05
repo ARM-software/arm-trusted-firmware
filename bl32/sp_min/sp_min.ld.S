@@ -140,4 +140,6 @@ SECTIONS
     __RW_END__ = .;
 
     __BL32_END__ = .;
+
+    ASSERT(. <= BL32_LIMIT, "BL32 image has exceeded its limit.")
 }
