@@ -12,8 +12,9 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 (64-bit host machine only).
 
 .. note::
-   The FVP models used are Version 11.9 Build 41, unless otherwise stated.
+   The FVP models used are Version 11.12 Build 38, unless otherwise stated.
 
+-  ``FVP_Base_AEMvA``
 -  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_AEMv8A-AEMv8A-AEMv8A-AEMv8A-CCN502``
 -  ``FVP_Base_RevC-2xAEMv8A``
@@ -37,22 +38,26 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_Cortex-A76AEx4``
 -  ``FVP_Base_Cortex-A76AEx8``
 -  ``FVP_Base_Cortex-A77x4``
+-  ``FVP_Base_Cortex-A78x4``
 -  ``FVP_Base_Neoverse-E1x1``
 -  ``FVP_Base_Neoverse-E1x2``
 -  ``FVP_Base_Neoverse-E1x4``
 -  ``FVP_Base_Neoverse-N1x4``
--  ``FVP_Base_Zeusx4``
+-  ``FVP_Base_Neoverse-V1x4``
 -  ``FVP_CSS_SGI-575``     (Version 11.10 build 36)
 -  ``FVP_CSS_SGM-775``
--  ``FVP_RD_E1_edge``      (Version 11.10 build 36)
+-  ``FVP_RD_E1_edge``      (Version 11.9 build 41)
 -  ``FVP_RD_N1_edge``      (Version 11.10 build 36)
 -  ``FVP_RD_N1_edge_dual`` (Version 11.10 build 36)
+-  ``FVP_RD_Daniel``       (Version 11.10 build 36)
+-  ``FVP_TC0``             (Version 0.0 build 6114)
 -  ``Foundation_Platform``
 
 The latest version of the AArch32 build of TF-A has been tested on the
 following Arm FVPs without shifted affinities, and that do not support threaded
 CPU cores (64-bit host machine only).
 
+-  ``FVP_Base_AEMvA``
 -  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_Cortex-A32x4``
 
