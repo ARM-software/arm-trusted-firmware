@@ -161,7 +161,7 @@ uint32_t fdt_osc_read_uint32_default(enum stm32mp_osc_id osc_id,
  * @param fdt: Device tree reference
  * @return: Node offset or a negative value on error
  */
-int fdt_get_rcc_node(void *fdt)
+static int fdt_get_rcc_node(void *fdt)
 {
 	return fdt_node_offset_by_compatible(fdt, -1, DT_RCC_CLK_COMPAT);
 }
