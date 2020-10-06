@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
 # Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -294,6 +294,10 @@ ERRATA_A77_1925769	?=0
 # to revisions r0p0 - r1p0 of the A78 cpu.
 ERRATA_A78_1688305	?=0
 
+# Flag to apply erratum 1941498 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, and r1p1 of the A78 cpu.
+ERRATA_A78_1941498	?=0
+
 # Flag to apply T32 CLREX workaround during reset. This erratum applies
 # only to r0p0 and r1p0 of the Neoverse N1 cpu.
 ERRATA_N1_1043202	?=0
@@ -574,6 +578,10 @@ $(eval $(call add_define,ERRATA_A77_1925769))
 # Process ERRATA_A78_1688305 flag
 $(eval $(call assert_boolean,ERRATA_A78_1688305))
 $(eval $(call add_define,ERRATA_A78_1688305))
+
+# Process ERRATA_A78_1941498 flag
+$(eval $(call assert_boolean,ERRATA_A78_1941498))
+$(eval $(call add_define,ERRATA_A78_1941498))
 
 # Process ERRATA_N1_1043202 flag
 $(eval $(call assert_boolean,ERRATA_N1_1043202))
