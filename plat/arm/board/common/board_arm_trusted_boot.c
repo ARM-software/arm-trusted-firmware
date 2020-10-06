@@ -47,8 +47,11 @@ uintptr_t nv_cntr_base_addr[MAX_NV_CTR_IDS] = {
 
 extern unsigned char arm_rotpk_header[], arm_rotpk_hash_end[];
 
+#if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_REGS_ID) || ARM_CRYPTOCELL_INTEG
 static unsigned char rotpk_hash_der[ARM_ROTPK_HEADER_LEN + ARM_ROTPK_HASH_LEN];
+#endif
 
+#if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_REGS_ID)
 /*
  * Return the ROTPK hash stored in dedicated registers.
  */
@@ -85,6 +88,7 @@ int arm_get_rotpk_info_regs(void **key_ptr, unsigned int *key_len,
 	*flags = ROTPK_IS_HASH;
 	return 0;
 }
+#endif
 
 #if (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_RSA_ID) || \
     (ARM_ROTPK_LOCATION_ID == ARM_ROTPK_DEVEL_ECDSA_ID)
