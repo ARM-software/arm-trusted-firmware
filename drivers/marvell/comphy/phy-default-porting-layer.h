@@ -45,7 +45,15 @@ static const struct sata_params
 		.g3_rx_selmupf = 0x2,
 		.g1_rx_selmupi = 0x0, .g2_rx_selmupi = 0x0,
 		.g3_rx_selmupi = 0x2,
+		.polarity_invert = COMPHY_POLARITY_NO_INVERT,
 		.valid = 0x1
+	},
+};
+
+static const struct usb_params
+	usb_static_values_tab[AP_NUM][CP_NUM][MAX_LANE_NR] = {
+	[0 ... AP_NUM-1][0 ... CP_NUM-1][0 ... MAX_LANE_NR-1] = {
+		.polarity_invert = COMPHY_POLARITY_NO_INVERT
 	},
 };
 #endif /* PHY_DEFAULT_PORTING_LAYER_H */
