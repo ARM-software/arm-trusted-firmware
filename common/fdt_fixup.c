@@ -425,7 +425,8 @@ int fdt_adjust_gic_redist(void *dtb, unsigned int nr_cores,
 		redist_size_32 = cpu_to_fdt32(nr_cores * gicr_frame_size);
 		val = &redist_size_32;
 	} else {
-		redist_size_64 = cpu_to_fdt64(nr_cores * gicr_frame_size);
+		redist_size_64 = cpu_to_fdt64(nr_cores *
+					      (uint64_t)gicr_frame_size);
 		val = &redist_size_64;
 	}
 
