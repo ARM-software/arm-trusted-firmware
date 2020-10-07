@@ -282,7 +282,7 @@
 #define  MC_CLIENT_HOTRESET_CTRL1_SCE_FLUSH_ENB			(1U << 24)
 #define MC_CLIENT_HOTRESET_STATUS1				0x974U
 
-#ifndef __ASSEMBLY__
+#ifndef __ASSEMBLER__
 
 /*******************************************************************************
  * Structure to hold the transaction override settings to use to override
@@ -393,6 +393,6 @@ typedef struct mc_streamid_security_cfg {
 				  MC_TXN_OVERRIDE_CONFIG_CGID_##so_dev_axi_id); \
 	} while (0)
 
-#endif /* __ASSEMBLY__ */
+#endif /* __ASSEMBLER__ */
 
 #endif /* TEGRA_MC_DEF_H */
