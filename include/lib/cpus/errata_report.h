@@ -30,4 +30,7 @@ int errata_needs_reporting(spinlock_t *lock, uint32_t *reported);
 #define ERRATA_APPLIES		1
 #define ERRATA_MISSING		2
 
+/* Macro to get CPU revision code for checking errata version compatibility. */
+#define CPU_REV(r, p)		((r << 4) | p)
+
 #endif /* ERRATA_REPORT_H */
