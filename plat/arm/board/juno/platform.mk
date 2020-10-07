@@ -44,6 +44,8 @@ ifeq (${JUNO_TZMP1}, 1)
 $(eval $(call add_define,JUNO_TZMP1))
 endif
 
+TRNG_SUPPORT		:=	1
+
 ifeq (${JUNO_AARCH32_EL3_RUNTIME}, 1)
 # Include BL32 in FIP
 NEED_BL32		:= yes
