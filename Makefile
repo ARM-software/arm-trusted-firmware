@@ -1067,13 +1067,6 @@ ifneq ($(findstring clang,$(notdir $(CC))),)
 else
     CPPFLAGS		+= 	-Wno-error=deprecated-declarations -Wno-error=cpp
 endif
-
-# AARCH32/AARCH64 macros are deprecated in favor of the compiler-builtin __aarch64__.
-ifeq (${ARCH},aarch32)
-        $(eval $(call add_define,AARCH32))
-else
-        $(eval $(call add_define,AARCH64))
-endif
 endif # !ERROR_DEPRECATED
 
 $(eval $(call MAKE_LIB_DIRS))
