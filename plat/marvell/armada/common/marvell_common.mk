@@ -86,5 +86,3 @@ endif
 ifeq (${MSS_SUPPORT}, 1)
 include $(MARVELL_PLAT_BASE)/common/mss/mss_common.mk
 endif
-
-fip: mrvl_flash
