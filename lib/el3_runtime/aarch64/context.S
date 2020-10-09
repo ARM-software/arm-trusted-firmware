@@ -94,8 +94,12 @@ func el2_sysregs_context_save
 	stp	x13, x14, [x0, #CTX_ICH_VMCR_EL2]
 
 	mrs	x15, mdcr_el2
+#if ENABLE_SPE_FOR_LOWER_ELS
 	mrs	x16, PMSCR_EL2
 	stp	x15, x16, [x0, #CTX_MDCR_EL2]
+#else
+	str	x15, [x0, #CTX_MDCR_EL2]
+#endif
 
 	mrs	x17, sctlr_el2
 	mrs	x9, spsr_el2
@@ -291,9 +295,13 @@ func el2_sysregs_context_restore
 	msr	ICH_VMCR_EL2, x13
 	msr	mair_el2, x14
 
+#if ENABLE_SPE_FOR_LOWER_ELS
 	ldp	x15, x16, [x0, #CTX_MDCR_EL2]
-	msr	mdcr_el2, x15
 	msr	PMSCR_EL2, x16
+#else
+	ldr	x15, [x0, #CTX_MDCR_EL2]
+#endif
+	msr	mdcr_el2, x15
 
 	ldp	x17, x9, [x0, #CTX_SCTLR_EL2]
 	msr	sctlr_el2, x17
