@@ -10,7 +10,7 @@
 #include <lib/utils_def.h>
 
 /* RAINIER MIDR for revision 0 */
-#define RAINIER_MIDR			U(0x3f0f4100)
+#define RAINIER_MIDR			U(0x3f0f4120)
 
 /* Exception Syndrome register EC code for IC Trap */
 #define RAINIER_EC_IC_TRAP		U(0x1f)
