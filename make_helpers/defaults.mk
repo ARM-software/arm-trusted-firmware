@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2020, ARM Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -149,6 +149,10 @@ GICV2_G0_FOR_EL3		:= 0
 # Route External Aborts to EL3. Disabled by default; External Aborts are handled
 # by lower ELs.
 HANDLE_EA_EL3_FIRST		:= 0
+
+# Secure hash algorithm flag, accepts 3 values: sha256, sha384 and sha512.
+# The default value is sha256.
+HASH_ALG			:= sha256
 
 # Whether system coherency is managed in hardware, without explicit software
 # operations.
