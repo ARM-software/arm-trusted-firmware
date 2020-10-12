@@ -323,7 +323,7 @@ static int brcm_validate_ns_entrypoint(uintptr_t entrypoint)
 	if ((entrypoint >= BRCM_NS_DRAM1_BASE) &&
 	    (entrypoint < (BRCM_NS_DRAM1_BASE + BRCM_NS_DRAM1_SIZE)))
 		return PSCI_E_SUCCESS;
-#ifndef AARCH32
+#ifdef __aarch64__
 	if ((entrypoint >= BRCM_DRAM2_BASE) &&
 	    (entrypoint < (BRCM_DRAM2_BASE + BRCM_DRAM2_SIZE)))
 		return PSCI_E_SUCCESS;
