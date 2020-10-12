@@ -2284,7 +2284,6 @@ static int mvebu_cp110_comphy_ap_power_on(uint64_t comphy_base,
 					  uint32_t comphy_mode)
 {
 	uint32_t mask, data;
-	uint8_t ap_nr, cp_nr;
 	uintptr_t comphy_addr = comphy_addr =
 				COMPHY_ADDR(comphy_base, comphy_index);
 
@@ -2301,10 +2300,16 @@ static int mvebu_cp110_comphy_ap_power_on(uint64_t comphy_base,
 	reg_set(comphy_addr + COMMON_PHY_CFG1_REG, data, mask);
 	debug_exit();
 
-	/* Start AP Firmware */
-	mvebu_cp110_get_ap_and_cp_nr(&ap_nr, &cp_nr, comphy_base);
-	mg_start_ap_fw(cp_nr, comphy_index);
+#if MSS_SUPPORT
+	do {
+		uint8_t ap_nr, cp_nr;
 
+		/* start ap fw */
+		mvebu_cp110_get_ap_and_cp_nr(&ap_nr, &cp_nr, comphy_base);
+		mg_start_ap_fw(cp_nr, comphy_index);
+
+	} while (0);
+#endif
 	return 0;
 }
 

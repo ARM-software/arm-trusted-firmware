@@ -26,7 +26,7 @@ BL33 should be ``~/project/u-boot/u-boot.bin``
 
        *u-boot.bin* should be used and not *u-boot-spl.bin*
 
-Set MSS/SCP image path (mandatory only for A7K/8K/CN913x)
+Set MSS/SCP image path (mandatory only for A7K/8K/CN913x when MSS_SUPPORT=1)
 
     .. code:: shell
 
