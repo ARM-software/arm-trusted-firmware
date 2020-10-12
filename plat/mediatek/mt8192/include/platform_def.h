@@ -39,6 +39,14 @@
 #define SYS_COUNTER_FREQ_IN_MHZ      13
 
 /*******************************************************************************
+ * GIC-400 & interrupt handling related constants
+ ******************************************************************************/
+
+/* Base MTK_platform compatible GIC memory map */
+#define BASE_GICD_BASE        MT_GIC_BASE
+#define MT_GIC_RDIST_BASE     (MT_GIC_BASE + 0x40000)
+
+/*******************************************************************************
  * Platform binary types for linking
  ******************************************************************************/
 #define PLATFORM_LINKER_FORMAT      "elf64-littleaarch64"
