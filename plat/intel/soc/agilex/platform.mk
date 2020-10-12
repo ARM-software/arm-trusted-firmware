@@ -10,16 +10,20 @@ PLAT_INCLUDES		:=	\
 			-Iplat/intel/soc/common/drivers/		\
 			-Iplat/intel/soc/common/include/
 
+# Include GICv2 driver files
+include drivers/arm/gic/v2/gicv2.mk
+AGX_GICv2_SOURCES	:=	\
+			${GICV2_SOURCES}				\
+			plat/common/plat_gicv2.c
+
+
 PLAT_BL_COMMON_SOURCES	:=	\
-			drivers/arm/gic/common/gic_common.c		\
-			drivers/arm/gic/v2/gicv2_main.c			\
-			drivers/arm/gic/v2/gicv2_helpers.c		\
+			${AGX_GICv2_SOURCES}				\
 			drivers/delay_timer/delay_timer.c		\
 			drivers/delay_timer/generic_delay_timer.c  	\
 			drivers/ti/uart/aarch64/16550_console.S		\
 			lib/xlat_tables/aarch64/xlat_tables.c 		\
 			lib/xlat_tables/xlat_tables_common.c 		\
-			plat/common/plat_gicv2.c			\
 			plat/intel/soc/common/aarch64/platform_common.c \
 			plat/intel/soc/common/aarch64/plat_helpers.S
 
