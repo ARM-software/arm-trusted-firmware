@@ -337,7 +337,7 @@ void stm32mp_print_boardinfo(void)
 
 		rev[0] = BOARD_ID2REV(board_id) - 1 + 'A';
 		rev[1] = '\0';
-		NOTICE("Board: MB%04x Var%d.%d Rev.%s-%02d\n",
+		NOTICE("Board: MB%04x Var%u.%u Rev.%s-%02u\n",
 		       BOARD_ID2NB(board_id),
 		       BOARD_ID2VARCPN(board_id),
 		       BOARD_ID2VARFG(board_id),
