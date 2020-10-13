@@ -16,18 +16,22 @@
 /* Internal layout of the 32bit OTP word board_id */
 #define BOARD_ID_BOARD_NB_MASK		GENMASK(31, 16)
 #define BOARD_ID_BOARD_NB_SHIFT		16
-#define BOARD_ID_VARIANT_MASK		GENMASK(15, 12)
-#define BOARD_ID_VARIANT_SHIFT		12
+#define BOARD_ID_VARCPN_MASK		GENMASK(15, 12)
+#define BOARD_ID_VARCPN_SHIFT		12
 #define BOARD_ID_REVISION_MASK		GENMASK(11, 8)
 #define BOARD_ID_REVISION_SHIFT		8
+#define BOARD_ID_VARFG_MASK		GENMASK(7, 4)
+#define BOARD_ID_VARFG_SHIFT		4
 #define BOARD_ID_BOM_MASK		GENMASK(3, 0)
 
 #define BOARD_ID2NB(_id)		(((_id) & BOARD_ID_BOARD_NB_MASK) >> \
 					 BOARD_ID_BOARD_NB_SHIFT)
-#define BOARD_ID2VAR(_id)		(((_id) & BOARD_ID_VARIANT_MASK) >> \
-					 BOARD_ID_VARIANT_SHIFT)
+#define BOARD_ID2VARCPN(_id)		(((_id) & BOARD_ID_VARCPN_MASK) >> \
+					 BOARD_ID_VARCPN_SHIFT)
 #define BOARD_ID2REV(_id)		(((_id) & BOARD_ID_REVISION_MASK) >> \
 					 BOARD_ID_REVISION_SHIFT)
+#define BOARD_ID2VARFG(_id)		(((_id) & BOARD_ID_VARFG_MASK) >> \
+					 BOARD_ID_VARFG_SHIFT)
 #define BOARD_ID2BOM(_id)		((_id) & BOARD_ID_BOM_MASK)
 
 #if defined(IMAGE_BL2)
@@ -333,9 +337,10 @@ void stm32mp_print_boardinfo(void)
 
 		rev[0] = BOARD_ID2REV(board_id) - 1 + 'A';
 		rev[1] = '\0';
-		NOTICE("Board: MB%04x Var%d Rev.%s-%02d\n",
+		NOTICE("Board: MB%04x Var%d.%d Rev.%s-%02d\n",
 		       BOARD_ID2NB(board_id),
-		       BOARD_ID2VAR(board_id),
+		       BOARD_ID2VARCPN(board_id),
+		       BOARD_ID2VARFG(board_id),
 		       rev,
 		       BOARD_ID2BOM(board_id));
 	}

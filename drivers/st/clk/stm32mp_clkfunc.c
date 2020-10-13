@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2020, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,8 +13,6 @@
 #include <common/fdt_wrappers.h>
 #include <drivers/st/stm32_gpio.h>
 #include <drivers/st/stm32mp_clkfunc.h>
-
-#define DT_STGEN_COMPAT		"st,stm32-stgen"
 
 /*
  * Get the frequency of an oscillator from its name in device tree.
@@ -169,33 +167,6 @@ int fdt_get_rcc_node(void *fdt)
 }
 
 /*
- * Get the RCC base address from the device tree
- * @return: RCC address or 0 on error
- */
-uint32_t fdt_rcc_read_addr(void)
-{
-	int node;
-	void *fdt;
-	const fdt32_t *cuint;
-
-	if (fdt_get_address(&fdt) == 0) {
-		return 0;
-	}
-
-	node = fdt_get_rcc_node(fdt);
-	if (node < 0) {
-		return 0;
-	}
-
-	cuint = fdt_getprop(fdt, node, "reg", NULL);
-	if (cuint == NULL) {
-		return 0;
-	}
-
-	return fdt32_to_cpu(*cuint);
-}
-
-/*
  * Read a series of parameters in rcc-clk section in device tree
  * @param prop_name: Name of the RCC property to be read
  * @param array: the array to store the property parameters
@@ -296,33 +267,6 @@ bool fdt_get_rcc_secure_status(void)
 	}
 
 	return !!(fdt_get_status(node) & DT_SECURE);
-}
-
-/*
- * Get the stgen base address.
- * @return: address of stgen on success, and NULL value on failure.
- */
-uintptr_t fdt_get_stgen_base(void)
-{
-	int node;
-	const fdt32_t *cuint;
-	void *fdt;
-
-	if (fdt_get_address(&fdt) == 0) {
-		return 0;
-	}
-
-	node = fdt_node_offset_by_compatible(fdt, -1, DT_STGEN_COMPAT);
-	if (node < 0) {
-		return 0;
-	}
-
-	cuint = fdt_getprop(fdt, node, "reg", NULL);
-	if (cuint == NULL) {
-		return 0;
-	}
-
-	return fdt32_to_cpu(*cuint);
 }
 
 /*
