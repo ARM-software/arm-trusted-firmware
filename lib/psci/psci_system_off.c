@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,7 +25,7 @@ void __dead2 psci_system_off(void)
 		psci_spd_pm->svc_system_off();
 	}
 
-	(void) console_flush();
+	console_flush();
 
 	/* Call the platform specific hook */
 	psci_plat_pm_ops->system_off();
@@ -44,7 +44,7 @@ void __dead2 psci_system_reset(void)
 		psci_spd_pm->svc_system_reset();
 	}
 
-	(void) console_flush();
+	console_flush();
 
 	/* Call the platform specific hook */
 	psci_plat_pm_ops->system_reset();
@@ -77,7 +77,7 @@ u_register_t psci_system_reset2(uint32_t reset_type, u_register_t cookie)
 	if ((psci_spd_pm != NULL) && (psci_spd_pm->svc_system_reset != NULL)) {
 		psci_spd_pm->svc_system_reset();
 	}
-	(void) console_flush();
+	console_flush();
 
 	return (u_register_t)
 		psci_plat_pm_ops->system_reset2((int) is_vendor, reset_type,

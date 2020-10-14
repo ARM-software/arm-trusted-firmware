@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2020, ARM Limited. All rights reserved.
  * Copyright (C) 2018 Marvell International Ltd.
  *
  * SPDX-License-Identifier:     BSD-3-Clause
@@ -90,10 +91,10 @@ func plat_crash_console_putc
 endfunc plat_crash_console_putc
 
 	/* ---------------------------------------------
-	 * int plat_crash_console_flush()
+	 * void plat_crash_console_flush()
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
-	 * Out : return -1 on error else return 0.
+	 * Out : void.
 	 * Clobber list : r0
 	 * ---------------------------------------------
 	 */

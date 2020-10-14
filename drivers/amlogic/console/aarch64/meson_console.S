@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -224,11 +224,11 @@ func console_meson_core_getc
 endfunc console_meson_core_getc
 
 	/* ---------------------------------------------
-	 * int console_meson_flush(console_t *console)
+	 * void console_meson_flush(console_t *console)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - pointer to console_t structure
-	 * Out : return -1 on error else return 0.
+	 * Out : void.
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
@@ -242,11 +242,11 @@ func console_meson_flush
 endfunc console_meson_flush
 
 	/* ---------------------------------------------
-	 * int console_meson_core_flush(uintptr_t base_addr)
+	 * void console_meson_core_flush(uintptr_t base_addr)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - console base address
-	 * Out : return -1 on error else return 0.
+	 * Out : void.
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
@@ -258,6 +258,5 @@ func console_meson_core_flush
 	/* Wait until the transmit FIFO is empty */
 1:	ldr	w1, [x0, #MESON_STATUS_OFFSET]
 	tbz	w1, #MESON_STATUS_TX_EMPTY_BIT, 1b
-	mov	w0, #0
 	ret
 endfunc console_meson_core_flush

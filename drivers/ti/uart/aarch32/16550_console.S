@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -232,11 +232,11 @@ func console_16550_getc
 endfunc console_16550_getc
 
 	/* ---------------------------------------------
-	 * int console_16550_core_flush(uintptr_t base_addr)
+	 * void console_16550_core_flush(uintptr_t base_addr)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : r0 - console base address
-	 * Out : return -1 on error else return 0.
+	 * Out : void.
 	 * Clobber list : r0, r1
 	 * ---------------------------------------------
 	 */
@@ -252,16 +252,15 @@ func console_16550_core_flush
 	cmp	r1, #(UARTLSR_TEMT | UARTLSR_THRE)
 	bne	1b
 
-	mov	r0, #0
 	bx	lr
 endfunc console_16550_core_flush
 
 	/* ---------------------------------------------
-	 * int console_16550_flush(console_t *console)
+	 * void console_16550_flush(console_t *console)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : r0 - pointer to console_t structure
-	 * Out : return -1 on error else return 0.
+	 * Out : void
 	 * Clobber list : r0, r1
 	 * ---------------------------------------------
 	 */

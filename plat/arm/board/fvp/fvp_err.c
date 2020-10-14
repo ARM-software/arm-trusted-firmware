@@ -37,7 +37,7 @@ __dead2 void plat_arm_error_handler(int err)
 		break;
 	}
 
-	(void)console_flush();
+	console_flush();
 
 	/* Setup the watchdog to reset the system as soon as possible */
 	sp805_refresh(ARM_SP805_TWDG_BASE, 1U);

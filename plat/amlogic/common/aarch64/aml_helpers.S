@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -78,8 +78,8 @@ func plat_crash_console_putc
 endfunc plat_crash_console_putc
 
 	/* ---------------------------------------------
-	 * int plat_crash_console_flush()
-	 * Out : return -1 on error else return 0.
+	 * void plat_crash_console_flush()
+	 * Out : void.
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */

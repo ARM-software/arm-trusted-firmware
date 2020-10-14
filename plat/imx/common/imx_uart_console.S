@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -84,6 +84,5 @@ getc_error:
 endfunc console_imx_uart_getc
 
 func console_imx_uart_flush
-	mov	x0, #0
 	ret
 endfunc console_imx_uart_flush

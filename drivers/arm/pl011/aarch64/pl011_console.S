@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -208,11 +208,11 @@ func console_pl011_getc
 endfunc console_pl011_getc
 
 	/* ---------------------------------------------
-	 * int console_pl011_core_flush(uintptr_t base_addr)
+	 * void console_pl011_core_flush(uintptr_t base_addr)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - console base address
-	 * Out : return -1 on error else return 0.
+	 * Out : void.
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
@@ -225,17 +225,15 @@ func console_pl011_core_flush
 	/* Loop until the transmit FIFO is empty */
 	ldr	w1, [x0, #UARTFR]
 	tbnz	w1, #PL011_UARTFR_BUSY_BIT, 1b
-
-	mov	w0, #0
 	ret
 endfunc console_pl011_core_flush
 
 	/* ---------------------------------------------
-	 * int console_pl011_flush(console_t *console)
+	 * void console_pl011_flush(console_t *console)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - pointer to console_t structure
-	 * Out : return -1 on error else return 0.
+	 * Out : void
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */

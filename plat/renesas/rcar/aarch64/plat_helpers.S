@@ -295,7 +295,7 @@ func plat_crash_console_putc
 endfunc plat_crash_console_putc
 
 	/* ---------------------------------------------
-	 * int plat_crash_console_flush()
+	 * void plat_crash_console_flush()
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_flush

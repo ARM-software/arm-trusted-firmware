@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -49,7 +49,7 @@ void marvell_console_boot_init(void)
 
 void marvell_console_boot_end(void)
 {
-	(void)console_flush();
+	console_flush();
 
 	(void)console_unregister(&marvell_boot_console);
 }
@@ -70,7 +70,7 @@ void marvell_console_runtime_init(void)
 
 void marvell_console_runtime_end(void)
 {
-	(void)console_flush();
+	console_flush();
 
 	(void)console_unregister(&marvell_runtime_console);
 }

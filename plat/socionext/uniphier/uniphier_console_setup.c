@@ -20,7 +20,7 @@
 /* These callbacks are implemented in assembly to use crash_console_helpers.S */
 int uniphier_console_putc(int character, struct console *console);
 int uniphier_console_getc(struct console *console);
-int uniphier_console_flush(struct console *console);
+void uniphier_console_flush(struct console *console);
 
 static console_t uniphier_console = {
 	.flags = CONSOLE_FLAG_BOOT |

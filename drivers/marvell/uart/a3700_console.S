@@ -223,25 +223,24 @@ func console_a3700_getc
 endfunc console_a3700_getc
 
 	/* ---------------------------------------------
-	 * int console_a3700_core_flush(uintptr_t base_addr)
+	 * void console_a3700_core_flush(uintptr_t base_addr)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - console base address
-	 * Out : return -1 on error else return 0.
+	 * Out : void.
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
 func console_a3700_core_flush
-	mov	w0, #0
 	ret
 endfunc console_a3700_core_flush
 
 	/* ---------------------------------------------
-	 * int console_a3700_flush(console_t *console)
+	 * void console_a3700_flush(console_t *console)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : x0 - pointer to console_t structure
-	 * Out : return -1 on error else return 0.
+	 * Out : void.
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */

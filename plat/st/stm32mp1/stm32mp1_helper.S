@@ -198,7 +198,7 @@ func plat_crash_console_init
 endfunc plat_crash_console_init
 
 	/* ---------------------------------------------
-	 * int plat_crash_console_flush(void)
+	 * void plat_crash_console_flush(void)
 	 *
 	 * Flush the crash console without a C Runtime stack.
 	 * ---------------------------------------------

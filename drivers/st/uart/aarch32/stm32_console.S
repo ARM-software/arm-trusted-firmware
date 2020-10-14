@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -193,37 +193,35 @@ func console_stm32_core_getc
 endfunc console_stm32_core_getc
 
 	/* ---------------------------------------------------------------
-	 * int console_core_flush(uintptr_t base_addr)
+	 * void console_core_flush(uintptr_t base_addr)
 	 *
 	 * Function to force a write of all buffered data that hasn't been
 	 * output.
 	 *
 	 * In : r0 - console base address
-	 * Out : return -1 on error else return 0.
+	 * Out : void.
 	 * Clobber list : r0, r1
 	 * ---------------------------------------------------------------
 	 */
 func console_stm32_core_flush
+#if ENABLE_ASSERTIONS
 	cmp	r0, #0
-	beq	flush_error
+	ASM_ASSERT(ne)
+#endif /* ENABLE_ASSERTIONS */
 	/* Check Transmit Data Register Empty */
 txe_loop_3:
 	ldr	r1, [r0, #USART_ISR]
 	tst	r1, #USART_ISR_TXE
 	beq	txe_loop_3
-	mov	r0, #0
-	bx	lr
-flush_error:
-	mov	r0, #-1
 	bx	lr
 endfunc console_stm32_core_flush
 
 	/* ------------------------------------------------------
-	 * int console_stm32_flush(console_t *console)
+	 * void console_stm32_flush(console_t *console)
 	 * Function to force a write of all buffered
 	 * data that hasn't been output.
 	 * In : r0 - pointer to console_t structure
-	 * Out : return -1 on error else return 0.
+	 * Out : void.
 	 * Clobber list: r0, r1
 	 * ------------------------------------------------------
 	 */

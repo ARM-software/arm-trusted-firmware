@@ -261,7 +261,7 @@ void backtrace(const char *cookie)
 	struct frame_record *fr = __builtin_frame_address(0U);
 
 	/* Printing the backtrace may crash the system, flush before starting */
-	(void)console_flush();
+	console_flush();
 
 	fr = adjust_frame_record(fr);
 
