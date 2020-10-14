@@ -21,6 +21,7 @@
 #include <plat_params.h>
 #include <plat_pm.h>
 #include <pmic.h>
+#include <rtc.h>
 
 /*
  * Cluster state request:
@@ -341,6 +342,7 @@ static void __dead2 plat_mtk_system_off(void)
 {
 	INFO("MTK System Off\n");
 
+	rtc_power_off_sequence();
 	pmic_power_off();
 
 	wfi();
