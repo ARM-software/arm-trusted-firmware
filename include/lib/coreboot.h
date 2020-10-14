@@ -39,7 +39,7 @@ typedef enum {
 	CB_MEM_TABLE		= 16,
 } coreboot_memory_t;
 
-coreboot_memory_t coreboot_get_memory_type(uintptr_t address);
+coreboot_memory_t coreboot_get_memory_type(uintptr_t start, size_t size);
 void coreboot_table_setup(void *base);
 
 #endif /* COREBOOT_H */
