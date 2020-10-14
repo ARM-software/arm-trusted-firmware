@@ -13,12 +13,6 @@
 #define BL31_BASE						0x80b00000
 #define BL31_SIZE						0x00100000
 
-/*----------------------------------------------------------------------------*/
-/* AOP CMD DB  address space for mapping */
-/*----------------------------------------------------------------------------*/
-#define QTI_AOP_CMD_DB_BASE			0x80820000
-#define QTI_AOP_CMD_DB_SIZE			0x00020000
-
 /* Chipset specific secure interrupt number/ID defs. */
 #define QTISECLIB_INT_ID_SEC_WDOG_BARK			(0x204)
 #define QTISECLIB_INT_ID_NON_SEC_WDOG_BITE		(0x21)

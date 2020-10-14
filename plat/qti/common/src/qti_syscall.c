@@ -27,7 +27,7 @@
  */
 #define	QTI_SIP_SVC_CALL_COUNT_ID			U(0x0200ff00)
 #define	QTI_SIP_SVC_UID_ID				U(0x0200ff01)
-/*							0x8200ff02 is reserved */
+/*							0x8200ff02 is reserved*/
 #define	QTI_SIP_SVC_VERSION_ID				U(0x0200ff03)
 
 /*
@@ -97,37 +97,52 @@ bool qti_mem_assign_validate_param(memprot_info_t *mem_info,
 	    || (src_vm_list_cnt >= QTI_VM_LAST) || (dst_vm_list_cnt == 0)
 	    || (dst_vm_list_cnt >= QTI_VM_LAST) || (u_num_mappings == 0)
 	    || u_num_mappings > QTI_VM_MAX_LIST_SIZE) {
+		ERROR("vm count is 0 or more then QTI_VM_LAST or empty list\n");
+		ERROR("source_vm_list %p dest_vm_list %p mem_info %p src_vm_list_cnt %u dst_vm_list_cnt %u u_num_mappings %u\n",
+		     source_vm_list, dest_vm_list, mem_info,
+		     (unsigned int)src_vm_list_cnt,
+		     (unsigned int)dst_vm_list_cnt,
+		     (unsigned int)u_num_mappings);
 		return false;
 	}
 	for (i = 0; i < u_num_mappings; i++) {
 		if ((mem_info[i].mem_addr & (SIZE4K - 1))
+		    || (mem_info[i].mem_size == 0)
 		    || (mem_info[i].mem_size & (SIZE4K - 1))) {
+			ERROR("mem_info passed buffer 0x%x or size 0x%x is not 4k aligned\n",
+			     (unsigned int)mem_info[i].mem_addr,
+			     (unsigned int)mem_info[i].mem_size);
 			return false;
 		}
 
 		if ((mem_info[i].mem_addr + mem_info[i].mem_size) <
 		    mem_info[i].mem_addr) {
+			ERROR("overflow in mem_addr 0x%x add mem_size 0x%x\n",
+			      (unsigned int)mem_info[i].mem_addr,
+			      (unsigned int)mem_info[i].mem_size);
 			return false;
 		}
-		if (coreboot_get_memory_type(mem_info[i].mem_addr) !=
-		    CB_MEM_RAM) {
+		coreboot_memory_t mem_type = coreboot_get_memory_type(
+						mem_info[i].mem_addr,
+						mem_info[i].mem_size);
+		if (mem_type != CB_MEM_RAM && mem_type != CB_MEM_RESERVED) {
+			ERROR("memory region not in CB MEM RAM or RESERVED area: region start 0x%x size 0x%x\n",
+			     (unsigned int)mem_info[i].mem_addr,
+			     (unsigned int)mem_info[i].mem_size);
 			return false;
 		}
-
-		if (coreboot_get_memory_type
-		    (mem_info[i].mem_addr + mem_info[i].mem_size) !=
-		    CB_MEM_RAM) {
-			return false;
-		}
-
 	}
 	for (i = 0; i < src_vm_list_cnt; i++) {
 		if (source_vm_list[i] >= QTI_VM_LAST) {
+			ERROR("source_vm_list[%d] 0x%x is more then QTI_VM_LAST\n",
+			      i, (unsigned int)source_vm_list[i]);
 			return false;
 		}
 	}
 	for (i = 0; i < dst_vm_list_cnt; i++) {
 		if (dest_vm_list[i].dst_vm >= QTI_VM_LAST) {
+			ERROR("dest_vm_list[%d] 0x%x is more then QTI_VM_LAST\n",
+			      i, (unsigned int)dest_vm_list[i].dst_vm);
 			return false;
 		}
 	}
@@ -150,6 +165,7 @@ static uintptr_t qti_sip_mem_assign(void *handle, uint32_t smc_cc,
 	}
 	/* Validate input arg count & retrieve arg3-6 from NS Buffer. */
 	if ((x1 != QTI_SIP_SVC_MEM_ASSIGN_PARAM_ID) || (x5 == 0x0)) {
+		ERROR("invalid mem_assign param id or no mapping info\n");
 		goto unmap_return;
 	}
 
@@ -160,6 +176,8 @@ static uintptr_t qti_sip_mem_assign(void *handle, uint32_t smc_cc,
 		 SMC_32) ? (sizeof(uint32_t) * 4) : (sizeof(uint64_t) * 4);
 	if (qti_mmap_add_dynamic_region(dyn_map_start, dyn_map_size,
 				(MT_NS | MT_RO_DATA)) != 0) {
+		ERROR("map failed for params NS Buffer %x %x\n",
+		      (unsigned int)dyn_map_start, (unsigned int)dyn_map_size);
 		goto unmap_return;
 	}
 	/* Retrieve indirect args. */
@@ -174,6 +192,8 @@ static uintptr_t qti_sip_mem_assign(void *handle, uint32_t smc_cc,
 	}
 	/* Un-Map NS Buffer. */
 	if (qti_mmap_remove_dynamic_region(dyn_map_start, dyn_map_size) != 0) {
+		ERROR("unmap failed for params NS Buffer %x %x\n",
+		      (unsigned int)dyn_map_start, (unsigned int)dyn_map_size);
 		goto unmap_return;
 	}
 
@@ -191,6 +211,8 @@ static uintptr_t qti_sip_mem_assign(void *handle, uint32_t smc_cc,
 
 	if (qti_mmap_add_dynamic_region(dyn_map_start, dyn_map_size,
 					(MT_NS | MT_RO_DATA)) != 0) {
+		ERROR("map failed for params NS Buffer2 %x %x\n",
+		      (unsigned int)dyn_map_start, (unsigned int)dyn_map_size);
 		goto unmap_return;
 	}
 	memprot_info_t *mem_info_p = (memprot_info_t *) x2;
@@ -205,6 +227,7 @@ static uintptr_t qti_sip_mem_assign(void *handle, uint32_t smc_cc,
 				source_vm_list_p, src_vm_list_cnt,
 				dest_vm_list_p,
 				dst_vm_list_cnt) != true) {
+		ERROR("Param validation failed\n");
 		goto unmap_return;
 	}
 
@@ -219,8 +242,7 @@ static uintptr_t qti_sip_mem_assign(void *handle, uint32_t smc_cc,
 
 	for (int i = 0; i < dst_vm_list_cnt; i++) {
 		dest_vm_list[i].dst_vm = dest_vm_list_p[i].dst_vm;
-		dest_vm_list[i].dst_vm_perm =
-			dest_vm_list_p[i].dst_vm_perm;
+		dest_vm_list[i].dst_vm_perm = dest_vm_list_p[i].dst_vm_perm;
 		dest_vm_list[i].ctx = dest_vm_list_p[i].ctx;
 		dest_vm_list[i].ctx_size = dest_vm_list_p[i].ctx_size;
 	}
@@ -233,6 +255,8 @@ static uintptr_t qti_sip_mem_assign(void *handle, uint32_t smc_cc,
 	/* Un-Map NS Buffers. */
 	if (qti_mmap_remove_dynamic_region(dyn_map_start,
 				dyn_map_size) != 0) {
+		ERROR("unmap failed for params NS Buffer %x %x\n",
+		      (unsigned int)dyn_map_start, (unsigned int)dyn_map_size);
 		goto unmap_return;
 	}
 	/* Invoke API lib api. */
