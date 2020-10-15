@@ -18,6 +18,54 @@ HANDLE_EA_EL3_FIRST		:= 1
 include plat/marvell/marvell.mk
 
 #*********** A3700 *************
+
+# GICV3
+$(eval $(call add_define,CONFIG_GICV3))
+
+# CCI-400
+$(eval $(call add_define,USE_CCI))
+
+# Include GICv3 driver files
+include drivers/arm/gic/v3/gicv3.mk
+
+MARVELL_GIC_SOURCES	:=	${GICV3_SOURCES}			\
+				plat/common/plat_gicv3.c
+
+PLAT_INCLUDES		:=	-I$(PLAT_FAMILY_BASE)/$(PLAT)		\
+				-I$(PLAT_COMMON_BASE)/include		\
+				-I$(PLAT_INCLUDE_BASE)/common		\
+				-I$(MARVELL_DRV_BASE)			\
+				-I$/drivers/arm/gic/common/
+
+PLAT_BL_COMMON_SOURCES	:=	$(PLAT_COMMON_BASE)/aarch64/a3700_common.c \
+				$(MARVELL_COMMON_BASE)/marvell_cci.c	   \
+				$(MARVELL_DRV_BASE)/uart/a3700_console.S
+
+BL1_SOURCES		+=	$(PLAT_COMMON_BASE)/aarch64/plat_helpers.S \
+				lib/cpus/aarch64/cortex_a53.S
+
+BL31_PORTING_SOURCES	:=	$(PLAT_FAMILY_BASE)/$(PLAT)/board/pm_src.c
+
+MARVELL_DRV		:=	$(MARVELL_DRV_BASE)/comphy/phy-comphy-3700.c
+
+BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
+				$(PLAT_COMMON_BASE)/aarch64/plat_helpers.S \
+				$(PLAT_COMMON_BASE)/plat_pm.c		\
+				$(PLAT_COMMON_BASE)/dram_win.c		\
+				$(PLAT_COMMON_BASE)/io_addr_dec.c	\
+				$(PLAT_COMMON_BASE)/marvell_plat_config.c     \
+				$(PLAT_COMMON_BASE)/a3700_ea.c		\
+				$(PLAT_FAMILY_BASE)/$(PLAT)/plat_bl31_setup.c \
+				$(MARVELL_COMMON_BASE)/marvell_ddr_info.c	\
+				$(MARVELL_COMMON_BASE)/marvell_gicv3.c	\
+				$(MARVELL_GIC_SOURCES)			\
+				drivers/arm/cci/cci.c			\
+				$(BL31_PORTING_SOURCES)			\
+				$(PLAT_COMMON_BASE)/a3700_sip_svc.c	\
+				$(MARVELL_DRV)
+
+ifneq (${WTP},)
+
 DOIMAGEPATH	:= $(WTP)
 DOIMAGETOOL	:= $(DOIMAGEPATH)/wtptp/linux/tbb_linux
 
@@ -72,51 +120,6 @@ TIMBLDUARTARGS		:= $(MARVELL_SECURE_BOOT) UART $(IMAGESPATH) $(DOIMAGEPATH) $(CL
 				$(DDR_TOPOLOGY) 0 0 $(DOIMAGE_CFG) $(TIMNCFG) $(TIMNSIG) 0
 DOIMAGE_FLAGS		:= -r $(DOIMAGE_CFG) -v -D
 
-# GICV3
-$(eval $(call add_define,CONFIG_GICV3))
-
-# CCI-400
-$(eval $(call add_define,USE_CCI))
-
-# Include GICv3 driver files
-include drivers/arm/gic/v3/gicv3.mk
-
-MARVELL_GIC_SOURCES	:=	${GICV3_SOURCES}			\
-				plat/common/plat_gicv3.c
-
-PLAT_INCLUDES		:=	-I$(PLAT_FAMILY_BASE)/$(PLAT)		\
-				-I$(PLAT_COMMON_BASE)/include		\
-				-I$(PLAT_INCLUDE_BASE)/common		\
-				-I$(MARVELL_DRV_BASE)			\
-				-I$/drivers/arm/gic/common/
-
-PLAT_BL_COMMON_SOURCES	:=	$(PLAT_COMMON_BASE)/aarch64/a3700_common.c \
-				$(MARVELL_COMMON_BASE)/marvell_cci.c	   \
-				$(MARVELL_DRV_BASE)/uart/a3700_console.S
-
-BL1_SOURCES		+=	$(PLAT_COMMON_BASE)/aarch64/plat_helpers.S \
-				lib/cpus/aarch64/cortex_a53.S
-
-BL31_PORTING_SOURCES	:=	$(PLAT_FAMILY_BASE)/$(PLAT)/board/pm_src.c
-
-MARVELL_DRV		:=	$(MARVELL_DRV_BASE)/comphy/phy-comphy-3700.c
-
-BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
-				$(PLAT_COMMON_BASE)/aarch64/plat_helpers.S \
-				$(PLAT_COMMON_BASE)/plat_pm.c		\
-				$(PLAT_COMMON_BASE)/dram_win.c		\
-				$(PLAT_COMMON_BASE)/io_addr_dec.c	\
-				$(PLAT_COMMON_BASE)/marvell_plat_config.c     \
-				$(PLAT_COMMON_BASE)/a3700_ea.c		\
-				$(PLAT_FAMILY_BASE)/$(PLAT)/plat_bl31_setup.c \
-				$(MARVELL_COMMON_BASE)/marvell_ddr_info.c	\
-				$(MARVELL_COMMON_BASE)/marvell_gicv3.c	\
-				$(MARVELL_GIC_SOURCES)			\
-				drivers/arm/cci/cci.c			\
-				$(BL31_PORTING_SOURCES)			\
-				$(PLAT_COMMON_BASE)/a3700_sip_svc.c	\
-				$(MARVELL_DRV)
-
 mrvl_flash: ${BUILD_PLAT}/${FIP_NAME} ${DOIMAGETOOL}
 	$(shell truncate -s %128K ${BUILD_PLAT}/bl1.bin)
 	$(shell cat ${BUILD_PLAT}/bl1.bin ${BUILD_PLAT}/${FIP_NAME} > ${BUILD_PLAT}/${BOOT_IMAGE})
@@ -168,3 +171,10 @@ endif
 	@mv -t $(BUILD_PLAT) $(TIM_IMAGE) $(DOIMAGE_CFG) $(TIMN_IMAGE) $(TIMNCFG) $(WTMI_IMG) $(WTMI_SYSINIT_IMG) $(WTMI_MULTI_IMG)
 	@if [ "$(MARVELL_SECURE_BOOT)" = "1" ]; then mv -t $(BUILD_PLAT) $(WTMI_ENC_IMG) OtpHash.txt; fi
 	@find . -name "*.txt" | grep -E "CSK[[:alnum:]]_KeyHash.txt|Tim_msg.txt|TIMHash.txt" | xargs rm -f
+
+else # ${WTP}
+
+mrvl_flash:
+	$(error "Platform '${PLAT}' for target '$@' requires WTP. Please set WTP to point to the right directory")
+
+endif # ${WTP}
