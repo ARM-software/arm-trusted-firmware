@@ -22,14 +22,14 @@ MEMORY {
 SECTIONS
 {
     . = BL32_BASE;
-   ASSERT(. == ALIGN(PAGE_SIZE),
-          "BL32_BASE address is not aligned on a page boundary.")
+    ASSERT(. == ALIGN(PAGE_SIZE),
+           "BL32_BASE address is not aligned on a page boundary.")
 
 #if SEPARATE_CODE_AND_RODATA
     .text . : {
         __TEXT_START__ = .;
         *entrypoint.o(.text*)
-        *(.text*)
+        *(SORT_BY_ALIGNMENT(.text*))
         *(.vectors)
         . = ALIGN(PAGE_SIZE);
         __TEXT_END__ = .;
@@ -46,7 +46,7 @@ SECTIONS
 
     .rodata . : {
         __RODATA_START__ = .;
-        *(.rodata*)
+        *(SORT_BY_ALIGNMENT(.rodata*))
 
 	RODATA_COMMON
 
@@ -61,8 +61,8 @@ SECTIONS
     ro . : {
         __RO_START__ = .;
         *entrypoint.o(.text*)
-        *(.text*)
-        *(.rodata*)
+        *(SORT_BY_ALIGNMENT(.text*))
+        *(SORT_BY_ALIGNMENT(.rodata*))
 
 	RODATA_COMMON
 
@@ -76,7 +76,7 @@ SECTIONS
         /*
          * Memory page(s) mapped to this section will be marked as
          * read-only, executable.  No RW data from the next section must
-         * creep in.  Ensure the rest of the current memory block is unused.
+         * creep in.  Ensure the rest of the current memory page is unused.
          */
         . = ALIGN(PAGE_SIZE);
         __RO_END__ = .;
@@ -134,10 +134,12 @@ SECTIONS
 #endif
 
     /*
-     * Define a linker symbol to mark end of the RW memory area for this
+     * Define a linker symbol to mark the end of the RW memory area for this
      * image.
      */
     __RW_END__ = .;
 
-   __BL32_END__ = .;
+    __BL32_END__ = .;
+
+    ASSERT(. <= BL32_LIMIT, "BL32 image has exceeded its limit.")
 }
