@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -68,7 +68,8 @@ else
 				lib/cpus/aarch64/cortex_a65.S		\
 				lib/cpus/aarch64/cortex_a65ae.S		\
 				lib/cpus/aarch64/cortex_klein.S		\
-				lib/cpus/aarch64/cortex_matterhorn.S
+				lib/cpus/aarch64/cortex_matterhorn.S	\
+				lib/cpus/aarch64/cortex_makalu.S
 
 # AArch64/AArch32 cores
 	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S	\
