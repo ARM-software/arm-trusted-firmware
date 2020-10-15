@@ -60,7 +60,7 @@ static int intel_fpga_sdm_write_buffer(struct fpga_config_info *buffer)
 
 		buffer->size_written += args[2];
 		mailbox_send_cmd_async(&send_id, MBOX_RECONFIG_DATA, args,
-					3, CMD_INDIRECT);
+					3U, CMD_INDIRECT);
 
 		buffer->subblocks_sent++;
 		max_blocks--;
@@ -190,9 +190,9 @@ static int intel_fpga_config_start(uint32_t config_type)
 
 	mailbox_clear_response();
 
-	mailbox_send_cmd(1, MBOX_CMD_CANCEL, NULL, 0, CMD_CASUAL, NULL, 0);
+	mailbox_send_cmd(1U, MBOX_CMD_CANCEL, NULL, 0U, CMD_CASUAL, NULL, 0U);
 
-	status = mailbox_send_cmd(1, MBOX_RECONFIG, NULL, 0, CMD_CASUAL,
+	status = mailbox_send_cmd(1U, MBOX_RECONFIG, NULL, 0U, CMD_CASUAL,
 			response, ARRAY_SIZE(response));
 
 	if (status < 0)
@@ -351,7 +351,7 @@ uint32_t intel_secure_reg_update(uint64_t reg_addr, uint32_t mask,
 /* Intel Remote System Update (RSU) services */
 uint64_t intel_rsu_update_address;
 
-static uint32_t intel_rsu_status(uint64_t *respbuf, uint32_t respbuf_sz)
+static uint32_t intel_rsu_status(uint64_t *respbuf, unsigned int respbuf_sz)
 {
 	if (mailbox_rsu_status((uint32_t *)respbuf, respbuf_sz) < 0)
 		return INTEL_SIP_SMC_RSU_ERROR;
@@ -384,9 +384,9 @@ static uint32_t intel_rsu_retry_counter(uint32_t *respbuf, uint32_t respbuf_sz,
 }
 
 /* Mailbox services */
-static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args, int len,
-				    int urgent, uint32_t *response,
-				    int resp_len, int *mbox_status,
+static uint32_t intel_mbox_send_cmd(uint32_t cmd, uint32_t *args, uint32_t len,
+				    uint32_t urgent, uint32_t *response,
+				    uint32_t resp_len, int *mbox_status,
 				    int *len_in_resp)
 {
 	*len_in_resp = 0;

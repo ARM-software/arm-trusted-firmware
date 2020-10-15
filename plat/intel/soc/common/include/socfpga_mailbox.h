@@ -136,17 +136,22 @@
 
 /* Mailbox Function Definitions */
 
-void mailbox_set_int(int interrupt_input);
+void mailbox_set_int(uint32_t interrupt_input);
 int mailbox_init(void);
 void mailbox_set_qspi_close(void);
 void mailbox_set_qspi_open(void);
 void mailbox_set_qspi_direct(void);
-int mailbox_send_cmd(uint32_t job_id, unsigned int cmd, uint32_t *args,
-			int len, int urgent, uint32_t *response, int resp_len);
-int mailbox_send_cmd_async(uint32_t *job_id, unsigned int cmd, uint32_t *args,
-				int len, int indirect);
-int mailbox_read_response(uint32_t *job_id, uint32_t *response, int resp_len);
-int iterate_resp(int mbox_resp_len, uint32_t *resp_buf, int resp_len);
+
+int mailbox_send_cmd(uint32_t job_id, uint32_t cmd, uint32_t *args,
+			unsigned int len, uint32_t urgent, uint32_t *response,
+			unsigned int resp_len);
+int mailbox_send_cmd_async(uint32_t *job_id, uint32_t cmd, uint32_t *args,
+			unsigned int len, unsigned int indirect);
+int mailbox_read_response(uint32_t *job_id, uint32_t *response,
+			unsigned int resp_len);
+unsigned int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
+			unsigned int resp_len);
+
 void mailbox_reset_cold(void);
 void mailbox_clear_response(void);
 
