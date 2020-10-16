@@ -11,7 +11,10 @@
 #include <stdint.h>
 
 #include <common/debug.h>
+#include <lib/mmio.h>
+#include <lib/smccc.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
+#include <services/arm_arch_svc.h>
 
 #include <platform_def.h>
 #include <qti_plat.h>
@@ -145,4 +148,47 @@ int qti_mmap_remove_dynamic_region(uintptr_t base_va, size_t size)
 {
 	qti_align_mem_region(base_va, size, &base_va, &size);
 	return mmap_remove_dynamic_region(base_va, size);
+}
+
+/*
+ * This function returns soc version which mainly consist of below fields
+ *
+ * soc_version[30:24] = JEP-106 continuation code for the SiP
+ * soc_version[23:16] = JEP-106 identification code with parity bit for the SiP
+ * soc_version[0:15]  = Implementation defined SoC ID
+ */
+int32_t plat_get_soc_version(void)
+{
+	uint32_t soc_version = (QTI_SOC_VERSION & QTI_SOC_VERSION_MASK);
+	uint32_t jep106az_code = (JEDEC_QTI_BKID << QTI_SOC_CONTINUATION_SHIFT)
+			 | (JEDEC_QTI_MFID << QTI_SOC_IDENTIFICATION_SHIFT);
+	return (int32_t)(jep106az_code | (soc_version));
+}
+
+/*
+ * This function returns soc revision in below format
+ *
+ *   soc_revision[0:30] = SOC revision of specific SOC
+ */
+int32_t plat_get_soc_revision(void)
+{
+	return mmio_read_32(QTI_SOC_REVISION_REG) & QTI_SOC_REVISION_MASK;
+}
+
+/*****************************************************************************
+ * plat_smccc_feature_available() - This function checks whether SMCCC feature
+ *                                  is availabile for the platform or not.
+ * @fid: SMCCC function id
+ *
+ * Return SMC_ARCH_CALL_SUCCESS if SMCCC feature is available and
+ * SMC_ARCH_CALL_NOT_SUPPORTED otherwise.
+ *****************************************************************************/
+int32_t plat_smccc_feature_available(u_register_t fid)
+{
+	switch (fid) {
+	case SMCCC_ARCH_SOC_ID:
+		return SMC_ARCH_CALL_SUCCESS;
+	default:
+		return SMC_ARCH_CALL_NOT_SUPPORTED;
+	}
 }

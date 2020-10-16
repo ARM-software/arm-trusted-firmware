@@ -12,6 +12,14 @@
  * development platforms
  */
 
+/*
+ * Defines used to retrieve QTI SOC Version
+ */
+#define JEDEC_QTI_BKID	U(0x0)
+#define JEDEC_QTI_MFID	U(0x70)
+#define QTI_SOC_CONTINUATION_SHIFT	U(24)
+#define QTI_SOC_IDENTIFICATION_SHIFT	U(16)
+
 /* Size of cacheable stacks */
 #define PLATFORM_STACK_SIZE	0x1000
 

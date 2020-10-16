@@ -89,7 +89,7 @@ static void setup_cbmem_console(uintptr_t baseaddr)
 					    CONSOLE_FLAG_CRASH);
 }
 
-coreboot_memory_t coreboot_get_memory_type(uintptr_t address)
+coreboot_memory_t coreboot_get_memory_type(uintptr_t start, size_t size)
 {
 	int i;
 
@@ -98,9 +98,11 @@ coreboot_memory_t coreboot_get_memory_type(uintptr_t address)
 
 		if (range->type == CB_MEM_NONE)
 			break;	/* end of table reached */
-		if (address >= range->start &&
-		    address - range->start < range->size)
+		if ((start >= range->start) &&
+		    (start - range->start < range->size) &&
+		    (size <= range->size - (start - range->start))) {
 			return range->type;
+		}
 	}
 
 	return CB_MEM_NONE;
