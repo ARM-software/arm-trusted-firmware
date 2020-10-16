@@ -42,7 +42,7 @@ depending on project requirement and partner feedback.
 +-----------------+---------------------------+------------------------------+
 | v2.3            | 4th week of Apr '20       | 1st week of Apr '20          |
 +-----------------+---------------------------+------------------------------+
-| v2.4            | 4th week of Oct '20       | 1st week of Oct '20          |
+| v2.4            | 2nd week of Nov '20       | 4th week of Oct '20          |
 +-----------------+---------------------------+------------------------------+
 
 Removal of Deprecated Interfaces
