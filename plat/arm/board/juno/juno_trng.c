@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <arm_acle.h>
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -34,6 +35,8 @@ static bool output_valid(void)
 	}
 	return false; /* No output data available. */
 }
+
+static uint32_t crc_value = ~0U;
 
 /*
  * This function fills `buf` with 8 bytes of entropy.
@@ -69,14 +72,14 @@ bool juno_getentropy(uint64_t *buf)
 			return false;
 	}
 
-	/* XOR each two 32-bit registers together, combine the pairs */
-	ret = mmio_read_32(TRNG_BASE + 0);
-	ret ^= mmio_read_32(TRNG_BASE + 4);
-	ret <<= 32;
+	/* CRC each two 32-bit registers together, combine the pairs */
+	crc_value = __crc32w(crc_value, mmio_read_32(TRNG_BASE + 0));
+	crc_value = __crc32w(crc_value, mmio_read_32(TRNG_BASE + 4));
+	ret = (uint64_t)crc_value << 32;
 
-	ret |= mmio_read_32(TRNG_BASE + 8);
-	ret ^= mmio_read_32(TRNG_BASE + 12);
-	*buf = ret;
+	crc_value = __crc32w(crc_value, mmio_read_32(TRNG_BASE + 8));
+	crc_value = __crc32w(crc_value, mmio_read_32(TRNG_BASE + 12));
+	*buf = ret | crc_value;
 
 	/* Acknowledge current cycle, clear output registers. */
 	mmio_write_32(TRNG_BASE + TRNG_STATUS, 1);

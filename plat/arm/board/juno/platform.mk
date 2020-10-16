@@ -164,6 +164,12 @@ ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
     endif
 endif
 
+BL1_CPPFLAGS += -march=armv8-a+crc
+BL2_CPPFLAGS += -march=armv8-a+crc
+BL2U_CPPFLAGS += -march=armv8-a+crc
+BL31_CPPFLAGS += -march=armv8-a+crc
+BL32_CPPFLAGS += -march=armv8-a+crc
+
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES		+=	plat/arm/board/juno/fdts/${PLAT}_fw_config.dts	\
 				plat/arm/board/juno/fdts/${PLAT}_tb_fw_config.dts
