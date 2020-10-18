@@ -663,7 +663,8 @@ static int psci_get_ns_ep_info(entry_point_info_t *ep,
 
 		mode = ((ns_scr_el3 & SCR_HCE_BIT) != 0U) ? MODE_EL2 : MODE_EL1;
 
-		ep->spsr = SPSR_64(mode, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+		ep->spsr = SPSR_64((uint64_t)mode, MODE_SP_ELX,
+				   DISABLE_ALL_EXCEPTIONS);
 	} else {
 
 		mode = ((ns_scr_el3 & SCR_HCE_BIT) != 0U) ?
@@ -675,7 +676,8 @@ static int psci_get_ns_ep_info(entry_point_info_t *ep,
 		 */
 		daif = DAIF_ABT_BIT | DAIF_IRQ_BIT | DAIF_FIQ_BIT;
 
-		ep->spsr = SPSR_MODE32(mode, entrypoint & 0x1, ee, daif);
+		ep->spsr = SPSR_MODE32((uint64_t)mode, entrypoint & 0x1, ee,
+				       daif);
 	}
 
 	return PSCI_E_SUCCESS;

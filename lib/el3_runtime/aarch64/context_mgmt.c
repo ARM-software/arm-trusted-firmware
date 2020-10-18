@@ -710,7 +710,7 @@ void cm_write_scr_el3_bit(uint32_t security_state,
 	assert(ctx != NULL);
 
 	/* Ensure that the bit position is a valid one */
-	assert(((1U << bit_pos) & SCR_VALID_BIT_MASK) != 0U);
+	assert(((1UL << bit_pos) & SCR_VALID_BIT_MASK) != 0U);
 
 	/* Ensure that the 'value' is only a bit wide */
 	assert(value <= 1U);
@@ -721,7 +721,7 @@ void cm_write_scr_el3_bit(uint32_t security_state,
 	 */
 	state = get_el3state_ctx(ctx);
 	scr_el3 = read_ctx_reg(state, CTX_SCR_EL3);
-	scr_el3 &= ~(1U << bit_pos);
+	scr_el3 &= ~(1UL << bit_pos);
 	scr_el3 |= (u_register_t)value << bit_pos;
 	write_ctx_reg(state, CTX_SCR_EL3, scr_el3);
 }

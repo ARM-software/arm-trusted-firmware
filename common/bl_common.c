@@ -50,8 +50,8 @@ static int dyn_is_auth_disabled(void)
 uintptr_t page_align(uintptr_t value, unsigned dir)
 {
 	/* Round up the limit to the next page boundary */
-	if ((value & (PAGE_SIZE - 1U)) != 0U) {
-		value &= ~(PAGE_SIZE - 1U);
+	if ((value & PAGE_SIZE_MASK) != 0U) {
+		value &= ~PAGE_SIZE_MASK;
 		if (dir == UP)
 			value += PAGE_SIZE;
 	}

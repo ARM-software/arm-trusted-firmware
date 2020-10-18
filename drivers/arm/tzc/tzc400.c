@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -91,9 +91,9 @@ static void _tzc400_set_gate_keeper(uintptr_t base,
 	open_status = get_gate_keeper_os(base);
 
 	if (val != 0)
-		open_status |=  (1U << filter);
+		open_status |=  (1UL << filter);
 	else
-		open_status &= ~(1U << filter);
+		open_status &= ~(1UL << filter);
 
 	_tzc400_write_gate_keeper(base, (open_status & GATE_KEEPER_OR_MASK) <<
 			      GATE_KEEPER_OR_SHIFT);

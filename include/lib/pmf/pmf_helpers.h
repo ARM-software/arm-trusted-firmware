@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -174,24 +174,26 @@ typedef struct pmf_svc_desc {
 			unsigned long long ts)				\
 	{								\
 		CASSERT(_flags != 0, select_proper_config);		\
-		PMF_VALIDATE_TID(_name, tid);				\
+		PMF_VALIDATE_TID(_name, (uint64_t)tid);			\
 		uintptr_t base_addr = (uintptr_t) pmf_ts_mem_ ## _name;	\
 		if (((_flags) & PMF_STORE_ENABLE) != 0)			\
-			__pmf_store_timestamp(base_addr, tid, ts);	\
+			__pmf_store_timestamp(base_addr,		\
+				(uint64_t)tid, ts);			\
 		if (((_flags) & PMF_DUMP_ENABLE) != 0)			\
-			__pmf_dump_timestamp(tid, ts);			\
+			__pmf_dump_timestamp((uint64_t)tid, ts);	\
 	}								\
 	void pmf_capture_timestamp_with_cache_maint_ ## _name(		\
 			unsigned int tid,				\
 			unsigned long long ts)				\
 	{								\
 		CASSERT(_flags != 0, select_proper_config);		\
-		PMF_VALIDATE_TID(_name, tid);				\
+		PMF_VALIDATE_TID(_name, (uint64_t)tid);			\
 		uintptr_t base_addr = (uintptr_t) pmf_ts_mem_ ## _name;	\
 		if (((_flags) & PMF_STORE_ENABLE) != 0)			\
-			__pmf_store_timestamp_with_cache_maint(base_addr, tid, ts);\
+			__pmf_store_timestamp_with_cache_maint(		\
+				base_addr, (uint64_t)tid, ts);		\
 		if (((_flags) & PMF_DUMP_ENABLE) != 0)			\
-			__pmf_dump_timestamp(tid, ts);			\
+			__pmf_dump_timestamp((uint64_t)tid, ts);	\
 	}
 
 /*
