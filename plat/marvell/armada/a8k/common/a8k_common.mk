@@ -33,6 +33,8 @@ $(eval $(call add_define,AP_NUM))
 DOIMAGEPATH		?=	tools/marvell/doimage
 DOIMAGETOOL		?=	${DOIMAGEPATH}/doimage
 
+include plat/marvell/marvell.mk
+
 ROM_BIN_EXT ?= $(BUILD_PLAT)/ble.bin
 DOIMAGE_FLAGS	+= -b $(ROM_BIN_EXT) $(NAND_DOIMAGE_FLAGS) $(DOIMAGE_SEC_FLAGS)
 

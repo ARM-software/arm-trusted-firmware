@@ -15,8 +15,6 @@ MARVELL_DRV_BASE		:= drivers/marvell
 MARVELL_COMMON_BASE		:= $(MARVELL_PLAT_BASE)/common
 HANDLE_EA_EL3_FIRST		:= 1
 
-include plat/marvell/marvell.mk
-
 #*********** A3700 *************
 
 # GICV3
@@ -68,6 +66,8 @@ ifneq (${WTP},)
 
 DOIMAGEPATH	:= $(WTP)
 DOIMAGETOOL	:= $(DOIMAGEPATH)/wtptp/linux/tbb_linux
+
+include plat/marvell/marvell.mk
 
 ifeq ($(MARVELL_SECURE_BOOT),1)
 DOIMAGE_CFG	:= $(DOIMAGEPATH)/atf-tim.txt
