@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 NXP
+ * Copyright 2018-2023 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -88,6 +88,12 @@ void dram_pll_init(unsigned int drate)
 	mmio_clrbits_32(DRAM_PLL_CTRL, (1 << 9));
 
 	switch (drate) {
+	case 4000:
+		mmio_write_32(DRAM_PLL_CTRL + 0x4, (250 << 12) | (3 << 4) | 1);
+		break;
+	case 3200:
+		mmio_write_32(DRAM_PLL_CTRL + 0x4, (200 << 12) | (3 << 4) | 1);
+		break;
 	case 2400:
 		mmio_write_32(DRAM_PLL_CTRL + 0x4, (300 << 12) | (3 << 4) | 2);
 		break;
