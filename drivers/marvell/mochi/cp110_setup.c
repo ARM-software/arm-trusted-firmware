@@ -136,7 +136,7 @@ enum axi_attr {
 #define USB3H_1_STREAM_ID_REG	(RFU_STREAM_ID_BASE + 0x10)
 #define SATA_0_STREAM_ID_REG	(RFU_STREAM_ID_BASE + 0x14)
 #define SATA_1_STREAM_ID_REG	(RFU_STREAM_ID_BASE + 0x18)
-#define SDIO_0_STREAM_ID_REG	(RFU_STREAM_ID_BASE + 0x28)
+#define SDIO_STREAM_ID_REG	(RFU_STREAM_ID_BASE + 0x28)
 
 #define CP_DMA_0_STREAM_ID_REG  (0x6B0010)
 #define CP_DMA_1_STREAM_ID_REG  (0x6D0010)
@@ -144,14 +144,14 @@ enum axi_attr {
 /* We allocate IDs 128-255 for PCIe */
 #define MAX_STREAM_ID		(0x80)
 
-uintptr_t stream_id_reg[] = {
+static uintptr_t stream_id_reg[] = {
 	USB3H_0_STREAM_ID_REG,
 	USB3H_1_STREAM_ID_REG,
 	CP_DMA_0_STREAM_ID_REG,
 	CP_DMA_1_STREAM_ID_REG,
 	SATA_0_STREAM_ID_REG,
 	SATA_1_STREAM_ID_REG,
-	SDIO_0_STREAM_ID_REG,
+	SDIO_STREAM_ID_REG,
 	0
 };
 

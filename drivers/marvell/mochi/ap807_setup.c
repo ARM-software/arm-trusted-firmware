@@ -15,8 +15,9 @@
 #include <drivers/marvell/mci.h>
 #include <drivers/marvell/mochi/ap_setup.h>
 #include <lib/mmio.h>
+#include <lib/utils_def.h>
 
-#include <mvebu_def.h>
+#include <a8k_plat_def.h>
 
 #define SMMU_sACR				(MVEBU_SMMU_BASE + 0x10)
 #define SMMU_sACR_PG_64K			(1 << 16)
@@ -70,6 +71,23 @@
 #define MVEBU_AXI_ATTR_BASE			(MVEBU_REGS_BASE + 0x6F4580)
 #define MVEBU_AXI_ATTR_REG(index)		(MVEBU_AXI_ATTR_BASE + \
 							0x4 * index)
+
+#define XOR_STREAM_ID_REG(ch)	(MVEBU_REGS_BASE + 0x410010 + (ch) * 0x20000)
+#define XOR_STREAM_ID_MASK	0xFFFF
+#define SDIO_STREAM_ID_REG	(MVEBU_RFU_BASE + 0x4600)
+#define SDIO_STREAM_ID_MASK	0xFF
+
+/* Do not use the default Stream ID 0 */
+#define A807_STREAM_ID_BASE	(0x1)
+
+static uintptr_t stream_id_reg[] = {
+	XOR_STREAM_ID_REG(0),
+	XOR_STREAM_ID_REG(1),
+	XOR_STREAM_ID_REG(2),
+	XOR_STREAM_ID_REG(3),
+	SDIO_STREAM_ID_REG,
+	0
+};
 
 enum axi_attr {
 	AXI_SDIO_ATTR = 0,
@@ -160,6 +178,21 @@ static void mci_remap_indirect_access_base(void)
 		mmio_write_32(MCIX4_807_REG_START_ADDR_REG(mci),
 				  MVEBU_MCI_REG_BASE_REMAP(mci) >>
 				  MCI_REMAP_OFF_SHIFT);
+}
+
+/* Set a unique stream id for all DMA capable devices */
+static void ap807_stream_id_init(void)
+{
+	uint32_t i;
+
+	for (i = 0;
+	     stream_id_reg[i] != 0 && i < ARRAY_SIZE(stream_id_reg); i++) {
+		uint32_t mask = stream_id_reg[i] == SDIO_STREAM_ID_REG ?
+				SDIO_STREAM_ID_MASK : XOR_STREAM_ID_MASK;
+
+		mmio_clrsetbits_32(stream_id_reg[i], mask,
+				   i + A807_STREAM_ID_BASE);
+	}
 }
 
 static void ap807_axi_attr_init(void)
@@ -264,6 +297,9 @@ void ap_init(void)
 
 	/* configure CCU windows */
 	init_ccu(MVEBU_AP0);
+
+	/* Set the stream IDs for DMA masters */
+	ap807_stream_id_init();
 
 	/* configure the SMMU */
 	setup_smmu();
