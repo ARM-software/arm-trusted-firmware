@@ -42,6 +42,8 @@ Both GCC and Clang compiler toolchains have support for *GNU99* mode, though
 Clang does lack support for a small number of GNU extensions. These
 missing extensions are rarely used, however, and should not pose a problem.
 
+.. _misra-compliance:
+
 MISRA Compliance
 ----------------
 
