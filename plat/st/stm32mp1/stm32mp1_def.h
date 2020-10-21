@@ -375,8 +375,13 @@ enum ddr_type {
  ******************************************************************************/
 #define STM32MP1_TZC_BASE		U(0x5C006000)
 
+#if STM32MP13
+#define STM32MP1_FILTER_BIT_ALL		TZC_400_REGION_ATTR_FILTER_BIT(0)
+#endif
+#if STM32MP15
 #define STM32MP1_FILTER_BIT_ALL		(TZC_400_REGION_ATTR_FILTER_BIT(0) | \
 					 TZC_400_REGION_ATTR_FILTER_BIT(1))
+#endif
 
 /*******************************************************************************
  * STM32MP1 SDMMC
