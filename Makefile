@@ -865,6 +865,7 @@ $(eval $(call assert_booleans,\
         CTX_INCLUDE_PAUTH_REGS \
         CTX_INCLUDE_MTE_REGS \
         CTX_INCLUDE_EL2_REGS \
+        CTX_INCLUDE_NEVE_REGS \
         DEBUG \
         DYN_DISABLE_AUTH \
         EL3_EXCEPTION_HANDLING \
@@ -953,6 +954,7 @@ $(eval $(call add_defines,\
         EL3_EXCEPTION_HANDLING \
         CTX_INCLUDE_MTE_REGS \
         CTX_INCLUDE_EL2_REGS \
+        CTX_INCLUDE_NEVE_REGS \
         DECRYPTION_SUPPORT_${DECRYPTION_SUPPORT} \
         ENABLE_AMU \
         ENABLE_ASSERTIONS \

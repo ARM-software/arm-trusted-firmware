@@ -65,9 +65,13 @@ func el2_sysregs_context_save
 	mrs	x9, cptr_el2
 	stp	x17, x9, [x0, #CTX_CNTVOFF_EL2]
 
-	mrs	x10, dbgvcr32_el2
 	mrs	x11, elr_el2
+#if CTX_INCLUDE_AARCH32_REGS
+	mrs	x10, dbgvcr32_el2
 	stp	x10, x11, [x0, #CTX_DBGVCR32_EL2]
+#else
+	str	x11, [x0, #CTX_ELR_EL2]
+#endif
 
 	mrs	x14, esr_el2
 	mrs	x15, far_el2
@@ -90,8 +94,12 @@ func el2_sysregs_context_save
 	stp	x13, x14, [x0, #CTX_ICH_VMCR_EL2]
 
 	mrs	x15, mdcr_el2
+#if ENABLE_SPE_FOR_LOWER_ELS
 	mrs	x16, PMSCR_EL2
 	stp	x15, x16, [x0, #CTX_MDCR_EL2]
+#else
+	str	x15, [x0, #CTX_MDCR_EL2]
+#endif
 
 	mrs	x17, sctlr_el2
 	mrs	x9, spsr_el2
@@ -185,8 +193,10 @@ func el2_sysregs_context_save
 	mrs	x9, contextidr_el2
 	stp	x17, x9, [x0, #CTX_CNTHV_TVAL_EL2]
 
+#if CTX_INCLUDE_AARCH32_REGS
 	mrs	x10, sder32_el2
 	str	x10, [x0, #CTX_SDER32_EL2]
+#endif
 
 	mrs	x11, ttbr1_el2
 	str	x11, [x0, #CTX_TTBR1_EL2]
@@ -194,8 +204,10 @@ func el2_sysregs_context_save
 	mrs	x12, vdisr_el2
 	str	x12, [x0, #CTX_VDISR_EL2]
 
+#if CTX_INCLUDE_NEVE_REGS
 	mrs	x13, vncr_el2
 	str	x13, [x0, #CTX_VNCR_EL2]
+#endif
 
 	mrs	x14, vsesr_el2
 	str	x14, [x0, #CTX_VSESR_EL2]
@@ -255,8 +267,12 @@ func el2_sysregs_context_restore
 	msr	cntvoff_el2, x17
 	msr	cptr_el2, x9
 
+#if CTX_INCLUDE_AARCH32_REGS
 	ldp	x10, x11, [x0, #CTX_DBGVCR32_EL2]
 	msr	dbgvcr32_el2, x10
+#else
+	ldr	x11, [x0, #CTX_ELR_EL2]
+#endif
 	msr	elr_el2, x11
 
 	ldp	x14, x15, [x0, #CTX_ESR_EL2]
@@ -279,9 +295,13 @@ func el2_sysregs_context_restore
 	msr	ICH_VMCR_EL2, x13
 	msr	mair_el2, x14
 
+#if ENABLE_SPE_FOR_LOWER_ELS
 	ldp	x15, x16, [x0, #CTX_MDCR_EL2]
-	msr	mdcr_el2, x15
 	msr	PMSCR_EL2, x16
+#else
+	ldr	x15, [x0, #CTX_MDCR_EL2]
+#endif
+	msr	mdcr_el2, x15
 
 	ldp	x17, x9, [x0, #CTX_SCTLR_EL2]
 	msr	sctlr_el2, x17
@@ -374,8 +394,10 @@ func el2_sysregs_context_restore
 	msr	cnthv_tval_el2, x9
 	msr	contextidr_el2, x10
 
+#if CTX_INCLUDE_AARCH32_REGS
 	ldr	x11, [x0, #CTX_SDER32_EL2]
 	msr	sder32_el2, x11
+#endif
 
 	ldr	x12, [x0, #CTX_TTBR1_EL2]
 	msr	ttbr1_el2, x12
@@ -383,8 +405,10 @@ func el2_sysregs_context_restore
 	ldr	x13, [x0, #CTX_VDISR_EL2]
 	msr	vdisr_el2, x13
 
+#if CTX_INCLUDE_NEVE_REGS
 	ldr	x14, [x0, #CTX_VNCR_EL2]
 	msr	vncr_el2, x14
+#endif
 
 	ldr	x15, [x0, #CTX_VSESR_EL2]
 	msr	vsesr_el2, x15

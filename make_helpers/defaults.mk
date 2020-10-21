@@ -62,6 +62,11 @@ CTX_INCLUDE_FPREGS		:= 0
 # world. It is not needed to use it in the Non-secure world.
 CTX_INCLUDE_PAUTH_REGS		:= 0
 
+# Include Nested virtualization control (Armv8.4-NV) registers in cpu context.
+# This must be set to 1 if architecture implements Nested Virtualization
+# Extension and platform wants to use this feature in the Secure world
+CTX_INCLUDE_NEVE_REGS		:= 0
+
 # Debug build
 DEBUG				:= 0
 
