@@ -124,6 +124,8 @@ mrvl_flash: ${BUILD_PLAT}/${FIP_NAME} ${DOIMAGETOOL}
 	$(shell truncate -s %128K ${BUILD_PLAT}/bl1.bin)
 	$(shell cat ${BUILD_PLAT}/bl1.bin ${BUILD_PLAT}/${FIP_NAME} > ${BUILD_PLAT}/${BOOT_IMAGE})
 	$(shell truncate -s %4 ${BUILD_PLAT}/${BOOT_IMAGE})
+	$(if $(value MV_DDR_PATH),,$(error "Platform '${PLAT}' for target '$@' requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
+	${Q}${MAKE} --no-print-directory -C ${DOIMAGEPATH} WTMI_IMG=$(WTMI_IMG) MV_DDR_PATH=$(MV_DDR_PATH)
 	$(shell truncate -s %4 $(WTMI_IMG))
 	@echo
 	@echo "Building uart images"
