@@ -24,4 +24,24 @@
 		mbedtls_heap_addr = <0x0 0x0>;
 		mbedtls_heap_size = <0x0>;
 	};
+
+	secure-partitions {
+		compatible = "arm,sp";
+		cactus-primary {
+			uuid = <0xb4b5671e 0x4a904fe1 0xb81ffb13 0xdae1dacb>;
+			load-address = <0xfe000000>;
+			owner = "SiP";
+		};
+
+		cactus-secondary {
+			uuid = <0xd1582309 0xf02347b9 0x827c4464 0xf5578fc8>;
+			load-address = <0xfe100000>;
+			owner = "Plat";
+		};
+
+		cactus-tertiary {
+			uuid = <0x79b55c73 0x1d8c44b9 0x859361e1 0x770ad8d2>;
+			load-address = <0xfe200000>;
+		};
+	};
 };

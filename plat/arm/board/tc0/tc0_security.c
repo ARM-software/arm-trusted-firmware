@@ -8,7 +8,7 @@
 #include <platform_def.h>
 
 static const arm_tzc_regions_info_t tzc_regions[] = {
-	ARM_TZC_REGIONS_DEF,
+	TC0_TZC_REGIONS_DEF,
 	{}
 };
 
