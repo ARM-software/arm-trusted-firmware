@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -163,7 +163,13 @@ uint32_t fdt_osc_read_uint32_default(enum stm32mp_osc_id osc_id,
  */
 static int fdt_get_rcc_node(void *fdt)
 {
-	return fdt_node_offset_by_compatible(fdt, -1, DT_RCC_CLK_COMPAT);
+	static int node;
+
+	if (node <= 0) {
+		node = fdt_node_offset_by_compatible(fdt, -1, DT_RCC_CLK_COMPAT);
+	}
+
+	return node;
 }
 
 /*
