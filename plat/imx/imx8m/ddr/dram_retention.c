@@ -18,8 +18,10 @@
 #define GPC_PU_PWRHSK		(IMX_GPC_BASE + 0x01FC)
 #define CCM_SRC_CTRL_OFFSET     (IMX_CCM_BASE + 0x800)
 #define CCM_CCGR_OFFSET         (IMX_CCM_BASE + 0x4000)
+#define CCM_TARGET_ROOT_OFFSET	(IMX_CCM_BASE + 0x8000)
 #define CCM_SRC_CTRL(n)		(CCM_SRC_CTRL_OFFSET + 0x10 * (n))
 #define CCM_CCGR(n)		(CCM_CCGR_OFFSET + 0x10 * (n))
+#define CCM_TARGET_ROOT(n)	(CCM_TARGET_ROOT_OFFSET + 0x80 * (n))
 
 #define DRAM_PLL_CTRL		(IMX_ANAMIX_BASE + 0x50)
 
@@ -141,6 +143,10 @@ void dram_exit_retention(void)
 #endif
 	mmio_write_32(CCM_CCGR(5), 2);
 	mmio_write_32(CCM_SRC_CTRL(15), 2);
+
+	/* change the clock source of dram_apb_clk_root */
+	mmio_write_32(CCM_TARGET_ROOT(65) + 0x8, (0x7 << 24) | (0x7 << 16));
+	mmio_write_32(CCM_TARGET_ROOT(65) + 0x4, (0x4 << 24) | (0x3 << 16));
 
 	/* disable iso */
 	mmio_setbits_32(IMX_GPC_BASE + PU_PGC_UP_TRG, BIT(5));
