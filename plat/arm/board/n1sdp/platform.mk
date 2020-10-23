@@ -69,7 +69,7 @@ HW_ASSISTED_COHERENCY			:=	1
 USE_COHERENT_MEM			:=	0
 
 # Enable the flag since N1SDP has a system level cache
-NEOVERSE_N1_EXTERNAL_LLC		:=	1
+NEOVERSE_Nx_EXTERNAL_LLC		:=	1
 include plat/arm/common/arm_common.mk
 include plat/arm/css/common/css_common.mk
 include plat/arm/board/common/board_common.mk
