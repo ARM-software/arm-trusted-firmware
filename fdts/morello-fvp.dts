@@ -80,6 +80,12 @@
 		interrupts = <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>;
 	};
 
+	virtio_net@1c180000 {
+		compatible = "virtio,mmio";
+		reg = <0x0 0x1c180000 0x0 0x200>;
+		interrupts = <GIC_SPI 102 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
 	virtio_rng@1c190000 {
 		compatible = "virtio,mmio";
 		reg = <0x0 0x1c190000 0x0 0x200>;
