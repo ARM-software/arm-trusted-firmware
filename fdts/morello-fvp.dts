@@ -81,7 +81,7 @@
 	};
 
 	virtio_rng@1c190000 {
-		compatible = "virtio,mmio","virtio-rng";
+		compatible = "virtio,mmio";
 		reg = <0x0 0x1c190000 0x0 0x200>;
 		interrupts = <GIC_SPI 101 IRQ_TYPE_LEVEL_HIGH>;
 	};
