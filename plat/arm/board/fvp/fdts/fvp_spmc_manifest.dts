@@ -5,13 +5,12 @@
  */
 /dts-v1/;
 
-#define AFF 00
+#define	AFF	00
 
 #include "fvp-defs.dtsi"
 #undef POST
-#define POST \
-		enable-method = "psci"; \
-		};
+#define	POST \
+	};
 
 / {
 	compatible = "arm,ffa-core-manifest-1.0";
@@ -61,7 +60,11 @@
 		#size-cells = <0x0>;
 
 		CPU_0
-		/* SPM(Hafnium) requires secondary cpu nodes are declared in descending order */
+
+		/*
+		 * SPMC (Hafnium) requires secondary core nodes are declared
+		 * in descending order.
+		 */
 		CPU_7
 		CPU_6
 		CPU_5
@@ -71,7 +74,12 @@
 		CPU_1
 	};
 
-	memory@60000000 {
+	device-memory@0 {
+		device_type = "device-memory";
+		reg = <0x0 0x0 0x6000000 0x0 0x8000000 0x78000000>;
+	};
+
+	memory@6000000 {
 		device_type = "memory";
 		reg = <0x0 0x6000000 0x2000000>; /* Trusted DRAM */
 	};
