@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -130,6 +130,13 @@ int vsnprintf(char *s, size_t n, const char *fmt, va_list args)
 			/* Check the format specifier. */
 loop:
 			switch (*fmt) {
+			case '%':
+				if (chars_printed < n) {
+					*s = '%';
+					s++;
+				}
+				chars_printed++;
+				break;
 			case '0':
 			case '1':
 			case '2':
