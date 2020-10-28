@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -17,20 +17,30 @@
 
 
 /* SMC SiP service function identifier */
+
+/* FPGA Reconfig */
 #define INTEL_SIP_SMC_FPGA_CONFIG_START			0xC2000001
 #define INTEL_SIP_SMC_FPGA_CONFIG_WRITE			0x42000002
 #define INTEL_SIP_SMC_FPGA_CONFIG_COMPLETED_WRITE	0xC2000003
 #define INTEL_SIP_SMC_FPGA_CONFIG_ISDONE		0xC2000004
 #define INTEL_SIP_SMC_FPGA_CONFIG_GET_MEM		0xC2000005
+
+/* Secure Register Access */
 #define INTEL_SIP_SMC_REG_READ				0xC2000007
 #define INTEL_SIP_SMC_REG_WRITE				0xC2000008
 #define INTEL_SIP_SMC_REG_UPDATE			0xC2000009
+
+/* Remote System Update */
 #define INTEL_SIP_SMC_RSU_STATUS			0xC200000B
 #define INTEL_SIP_SMC_RSU_UPDATE			0xC200000C
-#define INTEL_SIP_LEGACY_SMC_ECC_DBE			0xC200000D
 #define INTEL_SIP_SMC_RSU_NOTIFY			0xC200000E
 #define INTEL_SIP_SMC_RSU_RETRY_COUNTER			0xC200000F
+
+/* Send Mailbox Command */
 #define INTEL_SIP_SMC_MBOX_SEND_CMD			0xC200001E
+
+
+/* SiP Definitions */
 
 /* FPGA config helpers */
 #define INTEL_SIP_SMC_FPGA_CONFIG_ADDR			0x400000

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,35 +9,15 @@
 
 #include <lib/utils_def.h>
 
+
 #define MBOX_OFFSET			0xffa30000
 
 #define MBOX_MAX_JOB_ID			0xf
 #define MBOX_ATF_CLIENT_ID		0x1
 #define MBOX_JOB_ID			0x1
 
-/* Mailbox interrupt flags and masks */
-#define MBOX_INT_FLAG_COE		0x1
-#define MBOX_INT_FLAG_RIE		0x2
-#define MBOX_INT_FLAG_UAE		0x100
-#define MBOX_COE_BIT(INTERRUPT)		((INTERRUPT) & 0x3)
-#define MBOX_UAE_BIT(INTERRUPT)		(((INTERRUPT) & (1<<8)))
 
-/* Mailbox response and status */
-#define MBOX_RESP_BUFFER_SIZE		16
-#define MBOX_RESP_ERR(BUFFER)		((BUFFER) & 0x00000fff)
-#define MBOX_RESP_LEN(BUFFER)		(((BUFFER) & 0x007ff000) >> 12)
-#define MBOX_RESP_CLIENT_ID(BUFFER)	(((BUFFER) & 0xf0000000) >> 28)
-#define MBOX_RESP_JOB_ID(BUFFER)	(((BUFFER) & 0x0f000000) >> 24)
-#define MBOX_STATUS_UA_MASK		(1<<8)
-
-/* Mailbox command and response */
-#define MBOX_CMD_FREE_OFFSET		0x14
-#define MBOX_CMD_BUFFER_SIZE		32
-#define MBOX_CLIENT_ID_CMD(CLIENT_ID)	((CLIENT_ID) << 28)
-#define MBOX_JOB_ID_CMD(JOB_ID)		(JOB_ID<<24)
-#define MBOX_CMD_LEN_CMD(CMD_LEN)	((CMD_LEN) << 12)
-#define MBOX_INDIRECT			(1 << 11)
-#define MBOX_INSUFFICIENT_BUFFER	-2
+/* Mailbox Shared Memory Register Map */
 #define MBOX_CIN			0x00
 #define MBOX_ROUT			0x04
 #define MBOX_URG			0x08
@@ -48,60 +28,61 @@
 #define MBOX_CMD_BUFFER			0x40
 #define MBOX_RESP_BUFFER		0xC0
 
-#define MBOX_RESP_BUFFER_SIZE		16
-#define MBOX_RESP_OK			0
-#define MBOX_RESP_INVALID_CMD		1
-#define MBOX_RESP_UNKNOWN_BR		2
-#define MBOX_RESP_UNKNOWN		3
-#define MBOX_RESP_NOT_CONFIGURED	256
-
 /* Mailbox SDM doorbell */
 #define MBOX_DOORBELL_TO_SDM		0x400
 #define MBOX_DOORBELL_FROM_SDM		0x480
 
-/* Mailbox QSPI commands */
-#define MBOX_CMD_RESTART		2
-#define MBOX_CMD_QSPI_OPEN		50
-#define MBOX_CMD_QSPI_CLOSE		51
-#define MBOX_CMD_QSPI_DIRECT		59
-#define MBOX_CMD_GET_IDCODE		16
-#define MBOX_CMD_QSPI_SET_CS		52
 
-/* Mailbox CANCEL command */
-#define MBOX_CMD_CANCEL			0x3
+/* Mailbox commands */
 
-/* Mailbox REBOOT commands */
-#define MBOX_CMD_REBOOT_HPS		71
+#define MBOX_CMD_NOOP			0x00
+#define MBOX_CMD_SYNC			0x01
+#define MBOX_CMD_RESTART		0x02
+#define MBOX_CMD_CANCEL			0x03
+#define MBOX_CMD_GET_IDCODE		0x10
+#define MBOX_CMD_REBOOT_HPS		0x47
 
-/* Mailbox RSU commands */
-#define MBOX_GET_SUBPARTITION_TABLE	90
-#define MBOX_RSU_STATUS			91
-#define MBOX_RSU_UPDATE			92
+/* Reconfiguration Commands */
+#define MBOX_CONFIG_STATUS		0x04
+#define MBOX_RECONFIG			0x06
+#define MBOX_RECONFIG_DATA		0x08
+#define MBOX_RECONFIG_STATUS		0x09
 
-/* Mailbox RSU macros */
-#define RSU_VERSION_ACMF		BIT(8)
-#define RSU_VERSION_ACMF_MASK		0xff00
+/* QSPI Commands */
+#define MBOX_CMD_QSPI_OPEN		0x32
+#define MBOX_CMD_QSPI_CLOSE		0x33
+#define MBOX_CMD_QSPI_SET_CS		0x34
+#define MBOX_CMD_QSPI_DIRECT		0x3B
 
-/* HPS stage notify command */
-#define MBOX_HPS_STAGE_NOTIFY		93
+/* RSU Commands */
+#define MBOX_GET_SUBPARTITION_TABLE	0x5A
+#define MBOX_RSU_STATUS			0x5B
+#define MBOX_RSU_UPDATE			0x5C
+#define MBOX_HPS_STAGE_NOTIFY		0x5D
+
+
+/* Mailbox Definitions */
+
+#define CMD_DIRECT			0
+#define CMD_CASUAL			0
+#define CMD_URGENT			1
+
+#define MBOX_RESP_BUFFER_SIZE		16
+#define MBOX_CMD_BUFFER_SIZE		32
 
 /* Execution states for HPS_STAGE_NOTIFY */
 #define HPS_EXECUTION_STATE_FSBL	0
 #define HPS_EXECUTION_STATE_SSBL	1
 #define HPS_EXECUTION_STATE_OS		2
 
-/* Mailbox reconfiguration commands */
-#define MBOX_CONFIG_STATUS		4
-#define MBOX_RECONFIG			6
-#define MBOX_RECONFIG_DATA		8
-#define MBOX_RECONFIG_STATUS		9
-
-/* Generic error handling */
-#define MBOX_TIMEOUT			-2047
+/* Status Response */
+#define MBOX_RET_OK			0
+#define MBOX_RET_ERROR			-1
 #define MBOX_NO_RESPONSE		-2
 #define MBOX_WRONG_ID			-3
+#define MBOX_TIMEOUT			-2047
 
-/* Mailbox status */
+/* Reconfig Status Response */
 #define RECONFIG_STATUS_STATE				0
 #define RECONFIG_STATUS_PIN_STATUS			2
 #define RECONFIG_STATUS_SOFTFUNC_STATUS			3
@@ -121,6 +102,36 @@
 #define MBOX_CFGSTAT_STATE_ERROR_BOOT_INFO		0xf0000007
 #define MBOX_CFGSTAT_STATE_ERROR_QSPI_ERROR		0xf0000008
 
+
+/* Mailbox Macros */
+
+/* Mailbox interrupt flags and masks */
+#define MBOX_INT_FLAG_COE		0x1
+#define MBOX_INT_FLAG_RIE		0x2
+#define MBOX_INT_FLAG_UAE		0x100
+#define MBOX_COE_BIT(INTERRUPT)		((INTERRUPT) & 0x3)
+#define MBOX_UAE_BIT(INTERRUPT)		(((INTERRUPT) & (1<<8)))
+
+/* Mailbox response and status */
+#define MBOX_RESP_ERR(BUFFER)		((BUFFER) & 0x00000fff)
+#define MBOX_RESP_LEN(BUFFER)		(((BUFFER) & 0x007ff000) >> 12)
+#define MBOX_RESP_CLIENT_ID(BUFFER)	(((BUFFER) & 0xf0000000) >> 28)
+#define MBOX_RESP_JOB_ID(BUFFER)	(((BUFFER) & 0x0f000000) >> 24)
+#define MBOX_STATUS_UA_MASK		(1<<8)
+
+/* Mailbox command and response */
+#define MBOX_CLIENT_ID_CMD(CLIENT_ID)	((CLIENT_ID) << 28)
+#define MBOX_JOB_ID_CMD(JOB_ID)		(JOB_ID<<24)
+#define MBOX_CMD_LEN_CMD(CMD_LEN)	((CMD_LEN) << 12)
+#define MBOX_INDIRECT			(1 << 11)
+
+/* RSU Macros */
+#define RSU_VERSION_ACMF		BIT(8)
+#define RSU_VERSION_ACMF_MASK		0xff00
+
+
+/* Mailbox Function Definitions */
+
 void mailbox_set_int(int interrupt_input);
 int mailbox_init(void);
 void mailbox_set_qspi_close(void);
@@ -131,7 +142,6 @@ int mailbox_send_cmd(int job_id, unsigned int cmd, uint32_t *args,
 int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
 				int len, int urgent);
 int mailbox_read_response(int job_id, uint32_t *response, int resp_len);
-int mailbox_get_qspi_clock(void);
 void mailbox_reset_cold(void);
 void mailbox_clear_response(void);
 
