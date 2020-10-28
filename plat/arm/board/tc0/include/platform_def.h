@@ -17,7 +17,7 @@
 #include <plat/arm/soc/common/soc_css_def.h>
 #include <plat/common/common_def.h>
 
-#define PLATFORM_CORE_COUNT		4
+#define PLATFORM_CORE_COUNT		8
 
 #define PLAT_ARM_TRUSTED_SRAM_SIZE	0x00080000	/* 512 KB */
 
@@ -202,7 +202,7 @@
 #define PLAT_ARM_SCMI_CHANNEL_COUNT	1
 
 #define PLAT_ARM_CLUSTER_COUNT		U(1)
-#define PLAT_MAX_CPUS_PER_CLUSTER	U(4)
+#define PLAT_MAX_CPUS_PER_CLUSTER	U(8)
 #define PLAT_MAX_PE_PER_CPU		U(1)
 
 #define PLAT_CSS_MHU_BASE		UL(0x45400000)
