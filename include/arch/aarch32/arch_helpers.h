@@ -166,7 +166,7 @@ static inline void _op(void)						\
 #define DEFINE_SYSOP_TYPE_FUNC(_op, _type)				\
 static inline void _op ## _type(void)					\
 {									\
-	__asm__ (#_op " " #_type);					\
+	__asm__ (#_op " " #_type : : : "memory");			\
 }
 
 /* Define function for system instruction with register parameter */
