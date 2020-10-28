@@ -21,4 +21,7 @@ void mt_gic_rdistif_restore(void);
 void mt_gic_rdistif_restore_all(void);
 void gic_sgi_save_all(void);
 void gic_sgi_restore_all(void);
+uint32_t mt_irq_get_pending(uint32_t irq);
+void mt_irq_set_pending(uint32_t irq);
+
 #endif /* MT_GIC_V3_H */

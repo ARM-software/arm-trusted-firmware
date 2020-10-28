@@ -1,0 +1,384 @@
+/*
+ * Copyright (c) 2020, MediaTek Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#ifndef MT_GPIO_H
+#define MT_GPIO_H
+
+#include <stdbool.h>
+#include <stdint.h>
+
+#include <plat/common/common_def.h>
+
+/*  Error Code No. */
+#define RSUCCESS        0
+#define ERACCESS        1
+#define ERINVAL         2
+#define ERWRAPPER       3
+#define MAX_GPIO_PIN    MT_GPIO_BASE_MAX
+
+/* Enumeration for GPIO pin */
+typedef enum GPIO_PIN {
+	GPIO_UNSUPPORTED = -1,
+
+	GPIO0, GPIO1, GPIO2, GPIO3, GPIO4, GPIO5, GPIO6, GPIO7,
+	GPIO8, GPIO9, GPIO10, GPIO11, GPIO12, GPIO13, GPIO14, GPIO15,
+	GPIO16, GPIO17, GPIO18, GPIO19, GPIO20, GPIO21, GPIO22, GPIO23,
+	GPIO24, GPIO25, GPIO26, GPIO27, GPIO28, GPIO29, GPIO30, GPIO31,
+	GPIO32, GPIO33, GPIO34, GPIO35, GPIO36, GPIO37, GPIO38, GPIO39,
+	GPIO40, GPIO41, GPIO42, GPIO43, GPIO44, GPIO45, GPIO46, GPIO47,
+	GPIO48, GPIO49, GPIO50, GPIO51, GPIO52, GPIO53, GPIO54, GPIO55,
+	GPIO56, GPIO57, GPIO58, GPIO59, GPIO60, GPIO61, GPIO62, GPIO63,
+	GPIO64, GPIO65, GPIO66, GPIO67, GPIO68, GPIO69, GPIO70, GPIO71,
+	GPIO72, GPIO73, GPIO74, GPIO75, GPIO76, GPIO77, GPIO78, GPIO79,
+	GPIO80, GPIO81, GPIO82, GPIO83, GPIO84, GPIO85, GPIO86, GPIO87,
+	GPIO88, GPIO89, GPIO90, GPIO91, GPIO92, GPIO93, GPIO94, GPIO95,
+	GPIO96, GPIO97, GPIO98, GPIO99, GPIO100, GPIO101, GPIO102, GPIO103,
+	GPIO104, GPIO105, GPIO106, GPIO107, GPIO108, GPIO109, GPIO110, GPIO111,
+	GPIO112, GPIO113, GPIO114, GPIO115, GPIO116, GPIO117, GPIO118, GPIO119,
+	GPIO120, GPIO121, GPIO122, GPIO123, GPIO124, GPIO125, GPIO126, GPIO127,
+	GPIO128, GPIO129, GPIO130, GPIO131, GPIO132, GPIO133, GPIO134, GPIO135,
+	GPIO136, GPIO137, GPIO138, GPIO139, GPIO140, GPIO141, GPIO142, GPIO143,
+	GPIO144, GPIO145, GPIO146, GPIO147, GPIO148, GPIO149, GPIO150, GPIO151,
+	GPIO152, GPIO153, GPIO154, GPIO155, GPIO156, GPIO157, GPIO158, GPIO159,
+	GPIO160, GPIO161, GPIO162, GPIO163, GPIO164, GPIO165, GPIO166, GPIO167,
+	GPIO168, GPIO169, GPIO170, GPIO171, GPIO172, GPIO173, GPIO174, GPIO175,
+	GPIO176, GPIO177, GPIO178, GPIO179, GPIO180, GPIO181, GPIO182, GPIO183,
+	GPIO184, GPIO185, GPIO186, GPIO187, GPIO188, GPIO189, GPIO190, GPIO191,
+	GPIO192, GPIO193, GPIO194, GPIO195, GPIO196, GPIO197, GPIO198, GPIO199,
+	GPIO200, GPIO201, GPIO202, GPIO203, GPIO204, GPIO205, GPIO206, GPIO207,
+	GPIO208, GPIO209, GPIO210, GPIO211, GPIO212, GPIO213, GPIO214, GPIO215,
+	GPIO216, GPIO217, GPIO218, GPIO219,
+	MT_GPIO_BASE_MAX
+} GPIO_PIN;
+
+/* GPIO MODE CONTROL VALUE*/
+typedef enum {
+	GPIO_MODE_UNSUPPORTED = -1,
+	GPIO_MODE_GPIO  = 0,
+	GPIO_MODE_00    = 0,
+	GPIO_MODE_01,
+	GPIO_MODE_02,
+	GPIO_MODE_03,
+	GPIO_MODE_04,
+	GPIO_MODE_05,
+	GPIO_MODE_06,
+	GPIO_MODE_07,
+
+	GPIO_MODE_MAX,
+	GPIO_MODE_DEFAULT = GPIO_MODE_00,
+} GPIO_MODE;
+
+/* GPIO DIRECTION */
+typedef enum {
+	MT_GPIO_DIR_UNSUPPORTED = -1,
+	MT_GPIO_DIR_OUT    = 0,
+	MT_GPIO_DIR_IN     = 1,
+	MT_GPIO_DIR_MAX,
+	MT_GPIO_DIR_DEFAULT = MT_GPIO_DIR_IN,
+} GPIO_DIR;
+
+/* GPIO PULL ENABLE*/
+typedef enum {
+	MT_GPIO_PULL_EN_UNSUPPORTED = -1,
+	MT_GPIO_PULL_DISABLE   = 0,
+	MT_GPIO_PULL_ENABLE    = 1,
+	MT_GPIO_PULL_ENABLE_R0 = 2,
+	MT_GPIO_PULL_ENABLE_R1 = 3,
+	MT_GPIO_PULL_ENABLE_R0R1 = 4,
+
+	MT_GPIO_PULL_EN_MAX,
+	MT_GPIO_PULL_EN_DEFAULT = MT_GPIO_PULL_ENABLE,
+} GPIO_PULL_EN;
+
+/* GPIO PULL-UP/PULL-DOWN*/
+typedef enum {
+	MT_GPIO_PULL_UNSUPPORTED = -1,
+	MT_GPIO_PULL_NONE        = 0,
+	MT_GPIO_PULL_UP          = 1,
+	MT_GPIO_PULL_DOWN        = 2,
+	MT_GPIO_PULL_MAX,
+	MT_GPIO_PULL_DEFAULT = MT_GPIO_PULL_DOWN
+} GPIO_PULL;
+
+/* GPIO OUTPUT */
+typedef enum {
+	MT_GPIO_OUT_UNSUPPORTED = -1,
+	MT_GPIO_OUT_ZERO = 0,
+	MT_GPIO_OUT_ONE  = 1,
+
+	MT_GPIO_OUT_MAX,
+	MT_GPIO_OUT_DEFAULT = MT_GPIO_OUT_ZERO,
+	MT_GPIO_DATA_OUT_DEFAULT = MT_GPIO_OUT_ZERO,  /*compatible with DCT*/
+} GPIO_OUT;
+
+/* GPIO INPUT */
+typedef enum {
+	MT_GPIO_IN_UNSUPPORTED = -1,
+	MT_GPIO_IN_ZERO = 0,
+	MT_GPIO_IN_ONE  = 1,
+
+	MT_GPIO_IN_MAX,
+} GPIO_IN;
+
+typedef struct {
+	uint32_t val;
+	uint32_t set;
+	uint32_t rst;
+	uint32_t _align1;
+} VAL_REGS;
+
+typedef struct {
+	VAL_REGS dir[7];
+	uint8_t rsv00[144];
+	VAL_REGS dout[7];
+	uint8_t rsv01[144];
+	VAL_REGS din[7];
+	uint8_t rsv02[144];
+	VAL_REGS mode[28];
+} GPIO_REGS;
+
+
+#define PIN(_id, _flag, _bit, _base, _offset) {		\
+		.id = _id,				\
+		.flag = _flag,				\
+		.bit = _bit,				\
+		.base = _base,				\
+		.offset = _offset,			\
+	}
+
+struct mt_pin_info {
+	uint8_t id;
+	uint8_t flag;
+	uint8_t bit;
+	uint16_t base;
+	uint16_t offset;
+};
+
+static const struct mt_pin_info mt8192_pin_infos[] = {
+	PIN(0, 0, 9, 0x23, 0xb0),
+	PIN(1, 0, 10, 0x23, 0xb0),
+	PIN(2, 0, 11, 0x23, 0xb0),
+	PIN(3, 0, 12, 0x23, 0xb0),
+	PIN(4, 0, 13, 0x23, 0xb0),
+	PIN(5, 0, 14, 0x23, 0xb0),
+	PIN(6, 0, 15, 0x23, 0xb0),
+	PIN(7, 0, 16, 0x23, 0xb0),
+	PIN(8, 0, 17, 0x23, 0xb0),
+	PIN(9, 0, 18, 0x23, 0xb0),
+	PIN(10, 1, 0, 0x15, 0x20),
+	PIN(11, 1, 1, 0x15, 0x20),
+	PIN(12, 1, 2, 0x15, 0x20),
+	PIN(13, 1, 3, 0x15, 0x20),
+	PIN(14, 1, 4, 0x15, 0x20),
+	PIN(15, 1, 5, 0x15, 0x20),
+	PIN(16, 0, 2, 0x17, 0x50),
+	PIN(17, 0, 3, 0x17, 0x50),
+	PIN(18, 0, 21, 0x36, 0xa0),
+	PIN(19, 0, 22, 0x36, 0xa0),
+	PIN(20, 0, 23, 0x36, 0xa0),
+	PIN(21, 0, 24, 0x36, 0xa0),
+	PIN(22, 0, 3, 0x21, 0x90),
+	PIN(23, 0, 4, 0x21, 0x90),
+	PIN(24, 0, 5, 0x21, 0x90),
+	PIN(25, 0, 6, 0x21, 0x90),
+	PIN(26, 0, 5, 0x22, 0x80),
+	PIN(27, 0, 6, 0x22, 0x80),
+	PIN(28, 0, 7, 0x22, 0x80),
+	PIN(29, 0, 8, 0x22, 0x80),
+	PIN(30, 0, 9, 0x22, 0x80),
+	PIN(31, 0, 27, 0x22, 0x70),
+	PIN(32, 0, 24, 0x22, 0x70),
+	PIN(33, 0, 26, 0x22, 0x70),
+	PIN(34, 0, 23, 0x22, 0x70),
+	PIN(35, 0, 25, 0x22, 0x70),
+	PIN(36, 0, 20, 0x21, 0x90),
+	PIN(37, 0, 21, 0x21, 0x90),
+	PIN(38, 0, 22, 0x21, 0x90),
+	PIN(39, 0, 23, 0x21, 0x90),
+	PIN(40, 0, 0, 0x17, 0x50),
+	PIN(41, 0, 1, 0x17, 0x50),
+	PIN(42, 0, 4, 0x17, 0x50),
+	PIN(43, 0, 25, 0x36, 0xa0),
+	PIN(44, 0, 26, 0x36, 0xa0),
+	PIN(45, 1, 9, 0x20, 0x60),
+	PIN(46, 1, 11, 0x20, 0x60),
+	PIN(47, 1, 10, 0x20, 0x60),
+	PIN(48, 1, 7, 0x20, 0x60),
+	PIN(49, 1, 8, 0x20, 0x60),
+	PIN(50, 1, 6, 0x20, 0x60),
+	PIN(51, 1, 0, 0x20, 0x60),
+	PIN(52, 1, 1, 0x20, 0x60),
+	PIN(53, 1, 5, 0x20, 0x60),
+	PIN(54, 1, 2, 0x20, 0x60),
+	PIN(55, 1, 4, 0x20, 0x60),
+	PIN(56, 1, 3, 0x20, 0x60),
+	PIN(57, 0, 1, 0x22, 0x80),
+	PIN(58, 0, 2, 0x22, 0x80),
+	PIN(59, 0, 3, 0x22, 0x80),
+	PIN(60, 0, 4, 0x22, 0x80),
+	PIN(61, 0, 28, 0x22, 0x70),
+	PIN(62, 0, 22, 0x22, 0x70),
+	PIN(63, 0, 0, 0x22, 0x70),
+	PIN(64, 0, 1, 0x22, 0x70),
+	PIN(65, 0, 12, 0x22, 0x70),
+	PIN(66, 0, 15, 0x22, 0x70),
+	PIN(67, 0, 16, 0x22, 0x70),
+	PIN(68, 0, 17, 0x22, 0x70),
+	PIN(69, 0, 18, 0x22, 0x70),
+	PIN(70, 0, 19, 0x22, 0x70),
+	PIN(71, 0, 20, 0x22, 0x70),
+	PIN(72, 0, 21, 0x22, 0x70),
+	PIN(73, 0, 2, 0x22, 0x70),
+	PIN(74, 0, 3, 0x22, 0x70),
+	PIN(75, 0, 4, 0x22, 0x70),
+	PIN(76, 0, 5, 0x22, 0x70),
+	PIN(77, 0, 6, 0x22, 0x70),
+	PIN(78, 0, 7, 0x22, 0x70),
+	PIN(79, 0, 8, 0x22, 0x70),
+	PIN(80, 0, 9, 0x22, 0x70),
+	PIN(81, 0, 10, 0x22, 0x70),
+	PIN(82, 0, 11, 0x22, 0x70),
+	PIN(83, 0, 13, 0x22, 0x70),
+	PIN(84, 0, 14, 0x22, 0x70),
+	PIN(85, 0, 31, 0x22, 0x70),
+	PIN(86, 0, 0, 0x22, 0x80),
+	PIN(87, 0, 29, 0x22, 0x70),
+	PIN(88, 0, 30, 0x22, 0x70),
+	PIN(89, 0, 24, 0x21, 0x90),
+	PIN(90, 0, 25, 0x21, 0x90),
+	PIN(91, 0, 0, 0x21, 0x90),
+	PIN(92, 0, 2, 0x21, 0xa0),
+	PIN(93, 0, 4, 0x21, 0xa0),
+	PIN(94, 0, 3, 0x21, 0xa0),
+	PIN(95, 0, 5, 0x21, 0xa0),
+	PIN(96, 0, 31, 0x21, 0x90),
+	PIN(97, 0, 26, 0x21, 0x90),
+	PIN(98, 0, 0, 0x21, 0xa0),
+	PIN(99, 0, 27, 0x21, 0x90),
+	PIN(100, 0, 28, 0x21, 0x90),
+	PIN(101, 0, 29, 0x21, 0x90),
+	PIN(102, 0, 30, 0x21, 0x90),
+	PIN(103, 0, 18, 0x21, 0x90),
+	PIN(104, 0, 17, 0x21, 0x90),
+	PIN(105, 0, 19, 0x21, 0x90),
+	PIN(106, 0, 16, 0x21, 0x90),
+	PIN(107, 0, 1, 0x21, 0x90),
+	PIN(108, 0, 2, 0x21, 0x90),
+	PIN(109, 0, 10, 0x21, 0x90),
+	PIN(110, 0, 7, 0x21, 0x90),
+	PIN(111, 0, 9, 0x21, 0x90),
+	PIN(112, 0, 11, 0x21, 0x90),
+	PIN(113, 0, 8, 0x21, 0x90),
+	PIN(114, 0, 14, 0x21, 0x90),
+	PIN(115, 0, 13, 0x21, 0x90),
+	PIN(116, 0, 15, 0x21, 0x90),
+	PIN(117, 0, 12, 0x21, 0x90),
+	PIN(118, 0, 23, 0x23, 0xb0),
+	PIN(119, 0, 29, 0x23, 0xb0),
+	PIN(120, 0, 28, 0x23, 0xb0),
+	PIN(121, 0, 2, 0x23, 0xc0),
+	PIN(122, 0, 27, 0x23, 0xb0),
+	PIN(123, 0, 1, 0x23, 0xc0),
+	PIN(124, 0, 26, 0x23, 0xb0),
+	PIN(125, 0, 0, 0x23, 0xc0),
+	PIN(126, 0, 19, 0x23, 0xb0),
+	PIN(127, 0, 20, 0x23, 0xb0),
+	PIN(128, 0, 21, 0x23, 0xb0),
+	PIN(129, 0, 22, 0x23, 0xb0),
+	PIN(130, 0, 6, 0x23, 0xb0),
+	PIN(131, 0, 7, 0x23, 0xb0),
+	PIN(132, 0, 8, 0x23, 0xb0),
+	PIN(133, 0, 3, 0x23, 0xb0),
+	PIN(134, 0, 4, 0x23, 0xb0),
+	PIN(135, 0, 5, 0x23, 0xb0),
+	PIN(136, 0, 0, 0x23, 0xb0),
+	PIN(137, 0, 1, 0x23, 0xb0),
+	PIN(138, 0, 2, 0x23, 0xb0),
+	PIN(139, 0, 25, 0x23, 0xb0),
+	PIN(140, 0, 31, 0x23, 0xb0),
+	PIN(141, 0, 24, 0x23, 0xb0),
+	PIN(142, 0, 30, 0x23, 0xb0),
+	PIN(143, 0, 6, 0x20, 0x70),
+	PIN(144, 0, 7, 0x20, 0x70),
+	PIN(145, 0, 8, 0x20, 0x70),
+	PIN(146, 0, 3, 0x20, 0x70),
+	PIN(147, 0, 4, 0x20, 0x70),
+	PIN(148, 0, 5, 0x20, 0x70),
+	PIN(149, 0, 0, 0x20, 0x70),
+	PIN(150, 0, 1, 0x20, 0x70),
+	PIN(151, 0, 2, 0x20, 0x70),
+	PIN(152, 1, 3, 0x36, 0x90),
+	PIN(153, 1, 2, 0x36, 0x90),
+	PIN(154, 1, 0, 0x36, 0x906),
+	PIN(155, 1, 1, 0x36, 0x90),
+	PIN(156, 0, 29, 0x36, 0xa0),
+	PIN(157, 0, 30, 0x36, 0xa0),
+	PIN(158, 0, 31, 0x36, 0xa0),
+	PIN(159, 0, 0, 0x36, 0xb0),
+	PIN(160, 0, 27, 0x36, 0xa04),
+	PIN(161, 0, 28, 0x36, 0xa0),
+	PIN(162, 0, 0, 0x36, 0xa0),
+	PIN(163, 0, 1, 0x36, 0xa0),
+	PIN(164, 0, 2, 0x36, 0xa0),
+	PIN(165, 0, 3, 0x36, 0xa0),
+	PIN(166, 0, 4, 0x36, 0xa0),
+	PIN(167, 0, 5, 0x36, 0xa0),
+	PIN(168, 0, 6, 0x36, 0xa0),
+	PIN(169, 0, 7, 0x36, 0xa0),
+	PIN(170, 0, 8, 0x36, 0xa0),
+	PIN(171, 0, 9, 0x36, 0xa0),
+	PIN(172, 0, 13, 0x36, 0xa0),
+	PIN(173, 0, 14, 0x36, 0xa0),
+	PIN(174, 0, 12, 0x36, 0xa0),
+	PIN(175, 0, 15, 0x36, 0xa0),
+	PIN(176, 0, 10, 0x36, 0xa0),
+	PIN(177, 0, 11, 0x36, 0xa0),
+	PIN(178, 0, 16, 0x36, 0xa0),
+	PIN(179, 0, 17, 0x36, 0xa0),
+	PIN(180, 0, 18, 0x36, 0xa0),
+	PIN(181, 0, 19, 0x36, 0xa0),
+	PIN(182, 0, 20, 0x36, 0xa0),
+	PIN(183, 1, 1, 0x18, 0x30),
+	PIN(184, 1, 2, 0x18, 0x30),
+	PIN(185, 1, 4, 0x18, 0x30),
+	PIN(186, 1, 6, 0x18, 0x30),
+	PIN(187, 1, 8, 0x18, 0x30),
+	PIN(188, 1, 3, 0x18, 0x30),
+	PIN(189, 1, 7, 0x18, 0x30),
+	PIN(190, 1, 9, 0x18, 0x30),
+	PIN(191, 1, 10, 0x18, 0x30),
+	PIN(192, 1, 0, 0x18, 0x30),
+	PIN(193, 1, 5, 0x18, 0x30),
+	PIN(194, 1, 11, 0x18, 0x30),
+	PIN(195, 0, 16, 0x14, 0x50),
+	PIN(196, 0, 6, 0x14, 0x50),
+	PIN(197, 0, 8, 0x14, 0x50),
+	PIN(198, 0, 7, 0x14, 0x50),
+	PIN(199, 0, 3, 0x14, 0x50),
+	PIN(200, 0, 6, 0x17, 0x50),
+	PIN(201, 0, 8, 0x17, 0x50),
+	PIN(202, 0, 15, 0x14, 0x50),
+	PIN(203, 0, 17, 0x14, 0x50),
+	PIN(204, 0, 5, 0x17, 0x50),
+	PIN(205, 0, 7, 0x17, 0x50),
+	PIN(206, 0, 18, 0x14, 0x50),
+	PIN(207, 0, 19, 0x14, 0x50),
+	PIN(208, 0, 20, 0x14, 0x50),
+	PIN(209, 0, 12, 0x14, 0x50),
+	PIN(210, 0, 11, 0x14, 0x50),
+	PIN(211, 0, 13, 0x14, 0x50),
+	PIN(212, 0, 10, 0x14, 0x50),
+	PIN(213, 0, 14, 0x14, 0x50),
+	PIN(214, 0, 0, 0x14, 0x50),
+	PIN(215, 0, 9, 0x14, 0x50),
+	PIN(216, 0, 4, 0x14, 0x50),
+	PIN(217, 0, 5, 0x14, 0x50),
+	PIN(218, 0, 1, 0x14, 0x50),
+	PIN(219, 0, 2, 0x14, 0x50),
+};
+
+void plat_mt8192_gpio_init(void);
+#endif /* MT_GPIO_H */
