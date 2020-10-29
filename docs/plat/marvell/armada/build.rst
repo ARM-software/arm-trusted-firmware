@@ -61,17 +61,17 @@ There are several build options:
 
         Defines the level of logging which will be purged to the default output port.
 
-        LOG_LEVEL_NONE		0
-        LOG_LEVEL_ERROR		10
-        LOG_LEVEL_NOTICE	20
-        LOG_LEVEL_WARNING	30
-        LOG_LEVEL_INFO		40
-        LOG_LEVEL_VERBOSE	50
+            -  0 - LOG_LEVEL_NONE
+            - 10 - LOG_LEVEL_ERROR
+            - 20 - LOG_LEVEL_NOTICE (default for DEBUG=0)
+            - 30 - LOG_LEVEL_WARNING
+            - 40 - LOG_LEVEL_INFO (default for DEBUG=1)
+            - 50 - LOG_LEVEL_VERBOSE
 
 - USE_COHERENT_MEM
 
         This flag determines whether to include the coherent memory region in the
-        BL memory map or not.
+        BL memory map or not. Enabled by default.
 
 - LLC_ENABLE
 
@@ -122,25 +122,25 @@ There are several build options:
         For Armada37x0 only, the DDR topology map index/name, default is 0.
 
         Supported Options:
-            - DDR3 1CS (0): DB-88F3720-DDR3-Modular (512MB); EspressoBIN (512MB)
-            - DDR4 1CS (1): DB-88F3720-DDR4-Modular (512MB)
-            - DDR3 2CS (2): EspressoBIN V3-V5 (1GB 2CS)
-            - DDR4 2CS (3): DB-88F3720-DDR4-Modular (4GB)
-            - DDR3 1CS (4): DB-88F3720-DDR3-Modular (1GB); EspressoBIN V3-V5 (1GB 1CS)
-            - DDR4 1CS (5): EspressoBin V7 (1GB)
-            - DDR4 2CS (6): EspressoBin V7 (2GB)
-            - DDR3 2CS (7): EspressoBin V3-V5 (2GB)
-            - CUSTOMER (CUST): Customer board, DDR3 1CS 512MB
+            -    0 - DDR3 1CS: DB-88F3720-DDR3-Modular (512MB); EspressoBIN (512MB)
+            -    1 - DDR4 1CS: DB-88F3720-DDR4-Modular (512MB)
+            -    2 - DDR3 2CS: EspressoBIN V3-V5 (1GB 2CS)
+            -    3 - DDR4 2CS: DB-88F3720-DDR4-Modular (4GB)
+            -    4 - DDR3 1CS: DB-88F3720-DDR3-Modular (1GB); EspressoBIN V3-V5 (1GB 1CS)
+            -    5 - DDR4 1CS: EspressoBin V7 (1GB)
+            -    6 - DDR4 2CS: EspressoBin V7 (2GB)
+            -    7 - DDR3 2CS: EspressoBin V3-V5 (2GB)
+            - CUST - CUSTOMER: Customer board, DDR3 1CS 512MB
 
 - CLOCKSPRESET
 
         For Armada37x0 only, the clock tree configuration preset including CPU and DDR frequency,
         default is CPU_800_DDR_800.
 
-            - CPU_600_DDR_600	-	CPU at 600 MHz, DDR at 600 MHz
-            - CPU_800_DDR_800	-	CPU at 800 MHz, DDR at 800 MHz
-            - CPU_1000_DDR_800	-	CPU at 1000 MHz, DDR at 800 MHz
-            - CPU_1200_DDR_750	-	CPU at 1200 MHz, DDR at 750 MHz
+            - CPU_600_DDR_600  - CPU at 600 MHz, DDR at 600 MHz
+            - CPU_800_DDR_800  - CPU at 800 MHz, DDR at 800 MHz
+            - CPU_1000_DDR_800 - CPU at 1000 MHz, DDR at 800 MHz
+            - CPU_1200_DDR_750 - CPU at 1200 MHz, DDR at 750 MHz
 
 - BOOTDEV
 
@@ -176,33 +176,48 @@ There are several build options:
 
 - WTP
 
-    For Armada37x0 only, use this parameter to point to wtptools source code
-    directory, which can be found as a3700_utils.zip in the release. Usage
-    example: ``WTP=/path/to/a3700_utils``
+        For Armada37x0 only, use this parameter to point to wtptools source code
+        directory, which can be found as a3700_utils.zip in the release. Usage
+        example: ``WTP=/path/to/a3700_utils``
 
-    For example, in order to build the image in debug mode with log level up to 'notice' level run
+- CRYPTOPP_PATH
 
-    .. code:: shell
+        For Armada37x0 only, use this parameter tp point to Crypto++ source code
+        directory, which is required for building WTP image tool.
 
-        > make DEBUG=1 USE_COHERENT_MEM=0 LOG_LEVEL=20 PLAT=<MARVELL_PLATFORM> all fip
 
-    And if we want to build a Armada37x0 image in debug mode with log level up to 'notice' level,
-    the image has the preset CPU at 1000 MHz, preset DDR3 at 800 MHz, the DDR topology of DDR4 2CS,
-    the image boot from SPI NOR flash partition 0, and the image is non trusted in WTP, the command
-    line is as following
+For example, in order to build the image in debug mode with log level up to 'notice' level run
 
-    .. code:: shell
+.. code:: shell
 
-        > make DEBUG=1 USE_COHERENT_MEM=0 LOG_LEVEL=20 CLOCKSPRESET=CPU_1000_DDR_800 \
-            MARVELL_SECURE_BOOT=0 DDR_TOPOLOGY=3 BOOTDEV=SPINOR PARTNUM=0 PLAT=a3700 all fip
+    > make DEBUG=1 USE_COHERENT_MEM=0 LOG_LEVEL=20 PLAT=<MARVELL_PLATFORM> mrvl_flash
 
-    Supported MARVELL_PLATFORM are:
-        - a3700 (for both A3720 DB and EspressoBin)
-        - a70x0
-        - a70x0_amc (for AMC board)
-        - a80x0
-        - a80x0_mcbin (for MacchiatoBin)
-        - t9130 (OcteonTX2 CN913x)
+And if we want to build a Armada37x0 image in debug mode with log level up to 'notice' level,
+the image has the preset CPU at 1000 MHz, preset DDR3 at 800 MHz, the DDR topology of DDR4 2CS,
+the image boot from SPI NOR flash partition 0, and the image is non trusted in WTP, the command
+line is as following
+
+.. code:: shell
+
+    > make DEBUG=1 USE_COHERENT_MEM=0 LOG_LEVEL=20 CLOCKSPRESET=CPU_1000_DDR_800 \
+        MARVELL_SECURE_BOOT=0 DDR_TOPOLOGY=3 BOOTDEV=SPINOR PARTNUM=0 PLAT=a3700 \
+        MV_DDR_PATH=/path/to/mv-ddr-marvell/ WTP=/path/to/A3700-utils-marvell/ \
+        CRYPTOPP_PATH=/path/to/cryptopp/ BL33=/path/to/u-boot.bin \
+        all fip mrvl_bootimage mrvl_flash
+
+To build just TF-A without WTMI image (useful for A3720 Turris MOX board), run following command:
+
+.. code:: shell
+
+    > make USE_COHERENT_MEM=0 PLAT=a3700 BL33=/path/to/u-boot.bin CROSS_COMPILE=aarch64-linux-gnu- mrvl_bootimage
+
+Supported MARVELL_PLATFORM are:
+    - a3700 (for both A3720 DB and EspressoBin)
+    - a70x0
+    - a70x0_amc (for AMC board)
+    - a80x0
+    - a80x0_mcbin (for MacchiatoBin)
+    - t9130 (OcteonTX2 CN913x)
 
 Special Build Flags
 --------------------
@@ -224,7 +239,7 @@ For more information about build options, please refer to the
 
 Build output
 ------------
-Marvell's TF-A compilation generates 7 files:
+Marvell's TF-A compilation generates 8 files:
 
     - ble.bin		- BLe image
     - bl1.bin		- BL1 image
@@ -234,6 +249,12 @@ Marvell's TF-A compilation generates 7 files:
     - boot-image.bin	- TF-A image (contains BL1 and FIP images)
     - flash-image.bin	- Image which contains boot-image.bin and SPL image.
       Should be placed on the boot flash/device.
+    - uart-images.tgz.bin - GZIPed TAR archive which contains Armada37x0 images
+      for booting via UART. Could be loaded via Marvell's WtpDownload tool from
+      A3700-utils-marvell repository.
+
+Additional make target ``mrvl_bootimage`` produce ``boot-image.bin`` file and target
+``mrvl_flash`` produce final ``flash-image.bin`` and ``uart-images.tgz.bin`` files.
 
 
 Tools and external components installation
@@ -268,6 +289,10 @@ Armada37x0 Builds require installation of 3 components
     (use the "A3700_utils-armada-18.12-fixed" branch):
 
     https://github.com/MarvellEmbeddedProcessors/A3700-utils-marvell.git
+
+(4) Crypto++ library available at the following repository:
+
+    https://github.com/weidai11/cryptopp.git
 
 Armada70x0 and Armada80x0 Builds require installation of an additional component
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
