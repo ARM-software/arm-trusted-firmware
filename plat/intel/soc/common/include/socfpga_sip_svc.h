@@ -44,7 +44,7 @@
 
 /* FPGA config helpers */
 #define INTEL_SIP_SMC_FPGA_CONFIG_ADDR			0x400000
-#define INTEL_SIP_SMC_FPGA_CONFIG_SIZE			16777216
+#define INTEL_SIP_SMC_FPGA_CONFIG_SIZE			0x2000000
 
 /* SMC function IDs for SiP Service queries */
 #define SIP_SVC_CALL_COUNT	0x8200ff00
@@ -54,5 +54,20 @@
 /* SiP Service Calls version numbers */
 #define SIP_SVC_VERSION_MAJOR	0
 #define SIP_SVC_VERSION_MINOR	1
+
+
+/* Structure Definitions */
+struct fpga_config_info {
+	uint32_t addr;
+	int size;
+	int size_written;
+	uint32_t write_requested;
+	int subblocks_sent;
+	int block_number;
+};
+
+/* Function Definitions */
+
+bool is_address_in_ddr_range(uint64_t addr, uint64_t size);
 
 #endif /* SOCFPGA_SIP_SVC_H */

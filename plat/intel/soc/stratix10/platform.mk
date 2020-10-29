@@ -25,7 +25,8 @@ PLAT_BL_COMMON_SOURCES	:=	\
 			lib/xlat_tables/aarch64/xlat_tables.c 		\
 			lib/xlat_tables/xlat_tables_common.c 		\
 			plat/intel/soc/common/aarch64/platform_common.c \
-			plat/intel/soc/common/aarch64/plat_helpers.S
+			plat/intel/soc/common/aarch64/plat_helpers.S	\
+			plat/intel/soc/common/socfpga_delay_timer.c
 
 BL2_SOURCES     +=	\
 		common/desc_image_load.c				\
@@ -43,7 +44,6 @@ BL2_SOURCES     +=	\
 		plat/intel/soc/stratix10/soc/s10_memory_controller.c	\
 		plat/intel/soc/stratix10/soc/s10_pinmux.c		\
                 plat/intel/soc/common/bl2_plat_mem_params_desc.c	\
-		plat/intel/soc/common/socfpga_delay_timer.c		\
 		plat/intel/soc/common/socfpga_image_load.c		\
 		plat/intel/soc/common/socfpga_storage.c			\
 		plat/intel/soc/common/soc/socfpga_emac.c		\

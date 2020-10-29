@@ -12,9 +12,10 @@
 
 #define MBOX_OFFSET			0xffa30000
 
-#define MBOX_MAX_JOB_ID			0xf
-#define MBOX_ATF_CLIENT_ID		0x1
-#define MBOX_JOB_ID			0x1
+#define MBOX_ATF_CLIENT_ID		0x1U
+#define MBOX_MAX_JOB_ID			0xFU
+#define MBOX_MAX_IND_JOB_ID		(MBOX_MAX_JOB_ID - 1U)
+#define MBOX_JOB_ID			MBOX_MAX_JOB_ID
 
 
 /* Mailbox Shared Memory Register Map */
@@ -64,6 +65,7 @@
 /* Mailbox Definitions */
 
 #define CMD_DIRECT			0
+#define CMD_INDIRECT			1
 #define CMD_CASUAL			0
 #define CMD_URGENT			1
 
@@ -80,6 +82,7 @@
 #define MBOX_RET_ERROR			-1
 #define MBOX_NO_RESPONSE		-2
 #define MBOX_WRONG_ID			-3
+#define MBOX_BUFFER_FULL		-4
 #define MBOX_TIMEOUT			-2047
 
 /* Reconfig Status Response */
@@ -123,7 +126,8 @@
 #define MBOX_CLIENT_ID_CMD(CLIENT_ID)	((CLIENT_ID) << 28)
 #define MBOX_JOB_ID_CMD(JOB_ID)		(JOB_ID<<24)
 #define MBOX_CMD_LEN_CMD(CMD_LEN)	((CMD_LEN) << 12)
-#define MBOX_INDIRECT			(1 << 11)
+#define MBOX_INDIRECT(val)		((val) << 11)
+#define MBOX_CMD_MASK(header)		((header) & 0x7ff)
 
 /* RSU Macros */
 #define RSU_VERSION_ACMF		BIT(8)
@@ -132,16 +136,22 @@
 
 /* Mailbox Function Definitions */
 
-void mailbox_set_int(int interrupt_input);
+void mailbox_set_int(uint32_t interrupt_input);
 int mailbox_init(void);
 void mailbox_set_qspi_close(void);
 void mailbox_set_qspi_open(void);
 void mailbox_set_qspi_direct(void);
-int mailbox_send_cmd(int job_id, unsigned int cmd, uint32_t *args,
-			int len, int urgent, uint32_t *response, int resp_len);
-int mailbox_send_cmd_async(int job_id, unsigned int cmd, uint32_t *args,
-				int len, int urgent);
-int mailbox_read_response(int job_id, uint32_t *response, int resp_len);
+
+int mailbox_send_cmd(uint32_t job_id, uint32_t cmd, uint32_t *args,
+			unsigned int len, uint32_t urgent, uint32_t *response,
+			unsigned int resp_len);
+int mailbox_send_cmd_async(uint32_t *job_id, uint32_t cmd, uint32_t *args,
+			unsigned int len, unsigned int indirect);
+int mailbox_read_response(uint32_t *job_id, uint32_t *response,
+			unsigned int resp_len);
+unsigned int iterate_resp(uint32_t mbox_resp_len, uint32_t *resp_buf,
+			unsigned int resp_len);
+
 void mailbox_reset_cold(void);
 void mailbox_clear_response(void);
 
