@@ -160,8 +160,6 @@ ${DOIMAGETOOL}: mrvl_clean
 	@$(DOIMAGE_LIBS_CHECK)
 	${Q}${MAKE} --no-print-directory -C ${DOIMAGEPATH}
 
-mrvl_flash: ${BUILD_PLAT}/${FIP_NAME} ${DOIMAGETOOL} ${BUILD_PLAT}/ble.bin
-	$(shell truncate -s %128K ${BUILD_PLAT}/bl1.bin)
-	$(shell cat ${BUILD_PLAT}/bl1.bin ${BUILD_PLAT}/${FIP_NAME} > ${BUILD_PLAT}/${BOOT_IMAGE})
+mrvl_flash: ${BUILD_PLAT}/${BOOT_IMAGE} ${DOIMAGETOOL}
 	${DOIMAGETOOL} ${DOIMAGE_FLAGS} ${BUILD_PLAT}/${BOOT_IMAGE} ${BUILD_PLAT}/${FLASH_IMAGE}
 

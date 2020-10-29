@@ -15,6 +15,8 @@ MARVELL_DRV_BASE		:= drivers/marvell
 MARVELL_COMMON_BASE		:= $(MARVELL_PLAT_BASE)/common
 HANDLE_EA_EL3_FIRST		:= 1
 
+include plat/marvell/marvell.mk
+
 #*********** A3700 *************
 
 # GICV3
@@ -66,8 +68,6 @@ ifneq (${WTP},)
 
 DOIMAGEPATH	:= $(WTP)
 DOIMAGETOOL	:= $(DOIMAGEPATH)/wtptp/src/TBB_Linux/release/TBB_linux
-
-include plat/marvell/marvell.mk
 
 ifeq ($(MARVELL_SECURE_BOOT),1)
 DOIMAGE_CFG	:= $(DOIMAGEPATH)/atf-tim.txt
@@ -125,10 +125,7 @@ $(DOIMAGETOOL):
 	$(Q)$(MAKE) --no-print-directory -C $(CRYPTOPP_PATH) -f GNUmakefile
 	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak LIBDIR=$(CRYPTOPP_PATH)
 
-mrvl_flash: ${BUILD_PLAT}/${FIP_NAME} ${DOIMAGETOOL}
-	$(shell truncate -s %128K ${BUILD_PLAT}/bl1.bin)
-	$(shell cat ${BUILD_PLAT}/bl1.bin ${BUILD_PLAT}/${FIP_NAME} > ${BUILD_PLAT}/${BOOT_IMAGE})
-	$(shell truncate -s %4 ${BUILD_PLAT}/${BOOT_IMAGE})
+mrvl_flash: ${BUILD_PLAT}/${BOOT_IMAGE} ${DOIMAGETOOL}
 	$(if $(value MV_DDR_PATH),,$(error "Platform '${PLAT}' for target '$@' requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
 	${Q}${MAKE} --no-print-directory -C ${DOIMAGEPATH} WTMI_IMG=$(WTMI_IMG) MV_DDR_PATH=$(MV_DDR_PATH)
 	$(shell truncate -s %4 $(WTMI_IMG))
