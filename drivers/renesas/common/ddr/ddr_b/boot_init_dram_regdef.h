@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2015-2020, Renesas Electronics Corporation.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#define RCAR_DDR_VERSION	"rev.0.40"
+#define RCAR_DDR_VERSION	"rev.0.41"
 #define DRAM_CH_CNT		0x04
 #define SLICE_CNT		0x04
 #define CS_CNT			0x02

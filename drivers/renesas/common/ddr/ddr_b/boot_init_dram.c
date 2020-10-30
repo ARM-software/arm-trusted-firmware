@@ -4147,7 +4147,13 @@ int32_t rcar_dram_init(void)
 	}
 
 	/* THCTR Bit6: PONM=0 , Bit0: THSST=0   */
-	data_l = mmio_read_32(THS1_THCTR) & 0xFFFFFFBE;
+	data_l = mmio_read_32(THS1_THCTR);
+	if (data_l & 0x00000040U) {
+		data_l = data_l & 0xFFFFFFBEU;
+	} else {
+		data_l = data_l | BIT(1);
+	}
+
 	mmio_write_32(THS1_THCTR, data_l);
 
 	/* Judge product and cut */
