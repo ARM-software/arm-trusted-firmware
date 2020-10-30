@@ -312,9 +312,15 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 				    (ZYNQMP_SD_ITAPCHGWIN << shift));
 		if (ret != PM_RET_SUCCESS)
 			goto reset_release;
-		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
-				    (ZYNQMP_SD_ITAPDLYENA_MASK << shift),
-				    (ZYNQMP_SD_ITAPDLYENA << shift));
+		if (value == 0)
+			ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
+					    (ZYNQMP_SD_ITAPDLYENA_MASK <<
+					     shift), 0);
+		else
+			ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
+					    (ZYNQMP_SD_ITAPDLYENA_MASK <<
+					    shift), (ZYNQMP_SD_ITAPDLYENA <<
+					    shift));
 		if (ret != PM_RET_SUCCESS)
 			goto reset_release;
 		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
@@ -326,8 +332,7 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 				    (ZYNQMP_SD_ITAPCHGWIN_MASK << shift), 0);
 	} else if (type == PM_TAPDELAY_OUTPUT) {
 		ret = pm_mmio_write(ZYNQMP_SD_OTAP_DLY,
-				    (ZYNQMP_SD_OTAPDLYENA_MASK << shift),
-				    (ZYNQMP_SD_OTAPDLYENA << shift));
+				    (ZYNQMP_SD_OTAPDLYENA_MASK << shift), 0);
 		if (ret != PM_RET_SUCCESS)
 			goto reset_release;
 		ret = pm_mmio_write(ZYNQMP_SD_OTAP_DLY,
