@@ -16,6 +16,7 @@
 #include <lib/coreboot.h>
 
 /* Platform Includes */
+#include <emi_mpu/emi_mpu.h>
 #include <gpio/mtgpio.h>
 #include <mt_gic_v3.h>
 #include <mt_timer.h>
@@ -88,6 +89,9 @@ void bl31_platform_setup(void)
 	if (!dcm_set_default()) {
 		ERROR("Failed to set default dcm on!!\n");
 	}
+
+	/* MPU Init */
+	emi_mpu_init();
 
 	/* Initialize the GIC driver, CPU and distributor interfaces */
 	mt_gic_driver_init();
