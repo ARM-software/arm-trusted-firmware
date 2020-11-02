@@ -56,8 +56,16 @@ struct uuid {
 	uint8_t		node[_UUID_NODE_LEN];
 };
 
+struct efi_guid {
+	uint32_t time_low;
+	uint16_t time_mid;
+	uint16_t time_hi_and_version;
+	uint8_t clock_seq_and_node[8];
+};
+
 union uuid_helper_t {
 	struct uuid uuid_struct;
+	struct efi_guid efi_guid;
 	uint32_t word[4];
 };
 
