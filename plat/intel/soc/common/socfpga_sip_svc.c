@@ -270,8 +270,9 @@ static uint32_t intel_fpga_config_write(uint64_t mem, uint64_t size)
 	intel_fpga_sdm_write_all();
 
 	if (!is_address_in_ddr_range(mem, size) ||
-		is_fpga_config_buffer_full())
+		is_fpga_config_buffer_full()) {
 		return INTEL_SIP_SMC_STATUS_REJECTED;
+	}
 
 	for (i = 0; i < FPGA_CONFIG_BUFFER_SIZE; i++) {
 		int j = (i + current_buffer) % FPGA_CONFIG_BUFFER_SIZE;
@@ -288,8 +289,9 @@ static uint32_t intel_fpga_config_write(uint64_t mem, uint64_t size)
 		}
 	}
 
-	if (is_fpga_config_buffer_full())
+	if (is_fpga_config_buffer_full()) {
 		return INTEL_SIP_SMC_STATUS_BUSY;
+	}
 
 	return INTEL_SIP_SMC_STATUS_OK;
 }
