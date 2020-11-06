@@ -7,137 +7,255 @@
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/arm/gic_common.h>
-#include <drivers/console.h>
 #include <lib/mmio.h>
 
 #include <mt_gic_v3.h>
-#include <mtk_plat_common.h>
 #include <plat_mt_cirq.h>
 #include <platform_def.h>
 
 static struct cirq_events cirq_all_events = {
-	.spi_start = CIRQ_SPI_START
+	.spi_start = CIRQ_SPI_START,
 };
-
-static inline void  mt_cirq_write32(uint32_t val, uint32_t addr)
+static uint32_t already_cloned;
+/*
+ * mt_irq_mask_restore: restore all interrupts
+ * @mask: pointer to struct mtk_irq_mask for storing the original mask value.
+ * Return 0 for success; return negative values for failure.
+ * (This is ONLY used for the idle current measurement by the factory mode.)
+ */
+int mt_irq_mask_restore(struct mtk_irq_mask *mask)
 {
-	mmio_write_32(addr + SYS_CIRQ_BASE, val);
+	if (mask == NULL) {
+		return -1;
+	}
+	if (mask->header != IRQ_MASK_HEADER) {
+		return -1;
+	}
+	if (mask->footer != IRQ_MASK_FOOTER) {
+		return -1;
+	}
+
+	 mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x4),
+		mask->mask1);
+	 mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x8),
+		mask->mask2);
+	 mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0xc),
+		mask->mask3);
+	 mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x10),
+		mask->mask4);
+	 mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x14),
+		mask->mask5);
+	 mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x18),
+		mask->mask6);
+	 mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x1c),
+		mask->mask7);
+	 mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x20),
+		mask->mask8);
+	 mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x24),
+		mask->mask9);
+	 mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x28),
+		mask->mask10);
+	 mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x2c),
+		mask->mask11);
+	 mmio_write_32((BASE_GICD_BASE + GICD_ISENABLER + 0x30),
+		mask->mask12);
+	/* make sure dist changes happen */
+	dsb();
+
+	return 0;
 }
 
-static inline uint32_t mt_cirq_read32(uint32_t addr)
+/*
+ * mt_irq_mask_all: disable all interrupts
+ * @mask: pointer to struct mtk_irq_mask for storing the original mask value.
+ * Return 0 for success; return negative values for failure.
+ * (This is ONLY used for the idle current measurement by the factory mode.)
+ */
+int mt_irq_mask_all(struct mtk_irq_mask *mask)
 {
-	return mmio_read_32(addr + SYS_CIRQ_BASE);
+	if (mask != NULL) {
+		/* for SPI */
+		mask->mask1 = mmio_read_32((BASE_GICD_BASE +
+			GICD_ISENABLER + 0x4));
+		mask->mask2 = mmio_read_32((BASE_GICD_BASE +
+			GICD_ISENABLER + 0x8));
+		mask->mask3 = mmio_read_32((BASE_GICD_BASE +
+			GICD_ISENABLER + 0xc));
+		mask->mask4 = mmio_read_32((BASE_GICD_BASE +
+			GICD_ISENABLER + 0x10));
+		mask->mask5 = mmio_read_32((BASE_GICD_BASE +
+			GICD_ISENABLER + 0x14));
+		mask->mask6 = mmio_read_32((BASE_GICD_BASE +
+			GICD_ISENABLER + 0x18));
+		mask->mask7 = mmio_read_32((BASE_GICD_BASE +
+			GICD_ISENABLER + 0x1c));
+		mask->mask8 = mmio_read_32((BASE_GICD_BASE +
+			GICD_ISENABLER + 0x20));
+		mask->mask9 = mmio_read_32((BASE_GICD_BASE +
+			GICD_ISENABLER + 0x24));
+		mask->mask10 = mmio_read_32((BASE_GICD_BASE +
+			GICD_ISENABLER + 0x28));
+		mask->mask11 = mmio_read_32((BASE_GICD_BASE +
+			GICD_ISENABLER + 0x2c));
+		mask->mask12 = mmio_read_32((BASE_GICD_BASE +
+			GICD_ISENABLER + 0x30));
+
+		/* for SPI */
+		mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x4),
+			0xFFFFFFFF);
+		mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x8),
+			0xFFFFFFFF);
+		mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0xC),
+			0xFFFFFFFF);
+		mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x10),
+			0xFFFFFFFF);
+		mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x14),
+			0xFFFFFFFF);
+		mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x18),
+			0xFFFFFFFF);
+		mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x1C),
+			0xFFFFFFFF);
+		mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x20),
+			0xFFFFFFFF);
+		mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x24),
+			0xFFFFFFFF);
+		mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x28),
+			0xFFFFFFFF);
+		mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x2c),
+			0xFFFFFFFF);
+		mmio_write_32((BASE_GICD_BASE + GICD_ICENABLER + 0x30),
+			0xFFFFFFFF);
+		/* make sure distributor changes happen */
+		dsb();
+
+		mask->header = IRQ_MASK_HEADER;
+		mask->footer = IRQ_MASK_FOOTER;
+
+		return 0;
+	} else {
+		return -1;
+	}
 }
 
-/*
- * cirq_clone_flush_check_store:
- * set 1 if we need to enable clone/flush value's check
- */
-static int32_t cirq_clone_flush_check_val;
+static uint32_t mt_irq_get_pol(uint32_t irq)
+{
+#ifdef CIRQ_WITH_POLARITY
+	uint32_t reg;
+	uint32_t base = INT_POL_CTL0;
 
-/*
- * cirq_pattern_clone_flush_check_show:  set 1 if we need to do pattern test.
- */
-static int32_t cirq_pattern_clone_flush_check_val;
+	if (irq < 32U) {
+		return 0;
+	}
 
-/*
- * cirq_pattern_clone_flush_check_show:  set 1 if we need to do pattern test.
- */
-static int32_t cirq_pattern_list;
+	reg = ((irq - 32U) / 32U);
 
-/*
- * mt_cirq_ack_all: Ack all the interrupt on SYS_CIRQ
- */
-void mt_cirq_ack_all(void)
+	return  mmio_read_32(base + reg * 4U);
+#else
+	return 0;
+#endif
+}
+
+unsigned int mt_irq_get_sens(unsigned int irq)
+{
+	unsigned int config;
+
+	/*
+	 * 2'b10 edge
+	 * 2'b01 level
+	 */
+	config = mmio_read_32(MT_GIC_BASE + GICD_ICFGR + (irq / 16U) * 4U);
+	config = (config >> (irq % 16U) * 2U) & 0x3;
+
+	return config;
+}
+
+static void collect_all_wakeup_events(void)
 {
 	unsigned int i;
+	uint32_t gic_irq;
+	uint32_t cirq;
+	uint32_t cirq_reg;
+	uint32_t cirq_offset;
+	uint32_t mask;
+	uint32_t pol_mask;
+	uint32_t irq_offset;
+	uint32_t irq_mask;
 
-	for (i = 0U; i < CIRQ_CTRL_REG_NUM; i++) {
-		mt_cirq_write32(0xFFFFFFFF, CIRQ_ACK_BASE + (i * 4U));
+	if ((cirq_all_events.wakeup_events == NULL) ||
+			cirq_all_events.num_of_events == 0U) {
+		return;
 	}
-	/* make sure all cirq setting take effect before doing other things */
-	dmbsy();
+
+	for (i = 0U; i < cirq_all_events.num_of_events; i++) {
+		if (cirq_all_events.wakeup_events[i] > 0U) {
+			gic_irq = cirq_all_events.wakeup_events[i];
+			cirq = gic_irq - cirq_all_events.spi_start - 32U;
+			cirq_reg = cirq / 32U;
+			cirq_offset = cirq % 32U;
+			mask = 0x1 << cirq_offset;
+			irq_offset = gic_irq % 32U;
+			irq_mask = 0x1 << irq_offset;
+			/*
+			 * CIRQ default masks all
+			 */
+			cirq_all_events.table[cirq_reg].mask |= mask;
+			/*
+			 * CIRQ default pol is low
+			 */
+			pol_mask = mt_irq_get_pol(
+					cirq_all_events.wakeup_events[i])
+					& irq_mask;
+			/*
+			 * 0 means rising
+			 */
+			if (pol_mask == 0U) {
+				cirq_all_events.table[cirq_reg].pol |= mask;
+			}
+			/*
+			 * CIRQ could monitor edge/level trigger
+			 * cirq register (0: edge, 1: level)
+			 */
+			if (mt_irq_get_sens(cirq_all_events.wakeup_events[i])
+				== SENS_EDGE) {
+				cirq_all_events.table[cirq_reg].sen |= mask;
+			}
+
+			cirq_all_events.table[cirq_reg].used = 1U;
+			cirq_all_events.table[cirq_reg].reg_num = cirq_reg;
+		}
+	}
 }
 
 /*
- * mt_cirq_enable: Enable SYS_CIRQ
- */
-void mt_cirq_enable(void)
-{
-	uint32_t st;
-
-	mt_cirq_ack_all();
-
-	st = mt_cirq_read32(CIRQ_CON);
-	st |= (CIRQ_CON_EN << CIRQ_CON_EN_BITS) |
-			(CIRQ_CON_EDGE_ONLY << CIRQ_CON_EDGE_ONLY_BITS);
-
-	mt_cirq_write32((st & CIRQ_CON_BITS_MASK), CIRQ_CON);
-}
-
-/*
- * mt_cirq_disable: Disable SYS_CIRQ
- */
-void mt_cirq_disable(void)
-{
-	uint32_t st;
-
-	st = mt_cirq_read32(CIRQ_CON);
-	st &= ~(CIRQ_CON_EN << CIRQ_CON_EN_BITS);
-
-	mt_cirq_write32((st & CIRQ_CON_BITS_MASK), CIRQ_CON);
-}
-
-/*
- * mt_cirq_get_mask: Get the specified SYS_CIRQ mask
- * @cirq_num: the SYS_CIRQ number to get
+ * mt_cirq_set_pol: Set the polarity for the specified SYS_CIRQ number.
+ * @cirq_num: the SYS_CIRQ number to set
+ * @pol: polarity to set
  * @return:
- *    1: this cirq is masked
- *    0: this cirq is umasked
- *    2: cirq num is out of range
+ *    0: set pol success
+ *   -1: cirq num is out of range
  */
-__attribute__((weak)) unsigned int mt_cirq_get_mask(uint32_t cirq_num)
+#ifdef CIRQ_WITH_POLARITY
+static int mt_cirq_set_pol(uint32_t cirq_num, uint32_t pol)
 {
-	uint32_t st;
-	unsigned int val;
+	uint32_t base;
+	uint32_t bit = 1U << (cirq_num % 32U);
 
 	if (cirq_num >= CIRQ_IRQ_NUM) {
-		ERROR("[CIRQ] %s: invalid cirq %u\n", __func__, cirq_num);
-		return 2;
+		return -1;
 	}
 
-	st = mt_cirq_read32((cirq_num / 32U) * 4U + CIRQ_MASK_BASE);
-	val = (st >> (cirq_num % 32U)) & 1U;
-	return val;
-}
-
-/*
- * mt_cirq_mask_all: Mask all interrupts on SYS_CIRQ.
- */
-void mt_cirq_mask_all(void)
-{
-	unsigned int i;
-
-	for (i = 0U; i < CIRQ_CTRL_REG_NUM; i++) {
-		mt_cirq_write32(0xFFFFFFFF, CIRQ_MASK_SET_BASE + (i * 4U));
+	if (pol == MT_CIRQ_POL_NEG) {
+		base = (cirq_num / 32U) * 4U + CIRQ_POL_CLR_BASE;
+	} else if (pol == MT_CIRQ_POL_POS) {
+		base = (cirq_num / 32U) * 4U + CIRQ_POL_SET_BASE;
+	} else {
+		return -1;
 	}
-	/* make sure all cirq setting take effect before doing other things */
-	dmbsy();
-}
 
-/*
- * mt_cirq_unmask_all: Unmask all interrupts on SYS_CIRQ.
- */
-void mt_cirq_unmask_all(void)
-{
-	unsigned int i;
-
-	for (i = 0U; i < CIRQ_CTRL_REG_NUM; i++) {
-		mt_cirq_write32(0xFFFFFFFF, CIRQ_MASK_CLR_BASE + (i * 4U));
-	}
-	/* make sure all cirq setting take effect before doing other things */
-	dmbsy();
+	mmio_write_32(base, bit);
+	return 0;
 }
+#endif
 
 /*
  * mt_cirq_mask: Mask the specified SYS_CIRQ.
@@ -151,11 +269,11 @@ static int mt_cirq_mask(uint32_t cirq_num)
 	uint32_t bit = 1U << (cirq_num % 32U);
 
 	if (cirq_num >= CIRQ_IRQ_NUM) {
-		ERROR("[CIRQ] %s: invalid cirq %u\n", __func__, cirq_num);
 		return -1;
 	}
 
-	mt_cirq_write32(bit, (cirq_num / 32U) * 4U + CIRQ_MASK_SET_BASE);
+	mmio_write_32((cirq_num / 32U) * 4U + CIRQ_MASK_SET_BASE, bit);
+
 	return 0;
 }
 
@@ -171,216 +289,245 @@ static int mt_cirq_unmask(uint32_t cirq_num)
 	uint32_t bit = 1U << (cirq_num % 32U);
 
 	if (cirq_num >= CIRQ_IRQ_NUM) {
-		ERROR("[CIRQ] %s: invalid cirq %u\n", __func__, cirq_num);
 		return -1;
 	}
 
-	mt_cirq_write32(bit, (cirq_num / 32U) * 4U + CIRQ_MASK_CLR_BASE);
+	mmio_write_32((cirq_num / 32U) * 4U + CIRQ_MASK_CLR_BASE, bit);
+
 	return 0;
 }
 
-/*
- * mt_cirq_set_sens: Set the sensitivity for the specified SYS_CIRQ number.
- * @cirq_num: the SYS_CIRQ number to set
- * @sens: sensitivity to set
- * @return:
- *    0: set sens success
- *   -1: cirq num is out of range
- */
-static int mt_cirq_set_sens(uint32_t cirq_num, uint32_t sens)
+uint32_t mt_irq_get_en(uint32_t irq)
 {
-	uint32_t base;
-	uint32_t bit = 1U << (cirq_num % 32U);
+	uint32_t addr, st, val;
 
-	if (cirq_num >= CIRQ_IRQ_NUM) {
-		ERROR("[CIRQ] %s: invalid cirq %u\n", __func__, cirq_num);
-		return -1;
-	}
+	addr = BASE_GICD_BASE + GICD_ISENABLER + (irq / 32U) * 4U;
+	st = mmio_read_32(addr);
 
-	if (sens == MT_CIRQ_EDGE_SENSITIVE) {
-		base = (cirq_num / 32U) * 4U + CIRQ_SENS_CLR_BASE;
-	} else if (sens == MT_CIRQ_LEVEL_SENSITIVE) {
-		base = (cirq_num / 32U) * 4U + CIRQ_SENS_SET_BASE;
-	} else {
-		ERROR("[CIRQ] set_sens invalid sen value %u\n", sens);
-		return -1;
-	}
+	val = (st >> (irq % 32U)) & 1U;
 
-	mt_cirq_write32(bit, base);
-	return 0;
-}
-
-/*
- * mt_cirq_get_sens: Get the specified SYS_CIRQ sensitivity
- * @cirq_num: the SYS_CIRQ number to get
- * @return:
- *    1: this cirq is MT_LEVEL_SENSITIVE
- *    0: this cirq is MT_EDGE_SENSITIVE
- *    2: cirq num is out of range
- */
-__attribute__((weak)) unsigned int mt_cirq_get_sens(uint32_t cirq_num)
-{
-	uint32_t st;
-	unsigned int val;
-
-	if (cirq_num >= CIRQ_IRQ_NUM) {
-		ERROR("[CIRQ] %s: invalid cirq %u\n", __func__, cirq_num);
-		return 2;
-	}
-
-	st = mt_cirq_read32((cirq_num / 32U) * 4U + CIRQ_SENS_BASE);
-	val = (st >> (cirq_num % 32U)) & 1U;
 	return val;
 }
 
-/*
- * mt_cirq_set_pol: Set the polarity for the specified SYS_CIRQ number.
- * @cirq_num: the SYS_CIRQ number to set
- * @pol: polarity to set
- * @return:
- *    0: set pol success
- *   -1: cirq num is out of range
- */
-static int mt_cirq_set_pol(uint32_t cirq_num, uint32_t pol)
+static void __cirq_fast_clone(void)
 {
-	uint32_t base;
-	uint32_t bit = 1U << (cirq_num % 32U);
+	struct cirq_reg *reg;
+	unsigned int i;
 
-	if (cirq_num >= CIRQ_IRQ_NUM) {
-		ERROR("[CIRQ] %s: invalid cirq %u\n", __func__, cirq_num);
-		return -1;
-	}
+	for (i = 0U; i < CIRQ_REG_NUM ; ++i) {
+		uint32_t cirq_bit;
 
-	if (pol == MT_CIRQ_POL_NEG) {
-		base = (cirq_num / 32U) * 4U + CIRQ_POL_CLR_BASE;
-	} else if (pol == MT_CIRQ_POL_POS) {
-		base = (cirq_num / 32U) * 4U + CIRQ_POL_SET_BASE;
-	} else {
-		ERROR("[CIRQ] set_pol invalid polarity value %u\n", pol);
-		return -1;
-	}
+		reg = &cirq_all_events.table[i];
 
-	mt_cirq_write32(bit, base);
-	return 0;
-}
-
-/*
- * mt_cirq_get_pol: Get the specified SYS_CIRQ polarity
- * @cirq_num: the SYS_CIRQ number to get
- * @return:
- *    1: this cirq is MT_CIRQ_POL_POS
- *    0: this cirq is MT_CIRQ_POL_NEG
- *    2: cirq num is out of range
- */
-__attribute__((weak)) unsigned int mt_cirq_get_pol(uint32_t cirq_num)
-{
-	uint32_t st;
-	unsigned int val;
-
-	if (cirq_num >= CIRQ_IRQ_NUM) {
-		ERROR("[CIRQ] %s: invalid cirq %u\n", __func__, cirq_num);
-		return 2;
-	}
-
-	st = mt_cirq_read32((cirq_num / 32U) * 4U + CIRQ_POL_BASE);
-	val = (st >> (cirq_num % 32U)) & 1U;
-	return val;
-}
-
-/*
- * mt_cirq_get_pending: Get the specified SYS_CIRQ pending
- * @cirq_num: the SYS_CIRQ number to get
- * @return:
- *    1: this cirq is pending
- *    0: this cirq is not pending
- *    2: cirq num is out of range
- */
-static unsigned int mt_cirq_get_pending(uint32_t cirq_num)
-{
-	uint32_t st;
-	unsigned int val;
-
-	if (cirq_num >= CIRQ_IRQ_NUM) {
-		ERROR("[CIRQ] %s: invalid cirq %u\n", __func__, cirq_num);
-		return 2;
-	}
-
-	st = mt_cirq_read32((cirq_num / 32U) * 4U + CIRQ_STA_BASE);
-	val = (st >> (cirq_num % 32U)) & 1U;
-	return val;
-}
-
-/*
- * mt_cirq_clone_pol: Copy the polarity setting from GIC to SYS_CIRQ
- */
-void mt_cirq_clone_pol(void)
-{
-	uint32_t cirq_num;
-
-	for (cirq_num = 0U; cirq_num < CIRQ_IRQ_NUM; cirq_num++) {
-		mt_cirq_set_pol(cirq_num, MT_CIRQ_POL_POS);
-	}
-}
-
-/*
- * mt_cirq_clone_sens: Copy the sensitivity setting from GIC to SYS_CIRQ
- */
-void mt_cirq_clone_sens(void)
-{
-	uint32_t cirq_num, irq_num;
-	uint32_t st, val;
-
-	for (cirq_num = 0U; cirq_num < CIRQ_IRQ_NUM; cirq_num++) {
-		irq_num = CIRQ_TO_IRQ_NUM(cirq_num);
-
-		if ((cirq_num == 0U) || (irq_num % 16U == 0U)) {
-			st = mmio_read_32(BASE_GICD_BASE + GICD_ICFGR +
-				(irq_num / 16U * 4U));
+		if (reg->used == 0U) {
+			continue;
 		}
 
-		val = (st >> ((irq_num % 16U) * 2U)) & 0x2U;
+		mmio_write_32(CIRQ_SENS_CLR_BASE + (reg->reg_num * 4U),
+				    reg->sen);
 
-		if (val) {
-			mt_cirq_set_sens(cirq_num, MT_CIRQ_EDGE_SENSITIVE);
-		} else {
-			mt_cirq_set_sens(cirq_num, MT_CIRQ_LEVEL_SENSITIVE);
+		for (cirq_bit = 0U; cirq_bit < 32U; ++cirq_bit) {
+			uint32_t val, cirq_id;
+			uint32_t gic_id;
+#ifdef CIRQ_WITH_POLARITY
+			uint32_t gic_bit, pol;
+#endif
+			uint32_t en;
+
+			val = ((1U << cirq_bit) & reg->mask);
+
+			if (val == 0U) {
+				continue;
+			}
+
+			cirq_id = (reg->reg_num << 5U) + cirq_bit;
+			gic_id = CIRQ_TO_IRQ_NUM(cirq_id);
+#ifdef CIRQ_WITH_POLARITY
+			gic_bit = (0x1U << ((gic_id - 32U) % 32U));
+			pol = mt_irq_get_pol(gic_id) & gic_bit;
+			if (pol != 0U) {
+				mt_cirq_set_pol(cirq_id, MT_CIRQ_POL_NEG);
+			} else {
+				mt_cirq_set_pol(cirq_id, MT_CIRQ_POL_POS);
+			}
+#endif
+			en = mt_irq_get_en(gic_id);
+			if (en == 1U) {
+				mt_cirq_unmask(cirq_id);
+			} else {
+				mt_cirq_mask(cirq_id);
+			}
 		}
 	}
 }
 
-/*
- * mt_cirq_clone_mask: Copy the mask setting from GIC to SYS_CIRQ
- */
-void mt_cirq_clone_mask(void)
+static void cirq_fast_clone(void)
 {
-	uint32_t cirq_num, irq_num;
-	uint32_t st, val;
-
-	for (cirq_num = 0U; cirq_num < CIRQ_IRQ_NUM; cirq_num++) {
-		irq_num = CIRQ_TO_IRQ_NUM(cirq_num);
-
-		if ((cirq_num == 0U) || (irq_num % 32U == 0U)) {
-			st = mmio_read_32(BASE_GICD_BASE +
-				GICD_ISENABLER + (irq_num / 32U * 4U));
-		}
-
-		val = (st >> (irq_num % 32)) & 1U;
-
-		if (val) {
-			mt_cirq_unmask(cirq_num);
-		} else {
-			mt_cirq_mask(cirq_num);
-		}
+	if (already_cloned == 0U) {
+		collect_all_wakeup_events();
+		already_cloned = 1U;
 	}
+	__cirq_fast_clone();
 }
 
+void set_wakeup_sources(uint32_t *list, uint32_t num_of_events)
+{
+	cirq_all_events.num_of_events = num_of_events;
+	cirq_all_events.wakeup_events = list;
+}
 /*
  * mt_cirq_clone_gic: Copy the setting from GIC to SYS_CIRQ
  */
 void mt_cirq_clone_gic(void)
 {
-	mt_cirq_clone_sens();
-	mt_cirq_clone_mask();
+	cirq_fast_clone();
+}
+
+uint32_t mt_irq_get_pending_vec(uint32_t start_irq)
+{
+	uint32_t base = 0U;
+	uint32_t pending_vec = 0U;
+	uint32_t reg = start_irq / 32U;
+	uint32_t LSB_num, MSB_num;
+	uint32_t LSB_vec, MSB_vec;
+
+	base = BASE_GICD_BASE;
+
+	/* if start_irq is not aligned 32, do some assembling */
+	MSB_num = start_irq % 32U;
+	if (MSB_num != 0U) {
+		LSB_num = 32U - MSB_num;
+		LSB_vec = mmio_read_32(base + GICD_ISPENDR +
+			reg * 4U) >> MSB_num;
+		MSB_vec = mmio_read_32(base + GICD_ISPENDR +
+			(reg + 1U) * 4U) << LSB_num;
+		pending_vec = MSB_vec | LSB_vec;
+	} else {
+		pending_vec = mmio_read_32(base + GICD_ISPENDR + reg * 4);
+	}
+
+	return pending_vec;
+}
+
+static int mt_cirq_get_mask_vec(unsigned int i)
+{
+	return mmio_read_32((i * 4U) + CIRQ_MASK_BASE);
+}
+
+/*
+ * mt_cirq_ack_all: Ack all the interrupt on SYS_CIRQ
+ */
+void mt_cirq_ack_all(void)
+{
+	uint32_t ack_vec, pend_vec, mask_vec;
+	unsigned int i;
+
+	for (i = 0; i < CIRQ_CTRL_REG_NUM; i++) {
+		/*
+		 * if a irq is pending & not masked, don't ack it
+		 * , since cirq start irq might not be 32 aligned with gic,
+		 * need an exotic API to get proper vector of pending irq
+		 */
+		pend_vec = mt_irq_get_pending_vec(CIRQ_SPI_START
+			+ (i + 1U) * 32U);
+		mask_vec = mt_cirq_get_mask_vec(i);
+		/* those should be acked are: "not (pending & not masked)",
+		 */
+		ack_vec = (~pend_vec) | mask_vec;
+		mmio_write_32(CIRQ_ACK_BASE + (i * 4U), ack_vec);
+	}
+
+	/*
+	 * make sure all cirq setting take effect
+	 * before doing other things
+	 */
+	dsb();
+}
+/*
+ * mt_cirq_enable: Enable SYS_CIRQ
+ */
+void mt_cirq_enable(void)
+{
+	uint32_t st;
+
+	/* level only */
+	mt_cirq_ack_all();
+
+	st = mmio_read_32(CIRQ_CON);
+	/*
+	 * CIRQ could monitor edge/level trigger
+	 */
+	st |= (CIRQ_CON_EN << CIRQ_CON_EN_BITS);
+
+	mmio_write_32(CIRQ_CON, (st & CIRQ_CON_BITS_MASK));
+}
+
+/*
+ * mt_cirq_disable: Disable SYS_CIRQ
+ */
+void mt_cirq_disable(void)
+{
+	uint32_t st;
+
+	st = mmio_read_32(CIRQ_CON);
+	st &= ~(CIRQ_CON_EN << CIRQ_CON_EN_BITS);
+	mmio_write_32(CIRQ_CON, (st & CIRQ_CON_BITS_MASK));
+}
+
+void mt_irq_unmask_for_sleep_ex(uint32_t irq)
+{
+	uint32_t mask;
+
+	mask = 1U << (irq % 32U);
+
+	mmio_write_32(BASE_GICD_BASE + GICD_ISENABLER +
+		((irq / 32U) * 4U), mask);
+}
+
+void mt_cirq_mask_all(void)
+{
+	unsigned int i;
+
+	for (i = 0U; i < CIRQ_CTRL_REG_NUM; i++) {
+		mmio_write_32(CIRQ_MASK_SET_BASE + (i * 4U), 0xFFFFFFFF);
+	}
+	dsb();
+}
+
+static void cirq_fast_sw_flush(void)
+{
+	struct cirq_reg *reg;
+	unsigned int i;
+
+	for (i = 0U; i < CIRQ_REG_NUM ; ++i) {
+		uint32_t cirq_bit;
+
+		reg = &cirq_all_events.table[i];
+
+		if (reg->used == 0U) {
+			continue;
+		}
+
+		reg->pending = mmio_read_32(CIRQ_STA_BASE +
+			(reg->reg_num << 2U));
+		reg->pending &= reg->mask;
+
+		for (cirq_bit = 0U; cirq_bit < 32U; ++cirq_bit) {
+			uint32_t val, cirq_id;
+
+			val = (1U << cirq_bit) & reg->pending;
+			if (val == 0U) {
+				continue;
+			}
+
+			cirq_id = (reg->reg_num << 5U) + cirq_bit;
+			mt_irq_set_pending(CIRQ_TO_IRQ_NUM(cirq_id));
+			if (CIRQ_TO_IRQ_NUM(cirq_id) == MD_WDT_IRQ_BIT_ID) {
+				INFO("Set MD_WDT_IRQ pending in %s\n",
+					__func__);
+			}
+		}
+	}
 }
 
 /*
@@ -388,107 +535,18 @@ void mt_cirq_clone_gic(void)
  */
 void mt_cirq_flush(void)
 {
-	unsigned int i;
-	unsigned char cirq_p_val = 0U;
-	unsigned char irq_p_val = 0U;
-	uint32_t irq_p = 0U;
-	unsigned char pass = 1U;
-	uint32_t first_cirq_found = 0U;
-	uint32_t first_flushed_cirq;
-	uint32_t first_irq_flushedto;
-	uint32_t last_fluashed_cirq;
-	uint32_t last_irq_flushedto;
-
-	if (cirq_pattern_clone_flush_check_val == 1U) {
-		if (cirq_pattern_list < CIRQ_IRQ_NUM) {
-			mt_cirq_unmask(cirq_pattern_list);
-			mt_cirq_set_sens(cirq_pattern_list,
-				MT_CIRQ_EDGE_SENSITIVE);
-			mt_cirq_set_pol(cirq_pattern_list, MT_CIRQ_POL_NEG);
-			mt_cirq_set_pol(cirq_pattern_list, MT_CIRQ_POL_POS);
-			mt_cirq_set_pol(cirq_pattern_list, MT_CIRQ_POL_NEG);
-		} else {
-			ERROR("[CIRQ] no pattern to test,");
-			ERROR("input pattern first\n");
-		}
-		ERROR("[CIRQ] cirq_pattern %u, cirq_p %u,",
-				cirq_pattern_list,
-				mt_cirq_get_pending(cirq_pattern_list));
-		ERROR("cirq_s %u, cirq_con 0x%x\n",
-				mt_cirq_get_sens(cirq_pattern_list),
-				mt_cirq_read32(CIRQ_CON));
-	}
-
-	mt_cirq_unmask_all();
-
-	for (i = 0U; i < CIRQ_IRQ_NUM; i++) {
-		cirq_p_val = mt_cirq_get_pending(i);
-		if (cirq_p_val) {
-			mt_irq_set_pending(CIRQ_TO_IRQ_NUM(i));
-		}
-
-		if (cirq_clone_flush_check_val == 1U) {
-			if (cirq_p_val == 0U) {
-				continue;
-		}
-			irq_p = CIRQ_TO_IRQ_NUM(i);
-			irq_p_val = mt_irq_get_pending(irq_p);
-			if (cirq_p_val != irq_p_val) {
-				ERROR("[CIRQ] CIRQ Flush Failed ");
-				ERROR("%u(cirq %d)!= %u(gic %d)\n",
-					cirq_p_val, i, irq_p_val,
-					CIRQ_TO_IRQ_NUM(i));
-				pass = 0;
-			} else {
-				ERROR("[CIRQ] CIRQ Flush Pass ");
-				ERROR("%u(cirq %d) = %u(gic %d)\n",
-					cirq_p_val, i, irq_p_val,
-					CIRQ_TO_IRQ_NUM(i));
-			}
-			if (!first_cirq_found) {
-				first_flushed_cirq = i;
-				first_irq_flushedto = irq_p;
-				first_cirq_found = 1U;
-			}
-			last_fluashed_cirq = i;
-			last_irq_flushedto = irq_p;
-		}
-	}
-
-	if (cirq_clone_flush_check_val == 1U) {
-		if (first_cirq_found) {
-			ERROR("[CIRQ] The first flush : CIRQ%u to IRQ%u\n",
-				first_flushed_cirq, first_irq_flushedto);
-			ERROR("[CIRQ] The last flush : CIRQ%u to IRQ%u\n",
-				last_fluashed_cirq, last_irq_flushedto);
-		} else {
-			ERROR("[CIRQ] There are no pending ");
-			ERROR("interrupt in CIRQ\n");
-			ERROR("[CIRQ] so no flush operation happened\n");
-		}
-		ERROR("[CIRQ] The Flush Max Range : CIRQ");
-		ERROR("%d to IRQ%d ~ CIRQ%d to IRQ%d\n", 0U,
-			CIRQ_TO_IRQ_NUM(0U), CIRQ_IRQ_NUM - 1U,
-			CIRQ_TO_IRQ_NUM(CIRQ_IRQ_NUM - 1U));
-		ERROR("[CIRQ] Flush Check %s, Confirm:SPI_START_OFFSET:%d\n",
-			pass == 1 ? "Pass" : "Failed", CIRQ_SPI_START);
-	}
+	cirq_fast_sw_flush();
 	mt_cirq_mask_all();
 	mt_cirq_ack_all();
 }
 
 void mt_cirq_sw_reset(void)
 {
+#ifdef CIRQ_NEED_SW_RESET
 	uint32_t st;
 
-	st = mt_cirq_read32(CIRQ_CON);
+	st = mmio_read_32(CIRQ_CON);
 	st |= (CIRQ_SW_RESET << CIRQ_CON_SW_RST_BITS);
-
-	mt_cirq_write32(st, CIRQ_CON);
-}
-
-void set_wakeup_sources(uint32_t *list, uint32_t num_of_events)
-{
-	cirq_all_events.num_of_events = num_of_events;
-	cirq_all_events.wakeup_events = list;
+	mmio_write_32(CIRQ_CON, st);
+#endif
 }
