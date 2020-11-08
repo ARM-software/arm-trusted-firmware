@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,11 +19,22 @@
 
 #define INDEX_TIMER_COUNT	(4U)
 
+#define RCAR_LOG_HEAD	(('T' << 0) | ('L' << 8) | ('O' << 16) | ('G' << 24))
+
+/*
+ * The log is initialized and used before BL31 xlat tables are initialized,
+ * therefore the log memory is a device memory at that point. Make sure the
+ * memory is correclty aligned and accessed only with up-to 32bit, aligned,
+ * writes.
+ */
+CASSERT((RCAR_BL31_LOG_BASE & 0x7) == 0, assert_bl31_log_base_unaligned);
+CASSERT((RCAR_BL31_LOG_MAX & 0x7) == 0, assert_bl31_log_max_unaligned);
+
 extern RCAR_INSTANTIATE_LOCK typedef struct log_head {
-	uint8_t head[4];
+	uint32_t head;
 	uint32_t index;
 	uint32_t size;
-	uint8_t res[4];
+	uint32_t res;
 } loghead_t;
 
 typedef struct log_map {
@@ -66,15 +77,12 @@ int32_t rcar_set_log_data(int32_t c)
 
 int32_t rcar_log_init(void)
 {
-
-	static const uint8_t const_header[] = "TLOG";
-	logmap_t *t_log;
+	logmap_t *t_log = (logmap_t *)RCAR_BL31_LOG_BASE;
+	uint32_t *log_data = (uint32_t *)t_log->log_data;
 	int16_t init_flag = 0;
+	int i;
 
-	t_log = (logmap_t *) RCAR_BL31_LOG_BASE;
-	if (memcmp
-	    ((const void *)t_log->header.head, (const void *)const_header,
-	     sizeof(t_log->header.head)) != 0) {
+	if (t_log->header.head != RCAR_LOG_HEAD) {
 		/*
 		 * Log header is not "TLOG", then log area initialize
 		 */
@@ -87,11 +95,10 @@ int32_t rcar_log_init(void)
 		init_flag = 1;
 	}
 	if (init_flag == 1) {
-		(void)memset((void *)t_log->log_data, 0,
-			     (size_t) RCAR_BL31_LOG_MAX);
-		(void)memcpy((void *)t_log->header.head,
-			     (const void *)const_header,
-			     sizeof(t_log->header.head));
+		for (i = 0; i < RCAR_BL31_LOG_MAX; i += 4)
+			*log_data++ = 0;
+
+		t_log->header.head = RCAR_LOG_HEAD;
 		t_log->header.index = 0U;
 		t_log->header.size = 0U;
 	}
