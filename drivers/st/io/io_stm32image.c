@@ -346,6 +346,9 @@ static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 			return result;
 		}
 
+		inv_dcache_range(round_up((uintptr_t)(local_buffer + length - hdr_sz),
+					  CACHE_WRITEBACK_GRANULE), *length_read - length + hdr_sz);
+
 		io_close(backend_handle);
 	}
 
