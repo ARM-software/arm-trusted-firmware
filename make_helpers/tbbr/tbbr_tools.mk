@@ -54,8 +54,11 @@ $(eval $(call TOOL_ADD_PAYLOAD,${FWU_CERT},--fwu-cert,,FWU_))
 # packed in the FIP). Developers can use their own keys by specifying the proper
 # build option in the command line when building the Trusted Firmware
 $(if ${KEY_ALG},$(eval $(call CERT_ADD_CMD_OPT,${KEY_ALG},--key-alg)))
+$(if ${KEY_ALG},$(eval $(call CERT_ADD_CMD_OPT,${KEY_ALG},--key-alg,FWU_)))
 $(if ${KEY_SIZE},$(eval $(call CERT_ADD_CMD_OPT,${KEY_SIZE},--key-size)))
+$(if ${KEY_SIZE},$(eval $(call CERT_ADD_CMD_OPT,${KEY_SIZE},--key-size,FWU_)))
 $(if ${HASH_ALG},$(eval $(call CERT_ADD_CMD_OPT,${HASH_ALG},--hash-alg)))
+$(if ${HASH_ALG},$(eval $(call CERT_ADD_CMD_OPT,${HASH_ALG},--hash-alg,FWU_)))
 $(if ${ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key)))
 $(if ${ROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${ROT_KEY},--rot-key,FWU_)))
 $(if ${PROT_KEY},$(eval $(call CERT_ADD_CMD_OPT,${PROT_KEY},--prot-key)))
