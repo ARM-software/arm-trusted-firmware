@@ -28,6 +28,8 @@ ifeq ($(AARCH32_SP),sp_min)
 TF_CFLAGS		+=	-mfloat-abi=soft
 endif
 
+TF_CFLAGS		+=	-Wsign-compare
+
 # Not needed for Cortex-A7
 WORKAROUND_CVE_2017_5715:=	0
 
