@@ -382,35 +382,6 @@ func check_errata_1791580
 endfunc check_errata_1791580
 
 	/* --------------------------------------------------
-	 * Errata Workaround for Cortex A76 Errata #1800710.
-	 * This applies to revision <= r4p0 of Cortex A76.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * --------------------------------------------------
-	 */
-func errata_a76_1800710_wa
-	/* Compare x0 against revision <= r4p0 */
-	mov	x17, x30
-	bl	check_errata_1800710
-	cbz	x0, 1f
-
-	/* Disable allocation of splintered pages in the L2 TLB */
-	mrs	x1, CORTEX_A76_CPUECTLR_EL1
-	orr	x1, x1, CORTEX_A76_CPUECTLR_EL1_BIT_53
-	msr	CORTEX_A76_CPUECTLR_EL1, x1
-	isb
-1:
-	ret	x17
-endfunc errata_a76_1800710_wa
-
-func check_errata_1800710
-	/* Applies to everything <= r4p0 */
-	mov	x1, #0x40
-	b	cpu_rev_var_ls
-endfunc check_errata_1800710
-
-	/* --------------------------------------------------
 	 * Errata Workaround for Cortex A76 Errata #1262606,
 	 * #1275112, and #1868343.  #1262606 and #1275112
 	 * apply to revisions <= r3p0 and #1868343 applies to
@@ -538,11 +509,6 @@ func cortex_a76_reset_func
 	bl	errata_a76_1791580_wa
 #endif
 
-#if ERRATA_A76_1800710
-	mov	x0, x18
-	bl	errata_a76_1800710_wa
-#endif
-
 #if WORKAROUND_CVE_2018_3639
 	/* If the PE implements SSBS, we don't need the dynamic workaround */
 	mrs	x0, id_aa64pfr1_el1
@@ -624,7 +590,6 @@ func cortex_a76_errata_report
 	report_errata ERRATA_A76_1275112, cortex_a76, 1275112
 	report_errata ERRATA_A76_1286807, cortex_a76, 1286807
 	report_errata ERRATA_A76_1791580, cortex_a76, 1791580
-	report_errata ERRATA_A76_1800710, cortex_a76, 1800710
 	report_errata ERRATA_A76_1165522, cortex_a76, 1165522
 	report_errata ERRATA_A76_1868343, cortex_a76, 1868343
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a76, cve_2018_3639
