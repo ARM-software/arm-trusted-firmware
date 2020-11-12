@@ -30,4 +30,20 @@
 
 	/* Boot protocol */
 	gp-register-num = <0x0>;
+
+	device-regions {
+		compatible = "arm,ffa-manifest-device-regions";
+
+		uart1 {
+			base-address = <0x00000000 0x1c0a0000>;
+			pages-count = <1>;
+			attributes = <0x3>; /* read-write */
+		};
+
+		gicd {
+			base-address = <0x00000000 0x2f000000>;
+			pages-count = <16>;
+			attributes = <0x3>; /* read-write */
+		};
+	};
 };
