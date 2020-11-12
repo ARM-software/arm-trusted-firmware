@@ -529,8 +529,10 @@ UniPhier platform port
 
 Xilinx platform port
 ^^^^^^^^^^^^^^^^^^^^
-:M: Siva Durga Prasad Paladugu <siva.durga.paladugu@xilinx.com>
-:G: `sivadur`_
+:M: Michal Simek <michal.simek@xilinx.com>
+:G: `michalsimek`_
+:M: Venkatesh Yadav Abbarapu <venkatesh.abbarapu@xilinx.com>
+:G: `venkatesh`_
 :F: docs/plat/xilinx-zynqmp.rst
 :F: plat/xilinx/
 
@@ -614,6 +616,7 @@ Build system
 .. _ldts: https://github.com/ldts
 .. _marex: https://github.com/marex
 .. _masahir0y: https://github.com/masahir0y
+.. _michalsimek: https://github.com/michalsimek
 .. _mmind: https://github.com/mmind
 .. _mtk09422: https://github.com/mtk09422
 .. _niej: https://github.com/niej
@@ -624,13 +627,13 @@ Build system
 .. _sandrine-bailleux-arm: https://github.com/sandrine-bailleux-arm
 .. _sgorecha: https://github.com/sgorecha
 .. _shawnguo2: https://github.com/shawnguo2
-.. _sivadur: https://github.com/sivadur
 .. _smaeul: https://github.com/smaeul
 .. _soby-mathew: https://github.com/soby-mathew
 .. _thloh85-intel: https://github.com/thloh85-intel
 .. _thomas-arm: https://github.com/thomas-arm
 .. _TonyXie06: https://github.com/TonyXie06
 .. _vwadekar: https://github.com/vwadekar
+.. _venkatesh: https://github.com/vabbarap
 .. _Yann-lms: https://github.com/Yann-lms
 .. _manish-pandey-arm: https://github.com/manish-pandey-arm
 .. _mardyk01: https://github.com/mardyk01
