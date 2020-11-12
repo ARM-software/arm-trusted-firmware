@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,7 @@
 #include <drivers/arm/gic_common.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/clk.h>
+#include <drivers/st/stm32mp_reset.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/mmio.h>
 #include <lib/psci/psci.h>
@@ -149,13 +150,7 @@ static void __dead2 stm32_system_off(void)
 
 static void __dead2 stm32_system_reset(void)
 {
-	mmio_setbits_32(stm32mp_rcc_base() + RCC_MP_GRSTCSETR,
-			RCC_MP_GRSTCSETR_MPSYSRST);
-
-	/* Loop in case system reset is not immediately caught */
-	for ( ; ; ) {
-		;
-	}
+	stm32mp_system_reset();
 }
 
 static int stm32_validate_power_state(unsigned int power_state,

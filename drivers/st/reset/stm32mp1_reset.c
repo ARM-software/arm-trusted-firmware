@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2018-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,14 +7,14 @@
 #include <errno.h>
 #include <limits.h>
 
-#include <platform_def.h>
-
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/delay_timer.h>
 #include <drivers/st/stm32mp_reset.h>
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
+
+#include <platform_def.h>
 
 static uint32_t id2reg_offset(unsigned int reset_id)
 {
@@ -66,4 +66,17 @@ int stm32mp_reset_deassert(uint32_t id, unsigned int to_us)
 	}
 
 	return 0;
+}
+
+void __dead2 stm32mp_system_reset(void)
+{
+	uintptr_t rcc_base = stm32mp_rcc_base();
+
+	mmio_setbits_32(rcc_base + RCC_MP_GRSTCSETR,
+			RCC_MP_GRSTCSETR_MPSYSRST);
+
+	/* Loop in case system reset is not immediately caught */
+	while (true) {
+		wfi();
+	}
 }
