@@ -14,7 +14,7 @@
 	.weak	plat_set_my_stack
 
 	/* ---------------------------------------------------------------------
-	 * When the compatility layer is disabled, the platform APIs
+	 * When the compatibility layer is disabled, the platform APIs
 	 * plat_get_my_stack() and plat_set_my_stack() are supported by the
 	 * platform and the previous APIs platform_get_stack() and
 	 * platform_set_stack() are defined in terms of new APIs making use of
