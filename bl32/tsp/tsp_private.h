@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -61,7 +61,7 @@ typedef struct tsp_args {
  */
 CASSERT(TSP_ARGS_SIZE == sizeof(tsp_args_t), assert_sp_args_size_mismatch);
 
-void tsp_get_magic(uint64_t args[4]);
+uint128_t tsp_get_magic(void);
 
 tsp_args_t *tsp_cpu_resume_main(uint64_t max_off_pwrlvl,
 				uint64_t arg1,
