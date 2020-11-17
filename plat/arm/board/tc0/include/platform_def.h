@@ -112,7 +112,7 @@
  * little space for growth.
  */
 #if TRUSTED_BOARD_BOOT
-# define PLAT_ARM_MAX_BL2_SIZE		0x1E000
+# define PLAT_ARM_MAX_BL2_SIZE		0x20000
 #else
 # define PLAT_ARM_MAX_BL2_SIZE		0x14000
 #endif

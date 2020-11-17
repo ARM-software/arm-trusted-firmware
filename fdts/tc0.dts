@@ -370,4 +370,17 @@
 			};
 		};
 	};
+
+	ffa {
+		compatible = "arm,ffa";
+		conduit = "smc";
+		mem_share_buffer = "tx";
+	};
+
+	firmware {
+		optee {
+		      compatible = "linaro,optee-tz";
+		      method = "ffa";
+		};
+	};
 };

@@ -86,8 +86,12 @@ $(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
 $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
 
 ifeq (${SPD},spmd)
-FDT_SOURCES		+=	${TC0_BASE}/fdts/${PLAT}_spmc_manifest.dts
-TC0_TOS_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_spmc_manifest.dtb
+ifeq ($(ARM_SPMC_MANIFEST_DTS),)
+ARM_SPMC_MANIFEST_DTS	:=	${TC0_BASE}/fdts/${PLAT}_spmc_manifest.dts
+endif
+
+FDT_SOURCES		+=	${ARM_SPMC_MANIFEST_DTS}
+TC0_TOS_FW_CONFIG	:=	${BUILD_PLAT}/fdts/$(notdir $(basename ${ARM_SPMC_MANIFEST_DTS})).dtb
 
 # Add the TOS_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${TC0_TOS_FW_CONFIG},--tos-fw-config,${TC0_TOS_FW_CONFIG}))
