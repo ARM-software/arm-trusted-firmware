@@ -41,7 +41,7 @@
 #error "Invalid value for TF_MBEDTLS_KEY_SIZE"
 #endif
 #else /* Only using ECDSA keys. */
-#define PK_DER_LEN                      91
+#define PK_DER_LEN                      92
 #endif
 
 #if TF_MBEDTLS_HASH_ALG_ID == TF_MBEDTLS_SHA256
