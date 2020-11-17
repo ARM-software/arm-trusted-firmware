@@ -27,6 +27,14 @@
 #define SYSCFG_CMPCR				0x20U
 #define SYSCFG_CMPENSETR			0x24U
 #define SYSCFG_CMPENCLRR			0x28U
+#if STM32MP13
+#define SYSCFG_CMPSD1CR				0x30U
+#define SYSCFG_CMPSD1ENSETR			0x34U
+#define SYSCFG_CMPSD1ENCLRR			0x38U
+#define SYSCFG_CMPSD2CR				0x40U
+#define SYSCFG_CMPSD2ENSETR			0x44U
+#define SYSCFG_CMPSD2ENCLRR			0x48U
+#endif
 #define SYSCFG_IDC				0x380U
 
 #define CMPCR_CMPENSETR_OFFSET			0x4U
@@ -213,11 +221,22 @@ void stm32mp1_syscfg_enable_io_compensation_start(void)
 
 	mmio_setbits_32(SYSCFG_BASE + CMPCR_CMPENSETR_OFFSET + SYSCFG_CMPCR,
 			SYSCFG_CMPENSETR_MPU_EN);
+#if STM32MP13
+	mmio_setbits_32(SYSCFG_BASE + CMPCR_CMPENSETR_OFFSET + SYSCFG_CMPSD1CR,
+			SYSCFG_CMPENSETR_MPU_EN);
+	mmio_setbits_32(SYSCFG_BASE + CMPCR_CMPENSETR_OFFSET + SYSCFG_CMPSD2CR,
+			SYSCFG_CMPENSETR_MPU_EN);
+
+#endif
 }
 
 void stm32mp1_syscfg_enable_io_compensation_finish(void)
 {
 	enable_io_comp_cell_finish(SYSCFG_CMPCR);
+#if STM32MP13
+	enable_io_comp_cell_finish(SYSCFG_CMPSD1CR);
+	enable_io_comp_cell_finish(SYSCFG_CMPSD2CR);
+#endif
 }
 
 void stm32mp1_syscfg_disable_io_compensation(void)
@@ -231,6 +250,10 @@ void stm32mp1_syscfg_disable_io_compensation(void)
 	 * Disable non-secure SYSCFG clock, we assume non-secure is suspended.
 	 */
 	disable_io_comp_cell(SYSCFG_CMPCR);
+#if STM32MP13
+	disable_io_comp_cell(SYSCFG_CMPSD1CR);
+	disable_io_comp_cell(SYSCFG_CMPSD2CR);
+#endif
 
 	clk_disable(SYSCFG);
 }
