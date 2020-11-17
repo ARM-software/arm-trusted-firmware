@@ -13,7 +13,7 @@
 /* arm_sp getter */
 #define arm__sp_getter(prop)	arm_sp.prop
 
-#define ARM_SP_MAX_SIZE		U(0x80000)
+#define ARM_SP_MAX_SIZE		U(0xb0000)
 #define ARM_SP_OWNER_NAME_LEN	U(8)
 
 struct arm_sp_t {
