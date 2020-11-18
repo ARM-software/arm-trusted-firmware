@@ -9,12 +9,9 @@
 
 #include <lib/utils_def.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
-#include <plat/arm/board/common/board_css_def.h>
-#include <plat/arm/board/common/v2m_def.h>
 #include <plat/arm/common/arm_def.h>
 #include <plat/arm/common/arm_spm_def.h>
 #include <plat/arm/css/common/css_def.h>
-#include <plat/arm/soc/common/soc_css_def.h>
 #include <plat/common/common_def.h>
 
 #define PLATFORM_CORE_COUNT		(CSS_SGI_CHIP_COUNT *		\
