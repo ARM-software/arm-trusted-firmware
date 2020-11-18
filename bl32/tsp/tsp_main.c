@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -363,8 +363,10 @@ tsp_args_t *tsp_smc_handler(uint64_t func,
 			       uint64_t arg6,
 			       uint64_t arg7)
 {
+	uint128_t service_args;
+	uint64_t service_arg0;
+	uint64_t service_arg1;
 	uint64_t results[2];
-	uint64_t service_args[2];
 	uint32_t linear_id = plat_my_core_pos();
 
 	/* Update this cpu's statistics */
@@ -387,10 +389,12 @@ tsp_args_t *tsp_smc_handler(uint64_t func,
 	results[1] = arg2;
 
 	/*
-	 * Request a service back from dispatcher/secure monitor. This call
-	 * return and thereafter resume execution
+	 * Request a service back from dispatcher/secure monitor.
+	 * This call returns and thereafter resumes execution.
 	 */
-	tsp_get_magic(service_args);
+	service_args = tsp_get_magic();
+	service_arg0 = (uint64_t)service_args;
+	service_arg1 = (uint64_t)(service_args >> 64U);
 
 #if CTX_INCLUDE_MTE_REGS
 	/*
@@ -403,20 +407,20 @@ tsp_args_t *tsp_smc_handler(uint64_t func,
 	/* Determine the function to perform based on the function ID */
 	switch (TSP_BARE_FID(func)) {
 	case TSP_ADD:
-		results[0] += service_args[0];
-		results[1] += service_args[1];
+		results[0] += service_arg0;
+		results[1] += service_arg1;
 		break;
 	case TSP_SUB:
-		results[0] -= service_args[0];
-		results[1] -= service_args[1];
+		results[0] -= service_arg0;
+		results[1] -= service_arg1;
 		break;
 	case TSP_MUL:
-		results[0] *= service_args[0];
-		results[1] *= service_args[1];
+		results[0] *= service_arg0;
+		results[1] *= service_arg1;
 		break;
 	case TSP_DIV:
-		results[0] /= service_args[0] ? service_args[0] : 1;
-		results[1] /= service_args[1] ? service_args[1] : 1;
+		results[0] /= service_arg0 ? service_arg0 : 1;
+		results[1] /= service_arg1 ? service_arg1 : 1;
 		break;
 	default:
 		break;
