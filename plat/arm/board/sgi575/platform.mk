@@ -12,6 +12,8 @@ PLAT_INCLUDES		+=	-I${SGI575_BASE}/include/
 
 SGI_CPU_SOURCES		:=	lib/cpus/aarch64/cortex_a75.S
 
+PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/sgi_plat.c
+
 BL1_SOURCES		+=	${SGI_CPU_SOURCES}			\
 				${SGI575_BASE}/sgi575_err.c
 
