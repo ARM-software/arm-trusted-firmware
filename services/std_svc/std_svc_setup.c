@@ -13,6 +13,7 @@
 #include <lib/pmf/pmf.h>
 #include <lib/psci/psci.h>
 #include <lib/runtime_instr.h>
+#include <services/pci_svc.h>
 #include <services/sdei.h>
 #include <services/spm_mm_svc.h>
 #include <services/spmd_svc.h>
@@ -155,6 +156,13 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 	if (is_trng_fid(smc_fid)) {
 		return trng_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle,
 				flags);
+	}
+#endif
+
+#if SMC_PCI_SUPPORT
+	if (is_pci_fid(smc_fid)) {
+		return pci_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle,
+				       flags);
 	}
 #endif
 
