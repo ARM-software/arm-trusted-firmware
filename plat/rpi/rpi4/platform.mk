@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -86,6 +86,9 @@ RPI3_RUNTIME_UART		:= 0
 # Use normal memory mapping for ROM, FIP, SRAM and DRAM
 RPI3_USE_UEFI_MAP		:= 0
 
+# SMCCC PCI support (should be enabled for ACPI builds)
+SMC_PCI_SUPPORT            	:= 0
+
 # Process platform flags
 # ----------------------
 
@@ -96,6 +99,7 @@ $(eval $(call add_define,RPI3_PRELOADED_DTB_BASE))
 endif
 $(eval $(call add_define,RPI3_RUNTIME_UART))
 $(eval $(call add_define,RPI3_USE_UEFI_MAP))
+$(eval $(call add_define,SMC_PCI_SUPPORT))
 
 ifeq (${ARCH},aarch32)
   $(error Error: AArch32 not supported on rpi4)
@@ -105,3 +109,8 @@ ifneq ($(ENABLE_STACK_PROTECTOR), 0)
 PLAT_BL_COMMON_SOURCES	+=	drivers/rpi3/rng/rpi3_rng.c		\
 				plat/rpi/common/rpi3_stack_protector.c
 endif
+
+ifeq ($(SMC_PCI_SUPPORT), 1)
+BL31_SOURCES            +=      plat/rpi/rpi4/rpi4_pci_svc.c
+endif
+
