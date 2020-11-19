@@ -20,7 +20,6 @@
 
 #define CORTEX_A76_CPUECTLR_EL1_WS_THR_L2	(ULL(3) << 24)
 #define CORTEX_A76_CPUECTLR_EL1_BIT_51		(ULL(1) << 51)
-#define CORTEX_A76_CPUECTLR_EL1_BIT_53		(ULL(1) << 53)
 
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions.
