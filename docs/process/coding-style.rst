@@ -101,7 +101,7 @@ Note that there is no space between the name of a function and the following
 parentheses.
 
 Control statements (``if``, ``for``, ``switch``, ``while``, etc) must be
-separated from the following open paranthesis by a single space. The previous
+separated from the following open parenthesis by a single space. The previous
 example illustrates this for an ``if`` statement.
 
 Line Length

@@ -13,7 +13,7 @@ Partition Properties
 - compatible [mandatory]
    - value type: <string>
    - Must be the string "arm,ffa-manifest-X.Y" which specifies the major and
-     minor versions fo the device tree binding for the FFA manifest represented
+     minor versions of the device tree binding for the FFA manifest represented
      by this node. The minor number is incremented if the binding changes in a
      backwards compatible manner.
 
@@ -240,7 +240,7 @@ Device Regions
 - exclusive-access
    - value type: <empty>
    - Presence of this field implies that this endpoint must be granted exclusive
-     access and ownership of this devices's MMIO region.
+     access and ownership of this device's MMIO region.
 
 --------------
 
