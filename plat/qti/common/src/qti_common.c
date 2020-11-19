@@ -176,14 +176,14 @@ int32_t plat_get_soc_revision(void)
 }
 
 /*****************************************************************************
- * plat_smccc_feature_available() - This function checks whether SMCCC feature
+ * plat_is_smccc_feature_available() - This function checks whether SMCCC feature
  *                                  is availabile for the platform or not.
  * @fid: SMCCC function id
  *
  * Return SMC_ARCH_CALL_SUCCESS if SMCCC feature is available and
  * SMC_ARCH_CALL_NOT_SUPPORTED otherwise.
  *****************************************************************************/
-int32_t plat_smccc_feature_available(u_register_t fid)
+int32_t plat_is_smccc_feature_available(u_register_t fid)
 {
 	switch (fid) {
 	case SMCCC_ARCH_SOC_ID:
