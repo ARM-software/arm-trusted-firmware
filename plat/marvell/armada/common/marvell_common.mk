@@ -85,3 +85,12 @@ endif
 ifeq (${MSS_SUPPORT}, 1)
 include $(MARVELL_PLAT_BASE)/common/mss/mss_common.mk
 endif
+
+$(BUILD_PLAT)/$(BOOT_IMAGE): $(BUILD_PLAT)/bl1.bin $(BUILD_PLAT)/$(FIP_NAME)
+	@cp $(BUILD_PLAT)/bl1.bin $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
+	@truncate -s %128K $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
+	@cat $(BUILD_PLAT)/$(FIP_NAME) >> $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
+	@truncate -s %4 $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
+	@echo "Built $@ successfully"
+
+mrvl_bootimage: $(BUILD_PLAT)/$(BOOT_IMAGE)

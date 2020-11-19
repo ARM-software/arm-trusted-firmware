@@ -15,6 +15,8 @@ MARVELL_DRV_BASE		:= drivers/marvell
 MARVELL_COMMON_BASE		:= $(MARVELL_PLAT_BASE)/common
 HANDLE_EA_EL3_FIRST		:= 1
 
+include plat/marvell/marvell.mk
+
 #*********** A3700 *************
 
 # GICV3
@@ -65,9 +67,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 ifneq (${WTP},)
 
 DOIMAGEPATH	:= $(WTP)
-DOIMAGETOOL	:= $(DOIMAGEPATH)/wtptp/linux/tbb_linux
-
-include plat/marvell/marvell.mk
+DOIMAGETOOL	:= $(DOIMAGEPATH)/wtptp/src/TBB_Linux/release/TBB_linux
 
 ifeq ($(MARVELL_SECURE_BOOT),1)
 DOIMAGE_CFG	:= $(DOIMAGEPATH)/atf-tim.txt
@@ -120,10 +120,12 @@ TIMBLDUARTARGS		:= $(MARVELL_SECURE_BOOT) UART $(IMAGESPATH) $(DOIMAGEPATH) $(CL
 				$(DDR_TOPOLOGY) 0 0 $(DOIMAGE_CFG) $(TIMNCFG) $(TIMNSIG) 0
 DOIMAGE_FLAGS		:= -r $(DOIMAGE_CFG) -v -D
 
-mrvl_flash: ${BUILD_PLAT}/${FIP_NAME} ${DOIMAGETOOL}
-	$(shell truncate -s %128K ${BUILD_PLAT}/bl1.bin)
-	$(shell cat ${BUILD_PLAT}/bl1.bin ${BUILD_PLAT}/${FIP_NAME} > ${BUILD_PLAT}/${BOOT_IMAGE})
-	$(shell truncate -s %4 ${BUILD_PLAT}/${BOOT_IMAGE})
+$(DOIMAGETOOL):
+	$(if $(value CRYPTOPP_PATH),,$(error "Platform '${PLAT}' for WTP image tool requires CRYPTOPP_PATH. Please set CRYPTOPP_PATH to point to the right directory"))
+	$(Q)$(MAKE) --no-print-directory -C $(CRYPTOPP_PATH) -f GNUmakefile
+	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak LIBDIR=$(CRYPTOPP_PATH)
+
+mrvl_flash: ${BUILD_PLAT}/${BOOT_IMAGE} ${DOIMAGETOOL}
 	$(if $(value MV_DDR_PATH),,$(error "Platform '${PLAT}' for target '$@' requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
 	${Q}${MAKE} --no-print-directory -C ${DOIMAGEPATH} WTMI_IMG=$(WTMI_IMG) MV_DDR_PATH=$(MV_DDR_PATH)
 	$(shell truncate -s %4 $(WTMI_IMG))
