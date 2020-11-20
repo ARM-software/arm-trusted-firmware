@@ -38,6 +38,10 @@ PLAT_BL_COMMON_SOURCES	:=	common/desc_image_load.c			\
 				plat/common/aarch64/crash_console_helpers.S \
 				plat/common/plat_psci_common.c
 
+ifneq (${ENABLE_STACK_PROTECTOR},0)
+PLAT_BL_COMMON_SOURCES	+=	${RK_PLAT_COMMON}/rockchip_stack_protector.c
+endif
+
 BL31_SOURCES	+=	${RK_GIC_SOURCES}				\
 			drivers/arm/cci/cci.c				\
 			drivers/ti/uart/aarch64/16550_console.S		\
