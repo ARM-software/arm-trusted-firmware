@@ -211,8 +211,9 @@ static int intel_fpga_config_start(uint32_t type)
 	status = mailbox_send_cmd(MBOX_JOB_ID, MBOX_RECONFIG, &argument, size,
 			CMD_CASUAL, response, &resp_len);
 
-	if (status < 0)
-		return status;
+	if (status < 0) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
 
 	max_blocks = response[0];
 	bytes_per_block = response[1];
@@ -237,7 +238,7 @@ static int intel_fpga_config_start(uint32_t type)
 		socfpga_bridges_disable();
 	}
 
-	return 0;
+	return INTEL_SIP_SMC_STATUS_OK;
 }
 
 static bool is_fpga_config_buffer_full(void)
