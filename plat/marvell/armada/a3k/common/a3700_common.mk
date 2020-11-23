@@ -128,7 +128,6 @@ $(DOIMAGETOOL):
 mrvl_flash: ${BUILD_PLAT}/${BOOT_IMAGE} ${DOIMAGETOOL}
 	$(if $(value MV_DDR_PATH),,$(error "Platform '${PLAT}' for target '$@' requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
 	${Q}${MAKE} --no-print-directory -C ${DOIMAGEPATH} WTMI_IMG=$(WTMI_IMG) MV_DDR_PATH=$(MV_DDR_PATH)
-	$(shell truncate -s %4 $(WTMI_IMG))
 	@echo
 	@echo "Building uart images"
 	$(TIMBUILD) $(TIMBLDUARTARGS)
