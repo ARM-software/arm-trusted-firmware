@@ -345,6 +345,9 @@
 #define PMU_GLOBAL_GEN_STORAGE4			(GGS_BASEADDR + 0x10)
 /* Warm restart boot health status mask */
 #define PM_BOOT_HEALTH_STATUS_MASK		U(0x01)
+/* WDT restart scope shift and mask */
+#define RESTART_SCOPE_SHIFT			(3)
+#define RESTART_SCOPE_MASK			(0x3U << RESTART_SCOPE_SHIFT)
 
 /*AFI registers */
 #define  AFIFM6_WRCTRL		U(13)
