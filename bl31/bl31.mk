@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -40,6 +40,9 @@ BL31_SOURCES		+=	bl31/bl31_main.c				\
 				${SPMD_SOURCES}					\
 				${SPM_SOURCES}
 
+ifeq (${DISABLE_MTPMU},1)
+BL31_SOURCES		+=	lib/extensions/mtpmu/aarch64/mtpmu.S
+endif
 
 ifeq (${ENABLE_PMF}, 1)
 BL31_SOURCES		+=	lib/pmf/pmf_main.c

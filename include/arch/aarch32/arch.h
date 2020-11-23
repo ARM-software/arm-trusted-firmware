@@ -102,6 +102,11 @@
 /* CSSELR definitions */
 #define LEVEL_SHIFT		U(1)
 
+/* ID_DFR1_EL1 definitions */
+#define ID_DFR1_MTPMU_SHIFT	U(0)
+#define ID_DFR1_MTPMU_MASK	U(0xf)
+#define ID_DFR1_MTPMU_SUPPORTED	U(1)
+
 /* ID_MMFR4 definitions */
 #define ID_MMFR4_CNP_SHIFT	U(12)
 #define ID_MMFR4_CNP_LENGTH	U(4)
@@ -126,6 +131,9 @@
 #define ID_PFR1_GENTIMER_MASK	U(0xf)
 #define ID_PFR1_GIC_SHIFT	U(28)
 #define ID_PFR1_GIC_MASK	U(0xf)
+#define ID_PFR1_SEC_SHIFT	U(4)
+#define ID_PFR1_SEC_MASK	U(0xf)
+#define ID_PFR1_ELx_ENABLED	U(1)
 
 /* SCTLR definitions */
 #define SCTLR_RES1_DEF		((U(1) << 23) | (U(1) << 22) | (U(1) << 4) | \
@@ -164,6 +172,7 @@
 #define SDCR_SCCD_BIT		(U(1) << 23)
 #define SDCR_SPME_BIT		(U(1) << 17)
 #define SDCR_RESET_VAL		U(0x0)
+#define SDCR_MTPME_BIT		(U(1) << 28)
 
 /* HSCTLR definitions */
 #define HSCTLR_RES1	((U(1) << 29) | (U(1) << 28) | (U(1) << 23) | \
@@ -244,6 +253,7 @@
 #define VTTBR_BADDR_SHIFT	U(0)
 
 /* HDCR definitions */
+#define HDCR_MTPME_BIT		(U(1) << 28)
 #define HDCR_HLP_BIT		(U(1) << 26)
 #define HDCR_HPME_BIT		(U(1) << 7)
 #define HDCR_RESET_VAL		U(0x0)
@@ -503,6 +513,7 @@
 #define CTR		p15, 0, c0, c0, 1
 #define CNTFRQ		p15, 0, c14, c0, 0
 #define ID_MMFR4	p15, 0, c0, c2, 6
+#define ID_DFR1		p15, 0, c0, c3, 5
 #define ID_PFR0		p15, 0, c0, c1, 0
 #define ID_PFR1		p15, 0, c0, c1, 1
 #define MAIR0		p15, 0, c10, c2, 0

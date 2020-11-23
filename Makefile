@@ -867,6 +867,7 @@ $(eval $(call assert_booleans,\
         CTX_INCLUDE_EL2_REGS \
         CTX_INCLUDE_NEVE_REGS \
         DEBUG \
+        DISABLE_MTPMU \
         DYN_DISABLE_AUTH \
         EL3_EXCEPTION_HANDLING \
         ENABLE_AMU \
@@ -956,6 +957,7 @@ $(eval $(call add_defines,\
         CTX_INCLUDE_EL2_REGS \
         CTX_INCLUDE_NEVE_REGS \
         DECRYPTION_SUPPORT_${DECRYPTION_SUPPORT} \
+        DISABLE_MTPMU \
         ENABLE_AMU \
         ENABLE_ASSERTIONS \
         ENABLE_BTI \
