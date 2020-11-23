@@ -152,14 +152,20 @@ BLE_PATH	?=  $(PLAT_COMMON_BASE)/ble
 include ${BLE_PATH}/ble.mk
 $(eval $(call MAKE_BL,e))
 
+clean realclean distclean: mrvl_clean
+
+.PHONY: mrvl_clean
 mrvl_clean:
 	@echo "  Doimage CLEAN"
 	${Q}${MAKE} PLAT=${PLAT} --no-print-directory -C ${DOIMAGEPATH} clean
 
-${DOIMAGETOOL}: mrvl_clean
+${DOIMAGETOOL}: FORCE
 	@$(DOIMAGE_LIBS_CHECK)
 	${Q}${MAKE} --no-print-directory -C ${DOIMAGEPATH}
 
+.PHONY: mrvl_flash
 mrvl_flash: ${BUILD_PLAT}/${BOOT_IMAGE} ${DOIMAGETOOL}
 	${DOIMAGETOOL} ${DOIMAGE_FLAGS} ${BUILD_PLAT}/${BOOT_IMAGE} ${BUILD_PLAT}/${FLASH_IMAGE}
 
+.PHONY: FORCE
+FORCE:;

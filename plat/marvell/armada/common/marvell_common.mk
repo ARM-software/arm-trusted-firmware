@@ -93,4 +93,5 @@ $(BUILD_PLAT)/$(BOOT_IMAGE): $(BUILD_PLAT)/bl1.bin $(BUILD_PLAT)/$(FIP_NAME)
 	@truncate -s %4 $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
 	@echo "Built $@ successfully"
 
+.PHONY: mrvl_bootimage
 mrvl_bootimage: $(BUILD_PLAT)/$(BOOT_IMAGE)
