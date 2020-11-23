@@ -1591,3 +1591,29 @@ enum pm_ret_status pm_register_access(unsigned int register_access_id,
 	}
 	return ret;
 }
+
+/**
+ * pm_efuse_access() - To program or read efuse bits.
+ *
+ * This function provides access to the xilskey library to program/read
+ * efuse bits.
+ *
+ * address_low: lower 32-bit Linear memory space address
+ * address_high: higher 32-bit Linear memory space address
+ *
+ * value: Returned output value
+ *
+ * @return  Returns status, either success or error+reason
+ *
+ */
+enum pm_ret_status pm_efuse_access(uint32_t address_high,
+				   uint32_t address_low,
+				   uint32_t *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD3(payload, PM_EFUSE_ACCESS, address_high, address_low);
+
+	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+}

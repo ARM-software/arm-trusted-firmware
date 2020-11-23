@@ -99,6 +99,7 @@ enum pm_api_id {
 	PM_PLL_GET_MODE,
 	/* PM Register Access API */
 	PM_REGISTER_ACCESS,
+	PM_EFUSE_ACCESS,
 	PM_API_MAX
 };
 
