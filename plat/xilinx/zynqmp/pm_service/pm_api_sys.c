@@ -726,16 +726,17 @@ enum pm_ret_status pm_pinctrl_get_config(unsigned int pin,
 					 unsigned int param,
 					 unsigned int *value)
 {
-	return pm_api_pinctrl_get_config(pin, param, value);
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	PM_PACK_PAYLOAD3(payload, PM_PINCTRL_CONFIG_PARAM_GET, pin, param);
+	return pm_ipi_send_sync(primary_proc, payload, value, 1);
 }
 
 /**
- * pm_pinctrl_set_config() - Read value of requested config param for given pin
+ * pm_pinctrl_set_config() - Set value of requested config param for given pin
  * @pin		Pin number
  * @param	Parameter to set
  * @value	Parameter value to set
- *
- * This function provides the configuration parameter value for the given pin.
  *
  * @return	Returns status, either success or error+reason
  */
@@ -743,7 +744,12 @@ enum pm_ret_status pm_pinctrl_set_config(unsigned int pin,
 					 unsigned int param,
 					 unsigned int value)
 {
-	return pm_api_pinctrl_set_config(pin, param, value);
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD4(payload, PM_PINCTRL_CONFIG_PARAM_SET, pin, param,
+			 value);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**

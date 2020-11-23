@@ -709,12 +709,6 @@ enum {
 #define	PINCTRL_DRIVE_STRENGTH_8MA 2U
 #define	PINCTRL_DRIVE_STRENGTH_12MA 3U
 
-enum pm_ret_status pm_api_pinctrl_set_config(unsigned int pin,
-					     unsigned int param,
-					     unsigned int value);
-enum pm_ret_status pm_api_pinctrl_get_config(unsigned int pin,
-					     unsigned int param,
-					     unsigned int *value);
 void pm_api_pinctrl_get_function_name(unsigned int fid, char *name);
 enum pm_ret_status pm_api_pinctrl_get_function_groups(unsigned int fid,
 						      unsigned int index,
