@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -2435,7 +2435,8 @@ enum pm_ret_status pm_api_clock_get_num_clocks(unsigned int *nclocks)
 enum pm_ret_status pm_api_clock_get_name(unsigned int clock_id, char *name)
 {
 	if (clock_id == CLK_MAX)
-		memcpy(name, END_OF_CLK, CLK_NAME_LEN);
+		memcpy(name, END_OF_CLK, sizeof(END_OF_CLK) > CLK_NAME_LEN ?
+					 CLK_NAME_LEN : sizeof(END_OF_CLK));
 	else if (!pm_clock_valid(clock_id))
 		memset(name, 0, CLK_NAME_LEN);
 	else if (clock_id < CLK_MAX_OUTPUT_CLK)
