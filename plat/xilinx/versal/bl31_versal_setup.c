@@ -97,7 +97,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	enum fsbl_handoff ret = fsbl_atf_handover(&bl32_image_ep_info,
 						  &bl33_image_ep_info,
 						  atf_handoff_addr);
-	if (ret == FSBL_HANDOFF_NO_STRUCT) {
+	if (ret == FSBL_HANDOFF_NO_STRUCT || ret == FSBL_HANDOFF_INVAL_STRUCT) {
 		bl31_set_default_config();
 	} else if (ret != FSBL_HANDOFF_SUCCESS) {
 		panic();
