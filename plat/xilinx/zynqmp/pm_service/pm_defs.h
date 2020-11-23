@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -97,6 +97,8 @@ enum pm_api_id {
 	PM_PLL_GET_PARAMETER,
 	PM_PLL_SET_MODE,
 	PM_PLL_GET_MODE,
+	/* PM Register Access API */
+	PM_REGISTER_ACCESS,
 	PM_API_MAX
 };
 

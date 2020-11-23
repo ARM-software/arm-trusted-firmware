@@ -28,6 +28,11 @@ enum pm_query_id {
 	PM_QID_CLOCK_GET_MAX_DIVISOR,
 };
 
+enum pm_register_access_id {
+	CONFIG_REG_WRITE,
+	CONFIG_REG_READ,
+};
+
 /**********************************************************
  * System-level API function declarations
  **********************************************************/
@@ -175,6 +180,11 @@ enum pm_ret_status pm_fpga_read(uint32_t reg_numframes,
 enum pm_ret_status pm_aes_engine(uint32_t address_high,
 				 uint32_t address_low,
 				 uint32_t  *value);
+enum pm_ret_status pm_register_access(unsigned int register_access_id,
+				      unsigned int address,
+				      unsigned int mask,
+				      unsigned int value,
+				      unsigned int *out);
 
 enum pm_ret_status pm_pll_set_parameter(enum pm_node_id nid,
 				enum pm_pll_param param_id,

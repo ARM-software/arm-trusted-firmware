@@ -1546,3 +1546,48 @@ enum pm_ret_status pm_pll_get_mode(enum pm_node_id nid, enum pm_pll_mode *mode)
 	PM_PACK_PAYLOAD2(payload, PM_PLL_GET_MODE, nid);
 	return pm_ipi_send_sync(primary_proc, payload, mode, 1);
 }
+
+/**
+ * pm_register_access() -  PM API for register read/write access data
+ *
+ * @register_access_id	Register_access_id which says register read/write
+ *
+ * @address		Address of the register to be accessed
+ *
+ * @mask		Mask value to be used while writing value
+ *
+ * @value		Value to be written to register
+ *
+ * @out			Returned output data
+ *
+ * This function returns requested data.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_register_access(unsigned int register_access_id,
+				      unsigned int address,
+				      unsigned int mask,
+				      unsigned int value,
+				      unsigned int *out)
+{
+	enum pm_ret_status ret;
+
+	if (((ZYNQMP_CSU_BASEADDR & address) != ZYNQMP_CSU_BASEADDR) &&
+			((CSUDMA_BASE & address) != CSUDMA_BASE) &&
+			((RSA_CORE_BASE & address) != RSA_CORE_BASE) &&
+			((PMU_GLOBAL_BASE & address) != PMU_GLOBAL_BASE))
+		return PM_RET_ERROR_ACCESS;
+
+	switch (register_access_id) {
+	case CONFIG_REG_WRITE:
+		ret = pm_mmio_write(address, mask, value);
+		break;
+	case CONFIG_REG_READ:
+		ret = pm_mmio_read(address, out);
+		break;
+	default:
+		ret = PM_RET_ERROR_ARGS;
+		WARN("Unimplemented register_access call\n\r");
+	}
+	return ret;
+}
