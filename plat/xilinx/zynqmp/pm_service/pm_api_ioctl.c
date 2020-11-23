@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -575,7 +575,7 @@ static enum pm_ret_status pm_ioctl_ulpi_reset(void)
  */
 static enum pm_ret_status pm_ioctl_set_boot_health_status(unsigned int value)
 {
-	return pm_mmio_write(PM_BOOT_HEALTH_STATUS_REG,
+	return pm_mmio_write(PMU_GLOBAL_GEN_STORAGE4,
 			     PM_BOOT_HEALTH_STATUS_MASK, value);
 }
 
