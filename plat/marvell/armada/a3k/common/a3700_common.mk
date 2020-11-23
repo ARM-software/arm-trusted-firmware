@@ -85,6 +85,9 @@ endif #MARVELL_SECURE_BOOT
 
 TIMBUILD	:= $(DOIMAGEPATH)/script/buildtim.sh
 TIM2IMG		:= $(DOIMAGEPATH)/script/tim2img.pl
+TIMDDRTOOL	:= $(DOIMAGEPATH)/tim/ddr/ddr_tool
+
+$(TIMBUILD): $(TIMDDRTOOL)
 
 # WTMI_IMG is used to specify the customized RTOS image running over
 # Service CPU (CM3 processor). By the default, it points to a
@@ -125,10 +128,15 @@ $(DOIMAGETOOL): FORCE
 	$(Q)$(MAKE) --no-print-directory -C $(CRYPTOPP_PATH) -f GNUmakefile
 	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak LIBDIR=$(CRYPTOPP_PATH)
 
+$(WTMI_MULTI_IMG): FORCE
+	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) WTMI_IMG=$(WTMI_IMG) WTMI
+
+$(TIMDDRTOOL): FORCE
+	$(if $(value MV_DDR_PATH),,$(error "Platform '${PLAT}' for ddr tool requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
+	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) MV_DDR_PATH=$(MV_DDR_PATH) mv_ddr
+
 .PHONY: mrvl_flash
-mrvl_flash: ${BUILD_PLAT}/${BOOT_IMAGE} ${DOIMAGETOOL}
-	$(if $(value MV_DDR_PATH),,$(error "Platform '${PLAT}' for target '$@' requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
-	${Q}${MAKE} --no-print-directory -C ${DOIMAGEPATH} WTMI_IMG=$(WTMI_IMG) MV_DDR_PATH=$(MV_DDR_PATH)
+mrvl_flash: ${BUILD_PLAT}/${BOOT_IMAGE} ${WTMI_MULTI_IMG} ${DOIMAGETOOL} ${TIMBUILD}
 	@echo
 	@echo "Building uart images"
 	$(TIMBUILD) $(TIMBLDUARTARGS)
