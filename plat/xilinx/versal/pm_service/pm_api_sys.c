@@ -14,6 +14,7 @@
 #include <plat/common/platform.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
+#include "pm_defs.h"
 
 /*********************************************************************
  * Target module IDs macros
@@ -689,12 +690,31 @@ enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype)
 enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
 				 uint32_t arg3, uint32_t *data)
 {
+	uint32_t ret;
+	uint32_t version;
 	uint32_t payload[PAYLOAD_ARG_CNT];
+	uint32_t fw_api_version;
 
 	/* Send request to the PMC */
 	PM_PACK_PAYLOAD5(payload, LIBPM_MODULE_ID, PM_QUERY_DATA, qid, arg1,
 			 arg2, arg3);
-	return pm_ipi_send_sync(primary_proc, payload, data, 4);
+
+	ret = pm_feature_check(PM_QUERY_DATA, &version);
+	if (PM_RET_SUCCESS == ret){
+		fw_api_version = version & 0xFFFF ;
+		if ((2U == fw_api_version) &&
+		    ((XPM_QID_CLOCK_GET_NAME == qid) ||
+		     (XPM_QID_PINCTRL_GET_FUNCTION_NAME == qid))) {
+			ret = pm_ipi_send_sync(primary_proc, payload, data, 8);
+			ret = data[0];
+			data[0] = data[1];
+			data[1] = data[2];
+			data[2] = data[3];
+		} else {
+			ret = pm_ipi_send_sync(primary_proc, payload, data, 4);
+		}
+	}
+	return ret;
 }
 /**
  * pm_api_ioctl() -  PM IOCTL API for device control and configs
@@ -806,7 +826,11 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	case PM_PINCTRL_CONFIG_PARAM_GET:
 	case PM_PINCTRL_CONFIG_PARAM_SET:
 	case PM_IOCTL:
+		*version = (PM_API_BASE_VERSION << 16);
+		break;
 	case PM_QUERY_DATA:
+		*version = (PM_API_QUERY_DATA_VERSION << 16);
+		break;
 	case PM_CLOCK_ENABLE:
 	case PM_CLOCK_DISABLE:
 	case PM_CLOCK_GETSTATE:

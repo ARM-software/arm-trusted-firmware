@@ -214,14 +214,15 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_QUERY_DATA:
 	{
-		uint32_t data[4] = { 0 };
+		uint32_t data[8] = { 0 };
 
 		ret = pm_query_data(pm_arg[0], pm_arg[1], pm_arg[2],
-			      pm_arg[3], data);
-		SMC_RET2(handle, (uint64_t)ret  | ((uint64_t)data[0] << 32),
-			 (uint64_t)data[1] | ((uint64_t)data[2] << 32));
-	}
+				      pm_arg[3], data);
 
+		SMC_RET2(handle, (uint64_t)ret  | ((uint64_t)data[0] << 32),
+				 (uint64_t)data[1] | ((uint64_t)data[2] << 32));
+
+	}
 	case PM_CLOCK_ENABLE:
 		ret = pm_clock_enable(pm_arg[0]);
 		SMC_RET1(handle, (uint64_t)ret);
