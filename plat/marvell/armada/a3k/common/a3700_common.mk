@@ -156,8 +156,9 @@ ifeq ($(MARVELL_SECURE_BOOT),1)
 	@echo -e "\n\t=======================================================\n";
 	@echo -e "\t  Secure boot. Encrypting wtmi and boot-image \n";
 	@echo -e "\t=======================================================\n";
-	@truncate -s %16 $(WTMI_MULTI_IMG)
-	@openssl enc -aes-256-cbc -e -in $(WTMI_MULTI_IMG) \
+	@cp $(WTMI_MULTI_IMG) $(BUILD_PLAT)/wtmi-align.bin
+	@truncate -s %16 $(BUILD_PLAT)/wtmi-align.bin
+	@openssl enc -aes-256-cbc -e -in $(BUILD_PLAT)/wtmi-align.bin \
 	-out $(WTMI_ENC_IMG) \
 	-K `cat $(IMAGESPATH)/aes-256.txt` -nosalt \
 	-iv `cat $(IMAGESPATH)/iv.txt` -p
