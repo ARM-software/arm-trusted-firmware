@@ -628,3 +628,56 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		SMC_RET1(handle, SMC_UNK);
 	}
 }
+
+/**
+ * em_smc_handler() - SMC handler for EM-API calls coming from EL1/EL2.
+ * @smc_fid - Function Identifier
+ * @x1 - x4 - Arguments
+ * @cookie  - Unused
+ * @handler - Pointer to caller's context structure
+ *
+ * @return  - Unused
+ *
+ * Determines that smc_fid is valid and supported EM SMC Function ID from the
+ * list of em_api_ids, otherwise completes the request with
+ * the unknown SMC Function ID
+ *
+ * The SMC calls for EM service are forwarded from SIP Service SMC handler
+ * function with rt_svc_handle signature
+ */
+uint64_t em_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
+			uint64_t x4, void *cookie, void *handle, uint64_t flags)
+{
+	enum pm_ret_status ret;
+
+	switch (smc_fid & FUNCID_NUM_MASK) {
+	/* EM API Functions */
+	case EM_SET_ACTION:
+	{
+		uint32_t value;
+
+		ret = em_set_action(&value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	case EM_REMOVE_ACTION:
+	{
+		uint32_t value;
+
+		ret = em_remove_action(&value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	case EM_SEND_ERRORS:
+	{
+		uint32_t value;
+
+		ret = em_send_errors(&value);
+		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	default:
+		WARN("Unimplemented EM Service Call: 0x%x\n", smc_fid);
+		SMC_RET1(handle, SMC_UNK);
+	}
+}

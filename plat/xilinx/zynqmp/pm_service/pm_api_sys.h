@@ -198,5 +198,8 @@ enum pm_ret_status pm_pll_set_mode(enum pm_node_id nid, enum pm_pll_mode mode);
 enum pm_ret_status pm_pll_get_mode(enum pm_node_id nid, enum pm_pll_mode *mode);
 enum pm_ret_status pm_efuse_access(uint32_t address_high,
 				   uint32_t address_low, uint32_t *value);
+enum pm_ret_status em_set_action(unsigned int *value);
+enum pm_ret_status em_remove_action(unsigned int *value);
+enum pm_ret_status em_send_errors(unsigned int *value);
 
 #endif /* PM_API_SYS_H */

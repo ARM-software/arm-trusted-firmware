@@ -33,6 +33,7 @@
 #define PM_STATE_CPU_IDLE		0x0U
 #define PM_STATE_SUSPEND_TO_RAM		0xFU
 
+#define EM_FUNID_NUM_MASK    0xF0000U
 /*********************************************************************
  * Enum definitions
  ********************************************************************/
@@ -321,6 +322,15 @@ enum pm_pll_mode {
 enum pm_clock_div_id {
 	PM_CLOCK_DIV0_ID,
 	PM_CLOCK_DIV1_ID,
+};
+
+/**
+ * EM API IDs
+ */
+enum em_api_id {
+	EM_SET_ACTION = 1,
+	EM_REMOVE_ACTION,
+	EM_SEND_ERRORS,
 };
 
 #endif /* PM_DEFS_H */
