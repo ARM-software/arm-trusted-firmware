@@ -27,11 +27,6 @@
 		binary_size = <0x80000>;
 	};
 
-	chosen {
-		linux,initrd-start = <0>;
-		linux,initrd-end = <0>;
-	};
-
 	hypervisor {
 		compatible = "hafnium,hafnium";
 		vm1 {
