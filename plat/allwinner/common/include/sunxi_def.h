@@ -17,5 +17,6 @@
 #define SUNXI_SOC_A64			0x1689
 #define SUNXI_SOC_H5			0x1718
 #define SUNXI_SOC_H6			0x1728
+#define SUNXI_SOC_H616			0x1823
 
 #endif /* SUNXI_DEF_H */

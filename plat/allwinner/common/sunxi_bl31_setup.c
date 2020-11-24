@@ -123,6 +123,9 @@ void bl31_platform_setup(void)
 	case SUNXI_SOC_H6:
 		soc_name = "H6";
 		break;
+	case SUNXI_SOC_H616:
+		soc_name = "H616";
+		break;
 	default:
 		soc_name = "unknown";
 		break;
