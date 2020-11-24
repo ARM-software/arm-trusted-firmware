@@ -214,21 +214,28 @@ define TOOL_ADD_IMG
     # This is the uppercase form of the first parameter
     $(eval _V := $(call uppercase,$(1)))
 
+    # $(check_$(1)_cmd) variable is executed in the check_$(1) target and also
+    # is put into the ${CHECK_$(3)FIP_CMD} variable which is executed by the
+    # target ${BUILD_PLAT}/${$(3)FIP_NAME}.
+    $(eval check_$(1)_cmd := \
+        $(if $(value $(_V)),,$$$$(error "Platform '${PLAT}' requires $(_V). Please set $(_V) to point to the right file")) \
+        $(if $(wildcard $(value $(_V))),,$$$$(error '$(_V)=$(value $(_V))' was specified, but '$(value $(_V))' does not exist)) \
+    )
+
     $(3)CRT_DEPS += check_$(1)
-    $(3)FIP_DEPS += check_$(1)
+    CHECK_$(3)FIP_CMD += $$(check_$(1)_cmd)
 ifeq ($(4),1)
     $(eval ENC_BIN := ${BUILD_PLAT}/$(1)_enc.bin)
     $(call ENCRYPT_FW,$(value $(_V)),$(ENC_BIN))
     $(call TOOL_ADD_IMG_PAYLOAD,$(1),$(value $(_V)),$(2),$(ENC_BIN),$(3), \
 		$(ENC_BIN))
 else
-    $(call TOOL_ADD_IMG_PAYLOAD,$(1),$(value $(_V)),$(2),,$(3))
+    $(call TOOL_ADD_IMG_PAYLOAD,$(1),$(value $(_V)),$(2),$(if $(wildcard $(value $(_V))),$(value $(_V)),FORCE),$(3))
 endif
 
 .PHONY: check_$(1)
 check_$(1):
-	$$(if $(value $(_V)),,$$(error "Platform '${PLAT}' requires $(_V). Please set $(_V) to point to the right file"))
-	$$(if $(wildcard $(value $(_V))),,$$(error '$(_V)=$(value $(_V))' was specified, but '$(value $(_V))' does not exist))
+	$(check_$(1)_cmd)
 endef
 
 ################################################################################
