@@ -2604,18 +2604,13 @@ enum pm_ret_status pm_api_pinctrl_get_num_func_groups(unsigned int fid,
  *
  * This function is used by master to get name of function specified
  * by given function ID.
- *
- * @return	Returns success. In case of error, name data is 0.
  */
-enum pm_ret_status pm_api_pinctrl_get_function_name(unsigned int fid,
-						    char *name)
+void pm_api_pinctrl_get_function_name(unsigned int fid, char *name)
 {
 	if (fid >= MAX_FUNCTION)
 		memcpy(name, END_OF_FUNCTION, FUNCTION_NAME_LEN);
 	else
 		memcpy(name, pinctrl_functions[fid].name, FUNCTION_NAME_LEN);
-
-	return PM_RET_SUCCESS;
 }
 
 /**

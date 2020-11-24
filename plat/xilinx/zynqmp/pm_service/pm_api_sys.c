@@ -793,12 +793,10 @@ static enum pm_ret_status pm_clock_get_num_clocks(uint32_t *nclocks)
  *
  * This function is used by master to get nmae of clock specified
  * by given clock ID.
- *
- * @return	Returns status, either success or error+reason
  */
-static enum pm_ret_status pm_clock_get_name(unsigned int clock_id, char *name)
+static void pm_clock_get_name(unsigned int clock_id, char *name)
 {
-	return pm_api_clock_get_name(clock_id, name);
+	pm_api_clock_get_name(clock_id, name);
 }
 
 /**
@@ -1235,13 +1233,10 @@ static enum pm_ret_status pm_pinctrl_get_num_function_groups(unsigned int fid,
  *
  * This function is used by master to get name of function specified
  * by given function Id
- *
- * Return: Returns status, either success or error+reason.
  */
-static enum pm_ret_status pm_pinctrl_get_function_name(unsigned int fid,
-						       char *name)
+static void pm_pinctrl_get_function_name(unsigned int fid, char *name)
 {
-	return pm_api_pinctrl_get_function_name(fid, name);
+	pm_api_pinctrl_get_function_name(fid, name);
 }
 
 /**
@@ -1301,78 +1296,58 @@ static enum pm_ret_status pm_pinctrl_get_pin_groups(unsigned int pin_id,
  * @data	Returned output data
  *
  * This function returns requested data.
- *
- * @return	Returns status, either success or error+reason
  */
-enum pm_ret_status pm_query_data(enum pm_query_id qid,
-				 unsigned int arg1,
-				 unsigned int arg2,
-				 unsigned int arg3,
-				 unsigned int *data)
+void pm_query_data(enum pm_query_id qid, unsigned int arg1, unsigned int arg2,
+		   unsigned int arg3, unsigned int *data)
 {
-	enum pm_ret_status ret;
-
 	switch (qid) {
 	case PM_QID_CLOCK_GET_NAME:
-		ret = pm_clock_get_name(arg1, (char *)data);
+		pm_clock_get_name(arg1, (char *)data);
 		break;
 	case PM_QID_CLOCK_GET_TOPOLOGY:
-		ret = pm_clock_get_topology(arg1, arg2, &data[1]);
-		data[0] = (unsigned int)ret;
+		data[0] = pm_clock_get_topology(arg1, arg2, &data[1]);
 		break;
 	case PM_QID_CLOCK_GET_FIXEDFACTOR_PARAMS:
-		ret = pm_clock_get_fixedfactor_params(arg1, &data[1], &data[2]);
-		data[0] = (unsigned int)ret;
+		data[0] = pm_clock_get_fixedfactor_params(arg1, &data[1],
+							  &data[2]);
 		break;
 	case PM_QID_CLOCK_GET_PARENTS:
-		ret = pm_clock_get_parents(arg1, arg2, &data[1]);
-		data[0] = (unsigned int)ret;
+		data[0] = pm_clock_get_parents(arg1, arg2, &data[1]);
 		break;
 	case PM_QID_CLOCK_GET_ATTRIBUTES:
-		ret = pm_clock_get_attributes(arg1, &data[1]);
-		data[0] = (unsigned int)ret;
+		data[0] = pm_clock_get_attributes(arg1, &data[1]);
 		break;
 	case PM_QID_PINCTRL_GET_NUM_PINS:
-		ret = pm_pinctrl_get_num_pins(&data[1]);
-		data[0] = (unsigned int)ret;
+		data[0] = pm_pinctrl_get_num_pins(&data[1]);
 		break;
 	case PM_QID_PINCTRL_GET_NUM_FUNCTIONS:
-		ret = pm_pinctrl_get_num_functions(&data[1]);
-		data[0] = (unsigned int)ret;
+		data[0] = pm_pinctrl_get_num_functions(&data[1]);
 		break;
 	case PM_QID_PINCTRL_GET_NUM_FUNCTION_GROUPS:
-		ret = pm_pinctrl_get_num_function_groups(arg1, &data[1]);
-		data[0] = (unsigned int)ret;
+		data[0] = pm_pinctrl_get_num_function_groups(arg1, &data[1]);
 		break;
 	case PM_QID_PINCTRL_GET_FUNCTION_NAME:
-		ret = pm_pinctrl_get_function_name(arg1, (char *)data);
+		pm_pinctrl_get_function_name(arg1, (char *)data);
 		break;
 	case PM_QID_PINCTRL_GET_FUNCTION_GROUPS:
-		ret = pm_pinctrl_get_function_groups(arg1, arg2,
-						     (uint16_t *)&data[1]);
-		data[0] = (unsigned int)ret;
+		data[0] = pm_pinctrl_get_function_groups(arg1, arg2,
+							 (uint16_t *)&data[1]);
 		break;
 	case PM_QID_PINCTRL_GET_PIN_GROUPS:
-		ret = pm_pinctrl_get_pin_groups(arg1, arg2,
-						(uint16_t *)&data[1]);
-		data[0] = (unsigned int)ret;
+		data[0] = pm_pinctrl_get_pin_groups(arg1, arg2,
+						    (uint16_t *)&data[1]);
 		break;
 	case PM_QID_CLOCK_GET_NUM_CLOCKS:
-		ret = pm_clock_get_num_clocks(&data[1]);
-		data[0] = (unsigned int)ret;
+		data[0] = pm_clock_get_num_clocks(&data[1]);
 		break;
 
 	case PM_QID_CLOCK_GET_MAX_DIVISOR:
-		ret = pm_clock_get_max_divisor(arg1, arg2, &data[1]);
-		data[0] = (unsigned int)ret;
+		data[0] = pm_clock_get_max_divisor(arg1, arg2, &data[1]);
 		break;
 	default:
-		ret = PM_RET_ERROR_ARGS;
+		data[0] = PM_RET_ERROR_ARGS;
 		WARN("Unimplemented query service call: 0x%x\n", qid);
-		break;
 	}
-
-	return ret;
 }
 
 enum pm_ret_status pm_sha_hash(uint32_t address_high,

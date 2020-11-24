@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -719,8 +719,7 @@ enum pm_ret_status pm_api_pinctrl_set_config(unsigned int pin,
 enum pm_ret_status pm_api_pinctrl_get_config(unsigned int pin,
 					     unsigned int param,
 					     unsigned int *value);
-enum pm_ret_status pm_api_pinctrl_get_function_name(unsigned int fid,
-						    char *name);
+void pm_api_pinctrl_get_function_name(unsigned int fid, char *name);
 enum pm_ret_status pm_api_pinctrl_get_function_groups(unsigned int fid,
 						      unsigned int index,
 						      uint16_t *groups);

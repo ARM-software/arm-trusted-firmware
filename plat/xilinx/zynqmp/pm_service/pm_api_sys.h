@@ -151,11 +151,8 @@ enum pm_ret_status pm_clock_setparent(unsigned int clock_id,
 				      unsigned int parent_id);
 enum pm_ret_status pm_clock_getparent(unsigned int clock_id,
 				      unsigned int *parent_id);
-enum pm_ret_status pm_query_data(enum pm_query_id qid,
-				 unsigned int arg1,
-				 unsigned int arg2,
-				 unsigned int arg3,
-				 unsigned int *data);
+void pm_query_data(enum pm_query_id qid, unsigned int arg1, unsigned int arg2,
+		   unsigned int arg3, unsigned int *data);
 enum pm_ret_status pm_sha_hash(uint32_t address_high,
 				    uint32_t address_low,
 				    uint32_t size,
