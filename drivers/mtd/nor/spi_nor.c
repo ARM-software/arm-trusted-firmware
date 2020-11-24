@@ -131,7 +131,7 @@ static int spi_nor_macronix_quad_enable(void)
 		return ret;
 	}
 
-	if ((sr & SR_QUAD_EN_MX) == 0U) {
+	if ((sr & SR_QUAD_EN_MX) != 0U) {
 		return 0;
 	}
 
