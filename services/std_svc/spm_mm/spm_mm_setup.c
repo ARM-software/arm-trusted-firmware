@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -142,6 +142,8 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 		SCTLR_DZE_BIT							|
 		/* Enable SP Alignment check for EL0 */
 		SCTLR_SA0_BIT							|
+		/* Don't change PSTATE.PAN on taking an exception to EL1 */
+		SCTLR_SPAN_BIT							|
 		/* Allow cacheable data and instr. accesses to normal memory. */
 		SCTLR_C_BIT | SCTLR_I_BIT					|
 		/* Enable MMU. */
