@@ -13,6 +13,7 @@ folder SP_vendor_1 {
  ===
  UUID = xxx
  load_address = 0xaaa
+ owner = "Sip"
  ...
  ]
 }
@@ -24,8 +25,25 @@ folder SP_vendor_2 {
  ===
  UUID = yyy
  load_address = 0xbbb
+ owner = "Plat"
  ]
 }
+
+artifact tb_fw_config.dts [
+ tb_fw_config.dts
+ ----
+ secure-partitions
+ ===
+ spkg_1 UUID
+ spkg_1 load_address
+ ---
+ spkg_2 UUID
+ spkg_2 load_address
+ ---
+ ...
+ ===
+ ...<rest of the nodes>
+]
 
 artifact config.json [
  SP_LAYOUT.json
@@ -41,31 +59,22 @@ artifact config.json [
 
 control sp_mk_generator
 
-artifact fconf_node [
- fconf_sp.dts
- ===
- spkg_1 UUID
- spkg_1 load_address
- ---
- spkg_2 UUID
- spkg_2 load_address
-]
-
 artifact sp_gen [
  sp_gen.mk
  ===
  FDT_SOURCE = ...
  SPTOOL_ARGS = ...
- FIP_ARG = ...
+ FIP_ARGS = ...
+ CRT_ARGS = ...
 ]
 
 control dtc
 control sptool
 
-artifact FW_CONFIG
+artifact tb_fw_config.dtb
 
 artifact spkg_1 [
- spkg_1.bin
+ sp1.pkg
  ===
  <i>header</i>
  ---
@@ -75,7 +84,7 @@ artifact spkg_1 [
 ]
 
 artifact spkg_2 [
- spkg_2.bin
+ sp2.pkg
  ===
  <i>header</i>
  ---
@@ -84,18 +93,47 @@ artifact spkg_2 [
  binary
 ]
 
+artifact signed_tb_fw_config.dtb [
+ tb_fw_config.dtb (signed)
+]
+
+artifact signed_spkg_1 [
+ sp1.pkg (signed)
+ ===
+ <i>header</i>
+ ---
+ manifest
+ ---
+ binary
+ ---
+ <i>signature</I>
+]
+
+artifact signed_spkg_2 [
+ sp2.pkg (signed)
+ ===
+ <i>header</i>
+ ---
+ manifest
+ ---
+ binary
+ ---
+ <i>signature</I>
+]
+
+control crttool
 control fiptool
 
 artifact fip [
  fip.bin
  ===
- FW_CONFIG.dtb
+ tb_fw_config.dtb (signed)
  ---
  ...
  ---
- SPKG1
+ sp1.pkg  (signed & SiP owned)
  ---
- SPKG2
+ sp2.pkg  (signed & Platform owned)
  ---
  ...
 ]
@@ -103,20 +141,27 @@ artifact fip [
 config.json .up.> SP_vendor_1
 config.json .up.> SP_vendor_2
 config.json --> sp_mk_generator
-sp_mk_generator --> fconf_node
 sp_mk_generator --> sp_gen
-
+sp_gen --> fiptool
+sp_gen --> cert_create
 sp_gen --> sptool
+
 sptool --> spkg_1
 sptool --> spkg_2
 
-fconf_node -down-> dtc
-dtc --> FW_CONFIG
+spkg_1 --> cert_create
+spkg_2 --> cert_create
+cert_create --> signed_spkg_1
+cert_create --> signed_spkg_2
 
-sp_gen --> fiptool
-FW_CONFIG --> fiptool
-spkg_1 -down-> fiptool
-spkg_2 -down-> fiptool
+tb_fw_config.dts --> dtc
+dtc --> tb_fw_config.dtb
+tb_fw_config.dtb --> cert_create
+cert_create --> signed_tb_fw_config.dtb
+
+signed_tb_fw_config.dtb --> fiptool
+signed_spkg_1 -down-> fiptool
+signed_spkg_2 -down-> fiptool
 fiptool -down-> fip
 
 @enduml
