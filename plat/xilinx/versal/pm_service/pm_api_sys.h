@@ -73,4 +73,5 @@ enum pm_ret_status pm_load_pdi(uint32_t src, uint32_t address_low,
 enum pm_ret_status pm_get_op_characteristic(uint32_t device_id,
 					    enum pm_opchar_type type,
 					    uint32_t *result);
+enum pm_ret_status pm_set_max_latency(uint32_t device_id, uint32_t latency);
 #endif /* PM_API_SYS_H */

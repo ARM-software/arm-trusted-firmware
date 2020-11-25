@@ -859,6 +859,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	case PM_PLL_GET_MODE:
 	case PM_FEATURE_CHECK:
 	case PM_INIT_FINALIZE:
+	case PM_SET_MAX_LATENCY:
 		*version = (PM_API_BASE_VERSION << 16);
 		break;
 	case PM_LOAD_PDI:
@@ -923,4 +924,24 @@ enum pm_ret_status pm_get_op_characteristic(uint32_t device_id,
 	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_GET_OP_CHARACTERISTIC,
 			 device_id, type);
 	return pm_ipi_send_sync(primary_proc, payload, result, 1);
+}
+
+/**
+ * pm_set_max_latency() - PM call to change in the maximum wake-up latency
+ *			  requirements for a specific device currently
+ *			  used by that CPU.
+ * @device_id	Device ID
+ * @latency	Latency value
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_set_max_latency(uint32_t device_id, uint32_t latency)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_SET_MAX_LATENCY,
+			 device_id, latency);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
