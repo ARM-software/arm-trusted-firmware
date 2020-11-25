@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include <arch_helpers.h>
+#include <arch_features.h>
 #include <bl31/ehf.h>
 #include <bl31/interrupt_mgmt.h>
 #include <common/bl_common.h>
@@ -232,6 +233,77 @@ static cpu_context_t *restore_and_resume_ns_context(void)
 }
 
 /*
+ * Prepare for ERET:
+ * - Set the ELR to the registered handler address
+ * - Set the SPSR register as described in the SDEI documentation and
+ *   the AArch64.TakeException() pseudocode function in
+ *   ARM DDI 0487F.c page J1-7635
+ */
+
+static void sdei_set_elr_spsr(sdei_entry_t *se, sdei_dispatch_context_t *disp_ctx)
+{
+	unsigned int client_el = sdei_client_el();
+	u_register_t sdei_spsr = SPSR_64(client_el, MODE_SP_ELX,
+					DISABLE_ALL_EXCEPTIONS);
+
+	u_register_t interrupted_pstate = disp_ctx->spsr_el3;
+
+	/* Check the SPAN bit in the client el SCTLR */
+	u_register_t client_el_sctlr;
+
+	if (client_el == MODE_EL2) {
+		client_el_sctlr = read_sctlr_el2();
+	} else {
+		client_el_sctlr = read_sctlr_el1();
+	}
+
+	/*
+	 * Check whether to force the PAN bit or use the value in the
+	 * interrupted EL according to the check described in
+	 * TakeException. Since the client can only be Non-Secure
+	 * EL2 or El1 some of the conditions in ElIsInHost() we know
+	 * will always be True.
+	 * When the client_el is EL2 we know that there will be a SPAN
+	 * bit in SCTLR_EL2 as we have already checked for the condition
+	 * HCR_EL2.E2H = 1 and HCR_EL2.TGE = 1
+	 */
+	u_register_t hcr_el2 = read_hcr();
+	bool el_is_in_host = is_armv8_1_vhe_present() &&
+			     (hcr_el2 & HCR_TGE_BIT) &&
+			     (hcr_el2 & HCR_E2H_BIT);
+
+	if (is_armv8_1_pan_present() &&
+	    ((client_el == MODE_EL1) ||
+		(client_el == MODE_EL2 && el_is_in_host)) &&
+	    ((client_el_sctlr & SCTLR_SPAN_BIT) == 0U)) {
+		sdei_spsr |=  SPSR_PAN_BIT;
+	} else {
+		sdei_spsr |= (interrupted_pstate & SPSR_PAN_BIT);
+	}
+
+	/* If SSBS is implemented, take the value from the client el SCTLR */
+	u_register_t ssbs_enabled = (read_id_aa64pfr1_el1()
+					>> ID_AA64PFR1_EL1_SSBS_SHIFT)
+					& ID_AA64PFR1_EL1_SSBS_MASK;
+	if (ssbs_enabled != SSBS_UNAVAILABLE) {
+		u_register_t  ssbs_bit = ((client_el_sctlr & SCTLR_DSSBS_BIT)
+						>> SCTLR_DSSBS_SHIFT)
+						<< SPSR_SSBS_SHIFT_AARCH64;
+		sdei_spsr |= ssbs_bit;
+	}
+
+	/* If MTE is implemented in the client el set the TCO bit */
+	if (get_armv8_5_mte_support() >= MTE_IMPLEMENTED_ELX) {
+		sdei_spsr |= SPSR_TCO_BIT_AARCH64;
+	}
+
+	/* Take the DIT field from the pstate of the interrupted el */
+	sdei_spsr |= (interrupted_pstate & SPSR_DIT_BIT);
+
+	cm_set_elr_spsr_el3(NON_SECURE, (uintptr_t) se->ep, sdei_spsr);
+}
+
+/*
  * Populate the Non-secure context so that the next ERET will dispatch to the
  * SDEI client.
  */
@@ -256,15 +328,8 @@ static void setup_ns_dispatch(sdei_ev_map_t *map, sdei_entry_t *se,
 	SMC_SET_GP(ctx, CTX_GPREG_X2, disp_ctx->elr_el3);
 	SMC_SET_GP(ctx, CTX_GPREG_X3, disp_ctx->spsr_el3);
 
-	/*
-	 * Prepare for ERET:
-	 *
-	 * - Set PC to the registered handler address
-	 * - Set SPSR to jump to client EL with exceptions masked
-	 */
-	cm_set_elr_spsr_el3(NON_SECURE, (uintptr_t) se->ep,
-			SPSR_64(sdei_client_el(), MODE_SP_ELX,
-				DISABLE_ALL_EXCEPTIONS));
+	/* Setup the elr and spsr register to prepare for ERET */
+	sdei_set_elr_spsr(se, disp_ctx);
 
 #if DYNAMIC_WORKAROUND_CVE_2018_3639
 	cve_2018_3639_t *tgt_cve_2018_3639;

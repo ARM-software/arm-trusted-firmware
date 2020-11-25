@@ -17,6 +17,18 @@ static inline bool is_armv7_gentimer_present(void)
 	return true;
 }
 
+static inline bool is_armv8_1_pan_present(void)
+{
+	return ((read_id_aa64mmfr1_el1() >> ID_AA64MMFR1_EL1_PAN_SHIFT) &
+		ID_AA64MMFR1_EL1_PAN_MASK) != 0U;
+}
+
+static inline bool is_armv8_1_vhe_present(void)
+{
+	return ((read_id_aa64mmfr1_el1() >> ID_AA64MMFR1_EL1_VHE_SHIFT) &
+		ID_AA64MMFR1_EL1_VHE_MASK) != 0U;
+}
+
 static inline bool is_armv8_2_ttcnp_present(void)
 {
 	return ((read_id_aa64mmfr2_el1() >> ID_AA64MMFR2_EL1_CNP_SHIFT) &
