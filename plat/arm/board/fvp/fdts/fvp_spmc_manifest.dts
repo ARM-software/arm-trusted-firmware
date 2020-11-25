@@ -33,6 +33,8 @@
 			is_ffa_partition;
 			debug_name = "cactus-primary";
 			load_address = <0x7000000>;
+			vcpu_count = <8>;
+			mem_size = <1048576>;
 		};
 		vm2 {
 			is_ffa_partition;
