@@ -75,4 +75,6 @@ enum pm_ret_status pm_get_op_characteristic(uint32_t device_id,
 					    enum pm_opchar_type type,
 					    uint32_t *result);
 enum pm_ret_status pm_set_max_latency(uint32_t device_id, uint32_t latency);
+enum pm_ret_status pm_register_notifier(uint32_t device_id, uint32_t event,
+					uint32_t wake, uint32_t enable);
 #endif /* PM_API_SYS_H */

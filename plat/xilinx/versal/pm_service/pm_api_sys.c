@@ -877,6 +877,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	case PM_FEATURE_CHECK:
 	case PM_INIT_FINALIZE:
 	case PM_SET_MAX_LATENCY:
+	case PM_REGISTER_NOTIFIER:
 		*version = (PM_API_BASE_VERSION << 16);
 		break;
 	case PM_LOAD_PDI:
@@ -959,6 +960,28 @@ enum pm_ret_status pm_set_max_latency(uint32_t device_id, uint32_t latency)
 	/* Send request to the PMC */
 	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_SET_MAX_LATENCY,
 			 device_id, latency);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_register_notifier() - PM call to register a subsystem to be notified
+ * 			    about the device event
+ * @device_id	Device ID for the Node to which the event is related
+ * @event	Event in question
+ * @wake	Wake subsystem upon capturing the event if value 1
+ * @enable	Enable the registration for value 1, disable for value 0
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_register_notifier(uint32_t device_id, uint32_t event,
+					uint32_t wake, uint32_t enable)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD5(payload, LIBPM_MODULE_ID, PM_REGISTER_NOTIFIER,
+			 device_id, event, wake, enable);
 
 	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
