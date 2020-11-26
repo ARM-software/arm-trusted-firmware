@@ -549,7 +549,23 @@ bool stm32mp_is_closed_device(void)
 		return true;
 	}
 
+#if STM32MP13
+	value = (value & CFG0_OTP_MODE_MASK) >> CFG0_OTP_MODE_SHIFT;
+
+	switch (value) {
+	case CFG0_OPEN_DEVICE:
+		return false;
+	case CFG0_CLOSED_DEVICE:
+	case CFG0_CLOSED_DEVICE_NO_BOUNDARY_SCAN:
+	case CFG0_CLOSED_DEVICE_NO_JTAG:
+		return true;
+	default:
+		panic();
+	}
+#endif
+#if STM32MP15
 	return (value & CFG0_CLOSED_DEVICE) == CFG0_CLOSED_DEVICE;
+#endif
 }
 
 /* Return true when device supports secure boot */
