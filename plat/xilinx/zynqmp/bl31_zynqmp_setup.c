@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,7 @@
 #include <bl31/bl31.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <drivers/arm/dcc.h>
 #include <drivers/console.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
@@ -62,15 +63,23 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
 	uint64_t atf_handoff_addr;
-	/* Register the console to provide early debug support */
-	static console_t bl31_boot_console;
-	(void)console_cdns_register(ZYNQMP_UART_BASE,
-				       zynqmp_get_uart_clk(),
-				       ZYNQMP_UART_BAUDRATE,
-				       &bl31_boot_console);
-	console_set_scope(&bl31_boot_console,
-			  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_BOOT);
 
+	if (ZYNQMP_CONSOLE_IS(cadence)) {
+		/* Register the console to provide early debug support */
+		static console_t bl31_boot_console;
+		(void)console_cdns_register(ZYNQMP_UART_BASE,
+					       zynqmp_get_uart_clk(),
+					       ZYNQMP_UART_BAUDRATE,
+					       &bl31_boot_console);
+		console_set_scope(&bl31_boot_console,
+				  CONSOLE_FLAG_RUNTIME | CONSOLE_FLAG_BOOT);
+	} else if (ZYNQMP_CONSOLE_IS(dcc)) {
+		/* Initialize the dcc console for debug */
+		int rc = console_dcc_register();
+		if (rc == 0) {
+			panic();
+		}
+	}
 	/* Initialize the platform config for future decision making */
 	zynqmp_config_setup();
 
