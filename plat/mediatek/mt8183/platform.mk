@@ -14,6 +14,7 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT_SOC}/drivers/mcdi/                  \
                  -I${MTK_PLAT_SOC}/drivers/spmc/                  \
                  -I${MTK_PLAT_SOC}/drivers/gpio/                  \
+                 -I${MTK_PLAT_SOC}/drivers/timer/                 \
                  -I${MTK_PLAT_SOC}/drivers/pmic/                  \
                  -I${MTK_PLAT_SOC}/drivers/spm/                   \
                  -I${MTK_PLAT_SOC}/drivers/sspm/                  \
@@ -58,6 +59,7 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT_SOC}/drivers/spm/spm_suspend.c             \
                    ${MTK_PLAT_SOC}/drivers/gpio/mtgpio.c                 \
                    ${MTK_PLAT_SOC}/drivers/uart/uart.c                   \
+                   ${MTK_PLAT_SOC}/drivers/timer/mt_timer.c              \
                    ${MTK_PLAT_SOC}/drivers/emi_mpu/emi_mpu.c             \
                    ${MTK_PLAT_SOC}/plat_pm.c                             \
                    ${MTK_PLAT_SOC}/plat_topology.c                       \
