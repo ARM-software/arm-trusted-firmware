@@ -20,6 +20,12 @@ To build for machines with an H6 SoC:
 
     make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sun50i_h6 DEBUG=1 bl31
 
+To build for machines with an H616 or H313 SoC:
+
+.. code:: shell
+
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=sun50i_h616 DEBUG=1 bl31
+
 
 Installation
 ------------
@@ -71,6 +77,17 @@ The mapping we use on those SoCs is as follows:
    +-+------+-+---+------+--+-------+------+
    0 64K         16M       160M    192M  256M             virtual address
 
+
+H616 SoC
+~~~~~~~~
+
+The H616 lacks the secure SRAM region present on the other SoCs, also
+lacks the "ARISC" management processor (SCP) we use. BL31 thus needs to
+run from DRAM, which prevents our compressed virtual memory map described
+above. Since running in DRAM also lifts the restriction of the limited
+SRAM size, we use the normal 1:1 mapping with 32 bits worth of virtual
+address space. So the virtual addresses used in BL31 match the physical
+addresses as presented above.
 
 Trusted OS dispatcher
 ---------------------

@@ -127,7 +127,7 @@ int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb)
 	}
 
 	/* un-gate R_PIO clock */
-	if (socid != SUNXI_SOC_H6)
+	if (socid != SUNXI_SOC_H6 && socid != SUNXI_SOC_H616)
 		mmio_setbits_32(SUNXI_R_PRCM_BASE + 0x28, BIT(0));
 
 	/* switch pins PL0 and PL1 to the desired function */
@@ -140,7 +140,7 @@ int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb)
 	mmio_clrsetbits_32(SUNXI_R_PIO_BASE + 0x1c, 0x0fU, 0x5U);
 
 	/* un-gate clock */
-	if (socid != SUNXI_SOC_H6)
+	if (socid != SUNXI_SOC_H6 && socid != SUNXI_SOC_H616)
 		mmio_setbits_32(SUNXI_R_PRCM_BASE + 0x28, device_bit);
 	else
 		mmio_setbits_32(SUNXI_R_PRCM_BASE + reset_offset, BIT(0));
