@@ -52,7 +52,7 @@ static void *sunxi_find_dtb(void)
 	uint64_t *u_boot_base;
 	int i;
 
-	u_boot_base = (void *)(SUNXI_DRAM_VIRT_BASE + SUNXI_DRAM_SEC_SIZE);
+	u_boot_base = (void *)SUNXI_BL33_VIRT_BASE;
 
 	for (i = 0; i < 2048 / sizeof(uint64_t); i++) {
 		uint32_t *dtb_base;
