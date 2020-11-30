@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2019-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,9 +12,8 @@
 #include <plat/common/platform.h>
 
 #include <lib/mmio.h>
+#include <cpg_registers.h>
 
-#define CPG_BASE		0xE6150000
-#define CPG_MSTPSR3		0x0048
 #define MSTP318			(1 << 18)
 #define MSTP319			(1 << 19)
 #define PMSR			0x5c
@@ -31,7 +30,7 @@ static int rcar_pcie_fixup(unsigned int controller)
 	int ret = 0;
 
 	/* Test if PCIECx is enabled */
-	cpg = mmio_read_32(CPG_BASE + CPG_MSTPSR3);
+	cpg = mmio_read_32(CPG_MSTPSR3);
 	if (cpg & (MSTP318 << !controller))
 		return ret;
 

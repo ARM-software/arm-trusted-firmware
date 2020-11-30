@@ -88,11 +88,11 @@ static EMMC_ERROR_CODE emmc_dev_finalize(void)
 	SETR_32(SD_INFO2_MASK, SD_INFO2_CLEAR);	/* all interrupt disable */
 	SETR_32(SD_CLK_CTRL, 0x00000000U);	/* MMC clock stop */
 
-	dataL = mmio_read_32(CPG_SMSTPCR3);
+	dataL = mmio_read_32(SMSTPCR3);
 	if ((dataL & CPG_MSTP_MMC) == 0U) {
 		dataL |= (CPG_MSTP_MMC);
 		mmio_write_32(CPG_CPGWPR, (~dataL));
-		mmio_write_32(CPG_SMSTPCR3, dataL);
+		mmio_write_32(SMSTPCR3, dataL);
 	}
 
 	return result;
@@ -101,7 +101,7 @@ static EMMC_ERROR_CODE emmc_dev_finalize(void)
 static EMMC_ERROR_CODE emmc_dev_init(void)
 {
 	/* Enable clock supply to eMMC. */
-	mstpcr_write(CPG_SMSTPCR3, CPG_MSTPSR3, CPG_MSTP_MMC);
+	mstpcr_write(SMSTPCR3, CPG_MSTPSR3, CPG_MSTP_MMC);
 
 	/* Set SD clock */
 	mmio_write_32(CPG_CPGWPR, ~((uint32_t) (BIT9 | BIT0)));	/* SD phy 200MHz */
