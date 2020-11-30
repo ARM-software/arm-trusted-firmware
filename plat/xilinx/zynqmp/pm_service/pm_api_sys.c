@@ -907,7 +907,13 @@ static enum pm_ret_status pm_clock_gate(unsigned int clock_id,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD2(payload, api_id, clock_id);
-	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+	status = pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+
+	/* If action fails due to the lack of permissions filter the error */
+	if (status == PM_RET_ERROR_ACCESS)
+		status = PM_RET_SUCCESS;
+
+	return status;
 }
 
 /**
