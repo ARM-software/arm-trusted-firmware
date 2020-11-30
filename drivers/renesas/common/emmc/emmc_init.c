@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include "emmc_registers.h"
 #include "emmc_def.h"
 #include "rcar_private.h"
+#include "cpg_registers.h"
 
 st_mmc_base mmc_drv_obj;
 

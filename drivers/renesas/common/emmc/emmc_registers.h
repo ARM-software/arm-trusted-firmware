@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -60,8 +60,6 @@
 #define CPG_SD2CKCR	(CPG_BASE + 0x0268U)
 /* SDHI3 clock frequency control register */
 #define CPG_SD3CKCR	(CPG_BASE + 0x026CU)
-/* CPG Write Protect Register */
-#define CPG_CPGWPR	(CPG_BASE + 0x0900U)
 
 #if USE_MMC_CH == MMC_CH0
 #define CPG_SDxCKCR		(CPG_SD2CKCR)	/* SDHI2/MMC0 */
