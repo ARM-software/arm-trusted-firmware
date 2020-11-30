@@ -517,7 +517,7 @@ RCAR_DVFS_API(send, uint8_t slave, uint8_t reg_addr, uint8_t reg_data)
 	uint32_t err = 0U;
 
 	mstpcr_write(SCMSTPCR9, CPG_MSTPSR9, CPG_BIT_SMSTPCR9_DVFS);
-	mmio_write_8(IIC_DVFS_REG_ICCR, 0U);
+	mmio_write_8(IIC_DVFS_REG_ICCR, 1U);
 again:
 	switch (state) {
 	case DVFS_START:
@@ -557,7 +557,7 @@ RCAR_DVFS_API(receive, uint8_t slave, uint8_t reg, uint8_t *data)
 	uint32_t err = 0U;
 
 	mstpcr_write(SCMSTPCR9, CPG_MSTPSR9, CPG_BIT_SMSTPCR9_DVFS);
-	mmio_write_8(IIC_DVFS_REG_ICCR, 0U);
+	mmio_write_8(IIC_DVFS_REG_ICCR, 1U);
 again:
 	switch (state) {
 	case DVFS_START:
