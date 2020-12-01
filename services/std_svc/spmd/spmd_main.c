@@ -109,6 +109,7 @@ uint64_t spmd_spm_core_sync_entry(spmd_spm_core_context_t *spmc_ctx)
 
 	/* Restore the context assigned above */
 	cm_el1_sysregs_context_restore(SECURE);
+
 #if SPMD_SPM_AT_SEL2
 	cm_el2_sysregs_context_restore(SECURE);
 #endif
@@ -348,12 +349,18 @@ static uint64_t spmd_smc_forward(uint32_t smc_fid,
 
 	/* Save incoming security state */
 	cm_el1_sysregs_context_save(secure_state_in);
+#if CTX_INCLUDE_FPREGS
+	fpregs_context_save(get_fpregs_ctx(cm_get_context(secure_state_in)));
+#endif
 #if SPMD_SPM_AT_SEL2
 	cm_el2_sysregs_context_save(secure_state_in);
 #endif
 
 	/* Restore outgoing security state */
 	cm_el1_sysregs_context_restore(secure_state_out);
+#if CTX_INCLUDE_FPREGS
+	fpregs_context_restore(get_fpregs_ctx(cm_get_context(secure_state_out)));
+#endif
 #if SPMD_SPM_AT_SEL2
 	cm_el2_sysregs_context_restore(secure_state_out);
 #endif
