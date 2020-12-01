@@ -144,30 +144,33 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 		scr_el3 |= SCR_API_BIT | SCR_APK_BIT;
 #endif /* !CTX_INCLUDE_PAUTH_REGS */
 
+#if !CTX_INCLUDE_MTE_REGS || ENABLE_ASSERTIONS
+	/* Get Memory Tagging Extension support level */
+	unsigned int mte = get_armv8_5_mte_support();
+#endif
 	/*
 	 * Enable MTE support. Support is enabled unilaterally for the normal
 	 * world, and only for the secure world when CTX_INCLUDE_MTE_REGS is
 	 * set.
 	 */
 #if CTX_INCLUDE_MTE_REGS
-	assert(get_armv8_5_mte_support() == MTE_IMPLEMENTED_ELX);
+	assert((mte == MTE_IMPLEMENTED_ELX) || (mte == MTE_IMPLEMENTED_ASY));
 	scr_el3 |= SCR_ATA_BIT;
 #else
-	unsigned int mte = get_armv8_5_mte_support();
-	if (mte == MTE_IMPLEMENTED_EL0) {
-		/*
-		 * Can enable MTE across both worlds as no MTE registers are
-		 * used
-		 */
-		scr_el3 |= SCR_ATA_BIT;
-	} else if (mte == MTE_IMPLEMENTED_ELX && security_state == NON_SECURE) {
-		/*
-		 * Can only enable MTE in Non-Secure world without register
-		 * saving
-		 */
+	/*
+	 * When MTE is only implemented at EL0, it can be enabled
+	 * across both worlds as no MTE registers are used.
+	 */
+	if ((mte == MTE_IMPLEMENTED_EL0) ||
+	/*
+	 * When MTE is implemented at all ELs, it can be only enabled
+	 * in Non-Secure world without register saving.
+	 */
+	  (((mte == MTE_IMPLEMENTED_ELX) || (mte == MTE_IMPLEMENTED_ASY)) &&
+	    (security_state == NON_SECURE))) {
 		scr_el3 |= SCR_ATA_BIT;
 	}
-#endif
+#endif	/* CTX_INCLUDE_MTE_REGS */
 
 #ifdef IMAGE_BL31
 	/*

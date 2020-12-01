@@ -266,9 +266,17 @@
 #define ID_AA64PFR1_EL1_MTE_SHIFT	U(8)
 #define ID_AA64PFR1_EL1_MTE_MASK	ULL(0xf)
 
-#define MTE_UNIMPLEMENTED	ULL(0)
-#define MTE_IMPLEMENTED_EL0	ULL(1)	/* MTE is only implemented at EL0 */
-#define MTE_IMPLEMENTED_ELX	ULL(2)	/* MTE is implemented at all ELs */
+/* Memory Tagging Extension is not implemented */
+#define MTE_UNIMPLEMENTED	U(0)
+/* FEAT_MTE: MTE instructions accessible at EL0 are implemented */
+#define MTE_IMPLEMENTED_EL0	U(1)
+/* FEAT_MTE2: Full MTE is implemented */
+#define MTE_IMPLEMENTED_ELX	U(2)
+/*
+ * FEAT_MTE3: MTE is implemented with support for
+ * asymmetric Tag Check Fault handling
+ */
+#define MTE_IMPLEMENTED_ASY	U(3)
 
 #define ID_AA64PFR1_MPAM_FRAC_SHIFT	ULL(16)
 #define ID_AA64PFR1_MPAM_FRAC_MASK	ULL(0xf)
