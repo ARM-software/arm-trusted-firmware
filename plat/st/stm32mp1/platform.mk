@@ -117,8 +117,10 @@ endif
 
 ifeq ($(STM32MP13),1)
 STM32_HASH_VER		:=	4
+STM32_RNG_VER		:=	4
 else # Assuming STM32MP15
 STM32_HASH_VER		:=	2
+STM32_RNG_VER		:=	2
 endif
 
 # Boot devices
@@ -236,6 +238,7 @@ $(eval $(call assert_numerics,\
 	$(sort \
 		PLAT_PARTITION_MAX_ENTRIES \
 		STM32_HASH_VER \
+		STM32_RNG_VER \
 		STM32_TF_A_COPIES \
 		STM32_TF_VERSION \
 		STM32MP_UART_BAUDRATE \
@@ -247,6 +250,7 @@ $(eval $(call add_defines,\
 		PLAT_PARTITION_MAX_ENTRIES \
 		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32_HASH_VER \
+		STM32_RNG_VER \
 		STM32_TF_A_COPIES \
 		STM32_TF_VERSION \
 		STM32MP_CRYPTO_ROM_LIB \
@@ -317,7 +321,8 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 
 ifeq ($(STM32MP13),1)
 PLAT_BL_COMMON_SOURCES	+=	drivers/st/clk/clk-stm32-core.c				\
-				drivers/st/clk/clk-stm32mp13.c
+				drivers/st/clk/clk-stm32mp13.c				\
+				drivers/st/crypto/stm32_rng.c
 else
 PLAT_BL_COMMON_SOURCES	+=	drivers/st/clk/stm32mp1_clk.c
 endif

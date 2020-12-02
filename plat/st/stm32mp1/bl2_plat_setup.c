@@ -17,6 +17,7 @@
 #include <drivers/st/bsec.h>
 #include <drivers/st/regulator_fixed.h>
 #include <drivers/st/stm32_iwdg.h>
+#include <drivers/st/stm32_rng.h>
 #include <drivers/st/stm32_uart.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_pwr.h>
@@ -374,6 +375,12 @@ skip_console_init:
 #endif
 		}
 	}
+
+#if STM32MP13
+	if (stm32_rng_init() != 0) {
+		panic();
+	}
+#endif
 
 #if STM32MP15
 	if (stm32mp_is_auth_supported()) {
