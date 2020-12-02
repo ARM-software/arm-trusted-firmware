@@ -36,6 +36,10 @@ PLAT_BL_COMMON_SOURCES	:=	lib/bl_aux_params/bl_aux_params.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
 				plat/common/plat_psci_common.c
 
+ifneq (${ENABLE_STACK_PROTECTOR},0)
+PLAT_BL_COMMON_SOURCES	+=	${RK_PLAT_COMMON}/rockchip_stack_protector.c
+endif
+
 BL31_SOURCES		+=	${RK_GIC_SOURCES}				\
 				common/desc_image_load.c			\
 				drivers/arm/cci/cci.c				\
