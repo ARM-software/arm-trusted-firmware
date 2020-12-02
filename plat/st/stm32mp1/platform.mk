@@ -227,6 +227,10 @@ BL2_SOURCES		+=	plat/st/stm32mp1/plat_bl2_mem_params_desc.c		\
 BL2_SOURCES		+=	drivers/st/crypto/stm32_hash.c				\
 				plat/st/stm32mp1/bl2_plat_setup.c
 
+ifeq ($(STM32MP13),1)
+BL2_SOURCES		+=	drivers/st/mce/stm32_mce.c
+endif
+
 ifeq (${TRUSTED_BOARD_BOOT},1)
 ifeq ($(STM32MP13),1)
 BL2_SOURCES		+=	drivers/st/crypto/stm32_pka.c

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2025, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -548,6 +548,14 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
  * STM32MP1 DDRPHYC
  ******************************************************************************/
 #define DDRPHYC_BASE			U(0x5A004000)
+
+/*******************************************************************************
+ * STM32MP1 MCE
+ ******************************************************************************/
+#if STM32MP13
+#define MCE_BASE			U(0x58001000)
+#define MCE_KEY_SIZE_IN_BYTES		U(16)
+#endif
 
 /*******************************************************************************
  * STM32MP1 IWDG
