@@ -64,7 +64,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				$(PLAT_COMMON_BASE)/a3700_sip_svc.c	\
 				$(MARVELL_DRV)
 
-ifneq (${WTP},)
+ifdef WTP
 
 DOIMAGEPATH	:= $(WTP)
 DOIMAGETOOL	:= $(DOIMAGEPATH)/wtptp/src/TBB_Linux/release/TBB_linux
@@ -200,13 +200,13 @@ ifdef CRYPTOPP_PATH
 	-$(Q)$(MAKE) --no-print-directory -C $(CRYPTOPP_PATH) -f GNUmakefile clean
 endif
 
-else # ${WTP}
+else # WTP
 
 .PHONY: mrvl_flash
 mrvl_flash:
 	$(error "Platform '${PLAT}' for target '$@' requires WTP. Please set WTP to point to the right directory")
 
-endif # ${WTP}
+endif # WTP
 
 .PHONY: FORCE
 FORCE:;
