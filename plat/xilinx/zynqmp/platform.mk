@@ -59,13 +59,14 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/zynqmp/include/			\
 				-Iplat/xilinx/zynqmp/pm_service/		\
 
+# Include GICv2 driver files
+include drivers/arm/gic/v2/gicv2.mk
+
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
-				drivers/arm/gic/common/gic_common.c		\
-				drivers/arm/gic/v2/gicv2_main.c			\
-				drivers/arm/gic/v2/gicv2_helpers.c		\
+				${GICV2_SOURCES}				\
 				drivers/cadence/uart/aarch64/cdns_console.S	\
 				plat/arm/common/arm_cci.c			\
 				plat/arm/common/arm_common.c			\
