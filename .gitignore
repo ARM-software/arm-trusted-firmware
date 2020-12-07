@@ -15,6 +15,10 @@ tools/renesas/rcar_layout_create/*.bin
 tools/renesas/rcar_layout_create/*.srec
 tools/renesas/rcar_layout_create/*.map
 tools/renesas/rcar_layout_create/*.elf
+tools/renesas/rzg_layout_create/*.bin
+tools/renesas/rzg_layout_create/*.srec
+tools/renesas/rzg_layout_create/*.map
+tools/renesas/rzg_layout_create/*.elf
 tools/fiptool/fiptool
 tools/fiptool/fiptool.exe
 tools/cert_create/src/*.o
