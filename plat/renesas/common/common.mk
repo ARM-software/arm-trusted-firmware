@@ -33,6 +33,7 @@ RCAR_H3N:=4
 RCAR_D3:=5
 RCAR_V3M:=6
 RCAR_AUTO:=99
+RZ_G2M:=100
 $(eval $(call add_define,RCAR_H3))
 $(eval $(call add_define,RCAR_M3))
 $(eval $(call add_define,RCAR_M3N))
@@ -41,6 +42,8 @@ $(eval $(call add_define,RCAR_H3N))
 $(eval $(call add_define,RCAR_D3))
 $(eval $(call add_define,RCAR_V3M))
 $(eval $(call add_define,RCAR_AUTO))
+$(eval $(call add_define,RZ_G2M))
+
 RCAR_CUT_10:=0
 RCAR_CUT_11:=1
 RCAR_CUT_13:=3
