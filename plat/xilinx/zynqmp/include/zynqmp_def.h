@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -341,8 +341,9 @@
 #define PGGS_BASEADDR		(0xFFD80050U)
 #define PGGS_NUM_REGS		U(4)
 
-/* Warm restart boot health status register and mask */
-#define PM_BOOT_HEALTH_STATUS_REG		(GGS_BASEADDR + U(0x10))
+/* PMU GGS4 register 4 is used for warm restart boot health status */
+#define PMU_GLOBAL_GEN_STORAGE4			(GGS_BASEADDR + 0x10)
+/* Warm restart boot health status mask */
 #define PM_BOOT_HEALTH_STATUS_MASK		U(0x01)
 
 /*AFI registers */
