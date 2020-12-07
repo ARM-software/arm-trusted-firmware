@@ -64,7 +64,7 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				$(PLAT_COMMON_BASE)/a3700_sip_svc.c	\
 				$(MARVELL_DRV)
 
-ifneq (${WTP},)
+ifdef WTP
 
 DOIMAGEPATH	:= $(WTP)
 DOIMAGETOOL	:= $(DOIMAGEPATH)/wtptp/src/TBB_Linux/release/TBB_linux
@@ -85,6 +85,9 @@ endif #MARVELL_SECURE_BOOT
 
 TIMBUILD	:= $(DOIMAGEPATH)/script/buildtim.sh
 TIM2IMG		:= $(DOIMAGEPATH)/script/tim2img.pl
+TIMDDRTOOL	:= $(DOIMAGEPATH)/tim/ddr/ddr_tool
+
+$(TIMBUILD): $(TIMDDRTOOL)
 
 # WTMI_IMG is used to specify the customized RTOS image running over
 # Service CPU (CM3 processor). By the default, it points to a
@@ -101,7 +104,7 @@ WTMI_SYSINIT_IMG	:= $(DOIMAGEPATH)/wtmi/sys_init/build/sys_init.bin
 # and sys-init image (WTMI_SYSINIT_IMG).
 WTMI_MULTI_IMG		:= $(DOIMAGEPATH)/wtmi/build/wtmi.bin
 
-WTMI_ENC_IMG		:= $(DOIMAGEPATH)/wtmi/build/wtmi-enc.bin
+WTMI_ENC_IMG		:= $(BUILD_PLAT)/wtmi-enc.bin
 BUILD_UART		:= uart-images
 
 SRCPATH			:= $(dir $(BL33))
@@ -120,15 +123,20 @@ TIMBLDUARTARGS		:= $(MARVELL_SECURE_BOOT) UART $(IMAGESPATH) $(DOIMAGEPATH) $(CL
 				$(DDR_TOPOLOGY) 0 0 $(DOIMAGE_CFG) $(TIMNCFG) $(TIMNSIG) 0
 DOIMAGE_FLAGS		:= -r $(DOIMAGE_CFG) -v -D
 
-$(DOIMAGETOOL):
+$(DOIMAGETOOL): FORCE
 	$(if $(value CRYPTOPP_PATH),,$(error "Platform '${PLAT}' for WTP image tool requires CRYPTOPP_PATH. Please set CRYPTOPP_PATH to point to the right directory"))
 	$(Q)$(MAKE) --no-print-directory -C $(CRYPTOPP_PATH) -f GNUmakefile
 	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak LIBDIR=$(CRYPTOPP_PATH)
 
-mrvl_flash: ${BUILD_PLAT}/${BOOT_IMAGE} ${DOIMAGETOOL}
-	$(if $(value MV_DDR_PATH),,$(error "Platform '${PLAT}' for target '$@' requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
-	${Q}${MAKE} --no-print-directory -C ${DOIMAGEPATH} WTMI_IMG=$(WTMI_IMG) MV_DDR_PATH=$(MV_DDR_PATH)
-	$(shell truncate -s %4 $(WTMI_IMG))
+$(WTMI_MULTI_IMG): FORCE
+	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) WTMI_IMG=$(WTMI_IMG) WTMI
+
+$(TIMDDRTOOL): FORCE
+	$(if $(value MV_DDR_PATH),,$(error "Platform '${PLAT}' for ddr tool requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
+	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) MV_DDR_PATH=$(MV_DDR_PATH) mv_ddr
+
+.PHONY: mrvl_flash
+mrvl_flash: ${BUILD_PLAT}/${BOOT_IMAGE} ${WTMI_MULTI_IMG} ${DOIMAGETOOL} ${TIMBUILD}
 	@echo
 	@echo "Building uart images"
 	$(TIMBUILD) $(TIMBLDUARTARGS)
@@ -157,8 +165,9 @@ ifeq ($(MARVELL_SECURE_BOOT),1)
 	@echo -e "\n\t=======================================================\n";
 	@echo -e "\t  Secure boot. Encrypting wtmi and boot-image \n";
 	@echo -e "\t=======================================================\n";
-	@truncate -s %16 $(WTMI_MULTI_IMG)
-	@openssl enc -aes-256-cbc -e -in $(WTMI_MULTI_IMG) \
+	@cp $(WTMI_MULTI_IMG) $(BUILD_PLAT)/wtmi-align.bin
+	@truncate -s %16 $(BUILD_PLAT)/wtmi-align.bin
+	@openssl enc -aes-256-cbc -e -in $(BUILD_PLAT)/wtmi-align.bin \
 	-out $(WTMI_ENC_IMG) \
 	-K `cat $(IMAGESPATH)/aes-256.txt` -nosalt \
 	-iv `cat $(IMAGESPATH)/iv.txt` -p
@@ -170,15 +179,34 @@ ifeq ($(MARVELL_SECURE_BOOT),1)
 endif
 	$(DOIMAGETOOL) $(DOIMAGE_FLAGS)
 	@if [ -e "$(TIMNCFG)" ]; then $(DOIMAGETOOL) -r $(TIMNCFG); fi
-	@if [ "$(MARVELL_SECURE_BOOT)" = "1" ]; then sed -i 's|$(WTMI_MULTI_IMG)|$(WTMI_ENC_IMG)|1;s|$(BOOT_IMAGE)|$(BOOT_ENC_IMAGE)|1;' $(TIMNCFG); fi
+ifeq ($(MARVELL_SECURE_BOOT),1)
+	@sed -i 's|$(WTMI_MULTI_IMG)|$(WTMI_ENC_IMG)|1;s|$(BOOT_IMAGE)|$(BOOT_ENC_IMAGE)|1;' $(TIMNCFG)
+endif
 	$(TIM2IMG) $(TIM2IMGARGS) -o $(BUILD_PLAT)/$(FLASH_IMAGE)
-	@mv -t $(BUILD_PLAT) $(TIM_IMAGE) $(DOIMAGE_CFG) $(TIMN_IMAGE) $(TIMNCFG) $(WTMI_IMG) $(WTMI_SYSINIT_IMG) $(WTMI_MULTI_IMG)
-	@if [ "$(MARVELL_SECURE_BOOT)" = "1" ]; then mv -t $(BUILD_PLAT) $(WTMI_ENC_IMG) OtpHash.txt; fi
+	@mv -t $(BUILD_PLAT) $(TIM_IMAGE) $(DOIMAGE_CFG) $(TIMN_IMAGE) $(TIMNCFG)
+	@cp -t $(BUILD_PLAT) $(WTMI_IMG) $(WTMI_SYSINIT_IMG) $(WTMI_MULTI_IMG)
+ifeq ($(MARVELL_SECURE_BOOT),1)
+	@mv -t $(BUILD_PLAT) OtpHash.txt
+endif
 	@find . -name "*.txt" | grep -E "CSK[[:alnum:]]_KeyHash.txt|Tim_msg.txt|TIMHash.txt" | xargs rm -f
 
-else # ${WTP}
+clean realclean distclean: mrvl_clean
 
+.PHONY: mrvl_clean
+mrvl_clean:
+	-$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) MV_DDR_PATH=$(MV_DDR_PATH) clean
+	-$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak LIBDIR=$(CRYPTOPP_PATH) clean
+ifdef CRYPTOPP_PATH
+	-$(Q)$(MAKE) --no-print-directory -C $(CRYPTOPP_PATH) -f GNUmakefile clean
+endif
+
+else # WTP
+
+.PHONY: mrvl_flash
 mrvl_flash:
 	$(error "Platform '${PLAT}' for target '$@' requires WTP. Please set WTP to point to the right directory")
 
-endif # ${WTP}
+endif # WTP
+
+.PHONY: FORCE
+FORCE:;
