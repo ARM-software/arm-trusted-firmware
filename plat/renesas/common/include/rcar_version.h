@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,7 +9,7 @@
 
 #include <arch_helpers.h>
 
-#define VERSION_OF_RENESAS		"2.0.6"
+#define VERSION_OF_RENESAS		"3.0.0"
 #define VERSION_OF_RENESAS_MAXLEN	128
 
 extern const uint8_t version_of_renesas[VERSION_OF_RENESAS_MAXLEN];
