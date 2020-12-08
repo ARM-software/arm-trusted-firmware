@@ -17,6 +17,8 @@ const unsigned char mtk_power_domain_tree_desc[] = {
 	/* Number of root nodes */
 	PLATFORM_SYSTEM_COUNT,
 	/* Number of children for the root node */
+	PLATFORM_MCUSYS_COUNT,
+	/* Number of children for the mcusys node */
 	PLATFORM_CLUSTER_COUNT,
 	/* Number of children for the first cluster node */
 	PLATFORM_CLUSTER0_CORE_COUNT,

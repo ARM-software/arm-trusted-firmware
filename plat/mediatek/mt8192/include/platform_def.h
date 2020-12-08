@@ -23,8 +23,13 @@
 #define MTK_DEV_RNG1_SIZE    0x10000000
 #define MTK_DEV_RNG2_BASE    0x0c000000
 #define MTK_DEV_RNG2_SIZE    0x600000
+#define MTK_MCDI_SRAM_BASE      0x11B000
+#define MTK_MCDI_SRAM_MAP_SIZE  0x1000
 
+#define INFRACFG_AO_BASE (IO_PHYS + 0x00001000)
 #define GPIO_BASE        (IO_PHYS + 0x00005000)
+#define SPM_BASE         (IO_PHYS + 0x00006000)
+#define PMIC_WRAP_BASE   (IO_PHYS + 0x00026000)
 #define IOCFG_RM_BASE    (IO_PHYS + 0x01C20000)
 #define IOCFG_BM_BASE    (IO_PHYS + 0x01D10000)
 #define IOCFG_BL_BASE    (IO_PHYS + 0x01D30000)
@@ -67,11 +72,12 @@
  ******************************************************************************/
 #define PLATFORM_STACK_SIZE    0x800
 
-#define PLAT_MAX_PWR_LVL        U(2)
+#define PLAT_MAX_PWR_LVL        U(3)
 #define PLAT_MAX_RET_STATE      U(1)
-#define PLAT_MAX_OFF_STATE      U(2)
+#define PLAT_MAX_OFF_STATE      U(9)
 
 #define PLATFORM_SYSTEM_COUNT           U(1)
+#define PLATFORM_MCUSYS_COUNT           U(1)
 #define PLATFORM_CLUSTER_COUNT          U(1)
 #define PLATFORM_CLUSTER0_CORE_COUNT    U(8)
 #define PLATFORM_CORE_COUNT             (PLATFORM_CLUSTER0_CORE_COUNT)

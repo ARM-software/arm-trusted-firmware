@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef __UART_H__
-#define __UART_H__
+#ifndef UART_H
+#define UART_H
 
 #include <platform_def.h>
 
@@ -67,23 +67,23 @@ enum uart_port_ID {
 };
 
 struct mt_uart_register {
-	unsigned int dll;
-	unsigned int dlh;
-	unsigned int ier;
-	unsigned int lcr;
-	unsigned int mcr;
-	unsigned int fcr;
-	unsigned int lsr;
-	unsigned int scr;
-	unsigned int efr;
-	unsigned int highspeed;
-	unsigned int sample_count;
-	unsigned int sample_point;
-	unsigned int fracdiv_l;
-	unsigned int fracdiv_m;
-	unsigned int escape_en;
-	unsigned int guard;
-	unsigned int rx_sel;
+	uint32_t dll;
+	uint32_t dlh;
+	uint32_t ier;
+	uint32_t lcr;
+	uint32_t mcr;
+	uint32_t fcr;
+	uint32_t lsr;
+	uint32_t scr;
+	uint32_t efr;
+	uint32_t highspeed;
+	uint32_t sample_count;
+	uint32_t sample_point;
+	uint32_t fracdiv_l;
+	uint32_t fracdiv_m;
+	uint32_t escape_en;
+	uint32_t guard;
+	uint32_t rx_sel;
 };
 
 struct mt_uart {

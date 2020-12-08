@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,7 +9,7 @@
 
 static struct mt_uart uart_save_addr[DRV_SUPPORT_UART_PORTS];
 
-static const unsigned int uart_base_addr[DRV_SUPPORT_UART_PORTS] = {
+static const uint32_t uart_base_addr[DRV_SUPPORT_UART_PORTS] = {
 	UART0_BASE,
 	UART1_BASE
 };
@@ -99,13 +99,14 @@ void mt_uart_save(void)
 
 void mt_console_uart_cg(int on)
 {
-	if (on)
+	if (on == 1) {
 		mmio_write_32(UART_CLOCK_GATE_CLR, UART0_CLOCK_GATE_BIT);
-	else
+	} else {
 		mmio_write_32(UART_CLOCK_GATE_SET, UART0_CLOCK_GATE_BIT);
+	}
 }
 
-int mt_console_uart_cg_status(void)
+uint32_t mt_console_uart_cg_status(void)
 {
 	return mmio_read_32(UART_CLOCK_GATE_STA) & UART0_CLOCK_GATE_BIT;
 }
