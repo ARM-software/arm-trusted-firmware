@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -129,12 +129,26 @@
 		.div = NA_DIV,				\
 	}
 
-#define GENERIC_DIV(id)						\
+#define GENERIC_DIV1						\
 	{							\
-		.type = TYPE_DIV##id,				\
-		.offset = PERIPH_DIV##id##_SHIFT,		\
-		.width = PERIPH_DIV##id##_WIDTH,		\
+		.type = TYPE_DIV1,				\
+		.offset = PERIPH_DIV1_SHIFT,			\
+		.width = PERIPH_DIV1_WIDTH,			\
 		.clkflags = CLK_SET_RATE_NO_REPARENT |		\
+			    CLK_IS_BASIC,			\
+		.typeflags = CLK_DIVIDER_ONE_BASED |		\
+			     CLK_DIVIDER_ALLOW_ZERO,		\
+		.mult = NA_MULT,				\
+		.div = NA_DIV,					\
+	}
+
+#define GENERIC_DIV2						\
+	{							\
+		.type = TYPE_DIV2,				\
+		.offset = PERIPH_DIV2_SHIFT,			\
+		.width = PERIPH_DIV2_WIDTH,			\
+		.clkflags = CLK_SET_RATE_NO_REPARENT |		\
+			    CLK_SET_RATE_PARENT |		\
 			    CLK_IS_BASIC,			\
 		.typeflags = CLK_DIVIDER_ONE_BASED |		\
 			     CLK_DIVIDER_ALLOW_ZERO,		\
@@ -340,25 +354,25 @@ static struct pm_clock_node acpu_nodes[] = {
 
 static struct pm_clock_node generic_mux_div_nodes[] = {
 	GENERIC_MUX,
-	GENERIC_DIV(1),
+	GENERIC_DIV1,
 };
 
 static struct pm_clock_node generic_mux_div_gate_nodes[] = {
 	GENERIC_MUX,
-	GENERIC_DIV(1),
+	GENERIC_DIV1,
 	GENERIC_GATE,
 };
 
 static struct pm_clock_node generic_mux_div_unused_gate_nodes[] = {
 	GENERIC_MUX,
-	GENERIC_DIV(1),
+	GENERIC_DIV1,
 	IGNORE_UNUSED_GATE,
 };
 
 static struct pm_clock_node generic_mux_div_div_gate_nodes[] = {
 	GENERIC_MUX,
-	GENERIC_DIV(1),
-	GENERIC_DIV(2),
+	GENERIC_DIV1,
+	GENERIC_DIV2,
 	GENERIC_GATE,
 };
 
@@ -410,8 +424,8 @@ static struct pm_clock_node dp_audio_video_ref_nodes[] = {
 
 static struct pm_clock_node usb_nodes[] = {
 	GENERIC_MUX,
-	GENERIC_DIV(1),
-	GENERIC_DIV(2),
+	GENERIC_DIV1,
+	GENERIC_DIV2,
 	{
 		.type = TYPE_GATE,
 		.offset = USB_GATE_SHIFT,
@@ -2435,7 +2449,8 @@ enum pm_ret_status pm_api_clock_get_num_clocks(unsigned int *nclocks)
 enum pm_ret_status pm_api_clock_get_name(unsigned int clock_id, char *name)
 {
 	if (clock_id == CLK_MAX)
-		memcpy(name, END_OF_CLK, CLK_NAME_LEN);
+		memcpy(name, END_OF_CLK, sizeof(END_OF_CLK) > CLK_NAME_LEN ?
+					 CLK_NAME_LEN : sizeof(END_OF_CLK));
 	else if (!pm_clock_valid(clock_id))
 		memset(name, 0, CLK_NAME_LEN);
 	else if (clock_id < CLK_MAX_OUTPUT_CLK)
