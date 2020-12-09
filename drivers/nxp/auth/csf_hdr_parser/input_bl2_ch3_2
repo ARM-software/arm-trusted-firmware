@@ -1,0 +1,65 @@
+/*
+ * Copyright 2018-2020 NXP
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ */
+
+---------------------------------------------------
+# Specify the platform. [Mandatory]
+# Choose Platform -
+# TRUST 3.2: LX2160
+PLATFORM=LX2160
+---------------------------------------------------
+# Entry Point/Image start address field in the header.[Mandatory]
+# (default=ADDRESS of first file specified in images)
+# Address can be 64 bit
+ENTRY_POINT=1800D000
+---------------------------------------------------
+# Specify the Key Information.
+# PUB_KEY [Mandatory] Comma Separated List
+# Usage: <srk1.pub> <srk2.pub> .....
+PUB_KEY=srk.pub
+# KEY_SELECT [Mandatory]
+# USAGE (for TRUST 3.x): (between 1 to 8)
+KEY_SELECT=1
+# PRI_KEY [Mandatory] Single Key Used for Signing
+# USAGE: <srk.pri>
+PRI_KEY=srk.pri
+---------------------------------------------------
+# Specify IMAGE, Max 8 images are possible.
+# DST_ADDR is required only for Non-PBL Platform. [Mandatory]
+# USAGE : IMAGE_NO = {IMAGE_NAME, SRC_ADDR, DST_ADDR}
+# Address can be 64 bit
+IMAGE_1={bl2.bin,1800D000,ffffffff}
+IMAGE_2={,,}
+IMAGE_3={,,}
+IMAGE_4={,,}
+IMAGE_5={,,}
+IMAGE_6={,,}
+IMAGE_7={,,}
+IMAGE_8={,,}
+---------------------------------------------------
+# Specify OEM AND FSL ID to be populated in header. [Optional]
+# e.g FSL_UID_0=11111111
+FSL_UID_0=
+FSL_UID_1=
+OEM_UID_0=
+OEM_UID_1=
+OEM_UID_2=
+OEM_UID_3=
+OEM_UID_4=
+---------------------------------------------------
+# Specify the output file names [Optional].
+# Default Values chosen in Tool
+OUTPUT_HDR_FILENAME=hdr_bl2.out
+IMAGE_HASH_FILENAME=
+RSA_SIGN_FILENAME=
+---------------------------------------------------
+# Specify The Flags. (0 or 1) - [Optional]
+MP_FLAG=0
+ISS_FLAG=1
+LW_FLAG=0
+---------------------------------------------------
+# Specify VERBOSE as 1, if you want to Display Header Information [Optional]
+VERBOSE=1
