@@ -160,4 +160,7 @@
 #define SP_PKG7_HASH_OID			"1.3.6.1.4.1.4128.2100.1307"
 #define SP_PKG8_HASH_OID			"1.3.6.1.4.1.4128.2100.1308"
 
+#ifdef PLAT_DEF_OID
+#include <platform_oid.h>
+#endif
 #endif /* TBBR_OID_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,6 +23,9 @@
 
 #define SERIAL_RAND_BITS	64
 #define RSA_SALT_LEN		32
+
+cert_t *certs;
+unsigned int num_certs;
 
 int rand_serial(BIGNUM *b, ASN1_INTEGER *ai)
 {
@@ -219,6 +222,28 @@ int cert_init(void)
 	cmd_opt_t cmd_opt;
 	cert_t *cert;
 	unsigned int i;
+
+	certs = malloc((num_def_certs * sizeof(def_certs[0]))
+#ifdef PDEF_CERTS
+		       + (num_pdef_certs * sizeof(pdef_certs[0]))
+#endif
+		       );
+	if (certs == NULL) {
+		ERROR("%s:%d Failed to allocate memory.\n", __func__, __LINE__);
+		return 1;
+	}
+
+	memcpy(&certs[0], &def_certs[0],
+	       (num_def_certs * sizeof(def_certs[0])));
+
+#ifdef PDEF_CERTS
+	memcpy(&certs[num_def_certs], &pdef_certs[0],
+	       (num_pdef_certs * sizeof(pdef_certs[0])));
+
+	num_certs = num_def_certs + num_pdef_certs;
+#else
+	num_certs = num_def_certs;
+#endif
 
 	for (i = 0; i < num_certs; i++) {
 		cert = &certs[i];

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,7 +13,11 @@
 #include <openssl/x509v3.h>
 
 #include "cmd_opt.h"
+#include "debug.h"
 #include "ext.h"
+
+ext_t *extensions;
+unsigned int num_extensions;
 
 DECLARE_ASN1_ITEM(ASN1_INTEGER)
 DECLARE_ASN1_ITEM(X509_ALGOR)
@@ -50,6 +54,26 @@ int ext_init(void)
 	X509V3_EXT_METHOD *m;
 	int nid, ret;
 	unsigned int i;
+
+	extensions = malloc((num_def_extensions * sizeof(def_extensions[0]))
+#ifdef PDEF_EXTS
+			    + (num_pdef_extensions * sizeof(pdef_extensions[0]))
+#endif
+			    );
+	if (extensions == NULL) {
+		ERROR("%s:%d Failed to allocate memory.\n", __func__, __LINE__);
+		return 1;
+	}
+
+	memcpy(&extensions[0], &def_extensions[0],
+	       (num_def_extensions * sizeof(def_extensions[0])));
+#ifdef PDEF_EXTS
+	memcpy(&extensions[num_def_extensions], &pdef_extensions[0],
+		(num_pdef_extensions * sizeof(pdef_extensions[0])));
+	num_extensions = num_def_extensions + num_pdef_extensions;
+#else
+	num_extensions = num_def_extensions;
+#endif
 
 	for (i = 0; i < num_extensions; i++) {
 		ext = &extensions[i];

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -73,11 +73,20 @@ int key_store(key_t *key);
 
 /* Macro to register the keys used in the CoT */
 #define REGISTER_KEYS(_keys) \
-	key_t *keys = &_keys[0]; \
-	const unsigned int num_keys = sizeof(_keys)/sizeof(_keys[0])
+	key_t *def_keys = &_keys[0]; \
+	const unsigned int num_def_keys = sizeof(_keys)/sizeof(_keys[0])
+
+/* Macro to register the platform defined keys used in the CoT */
+#define PLAT_REGISTER_KEYS(_pdef_keys) \
+	key_t *pdef_keys = &_pdef_keys[0]; \
+	const unsigned int num_pdef_keys = sizeof(_pdef_keys)/sizeof(_pdef_keys[0])
 
 /* Exported variables */
-extern key_t *keys;
-extern const unsigned int num_keys;
+extern key_t *def_keys;
+extern const unsigned int num_def_keys;
+extern key_t *pdef_keys;
+extern const unsigned int num_pdef_keys;
 
+extern key_t *keys;
+extern unsigned int num_keys;
 #endif /* KEY_H */
