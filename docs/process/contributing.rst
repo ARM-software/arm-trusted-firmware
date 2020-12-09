@@ -29,6 +29,20 @@ Making Changes
 -  Make commits of logical units. See these general `Git guidelines`_ for
    contributing to a project.
 
+-  Ensure your commit messages comply with the `Conventional Commits`_
+   specification:
+
+   .. code::
+
+       <type>[optional scope]: <description>
+
+       [optional body]
+
+       [optional footer(s)]
+
+   You can use the tooling installed by the optional steps in the
+   :ref:`prerequisites <Prerequisites>` guide to validate this locally.
+
 -  Keep the commits on topic. If you need to fix another bug or make another
    enhancement, please address it on a separate topic branch.
 
@@ -216,6 +230,7 @@ Binary Components
 
 *Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.*
 
+.. _Conventional Commits: https://www.conventionalcommits.org/en/v1.0.0
 .. _developer.trustedfirmware.org: https://developer.trustedfirmware.org
 .. _review.trustedfirmware.org: https://review.trustedfirmware.org
 .. _issue: https://developer.trustedfirmware.org/project/board/1/
