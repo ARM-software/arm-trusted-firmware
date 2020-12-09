@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,9 +21,17 @@
 #define SP_PKG7_ID			(MAX_IMAGE_IDS + 8)
 #define SP_PKG8_ID			(MAX_IMAGE_IDS + 9)
 #define MAX_SP_IDS			U(8)
-#define MAX_NUMBER_IDS			(MAX_IMAGE_IDS + MAX_SP_IDS + U(2))
+#define MAX_IMG_IDS_WITH_SPMDS		(MAX_IMAGE_IDS + MAX_SP_IDS + U(2))
 #else
-#define MAX_NUMBER_IDS			MAX_IMAGE_IDS
+#define MAX_IMG_IDS_WITH_SPMDS		MAX_IMAGE_IDS
+#endif
+
+#ifdef PLAT_TBBR_IMG_DEF
+#include <plat_tbbr_img_def.h>
+#endif
+
+#ifndef MAX_NUMBER_IDS
+#define MAX_NUMBER_IDS			MAX_IMG_IDS_WITH_SPMDS
 #endif
 
 #endif /* TBBR_IMG_DEF_H */
