@@ -159,7 +159,8 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	}
 
 	case PM_INIT_FINALIZE:
-		SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS);
+		ret = pm_init_finalize();
+		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_GET_CALLBACK_DATA:
 	{
@@ -214,14 +215,15 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 	case PM_QUERY_DATA:
 	{
-		uint32_t data[4] = { 0 };
+		uint32_t data[8] = { 0 };
 
 		ret = pm_query_data(pm_arg[0], pm_arg[1], pm_arg[2],
-			      pm_arg[3], data);
-		SMC_RET2(handle, (uint64_t)ret  | ((uint64_t)data[0] << 32),
-			 (uint64_t)data[1] | ((uint64_t)data[2] << 32));
-	}
+				      pm_arg[3], data);
 
+		SMC_RET2(handle, (uint64_t)ret  | ((uint64_t)data[0] << 32),
+				 (uint64_t)data[1] | ((uint64_t)data[2] << 32));
+
+	}
 	case PM_CLOCK_ENABLE:
 		ret = pm_clock_enable(pm_arg[0]);
 		SMC_RET1(handle, (uint64_t)ret);
@@ -260,6 +262,15 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 		ret = pm_clock_get_parent(pm_arg[0], &value);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
+	}
+
+	case PM_CLOCK_GETRATE:
+	{
+		uint32_t rate[2] = { 0 };
+
+		ret = pm_clock_get_rate(pm_arg[0], rate);
+		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)rate[0] << 32),
+			 rate[1]);
 	}
 
 	case PM_PLL_SET_PARAMETER:
@@ -319,6 +330,18 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 		ret = pm_get_op_characteristic(pm_arg[0], pm_arg[1], &result);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)result << 32));
+	}
+
+	case PM_SET_MAX_LATENCY:
+	{
+		ret = pm_set_max_latency(pm_arg[0], pm_arg[1]);
+		SMC_RET1(handle, (uint64_t)ret);
+	}
+
+	case PM_REGISTER_NOTIFIER:
+	{
+		ret = pm_register_notifier(pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3]);
+		SMC_RET1(handle, (uint64_t)ret);
 	}
 
 	default:

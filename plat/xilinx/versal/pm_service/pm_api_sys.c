@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2020, Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,7 @@
 #include <plat/common/platform.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
+#include "pm_defs.h"
 
 /*********************************************************************
  * Target module IDs macros
@@ -81,6 +82,22 @@ enum pm_ret_status pm_get_api_version(unsigned int *version)
 	/* Send request to the PMC */
 	PM_PACK_PAYLOAD1(payload, LIBPM_MODULE_ID, PM_GET_API_VERSION);
 	return pm_ipi_send_sync(primary_proc, payload, version, 1);
+}
+
+/**
+ * pm_init_finalize() - Call to notify PMC PM firmware that master has power
+ *			management enabled and that it has finished its
+ *			initialization
+ *
+ * @return	Status returned by the PMU firmware
+ */
+enum pm_ret_status pm_init_finalize(void)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD1(payload, LIBPM_MODULE_ID, PM_INIT_FINALIZE);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
@@ -554,6 +571,22 @@ enum pm_ret_status pm_clock_get_parent(uint32_t clk_id, uint32_t *parent)
 
 	return pm_ipi_send_sync(primary_proc, payload, parent, 1);
 }
+/**
+ * pm_clock_get_rate() - Get the rate value for the clock
+ * @clk_id	Clock ID
+ * @rate:	Buffer to store clock rate value
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_clock_get_rate(uint32_t clk_id, uint32_t *clk_rate)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, PM_CLOCK_GETRATE, clk_id);
+
+	return pm_ipi_send_sync(primary_proc, payload, clk_rate, 2);
+}
 
 /**
  * pm_pll_set_param() - Set PLL parameter
@@ -689,12 +722,31 @@ enum pm_ret_status pm_system_shutdown(uint32_t type, uint32_t subtype)
 enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
 				 uint32_t arg3, uint32_t *data)
 {
+	uint32_t ret;
+	uint32_t version;
 	uint32_t payload[PAYLOAD_ARG_CNT];
+	uint32_t fw_api_version;
 
 	/* Send request to the PMC */
 	PM_PACK_PAYLOAD5(payload, LIBPM_MODULE_ID, PM_QUERY_DATA, qid, arg1,
 			 arg2, arg3);
-	return pm_ipi_send_sync(primary_proc, payload, data, 4);
+
+	ret = pm_feature_check(PM_QUERY_DATA, &version);
+	if (PM_RET_SUCCESS == ret){
+		fw_api_version = version & 0xFFFF ;
+		if ((2U == fw_api_version) &&
+		    ((XPM_QID_CLOCK_GET_NAME == qid) ||
+		     (XPM_QID_PINCTRL_GET_FUNCTION_NAME == qid))) {
+			ret = pm_ipi_send_sync(primary_proc, payload, data, 8);
+			ret = data[0];
+			data[0] = data[1];
+			data[1] = data[2];
+			data[2] = data[3];
+		} else {
+			ret = pm_ipi_send_sync(primary_proc, payload, data, 4);
+		}
+	}
+	return ret;
 }
 /**
  * pm_api_ioctl() -  PM IOCTL API for device control and configs
@@ -780,7 +832,6 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	switch (api_id) {
 	case PM_GET_CALLBACK_DATA:
 	case PM_GET_TRUSTZONE_VERSION:
-	case PM_INIT_FINALIZE:
 		*version = (PM_API_BASE_VERSION << 16);
 		return PM_RET_SUCCESS;
 	case PM_GET_API_VERSION:
@@ -798,6 +849,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	case PM_SET_REQUIREMENT:
 	case PM_RESET_ASSERT:
 	case PM_RESET_GET_STATUS:
+	case PM_GET_CHIPID:
 	case PM_PINCTRL_REQUEST:
 	case PM_PINCTRL_RELEASE:
 	case PM_PINCTRL_GET_FUNCTION:
@@ -805,7 +857,11 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	case PM_PINCTRL_CONFIG_PARAM_GET:
 	case PM_PINCTRL_CONFIG_PARAM_SET:
 	case PM_IOCTL:
+		*version = (PM_API_BASE_VERSION << 16);
+		break;
 	case PM_QUERY_DATA:
+		*version = (PM_API_QUERY_DATA_VERSION << 16);
+		break;
 	case PM_CLOCK_ENABLE:
 	case PM_CLOCK_DISABLE:
 	case PM_CLOCK_GETSTATE:
@@ -813,11 +869,15 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	case PM_CLOCK_GETDIVIDER:
 	case PM_CLOCK_SETPARENT:
 	case PM_CLOCK_GETPARENT:
+	case PM_CLOCK_GETRATE:
 	case PM_PLL_SET_PARAMETER:
 	case PM_PLL_GET_PARAMETER:
 	case PM_PLL_SET_MODE:
 	case PM_PLL_GET_MODE:
 	case PM_FEATURE_CHECK:
+	case PM_INIT_FINALIZE:
+	case PM_SET_MAX_LATENCY:
+	case PM_REGISTER_NOTIFIER:
 		*version = (PM_API_BASE_VERSION << 16);
 		break;
 	case PM_LOAD_PDI:
@@ -882,4 +942,46 @@ enum pm_ret_status pm_get_op_characteristic(uint32_t device_id,
 	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_GET_OP_CHARACTERISTIC,
 			 device_id, type);
 	return pm_ipi_send_sync(primary_proc, payload, result, 1);
+}
+
+/**
+ * pm_set_max_latency() - PM call to change in the maximum wake-up latency
+ *			  requirements for a specific device currently
+ *			  used by that CPU.
+ * @device_id	Device ID
+ * @latency	Latency value
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_set_max_latency(uint32_t device_id, uint32_t latency)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, PM_SET_MAX_LATENCY,
+			 device_id, latency);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
+}
+
+/**
+ * pm_register_notifier() - PM call to register a subsystem to be notified
+ * 			    about the device event
+ * @device_id	Device ID for the Node to which the event is related
+ * @event	Event in question
+ * @wake	Wake subsystem upon capturing the event if value 1
+ * @enable	Enable the registration for value 1, disable for value 0
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_register_notifier(uint32_t device_id, uint32_t event,
+					uint32_t wake, uint32_t enable)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMC */
+	PM_PACK_PAYLOAD5(payload, LIBPM_MODULE_ID, PM_REGISTER_NOTIFIER,
+			 device_id, event, wake, enable);
+
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }

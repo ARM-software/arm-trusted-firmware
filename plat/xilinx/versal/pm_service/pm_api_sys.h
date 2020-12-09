@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2020, Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,7 @@
  **********************************************************/
 
 enum pm_ret_status pm_get_api_version(unsigned int *version);
+enum pm_ret_status pm_init_finalize(void);
 enum pm_ret_status pm_self_suspend(uint32_t nid,
 				   unsigned int latency,
 				   unsigned int state,
@@ -52,6 +53,7 @@ enum pm_ret_status pm_clock_set_divider(uint32_t clk_id, uint32_t divider);
 enum pm_ret_status pm_clock_get_divider(uint32_t clk_id, uint32_t *divider);
 enum pm_ret_status pm_clock_set_parent(uint32_t clk_id, uint32_t parent);
 enum pm_ret_status pm_clock_get_parent(uint32_t clk_id, uint32_t *parent);
+enum pm_ret_status pm_clock_get_rate(uint32_t clk_id, uint32_t *clk_rate);
 enum pm_ret_status pm_pll_set_param(uint32_t clk_id, uint32_t param,
 				    uint32_t value);
 enum pm_ret_status pm_pll_get_param(uint32_t clk_id, uint32_t param,
@@ -72,4 +74,7 @@ enum pm_ret_status pm_load_pdi(uint32_t src, uint32_t address_low,
 enum pm_ret_status pm_get_op_characteristic(uint32_t device_id,
 					    enum pm_opchar_type type,
 					    uint32_t *result);
+enum pm_ret_status pm_set_max_latency(uint32_t device_id, uint32_t latency);
+enum pm_ret_status pm_register_notifier(uint32_t device_id, uint32_t event,
+					uint32_t wake, uint32_t enable);
 #endif /* PM_API_SYS_H */
