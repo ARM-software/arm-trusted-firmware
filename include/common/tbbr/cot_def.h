@@ -7,6 +7,10 @@
 #ifndef COT_DEF_H
 #define COT_DEF_H
 
+#ifdef MBEDTLS_CONFIG_FILE
+#include MBEDTLS_CONFIG_FILE
+#endif
+
 /* TBBR CoT definitions */
 #if defined(SPD_spmd)
 #define COT_MAX_VERIFIED_PARAMS		8
