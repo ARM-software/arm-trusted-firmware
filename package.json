@@ -4,6 +4,8 @@
     "postinstall": "husky install"
   },
   "devDependencies": {
+    "commitizen": "^4.2.2",
+    "cz-conventional-changelog": "^3.3.0",
     "husky": "^5.0.4"
   }
 }
