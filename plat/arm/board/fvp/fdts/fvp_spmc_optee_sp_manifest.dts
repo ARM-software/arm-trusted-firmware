@@ -27,11 +27,6 @@
 		binary_size = <0x80000>;
 	};
 
-	chosen {
-		linux,initrd-start = <0>;
-		linux,initrd-end = <0>;
-	};
-
 	hypervisor {
 		compatible = "hafnium,hafnium";
 		vm1 {
@@ -39,6 +34,8 @@
 			debug_name = "op-tee";
 			load_address = <0x6280000>;
 			smc_whitelist = <0xbe000000>;
+			vcpu_count = <8>;
+			mem_size = <1048576>;
 		};
 	};
 
@@ -59,11 +56,6 @@
 		CPU_3
 		CPU_2
 		CPU_1
-	};
-
-	device-memory@0 {
-		device_type = "device-memory";
-		reg = <0x0 0x0 0x6000000 0x0 0x8000000 0x78000000>;
 	};
 
 	memory@6000000 {
