@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "postinstall": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^5.0.4"
+  }
+}

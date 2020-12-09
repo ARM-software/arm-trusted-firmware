@@ -42,3 +42,5 @@ GTAGS
 # Ctags
 tags
 
+# Node.js
+node_modules/
