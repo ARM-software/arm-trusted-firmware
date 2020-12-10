@@ -732,7 +732,7 @@ enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
 			 arg2, arg3);
 
 	ret = pm_feature_check(PM_QUERY_DATA, &version);
-	if (PM_RET_SUCCESS == ret){
+	if (PM_RET_SUCCESS == ret) {
 		fw_api_version = version & 0xFFFF ;
 		if ((2U == fw_api_version) &&
 		    ((XPM_QID_CLOCK_GET_NAME == qid) ||
