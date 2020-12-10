@@ -516,8 +516,8 @@ Synquacer platform port
 
 Texas Instruments platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:M: Andrew F. Davis <afd@ti.com>
-:G: `glneo`_
+:M: Nishanth Menon <nm@ti.com>
+:G: `nmenon`_
 :F: docs/plat/ti-k3.rst
 :F: plat/ti/
 
@@ -651,5 +651,6 @@ Build system
 .. _john-powell-arm: https://github.com/john-powell-arm
 .. _raghuncstate: https://github.com/raghuncstate
 .. _CJKay: https://github.com/cjkay
+.. _nmenon: https://github.com/nmenon
 
 .. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
