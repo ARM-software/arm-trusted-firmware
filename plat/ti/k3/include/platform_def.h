@@ -150,6 +150,15 @@
 	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY, grp, \
 			GIC_INTR_CFG_EDGE)
 
+
+#define K3_GTC_BASE		0x00A90000
+/* We just need 20 byte offset, but simpler to just remap the 64K page in */
+#define K3_GTC_SIZE		0x10000
+#define K3_GTC_CNTCR_OFFSET	0x00
+#define K3_GTC_CNTCR_EN_MASK	0x01
+#define K3_GTC_CNTCR_HDBG_MASK	0x02
+#define K3_GTC_CNTFID0_OFFSET	0x20
+
 #define K3_GIC_BASE	0x01800000
 #define K3_GIC_SIZE	0x200000
 
