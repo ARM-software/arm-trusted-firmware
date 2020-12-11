@@ -97,11 +97,16 @@ static struct k3_sec_proxy_mbox spm = {
 		.data_end_offset = 0x3C,
 	},
 	.threads = {
+#if !K3_SEC_PROXY_LITE
 		SP_THREAD(SP_NOTIFY),
 		SP_THREAD(SP_RESPONSE),
 		SP_THREAD(SP_HIGH_PRIORITY),
 		SP_THREAD(SP_LOW_PRIORITY),
 		SP_THREAD(SP_NOTIFY_RESP),
+#else
+		SP_THREAD(SP_RESPONSE),
+		SP_THREAD(SP_HIGH_PRIORITY),
+#endif /* K3_SEC_PROXY_LITE */
 	},
 };
 
