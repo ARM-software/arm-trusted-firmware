@@ -11,9 +11,8 @@ COLD_BOOT_SINGLE_CPU	:=	1
 # We can choose where a core starts executing
 PROGRAMMABLE_RESET_ADDRESS:=	1
 
-# System coherency is managed in hardware
+# ARM coherency is managed in hardware
 WARMBOOT_ENABLE_DCACHE_EARLY :=	1
-USE_COHERENT_MEM	:=	1
 
 # A53 erratum for SoC. (enable them all)
 ERRATA_A53_826319	:=	1

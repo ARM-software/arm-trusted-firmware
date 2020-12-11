@@ -13,5 +13,8 @@ $(eval $(call add_define,PRELOADED_BL33_BASE))
 K3_HW_CONFIG_BASE ?= 0x82000000
 $(eval $(call add_define,K3_HW_CONFIG_BASE))
 
+# System coherency is managed in hardware
+USE_COHERENT_MEM	:=	1
+
 PLAT_INCLUDES		+=	\
 				-Iplat/ti/k3/board/generic/include	\
