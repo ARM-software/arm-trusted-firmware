@@ -8,7 +8,7 @@
 #include <drivers/arm/gic600_multichip.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
-#include <sgi_base_platform_def.h>
+#include <sgi_soc_platform_def.h>
 #include <sgi_plat.h>
 
 #if defined(IMAGE_BL31)

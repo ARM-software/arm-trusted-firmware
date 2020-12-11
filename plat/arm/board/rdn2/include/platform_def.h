@@ -9,27 +9,27 @@
 
 #include <lib/utils_def.h>
 
-#include <sgi_soc_platform_def.h>
+#include <sgi_soc_platform_def_v2.h>
 
 #define PLAT_ARM_CLUSTER_COUNT		U(16)
 #define CSS_SGI_MAX_CPUS_PER_CLUSTER	U(1)
 #define CSS_SGI_MAX_PE_PER_CPU		U(1)
 
-#define PLAT_CSS_MHU_BASE		UL(0x45400000)
+#define PLAT_CSS_MHU_BASE		UL(0x2A920000)
 #define PLAT_MHUV2_BASE			PLAT_CSS_MHU_BASE
 
 #define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2
 #define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1
 
 /* TZC Related Constants */
-#define PLAT_ARM_TZC_BASE		UL(0x21830000)
+#define PLAT_ARM_TZC_BASE		UL(0x10820000)
 #define PLAT_ARM_TZC_FILTERS		TZC_400_REGION_ATTR_FILTER_BIT(0)
 
 #define TZC400_OFFSET			UL(0x1000000)
-#define TZC400_COUNT			4
+#define TZC400_COUNT			U(8)
 
 #define TZC400_BASE(n)			(PLAT_ARM_TZC_BASE + \
-					 (n * TZC400_OFFSET))
+						(n * TZC400_OFFSET))
 
 #define TZC_NSAID_ALL_AP		U(0)
 #define TZC_NSAID_PCI			U(1)

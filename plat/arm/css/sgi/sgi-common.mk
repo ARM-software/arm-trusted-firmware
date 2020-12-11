@@ -32,8 +32,7 @@ ENT_GIC_SOURCES		:=	${GICV3_SOURCES}		\
 				plat/common/plat_gicv3.c	\
 				plat/arm/common/arm_gicv3.c
 
-PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/sgi_plat.c	\
-				${CSS_ENT_BASE}/aarch64/sgi_helper.S
+PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/aarch64/sgi_helper.S
 
 BL1_SOURCES		+=	${INTERCONNECT_SOURCES}			\
 				drivers/arm/sbsa/sbsa.c

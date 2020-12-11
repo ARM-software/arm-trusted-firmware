@@ -15,6 +15,8 @@ PLAT_INCLUDES		+=	-I${RDN1EDGE_BASE}/include/
 
 SGI_CPU_SOURCES		:=	lib/cpus/aarch64/neoverse_n1.S
 
+PLAT_BL_COMMON_SOURCES	+=	${CSS_ENT_BASE}/sgi_plat.c
+
 BL1_SOURCES		+=	${SGI_CPU_SOURCES}			\
 				${RDN1EDGE_BASE}/rdn1edge_err.c
 

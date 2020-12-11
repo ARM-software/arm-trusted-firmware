@@ -8,7 +8,7 @@
 #define PLATFORM_DEF_H
 
 #include <lib/utils_def.h>
-#include <sgi_base_platform_def.h>
+#include <sgi_soc_platform_def.h>
 
 #define PLAT_ARM_CLUSTER_COUNT		U(4)
 #define CSS_SGI_MAX_CPUS_PER_CLUSTER	U(1)
