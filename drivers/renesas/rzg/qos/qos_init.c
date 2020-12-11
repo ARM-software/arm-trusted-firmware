@@ -10,6 +10,7 @@
 #include <lib/mmio.h>
 
 #if RCAR_LSI == RCAR_AUTO
+#include "G2H/qos_init_g2h_v30.h"
 #include "G2M/qos_init_g2m_v10.h"
 #include "G2M/qos_init_g2m_v11.h"
 #include "G2M/qos_init_g2m_v30.h"
@@ -19,6 +20,9 @@
 #include "G2M/qos_init_g2m_v11.h"
 #include "G2M/qos_init_g2m_v30.h"
 #endif /* RCAR_LSI == RZ_G2M */
+#if RCAR_LSI == RZ_G2H
+#include "G2H/qos_init_g2h_v30.h"
+#endif /* RCAR_LSI == RZ_G2H */
 #include "qos_common.h"
 #include "qos_init.h"
 #include "qos_reg.h"
@@ -76,6 +80,18 @@ void rzg_qos_init(void)
 		PRR_PRODUCT_ERR(reg);
 #endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2M) */
 		break;
+	case PRR_PRODUCT_H3:
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2H)
+		switch (reg & PRR_CUT_MASK) {
+		case PRR_PRODUCT_30:
+		default:
+			qos_init_g2h_v30();
+			break;
+		}
+#else
+		PRR_PRODUCT_ERR(reg);
+#endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2H) */
+		break;
 	default:
 		PRR_PRODUCT_ERR(reg);
 		break;
@@ -111,6 +127,12 @@ void rzg_qos_init(void)
 	}
 	qos_init_g2m_v30();
 #endif /* RCAR_LSI_CUT == RCAR_CUT_10 */
+#elif (RCAR_LSI == RZ_G2H)
+	/* G2H Cut 30 or later */
+	if ((reg & PRR_PRODUCT_MASK) != PRR_PRODUCT_H3) {
+		PRR_PRODUCT_ERR(reg);
+	}
+	qos_init_g2h_v30();
 #else /* (RCAR_LSI == RZ_G2M) */
 #error "Don't have QoS initialize routine(Unknown chip)."
 #endif /* (RCAR_LSI == RZ_G2M) */
@@ -140,6 +162,16 @@ uint32_t get_refperiod(void)
 		}
 		break;
 #endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2M) */
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2H)
+	case PRR_PRODUCT_H3:
+		switch (reg & PRR_CUT_MASK) {
+		case PRR_PRODUCT_30:
+		default:
+			refperiod = REFPERIOD_CYCLE;
+			break;
+		}
+		break;
+#endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2H) */
 	default:
 		break;
 	}
@@ -150,6 +182,9 @@ uint32_t get_refperiod(void)
 	/* G2M Cut 11|13|30 or later */
 	refperiod = REFPERIOD_CYCLE;
 #endif /* RCAR_LSI_CUT == RCAR_CUT_10 */
+#elif RCAR_LSI == RZ_G2H
+	/* G2H Cut 30 or later */
+	refperiod = REFPERIOD_CYCLE;
 #endif /* RCAR_LSI == RCAR_AUTO || RCAR_LSI_CUT_COMPAT */
 	return refperiod;
 }

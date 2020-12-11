@@ -1,10 +1,11 @@
 #
-# Copyright (c) 2020, Renesas Electronics Corporation. All rights reserved.
+# Copyright (c) 2020-2021, Renesas Electronics Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
 ifeq (${RCAR_LSI},${RCAR_AUTO})
+    BL2_SOURCES += drivers/renesas/rzg/qos/G2H/qos_init_g2h_v30.c
     BL2_SOURCES += drivers/renesas/rzg/qos/G2M/qos_init_g2m_v10.c
     BL2_SOURCES += drivers/renesas/rzg/qos/G2M/qos_init_g2m_v11.c
     BL2_SOURCES += drivers/renesas/rzg/qos/G2M/qos_init_g2m_v30.c
@@ -13,6 +14,9 @@ else ifeq (${RCAR_LSI_CUT_COMPAT},1)
     BL2_SOURCES += drivers/renesas/rzg/qos/G2M/qos_init_g2m_v10.c
     BL2_SOURCES += drivers/renesas/rzg/qos/G2M/qos_init_g2m_v11.c
     BL2_SOURCES += drivers/renesas/rzg/qos/G2M/qos_init_g2m_v30.c
+  endif
+  ifeq (${RCAR_LSI},${RZ_G2H})
+    BL2_SOURCES += drivers/renesas/rzg/qos/G2H/qos_init_g2h_v30.c
   endif
 else
   ifeq (${RCAR_LSI},${RZ_G2M})
@@ -28,6 +32,9 @@ else
 #    LSI_CUT 30 or later
      BL2_SOURCES += drivers/renesas/rzg/qos/G2M/qos_init_g2m_v30.c
     endif
+  endif
+  ifeq (${RCAR_LSI},${RZ_G2H})
+     BL2_SOURCES += drivers/renesas/rzg/qos/G2H/qos_init_g2h_v30.c
   endif
 endif
 
