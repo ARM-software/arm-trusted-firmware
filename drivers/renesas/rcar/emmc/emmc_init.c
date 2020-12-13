@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,12 +32,12 @@ EMMC_ERROR_CODE rcar_emmc_memcard_power(uint8_t mode)
 
 	return EMMC_SUCCESS;
 }
-static __inline void emmc_set_retry_count(uint32_t retry)
+static inline void emmc_set_retry_count(uint32_t retry)
 {
 	mmc_drv_obj.retries_after_fail = retry;
 }
 
-static __inline void emmc_set_data_timeout(uint32_t data_timeout)
+static inline void emmc_set_data_timeout(uint32_t data_timeout)
 {
 	mmc_drv_obj.data_timeout = data_timeout;
 }
@@ -73,7 +73,8 @@ static EMMC_ERROR_CODE emmc_dev_finalize(void)
 	EMMC_ERROR_CODE result;
 	uint32_t dataL;
 
-	/* MMC power off
+	/*
+	 * MMC power off
 	 * the power supply of eMMC device is always turning on.
 	 * RST_n : Hi --> Low level.
 	 */
@@ -115,27 +116,25 @@ static EMMC_ERROR_CODE emmc_dev_init(void)
 
 	SETR_32(HOST_MODE, 0x00000000U);	/* SD_BUF access width = 64-bit */
 	SETR_32(SD_OPTION, 0x0000C0EEU);	/* Bus width = 1bit, timeout=MAX */
-	SETR_32(SD_CLK_CTRL, 0x00000000U);	/* Automatic Control=Disable, Clock Output=Disable */
+	SETR_32(SD_CLK_CTRL, 0x00000000U);	/* Disable Automatic Control & Clock Output */
 
 	return EMMC_SUCCESS;
 }
 
 static EMMC_ERROR_CODE emmc_reset_controller(void)
 {
-	EMMC_ERROR_CODE retult;
+	EMMC_ERROR_CODE result;
 
 	/* initialize mmc driver */
 	emmc_drv_init();
 
 	/* initialize H/W */
-	retult = emmc_dev_init();
-	if (EMMC_SUCCESS != retult) {
-		return retult;
+	result = emmc_dev_init();
+	if (result == EMMC_SUCCESS) {
+		mmc_drv_obj.initialize = TRUE;
 	}
 
-	mmc_drv_obj.initialize = TRUE;
-
-	return retult;
+	return result;
 
 }
 
@@ -152,14 +151,12 @@ EMMC_ERROR_CODE emmc_terminate(void)
 
 EMMC_ERROR_CODE rcar_emmc_init(void)
 {
-	EMMC_ERROR_CODE retult;
+	EMMC_ERROR_CODE result;
 
-	retult = emmc_reset_controller();
-	if (EMMC_SUCCESS != retult) {
-		return retult;
+	result = emmc_reset_controller();
+	if (result == EMMC_SUCCESS) {
+		emmc_driver_config();
 	}
 
-	emmc_driver_config();
-
-	return EMMC_SUCCESS;
+	return result;
 }

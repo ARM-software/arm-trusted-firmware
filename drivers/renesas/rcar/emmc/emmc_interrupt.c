@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights
  * reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -118,7 +118,7 @@ uint32_t emmc_interrupt(void)
 		SETR_32(DM_CM_INFO2, 0x00000000U);
 		/* interrupt clear */
 		SETR_32(SD_INFO2, (GETR_32(SD_INFO2) & ~SD_INFO2_BWE));
-		/* DM_CM_INFO2:  DMA-ch0 error occured */
+		/* DM_CM_INFO2:  DMA-ch0 error occurred */
 		if ((BIT16 & mmc_drv_obj.dm_event2) != 0) {
 			mmc_drv_obj.dma_error_flag = TRUE;
 		} else {
@@ -128,13 +128,13 @@ uint32_t emmc_interrupt(void)
 		/* wait next interrupt */
 		mmc_drv_obj.state_machine_blocking = FALSE;
 	}
-	/* DM_CM_INFO1: DMA-ch1 transfer complete or error occured */
+	/* DM_CM_INFO1: DMA-ch1 transfer complete or error occurred */
 	else if ((end_bit & mmc_drv_obj.dm_event1) != 0U) {
 		SETR_32(DM_CM_INFO1, 0x00000000U);
 		SETR_32(DM_CM_INFO2, 0x00000000U);
 		/* interrupt clear */
 		SETR_32(SD_INFO2, (GETR_32(SD_INFO2) & ~SD_INFO2_BRE));
-		/* DM_CM_INFO2: DMA-ch1 error occured */
+		/* DM_CM_INFO2: DMA-ch1 error occurred */
 		if ((BIT17 & mmc_drv_obj.dm_event2) != 0) {
 			mmc_drv_obj.dma_error_flag = TRUE;
 		} else {

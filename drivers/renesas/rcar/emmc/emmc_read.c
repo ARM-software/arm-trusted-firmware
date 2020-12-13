@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,15 +7,15 @@
 #include <arch_helpers.h>
 
 #include "emmc_config.h"
-#include "emmc_hal.h"
-#include "emmc_std.h"
-#include "emmc_registers.h"
 #include "emmc_def.h"
+#include "emmc_hal.h"
+#include "emmc_registers.h"
+#include "emmc_std.h"
 
-#define MIN_EMMC(a, b)        (((a) < (b)) ? (a) : (b))
-#define EMMC_RW_SECTOR_COUNT_MAX        0x0000ffffU
+#define MIN_EMMC(a, b)	(((a) < (b)) ? (a) : (b))
+#define EMMC_RW_SECTOR_COUNT_MAX	0x0000ffffU
 
-static EMMC_ERROR_CODE emmc_multiple_block_read (uint32_t *buff_address_virtual,
+static EMMC_ERROR_CODE emmc_multiple_block_read(uint32_t *buff_address_virtual,
 		uint32_t sector_number, uint32_t count,
 		HAL_MEMCARD_DATA_TRANSFER_MODE transfer_mode)
 {
@@ -39,7 +39,8 @@ static EMMC_ERROR_CODE emmc_multiple_block_read (uint32_t *buff_address_virtual,
 	}
 	SETR_32(SD_SECCNT, count);
 	SETR_32(SD_STOP, 0x00000100);
-	SETR_32(CC_EXT_MODE, (CC_EXT_MODE_CLEAR | CC_EXT_MODE_DMASDRW_ENABLE));	/* SD_BUF Read/Write DMA Transfer enable */
+	/* SD_BUF Read/Write DMA Transfer enable */
+	SETR_32(CC_EXT_MODE, (CC_EXT_MODE_CLEAR | CC_EXT_MODE_DMASDRW_ENABLE));
 
 	/* CMD18 */
 	emmc_make_trans_cmd(CMD18_READ_MULTIPLE_BLOCK, sector_number,
