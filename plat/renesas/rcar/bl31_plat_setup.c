@@ -28,7 +28,7 @@ static const uint64_t BL31_RO_LIMIT		= BL_CODE_END;
 #if USE_COHERENT_MEM
 static const uint64_t BL31_COHERENT_RAM_BASE	= BL_COHERENT_RAM_BASE;
 static const uint64_t BL31_COHERENT_RAM_LIMIT	= BL_COHERENT_RAM_END;
-#endif
+#endif /* USE_COHERENT_MEM */
 
 extern void plat_rcar_gic_driver_init(void);
 extern void plat_rcar_gic_init(void);
@@ -84,11 +84,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	NOTICE("BL3-1 : Rev.%s\n", version_of_renesas);
 
 #if RCAR_LSI != RCAR_D3
-	if (RCAR_CLUSTER_A53A57 == rcar_pwrc_get_cluster()) {
+	if (rcar_pwrc_get_cluster() == RCAR_CLUSTER_A53A57) {
 		plat_cci_init();
 		plat_cci_enable();
 	}
-#endif
+#endif /* RCAR_LSI != RCAR_D3 */
 }
 
 void bl31_plat_arch_setup(void)
@@ -98,7 +98,7 @@ void bl31_plat_arch_setup(void)
 			       BL31_RO_BASE, BL31_RO_LIMIT
 #if USE_COHERENT_MEM
 			       , BL31_COHERENT_RAM_BASE, BL31_COHERENT_RAM_LIMIT
-#endif
+#endif /* USE_COHERENT_MEM */
 	    );
 	rcar_pwrc_code_copy_to_system_ram();
 }
@@ -113,17 +113,20 @@ void bl31_platform_setup(void)
 
 	rcar_pwrc_setup();
 #if 0
-	/* TODO: there is a broad number of rcar-gen3 SoC configurations; to
-	   support all of them, Renesas use the pwrc driver to discover what
-	   cores are on/off before announcing the topology.
-	   This code hasnt been ported yet
-	   */
+	/*
+	 * TODO: there is a broad number of rcar-gen3 SoC configurations; to
+	 * support all of them, Renesas use the pwrc driver to discover what
+	 * cores are on/off before announcing the topology.
+	 * This code hasnt been ported yet
+	 */
 
 	rcar_setup_topology();
 #endif
 
-	/* mask should match the kernel's MPIDR_HWID_BITMASK so the core can be
-	   identified during cpuhotplug (check the kernel's psci migrate set of
-	   functions */
+	/*
+	 * mask should match the kernel's MPIDR_HWID_BITMASK so the core can be
+	 * identified during cpuhotplug (check the kernel's psci migrate set of
+	 * functions
+	 */
 	rcar_boot_mpidr = read_mpidr_el1() & 0x0000ffffU;
 }
