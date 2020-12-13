@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,8 +7,8 @@
 #include <common/debug.h>
 #include <lib/mmio.h>
 
-#include "rcar_def.h"
 #include "cpg_registers.h"
+#include "rcar_def.h"
 #include "rcar_private.h"
 
 static void bl2_secure_cpg_init(void);
@@ -77,7 +77,7 @@ static void bl2_secure_cpg_init(void)
 	stop_cr5 = 0xBFFFFFFFU;
 #endif
 
-	/** Secure Module Stop Control Registers */
+	/* Secure Module Stop Control Registers */
 	cpg_write(SCMSTPCR0, 0xFFFFFFFFU);
 	cpg_write(SCMSTPCR1, 0xFFFFFFFFU);
 	cpg_write(SCMSTPCR2, stop_cr2);
@@ -91,7 +91,7 @@ static void bl2_secure_cpg_init(void)
 	cpg_write(SCMSTPCR10, 0xFFFFFFFFU);
 	cpg_write(SCMSTPCR11, 0xFFFFFFFFU);
 
-	/** Secure Software Reset Access Enable Control Registers */
+	/* Secure Software Reset Access Enable Control Registers */
 	cpg_write(SCSRSTECR0, 0x00000000U);
 	cpg_write(SCSRSTECR1, 0x00000000U);
 	cpg_write(SCSRSTECR2, reset_cr2);
@@ -152,7 +152,7 @@ static void bl2_system_cpg_init_h3(void)
 #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3)
 static void bl2_realtime_cpg_init_m3(void)
 {
-	/** Realtime Module Stop Control Registers */
+	/* Realtime Module Stop Control Registers */
 	cpg_write(RMSTPCR0, 0x00200000U);
 	cpg_write(RMSTPCR1, 0xFFFFFFFFU);
 	cpg_write(RMSTPCR2, 0x040E0FDCU);
@@ -169,7 +169,7 @@ static void bl2_realtime_cpg_init_m3(void)
 
 static void bl2_system_cpg_init_m3(void)
 {
-	/** System Module Stop Control Registers */
+	/* System Module Stop Control Registers */
 	cpg_write(SMSTPCR0, 0x00200000U);
 	cpg_write(SMSTPCR1, 0xFFFFFFFFU);
 	cpg_write(SMSTPCR2, 0x040E2FDCU);
@@ -188,7 +188,7 @@ static void bl2_system_cpg_init_m3(void)
 #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3N)
 static void bl2_realtime_cpg_init_m3n(void)
 {
-	/** Realtime Module Stop Control Registers */
+	/* Realtime Module Stop Control Registers */
 	cpg_write(RMSTPCR0, 0x00210000U);
 	cpg_write(RMSTPCR1, 0xFFFFFFFFU);
 	cpg_write(RMSTPCR2, 0x040E0FDCU);

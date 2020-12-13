@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 2015-2017, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <string.h>
-
-#include <platform_def.h>
 
 #include <common/debug.h>
 #include <drivers/io/io_driver.h>
@@ -14,10 +12,11 @@
 #include <drivers/io/io_semihosting.h>
 
 #include "io_common.h"
-#include "io_rcar.h"
 #include "io_memdrv.h"
 #include "io_emmcdrv.h"
 #include "io_private.h"
+#include "io_rcar.h"
+#include <platform_def.h>
 
 static uintptr_t emmcdrv_dev_handle;
 static uintptr_t memdrv_dev_handle;
@@ -167,7 +166,7 @@ static int32_t open_rcar(const uintptr_t spec);
 struct plat_io_policy {
 	uintptr_t *dev_handle;
 	uintptr_t image_spec;
-	 int32_t(*check) (const uintptr_t spec);
+	int32_t (*check)(const uintptr_t spec);
 };
 
 static const struct plat_io_policy policies[] = {
@@ -305,7 +304,7 @@ static const struct plat_io_policy policies[] = {
 			   (uintptr_t) &bl338_cert_file_spec,
 			   &open_rcar}, {
 #else
-				   {
+					{
 #endif
 					 0, 0, 0}
 };
@@ -322,16 +321,11 @@ static io_drv_spec_t io_drv_spec_emmcdrv = {
 	0,
 };
 
-static struct plat_io_policy drv_policies[]
-    __attribute__ ((section(".data"))) = {
+static struct plat_io_policy drv_policies[] __attribute__ ((section(".data"))) = {
 	/* FLASH_DEV_ID */
-	{
-	&memdrv_dev_handle,
-		    (uintptr_t) &io_drv_spec_memdrv, &open_memmap,},
-	    /* EMMC_DEV_ID */
-	{
-	&emmcdrv_dev_handle,
-		    (uintptr_t) &io_drv_spec_emmcdrv, &open_emmcdrv,}
+	{ &memdrv_dev_handle, (uintptr_t) &io_drv_spec_memdrv, &open_memmap, },
+	/* EMMC_DEV_ID */
+	{ &emmcdrv_dev_handle, (uintptr_t) &io_drv_spec_emmcdrv, &open_emmcdrv, }
 };
 
 static int32_t open_rcar(const uintptr_t spec)
