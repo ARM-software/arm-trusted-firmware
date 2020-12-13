@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,11 +7,11 @@
 #ifndef RCAR_PRIVATE_H
 #define RCAR_PRIVATE_H
 
-#include <platform_def.h>
-
 #include <common/bl_common.h>
 #include <lib/bakery_lock.h>
 #include <lib/el3_runtime/cpu_data.h>
+
+#include <platform_def.h>
 
 typedef volatile struct mailbox {
 	unsigned long value __aligned(CACHE_WRITEBACK_GRANULE);
@@ -62,17 +62,18 @@ typedef struct rcar_cpu_data {
  */
 #define rcar_lock_init(_lock_arg)
 
-#define rcar_lock_get(_lock_arg) 					\
-	bakery_lock_get(_lock_arg, 					\
+#define rcar_lock_get(_lock_arg)					\
+	bakery_lock_get(_lock_arg,					\
 		CPU_DATA_PLAT_PCPU_OFFSET + RCAR_CPU_DATA_LOCK_OFFSET)
 
 #define rcar_lock_release(_lock_arg)					\
-	bakery_lock_release(_lock_arg,	    				\
+	bakery_lock_release(_lock_arg,					\
 		CPU_DATA_PLAT_PCPU_OFFSET + RCAR_CPU_DATA_LOCK_OFFSET)
-/* Ensure that the size of the RCAR specific per-cpu data structure and the size
+/*
+ * Ensure that the size of the RCAR specific per-cpu data structure and the size
  * of the memory allocated in generic per-cpu data for the platform are the same
  */
-CASSERT(PLAT_PCPU_DATA_SIZE == sizeof(rcar_cpu_data_t),
+CASSERT(sizeof(rcar_cpu_data_t) == PLAT_PCPU_DATA_SIZE,
 	rcar_pcpu_data_size_mismatch);
 #endif
 /*
@@ -84,7 +85,7 @@ void rcar_configure_mmu_el3(unsigned long total_base,
 #if USE_COHERENT_MEM
 			    , unsigned long coh_start, unsigned long coh_limit
 #endif
-    );
+			    );
 
 void rcar_setup_topology(void);
 void rcar_cci_disable(void);
