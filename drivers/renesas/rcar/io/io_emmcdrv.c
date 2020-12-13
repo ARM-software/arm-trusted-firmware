@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,13 +10,13 @@
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_storage.h>
 
+#include "emmc_config.h"
+#include "emmc_def.h"
+#include "emmc_hal.h"
+#include "emmc_std.h"
 #include "io_common.h"
 #include "io_emmcdrv.h"
 #include "io_private.h"
-#include "emmc_config.h"
-#include "emmc_hal.h"
-#include "emmc_std.h"
-#include "emmc_def.h"
 
 static int32_t emmcdrv_dev_open(const uintptr_t spec __attribute__ ((unused)),
 				io_dev_info_t **dev_info);
@@ -41,8 +41,9 @@ static io_type_t device_type_emmcdrv(void)
 static int32_t emmcdrv_block_seek(io_entity_t *entity, int32_t mode,
 				  signed long long offset)
 {
-	if (mode != IO_SEEK_SET)
+	if (mode != IO_SEEK_SET) {
 		return IO_FAIL;
+	}
 
 	((file_state_t *) entity->info)->file_pos = offset;
 
@@ -64,12 +65,14 @@ static int32_t emmcdrv_block_read(io_entity_t *entity, uintptr_t buffer,
 	       current_file.partition, current_file.file_pos,
 	       sector_add, length, sector_num);
 
-	if ((buffer + length - 1U) <= (uintptr_t)UINT32_MAX)
+	if ((buffer + length - 1U) <= (uintptr_t)UINT32_MAX) {
 		emmc_dma = LOADIMAGE_FLAGS_DMA_ENABLE;
+	}
 
 	if (emmc_read_sector((uint32_t *) buffer, sector_add, sector_num,
-			     emmc_dma) != EMMC_SUCCESS)
+			     emmc_dma) != EMMC_SUCCESS) {
 		result = IO_FAIL;
+	}
 
 	*length_read = length;
 	fp->file_pos += (signed long long)length;
@@ -92,8 +95,8 @@ static int32_t emmcdrv_block_open(io_dev_info_t *dev_info,
 
 	if (emmcdrv_bootpartition == PARTITION_ID_USER) {
 		emmcdrv_bootpartition = mmc_drv_obj.boot_partition_en;
-		if ((PARTITION_ID_BOOT_1 == emmcdrv_bootpartition) ||
-		    (PARTITION_ID_BOOT_2 == emmcdrv_bootpartition)) {
+		if ((emmcdrv_bootpartition == PARTITION_ID_BOOT_1) ||
+		    (emmcdrv_bootpartition == PARTITION_ID_BOOT_2)) {
 			current_file.partition = emmcdrv_bootpartition;
 
 			NOTICE("BL2: eMMC boot from partition %d\n",
@@ -103,16 +106,18 @@ static int32_t emmcdrv_block_open(io_dev_info_t *dev_info,
 		return IO_FAIL;
 	}
 
-	if ((PARTITION_ID_USER == block_spec->partition) ||
-	    (PARTITION_ID_BOOT_1 == block_spec->partition) ||
-	    (PARTITION_ID_BOOT_2 == block_spec->partition))
+	if ((block_spec->partition == PARTITION_ID_USER) ||
+	    (block_spec->partition == PARTITION_ID_BOOT_1) ||
+	    (block_spec->partition == PARTITION_ID_BOOT_2)) {
 		current_file.partition = block_spec->partition;
-	else
+	} else {
 		current_file.partition = emmcdrv_bootpartition;
+	}
 
 done:
-	if (emmc_select_partition(current_file.partition) != EMMC_SUCCESS)
+	if (emmc_select_partition(current_file.partition) != EMMC_SUCCESS) {
 		return IO_FAIL;
+	}
 
 	entity->info = (uintptr_t) &current_file;
 
@@ -166,8 +171,9 @@ int32_t rcar_register_io_dev_emmcdrv(const io_dev_connector_t **dev_con)
 	int32_t rc;
 
 	rc = io_register_device(&emmcdrv_dev_info);
-	if (rc == IO_SUCCESS)
+	if (rc == IO_SUCCESS) {
 		*dev_con = &emmcdrv_dev_connector;
+	}
 
 	return rc;
 }
