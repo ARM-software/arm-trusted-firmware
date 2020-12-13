@@ -6,8 +6,6 @@
 
 #include <errno.h>
 
-#include <platform_def.h>
-
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
@@ -19,17 +17,18 @@
 #include <plat/common/platform.h>
 
 #include "iic_dvfs.h"
+#include "platform_def.h"
 #include "pwrc.h"
 #include "rcar_def.h"
 #include "rcar_private.h"
 #include "ulcb_cpld.h"
 
-#define	DVFS_SET_VID_0V		(0x00)
-#define	P_ALL_OFF		(0x80)
-#define	KEEPON_DDR1C		(0x08)
-#define	KEEPON_DDR0C		(0x04)
-#define	KEEPON_DDR1		(0x02)
-#define	KEEPON_DDR0		(0x01)
+#define DVFS_SET_VID_0V		(0x00)
+#define P_ALL_OFF		(0x80)
+#define KEEPON_DDR1C		(0x08)
+#define KEEPON_DDR0C		(0x04)
+#define KEEPON_DDR1		(0x02)
+#define KEEPON_DDR0		(0x01)
 
 #define SYSTEM_PWR_STATE(s)	((s)->pwr_domain_state[PLAT_MAX_PWR_LVL])
 #define CLUSTER_PWR_STATE(s)	((s)->pwr_domain_state[MPIDR_AFFLVL1])
@@ -200,20 +199,20 @@ static void __dead2 rcar_system_reset(void)
 
 	error = rcar_iic_dvfs_send(PMIC, REG_KEEP10, KEEP10_MAGIC);
 	if (error) {
-		ERROR("Failed send KEEP10 magic ret=%d \n", error);
+		ERROR("Failed send KEEP10 magic ret=%d\n", error);
 		goto done;
 	}
 
 	error = rcar_iic_dvfs_receive(PMIC, BKUP_MODE_CNT, &mode);
 	if (error) {
-		ERROR("Failed recieve BKUP_Mode_Cnt ret=%d \n", error);
+		ERROR("Failed receive BKUP_Mode_Cnt ret=%d\n", error);
 		goto done;
 	}
 
 	mode |= KEEPON_DDR1C | KEEPON_DDR0C | KEEPON_DDR1 | KEEPON_DDR0;
 	error = rcar_iic_dvfs_send(PMIC, BKUP_MODE_CNT, mode);
 	if (error) {
-		ERROR("Failed send KEEPON_DDRx ret=%d \n", error);
+		ERROR("Failed send KEEPON_DDRx ret=%d\n", error);
 		goto done;
 	}
 
@@ -292,7 +291,7 @@ static const plat_psci_ops_t rcar_plat_psci_ops = {
 	.system_reset			= rcar_system_reset,
 	.validate_power_state		= rcar_validate_power_state,
 #if RCAR_SYSTEM_SUSPEND
-	.get_sys_suspend_power_state 	= rcar_get_sys_suspend_power_state,
+	.get_sys_suspend_power_state	= rcar_get_sys_suspend_power_state,
 #endif
 };
 
