@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -162,6 +162,6 @@ void rcar_swdt_exec(uint64_t p)
 	gicv2_end_of_interrupt(ARM_IRQ_SEC_WDT);
 	rcar_swdt_release();
 	ERROR("\n");
-	ERROR("System WDT overflow, occured address is %p\n", (void *)p);
+	ERROR("System WDT overflow, occurred address is %p\n", (void *)p);
 	panic();
 }
