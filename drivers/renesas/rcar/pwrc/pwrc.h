@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,12 +31,12 @@
 #define WKUP_PPONR		0x2
 #define WKUP_GICREQ		0x3
 
-#define	RCAR_INVALID		(0xffffffffU)
+#define RCAR_INVALID		(0xffffffffU)
 #define PSYSR_INVALID		0xffffffff
 
-#define	RCAR_CLUSTER_A53A57	(0U)
-#define	RCAR_CLUSTER_CA53	(1U)
-#define	RCAR_CLUSTER_CA57	(2U)
+#define RCAR_CLUSTER_A53A57	(0U)
+#define RCAR_CLUSTER_CA53	(1U)
+#define RCAR_CLUSTER_CA57	(2U)
 
 #ifndef __ASSEMBLER__
 void rcar_pwrc_disable_interrupt_wakeup(uint64_t mpidr);
