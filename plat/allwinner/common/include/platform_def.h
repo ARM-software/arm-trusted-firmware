@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,7 +52,8 @@
 #define CACHE_WRITEBACK_SHIFT		6
 #define CACHE_WRITEBACK_GRANULE		(1 << CACHE_WRITEBACK_SHIFT)
 
-#define MAX_MMAP_REGIONS		(3 + PLATFORM_MMAP_REGIONS)
+#define MAX_STATIC_MMAP_REGIONS		5
+#define MAX_MMAP_REGIONS		(3 + MAX_STATIC_MMAP_REGIONS)
 
 #define PLAT_CSS_SCP_COM_SHARED_MEM_BASE \
 	(SUNXI_SRAM_A2_BASE + SUNXI_SRAM_A2_SIZE - 0x200)
@@ -72,7 +73,6 @@
 #define PLATFORM_CORE_COUNT		(PLATFORM_CLUSTER_COUNT * \
 					 PLATFORM_MAX_CPUS_PER_CLUSTER)
 #define PLATFORM_MAX_CPUS_PER_CLUSTER	U(4)
-#define PLATFORM_MMAP_REGIONS		5
 #define PLATFORM_STACK_SIZE		(0x1000 / PLATFORM_CORE_COUNT)
 
 #ifndef SPD_none

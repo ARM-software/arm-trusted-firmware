@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,7 +14,7 @@
 #include <sunxi_mmap.h>
 #include <sunxi_private.h>
 
-static const mmap_region_t sunxi_mmap[PLATFORM_MMAP_REGIONS + 1] = {
+static const mmap_region_t sunxi_mmap[MAX_STATIC_MMAP_REGIONS + 1] = {
 	MAP_REGION_FLAT(SUNXI_SRAM_BASE, SUNXI_SRAM_SIZE,
 			MT_RW_DATA | MT_SECURE),
 #ifdef SUNXI_SCP_BASE
