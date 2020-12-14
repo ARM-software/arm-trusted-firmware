@@ -13,6 +13,8 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <common/fdt_fixup.h>
+#include <common/fdt_wrappers.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/console.h>
 #include <drivers/generic_delay_timer.h>
@@ -174,6 +176,8 @@ void bl31_platform_setup(void)
 		mmio_write_32(SUNXI_CCU_BASE + 0x5c, 0x1);
 
 	sunxi_pmic_setup(soc_id, fdt);
+
+	sunxi_prepare_dtb(fdt);
 
 	INFO("BL31: Platform setup done\n");
 }
