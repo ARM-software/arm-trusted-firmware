@@ -97,11 +97,8 @@ static int rsb_init(void)
 	if (ret)
 		return ret;
 
-	/*
-	 * Initiate an I2C transaction to write 0x7c into register 0x3e,
-	 * switching the PMIC to RSB mode.
-	 */
-	ret = rsb_set_device_mode(0x7c3e00);
+	/* Initiate an I2C transaction to switch the PMIC to RSB mode. */
+	ret = rsb_set_device_mode(AXP20X_MODE_RSB << 16 | AXP20X_MODE_REG << 8);
 	if (ret)
 		return ret;
 
@@ -150,6 +147,11 @@ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 
 		pmic = AXP803_RSB;
 		axp_setup_regulators(fdt);
+
+		/* Switch the PMIC back to I2C mode. */
+		ret = axp_write(AXP20X_MODE_REG, AXP20X_MODE_I2C);
+		if (ret)
+			return ret;
 
 		break;
 	default:
