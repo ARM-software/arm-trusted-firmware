@@ -92,8 +92,8 @@ static int rsb_init(void)
 	if (ret)
 		return ret;
 
-	/* Start with 400 KHz to issue the I2C->RSB switch command. */
-	ret = rsb_set_bus_speed(SUNXI_OSC24M_CLK_IN_HZ, 400000);
+	/* Switch to the recommended 3 MHz bus clock. */
+	ret = rsb_set_bus_speed(SUNXI_OSC24M_CLK_IN_HZ, 3000000);
 	if (ret)
 		return ret;
 
@@ -102,11 +102,6 @@ static int rsb_init(void)
 	 * switching the PMIC to RSB mode.
 	 */
 	ret = rsb_set_device_mode(0x7c3e00);
-	if (ret)
-		return ret;
-
-	/* Now in RSB mode, switch to the recommended 3 MHz. */
-	ret = rsb_set_bus_speed(SUNXI_OSC24M_CLK_IN_HZ, 3000000);
 	if (ret)
 		return ret;
 
