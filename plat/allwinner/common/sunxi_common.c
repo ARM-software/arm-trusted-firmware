@@ -125,11 +125,9 @@ int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb)
 		device_bit = BIT(6);
 		break;
 	case SUNXI_SOC_H6:
-		if (use_rsb)
-			return -ENODEV;
-		pin_func = 0x33;
+		pin_func = use_rsb ? 0x22 : 0x33;
 		device_bit = BIT(16);
-		reset_offset = 0x19c;
+		reset_offset = use_rsb ? 0x1bc : 0x19c;
 		break;
 	case SUNXI_SOC_A64:
 		pin_func = use_rsb ? 0x22 : 0x33;
@@ -157,7 +155,7 @@ int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb)
 	if (socid != SUNXI_SOC_H6)
 		mmio_setbits_32(SUNXI_R_PRCM_BASE + 0x28, device_bit);
 	else
-		mmio_setbits_32(SUNXI_R_PRCM_BASE + 0x19c, device_bit | BIT(0));
+		mmio_setbits_32(SUNXI_R_PRCM_BASE + reset_offset, BIT(0));
 
 	/* assert, then de-assert reset of I2C/RSB controller */
 	mmio_clrbits_32(SUNXI_R_PRCM_BASE + reset_offset, device_bit);
