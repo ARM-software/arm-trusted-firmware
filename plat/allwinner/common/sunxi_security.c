@@ -7,6 +7,7 @@
 #include <common/debug.h>
 #include <lib/mmio.h>
 
+#include <sunxi_ccu.h>
 #include <sunxi_mmap.h>
 #include <sunxi_private.h>
 
@@ -16,7 +17,6 @@
 #define SPC_DECPORT_CLR_REG(p)	(SUNXI_SPC_BASE + ((p) * 0x0c) + 0xc)
 #endif
 
-#define R_PRCM_SEC_SWITCH_REG	0x1d0
 #define DMA_SEC_REG		0x20
 
 /*
@@ -40,7 +40,7 @@ void sunxi_security_setup(void)
 	mmio_write_32(SUNXI_CCU_SEC_SWITCH_REG, 0x7);
 
 	/* Set R_PRCM bus clocks to non-secure */
-	mmio_write_32(SUNXI_R_PRCM_BASE + R_PRCM_SEC_SWITCH_REG, 0x1);
+	mmio_write_32(SUNXI_R_PRCM_SEC_SWITCH_REG, 0x1);
 
 	/* Set all DMA channels (16 max.) to non-secure */
 	mmio_write_32(SUNXI_DMA_BASE + DMA_SEC_REG, 0xffff);
