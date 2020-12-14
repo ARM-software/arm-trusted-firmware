@@ -7,6 +7,7 @@
 #include <assert.h>
 
 #include <common/bl_common.h>
+#include <drivers/arm/pl061_gpio.h>
 #include <plat/common/platform.h>
 
 #include "qemu_private.h"
@@ -69,9 +70,18 @@ void bl31_plat_arch_setup(void)
 			      BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_END);
 }
 
+static void qemu_gpio_init(void)
+{
+#ifdef SECURE_GPIO_BASE
+	pl061_gpio_init();
+	pl061_gpio_register(SECURE_GPIO_BASE, 0);
+#endif
+}
+
 void bl31_platform_setup(void)
 {
 	plat_qemu_gic_init();
+	qemu_gpio_init();
 }
 
 unsigned int plat_get_syscnt_freq2(void)
