@@ -25,9 +25,6 @@
 #define BL31_NOBITS_BASE		(SUNXI_SRAM_A1_BASE + 0x1000)
 #define BL31_NOBITS_LIMIT		(SUNXI_SRAM_A1_BASE + SUNXI_SRAM_A1_SIZE)
 
-/* The traditional U-Boot load address is 160MB into DRAM, so at 0x4a000000 */
-#define PLAT_SUNXI_NS_IMAGE_OFFSET	(SUNXI_DRAM_BASE + (160U << 20))
-
 /* How much memory to reserve as secure for BL32, if configured */
 #define SUNXI_DRAM_SEC_SIZE		(32U << 20)
 

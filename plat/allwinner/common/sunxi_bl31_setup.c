@@ -57,7 +57,7 @@ static void *sunxi_find_dtb(void)
 	for (i = 0; i < 2048 / sizeof(uint64_t); i++) {
 		uint32_t *dtb_base;
 
-		if (u_boot_base[i] != PLAT_SUNXI_NS_IMAGE_OFFSET)
+		if (u_boot_base[i] != PRELOADED_BL33_BASE)
 			continue;
 
 		/* Does the suspected U-Boot size look anyhow reasonable? */
@@ -96,7 +96,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	 * Tell BL31 where the non-trusted software image
 	 * is located and the entry state information
 	 */
-	bl33_image_ep_info.pc = plat_get_ns_image_entrypoint();
+	bl33_image_ep_info.pc = PRELOADED_BL33_BASE;
 	bl33_image_ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX,
 					  DISABLE_ALL_EXCEPTIONS);
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
