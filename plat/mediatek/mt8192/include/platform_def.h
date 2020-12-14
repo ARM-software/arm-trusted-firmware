@@ -31,6 +31,7 @@
 #define GPIO_BASE        (IO_PHYS + 0x00005000)
 #define SPM_BASE         (IO_PHYS + 0x00006000)
 #define APMIXEDSYS       (IO_PHYS + 0x0000C000)
+#define DVFSRC_BASE      (IO_PHYS + 0x00012000)
 #define PMIC_WRAP_BASE   (IO_PHYS + 0x00026000)
 #define EMI_BASE         (IO_PHYS + 0x00219000)
 #define EMI_MPU_BASE     (IO_PHYS + 0x00226000)

@@ -594,6 +594,9 @@ extern void __spm_get_wakeup_status(struct wake_status *wakesta,
 extern void __spm_clean_after_wakeup(void);
 extern wake_reason_t
 __spm_output_wake_reason(int state_id, const struct wake_status *wakesta);
+extern void
+__spm_sync_vcore_dvfs_power_control(struct pwr_ctrl *dest_pwr_ctrl,
+				    const struct pwr_ctrl *src_pwr_ctrl);
 extern void __spm_set_pcm_wdt(int en);
 extern uint32_t _spm_get_wake_period(int pwake_time, wake_reason_t last_wr);
 extern void __spm_set_fw_resume_option(struct pwr_ctrl *pwrctrl);
