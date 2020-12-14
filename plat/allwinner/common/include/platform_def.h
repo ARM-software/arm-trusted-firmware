@@ -39,12 +39,10 @@
 
 #define MAX_XLAT_TABLES			1
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 28)
-#define SUNXI_BL33_VIRT_BASE		(SUNXI_DRAM_VIRT_BASE + SUNXI_DRAM_SEC_SIZE)
+
+#define SUNXI_BL33_VIRT_BASE		SUNXI_DRAM_VIRT_BASE
 
 #endif /* SUNXI_BL31_IN_DRAM */
-
-/* How much memory to reserve as secure for BL32, if configured */
-#define SUNXI_DRAM_SEC_SIZE		(32U << 20)
 
 /* How much DRAM to map (to map BL33, for fetching the DTB from U-Boot) */
 #define SUNXI_DRAM_MAP_SIZE		(64U << 20)
@@ -52,7 +50,7 @@
 #define CACHE_WRITEBACK_SHIFT		6
 #define CACHE_WRITEBACK_GRANULE		(1 << CACHE_WRITEBACK_SHIFT)
 
-#define MAX_STATIC_MMAP_REGIONS		4
+#define MAX_STATIC_MMAP_REGIONS		3
 #define MAX_MMAP_REGIONS		(5 + MAX_STATIC_MMAP_REGIONS)
 
 #define PLAT_CSS_SCP_COM_SHARED_MEM_BASE \
