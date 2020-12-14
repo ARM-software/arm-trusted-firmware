@@ -244,7 +244,6 @@ void sunxi_cpu_power_off_self(void)
 	 * in instruction granularity (32 bits).
 	 */
 	mmio_write_32(arisc_reset_vec, ((uintptr_t)code - arisc_reset_vec) / 4);
-	clean_dcache_range(arisc_reset_vec, 4);
 
 	/* De-assert the arisc reset line to let it run. */
 	mmio_setbits_32(SUNXI_R_CPUCFG_BASE, BIT(0));
