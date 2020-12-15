@@ -7,7 +7,7 @@
 /dts-v1/;
 / {
 	/* compatible string */
-	compatible = "arm,rd-daniel";
+	compatible = "arm,rd-v1";
 
 	/*
 	 * Place holder for system-id node with default values. The
