@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -24,6 +24,10 @@ BL2_SOURCES		+=	bl2/${ARCH}/bl2_el3_entrypoint.S	\
 				bl2/${ARCH}/bl2_el3_exceptions.S	\
 				lib/cpus/${ARCH}/cpu_helpers.S		\
 				lib/cpus/errata_report.c
+
+ifeq (${DISABLE_MTPMU},1)
+BL2_SOURCES		+=	lib/extensions/mtpmu/${ARCH}/mtpmu.S
+endif
 
 ifeq (${ARCH},aarch64)
 BL2_SOURCES		+=	lib/cpus/aarch64/dsu_helpers.S

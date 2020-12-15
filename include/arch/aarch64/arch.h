@@ -188,6 +188,11 @@
 #define ID_AA64DFR0_PMS_SHIFT	U(32)
 #define ID_AA64DFR0_PMS_MASK	ULL(0xf)
 
+/* ID_AA64DFR0_EL1.MTPMU definitions (for ARMv8.6+) */
+#define ID_AA64DFR0_MTPMU_SHIFT		U(48)
+#define ID_AA64DFR0_MTPMU_MASK		ULL(0xf)
+#define ID_AA64DFR0_MTPMU_SUPPORTED	ULL(1)
+
 /* ID_AA64ISAR1_EL1 definitions */
 #define ID_AA64ISAR1_EL1	S3_0_C0_C6_1
 #define ID_AA64ISAR1_GPI_SHIFT	U(28)
@@ -421,6 +426,7 @@
 #define SCR_RESET_VAL		SCR_RES1_BITS
 
 /* MDCR_EL3 definitions */
+#define MDCR_MTPME_BIT		(ULL(1) << 28)
 #define MDCR_SCCD_BIT		(ULL(1) << 23)
 #define MDCR_SPME_BIT		(ULL(1) << 17)
 #define MDCR_SDD_BIT		(ULL(1) << 16)
@@ -436,6 +442,7 @@
 #define MDCR_EL3_RESET_VAL	ULL(0x0)
 
 /* MDCR_EL2 definitions */
+#define MDCR_EL2_MTPME		(U(1) << 28)
 #define MDCR_EL2_HLP		(U(1) << 26)
 #define MDCR_EL2_HCCD		(U(1) << 23)
 #define MDCR_EL2_TTRF		(U(1) << 19)

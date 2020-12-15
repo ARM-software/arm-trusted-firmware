@@ -277,6 +277,10 @@
 		isb
 	.endif /* _init_sctlr */
 
+#if DISABLE_MTPMU
+		bl	mtpmu_disable
+#endif
+
 	.if \_warm_boot_mailbox
 		/* -------------------------------------------------------------
 		 * This code will be executed for both warm and cold resets.
