@@ -718,8 +718,13 @@ static void bl2_advertise_dram_size(uint32_t product)
 		break;
 
 	case PRR_PRODUCT_M3N:
+#if (RCAR_DRAM_LPDDR4_MEMCONF == 2)
+		/* 4GB(4GBx1) */
+		dram_config[1] = 0x100000000ULL;
+#elif (RCAR_DRAM_LPDDR4_MEMCONF == 1)
 		/* 2GB(1GBx2) */
 		dram_config[1] = 0x80000000ULL;
+#endif
 		break;
 
 	case PRR_PRODUCT_V3M:
