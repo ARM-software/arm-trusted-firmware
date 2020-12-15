@@ -20,16 +20,6 @@
 #include <platform_def.h>
 
 #define PMIC_NODE_NOT_FOUND	1
-#define STPMIC1_LDO12356_OUTPUT_MASK	(uint8_t)(GENMASK(6, 2))
-#define STPMIC1_LDO12356_OUTPUT_SHIFT	2
-#define STPMIC1_LDO3_MODE		(uint8_t)(BIT(7))
-#define STPMIC1_LDO3_DDR_SEL		31U
-#define STPMIC1_LDO3_1800000		(9U << STPMIC1_LDO12356_OUTPUT_SHIFT)
-
-#define STPMIC1_BUCK_OUTPUT_SHIFT	2
-#define STPMIC1_BUCK3_1V8		(39U << STPMIC1_BUCK_OUTPUT_SHIFT)
-
-#define STPMIC1_DEFAULT_START_UP_DELAY_MS	1
 
 static struct i2c_handle_s i2c_handle;
 static uint32_t pmic_i2c_addr;
@@ -227,53 +217,51 @@ void print_pmic_info_and_debug(void)
 
 int pmic_ddr_power_init(enum ddr_type ddr_type)
 {
-	bool buck3_at_1v8 = false;
-	uint8_t read_val;
 	int status;
+	uint16_t buck3_min_mv;
+	struct rdev *buck2, *buck3, *ldo3, *vref;
+
+	buck2 = regulator_get_by_name("buck2");
+	if (buck2 == NULL) {
+		return -ENOENT;
+	}
+
+	ldo3 = regulator_get_by_name("ldo3");
+	if (ldo3 == NULL) {
+		return -ENOENT;
+	}
+
+	vref = regulator_get_by_name("vref_ddr");
+	if (vref == NULL) {
+		return -ENOENT;
+	}
 
 	switch (ddr_type) {
 	case STM32MP_DDR3:
-		/* Set LDO3 to sync mode */
-		status = stpmic1_register_read(LDO3_CONTROL_REG, &read_val);
+		status = regulator_set_flag(ldo3, REGUL_SINK_SOURCE);
 		if (status != 0) {
 			return status;
 		}
 
-		read_val &= ~STPMIC1_LDO3_MODE;
-		read_val &= ~STPMIC1_LDO12356_OUTPUT_MASK;
-		read_val |= STPMIC1_LDO3_DDR_SEL <<
-			    STPMIC1_LDO12356_OUTPUT_SHIFT;
-
-		status = stpmic1_register_write(LDO3_CONTROL_REG, read_val);
+		status = regulator_set_min_voltage(buck2);
 		if (status != 0) {
 			return status;
 		}
 
-		status = stpmic1_regulator_voltage_set("buck2", 1350);
+		status = regulator_enable(buck2);
 		if (status != 0) {
 			return status;
 		}
 
-		status = stpmic1_regulator_enable("buck2");
+		status = regulator_enable(vref);
 		if (status != 0) {
 			return status;
 		}
 
-		mdelay(STPMIC1_DEFAULT_START_UP_DELAY_MS);
-
-		status = stpmic1_regulator_enable("vref_ddr");
+		status = regulator_enable(ldo3);
 		if (status != 0) {
 			return status;
 		}
-
-		mdelay(STPMIC1_DEFAULT_START_UP_DELAY_MS);
-
-		status = stpmic1_regulator_enable("ldo3");
-		if (status != 0) {
-			return status;
-		}
-
-		mdelay(STPMIC1_DEFAULT_START_UP_DELAY_MS);
 		break;
 
 	case STM32MP_LPDDR2:
@@ -283,57 +271,44 @@ int pmic_ddr_power_init(enum ddr_type ddr_type)
 		 * Set LDO3 to bypass mode if BUCK3 = 1.8V
 		 * Set LDO3 to normal mode if BUCK3 != 1.8V
 		 */
-		status = stpmic1_register_read(BUCK3_CONTROL_REG, &read_val);
+		buck3 = regulator_get_by_name("buck3");
+		if (buck3 == NULL) {
+			return -ENOENT;
+		}
+
+		regulator_get_range(buck3, &buck3_min_mv, NULL);
+
+		if (buck3_min_mv != 1800) {
+			status = regulator_set_min_voltage(ldo3);
+			if (status != 0) {
+				return status;
+			}
+		} else {
+			status = regulator_set_flag(ldo3, REGUL_ENABLE_BYPASS);
+			if (status != 0) {
+				return status;
+			}
+		}
+
+		status = regulator_set_min_voltage(buck2);
 		if (status != 0) {
 			return status;
 		}
 
-		if ((read_val & STPMIC1_BUCK3_1V8) == STPMIC1_BUCK3_1V8) {
-			buck3_at_1v8 = true;
-		}
-
-		status = stpmic1_register_read(LDO3_CONTROL_REG, &read_val);
+		status = regulator_enable(ldo3);
 		if (status != 0) {
 			return status;
 		}
 
-		read_val &= ~STPMIC1_LDO3_MODE;
-		read_val &= ~STPMIC1_LDO12356_OUTPUT_MASK;
-		read_val |= STPMIC1_LDO3_1800000;
-		if (buck3_at_1v8) {
-			read_val |= STPMIC1_LDO3_MODE;
-		}
-
-		status = stpmic1_register_write(LDO3_CONTROL_REG, read_val);
+		status = regulator_enable(buck2);
 		if (status != 0) {
 			return status;
 		}
 
-		status = stpmic1_regulator_voltage_set("buck2", 1200);
+		status = regulator_enable(vref);
 		if (status != 0) {
 			return status;
 		}
-
-		status = stpmic1_regulator_enable("ldo3");
-		if (status != 0) {
-			return status;
-		}
-
-		mdelay(STPMIC1_DEFAULT_START_UP_DELAY_MS);
-
-		status = stpmic1_regulator_enable("buck2");
-		if (status != 0) {
-			return status;
-		}
-
-		mdelay(STPMIC1_DEFAULT_START_UP_DELAY_MS);
-
-		status = stpmic1_regulator_enable("vref_ddr");
-		if (status != 0) {
-			return status;
-		}
-
-		mdelay(STPMIC1_DEFAULT_START_UP_DELAY_MS);
 		break;
 
 	default:
