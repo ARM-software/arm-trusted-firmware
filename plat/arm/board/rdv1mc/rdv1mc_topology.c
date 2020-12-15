@@ -12,7 +12,7 @@
 /******************************************************************************
  * The power domain tree descriptor.
  ******************************************************************************/
-const unsigned char rd_daniel_xlr_pd_tree_desc_multi_chip[] = {
+const unsigned char rd_v1_mc_pd_tree_desc_multi_chip[] = {
 	((PLAT_ARM_CLUSTER_COUNT) * (CSS_SGI_CHIP_COUNT)),
 	CSS_SGI_MAX_CPUS_PER_CLUSTER,
 	CSS_SGI_MAX_CPUS_PER_CLUSTER,
@@ -44,7 +44,7 @@ const unsigned char rd_daniel_xlr_pd_tree_desc_multi_chip[] = {
 const unsigned char *plat_get_power_domain_tree_desc(void)
 {
 	if (plat_arm_sgi_get_multi_chip_mode() == 1)
-		return rd_daniel_xlr_pd_tree_desc_multi_chip;
+		return rd_v1_mc_pd_tree_desc_multi_chip;
 	panic();
 }
 

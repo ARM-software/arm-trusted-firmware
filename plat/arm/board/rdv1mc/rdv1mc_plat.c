@@ -12,7 +12,7 @@
 #include <sgi_plat.h>
 
 #if defined(IMAGE_BL31)
-static const mmap_region_t rddanielxlr_dynamic_mmap[] = {
+static const mmap_region_t rdv1mc_dynamic_mmap[] = {
 	ARM_MAP_SHARED_RAM_REMOTE_CHIP(1),
 	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(1),
 	SOC_CSS_MAP_DEVICE_REMOTE_CHIP(1),
@@ -28,7 +28,7 @@ static const mmap_region_t rddanielxlr_dynamic_mmap[] = {
 #endif
 };
 
-static struct gic600_multichip_data rddanielxlr_multichip_data __init = {
+static struct gic600_multichip_data rdv1mc_multichip_data __init = {
 	.rt_owner_base = PLAT_ARM_GICD_BASE,
 	.rt_owner = 0,
 	.chip_count = CSS_SGI_CHIP_COUNT,
@@ -54,7 +54,7 @@ static struct gic600_multichip_data rddanielxlr_multichip_data __init = {
 	}
 };
 
-static uintptr_t rddanielxlr_multichip_gicr_frames[] = {
+static uintptr_t rdv1mc_multichip_gicr_frames[] = {
 	/* Chip 0's GICR Base */
 	PLAT_ARM_GICR_BASE,
 	/* Chip 1's GICR BASE */
@@ -106,14 +106,14 @@ void bl31_platform_setup(void)
 		panic();
 	} else if ((plat_arm_sgi_get_multi_chip_mode() == 1) &&
 			(CSS_SGI_CHIP_COUNT > 1)) {
-		INFO("Enabling support for multi-chip in RD-Daniel Cfg-XLR\n");
+		INFO("Enabling support for multi-chip in RD-V1-MC\n");
 
-		for (i = 0; i < ARRAY_SIZE(rddanielxlr_dynamic_mmap); i++) {
+		for (i = 0; i < ARRAY_SIZE(rdv1mc_dynamic_mmap); i++) {
 			ret = mmap_add_dynamic_region(
-					rddanielxlr_dynamic_mmap[i].base_pa,
-					rddanielxlr_dynamic_mmap[i].base_va,
-					rddanielxlr_dynamic_mmap[i].size,
-					rddanielxlr_dynamic_mmap[i].attr);
+					rdv1mc_dynamic_mmap[i].base_pa,
+					rdv1mc_dynamic_mmap[i].base_va,
+					rdv1mc_dynamic_mmap[i].size,
+					rdv1mc_dynamic_mmap[i].attr);
 			if (ret != 0) {
 				ERROR("Failed to add dynamic mmap entry "
 						"(ret=%d)\n", ret);
@@ -122,8 +122,8 @@ void bl31_platform_setup(void)
 		}
 
 		plat_arm_override_gicr_frames(
-			rddanielxlr_multichip_gicr_frames);
-		gic600_multichip_init(&rddanielxlr_multichip_data);
+			rdv1mc_multichip_gicr_frames);
+		gic600_multichip_init(&rdv1mc_multichip_data);
 	}
 
 	sgi_bl31_common_platform_setup();
