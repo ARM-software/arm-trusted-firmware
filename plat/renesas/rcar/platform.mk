@@ -307,7 +307,7 @@ PLAT_INCLUDES	+=	-Idrivers/renesas/rcar/ddr		\
 			-Idrivers/renesas/rcar/delay		\
 			-Idrivers/renesas/rcar/rom		\
 			-Idrivers/renesas/rcar/scif		\
-			-Idrivers/renesas/rcar/emmc		\
+			-Idrivers/renesas/common/emmc		\
 			-Idrivers/renesas/rcar/pwrc		\
 			-Idrivers/renesas/rcar/io
 
@@ -330,12 +330,6 @@ BL2_SOURCES	+=	plat/renesas/rcar/aarch64/platform_common.c	\
 			drivers/renesas/rcar/dma/dma_driver.c		\
 			drivers/renesas/rcar/avs/avs_driver.c		\
 			drivers/renesas/rcar/delay/micro_delay.c	\
-			drivers/renesas/rcar/emmc/emmc_interrupt.c	\
-			drivers/renesas/rcar/emmc/emmc_utility.c	\
-			drivers/renesas/rcar/emmc/emmc_mount.c		\
-			drivers/renesas/rcar/emmc/emmc_init.c		\
-			drivers/renesas/rcar/emmc/emmc_read.c		\
-			drivers/renesas/rcar/emmc/emmc_cmd.c		\
 			drivers/renesas/rcar/watchdog/swdt.c		\
 			drivers/renesas/rcar/rom/rom_api.c		\
 			drivers/renesas/rcar/board/board.c
