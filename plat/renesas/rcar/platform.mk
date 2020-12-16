@@ -1,56 +1,10 @@
 #
-# Copyright (c) 2018-2019, Renesas Electronics Corporation. All rights reserved.
+# Copyright (c) 2018-2020, Renesas Electronics Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-PROGRAMMABLE_RESET_ADDRESS	:= 0
-COLD_BOOT_SINGLE_CPU		:= 1
-ARM_CCI_PRODUCT_ID		:= 500
-TRUSTED_BOARD_BOOT		:= 1
-RESET_TO_BL31			:= 1
-GENERATE_COT			:= 1
-BL2_AT_EL3			:= 1
-ENABLE_SVE_FOR_NS		:= 0
-MULTI_CONSOLE_API		:= 1
-
-CRASH_REPORTING			:= 1
-HANDLE_EA_EL3_FIRST		:= 1
-
-$(eval $(call add_define,PLAT_EXTRA_LD_SCRIPT))
-
-ifeq (${SPD},none)
-  SPD_NONE:=1
-  $(eval $(call add_define,SPD_NONE))
-endif
-
-# LSI setting common define
-RCAR_H3:=0
-RCAR_M3:=1
-RCAR_M3N:=2
-RCAR_E3:=3
-RCAR_H3N:=4
-RCAR_D3:=5
-RCAR_V3M:=6
-RCAR_AUTO:=99
-$(eval $(call add_define,RCAR_H3))
-$(eval $(call add_define,RCAR_M3))
-$(eval $(call add_define,RCAR_M3N))
-$(eval $(call add_define,RCAR_E3))
-$(eval $(call add_define,RCAR_H3N))
-$(eval $(call add_define,RCAR_D3))
-$(eval $(call add_define,RCAR_V3M))
-$(eval $(call add_define,RCAR_AUTO))
-RCAR_CUT_10:=0
-RCAR_CUT_11:=1
-RCAR_CUT_13:=3
-RCAR_CUT_20:=10
-RCAR_CUT_30:=20
-$(eval $(call add_define,RCAR_CUT_10))
-$(eval $(call add_define,RCAR_CUT_11))
-$(eval $(call add_define,RCAR_CUT_13))
-$(eval $(call add_define,RCAR_CUT_20))
-$(eval $(call add_define,RCAR_CUT_30))
+include plat/renesas/common/common.mk
 
 ifndef LSI
   $(error "Error: Unknown LSI. Please use LSI=<LSI name> to specify the LSI")
@@ -339,21 +293,12 @@ ifeq (${RCAR_SYSTEM_RESET_KEEPON_DDR},1)
   endif
 endif
 
-# Enable workarounds for selected Cortex-A53 erratas.
-ERRATA_A53_835769  := 1
-ERRATA_A53_843419  := 1
-ERRATA_A53_855873  := 1
-
-# Enable workarounds for selected Cortex-A57 erratas.
-ERRATA_A57_859972  := 1
-ERRATA_A57_813419  := 1
-
 include drivers/renesas/rcar/ddr/ddr.mk
 include drivers/renesas/rcar/qos/qos.mk
 include drivers/renesas/rcar/pfc/pfc.mk
 include lib/libfdt/libfdt.mk
 
-PLAT_INCLUDES	:=	-Idrivers/renesas/rcar/ddr		\
+PLAT_INCLUDES	+=	-Idrivers/renesas/rcar/ddr		\
 			-Idrivers/renesas/rcar/qos		\
 			-Idrivers/renesas/rcar/iic_dvfs		\
 			-Idrivers/renesas/rcar/board		\
@@ -364,25 +309,12 @@ PLAT_INCLUDES	:=	-Idrivers/renesas/rcar/ddr		\
 			-Idrivers/renesas/rcar/scif		\
 			-Idrivers/renesas/rcar/emmc		\
 			-Idrivers/renesas/rcar/pwrc		\
-			-Idrivers/renesas/rcar/io		\
-			-Iplat/renesas/rcar/include/registers	\
-			-Iplat/renesas/rcar/include		\
-			-Iplat/renesas/rcar
+			-Idrivers/renesas/rcar/io
 
 PLAT_BL_COMMON_SOURCES	:=	drivers/renesas/rcar/iic_dvfs/iic_dvfs.c \
 				plat/renesas/rcar/rcar_common.c
 
-RCAR_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
-				drivers/arm/gic/v2/gicv2_main.c		\
-				drivers/arm/gic/v2/gicv2_helpers.c	\
-				plat/common/plat_gicv2.c
-
-BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
-			lib/cpus/aarch64/cortex_a53.S			\
-			lib/cpus/aarch64/cortex_a57.S			\
-			${LIBFDT_SRCS}					\
-			common/desc_image_load.c			\
-			plat/renesas/rcar/aarch64/platform_common.c	\
+BL2_SOURCES	+=	plat/renesas/rcar/aarch64/platform_common.c	\
 			plat/renesas/rcar/aarch64/plat_helpers.S	\
 			plat/renesas/rcar/bl2_interrupt_error.c		\
 			plat/renesas/rcar/bl2_secure_setting.c		\
@@ -393,7 +325,6 @@ BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			plat/renesas/rcar/bl2_cpg_init.c		\
 			drivers/renesas/rcar/console/rcar_printf.c	\
 			drivers/renesas/rcar/scif/scif.S		\
-			drivers/renesas/rcar/common.c			\
 			drivers/renesas/rcar/io/io_emmcdrv.c		\
 			drivers/renesas/rcar/io/io_memdrv.c		\
 			drivers/renesas/rcar/io/io_rcar.c		\
@@ -410,14 +341,9 @@ BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			drivers/renesas/rcar/emmc/emmc_cmd.c		\
 			drivers/renesas/rcar/watchdog/swdt.c		\
 			drivers/renesas/rcar/rom/rom_api.c		\
-			drivers/renesas/rcar/board/board.c		\
-			drivers/io/io_storage.c
+			drivers/renesas/rcar/board/board.c
 
-BL31_SOURCES	+=	${RCAR_GIC_SOURCES}				\
-			lib/cpus/aarch64/cortex_a53.S			\
-			lib/cpus/aarch64/cortex_a57.S			\
-			plat/common/plat_psci_common.c			\
-			plat/renesas/rcar/plat_topology.c		\
+BL31_SOURCES	+=	plat/renesas/rcar/plat_topology.c		\
 			plat/renesas/rcar/aarch64/plat_helpers.S	\
 			plat/renesas/rcar/aarch64/platform_common.c	\
 			plat/renesas/rcar/bl31_plat_setup.c		\
@@ -426,9 +352,7 @@ BL31_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			drivers/renesas/rcar/console/rcar_printf.c	\
 			drivers/renesas/rcar/delay/micro_delay.c	\
 			drivers/renesas/rcar/pwrc/call_sram.S		\
-			drivers/renesas/rcar/pwrc/pwrc.c		\
-			drivers/renesas/rcar/common.c			\
-			drivers/arm/cci/cci.c
+			drivers/renesas/rcar/pwrc/pwrc.c
 
 ifeq (${RCAR_GEN3_ULCB},1)
 BL31_SOURCES		+=	drivers/renesas/rcar/cpld/ulcb_cpld.c
