@@ -312,9 +312,7 @@ PLAT_INCLUDES	+=	-Idrivers/renesas/rcar/ddr		\
 			-Idrivers/renesas/common/pwrc		\
 			-Idrivers/renesas/common/io
 
-BL2_SOURCES	+=	plat/renesas/rcar/aarch64/platform_common.c	\
-			plat/renesas/rcar/aarch64/plat_helpers.S	\
-			plat/renesas/rcar/bl2_interrupt_error.c		\
+BL2_SOURCES	+=	plat/renesas/rcar/bl2_interrupt_error.c		\
 			plat/renesas/rcar/bl2_secure_setting.c		\
 			plat/renesas/rcar/bl2_plat_setup.c		\
 			plat/renesas/rcar/plat_storage.c		\
@@ -324,8 +322,6 @@ BL2_SOURCES	+=	plat/renesas/rcar/aarch64/platform_common.c	\
 			drivers/renesas/rcar/board/board.c
 
 BL31_SOURCES	+=	plat/renesas/rcar/plat_topology.c		\
-			plat/renesas/rcar/aarch64/plat_helpers.S	\
-			plat/renesas/rcar/aarch64/platform_common.c	\
 			plat/renesas/rcar/bl31_plat_setup.c		\
 			plat/renesas/rcar/plat_pm.c
 
