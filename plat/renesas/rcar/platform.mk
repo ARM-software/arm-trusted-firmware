@@ -303,7 +303,7 @@ PLAT_INCLUDES	+=	-Idrivers/renesas/rcar/ddr		\
 			-Idrivers/renesas/rcar/board		\
 			-Idrivers/renesas/rcar/cpld/		\
 			-Idrivers/renesas/common/iic_dvfs	\
-			-Idrivers/renesas/rcar/avs		\
+			-Idrivers/renesas/common/avs		\
 			-Idrivers/renesas/common/delay		\
 			-Idrivers/renesas/common/rom		\
 			-Idrivers/renesas/common/scif		\
@@ -321,7 +321,6 @@ BL2_SOURCES	+=	plat/renesas/rcar/aarch64/platform_common.c	\
 			plat/renesas/rcar/plat_image_load.c		\
 			plat/renesas/rcar/bl2_cpg_init.c		\
 			drivers/renesas/rcar/rpc/rpc_driver.c		\
-			drivers/renesas/rcar/avs/avs_driver.c		\
 			drivers/renesas/rcar/board/board.c
 
 BL31_SOURCES	+=	plat/renesas/rcar/plat_topology.c		\
