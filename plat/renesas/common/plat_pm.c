@@ -21,7 +21,9 @@
 #include "pwrc.h"
 #include "rcar_def.h"
 #include "rcar_private.h"
+#if RCAR_GEN3_ULCB
 #include "ulcb_cpld.h"
+#endif /* RCAR_GEN3_ULCB */
 
 #define DVFS_SET_VID_0V		(0x00)
 #define P_ALL_OFF		(0x80)
