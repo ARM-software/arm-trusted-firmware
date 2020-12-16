@@ -80,6 +80,12 @@ BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			common/desc_image_load.c			\
 			plat/renesas/common/aarch64/platform_common.c	\
 			plat/renesas/common/aarch64/plat_helpers.S	\
+			plat/renesas/common/bl2_interrupt_error.c	\
+			plat/renesas/common/bl2_secure_setting.c	\
+			plat/renesas/common/plat_storage.c		\
+			plat/renesas/common/bl2_plat_mem_params_desc.c	\
+			plat/renesas/common/plat_image_load.c		\
+			plat/renesas/common/bl2_cpg_init.c		\
 			drivers/renesas/common/console/rcar_printf.c	\
 			drivers/renesas/common/scif/scif.S		\
 			drivers/renesas/common/common.c			\
@@ -105,8 +111,11 @@ BL31_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			lib/cpus/aarch64/cortex_a53.S			\
 			lib/cpus/aarch64/cortex_a57.S			\
 			plat/common/plat_psci_common.c			\
+			plat/renesas/common/plat_topology.c		\
 			plat/renesas/common/aarch64/plat_helpers.S	\
 			plat/renesas/common/aarch64/platform_common.c	\
+			plat/renesas/common/bl31_plat_setup.c		\
+			plat/renesas/common/plat_pm.c			\
 			drivers/renesas/common/console/rcar_console.S	\
 			drivers/renesas/common/console/rcar_printf.c	\
 			drivers/renesas/common/delay/micro_delay.c	\

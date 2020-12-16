@@ -312,18 +312,8 @@ PLAT_INCLUDES	+=	-Idrivers/renesas/rcar/ddr		\
 			-Idrivers/renesas/common/pwrc		\
 			-Idrivers/renesas/common/io
 
-BL2_SOURCES	+=	plat/renesas/rcar/bl2_interrupt_error.c		\
-			plat/renesas/rcar/bl2_secure_setting.c		\
-			plat/renesas/rcar/bl2_plat_setup.c		\
-			plat/renesas/rcar/plat_storage.c		\
-			plat/renesas/rcar/bl2_plat_mem_params_desc.c	\
-			plat/renesas/rcar/plat_image_load.c		\
-			plat/renesas/rcar/bl2_cpg_init.c		\
+BL2_SOURCES	+=	plat/renesas/rcar/bl2_plat_setup.c	\
 			drivers/renesas/rcar/board/board.c
-
-BL31_SOURCES	+=	plat/renesas/rcar/plat_topology.c		\
-			plat/renesas/rcar/bl31_plat_setup.c		\
-			plat/renesas/rcar/plat_pm.c
 
 ifeq (${RCAR_GEN3_ULCB},1)
 BL31_SOURCES		+=	drivers/renesas/rcar/cpld/ulcb_cpld.c
