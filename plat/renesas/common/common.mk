@@ -65,6 +65,9 @@ PLAT_INCLUDES	:=	-Iplat/renesas/common/include/registers	\
 			-Iplat/renesas/common/include		\
 			-Iplat/renesas/common
 
+PLAT_BL_COMMON_SOURCES	:=	drivers/renesas/common/iic_dvfs/iic_dvfs.c \
+				plat/renesas/common/rcar_common.c
+
 RCAR_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
 				drivers/arm/gic/v2/gicv2_helpers.c	\
@@ -84,3 +87,7 @@ BL31_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			plat/common/plat_psci_common.c			\
 			drivers/renesas/common/common.c			\
 			drivers/arm/cci/cci.c
+
+include lib/xlat_tables_v2/xlat_tables.mk
+include drivers/auth/mbedtls/mbedtls_crypto.mk
+PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}

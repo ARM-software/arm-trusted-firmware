@@ -300,9 +300,9 @@ include lib/libfdt/libfdt.mk
 
 PLAT_INCLUDES	+=	-Idrivers/renesas/rcar/ddr		\
 			-Idrivers/renesas/rcar/qos		\
-			-Idrivers/renesas/rcar/iic_dvfs		\
 			-Idrivers/renesas/rcar/board		\
 			-Idrivers/renesas/rcar/cpld/		\
+			-Idrivers/renesas/common/iic_dvfs	\
 			-Idrivers/renesas/rcar/avs		\
 			-Idrivers/renesas/rcar/delay		\
 			-Idrivers/renesas/rcar/rom		\
@@ -310,9 +310,6 @@ PLAT_INCLUDES	+=	-Idrivers/renesas/rcar/ddr		\
 			-Idrivers/renesas/rcar/emmc		\
 			-Idrivers/renesas/rcar/pwrc		\
 			-Idrivers/renesas/rcar/io
-
-PLAT_BL_COMMON_SOURCES	:=	drivers/renesas/rcar/iic_dvfs/iic_dvfs.c \
-				plat/renesas/rcar/rcar_common.c
 
 BL2_SOURCES	+=	plat/renesas/rcar/aarch64/platform_common.c	\
 			plat/renesas/rcar/aarch64/plat_helpers.S	\
@@ -357,10 +354,6 @@ BL31_SOURCES	+=	plat/renesas/rcar/plat_topology.c		\
 ifeq (${RCAR_GEN3_ULCB},1)
 BL31_SOURCES		+=	drivers/renesas/rcar/cpld/ulcb_cpld.c
 endif
-
-include lib/xlat_tables_v2/xlat_tables.mk
-include drivers/auth/mbedtls/mbedtls_crypto.mk
-PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 
 # build the layout images for the bootrom and the necessary srecords
 rcar: rcar_layout_tool rcar_srecord
