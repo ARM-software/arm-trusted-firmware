@@ -91,6 +91,7 @@ BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			drivers/renesas/common/emmc/emmc_init.c		\
 			drivers/renesas/common/emmc/emmc_read.c		\
 			drivers/renesas/common/emmc/emmc_cmd.c		\
+			drivers/renesas/common/rom/rom_api.c		\
 			drivers/io/io_storage.c
 
 BL31_SOURCES	+=	${RCAR_GIC_SOURCES}				\
