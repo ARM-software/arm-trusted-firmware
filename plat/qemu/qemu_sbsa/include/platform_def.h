@@ -17,6 +17,13 @@
 #define PLATFORM_STACK_SIZE		0x1000
 
 #define PLATFORM_MAX_CPUS_PER_CLUSTER	U(4)
+/*
+ * Define the number of cores per cluster used in calculating core position.
+ * The cluster number is shifted by this value and added to the core ID,
+ * so its value represents log2(cores/cluster).
+ * Default is 2**(2) = 4 cores per cluster.
+ */
+#define PLATFORM_CPU_PER_CLUSTER_SHIFT	U(2)
 #define PLATFORM_CLUSTER_COUNT		U(2)
 #define PLATFORM_CLUSTER0_CORE_COUNT	PLATFORM_MAX_CPUS_PER_CLUSTER
 #define PLATFORM_CLUSTER1_CORE_COUNT	PLATFORM_MAX_CPUS_PER_CLUSTER

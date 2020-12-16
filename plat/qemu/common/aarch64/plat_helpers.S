@@ -32,7 +32,8 @@ endfunc plat_my_core_pos
 func plat_qemu_calc_core_pos
 	and	x1, x0, #MPIDR_CPU_MASK
 	and	x0, x0, #MPIDR_CLUSTER_MASK
-	add	x0, x1, x0, LSR #6
+	add	x0, x1, x0, LSR #(MPIDR_AFFINITY_BITS -\
+				  PLATFORM_CPU_PER_CLUSTER_SHIFT)
 	ret
 endfunc plat_qemu_calc_core_pos
 
