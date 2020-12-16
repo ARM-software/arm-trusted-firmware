@@ -309,7 +309,7 @@ PLAT_INCLUDES	+=	-Idrivers/renesas/rcar/ddr		\
 			-Idrivers/renesas/rcar/scif		\
 			-Idrivers/renesas/common/emmc		\
 			-Idrivers/renesas/rcar/pwrc		\
-			-Idrivers/renesas/rcar/io
+			-Idrivers/renesas/common/io
 
 BL2_SOURCES	+=	plat/renesas/rcar/aarch64/platform_common.c	\
 			plat/renesas/rcar/aarch64/plat_helpers.S	\
@@ -322,9 +322,6 @@ BL2_SOURCES	+=	plat/renesas/rcar/aarch64/platform_common.c	\
 			plat/renesas/rcar/bl2_cpg_init.c		\
 			drivers/renesas/rcar/console/rcar_printf.c	\
 			drivers/renesas/rcar/scif/scif.S		\
-			drivers/renesas/rcar/io/io_emmcdrv.c		\
-			drivers/renesas/rcar/io/io_memdrv.c		\
-			drivers/renesas/rcar/io/io_rcar.c		\
 			drivers/renesas/rcar/auth/auth_mod.c		\
 			drivers/renesas/rcar/rpc/rpc_driver.c		\
 			drivers/renesas/rcar/dma/dma_driver.c		\

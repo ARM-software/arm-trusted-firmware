@@ -79,6 +79,9 @@ BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			${LIBFDT_SRCS}					\
 			common/desc_image_load.c			\
 			drivers/renesas/common/common.c			\
+			drivers/renesas/common/io/io_emmcdrv.c		\
+			drivers/renesas/common/io/io_memdrv.c		\
+			drivers/renesas/common/io/io_rcar.c		\
 			drivers/renesas/common/emmc/emmc_interrupt.c	\
 			drivers/renesas/common/emmc/emmc_utility.c	\
 			drivers/renesas/common/emmc/emmc_mount.c	\
