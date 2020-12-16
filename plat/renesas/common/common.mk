@@ -85,6 +85,7 @@ BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			drivers/renesas/common/io/io_memdrv.c		\
 			drivers/renesas/common/io/io_rcar.c		\
 			drivers/renesas/common/auth/auth_mod.c		\
+			drivers/renesas/common/rpc/rpc_driver.c		\
 			drivers/renesas/common/dma/dma_driver.c		\
 			drivers/renesas/common/avs/avs_driver.c		\
 			drivers/renesas/common/delay/micro_delay.c	\
