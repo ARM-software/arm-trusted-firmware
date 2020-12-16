@@ -306,7 +306,7 @@ PLAT_INCLUDES	+=	-Idrivers/renesas/rcar/ddr		\
 			-Idrivers/renesas/rcar/avs		\
 			-Idrivers/renesas/rcar/delay		\
 			-Idrivers/renesas/rcar/rom		\
-			-Idrivers/renesas/rcar/scif		\
+			-Idrivers/renesas/common/scif		\
 			-Idrivers/renesas/common/emmc		\
 			-Idrivers/renesas/common/pwrc		\
 			-Idrivers/renesas/common/io
@@ -320,8 +320,6 @@ BL2_SOURCES	+=	plat/renesas/rcar/aarch64/platform_common.c	\
 			plat/renesas/rcar/bl2_plat_mem_params_desc.c	\
 			plat/renesas/rcar/plat_image_load.c		\
 			plat/renesas/rcar/bl2_cpg_init.c		\
-			drivers/renesas/rcar/console/rcar_printf.c	\
-			drivers/renesas/rcar/scif/scif.S		\
 			drivers/renesas/rcar/auth/auth_mod.c		\
 			drivers/renesas/rcar/rpc/rpc_driver.c		\
 			drivers/renesas/rcar/dma/dma_driver.c		\
@@ -336,8 +334,6 @@ BL31_SOURCES	+=	plat/renesas/rcar/plat_topology.c		\
 			plat/renesas/rcar/aarch64/platform_common.c	\
 			plat/renesas/rcar/bl31_plat_setup.c		\
 			plat/renesas/rcar/plat_pm.c			\
-			drivers/renesas/rcar/console/rcar_console.S	\
-			drivers/renesas/rcar/console/rcar_printf.c	\
 			drivers/renesas/rcar/delay/micro_delay.c
 
 ifeq (${RCAR_GEN3_ULCB},1)

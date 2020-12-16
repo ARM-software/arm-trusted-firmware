@@ -78,6 +78,8 @@ BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			lib/cpus/aarch64/cortex_a57.S			\
 			${LIBFDT_SRCS}					\
 			common/desc_image_load.c			\
+			drivers/renesas/common/console/rcar_printf.c	\
+			drivers/renesas/common/scif/scif.S		\
 			drivers/renesas/common/common.c			\
 			drivers/renesas/common/io/io_emmcdrv.c		\
 			drivers/renesas/common/io/io_memdrv.c		\
@@ -94,6 +96,8 @@ BL31_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			lib/cpus/aarch64/cortex_a53.S			\
 			lib/cpus/aarch64/cortex_a57.S			\
 			plat/common/plat_psci_common.c			\
+			drivers/renesas/common/console/rcar_console.S	\
+			drivers/renesas/common/console/rcar_printf.c	\
 			drivers/renesas/common/pwrc/call_sram.S		\
 			drivers/renesas/common/pwrc/pwrc.c		\
 			drivers/renesas/common/common.c			\
