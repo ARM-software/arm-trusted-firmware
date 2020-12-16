@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,7 +18,8 @@ void stm32mp1_gic_pcpu_init(void);
 void stm32mp1_gic_init(void);
 
 void stm32mp1_syscfg_init(void);
-void stm32mp1_syscfg_enable_io_compensation(void);
+void stm32mp1_syscfg_enable_io_compensation_start(void);
+void stm32mp1_syscfg_enable_io_compensation_finish(void);
 void stm32mp1_syscfg_disable_io_compensation(void);
 
 void stm32mp1_deconfigure_uart_pins(void);

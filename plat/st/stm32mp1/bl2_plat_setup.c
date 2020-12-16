@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -307,6 +307,8 @@ skip_console_init:
 	stm32mp1_arch_security_setup();
 
 	print_reset_reason();
+
+	stm32mp1_syscfg_enable_io_compensation_finish();
 
 #if !STM32MP_USE_STM32IMAGE
 	fconf_populate("TB_FW", STM32MP_DTB_BASE);
