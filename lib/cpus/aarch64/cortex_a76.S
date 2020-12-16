@@ -430,6 +430,61 @@ func check_errata_1868343
 	b	cpu_rev_var_ls
 endfunc check_errata_1868343
 
+/* --------------------------------------------------
+ * Errata Workaround for A76 Erratum 1946160.
+ * This applies to revisions r3p0 - r4p1 of A76.
+ * It also exists in r0p0 - r2p0 but there is no fix
+ * in those revisions.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
+func errata_a76_1946160_wa
+	/* Compare x0 against revisions r3p0 - r4p1 */
+	mov	x17, x30
+	bl	check_errata_1946160
+	cbz	x0, 1f
+
+	mov	x0, #3
+	msr	S3_6_C15_C8_0, x0
+	ldr	x0, =0x10E3900002
+	msr	S3_6_C15_C8_2, x0
+	ldr	x0, =0x10FFF00083
+	msr	S3_6_C15_C8_3, x0
+	ldr	x0, =0x2001003FF
+	msr	S3_6_C15_C8_1, x0
+
+	mov	x0, #4
+	msr	S3_6_C15_C8_0, x0
+	ldr	x0, =0x10E3800082
+	msr	S3_6_C15_C8_2, x0
+	ldr	x0, =0x10FFF00083
+	msr	S3_6_C15_C8_3, x0
+	ldr	x0, =0x2001003FF
+	msr	S3_6_C15_C8_1, x0
+
+	mov	x0, #5
+	msr	S3_6_C15_C8_0, x0
+	ldr	x0, =0x10E3800200
+	msr	S3_6_C15_C8_2, x0
+	ldr	x0, =0x10FFF003E0
+	msr	S3_6_C15_C8_3, x0
+	ldr	x0, =0x2001003FF
+	msr	S3_6_C15_C8_1, x0
+
+	isb
+1:
+	ret	x17
+endfunc errata_a76_1946160_wa
+
+func check_errata_1946160
+	/* Applies to revisions r3p0 - r4p1. */
+	mov	x1, #0x30
+	mov	x2, #0x41
+	b	cpu_rev_var_range
+endfunc check_errata_1946160
+
 func check_errata_cve_2018_3639
 #if WORKAROUND_CVE_2018_3639
 	mov	x0, #ERRATA_APPLIES
@@ -507,6 +562,11 @@ func cortex_a76_reset_func
 #if ERRATA_A76_1791580
 	mov	x0, x18
 	bl	errata_a76_1791580_wa
+#endif
+
+#if ERRATA_A76_1946160
+	mov	x0, x18
+	bl	errata_a76_1946160_wa
 #endif
 
 #if WORKAROUND_CVE_2018_3639
@@ -592,6 +652,7 @@ func cortex_a76_errata_report
 	report_errata ERRATA_A76_1791580, cortex_a76, 1791580
 	report_errata ERRATA_A76_1165522, cortex_a76, 1165522
 	report_errata ERRATA_A76_1868343, cortex_a76, 1868343
+	report_errata ERRATA_A76_1946160, cortex_a76, 1946160
 	report_errata WORKAROUND_CVE_2018_3639, cortex_a76, cve_2018_3639
 	report_errata ERRATA_DSU_798953, cortex_a76, dsu_798953
 	report_errata ERRATA_DSU_936184, cortex_a76, dsu_936184
