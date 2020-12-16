@@ -322,7 +322,6 @@ BL2_SOURCES	+=	plat/renesas/rcar/aarch64/platform_common.c	\
 			plat/renesas/rcar/bl2_cpg_init.c		\
 			drivers/renesas/rcar/auth/auth_mod.c		\
 			drivers/renesas/rcar/rpc/rpc_driver.c		\
-			drivers/renesas/rcar/dma/dma_driver.c		\
 			drivers/renesas/rcar/avs/avs_driver.c		\
 			drivers/renesas/rcar/board/board.c
 
