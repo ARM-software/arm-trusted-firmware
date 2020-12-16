@@ -324,7 +324,6 @@ BL2_SOURCES	+=	plat/renesas/rcar/aarch64/platform_common.c	\
 			drivers/renesas/rcar/rpc/rpc_driver.c		\
 			drivers/renesas/rcar/dma/dma_driver.c		\
 			drivers/renesas/rcar/avs/avs_driver.c		\
-			drivers/renesas/rcar/watchdog/swdt.c		\
 			drivers/renesas/rcar/board/board.c
 
 BL31_SOURCES	+=	plat/renesas/rcar/plat_topology.c		\
