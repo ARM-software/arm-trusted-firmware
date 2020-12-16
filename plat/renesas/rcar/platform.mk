@@ -302,6 +302,7 @@ PLAT_INCLUDES	+=	-Idrivers/renesas/rcar/ddr		\
 			-Idrivers/renesas/rcar/qos		\
 			-Idrivers/renesas/rcar/board		\
 			-Idrivers/renesas/rcar/cpld/		\
+			-Idrivers/renesas/common		\
 			-Idrivers/renesas/common/iic_dvfs	\
 			-Idrivers/renesas/common/avs		\
 			-Idrivers/renesas/common/delay		\
