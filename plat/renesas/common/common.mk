@@ -94,6 +94,8 @@ BL31_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			lib/cpus/aarch64/cortex_a53.S			\
 			lib/cpus/aarch64/cortex_a57.S			\
 			plat/common/plat_psci_common.c			\
+			drivers/renesas/common/pwrc/call_sram.S		\
+			drivers/renesas/common/pwrc/pwrc.c		\
 			drivers/renesas/common/common.c			\
 			drivers/arm/cci/cci.c
 
