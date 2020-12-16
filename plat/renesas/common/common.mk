@@ -84,6 +84,7 @@ BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			drivers/renesas/common/io/io_emmcdrv.c		\
 			drivers/renesas/common/io/io_memdrv.c		\
 			drivers/renesas/common/io/io_rcar.c		\
+			drivers/renesas/common/delay/micro_delay.c	\
 			drivers/renesas/common/emmc/emmc_interrupt.c	\
 			drivers/renesas/common/emmc/emmc_utility.c	\
 			drivers/renesas/common/emmc/emmc_mount.c	\
@@ -98,6 +99,7 @@ BL31_SOURCES	+=	${RCAR_GIC_SOURCES}				\
 			plat/common/plat_psci_common.c			\
 			drivers/renesas/common/console/rcar_console.S	\
 			drivers/renesas/common/console/rcar_printf.c	\
+			drivers/renesas/common/delay/micro_delay.c	\
 			drivers/renesas/common/pwrc/call_sram.S		\
 			drivers/renesas/common/pwrc/pwrc.c		\
 			drivers/renesas/common/common.c			\
