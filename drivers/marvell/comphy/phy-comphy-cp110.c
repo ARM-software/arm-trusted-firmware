@@ -53,13 +53,13 @@
 #define SYS_CTRL_FROM_COMPHY_ADDR(x)	((x & ~0xffffff) + 0x440000)
 
 /* DFX register spaces */
-#define SAR_RST_PCIE0_CLOCK_CONFIG_CP1_OFFSET	(0)
-#define SAR_RST_PCIE0_CLOCK_CONFIG_CP1_MASK	(0x1 << \
-					SAR_RST_PCIE0_CLOCK_CONFIG_CP1_OFFSET)
-#define SAR_RST_PCIE1_CLOCK_CONFIG_CP1_OFFSET	(1)
-#define SAR_RST_PCIE1_CLOCK_CONFIG_CP1_MASK	(0x1 << \
-					SAR_RST_PCIE1_CLOCK_CONFIG_CP1_OFFSET)
-#define SAR_STATUS_0_REG			200
+#define SAR_RST_PCIE0_CLOCK_CONFIG_CP0_OFFSET	(30)
+#define SAR_RST_PCIE0_CLOCK_CONFIG_CP0_MASK	(0x1UL << \
+					SAR_RST_PCIE0_CLOCK_CONFIG_CP0_OFFSET)
+#define SAR_RST_PCIE1_CLOCK_CONFIG_CP0_OFFSET	(31)
+#define SAR_RST_PCIE1_CLOCK_CONFIG_CP0_MASK	(0x1UL << \
+					SAR_RST_PCIE1_CLOCK_CONFIG_CP0_OFFSET)
+#define SAR_STATUS_0_REG			0x40600
 #define DFX_FROM_COMPHY_ADDR(x)			((x & ~0xffffff) + DFX_BASE)
 /* Common Phy training  */
 #define COMPHY_TRX_TRAIN_COMPHY_OFFS		0x1000
@@ -1318,11 +1318,11 @@ static int mvebu_cp110_comphy_pcie_power_on(uint64_t comphy_base,
 	reg = mmio_read_32(DFX_FROM_COMPHY_ADDR(comphy_base) +
 			   SAR_STATUS_0_REG);
 	if (comphy_index == COMPHY_LANE4 || comphy_index == COMPHY_LANE5)
-		clk_dir = (reg & SAR_RST_PCIE1_CLOCK_CONFIG_CP1_MASK) >>
-					  SAR_RST_PCIE1_CLOCK_CONFIG_CP1_OFFSET;
+		clk_dir = (reg & SAR_RST_PCIE1_CLOCK_CONFIG_CP0_MASK) >>
+					  SAR_RST_PCIE1_CLOCK_CONFIG_CP0_OFFSET;
 	else
-		clk_dir = (reg & SAR_RST_PCIE0_CLOCK_CONFIG_CP1_MASK) >>
-					  SAR_RST_PCIE0_CLOCK_CONFIG_CP1_OFFSET;
+		clk_dir = (reg & SAR_RST_PCIE0_CLOCK_CONFIG_CP0_MASK) >>
+					  SAR_RST_PCIE0_CLOCK_CONFIG_CP0_OFFSET;
 
 	debug("On lane %d\n", comphy_index);
 	debug("PCIe clock direction = %x\n", clk_dir);
