@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -333,6 +333,10 @@ noent:
  ******************************************************************************/
 chan_t *clone(chan_t *c, chan_t *nc)
 {
+	if (c->index == NODEV) {
+		return NULL;
+	}
+
 	return devtab[c->index]->clone(c, nc);
 }
 
