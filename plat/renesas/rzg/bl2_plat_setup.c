@@ -36,6 +36,12 @@
 #include "rom_api.h"
 
 #define MAX_DRAM_CHANNELS 4
+/*
+ * DDR ch0 has a shadow area mapped in 32bit address space.
+ * Physical address 0x4_0000_0000 - 0x4_7fff_ffff in 64bit space
+ * is mapped to 0x4000_0000 - 0xbfff_ffff in 32bit space.
+ */
+#define MAX_DRAM_SIZE_CH0_32BIT_ADDR_SPACE 0x80000000ULL
 
 #if RCAR_BL2_DCACHE == 1
 /*
@@ -447,12 +453,38 @@ static void bl2_populate_compatible_string(void *dt)
 	}
 }
 
-static void bl2_advertise_dram_entries(uint64_t dram_config[8])
+static int bl2_add_memory_node(uint64_t start, uint64_t size)
 {
 	char nodename[32] = { 0 };
-	uint64_t start, size;
 	uint64_t fdtsize;
-	int ret, node, chan;
+	int ret, node;
+
+	fdtsize = cpu_to_fdt64(size);
+
+	snprintf(nodename, sizeof(nodename), "memory@");
+	unsigned_num_print(start, 16, nodename + strlen(nodename));
+	node = ret = fdt_add_subnode(fdt, 0, nodename);
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = fdt_setprop_string(fdt, node, "device_type", "memory");
+	if (ret < 0) {
+		return ret;
+	}
+
+	ret = fdt_setprop_u64(fdt, node, "reg", start);
+	if (ret < 0) {
+		return ret;
+	}
+
+	return fdt_appendprop(fdt, node, "reg", &fdtsize, sizeof(fdtsize));
+}
+
+static void bl2_advertise_dram_entries(uint64_t dram_config[8])
+{
+	uint64_t start, size;
+	int ret, chan;
 
 	for (chan = 0; chan < MAX_DRAM_CHANNELS; chan++) {
 		start = dram_config[2 * chan];
@@ -485,31 +517,23 @@ static void bl2_advertise_dram_entries(uint64_t dram_config[8])
 		 * 128 MiB are reserved
 		 */
 		if (chan == 0) {
+			/*
+			 * Maximum DDR size in Channel 0 for 32 bit space is 2GB, Add DT node
+			 * for remaining region in 64 bit address space
+			 */
+			if (size > MAX_DRAM_SIZE_CH0_32BIT_ADDR_SPACE) {
+				start = dram_config[chan] + MAX_DRAM_SIZE_CH0_32BIT_ADDR_SPACE;
+				size -= MAX_DRAM_SIZE_CH0_32BIT_ADDR_SPACE;
+				ret = bl2_add_memory_node(start, size);
+				if (ret < 0) {
+					goto err;
+				}
+			}
 			start = 0x48000000U;
 			size -= 0x8000000U;
 		}
 
-		fdtsize = cpu_to_fdt64(size);
-
-		snprintf(nodename, sizeof(nodename), "memory@");
-		unsigned_num_print(start, 16, nodename + strlen(nodename));
-		node = ret = fdt_add_subnode(fdt, 0, nodename);
-		if (ret < 0) {
-			goto err;
-		}
-
-		ret = fdt_setprop_string(fdt, node, "device_type", "memory");
-		if (ret < 0) {
-			goto err;
-		}
-
-		ret = fdt_setprop_u64(fdt, node, "reg", start);
-		if (ret < 0) {
-			goto err;
-		}
-
-		ret = fdt_appendprop(fdt, node, "reg", &fdtsize,
-				     sizeof(fdtsize));
+		ret = bl2_add_memory_node(start, size);
 		if (ret < 0) {
 			goto err;
 		}
