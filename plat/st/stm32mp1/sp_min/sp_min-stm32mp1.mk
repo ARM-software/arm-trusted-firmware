@@ -4,6 +4,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+ifeq ($(STM32MP13),1)
+$(error "SP_min is not supported on STM32MP13 platform")
+endif
+
 SP_MIN_WITH_SECURE_FIQ	:=	1
 
 ifneq ($(STM32MP_USE_STM32IMAGE),1)
