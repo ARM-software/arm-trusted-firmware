@@ -482,7 +482,9 @@ Renesas rcar-gen3 platform port
 :M: Marek Vasut <marek.vasut@gmail.com>
 :G: `marex`_
 :F: docs/plat/rcar-gen3.rst
+:F: plat/renesas/common
 :F: plat/renesas/rcar
+:F: drivers/renesas/common
 :F: drivers/renesas/rcar
 :F: tools/renesas/rcar_layout_create
 
@@ -490,6 +492,8 @@ Renesas RZ/G2 platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :M: Biju Das <biju.das.jz@bp.renesas.com>
 :G: `bijucdas`_
+:M: Marek Vasut <marek.vasut@gmail.com>
+:G: `marex`_
 :F: docs/plat/rz-g2.rst
 :F: plat/renesas/common
 :F: plat/renesas/rzg
