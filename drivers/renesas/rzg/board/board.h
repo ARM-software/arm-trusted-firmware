@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2020-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 
 enum rzg2_board_id {
 	BOARD_HIHOPE_RZ_G2M = 0,
+	BOARD_HIHOPE_RZ_G2H,
 	BOARD_UNKNOWN
 };
 

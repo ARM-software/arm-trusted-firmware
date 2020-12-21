@@ -78,6 +78,9 @@ static void bl2_init_generic_timer(void);
 #if RCAR_LSI == RZ_G2M
 #define TARGET_PRODUCT			PRR_PRODUCT_M3
 #define TARGET_NAME			"RZ/G2M"
+#elif RCAR_LSI == RZ_G2H
+#define TARGET_PRODUCT			PRR_PRODUCT_H3
+#define TARGET_NAME			"RZ/G2H"
 #elif RCAR_LSI == RCAR_AUTO
 #define TARGET_NAME			"RZ/G2M"
 #endif /* RCAR_LSI == RZ_G2M */
@@ -424,6 +427,10 @@ static void bl2_populate_compatible_string(void *dt)
 		ret = fdt_setprop_string(dt, 0, "compatible",
 					 "hoperun,hihope-rzg2m");
 		break;
+	case BOARD_HIHOPE_RZ_G2H:
+		ret = fdt_setprop_string(dt, 0, "compatible",
+					 "hoperun,hihope-rzg2h");
+		break;
 	default:
 		NOTICE("BL2: Cannot set compatible string, board unsupported\n");
 		panic();
@@ -440,6 +447,10 @@ static void bl2_populate_compatible_string(void *dt)
 	case PRR_PRODUCT_M3:
 		ret = fdt_appendprop_string(dt, 0, "compatible",
 					    "renesas,r8a774a1");
+		break;
+	case PRR_PRODUCT_H3:
+		ret = fdt_appendprop_string(dt, 0, "compatible",
+					    "renesas,r8a774e1");
 		break;
 	default:
 		NOTICE("BL2: Cannot set compatible string, SoC unsupported\n");
@@ -560,6 +571,26 @@ static void bl2_advertise_dram_size(uint32_t product)
 		dram_config[1] = 0x80000000ULL;
 		dram_config[5] = 0x80000000ULL;
 		break;
+	case PRR_PRODUCT_H3:
+#if (RCAR_DRAM_LPDDR4_MEMCONF == 0)
+		/* 4GB(1GBx4) */
+		dram_config[1] = 0x40000000ULL;
+		dram_config[3] = 0x40000000ULL;
+		dram_config[5] = 0x40000000ULL;
+		dram_config[7] = 0x40000000ULL;
+#elif (RCAR_DRAM_LPDDR4_MEMCONF == 1) && (RCAR_DRAM_CHANNEL == 5) && \
+	(RCAR_DRAM_SPLIT == 2)
+		/* 4GB(2GBx2 2ch split) */
+		dram_config[1] = 0x80000000ULL;
+		dram_config[3] = 0x80000000ULL;
+#elif (RCAR_DRAM_LPDDR4_MEMCONF == 1) && (RCAR_DRAM_CHANNEL == 15)
+		/* 8GB(2GBx4: default) */
+		dram_config[1] = 0x80000000ULL;
+		dram_config[3] = 0x80000000ULL;
+		dram_config[5] = 0x80000000ULL;
+		dram_config[7] = 0x80000000ULL;
+#endif /* RCAR_DRAM_LPDDR4_MEMCONF == 0 */
+		break;
 	default:
 		NOTICE("BL2: Detected invalid DRAM entries\n");
 		break;
@@ -578,6 +609,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	const char *unknown = "unknown";
 	const char *cpu_ca57 = "CA57";
 	const char *cpu_ca53 = "CA53";
+	const char *product_g2h = "G2H";
 	const char *product_g2m = "G2M";
 	const char *boot_hyper80 = "HyperFlash(80MHz)";
 	const char *boot_qspi40 = "QSPI Flash(40MHz)";
@@ -646,6 +678,9 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	case PRR_PRODUCT_M3:
 		str = product_g2m;
 		break;
+	case PRR_PRODUCT_H3:
+		str = product_g2h;
+		break;
 	default:
 		str = unknown;
 		break;
@@ -671,6 +706,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 
 	switch (type) {
 	case BOARD_HIHOPE_RZ_G2M:
+	case BOARD_HIHOPE_RZ_G2H:
 		break;
 	default:
 		type = BOARD_UNKNOWN;

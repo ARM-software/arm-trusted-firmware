@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,7 +13,8 @@
 
 static void bl2_secure_cpg_init(void);
 
-#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_H3) || \
+	(RCAR_LSI == RCAR_H3N) || (RCAR_LSI == RZ_G2H)
 static void bl2_realtime_cpg_init_h3(void);
 static void bl2_system_cpg_init_h3(void);
 #endif
@@ -106,7 +107,8 @@ static void bl2_secure_cpg_init(void)
 	cpg_write(SCSRSTECR11, 0x00000000U);
 }
 
-#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_H3) || \
+	(RCAR_LSI == RCAR_H3N) || (RCAR_LSI == RZ_G2H)
 static void bl2_realtime_cpg_init_h3(void)
 {
 	uint32_t cut = mmio_read_32(RCAR_PRR) & PRR_CUT_MASK;
@@ -360,7 +362,7 @@ void bl2_cpg_init(void)
 			panic();
 			break;
 		}
-#elif (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)
+#elif (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N) || (RCAR_LSI == RZ_G2H)
 		bl2_realtime_cpg_init_h3();
 #elif (RCAR_LSI == RCAR_M3) || (RCAR_LSI == RZ_G2M)
 		bl2_realtime_cpg_init_m3();
@@ -406,7 +408,7 @@ void bl2_system_cpg_init(void)
 		panic();
 		break;
 	}
-#elif (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)
+#elif (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N) || (RCAR_LSI == RZ_G2H)
 	bl2_system_cpg_init_h3();
 #elif (RCAR_LSI == RCAR_M3) || (RCAR_LSI == RZ_G2M)
 	bl2_system_cpg_init_m3();
