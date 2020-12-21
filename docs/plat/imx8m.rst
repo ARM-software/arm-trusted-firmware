@@ -43,3 +43,17 @@ together to generate a binary file called flash.bin, the imx-mkimage tool is
 used to generate flash.bin, and flash.bin needs to be flashed into SD card
 with certain offset for BOOT ROM. the u-boot and imx-mkimage will be upstreamed
 soon, this doc will be updated once they are ready, and the link will be posted.
+
+TBBR Boot Sequence
+------------------
+
+When setting NEED_BL2=1 on imx8mm. We support an alternative way of
+boot sequence to support TBBR.
+
+Bootrom --> SPL --> BL2 --> BL31 --> BL33(u-boot with UEFI) --> grub
+
+This helps us to fulfill the SystemReady EBBR standard.
+BL2 will be in the FIT image and SPL will verify it.
+All of the BL3x will be put in the FIP image. BL2 will verify them.
+In U-boot we turn on the UEFI secure boot features so it can verify
+grub. And we use grub to verify linux kernel.
