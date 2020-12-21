@@ -10,6 +10,7 @@
 #include <lib/mmio.h>
 
 #if RCAR_LSI == RCAR_AUTO
+#include "G2E/qos_init_g2e_v10.h"
 #include "G2H/qos_init_g2h_v30.h"
 #include "G2M/qos_init_g2m_v10.h"
 #include "G2M/qos_init_g2m_v11.h"
@@ -27,14 +28,19 @@
 #if RCAR_LSI == RZ_G2N
 #include "G2N/qos_init_g2n_v10.h"
 #endif /* RCAR_LSI == RZ_G2N */
+#if RCAR_LSI == RZ_G2E
+#include "G2E/qos_init_g2e_v10.h"
+#endif /* RCAR_LSI == RZ_G2E */
 #include "qos_common.h"
 #include "qos_init.h"
 #include "qos_reg.h"
 #include "rcar_def.h"
 
+#if (RCAR_LSI != RZ_G2E)
 #define DRAM_CH_CNT	0x04U
 uint32_t qos_init_ddr_ch;
 uint8_t qos_init_ddr_phyvalid;
+#endif /* RCAR_LSI != RZ_G2E */
 
 #define PRR_PRODUCT_ERR(reg)				\
 	{						\
@@ -53,6 +59,7 @@ uint8_t qos_init_ddr_phyvalid;
 void rzg_qos_init(void)
 {
 	uint32_t reg;
+#if (RCAR_LSI != RZ_G2E)
 	uint32_t i;
 
 	qos_init_ddr_ch = 0U;
@@ -62,6 +69,7 @@ void rzg_qos_init(void)
 			qos_init_ddr_ch++;
 		}
 	}
+#endif /* RCAR_LSI != RZ_G2E */
 
 	reg = mmio_read_32(PRR);
 #if (RCAR_LSI == RCAR_AUTO) || RCAR_LSI_CUT_COMPAT
@@ -107,6 +115,18 @@ void rzg_qos_init(void)
 #else
 		PRR_PRODUCT_ERR(reg);
 #endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2N) */
+		break;
+	case PRR_PRODUCT_E3:
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2E)
+		switch (reg & PRR_CUT_MASK) {
+		case PRR_PRODUCT_10:
+		default:
+			qos_init_g2e_v10();
+			break;
+		}
+#else
+		PRR_PRODUCT_ERR(reg);
+#endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2E) */
 		break;
 	default:
 		PRR_PRODUCT_ERR(reg);
@@ -155,12 +175,19 @@ void rzg_qos_init(void)
 		PRR_PRODUCT_ERR(reg);
 	}
 	qos_init_g2n_v10();
+#elif RCAR_LSI == RZ_G2E
+	/* G2E Cut 10 or later */
+	if ((reg & (PRR_PRODUCT_MASK)) != PRR_PRODUCT_E3) {
+		PRR_PRODUCT_ERR(reg);
+	}
+	qos_init_g2e_v10();
 #else /* (RCAR_LSI == RZ_G2M) */
 #error "Don't have QoS initialize routine(Unknown chip)."
 #endif /* (RCAR_LSI == RZ_G2M) */
 #endif /* RCAR_LSI == RCAR_AUTO || RCAR_LSI_CUT_COMPAT */
 }
 
+#if (RCAR_LSI != RZ_G2E)
 uint32_t get_refperiod(void)
 {
 	uint32_t refperiod = QOSWT_WTSET0_CYCLE;
@@ -217,6 +244,7 @@ uint32_t get_refperiod(void)
 #endif /* RCAR_LSI == RCAR_AUTO || RCAR_LSI_CUT_COMPAT */
 	return refperiod;
 }
+#endif /* RCAR_LSI != RZ_G2E */
 
 void rzg_qos_dbsc_setting(const struct rcar_gen3_dbsc_qos_settings *qos,
 			  unsigned int qos_size, bool dbsc_wren)

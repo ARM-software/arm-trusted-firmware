@@ -63,6 +63,18 @@
 	((SUB_SLOT_CYCLE_G2H * BASE_SUB_SLOT_NUM * 1000U) / OPERATING_FREQ)
 #endif
 
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2E)
+/* define used for G2E */
+#if (RCAR_REF_INT == RCAR_REF_DEFAULT)	/* REF 3.9usec */
+#define SUB_SLOT_CYCLE_G2E		0xAFU	/* 175 */
+#else /* REF 7.8usec */
+#define SUB_SLOT_CYCLE_G2E		0x15EU	/* 350 */
+#endif /* (RCAR_REF_INT == RCAR_REF_DEFAULT) */
+
+#define OPERATING_FREQ_G2E		266U	/* MHz */
+#define SL_INIT_SSLOTCLK_G2E		(SUB_SLOT_CYCLE_G2E - 1U)
+#endif
+
 #define OPERATING_FREQ			400U	/* MHz */
 #define BASE_SUB_SLOT_NUM		0x6U
 #define SUB_SLOT_CYCLE			0x7EU	/* 126 */
