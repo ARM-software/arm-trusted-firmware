@@ -51,6 +51,10 @@ const mmap_region_t plat_arm_mmap[] = {
 #if TRUSTED_BOARD_BOOT && !BL2_AT_EL3
 	ARM_MAP_BL1_RW,
 #endif
+#ifdef SPD_opteed
+	ARM_MAP_OPTEE_CORE_MEM,
+	ARM_OPTEE_PAGEABLE_LOAD_MEM,
+#endif
 	{0}
 };
 #endif

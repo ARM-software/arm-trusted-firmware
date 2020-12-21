@@ -109,6 +109,17 @@
 		reg = <0x0 0x80000000 0x0 0x7d000000>;
 	};
 
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		optee@0xfce00000 {
+			reg = <0x00000000 0xfce00000 0 0x00200000>;
+			no-map;
+		};
+	};
+
 	psci {
 		compatible = "arm,psci-1.0", "arm,psci-0.2", "arm,psci";
 		method = "smc";
@@ -368,6 +379,19 @@
 					reg = <0>;
 				};
 			};
+		};
+	};
+
+	ffa {
+		compatible = "arm,ffa";
+		conduit = "smc";
+		mem_share_buffer = "tx";
+	};
+
+	firmware {
+		optee {
+		      compatible = "linaro,optee-tz";
+		      method = "ffa";
 		};
 	};
 };

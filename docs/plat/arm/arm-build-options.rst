@@ -94,6 +94,10 @@ Arm Platform Build Options
 -  ``ARM_SPMC_MANIFEST_DTS`` : path to an alternate manifest file used as the
    SPMC Core manifest. Valid when ``SPD=spmd`` is selected.
 
+-  ``OPTEE_SP_FW_CONFIG``: DTC build flag to include OP-TEE as SP in tb_fw_config
+   device tree. This flag is defined only when ``ARM_SPMC_MANIFEST_DTS`` manifest
+   file name contains pattern optee_sp.
+
 For a better understanding of these options, the Arm development platform memory
 map is explained in the :ref:`Firmware Design`.
 
