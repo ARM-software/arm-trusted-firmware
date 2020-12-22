@@ -21,6 +21,7 @@
 #include <plat_params.h>
 #include <plat_pm.h>
 #include <pmic.h>
+#include <rtc.h>
 
 /*
  * Cluster state request:
@@ -297,10 +298,6 @@ static int plat_validate_power_state(unsigned int power_state,
 	unsigned int aff_lvl = psci_get_pstate_pwrlvl(power_state);
 	unsigned int cpu = plat_my_core_pos();
 
-	if (aff_lvl > PLAT_MAX_PWR_LVL) {
-		return PSCI_E_INVALID_PARAMS;
-	}
-
 	if (pstate == PSTATE_TYPE_STANDBY) {
 		req_state->pwr_domain_state[0] = PLAT_MAX_RET_STATE;
 	} else {
@@ -345,6 +342,7 @@ static void __dead2 plat_mtk_system_off(void)
 {
 	INFO("MTK System Off\n");
 
+	rtc_power_off_sequence();
 	pmic_power_off();
 
 	wfi();
