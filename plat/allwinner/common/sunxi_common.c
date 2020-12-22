@@ -27,7 +27,7 @@ static const mmap_region_t sunxi_mmap[PLATFORM_MMAP_REGIONS + 1] = {
 			MT_DEVICE | MT_RW | MT_SECURE | MT_EXECUTE_NEVER),
 	MAP_REGION(SUNXI_DRAM_BASE, SUNXI_DRAM_VIRT_BASE, SUNXI_DRAM_SEC_SIZE,
 		   MT_RW_DATA | MT_SECURE),
-	MAP_REGION(PLAT_SUNXI_NS_IMAGE_OFFSET,
+	MAP_REGION(PRELOADED_BL33_BASE,
 		   SUNXI_DRAM_VIRT_BASE + SUNXI_DRAM_SEC_SIZE,
 		   SUNXI_DRAM_MAP_SIZE,
 		   MT_RO_DATA | MT_NS),
@@ -37,15 +37,6 @@ static const mmap_region_t sunxi_mmap[PLATFORM_MMAP_REGIONS + 1] = {
 unsigned int plat_get_syscnt_freq2(void)
 {
 	return SUNXI_OSC24M_CLK_IN_HZ;
-}
-
-uintptr_t plat_get_ns_image_entrypoint(void)
-{
-#ifdef PRELOADED_BL33_BASE
-	return PRELOADED_BL33_BASE;
-#else
-	return PLAT_SUNXI_NS_IMAGE_OFFSET;
-#endif
 }
 
 void sunxi_configure_mmu_el3(int flags)

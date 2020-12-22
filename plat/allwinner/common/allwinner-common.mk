@@ -50,6 +50,9 @@ ERRATA_A53_843419		:=	1
 ERRATA_A53_855873		:=	1
 ERRATA_A53_1530924		:=	1
 
+# The traditional U-Boot load address is 160MB into DRAM.
+PRELOADED_BL33_BASE		?=	0x4a000000
+
 # The reset vector can be changed for each CPU.
 PROGRAMMABLE_RESET_ADDRESS	:=	1
 
