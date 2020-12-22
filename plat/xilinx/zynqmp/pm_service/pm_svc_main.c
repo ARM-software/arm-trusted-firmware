@@ -474,8 +474,8 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	{
 		uint32_t data[4] = { 0 };
 
-		ret = pm_query_data(pm_arg[0], pm_arg[1], pm_arg[2],
-				    pm_arg[3], data);
+		pm_query_data(pm_arg[0], pm_arg[1], pm_arg[2],
+			      pm_arg[3], data);
 		SMC_RET2(handle, (uint64_t)data[0]  | ((uint64_t)data[1] << 32),
 			 (uint64_t)data[2] | ((uint64_t)data[3] << 32));
 	}

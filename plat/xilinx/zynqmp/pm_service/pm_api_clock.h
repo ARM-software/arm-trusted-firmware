@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -294,7 +294,7 @@ struct pm_pll *pm_clock_get_pll(enum clock_id clock_id);
 struct pm_pll *pm_clock_get_pll_by_related_clk(enum clock_id clock_id);
 uint8_t pm_clock_has_div(unsigned int clock_id, enum pm_clock_div_id div_id);
 
-enum pm_ret_status pm_api_clock_get_name(unsigned int clock_id, char *name);
+void pm_api_clock_get_name(unsigned int clock_id, char *name);
 enum pm_ret_status pm_api_clock_get_num_clocks(unsigned int *nclocks);
 enum pm_ret_status pm_api_clock_get_topology(unsigned int clock_id,
 					     unsigned int index,

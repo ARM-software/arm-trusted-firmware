@@ -2446,7 +2446,7 @@ enum pm_ret_status pm_api_clock_get_num_clocks(unsigned int *nclocks)
  *
  * @return	Returns success. In case of error, name data is 0.
  */
-enum pm_ret_status pm_api_clock_get_name(unsigned int clock_id, char *name)
+void pm_api_clock_get_name(unsigned int clock_id, char *name)
 {
 	if (clock_id == CLK_MAX)
 		memcpy(name, END_OF_CLK, sizeof(END_OF_CLK) > CLK_NAME_LEN ?
@@ -2458,8 +2458,6 @@ enum pm_ret_status pm_api_clock_get_name(unsigned int clock_id, char *name)
 	else
 		memcpy(name, ext_clocks[clock_id - CLK_MAX_OUTPUT_CLK].name,
 		       CLK_NAME_LEN);
-
-	return PM_RET_SUCCESS;
 }
 
 /**
