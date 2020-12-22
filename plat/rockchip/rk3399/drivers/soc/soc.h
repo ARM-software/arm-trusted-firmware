@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -145,6 +145,8 @@ struct pmu_sleep_data {
  * pmugrf reg, offset
  **************************************************/
 #define PMUGRF_OSREG(n)		(0x300 + (n) * 4)
+#define PMUGRF_GPIO0A_P		0x040
+#define PMUGRF_GPIO1A_P		0x050
 
 /**************************************************
  * DCF reg, offset
@@ -248,6 +250,9 @@ struct pmu_sleep_data {
 #define GRF_USBPHY1_CTRL16	0x4540
 
 #define GRF_GPIO2A_IOMUX	0xe000
+#define GRF_GPIO2A_P		0xe040
+#define GRF_GPIO3A_P		0xe050
+#define GRF_GPIO4A_P		0xe060
 #define GRF_GPIO2D_HE		0xe18c
 #define GRF_DDRC0_CON0		0xe380
 #define GRF_DDRC0_CON1		0xe384
