@@ -9,6 +9,10 @@
 
 #include <stdint.h>
 
+#define AXP20X_MODE_REG 0x3e
+#define AXP20X_MODE_I2C 0x00
+#define AXP20X_MODE_RSB 0x7c
+
 #define NA 0xff
 
 enum {

@@ -8,4 +8,4 @@
 include plat/allwinner/common/allwinner-common.mk
 
 BL31_SOURCES		+=	drivers/allwinner/axp/axp805.c		\
-				drivers/mentor/i2c/mi2cv.c
+				drivers/allwinner/sunxi_rsb.c
