@@ -110,6 +110,12 @@ $(error FWU Feature enabled only with FIP images)
 endif
 endif
 
+ifeq ($(STM32MP13),1)
+STM32_HASH_VER		:=	4
+else # Assuming STM32MP15
+STM32_HASH_VER		:=	2
+endif
+
 # Boot devices
 STM32MP_EMMC		?=	0
 STM32MP_SDMMC		?=	0
@@ -223,6 +229,7 @@ $(eval $(call assert_booleans,\
 $(eval $(call assert_numerics,\
 	$(sort \
 		PLAT_PARTITION_MAX_ENTRIES \
+		STM32_HASH_VER \
 		STM32_TF_A_COPIES \
 		STM32_TF_VERSION \
 		STM32MP_UART_BAUDRATE \
@@ -233,6 +240,7 @@ $(eval $(call add_defines,\
 		DWL_BUFFER_BASE \
 		PLAT_PARTITION_MAX_ENTRIES \
 		PLAT_XLAT_TABLES_DYNAMIC \
+		STM32_HASH_VER \
 		STM32_TF_A_COPIES \
 		STM32_TF_VERSION \
 		STM32MP_DDR_32BIT_INTERFACE \
