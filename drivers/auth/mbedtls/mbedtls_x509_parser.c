@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -114,10 +114,10 @@ static int get_ext(const char *oid, void **ext, unsigned int *ext_len)
 		oid_len = mbedtls_oid_get_numeric_string(oid_str,
 							 MAX_OID_STR_LEN,
 							 &extn_oid);
-		if (oid_len == MBEDTLS_ERR_OID_BUF_TOO_SMALL) {
+		if ((oid_len == MBEDTLS_ERR_OID_BUF_TOO_SMALL) || (oid_len < 0)) {
 			return IMG_PARSER_ERR;
 		}
-		if ((oid_len == strlen(oid_str)) && !strcmp(oid, oid_str)) {
+		if (((size_t)oid_len == strlen(oid_str)) && !strcmp(oid, oid_str)) {
 			*ext = (void *)p;
 			*ext_len = (unsigned int)len;
 			return IMG_PARSER_OK;
