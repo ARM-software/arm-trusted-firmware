@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -13,12 +13,12 @@ $(eval $(call add_define,PRELOADED_BL33_BASE))
 K3_HW_CONFIG_BASE ?= 0x82000000
 $(eval $(call add_define,K3_HW_CONFIG_BASE))
 
-# Define sec_proxy usage as the full prioritized communication scheme
-K3_SEC_PROXY_LITE	:=	0
+# Define sec_proxy usage as the lite version
+K3_SEC_PROXY_LITE	:=	1
 $(eval $(call add_define,K3_SEC_PROXY_LITE))
 
-# System coherency is managed in hardware
-USE_COHERENT_MEM	:=	1
+# We dont have system level coherency capability
+USE_COHERENT_MEM	:=	0
 
-PLAT_INCLUDES		+=	\
-				-Iplat/ti/k3/board/generic/include	\
+PLAT_INCLUDES	+=			\
+	-Iplat/ti/k3/board/lite/include	\

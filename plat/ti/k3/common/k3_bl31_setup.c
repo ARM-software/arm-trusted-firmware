@@ -13,6 +13,7 @@
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include <k3_console.h>
@@ -23,6 +24,7 @@
 const mmap_region_t plat_k3_mmap[] = {
 	MAP_REGION_FLAT(K3_USART_BASE,       K3_USART_SIZE,       MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(K3_GIC_BASE,         K3_GIC_SIZE,         MT_DEVICE | MT_RW | MT_SECURE),
+	MAP_REGION_FLAT(K3_GTC_BASE,         K3_GTC_SIZE,         MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(SEC_PROXY_RT_BASE,   SEC_PROXY_RT_SIZE,   MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(SEC_PROXY_SCFG_BASE, SEC_PROXY_SCFG_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
 	MAP_REGION_FLAT(SEC_PROXY_DATA_BASE, SEC_PROXY_DATA_SIZE, MT_DEVICE | MT_RW | MT_SECURE),
@@ -127,6 +129,38 @@ void platform_mem_init(void)
 
 unsigned int plat_get_syscnt_freq2(void)
 {
+	uint32_t gtc_freq;
+	uint32_t gtc_ctrl;
+
+	/* Lets try and provide basic diagnostics - cost is low */
+	gtc_ctrl = mmio_read_32(K3_GTC_BASE + K3_GTC_CNTCR_OFFSET);
+	/* Did the bootloader fail to enable timer and OS guys are confused? */
+	if ((gtc_ctrl & K3_GTC_CNTCR_EN_MASK) == 0U) {
+		ERROR("GTC is disabled! Timekeeping broken. Fix Bootloader\n");
+	}
+	/*
+	 * If debug will not pause time, we will have issues like
+	 * drivers timing out while debugging, in cases of OS like Linux,
+	 * RCU stall errors, which can be hard to differentiate vs real issues.
+	 */
+	if ((gtc_ctrl & K3_GTC_CNTCR_HDBG_MASK) == 0U) {
+		WARN("GTC: Debug access doesn't stop time. Fix Bootloader\n");
+	}
+
+	gtc_freq = mmio_read_32(K3_GTC_BASE + K3_GTC_CNTFID0_OFFSET);
+	/* Many older bootloaders may have missed programming FID0 register */
+	if (gtc_freq != 0U) {
+		return gtc_freq;
+	}
+
+	/*
+	 * We could have just warned about this, but this can have serious
+	 * hard to debug side effects if we are NOT sure what the actual
+	 * frequency is. Lets make sure people don't miss this.
+	 */
+	ERROR("GTC_CNTFID0 is 0! Assuming %d Hz. Fix Bootloader\n",
+	      SYS_COUNTER_FREQ_IN_TICKS);
+
 	return SYS_COUNTER_FREQ_IN_TICKS;
 }
 

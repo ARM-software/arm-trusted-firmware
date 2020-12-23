@@ -97,11 +97,16 @@ static struct k3_sec_proxy_mbox spm = {
 		.data_end_offset = 0x3C,
 	},
 	.threads = {
+#if !K3_SEC_PROXY_LITE
 		SP_THREAD(SP_NOTIFY),
 		SP_THREAD(SP_RESPONSE),
 		SP_THREAD(SP_HIGH_PRIORITY),
 		SP_THREAD(SP_LOW_PRIORITY),
 		SP_THREAD(SP_NOTIFY_RESP),
+#else
+		SP_THREAD(SP_RESPONSE),
+		SP_THREAD(SP_HIGH_PRIORITY),
+#endif /* K3_SEC_PROXY_LITE */
 	},
 };
 
@@ -261,9 +266,14 @@ int k3_sec_proxy_send(enum k3_sec_proxy_chan_id id, const struct k3_sec_proxy_ms
 	/*
 	 * 'data_reg' indicates next register to write. If we did not already
 	 * write on tx complete reg(last reg), we must do so for transmit
+	 * In addition, we also need to make sure all intermediate data
+	 * registers(if any required), are reset to 0 for TISCI backward
+	 * compatibility to be maintained.
 	 */
-	if (data_reg <= spm.desc.data_end_offset)
-		mmio_write_32(spt->data + spm.desc.data_end_offset, 0);
+	while (data_reg <= spm.desc.data_end_offset) {
+		mmio_write_32(spt->data + data_reg, 0);
+		data_reg += sizeof(uint32_t);
+	}
 
 	VERBOSE("Message successfully sent on thread %s\n", spt->name);
 

@@ -16,13 +16,28 @@
  * enum k3_sec_proxy_chan_id - Secure Proxy thread IDs
  *
  * These the available IDs used in k3_sec_proxy_{send,recv}()
+ * There are two schemes we use:
+ * * if K3_SEC_PROXY_LITE = 1, we just have two threads to talk
+ * * if K3_SEC_PROXY_LITE = 0, we have the full fledged
+ *   communication scheme available.
  */
 enum k3_sec_proxy_chan_id {
+#if !K3_SEC_PROXY_LITE
 	SP_NOTIFY = 0,
 	SP_RESPONSE,
 	SP_HIGH_PRIORITY,
 	SP_LOW_PRIORITY,
 	SP_NOTIFY_RESP,
+#else
+	SP_RESPONSE = 8,
+	/*
+	 * Note: TISCI documentation indicates "low priority", but in reality
+	 * with a single thread, there is no low or high priority.. This usage
+	 * is more appropriate for TF-A since we can reduce the churn as a
+	 * result.
+	 */
+	SP_HIGH_PRIORITY,
+#endif /* K3_SEC_PROXY_LITE */
 };
 
 /**

@@ -95,12 +95,15 @@ struct ti_sci_msg_resp_version {
 /**
  * struct ti_sci_msg_req_reboot - Reboot the SoC
  * @hdr:	Generic Header
+ * @domain:	Domain to be reset, 0 for full SoC reboot
  *
  * Request type is TI_SCI_MSG_SYS_RESET, responded with a generic
  * ACK/NACK message.
  */
 struct ti_sci_msg_req_reboot {
 	struct ti_sci_msg_hdr hdr;
+#define TI_SCI_DOMAIN_FULL_SOC_RESET	0x0
+	uint8_t domain;
 } __packed;
 
 /**
