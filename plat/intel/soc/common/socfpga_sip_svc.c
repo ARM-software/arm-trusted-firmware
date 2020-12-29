@@ -95,7 +95,7 @@ static uint32_t intel_mailbox_fpga_config_isdone(uint32_t query_type)
 	else
 		ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS, true);
 
-	if (ret) {
+	if (ret != 0U) {
 		if (ret == MBOX_CFGSTAT_STATE_CONFIG)
 			return INTEL_SIP_SMC_STATUS_BUSY;
 		else
