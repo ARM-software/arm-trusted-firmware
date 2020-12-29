@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,7 +24,7 @@
 
 #define AML_PRIMARY_CPU			U(0)
 
-#define PLAT_MAX_PWR_LVL		MPIDR_AFFLVL1
+#define PLAT_MAX_PWR_LVL		MPIDR_AFFLVL2
 #define PLAT_NUM_PWR_DOMAINS		(PLATFORM_CLUSTER_COUNT + \
 					 PLATFORM_CORE_COUNT)
 
