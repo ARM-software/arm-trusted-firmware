@@ -11,6 +11,7 @@
 #if RCAR_LSI == RCAR_AUTO
 #include "G2H/pfc_init_g2h.h"
 #include "G2M/pfc_init_g2m.h"
+#include "G2N/pfc_init_g2n.h"
 #endif /* RCAR_LSI == RCAR_AUTO */
 #if (RCAR_LSI == RZ_G2H)
 #include "G2H/pfc_init_g2h.h"
@@ -18,6 +19,9 @@
 #if (RCAR_LSI == RZ_G2M)
 #include "G2M/pfc_init_g2m.h"
 #endif /* RCAR_LSI == RZ_G2M */
+#if (RCAR_LSI == RZ_G2N)
+#include "G2N/pfc_init_g2n.h"
+#endif /* RCAR_LSI == RZ_G2N */
 #include "rcar_def.h"
 
 #define PRR_PRODUCT_ERR(reg)				\
@@ -47,6 +51,9 @@ void rzg_pfc_init(void)
 	case PRR_PRODUCT_H3:
 		pfc_init_g2h();
 		break;
+	case PRR_PRODUCT_M3N:
+		pfc_init_g2n();
+		break;
 	default:
 		PRR_PRODUCT_ERR(reg);
 		break;
@@ -68,6 +75,13 @@ void rzg_pfc_init(void)
 		pfc_init_g2h();
 #endif /* RCAR_LSI != RZ_G2H */
 		break;
+	case PRR_PRODUCT_M3N:
+#if RCAR_LSI != RZ_G2N
+		PRR_PRODUCT_ERR(reg);
+#else
+		pfc_init_g2n();
+#endif /* RCAR_LSI != RZ_G2N */
+		break;
 	default:
 		PRR_PRODUCT_ERR(reg);
 		break;
@@ -84,6 +98,11 @@ void rzg_pfc_init(void)
 		PRR_PRODUCT_ERR(reg);
 	}
 	pfc_init_g2h();
+#elif (RCAR_LSI == RZ_G2N)	/* G2N */
+	if ((reg & PRR_PRODUCT_MASK) != PRR_PRODUCT_M3N) {
+		PRR_PRODUCT_ERR(reg);
+	}
+	pfc_init_g2n();
 #else /* RCAR_LSI == RZ_G2M */
 #error "Don't have PFC initialize routine(unknown)."
 #endif /* RCAR_LSI == RZ_G2M */
