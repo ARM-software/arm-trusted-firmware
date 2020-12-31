@@ -232,6 +232,11 @@ endfunc console_a3700_getc
 	 * ---------------------------------------------
 	 */
 func console_a3700_core_flush
+	/* Wait for the TX FIFO to be empty */
+1:	ldr	w1, [x0, #UART_STATUS_REG]
+	and	w1, w1, #UARTLSR_TXFIFOEMPTY
+	cmp	w1, #UARTLSR_TXFIFOEMPTY
+	b.ne	1b
 	ret
 endfunc console_a3700_core_flush
 
