@@ -314,6 +314,9 @@ static int sdei_event_routing_set(int ev_num, uint64_t flags, uint64_t mpidr)
 
 	/* Update event registration flag */
 	se->reg_flags = (unsigned int) flags;
+	if (flags == SDEI_REGF_RM_PE) {
+		se->affinity = (mpidr & MPIDR_AFFINITY_MASK);
+	}
 
 	/*
 	 * ROUTING_SET is permissible only when event composite state is
