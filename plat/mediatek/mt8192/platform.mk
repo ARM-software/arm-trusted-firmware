@@ -69,6 +69,9 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT_SOC}/drivers/spmc/mtspmc.c                 \
                    ${MTK_PLAT_SOC}/drivers/timer/mt_timer.c
 
+# Build SPM drivers
+include ${MTK_PLAT_SOC}/drivers/spm/build.mk
+
 # Configs for A76 and A55
 HW_ASSISTED_COHERENCY := 1
 USE_COHERENT_MEM := 0

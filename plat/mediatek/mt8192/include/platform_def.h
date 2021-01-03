@@ -26,12 +26,15 @@
 #define MTK_MCDI_SRAM_BASE      0x11B000
 #define MTK_MCDI_SRAM_MAP_SIZE  0x1000
 
+#define TOPCKGEN_BASE    (IO_PHYS + 0x00000000)
 #define INFRACFG_AO_BASE (IO_PHYS + 0x00001000)
 #define GPIO_BASE        (IO_PHYS + 0x00005000)
 #define SPM_BASE         (IO_PHYS + 0x00006000)
+#define APMIXEDSYS       (IO_PHYS + 0x0000C000)
 #define PMIC_WRAP_BASE   (IO_PHYS + 0x00026000)
 #define EMI_BASE         (IO_PHYS + 0x00219000)
 #define EMI_MPU_BASE     (IO_PHYS + 0x00226000)
+#define SSPM_MBOX_BASE   (IO_PHYS + 0x00480000)
 #define IOCFG_RM_BASE    (IO_PHYS + 0x01C20000)
 #define IOCFG_BM_BASE    (IO_PHYS + 0x01D10000)
 #define IOCFG_BL_BASE    (IO_PHYS + 0x01D30000)
@@ -41,6 +44,7 @@
 #define IOCFG_RT_BASE    (IO_PHYS + 0x01EA0000)
 #define IOCFG_LT_BASE    (IO_PHYS + 0x01F20000)
 #define IOCFG_TL_BASE    (IO_PHYS + 0x01F30000)
+#define MMSYS_BASE       (IO_PHYS + 0x04000000)
 /*******************************************************************************
  * UART related constants
  ******************************************************************************/
