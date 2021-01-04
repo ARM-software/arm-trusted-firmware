@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,6 +33,7 @@
 #define PM_STATE_CPU_IDLE		0x0U
 #define PM_STATE_SUSPEND_TO_RAM		0xFU
 
+#define EM_FUNID_NUM_MASK    0xF0000U
 /*********************************************************************
  * Enum definitions
  ********************************************************************/
@@ -97,6 +98,9 @@ enum pm_api_id {
 	PM_PLL_GET_PARAMETER,
 	PM_PLL_SET_MODE,
 	PM_PLL_GET_MODE,
+	/* PM Register Access API */
+	PM_REGISTER_ACCESS,
+	PM_EFUSE_ACCESS,
 	PM_API_MAX
 };
 
@@ -318,6 +322,15 @@ enum pm_pll_mode {
 enum pm_clock_div_id {
 	PM_CLOCK_DIV0_ID,
 	PM_CLOCK_DIV1_ID,
+};
+
+/**
+ * EM API IDs
+ */
+enum em_api_id {
+	EM_SET_ACTION = 1,
+	EM_REMOVE_ACTION,
+	EM_SEND_ERRORS,
 };
 
 #endif /* PM_DEFS_H */

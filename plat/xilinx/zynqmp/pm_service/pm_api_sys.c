@@ -65,6 +65,10 @@ unsigned int pm_get_shutdown_scope(void)
 	PM_PACK_PAYLOAD5(pl, arg0, arg1, arg2, arg3, arg4);		\
 }
 
+#define EM_PACK_PAYLOAD1(pl, arg0) {	\
+	pl[0] = (uint16_t)(0xE) << 16 | (uint16_t)arg0;	\
+}
+
 /**
  * pm_self_suspend() - PM call for processor to suspend itself
  * @nid		Node id of the processor or subsystem
@@ -1545,4 +1549,102 @@ enum pm_ret_status pm_pll_get_mode(enum pm_node_id nid, enum pm_pll_mode *mode)
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD2(payload, PM_PLL_GET_MODE, nid);
 	return pm_ipi_send_sync(primary_proc, payload, mode, 1);
+}
+
+/**
+ * pm_register_access() -  PM API for register read/write access data
+ *
+ * @register_access_id	Register_access_id which says register read/write
+ *
+ * @address		Address of the register to be accessed
+ *
+ * @mask		Mask value to be used while writing value
+ *
+ * @value		Value to be written to register
+ *
+ * @out			Returned output data
+ *
+ * This function returns requested data.
+ *
+ * @return	Returns status, either success or error+reason
+ */
+enum pm_ret_status pm_register_access(unsigned int register_access_id,
+				      unsigned int address,
+				      unsigned int mask,
+				      unsigned int value,
+				      unsigned int *out)
+{
+	enum pm_ret_status ret;
+
+	if (((ZYNQMP_CSU_BASEADDR & address) != ZYNQMP_CSU_BASEADDR) &&
+			((CSUDMA_BASE & address) != CSUDMA_BASE) &&
+			((RSA_CORE_BASE & address) != RSA_CORE_BASE) &&
+			((PMU_GLOBAL_BASE & address) != PMU_GLOBAL_BASE))
+		return PM_RET_ERROR_ACCESS;
+
+	switch (register_access_id) {
+	case CONFIG_REG_WRITE:
+		ret = pm_mmio_write(address, mask, value);
+		break;
+	case CONFIG_REG_READ:
+		ret = pm_mmio_read(address, out);
+		break;
+	default:
+		ret = PM_RET_ERROR_ARGS;
+		WARN("Unimplemented register_access call\n\r");
+	}
+	return ret;
+}
+
+/**
+ * pm_efuse_access() - To program or read efuse bits.
+ *
+ * This function provides access to the xilskey library to program/read
+ * efuse bits.
+ *
+ * address_low: lower 32-bit Linear memory space address
+ * address_high: higher 32-bit Linear memory space address
+ *
+ * value: Returned output value
+ *
+ * @return  Returns status, either success or error+reason
+ *
+ */
+enum pm_ret_status pm_efuse_access(uint32_t address_high,
+				   uint32_t address_low,
+				   uint32_t *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	PM_PACK_PAYLOAD3(payload, PM_EFUSE_ACCESS, address_high, address_low);
+
+	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+}
+
+enum pm_ret_status em_set_action(unsigned int *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	EM_PACK_PAYLOAD1(payload, EM_SET_ACTION);
+	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+}
+
+enum pm_ret_status em_remove_action(unsigned int *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	EM_PACK_PAYLOAD1(payload, EM_REMOVE_ACTION);
+	return pm_ipi_send_sync(primary_proc, payload, value, 1);
+}
+
+enum pm_ret_status em_send_errors(unsigned int *value)
+{
+	uint32_t payload[PAYLOAD_ARG_CNT];
+
+	/* Send request to the PMU */
+	EM_PACK_PAYLOAD1(payload, EM_SEND_ERRORS);
+	return pm_ipi_send_sync(primary_proc, payload, value, 1);
 }
