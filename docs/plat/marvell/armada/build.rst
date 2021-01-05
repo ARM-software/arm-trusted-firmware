@@ -86,6 +86,20 @@ There are several build options:
         There is no reason to enable this feature if OP-TEE OS built with CFG_WITH_PAGER=n.
         Only set LLC_SRAM=1 if OP-TEE OS is built with CFG_WITH_PAGER=y.
 
+- CM3_SYSTEM_RESET
+
+        For Armada37x0 only, when ``CM3_SYSTEM_RESET=1``, the Cortex-M3 secure coprocessor will
+        be used for system reset.
+        TF-A will send command 0x0009 with a magic value via the rWTM mailbox interface to the
+        Cortex-M3 secure coprocessor.
+        The firmware running in the coprocessor must either implement this functionality or
+        ignore the 0x0009 command (which is true for the firmware from A3700-utils-marvell
+        repository). If this option is enabled but the firmware does not support this command,
+        an error message will be printed prior trying to reboot via the usual way.
+
+        This option is needed on Turris MOX as a workaround to a HW bug which causes reset to
+        sometime hang the board.
+
 - MARVELL_SECURE_BOOT
 
         Build trusted(=1)/non trusted(=0) image, default is non trusted.
@@ -209,7 +223,8 @@ To build just TF-A without WTMI image (useful for A3720 Turris MOX board), run f
 
 .. code:: shell
 
-    > make USE_COHERENT_MEM=0 PLAT=a3700 BL33=/path/to/u-boot.bin CROSS_COMPILE=aarch64-linux-gnu- mrvl_bootimage
+    > make USE_COHERENT_MEM=0 PLAT=a3700 CM3_SYSTEM_RESET=1 BL33=/path/to/u-boot.bin \
+        CROSS_COMPILE=aarch64-linux-gnu- mrvl_bootimage
 
 Supported MARVELL_PLATFORM are:
     - a3700 (for both A3720 DB and EspressoBin)

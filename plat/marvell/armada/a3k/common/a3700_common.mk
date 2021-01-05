@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018 Marvell International Ltd.
+# Copyright (C) 2018-2020 Marvell International Ltd.
 #
 # SPDX-License-Identifier:	BSD-3-Clause
 # https://spdx.org/licenses
@@ -63,6 +63,10 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				$(BL31_PORTING_SOURCES)			\
 				$(PLAT_COMMON_BASE)/a3700_sip_svc.c	\
 				$(MARVELL_DRV)
+
+ifeq ($(CM3_SYSTEM_RESET),1)
+BL31_SOURCES		+=	$(PLAT_COMMON_BASE)/cm3_system_reset.c
+endif
 
 ifdef WTP
 

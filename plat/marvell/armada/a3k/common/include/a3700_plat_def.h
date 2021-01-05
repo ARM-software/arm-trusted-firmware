@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Marvell International Ltd.
+ * Copyright (C) 2018-2020 Marvell International Ltd.
  *
  * SPDX-License-Identifier:	BSD-3-Clause
  * https://spdx.org/licenses
@@ -118,5 +118,11 @@
  *****************************************************************************
  */
 #define MVEBU_COMPHY_REG_BASE			(MVEBU_REGS_BASE + 0x18300)
+
+/*****************************************************************************
+ * Cortex-M3 Secure Processor Mailbox constants
+ *****************************************************************************
+ */
+#define MVEBU_RWTM_REG_BASE			(MVEBU_REGS_BASE + 0xB0000)
 
 #endif /* A3700_PLAT_DEF_H */
