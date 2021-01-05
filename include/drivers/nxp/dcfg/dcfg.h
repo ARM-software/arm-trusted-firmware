@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 NXP
+ * Copyright 2018-2022 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -12,7 +12,7 @@
 
 #if defined(CONFIG_CHASSIS_2)
 #include <dcfg_lsch2.h>
-#elif defined(CONFIG_CHASSIS_3_2)
+#elif defined(CONFIG_CHASSIS_3_2) || defined(CONFIG_CHASSIS_3)
 #include <dcfg_lsch3.h>
 #endif
 
