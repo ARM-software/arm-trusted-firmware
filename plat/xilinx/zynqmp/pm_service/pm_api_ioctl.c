@@ -282,17 +282,29 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 {
 	unsigned int shift;
 	enum pm_ret_status ret;
+	unsigned int val, mask;
 
-	if (nid == NODE_SD_0)
+	if (nid == NODE_SD_0) {
 		shift = 0;
-	else if (nid == NODE_SD_1)
+		mask = ZYNQMP_SD0_DLL_RST_MASK;
+	} else if (nid == NODE_SD_1) {
 		shift = ZYNQMP_SD_TAP_OFFSET;
-	else
+		mask = ZYNQMP_SD1_DLL_RST_MASK;
+	} else {
 		return PM_RET_ERROR_ARGS;
+	}
 
-	ret = pm_ioctl_sd_dll_reset(nid, PM_DLL_RESET_ASSERT);
-	if (ret != PM_RET_SUCCESS)
+	ret = pm_mmio_read(ZYNQMP_SD_DLL_CTRL, &val);
+	if (ret != PM_RET_SUCCESS) {
 		return ret;
+	}
+
+	if ((val & mask) == 0) {
+		ret = pm_ioctl_sd_dll_reset(nid, PM_DLL_RESET_ASSERT);
+		if (ret != PM_RET_SUCCESS) {
+			return ret;
+		}
+	}
 
 	if (type == PM_TAPDELAY_INPUT) {
 		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
@@ -300,9 +312,15 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 				    (ZYNQMP_SD_ITAPCHGWIN << shift));
 		if (ret != PM_RET_SUCCESS)
 			goto reset_release;
-		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
-				    (ZYNQMP_SD_ITAPDLYENA_MASK << shift),
-				    (ZYNQMP_SD_ITAPDLYENA << shift));
+		if (value == 0)
+			ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
+					    (ZYNQMP_SD_ITAPDLYENA_MASK <<
+					     shift), 0);
+		else
+			ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
+					    (ZYNQMP_SD_ITAPDLYENA_MASK <<
+					    shift), (ZYNQMP_SD_ITAPDLYENA <<
+					    shift));
 		if (ret != PM_RET_SUCCESS)
 			goto reset_release;
 		ret = pm_mmio_write(ZYNQMP_SD_ITAP_DLY,
@@ -314,8 +332,7 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 				    (ZYNQMP_SD_ITAPCHGWIN_MASK << shift), 0);
 	} else if (type == PM_TAPDELAY_OUTPUT) {
 		ret = pm_mmio_write(ZYNQMP_SD_OTAP_DLY,
-				    (ZYNQMP_SD_OTAPDLYENA_MASK << shift),
-				    (ZYNQMP_SD_OTAPDLYENA << shift));
+				    (ZYNQMP_SD_OTAPDLYENA_MASK << shift), 0);
 		if (ret != PM_RET_SUCCESS)
 			goto reset_release;
 		ret = pm_mmio_write(ZYNQMP_SD_OTAP_DLY,
@@ -326,7 +343,10 @@ static enum pm_ret_status pm_ioctl_sd_set_tapdelay(enum pm_node_id nid,
 	}
 
 reset_release:
-	pm_ioctl_sd_dll_reset(nid, PM_DLL_RESET_RELEASE);
+	if ((val & mask) == 0) {
+		(void)pm_ioctl_sd_dll_reset(nid, PM_DLL_RESET_RELEASE);
+	}
+
 	return ret;
 }
 
