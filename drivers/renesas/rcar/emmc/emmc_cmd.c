@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,10 +7,10 @@
 #include <common/debug.h>
 
 #include "emmc_config.h"
-#include "emmc_hal.h"
-#include "emmc_std.h"
-#include "emmc_registers.h"
 #include "emmc_def.h"
+#include "emmc_hal.h"
+#include "emmc_registers.h"
+#include "emmc_std.h"
 #include "micro_delay.h"
 
 static void emmc_little_to_big(uint8_t *p, uint32_t value)
@@ -22,6 +22,7 @@ static void emmc_little_to_big(uint8_t *p, uint32_t value)
 	p[1] = (uint8_t) (value >> 16);
 	p[2] = (uint8_t) (value >> 8);
 	p[3] = (uint8_t) value;
+
 }
 
 static void emmc_softreset(void)
@@ -64,7 +65,6 @@ reset:
 	SETR_32(SD_INFO2, SD_INFO2_CLEAR);
 	SETR_32(SD_INFO1_MASK, 0x00000000U);	/* all interrupt disable */
 	SETR_32(SD_INFO2_MASK, SD_INFO2_CLEAR);	/* all interrupt disable */
-
 }
 
 static void emmc_read_response(uint32_t *response)
@@ -96,8 +96,7 @@ static EMMC_ERROR_CODE emmc_response_check(uint32_t *response,
 {
 
 	HAL_MEMCARD_RESPONSE_TYPE response_type =
-	    (HAL_MEMCARD_RESPONSE_TYPE) (mmc_drv_obj.cmd_info.
-					 cmd & HAL_MEMCARD_RESPONSE_TYPE_MASK);
+	    ((HAL_MEMCARD_RESPONSE_TYPE)mmc_drv_obj.cmd_info.cmd & HAL_MEMCARD_RESPONSE_TYPE_MASK);
 
 	if (response == NULL)
 		return EMMC_ERR_PARAM;
@@ -117,7 +116,7 @@ static EMMC_ERROR_CODE emmc_response_check(uint32_t *response,
 			}
 			return EMMC_ERR_CARD_STATUS_BIT;
 		}
-		return EMMC_SUCCESS;;
+		return EMMC_SUCCESS;
 	}
 
 	if (response_type == HAL_MEMCARD_RESPONSE_R4) {
@@ -223,11 +222,11 @@ EMMC_ERROR_CODE emmc_exec_cmd(uint32_t error_mask, uint32_t *response)
 
 	state = ESTATE_BEGIN;
 	response_type =
-	    (HAL_MEMCARD_RESPONSE_TYPE) (mmc_drv_obj.cmd_info.
-					 cmd & HAL_MEMCARD_RESPONSE_TYPE_MASK);
+	    ((HAL_MEMCARD_RESPONSE_TYPE)mmc_drv_obj.cmd_info.cmd &
+					HAL_MEMCARD_RESPONSE_TYPE_MASK);
 	cmd_type =
-	    (HAL_MEMCARD_COMMAND_TYPE) (mmc_drv_obj.cmd_info.
-					cmd & HAL_MEMCARD_COMMAND_TYPE_MASK);
+	    ((HAL_MEMCARD_COMMAND_TYPE) mmc_drv_obj.cmd_info.cmd &
+					HAL_MEMCARD_COMMAND_TYPE_MASK);
 
 	/* state machine */
 	while ((mmc_drv_obj.force_terminate != TRUE) && (state != ESTATE_END)) {
@@ -427,8 +426,9 @@ EMMC_ERROR_CODE emmc_exec_cmd(uint32_t error_mask, uint32_t *response)
 		case ESTATE_ACCESS_END:
 
 			/* clear flag */
-			if (HAL_MEMCARD_DMA == mmc_drv_obj.transfer_mode) {
-				SETR_32(CC_EXT_MODE, CC_EXT_MODE_CLEAR);	/* W (CC_EXT_MODE, H'0000_1010) SD_BUF DMA transfer disabled */
+			if (mmc_drv_obj.transfer_mode == HAL_MEMCARD_DMA) {
+				/* W (CC_EXT_MODE, H'0000_1010) SD_BUF DMA transfer disabled */
+				SETR_32(CC_EXT_MODE, CC_EXT_MODE_CLEAR);
 				SETR_32(SD_STOP, 0x00000000U);
 				mmc_drv_obj.during_dma_transfer = FALSE;
 			}
@@ -448,8 +448,9 @@ EMMC_ERROR_CODE emmc_exec_cmd(uint32_t error_mask, uint32_t *response)
 
 		case ESTATE_TRANSFER_ERROR:
 			/* The error occurred in the Data transfer.  */
-			if (HAL_MEMCARD_DMA == mmc_drv_obj.transfer_mode) {
-				SETR_32(CC_EXT_MODE, CC_EXT_MODE_CLEAR);	/* W (CC_EXT_MODE, H'0000_1010) SD_BUF DMA transfer disabled */
+			if (mmc_drv_obj.transfer_mode == HAL_MEMCARD_DMA) {
+				/* W (CC_EXT_MODE, H'0000_1010) SD_BUF DMA transfer disabled */
+				SETR_32(CC_EXT_MODE, CC_EXT_MODE_CLEAR);
 				SETR_32(SD_STOP, 0x00000000U);
 				mmc_drv_obj.during_dma_transfer = FALSE;
 			}
@@ -468,8 +469,8 @@ EMMC_ERROR_CODE emmc_exec_cmd(uint32_t error_mask, uint32_t *response)
 		default:
 			state = ESTATE_END;
 			break;
-		}		/* switch (state) */
-	}			/*  while ( (mmc_drv_obj.force_terminate != TRUE) && (state != ESTATE_END) ) */
+		} /* switch (state) */
+	} /* while ( (mmc_drv_obj.force_terminate != TRUE) && (state != ESTATE_END) ) */
 
 	/* force terminate */
 	if (mmc_drv_obj.force_terminate == TRUE) {
@@ -481,7 +482,7 @@ EMMC_ERROR_CODE emmc_exec_cmd(uint32_t error_mask, uint32_t *response)
 		ERROR("BL2: emmc exec_cmd:EMMC_ERR_FORCE_TERMINATE\n");
 		emmc_softreset();
 
-		return EMMC_ERR_FORCE_TERMINATE;	/* error information has already been written. */
+		return EMMC_ERR_FORCE_TERMINATE; /* error information has already been written. */
 	}
 
 	/* success */

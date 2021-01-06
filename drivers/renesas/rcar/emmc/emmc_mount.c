@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,10 +8,10 @@
 #include <lib/mmio.h>
 
 #include "emmc_config.h"
-#include "emmc_hal.h"
-#include "emmc_std.h"
-#include "emmc_registers.h"
 #include "emmc_def.h"
+#include "emmc_hal.h"
+#include "emmc_registers.h"
+#include "emmc_std.h"
 #include "micro_delay.h"
 #include "rcar_def.h"
 
@@ -53,7 +53,7 @@ static EMMC_ERROR_CODE emmc_card_init(void)
 	int32_t retry;
 	uint32_t freq = MMC_400KHZ;	/* 390KHz */
 	EMMC_ERROR_CODE result;
-	uint32_t resultCalc;
+	uint32_t result_calc;
 
 	/* state check */
 	if ((mmc_drv_obj.initialize != TRUE)
@@ -161,9 +161,12 @@ static EMMC_ERROR_CODE emmc_card_init(void)
 
 	mmc_drv_obj.selected = TRUE;
 
-	/* card speed check */
-	resultCalc = emmc_calc_tran_speed(&freq);	/* Card spec is calculated from TRAN_SPEED(CSD).  */
-	if (resultCalc == 0) {
+	/*
+	 * card speed check
+	 * Card spec is calculated from TRAN_SPEED(CSD)
+	 */
+	result_calc = emmc_calc_tran_speed(&freq);
+	if (result_calc == 0) {
 		emmc_write_error_info(EMMC_FUNCNO_CARD_INIT,
 				      EMMC_ERR_ILLEGAL_CARD);
 		return EMMC_ERR_ILLEGAL_CARD;
@@ -201,7 +204,8 @@ static EMMC_ERROR_CODE emmc_card_init(void)
 			    HAL_MEMCARD_NOT_DMA);
 	result = emmc_exec_cmd(EMMC_R1_ERROR_MASK, mmc_drv_obj.response);
 	if (result != EMMC_SUCCESS) {
-		/* CMD12 is not send.
+		/*
+		 * CMD12 is not send.
 		 * If BUS initialization is failed, user must be execute Bus initialization again.
 		 * Bus initialization is start CMD0(soft reset command).
 		 */
@@ -217,7 +221,7 @@ static EMMC_ERROR_CODE emmc_card_init(void)
 
 static EMMC_ERROR_CODE emmc_high_speed(void)
 {
-	uint32_t freq;	      /**< High speed mode clock frequency */
+	uint32_t freq;	      /* High speed mode clock frequency */
 	EMMC_ERROR_CODE result;
 	uint8_t cardType;
 
@@ -236,8 +240,8 @@ static EMMC_ERROR_CODE emmc_high_speed(void)
 	else
 		freq = MMC_20MHZ;
 
-	/* Hi-Speed-mode selction */
-	if ((MMC_52MHZ == freq) || (MMC_26MHZ == freq)) {
+	/* Hi-Speed-mode selection */
+	if ((freq == MMC_52MHZ) || (freq == MMC_26MHZ)) {
 		/* CMD6 */
 		emmc_make_nontrans_cmd(CMD6_SWITCH, EMMC_SWITCH_HS_TIMING);
 		result =
@@ -322,7 +326,8 @@ static EMMC_ERROR_CODE emmc_bus_width(uint32_t width)
 		return EMMC_ERR_STATE;
 	}
 
-	mmc_drv_obj.bus_width = (HAL_MEMCARD_DATA_WIDTH) (width >> 2);	/* 2 = 8bit, 1 = 4bit, 0 =1bit */
+	/* 2 = 8bit, 1 = 4bit, 0 =1bit */
+	mmc_drv_obj.bus_width = (HAL_MEMCARD_DATA_WIDTH) (width >> 2);
 
 	/* CMD6 */
 	emmc_make_nontrans_cmd(CMD6_SWITCH,
@@ -371,7 +376,6 @@ static EMMC_ERROR_CODE emmc_bus_width(uint32_t width)
 	return EMMC_SUCCESS;
 
 EXIT:
-
 	emmc_write_error_info(EMMC_FUNCNO_BUS_WIDTH, result);
 	ERROR("BL2: emmc bus_width error end\n");
 	return result;
@@ -489,82 +493,83 @@ static void emmc_get_partition_access(void)
 
 static uint32_t emmc_calc_tran_speed(uint32_t *freq)
 {
-	const uint32_t unit[8] = { 10000, 100000, 1000000, 10000000,
-				0, 0, 0, 0 };   /**< frequency unit (1/10) */
-	const uint32_t mult[16] = { 0, 10, 12, 13, 15, 20, 26, 30, 35, 40, 45,
-				52, 55, 60, 70, 80 };
-
-	uint32_t maxFreq;
-	uint32_t result;
+	const uint32_t unit[8] = { 10000U, 100000U, 1000000U, 10000000U,
+				   0U, 0U, 0U, 0U }; /* frequency unit (1/10) */
+	const uint32_t mult[16] = { 0U, 10U, 12U, 13U, 15U, 20U, 26U, 30U, 35U,
+				    40U, 45U, 52U, 55U, 60U, 70U, 80U };
 	uint32_t tran_speed = EMMC_CSD_TRAN_SPEED();
+	uint32_t max_freq;
+	uint32_t result;
 
-	/* tran_speed = 0x32
+	/*
+	 * tran_speed = 0x32
 	 * unit[tran_speed&0x7] = uint[0x2] = 1000000
 	 * mult[(tran_speed&0x78)>>3] = mult[0x30>>3] = mult[6] = 26
 	 * 1000000 * 26 = 26000000 (26MHz)
 	 */
 
 	result = 1;
-	maxFreq =
+	max_freq =
 	    unit[tran_speed & EMMC_TRANSPEED_FREQ_UNIT_MASK] *
 	    mult[(tran_speed & EMMC_TRANSPEED_MULT_MASK) >>
 		 EMMC_TRANSPEED_MULT_SHIFT];
 
-	if (maxFreq == 0) {
+	if (max_freq == 0) {
 		result = 0;
-	} else if (MMC_FREQ_52MHZ <= maxFreq)
+	} else if (max_freq >= MMC_FREQ_52MHZ) {
 		*freq = MMC_52MHZ;
-	else if (MMC_FREQ_26MHZ <= maxFreq)
+	} else if (max_freq >= MMC_FREQ_26MHZ) {
 		*freq = MMC_26MHZ;
-	else if (MMC_FREQ_20MHZ <= maxFreq)
+	} else if (max_freq >= MMC_FREQ_20MHZ) {
 		*freq = MMC_20MHZ;
-	else
+	} else {
 		*freq = MMC_400KHZ;
+	}
 
 	return result;
 }
 
 static uint32_t emmc_set_timeout_register_value(uint32_t freq)
 {
-	uint32_t timeoutCnt;	/* SD_OPTION   - Timeout Counter  */
+	uint32_t timeout_cnt;	/* SD_OPTION   - Timeout Counter  */
 
 	switch (freq) {
 	case 1U:
-		timeoutCnt = 0xE0U;
+		timeout_cnt = 0xE0U;
 		break;		/* SDCLK * 2^27 */
 	case 2U:
-		timeoutCnt = 0xE0U;
+		timeout_cnt = 0xE0U;
 		break;		/* SDCLK * 2^27 */
 	case 4U:
-		timeoutCnt = 0xD0U;
+		timeout_cnt = 0xD0U;
 		break;		/* SDCLK * 2^26 */
 	case 8U:
-		timeoutCnt = 0xC0U;
+		timeout_cnt = 0xC0U;
 		break;		/* SDCLK * 2^25 */
 	case 16U:
-		timeoutCnt = 0xB0U;
+		timeout_cnt = 0xB0U;
 		break;		/* SDCLK * 2^24 */
 	case 32U:
-		timeoutCnt = 0xA0U;
+		timeout_cnt = 0xA0U;
 		break;		/* SDCLK * 2^23 */
 	case 64U:
-		timeoutCnt = 0x90U;
+		timeout_cnt = 0x90U;
 		break;		/* SDCLK * 2^22 */
 	case 128U:
-		timeoutCnt = 0x80U;
+		timeout_cnt = 0x80U;
 		break;		/* SDCLK * 2^21 */
 	case 256U:
-		timeoutCnt = 0x70U;
+		timeout_cnt = 0x70U;
 		break;		/* SDCLK * 2^20 */
 	case 512U:
-		timeoutCnt = 0x70U;
+		timeout_cnt = 0x70U;
 		break;		/* SDCLK * 2^20 */
 	default:
-		timeoutCnt = 0xE0U;
+		timeout_cnt = 0xE0U;
 		break;		/* SDCLK * 2^27 */
 	}
 
-	return timeoutCnt;
+	return timeout_cnt;
 }
 
 EMMC_ERROR_CODE emmc_set_ext_csd(uint32_t arg)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,10 +7,10 @@
 #include <common/debug.h>
 
 #include "emmc_config.h"
-#include "emmc_hal.h"
-#include "emmc_std.h"
-#include "emmc_registers.h"
 #include "emmc_def.h"
+#include "emmc_hal.h"
+#include "emmc_registers.h"
+#include "emmc_std.h"
 
 static const uint32_t cmd_reg_hw[EMMC_CMD_MAX + 1] = {
 	0x00000000,		/* CMD0 */
@@ -97,8 +97,8 @@ uint32_t emmc_bit_field(uint8_t *data, uint32_t top, uint32_t bottom)
 		value =
 		    (uint32_t) ((data[index_top] << 24) |
 				(data[index_top + 1] << 16) |
-				(data[index_top + 2] << 8) | data[index_top +
-								  3]);
+				(data[index_top + 2] << 8) |
+				data[index_top + 3]);
 	}
 
 	value = ((value >> (bottom & 0x07)) & ((1 << (top - bottom + 1)) - 1));
@@ -150,7 +150,7 @@ void emmc_make_nontrans_cmd(HAL_MEMCARD_COMMAND cmd, uint32_t arg)
 		mmc_drv_obj.response = &mmc_drv_obj.r1_card_status;
 		break;
 	case HAL_MEMCARD_RESPONSE_R1b:
-		mmc_drv_obj.cmd_info.hw |= BIT10;	/* bit10 = R1 busy bit */
+		mmc_drv_obj.cmd_info.hw |= BIT10; /* bit10 = R1 busy bit */
 		mmc_drv_obj.response = &mmc_drv_obj.r1_card_status;
 		break;
 	case HAL_MEMCARD_RESPONSE_R2:
