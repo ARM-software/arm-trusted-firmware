@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Marvell International Ltd.
+ * Copyright (C) 2016-2020 Marvell International Ltd.
  *
  * SPDX-License-Identifier:	BSD-3-Clause
  * https://spdx.org/licenses
@@ -47,5 +47,7 @@ struct pm_wake_up_src_config {
 };
 
 struct pm_wake_up_src_config *mv_wake_up_src_config_get(void);
+
+void cm3_system_reset(void);
 
 #endif /* A3700_PM_H */

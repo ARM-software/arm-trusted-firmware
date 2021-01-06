@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Marvell International Ltd.
+ * Copyright (C) 2018-2020 Marvell International Ltd.
  *
  * SPDX-License-Identifier:	BSD-3-Clause
  * https://spdx.org/licenses
@@ -763,6 +763,11 @@ static void __dead2 a3700_system_off(void)
 	panic();
 }
 
+#pragma weak cm3_system_reset
+void cm3_system_reset(void)
+{
+}
+
 /*****************************************************************************
  * A3700 handlers to reset the system
  *****************************************************************************
@@ -779,6 +784,9 @@ static void __dead2 a3700_system_reset(void)
 	flush_dcache_range((uintptr_t)PLAT_MARVELL_MAILBOX_BASE,
 			   2 * sizeof(uint64_t));
 #endif
+
+	/* Use Cortex-M3 secure coprocessor for system reset */
+	cm3_system_reset();
 
 	/* Trigger the warm reset */
 	mmio_write_32(MVEBU_WARM_RESET_REG, MVEBU_WARM_RESET_MAGIC);
