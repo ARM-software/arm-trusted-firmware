@@ -1,5 +1,5 @@
 #
-# Copyright 2018-2020 NXP
+# Copyright 2018-2022 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -63,7 +63,7 @@ else
 	-o ${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl -f ${BL2_SRC_OFFSET};
 
 	# Append the bl2.bin to the RCW image
-	@echo "bl2_loc is ${bl2_offset}"
+	@echo "bl2_loc is ${bl2_loc} KB"
 	dd if=${BUILD_PLAT}/bl2.bin of=${BUILD_PLAT}/bl2_${BOOT_MODE}.pbl bs=1K seek=${bl2_loc}
 
 	cd ${CREATE_PBL_TOOL_PATH}; ${MAKE} clean ; cd -;
