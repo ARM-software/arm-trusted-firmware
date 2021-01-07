@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Marvell International Ltd.
+ * Copyright (C) 2018-2021 Marvell International Ltd.
  *
  * SPDX-License-Identifier:	BSD-3-Clause
  * https://spdx.org/licenses
@@ -92,33 +92,35 @@ struct cpu_win_configuration mv_cpu_wins[CPU_WIN_CONFIG_MAX][MV_CPU_WIN_NUM] = {
 	},
 
 	/*
-	 * If total dram size is more than 2GB, now there is only one case - 4GB
-	 *  dram; we will use below cpu windows configurations:
-	 *  - Internal Regs, CCI-400, Boot Rom and PCIe windows are kept as
-	 *    default;
-	 *  - Use 4 CPU decode windows for DRAM, which cover 3.375GB DRAM;
-	 *    DDR window 0 is configured in tim header with 2GB size, no need to
-	 *    configure it again here;
+	 * If total DRAM size is more than 2GB, now there is only one case:
+	 * 4GB of DRAM; to better utilize address space (for maximization of
+	 * DRAM usage), we will use the configuration of CPU windows below:
+	 *  - Internal Regs and Boot ROM windows are kept as default;
+	 *  - CCI-400 is moved from its default address to another address
+	 *    (this is actually done even if DRAM size is not more than 2 GB,
+	 *     because the firmware is compiled with that address as a
+	 *     constant);
+	 *  - PCIe window is moved to another address;
+	 *  - Use 4 CPU decode windows for DRAM, which cover 3.75GB DRAM;
+	 *    DDR window 0 is configured in tim header with 2G B size, no need
+	 *    to configure it again here;
 	 *
-	 *	0xFFFFFFFF ---> |-----------------------|
-	 *			|	  Boot ROM	| 64KB
+	 *	0xFFFFFFFF ---> +-----------------------+
+	 *			|	 Boot ROM	| 64 KB
 	 *	0xFFF00000 ---> +-----------------------+
 	 *			:			:
-	 *	0xF0000000 ---> |-----------------------|
-	 *			|	  PCIE		| 128 MB
-	 *	0xE8000000 ---> |-----------------------|
-	 *			|	  DDR window 3	| 128 MB
-	 *	0xE0000000 ---> +-----------------------+
+	 *	0xFE010000 ---> +-----------------------+
+	 *			|	 CCI Regs	| 64 KB
+	 *	0xFE000000 ---> +-----------------------+
 	 *			:			:
-	 *	0xD8010000 ---> |-----------------------|
-	 *			|	  CCI Regs	| 64 KB
-	 *	0xD8000000 ---> +-----------------------+
-	 *			:			:
-	 *			:			:
+	 *	0xFA000000 ---> +-----------------------+
+	 *			|	 PCIE		| 128 MB
+	 *	0xF2000000 ---> +-----------------------+
+	 *			|	 DDR window 3	| 512 MB
 	 *	0xD2000000 ---> +-----------------------+
-	 *			|	 Internal Regs	| 32MB
+	 *			|	 Internal Regs	| 32 MB
 	 *	0xD0000000 ---> |-----------------------|
-	 *			 |	  DDR window 2	| 256 MB
+	 *			|	 DDR window 2	| 256 MB
 	 *	0xC0000000 ---> |-----------------------|
 	 *			|			|
 	 *			|	 DDR window 1	| 1 GB
@@ -155,14 +157,14 @@ struct cpu_win_configuration mv_cpu_wins[CPU_WIN_CONFIG_MAX][MV_CPU_WIN_NUM] = {
 						0xc0000000},
 		{CPU_WIN_ENABLED,
 			CPU_WIN_TARGET_DRAM,
-				0xe0000000,
-					0x08000000,
-						0xe0000000},
+				0xd2000000,
+					0x20000000,
+						0xd2000000},
 		{CPU_WIN_ENABLED,
 			CPU_WIN_TARGET_PCIE,
-				0xe8000000,
+				0xf2000000,
 					0x08000000,
-						0xe8000000},
+						0xf2000000},
 	},
 };
 
