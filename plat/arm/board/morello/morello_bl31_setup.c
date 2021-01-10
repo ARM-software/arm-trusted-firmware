@@ -36,16 +36,6 @@ struct morello_plat_info {
 /* Compile time assertion to ensure the size of structure is 18 bytes */
 CASSERT(sizeof(struct morello_plat_info) == MORELLO_SDS_PLATFORM_INFO_SIZE,
 		assert_invalid_plat_info_size);
-/*
- * BL33 image information structure stored in SDS.
- * This structure holds the source & destination addresses and
- * the size of the BL33 image which will be loaded by BL31.
- */
-struct morello_bl33_info {
-	uint32_t bl33_src_addr;
-	uint32_t bl33_dst_addr;
-	uint32_t bl33_size;
-};
 
 static scmi_channel_plat_info_t morello_scmi_plat_info = {
 	.scmi_mbx_mem = MORELLO_SCMI_PAYLOAD_BASE,
@@ -72,9 +62,7 @@ const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
  * enabling the ECC bits in DMC-Bing. Zeroing out several gigabytes of
  * memory from SCP is quite time consuming so the following function
  * is added to zero out the DDR memory from application processor which is
- * much faster compared to SCP. BL33 binary cannot be copied to DDR memory
- * before enabling ECC so copy_bl33 function is added to copy BL33 binary
- * from IOFPGA-DDR3 memory to main DDR4 memory.
+ * much faster compared to SCP.
  */
 
 static void dmc_ecc_setup(struct morello_plat_info *plat_info)
@@ -90,9 +78,8 @@ static void dmc_ecc_setup(struct morello_plat_info *plat_info)
 	assert(plat_info->local_ddr_size > ARM_DRAM1_SIZE);
 	dram2_size = plat_info->local_ddr_size - ARM_DRAM1_SIZE;
 
-	VERBOSE("Zeroing DDR memories\n");
-	zero_normalmem((void *)ARM_DRAM1_BASE, ARM_DRAM1_SIZE);
-	flush_dcache_range(ARM_DRAM1_BASE, ARM_DRAM1_SIZE);
+	INFO("Zeroing DDR memory range 0x%llx - 0x%llx\n",
+		ARM_DRAM2_BASE, ARM_DRAM2_BASE + dram2_size);
 	zero_normalmem((void *)ARM_DRAM2_BASE, dram2_size);
 	flush_dcache_range(ARM_DRAM2_BASE, dram2_size);
 
@@ -201,28 +188,10 @@ static void dmc_ecc_setup(struct morello_plat_info *plat_info)
 }
 #endif
 
-static void copy_bl33(uint32_t src, uint32_t dst, uint32_t size)
-{
-	unsigned int i;
-
-	INFO("Copying BL33 to DDR memory...\n");
-	for (i = 0U; i < size; (i = i + 8U))
-		mmio_write_64((dst + i), mmio_read_64(src + i));
-
-	for (i = 0U; i < size; (i = i + 8U)) {
-		if (mmio_read_64(src + i) != mmio_read_64(dst + i)) {
-			ERROR("Copy failed!\n");
-			panic();
-		}
-	}
-	INFO("done\n");
-}
-
 void bl31_platform_setup(void)
 {
 	int ret;
 	struct morello_plat_info plat_info;
-	struct morello_bl33_info bl33_info;
 	struct morello_plat_info *copy_dest;
 
 	ret = sds_init();
@@ -256,18 +225,6 @@ void bl31_platform_setup(void)
 	dmc_ecc_setup(&plat_info);
 #endif
 
-	ret = sds_struct_read(MORELLO_SDS_BL33_INFO_STRUCT_ID,
-				MORELLO_SDS_BL33_INFO_OFFSET,
-				&bl33_info,
-				MORELLO_SDS_BL33_INFO_SIZE,
-				SDS_ACCESS_MODE_NON_CACHED);
-	if (ret != SDS_OK) {
-		ERROR("Error getting BL33 info from SDS. ret:%d\n", ret);
-		panic();
-	}
-	copy_bl33(bl33_info.bl33_src_addr,
-			bl33_info.bl33_dst_addr,
-			bl33_info.bl33_size);
 	/*
 	 * Pass platform information to BL33. This method is followed as
 	 * currently there is no BL1/BL2 involved in boot flow of MORELLO.
