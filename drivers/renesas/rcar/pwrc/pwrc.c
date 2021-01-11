@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,10 +16,10 @@
 #include <plat/common/platform.h>
 
 #include "iic_dvfs.h"
-#include "rcar_def.h"
-#include "rcar_private.h"
 #include "micro_delay.h"
 #include "pwrc.h"
+#include "rcar_def.h"
+#include "rcar_private.h"
 
 /*
  * Someday there will be a generic power controller api. At the moment each
@@ -27,105 +27,105 @@
  */
 RCAR_INSTANTIATE_LOCK
 
-#define	WUP_IRQ_SHIFT				(0U)
-#define	WUP_FIQ_SHIFT				(8U)
-#define	WUP_CSD_SHIFT				(16U)
-#define	BIT_SOFTRESET				(1U<<15)
-#define	BIT_CA53_SCU				(1U<<21)
-#define	BIT_CA57_SCU				(1U<<12)
-#define	REQ_RESUME				(1U<<1)
-#define	REQ_OFF					(1U<<0)
-#define	STATUS_PWRUP				(1U<<4)
-#define	STATUS_PWRDOWN				(1U<<0)
-#define	STATE_CA57_CPU				(27U)
-#define	STATE_CA53_CPU				(22U)
-#define	MODE_L2_DOWN				(0x00000002U)
-#define	CPU_PWR_OFF				(0x00000003U)
-#define	RCAR_PSTR_MASK				(0x00000003U)
-#define	ST_ALL_STANDBY				(0x00003333U)
+#define WUP_IRQ_SHIFT				(0U)
+#define WUP_FIQ_SHIFT				(8U)
+#define WUP_CSD_SHIFT				(16U)
+#define BIT_SOFTRESET				(1U << 15)
+#define BIT_CA53_SCU				(1U << 21)
+#define BIT_CA57_SCU				(1U << 12)
+#define REQ_RESUME				(1U << 1)
+#define REQ_OFF					(1U << 0)
+#define STATUS_PWRUP				(1U << 4)
+#define STATUS_PWRDOWN				(1U << 0)
+#define STATE_CA57_CPU				(27U)
+#define STATE_CA53_CPU				(22U)
+#define MODE_L2_DOWN				(0x00000002U)
+#define CPU_PWR_OFF				(0x00000003U)
+#define RCAR_PSTR_MASK				(0x00000003U)
+#define ST_ALL_STANDBY				(0x00003333U)
 /* Suspend to ram	*/
-#define	DBSC4_REG_BASE				(0xE6790000U)
-#define	DBSC4_REG_DBSYSCNT0			(DBSC4_REG_BASE + 0x0100U)
-#define	DBSC4_REG_DBACEN			(DBSC4_REG_BASE + 0x0200U)
-#define	DBSC4_REG_DBCMD				(DBSC4_REG_BASE + 0x0208U)
-#define	DBSC4_REG_DBRFEN			(DBSC4_REG_BASE + 0x0204U)
-#define	DBSC4_REG_DBWAIT			(DBSC4_REG_BASE + 0x0210U)
-#define	DBSC4_REG_DBCALCNF			(DBSC4_REG_BASE + 0x0424U)
-#define	DBSC4_REG_DBDFIPMSTRCNF			(DBSC4_REG_BASE + 0x0520U)
-#define	DBSC4_REG_DBPDLK0			(DBSC4_REG_BASE + 0x0620U)
-#define	DBSC4_REG_DBPDRGA0			(DBSC4_REG_BASE + 0x0624U)
-#define	DBSC4_REG_DBPDRGD0			(DBSC4_REG_BASE + 0x0628U)
-#define	DBSC4_REG_DBCAM0CTRL0			(DBSC4_REG_BASE + 0x0940U)
-#define	DBSC4_REG_DBCAM0STAT0			(DBSC4_REG_BASE + 0x0980U)
-#define	DBSC4_REG_DBCAM1STAT0			(DBSC4_REG_BASE + 0x0990U)
-#define	DBSC4_REG_DBCAM2STAT0			(DBSC4_REG_BASE + 0x09A0U)
-#define	DBSC4_REG_DBCAM3STAT0			(DBSC4_REG_BASE + 0x09B0U)
-#define	DBSC4_BIT_DBACEN_ACCEN			((uint32_t)(1U << 0))
-#define	DBSC4_BIT_DBRFEN_ARFEN			((uint32_t)(1U << 0))
-#define	DBSC4_BIT_DBCAMxSTAT0			(0x00000001U)
-#define	DBSC4_BIT_DBDFIPMSTRCNF_PMSTREN		(0x00000001U)
-#define	DBSC4_SET_DBCMD_OPC_PRE			(0x04000000U)
-#define	DBSC4_SET_DBCMD_OPC_SR			(0x0A000000U)
-#define	DBSC4_SET_DBCMD_OPC_PD			(0x08000000U)
-#define	DBSC4_SET_DBCMD_OPC_MRW			(0x0E000000U)
-#define	DBSC4_SET_DBCMD_CH_ALL			(0x00800000U)
-#define	DBSC4_SET_DBCMD_RANK_ALL		(0x00040000U)
-#define	DBSC4_SET_DBCMD_ARG_ALL			(0x00000010U)
-#define	DBSC4_SET_DBCMD_ARG_ENTER		(0x00000000U)
-#define	DBSC4_SET_DBCMD_ARG_MRW_ODTC		(0x00000B00U)
-#define	DBSC4_SET_DBSYSCNT0_WRITE_ENABLE	(0x00001234U)
-#define	DBSC4_SET_DBSYSCNT0_WRITE_DISABLE	(0x00000000U)
-#define	DBSC4_SET_DBPDLK0_PHY_ACCESS		(0x0000A55AU)
-#define	DBSC4_SET_DBPDRGA0_ACIOCR0		(0x0000001AU)
-#define	DBSC4_SET_DBPDRGD0_ACIOCR0		(0x33C03C11U)
-#define	DBSC4_SET_DBPDRGA0_DXCCR		(0x00000020U)
-#define	DBSC4_SET_DBPDRGD0_DXCCR		(0x00181006U)
-#define	DBSC4_SET_DBPDRGA0_PGCR1		(0x00000003U)
-#define	DBSC4_SET_DBPDRGD0_PGCR1		(0x0380C600U)
-#define	DBSC4_SET_DBPDRGA0_ACIOCR1		(0x0000001BU)
-#define	DBSC4_SET_DBPDRGD0_ACIOCR1		(0xAAAAAAAAU)
-#define	DBSC4_SET_DBPDRGA0_ACIOCR3		(0x0000001DU)
-#define	DBSC4_SET_DBPDRGD0_ACIOCR3		(0xAAAAAAAAU)
-#define	DBSC4_SET_DBPDRGA0_ACIOCR5		(0x0000001FU)
-#define	DBSC4_SET_DBPDRGD0_ACIOCR5		(0x000000AAU)
-#define	DBSC4_SET_DBPDRGA0_DX0GCR2		(0x000000A2U)
-#define	DBSC4_SET_DBPDRGD0_DX0GCR2		(0xAAAA0000U)
-#define	DBSC4_SET_DBPDRGA0_DX1GCR2		(0x000000C2U)
-#define	DBSC4_SET_DBPDRGD0_DX1GCR2		(0xAAAA0000U)
-#define	DBSC4_SET_DBPDRGA0_DX2GCR2		(0x000000E2U)
-#define	DBSC4_SET_DBPDRGD0_DX2GCR2		(0xAAAA0000U)
-#define	DBSC4_SET_DBPDRGA0_DX3GCR2		(0x00000102U)
-#define	DBSC4_SET_DBPDRGD0_DX3GCR2		(0xAAAA0000U)
-#define	DBSC4_SET_DBPDRGA0_ZQCR			(0x00000090U)
-#define	DBSC4_SET_DBPDRGD0_ZQCR_MD19_0		(0x04058904U)
-#define	DBSC4_SET_DBPDRGD0_ZQCR_MD19_1		(0x04058A04U)
-#define	DBSC4_SET_DBPDRGA0_DX0GCR0		(0x000000A0U)
-#define	DBSC4_SET_DBPDRGD0_DX0GCR0		(0x7C0002E5U)
-#define	DBSC4_SET_DBPDRGA0_DX1GCR0		(0x000000C0U)
-#define	DBSC4_SET_DBPDRGD0_DX1GCR0		(0x7C0002E5U)
-#define	DBSC4_SET_DBPDRGA0_DX2GCR0		(0x000000E0U)
-#define	DBSC4_SET_DBPDRGD0_DX2GCR0		(0x7C0002E5U)
-#define	DBSC4_SET_DBPDRGA0_DX3GCR0		(0x00000100U)
-#define	DBSC4_SET_DBPDRGD0_DX3GCR0		(0x7C0002E5U)
-#define	DBSC4_SET_DBPDRGA0_DX0GCR1		(0x000000A1U)
-#define	DBSC4_SET_DBPDRGD0_DX0GCR1		(0x55550000U)
-#define	DBSC4_SET_DBPDRGA0_DX1GCR1		(0x000000C1U)
-#define	DBSC4_SET_DBPDRGD0_DX1GCR1		(0x55550000U)
-#define	DBSC4_SET_DBPDRGA0_DX2GCR1		(0x000000E1U)
-#define	DBSC4_SET_DBPDRGD0_DX2GCR1		(0x55550000U)
-#define	DBSC4_SET_DBPDRGA0_DX3GCR1		(0x00000101U)
-#define	DBSC4_SET_DBPDRGD0_DX3GCR1		(0x55550000U)
-#define	DBSC4_SET_DBPDRGA0_DX0GCR3		(0x000000A3U)
-#define	DBSC4_SET_DBPDRGD0_DX0GCR3		(0x00008484U)
-#define	DBSC4_SET_DBPDRGA0_DX1GCR3		(0x000000C3U)
-#define	DBSC4_SET_DBPDRGD0_DX1GCR3		(0x00008484U)
-#define	DBSC4_SET_DBPDRGA0_DX2GCR3		(0x000000E3U)
-#define	DBSC4_SET_DBPDRGD0_DX2GCR3		(0x00008484U)
-#define	DBSC4_SET_DBPDRGA0_DX3GCR3		(0x00000103U)
-#define	DBSC4_SET_DBPDRGD0_DX3GCR3		(0x00008484U)
-#define	RST_BASE				(0xE6160000U)
-#define	RST_MODEMR				(RST_BASE + 0x0060U)
-#define	RST_MODEMR_BIT0				(0x00000001U)
+#define DBSC4_REG_BASE				(0xE6790000U)
+#define DBSC4_REG_DBSYSCNT0			(DBSC4_REG_BASE + 0x0100U)
+#define DBSC4_REG_DBACEN			(DBSC4_REG_BASE + 0x0200U)
+#define DBSC4_REG_DBCMD				(DBSC4_REG_BASE + 0x0208U)
+#define DBSC4_REG_DBRFEN			(DBSC4_REG_BASE + 0x0204U)
+#define DBSC4_REG_DBWAIT			(DBSC4_REG_BASE + 0x0210U)
+#define DBSC4_REG_DBCALCNF			(DBSC4_REG_BASE + 0x0424U)
+#define DBSC4_REG_DBDFIPMSTRCNF			(DBSC4_REG_BASE + 0x0520U)
+#define DBSC4_REG_DBPDLK0			(DBSC4_REG_BASE + 0x0620U)
+#define DBSC4_REG_DBPDRGA0			(DBSC4_REG_BASE + 0x0624U)
+#define DBSC4_REG_DBPDRGD0			(DBSC4_REG_BASE + 0x0628U)
+#define DBSC4_REG_DBCAM0CTRL0			(DBSC4_REG_BASE + 0x0940U)
+#define DBSC4_REG_DBCAM0STAT0			(DBSC4_REG_BASE + 0x0980U)
+#define DBSC4_REG_DBCAM1STAT0			(DBSC4_REG_BASE + 0x0990U)
+#define DBSC4_REG_DBCAM2STAT0			(DBSC4_REG_BASE + 0x09A0U)
+#define DBSC4_REG_DBCAM3STAT0			(DBSC4_REG_BASE + 0x09B0U)
+#define DBSC4_BIT_DBACEN_ACCEN			((uint32_t)(1U << 0))
+#define DBSC4_BIT_DBRFEN_ARFEN			((uint32_t)(1U << 0))
+#define DBSC4_BIT_DBCAMxSTAT0			(0x00000001U)
+#define DBSC4_BIT_DBDFIPMSTRCNF_PMSTREN		(0x00000001U)
+#define DBSC4_SET_DBCMD_OPC_PRE			(0x04000000U)
+#define DBSC4_SET_DBCMD_OPC_SR			(0x0A000000U)
+#define DBSC4_SET_DBCMD_OPC_PD			(0x08000000U)
+#define DBSC4_SET_DBCMD_OPC_MRW			(0x0E000000U)
+#define DBSC4_SET_DBCMD_CH_ALL			(0x00800000U)
+#define DBSC4_SET_DBCMD_RANK_ALL		(0x00040000U)
+#define DBSC4_SET_DBCMD_ARG_ALL			(0x00000010U)
+#define DBSC4_SET_DBCMD_ARG_ENTER		(0x00000000U)
+#define DBSC4_SET_DBCMD_ARG_MRW_ODTC		(0x00000B00U)
+#define DBSC4_SET_DBSYSCNT0_WRITE_ENABLE	(0x00001234U)
+#define DBSC4_SET_DBSYSCNT0_WRITE_DISABLE	(0x00000000U)
+#define DBSC4_SET_DBPDLK0_PHY_ACCESS		(0x0000A55AU)
+#define DBSC4_SET_DBPDRGA0_ACIOCR0		(0x0000001AU)
+#define DBSC4_SET_DBPDRGD0_ACIOCR0		(0x33C03C11U)
+#define DBSC4_SET_DBPDRGA0_DXCCR		(0x00000020U)
+#define DBSC4_SET_DBPDRGD0_DXCCR		(0x00181006U)
+#define DBSC4_SET_DBPDRGA0_PGCR1		(0x00000003U)
+#define DBSC4_SET_DBPDRGD0_PGCR1		(0x0380C600U)
+#define DBSC4_SET_DBPDRGA0_ACIOCR1		(0x0000001BU)
+#define DBSC4_SET_DBPDRGD0_ACIOCR1		(0xAAAAAAAAU)
+#define DBSC4_SET_DBPDRGA0_ACIOCR3		(0x0000001DU)
+#define DBSC4_SET_DBPDRGD0_ACIOCR3		(0xAAAAAAAAU)
+#define DBSC4_SET_DBPDRGA0_ACIOCR5		(0x0000001FU)
+#define DBSC4_SET_DBPDRGD0_ACIOCR5		(0x000000AAU)
+#define DBSC4_SET_DBPDRGA0_DX0GCR2		(0x000000A2U)
+#define DBSC4_SET_DBPDRGD0_DX0GCR2		(0xAAAA0000U)
+#define DBSC4_SET_DBPDRGA0_DX1GCR2		(0x000000C2U)
+#define DBSC4_SET_DBPDRGD0_DX1GCR2		(0xAAAA0000U)
+#define DBSC4_SET_DBPDRGA0_DX2GCR2		(0x000000E2U)
+#define DBSC4_SET_DBPDRGD0_DX2GCR2		(0xAAAA0000U)
+#define DBSC4_SET_DBPDRGA0_DX3GCR2		(0x00000102U)
+#define DBSC4_SET_DBPDRGD0_DX3GCR2		(0xAAAA0000U)
+#define DBSC4_SET_DBPDRGA0_ZQCR			(0x00000090U)
+#define DBSC4_SET_DBPDRGD0_ZQCR_MD19_0		(0x04058904U)
+#define DBSC4_SET_DBPDRGD0_ZQCR_MD19_1		(0x04058A04U)
+#define DBSC4_SET_DBPDRGA0_DX0GCR0		(0x000000A0U)
+#define DBSC4_SET_DBPDRGD0_DX0GCR0		(0x7C0002E5U)
+#define DBSC4_SET_DBPDRGA0_DX1GCR0		(0x000000C0U)
+#define DBSC4_SET_DBPDRGD0_DX1GCR0		(0x7C0002E5U)
+#define DBSC4_SET_DBPDRGA0_DX2GCR0		(0x000000E0U)
+#define DBSC4_SET_DBPDRGD0_DX2GCR0		(0x7C0002E5U)
+#define DBSC4_SET_DBPDRGA0_DX3GCR0		(0x00000100U)
+#define DBSC4_SET_DBPDRGD0_DX3GCR0		(0x7C0002E5U)
+#define DBSC4_SET_DBPDRGA0_DX0GCR1		(0x000000A1U)
+#define DBSC4_SET_DBPDRGD0_DX0GCR1		(0x55550000U)
+#define DBSC4_SET_DBPDRGA0_DX1GCR1		(0x000000C1U)
+#define DBSC4_SET_DBPDRGD0_DX1GCR1		(0x55550000U)
+#define DBSC4_SET_DBPDRGA0_DX2GCR1		(0x000000E1U)
+#define DBSC4_SET_DBPDRGD0_DX2GCR1		(0x55550000U)
+#define DBSC4_SET_DBPDRGA0_DX3GCR1		(0x00000101U)
+#define DBSC4_SET_DBPDRGD0_DX3GCR1		(0x55550000U)
+#define DBSC4_SET_DBPDRGA0_DX0GCR3		(0x000000A3U)
+#define DBSC4_SET_DBPDRGD0_DX0GCR3		(0x00008484U)
+#define DBSC4_SET_DBPDRGA0_DX1GCR3		(0x000000C3U)
+#define DBSC4_SET_DBPDRGD0_DX1GCR3		(0x00008484U)
+#define DBSC4_SET_DBPDRGA0_DX2GCR3		(0x000000E3U)
+#define DBSC4_SET_DBPDRGD0_DX2GCR3		(0x00008484U)
+#define DBSC4_SET_DBPDRGA0_DX3GCR3		(0x00000103U)
+#define DBSC4_SET_DBPDRGD0_DX3GCR3		(0x00008484U)
+#define RST_BASE				(0xE6160000U)
+#define RST_MODEMR				(RST_BASE + 0x0060U)
+#define RST_MODEMR_BIT0				(0x00000001U)
 
 #define RCAR_CNTCR_OFF				(0x00U)
 #define RCAR_CNTCVL_OFF				(0x08U)
@@ -136,17 +136,17 @@ RCAR_INSTANTIATE_LOCK
 #define RCAR_CNTCR_FCREQ(x)			((uint32_t)(x) << 8U)
 
 #if PMIC_ROHM_BD9571
-#define	BIT_BKUP_CTRL_OUT			((uint8_t)(1U << 4))
-#define	PMIC_BKUP_MODE_CNT			(0x20U)
-#define	PMIC_QLLM_CNT				(0x27U)
-#define	PMIC_RETRY_MAX				(100U)
-#endif
-#define	SCTLR_EL3_M_BIT				((uint32_t)1U << 0)
-#define	RCAR_CA53CPU_NUM_MAX			(4U)
-#define	RCAR_CA57CPU_NUM_MAX			(4U)
-#define IS_A53A57(c) 	((c) == RCAR_CLUSTER_A53A57)
-#define IS_CA57(c) 	((c) == RCAR_CLUSTER_CA57)
-#define IS_CA53(c) 	((c) == RCAR_CLUSTER_CA53)
+#define BIT_BKUP_CTRL_OUT			((uint8_t)(1U << 4))
+#define PMIC_BKUP_MODE_CNT			(0x20U)
+#define PMIC_QLLM_CNT				(0x27U)
+#define PMIC_RETRY_MAX				(100U)
+#endif /* PMIC_ROHM_BD9571 */
+#define SCTLR_EL3_M_BIT				((uint32_t)1U << 0)
+#define RCAR_CA53CPU_NUM_MAX			(4U)
+#define RCAR_CA57CPU_NUM_MAX			(4U)
+#define IS_A53A57(c)	((c) == RCAR_CLUSTER_A53A57)
+#define IS_CA57(c)	((c) == RCAR_CLUSTER_CA57)
+#define IS_CA53(c)	((c) == RCAR_CLUSTER_CA53)
 
 #ifndef __ASSEMBLER__
 IMPORT_SYM(unsigned long, __system_ram_start__, SYSTEM_RAM_START);
@@ -320,11 +320,13 @@ void rcar_pwrc_clusteroff(uint64_t mpidr)
 	c = rcar_pwrc_get_mpidr_cluster(mpidr);
 	dst = IS_CA53(c) ? RCAR_CA53CPUCMCR : RCAR_CA57CPUCMCR;
 
-	if (PRR_PRODUCT_M3 == product && cut < PRR_PRODUCT_30)
+	if (product == PRR_PRODUCT_M3 && cut < PRR_PRODUCT_30) {
 		goto done;
+	}
 
-	if (PRR_PRODUCT_H3 == product && cut <= PRR_PRODUCT_20)
+	if (product == PRR_PRODUCT_H3 && cut <= PRR_PRODUCT_20) {
 		goto done;
+	}
 
 	/* all of the CPUs in the cluster is in the CoreStandby mode */
 	mmio_write_32(dst, MODE_L2_DOWN);
@@ -343,7 +345,7 @@ static void rcar_pwrc_save_timer_state(void)
 	rcar_pwrc_saved_cntfid =
 		mmio_read_32((uintptr_t)(RCAR_CNTC_BASE + RCAR_CNTFID_OFF));
 }
-#endif
+#endif /* RCAR_SYSTEM_SUSPEND */
 
 void rcar_pwrc_restore_timer_state(void)
 {
@@ -372,10 +374,10 @@ void rcar_pwrc_system_reset(void)
 }
 #endif /* PMIC_ROHM_BD9571 */
 
-#define	RST_CA53_CPU0_BARH		(0xE6160080U)
-#define	RST_CA53_CPU0_BARL		(0xE6160084U)
-#define	RST_CA57_CPU0_BARH		(0xE61600C0U)
-#define	RST_CA57_CPU0_BARL		(0xE61600C4U)
+#define RST_CA53_CPU0_BARH		(0xE6160080U)
+#define RST_CA53_CPU0_BARL		(0xE6160084U)
+#define RST_CA57_CPU0_BARH		(0xE61600C0U)
+#define RST_CA57_CPU0_BARL		(0xE61600C4U)
 
 void rcar_pwrc_setup(void)
 {
@@ -427,11 +429,13 @@ static void __attribute__ ((section(".system_ram")))
 	product = reg & PRR_PRODUCT_MASK;
 	cut = reg & PRR_CUT_MASK;
 
-	if (product == PRR_PRODUCT_M3 && cut < PRR_PRODUCT_30)
+	if (product == PRR_PRODUCT_M3 && cut < PRR_PRODUCT_30) {
 		goto self_refresh;
+	}
 
-	if (product == PRR_PRODUCT_H3 && cut < PRR_PRODUCT_20)
+	if (product == PRR_PRODUCT_H3 && cut < PRR_PRODUCT_20) {
 		goto self_refresh;
+	}
 
 	mmio_write_32(DBSC4_REG_DBSYSCNT0, DBSC4_SET_DBSYSCNT0_WRITE_ENABLE);
 
@@ -509,7 +513,7 @@ self_refresh:
 }
 
 static void __attribute__ ((section(".system_ram")))
-    rcar_pwrc_set_self_refresh_e3(void)
+rcar_pwrc_set_self_refresh_e3(void)
 {
 	uint32_t ddr_md;
 	uint32_t reg;
@@ -533,8 +537,10 @@ static void __attribute__ ((section(".system_ram")))
 	while (mmio_read_32(DBSC4_REG_DBWAIT))
 		;
 
-	/* Set the auto-refresh enable register */
-	/* Set the ARFEN bit to 0 in the DBRFEN */
+	/*
+	 * Set the auto-refresh enable register
+	 * Set the ARFEN bit to 0 in the DBRFEN
+	 */
 	mmio_write_32(DBSC4_REG_DBRFEN, 0);
 
 	mmio_write_32(DBSC4_REG_DBPDLK0, DBSC4_SET_DBPDLK0_PHY_ACCESS);
@@ -638,7 +644,7 @@ static void __attribute__ ((section(".system_ram")))
 }
 
 void __attribute__ ((section(".system_ram"))) __attribute__ ((noinline))
-    rcar_pwrc_go_suspend_to_ram(void)
+rcar_pwrc_go_suspend_to_ram(void)
 {
 #if PMIC_ROHM_BD9571
 	int32_t rc = -1, qllm = -1;
@@ -713,7 +719,7 @@ void rcar_pwrc_suspend_to_ram(void)
 
 	error = rcar_iic_dvfs_send(PMIC, REG_KEEP10, 0);
 	if (error) {
-		ERROR("Failed send KEEP10 init ret=%d \n", error);
+		ERROR("Failed send KEEP10 init ret=%d\n", error);
 		return;
 	}
 #endif
@@ -835,7 +841,6 @@ int32_t rcar_pwrc_cpu_on_check(uint64_t mpidr)
 	uint64_t my_cpu;
 	int32_t rtn;
 	uint32_t my_cluster_type;
-
 	const uint32_t cluster_type[PLATFORM_CLUSTER_COUNT] = {
 			RCAR_CLUSTER_CA53,
 			RCAR_CLUSTER_CA57
@@ -861,6 +866,6 @@ int32_t rcar_pwrc_cpu_on_check(uint64_t mpidr)
 			}
 		}
 	}
-	return (rtn);
 
+	return rtn;
 }
