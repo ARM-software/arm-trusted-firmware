@@ -21,6 +21,7 @@
 #define R_UART_SR		0x2C
 #define UART_SR_INTR_REMPTY_BIT	1
 #define UART_SR_INTR_TFUL_BIT	4
+#define UART_SR_INTR_TEMPTY_BIT	3
 
 #define R_UART_TX	0x30
 #define R_UART_RX	0x30
