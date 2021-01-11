@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights
  * reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -7,29 +7,28 @@
 
 #include <stddef.h>
 
-#include <platform_def.h>
-
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/mmio.h>
 #include <plat/common/platform.h>
 
+#include <platform_def.h>
 #include "rom_api.h"
 
 typedef int32_t(*secure_boot_api_f) (uint32_t a, uint32_t b, void *c);
 extern int32_t rcar_get_certificate(const int32_t name, uint32_t *cert_addr);
 
-#define	RCAR_IMAGE_ID_MAX	(10)
-#define	RCAR_CERT_MAGIC_NUM	(0xE291F358U)
+#define RCAR_IMAGE_ID_MAX	(10)
+#define RCAR_CERT_MAGIC_NUM	(0xE291F358U)
 #define RCAR_BOOT_KEY_CERT	(0xE6300C00U)
 #define RCAR_BOOT_KEY_CERT_NEW	(0xE6300F00U)
-#define	RST_BASE		(0xE6160000U)
-#define	RST_MODEMR		(RST_BASE + 0x0060U)
-#define	MFISOFTMDR		(0xE6260600U)
-#define	MODEMR_MD5_MASK		(0x00000020U)
-#define	MODEMR_MD5_SHIFT	(5U)
-#define	SOFTMD_BOOTMODE_MASK	(0x00000001U)
-#define	SOFTMD_NORMALBOOT	(0x1U)
+#define RST_BASE		(0xE6160000U)
+#define RST_MODEMR		(RST_BASE + 0x0060U)
+#define MFISOFTMDR		(0xE6260600U)
+#define MODEMR_MD5_MASK		(0x00000020U)
+#define MODEMR_MD5_SHIFT	(5U)
+#define SOFTMD_BOOTMODE_MASK	(0x00000001U)
+#define SOFTMD_NORMALBOOT	(0x1U)
 
 static secure_boot_api_f secure_boot_api;
 
@@ -125,9 +124,9 @@ verify_image:
 #if RCAR_BL2_DCACHE == 1
 	/* enable */
 	write_sctlr_el3(read_sctlr_el3() | SCTLR_C_BIT);
-#endif
+#endif /* RCAR_BL2_DCACHE */
 
-#endif
+#endif /* IMAGE_BL2 */
 	return ret;
 }
 

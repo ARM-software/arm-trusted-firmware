@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,15 +11,15 @@
 #include <common/debug.h>
 #include <lib/mmio.h>
 
-#include "rcar_def.h"
 #include "cpg_registers.h"
+#include "rcar_def.h"
 #include "rcar_private.h"
 
 /* DMA CHANNEL setting (0/16/32) */
 #if RCAR_LSI == RCAR_V3M
-#define	DMA_CH		16
+#define DMA_CH		16
 #else
-#define	DMA_CH		0
+#define DMA_CH		0
 #endif
 
 #if (DMA_CH == 0)
@@ -39,7 +39,7 @@
 /* DMA operation */
 #define DMA_DMAOR	(DMA_BASE + 0x0060U)
 /* DMA secure control */
-#define	DMA_DMASEC	(DMA_BASE + 0x0030U)
+#define DMA_DMASEC	(DMA_BASE + 0x0030U)
 /* DMA channel clear */
 #define DMA_DMACHCLR	(DMA_BASE + 0x0080U)
 /* DMA source address */
@@ -53,21 +53,21 @@
 /* DMA fixed destination address */
 #define DMA_DMAFIXDAR	(DMA_BASE + 0x8014U)
 
-#define	DMA_USE_CHANNEL		(0x00000001U)
-#define	DMAOR_INITIAL		(0x0301U)
-#define	DMACHCLR_CH_ALL		(0x0000FFFFU)
-#define	DMAFIXDAR_32BIT_SHIFT	(32U)
-#define	DMAFIXDAR_DAR_MASK	(0x000000FFU)
-#define	DMADAR_BOUNDARY_ADDR	(0x100000000ULL)
-#define	DMATCR_CNT_SHIFT	(6U)
-#define	DMATCR_MAX		(0x00FFFFFFU)
-#define	DMACHCR_TRN_MODE	(0x00105409U)
-#define	DMACHCR_DE_BIT		(0x00000001U)
-#define	DMACHCR_TE_BIT		(0x00000002U)
-#define	DMACHCR_CHE_BIT		(0x80000000U)
+#define DMA_USE_CHANNEL		(0x00000001U)
+#define DMAOR_INITIAL		(0x0301U)
+#define DMACHCLR_CH_ALL		(0x0000FFFFU)
+#define DMAFIXDAR_32BIT_SHIFT	(32U)
+#define DMAFIXDAR_DAR_MASK	(0x000000FFU)
+#define DMADAR_BOUNDARY_ADDR	(0x100000000ULL)
+#define DMATCR_CNT_SHIFT	(6U)
+#define DMATCR_MAX		(0x00FFFFFFU)
+#define DMACHCR_TRN_MODE	(0x00105409U)
+#define DMACHCR_DE_BIT		(0x00000001U)
+#define DMACHCR_TE_BIT		(0x00000002U)
+#define DMACHCR_CHE_BIT		(0x80000000U)
 
-#define	DMA_SIZE_UNIT		FLASH_TRANS_SIZE_UNIT
-#define	DMA_FRACTION_MASK	(0xFFU)
+#define DMA_SIZE_UNIT		FLASH_TRANS_SIZE_UNIT
+#define DMA_FRACTION_MASK	(0xFFU)
 #define DMA_DST_LIMIT		(0x10000000000ULL)
 
 /* transfer length limit */
@@ -129,16 +129,16 @@ void rcar_dma_exec(uintptr_t dst, uint32_t src, uint32_t len)
 	}
 
 	if (src & DMA_FRACTION_MASK) {
-		ERROR("BL2: DMA - source address invalid (0x%x), "
-			"length (0x%x)\n", src, dma_len);
+		ERROR("BL2: DMA - src address invalid (0x%x), len=(0x%x)\n",
+		      src, dma_len);
 		panic();
 	}
 
 	if ((dst & UINT32_MAX) + dma_len > DMADAR_BOUNDARY_ADDR	||
-	    (dst + dma_len > DMA_DST_LIMIT)			||
+	    (dst + dma_len > DMA_DST_LIMIT) ||
 	    (dst & DMA_FRACTION_MASK)) {
-		ERROR("BL2: DMA - destination address invalid (0x%lx), "
-		      "length (0x%x)\n", dst, dma_len);
+		ERROR("BL2: DMA - dest address invalid (0x%lx), len=(0x%x)\n",
+		      dst, dma_len);
 		panic();
 	}
 
