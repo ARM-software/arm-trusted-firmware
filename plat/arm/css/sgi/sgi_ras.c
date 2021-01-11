@@ -121,7 +121,7 @@ static int sgi_ras_intr_handler(const struct err_record_info *err_rec,
 	 * this interrupt
 	 */
 	ras_map = find_ras_event_map_by_intr(intr);
-	assert(ras_map);
+	assert(ras_map != NULL);
 
 	/*
 	 * Populate the MM_COMMUNICATE payload to share the
