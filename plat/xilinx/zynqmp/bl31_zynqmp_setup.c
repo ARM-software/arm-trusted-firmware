@@ -32,8 +32,9 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
 	assert(sec_state_is_valid(type));
 
-	if (type == NON_SECURE)
+	if (type == NON_SECURE) {
 		return &bl33_image_ep_info;
+	}
 
 	return &bl32_image_ep_info;
 }
@@ -99,10 +100,11 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		enum fsbl_handoff ret = fsbl_atf_handover(&bl32_image_ep_info,
 							  &bl33_image_ep_info,
 							  atf_handoff_addr);
-		if (ret == FSBL_HANDOFF_NO_STRUCT)
+		if (ret == FSBL_HANDOFF_NO_STRUCT) {
 			bl31_set_default_config();
-		else if (ret != FSBL_HANDOFF_SUCCESS)
+		} else if (ret != FSBL_HANDOFF_SUCCESS) {
 			panic();
+		}
 	}
 	if (bl32_image_ep_info.pc) {
 		VERBOSE("BL31: Secure code at 0x%lx\n", bl32_image_ep_info.pc);
@@ -137,12 +139,14 @@ static interrupt_type_handler_t type_el3_interrupt_table[MAX_INTR_EL3];
 int request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
 {
 	/* Validate 'handler' and 'id' parameters */
-	if (!handler || id >= MAX_INTR_EL3)
+	if (!handler || id >= MAX_INTR_EL3) {
 		return -EINVAL;
+	}
 
 	/* Check if a handler has already been registered */
-	if (type_el3_interrupt_table[id])
+	if (type_el3_interrupt_table[id]) {
 		return -EALREADY;
+	}
 
 	type_el3_interrupt_table[id] = handler;
 
@@ -157,8 +161,9 @@ static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
 
 	intr_id = plat_ic_get_pending_interrupt_id();
 	handler = type_el3_interrupt_table[intr_id];
-	if (handler != NULL)
+	if (handler != NULL) {
 		handler(intr_id, flags, handle, cookie);
+	}
 
 	return 0;
 }
@@ -181,8 +186,9 @@ void bl31_plat_runtime_setup(void)
 	set_interrupt_rm_flag(flags, NON_SECURE);
 	rc = register_interrupt_type_handler(INTR_TYPE_EL3,
 					     rdo_el3_interrupt_handler, flags);
-	if (rc)
+	if (rc) {
 		panic();
+	}
 #endif
 }
 

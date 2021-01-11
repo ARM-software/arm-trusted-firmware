@@ -34,8 +34,9 @@ entry_point_info_t *bl31_plat_get_next_image_ep_info(uint32_t type)
 {
 	assert(sec_state_is_valid(type));
 
-	if (type == NON_SECURE)
+	if (type == NON_SECURE) {
 		return &bl33_image_ep_info;
+	}
 
 	return &bl32_image_ep_info;
 }
@@ -68,8 +69,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 					VERSAL_UART_CLOCK,
 					VERSAL_UART_BAUDRATE,
 					&versal_runtime_console);
-	if (rc == 0)
+	if (rc == 0) {
 		panic();
+	}
 
 	console_set_scope(&versal_runtime_console, CONSOLE_FLAG_BOOT |
 			  CONSOLE_FLAG_RUNTIME);
