@@ -104,23 +104,20 @@ static void disable_io_comp_cell(uintptr_t cmpcr_off)
 	mmio_setbits_32(SYSCFG_BASE + cmpcr_off + CMPCR_CMPENCLRR_OFFSET, SYSCFG_CMPENSETR_MPU_EN);
 }
 
-void stm32mp1_syscfg_init(void)
+static void enable_high_speed_mode_low_voltage(void)
 {
-	uint32_t bootr;
+	mmio_write_32(SYSCFG_BASE + SYSCFG_IOCTRLSETR,
+		      SYSCFG_IOCTRLSETR_HSLVEN_TRACE |
+		      SYSCFG_IOCTRLSETR_HSLVEN_QUADSPI |
+		      SYSCFG_IOCTRLSETR_HSLVEN_ETH |
+		      SYSCFG_IOCTRLSETR_HSLVEN_SDMMC |
+		      SYSCFG_IOCTRLSETR_HSLVEN_SPI);
+}
+
+static void stm32mp1_syscfg_set_hslv(void)
+{
 	uint32_t otp = 0;
 	uint32_t vdd_voltage;
-
-	/*
-	 * Interconnect update : select master using the port 1.
-	 * LTDC = AXI_M9.
-	 */
-	mmio_write_32(SYSCFG_BASE + SYSCFG_ICNR, SYSCFG_ICNR_AXI_M9);
-
-	/* Disable Pull-Down for boot pin connected to VDD */
-	bootr = mmio_read_32(SYSCFG_BASE + SYSCFG_BOOTR) &
-		SYSCFG_BOOTR_BOOT_MASK;
-	mmio_clrsetbits_32(SYSCFG_BASE + SYSCFG_BOOTR, SYSCFG_BOOTR_BOOTPD_MASK,
-			   bootr << SYSCFG_BOOTR_BOOTPD_SHIFT);
 
 	/*
 	 * High Speed Low Voltage Pad mode Enable for SPI, SDMMC, ETH, QSPI
@@ -150,12 +147,7 @@ void stm32mp1_syscfg_init(void)
 	if (vdd_voltage == 0U) {
 		WARN("VDD unknown");
 	} else if (vdd_voltage < 2700000U) {
-		mmio_write_32(SYSCFG_BASE + SYSCFG_IOCTRLSETR,
-			      SYSCFG_IOCTRLSETR_HSLVEN_TRACE |
-			      SYSCFG_IOCTRLSETR_HSLVEN_QUADSPI |
-			      SYSCFG_IOCTRLSETR_HSLVEN_ETH |
-			      SYSCFG_IOCTRLSETR_HSLVEN_SDMMC |
-			      SYSCFG_IOCTRLSETR_HSLVEN_SPI);
+		enable_high_speed_mode_low_voltage();
 
 		if (otp == 0U) {
 			INFO("Product_below_2v5=0: HSLVEN protected by HW\n");
@@ -168,6 +160,25 @@ void stm32mp1_syscfg_init(void)
 			panic();
 		}
 	}
+}
+
+void stm32mp1_syscfg_init(void)
+{
+	uint32_t bootr;
+
+	/*
+	 * Interconnect update : select master using the port 1.
+	 * LTDC = AXI_M9.
+	 */
+	mmio_write_32(SYSCFG_BASE + SYSCFG_ICNR, SYSCFG_ICNR_AXI_M9);
+
+	/* Disable Pull-Down for boot pin connected to VDD */
+	bootr = mmio_read_32(SYSCFG_BASE + SYSCFG_BOOTR) &
+		SYSCFG_BOOTR_BOOT_MASK;
+	mmio_clrsetbits_32(SYSCFG_BASE + SYSCFG_BOOTR, SYSCFG_BOOTR_BOOTPD_MASK,
+			   bootr << SYSCFG_BOOTR_BOOTPD_SHIFT);
+
+	stm32mp1_syscfg_set_hslv();
 
 	stm32mp1_syscfg_enable_io_compensation_start();
 }
