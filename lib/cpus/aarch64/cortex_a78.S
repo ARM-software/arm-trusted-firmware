@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2021, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -31,7 +31,7 @@ func errata_a78_1688305_wa
 	bl	check_errata_1688305
 	cbz	x0, 1f
 	mrs     x1, CORTEX_A78_ACTLR2_EL1
-	orr	x1, x1, CORTEX_A78_ACTLR2_EL1_BIT_1
+	orr	x1, x1, #CORTEX_A78_ACTLR2_EL1_BIT_1
 	msr     CORTEX_A78_ACTLR2_EL1, x1
 	isb
 1:
@@ -43,6 +43,34 @@ func check_errata_1688305
 	mov	x1, #0x10
 	b	cpu_rev_var_ls
 endfunc check_errata_1688305
+
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A78 Errata #1941498.
+	 * This applies to revisions r0p0, r1p0, and r1p1.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_a78_1941498_wa
+	/* Compare x0 against revision <= r1p1 */
+	mov	x17, x30
+	bl	check_errata_1941498
+	cbz	x0, 1f
+
+	/* Set bit 8 in ECTLR_EL1 */
+	mrs	x1, CORTEX_A78_CPUECTLR_EL1
+	orr	x1, x1, #CORTEX_A78_CPUECTLR_EL1_BIT_8
+	msr	CORTEX_A78_CPUECTLR_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a78_1941498_wa
+
+func check_errata_1941498
+	/* Check for revision <= r1p1, might need to be updated later. */
+	mov	x1, #0x11
+	b	cpu_rev_var_ls
+endfunc check_errata_1941498
 
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A78
@@ -56,6 +84,11 @@ func cortex_a78_reset_func
 #if ERRATA_A78_1688305
 	mov     x0, x18
 	bl	errata_a78_1688305_wa
+#endif
+
+#if ERRATA_A78_1941498
+	mov     x0, x18
+	bl	errata_a78_1941498_wa
 #endif
 
 #if ENABLE_AMU
@@ -113,6 +146,7 @@ func cortex_a78_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata ERRATA_A78_1688305, cortex_a78, 1688305
+	report_errata ERRATA_A78_1941498, cortex_a78, 1941498
 
 	ldp	x8, x30, [sp], #16
 	ret
