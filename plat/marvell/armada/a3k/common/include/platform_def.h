@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 Marvell International Ltd.
+ * Copyright (C) 2016-2021 Marvell International Ltd.
  *
  * SPDX-License-Identifier:	BSD-3-Clause
  * https://spdx.org/licenses
@@ -148,7 +148,7 @@
 #define PLAT_MARVELL_SHARED_RAM_CACHED		1
 
 /* CCI related constants */
-#define PLAT_MARVELL_CCI_BASE		(MVEBU_REGS_BASE + MVEBU_CCI_BASE)
+#define PLAT_MARVELL_CCI_BASE			MVEBU_CCI_BASE
 #define PLAT_MARVELL_CCI_CLUSTER0_SL_IFACE_IX	3
 #define PLAT_MARVELL_CCI_CLUSTER1_SL_IFACE_IX	4
 
@@ -226,6 +226,8 @@
 #define CPU_DEC_RLR_REMAP_LOW_OFFS		0
 #define CPU_DEC_RLR_REMAP_LOW_MASK		\
 			(0xffff <<  CPU_DEC_BR_BASE_OFFS)
+
+#define CPU_DEC_CCI_BASE_REG		(MVEBU_CPU_DEC_WIN_REG_BASE + 0xe0)
 
 /* Securities */
 #define IRQ_SEC_OS_TICK_INT	MARVELL_IRQ_SEC_PHY_TIMER

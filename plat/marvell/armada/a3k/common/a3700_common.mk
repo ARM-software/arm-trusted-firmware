@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2018-2020 Marvell International Ltd.
+# Copyright (C) 2018-2021 Marvell International Ltd.
 #
 # SPDX-License-Identifier:	BSD-3-Clause
 # https://spdx.org/licenses
@@ -38,7 +38,6 @@ PLAT_INCLUDES		:=	-I$(PLAT_FAMILY_BASE)/$(PLAT)		\
 				-I$/drivers/arm/gic/common/
 
 PLAT_BL_COMMON_SOURCES	:=	$(PLAT_COMMON_BASE)/aarch64/a3700_common.c \
-				$(MARVELL_COMMON_BASE)/marvell_cci.c	   \
 				$(MARVELL_DRV_BASE)/uart/a3700_console.S
 
 BL1_SOURCES		+=	$(PLAT_COMMON_BASE)/aarch64/plat_helpers.S \
@@ -50,12 +49,14 @@ MARVELL_DRV		:=	$(MARVELL_DRV_BASE)/comphy/phy-comphy-3700.c
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				$(PLAT_COMMON_BASE)/aarch64/plat_helpers.S \
+				$(PLAT_COMMON_BASE)/plat_cci.c		\
 				$(PLAT_COMMON_BASE)/plat_pm.c		\
 				$(PLAT_COMMON_BASE)/dram_win.c		\
 				$(PLAT_COMMON_BASE)/io_addr_dec.c	\
 				$(PLAT_COMMON_BASE)/marvell_plat_config.c     \
 				$(PLAT_COMMON_BASE)/a3700_ea.c		\
 				$(PLAT_FAMILY_BASE)/$(PLAT)/plat_bl31_setup.c \
+				$(MARVELL_COMMON_BASE)/marvell_cci.c	\
 				$(MARVELL_COMMON_BASE)/marvell_ddr_info.c	\
 				$(MARVELL_COMMON_BASE)/marvell_gicv3.c	\
 				$(MARVELL_GIC_SOURCES)			\

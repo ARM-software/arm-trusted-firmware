@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2020 Marvell International Ltd.
+ * Copyright (C) 2018-2021 Marvell International Ltd.
  *
  * SPDX-License-Identifier:	BSD-3-Clause
  * https://spdx.org/licenses
@@ -41,8 +41,14 @@
 #define MVEBU_GICR_BASE			0x1D40000
 #define MVEBU_GICC_BASE			0x1D80000
 
-/* CCI-400 */
-#define MVEBU_CCI_BASE			0x8000000
+/*
+ * CCI-400 base address
+ * This address is absolute, not relative to MVEBU_REGS_BASE.
+ * This is not the default CCI base address (that would be 0xD8000000).
+ * Rather we remap CCI to this address to better utilize the address space.
+ * (The remapping is done in plat/marvell/armada/a3k/common/plat_cci.c)
+ */
+#define MVEBU_CCI_BASE			0xFE000000
 
 /*****************************************************************************
  * North and south bridge register base
