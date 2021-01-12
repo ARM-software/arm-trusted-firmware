@@ -142,6 +142,8 @@ static uint64_t __unused __dead2 zynqmp_sgi7_irq(uint32_t id, uint32_t flags,
                                                 void *handle, void *cookie)
 {
 	int i;
+	uint32_t value;
+
 	/* enter wfi and stay there */
 	INFO("Entering wfi\n");
 
@@ -156,8 +158,9 @@ static uint64_t __unused __dead2 zynqmp_sgi7_irq(uint32_t id, uint32_t flags,
 	spin_unlock(&inc_lock);
 
 	if (active_cores == 0) {
-		pm_system_shutdown(PMF_SHUTDOWN_TYPE_RESET,
-				PMF_SHUTDOWN_SUBTYPE_SUBSYSTEM);
+		pm_mmio_read(PMU_GLOBAL_GEN_STORAGE4, &value);
+		value = (value & RESTART_SCOPE_MASK) >> RESTART_SCOPE_SHIFT;
+		pm_system_shutdown(PMF_SHUTDOWN_TYPE_RESET, value);
 	}
 
 	/* enter wfi and stay there */
