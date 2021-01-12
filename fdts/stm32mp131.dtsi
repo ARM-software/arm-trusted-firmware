@@ -403,6 +403,21 @@
 			status = "disabled";
 		};
 
+		ddr: ddr@5a003000{
+			compatible = "st,stm32mp13-ddr";
+			reg = <0x5a003000 0x550>, <0x5a004000 0x234>;
+			clocks = <&rcc AXIDCG>,
+				 <&rcc DDRC1>,
+				 <&rcc DDRPHYC>,
+				 <&rcc DDRCAPB>,
+				 <&rcc DDRPHYCAPB>;
+			clock-names = "axidcg",
+				      "ddrc1",
+				      "ddrphyc",
+				      "ddrcapb",
+				      "ddrphycapb";
+		};
+
 		usbphyc: usbphyc@5a006000 {
 			#address-cells = <1>;
 			#size-cells = <0>;

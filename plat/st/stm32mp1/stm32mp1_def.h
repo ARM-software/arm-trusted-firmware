@@ -614,7 +614,12 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
  * Device Tree defines
  ******************************************************************************/
 #define DT_BSEC_COMPAT			"st,stm32mp15-bsec"
+#if STM32MP13
+#define DT_DDR_COMPAT			"st,stm32mp13-ddr"
+#endif
+#if STM32MP15
 #define DT_DDR_COMPAT			"st,stm32mp1-ddr"
+#endif
 #define DT_IWDG_COMPAT			"st,stm32mp1-iwdg"
 #define DT_NVMEM_LAYOUT_COMPAT		"st,stm32-nvmem-layout"
 #define DT_PWR_COMPAT			"st,stm32mp1,pwr-reg"
