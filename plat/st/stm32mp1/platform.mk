@@ -357,6 +357,9 @@ BL2_SOURCES		+=	drivers/mtd/nand/spi_nand.c
 endif
 
 ifeq (${STM32MP_SPI_NOR},1)
+ifneq (${STM32MP_FORCE_MTD_START_OFFSET},)
+$(eval $(call add_define_val,STM32MP_NOR_FIP_OFFSET,${STM32MP_FORCE_MTD_START_OFFSET}))
+endif
 BL2_SOURCES		+=	drivers/mtd/nor/spi_nor.c
 endif
 
@@ -366,6 +369,9 @@ BL2_SOURCES		+=	drivers/mtd/spi-mem/spi_mem.c				\
 endif
 
 ifneq ($(filter 1,${STM32MP_RAW_NAND} ${STM32MP_SPI_NAND}),)
+ifneq (${STM32MP_FORCE_MTD_START_OFFSET},)
+$(eval $(call add_define_val,STM32MP_NAND_FIP_OFFSET,${STM32MP_FORCE_MTD_START_OFFSET}))
+endif
 BL2_SOURCES		+=	drivers/mtd/nand/core.c
 endif
 
