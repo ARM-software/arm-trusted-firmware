@@ -49,7 +49,7 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_RD_E1_edge``      (Version 11.9 build 41)
 -  ``FVP_RD_N1_edge``      (Version 11.10 build 36)
 -  ``FVP_RD_N1_edge_dual`` (Version 11.10 build 36)
--  ``FVP_RD_Daniel``       (Version 11.10 build 36)
+-  ``FVP_RD_Daniel``       (Version 11.13 build 10)
 -  ``FVP_RD_N2``           (Version 11.13 build 10)
 -  ``FVP_TC0``             (Version 0.0 build 6114)
 -  ``Foundation_Platform``
