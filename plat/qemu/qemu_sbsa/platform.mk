@@ -83,6 +83,8 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a57.S			\
 				${PLAT_QEMU_COMMON_PATH}/topology.c		\
 				${PLAT_QEMU_COMMON_PATH}/aarch64/plat_helpers.S	\
 				${PLAT_QEMU_COMMON_PATH}/qemu_bl31_setup.c	\
+				common/fdt_fixup.c				\
+				common/fdt_wrappers.c				\
 				${QEMU_GIC_SOURCES}
 ifeq (${SPM_MM},1)
 	BL31_SOURCES		+=	${PLAT_QEMU_COMMON_PATH}/qemu_spm.c

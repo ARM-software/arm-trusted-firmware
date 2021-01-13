@@ -3,7 +3,12 @@
  * Copyright (c) 2020, Linaro Limited and Contributors. All rights reserved.
  */
 
+#include <libfdt.h>
+
 #include <bl31/ehf.h>
+#include <common/debug.h>
+#include <common/fdt_fixup.h>
+#include <common/fdt_wrappers.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <services/spm_mm_partition.h>
 
@@ -14,12 +19,13 @@
 					DEVICE1_SIZE,			\
 					MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
 
-const mmap_region_t plat_qemu_secure_partition_mmap[] = {
-	MAP_DEVICE1_EL0, /* for the UART */
+mmap_region_t plat_qemu_secure_partition_mmap[] = {
+	QEMU_SP_IMAGE_NS_BUF_MMAP,	/* must be placed at first entry */
+	MAP_DEVICE1_EL0,		/* for the UART */
 	QEMU_SP_IMAGE_MMAP,
 	QEMU_SPM_BUF_EL0_MMAP,
-	QEMU_SP_IMAGE_NS_BUF_MMAP,
 	QEMU_SP_IMAGE_RW_MMAP,
+	MAP_SECURE_VARSTORE,
 	{0}
 };
 
@@ -38,7 +44,7 @@ static spm_mm_mp_info_t sp_mp_info[] = {
 	[7] = {0x80000007, 0}
 };
 
-const spm_mm_boot_info_t plat_qemu_secure_partition_boot_info = {
+spm_mm_boot_info_t plat_qemu_secure_partition_boot_info = {
 	.h.type              = PARAM_SP_IMAGE_BOOT_INFO,
 	.h.version           = VERSION_1,
 	.h.size              = sizeof(spm_mm_boot_info_t),
@@ -65,12 +71,63 @@ ehf_pri_desc_t qemu_exceptions[] = {
 	EHF_PRI_DESC(QEMU_PRI_BITS, PLAT_SP_PRI)
 };
 
+int dt_add_ns_buf_node(uintptr_t *base)
+{
+	uintptr_t addr;
+	size_t size;
+	uintptr_t ns_buf_addr;
+	int node;
+	int err;
+	void *fdt = (void *)ARM_PRELOADED_DTB_BASE;
+
+	err = fdt_open_into(fdt, fdt, PLAT_QEMU_DT_MAX_SIZE);
+	if (err < 0) {
+		ERROR("Invalid Device Tree at %p: error %d\n", fdt, err);
+		return err;
+	}
+
+	/*
+	 * reserved-memory for standaloneMM non-secure buffer
+	 * is allocated at the top of the first system memory region.
+	 */
+	node = fdt_path_offset(fdt, "/memory");
+
+	err = fdt_get_reg_props_by_index(fdt, node, 0, &addr, &size);
+	if (err < 0) {
+		ERROR("Failed to get the memory node information\n");
+		return err;
+	}
+	INFO("System RAM @ 0x%lx - 0x%lx\n", addr, addr + size - 1);
+
+	ns_buf_addr = addr + (size - PLAT_QEMU_SP_IMAGE_NS_BUF_SIZE);
+	INFO("reserved-memory for spm-mm @ 0x%lx - 0x%llx\n", ns_buf_addr,
+	     ns_buf_addr + PLAT_QEMU_SP_IMAGE_NS_BUF_SIZE - 1);
+
+	err = fdt_add_reserved_memory(fdt, "ns-buf-spm-mm", ns_buf_addr,
+				      PLAT_QEMU_SP_IMAGE_NS_BUF_SIZE);
+	if (err < 0) {
+		ERROR("Failed to add the reserved-memory node\n");
+		return err;
+	}
+
+	*base = ns_buf_addr;
+	return 0;
+}
+
 /* Plug in QEMU exceptions to Exception Handling Framework. */
 EHF_REGISTER_PRIORITIES(qemu_exceptions, ARRAY_SIZE(qemu_exceptions),
 			QEMU_PRI_BITS);
 
 const mmap_region_t *plat_get_secure_partition_mmap(void *cookie)
 {
+	uintptr_t ns_buf_base;
+
+	dt_add_ns_buf_node(&ns_buf_base);
+
+	plat_qemu_secure_partition_mmap[0].base_pa = ns_buf_base;
+	plat_qemu_secure_partition_mmap[0].base_va = ns_buf_base;
+	plat_qemu_secure_partition_boot_info.sp_ns_comm_buf_base = ns_buf_base;
+
 	return plat_qemu_secure_partition_mmap;
 }
 

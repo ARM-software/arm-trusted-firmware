@@ -94,6 +94,7 @@ static const mmap_region_t plat_qemu_mmap[] = {
 	MAP_DEVICE1,
 #endif
 #if SPM_MM
+	MAP_NS_DRAM0,
 	QEMU_SPM_BUF_EL3_MMAP,
 #else
 	MAP_BL32_MEM,
