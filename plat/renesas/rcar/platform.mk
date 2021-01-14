@@ -302,54 +302,18 @@ PLAT_INCLUDES	+=	-Idrivers/renesas/rcar/ddr		\
 			-Idrivers/renesas/rcar/qos		\
 			-Idrivers/renesas/rcar/board		\
 			-Idrivers/renesas/rcar/cpld/		\
+			-Idrivers/renesas/common		\
 			-Idrivers/renesas/common/iic_dvfs	\
-			-Idrivers/renesas/rcar/avs		\
-			-Idrivers/renesas/rcar/delay		\
-			-Idrivers/renesas/rcar/rom		\
-			-Idrivers/renesas/rcar/scif		\
-			-Idrivers/renesas/rcar/emmc		\
-			-Idrivers/renesas/rcar/pwrc		\
-			-Idrivers/renesas/rcar/io
+			-Idrivers/renesas/common/avs		\
+			-Idrivers/renesas/common/delay		\
+			-Idrivers/renesas/common/rom		\
+			-Idrivers/renesas/common/scif		\
+			-Idrivers/renesas/common/emmc		\
+			-Idrivers/renesas/common/pwrc		\
+			-Idrivers/renesas/common/io
 
-BL2_SOURCES	+=	plat/renesas/rcar/aarch64/platform_common.c	\
-			plat/renesas/rcar/aarch64/plat_helpers.S	\
-			plat/renesas/rcar/bl2_interrupt_error.c		\
-			plat/renesas/rcar/bl2_secure_setting.c		\
-			plat/renesas/rcar/bl2_plat_setup.c		\
-			plat/renesas/rcar/plat_storage.c		\
-			plat/renesas/rcar/bl2_plat_mem_params_desc.c	\
-			plat/renesas/rcar/plat_image_load.c		\
-			plat/renesas/rcar/bl2_cpg_init.c		\
-			drivers/renesas/rcar/console/rcar_printf.c	\
-			drivers/renesas/rcar/scif/scif.S		\
-			drivers/renesas/rcar/io/io_emmcdrv.c		\
-			drivers/renesas/rcar/io/io_memdrv.c		\
-			drivers/renesas/rcar/io/io_rcar.c		\
-			drivers/renesas/rcar/auth/auth_mod.c		\
-			drivers/renesas/rcar/rpc/rpc_driver.c		\
-			drivers/renesas/rcar/dma/dma_driver.c		\
-			drivers/renesas/rcar/avs/avs_driver.c		\
-			drivers/renesas/rcar/delay/micro_delay.c	\
-			drivers/renesas/rcar/emmc/emmc_interrupt.c	\
-			drivers/renesas/rcar/emmc/emmc_utility.c	\
-			drivers/renesas/rcar/emmc/emmc_mount.c		\
-			drivers/renesas/rcar/emmc/emmc_init.c		\
-			drivers/renesas/rcar/emmc/emmc_read.c		\
-			drivers/renesas/rcar/emmc/emmc_cmd.c		\
-			drivers/renesas/rcar/watchdog/swdt.c		\
-			drivers/renesas/rcar/rom/rom_api.c		\
+BL2_SOURCES	+=	plat/renesas/rcar/bl2_plat_setup.c	\
 			drivers/renesas/rcar/board/board.c
-
-BL31_SOURCES	+=	plat/renesas/rcar/plat_topology.c		\
-			plat/renesas/rcar/aarch64/plat_helpers.S	\
-			plat/renesas/rcar/aarch64/platform_common.c	\
-			plat/renesas/rcar/bl31_plat_setup.c		\
-			plat/renesas/rcar/plat_pm.c			\
-			drivers/renesas/rcar/console/rcar_console.S	\
-			drivers/renesas/rcar/console/rcar_printf.c	\
-			drivers/renesas/rcar/delay/micro_delay.c	\
-			drivers/renesas/rcar/pwrc/call_sram.S		\
-			drivers/renesas/rcar/pwrc/pwrc.c
 
 ifeq (${RCAR_GEN3_ULCB},1)
 BL31_SOURCES		+=	drivers/renesas/rcar/cpld/ulcb_cpld.c
