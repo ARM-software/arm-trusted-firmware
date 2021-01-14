@@ -298,6 +298,11 @@ ERRATA_A78_1688305	?=0
 # to revisions r0p0, r1p0, and r1p1 of the A78 cpu.
 ERRATA_A78_1941498	?=0
 
+# Flag to apply erratum 1951500 workaround during reset. This erratum applies
+# to revisions r1p0 and r1p1 of the A78 cpu.  The issue is present in r0p0 as
+# well but there is no workaround for that revision.
+ERRATA_A78_1951500	?=0
+
 # Flag to apply T32 CLREX workaround during reset. This erratum applies
 # only to r0p0 and r1p0 of the Neoverse N1 cpu.
 ERRATA_N1_1043202	?=0
@@ -349,6 +354,11 @@ ERRATA_N1_1542419	?=0
 # Flag to apply erratum 1868343 workaround during reset. This erratum applies
 # to revision <= r4p0 of the Neoverse N1 cpu.
 ERRATA_N1_1868343	?=0
+
+# Flag to apply erratum 1946160 workaround during reset. This erratum applies
+# to revisions r3p0, r3p1, r4p0, and r4p1 of the Neoverse N1 cpu.  The issue
+# exists in revisions r0p0, r1p0, and r2p0 as well but there is no workaround.
+ERRATA_N1_1946160	?=0
 
 # Flag to apply DSU erratum 798953. This erratum applies to DSUs revision r0p0.
 # Applying the workaround results in higher DSU power consumption on idle.
@@ -583,6 +593,10 @@ $(eval $(call add_define,ERRATA_A78_1688305))
 $(eval $(call assert_boolean,ERRATA_A78_1941498))
 $(eval $(call add_define,ERRATA_A78_1941498))
 
+# Process ERRATA_A78_1951500 flag
+$(eval $(call assert_boolean,ERRATA_A78_1951500))
+$(eval $(call add_define,ERRATA_A78_1951500))
+
 # Process ERRATA_N1_1043202 flag
 $(eval $(call assert_boolean,ERRATA_N1_1043202))
 $(eval $(call add_define,ERRATA_N1_1043202))
@@ -634,6 +648,10 @@ $(eval $(call add_define,ERRATA_N1_1542419))
 # Process ERRATA_N1_1868343 flag
 $(eval $(call assert_boolean,ERRATA_N1_1868343))
 $(eval $(call add_define,ERRATA_N1_1868343))
+
+# Process ERRATA_N1_1946160 flag
+$(eval $(call assert_boolean,ERRATA_N1_1946160))
+$(eval $(call add_define,ERRATA_N1_1946160))
 
 # Process ERRATA_DSU_798953 flag
 $(eval $(call assert_boolean,ERRATA_DSU_798953))
