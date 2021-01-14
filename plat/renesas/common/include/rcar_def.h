@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,13 +33,13 @@
 #define DRAM1_SIZE			U(0x80000000)
 #define DRAM1_NS_BASE			(DRAM1_BASE + U(0x10000000))
 #define DRAM1_NS_SIZE			(DRAM1_SIZE - DRAM1_NS_BASE)
-#define	DRAM_40BIT_BASE			ULL(0x0400000000)
-#define	DRAM_40BIT_SIZE			ULL(0x0400000000)
-#define	DRAM_PROTECTED_BASE		ULL(0x43F00000)
-#define	DRAM_40BIT_PROTECTED_BASE	ULL(0x0403F00000)
-#define	DRAM_PROTECTED_SIZE		ULL(0x03F00000)
-#define	RCAR_BL31_CRASH_BASE		U(0x4403F000)
-#define	RCAR_BL31_CRASH_SIZE		U(0x00001000)
+#define DRAM_40BIT_BASE			ULL(0x0400000000)
+#define DRAM_40BIT_SIZE			ULL(0x0400000000)
+#define DRAM_PROTECTED_BASE		ULL(0x43F00000)
+#define DRAM_40BIT_PROTECTED_BASE	ULL(0x0403F00000)
+#define DRAM_PROTECTED_SIZE		ULL(0x03F00000)
+#define RCAR_BL31_CRASH_BASE		U(0x4403F000)
+#define RCAR_BL31_CRASH_SIZE		U(0x00001000)
 /* Entrypoint mailboxes */
 #define MBOX_BASE			RCAR_SHARED_MEM_BASE
 #define MBOX_SIZE			0x200
@@ -47,15 +47,19 @@
 #define PARAMS_BASE			(MBOX_BASE + MBOX_SIZE)
 #define BOOT_KIND_BASE			(RCAR_SHARED_MEM_BASE + \
 					RCAR_SHARED_MEM_SIZE - 0x100)
-/* The number of regions like RO(code), coherent and data required by
- * different BL stages which need to be mapped in the MMU */
+/*
+ * The number of regions like RO(code), coherent and data required by
+ * different BL stages which need to be mapped in the MMU
+ */
 #if USE_COHERENT_MEM
 #define RCAR_BL_REGIONS			(3)
 #else
 #define RCAR_BL_REGIONS			(2)
 #endif
-/* The RCAR_MAX_MMAP_REGIONS depend on the number of entries in rcar_mmap[]
- * defined for each BL stage in rcar_common.c. */
+/*
+ * The RCAR_MAX_MMAP_REGIONS depends on the number of entries in rcar_mmap[]
+ * defined for each BL stage in rcar_common.c.
+ */
 #if IMAGE_BL2
 #define RCAR_MMAP_ENTRIES		(9)
 #endif
@@ -73,24 +77,24 @@
 /* BL33  */
 #define NS_IMAGE_OFFSET			(DRAM1_BASE + U(0x09000000))
 /* BL31 */
-#define	RCAR_DEVICE_BASE		DEVICE_RCAR_BASE
-#define	RCAR_DEVICE_SIZE		(0x1A000000)
-#define	RCAR_LOG_RES_SIZE		(512/8)
-#define	RCAR_LOG_HEADER_SIZE		(16)
-#define	RCAR_LOG_OTHER_SIZE		(RCAR_LOG_HEADER_SIZE + \
+#define RCAR_DEVICE_BASE		DEVICE_RCAR_BASE
+#define RCAR_DEVICE_SIZE		(0x1A000000)
+#define RCAR_LOG_RES_SIZE		(64)
+#define RCAR_LOG_HEADER_SIZE		(16)
+#define RCAR_LOG_OTHER_SIZE		(RCAR_LOG_HEADER_SIZE + \
 					RCAR_LOG_RES_SIZE)
-#define	RCAR_BL31_LOG_MAX		(RCAR_BL31_LOG_SIZE - \
+#define RCAR_BL31_LOG_MAX		(RCAR_BL31_LOG_SIZE - \
 					RCAR_LOG_OTHER_SIZE)
-#define	RCAR_CRASH_STACK		RCAR_BL31_CRASH_BASE
-#define	AARCH64_SPACE_BASE		ULL(0x00000000000)
-#define	AARCH64_SPACE_SIZE		ULL(0x10000000000)
+#define RCAR_CRASH_STACK		RCAR_BL31_CRASH_BASE
+#define AARCH64_SPACE_BASE		ULL(0x00000000000)
+#define AARCH64_SPACE_SIZE		ULL(0x10000000000)
 /* CCI related constants */
 #define CCI500_BASE				U(0xF1200000)
 #define CCI500_CLUSTER0_SL_IFACE_IX		(2)
 #define CCI500_CLUSTER1_SL_IFACE_IX		(3)
 #define CCI500_CLUSTER0_SL_IFACE_IX_FOR_M3	(1)
 #define CCI500_CLUSTER1_SL_IFACE_IX_FOR_M3	(2)
-#define	RCAR_CCI_BASE				CCI500_BASE
+#define RCAR_CCI_BASE				CCI500_BASE
 /* GIC */
 #define RCAR_GICD_BASE			U(0xF1010000)
 #define RCAR_GICR_BASE			U(0xF1010000)
@@ -106,47 +110,47 @@
 #define ARM_IRQ_SEC_SGI_5		U(13)
 #define ARM_IRQ_SEC_SGI_6		U(14)
 #define ARM_IRQ_SEC_SGI_7		U(15)
-#define	ARM_IRQ_SEC_RPC			U(70)
-#define	ARM_IRQ_SEC_TIMER		U(166)
-#define	ARM_IRQ_SEC_TIMER_UP		U(171)
-#define	ARM_IRQ_SEC_WDT			U(173)
-#define	ARM_IRQ_SEC_CRYPT		U(102)
-#define	ARM_IRQ_SEC_CRYPT_SecPKA	U(97)
-#define	ARM_IRQ_SEC_CRYPT_PubPKA	U(98)
+#define ARM_IRQ_SEC_RPC			U(70)
+#define ARM_IRQ_SEC_TIMER		U(166)
+#define ARM_IRQ_SEC_TIMER_UP		U(171)
+#define ARM_IRQ_SEC_WDT			U(173)
+#define ARM_IRQ_SEC_CRYPT		U(102)
+#define ARM_IRQ_SEC_CRYPT_SecPKA	U(97)
+#define ARM_IRQ_SEC_CRYPT_PubPKA	U(98)
 /* Timer control */
-#define	RCAR_CNTC_BASE		U(0xE6080000)
+#define RCAR_CNTC_BASE		U(0xE6080000)
 /* Reset */
-#define	RCAR_CPGWPR		U(0xE6150900)	/* CPG write protect    */
-#define	RCAR_MODEMR		U(0xE6160060)	/* Mode pin             */
-#define	RCAR_CA57RESCNT		U(0xE6160040)	/* Reset control A57    */
-#define	RCAR_CA53RESCNT		U(0xE6160044)	/* Reset control A53    */
-#define	RCAR_SRESCR		U(0xE6160110)	/* Soft Power On Reset  */
-#define	RCAR_CA53WUPCR		U(0xE6151010)	/* Wake-up control A53  */
-#define	RCAR_CA57WUPCR		U(0xE6152010)	/* Wake-up control A57  */
-#define	RCAR_CA53PSTR		U(0xE6151040)	/* Power status A53     */
-#define	RCAR_CA57PSTR		U(0xE6152040)	/* Power status A57     */
-#define	RCAR_CA53CPU0CR		U(0xE6151100)	/* CPU control  A53     */
-#define	RCAR_CA57CPU0CR		U(0xE6152100)	/* CPU control  A57     */
-#define	RCAR_CA53CPUCMCR	U(0xE6151184)	/* Common power A53     */
-#define	RCAR_CA57CPUCMCR	U(0xE6152184)	/* Common power A57     */
-#define	RCAR_WUPMSKCA57		U(0xE6180014)	/* Wake-up mask A57     */
-#define	RCAR_WUPMSKCA53		U(0xE6180018)	/* Wake-up mask A53     */
+#define RCAR_CPGWPR		U(0xE6150900)	/* CPG write protect    */
+#define RCAR_MODEMR		U(0xE6160060)	/* Mode pin             */
+#define RCAR_CA57RESCNT		U(0xE6160040)	/* Reset control A57    */
+#define RCAR_CA53RESCNT		U(0xE6160044)	/* Reset control A53    */
+#define RCAR_SRESCR		U(0xE6160110)	/* Soft Power On Reset  */
+#define RCAR_CA53WUPCR		U(0xE6151010)	/* Wake-up control A53  */
+#define RCAR_CA57WUPCR		U(0xE6152010)	/* Wake-up control A57  */
+#define RCAR_CA53PSTR		U(0xE6151040)	/* Power status A53     */
+#define RCAR_CA57PSTR		U(0xE6152040)	/* Power status A57     */
+#define RCAR_CA53CPU0CR		U(0xE6151100)	/* CPU control  A53     */
+#define RCAR_CA57CPU0CR		U(0xE6152100)	/* CPU control  A57     */
+#define RCAR_CA53CPUCMCR	U(0xE6151184)	/* Common power A53     */
+#define RCAR_CA57CPUCMCR	U(0xE6152184)	/* Common power A57     */
+#define RCAR_WUPMSKCA57		U(0xE6180014)	/* Wake-up mask A57     */
+#define RCAR_WUPMSKCA53		U(0xE6180018)	/* Wake-up mask A53     */
 /* SYSC	*/
-#define	RCAR_PWRSR3		U(0xE6180140)	/* Power stat A53-SCU   */
-#define	RCAR_PWRSR5		U(0xE61801C0)	/* Power stat A57-SCU   */
-#define	RCAR_SYSCIER		U(0xE618000C)	/* Interrupt enable     */
-#define	RCAR_SYSCIMR		U(0xE6180010)	/* Interrupt mask       */
-#define	RCAR_SYSCSR		U(0xE6180000)	/* SYSC status          */
-#define	RCAR_PWRONCR3		U(0xE618014C)	/* Power resume A53-SCU */
-#define	RCAR_PWRONCR5		U(0xE61801CC)	/* Power resume A57-SCU */
-#define	RCAR_PWROFFCR3		U(0xE6180144)	/* Power shutof A53-SCU */
-#define	RCAR_PWROFFCR5		U(0xE61801C4)	/* Power shutof A57-SCU */
-#define	RCAR_PWRER3		U(0xE6180154)	/* shutoff/resume error */
-#define	RCAR_PWRER5		U(0xE61801D4)	/* shutoff/resume error */
-#define	RCAR_SYSCISR		U(0xE6180004)	/* Interrupt status     */
-#define	RCAR_SYSCISCR		U(0xE6180008)	/* Interrupt stat clear */
+#define RCAR_PWRSR3		U(0xE6180140)	/* Power stat A53-SCU   */
+#define RCAR_PWRSR5		U(0xE61801C0)	/* Power stat A57-SCU   */
+#define RCAR_SYSCIER		U(0xE618000C)	/* Interrupt enable     */
+#define RCAR_SYSCIMR		U(0xE6180010)	/* Interrupt mask       */
+#define RCAR_SYSCSR		U(0xE6180000)	/* SYSC status          */
+#define RCAR_PWRONCR3		U(0xE618014C)	/* Power resume A53-SCU */
+#define RCAR_PWRONCR5		U(0xE61801CC)	/* Power resume A57-SCU */
+#define RCAR_PWROFFCR3		U(0xE6180144)	/* Power shutoff A53-SCU */
+#define RCAR_PWROFFCR5		U(0xE61801C4)	/* Power shutoff A57-SCU */
+#define RCAR_PWRER3		U(0xE6180154)	/* shutoff/resume error */
+#define RCAR_PWRER5		U(0xE61801D4)	/* shutoff/resume error */
+#define RCAR_SYSCISR		U(0xE6180004)	/* Interrupt status     */
+#define RCAR_SYSCISCR		U(0xE6180008)	/* Interrupt stat clear */
 /* Product register */
-#define	RCAR_PRR			U(0xFFF00044)
+#define RCAR_PRR			U(0xFFF00044)
 #define RCAR_M3_CUT_VER11		U(0x00000010)	/* M3 Ver.1.1/Ver.1.2 */
 #define RCAR_MAJOR_MASK			U(0x000000F0)
 #define RCAR_MINOR_MASK			U(0x0000000F)
@@ -198,39 +202,39 @@
 /* Memory mapped Generic timer interfaces */
 #define ARM_SYS_CNTCTL_BASE		RCAR_CNTC_BASE
 /* MODEMR PLL masks and bitfield values */
-#define	CHECK_MD13_MD14			U(0x6000)
-#define	MD14_MD13_TYPE_0		U(0x0000)	/* MD14=0 MD13=0 */
-#define	MD14_MD13_TYPE_1		U(0x2000)	/* MD14=0 MD13=1 */
-#define	MD14_MD13_TYPE_2		U(0x4000)	/* MD14=1 MD13=0 */
-#define	MD14_MD13_TYPE_3		U(0x6000)	/* MD14=1 MD13=1 */
+#define CHECK_MD13_MD14			U(0x6000)
+#define MD14_MD13_TYPE_0		U(0x0000)	/* MD14=0 MD13=0 */
+#define MD14_MD13_TYPE_1		U(0x2000)	/* MD14=0 MD13=1 */
+#define MD14_MD13_TYPE_2		U(0x4000)	/* MD14=1 MD13=0 */
+#define MD14_MD13_TYPE_3		U(0x6000)	/* MD14=1 MD13=1 */
 /* Frequency of EXTAL(Hz) */
-#define	EXTAL_MD14_MD13_TYPE_0		U(8333300)	/* MD14=0 MD13=0 */
-#define	EXTAL_MD14_MD13_TYPE_1		U(10000000)	/* MD14=0 MD13=1 */
-#define	EXTAL_MD14_MD13_TYPE_2		U(12500000)	/* MD14=1 MD13=0 */
-#define	EXTAL_MD14_MD13_TYPE_3		U(16666600)	/* MD14=1 MD13=1 */
-#define	EXTAL_SALVATOR_XS		U(8320000)	/* Salvator-XS */
+#define EXTAL_MD14_MD13_TYPE_0		U(8333300)	/* MD14=0 MD13=0 */
+#define EXTAL_MD14_MD13_TYPE_1		U(10000000)	/* MD14=0 MD13=1 */
+#define EXTAL_MD14_MD13_TYPE_2		U(12500000)	/* MD14=1 MD13=0 */
+#define EXTAL_MD14_MD13_TYPE_3		U(16666600)	/* MD14=1 MD13=1 */
+#define EXTAL_SALVATOR_XS		U(8320000)	/* Salvator-XS */
 #define EXTAL_EBISU			U(24000000)	/* Ebisu */
 #define EXTAL_DRAAK			U(24000000)	/* Draak */
-/* CPG write protect registers 	*/
-#define	CPGWPR_PASSWORD			(0x5A5AFFFFU)
-#define	CPGWPCR_PASSWORD		(0xA5A50000U)
+/* CPG write protect registers	*/
+#define CPGWPR_PASSWORD			(0x5A5AFFFFU)
+#define CPGWPCR_PASSWORD		(0xA5A50000U)
 /* CA5x Debug Resource control registers */
-#define	CPG_CA57DBGRCR			(CPG_BASE + 0x2180U)
-#define	CPG_CA53DBGRCR			(CPG_BASE + 0x1180U)
-#define	DBGCPUPREN			((uint32_t)1U << 19U)
-#define	CPG_PLL0CR			(CPG_BASE + 0x00D8U)
-#define	CPG_PLL2CR			(CPG_BASE + 0x002CU)
-#define	CPG_PLL4CR			(CPG_BASE + 0x01F4U)
+#define CPG_CA57DBGRCR			(CPG_BASE + 0x2180U)
+#define CPG_CA53DBGRCR			(CPG_BASE + 0x1180U)
+#define DBGCPUPREN			((uint32_t)1U << 19U)
+#define CPG_PLL0CR			(CPG_BASE + 0x00D8U)
+#define CPG_PLL2CR			(CPG_BASE + 0x002CU)
+#define CPG_PLL4CR			(CPG_BASE + 0x01F4U)
 #define CPG_CPGWPCR			(CPG_BASE + 0x0904U)
 /* RST Registers */
-#define	RST_BASE			(0xE6160000U)
-#define	RST_WDTRSTCR			(RST_BASE + 0x0054U)
+#define RST_BASE			(0xE6160000U)
+#define RST_WDTRSTCR			(RST_BASE + 0x0054U)
 #define RST_MODEMR			(RST_BASE + 0x0060U)
-#define	WDTRSTCR_PASSWORD		(0xA55A0000U)
-#define	WDTRSTCR_RWDT_RSTMSK		((uint32_t)1U << 0U)
+#define WDTRSTCR_PASSWORD		(0xA55A0000U)
+#define WDTRSTCR_RWDT_RSTMSK		((uint32_t)1U << 0U)
 /* MFIS Registers */
-#define	MFISWPCNTR_PASSWORD		(0xACCE0000U)
-#define	MFISWPCNTR			(0xE6260900U)
+#define MFISWPCNTR_PASSWORD		(0xACCE0000U)
+#define MFISWPCNTR			(0xE6260900U)
 /* IPMMU registers */
 #define IPMMU_MM_BASE			(0xE67B0000U)
 #define IPMMUMM_IMSCTLR			(IPMMU_MM_BASE + 0x0500U)
@@ -263,8 +267,8 @@
 #define IPMMU_DS1_BASE			(0xE7740000U)
 #define IPMMUDS1_IMSCTLR		(IPMMU_DS1_BASE + 0x0500U)
 /* ARMREG registers */
-#define	P_ARMREG_SEC_CTRL		(0xE62711F0U)
-#define	P_ARMREG_SEC_CTRL_PROT		(0x00000001U)
+#define P_ARMREG_SEC_CTRL		(0xE62711F0U)
+#define P_ARMREG_SEC_CTRL_PROT		(0x00000001U)
 /* MIDR */
 #define MIDR_CA57			(0x0D07U << MIDR_PN_SHIFT)
 #define MIDR_CA53			(0x0D03U << MIDR_PN_SHIFT)
@@ -279,28 +283,28 @@
 #define RCAR_COLD_BOOT			(0x00U)
 #define RCAR_WARM_BOOT			(0x01U)
 #if PMIC_ROHM_BD9571 && RCAR_SYSTEM_RESET_KEEPON_DDR
-#define	KEEP10_MAGIC		(0x55U)
+#define KEEP10_MAGIC		(0x55U)
 #endif
 /* lossy registers */
-#define LOSSY_PARAMS_BASE 		(0x47FD7000U)
-#define	AXI_DCMPAREACRA0		(0xE6784100U)
-#define	AXI_DCMPAREACRB0		(0xE6784104U)
+#define LOSSY_PARAMS_BASE		(0x47FD7000U)
+#define AXI_DCMPAREACRA0		(0xE6784100U)
+#define AXI_DCMPAREACRB0		(0xE6784104U)
 #define LOSSY_ENABLE			(0x80000000U)
 #define LOSSY_DISABLE			(0x00000000U)
 #define LOSSY_FMT_YUVPLANAR		(0x00000000U)
 #define LOSSY_FMT_YUV422INTLV		(0x20000000U)
 #define LOSSY_FMT_ARGB8888		(0x40000000U)
-#define	LOSSY_ST_ADDR0			(0x54000000U)
-#define	LOSSY_END_ADDR0			(0x57000000U)
-#define	LOSSY_FMT0			LOSSY_FMT_YUVPLANAR
-#define	LOSSY_ENA_DIS0			LOSSY_ENABLE
-#define	LOSSY_ST_ADDR1			0x0U
-#define	LOSSY_END_ADDR1			0x0U
-#define	LOSSY_FMT1			LOSSY_FMT_ARGB8888
-#define	LOSSY_ENA_DIS1			LOSSY_DISABLE
-#define	LOSSY_ST_ADDR2			0x0U
-#define	LOSSY_END_ADDR2			0x0U
-#define	LOSSY_FMT2			LOSSY_FMT_YUV422INTLV
-#define	LOSSY_ENA_DIS2			LOSSY_DISABLE
+#define LOSSY_ST_ADDR0			(0x54000000U)
+#define LOSSY_END_ADDR0			(0x57000000U)
+#define LOSSY_FMT0			LOSSY_FMT_YUVPLANAR
+#define LOSSY_ENA_DIS0			LOSSY_ENABLE
+#define LOSSY_ST_ADDR1			0x0U
+#define LOSSY_END_ADDR1			0x0U
+#define LOSSY_FMT1			LOSSY_FMT_ARGB8888
+#define LOSSY_ENA_DIS1			LOSSY_DISABLE
+#define LOSSY_ST_ADDR2			0x0U
+#define LOSSY_END_ADDR2			0x0U
+#define LOSSY_FMT2			LOSSY_FMT_YUV422INTLV
+#define LOSSY_ENA_DIS2			LOSSY_DISABLE
 
 #endif /* RCAR_DEF_H */

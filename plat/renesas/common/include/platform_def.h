@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,20 +29,20 @@
 /* Size of cacheable stacks */
 #if IMAGE_BL1
 #if TRUSTED_BOARD_BOOT
-#define PLATFORM_STACK_SIZE 	U(0x1000)
+#define PLATFORM_STACK_SIZE	U(0x1000)
 #else
-#define PLATFORM_STACK_SIZE 	U(0x440)
+#define PLATFORM_STACK_SIZE	U(0x440)
 #endif
 #elif IMAGE_BL2
 #if TRUSTED_BOARD_BOOT
-#define PLATFORM_STACK_SIZE 	U(0x1000)
+#define PLATFORM_STACK_SIZE	U(0x1000)
 #else
-#define PLATFORM_STACK_SIZE 	U(0x400)
+#define PLATFORM_STACK_SIZE	U(0x400)
 #endif
 #elif IMAGE_BL31
-#define PLATFORM_STACK_SIZE 	U(0x400)
+#define PLATFORM_STACK_SIZE	U(0x400)
 #elif IMAGE_BL32
-#define PLATFORM_STACK_SIZE 	U(0x440)
+#define PLATFORM_STACK_SIZE	U(0x440)
 #endif
 
 #define BL332_IMAGE_ID		(NS_BL2U_IMAGE_ID + 1)
@@ -97,11 +97,13 @@
 #define MAX_IO_DEVICES			U(3)
 #define MAX_IO_HANDLES			U(4)
 
-/*******************************************************************************
+/*
+ ******************************************************************************
  * BL2 specific defines.
- ******************************************************************************/
-/* Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
- * size plus a little space for growth. */
+ ******************************************************************************
+ * Put BL2 just below BL3-1. BL2_BASE is calculated using the current BL2 debug
+ * size plus a little space for growth.
+ */
 #define RCAR_SYSRAM_BASE		U(0xE6300000)
 #if (RCAR_LSI == RCAR_E3) || (RCAR_LSI == RCAR_D3)
 #define BL2_LIMIT			U(0xE6320000)
@@ -121,17 +123,19 @@
 #endif
 #define RCAR_SYSRAM_SIZE		(BL2_BASE - RCAR_SYSRAM_BASE)
 
-/*******************************************************************************
+/*
+ ******************************************************************************
  * BL31 specific defines.
- ******************************************************************************/
-/* Put BL3-1 at the top of the Trusted SRAM. BL31_BASE is calculated using the
- * current BL3-1 debug size plus a little space for growth. */
+ ******************************************************************************
+ * Put BL3-1 at the top of the Trusted SRAM. BL31_BASE is calculated using the
+ * current BL3-1 debug size plus a little space for growth.
+ */
 #define BL31_BASE		(RCAR_TRUSTED_SRAM_BASE)
 #define BL31_LIMIT		(RCAR_TRUSTED_SRAM_BASE + \
 				 RCAR_TRUSTED_SRAM_SIZE)
-#define	RCAR_BL31_LOG_BASE	(0x44040000)
-#define	RCAR_BL31_SDRAM_BTM	(RCAR_BL31_LOG_BASE + 0x14000)
-#define	RCAR_BL31_LOG_SIZE	(RCAR_BL31_SDRAM_BTM - RCAR_BL31_LOG_BASE)
+#define RCAR_BL31_LOG_BASE	(0x44040000)
+#define RCAR_BL31_SDRAM_BTM	(RCAR_BL31_LOG_BASE + 0x14000)
+#define RCAR_BL31_LOG_SIZE	(RCAR_BL31_SDRAM_BTM - RCAR_BL31_LOG_BASE)
 #define BL31_SRAM_BASE		(DEVICE_SRAM_BASE)
 #define BL31_SRAM_LIMIT		(DEVICE_SRAM_BASE + DEVICE_SRAM_SIZE)
 
@@ -176,7 +180,7 @@
  * Declarations and constants to access the mailboxes safely. Each mailbox is
  * aligned on the biggest cache line size in the platform. This is known only
  * to the platform as it might have a combination of integrated and external
- * caches. Such alignment ensures that two maiboxes do not sit on the same cache
+ * caches. Such alignment ensures that two mailboxes do not sit on the same cache
  * line at any cache level. They could belong to different cpus/clusters &
  * get written while being protected by different locks causing corruption of
  * a valid mailbox address.
