@@ -539,6 +539,11 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 
+		for (cert_ext = sk_X509_EXTENSION_pop(sk); cert_ext != NULL;
+				cert_ext = sk_X509_EXTENSION_pop(sk)) {
+			X509_EXTENSION_free(cert_ext);
+		}
+
 		sk_X509_EXTENSION_free(sk);
 	}
 
@@ -576,10 +581,44 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	/* If we got here, then we must have filled the key array completely.
+	 * We can then safely call free on all of the keys in the array
+	 */
+	for (i = 0; i < num_keys; i++) {
+		EVP_PKEY_free(keys[i].key);
+	}
+
 #ifndef OPENSSL_NO_ENGINE
 	ENGINE_cleanup();
 #endif
 	CRYPTO_cleanup_all_ex_data();
+
+
+	/* We allocated strings through strdup, so now we have to free them */
+	for (i = 0; i < num_keys; i++) {
+		if (keys[i].fn != NULL) {
+			void *ptr = keys[i].fn;
+
+			keys[i].fn = NULL;
+			free(ptr);
+		}
+	}
+	for (i = 0; i < num_extensions; i++) {
+		if (extensions[i].arg != NULL) {
+			void *ptr = (void *)extensions[i].arg;
+
+			extensions[i].arg = NULL;
+			free(ptr);
+		}
+	}
+	for (i = 0; i < num_certs; i++) {
+		if (certs[i].fn != NULL) {
+			void *ptr = (void *)certs[i].fn;
+
+			certs[i].fn = NULL;
+			free(ptr);
+		}
+	}
 
 	return 0;
 }
