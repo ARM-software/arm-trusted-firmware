@@ -59,7 +59,7 @@ HOSTCC ?= gcc
 
 .PHONY: all clean realclean
 
-all: clean ${BINARY}
+all: ${BINARY}
 
 ${BINARY}: ${OBJECTS} Makefile
 	@echo "  HOSTLD  $@"
