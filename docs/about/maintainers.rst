@@ -482,9 +482,24 @@ Renesas rcar-gen3 platform port
 :M: Marek Vasut <marek.vasut@gmail.com>
 :G: `marex`_
 :F: docs/plat/rcar-gen3.rst
+:F: plat/renesas/common
 :F: plat/renesas/rcar
+:F: drivers/renesas/common
 :F: drivers/renesas/rcar
 :F: tools/renesas/rcar_layout_create
+
+Renesas RZ/G2 platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:M: Biju Das <biju.das.jz@bp.renesas.com>
+:G: `bijucdas`_
+:M: Marek Vasut <marek.vasut@gmail.com>
+:G: `marex`_
+:F: docs/plat/rz-g2.rst
+:F: plat/renesas/common
+:F: plat/renesas/rzg
+:F: drivers/renesas/common
+:F: drivers/renesas/rzg
+:F: tools/renesas/rzg_layout_create
 
 RockChip platform port
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -601,6 +616,7 @@ Build system
 .. _AlexeiFedorov: https://github.com/AlexeiFedorov
 .. _Andre-ARM: https://github.com/Andre-ARM
 .. _Anson-Huang: https://github.com/Anson-Huang
+.. _bijucdas: https://github.com/bijucdas
 .. _bryanodonoghue: https://github.com/bryanodonoghue
 .. _b49020: https://github.com/b49020
 .. _carlocaione: https://github.com/carlocaione

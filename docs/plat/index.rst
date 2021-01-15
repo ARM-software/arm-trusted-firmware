@@ -32,6 +32,7 @@ Platform Ports
    rpi3
    rpi4
    rcar-gen3
+   rz-g2
    rockchip
    socionext-uniphier
    synquacer
