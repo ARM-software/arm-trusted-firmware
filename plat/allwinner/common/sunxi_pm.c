@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -207,10 +207,11 @@ static int sunxi_validate_power_state(unsigned int power_state,
 static int sunxi_validate_ns_entrypoint(uintptr_t ns_entrypoint)
 {
 	/* The non-secure entry point must be in DRAM */
-	if (ns_entrypoint >= SUNXI_DRAM_BASE)
-		return PSCI_E_SUCCESS;
+	if (ns_entrypoint < SUNXI_DRAM_BASE) {
+		return PSCI_E_INVALID_ADDRESS;
+	}
 
-	return PSCI_E_INVALID_ADDRESS;
+	return PSCI_E_SUCCESS;
 }
 
 static void sunxi_get_sys_suspend_power_state(psci_power_state_t *req_state)
