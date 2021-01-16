@@ -125,19 +125,20 @@ static void __dead2 sunxi_system_off(void)
 		/* Send the power down request to the SCP */
 		uint32_t ret = scpi_sys_power_state(scpi_system_shutdown);
 
-		if (ret != SCP_OK)
-			ERROR("PSCI: SCPI %s failed: %d\n", "shutdown", ret);
+		if (ret == SCP_OK) {
+			wfi();
+		}
+
+		ERROR("PSCI: SCPI %s failed: %d\n", "shutdown", ret);
 	}
 
-	/* Turn off all secondary CPUs */
-	sunxi_cpu_power_off_others();
-
+	/* Attempt to power down the board (may not return) */
 	sunxi_power_down();
 
-	udelay(1000);
-	ERROR("PSCI: Cannot turn off system, halting\n");
-	wfi();
-	panic();
+	/* Turn off all CPUs */
+	sunxi_cpu_power_off_others();
+	sunxi_cpu_power_off_self();
+	psci_power_down_wfi();
 }
 
 static void __dead2 sunxi_system_reset(void)
@@ -148,8 +149,11 @@ static void __dead2 sunxi_system_reset(void)
 		/* Send the system reset request to the SCP */
 		uint32_t ret = scpi_sys_power_state(scpi_system_reboot);
 
-		if (ret != SCP_OK)
-			ERROR("PSCI: SCPI %s failed: %d\n", "reboot", ret);
+		if (ret == SCP_OK) {
+			wfi();
+		}
+
+		ERROR("PSCI: SCPI %s failed: %d\n", "reboot", ret);
 	}
 
 	/* Reset the whole system when the watchdog times out */
@@ -160,7 +164,6 @@ static void __dead2 sunxi_system_reset(void)
 	mdelay(1000);
 
 	ERROR("PSCI: System reset failed\n");
-	wfi();
 	panic();
 }
 
