@@ -37,8 +37,6 @@
 #define SYSTEM_PWR_STATE(state) \
 	((state)->pwr_domain_state[SYSTEM_PWR_LVL])
 
-#define mpidr_is_valid(mpidr) (plat_core_pos_by_mpidr(mpidr) >= 0)
-
 /*
  * The addresses for the SCP exception vectors are defined in the or1k
  * architecture specification.
@@ -78,9 +76,6 @@ static void sunxi_cpu_standby(plat_local_state_t cpu_state)
 
 static int sunxi_pwr_domain_on(u_register_t mpidr)
 {
-	if (mpidr_is_valid(mpidr) == 0)
-		return PSCI_E_INTERN_FAIL;
-
 	if (scpi_available) {
 		scpi_set_css_power_state(mpidr,
 					 scpi_power_on,
