@@ -30,7 +30,9 @@ BL31_SOURCES		+=	drivers/allwinner/axp/common.c		\
 				plat/common/plat_psci_common.c		\
 				${AW_PLAT}/common/sunxi_bl31_setup.c	\
 				${AW_PLAT}/common/sunxi_cpu_ops.c	\
+				${AW_PLAT}/common/sunxi_native_pm.c	\
 				${AW_PLAT}/common/sunxi_pm.c		\
+				${AW_PLAT}/common/sunxi_scpi_pm.c	\
 				${AW_PLAT}/${PLAT}/sunxi_power.c	\
 				${AW_PLAT}/common/sunxi_security.c	\
 				${AW_PLAT}/common/sunxi_topology.c
