@@ -226,29 +226,6 @@ static void sunxi_get_sys_suspend_power_state(psci_power_state_t *req_state)
 		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
 }
 
-static int sunxi_get_node_hw_state(u_register_t mpidr,
-				   unsigned int power_level)
-{
-	unsigned int cluster_state, cpu_state;
-	unsigned int cpu = MPIDR_AFFLVL0_VAL(mpidr);
-
-	/* SoC power level (always on if PSCI works). */
-	if (power_level == SYSTEM_PWR_LVL)
-		return HW_ON;
-	if (scpi_get_css_power_state(mpidr, &cpu_state, &cluster_state))
-		return PSCI_E_NOT_SUPPORTED;
-	/* Cluster power level (full power state available). */
-	if (power_level == CLUSTER_PWR_LVL) {
-		if (cluster_state == scpi_power_on)
-			return HW_ON;
-		if (cluster_state == scpi_power_retention)
-			return HW_STANDBY;
-		return HW_OFF;
-	}
-	/* CPU power level (one bit boolean for on or off). */
-	return ((cpu_state & BIT(cpu)) != 0) ? HW_ON : HW_OFF;
-}
-
 static plat_psci_ops_t sunxi_psci_ops = {
 	.cpu_standby			= sunxi_cpu_standby,
 	.pwr_domain_on			= sunxi_pwr_domain_on,
@@ -297,7 +274,6 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 		sunxi_psci_ops.pwr_domain_suspend = sunxi_pwr_domain_off;
 		sunxi_psci_ops.pwr_domain_suspend_finish = sunxi_pwr_domain_on_finish;
 		sunxi_psci_ops.get_sys_suspend_power_state = sunxi_get_sys_suspend_power_state;
-		sunxi_psci_ops.get_node_hw_state = sunxi_get_node_hw_state;
 	} else {
 		/* This is only needed when SCPI is unavailable. */
 		sunxi_psci_ops.pwr_domain_pwr_down_wfi = sunxi_pwr_down_wfi;
