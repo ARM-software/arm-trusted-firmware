@@ -48,6 +48,7 @@
 
 /* Line Status Register bits */
 #define UARTLSR_TXFIFOFULL	(1 << 11)	/* Tx Fifo Full */
+#define UARTLSR_RXRDY		(1 << 4)	/* Rx Ready */
 
 /* UART Control Register bits */
 #define UART_CTRL_RXFIFO_RESET	(1 << 14)

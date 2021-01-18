@@ -196,14 +196,23 @@ endfunc console_a3700_putc
 	 * int console_a3700_core_getc(void)
 	 * Function to get a character from the console.
 	 * It returns the character grabbed on success
-	 * or -1 on error.
+	 * or -1 if no character is available.
 	 * In : w0 - console base address
-	 * Out : return -1 on error else return character.
+	 * Out : w0 - character if available, else -1
 	 * Clobber list : x0, x1
 	 * ---------------------------------------------
 	 */
 func console_a3700_core_getc
-	mov	w0, #-1
+	/* Check if there is a pending character */
+	ldr	w1, [x0, #UART_STATUS_REG]
+	and	w1, w1, #UARTLSR_RXRDY
+	cmp	w1, #UARTLSR_RXRDY
+	b.ne	getc_no_char
+	ldr	w0, [x0, #UART_RX_REG]
+	and	w0, w0, #0xff
+	ret
+getc_no_char:
+	mov	w0, #ERROR_NO_PENDING_CHAR
 	ret
 endfunc console_a3700_core_getc
 
