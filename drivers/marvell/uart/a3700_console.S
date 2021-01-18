@@ -60,14 +60,14 @@ func console_a3700_core_init
 	str	w3, [x0, #UART_POSSR_REG]
 
 	/*
-	 * Wait for the TX FIFO to be empty. If wait for 20ms, the TX FIFO is
+	 * Wait for the TX (THR and TSR) to be empty. If wait for 20ms, the TX FIFO is
 	 * still not empty, TX FIFO will reset by all means.
 	 */
 	mov	w1, #20				/* max time out 20ms */
 2:
-	/* Check whether TX FIFO is empty */
+	/* Check whether TX (THR and TSR) is empty */
 	ldr	w3, [x0, #UART_STATUS_REG]
-	and	w3, w3, #UARTLSR_TXFIFOEMPTY
+	and	w3, w3, #UARTLSR_TXEMPTY
 	cmp	w3, #0
 	b.ne	4f
 
@@ -241,10 +241,10 @@ endfunc console_a3700_getc
 	 * ---------------------------------------------
 	 */
 func console_a3700_core_flush
-	/* Wait for the TX FIFO to be empty */
+	/* Wait for the TX (THR and TSR) to be empty */
 1:	ldr	w1, [x0, #UART_STATUS_REG]
-	and	w1, w1, #UARTLSR_TXFIFOEMPTY
-	cmp	w1, #UARTLSR_TXFIFOEMPTY
+	and	w1, w1, #UARTLSR_TXEMPTY
+	cmp	w1, #UARTLSR_TXEMPTY
 	b.ne	1b
 	ret
 endfunc console_a3700_core_flush
