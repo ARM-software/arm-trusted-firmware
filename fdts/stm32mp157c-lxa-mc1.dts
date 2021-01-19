@@ -1,0 +1,107 @@
+/* SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause) */
+/*
+ * Copyright (C) 2020 STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2020 Ahmad Fatoum, Pengutronix
+ */
+
+/dts-v1/;
+
+#include "stm32mp157.dtsi"
+#include "stm32mp15xc.dtsi"
+#include "stm32mp15-ddr3-1x4Gb-1066-binG.dtsi"
+#include "stm32mp15xx-osd32.dtsi"
+#include "stm32mp15xxac-pinctrl.dtsi"
+
+/ {
+	model = "Linux Automation MC-1 board";
+	compatible = "lxa,stm32mp157c-mc1", "oct,stm32mp15xx-osd32", "st,stm32mp157";
+
+	aliases {
+		mmc0 = &sdmmc1;
+		mmc1 = &sdmmc2;
+		serial0 = &uart4;
+	};
+
+	chosen {
+		stdout-path = &uart4;
+	};
+
+	led-act {
+		compatible = "gpio-leds";
+
+		led-green {
+			label = "mc1:green:act";
+			gpios = <&gpioa 13 1>;
+			linux,default-trigger = "heartbeat";
+		};
+	};
+
+	reg_3v3: regulator_3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "3V3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+		vin-supply = <&v3v3>;
+	};
+};
+
+&sdmmc1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc1_b4_pins_a>;
+	bus-width = <4>;
+	cd-gpios = <&gpioh 3 1>;
+	disable-wp;
+	no-1-8-v;
+	st,neg-edge;
+	vmmc-supply = <&reg_3v3>;
+	status = "okay";
+};
+
+&sdmmc1_b4_pins_a {
+	/*
+	 * board lacks external pull-ups on SDMMC lines. Class 10 SD refuses to
+	 * work, thus enable internal pull-ups.
+	 */
+	pins1 {
+		/delete-property/ bias-disable;
+		bias-pull-up;
+	};
+	pins2 {
+		/delete-property/ bias-disable;
+		bias-pull-up;
+	};
+};
+
+&sdmmc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc2_b4_pins_a &mc1_sdmmc2_d47_pins_b>;
+	bus-width = <8>;
+	no-1-8-v;
+	no-sd;
+	no-sdio;
+	non-removable;
+	st,neg-edge;
+	vmmc-supply = <&reg_3v3>;
+	status = "okay";
+};
+
+&uart4 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart4_pins_a>;
+	status = "okay";
+};
+
+&pinctrl {
+	mc1_sdmmc2_d47_pins_b: mc1-sdmmc2-d47-1 {
+		pins {
+			pinmux = <STM32_PINMUX('A', 8, AF9)>,  /* SDMMC2_D4 */
+				 <STM32_PINMUX('A', 9, AF10)>, /* SDMMC2_D5 */
+				 <STM32_PINMUX('C', 6, AF10)>, /* SDMMC2_D6 */
+				 <STM32_PINMUX('C', 7, AF10)>; /* SDMMC2_D7 */
+			slew-rate = <1>;
+			drive-push-pull;
+			bias-disable;
+		};
+	};
+};
