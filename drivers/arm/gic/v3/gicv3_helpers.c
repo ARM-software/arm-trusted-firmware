@@ -92,6 +92,25 @@ void gicv3_rdistif_base_addrs_probe(uintptr_t *rdistif_base_addrs,
 }
 
 /*******************************************************************************
+ * Helper function to get the maximum SPI INTID + 1.
+ ******************************************************************************/
+unsigned int gicv3_get_spi_limit(uintptr_t gicd_base)
+{
+	unsigned int spi_limit;
+	unsigned int typer_reg = gicd_read_typer(gicd_base);
+
+	/* (maximum SPI INTID + 1) is equal to 32 * (GICD_TYPER.ITLinesNumber+1) */
+	spi_limit = ((typer_reg & TYPER_IT_LINES_NO_MASK) + 1U) << 5;
+
+	/* Filter out special INTIDs 1020-1023 */
+	if (spi_limit > (MAX_SPI_ID + 1U)) {
+		return MAX_SPI_ID + 1U;
+	}
+
+	return spi_limit;
+}
+
+/*******************************************************************************
  * Helper function to configure the default attributes of (E)SPIs.
  ******************************************************************************/
 void gicv3_spis_config_defaults(uintptr_t gicd_base)
