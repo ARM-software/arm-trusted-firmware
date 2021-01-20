@@ -125,7 +125,9 @@
 #define POWER_OFF_DELAY			2
 #define POWER_ON_DELAY			1
 
+#ifndef DT_SDMMC2_COMPAT
 #define DT_SDMMC2_COMPAT		"st,stm32-sdmmc2"
+#endif
 
 static void stm32_sdmmc2_init(void);
 static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd);
