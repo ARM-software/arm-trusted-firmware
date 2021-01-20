@@ -728,40 +728,17 @@ void gicv3_rdistif_init_restore(unsigned int proc_num,
  *****************************************************************************/
 void gicv3_distif_save(gicv3_dist_ctx_t * const dist_ctx)
 {
-	unsigned int typer_reg, num_ints;
-#if GIC_EXT_INTID
-	unsigned int num_eints;
-#endif
-
 	assert(gicv3_driver_data != NULL);
 	assert(gicv3_driver_data->gicd_base != 0U);
 	assert(IS_IN_EL3());
 	assert(dist_ctx != NULL);
 
 	uintptr_t gicd_base = gicv3_driver_data->gicd_base;
-
-	typer_reg = gicd_read_typer(gicd_base);
-
-	/* Maximum SPI INTID is 32 * (GICD_TYPER.ITLinesNumber + 1) - 1 */
-	num_ints = ((typer_reg & TYPER_IT_LINES_NO_MASK) + 1U) << 5;
-
-	/* Filter out special INTIDs 1020-1023 */
-	if (num_ints > (MAX_SPI_ID + 1U)) {
-		num_ints = MAX_SPI_ID + 1U;
-	}
-
+	unsigned int num_ints = gicv3_get_spi_limit(gicd_base);
 #if GIC_EXT_INTID
-	/* Check if extended SPI range is implemented */
-	if ((typer_reg & TYPER_ESPI) != 0U) {
-		/*
-		 * Maximum ESPI INTID is 32 * (GICD_TYPER.ESPI_range + 1) + 4095
-		 */
-		num_eints = ((((typer_reg >> TYPER_ESPI_RANGE_SHIFT) &
-			TYPER_ESPI_RANGE_MASK) + 1U) << 5) + MIN_ESPI_ID;
-	} else {
-		num_eints = 0U;
-	}
+	unsigned int num_eints = gicv3_get_espi_limit(gicd_base);
 #endif
+
 	/* Wait for pending write to complete */
 	gicd_wait_for_pending_write(gicd_base);
 
@@ -838,11 +815,6 @@ void gicv3_distif_save(gicv3_dist_ctx_t * const dist_ctx)
  *****************************************************************************/
 void gicv3_distif_init_restore(const gicv3_dist_ctx_t * const dist_ctx)
 {
-	unsigned int typer_reg, num_ints;
-#if GIC_EXT_INTID
-	unsigned int num_eints;
-#endif
-
 	assert(gicv3_driver_data != NULL);
 	assert(gicv3_driver_data->gicd_base != 0U);
 	assert(IS_IN_EL3());
@@ -864,27 +836,9 @@ void gicv3_distif_init_restore(const gicv3_dist_ctx_t * const dist_ctx)
 	/* Set the ARE_S and ARE_NS bit now that interrupts have been disabled */
 	gicd_set_ctlr(gicd_base, CTLR_ARE_S_BIT | CTLR_ARE_NS_BIT, RWP_TRUE);
 
-	typer_reg = gicd_read_typer(gicd_base);
-
-	/* Maximum SPI INTID is 32 * (GICD_TYPER.ITLinesNumber + 1) - 1 */
-	num_ints = ((typer_reg & TYPER_IT_LINES_NO_MASK) + 1U) << 5;
-
-	/* Filter out special INTIDs 1020-1023 */
-	if (num_ints > (MAX_SPI_ID + 1U)) {
-		num_ints = MAX_SPI_ID + 1U;
-	}
-
+	unsigned int num_ints = gicv3_get_spi_limit(gicd_base);
 #if GIC_EXT_INTID
-	/* Check if extended SPI range is implemented */
-	if ((typer_reg & TYPER_ESPI) != 0U) {
-		/*
-		 * Maximum ESPI INTID is 32 * (GICD_TYPER.ESPI_range + 1) + 4095
-		 */
-		num_eints = ((((typer_reg >> TYPER_ESPI_RANGE_SHIFT) &
-			TYPER_ESPI_RANGE_MASK) + 1U) << 5) + MIN_ESPI_ID;
-	} else {
-		num_eints = 0U;
-	}
+	unsigned int num_eints = gicv3_get_espi_limit(gicd_base);
 #endif
 	/* Restore GICD_IGROUPR for INTIDs 32 - 1019 */
 	RESTORE_GICD_REGS(gicd_base, dist_ctx, num_ints, igroupr, IGROUP);

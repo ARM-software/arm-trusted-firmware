@@ -141,19 +141,8 @@ void gicv3_spis_config_defaults(uintptr_t gicd_base)
 #if GIC_EXT_INTID
 	unsigned int num_eints;
 #endif
-	unsigned int typer_reg = gicd_read_typer(gicd_base);
 
-	/* Maximum SPI INTID is 32 * (GICD_TYPER.ITLinesNumber + 1) - 1 */
-	num_ints = ((typer_reg & TYPER_IT_LINES_NO_MASK) + 1U) << 5;
-
-	/*
-	 * The GICv3 architecture allows GICD_TYPER.ITLinesNumber to be 31, so
-	 * the maximum possible value for num_ints is 1024. Limit the value to
-	 * MAX_SPI_ID + 1 to avoid getting wrong address in GICD_OFFSET() macro.
-	 */
-	if (num_ints > MAX_SPI_ID + 1U) {
-		num_ints = MAX_SPI_ID + 1U;
-	}
+	num_ints = gicv3_get_spi_limit(gicd_base);
 	INFO("Maximum SPI INTID supported: %u\n", num_ints - 1);
 
 	/* Treat all (E)SPIs as G1NS by default. We do 32 at a time. */
@@ -162,13 +151,8 @@ void gicv3_spis_config_defaults(uintptr_t gicd_base)
 	}
 
 #if GIC_EXT_INTID
-	/* Check if extended SPI range is implemented */
-	if ((typer_reg & TYPER_ESPI) != 0U) {
-		/*
-		 * Maximum ESPI INTID is 32 * (GICD_TYPER.ESPI_range + 1) + 4095
-		 */
-		num_eints = ((((typer_reg >> TYPER_ESPI_RANGE_SHIFT) &
-			TYPER_ESPI_RANGE_MASK) + 1U) << 5) + MIN_ESPI_ID;
+	num_eints = gicv3_get_espi_limit(gicd_base);
+	if (num_eints != 0U) {
 		INFO("Maximum ESPI INTID supported: %u\n", num_eints - 1);
 
 		for (i = MIN_ESPI_ID; i < num_eints;
@@ -176,7 +160,6 @@ void gicv3_spis_config_defaults(uintptr_t gicd_base)
 			gicd_write_igroupr(gicd_base, i, ~0U);
 		}
 	} else {
-		num_eints = 0U;
 		INFO("ESPI range is not implemented.\n");
 	}
 #endif
