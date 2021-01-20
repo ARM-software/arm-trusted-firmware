@@ -110,6 +110,28 @@ unsigned int gicv3_get_spi_limit(uintptr_t gicd_base)
 	return spi_limit;
 }
 
+#if GIC_EXT_INTID
+/*******************************************************************************
+ * Helper function to get the maximum ESPI INTID + 1.
+ ******************************************************************************/
+unsigned int gicv3_get_espi_limit(uintptr_t gicd_base)
+{
+	unsigned int typer_reg = gicd_read_typer(gicd_base);
+
+	/* Check if extended SPI range is implemented */
+	if ((typer_reg & TYPER_ESPI) != 0U) {
+		/*
+		 * (maximum ESPI INTID + 1) is equal to
+		 * 32 * (GICD_TYPER.ESPI_range + 1) + 4096
+		 */
+		return ((((typer_reg >> TYPER_ESPI_RANGE_SHIFT) &
+			TYPER_ESPI_RANGE_MASK) + 1U) << 5) + MIN_ESPI_ID;
+	}
+
+	return 0U;
+}
+#endif /* GIC_EXT_INTID */
+
 /*******************************************************************************
  * Helper function to configure the default attributes of (E)SPIs.
  ******************************************************************************/
