@@ -11,6 +11,7 @@
 #ifndef __ASSEMBLER__
 #include <drivers/st/bsec.h>
 #include <drivers/st/stm32mp2_clk.h>
+#include <drivers/st/stm32mp2_risaf.h>
 #endif
 #if STM32MP21
 #include <drivers/st/stm32mp21_pwr.h>
@@ -35,6 +36,7 @@
 #include <dt-bindings/reset/stm32mp25-resets.h>
 #endif /* STM32MP25 */
 #include <dt-bindings/gpio/stm32-gpio.h>
+#include <dt-bindings/soc/rif.h>
 
 #ifndef __ASSEMBLER__
 #include <boot_api.h>
@@ -276,6 +278,13 @@ enum ddr_type {
 #define STM32MP_SDMMC3_BASE			U(0x48240000)
 
 /*******************************************************************************
+ * STM32MP2 OSPI
+ ******************************************************************************/
+/* OSPI 1 & 2 memory map area */
+#define STM32MP_OSPI_MM_BASE			U(0x60000000)
+#define STM32MP_OSPI_MM_SIZE			U(0x10000000)
+
+/*******************************************************************************
  * STM32MP2 BSEC / OTP
  ******************************************************************************/
 /*
@@ -413,8 +422,51 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
 /*******************************************************************************
  * STM32MP RIF
  ******************************************************************************/
+#define RISAB1_BASE				U(0x420F0000)
+#define RISAB2_BASE				U(0x42100000)
 #define RISAB3_BASE				U(0x42110000)
 #define RISAB5_BASE				U(0x42130000)
+
+#define RISAF1_INST				0
+#define RISAF2_INST				1
+#define RISAF4_INST				3
+#define RISAF5_INST				4
+#define RISAF_MAX_INSTANCE			5
+
+#define RISAF1_BASE				U(0x420A0000)
+#define RISAF2_BASE				U(0x420B0000)
+#define RISAF4_BASE				U(0x420D0000)
+#define RISAF5_BASE				U(0x420E0000)
+
+#define USE_RISAF2
+#define USE_RISAF4
+
+#ifdef USE_RISAF1
+#define RISAF1_MAX_REGION			4
+#else
+#define RISAF1_MAX_REGION			0
+#endif
+#ifdef USE_RISAF2
+#define RISAF2_MAX_REGION			4
+#else
+#define RISAF2_MAX_REGION			0
+#endif
+#ifdef USE_RISAF4
+/* Consider only encrypted region maximum number, to save memory consumption */
+#define RISAF4_MAX_REGION			4
+#else
+#define RISAF4_MAX_REGION			0
+#endif
+#ifdef USE_RISAF5
+#define RISAF5_MAX_REGION			2
+#else
+#define RISAF5_MAX_REGION			0
+#endif
+#define RISAF_MAX_REGION			(RISAF1_MAX_REGION + RISAF2_MAX_REGION + \
+						 RISAF4_MAX_REGION + RISAF5_MAX_REGION)
+
+#define RISAF_KEY_SIZE_IN_BYTES			RISAF_ENCRYPTION_KEY_SIZE_IN_BYTES
+#define RISAF_SEED_SIZE_IN_BYTES		U(4)
 
 /*******************************************************************************
  * STM32MP CA35SSC

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2023-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -91,6 +91,10 @@ void bl2_platform_setup(void)
 	ret = stm32mp2_ddr_probe();
 	if (ret != 0) {
 		ERROR("DDR probe: error %d\n", ret);
+		panic();
+	}
+
+	if (stm32mp2_risaf_init() < 0) {
 		panic();
 	}
 
