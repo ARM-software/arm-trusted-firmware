@@ -111,6 +111,7 @@ static int sgi_ras_intr_handler(const struct err_record_info *err_rec,
 	struct sgi_ras_ev_map *ras_map;
 	mm_communicate_header_t *header;
 	uint32_t intr;
+	int ret;
 
 	cm_el1_sysregs_context_save(NON_SECURE);
 	intr = data->interrupt;
@@ -120,7 +121,7 @@ static int sgi_ras_intr_handler(const struct err_record_info *err_rec,
 	 * this interrupt
 	 */
 	ras_map = find_ras_event_map_by_intr(intr);
-	assert(ras_map);
+	assert(ras_map != NULL);
 
 	/*
 	 * Populate the MM_COMMUNICATE payload to share the
@@ -152,9 +153,20 @@ static int sgi_ras_intr_handler(const struct err_record_info *err_rec,
 	plat_ic_end_of_interrupt(intr);
 
 	/* Dispatch the event to the SDEI client */
-	sdei_dispatch_event(ras_map->sdei_ev_num);
+	ret = sdei_dispatch_event(ras_map->sdei_ev_num);
+	if (ret != 0) {
+		/*
+		 * sdei_dispatch_event() may return failing result in some cases,
+		 * for example kernel may not have registered a handler or RAS event
+		 * may happen early during boot. We restore the NS context when
+		 * sdei_dispatch_event() returns failing result.
+		 */
+		ERROR("SDEI dispatch failed: %d", ret);
+		cm_el1_sysregs_context_restore(NON_SECURE);
+		cm_set_next_eret_context(NON_SECURE);
+	}
 
-	return 0;
+	return ret;
 }
 
 int sgi_ras_intr_handler_setup(void)
