@@ -832,6 +832,7 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	switch (api_id) {
 	case PM_GET_CALLBACK_DATA:
 	case PM_GET_TRUSTZONE_VERSION:
+	case PM_LOAD_PDI:
 		*version = (PM_API_BASE_VERSION << 16);
 		return PM_RET_SUCCESS;
 	case PM_GET_API_VERSION:
@@ -857,11 +858,6 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	case PM_PINCTRL_CONFIG_PARAM_GET:
 	case PM_PINCTRL_CONFIG_PARAM_SET:
 	case PM_IOCTL:
-		*version = (PM_API_BASE_VERSION << 16);
-		break;
-	case PM_QUERY_DATA:
-		*version = (PM_API_QUERY_DATA_VERSION << 16);
-		break;
 	case PM_CLOCK_ENABLE:
 	case PM_CLOCK_DISABLE:
 	case PM_CLOCK_GETSTATE:
@@ -880,9 +876,9 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version)
 	case PM_REGISTER_NOTIFIER:
 		*version = (PM_API_BASE_VERSION << 16);
 		break;
-	case PM_LOAD_PDI:
-		*version = (PM_API_BASE_VERSION << 16);
-		return PM_RET_SUCCESS;
+	case PM_QUERY_DATA:
+		*version = (PM_API_QUERY_DATA_VERSION << 16);
+		break;
 	default:
 		*version = 0U;
 		return PM_RET_ERROR_NOFEATURE;
