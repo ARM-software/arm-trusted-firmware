@@ -8,8 +8,8 @@
 
 #include <platform_def.h>
 
-#include <drivers/st/scmi-msg.h>
-#include <drivers/st/scmi.h>
+#include <drivers/scmi-msg.h>
+#include <drivers/scmi.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp_reset.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>

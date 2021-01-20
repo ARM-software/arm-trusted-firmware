@@ -6,8 +6,8 @@
 
 #include <assert.h>
 
-#include <drivers/st/scmi-msg.h>
-#include <drivers/st/scmi.h>
+#include <drivers/scmi-msg.h>
+#include <drivers/scmi.h>
 
 #include "common.h"
 
