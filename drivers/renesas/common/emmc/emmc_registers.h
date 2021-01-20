@@ -11,11 +11,11 @@
 #define MMC_CH0		(0U)	/* SDHI2/MMC0 */
 #define MMC_CH1		(1U)	/* SDHI3/MMC1 */
 
-#if RCAR_LSI == RCAR_E3
-#define USE_MMC_CH	(MMC_CH1)	/* R-Car E3 */
-#else /* RCAR_LSI == RCAR_E3 */
+#if (RCAR_LSI == RCAR_E3)  || (RCAR_LSI == RZ_G2M)
+#define USE_MMC_CH	(MMC_CH1)	/* R-Car E3 or RZ/G2M */
+#else /* RCAR_LSI == RCAR_E3 || RCAR_LSI == RZ_G2M */
 #define USE_MMC_CH	(MMC_CH0)	/* R-Car H3/M3/M3N */
-#endif /* RCAR_LSI == RCAR_E3 */
+#endif /* RCAR_LSI == RCAR_E3 || RCAR_LSI == RZ_G2M */
 
 #define BIT0	(0x00000001U)
 #define BIT1	(0x00000002U)

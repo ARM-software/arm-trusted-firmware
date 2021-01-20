@@ -494,6 +494,8 @@ Renesas RZ/G2 platform port
 :G: `bijucdas`_
 :M: Marek Vasut <marek.vasut@gmail.com>
 :G: `marex`_
+:M: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+:G: `prabhakarlad`_
 :F: docs/plat/rz-g2.rst
 :F: plat/renesas/common
 :F: plat/renesas/rzg
@@ -637,6 +639,7 @@ Build system
 .. _mtk09422: https://github.com/mtk09422
 .. _niej: https://github.com/niej
 .. _npoushin: https://github.com/npoushin
+.. _prabhakarlad: https://github.com/prabhakarlad
 .. _qoriq-open-source: https://github.com/qoriq-open-source
 .. _remi-triplefault: https://github.com/repk
 .. _rockchip-linux: https://github.com/rockchip-linux
