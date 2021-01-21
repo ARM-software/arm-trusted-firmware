@@ -60,7 +60,7 @@ As with the previous models, the GPU and its firmware are the first entity to
 run after the SoC gets its power. The on-chip Boot ROM loads the next stage
 (bootcode.bin) from flash (EEPROM), which is again GPU code.
 This part knows how to access the MMC controller and how to parse a FAT
-filesystem, so it will load further compononents and configuration files
+filesystem, so it will load further components and configuration files
 from the first FAT partition on the SD card.
 
 To accommodate this existing way of configuring and setting up the board,

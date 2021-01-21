@@ -1,7 +1,7 @@
 Marvell IOB address decoding bindings
 =====================================
 
-IO bridge configration driver (3rd stage address translation) for Marvell Armada 8K and 8K+ SoCs.
+IO bridge configuration driver (3rd stage address translation) for Marvell Armada 8K and 8K+ SoCs.
 
 The IOB includes a description of the address decoding configuration.
 
