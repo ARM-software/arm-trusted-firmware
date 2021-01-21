@@ -16,7 +16,7 @@
 	};
 
 	chosen {
-		stdout-path = "soc_uart0:115200n8";
+		stdout-path = "serial0:115200n8";
 	};
 
 	/* This configuration assumes that standard setup with two DIMM modules.
