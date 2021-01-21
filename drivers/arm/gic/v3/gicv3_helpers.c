@@ -113,6 +113,7 @@ void gicv3_spis_config_defaults(uintptr_t gicd_base)
 	if (num_ints > MAX_SPI_ID + 1U) {
 		num_ints = MAX_SPI_ID + 1U;
 	}
+	INFO("Maximum SPI INTID supported: %u\n", num_ints - 1);
 
 	/* Treat all (E)SPIs as G1NS by default. We do 32 at a time. */
 	for (i = MIN_SPI_ID; i < num_ints; i += (1U << IGROUPR_SHIFT)) {
@@ -127,6 +128,7 @@ void gicv3_spis_config_defaults(uintptr_t gicd_base)
 		 */
 		num_eints = ((((typer_reg >> TYPER_ESPI_RANGE_SHIFT) &
 			TYPER_ESPI_RANGE_MASK) + 1U) << 5) + MIN_ESPI_ID;
+		INFO("Maximum ESPI INTID supported: %u\n", num_eints - 1);
 
 		for (i = MIN_ESPI_ID; i < num_eints;
 					i += (1U << IGROUPR_SHIFT)) {
@@ -134,6 +136,7 @@ void gicv3_spis_config_defaults(uintptr_t gicd_base)
 		}
 	} else {
 		num_eints = 0U;
+		INFO("ESPI range is not implemented.\n");
 	}
 #endif
 
