@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,16 +10,20 @@
 #include <common/debug.h>
 #include <plat/common/platform.h>
 
+#define CHECK_AND_PUT_CHAR(buf, size, chars_printed, ch)	\
+	do {						\
+		if ((chars_printed) < (size)) {		\
+			*(buf) = (ch);			\
+			(buf)++;			\
+		}					\
+		(chars_printed)++;			\
+	} while (false)
+
 static void string_print(char **s, size_t n, size_t *chars_printed,
 			 const char *str)
 {
 	while (*str != '\0') {
-		if (*chars_printed < n) {
-			*(*s) = *str;
-			(*s)++;
-		}
-
-		(*chars_printed)++;
+		CHECK_AND_PUT_CHAR(*s, n, *chars_printed, *str);
 		str++;
 	}
 }
@@ -130,6 +134,9 @@ int vsnprintf(char *s, size_t n, const char *fmt, va_list args)
 			/* Check the format specifier. */
 loop:
 			switch (*fmt) {
+			case '%':
+				CHECK_AND_PUT_CHAR(s, n, chars_printed, '%');
+				break;
 			case '0':
 			case '1':
 			case '2':
@@ -158,12 +165,8 @@ loop:
 				num = va_arg(args, int);
 
 				if (num < 0) {
-					if (chars_printed < n) {
-						*s = '-';
-						s++;
-					}
-					chars_printed++;
-
+					CHECK_AND_PUT_CHAR(s, n, chars_printed,
+						'-');
 					unum = (unsigned int)-num;
 				} else {
 					unum = (unsigned int)num;
@@ -210,13 +213,9 @@ loop:
 			continue;
 		}
 
-		if (chars_printed < n) {
-			*s = *fmt;
-			s++;
-		}
+		CHECK_AND_PUT_CHAR(s, n, chars_printed, *fmt);
 
 		fmt++;
-		chars_printed++;
 	}
 
 	if (n > 0U) {
