@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -129,7 +129,10 @@ static int fipgen(chan_t *c, const dirtab_t *tab, int ntab, int n, dir_t *dir)
 		panic();
 	}
 
-	clone(archives[c->dev].c, &nc);
+	if (clone(archives[c->dev].c, &nc) == NULL) {
+		panic();
+	}
+
 	fip = &archives[nc.dev];
 
 	off = STOC_HEADER;
@@ -202,7 +205,9 @@ static int fipread(chan_t *c, void *buf, int n)
 		panic();
 	}
 
-	clone(fip->c, &cs);
+	if (clone(fip->c, &cs) == NULL) {
+		panic();
+	}
 
 	size = fip->size[c->qid];
 	if (c->offset >= size) {
