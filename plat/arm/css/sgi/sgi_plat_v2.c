@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,10 @@
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <drivers/arm/sbsa.h>
+
+#if SPM_MM
+#include <services/spm_mm_partition.h>
+#endif
 
 /*
  * Table of regions for different BL stages to map using the MMU.
@@ -41,6 +45,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #if ARM_BL31_IN_DRAM
 	ARM_MAP_BL31_SEC_DRAM,
 #endif
+#if SPM_MM
+	ARM_SP_IMAGE_MMAP,
+#endif
 #if TRUSTED_BOARD_BOOT && !BL2_AT_EL3
 	ARM_MAP_BL1_RW,
 #endif
@@ -57,12 +64,85 @@ const mmap_region_t plat_arm_mmap[] = {
 	CSS_SGI_MAP_DEVICE,
 	SOC_PLATFORM_PERIPH_MAP_DEVICE,
 	SOC_SYSTEM_PERIPH_MAP_DEVICE,
+#if SPM_MM
+	ARM_SPM_BUF_EL3_MMAP,
+#endif
 	{0}
 };
 
+#if SPM_MM && defined(IMAGE_BL31)
+const mmap_region_t plat_arm_secure_partition_mmap[] = {
+	PLAT_ARM_SECURE_MAP_SYSTEMREG,
+	PLAT_ARM_SECURE_MAP_NOR2,
+	SOC_PLATFORM_PERIPH_MAP_DEVICE_USER,
+	ARM_SP_IMAGE_MMAP,
+	ARM_SP_IMAGE_NS_BUF_MMAP,
+	ARM_SP_IMAGE_RW_MMAP,
+	ARM_SPM_BUF_EL0_MMAP,
+	{0}
+};
+#endif /* SPM_MM && defined(IMAGE_BL31) */
 #endif
 
 ARM_CASSERT_MMAP
+
+#if SPM_MM && defined(IMAGE_BL31)
+/*
+ * Boot information passed to a secure partition during initialisation. Linear
+ * indices in MP information will be filled at runtime.
+ */
+static spm_mm_mp_info_t sp_mp_info[] = {
+	[0] = {0x81000000, 0},
+	[1] = {0x81010000, 0},
+	[2] = {0x81020000, 0},
+	[3] = {0x81030000, 0},
+	[4] = {0x81040000, 0},
+	[5] = {0x81050000, 0},
+	[6] = {0x81060000, 0},
+	[7] = {0x81070000, 0},
+	[8] = {0x81080000, 0},
+	[9] = {0x81090000, 0},
+	[10] = {0x810a0000, 0},
+	[11] = {0x810b0000, 0},
+	[12] = {0x810c0000, 0},
+	[13] = {0x810d0000, 0},
+	[14] = {0x810e0000, 0},
+	[15] = {0x810f0000, 0},
+};
+
+const spm_mm_boot_info_t plat_arm_secure_partition_boot_info = {
+	.h.type              = PARAM_SP_IMAGE_BOOT_INFO,
+	.h.version           = VERSION_1,
+	.h.size              = sizeof(spm_mm_boot_info_t),
+	.h.attr              = 0,
+	.sp_mem_base         = ARM_SP_IMAGE_BASE,
+	.sp_mem_limit        = ARM_SP_IMAGE_LIMIT,
+	.sp_image_base       = ARM_SP_IMAGE_BASE,
+	.sp_stack_base       = PLAT_SP_IMAGE_STACK_BASE,
+	.sp_heap_base        = ARM_SP_IMAGE_HEAP_BASE,
+	.sp_ns_comm_buf_base = PLAT_SP_IMAGE_NS_BUF_BASE,
+	.sp_shared_buf_base  = PLAT_SPM_BUF_BASE,
+	.sp_image_size       = ARM_SP_IMAGE_SIZE,
+	.sp_pcpu_stack_size  = PLAT_SP_IMAGE_STACK_PCPU_SIZE,
+	.sp_heap_size        = ARM_SP_IMAGE_HEAP_SIZE,
+	.sp_ns_comm_buf_size = PLAT_SP_IMAGE_NS_BUF_SIZE,
+	.sp_shared_buf_size  = PLAT_SPM_BUF_SIZE,
+	.num_sp_mem_regions  = ARM_SP_IMAGE_NUM_MEM_REGIONS,
+	.num_cpus            = PLATFORM_CORE_COUNT,
+	.mp_info             = &sp_mp_info[0],
+};
+
+const struct mmap_region *plat_get_secure_partition_mmap(void *cookie)
+{
+	return plat_arm_secure_partition_mmap;
+}
+
+const struct spm_mm_boot_info *plat_get_secure_partition_boot_info(
+		void *cookie)
+{
+	return &plat_arm_secure_partition_boot_info;
+}
+#endif /* SPM_MM && defined(IMAGE_BL31) */
 
 #if TRUSTED_BOARD_BOOT
 int plat_get_mbedtls_heap(void **heap_addr, size_t *heap_size)
