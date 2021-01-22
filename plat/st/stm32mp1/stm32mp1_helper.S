@@ -204,7 +204,7 @@ endfunc plat_crash_console_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_flush
-	ldr	r1, =STM32MP_DEBUG_USART_BASE
+	ldr	r0, =STM32MP_DEBUG_USART_BASE
 	b	console_stm32_core_flush
 endfunc plat_crash_console_flush
 
