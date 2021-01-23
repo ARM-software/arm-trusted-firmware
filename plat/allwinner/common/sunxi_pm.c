@@ -102,15 +102,9 @@ static void sunxi_pwr_domain_off(const psci_power_state_t *target_state)
 					 scpi_map_state(cpu_pwr_state),
 					 scpi_map_state(cluster_pwr_state),
 					 scpi_map_state(system_pwr_state));
+	} else {
+		sunxi_cpu_power_off_self();
 	}
-}
-
-static void __dead2 sunxi_pwr_down_wfi(const psci_power_state_t *target_state)
-{
-	sunxi_cpu_power_off_self();
-
-	while (1)
-		wfi();
 }
 
 static void sunxi_pwr_domain_on_finish(const psci_power_state_t *target_state)
@@ -270,9 +264,6 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 		sunxi_psci_ops.pwr_domain_suspend = sunxi_pwr_domain_off;
 		sunxi_psci_ops.pwr_domain_suspend_finish = sunxi_pwr_domain_on_finish;
 		sunxi_psci_ops.get_sys_suspend_power_state = sunxi_get_sys_suspend_power_state;
-	} else {
-		/* This is only needed when SCPI is unavailable. */
-		sunxi_psci_ops.pwr_domain_pwr_down_wfi = sunxi_pwr_down_wfi;
 	}
 
 	*psci_ops = &sunxi_psci_ops;
