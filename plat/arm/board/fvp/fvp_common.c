@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -70,7 +70,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	V2M_MAP_FLASH0_RW,
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
+#if FVP_INTERCONNECT_DRIVER == FVP_CCN
 	MAP_DEVICE1,
+#endif
 #if TRUSTED_BOARD_BOOT
 	/* To access the Root of Trust Public Key registers. */
 	MAP_DEVICE2,
@@ -86,7 +88,9 @@ const mmap_region_t plat_arm_mmap[] = {
 	V2M_MAP_FLASH0_RW,
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
+#if FVP_INTERCONNECT_DRIVER == FVP_CCN
 	MAP_DEVICE1,
+#endif
 	ARM_MAP_NS_DRAM1,
 #ifdef __aarch64__
 	ARM_MAP_DRAM2,
