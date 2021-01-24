@@ -142,6 +142,11 @@ Arm FVP Platform Specific Build Options
    HW_CONFIG blob instead of the DTS file. This option is useful to override
    the default HW_CONFIG selected by the build system.
 
+-  ``FVP_GICR_REGION_PROTECTION``: Mark the redistributor pages of
+   inactive/fused CPU cores as read-only. The default value of this option
+   is ``0``, which means the redistributor pages of all CPU cores are marked
+   as read and write.
+
 Booting Firmware Update images
 ------------------------------
 
