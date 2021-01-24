@@ -73,7 +73,8 @@ PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				plat/arm/common/arm_gicv2.c			\
 				plat/common/plat_gicv2.c			\
 				plat/xilinx/common/ipi.c			\
-				plat/xilinx/zynqmp/zynqmp_ipi.c		\
+				plat/xilinx/zynqmp/zynqmp_ipi.c			\
+				plat/common/aarch64/crash_console_helpers.S	\
 				plat/xilinx/zynqmp/aarch64/zynqmp_helpers.S	\
 				plat/xilinx/zynqmp/aarch64/zynqmp_common.c
 
