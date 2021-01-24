@@ -107,7 +107,7 @@ static void sunxi_pwr_domain_off(const psci_power_state_t *target_state)
 
 static void __dead2 sunxi_pwr_down_wfi(const psci_power_state_t *target_state)
 {
-	sunxi_cpu_off(read_mpidr());
+	sunxi_cpu_power_off_self();
 
 	while (1)
 		wfi();
@@ -136,7 +136,7 @@ static void __dead2 sunxi_system_off(void)
 	}
 
 	/* Turn off all secondary CPUs */
-	sunxi_disable_secondary_cpus(read_mpidr());
+	sunxi_cpu_power_off_others();
 
 	sunxi_power_down();
 
