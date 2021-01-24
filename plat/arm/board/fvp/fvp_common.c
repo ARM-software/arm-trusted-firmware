@@ -48,6 +48,18 @@ arm_config_t arm_config;
 					DEVICE1_SIZE,			\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
+#if FVP_GICR_REGION_PROTECTION
+#define MAP_GICD_MEM	MAP_REGION_FLAT(BASE_GICD_BASE,			\
+					BASE_GICD_SIZE,			\
+					MT_DEVICE | MT_RW | MT_SECURE)
+
+/* Map all core's redistributor memory as read-only. After boots up,
+ * per-core map its redistributor memory as read-write */
+#define MAP_GICR_MEM	MAP_REGION_FLAT(BASE_GICR_BASE,			\
+					(BASE_GICR_SIZE * PLATFORM_CORE_COUNT),\
+					MT_DEVICE | MT_RO | MT_SECURE)
+#endif /* FVP_GICR_REGION_PROTECTION */
+
 /*
  * Need to be mapped with write permissions in order to set a new non-volatile
  * counter value.
@@ -138,7 +150,12 @@ const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_EL3_TZC_DRAM,
 	V2M_MAP_IOFPGA,
 	MAP_DEVICE0,
+#if FVP_GICR_REGION_PROTECTION
+	MAP_GICD_MEM,
+	MAP_GICR_MEM,
+#else
 	MAP_DEVICE1,
+#endif /* FVP_GICR_REGION_PROTECTION */
 	ARM_V2M_MAP_MEM_PROTECT,
 #if SPM_MM
 	ARM_SPM_BUF_EL3_MMAP,

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -16,6 +16,10 @@ FVP_MAX_CPUS_PER_CLUSTER	:= 4
 # Default number of threads per CPU on FVP
 FVP_MAX_PE_PER_CPU	:= 1
 
+# Disable redistributor frame of inactive/fused CPU cores by marking it as read
+# only; enable redistributor frames of all CPU cores by default.
+FVP_GICR_REGION_PROTECTION		:= 0
+
 FVP_DT_PREFIX		:= fvp-base-gicv3-psci
 
 # The FVP platform depends on this macro to build with correct GIC driver.
@@ -29,6 +33,9 @@ $(eval $(call add_define,FVP_MAX_CPUS_PER_CLUSTER))
 
 # Pass FVP_MAX_PE_PER_CPU to the build system.
 $(eval $(call add_define,FVP_MAX_PE_PER_CPU))
+
+# Pass FVP_GICR_REGION_PROTECTION to the build system.
+$(eval $(call add_define,FVP_GICR_REGION_PROTECTION))
 
 # Sanity check the cluster count and if FVP_CLUSTER_COUNT <= 2,
 # choose the CCI driver , else the CCN driver
