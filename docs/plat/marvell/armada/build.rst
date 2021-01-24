@@ -226,12 +226,23 @@ To build just TF-A without WTMI image (useful for A3720 Turris MOX board), run f
     > make USE_COHERENT_MEM=0 PLAT=a3700 CM3_SYSTEM_RESET=1 BL33=/path/to/u-boot.bin \
         CROSS_COMPILE=aarch64-linux-gnu- mrvl_bootimage
 
+You can build TF-A for the Globalscale ESPRESSObin-Ultra board (DDR4, 1 GB) by running the following command:
+
+.. code:: shell
+
+    > make DEBUG=1 USE_COHERENT_MEM=0 LOG_LEVEL=20 CLOCKSPRESET=CPU_1200_DDR_750 \
+        MARVELL_SECURE_BOOT=0 DDR_TOPOLOGY=5 BOOTDEV=SPINOR PARTNUM=0 PLAT=a3700 \
+        MV_DDR_PATH=/path/to/mv-ddr-marvell/ WTP=/path/to/A3700-utils-marvell/ \
+        CRYPTOPP_PATH=/path/to/cryptopp/ BL33=/path/to/u-boot.bin \
+        all fip mrvl_bootimage mrvl_flash
+
 Supported MARVELL_PLATFORM are:
     - a3700 (for both A3720 DB and EspressoBin)
     - a70x0
     - a70x0_amc (for AMC board)
     - a80x0
     - a80x0_mcbin (for MacchiatoBin)
+    - a80x0_puzzle (for IEI Puzzle-M801)
     - t9130 (OcteonTX2 CN913x)
 
 Special Build Flags
