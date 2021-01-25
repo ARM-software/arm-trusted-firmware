@@ -123,6 +123,9 @@ static void css_power_down_common(const psci_power_state_t *target_state)
 	/* Prevent interrupts from spuriously waking up this cpu */
 	plat_arm_gic_cpuif_disable();
 
+	/* Turn redistributor off */
+	plat_arm_gic_redistif_off();
+
 	/* Cluster is to be turned off, so disable coherency */
 	if (CSS_CLUSTER_PWR_STATE(target_state) == ARM_LOCAL_STATE_OFF) {
 		plat_arm_interconnect_exit_coherency();
