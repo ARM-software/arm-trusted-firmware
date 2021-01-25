@@ -51,10 +51,15 @@ static void plat_add_sp_images_load_info(struct bl_load_info *load_info)
 		node_info = node_info->next_load_info;
 	} while (node_info->next_load_info != NULL);
 
+	bl_load_info_node_t *sp_node =
+		&sp_mem_params_descs[index].load_node_mem;
+
+	node_info->next_load_info = sp_node;
+
 	for (; index < MAX_SP_IDS; index++) {
 		/* Populate the image information */
-		node_info->image_id = sp_mem_params_descs[index].image_id;
-		node_info->image_info = &sp_mem_params_descs[index].image_info;
+		sp_node->image_id = sp_mem_params_descs[index].image_id;
+		sp_node->image_info = &sp_mem_params_descs[index].image_info;
 
 		if ((index + 1U) == MAX_SP_IDS) {
 			INFO("Reached Max number of SPs\n");
@@ -65,9 +70,9 @@ static void plat_add_sp_images_load_info(struct bl_load_info *load_info)
 			return;
 		}
 
-		node_info->next_load_info =
+		sp_node->next_load_info =
 			&sp_mem_params_descs[index + 1U].load_node_mem;
-		node_info = node_info->next_load_info;
+		sp_node = sp_node->next_load_info;
 
 	}
 }
