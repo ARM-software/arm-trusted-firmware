@@ -212,6 +212,3 @@ mrvl_flash:
 	$(error "Platform '${PLAT}' for target '$@' requires WTP. Please set WTP to point to the right directory")
 
 endif # WTP
-
-.PHONY: FORCE
-FORCE:;

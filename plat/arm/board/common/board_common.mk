@@ -41,7 +41,6 @@ $(eval $(call add_define,ARM_ROTPK_LOCATION_ID))
 # Force generation of the new hash if ROT_KEY is specified
 ifdef ROT_KEY
 	HASH_PREREQUISITES = $(ROT_KEY) FORCE
-FORCE:
 else
 	HASH_PREREQUISITES = $(ROT_KEY)
 endif
