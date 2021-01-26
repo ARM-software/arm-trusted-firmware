@@ -162,21 +162,21 @@ $(TIMDDRTOOL): FORCE
 $(BUILD_PLAT)/$(UART_IMAGE): $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/wtmi.bin $(DOIMAGETOOL) $(TIMBUILD) $(TIMDDRTOOL)
 	@$(ECHO_BLANK_LINE)
 	@echo "Building uart images"
-	@mkdir -p $(BUILD_PLAT)/$(BUILD_UART)
-	@cp -a $(BUILD_PLAT)/wtmi.bin $(BUILD_PLAT)/$(BUILD_UART)/wtmi.bin
-	@cp -a $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/$(BUILD_UART)/$(BOOT_IMAGE)
-	@cd $(BUILD_PLAT)/$(BUILD_UART) && $(TIMBUILD) $(TIMBLDUARTARGS)
-	@sed -i 's|WTMI_IMG|wtmi.bin|1' $(DOIMAGEUART_CFG)
-	@sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(DOIMAGEUART_CFG)
+	$(Q)mkdir -p $(BUILD_PLAT)/$(BUILD_UART)
+	$(Q)cp -a $(BUILD_PLAT)/wtmi.bin $(BUILD_PLAT)/$(BUILD_UART)/wtmi.bin
+	$(Q)cp -a $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/$(BUILD_UART)/$(BOOT_IMAGE)
+	$(Q)cd $(BUILD_PLAT)/$(BUILD_UART) && $(TIMBUILD) $(TIMBLDUARTARGS)
+	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(DOIMAGEUART_CFG)
+	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(DOIMAGEUART_CFG)
 ifeq ($(MARVELL_SECURE_BOOT),1)
-	@sed -i 's|WTMI_IMG|wtmi.bin|1' $(TIMNUARTCFG)
-	@sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(TIMNUARTCFG)
+	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(TIMNUARTCFG)
+	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(TIMNUARTCFG)
 endif
-	cd $(BUILD_PLAT)/$(BUILD_UART) && $(DOIMAGETOOL) -r $(DOIMAGEUART_CFG) -v -D
+	$(Q)cd $(BUILD_PLAT)/$(BUILD_UART) && $(DOIMAGETOOL) -r $(DOIMAGEUART_CFG) -v -D
 ifeq ($(MARVELL_SECURE_BOOT),1)
-	@cd $(BUILD_PLAT)/$(BUILD_UART) && $(DOIMAGETOOL) -r $(TIMNUARTCFG)
+	$(Q)cd $(BUILD_PLAT)/$(BUILD_UART) && $(DOIMAGETOOL) -r $(TIMNUARTCFG)
 endif
-	@tar czf $(BUILD_PLAT)/$(UART_IMAGE) -C $(BUILD_PLAT) $(BUILD_UART)/$(TIM_IMAGE) $(BUILD_UART)/wtmi_h.bin $(BUILD_UART)/boot-image_h.bin
+	$(Q)tar czf $(BUILD_PLAT)/$(UART_IMAGE) -C $(BUILD_PLAT) $(BUILD_UART)/$(TIM_IMAGE) $(BUILD_UART)/wtmi_h.bin $(BUILD_UART)/boot-image_h.bin
 	@$(ECHO_BLANK_LINE)
 	@echo "Built $@ successfully"
 	@$(ECHO_BLANK_LINE)
@@ -184,34 +184,34 @@ endif
 $(BUILD_PLAT)/$(FLASH_IMAGE): $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/wtmi.bin $(DOIMAGETOOL) $(TIMBUILD) $(TIMDDRTOOL) $(TIM2IMG)
 	@$(ECHO_BLANK_LINE)
 	@echo "Building flash image"
-	cd $(BUILD_PLAT) && $(TIMBUILD) $(TIMBLDARGS)
-	sed -i 's|WTMI_IMG|wtmi.bin|1' $(DOIMAGE_CFG)
-	sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(DOIMAGE_CFG)
+	$(Q)cd $(BUILD_PLAT) && $(TIMBUILD) $(TIMBLDARGS)
+	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(DOIMAGE_CFG)
+	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(DOIMAGE_CFG)
 ifeq ($(MARVELL_SECURE_BOOT),1)
-	@sed -i 's|WTMI_IMG|wtmi.bin|1' $(TIMNCFG)
-	@sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(TIMNCFG)
+	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(TIMNCFG)
+	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(TIMNCFG)
 	@echo -e "\n\t=======================================================\n";
 	@echo -e "\t  Secure boot. Encrypting wtmi and boot-image \n";
 	@echo -e "\t=======================================================\n";
-	@cp $(BUILD_PLAT)/wtmi.bin $(BUILD_PLAT)/wtmi-align.bin
-	@truncate -s %16 $(BUILD_PLAT)/wtmi-align.bin
-	@openssl enc -aes-256-cbc -e -in $(BUILD_PLAT)/wtmi-align.bin \
+	$(Q)cp $(BUILD_PLAT)/wtmi.bin $(BUILD_PLAT)/wtmi-align.bin
+	$(Q)truncate -s %16 $(BUILD_PLAT)/wtmi-align.bin
+	$(Q)openssl enc -aes-256-cbc -e -in $(BUILD_PLAT)/wtmi-align.bin \
 	-out $(BUILD_PLAT)/$(WTMI_ENC_IMG) \
 	-K `cat $(IMAGESPATH)/aes-256.txt` -nosalt \
 	-iv `cat $(IMAGESPATH)/iv.txt` -p
-	@truncate -s %16 $(BUILD_PLAT)/$(BOOT_IMAGE);
-	@openssl enc -aes-256-cbc -e -in $(BUILD_PLAT)/$(BOOT_IMAGE) \
+	$(Q)truncate -s %16 $(BUILD_PLAT)/$(BOOT_IMAGE);
+	$(Q)openssl enc -aes-256-cbc -e -in $(BUILD_PLAT)/$(BOOT_IMAGE) \
 	-out $(BUILD_PLAT)/$(BOOT_ENC_IMAGE) \
 	-K `cat $(IMAGESPATH)/aes-256.txt` -nosalt \
 	-iv `cat $(IMAGESPATH)/iv.txt` -p
 endif
-	cd $(BUILD_PLAT) && $(DOIMAGETOOL) -r $(DOIMAGE_CFG) -v -D
+	$(Q)cd $(BUILD_PLAT) && $(DOIMAGETOOL) -r $(DOIMAGE_CFG) -v -D
 ifeq ($(MARVELL_SECURE_BOOT),1)
-	@cd $(BUILD_PLAT) && $(DOIMAGETOOL) -r $(TIMNCFG)
-	@sed -i 's|wtmi.bin|$(WTMI_ENC_IMG)|1' $(TIMNCFG)
-	@sed -i 's|$(BOOT_IMAGE)|$(BOOT_ENC_IMAGE)|1' $(TIMNCFG)
+	$(Q)cd $(BUILD_PLAT) && $(DOIMAGETOOL) -r $(TIMNCFG)
+	$(Q)sed -i 's|wtmi.bin|$(WTMI_ENC_IMG)|1' $(TIMNCFG)
+	$(Q)sed -i 's|$(BOOT_IMAGE)|$(BOOT_ENC_IMAGE)|1' $(TIMNCFG)
 endif
-	cd $(BUILD_PLAT) && $(TIM2IMG) $(TIM2IMGARGS) -o $(BUILD_PLAT)/$(FLASH_IMAGE)
+	$(Q)cd $(BUILD_PLAT) && $(TIM2IMG) $(TIM2IMGARGS) -o $(BUILD_PLAT)/$(FLASH_IMAGE)
 	@$(ECHO_BLANK_LINE)
 	@echo "Built $@ successfully"
 	@$(ECHO_BLANK_LINE)
