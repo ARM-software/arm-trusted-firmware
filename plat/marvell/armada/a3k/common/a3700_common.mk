@@ -235,6 +235,3 @@ endif # WTP
 
 .PHONY: mrvl_uart
 mrvl_uart: $(BUILD_PLAT)/$(UART_IMAGE)
-
-.PHONY: mrvl_flash
-mrvl_flash: $(BUILD_PLAT)/$(FLASH_IMAGE)
