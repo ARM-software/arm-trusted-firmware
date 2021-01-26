@@ -123,6 +123,9 @@ There are several build options:
 
         For the mv_ddr source location, check the section "Tools and external components installation"
 
+        If MV_DDR_PATH source code is a git snapshot then provide path to the full git
+        repository (including .git subdir) because mv_ddr build process calls git commands.
+
 - CP_NUM
 
         Total amount of CPs (South Bridge) connected to AP. When the parameter is omitted,
@@ -193,6 +196,9 @@ There are several build options:
         For Armada37x0 only, use this parameter to point to wtptools source code
         directory, which can be found as a3700_utils.zip in the release. Usage
         example: ``WTP=/path/to/a3700_utils``
+
+        If WTP source code is a git snapshot then provide path to the full git
+        repository (including .git subdir) because WTP build process calls git commands.
 
 - CRYPTOPP_PATH
 
