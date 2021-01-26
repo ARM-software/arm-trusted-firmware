@@ -78,6 +78,7 @@ DOIMAGEPATH	:= $(WTP)
 DOIMAGETOOL	:= $(DOIMAGEPATH)/wtptp/src/TBB_Linux/release/TBB_linux
 
 BUILD_UART	:= uart-images
+UART_IMAGE	:= $(BUILD_UART).tgz.bin
 
 ifeq ($(MARVELL_SECURE_BOOT),1)
 DOIMAGE_CFG	:= $(BUILD_PLAT)/atf-tim.txt
@@ -158,9 +159,8 @@ $(TIMDDRTOOL): FORCE
 	$(if $(shell test -s "$(value MV_DDR_PATH)/branch.txt" || git -C $(value MV_DDR_PATH) rev-parse --show-cdup 2>&1),$(error "'MV_DDR_PATH=$(value MV_DDR_PATH)' was specified, but '$(value MV_DDR_PATH)' does not contain valid Marvell mv_ddr release tarball nor git repository"))
 	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) MV_DDR_PATH=$(MV_DDR_PATH) DDR_TOPOLOGY=$(DDR_TOPOLOGY) mv_ddr
 
-.PHONY: mrvl_flash
-mrvl_flash: ${BUILD_PLAT}/${BOOT_IMAGE} ${BUILD_PLAT}/wtmi.bin ${DOIMAGETOOL} ${TIMBUILD}
-	@echo
+$(BUILD_PLAT)/$(UART_IMAGE): $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/wtmi.bin $(DOIMAGETOOL) $(TIMBUILD) $(TIMDDRTOOL)
+	@$(ECHO_BLANK_LINE)
 	@echo "Building uart images"
 	@mkdir -p $(BUILD_PLAT)/$(BUILD_UART)
 	@cp -a $(BUILD_PLAT)/wtmi.bin $(BUILD_PLAT)/$(BUILD_UART)/wtmi.bin
@@ -176,8 +176,13 @@ endif
 ifeq ($(MARVELL_SECURE_BOOT),1)
 	@cd $(BUILD_PLAT)/$(BUILD_UART) && $(DOIMAGETOOL) -r $(TIMNUARTCFG)
 endif
-	@tar czf $(BUILD_PLAT)/$(BUILD_UART).tgz.bin -C $(BUILD_PLAT) $(BUILD_UART)/$(TIM_IMAGE) $(BUILD_UART)/wtmi_h.bin $(BUILD_UART)/boot-image_h.bin
-	@echo
+	@tar czf $(BUILD_PLAT)/$(UART_IMAGE) -C $(BUILD_PLAT) $(BUILD_UART)/$(TIM_IMAGE) $(BUILD_UART)/wtmi_h.bin $(BUILD_UART)/boot-image_h.bin
+	@$(ECHO_BLANK_LINE)
+	@echo "Built $@ successfully"
+	@$(ECHO_BLANK_LINE)
+
+$(BUILD_PLAT)/$(FLASH_IMAGE): $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/wtmi.bin $(DOIMAGETOOL) $(TIMBUILD) $(TIMDDRTOOL) $(TIM2IMG)
+	@$(ECHO_BLANK_LINE)
 	@echo "Building flash image"
 	cd $(BUILD_PLAT) && $(TIMBUILD) $(TIMBLDARGS)
 	sed -i 's|WTMI_IMG|wtmi.bin|1' $(DOIMAGE_CFG)
@@ -207,6 +212,9 @@ ifeq ($(MARVELL_SECURE_BOOT),1)
 	@sed -i 's|$(BOOT_IMAGE)|$(BOOT_ENC_IMAGE)|1' $(TIMNCFG)
 endif
 	cd $(BUILD_PLAT) && $(TIM2IMG) $(TIM2IMGARGS) -o $(BUILD_PLAT)/$(FLASH_IMAGE)
+	@$(ECHO_BLANK_LINE)
+	@echo "Built $@ successfully"
+	@$(ECHO_BLANK_LINE)
 
 clean realclean distclean: mrvl_clean
 
@@ -220,8 +228,13 @@ endif
 
 else # WTP
 
-.PHONY: mrvl_flash
-mrvl_flash:
+$(BUILD_PLAT)/$(UART_IMAGE) $(BUILD_PLAT)/$(FLASH_IMAGE):
 	$(error "Platform '${PLAT}' for target '$@' requires WTP. Please set WTP to point to the right directory")
 
 endif # WTP
+
+.PHONY: mrvl_uart
+mrvl_uart: $(BUILD_PLAT)/$(UART_IMAGE)
+
+.PHONY: mrvl_flash
+mrvl_flash: $(BUILD_PLAT)/$(FLASH_IMAGE)

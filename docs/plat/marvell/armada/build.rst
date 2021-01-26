@@ -236,7 +236,7 @@ line is as following
         MARVELL_SECURE_BOOT=0 DDR_TOPOLOGY=3 BOOTDEV=SPINOR PARTNUM=0 PLAT=a3700 \
         MV_DDR_PATH=/path/to/mv-ddr-marvell/ WTP=/path/to/A3700-utils-marvell/ \
         CRYPTOPP_PATH=/path/to/cryptopp/ BL33=/path/to/u-boot.bin \
-        all fip mrvl_bootimage mrvl_flash
+        all fip mrvl_bootimage mrvl_flash mrvl_uart
 
 To build just TF-A without WTMI image (useful for A3720 Turris MOX board), run following command:
 
@@ -298,8 +298,9 @@ Marvell's TF-A compilation generates 8 files:
       for booting via UART. Could be loaded via Marvell's WtpDownload tool from
       A3700-utils-marvell repository.
 
-Additional make target ``mrvl_bootimage`` produce ``boot-image.bin`` file and target
-``mrvl_flash`` produce final ``flash-image.bin`` and ``uart-images.tgz.bin`` files.
+Additional make target ``mrvl_bootimage`` produce ``boot-image.bin`` file. Target
+``mrvl_flash`` produce final ``flash-image.bin`` file and target ``mrvl_uart``
+produce ``uart-images.tgz.bin`` file.
 
 
 Tools and external components installation
