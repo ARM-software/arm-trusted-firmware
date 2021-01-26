@@ -107,14 +107,8 @@ $(TIMBUILD): $(TIMDDRTOOL)
 # baremetal binary of fuse programming in A3700_utils.
 WTMI_IMG	:= $(DOIMAGEPATH)/wtmi/fuse/build/fuse.bin
 
-# WTMI_SYSINIT_IMG is used for the system early initialization,
-# such as AVS settings, clock-tree setup and dynamic DDR PHY training.
-# After the initialization is done, this image will be wiped out
-# from the memory and CM3 will continue with RTOS image or other application.
-WTMI_SYSINIT_IMG	:= $(DOIMAGEPATH)/wtmi/sys_init/build/sys_init.bin
-
 # WTMI_MULTI_IMG is composed of CM3 RTOS image (WTMI_IMG)
-# and sys-init image (WTMI_SYSINIT_IMG).
+# and sys-init image.
 WTMI_MULTI_IMG		:= $(DOIMAGEPATH)/wtmi/build/wtmi.bin
 
 WTMI_ENC_IMG		:= wtmi-enc.bin
