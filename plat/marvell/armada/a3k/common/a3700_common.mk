@@ -131,11 +131,18 @@ TIMBLDUARTARGS		:= $(MARVELL_SECURE_BOOT) UART $(IMAGESPATH) $(DOIMAGEPATH) $(CL
 				$(DDR_TOPOLOGY) 0 0 $(DOIMAGE_CFG) $(TIMNCFG) $(TIMNSIG) 0
 DOIMAGE_FLAGS		:= -r $(DOIMAGE_CFG) -v -D
 
+CRYPTOPP_LIBDIR		?= $(CRYPTOPP_PATH)
+CRYPTOPP_INCDIR		?= $(CRYPTOPP_PATH)
+
 $(DOIMAGETOOL): FORCE
-	$(if $(value CRYPTOPP_PATH),,$(error "Platform '${PLAT}' for WTP image tool requires CRYPTOPP_PATH. Please set CRYPTOPP_PATH to point to the right directory"))
-	$(if $(wildcard $(value CRYPTOPP_PATH)/*),,$(error "'CRYPTOPP_PATH=$(value CRYPTOPP_PATH)' was specified, but '$(value CRYPTOPP_PATH)' directory does not exist"))
+	$(if $(CRYPTOPP_LIBDIR),,$(error "Platform '$(PLAT)' for WTP image tool requires CRYPTOPP_PATH or CRYPTOPP_LIBDIR. Please set CRYPTOPP_PATH or CRYPTOPP_LIBDIR to point to the right directory"))
+	$(if $(CRYPTOPP_INCDIR),,$(error "Platform '$(PLAT)' for WTP image tool requires CRYPTOPP_PATH or CRYPTOPP_INCDIR. Please set CRYPTOPP_PATH or CRYPTOPP_INCDIR to point to the right directory"))
+	$(if $(wildcard $(CRYPTOPP_LIBDIR)/*),,$(error "Either 'CRYPTOPP_PATH' or 'CRYPTOPP_LIB' was set to '$(CRYPTOPP_LIBDIR)', but '$(CRYPTOPP_LIBDIR)' does not exist"))
+	$(if $(wildcard $(CRYPTOPP_INCDIR)/*),,$(error "Either 'CRYPTOPP_PATH' or 'CRYPTOPP_INCDIR' was set to '$(CRYPTOPP_INCDIR)', but '$(CRYPTOPP_INCDIR)' does not exist"))
+ifdef CRYPTOPP_PATH
 	$(Q)$(MAKE) --no-print-directory -C $(CRYPTOPP_PATH) -f GNUmakefile
-	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak LIBDIR=$(CRYPTOPP_PATH)
+endif
+	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak LIBDIR=$(CRYPTOPP_LIBDIR) INCDIR=$(CRYPTOPP_INCDIR)
 
 $(WTMI_MULTI_IMG): FORCE
 	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) WTMI_IMG=$(WTMI_IMG) WTMI
@@ -206,7 +213,7 @@ clean realclean distclean: mrvl_clean
 .PHONY: mrvl_clean
 mrvl_clean:
 	-$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) MV_DDR_PATH=$(MV_DDR_PATH) clean
-	-$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak LIBDIR=$(CRYPTOPP_PATH) clean
+	-$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak clean
 ifdef CRYPTOPP_PATH
 	-$(Q)$(MAKE) --no-print-directory -C $(CRYPTOPP_PATH) -f GNUmakefile clean
 endif

@@ -202,8 +202,21 @@ There are several build options:
 
 - CRYPTOPP_PATH
 
-        For Armada37x0 only, use this parameter tp point to Crypto++ source code
-        directory, which is required for building WTP image tool.
+        For Armada37x0 only, use this parameter to point to Crypto++ source code
+        directory. If this option is specified then Crypto++ source code in
+        CRYPTOPP_PATH directory will be automatically compiled. Crypto++ library
+        is required for building WTP image tool. Either CRYPTOPP_PATH or
+        CRYPTOPP_LIBDIR with CRYPTOPP_INCDIR needs to be specified for Armada37x0.
+
+- CRYPTOPP_LIBDIR
+
+        For Armada37x0 only, use this parameter to point to the directory with
+        compiled Crypto++ library. By default it points to the CRYPTOPP_PATH.
+
+- CRYPTOPP_INCDIR
+
+        For Armada37x0 only, use this parameter to point to the directory with
+        header files of Crypto++ library. By default it points to the CRYPTOPP_PATH.
 
 
 For example, in order to build the image in debug mode with log level up to 'notice' level run
