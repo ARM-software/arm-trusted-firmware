@@ -145,13 +145,13 @@ endif
 	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak LIBDIR=$(CRYPTOPP_LIBDIR) INCDIR=$(CRYPTOPP_INCDIR)
 
 $(WTMI_MULTI_IMG): FORCE
-	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) WTMI_IMG=$(WTMI_IMG) WTMI
+	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) WTMI_IMG=$(WTMI_IMG) DDR_TOPOLOGY=$(DDR_TOPOLOGY) CLOCKSPRESET=$(CLOCKSPRESET) WTMI
 
 $(TIMDDRTOOL): FORCE
 	$(if $(value MV_DDR_PATH),,$(error "Platform '${PLAT}' for ddr tool requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
 	$(if $(wildcard $(value MV_DDR_PATH)/*),,$(error "'MV_DDR_PATH=$(value MV_DDR_PATH)' was specified, but '$(value MV_DDR_PATH)' directory does not exist"))
 	$(if $(shell test -s "$(value MV_DDR_PATH)/branch.txt" || git -C $(value MV_DDR_PATH) rev-parse --show-cdup 2>&1),$(error "'MV_DDR_PATH=$(value MV_DDR_PATH)' was specified, but '$(value MV_DDR_PATH)' does not contain valid Marvell mv_ddr release tarball nor git repository"))
-	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) MV_DDR_PATH=$(MV_DDR_PATH) mv_ddr
+	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) MV_DDR_PATH=$(MV_DDR_PATH) DDR_TOPOLOGY=$(DDR_TOPOLOGY) mv_ddr
 
 .PHONY: mrvl_flash
 mrvl_flash: ${BUILD_PLAT}/${BOOT_IMAGE} ${WTMI_MULTI_IMG} ${DOIMAGETOOL} ${TIMBUILD}
