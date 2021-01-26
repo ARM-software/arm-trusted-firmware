@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -33,7 +33,7 @@
 #
 
 # Certificate generation tool default parameters
-TRUSTED_KEY_CERT	:=	${BUILD_PLAT}/trusted_key.crt
+TRUSTED_KEY_CERT	?=	${BUILD_PLAT}/trusted_key.crt
 FWU_CERT		:=	${BUILD_PLAT}/fwu_cert.crt
 
 # Default non-volatile counter values (overridable by the platform)
