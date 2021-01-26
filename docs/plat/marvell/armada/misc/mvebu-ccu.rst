@@ -1,7 +1,7 @@
 Marvell CCU address decoding bindings
 =====================================
 
-CCU configration driver (1st stage address translation) for Marvell Armada 8K and 8K+ SoCs.
+CCU configuration driver (1st stage address translation) for Marvell Armada 8K and 8K+ SoCs.
 
 The CCU node includes a description of the address decoding configuration.
 

@@ -689,10 +689,10 @@ New Features
    - arm/common: Allow boards to specify second DRAM Base address
      and to define PLAT_ARM_TZC_FILTERS
 
-   - arm/cornstone700: Add support for mhuv2 and stack protector
+   - arm/corstone700: Add support for mhuv2 and stack protector
 
    - arm/fvp: Add support for fconf in BL31 and SP_MIN. Populate power
-     domain desciptor dynamically by leveraging fconf APIs.
+     domain descriptor dynamically by leveraging fconf APIs.
    - arm/fvp: Add Cactus/Ivy Secure Partition information and use two
      instances of Cactus at S-EL1
    - arm/fvp: Add support to run BL32 in TDRAM and BL31 in secure DRAM
@@ -967,7 +967,7 @@ Changed
      cpu clock, Move versal_def.h and versal_private to include directory
 
 - Tools
-   - sptool: Updated sptool to accomodate building secure partition packages.
+   - sptool: Updated sptool to accommodate building secure partition packages.
 
 Resolved Issues
 ^^^^^^^^^^^^^^^

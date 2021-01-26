@@ -403,7 +403,7 @@ Common build options
    library is not supported.
 
 -  ``INVERTED_MEMMAP``: memmap tool print by default lower addresses at the
-   bottom, higher addresses at the top. This buid flag can be set to '1' to
+   bottom, higher addresses at the top. This build flag can be set to '1' to
    invert this behavior. Lower addresses will be printed at the top and higher
    addresses at the bottom.
 
@@ -570,7 +570,7 @@ Common build options
 -  ``SEPARATE_NOBITS_REGION``: Setting this option to ``1`` allows the NOBITS
    sections of BL31 (.bss, stacks, page tables, and coherent memory) to be
    allocated in RAM discontiguous from the loaded firmware image. When set, the
-   platform is expected to provide definitons for ``BL31_NOBITS_BASE`` and
+   platform is expected to provide definitions for ``BL31_NOBITS_BASE`` and
    ``BL31_NOBITS_LIMIT``. When the option is ``0`` (the default), NOBITS
    sections are placed in RAM immediately following the loaded firmware image.
 
