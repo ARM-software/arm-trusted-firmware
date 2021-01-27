@@ -185,11 +185,16 @@ There are several build options:
 
 - WTMI_IMG
 
-        For Armada37x0 only, the path of the WTMI image can point to an image which
+        For Armada37x0 only, the path of the binary can point to an image which
         does nothing, an image which supports EFUSE or a customized CM3 firmware
-        binary. The default image is wtmi.bin that built from sources in WTP
+        binary. The default image is ``fuse.bin`` that built from sources in WTP
         folder, which is the next option. If the default image is OK, then this
         option should be skipped.
+
+        Please note that this is not a full WTMI image, just a main loop without
+        hardware initialization code. Final WTMI image is built from this WTMI_IMG
+        binary and sys-init code from the WTP directory which sets DDR and CPU
+        clocks according to DDR_TOPOLOGY and CLOCKSPRESET options.
 
 - WTP
 
