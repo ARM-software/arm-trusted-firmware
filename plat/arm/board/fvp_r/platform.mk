@@ -22,6 +22,9 @@ FVP_R_MAX_CPUS_PER_CLUSTER	:= 4
 # Default number of threads per CPU on FVP_R
 FVP_R_MAX_PE_PER_CPU	:= 1
 
+# Use MPU-based memory management:
+XLAT_MPU_LIB_V1		:=	1
+
 # Need to revisit this for FVP_R
 FVP_R_DT_PREFIX		:= fvp-base-gicv3-psci
 
@@ -76,10 +79,20 @@ BL1_SOURCES		+=	drivers/arm/sp805/sp805.c			\
 				drivers/io/io_semihosting.c			\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\
-				plat/arm/board/fvp_r/fvp_r_helpers.S		\
+				plat/arm/board/fvp_r/fvp_r_bl1_arch_setup.c	\
 				plat/arm/board/fvp_r/fvp_r_bl1_setup.c		\
+				plat/arm/board/fvp_r/fvp_r_context_mgmt.c	\
 				plat/arm/board/fvp_r/fvp_r_err.c		\
 				plat/arm/board/fvp_r/fvp_r_io_storage.c		\
+				plat/arm/board/fvp_r/fvp_r_bl1_context_mgmt.c	\
+				plat/arm/board/fvp_r/fvp_r_bl1_entrypoint.S	\
+				plat/arm/board/fvp_r/fvp_r_bl1_exceptions.S	\
+				plat/arm/board/fvp_r/fvp_r_bl1_main.c	\
+				plat/arm/board/fvp_r/fvp_r_context.S		\
+				plat/arm/board/fvp_r/fvp_r_debug.S		\
+				plat/arm/board/fvp_r/fvp_r_helpers.S		\
+				plat/arm/board/fvp_r/fvp_r_misc_helpers.S	\
+				plat/arm/board/fvp_r/fvp_r_pauth_helpers.S	\
 				${FVP_R_CPU_LIBS}				\
 				${FVP_R_INTERCONNECT_SOURCES}
 
@@ -96,9 +109,7 @@ ifneq (${ENABLE_STACK_PROTECTOR},0)
 PLAT_BL_COMMON_SOURCES	+=	plat/arm/board/fvp_r/fvp_r_stack_protector.c
 endif
 
-ifeq (${ARCH},aarch32)
-    NEED_BL32 := yes
-endif
+NEED_BL32 := no
 
 ifneq (${BL2_AT_EL3}, 0)
     override BL1_SOURCES =

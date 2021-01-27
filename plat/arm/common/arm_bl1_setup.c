@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,9 +22,11 @@
 #pragma weak bl1_early_platform_setup
 #pragma weak bl1_plat_arch_setup
 #pragma weak bl1_plat_sec_mem_layout
+#pragma weak arm_bl1_early_platform_setup
 #pragma weak bl1_plat_prepare_exit
 #pragma weak bl1_plat_get_next_image_id
 #pragma weak plat_arm_bl1_fwu_needed
+#pragma weak arm_bl1_plat_arch_setup
 
 #define MAP_BL1_TOTAL		MAP_REGION_FLAT(			\
 					bl1_tzram_layout.total_base,	\

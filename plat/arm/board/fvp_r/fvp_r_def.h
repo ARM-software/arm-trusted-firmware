@@ -36,40 +36,44 @@
  * FVP_R memory map related constants
  ******************************************************************************/
 
-#define FLASH1_BASE			UL(0x0c000000)
+#define FLASH1_BASE			UL(0x8c000000)
 #define FLASH1_SIZE			UL(0x04000000)
 
-#define PSRAM_BASE			UL(0x14000000)
+#define PSRAM_BASE			UL(0x94000000)
 #define PSRAM_SIZE			UL(0x04000000)
 
-#define VRAM_BASE			UL(0x18000000)
+#define VRAM_BASE			UL(0x98000000)
 #define VRAM_SIZE			UL(0x02000000)
 
 /* Aggregate of all devices in the first GB */
-#define DEVICE0_BASE			UL(0x20000000)
+#define DEVICE0_BASE			UL(0xa0000000)
 #define DEVICE0_SIZE			UL(0x0c200000)
 
 /*
  *  In case of FVP_R models with CCN, the CCN register space overlaps into
  *  the NSRAM area.
  */
-#define DEVICE1_BASE			UL(0x2e000000)
+#define DEVICE1_BASE			UL(0xae000000)
 #define DEVICE1_SIZE			UL(0x1A00000)
-#define NSRAM_BASE			UL(0x2e000000)
+
+#define NSRAM_BASE			UL(0xae000000)
 #define NSRAM_SIZE			UL(0x10000)
 /* Devices in the second GB */
-#define DEVICE2_BASE			UL(0x7fe00000)
+#define DEVICE2_BASE			UL(0xffe00000)
 #define DEVICE2_SIZE			UL(0x00200000)
 
+#define PCIE_EXP_BASE			UL(0xc0000000)
+#define TZRNG_BASE			UL(0x7fe60000)
+
 /* Non-volatile counters */
-#define TRUSTED_NVCTR_BASE		UL(0x7fe70000)
+#define TRUSTED_NVCTR_BASE		UL(0xffe70000)
 #define TFW_NVCTR_BASE			(TRUSTED_NVCTR_BASE + UL(0x0000))
 #define TFW_NVCTR_SIZE			UL(4)
 #define NTFW_CTR_BASE			(TRUSTED_NVCTR_BASE + UL(0x0004))
 #define NTFW_CTR_SIZE			UL(4)
 
 /* Keys */
-#define SOC_KEYS_BASE			UL(0x7fe80000)
+#define SOC_KEYS_BASE			UL(0xffe80000)
 #define TZ_PUB_KEY_HASH_BASE		(SOC_KEYS_BASE + UL(0x0000))
 #define TZ_PUB_KEY_HASH_SIZE		UL(32)
 #define HU_KEY_BASE			(SOC_KEYS_BASE + UL(0x0020))

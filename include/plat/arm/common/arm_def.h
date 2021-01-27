@@ -58,12 +58,11 @@
 #define ARM_TRUSTED_DRAM_ID		1
 #define ARM_DRAM_ID			2
 
-/* The first 4KB of Trusted SRAM are used as shared memory */
-#ifdef __PLAT_ARM_TRUSTED_SRAM_BASE__
+#ifdef PLAT_ARM_TRUSTED_SRAM_BASE
 #define ARM_TRUSTED_SRAM_BASE		PLAT_ARM_TRUSTED_SRAM_BASE
 #else
 #define ARM_TRUSTED_SRAM_BASE		UL(0x04000000)
-#endif /* __PLAT_ARM_TRUSTED_SRAM_BASE__ */
+#endif /* PLAT_ARM_TRUSTED_SRAM_BASE */
 
 #define ARM_SHARED_RAM_BASE		ARM_TRUSTED_SRAM_BASE
 #define ARM_SHARED_RAM_SIZE		UL(0x00001000)	/* 4 KB */
@@ -154,11 +153,11 @@
 					 ARM_TZC_DRAM1_SIZE)
 #define ARM_NS_DRAM1_END		(ARM_NS_DRAM1_BASE +		\
 					 ARM_NS_DRAM1_SIZE - 1U)
-#ifdef __PLAT_ARM_DRAM1_BASE__
+#ifdef PLAT_ARM_DRAM1_BASE
 #define ARM_DRAM1_BASE			PLAT_ARM_DRAM1_BASE
 #else
 #define ARM_DRAM1_BASE			ULL(0x80000000)
-#endif /* __PLAT_ARM_DRAM1_BASE__ */
+#endif /* PLAT_ARM_DRAM1_BASE */
 
 #define ARM_DRAM1_SIZE			ULL(0x80000000)
 #define ARM_DRAM1_END			(ARM_DRAM1_BASE +		\
@@ -321,16 +320,44 @@
 					 ARM_BL_REGIONS)
 
 /* Memory mapped Generic timer interfaces  */
+#ifdef PLAT_ARM_SYS_CNTCTL_BASE
+#define ARM_SYS_CNTCTL_BASE             PLAT_ARM_SYS_CNTCTL_BASE
+#else
 #define ARM_SYS_CNTCTL_BASE		UL(0x2a430000)
+#endif
+
+#ifdef PLAT_ARM_SYS_CNTREAD_BASE
+#define ARM_SYS_CNTREAD_BASE             PLAT_ARM_SYS_CNTREAD_BASE
+#else
 #define ARM_SYS_CNTREAD_BASE		UL(0x2a800000)
+#endif
+
+#ifdef PLAT_ARM_SYS_TIMCTL_BASE
+#define ARM_SYS_TIMCTL_BASE             PLAT_ARM_SYS_TIMCTL_BASE
+#else
 #define ARM_SYS_TIMCTL_BASE		UL(0x2a810000)
+#endif
+
+#ifdef PLAT_ARM_SYS_CNT_BASE_S
+#define ARM_SYS_CNT_BASE_S             PLAT_ARM_SYS_CNT_BASE_S
+#else
 #define ARM_SYS_CNT_BASE_S		UL(0x2a820000)
+#endif
+
+#ifdef PLAT_ARM_SYS_CNT_BASE_NS
+#define ARM_SYS_CNT_BASE_NS             PLAT_ARM_SYS_CNT_BASE_NS
+#else
 #define ARM_SYS_CNT_BASE_NS		UL(0x2a830000)
+#endif
 
 #define ARM_CONSOLE_BAUDRATE		115200
 
 /* Trusted Watchdog constants */
+#ifdef PLAT_ARM_SP805_TWDG_BASE
+#define ARM_SP805_TWDG_BASE             PLAT_ARM_SP805_TWDG_BASE
+#else
 #define ARM_SP805_TWDG_BASE		UL(0x2a490000)
+#endif
 #define ARM_SP805_TWDG_CLK_HZ		32768
 /* The TBBR document specifies a watchdog timeout of 256 seconds. SP805
  * asserts reset after two consecutive countdowns (2 x 128 = 256 sec) */

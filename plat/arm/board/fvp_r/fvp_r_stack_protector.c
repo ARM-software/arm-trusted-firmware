@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-#include <arch_helpers.h>
+#include <fvp_r_arch_helpers.h>
 #include <plat/common/platform.h>
 
 #define RANDOM_CANARY_VALUE ((u_register_t) 8092347823957523895ULL)

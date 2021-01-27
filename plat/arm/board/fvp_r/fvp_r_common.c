@@ -4,9 +4,12 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <assert.h>
+/* This uses xlat_mpu, but tables are set up using V2 mmap_region_t */
+#define XLAT_TABLES_LIB_V2	1
 
+#include <assert.h>
 #include <common/debug.h>
+
 #include <drivers/arm/cci.h>
 #include <drivers/arm/ccn.h>
 #include <drivers/arm/gicv2.h>
@@ -109,7 +112,80 @@ static unsigned int get_interconnect_master(void)
  ******************************************************************************/
 void __init fvp_config_setup(void)
 {
+	unsigned int rev, hbi, bld, arch, sys_id;
+
 	arm_config.flags |= ARM_CONFIG_BASE_MMAP;
+	sys_id = mmio_read_32(V2M_FVP_R_SYSREGS_BASE + V2M_SYS_ID);
+	rev = (sys_id >> V2M_SYS_ID_REV_SHIFT) & V2M_SYS_ID_REV_MASK;
+	hbi = (sys_id >> V2M_SYS_ID_HBI_SHIFT) & V2M_SYS_ID_HBI_MASK;
+	bld = (sys_id >> V2M_SYS_ID_BLD_SHIFT) & V2M_SYS_ID_BLD_MASK;
+	arch = (sys_id >> V2M_SYS_ID_ARCH_SHIFT) & V2M_SYS_ID_ARCH_MASK;
+
+	if (arch != ARCH_MODEL) {
+		ERROR("This firmware is for FVP_R models\n");
+		panic();
+	}
+
+	/*
+	 * The build field in the SYS_ID tells which variant of the GIC
+	 * memory is implemented by the model.
+	 */
+	switch (bld) {
+	case BLD_GIC_VE_MMAP:
+		ERROR("Legacy Versatile Express memory map for GIC %s",
+				"peripheral is not supported\n");
+		panic();
+		break;
+	case BLD_GIC_A53A57_MMAP:
+		break;
+	default:
+		ERROR("Unsupported board build %x\n", bld);
+		panic();
+	}
+
+	/*
+	 * The hbi field in the SYS_ID is 0x020 for the Base FVP_R & 0x010
+	 * for the Foundation FVP_R.
+	 */
+	switch (hbi) {
+	case HBI_FOUNDATION_FVP_R:
+		arm_config.flags = 0;
+
+		/*
+		 * Check for supported revisions of Foundation FVP_R
+		 * Allow future revisions to run but emit warning diagnostic
+		 */
+		switch (rev) {
+		case REV_FOUNDATION_FVP_R_V2_0:
+		case REV_FOUNDATION_FVP_R_V2_1:
+		case REV_FOUNDATION_FVP_R_v9_1:
+		case REV_FOUNDATION_FVP_R_v9_6:
+			break;
+		default:
+			WARN("Unrecognized Foundation FVP_R revision %x\n", rev);
+			break;
+		}
+		break;
+	case HBI_BASE_FVP_R:
+		arm_config.flags |= (ARM_CONFIG_BASE_MMAP | ARM_CONFIG_HAS_TZC);
+
+		/*
+		 * Check for supported revisions
+		 * Allow future revisions to run but emit warning diagnostic
+		 */
+		switch (rev) {
+		case REV_BASE_FVP_R_V0:
+			arm_config.flags |= ARM_CONFIG_FVP_HAS_CCI400;
+			break;
+		default:
+			WARN("Unrecognized Base FVP_R revision %x\n", rev);
+			break;
+		}
+		break;
+	default:
+		ERROR("Unsupported board HBI number 0x%x\n", hbi);
+		panic();
+	}
 
 	/*
 	 * We assume that the presence of MT bit, and therefore shifted

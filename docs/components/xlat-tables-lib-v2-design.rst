@@ -10,7 +10,7 @@ required Translation Lookaside Buffer (TLB) maintenance operations.
 More specifically, some use cases that this library aims to support are:
 
 #. Statically allocate translation tables and populate them (at run-time) based
-   on a description of the memory layout. The memory layout is typically
+   upon a description of the memory layout. The memory layout is typically
    provided by the platform port as a list of memory regions;
 
 #. Support for generating translation tables pertaining to a different
@@ -26,22 +26,28 @@ More specifically, some use cases that this library aims to support are:
 #. Support for changing memory attributes of memory regions at run-time.
 
 
-About version 1 and version 2
------------------------------
+About version 1, version 2 and MPU libraries
+--------------------------------------------
 
 This document focuses on version 2 of the library, whose sources are available
 in the ``lib/xlat_tables_v2`` directory. Version 1 of the library can still be
 found in ``lib/xlat_tables`` directory but it is less flexible and doesn't
-support dynamic mapping. Although potential bug fixes will be applied to both
-versions, future features enhancements will focus on version 2 and might not be
-back-ported to version 1. Therefore, it is recommended to use version 2,
-especially for new platform ports.
+support dynamic mapping. ``lib/xlat_mpu``, which configures Arm's MPU
+equivalently, is also addressed here. The ``lib/xlat_mpu`` is experimental,
+meaning that its API may change. It currently strives for consistency and
+code-reuse with xlat_tables_v2.  Future versions may be more MPU-specific (e.g.,
+removing all mentions of virtual addresses). Although potential bug fixes will
+be applied to all versions of the xlat_* libs, future feature enhancements will
+focus on version 2 and might not be back-ported to version 1 and MPU versions.
+Therefore, it is recommended to use version 2, especially for new platform
+ports (unless the platform uses an MPU).
 
-However, please note that version 2 is still in active development and is not
-considered stable yet. Hence, compatibility breaks might be introduced.
+However, please note that version 2 and the MPU version are still in active
+development and is not considered stable yet. Hence, compatibility breaks might
+be introduced.
 
 From this point onwards, this document will implicitly refer to version 2 of the
-library.
+library, unless stated otherwise.
 
 
 Design concepts and interfaces
@@ -101,6 +107,16 @@ lightweight operation.
 The region's granularity is an optional field; if it is not specified the
 library will choose the mapping granularity for this region as it sees fit (more
 details can be found in `The memory mapping algorithm`_ section below).
+
+The MPU library also uses ``struct mmap_region`` to specify translations, but
+the MPU's translations are limited to specification of valid addresses and
+access permissions.  If the requested virtual and physical addresses mismatch
+the system will panic. Being register-based for deterministic memory-reference
+timing, the MPU hardware does not involve memory-resident translation tables.
+
+Currently, the MPU library is also limited to MPU translation at EL2 with no
+MMU translation at other ELs.  These limitations, however, are expected to be
+overcome in future library versions.
 
 Translation Context
 ~~~~~~~~~~~~~~~~~~~
@@ -215,7 +231,8 @@ future.
 The ``MAP_REGION()`` and ``MAP_REGION_FLAT()`` macros do not allow specifying a
 mapping granularity, which leaves the library implementation free to choose
 it. However, in cases where a specific granularity is required, the
-``MAP_REGION2()`` macro might be used instead.
+``MAP_REGION2()`` macro might be used instead. Using ``MAP_REGION_FLAT()`` only
+to define regions for the MPU library is strongly recommended.
 
 As explained earlier in this document, when the dynamic mapping feature is
 disabled, there is no notion of dynamic regions. Conceptually, there are only
@@ -374,6 +391,9 @@ entries in the translation tables are checked to ensure consistency. Please
 refer to the comments in the source code of the core module for more details
 about the sorting algorithm in use.
 
+This mapping algorithm does not apply to the MPU library, since the MPU hardware
+directly maps regions by "base" and "limit" (bottom and top) addresses.
+
 TLB maintenance operations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -389,6 +409,11 @@ that all TLBs are disabled from reset and their contents have no effect on
 address translation at reset [#tlb-reset-ref]_. Therefore, the TLBs invalidation
 is deferred to the ``enable_mmu*()`` family of functions, just before the MMU is
 turned on.
+
+Regarding enabling and disabling memory management, for the MPU library, to
+reduce confusion, calls to enable or disable the MPU use ``mpu`` in their names
+in place of ``mmu``. For example, the ``enable_mmu_el2()`` call is changed to
+``enable_mpu_el2()``.
 
 TLB invalidation is not required when adding dynamic regions either. Dynamic
 regions are not allowed to overlap existing memory region. Therefore, if the
@@ -412,6 +437,6 @@ mapping cannot be cached in the TLBs.
 
 --------------
 
-*Copyright (c) 2017-2019, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.*
 
 .. |Alignment Example| image:: ../resources/diagrams/xlat_align.png
