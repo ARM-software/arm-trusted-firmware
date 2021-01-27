@@ -579,6 +579,11 @@ Common build options
    ``BL31_NOBITS_LIMIT``. When the option is ``0`` (the default), NOBITS
    sections are placed in RAM immediately following the loaded firmware image.
 
+-  ``SMC_PCI_SUPPORT``: This option allows platforms to handle PCI configuration
+   access requests via a standard SMCCC defined in `DEN0115`_. When combined with
+   UEFI+ACPI this can provide a certain amount of OS forward compatibility
+   with newer platforms that aren't ECAM compliant.
+
 -  ``SPD``: Choose a Secure Payload Dispatcher component to be built into TF-A.
    This build option is only valid if ``ARCH=aarch64``. The value should be
    the path to the directory containing the SPD source, relative to
@@ -849,3 +854,6 @@ commands can be used:
 --------------
 
 *Copyright (c) 2019-2021, Arm Limited. All rights reserved.*
+
+.. _DEN0115: https://developer.arm.com/docs/den0115/latest
+
