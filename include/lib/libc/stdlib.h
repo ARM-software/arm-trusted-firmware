@@ -26,4 +26,5 @@ extern int atexit(void (*func)(void));
 extern void exit(int status);
 
 long strtol(const char *nptr, char **endptr, int base);
+unsigned long strtoul(const char *nptr, char **endptr, int base);
 #endif /* STDLIB_H */
