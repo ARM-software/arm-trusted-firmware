@@ -8,8 +8,8 @@
 #include <stdint.h>
 #include <string.h>
 
-#include <drivers/st/scmi-msg.h>
-#include <drivers/st/scmi.h>
+#include <drivers/scmi-msg.h>
+#include <drivers/scmi.h>
 #include <lib/cassert.h>
 #include <lib/mmio.h>
 #include <lib/spinlock.h>

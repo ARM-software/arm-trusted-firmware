@@ -26,11 +26,11 @@ BL32_SOURCES		+=	${GICV2_SOURCES}			\
 BL32_SOURCES		+=	plat/common/plat_psci_common.c
 
 # SCMI server drivers
-BL32_SOURCES		+=	drivers/st/scmi-msg/base.c		\
-				drivers/st/scmi-msg/clock.c		\
-				drivers/st/scmi-msg/entry.c		\
-				drivers/st/scmi-msg/reset_domain.c	\
-				drivers/st/scmi-msg/smt.c
+BL32_SOURCES		+=	drivers/scmi-msg/base.c		\
+				drivers/scmi-msg/clock.c		\
+				drivers/scmi-msg/entry.c		\
+				drivers/scmi-msg/reset_domain.c	\
+				drivers/scmi-msg/smt.c
 
 # stm32mp1 specific services
 BL32_SOURCES		+=	plat/st/stm32mp1/services/bsec_svc.c		\

@@ -6,8 +6,8 @@
 #include <cdefs.h>
 #include <string.h>
 
-#include <drivers/st/scmi-msg.h>
-#include <drivers/st/scmi.h>
+#include <drivers/scmi-msg.h>
+#include <drivers/scmi.h>
 #include <lib/utils_def.h>
 
 #include "common.h"
