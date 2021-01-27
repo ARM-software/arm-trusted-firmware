@@ -65,5 +65,3 @@ USE_COHERENT_MEM			:=	0
 include plat/arm/common/arm_common.mk
 include plat/arm/css/common/css_common.mk
 include plat/arm/board/common/board_common.mk
-
-override ERRATA_N1_1542419		:=	1

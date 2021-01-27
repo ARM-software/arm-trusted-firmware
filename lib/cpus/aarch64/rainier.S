@@ -21,10 +21,6 @@
 #error "Rainier CPU supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
-#if ERRATA_RAINIER_IC_TRAP
-	.global rainier_errata_ic_trap_handler
-#endif
-
 /* --------------------------------------------------
  * Disable speculative loads if Rainier supports
  * SSBS.
@@ -45,42 +41,6 @@ func rainier_disable_speculative_loads
 	ret
 endfunc rainier_disable_speculative_loads
 
-/* --------------------------------------------------
- * Errata Workaround for Neoverse N1 Erratum 1542419.
- * This applies to revisions r3p0 - r4p0 of Neoverse N1
- * Since Rainier core is based on Neoverse N1 r4p0, this
- * errata applies to Rainier core r0p0
- * Inputs:
- * x0: variant[4:7] and revision[0:3] of current cpu.
- * Shall clobber: x0-x17
- * --------------------------------------------------
- */
-func errata_n1_1542419_wa
-	/* Compare x0 against revision r3p0 and r4p0 */
-	mov	x17, x30
-	bl	check_errata_1542419
-	cbz	x0, 1f
-
-        /* Apply instruction patching sequence */
-	mov	x0, xzr
-	msr	CPUPSELR_EL3, x0
-	ldr	x0, =0xEE670D35
-	msr	CPUPOR_EL3, x0
-	ldr	x0, =0xFFFF0FFF
-	msr	CPUPMR_EL3, x0
-	ldr	x0, =0x08000020007D
-	msr	CPUPCR_EL3, x0
-	isb
-1:
-	ret	x17
-endfunc errata_n1_1542419_wa
-
-func check_errata_1542419
-	/* Applies to Rainier core r0p0. */
-	mov	x1, #0x00
-	b	cpu_rev_var_ls
-endfunc check_errata_1542419
-
 func rainier_reset_func
 	mov	x19, x30
 
@@ -94,11 +54,6 @@ func rainier_reset_func
 
 	bl	cpu_get_rev_var
 	mov	x18, x0
-
-#if ERRATA_N1_1542419
-	mov	x0, x18
-	bl	errata_n1_1542419_wa
-#endif
 
 #if ENABLE_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
@@ -146,52 +101,10 @@ func rainier_errata_report
 	bl	cpu_get_rev_var
 	mov	x8, x0
 
-	/*
-	 * Report all errata. The revision-variant information is passed to
-	 * checking functions of each errata.
-	 */
-	report_errata ERRATA_N1_1542419, rainier, 1542419
-
 	ldp	x8, x30, [sp], #16
 	ret
 endfunc rainier_errata_report
 #endif
-
-/*
- * Handle trap of EL0 IC IVAU instructions to EL3 by executing a TLB
- * inner-shareable invalidation to an arbitrary address followed by a DSB.
- *
- * x1: Exception Syndrome
- */
-func rainier_errata_ic_trap_handler
-	cmp	x1, #RAINIER_EC_IC_TRAP
-	b.ne	1f
-	tlbi	vae3is, xzr
-	dsb	sy
-
-        # Skip the IC instruction itself
-        mrs     x3, elr_el3
-        add     x3, x3, #4
-        msr     elr_el3, x3
-
-	ldp	x0, x1, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X0]
-	ldp	x2, x3, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X2]
-	ldp	x4, x5, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_X4]
-	ldr	x30, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_LR]
-
-#if IMAGE_BL31 && RAS_EXTENSION
-	/*
-	 * Issue Error Synchronization Barrier to synchronize SErrors before
-	 * exiting EL3. We're running with EAs unmasked, so any synchronized
-	 * errors would be taken immediately; therefore no need to inspect
-	 * DISR_EL1 register.
-	 */
-	esb
-#endif
-	eret
-1:
-	ret
-endfunc rainier_errata_ic_trap_handler
 
 	/* ---------------------------------------------
 	 * This function provides Rainier specific
@@ -212,7 +125,6 @@ func rainier_cpu_reg_dump
 	ret
 endfunc rainier_cpu_reg_dump
 
-declare_cpu_ops_eh rainier, RAINIER_MIDR, \
+declare_cpu_ops rainier, RAINIER_MIDR, \
 	rainier_reset_func, \
-	rainier_errata_ic_trap_handler, \
 	rainier_core_pwr_dwn
