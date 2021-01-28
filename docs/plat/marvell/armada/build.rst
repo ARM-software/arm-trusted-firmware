@@ -174,6 +174,10 @@ There are several build options:
 
             - SATA - SATA device boot
 
+                Image needs to be stored at disk LBA 0 or at disk partition with
+                MBR type 0x4d (ASCII 'M' as in Marvell) or at disk partition with
+                GPT name ``MARVELL BOOT PARTITION``.
+
 - PARTNUM
 
         For Armada37x0 only, the boot partition number, default is 0.
