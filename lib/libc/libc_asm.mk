@@ -27,6 +27,7 @@ LIBC_SRCS	:=	$(addprefix lib/libc/,		\
 			strrchr.c			\
 			strtok.c			\
 			strtoul.c			\
+			strtoll.c			\
 			strtol.c)
 
 ifeq (${ARCH},aarch64)
