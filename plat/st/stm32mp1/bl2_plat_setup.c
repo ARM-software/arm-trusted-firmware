@@ -15,6 +15,7 @@
 #include <drivers/generic_delay_timer.h>
 #include <drivers/mmc.h>
 #include <drivers/st/bsec.h>
+#include <drivers/st/regulator_fixed.h>
 #include <drivers/st/stm32_iwdg.h>
 #include <drivers/st/stm32_uart.h>
 #include <drivers/st/stm32mp1_clk.h>
@@ -271,6 +272,10 @@ void bl2_el3_plat_arch_setup(void)
 	}
 
 skip_console_init:
+	if (fixed_regulator_register() != 0) {
+		panic();
+	}
+
 	if (dt_pmic_status() > 0) {
 		initialize_pmic();
 		print_pmic_info_and_debug();

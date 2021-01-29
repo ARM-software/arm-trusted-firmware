@@ -465,6 +465,8 @@ static inline uint32_t tamp_bkpr(uint32_t idx)
  ******************************************************************************/
 /* 3 PWR + 1 VREFBUF + 14 PMIC regulators + 1 FIXED */
 #define PLAT_NB_RDEVS			U(19)
+/* 1 FIXED */
+#define PLAT_NB_FIXED_REGS		U(1)
 
 /*******************************************************************************
  * Device Tree defines
