@@ -184,9 +184,11 @@ $(BUILD_PLAT)/$(FLASH_IMAGE): $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/wtmi.bin
 ifeq ($(MARVELL_SECURE_BOOT),1)
 	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(TIMNCFG)
 	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(TIMNCFG)
-	@echo -e "\n\t=======================================================\n";
-	@echo -e "\t  Secure boot. Encrypting wtmi and boot-image \n";
-	@echo -e "\t=======================================================\n";
+	@$(ECHO_BLANK_LINE)
+	@echo "=======================================================";
+	@echo "  Secure boot. Encrypting wtmi and boot-image";
+	@echo "=======================================================";
+	@$(ECHO_BLANK_LINE)
 	$(Q)cp $(BUILD_PLAT)/wtmi.bin $(BUILD_PLAT)/wtmi-align.bin
 	$(Q)truncate -s %16 $(BUILD_PLAT)/wtmi-align.bin
 	$(Q)openssl enc -aes-256-cbc -e -in $(BUILD_PLAT)/wtmi-align.bin \
