@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -36,8 +36,6 @@
 	((state)->pwr_domain_state[CLUSTER_PWR_LVL])
 #define SYSTEM_PWR_STATE(state) \
 	((state)->pwr_domain_state[SYSTEM_PWR_LVL])
-
-#define mpidr_is_valid(mpidr) (plat_core_pos_by_mpidr(mpidr) >= 0)
 
 /*
  * The addresses for the SCP exception vectors are defined in the or1k
@@ -78,9 +76,6 @@ static void sunxi_cpu_standby(plat_local_state_t cpu_state)
 
 static int sunxi_pwr_domain_on(u_register_t mpidr)
 {
-	if (mpidr_is_valid(mpidr) == 0)
-		return PSCI_E_INTERN_FAIL;
-
 	if (scpi_available) {
 		scpi_set_css_power_state(mpidr,
 					 scpi_power_on,
@@ -212,10 +207,11 @@ static int sunxi_validate_power_state(unsigned int power_state,
 static int sunxi_validate_ns_entrypoint(uintptr_t ns_entrypoint)
 {
 	/* The non-secure entry point must be in DRAM */
-	if (ns_entrypoint >= SUNXI_DRAM_BASE)
-		return PSCI_E_SUCCESS;
+	if (ns_entrypoint < SUNXI_DRAM_BASE) {
+		return PSCI_E_INVALID_ADDRESS;
+	}
 
-	return PSCI_E_INVALID_ADDRESS;
+	return PSCI_E_SUCCESS;
 }
 
 static void sunxi_get_sys_suspend_power_state(psci_power_state_t *req_state)
@@ -224,29 +220,6 @@ static void sunxi_get_sys_suspend_power_state(psci_power_state_t *req_state)
 
 	for (unsigned int i = 0; i <= PLAT_MAX_PWR_LVL; ++i)
 		req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
-}
-
-static int sunxi_get_node_hw_state(u_register_t mpidr,
-				   unsigned int power_level)
-{
-	unsigned int cluster_state, cpu_state;
-	unsigned int cpu = MPIDR_AFFLVL0_VAL(mpidr);
-
-	/* SoC power level (always on if PSCI works). */
-	if (power_level == SYSTEM_PWR_LVL)
-		return HW_ON;
-	if (scpi_get_css_power_state(mpidr, &cpu_state, &cluster_state))
-		return PSCI_E_NOT_SUPPORTED;
-	/* Cluster power level (full power state available). */
-	if (power_level == CLUSTER_PWR_LVL) {
-		if (cluster_state == scpi_power_on)
-			return HW_ON;
-		if (cluster_state == scpi_power_retention)
-			return HW_STANDBY;
-		return HW_OFF;
-	}
-	/* CPU power level (one bit boolean for on or off). */
-	return ((cpu_state & BIT(cpu)) != 0) ? HW_ON : HW_OFF;
 }
 
 static plat_psci_ops_t sunxi_psci_ops = {
@@ -297,7 +270,6 @@ int plat_setup_psci_ops(uintptr_t sec_entrypoint,
 		sunxi_psci_ops.pwr_domain_suspend = sunxi_pwr_domain_off;
 		sunxi_psci_ops.pwr_domain_suspend_finish = sunxi_pwr_domain_on_finish;
 		sunxi_psci_ops.get_sys_suspend_power_state = sunxi_get_sys_suspend_power_state;
-		sunxi_psci_ops.get_node_hw_state = sunxi_get_node_hw_state;
 	} else {
 		/* This is only needed when SCPI is unavailable. */
 		sunxi_psci_ops.pwr_domain_pwr_down_wfi = sunxi_pwr_down_wfi;
