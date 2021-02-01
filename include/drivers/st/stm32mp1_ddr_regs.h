@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -284,7 +284,7 @@ struct stm32mp1_ddrphy {
 #define DDRCTRL_PWRCTL_EN_DFI_DRAM_CLK_DISABLE	BIT(3)
 #define DDRCTRL_PWRCTL_SELFREF_SW		BIT(5)
 
-#define DDRCTRL_PWRTMG_SELFREF_TO_X32_MASK	GENMASK(19, 12)
+#define DDRCTRL_PWRTMG_SELFREF_TO_X32_MASK	GENMASK(23, 16)
 #define DDRCTRL_PWRTMG_SELFREF_TO_X32_0		BIT(16)
 
 #define DDRCTRL_RFSHCTL3_DIS_AUTO_REFRESH	BIT(0)
