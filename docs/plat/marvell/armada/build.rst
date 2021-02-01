@@ -277,14 +277,15 @@ Build output
 ------------
 Marvell's TF-A compilation generates 8 files:
 
-    - ble.bin		- BLe image
+    - ble.bin		- BLe image (not available for Armada37x0)
     - bl1.bin		- BL1 image
     - bl2.bin		- BL2 image
     - bl31.bin		- BL31 image
     - fip.bin		- FIP image (contains BL2, BL31 & BL33 (U-Boot) images)
     - boot-image.bin	- TF-A image (contains BL1 and FIP images)
-    - flash-image.bin	- Image which contains boot-image.bin and SPL image.
-      Should be placed on the boot flash/device.
+    - flash-image.bin	- Flashable Marvell firmware image. For Armada37x0 it
+      contains TIM, WTMI and boot-image.bin images. For other platforms it contains
+      BLe and boot-image.bin images. Should be placed on the boot flash/device.
     - uart-images.tgz.bin - GZIPed TAR archive which contains Armada37x0 images
       for booting via UART. Could be loaded via Marvell's WtpDownload tool from
       A3700-utils-marvell repository.
