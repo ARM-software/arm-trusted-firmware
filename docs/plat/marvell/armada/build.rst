@@ -51,6 +51,18 @@ Install ARM 32-bit cross compiler, which is required for building WTMI image for
 
 There are several build options:
 
+- PLAT
+
+        Supported Marvell platforms are:
+
+            - a3700        - A3720 DB, EspressoBin and Turris MOX
+            - a70x0
+            - a70x0_amc    - AMC board
+            - a80x0
+            - a80x0_mcbin  - MacchiatoBin
+            - a80x0_puzzle - IEI Puzzle-M801
+            - t9130        - CN913x
+
 - DEBUG
 
         Default is without debug information (=0). in order to enable it use ``DEBUG=1``.
@@ -235,15 +247,6 @@ You can build TF-A for the Globalscale ESPRESSObin-Ultra board (DDR4, 1 GB) by r
         MV_DDR_PATH=/path/to/mv-ddr-marvell/ WTP=/path/to/A3700-utils-marvell/ \
         CRYPTOPP_PATH=/path/to/cryptopp/ BL33=/path/to/u-boot.bin \
         all fip mrvl_bootimage mrvl_flash
-
-Supported MARVELL_PLATFORM are:
-    - a3700 (for both A3720 DB and EspressoBin)
-    - a70x0
-    - a70x0_amc (for AMC board)
-    - a80x0
-    - a80x0_mcbin (for MacchiatoBin)
-    - a80x0_puzzle (for IEI Puzzle-M801)
-    - t9130 (OcteonTX2 CN913x)
 
 Special Build Flags
 --------------------
