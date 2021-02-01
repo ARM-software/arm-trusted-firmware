@@ -168,6 +168,13 @@ There are several build options:
             - CPU_1000_DDR_800 - CPU at 1000 MHz, DDR at 800 MHz
             - CPU_1200_DDR_750 - CPU at 1200 MHz, DDR at 750 MHz
 
+        Look at Armada37x0 chip package marking on board to identify correct CPU frequency.
+        The last line on package marking (next line after the 88F37x0 line) should contain:
+
+            - C080 or I080 - chip with  800 MHz CPU - use ``CLOCKSPRESET=CPU_800_DDR_800``
+            - C100 or I100 - chip with 1000 MHz CPU - use ``CLOCKSPRESET=CPU_1000_DDR_800``
+            - C120         - chip with 1200 MHz CPU - use ``CLOCKSPRESET=CPU_1200_DDR_750``
+
 - BOOTDEV
 
         For Armada37x0 only, the flash boot device, default is ``SPINOR``.
