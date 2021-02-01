@@ -148,15 +148,15 @@ There are several build options:
         For Armada37x0 only, the DDR topology map index/name, default is 0.
 
         Supported Options:
-            -    0 - DDR3 1CS: DB-88F3720-DDR3-Modular (512MB); EspressoBIN (512MB)
-            -    1 - DDR4 1CS: DB-88F3720-DDR4-Modular (512MB)
-            -    2 - DDR3 2CS: EspressoBIN V3-V5 (1GB 2CS)
-            -    3 - DDR4 2CS: DB-88F3720-DDR4-Modular (4GB)
-            -    4 - DDR3 1CS: DB-88F3720-DDR3-Modular (1GB); EspressoBIN V3-V5 (1GB 1CS)
-            -    5 - DDR4 1CS: EspressoBin V7 (1GB)
-            -    6 - DDR4 2CS: EspressoBin V7 (2GB)
-            -    7 - DDR3 2CS: EspressoBin V3-V5 (2GB)
-            - CUST - CUSTOMER: Customer board, DDR3 1CS 512MB
+            -    0 - DDR3 1CS 512MB (DB-88F3720-DDR3-Modular, EspressoBin V3-V5)
+            -    1 - DDR4 1CS 512MB (DB-88F3720-DDR4-Modular)
+            -    2 - DDR3 2CS   1GB (EspressoBin V3-V5)
+            -    3 - DDR4 2CS   4GB (DB-88F3720-DDR4-Modular)
+            -    4 - DDR3 1CS   1GB (DB-88F3720-DDR3-Modular, EspressoBin V3-V5)
+            -    5 - DDR4 1CS   1GB (EspressoBin V7, EspressoBin-Ultra)
+            -    6 - DDR4 2CS   2GB (EspressoBin V7)
+            -    7 - DDR3 2CS   2GB (EspressoBin V3-V5)
+            - CUST - CUSTOMER BOARD (Customer board settings)
 
 - CLOCKSPRESET
 
