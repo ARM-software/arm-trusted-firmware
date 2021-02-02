@@ -171,7 +171,7 @@
 
 #if SPM_MM && defined(IMAGE_BL31)
 # define PLAT_SP_IMAGE_MMAP_REGIONS	30
-# define PLAT_SP_IMAGE_MAX_XLAT_TABLES	20
+# define PLAT_SP_IMAGE_MAX_XLAT_TABLES	50
 #endif
 
 /*

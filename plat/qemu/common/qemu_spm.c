@@ -29,20 +29,8 @@ mmap_region_t plat_qemu_secure_partition_mmap[] = {
 	{0}
 };
 
-/*
- * Boot information passed to a secure partition during initialisation.
- * Linear indices in MP information will be filled at runtime.
- */
-static spm_mm_mp_info_t sp_mp_info[] = {
-	[0] = {0x80000000, 0},
-	[1] = {0x80000001, 0},
-	[2] = {0x80000002, 0},
-	[3] = {0x80000003, 0},
-	[4] = {0x80000004, 0},
-	[5] = {0x80000005, 0},
-	[6] = {0x80000006, 0},
-	[7] = {0x80000007, 0}
-};
+/* Boot information passed to a secure partition during initialisation. */
+static spm_mm_mp_info_t sp_mp_info[PLATFORM_CORE_COUNT];
 
 spm_mm_boot_info_t plat_qemu_secure_partition_boot_info = {
 	.h.type              = PARAM_SP_IMAGE_BOOT_INFO,
@@ -70,6 +58,25 @@ spm_mm_boot_info_t plat_qemu_secure_partition_boot_info = {
 ehf_pri_desc_t qemu_exceptions[] = {
 	EHF_PRI_DESC(QEMU_PRI_BITS, PLAT_SP_PRI)
 };
+
+static void qemu_initialize_mp_info(spm_mm_mp_info_t *mp_info)
+{
+	unsigned int i, j;
+	spm_mm_mp_info_t *tmp = mp_info;
+
+	for (i = 0; i < PLATFORM_CLUSTER_COUNT; i++) {
+		for (j = 0; j < PLATFORM_MAX_CPUS_PER_CLUSTER; j++) {
+			tmp->mpidr = (0x80000000 | (i << MPIDR_AFF1_SHIFT)) + j;
+			/*
+			 * Linear indices and flags will be filled
+			 * in the spm_mm service.
+			 */
+			tmp->linear_id = 0;
+			tmp->flags = 0;
+			tmp++;
+		}
+	}
+}
 
 int dt_add_ns_buf_node(uintptr_t *base)
 {
@@ -134,5 +141,7 @@ const mmap_region_t *plat_get_secure_partition_mmap(void *cookie)
 const spm_mm_boot_info_t *
 plat_get_secure_partition_boot_info(void *cookie)
 {
+	qemu_initialize_mp_info(sp_mp_info);
+
 	return &plat_qemu_secure_partition_boot_info;
 }
