@@ -123,6 +123,9 @@ There are several build options:
 
         For the mv_ddr source location, check the section "Tools and external components installation"
 
+        If MV_DDR_PATH source code is a git snapshot then provide path to the full git
+        repository (including .git subdir) because mv_ddr build process calls git commands.
+
 - CP_NUM
 
         Total amount of CPs (South Bridge) connected to AP. When the parameter is omitted,
@@ -182,11 +185,16 @@ There are several build options:
 
 - WTMI_IMG
 
-        For Armada37x0 only, the path of the WTMI image can point to an image which
+        For Armada37x0 only, the path of the binary can point to an image which
         does nothing, an image which supports EFUSE or a customized CM3 firmware
-        binary. The default image is wtmi.bin that built from sources in WTP
+        binary. The default image is ``fuse.bin`` that built from sources in WTP
         folder, which is the next option. If the default image is OK, then this
         option should be skipped.
+
+        Please note that this is not a full WTMI image, just a main loop without
+        hardware initialization code. Final WTMI image is built from this WTMI_IMG
+        binary and sys-init code from the WTP directory which sets DDR and CPU
+        clocks according to DDR_TOPOLOGY and CLOCKSPRESET options.
 
 - WTP
 
@@ -194,10 +202,26 @@ There are several build options:
         directory, which can be found as a3700_utils.zip in the release. Usage
         example: ``WTP=/path/to/a3700_utils``
 
+        If WTP source code is a git snapshot then provide path to the full git
+        repository (including .git subdir) because WTP build process calls git commands.
+
 - CRYPTOPP_PATH
 
-        For Armada37x0 only, use this parameter tp point to Crypto++ source code
-        directory, which is required for building WTP image tool.
+        For Armada37x0 only, use this parameter to point to Crypto++ source code
+        directory. If this option is specified then Crypto++ source code in
+        CRYPTOPP_PATH directory will be automatically compiled. Crypto++ library
+        is required for building WTP image tool. Either CRYPTOPP_PATH or
+        CRYPTOPP_LIBDIR with CRYPTOPP_INCDIR needs to be specified for Armada37x0.
+
+- CRYPTOPP_LIBDIR
+
+        For Armada37x0 only, use this parameter to point to the directory with
+        compiled Crypto++ library. By default it points to the CRYPTOPP_PATH.
+
+- CRYPTOPP_INCDIR
+
+        For Armada37x0 only, use this parameter to point to the directory with
+        header files of Crypto++ library. By default it points to the CRYPTOPP_PATH.
 
 
 For example, in order to build the image in debug mode with log level up to 'notice' level run
@@ -217,7 +241,7 @@ line is as following
         MARVELL_SECURE_BOOT=0 DDR_TOPOLOGY=3 BOOTDEV=SPINOR PARTNUM=0 PLAT=a3700 \
         MV_DDR_PATH=/path/to/mv-ddr-marvell/ WTP=/path/to/A3700-utils-marvell/ \
         CRYPTOPP_PATH=/path/to/cryptopp/ BL33=/path/to/u-boot.bin \
-        all fip mrvl_bootimage mrvl_flash
+        all fip mrvl_bootimage mrvl_flash mrvl_uart
 
 To build just TF-A without WTMI image (useful for A3720 Turris MOX board), run following command:
 
@@ -279,8 +303,9 @@ Marvell's TF-A compilation generates 8 files:
       for booting via UART. Could be loaded via Marvell's WtpDownload tool from
       A3700-utils-marvell repository.
 
-Additional make target ``mrvl_bootimage`` produce ``boot-image.bin`` file and target
-``mrvl_flash`` produce final ``flash-image.bin`` and ``uart-images.tgz.bin`` files.
+Additional make target ``mrvl_bootimage`` produce ``boot-image.bin`` file. Target
+``mrvl_flash`` produce final ``flash-image.bin`` file and target ``mrvl_uart``
+produce ``uart-images.tgz.bin`` file.
 
 
 Tools and external components installation
@@ -307,12 +332,12 @@ Armada37x0 Builds require installation of 3 components
         > export CROSS_CM3=/opt/arm-cross/bin/arm-linux-gnueabi
 
 (2) DDR initialization library sources (mv_ddr) available at the following repository
-    (use the "mv-ddr-devel" branch):
+    (use the "master" branch):
 
     https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
 
 (3) Armada3700 tools available at the following repository
-    (use the "A3700_utils-armada-18.12-fixed" branch):
+    (use the "master" branch):
 
     https://github.com/MarvellEmbeddedProcessors/A3700-utils-marvell.git
 
@@ -324,6 +349,6 @@ Armada70x0 and Armada80x0 Builds require installation of an additional component
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 (1) DDR initialization library sources (mv_ddr) available at the following repository
-    (use the "mv-ddr-devel" branch):
+    (use the "master" branch):
 
     https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git

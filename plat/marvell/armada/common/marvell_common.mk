@@ -92,7 +92,12 @@ $(BUILD_PLAT)/$(BOOT_IMAGE): $(BUILD_PLAT)/bl1.bin $(BUILD_PLAT)/$(FIP_NAME)
 	@truncate -s %128K $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
 	@cat $(BUILD_PLAT)/$(FIP_NAME) >> $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
 	@truncate -s %4 $(BUILD_PLAT)/$(BOOT_IMAGE) || { rm -f $(BUILD_PLAT)/$(BOOT_IMAGE); false; }
+	@$(ECHO_BLANK_LINE)
 	@echo "Built $@ successfully"
+	@$(ECHO_BLANK_LINE)
 
 .PHONY: mrvl_bootimage
 mrvl_bootimage: $(BUILD_PLAT)/$(BOOT_IMAGE)
+
+.PHONY: mrvl_flash
+mrvl_flash: $(BUILD_PLAT)/$(FLASH_IMAGE)

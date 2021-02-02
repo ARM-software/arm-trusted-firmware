@@ -71,19 +71,27 @@ endif
 
 ifdef WTP
 
+$(if $(wildcard $(value WTP)/*),,$(error "'WTP=$(value WTP)' was specified, but '$(value WTP)' directory does not exist"))
+$(if $(shell test -s "$(value WTP)/branch.txt" || git -C $(value WTP) rev-parse --show-cdup 2>&1),$(error "'WTP=$(value WTP)' was specified, but '$(value WTP)' does not contain valid Marvell a3700_utils release tarball nor git repository"))
+
 DOIMAGEPATH	:= $(WTP)
 DOIMAGETOOL	:= $(DOIMAGEPATH)/wtptp/src/TBB_Linux/release/TBB_linux
 
-ifeq ($(MARVELL_SECURE_BOOT),1)
-DOIMAGE_CFG	:= $(DOIMAGEPATH)/atf-tim.txt
-IMAGESPATH	:= $(DOIMAGEPATH)/tim/trusted
+BUILD_UART	:= uart-images
+UART_IMAGE	:= $(BUILD_UART).tgz.bin
 
-TIMNCFG		:= $(DOIMAGEPATH)/atf-timN.txt
+ifeq ($(MARVELL_SECURE_BOOT),1)
+DOIMAGE_CFG	:= $(BUILD_PLAT)/atf-tim.txt
+DOIMAGEUART_CFG	:= $(BUILD_PLAT)/$(BUILD_UART)/atf-tim.txt
+IMAGESPATH	:= $(DOIMAGEPATH)/tim/trusted
+TIMNCFG		:= $(BUILD_PLAT)/atf-timN.txt
+TIMNUARTCFG	:= $(BUILD_PLAT)/$(BUILD_UART)/atf-timN.txt
 TIMNSIG		:= $(IMAGESPATH)/timnsign.txt
 TIM2IMGARGS	:= -i $(DOIMAGE_CFG) -n $(TIMNCFG)
 TIMN_IMAGE	:= $$(grep "Image Filename:" -m 1 $(TIMNCFG) | cut -c 17-)
 else #MARVELL_SECURE_BOOT
-DOIMAGE_CFG	:= $(DOIMAGEPATH)/atf-ntim.txt
+DOIMAGE_CFG	:= $(BUILD_PLAT)/atf-ntim.txt
+DOIMAGEUART_CFG	:= $(BUILD_PLAT)/$(BUILD_UART)/atf-ntim.txt
 IMAGESPATH	:= $(DOIMAGEPATH)/tim/untrusted
 TIM2IMGARGS	:= -i $(DOIMAGE_CFG)
 endif #MARVELL_SECURE_BOOT
@@ -99,18 +107,11 @@ $(TIMBUILD): $(TIMDDRTOOL)
 # baremetal binary of fuse programming in A3700_utils.
 WTMI_IMG	:= $(DOIMAGEPATH)/wtmi/fuse/build/fuse.bin
 
-# WTMI_SYSINIT_IMG is used for the system early initialization,
-# such as AVS settings, clock-tree setup and dynamic DDR PHY training.
-# After the initialization is done, this image will be wiped out
-# from the memory and CM3 will continue with RTOS image or other application.
-WTMI_SYSINIT_IMG	:= $(DOIMAGEPATH)/wtmi/sys_init/build/sys_init.bin
-
 # WTMI_MULTI_IMG is composed of CM3 RTOS image (WTMI_IMG)
-# and sys-init image (WTMI_SYSINIT_IMG).
+# and sys-init image.
 WTMI_MULTI_IMG		:= $(DOIMAGEPATH)/wtmi/build/wtmi.bin
 
-WTMI_ENC_IMG		:= $(BUILD_PLAT)/wtmi-enc.bin
-BUILD_UART		:= uart-images
+WTMI_ENC_IMG		:= wtmi-enc.bin
 
 SRCPATH			:= $(dir $(BL33))
 
@@ -125,90 +126,106 @@ TIM_IMAGE		:= $$(grep "Image Filename:" -m 1 $(DOIMAGE_CFG) | cut -c 17-)
 TIMBLDARGS		:= $(MARVELL_SECURE_BOOT) $(BOOTDEV) $(IMAGESPATH) $(DOIMAGEPATH) $(CLOCKSPRESET) \
 				$(DDR_TOPOLOGY) $(PARTNUM) $(DEBUG) $(DOIMAGE_CFG) $(TIMNCFG) $(TIMNSIG) 1
 TIMBLDUARTARGS		:= $(MARVELL_SECURE_BOOT) UART $(IMAGESPATH) $(DOIMAGEPATH) $(CLOCKSPRESET) \
-				$(DDR_TOPOLOGY) 0 0 $(DOIMAGE_CFG) $(TIMNCFG) $(TIMNSIG) 0
-DOIMAGE_FLAGS		:= -r $(DOIMAGE_CFG) -v -D
+				$(DDR_TOPOLOGY) 0 0 $(DOIMAGEUART_CFG) $(TIMNUARTCFG) $(TIMNSIG) 0
+
+CRYPTOPP_LIBDIR		?= $(CRYPTOPP_PATH)
+CRYPTOPP_INCDIR		?= $(CRYPTOPP_PATH)
 
 $(DOIMAGETOOL): FORCE
-	$(if $(value CRYPTOPP_PATH),,$(error "Platform '${PLAT}' for WTP image tool requires CRYPTOPP_PATH. Please set CRYPTOPP_PATH to point to the right directory"))
+	$(if $(CRYPTOPP_LIBDIR),,$(error "Platform '$(PLAT)' for WTP image tool requires CRYPTOPP_PATH or CRYPTOPP_LIBDIR. Please set CRYPTOPP_PATH or CRYPTOPP_LIBDIR to point to the right directory"))
+	$(if $(CRYPTOPP_INCDIR),,$(error "Platform '$(PLAT)' for WTP image tool requires CRYPTOPP_PATH or CRYPTOPP_INCDIR. Please set CRYPTOPP_PATH or CRYPTOPP_INCDIR to point to the right directory"))
+	$(if $(wildcard $(CRYPTOPP_LIBDIR)/*),,$(error "Either 'CRYPTOPP_PATH' or 'CRYPTOPP_LIB' was set to '$(CRYPTOPP_LIBDIR)', but '$(CRYPTOPP_LIBDIR)' does not exist"))
+	$(if $(wildcard $(CRYPTOPP_INCDIR)/*),,$(error "Either 'CRYPTOPP_PATH' or 'CRYPTOPP_INCDIR' was set to '$(CRYPTOPP_INCDIR)', but '$(CRYPTOPP_INCDIR)' does not exist"))
+ifdef CRYPTOPP_PATH
 	$(Q)$(MAKE) --no-print-directory -C $(CRYPTOPP_PATH) -f GNUmakefile
-	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak LIBDIR=$(CRYPTOPP_PATH)
+endif
+	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak LIBDIR=$(CRYPTOPP_LIBDIR) INCDIR=$(CRYPTOPP_INCDIR)
 
 $(WTMI_MULTI_IMG): FORCE
-	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) WTMI_IMG=$(WTMI_IMG) WTMI
+	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) WTMI_IMG=$(WTMI_IMG) DDR_TOPOLOGY=$(DDR_TOPOLOGY) CLOCKSPRESET=$(CLOCKSPRESET) WTMI
+
+$(BUILD_PLAT)/wtmi.bin: $(WTMI_MULTI_IMG)
+	$(Q)cp -a $(WTMI_MULTI_IMG) $(BUILD_PLAT)/wtmi.bin
 
 $(TIMDDRTOOL): FORCE
 	$(if $(value MV_DDR_PATH),,$(error "Platform '${PLAT}' for ddr tool requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
-	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) MV_DDR_PATH=$(MV_DDR_PATH) mv_ddr
+	$(if $(wildcard $(value MV_DDR_PATH)/*),,$(error "'MV_DDR_PATH=$(value MV_DDR_PATH)' was specified, but '$(value MV_DDR_PATH)' directory does not exist"))
+	$(if $(shell test -s "$(value MV_DDR_PATH)/branch.txt" || git -C $(value MV_DDR_PATH) rev-parse --show-cdup 2>&1),$(error "'MV_DDR_PATH=$(value MV_DDR_PATH)' was specified, but '$(value MV_DDR_PATH)' does not contain valid Marvell mv_ddr release tarball nor git repository"))
+	$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) MV_DDR_PATH=$(MV_DDR_PATH) DDR_TOPOLOGY=$(DDR_TOPOLOGY) mv_ddr
 
-.PHONY: mrvl_flash
-mrvl_flash: ${BUILD_PLAT}/${BOOT_IMAGE} ${WTMI_MULTI_IMG} ${DOIMAGETOOL} ${TIMBUILD}
-	@echo
+$(BUILD_PLAT)/$(UART_IMAGE): $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/wtmi.bin $(DOIMAGETOOL) $(TIMBUILD) $(TIMDDRTOOL)
+	@$(ECHO_BLANK_LINE)
 	@echo "Building uart images"
-	$(TIMBUILD) $(TIMBLDUARTARGS)
-	@sed -i 's|WTMI_IMG|$(WTMI_MULTI_IMG)|1' $(DOIMAGE_CFG)
-	@sed -i 's|BOOT_IMAGE|$(BUILD_PLAT)/$(BOOT_IMAGE)|1' $(DOIMAGE_CFG)
+	$(Q)mkdir -p $(BUILD_PLAT)/$(BUILD_UART)
+	$(Q)cp -a $(BUILD_PLAT)/wtmi.bin $(BUILD_PLAT)/$(BUILD_UART)/wtmi.bin
+	$(Q)cp -a $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/$(BUILD_UART)/$(BOOT_IMAGE)
+	$(Q)cd $(BUILD_PLAT)/$(BUILD_UART) && $(TIMBUILD) $(TIMBLDUARTARGS)
+	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(DOIMAGEUART_CFG)
+	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(DOIMAGEUART_CFG)
 ifeq ($(MARVELL_SECURE_BOOT),1)
-	@sed -i 's|WTMI_IMG|$(WTMI_MULTI_IMG)|1' $(TIMNCFG)
-	@sed -i 's|BOOT_IMAGE|$(BUILD_PLAT)/$(BOOT_IMAGE)|1' $(TIMNCFG)
+	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(TIMNUARTCFG)
+	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(TIMNUARTCFG)
 endif
-	$(DOIMAGETOOL) $(DOIMAGE_FLAGS)
-	@if [ -e "$(TIMNCFG)" ]; then $(DOIMAGETOOL) -r $(TIMNCFG); fi
-	@rm -rf $(BUILD_PLAT)/$(BUILD_UART)*
-	@mkdir $(BUILD_PLAT)/$(BUILD_UART)
-	@mv -t $(BUILD_PLAT)/$(BUILD_UART) $(TIM_IMAGE) $(DOIMAGE_CFG) $(TIMN_IMAGE) $(TIMNCFG)
-	@find . -name "*_h.*" |xargs cp -ut $(BUILD_PLAT)/$(BUILD_UART)
-	@mv $(subst .bin,_h.bin,$(WTMI_MULTI_IMG)) $(BUILD_PLAT)/$(BUILD_UART)/wtmi_h.bin
-	@tar czf $(BUILD_PLAT)/$(BUILD_UART).tgz.bin -C $(BUILD_PLAT) ./$(BUILD_UART)
-	@echo
-	@echo "Building flash image"
-	$(TIMBUILD) $(TIMBLDARGS)
-	sed -i 's|WTMI_IMG|$(WTMI_MULTI_IMG)|1' $(DOIMAGE_CFG)
-	sed -i 's|BOOT_IMAGE|$(BUILD_PLAT)/$(BOOT_IMAGE)|1' $(DOIMAGE_CFG)
+	$(Q)cd $(BUILD_PLAT)/$(BUILD_UART) && $(DOIMAGETOOL) -r $(DOIMAGEUART_CFG) -v -D
 ifeq ($(MARVELL_SECURE_BOOT),1)
-	@sed -i 's|WTMI_IMG|$(WTMI_MULTI_IMG)|1' $(TIMNCFG)
-	@sed -i 's|BOOT_IMAGE|$(BUILD_PLAT)/$(BOOT_IMAGE)|1' $(TIMNCFG)
+	$(Q)cd $(BUILD_PLAT)/$(BUILD_UART) && $(DOIMAGETOOL) -r $(TIMNUARTCFG)
+endif
+	$(Q)tar czf $(BUILD_PLAT)/$(UART_IMAGE) -C $(BUILD_PLAT) $(BUILD_UART)/$(TIM_IMAGE) $(BUILD_UART)/wtmi_h.bin $(BUILD_UART)/boot-image_h.bin
+	@$(ECHO_BLANK_LINE)
+	@echo "Built $@ successfully"
+	@$(ECHO_BLANK_LINE)
+
+$(BUILD_PLAT)/$(FLASH_IMAGE): $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/wtmi.bin $(DOIMAGETOOL) $(TIMBUILD) $(TIMDDRTOOL) $(TIM2IMG)
+	@$(ECHO_BLANK_LINE)
+	@echo "Building flash image"
+	$(Q)cd $(BUILD_PLAT) && $(TIMBUILD) $(TIMBLDARGS)
+	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(DOIMAGE_CFG)
+	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(DOIMAGE_CFG)
+ifeq ($(MARVELL_SECURE_BOOT),1)
+	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(TIMNCFG)
+	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(TIMNCFG)
 	@echo -e "\n\t=======================================================\n";
 	@echo -e "\t  Secure boot. Encrypting wtmi and boot-image \n";
 	@echo -e "\t=======================================================\n";
-	@cp $(WTMI_MULTI_IMG) $(BUILD_PLAT)/wtmi-align.bin
-	@truncate -s %16 $(BUILD_PLAT)/wtmi-align.bin
-	@openssl enc -aes-256-cbc -e -in $(BUILD_PLAT)/wtmi-align.bin \
-	-out $(WTMI_ENC_IMG) \
+	$(Q)cp $(BUILD_PLAT)/wtmi.bin $(BUILD_PLAT)/wtmi-align.bin
+	$(Q)truncate -s %16 $(BUILD_PLAT)/wtmi-align.bin
+	$(Q)openssl enc -aes-256-cbc -e -in $(BUILD_PLAT)/wtmi-align.bin \
+	-out $(BUILD_PLAT)/$(WTMI_ENC_IMG) \
 	-K `cat $(IMAGESPATH)/aes-256.txt` -nosalt \
 	-iv `cat $(IMAGESPATH)/iv.txt` -p
-	@truncate -s %16 $(BUILD_PLAT)/$(BOOT_IMAGE);
-	@openssl enc -aes-256-cbc -e -in $(BUILD_PLAT)/$(BOOT_IMAGE) \
+	$(Q)truncate -s %16 $(BUILD_PLAT)/$(BOOT_IMAGE);
+	$(Q)openssl enc -aes-256-cbc -e -in $(BUILD_PLAT)/$(BOOT_IMAGE) \
 	-out $(BUILD_PLAT)/$(BOOT_ENC_IMAGE) \
 	-K `cat $(IMAGESPATH)/aes-256.txt` -nosalt \
 	-iv `cat $(IMAGESPATH)/iv.txt` -p
 endif
-	$(DOIMAGETOOL) $(DOIMAGE_FLAGS)
-	@if [ -e "$(TIMNCFG)" ]; then $(DOIMAGETOOL) -r $(TIMNCFG); fi
+	$(Q)cd $(BUILD_PLAT) && $(DOIMAGETOOL) -r $(DOIMAGE_CFG) -v -D
 ifeq ($(MARVELL_SECURE_BOOT),1)
-	@sed -i 's|$(WTMI_MULTI_IMG)|$(WTMI_ENC_IMG)|1;s|$(BOOT_IMAGE)|$(BOOT_ENC_IMAGE)|1;' $(TIMNCFG)
+	$(Q)cd $(BUILD_PLAT) && $(DOIMAGETOOL) -r $(TIMNCFG)
+	$(Q)sed -i 's|wtmi.bin|$(WTMI_ENC_IMG)|1' $(TIMNCFG)
+	$(Q)sed -i 's|$(BOOT_IMAGE)|$(BOOT_ENC_IMAGE)|1' $(TIMNCFG)
 endif
-	$(TIM2IMG) $(TIM2IMGARGS) -o $(BUILD_PLAT)/$(FLASH_IMAGE)
-	@mv -t $(BUILD_PLAT) $(TIM_IMAGE) $(DOIMAGE_CFG) $(TIMN_IMAGE) $(TIMNCFG)
-	@cp -t $(BUILD_PLAT) $(WTMI_IMG) $(WTMI_SYSINIT_IMG) $(WTMI_MULTI_IMG)
-ifeq ($(MARVELL_SECURE_BOOT),1)
-	@mv -t $(BUILD_PLAT) OtpHash.txt
-endif
-	@find . -name "*.txt" | grep -E "CSK[[:alnum:]]_KeyHash.txt|Tim_msg.txt|TIMHash.txt" | xargs rm -f
+	$(Q)cd $(BUILD_PLAT) && $(TIM2IMG) $(TIM2IMGARGS) -o $(BUILD_PLAT)/$(FLASH_IMAGE)
+	@$(ECHO_BLANK_LINE)
+	@echo "Built $@ successfully"
+	@$(ECHO_BLANK_LINE)
 
 clean realclean distclean: mrvl_clean
 
 .PHONY: mrvl_clean
 mrvl_clean:
 	-$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH) MV_DDR_PATH=$(MV_DDR_PATH) clean
-	-$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak LIBDIR=$(CRYPTOPP_PATH) clean
+	-$(Q)$(MAKE) --no-print-directory -C $(DOIMAGEPATH)/wtptp/src/TBB_Linux -f TBB_linux.mak clean
 ifdef CRYPTOPP_PATH
 	-$(Q)$(MAKE) --no-print-directory -C $(CRYPTOPP_PATH) -f GNUmakefile clean
 endif
 
 else # WTP
 
-.PHONY: mrvl_flash
-mrvl_flash:
+$(BUILD_PLAT)/$(UART_IMAGE) $(BUILD_PLAT)/$(FLASH_IMAGE):
 	$(error "Platform '${PLAT}' for target '$@' requires WTP. Please set WTP to point to the right directory")
 
 endif # WTP
+
+.PHONY: mrvl_uart
+mrvl_uart: $(BUILD_PLAT)/$(UART_IMAGE)
