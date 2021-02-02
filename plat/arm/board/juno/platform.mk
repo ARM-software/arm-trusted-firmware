@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -108,7 +108,7 @@ ifeq ($(USE_ROMLIB),1)
 all : bl1_romlib.bin
 endif
 
-bl1_romlib.bin : $(BUILD_PLAT)/bl1.bin $(BUILD_PLAT)/romlib/romlib.bin
+bl1_romlib.bin : $(BUILD_PLAT)/bl1.bin romlib.bin
 	@echo "Building combined BL1 and ROMLIB binary for Juno $@"
 	./lib/romlib/gen_combined_bl1_romlib.sh -o bl1_romlib.bin $(BUILD_PLAT)
 
