@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2023, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -82,7 +82,11 @@ static void imx8mq_soc_info_init(void)
 	ocotp_val = mmio_read_32(IMX_OCOTP_BASE + OCOTP_SOC_INFO_B1);
 	if (ocotp_val == 0xff0055aa) {
 		imx_soc_revision &= ~0xff;
-		imx_soc_revision |= 0x21;
+		if (rom_version == 0x22) {
+			imx_soc_revision |= 0x22;
+		} else {
+			imx_soc_revision |= 0x21;
+		}
 		return;
 	}
 }
