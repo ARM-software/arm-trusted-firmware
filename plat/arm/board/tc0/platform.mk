@@ -43,7 +43,8 @@ TC0_BASE	=	plat/arm/board/tc0
 
 PLAT_INCLUDES		+=	-I${TC0_BASE}/include/
 
-TC0_CPU_SOURCES	:=	lib/cpus/aarch64/cortex_matterhorn.S
+TC0_CPU_SOURCES	:=	lib/cpus/aarch64/cortex_klein.S         \
+			lib/cpus/aarch64/cortex_matterhorn.S
 
 INTERCONNECT_SOURCES	:=	${TC0_BASE}/tc0_interconnect.c
 
