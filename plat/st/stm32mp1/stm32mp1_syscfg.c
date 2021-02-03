@@ -24,6 +24,7 @@
  * SYSCFG REGISTER OFFSET (base relative)
  */
 #define SYSCFG_BOOTR				0x00U
+#define SYSCFG_BOOTCR				0x0CU
 #if STM32MP15
 #define SYSCFG_IOCTRLSETR			0x18U
 #define SYSCFG_ICNR				0x1CU
@@ -53,6 +54,11 @@
 #define SYSCFG_BOOTR_BOOTPD_MASK		GENMASK(6, 4)
 #define SYSCFG_BOOTR_BOOTPD_SHIFT		4
 #endif
+
+/*
+ * SYSCFG_BOOTCR Register
+ */
+#define SYSCFG_BOOTCR_BMEN			BIT(0)
 
 /*
  * SYSCFG_IOCTRLSETR Register
@@ -391,3 +397,15 @@ uint32_t stm32mp1_syscfg_get_chip_dev_id(void)
 {
 	return mmio_read_32(SYSCFG_BASE + SYSCFG_IDC) & SYSCFG_IDC_DEV_ID_MASK;
 }
+
+#if STM32MP13
+void stm32mp1_syscfg_boot_mode_enable(void)
+{
+	mmio_setbits_32(SYSCFG_BASE + SYSCFG_BOOTCR, SYSCFG_BOOTCR_BMEN);
+}
+
+void stm32mp1_syscfg_boot_mode_disable(void)
+{
+	mmio_clrbits_32(SYSCFG_BASE + SYSCFG_BOOTCR, SYSCFG_BOOTCR_BMEN);
+}
+#endif
