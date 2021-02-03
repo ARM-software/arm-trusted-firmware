@@ -119,7 +119,7 @@
 			compatible = "arm,armv8";
 			reg = <0x400>;
 			enable-method = "psci";
-			clocks = <&scmi_dvfs 0>;
+			clocks = <&scmi_dvfs 1>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 		};
 
@@ -128,7 +128,7 @@
 			compatible = "arm,armv8";
 			reg = <0x500>;
 			enable-method = "psci";
-			clocks = <&scmi_dvfs 0>;
+			clocks = <&scmi_dvfs 1>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 		};
 
@@ -137,7 +137,7 @@
 			compatible = "arm,armv8";
 			reg = <0x600>;
 			enable-method = "psci";
-			clocks = <&scmi_dvfs 0>;
+			clocks = <&scmi_dvfs 1>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 		};
 
@@ -146,7 +146,7 @@
 			compatible = "arm,armv8";
 			reg = <0x700>;
 			enable-method = "psci";
-			clocks = <&scmi_dvfs 0>;
+			clocks = <&scmi_dvfs 1>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 		};
 
