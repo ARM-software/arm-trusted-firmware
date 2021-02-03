@@ -22,7 +22,7 @@
 
 /* The macros below are used to identify FFA calls from the SMC function ID */
 #define FFA_FNUM_MIN_VALUE	U(0x60)
-#define FFA_FNUM_MAX_VALUE	U(0x84)
+#define FFA_FNUM_MAX_VALUE	U(0x85)
 #define is_ffa_fid(fid) __extension__ ({		\
 	__typeof__(fid) _fid = (fid);			\
 	((GET_SMC_NUM(_fid) >= FFA_FNUM_MIN_VALUE) &&	\
@@ -70,7 +70,7 @@
 #define FFA_FNUM_RXTX_MAP		U(0x66)
 #define FFA_FNUM_RXTX_UNMAP		U(0x67)
 #define FFA_FNUM_PARTITION_INFO_GET	U(0x68)
-#define FFA_FNUM_ID_GET		U(0x69)
+#define FFA_FNUM_ID_GET			U(0x69)
 #define FFA_FNUM_MSG_POLL		U(0x6A)
 #define FFA_FNUM_MSG_WAIT		U(0x6B)
 #define FFA_FNUM_MSG_YIELD		U(0x6C)
@@ -86,6 +86,7 @@
 #define FFA_FNUM_MEM_RELINQUISH	U(0x76)
 #define FFA_FNUM_MEM_RECLAIM		U(0x77)
 #define FFA_FNUM_SECONDARY_EP_REGISTER	U(0x84)
+#define FFA_FNUM_SPM_ID_GET		U(0x85)
 
 /* FFA SMC32 FIDs */
 #define FFA_ERROR		FFA_FID(SMC_32, FFA_FNUM_ERROR)
@@ -115,6 +116,7 @@
 #define FFA_MEM_RETRIEVE_RESP	FFA_FID(SMC_32, FFA_FNUM_MEM_RETRIEVE_RESP)
 #define FFA_MEM_RELINQUISH	FFA_FID(SMC_32, FFA_FNUM_MEM_RELINQUISH)
 #define FFA_MEM_RECLAIM	FFA_FID(SMC_32, FFA_FNUM_MEM_RECLAIM)
+#define FFA_SPM_ID_GET		FFA_FID(SMC_32, FFA_FNUM_SPM_ID_GET)
 
 /* FFA SMC64 FIDs */
 #define FFA_ERROR_SMC64		FFA_FID(SMC_64, FFA_FNUM_ERROR)
