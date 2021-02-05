@@ -44,6 +44,10 @@ ifeq (${ERRATA_DDR_A010165},1)
 $(eval $(call add_define,ERRATA_DDR_A010165))
 endif
 
+ifeq (${ERRATA_DDR_A009663},1)
+$(eval $(call add_define,ERRATA_DDR_A009663))
+endif
+
 endif
 
 ifeq ($(DDR_BIST), yes)
