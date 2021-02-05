@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -12,6 +12,9 @@
 #include <lib/psci/psci.h>
 #if defined(SPD_spmd)
  #include <services/spm_core_manifest.h>
+#endif
+#if TRNG_SUPPORT
+#include "plat_trng.h"
 #endif
 
 /*******************************************************************************
