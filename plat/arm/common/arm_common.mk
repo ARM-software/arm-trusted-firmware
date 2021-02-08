@@ -86,11 +86,7 @@ $(eval $(call assert_boolean,ARM_LINUX_KERNEL_AS_BL33))
 $(eval $(call add_define,ARM_LINUX_KERNEL_AS_BL33))
 
 ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
-  ifeq (${ARCH},aarch64)
-    ifneq (${RESET_TO_BL31},1)
-      $(error "ARM_LINUX_KERNEL_AS_BL33 is only available if RESET_TO_BL31=1.")
-    endif
-  else
+  ifneq (${ARCH},aarch64)
     ifneq (${RESET_TO_SP_MIN},1)
       $(error "ARM_LINUX_KERNEL_AS_BL33 is only available if RESET_TO_SP_MIN=1.")
     endif
