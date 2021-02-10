@@ -142,10 +142,12 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 	}
 #endif
 
+#if TRNG_SUPPORT
 	if (is_trng_fid(smc_fid)) {
 		return trng_smc_handler(smc_fid, x1, x2, x3, x4, cookie, handle,
 				flags);
 	}
+#endif
 
 	switch (smc_fid) {
 	case ARM_STD_SVC_CALL_COUNT:
