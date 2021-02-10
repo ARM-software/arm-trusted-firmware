@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -135,7 +135,16 @@
 
 /* Base FVP compatible GIC memory map */
 #define BASE_GICD_BASE			UL(0x2f000000)
+#define BASE_GICD_SIZE			UL(0x10000)
 #define BASE_GICR_BASE			UL(0x2f100000)
+
+#if GIC_ENABLE_V4_EXTN
+/* GICv4 redistributor size: 256KB */
+#define BASE_GICR_SIZE			UL(0x40000)
+#else
+#define BASE_GICR_SIZE			UL(0x20000)
+#endif /* GIC_ENABLE_V4_EXTN */
+
 #define BASE_GICC_BASE			UL(0x2c000000)
 #define BASE_GICH_BASE			UL(0x2c010000)
 #define BASE_GICV_BASE			UL(0x2c02f000)

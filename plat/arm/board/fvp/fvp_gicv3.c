@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,6 +14,11 @@
 #include <plat/arm/common/plat_arm.h>
 #include <plat/arm/common/fconf_sec_intr_config.h>
 #include <plat/common/platform.h>
+
+#if FVP_GICR_REGION_PROTECTION
+/* To indicate GICR region of the core initialized as Read-Write */
+static bool fvp_gicr_rw_region_init[PLATFORM_CORE_COUNT] = {false};
+#endif /* FVP_GICR_REGION_PROTECTION */
 
 /* The GICv3 driver only needs to be initialized in EL3 */
 static uintptr_t fvp_rdistif_base_addrs[PLATFORM_CORE_COUNT];
@@ -61,8 +66,39 @@ static gicv3_driver_data_t fvp_gic_data = {
 	.mpidr_to_core_pos = fvp_gicv3_mpidr_hash
 };
 
+/******************************************************************************
+ * This function gets called per core to make its redistributor frame rw
+ *****************************************************************************/
+static void fvp_gicv3_make_rdistrif_rw(void)
+{
+#if FVP_GICR_REGION_PROTECTION
+	unsigned int core_pos = plat_my_core_pos();
+
+	/* Make the redistributor frame RW if it is not done previously */
+	if (fvp_gicr_rw_region_init[core_pos] != true) {
+		int ret = xlat_change_mem_attributes(BASE_GICR_BASE +
+						     (core_pos * BASE_GICR_SIZE),
+						     BASE_GICR_SIZE,
+						     MT_EXECUTE_NEVER |
+						     MT_DEVICE | MT_RW |
+						     MT_SECURE);
+
+		if (ret != 0) {
+			ERROR("Failed to make redistributor frame \
+			       read write = %d\n", ret);
+			panic();
+		} else {
+			fvp_gicr_rw_region_init[core_pos] = true;
+		}
+	}
+#else
+	return;
+#endif /* FVP_GICR_REGION_PROTECTION */
+}
+
 void plat_arm_gic_driver_init(void)
 {
+	fvp_gicv3_make_rdistrif_rw();
 	/*
 	 * Get GICD and GICR base addressed through FCONF APIs.
 	 * FCONF is not supported in BL32 for FVP.
@@ -116,6 +152,8 @@ void plat_arm_gic_pcpu_init(void)
 {
 	int result;
 	const uint64_t *plat_gicr_frames = fvp_gicr_frames;
+
+	fvp_gicv3_make_rdistrif_rw();
 
 	do {
 		result = gicv3_rdistif_probe(*plat_gicr_frames);
