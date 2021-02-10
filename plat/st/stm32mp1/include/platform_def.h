@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -68,9 +68,14 @@
  * BL32 specific defines.
  ******************************************************************************/
 #ifndef AARCH32_SP_OPTEE
+#if ENABLE_PIE
+#define BL32_BASE			0
+#define BL32_LIMIT			STM32MP_BL32_SIZE
+#else
 #define BL32_BASE			STM32MP_BL32_BASE
 #define BL32_LIMIT			(STM32MP_BL32_BASE + \
 					 STM32MP_BL32_SIZE)
+#endif
 #endif
 
 /*******************************************************************************
