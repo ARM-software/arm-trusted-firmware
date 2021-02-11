@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -20,11 +20,17 @@ LIBC_SRCS	:=	$(addprefix lib/libc/,		\
 			snprintf.c			\
 			strchr.c			\
 			strcmp.c			\
+			strlcat.c			\
 			strlcpy.c			\
 			strlen.c			\
 			strncmp.c			\
 			strnlen.c			\
-			strrchr.c)
+			strrchr.c			\
+			strtok.c			\
+			strtoul.c			\
+			strtoll.c			\
+			strtoull.c			\
+			strtol.c)
 
 ifeq (${ARCH},aarch64)
 LIBC_SRCS	+=	$(addprefix lib/libc/aarch64/,	\
