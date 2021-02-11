@@ -37,6 +37,11 @@ BL32_SOURCES		+=	bl32/sp_min/wa_cve_2017_5715_bpiall.S	\
 				bl32/sp_min/wa_cve_2017_5715_icache_inv.S
 endif
 
+ifeq (${TRNG_SUPPORT},1)
+BL32_SOURCES		+=	services/std_svc/trng/trng_main.c	\
+				services/std_svc/trng/trng_entropy_pool.c
+endif
+
 BL32_LINKERFILE	:=	bl32/sp_min/sp_min.ld.S
 
 # Include the platform-specific SP_MIN Makefile
