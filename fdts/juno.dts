@@ -9,3 +9,7 @@
 / {
 
 };
+
+#if ARM_ETHOSN_NPU_DRIVER
+	#include "juno-ethosn.dtsi"
+#endif

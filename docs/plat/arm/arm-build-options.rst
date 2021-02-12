@@ -91,6 +91,12 @@ Arm Platform Build Options
    platforms. If this option is specified, then the path to the CryptoCell
    SBROM library must be specified via ``CCSBROM_LIB_PATH`` flag.
 
+-  ``ARM_ETHOSN_NPU_DRIVER``: boolean option to enable a SiP service that can
+   configure an Arm Ethos-N NPU. To use this service the target platform's
+   ``HW_CONFIG`` must include the device tree nodes for the NPU. Currently, only
+   the Arm Juno platform has this included in its ``HW_CONFIG`` and the platform
+   only loads the ``HW_CONFIG`` in AArch64 builds. Default is 0.
+
 -  ``ARM_SPMC_MANIFEST_DTS`` : path to an alternate manifest file used as the
    SPMC Core manifest. Valid when ``SPD=spmd`` is selected.
 
@@ -128,4 +134,4 @@ Arm CSS Platform-Specific Build Options
 
 --------------
 
-*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2021, Arm Limited. All rights reserved.*
