@@ -83,6 +83,10 @@ BL31_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c		\
 				lib/cpus/aarch64/cortex_a57.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
 				lib/utils/mem_region.c			\
+				common/fdt_wrappers.c			\
+				lib/fconf/fconf.c			\
+				lib/fconf/fconf_dyn_cfg_getter.c	\
+				plat/arm/board/juno/juno_bl31_setup.c	\
 				plat/arm/board/juno/juno_pm.c		\
 				plat/arm/board/juno/juno_topology.c	\
 				plat/arm/common/arm_nor_psci_mem_protect.c \
@@ -174,15 +178,19 @@ BL32_CPPFLAGS += -march=armv8-a+crc
 
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES		+=	plat/arm/board/juno/fdts/${PLAT}_fw_config.dts	\
-				plat/arm/board/juno/fdts/${PLAT}_tb_fw_config.dts
+				plat/arm/board/juno/fdts/${PLAT}_tb_fw_config.dts \
+				fdts/${PLAT}.dts
 
 FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_fw_config.dtb
 TB_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_tb_fw_config.dtb
+HW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}.dtb
 
 # Add the FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${FW_CONFIG},--fw-config,${FW_CONFIG}))
 # Add the TB_FW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${TB_FW_CONFIG},--tb-fw-config,${TB_FW_CONFIG}))
+# Add the HW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${HW_CONFIG},--hw-config,${HW_CONFIG}))
 
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk

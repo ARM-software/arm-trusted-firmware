@@ -1742,9 +1742,9 @@ In Arm standard platforms, the arguments received are :
     which is list of executable images following BL31,
 
     arg1 - Points to load address of SOC_FW_CONFIG if present
-           except in case of Arm FVP platform.
+           except in case of Arm FVP and Juno platform.
 
-           In case of Arm FVP platform, Points to load address
+           In case of Arm FVP and Juno platform, points to load address
            of FW_CONFIG.
 
     arg2 - Points to load address of HW_CONFIG if present

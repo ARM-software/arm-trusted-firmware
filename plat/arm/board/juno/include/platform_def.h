@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,6 +52,14 @@
 
 #define PLAT_ARM_DRAM2_BASE		ULL(0x880000000)
 #define PLAT_ARM_DRAM2_SIZE		ULL(0x180000000)
+
+#define PLAT_HW_CONFIG_DTB_BASE		ULL(0x82000000)
+#define PLAT_HW_CONFIG_DTB_SIZE		ULL(0x00008000) /* 32KB */
+
+#define ARM_DTB_DRAM_NS			MAP_REGION_FLAT(		\
+					PLAT_HW_CONFIG_DTB_BASE,	\
+					PLAT_HW_CONFIG_DTB_SIZE,	\
+					MT_MEMORY | MT_RO | MT_NS)
 
 /* virtual address used by dynamic mem_protect for chunk_base */
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xc0000000)
@@ -108,7 +116,7 @@
 
 #ifdef IMAGE_BL31
 #  define PLAT_ARM_MMAP_ENTRIES		7
-#  define MAX_XLAT_TABLES		3
+#  define MAX_XLAT_TABLES		5
 #endif
 
 #ifdef IMAGE_BL32
