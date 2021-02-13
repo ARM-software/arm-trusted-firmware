@@ -151,7 +151,8 @@
  * BL33
  ******************************************************************************/
 #define BL33_BASE		DRAM1_NS_BASE
-
+#define BL33_COMP_SIZE		U(0x200000)
+#define BL33_COMP_BASE		(BL33_BASE - BL33_COMP_SIZE)
 
 /*******************************************************************************
  * Platform specific page table and MMU setup constants

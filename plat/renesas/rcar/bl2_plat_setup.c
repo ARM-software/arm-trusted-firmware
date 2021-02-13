@@ -15,12 +15,16 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
+#include <common/image_decompress.h>
 #include <drivers/console.h>
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_storage.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <plat/common/platform.h>
+#if RCAR_GEN3_BL33_GZIP == 1
+#include <tf_gunzip.h>
+#endif
 
 #include "avs_driver.h"
 #include "boot_init_dram.h"
@@ -357,15 +361,28 @@ static uint32_t is_ddr_backup_mode(void)
 #endif
 }
 
+#if RCAR_GEN3_BL33_GZIP == 1
+void bl2_plat_preload_setup(void)
+{
+	image_decompress_init(BL33_COMP_BASE, BL33_COMP_SIZE, gunzip);
+}
+#endif
+
 int bl2_plat_handle_pre_image_load(unsigned int image_id)
 {
 	u_register_t *boot_kind = (void *) BOOT_KIND_BASE;
 	bl_mem_params_node_t *bl_mem_params;
 
+	bl_mem_params = get_bl_mem_params_node(image_id);
+
+#if RCAR_GEN3_BL33_GZIP == 1
+	if (image_id == BL33_IMAGE_ID) {
+		image_decompress_prepare(&bl_mem_params->image_info);
+	}
+#endif
+
 	if (image_id != BL31_IMAGE_ID)
 		return 0;
-
-	bl_mem_params = get_bl_mem_params_node(image_id);
 
 	if (is_ddr_backup_mode() == RCAR_COLD_BOOT)
 		goto cold_boot;
@@ -433,6 +450,19 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 			sizeof(entry_point_info_t));
 		break;
 	case BL33_IMAGE_ID:
+#if RCAR_GEN3_BL33_GZIP == 1
+		if ((mmio_read_32(BL33_COMP_BASE) & 0xffff) == 0x8b1f) {
+			/* decompress gzip-compressed image */
+			ret = image_decompress(&bl_mem_params->image_info);
+			if (ret != 0) {
+				return ret;
+			}
+		} else {
+			/* plain image, copy it in place */
+			memcpy((void *)BL33_BASE, (void *)BL33_COMP_BASE,
+				bl_mem_params->image_info.image_size);
+		}
+#endif
 		memcpy(&params->bl33_ep_info, &bl_mem_params->ep_info,
 			sizeof(entry_point_info_t));
 		break;
