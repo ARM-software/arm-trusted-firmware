@@ -10,7 +10,9 @@
 #include <common/debug.h>
 #include <drivers/allwinner/axp.h>
 #include <drivers/allwinner/sunxi_rsb.h>
+#include <lib/mmio.h>
 
+#include <sunxi_cpucfg.h>
 #include <sunxi_def.h>
 #include <sunxi_mmap.h>
 #include <sunxi_private.h>
@@ -101,4 +103,17 @@ void sunxi_power_down(void)
 	default:
 		break;
 	}
+}
+
+void sunxi_cpu_power_off_self(void)
+{
+	u_register_t mpidr = read_mpidr();
+	unsigned int core  = MPIDR_AFFLVL0_VAL(mpidr);
+
+	/* Enable the CPUIDLE hardware (only really needs to be done once). */
+	mmio_write_32(SUNXI_CPUIDLE_EN_REG, 0x16aa0000);
+	mmio_write_32(SUNXI_CPUIDLE_EN_REG, 0xaa160001);
+
+	/* Trigger power off for this core. */
+	mmio_write_32(SUNXI_CORE_CLOSE_REG, BIT_32(core));
 }
