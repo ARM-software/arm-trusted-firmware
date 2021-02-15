@@ -95,6 +95,7 @@ Build Instructions
 ------------------
 Boot media(s) supported by BL2 must be specified in the build command.
 Available storage medias are:
+
 - ``STM32MP_SDMMC``
 - ``STM32MP_EMMC``
 - ``STM32MP_RAW_NAND``
@@ -112,6 +113,7 @@ To build with SP_min and support for all bootable devices:
     make DEVICE_TREE=stm32mp157c-ev1 all
 
 To build TF-A with OP-TEE support for all bootable devices:
+
 .. code:: bash
 
     make CROSS_COMPILE=arm-linux-gnueabihf- PLAT=stm32mp1 ARCH=aarch32 ARM_ARCH_MAJOR=7 AARCH32_SP=optee STM32MP_SDMMC=1 STM32MP_EMMC=1 STM32MP_RAW_NAND=1 STM32MP_SPI_NAND=1 STM32MP_SPI_NOR=1 DTB_FILE_NAME=stm32mp157c-ev1.dtb
