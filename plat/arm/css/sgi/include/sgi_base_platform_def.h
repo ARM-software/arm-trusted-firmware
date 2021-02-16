@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -182,16 +182,6 @@
 
 #define SP_DMC_ERROR_ECC_EVENT_AARCH64		0xC4000044
 #define SP_DMC_ERROR_ECC_EVENT_AARCH32		0x84000044
-
-/* ARM SDEI dynamic shared event numbers */
-#define SGI_SDEI_DS_EVENT_0			804
-#define SGI_SDEI_DS_EVENT_1			805
-
-#define PLAT_ARM_PRIVATE_SDEI_EVENTS	\
-	SDEI_DEFINE_EVENT_0(ARM_SDEI_SGI), \
-	SDEI_EXPLICIT_EVENT(SGI_SDEI_DS_EVENT_0, SDEI_MAPF_CRITICAL), \
-	SDEI_EXPLICIT_EVENT(SGI_SDEI_DS_EVENT_1, SDEI_MAPF_CRITICAL),
-#define PLAT_ARM_SHARED_SDEI_EVENTS
 
 #define ARM_SP_CPER_BUF_BASE			(PLAT_SP_IMAGE_NS_BUF_BASE + \
 						PLAT_SP_IMAGE_NS_BUF_SIZE)
