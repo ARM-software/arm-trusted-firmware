@@ -60,10 +60,10 @@ func console_a3700_core_init
 	str	w3, [x0, #UART_POSSR_REG]
 
 	/*
-	 * Wait for the TX (THR and TSR) to be empty. If wait for 2ms, the TX FIFO is
+	 * Wait for the TX (THR and TSR) to be empty. If wait for 3ms, the TX FIFO is
 	 * still not empty, TX FIFO will reset by all means.
 	 */
-	mov	w1, #20				/* max time out 20 * 100 us */
+	mov	w1, #30				/* max time out 30 * 100 us */
 2:
 	/* Check whether TX (THR and TSR) is empty */
 	ldr	w3, [x0, #UART_STATUS_REG]
