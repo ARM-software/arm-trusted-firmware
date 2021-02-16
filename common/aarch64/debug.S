@@ -208,6 +208,9 @@ el3_panic:
 	sub	x4, x4, #4
 	bl	asm_print_hex
 
+	/* Print new line */
+	bl	asm_print_newline
+
 	bl	plat_crash_console_flush
 
 _panic_handler:
