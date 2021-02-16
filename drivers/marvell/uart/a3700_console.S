@@ -60,10 +60,10 @@ func console_a3700_core_init
 	str	w3, [x0, #UART_POSSR_REG]
 
 	/*
-	 * Wait for the TX (THR and TSR) to be empty. If wait for 20ms, the TX FIFO is
+	 * Wait for the TX (THR and TSR) to be empty. If wait for 2ms, the TX FIFO is
 	 * still not empty, TX FIFO will reset by all means.
 	 */
-	mov	w1, #20				/* max time out 20ms */
+	mov	w1, #20				/* max time out 20 * 100 us */
 2:
 	/* Check whether TX (THR and TSR) is empty */
 	ldr	w3, [x0, #UART_STATUS_REG]
@@ -72,13 +72,13 @@ func console_a3700_core_init
 	b.ne	4f
 
 	/* Delay */
-	mov	w2, #30000
+	mov	w2, #30000	/* 30000 cycles of below 3 instructions on 600 MHz CPU ~~ 100 us */
 3:
 	sub     w2, w2, #1
 	cmp	w2, #0
 	b.ne	3b
 
-	/* Check whether 10ms is waited */
+	/* Check whether wait timeout expired */
 	sub     w1, w1, #1
 	cmp	w1, #0
 	b.ne	2b
