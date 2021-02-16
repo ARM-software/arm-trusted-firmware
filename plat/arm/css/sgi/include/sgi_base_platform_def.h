@@ -165,28 +165,36 @@
 
 #define PLAT_SP_PRI				PLAT_RAS_PRI
 
-#if RAS_EXTENSION
-/* Allocate 128KB for CPER buffers */
-#define PLAT_SP_BUF_BASE			ULL(0x20000)
-
-#define PLAT_ARM_SP_IMAGE_STACK_BASE		(PLAT_SP_IMAGE_NS_BUF_BASE + \
-						PLAT_SP_IMAGE_NS_BUF_SIZE + \
-						PLAT_SP_BUF_BASE)
-
-#define ARM_SP_CPER_BUF_BASE			(PLAT_SP_IMAGE_NS_BUF_BASE + \
-						PLAT_SP_IMAGE_NS_BUF_SIZE)
-#define ARM_SP_CPER_BUF_SIZE			ULL(0x20000)
-#define ARM_SP_CPER_BUF_MMAP			MAP_REGION2(		\
-						ARM_SP_CPER_BUF_BASE,	\
-						ARM_SP_CPER_BUF_BASE,	\
-						ARM_SP_CPER_BUF_SIZE,	\
-						MT_RW_DATA | MT_NS | MT_USER, \
+#if SPM_MM && RAS_EXTENSION
+/*
+ * CPER buffer memory of 128KB is reserved and it is placed adjacent to the
+ * memory shared between EL3 and S-EL0.
+ */
+#define CSS_SGI_SP_CPER_BUF_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE + \
+					 PLAT_SP_IMAGE_NS_BUF_SIZE)
+#define CSS_SGI_SP_CPER_BUF_SIZE	ULL(0x20000)
+#define CSS_SGI_SP_CPER_BUF_MMAP	MAP_REGION2(			       \
+						CSS_SGI_SP_CPER_BUF_BASE,      \
+						CSS_SGI_SP_CPER_BUF_BASE,      \
+						CSS_SGI_SP_CPER_BUF_SIZE,      \
+						MT_RW_DATA | MT_NS | MT_USER,  \
 						PAGE_SIZE)
 
-#else
+/*
+ * Secure partition stack follows right after the memory space reserved for
+ * CPER buffer memory.
+ */
+#define PLAT_ARM_SP_IMAGE_STACK_BASE		(PLAT_SP_IMAGE_NS_BUF_BASE +   \
+						 PLAT_SP_IMAGE_NS_BUF_SIZE +   \
+						 CSS_SGI_SP_CPER_BUF_SIZE)
+#elif SPM_MM
+/*
+ * Secure partition stack follows right after the memory region that is shared
+ * between EL3 and S-EL0.
+ */
 #define PLAT_ARM_SP_IMAGE_STACK_BASE	(PLAT_SP_IMAGE_NS_BUF_BASE +	\
 					 PLAT_SP_IMAGE_NS_BUF_SIZE)
-#endif /* RAS_EXTENSION */
+#endif /* SPM_MM && RAS_EXTENSION */
 
 /* Platform ID address */
 #define SSC_VERSION                     (SSC_REG_BASE + SSC_VERSION_OFFSET)
