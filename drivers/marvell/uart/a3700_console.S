@@ -72,7 +72,7 @@ func console_a3700_core_init
 	b.ne	4f
 
 	/* Delay */
-	mov	w2, #30000	/* 30000 cycles of below 3 instructions on 600 MHz CPU ~~ 100 us */
+	mov	w2, #60000	/* 60000 cycles of below 3 instructions on 1200 MHz CPU ~~ 100 us */
 3:
 	sub     w2, w2, #1
 	cmp	w2, #0
