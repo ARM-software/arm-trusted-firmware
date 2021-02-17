@@ -1,4 +1,4 @@
-# Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -23,6 +23,8 @@ BL1_SOURCES		+=	${SGI_CPU_SOURCES}			\
 BL2_SOURCES		+=	${RDV1MC_BASE}/rdv1mc_plat.c	\
 				${RDV1MC_BASE}/rdv1mc_security.c	\
 				${RDV1MC_BASE}/rdv1mc_err.c	\
+				drivers/arm/tzc/tzc400.c	\
+				plat/arm/common/arm_tzc400.c	\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c
 
