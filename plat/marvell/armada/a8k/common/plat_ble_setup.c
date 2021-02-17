@@ -383,7 +383,7 @@ static void ble_plat_svc_config(void)
 
 	/* Set access to LD0 */
 	reg_val = mmio_read_32(MVEBU_AP_EFUSE_SRV_CTRL_REG);
-	reg_val &= ~EFUSE_SRV_CTRL_LD_SELECT_OFFS;
+	reg_val &= ~EFUSE_SRV_CTRL_LD_SEL_USER_MASK;
 	mmio_write_32(MVEBU_AP_EFUSE_SRV_CTRL_REG, reg_val);
 
 	/* Obtain the value of LD0[125:63] */
