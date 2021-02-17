@@ -26,12 +26,15 @@
 
 /*
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
- * plat_arm_mmap array defined for each BL stage.
+ * plat_arm_mmap array defined for each BL stage. In addition to that, on
+ * multi-chip platforms, address regions on each of the remote chips are
+ * also mapped. In BL31, for instance, three address regions on the remote
+ * chips are accessed - secure ram, css device and soc device regions.
  */
 #if defined(IMAGE_BL31)
 # if SPM_MM
-#  define PLAT_ARM_MMAP_ENTRIES		9
-#  define MAX_XLAT_TABLES		7
+#  define PLAT_ARM_MMAP_ENTRIES		(9  + ((CSS_SGI_CHIP_COUNT - 1) * 3))
+#  define MAX_XLAT_TABLES		(7  + ((CSS_SGI_CHIP_COUNT - 1) * 3))
 #  define PLAT_SP_IMAGE_MMAP_REGIONS	9
 #  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	10
 # else
@@ -41,6 +44,17 @@
 #elif defined(IMAGE_BL32)
 # define PLAT_ARM_MMAP_ENTRIES		8
 # define MAX_XLAT_TABLES		5
+#elif defined(IMAGE_BL2)
+# define PLAT_ARM_MMAP_ENTRIES		(11 + (CSS_SGI_CHIP_COUNT - 1))
+
+/*
+ * MAX_XLAT_TABLES entries need to be doubled because when the address width
+ * exceeds 40 bits an additional level of translation is required. In case of
+ * multichip platforms peripherals also fall into address space with width
+ * > 40 bits
+ *
+ */
+# define MAX_XLAT_TABLES		(7  + ((CSS_SGI_CHIP_COUNT - 1) * 2))
 #elif !USE_ROMLIB
 # define PLAT_ARM_MMAP_ENTRIES		11
 # define MAX_XLAT_TABLES		7
@@ -69,12 +83,17 @@
 
 /*
  * PLAT_ARM_MAX_BL2_SIZE is calculated using the current BL2 debug size plus a
- * little space for growth.
+ * little space for growth. Additional 8KiB space is added per chip in
+ * order to accommodate the additional level of translation required for "TZC"
+ * peripheral access which lies in >4TB address space.
+ *
  */
 #if TRUSTED_BOARD_BOOT
-# define PLAT_ARM_MAX_BL2_SIZE		0x1D000
+# define PLAT_ARM_MAX_BL2_SIZE		(0x1D000 + ((CSS_SGI_CHIP_COUNT - 1) * \
+							0x2000))
 #else
-# define PLAT_ARM_MAX_BL2_SIZE		0x14000
+# define PLAT_ARM_MAX_BL2_SIZE		(0x14000 + ((CSS_SGI_CHIP_COUNT - 1) * \
+							0x2000))
 #endif
 
 /*
