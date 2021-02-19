@@ -16,9 +16,6 @@
 #include <stdint.h>
 #include "pm_defs.h"
 
-#define PAYLOAD_ARG_CNT		6U
-#define PAYLOAD_ARG_SIZE	4U	/* size in bytes */
-
 #define NON_SECURE_FLAG		1U
 #define SECURE_FLAG		0U
 

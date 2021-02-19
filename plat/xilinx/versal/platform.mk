@@ -8,6 +8,7 @@ A53_DISABLE_NON_TEMPORAL_HINT := 0
 SEPARATE_CODE_AND_RODATA := 1
 override RESET_TO_BL31 := 1
 PL011_GENERIC_UART := 1
+IPI_CRC_CHECK := 0
 
 ifdef VERSAL_ATF_MEM_BASE
     $(eval $(call add_define,VERSAL_ATF_MEM_BASE))
@@ -29,6 +30,10 @@ ifdef VERSAL_BL32_MEM_BASE
         $(error "VERSAL_BL32_BASE defined without VERSAL_BL32_SIZE")
     endif
     $(eval $(call add_define,VERSAL_BL32_MEM_SIZE))
+endif
+
+ifdef IPI_CRC_CHECK
+    $(eval $(call add_define,IPI_CRC_CHECK))
 endif
 
 VERSAL_PLATFORM ?= silicon
