@@ -10,8 +10,8 @@
 
 #include <spmi_arb.h>
 
-#define REG_APID_MAP(apid)	(0x0C440900U + 4U * i)
-#define NUM_APID		0x80
+#define REG_APID_MAP(apid)	(0x0C440900U + sizeof(uint32_t) * apid)
+#define NUM_APID		((0x1100U - 0x900U) / sizeof(uint32_t))
 
 #define PPID_MASK		(0xfffU << 8)
 
