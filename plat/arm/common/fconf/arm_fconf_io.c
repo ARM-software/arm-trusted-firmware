@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2021, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <common/debug.h>
 #include <common/fdt_wrappers.h>
 #include <drivers/io/io_storage.h>
+#include <drivers/partition/partition.h>
 #include <lib/object_pool.h>
 #include <libfdt.h>
 #include <tools_share/firmware_image_package.h>
@@ -17,10 +18,34 @@
 #include <plat/arm/common/arm_fconf_io_storage.h>
 #include <platform_def.h>
 
-const io_block_spec_t fip_block_spec = {
+io_block_spec_t fip_block_spec = {
+/*
+ * This is fixed FIP address used by BL1, BL2 loads partition table
+ * to get FIP address.
+ */
+#if ARM_GPT_SUPPORT
+	.offset = PLAT_ARM_FLASH_IMAGE_BASE + PLAT_ARM_FIP_OFFSET_IN_GPT,
+#else
 	.offset = PLAT_ARM_FLASH_IMAGE_BASE,
+#endif /* ARM_GPT_SUPPORT */
 	.length = PLAT_ARM_FLASH_IMAGE_MAX_SIZE
 };
+
+#if ARM_GPT_SUPPORT
+static const io_block_spec_t gpt_spec = {
+	.offset         = PLAT_ARM_FLASH_IMAGE_BASE,
+	/*
+	 * PLAT_PARTITION_BLOCK_SIZE = 512
+	 * PLAT_PARTITION_MAX_ENTRIES = 128
+	 * each sector has 4 partition entries, and there are
+	 * 2 reserved sectors i.e. protective MBR and primary
+	 * GPT header hence length gets calculated as,
+	 * length = 512 * (128/4 + 2)
+	 */
+	.length         = PLAT_PARTITION_BLOCK_SIZE *
+			  (PLAT_PARTITION_MAX_ENTRIES / 4 + 2),
+};
+#endif /* ARM_GPT_SUPPORT */
 
 const io_uuid_spec_t arm_uuid_spec[MAX_NUMBER_IDS] = {
 	[BL2_IMAGE_ID] = {UUID_TRUSTED_BOOT_FIRMWARE_BL2},
@@ -60,6 +85,13 @@ const io_uuid_spec_t arm_uuid_spec[MAX_NUMBER_IDS] = {
 
 /* By default, ARM platforms load images from the FIP */
 struct plat_io_policy policies[MAX_NUMBER_IDS] = {
+#if ARM_GPT_SUPPORT
+	[GPT_IMAGE_ID] = {
+		&memmap_dev_handle,
+		(uintptr_t)&gpt_spec,
+		open_memmap
+	},
+#endif /* ARM_GPT_SUPPORT */
 	[FIP_IMAGE_ID] = {
 		&memmap_dev_handle,
 		(uintptr_t)&fip_block_spec,

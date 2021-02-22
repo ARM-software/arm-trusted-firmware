@@ -167,6 +167,17 @@ ifeq (${ARM_CRYPTOCELL_INTEG},1)
     endif
 endif
 
+# Disable GPT parser support, use FIP image by default
+ARM_GPT_SUPPORT			:=	0
+$(eval $(call assert_boolean,ARM_GPT_SUPPORT))
+$(eval $(call add_define,ARM_GPT_SUPPORT))
+
+# Include necessary sources to parse GPT image
+ifeq (${ARM_GPT_SUPPORT}, 1)
+  BL2_SOURCES	+=	drivers/partition/gpt.c		\
+			drivers/partition/partition.c
+endif
+
 ifeq (${ARCH}, aarch64)
 PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/aarch64
 endif

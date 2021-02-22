@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <drivers/io/io_fip.h>
 #include <drivers/io/io_memmap.h>
 #include <drivers/io/io_storage.h>
+#include <drivers/partition/partition.h>
 #include <lib/utils.h>
 
 #include <plat/arm/common/arm_fconf_getter.h>
@@ -136,3 +137,40 @@ bool arm_io_is_toc_valid(void)
 {
 	return (io_dev_init(fip_dev_handle, (uintptr_t)FIP_IMAGE_ID) == 0);
 }
+
+#if ARM_GPT_SUPPORT
+/**********************************************************************
+ * arm_set_image_source: Set image specification in IO policy
+ *
+ * @image_id: id of the image whose specification to be set
+ *
+ * @part_name: name of the partition that to be read for entry details
+ *
+ * set the entry and offset details of partition in global IO policy
+ * of the image
+ *********************************************************************/
+int arm_set_image_source(unsigned int image_id, const char *part_name)
+{
+	const partition_entry_t *entry = get_partition_entry(part_name);
+
+	if (entry == NULL) {
+		ERROR("Unable to find the %s partition\n", part_name);
+		return -ENOENT;
+	}
+
+	const struct plat_io_policy *policy = FCONF_GET_PROPERTY(arm,
+								 io_policies,
+								 image_id);
+
+	assert(policy != NULL);
+	assert(policy->image_spec != 0UL);
+
+	/* set offset and length of the image */
+	io_block_spec_t *image_spec = (io_block_spec_t *)policy->image_spec;
+
+	image_spec->offset = PLAT_ARM_FLASH_IMAGE_BASE + entry->start;
+	image_spec->length = entry->length;
+
+	return 0;
+}
+#endif
