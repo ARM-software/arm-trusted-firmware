@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -162,7 +162,9 @@ void tzc400_configure_region0(unsigned int sec_attr,
 /*
  * `tzc400_configure_region` is used to program regions into the TrustZone
  * controller. A region can be associated with more than one filter. The
- * associated filters are passed in as a bitmap (bit0 = filter0).
+ * associated filters are passed in as a bitmap (bit0 = filter0), except that
+ * the value TZC_400_REGION_ATTR_FILTER_BIT_ALL selects all filters, based on
+ * the value of tzc400.num_filters.
  * NOTE:
  * Region 0 is special; it is preferable to use tzc400_configure_region0
  * for this region (see comment for that function).
@@ -175,6 +177,11 @@ void tzc400_configure_region(unsigned int filters,
 			  unsigned int nsaid_permissions)
 {
 	assert(tzc400.base != 0U);
+
+	/* Adjust filter mask by real filter number */
+	if (filters == TZC_400_REGION_ATTR_FILTER_BIT_ALL) {
+		filters = (1U << tzc400.num_filters) - 1U;
+	}
 
 	/* Do range checks on filters and regions. */
 	assert(((filters >> tzc400.num_filters) == 0U) &&

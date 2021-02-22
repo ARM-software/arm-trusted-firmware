@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -80,11 +80,8 @@
 
 /* Filter enable bits in a TZC */
 #define TZC_400_REGION_ATTR_F_EN_MASK		U(0xf)
-#define TZC_400_REGION_ATTR_FILTER_BIT(x)				\
-				((U(1) << (x)) << TZC_REGION_ATTR_F_EN_SHIFT)
-#define TZC_400_REGION_ATTR_FILTER_BIT_ALL				\
-				(TZC_400_REGION_ATTR_F_EN_MASK <<	\
-				TZC_REGION_ATTR_F_EN_SHIFT)
+#define TZC_400_REGION_ATTR_FILTER_BIT(x)	(U(1) << (x))
+#define TZC_400_REGION_ATTR_FILTER_BIT_ALL	TZC_400_REGION_ATTR_F_EN_MASK
 
 /*
  * All TZC region configuration registers are placed one after another. It
