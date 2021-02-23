@@ -78,6 +78,10 @@ func prepare_cpu_pwr_dwn
 	mov	r1, #CPU_PWR_DWN_OPS
 	add	r1, r1, r2, lsl #2
 	ldr	r1, [r0, r1]
+#if ENABLE_ASSERTIONS
+	cmp	r1, #0
+	ASM_ASSERT(ne)
+#endif
 	bx	r1
 endfunc prepare_cpu_pwr_dwn
 
@@ -146,6 +150,10 @@ func get_cpu_ops_ptr
 
 	/* Subtract the increment and offset to get the cpu-ops pointer */
 	sub	r0, r4, #(CPU_OPS_SIZE + CPU_MIDR)
+#if ENABLE_ASSERTIONS
+	cmp	r0, #0
+	ASM_ASSERT(ne)
+#endif
 error_exit:
 	bx	lr
 endfunc get_cpu_ops_ptr
@@ -224,7 +232,15 @@ func print_errata_status
 	 * function. If it's non-NULL, jump to the function in turn.
 	 */
 	bl	_cpu_data
+#if ENABLE_ASSERTIONS
+	cmp	r0, #0
+	ASM_ASSERT(ne)
+#endif
 	ldr	r1, [r0, #CPU_DATA_CPU_OPS_PTR]
+#if ENABLE_ASSERTIONS
+	cmp	r1, #0
+	ASM_ASSERT(ne)
+#endif
 	ldr	r0, [r1, #CPU_ERRATA_FUNC]
 	cmp	r0, #0
 	beq	1f
