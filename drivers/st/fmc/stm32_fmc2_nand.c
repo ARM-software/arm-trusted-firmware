@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -200,9 +200,6 @@ static void stm32_fmc2_nand_setup_timing(void)
 	if ((twait < NAND_TCS_MIN) && (tset_mem < (NAND_TCS_MIN - twait))) {
 		tset_mem = NAND_TCS_MIN - twait;
 	}
-	if ((twait < NAND_TALS_MIN) && (tset_mem < (NAND_TALS_MIN - twait))) {
-		tset_mem = NAND_TALS_MIN - twait;
-	}
 	if ((twait > thiz) && ((twait - thiz) < NAND_TDS_MIN) &&
 	    (tset_mem < (NAND_TDS_MIN - (twait - thiz)))) {
 		tset_mem = NAND_TDS_MIN - (twait - thiz);
@@ -243,12 +240,6 @@ static void stm32_fmc2_nand_setup_timing(void)
 	tset_att = hclkp;
 	if ((twait < NAND_TCS_MIN) && (tset_att < (NAND_TCS_MIN - twait))) {
 		tset_att = NAND_TCS_MIN - twait;
-	}
-	if ((twait < NAND_TCLS_MIN) && (tset_att < (NAND_TCLS_MIN - twait))) {
-		tset_att = NAND_TCLS_MIN - twait;
-	}
-	if ((twait < NAND_TALS_MIN) && (tset_att < (NAND_TALS_MIN - twait))) {
-		tset_att = NAND_TALS_MIN - twait;
 	}
 	if ((thold_mem < NAND_TRHW_MIN) &&
 	    (tset_att < (NAND_TRHW_MIN - thold_mem))) {
