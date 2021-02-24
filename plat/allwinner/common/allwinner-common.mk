@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -20,8 +20,6 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/${ARCH}/16550_console.S	\
 				${AW_PLAT}/common/sunxi_common.c
 
 BL31_SOURCES		+=	drivers/allwinner/axp/common.c		\
-				drivers/allwinner/sunxi_msgbox.c	\
-				drivers/arm/css/scpi/css_scpi.c		\
 				${GICV2_SOURCES}			\
 				drivers/delay_timer/delay_timer.c	\
 				drivers/delay_timer/generic_delay_timer.c \
@@ -29,13 +27,39 @@ BL31_SOURCES		+=	drivers/allwinner/axp/common.c		\
 				plat/common/plat_gicv2.c		\
 				plat/common/plat_psci_common.c		\
 				${AW_PLAT}/common/sunxi_bl31_setup.c	\
-				${AW_PLAT}/common/sunxi_cpu_ops.c	\
-				${AW_PLAT}/common/sunxi_native_pm.c	\
 				${AW_PLAT}/common/sunxi_pm.c		\
-				${AW_PLAT}/common/sunxi_scpi_pm.c	\
 				${AW_PLAT}/${PLAT}/sunxi_power.c	\
 				${AW_PLAT}/common/sunxi_security.c	\
 				${AW_PLAT}/common/sunxi_topology.c
+
+# By default, attempt to use SCPI to the ARISC management processor. If SCPI
+# is not enabled or SCP firmware is not loaded, fall back to a simpler native
+# implementation that does not support CPU or system suspend.
+#
+# If SCP firmware will always be present (or absent), the unused implementation
+# can be compiled out.
+SUNXI_PSCI_USE_NATIVE	?=	1
+SUNXI_PSCI_USE_SCPI	?=	1
+
+$(eval $(call assert_boolean,SUNXI_PSCI_USE_NATIVE))
+$(eval $(call assert_boolean,SUNXI_PSCI_USE_SCPI))
+$(eval $(call add_define,SUNXI_PSCI_USE_NATIVE))
+$(eval $(call add_define,SUNXI_PSCI_USE_SCPI))
+
+ifeq (${SUNXI_PSCI_USE_NATIVE}${SUNXI_PSCI_USE_SCPI},00)
+$(error "At least one of SCPI or native PSCI ops must be enabled")
+endif
+
+ifeq (${SUNXI_PSCI_USE_NATIVE},1)
+BL31_SOURCES		+=	${AW_PLAT}/common/sunxi_cpu_ops.c	\
+				${AW_PLAT}/common/sunxi_native_pm.c
+endif
+
+ifeq (${SUNXI_PSCI_USE_SCPI},1)
+BL31_SOURCES		+=	drivers/allwinner/sunxi_msgbox.c	\
+				drivers/arm/css/scpi/css_scpi.c		\
+				${AW_PLAT}/common/sunxi_scpi_pm.c
+endif
 
 # The bootloader is guaranteed to only run on CPU 0 by the boot ROM.
 COLD_BOOT_SINGLE_CPU		:=	1
