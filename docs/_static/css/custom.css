@@ -1,0 +1,15 @@
+/*
+ * Copyright (c) 2021, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/*
+ * Set the white-space property of tables to normal.
+ * With this setting sequences of whitespace inside
+ * a table will collapse into a single whitespace,
+ * and text will wrap when necessary.
+ */
+.wy-table-responsive table td {
+white-space: normal;
+}

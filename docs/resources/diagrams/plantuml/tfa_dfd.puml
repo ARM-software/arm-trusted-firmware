@@ -1,0 +1,66 @@
+/'
+ ' Copyright (c) 2021, Arm Limited. All rights reserved.
+ '
+ ' SPDX-License-Identifier: BSD-3-Clause
+ '/
+
+/'
+TF-A Data Flow Diagram
+'/
+
+@startuml
+digraph tfa_dfd {
+
+    # Arrange nodes from left to right
+    rankdir="LR"
+
+    # Allow arrows to end on cluster boundaries
+    compound=true
+
+    # Default settings for edges and nodes
+    edge [minlen=2 color="#8c1b07"]
+    node [fillcolor="#ffb866" style=filled shape=box fixedsize=true width=1.6 height=0.7]
+
+    # Nodes outside of the trust boundary
+    nsec [label="Non-secure\nClients"]
+    sec [label="Secure\nClients"]
+    dbg [label="Debug & Trace"]
+    logs [label="Logs\n(UART)"]
+    nvm [label="Non-volatile\nMemory"]
+
+    # Trust boundary cluster
+    subgraph cluster_trusted{
+        graph [style=dashed color="#f22430"]
+
+        # HW IPs cluster
+        subgraph cluster_ip{
+            label ="Hardware IPs";
+            graph [style=filled color="#000000" fillcolor="#ffd29e"]
+
+            rank="same"
+            gic [label="GIC" width=1.2 height=0.5]
+            tzc [label="TZ\nController" width=1.2 height=0.5]
+            etc [label="..." shape=none style=none height=0.5]
+        }
+
+        # TF-A cluster
+        subgraph cluster_tfa{
+            label ="TF-A";
+            graph [style=filled color="#000000" fillcolor="#faf9cd"]
+
+            bl1 [label="Boot ROM\n(BL1)" fillcolor="#ddffb3"];
+            bl2 [label="Trusted Boot\nFirmware\n(BL2)" fillcolor="#ddffb3" height=1]
+            bl31 [label="TF-A Runtime\n(BL31)" fillcolor="#ddffb3"]
+        }
+    }
+
+    # Interactions between nodes
+    nvm -> bl31 [lhead=cluster_tfa label="DF1"]
+    logs -> bl31 [dir="back" lhead=cluster_tfa label="DF2"]
+    dbg -> bl2 [dir="both" lhead=cluster_tfa label="DF3"]
+    sec -> bl2 [dir="both" lhead=cluster_tfa label="DF4"]
+    nsec -> bl1 [dir="both" lhead=cluster_tfa, label="DF5"]
+    bl2 ->  tzc [dir="both" ltail=cluster_tfa lhead=cluster_ip label="DF6" minlen=1]
+}
+
+@enduml
