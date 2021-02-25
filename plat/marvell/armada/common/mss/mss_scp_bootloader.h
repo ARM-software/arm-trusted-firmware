@@ -10,6 +10,7 @@
 
 int scp_bootloader_transfer(void *image, unsigned int image_size);
 uintptr_t bl2_plat_get_cp_mss_regs(int ap_idx, int cp_idx);
+uintptr_t bl2_plat_get_cp_mss_sram(int ap_idx, int cp_idx);
 uintptr_t bl2_plat_get_ap_mss_regs(int ap_idx);
 uint32_t bl2_plat_get_cp_count(int ap_idx);
 uint32_t bl2_plat_get_ap_count(void);

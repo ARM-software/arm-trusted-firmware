@@ -132,7 +132,7 @@ void plat_marvell_dram_update_topology(void)
 		/* initialize the MVEBU_AP_I2C_BASE I2C bus */
 		i2c_init((void *)MVEBU_AP_I2C_BASE);
 		/* select SPD memory page 0 to access DRAM configuration */
-		i2c_write(I2C_SPD_P0_ADDR, 0x0, 1, tm->spd_data.all_bytes, 1);
+		i2c_write(I2C_SPD_P0_ADDR, 0x0, 1, tm->spd_data.all_bytes, 0);
 		/* read data from spd */
 		i2c_read(I2C_SPD_ADDR, 0x0, 1, tm->spd_data.all_bytes,
 			 sizeof(tm->spd_data.all_bytes));

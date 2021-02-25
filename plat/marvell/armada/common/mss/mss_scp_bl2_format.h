@@ -13,6 +13,7 @@
 #define HEADER_VERSION	0x1
 
 #define MSS_IDRAM_SIZE	0x10000 /* 64KB */
+#define MSS_SRAM_SIZE	0x8000 /* 32KB */
 
 /* Types definitions */
 typedef struct file_header {

@@ -38,6 +38,8 @@
 #define MSS_DMA_TIMEOUT			1000
 #define MSS_EXTERNAL_SPACE		0x50000000
 #define MSS_EXTERNAL_ADDR_MASK		0xfffffff
+#define MSS_INTERNAL_SPACE		0x40000000
+#define MSS_INTERNAL_ADDR_MASK		0x00ffffff
 
 #define DMA_SIZE			128
 
@@ -60,9 +62,52 @@ static int mss_check_image_ready(volatile struct mss_pm_ctrl_block *mss_pm_crtl)
 	return 0;
 }
 
-static int mss_image_load(uint32_t src_addr, uint32_t size, uintptr_t mss_regs)
+static int mss_iram_dma_load(uint32_t src_addr, uint32_t size,
+			     uintptr_t mss_regs)
 {
 	uint32_t i, loop_num, timeout;
+
+	/* load image to MSS RAM using DMA */
+	loop_num = (size / DMA_SIZE) + !!(size % DMA_SIZE);
+	for (i = 0; i < loop_num; i++) {
+		/* write source address */
+		mmio_write_32(MSS_DMA_SRCBR(mss_regs),
+			      src_addr + (i * DMA_SIZE));
+		/* write destination address */
+		mmio_write_32(MSS_DMA_DSTBR(mss_regs), (i * DMA_SIZE));
+		/* make sure DMA data is ready before triggering it */
+		dsb();
+		/* set the DMA control register */
+		mmio_write_32(MSS_DMA_CTRLR(mss_regs),
+			      ((MSS_DMA_CTRLR_REQ_SET <<
+				MSS_DMA_CTRLR_REQ_OFFSET) |
+			      (DMA_SIZE << MSS_DMA_CTRLR_SIZE_OFFSET)));
+		/* Poll DMA_ACK at MSS_DMACTLR until it is ready */
+		timeout = MSS_DMA_TIMEOUT;
+		while (timeout > 0U) {
+			if ((mmio_read_32(MSS_DMA_CTRLR(mss_regs)) >>
+					  (MSS_DMA_CTRLR_ACK_OFFSET &
+					   MSS_DMA_CTRLR_ACK_MASK))
+					  == MSS_DMA_CTRLR_ACK_READY) {
+				break;
+			}
+			udelay(50);
+			timeout--;
+		}
+		if (timeout == 0) {
+			ERROR("\nMSS DMA failed (timeout)\n");
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static int mss_image_load(uint32_t src_addr, uint32_t size,
+			  uintptr_t mss_regs, uintptr_t sram)
+{
+	uint32_t chunks = 1; /* !sram case */
+	uint32_t chunk_num;
+	int ret;
 
 	/* Check if the img size is not bigger than ID-RAM size of MSS CM3 */
 	if (size > MSS_IDRAM_SIZE) {
@@ -70,50 +115,60 @@ static int mss_image_load(uint32_t src_addr, uint32_t size, uintptr_t mss_regs)
 		return 1;
 	}
 
-	NOTICE("Loading MSS image from addr. 0x%x Size 0x%x to MSS at 0x%lx\n",
-	       src_addr, size, mss_regs);
-	/* load image to MSS RAM using DMA */
-	loop_num = (size / DMA_SIZE) + (((size & (DMA_SIZE - 1)) == 0) ? 0 : 1);
+	/* The CPx MSS DMA cannot access DRAM directly in secure boot mode
+	 * Copy the MSS FW image to MSS SRAM by the CPU first, then run
+	 * MSS DMA for SRAM to IRAM copy
+	 */
+	if (sram != 0) {
+		chunks = size / MSS_SRAM_SIZE + !!(size % MSS_SRAM_SIZE);
+	}
 
-	for (i = 0; i < loop_num; i++) {
-		/* write destination and source addresses */
-		mmio_write_32(MSS_DMA_SRCBR(mss_regs),
-			      MSS_EXTERNAL_SPACE |
-			      ((src_addr & MSS_EXTERNAL_ADDR_MASK) +
-			      (i * DMA_SIZE)));
-		mmio_write_32(MSS_DMA_DSTBR(mss_regs), (i * DMA_SIZE));
+	NOTICE("%s Loading MSS FW from addr. 0x%x Size 0x%x to MSS at 0x%lx\n",
+	       sram == 0 ? "" : "SECURELY", src_addr, size, mss_regs);
+	for (chunk_num = 0; chunk_num < chunks; chunk_num++) {
+		size_t chunk_size = size;
+		uint32_t img_src = MSS_EXTERNAL_SPACE | /* no SRAM */
+				   (src_addr & MSS_EXTERNAL_ADDR_MASK);
 
-		dsb(); /* make sure DMA data is ready before triggering it */
+		if (sram != 0) {
+			uintptr_t chunk_source =
+				  src_addr + MSS_SRAM_SIZE * chunk_num;
 
-		/* set the DMA control register */
-		mmio_write_32(MSS_DMA_CTRLR(mss_regs), ((MSS_DMA_CTRLR_REQ_SET
-			      << MSS_DMA_CTRLR_REQ_OFFSET) |
-			      (DMA_SIZE << MSS_DMA_CTRLR_SIZE_OFFSET)));
+			if (chunk_num != (size / MSS_SRAM_SIZE)) {
+				chunk_size = MSS_SRAM_SIZE;
+			} else {
+				chunk_size =  size % MSS_SRAM_SIZE;
+			}
 
-		/* Poll DMA_ACK at MSS_DMACTLR until it is ready */
-		timeout = MSS_DMA_TIMEOUT;
-		while (timeout) {
-			if ((mmio_read_32(MSS_DMA_CTRLR(mss_regs)) >>
-			     MSS_DMA_CTRLR_ACK_OFFSET & MSS_DMA_CTRLR_ACK_MASK)
-				== MSS_DMA_CTRLR_ACK_READY) {
+			if (chunk_size == 0) {
 				break;
 			}
 
-			udelay(50);
-			timeout--;
+			VERBOSE("Chunk %d -> SRAM 0x%lx from 0x%lx SZ 0x%lx\n",
+				chunk_num, sram, chunk_source, chunk_size);
+			memcpy((void *)sram, (void *)chunk_source, chunk_size);
+			dsb();
+			img_src = MSS_INTERNAL_SPACE |
+				  (sram & MSS_INTERNAL_ADDR_MASK);
 		}
 
-		if (timeout == 0) {
-			ERROR("\nDMA failed to load MSS image\n");
-			return 1;
+		ret = mss_iram_dma_load(img_src, chunk_size, mss_regs);
+		if (ret != 0) {
+			ERROR("MSS FW chunk %d load failed\n", chunk_num);
+			return ret;
 		}
 	}
 
 	bl2_plat_configure_mss_windows(mss_regs);
 
+	/* Wipe the MSS SRAM after using it as copy buffer */
+	if (sram) {
+		memset((void *)sram, 0, MSS_SRAM_SIZE);
+	}
+
 	/* Release M3 from reset */
-	mmio_write_32(MSS_M3_RSTCR(mss_regs), (MSS_M3_RSTCR_RST_OFF <<
-		      MSS_M3_RSTCR_RST_OFFSET));
+	mmio_write_32(MSS_M3_RSTCR(mss_regs),
+		     (MSS_M3_RSTCR_RST_OFF << MSS_M3_RSTCR_RST_OFFSET));
 
 	NOTICE("Done\n");
 
@@ -162,7 +217,7 @@ static int mss_ap_load_image(uintptr_t single_img,
 	VERBOSE("Send info about the SCP_BL2 image to be transferred to SCP\n");
 
 	ret = mss_image_load(single_img, image_size,
-			     bl2_plat_get_ap_mss_regs(ap_idx));
+			     bl2_plat_get_ap_mss_regs(ap_idx), 0);
 	if (ret != 0) {
 		ERROR("SCP Image load failed\n");
 		return -1;
@@ -218,6 +273,8 @@ static int load_img_to_cm3(enum cm3_t cm3_type,
 			       cp_index, ap_idx);
 			ret = mss_image_load(single_img, image_size,
 					     bl2_plat_get_cp_mss_regs(
+						     ap_idx, cp_index),
+					     bl2_plat_get_cp_mss_sram(
 						     ap_idx, cp_index));
 			if (ret != 0) {
 				ERROR("SCP Image load failed\n");
