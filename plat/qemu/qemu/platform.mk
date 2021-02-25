@@ -163,6 +163,8 @@ BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				lib/semihosting/semihosting.c		\
 				lib/semihosting/${ARCH}/semihosting_call.S \
 				plat/common/plat_psci_common.c		\
+				drivers/arm/pl061/pl061_gpio.c		\
+				drivers/gpio/gpio.c			\
 				${PLAT_QEMU_COMMON_PATH}/qemu_pm.c			\
 				${PLAT_QEMU_COMMON_PATH}/topology.c			\
 				${PLAT_QEMU_COMMON_PATH}/aarch64/plat_helpers.S	\
