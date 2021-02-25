@@ -55,6 +55,7 @@ static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
 					     uint32_t payload[PAYLOAD_ARG_CNT],
 					     uint32_t is_blocking)
 {
+	int status;
 	unsigned int offset = 0;
 	uintptr_t buffer_base = proc->ipi->buffer_base +
 					IPI_BUFFER_TARGET_REMOTE_OFFSET +
@@ -70,10 +71,13 @@ static enum pm_ret_status pm_ipi_send_common(const struct pm_proc *proc,
 	}
 
 	/* Generate IPI to remote processor */
-	ipi_mb_notify(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id,
+	status = ipi_mb_notify(proc->ipi->local_ipi_id, proc->ipi->remote_ipi_id,
 		      is_blocking);
+	if (status == 0) {
+		return PM_RET_SUCCESS;
+	}
 
-	return PM_RET_SUCCESS;
+	return PM_RET_ERROR_TIMEOUT;
 }
 
 /**
