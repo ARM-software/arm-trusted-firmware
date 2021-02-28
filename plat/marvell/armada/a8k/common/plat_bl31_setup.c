@@ -19,6 +19,7 @@
 #if MSS_SUPPORT
 #include <mss_ipc_drv.h>
 #include <mss_mem.h>
+#include <mss_defs.h>
 #endif
 
 /* In Armada-8k family AP806/AP807, CP0 connected to PIDI
@@ -124,6 +125,11 @@ void bl31_plat_arch_setup(void)
 			   STREAM_ID_BASE + (cp * MAX_STREAM_ID_PER_CP));
 
 		marvell_bl31_mpp_init(cp);
+
+#if MSS_SUPPORT
+		/* Release CP MSS CPU from reset once the CP init is done */
+		mss_start_cp_cm3(cp);
+#endif
 	}
 
 	for (cp = 1; cp < CP_COUNT; cp++)
