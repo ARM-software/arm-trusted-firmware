@@ -7,6 +7,8 @@ Acronyms
 ========
 
 +--------+-----------------------------------+
+| DMA    | Direct Memory Access              |
++--------+-----------------------------------+
 | DTB    | Device Tree Blob                  |
 +--------+-----------------------------------+
 | DTS    | Device Tree Source                |
@@ -32,6 +34,8 @@ Acronyms
 | PVM    | Primary VM                        |
 +--------+-----------------------------------+
 | PSA    | Platform Security Architecture    |
++--------+-----------------------------------+
+| SMMU   | System Memory Management Unit     |
 +--------+-----------------------------------+
 | SP     | Secure Partition                  |
 +--------+-----------------------------------+
@@ -831,6 +835,114 @@ An SP explicitly registers to receive notifications to specific PM events.
 The register operation can either be an implementation-defined service call
 to the SPMC when the primary SP EC boots, or be supplied through the SP
 manifest.
+
+Support for SMMUv3 in Hafnium
+=============================
+
+An SMMU is analogous to an MMU in a CPU. It performs address translations for
+Direct Memory Access (DMA) requests from system I/O devices.
+The responsibilities of an SMMU include:
+
+-  Translation: Incoming DMA requests are translated from bus address space to
+   system physical address space using translation tables compliant to
+   Armv8/Armv7 VMSA descriptor format.
+-  Protection: An I/O device can be prohibited from read, write access to a
+   memory region or allowed.
+-  Isolation: Traffic from each individial device can be independently managed.
+   The devices are differentiated from each other using unique translation
+   tables.
+
+The following diagram illustrates a typical SMMU IP integrated in a SoC with
+several I/O devices along with Interconnect and Memory system.
+
+.. image:: ../resources/diagrams/MMU-600.png
+
+SMMU has several versions including SMMUv1, SMMUv2 and SMMUv3. Hafnium provides
+support for SMMUv3 driver in both Normal and Secure World. A brief introduction
+of SMMUv3 functionality and the corresponding software support in Hafnium is
+provided here.
+
+SMMUv3 features
+---------------
+
+-  SMMUv3 provides Stage1, Stage2 translation as well as nested (Stage1 + Stage2)
+   translation support. It can either bypass or abort incoming translations as
+   well.
+-  Traffic (memory transactions) from each upstream I/O peripheral device,
+   referred to as Stream, can be independently managed using a combination of
+   several memory based configuration structures. This allows the SMMUv3 to
+   support a large number of streams with each stream assigned to a unique
+   translation context.
+-  Support for Armv8.1 VMSA where the SMMU shares the translation tables with
+   a Processing Element. AArch32(LPAE) and AArch64 translation table format
+   are supported by SMMUv3.
+-  SMMUv3 offers non-secure stream support with secure stream support being
+   optional. Logically, SMMUv3 behaves as if there is an indepdendent SMMU
+   instance for secure and non-secure stream support.
+-  It also supports sub-streams to differentiate traffic from a virtualized
+   peripheral associated with a VM/SP.
+-  Additionally, SMMUv3.2 provides support for PEs implementing Armv8.4-A
+   extensions. Consequently, SPM depends on Secure EL2 support in SMMUv3.2
+   for providing Secure Stage2 translation support to upstream peripheral
+   devices.
+
+SMMUv3 Programming Interfaces
+-----------------------------
+
+SMMUv3 has three software interfaces that are used by the Hafnium driver to
+configure the behaviour of SMMUv3 and manage the streams.
+
+-  Memory based data strutures that provide unique translation context for
+   each stream.
+-  Memory based circular buffers for command queue and event queue.
+-  A large number of SMMU configuration registers that are memory mapped during
+   boot time by Hafnium driver. Except a few registers, all configuration
+   registers have independent secure and non-secure versions to configure the
+   behaviour of SMMUv3 for translation of secure and non-secure streams
+   respectively.
+
+Peripheral device manifest
+--------------------------
+
+Currently, SMMUv3 driver in Hafnium only supports dependent peripheral devices.
+These devices are dependent on PE endpoint to initiate and receive memory
+management transactions on their behalf. The acccess to the MMIO regions of
+any such device is assigned to the endpoint during boot. Moreover, SMMUv3 driver
+uses the same stage 2 translations for the device as those used by partition
+manager on behalf of the PE endpoint. This ensures that the peripheral device
+has the same visibility of the physical address space as the endpoint. The
+device node of the corresponding partition manifest (refer to `[1]`_ section 3.2
+) must specify these additional properties for each peripheral device in the
+system :
+
+-  smmu-id: This field helps to identify the SMMU instance that this device is
+   upstream of.
+-  stream-ids: List of stream IDs assigned to this device.
+
+.. code:: shell
+
+    smmuv3-testengine {
+        base-address = <0x00000000 0x2bfe0000>;
+        pages-count = <32>;
+        attributes = <0x3>;
+        smmu-id = <0>;
+        stream-ids = <0x0 0x1>;
+        interrupts = <0x2 0x3>, <0x4 0x5>;
+        exclusive-access;
+    };
+
+SMMUv3 driver limitations
+-------------------------
+
+The primary design goal for the Hafnium SMMU driver is to support secure
+streams.
+
+-  Currently, the driver only supports Stage2 translations. No support for
+   Stage1 or nested translations.
+-  Supports only AArch64 translation format.
+-  No support for features such as PCI Express (PASIDs, ATS, PRI), MSI, RAS,
+   Fault handling, Performance Monitor Extensions, Event Handling, MPAM.
+-  No support for independent peripheral devices.
 
 References
 ==========
