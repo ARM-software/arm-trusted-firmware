@@ -369,8 +369,8 @@ static uint64_t spmd_smc_forward(uint32_t smc_fid,
  ******************************************************************************/
 static uint64_t spmd_ffa_error_return(void *handle, int error_code)
 {
-	SMC_RET8(handle, FFA_ERROR,
-		 FFA_TARGET_INFO_MBZ, error_code,
+	SMC_RET8(handle, (uint32_t) FFA_ERROR,
+		 FFA_TARGET_INFO_MBZ, (uint32_t)error_code,
 		 FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ,
 		 FFA_PARAM_MBZ, FFA_PARAM_MBZ);
 }
@@ -465,14 +465,16 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 			(ctx->state == SPMC_STATE_RESET)) {
 			ret = FFA_ERROR_NOT_SUPPORTED;
 		} else if (!secure_origin) {
-			ret = MAKE_FFA_VERSION(spmc_attrs.major_version, spmc_attrs.minor_version);
+			ret = MAKE_FFA_VERSION(spmc_attrs.major_version,
+					       spmc_attrs.minor_version);
 		} else {
-			ret = MAKE_FFA_VERSION(FFA_VERSION_MAJOR, FFA_VERSION_MINOR);
+			ret = MAKE_FFA_VERSION(FFA_VERSION_MAJOR,
+					       FFA_VERSION_MINOR);
 		}
 
-		SMC_RET8(handle, ret, FFA_TARGET_INFO_MBZ, FFA_TARGET_INFO_MBZ,
-			 FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ,
-			 FFA_PARAM_MBZ, FFA_PARAM_MBZ);
+		SMC_RET8(handle, (uint32_t)ret, FFA_TARGET_INFO_MBZ,
+			 FFA_TARGET_INFO_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+			 FFA_PARAM_MBZ, FFA_PARAM_MBZ, FFA_PARAM_MBZ);
 		break; /* not reached */
 
 	case FFA_FEATURES:
@@ -487,7 +489,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		 */
 		if (!is_ffa_fid(x1)) {
 			return spmd_ffa_error_return(handle,
-						      FFA_ERROR_NOT_SUPPORTED);
+						     FFA_ERROR_NOT_SUPPORTED);
 		}
 
 		/* Forward SMC from Normal world to the SPM Core */
