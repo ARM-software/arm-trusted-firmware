@@ -52,6 +52,7 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_RD_Daniel``       (Version 11.13 build 10)
 -  ``FVP_RD_N2``           (Version 11.13 build 10)
 -  ``FVP_TC0``             (Version 0.0 build 6114)
+-  ``FVP_Base_AEMv8A-GIC600AE`` (Version 0.0 build 6415)
 -  ``Foundation_Platform``
 
 The latest version of the AArch32 build of TF-A has been tested on the
