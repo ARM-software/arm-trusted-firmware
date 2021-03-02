@@ -7,11 +7,13 @@
 #include <assert.h>
 #include <errno.h>
 #include <lib/el3_runtime/context_mgmt.h>
+#include <lib/spinlock.h>
 #include "spmd_private.h"
 
 static struct {
 	bool secondary_ep_locked;
 	uintptr_t secondary_ep;
+	spinlock_t lock;
 } g_spmd_pm;
 
 /*******************************************************************************
@@ -34,8 +36,12 @@ static void spmd_build_spmc_message(gp_regs_t *gpregs, unsigned long long messag
  ******************************************************************************/
 int spmd_pm_secondary_ep_register(uintptr_t entry_point)
 {
+	int ret = FFA_ERROR_INVALID_PARAMETER;
+
+	spin_lock(&g_spmd_pm.lock);
+
 	if (g_spmd_pm.secondary_ep_locked == true) {
-		return FFA_ERROR_INVALID_PARAMETER;
+		goto out;
 	}
 
 	/*
@@ -45,7 +51,7 @@ int spmd_pm_secondary_ep_register(uintptr_t entry_point)
 	if (!spmd_check_address_in_binary_image(entry_point)) {
 		ERROR("%s entry point is not within image boundaries\n",
 			__func__);
-		return FFA_ERROR_INVALID_PARAMETER;
+		goto out;
 	}
 
 	g_spmd_pm.secondary_ep = entry_point;
@@ -53,7 +59,12 @@ int spmd_pm_secondary_ep_register(uintptr_t entry_point)
 
 	VERBOSE("%s %lx\n", __func__, entry_point);
 
-	return 0;
+	ret = 0;
+
+out:
+	spin_unlock(&g_spmd_pm.lock);
+
+	return ret;
 }
 
 /*******************************************************************************
@@ -73,6 +84,8 @@ static void spmd_cpu_on_finish_handler(u_register_t unused)
 	assert(ctx->state != SPMC_STATE_ON);
 	assert(spmc_ep_info != NULL);
 
+	spin_lock(&g_spmd_pm.lock);
+
 	/*
 	 * Leave the possibility that the SPMC does not call
 	 * FFA_SECONDARY_EP_REGISTER in which case re-use the
@@ -81,6 +94,8 @@ static void spmd_cpu_on_finish_handler(u_register_t unused)
 	if (g_spmd_pm.secondary_ep_locked == true) {
 		spmc_ep_info->pc = g_spmd_pm.secondary_ep;
 	}
+
+	spin_unlock(&g_spmd_pm.lock);
 
 	cm_setup_context(&ctx->cpu_ctx, spmc_ep_info);
 
