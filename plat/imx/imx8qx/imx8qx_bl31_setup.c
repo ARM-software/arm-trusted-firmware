@@ -51,6 +51,16 @@ static entry_point_info_t bl33_image_ep_info;
 #define IMX_PAD_UART_RX			SC_P_UART0_RX
 #define IMX_PAD_UART_TX			SC_P_UART0_TX
 
+#elif defined(IMX_USE_UART1)
+#define UART_PAD_CTRL	(PADRING_IFMUX_EN_MASK | PADRING_GP_EN_MASK | \
+			(SC_PAD_CONFIG_OUT_IN << PADRING_CONFIG_SHIFT) | \
+			(SC_PAD_ISO_OFF << PADRING_LPCONFIG_SHIFT) | \
+			(SC_PAD_28FDSOI_DSE_DV_LOW << PADRING_DSE_SHIFT) | \
+			(SC_PAD_28FDSOI_PS_PD << PADRING_PULL_SHIFT))
+#define IMX_RES_UART			SC_R_UART_1
+#define IMX_PAD_UART_RX			SC_P_UART1_RX
+#define IMX_PAD_UART_TX			SC_P_UART1_TX
+
 /*
  * On Toradex Colibri i.MX8QXP UART3 on the FLEXCAN2.
  * Use custom pad control for this
