@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -75,13 +75,13 @@ func amu_group0_cnt_write_internal
 
 1:
 	stcopr16	r2, r3, AMEVCNTR00	/* index 0 */
-	bx 		lr
+	bx		lr
 	stcopr16	r2, r3, AMEVCNTR01	/* index 1 */
-	bx 		lr
+	bx		lr
 	stcopr16	r2, r3, AMEVCNTR02	/* index 2 */
-	bx 		lr
+	bx		lr
 	stcopr16	r2, r3, AMEVCNTR03	/* index 3 */
-	bx 		lr
+	bx		lr
 endfunc amu_group0_cnt_write_internal
 
 /*
@@ -169,37 +169,37 @@ func amu_group1_cnt_write_internal
 	bx	r1
 
 1:
-	stcopr16	r2, r3,	AMEVCNTR10	/* index 0 */
+	stcopr16	r2, r3, AMEVCNTR10	/* index 0 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR11	/* index 1 */
+	stcopr16	r2, r3, AMEVCNTR11	/* index 1 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR12	/* index 2 */
+	stcopr16	r2, r3, AMEVCNTR12	/* index 2 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR13	/* index 3 */
+	stcopr16	r2, r3, AMEVCNTR13	/* index 3 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR14	/* index 4 */
+	stcopr16	r2, r3, AMEVCNTR14	/* index 4 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR15	/* index 5 */
+	stcopr16	r2, r3, AMEVCNTR15	/* index 5 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR16	/* index 6 */
+	stcopr16	r2, r3, AMEVCNTR16	/* index 6 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR17	/* index 7 */
+	stcopr16	r2, r3, AMEVCNTR17	/* index 7 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR18	/* index 8 */
+	stcopr16	r2, r3, AMEVCNTR18	/* index 8 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR19	/* index 9 */
+	stcopr16	r2, r3, AMEVCNTR19	/* index 9 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR1A	/* index 10 */
+	stcopr16	r2, r3, AMEVCNTR1A	/* index 10 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR1B	/* index 11 */
+	stcopr16	r2, r3, AMEVCNTR1B	/* index 11 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR1C	/* index 12 */
+	stcopr16	r2, r3, AMEVCNTR1C	/* index 12 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR1D	/* index 13 */
+	stcopr16	r2, r3, AMEVCNTR1D	/* index 13 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR1E	/* index 14 */
+	stcopr16	r2, r3, AMEVCNTR1E	/* index 14 */
 	bx		lr
-	stcopr16	r2, r3,	AMEVCNTR1F	/* index 15 */
+	stcopr16	r2, r3, AMEVCNTR1F	/* index 15 */
 	bx		lr
 endfunc amu_group1_cnt_write_internal
 
@@ -234,36 +234,36 @@ func amu_group1_set_evtype_internal
 	bx	r2
 
 1:
-	stcopr	r1,	AMEVTYPER10 /* index 0 */
+	stcopr	r1, AMEVTYPER10 /* index 0 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER11 /* index 1 */
+	stcopr	r1, AMEVTYPER11 /* index 1 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER12 /* index 2 */
+	stcopr	r1, AMEVTYPER12 /* index 2 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER13 /* index 3 */
+	stcopr	r1, AMEVTYPER13 /* index 3 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER14 /* index 4 */
+	stcopr	r1, AMEVTYPER14 /* index 4 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER15 /* index 5 */
+	stcopr	r1, AMEVTYPER15 /* index 5 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER16 /* index 6 */
+	stcopr	r1, AMEVTYPER16 /* index 6 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER17 /* index 7 */
+	stcopr	r1, AMEVTYPER17 /* index 7 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER18 /* index 8 */
+	stcopr	r1, AMEVTYPER18 /* index 8 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER19 /* index 9 */
+	stcopr	r1, AMEVTYPER19 /* index 9 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER1A /* index 10 */
+	stcopr	r1, AMEVTYPER1A /* index 10 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER1B /* index 11 */
+	stcopr	r1, AMEVTYPER1B /* index 11 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER1C /* index 12 */
+	stcopr	r1, AMEVTYPER1C /* index 12 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER1D /* index 13 */
+	stcopr	r1, AMEVTYPER1D /* index 13 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER1E /* index 14 */
+	stcopr	r1, AMEVTYPER1E /* index 14 */
 	bx	lr
-	stcopr	r1,	AMEVTYPER1F /* index 15 */
+	stcopr	r1, AMEVTYPER1F /* index 15 */
 	bx	lr
 endfunc amu_group1_set_evtype_internal
