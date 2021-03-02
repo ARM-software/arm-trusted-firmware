@@ -41,6 +41,8 @@
 
 #if defined(IMX_USE_UART0)
 #define IMX_BOOT_UART_BASE		0x5a060000
+#elif defined(IMX_USE_UART1)
+#define IMX_BOOT_UART_BASE		0x5a070000
 #elif defined(IMX_USE_UART3)
 #define IMX_BOOT_UART_BASE		0x5a090000
 #else
