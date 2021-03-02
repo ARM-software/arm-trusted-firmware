@@ -297,7 +297,8 @@ BL2_SOURCES		+=	drivers/st/usb/stm32mp1_usb.c				\
 				plat/st/stm32mp1/stm32mp1_usb_dfu.c
 endif
 
-BL2_SOURCES		+=	drivers/st/ddr/stm32mp_ram.c				\
+BL2_SOURCES		+=	drivers/st/ddr/stm32mp_ddr_test.c			\
+				drivers/st/ddr/stm32mp_ram.c				\
 				drivers/st/ddr/stm32mp1_ddr.c				\
 				drivers/st/ddr/stm32mp1_ram.c
 

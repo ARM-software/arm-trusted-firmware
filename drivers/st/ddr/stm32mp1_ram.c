@@ -14,14 +14,12 @@
 #include <drivers/st/stm32mp1_ddr_helpers.h>
 #include <drivers/st/stm32mp1_ram.h>
 #include <drivers/st/stm32mp_ddr.h>
+#include <drivers/st/stm32mp_ddr_test.h>
 #include <drivers/st/stm32mp_ram.h>
 #include <lib/mmio.h>
 #include <libfdt.h>
 
 #include <platform_def.h>
-
-#define DDR_PATTERN	0xAAAAAAAAU
-#define DDR_ANTIPATTERN	0x55555555U
 
 static struct stm32mp_ddr_priv ddr_priv_data;
 
@@ -50,119 +48,6 @@ int stm32mp1_ddr_clk_enable(struct stm32mp_ddr_priv *priv, uint32_t mem_speed)
 		return -1;
 	}
 	return 0;
-}
-
-/*******************************************************************************
- * This function tests the DDR data bus wiring.
- * This is inspired from the Data Bus Test algorithm written by Michael Barr
- * in "Programming Embedded Systems in C and C++" book.
- * resources.oreilly.com/examples/9781565923546/blob/master/Chapter6/
- * File: memtest.c - This source code belongs to Public Domain.
- * Returns 0 if success, and address value else.
- ******************************************************************************/
-static uint32_t ddr_test_data_bus(void)
-{
-	uint32_t pattern;
-
-	for (pattern = 1U; pattern != 0U; pattern <<= 1) {
-		mmio_write_32(STM32MP_DDR_BASE, pattern);
-
-		if (mmio_read_32(STM32MP_DDR_BASE) != pattern) {
-			return (uint32_t)STM32MP_DDR_BASE;
-		}
-	}
-
-	return 0;
-}
-
-/*******************************************************************************
- * This function tests the DDR address bus wiring.
- * This is inspired from the Data Bus Test algorithm written by Michael Barr
- * in "Programming Embedded Systems in C and C++" book.
- * resources.oreilly.com/examples/9781565923546/blob/master/Chapter6/
- * File: memtest.c - This source code belongs to Public Domain.
- * Returns 0 if success, and address value else.
- ******************************************************************************/
-static uint32_t ddr_test_addr_bus(void)
-{
-	uint64_t addressmask = (ddr_priv_data.info.size - 1U);
-	uint64_t offset;
-	uint64_t testoffset = 0;
-
-	/* Write the default pattern at each of the power-of-two offsets. */
-	for (offset = sizeof(uint32_t); (offset & addressmask) != 0U;
-	     offset <<= 1) {
-		mmio_write_32(STM32MP_DDR_BASE + (uint32_t)offset,
-			      DDR_PATTERN);
-	}
-
-	/* Check for address bits stuck high. */
-	mmio_write_32(STM32MP_DDR_BASE + (uint32_t)testoffset,
-		      DDR_ANTIPATTERN);
-
-	for (offset = sizeof(uint32_t); (offset & addressmask) != 0U;
-	     offset <<= 1) {
-		if (mmio_read_32(STM32MP_DDR_BASE + (uint32_t)offset) !=
-		    DDR_PATTERN) {
-			return (uint32_t)(STM32MP_DDR_BASE + offset);
-		}
-	}
-
-	mmio_write_32(STM32MP_DDR_BASE + (uint32_t)testoffset, DDR_PATTERN);
-
-	/* Check for address bits stuck low or shorted. */
-	for (testoffset = sizeof(uint32_t); (testoffset & addressmask) != 0U;
-	     testoffset <<= 1) {
-		mmio_write_32(STM32MP_DDR_BASE + (uint32_t)testoffset,
-			      DDR_ANTIPATTERN);
-
-		if (mmio_read_32(STM32MP_DDR_BASE) != DDR_PATTERN) {
-			return STM32MP_DDR_BASE;
-		}
-
-		for (offset = sizeof(uint32_t); (offset & addressmask) != 0U;
-		     offset <<= 1) {
-			if ((mmio_read_32(STM32MP_DDR_BASE +
-					  (uint32_t)offset) != DDR_PATTERN) &&
-			    (offset != testoffset)) {
-				return (uint32_t)(STM32MP_DDR_BASE + offset);
-			}
-		}
-
-		mmio_write_32(STM32MP_DDR_BASE + (uint32_t)testoffset,
-			      DDR_PATTERN);
-	}
-
-	return 0;
-}
-
-/*******************************************************************************
- * This function checks the DDR size. It has to be run with Data Cache off.
- * This test is run before data have been put in DDR, and is only done for
- * cold boot. The DDR data can then be overwritten, and it is not useful to
- * restore its content.
- * Returns DDR computed size.
- ******************************************************************************/
-static uint32_t ddr_check_size(void)
-{
-	uint32_t offset = sizeof(uint32_t);
-
-	mmio_write_32(STM32MP_DDR_BASE, DDR_PATTERN);
-
-	while (offset < STM32MP_DDR_MAX_SIZE) {
-		mmio_write_32(STM32MP_DDR_BASE + offset, DDR_ANTIPATTERN);
-		dsb();
-
-		if (mmio_read_32(STM32MP_DDR_BASE) != DDR_PATTERN) {
-			break;
-		}
-
-		offset <<= 1;
-	}
-
-	INFO("Memory size = 0x%x (%d MB)\n", offset, offset / (1024U * 1024U));
-
-	return offset;
 }
 
 static int stm32mp1_ddr_setup(void)
@@ -220,21 +105,21 @@ static int stm32mp1_ddr_setup(void)
 		panic();
 	}
 
-	uret = ddr_test_data_bus();
+	uret = stm32mp_ddr_test_data_bus();
 	if (uret != 0U) {
 		ERROR("DDR data bus test: can't access memory @ 0x%x\n",
 		      uret);
 		panic();
 	}
 
-	uret = ddr_test_addr_bus();
+	uret = stm32mp_ddr_test_addr_bus(config.info.size);
 	if (uret != 0U) {
 		ERROR("DDR addr bus test: can't access memory @ 0x%x\n",
 		      uret);
 		panic();
 	}
 
-	uret = ddr_check_size();
+	uret = stm32mp_ddr_check_size();
 	if (uret < config.info.size) {
 		ERROR("DDR size: 0x%x does not match DT config: 0x%x\n",
 		      uret, config.info.size);
