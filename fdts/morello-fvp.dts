@@ -92,6 +92,12 @@
 		interrupts = <GIC_SPI 101 IRQ_TYPE_LEVEL_HIGH>;
 	};
 
+	virtio_p9@1c1a0000 {
+		compatible = "virtio,mmio";
+		reg = <0x0 0x1c1a0000 0x0 0x200>;
+		interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
+	};
+
 	ethernet@1d100000 {
 		compatible = "smsc,lan91c111";
 		reg = <0x0 0x1d100000 0x0 0x10000>;
