@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,6 +27,10 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 {
 	cpu_context_t *ctx = &(sp_ctx->cpu_ctx);
 
+	/* Pointer to the MP information from the platform port. */
+	const spm_mm_boot_info_t *sp_boot_info =
+			plat_get_secure_partition_boot_info(NULL);
+
 	/*
 	 * Initialize CPU context
 	 * ----------------------
@@ -36,7 +41,7 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	SET_PARAM_HEAD(&ep_info, PARAM_EP, VERSION_1, SECURE | EP_ST_ENABLE);
 
 	/* Setup entrypoint and SPSR */
-	ep_info.pc = BL32_BASE;
+	ep_info.pc = sp_boot_info->sp_image_base;
 	ep_info.spsr = SPSR_64(MODE_EL0, MODE_SP_EL0, DISABLE_ALL_EXCEPTIONS);
 
 	/*
@@ -53,8 +58,8 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	 *
 	 * X4 to X7 = 0
 	 */
-	ep_info.args.arg0 = PLAT_SPM_BUF_BASE;
-	ep_info.args.arg1 = PLAT_SPM_BUF_SIZE;
+	ep_info.args.arg0 = sp_boot_info->sp_shared_buf_base;
+	ep_info.args.arg1 = sp_boot_info->sp_shared_buf_size;
 	ep_info.args.arg2 = PLAT_SPM_COOKIE_0;
 	ep_info.args.arg3 = PLAT_SPM_COOKIE_1;
 
@@ -66,7 +71,7 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	 * implementation defined means. The value will be 0 otherwise.
 	 */
 	write_ctx_reg(get_gpregs_ctx(ctx), CTX_GPREG_SP_EL0,
-			PLAT_SP_IMAGE_STACK_BASE + PLAT_SP_IMAGE_STACK_PCPU_SIZE);
+			sp_boot_info->sp_stack_base + sp_boot_info->sp_pcpu_stack_size);
 
 	/*
 	 * Setup translation tables
@@ -84,10 +89,10 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	unsigned int max_granule_mask = max_granule - 1U;
 
 	/* Base must be aligned to the max granularity */
-	assert((PLAT_SP_IMAGE_NS_BUF_BASE & max_granule_mask) == 0);
+	assert((sp_boot_info->sp_ns_comm_buf_base & max_granule_mask) == 0);
 
 	/* Size must be a multiple of the max granularity */
-	assert((PLAT_SP_IMAGE_NS_BUF_SIZE & max_granule_mask) == 0);
+	assert((sp_boot_info->sp_ns_comm_buf_size & max_granule_mask) == 0);
 
 #endif /* ENABLE_ASSERTIONS */
 
@@ -191,16 +196,14 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	 * ----------------------------------------------------------
 	 */
 
-	void *shared_buf_ptr = (void *) PLAT_SPM_BUF_BASE;
+	void *shared_buf_ptr = (void *) sp_boot_info->sp_shared_buf_base;
 
 	/* Copy the boot information into the shared buffer with the SP. */
 	assert((uintptr_t)shared_buf_ptr + sizeof(spm_mm_boot_info_t)
-	       <= (PLAT_SPM_BUF_BASE + PLAT_SPM_BUF_SIZE));
+	       <= (sp_boot_info->sp_shared_buf_base + sp_boot_info->sp_shared_buf_size));
 
-	assert(PLAT_SPM_BUF_BASE <= (UINTPTR_MAX - PLAT_SPM_BUF_SIZE + 1));
-
-	const spm_mm_boot_info_t *sp_boot_info =
-			plat_get_secure_partition_boot_info(NULL);
+	assert(sp_boot_info->sp_shared_buf_base <=
+				(UINTPTR_MAX - sp_boot_info->sp_shared_buf_size + 1));
 
 	assert(sp_boot_info != NULL);
 
@@ -234,7 +237,7 @@ void spm_sp_setup(sp_context_t *sp_ctx)
 	assert(sp_boot_info->num_cpus <= PLATFORM_CORE_COUNT);
 
 	assert((uintptr_t)shared_buf_ptr
-	       <= (PLAT_SPM_BUF_BASE + PLAT_SPM_BUF_SIZE -
+	       <= (sp_boot_info->sp_shared_buf_base + sp_boot_info->sp_shared_buf_size -
 		       (sp_boot_info->num_cpus * sizeof(*sp_mp_info))));
 
 	memcpy(shared_buf_ptr, (const void *) sp_mp_info,
