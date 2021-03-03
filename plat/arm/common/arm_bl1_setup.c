@@ -27,6 +27,7 @@
 #pragma weak bl1_plat_get_next_image_id
 #pragma weak plat_arm_bl1_fwu_needed
 #pragma weak arm_bl1_plat_arch_setup
+#pragma weak arm_bl1_platform_setup
 
 #define MAP_BL1_TOTAL		MAP_REGION_FLAT(			\
 					bl1_tzram_layout.total_base,	\

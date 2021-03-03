@@ -321,31 +321,31 @@
 
 /* Memory mapped Generic timer interfaces  */
 #ifdef PLAT_ARM_SYS_CNTCTL_BASE
-#define ARM_SYS_CNTCTL_BASE             PLAT_ARM_SYS_CNTCTL_BASE
+#define ARM_SYS_CNTCTL_BASE		PLAT_ARM_SYS_CNTCTL_BASE
 #else
 #define ARM_SYS_CNTCTL_BASE		UL(0x2a430000)
 #endif
 
 #ifdef PLAT_ARM_SYS_CNTREAD_BASE
-#define ARM_SYS_CNTREAD_BASE             PLAT_ARM_SYS_CNTREAD_BASE
+#define ARM_SYS_CNTREAD_BASE		PLAT_ARM_SYS_CNTREAD_BASE
 #else
 #define ARM_SYS_CNTREAD_BASE		UL(0x2a800000)
 #endif
 
 #ifdef PLAT_ARM_SYS_TIMCTL_BASE
-#define ARM_SYS_TIMCTL_BASE             PLAT_ARM_SYS_TIMCTL_BASE
+#define ARM_SYS_TIMCTL_BASE		PLAT_ARM_SYS_TIMCTL_BASE
 #else
 #define ARM_SYS_TIMCTL_BASE		UL(0x2a810000)
 #endif
 
 #ifdef PLAT_ARM_SYS_CNT_BASE_S
-#define ARM_SYS_CNT_BASE_S             PLAT_ARM_SYS_CNT_BASE_S
+#define ARM_SYS_CNT_BASE_S		PLAT_ARM_SYS_CNT_BASE_S
 #else
 #define ARM_SYS_CNT_BASE_S		UL(0x2a820000)
 #endif
 
 #ifdef PLAT_ARM_SYS_CNT_BASE_NS
-#define ARM_SYS_CNT_BASE_NS             PLAT_ARM_SYS_CNT_BASE_NS
+#define ARM_SYS_CNT_BASE_NS		PLAT_ARM_SYS_CNT_BASE_NS
 #else
 #define ARM_SYS_CNT_BASE_NS		UL(0x2a830000)
 #endif
@@ -354,7 +354,7 @@
 
 /* Trusted Watchdog constants */
 #ifdef PLAT_ARM_SP805_TWDG_BASE
-#define ARM_SP805_TWDG_BASE             PLAT_ARM_SP805_TWDG_BASE
+#define ARM_SP805_TWDG_BASE		PLAT_ARM_SP805_TWDG_BASE
 #else
 #define ARM_SP805_TWDG_BASE		UL(0x2a490000)
 #endif
@@ -415,9 +415,14 @@
  * addresses.
  ******************************************************************************/
 #define BL1_RO_BASE			PLAT_ARM_TRUSTED_ROM_BASE
+#ifdef PLAT_BL1_RO_LIMIT
+#define BL1_RO_LIMIT			PLAT_BL1_RO_LIMIT
+#else
 #define BL1_RO_LIMIT			(PLAT_ARM_TRUSTED_ROM_BASE	\
 					 + (PLAT_ARM_TRUSTED_ROM_SIZE - \
 					    PLAT_ARM_MAX_ROMLIB_RO_SIZE))
+#endif
+
 /*
  * Put BL1 RW at the top of the Trusted SRAM.
  */

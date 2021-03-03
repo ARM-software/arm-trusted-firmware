@@ -15,17 +15,11 @@
 #include <plat/common/common_def.h>
 
 /* Semihosting filenames */
-#define TB_FW_CONFIG_NAME		"fvp_tb_fw_config.dtb"
-#define HW_CONFIG_NAME			"hw_config.dtb"
+#define BL33_IMAGE_NAME			"bl33.bin"
 
 #if TRUSTED_BOARD_BOOT
-#define TRUSTED_BOOT_FW_CERT_NAME	"tb_fw.crt"
 #define TRUSTED_KEY_CERT_NAME		"trusted_key.crt"
-#define SOC_FW_KEY_CERT_NAME		"soc_fw_key.crt"
-#define TOS_FW_KEY_CERT_NAME		"tos_fw_key.crt"
 #define NT_FW_KEY_CERT_NAME		"nt_fw_key.crt"
-#define SOC_FW_CONTENT_CERT_NAME	"soc_fw_content.crt"
-#define TOS_FW_CONTENT_CERT_NAME	"tos_fw_content.crt"
 #define NT_FW_CONTENT_CERT_NAME		"nt_fw_content.crt"
 #endif /* TRUSTED_BOARD_BOOT */
 
@@ -34,12 +28,8 @@ static const io_dev_connector_t *sh_dev_con;
 static uintptr_t sh_dev_handle;
 
 static const io_file_spec_t sh_file_spec[] = {
-	[TB_FW_CONFIG_ID] = {
-		.path = TB_FW_CONFIG_NAME,
-		.mode = FOPEN_MODE_RB
-	},
-	[HW_CONFIG_ID] = {
-		.path = HW_CONFIG_NAME,
+	[BL33_IMAGE_ID] = {
+		.path = BL33_IMAGE_NAME,
 		.mode = FOPEN_MODE_RB
 	},
 #if TRUSTED_BOARD_BOOT

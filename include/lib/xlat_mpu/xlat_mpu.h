@@ -7,6 +7,10 @@
 #ifndef XLAT_MPU_H
 #define XLAT_MPU_H
 
+#ifndef __ASSEMBLER__
+
+#include <lib/cassert.h>
+
 #define XLAT_TABLES_LIB_V2	1
 
 void enable_mpu_el2(unsigned int flags);
@@ -19,4 +23,5 @@ void enable_mpu_direct_el2(unsigned int flags);
  */
 void clear_all_mpu_regions(void);
 
+#endif /* __ASSEMBLER__ */
 #endif /* XLAT_MPU_H */

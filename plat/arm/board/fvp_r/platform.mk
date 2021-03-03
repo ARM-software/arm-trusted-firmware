@@ -11,7 +11,8 @@ ARCH	:= aarch64
 override NEED_BL2	:= no
 override NEED_BL2U	:= no
 override NEED_BL31	:= no
-override NEED_BL33	:= no
+
+override CTX_INCLUDE_AARCH32_REGS	:=	0
 
 # Default cluster count for FVP_R
 FVP_R_CLUSTER_COUNT	:= 2
@@ -24,9 +25,6 @@ FVP_R_MAX_PE_PER_CPU	:= 1
 
 # Use MPU-based memory management:
 XLAT_MPU_LIB_V1		:=	1
-
-# Need to revisit this for FVP_R
-FVP_R_DT_PREFIX		:= fvp-base-gicv3-psci
 
 # Pass FVP_R_CLUSTER_COUNT to the build system.
 $(eval $(call add_define,FVP_R_CLUSTER_COUNT))
@@ -87,7 +85,7 @@ BL1_SOURCES		+=	drivers/arm/sp805/sp805.c			\
 				plat/arm/board/fvp_r/fvp_r_bl1_context_mgmt.c	\
 				plat/arm/board/fvp_r/fvp_r_bl1_entrypoint.S	\
 				plat/arm/board/fvp_r/fvp_r_bl1_exceptions.S	\
-				plat/arm/board/fvp_r/fvp_r_bl1_main.c	\
+				plat/arm/board/fvp_r/fvp_r_bl1_main.c		\
 				plat/arm/board/fvp_r/fvp_r_context.S		\
 				plat/arm/board/fvp_r/fvp_r_debug.S		\
 				plat/arm/board/fvp_r/fvp_r_helpers.S		\
@@ -115,28 +113,13 @@ ifneq (${BL2_AT_EL3}, 0)
     override BL1_SOURCES =
 endif
 
-# Add the FDT_SOURCES and options for Dynamic Config (only for Unix env)
-ifdef UNIX_MK
-FVP_R_HW_CONFIG_DTS	:=	fdts/${FVP_R_DT_PREFIX}.dts
-FDT_SOURCES		+=	$(addprefix plat/arm/board/fvp_r/fdts/,	\
-					${PLAT}_fw_config.dts		\
-					${PLAT}_nt_fw_config.dts	\
-				)
-
-FVP_R_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_fw_config.dtb
-FVP_R_NT_FW_CONFIG	:=	${BUILD_PLAT}/fdts/${PLAT}_nt_fw_config.dtb
-
-# Add the FW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_PAYLOAD,${FVP_R_FW_CONFIG},--fw-config,${FVP_R_FW_CONFIG}))
-# Add the NT_FW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_PAYLOAD,${FVP_R_NT_FW_CONFIG},--nt-fw-config,${FVP_R_NT_FW_CONFIG}))
-
-FDT_SOURCES		+=	${FVP_R_HW_CONFIG_DTS}
-$(eval FVP_R_HW_CONFIG	:=	${BUILD_PLAT}/$(patsubst %.dts,%.dtb,$(FVP_R_HW_CONFIG_DTS)))
-
-# Add the HW_CONFIG to FIP and specify the same to certtool
-$(eval $(call TOOL_ADD_PAYLOAD,${FVP_R_HW_CONFIG},--hw-config,${FVP_R_HW_CONFIG}))
-endif
-
 include plat/arm/board/common/board_common.mk
 include plat/arm/common/arm_common.mk
+
+ifeq (${TRUSTED_BOARD_BOOT}, 1)
+BL1_SOURCES		+=	plat/arm/board/fvp_r/fvp_r_trusted_boot.c
+
+# FVP being a development platform, enable capability to disable Authentication
+# dynamically if TRUSTED_BOARD_BOOT is set.
+DYN_DISABLE_AUTH	:=	1
+endif

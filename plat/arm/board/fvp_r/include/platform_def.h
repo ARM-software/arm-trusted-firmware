@@ -9,6 +9,18 @@
 
 #define PLAT_V2M_OFFSET			0x80000000
 
+#define BL33_IMAGE_DESC {				\
+	.image_id = BL33_IMAGE_ID,			\
+	SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,	\
+		VERSION_2, image_info_t, 0),		\
+	.image_info.image_base = PLAT_ARM_DRAM1_BASE + 0x1000,		\
+	.image_info.image_max_size = UL(0x3ffff000), \
+	SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,	\
+		VERSION_2, entry_point_info_t, SECURE | EXECUTABLE),\
+	.ep_info.pc = PLAT_ARM_DRAM1_BASE + 0x1000,				\
+	.ep_info.spsr = SPSR_64(MODE_EL2, MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS),	\
+}
+
 #include "../fvp_r_def.h"
 #include <drivers/arm/tzc400.h>
 #include <lib/utils_def.h>
@@ -60,11 +72,15 @@
 #define PLAT_ARM_TRUSTED_DRAM_SIZE	UL(0x02000000)	/* 32 MB */
 
 /* These two are defined thus in arm_def.h, but doesn't seem to see it... */
-#undef	BL1_RO_BASE
-#define	BL1_RO_BASE			PLAT_ARM_TRUSTED_ROM_BASE
-#undef	BL1_RO_LIMIT
-#define	BL1_RO_LIMIT			(BL1_RO_BASE \
+#define PLAT_BL1_RO_LIMIT               (BL1_RO_BASE \
 					+ PLAT_ARM_TRUSTED_ROM_SIZE)
+
+#define PLAT_ARM_SYS_CNTCTL_BASE	UL(0xaa430000)
+#define PLAT_ARM_SYS_CNTREAD_BASE	UL(0xaa800000)
+#define PLAT_ARM_SYS_TIMCTL_BASE	UL(0xaa810000)
+#define PLAT_ARM_SYS_CNT_BASE_S		UL(0xaa820000)
+#define PLAT_ARM_SYS_CNT_BASE_NS	UL(0xaa830000)
+#define PLAT_ARM_SP805_TWDG_BASE	UL(0xaa490000)
 
 /* virtual address used by dynamic mem_protect for chunk_base */
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xc0000000)
@@ -84,9 +100,10 @@
 #define V2M_FVP_R_SYSREGS_BASE		UL(0x9c010000)
 
 /*
- * Load address of BL33 for this platform port
+ * Load address of BL33 for this platform port,
+ * U-Boot specifically must be loaded at a 4K aligned address.
  */
-#define PLAT_ARM_NS_IMAGE_BASE		(ARM_DRAM1_BASE + UL(0x8000000))
+#define PLAT_ARM_NS_IMAGE_BASE		(PLAT_ARM_DRAM1_BASE + 0x1000)
 
 /*
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
@@ -102,13 +119,6 @@
 # define N_MPU_REGIONS			16  /* number of MPU regions */
 # define ALL_MPU_EL2_REGIONS_USED	0xffffffff
 	/* this is the PRENR_EL2 value if all MPU regions are in use */
-
-/*
- * These nominally reserve the last block of flash for PSCI MEM PROTECT flag,
- * but no PSCI in FVP_R platform, so reserve nothing:
- */
-#define PLAT_ARM_FLASH_IMAGE_BASE       V2M_FLASH0_BASE
-#define PLAT_ARM_FLASH_IMAGE_MAX_SIZE   0
 
 /*
  * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
@@ -165,9 +175,12 @@
 #define MAX_IO_DEVICES			3
 #define MAX_IO_HANDLES			4
 
-/* Reserve the last block of flash for PSCI MEM PROTECT flag */
-#define PLAT_ARM_FIP_BASE		V2M_FLASH0_BASE
-#define PLAT_ARM_FIP_MAX_SIZE		(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
+/*
+ * These nominally reserve the last block of flash for PSCI MEM PROTECT flag,
+ * but no PSCI in FVP_R platform, so reserve nothing:
+ */
+#define PLAT_ARM_FLASH_IMAGE_BASE	(PLAT_ARM_DRAM1_BASE + UL(0x40000000))
+#define PLAT_ARM_FLASH_IMAGE_MAX_SIZE	(PLAT_ARM_DRAM1_SIZE - UL(0x40000000))
 
 #define PLAT_ARM_NVM_BASE		V2M_FLASH0_BASE
 #define PLAT_ARM_NVM_SIZE		(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)

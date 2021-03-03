@@ -8,9 +8,9 @@
 
 #include <common/debug.h>
 
+#include "lib/xlat_mpu/xlat_mpu.h"
 #include <lib/xlat_tables/xlat_tables_defs.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
-#include "xlat_mpu.h"
 #include "xlat_mpu_private.h"
 
 #include <fvp_r_arch_helpers.h>

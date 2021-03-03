@@ -5,9 +5,13 @@
  */
 
 #include <arch.h>
+#include <asm_macros.S>
+#include <common/bl_common.h>
 #include <el2_common_macros.S>
+#include <lib/xlat_mpu/xlat_mpu.h>
 
 	.globl	bl1_entrypoint
+	.globl	bl1_run_next_image
 
 
 	/* -----------------------------------------------------
@@ -54,10 +58,38 @@ func bl1_entrypoint
 	 */
 	bl	bl1_main
 
+	/* ---------------------------------------------
+	 * Should never reach this point.
+	 * ---------------------------------------------
+	 */
+	no_ret	plat_panic_handler
+endfunc bl1_entrypoint
+
+func bl1_run_next_image
+	mov	x20,x0
+
+	/* ---------------------------------------------
+	 * MPU needs to be disabled because both BL1 and BL33 execute
+	 * in EL2, and therefore share the same address space.
+	 * BL33 will initialize the address space according to its
+	 * own requirement.
+	 * ---------------------------------------------
+	 */
+	bl	disable_mpu_icache_el2
+
+	/* ---------------------------------------------
+	 * Wipe clean and disable all MPU regions.  This function expects
+	 * that the MPU has already been turned off, and caching concerns
+	 * addressed, but it also explicitly turns off the MPU.
+	 * ---------------------------------------------
+	 */
+	bl	clear_all_mpu_regions
+
 #if ENABLE_PAUTH
-	/* --------------------------------------------------------------------
-	 * Disable pointer authentication before jumping to next boot image.
-	 * --------------------------------------------------------------------
+	/* ---------------------------------------------
+	 * Disable pointer authentication before jumping
+	 * to next boot image.
+	 * ---------------------------------------------
 	 */
 	bl	pauth_disable_el2
 #endif /* ENABLE_PAUTH */
@@ -66,5 +98,13 @@ func bl1_entrypoint
 	 * Do the transition to next boot image.
 	 * --------------------------------------------------
 	 */
-	b	el2_exit
-endfunc bl1_entrypoint
+	ldp	x0, x1, [x20, #ENTRY_POINT_INFO_PC_OFFSET]
+	msr	elr_el2, x0
+	msr	spsr_el2, x1
+
+	ldp	x6, x7, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x30)]
+	ldp	x4, x5, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x20)]
+	ldp	x2, x3, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x10)]
+	ldp	x0, x1, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x0)]
+	exception_return
+endfunc bl1_run_next_image
