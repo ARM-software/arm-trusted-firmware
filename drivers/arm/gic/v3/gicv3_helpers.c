@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -105,6 +105,16 @@ void gicv3_spis_config_defaults(uintptr_t gicd_base)
 	/* Maximum SPI INTID is 32 * (GICD_TYPER.ITLinesNumber + 1) - 1 */
 	num_ints = ((typer_reg & TYPER_IT_LINES_NO_MASK) + 1U) << 5;
 
+	/*
+	 * The GICv3 architecture allows GICD_TYPER.ITLinesNumber to be 31, so
+	 * the maximum possible value for num_ints is 1024. Limit the value to
+	 * MAX_SPI_ID + 1 to avoid getting wrong address in GICD_OFFSET() macro.
+	 */
+	if (num_ints > MAX_SPI_ID + 1U) {
+		num_ints = MAX_SPI_ID + 1U;
+	}
+	INFO("Maximum SPI INTID supported: %u\n", num_ints - 1);
+
 	/* Treat all (E)SPIs as G1NS by default. We do 32 at a time. */
 	for (i = MIN_SPI_ID; i < num_ints; i += (1U << IGROUPR_SHIFT)) {
 		gicd_write_igroupr(gicd_base, i, ~0U);
@@ -117,7 +127,8 @@ void gicv3_spis_config_defaults(uintptr_t gicd_base)
 		 * Maximum ESPI INTID is 32 * (GICD_TYPER.ESPI_range + 1) + 4095
 		 */
 		num_eints = ((((typer_reg >> TYPER_ESPI_RANGE_SHIFT) &
-			TYPER_ESPI_RANGE_MASK) + 1U) << 5) + MIN_ESPI_ID - 1;
+			TYPER_ESPI_RANGE_MASK) + 1U) << 5) + MIN_ESPI_ID;
+		INFO("Maximum ESPI INTID supported: %u\n", num_eints - 1);
 
 		for (i = MIN_ESPI_ID; i < num_eints;
 					i += (1U << IGROUPR_SHIFT)) {
@@ -125,6 +136,7 @@ void gicv3_spis_config_defaults(uintptr_t gicd_base)
 		}
 	} else {
 		num_eints = 0U;
+		INFO("ESPI range is not implemented.\n");
 	}
 #endif
 
