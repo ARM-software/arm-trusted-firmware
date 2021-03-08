@@ -1,4 +1,4 @@
-# Copyright 2020-2021 NXP
+# Copyright 2020-2022 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -11,14 +11,12 @@ $(eval CACHE_WRITEBACK_GRANULE=$(shell echo $$((1 << $(CACHE_LINE)))))
 $(eval $(call add_define_val,CACHE_WRITEBACK_GRANULE,$(CACHE_WRITEBACK_GRANULE)))
 endif
 
-ifeq (${INTERCONNECT}, "CCI400")
+ifneq (${INTERCONNECT},)
 $(eval $(call add_define,NXP_HAS_${INTERCONNECT}))
+ifeq (${INTERCONNECT}, CCI400)
 ICNNCT_ID := 0x420
 $(eval $(call add_define,ICNNCT_ID))
 endif
-
-ifeq (${INTERCONNECT}, "CCN508")
-$(eval $(call add_define,NXP_HAS_CCN508))
 endif
 
 ifneq (${CHASSIS},)
