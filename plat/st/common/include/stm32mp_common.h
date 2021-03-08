@@ -11,6 +11,9 @@
 
 #include <platform_def.h>
 
+#define JEDEC_ST_BKID U(0x0)
+#define JEDEC_ST_MFID U(0x20)
+
 /* Functions to save and get boot context address given by ROM code */
 void stm32mp_save_boot_ctx_address(uintptr_t address);
 uintptr_t stm32mp_get_boot_ctx_address(void);
