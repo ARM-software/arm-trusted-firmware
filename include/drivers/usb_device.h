@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2021-2025, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,17 @@
 #include <stdint.h>
 
 #include <lib/utils_def.h>
+
+/* Define for EP address */
+#define EP_DIR_MASK	BIT(7)
+#define EP_DIR_IN	BIT(7)
+#define EP_NUM_MASK	GENMASK(3, 0)
+
+#define EP0_IN	(0U | EP_DIR_IN)
+#define EP0_OUT	0U
+
+/* USB address between 1 through 127 = 0x7F mask */
+#define ADDRESS_MASK	GENMASK(6, 0)
 
 #define USBD_MAX_NUM_INTERFACES			1U
 #define USBD_MAX_NUM_CONFIGURATION		1U
