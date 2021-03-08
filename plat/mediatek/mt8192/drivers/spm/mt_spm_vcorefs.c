@@ -392,6 +392,8 @@ uint64_t spm_vcorefs_args(uint64_t x1, uint64_t x2, uint64_t x3, uint64_t *x4)
 		dvfsrc_init();
 
 		*x4 = 0U;
+		mmio_write_32(DVFSRC_SW_REQ5, 0U);
+		break;
 	case VCOREFS_SMC_CMD_KICK:
 		mmio_write_32(DVFSRC_SW_REQ5, 0U);
 		break;
