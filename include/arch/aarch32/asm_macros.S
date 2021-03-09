@@ -107,12 +107,12 @@
 
 #else
 	/*
-	 * Macro for mitigating against speculative execution beyond ERET.
-	 * If possible use Speculation Barrier instruction defined in ARMv8.5
+	 * Macro for mitigating against speculative execution beyond ERET. Uses the
+	 * speculation barrier instruction introduced by FEAT_SB, if it's enabled.
 	 */
 	.macro exception_return
 	eret
-#if ARM_ARCH_AT_LEAST(8, 5)
+#if ENABLE_FEAT_SB
 	sb
 #else
 	dsb	nsh
