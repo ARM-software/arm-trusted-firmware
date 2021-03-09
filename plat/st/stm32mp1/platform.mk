@@ -96,8 +96,14 @@ BL32_DTSI		:=	stm32mp15-bl32.dtsi
 FDT_SOURCES		+=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl32.dts,$(DTB_FILE_NAME)))
 endif
 endif
+
+$(eval DTC_V = $(shell $(DTC) -v | awk '{print $$NF}'))
+$(eval DTC_VERSION = $(shell printf "%d" $(shell echo ${DTC_V} | cut -d- -f1 | sed "s/\./0/g")))
 DTC_CPPFLAGS		+=	${INCLUDES}
 DTC_FLAGS		+=	-Wno-unit_address_vs_reg
+ifeq ($(shell test $(DTC_VERSION) -ge 10601; echo $$?),0)
+DTC_FLAGS		+=	-Wno-interrupt_provider
+endif
 
 # Macros and rules to build TF binary
 STM32_TF_ELF_LDFLAGS	:=	--hash-style=gnu --as-needed
@@ -361,8 +367,6 @@ clean_stm32image:
 	${Q}${MAKE} --no-print-directory -C ${STM32IMAGEPATH} clean
 
 check_dtc_version:
-	$(eval DTC_V = $(shell $(DTC) -v | awk '{print $$NF}'))
-	$(eval DTC_VERSION = $(shell printf "%d" $(shell echo ${DTC_V} | cut -d- -f1 | sed "s/\./0/g")))
 	@if [ ${DTC_VERSION} -lt 10404 ]; then \
 		echo "dtc version too old (${DTC_V}), you need at least version 1.4.4"; \
 		false; \
