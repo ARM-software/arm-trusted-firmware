@@ -10,10 +10,6 @@
 #include <common/asm_macros_common.S>
 #include <lib/spinlock.h>
 
-#if ENABLE_BTI && !ARM_ARCH_AT_LEAST(8, 5)
-#error Branch Target Identification requires ARM_ARCH_MINOR >= 5
-#endif
-
 /*
  * TLBI instruction with type specifier that implements the workaround for
  * errata 813419 of Cortex-A57 or errata 1286807 of Cortex-A76.
