@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+include drivers/arm/gic/v2/gicv2.mk
+
 ARM_CORTEX_A12		:=	yes
 ARM_ARCH_MAJOR		:=	7
 
@@ -24,9 +26,7 @@ PLAT_INCLUDES		:=	-I${RK_PLAT_COMMON}/				\
 				-I${RK_PLAT_SOC}/include/			\
 				-I${RK_PLAT_SOC}/include/shared/		\
 
-RK_GIC_SOURCES         :=	drivers/arm/gic/common/gic_common.c		\
-				drivers/arm/gic/v2/gicv2_main.c			\
-				drivers/arm/gic/v2/gicv2_helpers.c		\
+RK_GIC_SOURCES         :=	${GICV2_SOURCES}				\
 				plat/common/plat_gicv2.c			\
 				${RK_PLAT}/common/rockchip_gicv2.c
 
