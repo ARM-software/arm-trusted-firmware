@@ -107,7 +107,9 @@ BL1_SOURCES		+=	drivers/io/io_semihosting.c		\
 ifeq (${ARM_ARCH_MAJOR},8)
 BL1_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				lib/cpus/aarch64/cortex_a53.S		\
-				lib/cpus/aarch64/cortex_a57.S
+				lib/cpus/aarch64/cortex_a57.S		\
+				lib/cpus/aarch64/cortex_a72.S		\
+
 else
 BL1_SOURCES		+=	lib/cpus/${ARCH}/cortex_a15.S
 endif
@@ -160,6 +162,7 @@ ifeq (${ARM_ARCH_MAJOR},8)
 BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
+				lib/cpus/aarch64/cortex_a72.S		\
 				lib/semihosting/semihosting.c		\
 				lib/semihosting/${ARCH}/semihosting_call.S \
 				plat/common/plat_psci_common.c		\
