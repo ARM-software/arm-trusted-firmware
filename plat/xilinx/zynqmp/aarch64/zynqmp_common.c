@@ -194,6 +194,18 @@ static const struct {
 		.name = "39DR",
 	},
 	{
+		.id = 0x7d,
+		.name = "43DR",
+	},
+	{
+		.id = 0x78,
+		.name = "46DR",
+	},
+	{
+		.id = 0x7f,
+		.name = "47DR",
+	},
+	{
 		.id = 0x7b,
 		.name = "48DR",
 	},
