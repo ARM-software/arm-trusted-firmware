@@ -14,6 +14,7 @@
 #include <common/runtime_svc.h>
 #include <imx_sip_svc.h>
 #include <lib/el3_runtime/context_mgmt.h>
+#include <lib/mmio.h>
 #include <sci/sci.h>
 
 #if defined(PLAT_imx8qm) || defined(PLAT_imx8qx)
@@ -144,6 +145,37 @@ int imx_misc_set_temp_handler(uint32_t smc_fid,
 }
 
 #endif /* defined(PLAT_imx8qm) || defined(PLAT_imx8qx) */
+
+#if defined(PLAT_imx8mm) || defined(PLAT_imx8mq)
+int imx_src_handler(uint32_t smc_fid,
+		    u_register_t x1,
+		    u_register_t x2,
+		    u_register_t x3,
+		    void *handle)
+{
+	uint32_t val;
+
+	switch (x1) {
+	case IMX_SIP_SRC_SET_SECONDARY_BOOT:
+		if (x2 != 0U) {
+			mmio_setbits_32(IMX_SRC_BASE + SRC_GPR10_OFFSET,
+					SRC_GPR10_PERSIST_SECONDARY_BOOT);
+		} else {
+			mmio_clrbits_32(IMX_SRC_BASE + SRC_GPR10_OFFSET,
+					SRC_GPR10_PERSIST_SECONDARY_BOOT);
+		}
+		break;
+	case IMX_SIP_SRC_IS_SECONDARY_BOOT:
+		val = mmio_read_32(IMX_SRC_BASE + SRC_GPR10_OFFSET);
+		return !!(val & SRC_GPR10_PERSIST_SECONDARY_BOOT);
+	default:
+		return SMC_UNK;
+
+	};
+
+	return 0;
+}
+#endif /* defined(PLAT_imx8mm) || defined(PLAT_imx8mq) */
 
 static uint64_t imx_get_commit_hash(u_register_t x2,
 		    u_register_t x3,
