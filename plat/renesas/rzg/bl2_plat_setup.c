@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2020-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -762,7 +762,7 @@ lcm_state:
 
 	if (boot_cpu == MODEMR_BOOT_CPU_CA57 ||
 	    boot_cpu == MODEMR_BOOT_CPU_CA53) {
-		ret = rzg_dram_init();
+		ret = rcar_dram_init();
 		if (ret != 0) {
 			NOTICE("BL2: Failed to DRAM initialize (%d).\n", ret);
 			panic();

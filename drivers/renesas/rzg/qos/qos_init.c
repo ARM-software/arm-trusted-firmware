@@ -48,7 +48,7 @@ void rzg_qos_init(void)
 	uint32_t i;
 
 	qos_init_ddr_ch = 0U;
-	qos_init_ddr_phyvalid = rzg_get_boardcnf_phyvalid();
+	qos_init_ddr_phyvalid = get_boardcnf_phyvalid();
 	for (i = 0U; i < DRAM_CH_CNT; i++) {
 		if ((qos_init_ddr_phyvalid & (1U << i))) {
 			qos_init_ddr_ch++;
