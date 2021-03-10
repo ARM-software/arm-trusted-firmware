@@ -48,7 +48,8 @@ BL1_SOURCES		+=	drivers/io/io_semihosting.c			\
 				${PLAT_QEMU_COMMON_PATH}/qemu_bl1_setup.c
 
 BL1_SOURCES		+=	lib/cpus/aarch64/cortex_a57.S			\
-				lib/cpus/aarch64/cortex_a72.S
+				lib/cpus/aarch64/cortex_a72.S			\
+				lib/cpus/aarch64/qemu_max.S			\
 
 BL2_SOURCES		+=	drivers/io/io_semihosting.c			\
 				drivers/io/io_storage.c				\
@@ -76,6 +77,7 @@ QEMU_GIC_SOURCES	:=	${GICV3_SOURCES}				\
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a57.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
+				lib/cpus/aarch64/qemu_max.S			\
 				lib/semihosting/semihosting.c			\
 				lib/semihosting/${ARCH}/semihosting_call.S	\
 				plat/common/plat_psci_common.c			\
