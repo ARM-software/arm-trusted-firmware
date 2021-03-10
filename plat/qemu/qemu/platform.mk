@@ -135,9 +135,9 @@ BL1_SOURCES		+=	drivers/io/io_encrypted.c
 BL2_SOURCES		+=	drivers/io/io_encrypted.c
 endif
 
-QEMU_GICV2_SOURCES	:=	drivers/arm/gic/v2/gicv2_helpers.c	\
-				drivers/arm/gic/v2/gicv2_main.c		\
-				drivers/arm/gic/common/gic_common.c	\
+# Include GICv2 driver files
+include drivers/arm/gic/v2/gicv2.mk
+QEMU_GICV2_SOURCES	:=	${GICV2_SOURCES}			\
 				plat/common/plat_gicv2.c		\
 				${PLAT_QEMU_COMMON_PATH}/qemu_gicv2.c
 
