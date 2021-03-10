@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -72,21 +72,20 @@ bool fdt_check_node(int node)
 uint8_t fdt_get_status(int node)
 {
 	uint8_t status = DT_DISABLED;
-	int len;
 	const char *cchar;
 
-	cchar = fdt_getprop(fdt, node, "status", &len);
+	cchar = fdt_getprop(fdt, node, "status", NULL);
 	if ((cchar == NULL) ||
-	    (strncmp(cchar, "okay", (size_t)len) == 0)) {
+	    (strncmp(cchar, "okay", strlen("okay")) == 0)) {
 		status |= DT_NON_SECURE;
 	}
 
-	cchar = fdt_getprop(fdt, node, "secure-status", &len);
+	cchar = fdt_getprop(fdt, node, "secure-status", NULL);
 	if (cchar == NULL) {
 		if (status == DT_NON_SECURE) {
 			status |= DT_SECURE;
 		}
-	} else if (strncmp(cchar, "okay", (size_t)len) == 0) {
+	} else if (strncmp(cchar, "okay", strlen("okay")) == 0) {
 		status |= DT_SECURE;
 	}
 
