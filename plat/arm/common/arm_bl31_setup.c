@@ -156,19 +156,6 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	bl33_image_ep_info.args.arg0 = (u_register_t)ARM_DRAM1_BASE;
 #endif
 
-# if ARM_LINUX_KERNEL_AS_BL33
-	/*
-	 * According to the file ``Documentation/arm64/booting.txt`` of the
-	 * Linux kernel tree, Linux expects the physical address of the device
-	 * tree blob (DTB) in x0, while x1-x3 are reserved for future use and
-	 * must be 0.
-	 */
-	bl33_image_ep_info.args.arg0 = (u_register_t)ARM_PRELOADED_DTB_BASE;
-	bl33_image_ep_info.args.arg1 = 0U;
-	bl33_image_ep_info.args.arg2 = 0U;
-	bl33_image_ep_info.args.arg3 = 0U;
-# endif
-
 #else /* RESET_TO_BL31 */
 
 	/*
@@ -206,6 +193,19 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	if (bl33_image_ep_info.pc == 0U)
 		panic();
 #endif /* RESET_TO_BL31 */
+
+# if ARM_LINUX_KERNEL_AS_BL33
+	/*
+	 * According to the file ``Documentation/arm64/booting.txt`` of the
+	 * Linux kernel tree, Linux expects the physical address of the device
+	 * tree blob (DTB) in x0, while x1-x3 are reserved for future use and
+	 * must be 0.
+	 */
+	bl33_image_ep_info.args.arg0 = (u_register_t)ARM_PRELOADED_DTB_BASE;
+	bl33_image_ep_info.args.arg1 = 0U;
+	bl33_image_ep_info.args.arg2 = 0U;
+	bl33_image_ep_info.args.arg3 = 0U;
+# endif
 }
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
