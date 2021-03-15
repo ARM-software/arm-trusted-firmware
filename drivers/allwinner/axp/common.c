@@ -96,8 +96,19 @@ static int setup_regulator(const void *fdt, int node,
 	return 0;
 }
 
+static int is_node_disabled(const void *fdt, int node)
+{
+	const char *cell;
+	cell = fdt_getprop(fdt, node, "status", NULL);
+	if (cell)
+		return strcmp(cell, "okay") != 0;
+	return 0;
+}
+
 static bool should_enable_regulator(const void *fdt, int node)
 {
+	if (is_node_disabled(fdt, node))
+		return false;
 	if (fdt_getprop(fdt, node, "phandle", NULL) != NULL)
 		return true;
 	if (fdt_getprop(fdt, node, "regulator-always-on", NULL) != NULL)
