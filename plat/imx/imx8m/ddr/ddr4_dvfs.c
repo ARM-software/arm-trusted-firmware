@@ -18,9 +18,23 @@ void ddr4_mr_write(uint32_t mr, uint32_t data, uint32_t mr_type,
 	 * 1. Poll MRSTAT.mr_wr_busy until it is 0 to make sure
 	 * that there is no outstanding MR transAction.
 	 */
-	while (mmio_read_32(DDRC_MRSTAT(0)) & 0x1) {
-		;
-	}
+
+	/*
+	 * ERR050712:
+	 * When performing a software driven MR access, the following sequence
+	 * must be done automatically before performing other APB register accesses.
+	 * 1. Set MRCTRL0.mr_wr=1
+	 * 2. Check for MRSTAT.mr_wr_busy=0. If not, go to step (2)
+	 * 3. Check for MRSTAT.mr_wr_busy=0 again (for the second time). If not, go to step (2)
+	 */
+	mmio_setbits_32(DDRC_MRCTRL0(0), BIT(31));
+
+	do {
+		while (mmio_read_32(DDRC_MRSTAT(0)) & 0x1) {
+			;
+		}
+
+	} while (mmio_read_32(DDRC_MRSTAT(0)) & 0x1);
 
 	/*
 	 * 2. Write the MRCTRL0.mr_type, MRCTRL0.mr_addr, MRCTRL0.mr_rank
