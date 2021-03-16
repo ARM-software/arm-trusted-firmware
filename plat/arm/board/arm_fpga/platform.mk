@@ -70,7 +70,8 @@ else
 				lib/cpus/aarch64/cortex_klein.S		\
 				lib/cpus/aarch64/cortex_matterhorn.S	\
 				lib/cpus/aarch64/cortex_makalu.S	\
-				lib/cpus/aarch64/cortex_makalu_elp.S
+				lib/cpus/aarch64/cortex_makalu_elp.S    \
+				lib/cpus/aarch64/cortex_a78c.S
 
 # AArch64/AArch32 cores
 	FPGA_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S	\
