@@ -860,9 +860,23 @@ commands can be used:
     # Resume execution
     continue
 
+Firmware update options
+-----------------------
+
+-  ``NR_OF_FW_BANKS``: Define the number of firmware banks. This flag is used
+   in defining the firmware update metadata structure. This flag is by default
+   set to '2'.
+
+-  ``NR_OF_IMAGES_IN_FW_BANK``: Define the number of firmware images in each
+   firmware bank. Each firmware bank must have the same number of images as per
+   the `PSA FW update specification`_.
+   This flag is used in defining the firmware update metadata structure. This
+   flag is by default set to '1'.
+
 --------------
 
 *Copyright (c) 2019-2021, Arm Limited. All rights reserved.*
 
 .. _DEN0115: https://developer.arm.com/docs/den0115/latest
+.. _PSA FW update specification: https://developer.arm.com/documentation/den0118/a/
 
