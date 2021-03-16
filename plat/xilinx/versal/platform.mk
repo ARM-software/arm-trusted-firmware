@@ -60,7 +60,6 @@ PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				plat/xilinx/versal/aarch64/versal_common.c
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
-				lib/cpus/aarch64/cortex_a53.S			\
 				lib/cpus/aarch64/cortex_a72.S			\
 				plat/common/plat_psci_common.c			\
 				plat/xilinx/common/ipi.c			\
