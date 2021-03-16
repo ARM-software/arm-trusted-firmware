@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,7 +7,14 @@
 #include <assert.h>
 #include <errno.h>
 #include <lib/el3_runtime/context_mgmt.h>
+#include <lib/spinlock.h>
 #include "spmd_private.h"
+
+static struct {
+	bool secondary_ep_locked;
+	uintptr_t secondary_ep;
+	spinlock_t lock;
+} g_spmd_pm;
 
 /*******************************************************************************
  * spmd_build_spmc_message
@@ -25,16 +32,16 @@ static void spmd_build_spmc_message(gp_regs_t *gpregs, unsigned long long messag
 }
 
 /*******************************************************************************
- * spmd_pm_secondary_core_set_ep
+ * spmd_pm_secondary_ep_register
  ******************************************************************************/
-int spmd_pm_secondary_core_set_ep(unsigned long long mpidr,
-		uintptr_t entry_point, unsigned long long context)
+int spmd_pm_secondary_ep_register(uintptr_t entry_point)
 {
-	int id = plat_core_pos_by_mpidr(mpidr);
+	int ret = FFA_ERROR_INVALID_PARAMETER;
 
-	if ((id < 0) || ((unsigned int)id >= PLATFORM_CORE_COUNT)) {
-		ERROR("%s inconsistent MPIDR (%llx)\n", __func__, mpidr);
-		return -EINVAL;
+	spin_lock(&g_spmd_pm.lock);
+
+	if (g_spmd_pm.secondary_ep_locked == true) {
+		goto out;
 	}
 
 	/*
@@ -42,27 +49,22 @@ int spmd_pm_secondary_core_set_ep(unsigned long long mpidr,
 	 * load_address <= entry_point < load_address + binary_size
 	 */
 	if (!spmd_check_address_in_binary_image(entry_point)) {
-		ERROR("%s entry point is not within image boundaries (%llx)\n",
-		      __func__, mpidr);
-		return -EINVAL;
+		ERROR("%s entry point is not within image boundaries\n",
+			__func__);
+		goto out;
 	}
 
-	spmd_spm_core_context_t *ctx = spmd_get_context_by_mpidr(mpidr);
-	spmd_pm_secondary_ep_t *secondary_ep = &ctx->secondary_ep;
-	if (secondary_ep->locked) {
-		ERROR("%s entry locked (%llx)\n", __func__, mpidr);
-		return -EINVAL;
-	}
+	g_spmd_pm.secondary_ep = entry_point;
+	g_spmd_pm.secondary_ep_locked = true;
 
-	/* Fill new entry to corresponding secondary core id and lock it */
-	secondary_ep->entry_point = entry_point;
-	secondary_ep->context = context;
-	secondary_ep->locked = true;
+	VERBOSE("%s %lx\n", __func__, entry_point);
 
-	VERBOSE("%s %d %llx %lx %llx\n",
-		__func__, id, mpidr, entry_point, context);
+	ret = 0;
 
-	return 0;
+out:
+	spin_unlock(&g_spmd_pm.lock);
+
+	return ret;
 }
 
 /*******************************************************************************
@@ -82,18 +84,20 @@ static void spmd_cpu_on_finish_handler(u_register_t unused)
 	assert(ctx->state != SPMC_STATE_ON);
 	assert(spmc_ep_info != NULL);
 
+	spin_lock(&g_spmd_pm.lock);
+
 	/*
-	 * TODO: this might require locking the spmc_ep_info structure,
-	 * or provisioning one structure per cpu
+	 * Leave the possibility that the SPMC does not call
+	 * FFA_SECONDARY_EP_REGISTER in which case re-use the
+	 * primary core address for booting secondary cores.
 	 */
-	if (ctx->secondary_ep.entry_point == 0UL) {
-		goto exit;
+	if (g_spmd_pm.secondary_ep_locked == true) {
+		spmc_ep_info->pc = g_spmd_pm.secondary_ep;
 	}
 
-	spmc_ep_info->pc = ctx->secondary_ep.entry_point;
+	spin_unlock(&g_spmd_pm.lock);
+
 	cm_setup_context(&ctx->cpu_ctx, spmc_ep_info);
-	write_ctx_reg(get_gpregs_ctx(&ctx->cpu_ctx), CTX_GPREG_X0,
-		      ctx->secondary_ep.context);
 
 	/* Mark CPU as initiating ON operation */
 	ctx->state = SPMC_STATE_ON_PENDING;
@@ -106,7 +110,6 @@ static void spmd_cpu_on_finish_handler(u_register_t unused)
 		return;
 	}
 
-exit:
 	ctx->state = SPMC_STATE_ON;
 
 	VERBOSE("CPU %u on!\n", linear_id);
@@ -124,10 +127,6 @@ static int32_t spmd_cpu_off_handler(u_register_t unused)
 	assert(ctx != NULL);
 	assert(ctx->state != SPMC_STATE_OFF);
 
-	if (ctx->secondary_ep.entry_point == 0UL) {
-		goto exit;
-	}
-
 	/* Build an SPMD to SPMC direct message request. */
 	spmd_build_spmc_message(get_gpregs_ctx(&ctx->cpu_ctx), PSCI_CPU_OFF);
 
@@ -136,9 +135,15 @@ static int32_t spmd_cpu_off_handler(u_register_t unused)
 		ERROR("%s failed (%llu) on CPU%u\n", __func__, rc, linear_id);
 	}
 
-	/* TODO expect FFA_DIRECT_MSG_RESP returned from SPMC */
+	/* Expect a direct message response from the SPMC. */
+	u_register_t ffa_resp_func = read_ctx_reg(get_gpregs_ctx(&ctx->cpu_ctx),
+						  CTX_GPREG_X0);
+	if (ffa_resp_func != FFA_MSG_SEND_DIRECT_RESP_SMC32) {
+		ERROR("%s invalid SPMC response (%lx).\n",
+			__func__, ffa_resp_func);
+		return -EINVAL;
+	}
 
-exit:
 	ctx->state = SPMC_STATE_OFF;
 
 	VERBOSE("CPU %u off!\n", linear_id);

@@ -47,7 +47,7 @@
 			is_ffa_partition;
 			debug_name = "cactus-tertiary";
 			load_address = <0x7200000>;
-			vcpu_count = <8>;
+			vcpu_count = <1>;
 			mem_size = <1048576>;
 		};
 	};

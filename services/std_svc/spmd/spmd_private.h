@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,12 +42,6 @@ typedef enum spmc_state {
 	SPMC_STATE_ON
 } spmc_state_t;
 
-typedef struct spmd_pm_secondary_ep {
-	uintptr_t entry_point;
-	uintptr_t context;
-	bool locked;
-} spmd_pm_secondary_ep_t;
-
 /*
  * Data structure used by the SPM dispatcher (SPMD) in EL3 to track context of
  * the SPM core (SPMC) at the next lower EL.
@@ -56,7 +50,6 @@ typedef struct spmd_spm_core_context {
 	uint64_t c_rt_ctx;
 	cpu_context_t cpu_ctx;
 	spmc_state_t state;
-	spmd_pm_secondary_ep_t secondary_ep;
 } spmd_spm_core_context_t;
 
 /*
@@ -69,7 +62,6 @@ typedef struct spmd_spm_core_context {
 #define SPMC_SECURE_ID_SHIFT			U(15)
 
 #define SPMD_DIRECT_MSG_ENDPOINT_ID		U(FFA_ENDPOINT_ID_MAX - 1)
-#define SPMD_DIRECT_MSG_SET_ENTRY_POINT		U(1)
 
 /* Functions used to enter/exit SPMC synchronously */
 uint64_t spmd_spm_core_sync_entry(spmd_spm_core_context_t *ctx);
@@ -94,8 +86,7 @@ spmd_spm_core_context_t *spmd_get_context_by_mpidr(uint64_t mpidr);
 /* SPMC context on current CPU get helper */
 spmd_spm_core_context_t *spmd_get_context(void);
 
-int spmd_pm_secondary_core_set_ep(unsigned long long mpidr,
-		uintptr_t entry_point, unsigned long long context);
+int spmd_pm_secondary_ep_register(uintptr_t entry_point);
 bool spmd_check_address_in_binary_image(uint64_t address);
 
 #endif /* __ASSEMBLER__ */
