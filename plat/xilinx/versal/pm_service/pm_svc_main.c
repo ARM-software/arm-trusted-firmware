@@ -13,12 +13,24 @@
 #include <plat_private.h>
 #include <stdbool.h>
 #include <common/runtime_svc.h>
+#include <plat/common/platform.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_ipi.h"
 
 /* pm_up = true - UP, pm_up = false - DOWN */
 static bool pm_up;
+
+static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
+				void *cookie)
+{
+	(void)plat_ic_acknowledge_interrupt();
+
+	/* Clear FIQ */
+	plat_ic_end_of_interrupt(id);
+
+	return 0;
+}
 
 /**
  * pm_setup() - PM service setup
@@ -46,6 +58,18 @@ int pm_setup(void)
 		pm_up = true;
 	}
 
+	/*
+	 * Enable IPI IRQ
+	 * assume the rich OS is OK to handle callback IRQs now.
+	 * Even if we were wrong, it would not enable the IRQ in
+	 * the GIC.
+	 */
+	pm_ipi_irq_enable(primary_proc);
+
+	ret = request_intr_type_el3(PLAT_VERSAL_IPI_IRQ, ipi_fiq_handler);
+	if (ret) {
+		WARN("BL31: registering IPI interrupt failed\n");
+	}
 	return ret;
 }
 

@@ -15,6 +15,7 @@
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_defs.h"
+#include "pm_svc_main.h"
 
 /*********************************************************************
  * Target module IDs macros
