@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2020-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,8 +9,12 @@
 #include <lib/mmio.h>
 
 #if RCAR_LSI == RCAR_AUTO
+#include "G2H/pfc_init_g2h.h"
 #include "G2M/pfc_init_g2m.h"
 #endif /* RCAR_LSI == RCAR_AUTO */
+#if (RCAR_LSI == RZ_G2H)
+#include "G2H/pfc_init_g2h.h"
+#endif /* RCAR_LSI == RZ_G2H */
 #if (RCAR_LSI == RZ_G2M)
 #include "G2M/pfc_init_g2m.h"
 #endif /* RCAR_LSI == RZ_G2M */
@@ -40,6 +44,9 @@ void rzg_pfc_init(void)
 	case PRR_PRODUCT_M3:
 		pfc_init_g2m();
 		break;
+	case PRR_PRODUCT_H3:
+		pfc_init_g2h();
+		break;
 	default:
 		PRR_PRODUCT_ERR(reg);
 		break;
@@ -54,6 +61,13 @@ void rzg_pfc_init(void)
 		pfc_init_g2m();
 #endif /* RCAR_LSI != RZ_G2M */
 		break;
+	case PRR_PRODUCT_H3:
+#if (RCAR_LSI != RZ_G2H)
+		PRR_PRODUCT_ERR(reg);
+#else /* RCAR_LSI != RZ_G2H */
+		pfc_init_g2h();
+#endif /* RCAR_LSI != RZ_G2H */
+		break;
 	default:
 		PRR_PRODUCT_ERR(reg);
 		break;
@@ -65,6 +79,11 @@ void rzg_pfc_init(void)
 		PRR_PRODUCT_ERR(reg);
 	}
 	pfc_init_m3();
+#elif (RCAR_LSI == RZ_G2H)
+	if ((reg & PRR_PRODUCT_MASK) != PRR_PRODUCT_H3) {
+		PRR_PRODUCT_ERR(reg);
+	}
+	pfc_init_g2h();
 #else /* RCAR_LSI == RZ_G2M */
 #error "Don't have PFC initialize routine(unknown)."
 #endif /* RCAR_LSI == RZ_G2M */
