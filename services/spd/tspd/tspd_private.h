@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -188,6 +188,7 @@ typedef struct tsp_context {
 	uint64_t saved_tsp_args[TSP_NUM_ARGS];
 #if TSP_NS_INTR_ASYNC_PREEMPT
 	sp_ctx_regs_t sp_ctx;
+	bool preempted_by_sel1_intr;
 #endif
 } tsp_context_t;
 

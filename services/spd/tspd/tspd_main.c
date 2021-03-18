@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -92,6 +92,18 @@ uint64_t tspd_handle_sp_preemption(void *handle)
  * This function is the handler registered for S-EL1 interrupts by the TSPD. It
  * validates the interrupt and upon success arranges entry into the TSP at
  * 'tsp_sel1_intr_entry()' for handling the interrupt.
+ * Typically, interrupts for a specific security state get handled in the same
+ * security execption level if the execution is in the same security state. For
+ * example, if a non-secure interrupt gets fired when CPU is executing in NS-EL2
+ * it gets handled in the non-secure world.
+ * However, interrupts belonging to the opposite security state typically demand
+ * a world(context) switch. This is inline with the security principle which
+ * states a secure interrupt has to be handled in the secure world.
+ * Hence, the TSPD in EL3 expects the context(handle) for a secure interrupt to
+ * be non-secure and vice versa.
+ * However, a race condition between non-secure and secure interrupts can lead to
+ * a scenario where the above assumptions do not hold true. This is demonstrated
+ * below through Note 1.
  ******************************************************************************/
 static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 					    uint32_t flags,
@@ -101,6 +113,60 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 	uint32_t linear_id;
 	tsp_context_t *tsp_ctx;
 
+	/* Get a reference to this cpu's TSP context */
+	linear_id = plat_my_core_pos();
+	tsp_ctx = &tspd_sp_context[linear_id];
+
+#if TSP_NS_INTR_ASYNC_PREEMPT
+
+	/*
+	 * Note 1:
+	 * Under the current interrupt routing model, interrupts from other
+	 * world are routed to EL3 when TSP_NS_INTR_ASYNC_PREEMPT is enabled.
+	 * Consider the following scenario:
+	 * 1/ A non-secure payload(like tftf) requests a secure service from
+	 *    TSP by invoking a yielding SMC call.
+	 * 2/ Later, execution jumps to TSP in S-EL1 with the help of TSP
+	 *    Dispatcher in Secure Monitor(EL3).
+	 * 3/ While CPU is executing TSP, a Non-secure interrupt gets fired.
+	 *    this demands a context switch to the non-secure world through
+	 *    secure monitor.
+	 * 4/ Consequently, TSP in S-EL1 get asynchronously pre-empted and
+	 *    execution switches to secure monitor(EL3).
+	 * 5/ EL3 tries to triage the (Non-secure) interrupt based on the
+	 *    highest pending interrupt.
+	 * 6/ However, while the NS Interrupt was pending, secure timer gets
+	 *    fired which makes a S-EL1 interrupt to be pending.
+	 * 7/ Hence, execution jumps to this companion handler of S-EL1
+	 *    interrupt (i.e., tspd_sel1_interrupt_handler) even though the TSP
+	 *    was pre-empted due to non-secure interrupt.
+	 * 8/ The above sequence of events explain how TSP was pre-empted by
+	 *    S-EL1 interrupt indirectly in an asynchronous way.
+	 * 9/ Hence, we track the TSP pre-emption by S-EL1 interrupt using a
+	 *    boolean variable per each core.
+	 * 10/ This helps us to indicate that SMC call for TSP service was
+	 *    pre-empted when execution resumes in non-secure world.
+	 */
+
+	/* Check the security state when the exception was generated */
+	if (get_interrupt_src_ss(flags) == NON_SECURE) {
+		/* Sanity check the pointer to this cpu's context */
+		assert(handle == cm_get_context(NON_SECURE));
+
+		/* Save the non-secure context before entering the TSP */
+		cm_el1_sysregs_context_save(NON_SECURE);
+		tsp_ctx->preempted_by_sel1_intr = false;
+	} else {
+		/* Sanity check the pointer to this cpu's context */
+		assert(handle == cm_get_context(SECURE));
+
+		/* Save the secure context before entering the TSP for S-EL1
+		 * interrupt handling
+		 */
+		cm_el1_sysregs_context_save(SECURE);
+		tsp_ctx->preempted_by_sel1_intr = true;
+	}
+#else
 	/* Check the security state when the exception was generated */
 	assert(get_interrupt_src_ss(flags) == NON_SECURE);
 
@@ -109,10 +175,8 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 
 	/* Save the non-secure context before entering the TSP */
 	cm_el1_sysregs_context_save(NON_SECURE);
+#endif
 
-	/* Get a reference to this cpu's TSP context */
-	linear_id = plat_my_core_pos();
-	tsp_ctx = &tspd_sp_context[linear_id];
 	assert(&tsp_ctx->cpu_ctx == cm_get_context(SECURE));
 
 	/*
@@ -131,7 +195,6 @@ static uint64_t tspd_sel1_interrupt_handler(uint32_t id,
 		tsp_ctx->saved_elr_el3 = SMC_GET_EL3(&tsp_ctx->cpu_ctx,
 						     CTX_ELR_EL3);
 #if TSP_NS_INTR_ASYNC_PREEMPT
-		/*Need to save the previously interrupted secure context */
 		memcpy(&tsp_ctx->sp_ctx, &tsp_ctx->cpu_ctx, TSPD_SP_CTX_SIZE);
 #endif
 	}
@@ -353,7 +416,20 @@ static uintptr_t tspd_smc_handler(uint32_t smc_fid,
 		cm_el1_sysregs_context_restore(NON_SECURE);
 		cm_set_next_eret_context(NON_SECURE);
 
+		/* Refer to Note 1 in function tspd_sel1_interrupt_handler()*/
+#if TSP_NS_INTR_ASYNC_PREEMPT
+		if (tsp_ctx->preempted_by_sel1_intr) {
+			/* Reset the flag */
+			tsp_ctx->preempted_by_sel1_intr = false;
+
+			SMC_RET1(ns_cpu_context, SMC_PREEMPTED);
+		} else {
+			SMC_RET0((uint64_t) ns_cpu_context);
+		}
+#else
 		SMC_RET0((uint64_t) ns_cpu_context);
+#endif
+
 
 	/*
 	 * This function ID is used only by the SP to indicate it has
