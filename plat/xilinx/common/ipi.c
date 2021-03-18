@@ -13,6 +13,7 @@
 
 #include <common/debug.h>
 #include <common/runtime_svc.h>
+#include <drivers/delay_timer.h>
 #include <lib/bakery_lock.h>
 #include <lib/mmio.h>
 
@@ -37,6 +38,9 @@
 
 /* IPI register bit mask */
 #define IPI_BIT_MASK(I) (ipi_table[(I)].ipi_bit_mask)
+
+/* IPI Timeout */
+#define TIMEOUT_COUNT_US	U(0x4000)
 
 /* IPI configuration table */
 const static struct ipi_config *ipi_table;
@@ -156,21 +160,30 @@ int ipi_mb_enquire_status(uint32_t local, uint32_t remote)
  * @remote - remote IPI ID
  * @is_blocking - if to trigger the notification in blocking mode or not.
  *
+ * return - 0 - Success or Error incase of timeout
  * It sets the remote bit in the IPI agent trigger register.
  *
  */
-void ipi_mb_notify(uint32_t local, uint32_t remote, uint32_t is_blocking)
+int ipi_mb_notify(uint32_t local, uint32_t remote, uint32_t is_blocking)
 {
 	uint32_t status;
+	const unsigned int timeout_count = TIMEOUT_COUNT_US;
+	uint64_t timeout;
 
 	mmio_write_32(IPI_REG_BASE(local) + IPI_TRIG_OFFSET,
 		      IPI_BIT_MASK(remote));
 	if (is_blocking) {
+		timeout = timeout_init_us(timeout_count);
 		do {
 			status = mmio_read_32(IPI_REG_BASE(local) +
 					      IPI_OBR_OFFSET);
+			if (timeout_elapsed(timeout)) {
+				return -ETIMEDOUT;
+			}
 		} while (status & IPI_BIT_MASK(remote));
 	}
+
+	return 0;
 }
 
 /* ipi_mb_ack() - Ack IPI mailbox notification from the other end
