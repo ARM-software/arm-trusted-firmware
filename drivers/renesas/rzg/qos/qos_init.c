@@ -14,6 +14,7 @@
 #include "G2M/qos_init_g2m_v10.h"
 #include "G2M/qos_init_g2m_v11.h"
 #include "G2M/qos_init_g2m_v30.h"
+#include "G2N/qos_init_g2n_v10.h"
 #endif /* RCAR_LSI == RCAR_AUTO */
 #if (RCAR_LSI == RZ_G2M)
 #include "G2M/qos_init_g2m_v10.h"
@@ -23,6 +24,9 @@
 #if RCAR_LSI == RZ_G2H
 #include "G2H/qos_init_g2h_v30.h"
 #endif /* RCAR_LSI == RZ_G2H */
+#if RCAR_LSI == RZ_G2N
+#include "G2N/qos_init_g2n_v10.h"
+#endif /* RCAR_LSI == RZ_G2N */
 #include "qos_common.h"
 #include "qos_init.h"
 #include "qos_reg.h"
@@ -92,6 +96,18 @@ void rzg_qos_init(void)
 		PRR_PRODUCT_ERR(reg);
 #endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2H) */
 		break;
+	case PRR_PRODUCT_M3N:
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2N)
+		switch (reg & PRR_CUT_MASK) {
+		case PRR_PRODUCT_10:
+		default:
+			qos_init_g2n_v10();
+			break;
+		}
+#else
+		PRR_PRODUCT_ERR(reg);
+#endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2N) */
+		break;
 	default:
 		PRR_PRODUCT_ERR(reg);
 		break;
@@ -133,6 +149,12 @@ void rzg_qos_init(void)
 		PRR_PRODUCT_ERR(reg);
 	}
 	qos_init_g2h_v30();
+#elif (RCAR_LSI == RZ_G2N)
+	/* G2N Cut 10 or later */
+	if ((reg & (PRR_PRODUCT_MASK)) != PRR_PRODUCT_M3N) {
+		PRR_PRODUCT_ERR(reg);
+	}
+	qos_init_g2n_v10();
 #else /* (RCAR_LSI == RZ_G2M) */
 #error "Don't have QoS initialize routine(Unknown chip)."
 #endif /* (RCAR_LSI == RZ_G2M) */
@@ -172,6 +194,11 @@ uint32_t get_refperiod(void)
 		}
 		break;
 #endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2H) */
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2N)
+	case PRR_PRODUCT_M3N:
+		refperiod = REFPERIOD_CYCLE;
+		break;
+#endif /* (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2N) */
 	default:
 		break;
 	}
@@ -182,6 +209,8 @@ uint32_t get_refperiod(void)
 	/* G2M Cut 11|13|30 or later */
 	refperiod = REFPERIOD_CYCLE;
 #endif /* RCAR_LSI_CUT == RCAR_CUT_10 */
+#elif RCAR_LSI == RZ_G2N
+	refperiod = REFPERIOD_CYCLE;
 #elif RCAR_LSI == RZ_G2H
 	/* G2H Cut 30 or later */
 	refperiod = REFPERIOD_CYCLE;

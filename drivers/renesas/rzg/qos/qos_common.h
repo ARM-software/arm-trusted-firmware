@@ -37,6 +37,19 @@
 	((SUB_SLOT_CYCLE_G2M_30 * BASE_SUB_SLOT_NUM * 1000U) / OPERATING_FREQ)
 #endif
 
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2N)
+/* define used for G2N */
+#if (RCAR_REF_INT == RCAR_REF_DEFAULT)	/* REF 1.95usec */
+#define SUB_SLOT_CYCLE_G2N		0x7EU	/* 126 */
+#else /* REF 3.9usec */
+#define SUB_SLOT_CYCLE_G2N		0xFCU	/* 252 */
+#endif /* (RCAR_REF_INT == RCAR_REF_DEFAULT) */
+
+#define SL_INIT_SSLOTCLK_G2N		(SUB_SLOT_CYCLE_G2N - 1U)
+#define QOSWT_WTSET0_CYCLE_G2N		/* unit:ns */	\
+	((SUB_SLOT_CYCLE_G2N * BASE_SUB_SLOT_NUM * 1000U) / OPERATING_FREQ)
+#endif /* (RCAR_LSI == RZ_G2N) */
+
 #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RZ_G2H)
 /* define used for G2H */
 #if (RCAR_REF_INT == RCAR_REF_DEFAULT)	/* REF 1.95usec */
