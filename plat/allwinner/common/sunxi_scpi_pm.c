@@ -44,17 +44,6 @@
 #define SYSTEM_PWR_STATE(state) \
 	((state)->pwr_domain_state[SYSTEM_PWR_LVL])
 
-static inline scpi_power_state_t scpi_map_state(plat_local_state_t psci_state)
-{
-	if (is_local_state_run(psci_state)) {
-		return scpi_power_on;
-	}
-	if (is_local_state_retn(psci_state)) {
-		return scpi_power_retention;
-	}
-	return scpi_power_off;
-}
-
 static void sunxi_cpu_standby(plat_local_state_t cpu_state)
 {
 	u_register_t scr = read_scr_el3();
@@ -87,9 +76,9 @@ static void sunxi_pwr_domain_off(const psci_power_state_t *target_state)
 	}
 
 	scpi_set_css_power_state(read_mpidr(),
-				 scpi_map_state(cpu_pwr_state),
-				 scpi_map_state(cluster_pwr_state),
-				 scpi_map_state(system_pwr_state));
+				 cpu_pwr_state,
+				 cluster_pwr_state,
+				 system_pwr_state);
 }
 
 static void sunxi_pwr_domain_on_finish(const psci_power_state_t *target_state)

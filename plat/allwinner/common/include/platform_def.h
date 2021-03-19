@@ -57,9 +57,10 @@
 #define PLAT_CSS_SCP_COM_SHARED_MEM_BASE \
 	(SUNXI_SRAM_A2_BASE + SUNXI_SRAM_A2_SIZE - 0x200)
 
-#define PLAT_MAX_PWR_LVL_STATES		U(2)
+/* These states are used directly for SCPI communication. */
+#define PLAT_MAX_PWR_LVL_STATES		U(3)
 #define PLAT_MAX_RET_STATE		U(1)
-#define PLAT_MAX_OFF_STATE		U(2)
+#define PLAT_MAX_OFF_STATE		U(3)
 
 #define PLAT_MAX_PWR_LVL		U(2)
 #define PLAT_NUM_PWR_DOMAINS		(U(1) + \
