@@ -33,6 +33,9 @@
  */
 #define SCP_FIRMWARE_MAGIC		0xb4400012
 
+#define PLAT_LOCAL_PSTATE_WIDTH		U(4)
+#define PLAT_LOCAL_PSTATE_MASK		((U(1) << PLAT_LOCAL_PSTATE_WIDTH) - 1)
+
 #define CPU_PWR_LVL			MPIDR_AFFLVL0
 #define CLUSTER_PWR_LVL			MPIDR_AFFLVL1
 #define SYSTEM_PWR_LVL			MPIDR_AFFLVL2
@@ -126,7 +129,9 @@ static int sunxi_validate_power_state(unsigned int power_state,
 				      psci_power_state_t *req_state)
 {
 	unsigned int power_level = psci_get_pstate_pwrlvl(power_state);
+	unsigned int state_id = psci_get_pstate_id(power_state);
 	unsigned int type = psci_get_pstate_type(power_state);
+	unsigned int i;
 
 	assert(req_state != NULL);
 
@@ -135,28 +140,19 @@ static int sunxi_validate_power_state(unsigned int power_state,
 	}
 
 	if (type == PSTATE_TYPE_STANDBY) {
-		/* Only one retention power state is supported. */
-		if (psci_get_pstate_id(power_state) > 0) {
-			return PSCI_E_INVALID_PARAMS;
-		}
-		/* The SoC cannot be suspended without losing state */
-		if (power_level == SYSTEM_PWR_LVL) {
-			return PSCI_E_INVALID_PARAMS;
-		}
-		for (unsigned int i = 0; i <= power_level; ++i) {
-			req_state->pwr_domain_state[i] = PLAT_MAX_RET_STATE;
-		}
-	} else {
-		/* Only one off power state is supported. */
-		if (psci_get_pstate_id(power_state) > 0) {
-			return PSCI_E_INVALID_PARAMS;
-		}
-		for (unsigned int i = 0; i <= power_level; ++i) {
-			req_state->pwr_domain_state[i] = PLAT_MAX_OFF_STATE;
-		}
+		return PSCI_E_INVALID_PARAMS;
 	}
+
+	/* Pass through the requested PSCI state as-is. */
+	for (i = 0; i <= power_level; ++i) {
+		unsigned int local_pstate = state_id & PLAT_LOCAL_PSTATE_MASK;
+
+		req_state->pwr_domain_state[i] = local_pstate;
+		state_id >>= PLAT_LOCAL_PSTATE_WIDTH;
+	}
+
 	/* Higher power domain levels should all remain running */
-	for (unsigned int i = power_level + 1; i <= PLAT_MAX_PWR_LVL; ++i) {
+	for (; i <= PLAT_MAX_PWR_LVL; ++i) {
 		req_state->pwr_domain_state[i] = PSCI_LOCAL_STATE_RUN;
 	}
 
