@@ -33,7 +33,7 @@ static int versal_pwr_domain_on(u_register_t mpidr)
 
 	/* Send request to PMC to wake up selected ACPU core */
 	pm_req_wakeup(proc->node_id, (versal_sec_entry & 0xFFFFFFFF) | 0x1,
-		      versal_sec_entry >> 32, 0);
+		      versal_sec_entry >> 32, 0, SECURE_FLAG);
 
 	/* Clear power down request */
 	pm_client_wakeup(proc);
@@ -67,7 +67,8 @@ static void versal_pwr_domain_suspend(const psci_power_state_t *target_state)
 		PM_STATE_SUSPEND_TO_RAM : PM_STATE_CPU_IDLE;
 
 	/* Send request to PMC to suspend this core */
-	pm_self_suspend(proc->node_id, MAX_LATENCY, state, versal_sec_entry);
+	pm_self_suspend(proc->node_id, MAX_LATENCY, state, versal_sec_entry,
+			SECURE_FLAG);
 
 	/* APU is to be turned off */
 	if (target_state->pwr_domain_state[1] > PLAT_MAX_RET_STATE) {
@@ -123,7 +124,7 @@ static void __dead2 versal_system_off(void)
 {
 	/* Send the power down request to the PMC */
 	pm_system_shutdown(XPM_SHUTDOWN_TYPE_SHUTDOWN,
-			  pm_get_shutdown_scope());
+			  pm_get_shutdown_scope(), SECURE_FLAG);
 
 	while (1)
 		wfi();
@@ -137,7 +138,7 @@ static void __dead2 versal_system_reset(void)
 {
 	/* Send the system reset request to the PMC */
 	pm_system_shutdown(XPM_SHUTDOWN_TYPE_RESET,
-			  pm_get_shutdown_scope());
+			  pm_get_shutdown_scope(), SECURE_FLAG);
 
 	while (1)
 		wfi();
@@ -168,7 +169,8 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 	 * invoking CPU_on function, during which resume address will
 	 * be set.
 	 */
-	pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0);
+	pm_self_suspend(proc->node_id, MAX_LATENCY, PM_STATE_CPU_IDLE, 0,
+			SECURE_FLAG);
 }
 
 /**

@@ -149,7 +149,8 @@ static void pm_client_set_wakeup_sources(uint32_t node_id)
 				/* Get device ID from node index */
 				device_id = PERIPH_DEVID(node_idx);
 				ret = pm_set_wakeup_source(node_id,
-							   device_id, 1);
+							   device_id, 1,
+							   SECURE_FLAG);
 				pm_wakeup_nodes_set[node_idx] = !ret;
 			}
 		}

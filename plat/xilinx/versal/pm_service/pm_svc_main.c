@@ -71,6 +71,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	enum pm_ret_status ret;
 
 	uint32_t pm_arg[4];
+	uint32_t security_flag = SECURE_FLAG;
 
 	/* Handle case where PM wasn't initialized properly */
 	if (!pm_up)
@@ -81,57 +82,67 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	pm_arg[2] = (uint32_t)x2;
 	pm_arg[3] = (uint32_t)(x2 >> 32);
 
+	/*
+	 * Mark BIT24 payload (i.e 1st bit of pm_arg[3] ) as non-secure (1)
+	 * if smc called is non secure
+	 */
+	if (is_caller_non_secure(flags)) {
+		security_flag = NON_SECURE_FLAG;
+	}
+
 	switch (smc_fid & FUNCID_NUM_MASK) {
 	/* PM API Functions */
 	case PM_SELF_SUSPEND:
 		ret = pm_self_suspend(pm_arg[0], pm_arg[1], pm_arg[2],
-				      pm_arg[3]);
+				      pm_arg[3], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_FORCE_POWERDOWN:
-		ret = pm_force_powerdown(pm_arg[0], pm_arg[1]);
+		ret = pm_force_powerdown(pm_arg[0], pm_arg[1], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_REQ_SUSPEND:
 		ret = pm_req_suspend(pm_arg[0], pm_arg[1], pm_arg[2],
-				     pm_arg[3]);
+				     pm_arg[3], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_ABORT_SUSPEND:
-		ret = pm_abort_suspend(pm_arg[0]);
+		ret = pm_abort_suspend(pm_arg[0], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_SYSTEM_SHUTDOWN:
-		ret = pm_system_shutdown(pm_arg[0], pm_arg[1]);
+		ret = pm_system_shutdown(pm_arg[0], pm_arg[1], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_REQ_WAKEUP:
-		ret = pm_req_wakeup(pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3]);
+		ret = pm_req_wakeup(pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3],
+				    security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_SET_WAKEUP_SOURCE:
-		ret = pm_set_wakeup_source(pm_arg[0], pm_arg[1], pm_arg[2]);
+		ret = pm_set_wakeup_source(pm_arg[0], pm_arg[1], pm_arg[2],
+					   security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_REQUEST_DEVICE:
 		ret = pm_request_device(pm_arg[0], pm_arg[1], pm_arg[2],
-					pm_arg[3]);
+					pm_arg[3], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_RELEASE_DEVICE:
-		ret = pm_release_device(pm_arg[0]);
+		ret = pm_release_device(pm_arg[0], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_SET_REQUIREMENT:
 		ret = pm_set_requirement(pm_arg[0], pm_arg[1], pm_arg[2],
-					 pm_arg[3]);
+					 pm_arg[3], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_GET_API_VERSION:
 	{
 		uint32_t api_version;
 
-		ret = pm_get_api_version(&api_version);
+		ret = pm_get_api_version(&api_version, security_flag);
 		SMC_RET1(handle, (uint64_t)PM_RET_SUCCESS |
 				 ((uint64_t)api_version << 32));
 	}
@@ -140,68 +151,72 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	{
 		uint32_t buff[3];
 
-		ret = pm_get_device_status(pm_arg[0], buff);
+		ret = pm_get_device_status(pm_arg[0], buff, security_flag);
 		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)buff[0] << 32),
 			 (uint64_t)buff[1] | ((uint64_t)buff[2] << 32));
 	}
 
 	case PM_RESET_ASSERT:
-		ret = pm_reset_assert(pm_arg[0], pm_arg[1]);
+		ret = pm_reset_assert(pm_arg[0], pm_arg[1], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_RESET_GET_STATUS:
 	{
 		uint32_t reset_status;
 
-		ret = pm_reset_get_status(pm_arg[0], &reset_status);
+		ret = pm_reset_get_status(pm_arg[0], &reset_status,
+					  security_flag);
 		SMC_RET1(handle, (uint64_t)ret |
 			 ((uint64_t)reset_status << 32));
 	}
 
 	case PM_INIT_FINALIZE:
-		ret = pm_init_finalize();
+		ret = pm_init_finalize(security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_GET_CALLBACK_DATA:
 	{
 		uint32_t result[4] = {0};
 
-		pm_get_callbackdata(result, ARRAY_SIZE(result));
+		pm_get_callbackdata(result, ARRAY_SIZE(result), security_flag);
 		SMC_RET2(handle,
 			 (uint64_t)result[0] | ((uint64_t)result[1] << 32),
 			 (uint64_t)result[2] | ((uint64_t)result[3] << 32));
 	}
 
 	case PM_PINCTRL_REQUEST:
-		ret = pm_pinctrl_request(pm_arg[0]);
+		ret = pm_pinctrl_request(pm_arg[0], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_PINCTRL_RELEASE:
-		ret = pm_pinctrl_release(pm_arg[0]);
+		ret = pm_pinctrl_release(pm_arg[0], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_PINCTRL_GET_FUNCTION:
 	{
 		uint32_t value = 0;
 
-		ret = pm_pinctrl_get_function(pm_arg[0], &value);
+		ret = pm_pinctrl_get_function(pm_arg[0], &value, security_flag);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
 	}
 
 	case PM_PINCTRL_SET_FUNCTION:
-		ret = pm_pinctrl_set_function(pm_arg[0], pm_arg[1]);
+		ret = pm_pinctrl_set_function(pm_arg[0], pm_arg[1],
+					      security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_PINCTRL_CONFIG_PARAM_GET:
 	{
 		uint32_t value;
 
-		ret = pm_pinctrl_get_pin_param(pm_arg[0], pm_arg[1], &value);
+		ret = pm_pinctrl_get_pin_param(pm_arg[0], pm_arg[1], &value,
+					       security_flag);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
 	}
 
 	case PM_PINCTRL_CONFIG_PARAM_SET:
-		ret = pm_pinctrl_set_pin_param(pm_arg[0], pm_arg[1], pm_arg[2]);
+		ret = pm_pinctrl_set_pin_param(pm_arg[0], pm_arg[1], pm_arg[2],
+					       security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_IOCTL:
@@ -209,7 +224,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint32_t value;
 
 		ret = pm_api_ioctl(pm_arg[0], pm_arg[1], pm_arg[2],
-				   pm_arg[3], &value);
+				   pm_arg[3], &value, security_flag);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
 	}
 
@@ -218,49 +233,49 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 		uint32_t data[8] = { 0 };
 
 		ret = pm_query_data(pm_arg[0], pm_arg[1], pm_arg[2],
-				      pm_arg[3], data);
+				      pm_arg[3], data, security_flag);
 
 		SMC_RET2(handle, (uint64_t)ret  | ((uint64_t)data[0] << 32),
 				 (uint64_t)data[1] | ((uint64_t)data[2] << 32));
 
 	}
 	case PM_CLOCK_ENABLE:
-		ret = pm_clock_enable(pm_arg[0]);
+		ret = pm_clock_enable(pm_arg[0], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_CLOCK_DISABLE:
-		ret = pm_clock_disable(pm_arg[0]);
+		ret = pm_clock_disable(pm_arg[0], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_CLOCK_GETSTATE:
 	{
 		uint32_t value;
 
-		ret = pm_clock_get_state(pm_arg[0], &value);
+		ret = pm_clock_get_state(pm_arg[0], &value, security_flag);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
 	}
 
 	case PM_CLOCK_SETDIVIDER:
-		ret = pm_clock_set_divider(pm_arg[0], pm_arg[1]);
+		ret = pm_clock_set_divider(pm_arg[0], pm_arg[1], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_CLOCK_GETDIVIDER:
 	{
 		uint32_t value;
 
-		ret = pm_clock_get_divider(pm_arg[0], &value);
+		ret = pm_clock_get_divider(pm_arg[0], &value, security_flag);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
 	}
 
 	case PM_CLOCK_SETPARENT:
-		ret = pm_clock_set_parent(pm_arg[0], pm_arg[1]);
+		ret = pm_clock_set_parent(pm_arg[0], pm_arg[1], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_CLOCK_GETPARENT:
 	{
 		uint32_t value;
 
-		ret = pm_clock_get_parent(pm_arg[0], &value);
+		ret = pm_clock_get_parent(pm_arg[0], &value, security_flag);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value) << 32);
 	}
 
@@ -268,32 +283,34 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	{
 		uint32_t rate[2] = { 0 };
 
-		ret = pm_clock_get_rate(pm_arg[0], rate);
+		ret = pm_clock_get_rate(pm_arg[0], rate, security_flag);
 		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)rate[0] << 32),
 			 rate[1]);
 	}
 
 	case PM_PLL_SET_PARAMETER:
-		ret = pm_pll_set_param(pm_arg[0], pm_arg[1], pm_arg[2]);
+		ret = pm_pll_set_param(pm_arg[0], pm_arg[1], pm_arg[2],
+				       security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_PLL_GET_PARAMETER:
 	{
 		uint32_t value;
 
-		ret = pm_pll_get_param(pm_arg[0], pm_arg[1], &value);
+		ret = pm_pll_get_param(pm_arg[0], pm_arg[1], &value,
+				       security_flag);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)value << 32));
 	}
 
 	case PM_PLL_SET_MODE:
-		ret = pm_pll_set_mode(pm_arg[0], pm_arg[1]);
+		ret = pm_pll_set_mode(pm_arg[0], pm_arg[1], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 
 	case PM_PLL_GET_MODE:
 	{
 		uint32_t mode;
 
-		ret = pm_pll_get_mode(pm_arg[0], &mode);
+		ret = pm_pll_get_mode(pm_arg[0], &mode, security_flag);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)mode << 32));
 	}
 
@@ -305,7 +322,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	{
 		uint32_t result[2];
 
-		ret = pm_get_chipid(result);
+		ret = pm_get_chipid(result, security_flag);
 		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)result[0] << 32),
 			 result[1]);
 	}
@@ -314,13 +331,14 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	{
 		uint32_t version;
 
-		ret = pm_feature_check(pm_arg[0], &version);
+		ret = pm_feature_check(pm_arg[0], &version, security_flag);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)version << 32));
 	}
 
 	case PM_LOAD_PDI:
 	{
-		ret = pm_load_pdi(pm_arg[0], pm_arg[1], pm_arg[2]);
+		ret = pm_load_pdi(pm_arg[0], pm_arg[1], pm_arg[2],
+				  security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 	}
 
@@ -328,19 +346,21 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	{
 		uint32_t result;
 
-		ret = pm_get_op_characteristic(pm_arg[0], pm_arg[1], &result);
+		ret = pm_get_op_characteristic(pm_arg[0], pm_arg[1], &result,
+					       security_flag);
 		SMC_RET1(handle, (uint64_t)ret | ((uint64_t)result << 32));
 	}
 
 	case PM_SET_MAX_LATENCY:
 	{
-		ret = pm_set_max_latency(pm_arg[0], pm_arg[1]);
+		ret = pm_set_max_latency(pm_arg[0], pm_arg[1], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 	}
 
 	case PM_REGISTER_NOTIFIER:
 	{
-		ret = pm_register_notifier(pm_arg[0], pm_arg[1], pm_arg[2], pm_arg[3]);
+		ret = pm_register_notifier(pm_arg[0], pm_arg[1], pm_arg[2],
+					   pm_arg[3], security_flag);
 		SMC_RET1(handle, (uint64_t)ret);
 	}
 
