@@ -24,7 +24,7 @@ static void bl2_realtime_cpg_init_m3(void);
 static void bl2_system_cpg_init_m3(void);
 #endif
 
-#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3N)
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3N) || (RCAR_LSI == RZ_G2N)
 static void bl2_realtime_cpg_init_m3n(void);
 static void bl2_system_cpg_init_m3n(void);
 #endif
@@ -187,7 +187,7 @@ static void bl2_system_cpg_init_m3(void)
 }
 #endif
 
-#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3N)
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3N)  || (RCAR_LSI == RZ_G2N)
 static void bl2_realtime_cpg_init_m3n(void)
 {
 	/* Realtime Module Stop Control Registers */
@@ -366,7 +366,7 @@ void bl2_cpg_init(void)
 		bl2_realtime_cpg_init_h3();
 #elif (RCAR_LSI == RCAR_M3) || (RCAR_LSI == RZ_G2M)
 		bl2_realtime_cpg_init_m3();
-#elif RCAR_LSI == RCAR_M3N
+#elif RCAR_LSI == RCAR_M3N || (RCAR_LSI == RZ_G2N)
 		bl2_realtime_cpg_init_m3n();
 #elif RCAR_LSI == RCAR_V3M
 		bl2_realtime_cpg_init_v3m();
@@ -412,7 +412,7 @@ void bl2_system_cpg_init(void)
 	bl2_system_cpg_init_h3();
 #elif (RCAR_LSI == RCAR_M3) || (RCAR_LSI == RZ_G2M)
 	bl2_system_cpg_init_m3();
-#elif RCAR_LSI == RCAR_M3N
+#elif RCAR_LSI == RCAR_M3N  || (RCAR_LSI == RZ_G2N)
 	bl2_system_cpg_init_m3n();
 #elif RCAR_LSI == RCAR_V3M
 	bl2_system_cpg_init_v3m();
