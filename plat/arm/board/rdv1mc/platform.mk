@@ -68,3 +68,8 @@ NT_FW_CONFIG		:=	${BUILD_PLAT}/fdts/${PLAT}_nt_fw_config.dtb
 $(eval $(call TOOL_ADD_PAYLOAD,${NT_FW_CONFIG},--nt-fw-config,${NT_FW_CONFIG}))
 
 override CTX_INCLUDE_AARCH32_REGS	:= 0
+
+ifneq ($(CSS_SGI_PLATFORM_VARIANT),0)
+ $(error "CSS_SGI_PLATFORM_VARIANT for RD-V1-MC should always be 0, \
+     currently set to ${CSS_SGI_PLATFORM_VARIANT}.")
+endif

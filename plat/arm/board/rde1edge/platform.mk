@@ -58,4 +58,9 @@ ifneq ($(CSS_SGI_CHIP_COUNT),1)
    ${CSS_SGI_CHIP_COUNT}.")
 endif
 
+ifneq ($(CSS_SGI_PLATFORM_VARIANT),0)
+ $(error "CSS_SGI_PLATFORM_VARIANT for RD-E1-Edge should always be 0, \
+     currently set to ${CSS_SGI_PLATFORM_VARIANT}.")
+endif
+
 override CTX_INCLUDE_AARCH32_REGS	:= 0
