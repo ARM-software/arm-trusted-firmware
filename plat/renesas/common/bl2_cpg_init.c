@@ -139,7 +139,7 @@ static void bl2_system_cpg_init_h3(void)
 	cpg_write(SMSTPCR1, 0xFFFFFFFFU);
 	cpg_write(SMSTPCR2, 0x040E2FDCU);
 	cpg_write(SMSTPCR3, 0xFFFFFBDFU);
-	cpg_write(SMSTPCR4, 0x80000004U);
+	cpg_write(SMSTPCR4, 0x80000000U | (mmio_read_32(SMSTPCR4) & 0x4));
 	cpg_write(SMSTPCR5, 0xC3FFFFFFU);
 	cpg_write(SMSTPCR6, 0xFFFFFFFFU);
 	cpg_write(SMSTPCR7, 0xFFFFFFFFU);
@@ -175,7 +175,7 @@ static void bl2_system_cpg_init_m3(void)
 	cpg_write(SMSTPCR1, 0xFFFFFFFFU);
 	cpg_write(SMSTPCR2, 0x040E2FDCU);
 	cpg_write(SMSTPCR3, 0xFFFFFBDFU);
-	cpg_write(SMSTPCR4, 0x80000004U);
+	cpg_write(SMSTPCR4, 0x80000000U | (mmio_read_32(SMSTPCR4) & 0x4));
 	cpg_write(SMSTPCR5, 0xC3FFFFFFU);
 	cpg_write(SMSTPCR6, 0xFFFFFFFFU);
 	cpg_write(SMSTPCR7, 0xFFFFFFFFU);
@@ -211,7 +211,7 @@ static void bl2_system_cpg_init_m3n(void)
 	cpg_write(SMSTPCR1, 0xFFFFFFFFU);
 	cpg_write(SMSTPCR2, 0x040E2FDCU);
 	cpg_write(SMSTPCR3, 0xFFFFFBDFU);
-	cpg_write(SMSTPCR4, 0x80000004U);
+	cpg_write(SMSTPCR4, 0x80000000U | (mmio_read_32(SMSTPCR4) & 0x4));
 	cpg_write(SMSTPCR5, 0xC3FFFFFFU);
 	cpg_write(SMSTPCR6, 0xFFFFFFFFU);
 	cpg_write(SMSTPCR7, 0xFFFFFFFFU);
@@ -245,7 +245,7 @@ static void bl2_system_cpg_init_v3m(void)
 	cpg_write(SMSTPCR1, 0xFFFFFFFFU);
 	cpg_write(SMSTPCR2, 0x340E2FDCU);
 	cpg_write(SMSTPCR3, 0xFFFFFBDFU);
-	cpg_write(SMSTPCR4, 0x80000004U);
+	cpg_write(SMSTPCR4, 0x80000000U | (mmio_read_32(SMSTPCR4) & 0x4));
 	cpg_write(SMSTPCR5, 0xC3FFFFFFU);
 	cpg_write(SMSTPCR6, 0xFFFFFFFFU);
 	cpg_write(SMSTPCR7, 0xFFFFFFFFU);
@@ -279,7 +279,7 @@ static void bl2_system_cpg_init_e3(void)
 	cpg_write(SMSTPCR1, 0xFFFFFFFFU);
 	cpg_write(SMSTPCR2, 0x000E2FDCU);
 	cpg_write(SMSTPCR3, 0xFFFFFBDFU);
-	cpg_write(SMSTPCR4, 0x80000004U);
+	cpg_write(SMSTPCR4, 0x80000000U | (mmio_read_32(SMSTPCR4) & 0x4));
 	cpg_write(SMSTPCR5, 0xC3FFFFFFU);
 	cpg_write(SMSTPCR6, 0xFFFFFFFFU);
 	cpg_write(SMSTPCR7, 0xFFFFFFFFU);
@@ -298,7 +298,7 @@ static void bl2_system_cpg_init_d3(void)
 	cpg_write(SMSTPCR1, 0xFFFFFFFFU);
 	cpg_write(SMSTPCR2, 0x00060FDCU);
 	cpg_write(SMSTPCR3, 0xFFFFFBDFU);
-	cpg_write(SMSTPCR4, 0x00000084U);
+	cpg_write(SMSTPCR4, 0x00000080U | (mmio_read_32(SMSTPCR4) & 0x4));
 	cpg_write(SMSTPCR5, 0x83FFFFFFU);
 	cpg_write(SMSTPCR6, 0xFFFFFFFFU);
 	cpg_write(SMSTPCR7, 0xFFFFFFFFU);
