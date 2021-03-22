@@ -7,6 +7,8 @@
 include lib/libfdt/libfdt.mk
 include lib/xlat_tables_v2/xlat_tables.mk
 
+include drivers/arm/gic/v2/gicv2.mk
+
 PLAT_INCLUDES		:=	-Iplat/rpi/common/include		\
 				-Iplat/rpi/rpi4/include
 
@@ -18,9 +20,6 @@ PLAT_BL_COMMON_SOURCES	:=	drivers/ti/uart/aarch64/16550_console.S	\
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a72.S		\
 				plat/rpi/common/aarch64/plat_helpers.S	\
 				plat/rpi/rpi4/aarch64/armstub8_header.S	\
-				drivers/arm/gic/common/gic_common.c     \
-				drivers/arm/gic/v2/gicv2_helpers.c      \
-				drivers/arm/gic/v2/gicv2_main.c         \
 				drivers/delay_timer/delay_timer.c	\
 				drivers/gpio/gpio.c			\
 				drivers/rpi3/gpio/rpi3_gpio.c		\
@@ -30,7 +29,8 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a72.S		\
 				plat/common/plat_psci_common.c		\
 				plat/rpi/common/rpi3_topology.c		\
 				common/fdt_fixup.c			\
-				${LIBFDT_SRCS}
+				${LIBFDT_SRCS}				\
+				${GICV2_SOURCES}
 
 # For now we only support BL31, using the kernel loaded by the GPU firmware.
 RESET_TO_BL31		:=	1
