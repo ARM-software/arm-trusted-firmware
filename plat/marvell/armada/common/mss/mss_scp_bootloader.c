@@ -85,9 +85,9 @@ static int mss_iram_dma_load(uint32_t src_addr, uint32_t size,
 		/* Poll DMA_ACK at MSS_DMACTLR until it is ready */
 		timeout = MSS_DMA_TIMEOUT;
 		while (timeout > 0U) {
-			if ((mmio_read_32(MSS_DMA_CTRLR(mss_regs)) >>
-					  (MSS_DMA_CTRLR_ACK_OFFSET &
-					   MSS_DMA_CTRLR_ACK_MASK))
+			if (((mmio_read_32(MSS_DMA_CTRLR(mss_regs)) >>
+					  MSS_DMA_CTRLR_ACK_OFFSET) &
+					  MSS_DMA_CTRLR_ACK_MASK)
 					  == MSS_DMA_CTRLR_ACK_READY) {
 				break;
 			}
