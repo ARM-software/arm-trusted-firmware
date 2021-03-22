@@ -1,6 +1,6 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2019-2020, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2021, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -27,6 +27,7 @@
 #include "s10_pinmux.h"
 #include "wdt/watchdog.h"
 
+static struct mmc_device_info mmc_info;
 
 const mmap_region_t plat_stratix10_mmap[] = {
 	MAP_REGION_FLAT(DRAM_BASE, DRAM_SIZE,
@@ -83,7 +84,6 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 void bl2_el3_plat_arch_setup(void)
 {
 
-	struct mmc_device_info info;
 	const mmap_region_t bl_regions[] = {
 		MAP_REGION_FLAT(BL2_BASE, BL2_END - BL2_BASE,
 			MT_MEMORY | MT_RW | MT_SECURE),
@@ -106,12 +106,12 @@ void bl2_el3_plat_arch_setup(void)
 
 	dw_mmc_params_t params = EMMC_INIT_PARAMS(0x100000, get_mmc_clk());
 
-	info.mmc_dev_type = MMC_IS_SD;
-	info.ocr_voltage = OCR_3_3_3_4 | OCR_3_2_3_3;
+	mmc_info.mmc_dev_type = MMC_IS_SD;
+	mmc_info.ocr_voltage = OCR_3_3_3_4 | OCR_3_2_3_3;
 
 	switch (boot_source) {
 	case BOOT_SOURCE_SDMMC:
-		dw_mmc_init(&params, &info);
+		dw_mmc_init(&params, &mmc_info);
 		socfpga_io_setup(boot_source);
 		break;
 
