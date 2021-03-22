@@ -170,6 +170,7 @@
 #define ID_AA64PFR0_GIC_MASK	ULL(0xf)
 #define ID_AA64PFR0_SVE_SHIFT	U(32)
 #define ID_AA64PFR0_SVE_MASK	ULL(0xf)
+#define ID_AA64PFR0_SVE_LENGTH	U(4)
 #define ID_AA64PFR0_SEL2_SHIFT	U(36)
 #define ID_AA64PFR0_SEL2_MASK	ULL(0xf)
 #define ID_AA64PFR0_MPAM_SHIFT	U(40)
@@ -529,7 +530,7 @@
 #define TTA_BIT			(U(1) << 20)
 #define TFP_BIT			(U(1) << 10)
 #define CPTR_EZ_BIT		(U(1) << 8)
-#define CPTR_EL3_RESET_VAL	U(0x0)
+#define CPTR_EL3_RESET_VAL	(TCPAC_BIT | TAM_BIT | TTA_BIT | TFP_BIT & ~(CPTR_EZ_BIT))
 
 /* CPTR_EL2 definitions */
 #define CPTR_EL2_RES1		((U(1) << 13) | (U(1) << 12) | (U(0x3ff)))

@@ -178,6 +178,18 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	 *  indicated by the interrupt routing model for BL31.
 	 */
 	scr_el3 |= get_scr_el3_from_routing_model(security_state);
+
+#if ENABLE_SVE_FOR_NS
+	if (security_state == NON_SECURE) {
+		sve_enable(ctx);
+	}
+#endif
+#if ENABLE_SVE_FOR_SWD
+	if (security_state == SECURE) {
+		sve_enable(ctx);
+	}
+#endif
+
 #endif
 
 	/*
@@ -332,10 +344,6 @@ static void enable_extensions_nonsecure(bool el2_unused)
 
 #if ENABLE_AMU
 	amu_enable(el2_unused);
-#endif
-
-#if ENABLE_SVE_FOR_NS
-	sve_enable(el2_unused);
 #endif
 
 #if ENABLE_MPAM_FOR_LOWER_ELS
