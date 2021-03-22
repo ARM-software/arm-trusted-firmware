@@ -27,7 +27,7 @@ static unsigned int mmc_ocr_value;
 static struct mmc_csd_emmc mmc_csd;
 static unsigned char mmc_ext_csd[512] __aligned(16);
 static unsigned int mmc_flags;
-static struct mmc_device_info mmc_dev_info;
+static struct mmc_device_info *mmc_dev_info;
 static unsigned int rca;
 static unsigned int scr[2]__aligned(16) = { 0 };
 
@@ -195,7 +195,7 @@ static int mmc_set_ios(unsigned int clk, unsigned int bus_width)
 	int ret;
 	unsigned int width = bus_width;
 
-	if (mmc_dev_info.mmc_dev_type != MMC_IS_EMMC) {
+	if (mmc_dev_info->mmc_dev_type != MMC_IS_EMMC) {
 		if (width == MMC_BUS_WIDTH_8) {
 			WARN("Wrong bus config for SD-card, force to 4\n");
 			width = MMC_BUS_WIDTH_4;
@@ -226,9 +226,9 @@ static int mmc_fill_device_info(void)
 	int ret = 0;
 	struct mmc_csd_sd_v2 *csd_sd_v2;
 
-	switch (mmc_dev_info.mmc_dev_type) {
+	switch (mmc_dev_info->mmc_dev_type) {
 	case MMC_IS_EMMC:
-		mmc_dev_info.block_size = MMC_BLOCK_SIZE;
+		mmc_dev_info->block_size = MMC_BLOCK_SIZE;
 
 		ret = ops->prepare(0, (uintptr_t)&mmc_ext_csd,
 				   sizeof(mmc_ext_csd));
@@ -260,8 +260,8 @@ static int mmc_fill_device_info(void)
 			    (mmc_ext_csd[CMD_EXTCSD_SEC_CNT + 2] << 16) |
 			    (mmc_ext_csd[CMD_EXTCSD_SEC_CNT + 3] << 24);
 
-		mmc_dev_info.device_size = (unsigned long long)nb_blocks *
-			mmc_dev_info.block_size;
+		mmc_dev_info->device_size = (unsigned long long)nb_blocks *
+			mmc_dev_info->block_size;
 
 		break;
 
@@ -270,29 +270,29 @@ static int mmc_fill_device_info(void)
 		 * Use the same mmc_csd struct, as required fields here
 		 * (READ_BL_LEN, C_SIZE, CSIZE_MULT) are common with eMMC.
 		 */
-		mmc_dev_info.block_size = BIT_32(mmc_csd.read_bl_len);
+		mmc_dev_info->block_size = BIT_32(mmc_csd.read_bl_len);
 
 		c_size = ((unsigned long long)mmc_csd.c_size_high << 2U) |
 			 (unsigned long long)mmc_csd.c_size_low;
 		assert(c_size != 0xFFFU);
 
-		mmc_dev_info.device_size = (c_size + 1U) *
+		mmc_dev_info->device_size = (c_size + 1U) *
 					    BIT_64(mmc_csd.c_size_mult + 2U) *
-					    mmc_dev_info.block_size;
+					    mmc_dev_info->block_size;
 
 		break;
 
 	case MMC_IS_SD_HC:
 		assert(mmc_csd.csd_structure == 1U);
 
-		mmc_dev_info.block_size = MMC_BLOCK_SIZE;
+		mmc_dev_info->block_size = MMC_BLOCK_SIZE;
 
 		/* Need to use mmc_csd_sd_v2 struct */
 		csd_sd_v2 = (struct mmc_csd_sd_v2 *)&mmc_csd;
 		c_size = ((unsigned long long)csd_sd_v2->c_size_high << 16) |
 			 (unsigned long long)csd_sd_v2->c_size_low;
 
-		mmc_dev_info.device_size = (c_size + 1U) << MULT_BY_512K_SHIFT;
+		mmc_dev_info->device_size = (c_size + 1U) << MULT_BY_512K_SHIFT;
 
 		break;
 
@@ -310,19 +310,19 @@ static int mmc_fill_device_info(void)
 
 	assert(speed_idx > 0U);
 
-	if (mmc_dev_info.mmc_dev_type == MMC_IS_EMMC) {
-		mmc_dev_info.max_bus_freq = tran_speed_base[speed_idx];
+	if (mmc_dev_info->mmc_dev_type == MMC_IS_EMMC) {
+		mmc_dev_info->max_bus_freq = tran_speed_base[speed_idx];
 	} else {
-		mmc_dev_info.max_bus_freq = sd_tran_speed_base[speed_idx];
+		mmc_dev_info->max_bus_freq = sd_tran_speed_base[speed_idx];
 	}
 
 	freq_unit = mmc_csd.tran_speed & CSD_TRAN_SPEED_UNIT_MASK;
 	while (freq_unit != 0U) {
-		mmc_dev_info.max_bus_freq *= 10U;
+		mmc_dev_info->max_bus_freq *= 10U;
 		--freq_unit;
 	}
 
-	mmc_dev_info.max_bus_freq *= 10000U;
+	mmc_dev_info->max_bus_freq *= 10000U;
 
 	return 0;
 }
@@ -343,7 +343,7 @@ static int sd_send_op_cond(void)
 
 		/* ACMD41: SD_SEND_OP_COND */
 		ret = mmc_send_cmd(MMC_ACMD(41), OCR_HCS |
-			mmc_dev_info.ocr_voltage, MMC_RESPONSE_R3,
+			mmc_dev_info->ocr_voltage, MMC_RESPONSE_R3,
 			&resp_data[0]);
 		if (ret != 0) {
 			return ret;
@@ -353,9 +353,9 @@ static int sd_send_op_cond(void)
 			mmc_ocr_value = resp_data[0];
 
 			if ((mmc_ocr_value & OCR_HCS) != 0U) {
-				mmc_dev_info.mmc_dev_type = MMC_IS_SD_HC;
+				mmc_dev_info->mmc_dev_type = MMC_IS_SD_HC;
 			} else {
-				mmc_dev_info.mmc_dev_type = MMC_IS_SD;
+				mmc_dev_info->mmc_dev_type = MMC_IS_SD;
 			}
 
 			return 0;
@@ -425,9 +425,9 @@ static int mmc_enumerate(unsigned int clk, unsigned int bus_width)
 	ret = mmc_reset_to_idle();
 	if (ret != 0) {
 		return ret;
-	}
+	};
 
-	if (mmc_dev_info.mmc_dev_type == MMC_IS_EMMC) {
+	if (mmc_dev_info->mmc_dev_type == MMC_IS_EMMC) {
 		ret = mmc_send_op_cond();
 	} else {
 		/* CMD8: Send Interface Condition Command */
@@ -449,7 +449,7 @@ static int mmc_enumerate(unsigned int clk, unsigned int bus_width)
 	}
 
 	/* CMD3: Set Relative Address */
-	if (mmc_dev_info.mmc_dev_type == MMC_IS_EMMC) {
+	if (mmc_dev_info->mmc_dev_type == MMC_IS_EMMC) {
 		rca = MMC_FIX_RCA;
 		ret = mmc_send_cmd(MMC_CMD(3), rca << RCA_SHIFT_OFFSET,
 				   MMC_RESPONSE_R1, NULL);
@@ -530,7 +530,7 @@ size_t mmc_read_blocks(int lba, uintptr_t buf, size_t size)
 	}
 
 	if (((mmc_ocr_value & OCR_ACCESS_MODE_MASK) == OCR_BYTE_MODE) &&
-	    (mmc_dev_info.mmc_dev_type != MMC_IS_SD_HC)) {
+	    (mmc_dev_info->mmc_dev_type != MMC_IS_SD_HC)) {
 		cmd_arg = lba * MMC_BLOCK_SIZE;
 	} else {
 		cmd_arg = lba;
@@ -731,7 +731,7 @@ int mmc_init(const struct mmc_ops *ops_ptr, unsigned int clk,
 
 	ops = ops_ptr;
 	mmc_flags = flags;
-	memcpy(&mmc_dev_info, device_info, sizeof(struct mmc_device_info));
+	mmc_dev_info = device_info;
 
 	return mmc_enumerate(clk, width);
 }
