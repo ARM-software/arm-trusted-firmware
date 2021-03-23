@@ -513,16 +513,54 @@ static inline uintptr_t tamp_bkpr(uint32_t idx)
  * Miscellaneous STM32MP1 peripherals base address
  ******************************************************************************/
 #define BSEC_BASE			U(0x5C005000)
+#if STM32MP13
+#define CRYP_BASE			U(0x54002000)
+#endif
+#if STM32MP15
 #define CRYP1_BASE			U(0x54001000)
+#endif
 #define DBGMCU_BASE			U(0x50081000)
+#if STM32MP13
+#define HASH_BASE			U(0x54003000)
+#endif
+#if STM32MP15
 #define HASH1_BASE			U(0x54002000)
+#endif
+#if STM32MP13
+#define I2C3_BASE			U(0x4C004000)
+#define I2C4_BASE			U(0x4C005000)
+#define I2C5_BASE			U(0x4C006000)
+#endif
+#if STM32MP15
 #define I2C4_BASE			U(0x5C002000)
 #define I2C6_BASE			U(0x5c009000)
+#endif
+#if STM32MP13
+#define RNG_BASE			U(0x54004000)
+#endif
+#if STM32MP15
 #define RNG1_BASE			U(0x54003000)
+#endif
 #define RTC_BASE			U(0x5c004000)
+#if STM32MP13
+#define SPI4_BASE			U(0x4C002000)
+#define SPI5_BASE			U(0x4C003000)
+#endif
+#if STM32MP15
 #define SPI6_BASE			U(0x5c001000)
+#endif
 #define STGEN_BASE			U(0x5c008000)
 #define SYSCFG_BASE			U(0x50020000)
+
+/*******************************************************************************
+ * STM32MP13 SAES
+ ******************************************************************************/
+#define SAES_BASE			U(0x54005000)
+
+/*******************************************************************************
+ * STM32MP13 PKA
+ ******************************************************************************/
+#define PKA_BASE			U(0x54006000)
 
 /*******************************************************************************
  * REGULATORS
