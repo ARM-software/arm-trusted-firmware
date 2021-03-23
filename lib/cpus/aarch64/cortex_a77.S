@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -114,6 +114,58 @@ func check_errata_1925769
 	b	cpu_rev_var_ls
 endfunc check_errata_1925769
 
+	/* --------------------------------------------------
+	 * Errata Workaround for Cortex A77 Errata #1946167.
+	 * This applies to revision <= r1p1 of Cortex A77.
+	 * Inputs:
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_a77_1946167_wa
+	/* Compare x0 against revision <= r1p1 */
+	mov	x17, x30
+	bl	check_errata_1946167
+	cbz	x0, 1f
+
+	ldr	x0,=0x4
+	msr	CORTEX_A77_CPUPSELR_EL3,x0
+	ldr	x0,=0x10E3900002
+	msr	CORTEX_A77_CPUPOR_EL3,x0
+	ldr	x0,=0x10FFF00083
+	msr	CORTEX_A77_CPUPMR_EL3,x0
+	ldr	x0,=0x2001003FF
+	msr	CORTEX_A77_CPUPCR_EL3,x0
+
+	ldr	x0,=0x5
+	msr	CORTEX_A77_CPUPSELR_EL3,x0
+	ldr	x0,=0x10E3800082
+	msr	CORTEX_A77_CPUPOR_EL3,x0
+	ldr	x0,=0x10FFF00083
+	msr	CORTEX_A77_CPUPMR_EL3,x0
+	ldr	x0,=0x2001003FF
+	msr	CORTEX_A77_CPUPCR_EL3,x0
+
+	ldr	x0,=0x6
+	msr	CORTEX_A77_CPUPSELR_EL3,x0
+	ldr	x0,=0x10E3800200
+	msr	CORTEX_A77_CPUPOR_EL3,x0
+	ldr	x0,=0x10FFF003E0
+	msr	CORTEX_A77_CPUPMR_EL3,x0
+	ldr	x0,=0x2001003FF
+	msr	CORTEX_A77_CPUPCR_EL3,x0
+
+	isb
+1:
+	ret	x17
+endfunc errata_a77_1946167_wa
+
+func check_errata_1946167
+	/* Applies to everything <= r1p1 */
+	mov	x1, #0x11
+	b	cpu_rev_var_ls
+endfunc check_errata_1946167
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A77.
 	 * Shall clobber: x0-x19
@@ -132,6 +184,11 @@ func cortex_a77_reset_func
 #if ERRATA_A77_1925769
 	mov	x0, x18
 	bl	errata_a77_1925769_wa
+#endif
+
+#if ERRATA_A77_1946167
+	mov	x0, x18
+	bl	errata_a77_1946167_wa
 #endif
 
 	ret	x19
@@ -169,6 +226,7 @@ func cortex_a77_errata_report
 	 */
 	report_errata ERRATA_A77_1508412, cortex_a77, 1508412
 	report_errata ERRATA_A77_1925769, cortex_a77, 1925769
+	report_errata ERRATA_A77_1946167, cortex_a77, 1946167
 
 	ldp	x8, x30, [sp], #16
 	ret
