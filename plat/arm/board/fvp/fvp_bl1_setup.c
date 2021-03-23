@@ -124,3 +124,8 @@ int bl1_plat_handle_post_image_load(unsigned int image_id)
 	return 0;
 }
 #endif /* MEASURED_BOOT */
+
+bool plat_arm_bl1_fwu_needed(void)
+{
+	return 0;
+}
