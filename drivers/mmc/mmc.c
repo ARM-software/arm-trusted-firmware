@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -392,7 +392,7 @@ static int mmc_send_op_cond(void)
 	ret = mmc_reset_to_idle();
 	if (ret != 0) {
 		return ret;
-	};
+	}
 
 	for (n = 0; n < SEND_OP_COND_MAX_RETRIES; n++) {
 		ret = mmc_send_cmd(MMC_CMD(1), OCR_SECTOR_MODE |
@@ -425,7 +425,7 @@ static int mmc_enumerate(unsigned int clk, unsigned int bus_width)
 	ret = mmc_reset_to_idle();
 	if (ret != 0) {
 		return ret;
-	};
+	}
 
 	if (mmc_dev_info->mmc_dev_type == MMC_IS_EMMC) {
 		ret = mmc_send_op_cond();
