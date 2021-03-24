@@ -525,7 +525,8 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 		data |= TXD_INVERT_BIT;
 	if (invert & COMPHY_POLARITY_RXD_INVERT)
 		data |= RXD_INVERT_BIT;
-	reg_set16(SGMIIPHY_ADDR(COMPHY_SYNC_PATTERN_REG, sd_ip_addr), data, 0);
+	mask = TXD_INVERT_BIT | RXD_INVERT_BIT;
+	reg_set16(SGMIIPHY_ADDR(COMPHY_SYNC_PATTERN_REG, sd_ip_addr), data, mask);
 
 	/*
 	 * 17. Set PHY input ports PIN_PU_PLL, PIN_PU_TX and PIN_PU_RX to 1 to
@@ -746,12 +747,15 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	/*
 	 * 13. Check the Polarity invert bit
 	 */
-	if (invert & COMPHY_POLARITY_TXD_INVERT)
-		usb3_reg_set(reg_base, COMPHY_SYNC_PATTERN_REG, TXD_INVERT_BIT,
-			     TXD_INVERT_BIT, mode);
-	if (invert & COMPHY_POLARITY_RXD_INVERT)
-		usb3_reg_set(reg_base, COMPHY_SYNC_PATTERN_REG, RXD_INVERT_BIT,
-			     RXD_INVERT_BIT, mode);
+	data = 0U;
+	if (invert & COMPHY_POLARITY_TXD_INVERT) {
+		data |= TXD_INVERT_BIT;
+	}
+	if (invert & COMPHY_POLARITY_RXD_INVERT) {
+		data |= RXD_INVERT_BIT;
+	}
+	mask = TXD_INVERT_BIT | RXD_INVERT_BIT;
+	usb3_reg_set(reg_base, COMPHY_SYNC_PATTERN_REG, data, mask, mode);
 
 	/*
 	 * 14. Set max speed generation to USB3.0 5Gbps
@@ -802,6 +806,7 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 {
 	int ret;
 	uint32_t ref_clk;
+	uint32_t mask, data;
 	int invert = COMPHY_GET_POLARITY_INVERT(comphy_mode);
 
 	debug_enter();
@@ -858,13 +863,15 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 		  SPEED_PLL_VALUE_16 | USE_MAX_PLL_RATE_BIT, REG_16_BIT_MASK);
 
 	/* 10. Check the Polarity invert bit */
-	if (invert & COMPHY_POLARITY_TXD_INVERT)
-		reg_set16(SYNC_PATTERN_REG_ADDR(PCIE) + COMPHY_SD_ADDR,
-			  TXD_INVERT_BIT, 0x0);
-
-	if (invert & COMPHY_POLARITY_RXD_INVERT)
-		reg_set16(SYNC_PATTERN_REG_ADDR(PCIE) + COMPHY_SD_ADDR,
-			  RXD_INVERT_BIT, 0x0);
+	data = 0U;
+	if (invert & COMPHY_POLARITY_TXD_INVERT) {
+		data |= TXD_INVERT_BIT;
+	}
+	if (invert & COMPHY_POLARITY_RXD_INVERT) {
+		data |= RXD_INVERT_BIT;
+	}
+	mask = TXD_INVERT_BIT | RXD_INVERT_BIT;
+	reg_set16(SYNC_PATTERN_REG_ADDR(PCIE) + COMPHY_SD_ADDR, data, mask);
 
 	/* 11. Release SW reset */
 	reg_set16(GLOB_PHY_CTRL0_ADDR(PCIE) + COMPHY_SD_ADDR,
