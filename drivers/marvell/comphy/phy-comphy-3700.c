@@ -564,7 +564,7 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 	 * refer to RX initialization part for details.
 	 */
 	reg_set(MVEBU_COMPHY_REG_BASE + COMPHY_PHY_CFG1_OFFSET(comphy_index),
-		PHY_RX_INIT_BIT, 0x0);
+		PHY_RX_INIT_BIT, PHY_RX_INIT_BIT);
 
 	ret = polling_with_timeout(MVEBU_COMPHY_REG_BASE +
 				   COMPHY_PHY_STATUS_OFFSET(comphy_index),
@@ -595,7 +595,7 @@ static int mvebu_a3700_comphy_sgmii_power_off(uint8_t comphy_index)
 	debug_enter();
 
 	data = PIN_RESET_CORE_BIT | PIN_RESET_COMPHY_BIT;
-	mask = 0;
+	mask = data;
 	offset = MVEBU_COMPHY_REG_BASE + COMPHY_PHY_CFG1_OFFSET(comphy_index);
 	reg_set(offset, data, mask);
 
@@ -813,15 +813,15 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 
 	/* 1. Enable max PLL. */
 	reg_set16(LANE_CFG1_ADDR(PCIE) + COMPHY_SD_ADDR,
-		  USE_MAX_PLL_RATE_EN, 0x0);
+		  USE_MAX_PLL_RATE_EN, USE_MAX_PLL_RATE_EN);
 
 	/* 2. Select 20 bit SERDES interface. */
 	reg_set16(GLOB_CLK_SRC_LO_ADDR(PCIE) + COMPHY_SD_ADDR,
-		  CFG_SEL_20B, 0);
+		  CFG_SEL_20B, CFG_SEL_20B);
 
 	/* 3. Force to use reg setting for PCIe mode */
 	reg_set16(MISC_REG1_ADDR(PCIE) + COMPHY_SD_ADDR,
-		  SEL_BITS_PCIE_FORCE, 0);
+		  SEL_BITS_PCIE_FORCE, SEL_BITS_PCIE_FORCE);
 
 	/* 4. Change RX wait */
 	reg_set16(PWR_MGM_TIM1_ADDR(PCIE) + COMPHY_SD_ADDR,
