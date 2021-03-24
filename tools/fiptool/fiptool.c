@@ -215,6 +215,18 @@ static void fill_image_descs(void)
 		    toc_entry->cmdline_name);
 		add_image_desc(desc);
 	}
+#ifdef PLAT_DEF_FIP_UUID
+	for (toc_entry = plat_def_toc_entries;
+	     toc_entry->cmdline_name != NULL;
+	     toc_entry++) {
+		image_desc_t *desc;
+
+		desc = new_image_desc(&toc_entry->uuid,
+		    toc_entry->name,
+		    toc_entry->cmdline_name);
+		add_image_desc(desc);
+	}
+#endif
 }
 
 static image_desc_t *lookup_image_desc_from_uuid(const uuid_t *uuid)
@@ -753,6 +765,12 @@ static void create_usage(int exit_status)
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
 		    toc_entry->name);
+#ifdef PLAT_DEF_FIP_UUID
+	toc_entry = plat_def_toc_entries;
+	for (; toc_entry->cmdline_name != NULL; toc_entry++)
+		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
+		    toc_entry->name);
+#endif
 	exit(exit_status);
 }
 
@@ -867,6 +885,12 @@ static void update_usage(int exit_status)
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
 		    toc_entry->name);
+#ifdef PLAT_DEF_FIP_UUID
+	toc_entry = plat_def_toc_entries;
+	for (; toc_entry->cmdline_name != NULL; toc_entry++)
+		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
+		    toc_entry->name);
+#endif
 	exit(exit_status);
 }
 
@@ -1001,6 +1025,12 @@ static void unpack_usage(int exit_status)
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
 		    toc_entry->name);
+#ifdef PLAT_DEF_FIP_UUID
+	toc_entry = plat_def_toc_entries;
+	for (; toc_entry->cmdline_name != NULL; toc_entry++)
+		printf("  --%-16s FILENAME\t%s\n", toc_entry->cmdline_name,
+		    toc_entry->name);
+#endif
 	printf("\n");
 	printf("If no options are provided, all images will be unpacked.\n");
 	exit(exit_status);
@@ -1126,6 +1156,12 @@ static void remove_usage(int exit_status)
 	for (; toc_entry->cmdline_name != NULL; toc_entry++)
 		printf("  --%-16s\t%s\n", toc_entry->cmdline_name,
 		    toc_entry->name);
+#ifdef PLAT_DEF_FIP_UUID
+	toc_entry = plat_def_toc_entries;
+	for (; toc_entry->cmdline_name != NULL; toc_entry++)
+		printf("  --%-16s\t%s\n", toc_entry->cmdline_name,
+		    toc_entry->name);
+#endif
 	exit(exit_status);
 }
 

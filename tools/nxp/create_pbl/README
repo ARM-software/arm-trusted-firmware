@@ -1,0 +1,65 @@
+Description:
+------------
+Tool 'create_pbl' is a standalone tool to create the PBL images.
+	 where,
+	     On the basis of Chassis,
+	     RCW image is placed first followed by the,
+	     PBI commands to copy the,
+	     Input BL2 image stored on the,
+	     Specified boot source (QSPI or SD or NOR) to the,
+             Specified destination address.
+
+
+Usage in standalone way:
+-----------------------
+
+./create_pbl [options] (mentioned below):
+
+	-r  <RCW file-name>         - name of RCW binary file.
+	-i  <BL2 Bin file-name>     - file to be added to rcw file.
+	-c  <SoC Number>            - SoC numeric identifier, may be one of
+                                  1012,1023,1026.1028,
+                                  1043,1046,1088,2080,
+                                  2088,2160
+	-b  <boot source id>        - Boot source id string, may be one of
+                                  "qspi", "nor", "nand", "sd", "emmc"
+	-d  <Address>               - Destination address where BL2
+	                              image is to be copied
+	-o  <output filename>	    - Name of PBL image generated
+	                              as an output of the tool.
+	-e  <Address>               - [Optional] Entry Point Address
+	                              of the BL2.bin
+	-f  <Address>               - BL2 image offset
+	                              on Boot Source for block copy.
+	                              command for chassis >=3.)
+				      (Must for Ch3, Ignored for Ch2)
+	-h  Help.
+	-s  Secure boot.
+
+		-s 	secure boot
+		-c	SoC Number (see description above)
+		-b	Boot source.
+		-r	RCW binary file.
+		-i	Input file that is to be added to rcw file.
+		-o	Name of output file
+		-f	Source Offset (Block Copy)
+		-d	Destination address to which file has to be copied
+		-h	Help.
+
+Example:
+	./create_pbl -r <RCW file> -i <bl2.bin> -c <chassis_no> -b <boot_source = sd/qspi/nor> -d <Destination_Addr> -o <pbl_image_name>
+
+
+
+Usage at compilation time:
+--------------------------------
+
+	make <compilation command......> pbl RCW=<Path_to_RCW_File>/<rcw_file_name.bin>
+
+Example: QSPI Boot For LS1046ARDB-
+
+	make PLAT=ls1046rdb all fip BOOT_MODE=qspi SPD=opteed BL32=tee.bin BL33=u-boot-ls1046.bin pbl RCW=/home/pankaj/flexbuild/packages/firmware/dash-rcw/ls1046ardb/RR_FFSSPPPN_1133_5506/rcw_1600_qspiboot.bin
+
+Example: QSPI Boot For LX2160ARDB-
+
+	make PLAT=lx2160ardb all fip BOOT_MODE=flexspi_nor SPD=opteed BL32=tee_lx2.bin BL33=u-boot_lx2160.bin pbl RCW=plat/nxp/soc-lx2160/lx2160ardb/rcw_1900_600_1600_19_5_2.bin

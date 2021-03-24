@@ -1,0 +1,89 @@
+/*
+ * Copyright (c) 2014-2016, Freescale Semiconductor, Inc.
+ * Copyright 2017-2020 NXP
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ */
+
+---------------------------------------------------
+# Specify the platform. [Mandatory]
+# Choose Platform - 1010/1040/2041/3041/4080/5020/5040/9131/9132/9164/4240/C290/LS1
+PLATFORM=LS1043
+# ESBC Flag. Specify ESBC=0 to sign u-boot and ESBC=1 to sign ESBC images.(default is 0)
+ESBC=0
+---------------------------------------------------
+# Entry Point/Image start address field in the header.[Mandatory]
+# (default=ADDRESS of first file specified in images)
+ENTRY_POINT=10000000
+---------------------------------------------------
+# Specify the file name of the keys separated by comma.
+# The number of files and key select should lie between 1 and 4 for 1040 and C290.
+# For rest of the platforms only one key is required and key select should not be provided.
+
+# USAGE (for 4080/5020/5040/3041/2041/1010/913x): PRI_KEY = <key1.pri>
+# USAGE (for 1040/C290/9164/4240/LS1): PRI_KEY = <key1.pri>, <key2.pri>, <key3.pri>, <key4.pri>
+
+# PRI_KEY (Default private key :srk.pri) - [Optional]
+PRI_KEY=srk.pri
+# PUB_KEY (Default public key :srk.pub) - [Optional]
+PUB_KEY=srk.pub
+# Please provide KEY_SELECT(between 1 to 4) (Required for 1040/C290/9164/4240/LS1 only) - [Optional]
+KEY_SELECT=
+---------------------------------------------------
+# Specify SG table address, only for (2041/3041/4080/5020/5040) with ESBC=0 - [Optional]
+SG_TABLE_ADDR=
+---------------------------------------------------
+# Specify the target where image will be loaded. (Default is NOR_16B) - [Optional]
+# Only required for Non-PBL Devices (1010/1040/9131/9132i/C290)
+# Select from - NOR_8B/NOR_16B/NAND_8B_512/NAND_8B_2K/NAND_8B_4K/NAND_16B_512/NAND_16B_2K/NAND_16B_4K/SD/MMC/SPI
+IMAGE_TARGET=
+---------------------------------------------------
+# Specify IMAGE, Max 8 images are possible. DST_ADDR is required only for Non-PBL Platform. [Mandatory]
+# USAGE : IMAGE_NO = {IMAGE_NAME, SRC_ADDR, DST_ADDR}
+IMAGE_1={bl2.bin,10000000,ffffffff}
+IMAGE_2={,,}
+IMAGE_3={,,}
+IMAGE_4={,,}
+IMAGE_5={,,}
+IMAGE_6={,,}
+IMAGE_7={,,}
+IMAGE_8={,,}
+---------------------------------------------------
+# Specify OEM AND FSL ID to be populated in header. [Optional]
+# e.g FSL_UID=11111111
+FSL_UID_0=
+FSL_UID_1=
+OEM_UID_0=
+OEM_UID_1=
+---------------------------------------------------
+# Specify the file names of csf header and sg table. (Default :hdr.out) [Optional]
+OUTPUT_HDR_FILENAME=hdr_bl2.out
+
+# Specify the file names of hash file and sign file.
+HASH_FILENAME=img_hash.out
+INPUT_SIGN_FILENAME=sign.out
+
+# Specify the signature size.It is mandatory when neither public key nor private key is specified.
+# Signature size would be [0x80 for 1k key, 0x100 for 2k key, and 0x200 for 4k key].
+SIGN_SIZE=
+---------------------------------------------------
+# Specify the output file name of sg table. (Default :sg_table.out). [Optional]
+# Please note that OUTPUT SG BIN is only required for 2041/3041/4080/5020/5040 when ESBC flag is not set.
+OUTPUT_SG_BIN=
+---------------------------------------------------
+# Following fields are Required for 4240/9164/1040/C290 only
+
+# Specify House keeping Area
+# Required for 4240/9164/1040/C290 only when ESBC flag is not set. [Mandatory]
+HK_AREA_POINTER=
+HK_AREA_SIZE=
+---------------------------------------------------
+# Following field Required for 4240/9164/1040/C290 only
+# Specify Secondary Image Flag. (0 or 1) - [Optional]
+# (Default is 0)
+SEC_IMAGE=0
+# Specify Manufacturing Protection Flag. (0 or 1) - [Optional]
+# Required only for LS1(Default is 0)
+MP_FLAG=1
+---------------------------------------------------

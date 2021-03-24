@@ -1,0 +1,21 @@
+#
+# Copyright 2020 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+
+IMG_LOADR_DRIVERS_PATH	:=  ${PLAT_COMMON_PATH}/img_loadr
+
+IMG_LOADR_SOURCES	:=  $(IMG_LOADR_DRIVERS_PATH)/load_img.c
+PLAT_INCLUDES		+= -I$(IMG_LOADR_DRIVERS_PATH)
+
+ifeq (${BL_COMM_IMG_LOADR_NEEDED},yes)
+BL_COMMON_SOURCES	+= ${IMG_LOADR_SOURCES}
+else
+ifeq (${BL2_IMG_LOADR_NEEDED},yes)
+BL2_SOURCES		+= ${IMG_LOADR_SOURCES}
+endif
+ifeq (${BL31_IMG_LOADR_NEEDED},yes)
+BL31_SOURCES		+= ${IMG_LOADR_SOURCES}
+endif
+endif

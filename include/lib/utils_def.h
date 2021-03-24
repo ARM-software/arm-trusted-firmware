@@ -163,4 +163,9 @@
  */
 #define MHZ_TICKS_PER_SEC	U(1000000)
 
+/*
+ * Ticks elapsed in one second with a signal of 1 KHz
+ */
+#define KHZ_TICKS_PER_SEC U(1000)
+
 #endif /* UTILS_DEF_H */

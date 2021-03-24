@@ -1,0 +1,30 @@
+/*
+ * Copyright 2017-2020 NXP
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ */
+
+---------------------------------------------------
+# Specify the platform. [Mandatory]
+# Choose Platform - 1010/1040/2041/3041/4080/5020/5040/9131/9132/9164/4240/C290/LS1
+PLATFORM=LS1043
+# ESBC Flag. Specify ESBC=0 to sign u-boot and ESBC=1 to sign ESBC images.(default is 0)
+ESBC=1
+---------------------------------------------------
+# Specify the file name of the keys separated by comma.
+
+# PRI_KEY (Default private key :srk.pri) - [Optional]
+PRI_KEY=srk.pri
+# PUB_KEY (Default public key :srk.pub) - [Optional]
+PUB_KEY=srk.pub
+# Please provide KEY_SELECT(between 1 to 4) (Required for 1040/C290/9164/4240 only) - [Optional]
+KEY_SELECT=1
+---------------------------------------------------
+# Specify OEM AND FSL ID to be populated in header. [Optional]
+# e.g FSL_UID=11111111
+FSL_UID_0=
+FSL_UID_1=
+OEM_UID_0=
+OEM_UID_1=
+---------------------------------------------------

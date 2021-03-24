@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -57,11 +57,20 @@ int cert_new(
 
 /* Macro to register the certificates used in the CoT */
 #define REGISTER_COT(_certs) \
-	cert_t *certs = &_certs[0]; \
-	const unsigned int num_certs = sizeof(_certs)/sizeof(_certs[0])
+	cert_t *def_certs = &_certs[0]; \
+	const unsigned int num_def_certs = sizeof(_certs)/sizeof(_certs[0])
+
+/* Macro to register the platform defined certificates used in the CoT */
+#define PLAT_REGISTER_COT(_pdef_certs) \
+	cert_t *pdef_certs = &_pdef_certs[0]; \
+	const unsigned int num_pdef_certs = sizeof(_pdef_certs)/sizeof(_pdef_certs[0])
 
 /* Exported variables */
-extern cert_t *certs;
-extern const unsigned int num_certs;
+extern cert_t *def_certs;
+extern const unsigned int num_def_certs;
+extern cert_t *pdef_certs;
+extern const unsigned int num_pdef_certs;
 
+extern cert_t *certs;
+extern unsigned int num_certs;
 #endif /* CERT_H */

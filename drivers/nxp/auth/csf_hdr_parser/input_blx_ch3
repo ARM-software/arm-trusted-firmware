@@ -1,0 +1,37 @@
+/*
+ * Copyright 2017-2020 NXP
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ *
+ */
+
+ESBC=1
+---------------------------------------------------
+# Specify the platform. [Mandatory]
+# Choose Platform -
+# TRUST 3.0: LS2085
+# TRUST 3.1: LS2088, LS1088
+PLATFORM=LS2088
+---------------------------------------------------
+# Specify the Key Information.
+# PUB_KEY [Mandatory] Comma Separated List
+# Usage: <srk1.pub> <srk2.pub> .....
+PUB_KEY=srk.pub
+# KEY_SELECT [Mandatory]
+# USAGE (for TRUST 3.x): (between 1 to 8)
+KEY_SELECT=1
+# PRI_KEY [Mandatory] Single Key Used for Signing
+# USAGE: <srk.pri>
+PRI_KEY=srk.pri
+
+---------------------------------------------------
+# Specify OEM AND FSL ID to be populated in header. [Optional]
+# e.g FSL_UID_0=11111111
+FSL_UID_0=
+FSL_UID_1=
+OEM_UID_0=
+OEM_UID_1=
+OEM_UID_2=
+OEM_UID_3=
+OEM_UID_4=
+---------------------------------------------------

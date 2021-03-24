@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,9 @@
 #include "sha.h"
 
 #define MAX_FILENAME_LEN		1024
+
+key_t *keys;
+unsigned int num_keys;
 
 /*
  * Create a new key container
@@ -181,6 +184,28 @@ int key_init(void)
 	cmd_opt_t cmd_opt;
 	key_t *key;
 	unsigned int i;
+
+	keys = malloc((num_def_keys * sizeof(def_keys[0]))
+#ifdef PDEF_KEYS
+		      + (num_pdef_keys * sizeof(pdef_keys[0]))
+#endif
+		      );
+
+	if (keys == NULL) {
+		ERROR("%s:%d Failed to allocate memory.\n", __func__, __LINE__);
+		return 1;
+	}
+
+	memcpy(&keys[0], &def_keys[0], (num_def_keys * sizeof(def_keys[0])));
+#ifdef PDEF_KEYS
+	memcpy(&keys[num_def_keys], &pdef_keys[0],
+		(num_pdef_keys * sizeof(pdef_keys[0])));
+
+	num_keys = num_def_keys + num_pdef_keys;
+#else
+	num_keys = num_def_keys;
+#endif
+		   ;
 
 	for (i = 0; i < num_keys; i++) {
 		key = &keys[i];
