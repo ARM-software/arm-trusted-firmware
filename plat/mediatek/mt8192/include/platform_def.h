@@ -61,7 +61,7 @@
 #define SYS_COUNTER_FREQ_IN_MHZ      13
 
 /*******************************************************************************
- * GIC-400 & interrupt handling related constants
+ * GIC-600 & interrupt handling related constants
  ******************************************************************************/
 
 /* Base MTK_platform compatible GIC memory map */

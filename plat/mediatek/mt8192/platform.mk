@@ -8,7 +8,8 @@ MTK_PLAT      := plat/mediatek
 MTK_PLAT_SOC  := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
-                 -I${MTK_PLAT}/common/drivers/uart/                \
+                 -I${MTK_PLAT}/common/drivers/gic600/             \
+                 -I${MTK_PLAT}/common/drivers/uart/               \
                  -I${MTK_PLAT}/common/lpm/                        \
                  -I${MTK_PLAT_SOC}/include/                       \
                  -I${MTK_PLAT_SOC}/drivers/                       \
@@ -40,6 +41,7 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    lib/cpus/aarch64/cortex_a55.S                         \
                    lib/cpus/aarch64/cortex_a76.S                         \
                    plat/common/plat_gicv3.c                              \
+                   ${MTK_PLAT}/common/drivers/gic600/mt_gic_v3.c         \
                    ${MTK_PLAT}/common/drivers/pmic_wrap/pmic_wrap_init_v2.c \
                    ${MTK_PLAT}/common/drivers/rtc/rtc_common.c           \
                    ${MTK_PLAT}/common/drivers/uart/uart.c                \
@@ -54,7 +56,6 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT_SOC}/drivers/rtc/rtc.c                     \
                    ${MTK_PLAT_SOC}/plat_pm.c                             \
                    ${MTK_PLAT_SOC}/plat_topology.c                       \
-                   ${MTK_PLAT_SOC}/plat_mt_gic.c                         \
                    ${MTK_PLAT_SOC}/plat_mt_cirq.c                        \
                    ${MTK_PLAT_SOC}/plat_sip_calls.c                      \
                    ${MTK_PLAT_SOC}/drivers/dcm/mtk_dcm.c                 \
