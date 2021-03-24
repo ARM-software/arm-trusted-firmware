@@ -835,7 +835,7 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 
 	/* 6. Enable the output of 100M/125M/500M clock */
 	reg_set16(MISC_REG0_ADDR(PCIE) + COMPHY_SD_ADDR,
-		  MISC_REG0_DEFAULT_VALUE | CLK500M_EN | CLK100M_125M_EN,
+		  MISC_REG0_DEFAULT_VALUE | CLK500M_EN | TXDCLK_2X_SEL | CLK100M_125M_EN,
 		  REG_16_BIT_MASK);
 
 	/*
