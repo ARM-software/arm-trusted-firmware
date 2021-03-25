@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,5 +23,10 @@
 #define SUNXI_POWEROFF_GATING_REG(c)	(SUNXI_R_CPUCFG_BASE + 0x0044 + (c) * 4)
 #define SUNXI_CPU_POWER_CLAMP_REG(c, n)	(SUNXI_R_CPUCFG_BASE + 0x0050 + \
 					(c) * 0x10 + (n) * 4)
+
+#define SUNXI_CPUIDLE_EN_REG		(SUNXI_R_CPUCFG_BASE + 0x0100)
+#define SUNXI_CORE_CLOSE_REG		(SUNXI_R_CPUCFG_BASE + 0x0104)
+#define SUNXI_PWR_SW_DELAY_REG		(SUNXI_R_CPUCFG_BASE + 0x0140)
+#define SUNXI_CONFIG_DELAY_REG		(SUNXI_R_CPUCFG_BASE + 0x0144)
 
 #endif /* SUNXI_CPUCFG_H */
