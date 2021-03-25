@@ -505,6 +505,24 @@ NXP i.MX8M platform port
 :|F|: docs/plat/imx8m.rst
 :|F|: plat/imx/imx8m/
 
+NXP QorIQ Layerscape common code for platform ports
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Pankaj Gupta <pankaj.gupta@nxp.com>
+:|G|: `pangupta`_
+:|F|: docs/plat/nxp/
+:|F|: plat/nxp/
+:|F|: drivers/nxp/
+:|F|: tools/nxp/
+
+NXP SoC Part LX2160A and its platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Pankaj Gupta <pankaj.gupta@nxp.com>
+:|G|: `pangupta`_
+:|F|: plat/nxp/soc-lx2160a
+:|F|: plat/nxp/soc-lx2160a/lx2162aqds
+:|F|: plat/nxp/soc-lx2160a/lx2160aqds
+:|F|: plat/nxp/soc-lx2160a/lx2160ardb
+
 QEMU platform port
 ^^^^^^^^^^^^^^^^^^
 :|M|: Jens Wiklander <jens.wiklander@linaro.org>
@@ -759,5 +777,6 @@ Threat Model
 .. _vijayenthiran-arm: https://github.com/vijayenthiran-arm
 .. _arugan02: https://github.com/arugan02
 .. _uarif1: https://github.com/uarif1
+.. _pangupta: https://github.com/pangupta
 
 .. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
