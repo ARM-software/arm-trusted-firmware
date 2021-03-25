@@ -28,6 +28,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 lib/cpus/aarch64/cortex_a78.S                         \
                 plat/common/plat_gicv3.c                              \
                 ${MTK_PLAT}/common/drivers/gic600/mt_gic_v3.c         \
+                ${MTK_PLAT}/common/mtk_cirq.c                         \
                 ${MTK_PLAT}/common/mtk_plat_common.c                  \
                 ${MTK_PLAT}/common/params_setup.c                     \
                 ${MTK_PLAT_SOC}/aarch64/platform_common.c             \

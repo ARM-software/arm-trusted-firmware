@@ -6,8 +6,8 @@
 
 #include <mt_lp_rm.h>
 #include <mt_lp_irqremain.h>
+#include <mtk_cirq.h>
 #include <plat_mtk_lpm.h>
-#include <plat_mt_cirq.h>
 
 #define EDMA0_IRQ_ID		U(448)
 #define MDLA_IRQ_ID		U(446)

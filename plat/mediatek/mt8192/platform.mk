@@ -46,6 +46,7 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT}/common/drivers/rtc/rtc_common.c           \
                    ${MTK_PLAT}/common/drivers/uart/uart.c                \
                    ${MTK_PLAT}/common/lpm/mt_lp_rm.c                     \
+                   ${MTK_PLAT}/common/mtk_cirq.c                         \
                    ${MTK_PLAT}/common/mtk_plat_common.c                  \
                    ${MTK_PLAT}/common/mtk_sip_svc.c                      \
                    ${MTK_PLAT}/common/params_setup.c                     \
@@ -56,7 +57,6 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT_SOC}/drivers/rtc/rtc.c                     \
                    ${MTK_PLAT_SOC}/plat_pm.c                             \
                    ${MTK_PLAT_SOC}/plat_topology.c                       \
-                   ${MTK_PLAT_SOC}/plat_mt_cirq.c                        \
                    ${MTK_PLAT_SOC}/plat_sip_calls.c                      \
                    ${MTK_PLAT_SOC}/drivers/dcm/mtk_dcm.c                 \
                    ${MTK_PLAT_SOC}/drivers/dcm/mtk_dcm_utils.c           \

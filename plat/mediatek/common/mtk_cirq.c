@@ -10,8 +10,7 @@
 #include <lib/mmio.h>
 
 #include <mt_gic_v3.h>
-#include <plat_mt_cirq.h>
-#include <platform_def.h>
+#include <mtk_cirq.h>
 
 static struct cirq_events cirq_all_events = {
 	.spi_start = CIRQ_SPI_START,

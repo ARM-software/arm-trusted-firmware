@@ -8,6 +8,7 @@
 #define PLAT_MT_CIRQ_H
 
 #include <stdint.h>
+#include <platform_def.h>
 
 enum {
 	IRQ_MASK_HEADER = 0xF1F1F1F1,
@@ -35,13 +36,6 @@ struct mtk_irq_mask {
 /*
  * Define hardware register
  */
-
-#define  SYS_CIRQ_BASE         U(0x10204000)
-#define  CIRQ_REG_NUM          U(14)
-#define  CIRQ_IRQ_NUM          U(439)
-#define  CIRQ_SPI_START        U(64)
-#define  MD_WDT_IRQ_BIT_ID     U(110)
-
 #define  CIRQ_STA_BASE         (SYS_CIRQ_BASE + U(0x000))
 #define  CIRQ_ACK_BASE         (SYS_CIRQ_BASE + U(0x080))
 #define  CIRQ_MASK_BASE        (SYS_CIRQ_BASE + U(0x100))
