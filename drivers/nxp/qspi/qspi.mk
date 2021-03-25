@@ -1,5 +1,5 @@
 #
-# Copyright 2020 NXP
+# Copyright 2021 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,11 +8,9 @@ ifeq (${QSPI_ADDED},)
 
 QSPI_ADDED		:= 1
 
-QSPI_DRIVERS_PATH	:=  ${PLAT_DRIVERS_PATH}/qspi
+QSPI_SOURCES		:= $(PLAT_DRIVERS_PATH)/qspi/qspi.c
 
-QSPI_SOURCES		:=  $(QSPI_DRIVERS_PATH)/qspi.c
-
-PLAT_INCLUDES		+= -I$(QSPI_DRIVERS_PATH)
+PLAT_INCLUDES		+= -I$(PLAT_DRIVERS_PATH)/qspi
 
 ifeq (${BL_COMM_QSPI_NEEDED},yes)
 BL_COMMON_SOURCES	+= ${QSPI_SOURCES}

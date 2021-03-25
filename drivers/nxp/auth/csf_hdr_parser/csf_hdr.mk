@@ -1,5 +1,5 @@
 #
-# Copyright 2020 NXP
+# Copyright 2021 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -9,7 +9,7 @@ CSF_HDR_SOURCES	:=  $(PLAT_DRIVERS_PATH)/auth/csf_hdr_parser/csf_hdr_parser.c
 
 CSF_HDR_SOURCES	+=  $(PLAT_DRIVERS_PATH)/auth/csf_hdr_parser/plat_img_parser.c
 
-PLAT_INCLUDES	+= -I$(PLAT_DRIVERS_PATH)/auth/csf_hdr_parser/
+PLAT_INCLUDES	+= -I$(PLAT_DRIVERS_INCLUDE_PATH)/auth/csf_hdr_parser/
 
 $(eval $(call add_define, CSF_HEADER_PREPENDED))
 

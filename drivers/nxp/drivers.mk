@@ -1,5 +1,5 @@
 #
-# Copyright 2020 NXP
+# Copyright 2021 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,7 +8,8 @@
 ###############################################################################
 
 
-PLAT_DRIVERS_PATH	:=	drivers/nxp
+PLAT_DRIVERS_PATH		:=	drivers/nxp
+PLAT_DRIVERS_INCLUDE_PATH	:=	include/drivers/nxp
 
 ifeq (${SMMU_NEEDED},yes)
 PLAT_INCLUDES	+= -Iinclude/drivers/nxp/smmu/
