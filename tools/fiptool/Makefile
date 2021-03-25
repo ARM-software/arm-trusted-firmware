@@ -44,11 +44,7 @@ endif
 
 .PHONY: all clean distclean
 
-# Clean before build as old fiptool might be created with
-# including different PLAT_FIPTOOL_HELPER_MK.
-all:
-	${MAKE}	clean
-	${MAKE}	${PROJECT}
+all: ${PROJECT}
 
 ${PROJECT}: ${OBJECTS} Makefile
 	@echo "  HOSTLD  $@"
