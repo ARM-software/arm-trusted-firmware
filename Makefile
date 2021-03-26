@@ -525,6 +525,10 @@ ifneq (${SPD},none)
         ifeq ($(TS_SP_FW_CONFIG),1)
             DTC_CPPFLAGS	+=	-DTS_SP_FW_CONFIG
         endif
+
+        ifneq ($(ARM_BL2_SP_LIST_DTS),)
+            DTC_CPPFLAGS += -DARM_BL2_SP_LIST_DTS=$(ARM_BL2_SP_LIST_DTS)
+        endif
     else
         # All other SPDs in spd directory
         SPD_DIR := spd
