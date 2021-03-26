@@ -21,14 +21,14 @@
  * Current computation assumes data structures necessary for GIC and ARM for
  * a single cluster of 4 processor.
  */
-#define SEC_SRAM_BASE			0x70000000 /* Base of SRAM */
-#define SEC_SRAM_SIZE			0x0001c000 /* 112k */
+#define SEC_SRAM_BASE			UL(0x70000000) /* Base of SRAM */
+#define SEC_SRAM_SIZE			UL(0x0001c000) /* 112k */
 
 #define PLAT_MAX_OFF_STATE		U(2)
 #define PLAT_MAX_RET_STATE		U(1)
 
-#define PLAT_PROC_START_ID		32
-#define PLAT_PROC_DEVICE_START_ID	135
-#define PLAT_CLUSTER_DEVICE_START_ID	134
+#define PLAT_PROC_START_ID		U(32)
+#define PLAT_PROC_DEVICE_START_ID	U(135)
+#define PLAT_CLUSTER_DEVICE_START_ID	U(134)
 
 #endif /* BOARD_DEF_H */
