@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,7 +32,7 @@ void plat_flush_next_bl_params(void)
 		next_bl_params_cpy_ptr);
 }
 
-#if defined(SPD_spmd) && SPMD_SPM_AT_SEL2
+#if defined(SPD_spmd) && BL2_ENABLE_SP_LOAD
 /*******************************************************************************
  * This function appends Secure Partitions to list of loadable images.
  ******************************************************************************/
@@ -76,7 +76,7 @@ static void plat_add_sp_images_load_info(struct bl_load_info *load_info)
  ******************************************************************************/
 struct bl_load_info *plat_get_bl_image_load_info(void)
 {
-#if defined(SPD_spmd) && SPMD_SPM_AT_SEL2
+#if defined(SPD_spmd) && BL2_ENABLE_SP_LOAD
 	bl_load_info_t *bl_load_info;
 
 	bl_load_info = get_bl_load_info_from_mem_params_desc();

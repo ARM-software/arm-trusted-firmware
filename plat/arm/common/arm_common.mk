@@ -217,7 +217,7 @@ endif
 ARM_IO_SOURCES		+=	plat/arm/common/arm_io_storage.c		\
 				plat/arm/common/fconf/arm_fconf_io.c
 ifeq (${SPD},spmd)
-    ifeq (${SPMD_SPM_AT_SEL2},1)
+    ifeq (${BL2_ENABLE_SP_LOAD},1)
          ARM_IO_SOURCES		+=	plat/arm/common/fconf/arm_fconf_sp.c
     endif
 endif
