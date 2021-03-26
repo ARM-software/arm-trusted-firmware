@@ -60,7 +60,11 @@
  * used, choose the smallest value needed to map the required virtual addresses
  * for each BL stage.
  */
-#define MAX_XLAT_TABLES		8
+#if USE_COHERENT_MEM
+#define MAX_XLAT_TABLES		10
+#else
+#define MAX_XLAT_TABLES		9
+#endif
 
 /*
  * Defines the maximum number of regions that are allocated by the translation
