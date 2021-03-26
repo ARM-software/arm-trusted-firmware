@@ -55,8 +55,8 @@ Maintainers
 Code owners
 -----------
 
-Core Code
-~~~~~~~~~
+Common Code
+~~~~~~~~~~~
 
 Armv7-A architecture port
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -68,7 +68,7 @@ Build Definitions for CMake Build System
 :|M|: Javier Almansa Sobrino <Javier.AlmansaSobrino@arm.com>
 :|G|: `javieralso-arm`_
 :|M|: Chris Kay <chris.kay@arm.com>
-:|G|: `CJkay`_
+:|G|: `CJKay`_
 :|F|: /
 
 Software Delegated Exception Interface (SDEI)
@@ -357,16 +357,61 @@ Arm FPGA platform port
 :|G|: `javieralso-arm`_
 :|F|: plat/arm/board/arm_fpga
 
-Arm System Guidance for Infrastructure / Mobile FVP platforms
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Nariman Poushin <nariman.poushin@linaro.org>
-:|G|: `npoushin`_
+Arm FVP Platform port
+^^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Madhukar Pappireddy <Madhukar.Pappireddy@arm.com>
+:|G|: `madhukar-Arm`_
+:|F|: plat/arm/board/fvp
+
+Arm Juno Platform port
+^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Manish Pandey <manish.pandey2@arm.com>
+:|G|: `manish-pandey-arm`_
+:|M|: Chris Kay <chris.kay@arm.com>
+:|G|: `CJKay`_
+:|F|: plat/arm/board/juno
+
+Arm Morello and N1SDP Platform ports
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Manoj Kumar <manoj.kumar3@arm.com>
+:|G|: `manojkumar-arm`_
+:|M|: Chandni Cherukuri <chandni.cherukuri@arm.com>
+:|G|: `chandnich`_
+:|F|: plat/arm/board/morello
+:|F|: plat/arm/board/n1sdp
+
+Arm Rich IoT Platform ports
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Abdellatif El Khlifi <abdellatif.elkhlifi@arm.com>
+:|G|: `abdellatif-elkhlifi`_
+:|M|: Vishnu Banavath <vishnu.banavath@arm.com>
+:|G|: `vishnu-banavath`_
+:|F|: plat/arm/board/corstone700
+:|F|: plat/arm/board/a5ds
+
+Arm Reference Design platform ports
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Thomas Abraham <thomas.abraham@arm.com>
 :|G|: `thomas-arm`_
+:|M|: Vijayenthiran Subramaniam <vijayenthiran.subramaniam@arm.com>
+:|G|: `vijayenthiran-arm`_
 :|F|: plat/arm/css/sgi/
-:|F|: plat/arm/css/sgm/
+:|F|: plat/arm/board/rde1edge/
+:|F|: plat/arm/board/rdn1edge/
+:|F|: plat/arm/board/rdn2/
+:|F|: plat/arm/board/rdv1/
+:|F|: plat/arm/board/rdv1mc/
 :|F|: plat/arm/board/sgi575/
-:|F|: plat/arm/board/sgm775/
+
+Arm Total Compute(tc0) platform port
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Arunachalam Ganapathy <arunachalam.ganapathy@arm.com>
+:|G|: `arugan02`_
+:|M|: Usama Arif <usama.arif@arm.com>
+:|G|: `uarif1`_
+:|F|: plat/arm/board/tc0
 
 HiSilicon HiKey and HiKey960 platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -684,5 +729,12 @@ Build system
 .. _raghuncstate: https://github.com/raghuncstate
 .. _CJKay: https://github.com/cjkay
 .. _nmenon: https://github.com/nmenon
+.. _manojkumar-arm: https://github.com/manojkumar-arm
+.. _chandnich: https://github.com/chandnich
+.. _abdellatif-elkhlifi: https://github.com/abdellatif-elkhlifi
+.. _vishnu-banavath: https://github.com/vishnu-banavath
+.. _vijayenthiran-arm: https://github.com/vijayenthiran-arm
+.. _arugan02: https://github.com/arugan02
+.. _uarif1: https://github.com/uarif1
 
 .. _Project Maintenance Process: https://developer.trustedfirmware.org/w/collaboration/project-maintenance-process/
