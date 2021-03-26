@@ -22,7 +22,7 @@
  * a single cluster of 4 processor.
  */
 #define SEC_SRAM_BASE			0x70000000 /* Base of SRAM */
-#define SEC_SRAM_SIZE			0x0001a000 /* 104k */
+#define SEC_SRAM_SIZE			0x0001c000 /* 112k */
 
 #define PLAT_MAX_OFF_STATE		U(2)
 #define PLAT_MAX_RET_STATE		U(1)
