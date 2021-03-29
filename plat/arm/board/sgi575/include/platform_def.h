@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 
 #include <lib/utils_def.h>
 
+#include <sgi_sdei.h>
 #include <sgi_soc_platform_def.h>
 
 #define PLAT_ARM_CLUSTER_COUNT		U(2)

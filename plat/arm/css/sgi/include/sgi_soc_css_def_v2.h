@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,6 +69,18 @@
 						SOC_PLATFORM_PERIPH_BASE, 	\
 						SOC_PLATFORM_PERIPH_SIZE, 	\
 						MT_DEVICE | MT_RW | MT_SECURE)
+
+#if SPM_MM
+/*
+ * Memory map definition for the platform peripheral memory region that is
+ * accessible from S-EL0 (with secure user mode access).
+ */
+#define SOC_PLATFORM_PERIPH_MAP_DEVICE_USER				       \
+		MAP_REGION_FLAT(					       \
+			SOC_PLATFORM_PERIPH_BASE,			       \
+			SOC_PLATFORM_PERIPH_SIZE,			       \
+			MT_DEVICE | MT_RW | MT_SECURE | MT_USER)
+#endif
 
 #define SOC_SYSTEM_PERIPH_MAP_DEVICE	MAP_REGION_FLAT(			\
 						SOC_SYSTEM_PERIPH_BASE,		\

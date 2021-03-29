@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -49,6 +49,15 @@ const mmap_region_t plat_arm_mmap[] = {
 	CSS_SGI_MAP_DEVICE,
 	SOC_CSS_MAP_DEVICE,
 	ARM_MAP_NS_DRAM1,
+#if CSS_SGI_CHIP_COUNT > 1
+	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(1),
+#endif
+#if CSS_SGI_CHIP_COUNT > 2
+	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(2),
+#endif
+#if CSS_SGI_CHIP_COUNT > 3
+	CSS_SGI_MAP_DEVICE_REMOTE_CHIP(3),
+#endif
 #if ARM_BL31_IN_DRAM
 	ARM_MAP_BL31_SEC_DRAM,
 #endif
@@ -78,10 +87,14 @@ const mmap_region_t plat_arm_mmap[] = {
 
 #if SPM_MM && defined(IMAGE_BL31)
 const mmap_region_t plat_arm_secure_partition_mmap[] = {
+	PLAT_ARM_SECURE_MAP_SYSTEMREG,
+	PLAT_ARM_SECURE_MAP_NOR2,
 	PLAT_ARM_SECURE_MAP_DEVICE,
 	ARM_SP_IMAGE_MMAP,
 	ARM_SP_IMAGE_NS_BUF_MMAP,
-	ARM_SP_CPER_BUF_MMAP,
+#if RAS_EXTENSION
+	CSS_SGI_SP_CPER_BUF_MMAP,
+#endif
 	ARM_SP_IMAGE_RW_MMAP,
 	ARM_SPM_BUF_EL0_MMAP,
 	{0}

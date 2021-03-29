@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,6 +19,29 @@
 
 #define CSS_SYSTEM_PWR_DMN_LVL		ARM_PWR_LVL2
 #define PLAT_MAX_PWR_LVL		ARM_PWR_LVL1
+
+/* TZC Related Constants */
+#define PLAT_ARM_TZC_BASE		UL(0x21830000)
+#define TZC400_BASE(n)			(PLAT_ARM_TZC_BASE + \
+					 (n * TZC400_OFFSET))
+#define TZC400_OFFSET			UL(0x1000000)
+#define TZC400_COUNT			U(8)
+#define PLAT_ARM_TZC_FILTERS		TZC_400_REGION_ATTR_FILTER_BIT(0)
+
+#define TZC_NSAID_ALL_AP		U(0)
+#define TZC_NSAID_PCI			U(1)
+#define TZC_NSAID_HDLCD0		U(2)
+#define TZC_NSAID_CLCD			U(7)
+#define TZC_NSAID_AP			U(9)
+#define TZC_NSAID_VIRTIO		U(15)
+
+#define PLAT_ARM_TZC_NS_DEV_ACCESS	\
+		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_ALL_AP)) | \
+		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_HDLCD0)) | \
+		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_PCI))    | \
+		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_AP))     | \
+		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_CLCD))   | \
+		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_VIRTIO))
 
 /* Virtual address used by dynamic mem_protect for chunk_base */
 #define PLAT_ARM_MEM_PROTEC_VA_FRAME	UL(0xC0000000)
