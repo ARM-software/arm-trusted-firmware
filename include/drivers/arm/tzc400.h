@@ -90,6 +90,8 @@
 #define TZC_400_REGION_SIZE			U(0x20)
 #define TZC_400_ACTION_OFF			U(0x4)
 
+#define FILTER_OFFSET				U(0x10)
+
 #ifndef __ASSEMBLER__
 
 #include <cdefs.h>
@@ -110,6 +112,7 @@ void tzc400_configure_region(unsigned int filters,
 void tzc400_set_action(unsigned int action);
 void tzc400_enable_filters(void);
 void tzc400_disable_filters(void);
+int tzc400_it_handler(void);
 
 static inline void tzc_init(uintptr_t base)
 {

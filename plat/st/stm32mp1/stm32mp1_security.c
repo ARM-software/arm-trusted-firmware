@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -75,8 +75,7 @@ static void init_tzc400(void)
 				TZC_REGION_NSEC_ALL_ACCESS_RDWR);
 #endif
 
-	/* Raise an exception if a NS device tries to access secure memory */
-	tzc400_set_action(TZC_ACTION_ERR);
+	tzc400_set_action(TZC_ACTION_INT);
 
 	tzc400_enable_filters();
 }
