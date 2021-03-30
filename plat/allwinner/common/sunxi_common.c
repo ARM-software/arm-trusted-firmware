@@ -6,13 +6,9 @@
 
 #include <errno.h>
 
-#include <platform_def.h>
-
-#include <arch_helpers.h>
 #include <common/debug.h>
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_v2.h>
-#include <plat/common/platform.h>
 
 #include <sunxi_def.h>
 #include <sunxi_mmap.h>
@@ -21,16 +17,16 @@
 static const mmap_region_t sunxi_mmap[PLATFORM_MMAP_REGIONS + 1] = {
 	MAP_REGION_FLAT(SUNXI_SRAM_BASE, SUNXI_SRAM_SIZE,
 			MT_RW_DATA | MT_SECURE),
+#ifdef SUNXI_SCP_BASE
 	MAP_REGION_FLAT(SUNXI_SCP_BASE, SUNXI_SCP_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE | MT_EXECUTE_NEVER),
+#endif
 	MAP_REGION_FLAT(SUNXI_DEV_BASE, SUNXI_DEV_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE | MT_EXECUTE_NEVER),
 	MAP_REGION(SUNXI_DRAM_BASE, SUNXI_DRAM_VIRT_BASE, SUNXI_DRAM_SEC_SIZE,
 		   MT_RW_DATA | MT_SECURE),
-	MAP_REGION(PRELOADED_BL33_BASE,
-		   SUNXI_DRAM_VIRT_BASE + SUNXI_DRAM_SEC_SIZE,
-		   SUNXI_DRAM_MAP_SIZE,
-		   MT_RO_DATA | MT_NS),
+	MAP_REGION(PRELOADED_BL33_BASE, SUNXI_BL33_VIRT_BASE,
+		   SUNXI_DRAM_MAP_SIZE, MT_RW_DATA | MT_NS),
 	{},
 };
 
@@ -116,6 +112,7 @@ int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb)
 		device_bit = BIT(6);
 		break;
 	case SUNXI_SOC_H6:
+	case SUNXI_SOC_H616:
 		pin_func = use_rsb ? 0x22 : 0x33;
 		device_bit = BIT(16);
 		reset_offset = use_rsb ? 0x1bc : 0x19c;
@@ -130,7 +127,7 @@ int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb)
 	}
 
 	/* un-gate R_PIO clock */
-	if (socid != SUNXI_SOC_H6)
+	if (socid != SUNXI_SOC_H6 && socid != SUNXI_SOC_H616)
 		mmio_setbits_32(SUNXI_R_PRCM_BASE + 0x28, BIT(0));
 
 	/* switch pins PL0 and PL1 to the desired function */
@@ -143,7 +140,7 @@ int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb)
 	mmio_clrsetbits_32(SUNXI_R_PIO_BASE + 0x1c, 0x0fU, 0x5U);
 
 	/* un-gate clock */
-	if (socid != SUNXI_SOC_H6)
+	if (socid != SUNXI_SOC_H6 && socid != SUNXI_SOC_H616)
 		mmio_setbits_32(SUNXI_R_PRCM_BASE + 0x28, device_bit);
 	else
 		mmio_setbits_32(SUNXI_R_PRCM_BASE + reset_offset, BIT(0));
@@ -153,51 +150,4 @@ int sunxi_init_platform_r_twi(uint16_t socid, bool use_rsb)
 	mmio_setbits_32(SUNXI_R_PRCM_BASE + reset_offset, device_bit);
 
 	return 0;
-}
-
-/* This lock synchronises access to the arisc management processor. */
-DEFINE_BAKERY_LOCK(arisc_lock);
-
-/*
- * Tell the "arisc" SCP core (an OpenRISC core) to execute some code.
- * We don't have any service running there, so we place some OpenRISC code
- * in SRAM, put the address of that into the reset vector and release the
- * arisc reset line. The SCP will execute that code and pull the line up again.
- */
-void sunxi_execute_arisc_code(uint32_t *code, size_t size, uint16_t param)
-{
-	uintptr_t arisc_reset_vec = SUNXI_SRAM_A2_BASE + 0x100;
-
-	do {
-		bakery_lock_get(&arisc_lock);
-		/* Wait until the arisc is in reset state. */
-		if (!(mmio_read_32(SUNXI_R_CPUCFG_BASE) & BIT(0)))
-			break;
-
-		bakery_lock_release(&arisc_lock);
-	} while (1);
-
-	/* Patch up the code to feed in an input parameter. */
-	code[0] = (code[0] & ~0xffff) | param;
-	clean_dcache_range((uintptr_t)code, size);
-
-	/*
-	 * The OpenRISC unconditional branch has opcode 0, the branch offset
-	 * is in the lower 26 bits, containing the distance to the target,
-	 * in instruction granularity (32 bits).
-	 */
-	mmio_write_32(arisc_reset_vec, ((uintptr_t)code - arisc_reset_vec) / 4);
-	clean_dcache_range(arisc_reset_vec, 4);
-
-	/* De-assert the arisc reset line to let it run. */
-	mmio_setbits_32(SUNXI_R_CPUCFG_BASE, BIT(0));
-
-	/*
-	 * We release the lock here, although the arisc is still busy.
-	 * But as long as it runs, the reset line is high, so other users
-	 * won't leave the loop above.
-	 * Once it has finished, the code is supposed to clear the reset line,
-	 * to signal this to other users.
-	 */
-	bakery_lock_release(&arisc_lock);
 }

@@ -1,12 +1,14 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited. All rights reserved.
  * Copyright (c) 2018, Icenowy Zheng <icenowy@aosc.io>
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <errno.h>
+#include <string.h>
 
+#include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/allwinner/axp.h>
 #include <drivers/allwinner/sunxi_rsb.h>
@@ -17,22 +19,23 @@
 #include <sunxi_mmap.h>
 #include <sunxi_private.h>
 
-#define AXP805_HW_ADDR	0x745
-#define AXP805_RT_ADDR	0x3a
+#define AXP305_I2C_ADDR	0x36
+#define AXP305_HW_ADDR	0x745
+#define AXP305_RT_ADDR	0x3a
 
 static enum pmic_type {
 	UNKNOWN,
-	AXP805,
+	AXP305,
 } pmic;
 
 int axp_read(uint8_t reg)
 {
-	return rsb_read(AXP805_RT_ADDR, reg);
+	return rsb_read(AXP305_RT_ADDR, reg);
 }
 
 int axp_write(uint8_t reg, uint8_t val)
 {
-	return rsb_write(AXP805_RT_ADDR, reg, val);
+	return rsb_write(AXP305_RT_ADDR, reg, val);
 }
 
 static int rsb_init(void)
@@ -54,7 +57,7 @@ static int rsb_init(void)
 		return ret;
 
 	/* Associate the 8-bit runtime address with the 12-bit bus address. */
-	ret = rsb_assign_runtime_address(AXP805_HW_ADDR, AXP805_RT_ADDR);
+	ret = rsb_assign_runtime_address(AXP305_HW_ADDR, AXP305_RT_ADDR);
 	if (ret)
 		return ret;
 
@@ -65,22 +68,21 @@ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 {
 	int ret;
 
-	INFO("PMIC: Probing AXP805 on RSB\n");
+	INFO("PMIC: Probing AXP305 on RSB\n");
 
 	ret = sunxi_init_platform_r_twi(socid, true);
-	if (ret)
+	if (ret) {
+		INFO("Could not init platform bus: %d\n", ret);
 		return ret;
+	}
 
 	ret = rsb_init();
-	if (ret)
+	if (ret) {
+		INFO("Could not init RSB: %d\n", ret);
 		return ret;
+	}
 
-	/* Switch the AXP805 to master/single-PMIC mode. */
-	ret = axp_write(0xff, 0x0);
-	if (ret)
-		return ret;
-
-	pmic = AXP805;
+	pmic = AXP305;
 	axp_setup_regulators(fdt);
 
 	/* Switch the PMIC back to I2C mode. */
@@ -94,9 +96,9 @@ int sunxi_pmic_setup(uint16_t socid, const void *fdt)
 void sunxi_power_down(void)
 {
 	switch (pmic) {
-	case AXP805:
-		/* (Re-)init RSB in case the rich OS has disabled it. */
-		sunxi_init_platform_r_twi(SUNXI_SOC_H6, true);
+	case AXP305:
+		/* Re-initialise after rich OS might have used it. */
+		sunxi_init_platform_r_twi(SUNXI_SOC_H616, true);
 		rsb_init();
 		axp_power_off();
 		break;

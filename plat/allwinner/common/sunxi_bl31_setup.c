@@ -13,6 +13,8 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <common/fdt_fixup.h>
+#include <common/fdt_wrappers.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/console.h>
 #include <drivers/generic_delay_timer.h>
@@ -52,7 +54,7 @@ static void *sunxi_find_dtb(void)
 	uint64_t *u_boot_base;
 	int i;
 
-	u_boot_base = (void *)(SUNXI_DRAM_VIRT_BASE + SUNXI_DRAM_SEC_SIZE);
+	u_boot_base = (void *)SUNXI_BL33_VIRT_BASE;
 
 	for (i = 0; i < 2048 / sizeof(uint64_t); i++) {
 		uint32_t *dtb_base;
@@ -123,6 +125,9 @@ void bl31_platform_setup(void)
 	case SUNXI_SOC_H6:
 		soc_name = "H6";
 		break;
+	case SUNXI_SOC_H616:
+		soc_name = "H616";
+		break;
 	default:
 		soc_name = "unknown";
 		break;
@@ -171,6 +176,8 @@ void bl31_platform_setup(void)
 		mmio_write_32(SUNXI_CCU_BASE + 0x5c, 0x1);
 
 	sunxi_pmic_setup(soc_id, fdt);
+
+	sunxi_prepare_dtb(fdt);
 
 	INFO("BL31: Platform setup done\n");
 }

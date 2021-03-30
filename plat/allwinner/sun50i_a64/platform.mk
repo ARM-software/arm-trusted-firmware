@@ -12,3 +12,6 @@ BL31_SOURCES		+=	drivers/allwinner/axp/axp803.c		\
 
 FDT_ASSUME_MASK := "(ASSUME_LATEST | ASSUME_NO_ROLLBACK | ASSUME_LIBFDT_ORDER)"
 $(eval $(call add_define,FDT_ASSUME_MASK))
+
+# Put NOBITS memory in SRAM A1, overwriting U-Boot's SPL.
+SEPARATE_NOBITS_REGION	:=	1
