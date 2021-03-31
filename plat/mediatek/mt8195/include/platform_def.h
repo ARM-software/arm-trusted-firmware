@@ -26,6 +26,17 @@
 #define SPM_BASE		(IO_PHYS + 0x00006000)
 
 /*******************************************************************************
+ * GPIO related constants
+ ******************************************************************************/
+#define GPIO_BASE		(IO_PHYS + 0x00005000)
+#define IOCFG_BM_BASE		(IO_PHYS + 0x01D10000)
+#define IOCFG_BL_BASE		(IO_PHYS + 0x01D30000)
+#define IOCFG_BR_BASE		(IO_PHYS + 0x01D40000)
+#define IOCFG_LM_BASE		(IO_PHYS + 0x01E20000)
+#define IOCFG_RB_BASE		(IO_PHYS + 0x01EB0000)
+#define IOCFG_TL_BASE		(IO_PHYS + 0x01F40000)
+
+/*******************************************************************************
  * UART related constants
  ******************************************************************************/
 #define UART0_BASE			(IO_PHYS + 0x01001100)

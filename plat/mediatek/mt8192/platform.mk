@@ -9,6 +9,7 @@ MTK_PLAT_SOC  := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/common/drivers/gic600/             \
+                 -I${MTK_PLAT}/common/drivers/gpio/               \
                  -I${MTK_PLAT}/common/drivers/timer/              \
                  -I${MTK_PLAT}/common/drivers/uart/               \
                  -I${MTK_PLAT}/common/lpm/                        \
@@ -42,6 +43,7 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    lib/cpus/aarch64/cortex_a76.S                         \
                    plat/common/plat_gicv3.c                              \
                    ${MTK_PLAT}/common/drivers/gic600/mt_gic_v3.c         \
+                   ${MTK_PLAT}/common/drivers/gpio/mtgpio_common.c       \
                    ${MTK_PLAT}/common/drivers/pmic_wrap/pmic_wrap_init_v2.c \
                    ${MTK_PLAT}/common/drivers/rtc/rtc_common.c           \
                    ${MTK_PLAT}/common/drivers/timer/mt_timer.c           \

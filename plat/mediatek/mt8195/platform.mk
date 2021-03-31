@@ -9,7 +9,9 @@ MTK_PLAT_SOC := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/common/drivers/gic600/             \
+                 -I${MTK_PLAT}/common/drivers/gpio/               \
                  -I${MTK_PLAT}/common/drivers/timer/              \
+                 -I${MTK_PLAT_SOC}/drivers/gpio/                  \
                  -I${MTK_PLAT_SOC}/drivers/mcdi/                  \
                  -I${MTK_PLAT_SOC}/drivers/spmc/                  \
                  -I${MTK_PLAT_SOC}/include/
@@ -26,6 +28,7 @@ PLAT_BL_COMMON_SOURCES := ${GICV3_SOURCES}                              \
 
 BL31_SOURCES += common/desc_image_load.c                              \
                 drivers/delay_timer/delay_timer.c                     \
+                drivers/gpio/gpio.c                                   \
                 drivers/delay_timer/generic_delay_timer.c             \
                 drivers/ti/uart/aarch64/16550_console.S               \
                 lib/bl_aux_params/bl_aux_params.c                     \
@@ -33,6 +36,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 lib/cpus/aarch64/cortex_a78.S                         \
                 plat/common/plat_gicv3.c                              \
                 ${MTK_PLAT}/common/drivers/gic600/mt_gic_v3.c         \
+                ${MTK_PLAT}/common/drivers/gpio/mtgpio_common.c       \
                 ${MTK_PLAT}/common/drivers/timer/mt_timer.c           \
                 ${MTK_PLAT}/common/mtk_cirq.c                         \
                 ${MTK_PLAT}/common/mtk_plat_common.c                  \
@@ -41,9 +45,11 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT_SOC}/aarch64/platform_common.c             \
                 ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                 ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
+                ${MTK_PLAT_SOC}/drivers/gpio/mtgpio.c                 \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_cpu_pm.c              \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_cpu_pm_cpc.c          \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_mcdi.c                \
+                ${MTK_PLAT_SOC}/drivers/gpio/mtgpio.c                 \
                 ${MTK_PLAT_SOC}/drivers/spmc/mtspmc.c                 \
                 ${MTK_PLAT_SOC}/plat_pm.c                             \
                 ${MTK_PLAT_SOC}/plat_sip_calls.c                      \

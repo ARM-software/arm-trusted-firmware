@@ -98,7 +98,7 @@ void bl31_platform_setup(void)
 	mt_gic_driver_init();
 	mt_gic_init();
 
-	plat_mt8192_gpio_init();
+	mt_gpio_init();
 	mt_systimer_init();
 	generic_delay_timer_init();
 	spm_boot_init();
