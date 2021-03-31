@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,7 @@
  ******************************************************************************/
 #define NEOVERSE_N2_CPUECTLR_EL1		S3_0_C15_C1_4
 #define NEOVERSE_N2_CPUECTLR_EL1_EXTLLC_BIT	(ULL(1) << 0)
+#define NEOVERSE_N2_CPUECTLR_EL1_PFSTIDIS_BIT	(ULL(1) << 8)
 
 /*******************************************************************************
  * CPU Auxiliary Control register specific definitions.
