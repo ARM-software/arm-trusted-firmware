@@ -82,6 +82,15 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 			     void *handle,
 			     u_register_t flags)
 {
+	if (((smc_fid >> FUNCID_CC_SHIFT) & FUNCID_CC_MASK) == SMC_32) {
+		/* 32-bit SMC function, clear top parameter bits */
+
+		x1 &= UINT32_MAX;
+		x2 &= UINT32_MAX;
+		x3 &= UINT32_MAX;
+		x4 &= UINT32_MAX;
+	}
+
 	/*
 	 * Dispatch PSCI calls to PSCI SMC handler and return its return
 	 * value
