@@ -24,10 +24,30 @@ STM32_TF_VERSION	?=	0
 # Enable dynamic memory mapping
 PLAT_XLAT_TABLES_DYNAMIC :=	1
 
+# Default Device tree
+DTB_FILE_NAME		?=	stm32mp157c-ev1.dtb
+
+STM32MP13		?=	0
+STM32MP15		?=	0
+
 ifeq ($(STM32MP13),1)
+ifeq ($(STM32MP15),1)
+$(error Cannot enable both flags STM32MP13 and STM32MP15)
+endif
 STM32MP13		:=	1
 STM32MP15		:=	0
+else ifeq ($(STM32MP15),1)
+STM32MP13		:=	0
+STM32MP15		:=	1
+else ifneq ($(findstring stm32mp13,$(DTB_FILE_NAME)),)
+STM32MP13		:=	1
+STM32MP15		:=	0
+else ifneq ($(findstring stm32mp15,$(DTB_FILE_NAME)),)
+STM32MP13		:=	0
+STM32MP15		:=	1
+endif
 
+ifeq ($(STM32MP13),1)
 # DDR controller with single AXI port and 16-bit interface
 STM32MP_DDR_DUAL_AXI_PORT:=	0
 STM32MP_DDR_32BIT_INTERFACE:=	0
@@ -35,11 +55,9 @@ STM32MP_DDR_32BIT_INTERFACE:=	0
 # STM32 image header version v2.0
 STM32_HEADER_VERSION_MAJOR:=	2
 STM32_HEADER_VERSION_MINOR:=	0
-else
-#STM32MP15
-STM32MP13		:=	0
-STM32MP15		:=	1
+endif
 
+ifeq ($(STM32MP15),1)
 # DDR controller with dual AXI port and 32-bit interface
 STM32MP_DDR_DUAL_AXI_PORT:=	1
 STM32MP_DDR_32BIT_INTERFACE:=	1
@@ -107,11 +125,9 @@ STM32MP_UART_PROGRAMMER	?=	0
 
 # Device tree
 ifeq ($(STM32MP13),1)
-DTB_FILE_NAME		?=	stm32mp135f-dk.dtb
 BL2_DTSI		:=	stm32mp13-bl2.dtsi
 FDT_SOURCES		:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DTB_FILE_NAME)))
 else
-DTB_FILE_NAME		?=	stm32mp157c-ev1.dtb
 ifeq ($(STM32MP_USE_STM32IMAGE),1)
 ifeq ($(AARCH32_SP),optee)
 BL2_DTSI		:=	stm32mp15-bl2.dtsi
