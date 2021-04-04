@@ -13,9 +13,6 @@
 
 #include <sunxi_mmap.h>
 
-/* The SCP firmware is allocated the last 16KiB of SRAM A2. */
-#define SUNXI_SCP_SIZE			0x4000
-
 #ifdef SUNXI_BL31_IN_DRAM
 
 #define BL31_BASE			SUNXI_DRAM_BASE
@@ -31,7 +28,6 @@
 #define BL31_BASE			(SUNXI_SRAM_A2_BASE + 0x4000)
 #define BL31_LIMIT			(SUNXI_SRAM_A2_BASE + \
 					 SUNXI_SRAM_A2_SIZE - SUNXI_SCP_SIZE)
-#define SUNXI_SCP_BASE			BL31_LIMIT
 
 /* Overwrite U-Boot SPL, but reserve the first page for the SPL header. */
 #define BL31_NOBITS_BASE		(SUNXI_SRAM_A1_BASE + 0x1000)
@@ -41,6 +37,10 @@
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 28)
 
 #define SUNXI_BL33_VIRT_BASE		SUNXI_DRAM_VIRT_BASE
+
+/* The SCP firmware is allocated the last 16KiB of SRAM A2. */
+#define SUNXI_SCP_BASE			BL31_LIMIT
+#define SUNXI_SCP_SIZE			0x4000
 
 #endif /* SUNXI_BL31_IN_DRAM */
 
