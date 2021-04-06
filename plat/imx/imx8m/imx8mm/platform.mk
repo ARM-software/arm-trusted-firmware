@@ -64,7 +64,7 @@ BL2_SOURCES		+=	common/desc_image_load.c			\
 				drivers/imx/usdhc/imx_usdhc.c			\
 				plat/imx/imx8m/imx8mm/imx8mm_bl2_mem_params_desc.c	\
 				plat/imx/common/imx_io_storage.c		\
-				plat/imx/imx8m/imx8mm/imx8mm_image_load.c		\
+				plat/imx/imx8m/imx8m_image_load.c		\
 				lib/optee/optee_utils.c
 endif
 
