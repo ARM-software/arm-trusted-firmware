@@ -1652,7 +1652,7 @@ static void stm32mp1_set_rtcsrc(unsigned int clksrc, bool lse_css)
 	    (clksrc != (uint32_t)CLK_RTC_DISABLED)) {
 		mmio_clrsetbits_32(address,
 				   RCC_BDCR_RTCSRC_MASK,
-				   clksrc << RCC_BDCR_RTCSRC_SHIFT);
+				   (clksrc & RCC_SELR_SRC_MASK) << RCC_BDCR_RTCSRC_SHIFT);
 
 		mmio_setbits_32(address, RCC_BDCR_RTCCKEN);
 	}
