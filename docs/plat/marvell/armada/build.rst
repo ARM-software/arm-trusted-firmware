@@ -112,6 +112,11 @@ There are several build options:
         This option is needed on Turris MOX as a workaround to a HW bug which causes reset to
         sometime hang the board.
 
+- A3720_DB_PM_WAKEUP_SRC
+
+        For Armada 3720 Develpment Board only, when ``A3720_DB_PM_WAKEUP_SRC=1``,
+        TF-A will setup PM wake up src configuration. This option is disabled by default.
+
 - MARVELL_SECURE_BOOT
 
         Build trusted(=1)/non trusted(=0) image, default is non trusted.

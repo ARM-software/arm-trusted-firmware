@@ -590,6 +590,13 @@ static wake_up_src_func a3700_get_wake_up_src_func(
 	return NULL;
 }
 
+#pragma weak mv_wake_up_src_config_get
+struct pm_wake_up_src_config *mv_wake_up_src_config_get(void)
+{
+	static struct pm_wake_up_src_config wake_up_src_cfg = {};
+	return &wake_up_src_cfg;
+}
+
 static void a3700_set_wake_up_source(void)
 {
 	struct pm_wake_up_src_config *wake_up_src;
