@@ -88,7 +88,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	imx8mm_usdhc_setup();
 
 	/* Open handles to a FIP image */
-	plat_imx8mm_io_setup();
+	plat_imx_io_setup();
 }
 
 void bl2_el3_plat_arch_setup(void)

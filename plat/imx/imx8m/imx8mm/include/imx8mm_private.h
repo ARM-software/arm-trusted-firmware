@@ -10,6 +10,6 @@
 /*******************************************************************************
  * Function and variable prototypes
  ******************************************************************************/
-void plat_imx8mm_io_setup(void);
+void plat_imx_io_setup(void);
 
 #endif /* IMX8MM_PRIVATE_H */

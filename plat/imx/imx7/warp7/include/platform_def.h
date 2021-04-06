@@ -94,12 +94,12 @@
 #define IMX7_UBOOT_LIMIT		(IMX7_UBOOT_BASE + IMX7_UBOOT_SIZE)
 
 /* Define FIP image absolute location 0x80000000 - 0x80100000 */
-#define IMX7_FIP_SIZE			0x00100000
-#define IMX7_FIP_BASE			(DRAM_BASE)
-#define IMX7_FIP_LIMIT			(IMX7_FIP_BASE + IMX7_FIP_SIZE)
+#define IMX_FIP_SIZE			0x00100000
+#define IMX_FIP_BASE			(DRAM_BASE)
+#define IMX_FIP_LIMIT			(IMX_FIP_BASE + IMX_FIP_SIZE)
 
 /* Define FIP image location at 1MB offset */
-#define IMX7_FIP_MMC_BASE		(1024 * 1024)
+#define IMX_FIP_MMC_BASE		(1024 * 1024)
 
 /* Define the absolute location of DTB 0x83000000 - 0x83100000 */
 #define IMX7_DTB_SIZE			0x00100000

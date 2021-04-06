@@ -173,7 +173,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	console_set_scope(&console, console_scope);
 
 	/* Open handles to persistent storage */
-	plat_imx7_io_setup();
+	plat_imx_io_setup();
 
 	/* Setup higher-level functionality CAAM, RTC etc */
 	imx_caam_init();
@@ -183,7 +183,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	VERBOSE("\tOPTEE       0x%08x-0x%08x\n", IMX7_OPTEE_BASE, IMX7_OPTEE_LIMIT);
 	VERBOSE("\tATF/BL2     0x%08x-0x%08x\n", BL2_RAM_BASE, BL2_RAM_LIMIT);
 	VERBOSE("\tSHRAM       0x%08x-0x%08x\n", SHARED_RAM_BASE, SHARED_RAM_LIMIT);
-	VERBOSE("\tFIP         0x%08x-0x%08x\n", IMX7_FIP_BASE, IMX7_FIP_LIMIT);
+	VERBOSE("\tFIP         0x%08x-0x%08x\n", IMX_FIP_BASE, IMX_FIP_LIMIT);
 	VERBOSE("\tDTB-OVERLAY 0x%08x-0x%08x\n", IMX7_DTB_OVERLAY_BASE, IMX7_DTB_OVERLAY_LIMIT);
 	VERBOSE("\tDTB         0x%08x-0x%08x\n", IMX7_DTB_BASE, IMX7_DTB_LIMIT);
 	VERBOSE("\tUBOOT/BL33  0x%08x-0x%08x\n", IMX7_UBOOT_BASE, IMX7_UBOOT_LIMIT);
