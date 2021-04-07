@@ -9,6 +9,7 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/gpio.h>
 #include <lib/psci/psci.h>
 
 /* platform specific headers */
@@ -16,6 +17,7 @@
 #include <mtspmc.h>
 #include <plat/common/platform.h>
 #include <plat_mtk_lpm.h>
+#include <plat_params.h>
 #include <plat_pm.h>
 
 /*
@@ -332,7 +334,24 @@ static void plat_get_sys_suspend_power_state(psci_power_state_t *req_state)
 			sizeof(plat_power_state[cpu]));
 }
 
+/*******************************************************************************
+ * MTK handlers to shutdown/reboot the system
+ ******************************************************************************/
+static void __dead2 plat_mtk_system_reset(void)
+{
+	struct bl_aux_gpio_info *gpio_reset = plat_get_mtk_gpio_reset();
+
+	INFO("MTK System Reset\n");
+
+	gpio_set_value(gpio_reset->index, gpio_reset->polarity);
+
+	wfi();
+	ERROR("MTK System Reset: operation not handled.\n");
+	panic();
+}
+
 static const plat_psci_ops_t plat_psci_ops = {
+	.system_reset			= plat_mtk_system_reset,
 	.cpu_standby			= plat_cpu_standby,
 	.pwr_domain_on			= plat_power_domain_on,
 	.pwr_domain_on_finish		= plat_power_domain_on_finish,
