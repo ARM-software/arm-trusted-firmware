@@ -38,38 +38,36 @@ void plat_flush_next_bl_params(void)
  ******************************************************************************/
 static void plat_add_sp_images_load_info(struct bl_load_info *load_info)
 {
-	bl_load_info_node_t *node_info = load_info->head;
-	unsigned int index = 0;
+	bl_load_info_node_t *curr_node = load_info->head;
+	bl_load_info_node_t *prev_node;
 
-	if (sp_mem_params_descs[index].image_id == 0) {
+	/* Shortcut for empty SP list */
+	if (sp_mem_params_descs[0].image_id == 0) {
 		ERROR("No Secure Partition Image available\n");
 		return;
 	}
 
 	/* Traverse through the bl images list */
 	do {
-		node_info = node_info->next_load_info;
-	} while (node_info->next_load_info != NULL);
+		curr_node = curr_node->next_load_info;
+	} while (curr_node->next_load_info != NULL);
 
-	for (; index < MAX_SP_IDS; index++) {
+	prev_node = curr_node;
+
+	for (unsigned int index = 0; index < MAX_SP_IDS; index++) {
+		if (sp_mem_params_descs[index].image_id == 0) {
+			return;
+		}
+		curr_node = &sp_mem_params_descs[index].load_node_mem;
 		/* Populate the image information */
-		node_info->image_id = sp_mem_params_descs[index].image_id;
-		node_info->image_info = &sp_mem_params_descs[index].image_info;
+		curr_node->image_id = sp_mem_params_descs[index].image_id;
+		curr_node->image_info = &sp_mem_params_descs[index].image_info;
 
-		if ((index + 1U) == MAX_SP_IDS) {
-			INFO("Reached Max number of SPs\n");
-			return;
-		}
-
-		if (sp_mem_params_descs[index + 1U].image_id == 0) {
-			return;
-		}
-
-		node_info->next_load_info =
-			&sp_mem_params_descs[index + 1U].load_node_mem;
-		node_info = node_info->next_load_info;
-
+		prev_node->next_load_info = curr_node;
+		prev_node = curr_node;
 	}
+
+	INFO("Reached Max number of SPs\n");
 }
 #endif
 
