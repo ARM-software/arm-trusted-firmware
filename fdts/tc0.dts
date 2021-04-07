@@ -146,7 +146,7 @@
 			compatible = "arm,armv8";
 			reg = <0x700>;
 			enable-method = "psci";
-			clocks = <&scmi_dvfs 1>;
+			clocks = <&scmi_dvfs 2>;
 			cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;
 		};
 
