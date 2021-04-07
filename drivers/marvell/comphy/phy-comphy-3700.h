@@ -104,6 +104,7 @@ enum {
 #define COMPHY_MISC_REG0_ADDR		0x4F
 #define MISC_REG0_ADDR(unit)		(COMPHY_MISC_REG0_ADDR * PHY_SHFT(unit))
 #define CLK100M_125M_EN			BIT(4)
+#define TXDCLK_2X_SEL			BIT(6)
 #define CLK500M_EN			BIT(7)
 #define PHY_REF_CLK_SEL			BIT(10)
 #define MISC_REG0_DEFAULT_VALUE		0xA00D

@@ -525,7 +525,8 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 		data |= TXD_INVERT_BIT;
 	if (invert & COMPHY_POLARITY_RXD_INVERT)
 		data |= RXD_INVERT_BIT;
-	reg_set16(SGMIIPHY_ADDR(COMPHY_SYNC_PATTERN_REG, sd_ip_addr), data, 0);
+	mask = TXD_INVERT_BIT | RXD_INVERT_BIT;
+	reg_set16(SGMIIPHY_ADDR(COMPHY_SYNC_PATTERN_REG, sd_ip_addr), data, mask);
 
 	/*
 	 * 17. Set PHY input ports PIN_PU_PLL, PIN_PU_TX and PIN_PU_RX to 1 to
@@ -563,7 +564,7 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 	 * refer to RX initialization part for details.
 	 */
 	reg_set(MVEBU_COMPHY_REG_BASE + COMPHY_PHY_CFG1_OFFSET(comphy_index),
-		PHY_RX_INIT_BIT, 0x0);
+		PHY_RX_INIT_BIT, PHY_RX_INIT_BIT);
 
 	ret = polling_with_timeout(MVEBU_COMPHY_REG_BASE +
 				   COMPHY_PHY_STATUS_OFFSET(comphy_index),
@@ -594,7 +595,7 @@ static int mvebu_a3700_comphy_sgmii_power_off(uint8_t comphy_index)
 	debug_enter();
 
 	data = PIN_RESET_CORE_BIT | PIN_RESET_COMPHY_BIT;
-	mask = 0;
+	mask = data;
 	offset = MVEBU_COMPHY_REG_BASE + COMPHY_PHY_CFG1_OFFSET(comphy_index);
 	reg_set(offset, data, mask);
 
@@ -746,12 +747,15 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	/*
 	 * 13. Check the Polarity invert bit
 	 */
-	if (invert & COMPHY_POLARITY_TXD_INVERT)
-		usb3_reg_set(reg_base, COMPHY_SYNC_PATTERN_REG, TXD_INVERT_BIT,
-			     TXD_INVERT_BIT, mode);
-	if (invert & COMPHY_POLARITY_RXD_INVERT)
-		usb3_reg_set(reg_base, COMPHY_SYNC_PATTERN_REG, RXD_INVERT_BIT,
-			     RXD_INVERT_BIT, mode);
+	data = 0U;
+	if (invert & COMPHY_POLARITY_TXD_INVERT) {
+		data |= TXD_INVERT_BIT;
+	}
+	if (invert & COMPHY_POLARITY_RXD_INVERT) {
+		data |= RXD_INVERT_BIT;
+	}
+	mask = TXD_INVERT_BIT | RXD_INVERT_BIT;
+	usb3_reg_set(reg_base, COMPHY_SYNC_PATTERN_REG, data, mask, mode);
 
 	/*
 	 * 14. Set max speed generation to USB3.0 5Gbps
@@ -802,21 +806,22 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 {
 	int ret;
 	uint32_t ref_clk;
+	uint32_t mask, data;
 	int invert = COMPHY_GET_POLARITY_INVERT(comphy_mode);
 
 	debug_enter();
 
 	/* 1. Enable max PLL. */
 	reg_set16(LANE_CFG1_ADDR(PCIE) + COMPHY_SD_ADDR,
-		  USE_MAX_PLL_RATE_EN, 0x0);
+		  USE_MAX_PLL_RATE_EN, USE_MAX_PLL_RATE_EN);
 
 	/* 2. Select 20 bit SERDES interface. */
 	reg_set16(GLOB_CLK_SRC_LO_ADDR(PCIE) + COMPHY_SD_ADDR,
-		  CFG_SEL_20B, 0);
+		  CFG_SEL_20B, CFG_SEL_20B);
 
 	/* 3. Force to use reg setting for PCIe mode */
 	reg_set16(MISC_REG1_ADDR(PCIE) + COMPHY_SD_ADDR,
-		  SEL_BITS_PCIE_FORCE, 0);
+		  SEL_BITS_PCIE_FORCE, SEL_BITS_PCIE_FORCE);
 
 	/* 4. Change RX wait */
 	reg_set16(PWR_MGM_TIM1_ADDR(PCIE) + COMPHY_SD_ADDR,
@@ -830,7 +835,7 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 
 	/* 6. Enable the output of 100M/125M/500M clock */
 	reg_set16(MISC_REG0_ADDR(PCIE) + COMPHY_SD_ADDR,
-		  MISC_REG0_DEFAULT_VALUE | CLK500M_EN | CLK100M_125M_EN,
+		  MISC_REG0_DEFAULT_VALUE | CLK500M_EN | TXDCLK_2X_SEL | CLK100M_125M_EN,
 		  REG_16_BIT_MASK);
 
 	/*
@@ -858,13 +863,15 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 		  SPEED_PLL_VALUE_16 | USE_MAX_PLL_RATE_BIT, REG_16_BIT_MASK);
 
 	/* 10. Check the Polarity invert bit */
-	if (invert & COMPHY_POLARITY_TXD_INVERT)
-		reg_set16(SYNC_PATTERN_REG_ADDR(PCIE) + COMPHY_SD_ADDR,
-			  TXD_INVERT_BIT, 0x0);
-
-	if (invert & COMPHY_POLARITY_RXD_INVERT)
-		reg_set16(SYNC_PATTERN_REG_ADDR(PCIE) + COMPHY_SD_ADDR,
-			  RXD_INVERT_BIT, 0x0);
+	data = 0U;
+	if (invert & COMPHY_POLARITY_TXD_INVERT) {
+		data |= TXD_INVERT_BIT;
+	}
+	if (invert & COMPHY_POLARITY_RXD_INVERT) {
+		data |= RXD_INVERT_BIT;
+	}
+	mask = TXD_INVERT_BIT | RXD_INVERT_BIT;
+	reg_set16(SYNC_PATTERN_REG_ADDR(PCIE) + COMPHY_SD_ADDR, data, mask);
 
 	/* 11. Release SW reset */
 	reg_set16(GLOB_PHY_CTRL0_ADDR(PCIE) + COMPHY_SD_ADDR,
