@@ -260,6 +260,9 @@ For Cortex-A77, the following errata build flags are defined :
 -  ``ERRATA_A77_1925769``: This applies errata 1925769 workaround to Cortex-A77
    CPU. This needs to be enabled only for revision <= r1p1 of the CPU.
 
+-  ``ERRATA_A77_1946167``: This applies errata 1946167 workaround to Cortex-A77
+   CPU. This needs to be enabled only for revision <= r1p1 of the CPU.
+
 For Cortex-A78, the following errata build flags are defined :
 
 -  ``ERRATA_A78_1688305``: This applies errata 1688305 workaround to Cortex-A78
@@ -385,7 +388,7 @@ architecture that can be enabled by the platform as desired.
 
 --------------
 
-*Copyright (c) 2014-2020, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2014-2021, Arm Limited and Contributors. All rights reserved.*
 
 .. _CVE-2017-5715: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-5715
 .. _CVE-2018-3639: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-3639
