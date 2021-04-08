@@ -222,7 +222,8 @@ include lib/libfdt/libfdt.mk
 
 DYN_CFG_SOURCES		+=	plat/arm/common/arm_dyn_cfg.c		\
 				plat/arm/common/arm_dyn_cfg_helpers.c	\
-				common/fdt_wrappers.c
+				common/fdt_wrappers.c			\
+				common/uuid.c
 
 BL1_SOURCES		+=	${DYN_CFG_SOURCES}
 BL2_SOURCES		+=	${DYN_CFG_SOURCES}
@@ -302,6 +303,7 @@ endif
 ifeq (${SPD},spmd)
 BL31_SOURCES		+=	plat/common/plat_spmd_manifest.c	\
 				common/fdt_wrappers.c			\
+				common/uuid.c				\
 				${LIBFDT_SRCS}
 
 endif

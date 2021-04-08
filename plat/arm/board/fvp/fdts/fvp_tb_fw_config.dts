@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2020-2021, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -48,26 +48,26 @@
 	arm-io_policies {
 		fip-handles {
 			compatible = "arm,io-fip-handle";
-			scp_bl2_uuid = <0x9766fd3d 0x89bee849 0xae5d78a1 0x40608213>;
-			bl31_uuid = <0x47d4086d 0x4cfe9846 0x9b952950 0xcbbd5a00>;
-			bl32_uuid = <0x05d0e189 0x53dc1347 0x8d2b500a 0x4b7a3e38>;
-			bl32_extra1_uuid = <0x0b70c28b 0x2a5a7840 0x9f650a56 0x82738288>;
-			bl32_extra2_uuid = <0x8ea87bb1 0xcfa23f4d 0x85fde7bb 0xa50220d9>;
-			bl33_uuid = <0xd6d0eea7 0xfcead54b 0x97829934 0xf234b6e4>;
-			hw_cfg_uuid = <0x08b8f1d9 0xc9cf9349 0xa9626fbc 0x6b7265cc>;
-			soc_fw_cfg_uuid = <0x9979814b 0x0376fb46 0x8c8e8d26 0x7f7859e0>;
-			tos_fw_cfg_uuid = <0x26257c1a 0xdbc67f47 0x8d96c4c4 0xb0248021>;
-			nt_fw_cfg_uuid = <0x28da9815 0x93e87e44 0xac661aaf 0x801550f9>;
-			t_key_cert_uuid = <0x827ee890 0xf860e411 0xa1b477a7 0x21b4f94c>;
-			scp_fw_key_uuid = <0x024221a1 0xf860e411 0x8d9bf33c 0x0e15a014>;
-			soc_fw_key_uuid = <0x8ab8becc 0xf960e411 0x9ad0eb48 0x22d8dcf8>;
-			tos_fw_key_cert_uuid = <0x9477d603 0xfb60e411 0x85ddb710 0x5b8cee04>;
-			nt_fw_key_cert_uuid = <0x8ad5832a 0xfb60e411 0x8aafdf30 0xbbc49859>;
-			scp_fw_content_cert_uuid = <0x44be6f04 0x5e63e411 0xb28b73d8 0xeaae9656>;
-			soc_fw_content_cert_uuid = <0xe2b20c20 0x5e63e411 0x9ce8abcc 0xf92bb666>;
-			tos_fw_content_cert_uuid = <0xa49f4411 0x5e63e411 0x87283f05 0x722af33d>;
-			nt_fw_content_cert_uuid = <0x8ec4c1f3 0x5d63e411 0xa7a987ee 0x40b23fa7>;
-			sp_content_cert_uuid = <0x776dfd44 0x86974c3b 0x91ebc13e 0x025a2a6f>;
+			scp_bl2_uuid = "9766fd3d-89be-e849-ae5d-78a140608213";
+			bl31_uuid = "47d4086d-4cfe-9846-9b95-2950cbbd5a00";
+			bl32_uuid = "05d0e189-53dc-1347-8d2b-500a4b7a3e38";
+			bl32_extra1_uuid = "0b70c28b-2a5a-7840-9f65-0a5682738288";
+			bl32_extra2_uuid = "8ea87bb1-cfa2-3f4d-85fd-e7bba50220d9";
+			bl33_uuid = "d6d0eea7-fcea-d54b-9782-9934f234b6e4";
+			hw_cfg_uuid = "08b8f1d9-c9cf-9349-a962-6fbc6b7265cc";
+			soc_fw_cfg_uuid = "9979814b-0376-fb46-8c8e-8d267f7859e0";
+			tos_fw_cfg_uuid = "26257c1a-dbc6-7f47-8d96-c4c4b0248021";
+			nt_fw_cfg_uuid = "28da9815-93e8-7e44-ac66-1aaf801550f9";
+			t_key_cert_uuid = "827ee890-f860-e411-a1b4-77a721b4f94c";
+			scp_fw_key_uuid = "024221a1-f860-e411-8d9b-f33c0e15a014";
+			soc_fw_key_uuid = "8ab8becc-f960-e411-9ad0-eb4822d8dcf8";
+			tos_fw_key_cert_uuid = "9477d603-fb60-e411-85dd-b7105b8cee04";
+			nt_fw_key_cert_uuid = "8ad5832a-fb60-e411-8aaf-df30bbc49859";
+			scp_fw_content_cert_uuid = "44be6f04-5e63-e411-b28b-73d8eaae9656";
+			soc_fw_content_cert_uuid = "e2b20c20-5e63-e411-9ce8-abccf92bb666";
+			tos_fw_content_cert_uuid = "a49f4411-5e63-e411-8728-3f05722af33d";
+			nt_fw_content_cert_uuid = "8ec4c1f3-5d63-e411-a7a9-87ee40b23fa7";
+			sp_content_cert_uuid = "776dfd44-8697-4c3b-91eb-c13e025a2a6f";
 		};
 	};
 #endif /* ARM_IO_IN_DTB */
@@ -76,24 +76,24 @@
 		compatible = "arm,sp";
 #ifdef OPTEE_SP_FW_CONFIG
 		op-tee {
-			uuid = <0x486178e0 0xe7f811e3 0xbc5e0002 0xa5d5c51b>;
+			uuid = "486178e0-e7f8-11e3-bc5e-0002a5d5c51b";
 			load-address = <0x6280000>;
 		};
 #else
 		cactus-primary {
-			uuid = <0xb4b5671e 0x4a904fe1 0xb81ffb13 0xdae1dacb>;
+			uuid = "b4b5671e-4a90-4fe1-b81f-fb13dae1dacb";
 			load-address = <0x7000000>;
 			owner = "SiP";
 		};
 
 		cactus-secondary {
-			uuid = <0xd1582309 0xf02347b9 0x827c4464 0xf5578fc8>;
+			uuid = "d1582309-f023-47b9-827c-4464f5578fc8";
 			load-address = <0x7100000>;
 			owner = "Plat";
 		};
 
 		cactus-tertiary {
-			uuid = <0x79b55c73 0x1d8c44b9 0x859361e1 0x770ad8d2>;
+			uuid = "79b55c73-1d8c-44b9-8593-61e1770ad8d2";
 			load-address = <0x7200000>;
 		};
 #endif

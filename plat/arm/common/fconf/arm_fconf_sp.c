@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -37,7 +37,6 @@ int fconf_populate_arm_sp(uintptr_t config)
 	const unsigned int plat_start = SP_PKG5_ID;
 	unsigned int plat_index = plat_start;
 	const unsigned int plat_end = plat_start + MAX_SP_IDS / 2;
-	unsigned int j;
 
 	/* As libfdt use void *, we can't avoid this cast */
 	const void *dtb = (void *)config;
@@ -59,29 +58,28 @@ int fconf_populate_arm_sp(uintptr_t config)
 		}
 
 		/* Read UUID */
-		err = fdt_read_uint32_array(dtb, sp_node, "uuid", 4,
-					    uuid_helper.word);
+		err = fdtw_read_uuid(dtb, sp_node, "uuid", 16,
+				     (uint8_t *)&uuid_helper);
 		if (err < 0) {
 			ERROR("FCONF: cannot read SP uuid\n");
 			return -1;
 		}
 
-		/* Convert uuid from big endian to little endian */
-		for (j = 0U; j < 4U; j++) {
-			uuid_helper.word[j] =
-				((uuid_helper.word[j] >> 24U) & 0xff) |
-				((uuid_helper.word[j] << 8U) & 0xff0000) |
-				((uuid_helper.word[j] >> 8U) & 0xff00) |
-				((uuid_helper.word[j] << 24U) & 0xff000000);
-		}
-
 		arm_sp.uuids[index] = uuid_helper;
-		VERBOSE("FCONF: %s UUID %x-%x-%x-%x load_addr=%lx\n",
+		VERBOSE("FCONF: %s UUID"
+			" %02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x"
+			" load_addr=%lx\n",
 			__func__,
-			uuid_helper.word[0],
-			uuid_helper.word[1],
-			uuid_helper.word[2],
-			uuid_helper.word[3],
+			uuid_helper.uuid_struct.time_low[0], uuid_helper.uuid_struct.time_low[1],
+			uuid_helper.uuid_struct.time_low[2], uuid_helper.uuid_struct.time_low[3],
+			uuid_helper.uuid_struct.time_mid[0], uuid_helper.uuid_struct.time_mid[1],
+			uuid_helper.uuid_struct.time_hi_and_version[0],
+			uuid_helper.uuid_struct.time_hi_and_version[1],
+			uuid_helper.uuid_struct.clock_seq_hi_and_reserved,
+			uuid_helper.uuid_struct.clock_seq_low,
+			uuid_helper.uuid_struct.node[0], uuid_helper.uuid_struct.node[1],
+			uuid_helper.uuid_struct.node[2], uuid_helper.uuid_struct.node[3],
+			uuid_helper.uuid_struct.node[4], uuid_helper.uuid_struct.node[5],
 			arm_sp.load_addr[index]);
 
 		/* Read Load address */
