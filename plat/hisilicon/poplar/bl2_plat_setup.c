@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,6 +26,9 @@
 
 static meminfo_t bl2_tzram_layout __aligned(CACHE_WRITEBACK_GRANULE);
 static console_t console;
+#if !POPLAR_RECOVERY
+static struct mmc_device_info mmc_info;
+#endif
 
 /*******************************************************************************
  * Transfer SCP_BL2 from Trusted RAM using the SCP Download protocol.
@@ -171,8 +174,6 @@ void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	struct meminfo *mem_layout = (struct meminfo *)arg1;
 #if !POPLAR_RECOVERY
-	struct mmc_device_info info;
-
 	dw_mmc_params_t params = EMMC_INIT_PARAMS(POPLAR_EMMC_DESC_BASE);
 #endif
 
@@ -187,8 +188,8 @@ void bl2_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 #if !POPLAR_RECOVERY
 	/* SoC-specific emmc register are initialized/configured by bootrom */
 	INFO("BL2: initializing emmc\n");
-	info.mmc_dev_type = MMC_IS_EMMC;
-	dw_mmc_init(&params, &info);
+	mmc_info.mmc_dev_type = MMC_IS_EMMC;
+	dw_mmc_init(&params, &mmc_info);
 #endif
 
 	plat_io_setup();

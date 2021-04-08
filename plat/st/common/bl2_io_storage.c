@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,6 +39,7 @@ static uintptr_t image_dev_handle;
 static uintptr_t storage_dev_handle;
 
 #if STM32MP_SDMMC || STM32MP_EMMC
+static struct mmc_device_info mmc_info;
 static io_block_spec_t gpt_block_spec = {
 	.offset = 0,
 	.length = 34 * MMC_BLOCK_SIZE, /* Size of GPT table */
@@ -276,13 +277,11 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 	uint8_t idx;
 	struct stm32image_part_info *part;
 	struct stm32_sdmmc2_params params;
-	struct mmc_device_info device_info;
 	const partition_entry_t *entry;
 
-	zeromem(&device_info, sizeof(struct mmc_device_info));
 	zeromem(&params, sizeof(struct stm32_sdmmc2_params));
 
-	device_info.mmc_dev_type = mmc_dev_type;
+	mmc_info.mmc_dev_type = mmc_dev_type;
 
 	switch (boot_interface_instance) {
 	case 1:
@@ -304,7 +303,7 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 		break;
 	}
 
-	params.device_info = &device_info;
+	params.device_info = &mmc_info;
 	if (stm32_sdmmc2_mmc_init(&params) != 0) {
 		ERROR("SDMMC%u init failed\n", boot_interface_instance);
 		panic();

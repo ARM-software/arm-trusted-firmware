@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,6 +29,10 @@
 static meminfo_t bl1_tzram_layout;
 static meminfo_t bl2_tzram_layout;
 static console_t console;
+
+#if !POPLAR_RECOVERY
+static struct mmc_device_info mmc_info;
+#endif
 
 /*
  * Cannot use default weak implementation in bl1_main.c because BL1 RW data is
@@ -90,7 +94,6 @@ void bl1_platform_setup(void)
 {
 	int i;
 #if !POPLAR_RECOVERY
-	struct mmc_device_info info;
 	dw_mmc_params_t params = EMMC_INIT_PARAMS(POPLAR_EMMC_DESC_BASE);
 #endif
 
@@ -103,8 +106,8 @@ void bl1_platform_setup(void)
 #if !POPLAR_RECOVERY
 	/* SoC-specific emmc register are initialized/configured by bootrom */
 	INFO("BL1: initializing emmc\n");
-	info.mmc_dev_type = MMC_IS_EMMC;
-	dw_mmc_init(&params, &info);
+	mmc_info.mmc_dev_type = MMC_IS_EMMC;
+	dw_mmc_init(&params, &mmc_info);
 #endif
 
 	plat_io_setup();
