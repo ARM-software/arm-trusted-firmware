@@ -10,6 +10,7 @@ MTK_PLAT_SOC  := ${MTK_PLAT}/${PLAT}
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/common/drivers/gic600/             \
                  -I${MTK_PLAT}/common/drivers/gpio/               \
+                 -I${MTK_PLAT}/common/drivers/rtc/                \
                  -I${MTK_PLAT}/common/drivers/timer/              \
                  -I${MTK_PLAT}/common/drivers/uart/               \
                  -I${MTK_PLAT}/common/lpm/                        \
@@ -21,7 +22,6 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT_SOC}/drivers/mcdi/                  \
                  -I${MTK_PLAT_SOC}/drivers/pmic/                  \
                  -I${MTK_PLAT_SOC}/drivers/ptp3/                  \
-                 -I${MTK_PLAT_SOC}/drivers/rtc/                   \
                  -I${MTK_PLAT_SOC}/drivers/spmc/
 
 GICV3_SUPPORT_GIC600        :=      1
@@ -46,6 +46,7 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT}/common/drivers/gpio/mtgpio_common.c       \
                    ${MTK_PLAT}/common/drivers/pmic_wrap/pmic_wrap_init_v2.c \
                    ${MTK_PLAT}/common/drivers/rtc/rtc_common.c           \
+                   ${MTK_PLAT}/common/drivers/rtc/rtc_mt6359p.c          \
                    ${MTK_PLAT}/common/drivers/timer/mt_timer.c           \
                    ${MTK_PLAT}/common/drivers/uart/uart.c                \
                    ${MTK_PLAT}/common/lpm/mt_lp_rm.c                     \
@@ -57,7 +58,6 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                    ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
                    ${MTK_PLAT_SOC}/drivers/pmic/pmic.c                   \
-                   ${MTK_PLAT_SOC}/drivers/rtc/rtc.c                     \
                    ${MTK_PLAT_SOC}/plat_pm.c                             \
                    ${MTK_PLAT_SOC}/plat_topology.c                       \
                    ${MTK_PLAT_SOC}/plat_sip_calls.c                      \
