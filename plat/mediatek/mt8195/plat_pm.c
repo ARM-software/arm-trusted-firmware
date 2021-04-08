@@ -19,6 +19,7 @@
 #include <plat_mtk_lpm.h>
 #include <plat_params.h>
 #include <plat_pm.h>
+#include <pmic.h>
 
 /*
  * Cluster state request:
@@ -350,8 +351,20 @@ static void __dead2 plat_mtk_system_reset(void)
 	panic();
 }
 
+static void __dead2 plat_mtk_system_off(void)
+{
+	INFO("MTK System Off\n");
+
+	pmic_power_off();
+
+	wfi();
+	ERROR("MTK System Off: operation not handled.\n");
+	panic();
+}
+
 static const plat_psci_ops_t plat_psci_ops = {
 	.system_reset			= plat_mtk_system_reset,
+	.system_off			= plat_mtk_system_off,
 	.cpu_standby			= plat_cpu_standby,
 	.pwr_domain_on			= plat_power_domain_on,
 	.pwr_domain_on_finish		= plat_power_domain_on_finish,
