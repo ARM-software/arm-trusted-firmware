@@ -219,6 +219,16 @@ There are several build options:
         binary and sys-init code from the WTP directory which sets DDR and CPU
         clocks according to DDR_TOPOLOGY and CLOCKSPRESET options.
 
+        CZ.NIC as part of Turris project released free and open source WTMI
+        application firmware ``wtmi_app.bin`` for all Armada 3720 devices.
+        This firmware includes additional features like access to Hardware
+        Random Number Generator of Armada 3720 SoC which original Marvell's
+        ``fuse.bin`` image does not have.
+
+        CZ.NIC's Armada 3720 Secure Firmware is available at website:
+
+            https://gitlab.nic.cz/turris/mox-boot-builder/
+
 - WTP
 
         For Armada37x0 only, use this parameter to point to wtptools source code
@@ -274,21 +284,25 @@ To build just TF-A without WTMI image (useful for A3720 Turris MOX board), run f
         CROSS_COMPILE=aarch64-linux-gnu- mrvl_bootimage
 
 Here is full example how to build production release of Marvell firmware image (concatenated
-binary of Marvell secure firmware, TF-A and U-Boot) for EspressoBin board (PLAT=a3700) with
-1GHz CPU (CLOCKSPRESET=CPU_1000_DDR_800) and 1GB DDR4 RAM (DDR_TOPOLOGY=5):
+binary of Marvell's A3720 sys-init, CZ.NIC's Armada 3720 Secure Firmware, TF-A and U-Boot) for
+EspressoBin board (PLAT=a3700) with 1GHz CPU (CLOCKSPRESET=CPU_1000_DDR_800) and
+1GB DDR4 RAM (DDR_TOPOLOGY=5):
 
 .. code:: shell
 
-    > git clone https://review.trustedfirmware.org/TF-A/trusted-firmware-a
-    > git clone https://gitlab.denx.de/u-boot/u-boot.git
+    > git clone https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git
+    > git clone https://source.denx.de/u-boot/u-boot.git
     > git clone https://github.com/weidai11/cryptopp.git
-    > git clone https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git -b master
-    > git clone https://github.com/MarvellEmbeddedProcessors/A3700-utils-marvell.git -b master
+    > git clone https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
+    > git clone https://github.com/MarvellEmbeddedProcessors/A3700-utils-marvell.git
+    > git clone https://gitlab.nic.cz/turris/mox-boot-builder.git
     > make -C u-boot CROSS_COMPILE=aarch64-linux-gnu- mvebu_espressobin-88f3720_defconfig u-boot.bin
+    > make -C mox-boot-builder CROSS_CM3=arm-linux-gnueabi- wtmi_app.bin
     > make -C trusted-firmware-a CROSS_COMPILE=aarch64-linux-gnu- CROSS_CM3=arm-linux-gnueabi- \
         USE_COHERENT_MEM=0 PLAT=a3700 CLOCKSPRESET=CPU_1000_DDR_800 DDR_TOPOLOGY=5 \
-        MV_DDR_PATH=$PWD/mv-ddr-marvell/ WTP=$PWD/A3700-utils-marvell/ CRYPTOPP_PATH=$PWD/cryptopp/ \
-        BL33=$PWD/u-boot/u-boot.bin mrvl_flash
+        MV_DDR_PATH=$PWD/mv-ddr-marvell/ WTP=$PWD/A3700-utils-marvell/ \
+        CRYPTOPP_PATH=$PWD/cryptopp/ BL33=$PWD/u-boot/u-boot.bin \
+        WTMI_IMG=$PWD/mox-boot-builder/wtmi_app.bin FIP_ALIGN=0x100 mrvl_flash
 
 Produced Marvell firmware flash image: ``trusted-firmware-a/build/a3700/release/flash-image.bin``
 
