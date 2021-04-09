@@ -29,38 +29,38 @@
  *   - BL32_BASE when SPD_spmd is enabled
  *   - Region to load Trusted OS
  */
-#define TC0_TZC_DRAM1_BASE		(ARM_AP_TZC_DRAM1_BASE -	\
-					 TC0_TZC_DRAM1_SIZE)
-#define TC0_TZC_DRAM1_SIZE		UL(0x02000000)	/* 32 MB */
-#define TC0_TZC_DRAM1_END		(TC0_TZC_DRAM1_BASE +		\
-					 TC0_TZC_DRAM1_SIZE - 1)
+#define TC_TZC_DRAM1_BASE		(ARM_AP_TZC_DRAM1_BASE -	\
+					 TC_TZC_DRAM1_SIZE)
+#define TC_TZC_DRAM1_SIZE		UL(0x02000000)	/* 32 MB */
+#define TC_TZC_DRAM1_END		(TC_TZC_DRAM1_BASE +		\
+					 TC_TZC_DRAM1_SIZE - 1)
 
-#define TC0_NS_DRAM1_BASE		ARM_DRAM1_BASE
-#define TC0_NS_DRAM1_SIZE		(ARM_DRAM1_SIZE -		\
+#define TC_NS_DRAM1_BASE		ARM_DRAM1_BASE
+#define TC_NS_DRAM1_SIZE		(ARM_DRAM1_SIZE -		\
 					 ARM_TZC_DRAM1_SIZE -		\
-					 TC0_TZC_DRAM1_SIZE)
-#define TC0_NS_DRAM1_END		(TC0_NS_DRAM1_BASE +		\
-					 TC0_NS_DRAM1_SIZE - 1)
+					 TC_TZC_DRAM1_SIZE)
+#define TC_NS_DRAM1_END		(TC_NS_DRAM1_BASE +		\
+					 TC_NS_DRAM1_SIZE - 1)
 
 /*
- * Mappings for TC0 DRAM1 (non-secure) and TC0 TZC DRAM1 (secure)
+ * Mappings for TC DRAM1 (non-secure) and TC TZC DRAM1 (secure)
  */
-#define TC0_MAP_NS_DRAM1		MAP_REGION_FLAT(		\
-						TC0_NS_DRAM1_BASE,	\
-						TC0_NS_DRAM1_SIZE,	\
+#define TC_MAP_NS_DRAM1		MAP_REGION_FLAT(		\
+						TC_NS_DRAM1_BASE,	\
+						TC_NS_DRAM1_SIZE,	\
 						MT_MEMORY | MT_RW | MT_NS)
 
 
-#define TC0_MAP_TZC_DRAM1		MAP_REGION_FLAT(		\
-						TC0_TZC_DRAM1_BASE,	\
-						TC0_TZC_DRAM1_SIZE,	\
+#define TC_MAP_TZC_DRAM1		MAP_REGION_FLAT(		\
+						TC_TZC_DRAM1_BASE,	\
+						TC_TZC_DRAM1_SIZE,	\
 						MT_MEMORY | MT_RW | MT_SECURE)
 /*
- * Max size of SPMC is 2MB for tc0. With SPMD enabled this value corresponds to
+ * Max size of SPMC is 2MB for tc. With SPMD enabled this value corresponds to
  * max size of BL32 image.
  */
 #if defined(SPD_spmd)
-#define PLAT_ARM_SPMC_BASE		TC0_TZC_DRAM1_BASE
+#define PLAT_ARM_SPMC_BASE		TC_TZC_DRAM1_BASE
 #define PLAT_ARM_SPMC_SIZE		UL(0x200000)  /* 2 MB */
 #endif
 
@@ -152,18 +152,18 @@
 #endif
 
 
-#define TC0_DEVICE_BASE			0x21000000
-#define TC0_DEVICE_SIZE			0x5f000000
+#define TC_DEVICE_BASE			0x21000000
+#define TC_DEVICE_SIZE			0x5f000000
 
-// TC0_MAP_DEVICE covers different peripherals
+// TC_MAP_DEVICE covers different peripherals
 // available to the platform
-#define TC0_MAP_DEVICE	MAP_REGION_FLAT(		\
-					TC0_DEVICE_BASE,	\
-					TC0_DEVICE_SIZE,	\
+#define TC_MAP_DEVICE	MAP_REGION_FLAT(		\
+					TC_DEVICE_BASE,	\
+					TC_DEVICE_SIZE,	\
 					MT_DEVICE | MT_RW | MT_SECURE)
 
 
-#define TC0_FLASH0_RO	MAP_REGION_FLAT(V2M_FLASH0_BASE,\
+#define TC_FLASH0_RO	MAP_REGION_FLAT(V2M_FLASH0_BASE,\
 						V2M_FLASH0_SIZE,	\
 						MT_DEVICE | MT_RO | MT_SECURE)
 
@@ -250,14 +250,14 @@
 		(TZC_REGION_ACCESS_RDWR(TZC_NSAID_DEFAULT))
 
 /*
- * The first region below, TC0_TZC_DRAM1_BASE (0xfd000000) to
+ * The first region below, TC_TZC_DRAM1_BASE (0xfd000000) to
  * ARM_SCP_TZC_DRAM1_END (0xffffffff) will mark the last 48 MB of DRAM as
  * secure. The second region gives non secure access to rest of DRAM.
  */
-#define TC0_TZC_REGIONS_DEF						\
-	{TC0_TZC_DRAM1_BASE, ARM_SCP_TZC_DRAM1_END,			\
+#define TC_TZC_REGIONS_DEF						\
+	{TC_TZC_DRAM1_BASE, ARM_SCP_TZC_DRAM1_END,			\
 		TZC_REGION_S_RDWR, PLAT_ARM_TZC_NS_DEV_ACCESS},		\
-	{TC0_NS_DRAM1_BASE, TC0_NS_DRAM1_END, ARM_TZC_NS_DRAM_S_ACCESS, \
+	{TC_NS_DRAM1_BASE, TC_NS_DRAM1_END, ARM_TZC_NS_DRAM_S_ACCESS, \
 		PLAT_ARM_TZC_NS_DEV_ACCESS}
 
 /* virtual address used by dynamic mem_protect for chunk_base */

@@ -7,7 +7,7 @@
 #include <assert.h>
 
 #include <libfdt.h>
-#include <tc0_plat.h>
+#include <tc_plat.h>
 
 #include <common/bl_common.h>
 #include <common/debug.h>
@@ -16,7 +16,7 @@
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
-static scmi_channel_plat_info_t tc0_scmi_plat_info[] = {
+static scmi_channel_plat_info_t tc_scmi_plat_info[] = {
 	{
 		.scmi_mbx_mem = CSS_SCMI_PAYLOAD_BASE,
 		.db_reg_addr = PLAT_CSS_MHU_BASE + SENDER_REG_SET(0),
@@ -28,13 +28,13 @@ static scmi_channel_plat_info_t tc0_scmi_plat_info[] = {
 
 void bl31_platform_setup(void)
 {
-	tc0_bl31_common_platform_setup();
+	tc_bl31_common_platform_setup();
 }
 
 scmi_channel_plat_info_t *plat_css_get_scmi_info(int channel_id)
 {
 
-	return &tc0_scmi_plat_info[channel_id];
+	return &tc_scmi_plat_info[channel_id];
 
 }
 
@@ -44,7 +44,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
 }
 
-void tc0_bl31_common_platform_setup(void)
+void tc_bl31_common_platform_setup(void)
 {
 	arm_bl31_platform_setup();
 }

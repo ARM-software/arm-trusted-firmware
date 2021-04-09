@@ -7,7 +7,7 @@
 /dts-v1/;
 
 / {
-	compatible = "arm,tc0";
+	compatible = "arm,tc";
 	interrupt-parent = <&gic>;
 	#address-cells = <2>;
 	#size-cells = <2>;

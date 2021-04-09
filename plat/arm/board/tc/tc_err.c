@@ -7,7 +7,7 @@
 #include <plat/arm/common/plat_arm.h>
 
 /*
- * tc0 error handler
+ * tc error handler
  */
 void __dead2 plat_arm_error_handler(int err)
 {

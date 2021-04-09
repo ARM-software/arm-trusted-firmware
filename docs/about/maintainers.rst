@@ -415,13 +415,13 @@ Arm Reference Design platform ports
 :|F|: plat/arm/board/rdv1mc/
 :|F|: plat/arm/board/sgi575/
 
-Arm Total Compute(tc0) platform port
+Arm Total Compute platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Arunachalam Ganapathy <arunachalam.ganapathy@arm.com>
 :|G|: `arugan02`_
 :|M|: Usama Arif <usama.arif@arm.com>
 :|G|: `uarif1`_
-:|F|: plat/arm/board/tc0
+:|F|: plat/arm/board/tc
 
 HiSilicon HiKey and HiKey960 platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

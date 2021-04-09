@@ -8,7 +8,7 @@ Arm Development Platforms
    juno/index
    fvp/index
    fvp-ve/index
-   tc0/index
+   tc/index
    arm_fpga/index
    arm-build-options
    morello/index

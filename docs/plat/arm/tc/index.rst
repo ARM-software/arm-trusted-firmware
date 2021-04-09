@@ -1,7 +1,7 @@
-TC0 Total Compute Platform
+TC Total Compute Platform
 ==========================
 
-Some of the features of TC0 platform referenced in TF-A include:
+Some of the features of TC platform referenced in TF-A include:
 
 - A `System Control Processor <https://github.com/ARM-software/SCP-firmware>`_
   to abstract power and system management tasks away from application
@@ -12,6 +12,12 @@ Some of the features of TC0 platform referenced in TF-A include:
 - Trusted Board Boot
 - SCMI
 - MHUv2
+
+Currently, the main difference between TC0 (TARGET_PLATFORM=0) and TC1
+(TARGET_PLATFORM=1) platforms w.r.t to TF-A is the CPUs supported. TC0 has
+support for Cortex A510, Cortex A710 and Cortex X2, while TC1 has support for
+Cortex A510, Cortex Makalu and Cortex Makalu ELP Arm CPUs.
+
 
 Boot Sequence
 -------------
@@ -34,8 +40,8 @@ Build Procedure (TF-A only)
 
    .. code:: shell
 
-      make PLAT=tc0 BL33=<path_to_uboot.bin> \
-      SCP_BL2=<path_to_scp_ramfw.bin>  all fip
+      make PLAT=tc BL33=<path_to_uboot.bin> \
+      SCP_BL2=<path_to_scp_ramfw.bin> TARGET_PLATFORM={0,1} all fip
 
    Enable TBBR by adding the following options to the make command:
 
@@ -47,4 +53,4 @@ Build Procedure (TF-A only)
       ARM_ROTPK_LOCATION=devel_rsa  \
       ROT_KEY=plat/arm/board/common/rotpk/arm_rotprivk_rsa.pem
 
-*Copyright (c) 2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2020-2021, Arm Limited. All rights reserved.*
