@@ -42,10 +42,12 @@
 			id = <TOS_FW_CONFIG_ID>;
 		};
 
+#if !defined(SPD_spmd)
 		nt_fw-config {
 			load-address = <0x0 0x80000000>;
 			max-size = <0x200>;
 			id = <NT_FW_CONFIG_ID>;
 		};
+#endif
 	};
 };
