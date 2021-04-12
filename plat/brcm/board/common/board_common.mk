@@ -118,7 +118,8 @@ USE_TBBR_DEFS			:=	1
 
 PLAT_INCLUDES		+=	-Iplat/brcm/board/common \
 				-Iinclude/drivers/brcm \
-				-Iinclude/drivers/brcm/emmc
+				-Iinclude/drivers/brcm/emmc \
+				-Iinclude/drivers/brcm/mdio
 
 PLAT_BL_COMMON_SOURCES	+=	plat/brcm/common/brcm_common.c \
 				plat/brcm/board/common/cmn_sec.c \

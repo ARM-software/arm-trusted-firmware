@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, Broadcom
+ * Copyright (c) 2016-2021, Broadcom
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -191,6 +191,11 @@
 #define ICFG_CHIP_REVISION_ID	(HSLS_ICFG_REGS_BASE + 0x4)
 #define PLAT_CHIP_ID_GET	(mmio_read_32(ICFG_CHIP_ID))
 #define PLAT_CHIP_REV_GET	(mmio_read_32(ICFG_CHIP_REVISION_ID))
+
+/*******************************************************************************
+ * CMIC MII (MDIO) related constant
+ ******************************************************************************/
+#define PLAT_CMIC_MIIM_BASE	0x68920000U
 
 /*******************************************************************************
  * Timers related constants
