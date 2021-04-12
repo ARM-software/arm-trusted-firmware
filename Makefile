@@ -1307,8 +1307,6 @@ fip: ${BUILD_PLAT}/${FIP_NAME}
 fwu_fip: ${BUILD_PLAT}/${FWU_FIP_NAME}
 
 ${FIPTOOL}: FORCE
-	@${ECHO_BLANK_LINE}
-	@echo "Building $@"
 ifdef UNIX_MK
 	${Q}${MAKE} CPPFLAGS="-DVERSION='\"${VERSION_STRING}\"'" FIPTOOL=${FIPTOOL} --no-print-directory -C ${FIPTOOLPATH}
 else
@@ -1316,7 +1314,6 @@ else
 # to pass the gnumake flags to nmake.
 	${Q}set MAKEFLAGS= && ${MSVC_NMAKE} /nologo /f ${FIPTOOLPATH}/Makefile.msvc FIPTOOLPATH=$(subst /,\,$(FIPTOOLPATH)) FIPTOOL=$(subst /,\,$(FIPTOOL))
 endif
-	@${ECHO_BLANK_LINE}
 
 sptool: ${SPTOOL}
 ${SPTOOL}: FORCE
