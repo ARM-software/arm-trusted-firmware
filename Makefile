@@ -245,6 +245,13 @@ endif	# arch-features
 # Determine if FEAT_RNG is supported
 ENABLE_FEAT_RNG		=	$(if $(findstring rng,${arch-features}),1,0)
 
+# Determine if FEAT_SB is supported
+ENABLE_FEAT_SB		=	$(if $(findstring sb,${arch-features}),1,0)
+
+ifeq "8.5" "$(word 1, $(sort 8.5 $(ARM_ARCH_MAJOR).$(ARM_ARCH_MINOR)))"
+ENABLE_FEAT_SB		= 	1
+endif
+
 ifneq ($(findstring armclang,$(notdir $(CC))),)
 TF_CFLAGS_aarch32	=	-target arm-arm-none-eabi $(march32-directive)
 TF_CFLAGS_aarch64	=	-target aarch64-arm-none-eabi $(march64-directive)
@@ -945,6 +952,7 @@ $(eval $(call assert_booleans,\
         COT_DESC_IN_DTB \
         USE_SP804_TIMER \
         ENABLE_FEAT_RNG \
+        ENABLE_FEAT_SB \
 )))
 
 $(eval $(call assert_numerics,\
@@ -1038,6 +1046,7 @@ $(eval $(call add_defines,\
         COT_DESC_IN_DTB \
         USE_SP804_TIMER \
         ENABLE_FEAT_RNG \
+        ENABLE_FEAT_SB \
 )))
 
 ifeq (${SANITIZE_UB},trap)
