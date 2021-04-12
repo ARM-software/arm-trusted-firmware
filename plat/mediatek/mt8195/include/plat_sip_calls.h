@@ -10,6 +10,10 @@
 /*******************************************************************************
  * Plat SiP function constants
  ******************************************************************************/
-#define MTK_PLAT_SIP_NUM_CALLS    0
+#define MTK_PLAT_SIP_NUM_CALLS    2
+
+/* DP/eDP */
+#define MTK_SIP_DP_CONTROL_AARCH32	0x82000523
+#define MTK_SIP_DP_CONTROL_AARCH64	0xC2000523
 
 #endif /* PLAT_SIP_CALLS_H */
