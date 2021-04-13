@@ -148,14 +148,6 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	bl33_image_ep_info.spsr = arm_get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
-#if defined(SPD_spmd) && !(ARM_LINUX_KERNEL_AS_BL33)
-	/*
-	 * Hafnium in normal world expects its manifest address in x0, which
-	 * is loaded at base of DRAM.
-	 */
-	bl33_image_ep_info.args.arg0 = (u_register_t)ARM_DRAM1_BASE;
-#endif
-
 #else /* RESET_TO_BL31 */
 
 	/*
@@ -206,6 +198,14 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	bl33_image_ep_info.args.arg2 = 0U;
 	bl33_image_ep_info.args.arg3 = 0U;
 # endif
+
+#if defined(SPD_spmd)
+	/*
+	 * Hafnium in normal world expects its manifest address in x0, In CI
+	 * configuration manifest is preloaded at 0x80000000(start of DRAM).
+	 */
+	bl33_image_ep_info.args.arg0 = (u_register_t)ARM_DRAM1_BASE;
+#endif
 }
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
