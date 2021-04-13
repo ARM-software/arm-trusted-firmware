@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -32,6 +32,8 @@ struct nand_device {
 	int (*mtd_read_page)(struct nand_device *nand, unsigned int page,
 			     uintptr_t buffer);
 };
+
+void plat_get_scratch_buffer(void **buffer_addr, size_t *buf_size);
 
 /*
  * Read bytes from NAND device
