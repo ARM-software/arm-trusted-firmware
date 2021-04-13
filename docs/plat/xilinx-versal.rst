@@ -19,6 +19,11 @@ To build ATF for different platform (supported are "silicon"(default) and "versa
 make RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=versal VERSAL_PLATFORM=versal_virt bl31
 ```
 
+To build TF-A for JTAG DCC console
+```bash
+make RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=versal bl31 VERSAL_CONSOLE=dcc
+```
+
 Xilinx Versal platform specific build options
 ---------------------------------------------
 

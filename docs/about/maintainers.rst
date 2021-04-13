@@ -142,6 +142,15 @@ eMMC/UFS drivers
 :|F|: include/drivers/ufs.h
 :|F|: include/drivers/synopsys/dw_mmc.h
 
+JTAG DCC console driver
+^^^^^^^^^^^^^^^^^^^^^^^
+:M: Michal Simek <michal.simek@xilinx.com>
+:G: `michalsimek`_
+:M: Venkatesh Yadav Abbarapu <venkatesh.abbarapu@xilinx.com>
+:G: `venkatesh`_
+:F: drivers/arm/dcc/
+:F: include/drivers/arm/dcc.h
+
 Power State Coordination Interface (PSCI)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Javier Almansa Sobrino <Javier.AlmansaSobrino@arm.com>

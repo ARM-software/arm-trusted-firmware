@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -11,6 +11,7 @@
 #include <bl31/bl31.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
+#include <drivers/arm/dcc.h>
 #include <drivers/arm/pl011.h>
 #include <drivers/console.h>
 #include <lib/mmio.h>
@@ -22,7 +23,6 @@
 
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
-static console_t versal_runtime_console;
 
 /*
  * Return a pointer to the 'entry_point_info' structure of the next image for
@@ -64,18 +64,26 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 {
 	uint64_t atf_handoff_addr;
 
-	/* Initialize the console to provide early debug support */
-	int rc = console_pl011_register(VERSAL_UART_BASE,
-					VERSAL_UART_CLOCK,
-					VERSAL_UART_BAUDRATE,
-					&versal_runtime_console);
-	if (rc == 0) {
-		panic();
+	if (VERSAL_CONSOLE_IS(pl011)) {
+		static console_t versal_runtime_console;
+		/* Initialize the console to provide early debug support */
+		int rc = console_pl011_register(VERSAL_UART_BASE,
+						VERSAL_UART_CLOCK,
+						VERSAL_UART_BAUDRATE,
+						&versal_runtime_console);
+		if (rc == 0) {
+			panic();
+		}
+
+		console_set_scope(&versal_runtime_console, CONSOLE_FLAG_BOOT |
+				  CONSOLE_FLAG_RUNTIME);
+	} else if (VERSAL_CONSOLE_IS(dcc)) {
+		/* Initialize the dcc console for debug */
+		int rc = console_dcc_register();
+		if (rc == 0) {
+			panic();
+		}
 	}
-
-	console_set_scope(&versal_runtime_console, CONSOLE_FLAG_BOOT |
-			  CONSOLE_FLAG_RUNTIME);
-
 	/* Initialize the platform config for future decision making */
 	versal_config_setup();
 	/* There are no parameters from BL2 if BL31 is a reset vector */

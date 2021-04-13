@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -67,7 +67,7 @@
 #define VERSAL_UART0_BASE		0xFF000000
 #define VERSAL_UART1_BASE		0xFF010000
 
-#if VERSAL_CONSOLE_IS(pl011)
+#if VERSAL_CONSOLE_IS(pl011) || VERSAL_CONSOLE_IS(dcc)
 # define VERSAL_UART_BASE	VERSAL_UART0_BASE
 #elif VERSAL_CONSOLE_IS(pl011_1)
 # define VERSAL_UART_BASE	VERSAL_UART1_BASE

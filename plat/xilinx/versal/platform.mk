@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -34,9 +34,6 @@ endif
 VERSAL_PLATFORM ?= silicon
 $(eval $(call add_define_val,VERSAL_PLATFORM,VERSAL_PLATFORM_ID_${VERSAL_PLATFORM}))
 
-VERSAL_CONSOLE	?=	pl011
-$(eval $(call add_define_val,VERSAL_CONSOLE,VERSAL_CONSOLE_ID_${VERSAL_CONSOLE}))
-
 PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/common/include/			\
 				-Iplat/xilinx/common/ipi_mailbox_service/	\
@@ -48,6 +45,7 @@ include drivers/arm/gic/v3/gicv3.mk
 
 PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				lib/xlat_tables/aarch64/xlat_tables.c		\
+				drivers/arm/dcc/dcc_console.c			\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
 				${GICV3_SOURCES}				\
@@ -58,6 +56,14 @@ PLAT_BL_COMMON_SOURCES	:=	lib/xlat_tables/xlat_tables_common.c		\
 				plat/common/plat_gicv3.c			\
 				plat/xilinx/versal/aarch64/versal_helpers.S	\
 				plat/xilinx/versal/aarch64/versal_common.c
+
+VERSAL_CONSOLE	?=	pl011
+ifeq (${VERSAL_CONSOLE}, $(filter ${VERSAL_CONSOLE},pl011 pl011_0 pl011_1 dcc))
+else
+  $(error "Please define VERSAL_CONSOLE")
+endif
+
+$(eval $(call add_define_val,VERSAL_CONSOLE,VERSAL_CONSOLE_ID_${VERSAL_CONSOLE}))
 
 BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/cortex_a72.S			\
