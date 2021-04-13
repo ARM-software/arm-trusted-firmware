@@ -182,7 +182,12 @@ enum ddr_type {
  #endif
 #endif
 
+#if STM32MP13
+#define STM32MP_BL33_BASE		STM32MP_DDR_BASE
+#endif
+#if STM32MP15
 #define STM32MP_BL33_BASE		(STM32MP_DDR_BASE + U(0x100000))
+#endif
 #define STM32MP_BL33_MAX_SIZE		U(0x400000)
 
 /* Define maximum page size for NAND devices */
