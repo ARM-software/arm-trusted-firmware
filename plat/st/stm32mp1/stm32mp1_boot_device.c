@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <assert.h>
 #include <errno.h>
 
 #include <common/debug.h>
@@ -15,6 +16,17 @@
 #include <plat/common/platform.h>
 
 #if STM32MP_RAW_NAND || STM32MP_SPI_NAND
+#if STM32MP13
+void plat_get_scratch_buffer(void **buffer_addr, size_t *buf_size)
+{
+	assert(buffer_addr != NULL);
+	assert(buf_size != NULL);
+
+	*buffer_addr = (void *)STM32MP_MTD_BUFFER;
+	*buf_size = PLATFORM_MTD_MAX_PAGE_SIZE;
+}
+#endif
+
 static int get_data_from_otp(struct nand_device *nand_dev, bool is_slc)
 {
 	uint32_t nand_param;

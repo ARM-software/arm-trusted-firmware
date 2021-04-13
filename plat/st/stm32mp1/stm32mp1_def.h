@@ -194,6 +194,12 @@ enum ddr_type {
 /* Define maximum page size for NAND devices */
 #define PLATFORM_MTD_MAX_PAGE_SIZE	U(0x1000)
 
+/* Define location for the MTD scratch buffer */
+#if STM32MP13
+#define STM32MP_MTD_BUFFER		(SRAM1_BASE + \
+					 SRAM1_SIZE - \
+					 PLATFORM_MTD_MAX_PAGE_SIZE)
+#endif
 /*******************************************************************************
  * STM32MP1 device/io map related constants (used for MMU)
  ******************************************************************************/
