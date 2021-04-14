@@ -36,11 +36,14 @@
 			id = <SOC_FW_CONFIG_ID>;
 		};
 
+/* If required, SPD should enable loading of trusted OS fw config */
+#if defined(SPD_tspd) || defined(SPD_spmd)
 		tos_fw-config {
 			load-address = <0x0 0x04001500>;
 			max-size = <0xB00>;
 			id = <TOS_FW_CONFIG_ID>;
 		};
+#endif
 
 #if !defined(SPD_spmd)
 		nt_fw-config {
