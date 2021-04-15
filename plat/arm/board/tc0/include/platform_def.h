@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -220,7 +220,7 @@
 /* GIC related constants */
 #define PLAT_ARM_GICD_BASE		UL(0x30000000)
 #define PLAT_ARM_GICC_BASE		UL(0x2C000000)
-#define PLAT_ARM_GICR_BASE		UL(0x30140000)
+#define PLAT_ARM_GICR_BASE		UL(0x30080000)
 
 /*
  * PLAT_CSS_MAX_SCP_BL2_SIZE is calculated using the current
