@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,6 +42,12 @@
 /* State arguments of the self suspend */
 #define PM_STATE_CPU_IDLE		0x0U
 #define PM_STATE_SUSPEND_TO_RAM		0xFU
+
+/* APU processor states */
+#define PM_PROC_STATE_FORCEDOFF		0U
+#define PM_PROC_STATE_ACTIVE		1U
+#define PM_PROC_STATE_SLEEP		2U
+#define PM_PROC_STATE_SUSPENDING	3U
 
 #define EM_FUNID_NUM_MASK    0xF0000U
 

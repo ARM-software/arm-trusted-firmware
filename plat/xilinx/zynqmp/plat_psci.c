@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,6 +33,8 @@ static int zynqmp_pwr_domain_on(u_register_t mpidr)
 {
 	unsigned int cpu_id = plat_core_pos_by_mpidr(mpidr);
 	const struct pm_proc *proc;
+	uint32_t buff[3];
+	enum pm_ret_status ret;
 
 	VERBOSE("%s: mpidr: 0x%lx\n", __func__, mpidr);
 
@@ -40,6 +42,13 @@ static int zynqmp_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_INTERN_FAIL;
 
 	proc = pm_get_proc(cpu_id);
+
+	/* Check the APU proc status before wakeup */
+	ret = pm_get_node_status(proc->node_id, buff);
+	if ((ret != PM_RET_SUCCESS) || (buff[0] == PM_PROC_STATE_SUSPENDING)) {
+		return PSCI_E_INTERN_FAIL;
+	}
+
 	/* Clear power down request */
 	pm_client_wakeup(proc);
 
