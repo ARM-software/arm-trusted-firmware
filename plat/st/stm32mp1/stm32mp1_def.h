@@ -117,30 +117,14 @@ enum ddr_type {
 #define STM32MP_OPTEE_SIZE		(STM32MP_DTB_BASE -  \
 					 STM32MP_OPTEE_BASE)
 #else
-#if STACK_PROTECTOR_ENABLED
 #define STM32MP_BL32_SIZE		U(0x00012000)	/* 72 KB for BL32 */
-#else
-#define STM32MP_BL32_SIZE		U(0x00011000)	/* 68 KB for BL32 */
-#endif
 #endif
 
 #define STM32MP_BL32_BASE		(STM32MP_SEC_SYSRAM_BASE + \
 					 STM32MP_SEC_SYSRAM_SIZE - \
 					 STM32MP_BL32_SIZE)
 
-#ifdef AARCH32_SP_OPTEE
-#if STACK_PROTECTOR_ENABLED
 #define STM32MP_BL2_SIZE		U(0x0001A000)	/* 100 KB for BL2 */
-#else
-#define STM32MP_BL2_SIZE		U(0x00018000)	/* 92 KB for BL2 */
-#endif
-#else
-#if STACK_PROTECTOR_ENABLED
-#define STM32MP_BL2_SIZE		U(0x00019000)	/* 96 KB for BL2 */
-#else
-#define STM32MP_BL2_SIZE		U(0x00017000)	/* 88 KB for BL2 */
-#endif
-#endif
 
 #define STM32MP_BL2_BASE		(STM32MP_BL32_BASE - \
 					 STM32MP_BL2_SIZE)
