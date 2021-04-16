@@ -605,7 +605,7 @@ err:
 
 static void bl2_advertise_dram_entries(uint64_t dram_config[8])
 {
-	uint64_t start, size;
+	uint64_t start, size, size32;
 	int chan;
 
 	for (chan = 0; chan < 4; chan++) {
@@ -634,11 +634,39 @@ static void bl2_advertise_dram_entries(uint64_t dram_config[8])
 
 		/*
 		 * Channel 0 is mapped in 32bit space and the first
-		 * 128 MiB are reserved
+		 * 128 MiB are reserved and the maximum size is 2GiB.
 		 */
 		if (chan == 0) {
-			start = 0x48000000;
-			size -= 0x8000000;
+			/* Limit the 32bit entry to 2 GiB - 128 MiB */
+			size32 = size - 0x8000000U;
+			if (size32 >= 0x78000000U) {
+				size32 = 0x78000000U;
+			}
+
+			/* Emit 32bit entry, up to 2 GiB - 128 MiB long. */
+			bl2_add_dram_entry(0x48000000, size32);
+
+			/*
+			 * If channel 0 is less than 2 GiB long, the
+			 * entire memory fits into the 32bit space entry,
+			 * so move on to the next channel.
+			 */
+			if (size <= 0x80000000U) {
+				continue;
+			}
+
+			/*
+			 * If channel 0 is more than 2 GiB long, emit
+			 * another entry which covers the rest of the
+			 * memory in channel 0, in the 64bit space.
+			 *
+			 * Start of this new entry is at 2 GiB offset
+			 * from the beginning of the 64bit channel 0
+			 * address, size is 2 GiB shorter than total
+			 * size of the channel.
+			 */
+			start += 0x80000000U;
+			size -= 0x80000000U;
 		}
 
 		bl2_add_dram_entry(start, size);
