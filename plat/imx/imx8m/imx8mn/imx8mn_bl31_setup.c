@@ -117,6 +117,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		u_register_t arg2, u_register_t arg3)
 {
 	static console_t console;
+	unsigned int val;
 	int i;
 
 	/* Enable CSU NS access permission */
@@ -131,7 +132,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	imx_csu_init(csu_cfg);
 
 	/* config the ocram memory range for secure access */
-	mmio_write_32(IMX_IOMUX_GPR_BASE + 0x2c, 0xc1);
+	mmio_write_32(IMX_IOMUX_GPR_BASE + 0x2c, 0x4c1);
+	val = mmio_read_32(IMX_IOMUX_GPR_BASE + 0x2c);
+	mmio_write_32(IMX_IOMUX_GPR_BASE + 0x2c, val | 0x3DFF0000);
 
 	imx8m_caam_init();
 
