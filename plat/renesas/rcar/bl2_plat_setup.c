@@ -565,12 +565,48 @@ static void bl2_populate_compatible_string(void *dt)
 	}
 }
 
-static void bl2_advertise_dram_entries(uint64_t dram_config[8])
+static void bl2_add_dram_entry(uint64_t start, uint64_t size)
 {
 	char nodename[32] = { 0 };
-	uint64_t start, size;
 	uint64_t fdtsize;
-	int ret, node, chan;
+	int ret, node;
+
+	fdtsize = cpu_to_fdt64(size);
+
+	snprintf(nodename, sizeof(nodename), "memory@");
+	unsigned_num_print(start, 16, nodename + strlen(nodename));
+	node = ret = fdt_add_subnode(fdt, 0, nodename);
+	if (ret < 0) {
+		goto err;
+	}
+
+	ret = fdt_setprop_string(fdt, node, "device_type", "memory");
+	if (ret < 0) {
+		goto err;
+	}
+
+	ret = fdt_setprop_u64(fdt, node, "reg", start);
+	if (ret < 0) {
+		goto err;
+	}
+
+	ret = fdt_appendprop(fdt, node, "reg", &fdtsize,
+			     sizeof(fdtsize));
+	if (ret < 0) {
+		goto err;
+	}
+
+	return;
+err:
+	NOTICE("BL2: Cannot add memory node [%llx - %llx] to FDT (ret=%i)\n",
+		start, start + size - 1, ret);
+	panic();
+}
+
+static void bl2_advertise_dram_entries(uint64_t dram_config[8])
+{
+	uint64_t start, size;
+	int chan;
 
 	for (chan = 0; chan < 4; chan++) {
 		start = dram_config[2 * chan];
@@ -605,32 +641,8 @@ static void bl2_advertise_dram_entries(uint64_t dram_config[8])
 			size -= 0x8000000;
 		}
 
-		fdtsize = cpu_to_fdt64(size);
-
-		snprintf(nodename, sizeof(nodename), "memory@");
-		unsigned_num_print(start, 16, nodename + strlen(nodename));
-		node = ret = fdt_add_subnode(fdt, 0, nodename);
-		if (ret < 0)
-			goto err;
-
-		ret = fdt_setprop_string(fdt, node, "device_type", "memory");
-		if (ret < 0)
-			goto err;
-
-		ret = fdt_setprop_u64(fdt, node, "reg", start);
-		if (ret < 0)
-			goto err;
-
-		ret = fdt_appendprop(fdt, node, "reg", &fdtsize,
-				     sizeof(fdtsize));
-		if (ret < 0)
-			goto err;
+		bl2_add_dram_entry(start, size);
 	}
-
-	return;
-err:
-	NOTICE("BL2: Cannot add memory node to FDT (ret=%i)\n", ret);
-	panic();
 }
 
 static void bl2_advertise_dram_size(uint32_t product)
