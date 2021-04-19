@@ -496,7 +496,8 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 		break;
 	case IOCTL_SET_SGI:
 		/* Get the sgi number */
-		if (pm_register_sgi(arg1) != 0) {
+		ret = pm_register_sgi(arg1, arg2);
+		if (ret != 0) {
 			return PM_RET_ERROR_ARGS;
 		}
 		gicd_write_irouter(gicv3_driver_data->gicd_base,
