@@ -38,6 +38,7 @@
 
 #define RZ_G2M		100U
 #define RZ_G2H		101U
+#define RZ_G2N		102U
 
 #define RCAR_CUT_10	0
 #define RCAR_CUT_11	1
@@ -56,7 +57,7 @@ static uint32_t prr_cut;
 static const uint32_t prr_product = PRR_PRODUCT_H3;
 #elif(RCAR_LSI == RCAR_M3 || RCAR_LSI == RZ_G2M)
 static const uint32_t prr_product = PRR_PRODUCT_M3;
-#elif(RCAR_LSI == RCAR_M3N)
+#elif(RCAR_LSI == RCAR_M3N || RCAR_LSI == RZ_G2N)
 static const uint32_t prr_product = PRR_PRODUCT_M3N;
 #elif(RCAR_LSI == RCAR_H3N || RCAR_LSI == RZ_G2H)
 static const uint32_t prr_product = PRR_PRODUCT_H3;

@@ -10,7 +10,7 @@
 #endif
 
 #if (RZG_SOC == 1)
-#define BOARDNUM 3
+#define BOARDNUM 4
 #else
 #define BOARDNUM 22
 #endif /* RZG_SOC == 1 */
@@ -260,7 +260,37 @@ static const struct _boardcnf boardcnfs[BOARDNUM] = {
 				  0, 0, 0, 0, 0, 0, 0, 0 }
 			}
 		}
-	}
+	},
+/* boardcnf[3] HopeRun HiHope RZ/G2N board 16Gbit/2rank/1ch */
+	{
+		0x01U,
+		0x01U,
+		0x0300U,
+		0,
+		0x0300U,
+		0x00a0U,
+		{
+			{
+				{ 0x04U, 0x04U },
+				0x00345201UL,
+				0x3201U,
+				{ 0x01672543U, 0x45361207U, 0x45632107U, 0x60715234U },
+				{ 0x08U, 0x08U, 0x08U, 0x08U },
+				WDQLVL_PAT,
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0,
+				  0, 0, 0, 0, 0, 0, 0, 0,
+				  0, 0, 0, 0, 0, 0, 0, 0,
+				  0, 0, 0, 0, 0, 0, 0, 0 },
+				{ 0, 0, 0, 0 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0,
+				  0, 0, 0, 0, 0, 0, 0, 0,
+				  0, 0, 0, 0, 0, 0, 0, 0,
+				  0, 0, 0, 0, 0, 0, 0, 0 }
+			}
+		}
+	},
 };
 #else
 static const struct _boardcnf boardcnfs[BOARDNUM] = {
@@ -1925,6 +1955,9 @@ static uint32_t rzg2_board_judge(void)
 		break;
 	case PRR_PRODUCT_H3:
 		brd = 2U;
+		break;
+	case PRR_PRODUCT_M3N:
+		brd = 3U;
 		break;
 	default:
 		brd = 99U;
