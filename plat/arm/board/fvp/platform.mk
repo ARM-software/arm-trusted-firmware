@@ -134,7 +134,7 @@ else
 					lib/cpus/aarch64/cortex_klein.S		\
 					lib/cpus/aarch64/cortex_matterhorn.S	\
 					lib/cpus/aarch64/cortex_makalu.S	\
-					lib/cpus/aarch64/cortex_makalu_elp.S	\
+					lib/cpus/aarch64/cortex_makalu_elp_arm.S \
 					lib/cpus/aarch64/cortex_a65.S		\
 					lib/cpus/aarch64/cortex_a65ae.S		\
 					lib/cpus/aarch64/cortex_a78c.S

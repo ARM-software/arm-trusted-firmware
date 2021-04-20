@@ -7,7 +7,7 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <common/bl_common.h>
-#include <cortex_makalu_elp.h>
+#include <cortex_makalu_elp_arm.h>
 #include <cpu_macros.S>
 #include <plat_macros.S>
 
@@ -25,33 +25,33 @@
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
 	 */
-func cortex_makalu_elp_core_pwr_dwn
+func cortex_makalu_elp_arm_core_pwr_dwn
 	/* ---------------------------------------------------
 	 * Enable CPU power down bit in power control register
 	 * ---------------------------------------------------
 	 */
-	mrs	x0, CORTEX_MAKALU_ELP_CPUPWRCTLR_EL1
-	orr	x0, x0, #CORTEX_MAKALU_ELP_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
-	msr	CORTEX_MAKALU_ELP_CPUPWRCTLR_EL1, x0
+	mrs	x0, CORTEX_MAKALU_ELP_ARM_CPUPWRCTLR_EL1
+	orr	x0, x0, #CORTEX_MAKALU_ELP_ARM_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+	msr	CORTEX_MAKALU_ELP_ARM_CPUPWRCTLR_EL1, x0
 	isb
 	ret
-endfunc cortex_makalu_elp_core_pwr_dwn
+endfunc cortex_makalu_elp_arm_core_pwr_dwn
 
 #if REPORT_ERRATA
 /*
  * Errata printing function for Cortex Makalu ELP. Must follow AAPCS.
  */
-func cortex_makalu_elp_errata_report
+func cortex_makalu_elp_arm_errata_report
 	ret
-endfunc cortex_makalu_elp_errata_report
+endfunc cortex_makalu_elp_arm_errata_report
 #endif
 
-func cortex_makalu_elp_reset_func
+func cortex_makalu_elp_arm_reset_func
 	/* Disable speculative loads */
 	msr	SSBS, xzr
 	isb
 	ret
-endfunc cortex_makalu_elp_reset_func
+endfunc cortex_makalu_elp_arm_reset_func
 
 	/* ---------------------------------------------
 	 * This function provides Cortex Makalu ELP-
@@ -62,16 +62,16 @@ endfunc cortex_makalu_elp_reset_func
 	 * reported.
 	 * ---------------------------------------------
 	 */
-.section .rodata.cortex_makalu_elp_regs, "aS"
-cortex_makalu_elp_regs:  /* The ascii list of register names to be reported */
+.section .rodata.cortex_makalu_elp_arm_regs, "aS"
+cortex_makalu_elp_arm_regs:  /* The ascii list of register names to be reported */
 	.asciz	"cpuectlr_el1", ""
 
-func cortex_makalu_elp_cpu_reg_dump
-	adr	x6, cortex_makalu_elp_regs
-	mrs	x8, CORTEX_MAKALU_ELP_CPUECTLR_EL1
+func cortex_makalu_elp_arm_cpu_reg_dump
+	adr	x6, cortex_makalu_elp_arm_regs
+	mrs	x8, CORTEX_MAKALU_ELP_ARM_CPUECTLR_EL1
 	ret
-endfunc cortex_makalu_elp_cpu_reg_dump
+endfunc cortex_makalu_elp_arm_cpu_reg_dump
 
-declare_cpu_ops cortex_makalu_elp, CORTEX_MAKALU_ELP_MIDR, \
-	cortex_makalu_elp_reset_func, \
-	cortex_makalu_elp_core_pwr_dwn
+declare_cpu_ops cortex_makalu_elp_arm, CORTEX_MAKALU_ELP_ARM_MIDR, \
+	cortex_makalu_elp_arm_reset_func, \
+	cortex_makalu_elp_arm_core_pwr_dwn
