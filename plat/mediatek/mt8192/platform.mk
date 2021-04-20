@@ -64,6 +64,7 @@ BL31_SOURCES    += common/desc_image_load.c                              \
                    ${MTK_PLAT_SOC}/plat_topology.c                       \
                    ${MTK_PLAT_SOC}/plat_sip_calls.c                      \
                    ${MTK_PLAT_SOC}/drivers/apusys/mtk_apusys.c           \
+                   ${MTK_PLAT_SOC}/drivers/apusys/mtk_apusys_apc.c       \
                    ${MTK_PLAT_SOC}/drivers/dcm/mtk_dcm.c                 \
                    ${MTK_PLAT_SOC}/drivers/dcm/mtk_dcm_utils.c           \
                    ${MTK_PLAT_SOC}/drivers/devapc/devapc.c               \
