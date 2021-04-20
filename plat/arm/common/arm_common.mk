@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -99,6 +99,11 @@ ifeq (${ARM_LINUX_KERNEL_AS_BL33},1)
   endif
   $(eval $(call add_define,ARM_PRELOADED_DTB_BASE))
 endif
+
+# Arm Ethos-N NPU SiP service
+ARM_ETHOSN_NPU_DRIVER			:=	0
+$(eval $(call assert_boolean,ARM_ETHOSN_NPU_DRIVER))
+$(eval $(call add_define,ARM_ETHOSN_NPU_DRIVER))
 
 # Use an implementation of SHA-256 with a smaller memory footprint but reduced
 # speed.
@@ -248,14 +253,26 @@ BL31_SOURCES		+=	plat/arm/common/arm_bl31_setup.c		\
 				plat/arm/common/arm_topology.c			\
 				plat/common/plat_psci_common.c
 
-ifeq (${ENABLE_PMF}, 1)
+ifneq ($(filter 1,${ENABLE_PMF} ${ARM_ETHOSN_NPU_DRIVER}),)
+ARM_SVC_HANDLER_SRCS :=
+
+ifeq (${ENABLE_PMF},1)
+ARM_SVC_HANDLER_SRCS	+=	lib/pmf/pmf_smc.c
+endif
+
+ifeq (${ARM_ETHOSN_NPU_DRIVER},1)
+ARM_SVC_HANDLER_SRCS	+=	plat/arm/common/fconf/fconf_ethosn_getter.c	\
+				drivers/delay_timer/delay_timer.c		\
+				drivers/arm/ethosn/ethosn_smc.c
+endif
+
 ifeq (${ARCH}, aarch64)
 BL31_SOURCES		+=	plat/arm/common/aarch64/execution_state_switch.c\
 				plat/arm/common/arm_sip_svc.c			\
-				lib/pmf/pmf_smc.c
+				${ARM_SVC_HANDLER_SRCS}
 else
 BL32_SOURCES		+=	plat/arm/common/arm_sip_svc.c			\
-				lib/pmf/pmf_smc.c
+				${ARM_SVC_HANDLER_SRCS}
 endif
 endif
 

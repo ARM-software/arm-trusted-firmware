@@ -1,0 +1,25 @@
+/*
+ * Copyright (c) 2021, Arm Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/ {
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	ethosn: ethosn@6f300000 {
+		compatible = "ethosn";
+		reg = <0 0x6f300000 0 0x00100000>;
+		status = "okay";
+
+		/*
+		 * Single-core NPU. For multi-core NPU, additional core nodes
+		 * and reg values must be added.
+		 */
+		core0 {
+			compatible = "ethosn-core";
+			status = "okay";
+		};
+	};
+};
