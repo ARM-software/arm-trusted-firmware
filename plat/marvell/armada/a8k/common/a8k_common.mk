@@ -10,13 +10,14 @@ PLAT_COMMON_BASE	:= plat/marvell/armada/a8k/common
 MARVELL_DRV_BASE	:= drivers/marvell
 MARVELL_COMMON_BASE	:= plat/marvell/armada/common
 
-MARVELL_SVC_TEST		:= 0
+MARVELL_SVC_TEST	:= 0
 $(eval $(call add_define,MARVELL_SVC_TEST))
 
 ERRATA_A72_859971	:= 1
 
 # Enable MSS support for a8k family
 MSS_SUPPORT		:= 1
+$(eval $(call add_define,MSS_SUPPORT))
 
 # Disable EL3 cache for power management
 BL31_CACHE_DISABLE	:= 0
@@ -112,10 +113,16 @@ MARVELL_DRV		:= 	$(MARVELL_DRV_BASE)/io_win.c	\
 				$(MARVELL_DRV_BASE)/amb_adec.c	\
 				$(MARVELL_DRV_BASE)/ccu.c	\
 				$(MARVELL_DRV_BASE)/cache_llc.c	\
-				$(MARVELL_DRV_BASE)/comphy/phy-comphy-cp110.c \
-				$(MARVELL_DRV_BASE)/mc_trustzone/mc_trustzone.c \
-				$(MARVELL_DRV_BASE)/mg_conf_cm3/mg_conf_cm3.c \
+				$(MARVELL_DRV_BASE)/comphy/phy-comphy-cp110.c	\
+				$(MARVELL_DRV_BASE)/mc_trustzone/mc_trustzone.c	\
+				$(MARVELL_DRV_BASE)/secure_dfx_access/armada_thermal.c	\
+				$(MARVELL_DRV_BASE)/secure_dfx_access/misc_dfx.c	\
+				$(MARVELL_DRV_BASE)/ddr_phy_access.c	\
 				drivers/rambus/trng_ip_76.c
+
+ifeq (${MSS_SUPPORT}, 1)
+MARVELL_DRV		+=	$(MARVELL_DRV_BASE)/mg_conf_cm3/mg_conf_cm3.c
+endif
 
 BL31_PORTING_SOURCES	:=	$(BOARD_DIR)/board/marvell_plat_config.c
 
@@ -139,6 +146,8 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a72.S		       \
 # Add trace functionality for PM
 BL31_SOURCES		+=	$(PLAT_COMMON_BASE)/plat_pm_trace.c
 
+
+ifeq (${MSS_SUPPORT}, 1)
 # Force builds with BL2 image on a80x0 platforms
 ifndef SCP_BL2
  $(error "Error: SCP_BL2 image is mandatory for a8k family")
@@ -146,6 +155,7 @@ endif
 
 # MSS (SCP) build
 include $(PLAT_COMMON_BASE)/mss/mss_a8k.mk
+endif
 
 # BLE (ROM context execution code, AKA binary extension)
 BLE_PATH	?=  $(PLAT_COMMON_BASE)/ble

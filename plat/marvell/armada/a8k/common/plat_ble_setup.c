@@ -14,6 +14,7 @@
 #include <drivers/marvell/mochi/cp110_setup.h>
 
 #include <armada_common.h>
+#include <efuse_def.h>
 #include <mv_ddr_if.h>
 #include <mvebu_def.h>
 #include <plat_marvell.h>
@@ -27,7 +28,6 @@
 #define MMAP_RESTORE_SAVED		1
 
 /* SAR clock settings */
-#define MVEBU_AP_GEN_MGMT_BASE		(MVEBU_RFU_BASE + 0x8000)
 #define MVEBU_AP_SAR_REG_BASE(r)	(MVEBU_AP_GEN_MGMT_BASE + 0x200 +\
 								((r) << 2))
 
@@ -82,11 +82,6 @@
 					 (0x1 << AVS_SOFT_RESET_OFFSET) | \
 					 (0x1 << AVS_ENABLE_OFFSET))
 
-#define MVEBU_AP_EFUSE_SRV_CTRL_REG	(MVEBU_AP_GEN_MGMT_BASE + 0x8)
-#define EFUSE_SRV_CTRL_LD_SELECT_OFFS	6
-#define EFUSE_SRV_CTRL_LD_SEL_USER_MASK	(1 << EFUSE_SRV_CTRL_LD_SELECT_OFFS)
-
-
 /*
  * - Identification information in the LD-0 eFuse:
  *	DRO:           LD0[74:65] - Not used by the SW
@@ -96,14 +91,7 @@
  *	Cluster 1 PWR: LD0[193] - if set to 1, power down CPU Cluster-1
  *				  resulting in 2 CPUs active only (7020)
  */
-#define MVEBU_AP_LD_EFUSE_BASE		(MVEBU_AP_GEN_MGMT_BASE + 0xF00)
-/* Bits [94:63] - 32 data bits total */
-#define MVEBU_AP_LD0_94_63_EFUSE_OFFS	(MVEBU_AP_LD_EFUSE_BASE + 0x8)
-/* Bits [125:95] - 31 data bits total, 32nd bit is parity for bits [125:63] */
-#define MVEBU_AP_LD0_125_95_EFUSE_OFFS	(MVEBU_AP_LD_EFUSE_BASE + 0xC)
-/* Bits [220:189] - 32 data bits total */
-#define MVEBU_AP_LD0_220_189_EFUSE_OFFS	(MVEBU_AP_LD_EFUSE_BASE + 0x18)
-/* Offsets for the above 2 fields combined into single 64-bit value [125:63] */
+/* Offsets for 2 efuse fields combined into single 64-bit value [125:63] */
 #define EFUSE_AP_LD0_DRO_OFFS		2		/* LD0[74:65] */
 #define EFUSE_AP_LD0_DRO_MASK		0x3FF
 #define EFUSE_AP_LD0_REVID_OFFS		12		/* LD0[78:75] */
@@ -376,20 +364,20 @@ static void ble_plat_svc_config(void)
 	uint8_t	 avs_data_bits, min_sw_ver, svc_fields;
 	unsigned int ap_type;
 
-	/* Set access to LD0 */
+	/* Get test EERPOM data */
 	avs_workpoint = avs_update_from_eeprom(0);
 	if (avs_workpoint)
 		goto set_aws_wp;
 
 	/* Set access to LD0 */
 	reg_val = mmio_read_32(MVEBU_AP_EFUSE_SRV_CTRL_REG);
-	reg_val &= ~EFUSE_SRV_CTRL_LD_SELECT_OFFS;
+	reg_val &= ~EFUSE_SRV_CTRL_LD_SELECT_MASK;
 	mmio_write_32(MVEBU_AP_EFUSE_SRV_CTRL_REG, reg_val);
 
 	/* Obtain the value of LD0[125:63] */
-	efuse = mmio_read_32(MVEBU_AP_LD0_125_95_EFUSE_OFFS);
+	efuse = mmio_read_32(MVEBU_AP_LDX_125_95_EFUSE_OFFS);
 	efuse <<= 32;
-	efuse |= mmio_read_32(MVEBU_AP_LD0_94_63_EFUSE_OFFS);
+	efuse |= mmio_read_32(MVEBU_AP_LDX_94_63_EFUSE_OFFS);
 
 	/* SW Revision:
 	 * Starting from SW revision 1 the SVC flow is supported.
@@ -452,7 +440,7 @@ static void ble_plat_svc_config(void)
 			perr[i] = 1; /* register the error */
 	}
 
-	single_cluster = mmio_read_32(MVEBU_AP_LD0_220_189_EFUSE_OFFS);
+	single_cluster = mmio_read_32(MVEBU_AP_LDX_220_189_EFUSE_OFFS);
 	single_cluster = (single_cluster >> EFUSE_AP_LD0_CLUSTER_DOWN_OFFS) & 1;
 
 	device_id = cp110_device_id_get(MVEBU_CP_REGS_BASE(0));

@@ -19,21 +19,8 @@
 #include <mss_scp_bootloader.h>
 #include <mss_ipc_drv.h>
 #include <mss_mem.h>
+#include <mss_defs.h>
 #include <mss_scp_bl2_format.h>
-
-#define MSS_DMA_SRCBR(base)		(base + 0xC0)
-#define MSS_DMA_DSTBR(base)		(base + 0xC4)
-#define MSS_DMA_CTRLR(base)		(base + 0xC8)
-#define MSS_M3_RSTCR(base)		(base + 0xFC)
-
-#define MSS_DMA_CTRLR_SIZE_OFFSET	(0)
-#define MSS_DMA_CTRLR_REQ_OFFSET	(15)
-#define MSS_DMA_CTRLR_REQ_SET		(1)
-#define MSS_DMA_CTRLR_ACK_OFFSET	(12)
-#define MSS_DMA_CTRLR_ACK_MASK		(0x1)
-#define MSS_DMA_CTRLR_ACK_READY		(1)
-#define MSS_M3_RSTCR_RST_OFFSET		(0)
-#define MSS_M3_RSTCR_RST_OFF		(1)
 
 #define MSS_DMA_TIMEOUT			1000
 #define MSS_EXTERNAL_SPACE		0x50000000
@@ -85,9 +72,9 @@ static int mss_iram_dma_load(uint32_t src_addr, uint32_t size,
 		/* Poll DMA_ACK at MSS_DMACTLR until it is ready */
 		timeout = MSS_DMA_TIMEOUT;
 		while (timeout > 0U) {
-			if ((mmio_read_32(MSS_DMA_CTRLR(mss_regs)) >>
-					  (MSS_DMA_CTRLR_ACK_OFFSET &
-					   MSS_DMA_CTRLR_ACK_MASK))
+			if (((mmio_read_32(MSS_DMA_CTRLR(mss_regs)) >>
+					  MSS_DMA_CTRLR_ACK_OFFSET) &
+					  MSS_DMA_CTRLR_ACK_MASK)
 					  == MSS_DMA_CTRLR_ACK_READY) {
 				break;
 			}
@@ -161,14 +148,19 @@ static int mss_image_load(uint32_t src_addr, uint32_t size,
 
 	bl2_plat_configure_mss_windows(mss_regs);
 
-	/* Wipe the MSS SRAM after using it as copy buffer */
-	if (sram) {
+	if (sram != 0) {
+		/* Wipe the MSS SRAM after using it as copy buffer */
 		memset((void *)sram, 0, MSS_SRAM_SIZE);
+		NOTICE("CP MSS startup is postponed\n");
+		/* FW loaded, but CPU startup postponed until final CP setup */
+		mmio_write_32(sram, MSS_FW_READY_MAGIC);
+		dsb();
+	} else {
+		/* Release M3 from reset */
+		mmio_write_32(MSS_M3_RSTCR(mss_regs),
+			      (MSS_M3_RSTCR_RST_OFF <<
+			       MSS_M3_RSTCR_RST_OFFSET));
 	}
-
-	/* Release M3 from reset */
-	mmio_write_32(MSS_M3_RSTCR(mss_regs),
-		     (MSS_M3_RSTCR_RST_OFF << MSS_M3_RSTCR_RST_OFFSET));
 
 	NOTICE("Done\n");
 

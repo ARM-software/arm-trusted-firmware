@@ -16,8 +16,11 @@
 #include <marvell_pm.h>
 #include <mc_trustzone/mc_trustzone.h>
 #include <plat_marvell.h>
+#if MSS_SUPPORT
 #include <mss_ipc_drv.h>
 #include <mss_mem.h>
+#include <mss_defs.h>
+#endif
 
 /* In Armada-8k family AP806/AP807, CP0 connected to PIDI
  * and CP1 connected to IHB via MCI #0
@@ -51,6 +54,7 @@ static void marvell_bl31_mpp_init(int cp)
 	mmio_write_32(MVEBU_CP_MPP_REGS(0, 4), reg | 0x2200000);
 }
 
+#if MSS_SUPPORT
 void marvell_bl31_mss_init(void)
 {
 	struct mss_pm_ctrl_block *mss_pm_crtl =
@@ -70,6 +74,7 @@ void marvell_bl31_mss_init(void)
 	if (mss_pm_crtl->ipc_state == IPC_INITIALIZED)
 		mv_pm_ipc_init(mss_pm_crtl->ipc_base_address | MVEBU_REGS_BASE);
 }
+#endif
 
 _Bool is_pm_fw_running(void)
 {
@@ -120,16 +125,22 @@ void bl31_plat_arch_setup(void)
 			   STREAM_ID_BASE + (cp * MAX_STREAM_ID_PER_CP));
 
 		marvell_bl31_mpp_init(cp);
+
+#if MSS_SUPPORT
+		/* Release CP MSS CPU from reset once the CP init is done */
+		mss_start_cp_cm3(cp);
+#endif
 	}
 
 	for (cp = 1; cp < CP_COUNT; cp++)
 		mci_link_tune(cp - 1);
 
+#if MSS_SUPPORT
 	/* initialize IPC between MSS and ATF */
 	if (mailbox[MBOX_IDX_MAGIC] != MVEBU_MAILBOX_MAGIC_NUM ||
 	    mailbox[MBOX_IDX_SUSPEND_MAGIC] != MVEBU_MAILBOX_SUSPEND_STATE)
 		marvell_bl31_mss_init();
-
+#endif
 	/* Configure GPIO */
 	marvell_gpio_config();
 

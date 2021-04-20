@@ -6,10 +6,6 @@
 MARVELL_PLAT_BASE		:= plat/marvell/armada
 MARVELL_PLAT_INCLUDE_BASE	:= include/plat/marvell/armada
 
-include plat/marvell/version.mk
-
-VERSION_STRING			+=(Marvell-${SUBVERSION})
-
 SEPARATE_CODE_AND_RODATA	:= 1
 
 # flag to switch from PLL to ARO

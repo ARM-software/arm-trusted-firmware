@@ -16,6 +16,8 @@
 #include <plat_marvell.h>
 
 #include "comphy/phy-comphy-cp110.h"
+#include "secure_dfx_access/dfx.h"
+#include "ddr_phy_access.h"
 #include <stdbool.h>
 
 /* #define DEBUG_COMPHY */
@@ -37,6 +39,9 @@
 #define MV_SIP_LLC_ENABLE	0x82000011
 #define MV_SIP_PMU_IRQ_ENABLE	0x82000012
 #define MV_SIP_PMU_IRQ_DISABLE	0x82000013
+#define MV_SIP_DFX		0x82000014
+#define MV_SIP_DDR_PHY_WRITE	0x82000015
+#define MV_SIP_DDR_PHY_READ	0x82000016
 
 /* TRNG */
 #define MV_SIP_RNG_64		0xC200FF11
@@ -44,6 +49,9 @@
 #define MAX_LANE_NR		6
 #define MVEBU_COMPHY_OFFSET	0x441000
 #define MVEBU_CP_BASE_MASK	(~0xffffff)
+
+/* Common PHY register */
+#define COMPHY_TRX_TRAIN_CTRL_REG_0_OFFS	0x120a2c
 
 /* This macro is used to identify COMPHY related calls from SMC function ID */
 #define is_comphy_fid(fid)	\
@@ -71,8 +79,7 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 			       void *handle,
 			       u_register_t flags)
 {
-	u_register_t ret;
-	uint32_t w2[2] = {0, 0};
+	u_register_t ret, read, x5 = x1;
 	int i;
 
 	debug("%s: got SMC (0x%x) x1 0x%lx, x2 0x%lx, x3 0x%lx\n",
@@ -86,6 +93,7 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 			SMC_RET1(handle, SMC_UNK);
 		}
 
+		x5 = x1 + COMPHY_TRX_TRAIN_CTRL_REG_0_OFFS;
 		x1 += MVEBU_COMPHY_OFFSET;
 
 		if (x2 >= MAX_LANE_NR) {
@@ -100,7 +108,7 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 	/* Comphy related FID's */
 	case MV_SIP_COMPHY_POWER_ON:
 		/* x1:  comphy_base, x2: comphy_index, x3: comphy_mode */
-		ret = mvebu_cp110_comphy_power_on(x1, x2, x3);
+		ret = mvebu_cp110_comphy_power_on(x1, x2, x3, x5);
 		SMC_RET1(handle, ret);
 	case MV_SIP_COMPHY_POWER_OFF:
 		/* x1:  comphy_base, x2: comphy_index */
@@ -136,9 +144,33 @@ uintptr_t mrvl_sip_smc_handler(uint32_t smc_fid,
 		mvebu_pmu_interrupt_disable();
 		SMC_RET1(handle, 0);
 #endif
+	case MV_SIP_DFX:
+		if (x1 >= MV_SIP_DFX_THERMAL_INIT &&
+		    x1 <= MV_SIP_DFX_THERMAL_SEL_CHANNEL) {
+			ret = mvebu_dfx_thermal_handle(x1, &read, x2, x3);
+			SMC_RET2(handle, ret, read);
+		}
+		if (x1 >= MV_SIP_DFX_SREAD && x1 <= MV_SIP_DFX_SWRITE) {
+			ret = mvebu_dfx_misc_handle(x1, &read, x2, x3);
+			SMC_RET2(handle, ret, read);
+		}
+
+		SMC_RET1(handle, SMC_UNK);
+	case MV_SIP_DDR_PHY_WRITE:
+		ret = mvebu_ddr_phy_write(x1, x2);
+		SMC_RET1(handle, ret);
+	case MV_SIP_DDR_PHY_READ:
+		read = 0;
+		ret = mvebu_ddr_phy_read(x1, (uint16_t *)&read);
+		SMC_RET2(handle, ret, read);
 	case MV_SIP_RNG_64:
-		ret = eip76_rng_get_random((uint8_t *)&w2, 4 * (x1 % 2 + 1));
-		SMC_RET3(handle, ret, w2[0], w2[1]);
+		if ((x1 % 2 + 1) > sizeof(read)/4) {
+			ERROR("%s: Maximum %ld random bytes per SMC call\n",
+			      __func__, sizeof(read));
+			SMC_RET1(handle, SMC_UNK);
+		}
+		ret = eip76_rng_get_random((uint8_t *)&read, 4 * (x1 % 2 + 1));
+		SMC_RET2(handle, ret, read);
 	default:
 		ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
 		SMC_RET1(handle, SMC_UNK);

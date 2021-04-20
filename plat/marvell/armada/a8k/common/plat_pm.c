@@ -18,7 +18,9 @@
 
 #include <armada_common.h>
 #include <marvell_pm.h>
+#if MSS_SUPPORT
 #include <mss_pm_ipc.h>
+#endif
 #include <plat_marvell.h>
 #include <plat_pm_trace.h>
 
@@ -396,6 +398,7 @@ static int a8k_pwr_domain_on(u_register_t mpidr)
 	/* Power up CPU (CPUs 1-3 are powered off at start of BLE) */
 	plat_marvell_cpu_powerup(mpidr);
 
+#if MSS_SUPPORT
 	if (is_pm_fw_running()) {
 		unsigned int target =
 				((mpidr & 0xFF) + (((mpidr >> 8) & 0xFF) * 2));
@@ -417,11 +420,12 @@ static int a8k_pwr_domain_on(u_register_t mpidr)
 
 		/* trace message */
 		PM_TRACE(TRACE_PWR_DOMAIN_ON | target);
-	} else {
+	} else
+#endif
+	{
 		/* proprietary CPU ON exection flow */
 		plat_marvell_cpu_on(mpidr);
 	}
-
 	return 0;
 }
 
@@ -441,6 +445,7 @@ static int a8k_validate_ns_entrypoint(uintptr_t entrypoint)
  */
 static void a8k_pwr_domain_off(const psci_power_state_t *target_state)
 {
+#if MSS_SUPPORT
 	if (is_pm_fw_running()) {
 		unsigned int idx = plat_my_core_pos();
 
@@ -466,6 +471,7 @@ static void a8k_pwr_domain_off(const psci_power_state_t *target_state)
 	} else {
 		INFO("%s: is not supported without SCP\n", __func__);
 	}
+#endif
 }
 
 /* Get PM config to power off the SoC */
@@ -586,6 +592,7 @@ static void plat_marvell_power_off_prepare(struct power_off_method *pm_cfg,
  */
 static void a8k_pwr_domain_suspend(const psci_power_state_t *target_state)
 {
+#if MSS_SUPPORT
 	if (is_pm_fw_running()) {
 		unsigned int idx;
 
@@ -610,7 +617,9 @@ static void a8k_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 		/* trace message */
 		PM_TRACE(TRACE_PWR_DOMAIN_SUSPEND);
-	} else {
+	} else
+#endif
+	{
 		uintptr_t *mailbox = (void *)PLAT_MARVELL_MAILBOX_BASE;
 
 		INFO("Suspending to RAM\n");

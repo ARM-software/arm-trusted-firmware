@@ -16,7 +16,7 @@
 
 #include <armada_common.h>
 #include <marvell_plat_priv.h> /* timer functionality */
-
+#include "mss_defs.h"
 #include "mss_scp_bootloader.h"
 
 /* MSS windows configuration */
@@ -29,10 +29,6 @@
 #define MSS_EXTERNAL_ACCESS_BIT		28
 #define MSS_EXTERNAL_ADDR_MASK		0xfffffff
 #define MSS_INTERNAL_ACCESS_BIT		28
-
-#define MSS_AP_REGS_OFFSET		0x580000
-#define MSS_CP_SRAM_OFFSET		0x220000
-#define MSS_CP_REGS_OFFSET		0x280000
 
 struct addr_map_win ccu_mem_map[] = {
 	{MVEBU_CP_REGS_BASE(0), 0x4000000, IO_0_TID}
@@ -130,11 +126,7 @@ uintptr_t bl2_plat_get_cp_mss_regs(int ap_idx, int cp_idx)
 
 uintptr_t bl2_plat_get_cp_mss_sram(int ap_idx, int cp_idx)
 {
-	if (is_secure()) {
-		return MVEBU_CP_REGS_BASE(cp_idx) + MSS_CP_SRAM_OFFSET;
-	}
-
-	return 0; /* SRAM will not be used */
+	return MVEBU_CP_REGS_BASE(cp_idx) + MSS_CP_SRAM_OFFSET;
 }
 
 uintptr_t bl2_plat_get_ap_mss_regs(int ap_idx)
