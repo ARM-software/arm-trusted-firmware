@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2020-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -78,12 +78,26 @@ static void bl2_init_generic_timer(void);
 #if RCAR_LSI == RZ_G2M
 #define TARGET_PRODUCT			PRR_PRODUCT_M3
 #define TARGET_NAME			"RZ/G2M"
+#elif RCAR_LSI == RZ_G2H
+#define TARGET_PRODUCT			PRR_PRODUCT_H3
+#define TARGET_NAME			"RZ/G2H"
+#elif RCAR_LSI == RZ_G2N
+#define TARGET_PRODUCT			PRR_PRODUCT_M3N
+#define TARGET_NAME			"RZ/G2N"
+#elif RCAR_LSI == RZ_G2E
+#define TARGET_PRODUCT			PRR_PRODUCT_E3
+#define TARGET_NAME			"RZ/G2E"
 #elif RCAR_LSI == RCAR_AUTO
 #define TARGET_NAME			"RZ/G2M"
 #endif /* RCAR_LSI == RZ_G2M */
 
+#if (RCAR_LSI == RZ_G2E)
+#define GPIO_INDT			(GPIO_INDT6)
+#define GPIO_BKUP_TRG_SHIFT		((uint32_t)1U << 13U)
+#else
 #define GPIO_INDT			(GPIO_INDT1)
 #define GPIO_BKUP_TRG_SHIFT		(1U << 8U)
+#endif /* RCAR_LSI == RZ_G2E */
 
 CASSERT((PARAMS_BASE + sizeof(bl2_to_bl31_params_mem_t) + 0x100)
 	 < (RCAR_SHARED_MEM_BASE + RCAR_SHARED_MEM_SIZE),
@@ -424,6 +438,18 @@ static void bl2_populate_compatible_string(void *dt)
 		ret = fdt_setprop_string(dt, 0, "compatible",
 					 "hoperun,hihope-rzg2m");
 		break;
+	case BOARD_HIHOPE_RZ_G2H:
+		ret = fdt_setprop_string(dt, 0, "compatible",
+					 "hoperun,hihope-rzg2h");
+		break;
+	case BOARD_HIHOPE_RZ_G2N:
+		ret = fdt_setprop_string(dt, 0, "compatible",
+					 "hoperun,hihope-rzg2n");
+		break;
+	case BOARD_EK874_RZ_G2E:
+		ret = fdt_setprop_string(dt, 0, "compatible",
+					 "si-linux,cat874");
+		break;
 	default:
 		NOTICE("BL2: Cannot set compatible string, board unsupported\n");
 		panic();
@@ -440,6 +466,18 @@ static void bl2_populate_compatible_string(void *dt)
 	case PRR_PRODUCT_M3:
 		ret = fdt_appendprop_string(dt, 0, "compatible",
 					    "renesas,r8a774a1");
+		break;
+	case PRR_PRODUCT_H3:
+		ret = fdt_appendprop_string(dt, 0, "compatible",
+					    "renesas,r8a774e1");
+		break;
+	case PRR_PRODUCT_M3N:
+		ret = fdt_appendprop_string(dt, 0, "compatible",
+					    "renesas,r8a774b1");
+		break;
+	case PRR_PRODUCT_E3:
+		ret = fdt_appendprop_string(dt, 0, "compatible",
+					    "renesas,r8a774c0");
 		break;
 	default:
 		NOTICE("BL2: Cannot set compatible string, SoC unsupported\n");
@@ -560,6 +598,42 @@ static void bl2_advertise_dram_size(uint32_t product)
 		dram_config[1] = 0x80000000ULL;
 		dram_config[5] = 0x80000000ULL;
 		break;
+	case PRR_PRODUCT_H3:
+#if (RCAR_DRAM_LPDDR4_MEMCONF == 0)
+		/* 4GB(1GBx4) */
+		dram_config[1] = 0x40000000ULL;
+		dram_config[3] = 0x40000000ULL;
+		dram_config[5] = 0x40000000ULL;
+		dram_config[7] = 0x40000000ULL;
+#elif (RCAR_DRAM_LPDDR4_MEMCONF == 1) && (RCAR_DRAM_CHANNEL == 5) && \
+	(RCAR_DRAM_SPLIT == 2)
+		/* 4GB(2GBx2 2ch split) */
+		dram_config[1] = 0x80000000ULL;
+		dram_config[3] = 0x80000000ULL;
+#elif (RCAR_DRAM_LPDDR4_MEMCONF == 1) && (RCAR_DRAM_CHANNEL == 15)
+		/* 8GB(2GBx4: default) */
+		dram_config[1] = 0x80000000ULL;
+		dram_config[3] = 0x80000000ULL;
+		dram_config[5] = 0x80000000ULL;
+		dram_config[7] = 0x80000000ULL;
+#endif /* RCAR_DRAM_LPDDR4_MEMCONF == 0 */
+		break;
+	case PRR_PRODUCT_M3N:
+		/* 4GB(4GBx1) */
+		dram_config[1] = 0x100000000ULL;
+		break;
+	case PRR_PRODUCT_E3:
+#if (RCAR_DRAM_DDR3L_MEMCONF == 0)
+		/* 1GB(512MBx2) */
+		dram_config[1] = 0x40000000ULL;
+#elif (RCAR_DRAM_DDR3L_MEMCONF == 1)
+		/* 2GB(512MBx4) */
+		dram_config[1] = 0x80000000ULL;
+#elif (RCAR_DRAM_DDR3L_MEMCONF == 2)
+		/* 4GB(1GBx4) */
+		dram_config[1] = 0x100000000ULL;
+#endif /* RCAR_DRAM_DDR3L_MEMCONF == 0 */
+		break;
 	default:
 		NOTICE("BL2: Detected invalid DRAM entries\n");
 		break;
@@ -578,13 +652,23 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	const char *unknown = "unknown";
 	const char *cpu_ca57 = "CA57";
 	const char *cpu_ca53 = "CA53";
+	const char *product_g2e = "G2E";
+	const char *product_g2h = "G2H";
 	const char *product_g2m = "G2M";
+	const char *product_g2n = "G2N";
 	const char *boot_hyper80 = "HyperFlash(80MHz)";
 	const char *boot_qspi40 = "QSPI Flash(40MHz)";
 	const char *boot_qspi80 = "QSPI Flash(80MHz)";
 	const char *boot_emmc25x1 = "eMMC(25MHz x1)";
 	const char *boot_emmc50x8 = "eMMC(50MHz x8)";
+#if (RCAR_LSI == RZ_G2E)
+	uint32_t sscg;
+	const char *sscg_on = "PLL1 SSCG Clock select";
+	const char *sscg_off = "PLL1 nonSSCG Clock select";
+	const char *boot_hyper160 = "HyperFlash(150MHz)";
+#else
 	const char *boot_hyper160 = "HyperFlash(160MHz)";
+#endif /* RCAR_LSI == RZ_G2E */
 #if RZG_LCS_STATE_DETECTION_ENABLE
 	uint32_t lcs;
 	const char *lcs_secure = "SE";
@@ -646,6 +730,15 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	case PRR_PRODUCT_M3:
 		str = product_g2m;
 		break;
+	case PRR_PRODUCT_H3:
+		str = product_g2h;
+		break;
+	case PRR_PRODUCT_M3N:
+		str = product_g2n;
+		break;
+	case PRR_PRODUCT_E3:
+		str = product_g2e;
+		break;
 	default:
 		str = unknown;
 		break;
@@ -667,10 +760,22 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 		NOTICE("BL2: PRR is RZ/%s Ver.%d.%d\n", str, major, minor);
 	}
 
+#if (RCAR_LSI == RZ_G2E)
+	if (product == PRR_PRODUCT_E3) {
+		reg = mmio_read_32(RCAR_MODEMR);
+		sscg = reg & RCAR_SSCG_MASK;
+		str = sscg == RCAR_SSCG_ENABLE ? sscg_on : sscg_off;
+		NOTICE("BL2: %s\n", str);
+	}
+#endif /* RCAR_LSI == RZ_G2E */
+
 	rzg_get_board_type(&type, &rev);
 
 	switch (type) {
 	case BOARD_HIHOPE_RZ_G2M:
+	case BOARD_HIHOPE_RZ_G2H:
+	case BOARD_HIHOPE_RZ_G2N:
+	case BOARD_EK874_RZ_G2E:
 		break;
 	default:
 		type = BOARD_UNKNOWN;
@@ -762,7 +867,7 @@ lcm_state:
 
 	if (boot_cpu == MODEMR_BOOT_CPU_CA57 ||
 	    boot_cpu == MODEMR_BOOT_CPU_CA53) {
-		ret = rzg_dram_init();
+		ret = rcar_dram_init();
 		if (ret != 0) {
 			NOTICE("BL2: Failed to DRAM initialize (%d).\n", ret);
 			panic();
@@ -884,6 +989,9 @@ void bl2_platform_setup(void)
 
 static void bl2_init_generic_timer(void)
 {
+#if RCAR_LSI == RZ_G2E
+	uint32_t reg_cntfid = EXTAL_EBISU;
+#else
 	uint32_t reg_cntfid;
 	uint32_t modemr;
 	uint32_t modemr_pll;
@@ -899,6 +1007,7 @@ static void bl2_init_generic_timer(void)
 
 	/* Set frequency data in CNTFID0 */
 	reg_cntfid = pll_table[modemr_pll >> MODEMR_BOOT_PLL_SHIFT];
+#endif /* RCAR_LSI == RZ_G2E */
 
 	/* Update memory mapped and register based frequency */
 	write_cntfrq_el0((u_register_t)reg_cntfid);

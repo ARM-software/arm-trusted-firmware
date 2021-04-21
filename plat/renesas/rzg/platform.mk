@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2020, Renesas Electronics Corporation. All rights reserved.
+# Copyright (c) 2018-2021, Renesas Electronics Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -27,6 +27,55 @@ else
         RCAR_LSI_CUT:=3
       else ifeq (${LSI_CUT},30)
         RCAR_LSI_CUT:=20
+      else
+        $(error "Error: ${LSI_CUT} is not supported.")
+      endif
+      $(eval $(call add_define,RCAR_LSI_CUT))
+    endif
+  else ifeq (${LSI},G2H)
+    RCAR_LSI:=${RZ_G2H}
+    ifndef LSI_CUT
+      # enable compatible function.
+      RCAR_LSI_CUT_COMPAT := 1
+      $(eval $(call add_define,RCAR_LSI_CUT_COMPAT))
+    else
+      # disable compatible function.
+      ifeq (${LSI_CUT},30)
+        RCAR_LSI_CUT:=20
+      else
+        $(error "Error: ${LSI_CUT} is not supported.")
+      endif
+      $(eval $(call add_define,RCAR_LSI_CUT))
+    endif
+  else ifeq (${LSI},G2N)
+    RCAR_LSI:=${RZ_G2N}
+    ifndef LSI_CUT
+      # enable compatible function.
+      RCAR_LSI_CUT_COMPAT := 1
+      $(eval $(call add_define,RCAR_LSI_CUT_COMPAT))
+    else
+      # disable compatible function.
+      ifeq (${LSI_CUT},10)
+        RCAR_LSI_CUT:=0
+      else ifeq (${LSI_CUT},11)
+        RCAR_LSI_CUT:=1
+      else
+        $(error "Error: ${LSI_CUT} is not supported.")
+      endif
+      $(eval $(call add_define,RCAR_LSI_CUT))
+    endif
+  else ifeq (${LSI},G2E)
+    RCAR_LSI:=${RZ_G2E}
+    ifndef LSI_CUT
+      # enable compatible function.
+      RCAR_LSI_CUT_COMPAT := 1
+      $(eval $(call add_define,RCAR_LSI_CUT_COMPAT))
+    else
+      # disable compatible function.
+      ifeq (${LSI_CUT},10)
+        RCAR_LSI_CUT:=0
+      else ifeq (${LSI_CUT},11)
+        RCAR_LSI_CUT:=1
       else
         $(error "Error: ${LSI_CUT} is not supported.")
       endif
@@ -168,12 +217,15 @@ RCAR_SYSTEM_RESET_KEEPON_DDR := 0
 endif
 $(eval $(call add_define,RCAR_SYSTEM_RESET_KEEPON_DDR))
 
-include drivers/renesas/rzg/ddr/ddr.mk
+RZG_SOC :=1
+$(eval $(call add_define,RZG_SOC))
+
+include drivers/renesas/common/ddr/ddr.mk
 include drivers/renesas/rzg/qos/qos.mk
 include drivers/renesas/rzg/pfc/pfc.mk
 include lib/libfdt/libfdt.mk
 
-PLAT_INCLUDES	+=	-Idrivers/renesas/rzg/ddr		\
+PLAT_INCLUDES	+=	-Idrivers/renesas/common/ddr		\
 			-Idrivers/renesas/rzg/qos		\
 			-Idrivers/renesas/rzg/board		\
 			-Idrivers/renesas/common		\

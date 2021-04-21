@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,7 +13,8 @@
 
 static void bl2_secure_cpg_init(void);
 
-#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_H3) || \
+	(RCAR_LSI == RCAR_H3N) || (RCAR_LSI == RZ_G2H)
 static void bl2_realtime_cpg_init_h3(void);
 static void bl2_system_cpg_init_h3(void);
 #endif
@@ -23,7 +24,7 @@ static void bl2_realtime_cpg_init_m3(void);
 static void bl2_system_cpg_init_m3(void);
 #endif
 
-#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3N)
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3N) || (RCAR_LSI == RZ_G2N)
 static void bl2_realtime_cpg_init_m3n(void);
 static void bl2_system_cpg_init_m3n(void);
 #endif
@@ -33,7 +34,7 @@ static void bl2_realtime_cpg_init_v3m(void);
 static void bl2_system_cpg_init_v3m(void);
 #endif
 
-#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_E3)
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_E3) || (RCAR_LSI == RZ_G2E)
 static void bl2_realtime_cpg_init_e3(void);
 static void bl2_system_cpg_init_e3(void);
 #endif
@@ -57,7 +58,7 @@ static void bl2_secure_cpg_init(void)
 #if (RCAR_LSI == RCAR_D3)
 	reset_cr2 = 0x00000000U;
 	stop_cr2 = 0xFFFFFFFFU;
-#elif (RCAR_LSI == RCAR_E3)
+#elif (RCAR_LSI == RCAR_E3) || (RCAR_LSI == RZ_G2E)
 	reset_cr2 = 0x10000000U;
 	stop_cr2 = 0xEFFFFFFFU;
 #else
@@ -106,7 +107,8 @@ static void bl2_secure_cpg_init(void)
 	cpg_write(SCSRSTECR11, 0x00000000U);
 }
 
-#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_H3) || \
+	(RCAR_LSI == RCAR_H3N) || (RCAR_LSI == RZ_G2H)
 static void bl2_realtime_cpg_init_h3(void)
 {
 	uint32_t cut = mmio_read_32(RCAR_PRR) & PRR_CUT_MASK;
@@ -185,7 +187,7 @@ static void bl2_system_cpg_init_m3(void)
 }
 #endif
 
-#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3N)
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_M3N)  || (RCAR_LSI == RZ_G2N)
 static void bl2_realtime_cpg_init_m3n(void)
 {
 	/* Realtime Module Stop Control Registers */
@@ -253,7 +255,7 @@ static void bl2_system_cpg_init_v3m(void)
 }
 #endif
 
-#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_E3)
+#if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_E3) || (RCAR_LSI == RZ_G2E)
 static void bl2_realtime_cpg_init_e3(void)
 {
 	/* Realtime Module Stop Control Registers */
@@ -360,15 +362,15 @@ void bl2_cpg_init(void)
 			panic();
 			break;
 		}
-#elif (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)
+#elif (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N) || (RCAR_LSI == RZ_G2H)
 		bl2_realtime_cpg_init_h3();
 #elif (RCAR_LSI == RCAR_M3) || (RCAR_LSI == RZ_G2M)
 		bl2_realtime_cpg_init_m3();
-#elif RCAR_LSI == RCAR_M3N
+#elif RCAR_LSI == RCAR_M3N || (RCAR_LSI == RZ_G2N)
 		bl2_realtime_cpg_init_m3n();
 #elif RCAR_LSI == RCAR_V3M
 		bl2_realtime_cpg_init_v3m();
-#elif RCAR_LSI == RCAR_E3
+#elif RCAR_LSI == RCAR_E3 || RCAR_LSI == RZ_G2E
 		bl2_realtime_cpg_init_e3();
 #elif RCAR_LSI == RCAR_D3
 		bl2_realtime_cpg_init_d3();
@@ -406,15 +408,15 @@ void bl2_system_cpg_init(void)
 		panic();
 		break;
 	}
-#elif (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N)
+#elif (RCAR_LSI == RCAR_H3) || (RCAR_LSI == RCAR_H3N) || (RCAR_LSI == RZ_G2H)
 	bl2_system_cpg_init_h3();
 #elif (RCAR_LSI == RCAR_M3) || (RCAR_LSI == RZ_G2M)
 	bl2_system_cpg_init_m3();
-#elif RCAR_LSI == RCAR_M3N
+#elif RCAR_LSI == RCAR_M3N  || (RCAR_LSI == RZ_G2N)
 	bl2_system_cpg_init_m3n();
 #elif RCAR_LSI == RCAR_V3M
 	bl2_system_cpg_init_v3m();
-#elif RCAR_LSI == RCAR_E3
+#elif RCAR_LSI == RCAR_E3 || RCAR_LSI == RZ_G2E
 	bl2_system_cpg_init_e3();
 #elif RCAR_LSI == RCAR_D3
 	bl2_system_cpg_init_d3();

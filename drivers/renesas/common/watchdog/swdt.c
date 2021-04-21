@@ -78,7 +78,7 @@ static void swdt_disable(void)
 void rcar_swdt_init(void)
 {
 	uint32_t rmsk, sr;
-#if (RCAR_LSI != RCAR_E3)
+#if (RCAR_LSI != RCAR_E3) && (RCAR_LSI != RZ_G2E)
 	uint32_t reg, val, product_cut, chk_data;
 
 	reg = mmio_read_32(RCAR_PRR);
@@ -94,7 +94,7 @@ void rcar_swdt_init(void)
 	mmio_write_32(SWDT_WTCSRA, WTCSRA_UPPER_BYTE |
 		      WTCSRA_WOVFE | WTCSRA_CKS_DIV16);
 
-#if (RCAR_LSI == RCAR_E3)
+#if (RCAR_LSI == RCAR_E3) || (RCAR_LSI == RZ_G2E)
 	mmio_write_32(SWDT_WTCNT, WTCNT_UPPER_BYTE | WTCNT_COUNT_7p81k);
 #else
 	val = WTCNT_UPPER_BYTE;
