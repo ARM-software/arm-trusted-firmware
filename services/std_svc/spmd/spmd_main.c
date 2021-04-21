@@ -639,7 +639,7 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		}
 
 		/* Fall through to forward the call to the other world */
-
+	case FFA_INTERRUPT:
 	case FFA_MSG_YIELD:
 		/* This interface must be invoked only by the Secure world */
 		if (!secure_origin) {
