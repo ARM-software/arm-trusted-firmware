@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# shellcheck source=./_/husky.sh
+. "$(dirname "$0")/_/husky.sh"
+
+"$(dirname "$0")/commit-msg.gerrit" "$@"
+"$(dirname "$0")/commit-msg.commitlint" "$@"
