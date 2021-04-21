@@ -31,6 +31,16 @@
 		};
 	};
 
+	i2c2_pins_a: i2c2-0 {
+		pins {
+			pinmux = <STM32_PINMUX('H', 4, AF4)>, /* I2C2_SCL */
+				 <STM32_PINMUX('H', 5, AF4)>; /* I2C2_SDA */
+			bias-disable;
+			drive-open-drain;
+			slew-rate = <0>;
+		};
+	};
+
 	qspi_clk_pins_a: qspi-clk-0 {
 		pins {
 			pinmux = <STM32_PINMUX('F', 10, AF9)>; /* QSPI_CLK */
