@@ -350,10 +350,19 @@ unsigned int zynqmp_get_bootmode(void)
 
 void zynqmp_config_setup(void)
 {
+	uint64_t counter_freq;
+
 	/* Configure IPI data for ZynqMP */
 	zynqmp_ipi_config_table_init();
 
 	zynqmp_print_platform_name();
+
+	/* Configure counter frequency */
+	counter_freq = read_cntfrq_el0();
+	if (counter_freq == ZYNQMP_DEFAULT_COUNTER_FREQ) {
+		write_cntfrq_el0(plat_get_syscnt_freq2());
+	}
+
 	generic_delay_timer_init();
 }
 
