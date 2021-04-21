@@ -108,7 +108,7 @@ Still to come
 
 -  Refinements to Position Independent Executable (PIE) support.
 
--  Continued support for the PSA FF-A v1.0 (formally known as SPCI) specification, to enable the
+-  Continued support for the FF-A v1.0 (formally known as SPCI) specification, to enable the
    use of secure partition management in the secure world.
 
 -  Documentation enhancements.
@@ -126,4 +126,4 @@ Still to come
 
 --------------
 
-*Copyright (c) 2019-2020, Arm Limited. All rights reserved.*
+*Copyright (c) 2019-2021, Arm Limited. All rights reserved.*
