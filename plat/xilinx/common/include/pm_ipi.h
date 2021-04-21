@@ -26,7 +26,7 @@ void pm_ipi_buff_read_callb(unsigned int *value, size_t count);
 void pm_ipi_irq_enable(const struct pm_proc *proc);
 void pm_ipi_irq_clear(const struct pm_proc *proc);
 uint32_t pm_ipi_irq_status(const struct pm_proc *proc);
-#if ZYNQMP_IPI_CRC_CHECK
+#if IPI_CRC_CHECK
 uint32_t calculate_crc(uint32_t payload[PAYLOAD_ARG_CNT], uint32_t buffersize);
 #endif
 
