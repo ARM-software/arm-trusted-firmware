@@ -107,7 +107,9 @@ BL1_SOURCES		+=	drivers/io/io_semihosting.c		\
 ifeq (${ARM_ARCH_MAJOR},8)
 BL1_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				lib/cpus/aarch64/cortex_a53.S		\
-				lib/cpus/aarch64/cortex_a57.S
+				lib/cpus/aarch64/cortex_a57.S		\
+				lib/cpus/aarch64/cortex_a72.S		\
+
 else
 BL1_SOURCES		+=	lib/cpus/${ARCH}/cortex_a15.S
 endif
@@ -135,9 +137,9 @@ BL1_SOURCES		+=	drivers/io/io_encrypted.c
 BL2_SOURCES		+=	drivers/io/io_encrypted.c
 endif
 
-QEMU_GICV2_SOURCES	:=	drivers/arm/gic/v2/gicv2_helpers.c	\
-				drivers/arm/gic/v2/gicv2_main.c		\
-				drivers/arm/gic/common/gic_common.c	\
+# Include GICv2 driver files
+include drivers/arm/gic/v2/gicv2.mk
+QEMU_GICV2_SOURCES	:=	${GICV2_SOURCES}			\
 				plat/common/plat_gicv2.c		\
 				${PLAT_QEMU_COMMON_PATH}/qemu_gicv2.c
 
@@ -160,6 +162,7 @@ ifeq (${ARM_ARCH_MAJOR},8)
 BL31_SOURCES		+=	lib/cpus/aarch64/aem_generic.S		\
 				lib/cpus/aarch64/cortex_a53.S		\
 				lib/cpus/aarch64/cortex_a57.S		\
+				lib/cpus/aarch64/cortex_a72.S		\
 				lib/semihosting/semihosting.c		\
 				lib/semihosting/${ARCH}/semihosting_call.S \
 				plat/common/plat_psci_common.c		\
