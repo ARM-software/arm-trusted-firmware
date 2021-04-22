@@ -24,8 +24,8 @@ __dead2 void plat_arm_error_handler(int err)
 	case -EAUTH:
 		/* Image load or authentication error. Erase the ToC */
 		INFO("Erasing FIP ToC from flash...\n");
-		(void)nor_unlock(PLAT_ARM_FIP_BASE);
-		ret = nor_word_program(PLAT_ARM_FIP_BASE, 0);
+		(void)nor_unlock(PLAT_ARM_FLASH_IMAGE_BASE);
+		ret = nor_word_program(PLAT_ARM_FLASH_IMAGE_BASE, 0);
 		if (ret != 0) {
 			ERROR("Cannot erase ToC\n");
 		} else {

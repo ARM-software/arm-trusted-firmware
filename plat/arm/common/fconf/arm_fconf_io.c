@@ -18,8 +18,8 @@
 #include <platform_def.h>
 
 const io_block_spec_t fip_block_spec = {
-	.offset = PLAT_ARM_FIP_BASE,
-	.length = PLAT_ARM_FIP_MAX_SIZE
+	.offset = PLAT_ARM_FLASH_IMAGE_BASE,
+	.length = PLAT_ARM_FLASH_IMAGE_MAX_SIZE
 };
 
 const io_uuid_spec_t arm_uuid_spec[MAX_NUMBER_IDS] = {
