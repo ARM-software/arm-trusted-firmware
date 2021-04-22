@@ -9,6 +9,7 @@ Platform Ports
 
    allwinner
    arm/index
+   deprecated
    meson-axg
    meson-gxbb
    meson-gxl
