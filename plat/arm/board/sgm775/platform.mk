@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+$(warning Platform ${PLAT} is deprecated. Some of the features might not work as expected)
+
 include plat/arm/css/sgm/sgm-common.mk
 
 SGM775_BASE= plat/arm/board/sgm775
