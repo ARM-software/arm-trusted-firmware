@@ -18,4 +18,9 @@
 #define IRQ_TYPE_LEVEL_HIGH	4
 #define IRQ_TYPE_LEVEL_LOW	8
 
+/*
+ * Interrupt specifier cell 2.
+ */
+#define GIC_CPU_MASK_RAW(x) ((x) << 8)
+
 #endif
