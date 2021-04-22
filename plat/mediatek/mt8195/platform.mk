@@ -9,6 +9,7 @@ MTK_PLAT_SOC := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/common/drivers/gic600/             \
+                 -I${MTK_PLAT}/common/drivers/timer/              \
                  -I${MTK_PLAT_SOC}/include/
 
 GICV3_SUPPORT_GIC600        :=      1
@@ -28,6 +29,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 lib/cpus/aarch64/cortex_a78.S                         \
                 plat/common/plat_gicv3.c                              \
                 ${MTK_PLAT}/common/drivers/gic600/mt_gic_v3.c         \
+                ${MTK_PLAT}/common/drivers/timer/mt_timer.c           \
                 ${MTK_PLAT}/common/mtk_cirq.c                         \
                 ${MTK_PLAT}/common/mtk_plat_common.c                  \
                 ${MTK_PLAT}/common/params_setup.c                     \
