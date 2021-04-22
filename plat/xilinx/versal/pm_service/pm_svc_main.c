@@ -13,12 +13,64 @@
 #include <plat_private.h>
 #include <stdbool.h>
 #include <common/runtime_svc.h>
+#include <plat/common/platform.h>
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_ipi.h"
+#include <drivers/arm/gicv3.h>
+
+#define XSCUGIC_SGIR_EL1_INITID_SHIFT    24U
+#define INVALID_SGI    0xFF
+DEFINE_RENAME_SYSREG_RW_FUNCS(icc_asgi1r_el1, S3_0_C12_C11_6)
 
 /* pm_up = true - UP, pm_up = false - DOWN */
 static bool pm_up;
+static unsigned int sgi = INVALID_SGI;
+
+static uint64_t ipi_fiq_handler(uint32_t id, uint32_t flags, void *handle,
+				void *cookie)
+{
+	int cpu;
+	unsigned int reg;
+
+	(void)plat_ic_acknowledge_interrupt();
+	cpu = plat_my_core_pos() + 1;
+
+	if (sgi != INVALID_SGI) {
+		reg = (cpu | (sgi << XSCUGIC_SGIR_EL1_INITID_SHIFT));
+		write_icc_asgi1r_el1(reg);
+	}
+
+	/* Clear FIQ */
+	plat_ic_end_of_interrupt(id);
+
+	return 0;
+}
+
+/**
+ * pm_register_sgi() - PM register the IPI interrupt
+ *
+ * @sgi -  SGI number to be used for communication.
+ * @return	On success, the initialization function must return 0.
+ *		Any other return value will cause the framework to ignore
+ *		the service
+ *
+ * Update the SGI number to be used.
+ *
+ */
+int pm_register_sgi(unsigned int sgi_num)
+{
+	if (sgi != INVALID_SGI) {
+		return -EBUSY;
+	}
+
+	if (sgi_num >= GICV3_MAX_SGI_TARGETS) {
+		return -EINVAL;
+	}
+
+	sgi = sgi_num;
+	return 0;
+}
 
 /**
  * pm_setup() - PM service setup
@@ -46,6 +98,18 @@ int pm_setup(void)
 		pm_up = true;
 	}
 
+	/*
+	 * Enable IPI IRQ
+	 * assume the rich OS is OK to handle callback IRQs now.
+	 * Even if we were wrong, it would not enable the IRQ in
+	 * the GIC.
+	 */
+	pm_ipi_irq_enable(primary_proc);
+
+	ret = request_intr_type_el3(PLAT_VERSAL_IPI_IRQ, ipi_fiq_handler);
+	if (ret) {
+		WARN("BL31: registering IPI interrupt failed\n");
+	}
 	return ret;
 }
 

@@ -92,6 +92,7 @@
 #define	IOCTL_GET_PLL_FRAC_MODE		9
 #define	IOCTL_SET_PLL_FRAC_DATA		10
 #define	IOCTL_GET_PLL_FRAC_DATA		11
+#define	IOCTL_SET_SGI			25
 
 /* Parameter ID for PLL IOCTLs */
 /* Fractional data portion for PLL */

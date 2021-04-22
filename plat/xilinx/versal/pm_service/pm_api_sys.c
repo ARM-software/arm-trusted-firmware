@@ -15,6 +15,8 @@
 #include "pm_api_sys.h"
 #include "pm_client.h"
 #include "pm_defs.h"
+#include "pm_svc_main.h"
+#include "../drivers/arm/gic/v3/gicv3_private.h"
 
 /*********************************************************************
  * Target module IDs macros
@@ -22,6 +24,7 @@
 #define LIBPM_MODULE_ID		0x2
 #define LOADER_MODULE_ID	0x7
 
+#define  MODE	0x80000000
 /* default shutdown/reboot scope is system(2) */
 static unsigned int pm_shutdown_scope = XPM_SHUTDOWN_SUBTYPE_RST_SYSTEM;
 
@@ -861,6 +864,7 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 				uint32_t flag)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
+	int ret;
 
 	switch (ioctl_id) {
 	case IOCTL_SET_PLL_FRAC_MODE:
@@ -871,6 +875,15 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 		return pm_pll_set_param(arg1, PM_PLL_PARAM_DATA, arg2, flag);
 	case IOCTL_GET_PLL_FRAC_DATA:
 		return pm_pll_get_param(arg1, PM_PLL_PARAM_DATA, value, flag);
+	case IOCTL_SET_SGI:
+		/* Get the sgi number */
+		ret = pm_register_sgi(arg1);
+		if (ret) {
+			return PM_RET_ERROR_ARGS;
+		}
+		gicd_write_irouter(gicv3_driver_data->gicd_base,
+				PLAT_VERSAL_IPI_IRQ, MODE);
+		return PM_RET_SUCCESS;
 	default:
 		/* Send request to the PMC */
 		PM_PACK_PAYLOAD5(payload, LIBPM_MODULE_ID, flag, PM_IOCTL,
