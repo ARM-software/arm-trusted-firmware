@@ -46,10 +46,11 @@ PLAT_INCLUDES		:=	-Iplat/hisilicon/hikey960/include
 PLAT_BL_COMMON_SOURCES	:=	drivers/arm/pl011/aarch64/pl011_console.S \
 				drivers/delay_timer/delay_timer.c	\
 				drivers/delay_timer/generic_delay_timer.c \
-				lib/xlat_tables/aarch64/xlat_tables.c	\
-				lib/xlat_tables/xlat_tables_common.c	\
 				plat/hisilicon/hikey960/aarch64/hikey960_common.c \
 				plat/hisilicon/hikey960/hikey960_boardid.c
+
+include lib/xlat_tables_v2/xlat_tables.mk
+PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
 
 HIKEY960_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 				drivers/arm/gic/v2/gicv2_main.c		\
