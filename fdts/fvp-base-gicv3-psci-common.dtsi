@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <services/sdei_flags.h>
 #include <dt-bindings/interrupt-controller/arm-gic.h>
+#include <services/sdei_flags.h>
 
 #define LEVEL	0
 #define EDGE	2

@@ -1,6 +1,8 @@
-/* SPDX-License-Identifier: MIT */
-
 /*
+ * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ *
  * This header provides constants for the ARM GIC.
  */
 
