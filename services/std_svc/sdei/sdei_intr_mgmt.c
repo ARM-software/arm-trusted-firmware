@@ -636,14 +636,14 @@ int sdei_dispatch_event(int ev_num)
 	if (!can_sdei_state_trans(se, DO_DISPATCH))
 		return -1;
 
-	/* Activate the priority corresponding to the event being dispatched */
-	ehf_activate_priority(sdei_event_priority(map));
-
 	/*
 	 * Prepare for NS dispatch by restoring the Non-secure context and
 	 * marking that as active.
 	 */
 	ns_ctx = restore_and_resume_ns_context();
+
+	/* Activate the priority corresponding to the event being dispatched */
+	ehf_activate_priority(sdei_event_priority(map));
 
 	/* Dispatch event synchronously */
 	setup_ns_dispatch(map, se, ns_ctx, &dispatch_jmp);
