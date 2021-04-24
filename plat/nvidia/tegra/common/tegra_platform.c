@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2020-2021, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -80,13 +80,6 @@ uint32_t tegra_get_chipid_minor(void)
 static uint32_t tegra_get_chipid_pre_si_platform(void)
 {
 	return (tegra_get_chipid() >> PRE_SI_PLATFORM_SHIFT) & PRE_SI_PLATFORM_MASK;
-}
-
-bool tegra_chipid_is_t132(void)
-{
-	uint32_t chip_id = ((tegra_get_chipid() >> CHIP_ID_SHIFT) & CHIP_ID_MASK);
-
-	return (chip_id == TEGRA_CHIPID_TEGRA13);
 }
 
 bool tegra_chipid_is_t186(void)

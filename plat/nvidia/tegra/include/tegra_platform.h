@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2017-2018, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
+ * Copyright (c) 2020-2021, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -49,7 +49,6 @@ uint32_t tegra_get_chipid_minor(void);
 /*
  * Tegra chip ID identifiers
  */
-bool tegra_chipid_is_t132(void);
 bool tegra_chipid_is_t186(void);
 bool tegra_chipid_is_t210(void);
 bool tegra_chipid_is_t210_b01(void);
