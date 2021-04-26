@@ -1,0 +1,21 @@
+MediaTek 8195
+=============
+
+MediaTek 8195 (MT8195) is a 64-bit ARM SoC introduced by MediaTek in 2021.
+The chip incorporates eight cores - four Cortex-A55 little cores and Cortex-A76.
+Cortex-A76 can operate at up to 2.2 GHz.
+Cortex-A55 can operate at up to 2.0 GHz.
+
+Boot Sequence
+-------------
+
+::
+
+    Boot Rom --> Coreboot --> TF-A BL31 --> Depthcharge --> Linux Kernel
+
+How to Build
+------------
+
+.. code:: shell
+
+    make CROSS_COMPILE=aarch64-linux-gnu- PLAT=mt8195 DEBUG=1 COREBOOT=1

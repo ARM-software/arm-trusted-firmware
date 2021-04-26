@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef RTC_H
-#define RTC_H
+#ifndef RTC_MT6359P_H
+#define RTC_MT6359P_H
 
 /* RTC registers */
 enum {
@@ -194,4 +194,4 @@ int32_t RTC_Write_Trigger(void);
 int32_t Writeif_unlock(void);
 void rtc_power_off_sequence(void);
 
-#endif /* RTC_H */
+#endif /* RTC_MT6359P_H */

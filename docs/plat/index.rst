@@ -20,6 +20,7 @@ Platform Ports
    marvell/index
    mt8183
    mt8192
+   mt8195
    nvidia-tegra
    warp7
    imx8

@@ -24,7 +24,7 @@
 
 #ifndef ATF_PLAT_CIRQ_UNSUPPORT
 #include <mt_gic_v3.h>
-#include <plat_mt_cirq.h>
+#include <mtk_cirq.h>
 #endif
 
 #define CONSTRAINT_BUS26M_ALLOW			\
