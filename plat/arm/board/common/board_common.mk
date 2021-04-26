@@ -33,7 +33,7 @@ $(BUILD_PLAT)/bl2/arm_dev_rotpk.o : $(ARM_ROTPK_HASH)
 $(warning Development keys support for FVP is deprecated. Use `regs` \
 option instead)
 else
-	$(error "Unsupported ARM_ROTPK_LOCATION value")
+$(error "Unsupported ARM_ROTPK_LOCATION value")
 endif
 
 $(eval $(call add_define,ARM_ROTPK_LOCATION_ID))
