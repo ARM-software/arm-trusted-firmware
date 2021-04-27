@@ -227,6 +227,16 @@ void bl2_el3_plat_arch_setup(void)
 	/* Disable MCKPROT */
 	mmio_clrbits_32(rcc_base + RCC_TZCR, RCC_TZCR_MCKPROT);
 
+	/*
+	 * Set minimum reset pulse duration to 31ms for discrete power
+	 * supplied boards.
+	 */
+	if (dt_pmic_status() <= 0) {
+		mmio_clrsetbits_32(rcc_base + RCC_RDLSICR,
+				   RCC_RDLSICR_MRD_MASK,
+				   31U << RCC_RDLSICR_MRD_SHIFT);
+	}
+
 	generic_delay_timer_init();
 
 #if STM32MP_UART_PROGRAMMER
