@@ -43,8 +43,6 @@ PLAT_BL_COMMON_SOURCES	:=	$(PLAT_COMMON_BASE)/aarch64/a3700_common.c \
 BL1_SOURCES		+=	$(PLAT_COMMON_BASE)/aarch64/plat_helpers.S \
 				lib/cpus/aarch64/cortex_a53.S
 
-BL31_PORTING_SOURCES	:=	$(PLAT_FAMILY_BASE)/$(PLAT)/board/pm_src.c
-
 MARVELL_DRV		:=	$(MARVELL_DRV_BASE)/comphy/phy-comphy-3700.c
 
 BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
@@ -61,12 +59,15 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				$(MARVELL_COMMON_BASE)/marvell_gicv3.c	\
 				$(MARVELL_GIC_SOURCES)			\
 				drivers/arm/cci/cci.c			\
-				$(BL31_PORTING_SOURCES)			\
 				$(PLAT_COMMON_BASE)/a3700_sip_svc.c	\
 				$(MARVELL_DRV)
 
 ifeq ($(CM3_SYSTEM_RESET),1)
 BL31_SOURCES		+=	$(PLAT_COMMON_BASE)/cm3_system_reset.c
+endif
+
+ifeq ($(A3720_DB_PM_WAKEUP_SRC),1)
+BL31_SOURCES		+=	$(PLAT_FAMILY_BASE)/$(PLAT)/board/pm_src.c
 endif
 
 ifdef WTP

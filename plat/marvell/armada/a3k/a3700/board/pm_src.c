@@ -8,7 +8,7 @@
 #include <a3700_pm.h>
 #include <plat_marvell.h>
 
-/* This struct provides the PM wake up src configuration */
+/* This struct provides the PM wake up src configuration for A3720 Development Board */
 static struct pm_wake_up_src_config wake_up_src_cfg = {
 	.wake_up_src_num = 3,
 	.wake_up_src[0] = {
