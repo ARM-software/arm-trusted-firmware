@@ -132,6 +132,12 @@ Arm CSS Platform-Specific Build Options
    valid value greater than 1, the platform code performs required configuration
    to support multi-chip operation.
 
+- ``CSS_SGI_PLATFORM_VARIANT``: Selects the variant of a SGI/RD platform. A
+    particular SGI/RD platform may have multiple variants which may differ in
+    core count, cluster count or other peripherals. This build option is used
+    to select the appropriate platform variant for the build. The range of
+    valid values is platform specific.
+
 --------------
 
 *Copyright (c) 2019-2021, Arm Limited. All rights reserved.*
