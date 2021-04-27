@@ -70,3 +70,34 @@ endif
 ifeq (${WARM_BOOT},yes)
 $(eval $(call add_define_val,PHY_TRAINING_REGS_ON_FLASH,'${BL2_BIN_XSPI_NOR_END_ADDRESS} - ${NXP_XSPI_NOR_UNIT_SIZE}'))
 endif
+
+# Selecting Boot Source for the TFA images.
+define add_boot_mode_define
+    ifeq ($(1),qspi)
+        $$(eval $$(call SET_NXP_MAKE_FLAG,QSPI_NEEDED,BL2))
+        $$(eval $$(call add_define,QSPI_BOOT))
+    else ifeq ($(1),sd)
+        $$(eval $$(call SET_NXP_MAKE_FLAG,SD_MMC_NEEDED,BL2))
+        $$(eval $$(call add_define,SD_BOOT))
+    else ifeq ($(1),emmc)
+        $$(eval $$(call SET_NXP_MAKE_FLAG,SD_MMC_NEEDED,BL2))
+        $$(eval $$(call add_define,EMMC_BOOT))
+    else ifeq ($(1),nor)
+        $$(eval $$(call SET_NXP_MAKE_FLAG,IFC_NOR_NEEDED,BL2))
+        $$(eval $$(call add_define,NOR_BOOT))
+    else ifeq ($(1),nand)
+        $$(eval $$(call SET_NXP_MAKE_FLAG,IFC_NAND_NEEDED,BL2))
+        $$(eval $$(call add_define,NAND_BOOT))
+    else ifeq ($(1),flexspi_nor)
+        $$(eval $$(call SET_NXP_MAKE_FLAG,XSPI_NEEDED,BL2))
+        $$(eval $$(call add_define,FLEXSPI_NOR_BOOT))
+    else
+        $$(error $(PLAT) Cannot Support Boot Mode: $(BOOT_MODE))
+    endif
+endef
+
+ifneq (,$(findstring $(BOOT_MODE),$(SUPPORTED_BOOT_MODE)))
+    $(eval $(call add_boot_mode_define,$(strip $(BOOT_MODE))))
+else
+    $(error $(PLAT) Un-supported Boot Mode = $(BOOT_MODE))
+endif
