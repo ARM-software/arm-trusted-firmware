@@ -1,5 +1,8 @@
-/* SPDX-License-Identifier: GPL-2.0 or BSD-3-Clause */
 /*
+ * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
+ *
+ * SPDX-License-Identifier: MIT
+ *
  * This header provides constants for the ARM GIC.
  */
 

@@ -76,5 +76,14 @@ license text is included in those source files.
    BSD-3-Clause license. Any contributions to this code must be made under the
    terms of both licenses.
 
+-  Some source files originating from the Linux source tree, which are
+   disjunctively dual licensed (GPL-2.0 OR MIT), are redistributed under the
+   terms of the MIT license. These files are:
+
+   -  ``include/dt-bindings/interrupt-controller/arm-gic.h``
+
+   See the original `Linux MIT license`_.
+
 .. _FreeBSD: http://www.freebsd.org
+.. _Linux MIT license: https://raw.githubusercontent.com/torvalds/linux/master/LICENSES/preferred/MIT
 .. _SCC: http://www.simple-cc.org/

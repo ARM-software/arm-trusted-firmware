@@ -11,8 +11,8 @@
 #define	AFF
 #define	REG_32
 
-#include "fvp-defs.dtsi"
 #include <dt-bindings/interrupt-controller/arm-gic.h>
+#include "fvp-defs.dtsi"
 
 /memreserve/ 0x80000000 0x00010000;
 
