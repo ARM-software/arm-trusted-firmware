@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,6 +24,8 @@ int fdt_read_uint32_array(const void *dtb, int node, const char *prop_name,
 			  unsigned int cells, uint32_t *value);
 int fdtw_read_string(const void *dtb, int node, const char *prop,
 		char *str, size_t size);
+int fdtw_read_uuid(const void *dtb, int node, const char *prop,
+		   unsigned int length, uint8_t *uuid);
 int fdtw_write_inplace_cells(void *dtb, int node, const char *prop,
 		unsigned int cells, void *value);
 int fdtw_read_bytes(const void *dtb, int node, const char *prop,
