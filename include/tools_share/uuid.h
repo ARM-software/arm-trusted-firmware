@@ -66,7 +66,6 @@ struct efi_guid {
 union uuid_helper_t {
 	struct uuid uuid_struct;
 	struct efi_guid efi_guid;
-	uint32_t word[4];
 };
 
 /* XXX namespace pollution? */

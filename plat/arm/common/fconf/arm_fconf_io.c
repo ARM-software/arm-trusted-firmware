@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2021, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -249,7 +249,6 @@ int fconf_populate_arm_io_policies(uintptr_t config)
 {
 	int err, node;
 	unsigned int i;
-	unsigned int j;
 
 	union uuid_helper_t uuid_helper;
 	io_uuid_spec_t *uuid_ptr;
@@ -268,26 +267,26 @@ int fconf_populate_arm_io_policies(uintptr_t config)
 	/* Locate the uuid cells and read the value for all the load info uuid */
 	for (i = 0; i < FCONF_ARM_IO_UUID_NUMBER; i++) {
 		uuid_ptr = pool_alloc(&fconf_arm_uuids_pool);
-		err = fdt_read_uint32_array(dtb, node, load_info[i].name,
-					    4, uuid_helper.word);
+		err = fdtw_read_uuid(dtb, node, load_info[i].name, 16,
+				     (uint8_t *)&uuid_helper);
 		if (err < 0) {
 			WARN("FCONF: Read cell failed for %s\n", load_info[i].name);
 			return err;
 		}
 
-		/* Convert uuid from big endian to little endian */
-		for (j = 0U; j < 4U; j++) {
-			uuid_helper.word[j] =
-				((uuid_helper.word[j] >> 24U) & 0xff) |
-				((uuid_helper.word[j] << 8U) & 0xff0000) |
-				((uuid_helper.word[j] >> 8U) & 0xff00) |
-				((uuid_helper.word[j] << 24U) & 0xff000000);
-		}
-
-		VERBOSE("FCONF: arm-io_policies.%s cell found with value = 0x%x 0x%x 0x%x 0x%x\n",
+		VERBOSE("FCONF: arm-io_policies.%s cell found with value = "
+			"%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x\n",
 			load_info[i].name,
-			uuid_helper.word[0], uuid_helper.word[1],
-			uuid_helper.word[2], uuid_helper.word[3]);
+			uuid_helper.uuid_struct.time_low[0], uuid_helper.uuid_struct.time_low[1],
+			uuid_helper.uuid_struct.time_low[2], uuid_helper.uuid_struct.time_low[3],
+			uuid_helper.uuid_struct.time_mid[0], uuid_helper.uuid_struct.time_mid[1],
+			uuid_helper.uuid_struct.time_hi_and_version[0],
+			uuid_helper.uuid_struct.time_hi_and_version[1],
+			uuid_helper.uuid_struct.clock_seq_hi_and_reserved,
+			uuid_helper.uuid_struct.clock_seq_low,
+			uuid_helper.uuid_struct.node[0], uuid_helper.uuid_struct.node[1],
+			uuid_helper.uuid_struct.node[2], uuid_helper.uuid_struct.node[3],
+			uuid_helper.uuid_struct.node[4], uuid_helper.uuid_struct.node[5]);
 
 		uuid_ptr->uuid = uuid_helper.uuid_struct;
 		policies[load_info[i].image_id].image_spec = (uintptr_t)uuid_ptr;
