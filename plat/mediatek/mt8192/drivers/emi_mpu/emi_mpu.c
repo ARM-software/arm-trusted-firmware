@@ -117,10 +117,21 @@ void emi_mpu_init(void)
 			      NO_PROT, FORBIDDEN, FORBIDDEN, NO_PROT);
 	emi_mpu_set_protection(&region_info);
 
-	/* Forbidden All */
+	/* DSP protect address */
 	region_info.start = 0x40000000ULL;	/* dram base addr */
 	region_info.end = 0x1FFFF0000ULL;
 	region_info.region = 3;
+	SET_ACCESS_PERMISSION(region_info.apc, 1,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
+			      FORBIDDEN, FORBIDDEN, FORBIDDEN, NO_PROT);
+	emi_mpu_set_protection(&region_info);
+
+	/* Forbidden All */
+	region_info.start = 0x40000000ULL;	/* dram base addr */
+	region_info.end = 0x1FFFF0000ULL;
+	region_info.region = 4;
 	SET_ACCESS_PERMISSION(region_info.apc, 1,
 			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
 			      FORBIDDEN, FORBIDDEN, FORBIDDEN, FORBIDDEN,
