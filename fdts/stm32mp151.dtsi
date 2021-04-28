@@ -121,6 +121,21 @@
 			status = "disabled";
 		};
 
+		i2c2: i2c@40013000 {
+			compatible = "st,stm32mp15-i2c";
+			reg = <0x40013000 0x400>;
+			interrupt-names = "event", "error";
+			interrupts = <&exti 22 IRQ_TYPE_LEVEL_HIGH>,
+				     <&intc GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&rcc I2C2_K>;
+			resets = <&rcc I2C2_R>;
+			#address-cells = <1>;
+			#size-cells = <0>;
+			st,syscfg-fmp = <&syscfg 0x4 0x2>;
+			wakeup-source;
+			status = "disabled";
+		};
+
 		uart7: serial@40018000 {
 			compatible = "st,stm32h7-uart";
 			reg = <0x40018000 0x400>;
