@@ -166,7 +166,7 @@ static uintptr_t std_svc_smc_handler(uint32_t smc_fid,
 		SMC_RET2(handle, STD_SVC_VERSION_MAJOR, STD_SVC_VERSION_MINOR);
 
 	default:
-		WARN("Unimplemented Standard Service Call: 0x%x \n", smc_fid);
+		VERBOSE("Unimplemented Standard Service Call: 0x%x \n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);
 	}
 }
