@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -115,7 +115,7 @@
 #if USE_ROMLIB
 #define PLAT_ARM_MAX_ROMLIB_RW_SIZE	UL(0x1000)
 #define PLAT_ARM_MAX_ROMLIB_RO_SIZE	UL(0xe000)
-#define FVP_BL2_ROMLIB_OPTIMIZATION UL(0x6000)
+#define FVP_BL2_ROMLIB_OPTIMIZATION	UL(0x5000)
 #else
 #define PLAT_ARM_MAX_ROMLIB_RW_SIZE	UL(0)
 #define PLAT_ARM_MAX_ROMLIB_RO_SIZE	UL(0)
@@ -187,6 +187,16 @@
 /* Reserve the last block of flash for PSCI MEM PROTECT flag */
 #define PLAT_ARM_FLASH_IMAGE_BASE	V2M_FLASH0_BASE
 #define PLAT_ARM_FLASH_IMAGE_MAX_SIZE	(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
+
+#if ARM_GPT_SUPPORT
+/*
+ * Offset of the FIP in the GPT image. BL1 component uses this option
+ * as it does not load the partition table to get the FIP base
+ * address. At sector 34 by default (i.e. after reserved sectors 0-33)
+ * Offset = 34 * 512(sector size) = 17408 i.e. 0x4400
+ */
+#define PLAT_ARM_FIP_OFFSET_IN_GPT	0x4400
+#endif /* ARM_GPT_SUPPORT */
 
 #define PLAT_ARM_NVM_BASE		V2M_FLASH0_BASE
 #define PLAT_ARM_NVM_SIZE		(V2M_FLASH0_SIZE - V2M_FLASH_BLOCK_SIZE)
