@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -114,13 +114,19 @@ func tsp_entrypoint _align=3
 	 *   - the coherent memory section.
 	 * ---------------------------------------------
 	 */
-	ldr	x0, =__BSS_START__
-	ldr	x1, =__BSS_SIZE__
+	adrp	x0, __BSS_START__
+	add	x0, x0, :lo12:__BSS_START__
+	adrp	x1, __BSS_END__
+	add	x1, x1, :lo12:__BSS_END__
+	sub	x1, x1, x0
 	bl	zeromem
 
 #if USE_COHERENT_MEM
-	ldr	x0, =__COHERENT_RAM_START__
-	ldr	x1, =__COHERENT_RAM_UNALIGNED_SIZE__
+	adrp	x0, __COHERENT_RAM_START__
+	add	x0, x0, :lo12:__COHERENT_RAM_START__
+	adrp	x1, __COHERENT_RAM_END_UNALIGNED__
+	add	x1, x1, :lo12:__COHERENT_RAM_END_UNALIGNED__
+	sub	x1, x1, x0
 	bl	zeromem
 #endif
 

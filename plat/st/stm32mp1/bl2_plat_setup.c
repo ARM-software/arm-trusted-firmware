@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -188,11 +188,6 @@ void bl2_el3_plat_arch_setup(void)
 	mmap_add_region(STM32MP_OPTEE_BASE, STM32MP_OPTEE_BASE,
 			STM32MP_OPTEE_SIZE,
 			MT_MEMORY | MT_RW | MT_SECURE);
-#else
-	/* Prevent corruption of preloaded BL32 */
-	mmap_add_region(BL32_BASE, BL32_BASE,
-			BL32_LIMIT - BL32_BASE,
-			MT_RO_DATA | MT_SECURE);
 #endif
 	/* Prevent corruption of preloaded Device Tree */
 	mmap_add_region(DTB_BASE, DTB_BASE,

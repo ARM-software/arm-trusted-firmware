@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,7 +28,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 				      SECURE | EXECUTABLE | EP_FIRST_EXE),
 
 #if !defined(AARCH32_SP_OPTEE)
-		.ep_info.pc = BL32_BASE,
+		.ep_info.pc = STM32MP_BL32_BASE,
 #endif
 		.ep_info.spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
 					    SPSR_E_LITTLE,
@@ -42,8 +42,8 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		.image_info.image_base = STM32MP_OPTEE_BASE,
 		.image_info.image_max_size = STM32MP_OPTEE_SIZE,
 #else
-		.image_info.image_base = BL32_BASE,
-		.image_info.image_max_size = BL32_LIMIT - BL32_BASE,
+		.image_info.image_base = STM32MP_BL32_BASE,
+		.image_info.image_max_size = STM32MP_BL32_SIZE,
 #endif
 		.next_handoff_image_id = BL33_IMAGE_ID,
 	},

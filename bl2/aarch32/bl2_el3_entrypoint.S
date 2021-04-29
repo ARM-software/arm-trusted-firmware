@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,7 +26,8 @@ func bl2_entrypoint
                 _secondary_cold_boot=!COLD_BOOT_SINGLE_CPU      \
                 _init_memory=1                                  \
                 _init_c_runtime=1                               \
-                _exception_vectors=bl2_vector_table
+                _exception_vectors=bl2_vector_table		\
+		_pie_fixup_size=0
 
 	/*
 	 * Restore parameters of boot rom

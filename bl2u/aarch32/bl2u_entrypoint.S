@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -79,7 +79,8 @@ func bl2u_entrypoint
 	 * ---------------------------------------------
 	 */
 	ldr	r0, =__BSS_START__
-	ldr	r1, =__BSS_SIZE__
+	ldr	r1, =__BSS_END__
+	sub 	r1, r1, r0
 	bl	zeromem
 
 	/* --------------------------------------------

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,6 +22,8 @@
 	.globl	sp_min_warm_entrypoint
 	.globl	sp_min_handle_smc
 	.globl	sp_min_handle_fiq
+
+#define FIXUP_SIZE	((BL32_LIMIT) - (BL32_BASE))
 
 	.macro route_fiq_to_sp_min reg
 		/* -----------------------------------------------------
@@ -87,7 +89,8 @@ func sp_min_entrypoint
 		_secondary_cold_boot=0				\
 		_init_memory=0					\
 		_init_c_runtime=1				\
-		_exception_vectors=sp_min_vector_table
+		_exception_vectors=sp_min_vector_table		\
+		_pie_fixup_size=FIXUP_SIZE
 
 	/* ---------------------------------------------------------------------
 	 * Relay the previous bootloader's arguments to the platform layer
@@ -106,7 +109,8 @@ func sp_min_entrypoint
 		_secondary_cold_boot=!COLD_BOOT_SINGLE_CPU	\
 		_init_memory=1					\
 		_init_c_runtime=1				\
-		_exception_vectors=sp_min_vector_table
+		_exception_vectors=sp_min_vector_table		\
+		_pie_fixup_size=FIXUP_SIZE
 
 	/* ---------------------------------------------------------------------
 	 * For RESET_TO_SP_MIN systems, BL32 (SP_MIN) is the first bootloader
@@ -306,7 +310,8 @@ func sp_min_warm_entrypoint
 		_secondary_cold_boot=0				\
 		_init_memory=0					\
 		_init_c_runtime=0				\
-		_exception_vectors=sp_min_vector_table
+		_exception_vectors=sp_min_vector_table		\
+		_pie_fixup_size=0
 
 	/*
 	 * We're about to enable MMU and participate in PSCI state coordination.

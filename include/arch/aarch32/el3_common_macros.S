@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,9 @@
 #include <arch.h>
 #include <asm_macros.S>
 #include <assert_macros.S>
+#include <lib/xlat_tables/xlat_tables_defs.h>
+
+#define PAGE_START_MASK		~(PAGE_SIZE_MASK)
 
 	/*
 	 * Helper macro to initialise EL3 registers we care about.
@@ -199,11 +202,18 @@
  *
  * _exception_vectors:
  *	Address of the exception vectors to program in the VBAR_EL3 register.
+ *
+ * _pie_fixup_size:
+ *	Size of memory region to fixup Global Descriptor Table (GDT).
+ *
+ *	A non-zero value is expected when firmware needs GDT to be fixed-up.
+ *
  * -----------------------------------------------------------------------------
  */
 	.macro el3_entrypoint_common					\
 		_init_sctlr, _warm_boot_mailbox, _secondary_cold_boot,	\
-		_init_memory, _init_c_runtime, _exception_vectors
+		_init_memory, _init_c_runtime, _exception_vectors,	\
+		_pie_fixup_size
 
 	/* Make sure we are in Secure Mode */
 #if ENABLE_ASSERTIONS
@@ -258,6 +268,27 @@
 		cmp	r0, #0
 		bxne	r0
 	.endif /* _warm_boot_mailbox */
+
+	.if \_pie_fixup_size
+#if ENABLE_PIE
+		/*
+		 * ------------------------------------------------------------
+		 * If PIE is enabled fixup the Global descriptor Table only
+		 * once during primary core cold boot path.
+		 *
+		 * Compile time base address, required for fixup, is calculated
+		 * using "pie_fixup" label present within first page.
+		 * ------------------------------------------------------------
+		 */
+	pie_fixup:
+		ldr	r0, =pie_fixup
+		ldr	r1, =PAGE_START_MASK
+		and	r0, r0, r1
+		mov_imm	r1, \_pie_fixup_size
+		add	r1, r1, r0
+		bl	fixup_gdt_reloc
+#endif /* ENABLE_PIE */
+	.endif /* _pie_fixup_size */
 
 	/* ---------------------------------------------------------------------
 	 * Set the exception vectors (VBAR/MVBAR).
@@ -339,12 +370,14 @@
 		 */
 		mov	r7, r12
 		ldr	r0, =__BSS_START__
-		ldr	r1, =__BSS_SIZE__
+		ldr	r1, =__BSS_END__
+		sub 	r1, r1, r0
 		bl	zeromem
 
 #if USE_COHERENT_MEM
 		ldr	r0, =__COHERENT_RAM_START__
-		ldr	r1, =__COHERENT_RAM_UNALIGNED_SIZE__
+		ldr	r1, =__COHERENT_RAM_END_UNALIGNED__
+		sub 	r1, r1, r0
 		bl	zeromem
 #endif
 
@@ -358,7 +391,8 @@
 		 */
 		ldr	r0, =__DATA_RAM_START__
 		ldr	r1, =__DATA_ROM_START__
-		ldr	r2, =__DATA_SIZE__
+		ldr	r2, =__DATA_RAM_END__
+		sub 	r2, r2, r0
 		bl	memcpy4
 #endif
 	.endif /* _init_c_runtime */
