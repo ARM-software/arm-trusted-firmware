@@ -1,8 +1,8 @@
-PSA FF-A manifest binding to device tree
+FF-A manifest binding to device tree
 ========================================
 
 This document defines the nodes and properties used to define a partition,
-according to the PSA FF-A specification.
+according to the FF-A specification.
 
 Version 1.0
 -----------
@@ -25,9 +25,9 @@ Partition Properties
    - Must be two 16 bits values (X, Y), concatenated as 31:16 -> X,
      15:0 -> Y, where:
 
-      - X is the major version of PSA-FF-A expected by the partition at the FFA
+      - X is the major version of FF-A expected by the partition at the FFA
         instance it will execute.
-      - Y is the minor version of PSA-FF-A expected by the partition at the FFA
+      - Y is the minor version of FF-A expected by the partition at the FFA
         instance it will execute.
 
 - uuid [mandatory]

@@ -33,8 +33,6 @@ Acronyms
 +--------+-----------------------------------+
 | PVM    | Primary VM                        |
 +--------+-----------------------------------+
-| PSA    | Platform Security Architecture    |
-+--------+-----------------------------------+
 | SMMU   | System Memory Management Unit     |
 +--------+-----------------------------------+
 | SP     | Secure Partition                  |
@@ -61,7 +59,7 @@ Foreword
 
 Two implementations of a Secure Partition Manager co-exist in the TF-A codebase:
 
--  SPM based on the PSA FF-A specification `[1]`_.
+-  SPM based on the FF-A specification `[1]`_.
 -  SPM based on the MM interface to communicate with an S-EL0 partition `[2]`_.
 
 Both implementations differ in their architectures and only one can be selected
@@ -69,7 +67,7 @@ at build time.
 
 This document:
 
--  describes the PSA FF-A implementation where the Secure Partition Manager
+-  describes the FF-A implementation where the Secure Partition Manager
    resides at EL3 and S-EL2 (or EL3 and S-EL1).
 -  is not an architecture specification and it might provide assumptions
    on sections mandated as implementation-defined in the specification.
@@ -565,7 +563,7 @@ either *(under discussion)*:
 -  Re-purposing the ``PSCI_CPU_ON`` function id. It is
    assumed that even if the input arguments are the same as the ones defined in
    the PSCI standard, the usage deviates by the fact the secondary EC is not
-   woken up immediately. At least for the PSA-FF-A EAC where only
+   woken up immediately. At least for the FF-A EAC where only
    direct messaging is allowed, it is only after the first direct
    message invocation that the secondary EC is entered. This option
    might be preferred when the same code base is re-used for a VM or
@@ -949,7 +947,7 @@ References
 
 .. _[1]:
 
-[1] `Platform Security Architecture Firmware Framework for Arm® v8-A 1.0 Platform Design Document <https://developer.arm.com/docs/den0077/latest>`__
+[1] `Arm Firmware Framework for Armv8-A <https://developer.arm.com/docs/den0077/latest>`__
 
 .. _[2]:
 
@@ -970,7 +968,7 @@ Client <https://developer.arm.com/docs/den0006/latest/trusted-board-boot-require
 
 .. _[6]:
 
-[6] https://trustedfirmware-a.readthedocs.io/en/latest/components/psa-ffa-manifest-binding.html
+[6] https://trustedfirmware-a.readthedocs.io/en/latest/components/ffa-manifest-binding.html
 
 .. _[7]:
 
@@ -982,4 +980,4 @@ Client <https://developer.arm.com/docs/den0006/latest/trusted-board-boot-require
 
 --------------
 
-*Copyright (c) 2020, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2020-2021, Arm Limited and Contributors. All rights reserved.*

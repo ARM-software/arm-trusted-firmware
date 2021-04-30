@@ -6,7 +6,7 @@ Foreword
 
 Two implementations of a Secure Partition Manager co-exist in the TF-A codebase:
 
--  SPM based on the PSA FF-A specification (:ref:`Secure Partition Manager`).
+-  SPM based on the FF-A specification (:ref:`Secure Partition Manager`).
 -  SPM based on the MM interface.
 
 Both implementations differ in their architectures and only one can be selected
@@ -822,7 +822,7 @@ Error Codes
 
 --------------
 
-*Copyright (c) 2017-2020, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.*
 
 .. _Armv8-A ARM: https://developer.arm.com/docs/ddi0487/latest/arm-architecture-reference-manual-armv8-for-armv8-a-architecture-profile
 .. _instructions in the EDK2 repository: https://github.com/tianocore/edk2-staging/blob/AArch64StandaloneMm/HowtoBuild.MD
