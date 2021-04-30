@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -136,21 +136,6 @@ struct stm32mp1_ddrphy_timing {
 	uint32_t mr3;
 };
 
-struct stm32mp1_ddrphy_cal {
-	uint32_t dx0dllcr;
-	uint32_t dx0dqtr;
-	uint32_t dx0dqstr;
-	uint32_t dx1dllcr;
-	uint32_t dx1dqtr;
-	uint32_t dx1dqstr;
-	uint32_t dx2dllcr;
-	uint32_t dx2dqtr;
-	uint32_t dx2dqstr;
-	uint32_t dx3dllcr;
-	uint32_t dx3dqtr;
-	uint32_t dx3dqstr;
-};
-
 struct stm32mp1_ddr_info {
 	const char *name;
 	uint32_t speed; /* in kHZ */
@@ -165,7 +150,6 @@ struct stm32mp1_ddr_config {
 	struct stm32mp1_ddrctrl_perf c_perf;
 	struct stm32mp1_ddrphy_reg p_reg;
 	struct stm32mp1_ddrphy_timing p_timing;
-	struct stm32mp1_ddrphy_cal p_cal;
 };
 
 int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint32_t mem_speed);

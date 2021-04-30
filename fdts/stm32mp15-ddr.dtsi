@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
 /*
- * Copyright (C) 2018-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2022, STMicroelectronics - All Rights Reserved
  */
 
 &ddr {
@@ -108,20 +108,5 @@
 		DDR_MR1
 		DDR_MR2
 		DDR_MR3
-	>;
-
-	st,phy-cal = <
-		DDR_DX0DLLCR
-		DDR_DX0DQTR
-		DDR_DX0DQSTR
-		DDR_DX1DLLCR
-		DDR_DX1DQTR
-		DDR_DX1DQSTR
-		DDR_DX2DLLCR
-		DDR_DX2DQTR
-		DDR_DX2DQSTR
-		DDR_DX3DLLCR
-		DDR_DX3DQTR
-		DDR_DX3DQSTR
 	>;
 };

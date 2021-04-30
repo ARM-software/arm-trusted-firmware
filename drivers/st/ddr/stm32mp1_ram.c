@@ -193,7 +193,6 @@ static int stm32mp1_ddr_setup(void)
 		CTL_PARAM(perf),
 		PHY_PARAM(reg),
 		PHY_PARAM(timing),
-		PHY_PARAM(cal)
 	};
 
 	if (fdt_get_address(&fdt) == 0) {

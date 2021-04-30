@@ -154,22 +154,6 @@ static const struct reg_desc ddrphy_timing[] = {
 	DDRPHY_REG_TIMING(mr3),
 };
 
-#define DDRPHY_REG_CAL(x)	DDRPHY_REG(x, stm32mp1_ddrphy_cal)
-static const struct reg_desc ddrphy_cal[] = {
-	DDRPHY_REG_CAL(dx0dllcr),
-	DDRPHY_REG_CAL(dx0dqtr),
-	DDRPHY_REG_CAL(dx0dqstr),
-	DDRPHY_REG_CAL(dx1dllcr),
-	DDRPHY_REG_CAL(dx1dqtr),
-	DDRPHY_REG_CAL(dx1dqstr),
-	DDRPHY_REG_CAL(dx2dllcr),
-	DDRPHY_REG_CAL(dx2dqtr),
-	DDRPHY_REG_CAL(dx2dqstr),
-	DDRPHY_REG_CAL(dx3dllcr),
-	DDRPHY_REG_CAL(dx3dqtr),
-	DDRPHY_REG_CAL(dx3dqstr),
-};
-
 #define DDR_REG_DYN(x)						\
 	{							\
 		.name = #x,					\
@@ -207,7 +191,6 @@ enum reg_type {
 	REG_MAP,
 	REGPHY_REG,
 	REGPHY_TIMING,
-	REGPHY_CAL,
 /*
  * Dynamic registers => managed in driver or not changed,
  * can be dumped in interactive mode.
@@ -265,12 +248,6 @@ static const struct ddr_reg_info ddr_registers[REG_TYPE_NB] = {
 		.name = "timing",
 		.desc = ddrphy_timing,
 		.size = ARRAY_SIZE(ddrphy_timing),
-		.base = DDRPHY_BASE
-	},
-	[REGPHY_CAL] = {
-		.name = "cal",
-		.desc = ddrphy_cal,
-		.size = ARRAY_SIZE(ddrphy_cal),
 		.base = DDRPHY_BASE
 	},
 	[REG_DYN] = {
@@ -812,7 +789,6 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 	 */
 	set_reg(priv, REGPHY_REG, &config->p_reg);
 	set_reg(priv, REGPHY_TIMING, &config->p_timing);
-	set_reg(priv, REGPHY_CAL, &config->p_cal);
 
 	/* DDR3 = don't set DLLOFF for init mode */
 	if ((config->c_reg.mstr &
