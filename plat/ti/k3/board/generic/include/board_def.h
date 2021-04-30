@@ -18,15 +18,26 @@
 /*
  * This RAM will be used for the bootloader including code, bss, and stacks.
  * It may need to be increased if BL31 grows in size.
+ *
+ * The link addresses are determined by SEC_SRAM_BASE + offset.
+ * When ENABLE_PIE is set, the TF images can be loaded anywhere, so
+ * SEC_SRAM_BASE is really arbitrary.
+ *
+ * When ENABLE_PIE is unset, SEC_SRAM_BASE should be chosen so that
+ * it matches to the physical address where BL31 is loaded, that is,
+ * SEC_SRAM_BASE should be the base address of the RAM region.
+ *
+ * Lets make things explicit by mapping SRAM_BASE to 0x0 since ENABLE_PIE is
+ * defined as default for our platform.
  */
-#define SEC_SRAM_BASE			0x70000000 /* Base of MSMC SRAM */
-#define SEC_SRAM_SIZE			0x00020000 /* 128k */
+#define SEC_SRAM_BASE			UL(0x00000000) /* PIE remapped on fly */
+#define SEC_SRAM_SIZE			UL(0x00020000) /* 128k */
 
 #define PLAT_MAX_OFF_STATE		U(2)
 #define PLAT_MAX_RET_STATE		U(1)
 
-#define PLAT_PROC_START_ID		32
-#define PLAT_PROC_DEVICE_START_ID	202
-#define PLAT_CLUSTER_DEVICE_START_ID	198
+#define PLAT_PROC_START_ID		U(32)
+#define PLAT_PROC_DEVICE_START_ID	U(202)
+#define PLAT_CLUSTER_DEVICE_START_ID	U(198)
 
 #endif /* BOARD_DEF_H */
