@@ -34,8 +34,8 @@
 #define PLAT_WAIT_RET_STATE		U(1)
 #define PLAT_STOP_OFF_STATE		U(3)
 
-#define BL31_BASE			U(0x960000)
-#define BL31_LIMIT			U(0x980000)
+#define BL31_BASE			U(0x970000)
+#define BL31_LIMIT			U(0x990000)
 
 /* non-secure uboot base */
 #define PLAT_NS_IMAGE_OFFSET		U(0x40200000)
