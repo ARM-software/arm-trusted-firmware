@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2019, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -75,6 +75,14 @@ html_theme_options = {
     'prev_next_buttons_location': 'both', # Top and bottom of the page
     'style_external_links': True # Display an icon next to external links
 }
+
+# Path to _static directory
+html_static_path = ['_static']
+
+# Path to css file relative to html_static_path
+html_css_files = [
+    'css/custom.css',
+]
 
 # -- Options for autosectionlabel --------------------------------------------
 
