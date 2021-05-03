@@ -449,8 +449,8 @@ Intel SocFPGA platform ports
 
 MediaTek platform ports
 ^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Yidi Lin (林以廸) <yidi.lin@mediatek.com>
-:|G|: `mtk09422`_
+:|M|: Rex-BC Chen <rex-bc.chen@mediatek.com>
+:|G|: `mtk-rex-bc-chen`_
 :|F|: plat/mediatek/
 
 Marvell platform ports and SoC drivers
@@ -703,7 +703,7 @@ Build system
 .. _michalsimek: https://github.com/michalsimek
 .. _mmind: https://github.com/mmind
 .. _MrVan: https://github.com/MrVan
-.. _mtk09422: https://github.com/mtk09422
+.. _mtk-rex-bc-chen: https://github.com/mtk-rex-bc-chen
 .. _niej: https://github.com/niej
 .. _npoushin: https://github.com/npoushin
 .. _prabhakarlad: https://github.com/prabhakarlad
