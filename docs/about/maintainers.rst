@@ -681,6 +681,20 @@ Build system
 :|F|: Makefile
 :|F|: make_helpers/
 
+Threat Model
+~~~~~~~~~~~~~
+:|M|: Zelalem Aweke <Zelalem.Aweke@arm.com>
+:|G|: `zelalem-aweke`_
+:|M|: Sandrine Bailleux <sandrine.bailleux@arm.com>
+:|G|: `sandrine-bailleux-arm`_
+:|M|: Joanna Farley <joanna.farley@arm.com>
+:|G|: `joannafarley-arm`_
+:|M|: Raghu Krishnamurthy <raghu.ncstate@icloud.com>
+:|G|: `raghuncstate`_
+:|M|: Varun Wadekar <vwadekar@nvidia.com>
+:|G|: `vwadekar`_
+:|F|: docs/threat_model/
+
 .. _AlexeiFedorov: https://github.com/AlexeiFedorov
 .. _Andre-ARM: https://github.com/Andre-ARM
 .. _Anson-Huang: https://github.com/Anson-Huang
