@@ -18,7 +18,7 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_AEMv8A-AEMv8A``
 -  ``FVP_Base_AEMv8A-AEMv8A-AEMv8A-AEMv8A-CCN502``
 -  ``FVP_Base_RevC-2xAEMvA``
--  ``FVP_Base_Cortex-A32x4``
+-  ``FVP_Base_Cortex-A32x4`` (Version 11.12 build 38)
 -  ``FVP_Base_Cortex-A35x4``
 -  ``FVP_Base_Cortex-A53x4``
 -  ``FVP_Base_Cortex-A55x4+Cortex-A75x4``
@@ -45,7 +45,7 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_Neoverse-E1x2``
 -  ``FVP_Base_Neoverse-E1x4``
 -  ``FVP_Base_Neoverse-N1x4``
--  ``FVP_Base_Neoverse-N2x4``
+-  ``FVP_Base_Neoverse-N2x4`` (Version 11.12 build 38)
 -  ``FVP_Base_Neoverse-V1x4``
 -  ``FVP_CSS_SGI-575``     (Version 11.10 build 36)
 -  ``FVP_CSS_SGM-775``
