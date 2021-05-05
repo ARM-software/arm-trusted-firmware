@@ -28,7 +28,7 @@
 		bootargs = "console=ttyAMA0,38400n8 earlycon";
 		/* Allow to upload a generous 100MB initrd payload. */
 		linux,initrd-start = <0x0 0x84000000>;
-		linux,initrd-end = <0x0 0x85400000>;
+		linux,initrd-end = <0x0 0x8a400000>;
 	};
 
 	/* /cpus node will be added by BL31 at runtime. */
