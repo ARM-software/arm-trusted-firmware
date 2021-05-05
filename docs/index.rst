@@ -17,7 +17,6 @@ Trusted Firmware-A Documentation
    design_documents/index
    threat_model/index
    change-log
-   change-log-upcoming
    glossary
    license
 
