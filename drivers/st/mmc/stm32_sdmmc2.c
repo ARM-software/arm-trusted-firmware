@@ -129,6 +129,8 @@
 #define DT_SDMMC2_COMPAT		"st,stm32-sdmmc2"
 #endif
 
+#define SDMMC_FIFO_SIZE			64U
+
 static void stm32_sdmmc2_init(void);
 static int stm32_sdmmc2_send_cmd_req(struct mmc_cmd *cmd);
 static int stm32_sdmmc2_send_cmd(struct mmc_cmd *cmd);
@@ -644,7 +646,7 @@ static int stm32_sdmmc2_read(int lba, uintptr_t buf, size_t size)
 			return -ETIMEDOUT;
 		}
 
-		if (size < (8U * sizeof(uint32_t))) {
+		if (size < (SDMMC_FIFO_SIZE / 2U)) {
 			if ((mmio_read_32(base + SDMMC_DCNTR) > 0U) &&
 			    ((status & SDMMC_STAR_RXFIFOE) == 0U)) {
 				*buffer = mmio_read_32(fifo_reg);
@@ -654,7 +656,8 @@ static int stm32_sdmmc2_read(int lba, uintptr_t buf, size_t size)
 			uint32_t count;
 
 			/* Read data from SDMMC Rx FIFO */
-			for (count = 0; count < 8U; count++) {
+			for (count = 0; count < (SDMMC_FIFO_SIZE / 2U);
+			     count += sizeof(uint32_t)) {
 				*buffer = mmio_read_32(fifo_reg);
 				buffer++;
 			}
