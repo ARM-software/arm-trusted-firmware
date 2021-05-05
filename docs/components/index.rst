@@ -14,6 +14,7 @@ Components
    fconf/index
    firmware-update
    measured_boot/index
+   mpmm
    platform-interrupt-controller-API
    ras
    romlib-design

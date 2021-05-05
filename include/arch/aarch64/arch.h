@@ -1216,4 +1216,16 @@
 #define DSU_CLUSTER_PWR_ON	1
 #define DSU_CLUSTER_PWR_MASK	U(1)
 
+/*******************************************************************************
+ * Definitions for CPU Power/Performance Management registers
+ ******************************************************************************/
+
+#define CPUPPMCR_EL3			S3_6_C15_C2_0
+#define CPUPPMCR_EL3_MPMMPINCTL_SHIFT	UINT64_C(0)
+#define CPUPPMCR_EL3_MPMMPINCTL_MASK	UINT64_C(0x1)
+
+#define CPUMPMMCR_EL3			S3_6_C15_C2_1
+#define CPUMPMMCR_EL3_MPMM_EN_SHIFT	UINT64_C(0)
+#define CPUMPMMCR_EL3_MPMM_EN_MASK	UINT64_C(0x1)
+
 #endif /* ARCH_H */

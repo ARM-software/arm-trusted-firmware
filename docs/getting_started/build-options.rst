@@ -265,6 +265,16 @@ Common build options
    partitioning in EL3, however. Platform initialisation code should configure
    and use partitions in EL3 as required. This option defaults to ``0``.
 
+-  ``ENABLE_MPMM``: Boolean option to enable support for the Maximum Power
+   Mitigation Mechanism supported by certain Arm cores, which allows the SoC
+   firmware to detect and limit high activity events to assist in SoC processor
+   power domain dynamic power budgeting and limit the triggering of whole-rail
+   (i.e. clock chopping) responses to overcurrent conditions. Defaults to ``0``.
+
+-  ``ENABLE_MPMM_FCONF``: Enables configuration of MPMM through FCONF, which
+   allows platforms with cores supporting MPMM to describe them via the
+   ``HW_CONFIG`` device tree blob. Default is 0.
+
 -  ``ENABLE_PIE``: Boolean option to enable Position Independent Executable(PIE)
    support within generic code in TF-A. This option is currently only supported
    in BL2_AT_EL3, BL31, and BL32 (TSP) for AARCH64 binaries, and in BL32

@@ -92,6 +92,10 @@ You can find additional definitions in the `Arm Glossary`_.
    MPAM
       Memory Partitioning And Monitoring. An optional Armv8.4 extension.
 
+   MPMM
+     Maximum Power Mitigation Mechanism, an optional power management mechanism
+     supported by some Arm Armv9-A cores.
+
    MPIDR
       Multiprocessor Affinity Register
 

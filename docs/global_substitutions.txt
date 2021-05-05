@@ -25,6 +25,7 @@
 .. |Linaro| replace:: :term:`Linaro`
 .. |MMU| replace:: :term:`MMU`
 .. |MPAM| replace:: :term:`MPAM`
+.. |MPMM| replace:: :term:`MPMM`
 .. |MPIDR| replace:: :term:`MPIDR`
 .. |MTE| replace:: :term:`MTE`
 .. |OEN| replace:: :term:`OEN`
