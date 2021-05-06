@@ -25,7 +25,7 @@
 	entrypoint-offset = <0x1000>;
 	xlat-granule = <0>; /* 4KiB */
 	boot-order = <0>;
-	messaging-method = <0>; /* Direct messaging only */
+	messaging-method = <3>; /* Direct messaging only */
 	run-time-model = <1>; /* Run to completion */
 
 	/* Boot protocol */
