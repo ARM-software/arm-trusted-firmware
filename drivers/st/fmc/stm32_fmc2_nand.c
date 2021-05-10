@@ -26,13 +26,21 @@
 #define TIMEOUT_US_1_MS			1000U
 
 /* FMC2 Compatibility */
+#if STM32MP1X
 #define DT_FMC2_EBI_COMPAT		"st,stm32mp1-fmc2-ebi"
 #define DT_FMC2_NFC_COMPAT		"st,stm32mp1-fmc2-nfc"
 #define MAX_CS				2U
+#endif
+#if STM32MP2X
+#define DT_FMC2_EBI_COMPAT		"st,stm32mp25-fmc2-ebi"
+#define DT_FMC2_NFC_COMPAT		"st,stm32mp25-fmc2-nfc"
+#define MAX_CS				4U
+#endif
 #define MAX_BANK			5U
 
 /* FMC2 Controller Registers */
 #define FMC2_BCR1			0x00U
+#define FMC2_CFGR			0x20U
 #define FMC2_PCR			0x80U
 #define FMC2_SR				0x84U
 #define FMC2_PMEM			0x88U
@@ -47,16 +55,18 @@
 #define FMC2_BCHDSR4			0x28CU
 
 /* FMC2_BCR1 register */
-#define FMC2_BCR1_FMC2EN		BIT(31)
+#define FMC2_BCR1_FMC2EN		BIT_32(31)
+/* FMC2_CFGR register */
+#define FMC2_CFGR_FMC2EN		BIT_32(31)
 /* FMC2_PCR register */
-#define FMC2_PCR_PWAITEN		BIT(1)
-#define FMC2_PCR_PBKEN			BIT(2)
+#define FMC2_PCR_PWAITEN		BIT_32(1)
+#define FMC2_PCR_PBKEN			BIT_32(2)
 #define FMC2_PCR_PWID_MASK		GENMASK_32(5, 4)
 #define FMC2_PCR_PWID(x)		(((x) << 4) & FMC2_PCR_PWID_MASK)
 #define FMC2_PCR_PWID_8			0x0U
 #define FMC2_PCR_PWID_16		0x1U
-#define FMC2_PCR_ECCEN			BIT(6)
-#define FMC2_PCR_ECCALG			BIT(8)
+#define FMC2_PCR_ECCEN			BIT_32(6)
+#define FMC2_PCR_ECCALG			BIT_32(8)
 #define FMC2_PCR_TCLR_MASK		GENMASK_32(12, 9)
 #define FMC2_PCR_TCLR(x)		(((x) << 9) & FMC2_PCR_TCLR_MASK)
 #define FMC2_PCR_TCLR_DEFAULT		0xFU
@@ -67,10 +77,10 @@
 #define FMC2_PCR_ECCSS(x)		(((x) << 17) & FMC2_PCR_ECCSS_MASK)
 #define FMC2_PCR_ECCSS_512		0x1U
 #define FMC2_PCR_ECCSS_2048		0x3U
-#define FMC2_PCR_BCHECC			BIT(24)
-#define FMC2_PCR_WEN			BIT(25)
+#define FMC2_PCR_BCHECC			BIT_32(24)
+#define FMC2_PCR_WEN			BIT_32(25)
 /* FMC2_SR register */
-#define FMC2_SR_NWRF			BIT(6)
+#define FMC2_SR_NWRF			BIT_32(6)
 /* FMC2_PMEM register*/
 #define FMC2_PMEM_MEMSET(x)		(((x) & GENMASK_32(7, 0)) << 0)
 #define FMC2_PMEM_MEMWAIT(x)		(((x) & GENMASK_32(7, 0)) << 8)
@@ -84,12 +94,12 @@
 #define FMC2_PATT_ATTHIZ(x)		(((x) & GENMASK_32(7, 0)) << 24)
 #define FMC2_PATT_DEFAULT		0x0A0A0A0AU
 /* FMC2_BCHISR register */
-#define FMC2_BCHISR_DERF		BIT(1)
+#define FMC2_BCHISR_DERF		BIT_32(1)
 /* FMC2_BCHICR register */
 #define FMC2_BCHICR_CLEAR_IRQ		GENMASK_32(4, 0)
 /* FMC2_BCHDSR0 register */
-#define FMC2_BCHDSR0_DUE		BIT(0)
-#define FMC2_BCHDSR0_DEF		BIT(1)
+#define FMC2_BCHDSR0_DUE		BIT_32(0)
+#define FMC2_BCHDSR0_DEF		BIT_32(1)
 #define FMC2_BCHDSR0_DEN_MASK		GENMASK_32(7, 4)
 #define FMC2_BCHDSR0_DEN_SHIFT		4U
 /* FMC2_BCHDSR1 register */
@@ -660,7 +670,6 @@ static void stm32_fmc2_write_data(struct nand_device *nand,
 static void stm32_fmc2_ctrl_init(void)
 {
 	uint32_t pcr = mmio_read_32(fmc2_base() + FMC2_PCR);
-	uint32_t bcr1 = mmio_read_32(fmc2_base() + FMC2_BCR1);
 
 	/* Enable wait feature and NAND flash memory bank */
 	pcr |= FMC2_PCR_PWAITEN;
@@ -688,9 +697,13 @@ static void stm32_fmc2_ctrl_init(void)
 	pcr |= FMC2_PCR_TAR(FMC2_PCR_TAR_DEFAULT);
 
 	/* Enable FMC2 controller */
-	bcr1 |= FMC2_BCR1_FMC2EN;
+#if STM32MP1X
+	mmio_setbits_32(fmc2_base() + FMC2_BCR1, FMC2_BCR1_FMC2EN);
+#endif
+#if STM32MP2X
+	mmio_setbits_32(fmc2_base() + FMC2_CFGR, FMC2_CFGR_FMC2EN);
+#endif
 
-	mmio_write_32(fmc2_base() + FMC2_BCR1, bcr1);
 	mmio_write_32(fmc2_base() + FMC2_PCR, pcr);
 	mmio_write_32(fmc2_base() + FMC2_PMEM, FMC2_PMEM_DEFAULT);
 	mmio_write_32(fmc2_base() + FMC2_PATT, FMC2_PATT_DEFAULT);
