@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -153,63 +153,70 @@ int stm32_get_gpio_bank_pinctrl_node(void *fdt, unsigned int bank)
 	}
 }
 
-static int get_part_number(uint32_t *part_nb)
+uint32_t stm32mp_get_chip_version(void)
 {
-	uint32_t part_number;
+	uint32_t version = 0U;
+
+	if (stm32mp1_dbgmcu_get_chip_version(&version) < 0) {
+		INFO("Cannot get CPU version, debug disabled\n");
+		return 0U;
+	}
+
+	return version;
+}
+
+uint32_t stm32mp_get_chip_dev_id(void)
+{
 	uint32_t dev_id;
 
-	assert(part_nb != NULL);
-
 	if (stm32mp1_dbgmcu_get_chip_dev_id(&dev_id) < 0) {
-		return -1;
+		INFO("Use default chip ID, debug disabled\n");
+		dev_id = STM32MP1_CHIP_ID;
+	}
+
+	return dev_id;
+}
+
+static uint32_t get_part_number(void)
+{
+	static uint32_t part_number;
+
+	if (part_number != 0U) {
+		return part_number;
 	}
 
 	if (bsec_shadow_read_otp(&part_number, PART_NUMBER_OTP) != BSEC_OK) {
-		ERROR("BSEC: PART_NUMBER_OTP Error\n");
-		return -1;
+		panic();
 	}
 
 	part_number = (part_number & PART_NUMBER_OTP_PART_MASK) >>
 		PART_NUMBER_OTP_PART_SHIFT;
 
-	*part_nb = part_number | (dev_id << 16);
+	part_number |= stm32mp_get_chip_dev_id() << 16;
 
-	return 0;
+	return part_number;
 }
 
-static int get_cpu_package(uint32_t *cpu_package)
+static uint32_t get_cpu_package(void)
 {
 	uint32_t package;
 
-	assert(cpu_package != NULL);
-
 	if (bsec_shadow_read_otp(&package, PACKAGE_OTP) != BSEC_OK) {
-		ERROR("BSEC: PACKAGE_OTP Error\n");
-		return -1;
+		panic();
 	}
 
-	*cpu_package = (package & PACKAGE_OTP_PKG_MASK) >>
+	package = (package & PACKAGE_OTP_PKG_MASK) >>
 		PACKAGE_OTP_PKG_SHIFT;
 
-	return 0;
+	return package;
 }
 
-void stm32mp_print_cpuinfo(void)
+void stm32mp_get_soc_name(char name[STM32_SOC_NAME_SIZE])
 {
-	const char *cpu_s, *cpu_r, *pkg;
-	uint32_t part_number;
-	uint32_t cpu_package;
-	uint32_t chip_dev_id;
-	int ret;
+	char *cpu_s, *cpu_r, *pkg;
 
 	/* MPUs Part Numbers */
-	ret = get_part_number(&part_number);
-	if (ret < 0) {
-		WARN("Cannot get part number\n");
-		return;
-	}
-
-	switch (part_number) {
+	switch (get_part_number()) {
 	case STM32MP157C_PART_NB:
 		cpu_s = "157C";
 		break;
@@ -252,13 +259,7 @@ void stm32mp_print_cpuinfo(void)
 	}
 
 	/* Package */
-	ret = get_cpu_package(&cpu_package);
-	if (ret < 0) {
-		WARN("Cannot get CPU package\n");
-		return;
-	}
-
-	switch (cpu_package) {
+	switch (get_cpu_package()) {
 	case PKG_AA_LFBGA448:
 		pkg = "AA";
 		break;
@@ -277,13 +278,7 @@ void stm32mp_print_cpuinfo(void)
 	}
 
 	/* REVISION */
-	ret = stm32mp1_dbgmcu_get_chip_version(&chip_dev_id);
-	if (ret < 0) {
-		WARN("Cannot get CPU version\n");
-		return;
-	}
-
-	switch (chip_dev_id) {
+	switch (stm32mp_get_chip_version()) {
 	case STM32MP1_REV_B:
 		cpu_r = "B";
 		break;
@@ -295,7 +290,16 @@ void stm32mp_print_cpuinfo(void)
 		break;
 	}
 
-	NOTICE("CPU: STM32MP%s%s Rev.%s\n", cpu_s, pkg, cpu_r);
+	snprintf(name, STM32_SOC_NAME_SIZE,
+		 "STM32MP%s%s Rev.%s", cpu_s, pkg, cpu_r);
+}
+
+void stm32mp_print_cpuinfo(void)
+{
+	char name[STM32_SOC_NAME_SIZE];
+
+	stm32mp_get_soc_name(name);
+	NOTICE("CPU: %s\n", name);
 }
 
 void stm32mp_print_boardinfo(void)
@@ -349,20 +353,12 @@ void stm32mp_print_boardinfo(void)
 /* Return true when SoC provides a single Cortex-A7 core, and false otherwise */
 bool stm32mp_is_single_core(void)
 {
-	uint32_t part_number;
-
-	if (get_part_number(&part_number) < 0) {
-		ERROR("Invalid part number, assume single core chip");
-		return true;
-	}
-
-	switch (part_number) {
+	switch (get_part_number()) {
 	case STM32MP151A_PART_NB:
 	case STM32MP151C_PART_NB:
 	case STM32MP151D_PART_NB:
 	case STM32MP151F_PART_NB:
 		return true;
-
 	default:
 		return false;
 	}
