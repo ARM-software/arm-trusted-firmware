@@ -16,6 +16,11 @@ PLAT_INCLUDES		:=	-Iplat/arm/board/diphda/common/include	\
 				-Iinclude/plat/arm/common			\
 				-Iinclude/plat/arm/css/common/aarch64
 
+
+DIPHDA_FW_NVCTR_VAL	:=	255
+TFW_NVCTR_VAL		:=	${DIPHDA_FW_NVCTR_VAL}
+NTFW_NVCTR_VAL		:=	${DIPHDA_FW_NVCTR_VAL}
+
 override NEED_BL1	:=	no
 
 override NEED_BL2	:=	yes
@@ -63,6 +68,9 @@ $(eval $(call TOOL_ADD_PAYLOAD,${DIPHDA_TOS_FW_CONFIG},--tos-fw-config,${DIPHDA_
 
 # Adding TARGET_PLATFORM as a GCC define (-D option)
 $(eval $(call add_define,TARGET_PLATFORM_$(call uppercase,${TARGET_PLATFORM})))
+
+# Adding DIPHDA_FW_NVCTR_VAL as a GCC define (-D option)
+$(eval $(call add_define,DIPHDA_FW_NVCTR_VAL))
 
 include plat/arm/common/arm_common.mk
 include plat/arm/board/common/board_common.mk

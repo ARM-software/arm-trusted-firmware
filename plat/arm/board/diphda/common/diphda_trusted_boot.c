@@ -30,3 +30,24 @@ int plat_get_rotpk_info(void *cookie, void **key_ptr, unsigned int *key_len,
 {
 	return arm_get_rotpk_info(cookie, key_ptr, key_len, flags);
 }
+
+/*
+ * STUB overriding the non-volatile counter reading.
+ * NV counters are not implemented at this stage of development.
+ * Return: 0 = success
+ */
+int plat_get_nv_ctr(void *cookie, unsigned int *nv_ctr)
+{
+    *nv_ctr = DIPHDA_FW_NVCTR_VAL;
+    return 0;
+}
+
+/*
+ * STUB overriding the non-volatile counter updating.
+ * NV counters are not implemented at this stage of development.
+ * Return: 0 = success
+ */
+int plat_set_nv_ctr(void *cookie, unsigned int nv_ctr)
+{
+    return 0;
+}
