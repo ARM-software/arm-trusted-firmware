@@ -290,6 +290,10 @@ static uint32_t intel_fpga_config_write(uint64_t mem, uint64_t size)
 
 static int is_out_of_sec_range(uint64_t reg_addr)
 {
+#if DEBUG
+	return 0;
+#endif
+
 	switch (reg_addr) {
 	case(0xF8011100):	/* ECCCTRL1 */
 	case(0xF8011104):	/* ECCCTRL2 */
