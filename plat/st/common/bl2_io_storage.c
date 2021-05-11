@@ -118,11 +118,6 @@ static const io_block_spec_t bl32_block_spec = {
 };
 #endif
 
-static const io_block_spec_t bl2_block_spec = {
-	.offset = BL2_BASE,
-	.length = STM32MP_BL2_SIZE,
-};
-
 static const struct stm32image_part_info bl33_partition_spec = {
 	.name = BL33_IMAGE_NAME,
 	.binary_type = BL33_BINARY_TYPE,
@@ -178,11 +173,6 @@ struct plat_io_policy {
 };
 
 static const struct plat_io_policy policies[] = {
-	[BL2_IMAGE_ID] = {
-		.dev_handle = &dummy_dev_handle,
-		.image_spec = (uintptr_t)&bl2_block_spec,
-		.check = open_dummy
-	},
 #ifdef AARCH32_SP_OPTEE
 	[BL32_IMAGE_ID] = {
 		.dev_handle = &image_dev_handle,
