@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2024, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -778,7 +778,7 @@ static void lpddr3_get_parameter(struct timing_related_config *timing_config,
 	else if (twr_tmp <= 8)
 		twr_tmp = 8;
 	else if (twr_tmp <= 12)
-		twr_tmp = twr_tmp;
+		; /* do nothing */
 	else if (twr_tmp <= 14)
 		twr_tmp = 14;
 	else
