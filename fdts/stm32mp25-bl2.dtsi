@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause)
 /*
- * Copyright (C) 2023-2024, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2023-2026, STMicroelectronics - All Rights Reserved
  */
 
 / {
 	soc@0 {
+#if !STM32MP_RAW_NAND
+		/delete-node/ memory-controller@48200000;
+#endif
 #if !STM32MP_EMMC && !STM32MP_SDMMC
 		rifsc@42080000 {
 			/delete-node/ mmc@48220000;
