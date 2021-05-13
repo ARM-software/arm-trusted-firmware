@@ -49,12 +49,9 @@ func console_a3700_core_init
 	lsl	w2, w2, #4
 	add	w1, w1, w2, lsr #1
 	udiv	w2, w1, w2
-	and	w2, w2, #0x3ff
+	and	w2, w2, #0x3ff /* clear all other bits to use default clock */
 
-	ldr	w3, [x0, #UART_BAUD_REG]
-	bic	w3, w3, 0x3ff
-	orr	w3, w3, w2
-	str	w3, [x0, #UART_BAUD_REG]/* set baud rate divisor */
+	str	w2, [x0, #UART_BAUD_REG]/* set baud rate divisor */
 
 	/* Set UART to default 16X scheme */
 	mov	w3, #0
