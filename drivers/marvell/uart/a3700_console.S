@@ -45,8 +45,9 @@ func console_a3700_core_init
 	cbz	w2, init_fail
 
 	/* Program the baudrate */
-	/* Divisor =  Uart clock / (16 * baudrate) */
+	/* Divisor = Round(Uartclock / (16 * baudrate)) */
 	lsl	w2, w2, #4
+	add	w1, w1, w2, lsr #1
 	udiv	w2, w1, w2
 	and	w2, w2, #0x3ff
 
