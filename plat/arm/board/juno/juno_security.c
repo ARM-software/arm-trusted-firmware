@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -115,6 +115,14 @@ static void init_debug_cfg(void)
 	/* Drive SPIDEN LOW to disable invasive debug of secure state. */
 	mmio_write_32(SSC_REG_BASE + SSC_DBGCFG_CLR,
 		1U << SPIDEN_INT_CLR_SHIFT);
+
+	/* Set internal drive selection for SPNIDEN. */
+	mmio_write_32(SSC_REG_BASE + SSC_DBGCFG_SET,
+		1U << SPNIDEN_SEL_SET_SHIFT);
+
+	/* Drive SPNIDEN LOW to disable non-invasive debug of secure state. */
+	mmio_write_32(SSC_REG_BASE + SSC_DBGCFG_CLR,
+		1U << SPNIDEN_INT_CLR_SHIFT);
 #endif
 }
 
