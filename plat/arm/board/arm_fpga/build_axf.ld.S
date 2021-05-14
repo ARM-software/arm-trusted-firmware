@@ -17,6 +17,7 @@ OUTPUT_ARCH(aarch64)
 
 INPUT(./bl31/bl31.elf)
 INPUT(./rom_trampoline.o)
+INPUT(./kernel_trampoline.o)
 
 TARGET(binary)
 INPUT(./fdts/arm_fpga.dtb)
@@ -39,6 +40,11 @@ SECTIONS
 	.dtb (FPGA_PRELOADED_DTB_BASE): {
 		ASSERT(. == ALIGN(8), "DTB address is not 8-byte aligned");
 		*arm_fpga.dtb
+	}
+
+	.kern_tramp (PRELOADED_BL33_BASE): {
+		*kernel_trampoline.o(.text*)
+		KEEP(*(.kern_tramp))
 	}
 
 	/DISCARD/ : { *(.debug_*) }
