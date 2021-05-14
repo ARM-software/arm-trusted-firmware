@@ -41,8 +41,8 @@ int system_power_off(void)
 	len = sizeof(system_off_now);
 	system_off_now[len - 1] = add_xor_checksum(system_off_now, len);
 
-	console_16550_register(PLAT_MARVELL_BOOT_UART_BASE + 0x100,
-		PLAT_MARVELL_BOOT_UART_CLK_IN_HZ, 115200, &console);
+	console_16550_register(PLAT_MARVELL_UART_BASE + 0x100,
+		PLAT_MARVELL_UART_CLK_IN_HZ, 115200, &console);
 
 	/* Send system_off_now to console */
 	for (i = 0; i < len; i++) {

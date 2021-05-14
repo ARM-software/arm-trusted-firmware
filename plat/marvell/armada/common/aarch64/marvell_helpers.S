@@ -63,8 +63,8 @@ endfunc plat_marvell_calc_core_pos
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-	mov_imm	x0, PLAT_MARVELL_CRASH_UART_BASE
-	mov_imm	x1, PLAT_MARVELL_CRASH_UART_CLK_IN_HZ
+	mov_imm	x0, PLAT_MARVELL_UART_BASE
+	mov_imm	x1, PLAT_MARVELL_UART_CLK_IN_HZ
 	mov_imm	x2, MARVELL_CONSOLE_BAUDRATE
 #ifdef PLAT_a3700
 	b	console_a3700_core_init
@@ -81,7 +81,7 @@ endfunc plat_crash_console_init
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_putc
-	mov_imm	x1, PLAT_MARVELL_CRASH_UART_BASE
+	mov_imm	x1, PLAT_MARVELL_UART_BASE
 #ifdef PLAT_a3700
 
 	b	console_a3700_core_putc
@@ -99,7 +99,7 @@ endfunc plat_crash_console_putc
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_flush
-	mov_imm	x0, PLAT_MARVELL_CRASH_UART_BASE
+	mov_imm	x0, PLAT_MARVELL_UART_BASE
 #ifdef PLAT_a3700
 	b	console_a3700_core_flush
 #else
