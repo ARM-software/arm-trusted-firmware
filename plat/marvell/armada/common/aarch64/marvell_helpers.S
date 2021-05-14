@@ -63,8 +63,16 @@ endfunc plat_marvell_calc_core_pos
 	 * ---------------------------------------------
 	 */
 func plat_crash_console_init
-	mov_imm	x0, PLAT_MARVELL_UART_BASE
+#ifdef PLAT_a3700
+	mov	x1, x30
+	bl	get_ref_clk
+	mov	x30, x1
+	mov_imm	x1, 1000000
+	mul	x1, x0, x1
+#else
 	mov_imm	x1, PLAT_MARVELL_UART_CLK_IN_HZ
+#endif
+	mov_imm	x0, PLAT_MARVELL_UART_BASE
 	mov_imm	x2, MARVELL_CONSOLE_BAUDRATE
 #ifdef PLAT_a3700
 	b	console_a3700_core_init

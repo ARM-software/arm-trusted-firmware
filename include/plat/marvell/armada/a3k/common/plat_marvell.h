@@ -100,4 +100,6 @@ void plat_marvell_interconnect_enter_coherency(void);
 
 const mmap_region_t *plat_marvell_get_mmap(void);
 
+uint32_t get_ref_clk(void);
+
 #endif /* PLAT_MARVELL_H */

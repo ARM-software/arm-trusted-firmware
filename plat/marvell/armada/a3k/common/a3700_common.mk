@@ -38,6 +38,7 @@ PLAT_INCLUDES		:=	-I$(PLAT_FAMILY_BASE)/$(PLAT)		\
 				-I$/drivers/arm/gic/common/
 
 PLAT_BL_COMMON_SOURCES	:=	$(PLAT_COMMON_BASE)/aarch64/a3700_common.c \
+				$(PLAT_COMMON_BASE)/aarch64/a3700_clock.S \
 				$(MARVELL_DRV_BASE)/uart/a3700_console.S
 
 BL1_SOURCES		+=	$(PLAT_COMMON_BASE)/aarch64/plat_helpers.S \
