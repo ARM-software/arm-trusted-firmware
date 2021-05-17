@@ -218,6 +218,18 @@ int nand_wait_ready(unsigned int delay_ms)
 	return -ETIMEDOUT;
 }
 
+static int nand_reset(void)
+{
+	int ret;
+
+	ret = nand_send_cmd(NAND_CMD_RESET, NAND_TWB_MAX);
+	if (ret != 0) {
+		return ret;
+	}
+
+	return nand_send_wait(PSEC_TO_MSEC(NAND_TRST_MAX), 0U);
+}
+
 #if NAND_ONFI_DETECT
 static uint16_t nand_check_crc(uint16_t crc, uint8_t *data_in,
 			       unsigned int data_len)
@@ -263,18 +275,6 @@ static int nand_read_id(uint8_t addr, uint8_t *id, unsigned int size)
 	}
 
 	return nand_read_data(id, size, true);
-}
-
-static int nand_reset(void)
-{
-	int ret;
-
-	ret = nand_send_cmd(NAND_CMD_RESET, NAND_TWB_MAX);
-	if (ret != 0) {
-		return ret;
-	}
-
-	return nand_send_wait(PSEC_TO_MSEC(NAND_TRST_MAX), 0U);
 }
 
 static int nand_read_param_page(void)
@@ -346,11 +346,6 @@ static int detect_onfi(void)
 	int ret;
 	char id[4];
 
-	ret = nand_reset();
-	if (ret != 0) {
-		return ret;
-	}
-
 	ret = nand_read_id(ONFI_SIGNATURE_ADDR, (uint8_t *)id, sizeof(id));
 	if (ret != 0) {
 		return ret;
@@ -406,6 +401,8 @@ void nand_raw_ctrl_init(const struct nand_ctrl_ops *ops)
 
 int nand_raw_init(unsigned long long *size, unsigned int *erase_size)
 {
+	int ret;
+
 	rawnand_dev.nand_dev = get_nand_device();
 	if (rawnand_dev.nand_dev == NULL) {
 		return -EINVAL;
@@ -418,6 +415,11 @@ int nand_raw_init(unsigned long long *size, unsigned int *erase_size)
 	if ((rawnand_dev.ops->setup == NULL) ||
 	    (rawnand_dev.ops->exec == NULL)) {
 		return -ENODEV;
+	}
+
+	ret = nand_reset();
+	if (ret != 0) {
+		return ret;
 	}
 
 #if NAND_ONFI_DETECT
