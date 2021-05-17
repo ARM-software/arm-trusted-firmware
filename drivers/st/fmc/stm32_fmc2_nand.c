@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -148,7 +148,6 @@ struct stm32_fmc2_nfc {
 	uintptr_t reg_base;
 	struct stm32_fmc2_cs_reg cs[MAX_CS];
 	unsigned long clock_id;
-	unsigned int reset_id;
 	uint8_t cs_sel;
 };
 
@@ -814,12 +813,11 @@ int stm32_fmc2_init(void)
 
 	stm32_fmc2.reg_base = info.base;
 
-	if ((info.clock < 0) || (info.reset < 0)) {
+	if (info.clock < 0) {
 		return -FDT_ERR_BADVALUE;
 	}
 
 	stm32_fmc2.clock_id = (unsigned long)info.clock;
-	stm32_fmc2.reset_id = (unsigned int)info.reset;
 
 	cuint = fdt_getprop(fdt, fmc_ebi_node, "ranges", NULL);
 	if (cuint == NULL) {
@@ -912,13 +910,18 @@ int stm32_fmc2_init(void)
 	clk_enable(stm32_fmc2.clock_id);
 
 	/* Reset IP */
-	ret = stm32mp_reset_assert(stm32_fmc2.reset_id, TIMEOUT_US_1_MS);
-	if (ret != 0) {
-		panic();
-	}
-	ret = stm32mp_reset_deassert(stm32_fmc2.reset_id, TIMEOUT_US_1_MS);
-	if (ret != 0) {
-		panic();
+	if (info.reset >= 0) {
+		unsigned int reset_id = (unsigned int)info.reset;
+
+		ret = stm32mp_reset_assert(reset_id, TIMEOUT_US_1_MS);
+		if (ret != 0) {
+			panic();
+		}
+
+		ret = stm32mp_reset_deassert(reset_id, TIMEOUT_US_1_MS);
+		if (ret != 0) {
+			panic();
+		}
 	}
 
 	/* Setup default IP registers */
