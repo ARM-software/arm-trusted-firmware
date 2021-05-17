@@ -144,7 +144,7 @@ running from within your newly-cloned repository:
 
 .. code:: shell
 
-    npm install
+    npm install --no-save
 
 If you have opted **not** to install Node.js, you can install the Gerrit hook
 manually by running:
