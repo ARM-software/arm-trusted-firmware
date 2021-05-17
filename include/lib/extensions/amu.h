@@ -20,11 +20,7 @@
 #define AMU_GROUP0_COUNTERS_MASK	U(0xf)
 #define AMU_GROUP0_NR_COUNTERS		U(4)
 
-#ifdef PLAT_AMU_GROUP1_COUNTERS_MASK
-#define AMU_GROUP1_COUNTERS_MASK	PLAT_AMU_GROUP1_COUNTERS_MASK
-#else
 #define AMU_GROUP1_COUNTERS_MASK	U(0)
-#endif
 
 /* Calculate number of group 1 counters */
 #if (AMU_GROUP1_COUNTERS_MASK	& (1 << 15))
