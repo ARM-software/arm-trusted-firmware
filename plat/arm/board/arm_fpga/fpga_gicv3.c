@@ -8,6 +8,7 @@
 #include <common/fdt_wrappers.h>
 #include <drivers/arm/gicv3.h>
 #include <drivers/arm/gic_common.h>
+#include <lib/mmio.h>
 #include <libfdt.h>
 
 #include <platform_def.h>
@@ -81,4 +82,12 @@ void fpga_pwr_gic_off(void)
 unsigned int fpga_get_nr_gic_cores(void)
 {
 	return gicv3_rdistif_get_number_frames(fpga_gicv3_driver_data.gicr_base);
+}
+
+uintptr_t fpga_get_redist_size(void)
+{
+	uint64_t typer_val = mmio_read_64(fpga_gicv3_driver_data.gicr_base +
+					  GICR_TYPER);
+
+	return gicv3_redist_size(typer_val);
 }

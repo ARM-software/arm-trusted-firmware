@@ -89,6 +89,8 @@ endif
 # Allow detection of GIC-600
 GICV3_SUPPORT_GIC600	:=	1
 
+GIC_ENABLE_V4_EXTN	:=	1
+
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
 
