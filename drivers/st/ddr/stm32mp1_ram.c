@@ -13,6 +13,8 @@
 #include <drivers/st/stm32mp1_ddr.h>
 #include <drivers/st/stm32mp1_ddr_helpers.h>
 #include <drivers/st/stm32mp1_ram.h>
+#include <drivers/st/stm32mp_ddr.h>
+#include <drivers/st/stm32mp_ram.h>
 #include <lib/mmio.h>
 #include <libfdt.h>
 
@@ -21,9 +23,9 @@
 #define DDR_PATTERN	0xAAAAAAAAU
 #define DDR_ANTIPATTERN	0x55555555U
 
-static struct ddr_info ddr_priv_data;
+static struct stm32mp_ddr_priv ddr_priv_data;
 
-int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint32_t mem_speed)
+int stm32mp1_ddr_clk_enable(struct stm32mp_ddr_priv *priv, uint32_t mem_speed)
 {
 	unsigned long ddrphy_clk, ddr_clk, mem_speed_hz;
 
@@ -165,28 +167,14 @@ static uint32_t ddr_check_size(void)
 
 static int stm32mp1_ddr_setup(void)
 {
-	struct ddr_info *priv = &ddr_priv_data;
+	struct stm32mp_ddr_priv *priv = &ddr_priv_data;
 	int ret;
-	struct stm32mp1_ddr_config config;
-	int node, len;
-	uint32_t uret, idx;
+	struct stm32mp_ddr_config config;
+	int node;
+	uint32_t uret;
 	void *fdt;
 
-#define PARAM(x, y)							\
-	{								\
-		.name = x,						\
-		.offset = offsetof(struct stm32mp1_ddr_config, y),	\
-		.size = sizeof(config.y) / sizeof(uint32_t)		\
-	}
-
-#define CTL_PARAM(x) PARAM("st,ctl-"#x, c_##x)
-#define PHY_PARAM(x) PARAM("st,phy-"#x, p_##x)
-
-	const struct {
-		const char *name; /* Name in DT */
-		const uint32_t offset; /* Offset in config struct */
-		const uint32_t size;   /* Size of parameters */
-	} param[] = {
+	const struct stm32mp_ddr_param param[] = {
 		CTL_PARAM(reg),
 		CTL_PARAM(timing),
 		CTL_PARAM(map),
@@ -205,36 +193,14 @@ static int stm32mp1_ddr_setup(void)
 		return -EINVAL;
 	}
 
-	ret = fdt_read_uint32(fdt, node, "st,mem-speed", &config.info.speed);
+	ret = stm32mp_ddr_dt_get_info(fdt, node, &config.info);
 	if (ret < 0) {
-		VERBOSE("%s: no st,mem-speed\n", __func__);
-		return -EINVAL;
+		return ret;
 	}
-	ret = fdt_read_uint32(fdt, node, "st,mem-size", &config.info.size);
+
+	ret = stm32mp_ddr_dt_get_param(fdt, node, param, ARRAY_SIZE(param), (uintptr_t)&config);
 	if (ret < 0) {
-		VERBOSE("%s: no st,mem-size\n", __func__);
-		return -EINVAL;
-	}
-	config.info.name = fdt_getprop(fdt, node, "st,mem-name", &len);
-	if (config.info.name == NULL) {
-		VERBOSE("%s: no st,mem-name\n", __func__);
-		return -EINVAL;
-	}
-	INFO("RAM: %s\n", config.info.name);
-
-	for (idx = 0; idx < ARRAY_SIZE(param); idx++) {
-		ret = fdt_read_uint32_array(fdt, node, param[idx].name,
-					    param[idx].size,
-					    (void *)((uintptr_t)&config +
-						     param[idx].offset));
-
-		VERBOSE("%s: %s[0x%x] = %d\n", __func__,
-			param[idx].name, param[idx].size, ret);
-		if (ret != 0) {
-			ERROR("%s: Cannot read %s, error=%d\n",
-			      __func__, param[idx].name, ret);
-			return -EINVAL;
-		}
+		return ret;
 	}
 
 	/* Disable axidcg clock gating during init */
@@ -284,12 +250,12 @@ static int stm32mp1_ddr_setup(void)
 
 int stm32mp1_ddr_probe(void)
 {
-	struct ddr_info *priv = &ddr_priv_data;
+	struct stm32mp_ddr_priv *priv = &ddr_priv_data;
 
 	VERBOSE("STM32MP DDR probe\n");
 
-	priv->ctl = (struct stm32mp1_ddrctl *)stm32mp_ddrctrl_base();
-	priv->phy = (struct stm32mp1_ddrphy *)stm32mp_ddrphyc_base();
+	priv->ctl = (struct stm32mp_ddrctl *)stm32mp_ddrctrl_base();
+	priv->phy = (struct stm32mp_ddrphy *)stm32mp_ddrphyc_base();
 	priv->pwr = stm32mp_pwr_base();
 	priv->rcc = stm32mp_rcc_base();
 

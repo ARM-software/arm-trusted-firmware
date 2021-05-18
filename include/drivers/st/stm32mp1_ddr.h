@@ -10,29 +10,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define DT_DDR_COMPAT	"st,stm32mp1-ddr"
-
-struct stm32mp1_ddr_size {
-	uint64_t base;
-	uint64_t size;
-};
-
-/**
- * struct ddr_info
- *
- * @dev: pointer for the device
- * @info: UCLASS RAM information
- * @ctl: DDR controleur base address
- * @phy: DDR PHY base address
- * @syscfg: syscfg base address
- */
-struct ddr_info {
-	struct stm32mp1_ddr_size info;
-	struct stm32mp1_ddrctl *ctl;
-	struct stm32mp1_ddrphy *phy;
-	uintptr_t pwr;
-	uintptr_t rcc;
-};
+#include <drivers/st/stm32mp_ddr.h>
 
 struct stm32mp1_ddrctrl_reg {
 	uint32_t mstr;
@@ -140,14 +118,8 @@ struct stm32mp1_ddrphy_timing {
 	uint32_t mr3;
 };
 
-struct stm32mp1_ddr_info {
-	const char *name;
-	uint32_t speed; /* in kHZ */
-	uint32_t size;  /* Memory size in byte = col * row * width */
-};
-
-struct stm32mp1_ddr_config {
-	struct stm32mp1_ddr_info info;
+struct stm32mp_ddr_config {
+	struct stm32mp_ddr_info info;
 	struct stm32mp1_ddrctrl_reg c_reg;
 	struct stm32mp1_ddrctrl_timing c_timing;
 	struct stm32mp1_ddrctrl_map c_map;
@@ -156,7 +128,7 @@ struct stm32mp1_ddr_config {
 	struct stm32mp1_ddrphy_timing p_timing;
 };
 
-int stm32mp1_ddr_clk_enable(struct ddr_info *priv, uint32_t mem_speed);
-void stm32mp1_ddr_init(struct ddr_info *priv,
-		       struct stm32mp1_ddr_config *config);
+int stm32mp1_ddr_clk_enable(struct stm32mp_ddr_priv *priv, uint32_t mem_speed);
+void stm32mp1_ddr_init(struct stm32mp_ddr_priv *priv, struct stm32mp_ddr_config *config);
+
 #endif /* STM32MP1_DDR_H */
