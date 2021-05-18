@@ -86,8 +86,7 @@ void gicv3_rdistif_base_addrs_probe(uintptr_t *rdistif_base_addrs,
 		if (proc_num < rdistif_num) {
 			rdistif_base_addrs[proc_num] = rdistif_base;
 		}
-
-		rdistif_base += (1U << GICR_PCPUBASE_SHIFT);
+		rdistif_base += gicv3_redist_size(typer_val);
 	} while ((typer_val & TYPER_LAST_BIT) == 0U);
 }
 
@@ -383,11 +382,13 @@ unsigned int gicv3_rdistif_get_number_frames(const uintptr_t gicr_frame)
 	uintptr_t rdistif_base = gicr_frame;
 	unsigned int count;
 
-	for (count = 1; count < PLATFORM_CORE_COUNT; count++) {
-		if ((gicr_read_typer(rdistif_base) & TYPER_LAST_BIT) != 0U) {
+	for (count = 1U; count < PLATFORM_CORE_COUNT; count++) {
+		uint64_t typer_val = gicr_read_typer(rdistif_base);
+
+		if ((typer_val & TYPER_LAST_BIT) != 0U) {
 			break;
 		}
-		rdistif_base += (1U << GICR_PCPUBASE_SHIFT);
+		rdistif_base += gicv3_redist_size(typer_val);
 	}
 
 	return count;
