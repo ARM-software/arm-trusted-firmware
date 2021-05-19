@@ -102,9 +102,9 @@ static const struct stm32image_part_info optee_header_partition_spec = {
 	.binary_type = OPTEE_HEADER_BINARY_TYPE,
 };
 
-static const struct stm32image_part_info optee_pager_partition_spec = {
-	.name = OPTEE_PAGER_IMAGE_NAME,
-	.binary_type = OPTEE_PAGER_BINARY_TYPE,
+static const struct stm32image_part_info optee_core_partition_spec = {
+	.name = OPTEE_CORE_IMAGE_NAME,
+	.binary_type = OPTEE_CORE_BINARY_TYPE,
 };
 
 static const struct stm32image_part_info optee_paged_partition_spec = {
@@ -132,7 +132,7 @@ enum {
 	IMG_IDX_BL33,
 #ifdef AARCH32_SP_OPTEE
 	IMG_IDX_OPTEE_HEADER,
-	IMG_IDX_OPTEE_PAGER,
+	IMG_IDX_OPTEE_CORE,
 	IMG_IDX_OPTEE_PAGED,
 #endif
 	IMG_IDX_NUM
@@ -149,9 +149,9 @@ static struct stm32image_device_info stm32image_dev_info_spec __unused = {
 		.name = OPTEE_HEADER_IMAGE_NAME,
 		.binary_type = OPTEE_HEADER_BINARY_TYPE,
 	},
-	.part_info[IMG_IDX_OPTEE_PAGER] = {
-		.name = OPTEE_PAGER_IMAGE_NAME,
-		.binary_type = OPTEE_PAGER_BINARY_TYPE,
+	.part_info[IMG_IDX_OPTEE_CORE] = {
+		.name = OPTEE_CORE_IMAGE_NAME,
+		.binary_type = OPTEE_CORE_BINARY_TYPE,
 	},
 	.part_info[IMG_IDX_OPTEE_PAGED] = {
 		.name = OPTEE_PAGED_IMAGE_NAME,
@@ -191,7 +191,7 @@ static const struct plat_io_policy policies[] = {
 	},
 	[BL32_EXTRA1_IMAGE_ID] = {
 		.dev_handle = &image_dev_handle,
-		.image_spec = (uintptr_t)&optee_pager_partition_spec,
+		.image_spec = (uintptr_t)&optee_core_partition_spec,
 		.check = open_image
 	},
 	[BL32_EXTRA2_IMAGE_ID] = {
@@ -396,7 +396,7 @@ static void boot_spi_nor(boot_api_context_t *boot_context)
 	part->part_offset = STM32MP_NOR_TEED_OFFSET;
 	part->bkp_offset = 0U;
 
-	idx = IMG_IDX_OPTEE_PAGER;
+	idx = IMG_IDX_OPTEE_CORE;
 	part = &stm32image_dev_info_spec.part_info[idx];
 	part->part_offset = STM32MP_NOR_TEEX_OFFSET;
 	part->bkp_offset = 0U;
@@ -449,7 +449,7 @@ static void boot_fmc2_nand(boot_api_context_t *boot_context)
 	part->part_offset = STM32MP_NAND_TEED_OFFSET;
 	part->bkp_offset = nand_dev_spec.erase_size;
 
-	idx = IMG_IDX_OPTEE_PAGER;
+	idx = IMG_IDX_OPTEE_CORE;
 	part = &stm32image_dev_info_spec.part_info[idx];
 	part->part_offset = STM32MP_NAND_TEEX_OFFSET;
 	part->bkp_offset = nand_dev_spec.erase_size;
@@ -503,7 +503,7 @@ static void boot_spi_nand(boot_api_context_t *boot_context)
 	part->part_offset = STM32MP_NAND_TEED_OFFSET;
 	part->bkp_offset = spi_nand_dev_spec.erase_size;
 
-	idx = IMG_IDX_OPTEE_PAGER;
+	idx = IMG_IDX_OPTEE_CORE;
 	part = &stm32image_dev_info_spec.part_info[idx];
 	part->part_offset = STM32MP_NAND_TEEX_OFFSET;
 	part->bkp_offset = spi_nand_dev_spec.erase_size;
