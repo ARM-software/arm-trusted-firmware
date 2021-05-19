@@ -224,7 +224,7 @@ static void fpga_prepare_dtb(void)
 			INFO("Adjusting GICR DT region to cover %u cores\n",
 			      nr_cores);
 			err = fdt_adjust_gic_redist(fdt, nr_cores,
-						    INVALID_BASE_ADDR,
+						    fpga_get_redist_base(),
 						    fpga_get_redist_size());
 			if (err < 0) {
 				ERROR("Error %d fixing up GIC DT node\n", err);
