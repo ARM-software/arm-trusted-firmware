@@ -95,6 +95,7 @@ unsigned long stm32mp_clk_get_rate(unsigned long id);
 /* Initialise the IO layer and register platform IO devices */
 void stm32mp_io_setup(void);
 
+#if STM32MP_USE_STM32IMAGE
 /*
  * Check that the STM32 header of a .stm32 binary image is valid
  * @param header: pointer to the stm32 image header
@@ -102,6 +103,7 @@ void stm32mp_io_setup(void);
  * @return: 0 on success, negative value in case of error
  */
 int stm32mp_check_header(boot_api_image_header_t *header, uintptr_t buffer);
+#endif /* STM32MP_USE_STM32IMAGE */
 
 /* Functions to map DDR in MMU with non-cacheable attribute, and unmap it */
 int stm32mp_map_ddr_non_cacheable(void);

@@ -140,6 +140,16 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	while (bl_params != NULL) {
 		if (bl_params->image_id == BL33_IMAGE_ID) {
 			bl33_image_ep_info = *bl_params->ep_info;
+			/*
+			 *  Check if hw_configuration is given to BL32 and
+			 *  share it to BL33.
+			 */
+			if (arg2 != 0U) {
+				bl33_image_ep_info.args.arg0 = 0U;
+				bl33_image_ep_info.args.arg1 = 0U;
+				bl33_image_ep_info.args.arg2 = arg2;
+			}
+
 			break;
 		}
 

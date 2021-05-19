@@ -1,0 +1,30 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+/*
+ * Copyright (C) STMicroelectronics 2020-2021 - All Rights Reserved
+ */
+
+/ {
+	cpus {
+		/delete-node/ cpu@1;
+	};
+
+	/delete-node/ psci;
+
+	soc {
+		/delete-node/ timer@40006000;
+		/delete-node/ timer@44006000;
+		/delete-node/ pwr_mcu@50001014;
+		/delete-node/ cryp@54001000;
+		/delete-node/ rng@54003000;
+		/delete-node/ spi@5c001000;
+		/delete-node/ rtc@5c004000;
+		/delete-node/ etzpc@5c007000;
+		/delete-node/ stgen@5c008000;
+		/delete-node/ i2c@5c009000;
+		/delete-node/ tamp@5c00a000;
+
+		pin-controller@50002000 {
+			/delete-node/ rtc-out2-rmp-pins-0;
+		};
+	};
+};

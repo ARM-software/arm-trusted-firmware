@@ -9,7 +9,14 @@ ARM_WITH_NEON		:=	yes
 BL2_AT_EL3		:=	1
 USE_COHERENT_MEM	:=	0
 
+# Allow TF-A to concatenate BL2 & BL32 binaries in a single file,
+# share DTB file between BL2 and BL32
+# If it is set to 0, then FIP is used
+STM32MP_USE_STM32IMAGE	?=	0
+
+ifneq ($(STM32MP_USE_STM32IMAGE),1)
 ENABLE_PIE		:=	1
+endif
 
 STM32_TF_VERSION	?=	0
 
@@ -29,8 +36,10 @@ STM32_TF_A_COPIES		:=	2
 STM32_BL33_PARTS_NUM		:=	1
 ifeq ($(AARCH32_SP),optee)
 STM32_RUNTIME_PARTS_NUM		:=	3
-else
+else ifeq ($(STM32MP_USE_STM32IMAGE),1)
 STM32_RUNTIME_PARTS_NUM		:=	0
+else
+STM32_RUNTIME_PARTS_NUM		:=	1
 endif
 PLAT_PARTITION_MAX_ENTRIES	:=	$(shell echo $$(($(STM32_TF_A_COPIES) + \
 							 $(STM32_BL33_PARTS_NUM) + \
@@ -46,7 +55,21 @@ STM32MP_EMMC_BOOT	?=	0
 
 # Device tree
 DTB_FILE_NAME		?=	stm32mp157c-ev1.dtb
+ifeq ($(STM32MP_USE_STM32IMAGE),1)
+ifeq ($(AARCH32_SP),optee)
+BL2_DTSI		:=	stm32mp15-bl2.dtsi
+FDT_SOURCES		:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DTB_FILE_NAME)))
+else
 FDT_SOURCES		:=	$(addprefix fdts/, $(patsubst %.dtb,%.dts,$(DTB_FILE_NAME)))
+endif
+else
+BL2_DTSI		:=	stm32mp15-bl2.dtsi
+FDT_SOURCES		:=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl2.dts,$(DTB_FILE_NAME)))
+ifeq ($(AARCH32_SP),sp_min)
+BL32_DTSI		:=	stm32mp15-bl32.dtsi
+FDT_SOURCES		+=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl32.dts,$(DTB_FILE_NAME)))
+endif
+endif
 DTC_FLAGS		+=	-Wno-unit_address_vs_reg
 
 # Macros and rules to build TF binary
@@ -66,6 +89,26 @@ STM32IMAGEPATH		?= tools/stm32image
 STM32IMAGE		?= ${STM32IMAGEPATH}/stm32image${BIN_EXT}
 STM32IMAGE_SRC		:= ${STM32IMAGEPATH}/stm32image.c
 
+ifneq (${STM32MP_USE_STM32IMAGE},1)
+FIP_DEPS		+=	dtbs
+STM32MP_HW_CONFIG	:=	${BL33_CFG}
+# Add the HW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_HW_CONFIG},--hw-config))
+ifeq ($(AARCH32_SP),sp_min)
+STM32MP_TOS_FW_CONFIG	:= $(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl32.dtb,$(DTB_FILE_NAME)))
+$(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_TOS_FW_CONFIG},--tos-fw-config))
+else
+# Add the build options to pack Trusted OS Extra1 and Trusted OS Extra2 images
+# in the FIP if the platform requires.
+ifneq ($(BL32_EXTRA1),)
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA1,--tos-fw-extra1))
+endif
+ifneq ($(BL32_EXTRA2),)
+$(eval $(call TOOL_ADD_IMG,BL32_EXTRA2,--tos-fw-extra2))
+endif
+endif
+endif
+
 # Enable flags for C files
 $(eval $(call assert_booleans,\
 	$(sort \
@@ -76,6 +119,7 @@ $(eval $(call assert_booleans,\
 		STM32MP_SPI_NOR \
 		STM32MP_EMMC_BOOT \
 		PLAT_XLAT_TABLES_DYNAMIC \
+		STM32MP_USE_STM32IMAGE \
 )))
 
 $(eval $(call assert_numerics,\
@@ -95,6 +139,7 @@ $(eval $(call add_defines,\
 		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32_TF_A_COPIES \
 		PLAT_PARTITION_MAX_ENTRIES \
+		STM32MP_USE_STM32IMAGE \
 )))
 
 # Include paths and source files
@@ -138,14 +183,22 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 				plat/st/stm32mp1/stm32mp1_security.c			\
 				plat/st/stm32mp1/stm32mp1_syscfg.c
 
+ifneq (${STM32MP_USE_STM32IMAGE},1)
+BL2_SOURCES		+=	drivers/io/io_fip.c					\
+				plat/st/common/bl2_io_storage.c				\
+				plat/st/stm32mp1/plat_bl2_mem_params_desc.c
+else
+BL2_SOURCES		+=	drivers/io/io_dummy.c					\
+				drivers/st/io/io_stm32image.c				\
+				plat/st/common/bl2_stm32_io_storage.c			\
+				plat/st/stm32mp1/plat_bl2_stm32_mem_params_desc.c
+endif
+
 BL2_SOURCES		+=	drivers/io/io_block.c					\
-				drivers/io/io_dummy.c					\
 				drivers/io/io_mtd.c					\
 				drivers/io/io_storage.c					\
 				drivers/st/crypto/stm32_hash.c				\
-				drivers/st/io/io_stm32image.c				\
 				plat/st/common/stm32mp_auth.c				\
-				plat/st/common/bl2_io_storage.c				\
 				plat/st/stm32mp1/bl2_plat_setup.c
 
 ifneq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC}),)
@@ -187,12 +240,9 @@ BL2_SOURCES		+=	drivers/st/ddr/stm32mp1_ddr.c				\
 				drivers/st/ddr/stm32mp1_ram.c
 
 BL2_SOURCES		+=	common/desc_image_load.c				\
-				plat/st/stm32mp1/plat_bl2_mem_params_desc.c		\
 				plat/st/stm32mp1/plat_image_load.c
 
-ifeq ($(AARCH32_SP),optee)
 BL2_SOURCES		+=	lib/optee/optee_utils.c
-endif
 
 # Compilation rules
 .PHONY: check_dtc_version stm32image clean_stm32image check_boot_device
@@ -230,12 +280,35 @@ check_dtc_version:
 		false; \
 	fi
 
-
+ifeq ($(STM32MP_USE_STM32IMAGE)-$(AARCH32_SP),1-sp_min)
 ${BUILD_PLAT}/stm32mp1-%.o: ${BUILD_PLAT}/fdts/%.dtb plat/st/stm32mp1/stm32mp1.S bl2 ${BL32_DEP}
 	@echo "  AS      stm32mp1.S"
 	${Q}${AS} ${ASFLAGS} ${TF_CFLAGS} \
 		-DDTB_BIN_PATH=\"$<\" \
+		-c $(word 2,$^) -o $@
+else
+# Create DTB file for BL2
+${BUILD_PLAT}/fdts/%-bl2.dts: fdts/%.dts fdts/${BL2_DTSI} | ${BUILD_PLAT} fdt_dirs
+	@echo '#include "$(patsubst fdts/%,%,$<)"' > $@
+	@echo '#include "${BL2_DTSI}"' >> $@
+
+${BUILD_PLAT}/fdts/%-bl2.dtb: ${BUILD_PLAT}/fdts/%-bl2.dts
+
+ifeq ($(AARCH32_SP),sp_min)
+# Create DTB file for BL32
+${BUILD_PLAT}/fdts/%-bl32.dts: fdts/%.dts fdts/${BL32_DTSI} | ${BUILD_PLAT} fdt_dirs
+	@echo '#include "$(patsubst fdts/%,%,$<)"' > $@
+	@echo '#include "${BL32_DTSI}"' >> $@
+
+${BUILD_PLAT}/fdts/%-bl32.dtb: ${BUILD_PLAT}/fdts/%-bl32.dts
+endif
+
+${BUILD_PLAT}/stm32mp1-%.o: ${BUILD_PLAT}/fdts/%-bl2.dtb plat/st/stm32mp1/stm32mp1.S bl2
+	@echo "  AS      stm32mp1.S"
+	${Q}${AS} ${ASFLAGS} ${TF_CFLAGS} \
+		-DDTB_BIN_PATH=\"$<\" \
 		-c plat/st/stm32mp1/stm32mp1.S -o $@
+endif
 
 $(eval $(call MAKE_LD,${STM32_TF_LINKERFILE},plat/st/stm32mp1/stm32mp1.ld.S,2))
 
