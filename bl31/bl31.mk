@@ -22,6 +22,7 @@ ifeq (${SPM_MM},1)
   endif
 endif
 
+include lib/extensions/amu/amu.mk
 include lib/psci/psci_lib.mk
 
 BL31_SOURCES		+=	bl31/bl31_main.c				\
@@ -78,8 +79,7 @@ BL31_SOURCES		+=	lib/extensions/spe/spe.c
 endif
 
 ifeq (${ENABLE_AMU},1)
-BL31_SOURCES		+=	lib/extensions/amu/aarch64/amu.c		\
-				lib/extensions/amu/aarch64/amu_helpers.S
+BL31_SOURCES		+=	${AMU_SOURCES}
 endif
 
 ifeq (${ENABLE_SVE_FOR_NS},1)
