@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,7 +21,7 @@
 # define BL_STRING	"BL31"
 #elif !defined(__arch64__) && defined(IMAGE_BL32)
 # define BL_STRING	"BL32"
-#elif defined(IMAGE_BL2) && BL2_AT_EL3
+#elif defined(IMAGE_BL2) && (BL2_AT_EL3 || ENABLE_RME)
 # define BL_STRING "BL2"
 #else
 # error This image should not be printing errata status

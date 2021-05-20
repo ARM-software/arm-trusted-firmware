@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -142,10 +142,18 @@ void bl1_main(void)
 	 * We currently interpret any image id other than
 	 * BL2_IMAGE_ID as the start of firmware update.
 	 */
-	if (image_id == BL2_IMAGE_ID)
+	if (image_id == BL2_IMAGE_ID) {
 		bl1_load_bl2();
-	else
+
+#if ENABLE_RME
+		/* Run BL2 in root if RME is enabled. */
+		assert(get_armv9_2_feat_rme_support() != 0U);
+		bl1_prepare_for_bl2_in_root();
+#endif /* ENABLE_RME */
+
+	} else {
 		NOTICE("BL1-FWU: *******FWU Process Started*******\n");
+	}
 
 	bl1_prepare_next_image(image_id);
 

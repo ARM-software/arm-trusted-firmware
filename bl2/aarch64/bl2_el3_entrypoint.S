@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -21,6 +21,23 @@
 #define FIXUP_SIZE	((BL2_LIMIT) - (BL2_BASE))
 #endif
 
+/*
+ * Notes on ENABLE_RME build option
+ *
+ * The purpose of the BL2_IN_EL3 build option is to allow BL2 to
+ * essentially function as BL1 in systems that don't use a TFA boot ROM.
+ * For the purposes of RME, we use a normal BL1 image but we also want
+ * to run BL2 in EL3/root as normally as possible, so rather than use the
+ * special bl2_el3_setup function here we use the standard bl2_setup and we
+ * don't need reset or mailbox initialization code seen in the
+ * el3_entrypoint_common macro. This functionality could be split off into its
+ * own file if more separation between code paths is desired.
+ *
+ * See https://trustedfirmware-a.readthedocs.io/en/latest/design/
+ *     firmware-design.html?highlight=BL2_AT_EL3
+ *     #running-bl2-at-el3-execution-level
+ */
+
 func bl2_entrypoint
 	/* Save arguments x0-x3 from previous Boot loader */
 	mov	x20, x0
@@ -28,6 +45,18 @@ func bl2_entrypoint
 	mov	x22, x2
 	mov	x23, x3
 
+#if ENABLE_RME
+	/* RME support is enabled. */
+	el3_entrypoint_common                                   \
+		_init_sctlr=0                                   \
+		_warm_boot_mailbox=0                            \
+		_secondary_cold_boot=0                          \
+		_init_memory=0                                  \
+		_init_c_runtime=1                               \
+		_exception_vectors=bl2_el3_exceptions           \
+		_pie_fixup_size=FIXUP_SIZE
+#else /* ENABLE_RME */
+	/* RME support is disabled. */
 	el3_entrypoint_common                                   \
 		_init_sctlr=1                                   \
 		_warm_boot_mailbox=!PROGRAMMABLE_RESET_ADDRESS  \
@@ -36,6 +65,7 @@ func bl2_entrypoint
 		_init_c_runtime=1                               \
 		_exception_vectors=bl2_el3_exceptions		\
 		_pie_fixup_size=FIXUP_SIZE
+#endif /* ENABLE_RME */
 
 	/* ---------------------------------------------
 	 * Restore parameters of boot rom
@@ -50,7 +80,13 @@ func bl2_entrypoint
 	 * Perform BL2 setup
 	 * ---------------------------------------------
 	 */
+#if ENABLE_RME
+	/* RME is a special case, use normal bl2_setup. */
+	bl	bl2_setup
+#else
+	/* Otherwise, use the normal bl2 in el3 setup function. */
 	bl	bl2_el3_setup
+#endif /* ENABLE_RME */
 
 #if ENABLE_PAUTH
 	/* ---------------------------------------------

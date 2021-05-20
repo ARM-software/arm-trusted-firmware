@@ -15,6 +15,7 @@
 	.globl	zero_normalmem
 	.globl	zeromem
 	.globl	memcpy16
+	.globl	tlbi_by_pa
 
 	.globl	disable_mmu_el1
 	.globl	disable_mmu_el3
@@ -162,7 +163,8 @@ func zeromem_dczva
 	 * Check for M bit (MMU enabled) of the current SCTLR_EL(1|3)
 	 * register value and panic if the MMU is disabled.
 	 */
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3)
+#if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && \
+	(BL2_AT_EL3 || ENABLE_RME))
 	mrs	tmp1, sctlr_el3
 #else
 	mrs	tmp1, sctlr_el1
@@ -592,3 +594,24 @@ func fixup_gdt_reloc
 	b.lo	1b
 	ret
 endfunc fixup_gdt_reloc
+
+func tlbi_by_pa
+// @TODO The following code invalidates the entire TLB cache. Replace it with
+//       "tlbi by pa" instruction once it is made available by the model.
+	tlbi alle3is
+	mrs	x1, scr_el3
+	mov_imm	x2, SCR_NS_BIT | SCR_NSE_BIT
+	orr	x0, x1, x2
+	msr	scr_el3, x0
+	tlbi	alle2is
+	tlbi	alle1is
+	orr x0, x1, #SCR_NS_BIT
+	msr	scr_el3, x0
+	tlbi	alle2is
+	tlbi	alle1is
+	msr	scr_el3, x1
+	dsb	sy
+	ret
+endfunc tlbi_by_pa
+
+

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,31 +28,9 @@
 #define NEXT_IMAGE	"BL32"
 #endif
 
-#if !BL2_AT_EL3
+#if BL2_AT_EL3
 /*******************************************************************************
- * Setup function for BL2.
- ******************************************************************************/
-void bl2_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
-	       u_register_t arg3)
-{
-	/* Perform early platform-specific setup */
-	bl2_early_platform_setup2(arg0, arg1, arg2, arg3);
-
-	/* Perform late platform-specific setup */
-	bl2_plat_arch_setup();
-
-#if CTX_INCLUDE_PAUTH_REGS
-	/*
-	 * Assert that the ARMv8.3-PAuth registers are present or an access
-	 * fault will be triggered when they are being saved or restored.
-	 */
-	assert(is_armv8_3_pauth_present());
-#endif /* CTX_INCLUDE_PAUTH_REGS */
-}
-
-#else /* if BL2_AT_EL3 */
-/*******************************************************************************
- * Setup function for BL2 when BL2_AT_EL3=1.
+ * Setup function for BL2 when BL2_AT_EL3=1
  ******************************************************************************/
 void bl2_el3_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 		   u_register_t arg3)
@@ -62,6 +40,27 @@ void bl2_el3_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
 
 	/* Perform late platform-specific setup */
 	bl2_el3_plat_arch_setup();
+
+#if CTX_INCLUDE_PAUTH_REGS
+	/*
+	 * Assert that the ARMv8.3-PAuth registers are present or an access
+	 * fault will be triggered when they are being saved or restored.
+	 */
+	assert(is_armv8_3_pauth_present());
+#endif /* CTX_INCLUDE_PAUTH_REGS */
+}
+#else /* BL2_AT_EL3 */
+/*******************************************************************************
+ * Setup function for BL2.  This function is used when ENABLE_RME=1
+ ******************************************************************************/
+void bl2_setup(u_register_t arg0, u_register_t arg1, u_register_t arg2,
+	       u_register_t arg3)
+{
+	/* Perform early platform-specific setup */
+	bl2_early_platform_setup2(arg0, arg1, arg2, arg3);
+
+	/* Perform late platform-specific setup */
+	bl2_plat_arch_setup();
 
 #if CTX_INCLUDE_PAUTH_REGS
 	/*
@@ -110,7 +109,7 @@ void bl2_main(void)
 	measured_boot_finish();
 #endif /* MEASURED_BOOT */
 
-#if !BL2_AT_EL3
+#if !BL2_AT_EL3 && !ENABLE_RME
 #ifndef __aarch64__
 	/*
 	 * For AArch32 state BL1 and BL2 share the MMU setup.

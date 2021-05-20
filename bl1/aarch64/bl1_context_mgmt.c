@@ -93,3 +93,34 @@ void bl1_prepare_next_image(unsigned int image_id)
 
 	print_entry_point_info(next_bl_ep);
 }
+
+#if ENABLE_RME
+/*******************************************************************************
+ * This function prepares the entry point information to run BL2 in Root world
+ * i.e. EL3. It then jumps into BL2 using this entry point information.
+ ******************************************************************************/
+void bl1_prepare_for_bl2_in_root(void)
+{
+	image_desc_t *bl2_desc;
+	entry_point_info_t *bl2_ep_info;
+
+	/* Get the image descriptor. */
+	bl2_desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
+	assert(bl2_desc != NULL);
+
+	/* Get the entry point info. */
+	bl2_ep_info = &bl2_desc->ep_info;
+
+	bl2_ep_info->spsr = (uint32_t)SPSR_64(MODE_EL3, MODE_SP_ELX,
+						DISABLE_ALL_EXCEPTIONS);
+
+	/* Indicate that image is in execution state. */
+	bl2_desc->state = IMAGE_STATE_EXECUTED;
+
+	/* Print debug info and flush the console before running BL2. */
+	print_entry_point_info(bl2_ep_info);
+	console_flush();
+
+	bl1_run_bl2_in_root(bl2_ep_info);
+}
+#endif /* ENABLE_RME */
