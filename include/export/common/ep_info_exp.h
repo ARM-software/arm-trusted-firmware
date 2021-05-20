@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,39 +25,64 @@
 #endif
 
 /* Security state of the image. */
+#if ENABLE_RME
+#define EP_SECURITY_MASK	UL(0x3)
+#else
 #define EP_SECURITY_MASK	UL(0x1)
+#endif
 #define EP_SECURITY_SHIFT	UL(0)
 #define EP_SECURE		UL(0x0)
 #define EP_NON_SECURE		UL(0x1)
+#define EP_REALM		UL(0x2)
 
 /* Endianness of the image. */
+#if ENABLE_RME
+#define EP_EE_MASK		U(0x4)
+#define EP_EE_SHIFT		U(2)
+#else
 #define EP_EE_MASK		U(0x2)
 #define EP_EE_SHIFT		U(1)
+#endif
 #define EP_EE_LITTLE		U(0x0)
-#define EP_EE_BIG		U(0x2)
+#define EP_EE_BIG		(U(0x1) << EP_EE_SHIFT)
 #define EP_GET_EE(x)		((x) & EP_EE_MASK)
 #define EP_SET_EE(x, ee)	((x) = ((x) & ~EP_EE_MASK) | (ee))
 
 /* Enable or disable access to the secure timer from secure images. */
+#if ENABLE_RME
+#define EP_ST_MASK		U(0x8)
+#define EP_ST_SHIFT		U(3)
+#else
 #define EP_ST_MASK		U(0x4)
 #define EP_ST_SHIFT		U(2)
+#endif
 #define EP_ST_DISABLE		U(0x0)
-#define EP_ST_ENABLE		U(0x4)
+#define EP_ST_ENABLE		(U(0x1) << EP_ST_SHIFT)
 #define EP_GET_ST(x)		((x) & EP_ST_MASK)
 #define EP_SET_ST(x, ee)	((x) = ((x) & ~EP_ST_MASK) | (ee))
 
 /* Determine if an image is executable or not. */
+#if ENABLE_RME
+#define EP_EXE_MASK		U(0x10)
+#define EP_EXE_SHIFT		U(4)
+#else
 #define EP_EXE_MASK		U(0x8)
 #define EP_EXE_SHIFT		U(3)
+#endif
 #define EP_NON_EXECUTABLE	U(0x0)
-#define EP_EXECUTABLE		U(0x8)
+#define EP_EXECUTABLE		(U(0x1) << EP_EXE_SHIFT)
 #define EP_GET_EXE(x)		((x) & EP_EXE_MASK)
 #define EP_SET_EXE(x, ee)	((x) = ((x) & ~EP_EXE_MASK) | (ee))
 
 /* Flag to indicate the first image that is executed. */
+#if ENABLE_RME
+#define EP_FIRST_EXE_MASK	U(0x20)
+#define EP_FIRST_EXE_SHIFT	U(5)
+#else
 #define EP_FIRST_EXE_MASK	U(0x10)
 #define EP_FIRST_EXE_SHIFT	U(4)
-#define EP_FIRST_EXE		U(0x10)
+#endif
+#define EP_FIRST_EXE		(U(0x1) << EP_FIRST_EXE_SHIFT)
 #define EP_GET_FIRST_EXE(x)	((x) & EP_FIRST_EXE_MASK)
 #define EP_SET_FIRST_EXE(x, ee)	((x) = ((x) & ~EP_FIRST_EXE_MASK) | (ee))
 

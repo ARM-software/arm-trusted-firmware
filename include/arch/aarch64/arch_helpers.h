@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -535,6 +535,10 @@ DEFINE_SYSREG_READ_FUNC(rndrrs)
 /* DynamIQ Shared Unit power management */
 DEFINE_RENAME_SYSREG_RW_FUNCS(clusterpwrdn_el1, CLUSTERPWRDN_EL1)
 
+/* Armv9.2 RME Registers */
+DEFINE_RENAME_SYSREG_RW_FUNCS(gptbr_el3, GPTBR_EL3)
+DEFINE_RENAME_SYSREG_RW_FUNCS(gpccr_el3, GPCCR_EL3)
+
 #define IS_IN_EL(x) \
 	(GET_EL(read_CurrentEl()) == MODE_EL##x)
 
@@ -578,7 +582,15 @@ static inline uint64_t el_implemented(unsigned int el)
 	}
 }
 
-/* Previously defined accesor functions with incomplete register names  */
+static inline void tlbipaallos(void)
+{
+	__asm__("SYS #6,c8,c1,#4");
+}
+
+void tlbi_by_pa(uint64_t pa);
+
+
+/* Previously defined accessor functions with incomplete register names  */
 
 #define read_current_el()	read_CurrentEl()
 

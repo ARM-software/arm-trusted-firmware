@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
  * Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -181,6 +181,11 @@
 #define ID_AA64PFR0_CSV2_SHIFT	U(56)
 #define ID_AA64PFR0_CSV2_MASK	ULL(0xf)
 #define ID_AA64PFR0_CSV2_LENGTH	U(4)
+#define ID_AA64PFR0_FEAT_RME_SHIFT		U(52)
+#define ID_AA64PFR0_FEAT_RME_MASK		ULL(0xf)
+#define ID_AA64PFR0_FEAT_RME_LENGTH		U(4)
+#define ID_AA64PFR0_FEAT_RME_NOT_SUPPORTED	U(0)
+#define ID_AA64PFR0_FEAT_RME_V1			U(1)
 
 /* Exception level handling */
 #define EL_IMPL_NONE		ULL(0)
@@ -406,7 +411,8 @@
 #define CPACR_EL1_FP_TRAP_NONE	UL(0x3)
 
 /* SCR definitions */
-#define SCR_RES1_BITS		((U(1) << 4) | (U(1) << 5))
+#define SCR_RES1_BITS		((U(1) << 5) | (U(1) << 4))
+#define SCR_GPF_BIT		(UL(1) << 48)
 #define SCR_TWEDEL_SHIFT	U(30)
 #define SCR_TWEDEL_MASK		ULL(0xf)
 #define SCR_AMVOFFEN_BIT	(UL(1) << 35)
@@ -426,6 +432,8 @@
 #define SCR_SIF_BIT		(UL(1) << 9)
 #define SCR_HCE_BIT		(UL(1) << 8)
 #define SCR_SMD_BIT		(UL(1) << 7)
+#define SCR_NSE_SHIFT		U(62)
+#define SCR_NSE_BIT		(ULL(1) << SCR_NSE_SHIFT)
 #define SCR_EA_BIT		(UL(1) << 3)
 #define SCR_FIQ_BIT		(UL(1) << 2)
 #define SCR_IRQ_BIT		(UL(1) << 1)
@@ -486,6 +494,7 @@
 #define HCR_AMVOFFEN_BIT	(ULL(1) << 51)
 #define HCR_API_BIT		(ULL(1) << 41)
 #define HCR_APK_BIT		(ULL(1) << 40)
+#define HCR_TEA_BIT		(ULL(1) << 37)
 #define HCR_E2H_BIT		(ULL(1) << 34)
 #define HCR_TGE_BIT		(ULL(1) << 27)
 #define HCR_RW_SHIFT		U(31)
@@ -501,9 +510,11 @@
 
 /* CNTHCTL_EL2 definitions */
 #define CNTHCTL_RESET_VAL	U(0x0)
-#define EVNTEN_BIT		(U(1) << 2)
-#define EL1PCEN_BIT		(U(1) << 1)
-#define EL1PCTEN_BIT		(U(1) << 0)
+#define CNTHCTL_EL1PTEN_BIT	(U(1) << 11)
+#define CNTHCTL_EL1PCTEN_BIT	(U(1) << 10)
+#define CNTHCTL_EVNTEN_BIT	(U(1) << 2)
+#define CNTHCTL_EL0VCTEN_BIT	(U(1) << 1)
+#define CNTHCTL_EL0PCTEN_BIT	(U(1) << 0)
 
 /* CNTKCTL_EL1 definitions */
 #define EL0PTEN_BIT		(U(1) << 9)
@@ -527,7 +538,9 @@
 #define CPTR_EL2_RES1		((U(1) << 13) | (U(1) << 12) | (U(0x3ff)))
 #define CPTR_EL2_TCPAC_BIT	(U(1) << 31)
 #define CPTR_EL2_TAM_BIT	(U(1) << 30)
-#define CPTR_EL2_TTA_BIT	(U(1) << 20)
+#define CPTR_EL2_TTA_BIT	(U(1) << 28)
+#define CPTR_EL2_FPEN_DISABLE_EL0	(U(1) << 20)
+#define CPTR_EL2_ZEN_DISABLE_EL0	(U(1) << 16)
 #define CPTR_EL2_TFP_BIT	(U(1) << 10)
 #define CPTR_EL2_TZ_BIT		(U(1) << 8)
 #define CPTR_EL2_RESET_VAL	CPTR_EL2_RES1
@@ -557,12 +570,15 @@
 #define SPSR_M_MASK		U(0x1)
 #define SPSR_M_AARCH64		U(0x0)
 #define SPSR_M_AARCH32		U(0x1)
+#define SPSR_M_EL2H		U(0x9)
 
 #define SPSR_EL_SHIFT		U(2)
 #define SPSR_EL_WIDTH		U(2)
 
 #define SPSR_SSBS_BIT_AARCH64	BIT_64(12)
 #define SPSR_SSBS_BIT_AARCH32	BIT_64(23)
+
+#define SPSR_PAN_BIT		(U(1) << 22)
 
 #define DISABLE_ALL_EXCEPTIONS \
 		(DAIF_FIQ_BIT | DAIF_IRQ_BIT | DAIF_ABT_BIT | DAIF_DBG_BIT)
@@ -587,6 +603,7 @@
 #define TCR_EL2_RES1		((ULL(1) << 31) | (ULL(1) << 23))
 #define TCR_EL1_IPS_SHIFT	U(32)
 #define TCR_EL2_PS_SHIFT	U(16)
+#define TCR_EL2_IPS_SHIFT	U(32)
 #define TCR_EL3_PS_SHIFT	U(16)
 
 #define TCR_TxSZ_MIN		ULL(16)
@@ -650,6 +667,11 @@
 #define TCR_TG1_16K		(ULL(1) << TCR_TG1_SHIFT)
 #define TCR_TG1_4K		(ULL(2) << TCR_TG1_SHIFT)
 #define TCR_TG1_64K		(ULL(3) << TCR_TG1_SHIFT)
+
+#define TCR_AS_BIT		(ULL(1) << 36)
+
+#define TCR_HPD0_BIT		(ULL(1) << 41)
+#define TCR_HPD1_BIT		(ULL(1) << 42)
 
 #define TCR_EPD0_BIT		(ULL(1) << 7)
 #define TCR_EPD1_BIT		(ULL(1) << 23)
@@ -1039,6 +1061,90 @@
 #define AMEVCNTVOFF1D_EL2	S3_4_C13_C11_5
 #define AMEVCNTVOFF1E_EL2	S3_4_C13_C11_6
 #define AMEVCNTVOFF1F_EL2	S3_4_C13_C11_7
+
+/*******************************************************************************
+ * Realm management extension register definitions
+ ******************************************************************************/
+
+/* GPCCR_EL3 definitions */
+#define GPCCR_EL3			S3_6_C2_C1_6
+
+/* Least significant address bits protected by each entry in level 0 GPT */
+#define GPCCR_L0GPTSZ_SHIFT		U(20)
+#define GPCCR_L0GPTSZ_MASK		U(0xF)
+#define GPCCR_L0GPTSZ_30BITS		U(0x0)
+#define GPCCR_L0GPTSZ_34BITS		U(0x4)
+#define GPCCR_L0GPTSZ_36BITS		U(0x6)
+#define GPCCR_L0GPTSZ_39BITS		U(0x9)
+#define SET_GPCCR_L0GPTSZ(x)		\
+	((x & GPCCR_L0GPTSZ_MASK) << GPCCR_L0GPTSZ_SHIFT)
+
+/* Granule protection check priority bit definitions */
+#define GPCCR_GPCP_SHIFT		U(17)
+#define GPCCR_GPCP_BIT			(ULL(1) << GPCCR_EL3_GPCP_SHIFT)
+
+/* Granule protection check bit definitions */
+#define GPCCR_GPC_SHIFT			U(16)
+#define GPCCR_GPC_BIT			(ULL(1) << GPCCR_GPC_SHIFT)
+
+/* Physical granule size bit definitions */
+#define GPCCR_PGS_SHIFT			U(14)
+#define GPCCR_PGS_MASK			U(0x3)
+#define GPCCR_PGS_4K			U(0x0)
+#define GPCCR_PGS_16K			U(0x2)
+#define GPCCR_PGS_64K			U(0x1)
+#define SET_GPCCR_PGS(x)		\
+	((x & GPCCR_PGS_MASK) << GPCCR_PGS_SHIFT)
+
+/* GPT fetch shareability attribute bit definitions */
+#define GPCCR_SH_SHIFT			U(12)
+#define GPCCR_SH_MASK			U(0x3)
+#define GPCCR_SH_NS			U(0x0)
+#define GPCCR_SH_OS			U(0x2)
+#define GPCCR_SH_IS			U(0x3)
+#define SET_GPCCR_SH(x)			\
+	((x & GPCCR_SH_MASK) << GPCCR_SH_SHIFT)
+
+/* GPT fetch outer cacheability attribute bit definitions */
+#define GPCCR_ORGN_SHIFT		U(10)
+#define GPCCR_ORGN_MASK			U(0x3)
+#define GPCCR_ORGN_NC			U(0x0)
+#define GPCCR_ORGN_WB_RA_WA		U(0x1)
+#define GPCCR_ORGN_WT_RA_NWA		U(0x2)
+#define GPCCR_ORGN_WB_RA_NWA		U(0x3)
+#define SET_GPCCR_ORGN(x)		\
+	((x & GPCCR_ORGN_MASK) << GPCCR_ORGN_SHIFT)
+
+/* GPT fetch inner cacheability attribute bit definitions */
+#define GPCCR_IRGN_SHIFT		U(8)
+#define GPCCR_IRGN_MASK			U(0x3)
+#define GPCCR_IRGN_NC			U(0x0)
+#define GPCCR_IRGN_WB_RA_WA		U(0x1)
+#define GPCCR_IRGN_WT_RA_NWA		U(0x2)
+#define GPCCR_IRGN_WB_RA_NWA		U(0x3)
+#define SET_GPCCR_IRGN(x)		\
+	((x & GPCCR_IRGN_MASK) << GPCCR_IRGN_SHIFT)
+
+/* Protected physical address size bit definitions */
+#define GPCCR_PPS_SHIFT			U(0)
+#define GPCCR_PPS_MASK			U(0x7)
+#define GPCCR_PPS_4GB			U(0x0)
+#define GPCCR_PPS_64GB			U(0x1)
+#define GPCCR_PPS_1TB			U(0x2)
+#define GPCCR_PPS_4TB			U(0x3)
+#define GPCCR_PPS_16TB			U(0x4)
+#define GPCCR_PPS_256TB			U(0x5)
+#define GPCCR_PPS_4PB			U(0x6)
+#define SET_GPCCR_PPS(x)		\
+	((x & GPCCR_PPS_MASK) << GPCCR_PPS_SHIFT)
+
+/* GPTBR_EL3 definitions */
+#define GPTBR_EL3			S3_6_C2_C1_4
+
+/* Base Address for the GPT bit definitions */
+#define GPTBR_BADDR_SHIFT		U(0)
+#define GPTBR_BADDR_VAL_SHIFT		U(12)
+#define GPTBR_BADDR_MASK		ULL(0xffffffffff)
 
 /*******************************************************************************
  * RAS system registers

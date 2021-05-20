@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -141,7 +141,8 @@
 #define AP_ACCESS_UNPRIVILEGED		(AP1_ACCESS_UNPRIVILEGED    << 4)
 #define AP_NO_ACCESS_UNPRIVILEGED	(AP1_NO_ACCESS_UNPRIVILEGED << 4)
 #define AP_ONE_VA_RANGE_RES1		(AP1_RES1 << 4)
-#define NS				(U(0x1) << 3)
+#define NS				(U(0x1) << 3)   /* Bit[5] absolutely */
+#define EL3_S1_NSE			(U(0x1) << 9)   /* Bit[11] absolutely */
 #define ATTR_NON_CACHEABLE_INDEX	ULL(0x2)
 #define ATTR_DEVICE_INDEX		ULL(0x1)
 #define ATTR_IWBWA_OWBWA_NTR_INDEX	ULL(0x0)

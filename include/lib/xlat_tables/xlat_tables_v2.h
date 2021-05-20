@@ -60,8 +60,6 @@
 #define MT_TYPE(_attr)		((_attr) & MT_TYPE_MASK)
 /* Access permissions (RO/RW) */
 #define MT_PERM_SHIFT		U(3)
-/* Security state (SECURE/NS) */
-#define MT_SEC_SHIFT		U(4)
 /* Access permissions for instruction execution (EXECUTE/EXECUTE_NEVER) */
 #define MT_EXECUTE_SHIFT	U(5)
 /* In the EL1&0 translation regime, User (EL0) or Privileged (EL1). */
@@ -71,6 +69,17 @@
 #define MT_SHAREABILITY_SHIFT	U(7)
 #define MT_SHAREABILITY_MASK	(U(3) << MT_SHAREABILITY_SHIFT)
 #define MT_SHAREABILITY(_attr)	((_attr) & MT_SHAREABILITY_MASK)
+
+#if ENABLE_RME
+/* Physical address space (SECURE/NS/Root/Realm) */
+#define MT_PAS_SHIFT		U(9)
+#define MT_PAS_MASK		(U(3) << MT_PAS_SHIFT)
+#define MT_PAS(_attr)		((_attr) & MT_PAS_MASK)
+#else
+/* Security state (SECURE/NS) */
+#define MT_SEC_SHIFT		U(4)
+#endif
+
 /* All other bits are reserved */
 
 /*
@@ -91,8 +100,15 @@
 #define MT_RO			(U(0) << MT_PERM_SHIFT)
 #define MT_RW			(U(1) << MT_PERM_SHIFT)
 
+#if ENABLE_RME
+#define MT_SECURE		(U(0) << MT_PAS_SHIFT)
+#define MT_NS			(U(1) << MT_PAS_SHIFT)
+#define MT_ROOT			(U(2) << MT_PAS_SHIFT)
+#define MT_REALM		(U(3) << MT_PAS_SHIFT)
+#else
 #define MT_SECURE		(U(0) << MT_SEC_SHIFT)
 #define MT_NS			(U(1) << MT_SEC_SHIFT)
+#endif
 
 /*
  * Access permissions for instruction execution are only relevant for normal
