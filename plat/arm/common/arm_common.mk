@@ -258,6 +258,9 @@ BL2_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
 # Firmware Configuration Framework sources
 include lib/fconf/fconf.mk
 
+BL1_SOURCES		+=	${FCONF_SOURCES} ${FCONF_DYN_SOURCES}
+BL2_SOURCES		+=	${FCONF_SOURCES} ${FCONF_DYN_SOURCES}
+
 # Add `libfdt` and Arm common helpers required for Dynamic Config
 include lib/libfdt/libfdt.mk
 
