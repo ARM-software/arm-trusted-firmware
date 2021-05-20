@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -127,6 +127,19 @@ else ifeq (${BRANCH_PROTECTION},4)
 	ENABLE_BTI := 1
 else
         $(error Unknown BRANCH_PROTECTION value ${BRANCH_PROTECTION})
+endif
+
+# RME requires AARCH64 and other features
+ifneq (${ENABLE_RME},0)
+ifneq (${ARCH},aarch64)
+       $(error ENABLE_RME requires AArch64)
+endif
+# RME requires el2 context to be saved for now.
+CTX_INCLUDE_EL2_REGS := 1
+SPD = rmmd
+# These arch versions will need to be updated later.
+ARM_ARCH_MAJOR := 8
+ARM_ARCH_MINOR := 4
 endif
 
 # USE_SPINLOCK_CAS requires AArch64 build
@@ -521,6 +534,14 @@ ifneq (${SPD},none)
         ifeq ($(findstring optee_sp,$(ARM_SPMC_MANIFEST_DTS)),optee_sp)
             DTC_CPPFLAGS	+=	-DOPTEE_SP_FW_CONFIG
         endif
+    else ifeq (${SPD},rmmd)
+        $(warning "RMMD is an experimental feature")
+        # RMMD is located in std_svc directory
+        SPD_DIR := std_svc
+
+        ifeq ($(CTX_INCLUDE_EL2_REGS),0)
+                $(error RMM at S-EL2 requires CTX_INCLUDE_EL2_REGS option)
+        endif
     else
         # All other SPDs in spd directory
         SPD_DIR := spd
@@ -906,6 +927,7 @@ $(eval $(call assert_booleans,\
         ENABLE_PIE \
         ENABLE_PMF \
         ENABLE_PSCI_STAT \
+        ENABLE_RME \
         ENABLE_RUNTIME_INSTRUMENTATION \
         ENABLE_SPE_FOR_LOWER_ELS \
         ENABLE_SVE_FOR_NS \
@@ -999,6 +1021,7 @@ $(eval $(call add_defines,\
         ENABLE_PIE \
         ENABLE_PMF \
         ENABLE_PSCI_STAT \
+        ENABLE_RME \
         ENABLE_RUNTIME_INSTRUMENTATION \
         ENABLE_SPE_FOR_LOWER_ELS \
         ENABLE_SVE_FOR_NS \
