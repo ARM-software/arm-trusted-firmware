@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -137,6 +137,8 @@
 #define SSC_DBGCFG_SET		0x14
 #define SSC_DBGCFG_CLR		0x18
 
+#define SPNIDEN_INT_CLR_SHIFT	4
+#define SPNIDEN_SEL_SET_SHIFT	5
 #define SPIDEN_INT_CLR_SHIFT	6
 #define SPIDEN_SEL_SET_SHIFT	7
 
