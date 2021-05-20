@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -139,9 +139,9 @@ int32_t plat_is_smccc_feature_available(u_register_t fid)
 
 int32_t plat_get_soc_version(void)
 {
-	uint32_t manfid = (JEDEC_MTK_BKID << 24U) | (JEDEC_MTK_MFID << 16U);
+	uint32_t manfid = SOC_ID_SET_JEP_106(JEDEC_MTK_BKID, JEDEC_MTK_MFID);
 
-	return (int32_t)(manfid | (SOC_CHIP_ID & 0xFFFFU));
+	return (int32_t)(manfid | (SOC_CHIP_ID & SOC_ID_IMPL_DEF_MASK));
 }
 
 int32_t plat_get_soc_revision(void)
