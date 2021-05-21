@@ -94,6 +94,8 @@
 /* Various flags passed to SMC handlers */
 #define SMC_FROM_SECURE		(U(0) << 0)
 #define SMC_FROM_NON_SECURE	(U(1) << 0)
+#define SMC_FROM_REALM		(U(3) << 0)
+#define SMC_FROM_MASK		U(3)
 
 #ifndef __ASSEMBLER__
 
@@ -101,8 +103,15 @@
 
 #include <lib/cassert.h>
 
+#if ENABLE_RME
+#define is_caller_non_secure(_f)	(((_f) & SMC_FROM_MASK) == SMC_FROM_NON_SECURE)
+#define is_caller_secure(_f)		(((_f) & SMC_FROM_MASK) == SMC_FROM_SECURE)
+#define is_caller_realm(_f)		(((_f) & SMC_FROM_MASK) == SMC_FROM_REALM)
+#define caller_sec_state(_f)		((_f) & SMC_FROM_MASK)
+#else /* ENABLE_RME */
 #define is_caller_non_secure(_f)	(((_f) & SMC_FROM_NON_SECURE) != U(0))
 #define is_caller_secure(_f)		(!is_caller_non_secure(_f))
+#endif /* ENABLE_RME */
 
 /* The macro below is used to identify a Standard Service SMC call */
 #define is_std_svc_call(_fid)		(GET_SMC_OEN(_fid) == OEN_STD_START)

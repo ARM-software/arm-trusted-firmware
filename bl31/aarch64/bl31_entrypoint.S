@@ -172,6 +172,14 @@ func bl31_warm_entrypoint
 		_exception_vectors=runtime_exceptions		\
 		_pie_fixup_size=0
 
+#if ENABLE_RME
+	/*
+	 * Initialise and enable Granule Protection
+	 * before enabling any stage of translation.
+	 */
+	bl	gpt_enable
+#endif
+
 	/*
 	 * We're about to enable MMU and participate in PSCI state coordination.
 	 *

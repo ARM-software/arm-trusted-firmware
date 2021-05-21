@@ -20,15 +20,27 @@
 #define PSCI_CPU_DATA_SIZE_ALIGNED	((PSCI_CPU_DATA_SIZE + 7) & ~7)
 
 /* Offset of cpu_ops_ptr, size 8 bytes */
+#if ENABLE_RME
+#define CPU_DATA_CPU_OPS_PTR		0x18
+#else /* ENABLE_RME */
 #define CPU_DATA_CPU_OPS_PTR		0x10
+#endif /* ENABLE_RME */
 
 #if ENABLE_PAUTH
 /* 8-bytes aligned offset of apiakey[2], size 16 bytes */
-#define	CPU_DATA_APIAKEY_OFFSET		(0x18 + PSCI_CPU_DATA_SIZE_ALIGNED)
-#define CPU_DATA_CRASH_BUF_OFFSET	(CPU_DATA_APIAKEY_OFFSET + 0x10)
-#else
+#if ENABLE_RME
+#define	CPU_DATA_APIAKEY_OFFSET		(0x20 + PSCI_CPU_DATA_SIZE_ALIGNED)
+#else /* ENABLE_RME */
+#define CPU_DATA_APIAKEY_OFFSET		(0x18 + PSCI_CPU_DATA_SIZE_ALIGNED)
+#endif /* ENABLE_RME */
+#define CPU_DATA_CRASH_BUF_OFFSET	(0x10 + CPU_DATA_APIAKEY_OFFSET)
+#else /* ENABLE_PAUTH */
+#if ENABLE_RME
+#define CPU_DATA_CRASH_BUF_OFFSET	(0x20 + PSCI_CPU_DATA_SIZE_ALIGNED)
+#else /* ENABLE_RME */
 #define CPU_DATA_CRASH_BUF_OFFSET	(0x18 + PSCI_CPU_DATA_SIZE_ALIGNED)
-#endif	/* ENABLE_PAUTH */
+#endif /* ENABLE_RME */
+#endif /* ENABLE_PAUTH */
 
 /* need enough space in crash buffer to save 8 registers */
 #define CPU_DATA_CRASH_BUF_SIZE		64
@@ -86,12 +98,10 @@
 
 /*******************************************************************************
  * Cache of frequently used per-cpu data:
- *   Pointers to non-secure and secure security state contexts
+ *   Pointers to non-secure, realm, and secure security state contexts
  *   Address of the crash stack
  * It is aligned to the cache line boundary to allow efficient concurrent
  * manipulation of these pointers on different cpus
- *
- * TODO: Add other commonly used variables to this (tf_issues#90)
  *
  * The data structure and the _cpu_data accessors should not be used directly
  * by components that have per-cpu members. The member access macros should be
@@ -99,8 +109,12 @@
  ******************************************************************************/
 typedef struct cpu_data {
 #ifdef __aarch64__
+#if ENABLE_RME
+	void *cpu_context[3];
+#else /* ENABLE_RME */
 	void *cpu_context[2];
-#endif
+#endif /* ENABLE_RME */
+#endif /* __aarch64__ */
 	uintptr_t cpu_ops_ptr;
 	struct psci_cpu_data psci_svc_cpu_data;
 #if ENABLE_PAUTH

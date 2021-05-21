@@ -95,6 +95,13 @@ BL31_SOURCES		+=	lib/cpus/aarch64/wa_cve_2017_5715_bpiall.S	\
 				lib/cpus/aarch64/wa_cve_2017_5715_mmu.S
 endif
 
+ifeq (${ENABLE_RME},1)
+include lib/gpt/gpt.mk
+
+BL31_SOURCES		+=	${GPT_LIB_SRCS}					\
+				${RMMD_SOURCES}
+endif
+
 BL31_LINKERFILE		:=	bl31/bl31.ld.S
 
 # Flag used to indicate if Crash reporting via console should be included

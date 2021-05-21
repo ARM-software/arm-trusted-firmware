@@ -19,7 +19,11 @@
  ******************************************************************************/
 void *cm_get_context(uint32_t security_state)
 {
+#if ENABLE_RME
+	assert(sec_state_is_valid(security_state));
+#else /* ENABLE_RME */
 	assert(security_state <= NON_SECURE);
+#endif
 
 	return get_cpu_data(cpu_context[security_state]);
 }
@@ -30,7 +34,11 @@ void *cm_get_context(uint32_t security_state)
  ******************************************************************************/
 void cm_set_context(void *context, uint32_t security_state)
 {
+#if ENABLE_RME
+	assert(sec_state_is_valid(security_state));
+#else /* ENABLE_RME */
 	assert(security_state <= NON_SECURE);
+#endif
 
 	set_cpu_data(cpu_context[security_state], context);
 }
