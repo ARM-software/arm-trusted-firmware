@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Intel Corporation. All rights reserved.
+ * Copyright (c) 2019-2022, Intel Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -104,5 +104,6 @@ typedef struct coh_ss_id {
 } coh_ss_id_t;
 
 uint32_t init_ncore_ccu(void);
+void ncore_enable_ocram_firewall(void);
 
 #endif

@@ -25,7 +25,8 @@ PLAT_BL_COMMON_SOURCES	:=	\
 			lib/xlat_tables/xlat_tables_common.c 		\
 			plat/intel/soc/common/aarch64/platform_common.c \
 			plat/intel/soc/common/aarch64/plat_helpers.S	\
-			plat/intel/soc/common/socfpga_delay_timer.c
+			plat/intel/soc/common/socfpga_delay_timer.c     \
+			plat/intel/soc/common/drivers/ccu/ncore_ccu.c
 
 BL2_SOURCES     +=
 

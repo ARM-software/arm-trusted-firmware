@@ -13,6 +13,7 @@
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables.h>
 
+#include "ccu/ncore_ccu.h"
 #include "socfpga_mailbox.h"
 #include "socfpga_private.h"
 
@@ -115,6 +116,8 @@ void bl31_platform_setup(void)
 		(uint64_t)plat_secondary_cpus_bl31_entry);
 
 	mailbox_hps_stage_notify(HPS_EXECUTION_STATE_SSBL);
+
+	ncore_enable_ocram_firewall();
 }
 
 const mmap_region_t plat_dm_mmap[] = {
