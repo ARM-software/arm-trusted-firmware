@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -105,7 +105,11 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 	    .image_id = BL32_IMAGE_ID,
 
 	    SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
+#if ENABLE_RME
+		    VERSION_2, entry_point_info_t, REALM | EXECUTABLE),
+#else
 		    VERSION_2, entry_point_info_t, SECURE | EXECUTABLE),
+#endif
 	    .ep_info.pc = BL32_BASE,
 
 	    SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,

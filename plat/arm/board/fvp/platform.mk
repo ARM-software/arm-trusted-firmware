@@ -134,7 +134,7 @@ else
 					lib/cpus/aarch64/cortex_klein.S		\
 					lib/cpus/aarch64/cortex_matterhorn.S	\
 					lib/cpus/aarch64/cortex_makalu.S	\
-					lib/cpus/aarch64/cortex_makalu_elp_arm.S \
+					lib/cpus/aarch64/cortex_makalu_elp.S	\
 					lib/cpus/aarch64/cortex_a65.S		\
 					lib/cpus/aarch64/cortex_a65ae.S		\
 					lib/cpus/aarch64/cortex_a78c.S
@@ -182,6 +182,11 @@ BL2_SOURCES		+=	drivers/arm/sp805/sp805.c			\
 
 ifeq (${COT_DESC_IN_DTB},1)
 BL2_SOURCES		+=	plat/arm/common/fconf/fconf_nv_cntr_getter.c
+endif
+
+ifeq (${ENABLE_RME},1)
+BL2_SOURCES		+=	plat/arm/board/fvp/${ARCH}/fvp_helpers.S
+CTX_INCLUDE_AARCH32_REGS := 0
 endif
 
 ifeq (${BL2_AT_EL3},1)

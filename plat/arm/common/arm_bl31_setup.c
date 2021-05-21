@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,9 @@
 #include <drivers/console.h>
 #include <lib/debugfs.h>
 #include <lib/extensions/ras.h>
+#if ENABLE_RME
+#include <lib/gpt/gpt.h>
+#endif
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/arm/common/plat_arm.h>
@@ -43,7 +46,7 @@ CASSERT(BL31_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl31_base_overflows);
 #define MAP_BL31_TOTAL		MAP_REGION_FLAT(			\
 					BL31_START,			\
 					BL31_END - BL31_START,		\
-					MT_MEMORY | MT_RW | MT_SECURE)
+					MT_MEMORY | MT_RW | EL3_PAS)
 #if RECLAIM_INIT_CODE
 IMPORT_SYM(unsigned long, __INIT_CODE_START__, BL_INIT_CODE_BASE);
 IMPORT_SYM(unsigned long, __INIT_CODE_END__, BL_CODE_END_UNALIGNED);
@@ -58,7 +61,7 @@ IMPORT_SYM(unsigned long, __STACKS_END__, BL_STACKS_END_UNALIGNED);
 					BL_INIT_CODE_BASE,		\
 					BL_INIT_CODE_END		\
 						- BL_INIT_CODE_BASE,	\
-					MT_CODE | MT_SECURE)
+					MT_CODE | EL3_PAS)
 #endif
 
 #if SEPARATE_NOBITS_REGION
@@ -66,7 +69,7 @@ IMPORT_SYM(unsigned long, __STACKS_END__, BL_STACKS_END_UNALIGNED);
 					BL31_NOBITS_BASE,		\
 					BL31_NOBITS_LIMIT 		\
 						- BL31_NOBITS_BASE,	\
-					MT_MEMORY | MT_RW | MT_SECURE)
+					MT_MEMORY | MT_RW | EL3_PAS)
 
 #endif
 /*******************************************************************************
@@ -149,7 +152,6 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
 
 #else /* RESET_TO_BL31 */
-
 	/*
 	 * In debug builds, we pass a special value in 'plat_params_from_bl2'
 	 * to verify platform parameters from BL2 to BL31.
@@ -206,6 +208,28 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	 */
 	bl33_image_ep_info.args.arg0 = (u_register_t)ARM_DRAM1_BASE;
 #endif
+
+#if ENABLE_RME
+	/*
+	 * Initialise Granule Protection library and enable GPC
+	 * for the primary processor. The tables were initialised
+	 * in BL2, so there is no need to provide any PAS here.
+	 */
+	gpt_init_params_t gpt_params = {
+		PLATFORM_PGS,
+		PLATFORM_PPS,
+		PLATFORM_L0GPTSZ,
+		NULL,
+		0U,
+		ARM_L0_GPT_ADDR_BASE, ARM_L0_GPT_SIZE,
+		ARM_L1_GPT_ADDR_BASE, ARM_L1_GPT_SIZE
+	};
+
+	/* Initialise the global granule tables. */
+	if (gpt_init(&gpt_params) < 0) {
+		panic();
+	}
+#endif /* ENABLE_RME */
 }
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
@@ -355,6 +379,9 @@ void __init arm_bl31_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
 		MAP_BL31_TOTAL,
+#if ENABLE_RME
+		ARM_MAP_BL_CONFIG_REGION,
+#endif
 #if RECLAIM_INIT_CODE
 		MAP_BL_INIT_CODE,
 #endif

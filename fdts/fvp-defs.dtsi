@@ -53,11 +53,20 @@
 	reg = <0x0 CONC(0x, CONC(c, CONC(p, AFF)))>;
 #endif	/* REG_32 */
 
-#define	POST				\
+#if (ENABLE_RME == 1)
+/* Disabling the entry into EL3 for suspend seems to improve stability of linux */
+# define	POST				\
+	enable-method = "psci";		\
+	cpu-idle-states = <>;	\
+	next-level-cache = <&L2_0>;	\
+	};
+#else
+# define	POST				\
 	enable-method = "psci";		\
 	cpu-idle-states = <&CPU_SLEEP_0 &CLUSTER_SLEEP_0>;	\
 	next-level-cache = <&L2_0>;	\
 	};
+#endif
 
 #ifdef	REG_32
 #define	CPU_0		\
