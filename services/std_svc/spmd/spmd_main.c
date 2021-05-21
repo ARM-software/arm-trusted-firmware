@@ -108,9 +108,10 @@ uint64_t spmd_spm_core_sync_entry(spmd_spm_core_context_t *spmc_ctx)
 	cm_set_context(&(spmc_ctx->cpu_ctx), SECURE);
 
 	/* Restore the context assigned above */
-	cm_el1_sysregs_context_restore(SECURE);
 #if SPMD_SPM_AT_SEL2
 	cm_el2_sysregs_context_restore(SECURE);
+#else
+	cm_el1_sysregs_context_restore(SECURE);
 #endif
 	cm_set_next_eret_context(SECURE);
 
@@ -118,9 +119,10 @@ uint64_t spmd_spm_core_sync_entry(spmd_spm_core_context_t *spmc_ctx)
 	rc = spmd_spm_core_enter(&spmc_ctx->c_rt_ctx);
 
 	/* Save secure state */
-	cm_el1_sysregs_context_save(SECURE);
 #if SPMD_SPM_AT_SEL2
 	cm_el2_sysregs_context_save(SECURE);
+#else
+	cm_el1_sysregs_context_save(SECURE);
 #endif
 
 	return rc;
@@ -346,15 +348,23 @@ static uint64_t spmd_smc_forward(uint32_t smc_fid,
 	unsigned int secure_state_out = (!secure_origin) ? SECURE : NON_SECURE;
 
 	/* Save incoming security state */
-	cm_el1_sysregs_context_save(secure_state_in);
 #if SPMD_SPM_AT_SEL2
+	if (secure_state_in == NON_SECURE) {
+		cm_el1_sysregs_context_save(secure_state_in);
+	}
 	cm_el2_sysregs_context_save(secure_state_in);
+#else
+	cm_el1_sysregs_context_save(secure_state_in);
 #endif
 
 	/* Restore outgoing security state */
-	cm_el1_sysregs_context_restore(secure_state_out);
 #if SPMD_SPM_AT_SEL2
+	if (secure_state_out == NON_SECURE) {
+		cm_el1_sysregs_context_restore(secure_state_out);
+	}
 	cm_el2_sysregs_context_restore(secure_state_out);
+#else
+	cm_el1_sysregs_context_restore(secure_state_out);
 #endif
 	cm_set_next_eret_context(secure_state_out);
 
