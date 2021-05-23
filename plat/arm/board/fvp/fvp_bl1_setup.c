@@ -1,15 +1,17 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
+#include <errno.h>
 
 #include <bl1/bl1.h>
 #include <common/tbbr/tbbr_img_def.h>
 #include <drivers/arm/smmu_v3.h>
 #include <drivers/arm/sp805.h>
+#include <lib/mmio.h>
 #include <plat/arm/common/arm_config.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/arm/common/arm_def.h>
@@ -61,6 +63,12 @@ void bl1_platform_setup(void)
 
 __dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved)
 {
+	uint32_t nv_flags = mmio_read_32(V2M_SYS_NVFLAGS_ADDR);
+
+	/* Clear the NV flags register. */
+	mmio_write_32((V2M_SYSREGS_BASE + V2M_SYS_NVFLAGSCLR),
+		      nv_flags);
+
 	/* Setup the watchdog to reset the system as soon as possible */
 	sp805_refresh(ARM_SP805_TWDG_BASE, 1U);
 
@@ -124,3 +132,15 @@ int bl1_plat_handle_post_image_load(unsigned int image_id)
 	return 0;
 }
 #endif /* MEASURED_BOOT */
+
+/*******************************************************************************
+ * The following function checks if Firmware update is needed by checking error
+ * reported in NV flag.
+ ******************************************************************************/
+bool plat_arm_bl1_fwu_needed(void)
+{
+	int32_t nv_flags = (int32_t)mmio_read_32(V2M_SYS_NVFLAGS_ADDR);
+
+	/* if image load/authentication failed */
+	return ((nv_flags == -EAUTH) || (nv_flags == -ENOENT));
+}
