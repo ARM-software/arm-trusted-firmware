@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2018-2021, The Linux Foundation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -50,12 +50,28 @@ void qtiseclib_cpuss_reset_asm(uint32_t bl31_cold_boot_state);
 void qtiseclib_kryo4_gold_reset_asm(void);
 
 /*
+ * Execute CPU (Kryo46 gold) specific reset handler / system initialization.
+ * This takes care of executing required CPU errata's.
+ *
+ * Clobbers: x0 - x16
+ */
+void qtiseclib_kryo6_gold_reset_asm(void);
+
+/*
  * Execute CPU (Kryo4 silver) specific reset handler / system initialization.
  * This takes care of executing required CPU errata's.
  *
  * Clobbers: x0 - x16
  */
 void qtiseclib_kryo4_silver_reset_asm(void);
+
+/*
+ * Execute CPU (Kryo6 silver) specific reset handler / system initialization.
+ * This takes care of executing required CPU errata's.
+ *
+ * Clobbers: x0 - x16
+ */
+void qtiseclib_kryo6_silver_reset_asm(void);
 
 /*
  * C Api's
