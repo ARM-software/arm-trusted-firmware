@@ -8,16 +8,35 @@
 #include <cdefs.h>
 #include <stdbool.h>
 
+#include "../amu_private.h"
 #include <arch.h>
 #include <arch_helpers.h>
-
 #include <lib/el3_runtime/pubsub_events.h>
 #include <lib/extensions/amu.h>
-#include <lib/extensions/amu_private.h>
 
 #include <plat/common/platform.h>
 
-static struct amu_ctx amu_ctxs[PLATFORM_CORE_COUNT];
+struct amu_ctx {
+	uint64_t group0_cnts[AMU_GROUP0_MAX_COUNTERS];
+#if ENABLE_AMU_AUXILIARY_COUNTERS
+	uint64_t group1_cnts[AMU_GROUP1_MAX_COUNTERS];
+#endif
+
+	uint16_t group0_enable;
+#if ENABLE_AMU_AUXILIARY_COUNTERS
+	uint16_t group1_enable;
+#endif
+};
+
+static struct amu_ctx amu_ctxs_[PLATFORM_CORE_COUNT];
+
+CASSERT((sizeof(amu_ctxs_[0].group0_enable) * CHAR_BIT) <= AMU_GROUP0_MAX_COUNTERS,
+	amu_ctx_group0_enable_cannot_represent_all_group0_counters);
+
+#if ENABLE_AMU_AUXILIARY_COUNTERS
+CASSERT((sizeof(amu_ctxs_[0].group1_enable) * CHAR_BIT) <= AMU_GROUP1_MAX_COUNTERS,
+	amu_ctx_group1_enable_cannot_represent_all_group1_counters);
+#endif
 
 static inline __unused uint32_t read_id_pfr0_amu(void)
 {
@@ -109,53 +128,72 @@ static inline __unused void write_amcntenclr1_px(uint32_t px)
 	write_amcntenclr1(value);
 }
 
-static bool amu_supported(void)
+static __unused bool amu_supported(void)
 {
 	return read_id_pfr0_amu() >= ID_PFR0_AMU_V1;
 }
 
-static bool amu_v1p1_supported(void)
-{
-	return read_id_pfr0_amu() >= ID_PFR0_AMU_V1P1;
-}
-
 #if ENABLE_AMU_AUXILIARY_COUNTERS
-static bool amu_group1_supported(void)
+static __unused bool amu_group1_supported(void)
 {
 	return read_amcfgr_ncg() > 0U;
 }
 #endif
 
 /*
- * Enable counters. This function is meant to be invoked
- * by the context management library before exiting from EL3.
+ * Enable counters. This function is meant to be invoked by the context
+ * management library before exiting from EL3.
  */
 void amu_enable(bool el2_unused)
 {
-	if (!amu_supported()) {
+	uint32_t id_pfr0_amu;		/* AMU version */
+
+	uint32_t amcfgr_ncg;		/* Number of counter groups */
+	uint32_t amcgcr_cg0nc;		/* Number of group 0 counters */
+
+	uint32_t amcntenset0_px = 0x0;	/* Group 0 enable mask */
+	uint32_t amcntenset1_px = 0x0;	/* Group 1 enable mask */
+
+	id_pfr0_amu = read_id_pfr0_amu();
+	if (id_pfr0_amu == ID_PFR0_AMU_NOT_SUPPORTED) {
+		/*
+		 * If the AMU is unsupported, nothing needs to be done.
+		 */
+
 		return;
 	}
 
 	if (el2_unused) {
 		/*
-		 * Non-secure access from EL0 or EL1 to the Activity Monitor
-		 * registers do not trap to EL2.
+		 * HCPTR.TAM: Set to zero so any accesses to the Activity
+		 * Monitor registers do not trap to EL2.
 		 */
 		write_hcptr_tam(0U);
 	}
 
-	/* Enable group 0 counters */
-	write_amcntenset0_px((UINT32_C(1) << read_amcgcr_cg0nc()) - 1U);
+	/*
+	 * Retrieve the number of architected counters. All of these counters
+	 * are enabled by default.
+	 */
 
-#if ENABLE_AMU_AUXILIARY_COUNTERS
-	if (amu_group1_supported()) {
-		/* Enable group 1 counters */
-		write_amcntenset1_px(AMU_GROUP1_COUNTERS_MASK);
+	amcgcr_cg0nc = read_amcgcr_cg0nc();
+	amcntenset0_px = (UINT32_C(1) << (amcgcr_cg0nc)) - 1U;
+
+	assert(amcgcr_cg0nc <= AMU_AMCGCR_CG0NC_MAX);
+
+	/*
+	 * Enable the requested counters.
+	 */
+
+	write_amcntenset0_px(amcntenset0_px);
+
+	amcfgr_ncg = read_amcfgr_ncg();
+	if (amcfgr_ncg > 0U) {
+		write_amcntenset1_px(amcntenset1_px);
 	}
-#endif
 
 	/* Initialize FEAT_AMUv1p1 features if present. */
-	if (!amu_v1p1_supported()) {
+	if (id_pfr0_amu < ID_PFR0_AMU_V1P1) {
 		return;
 	}
 
@@ -218,49 +256,61 @@ static void amu_group1_cnt_write(unsigned  int idx, uint64_t val)
 
 static void *amu_context_save(const void *arg)
 {
-	struct amu_ctx *ctx = &amu_ctxs[plat_my_core_pos()];
-	unsigned int i;
+	uint32_t i;
 
-	if (!amu_supported()) {
-		return (void *)-1;
-	}
+	unsigned int core_pos;
+	struct amu_ctx *ctx;
 
-	/* Assert that group 0/1 counter configuration is what we expect */
-	assert(read_amcntenset0_px() ==
-		((UINT32_C(1) << read_amcgcr_cg0nc()) - 1U));
+	uint32_t id_pfr0_amu;	/* AMU version */
+	uint32_t amcgcr_cg0nc;	/* Number of group 0 counters */
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
-	if (amu_group1_supported()) {
-		assert(read_amcntenset1_px() == AMU_GROUP1_COUNTERS_MASK);
-	}
+	uint32_t amcfgr_ncg;	/* Number of counter groups */
+	uint32_t amcgcr_cg1nc;	/* Number of group 1 counters */
 #endif
+
+	id_pfr0_amu = read_id_pfr0_amu();
+	if (id_pfr0_amu == ID_PFR0_AMU_NOT_SUPPORTED) {
+		return (void *)0;
+	}
+
+	core_pos = plat_my_core_pos();
+	ctx = &amu_ctxs_[core_pos];
+
+	amcgcr_cg0nc = read_amcgcr_cg0nc();
+
+#if ENABLE_AMU_AUXILIARY_COUNTERS
+	amcfgr_ncg = read_amcfgr_ncg();
+	amcgcr_cg1nc = (amcfgr_ncg > 0U) ? read_amcgcr_cg1nc() : 0U;
+#endif
+
 	/*
-	 * Disable group 0/1 counters to avoid other observers like SCP sampling
-	 * counter values from the future via the memory mapped view.
+	 * Disable all AMU counters.
 	 */
-	write_amcntenclr0_px((UINT32_C(1) << read_amcgcr_cg0nc()) - 1U);
+
+	ctx->group0_enable = read_amcntenset0_px();
+	write_amcntenclr0_px(ctx->group0_enable);
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
-	if (amu_group1_supported()) {
-		write_amcntenclr1_px(AMU_GROUP1_COUNTERS_MASK);
+	if (amcfgr_ncg > 0U) {
+		ctx->group1_enable = read_amcntenset1_px();
+		write_amcntenclr1_px(ctx->group1_enable);
 	}
 #endif
 
-	isb();
+	/*
+	 * Save the counters to the local context.
+	 */
 
-	/* Save all group 0 counters */
-	for (i = 0U; i < read_amcgcr_cg0nc(); i++) {
+	isb(); /* Ensure counters have been stopped */
+
+	for (i = 0U; i < amcgcr_cg0nc; i++) {
 		ctx->group0_cnts[i] = amu_group0_cnt_read(i);
 	}
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
-	if (amu_group1_supported()) {
-		/* Save group 1 counters */
-		for (i = 0U; i < read_amcgcr_cg1nc(); i++) {
-			if ((AMU_GROUP1_COUNTERS_MASK & (1U << i)) != 0U) {
-				ctx->group1_cnts[i] = amu_group1_cnt_read(i);
-			}
-		}
+	for (i = 0U; i < amcgcr_cg1nc; i++) {
+		ctx->group1_cnts[i] = amu_group1_cnt_read(i);
 	}
 #endif
 
@@ -269,41 +319,69 @@ static void *amu_context_save(const void *arg)
 
 static void *amu_context_restore(const void *arg)
 {
-	struct amu_ctx *ctx = &amu_ctxs[plat_my_core_pos()];
-	unsigned int i;
+	uint32_t i;
 
-	if (!amu_supported()) {
-		return (void *)-1;
-	}
+	unsigned int core_pos;
+	struct amu_ctx *ctx;
 
-	/* Counters were disabled in `amu_context_save()` */
-	assert(read_amcntenset0_px() == 0U);
+	uint32_t id_pfr0_amu;	/* AMU version */
+
+	uint32_t amcfgr_ncg;	/* Number of counter groups */
+	uint32_t amcgcr_cg0nc;	/* Number of group 0 counters */
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
-	if (amu_group1_supported()) {
-		assert(read_amcntenset1_px() == 0U);
-	}
+	uint32_t amcgcr_cg1nc;	/* Number of group 1 counters */
 #endif
 
-	/* Restore all group 0 counters */
-	for (i = 0U; i < read_amcgcr_cg0nc(); i++) {
+	id_pfr0_amu = read_id_pfr0_amu();
+	if (id_pfr0_amu == ID_PFR0_AMU_NOT_SUPPORTED) {
+		return (void *)0;
+	}
+
+	core_pos = plat_my_core_pos();
+	ctx = &amu_ctxs_[core_pos];
+
+	amcfgr_ncg = read_amcfgr_ncg();
+	amcgcr_cg0nc = read_amcgcr_cg0nc();
+
+#if ENABLE_AMU_AUXILIARY_COUNTERS
+	amcgcr_cg1nc = (amcfgr_ncg > 0U) ? read_amcgcr_cg1nc() : 0U;
+#endif
+
+	/*
+	 * Sanity check that all counters were disabled when the context was
+	 * previously saved.
+	 */
+
+	assert(read_amcntenset0_px() == 0U);
+
+	if (amcfgr_ncg > 0U) {
+		assert(read_amcntenset1_px() == 0U);
+	}
+
+	/*
+	 * Restore the counter values from the local context.
+	 */
+
+	for (i = 0U; i < amcgcr_cg0nc; i++) {
 		amu_group0_cnt_write(i, ctx->group0_cnts[i]);
 	}
 
-	/* Restore group 0 counter configuration */
-	write_amcntenset0_px((UINT32_C(1) << read_amcgcr_cg0nc()) - 1U);
+#if ENABLE_AMU_AUXILIARY_COUNTERS
+	for (i = 0U; i < amcgcr_cg1nc; i++) {
+		amu_group1_cnt_write(i, ctx->group1_cnts[i]);
+	}
+#endif
+
+	/*
+	 * Re-enable counters that were disabled during context save.
+	 */
+
+	write_amcntenset0_px(ctx->group0_enable);
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
-	if (amu_group1_supported()) {
-		/* Restore group 1 counters */
-		for (i = 0U; i < read_amcgcr_cg1nc(); i++) {
-			if ((AMU_GROUP1_COUNTERS_MASK & (1U << i)) != 0U) {
-				amu_group1_cnt_write(i, ctx->group1_cnts[i]);
-			}
-		}
-
-		/* Restore group 1 counter configuration */
-		write_amcntenset1_px(AMU_GROUP1_COUNTERS_MASK);
+	if (amcfgr_ncg > 0U) {
+		write_amcntenset1_px(ctx->group1_enable);
 	}
 #endif
 
