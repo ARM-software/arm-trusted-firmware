@@ -25,7 +25,7 @@ static struct amu_ctx amu_ctxs[PLATFORM_CORE_COUNT];
  *   ID_PFR0_AMU_V1P1: FEAT_AMUv1p1 supported (introduced in ARM v8.6)
  *   ID_PFR0_AMU_NOT_SUPPORTED: not supported
  */
-unsigned int amu_get_version(void)
+static unsigned int amu_get_version(void)
 {
 	return (unsigned int)(read_id_pfr0() >> ID_PFR0_AMU_SHIFT) &
 		ID_PFR0_AMU_MASK;
@@ -33,7 +33,7 @@ unsigned int amu_get_version(void)
 
 #if AMU_GROUP1_NR_COUNTERS
 /* Check if group 1 counters is implemented */
-bool amu_group1_supported(void)
+static bool amu_group1_supported(void)
 {
 	uint32_t features = read_amcfgr() >> AMCFGR_NCG_SHIFT;
 
@@ -113,7 +113,7 @@ void amu_enable(bool el2_unused)
 }
 
 /* Read the group 0 counter identified by the given `idx`. */
-uint64_t amu_group0_cnt_read(unsigned int idx)
+static uint64_t amu_group0_cnt_read(unsigned int idx)
 {
 	assert(amu_get_version() != ID_PFR0_AMU_NOT_SUPPORTED);
 	assert(idx < AMU_GROUP0_NR_COUNTERS);
@@ -122,7 +122,7 @@ uint64_t amu_group0_cnt_read(unsigned int idx)
 }
 
 /* Write the group 0 counter identified by the given `idx` with `val` */
-void amu_group0_cnt_write(unsigned  int idx, uint64_t val)
+static void amu_group0_cnt_write(unsigned  int idx, uint64_t val)
 {
 	assert(amu_get_version() != ID_PFR0_AMU_NOT_SUPPORTED);
 	assert(idx < AMU_GROUP0_NR_COUNTERS);
@@ -133,7 +133,7 @@ void amu_group0_cnt_write(unsigned  int idx, uint64_t val)
 
 #if AMU_GROUP1_NR_COUNTERS
 /* Read the group 1 counter identified by the given `idx` */
-uint64_t amu_group1_cnt_read(unsigned  int idx)
+static uint64_t amu_group1_cnt_read(unsigned  int idx)
 {
 	assert(amu_get_version() != ID_PFR0_AMU_NOT_SUPPORTED);
 	assert(amu_group1_supported());
@@ -143,27 +143,13 @@ uint64_t amu_group1_cnt_read(unsigned  int idx)
 }
 
 /* Write the group 1 counter identified by the given `idx` with `val` */
-void amu_group1_cnt_write(unsigned  int idx, uint64_t val)
+static void amu_group1_cnt_write(unsigned  int idx, uint64_t val)
 {
 	assert(amu_get_version() != ID_PFR0_AMU_NOT_SUPPORTED);
 	assert(amu_group1_supported());
 	assert(idx < AMU_GROUP1_NR_COUNTERS);
 
 	amu_group1_cnt_write_internal(idx, val);
-	isb();
-}
-
-/*
- * Program the event type register for the given `idx` with
- * the event number `val`
- */
-void amu_group1_set_evtype(unsigned int idx, unsigned int val)
-{
-	assert(amu_get_version() != ID_PFR0_AMU_NOT_SUPPORTED);
-	assert(amu_group1_supported());
-	assert(idx < AMU_GROUP1_NR_COUNTERS);
-
-	amu_group1_set_evtype_internal(idx, val);
 	isb();
 }
 #endif	/* AMU_GROUP1_NR_COUNTERS */
