@@ -682,6 +682,22 @@ func fpregs_context_restore
 endfunc fpregs_context_restore
 #endif /* CTX_INCLUDE_FPREGS */
 
+	/*
+	 * Set the PSTATE bits not set when the exception was taken as
+	 * described in the AArch64.TakeException() pseudocode function
+	 * in ARM DDI 0487F.c page J1-7635 to a default value.
+	 */
+	.macro set_unset_pstate_bits
+        /*
+         * If Data Independent Timing (DIT) functionality is implemented,
+         * always enable DIT in EL3
+         */
+#if ENABLE_FEAT_DIT
+        mov     x8, #DIT_BIT
+        msr     DIT, x8
+#endif /* ENABLE_FEAT_DIT */
+	.endm /* set_unset_pstate_bits */
+
 /* ------------------------------------------------------------------
  * The following macro is used to save and restore all the general
  * purpose and ARMv8.3-PAuth (if enabled) registers.
@@ -767,17 +783,26 @@ endfunc fpregs_context_restore
 	stp	x26, x27, [x19, #CTX_PACDBKEY_LO]
 	stp	x28, x29, [x19, #CTX_PACGAKEY_LO]
 #endif /* CTX_INCLUDE_PAUTH_REGS */
-
 	.endm /* save_gp_pmcr_pauth_regs */
 
 /* -----------------------------------------------------------------
- * This function saves the context preparing entry to el3.
+ * This function saves the context and sets the PSTATE to a known
+ * state, preparing entry to el3.
  * Save all the general purpose and ARMv8.3-PAuth (if enabled)
  * registers.
+ * Then set any of the PSTATE bits that are not set by hardware
+ * according to the Aarch64.TakeException pseudocode in the Arm
+ * Architecture Reference Manual to a default value for EL3.
+ * clobbers: x17
  * -----------------------------------------------------------------
  */
 func prepare_el3_entry
 	save_gp_pmcr_pauth_regs
+	/*
+	 * Set the PSTATE bits not described in the Aarch64.TakeException
+	 * pseudocode to their default values.
+	 */
+	set_unset_pstate_bits
 	ret
 endfunc prepare_el3_entry
 
