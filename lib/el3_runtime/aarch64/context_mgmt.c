@@ -60,7 +60,7 @@ void __init cm_init(void)
  *
  * To prepare the register state for entry call cm_prepare_el3_exit() and
  * el3_exit(). For Secure-EL1 cm_prepare_el3_exit() is equivalent to
- * cm_e1_sysreg_context_restore().
+ * cm_el1_sysregs_context_restore().
  ******************************************************************************/
 void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 {
@@ -286,7 +286,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 
 	/*
 	 * Store the initialised SCTLR_EL1 value in the cpu_context - SCTLR_EL2
-	 * and other EL2 registers are set up by cm_prepare_ns_entry() as they
+	 * and other EL2 registers are set up by cm_prepare_el3_exit() as they
 	 * are not part of the stored cpu_context.
 	 */
 	write_ctx_reg(get_el1_sysregs_ctx(ctx), CTX_SCTLR_EL1, sctlr_elx);
