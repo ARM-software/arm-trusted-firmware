@@ -107,7 +107,7 @@ New Features
             - Cortex_A78C CPU
             - Makalu ELP CPU
             - Makalu CPU
-            - Matterhorn CPU
+            - Matterhorn ELP CPU
             - Neoverse-N2 CPU
 
     - CPU Errata
