@@ -74,6 +74,8 @@ uint32_t intel_fcs_send_cert(uint64_t addr, uint64_t size,
 				(uint32_t *)addr, size / MBOX_WORD_BYTE,
 				CMD_DIRECT);
 
+	flush_dcache_range(addr, size);
+
 	if (status < 0) {
 		return INTEL_SIP_SMC_STATUS_ERROR;
 	}
