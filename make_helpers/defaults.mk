@@ -306,6 +306,7 @@ endif
 CTX_INCLUDE_MTE_REGS		:= 0
 
 ENABLE_AMU			:= 0
+ENABLE_AMU_AUXILIARY_COUNTERS	:= 0
 AMU_RESTRICT_COUNTERS		:= 0
 
 # By default, enable Scalable Vector Extension if implemented only for Non-secure

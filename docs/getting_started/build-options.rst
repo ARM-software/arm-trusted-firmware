@@ -220,6 +220,10 @@ Common build options
    v8.2 implementations also implement an AMU and this option can be used to
    enable this feature on those systems as well. Default is 0.
 
+-  ``ENABLE_AMU_AUXILIARY_COUNTERS``: Enables support for AMU auxiliary counters
+   (also known as group 1 counters). These are implementation-defined counters,
+   and as such require additional platform configuration. Default is 0.
+
 -  ``ENABLE_ASSERTIONS``: This option controls whether or not calls to ``assert()``
    are compiled out. For debug builds, this option defaults to 1, and calls to
    ``assert()`` are left in place. For release builds, this option defaults to 0
@@ -918,4 +922,3 @@ Firmware update options
 
 .. _DEN0115: https://developer.arm.com/docs/den0115/latest
 .. _PSA FW update specification: https://developer.arm.com/documentation/den0118/a/
-

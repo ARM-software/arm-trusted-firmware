@@ -84,6 +84,7 @@ func amu_group0_cnt_write_internal
 	bx		lr
 endfunc amu_group0_cnt_write_internal
 
+#if ENABLE_AMU_AUXILIARY_COUNTERS
 /*
  * uint64_t amu_group1_cnt_read_internal(int idx);
  *
@@ -267,3 +268,4 @@ func amu_group1_set_evtype_internal
 	stcopr	r1, AMEVTYPER1F /* index 15 */
 	bx	lr
 endfunc amu_group1_set_evtype_internal
+#endif

@@ -83,6 +83,7 @@ func amu_group0_cnt_write_internal
 	write	AMEVCNTR03_EL0		/* index 3 */
 endfunc amu_group0_cnt_write_internal
 
+#if ENABLE_AMU_AUXILIARY_COUNTERS
 /*
  * uint64_t amu_group1_cnt_read_internal(int idx);
  *
@@ -217,6 +218,7 @@ func amu_group1_set_evtype_internal
 	write	AMEVTYPER1E_EL0		/* index 14 */
 	write	AMEVTYPER1F_EL0		/* index 15 */
 endfunc amu_group1_set_evtype_internal
+#endif
 
 /*
  * Accessor functions for virtual offset registers added with FEAT_AMUv1p1
@@ -297,6 +299,7 @@ func amu_group0_voffset_write_internal
 	write	AMEVCNTVOFF03_EL2	/* index 3 */
 endfunc amu_group0_voffset_write_internal
 
+#if ENABLE_AMU_AUXILIARY_COUNTERS
 /*
  * uint64_t amu_group1_voffset_read_internal(int idx);
  *
@@ -383,3 +386,4 @@ func amu_group1_voffset_write_internal
 	write	AMEVCNTVOFF1E_EL2	/* index 14 */
 	write	AMEVCNTVOFF1F_EL2	/* index 15 */
 endfunc amu_group1_voffset_write_internal
+#endif

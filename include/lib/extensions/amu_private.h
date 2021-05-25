@@ -19,6 +19,7 @@
 #define AMU_GROUP0_COUNTERS_MASK	U(0xf)
 #define AMU_GROUP0_NR_COUNTERS		U(4)
 
+#if ENABLE_AMU_AUXILIARY_COUNTERS
 #define AMU_GROUP1_COUNTERS_MASK	U(0)
 
 /* Calculate number of group 1 counters */
@@ -59,6 +60,7 @@
 #endif
 
 CASSERT(AMU_GROUP1_COUNTERS_MASK <= 0xffff, invalid_amu_group1_counters_mask);
+#endif
 
 struct amu_ctx {
 	uint64_t group0_cnts[AMU_GROUP0_NR_COUNTERS];
@@ -67,7 +69,7 @@ struct amu_ctx {
 	uint64_t group0_voffsets[AMU_GROUP0_NR_COUNTERS-1];
 #endif
 
-#if AMU_GROUP1_NR_COUNTERS
+#if ENABLE_AMU_AUXILIARY_COUNTERS
 	uint64_t group1_cnts[AMU_GROUP1_NR_COUNTERS];
 #if __aarch64__
 	uint64_t group1_voffsets[AMU_GROUP1_NR_COUNTERS];
@@ -78,16 +80,20 @@ struct amu_ctx {
 uint64_t amu_group0_cnt_read_internal(unsigned int idx);
 void amu_group0_cnt_write_internal(unsigned int idx, uint64_t val);
 
+#if ENABLE_AMU_AUXILIARY_COUNTERS
 uint64_t amu_group1_cnt_read_internal(unsigned int idx);
 void amu_group1_cnt_write_internal(unsigned int idx, uint64_t val);
 void amu_group1_set_evtype_internal(unsigned int idx, unsigned int val);
+#endif
 
 #if __aarch64__
 uint64_t amu_group0_voffset_read_internal(unsigned int idx);
 void amu_group0_voffset_write_internal(unsigned int idx, uint64_t val);
 
+#if ENABLE_AMU_AUXILIARY_COUNTERS
 uint64_t amu_group1_voffset_read_internal(unsigned int idx);
 void amu_group1_voffset_write_internal(unsigned int idx, uint64_t val);
+#endif
 #endif
 
 #endif /* AMU_PRIVATE_H */
