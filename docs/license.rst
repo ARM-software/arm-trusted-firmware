@@ -81,6 +81,7 @@ license text is included in those source files.
    terms of the MIT license. These files are:
 
    -  ``include/dt-bindings/interrupt-controller/arm-gic.h``
+   -  ``include/dt-bindings/interrupt-controller/irq.h``
 
    See the original `Linux MIT license`_.
 

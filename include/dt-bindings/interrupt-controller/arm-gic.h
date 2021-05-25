@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2019-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: MIT
  *
@@ -9,21 +9,18 @@
 #ifndef _DT_BINDINGS_INTERRUPT_CONTROLLER_ARM_GIC_H
 #define _DT_BINDINGS_INTERRUPT_CONTROLLER_ARM_GIC_H
 
+#include <dt-bindings/interrupt-controller/irq.h>
+
 /* interrupt specifier cell 0 */
 
 #define GIC_SPI 0
 #define GIC_PPI 1
 
-#define IRQ_TYPE_NONE		0
-#define IRQ_TYPE_EDGE_RISING	1
-#define IRQ_TYPE_EDGE_FALLING	2
-#define IRQ_TYPE_EDGE_BOTH	(IRQ_TYPE_EDGE_FALLING | IRQ_TYPE_EDGE_RISING)
-#define IRQ_TYPE_LEVEL_HIGH	4
-#define IRQ_TYPE_LEVEL_LOW	8
-
 /*
  * Interrupt specifier cell 2.
+ * The flags in irq.h are valid, plus those below.
  */
 #define GIC_CPU_MASK_RAW(x) ((x) << 8)
+#define GIC_CPU_MASK_SIMPLE(num) GIC_CPU_MASK_RAW((1 << (num)) - 1)
 
 #endif
