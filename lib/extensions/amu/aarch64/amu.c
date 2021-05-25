@@ -66,6 +66,12 @@ static inline __unused uint64_t read_amcfgr_el0_ncg(void)
 		AMCFGR_EL0_NCG_MASK;
 }
 
+static inline uint64_t read_amcgcr_el0_cg0nc(void)
+{
+	return (read_amcgcr_el0() >> AMCGCR_EL0_CG0NC_SHIFT) &
+		AMCGCR_EL0_CG0NC_MASK;
+}
+
 static inline __unused uint64_t read_amcg1idr_el0_voff(void)
 {
 	return (read_amcg1idr_el0() >> AMCG1IDR_VOFF_SHIFT) &
@@ -197,7 +203,7 @@ void amu_enable(bool el2_unused, cpu_context_t *ctx)
 	write_cptr_el3_tam(ctx, 0U);
 
 	/* Enable group 0 counters */
-	write_amcntenset0_el0_px(AMU_GROUP0_COUNTERS_MASK);
+	write_amcntenset0_el0_px((UINT64_C(1) << read_amcgcr_el0_cg0nc()) - 1U);
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
 	if (AMU_GROUP1_NR_COUNTERS > 0U) {
@@ -235,7 +241,7 @@ void amu_enable(bool el2_unused, cpu_context_t *ctx)
 static uint64_t amu_group0_cnt_read(unsigned int idx)
 {
 	assert(amu_supported());
-	assert(idx < AMU_GROUP0_NR_COUNTERS);
+	assert(idx < read_amcgcr_el0_cg0nc());
 
 	return amu_group0_cnt_read_internal(idx);
 }
@@ -244,7 +250,7 @@ static uint64_t amu_group0_cnt_read(unsigned int idx)
 static void amu_group0_cnt_write(unsigned  int idx, uint64_t val)
 {
 	assert(amu_supported());
-	assert(idx < AMU_GROUP0_NR_COUNTERS);
+	assert(idx < read_amcgcr_el0_cg0nc());
 
 	amu_group0_cnt_write_internal(idx, val);
 	isb();
@@ -259,7 +265,7 @@ static void amu_group0_cnt_write(unsigned  int idx, uint64_t val)
 static uint64_t amu_group0_voffset_read(unsigned int idx)
 {
 	assert(amu_v1p1_supported());
-	assert(idx < AMU_GROUP0_NR_COUNTERS);
+	assert(idx < read_amcgcr_el0_cg0nc());
 	assert(idx != 1U);
 
 	return amu_group0_voffset_read_internal(idx);
@@ -274,7 +280,7 @@ static uint64_t amu_group0_voffset_read(unsigned int idx)
 static void amu_group0_voffset_write(unsigned int idx, uint64_t val)
 {
 	assert(amu_v1p1_supported());
-	assert(idx < AMU_GROUP0_NR_COUNTERS);
+	assert(idx < read_amcgcr_el0_cg0nc());
 	assert(idx != 1U);
 
 	amu_group0_voffset_write_internal(idx, val);
@@ -353,7 +359,8 @@ static void *amu_context_save(const void *arg)
 #endif
 
 	/* Assert that group 0/1 counter configuration is what we expect */
-	assert(read_amcntenset0_el0_px() == AMU_GROUP0_COUNTERS_MASK);
+	assert(read_amcntenset0_el0_px() ==
+		((UINT64_C(1) << read_amcgcr_el0_cg0nc()) - 1U));
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
 	if (AMU_GROUP1_NR_COUNTERS > 0U) {
@@ -365,7 +372,7 @@ static void *amu_context_save(const void *arg)
 	 * Disable group 0/1 counters to avoid other observers like SCP sampling
 	 * counter values from the future via the memory mapped view.
 	 */
-	write_amcntenclr0_el0_px(AMU_GROUP0_COUNTERS_MASK);
+	write_amcntenclr0_el0_px((UINT64_C(1) << read_amcgcr_el0_cg0nc()) - 1U);
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
 	if (AMU_GROUP1_NR_COUNTERS > 0U) {
@@ -376,7 +383,7 @@ static void *amu_context_save(const void *arg)
 	isb();
 
 	/* Save all group 0 counters */
-	for (i = 0U; i < AMU_GROUP0_NR_COUNTERS; i++) {
+	for (i = 0U; i < read_amcgcr_el0_cg0nc(); i++) {
 		ctx->group0_cnts[i] = amu_group0_cnt_read(i);
 	}
 
@@ -442,7 +449,7 @@ static void *amu_context_restore(const void *arg)
 #endif
 
 	/* Restore all group 0 counters */
-	for (i = 0U; i < AMU_GROUP0_NR_COUNTERS; i++) {
+	for (i = 0U; i < read_amcgcr_el0_cg0nc(); i++) {
 		amu_group0_cnt_write(i, ctx->group0_cnts[i]);
 	}
 
@@ -455,7 +462,7 @@ static void *amu_context_restore(const void *arg)
 	}
 
 	/* Restore group 0 counter configuration */
-	write_amcntenset0_el0_px(AMU_GROUP0_COUNTERS_MASK);
+	write_amcntenset0_el0_px((UINT64_C(1) << read_amcgcr_el0_cg0nc()) - 1U);
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
 	if (AMU_GROUP1_NR_COUNTERS > 0U) {

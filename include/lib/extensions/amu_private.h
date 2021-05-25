@@ -15,9 +15,7 @@
 
 #include <platform_def.h>
 
-/* All group 0 counters */
-#define AMU_GROUP0_COUNTERS_MASK	U(0xf)
-#define AMU_GROUP0_NR_COUNTERS		U(4)
+#define AMU_GROUP0_MAX_COUNTERS		U(16)
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS
 #define AMU_GROUP1_COUNTERS_MASK	U(0)
@@ -63,10 +61,10 @@ CASSERT(AMU_GROUP1_COUNTERS_MASK <= 0xffff, invalid_amu_group1_counters_mask);
 #endif
 
 struct amu_ctx {
-	uint64_t group0_cnts[AMU_GROUP0_NR_COUNTERS];
+	uint64_t group0_cnts[AMU_GROUP0_MAX_COUNTERS];
 #if __aarch64__
 	/* Architected event counter 1 does not have an offset register. */
-	uint64_t group0_voffsets[AMU_GROUP0_NR_COUNTERS-1];
+	uint64_t group0_voffsets[AMU_GROUP0_MAX_COUNTERS-1];
 #endif
 
 #if ENABLE_AMU_AUXILIARY_COUNTERS

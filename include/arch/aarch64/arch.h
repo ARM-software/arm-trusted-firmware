@@ -1069,6 +1069,8 @@
 #define AMCFGR_EL0_N_MASK	U(0xff)
 
 /* AMCGCR_EL0 definitions */
+#define AMCGCR_EL0_CG0NC_SHIFT	U(0)
+#define AMCGCR_EL0_CG0NC_MASK	U(0xff)
 #define AMCGCR_EL0_CG1NC_SHIFT	U(8)
 #define AMCGCR_EL0_CG1NC_MASK	U(0xff)
 
