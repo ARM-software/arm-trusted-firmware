@@ -9,6 +9,7 @@
 #include <lib/mmio.h>
 
 #include <devapc.h>
+#include <mtk_apusys_apc.h>
 
 /* Infra_ao */
 static const struct APC_INFRA_PERI_DOM_16 INFRA_AO_SYS0_Devices[] = {
@@ -82,12 +83,12 @@ DAPC_INFRA_AO_SYS0_ATTR("APU_S_S-3",
 			FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
 			FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
 DAPC_INFRA_AO_SYS0_ATTR("APU_S_S-4",
-			NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+			SEC_RW_ONLY,   FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
 			FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
 			FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
 			FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
 DAPC_INFRA_AO_SYS0_ATTR("APU_S_S-5",
-			NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+			SEC_RW_ONLY,   FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
 			FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
 			FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
 			FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
@@ -2838,6 +2839,9 @@ void devapc_init(void)
 	dump_peri_ao_apc();
 	dump_peri_ao2_apc();
 	dump_peri_par_ao_apc();
+
+	/* Setup APUSYS Permission */
+	set_apusys_apc();
 
 	INFO("[DEVAPC] %s done\n", __func__);
 }

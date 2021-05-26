@@ -1,0 +1,571 @@
+/*
+ * Copyright (c) 2021, MediaTek Inc. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+#include <common/debug.h>
+#include <mtk_apusys_apc.h>
+#include <mtk_apusys_apc_def.h>
+#include <mtk_plat_common.h>
+#include <platform_def.h>
+
+static const struct APC_DOM_16 APUSYS_NOC_DAPC_AO[] = {
+/* 0~3 */
+APUSYS_APC_AO_ATTR("slv07-0",
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION),
+APUSYS_APC_AO_ATTR("slv07-1",
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION),
+APUSYS_APC_AO_ATTR("slv07-2",
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION),
+APUSYS_APC_AO_ATTR("slv07-3",
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION),
+
+/* 16~18 */
+APUSYS_APC_AO_ATTR("slv01-0",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("slv01-1",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("slv01-2",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+
+/* 19~21 */
+APUSYS_APC_AO_ATTR("slv00-0",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("slv00-1",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("slv00-2",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+
+/* 22~26 */
+APUSYS_APC_AO_ATTR("slv02-0",
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION),
+APUSYS_APC_AO_ATTR("slv02-1",
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION),
+APUSYS_APC_AO_ATTR("slv02-2",
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION),
+APUSYS_APC_AO_ATTR("slv02-3",
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION),
+APUSYS_APC_AO_ATTR("slv02-4",
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION,
+		NO_PROTECTION, NO_PROTECTION, NO_PROTECTION, NO_PROTECTION),
+};
+
+static int32_t set_slave_noc_dapc(uint32_t slave,
+				  enum APUSYS_APC_DOMAIN_ID domain_id,
+				  enum APUSYS_APC_PERM_TYPE perm)
+{
+	uint32_t apc_register_index;
+	uint32_t apc_set_index;
+	uintptr_t base;
+	uint32_t clr_bit;
+	uint32_t set_bit;
+	int32_t ret;
+
+	if (perm >= PERM_NUM) {
+		ERROR("[NOC_DAPC] perm type:0x%x is not supported!\n", perm);
+		ret = APUSYS_APC_ERR_PERMISSION_NOT_SUPPORTED;
+		goto exit;
+	}
+
+	apc_register_index = slave / APUSYS_NOC_DAPC_AO_SLAVE_NUM_IN_1_DOM;
+	apc_set_index = slave % APUSYS_NOC_DAPC_AO_SLAVE_NUM_IN_1_DOM;
+
+	clr_bit = 0xFFFFFFFF ^ (0x3U << (apc_set_index * 2));
+	set_bit = perm << (apc_set_index * 2);
+
+	if ((slave < APUSYS_NOC_DAPC_AO_SLAVE_NUM) &&
+	    (domain_id < APUSYS_NOC_DAPC_AO_DOM_NUM)) {
+		base = APUSYS_NOC_DAPC_AO_BASE +
+		       (domain_id * 0x40) + (apc_register_index * 4);
+		apuapc_writel(apuapc_readl(base) & clr_bit, base);
+		apuapc_writel(apuapc_readl(base) | set_bit, base);
+		ret = APUSYS_APC_OK;
+	} else {
+		ERROR("[NOC_DAPC] %s: %s, %s:0x%x, %s:0x%x\n",
+		      __func__, "out of boundary",
+		      "slave", slave,
+		      "domain_id", domain_id);
+		ret = APUSYS_APC_ERR_OUT_OF_BOUNDARY;
+	}
+
+exit:
+	return ret;
+}
+
+static void dump_apusys_noc_dapc(void)
+{
+	uint32_t reg_num;
+	uint32_t d, i;
+
+	reg_num = APUSYS_NOC_DAPC_AO_SLAVE_NUM /
+		  APUSYS_NOC_DAPC_AO_SLAVE_NUM_IN_1_DOM;
+	for (d = 0U; d < APUSYS_NOC_DAPC_AO_DOM_NUM; d++) {
+		for (i = 0U; i <= reg_num; i++) {
+			INFO("[NOCDAPC] D%d_APC_%d: 0x%x\n", d, i,
+			     apuapc_readl(APUSYS_NOC_DAPC_AO_BASE +
+			     (d * 0x40) + (i * 4)));
+		}
+	}
+
+	INFO("[NOCDAPC] APC_CON: 0x%x\n", apuapc_readl(APUSYS_NOC_DAPC_CON));
+}
+
+static const struct APC_DOM_16 APUSYS_AO_Devices[] = {
+
+/* 0 */
+APUSYS_APC_AO_ATTR("apusys_ao-0",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apusys_ao-1",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apusys_ao-2",
+		SEC_RW_ONLY,   FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apusys_ao-3",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apusys_ao-4",
+		SEC_RW_ONLY,   FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apusys_ao-5",
+		SEC_RW_ONLY,   FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("md32_apb_s-0",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("md32_apb_s-1",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("md32_apb_s-2",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("md32_debug_apb",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+
+/* 10 */
+APUSYS_APC_AO_ATTR("apu_conn_config",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_sctrl_reviser",
+		SEC_RW_ONLY,   FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_sema_stimer",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_emi_config",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_adl",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_edma_lite0",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_edma_lite1",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_edma0",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_edma0",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_dapc_ao",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+
+/* 20 */
+APUSYS_APC_AO_ATTR("apu_dapc",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("infra_bcrm",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apb_dbg_ctl",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("noc_dapc",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_noc_bcrm",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_noc_config",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("vpu_core0_config-0",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("vpu_core0_config-1",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("vpu_core1_config-0",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("vpu_core1_config-1",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+
+/* 30 */
+APUSYS_APC_AO_ATTR("mdla0_apb-0",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("mdla0_apb-1",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("mdla0_apb-2",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("mdla0_apb-3",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_iommu0_r0",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_iommu0_r1",
+		SEC_RW_ONLY,   FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_iommu0_r2",
+		SEC_RW_ONLY,   FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_iommu0_r3",
+		SEC_RW_ONLY,   FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_iommu0_r4",
+		SEC_RW_ONLY,   FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("apu_rsi2_config",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+
+/* 40 */
+APUSYS_APC_AO_ATTR("apu_ssc2_config",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("vp6_core0_debug_apb",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+APUSYS_APC_AO_ATTR("vp6_core1_debug_apb",
+		NO_PROTECTION, FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN,
+		FORBIDDEN,     FORBIDDEN,     FORBIDDEN,     FORBIDDEN),
+};
+
+static int32_t set_slave_apc(uint32_t slave,
+			     enum APUSYS_APC_DOMAIN_ID domain_id,
+			     enum APUSYS_APC_PERM_TYPE perm)
+{
+	uint32_t apc_register_index;
+	uint32_t apc_set_index;
+	uintptr_t base;
+	uint32_t clr_bit;
+	uint32_t set_bit;
+	int32_t ret;
+
+	if (perm >= PERM_NUM) {
+		ERROR("[APUAPC] perm type:0x%x is not supported!\n", perm);
+		ret = APUSYS_APC_ERR_PERMISSION_NOT_SUPPORTED;
+		goto exit;
+	}
+
+	apc_register_index = slave / APUSYS_APC_SYS0_AO_SLAVE_NUM_IN_1_DOM;
+	apc_set_index = slave % APUSYS_APC_SYS0_AO_SLAVE_NUM_IN_1_DOM;
+
+	clr_bit = 0xFFFFFFFF ^ (0x3U << (apc_set_index * 2));
+	set_bit = perm << (apc_set_index * 2);
+
+	if ((slave < APUSYS_APC_SYS0_AO_SLAVE_NUM) &&
+	    (domain_id < APUSYS_APC_SYS0_AO_DOM_NUM)) {
+		base = APUSYS_APC_AO_BASE +
+		       (domain_id * 0x40) + (apc_register_index * 4);
+		apuapc_writel(apuapc_readl(base) & clr_bit, base);
+		apuapc_writel(apuapc_readl(base) | set_bit, base);
+		ret = APUSYS_APC_OK;
+	} else {
+		ERROR("[APUAPC] %s: %s, %s:0x%x, %s:0x%x\n",
+		      __func__, "out of boundary",
+		      "slave", slave,
+		      "domain_id", domain_id);
+		ret = APUSYS_APC_ERR_OUT_OF_BOUNDARY;
+	}
+
+exit:
+	return ret;
+}
+
+static void dump_apusys_ao_apc(void)
+{
+	uint32_t reg_num;
+	uint32_t d, i;
+
+	reg_num = APUSYS_APC_SYS0_AO_SLAVE_NUM /
+		  APUSYS_APC_SYS0_AO_SLAVE_NUM_IN_1_DOM;
+	for (d = 0U; d < APUSYS_APC_SYS0_AO_DOM_NUM; d++) {
+		for (i = 0U; i <= reg_num; i++) {
+			INFO("[APUAPC] D%d_APC_%d: 0x%x\n", d, i,
+			     apuapc_readl(APUSYS_APC_AO_BASE +
+			     (d * 0x40) + (i * 4)));
+		}
+	}
+	INFO("[APUAPC] APC_CON: 0x%x\n", apuapc_readl(APUSYS_APC_CON));
+}
+
+static int32_t set_apusys_noc_dapc(void)
+{
+	int32_t ret = 0;
+	uint32_t i;
+	uint32_t index;
+
+	for (i = 0U; i < ARRAY_SIZE(APUSYS_NOC_DAPC_AO); i++) {
+		if (i < APUSYS_NOC_DAPC_GAP_BOUNDARY) {
+			index = i;
+		} else {
+			index = i + APUSYS_NOC_DAPC_JUMP_GAP;
+		}
+		ret += set_slave_noc_dapc(index, DOMAIN_0,
+				APUSYS_NOC_DAPC_AO[i].d0_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_1,
+				APUSYS_NOC_DAPC_AO[i].d1_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_2,
+				APUSYS_NOC_DAPC_AO[i].d2_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_3,
+				APUSYS_NOC_DAPC_AO[i].d3_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_4,
+				APUSYS_NOC_DAPC_AO[i].d4_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_5,
+				APUSYS_NOC_DAPC_AO[i].d5_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_6,
+				APUSYS_NOC_DAPC_AO[i].d6_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_7,
+				APUSYS_NOC_DAPC_AO[i].d7_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_8,
+				APUSYS_NOC_DAPC_AO[i].d8_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_9,
+				APUSYS_NOC_DAPC_AO[i].d9_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_10,
+				APUSYS_NOC_DAPC_AO[i].d10_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_11,
+				APUSYS_NOC_DAPC_AO[i].d11_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_12,
+				APUSYS_NOC_DAPC_AO[i].d12_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_13,
+				APUSYS_NOC_DAPC_AO[i].d13_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_14,
+				APUSYS_NOC_DAPC_AO[i].d14_permission);
+		ret += set_slave_noc_dapc(index, DOMAIN_15,
+				APUSYS_NOC_DAPC_AO[i].d15_permission);
+	}
+
+	return ret;
+}
+
+static int32_t set_apusys_ao_apc(void)
+{
+	int32_t ret = 0;
+	uint32_t i;
+
+	for (i = 0U; i < ARRAY_SIZE(APUSYS_AO_Devices); i++) {
+		ret += set_slave_apc(i, DOMAIN_0,
+				APUSYS_AO_Devices[i].d0_permission);
+		ret += set_slave_apc(i, DOMAIN_1,
+				APUSYS_AO_Devices[i].d1_permission);
+		ret += set_slave_apc(i, DOMAIN_2,
+				APUSYS_AO_Devices[i].d2_permission);
+		ret += set_slave_apc(i, DOMAIN_3,
+				APUSYS_AO_Devices[i].d3_permission);
+		ret += set_slave_apc(i, DOMAIN_4,
+				APUSYS_AO_Devices[i].d4_permission);
+		ret += set_slave_apc(i, DOMAIN_5,
+				APUSYS_AO_Devices[i].d5_permission);
+		ret += set_slave_apc(i, DOMAIN_6,
+				APUSYS_AO_Devices[i].d6_permission);
+		ret += set_slave_apc(i, DOMAIN_7,
+				APUSYS_AO_Devices[i].d7_permission);
+		ret += set_slave_apc(i, DOMAIN_8,
+				APUSYS_AO_Devices[i].d8_permission);
+		ret += set_slave_apc(i, DOMAIN_9,
+				APUSYS_AO_Devices[i].d9_permission);
+		ret += set_slave_apc(i, DOMAIN_10,
+				APUSYS_AO_Devices[i].d10_permission);
+		ret += set_slave_apc(i, DOMAIN_11,
+				APUSYS_AO_Devices[i].d11_permission);
+		ret += set_slave_apc(i, DOMAIN_12,
+				APUSYS_AO_Devices[i].d12_permission);
+		ret += set_slave_apc(i, DOMAIN_13,
+				APUSYS_AO_Devices[i].d13_permission);
+		ret += set_slave_apc(i, DOMAIN_14,
+				APUSYS_AO_Devices[i].d14_permission);
+		ret += set_slave_apc(i, DOMAIN_15,
+				APUSYS_AO_Devices[i].d15_permission);
+	}
+
+	return ret;
+}
+
+static void set_apusys_apc_lock(void)
+{
+	uint32_t set_bit = 1U << APUSYS_APC_SYS0_LOCK_BIT_APU_SCTRL_REVISER;
+
+	/* Lock apu_sctrl_reviser */
+	set_bit = set_bit | (1U << APUSYS_APC_SYS0_LOCK_BIT_APUSYS_AO_5);
+	apuapc_writel(set_bit, APUSYS_SYS0_APC_LOCK_0);
+}
+
+void set_apusys_apc(void)
+{
+	int32_t ret = 0;
+
+	/* Check violation status */
+	INFO("[APUAPC] vio %d\n", apuapc_readl(APUSYS_APC_CON) & 0x80000000);
+
+	/* Initial Permission */
+	ret = set_apusys_ao_apc();
+	INFO("[APUAPC] %s - %s!\n", "set_apusys_ao_apc",
+	     ret ? "FAILED" : "SUCCESS");
+
+	/* Lock */
+	set_apusys_apc_lock();
+
+	/* Initial NoC Permission */
+	ret = set_apusys_noc_dapc();
+	INFO("[APUAPC] %s - %s!\n", "set_apusys_noc_dapc",
+	     ret ? "FAILED" : "SUCCESS");
+
+	/* Dump Permission */
+	dump_apusys_ao_apc();
+	dump_apusys_noc_dapc();
+
+	INFO("[APUAPC] %s done\n", __func__);
+}
