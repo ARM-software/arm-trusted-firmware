@@ -188,31 +188,32 @@
 	};
 
 	mbox_db_rx: mhu@45010000 {
-		compatible = "arm,mhuv2","arm,primecell";
+		compatible = "arm,mhuv2-rx","arm,primecell";
 		reg = <0x0 0x45010000 0x0 0x1000>;
 		clocks = <&soc_refclk100mhz>;
 		clock-names = "apb_pclk";
-		#mbox-cells = <1>;
+		#mbox-cells = <2>;
 		interrupts = <0 317 4>;
 		interrupt-names = "mhu_rx";
 		mhu-protocol = "doorbell";
+		arm,mhuv2-protocols = <0 1>;
 	};
 
 	mbox_db_tx: mhu@45000000 {
-		compatible = "arm,mhuv2","arm,primecell";
+		compatible = "arm,mhuv2-tx","arm,primecell";
 		reg = <0x0 0x45000000 0x0 0x1000>;
 		clocks = <&soc_refclk100mhz>;
 		clock-names = "apb_pclk";
-		#mbox-cells = <1>;
+		#mbox-cells = <2>;
 		interrupt-names = "mhu_tx";
 		mhu-protocol = "doorbell";
+		arm,mhuv2-protocols = <0 1>;
 	};
 
 	scmi {
 		compatible = "arm,scmi";
-		method = "mailbox-doorbell";
 		mbox-names = "tx", "rx";
-		mboxes = <&mbox_db_tx 0 &mbox_db_rx 0>;
+		mboxes = <&mbox_db_tx 0 0 &mbox_db_rx 0 0 >;
 		shmem = <&cpu_scp_scmi_mem &cpu_scp_scmi_mem>;
 		#address-cells = <1>;
 		#size-cells = <0>;
