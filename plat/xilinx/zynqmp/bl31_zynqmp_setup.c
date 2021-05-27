@@ -20,6 +20,10 @@
 #include <plat_private.h>
 #include <zynqmp_def.h>
 
+#include <common/fdt_fixup.h>
+#include <common/fdt_wrappers.h>
+#include <libfdt.h>
+
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
 
@@ -178,8 +182,55 @@ static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
 }
 #endif
 
+#if (BL31_LIMIT < PLAT_DDR_LOWMEM_MAX)
+static void prepare_dtb(void)
+{
+	void *dtb = (void *)XILINX_OF_BOARD_DTB_ADDR;
+	int ret;
+
+	/* Return if no device tree is detected */
+	if (fdt_check_header(dtb) != 0) {
+		NOTICE("Can't read DT at 0x%p\n", dtb);
+		return;
+	}
+
+	ret = fdt_open_into(dtb, dtb, XILINX_OF_BOARD_DTB_MAX_SIZE);
+	if (ret < 0) {
+		ERROR("Invalid Device Tree at %p: error %d\n", dtb, ret);
+		return;
+	}
+
+	if (dt_add_psci_node(dtb)) {
+		ERROR("Failed to add PSCI Device Tree node\n");
+		return;
+	}
+
+	if (dt_add_psci_cpu_enable_methods(dtb)) {
+		ERROR("Failed to add PSCI cpu enable methods in Device Tree\n");
+		return;
+	}
+
+	/* Reserve memory used by Trusted Firmware. */
+	if (fdt_add_reserved_memory(dtb, "tf-a", BL31_BASE, BL31_LIMIT - BL31_BASE)) {
+		WARN("Failed to add reserved memory nodes to DT.\n");
+	}
+
+	ret = fdt_pack(dtb);
+	if (ret < 0) {
+		ERROR("Failed to pack Device Tree at %p: error %d\n", dtb, ret);
+	}
+
+	clean_dcache_range((uintptr_t)dtb, fdt_blob_size(dtb));
+	INFO("Changed device tree to advertise PSCI and reserved memories.\n");
+}
+#endif
+
 void bl31_platform_setup(void)
 {
+#if (BL31_LIMIT < PLAT_DDR_LOWMEM_MAX)
+		prepare_dtb();
+#endif
+
 	/* Initialize the gic cpu and distributor interfaces */
 	plat_arm_gic_driver_init();
 	plat_arm_gic_init();
@@ -211,6 +262,10 @@ void bl31_plat_arch_setup(void)
 
 
 	const mmap_region_t bl_regions[] = {
+#if (BL31_LIMIT < PLAT_DDR_LOWMEM_MAX)
+		MAP_REGION_FLAT(XILINX_OF_BOARD_DTB_ADDR, XILINX_OF_BOARD_DTB_MAX_SIZE,
+			MT_MEMORY | MT_RW | MT_NS),
+#endif
 		MAP_REGION_FLAT(BL31_BASE, BL31_END - BL31_BASE,
 			MT_MEMORY | MT_RW | MT_SECURE),
 		MAP_REGION_FLAT(BL_CODE_BASE, BL_CODE_END - BL_CODE_BASE,
