@@ -26,12 +26,30 @@ static uint32_t pwrap_check_idle(void *wacs_register, uint32_t timeout_us)
 	while (retry != 0) {
 		udelay(WAIT_IDLE_POLLING_DELAY_US);
 		reg_rdata = mmio_read_32((uintptr_t)wacs_register);
-		if (GET_WACS_FSM(reg_rdata) == SWINF_FSM_IDLE) {
+		/* if last read command timeout,clear vldclr bit
+		 * read command state machine:FSM_REQ-->wfdle-->WFVLDCLR;
+		 * write:FSM_REQ-->idle
+		 */
+		switch (GET_WACS_FSM(reg_rdata)) {
+		case SWINF_FSM_WFVLDCLR:
+			mmio_write_32((uintptr_t)&mtk_pwrap->wacs2_vldclr, 0x1);
+			INFO("WACS_FSM = SWINF_FSM_WFVLDCLR\n");
+			break;
+		case SWINF_FSM_WFDLE:
+			INFO("WACS_FSM = SWINF_FSM_WFDLE\n");
+			break;
+		case SWINF_FSM_REQ:
+			INFO("WACS_FSM = SWINF_FSM_REQ\n");
+			break;
+		case SWINF_FSM_IDLE:
+			goto done;
+		default:
 			break;
 		}
 		retry--;
 	};
 
+done:
 	if (retry == 0) {
 		/* timeout */
 		return E_PWR_WAIT_IDLE_TIMEOUT;
