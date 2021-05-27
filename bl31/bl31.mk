@@ -95,6 +95,10 @@ BL31_SOURCES		+=	lib/cpus/aarch64/wa_cve_2017_5715_bpiall.S	\
 				lib/cpus/aarch64/wa_cve_2017_5715_mmu.S
 endif
 
+ifeq ($(SMC_PCI_SUPPORT),1)
+BL31_SOURCES		+=	services/std_svc/pci_svc.c
+endif
+
 BL31_LINKERFILE		:=	bl31/bl31.ld.S
 
 # Flag used to indicate if Crash reporting via console should be included
