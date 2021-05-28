@@ -131,8 +131,8 @@ else
 					lib/cpus/aarch64/neoverse_e1.S		\
 					lib/cpus/aarch64/neoverse_v1.S		\
 					lib/cpus/aarch64/cortex_a78_ae.S	\
-					lib/cpus/aarch64/cortex_klein.S		\
-					lib/cpus/aarch64/cortex_matterhorn.S	\
+					lib/cpus/aarch64/cortex_a510.S		\
+					lib/cpus/aarch64/cortex_a710.S	\
 					lib/cpus/aarch64/cortex_makalu.S	\
 					lib/cpus/aarch64/cortex_makalu_elp_arm.S \
 					lib/cpus/aarch64/cortex_a65.S		\
