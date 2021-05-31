@@ -27,8 +27,28 @@
 			debug_name = "op-tee";
 			load_address = <0xfd280000>;
 			vcpu_count = <8>;
-			mem_size = <30928896>; /* 32MB TZC DRAM - SPMC region */
+#ifdef TS_SP_FW_CONFIG
+			mem_size = <26738688>; /* 25MB TZC DRAM */
+#else
+			mem_size = <30928896>; /* 29MB TZC DRAM */
+#endif
 		};
+#ifdef TS_SP_FW_CONFIG
+		vm2 {
+			is_ffa_partition;
+			debug_name = "secure-storage";
+			load_address = <0xfee00000>;
+			vcpu_count = <1>;
+			mem_size = <2097152>; /* 2MB TZC DRAM */
+		};
+		vm3 {
+			is_ffa_partition;
+			debug_name = "crypto";
+			load_address = <0xfec00000>;
+			vcpu_count = <1>;
+			mem_size = <2097152>; /* 2MB TZC DRAM */
+		};
+#endif
 	};
 
 	cpus {
