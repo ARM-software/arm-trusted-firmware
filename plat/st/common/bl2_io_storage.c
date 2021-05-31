@@ -26,7 +26,12 @@
 #include <drivers/spi_nand.h>
 #include <drivers/spi_nor.h>
 #include <drivers/st/stm32_fmc2_nand.h>
+#if STM32MP2X
+#include <drivers/st/stm32_ospi.h>
+#endif
+#if STM32MP1X
 #include <drivers/st/stm32_qspi.h>
+#endif
 #include <drivers/st/stm32_sdmmc2.h>
 #include <drivers/usb_device.h>
 #include <lib/fconf/fconf.h>
@@ -34,6 +39,7 @@
 #include <lib/utils.h>
 #include <plat/common/platform.h>
 #include <tools_share/firmware_image_package.h>
+
 #include <platform_def.h>
 #include <stm32cubeprogrammer.h>
 #include <stm32mp_efi.h>
@@ -294,9 +300,15 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 #if STM32MP_SPI_NOR
 static void boot_spi_nor(boot_api_context_t *boot_context)
 {
-	int io_result __maybe_unused;
+	int io_result __maybe_unused = 0;
 
+#if STM32MP1X
 	io_result = stm32_qspi_init();
+#endif
+#if STM32MP2X
+	io_result = stm32_ospi_init();
+#endif
+
 	assert(io_result == 0);
 
 	io_result = register_io_dev_mtd(&spi_dev_con);
@@ -401,11 +413,16 @@ static void boot_fmc2_nand(boot_api_context_t *boot_context)
 #if STM32MP_SPI_NAND
 static void boot_spi_nand(boot_api_context_t *boot_context)
 {
-	int io_result __maybe_unused;
+	int io_result __maybe_unused = 0;
 
 	plat_setup_try_img_ops(&try_img_ops);
 
+#if STM32MP1X
 	io_result = stm32_qspi_init();
+#endif
+#if STM32MP2X
+	io_result = stm32_ospi_init();
+#endif
 	assert(io_result == 0);
 
 	io_result = register_io_dev_mtd(&spi_dev_con);
