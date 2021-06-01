@@ -62,162 +62,164 @@ static const struct {
 } zynqmp_devices[] = {
 	{
 		.id = 0x10,
-		.name = "3EG",
+		.name = "XCZU3EG",
 	},
 	{
 		.id = 0x10,
 		.ver = 0x2c,
-		.name = "3CG",
+		.name = "XCZU3CG",
 	},
 	{
 		.id = 0x11,
-		.name = "2EG",
+		.name = "XCZU2EG",
 	},
 	{
 		.id = 0x11,
 		.ver = 0x2c,
-		.name = "2CG",
+		.name = "XCZU2CG",
 	},
 	{
 		.id = 0x20,
-		.name = "5EV",
+		.name = "XCZU5EV",
 		.evexists = true,
 	},
 	{
 		.id = 0x20,
 		.ver = 0x100,
-		.name = "5EG",
+		.name = "XCZU5EG",
 		.evexists = true,
 	},
 	{
 		.id = 0x20,
 		.ver = 0x12c,
-		.name = "5CG",
+		.name = "XCZU5CG",
 	},
 	{
 		.id = 0x21,
-		.name = "4EV",
+		.name = "XCZU4EV",
 		.evexists = true,
 	},
 	{
 		.id = 0x21,
 		.ver = 0x100,
-		.name = "4EG",
+		.name = "XCZU4EG",
 		.evexists = true,
 	},
 	{
 		.id = 0x21,
 		.ver = 0x12c,
-		.name = "4CG",
+		.name = "XCZU4CG",
 	},
 	{
 		.id = 0x30,
-		.name = "7EV",
+		.name = "XCZU7EV",
 		.evexists = true,
 	},
 	{
 		.id = 0x30,
 		.ver = 0x100,
-		.name = "7EG",
+		.name = "XCZU7EG",
 		.evexists = true,
 	},
 	{
 		.id = 0x30,
 		.ver = 0x12c,
-		.name = "7CG",
+		.name = "XCZU7CG",
 	},
 	{
 		.id = 0x38,
-		.name = "9EG",
+		.name = "XCZU9EG",
 	},
 	{
 		.id = 0x38,
 		.ver = 0x2c,
-		.name = "9CG",
+		.name = "XCZU9CG",
 	},
 	{
 		.id = 0x39,
-		.name = "6EG",
+		.name = "XCZU6EG",
 	},
 	{
 		.id = 0x39,
 		.ver = 0x2c,
-		.name = "6CG",
+		.name = "XCZU6CG",
 	},
 	{
 		.id = 0x40,
-		.name = "11EG",
+		.name = "XCZU11EG",
 	},
 	{ /* For testing purpose only */
 		.id = 0x50,
 		.ver = 0x2c,
-		.name = "15CG",
+		.name = "XCZU15CG",
 	},
 	{
 		.id = 0x50,
-		.name = "15EG",
+		.name = "XCZU15EG",
 	},
 	{
 		.id = 0x58,
-		.name = "19EG",
+		.name = "XCZU19EG",
 	},
 	{
 		.id = 0x59,
-		.name = "17EG",
+		.name = "XCZU17EG",
 	},
 	{
 		.id = 0x60,
-		.name = "28DR",
+		.name = "XCZU28DR",
 	},
 	{
 		.id = 0x61,
-		.name = "21DR",
+		.name = "XCZU21DR",
 	},
 	{
 		.id = 0x62,
-		.name = "29DR",
+		.name = "XCZU29DR",
 	},
 	{
 		.id = 0x63,
-		.name = "23DR",
+		.name = "XCZU23DR",
 	},
 	{
 		.id = 0x64,
-		.name = "27DR",
+		.name = "XCZU27DR",
 	},
 	{
 		.id = 0x65,
-		.name = "25DR",
+		.name = "XCZU25DR",
 	},
 	{
 		.id = 0x66,
-		.name = "39DR",
+		.name = "XCZU39DR",
 	},
 	{
 		.id = 0x7d,
-		.name = "43DR",
+		.name = "XCZU43DR",
 	},
 	{
 		.id = 0x78,
-		.name = "46DR",
+		.name = "XCZU46DR",
 	},
 	{
 		.id = 0x7f,
-		.name = "47DR",
+		.name = "XCZU47DR",
 	},
 	{
 		.id = 0x7b,
-		.name = "48DR",
+		.name = "XCZU48DR",
 	},
 	{
 		.id = 0x7e,
-		.name = "49DR",
+		.name = "XCZU49DR",
 	},
 };
 
 #define ZYNQMP_PL_STATUS_BIT	9
 #define ZYNQMP_PL_STATUS_MASK	BIT(ZYNQMP_PL_STATUS_BIT)
 #define ZYNQMP_CSU_VERSION_MASK	~(ZYNQMP_PL_STATUS_MASK)
+
+#define SILICON_ID_XCK26       0x4724093
 
 static char *zynqmp_get_silicon_idcode_name(void)
 {
@@ -236,7 +238,7 @@ static char *zynqmp_get_silicon_idcode_name(void)
 	chipid[1] = mmio_read_32(EFUSE_BASEADDR + EFUSE_IPDISABLE_OFFSET);
 #else
 	if (pm_get_chipid(chipid) != PM_RET_SUCCESS)
-		return "UNKN";
+		return "XCZUUNKN";
 #endif
 
 	id = chipid[0] & (ZYNQMP_CSU_IDCODE_DEVICE_CODE_MASK |
@@ -250,8 +252,13 @@ static char *zynqmp_get_silicon_idcode_name(void)
 			break;
 	}
 
-	if (i >= ARRAY_SIZE(zynqmp_devices))
-		return "UNKN";
+	if (i >= ARRAY_SIZE(zynqmp_devices)) {
+		if (chipid[0] == SILICON_ID_XCK26) {
+			return "XCK26";
+		} else {
+			return "XCZUUNKN";
+		}
+	}
 
 	if (!zynqmp_devices[i].evexists)
 		return zynqmp_devices[i].name;
@@ -327,7 +334,7 @@ static void zynqmp_print_platform_name(void)
 		break;
 	}
 
-	NOTICE("ATF running on XCZU%s/%s v%d/RTL%d.%d at 0x%x\n",
+	NOTICE("TF-A running on %s/%s v%d/RTL%d.%d at 0x%x\n",
 	       zynqmp_print_silicon_idcode(), label, zynqmp_get_ps_ver(),
 	       (rtl & 0xf0) >> 4, rtl & 0xf, BL31_BASE);
 }
