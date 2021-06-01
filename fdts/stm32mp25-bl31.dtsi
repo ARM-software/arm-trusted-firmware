@@ -5,6 +5,7 @@
 
 / {
 	soc@0 {
+		/delete-node/ ommanager@40500000;
 		/delete-node/ memory-controller@48200000;
 		rifsc@42080000 {
 			/delete-node/ mmc@48220000;

@@ -11,10 +11,7 @@
 		/delete-node/ ommanager@40500000;
 #else
 		ommanager@40500000 {
-#if STM32MP_HYPERFLASH
-			/delete-node/ spi@40430000;
-#endif
-			/delete-node/ spi@40440000;
+			/delete-node/ spi@1;
 		};
 #endif
 #if !STM32MP_RAW_NAND

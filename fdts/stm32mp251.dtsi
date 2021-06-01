@@ -84,6 +84,41 @@
 		interrupt-parent = <&intc>;
 		ranges = <0x0 0x0 0x0 0x80000000>;
 
+		ommanager: ommanager@40500000 {
+			compatible = "st,stm32mp25-omm";
+			reg = <0x40500000 0x400>, <0x60000000 0x10000000>;
+			reg-names = "regs", "memory_map";
+			ranges = <0 0 0x40430000 0x400>,
+				 <1 0 0x40440000 0x400>;
+			clocks = <&rcc CK_BUS_OSPIIOM>,
+				 <&rcc CK_KER_OSPI1>,
+				 <&rcc CK_KER_OSPI2>;
+			clock-names = "omm", "ospi1", "ospi2";
+			resets = <&rcc OSPIIOM_R>,
+				 <&rcc OSPI1_R>,
+				 <&rcc OSPI2_R>;
+			reset-names = "omm", "ospi1", "ospi2";
+			#address-cells = <2>;
+			#size-cells = <1>;
+			status = "disabled";
+
+			ospi1: spi@0 {
+				compatible = "st,stm32mp25-ospi";
+				reg = <0 0 0x400>;
+				clocks = <&rcc CK_KER_OSPI1>;
+				resets = <&rcc OSPI1_R>, <&rcc OSPI1DLL_R>;
+				status = "disabled";
+			};
+
+			ospi2: spi@1 {
+				compatible = "st,stm32mp25-ospi";
+				reg = <1 0 0x400>;
+				clocks = <&rcc CK_KER_OSPI2>;
+				resets = <&rcc OSPI2_R>, <&rcc OSPI2DLL_R>;
+				status = "disabled";
+			};
+		};
+
 		rifsc: rifsc@42080000 {
 			compatible = "st,stm32mp25-rifsc";
 			reg = <0x42080000 0x1000>;
