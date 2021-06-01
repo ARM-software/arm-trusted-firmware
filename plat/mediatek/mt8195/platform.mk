@@ -12,6 +12,7 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/common/drivers/gpio/               \
                  -I${MTK_PLAT}/common/drivers/rtc/                \
                  -I${MTK_PLAT}/common/drivers/timer/              \
+                 -I${MTK_PLAT_SOC}/drivers/dp/                  \
                  -I${MTK_PLAT_SOC}/drivers/gpio/                  \
                  -I${MTK_PLAT_SOC}/drivers/mcdi/                  \
                  -I${MTK_PLAT_SOC}/drivers/pmic/                  \
@@ -50,6 +51,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT_SOC}/aarch64/platform_common.c             \
                 ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                 ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
+                ${MTK_PLAT_SOC}/drivers/dp/mt_dp.c                    \
                 ${MTK_PLAT_SOC}/drivers/gpio/mtgpio.c                 \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_cpu_pm.c              \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_cpu_pm_cpc.c          \
