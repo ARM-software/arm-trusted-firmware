@@ -112,7 +112,7 @@ Supporting Files
 ----------------
 
 TF-A has been tested with pre-built binaries and file systems from `Linaro
-Release 19.06`_. Alternatively, you can build the binaries from source using
+Release 20.01`_. Alternatively, you can build the binaries from source using
 instructions in :ref:`Performing an Initial Build`.
 
 .. _prerequisites_get_source:
@@ -166,4 +166,4 @@ documentation, available `here <https://git-scm.com/docs/githooks>`_.
 .. _Linaro Release Notes: https://community.arm.com/dev-platforms/w/docs/226/old-release-notes
 .. _Linaro instructions: https://community.arm.com/dev-platforms/w/docs/304/arm-reference-platforms-deliverables
 .. _Development Studio 5 (DS-5): https://developer.arm.com/products/software-development-tools/ds-5-development-studio
-.. _Linaro Release 19.06: http://releases.linaro.org/members/arm/platforms/19.06
+.. _Linaro Release 20.01: http://releases.linaro.org/members/arm/platforms/20.01
