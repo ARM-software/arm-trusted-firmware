@@ -51,14 +51,14 @@
 			scp_bl2_uuid = "9766fd3d-89be-e849-ae5d-78a140608213";
 			bl31_uuid = "47d4086d-4cfe-9846-9b95-2950cbbd5a00";
 			bl32_uuid = "05d0e189-53dc-1347-8d2b-500a4b7a3e38";
-			bl32_extra1_uuid = "0b70c28b-2a5a-7840-9f65-0a5682738288";
+			bl32_extra1_uuid = "0b70c29b-2a5a-7840-9f65-0a5682738288";
 			bl32_extra2_uuid = "8ea87bb1-cfa2-3f4d-85fd-e7bba50220d9";
 			bl33_uuid = "d6d0eea7-fcea-d54b-9782-9934f234b6e4";
 			hw_cfg_uuid = "08b8f1d9-c9cf-9349-a962-6fbc6b7265cc";
 			soc_fw_cfg_uuid = "9979814b-0376-fb46-8c8e-8d267f7859e0";
 			tos_fw_cfg_uuid = "26257c1a-dbc6-7f47-8d96-c4c4b0248021";
 			nt_fw_cfg_uuid = "28da9815-93e8-7e44-ac66-1aaf801550f9";
-			t_key_cert_uuid = "827ee890-f860-e411-a1b4-77a721b4f94c";
+			t_key_cert_uuid = "827ee890-f860-e411-a1b4-777a21b4f94c";
 			scp_fw_key_uuid = "024221a1-f860-e411-8d9b-f33c0e15a014";
 			soc_fw_key_uuid = "8ab8becc-f960-e411-9ad0-eb4822d8dcf8";
 			tos_fw_key_cert_uuid = "9477d603-fb60-e411-85dd-b7105b8cee04";
