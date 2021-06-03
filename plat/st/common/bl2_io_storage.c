@@ -31,9 +31,11 @@
 #include <plat/common/platform.h>
 
 /* IO devices */
+#ifndef AARCH32_SP_OPTEE
 static const io_dev_connector_t *dummy_dev_con;
 static uintptr_t dummy_dev_handle;
 static uintptr_t dummy_dev_spec;
+#endif
 
 static uintptr_t image_dev_handle;
 static uintptr_t storage_dev_handle;
@@ -102,9 +104,9 @@ static const struct stm32image_part_info optee_header_partition_spec = {
 	.binary_type = OPTEE_HEADER_BINARY_TYPE,
 };
 
-static const struct stm32image_part_info optee_pager_partition_spec = {
-	.name = OPTEE_PAGER_IMAGE_NAME,
-	.binary_type = OPTEE_PAGER_BINARY_TYPE,
+static const struct stm32image_part_info optee_core_partition_spec = {
+	.name = OPTEE_CORE_IMAGE_NAME,
+	.binary_type = OPTEE_CORE_BINARY_TYPE,
 };
 
 static const struct stm32image_part_info optee_paged_partition_spec = {
@@ -118,11 +120,6 @@ static const io_block_spec_t bl32_block_spec = {
 };
 #endif
 
-static const io_block_spec_t bl2_block_spec = {
-	.offset = BL2_BASE,
-	.length = STM32MP_BL2_SIZE,
-};
-
 static const struct stm32image_part_info bl33_partition_spec = {
 	.name = BL33_IMAGE_NAME,
 	.binary_type = BL33_BINARY_TYPE,
@@ -132,7 +129,7 @@ enum {
 	IMG_IDX_BL33,
 #ifdef AARCH32_SP_OPTEE
 	IMG_IDX_OPTEE_HEADER,
-	IMG_IDX_OPTEE_PAGER,
+	IMG_IDX_OPTEE_CORE,
 	IMG_IDX_OPTEE_PAGED,
 #endif
 	IMG_IDX_NUM
@@ -149,9 +146,9 @@ static struct stm32image_device_info stm32image_dev_info_spec __unused = {
 		.name = OPTEE_HEADER_IMAGE_NAME,
 		.binary_type = OPTEE_HEADER_BINARY_TYPE,
 	},
-	.part_info[IMG_IDX_OPTEE_PAGER] = {
-		.name = OPTEE_PAGER_IMAGE_NAME,
-		.binary_type = OPTEE_PAGER_BINARY_TYPE,
+	.part_info[IMG_IDX_OPTEE_CORE] = {
+		.name = OPTEE_CORE_IMAGE_NAME,
+		.binary_type = OPTEE_CORE_BINARY_TYPE,
 	},
 	.part_info[IMG_IDX_OPTEE_PAGED] = {
 		.name = OPTEE_PAGED_IMAGE_NAME,
@@ -167,7 +164,9 @@ static io_block_spec_t stm32image_block_spec = {
 
 static const io_dev_connector_t *stm32image_dev_con __unused;
 
+#ifndef AARCH32_SP_OPTEE
 static int open_dummy(const uintptr_t spec);
+#endif
 static int open_image(const uintptr_t spec);
 static int open_storage(const uintptr_t spec);
 
@@ -178,11 +177,6 @@ struct plat_io_policy {
 };
 
 static const struct plat_io_policy policies[] = {
-	[BL2_IMAGE_ID] = {
-		.dev_handle = &dummy_dev_handle,
-		.image_spec = (uintptr_t)&bl2_block_spec,
-		.check = open_dummy
-	},
 #ifdef AARCH32_SP_OPTEE
 	[BL32_IMAGE_ID] = {
 		.dev_handle = &image_dev_handle,
@@ -191,7 +185,7 @@ static const struct plat_io_policy policies[] = {
 	},
 	[BL32_EXTRA1_IMAGE_ID] = {
 		.dev_handle = &image_dev_handle,
-		.image_spec = (uintptr_t)&optee_pager_partition_spec,
+		.image_spec = (uintptr_t)&optee_core_partition_spec,
 		.check = open_image
 	},
 	[BL32_EXTRA2_IMAGE_ID] = {
@@ -225,10 +219,12 @@ static const struct plat_io_policy policies[] = {
 	}
 };
 
+#ifndef AARCH32_SP_OPTEE
 static int open_dummy(const uintptr_t spec)
 {
 	return io_dev_init(dummy_dev_handle, 0);
 }
+#endif
 
 static int open_image(const uintptr_t spec)
 {
@@ -396,7 +392,7 @@ static void boot_spi_nor(boot_api_context_t *boot_context)
 	part->part_offset = STM32MP_NOR_TEED_OFFSET;
 	part->bkp_offset = 0U;
 
-	idx = IMG_IDX_OPTEE_PAGER;
+	idx = IMG_IDX_OPTEE_CORE;
 	part = &stm32image_dev_info_spec.part_info[idx];
 	part->part_offset = STM32MP_NOR_TEEX_OFFSET;
 	part->bkp_offset = 0U;
@@ -449,7 +445,7 @@ static void boot_fmc2_nand(boot_api_context_t *boot_context)
 	part->part_offset = STM32MP_NAND_TEED_OFFSET;
 	part->bkp_offset = nand_dev_spec.erase_size;
 
-	idx = IMG_IDX_OPTEE_PAGER;
+	idx = IMG_IDX_OPTEE_CORE;
 	part = &stm32image_dev_info_spec.part_info[idx];
 	part->part_offset = STM32MP_NAND_TEEX_OFFSET;
 	part->bkp_offset = nand_dev_spec.erase_size;
@@ -503,7 +499,7 @@ static void boot_spi_nand(boot_api_context_t *boot_context)
 	part->part_offset = STM32MP_NAND_TEED_OFFSET;
 	part->bkp_offset = spi_nand_dev_spec.erase_size;
 
-	idx = IMG_IDX_OPTEE_PAGER;
+	idx = IMG_IDX_OPTEE_CORE;
 	part = &stm32image_dev_info_spec.part_info[idx];
 	part->part_offset = STM32MP_NAND_TEEX_OFFSET;
 	part->bkp_offset = spi_nand_dev_spec.erase_size;
@@ -533,12 +529,14 @@ void stm32mp_io_setup(void)
 		     boot_context->boot_partition_used_toboot);
 	}
 
+#ifndef AARCH32_SP_OPTEE
 	io_result = register_io_dev_dummy(&dummy_dev_con);
 	assert(io_result == 0);
 
 	io_result = io_dev_open(dummy_dev_con, dummy_dev_spec,
 				&dummy_dev_handle);
 	assert(io_result == 0);
+#endif
 
 	switch (boot_context->boot_interface_selected) {
 #if STM32MP_SDMMC
