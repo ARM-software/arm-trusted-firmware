@@ -31,9 +31,11 @@
 #include <plat/common/platform.h>
 
 /* IO devices */
+#ifndef AARCH32_SP_OPTEE
 static const io_dev_connector_t *dummy_dev_con;
 static uintptr_t dummy_dev_handle;
 static uintptr_t dummy_dev_spec;
+#endif
 
 static uintptr_t image_dev_handle;
 static uintptr_t storage_dev_handle;
@@ -162,7 +164,9 @@ static io_block_spec_t stm32image_block_spec = {
 
 static const io_dev_connector_t *stm32image_dev_con __unused;
 
+#ifndef AARCH32_SP_OPTEE
 static int open_dummy(const uintptr_t spec);
+#endif
 static int open_image(const uintptr_t spec);
 static int open_storage(const uintptr_t spec);
 
@@ -215,10 +219,12 @@ static const struct plat_io_policy policies[] = {
 	}
 };
 
+#ifndef AARCH32_SP_OPTEE
 static int open_dummy(const uintptr_t spec)
 {
 	return io_dev_init(dummy_dev_handle, 0);
 }
+#endif
 
 static int open_image(const uintptr_t spec)
 {
@@ -523,12 +529,14 @@ void stm32mp_io_setup(void)
 		     boot_context->boot_partition_used_toboot);
 	}
 
+#ifndef AARCH32_SP_OPTEE
 	io_result = register_io_dev_dummy(&dummy_dev_con);
 	assert(io_result == 0);
 
 	io_result = io_dev_open(dummy_dev_con, dummy_dev_spec,
 				&dummy_dev_handle);
 	assert(io_result == 0);
+#endif
 
 	switch (boot_context->boot_interface_selected) {
 #if STM32MP_SDMMC
