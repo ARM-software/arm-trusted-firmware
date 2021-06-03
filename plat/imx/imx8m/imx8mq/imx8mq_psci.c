@@ -117,6 +117,7 @@ static const plat_psci_ops_t imx_plat_psci_ops = {
 	.pwr_domain_pwr_down_wfi = imx_pwr_domain_pwr_down_wfi,
 	.get_sys_suspend_power_state = imx_get_sys_suspend_power_state,
 	.system_reset = imx_system_reset,
+	.system_reset2 = imx_system_reset2,
 	.system_off = imx_system_off,
 };
 
