@@ -214,4 +214,10 @@ You can find additional definitions in the `Arm Glossary`_.
    XLAT
       Translation (abbr.). For example, "XLAT table".
 
+   RME
+      Realm Management Extension
+
+   TF-A Tests
+      Trusted Firmware-A Tests
+
 .. _`Arm Glossary`: https://developer.arm.com/support/arm-glossary

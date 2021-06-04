@@ -63,3 +63,5 @@
 .. |UEFI| replace:: :term:`UEFI`
 .. |WDOG| replace:: :term:`WDOG`
 .. |XLAT| replace:: :term:`XLAT`
+.. |RME| replace:: :term:`RME`
+.. |TF-A-Tests| replace:: :term:`TF-A Tests`
