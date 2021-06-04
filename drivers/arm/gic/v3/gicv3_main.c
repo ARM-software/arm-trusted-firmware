@@ -332,6 +332,8 @@ void gicv3_cpuif_enable(unsigned int proc_num)
 	write_icc_igrpen1_el3(read_icc_igrpen1_el3() |
 				IGRPEN1_EL3_ENABLE_G1S_BIT);
 	isb();
+	/* Add DSB to ensure visibility of System register writes */
+	dsb();
 }
 
 /*******************************************************************************
@@ -363,6 +365,8 @@ void gicv3_cpuif_disable(unsigned int proc_num)
 
 	/* Synchronise accesses to group enable registers */
 	isb();
+	/* Add DSB to ensure visibility of System register writes */
+	dsb();
 
 	/* Mark the connected core as asleep */
 	gicr_base = gicv3_driver_data->rdistif_base_addrs[proc_num];
