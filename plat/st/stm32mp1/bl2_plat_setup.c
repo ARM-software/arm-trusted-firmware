@@ -248,6 +248,11 @@ void bl2_el3_plat_arch_setup(void)
 
 	stm32mp1_syscfg_init();
 
+#if STM32MP_USB_PROGRAMMER
+	/* Deconfigure all UART RX pins configured by ROM code */
+	stm32mp1_deconfigure_uart_pins();
+#endif
+
 	result = dt_get_stdout_uart_info(&dt_uart_info);
 
 	if ((result <= 0) ||

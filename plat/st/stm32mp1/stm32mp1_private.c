@@ -6,12 +6,12 @@
 
 #include <assert.h>
 
+#include <drivers/st/stm32_gpio.h>
+#include <drivers/st/stm32_iwdg.h>
 #include <libfdt.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
 #include <platform_def.h>
-
-#include <drivers/st/stm32_iwdg.h>
-#include <lib/xlat_tables/xlat_tables_v2.h>
 
 /* Internal layout of the 32bit OTP word board_id */
 #define BOARD_ID_BOARD_NB_MASK		GENMASK(31, 16)
@@ -185,6 +185,53 @@ uintptr_t get_uart_address(uint32_t instance_nb)
 	}
 
 	return stm32mp1_uart_addresses[instance_nb - 1U];
+}
+#endif
+
+#if STM32MP_USB_PROGRAMMER
+struct gpio_bank_pin_list {
+	uint32_t bank;
+	uint32_t pin;
+};
+
+static const struct gpio_bank_pin_list gpio_list[] = {
+	{	/* USART2_RX: GPIOA3 */
+		.bank = 0U,
+		.pin = 3U,
+	},
+	{	/* USART3_RX: GPIOB12 */
+		.bank = 1U,
+		.pin = 12U,
+	},
+	{	/* UART4_RX: GPIOB2 */
+		.bank = 1U,
+		.pin = 2U,
+	},
+	{	/* UART5_RX: GPIOB4 */
+		.bank = 1U,
+		.pin = 5U,
+	},
+	{	/* USART6_RX: GPIOC7 */
+		.bank = 2U,
+		.pin = 7U,
+	},
+	{	/* UART7_RX: GPIOF6 */
+		.bank = 5U,
+		.pin = 6U,
+	},
+	{	/* UART8_RX: GPIOE0 */
+		.bank = 4U,
+		.pin = 0U,
+	},
+};
+
+void stm32mp1_deconfigure_uart_pins(void)
+{
+	size_t i;
+
+	for (i = 0U; i < ARRAY_SIZE(gpio_list); i++) {
+		set_gpio_reset_cfg(gpio_list[i].bank, gpio_list[i].pin);
+	}
 }
 #endif
 
