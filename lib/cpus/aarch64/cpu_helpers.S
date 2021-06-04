@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -144,7 +144,7 @@ endfunc do_cpu_reg_dump
 	 * If cpu_ops for the MIDR_EL1 cannot be found and
 	 * SUPPORT_UNKNOWN_MPID is enabled, it will try to look for a
 	 * default cpu_ops with an MIDR value of 0.
-	 * (Implementation number 0x0 should be reseverd for software use
+	 * (Implementation number 0x0 should be reserved for software use
 	 * and therefore no clashes should happen with that default value).
 	 *
 	 * Return :

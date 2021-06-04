@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -49,7 +49,7 @@ void cm_init(void)
  *
  * To prepare the register state for entry call cm_prepare_el3_exit() and
  * el3_exit(). For Secure-EL1 cm_prepare_el3_exit() is equivalent to
- * cm_e1_sysreg_context_restore().
+ * cm_el1_sysregs_context_restore().
  ******************************************************************************/
 void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 {
