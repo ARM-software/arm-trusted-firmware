@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2022, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -26,6 +26,27 @@
 
 #define PLAT_ARM_DRAM2_BASE			ULL(0x8080000000)
 #define PLAT_ARM_DRAM2_SIZE			ULL(0xF80000000)
+
+#define MAX_IO_DEVICES			U(3)
+#define MAX_IO_HANDLES			U(4)
+
+#define PLAT_ARM_FLASH_IMAGE_BASE			0x18200000
+#define PLAT_ARM_FLASH_IMAGE_MAX_SIZE			0x00800000
+
+#define PLAT_ARM_NVM_BASE			0x18200000
+#define PLAT_ARM_NVM_SIZE			0x00800000
+
+#if defined NS_BL1U_BASE
+# undef NS_BL1U_BASE
+# define NS_BL1U_BASE			(PLAT_ARM_NVM_BASE + UL(0x00800000))
+#endif
+
+/* Non-volatile counters */
+#define SOC_TRUSTED_NVCTR_BASE		0x7fe70000
+#define TFW_NVCTR_BASE			(SOC_TRUSTED_NVCTR_BASE)
+#define TFW_NVCTR_SIZE			U(4)
+#define NTFW_CTR_BASE			(SOC_TRUSTED_NVCTR_BASE + 0x0004)
+#define NTFW_CTR_SIZE			U(4)
 
 /* N1SDP remote chip at 4 TB offset */
 #define PLAT_ARM_REMOTE_CHIP_OFFSET		(ULL(1) << 42)
@@ -59,8 +80,42 @@
 #define PLAT_CSS_SCP_COM_SHARED_MEM_BASE	0x45400000
 #endif
 
-#define PLAT_ARM_TRUSTED_SRAM_SIZE		0x00080000	/* 512 KB */
-#define PLAT_ARM_MAX_BL31_SIZE			0X20000
+/*
+ * Trusted SRAM in N1SDP is 512 KB but only the bottom 384 KB
+ * is used for trusted board boot flow. The top 128 KB is used
+ * to load AP-BL1 image.
+ */
+#define PLAT_ARM_TRUSTED_SRAM_SIZE                      0x00060000      /* 384 KB */
+
+/*
+ * PLAT_ARM_MAX_BL1_RW_SIZE is calculated using the current BL1 RW debug size
+ * plus a little space for growth.
+ */
+#define PLAT_ARM_MAX_BL1_RW_SIZE	0xE000
+
+/*
+ * PLAT_ARM_MAX_ROMLIB_RW_SIZE is define to use a full page
+ */
+
+#if USE_ROMLIB
+# define PLAT_ARM_MAX_ROMLIB_RW_SIZE	0x1000
+# define PLAT_ARM_MAX_ROMLIB_RO_SIZE	0xe000
+#else
+# define PLAT_ARM_MAX_ROMLIB_RW_SIZE	U(0)
+# define PLAT_ARM_MAX_ROMLIB_RO_SIZE	U(0)
+#endif
+
+/*
+ * PLAT_ARM_MAX_BL2_SIZE is calculated using the current BL2 debug size plus a
+ * little space for growth.
+ */
+#if TRUSTED_BOARD_BOOT
+# define PLAT_ARM_MAX_BL2_SIZE		0x20000
+#else
+# define PLAT_ARM_MAX_BL2_SIZE		0x14000
+#endif
+
+#define PLAT_ARM_MAX_BL31_SIZE		UL(0x3B000)
 
 /*******************************************************************************
  * N1SDP topology related constants
@@ -83,10 +138,48 @@
  * PLAT_ARM_MMAP_ENTRIES depends on the number of entries in the
  * plat_arm_mmap array defined for each BL stage.
  */
-#define PLAT_ARM_MMAP_ENTRIES			9
-#define MAX_XLAT_TABLES				10
 
-#define PLATFORM_STACK_SIZE			0x400
+#ifdef IMAGE_BL1
+# define PLAT_ARM_MMAP_ENTRIES		U(6)
+# define MAX_XLAT_TABLES		U(5)
+#endif
+
+#ifdef IMAGE_BL2
+#  define PLAT_ARM_MMAP_ENTRIES		U(11)
+#  define MAX_XLAT_TABLES		U(10)
+#endif
+
+#ifdef IMAGE_BL31
+#  define PLAT_ARM_MMAP_ENTRIES		U(12)
+#  define MAX_XLAT_TABLES		U(12)
+#endif
+
+/*
+ * Size of cacheable stacks
+ */
+#if defined(IMAGE_BL1)
+# if TRUSTED_BOARD_BOOT
+#  define PLATFORM_STACK_SIZE	0x1000
+# else
+#  define PLATFORM_STACK_SIZE	0x440
+# endif
+#elif defined(IMAGE_BL2)
+# if TRUSTED_BOARD_BOOT
+#  define PLATFORM_STACK_SIZE	0x1000
+# else
+#  define PLATFORM_STACK_SIZE	0x400
+# endif
+#elif defined(IMAGE_BL2U)
+# define PLATFORM_STACK_SIZE	0x400
+#elif defined(IMAGE_BL31)
+# if SPM_MM
+#  define PLATFORM_STACK_SIZE	0x500
+# else
+#  define PLATFORM_STACK_SIZE	0x400
+# endif
+#elif defined(IMAGE_BL32)
+# define PLATFORM_STACK_SIZE	0x440
+#endif
 
 #define PLAT_ARM_NSTIMER_FRAME_ID		0
 #define PLAT_CSS_MHU_BASE			0x45000000
@@ -105,6 +198,10 @@
 #define N1SDP_REMOTE_DEVICE_BASE		N1SDP_DEVICE_BASE + \
 						PLAT_ARM_REMOTE_CHIP_OFFSET
 #define N1SDP_REMOTE_DEVICE_SIZE		N1SDP_DEVICE_SIZE
+
+/* Real base is 0x0. Changed to load BL1 at this address */
+# define PLAT_ARM_TRUSTED_ROM_BASE	0x04060000
+# define PLAT_ARM_TRUSTED_ROM_SIZE	0x00020000	/* 128KB */
 
 #define N1SDP_MAP_DEVICE		MAP_REGION_FLAT(	\
 					N1SDP_DEVICE_BASE,	\
