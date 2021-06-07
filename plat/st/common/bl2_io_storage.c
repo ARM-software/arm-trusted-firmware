@@ -62,6 +62,30 @@ static const io_block_dev_spec_t mmc_block_dev_spec = {
 	.block_size = MMC_BLOCK_SIZE,
 };
 
+#if STM32MP_EMMC_BOOT
+static io_block_spec_t emmc_boot_ssbl_block_spec = {
+	.offset = PLAT_EMMC_BOOT_SSBL_OFFSET,
+	.length = MMC_BLOCK_SIZE, /* We are interested only in first 4 bytes */
+};
+
+static const io_block_dev_spec_t mmc_block_dev_boot_part_spec = {
+	/* It's used as temp buffer in block driver */
+	.buffer = {
+		.offset = (size_t)&block_buffer,
+		.length = MMC_BLOCK_SIZE,
+	},
+	.ops = {
+		.read = mmc_boot_part_read_blocks,
+		.write = NULL,
+	},
+	.block_size = MMC_BLOCK_SIZE,
+};
+#endif
+
+static struct io_mmc_dev_spec mmc_device_spec = {
+	.use_boot_part = false,
+};
+
 static const io_dev_connector_t *mmc_dev_con;
 #endif /* STM32MP_SDMMC || STM32MP_EMMC */
 
@@ -236,6 +260,38 @@ static int open_storage(const uintptr_t spec)
 	return io_dev_init(storage_dev_handle, 0);
 }
 
+#if STM32MP_EMMC_BOOT
+static uint32_t get_boot_part_ssbl_header(void)
+{
+	uint32_t magic = 0;
+	int io_result;
+	size_t bytes_read;
+
+	io_result = register_io_dev_block(&mmc_dev_con);
+	if (io_result != 0) {
+		panic();
+	}
+
+	io_result = io_dev_open(mmc_dev_con, (uintptr_t)&mmc_block_dev_boot_part_spec,
+				&storage_dev_handle);
+	assert(io_result == 0);
+
+	io_result = io_open(storage_dev_handle, (uintptr_t) &emmc_boot_ssbl_block_spec,
+			    &image_dev_handle);
+	assert(io_result == 0);
+
+	io_result = io_read(image_dev_handle, (uintptr_t) &magic, sizeof(magic),
+			    &bytes_read);
+	assert(io_result == 0);
+	assert(bytes_read == sizeof(magic));
+
+	io_result = io_dev_close(storage_dev_handle);
+	assert(io_result == 0);
+
+	return magic;
+}
+#endif
+
 static void print_boot_device(boot_api_context_t *boot_context)
 {
 	switch (boot_context->boot_interface_selected) {
@@ -273,7 +329,8 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 	uint8_t idx;
 	struct stm32image_part_info *part;
 	struct stm32_sdmmc2_params params;
-	const partition_entry_t *entry;
+	const partition_entry_t *entry __unused;
+	uint32_t magic __unused;
 
 	zeromem(&params, sizeof(struct stm32_sdmmc2_params));
 
@@ -305,6 +362,26 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 		panic();
 	}
 
+	stm32image_dev_info_spec.device_size =
+		stm32_sdmmc2_mmc_get_device_size();
+
+#if STM32MP_EMMC_BOOT
+	magic = get_boot_part_ssbl_header();
+
+	if (magic == BOOT_API_IMAGE_HEADER_MAGIC_NB) {
+		VERBOSE("%s, header found, jump to emmc load\n", __func__);
+		idx = IMG_IDX_BL33;
+		part = &stm32image_dev_info_spec.part_info[idx];
+		part->part_offset = PLAT_EMMC_BOOT_SSBL_OFFSET;
+		part->bkp_offset = 0U;
+		mmc_device_spec.use_boot_part = true;
+
+		goto emmc_boot;
+	} else {
+		WARN("%s: Can't find STM32 header on a boot partition\n", __func__);
+	}
+#endif
+
 	/* Open MMC as a block device to read GPT table */
 	io_result = register_io_dev_block(&mmc_dev_con);
 	if (io_result != 0) {
@@ -320,9 +397,6 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 	io_result = io_dev_close(storage_dev_handle);
 	assert(io_result == 0);
 
-	stm32image_dev_info_spec.device_size =
-		stm32_sdmmc2_mmc_get_device_size();
-
 	for (idx = 0U; idx < IMG_IDX_NUM; idx++) {
 		part = &stm32image_dev_info_spec.part_info[idx];
 		entry = get_partition_entry(part->name);
@@ -335,6 +409,9 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 		part->bkp_offset = 0U;
 	}
 
+#if STM32MP_EMMC_BOOT
+emmc_boot:
+#endif
 	/*
 	 * Re-open MMC with io_mmc, for better perfs compared to
 	 * io_block.
@@ -342,7 +419,8 @@ static void boot_mmc(enum mmc_device_type mmc_dev_type,
 	io_result = register_io_dev_mmc(&mmc_dev_con);
 	assert(io_result == 0);
 
-	io_result = io_dev_open(mmc_dev_con, 0, &storage_dev_handle);
+	io_result = io_dev_open(mmc_dev_con, (uintptr_t)&mmc_device_spec,
+				&storage_dev_handle);
 	assert(io_result == 0);
 
 	io_result = register_io_dev_stm32image(&stm32image_dev_con);

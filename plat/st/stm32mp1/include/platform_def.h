@@ -88,6 +88,12 @@
  */
 #define PLAT_STM32MP_NS_IMAGE_OFFSET	BL33_BASE
 
+/*
+ * SSBL offset in case it's stored in eMMC boot partition.
+ * We can fix it to 256K because TF-A size can't be bigger than SRAM
+ */
+#define PLAT_EMMC_BOOT_SSBL_OFFSET		U(0x40000)
+
 /*******************************************************************************
  * DTB specific defines.
  ******************************************************************************/

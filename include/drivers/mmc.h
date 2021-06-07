@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -60,10 +60,16 @@
 #define CMD_EXTCSD_PARTITION_CONFIG	179
 #define CMD_EXTCSD_BUS_WIDTH		183
 #define CMD_EXTCSD_HS_TIMING		185
+#define CMD_EXTCSD_PART_SWITCH_TIME	199
 #define CMD_EXTCSD_SEC_CNT		212
 
+#define EXT_CSD_PART_CONFIG_ACC_MASK	GENMASK(2, 0)
 #define PART_CFG_BOOT_PARTITION1_ENABLE	(U(1) << 3)
-#define PART_CFG_PARTITION1_ACCESS	(U(1) << 0)
+#define PART_CFG_BOOT_PARTITION1_ACCESS (U(1) << 0)
+#define PART_CFG_BOOT_PART_EN_MASK		GENMASK(5, 3)
+#define PART_CFG_BOOT_PART_EN_SHIFT		3
+#define PART_CFG_CURRENT_BOOT_PARTITION(x)	(((x) & PART_CFG_BOOT_PART_EN_MASK) >> \
+	PART_CFG_BOOT_PART_EN_SHIFT)
 
 /* Values in EXT CSD register */
 #define MMC_BUS_WIDTH_1			U(0)
@@ -230,6 +236,7 @@ size_t mmc_erase_blocks(int lba, size_t size);
 size_t mmc_rpmb_read_blocks(int lba, uintptr_t buf, size_t size);
 size_t mmc_rpmb_write_blocks(int lba, const uintptr_t buf, size_t size);
 size_t mmc_rpmb_erase_blocks(int lba, size_t size);
+size_t mmc_boot_part_read_blocks(int lba, uintptr_t buf, size_t size);
 int mmc_init(const struct mmc_ops *ops_ptr, unsigned int clk,
 	     unsigned int width, unsigned int flags,
 	     struct mmc_device_info *device_info);
