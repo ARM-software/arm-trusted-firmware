@@ -14,6 +14,7 @@
 
 #ifdef PLAT_a3700
 #include <drivers/marvell/uart/a3700_console.h>
+#define PLAT_MARVELL_UART_CLK_IN_HZ (get_ref_clk() * 1000000)
 #define console_marvell_register console_a3700_register
 #else
 #include <drivers/ti/uart/uart_16550.h>

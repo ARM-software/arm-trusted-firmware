@@ -164,7 +164,6 @@
  * PL011 related constants
  */
 #define PLAT_MARVELL_UART_BASE			(MVEBU_REGS_BASE + 0x12000)
-#define PLAT_MARVELL_UART_CLK_IN_HZ		25000000
 
 /* Required platform porting definitions */
 #define PLAT_MAX_PWR_LVL			MPIDR_AFFLVL1

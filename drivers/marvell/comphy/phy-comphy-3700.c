@@ -14,6 +14,7 @@
 
 #include <mvebu.h>
 #include <mvebu_def.h>
+#include <plat_marvell.h>
 
 #include "phy-comphy-3700.h"
 #include "phy-comphy-common.h"
@@ -28,15 +29,6 @@
 /* The USB3_GBE1_PHY range is above USB3 registers used in dts */
 #define USB3_GBE1_PHY		(MVEBU_REGS_BASE + 0x5C000)
 #define COMPHY_SD_ADDR		(MVEBU_REGS_BASE + 0x1F000)
-
-/*
- * Below address in used only for reading, therefore no problem with concurrent
- * Linux access.
- */
-#define MVEBU_TEST_PIN_LATCH_N (MVEBU_NB_GPIO_REG_BASE + 0x8)
- #define MVEBU_XTAL_MODE_MASK		BIT(9)
- #define MVEBU_XTAL_MODE_OFFS		9
- #define MVEBU_XTAL_CLOCK_25MHZ		0x0
 
 struct sgmii_phy_init_data_fix {
 	uint16_t addr;
@@ -124,20 +116,6 @@ static uint16_t sgmii_phy_init[512] = {
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,	/*1F0 */
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000	/*1F8 */
 };
-
-/* returns reference clock in MHz (25 or 40) */
-static uint32_t get_ref_clk(void)
-{
-	uint32_t val;
-
-	val = (mmio_read_32(MVEBU_TEST_PIN_LATCH_N) & MVEBU_XTAL_MODE_MASK) >>
-		MVEBU_XTAL_MODE_OFFS;
-
-	if (val == MVEBU_XTAL_CLOCK_25MHZ)
-		return 25;
-	else
-		return 40;
-}
 
 /* PHY selector configures with corresponding modes */
 static void mvebu_a3700_comphy_set_phy_selector(uint8_t comphy_index,
