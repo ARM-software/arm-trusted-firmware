@@ -25,10 +25,16 @@
 #define MAKE_SCMI_VERSION(maj, min)	\
 			((((maj) & 0xffff) << 16) | ((min) & 0xffff))
 
-/* Macro to check if the driver is compatible with the SCMI version reported */
+/*
+ * Check that the driver's version is same or higher than the reported SCMI
+ * version. We accept lower major version numbers, as all affected protocols
+ * so far stay backwards compatible. This might need to be revisited in the
+ * future.
+ */
 #define is_scmi_version_compatible(drv, scmi)				\
+	((GET_SCMI_MAJOR_VER(drv) > GET_SCMI_MAJOR_VER(scmi)) ||	\
 	((GET_SCMI_MAJOR_VER(drv) == GET_SCMI_MAJOR_VER(scmi)) &&	\
-	(GET_SCMI_MINOR_VER(drv) <= GET_SCMI_MINOR_VER(scmi)))
+	(GET_SCMI_MINOR_VER(drv) <= GET_SCMI_MINOR_VER(scmi))))
 
 /* SCMI Protocol identifiers */
 #define SCMI_PWR_DMN_PROTO_ID			0x11
