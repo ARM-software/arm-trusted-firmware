@@ -173,12 +173,12 @@ void *scmi_init(scmi_channel_t *ch)
 
 	ret = scmi_proto_version(ch, SCMI_PWR_DMN_PROTO_ID, &version);
 	if (ret != SCMI_E_SUCCESS) {
-		WARN("SCMI power domain protocol version message failed");
+		WARN("SCMI power domain protocol version message failed\n");
 		goto error;
 	}
 
 	if (!is_scmi_version_compatible(SCMI_PWR_DMN_PROTO_VER, version)) {
-		WARN("SCMI power domain protocol version 0x%x incompatible with driver version 0x%x",
+		WARN("SCMI power domain protocol version 0x%x incompatible with driver version 0x%x\n",
 			version, SCMI_PWR_DMN_PROTO_VER);
 		goto error;
 	}
@@ -187,12 +187,12 @@ void *scmi_init(scmi_channel_t *ch)
 
 	ret = scmi_proto_version(ch, SCMI_SYS_PWR_PROTO_ID, &version);
 	if ((ret != SCMI_E_SUCCESS)) {
-		WARN("SCMI system power protocol version message failed");
+		WARN("SCMI system power protocol version message failed\n");
 		goto error;
 	}
 
 	if (!is_scmi_version_compatible(SCMI_SYS_PWR_PROTO_VER, version)) {
-		WARN("SCMI system power management protocol version 0x%x incompatible with driver version 0x%x",
+		WARN("SCMI system power management protocol version 0x%x incompatible with driver version 0x%x\n",
 			version, SCMI_SYS_PWR_PROTO_VER);
 		goto error;
 	}
