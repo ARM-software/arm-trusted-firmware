@@ -6,6 +6,9 @@ cores provide high-performance computing, power efficiency, enhanced system
 reliability and embedded security needed to drive the growth of fast-growing
 edge node computing, streaming multimedia, and machine learning applications.
 
+imx8mq is dropped in TF-A CI build due to the small OCRAM size, but still actively
+maintained in NXP official release.
+
 Boot Sequence
 -------------
 
