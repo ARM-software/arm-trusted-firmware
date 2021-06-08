@@ -697,13 +697,14 @@ func save_gp_pmcr_pauth_regs
 	str	x18, [sp, #CTX_GPREGS_OFFSET + CTX_GPREG_SP_EL0]
 
 	/* ----------------------------------------------------------
-	 * Check if earlier initialization MDCR_EL3.SCCD to 1 failed,
-	 * meaning that ARMv8-PMU is not implemented and PMCR_EL0
-	 * should be saved in non-secure context.
+	 * Check if earlier initialization MDCR_EL3.SCCD/MCCD to 1
+	 * failed, meaning that FEAT_PMUv3p5/7 is not implemented and
+	 * PMCR_EL0 should be saved in non-secure context.
 	 * ----------------------------------------------------------
 	 */
+	mov_imm	x10, (MDCR_SCCD_BIT | MDCR_MCCD_BIT)
 	mrs	x9, mdcr_el3
-	tst	x9, #MDCR_SCCD_BIT
+	tst	x9, x10
 	bne	1f
 
 	/* Secure Cycle Counter is not disabled */
@@ -792,13 +793,14 @@ func restore_gp_pmcr_pauth_regs
 
 	/* ----------------------------------------------------------
 	 * Back to Non-secure state.
-	 * Check if earlier initialization MDCR_EL3.SCCD to 1 failed,
-	 * meaning that ARMv8-PMU is not implemented and PMCR_EL0
-	 * should be restored from non-secure context.
+	 * Check if earlier initialization MDCR_EL3.SCCD/MCCD to 1
+	 * failed, meaning that FEAT_PMUv3p5/7 is not implemented and
+	 * PMCR_EL0 should be restored from non-secure context.
 	 * ----------------------------------------------------------
 	 */
+	mov_imm	x1, (MDCR_SCCD_BIT | MDCR_MCCD_BIT)
 	mrs	x0, mdcr_el3
-	tst	x0, #MDCR_SCCD_BIT
+	tst	x0, x1
 	bne	2f
 	ldr	x0, [sp, #CTX_EL3STATE_OFFSET + CTX_PMCR_EL0]
 	msr	pmcr_el0, x0

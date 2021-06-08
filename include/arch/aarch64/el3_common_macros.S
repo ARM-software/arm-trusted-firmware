@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -113,8 +113,13 @@
 	 *
 	 * MDCR_EL3.SCCD: Set to one so that cycle counting by PMCCNTR_EL0 is
 	 *  prohibited in Secure state. This bit is RES0 in versions of the
-	 *  architecture earlier than ARMv8.5, setting it to 1 doesn't have any
-	 *  effect on them.
+	 *  architecture with FEAT_PMUv3p5 not implemented, setting it to 1
+	 *  doesn't have any effect on them.
+	 *
+	 * MDCR_EL3.MCCD: Set to one so that cycle counting by PMCCNTR_EL0 is
+	 *  prohibited in EL3. This bit is RES0 in versions of the
+	 *  architecture with FEAT_PMUv3p7 not implemented, setting it to 1
+	 *  doesn't have any effect on them.
 	 *
 	 * MDCR_EL3.SPME: Set to zero so that event counting by the programmable
 	 *  counters PMEVCNTR<n>_EL0 is prohibited in Secure state. If ARMv8.2
@@ -124,9 +129,9 @@
 	 * ---------------------------------------------------------------------
 	 */
 	mov_imm	x0, ((MDCR_EL3_RESET_VAL | MDCR_SDD_BIT | \
-		      MDCR_SPD32(MDCR_SPD32_DISABLE) | MDCR_SCCD_BIT) & \
-		    ~(MDCR_SPME_BIT | MDCR_TDOSA_BIT | MDCR_TDA_BIT | \
-		      MDCR_TPM_BIT))
+		      MDCR_SPD32(MDCR_SPD32_DISABLE) | MDCR_SCCD_BIT | \
+		      MDCR_MCCD_BIT) & ~(MDCR_SPME_BIT | MDCR_TDOSA_BIT | \
+		      MDCR_TDA_BIT | MDCR_TPM_BIT))
 
 	msr	mdcr_el3, x0
 
