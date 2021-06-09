@@ -64,6 +64,7 @@ endif
 # Variables for use with stm32image
 STM32IMAGEPATH		?= tools/stm32image
 STM32IMAGE		?= ${STM32IMAGEPATH}/stm32image${BIN_EXT}
+STM32IMAGE_SRC		:= ${STM32IMAGEPATH}/stm32image.c
 
 # Enable flags for C files
 $(eval $(call assert_booleans,\
