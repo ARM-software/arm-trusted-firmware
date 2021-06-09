@@ -44,12 +44,12 @@ CASSERT(SCMI_PLAYLOAD_MAX + sizeof(struct smt_header) <= SMT_BUF_SLOT_SIZE,
 	assert_scmi_message_max_length_fits_in_smt_buffer_slot);
 
 /* Flag set in smt_header::status when SMT does not contain pending message */
-#define SMT_STATUS_FREE			BIT(0)
+#define SMT_STATUS_FREE			BIT_32(0)
 /* Flag set in smt_header::status when SMT reports an error */
-#define SMT_STATUS_ERROR		BIT(1)
+#define SMT_STATUS_ERROR		BIT_32(1)
 
 /* Flag set in smt_header::flags when SMT uses interrupts */
-#define SMT_FLAG_INTR_ENABLED		BIT(1)
+#define SMT_FLAG_INTR_ENABLED		BIT_32(1)
 
 /* Bit fields packed in smt_header::message_header */
 #define SMT_MSG_ID_MASK			GENMASK_32(7, 0)
@@ -133,7 +133,7 @@ static void scmi_proccess_smt(unsigned int agent_id, uint32_t *payload_buf)
 			  sizeof(smt_hdr->message_header);
 
 	if (in_payload_size > SCMI_PLAYLOAD_MAX) {
-		VERBOSE("SCMI payload too big %u", in_payload_size);
+		VERBOSE("SCMI payload too big %zu", in_payload_size);
 		goto out;
 	}
 
