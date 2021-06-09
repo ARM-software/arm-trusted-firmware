@@ -47,6 +47,9 @@ void scmi_process_message(struct scmi_msg *msg)
 	case SCMI_PROTOCOL_ID_RESET_DOMAIN:
 		handler = scmi_msg_get_rstd_handler(msg);
 		break;
+	case SCMI_PROTOCOL_ID_POWER_DOMAIN:
+		handler = scmi_msg_get_pd_handler(msg);
+		break;
 	default:
 		break;
 	}
