@@ -735,6 +735,9 @@ ifeq ($(CTX_INCLUDE_MTE_REGS),1)
     endif
 endif
 
+# Trusted Boot is a prerequisite for Measured Boot. It provides trust that the
+# code taking the measurements and recording them has not been tampered
+# with. This is referred to as the Root of Trust for Measurement.
 ifeq ($(MEASURED_BOOT),1)
     ifneq (${TRUSTED_BOARD_BOOT},1)
         $(error MEASURED_BOOT requires TRUSTED_BOARD_BOOT=1)
