@@ -465,12 +465,16 @@
  * BL32 specific defines for EL3 runtime in AArch32 mode
  ******************************************************************************/
 # if RESET_TO_SP_MIN && !JUNO_AARCH32_EL3_RUNTIME
+/* Ensure Position Independent support (PIE) is enabled for this config.*/
+# if !ENABLE_PIE
+#  error "BL32 must be a PIE if RESET_TO_SP_MIN=1."
+#endif
 /*
- * SP_MIN is the only BL image in SRAM. Allocate the whole of SRAM (excluding
- * the page reserved for fw_configs) to BL32
+ * Since this is PIE, we can define BL32_BASE to 0x0 since this macro is solely
+ * used for building BL32 and not used for loading BL32.
  */
-#  define BL32_BASE			ARM_FW_CONFIGS_LIMIT
-#  define BL32_LIMIT			(ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)
+#  define BL32_BASE			0x0
+#  define BL32_LIMIT			PLAT_ARM_MAX_BL32_SIZE
 # else
 /* Put BL32 below BL2 in the Trusted SRAM.*/
 #  define BL32_BASE			((ARM_BL_RAM_BASE + ARM_BL_RAM_SIZE)\
