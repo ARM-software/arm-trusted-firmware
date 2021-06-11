@@ -120,6 +120,15 @@ uint32_t stm32_get_gpio_bank_offset(unsigned int bank)
 	return bank * GPIO_BANK_OFFSET;
 }
 
+bool stm32_gpio_is_secure_at_reset(unsigned int bank)
+{
+	if (bank == GPIO_BANK_Z) {
+		return true;
+	}
+
+	return false;
+}
+
 unsigned long stm32_get_gpio_bank_clock(unsigned int bank)
 {
 	if (bank == GPIO_BANK_Z) {

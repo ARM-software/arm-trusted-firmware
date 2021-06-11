@@ -69,6 +69,7 @@ uintptr_t get_uart_address(uint32_t instance_nb);
 uintptr_t stm32_get_gpio_bank_base(unsigned int bank);
 unsigned long stm32_get_gpio_bank_clock(unsigned int bank);
 uint32_t stm32_get_gpio_bank_offset(unsigned int bank);
+bool stm32_gpio_is_secure_at_reset(unsigned int bank);
 
 /* Return node offset for target GPIO bank ID @bank or a FDT error code */
 int stm32_get_gpio_bank_pinctrl_node(void *fdt, unsigned int bank);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -282,4 +282,11 @@ void set_gpio_secure_cfg(uint32_t bank, uint32_t pin, bool secure)
 	}
 
 	stm32mp_clk_disable(clock);
+}
+
+void set_gpio_reset_cfg(uint32_t bank, uint32_t pin)
+{
+	set_gpio(bank, pin, GPIO_MODE_ANALOG, GPIO_SPEED_LOW,
+		 GPIO_NO_PULL, GPIO_ALTERNATE_(0), DT_DISABLED);
+	set_gpio_secure_cfg(bank, pin, stm32_gpio_is_secure_at_reset(bank));
 }

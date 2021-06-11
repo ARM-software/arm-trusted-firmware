@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2015-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -52,6 +52,7 @@ int dt_set_pinctrl_config(int node);
 void set_gpio(uint32_t bank, uint32_t pin, uint32_t mode, uint32_t speed,
 	      uint32_t pull, uint32_t alternate, uint8_t status);
 void set_gpio_secure_cfg(uint32_t bank, uint32_t pin, bool secure);
+void set_gpio_reset_cfg(uint32_t bank, uint32_t pin);
 #endif /*__ASSEMBLER__*/
 
 #endif /* STM32_GPIO_H */
