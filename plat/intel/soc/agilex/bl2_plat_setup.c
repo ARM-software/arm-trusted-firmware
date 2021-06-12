@@ -7,6 +7,7 @@
 
 #include <arch.h>
 #include <arch_helpers.h>
+#include <assert.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
@@ -160,6 +161,8 @@ uint32_t get_spsr_for_bl33_entry(void)
 int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
+
+	assert(bl_mem_params);
 
 	switch (image_id) {
 	case BL33_IMAGE_ID:
