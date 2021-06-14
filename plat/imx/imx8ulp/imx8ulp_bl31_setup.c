@@ -30,7 +30,7 @@
 	MAP_REGION_FLAT(BL31_BASE, BL31_LIMIT - BL31_BASE, MT_MEMORY | MT_RW | MT_SECURE)
 #define MAP_BL31_RO										   \
 	MAP_REGION_FLAT(BL_CODE_BASE, BL_CODE_END - BL_CODE_BASE, MT_MEMORY | MT_RO | MT_SECURE)
-
+#define MAP_BL32_TOTAL MAP_REGION_FLAT(BL32_BASE, BL32_SIZE, MT_MEMORY | MT_RW)
 #define MAP_COHERENT_MEM									\
 	MAP_REGION_FLAT(BL_COHERENT_RAM_BASE, (BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE),	\
 			 MT_DEVICE | MT_RW | MT_SECURE)
@@ -85,6 +85,23 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	bl33_image_ep_info.pc = PLAT_NS_IMAGE_OFFSET;
 	bl33_image_ep_info.spsr = plat_get_spsr_for_bl33_entry();
 	SET_SECURITY_STATE(bl33_image_ep_info.h.attr, NON_SECURE);
+
+#if defined(SPD_opteed)
+	/* Populate entry point information for BL32 */
+	SET_PARAM_HEAD(&bl32_image_ep_info, PARAM_EP, VERSION_1, 0);
+	SET_SECURITY_STATE(bl32_image_ep_info.h.attr, SECURE);
+	bl32_image_ep_info.pc = BL32_BASE;
+	bl32_image_ep_info.spsr = 0;
+
+	/* Pass TEE base and size to bl33 */
+	bl33_image_ep_info.args.arg1 = BL32_BASE;
+	bl33_image_ep_info.args.arg2 = BL32_SIZE;
+
+	/* Make sure memory is clean */
+	mmio_write_32(BL32_FDT_OVERLAY_ADDR, 0);
+	bl33_image_ep_info.args.arg3 = BL32_FDT_OVERLAY_ADDR;
+	bl32_image_ep_info.args.arg3 = BL32_FDT_OVERLAY_ADDR;
+#endif
 }
 
 void bl31_plat_arch_setup(void)
@@ -94,6 +111,9 @@ void bl31_plat_arch_setup(void)
 		MAP_BL31_RO,
 #if USE_COHERENT_MEM
 		MAP_COHERENT_MEM,
+#endif
+#if (defined(SPD_opteed)
+		MAP_BL32_TOTAL,
 #endif
 		{0},
 	};
