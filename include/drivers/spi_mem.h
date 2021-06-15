@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -121,9 +121,18 @@ struct spi_bus_ops {
 	 * Returns: 0 on success, a negative error code otherwise.
 	 */
 	int (*exec_op)(const struct spi_mem_op *op);
+
+	/*
+	 * Read data through a direct mapping.
+	 *
+	 * @op: The memory operation to execute.
+	 * Returns: 0 on success, a negative error code otherwise.
+	 */
+	int (*dirmap_read)(const struct spi_mem_op *op);
 };
 
 int spi_mem_exec_op(const struct spi_mem_op *op);
+int spi_mem_dirmap_read(const struct spi_mem_op *op);
 int spi_mem_init_slave(void *fdt, int bus_node,
 		       const struct spi_bus_ops *ops);
 

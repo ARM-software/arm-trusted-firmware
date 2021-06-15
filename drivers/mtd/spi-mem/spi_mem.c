@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2022, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -168,6 +168,54 @@ int spi_mem_exec_op(const struct spi_mem_op *op)
 	}
 
 	ret = ops->exec_op(op);
+
+	ops->release_bus();
+
+	return ret;
+}
+
+/*
+ * spi_mem_dirmap_read() - Read data through a direct mapping
+ * @op: The memory operation to execute.
+ *
+ * This function reads data from a memory device using a direct mapping.
+ *
+ * Return: 0 in case of success, a negative error code otherwise.
+ */
+int spi_mem_dirmap_read(const struct spi_mem_op *op)
+{
+	const struct spi_bus_ops *ops = spi_slave.ops;
+	int ret;
+
+	VERBOSE("%s: cmd:%x mode:%d.%d.%d.%d addr:%" PRIx64 " len:%x\n",
+		__func__, op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
+		op->dummy.buswidth, op->data.buswidth,
+		op->addr.val, op->data.nbytes);
+
+	if (op->data.dir != SPI_MEM_DATA_IN) {
+		return -EINVAL;
+	}
+
+	if (op->data.nbytes == 0U) {
+		return 0;
+	}
+
+	if (ops->dirmap_read == NULL) {
+		return spi_mem_exec_op(op);
+	}
+
+	if (!spi_mem_supports_op(op)) {
+		WARN("Error in spi_mem_support\n");
+		return -ENOTSUP;
+	}
+
+	ret = ops->claim_bus(spi_slave.cs);
+	if (ret != 0) {
+		WARN("Error claim_bus\n");
+		return ret;
+	}
+
+	ret = ops->dirmap_read(op);
 
 	ops->release_bus();
 
