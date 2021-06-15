@@ -101,7 +101,7 @@ from `Arm's website`_.
    the models. The models can be launched with ``-Q 100`` option if they are
    required to match the run time characteristics of the older versions.
 
-All the above platforms have been tested with `Linaro Release 19.06`_.
+All the above platforms have been tested with `Linaro Release 20.01`_.
 
 .. _build_options_arm_fvp_platform:
 
@@ -649,5 +649,5 @@ boot Linux with 4 CPUs using the AArch32 build of TF-A.
 .. _TB_FW_CONFIG for FVP: https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/tree/plat/arm/board/fvp/fdts/fvp_tb_fw_config.dts
 .. _Arm's website: `FVP models`_
 .. _FVP models: https://developer.arm.com/products/system-design/fixed-virtual-platforms
-.. _Linaro Release 19.06: http://releases.linaro.org/members/arm/platforms/19.06
+.. _Linaro Release 20.01: http://releases.linaro.org/members/arm/platforms/20.01
 .. _Arm FVP website: https://developer.arm.com/products/system-design/fixed-virtual-platforms
