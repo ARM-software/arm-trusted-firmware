@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2023,  STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2026,  STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -192,7 +192,7 @@ static int spi_nand_read_from_cache(unsigned int page, unsigned int offset,
 	spinand_dev.spi_read_cache_op.data.buf = buffer;
 	spinand_dev.spi_read_cache_op.data.nbytes = len;
 
-	return spi_mem_exec_op(&spinand_dev.spi_read_cache_op);
+	return spi_mem_dirmap_read(&spinand_dev.spi_read_cache_op);
 }
 
 static int spi_nand_read_page(unsigned int page, unsigned int offset,
