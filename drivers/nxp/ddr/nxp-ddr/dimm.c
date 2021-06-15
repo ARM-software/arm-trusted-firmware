@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -194,7 +194,7 @@ int cal_dimm_params(const struct ddr4_spd *spd, struct dimm_params *pdimm)
 	case DDR4_SPD_MINI_RDIMM:
 	case DDR4_SPD_72B_SO_RDIMM:
 		pdimm->rdimm = 1;
-		pdimm->rc = spd->mod_section.registered.ref_raw_card & 0x8f;
+		pdimm->rc = spd->mod_section.registered.ref_raw_card & 0x9f;
 		if ((spd->mod_section.registered.reg_map & 0x1) != 0) {
 			pdimm->mirrored_dimm = 1;
 		}
@@ -223,7 +223,7 @@ int cal_dimm_params(const struct ddr4_spd *spd, struct dimm_params *pdimm)
 	case DDR4_SPD_72B_SO_UDIMM:
 	case DDR4_SPD_16B_SO_DIMM:
 	case DDR4_SPD_32B_SO_DIMM:
-		pdimm->rc = spd->mod_section.unbuffered.ref_raw_card & 0x8f;
+		pdimm->rc = spd->mod_section.unbuffered.ref_raw_card & 0x9f;
 		if ((spd->mod_section.unbuffered.addr_mapping & 0x1) != 0) {
 			pdimm->mirrored_dimm = 1;
 		}
