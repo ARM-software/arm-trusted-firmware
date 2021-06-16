@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -62,11 +62,11 @@ static int is_watchdog_reset(void)
  ******************************************************************************/
 bool plat_arm_bl1_fwu_needed(void)
 {
-	const int32_t *nv_flags_ptr = (const int32_t *)V2M_SYS_NVFLAGS_ADDR;
+	int32_t nv_flags = (int32_t)mmio_read_32(V2M_SYS_NVFLAGS_ADDR);
 
 	/* Check if TOC is invalid or watchdog reset happened. */
-	return (!arm_io_is_toc_valid() || (((*nv_flags_ptr == -EAUTH) ||
-		(*nv_flags_ptr == -ENOENT)) && is_watchdog_reset()));
+	return (!arm_io_is_toc_valid() || (((nv_flags == -EAUTH) ||
+		(nv_flags == -ENOENT)) && is_watchdog_reset()));
 }
 
 /*******************************************************************************
@@ -86,13 +86,11 @@ void bl1_plat_set_ep_info(unsigned int image_id,
  ******************************************************************************/
 __dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved)
 {
-	unsigned int *nv_flags_clr = (unsigned int *)
-			(V2M_SYSREGS_BASE + V2M_SYS_NVFLAGSCLR);
-	unsigned int *nv_flags_ptr = (unsigned int *)
-			(V2M_SYSREGS_BASE + V2M_SYS_NVFLAGS);
+	uint32_t nv_flags = mmio_read_32(V2M_SYS_NVFLAGS_ADDR);
 
 	/* Clear the NV flags register. */
-	*nv_flags_clr = *nv_flags_ptr;
+	mmio_write_32((V2M_SYSREGS_BASE + V2M_SYS_NVFLAGSCLR),
+		      nv_flags);
 
 	/* Setup the watchdog to reset the system as soon as possible */
 	sp805_refresh(ARM_SP805_TWDG_BASE, 1U);
