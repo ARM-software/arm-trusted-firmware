@@ -234,6 +234,7 @@ void gicr_set_icfgr(uintptr_t base, unsigned int id, unsigned int cfg);
  * Private GICv3 helper function prototypes
  ******************************************************************************/
 unsigned int gicv3_get_spi_limit(uintptr_t gicd_base);
+unsigned int gicv3_get_espi_limit(uintptr_t gicd_base);
 void gicv3_spis_config_defaults(uintptr_t gicd_base);
 void gicv3_ppi_sgi_config_defaults(uintptr_t gicr_base);
 unsigned int gicv3_secure_ppi_sgi_config_props(uintptr_t gicr_base,
