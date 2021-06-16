@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -49,6 +49,23 @@
 					 FUNCID_CC_MASK)
 #define GET_SMC_OEN(id)			(((id) >> FUNCID_OEN_SHIFT) & \
 					 FUNCID_OEN_MASK)
+
+/*******************************************************************************
+ * SMCCC_ARCH_SOC_ID SoC version & revision bit definition
+ ******************************************************************************/
+#define SOC_ID_JEP_106_BANK_IDX_MASK	GENMASK_32(30, 24)
+#define SOC_ID_JEP_106_BANK_IDX_SHIFT	U(24)
+#define SOC_ID_JEP_106_ID_CODE_MASK	GENMASK_32(23, 16)
+#define SOC_ID_JEP_106_ID_CODE_SHIFT	U(16)
+#define SOC_ID_IMPL_DEF_MASK		GENMASK_32(15, 0)
+#define SOC_ID_IMPL_DEF_SHIFT		U(0)
+#define SOC_ID_SET_JEP_106(bkid, mfid)	((((bkid) << SOC_ID_JEP_106_BANK_IDX_SHIFT) & \
+					  SOC_ID_JEP_106_BANK_IDX_MASK) | \
+					 (((mfid) << SOC_ID_JEP_106_ID_CODE_SHIFT) & \
+					  SOC_ID_JEP_106_ID_CODE_MASK))
+
+#define SOC_ID_REV_MASK			GENMASK_32(30, 0)
+#define SOC_ID_REV_SHIFT		U(0)
 
 /*******************************************************************************
  * Owning entity number definitions inside the function id as per the SMC

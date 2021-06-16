@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2020, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,6 +10,9 @@
 #include <stdbool.h>
 
 #include <platform_def.h>
+
+#define JEDEC_ST_BKID U(0x0)
+#define JEDEC_ST_MFID U(0x20)
 
 /* Functions to save and get boot context address given by ROM code */
 void stm32mp_save_boot_ctx_address(uintptr_t address);
@@ -63,6 +66,15 @@ uint32_t stm32_get_gpio_bank_offset(unsigned int bank);
 
 /* Return node offset for target GPIO bank ID @bank or a FDT error code */
 int stm32_get_gpio_bank_pinctrl_node(void *fdt, unsigned int bank);
+
+/* Get the chip revision */
+uint32_t stm32mp_get_chip_version(void);
+/* Get the chip device ID */
+uint32_t stm32mp_get_chip_dev_id(void);
+
+/* Get SOC name */
+#define STM32_SOC_NAME_SIZE 20
+void stm32mp_get_soc_name(char name[STM32_SOC_NAME_SIZE]);
 
 /* Print CPU information */
 void stm32mp_print_cpuinfo(void);
