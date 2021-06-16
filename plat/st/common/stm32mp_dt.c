@@ -19,20 +19,19 @@
 
 #include <stm32mp_dt.h>
 
-static int fdt_checked;
-
-static void *fdt = (void *)(uintptr_t)STM32MP_DTB_BASE;
+static void *fdt;
 
 /*******************************************************************************
  * This function checks device tree file with its header.
  * Returns 0 on success and a negative FDT error code on failure.
  ******************************************************************************/
-int dt_open_and_check(void)
+int dt_open_and_check(uintptr_t dt_addr)
 {
-	int ret = fdt_check_header(fdt);
+	int ret;
 
+	ret = fdt_check_header((void *)dt_addr);
 	if (ret == 0) {
-		fdt_checked = 1;
+		fdt = (void *)dt_addr;
 	}
 
 	return ret;
@@ -45,11 +44,13 @@ int dt_open_and_check(void)
  ******************************************************************************/
 int fdt_get_address(void **fdt_addr)
 {
-	if (fdt_checked == 1) {
-		*fdt_addr = fdt;
+	if (fdt == NULL) {
+		return 0;
 	}
 
-	return fdt_checked;
+	*fdt_addr = fdt;
+
+	return 1;
 }
 
 /*******************************************************************************
