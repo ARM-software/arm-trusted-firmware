@@ -1105,86 +1105,8 @@
 /*******************************************************************************
  * Realm management extension register definitions
  ******************************************************************************/
-
-/* GPCCR_EL3 definitions */
 #define GPCCR_EL3			S3_6_C2_C1_6
-
-/* Least significant address bits protected by each entry in level 0 GPT */
-#define GPCCR_L0GPTSZ_SHIFT		U(20)
-#define GPCCR_L0GPTSZ_MASK		U(0xF)
-#define GPCCR_L0GPTSZ_30BITS		U(0x0)
-#define GPCCR_L0GPTSZ_34BITS		U(0x4)
-#define GPCCR_L0GPTSZ_36BITS		U(0x6)
-#define GPCCR_L0GPTSZ_39BITS		U(0x9)
-#define SET_GPCCR_L0GPTSZ(x)		\
-	((x & GPCCR_L0GPTSZ_MASK) << GPCCR_L0GPTSZ_SHIFT)
-
-/* Granule protection check priority bit definitions */
-#define GPCCR_GPCP_SHIFT		U(17)
-#define GPCCR_GPCP_BIT			(ULL(1) << GPCCR_EL3_GPCP_SHIFT)
-
-/* Granule protection check bit definitions */
-#define GPCCR_GPC_SHIFT			U(16)
-#define GPCCR_GPC_BIT			(ULL(1) << GPCCR_GPC_SHIFT)
-
-/* Physical granule size bit definitions */
-#define GPCCR_PGS_SHIFT			U(14)
-#define GPCCR_PGS_MASK			U(0x3)
-#define GPCCR_PGS_4K			U(0x0)
-#define GPCCR_PGS_16K			U(0x2)
-#define GPCCR_PGS_64K			U(0x1)
-#define SET_GPCCR_PGS(x)		\
-	((x & GPCCR_PGS_MASK) << GPCCR_PGS_SHIFT)
-
-/* GPT fetch shareability attribute bit definitions */
-#define GPCCR_SH_SHIFT			U(12)
-#define GPCCR_SH_MASK			U(0x3)
-#define GPCCR_SH_NS			U(0x0)
-#define GPCCR_SH_OS			U(0x2)
-#define GPCCR_SH_IS			U(0x3)
-#define SET_GPCCR_SH(x)			\
-	((x & GPCCR_SH_MASK) << GPCCR_SH_SHIFT)
-
-/* GPT fetch outer cacheability attribute bit definitions */
-#define GPCCR_ORGN_SHIFT		U(10)
-#define GPCCR_ORGN_MASK			U(0x3)
-#define GPCCR_ORGN_NC			U(0x0)
-#define GPCCR_ORGN_WB_RA_WA		U(0x1)
-#define GPCCR_ORGN_WT_RA_NWA		U(0x2)
-#define GPCCR_ORGN_WB_RA_NWA		U(0x3)
-#define SET_GPCCR_ORGN(x)		\
-	((x & GPCCR_ORGN_MASK) << GPCCR_ORGN_SHIFT)
-
-/* GPT fetch inner cacheability attribute bit definitions */
-#define GPCCR_IRGN_SHIFT		U(8)
-#define GPCCR_IRGN_MASK			U(0x3)
-#define GPCCR_IRGN_NC			U(0x0)
-#define GPCCR_IRGN_WB_RA_WA		U(0x1)
-#define GPCCR_IRGN_WT_RA_NWA		U(0x2)
-#define GPCCR_IRGN_WB_RA_NWA		U(0x3)
-#define SET_GPCCR_IRGN(x)		\
-	((x & GPCCR_IRGN_MASK) << GPCCR_IRGN_SHIFT)
-
-/* Protected physical address size bit definitions */
-#define GPCCR_PPS_SHIFT			U(0)
-#define GPCCR_PPS_MASK			U(0x7)
-#define GPCCR_PPS_4GB			U(0x0)
-#define GPCCR_PPS_64GB			U(0x1)
-#define GPCCR_PPS_1TB			U(0x2)
-#define GPCCR_PPS_4TB			U(0x3)
-#define GPCCR_PPS_16TB			U(0x4)
-#define GPCCR_PPS_256TB			U(0x5)
-#define GPCCR_PPS_4PB			U(0x6)
-#define SET_GPCCR_PPS(x)		\
-	((x & GPCCR_PPS_MASK) << GPCCR_PPS_SHIFT)
-
-/* GPTBR_EL3 definitions */
 #define GPTBR_EL3			S3_6_C2_C1_4
-
-/* Base Address for the GPT bit definitions */
-#define GPTBR_BADDR_SHIFT		U(0)
-#define GPTBR_BADDR_VAL_SHIFT		U(12)
-#define GPTBR_BADDR_MASK		ULL(0xffffffffff)
 
 /*******************************************************************************
  * RAS system registers

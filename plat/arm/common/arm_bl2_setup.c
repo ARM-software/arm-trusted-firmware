@@ -18,12 +18,16 @@
 #include <drivers/partition/partition.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
-#include <lib/gpt/gpt.h>
+#if ENABLE_RME
+#include <lib/gpt_rme/gpt_rme.h>
+#endif /* ENABLE_RME */
 #ifdef SPD_opteed
 #include <lib/optee_utils.h>
 #endif
 #include <lib/utils.h>
+#if ENABLE_RME
 #include <plat/arm/common/arm_pas_def.h>
+#endif /* ENABLE_RME */
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
@@ -130,6 +134,7 @@ void bl2_platform_setup(void)
 }
 
 #if ENABLE_RME
+
 static void arm_bl2_plat_gpt_setup(void)
 {
 	/*
@@ -137,32 +142,38 @@ static void arm_bl2_plat_gpt_setup(void)
 	 * the layout, so the array cannot be constant.
 	 */
 	pas_region_t pas_regions[] = {
-		ARM_PAS_GPI_ANY,
 		ARM_PAS_KERNEL,
-		ARM_PAS_TZC,
+		ARM_PAS_SECURE,
 		ARM_PAS_REALM,
 		ARM_PAS_EL3_DRAM,
 		ARM_PAS_GPTS
 	};
 
-	gpt_init_params_t gpt_params = {
-		PLATFORM_PGS,
-		PLATFORM_PPS,
-		PLATFORM_L0GPTSZ,
-		pas_regions,
-		(unsigned int)(sizeof(pas_regions)/sizeof(pas_region_t)),
-		ARM_L0_GPT_ADDR_BASE, ARM_L0_GPT_SIZE,
-		ARM_L1_GPT_ADDR_BASE, ARM_L1_GPT_SIZE
-	};
-
-	/* Initialise the global granule tables */
-	INFO("Enabling Granule Protection Checks\n");
-	if (gpt_init(&gpt_params) < 0) {
+	/* Initialize entire protected space to GPT_GPI_ANY. */
+	if (gpt_init_l0_tables(GPCCR_PPS_4GB, ARM_L0_GPT_ADDR_BASE,
+		ARM_L0_GPT_SIZE) < 0) {
+		ERROR("gpt_init_l0_tables() failed!\n");
 		panic();
 	}
 
-	gpt_enable();
+	/* Carve out defined PAS ranges. */
+	if (gpt_init_pas_l1_tables(GPCCR_PGS_4K,
+				   ARM_L1_GPT_ADDR_BASE,
+				   ARM_L1_GPT_SIZE,
+				   pas_regions,
+				   (unsigned int)(sizeof(pas_regions) /
+				   sizeof(pas_region_t))) < 0) {
+		ERROR("gpt_init_pas_l1_tables() failed!\n");
+		panic();
+	}
+
+	INFO("Enabling Granule Protection Checks\n");
+	if (gpt_enable() < 0) {
+		ERROR("gpt_enable() failed!\n");
+		panic();
+	}
 }
+
 #endif /* ENABLE_RME */
 
 /*******************************************************************************
@@ -201,9 +212,6 @@ void arm_bl2_plat_arch_setup(void)
 #if ENABLE_RME
 	/* Initialise the secure environment */
 	plat_arm_security_setup();
-
-	/* Initialise and enable Granule Protection */
-	arm_bl2_plat_gpt_setup();
 #endif
 	setup_page_tables(bl_regions, plat_arm_get_mmap());
 
@@ -212,6 +220,9 @@ void arm_bl2_plat_arch_setup(void)
 	/* BL2 runs in EL3 when RME enabled. */
 	assert(get_armv9_2_feat_rme_support() != 0U);
 	enable_mmu_el3(0);
+
+	/* Initialise and enable granule protection after MMU. */
+	arm_bl2_plat_gpt_setup();
 #else
 	enable_mmu_el1(0);
 #endif

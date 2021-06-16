@@ -16,7 +16,7 @@
 #include <context.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/el3_runtime/pubsub.h>
-#include <lib/gpt/gpt_defs.h>
+#include <lib/gpt_rme/gpt_rme.h>
 
 #include <lib/spinlock.h>
 #include <lib/utils.h>
@@ -296,12 +296,18 @@ static int gtsi_transition_granule(uint64_t pa,
 {
 	int ret;
 
-	ret = gpt_transition_pas(pa, src_sec_state, target_pas);
+	ret = gpt_transition_pas(pa, PAGE_SIZE_4KB, src_sec_state, target_pas);
 
 	/* Convert TF-A error codes into GTSI error codes */
 	if (ret == -EINVAL) {
+		ERROR("[GTSI] Transition failed: invalid %s\n", "address");
+		ERROR("       PA: 0x%llx, SRC: %d, PAS: %d\n", pa,
+		      src_sec_state, target_pas);
 		ret = GRAN_TRANS_RET_BAD_ADDR;
 	} else if (ret == -EPERM) {
+		ERROR("[GTSI] Transition failed: invalid %s\n", "caller/PAS");
+		ERROR("       PA: 0x%llx, SRC: %d, PAS: %d\n", pa,
+		      src_sec_state, target_pas);
 		ret = GRAN_TRANS_RET_BAD_PAS;
 	}
 
@@ -328,12 +334,10 @@ uint64_t rmmd_gtsi_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 	switch (smc_fid) {
 	case SMC_ASC_MARK_REALM:
 		SMC_RET1(handle, gtsi_transition_granule(x1, SMC_FROM_REALM,
-								GPI_REALM));
-		break;
+								GPT_GPI_REALM));
 	case SMC_ASC_MARK_NONSECURE:
 		SMC_RET1(handle, gtsi_transition_granule(x1, SMC_FROM_REALM,
-								GPI_NS));
-		break;
+								GPT_GPI_NS));
 	default:
 		WARN("RMM: Unsupported GTF call 0x%08x\n", smc_fid);
 		SMC_RET1(handle, SMC_UNK);

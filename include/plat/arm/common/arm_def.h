@@ -81,19 +81,19 @@
  *   - REALM DRAM: Reserved for Realm world if RME is enabled
  *   - AP TZC DRAM: The remaining TZC secured DRAM reserved for AP use
  *
- *   		RME enabled(64MB)		 RME not enabled(16MB)
- *   		--------------------		 -------------------
- *   		| 		   |		 |		   |
- *   		|  AP TZC (~28MB)  |		 |  AP TZC (~14MB) |
- *   		--------------------		 -------------------
- *   		|		   |		 |  		   |
- *   		|  REALM (32MB)    |		 |  EL3 TZC (2MB)  |
- *   		--------------------		 -------------------
- *   		|		   |		 |  		   |
- *   		|  EL3 TZC (3MB)   |		 |    SCP TZC      |
- *   		--------------------  0xFFFF_FFFF-------------------
- *   		| L1 GPT + SCP TZC |
- *   		|	(~1MB)     |
+ *              RME enabled(64MB)                RME not enabled(16MB)
+ *              --------------------             -------------------
+ *              |                  |             |                 |
+ *              |  AP TZC (~28MB)  |             |  AP TZC (~14MB) |
+ *              --------------------             -------------------
+ *              |                  |             |                 |
+ *              |  REALM (32MB)    |             |  EL3 TZC (2MB)  |
+ *              --------------------             -------------------
+ *              |                  |             |                 |
+ *              |  EL3 TZC (3MB)   |             |    SCP TZC      |
+ *              --------------------  0xFFFF_FFFF-------------------
+ *              | L1 GPT + SCP TZC |
+ *              |       (~1MB)     |
  *  0xFFFF_FFFF --------------------
  */
 #if ENABLE_RME
@@ -252,56 +252,56 @@
 	INTR_PROP_DESC(ARM_IRQ_SEC_SGI_6, GIC_HIGHEST_SEC_PRIORITY, (grp), \
 			GIC_INTR_CFG_EDGE)
 
-#define ARM_MAP_SHARED_RAM		MAP_REGION_FLAT(		\
-						ARM_SHARED_RAM_BASE,	\
-						ARM_SHARED_RAM_SIZE,	\
-						MT_DEVICE | MT_RW | EL3_PAS)
+#define ARM_MAP_SHARED_RAM	MAP_REGION_FLAT(			\
+					ARM_SHARED_RAM_BASE,		\
+					ARM_SHARED_RAM_SIZE,		\
+					MT_DEVICE | MT_RW | EL3_PAS)
 
-#define ARM_MAP_NS_DRAM1		MAP_REGION_FLAT(		\
-						ARM_NS_DRAM1_BASE,	\
-						ARM_NS_DRAM1_SIZE,	\
-						MT_MEMORY | MT_RW | MT_NS)
+#define ARM_MAP_NS_DRAM1	MAP_REGION_FLAT(			\
+					ARM_NS_DRAM1_BASE,		\
+					ARM_NS_DRAM1_SIZE,		\
+					MT_MEMORY | MT_RW | MT_NS)
 
-#define ARM_MAP_DRAM2			MAP_REGION_FLAT(		\
-						ARM_DRAM2_BASE,		\
-						ARM_DRAM2_SIZE,		\
-						MT_MEMORY | MT_RW | MT_NS)
+#define ARM_MAP_DRAM2		MAP_REGION_FLAT(			\
+					ARM_DRAM2_BASE,			\
+					ARM_DRAM2_SIZE,			\
+					MT_MEMORY | MT_RW | MT_NS)
 
-#define ARM_MAP_TSP_SEC_MEM		MAP_REGION_FLAT(		\
-						TSP_SEC_MEM_BASE,	\
-						TSP_SEC_MEM_SIZE,	\
-						MT_MEMORY | MT_RW | MT_SECURE)
+#define ARM_MAP_TSP_SEC_MEM	MAP_REGION_FLAT(			\
+					TSP_SEC_MEM_BASE,		\
+					TSP_SEC_MEM_SIZE,		\
+					MT_MEMORY | MT_RW | MT_SECURE)
 
 #if ARM_BL31_IN_DRAM
-#define ARM_MAP_BL31_SEC_DRAM		MAP_REGION_FLAT(		\
-						BL31_BASE,		\
-						PLAT_ARM_MAX_BL31_SIZE,	\
-						MT_MEMORY | MT_RW | MT_SECURE)
+#define ARM_MAP_BL31_SEC_DRAM	MAP_REGION_FLAT(			\
+					BL31_BASE,			\
+					PLAT_ARM_MAX_BL31_SIZE,		\
+					MT_MEMORY | MT_RW | MT_SECURE)
 #endif
 
-#define ARM_MAP_EL3_TZC_DRAM		MAP_REGION_FLAT(			\
-						ARM_EL3_TZC_DRAM1_BASE,	\
-						ARM_EL3_TZC_DRAM1_SIZE,	\
-						MT_MEMORY | MT_RW | EL3_PAS)
+#define ARM_MAP_EL3_TZC_DRAM	MAP_REGION_FLAT(			\
+					ARM_EL3_TZC_DRAM1_BASE,		\
+					ARM_EL3_TZC_DRAM1_SIZE,		\
+					MT_MEMORY | MT_RW | EL3_PAS)
 
 #if defined(SPD_spmd)
-#define ARM_MAP_TRUSTED_DRAM		MAP_REGION_FLAT(		    \
-						PLAT_ARM_TRUSTED_DRAM_BASE, \
-						PLAT_ARM_TRUSTED_DRAM_SIZE, \
-						MT_MEMORY | MT_RW | MT_SECURE)
+#define ARM_MAP_TRUSTED_DRAM	MAP_REGION_FLAT(			\
+					PLAT_ARM_TRUSTED_DRAM_BASE,	\
+					PLAT_ARM_TRUSTED_DRAM_SIZE,	\
+					MT_MEMORY | MT_RW | MT_SECURE)
 #endif
 
 #if ENABLE_RME
-#define ARM_MAP_RMM_DRAM		MAP_REGION_FLAT(		    \
-						PLAT_ARM_RMM_BASE, \
-						PLAT_ARM_RMM_SIZE, \
-						MT_MEMORY | MT_RW | MT_REALM)
+#define ARM_MAP_RMM_DRAM	MAP_REGION_FLAT(			\
+					PLAT_ARM_RMM_BASE,		\
+					PLAT_ARM_RMM_SIZE,		\
+					MT_MEMORY | MT_RW | MT_REALM)
 
 
-#define ARM_MAP_GPT_L1_DRAM		MAP_REGION_FLAT(		   \
-						ARM_L1_GPT_ADDR_BASE,	   \
-						ARM_L1_GPT_SIZE,	   \
-						MT_MEMORY | MT_RW | EL3_PAS)
+#define ARM_MAP_GPT_L1_DRAM	MAP_REGION_FLAT(			\
+					ARM_L1_GPT_ADDR_BASE,		\
+					ARM_L1_GPT_SIZE,		\
+					MT_MEMORY | MT_RW | EL3_PAS)
 
 #endif /* ENABLE_RME */
 

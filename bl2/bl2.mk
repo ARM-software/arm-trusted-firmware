@@ -17,7 +17,7 @@ endif
 
 ifeq (${ENABLE_RME},1)
 # Using RME, run BL2 at EL3
-include lib/gpt/gpt.mk
+include lib/gpt_rme/gpt_rme.mk
 
 BL2_SOURCES		+=      bl2/${ARCH}/bl2_rme_entrypoint.S	\
 				bl2/${ARCH}/bl2_el3_exceptions.S	\

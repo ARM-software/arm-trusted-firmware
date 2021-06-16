@@ -172,14 +172,6 @@ func bl31_warm_entrypoint
 		_exception_vectors=runtime_exceptions		\
 		_pie_fixup_size=0
 
-#if ENABLE_RME
-	/*
-	 * Initialise and enable Granule Protection
-	 * before enabling any stage of translation.
-	 */
-	bl	gpt_enable
-#endif
-
 	/*
 	 * We're about to enable MMU and participate in PSCI state coordination.
 	 *
@@ -202,6 +194,19 @@ func bl31_warm_entrypoint
 	mov	x0, #DISABLE_DCACHE
 #endif
 	bl	bl31_plat_enable_mmu
+
+#if ENABLE_RME
+	/*
+	 * At warm boot GPT data structures have already been initialized in RAM
+	 * but the sysregs for this CPU need to be initialized. Note that the GPT
+	 * accesses are controlled attributes in GPCCR and do not depend on the
+	 * SCR_EL3.C bit.
+	 */
+	bl	gpt_enable
+	cbz	x0, 1f
+	no_ret plat_panic_handler
+1:
+#endif
 
 #if ENABLE_PAUTH
 	/* --------------------------------------------------------------------

@@ -13,10 +13,11 @@
 #include <drivers/console.h>
 #include <lib/debugfs.h>
 #include <lib/extensions/ras.h>
-#include <lib/gpt/gpt.h>
+#if ENABLE_RME
+#include <lib/gpt_rme/gpt_rme.h>
+#endif
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
-#include <plat/arm/common/arm_pas_def.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 #include <platform_def.h>
@@ -235,28 +236,6 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	 */
 	bl33_image_ep_info.args.arg0 = (u_register_t)ARM_DRAM1_BASE;
 #endif
-
-#if ENABLE_RME
-	/*
-	 * Initialise Granule Protection library and enable GPC
-	 * for the primary processor. The tables were initialised
-	 * in BL2, so there is no need to provide any PAS here.
-	 */
-	gpt_init_params_t gpt_params = {
-		PLATFORM_PGS,
-		PLATFORM_PPS,
-		PLATFORM_L0GPTSZ,
-		NULL,
-		0U,
-		ARM_L0_GPT_ADDR_BASE, ARM_L0_GPT_SIZE,
-		ARM_L1_GPT_ADDR_BASE, ARM_L1_GPT_SIZE
-	};
-
-	/* Initialise the global granule tables. */
-	if (gpt_init(&gpt_params) < 0) {
-		panic();
-	}
-#endif /* ENABLE_RME */
 }
 
 void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
@@ -429,6 +408,19 @@ void __init arm_bl31_plat_arch_setup(void)
 	setup_page_tables(bl_regions, plat_arm_get_mmap());
 
 	enable_mmu_el3(0);
+
+#if ENABLE_RME
+	/*
+	 * Initialise Granule Protection library and enable GPC for the primary
+	 * processor. The tables have already been initialized by a previous BL
+	 * stage, so there is no need to provide any PAS here. This function
+	 * sets up pointers to those tables.
+	 */
+	if (gpt_runtime_init() < 0) {
+		ERROR("gpt_runtime_init() failed!\n");
+		panic();
+	}
+#endif /* ENABLE_RME */
 
 	arm_setup_romlib();
 }

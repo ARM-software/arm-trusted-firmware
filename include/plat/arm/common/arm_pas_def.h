@@ -6,6 +6,7 @@
 #ifndef ARM_PAS_DEF_H
 #define ARM_PAS_DEF_H
 
+#include <lib/gpt_rme/gpt_rme.h>
 #include <plat/arm/common/arm_def.h>
 
 /*****************************************************************************
@@ -42,12 +43,12 @@
  *
  * - 4KB of L0 GPT reside in TSRAM, on top of the CONFIG section.
  * - ~1MB of L1 GPTs reside at the top of DRAM1 (TZC area).
- * - The first 1GB region has GPI_ANY and, therefore, is not protected by
+ * - The first 1GB region has GPT_GPI_ANY and, therefore, is not protected by
  *   the GPT.
  * - The DRAM TZC area is split into three regions: the L1 GPT region and
- *   3MB of region below that are defined as GPI_ROOT, 32MB Realm region
- *   below that is defined as GPI_REALM and the rest of it is defined as
- *   GPI_SECURE.
+ *   3MB of region below that are defined as GPT_GPI_ROOT, 32MB Realm region
+ *   below that is defined as GPT_GPI_REALM and the rest of it is defined as
+ *   GPT_GPI_SECURE.
  */
 
 /* TODO: This might not be the best way to map the PAS */
@@ -64,32 +65,30 @@
 #define ARM_PAS_3_BASE			(ARM_AP_TZC_DRAM1_BASE)
 #define ARM_PAS_3_SIZE			(ARM_AP_TZC_DRAM1_SIZE)
 
-#define ARM_PAS_GPI_ANY			MAP_GPT_REGION(ARM_PAS_1_BASE,	   \
-						       ARM_PAS_1_SIZE,	   \
-						       GPI_ANY)
-#define	ARM_PAS_KERNEL			MAP_GPT_REGION_TBL(ARM_PAS_2_BASE, \
-							   ARM_PAS_2_SIZE, \
-							   GPI_NS)
+#define ARM_PAS_GPI_ANY			MAP_GPT_REGION(ARM_PAS_1_BASE, \
+						       ARM_PAS_1_SIZE, \
+						       GPT_GPI_ANY)
+#define	ARM_PAS_KERNEL			GPT_MAP_REGION_GRANULE(ARM_PAS_2_BASE, \
+							       ARM_PAS_2_SIZE, \
+							       GPT_GPI_NS)
 
-#define ARM_PAS_TZC			MAP_GPT_REGION_TBL(ARM_PAS_3_BASE, \
-							   ARM_PAS_3_SIZE, \
-							   GPI_SECURE)
+#define ARM_PAS_SECURE			GPT_MAP_REGION_GRANULE(ARM_PAS_3_BASE, \
+							       ARM_PAS_3_SIZE, \
+							       GPT_GPI_SECURE)
 
-#define ARM_PAS_REALM			MAP_GPT_REGION_TBL(ARM_REALM_BASE, \
-							   ARM_REALM_SIZE, \
-							   GPI_REALM)
+#define ARM_PAS_REALM			GPT_MAP_REGION_GRANULE(ARM_REALM_BASE, \
+							       ARM_REALM_SIZE, \
+							       GPT_GPI_REALM)
 
-#define ARM_PAS_EL3_DRAM		MAP_GPT_REGION_TBL(ARM_EL3_TZC_DRAM1_BASE, \
-							ARM_EL3_TZC_DRAM1_SIZE,	\
-							GPI_ROOT)
+#define ARM_PAS_EL3_DRAM		GPT_MAP_REGION_GRANULE(ARM_EL3_TZC_DRAM1_BASE, \
+							       ARM_EL3_TZC_DRAM1_SIZE, \
+							       GPT_GPI_ROOT)
 
-#define	ARM_PAS_GPTS			MAP_GPT_REGION_TBL(ARM_L1_GPT_ADDR_BASE, \
-							   ARM_L1_GPT_SIZE,      \
-							   GPI_ROOT)
+#define	ARM_PAS_GPTS			GPT_MAP_REGION_GRANULE(ARM_L1_GPT_ADDR_BASE, \
+							       ARM_L1_GPT_SIZE, \
+							       GPT_GPI_ROOT)
 
 /* GPT Configuration options */
-#define PLATFORM_PGS			GPCCR_PGS_4K
-#define PLATFORM_PPS			GPCCR_PPS_4GB
 #define PLATFORM_L0GPTSZ		GPCCR_L0GPTSZ_30BITS
 
 #endif /* ARM_PAS_DEF_H */
