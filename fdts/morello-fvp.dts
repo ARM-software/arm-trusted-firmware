@@ -27,33 +27,52 @@
 	cpus {
 		#address-cells = <2>;
 		#size-cells = <0>;
-		cpu0@0 {
+
+		cpu-map {
+			cluster0 {
+				core0 {
+					cpu = <&CPU0>;
+				};
+				core1 {
+					cpu = <&CPU1>;
+				};
+			};
+			cluster1 {
+				core0 {
+					cpu = <&CPU2>;
+				};
+				core1 {
+					cpu = <&CPU3>;
+				};
+			};
+		};
+		CPU0: cpu0@0 {
 			compatible = "arm,armv8";
 			reg = <0x0 0x0>;
 			device_type = "cpu";
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
 		};
-		cpu1@100 {
+		CPU1: cpu1@100 {
 			compatible = "arm,armv8";
 			reg = <0x0 0x100>;
 			device_type = "cpu";
 			enable-method = "psci";
 			clocks = <&scmi_dvfs 0>;
 		};
-		cpu2@10000 {
+		CPU2: cpu2@10000 {
 			compatible = "arm,armv8";
 			reg = <0x0 0x10000>;
 			device_type = "cpu";
 			enable-method = "psci";
-			clocks = <&scmi_dvfs 0>;
+			clocks = <&scmi_dvfs 1>;
 		};
-		cpu3@10100 {
+		CPU3: cpu3@10100 {
 			compatible = "arm,armv8";
 			reg = <0x0 0x10100>;
 			device_type = "cpu";
 			enable-method = "psci";
-			clocks = <&scmi_dvfs 0>;
+			clocks = <&scmi_dvfs 1>;
 		};
 	};
 
