@@ -152,25 +152,72 @@ void imx_get_sys_suspend_power_state(psci_power_state_t *req_state)
 		req_state->pwr_domain_state[i] = PLAT_STOP_OFF_STATE;
 }
 
-void __dead2 imx_system_reset(void)
+static void __dead2 imx_wdog_restart(bool external_reset)
 {
 	uintptr_t wdog_base = IMX_WDOG_BASE;
 	unsigned int val;
 
-	/* WDOG_B reset */
 	val = mmio_read_16(wdog_base);
-#ifdef IMX_WDOG_B_RESET
-	val = (val & 0x00FF) | WDOG_WCR_WDZST | WDOG_WCR_WDE |
-		WDOG_WCR_WDT | WDOG_WCR_SRS;
-#else
-	val = (val & 0x00FF) | WDOG_WCR_WDZST | WDOG_WCR_SRS;
-#endif
+	/*
+	 * Common watchdog init flags, for additional details check
+	 * 6.6.4.1 Watchdog Control Register (WDOGx_WCR)
+	 *
+	 * Initial bit selection:
+	 * WDOG_WCR_WDE - Enable the watchdog.
+	 *
+	 * 0x000E mask is used to keep previous values (that could be set
+	 * in SPL) of WDBG and WDE/WDT (both are write-one once-only bits).
+	 */
+	val = (val & 0x000E) | WDOG_WCR_WDE;
+	if (external_reset) {
+		/*
+		 * To assert WDOG_B (external reset) we have
+		 * to set WDA bit 0 (already set in previous step).
+		 * SRS bits are required to be set to 1 (no effect on the
+		 * system).
+		 */
+		val |= WDOG_WCR_SRS;
+	} else {
+		/*
+		 * To assert Software Reset Signal (internal reset) we have
+		 * to set SRS bit to 0 (already set in previous step).
+		 * SRE bit is required to be set to 1 when used in
+		 * conjunction with the Software Reset Signal before
+		 * SRS asserton, otherwise SRS bit will just automatically
+		 * reset to 1.
+		 *
+		 * Also we set WDA to 1 (no effect on system).
+		 */
+		val |= WDOG_WCR_SRE | WDOG_WCR_WDA;
+	}
+
 	mmio_write_16(wdog_base, val);
 
 	mmio_write_16(wdog_base + WDOG_WSR, 0x5555);
 	mmio_write_16(wdog_base + WDOG_WSR, 0xaaaa);
 	while (1)
 		;
+}
+
+void __dead2 imx_system_reset(void)
+{
+#ifdef IMX_WDOG_B_RESET
+	imx_wdog_restart(true);
+#else
+	imx_wdog_restart(false);
+#endif
+}
+
+int imx_system_reset2(int is_vendor, int reset_type, u_register_t cookie)
+{
+	imx_wdog_restart(false);
+
+	/*
+	 * imx_wdog_restart cannot return (as it's  a __dead function),
+	 * however imx_system_reset2 has to return some value according
+	 * to PSCI v1.1 spec.
+	 */
+	return 0;
 }
 
 void __dead2 imx_system_off(void)
