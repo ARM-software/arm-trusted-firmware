@@ -44,11 +44,6 @@ STM32MP_SPI_NAND	?=	0
 STM32MP_SPI_NOR		?=	0
 STM32MP_EMMC_BOOT	?=	0
 
-ifeq ($(filter 1,${STM32MP_EMMC} ${STM32MP_SDMMC} ${STM32MP_RAW_NAND} \
-	${STM32MP_SPI_NAND} ${STM32MP_SPI_NOR}),)
-$(error "No boot device driver is enabled")
-endif
-
 # Device tree
 DTB_FILE_NAME		?=	stm32mp157c-ev1.dtb
 FDT_SOURCES		:=	$(addprefix fdts/, $(patsubst %.dtb,%.dts,$(DTB_FILE_NAME)))
@@ -199,12 +194,24 @@ BL2_SOURCES		+=	lib/optee/optee_utils.c
 endif
 
 # Compilation rules
-.PHONY: check_dtc_version stm32image clean_stm32image
+.PHONY: check_dtc_version stm32image clean_stm32image check_boot_device
 .SUFFIXES:
 
 all: check_dtc_version stm32image ${STM32_TF_STM32}
 
 distclean realclean clean: clean_stm32image
+
+bl2: check_boot_device
+
+check_boot_device:
+	@if [ ${STM32MP_EMMC} != 1 ] && \
+	    [ ${STM32MP_SDMMC} != 1 ] && \
+	    [ ${STM32MP_RAW_NAND} != 1 ] && \
+	    [ ${STM32MP_SPI_NAND} != 1 ] && \
+	    [ ${STM32MP_SPI_NOR} != 1 ]; then \
+		echo "No boot device driver is enabled"; \
+		false; \
+	fi
 
 stm32image: ${STM32IMAGE}
 
