@@ -94,4 +94,6 @@ void dump_event_log(uint8_t *log_addr, size_t log_size);
 const measured_boot_data_t *plat_get_measured_boot_data(void);
 int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 				 uint32_t data_id);
+void event_log_record(const uint8_t *hash, const image_data_t *image_ptr);
+
 #endif /* EVENT_LOG_H */

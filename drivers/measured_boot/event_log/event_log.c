@@ -87,13 +87,14 @@ static const event2_header_t locality_event_header = {
  *
  * There must be room for storing this new event into the event log buffer.
  */
-static void event_log_record(const uint8_t *hash, const image_data_t *image_ptr)
+void event_log_record(const uint8_t *hash, const image_data_t *image_ptr)
 {
 	void *ptr = log_ptr;
 	uint32_t name_len;
 
 	assert(image_ptr != NULL);
 	assert(image_ptr->name != NULL);
+	assert(hash != NULL);
 
 	name_len = (uint32_t)strlen(image_ptr->name) + 1U;
 
@@ -126,13 +127,8 @@ static void event_log_record(const uint8_t *hash, const image_data_t *image_ptr)
 	/* TCG_PCR_EVENT2.Digests[].Digest[] */
 	ptr = (uint8_t *)((uintptr_t)ptr + offsetof(tpmt_ha, digest));
 
-	if (hash == NULL) {
-		/* Get BL2 hash from DTB */
-		bl2_plat_get_hash(ptr);
-	} else {
-		/* Copy digest */
-		(void)memcpy(ptr, (const void *)hash, TCG_DIGEST_SIZE);
-	}
+	/* Copy digest */
+	(void)memcpy(ptr, (const void *)hash, TCG_DIGEST_SIZE);
 
 	/* TCG_PCR_EVENT2.EventSize */
 	ptr = (uint8_t *)((uintptr_t)ptr + TCG_DIGEST_SIZE);
@@ -220,9 +216,6 @@ void event_log_init(void)
 	ptr = (uint8_t *)((uintptr_t)ptr + sizeof(startup_locality_event_t));
 
 	log_ptr = (uint8_t *)ptr;
-
-	/* Add BL2 event */
-	event_log_record(NULL, plat_data_ptr->images_data);
 }
 
 /*

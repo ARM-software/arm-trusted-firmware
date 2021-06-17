@@ -11,6 +11,7 @@
 #include <drivers/measured_boot/event_log/event_log.h>
 
 #include <plat/arm/common/plat_arm.h>
+#include <plat/common/platform.h>
 
 /* FVP table with platform specific image IDs, names and PCRs */
 static const image_data_t fvp_images_data[] = {
@@ -44,7 +45,16 @@ const measured_boot_data_t *plat_get_measured_boot_data(void)
 
 void bl2_plat_mboot_init(void)
 {
+	uint8_t bl2_hash[TCG_DIGEST_SIZE];
+
 	event_log_init();
+
+	/* Get BL2 hash from DTB */
+	/* TODO: Avoid the extra copy of the hash buffer */
+	bl2_plat_get_hash(bl2_hash);
+
+	/* Add BL2 event */
+	event_log_record(bl2_hash, &fvp_images_data[0]);
 }
 
 void bl2_plat_mboot_finish(void)
