@@ -80,14 +80,14 @@ static const event2_header_t locality_event_header = {
 };
 
 /*
- * Add TCG_PCR_EVENT2 event
+ * Record a measurement as a TCG_PCR_EVENT2 event
  *
  * @param[in] hash	Pointer to hash data of TCG_DIGEST_SIZE bytes
  * @param[in] image_ptr	Pointer to image_data_t structure
  *
  * There must be room for storing this new event into the event log buffer.
  */
-static void add_event2(const uint8_t *hash, const image_data_t *image_ptr)
+static void event_log_record(const uint8_t *hash, const image_data_t *image_ptr)
 {
 	void *ptr = log_ptr;
 	uint32_t name_len;
@@ -222,7 +222,7 @@ void event_log_init(void)
 	log_ptr = (uint8_t *)ptr;
 
 	/* Add BL2 event */
-	add_event2(NULL, plat_data_ptr->images_data);
+	event_log_record(NULL, plat_data_ptr->images_data);
 }
 
 /*
@@ -264,7 +264,8 @@ int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 		return rc;
 	}
 
-	add_event2(hash_data, data_ptr);
+	event_log_record(hash_data, data_ptr);
+
 	return 0;
 }
 
