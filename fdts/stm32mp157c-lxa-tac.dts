@@ -1,0 +1,160 @@
+/* SPDX-License-Identifier: (GPL-2.0-or-later OR BSD-3-Clause) */
+/*
+ * Copyright (C) 2020 STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2021 Rouven Czerwinski, Pengutronix
+ */
+
+/dts-v1/;
+
+#include "stm32mp157.dtsi"
+#include "stm32mp15xc.dtsi"
+#include "stm32mp15-ddr3-1x4Gb-1066-binG.dtsi"
+#include "stm32mp15xx-osd32.dtsi"
+#include "stm32mp15xxac-pinctrl.dtsi"
+
+/ {
+	model = "Linux Automation Test Automation Controller (TAC)";
+	compatible = "lxa,stm32mp157c-tac", "oct,stm32mp15xx-osd32", "st,stm32mp157";
+
+	aliases {
+		mmc1 = &sdmmc2;
+		serial0 = &uart4;
+	};
+
+
+	chosen {
+		stdout-path = &uart4;
+	};
+
+	led-controller-0 {
+		compatible = "gpio-leds";
+
+		led-0 {
+			label = "tac:green:user1";
+			gpios = <&gpiof 10 1>;
+			linux,default-trigger = "heartbeat";
+		};
+	};
+
+	reg_3v3: regulator_3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "3V3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+		vin-supply = <&v3v3>;
+	};
+};
+
+&pinctrl {
+	tac_sdmmc2_d47_pins_b: tac-sdmmc2-d47-1 {
+		pins {
+			pinmux = <STM32_PINMUX('A', 8, AF9)>,  /* SDMMC2_D4 */
+				 <STM32_PINMUX('A', 9, AF10)>, /* SDMMC2_D5 */
+				 <STM32_PINMUX('C', 6, AF10)>, /* SDMMC2_D6 */
+				 <STM32_PINMUX('C', 7, AF10)>; /* SDMMC2_D7 */
+			slew-rate = <1>;
+			drive-push-pull;
+			bias-disable;
+		};
+	};
+};
+
+/* VCO = 624 MHz => P = 208, Q = 48, R = 104 */
+&pll3 {
+	st,pll = <&pll3_cfg2>;
+
+	pll3_cfg2: pll3-cfg2 {
+		st,pll_vco = <&pll3_vco_624Mhz>;
+		st,pll_div_pqr = <2 12 5>;
+	};
+};
+
+/* VCO = 750.0 MHz => P = 125, Q = 75, R = 62.5 */
+&pll4 {
+	st,pll = <&pll4_cfg2>;
+
+	pll4_cfg2: pll4-cfg2 {
+		st,pll_vco = <&pll4_vco_750Mhz>;
+		st,pll_div_pqr = <5 9 11>;
+	};
+};
+
+&rcc {
+	/* change parent clocks */
+	st,clksrc = <
+		CLK_MPU_PLL1P
+		CLK_AXI_PLL2P
+		CLK_MCU_PLL3P
+		CLK_RTC_LSE
+		CLK_MCO1_DISABLED
+		CLK_MCO2_DISABLED
+		CLK_CKPER_HSE
+		CLK_FMC_ACLK
+		CLK_QSPI_ACLK
+		CLK_ETH_PLL4P
+		CLK_SDMMC12_PLL3R
+		CLK_DSI_DSIPLL
+		CLK_STGEN_HSE
+		CLK_USBPHY_HSE
+		CLK_SPI2S1_PLL3Q
+		CLK_SPI2S23_PLL3Q
+		CLK_SPI45_HSI
+		CLK_SPI6_HSI
+		CLK_I2C46_HSI
+		CLK_SDMMC3_DISABLED
+		CLK_USBO_USBPHY
+		CLK_ADC_CKPER
+		CLK_CEC_DISABLED
+		CLK_I2C12_HSI
+		CLK_I2C35_HSI
+		CLK_UART1_HSI
+		CLK_UART24_HSI
+		CLK_UART35_HSI
+		CLK_UART6_HSI
+		CLK_UART78_HSI
+		CLK_SPDIF_DISABLED
+		CLK_FDCAN_PLL3Q
+		CLK_SAI1_DISABLED
+		CLK_SAI2_DISABLED
+		CLK_SAI3_DISABLED
+		CLK_SAI4_DISABLED
+		CLK_RNG1_LSI
+		CLK_RNG2_LSI
+		CLK_LPTIM1_PCLK1
+		CLK_LPTIM23_PCLK3
+		CLK_LPTIM45_LSE
+	>;
+
+	st,pll_vco {
+		pll3_vco_624Mhz: pll3-vco-624Mhz {
+			src = <CLK_PLL3_HSE>;
+			divmn = <1 51>;
+		};
+
+		pll4_vco_750Mhz: pll4-vco-750Mhz {
+			src = <CLK_PLL4_HSE>;
+			divmn = <3 124>;
+		};
+	};
+};
+
+&sdmmc2 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc2_b4_pins_a &tac_sdmmc2_d47_pins_b>;
+	bus-width = <8>;
+	mmc-ddr-3_3v;
+	no-1-8-v;
+	no-sd;
+	no-sdio;
+	non-removable;
+	st,neg-edge;
+	vmmc-supply = <&reg_3v3>;
+	status = "okay";
+};
+
+&uart4 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart4_pins_a>;
+	status = "okay";
+};
