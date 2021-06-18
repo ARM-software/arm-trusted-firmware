@@ -305,12 +305,12 @@ int spi_nand_init(unsigned long long *size, unsigned int *erase_size)
 		return ret;
 	}
 
-	ret = spi_nand_quad_enable(id[0]);
+	ret = spi_nand_quad_enable(id[1]);
 	if (ret != 0) {
 		return ret;
 	}
 
-	VERBOSE("SPI_NAND Detected ID 0x%x 0x%x\n", id[0], id[1]);
+	VERBOSE("SPI_NAND Detected ID 0x%x\n", id[1]);
 
 	VERBOSE("Page size %i, Block size %i, size %lli\n",
 		spinand_dev.nand_dev->page_size,
