@@ -148,11 +148,6 @@ static const struct {
 		.id = 0x40,
 		.name = "XCZU11EG",
 	},
-	{ /* For testing purpose only */
-		.id = 0x50,
-		.ver = 0x2c,
-		.name = "XCZU15CG",
-	},
 	{
 		.id = 0x50,
 		.name = "XCZU15EG",
@@ -334,9 +329,10 @@ static void zynqmp_print_platform_name(void)
 		break;
 	}
 
-	NOTICE("TF-A running on %s/%s v%d/RTL%d.%d at 0x%x\n",
-	       zynqmp_print_silicon_idcode(), label, zynqmp_get_ps_ver(),
-	       (rtl & 0xf0) >> 4, rtl & 0xf, BL31_BASE);
+	NOTICE("TF-A running on %s/%s at 0x%x\n",
+	       zynqmp_print_silicon_idcode(), label, BL31_BASE);
+	VERBOSE("TF-A running on v%d/RTL%d.%d\n",
+	       zynqmp_get_ps_ver(), (rtl & 0xf0) >> 4, rtl & 0xf);
 }
 #else
 static inline void zynqmp_print_platform_name(void) { }
