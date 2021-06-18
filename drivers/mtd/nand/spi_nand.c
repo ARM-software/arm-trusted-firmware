@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019,  STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2021,  STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -285,6 +285,10 @@ int spi_nand_init(unsigned long long *size, unsigned int *erase_size)
 	if (plat_get_spi_nand_data(&spinand_dev) != 0) {
 		return -EINVAL;
 	}
+
+	assert((spinand_dev.nand_dev->page_size != 0U) &&
+	       (spinand_dev.nand_dev->block_size != 0U) &&
+	       (spinand_dev.nand_dev->size != 0U));
 
 	ret = spi_nand_reset();
 	if (ret != 0) {
