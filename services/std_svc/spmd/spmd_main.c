@@ -562,6 +562,30 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 		return spmd_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
 		break; /* Not reached */
 
+	case FFA_SPM_ID_GET:
+		if (MAKE_FFA_VERSION(1, 1) > FFA_VERSION_COMPILED) {
+			return spmd_ffa_error_return(handle,
+						     FFA_ERROR_NOT_SUPPORTED);
+		}
+		/*
+		 * Returns the ID of the SPMC or SPMD depending on the FF-A
+		 * instance where this function is invoked
+		 */
+		if (!secure_origin) {
+			SMC_RET8(handle, FFA_SUCCESS_SMC32,
+				 FFA_TARGET_INFO_MBZ, spmc_attrs.spmc_id,
+				 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+				 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+				 FFA_PARAM_MBZ);
+		}
+		SMC_RET8(handle, FFA_SUCCESS_SMC32,
+			 FFA_TARGET_INFO_MBZ, SPMD_DIRECT_MSG_ENDPOINT_ID,
+			 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+			 FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+			 FFA_PARAM_MBZ);
+
+		break; /* not reached */
+
 	case FFA_MSG_SEND_DIRECT_REQ_SMC32:
 		if (secure_origin && spmd_is_spmc_message(x1)) {
 			ret = spmd_handle_spmc_message(x3, x4,
