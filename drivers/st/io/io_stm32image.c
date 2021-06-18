@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -246,10 +246,11 @@ static int stm32image_partition_size(io_entity_t *entity, size_t *length)
 static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 				     size_t length, size_t *length_read)
 {
-	int result;
+	int result = -EINVAL;
 	uint8_t *local_buffer;
 	boot_api_image_header_t *header =
 		(boot_api_image_header_t *)first_lba_buffer;
+	size_t hdr_sz = sizeof(boot_api_image_header_t);
 
 	assert(entity != NULL);
 	assert(buffer != 0U);
@@ -286,16 +287,13 @@ static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 		}
 
 		/* Part of image already loaded with the header */
-		memcpy(local_buffer, (uint8_t *)first_lba_buffer +
-		       sizeof(boot_api_image_header_t),
-		       MAX_LBA_SIZE - sizeof(boot_api_image_header_t));
-		local_buffer += MAX_LBA_SIZE - sizeof(boot_api_image_header_t);
+		memcpy(local_buffer, (uint8_t *)first_lba_buffer + hdr_sz,
+		       MAX_LBA_SIZE - hdr_sz);
+		local_buffer += MAX_LBA_SIZE - hdr_sz;
 		offset = MAX_LBA_SIZE;
 
 		/* New image length to be read */
-		local_length = round_up(length -
-					((MAX_LBA_SIZE) -
-					 sizeof(boot_api_image_header_t)),
+		local_length = round_up(length - ((MAX_LBA_SIZE) - hdr_sz),
 					stm32image_dev.lba_size);
 
 		if ((header->load_address != 0U) &&
@@ -326,7 +324,7 @@ static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 				 local_length, length_read);
 
 		/* Adding part of size already read from header */
-		*length_read += MAX_LBA_SIZE - sizeof(boot_api_image_header_t);
+		*length_read += MAX_LBA_SIZE - hdr_sz;
 
 		if (result != 0) {
 			ERROR("%s: io_read (%i)\n", __func__, result);
@@ -347,6 +345,9 @@ static int stm32image_partition_read(io_entity_t *entity, uintptr_t buffer,
 			ERROR("Authentication Failed (%i)\n", result);
 			return result;
 		}
+
+		inv_dcache_range(round_up((uintptr_t)(local_buffer + length - hdr_sz),
+					  CACHE_WRITEBACK_GRANULE), *length_read - length + hdr_sz);
 
 		io_close(backend_handle);
 	}
