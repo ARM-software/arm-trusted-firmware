@@ -9,6 +9,7 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <common/desc_image_load.h>
 #include <drivers/io/io_block.h>
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_fip.h>
@@ -45,7 +46,7 @@ static io_block_spec_t gpt_block_spec = {
 
 static uint32_t block_buffer[MMC_BLOCK_SIZE] __aligned(MMC_BLOCK_SIZE);
 
-static const io_block_dev_spec_t mmc_block_dev_spec = {
+static io_block_dev_spec_t mmc_block_dev_spec = {
 	/* It's used as temp buffer in block driver */
 	.buffer = {
 		.offset = (size_t)&block_buffer,
@@ -423,6 +424,11 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 			image_block_spec.length = entry->length;
 
 			gpt_init_done = true;
+		} else {
+			bl_mem_params_node_t *bl_mem_params = get_bl_mem_params_node(image_id);
+
+			mmc_block_dev_spec.buffer.offset = bl_mem_params->image_info.image_base;
+			mmc_block_dev_spec.buffer.length = bl_mem_params->image_info.image_max_size;
 		}
 
 		break;
