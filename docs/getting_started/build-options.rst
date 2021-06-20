@@ -873,6 +873,14 @@ Firmware update options
    This flag is used in defining the firmware update metadata structure. This
    flag is by default set to '1'.
 
+-  ``PSA_FWU_SUPPORT``: Enable the firmware update mechanism as per the
+   `PSA FW update specification`_. The default value is 0, and this is an
+   experimental feature.
+   PSA firmware update implementation has some limitations, such as BL2 is
+   not part of the protocol-updatable images, if BL2 needs to be updated, then
+   it should be done through another platform-defined mechanism, and it assumes
+   that the platform's hardware supports CRC32 instructions.
+
 --------------
 
 *Copyright (c) 2019-2021, Arm Limited. All rights reserved.*

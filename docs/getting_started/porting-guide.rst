@@ -894,6 +894,54 @@ On success the function should return 0 and a negative error code otherwise.
 Note that this API depends on ``DECRYPTION_SUPPORT`` build flag which is
 marked as experimental.
 
+Function : plat_fwu_set_images_source() [when PSA_FWU_SUPPORT == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : struct fwu_metadata *metadata
+    Return   : void
+
+This function is mandatory when PSA_FWU_SUPPORT is enabled.
+It provides a means to retrieve image specification (offset in
+non-volatile storage and length) of active/updated images using the passed
+FWU metadata, and update I/O policies of active/updated images using retrieved
+image specification information.
+Further I/O layer operations such as I/O open, I/O read, etc. on these
+images rely on this function call.
+
+In Arm platforms, this function is used to set an I/O policy of the FIP image,
+container of all active/updated secure and non-secure images.
+
+Function : plat_fwu_set_metadata_image_source() [when PSA_FWU_SUPPORT == 1]
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+::
+
+    Argument : unsigned int image_id, uintptr_t *dev_handle,
+               uintptr_t *image_spec
+    Return   : int
+
+This function is mandatory when PSA_FWU_SUPPORT is enabled. It is
+responsible for setting up the platform I/O policy of the requested metadata
+image (either FWU_METADATA_IMAGE_ID or BKUP_FWU_METADATA_IMAGE_ID) that will
+be used to load this image from the platform's non-volatile storage.
+
+FWU metadata can not be always stored as a raw image in non-volatile storage
+to define its image specification (offset in non-volatile storage and length)
+statically in I/O policy.
+For example, the FWU metadata image is stored as a partition inside the GUID
+partition table image. Its specification is defined in the partition table
+that needs to be parsed dynamically.
+This function provides a means to retrieve such dynamic information to set
+the I/O policy of the FWU metadata image.
+Further I/O layer operations such as I/O open, I/O read, etc. on FWU metadata
+image relies on this function call.
+
+It returns '0' on success, otherwise a negative error value on error.
+Alongside, returns device handle and image specification from the I/O policy
+of the requested FWU metadata image.
+
 Common optional modifications
 -----------------------------
 
