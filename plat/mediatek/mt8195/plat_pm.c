@@ -14,6 +14,7 @@
 
 /* platform specific headers */
 #include <mt_gic_v3.h>
+#include <mtk_ptp3_common.h>
 #include <mtspmc.h>
 #include <plat/common/platform.h>
 #include <plat_mtk_lpm.h>
@@ -83,6 +84,9 @@ static void plat_cpu_pwron_common(unsigned int cpu,
 	plat_mt_pm_invoke_no_check(pwr_cpu_on, cpu, state);
 
 	coordinate_cluster_pwron();
+
+	/* PTP3 config */
+	ptp3_core_init(cpu);
 
 	/* Enable the GIC CPU interface */
 	gicv3_rdistif_on(cpu);
