@@ -414,13 +414,17 @@ SPMC boot
 
 The SPMC is loaded by BL2 as the BL32 image.
 
-The SPMC manifest is loaded by BL2 as the ``TOS_FW_CONFIG`` image.
+The SPMC manifest is loaded by BL2 as the ``TOS_FW_CONFIG`` image `[9]`_.
 
 BL2 passes the SPMC manifest address to BL31 through a register.
 
 At boot time, the SPMD in BL31 runs from the primary core, initializes the core
-contexts and launches the SPMC (BL32) passing the SPMC manifest address through
-a register.
+contexts and launches the SPMC (BL32) passing the following information through
+registers:
+
+- X0 holds the ``TOS_FW_CONFIG`` physical address (or SPMC manifest blob).
+- X1 holds the ``HW_CONFIG`` physical address.
+- X4 holds the currently running core linear id.
 
 Loading of SPs
 ~~~~~~~~~~~~~~
@@ -950,6 +954,10 @@ Client <https://developer.arm.com/documentation/den0006/d/>`__
 .. _[8]:
 
 [8] https://lists.trustedfirmware.org/pipermail/tf-a/2020-February/000296.html
+
+.. _[9]:
+
+[9] https://trustedfirmware-a.readthedocs.io/en/latest/design/firmware-design.html#dynamic-configuration-during-cold-boot
 
 --------------
 
