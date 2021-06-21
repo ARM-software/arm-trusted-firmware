@@ -28,7 +28,7 @@
 #pragma weak plat_sdei_validate_entry_point
 #endif
 
-#pragma weak plat_ea_handler
+#pragma weak plat_ea_handler = plat_default_ea_handler
 
 void bl31_plat_runtime_setup(void)
 {
@@ -79,7 +79,7 @@ static const char *get_el_str(unsigned int el)
 #endif /* !ENABLE_BACKTRACE */
 
 /* RAS functions common to AArch64 ARM platforms */
-void plat_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
+void plat_default_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 		void *handle, uint64_t flags)
 {
 #if RAS_EXTENSION
