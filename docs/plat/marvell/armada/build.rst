@@ -62,6 +62,7 @@ There are several build options:
             - a80x0_mcbin  - MacchiatoBin
             - a80x0_puzzle - IEI Puzzle-M801
             - t9130        - CN913x
+            - t9130_cex7_eval - CN913x CEx7 Evaluation Board
 
 - DEBUG
 
