@@ -442,6 +442,9 @@
 #define MDCR_EnPMSN_BIT		(ULL(1) << 36)
 #define MDCR_MPMX_BIT		(ULL(1) << 35)
 #define MDCR_MCCD_BIT		(ULL(1) << 34)
+#define MDCR_NSTB(x)		((x) << 24)
+#define MDCR_NSTB_EL1		ULL(0x3)
+#define MDCR_NSTBE		(ULL(1) << 26)
 #define MDCR_MTPME_BIT		(ULL(1) << 28)
 #define MDCR_TDCC_BIT		(ULL(1) << 27)
 #define MDCR_SCCD_BIT		(ULL(1) << 23)
@@ -465,6 +468,8 @@
 /* MDCR_EL2 definitions */
 #define MDCR_EL2_MTPME		(U(1) << 28)
 #define MDCR_EL2_HLP		(U(1) << 26)
+#define MDCR_EL2_E2TB(x)	((x) << 24)
+#define MDCR_EL2_E2TB_EL1	U(0x3)
 #define MDCR_EL2_HCCD		(U(1) << 23)
 #define MDCR_EL2_TTRF		(U(1) << 19)
 #define MDCR_EL2_HPMD		(U(1) << 17)

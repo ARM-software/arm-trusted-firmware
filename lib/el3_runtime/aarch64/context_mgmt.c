@@ -565,6 +565,11 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 *
 			 * MDCR_EL2.HPMN: Set to value of PMCR_EL0.N which is the
 			 *  architecturally-defined reset value.
+			 *
+			 * MDCR_EL2.E2TB: Set to zero so that the trace Buffer
+			 *  owning exception level is NS-EL1 and, tracing is
+			 *  prohibited at NS-EL2. These bits are RES0 when
+			 *  FEAT_TRBE is not implemented.
 			 */
 			mdcr_el2 = ((MDCR_EL2_RESET_VAL | MDCR_EL2_HLP |
 				     MDCR_EL2_HPMD) |
@@ -574,7 +579,8 @@ void cm_prepare_el3_exit(uint32_t security_state)
 				     MDCR_EL2_TDRA_BIT | MDCR_EL2_TDOSA_BIT |
 				     MDCR_EL2_TDA_BIT | MDCR_EL2_TDE_BIT |
 				     MDCR_EL2_HPME_BIT | MDCR_EL2_TPM_BIT |
-				     MDCR_EL2_TPMCR_BIT);
+				     MDCR_EL2_TPMCR_BIT |
+				     MDCR_EL2_E2TB(MDCR_EL2_E2TB_EL1));
 
 			write_mdcr_el2(mdcr_el2);
 

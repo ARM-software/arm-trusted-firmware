@@ -126,12 +126,19 @@
 	 *  Debug is not implemented this bit does not have any effect on the
 	 *  counters unless there is support for the implementation defined
 	 *  authentication interface ExternalSecureNoninvasiveDebugEnabled().
+	 *
+	 * MDCR_EL3.NSTB, MDCR_EL3.NSTBE: Set to zero so that Trace Buffer
+	 *  owning security state is Secure state. If FEAT_TRBE is implemented,
+	 *  accesses to Trace Buffer control registers at EL2 and EL1 in any
+	 *  security state generates trap exceptions to EL3.
+	 *  If FEAT_TRBE is not implemented, these bits are RES0.
 	 * ---------------------------------------------------------------------
 	 */
 	mov_imm	x0, ((MDCR_EL3_RESET_VAL | MDCR_SDD_BIT | \
 		      MDCR_SPD32(MDCR_SPD32_DISABLE) | MDCR_SCCD_BIT | \
 		      MDCR_MCCD_BIT) & ~(MDCR_SPME_BIT | MDCR_TDOSA_BIT | \
-		      MDCR_TDA_BIT | MDCR_TPM_BIT))
+		      MDCR_TDA_BIT | MDCR_TPM_BIT | MDCR_NSTB(MDCR_NSTB_EL1) | \
+		      MDCR_NSTBE))
 
 	msr	mdcr_el3, x0
 
