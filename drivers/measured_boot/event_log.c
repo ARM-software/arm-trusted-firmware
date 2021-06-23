@@ -243,14 +243,11 @@ int tpm_record_measurement(uintptr_t data_base, uint32_t data_size,
 	unsigned char hash_data[MBEDTLS_MD_MAX_SIZE];
 	int rc;
 
-	/* Check if image_id is supported */
-	while (data_ptr->id != data_id) {
-		if ((data_ptr++)->id == INVALID_ID) {
-			ERROR("%s(): image_id %u not supported\n",
-				__func__, data_id);
-			return -EINVAL;
-		}
+	/* Get the metadata associated with this image. */
+	while ((data_ptr->id != INVALID_ID) && (data_ptr->id != data_id)) {
+		data_ptr++;
 	}
+	assert(data_ptr->id != INVALID_ID);
 
 	if (data_id == TOS_FW_CONFIG_ID) {
 		tos_fw_config_base = data_base;
