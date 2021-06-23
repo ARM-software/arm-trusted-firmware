@@ -169,7 +169,6 @@ static int add_event2(const uint8_t *hash, const image_data_t *image_ptr)
 void event_log_init(void)
 {
 	const char locality_signature[] = TCG_STARTUP_LOCALITY_SIGNATURE;
-	const uint8_t *start_ptr;
 	void *ptr = event_log;
 
 	/* Get pointer to platform's measured_boot_data_t structure */
@@ -196,11 +195,6 @@ void event_log_init(void)
 	((id_event_struct_data_t *)ptr)->vendor_info_size = 0;
 	ptr = (uint8_t *)((uintptr_t)ptr +
 			offsetof(id_event_struct_data_t, vendor_info));
-	if ((uintptr_t)ptr != ((uintptr_t)event_log + ID_EVENT_SIZE)) {
-		panic();
-	}
-
-	start_ptr = (uint8_t *)ptr;
 
 	/*
 	 * The Startup Locality event should be placed in the log before
@@ -237,9 +231,6 @@ void event_log_init(void)
 	 */
 	((startup_locality_event_t *)ptr)->startup_locality = 0U;
 	ptr = (uint8_t *)((uintptr_t)ptr + sizeof(startup_locality_event_t));
-	if ((uintptr_t)ptr != ((uintptr_t)start_ptr + LOC_EVENT_SIZE)) {
-		panic();
-	}
 
 	log_ptr = (uint8_t *)ptr;
 
