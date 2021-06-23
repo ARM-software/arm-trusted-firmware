@@ -58,26 +58,25 @@ static const id_event_headers_t id_event_header = {
 };
 
 static const event2_header_t locality_event_header = {
-		/*
-		 * All EV_NO_ACTION events SHALL set
-		 * TCG_PCR_EVENT2.pcrIndex = 0, unless otherwise specified
-		 */
-		.pcr_index = PCR_0,
+	/*
+	 * All EV_NO_ACTION events SHALL set
+	 * TCG_PCR_EVENT2.pcrIndex = 0, unless otherwise specified
+	 */
+	.pcr_index = PCR_0,
 
-		/*
-		 * All EV_NO_ACTION events SHALL set
-		 * TCG_PCR_EVENT2.eventType = 03h
-		 */
-		.event_type = EV_NO_ACTION,
+	/*
+	 * All EV_NO_ACTION events SHALL set
+	 * TCG_PCR_EVENT2.eventType = 03h
+	 */
+	.event_type = EV_NO_ACTION,
 
-		/*
-		 * All EV_NO_ACTION events SHALL set
-		 * TCG_PCR_EVENT2.digests to all
-		 * 0x00's for each allocated Hash algorithm
-		 */
-		.digests = {
-			.count = HASH_ALG_COUNT
-		}
+	/*
+	 * All EV_NO_ACTION events SHALL set TCG_PCR_EVENT2.digests to all
+	 * 0x00's for each allocated Hash algorithm
+	 */
+	.digests = {
+		.count = HASH_ALG_COUNT
+	}
 };
 
 /*
