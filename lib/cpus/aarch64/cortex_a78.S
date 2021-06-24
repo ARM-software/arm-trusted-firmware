@@ -44,13 +44,13 @@ func check_errata_1688305
 	b	cpu_rev_var_ls
 endfunc check_errata_1688305
 
-	/* --------------------------------------------------
-	 * Errata Workaround for Cortex A78 Errata #1941498.
-	 * This applies to revisions r0p0, r1p0, and r1p1.
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * --------------------------------------------------
-	 */
+/* --------------------------------------------------
+ * Errata Workaround for Cortex A78 Errata #1941498.
+ * This applies to revisions r0p0, r1p0, and r1p1.
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
 func errata_a78_1941498_wa
 	/* Compare x0 against revision <= r1p1 */
 	mov	x17, x30
@@ -72,16 +72,16 @@ func check_errata_1941498
 	b	cpu_rev_var_ls
 endfunc check_errata_1941498
 
-	/* --------------------------------------------------
-	 * Errata Workaround for A78 Erratum 1951500.
-	 * This applies to revisions r1p0 and r1p1 of A78.
-	 * The issue also exists in r0p0 but there is no fix
-	 * in that revision.
-	 * Inputs:
-	 * x0: variant[4:7] and revision[0:3] of current cpu.
-	 * Shall clobber: x0-x17
-	 * --------------------------------------------------
-	 */
+/* --------------------------------------------------
+ * Errata Workaround for A78 Erratum 1951500.
+ * This applies to revisions r1p0 and r1p1 of A78.
+ * The issue also exists in r0p0 but there is no fix
+ * in that revision.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
 func errata_a78_1951500_wa
 	/* Compare x0 against revisions r1p0 - r1p1 */
 	mov	x17, x30
@@ -126,6 +126,34 @@ func check_errata_1951500
 	b	cpu_rev_var_range
 endfunc check_errata_1951500
 
+/* --------------------------------------------------
+ * Errata Workaround for Cortex A78 Errata #1821534.
+ * This applies to revisions r0p0 and r1p0.
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
+func errata_a78_1821534_wa
+	/* Check revision. */
+	mov	x17, x30
+	bl	check_errata_1821534
+	cbz	x0, 1f
+
+	/* Set bit 2 in ACTLR2_EL1 */
+	mrs     x1, CORTEX_A78_ACTLR2_EL1
+	orr	x1, x1, #CORTEX_A78_ACTLR2_EL1_BIT_2
+	msr     CORTEX_A78_ACTLR2_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_a78_1821534_wa
+
+func check_errata_1821534
+	/* Applies to r0p0 and r1p0 */
+	mov	x1, #0x10
+	b	cpu_rev_var_ls
+endfunc check_errata_1821534
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Cortex-A78
 	 * -------------------------------------------------
@@ -148,6 +176,11 @@ func cortex_a78_reset_func
 #if ERRATA_A78_1951500
 	mov	x0, x18
 	bl	errata_a78_1951500_wa
+#endif
+
+#if ERRATA_A78_1821534
+	mov	x0, x18
+	bl	errata_a78_1821534_wa
 #endif
 
 #if ENABLE_AMU
@@ -207,6 +240,7 @@ func cortex_a78_errata_report
 	report_errata ERRATA_A78_1688305, cortex_a78, 1688305
 	report_errata ERRATA_A78_1941498, cortex_a78, 1941498
 	report_errata ERRATA_A78_1951500, cortex_a78, 1951500
+	report_errata ERRATA_A78_1821534, cortex_a78, 1821534
 
 	ldp	x8, x30, [sp], #16
 	ret
