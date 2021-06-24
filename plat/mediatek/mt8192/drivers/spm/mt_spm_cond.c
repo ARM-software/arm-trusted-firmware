@@ -143,6 +143,11 @@ unsigned int mt_spm_cond_check(int state_id,
 		blocked |= SPM_COND_CHECK_BLOCKED_PLL;
 	}
 
+	if (is_system_suspend && (blocked != 0U)) {
+		INFO("suspend: %s total blocked = 0x%08x\n",
+		     dest->name, blocked);
+	}
+
 	return blocked;
 }
 
