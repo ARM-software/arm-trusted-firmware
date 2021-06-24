@@ -173,7 +173,7 @@ enum pm_ret_status pm_abort_suspend(enum pm_abort_reason reason, uint32_t flag)
 	/* Send request to the PLM */
 	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, flag, PM_ABORT_SUSPEND,
 			 reason, primary_proc->node_id);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
@@ -909,7 +909,7 @@ enum pm_ret_status pm_set_wakeup_source(uint32_t target, uint32_t wkup_device,
 
 	PM_PACK_PAYLOAD4(payload, LIBPM_MODULE_ID, flag, PM_SET_WAKEUP_SOURCE,
 			 target, wkup_device, enable);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
