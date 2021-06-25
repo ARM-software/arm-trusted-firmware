@@ -352,3 +352,6 @@ NR_OF_FW_BANKS			:= 2
 # Build option to define number of images in firmware bank, used in firmware
 # update metadata structure.
 NR_OF_IMAGES_IN_FW_BANK		:= 1
+
+# Disable Firmware update support by default
+PSA_FWU_SUPPORT			:= 0
