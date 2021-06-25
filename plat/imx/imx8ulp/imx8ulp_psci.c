@@ -16,6 +16,12 @@
 #include <plat_imx8.h>
 #include <upower_api.h>
 
+extern void cgc1_save(void);
+extern void cgc1_restore(void);
+extern void imx_apd_ctx_save(unsigned int cpu);
+extern void imx_apd_ctx_restore(unsigned int cpu);
+extern void usb_wakeup_enable(bool enable);
+
 static uintptr_t secure_entrypoint;
 
 #define CORE_PWR_STATE(state) ((state)->pwr_domain_state[MPIDR_AFFLVL0])
@@ -62,6 +68,8 @@ static uintptr_t secure_entrypoint;
 		.perif = (p),	\
 		.mask = (m),	\
 	}
+
+extern void upower_wait_resp(void);
 
 static int imx_pwr_set_cpu_entry(unsigned int cpu, unsigned int entry)
 {
@@ -120,8 +128,18 @@ void imx_pwr_domain_off(const psci_power_state_t *target_state)
 	/* set core power mode to PD */
 	mmio_write_32(AD_COREx_LPMODE(cpu), 0x3);
 }
+
 /* APD power mode config */
 ps_apd_pwr_mode_cfgs_t apd_pwr_mode_cfgs = {
+	/* PD */
+	[PD_PWR_MODE] = {
+		.swt_board_offs = 0x170,
+		.swt_mem_offs = 0x178,
+		.pmic_cfg = PMIC_CFG(0x23, 0x2, 0x2),
+		.pad_cfg = PAD_CFG(0x0, 0x0, 0x01e80a00),
+		.bias_cfg = BIAS_CFG(0x0, 0x2, 0x2, 0x0),
+	},
+
 	[ADMA_PWR_MODE] = {
 		.swt_board_offs = 0x120,
 		.swt_mem_offs = 0x128,
@@ -141,16 +159,22 @@ ps_apd_pwr_mode_cfgs_t apd_pwr_mode_cfgs = {
 
 /* APD power switch config */
 ps_apd_swt_cfgs_t apd_swt_cfgs = {
+	[PD_PWR_MODE] = {
+		.swt_board[0] = SWT_BOARD(0x00060003, 0x00001e74),
+		.swt_mem[0] = SWT_MEM(0x00010c00, 0x0, 0x1ffff),
+		.swt_mem[1] = SWT_MEM(0x003fffff, 0x003f0000, 0x0),
+	},
+
 	[ADMA_PWR_MODE] = {
-		.swt_board[0] = SWT_BOARD(0x74, 0x7c),
-		.swt_mem[0] = SWT_MEM(0x0001fffd, 0x0001fffd, 0x1fffd),
-		.swt_mem[1] = SWT_MEM(0x0, 0x0, 0x0),
+		.swt_board[0] = SWT_BOARD(0x0006ff77, 0x0006ff7c),
+		.swt_mem[0] = SWT_MEM(0x0001fffd, 0x0001fffd, 0x1ffff),
+		.swt_mem[1] = SWT_MEM(0x003fffff, 0x003fffff, 0x0),
 	},
 
 	[ACT_PWR_MODE] = {
-		.swt_board[0] = SWT_BOARD(0x74, 0x7c),
-		.swt_mem[0] = SWT_MEM(0x0001fffd, 0x0001fffd, 0x1fffd),
-		.swt_mem[1] = SWT_MEM(0x0, 0x0, 0x0),
+		.swt_board[0] = SWT_BOARD(0x0006ff77, 0x0000ff7c),
+		.swt_mem[0] = SWT_MEM(0x0001fffd, 0x0001fffd, 0x1ffff),
+		.swt_mem[1] = SWT_MEM(0x003fffff, 0x003fffff, 0x0),
 	},
 };
 
@@ -190,18 +214,23 @@ void imx_domain_suspend(const psci_power_state_t *target_state)
 		isb();
 	}
 
-	if (!is_local_state_run(CLUSTER_PWR_STATE(target_state))) {
-		/* TODO imx_set_wakeup() based on GIC config*/
-
+	if (is_local_state_retn(CLUSTER_PWR_STATE(target_state))) {
 		/*
 		 * just for sleep mode for now, need to update to
-		 * support more mode, same for suspend finish call back.
+		 * support more modes, same for suspend finish call back.
 		 */
 		mmio_write_32(IMX_CMC1_BASE + 0x10, 0x1);
 		mmio_write_32(IMX_CMC1_BASE + 0x20, 0x1);
+
+	} else if (is_local_state_off(CLUSTER_PWR_STATE(target_state))) {
+		/*
+		 * for cluster off state, put cluster into power down mode,
+		 * config the cluster clock to be off.
+		 */
+		mmio_write_32(IMX_CMC1_BASE + 0x10, 0x7);
+		mmio_write_32(IMX_CMC1_BASE + 0x20, 0xf);
 	}
 
-	/* TODO, may need to add more system level config here */
 	if (is_local_state_off(SYSTEM_PWR_STATE(target_state))) {
 		/*
 		 * low power mode config info used by upower
@@ -209,21 +238,65 @@ void imx_domain_suspend(const psci_power_state_t *target_state)
 		 */
 		imx_set_pwr_mode_cfg(ADMA_PWR_MODE);
 		imx_set_pwr_mode_cfg(ACT_PWR_MODE);
+		imx_set_pwr_mode_cfg(PD_PWR_MODE);
+
+		/* clear the upower wakeup */
+		upwr_xcp_set_rtd_apd_llwu(APD_DOMAIN, 0, NULL);
+		upower_wait_resp();
+
+		/* enable the USB wakeup */
+		usb_wakeup_enable(true);
+
+		/* config the WUU to enabled the wakeup source */
+		mmio_write_32(IMX_PCC3_BASE + 0x98, 0xc0800000);
+
+		/* !!! clear all the pad wakeup pending event */
+		mmio_write_32(IMX_WUU1_BASE + 0x20, 0xffffffff);
+
+		/* enable upower usb phy wakeup by default */
+		mmio_setbits_32(IMX_WUU1_BASE + 0x18, BIT(4) | BIT(1) | BIT(0));
+
+		/* enabled all pad wakeup by default */
+		mmio_write_32(IMX_WUU1_BASE + 0x8, 0xffffffff);
+
+		/* save the AD domain context before entering PD mode */
+		imx_apd_ctx_save(cpu);
 	}
 }
 
+extern void imx8ulp_init_scmi_server(void);
 void imx_domain_suspend_finish(const psci_power_state_t *target_state)
 {
 	unsigned int cpu = MPIDR_AFFLVL0_VAL(read_mpidr_el1());
 
 	if (is_local_state_off(SYSTEM_PWR_STATE(target_state))) {
-		/* TODO reverse setting for system level */
+		/* restore the ap domain context */
+		imx_apd_ctx_restore(cpu);
+
+		/* clear the upower wakeup */
+		upwr_xcp_set_rtd_apd_llwu(APD_DOMAIN, 0, NULL);
+		upower_wait_resp();
+
+		/* disable all pad wakeup */
+		mmio_write_32(IMX_WUU1_BASE + 0x8, 0x0);
+
+		/* clear all the pad wakeup pending event */
+		mmio_write_32(IMX_WUU1_BASE + 0x20, 0xffffffff);
+
+		/*
+		 * disable the usb wakeup after resume to make sure the pending
+		 * usb wakeup in WUU can be cleared successfully, otherwise,
+		 * APD will resume failed in next PD mode.
+		 */
+		usb_wakeup_enable(false);
+
+		/* re-init the SCMI channel */
+		imx8ulp_init_scmi_server();
 	}
 
-	if (!is_local_state_run(CLUSTER_PWR_STATE(target_state))) {
-		mmio_write_32(IMX_CMC1_BASE + 0x20, 0x0);
-		mmio_write_32(IMX_CMC1_BASE + 0x10, 0x0);
-	}
+	/* clear cluster's LPM setting. */
+	mmio_write_32(IMX_CMC1_BASE + 0x20, 0x0);
+	mmio_write_32(IMX_CMC1_BASE + 0x10, 0x0);
 
 	/* clear core's LPM setting */
 	mmio_write_32(IMX_CMC1_BASE + 0x50 + 0x4 * cpu, 0x0);
