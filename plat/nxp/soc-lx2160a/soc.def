@@ -91,7 +91,7 @@ OCRAM_SIZE := 0x40000
 # Location of BL2 on OCRAM
 BL2_BASE_ADDR	:=	$(shell echo $$(( $(OCRAM_START_ADDR) + $(NXP_ROM_RSVD) + $(CSF_HDR_SZ) )))
 # Covert to HEX to be used by create_pbl.mk
-BL2_BASE	:=	$$(echo "obase=16; ${BL2_BASE_ADDR}" | bc)
+BL2_BASE	:=	$(shell echo "0x"$$(echo "obase=16; ${BL2_BASE_ADDR}" | bc))
 
 # BL2_HDR_LOC is at  (OCRAM_ADDR + NXP_ROM_RSVD)
 # This value BL2_HDR_LOC + CSF_HDR_SZ should not overalp with BL2_BASE
