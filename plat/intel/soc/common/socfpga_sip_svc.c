@@ -90,16 +90,18 @@ static uint32_t intel_mailbox_fpga_config_isdone(uint32_t query_type)
 {
 	uint32_t ret;
 
-	if (query_type == 1)
+	if (query_type == 1U) {
 		ret = intel_mailbox_get_config_status(MBOX_CONFIG_STATUS, false);
-	else
+	} else {
 		ret = intel_mailbox_get_config_status(MBOX_RECONFIG_STATUS, true);
+	}
 
 	if (ret != 0U) {
-		if (ret == MBOX_CFGSTAT_STATE_CONFIG)
+		if (ret == MBOX_CFGSTAT_STATE_CONFIG) {
 			return INTEL_SIP_SMC_STATUS_BUSY;
-		else
+		} else {
 			return INTEL_SIP_SMC_STATUS_ERROR;
+		}
 	}
 
 	if (bridge_disable) {
@@ -434,6 +436,33 @@ static uint32_t intel_rsu_copy_dcmf_status(uint64_t dcmf_stat)
 	return INTEL_SIP_SMC_STATUS_OK;
 }
 
+/* Intel HWMON services */
+static uint32_t intel_hwmon_readtemp(uint32_t chan, uint32_t *retval)
+{
+	if (chan > TEMP_CHANNEL_MAX) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	if (mailbox_hwmon_readtemp(chan, retval) < 0) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
+static uint32_t intel_hwmon_readvolt(uint32_t chan, uint32_t *retval)
+{
+	if (chan > VOLT_CHANNEL_MAX) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	if (mailbox_hwmon_readvolt(chan, retval) < 0) {
+		return INTEL_SIP_SMC_STATUS_ERROR;
+	}
+
+	return INTEL_SIP_SMC_STATUS_OK;
+}
+
 /* Mailbox services */
 static uint32_t intel_smc_fw_version(uint32_t *fw_version)
 {
@@ -681,6 +710,14 @@ uintptr_t sip_smc_handler(uint32_t smc_fid,
 	case INTEL_SIP_SMC_HPS_SET_BRIDGES:
 		status = intel_hps_set_bridges(x1);
 		SMC_RET1(handle, status);
+
+	case INTEL_SIP_SMC_HWMON_READTEMP:
+		status = intel_hwmon_readtemp(x1, &retval);
+		SMC_RET2(handle, status, retval);
+
+	case INTEL_SIP_SMC_HWMON_READVOLT:
+		status = intel_hwmon_readvolt(x1, &retval);
+		SMC_RET2(handle, status, retval);
 
 	default:
 		return socfpga_sip_handler(smc_fid, x1, x2, x3, x4,
