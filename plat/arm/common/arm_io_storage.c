@@ -5,6 +5,7 @@
  */
 
 #include <common/debug.h>
+#include <drivers/fwu/fwu_metadata.h>
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_fip.h>
 #include <drivers/io/io_memmap.h>
@@ -23,6 +24,13 @@ static const io_dev_connector_t *fip_dev_con;
 uintptr_t fip_dev_handle;
 static const io_dev_connector_t *memmap_dev_con;
 uintptr_t memmap_dev_handle;
+
+#if ARM_GPT_SUPPORT
+/* fip partition names */
+static const char * const fip_part_names[] = {"FIP_A", "FIP_B"};
+CASSERT(sizeof(fip_part_names)/sizeof(char *) == NR_OF_FW_BANKS,
+	assert_fip_partition_names_missing);
+#endif /* ARM_GPT_SUPPORT */
 
 /* Weak definitions may be overridden in specific ARM standard platform */
 #pragma weak plat_arm_io_setup
@@ -139,17 +147,20 @@ bool arm_io_is_toc_valid(void)
 }
 
 #if ARM_GPT_SUPPORT
-/**********************************************************************
- * arm_set_image_source: Set image specification in IO policy
+/******************************************************************************
+ * Retrieve partition entry details such as offset and length, and set these
+ * details in the I/O policy of the requested image.
  *
- * @image_id: id of the image whose specification to be set
+ * @image_id: image id whose I/O policy to be updated
  *
- * @part_name: name of the partition that to be read for entry details
+ * @part_name: partition name whose details to be retrieved
  *
- * set the entry and offset details of partition in global IO policy
- * of the image
- *********************************************************************/
-int arm_set_image_source(unsigned int image_id, const char *part_name)
+ * Returns 0 on success, error otherwise
+ * Alongside, returns device handle and image specification of requested
+ * image.
+ ******************************************************************************/
+int arm_set_image_source(unsigned int image_id, const char *part_name,
+			 uintptr_t *dev_handle, uintptr_t *image_spec)
 {
 	const partition_entry_t *entry = get_partition_entry(part_name);
 
@@ -158,19 +169,82 @@ int arm_set_image_source(unsigned int image_id, const char *part_name)
 		return -ENOENT;
 	}
 
-	const struct plat_io_policy *policy = FCONF_GET_PROPERTY(arm,
-								 io_policies,
-								 image_id);
+	struct plat_io_policy *policy = FCONF_GET_PROPERTY(arm,
+							   io_policies,
+							   image_id);
 
 	assert(policy != NULL);
 	assert(policy->image_spec != 0UL);
 
+	io_block_spec_t *spec = (io_block_spec_t *)policy->image_spec;
 	/* set offset and length of the image */
-	io_block_spec_t *image_spec = (io_block_spec_t *)policy->image_spec;
+	spec->offset = PLAT_ARM_FLASH_IMAGE_BASE + entry->start;
+	spec->length = entry->length;
 
-	image_spec->offset = PLAT_ARM_FLASH_IMAGE_BASE + entry->start;
-	image_spec->length = entry->length;
+	*dev_handle = *(policy->dev_handle);
+	*image_spec = policy->image_spec;
 
 	return 0;
 }
-#endif
+
+/*******************************************************************************
+ * Set the source offset and length of the FIP image in its I/O policy.
+ *
+ * @active_fw_bank_idx: active firmware bank index gathered from FWU metadata.
+ ******************************************************************************/
+void arm_set_fip_addr(uint32_t active_fw_bank_idx)
+{
+	uintptr_t dev_handle __unused;
+	uintptr_t image_spec __unused;
+
+	assert(active_fw_bank_idx < NR_OF_FW_BANKS);
+
+	INFO("Booting with partition %s\n", fip_part_names[active_fw_bank_idx]);
+
+	int result = arm_set_image_source(FIP_IMAGE_ID,
+					  fip_part_names[active_fw_bank_idx],
+					  &dev_handle,
+					  &image_spec);
+	if (result != 0) {
+		panic();
+	}
+}
+#endif /* ARM_GPT_SUPPORT */
+
+#if PSA_FWU_SUPPORT
+/*******************************************************************************
+ * Read the FIP partition of the GPT image corresponding to the active firmware
+ * bank to get its offset and length, and update these details in the I/O policy
+ * of the FIP image.
+ ******************************************************************************/
+void plat_fwu_set_images_source(struct fwu_metadata *metadata)
+{
+	arm_set_fip_addr(metadata->active_index);
+}
+
+/*******************************************************************************
+ * Read the requested FWU metadata partition of the GPT image to get its offset
+ * and length, and update these details in the I/O policy of the requested FWU
+ * metadata image.
+ ******************************************************************************/
+int plat_fwu_set_metadata_image_source(unsigned int image_id,
+				       uintptr_t *dev_handle,
+				       uintptr_t *image_spec)
+{
+	int result = -1;
+
+	if (image_id == FWU_METADATA_IMAGE_ID) {
+		result = arm_set_image_source(FWU_METADATA_IMAGE_ID,
+					      "FWU-Metadata",
+					      dev_handle,
+					      image_spec);
+	} else if (image_id == BKUP_FWU_METADATA_IMAGE_ID) {
+		result = arm_set_image_source(BKUP_FWU_METADATA_IMAGE_ID,
+					      "Bkup-FWU-Metadata",
+					      dev_handle,
+					      image_spec);
+	}
+
+	return result;
+}
+#endif /* PSA_FWU_SUPPORT */

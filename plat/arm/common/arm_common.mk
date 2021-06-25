@@ -185,6 +185,18 @@ ifeq (${ARM_ARCH_MINOR},0)
   BL2_CPPFLAGS += -march=armv8-a+crc
 endif
 
+ifeq ($(PSA_FWU_SUPPORT),1)
+    # GPT support is recommended as per PSA FWU specification hence
+    # PSA FWU implementation is tightly coupled with GPT support,
+    # and it does not support other formats.
+    ifneq ($(ARM_GPT_SUPPORT),1)
+      $(error For PSA_FWU_SUPPORT, ARM_GPT_SUPPORT must be enabled)
+    endif
+    FWU_MK := drivers/fwu/fwu.mk
+    $(info Including ${FWU_MK})
+    include ${FWU_MK}
+endif
+
 ifeq (${ARCH}, aarch64)
 PLAT_INCLUDES		+=	-Iinclude/plat/arm/common/aarch64
 endif
