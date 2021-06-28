@@ -21,7 +21,16 @@
 #define MTK_MCDI_SRAM_BASE	0x11B000
 #define MTK_MCDI_SRAM_MAP_SIZE	0x1000
 
+#define TOPCKGEN_BASE           (IO_PHYS + 0x00000000)
+#define INFRACFG_AO_BASE        (IO_PHYS + 0x00001000)
 #define SPM_BASE		(IO_PHYS + 0x00006000)
+#define APMIXEDSYS              (IO_PHYS + 0x0000C000)
+#define SSPM_MBOX_BASE          (IO_PHYS + 0x00480000)
+#define PERICFG_AO_BASE         (IO_PHYS + 0x01003000)
+#define VPPSYS0_BASE            (IO_PHYS + 0x04000000)
+#define VPPSYS1_BASE            (IO_PHYS + 0x04f00000)
+#define VDOSYS0_BASE            (IO_PHYS + 0x0C01A000)
+#define VDOSYS1_BASE            (IO_PHYS + 0x0C100000)
 
 /*******************************************************************************
  * DP/eDP related constants
