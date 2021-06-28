@@ -129,14 +129,12 @@ There are several build options:
 
 - MV_DDR_PATH
 
+        This parameter is required for ``mrvl_flash`` and ``mrvl_uart`` targets.
+
         For A7K/8K/CN913x, use this parameter to point to mv_ddr driver sources to allow BLE build. For A37x0,
         it is used for ddr_tool build.
 
         Usage example: MV_DDR_PATH=path/to/mv_ddr
-
-        The parameter is optional for A7K/8K/CN913x, when this parameter is not set, the mv_ddr
-        sources are expected to be located at: drivers/marvell/mv_ddr. However, the parameter
-        is necessary for A37x0.
 
         For the mv_ddr source location, check the section "Tools and external components installation"
 
