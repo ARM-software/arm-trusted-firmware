@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -103,7 +103,7 @@ static int spi_nor_ready(void)
 			0 : 1;
 	}
 
-	return (((sr & SR_WIP) != 0U) ? 1 : 0);
+	return (((sr & SR_WIP) == 0U) ? 0 : 1);
 }
 
 static int spi_nor_wait_ready(void)
@@ -141,7 +141,7 @@ static int spi_nor_macronix_quad_enable(void)
 	}
 
 	sr |= SR_QUAD_EN_MX;
-	ret = spi_nor_reg(SPI_NOR_OP_WRSR, &sr, 1, SPI_MEM_DATA_OUT);
+	ret = spi_nor_reg(SPI_NOR_OP_WRSR, &sr, 1U, SPI_MEM_DATA_OUT);
 	if (ret != 0) {
 		return ret;
 	}
@@ -168,7 +168,7 @@ static int spi_nor_write_sr_cr(uint8_t *sr_cr)
 		return ret;
 	}
 
-	ret = spi_nor_reg(SPI_NOR_OP_WRSR, sr_cr, 2, SPI_MEM_DATA_OUT);
+	ret = spi_nor_reg(SPI_NOR_OP_WRSR, sr_cr, 2U, SPI_MEM_DATA_OUT);
 	if (ret != 0) {
 		return -EINVAL;
 	}
@@ -230,7 +230,7 @@ static int spi_nor_clean_bar(void)
 	}
 
 	return spi_nor_reg(nor_dev.bank_write_cmd, &nor_dev.selected_bank,
-			   1, SPI_MEM_DATA_OUT);
+			   1U, SPI_MEM_DATA_OUT);
 }
 
 static int spi_nor_write_bar(uint32_t offset)
@@ -248,7 +248,7 @@ static int spi_nor_write_bar(uint32_t offset)
 	}
 
 	ret = spi_nor_reg(nor_dev.bank_write_cmd, &selected_bank,
-			  1, SPI_MEM_DATA_OUT);
+			  1U, SPI_MEM_DATA_OUT);
 	if (ret != 0) {
 		return ret;
 	}
@@ -260,11 +260,11 @@ static int spi_nor_write_bar(uint32_t offset)
 
 static int spi_nor_read_bar(void)
 {
-	uint8_t selected_bank = 0;
+	uint8_t selected_bank = 0U;
 	int ret;
 
 	ret = spi_nor_reg(nor_dev.bank_read_cmd, &selected_bank,
-			  1, SPI_MEM_DATA_IN);
+			  1U, SPI_MEM_DATA_IN);
 	if (ret != 0) {
 		return ret;
 	}
@@ -280,7 +280,7 @@ int spi_nor_read(unsigned int offset, uintptr_t buffer, size_t length,
 	size_t remain_len;
 	int ret;
 
-	*length_read = 0;
+	*length_read = 0U;
 	nor_dev.read_op.addr.val = offset;
 	nor_dev.read_op.data.buf = (void *)buffer;
 
@@ -324,7 +324,7 @@ int spi_nor_read(unsigned int offset, uintptr_t buffer, size_t length,
 
 int spi_nor_init(unsigned long long *size, unsigned int *erase_size)
 {
-	int ret = 0;
+	int ret;
 	uint8_t id;
 
 	/* Default read command used */
@@ -339,7 +339,7 @@ int spi_nor_init(unsigned long long *size, unsigned int *erase_size)
 		return -EINVAL;
 	}
 
-	assert(nor_dev.size != 0);
+	assert(nor_dev.size != 0U);
 
 	if (nor_dev.size > BANK_SIZE) {
 		nor_dev.flags |= SPI_NOR_USE_BANK;
