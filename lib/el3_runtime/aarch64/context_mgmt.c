@@ -22,6 +22,7 @@
 #include <lib/extensions/mpam.h>
 #include <lib/extensions/spe.h>
 #include <lib/extensions/sve.h>
+#include <lib/extensions/sys_reg_trace.h>
 #include <lib/extensions/trbe.h>
 #include <lib/extensions/twed.h>
 #include <lib/utils.h>
@@ -354,6 +355,10 @@ static void enable_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 	trbe_enable();
 #endif /* ENABLE_TRBE_FOR_NS */
 
+#if ENABLE_SYS_REG_TRACE_FOR_NS
+	sys_reg_trace_enable(ctx);
+#endif /* ENABLE_SYS_REG_TRACE_FOR_NS */
+
 #endif
 }
 
@@ -463,6 +468,8 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			 * CPTR_EL2.TTA: Set to zero so that Non-secure System
 			 *  register accesses to the trace registers from both
 			 *  Execution states do not trap to EL2.
+			 *  If PE trace unit System registers are not implemented
+			 *  then this bit is reserved, and must be set to zero.
 			 *
 			 * CPTR_EL2.TFP: Set to zero so that Non-secure accesses
 			 *  to SIMD and floating-point functionality from both

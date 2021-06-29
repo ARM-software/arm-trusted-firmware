@@ -42,6 +42,10 @@ BL32_SOURCES		+=	services/std_svc/trng/trng_main.c	\
 				services/std_svc/trng/trng_entropy_pool.c
 endif
 
+ifeq (${ENABLE_SYS_REG_TRACE_FOR_NS},1)
+BL32_SOURCES		+=	lib/extensions/sys_reg_trace/aarch32/sys_reg_trace.c
+endif
+
 BL32_LINKERFILE	:=	bl32/sp_min/sp_min.ld.S
 
 # Include the platform-specific SP_MIN Makefile
