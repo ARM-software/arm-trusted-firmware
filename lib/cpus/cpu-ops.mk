@@ -294,6 +294,10 @@ ERRATA_A77_1925769	?=0
 # only to revision <= r1p1 of the Cortex A77 cpu.
 ERRATA_A77_1946167	?=0
 
+# Flag to apply erratum 1791578 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, and r1p1, it is still open.
+ERRATA_A77_1791578	?=0
+
 # Flag to apply erratum 1688305 workaround during reset. This erratum applies
 # to revisions r0p0 - r1p0 of the A78 cpu.
 ERRATA_A78_1688305	?=0
@@ -596,6 +600,10 @@ $(eval $(call add_define,ERRATA_A77_1925769))
 # Process ERRATA_A77_1946167 flag
 $(eval $(call assert_boolean,ERRATA_A77_1946167))
 $(eval $(call add_define,ERRATA_A77_1946167))
+
+# Process ERRATA_A77_1791578 flag
+$(eval $(call assert_boolean,ERRATA_A77_1791578))
+$(eval $(call add_define,ERRATA_A77_1791578))
 
 # Process ERRATA_A78_1688305 flag
 $(eval $(call assert_boolean,ERRATA_A78_1688305))

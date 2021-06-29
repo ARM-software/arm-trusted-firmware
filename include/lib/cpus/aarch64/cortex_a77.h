@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -23,6 +23,12 @@
  ******************************************************************************/
 #define CORTEX_A77_CPUPWRCTLR_EL1			S3_0_C15_C2_7
 #define CORTEX_A77_CPUPWRCTLR_EL1_CORE_PWRDN_BIT	(U(1) << 0)
+
+/*******************************************************************************
+ * CPU Auxiliary Control register specific definitions.
+ ******************************************************************************/
+#define CORTEX_A77_ACTLR2_EL1				S3_0_C15_C1_1
+#define CORTEX_A77_ACTLR2_EL1_BIT_2			(ULL(1) << 2)
 
 #define CORTEX_A77_CPUPSELR_EL3				S3_6_C15_C8_0
 #define CORTEX_A77_CPUPCR_EL3				S3_6_C15_C8_1
