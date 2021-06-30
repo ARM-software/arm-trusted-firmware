@@ -339,6 +339,9 @@ enum ddr_type {
 #define DATA0_OTP			U(0)
 #define PART_NUMBER_OTP			U(1)
 #define NAND_OTP			U(9)
+#define UID0_OTP			U(13)
+#define UID1_OTP			U(14)
+#define UID2_OTP			U(15)
 #define PACKAGE_OTP			U(16)
 #define HW2_OTP				U(18)
 
@@ -401,6 +404,9 @@ enum ddr_type {
 /* NAND number of planes */
 #define NAND_PLANE_BIT_NB_MASK		BIT(14)
 
+/* UID OTP */
+#define UID_WORD_NB			U(3)
+
 /*******************************************************************************
  * STM32MP1 TAMP
  ******************************************************************************/
@@ -413,6 +419,11 @@ static inline uint32_t tamp_bkpr(uint32_t idx)
 	return TAMP_BKP_REGISTER_BASE + (idx << 2);
 }
 #endif
+
+/*******************************************************************************
+ * STM32MP1 USB
+ ******************************************************************************/
+#define USB_OTG_BASE			U(0x49000000)
 
 /*******************************************************************************
  * STM32MP1 DDRCTRL
