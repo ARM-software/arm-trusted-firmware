@@ -901,6 +901,29 @@ func el3_exit
 	msr	spsr_el3, x16
 	msr	elr_el3, x17
 
+#if IMAGE_BL31
+	/* ----------------------------------------------------------
+	 * Restore CPTR_EL3, ZCR_EL3 for SVE support.
+	 * If SVE is not supported - skip the restoration.
+	 * ZCR is only restored if SVE is supported and enabled.
+	 * Synchronization is required before zcr_el3 is addressed.
+	 * ----------------------------------------------------------
+	 */
+	mrs	x17, id_aa64pfr0_el1
+	ubfx	x17, x17, ID_AA64PFR0_SVE_SHIFT, ID_AA64PFR0_SVE_LENGTH
+	cbz	x17, sve_not_enabled
+
+	ldp	x19, x20, [sp, #CTX_EL3STATE_OFFSET + CTX_CPTR_EL3]
+	msr	cptr_el3, x19
+
+	ands	x19, x19, #CPTR_EZ_BIT
+	beq	sve_not_enabled
+
+	isb
+	msr	S3_6_C1_C2_0, x20 /* zcr_el3 */
+sve_not_enabled:
+#endif
+
 #if IMAGE_BL31 && DYNAMIC_WORKAROUND_CVE_2018_3639
 	/* ----------------------------------------------------------
 	 * Restore mitigation state as it was on entry to EL3
