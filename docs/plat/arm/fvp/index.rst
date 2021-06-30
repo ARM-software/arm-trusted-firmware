@@ -526,8 +526,8 @@ with 8 CPUs using the AArch64 build of TF-A.
 
 Notes:
 
--  If Position Independent Executable (PIE) support is enabled for BL31
-   in this config, it can be loaded at any valid address for execution.
+-  Position Independent Executable (PIE) support is enabled in this
+   config allowing BL31 to be loaded at any valid address for execution.
 
 -  Since a FIP is not loaded when using BL31 as reset entrypoint, the
    ``--data="<path-to><bl31|bl32|bl33-binary>"@<base-address-of-binary>``
@@ -588,8 +588,8 @@ with 8 CPUs using the AArch32 build of TF-A.
     --data cluster0.cpu0="<path-to>/<ramdisk>"@0x84000000
 
 .. note::
-   The load address of ``<bl32-binary>`` depends on the value ``BL32_BASE``.
-   It should match the address programmed into the RVBAR register as well.
+   Position Independent Executable (PIE) support is enabled in this
+   config allowing SP_MIN to be loaded at any valid address for execution.
 
 Running on the Cortex-A57-A53 Base FVP with reset to BL31 entrypoint
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
