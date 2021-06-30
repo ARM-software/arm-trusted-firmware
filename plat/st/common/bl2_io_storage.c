@@ -651,6 +651,7 @@ void stm32mp_io_setup(void)
 	default:
 		ERROR("Boot interface %d not supported\n",
 		      boot_context->boot_interface_selected);
+		panic();
 		break;
 	}
 }
