@@ -80,30 +80,6 @@ static const event2_header_t locality_event_header = {
 		}
 };
 
-/* Platform's table with platform specific image IDs, names and PCRs */
-static const image_data_t plat_images_data[] = {
-	{ BL2_IMAGE_ID, BL2_STRING, PCR_0 },		/* Reserved for BL2 */
-	{ INVALID_ID, NULL, (unsigned int)(-1) }	/* Terminator */
-};
-
-static const measured_boot_data_t plat_measured_boot_data = {
-	plat_images_data,
-	NULL,	/* platform_set_nt_fw_info */
-	NULL	/* platform_set_tos_fw_info */
-};
-
-/*
- * Function retuns pointer to platform's measured_boot_data_t structure
- *
- * Must be overridden in the platform code
- */
-#pragma weak plat_get_measured_boot_data
-
-const measured_boot_data_t *plat_get_measured_boot_data(void)
-{
-	return &plat_measured_boot_data;
-}
-
 /*
  * Add TCG_PCR_EVENT2 event
  *
