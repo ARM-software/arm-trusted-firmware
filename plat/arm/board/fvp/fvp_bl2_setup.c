@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -86,8 +86,8 @@ static int fvp_bl2_plat_handle_post_image_load(unsigned int image_id)
 
 	if ((info.h.attr & IMAGE_ATTRIB_SKIP_LOADING) == 0U) {
 		/* Calculate image hash and record data in Event Log */
-		err = tpm_record_measurement(info.image_base,
-					     info.image_size, image_id);
+		err = event_log_measure_and_record(info.image_base,
+						   info.image_size, image_id);
 		if (err != 0) {
 			ERROR("%s%s image id %u (%i)\n",
 				"BL2: Failed to ", "record", image_id, err);

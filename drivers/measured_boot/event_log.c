@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -236,8 +236,8 @@ void event_log_init(void)
  *	0 = success
  *    < 0 = error
  */
-int tpm_record_measurement(uintptr_t data_base, uint32_t data_size,
-			   uint32_t data_id)
+int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
+				 uint32_t data_id)
 {
 	const image_data_t *data_ptr = plat_data_ptr->images_data;
 	unsigned char hash_data[MBEDTLS_MD_MAX_SIZE];

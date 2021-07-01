@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -92,6 +92,6 @@ void event_log_init(void);
 int event_log_finalise(uint8_t **log_addr, size_t *log_size);
 void dump_event_log(uint8_t *log_addr, size_t log_size);
 const measured_boot_data_t *plat_get_measured_boot_data(void);
-int tpm_record_measurement(uintptr_t data_base, uint32_t data_size,
-			   uint32_t data_id);
+int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
+				 uint32_t data_id);
 #endif /* EVENT_LOG_H */
