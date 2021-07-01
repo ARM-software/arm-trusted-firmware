@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2020, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -1737,7 +1737,7 @@ int stm32mp1_clk_init(void)
 	void *fdt;
 
 	if (fdt_get_address(&fdt) == 0) {
-		return false;
+		return -FDT_ERR_NOTFOUND;
 	}
 
 	/* Check status field to disable security */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -28,11 +28,11 @@ uint32_t bsec_main(uint32_t x1, uint32_t x2, uint32_t x3,
 		result = bsec_program_otp(x3, x2);
 		break;
 	case STM32_SMC_WRITE_SHADOW:
-		*ret_otp_value = 0;
+		*ret_otp_value = 0U;
 		result = bsec_write_otp(x3, x2);
 		break;
 	case STM32_SMC_READ_OTP:
-		*ret_otp_value = 0;
+		*ret_otp_value = 0U;
 		result = bsec_read_otp(&tmp_data, x2);
 		if (result != BSEC_OK) {
 			break;
@@ -52,9 +52,8 @@ uint32_t bsec_main(uint32_t x1, uint32_t x2, uint32_t x3,
 		break;
 
 	default:
-		result = BSEC_ERROR;
-		break;
+		return STM32_SMC_INVALID_PARAMS;
 	}
 
-	return result;
+	return (result == BSEC_OK) ? STM32_SMC_OK : STM32_SMC_FAILED;
 }

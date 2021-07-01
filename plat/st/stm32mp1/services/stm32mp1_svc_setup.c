@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2014-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -75,7 +75,7 @@ static uintptr_t stm32mp1_svc_smc_handler(uint32_t smc_fid, u_register_t x1,
 
 	default:
 		WARN("Unimplemented STM32MP1 Service Call: 0x%x\n", smc_fid);
-		ret1 = SMC_UNK;
+		ret1 = STM32_SMC_NOT_SUPPORTED;
 		break;
 	}
 

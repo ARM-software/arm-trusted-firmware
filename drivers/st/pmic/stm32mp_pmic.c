@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -121,6 +121,9 @@ int dt_pmic_configure_boot_on_regulators(void)
 	}
 
 	regulators_node = fdt_subnode_offset(fdt, pmic_node, "regulators");
+	if (regulators_node < 0) {
+		return -ENOENT;
+	}
 
 	fdt_for_each_subnode(regulator_node, fdt, regulators_node) {
 		const fdt32_t *cuint;
@@ -204,6 +207,7 @@ bool initialize_pmic_i2c(void)
 	i2c->i2c_base_addr		= i2c_info.base;
 	i2c->dt_status			= i2c_info.status;
 	i2c->clock			= i2c_info.clock;
+	i2c->i2c_state			= I2C_STATE_RESET;
 	i2c_init.own_address1		= pmic_i2c_addr;
 	i2c_init.addressing_mode	= I2C_ADDRESSINGMODE_7BIT;
 	i2c_init.dual_address_mode	= I2C_DUALADDRESS_DISABLE;

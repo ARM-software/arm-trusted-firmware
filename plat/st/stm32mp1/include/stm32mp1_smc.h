@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -57,5 +57,11 @@
 #define STM32_SMC_PROG_OTP		0x02
 #define STM32_SMC_WRITE_SHADOW		0x03
 #define STM32_SMC_READ_OTP		0x04
+
+/* SMC error codes */
+#define STM32_SMC_OK			0x00000000U
+#define STM32_SMC_NOT_SUPPORTED		0xFFFFFFFFU
+#define STM32_SMC_FAILED		0xFFFFFFFEU
+#define STM32_SMC_INVALID_PARAMS	0xFFFFFFFDU
 
 #endif /* STM32MP1_SMC_H */
