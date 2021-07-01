@@ -28,6 +28,9 @@ enum stm32mp_ddr_reg_type {
 struct stm32mp_ddr_reg_desc {
 	uint16_t offset;	/* Offset for base address */
 	uint8_t par_offset;	/* Offset for parameter array */
+#if !STM32MP13 && !STM32MP15
+	bool qd; /* quasi-dynamic register if true */
+#endif
 };
 
 struct stm32mp_ddr_reg_info {

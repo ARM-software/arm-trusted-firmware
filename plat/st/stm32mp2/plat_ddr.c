@@ -9,11 +9,13 @@
 #include <stdint.h>
 
 #include <common/fdt_wrappers.h>
+
 #include <drivers/delay_timer.h>
 #include <drivers/st/regulator.h>
 #include <drivers/st/stm32mp_ddr.h>
 
 #include <libfdt.h>
+
 #include <platform_def.h>
 
 #if STM32MP_DDR3_TYPE

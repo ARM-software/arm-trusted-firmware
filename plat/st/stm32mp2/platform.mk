@@ -42,6 +42,7 @@ DDR_TYPE			:=	lpddr4
 endif
 
 # DDR features
+STM32MP_DDR_DUAL_AXI_PORT	:=	1
 STM32MP_DDR_FIP_IO_STORAGE	:=	1
 
 # Device tree
@@ -71,6 +72,7 @@ endif
 # Enable flags for C files
 $(eval $(call assert_booleans,\
 	$(sort \
+		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_DDR_FIP_IO_STORAGE \
 		STM32MP_DDR3_TYPE \
 		STM32MP_DDR4_TYPE \
@@ -92,6 +94,7 @@ $(eval $(call add_defines,\
 		PLAT_PARTITION_MAX_ENTRIES \
 		PLAT_TBBR_IMG_DEF \
 		STM32_TF_A_COPIES \
+		STM32MP_DDR_DUAL_AXI_PORT \
 		STM32MP_DDR_FIP_IO_STORAGE \
 		STM32MP_DDR3_TYPE \
 		STM32MP_DDR4_TYPE \
@@ -105,6 +108,8 @@ TF_CFLAGS			+=	-mbranch-protection=none
 
 # Include paths and source files
 PLAT_INCLUDES			+=	-Iplat/st/stm32mp2/include/
+PLAT_INCLUDES			+=	-Idrivers/st/ddr/phy/phyinit/include/
+PLAT_INCLUDES			+=	-Idrivers/st/ddr/phy/firmware/include/
 
 PLAT_BL_COMMON_SOURCES		+=	lib/cpus/${ARCH}/cortex_a35.S
 PLAT_BL_COMMON_SOURCES		+=	drivers/st/uart/${ARCH}/stm32_console.S
@@ -137,7 +142,30 @@ ifeq (${STM32MP_USB_PROGRAMMER},1)
 BL2_SOURCES			+=	plat/st/stm32mp2/stm32mp2_usb_dfu.c
 endif
 
-BL2_SOURCES			+=	drivers/st/ddr/stm32mp2_ddr_helpers.c
+BL2_SOURCES			+=	drivers/st/ddr/stm32mp2_ddr.c				\
+					drivers/st/ddr/stm32mp2_ddr_helpers.c			\
+					drivers/st/ddr/stm32mp2_ram.c
+
+BL2_SOURCES			+=	drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_c_initphyconfig.c				\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_calcmb.c					\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_i_loadpieimage.c				\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_initstruct.c				\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_isdbytedisabled.c				\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_loadpieprodcode.c				\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_mapdrvstren.c				\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_progcsrskiptrain.c			\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_reginterface.c				\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_restore_sequence.c			\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_sequence.c				\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_softsetmb.c				\
+					drivers/st/ddr/phy/phyinit/usercustom/ddrphy_phyinit_usercustom_custompretrain.c	\
+					drivers/st/ddr/phy/phyinit/usercustom/ddrphy_phyinit_usercustom_saveretregs.c
+
+BL2_SOURCES			+=	drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_d_loadimem.c				\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_f_loaddmem.c				\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_g_execfw.c				\
+					drivers/st/ddr/phy/phyinit/src/ddrphy_phyinit_writeoutmem.c				\
+					drivers/st/ddr/phy/phyinit/usercustom/ddrphy_phyinit_usercustom_g_waitfwdone.c
 
 # BL31 sources
 BL31_SOURCES			+=	${FDT_WRAPPERS_SOURCES}
