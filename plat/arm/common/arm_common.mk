@@ -242,7 +242,7 @@ BL2_SOURCES		+=	drivers/delay_timer/delay_timer.c		\
 				drivers/io/io_storage.c				\
 				plat/arm/common/arm_bl2_setup.c			\
 				plat/arm/common/arm_err.c			\
-				common/hw_crc32.c				\
+				common/tf_crc32.c				\
 				${ARM_IO_SOURCES}
 
 # Firmware Configuration Framework sources

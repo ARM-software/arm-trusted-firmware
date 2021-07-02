@@ -7,7 +7,7 @@
 #include <assert.h>
 
 #include <common/debug.h>
-#include <common/hw_crc32.h>
+#include <common/tf_crc32.h>
 #include <common/tbbr/tbbr_img_def.h>
 #include <drivers/fwu/fwu.h>
 #include <drivers/fwu/fwu_metadata.h>
@@ -37,7 +37,7 @@ static int fwu_metadata_crc_check(void)
 {
 	unsigned char *data = (unsigned char *)&metadata;
 
-	uint32_t calc_crc = hw_crc32(0U, data + sizeof(metadata.crc_32),
+	uint32_t calc_crc = tf_crc32(0U, data + sizeof(metadata.crc_32),
 				     (sizeof(metadata) -
 				      sizeof(metadata.crc_32)));
 
