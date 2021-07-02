@@ -11,6 +11,7 @@
 
 #include <lib/cassert.h>
 #include <drivers/partition/efi.h>
+#include <tools_share/uuid.h>
 
 #if !PLAT_PARTITION_MAX_ENTRIES
 # define PLAT_PARTITION_MAX_ENTRIES	128
@@ -32,6 +33,7 @@ typedef struct partition_entry {
 	uint64_t		start;
 	uint64_t		length;
 	char			name[EFI_NAMELEN];
+	struct efi_guid		part_guid;
 } partition_entry_t;
 
 typedef struct partition_entry_list {
