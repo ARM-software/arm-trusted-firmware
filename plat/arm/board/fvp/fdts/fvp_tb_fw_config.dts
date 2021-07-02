@@ -95,6 +95,13 @@
 		cactus-tertiary {
 			uuid = "79b55c73-1d8c-44b9-8593-61e1770ad8d2";
 			load-address = <0x7200000>;
+			owner = "Plat";
+		};
+
+		ivy {
+			uuid = "eaba83d8-baaf-4eaf-8144-f7fdcbe544a7";
+			load-address = <0x7600000>;
+			owner = "Plat";
 		};
 #endif
 	};
