@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, MediaTek Inc. All rights reserved.
+ * Copyright (c) 2021, MediaTek Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,7 +10,7 @@
 #include <lib/psci/psci.h>
 #include <lib/utils_def.h>
 
-#define MT_IRQ_REMAIN_MAX	U(8)
+#define MT_IRQ_REMAIN_MAX	U(32)
 #define MT_IRQ_REMAIN_CAT_LOG	BIT(31)
 
 struct mt_irqremain {

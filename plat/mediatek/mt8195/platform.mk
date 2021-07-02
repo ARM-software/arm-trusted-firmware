@@ -12,11 +12,14 @@ PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/common/drivers/gpio/               \
                  -I${MTK_PLAT}/common/drivers/rtc/                \
                  -I${MTK_PLAT}/common/drivers/timer/              \
+                 -I${MTK_PLAT}/common/drivers/uart/               \
+                 -I${MTK_PLAT}/common/lpm/                        \
                  -I${MTK_PLAT_SOC}/drivers/dp/                  \
                  -I${MTK_PLAT_SOC}/drivers/gpio/                  \
                  -I${MTK_PLAT_SOC}/drivers/mcdi/                  \
                  -I${MTK_PLAT_SOC}/drivers/pmic/                  \
                  -I${MTK_PLAT_SOC}/drivers/spmc/                  \
+                 -I${MTK_PLAT_SOC}/drivers/ptp3/                   \
                  -I${MTK_PLAT_SOC}/include/
 
 GICV3_SUPPORT_GIC600        :=      1
@@ -44,6 +47,8 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT}/common/drivers/rtc/rtc_common.c           \
                 ${MTK_PLAT}/common/drivers/rtc/rtc_mt6359p.c          \
                 ${MTK_PLAT}/common/drivers/timer/mt_timer.c           \
+		${MTK_PLAT}/common/drivers/uart/uart.c                \
+		${MTK_PLAT}/common/lpm/mt_lp_rm.c                     \
                 ${MTK_PLAT}/common/mtk_cirq.c                         \
                 ${MTK_PLAT}/common/mtk_plat_common.c                  \
                 ${MTK_PLAT}/common/mtk_sip_svc.c                      \
@@ -56,12 +61,17 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_cpu_pm.c              \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_cpu_pm_cpc.c          \
                 ${MTK_PLAT_SOC}/drivers/mcdi/mt_mcdi.c                \
+		${MTK_PLAT_SOC}/drivers/mcdi/mt_lp_irqremain.c        \
                 ${MTK_PLAT_SOC}/drivers/gpio/mtgpio.c                 \
                 ${MTK_PLAT_SOC}/drivers/pmic/pmic.c                   \
+                ${MTK_PLAT_SOC}/drivers/ptp3/mtk_ptp3_main.c          \
                 ${MTK_PLAT_SOC}/drivers/spmc/mtspmc.c                 \
                 ${MTK_PLAT_SOC}/plat_pm.c                             \
                 ${MTK_PLAT_SOC}/plat_sip_calls.c                      \
                 ${MTK_PLAT_SOC}/plat_topology.c
+
+# Build SPM drivers
+include ${MTK_PLAT_SOC}/drivers/spm/build.mk
 
 # Configs for A78 and A55
 HW_ASSISTED_COHERENCY := 1
