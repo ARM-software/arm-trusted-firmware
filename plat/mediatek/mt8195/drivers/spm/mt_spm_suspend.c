@@ -97,7 +97,7 @@ static struct pwr_ctrl suspend_ctrl = {
 	/* [4] */
 	.reg_spm_vrf18_req = 0,
 	/* [7] FIXME: default disable HW Auto S1*/
-	.reg_spm_ddr_en_req = 1,
+	.reg_spm_ddr_en_req = 0,
 	/* [8] */
 	.reg_spm_dvfs_req = 0,
 	/* [9] */
