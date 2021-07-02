@@ -1,0 +1,7 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+/*
+ * Copyright (c) 2021, STMicroelectronics - All Rights Reserved
+ */
+
+#define DDR_SIZE	0x20000000 /* 512MB */
+#include "stm32mp15-fw-config.dtsi"
