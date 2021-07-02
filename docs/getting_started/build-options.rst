@@ -775,6 +775,12 @@ Common build options
   functions that wait for an arbitrary time length (udelay and mdelay). The
   default value is 0.
 
+- ``ENABLE_TRBE_FOR_NS``: This flag is used to enable access of trace buffer
+  control registers from NS ELs, NS-EL2 or NS-EL1(when NS-EL2 is implemented
+  but unused) when FEAT_TRBE is implemented. TRBE is an optional architectural
+  feature for AArch64. The default is 0 and it is automatically disabled when
+  the target architecture is AArch32.
+
 GICv3 driver options
 --------------------
 

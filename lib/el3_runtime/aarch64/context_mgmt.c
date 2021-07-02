@@ -22,6 +22,7 @@
 #include <lib/extensions/mpam.h>
 #include <lib/extensions/spe.h>
 #include <lib/extensions/sve.h>
+#include <lib/extensions/trbe.h>
 #include <lib/extensions/twed.h>
 #include <lib/utils.h>
 
@@ -348,6 +349,11 @@ static void enable_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 #if ENABLE_MPAM_FOR_LOWER_ELS
 	mpam_enable(el2_unused);
 #endif
+
+#if ENABLE_TRBE_FOR_NS
+	trbe_enable();
+#endif /* ENABLE_TRBE_FOR_NS */
+
 #endif
 }
 
