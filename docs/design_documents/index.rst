@@ -7,6 +7,7 @@ Design Documents
    :numbered:
 
    cmake_framework
+   measured_boot_poc
 
 --------------
 
