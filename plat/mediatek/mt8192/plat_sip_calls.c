@@ -9,6 +9,7 @@
 #include <mtk_apusys.h>
 #include <mtk_sip_svc.h>
 #include <mt_spm_vcorefs.h>
+#include <plat_dfd.h>
 #include "plat_sip_calls.h"
 
 uintptr_t mediatek_plat_sip_handler(uint32_t smc_fid,
@@ -33,6 +34,11 @@ uintptr_t mediatek_plat_sip_handler(uint32_t smc_fid,
 	case MTK_SIP_APUSYS_CONTROL_AARCH64:
 		ret = apusys_kernel_ctrl(x1, x2, x3, x4, &rnd_val0);
 		SMC_RET2(handle, ret, rnd_val0);
+		break;
+	case MTK_SIP_KERNEL_DFD_AARCH32:
+	case MTK_SIP_KERNEL_DFD_AARCH64:
+		ret = dfd_smc_dispatcher(x1, x2, x3, x4);
+		SMC_RET1(handle, ret);
 		break;
 	default:
 		ERROR("%s: unhandled SMC (0x%x)\n", __func__, smc_fid);
