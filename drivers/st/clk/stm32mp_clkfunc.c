@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2024, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -360,6 +360,18 @@ void stm32mp_stgen_config(unsigned long rate)
 
 	/* Need to update timer with new frequency */
 	generic_delay_timer_init();
+}
+
+/*******************************************************************************
+ * This function restores CPU generic timer rate from the STGEN clock rate.
+ ******************************************************************************/
+void stm32mp_stgen_restore_rate(void)
+{
+	unsigned long rate;
+
+	rate = mmio_read_32(STGEN_BASE + CNTFID_OFF);
+
+	write_cntfrq_el0((u_register_t)rate);
 }
 
 /*******************************************************************************
