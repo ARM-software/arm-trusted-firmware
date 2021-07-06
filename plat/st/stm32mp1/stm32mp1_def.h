@@ -87,13 +87,6 @@
 /* DDR configuration */
 #define STM32MP_DDR_BASE		U(0xC0000000)
 #define STM32MP_DDR_MAX_SIZE		U(0x40000000)	/* Max 1GB */
-#ifdef AARCH32_SP_OPTEE
-#define STM32MP_DDR_S_SIZE		U(0x01E00000)	/* 30 MB */
-#define STM32MP_DDR_SHMEM_SIZE		U(0x00200000)	/* 2 MB */
-#else
-#define STM32MP_DDR_S_SIZE		U(0)
-#define STM32MP_DDR_SHMEM_SIZE		U(0)
-#endif
 
 /* DDR power initializations */
 #ifndef __ASSEMBLER__

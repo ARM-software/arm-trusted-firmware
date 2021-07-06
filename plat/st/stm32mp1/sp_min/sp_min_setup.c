@@ -45,6 +45,7 @@ void sp_min_plat_fiq_handler(uint32_t id)
 {
 	switch (id & INT_ID_MASK) {
 	case STM32MP1_IRQ_TZC400:
+		tzc400_init(STM32MP1_TZC_BASE);
 		(void)tzc400_it_handler();
 		panic();
 		break;
@@ -117,6 +118,11 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	struct dt_node_info dt_uart_info;
 	int result;
 	bl_params_t *params_from_bl2 = (bl_params_t *)arg0;
+#if STM32MP_USE_STM32IMAGE
+	uintptr_t dt_addr = STM32MP_DTB_BASE;
+#else
+	uintptr_t dt_addr = arg1;
+#endif
 
 	/* Imprecise aborts can be masked in NonSecure */
 	write_scr(read_scr() | SCR_AW_BIT);
@@ -156,7 +162,7 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 		bl_params = bl_params->next_params_info;
 	}
 
-	if (dt_open_and_check(STM32MP_DTB_BASE) < 0) {
+	if (dt_open_and_check(dt_addr) < 0) {
 		panic();
 	}
 
@@ -195,9 +201,6 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
  ******************************************************************************/
 void sp_min_platform_setup(void)
 {
-	/* Initialize tzc400 after DDR initialization */
-	stm32mp1_security_setup();
-
 	generic_delay_timer_init();
 
 	stm32mp1_gic_init();

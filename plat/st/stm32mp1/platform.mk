@@ -70,6 +70,7 @@ BL32_DTSI		:=	stm32mp15-bl32.dtsi
 FDT_SOURCES		+=	$(addprefix ${BUILD_PLAT}/fdts/, $(patsubst %.dtb,%-bl32.dts,$(DTB_FILE_NAME)))
 endif
 endif
+DTC_CPPFLAGS		+=	${INCLUDES}
 DTC_FLAGS		+=	-Wno-unit_address_vs_reg
 
 # Macros and rules to build TF binary
@@ -92,6 +93,13 @@ STM32IMAGE_SRC		:= ${STM32IMAGEPATH}/stm32image.c
 ifneq (${STM32MP_USE_STM32IMAGE},1)
 FIP_DEPS		+=	dtbs
 STM32MP_HW_CONFIG	:=	${BL33_CFG}
+STM32MP_FW_CONFIG_NAME	:=	$(patsubst %.dtb,%-fw-config.dtb,$(DTB_FILE_NAME))
+STM32MP_FW_CONFIG	:=	${BUILD_PLAT}/fdts/$(STM32MP_FW_CONFIG_NAME)
+ifneq (${AARCH32_SP},none)
+FDT_SOURCES		+=	$(addprefix fdts/, $(patsubst %.dtb,%.dts,$(STM32MP_FW_CONFIG_NAME)))
+endif
+# Add the FW_CONFIG to FIP and specify the same to certtool
+$(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_FW_CONFIG},--fw-config))
 # Add the HW_CONFIG to FIP and specify the same to certtool
 $(eval $(call TOOL_ADD_PAYLOAD,${STM32MP_HW_CONFIG},--hw-config))
 ifeq ($(AARCH32_SP),sp_min)
@@ -185,6 +193,8 @@ PLAT_BL_COMMON_SOURCES	+=	drivers/arm/tzc/tzc400.c				\
 
 ifneq (${STM32MP_USE_STM32IMAGE},1)
 BL2_SOURCES		+=	drivers/io/io_fip.c					\
+				lib/fconf/fconf.c					\
+				lib/fconf/fconf_dyn_cfg_getter.c			\
 				plat/st/common/bl2_io_storage.c				\
 				plat/st/stm32mp1/plat_bl2_mem_params_desc.c
 else
