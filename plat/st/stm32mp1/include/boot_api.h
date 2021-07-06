@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -38,6 +38,9 @@
 
 /* Boot occurred on QSPI NOR */
 #define BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NOR_QSPI		0x4U
+
+/* Boot occurred on USB */
+#define BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_USB		0x6U
 
 /* Boot occurred on QSPI NAND */
 #define BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_QSPI		0x7U

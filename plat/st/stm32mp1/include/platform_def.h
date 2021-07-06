@@ -92,6 +92,10 @@
  */
 #define PLAT_STM32MP_NS_IMAGE_OFFSET	BL33_BASE
 
+/* Needed by STM32CubeProgrammer support */
+#define DWL_BUFFER_BASE			(STM32MP_DDR_BASE + U(0x08000000))
+#define DWL_BUFFER_SIZE			U(0x08000000)
+
 /*
  * SSBL offset in case it's stored in eMMC boot partition.
  * We can fix it to 256K because TF-A size can't be bigger than SRAM

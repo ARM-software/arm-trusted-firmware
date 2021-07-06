@@ -53,6 +53,9 @@ STM32MP_SPI_NAND	?=	0
 STM32MP_SPI_NOR		?=	0
 STM32MP_EMMC_BOOT	?=	0
 
+# Serial boot devices
+STM32MP_USB_PROGRAMMER	?=	0
+
 # Device tree
 DTB_FILE_NAME		?=	stm32mp157c-ev1.dtb
 ifeq ($(STM32MP_USE_STM32IMAGE),1)
@@ -127,6 +130,7 @@ $(eval $(call assert_booleans,\
 		STM32MP_SPI_NOR \
 		STM32MP_EMMC_BOOT \
 		PLAT_XLAT_TABLES_DYNAMIC \
+		STM32MP_USB_PROGRAMMER \
 		STM32MP_USE_STM32IMAGE \
 )))
 
@@ -147,6 +151,7 @@ $(eval $(call add_defines,\
 		PLAT_XLAT_TABLES_DYNAMIC \
 		STM32_TF_A_COPIES \
 		PLAT_PARTITION_MAX_ENTRIES \
+		STM32MP_USB_PROGRAMMER \
 		STM32MP_USE_STM32IMAGE \
 )))
 
@@ -251,6 +256,17 @@ ifneq ($(filter 1,${STM32MP_RAW_NAND} ${STM32MP_SPI_NAND} ${STM32MP_SPI_NOR}),)
 BL2_SOURCES		+=	plat/st/stm32mp1/stm32mp1_boot_device.c
 endif
 
+ifeq (${STM32MP_USB_PROGRAMMER},1)
+#The DFU stack uses only one end point, reduce the USB stack footprint
+$(eval $(call add_define_val,CONFIG_USBD_EP_NB,1U))
+BL2_SOURCES		+=	drivers/io/io_memmap.c					\
+				drivers/st/usb/stm32mp1_usb.c				\
+				drivers/usb/usb_device.c				\
+				plat/st/common/stm32cubeprogrammer_usb.c		\
+				plat/st/common/usb_dfu.c					\
+				plat/st/stm32mp1/stm32mp1_usb_dfu.c
+endif
+
 BL2_SOURCES		+=	drivers/st/ddr/stm32mp1_ddr.c				\
 				drivers/st/ddr/stm32mp1_ram.c
 
@@ -274,7 +290,8 @@ check_boot_device:
 	    [ ${STM32MP_SDMMC} != 1 ] && \
 	    [ ${STM32MP_RAW_NAND} != 1 ] && \
 	    [ ${STM32MP_SPI_NAND} != 1 ] && \
-	    [ ${STM32MP_SPI_NOR} != 1 ]; then \
+	    [ ${STM32MP_SPI_NOR} != 1 ] && \
+	    [ ${STM32MP_USB_PROGRAMMER} != 1 ]; then \
 		echo "No boot device driver is enabled"; \
 		false; \
 	fi

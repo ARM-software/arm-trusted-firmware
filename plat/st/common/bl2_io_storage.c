@@ -13,6 +13,7 @@
 #include <drivers/io/io_block.h>
 #include <drivers/io/io_driver.h>
 #include <drivers/io/io_fip.h>
+#include <drivers/io/io_memmap.h>
 #include <drivers/io/io_mtd.h>
 #include <drivers/io/io_storage.h>
 #include <drivers/mmc.h>
@@ -24,6 +25,7 @@
 #include <drivers/st/stm32_fmc2_nand.h>
 #include <drivers/st/stm32_qspi.h>
 #include <drivers/st/stm32_sdmmc2.h>
+#include <drivers/usb_device.h>
 #include <lib/fconf/fconf.h>
 #include <lib/mmio.h>
 #include <lib/utils.h>
@@ -31,7 +33,9 @@
 #include <tools_share/firmware_image_package.h>
 
 #include <platform_def.h>
+#include <stm32cubeprogrammer.h>
 #include <stm32mp_fconf_getter.h>
+#include <usb_dfu.h>
 
 /* IO devices */
 uintptr_t fip_dev_handle;
@@ -95,6 +99,10 @@ static io_mtd_dev_spec_t spi_nand_dev_spec = {
 static const io_dev_connector_t *spi_dev_con;
 #endif
 
+#if STM32MP_USB_PROGRAMMER
+static const io_dev_connector_t *memmap_dev_con;
+#endif
+
 io_block_spec_t image_block_spec = {
 	.offset = 0U,
 	.length = 0U,
@@ -127,6 +135,9 @@ static void print_boot_device(boot_api_context_t *boot_context)
 		break;
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_QSPI:
 		INFO("Using SPI NAND\n");
+		break;
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_USB:
+		INFO("Using USB\n");
 		break;
 	default:
 		ERROR("Boot interface %u not found\n",
@@ -246,6 +257,32 @@ static void boot_spi_nand(boot_api_context_t *boot_context)
 }
 #endif /* STM32MP_SPI_NAND */
 
+#if STM32MP_USB_PROGRAMMER
+static void mmap_io_setup(void)
+{
+	int io_result __unused;
+
+	io_result = register_io_dev_memmap(&memmap_dev_con);
+	assert(io_result == 0);
+
+	io_result = io_dev_open(memmap_dev_con, (uintptr_t)NULL,
+				&storage_dev_handle);
+	assert(io_result == 0);
+}
+
+static void stm32cubeprogrammer_usb(void)
+{
+	int ret __unused;
+	struct usb_handle *pdev;
+
+	/* Init USB on platform */
+	pdev = usb_dfu_plat_init();
+
+	ret = stm32cubeprog_usb_load(pdev, DWL_BUFFER_BASE, DWL_BUFFER_SIZE);
+	assert(ret == 0);
+}
+#endif
+
 void stm32mp_io_setup(void)
 {
 	int io_result __unused;
@@ -295,6 +332,12 @@ void stm32mp_io_setup(void)
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NAND_QSPI:
 		dmbsy();
 		boot_spi_nand(boot_context);
+		break;
+#endif
+#if STM32MP_USB_PROGRAMMER
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_USB:
+		dmbsy();
+		mmap_io_setup();
 		break;
 #endif
 
@@ -354,6 +397,17 @@ int bl2_plat_handle_pre_image_load(unsigned int image_id)
 #if STM32MP_SPI_NOR
 	case BOOT_API_CTX_BOOT_INTERFACE_SEL_FLASH_NOR_QSPI:
 		image_block_spec.offset = STM32MP_NOR_FIP_OFFSET;
+		break;
+#endif
+
+#if STM32MP_USB_PROGRAMMER
+	case BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_USB:
+		if (image_id == FW_CONFIG_ID) {
+			stm32cubeprogrammer_usb();
+			/* FIP loaded at DWL address */
+			image_block_spec.offset = DWL_BUFFER_BASE;
+			image_block_spec.length = DWL_BUFFER_SIZE;
+		}
 		break;
 #endif
 
