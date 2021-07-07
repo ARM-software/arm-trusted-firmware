@@ -84,27 +84,22 @@ static const event2_header_t locality_event_header = {
  *
  * @param[in] hash	Pointer to hash data of TCG_DIGEST_SIZE bytes
  * @param[in] image_ptr	Pointer to image_data_t structure
- * @return:
- *	0 = success
- *    < 0 = error code
+ *
+ * There must be room for storing this new event into the event log buffer.
  */
-static int add_event2(const uint8_t *hash, const image_data_t *image_ptr)
+static void add_event2(const uint8_t *hash, const image_data_t *image_ptr)
 {
 	void *ptr = log_ptr;
 	uint32_t name_len;
-	uint32_t size_of_event;
 
 	assert(image_ptr != NULL);
 	assert(image_ptr->name != NULL);
 
 	name_len = (uint32_t)strlen(image_ptr->name) + 1U;
-	size_of_event = name_len + (uint32_t)EVENT2_HDR_SIZE;
 
 	/* Check for space in Event Log buffer */
-	if (((uintptr_t)ptr + size_of_event) > EVENT_LOG_END) {
-		ERROR("%s(): Event Log is short of memory", __func__);
-		return -ENOMEM;
-	}
+	assert(((uintptr_t)ptr + (uint32_t)EVENT2_HDR_SIZE + name_len) <=
+	       EVENT_LOG_END);
 
 	/*
 	 * As per TCG specifications, firmware components that are measured
@@ -131,12 +126,6 @@ static int add_event2(const uint8_t *hash, const image_data_t *image_ptr)
 	/* TCG_PCR_EVENT2.Digests[].Digest[] */
 	ptr = (uint8_t *)((uintptr_t)ptr + offsetof(tpmt_ha, digest));
 
-	/* Check for space in Event Log buffer */
-	if (((uintptr_t)ptr + TCG_DIGEST_SIZE) > EVENT_LOG_END) {
-		ERROR("%s(): Event Log is short of memory", __func__);
-		return -ENOMEM;
-	}
-
 	if (hash == NULL) {
 		/* Get BL2 hash from DTB */
 		bl2_plat_get_hash(ptr);
@@ -156,8 +145,6 @@ static int add_event2(const uint8_t *hash, const image_data_t *image_ptr)
 	/* End of event data */
 	log_ptr = (uint8_t *)((uintptr_t)ptr +
 			offsetof(event2_data_t, event) + name_len);
-
-	return 0;
 }
 
 /*
@@ -169,7 +156,6 @@ static int add_event2(const uint8_t *hash, const image_data_t *image_ptr)
 void event_log_init(void)
 {
 	const char locality_signature[] = TCG_STARTUP_LOCALITY_SIGNATURE;
-	const uint8_t *start_ptr;
 	void *ptr = event_log;
 
 	/* Get pointer to platform's measured_boot_data_t structure */
@@ -196,11 +182,6 @@ void event_log_init(void)
 	((id_event_struct_data_t *)ptr)->vendor_info_size = 0;
 	ptr = (uint8_t *)((uintptr_t)ptr +
 			offsetof(id_event_struct_data_t, vendor_info));
-	if ((uintptr_t)ptr != ((uintptr_t)event_log + ID_EVENT_SIZE)) {
-		panic();
-	}
-
-	start_ptr = (uint8_t *)ptr;
 
 	/*
 	 * The Startup Locality event should be placed in the log before
@@ -237,16 +218,11 @@ void event_log_init(void)
 	 */
 	((startup_locality_event_t *)ptr)->startup_locality = 0U;
 	ptr = (uint8_t *)((uintptr_t)ptr + sizeof(startup_locality_event_t));
-	if ((uintptr_t)ptr != ((uintptr_t)start_ptr + LOC_EVENT_SIZE)) {
-		panic();
-	}
 
 	log_ptr = (uint8_t *)ptr;
 
 	/* Add BL2 event */
-	if (add_event2(NULL, plat_data_ptr->images_data) != 0) {
-		panic();
-	}
+	add_event2(NULL, plat_data_ptr->images_data);
 }
 
 /*
@@ -267,14 +243,11 @@ int tpm_record_measurement(uintptr_t data_base, uint32_t data_size,
 	unsigned char hash_data[MBEDTLS_MD_MAX_SIZE];
 	int rc;
 
-	/* Check if image_id is supported */
-	while (data_ptr->id != data_id) {
-		if ((data_ptr++)->id == INVALID_ID) {
-			ERROR("%s(): image_id %u not supported\n",
-				__func__, data_id);
-			return -EINVAL;
-		}
+	/* Get the metadata associated with this image. */
+	while ((data_ptr->id != INVALID_ID) && (data_ptr->id != data_id)) {
+		data_ptr++;
 	}
+	assert(data_ptr->id != INVALID_ID);
 
 	if (data_id == TOS_FW_CONFIG_ID) {
 		tos_fw_config_base = data_base;
@@ -291,7 +264,8 @@ int tpm_record_measurement(uintptr_t data_base, uint32_t data_size,
 		return rc;
 	}
 
-	return add_event2(hash_data, data_ptr);
+	add_event2(hash_data, data_ptr);
+	return 0;
 }
 
 /*
