@@ -186,6 +186,12 @@
 	 * CPTR_EL3.TCPAC: Set to zero so that any accesses to CPACR_EL1,
 	 *  CPTR_EL2, CPACR, or HCPTR do not trap to EL3.
 	 *
+	 * CPTR_EL3.TTA: Set to one so that accesses to the trace system
+	 *  registers trap to EL3 from all exception levels and security
+	 *  states when system register trace is implemented.
+	 *  When system register trace is not implemented, this bit is RES0 and
+	 *  hence set to zero.
+	 *
 	 * CPTR_EL3.TTA: Set to zero so that System register accesses to the
 	 *  trace registers do not trap to EL3.
 	 *
@@ -201,6 +207,11 @@
 	 */
 
 	mov_imm x0, (CPTR_EL3_RESET_VAL & ~(TCPAC_BIT | TTA_BIT | TFP_BIT))
+	mrs	x1, id_aa64dfr0_el1
+	ubfx	x1, x1, #ID_AA64DFR0_TRACEVER_SHIFT, #ID_AA64DFR0_TRACEVER_LENGTH
+	cbz	x1, 1f
+	orr	x0, x0, #TTA_BIT
+1:
 	msr	cptr_el3, x0
 
 	/*

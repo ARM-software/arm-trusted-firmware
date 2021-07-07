@@ -63,11 +63,23 @@
 	 *  cp11 field is ignored, but is set to same value as cp10. The cp10
 	 *  field is set to allow access to Advanced SIMD and floating point
 	 *  features from both Security states.
+	 *
+	 * NSACR.NSTRCDIS: When system register trace implemented, Set to one
+	 *  so that NS System register accesses to all implemented trace
+	 *  registers are disabled.
+	 *  When system register trace is not implemented, this bit is RES0 and
+	 *  hence set to zero.
 	 * ---------------------------------------------------------------------
 	 */
 	ldcopr	r0, NSACR
 	and	r0, r0, #NSACR_IMP_DEF_MASK
 	orr	r0, r0, #(NSACR_RESET_VAL | NSACR_ENABLE_FP_ACCESS)
+	ldcopr	r1, ID_DFR0
+	ubfx	r1, r1, #ID_DFR0_COPTRC_SHIFT, #ID_DFR0_COPTRC_LENGTH
+	cmp	r1, #ID_DFR0_COPTRC_SUPPORTED
+	bne	1f
+	orr	r0, r0, #NSTRCDIS_BIT
+1:
 	stcopr	r0, NSACR
 	isb
 

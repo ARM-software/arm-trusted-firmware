@@ -102,6 +102,12 @@
 /* CSSELR definitions */
 #define LEVEL_SHIFT		U(1)
 
+/* ID_DFR0_EL1 definitions */
+#define ID_DFR0_COPTRC_SHIFT		U(12)
+#define ID_DFR0_COPTRC_MASK		U(0xf)
+#define ID_DFR0_COPTRC_SUPPORTED	U(1)
+#define ID_DFR0_COPTRC_LENGTH		U(4)
+
 /* ID_DFR1_EL1 definitions */
 #define ID_DFR1_MTPMU_SHIFT	U(0)
 #define ID_DFR1_MTPMU_MASK	U(0xf)
@@ -516,6 +522,7 @@
 #define CTR		p15, 0, c0, c0, 1
 #define CNTFRQ		p15, 0, c14, c0, 0
 #define ID_MMFR4	p15, 0, c0, c2, 6
+#define ID_DFR0		p15, 0, c0, c1, 2
 #define ID_DFR1		p15, 0, c0, c3, 5
 #define ID_PFR0		p15, 0, c0, c1, 0
 #define ID_PFR1		p15, 0, c0, c1, 1
