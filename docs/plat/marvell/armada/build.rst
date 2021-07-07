@@ -130,16 +130,15 @@ There are several build options:
 - MV_DDR_PATH
 
         This parameter is required for ``mrvl_flash`` and ``mrvl_uart`` targets.
+        For A7K/8K/CN913x it is used for BLE build and for Armada37x0 it used
+        for ddr_tool build.
 
-        For A7K/8K/CN913x, use this parameter to point to mv_ddr driver sources to allow BLE build. For A37x0,
-        it is used for ddr_tool build.
+        Specify path to the full checkout of Marvell mv-ddr-marvell git
+        repository. Checkout must contain also .git subdirectory because
+        mv-ddr build process calls git commands.
 
-        Usage example: MV_DDR_PATH=path/to/mv_ddr
-
-        For the mv_ddr source location, check the section "Tools and external components installation"
-
-        If MV_DDR_PATH source code is a git snapshot then provide path to the full git
-        repository (including .git subdir) because mv_ddr build process calls git commands.
+        Do not remove any parts of git checkout becuase build process and other
+        applications need them for correct building and version determination.
 
 - CP_NUM
 
@@ -234,12 +233,17 @@ There are several build options:
 
 - WTP
 
-        For Armada37x0 only, use this parameter to point to wtptools source code
-        directory, which can be found as a3700_utils.zip in the release. Usage
-        example: ``WTP=/path/to/a3700_utils``
+        For Armada37x0 only.
 
-        If WTP source code is a git snapshot then provide path to the full git
-        repository (including .git subdir) because WTP build process calls git commands.
+        Specify path to the full checkout of Marvell A3700-utils-marvell git
+        repository. Checkout must contain also .git subdirectory because WTP
+        build process calls git commands.
+
+        WTP build process uses also Marvell mv-ddr-marvell git repository
+        specified in MV_DDR_PATH option.
+
+        Do not remove any parts of git checkout becuase build process and other
+        applications need them for correct building and version determination.
 
 - CRYPTOPP_PATH
 
