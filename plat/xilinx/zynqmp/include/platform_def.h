@@ -83,9 +83,17 @@
 /*******************************************************************************
  * Platform specific page table and MMU setup constants
  ******************************************************************************/
+#define XILINX_OF_BOARD_DTB_ADDR	0x100000
+#define XILINX_OF_BOARD_DTB_MAX_SIZE	0x200000
+#define PLAT_DDR_LOWMEM_MAX		0x80000000
+
 #define PLAT_PHY_ADDR_SPACE_SIZE	(1ULL << 32)
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
+#if (BL31_LIMIT < PLAT_DDR_LOWMEM_MAX)
+#define MAX_MMAP_REGIONS		8
+#else
 #define MAX_MMAP_REGIONS		7
+#endif
 #define MAX_XLAT_TABLES			5
 
 #define CACHE_WRITEBACK_SHIFT   6

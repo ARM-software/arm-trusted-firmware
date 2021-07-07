@@ -63,6 +63,7 @@ PLAT_INCLUDES		:=	-Iinclude/plat/arm/common/			\
 				-Iplat/xilinx/zynqmp/include/			\
 				-Iplat/xilinx/zynqmp/pm_service/		\
 
+include lib/libfdt/libfdt.mk
 # Include GICv2 driver files
 include drivers/arm/gic/v2/gicv2.mk
 
@@ -94,6 +95,8 @@ BL31_SOURCES		+=	drivers/arm/cci/cci.c				\
 				lib/cpus/aarch64/aem_generic.S			\
 				lib/cpus/aarch64/cortex_a53.S			\
 				plat/common/plat_psci_common.c			\
+				common/fdt_fixup.c				\
+				${LIBFDT_SRCS}					\
 				plat/xilinx/common/ipi_mailbox_service/ipi_mailbox_svc.c \
 				plat/xilinx/common/pm_service/pm_ipi.c		\
 				plat/xilinx/common/plat_startup.c		\
