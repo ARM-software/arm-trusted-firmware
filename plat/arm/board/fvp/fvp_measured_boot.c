@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 
-#include <drivers/measured_boot/event_log.h>
+#include <drivers/measured_boot/event_log/event_log.h>
 #include <plat/arm/common/plat_arm.h>
 
 /* FVP table with platform specific image IDs, names and PCRs */

@@ -7,7 +7,8 @@
 # Default log level to dump the event log (LOG_LEVEL_INFO)
 EVENT_LOG_LEVEL         ?= 40
 
-# TPM hash algorithm
+# TPM hash algorithm.
+# SHA-256 (or stronger) is required for all devices that are TPM 2.0 compliant.
 TPM_HASH_ALG			:=	sha256
 
 ifeq (${TPM_HASH_ALG}, sha512)
@@ -38,12 +39,12 @@ $(eval $(call add_defines,\
 )))
 
 ifeq (${HASH_ALG}, sha256)
-ifneq (${TPM_HASH_ALG}, sha256)
-$(eval $(call add_define,MBEDTLS_SHA512_C))
-endif
+    ifneq (${TPM_HASH_ALG}, sha256)
+        $(eval $(call add_define,MBEDTLS_SHA512_C))
+    endif
 endif
 
-MEASURED_BOOT_SRC_DIR	:= drivers/measured_boot/
+MEASURED_BOOT_SRC_DIR	:= drivers/measured_boot/event_log/
 
 MEASURED_BOOT_SOURCES	:= ${MEASURED_BOOT_SRC_DIR}event_log.c		\
 			   ${MEASURED_BOOT_SRC_DIR}event_print.c

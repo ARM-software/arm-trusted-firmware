@@ -10,7 +10,7 @@
 #include <stdint.h>
 
 #include <common/debug.h>
-#include <drivers/measured_boot/tcg.h>
+#include <drivers/measured_boot/event_log/tcg.h>
 
 /*
  * Set Event Log debug level to one of:

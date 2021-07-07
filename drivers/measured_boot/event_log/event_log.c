@@ -12,7 +12,7 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/auth/crypto_mod.h>
-#include <drivers/measured_boot/event_log.h>
+#include <drivers/measured_boot/event_log/event_log.h>
 #include <mbedtls/md.h>
 
 #include <plat/common/platform.h>
