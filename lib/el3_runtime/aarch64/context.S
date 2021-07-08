@@ -903,16 +903,11 @@ func el3_exit
 
 #if IMAGE_BL31
 	/* ----------------------------------------------------------
-	 * Restore CPTR_EL3, ZCR_EL3 for SVE support.
-	 * If SVE is not supported - skip the restoration.
+	 * Restore CPTR_EL3.
 	 * ZCR is only restored if SVE is supported and enabled.
 	 * Synchronization is required before zcr_el3 is addressed.
 	 * ----------------------------------------------------------
 	 */
-	mrs	x17, id_aa64pfr0_el1
-	ubfx	x17, x17, ID_AA64PFR0_SVE_SHIFT, ID_AA64PFR0_SVE_LENGTH
-	cbz	x17, sve_not_enabled
-
 	ldp	x19, x20, [sp, #CTX_EL3STATE_OFFSET + CTX_CPTR_EL3]
 	msr	cptr_el3, x19
 

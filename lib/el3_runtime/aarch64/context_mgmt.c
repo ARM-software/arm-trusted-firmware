@@ -25,6 +25,7 @@
 #include <lib/extensions/twed.h>
 #include <lib/utils.h>
 
+static void enable_extensions_secure(cpu_context_t *ctx);
 
 /*******************************************************************************
  * Context management library initialisation routine. This library is used by
@@ -178,19 +179,13 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	 *  indicated by the interrupt routing model for BL31.
 	 */
 	scr_el3 |= get_scr_el3_from_routing_model(security_state);
-
-#if ENABLE_SVE_FOR_NS
-	if (security_state == NON_SECURE) {
-		sve_enable(ctx);
-	}
 #endif
-#if ENABLE_SVE_FOR_SWD
+
+	/* Save the initialized value of CPTR_EL3 register */
+	write_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3, read_cptr_el3());
 	if (security_state == SECURE) {
-		sve_enable(ctx);
+		enable_extensions_secure(ctx);
 	}
-#endif
-
-#endif
 
 	/*
 	 * SCR_EL3.HCE: Enable HVC instructions if next execution state is
@@ -335,7 +330,7 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
  * When EL2 is implemented but unused `el2_unused` is non-zero, otherwise
  * it is zero.
  ******************************************************************************/
-static void enable_extensions_nonsecure(bool el2_unused)
+static void enable_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 {
 #if IMAGE_BL31
 #if ENABLE_SPE_FOR_LOWER_ELS
@@ -343,11 +338,27 @@ static void enable_extensions_nonsecure(bool el2_unused)
 #endif
 
 #if ENABLE_AMU
-	amu_enable(el2_unused);
+	amu_enable(el2_unused, ctx);
+#endif
+
+#if ENABLE_SVE_FOR_NS
+	sve_enable(ctx);
 #endif
 
 #if ENABLE_MPAM_FOR_LOWER_ELS
 	mpam_enable(el2_unused);
+#endif
+#endif
+}
+
+/*******************************************************************************
+ * Enable architecture extensions on first entry to Secure world.
+ ******************************************************************************/
+static void enable_extensions_secure(cpu_context_t *ctx)
+{
+#if IMAGE_BL31
+#if ENABLE_SVE_FOR_SWD
+	sve_enable(ctx);
 #endif
 #endif
 }
@@ -586,7 +597,7 @@ void cm_prepare_el3_exit(uint32_t security_state)
 			write_cnthp_ctl_el2(CNTHP_CTL_RESET_VAL &
 						~(CNTHP_CTL_ENABLE_BIT));
 		}
-		enable_extensions_nonsecure(el2_unused);
+		enable_extensions_nonsecure(el2_unused, ctx);
 	}
 
 	cm_el1_sysregs_context_restore(security_state);

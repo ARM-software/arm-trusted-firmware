@@ -27,11 +27,13 @@ static bool sve_supported(void)
 
 void sve_enable(cpu_context_t *context)
 {
+	u_register_t cptr_el3;
+
 	if (!sve_supported()) {
 		return;
 	}
 
-	u_register_t cptr_el3 = read_cptr_el3();
+	cptr_el3 = read_ctx_reg(get_el3state_ctx(context), CTX_CPTR_EL3);
 
 	/* Enable access to SVE functionality for all ELs. */
 	cptr_el3 = (cptr_el3 | CPTR_EZ_BIT) & ~(TFP_BIT);
