@@ -208,8 +208,8 @@ static void __dead2 qemu_system_off(void)
 #ifdef SECURE_GPIO_BASE
 	ERROR("QEMU System Power off: with GPIO.\n");
 	gpio_set_direction(SECURE_GPIO_POWEROFF, GPIO_DIR_OUT);
-	gpio_set_value(SECURE_GPIO_POWEROFF, GPIO_LEVEL_HIGH);
 	gpio_set_value(SECURE_GPIO_POWEROFF, GPIO_LEVEL_LOW);
+	gpio_set_value(SECURE_GPIO_POWEROFF, GPIO_LEVEL_HIGH);
 #else
 	semihosting_exit(ADP_STOPPED_APPLICATION_EXIT, 0);
 	ERROR("QEMU System Off: semihosting call unexpectedly returned.\n");
@@ -222,8 +222,8 @@ static void __dead2 qemu_system_reset(void)
 	ERROR("QEMU System Reset: with GPIO.\n");
 #ifdef SECURE_GPIO_BASE
 	gpio_set_direction(SECURE_GPIO_RESET, GPIO_DIR_OUT);
-	gpio_set_value(SECURE_GPIO_RESET, GPIO_LEVEL_HIGH);
 	gpio_set_value(SECURE_GPIO_RESET, GPIO_LEVEL_LOW);
+	gpio_set_value(SECURE_GPIO_RESET, GPIO_LEVEL_HIGH);
 #else
 	ERROR("QEMU System Reset: operation not handled.\n");
 #endif
