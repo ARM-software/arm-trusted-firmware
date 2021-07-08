@@ -500,6 +500,21 @@ smc_handler64:
 	stp	x16, x17, [x6, #CTX_EL3STATE_OFFSET + CTX_SPSR_EL3]
 	str	x18, [x6, #CTX_EL3STATE_OFFSET + CTX_SCR_EL3]
 
+	/* Clear flag register */
+	mov	x7, xzr
+
+#if ENABLE_RME
+	/* Copy SCR_EL3.NSE bit to the flag to indicate caller's security */
+	ubfx	x7, x18, #SCR_NSE_SHIFT, 1
+
+	/*
+	 * Shift copied SCR_EL3.NSE bit by 5 to create space for
+	 * SCR_EL3.NS bit. Bit 5 of the flag correspondes to
+	 * the SCR_EL3.NSE bit.
+	 */
+	lsl	x7, x7, #5
+#endif /* ENABLE_RME */
+
 	/* Copy SCR_EL3.NS bit to the flag to indicate caller's security */
 	bfi	x7, x18, #0, #1
 

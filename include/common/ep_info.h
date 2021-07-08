@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,14 +18,21 @@
 
 #define SECURE		EP_SECURE
 #define NON_SECURE	EP_NON_SECURE
+#define REALM		EP_REALM
+#if ENABLE_RME
+#define sec_state_is_valid(s)	(((s) == SECURE) ||	\
+				((s) == NON_SECURE) ||	\
+				((s) == REALM))
+#else
 #define sec_state_is_valid(s) (((s) == SECURE) || ((s) == NON_SECURE))
+#endif
 
 #define PARAM_EP_SECURITY_MASK	EP_SECURITY_MASK
 
 #define NON_EXECUTABLE	EP_NON_EXECUTABLE
 #define EXECUTABLE	EP_EXECUTABLE
 
-/* Secure or Non-secure image */
+/* Get/set security state of an image */
 #define GET_SECURITY_STATE(x) ((x) & EP_SECURITY_MASK)
 #define SET_SECURITY_STATE(x, security) \
 			((x) = ((x) & ~EP_SECURITY_MASK) | (security))
