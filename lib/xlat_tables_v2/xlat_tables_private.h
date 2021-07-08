@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,6 +39,9 @@
 #endif /* PLAT_XLAT_TABLES_DYNAMIC */
 
 extern uint64_t mmu_cfg_params[MMU_CFG_PARAM_MAX];
+
+/* Determine the physical address space encoded in the 'attr' parameter. */
+uint32_t xlat_arch_get_pas(uint32_t attr);
 
 /*
  * Return the execute-never mask that will prevent instruction fetch at the

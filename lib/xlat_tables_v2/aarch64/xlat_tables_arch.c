@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -50,6 +50,33 @@ size_t xlat_arch_get_max_supported_granule_size(void)
 	} else {
 		assert(xlat_arch_is_granule_size_supported(PAGE_SIZE_4KB));
 		return PAGE_SIZE_4KB;
+	}
+}
+
+/*
+ * Determine the physical address space encoded in the 'attr' parameter.
+ *
+ * The physical address will fall into one of four spaces; secure,
+ * nonsecure, root, or realm if RME is enabled, or one of two spaces;
+ * secure and nonsecure otherwise.
+ */
+uint32_t xlat_arch_get_pas(uint32_t attr)
+{
+	uint32_t pas = MT_PAS(attr);
+
+	switch (pas) {
+#if ENABLE_RME
+	/* TTD.NSE = 1 and TTD.NS = 1 for Realm PAS */
+	case MT_REALM:
+		return LOWER_ATTRS(EL3_S1_NSE | NS);
+	/* TTD.NSE = 1 and TTD.NS = 0 for Root PAS */
+	case MT_ROOT:
+		return LOWER_ATTRS(EL3_S1_NSE);
+#endif
+	case MT_NS:
+		return LOWER_ATTRS(NS);
+	default: /* MT_SECURE */
+		return 0U;
 	}
 }
 
