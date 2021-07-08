@@ -24,6 +24,7 @@
 #include <lib/extensions/sve.h>
 #include <lib/extensions/sys_reg_trace.h>
 #include <lib/extensions/trbe.h>
+#include <lib/extensions/trf.h>
 #include <lib/extensions/twed.h>
 #include <lib/utils.h>
 
@@ -358,6 +359,10 @@ static void enable_extensions_nonsecure(bool el2_unused, cpu_context_t *ctx)
 #if ENABLE_SYS_REG_TRACE_FOR_NS
 	sys_reg_trace_enable(ctx);
 #endif /* ENABLE_SYS_REG_TRACE_FOR_NS */
+
+#if ENABLE_TRF_FOR_NS
+	trf_enable();
+#endif /* ENABLE_TRF_FOR_NS */
 
 #endif
 }

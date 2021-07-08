@@ -371,3 +371,8 @@ endif
 # ELs  i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused if
 # system register trace is implemented.
 ENABLE_SYS_REG_TRACE_FOR_NS	:= 0
+
+# By default, disable trace filter control registers access to NS
+# lower ELs, i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused
+# if FEAT_TRF is implemented.
+ENABLE_TRF_FOR_NS		:= 0

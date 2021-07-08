@@ -46,6 +46,10 @@ ifeq (${ENABLE_SYS_REG_TRACE_FOR_NS},1)
 BL32_SOURCES		+=	lib/extensions/sys_reg_trace/aarch32/sys_reg_trace.c
 endif
 
+ifeq (${ENABLE_TRF_FOR_NS},1)
+BL32_SOURCES		+=	lib/extensions/trf/aarch32/trf.c
+endif
+
 BL32_LINKERFILE	:=	bl32/sp_min/sp_min.ld.S
 
 # Include the platform-specific SP_MIN Makefile

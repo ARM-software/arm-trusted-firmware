@@ -17,6 +17,7 @@
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/extensions/amu.h>
 #include <lib/extensions/sys_reg_trace.h>
+#include <lib/extensions/trf.h>
 #include <lib/utils.h>
 
 /*******************************************************************************
@@ -141,6 +142,10 @@ static void enable_extensions_nonsecure(bool el2_unused)
 #if ENABLE_SYS_REG_TRACE_FOR_NS
 	sys_reg_trace_enable();
 #endif /* ENABLE_SYS_REG_TRACE_FOR_NS */
+
+#if ENABLE_TRF_FOR_NS
+	trf_enable();
+#endif /* ENABLE_TRF_FOR_NS */
 #endif
 }
 

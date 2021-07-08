@@ -966,6 +966,7 @@ $(eval $(call assert_booleans,\
         PSA_FWU_SUPPORT \
         ENABLE_TRBE_FOR_NS \
         ENABLE_SYS_REG_TRACE_FOR_NS \
+        ENABLE_TRF_FOR_NS \
 )))
 
 $(eval $(call assert_numerics,\
@@ -1068,6 +1069,7 @@ $(eval $(call add_defines,\
         PSA_FWU_SUPPORT \
         ENABLE_TRBE_FOR_NS \
         ENABLE_SYS_REG_TRACE_FOR_NS \
+        ENABLE_TRF_FOR_NS \
 )))
 
 ifeq (${SANITIZE_UB},trap)
