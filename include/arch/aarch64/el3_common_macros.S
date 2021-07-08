@@ -222,6 +222,9 @@
 	 *
 	 * CPTR_EL3.EZ: Set to zero so that all SVE functionality is trapped
 	 *  to EL3 by default.
+	 *
+	 * CPTR_EL3.ESM: Set to zero so that all SME functionality is trapped
+	 *  to EL3 by default.
 	 */
 
 	mov_imm x0, (CPTR_EL3_RESET_VAL & ~(TCPAC_BIT | TTA_BIT | TFP_BIT))

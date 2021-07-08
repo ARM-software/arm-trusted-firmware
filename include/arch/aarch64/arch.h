@@ -218,8 +218,8 @@
 #define ID_AA64DFR0_MTPMU_SUPPORTED	ULL(1)
 
 /* ID_AA64ISAR0_EL1 definitions */
-#define ID_AA64ISAR0_RNDR_SHIFT U(60)
-#define ID_AA64ISAR0_RNDR_MASK  ULL(0xf)
+#define ID_AA64ISAR0_RNDR_SHIFT	U(60)
+#define ID_AA64ISAR0_RNDR_MASK	ULL(0xf)
 
 /* ID_AA64ISAR1_EL1 definitions */
 #define ID_AA64ISAR1_EL1	S3_0_C0_C6_1
@@ -286,10 +286,10 @@
 #define ID_AA64MMFR1_EL1_VHE_SHIFT		U(8)
 #define ID_AA64MMFR1_EL1_VHE_MASK		ULL(0xf)
 
-#define ID_AA64MMFR1_EL1_HCX_SHIFT              U(40)
-#define ID_AA64MMFR1_EL1_HCX_MASK               ULL(0xf)
-#define ID_AA64MMFR1_EL1_HCX_SUPPORTED          ULL(0x1)
-#define ID_AA64MMFR1_EL1_HCX_NOT_SUPPORTED      ULL(0x0)
+#define ID_AA64MMFR1_EL1_HCX_SHIFT		U(40)
+#define ID_AA64MMFR1_EL1_HCX_MASK		ULL(0xf)
+#define ID_AA64MMFR1_EL1_HCX_SUPPORTED		ULL(0x1)
+#define ID_AA64MMFR1_EL1_HCX_NOT_SUPPORTED	ULL(0x0)
 
 /* ID_AA64MMFR2_EL1 definitions */
 #define ID_AA64MMFR2_EL1		S3_0_C0_C7_2
@@ -328,6 +328,9 @@
 
 #define ID_AA64PFR1_MPAM_FRAC_SHIFT	ULL(16)
 #define ID_AA64PFR1_MPAM_FRAC_MASK	ULL(0xf)
+
+#define ID_AA64PFR1_EL1_SME_SHIFT	U(24)
+#define ID_AA64PFR1_EL1_SME_MASK	ULL(0xf)
 
 /* ID_PFR1_EL1 definitions */
 #define ID_PFR1_VIRTEXT_SHIFT	U(12)
@@ -388,6 +391,7 @@
 #define SCTLR_ITFSB_BIT		(ULL(1) << 37)
 #define SCTLR_TCF0_SHIFT	U(38)
 #define SCTLR_TCF0_MASK		ULL(3)
+#define SCTLR_ENTP2_BIT		(ULL(1) << 60)
 
 /* Tag Check Faults in EL0 have no effect on the PE */
 #define	SCTLR_TCF0_NO_EFFECT	U(0)
@@ -442,7 +446,9 @@
 #define SCR_GPF_BIT		(UL(1) << 48)
 #define SCR_TWEDEL_SHIFT	U(30)
 #define SCR_TWEDEL_MASK		ULL(0xf)
-#define SCR_HXEn_BIT            (UL(1) << 38)
+#define SCR_HXEn_BIT		(UL(1) << 38)
+#define SCR_ENTP2_SHIFT		U(41)
+#define SCR_ENTP2_BIT		(UL(1) << SCR_ENTP2_SHIFT)
 #define SCR_AMVOFFEN_BIT	(UL(1) << 35)
 #define SCR_TWEDEn_BIT		(UL(1) << 29)
 #define SCR_ECVEN_BIT		(UL(1) << 28)
@@ -465,7 +471,7 @@
 #define SCR_FIQ_BIT		(UL(1) << 2)
 #define SCR_IRQ_BIT		(UL(1) << 1)
 #define SCR_NS_BIT		(UL(1) << 0)
-#define SCR_VALID_BIT_MASK	U(0x2f8f)
+#define SCR_VALID_BIT_MASK	U(0x24000002F8F)
 #define SCR_RESET_VAL		SCR_RES1_BITS
 
 /* MDCR_EL3 definitions */
@@ -574,23 +580,28 @@
 #define TAM_SHIFT		U(30)
 #define TAM_BIT			(U(1) << TAM_SHIFT)
 #define TTA_BIT			(U(1) << 20)
+#define ESM_BIT			(U(1) << 12)
 #define TFP_BIT			(U(1) << 10)
 #define CPTR_EZ_BIT		(U(1) << 8)
-#define CPTR_EL3_RESET_VAL	(TCPAC_BIT | TAM_BIT | TTA_BIT | TFP_BIT & ~(CPTR_EZ_BIT))
+#define CPTR_EL3_RESET_VAL	((TCPAC_BIT | TAM_BIT | TTA_BIT | TFP_BIT) & \
+				~(CPTR_EZ_BIT | ESM_BIT))
 
 /* CPTR_EL2 definitions */
 #define CPTR_EL2_RES1		((U(1) << 13) | (U(1) << 12) | (U(0x3ff)))
 #define CPTR_EL2_TCPAC_BIT	(U(1) << 31)
 #define CPTR_EL2_TAM_SHIFT	U(30)
 #define CPTR_EL2_TAM_BIT	(U(1) << CPTR_EL2_TAM_SHIFT)
+#define CPTR_EL2_SMEN_MASK	ULL(0x3)
+#define CPTR_EL2_SMEN_SHIFT	U(24)
 #define CPTR_EL2_TTA_BIT	(U(1) << 20)
+#define CPTR_EL2_TSM_BIT	(U(1) << 12)
 #define CPTR_EL2_TFP_BIT	(U(1) << 10)
 #define CPTR_EL2_TZ_BIT		(U(1) << 8)
 #define CPTR_EL2_RESET_VAL	CPTR_EL2_RES1
 
 /* VTCR_EL2 definitions */
-#define VTCR_RESET_VAL         U(0x0)
-#define VTCR_EL2_MSA           (U(1) << 31)
+#define VTCR_RESET_VAL		U(0x0)
+#define VTCR_EL2_MSA		(U(1) << 31)
 
 /* CPSR/SPSR definitions */
 #define DAIF_FIQ_BIT		(U(1) << 0)
@@ -918,6 +929,20 @@
 #define ZCR_EL2_LEN_MASK	U(0xf)
 
 /*******************************************************************************
+ * Definitions for system register interface to SME as needed in EL3
+ ******************************************************************************/
+#define ID_AA64SMFR0_EL1		S3_0_C0_C4_5
+#define SMCR_EL3			S3_6_C1_C2_6
+
+/* ID_AA64SMFR0_EL1 definitions */
+#define ID_AA64SMFR0_EL1_FA64_BIT	(UL(1) << 63)
+
+/* SMCR_ELx definitions */
+#define SMCR_ELX_LEN_SHIFT		U(0)
+#define SMCR_ELX_LEN_MASK		U(0x1ff)
+#define SMCR_ELX_FA64_BIT		(U(1) << 31)
+
+/*******************************************************************************
  * Definitions of MAIR encodings for device and normal memory
  ******************************************************************************/
 /*
@@ -1199,12 +1224,12 @@
 /*******************************************************************************
  * FEAT_HCX - Extended Hypervisor Configuration Register
  ******************************************************************************/
-#define HCRX_EL2                S3_4_C1_C2_2
-#define HCRX_EL2_FGTnXS_BIT     (UL(1) << 4)
-#define HCRX_EL2_FnXS_BIT       (UL(1) << 3)
-#define HCRX_EL2_EnASR_BIT      (UL(1) << 2)
-#define HCRX_EL2_EnALS_BIT      (UL(1) << 1)
-#define HCRX_EL2_EnAS0_BIT      (UL(1) << 0)
+#define HCRX_EL2		S3_4_C1_C2_2
+#define HCRX_EL2_FGTnXS_BIT	(UL(1) << 4)
+#define HCRX_EL2_FnXS_BIT	(UL(1) << 3)
+#define HCRX_EL2_EnASR_BIT	(UL(1) << 2)
+#define HCRX_EL2_EnALS_BIT	(UL(1) << 1)
+#define HCRX_EL2_EnAS0_BIT	(UL(1) << 0)
 
 /*******************************************************************************
  * Definitions for DynamicIQ Shared Unit registers

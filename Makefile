@@ -777,6 +777,52 @@ ifneq (${DECRYPTION_SUPPORT},none)
     endif
 endif
 
+# SME/SVE only supported on AArch64
+ifeq (${ARCH},aarch32)
+    ifeq (${ENABLE_SME_FOR_NS},1)
+        $(error "ENABLE_SME_FOR_NS cannot be used with ARCH=aarch32")
+    endif
+    ifeq (${ENABLE_SVE_FOR_NS},1)
+        # Warning instead of error due to CI dependency on this
+        $(warning "ENABLE_SVE_FOR_NS cannot be used with ARCH=aarch32")
+        $(warning "Forced ENABLE_SVE_FOR_NS=0")
+        override ENABLE_SVE_FOR_NS	:= 0
+    endif
+endif
+
+# Ensure ENABLE_RME is not used with SME
+ifeq (${ENABLE_RME},1)
+    ifeq (${ENABLE_SME_FOR_NS},1)
+        $(error "ENABLE_SME_FOR_NS cannot be used with ENABLE_RME")
+    endif
+endif
+
+# Secure SME/SVE requires the non-secure component as well
+ifeq (${ENABLE_SME_FOR_SWD},1)
+    ifeq (${ENABLE_SME_FOR_NS},0)
+        $(error "ENABLE_SME_FOR_SWD requires ENABLE_SME_FOR_NS")
+    endif
+endif
+ifeq (${ENABLE_SVE_FOR_SWD},1)
+    ifeq (${ENABLE_SVE_FOR_NS},0)
+        $(error "ENABLE_SVE_FOR_SWD requires ENABLE_SVE_FOR_NS")
+    endif
+endif
+
+# SVE and SME cannot be used with CTX_INCLUDE_FPREGS since secure manager does
+# its own context management including FPU registers.
+ifeq (${CTX_INCLUDE_FPREGS},1)
+    ifeq (${ENABLE_SME_FOR_NS},1)
+        $(error "ENABLE_SME_FOR_NS cannot be used with CTX_INCLUDE_FPREGS")
+    endif
+    ifeq (${ENABLE_SVE_FOR_NS},1)
+        # Warning instead of error due to CI dependency on this
+        $(warning "ENABLE_SVE_FOR_NS cannot be used with CTX_INCLUDE_FPREGS")
+        $(warning "Forced ENABLE_SVE_FOR_NS=0")
+        override ENABLE_SVE_FOR_NS	:= 0
+    endif
+endif
+
 ################################################################################
 # Process platform overrideable behaviour
 ################################################################################
@@ -941,6 +987,8 @@ $(eval $(call assert_booleans,\
         ENABLE_PSCI_STAT \
         ENABLE_RME \
         ENABLE_RUNTIME_INSTRUMENTATION \
+        ENABLE_SME_FOR_NS \
+        ENABLE_SME_FOR_SWD \
         ENABLE_SPE_FOR_LOWER_ELS \
         ENABLE_SVE_FOR_NS \
         ENABLE_SVE_FOR_SWD \
@@ -1048,6 +1096,8 @@ $(eval $(call add_defines,\
         ENABLE_PSCI_STAT \
         ENABLE_RME \
         ENABLE_RUNTIME_INSTRUMENTATION \
+        ENABLE_SME_FOR_NS \
+        ENABLE_SME_FOR_SWD \
         ENABLE_SPE_FOR_LOWER_ELS \
         ENABLE_SVE_FOR_NS \
         ENABLE_SVE_FOR_SWD \
