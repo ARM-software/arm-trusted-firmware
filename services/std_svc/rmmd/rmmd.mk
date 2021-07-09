@@ -8,6 +8,9 @@ ifneq (${ARCH},aarch64)
         $(error "Error: RMMD is only supported on aarch64.")
 endif
 
+include services/std_svc/rmmd/trp/trp.mk
+
 RMMD_SOURCES	+=	$(addprefix services/std_svc/rmmd/,	\
 			${ARCH}/rmmd_helpers.S			\
 			rmmd_main.c)
+
