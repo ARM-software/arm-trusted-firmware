@@ -405,13 +405,12 @@ DEFINE_REG_STRUCT(pauth, CTX_PAUTH_REGS_ALL);
 					 = (uint64_t) (val))
 
 /*
- * Top-level context structure which is used by EL3 firmware to
- * preserve the state of a core at EL1 in one of the two security
- * states and save enough EL3 meta data to be able to return to that
- * EL and security state. The context management library will be used
- * to ensure that SP_EL3 always points to an instance of this
- * structure at exception entry and exit. Each instance will
- * correspond to either the secure or the non-secure state.
+ * Top-level context structure which is used by EL3 firmware to preserve
+ * the state of a core at the next lower EL in a given security state and
+ * save enough EL3 meta data to be able to return to that EL and security
+ * state. The context management library will be used to ensure that
+ * SP_EL3 always points to an instance of this structure at exception
+ * entry and exit.
  */
 typedef struct cpu_context {
 	gp_regs_t gpregs_ctx;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,16 +19,25 @@
 /* 8-bytes aligned size of psci_cpu_data structure */
 #define PSCI_CPU_DATA_SIZE_ALIGNED	((PSCI_CPU_DATA_SIZE + 7) & ~7)
 
+#if ENABLE_RME
+/* Size of cpu_context array */
+#define CPU_DATA_CONTEXT_NUM		3
 /* Offset of cpu_ops_ptr, size 8 bytes */
+#define CPU_DATA_CPU_OPS_PTR		0x18
+#else /* ENABLE_RME */
+#define CPU_DATA_CONTEXT_NUM		2
 #define CPU_DATA_CPU_OPS_PTR		0x10
+#endif /* ENABLE_RME */
 
 #if ENABLE_PAUTH
 /* 8-bytes aligned offset of apiakey[2], size 16 bytes */
-#define	CPU_DATA_APIAKEY_OFFSET		(0x18 + PSCI_CPU_DATA_SIZE_ALIGNED)
-#define CPU_DATA_CRASH_BUF_OFFSET	(CPU_DATA_APIAKEY_OFFSET + 0x10)
-#else
-#define CPU_DATA_CRASH_BUF_OFFSET	(0x18 + PSCI_CPU_DATA_SIZE_ALIGNED)
-#endif	/* ENABLE_PAUTH */
+#define	CPU_DATA_APIAKEY_OFFSET		(0x8 + PSCI_CPU_DATA_SIZE_ALIGNED \
+					     + CPU_DATA_CPU_OPS_PTR)
+#define CPU_DATA_CRASH_BUF_OFFSET	(0x10 + CPU_DATA_APIAKEY_OFFSET)
+#else /* ENABLE_PAUTH */
+#define CPU_DATA_CRASH_BUF_OFFSET	(0x8 + PSCI_CPU_DATA_SIZE_ALIGNED \
+					     + CPU_DATA_CPU_OPS_PTR)
+#endif /* ENABLE_PAUTH */
 
 /* need enough space in crash buffer to save 8 registers */
 #define CPU_DATA_CRASH_BUF_SIZE		64
@@ -65,11 +74,14 @@
 
 #ifndef __ASSEMBLER__
 
+#include <assert.h>
+#include <stdint.h>
+
 #include <arch_helpers.h>
 #include <lib/cassert.h>
 #include <lib/psci/psci.h>
+
 #include <platform_def.h>
-#include <stdint.h>
 
 /* Offsets for the cpu_data structure */
 #define CPU_DATA_PSCI_LOCK_OFFSET	__builtin_offsetof\
@@ -80,18 +92,25 @@
 		(cpu_data_t, platform_cpu_data)
 #endif
 
+typedef enum context_pas {
+	CPU_CONTEXT_SECURE = 0,
+	CPU_CONTEXT_NS,
+#if ENABLE_RME
+	CPU_CONTEXT_REALM,
+#endif
+	CPU_CONTEXT_NUM
+} context_pas_t;
+
 /*******************************************************************************
  * Function & variable prototypes
  ******************************************************************************/
 
 /*******************************************************************************
  * Cache of frequently used per-cpu data:
- *   Pointers to non-secure and secure security state contexts
+ *   Pointers to non-secure, realm, and secure security state contexts
  *   Address of the crash stack
  * It is aligned to the cache line boundary to allow efficient concurrent
  * manipulation of these pointers on different cpus
- *
- * TODO: Add other commonly used variables to this (tf_issues#90)
  *
  * The data structure and the _cpu_data accessors should not be used directly
  * by components that have per-cpu members. The member access macros should be
@@ -99,8 +118,8 @@
  ******************************************************************************/
 typedef struct cpu_data {
 #ifdef __aarch64__
-	void *cpu_context[2];
-#endif
+	void *cpu_context[CPU_DATA_CONTEXT_NUM];
+#endif /* __aarch64__ */
 	uintptr_t cpu_ops_ptr;
 	struct psci_cpu_data psci_svc_cpu_data;
 #if ENABLE_PAUTH
@@ -121,6 +140,11 @@ typedef struct cpu_data {
 } __aligned(CACHE_WRITEBACK_GRANULE) cpu_data_t;
 
 extern cpu_data_t percpu_data[PLATFORM_CORE_COUNT];
+
+#ifdef __aarch64__
+CASSERT(CPU_DATA_CONTEXT_NUM == CPU_CONTEXT_NUM,
+		assert_cpu_data_context_num_mismatch);
+#endif
 
 #if ENABLE_PAUTH
 CASSERT(CPU_DATA_APIAKEY_OFFSET == __builtin_offsetof
@@ -159,6 +183,31 @@ static inline struct cpu_data *_cpu_data(void)
 #else
 struct cpu_data *_cpu_data(void);
 #endif
+
+/*
+ * Returns the index of the cpu_context array for the given security state.
+ * All accesses to cpu_context should be through this helper to make sure
+ * an access is not out-of-bounds. The function assumes security_state is
+ * valid.
+ */
+static inline context_pas_t get_cpu_context_index(uint32_t security_state)
+{
+	if (security_state == SECURE) {
+		return CPU_CONTEXT_SECURE;
+	} else {
+#if ENABLE_RME
+		if (security_state == NON_SECURE) {
+			return CPU_CONTEXT_NS;
+		} else {
+			assert(security_state == REALM);
+			return CPU_CONTEXT_REALM;
+		}
+#else
+		assert(security_state == NON_SECURE);
+		return CPU_CONTEXT_NS;
+#endif
+	}
+}
 
 /**************************************************************************
  * APIs for initialising and accessing per-cpu data
