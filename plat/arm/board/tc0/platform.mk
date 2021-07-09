@@ -114,6 +114,8 @@ override CTX_INCLUDE_PAUTH_REGS	:= 1
 
 override ENABLE_SPE_FOR_LOWER_ELS	:= 0
 
+override ENABLE_AMU := 1
+
 include plat/arm/common/arm_common.mk
 include plat/arm/css/common/css_common.mk
 include plat/arm/soc/common/soc_css.mk
