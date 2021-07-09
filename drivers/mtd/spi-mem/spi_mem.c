@@ -33,22 +33,31 @@ static struct spi_slave spi_slave;
 
 static bool spi_mem_check_buswidth_req(uint8_t buswidth, bool tx)
 {
+	unsigned int mode = spi_slave.mode;
+
 	switch (buswidth) {
 	case 1U:
 		return true;
 
 	case 2U:
-		if ((tx && (spi_slave.mode & (SPI_TX_DUAL | SPI_TX_QUAD)) !=
-		     0U) ||
-		    (!tx && (spi_slave.mode & (SPI_RX_DUAL | SPI_RX_QUAD)) !=
-		     0U)) {
+		if ((tx &&
+		     (mode & (SPI_TX_DUAL | SPI_TX_QUAD | SPI_TX_OCTAL)) != 0U) ||
+		    (!tx &&
+		     (mode & (SPI_RX_DUAL | SPI_RX_QUAD | SPI_RX_OCTAL)) != 0U)) {
 			return true;
 		}
 		break;
 
 	case 4U:
-		if ((tx && (spi_slave.mode & SPI_TX_QUAD) != 0U) ||
-		    (!tx && (spi_slave.mode & SPI_RX_QUAD) != 0U)) {
+		if ((tx && (mode & (SPI_TX_QUAD | SPI_TX_OCTAL)) != 0U) ||
+		    (!tx && (mode & (SPI_RX_QUAD | SPI_RX_OCTAL)) != 0U)) {
+			return true;
+		}
+		break;
+
+	case 8U:
+		if ((tx && (mode & SPI_TX_OCTAL) != 0U) ||
+		    (!tx && (mode & SPI_RX_OCTAL) != 0U)) {
 			return true;
 		}
 		break;
@@ -236,7 +245,7 @@ int spi_mem_dirmap_read(const struct spi_mem_op *op)
 int spi_mem_init_slave(void *fdt, int bus_node, const struct spi_bus_ops *ops)
 {
 	int ret;
-	int mode = 0;
+	unsigned int mode = 0U;
 	int nchips = 0;
 	int bus_subnode = 0;
 	const fdt32_t *cuint = NULL;
@@ -304,6 +313,9 @@ int spi_mem_init_slave(void *fdt, int bus_node, const struct spi_bus_ops *ops)
 			case 4U:
 				mode |= SPI_TX_QUAD;
 				break;
+			case 8U:
+				mode |= SPI_TX_OCTAL;
+				break;
 			default:
 				WARN("spi-tx-bus-width %u not supported\n",
 				     fdt32_to_cpu(*cuint));
@@ -321,6 +333,9 @@ int spi_mem_init_slave(void *fdt, int bus_node, const struct spi_bus_ops *ops)
 				break;
 			case 4U:
 				mode |= SPI_RX_QUAD;
+				break;
+			case 8U:
+				mode |= SPI_RX_OCTAL;
 				break;
 			default:
 				WARN("spi-rx-bus-width %u not supported\n",

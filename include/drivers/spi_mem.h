@@ -14,6 +14,7 @@
 #define SPI_MEM_BUSWIDTH_1_LINE		1U
 #define SPI_MEM_BUSWIDTH_2_LINE		2U
 #define SPI_MEM_BUSWIDTH_4_LINE		4U
+#define SPI_MEM_BUSWIDTH_8_LINE		8U
 
 /*
  * enum spi_mem_data_dir - Describes the direction of a SPI memory data
@@ -82,6 +83,8 @@ struct spi_mem_op {
 #define SPI_TX_QUAD	BIT(7)			/* transmit with 4 wires */
 #define SPI_RX_DUAL	BIT(8)			/* receive with 2 wires */
 #define SPI_RX_QUAD	BIT(9)			/* receive with 4 wires */
+#define SPI_TX_OCTAL	BIT(10)			/* transmit with 8 wires */
+#define SPI_RX_OCTAL	BIT(11)			/* receive with 8 wires */
 
 struct spi_bus_ops {
 	/*
