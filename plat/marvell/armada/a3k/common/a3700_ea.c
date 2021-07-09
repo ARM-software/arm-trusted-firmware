@@ -24,6 +24,10 @@ static const char *get_el_str(unsigned int el)
 }
 #endif /* !ENABLE_BACKTRACE */
 
+/*
+ * This source file with custom plat_ea_handler function is compiled only when
+ * building TF-A with compile option HANDLE_EA_EL3_FIRST=1
+ */
 void plat_ea_handler(unsigned int ea_reason, uint64_t syndrome, void *cookie,
 		void *handle, uint64_t flags)
 {
