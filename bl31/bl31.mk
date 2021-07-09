@@ -111,6 +111,10 @@ ifeq ($(SMC_PCI_SUPPORT),1)
 BL31_SOURCES		+=	services/std_svc/pci_svc.c
 endif
 
+ifeq (${ENABLE_RME},1)
+BL31_SOURCES		+=	${RMMD_SOURCES}
+endif
+
 BL31_LINKERFILE		:=	bl31/bl31.ld.S
 
 # Flag used to indicate if Crash reporting via console should be included

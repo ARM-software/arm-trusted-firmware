@@ -448,6 +448,7 @@
 #define SCR_ECVEN_BIT		(UL(1) << 28)
 #define SCR_FGTEN_BIT		(UL(1) << 27)
 #define SCR_ATA_BIT		(UL(1) << 26)
+#define SCR_EnSCXT_BIT		(UL(1) << 25)
 #define SCR_FIEN_BIT		(UL(1) << 21)
 #define SCR_EEL2_BIT		(UL(1) << 18)
 #define SCR_API_BIT		(UL(1) << 17)
@@ -609,6 +610,7 @@
 #define SPSR_M_MASK		U(0x1)
 #define SPSR_M_AARCH64		U(0x0)
 #define SPSR_M_AARCH32		U(0x1)
+#define SPSR_M_EL2H		U(0x9)
 
 #define SPSR_EL_SHIFT		U(2)
 #define SPSR_EL_WIDTH		U(2)
