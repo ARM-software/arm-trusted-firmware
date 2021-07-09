@@ -31,6 +31,7 @@
 #define VPPSYS1_BASE            (IO_PHYS + 0x04f00000)
 #define VDOSYS0_BASE            (IO_PHYS + 0x0C01A000)
 #define VDOSYS1_BASE            (IO_PHYS + 0x0C100000)
+#define DVFSRC_BASE             (IO_PHYS + 0x00012000)
 
 /*******************************************************************************
  * DP/eDP related constants

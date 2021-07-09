@@ -30,7 +30,8 @@ PLAT_SPM_SOURCE_FILES +=					\
 	${CUR_SPM_FOLDER}/constraints/mt_spm_rc_syspll.c	\
 	${CUR_SPM_FOLDER}/mt_spm_cond.c				\
 	${CUR_SPM_FOLDER}/mt_spm_suspend.c			\
-	${CUR_SPM_FOLDER}/mt_spm_idle.c
+	${CUR_SPM_FOLDER}/mt_spm_idle.c				\
+	${CUR_SPM_FOLDER}/mt_spm_vcorefs.c
 
 ifeq (${MT_SPM_FEATURE_SUPPORT}, no)
 PLAT_SPM_DEBUG_CFLAGS += -DATF_PLAT_SPM_UNSUPPORT
