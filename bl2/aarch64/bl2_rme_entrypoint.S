@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,11 +13,6 @@
 
 	.globl	bl2_entrypoint
 
-#if BL2_IN_XIP_MEM
-#define FIXUP_SIZE	0
-#else
-#define FIXUP_SIZE	((BL2_LIMIT) - (BL2_BASE))
-#endif
 
 func bl2_entrypoint
 	/* Save arguments x0-x3 from previous Boot loader */
@@ -27,13 +22,13 @@ func bl2_entrypoint
 	mov	x23, x3
 
 	el3_entrypoint_common                                   \
-		_init_sctlr=1                                   \
-		_warm_boot_mailbox=!PROGRAMMABLE_RESET_ADDRESS  \
-		_secondary_cold_boot=!COLD_BOOT_SINGLE_CPU      \
-		_init_memory=1                                  \
+		_init_sctlr=0                                   \
+		_warm_boot_mailbox=0                            \
+		_secondary_cold_boot=0                          \
+		_init_memory=0                                  \
 		_init_c_runtime=1                               \
-		_exception_vectors=bl2_el3_exceptions		\
-		_pie_fixup_size=FIXUP_SIZE
+		_exception_vectors=bl2_el3_exceptions           \
+		_pie_fixup_size=0
 
 	/* ---------------------------------------------
 	 * Restore parameters of boot rom
@@ -48,7 +43,7 @@ func bl2_entrypoint
 	 * Perform BL2 setup
 	 * ---------------------------------------------
 	 */
-	bl	bl2_el3_setup
+	bl	bl2_setup
 
 #if ENABLE_PAUTH
 	/* ---------------------------------------------
