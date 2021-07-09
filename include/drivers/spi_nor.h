@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2026, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,6 +29,8 @@
 #define SPI_NOR_OP_READ_1_2_2	0xBBU	/* Read data bytes (Dual I/O SPI) */
 #define SPI_NOR_OP_READ_1_1_4	0x6BU	/* Read data bytes (Quad Output SPI) */
 #define SPI_NOR_OP_READ_1_4_4	0xEBU	/* Read data bytes (Quad I/O SPI) */
+#define SPI_NOR_OP_READ_1_1_8	0x8BU	/* Read data bytes (Octal Output SPI) */
+#define SPI_NOR_OP_READ_1_8_8	0xCBU	/* Read data bytes (Octal I/O SPI) */
 
 /* Flags for NOR specific configuration */
 #define SPI_NOR_USE_FSR		BIT(0)
