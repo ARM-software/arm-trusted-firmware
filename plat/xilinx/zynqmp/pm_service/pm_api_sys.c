@@ -209,7 +209,7 @@ enum pm_ret_status pm_abort_suspend(enum pm_abort_reason reason)
 	/* TODO: allow passing the node ID of the affected CPU */
 	PM_PACK_PAYLOAD3(payload, PM_ABORT_SUSPEND, reason,
 			 primary_proc->node_id);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
@@ -228,7 +228,7 @@ enum pm_ret_status pm_set_wakeup_source(enum pm_node_id target,
 
 	PM_PACK_PAYLOAD4(payload, PM_SET_WAKEUP_SOURCE, target, wkup_node,
 			 enable);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
@@ -316,7 +316,7 @@ enum pm_ret_status pm_release_node(enum pm_node_id nid)
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	PM_PACK_PAYLOAD2(payload, PM_RELEASE_NODE, nid);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
@@ -332,7 +332,7 @@ enum pm_ret_status pm_set_max_latency(enum pm_node_id nid,
 	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	PM_PACK_PAYLOAD3(payload, PM_SET_MAX_LATENCY, nid, latency);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /* Miscellaneous API functions */
@@ -461,7 +461,7 @@ enum pm_ret_status pm_reset_assert(unsigned int reset,
 
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD3(payload, PM_RESET_ASSERT, reset, assert);
-	return pm_ipi_send(primary_proc, payload);
+	return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
 }
 
 /**
