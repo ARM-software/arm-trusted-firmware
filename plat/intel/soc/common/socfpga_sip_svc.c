@@ -344,7 +344,7 @@ uint32_t intel_secure_reg_update(uint64_t reg_addr, uint32_t mask,
 {
 	if (!intel_secure_reg_read(reg_addr, retval)) {
 		*retval &= ~mask;
-		*retval |= val;
+		*retval |= val & mask;
 		return intel_secure_reg_write(reg_addr, *retval, retval);
 	}
 
