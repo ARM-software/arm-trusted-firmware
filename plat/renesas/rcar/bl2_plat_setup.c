@@ -565,6 +565,33 @@ static void bl2_populate_compatible_string(void *dt)
 	}
 }
 
+static void bl2_add_rpc_node(void)
+{
+#if (RCAR_RPC_HYPERFLASH_LOCKED == 0)
+	int ret, node;
+
+	node = ret = fdt_add_subnode(fdt, 0, "soc");
+	if (ret < 0) {
+		goto err;
+	}
+
+	node = ret = fdt_add_subnode(fdt, node, "rpc@ee200000");
+	if (ret < 0) {
+		goto err;
+	}
+
+	ret = fdt_setprop_string(fdt, node, "status", "okay");
+	if (ret < 0) {
+		goto err;
+	}
+
+	return;
+err:
+	NOTICE("BL2: Cannot add RPC node to FDT (ret=%i)\n", ret);
+	panic();
+#endif
+}
+
 static void bl2_add_dram_entry(uint64_t start, uint64_t size)
 {
 	char nodename[32] = { 0 };
@@ -1009,6 +1036,9 @@ lcm_state:
 
 	/* Add platform compatible string */
 	bl2_populate_compatible_string(fdt);
+
+	/* Enable RPC if unlocked */
+	bl2_add_rpc_node();
 
 	/* Print DRAM layout */
 	bl2_advertise_dram_size(product);
