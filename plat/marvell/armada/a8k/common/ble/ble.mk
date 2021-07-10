@@ -25,6 +25,7 @@ BLE_LINKERFILE		:=	$(BLE_PATH)/ble.ld.S
 
 BLE_OBJS := $(addprefix $(BUILD_PLAT)/ble/,$(call SOURCES_TO_OBJS,$(BLE_SOURCES)))
 $(BLE_OBJS): PLAT_INCLUDES += -I$(MV_DDR_PATH)
+$(BLE_OBJS): $(MV_DDR_LIB)
 
 $(MV_DDR_LIB): FORCE
 	$(if $(value MV_DDR_PATH),,$(error "Platform '$(PLAT)' for BLE requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
