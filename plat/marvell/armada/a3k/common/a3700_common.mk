@@ -82,19 +82,19 @@ BUILD_UART	:= uart-images
 UART_IMAGE	:= $(BUILD_UART).tgz.bin
 
 ifeq ($(MARVELL_SECURE_BOOT),1)
-DOIMAGE_CFG	:= $(BUILD_PLAT)/atf-tim.txt
-DOIMAGEUART_CFG	:= $(BUILD_PLAT)/$(BUILD_UART)/atf-tim.txt
+TIM_CFG		:= $(BUILD_PLAT)/atf-tim.txt
+TIM_UART_CFG	:= $(BUILD_PLAT)/$(BUILD_UART)/atf-tim.txt
 IMAGESPATH	:= $(WTP)/tim/trusted
-TIMNCFG		:= $(BUILD_PLAT)/atf-timN.txt
-TIMNUARTCFG	:= $(BUILD_PLAT)/$(BUILD_UART)/atf-timN.txt
-TIMNSIG		:= $(IMAGESPATH)/timnsign.txt
-TIM2IMGARGS	:= -i $(DOIMAGE_CFG) -n $(TIMNCFG)
-TIMN_IMAGE	:= $$(grep "Image Filename:" -m 1 $(TIMNCFG) | cut -c 17-)
+TIMN_CFG	:= $(BUILD_PLAT)/atf-timN.txt
+TIMN_UART_CFG	:= $(BUILD_PLAT)/$(BUILD_UART)/atf-timN.txt
+TIMN_SIG	:= $(IMAGESPATH)/timnsign.txt
+TIM2IMGARGS	:= -i $(TIM_CFG) -n $(TIMN_CFG)
+TIMN_IMAGE	:= $$(grep "Image Filename:" -m 1 $(TIMN_CFG) | cut -c 17-)
 else #MARVELL_SECURE_BOOT
-DOIMAGE_CFG	:= $(BUILD_PLAT)/atf-ntim.txt
-DOIMAGEUART_CFG	:= $(BUILD_PLAT)/$(BUILD_UART)/atf-ntim.txt
+TIM_CFG		:= $(BUILD_PLAT)/atf-ntim.txt
+TIM_UART_CFG	:= $(BUILD_PLAT)/$(BUILD_UART)/atf-ntim.txt
 IMAGESPATH	:= $(WTP)/tim/untrusted
-TIM2IMGARGS	:= -i $(DOIMAGE_CFG)
+TIM2IMGARGS	:= -i $(TIM_CFG)
 endif #MARVELL_SECURE_BOOT
 
 TIMBUILD	:= $(WTP)/script/buildtim.sh
@@ -123,11 +123,11 @@ DDR_TOPOLOGY		?= 0
 BOOTDEV			?= SPINOR
 PARTNUM			?= 0
 
-TIM_IMAGE		:= $$(grep "Image Filename:" -m 1 $(DOIMAGE_CFG) | cut -c 17-)
+TIM_IMAGE		:= $$(grep "Image Filename:" -m 1 $(TIM_CFG) | cut -c 17-)
 TIMBLDARGS		:= $(MARVELL_SECURE_BOOT) $(BOOTDEV) $(IMAGESPATH) $(WTP) $(CLOCKSPRESET) \
-				$(DDR_TOPOLOGY) $(PARTNUM) $(DEBUG) $(DOIMAGE_CFG) $(TIMNCFG) $(TIMNSIG) 1
+				$(DDR_TOPOLOGY) $(PARTNUM) $(DEBUG) $(TIM_CFG) $(TIMN_CFG) $(TIMN_SIG) 1
 TIMBLDUARTARGS		:= $(MARVELL_SECURE_BOOT) UART $(IMAGESPATH) $(WTP) $(CLOCKSPRESET) \
-				$(DDR_TOPOLOGY) 0 0 $(DOIMAGEUART_CFG) $(TIMNUARTCFG) $(TIMNSIG) 0
+				$(DDR_TOPOLOGY) 0 0 $(TIM_UART_CFG) $(TIMN_UART_CFG) $(TIMN_SIG) 0
 
 CRYPTOPP_LIBDIR		?= $(CRYPTOPP_PATH)
 CRYPTOPP_INCDIR		?= $(CRYPTOPP_PATH)
@@ -161,15 +161,15 @@ $(BUILD_PLAT)/$(UART_IMAGE): $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/wtmi.bin 
 	$(Q)cp -a $(BUILD_PLAT)/wtmi.bin $(BUILD_PLAT)/$(BUILD_UART)/wtmi.bin
 	$(Q)cp -a $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/$(BUILD_UART)/$(BOOT_IMAGE)
 	$(Q)cd $(BUILD_PLAT)/$(BUILD_UART) && $(TIMBUILD) $(TIMBLDUARTARGS)
-	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(DOIMAGEUART_CFG)
-	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(DOIMAGEUART_CFG)
+	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(TIM_UART_CFG)
+	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(TIM_UART_CFG)
 ifeq ($(MARVELL_SECURE_BOOT),1)
-	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(TIMNUARTCFG)
-	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(TIMNUARTCFG)
+	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(TIMN_UART_CFG)
+	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(TIMN_UART_CFG)
 endif
-	$(Q)cd $(BUILD_PLAT)/$(BUILD_UART) && $(TBB) -r $(DOIMAGEUART_CFG) -v -D
+	$(Q)cd $(BUILD_PLAT)/$(BUILD_UART) && $(TBB) -r $(TIM_UART_CFG) -v -D
 ifeq ($(MARVELL_SECURE_BOOT),1)
-	$(Q)cd $(BUILD_PLAT)/$(BUILD_UART) && $(TBB) -r $(TIMNUARTCFG)
+	$(Q)cd $(BUILD_PLAT)/$(BUILD_UART) && $(TBB) -r $(TIMN_UART_CFG)
 endif
 	$(Q)tar czf $(BUILD_PLAT)/$(UART_IMAGE) -C $(BUILD_PLAT) $(BUILD_UART)/$(TIM_IMAGE) $(BUILD_UART)/wtmi_h.bin $(BUILD_UART)/boot-image_h.bin
 	@$(ECHO_BLANK_LINE)
@@ -180,11 +180,11 @@ $(BUILD_PLAT)/$(FLASH_IMAGE): $(BUILD_PLAT)/$(BOOT_IMAGE) $(BUILD_PLAT)/wtmi.bin
 	@$(ECHO_BLANK_LINE)
 	@echo "Building flash image"
 	$(Q)cd $(BUILD_PLAT) && $(TIMBUILD) $(TIMBLDARGS)
-	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(DOIMAGE_CFG)
-	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(DOIMAGE_CFG)
+	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(TIM_CFG)
+	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(TIM_CFG)
 ifeq ($(MARVELL_SECURE_BOOT),1)
-	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(TIMNCFG)
-	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(TIMNCFG)
+	$(Q)sed -i 's|WTMI_IMG|wtmi.bin|1' $(TIMN_CFG)
+	$(Q)sed -i 's|BOOT_IMAGE|$(BOOT_IMAGE)|1' $(TIMN_CFG)
 	@$(ECHO_BLANK_LINE)
 	@echo "=======================================================";
 	@echo "  Secure boot. Encrypting wtmi and boot-image";
@@ -202,11 +202,11 @@ ifeq ($(MARVELL_SECURE_BOOT),1)
 	-K `cat $(IMAGESPATH)/aes-256.txt` -nosalt \
 	-iv `cat $(IMAGESPATH)/iv.txt` -p
 endif
-	$(Q)cd $(BUILD_PLAT) && $(TBB) -r $(DOIMAGE_CFG) -v -D
+	$(Q)cd $(BUILD_PLAT) && $(TBB) -r $(TIM_CFG) -v -D
 ifeq ($(MARVELL_SECURE_BOOT),1)
-	$(Q)cd $(BUILD_PLAT) && $(TBB) -r $(TIMNCFG)
-	$(Q)sed -i 's|wtmi.bin|$(WTMI_ENC_IMG)|1' $(TIMNCFG)
-	$(Q)sed -i 's|$(BOOT_IMAGE)|$(BOOT_ENC_IMAGE)|1' $(TIMNCFG)
+	$(Q)cd $(BUILD_PLAT) && $(TBB) -r $(TIMN_CFG)
+	$(Q)sed -i 's|wtmi.bin|$(WTMI_ENC_IMG)|1' $(TIMN_CFG)
+	$(Q)sed -i 's|$(BOOT_IMAGE)|$(BOOT_ENC_IMAGE)|1' $(TIMN_CFG)
 endif
 	$(Q)cd $(BUILD_PLAT) && $(TIM2IMG) $(TIM2IMGARGS) -o $(BUILD_PLAT)/$(FLASH_IMAGE)
 	@$(ECHO_BLANK_LINE)
