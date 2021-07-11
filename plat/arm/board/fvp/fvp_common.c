@@ -191,6 +191,15 @@ const mmap_region_t plat_arm_mmap[] = {
 };
 #endif
 
+#ifdef IMAGE_RMM
+const mmap_region_t plat_arm_mmap[] = {
+	V2M_MAP_IOFPGA,
+	MAP_DEVICE0,
+	MAP_DEVICE1,
+	{0}
+};
+#endif
+
 ARM_CASSERT_MMAP
 
 #if FVP_INTERCONNECT_DRIVER != FVP_CCN

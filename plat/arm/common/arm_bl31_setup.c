@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,6 +25,9 @@
  */
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
+#if ENABLE_RME
+static entry_point_info_t rmm_image_ep_info;
+#endif
 
 #if !RESET_TO_BL31
 /*
@@ -80,8 +83,18 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
 	entry_point_info_t *next_image_info;
 
 	assert(sec_state_is_valid(type));
-	next_image_info = (type == NON_SECURE)
-			? &bl33_image_ep_info : &bl32_image_ep_info;
+	if (type == NON_SECURE) {
+		next_image_info = &bl33_image_ep_info;
+	}
+#if ENABLE_RME
+	else if (type == REALM) {
+		next_image_info = &rmm_image_ep_info;
+	}
+#endif
+	else {
+		next_image_info = &bl32_image_ep_info;
+	}
+
 	/*
 	 * None of the images on the ARM development platforms can have 0x0
 	 * as the entrypoint
@@ -169,21 +182,31 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	bl_params_node_t *bl_params = params_from_bl2->head;
 
 	/*
-	 * Copy BL33 and BL32 (if present), entry point information.
+	 * Copy BL33, BL32 and RMM (if present), entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
 	while (bl_params != NULL) {
-		if (bl_params->image_id == BL32_IMAGE_ID)
+		if (bl_params->image_id == BL32_IMAGE_ID) {
 			bl32_image_ep_info = *bl_params->ep_info;
-
-		if (bl_params->image_id == BL33_IMAGE_ID)
+		}
+#if ENABLE_RME
+		else if (bl_params->image_id == RMM_IMAGE_ID) {
+			rmm_image_ep_info = *bl_params->ep_info;
+		}
+#endif
+		else if (bl_params->image_id == BL33_IMAGE_ID) {
 			bl33_image_ep_info = *bl_params->ep_info;
+		}
 
 		bl_params = bl_params->next_params_info;
 	}
 
 	if (bl33_image_ep_info.pc == 0U)
 		panic();
+#if ENABLE_RME
+	if (rmm_image_ep_info.pc == 0U)
+		panic();
+#endif
 #endif /* RESET_TO_BL31 */
 
 # if ARM_LINUX_KERNEL_AS_BL33

@@ -186,6 +186,10 @@ ifeq (${COT_DESC_IN_DTB},1)
 BL2_SOURCES		+=	plat/arm/common/fconf/fconf_nv_cntr_getter.c
 endif
 
+ifeq (${ENABLE_RME},1)
+BL2_SOURCES		+=	plat/arm/board/fvp/aarch64/fvp_helpers.S
+endif
+
 ifeq (${BL2_AT_EL3},1)
 BL2_SOURCES		+=	plat/arm/board/fvp/${ARCH}/fvp_helpers.S	\
 				plat/arm/board/fvp/fvp_bl2_el3_setup.c		\

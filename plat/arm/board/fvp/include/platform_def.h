@@ -185,6 +185,8 @@
 #  define PLATFORM_STACK_SIZE		UL(0x800)
 #elif defined(IMAGE_BL32)
 # define PLATFORM_STACK_SIZE		UL(0x440)
+#elif defined(IMAGE_RMM)
+# define PLATFORM_STACK_SIZE		UL(0x440)
 #endif
 
 #define MAX_IO_DEVICES			3
