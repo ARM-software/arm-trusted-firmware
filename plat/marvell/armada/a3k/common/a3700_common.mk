@@ -89,13 +89,15 @@ TIMN_CFG	:= $(BUILD_PLAT)/atf-timN.txt
 TIMN_UART_CFG	:= $(BUILD_PLAT)/$(BUILD_UART)/atf-timN.txt
 TIMN_SIG	:= $(IMAGESPATH)/timnsign.txt
 TIM2IMGARGS	:= -i $(TIM_CFG) -n $(TIMN_CFG)
-TIMN_IMAGE	:= $$(grep "Image Filename:" -m 1 $(TIMN_CFG) | cut -c 17-)
+TIMN_UART_IMAGE	:= $$(grep "Image Filename:" -m 1 $(TIMN_UART_CFG) | cut -c 17-)
 else #MARVELL_SECURE_BOOT
 TIM_CFG		:= $(BUILD_PLAT)/atf-ntim.txt
 TIM_UART_CFG	:= $(BUILD_PLAT)/$(BUILD_UART)/atf-ntim.txt
 IMAGESPATH	:= $(WTP)/tim/untrusted
 TIM2IMGARGS	:= -i $(TIM_CFG)
 endif #MARVELL_SECURE_BOOT
+
+TIM_UART_IMAGE	:= $$(grep "Image Filename:" -m 1 $(TIM_UART_CFG) | cut -c 17-)
 
 TIMBUILD	:= $(WTP)/script/buildtim.sh
 TIM2IMG		:= $(WTP)/script/tim2img.pl
@@ -123,11 +125,16 @@ DDR_TOPOLOGY		?= 0
 BOOTDEV			?= SPINOR
 PARTNUM			?= 0
 
-TIM_IMAGE		:= $$(grep "Image Filename:" -m 1 $(TIM_CFG) | cut -c 17-)
 TIMBLDARGS		:= $(MARVELL_SECURE_BOOT) $(BOOTDEV) $(IMAGESPATH) $(WTP) $(CLOCKSPRESET) \
 				$(DDR_TOPOLOGY) $(PARTNUM) $(DEBUG) $(TIM_CFG) $(TIMN_CFG) $(TIMN_SIG) 1
 TIMBLDUARTARGS		:= $(MARVELL_SECURE_BOOT) UART $(IMAGESPATH) $(WTP) $(CLOCKSPRESET) \
 				$(DDR_TOPOLOGY) 0 0 $(TIM_UART_CFG) $(TIMN_UART_CFG) $(TIMN_SIG) 0
+
+UART_IMAGES		:= $(BUILD_UART)/$(TIM_UART_IMAGE)
+ifeq ($(MARVELL_SECURE_BOOT),1)
+UART_IMAGES		+= $(BUILD_UART)/$(TIMN_UART_IMAGE)
+endif
+UART_IMAGES		+= $(BUILD_UART)/wtmi_h.bin $(BUILD_UART)/boot-image_h.bin
 
 CRYPTOPP_LIBDIR		?= $(CRYPTOPP_PATH)
 CRYPTOPP_INCDIR		?= $(CRYPTOPP_PATH)
@@ -171,7 +178,7 @@ endif
 ifeq ($(MARVELL_SECURE_BOOT),1)
 	$(Q)cd $(BUILD_PLAT)/$(BUILD_UART) && $(TBB) -r $(TIMN_UART_CFG)
 endif
-	$(Q)tar czf $(BUILD_PLAT)/$(UART_IMAGE) -C $(BUILD_PLAT) $(BUILD_UART)/$(TIM_IMAGE) $(BUILD_UART)/wtmi_h.bin $(BUILD_UART)/boot-image_h.bin
+	$(Q)tar czf $(BUILD_PLAT)/$(UART_IMAGE) -C $(BUILD_PLAT) $(UART_IMAGES)
 	@$(ECHO_BLANK_LINE)
 	@echo "Built $@ successfully"
 	@$(ECHO_BLANK_LINE)
