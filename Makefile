@@ -1148,7 +1148,7 @@ $(eval $(call MAKE_LIB,c))
 
 # Expand build macros for the different images
 ifeq (${NEED_BL1},yes)
-$(eval $(call MAKE_BL,1))
+$(eval $(call MAKE_BL,bl1))
 endif
 
 ifeq (${NEED_BL2},yes)
@@ -1157,7 +1157,7 @@ FIP_BL2_ARGS := tb-fw
 endif
 
 $(if ${BL2}, $(eval $(call TOOL_ADD_IMG,bl2,--${FIP_BL2_ARGS})),\
-	$(eval $(call MAKE_BL,2,${FIP_BL2_ARGS})))
+	$(eval $(call MAKE_BL,bl2,${FIP_BL2_ARGS})))
 endif
 
 ifeq (${NEED_SCP_BL2},yes)
@@ -1170,10 +1170,10 @@ BL31_SOURCES += ${SPD_SOURCES}
 BL31_SOURCES := $(sort ${BL31_SOURCES})
 ifneq (${DECRYPTION_SUPPORT},none)
 $(if ${BL31}, $(eval $(call TOOL_ADD_IMG,bl31,--soc-fw,,$(ENCRYPT_BL31))),\
-	$(eval $(call MAKE_BL,31,soc-fw,,$(ENCRYPT_BL31))))
+	$(eval $(call MAKE_BL,bl31,soc-fw,,$(ENCRYPT_BL31))))
 else
 $(if ${BL31}, $(eval $(call TOOL_ADD_IMG,bl31,--soc-fw)),\
-	$(eval $(call MAKE_BL,31,soc-fw)))
+	$(eval $(call MAKE_BL,bl31,soc-fw)))
 endif
 endif
 
@@ -1186,10 +1186,10 @@ BL32_SOURCES := $(sort ${BL32_SOURCES})
 BUILD_BL32 := $(if $(BL32),,$(if $(BL32_SOURCES),1))
 
 ifneq (${DECRYPTION_SUPPORT},none)
-$(if ${BUILD_BL32}, $(eval $(call MAKE_BL,32,tos-fw,,$(ENCRYPT_BL32))),\
+$(if ${BUILD_BL32}, $(eval $(call MAKE_BL,bl32,tos-fw,,$(ENCRYPT_BL32))),\
 	$(eval $(call TOOL_ADD_IMG,bl32,--tos-fw,,$(ENCRYPT_BL32))))
 else
-$(if ${BUILD_BL32}, $(eval $(call MAKE_BL,32,tos-fw)),\
+$(if ${BUILD_BL32}, $(eval $(call MAKE_BL,bl32,tos-fw)),\
 	$(eval $(call TOOL_ADD_IMG,bl32,--tos-fw)))
 endif
 endif
@@ -1201,7 +1201,7 @@ endif
 
 ifeq (${NEED_BL2U},yes)
 $(if ${BL2U}, $(eval $(call TOOL_ADD_IMG,bl2u,--ap-fwu-cfg,FWU_)),\
-	$(eval $(call MAKE_BL,2u,ap-fwu-cfg,FWU_)))
+	$(eval $(call MAKE_BL,bl2u,ap-fwu-cfg,FWU_)))
 endif
 
 # Expand build macros for the different images

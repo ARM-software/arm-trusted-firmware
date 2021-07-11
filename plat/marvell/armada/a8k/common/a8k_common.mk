@@ -166,7 +166,7 @@ endif
 BLE_PATH	?=  $(PLAT_COMMON_BASE)/ble
 
 include ${BLE_PATH}/ble.mk
-$(eval $(call MAKE_BL,e))
+$(eval $(call MAKE_BL,ble))
 
 clean realclean distclean: mrvl_clean
 
