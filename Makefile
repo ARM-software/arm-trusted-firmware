@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -127,6 +127,23 @@ else ifeq (${BRANCH_PROTECTION},4)
 	ENABLE_BTI := 1
 else
         $(error Unknown BRANCH_PROTECTION value ${BRANCH_PROTECTION})
+endif
+
+# FEAT_RME
+ifeq (${ENABLE_RME},1)
+# RME doesn't support PIE
+ifneq (${ENABLE_PIE},0)
+        $(error ENABLE_RME does not support PIE)
+endif
+# RME requires AARCH64
+ifneq (${ARCH},aarch64)
+        $(error ENABLE_RME requires AArch64)
+endif
+# RME requires el2 context to be saved for now.
+CTX_INCLUDE_EL2_REGS := 1
+CTX_INCLUDE_AARCH32_REGS := 0
+ARM_ARCH_MAJOR := 8
+ARM_ARCH_MINOR := 6
 endif
 
 # USE_SPINLOCK_CAS requires AArch64 build
@@ -559,6 +576,18 @@ ifneq (${SPD},none)
 endif
 
 ################################################################################
+# Include rmmd Makefile if RME is enabled
+################################################################################
+
+ifneq (${ENABLE_RME},0)
+ifneq (${ARCH},aarch64)
+	$(error ENABLE_RME requires AArch64)
+endif
+include services/std_svc/rmmd/rmmd.mk
+$(warning "RME is an experimental feature")
+endif
+
+################################################################################
 # Include the platform specific Makefile after the SPD Makefile (the platform
 # makefile may use all previous definitions in this file)
 ################################################################################
@@ -926,6 +955,7 @@ $(eval $(call assert_booleans,\
         ENABLE_PIE \
         ENABLE_PMF \
         ENABLE_PSCI_STAT \
+        ENABLE_RME \
         ENABLE_RUNTIME_INSTRUMENTATION \
         ENABLE_SPE_FOR_LOWER_ELS \
         ENABLE_SVE_FOR_NS \
@@ -1028,6 +1058,7 @@ $(eval $(call add_defines,\
         ENABLE_PIE \
         ENABLE_PMF \
         ENABLE_PSCI_STAT \
+        ENABLE_RME \
         ENABLE_RUNTIME_INSTRUMENTATION \
         ENABLE_SPE_FOR_LOWER_ELS \
         ENABLE_SVE_FOR_NS \
@@ -1192,6 +1223,17 @@ else
 $(if ${BUILD_BL32}, $(eval $(call MAKE_BL,bl32,tos-fw)),\
 	$(eval $(call TOOL_ADD_IMG,bl32,--tos-fw)))
 endif
+endif
+
+# If RMM image is needed but RMM is not defined, Test Realm Payload (TRP)
+# needs to be built from RMM_SOURCES.
+ifeq (${NEED_RMM},yes)
+# Sort RMM source files to remove duplicates
+RMM_SOURCES := $(sort ${RMM_SOURCES})
+BUILD_RMM := $(if $(RMM),,$(if $(RMM_SOURCES),1))
+
+$(if ${BUILD_RMM}, $(eval $(call MAKE_BL,rmm,rmm-fw)),\
+         $(eval $(call TOOL_ADD_IMG,rmm,--rmm-fw)))
 endif
 
 # Add the BL33 image if required by the platform

@@ -101,7 +101,10 @@
  */
 #define BKUP_FWU_METADATA_IMAGE_ID	U(33)
 
+/* Realm Monitor Manager (RMM) */
+#define RMM_IMAGE_ID			U(34)
+
 /* Max Images */
-#define MAX_IMAGE_IDS			U(34)
+#define MAX_IMAGE_IDS			U(35)
 
 #endif /* ARM_TRUSTED_FIRMWARE_EXPORT_COMMON_TBBR_TBBR_IMG_DEF_EXP_H */

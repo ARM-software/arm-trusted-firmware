@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -34,6 +34,13 @@ PMF_REGISTER_SERVICE_SMC(rt_instr_svc, PMF_RT_INSTR_SVC_ID,
  * finds it impossible to execute SP, this pointer is left as NULL
  ******************************************************************************/
 static int32_t (*bl32_init)(void);
+
+/*****************************************************************************
+ * Function used to initialise RMM if RME is enabled
+ *****************************************************************************/
+#if ENABLE_RME
+static int32_t (*rmm_init)(void);
+#endif
 
 /*******************************************************************************
  * Variable to indicate whether next image to execute after BL31 is BL33
@@ -139,12 +146,15 @@ void bl31_main(void)
 
 	/*
 	 * All the cold boot actions on the primary cpu are done. We now need to
-	 * decide which is the next image (BL32 or BL33) and how to execute it.
+	 * decide which is the next image and how to execute it.
 	 * If the SPD runtime service is present, it would want to pass control
 	 * to BL32 first in S-EL1. In that case, SPD would have registered a
 	 * function to initialize bl32 where it takes responsibility of entering
-	 * S-EL1 and returning control back to bl31_main. Once this is done we
-	 * can prepare entry into BL33 as normal.
+	 * S-EL1 and returning control back to bl31_main. Similarly, if RME is
+	 * enabled and a function is registered to initialize RMM, control is
+	 * transferred to RMM in R-EL2. After RMM initialization, control is
+	 * returned back to bl31_main. Once this is done we can prepare entry
+	 * into BL33 as normal.
 	 */
 
 	/*
@@ -155,9 +165,27 @@ void bl31_main(void)
 
 		int32_t rc = (*bl32_init)();
 
-		if (rc == 0)
+		if (rc == 0) {
 			WARN("BL31: BL32 initialization failed\n");
+		}
 	}
+
+	/*
+	 * If RME is enabled and init hook is registered, initialize RMM
+	 * in R-EL2.
+	 */
+#if ENABLE_RME
+	if (rmm_init != NULL) {
+		INFO("BL31: Initializing RMM\n");
+
+		int32_t rc = (*rmm_init)();
+
+		if (rc == 0) {
+			WARN("BL31: RMM initialization failed\n");
+		}
+	}
+#endif
+
 	/*
 	 * We are ready to enter the next EL. Prepare entry into the image
 	 * corresponding to the desired security state after the next ERET.
@@ -236,3 +264,14 @@ void bl31_register_bl32_init(int32_t (*func)(void))
 {
 	bl32_init = func;
 }
+
+#if ENABLE_RME
+/*******************************************************************************
+ * This function initializes the pointer to RMM init function. This is expected
+ * to be called by the RMMD after it finishes all its initialization
+ ******************************************************************************/
+void bl31_register_rmm_init(int32_t (*func)(void))
+{
+	rmm_init = func;
+}
+#endif

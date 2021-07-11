@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2016-2021, ARM Limited. All rights reserved.
+# Copyright (c) 2016-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -104,6 +104,9 @@ ENABLE_PMF			:= 0
 
 # Flag to enable PSCI STATs functionality
 ENABLE_PSCI_STAT		:= 0
+
+# Flag to enable Realm Management Extension (FEAT_RME)
+ENABLE_RME			:= 0
 
 # Flag to enable runtime instrumentation using PMF
 ENABLE_RUNTIME_INSTRUMENTATION	:= 0
