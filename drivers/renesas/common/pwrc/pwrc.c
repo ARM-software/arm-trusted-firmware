@@ -44,6 +44,7 @@ RCAR_INSTANTIATE_LOCK
 #define CPU_PWR_OFF				(0x00000003U)
 #define RCAR_PSTR_MASK				(0x00000003U)
 #define ST_ALL_STANDBY				(0x00003333U)
+#define SYSCEXTMASK_EXTMSK0			(0x00000001U)
 /* Suspend to ram	*/
 #define DBSC4_REG_BASE				(0xE6790000U)
 #define DBSC4_REG_DBSYSCNT0			(DBSC4_REG_BASE + 0x0100U)
@@ -191,6 +192,8 @@ static void scu_power_up(uint64_t mpidr)
 {
 	uintptr_t reg_pwrsr, reg_cpumcr, reg_pwron, reg_pwrer;
 	uint32_t c, sysc_reg_bit;
+	uint32_t lsi_product;
+	uint32_t lsi_cut;
 
 	c = rcar_pwrc_get_mpidr_cluster(mpidr);
 	reg_cpumcr = IS_CA57(c) ? RCAR_CA57CPUCMCR : RCAR_CA53CPUCMCR;
@@ -205,6 +208,17 @@ static void scu_power_up(uint64_t mpidr)
 	if (mmio_read_32(reg_cpumcr) != 0)
 		mmio_write_32(reg_cpumcr, 0);
 
+	lsi_product = mmio_read_32((uintptr_t)RCAR_PRR);
+	lsi_cut = lsi_product & PRR_CUT_MASK;
+	lsi_product &= PRR_PRODUCT_MASK;
+
+	if ((lsi_product == PRR_PRODUCT_M3 && lsi_cut >= PRR_PRODUCT_30) ||
+	    lsi_product == PRR_PRODUCT_H3 ||
+	    lsi_product == PRR_PRODUCT_M3N ||
+	    lsi_product == PRR_PRODUCT_E3) {
+		mmio_setbits_32(RCAR_SYSCEXTMASK, SYSCEXTMASK_EXTMSK0);
+	}
+
 	mmio_setbits_32(RCAR_SYSCIER, sysc_reg_bit);
 	mmio_setbits_32(RCAR_SYSCIMR, sysc_reg_bit);
 
@@ -217,6 +231,14 @@ static void scu_power_up(uint64_t mpidr)
 	while ((mmio_read_32(RCAR_SYSCISR) & sysc_reg_bit) == 0)
 		;
 	mmio_write_32(RCAR_SYSCISR, sysc_reg_bit);
+
+	if ((lsi_product == PRR_PRODUCT_M3 && lsi_cut >= PRR_PRODUCT_30) ||
+	    lsi_product == PRR_PRODUCT_H3 ||
+	    lsi_product == PRR_PRODUCT_M3N ||
+	    lsi_product == PRR_PRODUCT_E3) {
+		mmio_clrbits_32(RCAR_SYSCEXTMASK, SYSCEXTMASK_EXTMSK0);
+	}
+
 	while ((mmio_read_32(reg_pwrsr) & STATUS_PWRUP) == 0)
 		;
 }
