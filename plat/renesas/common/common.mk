@@ -65,10 +65,12 @@ $(eval $(call add_define,RCAR_CUT_30))
 ERRATA_A53_835769  := 1
 ERRATA_A53_843419  := 1
 ERRATA_A53_855873  := 1
+ERRATA_A53_1530924 := 1
 
 # Enable workarounds for selected Cortex-A57 erratas.
 ERRATA_A57_859972  := 1
 ERRATA_A57_813419  := 1
+ERRATA_A57_1319537 := 1
 
 PLAT_INCLUDES	:=	-Iplat/renesas/common/include/registers	\
 			-Iplat/renesas/common/include		\
