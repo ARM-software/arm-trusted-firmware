@@ -68,6 +68,7 @@ extern void plat_rcar_gic_init(void);
 extern void bl2_enter_bl31(const struct entry_point_info *bl_ep_info);
 extern void bl2_system_cpg_init(void);
 extern void bl2_secure_setting(void);
+extern void bl2_ram_security_setting_finish(void);
 extern void bl2_cpg_init(void);
 extern void rcar_io_emmc_setup(void);
 extern void rcar_io_setup(void);
@@ -1283,6 +1284,11 @@ void bl2_el3_plat_arch_setup(void)
 #endif
 	    );
 #endif
+}
+
+void bl2_el3_plat_prepare_exit(void)
+{
+	bl2_ram_security_setting_finish();
 }
 
 void bl2_platform_setup(void)
