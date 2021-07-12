@@ -230,7 +230,7 @@ static void scu_power_up(uint64_t mpidr)
 
 	while ((mmio_read_32(RCAR_SYSCISR) & sysc_reg_bit) == 0)
 		;
-	mmio_write_32(RCAR_SYSCISR, sysc_reg_bit);
+	mmio_write_32(RCAR_SYSCISCR, sysc_reg_bit);
 
 	if ((lsi_product == PRR_PRODUCT_M3 && lsi_cut >= PRR_PRODUCT_30) ||
 	    lsi_product == PRR_PRODUCT_H3 ||
