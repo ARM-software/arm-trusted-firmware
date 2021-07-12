@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -128,11 +128,6 @@ static void rcar_pwr_domain_suspend(const psci_power_state_t *target_state)
 
 		rcar_pwrc_clusteroff(mpidr);
 	}
-
-#if RCAR_SYSTEM_SUSPEND
-	if (SYSTEM_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE)
-		rcar_pwrc_suspend_to_ram();
-#endif
 }
 
 static void rcar_pwr_domain_suspend_finish(const psci_power_state_t
@@ -158,6 +153,18 @@ static void rcar_pwr_domain_suspend_finish(const psci_power_state_t
 #endif
 finish:
 	rcar_pwr_domain_on_finish(target_state);
+}
+
+static void __dead2 rcar_pwr_domain_pwr_down_wfi(const psci_power_state_t *target_state)
+{
+#if RCAR_SYSTEM_SUSPEND
+	if (SYSTEM_PWR_STATE(target_state) == PLAT_MAX_OFF_STATE)
+		rcar_pwrc_suspend_to_ram();
+#endif
+	wfi();
+
+	ERROR("RCAR Power Down: operation not handled.\n");
+	panic();
 }
 
 static void __dead2 rcar_system_off(void)
@@ -292,6 +299,7 @@ static const plat_psci_ops_t rcar_plat_psci_ops = {
 	.system_off			= rcar_system_off,
 	.system_reset			= rcar_system_reset,
 	.validate_power_state		= rcar_validate_power_state,
+	.pwr_domain_pwr_down_wfi	= rcar_pwr_domain_pwr_down_wfi,
 #if RCAR_SYSTEM_SUSPEND
 	.get_sys_suspend_power_state	= rcar_get_sys_suspend_power_state,
 #endif
