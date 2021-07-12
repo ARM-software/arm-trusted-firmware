@@ -6,6 +6,8 @@
 
 include plat/renesas/common/common.mk
 
+ENABLE_STACK_PROTECTOR	:= strong
+
 ifndef LSI
   $(error "Error: Unknown LSI. Please use LSI=<LSI name> to specify the LSI")
 else
@@ -331,6 +333,10 @@ include lib/zlib/zlib.mk
 
 BL2_SOURCES	+=	common/image_decompress.c               \
 			$(ZLIB_SOURCES)
+endif
+
+ifneq (${ENABLE_STACK_PROTECTOR},0)
+BL_COMMON_SOURCES	+=	plat/renesas/rcar/rcar_stack_protector.c
 endif
 
 ifeq (${RCAR_GEN3_ULCB},1)
