@@ -263,9 +263,6 @@ void bl2_plat_flush_bl31_params(void)
 	if (product == PRR_PRODUCT_H3 && PRR_PRODUCT_20 > cut)
 		goto tlb;
 
-	if (product == PRR_PRODUCT_D3)
-		goto tlb;
-
 	/* Disable MFIS write protection */
 	mmio_write_32(MFISWPCNTR, MFISWPCNTR_PASSWORD | 1);
 
