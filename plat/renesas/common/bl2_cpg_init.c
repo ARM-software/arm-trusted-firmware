@@ -40,7 +40,6 @@ static void bl2_system_cpg_init_e3(void);
 #endif
 
 #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_D3)
-static void bl2_realtime_cpg_init_d3(void);
 static void bl2_system_cpg_init_d3(void);
 #endif
 
@@ -292,23 +291,6 @@ static void bl2_system_cpg_init_e3(void)
 #endif
 
 #if (RCAR_LSI == RCAR_AUTO) || (RCAR_LSI == RCAR_D3)
-static void bl2_realtime_cpg_init_d3(void)
-{
-	/* Realtime Module Stop Control Registers */
-	cpg_write(RMSTPCR0, 0x00010000U);
-	cpg_write(RMSTPCR1, 0xFFFFFFFFU);
-	cpg_write(RMSTPCR2, 0x00060FDCU);
-	cpg_write(RMSTPCR3, 0xFFFFFFDFU);
-	cpg_write(RMSTPCR4, 0x80000184U);
-	cpg_write(RMSTPCR5, 0x83FFFFFFU);
-	cpg_write(RMSTPCR6, 0xFFFFFFFFU);
-	cpg_write(RMSTPCR7, 0xFFFFFFFFU);
-	cpg_write(RMSTPCR8, 0x00F1FFF7U);
-	cpg_write(RMSTPCR9, 0xF3F5E016U);
-	cpg_write(RMSTPCR10, 0xFFFEFFE0U);
-	cpg_write(RMSTPCR11, 0x000000B7U);
-}
-
 static void bl2_system_cpg_init_d3(void)
 {
 	/* System Module Stop Control Registers */
@@ -356,7 +338,7 @@ void bl2_cpg_init(void)
 			bl2_realtime_cpg_init_e3();
 			break;
 		case PRR_PRODUCT_D3:
-			bl2_realtime_cpg_init_d3();
+			/* no need */
 			break;
 		default:
 			panic();
@@ -373,7 +355,7 @@ void bl2_cpg_init(void)
 #elif RCAR_LSI == RCAR_E3 || RCAR_LSI == RZ_G2E
 		bl2_realtime_cpg_init_e3();
 #elif RCAR_LSI == RCAR_D3
-		bl2_realtime_cpg_init_d3();
+		/* no need */
 #else
 #error "Don't have CPG initialize routine(unknown)."
 #endif
