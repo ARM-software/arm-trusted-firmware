@@ -897,6 +897,14 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 				str,
 				(reg & RCAR_MINOR_MASK) + RCAR_M3_MINOR_OFFSET);
 		}
+	} else if (product == PRR_PRODUCT_D3) {
+		if (RCAR_D3_CUT_VER10 == (reg & PRR_CUT_MASK)) {
+			NOTICE("BL2: PRR is R-Car %s Ver.1.0\n", str);
+		} else  if (RCAR_D3_CUT_VER11 == (reg & PRR_CUT_MASK)) {
+			NOTICE("BL2: PRR is R-Car %s Ver.1.1\n", str);
+		} else {
+			NOTICE("BL2: PRR is R-Car %s Ver.X.X\n", str);
+		}
 	} else {
 		major = (reg & RCAR_MAJOR_MASK) >> RCAR_MAJOR_SHIFT;
 		major = major + RCAR_MAJOR_OFFSET;
