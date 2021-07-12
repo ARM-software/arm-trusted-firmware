@@ -976,10 +976,6 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 		str = boot_emmc25x1;
 		break;
 	case MODEMR_BOOT_DEV_EMMC_50X8:
-#if RCAR_LSI == RCAR_D3
-		ERROR("BL2: Failed to Initialize. eMMC is not supported.\n");
-		panic();
-#endif
 		str = boot_emmc50x8;
 		break;
 	default:
