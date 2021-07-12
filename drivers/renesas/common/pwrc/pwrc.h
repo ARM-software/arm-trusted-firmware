@@ -64,7 +64,6 @@ void rcar_pwrc_system_reset(void);
 #endif
 
 #if RCAR_SYSTEM_SUSPEND
-void rcar_pwrc_go_suspend_to_ram(void);
 void rcar_pwrc_set_suspend_to_ram(void);
 void rcar_pwrc_init_suspend_to_ram(void);
 void rcar_pwrc_suspend_to_ram(void);

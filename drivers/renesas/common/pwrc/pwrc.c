@@ -427,7 +427,7 @@ do {					\
 } while (!(mmio_read_32(DBSC4_REG_DBCAM##__bit##STAT0) & DBSC4_BIT_DBCAMxSTAT0))
 
 
-static void __attribute__ ((section(".system_ram")))
+static void __attribute__ ((section(".system_ram"), no_stack_protector))
 	rcar_pwrc_set_self_refresh(void)
 {
 	uint32_t reg = mmio_read_32(RCAR_PRR);
@@ -519,7 +519,7 @@ self_refresh:
 	mmio_write_32(DBSC4_REG_DBSYSCNT0, DBSC4_SET_DBSYSCNT0_WRITE_DISABLE);
 }
 
-static void __attribute__ ((section(".system_ram")))
+static void __attribute__ ((section(".system_ram"), no_stack_protector))
 rcar_pwrc_set_self_refresh_e3(void)
 {
 	uint32_t ddr_md;
@@ -650,7 +650,7 @@ rcar_pwrc_set_self_refresh_e3(void)
 	mmio_write_32(DBSC4_REG_DBSYSCNT0, DBSC4_SET_DBSYSCNT0_WRITE_DISABLE);
 }
 
-void __attribute__ ((section(".system_ram"))) __attribute__ ((noinline))
+static void __attribute__ ((section(".system_ram"), noinline, no_stack_protector))
 rcar_pwrc_go_suspend_to_ram(void)
 {
 #if PMIC_ROHM_BD9571

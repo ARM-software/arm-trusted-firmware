@@ -10,7 +10,8 @@
 #include "rcar_private.h"
 
 #if IMAGE_BL31
-void __attribute__ ((section(".system_ram"))) cpg_write(uintptr_t regadr, uint32_t regval)
+void __attribute__ ((section(".system_ram"), no_stack_protector))
+	cpg_write(uintptr_t regadr, uint32_t regval)
 #else
 void cpg_write(uintptr_t regadr, uint32_t regval)
 #endif
@@ -22,8 +23,8 @@ void cpg_write(uintptr_t regadr, uint32_t regval)
 }
 
 #if IMAGE_BL31
-void __attribute__ ((section(".system_ram"))) mstpcr_write(uint32_t mstpcr, uint32_t mstpsr,
-							   uint32_t target_bit)
+void __attribute__ ((section(".system_ram"), no_stack_protector))
+	mstpcr_write(uint32_t mstpcr, uint32_t mstpsr, uint32_t target_bit)
 #else
 void mstpcr_write(uint32_t mstpcr, uint32_t mstpsr, uint32_t target_bit)
 #endif
