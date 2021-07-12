@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -79,7 +79,7 @@
 					 SCSMR_STOP_1 +		\
 					 SCSMR_CKS_DIV1)
 #define SCBRR_115200BPS		(17)
-#define SCBRR_115200BPSON	(16)
+#define SCBRR_115200BPS_D3_SSCG	(16)
 #define SCBRR_115200BPS_E3_SSCG	(15)
 #define SCBRR_230400BPS		(8)
 
@@ -216,26 +216,38 @@ func console_rcar_init
 	and	w1, w1, #PRR_PRODUCT_MASK
 	mov	w2, #PRR_PRODUCT_D3
 	cmp	w1, w2
-	beq	4f
+	beq	5f
 	and	w1, w1, #PRR_PRODUCT_MASK
 	mov	w2, #PRR_PRODUCT_E3
 	cmp	w1, w2
-	bne	5f
+	bne	4f
 
+	/* When SSCG(MD12) on (E3) */
 	ldr	x1, =RST_MODEMR
 	ldr	w1, [x1]
 	and	w1, w1, #MODEMR_MD12
 	mov	w2, #MODEMR_MD12
 	cmp	w1, w2
-	bne	5f
+	bne	4f
 
+	/* When SSCG(MD12) on (E3) */
 	mov	w1, #SCBRR_115200BPS_E3_SSCG
 	b	2f
 5:
-	mov	w1, #SCBRR_115200BPS
+	/* In case of D3 */
+	ldr	x1, =RST_MODEMR
+	ldr	w1, [x1]
+	and	w1, w1, #MODEMR_MD12
+	mov	w2, #MODEMR_MD12
+	cmp	w1, w2
+	bne	4f
+
+	/* When SSCG(MD12) on (D3) */
+	mov	w1, #SCBRR_115200BPS_D3_SSCG
 	b	2f
 4:
-	mov	w1, #SCBRR_115200BPSON
+	/* In case of H3/M3/M3N or when SSCG(MD12) is off in E3/D3 */
+	mov	w1, #SCBRR_115200BPS
 	b	2f
 3:
 	mov	w1, #SCBRR_230400BPS
