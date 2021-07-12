@@ -380,7 +380,7 @@ static int32_t load_bl33x(void)
 
 static int32_t rcar_dev_init(io_dev_info_t *dev_info, const uintptr_t name)
 {
-	uint64_t header[64] __aligned(FLASH_TRANS_SIZE_UNIT) = {0UL};
+	static uint64_t header[64] __aligned(FLASH_TRANS_SIZE_UNIT) = {0UL};
 	uintptr_t handle;
 	ssize_t offset;
 	uint32_t i;
@@ -440,6 +440,7 @@ static int32_t rcar_dev_init(io_dev_info_t *dev_info, const uintptr_t name)
 
 	if (rcar_image_number == 0 || rcar_image_number > RCAR_MAX_BL3X_IMAGE) {
 		WARN("Firmware Image Package header check failed.\n");
+		rc = IO_FAIL;
 		goto error;
 	}
 
