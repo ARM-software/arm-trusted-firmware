@@ -58,7 +58,7 @@ Finally, to build |TF-A| execute the following commands:
 .. code:: shell
 
     cd trusted-firmware-a
-    make ARCH=aarch64 PLAT=fvp ARM_DISABLE_TRUSTED_WDOG=1 ENABLE_RME=1 DEBUG=1 BL33=../tf-a-tests/build/fvp/debug/tftf.bin all fip
+    make ARCH=aarch64 PLAT=fvp ARM_DISABLE_TRUSTED_WDOG=1 ENABLE_RME=1 DEBUG=1 BL33=../tf-a-tests/build/fvp/debug/tftf.bin FVP_HW_CONFIG_DTS=fdts/fvp-base-gicv3-psci-1t.dts all fip
 
 This builds |TF-A| with |TF-A-Tests| as Normal world payload (BL33) and adds the
 Test Realm payload (TRP) as BL32 image.
@@ -68,14 +68,14 @@ Executing on ARM |FVP|
 -----------------------
 
 In order to run on the FVP, please download an RME enabled FVP model through
-`Arm FVP website`_ (expected availability by mid-July 2021). Refer
+`Arm FVP website`_ (expected availability by end of July 2021). Refer
 :ref:`Arm Fixed Virtual Platforms (FVP)` for details about running the model.
 
-To launch the FVP, execute the following command:
+To launch the Armv-A Base RevC AEM FVP, execute the following command:
 
 .. code:: shell
 
-    ./FVP_Base_AEMvA \
+    ./FVP_Base_RevC-2xAEMvA \
     -C bp.dram_size=2 \
     -C bp.pl011_uart0.uart_enable=1 \
     -C bp.pl011_uart1.uart_enable=1 \
@@ -84,14 +84,28 @@ To launch the FVP, execute the following command:
     -C bp.refcounter.use_real_time=0 \
     -C bp.secure_memory=1 \
     -C cache_state_modelled=0 \
-    -C cluster0.ecv_support_level=1 \
+    -C cluster0.ecv_support_level=2 \
+    -C cluster1.ecv_support_level=2 \
+    -C cluster0.gicv3.cpuintf-mmap-access-level=2 \
+    -C cluster1.gicv3.cpuintf-mmap-access-level=2 \
+    -C cluster0.gicv4.mask-virtual-interrupt=1 \
+    -C cluster1.gicv4.mask-virtual-interrupt=1 \
+    -C cluster0.gicv3.without-DS-support=1 \
+    -C cluster1.gicv3.without-DS-support=1 \
     -C cluster0.has_arm_v8-4=1 \
+    -C cluster1.has_arm_v8-4=1 \
     -C cluster0.has_rme=1 \
+    -C cluster1.has_rme=1 \
     -C cluster0.has_rndr=1 \
+    -C cluster1.has_rndr=1 \
     -C cluster0.has_v8_7_pmu_extension=2 \
+    -C cluster1.has_v8_7_pmu_extension=2 \
     -C cluster0.max_32bit_el=-1 \
+    -C cluster1.max_32bit_el=-1 \
     -C cluster0.NUM_CORES=4 \
+    -C cluster1.NUM_CORES=4 \
     -C cluster0.PA_SIZE=48 \
+    -C cluster1.PA_SIZE=48 \
     -C bp.flashloader0.fname=<path to fip.bin> \
     -C bp.secureflashloader.fname=<path to bl1.bin>
 
