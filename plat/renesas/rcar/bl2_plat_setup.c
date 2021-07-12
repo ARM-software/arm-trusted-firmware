@@ -370,6 +370,14 @@ mmu:
 
 	/* Disable data cache (clean and invalidate) */
 	disable_mmu_el3();
+#if RCAR_BL2_DCACHE == 1
+	dcsw_op_all(DCCISW);
+#endif
+	tlbialle3();
+	disable_mmu_icache_el3();
+	plat_invalidate_icache();
+	dsbsy();
+	isb();
 }
 
 static uint32_t is_ddr_backup_mode(void)
