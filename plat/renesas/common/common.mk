@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018-2020, Renesas Electronics Corporation. All rights reserved.
+# Copyright (c) 2018-2021, Renesas Electronics Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -77,9 +77,8 @@ PLAT_INCLUDES	:=	-Iplat/renesas/common/include/registers	\
 PLAT_BL_COMMON_SOURCES	:=	drivers/renesas/common/iic_dvfs/iic_dvfs.c \
 				plat/renesas/common/rcar_common.c
 
-RCAR_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
-				drivers/arm/gic/v2/gicv2_main.c		\
-				drivers/arm/gic/v2/gicv2_helpers.c	\
+include drivers/arm/gic/v2/gicv2.mk
+RCAR_GIC_SOURCES	:=	${GICV2_SOURCES} \
 				plat/common/plat_gicv2.c
 
 BL2_SOURCES	+=	${RCAR_GIC_SOURCES}				\
