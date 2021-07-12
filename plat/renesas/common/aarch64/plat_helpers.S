@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2023, Arm Limited and Contributors. All rights reserved.
- * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2023, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -172,15 +172,16 @@ func bl2_enter_bl31
          * BL31 will initialize the address space according to its
          * own requirement.
          */
-#if RCAR_BL2_DCACHE == 1
 	/* Disable mmu and data cache */
 	bl	disable_mmu_el3
+#if RCAR_BL2_DCACHE == 1
 	/* Data cache clean and invalidate */
 	mov	x0, #DCCISW
 	bl	dcsw_op_all
+#endif /* RCAR_BL2_DCACHE == 1 */
 	/* TLB invalidate all, EL3 */
 	tlbi	alle3
-#endif /* RCAR_BL2_DCACHE == 1 */
+
 	bl	disable_mmu_icache_el3
 	/* Invalidate instruction cache */
 	ic	iallu

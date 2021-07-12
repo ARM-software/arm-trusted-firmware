@@ -48,10 +48,8 @@
 #include "rcar_version.h"
 #include "rom_api.h"
 
-#if RCAR_BL2_DCACHE == 1
 /*
- * Following symbols are only used during plat_arch_setup() only
- * when RCAR_BL2_DCACHE is enabled.
+ * Following symbols are only used during plat_arch_setup()
  */
 static const uint64_t BL2_RO_BASE		= BL_CODE_BASE;
 static const uint64_t BL2_RO_LIMIT		= BL_CODE_END;
@@ -59,8 +57,6 @@ static const uint64_t BL2_RO_LIMIT		= BL_CODE_END;
 #if USE_COHERENT_MEM
 static const uint64_t BL2_COHERENT_RAM_BASE	= BL_COHERENT_RAM_BASE;
 static const uint64_t BL2_COHERENT_RAM_LIMIT	= BL_COHERENT_RAM_END;
-#endif
-
 #endif
 
 extern void plat_rcar_gic_driver_init(void);
@@ -372,10 +368,8 @@ mmu:
 	rcar_swdt_release();
 	bl2_system_cpg_init();
 
-#if RCAR_BL2_DCACHE == 1
 	/* Disable data cache (clean and invalidate) */
 	disable_mmu_el3();
-#endif
 }
 
 static uint32_t is_ddr_backup_mode(void)
@@ -1274,8 +1268,6 @@ lcm_state:
 
 void bl2_el3_plat_arch_setup(void)
 {
-#if RCAR_BL2_DCACHE == 1
-	NOTICE("BL2: D-Cache enable\n");
 	rcar_configure_mmu_el3(BL2_BASE,
 			       BL2_END - BL2_BASE,
 			       BL2_RO_BASE, BL2_RO_LIMIT
@@ -1283,7 +1275,6 @@ void bl2_el3_plat_arch_setup(void)
 			       , BL2_COHERENT_RAM_BASE, BL2_COHERENT_RAM_LIMIT
 #endif
 	    );
-#endif
 }
 
 void bl2_el3_plat_prepare_exit(void)
