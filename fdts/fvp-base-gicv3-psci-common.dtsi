@@ -24,7 +24,11 @@
 	#address-cells = <2>;
 	#size-cells = <2>;
 
-	chosen { };
+#if (ENABLE_RME == 1)
+	chosen { bootargs = "mem=1G console=ttyAMA0 earlycon=pl011,0x1c090000 root=/dev/vda ip=on";};
+#else
+	chosen {};
+#endif
 
 	aliases {
 		serial0 = &v2m_serial0;
@@ -135,8 +139,13 @@
 
 	memory@80000000 {
 		device_type = "memory";
+#if (ENABLE_RME == 1)
+		reg = <0x00000000 0x80000000 0 0x7C000000>,
+		      <0x00000008 0x80000000 0 0x80000000>;
+#else
 		reg = <0x00000000 0x80000000 0 0x7F000000>,
 		      <0x00000008 0x80000000 0 0x80000000>;
+#endif
 	};
 
 	gic: interrupt-controller@2f000000 {
