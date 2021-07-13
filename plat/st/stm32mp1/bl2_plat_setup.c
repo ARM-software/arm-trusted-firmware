@@ -330,6 +330,10 @@ skip_console_init:
 
 	print_reset_reason();
 
+#if !STM32MP_USE_STM32IMAGE
+	fconf_populate("TB_FW", STM32MP_DTB_BASE);
+#endif /* !STM32MP_USE_STM32IMAGE */
+
 	stm32mp_io_setup();
 }
 

@@ -157,6 +157,7 @@ PLAT_INCLUDES		+=	-Iplat/st/stm32mp1/include/
 include lib/libfdt/libfdt.mk
 
 PLAT_BL_COMMON_SOURCES	:=	common/fdt_wrappers.c					\
+				common/uuid.c						\
 				plat/st/common/stm32mp_common.c				\
 				plat/st/stm32mp1/stm32mp1_private.c
 
@@ -196,6 +197,7 @@ BL2_SOURCES		+=	drivers/io/io_fip.c					\
 				lib/fconf/fconf.c					\
 				lib/fconf/fconf_dyn_cfg_getter.c			\
 				plat/st/common/bl2_io_storage.c				\
+				plat/st/common/stm32mp_fconf_io.c			\
 				plat/st/stm32mp1/plat_bl2_mem_params_desc.c
 else
 BL2_SOURCES		+=	drivers/io/io_dummy.c					\
