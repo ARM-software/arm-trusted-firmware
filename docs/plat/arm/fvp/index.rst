@@ -12,7 +12,7 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 (64-bit host machine only).
 
 .. note::
-   The FVP models used are Version 11.14 Build 21, unless otherwise stated.
+   The FVP models used are Version 11.15 Build 14, unless otherwise stated.
 
 -  ``FVP_Base_AEMvA``
 -  ``FVP_Base_AEMv8A-AEMv8A``
@@ -39,7 +39,7 @@ Arm FVPs without shifted affinities, and that do not support threaded CPU cores
 -  ``FVP_Base_Cortex-A76AEx8``
 -  ``FVP_Base_Cortex-A77x4``
 -  ``FVP_Base_Cortex-A78x4``
--  ``FVP_Base_Matterhornx4``
+-  ``FVP_Base_Cortex-A710x4``
 -  ``FVP_Morello``         (Version 0.10 build 542)
 -  ``FVP_Base_Neoverse-E1x1``
 -  ``FVP_Base_Neoverse-E1x2``
