@@ -27,9 +27,9 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 				      VERSION_2, entry_point_info_t,
 				      SECURE | EXECUTABLE | EP_FIRST_EXE),
 
-#if !defined(AARCH32_SP_OPTEE)
+		/* Updated at runtime if OP-TEE is loaded */
 		.ep_info.pc = STM32MP_BL32_BASE,
-#endif
+
 		.ep_info.spsr = SPSR_MODE32(MODE32_svc, SPSR_T_ARM,
 					    SPSR_E_LITTLE,
 					    DISABLE_ALL_EXCEPTIONS),
@@ -37,14 +37,11 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
 				      VERSION_2, image_info_t,
 				      IMAGE_ATTRIB_PLAT_SETUP),
-#if defined(AARCH32_SP_OPTEE)
-		/* optee header is loaded in SYSRAM above BL2 */
-		.image_info.image_base = STM32MP_OPTEE_BASE,
-		.image_info.image_max_size = STM32MP_OPTEE_SIZE,
-#else
+
+		/* Updated at runtime if OP-TEE is loaded */
 		.image_info.image_base = STM32MP_BL32_BASE,
 		.image_info.image_max_size = STM32MP_BL32_SIZE,
-#endif
+
 		.next_handoff_image_id = BL33_IMAGE_ID,
 	},
 
