@@ -209,7 +209,7 @@
 #define ARM_MAP_SHARED_RAM		MAP_REGION_FLAT(		\
 						ARM_SHARED_RAM_BASE,	\
 						ARM_SHARED_RAM_SIZE,	\
-						MT_DEVICE | MT_RW | MT_SECURE)
+						MT_DEVICE | MT_RW | EL3_PAS)
 
 #define ARM_MAP_NS_DRAM1		MAP_REGION_FLAT(		\
 						ARM_NS_DRAM1_BASE,	\
@@ -236,7 +236,7 @@
 #define ARM_MAP_EL3_TZC_DRAM		MAP_REGION_FLAT(			\
 						ARM_EL3_TZC_DRAM1_BASE,	\
 						ARM_EL3_TZC_DRAM1_SIZE,	\
-						MT_MEMORY | MT_RW | MT_SECURE)
+						MT_MEMORY | MT_RW | EL3_PAS)
 
 #if defined(SPD_spmd)
 #define ARM_MAP_TRUSTED_DRAM		MAP_REGION_FLAT(		    \
@@ -255,7 +255,7 @@
 #define ARM_MAP_BL1_RW		MAP_REGION_FLAT(	\
 					BL1_RW_BASE,	\
 					BL1_RW_LIMIT - BL1_RW_BASE, \
-					MT_MEMORY | MT_RW | MT_SECURE)
+					MT_MEMORY | MT_RW | EL3_PAS)
 
 /*
  * If SEPARATE_CODE_AND_RODATA=1 we define a region for each section
@@ -265,35 +265,35 @@
 #define ARM_MAP_BL_RO			MAP_REGION_FLAT(			\
 						BL_CODE_BASE,			\
 						BL_CODE_END - BL_CODE_BASE,	\
-						MT_CODE | MT_SECURE),		\
+						MT_CODE | EL3_PAS),		\
 					MAP_REGION_FLAT(			\
 						BL_RO_DATA_BASE,		\
 						BL_RO_DATA_END			\
 							- BL_RO_DATA_BASE,	\
-						MT_RO_DATA | MT_SECURE)
+						MT_RO_DATA | EL3_PAS)
 #else
 #define ARM_MAP_BL_RO			MAP_REGION_FLAT(			\
 						BL_CODE_BASE,			\
 						BL_CODE_END - BL_CODE_BASE,	\
-						MT_CODE | MT_SECURE)
+						MT_CODE | EL3_PAS)
 #endif
 #if USE_COHERENT_MEM
 #define ARM_MAP_BL_COHERENT_RAM		MAP_REGION_FLAT(			\
 						BL_COHERENT_RAM_BASE,		\
 						BL_COHERENT_RAM_END		\
 							- BL_COHERENT_RAM_BASE, \
-						MT_DEVICE | MT_RW | MT_SECURE)
+						MT_DEVICE | MT_RW | EL3_PAS)
 #endif
 #if USE_ROMLIB
 #define ARM_MAP_ROMLIB_CODE		MAP_REGION_FLAT(			\
 						ROMLIB_RO_BASE,			\
 						ROMLIB_RO_LIMIT	- ROMLIB_RO_BASE,\
-						MT_CODE | MT_SECURE)
+						MT_CODE | EL3_PAS)
 
 #define ARM_MAP_ROMLIB_DATA		MAP_REGION_FLAT(			\
 						ROMLIB_RW_BASE,			\
 						ROMLIB_RW_END	- ROMLIB_RW_BASE,\
-						MT_MEMORY | MT_RW | MT_SECURE)
+						MT_MEMORY | MT_RW | EL3_PAS)
 #endif
 
 /*
@@ -308,7 +308,7 @@
 #define ARM_MAP_BL_CONFIG_REGION	MAP_REGION_FLAT(ARM_BL_RAM_BASE,	\
 						(ARM_FW_CONFIGS_LIMIT		\
 							- ARM_BL_RAM_BASE),	\
-						MT_MEMORY | MT_RW | MT_SECURE)
+						MT_MEMORY | MT_RW | EL3_PAS)
 
 /*
  * The max number of regions like RO(code), coherent and data required by

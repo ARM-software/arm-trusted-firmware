@@ -32,7 +32,7 @@
 #define MAP_BL1_TOTAL		MAP_REGION_FLAT(			\
 					bl1_tzram_layout.total_base,	\
 					bl1_tzram_layout.total_size,	\
-					MT_MEMORY | MT_RW | MT_SECURE)
+					MT_MEMORY | MT_RW | EL3_PAS)
 /*
  * If SEPARATE_CODE_AND_RODATA=1 we define a region for each section
  * otherwise one region is defined containing both
@@ -41,17 +41,17 @@
 #define MAP_BL1_RO		MAP_REGION_FLAT(			\
 					BL_CODE_BASE,			\
 					BL1_CODE_END - BL_CODE_BASE,	\
-					MT_CODE | MT_SECURE),		\
+					MT_CODE | EL3_PAS),		\
 				MAP_REGION_FLAT(			\
 					BL1_RO_DATA_BASE,		\
 					BL1_RO_DATA_END			\
 						- BL_RO_DATA_BASE,	\
-					MT_RO_DATA | MT_SECURE)
+					MT_RO_DATA | EL3_PAS)
 #else
 #define MAP_BL1_RO		MAP_REGION_FLAT(			\
 					BL_CODE_BASE,			\
 					BL1_CODE_END - BL_CODE_BASE,	\
-					MT_CODE | MT_SECURE)
+					MT_CODE | EL3_PAS)
 #endif
 
 /* Data structure which holds the extents of the trusted SRAM for BL1*/

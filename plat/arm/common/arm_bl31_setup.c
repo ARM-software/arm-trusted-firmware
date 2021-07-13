@@ -46,7 +46,7 @@ CASSERT(BL31_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl31_base_overflows);
 #define MAP_BL31_TOTAL		MAP_REGION_FLAT(			\
 					BL31_START,			\
 					BL31_END - BL31_START,		\
-					MT_MEMORY | MT_RW | MT_SECURE)
+					MT_MEMORY | MT_RW | EL3_PAS)
 #if RECLAIM_INIT_CODE
 IMPORT_SYM(unsigned long, __INIT_CODE_START__, BL_INIT_CODE_BASE);
 IMPORT_SYM(unsigned long, __INIT_CODE_END__, BL_CODE_END_UNALIGNED);
@@ -61,7 +61,7 @@ IMPORT_SYM(unsigned long, __STACKS_END__, BL_STACKS_END_UNALIGNED);
 					BL_INIT_CODE_BASE,		\
 					BL_INIT_CODE_END		\
 						- BL_INIT_CODE_BASE,	\
-					MT_CODE | MT_SECURE)
+					MT_CODE | EL3_PAS)
 #endif
 
 #if SEPARATE_NOBITS_REGION
@@ -69,7 +69,7 @@ IMPORT_SYM(unsigned long, __STACKS_END__, BL_STACKS_END_UNALIGNED);
 					BL31_NOBITS_BASE,		\
 					BL31_NOBITS_LIMIT 		\
 						- BL31_NOBITS_BASE,	\
-					MT_MEMORY | MT_RW | MT_SECURE)
+					MT_MEMORY | MT_RW | EL3_PAS)
 
 #endif
 /*******************************************************************************
