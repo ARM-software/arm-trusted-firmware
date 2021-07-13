@@ -107,6 +107,10 @@ const mmap_region_t plat_arm_mmap[] = {
 #if defined(SPD_spmd)
 	ARM_MAP_TRUSTED_DRAM,
 #endif
+#if ENABLE_RME
+	ARM_MAP_RMM_DRAM,
+	ARM_MAP_GPT_L1_DRAM,
+#endif /* ENABLE_RME */
 #ifdef SPD_tspd
 	ARM_MAP_TSP_SEC_MEM,
 #endif
@@ -159,6 +163,9 @@ const mmap_region_t plat_arm_mmap[] = {
 #endif
 	/* Required by fconf APIs to read HW_CONFIG dtb loaded into DRAM */
 	ARM_DTB_DRAM_NS,
+#if ENABLE_RME
+	ARM_MAP_GPT_L1_DRAM,
+#endif
 	{0}
 };
 

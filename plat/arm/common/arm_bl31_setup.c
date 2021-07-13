@@ -378,6 +378,9 @@ void __init arm_bl31_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
 		MAP_BL31_TOTAL,
+#if ENABLE_RME
+		ARM_MAP_L0_GPT_REGION,
+#endif
 #if RECLAIM_INIT_CODE
 		MAP_BL_INIT_CODE,
 #endif

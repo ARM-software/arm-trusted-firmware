@@ -149,6 +149,9 @@ void arm_bl2_plat_arch_setup(void)
 		ARM_MAP_BL_COHERENT_RAM,
 #endif
 		ARM_MAP_BL_CONFIG_REGION,
+#if ENABLE_RME
+		ARM_MAP_L0_GPT_REGION,
+#endif
 		{0}
 	};
 

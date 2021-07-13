@@ -43,6 +43,11 @@
 #define PLAT_ARM_TRUSTED_DRAM_BASE	UL(0x06000000)
 #define PLAT_ARM_TRUSTED_DRAM_SIZE	UL(0x02000000)	/* 32 MB */
 
+#if ENABLE_RME
+#define PLAT_ARM_RMM_BASE		(RMM_BASE)
+#define PLAT_ARM_RMM_SIZE		(RMM_LIMIT - RMM_BASE)
+#endif
+
 /*
  * Max size of SPMC is 2MB for fvp. With SPMD enabled this value corresponds to
  * max size of BL32 image.
@@ -80,15 +85,27 @@
 #if defined(IMAGE_BL31)
 # if SPM_MM
 #  define PLAT_ARM_MMAP_ENTRIES		10
-#  define MAX_XLAT_TABLES		9
+#  if ENABLE_RME
+#   define MAX_XLAT_TABLES		10
+#  else
+#   define MAX_XLAT_TABLES		9
+# endif
 #  define PLAT_SP_IMAGE_MMAP_REGIONS	30
 #  define PLAT_SP_IMAGE_MAX_XLAT_TABLES	10
 # else
 #  define PLAT_ARM_MMAP_ENTRIES		9
 #  if USE_DEBUGFS
-#   define MAX_XLAT_TABLES		8
+#   if ENABLE_RME
+#    define MAX_XLAT_TABLES		9
+#   else
+#    define MAX_XLAT_TABLES		8
+#   endif
 #  else
-#   define MAX_XLAT_TABLES		7
+#   if ENABLE_RME
+#    define MAX_XLAT_TABLES		8
+#   else
+#    define MAX_XLAT_TABLES		7
+#   endif
 #  endif
 # endif
 #elif defined(IMAGE_BL32)
@@ -137,16 +154,17 @@
 #endif
 
 #if RESET_TO_BL31
-/* Size of Trusted SRAM - the first 4KB of shared memory */
+/* Size of Trusted SRAM - the first 4KB of shared memory - GPT L0 Tables */
 #define PLAT_ARM_MAX_BL31_SIZE		(PLAT_ARM_TRUSTED_SRAM_SIZE - \
-					 ARM_SHARED_RAM_SIZE)
+					 ARM_SHARED_RAM_SIZE - \
+					 ARM_L0_GPT_SIZE)
 #else
 /*
  * Since BL31 NOBITS overlays BL2 and BL1-RW, PLAT_ARM_MAX_BL31_SIZE is
  * calculated using the current BL31 PROGBITS debug size plus the sizes of
  * BL2 and BL1-RW
  */
-#define PLAT_ARM_MAX_BL31_SIZE		UL(0x3D000)
+#define PLAT_ARM_MAX_BL31_SIZE		(UL(0x3D000) - ARM_L0_GPT_SIZE)
 #endif /* RESET_TO_BL31 */
 
 #ifndef __aarch64__
