@@ -112,7 +112,10 @@ BL31_SOURCES		+=	services/std_svc/pci_svc.c
 endif
 
 ifeq (${ENABLE_RME},1)
-BL31_SOURCES		+=	${RMMD_SOURCES}
+include lib/gpt/gpt.mk
+
+BL31_SOURCES		+=	${GPT_LIB_SRCS}					\
+				${RMMD_SOURCES}
 endif
 
 BL31_LINKERFILE		:=	bl31/bl31.ld.S

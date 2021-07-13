@@ -17,10 +17,12 @@ endif
 
 ifeq (${ENABLE_RME},1)
 # Using RME, run BL2 at EL3
+include lib/gpt/gpt.mk
+
 BL2_SOURCES		+=      bl2/${ARCH}/bl2_rme_entrypoint.S	\
 				bl2/${ARCH}/bl2_el3_exceptions.S	\
 				bl2/${ARCH}/bl2_run_next_image.S	\
-
+				${GPT_LIB_SRCS}
 BL2_LINKERFILE		:=	bl2/bl2.ld.S
 
 else ifeq (${BL2_AT_EL3},0)

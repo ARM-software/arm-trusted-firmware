@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -171,6 +171,14 @@ func bl31_warm_entrypoint
 		_init_c_runtime=0				\
 		_exception_vectors=runtime_exceptions		\
 		_pie_fixup_size=0
+
+#if ENABLE_RME
+	/*
+	 * Initialise and enable Granule Protection
+	 * before enabling any stage of translation.
+	 */
+	bl	gpt_enable
+#endif
 
 	/*
 	 * We're about to enable MMU and participate in PSCI state coordination.
