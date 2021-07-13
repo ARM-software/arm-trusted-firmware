@@ -9,6 +9,7 @@
 
 #include <platform_def.h>
 
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
@@ -17,10 +18,12 @@
 #include <drivers/partition/partition.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
+#include <lib/gpt/gpt.h>
 #ifdef SPD_opteed
 #include <lib/optee_utils.h>
 #endif
 #include <lib/utils.h>
+#include <plat/arm/common/arm_pas_def.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
@@ -111,8 +114,10 @@ void bl2_plat_preload_setup(void)
  */
 void arm_bl2_platform_setup(void)
 {
+#if !ENABLE_RME
 	/* Initialize the secure environment */
 	plat_arm_security_setup();
+#endif
 
 #if defined(PLAT_ARM_MEM_PROT_ADDR)
 	arm_nor_psci_do_static_mem_protect();
@@ -124,9 +129,47 @@ void bl2_platform_setup(void)
 	arm_bl2_platform_setup();
 }
 
+#if ENABLE_RME
+static void arm_bl2_plat_gpt_setup(void)
+{
+	/*
+	 * The GPT library might modify the gpt regions structure to optimize
+	 * the layout, so the array cannot be constant.
+	 */
+	pas_region_t pas_regions[] = {
+		ARM_PAS_GPI_ANY,
+		ARM_PAS_KERNEL,
+		ARM_PAS_TZC,
+		ARM_PAS_REALM,
+		ARM_PAS_EL3_DRAM,
+		ARM_PAS_GPTS
+	};
+
+	gpt_init_params_t gpt_params = {
+		PLATFORM_PGS,
+		PLATFORM_PPS,
+		PLATFORM_L0GPTSZ,
+		pas_regions,
+		(unsigned int)(sizeof(pas_regions)/sizeof(pas_region_t)),
+		ARM_L0_GPT_ADDR_BASE, ARM_L0_GPT_SIZE,
+		ARM_L1_GPT_ADDR_BASE, ARM_L1_GPT_SIZE
+	};
+
+	/* Initialise the global granule tables */
+	INFO("Enabling Granule Protection Checks\n");
+	if (gpt_init(&gpt_params) < 0) {
+		panic();
+	}
+
+	gpt_enable();
+}
+#endif /* ENABLE_RME */
+
 /*******************************************************************************
- * Perform the very early platform specific architectural setup here. At the
- * moment this is only initializes the mmu in a quick and dirty way.
+ * Perform the very early platform specific architectural setup here.
+ * When RME is enabled the secure environment is initialised before
+ * initialising and enabling Granule Protection.
+ * This function initialises the MMU in a quick and dirty way.
  ******************************************************************************/
 void arm_bl2_plat_arch_setup(void)
 {
@@ -155,10 +198,23 @@ void arm_bl2_plat_arch_setup(void)
 		{0}
 	};
 
+#if ENABLE_RME
+	/* Initialise the secure environment */
+	plat_arm_security_setup();
+
+	/* Initialise and enable Granule Protection */
+	arm_bl2_plat_gpt_setup();
+#endif
 	setup_page_tables(bl_regions, plat_arm_get_mmap());
 
 #ifdef __aarch64__
+#if ENABLE_RME
+	/* BL2 runs in EL3 when RME enabled. */
+	assert(get_armv9_2_feat_rme_support() != 0U);
+	enable_mmu_el3(0);
+#else
 	enable_mmu_el1(0);
+#endif
 #else
 	enable_mmu_svc_mon(0);
 #endif

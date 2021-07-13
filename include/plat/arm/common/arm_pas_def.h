@@ -87,4 +87,9 @@
 							   ARM_L1_GPT_SIZE,      \
 							   GPI_ROOT)
 
+/* GPT Configuration options */
+#define PLATFORM_PGS			GPCCR_PGS_4K
+#define PLATFORM_PPS			GPCCR_PPS_4GB
+#define PLATFORM_L0GPTSZ		GPCCR_L0GPTSZ_30BITS
+
 #endif /* ARM_PAS_DEF_H */
