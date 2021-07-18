@@ -107,6 +107,10 @@
 #define ID_DFR0_COPTRC_MASK		U(0xf)
 #define ID_DFR0_COPTRC_SUPPORTED	U(1)
 #define ID_DFR0_COPTRC_LENGTH		U(4)
+#define ID_DFR0_TRACEFILT_SHIFT		U(28)
+#define ID_DFR0_TRACEFILT_MASK		U(0xf)
+#define ID_DFR0_TRACEFILT_SUPPORTED	U(1)
+#define ID_DFR0_TRACEFILT_LENGTH	U(4)
 
 /* ID_DFR1_EL1 definitions */
 #define ID_DFR1_MTPMU_SHIFT	U(0)
@@ -179,6 +183,7 @@
 #define SDCR_SPD_DISABLE	U(0x2)
 #define SDCR_SPD_ENABLE		U(0x3)
 #define SDCR_SCCD_BIT		(U(1) << 23)
+#define SDCR_TTRF_BIT		(U(1) << 19)
 #define SDCR_SPME_BIT		(U(1) << 17)
 #define SDCR_RESET_VAL		U(0x0)
 #define SDCR_MTPME_BIT		(U(1) << 28)

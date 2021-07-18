@@ -132,14 +132,25 @@
 	 *  accesses to Trace Buffer control registers at EL2 and EL1 in any
 	 *  security state generates trap exceptions to EL3.
 	 *  If FEAT_TRBE is not implemented, these bits are RES0.
+	 *
+	 * MDCR_EL3.TTRF: Set to one so that access to trace filter control
+	 *  registers in non-monitor mode generate EL3 trap exception,
+	 *  unless the access generates a higher priority exception when trace
+	 *  filter control(FEAT_TRF) is implemented.
+	 *  When FEAT_TRF is not implemented, this bit is RES0.
 	 * ---------------------------------------------------------------------
 	 */
 	mov_imm	x0, ((MDCR_EL3_RESET_VAL | MDCR_SDD_BIT | \
 		      MDCR_SPD32(MDCR_SPD32_DISABLE) | MDCR_SCCD_BIT | \
 		      MDCR_MCCD_BIT) & ~(MDCR_SPME_BIT | MDCR_TDOSA_BIT | \
 		      MDCR_TDA_BIT | MDCR_TPM_BIT | MDCR_NSTB(MDCR_NSTB_EL1) | \
-		      MDCR_NSTBE))
+		      MDCR_NSTBE | MDCR_TTRF_BIT))
 
+	mrs	x1, id_aa64dfr0_el1
+	ubfx	x1, x1, #ID_AA64DFR0_TRACEFILT_SHIFT, #ID_AA64DFR0_TRACEFILT_LENGTH
+	cbz	x1, 1f
+	orr	x0, x0, #MDCR_TTRF_BIT
+1:
 	msr	mdcr_el3, x0
 
 	/* ---------------------------------------------------------------------
