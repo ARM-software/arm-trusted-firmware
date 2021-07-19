@@ -67,17 +67,14 @@ static void set_io_addr_dec_win(int win_id, uintptr_t base_addr,
 	mmio_write_32(MVEBU_DEC_WIN_CTRL_REG(dec_win->dec_reg_base,
 		      win_id, dec_win->win_offset), ctrl);
 
-	INFO("set_io_addr_dec %d result: ctrl(0x%x) base(0x%x)",
+	INFO("set_io_addr_dec %d result: ctrl(0x%x) base(0x%x) remap(0x%x)\n",
 	     win_id, mmio_read_32(MVEBU_DEC_WIN_CTRL_REG(dec_win->dec_reg_base,
 	     win_id, dec_win->win_offset)),
 	     mmio_read_32(MVEBU_DEC_WIN_BASE_REG(dec_win->dec_reg_base,
-			  win_id, dec_win->win_offset)));
-	if (win_id < dec_win->max_remap)
-		INFO(" remap(%x)\n",
-		     mmio_read_32(MVEBU_DEC_WIN_REMAP_REG(dec_win->dec_reg_base,
-		     win_id, dec_win->win_offset)));
-	else
-		INFO("\n");
+			  win_id, dec_win->win_offset)),
+	     (win_id < dec_win->max_remap) ?
+		mmio_read_32(MVEBU_DEC_WIN_REMAP_REG(dec_win->dec_reg_base,
+			     win_id, dec_win->win_offset)) : 0);
 }
 
 /* Set io decode window */
@@ -167,12 +164,11 @@ int init_io_addr_dec(struct dram_win_map *dram_wins_map,
 			ERROR("Failed to set IO address decode\n");
 			return -1;
 		}
-		INFO("Set IO decode window successfully, base(0x%x)",
-		     io_dec_win->dec_reg_base);
-		INFO(" win_attr(%x) max_dram_win(%d) max_remap(%d)",
+		INFO("Set IO decode window successfully, base(0x%x)"
+		     " win_attr(%x) max_dram_win(%d) max_remap(%d)"
+		     " win_offset(%d)\n", io_dec_win->dec_reg_base,
 		     io_dec_win->win_attr, io_dec_win->max_dram_win,
-		     io_dec_win->max_remap);
-		INFO(" win_offset(%d)\n", io_dec_win->win_offset);
+		     io_dec_win->max_remap, io_dec_win->win_offset);
 	}
 
 	return 0;
