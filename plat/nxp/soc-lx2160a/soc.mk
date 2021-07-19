@@ -15,7 +15,7 @@ BOARD_PATH	:=	${PLAT_SOC_PATH}/${BOARD}
 
  # get SoC-specific defnitions
 include ${PLAT_SOC_PATH}/soc.def
-
+include ${PLAT_COMMON_PATH}/plat_make_helper/soc_common_def.mk
 include ${PLAT_COMMON_PATH}/plat_make_helper/plat_build_macros.mk
 
  # SoC-specific
