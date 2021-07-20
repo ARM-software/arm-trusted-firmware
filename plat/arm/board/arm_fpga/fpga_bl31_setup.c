@@ -242,6 +242,16 @@ static void fpga_prepare_dtb(void)
 		}
 	}
 
+	/* Check whether we have an ITS. Remove the DT node if not. */
+	if (!fpga_has_its()) {
+		int node = fdt_node_offset_by_compatible(fdt, 0,
+							 "arm,gic-v3-its");
+
+		if (node >= 0) {
+			fdt_del_node(fdt, node);
+		}
+	}
+
 	err = fdt_pack(fdt);
 	if (err < 0) {
 		ERROR("Failed to pack Device Tree at %p: error %d\n", fdt, err);

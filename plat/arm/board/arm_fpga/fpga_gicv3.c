@@ -155,3 +155,8 @@ uintptr_t fpga_get_redist_base(void)
 {
 	return fpga_gicv3_driver_data.gicr_base;
 }
+
+bool fpga_has_its(void)
+{
+	return nr_itses > 0;
+}

@@ -98,5 +98,12 @@
 	/* The GICR size will be adjusted at runtime to match the cores. */
 		      <0x0 0x30040000 0x0 0x00020000>;	/* GICR for one core */
 		interrupts = <GIC_PPI 9 IRQ_TYPE_LEVEL_HIGH>;
+
+		its: msi-controller@30040000 {
+			compatible = "arm,gic-v3-its";
+			reg = <0x0 0x30040000 0x0 0x40000>;
+			#msi-cells = <1>;
+			msi-controller;
+		};
 	};
 };
