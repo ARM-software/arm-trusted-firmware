@@ -28,8 +28,8 @@
 #define GICD_DCHIPR_RT_OWNER_SHIFT	4
 
 /*
- * If GIC v4 extension is enabled, then use SPI macros specific to GIC-Clayton.
- * Other shifts and mask remains same between GIC-600 and GIC-Clayton.
+ * If GIC v4 extension is enabled, then use SPI macros specific to GIC-700.
+ * Other shifts and mask remains same between GIC-600 and GIC-700.
  */
 #if GIC_ENABLE_V4_EXTN
 #define GICD_CHIPRx_SPI_BLOCK_MIN_SHIFT	9

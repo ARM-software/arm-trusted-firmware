@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-# RD-N2 platform uses GIC-Clayton which is based on GICv4.1
+# RD-N2 platform uses GIC-700 which is based on GICv4.1
 GIC_ENABLE_V4_EXTN	:=	1
 
 include plat/arm/css/sgi/sgi-common.mk
