@@ -49,6 +49,20 @@ void tf_log(const char *fmt, ...)
 	va_end(args);
 }
 
+void tf_log_newline(const char log_fmt[2])
+{
+	unsigned int log_level = log_fmt[0];
+
+	/* Verify that log_level is one of LOG_MARKER_* macro defined in debug.h */
+	assert((log_level > 0U) && (log_level <= LOG_LEVEL_VERBOSE));
+	assert((log_level % 10U) == 0U);
+
+	if (log_level > max_log_level)
+		return;
+
+	putchar('\n');
+}
+
 /*
  * The helper function to set the log level dynamically by platform. The
  * maximum log level is determined by `LOG_LEVEL` build flag at compile time
