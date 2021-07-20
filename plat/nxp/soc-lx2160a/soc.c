@@ -271,9 +271,7 @@ void soc_early_init(void)
 				MT_DEVICE | MT_RW | MT_NS);
 	}
 
-#ifdef ERRATA_SOC_A050426
-	erratum_a050426();
-#endif
+	soc_errata();
 
 #if (TRUSTED_BOARD_BOOT) || defined(POLICY_FUSE_PROVISION)
 	sfp_init(NXP_SFP_ADDR);

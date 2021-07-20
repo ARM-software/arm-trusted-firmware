@@ -99,7 +99,8 @@ $(eval $(call SET_NXP_MAKE_FLAG,DDR_FIP_IO_NEEDED,BL2))
 PLAT_INCLUDES		+=	-I${PLAT_COMMON_PATH}/include/default\
 				-I${BOARD_PATH}\
 				-I${PLAT_COMMON_PATH}/include/default/ch_${CHASSIS}\
-				-I${PLAT_SOC_PATH}/include
+				-I${PLAT_SOC_PATH}/include\
+				-I${PLAT_COMMON_PATH}/soc_errata
 
 ifeq (${SECURE_BOOT},yes)
 include ${PLAT_COMMON_PATH}/tbbr/tbbr.mk

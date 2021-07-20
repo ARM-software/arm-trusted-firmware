@@ -5,10 +5,11 @@
  *
  */
 
+#include <common/debug.h>
 #include <mmio.h>
 
 #ifdef ERRATA_SOC_A050426
-void erratum_a050426(void)
+static void erratum_a050426(void)
 {
 	uint32_t i, val3, val4;
 
@@ -416,3 +417,21 @@ void erratum_a050426(void)
 	mmio_write_32(0x700117E90, val4);
 }
 #endif /* ERRATA_SOC_A050426 */
+
+void soc_errata(void)
+{
+#ifdef ERRATA_SOC_A050426
+	INFO("SoC workaround for Errata A050426 was applied\n");
+	erratum_a050426();
+#endif
+	/*
+	 * The following DDR Erratas workaround are implemented in DDR driver,
+	 * but print information here.
+	 */
+#if ERRATA_DDR_A011396
+	INFO("SoC workaround for DDR Errata A011396 was applied\n");
+#endif
+#if ERRATA_DDR_A050450
+	INFO("SoC workaround for DDR Errata A050450 was applied\n");
+#endif
+}
