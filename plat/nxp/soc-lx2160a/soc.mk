@@ -138,7 +138,7 @@ endif
 include ${PLAT_DRIVERS_PATH}/drivers.mk
 
  # Adding SoC specific files
-include ${PLAT_SOC_PATH}/erratas_soc.mk
+include ${PLAT_COMMON_PATH}/soc_errata/errata.mk
 
 PLAT_INCLUDES		+=	${NV_STORAGE_INCLUDES}\
 				${WARM_RST_INCLUDES}

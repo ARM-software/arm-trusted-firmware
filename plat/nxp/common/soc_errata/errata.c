@@ -415,4 +415,4 @@ void erratum_a050426(void)
 	mmio_write_32(0x700117E60, val3);
 	mmio_write_32(0x700117E90, val4);
 }
-#endif
+#endif /* ERRATA_SOC_A050426 */
