@@ -82,6 +82,7 @@ MARVELL_GIC_SOURCES	:=	drivers/arm/gic/common/gic_common.c	\
 
 PLAT_INCLUDES		:=	-I$(BOARD_DIR)				\
 				-I$(BOARD_DIR)/board			\
+				-I$(CURDIR)/drivers/marvell		\
 				-I$(PLAT_COMMON_BASE)/include		\
 				-I$(PLAT_INCLUDE_BASE)/common
 
