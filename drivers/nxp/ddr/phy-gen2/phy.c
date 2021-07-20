@@ -672,7 +672,7 @@ static void prog_seq0bdly0(uint16_t *phy,
 
 #ifdef DDR_PLL_FIX
 	soc_info = get_soc_info();
-	if (soc_info->maj_ver == 1) {
+	if (soc_info->svr_reg.bf.maj_ver == 1) {
 		ps_count[0] = 0x520; /* seq0bdly0 */
 		ps_count[1] = 0xa41; /* seq0bdly1 */
 		ps_count[2] = 0x668a; /* seq0bdly2 */
@@ -1093,8 +1093,8 @@ static void prog_dfi_rd_data_cs_dest_map(uint16_t *phy,
 
 #ifdef ERRATA_DDR_A011396
 	/* Only apply to DDRC 5.05.00 */
-	soc_info = get_soc_info(NXP_DCFG_ADDR);
-	if ((soc_info->maj_ver == 1U) && (ip_rev == U(0x50500))) {
+	soc_info = get_soc_info();
+	if ((soc_info->svr_reg.bf.maj_ver == 1U) && (ip_rev == U(0x50500))) {
 		phy_io_write16(phy,
 				t_master | csr_dfi_rd_data_cs_dest_map_addr,
 				0U);
@@ -1890,8 +1890,8 @@ static int c_init_phy_config(uint16_t **phy_ptr,
 		prog_pll_ctrl2(phy, input);
 #ifdef DDR_PLL_FIX
 		soc_info = get_soc_info();
-		debug("SOC_SI_REV = %x\n", soc_info->maj_ver);
-		if (soc_info->maj_ver == 1) {
+		debug("SOC_SI_REV = %x\n", soc_info->svr_reg.bf.maj_ver);
+		if (soc_info->svr_reg.bf.maj_ver == 1) {
 			prog_pll_pwr_dn(phy, input);
 
 			/*Enable FFE aka TxEqualizationMode for rev1 SI*/
@@ -2601,8 +2601,8 @@ int compute_ddr_phy(struct ddr_info *priv)
 		}
 
 #ifdef NXP_APPLY_MAX_CDD
-		soc_info = get_soc_info(NXP_DCFG_ADDR);
-		if (soc_info->maj_ver == 2) {
+		soc_info = get_soc_info();
+		if (soc_info->svr_reg.bf.maj_ver == 2) {
 			tcfg0 = regs->timing_cfg[0];
 			tcfg4 = regs->timing_cfg[4];
 			rank = findrank(conf->cs_in_use);

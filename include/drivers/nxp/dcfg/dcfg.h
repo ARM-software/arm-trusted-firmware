@@ -27,23 +27,41 @@
 #endif
 
 typedef struct {
-	bool is_populated;
-	uint8_t mfr_id;
-#if defined(CONFIG_CHASSIS_3_2)
-	uint8_t family;
-	uint8_t dev_id;
+	union {
+		uint32_t val;
+		struct {
+			uint32_t min_ver:4;
+			uint32_t maj_ver:4;
+#if defined(CONFIG_CHASSIS_3) || defined(CONFIG_CHASSIS_3_2)
+			uint32_t personality:6;
+			uint32_t rsv1:2;
+#elif defined(CONFIG_CHASSIS_2)
+			uint32_t personality:8;
+
 #endif
-	uint8_t personality;
+#if defined(CONFIG_CHASSIS_3) || defined(CONFIG_CHASSIS_3_2)
+			uint32_t dev_id:6;
+			uint32_t rsv2:2;
+			uint32_t family:4;
+#elif defined(CONFIG_CHASSIS_2)
+			uint32_t dev_id:12;
+#endif
+			uint32_t mfr_id;
+		} __packed bf;
+		struct {
+			uint32_t maj_min:8;
+			uint32_t version; /* SoC version without major and minor info */
+		} __packed bf_ver;
+	} __packed svr_reg;
 	bool sec_enabled;
-	uint8_t maj_ver;
-	uint8_t min_ver;
+	bool is_populated;
 } soc_info_t;
 
 typedef struct {
 	bool is_populated;
 	uint8_t ocram_present;
 	uint8_t ddrc1_present;
-#if defined(CONFIG_CHASSIS_3_2)
+#if defined(CONFIG_CHASSIS_3) || defined(CONFIG_CHASSIS_3_2)
 	uint8_t ddrc2_present;
 #endif
 } devdisr5_info_t;

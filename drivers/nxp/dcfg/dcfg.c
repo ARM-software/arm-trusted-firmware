@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 NXP
+ * Copyright 2020-2021 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -43,19 +43,11 @@ const soc_info_t *get_soc_info(void)
 
 	reg = gur_in32(dcfg_init_info->g_nxp_dcfg_addr + DCFG_SVR_OFFSET);
 
-	soc_info.mfr_id = (reg & SVR_MFR_ID_MASK) >> SVR_MFR_ID_SHIFT;
-#if defined(CONFIG_CHASSIS_3_2)
-	soc_info.family = (reg & SVR_FAMILY_MASK) >> SVR_FAMILY_SHIFT;
-	soc_info.dev_id = (reg & SVR_DEV_ID_MASK) >> SVR_DEV_ID_SHIFT;
-#endif
+	soc_info.svr_reg.val = reg;
+
 	/* zero means SEC enabled. */
 	soc_info.sec_enabled =
 		(((reg & SVR_SEC_MASK) >> SVR_SEC_SHIFT) == 0) ? true : false;
-
-	soc_info.personality = (reg & SVR_PERSONALITY_MASK)
-				>> SVR_PERSONALITY_SHIFT;
-	soc_info.maj_ver = (reg & SVR_MAJ_VER_MASK) >> SVR_MAJ_VER_SHIFT;
-	soc_info.min_ver = reg & SVR_MIN_VER_MASK;
 
 	soc_info.is_populated = true;
 	return (const soc_info_t *) &soc_info;

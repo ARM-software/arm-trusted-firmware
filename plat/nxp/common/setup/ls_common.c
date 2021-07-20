@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2021 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -237,4 +237,28 @@ void ls_setup_page_tables(uintptr_t total_base,
 const mmap_region_t *plat_ls_get_mmap(void)
 {
 	return plat_ls_mmap;
+}
+
+/*
+ * This function get the number of clusters and cores count per cluster
+ * in the SoC.
+ */
+void get_cluster_info(const struct soc_type *soc_list, uint8_t ps_count,
+		uint8_t *num_clusters, uint8_t *cores_per_cluster)
+{
+	const soc_info_t *soc_info = get_soc_info();
+	*num_clusters = NUMBER_OF_CLUSTERS;
+	*cores_per_cluster = CORES_PER_CLUSTER;
+	unsigned int i;
+
+	for (i = 0U; i < ps_count; i++) {
+		if (soc_list[i].version == soc_info->svr_reg.bf_ver.version) {
+			*num_clusters = soc_list[i].num_clusters;
+			*cores_per_cluster = soc_list[i].cores_per_cluster;
+			break;
+		}
+	}
+
+	VERBOSE("NUM of cluster = 0x%x, Cores per cluster = 0x%x\n",
+			*num_clusters, *cores_per_cluster);
 }
