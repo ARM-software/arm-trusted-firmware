@@ -98,34 +98,10 @@ There are several build options:
         There is no reason to enable this feature if OP-TEE OS built with CFG_WITH_PAGER=n.
         Only set LLC_SRAM=1 if OP-TEE OS is built with CFG_WITH_PAGER=y.
 
-- CM3_SYSTEM_RESET
-
-        For Armada37x0 only, when ``CM3_SYSTEM_RESET=1``, the Cortex-M3 secure coprocessor will
-        be used for system reset.
-        TF-A will send command 0x0009 with a magic value via the rWTM mailbox interface to the
-        Cortex-M3 secure coprocessor.
-        The firmware running in the coprocessor must either implement this functionality or
-        ignore the 0x0009 command (which is true for the firmware from A3700-utils-marvell
-        repository). If this option is enabled but the firmware does not support this command,
-        an error message will be printed prior trying to reboot via the usual way.
-
-        This option is needed on Turris MOX as a workaround to a HW bug which causes reset to
-        sometime hang the board.
-
-- A3720_DB_PM_WAKEUP_SRC
-
-        For Armada 3720 Develpment Board only, when ``A3720_DB_PM_WAKEUP_SRC=1``,
-        TF-A will setup PM wake up src configuration. This option is disabled by default.
-
 - MARVELL_SECURE_BOOT
 
         Build trusted(=1)/non trusted(=0) image, default is non trusted.
-
-- BLE_PATH
-
-        Points to BLE (Binary ROM extension) sources folder.
-        Only required for A7K/8K/CN913x builds.
-        The parameter is optional, its default value is ``plat/marvell/armada/a8k/common/ble``.
+        This parameter is used only for ``mrvl_flash`` and ``mrvl_uart`` targets.
 
 - MV_DDR_PATH
 
@@ -140,6 +116,9 @@ There are several build options:
         Do not remove any parts of git checkout becuase build process and other
         applications need them for correct building and version determination.
 
+
+CN913x specific build options:
+
 - CP_NUM
 
         Total amount of CPs (South Bridge) connected to AP. When the parameter is omitted,
@@ -148,9 +127,43 @@ There are several build options:
         family (PLAT=t9130), which can have external CPs connected to the MCI ports. Valid
         values with CP_NUM are in a range of 1 to 3.
 
+
+A7K/8K/CN913x specific build options:
+
+- BLE_PATH
+
+        Points to BLE (Binary ROM extension) sources folder.
+        The parameter is optional, its default value is ``plat/marvell/armada/a8k/common/ble``
+        which uses TF-A in-tree BLE implementation.
+
+
+Armada37x0 specific build options:
+
+- CM3_SYSTEM_RESET
+
+        When ``CM3_SYSTEM_RESET=1``, the Cortex-M3 secure coprocessor will be used for system reset.
+
+        TF-A will send command 0x0009 with a magic value via the rWTM mailbox interface to the
+        Cortex-M3 secure coprocessor.
+        The firmware running in the coprocessor must either implement this functionality or
+        ignore the 0x0009 command (which is true for the firmware from A3700-utils-marvell
+        repository). If this option is enabled but the firmware does not support this command,
+        an error message will be printed prior trying to reboot via the usual way.
+
+        This option is needed on Turris MOX as a workaround to a HW bug which causes reset to
+        sometime hang the board.
+
+- A3720_DB_PM_WAKEUP_SRC
+
+        For Armada 3720 Development Board only, when ``A3720_DB_PM_WAKEUP_SRC=1``,
+        TF-A will setup PM wake up src configuration. This option is disabled by default.
+
+
+Armada37x0 specific build options for ``mrvl_flash`` and ``mrvl_uart`` targets:
+
 - DDR_TOPOLOGY
 
-        For Armada37x0 only, the DDR topology map index/name, default is 0.
+        The DDR topology map index/name, default is 0.
 
         Supported Options:
             -    0 - DDR3 1CS 512MB (DB-88F3720-DDR3-Modular, EspressoBin V3-V5)
@@ -165,7 +178,7 @@ There are several build options:
 
 - CLOCKSPRESET
 
-        For Armada37x0 only, the clock tree configuration preset including CPU and DDR frequency,
+        The clock tree configuration preset including CPU and DDR frequency,
         default is CPU_800_DDR_800.
 
             - CPU_600_DDR_600  - CPU at 600 MHz, DDR at 600 MHz
@@ -182,7 +195,7 @@ There are several build options:
 
 - BOOTDEV
 
-        For Armada37x0 only, the flash boot device, default is ``SPINOR``.
+        The flash boot device, default is ``SPINOR``.
 
         Currently, Armada37x0 only supports ``SPINOR``, ``SPINAND``, ``EMMCNORM`` and ``SATA``:
 
@@ -201,7 +214,7 @@ There are several build options:
 
 - PARTNUM
 
-        For Armada37x0 only, the boot partition number, default is 0.
+        The boot partition number, default is 0.
 
         To boot from eMMC, the value should be aligned with the parameter in
         U-Boot with name of ``CONFIG_SYS_MMC_ENV_PART``, whose value by default is
@@ -210,7 +223,7 @@ There are several build options:
 
 - WTMI_IMG
 
-        For Armada37x0 only, the path of the binary can point to an image which
+        The path of the binary can point to an image which
         does nothing, an image which supports EFUSE or a customized CM3 firmware
         binary. The default image is ``fuse.bin`` that built from sources in WTP
         folder, which is the next option. If the default image is OK, then this
@@ -233,8 +246,6 @@ There are several build options:
 
 - WTP
 
-        For Armada37x0 only.
-
         Specify path to the full checkout of Marvell A3700-utils-marvell git
         repository. Checkout must contain also .git subdirectory because WTP
         build process calls git commands.
@@ -247,7 +258,7 @@ There are several build options:
 
 - CRYPTOPP_PATH
 
-        For Armada37x0 only, use this parameter to point to Crypto++ source code
+        Use this parameter to point to Crypto++ source code
         directory. If this option is specified then Crypto++ source code in
         CRYPTOPP_PATH directory will be automatically compiled. Crypto++ library
         is required for building WTP image tool. Either CRYPTOPP_PATH or
@@ -255,12 +266,12 @@ There are several build options:
 
 - CRYPTOPP_LIBDIR
 
-        For Armada37x0 only, use this parameter to point to the directory with
+        Use this parameter to point to the directory with
         compiled Crypto++ library. By default it points to the CRYPTOPP_PATH.
 
 - CRYPTOPP_INCDIR
 
-        For Armada37x0 only, use this parameter to point to the directory with
+        Use this parameter to point to the directory with
         header files of Crypto++ library. By default it points to the CRYPTOPP_PATH.
 
 
@@ -356,8 +367,8 @@ produce ``uart-images.tgz.bin`` file.
 Tools and external components installation
 ------------------------------------------
 
-Armada37x0 Builds require installation of 3 components
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Armada37x0 Builds require installation of additional components
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 (1) ARM cross compiler capable of building images for the service CPU (CM3).
     This component is usually included in the Linux host packages.
@@ -389,6 +400,10 @@ Armada37x0 Builds require installation of 3 components
 (4) Crypto++ library available at the following repository:
 
     https://github.com/weidai11/cryptopp.git
+
+(5) Optional CZ.NIC's Armada 3720 Secure Firmware:
+
+    https://gitlab.nic.cz/turris/mox-boot-builder.git
 
 Armada70x0 and Armada80x0 Builds require installation of an additional component
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
