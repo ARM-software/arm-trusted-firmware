@@ -42,6 +42,7 @@ static void sunxi_cpu_enable_power(unsigned int cluster, unsigned int core)
 	mmio_write_32(SUNXI_CPU_POWER_CLAMP_REG(cluster, core), 0xe0);
 	mmio_write_32(SUNXI_CPU_POWER_CLAMP_REG(cluster, core), 0x80);
 	mmio_write_32(SUNXI_CPU_POWER_CLAMP_REG(cluster, core), 0x00);
+	udelay(1);
 }
 
 /* We can't turn ourself off like this, but it works for other cores. */
