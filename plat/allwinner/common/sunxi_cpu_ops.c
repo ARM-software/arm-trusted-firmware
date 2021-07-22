@@ -76,7 +76,8 @@ void sunxi_cpu_on(u_register_t mpidr)
 	/* Assert CPU power-on reset */
 	mmio_clrbits_32(SUNXI_POWERON_RST_REG(cluster), BIT(core));
 	/* Set CPU to start in AArch64 mode */
-	mmio_setbits_32(SUNXI_CPUCFG_CLS_CTRL_REG0(cluster), BIT(24 + core));
+	mmio_setbits_32(SUNXI_AA64nAA32_REG(cluster),
+			BIT(SUNXI_AA64nAA32_OFFSET + core));
 	/* Apply power to the CPU */
 	sunxi_cpu_enable_power(cluster, core);
 	/* Release the core output clamps */
