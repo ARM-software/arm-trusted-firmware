@@ -12,6 +12,7 @@ Arm Development Platforms
    arm_fpga/index
    arm-build-options
    morello/index
+   diphda/index
 
 This chapter holds documentation related to Arm's development platforms,
 including both software models (FVPs) and hardware development boards
@@ -19,4 +20,4 @@ such as Juno.
 
 --------------
 
-*Copyright (c) 2019, Arm Limited. All rights reserved.*
+*Copyright (c) 2021, Arm Limited. All rights reserved.*

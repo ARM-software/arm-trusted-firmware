@@ -256,7 +256,9 @@ endif
 ifeq (${JUNO_AARCH32_EL3_RUNTIME},1)
 BL2_SOURCES		+=	plat/arm/common/aarch32/arm_bl2_mem_params_desc.c
 else
+ifeq ($(filter ${TARGET_PLATFORM}, fpga fvp),)
 BL2_SOURCES		+=	plat/arm/common/${ARCH}/arm_bl2_mem_params_desc.c
+endif
 endif
 BL2_SOURCES		+=	plat/arm/common/arm_image_load.c		\
 				common/desc_image_load.c
