@@ -493,8 +493,8 @@ NXP i.MX 7 WaRP7 platform port and SoC drivers
 
 NXP i.MX 8 platform port
 ^^^^^^^^^^^^^^^^^^^^^^^^
-:|M|: Anson Huang <Anson.Huang@nxp.com>
-:|G|: `Anson-Huang`_
+:|M|: Peng Fan <peng.fan@nxp.com>
+:|G|: `MrVan`_
 :|F|: docs/plat/imx8.rst
 :|F|: plat/imx/
 
