@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -42,6 +42,8 @@
 	 IOMUXC_SW_PAD_CTL_PAD_SD3_HYS               | \
 	 IOMUXC_SW_PAD_CTL_PAD_SD3_SLEW_SLOW         | \
 	 IOMUXC_SW_PAD_CTL_PAD_SD3_DSE_3_X6)
+
+static struct mmc_device_info mmc_info;
 
 static void picopi_setup_pinmux(void)
 {
@@ -93,14 +95,13 @@ static void picopi_setup_pinmux(void)
 static void picopi_usdhc_setup(void)
 {
 	imx_usdhc_params_t params;
-	struct mmc_device_info info;
 
 	zeromem(&params, sizeof(imx_usdhc_params_t));
 	params.reg_base = PLAT_PICOPI_BOOT_MMC_BASE;
 	params.clk_rate = 25000000;
 	params.bus_width = MMC_BUS_WIDTH_8;
-	info.mmc_dev_type = MMC_IS_EMMC;
-	imx_usdhc_init(&params, &info);
+	mmc_info.mmc_dev_type = MMC_IS_EMMC;
+	imx_usdhc_init(&params, &mmc_info);
 }
 
 static void picopi_setup_usb_clocks(void)

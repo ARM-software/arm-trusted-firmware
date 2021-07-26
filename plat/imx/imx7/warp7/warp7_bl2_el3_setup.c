@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -69,6 +69,8 @@
 	 IOMUXC_SW_PAD_CTL_PAD_ECSPI1_SCLK_HYS_EN		| \
 	 IOMUXC_SW_PAD_CTL_PAD_ECSPI1_SCLK_DSE_1_X4)
 
+static struct mmc_device_info mmc_info;
+
 static void warp7_setup_pinmux(void)
 {
 	/* Configure UART1 TX */
@@ -99,14 +101,13 @@ static void warp7_setup_pinmux(void)
 static void warp7_usdhc_setup(void)
 {
 	imx_usdhc_params_t params;
-	struct mmc_device_info info;
 
 	zeromem(&params, sizeof(imx_usdhc_params_t));
 	params.reg_base = PLAT_WARP7_BOOT_MMC_BASE;
 	params.clk_rate = 25000000;
 	params.bus_width = MMC_BUS_WIDTH_8;
-	info.mmc_dev_type = MMC_IS_EMMC;
-	imx_usdhc_init(&params, &info);
+	mmc_info.mmc_dev_type = MMC_IS_EMMC;
+	imx_usdhc_init(&params, &mmc_info);
 }
 
 static void warp7_setup_usb_clocks(void)
