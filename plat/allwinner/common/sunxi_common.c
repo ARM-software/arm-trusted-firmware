@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -14,17 +14,11 @@
 #include <sunxi_mmap.h>
 #include <sunxi_private.h>
 
-static const mmap_region_t sunxi_mmap[PLATFORM_MMAP_REGIONS + 1] = {
+static const mmap_region_t sunxi_mmap[MAX_STATIC_MMAP_REGIONS + 1] = {
 	MAP_REGION_FLAT(SUNXI_SRAM_BASE, SUNXI_SRAM_SIZE,
-			MT_RW_DATA | MT_SECURE),
-#ifdef SUNXI_SCP_BASE
-	MAP_REGION_FLAT(SUNXI_SCP_BASE, SUNXI_SCP_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE | MT_EXECUTE_NEVER),
-#endif
 	MAP_REGION_FLAT(SUNXI_DEV_BASE, SUNXI_DEV_SIZE,
 			MT_DEVICE | MT_RW | MT_SECURE | MT_EXECUTE_NEVER),
-	MAP_REGION(SUNXI_DRAM_BASE, SUNXI_DRAM_VIRT_BASE, SUNXI_DRAM_SEC_SIZE,
-		   MT_RW_DATA | MT_SECURE),
 	MAP_REGION(PRELOADED_BL33_BASE, SUNXI_BL33_VIRT_BASE,
 		   SUNXI_DRAM_MAP_SIZE, MT_RW_DATA | MT_NS),
 	{},
@@ -40,12 +34,24 @@ void sunxi_configure_mmu_el3(int flags)
 	mmap_add_region(BL_CODE_BASE, BL_CODE_BASE,
 			BL_CODE_END - BL_CODE_BASE,
 			MT_CODE | MT_SECURE);
+	mmap_add_region(BL_CODE_END, BL_CODE_END,
+			BL_END - BL_CODE_END,
+			MT_RW_DATA | MT_SECURE);
+#if SEPARATE_CODE_AND_RODATA
 	mmap_add_region(BL_RO_DATA_BASE, BL_RO_DATA_BASE,
 			BL_RO_DATA_END - BL_RO_DATA_BASE,
 			MT_RO_DATA | MT_SECURE);
+#endif
+#if SEPARATE_NOBITS_REGION
+	mmap_add_region(BL_NOBITS_BASE, BL_NOBITS_BASE,
+			BL_NOBITS_END - BL_NOBITS_BASE,
+			MT_RW_DATA | MT_SECURE);
+#endif
+#if USE_COHERENT_MEM
 	mmap_add_region(BL_COHERENT_RAM_BASE, BL_COHERENT_RAM_BASE,
 			BL_COHERENT_RAM_END - BL_COHERENT_RAM_BASE,
 			MT_DEVICE | MT_RW | MT_SECURE | MT_EXECUTE_NEVER);
+#endif
 
 	mmap_add(sunxi_mmap);
 	init_xlat_tables();

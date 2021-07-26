@@ -212,7 +212,6 @@ int sunxi_set_scpi_psci_ops(const plat_psci_ops_t **psci_ops)
 		uint32_t offset = SUNXI_SCP_BASE - vector;
 
 		mmio_write_32(vector, offset >> 2);
-		clean_dcache_range(vector, sizeof(uint32_t));
 	}
 
 	/* Take the SCP out of reset. */
