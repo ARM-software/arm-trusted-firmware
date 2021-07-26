@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2024, Arm Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021-2025, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -104,9 +105,15 @@ static int load_image(unsigned int image_id, image_info_t *image_data)
 
 	/* Find the size of the image */
 	io_result = io_size(image_handle, &image_size);
-	if ((io_result != 0) || (image_size == 0U)) {
+	if (io_result != 0) {
 		WARN("Failed to determine the size of the image id=%u (%i)\n",
 			image_id, io_result);
+		goto exit_load_image;
+	}
+
+	if (image_size == 0U) {
+		WARN("image id=%u size is zero\n", image_id);
+		io_result = -EIO;
 		goto exit_load_image;
 	}
 
