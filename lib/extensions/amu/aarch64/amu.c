@@ -46,7 +46,7 @@ bool amu_group1_supported(void)
  * Enable counters. This function is meant to be invoked
  * by the context management library before exiting from EL3.
  */
-void amu_enable(bool el2_unused)
+void amu_enable(bool el2_unused, cpu_context_t *ctx)
 {
 	uint64_t v;
 	unsigned int amu_version = amu_get_version();
@@ -88,12 +88,13 @@ void amu_enable(bool el2_unused)
 	}
 
 	/*
-	 * CPTR_EL3.TAM: Set to zero so that any accesses to
+	 * Retrieve and update the CPTR_EL3 value from the context mentioned
+	 * in 'ctx'. Set CPTR_EL3.TAM to zero so that any accesses to
 	 * the Activity Monitor registers do not trap to EL3.
 	 */
-	v = read_cptr_el3();
+	v = read_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3);
 	v &= ~TAM_BIT;
-	write_cptr_el3(v);
+	write_ctx_reg(get_el3state_ctx(ctx), CTX_CPTR_EL3, v);
 
 	/* Enable group 0 counters */
 	write_amcntenset0_el0(AMU_GROUP0_COUNTERS_MASK);
