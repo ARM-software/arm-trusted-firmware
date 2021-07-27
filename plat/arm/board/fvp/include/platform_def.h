@@ -66,12 +66,13 @@
 #define PLAT_ARM_DRAM2_BASE		ULL(0x880000000)
 #define PLAT_ARM_DRAM2_SIZE		UL(0x80000000)
 
-#define PLAT_HW_CONFIG_DTB_BASE		ULL(0x82000000)
-#define PLAT_HW_CONFIG_DTB_SIZE		ULL(0x8000)
+/* Range of kernel DTB load address */
+#define FVP_DTB_DRAM_MAP_START		ULL(0x82000000)
+#define FVP_DTB_DRAM_MAP_SIZE		ULL(0x8000)
 
 #define ARM_DTB_DRAM_NS			MAP_REGION_FLAT(		\
-					PLAT_HW_CONFIG_DTB_BASE,	\
-					PLAT_HW_CONFIG_DTB_SIZE,	\
+					FVP_DTB_DRAM_MAP_START,		\
+					FVP_DTB_DRAM_MAP_SIZE,		\
 					MT_MEMORY | MT_RO | MT_NS)
 /*
  * Load address of BL33 for this platform port

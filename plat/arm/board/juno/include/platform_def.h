@@ -53,12 +53,13 @@
 #define PLAT_ARM_DRAM2_BASE		ULL(0x880000000)
 #define PLAT_ARM_DRAM2_SIZE		ULL(0x180000000)
 
-#define PLAT_HW_CONFIG_DTB_BASE		ULL(0x82000000)
-#define PLAT_HW_CONFIG_DTB_SIZE		ULL(0x00008000) /* 32KB */
+/* Range of kernel DTB load address */
+#define JUNO_DTB_DRAM_MAP_START		ULL(0x82000000)
+#define JUNO_DTB_DRAM_MAP_SIZE		ULL(0x00008000) /* 32KB */
 
 #define ARM_DTB_DRAM_NS			MAP_REGION_FLAT(		\
-					PLAT_HW_CONFIG_DTB_BASE,	\
-					PLAT_HW_CONFIG_DTB_SIZE,	\
+					JUNO_DTB_DRAM_MAP_START,	\
+					JUNO_DTB_DRAM_MAP_SIZE,		\
 					MT_MEMORY | MT_RO | MT_NS)
 
 /* virtual address used by dynamic mem_protect for chunk_base */
