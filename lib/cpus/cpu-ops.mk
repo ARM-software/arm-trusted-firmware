@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
-# Copyright (c) 2020, NVIDIA Corporation. All rights reserved.
+# Copyright (c) 2020-2021, NVIDIA Corporation. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -310,6 +310,10 @@ ERRATA_A78_1941498	?=0
 # to revisions r1p0 and r1p1 of the A78 cpu.  The issue is present in r0p0 as
 # well but there is no workaround for that revision.
 ERRATA_A78_1951500	?=0
+
+# Flag to apply erratum 1951502 workaround during reset. This erratum applies
+# to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
+ERRATA_A78_AE_1951502	?=0
 
 # Flag to apply erratum 1821534 workaround during reset. This erratum applies
 # to revisions r0p0 and r1p0 of the A78 cpu.
@@ -645,6 +649,10 @@ $(eval $(call add_define,ERRATA_A78_1941498))
 # Process ERRATA_A78_1951500 flag
 $(eval $(call assert_boolean,ERRATA_A78_1951500))
 $(eval $(call add_define,ERRATA_A78_1951500))
+
+# Process ERRATA_A78_AE_1951502 flag
+$(eval $(call assert_boolean,ERRATA_A78_AE_1951502))
+$(eval $(call add_define,ERRATA_A78_AE_1951502))
 
 # Process ERRATA_A78_1821534 flag
 $(eval $(call assert_boolean,ERRATA_A78_1821534))
