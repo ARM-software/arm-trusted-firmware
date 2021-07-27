@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -33,31 +33,45 @@ typedef struct mm_communicate_header {
 	uint8_t		data[8];
 } mm_communicate_header_t;
 
+/*
+ * GUID to indicate that the MM communication message is intended for DMC-620
+ * MM driver.
+ */
+const struct efi_guid dmc620_ecc_event_guid = {
+	0x5ef0afd5, 0xe01a, 0x4c30,
+	{0x86, 0x19, 0x45, 0x46, 0x26, 0x91, 0x80, 0x98}
+};
+
 struct sgi_ras_ev_map sgi575_ras_map[] = {
 
-	/* DMC620 error overflow interrupt*/
-	{SP_DMC_ERROR_OVERFLOW_EVENT_AARCH64, SGI_SDEI_DS_EVENT_1, 33},
+	/* DMC 0 error ECC error interrupt*/
+	{SGI_SDEI_DS_EVENT_0, 35},
 
-	/* DMC620 error ECC error interrupt*/
-	{SP_DMC_ERROR_ECC_EVENT_AARCH64, SGI_SDEI_DS_EVENT_0, 35},
+	/* DMC 1 error ECC error interrupt*/
+	{SGI_SDEI_DS_EVENT_1, 39},
 };
 
 #define SGI575_RAS_MAP_SIZE	ARRAY_SIZE(sgi575_ras_map)
 
 struct err_record_info sgi_err_records[] = {
 	{
+		/* DMC 0 error record info */
 		.handler = &sgi_ras_intr_handler,
+		.aux_data = (void *)0,
+	}, {
+		/* DMC 1 error record info */
+		.handler = &sgi_ras_intr_handler,
+		.aux_data = (void *)1,
 	},
 };
 
 struct ras_interrupt sgi_ras_interrupts[] = {
 	{
-		.intr_number = 33,
-		.err_record = &sgi_err_records[0],
-	},
-	{
 		.intr_number = 35,
 		.err_record = &sgi_err_records[0],
+	}, {
+		.intr_number = 39,
+		.err_record = &sgi_err_records[1],
 	}
 };
 
@@ -138,9 +152,10 @@ static int sgi_ras_intr_handler(const struct err_record_info *err_rec,
 	 */
 	header = (void *) PLAT_SPM_BUF_BASE;
 	memset(header, 0, sizeof(*header));
-	memcpy(&header->data, &ras_map->ras_ev_num,
-	       sizeof(ras_map->ras_ev_num));
-	header->message_len = 4;
+	memcpy(&header->data, &err_rec->aux_data, sizeof(err_rec->aux_data));
+	header->message_len = sizeof(err_rec->aux_data);
+	memcpy(&header->header_guid, (void *) &dmc620_ecc_event_guid,
+			sizeof(const struct efi_guid));
 
 	spm_mm_sp_call(MM_COMMUNICATE_AARCH64, (uint64_t)header, 0,
 		       plat_my_core_pos());
