@@ -18,6 +18,36 @@
 #endif
 
 /* --------------------------------------------------
+ * Errata Workaround for A78 AE Erratum 1941500.
+ * This applies to revisions r0p0 and r0p1 of A78 AE.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
+func errata_a78_ae_1941500_wa
+	/* Compare x0 against revisions r0p0 - r0p1 */
+	mov	x17, x30
+	bl	check_errata_1941500
+	cbz	x0, 1f
+
+	/* Set bit 8 in ECTLR_EL1 */
+	mrs	x0, CORTEX_A78_AE_CPUECTLR_EL1
+	bic	x0, x0, #CORTEX_A78_AE_CPUECTLR_EL1_BIT_8
+	msr	CORTEX_A78_AE_CPUECTLR_EL1, x0
+	isb
+1:
+	ret	x17
+endfunc errata_a78_ae_1941500_wa
+
+func check_errata_1941500
+	/* Applies to revisions r0p0 and r0p1. */
+	mov	x1, #CPU_REV(0, 0)
+	mov	x2, #CPU_REV(0, 1)
+	b	cpu_rev_var_range
+endfunc check_errata_1941500
+
+/* --------------------------------------------------
  * Errata Workaround for A78 AE Erratum 1951502.
  * This applies to revisions r0p0 and r0p1 of A78 AE.
  * Inputs:
@@ -77,6 +107,11 @@ func cortex_a78_ae_reset_func
 	mov	x19, x30
 	bl	cpu_get_rev_var
 	mov	x18, x0
+
+#if ERRATA_A78_AE_1941500
+	mov	x0, x18
+	bl	errata_a78_ae_1941500_wa
+#endif
 
 #if ERRATA_A78_AE_1951502
 	mov	x0, x18
@@ -138,6 +173,7 @@ func cortex_a78_ae_errata_report
 	 * Report all errata. The revision-variant information is passed to
 	 * checking functions of each errata.
 	 */
+	report_errata ERRATA_A78_AE_1941500, cortex_a78_ae, 1941500
 	report_errata ERRATA_A78_AE_1951502, cortex_a78_ae, 1951502
 
 	ldp	x8, x30, [sp], #16
