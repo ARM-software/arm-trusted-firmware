@@ -92,7 +92,27 @@ endfunc plat_calc_core_pos
 	 */
 func plat_reset_handler
 #if defined(PLAT_imx8ulp)
-	mrs	x0, CORTEX_A35_CPUECTLR_EL1
+	/* enable the 512KB cache by default */
+	mov	x0, #IMX_SIM1_BASE
+	/*
+	 * if the RVBADDR is ROM entry, that means we did
+	 * NOT switch the L2 cache to 512KB. default is 256K config,
+	 * so skip
+	 */
+	ldr	w1, [x0, #0x5c]
+	cmp	w1, #0x1000
+	b.eq	1f
+	add	x0, x0, #0x30
+	ldr	w1, [x0]
+	/* if already 512KB config, skip */
+	tbnz	w1, #4, 1f
+	ldr	w1, [x0]
+	orr	w1, w1, #0x10
+	str	w1, [x0]
+	orr	w1, w1, #0x10000
+	str	w1, [x0]
+	b	.
+1:	mrs	x0, CORTEX_A35_CPUECTLR_EL1
 	orr     x0, x0, #(0x1 << 0)
 	orr     x0, x0, #(0x1 << 3)
 	msr	CORTEX_A35_CPUECTLR_EL1, x0
