@@ -114,6 +114,8 @@ void bl1_prepare_for_bl2_in_root(void)
 	bl2_ep_info->spsr = (uint32_t)SPSR_64(MODE_EL3, MODE_SP_ELX,
 						DISABLE_ALL_EXCEPTIONS);
 
+	flush_dcache_range((uintptr_t)bl2_ep_info, sizeof(entry_point_info_t));
+
 	/* Indicate that image is in execution state. */
 	bl2_desc->state = IMAGE_STATE_EXECUTED;
 

@@ -83,7 +83,7 @@ To launch the Armv-A Base RevC AEM FVP, execute the following command:
     -C bp.refcounter.non_arch_start_at_default=1 \
     -C bp.refcounter.use_real_time=0 \
     -C bp.secure_memory=1 \
-    -C cache_state_modelled=0 \
+    -C cache_state_modelled=1 \
     -C cluster0.ecv_support_level=2 \
     -C cluster1.ecv_support_level=2 \
     -C cluster0.gicv3.cpuintf-mmap-access-level=2 \
