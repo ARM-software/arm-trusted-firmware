@@ -73,6 +73,7 @@ static int read_hex(uint8_t *dest, char *hex_src, unsigned int hex_src_len)
 int read_uuid(uint8_t *dest, char *uuid)
 {
 	int err;
+	uint8_t *dest_start = dest;
 
 	/* Check that we have enough characters */
 	if (strnlen(uuid, UUID_STRING_LENGTH) != UUID_STRING_LENGTH) {
@@ -124,7 +125,7 @@ int read_uuid(uint8_t *dest, char *uuid)
 	if (err < 0) {
 		WARN("Error parsing UUID\n");
 		/* Clear the buffer on error */
-		memset((void *)dest, '\0', UUID_BYTES_LENGTH * sizeof(uint8_t));
+		memset((void *)dest_start, '\0', UUID_BYTES_LENGTH * sizeof(uint8_t));
 		return -EINVAL;
 	}
 
