@@ -68,7 +68,7 @@
 
 /* Range of kernel DTB load address */
 #define FVP_DTB_DRAM_MAP_START		ULL(0x82000000)
-#define FVP_DTB_DRAM_MAP_SIZE		ULL(0x8000)
+#define FVP_DTB_DRAM_MAP_SIZE		ULL(0x02000000)	/* 32 MB */
 
 #define ARM_DTB_DRAM_NS			MAP_REGION_FLAT(		\
 					FVP_DTB_DRAM_MAP_START,		\
