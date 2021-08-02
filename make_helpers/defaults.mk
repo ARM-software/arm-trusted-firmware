@@ -344,3 +344,14 @@ OPENSSL_DIR			:= /usr
 
 # Build option to use the SP804 timer instead of the generic one
 USE_SP804_TIMER			:= 0
+
+# Build option to define number of firmware banks, used in firmware update
+# metadata structure.
+NR_OF_FW_BANKS			:= 2
+
+# Build option to define number of images in firmware bank, used in firmware
+# update metadata structure.
+NR_OF_IMAGES_IN_FW_BANK		:= 1
+
+# Disable Firmware update support by default
+PSA_FWU_SUPPORT			:= 0

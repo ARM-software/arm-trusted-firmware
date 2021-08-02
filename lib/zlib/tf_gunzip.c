@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include <common/debug.h>
+#include <common/tf_crc32.h>
 #include <lib/utils.h>
 #include <tf_gunzip.h>
 
@@ -99,4 +100,16 @@ int gunzip(uintptr_t *in_buf, size_t in_len, uintptr_t *out_buf,
 	inflateEnd(&stream);
 
 	return ret;
+}
+
+/* Wrapper function to calculate CRC
+ * @crc: previous accumulated CRC
+ * @buf: buffer base address
+ * @size: size of the buffer
+ *
+ * Return calculated CRC32 value
+ */
+uint32_t tf_crc32(uint32_t crc, const unsigned char *buf, size_t size)
+{
+	return (uint32_t)crc32((unsigned long)crc, buf, size);
 }

@@ -9,8 +9,9 @@
 
 #include <arm_acle.h>
 #include <common/debug.h>
+#include <common/tf_crc32.h>
 
-/* hw_crc32 - compute CRC using Arm intrinsic function
+/* compute CRC using Arm intrinsic function
  *
  * This function is useful for the platforms with the CPU ARMv8.0
  * (with CRC instructions supported), and onwards.
@@ -23,7 +24,7 @@
  *
  * Return calculated CRC value
  */
-uint32_t hw_crc32(uint32_t crc, const unsigned char *buf, size_t size)
+uint32_t tf_crc32(uint32_t crc, const unsigned char *buf, size_t size)
 {
 	assert(buf != NULL);
 

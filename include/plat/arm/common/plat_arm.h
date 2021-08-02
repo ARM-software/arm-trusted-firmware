@@ -153,7 +153,9 @@ void arm_setup_romlib(void);
 int arm_io_setup(void);
 
 /* Set image specification in IO block policy */
-int arm_set_image_source(unsigned int image_id, const char *part_name);
+int arm_set_image_source(unsigned int image_id, const char *part_name,
+			 uintptr_t *dev_handle, uintptr_t *image_spec);
+void arm_set_fip_addr(uint32_t active_fw_bank_idx);
 
 /* Security utility functions */
 void arm_tzc400_setup(uintptr_t tzc_base,

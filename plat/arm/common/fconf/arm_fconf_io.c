@@ -18,6 +18,11 @@
 #include <plat/arm/common/arm_fconf_io_storage.h>
 #include <platform_def.h>
 
+#if PSA_FWU_SUPPORT
+/* metadata entry details */
+static io_block_spec_t fwu_metadata_spec;
+#endif /* PSA_FWU_SUPPORT */
+
 io_block_spec_t fip_block_spec = {
 /*
  * This is fixed FIP address used by BL1, BL2 loads partition table
@@ -92,6 +97,20 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 		open_memmap
 	},
 #endif /* ARM_GPT_SUPPORT */
+#if PSA_FWU_SUPPORT
+	[FWU_METADATA_IMAGE_ID] = {
+		&memmap_dev_handle,
+		/* filled runtime from partition information */
+		(uintptr_t)&fwu_metadata_spec,
+		open_memmap
+	},
+	[BKUP_FWU_METADATA_IMAGE_ID] = {
+		&memmap_dev_handle,
+		/* filled runtime from partition information */
+		(uintptr_t)&fwu_metadata_spec,
+		open_memmap
+	},
+#endif /* PSA_FWU_SUPPORT */
 	[FIP_IMAGE_ID] = {
 		&memmap_dev_handle,
 		(uintptr_t)&fip_block_spec,

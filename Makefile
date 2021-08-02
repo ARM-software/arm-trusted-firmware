@@ -746,6 +746,10 @@ ifeq ($(MEASURED_BOOT),1)
     endif
 endif
 
+ifeq ($(PSA_FWU_SUPPORT),1)
+    $(info PSA_FWU_SUPPORT is an experimental feature)
+endif
+
 ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
     ifeq (${ALLOW_RO_XLAT_TABLES}, 1)
         $(error "ALLOW_RO_XLAT_TABLES requires translation tables library v2")
@@ -959,6 +963,7 @@ $(eval $(call assert_booleans,\
         USE_SP804_TIMER \
         ENABLE_FEAT_RNG \
         ENABLE_FEAT_SB \
+        PSA_FWU_SUPPORT \
 )))
 
 $(eval $(call assert_numerics,\
@@ -967,6 +972,8 @@ $(eval $(call assert_numerics,\
         ARM_ARCH_MINOR \
         BRANCH_PROTECTION \
         FW_ENC_STATUS \
+        NR_OF_FW_BANKS \
+        NR_OF_IMAGES_IN_FW_BANK \
 )))
 
 ifdef KEY_SIZE
@@ -1054,6 +1061,9 @@ $(eval $(call add_defines,\
         USE_SP804_TIMER \
         ENABLE_FEAT_RNG \
         ENABLE_FEAT_SB \
+        NR_OF_FW_BANKS \
+        NR_OF_IMAGES_IN_FW_BANK \
+        PSA_FWU_SUPPORT \
 )))
 
 ifeq (${SANITIZE_UB},trap)

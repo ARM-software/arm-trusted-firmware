@@ -30,6 +30,7 @@ such as:
 -  `SMC Calling Convention`_
 -  `System Control and Management Interface (SCMI)`_
 -  `Software Delegated Exception Interface (SDEI)`_
+-  `PSA FW update specification`_
 
 Where possible, the code is designed for reuse or porting to other Armv7-A and
 Armv8-A model and hardware platforms.
@@ -92,3 +93,4 @@ have previously been raised against the software.
 .. _System Control and Management Interface (SCMI): http://infocenter.arm.com/help/topic/com.arm.doc.den0056a/DEN0056A_System_Control_and_Management_Interface.pdf
 .. _Software Delegated Exception Interface (SDEI): http://infocenter.arm.com/help/topic/com.arm.doc.den0054a/ARM_DEN0054A_Software_Delegated_Exception_Interface.pdf
 .. _SMC Calling Convention: https://developer.arm.com/docs/den0028/latest
+.. _PSA FW update specification: https://developer.arm.com/documentation/den0118/a/
