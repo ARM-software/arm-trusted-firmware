@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2021, ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -22,6 +22,34 @@
 #endif
 
 	/* --------------------------------------------------
+	 * Errata Workaround for Neoverse V1 Errata #1774420.
+	 * This applies to revisions r0p0 and r1p0, fixed in r1p1.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_neoverse_v1_1774420_wa
+	/* Check workaround compatibility. */
+	mov	x17, x30
+	bl	check_errata_1774420
+	cbz	x0, 1f
+
+	/* Set bit 53 in CPUECTLR_EL1 */
+	mrs     x1, NEOVERSE_V1_CPUECTLR_EL1
+	orr	x1, x1, #NEOVERSE_V1_CPUECTLR_EL1_BIT_53
+	msr     NEOVERSE_V1_CPUECTLR_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_neoverse_v1_1774420_wa
+
+func check_errata_1774420
+	/* Applies to r0p0 and r1p0. */
+	mov	x1, #0x10
+	b	cpu_rev_var_ls
+endfunc check_errata_1774420
+
+	/* --------------------------------------------------
 	 * Errata Workaround for Neoverse V1 Errata #1791573.
 	 * This applies to revisions r0p0 and r1p0, fixed in r1p1.
 	 * x0: variant[4:7] and revision[0:3] of current cpu.
@@ -35,9 +63,9 @@ func errata_neoverse_v1_1791573_wa
 	cbz	x0, 1f
 
 	/* Set bit 2 in ACTLR2_EL1 */
-	mrs     x1, NEOVERSE_V1_ACTLR2_EL1
+	mrs	x1, NEOVERSE_V1_ACTLR2_EL1
 	orr	x1, x1, #NEOVERSE_V1_ACTLR2_EL1_BIT_2
-	msr     NEOVERSE_V1_ACTLR2_EL1, x1
+	msr	NEOVERSE_V1_ACTLR2_EL1, x1
 	isb
 1:
 	ret	x17
@@ -134,6 +162,7 @@ func neoverse_v1_errata_report
 	 * Report all errata. The revision-variant information is passed to
 	 * checking functions of each errata.
 	 */
+	report_errata ERRATA_V1_1774420, neoverse_v1, 1774420
 	report_errata ERRATA_V1_1791573, neoverse_v1, 1791573
 	report_errata ERRATA_V1_1940577, neoverse_v1, 1940577
 
@@ -148,6 +177,11 @@ func neoverse_v1_reset_func
 	/* Disable speculative loads */
 	msr	SSBS, xzr
 	isb
+
+#if ERRATA_V1_1774420
+	mov	x0, x18
+	bl	errata_neoverse_v1_1774420_wa
+#endif
 
 #if ERRATA_V1_1791573
 	mov	x0, x18
