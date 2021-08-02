@@ -384,6 +384,10 @@ ERRATA_V1_1791573	?=0
 # to revisions r0p0 and r1p0 of the Neoverse V1 core, and was fixed in r1p1.
 ERRATA_V1_1852267	?=0
 
+# Flag to apply erratum 1925756 workaround during reset.  This needs to be
+# enabled for r0p0, r1p0, and r1p1 of the Neoverse V1 core, it is still open.
+ERRATA_V1_1925756	?=0
+
 # Flag to apply erratum 1940577 workaround during reset. This erratum applies
 # to revisions r1p0 and r1p1 of the Neoverse V1 cpu.
 ERRATA_V1_1940577	?=0
@@ -704,6 +708,10 @@ $(eval $(call add_define,ERRATA_V1_1791573))
 # Process ERRATA_V1_1852267 flag
 $(eval $(call assert_boolean,ERRATA_V1_1852267))
 $(eval $(call add_define,ERRATA_V1_1852267))
+
+# Process ERRATA_V1_1925756 flag
+$(eval $(call assert_boolean,ERRATA_V1_1925756))
+$(eval $(call add_define,ERRATA_V1_1925756))
 
 # Process ERRATA_V1_1940577 flag
 $(eval $(call assert_boolean,ERRATA_V1_1940577))

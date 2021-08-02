@@ -106,6 +106,34 @@ func check_errata_1852267
 endfunc check_errata_1852267
 
 	/* --------------------------------------------------
+	 * Errata Workaround for Neoverse V1 Errata #1925756.
+	 * This applies to revisions <= r1p1.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_neoverse_v1_1925756_wa
+	/* Check workaround compatibility. */
+	mov	x17, x30
+	bl	check_errata_1925756
+	cbz	x0, 1f
+
+	/* Set bit 8 in CPUECTLR_EL1 */
+	mrs	x1, NEOVERSE_V1_CPUECTLR_EL1
+	orr	x1, x1, #NEOVERSE_V1_CPUECTLR_EL1_BIT_8
+	msr	NEOVERSE_V1_CPUECTLR_EL1, x1
+	isb
+1:
+	ret	x17
+endfunc errata_neoverse_v1_1925756_wa
+
+func check_errata_1925756
+	/* Applies to <= r1p1. */
+	mov	x1, #0x11
+	b	cpu_rev_var_ls
+endfunc check_errata_1925756
+
+	/* --------------------------------------------------
 	 * Errata Workaround for Neoverse V1 Erratum #1940577
 	 * This applies to revisions r1p0 - r1p1 and is open.
 	 * It also exists in r0p0 but there is no fix in that
@@ -193,6 +221,7 @@ func neoverse_v1_errata_report
 	report_errata ERRATA_V1_1774420, neoverse_v1, 1774420
 	report_errata ERRATA_V1_1791573, neoverse_v1, 1791573
 	report_errata ERRATA_V1_1852267, neoverse_v1, 1852267
+	report_errata ERRATA_V1_1925756, neoverse_v1, 1925756
 	report_errata ERRATA_V1_1940577, neoverse_v1, 1940577
 
 	ldp	x8, x30, [sp], #16
@@ -220,6 +249,11 @@ func neoverse_v1_reset_func
 #if ERRATA_V1_1852267
 	mov	x0, x18
 	bl	errata_neoverse_v1_1852267_wa
+#endif
+
+#if ERRATA_V1_1925756
+	mov	x0, x18
+	bl	errata_neoverse_v1_1925756_wa
 #endif
 
 #if ERRATA_V1_1940577

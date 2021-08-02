@@ -337,6 +337,9 @@ For Neoverse V1, the following errata build flags are defined :
    CPU. This needs to be enabled only for revisions r0p0 and r1p0, it is fixed
    in r1p1.
 
+-  ``ERRATA_V1_1925756``: This applies errata 1925756 workaround to Neoverse-V1
+   CPU. This needs to be enabled for r0p0, r1p0, and r1p1, it is still open.
+
 -  ``ERRATA_V1_1940577``: This applies errata 1940577 workaround to Neoverse-V1
    CPU. This needs to be enabled only for revision r1p0 and r1p1 of the
    CPU.
