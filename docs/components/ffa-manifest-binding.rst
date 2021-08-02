@@ -106,14 +106,14 @@ Partition Properties
      The "compatible" must be the string "arm,ffa-manifest-rx_tx-buffer".
 
 - messaging-method [mandatory]
-   - value type: <u32>
-   - Specifies which messaging methods are supported by the partition:
+   - value type: <u8>
+   - Specifies which messaging methods are supported by the partition, set bit
+     means the feature is supported, clear bit - not supported:
 
-      - 0x0: direct messaging method
-      - 0x1: indirect messaging method
-      - 0x2: both direct and indirect messaging methods
-      - 0x3: direct messaging method with managed exit support
-      - 0x4: both messaging methods with managed exit support
+      - Bit[0]: support for receiving direct message requests
+      - Bit[1]: support for sending direct messages
+      - Bit[2]: support for indirect messaging
+      - Bit[3]: support for managed exit
 
 - has-primary-scheduler
    - value type: <empty>
