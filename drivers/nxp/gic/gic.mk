@@ -17,7 +17,7 @@ GIC_SOURCES		+=	${GICV2_SOURCES}
 GIC_SOURCES		+=	${PLAT_DRIVERS_PATH}/gic/ls_gicv2.c	\
 				plat/common/plat_gicv2.c
 
-PLAT_INCLUDES		+=	-I${PLAT_DRIVERS_PATH}/gic/include/gicv2
+PLAT_INCLUDES		+=	-I${PLAT_DRIVERS_INCLUDE_PATH}/gic/gicv2
 else
 ifeq ($(GIC), GIC500)
 include drivers/arm/gic/v3/gicv3.mk
@@ -25,7 +25,7 @@ GIC_SOURCES		+=	${GICV3_SOURCES}
 GIC_SOURCES		+=	${PLAT_DRIVERS_PATH}/gic/ls_gicv3.c	\
 				plat/common/plat_gicv3.c
 
-PLAT_INCLUDES		+=	-I${PLAT_DRIVERS_PATH}/gic/include/gicv3
+PLAT_INCLUDES		+=	-I${PLAT_DRIVERS_INCLUDE_PATH}/gic/gicv3
 else
     $(error -> GIC type not set!)
 endif

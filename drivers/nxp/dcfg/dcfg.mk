@@ -1,5 +1,5 @@
 #
-# Copyright 2020 NXP
+# Copyright 2021 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,11 +8,9 @@ ifeq (${ADD_DCFG},)
 
 ADD_DCFG		:= 1
 
-DCFG_DRIVERS_PATH	:=  ${PLAT_DRIVERS_PATH}/dcfg
+PLAT_INCLUDES		+= -I$(PLAT_DRIVERS_INCLUDE_PATH)/dcfg
 
-PLAT_INCLUDES		+= -I$(DCFG_DRIVERS_PATH)
-
-DCFG_SOURCES		+= $(DCFG_DRIVERS_PATH)/dcfg.c
+DCFG_SOURCES		+= $(PLAT_DRIVERS_PATH)/dcfg/dcfg.c
 
 ifeq (${BL_COMM_DCFG_NEEDED},yes)
 BL_COMMON_SOURCES	+= ${DCFG_SOURCES}

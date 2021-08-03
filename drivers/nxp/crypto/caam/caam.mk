@@ -1,5 +1,5 @@
 #
-# Copyright 2020 NXP
+# Copyright 2020-2021 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,11 +8,10 @@
 ifeq (${ADD_CAAM},)
 
 ADD_CAAM		:= 1
-CAAM_DRIVER_PATH	:= drivers/nxp/crypto/caam
 
-CAAM_DRIVER_SOURCES	+=  $(wildcard $(CAAM_DRIVER_PATH)/src/*.c)
+CAAM_DRIVER_SOURCES	+=  $(wildcard $(PLAT_DRIVERS_PATH)/crypto/caam/src/*.c)
 
-PLAT_INCLUDES		+= -I$(CAAM_DRIVER_PATH)/include
+PLAT_INCLUDES		+= -I$(PLAT_DRIVERS_INCLUDE_PATH)/crypto/caam
 
 ifeq (${BL_COMM_CRYPTO_NEEDED},yes)
 BL_COMMON_SOURCES	+= ${CAAM_DRIVER_SOURCES}

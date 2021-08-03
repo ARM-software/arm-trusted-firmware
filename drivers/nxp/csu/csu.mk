@@ -1,5 +1,5 @@
 #
-# Copyright 2020 NXP
+# Copyright 2021 NXP
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -8,11 +8,9 @@ ifeq (${CSU_ADDED},)
 
 CSU_ADDED		:= 1
 
-CSU_DRIVERS_PATH	:=  ${PLAT_DRIVERS_PATH}/csu
+PLAT_INCLUDES		+= -I$(PLAT_DRIVERS_INCLUDE_PATH)/csu
 
-PLAT_INCLUDES		+= -I$(CSU_DRIVERS_PATH)
-
-CSU_SOURCES		+= $(CSU_DRIVERS_PATH)/csu.c
+CSU_SOURCES		+= $(PLAT_DRIVERS_PATH)/csu/csu.c
 
 ifeq (${BL_COMM_CSU_NEEDED},yes)
 BL_COMMON_SOURCES	+= ${CSU_SOURCES}
