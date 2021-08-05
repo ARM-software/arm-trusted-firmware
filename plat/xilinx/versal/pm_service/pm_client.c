@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2021, Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -128,8 +128,9 @@ static void pm_client_set_wakeup_sources(uint32_t node_id)
 		uint32_t base_irq = reg_num << ISENABLER_SHIFT;
 		uint32_t reg = mmio_read_32(isenabler1 + (reg_num << 2));
 
-		if (!reg)
+		if (!reg) {
 			continue;
+		}
 
 		while (reg) {
 			enum pm_device_node_idx node_idx;
@@ -138,8 +139,9 @@ static void pm_client_set_wakeup_sources(uint32_t node_id)
 			idx = __builtin_ctz(lowest_set);
 			irq = base_irq + idx;
 
-			if (irq > IRQ_MAX)
+			if (irq > IRQ_MAX) {
 				break;
+			}
 
 			node_idx = irq_to_pm_node_idx(irq);
 			reg &= ~lowest_set;
@@ -168,8 +170,9 @@ void pm_client_suspend(const struct pm_proc *proc, unsigned int state)
 {
 	bakery_lock_get(&pm_client_secure_lock);
 
-	if (state == PM_STATE_SUSPEND_TO_RAM)
+	if (state == PM_STATE_SUSPEND_TO_RAM) {
 		pm_client_set_wakeup_sources(proc->node_id);
+	}
 
 	/* Set powerdown request */
 	mmio_write_32(FPD_APU_PWRCTL, mmio_read_32(FPD_APU_PWRCTL) |
@@ -207,8 +210,9 @@ void pm_client_abort_suspend(void)
 static unsigned int pm_get_cpuid(uint32_t nid)
 {
 	for (size_t i = 0; i < ARRAY_SIZE(pm_procs_all); i++) {
-		if (pm_procs_all[i].node_id == nid)
+		if (pm_procs_all[i].node_id == nid) {
 			return i;
+		}
 	}
 	return UNDEFINED_CPUID;
 }
@@ -223,8 +227,9 @@ void pm_client_wakeup(const struct pm_proc *proc)
 {
 	unsigned int cpuid = pm_get_cpuid(proc->node_id);
 
-	if (cpuid == UNDEFINED_CPUID)
+	if (cpuid == UNDEFINED_CPUID) {
 		return;
+	}
 
 	bakery_lock_get(&pm_client_secure_lock);
 
@@ -244,8 +249,9 @@ void pm_client_wakeup(const struct pm_proc *proc)
  */
 const struct pm_proc *pm_get_proc(unsigned int cpuid)
 {
-	if (cpuid < ARRAY_SIZE(pm_procs_all))
+	if (cpuid < ARRAY_SIZE(pm_procs_all)) {
 		return &pm_procs_all[cpuid];
+	}
 
 	return NULL;
 }

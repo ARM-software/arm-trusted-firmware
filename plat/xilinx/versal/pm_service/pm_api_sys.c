@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2021, Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -197,10 +197,11 @@ enum pm_ret_status pm_req_suspend(uint32_t target, uint8_t ack,
 	/* Send request to the PMU */
 	PM_PACK_PAYLOAD4(payload, LIBPM_MODULE_ID, flag, PM_REQ_SUSPEND, target,
 			 latency, state);
-	if (ack == IPI_BLOCKING)
+	if (ack == IPI_BLOCKING) {
 		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-	else
+	} else {
 		return pm_ipi_send(primary_proc, payload);
+	}
 }
 
 /**
@@ -372,8 +373,9 @@ enum pm_ret_status pm_reset_get_status(uint32_t reset, uint32_t *status,
 void pm_get_callbackdata(uint32_t *data, size_t count, uint32_t flag)
 {
 	/* Return if interrupt is not from PMU */
-	if (!pm_ipi_irq_status(primary_proc))
+	if (!pm_ipi_irq_status(primary_proc)) {
 		return;
+	}
 
 	pm_ipi_buff_read_callb(data, count);
 	pm_ipi_irq_clear(primary_proc);
@@ -771,10 +773,11 @@ enum pm_ret_status pm_force_powerdown(uint32_t target, uint8_t ack,
 	PM_PACK_PAYLOAD3(payload, LIBPM_MODULE_ID, flag, PM_FORCE_POWERDOWN,
 			 target, ack);
 
-	if (ack == IPI_BLOCKING)
+	if (ack == IPI_BLOCKING) {
 		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-	else
+	} else {
 		return pm_ipi_send(primary_proc, payload);
+	}
 }
 
 /**
@@ -1005,8 +1008,9 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version,
 			 PM_FEATURE_CHECK, api_id);
 
 	status = pm_ipi_send_sync(primary_proc, payload, &fw_api_version, 1);
-	if (status != PM_RET_SUCCESS)
+	if (status != PM_RET_SUCCESS) {
 		return status;
+	}
 
 	*version |= fw_api_version;
 

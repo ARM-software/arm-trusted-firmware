@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, Xilinx, Inc. All rights reserved.
+ * Copyright (c) 2019-2021, Xilinx, Inc. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -138,8 +138,9 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 	uint32_t security_flag = SECURE_FLAG;
 
 	/* Handle case where PM wasn't initialized properly */
-	if (!pm_up)
+	if (!pm_up) {
 		SMC_RET1(handle, SMC_UNK);
+	}
 
 	pm_arg[0] = (uint32_t)x1;
 	pm_arg[1] = (uint32_t)(x1 >> 32);
