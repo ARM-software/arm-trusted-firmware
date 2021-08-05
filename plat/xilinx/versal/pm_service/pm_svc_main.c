@@ -350,7 +350,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 		ret = pm_clock_get_rate(pm_arg[0], rate, security_flag);
 		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)rate[0] << 32),
-			 rate[1]);
+			 (uint64_t)rate[1] | ((uint64_t)0U << 32));
 	}
 
 	case PM_PLL_SET_PARAMETER:
@@ -389,7 +389,7 @@ uint64_t pm_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2, uint64_t x3,
 
 		ret = pm_get_chipid(result, security_flag);
 		SMC_RET2(handle, (uint64_t)ret | ((uint64_t)result[0] << 32),
-			 result[1]);
+			 (uint64_t)result[1] | ((uint64_t)0U << 32));
 	}
 
 	case PM_FEATURE_CHECK:

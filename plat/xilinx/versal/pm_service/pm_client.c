@@ -122,7 +122,7 @@ static void pm_client_set_wakeup_sources(uint32_t node_id)
 	uint8_t pm_wakeup_nodes_set[XPM_NODEIDX_DEV_MAX];
 	uintptr_t isenabler1 = PLAT_VERSAL_GICD_BASE + GICD_ISENABLER + 4;
 
-	zeromem(&pm_wakeup_nodes_set, sizeof(pm_wakeup_nodes_set));
+	zeromem(&pm_wakeup_nodes_set, (u_register_t)sizeof(pm_wakeup_nodes_set));
 
 	for (reg_num = 0; reg_num < NUM_GICD_ISENABLER; reg_num++) {
 		uint32_t base_irq = reg_num << ISENABLER_SHIFT;
@@ -134,8 +134,8 @@ static void pm_client_set_wakeup_sources(uint32_t node_id)
 
 		while (reg) {
 			enum pm_device_node_idx node_idx;
-			uint32_t idx, ret, irq, lowest_set = reg & (-reg);
-
+			uint32_t idx, irq, lowest_set = reg & (-reg);
+			enum pm_ret_status ret;
 			idx = __builtin_ctz(lowest_set);
 			irq = base_irq + idx;
 
@@ -153,7 +153,7 @@ static void pm_client_set_wakeup_sources(uint32_t node_id)
 				ret = pm_set_wakeup_source(node_id,
 							   device_id, 1,
 							   SECURE_FLAG);
-				pm_wakeup_nodes_set[node_idx] = !ret;
+				pm_wakeup_nodes_set[node_idx] = (uint8_t)(!ret);
 			}
 		}
 	}
