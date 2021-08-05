@@ -121,6 +121,9 @@ ENABLE_BTI			:= 0
 # Use BRANCH_PROTECTION to enable PAUTH.
 ENABLE_PAUTH			:= 0
 
+# Flag to enable access to the HCRX_EL2 register by setting SCR_EL3.HXEn.
+ENABLE_FEAT_HCX                 := 0
+
 # By default BL31 encryption disabled
 ENCRYPT_BL31			:= 0
 

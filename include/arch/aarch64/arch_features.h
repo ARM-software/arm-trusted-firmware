@@ -117,4 +117,10 @@ static inline unsigned int get_mpam_version(void)
 		ID_AA64PFR1_MPAM_FRAC_SHIFT) & ID_AA64PFR1_MPAM_FRAC_MASK));
 }
 
+static inline bool is_feat_hcx_present(void)
+{
+	return (((read_id_aa64mmfr1_el1() >> ID_AA64MMFR1_EL1_HCX_SHIFT) &
+		ID_AA64MMFR1_EL1_HCX_MASK) == ID_AA64MMFR1_EL1_HCX_SUPPORTED);
+}
+
 #endif /* ARCH_FEATURES_H */
