@@ -71,8 +71,8 @@ void bl2_el3_early_platform_setup(u_register_t x0, u_register_t x1,
 
 	watchdog_init(get_wdt_clk());
 
-	console_16550_register(PLAT_UART0_BASE, get_uart_clk(), PLAT_BAUDRATE,
-		&console);
+	console_16550_register(PLAT_INTEL_UART_BASE, get_uart_clk(),
+		PLAT_BAUDRATE, &console);
 
 	socfpga_delay_timer_init();
 	init_ncore_ccu();

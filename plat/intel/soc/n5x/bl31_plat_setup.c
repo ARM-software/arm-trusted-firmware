@@ -42,8 +42,8 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 
 	mmio_write_64(PLAT_SEC_ENTRY, 0);
 
-	console_16550_register(PLAT_UART0_BASE, PLAT_UART_CLOCK, PLAT_BAUDRATE,
-		&console);
+	console_16550_register(PLAT_INTEL_UART_BASE, PLAT_UART_CLOCK,
+		PLAT_BAUDRATE, &console);
 	/*
 	 * Check params passed from BL31 should not be NULL,
 	 */
