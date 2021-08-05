@@ -128,11 +128,11 @@ static void pm_client_set_wakeup_sources(uint32_t node_id)
 		uint32_t base_irq = reg_num << ISENABLER_SHIFT;
 		uint32_t reg = mmio_read_32(isenabler1 + (reg_num << 2));
 
-		if (!reg) {
+		if (reg == 0U) {
 			continue;
 		}
 
-		while (reg) {
+		while (reg != 0U) {
 			enum pm_device_node_idx node_idx;
 			uint32_t idx, irq, lowest_set = reg & (-reg);
 			enum pm_ret_status ret;
@@ -147,7 +147,7 @@ static void pm_client_set_wakeup_sources(uint32_t node_id)
 			reg &= ~lowest_set;
 
 			if ((node_idx != XPM_NODEIDX_DEV_MIN) &&
-			    (!pm_wakeup_nodes_set[node_idx])) {
+			    (pm_wakeup_nodes_set[node_idx] == 0U)) {
 				/* Get device ID from node index */
 				device_id = PERIPH_DEVID(node_idx);
 				ret = pm_set_wakeup_source(node_id,
@@ -176,7 +176,7 @@ void pm_client_suspend(const struct pm_proc *proc, unsigned int state)
 
 	/* Set powerdown request */
 	mmio_write_32(FPD_APU_PWRCTL, mmio_read_32(FPD_APU_PWRCTL) |
-		      proc->pwrdn_mask);
+		      (uint32_t)proc->pwrdn_mask);
 
 	bakery_lock_release(&pm_client_secure_lock);
 }
@@ -196,7 +196,7 @@ void pm_client_abort_suspend(void)
 
 	/* Clear powerdown request */
 	mmio_write_32(FPD_APU_PWRCTL, mmio_read_32(FPD_APU_PWRCTL) &
-		      ~primary_proc->pwrdn_mask);
+		      ~((uint32_t)primary_proc->pwrdn_mask));
 
 	bakery_lock_release(&pm_client_secure_lock);
 }
