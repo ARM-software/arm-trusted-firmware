@@ -21,10 +21,10 @@
 /*********************************************************************
  * Target module IDs macros
  ********************************************************************/
-#define LIBPM_MODULE_ID		0x2
-#define LOADER_MODULE_ID	0x7
+#define LIBPM_MODULE_ID		0x2U
+#define LOADER_MODULE_ID	0x7U
 
-#define  MODE	0x80000000
+#define  MODE	0x80000000U
 /* default shutdown/reboot scope is system(2) */
 static unsigned int pm_shutdown_scope = XPM_SHUTDOWN_SUBTYPE_RST_SYSTEM;
 
@@ -42,7 +42,7 @@ unsigned int pm_get_shutdown_scope(void)
  * Assigning of argument values into array elements.
  */
 #define PM_PACK_PAYLOAD1(pl, mid, flag, arg0) {	\
-	pl[0] = (uint32_t)((uint32_t)((arg0) & 0xFF) | (mid << 8) | ((flag) << 24)); \
+	pl[0] = (uint32_t)((uint32_t)((arg0) & 0xFFU) | (mid << 8U) | ((flag) << 24U)); \
 }
 
 #define PM_PACK_PAYLOAD2(pl, mid, flag, arg0, arg1) {		\
@@ -833,7 +833,7 @@ enum pm_ret_status pm_query_data(uint32_t qid, uint32_t arg1, uint32_t arg2,
 
 	ret = pm_feature_check(PM_QUERY_DATA, &version, flag);
 	if (PM_RET_SUCCESS == ret) {
-		fw_api_version = version & 0xFFFF ;
+		fw_api_version = version & 0xFFFFU;
 		if ((2U == fw_api_version) &&
 		    ((XPM_QID_CLOCK_GET_NAME == qid) ||
 		     (XPM_QID_PINCTRL_GET_FUNCTION_NAME == qid))) {
@@ -888,7 +888,7 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 			return PM_RET_ERROR_ARGS;
 		}
 		gicd_write_irouter(gicv3_driver_data->gicd_base,
-				PLAT_VERSAL_IPI_IRQ, MODE);
+				  (unsigned int)PLAT_VERSAL_IPI_IRQ, MODE);
 		ret =  PM_RET_SUCCESS;
 		break;
 	default:

@@ -23,8 +23,8 @@
 #include "pm_client.h"
 
 #define UNDEFINED_CPUID		(~0)
-#define IRQ_MAX		142
-#define NUM_GICD_ISENABLER	((IRQ_MAX >> 5) + 1)
+#define IRQ_MAX		142U
+#define NUM_GICD_ISENABLER	((IRQ_MAX >> 5U) + 1U)
 
 DEFINE_BAKERY_LOCK(pm_client_secure_lock);
 
@@ -124,7 +124,7 @@ static void pm_client_set_wakeup_sources(uint32_t node_id)
 
 	zeromem(&pm_wakeup_nodes_set, (u_register_t)sizeof(pm_wakeup_nodes_set));
 
-	for (reg_num = 0; reg_num < NUM_GICD_ISENABLER; reg_num++) {
+	for (reg_num = 0U; reg_num < NUM_GICD_ISENABLER; reg_num++) {
 		uint32_t base_irq = reg_num << ISENABLER_SHIFT;
 		uint32_t reg = mmio_read_32(isenabler1 + (reg_num << 2));
 
@@ -171,7 +171,7 @@ void pm_client_suspend(const struct pm_proc *proc, unsigned int state)
 	bakery_lock_get(&pm_client_secure_lock);
 
 	if (state == PM_STATE_SUSPEND_TO_RAM) {
-		pm_client_set_wakeup_sources(proc->node_id);
+		pm_client_set_wakeup_sources((uint32_t)proc->node_id);
 	}
 
 	/* Set powerdown request */
@@ -209,7 +209,7 @@ void pm_client_abort_suspend(void)
  */
 static unsigned int pm_get_cpuid(uint32_t nid)
 {
-	for (size_t i = 0; i < ARRAY_SIZE(pm_procs_all); i++) {
+	for (size_t i = 0U; i < ARRAY_SIZE(pm_procs_all); i++) {
 		if (pm_procs_all[i].node_id == nid) {
 			return i;
 		}
