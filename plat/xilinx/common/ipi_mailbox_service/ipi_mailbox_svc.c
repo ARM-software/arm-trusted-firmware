@@ -107,8 +107,8 @@ uint64_t ipi_smc_handler(uint32_t smc_fid, uint64_t x1, uint64_t x2,
 		uint32_t is_blocking;
 
 		is_blocking = (x3 & IPI_SMC_NOTIFY_BLOCK_MASK) ? 1 : 0;
-		ret = ipi_mb_notify(ipi_local_id, ipi_remote_id, is_blocking);
-		SMC_RET1(handle, ret);
+		ipi_mb_notify(ipi_local_id, ipi_remote_id, is_blocking);
+		SMC_RET1(handle, 0);
 	}
 	case IPI_MAILBOX_ACK:
 	{
