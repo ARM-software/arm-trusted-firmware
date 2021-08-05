@@ -867,32 +867,39 @@ enum pm_ret_status pm_api_ioctl(uint32_t device_id, uint32_t ioctl_id,
 				uint32_t flag)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT];
-	int ret;
+	enum pm_ret_status ret;
 
 	switch (ioctl_id) {
 	case IOCTL_SET_PLL_FRAC_MODE:
-		return pm_pll_set_mode(arg1, arg2, flag);
+		ret =  pm_pll_set_mode(arg1, arg2, flag);
+		break;
 	case IOCTL_GET_PLL_FRAC_MODE:
-		return pm_pll_get_mode(arg1, value, flag);
+		ret =  pm_pll_get_mode(arg1, value, flag);
+		break;
 	case IOCTL_SET_PLL_FRAC_DATA:
-		return pm_pll_set_param(arg1, PM_PLL_PARAM_DATA, arg2, flag);
+		ret =  pm_pll_set_param(arg1, PM_PLL_PARAM_DATA, arg2, flag);
+		break;
 	case IOCTL_GET_PLL_FRAC_DATA:
-		return pm_pll_get_param(arg1, PM_PLL_PARAM_DATA, value, flag);
+		ret =  pm_pll_get_param(arg1, PM_PLL_PARAM_DATA, value, flag);
+		break;
 	case IOCTL_SET_SGI:
 		/* Get the sgi number */
-		ret = pm_register_sgi(arg1);
-		if (ret) {
+		if (pm_register_sgi(arg1) != 0) {
 			return PM_RET_ERROR_ARGS;
 		}
 		gicd_write_irouter(gicv3_driver_data->gicd_base,
 				PLAT_VERSAL_IPI_IRQ, MODE);
-		return PM_RET_SUCCESS;
+		ret =  PM_RET_SUCCESS;
+		break;
 	default:
 		/* Send request to the PMC */
 		PM_PACK_PAYLOAD5(payload, LIBPM_MODULE_ID, flag, PM_IOCTL,
 				 device_id, ioctl_id, arg1, arg2);
-		return pm_ipi_send_sync(primary_proc, payload, value, 1);
+		ret =  pm_ipi_send_sync(primary_proc, payload, value, 1);
+		break;
 	}
+
+	return ret;
 }
 
 /**
@@ -947,14 +954,15 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version,
 				    uint32_t flag)
 {
 	uint32_t payload[PAYLOAD_ARG_CNT], fw_api_version;
-	uint32_t status;
+	enum pm_ret_status status = PM_RET_ERROR_NOFEATURE;
 
 	switch (api_id) {
 	case PM_GET_CALLBACK_DATA:
 	case PM_GET_TRUSTZONE_VERSION:
 	case PM_LOAD_PDI:
 		*version = (PM_API_BASE_VERSION << 16);
-		return PM_RET_SUCCESS;
+		status = PM_RET_SUCCESS;
+		break;
 	case PM_GET_API_VERSION:
 	case PM_GET_DEVICE_STATUS:
 	case PM_GET_OP_CHARACTERISTIC:
@@ -995,13 +1003,20 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version,
 	case PM_SET_MAX_LATENCY:
 	case PM_REGISTER_NOTIFIER:
 		*version = (PM_API_BASE_VERSION << 16);
+		status = PM_RET_SUCCESS;
 		break;
 	case PM_QUERY_DATA:
 		*version = (PM_API_QUERY_DATA_VERSION << 16);
+		status = PM_RET_SUCCESS;
 		break;
 	default:
 		*version = 0U;
-		return PM_RET_ERROR_NOFEATURE;
+		status = PM_RET_ERROR_NOFEATURE;
+		break;
+	}
+
+	if (status != PM_RET_SUCCESS) {
+		goto done;
 	}
 
 	PM_PACK_PAYLOAD2(payload, LIBPM_MODULE_ID, flag,
@@ -1009,12 +1024,15 @@ enum pm_ret_status pm_feature_check(uint32_t api_id, unsigned int *version,
 
 	status = pm_ipi_send_sync(primary_proc, payload, &fw_api_version, 1);
 	if (status != PM_RET_SUCCESS) {
-		return status;
+		goto done;
 	}
 
 	*version |= fw_api_version;
 
-	return PM_RET_SUCCESS;
+	status = PM_RET_SUCCESS;
+
+done:
+	return status;
 }
 
 /**
