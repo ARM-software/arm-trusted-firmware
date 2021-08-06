@@ -9,9 +9,6 @@
 #include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <drivers/arm/sp804_delay_timer.h>
-#if MEASURED_BOOT
-#include <drivers/measured_boot/measured_boot.h>
-#endif
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 

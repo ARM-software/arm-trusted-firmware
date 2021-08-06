@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -45,8 +45,7 @@ endif
 
 MEASURED_BOOT_SRC_DIR	:= drivers/measured_boot/
 
-MEASURED_BOOT_SOURCES	:= ${MEASURED_BOOT_SRC_DIR}measured_boot.c	\
-    			   ${MEASURED_BOOT_SRC_DIR}event_log.c		\
-    			   ${MEASURED_BOOT_SRC_DIR}event_print.c
+MEASURED_BOOT_SOURCES	:= ${MEASURED_BOOT_SRC_DIR}event_log.c		\
+			   ${MEASURED_BOOT_SRC_DIR}event_print.c
 
 BL2_SOURCES		+= ${MEASURED_BOOT_SOURCES}

@@ -210,7 +210,17 @@ int bl2_plat_handle_post_image_load(unsigned int image_id);
 #if MEASURED_BOOT
 /* Read TCG_DIGEST_SIZE bytes of BL2 hash data */
 void bl2_plat_get_hash(void *data);
-#endif
+
+void bl2_plat_mboot_init(void);
+void bl2_plat_mboot_finish(void);
+#else
+static inline void bl2_plat_mboot_init(void)
+{
+}
+static inline void bl2_plat_mboot_finish(void)
+{
+}
+#endif /* MEASURED_BOOT */
 
 /*******************************************************************************
  * Mandatory BL2 at EL3 functions: Must be implemented if BL2_AT_EL3 image is

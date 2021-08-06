@@ -1,8 +1,10 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
+
+#include <stdint.h>
 
 #include <drivers/measured_boot/event_log.h>
 #include <plat/arm/common/plat_arm.h>
@@ -35,4 +37,28 @@ static const measured_boot_data_t fvp_measured_boot_data = {
 const measured_boot_data_t *plat_get_measured_boot_data(void)
 {
 	return &fvp_measured_boot_data;
+}
+
+void bl2_plat_mboot_init(void)
+{
+	event_log_init();
+}
+
+void bl2_plat_mboot_finish(void)
+{
+	uint8_t *log_addr;
+	size_t log_size;
+	int rc;
+
+	rc = event_log_finalise(&log_addr, &log_size);
+	if (rc != 0) {
+		/*
+		 * It is a fatal error because on FVP secure world software
+		 * assumes that a valid event log exists and will use it to
+		 * record the measurements into the fTPM
+		 */
+		panic();
+	}
+
+	dump_event_log(log_addr, log_size);
 }
