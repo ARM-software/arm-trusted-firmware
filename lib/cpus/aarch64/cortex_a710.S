@@ -21,6 +21,49 @@
 #error "Cortex A710 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+/* --------------------------------------------------
+ * Errata Workaround for Cortex-A710 Erratum 1987031.
+ * This applies to revision r0p0, r1p0 and r2p0 of Cortex-A710. It is still
+ * open.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
+func errata_a710_1987031_wa
+	/* Check revision. */
+	mov	x17, x30
+	bl	check_errata_1987031
+	cbz	x0, 1f
+
+	/* Apply instruction patching sequence */
+	ldr x0,=0x6
+	msr S3_6_c15_c8_0,x0
+	ldr x0,=0xF3A08002
+	msr S3_6_c15_c8_2,x0
+	ldr x0,=0xFFF0F7FE
+	msr S3_6_c15_c8_3,x0
+	ldr x0,=0x40000001003ff
+	msr S3_6_c15_c8_1,x0
+	ldr x0,=0x7
+	msr S3_6_c15_c8_0,x0
+	ldr x0,=0xBF200000
+	msr S3_6_c15_c8_2,x0
+	ldr x0,=0xFFEF0000
+	msr S3_6_c15_c8_3,x0
+	ldr x0,=0x40000001003f3
+	msr S3_6_c15_c8_1,x0
+	isb
+1:
+	ret	x17
+endfunc errata_a710_1987031_wa
+
+func check_errata_1987031
+	/* Applies to r0p0, r1p0 and r2p0 */
+	mov	x1, #0x20
+	b	cpu_rev_var_ls
+endfunc check_errata_1987031
+
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
@@ -42,15 +85,38 @@ endfunc cortex_a710_core_pwr_dwn
 	 */
 #if REPORT_ERRATA
 func cortex_a710_errata_report
+	stp	x8, x30, [sp, #-16]!
+
+	bl	cpu_get_rev_var
+	mov	x8, x0
+
+	/*
+	 * Report all errata. The revision-variant information is passed to
+	 * checking functions of each errata.
+	 */
+	report_errata ERRATA_A710_1987031, cortex_a710, 1987031
+
+	ldp	x8, x30, [sp], #16
 	ret
 endfunc cortex_a710_errata_report
 #endif
 
 func cortex_a710_reset_func
+	mov	x19, x30
+
 	/* Disable speculative loads */
 	msr	SSBS, xzr
+
+	bl	cpu_get_rev_var
+	mov	x18, x0
+
+#if ERRATA_A710_1987031
+	mov	x0, x18
+	bl	errata_a710_1987031_wa
+#endif
+
 	isb
-	ret
+	ret x19
 endfunc cortex_a710_reset_func
 
 	/* ---------------------------------------------
