@@ -92,6 +92,12 @@
 						SOC_MEMCNTRL_SIZE,		\
 						MT_DEVICE | MT_RW | MT_SECURE)
 
+#define SOC_MEMCNTRL_MAP_DEVICE_REMOTE_CHIP(n)					\
+		MAP_REGION_FLAT(						\
+			CSS_SGI_REMOTE_CHIP_MEM_OFFSET(n) + SOC_MEMCNTRL_BASE,	\
+			SOC_MEMCNTRL_SIZE,					\
+			MT_DEVICE | MT_RW | MT_SECURE)
+
 /*
  * The bootsec_bridge controls access to a bunch of peripherals, e.g. the UARTs.
  */
