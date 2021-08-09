@@ -372,6 +372,10 @@ ERRATA_N1_1868343	?=0
 # exists in revisions r0p0, r1p0, and r2p0 as well but there is no workaround.
 ERRATA_N1_1946160	?=0
 
+# Flag to apply erratum 1774420 workaround during reset.  This erratum applies
+# to revisions r0p0 and r1p0 of the Neoverse V1 core, and was fixed in r1p1.
+ERRATA_V1_1774420	?=0
+
 # Flag to apply erratum 1791573 workaround during reset.  This erratum applies
 # to revisions r0p0 and r1p0 of the Neoverse V1 core, and was fixed in r1p1.
 ERRATA_V1_1791573	?=0
@@ -684,6 +688,10 @@ $(eval $(call add_define,ERRATA_N1_1868343))
 # Process ERRATA_N1_1946160 flag
 $(eval $(call assert_boolean,ERRATA_N1_1946160))
 $(eval $(call add_define,ERRATA_N1_1946160))
+
+# Process ERRATA_V1_1774420 flag
+$(eval $(call assert_boolean,ERRATA_V1_1774420))
+$(eval $(call add_define,ERRATA_V1_1774420))
 
 # Process ERRATA_V1_1791573 flag
 $(eval $(call assert_boolean,ERRATA_V1_1791573))
