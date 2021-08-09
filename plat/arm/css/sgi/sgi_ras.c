@@ -20,13 +20,6 @@
 static int sgi_ras_intr_handler(const struct err_record_info *err_rec,
 				int probe_data,
 				const struct err_handler_data *const data);
-struct efi_guid {
-	uint32_t	data1;
-	uint16_t	data2;
-	uint16_t	data3;
-	uint8_t		data4[8];
-};
-
 typedef struct mm_communicate_header {
 	struct efi_guid	header_guid;
 	size_t		message_len;
