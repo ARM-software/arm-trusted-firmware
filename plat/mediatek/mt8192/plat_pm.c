@@ -17,6 +17,7 @@
 #include <mtk_ptp3_common.h>
 #include <mtspmc.h>
 #include <plat/common/platform.h>
+#include <plat_dfd.h>
 #include <plat_mtk_lpm.h>
 #include <plat_params.h>
 #include <plat_pm.h>
@@ -167,6 +168,8 @@ static void plat_mcusys_pwron_common(unsigned int cpu,
 	mt_gic_init();
 	mt_gic_distif_restore();
 	gic_sgi_restore_all();
+
+	dfd_resume();
 
 	plat_mt_pm_invoke_no_check(pwr_mcusys_on_finished, cpu, state);
 }
