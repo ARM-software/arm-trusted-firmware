@@ -26,19 +26,6 @@
 		 */
 		mbedtls_heap_addr = <0x0 0x0>;
 		mbedtls_heap_size = <0x0>;
-
-#if MEASURED_BOOT
-		/* BL2 image hash calculated by BL1 */
-		bl2_hash_data = [
-			00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-#if BL2_HASH_SIZE > 32
-			00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-#if BL2_HASH_SIZE > 48
-			00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-#endif /* > 48 */
-#endif /* > 32 */
-			00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00];
-#endif /* MEASURED_BOOT */
 	};
 
 	/*

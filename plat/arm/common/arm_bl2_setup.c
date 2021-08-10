@@ -48,9 +48,6 @@ CASSERT(BL2_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
 #pragma weak bl2_platform_setup
 #pragma weak bl2_plat_arch_setup
 #pragma weak bl2_plat_sec_mem_layout
-#if MEASURED_BOOT
-#pragma weak bl2_plat_get_hash
-#endif
 
 #if ENABLE_RME
 #define MAP_BL2_TOTAL		MAP_REGION_FLAT(			\
@@ -323,11 +320,3 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 {
 	return arm_bl2_plat_handle_post_image_load(image_id);
 }
-
-#if MEASURED_BOOT
-/* Read TCG_DIGEST_SIZE bytes of BL2 hash data */
-void bl2_plat_get_hash(void *data)
-{
-	arm_bl2_get_hash(data);
-}
-#endif

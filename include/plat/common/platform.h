@@ -181,14 +181,6 @@ __dead2 void bl1_plat_fwu_done(void *client_cookie, void *reserved);
 int bl1_plat_handle_pre_image_load(unsigned int image_id);
 int bl1_plat_handle_post_image_load(unsigned int image_id);
 
-#if MEASURED_BOOT
-/*
- * Calculates and writes BL2 hash data to the platform's defined location.
- * For ARM platforms the data are written to TB_FW_CONFIG DTB.
- */
-void bl1_plat_set_bl2_hash(const image_desc_t *image_desc);
-#endif
-
 /*******************************************************************************
  * Mandatory BL2 functions
  ******************************************************************************/
@@ -208,9 +200,6 @@ int bl2_plat_handle_post_image_load(unsigned int image_id);
  * Optional BL2 functions (may be overridden)
  ******************************************************************************/
 #if MEASURED_BOOT
-/* Read TCG_DIGEST_SIZE bytes of BL2 hash data */
-void bl2_plat_get_hash(void *data);
-
 void bl2_plat_mboot_init(void);
 void bl2_plat_mboot_finish(void);
 int plat_mboot_measure_image(unsigned int image_id);

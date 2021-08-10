@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,10 +15,6 @@
 #include <common/tbbr/tbbr_img_def.h>
 #if TRUSTED_BOARD_BOOT
 #include <drivers/auth/mbedtls/mbedtls_config.h>
-#if MEASURED_BOOT
-#include <drivers/auth/crypto_mod.h>
-#include <mbedtls/md.h>
-#endif
 #endif
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
@@ -115,82 +111,13 @@ void arm_bl1_set_mbedtls_heap(void)
 		 * images. It's critical because BL2 won't be able to proceed
 		 * without the heap info.
 		 *
-		 * In MEASURED_BOOT case flushing is done in
-		 * arm_bl1_set_bl2_hash() function which is called after heap
-		 * information is written in the DTB.
+		 * In MEASURED_BOOT case flushing is done in a function which
+		 * is called after heap information is written in the DTB.
 		 */
 		flush_dcache_range(tb_fw_cfg_dtb, fdt_totalsize(dtb));
 #endif /* !MEASURED_BOOT */
 	}
 }
-
-#if MEASURED_BOOT
-/*
- * Calculates and writes BL2 hash data to TB_FW_CONFIG DTB.
- * Executed only from BL1.
- */
-void arm_bl1_set_bl2_hash(const image_desc_t *image_desc)
-{
-	unsigned char hash_data[MBEDTLS_MD_MAX_SIZE];
-	const image_info_t image_info = image_desc->image_info;
-	uintptr_t tb_fw_cfg_dtb;
-	int err;
-	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
-
-	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
-	assert(tb_fw_config_info != NULL);
-
-	tb_fw_cfg_dtb = tb_fw_config_info->config_addr;
-
-	/*
-	 * If tb_fw_cfg_dtb==NULL then DTB is not present for the current
-	 * platform. As such, we cannot write to the DTB at all and pass
-	 * measured data.
-	 */
-	if (tb_fw_cfg_dtb == 0UL) {
-		panic();
-	}
-
-	/* Calculate hash */
-	err = crypto_mod_calc_hash(MBEDTLS_MD_ID,
-					(void *)image_info.image_base,
-					image_info.image_size, hash_data);
-	if (err != 0) {
-		ERROR("%scalculate%s\n", "BL1: unable to ",
-						" BL2 hash");
-		panic();
-	}
-
-	err = arm_set_bl2_hash_info((void *)tb_fw_cfg_dtb, hash_data);
-	if (err < 0) {
-		ERROR("%swrite%sdata%s\n", "BL1: unable to ",
-					" BL2 hash ", "to DTB\n");
-		panic();
-	}
-
-	/*
-	 * Ensure that the info written to the DTB is visible to other
-	 * images. It's critical because BL2 won't be able to proceed
-	 * without the heap info and its hash data.
-	 */
-	flush_dcache_range(tb_fw_cfg_dtb, fdt_totalsize((void *)tb_fw_cfg_dtb));
-}
-
-/*
- * Reads TCG_DIGEST_SIZE bytes of BL2 hash data from the DTB.
- * Executed only from BL2.
- */
-void arm_bl2_get_hash(void *data)
-{
-	const void *bl2_hash;
-
-	assert(data != NULL);
-
-	/* Retrieve TCG_DIGEST_SIZE bytes of BL2 hash data from the DTB */
-	bl2_hash = FCONF_GET_PROPERTY(tbbr, dyn_config, bl2_hash_data);
-	(void)memcpy(data, bl2_hash, TCG_DIGEST_SIZE);
-}
-#endif /* MEASURED_BOOT */
 #endif /* TRUSTED_BOARD_BOOT */
 
 /*

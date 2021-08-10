@@ -20,18 +20,15 @@
 #define DTB_PROP_MBEDTLS_HEAP_SIZE "mbedtls_heap_size"
 
 #if MEASURED_BOOT
-#define DTB_PROP_BL2_HASH_DATA	"bl2_hash_data"
 #ifdef SPD_opteed
 /*
  * Currently OP-TEE does not support reading DTBs from Secure memory
  * and this property should be removed when this feature is supported.
  */
 #define DTB_PROP_HW_SM_LOG_ADDR	"tpm_event_log_sm_addr"
-#endif
+#endif /* SPD_opteed */
 #define DTB_PROP_HW_LOG_ADDR	"tpm_event_log_addr"
 #define DTB_PROP_HW_LOG_SIZE    "tpm_event_log_size"
-
-static int dtb_root = -1;
 #endif /* MEASURED_BOOT */
 
 /*******************************************************************************
@@ -81,9 +78,8 @@ int arm_dyn_tb_fw_cfg_init(void *dtb, int *node)
  */
 int arm_set_dtb_mbedtls_heap_info(void *dtb, void *heap_addr, size_t heap_size)
 {
-#if !MEASURED_BOOT
 	int dtb_root;
-#endif
+
 	/*
 	 * Verify that the DTB is valid, before attempting to write to it,
 	 * and get the DTB root node.
@@ -122,28 +118,6 @@ int arm_set_dtb_mbedtls_heap_info(void *dtb, void *heap_addr, size_t heap_size)
 }
 
 #if MEASURED_BOOT
-/*
- * This function writes the BL2 hash data in HW_FW_CONFIG DTB.
- * When it is called, it is guaranteed that a DTB is available.
- *
- * This function is supposed to be called only by BL1.
- *
- * Returns:
- *	0 = success
- *    < 0 = error
- */
-int arm_set_bl2_hash_info(void *dtb, void *data)
-{
-	assert(dtb_root >= 0);
-
-	/*
-	 * Write the BL2 hash data in the DTB.
-	 */
-	return fdtw_write_inplace_bytes(dtb, dtb_root,
-					DTB_PROP_BL2_HASH_DATA,
-					TCG_DIGEST_SIZE, data);
-}
-
 /*
  * Write the Event Log address and its size in the DTB.
  *
