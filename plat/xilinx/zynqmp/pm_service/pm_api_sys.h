@@ -202,4 +202,9 @@ enum pm_ret_status em_set_action(unsigned int *value);
 enum pm_ret_status em_remove_action(unsigned int *value);
 enum pm_ret_status em_send_errors(unsigned int *value);
 
+enum pm_ret_status pm_feature_config(unsigned int ioctl_id,
+				     unsigned int config_id,
+				     unsigned int value,
+				     unsigned int *response);
+
 #endif /* PM_API_SYS_H */
