@@ -11,6 +11,8 @@
 #endif
 #include <common/fdt_wrappers.h>
 
+#include <lib/fconf/fconf.h>
+#include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <libfdt.h>
 
 #include <plat/arm/common/arm_dyn_cfg_helpers.h>
@@ -120,8 +122,6 @@ int arm_set_dtb_mbedtls_heap_info(void *dtb, void *heap_addr, size_t heap_size)
 #if MEASURED_BOOT
 /*
  * Write the Event Log address and its size in the DTB.
- *
- * This function is supposed to be called only by BL2.
  *
  * Returns:
  *	0 = success
@@ -281,5 +281,88 @@ int arm_set_nt_fw_info(
 	/* Return Event Log address in Non-secure memory */
 	*ns_log_addr = (err < 0) ? 0UL : ns_addr;
 	return err;
+}
+
+/*
+ * This function writes the Event Log address and its size
+ * in the TB_FW_CONFIG DTB.
+ *
+ * This function is supposed to be called only by BL1.
+ *
+ * Returns:
+ *     0 = success
+ *   < 0 = error
+ */
+int arm_set_tb_fw_info(uintptr_t log_addr, size_t log_size)
+{
+	/*
+	 * Read tb_fw_config device tree for Event Log properties
+	 * and write the Event Log address and its size in the DTB
+	 */
+	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
+	uintptr_t tb_fw_cfg_dtb;
+	int err;
+
+	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
+	assert(tb_fw_config_info != NULL);
+
+	tb_fw_cfg_dtb = tb_fw_config_info->config_addr;
+
+	err = arm_set_event_log_info(tb_fw_cfg_dtb,
+#ifdef SPD_opteed
+				     0UL,
+#endif
+				     log_addr, log_size);
+	return err;
+}
+
+/*
+ * This function reads the Event Log address and its size
+ * properties present in TB_FW_CONFIG DTB.
+ *
+ * This function is supposed to be called only by BL2.
+ *
+ * Returns:
+ *     0 = success
+ *   < 0 = error
+ * Alongside returns Event Log address and its size.
+ */
+
+int arm_get_tb_fw_info(uint64_t *log_addr, size_t *log_size)
+{
+	/* As libfdt uses void *, we can't avoid this cast */
+	const struct dyn_cfg_dtb_info_t *tb_fw_config_info;
+	int node, rc;
+
+	tb_fw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, TB_FW_CONFIG_ID);
+	assert(tb_fw_config_info != NULL);
+
+	void *dtb = (void *)tb_fw_config_info->config_addr;
+	const char *compatible = "arm,tpm_event_log";
+
+	/* Assert the node offset point to compatible property */
+	node = fdt_node_offset_by_compatible(dtb, -1, compatible);
+	if (node < 0) {
+		WARN("The compatible property '%s'%s", compatible,
+		     " not specified in TB_FW config.\n");
+		return node;
+	}
+
+	VERBOSE("Dyn cfg: '%s'%s", compatible, " found in the config\n");
+
+	rc = fdt_read_uint64(dtb, node, DTB_PROP_HW_LOG_ADDR, log_addr);
+	if (rc != 0) {
+		ERROR("%s%s", DTB_PROP_HW_LOG_ADDR,
+		      " not specified in TB_FW config.\n");
+		return rc;
+	}
+
+	rc = fdt_read_uint32(dtb, node, DTB_PROP_HW_LOG_SIZE, (uint32_t *)log_size);
+	if (rc != 0) {
+		ERROR("%s%s", DTB_PROP_HW_LOG_SIZE,
+		      " not specified in TB_FW config.\n");
+	}
+
+	return rc;
 }
 #endif /* MEASURED_BOOT */

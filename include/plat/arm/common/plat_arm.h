@@ -260,6 +260,8 @@ int arm_set_nt_fw_info(
 			uintptr_t log_addr,
 #endif
 			size_t log_size, uintptr_t *ns_log_addr);
+int arm_set_tb_fw_info(uintptr_t log_addr, size_t log_size);
+int arm_get_tb_fw_info(uint64_t *log_addr, size_t *log_size);
 #endif /* MEASURED_BOOT */
 
 /*

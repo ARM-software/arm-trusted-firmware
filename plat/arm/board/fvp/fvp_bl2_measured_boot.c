@@ -10,7 +10,7 @@
 #include <plat/arm/common/plat_arm.h>
 
 /* Event Log data */
-static uint8_t event_log[PLAT_ARM_EVENT_LOG_MAX_SIZE];
+static uint64_t event_log_base;
 
 /* FVP table with platform specific image IDs, names and PCRs */
 const event_log_metadata_t fvp_event_log_metadata[] = {
@@ -29,8 +29,33 @@ const event_log_metadata_t fvp_event_log_metadata[] = {
 
 void bl2_plat_mboot_init(void)
 {
-	event_log_init(event_log, event_log + sizeof(event_log));
-	event_log_write_header();
+	uint8_t *event_log_start;
+	uint8_t *event_log_finish;
+	size_t bl1_event_log_size;
+	int rc;
+
+	rc = arm_get_tb_fw_info(&event_log_base, &bl1_event_log_size);
+	if (rc != 0) {
+		ERROR("%s(): Unable to get Event Log info from TB_FW_CONFIG\n",
+		      __func__);
+		/*
+		 * It is a fatal error because on FVP platform, BL2 software
+		 * assumes that a valid Event Log buffer exist and it will use
+		 * same Event Log buffer to append image measurements.
+		 */
+		panic();
+	}
+
+	/*
+	 * BL1 and BL2 share the same Event Log buffer and that BL2 will
+	 * append its measurements after BL1's
+	 */
+	event_log_start = (uint8_t *)((uintptr_t)event_log_base +
+				      bl1_event_log_size);
+	event_log_finish = (uint8_t *)((uintptr_t)event_log_base +
+				       PLAT_ARM_EVENT_LOG_MAX_SIZE);
+
+	event_log_init((uint8_t *)event_log_start, event_log_finish);
 }
 
 void bl2_plat_mboot_finish(void)
@@ -43,11 +68,11 @@ void bl2_plat_mboot_finish(void)
 	/* Event Log filled size */
 	size_t event_log_cur_size;
 
-	event_log_cur_size = event_log_get_cur_size(event_log);
+	event_log_cur_size = event_log_get_cur_size((uint8_t *)event_log_base);
 
 	rc = arm_set_nt_fw_info(
 #ifdef SPD_opteed
-			    (uintptr_t)event_log,
+			    (uintptr_t)event_log_base,
 #endif
 			    event_log_cur_size, &ns_log_addr);
 	if (rc != 0) {
@@ -64,7 +89,7 @@ void bl2_plat_mboot_finish(void)
 	}
 
 	/* Copy Event Log to Non-secure memory */
-	(void)memcpy((void *)ns_log_addr, (const void *)event_log,
+	(void)memcpy((void *)ns_log_addr, (const void *)event_log_base,
 		     event_log_cur_size);
 
 	/* Ensure that the Event Log is visible in Non-secure memory */
@@ -72,14 +97,14 @@ void bl2_plat_mboot_finish(void)
 
 #if defined(SPD_tspd) || defined(SPD_spmd)
 	/* Set Event Log data in TOS_FW_CONFIG */
-	rc = arm_set_tos_fw_info((uintptr_t)event_log,
+	rc = arm_set_tos_fw_info((uintptr_t)event_log_base,
 				 event_log_cur_size);
 	if (rc != 0) {
 		ERROR("%s(): Unable to update %s_FW_CONFIG\n",
 		      __func__, "TOS");
 		panic();
 	}
-#endif
+#endif /* defined(SPD_tspd) || defined(SPD_spmd) */
 
-	dump_event_log(event_log, event_log_cur_size);
+	dump_event_log((uint8_t *)event_log_base, event_log_cur_size);
 }
