@@ -15,7 +15,7 @@
 	/* ---------------------------------------------------------------------
 	 * unsigned int plat_arm_calc_core_pos(u_register_t mpidr)
 	 *
-	 * Function to calculate the core position on TC0.
+	 * Function to calculate the core position on TC.
 	 *
 	 * (ClusterId * PLAT_MAX_CPUS_PER_CLUSTER * PLAT_MAX_PE_PER_CPU) +
 	 * (CPUId * PLAT_MAX_PE_PER_CPU) +

@@ -28,19 +28,19 @@
 #if IMAGE_BL1
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
-	TC0_FLASH0_RO,
-	TC0_MAP_DEVICE,
+	TC_FLASH0_RO,
+	TC_MAP_DEVICE,
 	{0}
 };
 #endif
 #if IMAGE_BL2
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
-	TC0_FLASH0_RO,
-	TC0_MAP_DEVICE,
-	TC0_MAP_NS_DRAM1,
+	TC_FLASH0_RO,
+	TC_MAP_DEVICE,
+	TC_MAP_NS_DRAM1,
 #if defined(SPD_spmd)
-	TC0_MAP_TZC_DRAM1,
+	TC_MAP_TZC_DRAM1,
 #endif
 #if ARM_BL31_IN_DRAM
 	ARM_MAP_BL31_SEC_DRAM,
@@ -62,7 +62,7 @@ const mmap_region_t plat_arm_mmap[] = {
 const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	V2M_MAP_IOFPGA,
-	TC0_MAP_DEVICE,
+	TC_MAP_DEVICE,
 #if SPM_MM
 	ARM_SPM_BUF_EL3_MMAP,
 #endif
