@@ -319,6 +319,10 @@ ERRATA_A78_AE_1951502	?=0
 # to revisions r0p0 and r1p0 of the A78 cpu.
 ERRATA_A78_1821534	?=0
 
+# Flag to apply erratum 1952683 workaround during reset. This erratum applies
+# to revision r0p0 of the A78 cpu and was fixed in the revision r1p0.
+ERRATA_A78_1952683	?=0
+
 # Flag to apply T32 CLREX workaround during reset. This erratum applies
 # only to r0p0 and r1p0 of the Neoverse N1 cpu.
 ERRATA_N1_1043202	?=0
@@ -657,6 +661,10 @@ $(eval $(call add_define,ERRATA_A78_AE_1951502))
 # Process ERRATA_A78_1821534 flag
 $(eval $(call assert_boolean,ERRATA_A78_1821534))
 $(eval $(call add_define,ERRATA_A78_1821534))
+
+# Process ERRATA_A78_1952683 flag
+$(eval $(call assert_boolean,ERRATA_A78_1952683))
+$(eval $(call add_define,ERRATA_A78_1952683))
 
 # Process ERRATA_N1_1043202 flag
 $(eval $(call assert_boolean,ERRATA_N1_1043202))
