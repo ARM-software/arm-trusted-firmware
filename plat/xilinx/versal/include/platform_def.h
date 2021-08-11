@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -18,9 +18,9 @@
 #define PLATFORM_STACK_SIZE	0x440
 
 #define PLATFORM_CORE_COUNT		U(2)
-#define PLAT_MAX_PWR_LVL		1
-#define PLAT_MAX_RET_STATE		1
-#define PLAT_MAX_OFF_STATE		2
+#define PLAT_MAX_PWR_LVL		U(1)
+#define PLAT_MAX_RET_STATE		U(1)
+#define PLAT_MAX_OFF_STATE		U(2)
 
 /*******************************************************************************
  * BL31 specific defines.
@@ -31,8 +31,8 @@
  * little space for growth.
  */
 #ifndef VERSAL_ATF_MEM_BASE
-# define BL31_BASE			0xfffe0000
-# define BL31_LIMIT			0xffffffff
+# define BL31_BASE			U(0xfffe0000)
+# define BL31_LIMIT			U(0xffffffff)
 #else
 # define BL31_BASE			(VERSAL_ATF_MEM_BASE)
 # define BL31_LIMIT			(VERSAL_ATF_MEM_BASE + VERSAL_ATF_MEM_SIZE - 1)
@@ -45,8 +45,8 @@
  * BL32 specific defines.
  ******************************************************************************/
 #ifndef VERSAL_BL32_MEM_BASE
-# define BL32_BASE			0x60000000
-# define BL32_LIMIT			0x7fffffff
+# define BL32_BASE			U(0x60000000)
+# define BL32_LIMIT			U(0x7fffffff)
 #else
 # define BL32_BASE			(VERSAL_BL32_MEM_BASE)
 # define BL32_LIMIT			(VERSAL_BL32_MEM_BASE + VERSAL_BL32_MEM_SIZE - 1)
@@ -56,7 +56,7 @@
  * BL33 specific defines.
  ******************************************************************************/
 #ifndef PRELOADED_BL33_BASE
-# define PLAT_ARM_NS_IMAGE_BASE		0x8000000
+# define PLAT_ARM_NS_IMAGE_BASE		U(0x8000000)
 #else
 # define PLAT_ARM_NS_IMAGE_BASE		PRELOADED_BL33_BASE
 #endif
@@ -81,8 +81,8 @@
 #define CACHE_WRITEBACK_SHIFT	6
 #define CACHE_WRITEBACK_GRANULE	(1 << CACHE_WRITEBACK_SHIFT)
 
-#define PLAT_VERSAL_GICD_BASE	0xF9000000
-#define PLAT_VERSAL_GICR_BASE	0xF9080000
+#define PLAT_VERSAL_GICD_BASE	U(0xF9000000)
+#define PLAT_VERSAL_GICR_BASE	U(0xF9080000)
 
 /*
  * Define a list of Group 1 Secure and Group 0 interrupts as per GICv3
@@ -91,7 +91,7 @@
  */
 #define PLAT_VERSAL_G1S_IRQS	VERSAL_IRQ_SEC_PHY_TIMER
 #define PLAT_VERSAL_G0_IRQS	VERSAL_IRQ_SEC_PHY_TIMER
-#define PLAT_VERSAL_IPI_IRQ	62
+#define PLAT_VERSAL_IPI_IRQ	U(62)
 
 #define PLAT_VERSAL_G1S_IRQ_PROPS(grp) \
 	INTR_PROP_DESC(VERSAL_IRQ_SEC_PHY_TIMER, GIC_HIGHEST_SEC_PRIORITY, grp, \

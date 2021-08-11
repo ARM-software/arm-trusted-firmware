@@ -21,7 +21,7 @@ static uintptr_t versal_sec_entry;
 
 static int versal_pwr_domain_on(u_register_t mpidr)
 {
-	unsigned int cpu_id = plat_core_pos_by_mpidr(mpidr);
+	int cpu_id = plat_core_pos_by_mpidr(mpidr);
 	const struct pm_proc *proc;
 
 	VERBOSE("%s: mpidr: 0x%lx\n", __func__, mpidr);
@@ -30,10 +30,10 @@ static int versal_pwr_domain_on(u_register_t mpidr)
 		return PSCI_E_INTERN_FAIL;
 	}
 
-	proc = pm_get_proc(cpu_id);
+	proc = pm_get_proc((unsigned int)cpu_id);
 
 	/* Send request to PMC to wake up selected ACPU core */
-	pm_req_wakeup(proc->node_id, (versal_sec_entry & 0xFFFFFFFF) | 0x1,
+	pm_req_wakeup(proc->node_id, (versal_sec_entry & 0xFFFFFFFFU) | 0x1U,
 		      versal_sec_entry >> 32, 0, SECURE_FLAG);
 
 	/* Clear power down request */
@@ -54,7 +54,7 @@ static void versal_pwr_domain_suspend(const psci_power_state_t *target_state)
 	unsigned int cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
 	}
@@ -91,7 +91,7 @@ static void versal_pwr_domain_suspend_finish(
 	unsigned int cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
 	}
@@ -159,7 +159,7 @@ static void versal_pwr_domain_off(const psci_power_state_t *target_state)
 	unsigned int cpu_id = plat_my_core_pos();
 	const struct pm_proc *proc = pm_get_proc(cpu_id);
 
-	for (size_t i = 0; i <= PLAT_MAX_PWR_LVL; i++) {
+	for (size_t i = 0U; i <= PLAT_MAX_PWR_LVL; i++) {
 		VERBOSE("%s: target_state->pwr_domain_state[%lu]=%x\n",
 			__func__, i, target_state->pwr_domain_state[i]);
 	}
