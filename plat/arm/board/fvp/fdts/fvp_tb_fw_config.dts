@@ -104,6 +104,10 @@
 	#include "cot_descriptors.dtsi"
 #endif
 
+#if MEASURED_BOOT
+	#include "event_log.dtsi"
+#endif
+
 };
 
 #if COT_DESC_IN_DTB
