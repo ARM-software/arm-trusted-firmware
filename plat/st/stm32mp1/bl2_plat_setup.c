@@ -132,7 +132,6 @@ void bl2_el3_early_platform_setup(u_register_t arg0,
 void bl2_platform_setup(void)
 {
 	int ret;
-	uint32_t ddr_ns_size;
 
 	if (dt_pmic_status() > 0) {
 		initialize_pmic();
@@ -144,24 +143,16 @@ void bl2_platform_setup(void)
 		panic();
 	}
 
-	ddr_ns_size = stm32mp_get_ddr_ns_size();
-	assert(ddr_ns_size > 0U);
-
-	/* Map non secure DDR for BL33 load, now with cacheable attribute */
+	/* Map DDR for binary load, now with cacheable attribute */
 	ret = mmap_add_dynamic_region(STM32MP_DDR_BASE, STM32MP_DDR_BASE,
-				      ddr_ns_size, MT_MEMORY | MT_RW | MT_NS);
-	assert(ret == 0);
+				      STM32MP_DDR_MAX_SIZE, MT_MEMORY | MT_RW | MT_SECURE);
+	if (ret < 0) {
+		ERROR("DDR mapping: error %d\n", ret);
+		panic();
+	}
 
 #ifdef AARCH32_SP_OPTEE
 	INFO("BL2 runs OP-TEE setup\n");
-
-	/* Map secure DDR for OP-TEE paged area */
-	ret = mmap_add_dynamic_region(STM32MP_DDR_BASE + ddr_ns_size,
-				      STM32MP_DDR_BASE + ddr_ns_size,
-				      STM32MP_DDR_S_SIZE,
-				      MT_MEMORY | MT_RW | MT_SECURE);
-	assert(ret == 0);
-
 	/* Initialize tzc400 after DDR initialization */
 	stm32mp1_security_setup();
 #else

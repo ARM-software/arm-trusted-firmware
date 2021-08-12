@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2019-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -108,6 +108,47 @@ int nand_read(unsigned int offset, uintptr_t buffer, size_t length,
 		page_start = 0U;
 		block++;
 	}
+
+	return 0;
+}
+
+int nand_seek_bb(uintptr_t base, unsigned int offset, size_t *extra_offset)
+{
+	unsigned int block;
+	unsigned int offset_block;
+	unsigned int max_block;
+	int is_bad;
+	size_t count_bb = 0U;
+
+	block = base / nand_dev.block_size;
+
+	if (offset != 0U) {
+		offset_block = (base + offset - 1U) / nand_dev.block_size;
+	} else {
+		offset_block = block;
+	}
+
+	max_block = nand_dev.size / nand_dev.block_size;
+
+	while (block <= offset_block) {
+		if (offset_block >= max_block) {
+			return -EIO;
+		}
+
+		is_bad = nand_dev.mtd_block_is_bad(block);
+		if (is_bad < 0) {
+			return is_bad;
+		}
+
+		if (is_bad == 1) {
+			count_bb++;
+			offset_block++;
+		}
+
+		block++;
+	}
+
+	*extra_offset = count_bb * nand_dev.block_size;
 
 	return 0;
 }

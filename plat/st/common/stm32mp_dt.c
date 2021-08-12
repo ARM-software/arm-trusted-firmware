@@ -209,7 +209,12 @@ int dt_get_stdout_uart_info(struct dt_node_info *info)
  ******************************************************************************/
 uint32_t dt_get_ddr_size(void)
 {
+	static uint32_t size;
 	int node;
+
+	if (size != 0U) {
+		return size;
+	}
 
 	node = fdt_node_offset_by_compatible(fdt, -1, DT_DDR_COMPAT);
 	if (node < 0) {
@@ -217,7 +222,11 @@ uint32_t dt_get_ddr_size(void)
 		return 0;
 	}
 
-	return fdt_read_uint32_default(fdt, node, "st,mem-size", 0);
+	size = fdt_read_uint32_default(fdt, node, "st,mem-size", 0U);
+
+	flush_dcache_range((uintptr_t)&size, sizeof(uint32_t));
+
+	return size;
 }
 
 /*******************************************************************************
