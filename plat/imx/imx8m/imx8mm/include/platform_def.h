@@ -42,7 +42,7 @@
 #define BL31_BASE			U(0x900000)
 #define BL31_LIMIT			U(0x920000)
 #define IMX8MM_FIP_BASE			U(0x40310000)
-#define IMX8MM_FIP_SIZE			U(0x000200000)
+#define IMX8MM_FIP_SIZE			U(0x000300000)
 #define IMX8MM_FIP_LIMIT		U(FIP_BASE + FIP_SIZE)
 
 /* Define FIP image location on eMMC */
@@ -56,7 +56,7 @@
 
 /* non-secure uboot base */
 #define PLAT_NS_IMAGE_OFFSET		U(0x40200000)
-#define PLAT_NS_IMAGE_SIZE		U(0x00100000)
+#define PLAT_NS_IMAGE_SIZE		U(0x00200000)
 
 /* GICv3 base address */
 #define PLAT_GICD_BASE			U(0x38800000)
