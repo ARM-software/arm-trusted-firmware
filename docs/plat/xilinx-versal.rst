@@ -24,6 +24,11 @@ To build TF-A for JTAG DCC console
 make RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=versal bl31 VERSAL_CONSOLE=dcc
 ```
 
+To build TF-A with Straight-Line Speculation(SLS)
+```bash
+make RESET_TO_BL31=1 CROSS_COMPILE=aarch64-none-elf- PLAT=versal bl31 HARDEN_SLS_ALL=1
+```
+
 Xilinx Versal platform specific build options
 ---------------------------------------------
 
