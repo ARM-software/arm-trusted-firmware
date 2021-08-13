@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -49,19 +49,6 @@
 #define BIT29	(0x20000000U)
 #define BIT30	(0x40000000U)
 #define BIT31	(0x80000000U)
-
-/* Clock Pulse Generator (CPG) registers */
-#define CPG_BASE	(0xE6150000U)
-/* Module stop status register 3 */
-#define CPG_MSTPSR3	(CPG_BASE + 0x0048U)
-/* System module stop control register 3 */
-#define CPG_SMSTPCR3	(CPG_BASE + 0x013CU)
-/* SDHI2 clock frequency control register */
-#define CPG_SD2CKCR	(CPG_BASE + 0x0268U)
-/* SDHI3 clock frequency control register */
-#define CPG_SD3CKCR	(CPG_BASE + 0x026CU)
-/* CPG Write Protect Register */
-#define CPG_CPGWPR	(CPG_BASE + 0x0900U)
 
 #if USE_MMC_CH == MMC_CH0
 #define CPG_SDxCKCR		(CPG_SD2CKCR)	/* SDHI2/MMC0 */

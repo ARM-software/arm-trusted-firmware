@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -20,6 +20,7 @@
 #include "pwrc.h"
 #include "rcar_def.h"
 #include "rcar_private.h"
+#include "cpg_registers.h"
 
 /*
  * Someday there will be a generic power controller api. At the moment each
@@ -238,7 +239,7 @@ void rcar_pwrc_cpuon(uint64_t mpidr)
 	scu_power_up(mpidr);
 	cpu = mpidr & MPIDR_CPU_MASK;
 	on_data = 1 << cpu;
-	mmio_write_32(RCAR_CPGWPR, ~on_data);
+	mmio_write_32(CPG_CPGWPR, ~on_data);
 	mmio_write_32(on_reg, on_data);
 	mmio_write_32(res_reg, res_data & (~(1 << (3 - cpu))));
 
@@ -260,7 +261,7 @@ void rcar_pwrc_cpuoff(uint64_t mpidr)
 	if (read_mpidr_el1() != mpidr)
 		panic();
 
-	mmio_write_32(RCAR_CPGWPR, ~CPU_PWR_OFF);
+	mmio_write_32(CPG_CPGWPR, ~CPU_PWR_OFF);
 	mmio_write_32(reg + cpu * 0x0010, CPU_PWR_OFF);
 
 	rcar_lock_release();

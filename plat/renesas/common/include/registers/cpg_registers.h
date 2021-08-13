@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,6 +16,8 @@
 #define CPG_SRCR2	(CPG_BASE + 0x00B0U)
 /* CPG module stop status 2 */
 #define CPG_MSTPSR2	(CPG_BASE + 0x0040U)
+/* CPG module stop status 2 */
+#define CPG_MSTPSR3	(CPG_BASE + 0x0048U)
 /* CPG write protect */
 #define CPG_CPGWPR	(CPG_BASE + 0x0900U)
 /* CPG write protect control */
@@ -24,6 +26,10 @@
 #define CPG_SMSTPCR9    (CPG_BASE + 0x0994U)
 /* CPG module stop status 9 */
 #define CPG_MSTPSR9     (CPG_BASE + 0x09A4U)
+/* SDHI2 clock frequency control register */
+#define	CPG_SD2CKCR	(CPG_BASE + 0x0268U)
+/* SDHI3 clock frequency control register */
+#define CPG_SD3CKCR	(CPG_BASE + 0x026CU)
 
 /* CPG (SECURITY) registers */
 

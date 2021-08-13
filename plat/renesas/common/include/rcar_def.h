@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -120,7 +120,6 @@
 /* Timer control */
 #define RCAR_CNTC_BASE		U(0xE6080000)
 /* Reset */
-#define RCAR_CPGWPR		U(0xE6150900)	/* CPG write protect    */
 #define RCAR_MODEMR		U(0xE6160060)	/* Mode pin             */
 #define RCAR_CA57RESCNT		U(0xE6160040)	/* Reset control A57    */
 #define RCAR_CA53RESCNT		U(0xE6160044)	/* Reset control A53    */

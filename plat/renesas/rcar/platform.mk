@@ -245,6 +245,12 @@ RCAR_DRAM_LPDDR4_MEMCONF :=1
 endif
 $(eval $(call add_define,RCAR_DRAM_LPDDR4_MEMCONF))
 
+# Process RCAR_DRAM_MEMRANK flag
+ifndef RCAR_DRAM_MEMRANK
+RCAR_DRAM_MEMRANK :=0
+endif
+$(eval $(call add_define,RCAR_DRAM_MEMRANK))
+
 # Process RCAR_DRAM_DDR3L_MEMCONF flag
 ifndef RCAR_DRAM_DDR3L_MEMCONF
 RCAR_DRAM_DDR3L_MEMCONF :=1
@@ -280,6 +286,11 @@ RCAR_SYSTEM_RESET_KEEPON_DDR := 0
 endif
 $(eval $(call add_define,RCAR_SYSTEM_RESET_KEEPON_DDR))
 
+ifndef RCAR_GEN3_BL33_GZIP
+RCAR_GEN3_BL33_GZIP := 0
+endif
+$(eval $(call add_define,RCAR_GEN3_BL33_GZIP))
+
 # RCAR_SYSTEM_RESET_KEEPON_DDR requires power control of PMIC etc.
 # When executing SYSTEM_SUSPEND other than Salvator-X, Salvator-XS and Ebisu,
 # processing equivalent to that implemented in PMIC_ROHM_BD9571 is necessary.
@@ -314,6 +325,13 @@ PLAT_INCLUDES	+=	-Idrivers/renesas/common/ddr		\
 
 BL2_SOURCES	+=	plat/renesas/rcar/bl2_plat_setup.c	\
 			drivers/renesas/rcar/board/board.c
+
+ifeq (${RCAR_GEN3_BL33_GZIP},1)
+include lib/zlib/zlib.mk
+
+BL2_SOURCES	+=	common/image_decompress.c               \
+			$(ZLIB_SOURCES)
+endif
 
 ifeq (${RCAR_GEN3_ULCB},1)
 BL31_SOURCES		+=	drivers/renesas/rcar/cpld/ulcb_cpld.c
