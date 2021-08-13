@@ -52,7 +52,7 @@
 /*******************************************************************************
  * IRQ constants
  ******************************************************************************/
-#define VERSAL_IRQ_SEC_PHY_TIMER		29
+#define VERSAL_IRQ_SEC_PHY_TIMER		U(29)
 
 /*******************************************************************************
  * CCI-400 related constants
@@ -128,17 +128,17 @@
 
 /* IPI registers and bitfields */
 #define IPI0_REG_BASE		U(0xFF330000)
-#define IPI0_TRIG_BIT		(1 << 2)
-#define PMC_IPI_TRIG_BIT	(1 << 1)
+#define IPI0_TRIG_BIT		(1U << 2U)
+#define PMC_IPI_TRIG_BIT	(1U << 1U)
 #define IPI1_REG_BASE		U(0xFF340000)
-#define IPI1_TRIG_BIT		(1 << 3)
+#define IPI1_TRIG_BIT		(1U << 3U)
 #define IPI2_REG_BASE		U(0xFF350000)
-#define IPI2_TRIG_BIT		(1 << 4)
+#define IPI2_TRIG_BIT		(1U << 4U)
 #define IPI3_REG_BASE		U(0xFF360000)
-#define IPI3_TRIG_BIT		(1 << 5)
+#define IPI3_TRIG_BIT		(1U << 5U)
 #define IPI4_REG_BASE		U(0xFF370000)
-#define IPI4_TRIG_BIT		(1 << 5)
+#define IPI4_TRIG_BIT		(1U << 5U)
 #define IPI5_REG_BASE		U(0xFF380000)
-#define IPI5_TRIG_BIT		(1 << 6)
+#define IPI5_TRIG_BIT		(1U << 6U)
 
 #endif /* VERSAL_DEF_H */

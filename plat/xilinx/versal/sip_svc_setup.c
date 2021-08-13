@@ -19,8 +19,8 @@
 #define VERSAL_SIP_SVC_VERSION		U(0x8200ff03)
 
 /* SiP Service Calls version numbers */
-#define SIP_SVC_VERSION_MAJOR	0
-#define SIP_SVC_VERSION_MINOR	1
+#define SIP_SVC_VERSION_MAJOR	U(0)
+#define SIP_SVC_VERSION_MINOR	U(1)
 
 /* These macros are used to identify PM calls from the SMC function ID */
 #define PM_FID_MASK	0xf000u
@@ -31,8 +31,8 @@
 
 /* SiP Service UUID */
 DEFINE_SVC_UUID2(versal_sip_uuid,
-		0x2ab9e4ec, 0x93b9, 0x11e7, 0xa0, 0x19,
-		0xdf, 0xe0, 0xdb, 0xad, 0x0a, 0xe0);
+		0x2ab9e4ecU, 0x93b9U, 0x11e7U, 0xa0U, 0x19U,
+		0xdfU, 0xe0U, 0xdbU, 0xadU, 0x0aU, 0xe0U);
 
 /**
  * sip_svc_setup() - Setup SiP Service

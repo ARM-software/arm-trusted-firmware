@@ -67,16 +67,16 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	if (VERSAL_CONSOLE_IS(pl011)) {
 		static console_t versal_runtime_console;
 		/* Initialize the console to provide early debug support */
-		int rc = console_pl011_register(VERSAL_UART_BASE,
-						VERSAL_UART_CLOCK,
-						VERSAL_UART_BAUDRATE,
+		int rc = console_pl011_register((unsigned long)VERSAL_UART_BASE,
+						(unsigned int)VERSAL_UART_CLOCK,
+						(unsigned int)VERSAL_UART_BAUDRATE,
 						&versal_runtime_console);
 		if (rc == 0) {
 			panic();
 		}
 
-		console_set_scope(&versal_runtime_console, CONSOLE_FLAG_BOOT |
-				  CONSOLE_FLAG_RUNTIME);
+		console_set_scope(&versal_runtime_console, (unsigned int)(CONSOLE_FLAG_BOOT |
+				  CONSOLE_FLAG_RUNTIME));
 	} else if (VERSAL_CONSOLE_IS(dcc)) {
 		/* Initialize the dcc console for debug */
 		int rc = console_dcc_register();
@@ -166,7 +166,7 @@ void bl31_platform_setup(void)
 void bl31_plat_runtime_setup(void)
 {
 	uint64_t flags = 0;
-	uint64_t rc;
+	int32_t rc;
 
 	set_interrupt_rm_flag(flags, NON_SECURE);
 	rc = register_interrupt_type_handler(INTR_TYPE_EL3,
