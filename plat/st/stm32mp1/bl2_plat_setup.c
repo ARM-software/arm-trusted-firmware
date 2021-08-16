@@ -153,8 +153,6 @@ void bl2_platform_setup(void)
 
 #ifdef AARCH32_SP_OPTEE
 	INFO("BL2 runs OP-TEE setup\n");
-	/* Initialize tzc400 after DDR initialization */
-	stm32mp1_security_setup();
 #else
 	INFO("BL2 runs SP_MIN setup\n");
 #endif
@@ -383,5 +381,10 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 	}
 
 	return err;
+}
+
+void bl2_el3_plat_prepare_exit(void)
+{
+	stm32mp1_security_setup();
 }
 #endif
