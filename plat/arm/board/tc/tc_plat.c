@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -63,6 +63,7 @@ const mmap_region_t plat_arm_mmap[] = {
 	ARM_MAP_SHARED_RAM,
 	V2M_MAP_IOFPGA,
 	TC_MAP_DEVICE,
+	PLAT_DTB_DRAM_NS,
 #if SPM_MM
 	ARM_SPM_BUF_EL3_MMAP,
 #endif

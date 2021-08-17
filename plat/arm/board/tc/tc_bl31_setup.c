@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2020-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,8 @@
 #include <common/debug.h>
 #include <drivers/arm/css/css_mhu_doorbell.h>
 #include <drivers/arm/css/scmi.h>
+#include <lib/fconf/fconf.h>
+#include <lib/fconf/fconf_dyn_cfg_getter.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
@@ -42,6 +44,9 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 				u_register_t arg2, u_register_t arg3)
 {
 	arm_bl31_early_platform_setup((void *)arg0, arg1, arg2, (void *)arg3);
+
+	/* Fill the properties struct with the info from the config dtb */
+	fconf_populate("FW_CONFIG", arg1);
 }
 
 void tc_bl31_common_platform_setup(void)
@@ -52,4 +57,17 @@ void tc_bl31_common_platform_setup(void)
 const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
 {
 	return css_scmi_override_pm_ops(ops);
+}
+
+void __init bl31_plat_arch_setup(void)
+{
+	arm_bl31_plat_arch_setup();
+
+	/* HW_CONFIG was also loaded by BL2 */
+	const struct dyn_cfg_dtb_info_t *hw_config_info;
+
+	hw_config_info = FCONF_GET_PROPERTY(dyn_cfg, dtb, HW_CONFIG_ID);
+	assert(hw_config_info != NULL);
+
+	fconf_populate("HW_CONFIG", hw_config_info->config_addr);
 }

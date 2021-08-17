@@ -55,6 +55,14 @@
 						TC_TZC_DRAM1_BASE,	\
 						TC_TZC_DRAM1_SIZE,	\
 						MT_MEMORY | MT_RW | MT_SECURE)
+
+#define PLAT_HW_CONFIG_DTB_BASE	ULL(0x83000000)
+#define PLAT_HW_CONFIG_DTB_SIZE	ULL(0x8000)
+
+#define PLAT_DTB_DRAM_NS MAP_REGION_FLAT(	\
+					PLAT_HW_CONFIG_DTB_BASE,	\
+					PLAT_HW_CONFIG_DTB_SIZE,	\
+					MT_MEMORY | MT_RO | MT_NS)
 /*
  * Max size of SPMC is 2MB for tc. With SPMD enabled this value corresponds to
  * max size of BL32 image.
@@ -122,7 +130,7 @@
  * calculated using the current BL31 PROGBITS debug size plus the sizes of
  * BL2 and BL1-RW
  */
-#define PLAT_ARM_MAX_BL31_SIZE		0x3B000
+#define PLAT_ARM_MAX_BL31_SIZE		0x3F000
 
 /*
  * Size of cacheable stacks
