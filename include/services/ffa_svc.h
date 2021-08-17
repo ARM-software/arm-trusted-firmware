@@ -196,6 +196,11 @@
 #define SPMC_SECURE_ID_SHIFT			U(15)
 
 /*
+ * Partition Count Flag in FFA_PARTITION_INFO_GET.
+ */
+#define FFA_PARTITION_INFO_GET_COUNT_FLAG_MASK U(1 << 0)
+
+/*
  * Mask for source and destination endpoint id in
  * a direct message request/response.
  */

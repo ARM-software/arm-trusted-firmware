@@ -13,6 +13,7 @@
 #include <common/debug.h>
 #include <common/fdt_wrappers.h>
 #include <common/runtime_svc.h>
+#include <common/uuid.h>
 #include <lib/el3_runtime/context_mgmt.h>
 #include <lib/smccc.h>
 #include <lib/utils.h>
@@ -26,6 +27,9 @@
 #include "spmc.h"
 
 #include <platform_def.h>
+
+/* Declare the maximum number of SPs and El3 LPs. */
+#define MAX_SP_LP_PARTITIONS SECURE_PARTITION_COUNT + MAX_EL3_LP_DESCS_COUNT
 
 /*
  * Allocate a secure partition descriptor to describe each SP in the system that
@@ -727,6 +731,251 @@ static uint64_t rxtx_unmap_handler(uint32_t smc_fid,
 	SMC_RET1(handle, FFA_SUCCESS_SMC32);
 }
 
+/*
+ * Collate the partition information in a v1.1 partition information
+ * descriptor format, this will be converter later if required.
+ */
+static int partition_info_get_handler_v1_1(uint32_t *uuid,
+					   struct ffa_partition_info_v1_1
+						  *partitions,
+					   uint32_t max_partitions,
+					   uint32_t *partition_count)
+{
+	uint32_t index;
+	struct ffa_partition_info_v1_1 *desc;
+	bool null_uuid = is_null_uuid(uuid);
+	struct el3_lp_desc *el3_lp_descs = get_el3_lp_array();
+
+	/* Deal with Logical Partitions. */
+	for (index = 0U; index < EL3_LP_DESCS_COUNT; index++) {
+		if (null_uuid || uuid_match(uuid, el3_lp_descs[index].uuid)) {
+			/* Found a matching UUID, populate appropriately. */
+			if (*partition_count >= max_partitions) {
+				return FFA_ERROR_NO_MEMORY;
+			}
+
+			desc = &partitions[*partition_count];
+			desc->ep_id = el3_lp_descs[index].sp_id;
+			desc->execution_ctx_count = PLATFORM_CORE_COUNT;
+			desc->properties = el3_lp_descs[index].properties;
+			if (null_uuid) {
+				copy_uuid(desc->uuid, el3_lp_descs[index].uuid);
+			}
+			(*partition_count)++;
+		}
+	}
+
+	/* Deal with physical SP's. */
+	for (index = 0U; index < SECURE_PARTITION_COUNT; index++) {
+		if (null_uuid || uuid_match(uuid, sp_desc[index].uuid)) {
+			/* Found a matching UUID, populate appropriately. */
+			if (*partition_count >= max_partitions) {
+				return FFA_ERROR_NO_MEMORY;
+			}
+
+			desc = &partitions[*partition_count];
+			desc->ep_id = sp_desc[index].sp_id;
+			/*
+			 * Execution context count must match No. cores for
+			 * S-EL1 SPs.
+			 */
+			desc->execution_ctx_count = PLATFORM_CORE_COUNT;
+			desc->properties = sp_desc[index].properties;
+			if (null_uuid) {
+				copy_uuid(desc->uuid, sp_desc[index].uuid);
+			}
+			(*partition_count)++;
+		}
+	}
+	return 0;
+}
+
+/*
+ * Handle the case where that caller only wants the count of partitions
+ * matching a given UUID and does not want the corresponding descriptors
+ * populated.
+ */
+static uint32_t partition_info_get_handler_count_only(uint32_t *uuid)
+{
+	uint32_t index = 0;
+	uint32_t partition_count = 0;
+	bool null_uuid = is_null_uuid(uuid);
+	struct el3_lp_desc *el3_lp_descs = get_el3_lp_array();
+
+	/* Deal with Logical Partitions. */
+	for (index = 0U; index < EL3_LP_DESCS_COUNT; index++) {
+		if (null_uuid ||
+		    uuid_match(uuid, el3_lp_descs[index].uuid)) {
+			(partition_count)++;
+		}
+	}
+
+	/* Deal with physical SP's. */
+	for (index = 0U; index < SECURE_PARTITION_COUNT; index++) {
+		if (null_uuid || uuid_match(uuid, sp_desc[index].uuid)) {
+			(partition_count)++;
+		}
+	}
+	return partition_count;
+}
+
+/*
+ * If the caller of the PARTITION_INFO_GET ABI was a v1.0 caller, populate
+ * the coresponding descriptor format from the v1.1 descriptor array.
+ */
+static uint64_t partition_info_populate_v1_0(struct ffa_partition_info_v1_1
+					     *partitions,
+					     struct mailbox *mbox,
+					     int partition_count)
+{
+	uint32_t index;
+	uint32_t buf_size;
+	uint32_t descriptor_size;
+	struct ffa_partition_info_v1_0 *v1_0_partitions =
+		(struct ffa_partition_info_v1_0 *) mbox->rx_buffer;
+
+	buf_size = mbox->rxtx_page_count * FFA_PAGE_SIZE;
+	descriptor_size = partition_count *
+			  sizeof(struct ffa_partition_info_v1_0);
+
+	if (descriptor_size > buf_size) {
+		return FFA_ERROR_NO_MEMORY;
+	}
+
+	for (index = 0U; index < partition_count; index++) {
+		v1_0_partitions[index].ep_id = partitions[index].ep_id;
+		v1_0_partitions[index].execution_ctx_count =
+			partitions[index].execution_ctx_count;
+		v1_0_partitions[index].properties =
+			partitions[index].properties;
+	}
+	return 0;
+}
+
+/*
+ * Main handler for FFA_PARTITION_INFO_GET which supports both FF-A v1.1 and
+ * v1.0 implementations.
+ */
+static uint64_t partition_info_get_handler(uint32_t smc_fid,
+					   bool secure_origin,
+					   uint64_t x1,
+					   uint64_t x2,
+					   uint64_t x3,
+					   uint64_t x4,
+					   void *cookie,
+					   void *handle,
+					   uint64_t flags)
+{
+	int ret;
+	uint32_t partition_count = 0;
+	uint32_t size = 0;
+	uint32_t ffa_version = get_partition_ffa_version(secure_origin);
+	struct mailbox *mbox;
+	uint64_t info_get_flags;
+	bool count_only;
+	uint32_t uuid[4];
+
+	uuid[0] = x1;
+	uuid[1] = x2;
+	uuid[2] = x3;
+	uuid[3] = x4;
+
+	/* Determine if the Partition descriptors should be populated. */
+	info_get_flags = SMC_GET_GP(handle, CTX_GPREG_X5);
+	count_only = (info_get_flags & FFA_PARTITION_INFO_GET_COUNT_FLAG_MASK);
+
+	/* Handle the case where we don't need to populate the descriptors. */
+	if (count_only) {
+		partition_count = partition_info_get_handler_count_only(uuid);
+		if (partition_count == 0) {
+			return spmc_ffa_error_return(handle,
+						FFA_ERROR_INVALID_PARAMETER);
+		}
+	} else {
+		struct ffa_partition_info_v1_1 partitions[MAX_SP_LP_PARTITIONS];
+
+		/*
+		 * Handle the case where the partition descriptors are required,
+		 * check we have the buffers available and populate the
+		 * appropriate structure version.
+		 */
+
+		/* Obtain the v1.1 format of the descriptors. */
+		ret = partition_info_get_handler_v1_1(uuid, partitions,
+						      MAX_SP_LP_PARTITIONS,
+						      &partition_count);
+
+		/* Check if an error occurred during discovery. */
+		if (ret != 0) {
+			goto err;
+		}
+
+		/* If we didn't find any matches the UUID is unknown. */
+		if (partition_count == 0) {
+			ret = FFA_ERROR_INVALID_PARAMETER;
+			goto err;
+		}
+
+		/* Obtain the partition mailbox RX/TX buffer pair descriptor. */
+		mbox = spmc_get_mbox_desc(secure_origin);
+
+		/*
+		 * If the caller has not bothered registering its RX/TX pair
+		 * then return an error code.
+		 */
+		spin_lock(&mbox->lock);
+		if (mbox->rx_buffer == NULL) {
+			ret = FFA_ERROR_BUSY;
+			goto err_unlock;
+		}
+
+		/* Ensure the RX buffer is currently free. */
+		if (mbox->state != MAILBOX_STATE_EMPTY) {
+			ret = FFA_ERROR_BUSY;
+			goto err_unlock;
+		}
+
+		/* Zero the RX buffer before populating. */
+		(void)memset(mbox->rx_buffer, 0,
+			     mbox->rxtx_page_count * FFA_PAGE_SIZE);
+
+		/*
+		 * Depending on the FF-A version of the requesting partition
+		 * we may need to convert to a v1.0 format otherwise we can copy
+		 * directly.
+		 */
+		if (ffa_version == MAKE_FFA_VERSION(U(1), U(0))) {
+			ret = partition_info_populate_v1_0(partitions,
+							   mbox,
+							   partition_count);
+			if (ret != 0) {
+				goto err_unlock;
+			}
+		} else {
+			uint32_t buf_size = mbox->rxtx_page_count *
+					    FFA_PAGE_SIZE;
+
+			/* Ensure the descriptor will fit in the buffer. */
+			size = sizeof(struct ffa_partition_info_v1_1);
+			if (partition_count * size  > buf_size) {
+				ret = FFA_ERROR_NO_MEMORY;
+				goto err_unlock;
+			}
+			memcpy(mbox->rx_buffer, partitions,
+			       partition_count * size);
+		}
+
+		mbox->state = MAILBOX_STATE_FULL;
+		spin_unlock(&mbox->lock);
+	}
+	SMC_RET4(handle, FFA_SUCCESS_SMC32, 0, partition_count, size);
+
+err_unlock:
+	spin_unlock(&mbox->lock);
+err:
+	return spmc_ffa_error_return(handle, ret);
+}
+
 /*******************************************************************************
  * This function will parse the Secure Partition Manifest. From manifest, it
  * will fetch details for preparing Secure partition image context and secure
@@ -1141,6 +1390,11 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 	case FFA_RXTX_UNMAP:
 		return rxtx_unmap_handler(smc_fid, secure_origin, x1, x2, x3,
 					  x4, cookie, handle, flags);
+
+	case FFA_PARTITION_INFO_GET:
+		return partition_info_get_handler(smc_fid, secure_origin, x1,
+						  x2, x3, x4, cookie, handle,
+						  flags);
 
 	case FFA_MSG_WAIT:
 		return msg_wait_handler(smc_fid, secure_origin, x1, x2, x3, x4,

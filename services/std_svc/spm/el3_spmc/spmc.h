@@ -184,6 +184,24 @@ struct ns_endpoint_desc {
 	uint32_t ffa_version;
 };
 
+/**
+ * Holds information returned for each partition by the FFA_PARTITION_INFO_GET
+ * interface.
+ */
+struct ffa_partition_info_v1_0 {
+	uint16_t ep_id;
+	uint16_t execution_ctx_count;
+	uint32_t properties;
+};
+
+/* Extended structure for v1.1. */
+struct ffa_partition_info_v1_1 {
+	uint16_t ep_id;
+	uint16_t execution_ctx_count;
+	uint32_t properties;
+	uint32_t uuid[4];
+};
+
 /* Setup Function for different SP types. */
 void spmc_sp_common_setup(struct secure_partition_desc *sp,
 			  entry_point_info_t *ep_info);
