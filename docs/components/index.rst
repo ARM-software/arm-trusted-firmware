@@ -7,6 +7,7 @@ Components
    :numbered:
 
    spd/index
+   activity-monitors
    arm-sip-service
    debugfs-design
    exception-handling

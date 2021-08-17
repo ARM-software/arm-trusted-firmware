@@ -15,6 +15,10 @@ You can find additional definitions in the `Arm Glossary`_.
    AArch64
       64-bit execution state of the ARMv8 ISA
 
+   AMU
+      Activity Monitor Unit, a hardware monitoring unit introduced by FEAT_AMUv1
+      that exposes CPU core runtime metrics as a set of counter registers.
+
    API
       Application Programming Interface
 
