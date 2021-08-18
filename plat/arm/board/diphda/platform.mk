@@ -59,6 +59,13 @@ BL31_SOURCES	+=	drivers/cfi/v2m/v2m_flash.c				\
 			${DIPHDA_CPU_LIBS}					\
 			${DIPHDA_GIC_SOURCES}
 
+ifneq (${ENABLE_STACK_PROTECTOR},0)
+	ifneq (${ENABLE_STACK_PROTECTOR},none)
+		DIPHDA_SECURITY_SOURCES := plat/arm/board/diphda/common/diphda_stack_protector.c
+		BL2_SOURCES += ${DIPHDA_SECURITY_SOURCES}
+		BL31_SOURCES += ${DIPHDA_SECURITY_SOURCES}
+	endif
+endif
 
 FDT_SOURCES		+=	plat/arm/board/diphda/common/fdts/diphda_spmc_manifest.dts
 DIPHDA_TOS_FW_CONFIG	:=	${BUILD_PLAT}/fdts/diphda_spmc_manifest.dtb
