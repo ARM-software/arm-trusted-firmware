@@ -442,7 +442,13 @@ enum ddr_type {
 #define PACKAGE_OTP			"package_otp"
 #endif
 #define HW2_OTP				"hw2_otp"
+#if STM32MP13
+#define NAND_OTP			"cfg9_otp"
+#define NAND2_OTP			"cfg10_otp"
+#endif
+#if STM32MP15
 #define NAND_OTP			"nand_otp"
+#endif
 #define MONOTONIC_OTP			"monotonic_otp"
 #define UID_OTP				"uid_otp"
 #define BOARD_ID_OTP			"board_id"
@@ -502,7 +508,7 @@ enum ddr_type {
 #define NAND_BLOCK_SIZE_128_PAGES	U(1)
 #define NAND_BLOCK_SIZE_256_PAGES	U(2)
 
-/* NAND number of block (in unit of 256 blocs) */
+/* NAND number of block (in unit of 256 blocks) */
 #define NAND_BLOCK_NB_MASK		GENMASK_32(26, 19)
 #define NAND_BLOCK_NB_SHIFT		19
 #define NAND_BLOCK_NB_UNIT		U(256)
@@ -522,6 +528,14 @@ enum ddr_type {
 
 /* NAND number of planes */
 #define NAND_PLANE_BIT_NB_MASK		BIT(14)
+
+/* NAND2 OTP */
+#define NAND2_PAGE_SIZE_SHIFT		16
+
+/* NAND2 config distribution */
+#define NAND2_CONFIG_DISTRIB		BIT(0)
+#define NAND2_PNAND_NAND2_SNAND_NAND1	U(0)
+#define NAND2_PNAND_NAND1_SNAND_NAND2	U(1)
 
 /* MONOTONIC OTP */
 #define MAX_MONOTONIC_VALUE		32
