@@ -1,6 +1,0 @@
-#!/bin/sh
-
-# shellcheck source=./_/husky.sh
-. "$(dirname "$0")/_/husky.sh"
-
-"$(dirname "$0")/prepare-commit-msg.cz" "$@"
