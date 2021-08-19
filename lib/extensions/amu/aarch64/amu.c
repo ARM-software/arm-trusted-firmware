@@ -12,10 +12,16 @@
 #include <arch.h>
 #include <arch_features.h>
 #include <arch_helpers.h>
+#include <common/debug.h>
 #include <lib/el3_runtime/pubsub_events.h>
 #include <lib/extensions/amu.h>
 
 #include <plat/common/platform.h>
+
+#if ENABLE_AMU_FCONF
+#	include <lib/fconf/fconf.h>
+#	include <lib/fconf/fconf_amu_getter.h>
+#endif
 
 struct amu_ctx {
 	uint64_t group0_cnts[AMU_GROUP0_MAX_COUNTERS];
@@ -227,6 +233,30 @@ void amu_enable(bool el2_unused, cpu_context_t *ctx)
 	assert(amcgcr_el0_cg0nc <= AMU_AMCGCR_CG0NC_MAX);
 
 	/*
+	 * The platform may opt to enable specific auxiliary counters. This can
+	 * be done via the common FCONF getter, or via the platform-implemented
+	 * function.
+	 */
+
+#if ENABLE_AMU_AUXILIARY_COUNTERS
+	const struct amu_topology *topology;
+
+#if ENABLE_AMU_FCONF
+	topology = FCONF_GET_PROPERTY(amu, config, topology);
+#else
+	topology = plat_amu_topology();
+#endif /* ENABLE_AMU_FCONF */
+
+	if (topology != NULL) {
+		unsigned int core_pos = plat_my_core_pos();
+
+		amcntenset1_el0_px = topology->cores[core_pos].enable;
+	} else {
+		ERROR("AMU: failed to generate AMU topology\n");
+	}
+#endif /* ENABLE_AMU_AUXILIARY_COUNTERS */
+
+	/*
 	 * Enable the requested counters.
 	 */
 
@@ -235,6 +265,10 @@ void amu_enable(bool el2_unused, cpu_context_t *ctx)
 	amcfgr_el0_ncg = read_amcfgr_el0_ncg();
 	if (amcfgr_el0_ncg > 0U) {
 		write_amcntenset1_el0_px(amcntenset1_el0_px);
+
+#if !ENABLE_AMU_AUXILIARY_COUNTERS
+		VERBOSE("AMU: auxiliary counters detected but support is disabled\n");
+#endif
 	}
 
 	/* Initialize FEAT_AMUv1p1 features if present. */

@@ -956,6 +956,7 @@ $(eval $(call assert_booleans,\
         EL3_EXCEPTION_HANDLING \
         ENABLE_AMU \
         ENABLE_AMU_AUXILIARY_COUNTERS \
+        ENABLE_AMU_FCONF \
         AMU_RESTRICT_COUNTERS \
         ENABLE_ASSERTIONS \
         ENABLE_MPAM_FOR_LOWER_ELS \
@@ -1058,6 +1059,7 @@ $(eval $(call add_defines,\
         DISABLE_MTPMU \
         ENABLE_AMU \
         ENABLE_AMU_AUXILIARY_COUNTERS \
+        ENABLE_AMU_FCONF \
         AMU_RESTRICT_COUNTERS \
         ENABLE_ASSERTIONS \
         ENABLE_BTI \

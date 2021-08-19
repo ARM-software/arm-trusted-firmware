@@ -224,6 +224,10 @@ Common build options
    (also known as group 1 counters). These are implementation-defined counters,
    and as such require additional platform configuration. Default is 0.
 
+-  ``ENABLE_AMU_FCONF``: Enables configuration of the AMU through FCONF, which
+   allows platforms with auxiliary counters to describe them via the
+   ``HW_CONFIG`` device tree blob. Default is 0.
+
 -  ``ENABLE_ASSERTIONS``: This option controls whether or not calls to ``assert()``
    are compiled out. For debug builds, this option defaults to 1, and calls to
    ``assert()`` are left in place. For release builds, this option defaults to 0
