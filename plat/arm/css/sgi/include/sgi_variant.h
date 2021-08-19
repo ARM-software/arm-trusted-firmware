@@ -23,6 +23,10 @@
 /* SID Version values for RD-N2 variants */
 #define RD_N2_CFG1_SID_VER_PART_NUM		0x07B6
 
+/* SID Version values for RD-Edmunds */
+#define RD_EDMUNDS_SID_VER_PART_NUM		0x07F2
+#define RD_EDMUNDS_CONFIG_ID			0x1
+
 /* Structure containing SGI platform variant information */
 typedef struct sgi_platform_info {
 	unsigned int platform_id;	/* Part Number of the platform */
