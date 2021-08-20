@@ -136,6 +136,19 @@ A7K/8K/CN913x specific build options:
         The parameter is optional, its default value is ``plat/marvell/armada/a8k/common/ble``
         which uses TF-A in-tree BLE implementation.
 
+- MSS_SUPPORT
+
+        When ``MSS_SUPPORT=1``, then TF-A includes support for Management SubSystem (MSS).
+        When enabled it is required to specify path to the MSS firmware image via ``SCP_BL2``
+        option.
+
+        This option is by default enabled.
+
+- SCP_BL2
+
+        Specify path to the MSS fimware image binary which will run on Cortex-M3 coprocessor.
+        It is available in Marvell binaries-marvell git repository. Required when ``MSS_SUPPORT=1``.
+
 
 Armada37x0 specific build options:
 
@@ -405,10 +418,15 @@ Armada37x0 Builds require installation of additional components
 
     https://gitlab.nic.cz/turris/mox-boot-builder.git
 
-Armada70x0 and Armada80x0 Builds require installation of an additional component
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Armada70x0, Armada80x0 and CN913x Builds require installation of additional components
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 (1) DDR initialization library sources (mv_ddr) available at the following repository
     (use the "master" branch):
 
     https://github.com/MarvellEmbeddedProcessors/mv-ddr-marvell.git
+
+(2) MSS Management SubSystem Firmware available at the following repository
+    (use the "binaries-marvell-armada-SDK10.0.1.0" branch):
+
+    https://github.com/MarvellEmbeddedProcessors/binaries-marvell.git
