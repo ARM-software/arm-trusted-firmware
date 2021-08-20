@@ -1,13 +1,10 @@
-*****************
-Introduction
-*****************
-Threat modeling is an important part of Secure Development Lifecycle (SDL)
-that helps us identify potential threats and mitigations affecting a system.
+Generic threat model
+********************
 
-This document provides a generic threat model for TF-A firmware. In the
-next sections, we first give a description of the target of evaluation
-using a data flow diagram. Then we provide a list of threats we have
-identified based on the data flow diagram and potential threat mitigations.
+************************
+Introduction
+************************
+This document provides a generic threat model for TF-A firmware.
 
 ************************
 Target of Evaluation
