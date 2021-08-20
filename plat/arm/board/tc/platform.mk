@@ -31,6 +31,9 @@ GIC_ENABLE_V4_EXTN	:=      1
 # GIC-600 configuration
 GICV3_SUPPORT_GIC600	:=	1
 
+# Enable SVE
+ENABLE_SVE_FOR_NS	:=	1
+ENABLE_SVE_FOR_SWD	:=	1
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
