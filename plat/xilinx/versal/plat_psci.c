@@ -205,7 +205,7 @@ static int versal_validate_power_state(unsigned int power_state,
 	}
 
 	/* We expect the 'state id' to be zero */
-	if (psci_get_pstate_id(power_state)) {
+	if (psci_get_pstate_id(power_state) != 0U) {
 		return PSCI_E_INVALID_PARAMS;
 	}
 

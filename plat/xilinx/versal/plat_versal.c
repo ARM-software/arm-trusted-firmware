@@ -9,7 +9,7 @@
 
 int plat_core_pos_by_mpidr(u_register_t mpidr)
 {
-	if (mpidr & MPIDR_CLUSTER_MASK) {
+	if ((mpidr & MPIDR_CLUSTER_MASK) != 0U) {
 		return -1;
 	}
 

@@ -127,7 +127,7 @@ static interrupt_type_handler_t type_el3_interrupt_handler;
 int request_intr_type_el3(uint32_t id, interrupt_type_handler_t handler)
 {
 	/* Validate 'handler'*/
-	if (!handler) {
+	if (handler == NULL) {
 		return -EINVAL;
 	}
 
@@ -150,7 +150,7 @@ static uint64_t rdo_el3_interrupt_handler(uint32_t id, uint32_t flags,
 	}
 
 	handler = type_el3_interrupt_handler;
-	if (handler) {
+	if (handler != NULL) {
 		return handler(intr_id, flags, handle, cookie);
 	}
 
@@ -171,7 +171,7 @@ void bl31_plat_runtime_setup(void)
 	set_interrupt_rm_flag(flags, NON_SECURE);
 	rc = register_interrupt_type_handler(INTR_TYPE_EL3,
 					     rdo_el3_interrupt_handler, flags);
-	if (rc) {
+	if (rc != 0) {
 		panic();
 	}
 }
