@@ -677,6 +677,10 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 	case IOCTL_AFI:
 		ret = pm_ioctl_afi(arg1, arg2);
 		break;
+	case IOCTL_SET_FEATURE_CONFIG:
+	case IOCTL_GET_FEATURE_CONFIG:
+		ret = pm_feature_config(ioctl_id, arg1, arg2, value);
+		break;
 	default:
 		ret = PM_RET_ERROR_NOTSUPPORTED;
 		break;
