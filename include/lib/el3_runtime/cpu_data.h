@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -125,7 +125,7 @@ extern cpu_data_t percpu_data[PLATFORM_CORE_COUNT];
 #if ENABLE_PAUTH
 CASSERT(CPU_DATA_APIAKEY_OFFSET == __builtin_offsetof
 	(cpu_data_t, apiakey),
-	assert_cpu_data_crash_stack_offset_mismatch);
+	assert_cpu_data_pauth_stack_offset_mismatch);
 #endif
 
 #if CRASH_REPORTING
