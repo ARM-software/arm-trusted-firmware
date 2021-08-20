@@ -5,10 +5,11 @@ Prerequisites
 --------------
 
 To evaluate |RME|, first follow the instructions as described in the |TF-A|
-:ref:`Getting Started` section to clone the repository and setup the build
-environment. This should setup the required software libraries and toolchain
-for the build. Specifically, ensure that the environment variable
-``CROSS_COMPILE`` is setup correctly.
+:ref:`Prerequisites` section to clone the repository and setup the build
+environment. This should setup the required software libraries and aarch64
+baremetal toolchain for the build. Specifically, ensure that the environment
+variable ``CROSS_COMPILE`` is setup correctly as described in :ref:`Performing
+an Initial Build`.
 
 Next, similar to the |TF-A| approach, follow the instructions as described
 in the `TF-A Tests Getting Started`_ for the pre-requisites.
@@ -75,7 +76,7 @@ To launch the Armv-A Base RevC AEM FVP, execute the following command:
 
 .. code:: shell
 
-    ./FVP_Base_RevC-2xAEMvA \
+    <path to fvp pkg>/models/Linux64_GCC-6.4/FVP_Base_RevC-2xAEMvA \
     -C bp.dram_size=2 \
     -C bp.pl011_uart0.uart_enable=1 \
     -C bp.pl011_uart1.uart_enable=1 \
@@ -109,6 +110,21 @@ To launch the Armv-A Base RevC AEM FVP, execute the following command:
     -C bp.flashloader0.fname=<path to fip.bin> \
     -C bp.secureflashloader.fname=<path to bl1.bin>
 
+where:
+
+``<path to fvp pkg>``
+  * The directory that the FVP was untared into
+``<path to fip.bin>``
+  * The fip.bin created during |TF-A| make
+  * For example: ``trusted-firmware-a/build/fvp/debug/fip.bin``
+``<path to bl1.bin>``
+  * The bl1.bin created during |TF-A| make
+  * For example: ``trusted-firmware-a/build/fvp/debug/bl1.bin``
+
+Test results are output to the window titled "FVP terminal_0" and the Test
+Realm Payload logs are output to the window titled "FVP terminal_3.
+
+
 Details of the |TF-A-Tests| for Realm world
 ---------------------------------------------
 
@@ -130,11 +146,8 @@ Known limitations of the prototype
 -----------------------------------
 
 This is a prototype to bootstrap TF-A on an RME enabled FVP. It replaces the
-secure world payload with Realm world binary. Currently, due to prototype nature
-of the code changes, all the appropriate cache maintenance operations are not done
-and hence the cache state modelling is disabled when running on the FVP. Further,
-the Granule protection table (GPT) initialization sequence is a work in progress
-(although functional).
+secure world payload with Realm world binary. The Granule protection table (GPT)
+initialization sequence is a work in progress (although functional).
 
 --------------
 
