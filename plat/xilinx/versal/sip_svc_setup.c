@@ -42,7 +42,7 @@ DEFINE_SVC_UUID2(versal_sip_uuid,
 static int32_t sip_svc_setup(void)
 {
 	/* PM implementation as SiP Service */
-	pm_setup();
+	(void)pm_setup();
 
 	return 0;
 }
