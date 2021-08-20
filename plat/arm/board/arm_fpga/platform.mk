@@ -123,6 +123,6 @@ $(eval $(call MAKE_LD,$(BUILD_PLAT)/build_axf.ld,plat/arm/board/arm_fpga/build_a
 
 bl31.axf: bl31 dtbs ${BUILD_PLAT}/rom_trampoline.o ${BUILD_PLAT}/kernel_trampoline.o ${BUILD_PLAT}/build_axf.ld
 	$(ECHO) "  LD      $@"
-	$(Q)$(LD) -T ${BUILD_PLAT}/build_axf.ld -L ${BUILD_PLAT} --strip-debug -o ${BUILD_PLAT}/bl31.axf
+	$(Q)$(LD) -T ${BUILD_PLAT}/build_axf.ld -L ${BUILD_PLAT} --strip-debug -s -n -o ${BUILD_PLAT}/bl31.axf
 
 all: bl31.axf

@@ -34,7 +34,6 @@ SECTIONS
 	.bl31 (BL31_BASE): {
 		ASSERT(. == ALIGN(PAGE_SIZE), "BL31_BASE is not page aligned");
 		*bl31.elf(.text* .data* .rodata* ro* .bss*)
-		*bl31.elf(.stack)
 	}
 
 	.dtb (FPGA_PRELOADED_DTB_BASE): {
@@ -47,6 +46,7 @@ SECTIONS
 		KEEP(*(.kern_tramp))
 	}
 
+	/DISCARD/ : { *(stacks) }
 	/DISCARD/ : { *(.debug_*) }
 	/DISCARD/ : { *(.note*) }
 	/DISCARD/ : { *(.comment*) }
