@@ -10,13 +10,14 @@
 ERRATA := \
   ERRATA_SOC_A050426
 
-define add_errata_define
+define enable_errata
   $(1) ?= 0
   ifeq ($$($(1)),1)
     $$(eval $$(call add_define,$(1)))
+    BL2_SOURCES += $(PLAT_COMMON_PATH)/soc_errata/errata_a$(shell echo $(1)|awk -F '_A' '{print $$NF}').c
   endif
 endef
 
-$(foreach e,$(ERRATA),$(eval $(call add_errata_define,$(e))))
+$(foreach e,$(ERRATA),$(eval $(call enable_errata,$(strip $(e)))))
 
 BL2_SOURCES += $(PLAT_COMMON_PATH)/soc_errata/errata.c
