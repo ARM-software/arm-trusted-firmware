@@ -104,6 +104,8 @@
 #define GICD_IROUTER		U(0x6000)
 #define GICD_IROUTERE		U(0x8000)
 
+#define GICD_PIDR0_GICV3	U(0xffe0)
+#define GICD_PIDR1_GICV3	U(0xffe4)
 #define GICD_PIDR2_GICV3	U(0xffe8)
 
 #define IGRPMODR_SHIFT		5
@@ -323,6 +325,8 @@ static inline uintptr_t gicv3_redist_size(uint64_t typer_val)
 	return 1U << GICR_V3_PCPUBASE_SHIFT;
 #endif
 }
+
+unsigned int gicv3_get_component_partnum(const uintptr_t gic_frame);
 
 static inline bool gicv3_is_intr_id_special_identifier(unsigned int id)
 {
