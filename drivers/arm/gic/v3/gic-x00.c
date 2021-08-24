@@ -16,15 +16,13 @@
 #include <assert.h>
 
 #include <arch_helpers.h>
+#include <drivers/arm/arm_gicv3_common.h>
 #include <drivers/arm/gicv3.h>
 
 #include "gicv3_private.h"
 
 /* GIC-600 specific register offsets */
 #define GICR_PWRR			0x24U
-#define IIDR_MODEL_ARM_GIC_600		U(0x0200043b)
-#define IIDR_MODEL_ARM_GIC_600AE	U(0x0300043b)
-#define IIDR_MODEL_ARM_GIC_700		U(0x0400043b)
 
 /* GICR_PWRR fields */
 #define PWRR_RDPD_SHIFT			0
