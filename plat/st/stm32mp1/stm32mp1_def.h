@@ -52,7 +52,12 @@
 #define STM32MP151D_PART_NB	U(0x050000AF)
 
 #define STM32MP1_REV_B		U(0x2000)
+#if STM32MP13
+#define STM32MP1_REV_Z		U(0x1001)
+#endif
+#if STM32MP15
 #define STM32MP1_REV_Z		U(0x2001)
+#endif
 
 /*******************************************************************************
  * PACKAGE ID
