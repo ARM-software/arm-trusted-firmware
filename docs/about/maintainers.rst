@@ -75,7 +75,7 @@ Software Delegated Exception Interface (SDEI)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Mark Dykes <mark.dykes@arm.com>
 :|G|: `mardyk01`_
-:|M|: John Powell <John.Powell@arm.com>
+:|M|: John Powell <john.powell@arm.com>
 :|G|: `john-powell-arm`_
 :|F|: services/std_svc/sdei/
 
@@ -105,7 +105,7 @@ Exception Handling Framework (EHF)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :|M|: Manish Badarkhe <manish.badarkhe@arm.com>
 :|G|: `ManishVB-Arm`_
-:|M|: John Powell <John.Powell@arm.com>
+:|M|: John Powell <john.powell@arm.com>
 :|G|: `john-powell-arm`_
 :|F|: bl31/ehf.c
 
@@ -115,7 +115,7 @@ Realm Management Extension (RME)
 :|G|: `bipinravi-arm`_
 :|M|: Mark Dykes <mark.dykes@arm.com>
 :|G|: `mardyk01`_
-:|M|: John Powell <John.Powell@arm.com>
+:|M|: John Powell <john.powell@arm.com>
 :|G|: `john-powell-arm`_
 :|M|: Zelalem Aweke <Zelalem.Aweke@arm.com>
 :|G|: `zelalem-aweke`_
@@ -201,7 +201,7 @@ Arm CPU libraries
 ^^^^^^^^^^^^^^^^^
 :|M|: Lauren Wehrmeister <Lauren.Wehrmeister@arm.com>
 :|G|: `laurenw-arm`_
-:|M|: John Powell <John.Powell@arm.com>
+:|M|: John Powell <john.powell@arm.com>
 :|G|: `john-powell-arm`_
 :|F|: lib/cpus/
 
@@ -255,7 +255,7 @@ Standard C library
 ^^^^^^^^^^^^^^^^^^
 :|M|: Alexei Fedorov <Alexei.Fedorov@arm.com>
 :|G|: `AlexeiFedorov`_
-:|M|: John Powell <John.Powell@arm.com>
+:|M|: John Powell <john.powell@arm.com>
 :|G|: `john-powell-arm`_
 :|F|: lib/libc/
 
@@ -334,6 +334,15 @@ Max Power Mitigation Mechanism (MPMM)
 :|G|: `CJKay`_
 :|F|: include/lib/mpmm/
 :|F|: lib/mpmm/
+
+Granule Protection Tables Library (GPT-RME)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Mark Dykes <mark.dykes@arm.com>
+:|G|: `mardyk01`_
+:|M|: John Powell <john.powell@arm.com>
+:|G|: `john-powell-arm`_
+:|F|: lib/gpt_rme
+:|F|: include/lib/gpt_rme
 
 Platform Ports
 ~~~~~~~~~~~~~~
