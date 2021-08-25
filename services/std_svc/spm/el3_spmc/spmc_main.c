@@ -567,6 +567,166 @@ uint32_t get_partition_ffa_version(bool secure_origin)
 	}
 }
 
+static uint64_t rxtx_map_handler(uint32_t smc_fid,
+				 bool secure_origin,
+				 uint64_t x1,
+				 uint64_t x2,
+				 uint64_t x3,
+				 uint64_t x4,
+				 void *cookie,
+				 void *handle,
+				 uint64_t flags)
+{
+	int ret;
+	uint32_t error_code;
+	uint32_t mem_atts = secure_origin ? MT_SECURE : MT_NS;
+	struct mailbox *mbox;
+	uintptr_t tx_address = x1;
+	uintptr_t rx_address = x2;
+	uint32_t page_count = x3 & FFA_RXTX_PAGE_COUNT_MASK; /* Bits [5:0] */
+	uint32_t buf_size = page_count * FFA_PAGE_SIZE;
+
+	/*
+	 * The SPMC does not support mapping of VM RX/TX pairs to facilitate
+	 * indirect messaging with SPs. Check if the Hypervisor has invoked this
+	 * ABI on behalf of a VM and reject it if this is the case.
+	 */
+	if (tx_address == 0 || rx_address == 0) {
+		WARN("Mapping RX/TX Buffers on behalf of VM not supported.\n");
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Ensure the specified buffers are not the same. */
+	if (tx_address == rx_address) {
+		WARN("TX Buffer must not be the same as RX Buffer.\n");
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Ensure the buffer size is not 0. */
+	if (buf_size == 0U) {
+		WARN("Buffer size must not be 0\n");
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/*
+	 * Ensure the buffer size is a multiple of the translation granule size
+	 * in TF-A.
+	 */
+	if (buf_size % PAGE_SIZE != 0U) {
+		WARN("Buffer size must be aligned to translation granule.\n");
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Obtain the RX/TX buffer pair descriptor. */
+	mbox = spmc_get_mbox_desc(secure_origin);
+
+	spin_lock(&mbox->lock);
+
+	/* Check if buffers have already been mapped. */
+	if (mbox->rx_buffer != 0 || mbox->tx_buffer != 0) {
+		WARN("RX/TX Buffers already mapped (%p/%p)\n",
+		     (void *) mbox->rx_buffer, (void *)mbox->tx_buffer);
+		error_code = FFA_ERROR_DENIED;
+		goto err;
+	}
+
+	/* memmap the TX buffer as read only. */
+	ret = mmap_add_dynamic_region(tx_address, /* PA */
+			tx_address, /* VA */
+			buf_size, /* size */
+			mem_atts | MT_RO_DATA); /* attrs */
+	if (ret != 0) {
+		/* Return the correct error code. */
+		error_code = (ret == -ENOMEM) ? FFA_ERROR_NO_MEMORY :
+						FFA_ERROR_INVALID_PARAMETER;
+		WARN("Unable to map TX buffer: %d\n", error_code);
+		goto err;
+	}
+
+	/* memmap the RX buffer as read write. */
+	ret = mmap_add_dynamic_region(rx_address, /* PA */
+			rx_address, /* VA */
+			buf_size, /* size */
+			mem_atts | MT_RW_DATA); /* attrs */
+
+	if (ret != 0) {
+		error_code = (ret == -ENOMEM) ? FFA_ERROR_NO_MEMORY :
+						FFA_ERROR_INVALID_PARAMETER;
+		WARN("Unable to map RX buffer: %d\n", error_code);
+		/* Unmap the TX buffer again. */
+		mmap_remove_dynamic_region(tx_address, buf_size);
+		goto err;
+	}
+
+	mbox->tx_buffer = (void *) tx_address;
+	mbox->rx_buffer = (void *) rx_address;
+	mbox->rxtx_page_count = page_count;
+	spin_unlock(&mbox->lock);
+
+	SMC_RET1(handle, FFA_SUCCESS_SMC32);
+	/* Execution stops here. */
+err:
+	spin_unlock(&mbox->lock);
+	return spmc_ffa_error_return(handle, error_code);
+}
+
+static uint64_t rxtx_unmap_handler(uint32_t smc_fid,
+				   bool secure_origin,
+				   uint64_t x1,
+				   uint64_t x2,
+				   uint64_t x3,
+				   uint64_t x4,
+				   void *cookie,
+				   void *handle,
+				   uint64_t flags)
+{
+	struct mailbox *mbox = spmc_get_mbox_desc(secure_origin);
+	uint32_t buf_size = mbox->rxtx_page_count * FFA_PAGE_SIZE;
+
+	/*
+	 * The SPMC does not support mapping of VM RX/TX pairs to facilitate
+	 * indirect messaging with SPs. Check if the Hypervisor has invoked this
+	 * ABI on behalf of a VM and reject it if this is the case.
+	 */
+	if (x1 != 0UL) {
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	spin_lock(&mbox->lock);
+
+	/* Check if buffers are currently mapped. */
+	if (mbox->rx_buffer == 0 || mbox->tx_buffer == 0) {
+		spin_unlock(&mbox->lock);
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Unmap RX Buffer */
+	if (mmap_remove_dynamic_region((uintptr_t) mbox->rx_buffer,
+				       buf_size) != 0) {
+		WARN("Unable to unmap RX buffer!\n");
+	}
+
+	mbox->rx_buffer = 0;
+
+	/* Unmap TX Buffer */
+	if (mmap_remove_dynamic_region((uintptr_t) mbox->tx_buffer,
+				       buf_size) != 0) {
+		WARN("Unable to unmap TX buffer!\n");
+	}
+
+	mbox->tx_buffer = 0;
+	mbox->rxtx_page_count = 0;
+
+	spin_unlock(&mbox->lock);
+	SMC_RET1(handle, FFA_SUCCESS_SMC32);
+}
+
 /*******************************************************************************
  * This function will parse the Secure Partition Manifest. From manifest, it
  * will fetch details for preparing Secure partition image context and secure
@@ -972,6 +1132,15 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 	case FFA_MSG_SEND_DIRECT_RESP_SMC64:
 		return direct_resp_smc_handler(smc_fid, secure_origin, x1, x2,
 					       x3, x4, cookie, handle, flags);
+
+	case FFA_RXTX_MAP_SMC32:
+	case FFA_RXTX_MAP_SMC64:
+		return rxtx_map_handler(smc_fid, secure_origin, x1, x2, x3, x4,
+					cookie, handle, flags);
+
+	case FFA_RXTX_UNMAP:
+		return rxtx_unmap_handler(smc_fid, secure_origin, x1, x2, x3,
+					  x4, cookie, handle, flags);
 
 	case FFA_MSG_WAIT:
 		return msg_wait_handler(smc_fid, secure_origin, x1, x2, x3, x4,
