@@ -1,8 +1,13 @@
 #
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
+
+# Making sure the Morello platform type is specified
+ifeq ($(filter ${TARGET_PLATFORM}, fvp soc),)
+	$(error TARGET_PLATFORM must be fvp or soc)
+endif
 
 MORELLO_BASE		:=	plat/arm/board/morello
 
@@ -61,6 +66,9 @@ HW_ASSISTED_COHERENCY			:=	1
 # When building for systems with hardware-assisted coherency, there's no need to
 # use USE_COHERENT_MEM. Require that USE_COHERENT_MEM must be set to 0 too.
 USE_COHERENT_MEM			:=	0
+
+# Add TARGET_PLATFORM to differentiate between Morello FVP and Morello SoC platform
+$(eval $(call add_define,TARGET_PLATFORM_$(call uppercase,${TARGET_PLATFORM})))
 
 include plat/arm/common/arm_common.mk
 include plat/arm/css/common/css_common.mk
