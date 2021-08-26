@@ -22,3 +22,4 @@ Components
    ffa-manifest-binding
    xlat-tables-lib-v2-design
    cot-binding
+   realm-management-extension
