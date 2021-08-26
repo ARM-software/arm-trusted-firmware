@@ -365,6 +365,10 @@ For Cortex-A710, the following errata build flags are defined :
    Cortex-A710 CPU. This needs to be enabled only for revisions r0p0, r1p0 and
    r2p0 of the CPU. It is still open.
 
+-  ``ERRATA_A710_2081180``: This applies errata 2081180 workaround to
+   Cortex-A710 CPU. This needs to be enabled only for revisions r0p0, r1p0 and
+   r2p0 of the CPU. It is still open.
+
 DSU Errata Workarounds
 ----------------------
 

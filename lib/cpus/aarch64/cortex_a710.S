@@ -64,6 +64,49 @@ func check_errata_1987031
 	b	cpu_rev_var_ls
 endfunc check_errata_1987031
 
+/* --------------------------------------------------
+ * Errata Workaround for Cortex-A710 Erratum 2081180.
+ * This applies to revision r0p0, r1p0 and r2p0 of Cortex-A710.
+ * It is still open.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
+func errata_a710_2081180_wa
+	/* Check revision. */
+	mov	x17, x30
+	bl	check_errata_2081180
+	cbz	x0, 1f
+
+	/* Apply instruction patching sequence */
+	ldr	x0,=0x3
+	msr	S3_6_c15_c8_0,x0
+	ldr	x0,=0xF3A08002
+	msr	S3_6_c15_c8_2,x0
+	ldr	x0,=0xFFF0F7FE
+	msr	S3_6_c15_c8_3,x0
+	ldr	x0,=0x10002001003FF
+	msr	S3_6_c15_c8_1,x0
+	ldr	x0,=0x4
+	msr	S3_6_c15_c8_0,x0
+	ldr	x0,=0xBF200000
+	msr	S3_6_c15_c8_2,x0
+	ldr	x0,=0xFFEF0000
+	msr	S3_6_c15_c8_3,x0
+	ldr	x0,=0x10002001003F3
+	msr	S3_6_c15_c8_1,x0
+	isb
+1:
+	ret	x17
+endfunc errata_a710_2081180_wa
+
+func check_errata_2081180
+	/* Applies to r0p0, r1p0 and r2p0 */
+	mov	x1, #0x20
+	b	cpu_rev_var_ls
+endfunc check_errata_2081180
+
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
@@ -95,6 +138,7 @@ func cortex_a710_errata_report
 	 * checking functions of each errata.
 	 */
 	report_errata ERRATA_A710_1987031, cortex_a710, 1987031
+	report_errata ERRATA_A710_2081180, cortex_a710, 2081180
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -113,6 +157,11 @@ func cortex_a710_reset_func
 #if ERRATA_A710_1987031
 	mov	x0, x18
 	bl	errata_a710_1987031_wa
+#endif
+
+#if ERRATA_A710_2081180
+	mov	x0, x18
+	bl	errata_a710_2081180_wa
 #endif
 
 	isb
