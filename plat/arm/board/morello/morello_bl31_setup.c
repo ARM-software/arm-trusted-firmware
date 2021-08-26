@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,6 +9,7 @@
 #include <drivers/arm/css/scmi.h>
 #include <drivers/arm/css/sds.h>
 #include <lib/cassert.h>
+#include <lib/utils.h>
 #include <plat/arm/common/plat_arm.h>
 
 #include "morello_def.h"
@@ -62,6 +63,83 @@ const plat_psci_ops_t *plat_arm_psci_override_pm_ops(plat_psci_ops_t *ops)
 	return css_scmi_override_pm_ops(ops);
 }
 
+#ifdef TARGET_PLATFORM_SOC
+/*
+ * Morello platform supports RDIMMs with ECC capability. To use the ECC
+ * capability, the entire DDR memory space has to be zeroed out before
+ * enabling the ECC bits in DMC-Bing. Zeroing out several gigabytes of
+ * memory from SCP is quite time consuming so the following function
+ * is added to zero out the DDR memory from application processor which is
+ * much faster compared to SCP. BL33 binary cannot be copied to DDR memory
+ * before enabling ECC so copy_bl33 function is added to copy BL33 binary
+ * from IOFPGA-DDR3 memory to main DDR4 memory.
+ */
+
+static void dmc_ecc_setup(struct morello_plat_info *plat_info)
+{
+	uint64_t dram2_size;
+	uint32_t val;
+
+	INFO("Total DIMM size: %uGB\n",
+			(uint32_t)(plat_info->local_ddr_size / 0x40000000));
+
+	assert(plat_info->local_ddr_size > ARM_DRAM1_SIZE);
+	dram2_size = plat_info->local_ddr_size - ARM_DRAM1_SIZE;
+
+	VERBOSE("Zeroing DDR memories\n");
+	zero_normalmem((void *)ARM_DRAM1_BASE, ARM_DRAM1_SIZE);
+	flush_dcache_range(ARM_DRAM1_BASE, ARM_DRAM1_SIZE);
+	zero_normalmem((void *)ARM_DRAM2_BASE, dram2_size);
+	flush_dcache_range(ARM_DRAM2_BASE, dram2_size);
+
+	/* Clear previous ECC errors while zeroing out the memory */
+	val = mmio_read_32(MORELLO_DMC0_ERR2STATUS_REG);
+	mmio_write_32(MORELLO_DMC0_ERR2STATUS_REG, val);
+
+	val = mmio_read_32(MORELLO_DMC1_ERR2STATUS_REG);
+	mmio_write_32(MORELLO_DMC1_ERR2STATUS_REG, val);
+
+	/* Set DMCs to CONFIG state before writing ERR0CTLR0 register */
+	mmio_write_32(MORELLO_DMC0_MEMC_CMD_REG, MORELLO_DMC_MEMC_CMD_CONFIG);
+	mmio_write_32(MORELLO_DMC1_MEMC_CMD_REG, MORELLO_DMC_MEMC_CMD_CONFIG);
+
+	while ((mmio_read_32(MORELLO_DMC0_MEMC_STATUS_REG) &
+			MORELLO_DMC_MEMC_STATUS_MASK) !=
+			MORELLO_DMC_MEMC_CMD_CONFIG) {
+		continue;
+	}
+
+	while ((mmio_read_32(MORELLO_DMC1_MEMC_STATUS_REG) &
+			MORELLO_DMC_MEMC_STATUS_MASK) !=
+			MORELLO_DMC_MEMC_CMD_CONFIG) {
+		continue;
+	}
+
+	INFO("Enabling ECC on DMCs\n");
+	/* Enable ECC in DMCs */
+	mmio_setbits_32(MORELLO_DMC0_ERR0CTLR0_REG,
+		MORELLO_DMC_ERR0CTLR0_ECC_EN);
+	mmio_setbits_32(MORELLO_DMC1_ERR0CTLR0_REG,
+		MORELLO_DMC_ERR0CTLR0_ECC_EN);
+
+	/* Set DMCs to READY state */
+	mmio_write_32(MORELLO_DMC0_MEMC_CMD_REG, MORELLO_DMC_MEMC_CMD_READY);
+	mmio_write_32(MORELLO_DMC1_MEMC_CMD_REG, MORELLO_DMC_MEMC_CMD_READY);
+
+	while ((mmio_read_32(MORELLO_DMC0_MEMC_STATUS_REG) &
+			MORELLO_DMC_MEMC_STATUS_MASK) !=
+			MORELLO_DMC_MEMC_CMD_READY) {
+		continue;
+	}
+
+	while ((mmio_read_32(MORELLO_DMC1_MEMC_STATUS_REG) &
+			MORELLO_DMC_MEMC_STATUS_MASK) !=
+			MORELLO_DMC_MEMC_CMD_READY) {
+		continue;
+	}
+}
+#endif
+
 static void copy_bl33(uint32_t src, uint32_t dst, uint32_t size)
 {
 	unsigned int i;
@@ -112,6 +190,10 @@ void bl31_platform_setup(void)
 	}
 
 	arm_bl31_platform_setup();
+
+#ifdef TARGET_PLATFORM_SOC
+	dmc_ecc_setup(&plat_info);
+#endif
 
 	ret = sds_struct_read(MORELLO_SDS_BL33_INFO_STRUCT_ID,
 				MORELLO_SDS_BL33_INFO_OFFSET,

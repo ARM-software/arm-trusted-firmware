@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -29,5 +29,30 @@
 
 /* Base address of non-secure SRAM where Platform information will be filled */
 #define MORELLO_PLATFORM_INFO_BASE		UL(0x06000000)
+
+/* DMC memory status registers */
+#define MORELLO_DMC0_MEMC_STATUS_REG		0x4E000000
+#define MORELLO_DMC1_MEMC_STATUS_REG		0x4E100000
+
+#define MORELLO_DMC_MEMC_STATUS_MASK		U(7)
+
+/* DMC memory command registers */
+#define MORELLO_DMC0_MEMC_CMD_REG		0x4E000008
+#define MORELLO_DMC1_MEMC_CMD_REG		0x4E100008
+
+/* DMC ERR0CTLR0 registers */
+#define MORELLO_DMC0_ERR0CTLR0_REG		0x4E000708
+#define MORELLO_DMC1_ERR0CTLR0_REG		0x4E100708
+
+/* DMC ECC in ERR0CTLR0 register */
+#define MORELLO_DMC_ERR0CTLR0_ECC_EN		U(9)
+
+/* DMC ERR2STATUS register */
+#define MORELLO_DMC0_ERR2STATUS_REG		0x4E000790
+#define MORELLO_DMC1_ERR2STATUS_REG		0x4E100790
+
+/* DMC memory commands */
+#define MORELLO_DMC_MEMC_CMD_CONFIG		U(0)
+#define MORELLO_DMC_MEMC_CMD_READY		U(3)
 
 #endif /* MORELLO_DEF_H */
