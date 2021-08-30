@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2018-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,7 @@
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/clk.h>
 #include <drivers/delay_timer.h>
 #include <drivers/mmc.h>
 #include <drivers/st/stm32_gpio.h>
@@ -714,7 +715,7 @@ int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params)
 		return -ENOMEM;
 	}
 
-	stm32mp_clk_enable(sdmmc2_params.clock_id);
+	clk_enable(sdmmc2_params.clock_id);
 
 	rc = stm32mp_reset_assert(sdmmc2_params.reset_id, TIMEOUT_US_1_MS);
 	if (rc != 0) {
@@ -727,7 +728,7 @@ int stm32_sdmmc2_mmc_init(struct stm32_sdmmc2_params *params)
 	}
 	mdelay(1);
 
-	sdmmc2_params.clk_rate = stm32mp_clk_get_rate(sdmmc2_params.clock_id);
+	sdmmc2_params.clk_rate = clk_get_rate(sdmmc2_params.clock_id);
 	sdmmc2_params.device_info->ocr_voltage = OCR_3_2_3_3 | OCR_3_3_3_4;
 
 	return mmc_init(&stm32_sdmmc2_ops, sdmmc2_params.clk_rate,

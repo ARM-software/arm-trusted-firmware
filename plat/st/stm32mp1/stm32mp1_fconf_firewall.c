@@ -9,7 +9,7 @@
 #include <common/debug.h>
 #include <common/fdt_wrappers.h>
 #include <drivers/arm/tzc400.h>
-#include <drivers/st/stm32mp1_clk.h>
+#include <drivers/clk.h>
 #include <dt-bindings/clock/stm32mp1-clks.h>
 #include <lib/fconf/fconf.h>
 #include <lib/object_pool.h>
@@ -31,8 +31,8 @@ struct dt_id_attr {
 
 void stm32mp1_arch_security_setup(void)
 {
-	stm32mp_clk_enable(TZC1);
-	stm32mp_clk_enable(TZC2);
+	clk_enable(TZC1);
+	clk_enable(TZC2);
 
 	tzc400_init(STM32MP1_TZC_BASE);
 	tzc400_disable_filters();

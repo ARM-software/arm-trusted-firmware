@@ -9,6 +9,7 @@
 
 #include <arch_helpers.h>
 #include <common/debug.h>
+#include <drivers/clk.h>
 #include <drivers/delay_timer.h>
 #include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32mp_clkfunc.h>
@@ -188,13 +189,13 @@ int stm32mp_uart_console_setup(void)
 	}
 #endif
 
-	stm32mp_clk_enable((unsigned long)dt_uart_info.clock);
+	clk_enable((unsigned long)dt_uart_info.clock);
 
 #if defined(IMAGE_BL2)
 	reset_uart((uint32_t)dt_uart_info.reset);
 #endif
 
-	clk_rate = stm32mp_clk_get_rate((unsigned long)dt_uart_info.clock);
+	clk_rate = clk_get_rate((unsigned long)dt_uart_info.clock);
 
 	if (console_stm32_register(dt_uart_info.base, clk_rate,
 				   STM32MP_UART_BAUDRATE, &console) == 0) {
