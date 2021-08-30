@@ -48,11 +48,12 @@
 
 /* FCS Attestation Cert Request Parameter */
 
-#define FCS_ALIAS_CERT						0x01
-#define FCS_DEV_ID_SELF_SIGN_CERT				0x02
-#define FCS_DEV_ID_ENROLL_CERT					0x04
-#define FCS_ENROLL_SELF_SIGN_CERT				0x08
-#define FCS_PLAT_KEY_CERT					0x10
+#define FCS_ATTEST_FIRMWARE_CERT				0x01
+#define FCS_ATTEST_DEV_ID_SELF_SIGN_CERT			0x02
+#define FCS_ATTEST_DEV_ID_ENROLL_CERT				0x04
+#define FCS_ATTEST_ENROLL_SELF_SIGN_CERT			0x08
+#define FCS_ATTEST_ALIAS_CERT					0x10
+#define FCS_ATTEST_CERT_MAX_REQ_PARAM				0xFF
 
 /* FCS Crypto Service */
 
