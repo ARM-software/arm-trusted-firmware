@@ -19,11 +19,55 @@
 #error "Neoverse-N2 supports only AArch64. Compile with CTX_INCLUDE_AARCH32_REGS=0"
 #endif
 
+/* --------------------------------------------------
+ * Errata Workaround for Neoverse N2 Erratum 2002655.
+ * This applies to revision r0p0 of Neoverse N2. it is still open.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * --------------------------------------------------
+ */
+func errata_n2_2002655_wa
+	/* Check revision. */
+	mov	x17, x30
+	bl	check_errata_2002655
+	cbz	x0, 1f
+
+	/* Apply instruction patching sequence */
+	ldr x0,=0x6
+	msr S3_6_c15_c8_0,x0
+	ldr x0,=0xF3A08002
+	msr S3_6_c15_c8_2,x0
+	ldr x0,=0xFFF0F7FE
+	msr S3_6_c15_c8_3,x0
+	ldr x0,=0x40000001003ff
+	msr S3_6_c15_c8_1,x0
+	ldr x0,=0x7
+	msr S3_6_c15_c8_0,x0
+	ldr x0,=0xBF200000
+	msr S3_6_c15_c8_2,x0
+	ldr x0,=0xFFEF0000
+	msr S3_6_c15_c8_3,x0
+	ldr x0,=0x40000001003f3
+	msr S3_6_c15_c8_1,x0
+	isb
+1:
+	ret	x17
+endfunc errata_n2_2002655_wa
+
+func check_errata_2002655
+	/* Applies to r0p0 */
+	mov	x1, #0x00
+	b	cpu_rev_var_ls
+endfunc check_errata_2002655
+
 	/* -------------------------------------------------
 	 * The CPU Ops reset function for Neoverse N2.
 	 * -------------------------------------------------
 	 */
 func neoverse_n2_reset_func
+	mov	x19, x30
+
 	/* Check if the PE implements SSBS */
 	mrs	x0, id_aa64pfr1_el1
 	tst	x0, #(ID_AA64PFR1_EL1_SSBS_MASK << ID_AA64PFR1_EL1_SSBS_SHIFT)
@@ -58,8 +102,16 @@ func neoverse_n2_reset_func
 	msr     NEOVERSE_N2_CPUECTLR_EL1, x0
 #endif
 
+	bl	cpu_get_rev_var
+	mov	x18, x0
+
+#if ERRATA_N2_2002655
+	mov	x0, x18
+	bl	errata_n2_2002655_wa
+#endif
+
 	isb
-	ret
+	ret x19
 endfunc neoverse_n2_reset_func
 
 func neoverse_n2_core_pwr_dwn
@@ -80,7 +132,18 @@ endfunc neoverse_n2_core_pwr_dwn
  * Errata printing function for Neoverse N2 cores. Must follow AAPCS.
  */
 func neoverse_n2_errata_report
-	/* No errata reported for Neoverse N2 cores */
+	stp	x8, x30, [sp, #-16]!
+
+	bl	cpu_get_rev_var
+	mov	x8, x0
+
+	/*
+	 * Report all errata. The revision-variant information is passed to
+	 * checking functions of each errata.
+	 */
+	report_errata ERRATA_N2_2002655, neoverse_n2, 2002655
+
+	ldp	x8, x30, [sp], #16
 	ret
 endfunc neoverse_n2_errata_report
 #endif
