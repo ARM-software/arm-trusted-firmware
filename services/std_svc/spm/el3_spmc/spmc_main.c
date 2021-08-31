@@ -1017,6 +1017,7 @@ static uint64_t ffa_features_handler(uint32_t smc_fid,
 	case FFA_RXTX_MAP_SMC32:
 	case FFA_RXTX_MAP_SMC64:
 	case FFA_RXTX_UNMAP:
+	case FFA_MSG_RUN:
 
 		/*
 		 * We are relying on the fact that the other registers
@@ -1064,6 +1065,84 @@ static uint64_t ffa_id_get_handler(uint32_t smc_fid,
 		SMC_RET3(handle, FFA_SUCCESS_SMC32, 0x0,
 			 spmc_get_hyp_ctx()->ns_ep_id);
 	}
+}
+
+static uint64_t ffa_run_handler(uint32_t smc_fid,
+				bool secure_origin,
+				uint64_t x1,
+				uint64_t x2,
+				uint64_t x3,
+				uint64_t x4,
+				void *cookie,
+				void *handle,
+				uint64_t flags)
+{
+	struct secure_partition_desc *sp;
+	uint16_t target_id = FFA_RUN_EP_ID(x1);
+	uint16_t vcpu_id = FFA_RUN_VCPU_ID(x1);
+	unsigned int idx;
+	unsigned int *rt_state;
+	unsigned int *rt_model;
+
+	/* Can only be called from the normal world. */
+	if (secure_origin) {
+		ERROR("FFA_RUN can only be called from NWd.\n");
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Cannot run a Normal world partition. */
+	if (ffa_is_normal_world_id(target_id)) {
+		ERROR("Cannot run a NWd partition (0x%x).\n", target_id);
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	/* Check that the target SP exists. */
+	sp = spmc_get_sp_ctx(target_id);
+		ERROR("Unknown partition ID (0x%x).\n", target_id);
+	if (sp == NULL) {
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+
+	idx = get_ec_index(sp);
+	if (idx != vcpu_id) {
+		ERROR("Cannot run vcpu %d != %d.\n", idx, vcpu_id);
+		return spmc_ffa_error_return(handle,
+					     FFA_ERROR_INVALID_PARAMETER);
+	}
+	rt_state = &((sp->ec[idx]).rt_state);
+	rt_model = &((sp->ec[idx]).rt_model);
+	if (*rt_state == RT_STATE_RUNNING) {
+		ERROR("Partition (0x%x) is already running.\n", target_id);
+		return spmc_ffa_error_return(handle, FFA_ERROR_BUSY);
+	}
+
+	/*
+	 * Sanity check that if the execution context was not waiting then it
+	 * was either in the direct request or the run partition runtime model.
+	 */
+	if (*rt_state == RT_STATE_PREEMPTED || *rt_state == RT_STATE_BLOCKED) {
+		assert(*rt_model == RT_MODEL_RUN ||
+		       *rt_model == RT_MODEL_DIR_REQ);
+	}
+
+	/*
+	 * If the context was waiting then update the partition runtime model.
+	 */
+	if (*rt_state == RT_STATE_WAITING) {
+		*rt_model = RT_MODEL_RUN;
+	}
+
+	/*
+	 * Forward the request to the correct SP vCPU after updating
+	 * its state.
+	 */
+	*rt_state = RT_STATE_RUNNING;
+
+	return spmc_smc_return(smc_fid, secure_origin, x1, 0, 0, 0,
+			       handle, cookie, flags, target_id);
 }
 
 /*******************************************************************************
@@ -1502,6 +1581,9 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 		return ffa_error_handler(smc_fid, secure_origin, x1, x2, x3, x4,
 					cookie, handle, flags);
 
+	case FFA_MSG_RUN:
+		return ffa_run_handler(smc_fid, secure_origin, x1, x2, x3, x4,
+				       cookie, handle, flags);
 	default:
 		WARN("Unsupported FF-A call 0x%08x.\n", smc_fid);
 		break;
