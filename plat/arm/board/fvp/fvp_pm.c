@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -138,21 +138,37 @@ static void fvp_power_domain_on_finish_common(const psci_power_state_t *target_s
 	fvp_pwrc_clr_wen(mpidr);
 }
 
-
 /*******************************************************************************
  * FVP handler called when a CPU is about to enter standby.
  ******************************************************************************/
 static void fvp_cpu_standby(plat_local_state_t cpu_state)
 {
+	u_register_t scr = read_scr_el3();
 
 	assert(cpu_state == ARM_LOCAL_STATE_RET);
 
 	/*
-	 * Enter standby state
-	 * dsb is good practice before using wfi to enter low power states
+	 * Enable the Non-secure interrupt to wake the CPU.
+	 * In GICv3 affinity routing mode, the Non-secure Group 1 interrupts
+	 * use Physical FIQ at EL3 whereas in GICv2, Physical IRQ is used.
+	 * Enabling both the bits works for both GICv2 mode and GICv3 affinity
+	 * routing mode.
+	 */
+	write_scr_el3(scr | SCR_IRQ_BIT | SCR_FIQ_BIT);
+	isb();
+
+	/*
+	 * Enter standby state.
+	 * dsb is good practice before using wfi to enter low power states.
 	 */
 	dsb();
 	wfi();
+
+	/*
+	 * Restore SCR_EL3 to the original value, synchronisation of SCR_EL3
+	 * is done by eret in el3_exit() to save some execution cycles.
+	 */
+	write_scr_el3(scr);
 }
 
 /*******************************************************************************
