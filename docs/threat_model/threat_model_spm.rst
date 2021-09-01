@@ -8,7 +8,7 @@ This document provides a threat model for the TF-A `Secure Partition Manager`_
 (SPM) implementation or more generally the S-EL2 reference firmware running on
 systems implementing the FEAT_SEL2 (formerly Armv8.4 Secure EL2) architecture
 extension. The SPM implementation is based on the `Arm Firmware Framework for
-Armv8-A`_ specification.
+Arm A-profile`_ specification.
 
 In brief, the broad FF-A specification and S-EL2 firmware implementation
 provide:
@@ -611,7 +611,7 @@ element of the data flow diagram.
 
 *Copyright (c) 2021, Arm Limited. All rights reserved.*
 
-.. _Arm Firmware Framework for Armv8-A: https://developer.arm.com/docs/den0077/latest
+.. _Arm Firmware Framework for Arm A-profile: https://developer.arm.com/docs/den0077/latest
 .. _Secure Partition Manager: ../components/secure-partition-manager.html
 .. _Generic TF-A threat model: ./threat_model.html#threat-analysis
 .. _FF-A ACS: https://github.com/ARM-software/ff-a-acs/releases
