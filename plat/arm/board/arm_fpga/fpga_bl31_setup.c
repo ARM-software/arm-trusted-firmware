@@ -132,6 +132,57 @@ unsigned int plat_get_syscnt_freq2(void)
 				       FPGA_DEFAULT_TIMER_FREQUENCY);
 }
 
+#define CMDLINE_SIGNATURE	"CMD:"
+
+static int fpga_dtb_set_commandline(void *fdt, const char *cmdline)
+{
+	int chosen;
+	const char *eol;
+	char nul = 0;
+	int slen, err;
+
+	chosen = fdt_add_subnode(fdt, 0, "chosen");
+	if (chosen == -FDT_ERR_EXISTS) {
+		chosen = fdt_path_offset(fdt, "/chosen");
+	}
+
+	if (chosen < 0) {
+		return chosen;
+	}
+
+	/*
+	 * There is most likely an EOL at the end of the
+	 * command line, make sure we terminate the line there.
+	 * We can't replace the EOL with a NUL byte in the
+	 * source, as this is in read-only memory. So we first
+	 * create the property without any termination, then
+	 * append a single NUL byte.
+	 */
+	eol = strchr(cmdline, '\n');
+	if (eol == NULL) {
+		eol = strchr(cmdline, 0);
+	}
+	/* Skip the signature and omit the EOL/NUL byte. */
+	slen = eol - (cmdline + strlen(CMDLINE_SIGNATURE));
+	/*
+	 * Let's limit the size of the property, just in case
+	 * we find the signature by accident. The Linux kernel
+	 * limits to 4096 characters at most (in fact 2048 for
+	 * arm64), so that sounds like a reasonable number.
+	 */
+	if (slen > 4095) {
+		slen = 4095;
+	}
+
+	err = fdt_setprop(fdt, chosen, "bootargs",
+			  cmdline + strlen(CMDLINE_SIGNATURE), slen);
+	if (err != 0) {
+		return err;
+	}
+
+	return fdt_appendprop(fdt, chosen, "bootargs", &nul, 1);
+}
+
 static void fpga_prepare_dtb(void)
 {
 	void *fdt = (void *)(uintptr_t)FPGA_PRELOADED_DTB_BASE;
@@ -151,55 +202,13 @@ static void fpga_prepare_dtb(void)
 	}
 
 	/* Check for the command line signature. */
-	if (!strncmp(cmdline, "CMD:", 4)) {
-		int chosen;
-
-		INFO("using command line at 0x%x\n", FPGA_PRELOADED_CMD_LINE);
-
-		chosen = fdt_add_subnode(fdt, 0, "chosen");
-		if (chosen == -FDT_ERR_EXISTS) {
-			chosen = fdt_path_offset(fdt, "/chosen");
-		}
-		if (chosen < 0) {
-			ERROR("cannot find /chosen node: %d\n", chosen);
+	if (!strncmp(cmdline, CMDLINE_SIGNATURE, strlen(CMDLINE_SIGNATURE))) {
+		err = fpga_dtb_set_commandline(fdt, cmdline);
+		if (err == 0) {
+			INFO("using command line at 0x%x\n",
+			     FPGA_PRELOADED_CMD_LINE);
 		} else {
-			const char *eol;
-			char nul = 0;
-			int slen;
-
-			/*
-			 * There is most likely an EOL at the end of the
-			 * command line, make sure we terminate the line there.
-			 * We can't replace the EOL with a NUL byte in the
-			 * source, as this is in read-only memory. So we first
-			 * create the property without any termination, then
-			 * append a single NUL byte.
-			 */
-			eol = strchr(cmdline, '\n');
-			if (!eol) {
-				eol = strchr(cmdline, 0);
-			}
-			/* Skip the signature and omit the EOL/NUL byte. */
-			slen = eol - (cmdline + 4);
-
-			/*
-			 * Let's limit the size of the property, just in case
-			 * we find the signature by accident. The Linux kernel
-			 * limits to 4096 characters at most (in fact 2048 for
-			 * arm64), so that sounds like a reasonable number.
-			 */
-			if (slen > 4095) {
-				slen = 4095;
-			}
-			err = fdt_setprop(fdt, chosen, "bootargs",
-					  cmdline + 4, slen);
-			if (!err) {
-				err = fdt_appendprop(fdt, chosen, "bootargs",
-						     &nul, 1);
-			}
-			if (err) {
-				ERROR("Could not set command line: %d\n", err);
-			}
+			ERROR("failed to put command line into DTB: %d\n", err);
 		}
 	}
 
