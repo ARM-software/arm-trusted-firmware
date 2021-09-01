@@ -531,7 +531,7 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 	if (is_event_shared(map))
 		sdei_map_unlock(map);
 
-	SDEI_LOG("ACK %llx, ev:%d ss:%d spsr:%lx ELR:%lx\n", mpidr, map->ev_num,
+	SDEI_LOG("ACK %llx, ev:0x%x ss:%d spsr:%lx ELR:%lx\n", mpidr, map->ev_num,
 			sec_state, read_spsr_el3(), read_elr_el3());
 
 	ctx = handle;
@@ -568,7 +568,7 @@ int sdei_intr_handler(uint32_t intr_raw, uint32_t flags, void *handle,
 	 * interrupt.
 	 */
 	if ((map->ev_num != SDEI_EVENT_0) && !is_map_bound(map)) {
-		ERROR("Invalid SDEI mapping: ev=%u\n", map->ev_num);
+		ERROR("Invalid SDEI mapping: ev=0x%x\n", map->ev_num);
 		panic();
 	}
 	plat_ic_end_of_interrupt(intr_raw);
@@ -703,7 +703,7 @@ int sdei_event_complete(bool resume, uint64_t pc)
 	/* Having done sanity checks, pop dispatch */
 	(void) pop_dispatch();
 
-	SDEI_LOG("EOI:%lx, %d spsr:%lx elr:%lx\n", read_mpidr_el1(),
+	SDEI_LOG("EOI:%lx, 0x%x spsr:%lx elr:%lx\n", read_mpidr_el1(),
 			map->ev_num, read_spsr_el3(), read_elr_el3());
 
 	/*
