@@ -749,6 +749,9 @@ static void initalize_sp_descs(void)
 	for (unsigned int i = 0U; i < SECURE_PARTITION_COUNT; i++) {
 		sp = &sp_desc[i];
 		sp->sp_id = INV_SP_ID;
+		sp->mailbox.rx_buffer = NULL;
+		sp->mailbox.tx_buffer = NULL;
+		sp->mailbox.state = MAILBOX_STATE_EMPTY;
 		sp->secondary_ep = 0;
 	}
 }
@@ -765,6 +768,9 @@ static void initalize_ns_ep_descs(void)
 		 */
 		ns_ep->ns_ep_id = 0;
 		ns_ep->ffa_version = 0;
+		ns_ep->mailbox.rx_buffer = NULL;
+		ns_ep->mailbox.tx_buffer = NULL;
+		ns_ep->mailbox.state = MAILBOX_STATE_EMPTY;
 	}
 }
 

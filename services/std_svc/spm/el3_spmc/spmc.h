@@ -69,6 +69,28 @@ enum sp_execution_state {
 	SP_STATE_AARCH32
 };
 
+enum mailbox_state {
+	/* There is no message in the mailbox. */
+	MAILBOX_STATE_EMPTY,
+
+	/* There is a message that has been populated in the mailbox. */
+	MAILBOX_STATE_FULL,
+};
+
+struct mailbox {
+	enum mailbox_state state;
+
+	/* RX/TX Buffers. */
+	void *rx_buffer;
+	const void *tx_buffer;
+
+	/* Size of RX/TX Buffer. */
+	uint32_t rxtx_page_count;
+
+	/* Lock access to mailbox. */
+	spinlock_t lock;
+};
+
 /*
  * Execution context members for an SP. This is a bit like struct
  * vcpu in a hypervisor.
@@ -119,6 +141,9 @@ struct secure_partition_desc {
 	/* Execution State. */
 	enum sp_execution_state execution_state;
 
+	/* Mailbox tracking. */
+	struct mailbox mailbox;
+
 	/* Secondary entrypoint. Only valid for a S-EL1 SP. */
 	uintptr_t secondary_ep;
 };
@@ -143,7 +168,12 @@ struct ns_endpoint_desc {
 	uint16_t ns_ep_id;
 
 	/*
-	 * Supported FF-A Version.
+	 * Mailbox tracking.
+	 */
+	struct mailbox mailbox;
+
+	/*
+	 * Supported FF-A Version
 	 */
 	uint32_t ffa_version;
 };
