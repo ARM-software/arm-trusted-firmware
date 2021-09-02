@@ -311,6 +311,23 @@ ERRATA_A78_1941498	?=0
 # well but there is no workaround for that revision.
 ERRATA_A78_1951500	?=0
 
+# Flag to apply erratum 1821534 workaround during reset. This erratum applies
+# to revisions r0p0 and r1p0 of the A78 cpu.
+ERRATA_A78_1821534	?=0
+
+# Flag to apply erratum 1952683 workaround during reset. This erratum applies
+# to revision r0p0 of the A78 cpu and was fixed in the revision r1p0.
+ERRATA_A78_1952683  ?=0
+
+# Flag to apply erratum 2132060 workaround during reset. This erratum applies
+# to revisions r0p0, r1p0, r1p1, and r1p2 of the A78 cpu. It is still open.
+ERRATA_A78_2132060  ?=0
+
+# Flag to apply erratum 2242635 workaround during reset. This erratum applies
+# to revisions r1p0, r1p1, and r1p2 of the A78 cpu and is open. The issue is
+# present in r0p0 as well but there is no workaround for that revision.
+ERRATA_A78_2242635	?=0
+
 # Flag to apply erratum 1941500 workaround during reset. This erratum applies
 # to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
 ERRATA_A78_AE_1941500	?=0
@@ -318,18 +335,6 @@ ERRATA_A78_AE_1941500	?=0
 # Flag to apply erratum 1951502 workaround during reset. This erratum applies
 # to revisions r0p0 and r0p1 of the A78 AE cpu. It is still open.
 ERRATA_A78_AE_1951502	?=0
-
-# Flag to apply erratum 1821534 workaround during reset. This erratum applies
-# to revisions r0p0 and r1p0 of the A78 cpu.
-ERRATA_A78_1821534	?=0
-
-# Flag to apply erratum 1952683 workaround during reset. This erratum applies
-# to revision r0p0 of the A78 cpu and was fixed in the revision r1p0.
-ERRATA_A78_1952683	?=0
-
-# Flag to apply erratum 2132060 workaround during reset. This erratum applies
-# to revisions r0p0, r1p0, r1p1, and r1p2 of the A78 cpu. It is still open.
-ERRATA_A78_2132060	?=0
 
 # Flag to apply T32 CLREX workaround during reset. This erratum applies
 # only to r0p0 and r1p0 of the Neoverse N1 cpu.
@@ -730,14 +735,6 @@ $(eval $(call add_define,ERRATA_A78_1941498))
 $(eval $(call assert_boolean,ERRATA_A78_1951500))
 $(eval $(call add_define,ERRATA_A78_1951500))
 
-# Process ERRATA_A78_AE_1941500 flag
-$(eval $(call assert_boolean,ERRATA_A78_AE_1941500))
-$(eval $(call add_define,ERRATA_A78_AE_1941500))
-
-# Process ERRATA_A78_AE_1951502 flag
-$(eval $(call assert_boolean,ERRATA_A78_AE_1951502))
-$(eval $(call add_define,ERRATA_A78_AE_1951502))
-
 # Process ERRATA_A78_1821534 flag
 $(eval $(call assert_boolean,ERRATA_A78_1821534))
 $(eval $(call add_define,ERRATA_A78_1821534))
@@ -749,6 +746,18 @@ $(eval $(call add_define,ERRATA_A78_1952683))
 # Process ERRATA_A78_2132060 flag
 $(eval $(call assert_boolean,ERRATA_A78_2132060))
 $(eval $(call add_define,ERRATA_A78_2132060))
+
+# Process ERRATA_A78_2242635 flag
+$(eval $(call assert_boolean,ERRATA_A78_2242635))
+$(eval $(call add_define,ERRATA_A78_2242635))
+
+# Process ERRATA_A78_AE_1941500 flag
+$(eval $(call assert_boolean,ERRATA_A78_AE_1941500))
+$(eval $(call add_define,ERRATA_A78_AE_1941500))
+
+# Process ERRATA_A78_AE_1951502 flag
+$(eval $(call assert_boolean,ERRATA_A78_AE_1951502))
+$(eval $(call add_define,ERRATA_A78_AE_1951502))
 
 # Process ERRATA_N1_1043202 flag
 $(eval $(call assert_boolean,ERRATA_N1_1043202))
