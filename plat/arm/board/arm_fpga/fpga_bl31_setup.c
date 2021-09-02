@@ -144,6 +144,12 @@ static void fpga_prepare_dtb(void)
 		panic();
 	}
 
+	/* Reserve memory used by Trusted Firmware. */
+	if (fdt_add_reserved_memory(fdt, "tf-a@80000000", BL31_BASE,
+				    BL31_LIMIT - BL31_BASE)) {
+		WARN("Failed to add reserved memory node to DT\n");
+	}
+
 	/* Check for the command line signature. */
 	if (!strncmp(cmdline, "CMD:", 4)) {
 		int chosen;
