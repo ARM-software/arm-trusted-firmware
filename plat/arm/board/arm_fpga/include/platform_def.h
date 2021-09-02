@@ -30,7 +30,7 @@
 
 #if !ENABLE_PIE
 #define BL31_BASE			UL(0x80000000)
-#define BL31_LIMIT			UL(0x80100000)
+#define BL31_LIMIT			UL(0x80070000)
 #else
 #define BL31_BASE			UL(0x0)
 #define BL31_LIMIT			UL(0x01000000)
