@@ -288,6 +288,43 @@ func check_errata_2108267
 	b	cpu_rev_var_ls
 endfunc check_errata_2108267
 
+	/* --------------------------------------------------
+	 * Errata Workaround for Neoverse V1 Errata #2216392.
+	 * This applies to revisions r1p0 and r1p1 and is
+	 * still open.
+	 * This issue is also present in r0p0 but there is no
+	 * workaround in that revision.
+	 * x0: variant[4:7] and revision[0:3] of current cpu.
+	 * Shall clobber: x0-x17
+	 * --------------------------------------------------
+	 */
+func errata_neoverse_v1_2216392_wa
+	/* Check workaround compatibility. */
+	mov	x17, x30
+	bl	check_errata_2216392
+	cbz	x0, 1f
+
+	ldr	x0, =0x5
+	msr	S3_6_c15_c8_0, x0 /* CPUPSELR_EL3 */
+	ldr	x0, =0x10F600E000
+	msr	S3_6_c15_c8_2, x0 /* CPUPOR_EL3 */
+	ldr	x0, =0x10FF80E000
+	msr	S3_6_c15_c8_3, x0 /* CPUPMR_EL3 */
+	ldr	x0, =0x80000000003FF
+	msr	S3_6_c15_c8_1, x0 /* CPUPCR_EL3 */
+
+	isb
+1:
+	ret	x17
+endfunc errata_neoverse_v1_2216392_wa
+
+func check_errata_2216392
+	/* Applies to revisions r1p0 and r1p1. */
+	mov	x1, #CPU_REV(1, 0)
+	mov	x2, #CPU_REV(1, 1)
+	b	cpu_rev_var_range
+endfunc check_errata_2216392
+
 	/* ---------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ---------------------------------------------
@@ -326,6 +363,7 @@ func neoverse_v1_errata_report
 	report_errata ERRATA_V1_1966096, neoverse_v1, 1966096
 	report_errata ERRATA_V1_2139242, neoverse_v1, 2139242
 	report_errata ERRATA_V1_2108267, neoverse_v1, 2108267
+	report_errata ERRATA_V1_2216392, neoverse_v1, 2216392
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -377,6 +415,11 @@ func neoverse_v1_reset_func
 #if ERRATA_V1_2108267
 	mov	x0, x18
 	bl	errata_neoverse_v1_2108267_wa
+#endif
+
+#if ERRATA_V1_2216392
+	mov	x0, x18
+	bl	errata_neoverse_v1_2216392_wa
 #endif
 
 	ret	x19
