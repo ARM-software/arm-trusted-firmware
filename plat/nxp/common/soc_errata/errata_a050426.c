@@ -7,7 +7,6 @@
 
 #include <mmio.h>
 
-#ifdef ERRATA_SOC_A050426
 void erratum_a050426(void)
 {
 	uint32_t i, val3, val4;
@@ -411,8 +410,6 @@ void erratum_a050426(void)
 	}
 
 	/* Disable BIST */
-
 	mmio_write_32(0x700117E60, val3);
 	mmio_write_32(0x700117E90, val4);
 }
-#endif

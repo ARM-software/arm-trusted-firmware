@@ -82,28 +82,6 @@ static const ccn_desc_t plat_ccn_desc = {
 	.master_to_rn_id_map = master_to_rn_id_map
 };
 
-/*******************************************************************************
- * This function returns the number of clusters in the SoC
- ******************************************************************************/
-static unsigned int get_num_cluster(void)
-{
-	const soc_info_t *soc_info = get_soc_info();
-	uint32_t num_clusters = NUMBER_OF_CLUSTERS;
-	unsigned int i;
-
-	for (i = 0U; i < ARRAY_SIZE(soc_list); i++) {
-		if (soc_list[i].personality == soc_info->personality) {
-			num_clusters = soc_list[i].num_clusters;
-			break;
-		}
-	}
-
-	VERBOSE("NUM of cluster = 0x%x\n", num_clusters);
-
-	return num_clusters;
-}
-
-
 /******************************************************************************
  * Function returns the base counter frequency
  * after reading the first entry at CNTFID0 (0x20 offset).
@@ -142,8 +120,10 @@ static gpio_init_info_t gpio_init_data = {
 static void soc_interconnect_config(void)
 {
 	unsigned long long val = 0x0U;
+	uint8_t num_clusters, cores_per_cluster;
 
-	uint32_t num_clusters = get_num_cluster();
+	get_cluster_info(soc_list, ARRAY_SIZE(soc_list),
+			&num_clusters, &cores_per_cluster);
 
 	if (num_clusters == 6U) {
 		ccn_init(&plat_six_cluster_ccn_desc);
@@ -271,9 +251,7 @@ void soc_early_init(void)
 				MT_DEVICE | MT_RW | MT_NS);
 	}
 
-#ifdef ERRATA_SOC_A050426
-	erratum_a050426();
-#endif
+	soc_errata();
 
 #if (TRUSTED_BOARD_BOOT) || defined(POLICY_FUSE_PROVISION)
 	sfp_init(NXP_SFP_ADDR);
@@ -466,7 +444,12 @@ void soc_platform_setup(void)
  ******************************************************************************/
 void soc_init(void)
 {
-	 /* low-level init of the soc */
+	uint8_t num_clusters, cores_per_cluster;
+
+	get_cluster_info(soc_list, ARRAY_SIZE(soc_list),
+			&num_clusters, &cores_per_cluster);
+
+	/* low-level init of the soc */
 	soc_init_start();
 	soc_init_percpu();
 	_init_global_data();
@@ -477,8 +460,6 @@ void soc_init(void)
 		ERROR("Only CCN-508 is supported\n");
 		panic();
 	}
-
-	uint32_t num_clusters = get_num_cluster();
 
 	if (num_clusters == 6U) {
 		ccn_init(&plat_six_cluster_ccn_desc);
