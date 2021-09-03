@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2023, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2024, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -169,7 +169,7 @@ int stm32_get_otp_value_from_idx(const uint32_t otp_idx, uint32_t *otp_val)
 
 #if defined(IMAGE_BL2)
 	ret = bsec_shadow_read_otp(otp_val, otp_idx);
-#elif defined(IMAGE_BL32)
+#elif defined(IMAGE_BL31) || defined(IMAGE_BL32)
 	ret = bsec_read_otp(otp_val, otp_idx);
 #else
 #error "Not supported"
