@@ -790,6 +790,11 @@ makefile:
    GIC-600, so is safe to select even for a GIC500 implementation.
    This option defaults to 0.
 
+- ``GICV3_SUPPORT_GIC600AE_FMU``: Add support for the Fault Management Unit
+   for GIC-600 AE. Enabling this option will introduce support to initialize
+   the FMU. Platforms should call the init function during boot to enable the
+   FMU and its safety mechanisms. This option defaults to 0.
+
 -  ``GICV3_IMPL_GIC600_MULTICHIP``: Selects GIC-600 variant with multichip
    functionality. This option defaults to 0
 
