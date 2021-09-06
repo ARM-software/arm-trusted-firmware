@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <lib/libc/cdefs.h>
+
 /dts-v1/;
 
 / {
@@ -74,6 +76,10 @@
 
 	secure-partitions {
 		compatible = "arm,sp";
+
+#ifdef ARM_BL2_SP_LIST_DTS
+	#include __XSTRING(ARM_BL2_SP_LIST_DTS)
+#else
 #ifdef OPTEE_SP_FW_CONFIG
 		op-tee {
 			uuid = "486178e0-e7f8-11e3-bc5e-0002a5d5c51b";
@@ -104,6 +110,7 @@
 			owner = "Plat";
 		};
 #endif
+#endif /* ARM_BL2_SP_LIST_DTS */
 	};
 
 #if COT_DESC_IN_DTB
