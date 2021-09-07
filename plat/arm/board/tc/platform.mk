@@ -31,6 +31,9 @@ GIC_ENABLE_V4_EXTN	:=      1
 # GIC-600 configuration
 GICV3_SUPPORT_GIC600	:=	1
 
+# Enable SVE
+ENABLE_SVE_FOR_NS	:=	1
+ENABLE_SVE_FOR_SWD	:=	1
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
@@ -77,6 +80,7 @@ BL1_SOURCES		+=	${INTERCONNECT_SOURCES}	\
 BL2_SOURCES		+=	${TC_BASE}/tc_security.c	\
 				${TC_BASE}/tc_err.c		\
 				${TC_BASE}/tc_trusted_boot.c		\
+				${TC_BASE}/tc_bl2_setup.c		\
 				lib/utils/mem_region.c			\
 				drivers/arm/tzc/tzc400.c		\
 				plat/arm/common/arm_tzc400.c		\
@@ -87,6 +91,9 @@ BL31_SOURCES		+=	${INTERCONNECT_SOURCES}	\
 				${ENT_GIC_SOURCES}			\
 				${TC_BASE}/tc_bl31_setup.c	\
 				${TC_BASE}/tc_topology.c	\
+				common/fdt_wrappers.c			\
+				lib/fconf/fconf.c			\
+				lib/fconf/fconf_dyn_cfg_getter.c	\
 				drivers/cfi/v2m/v2m_flash.c		\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c
