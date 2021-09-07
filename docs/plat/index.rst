@@ -27,6 +27,7 @@ Platform Ports
    imx8
    imx8m
    ls1043a
+   nxp/index
    poplar
    qemu
    qemu-sbsa
