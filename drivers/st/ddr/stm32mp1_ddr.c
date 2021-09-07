@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (C) 2018-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -7,20 +7,20 @@
 #include <errno.h>
 #include <stddef.h>
 
-#include <platform_def.h>
-
 #include <arch.h>
 #include <arch_helpers.h>
 #include <common/debug.h>
 #include <drivers/clk.h>
 #include <drivers/delay_timer.h>
-#include <drivers/st/stm32mp_pmic.h>
 #include <drivers/st/stm32mp1_ddr.h>
 #include <drivers/st/stm32mp1_ddr_regs.h>
 #include <drivers/st/stm32mp1_pwr.h>
 #include <drivers/st/stm32mp1_ram.h>
+#include <drivers/st/stm32mp_pmic.h>
 #include <lib/mmio.h>
 #include <plat/common/platform.h>
+
+#include <platform_def.h>
 
 struct reg_desc {
 	const char *name;
@@ -729,7 +729,7 @@ void stm32mp1_ddr_init(struct ddr_info *priv,
 	}
 
 	VERBOSE("name = %s\n", config->info.name);
-	VERBOSE("speed = %d kHz\n", config->info.speed);
+	VERBOSE("speed = %u kHz\n", config->info.speed);
 	VERBOSE("size  = 0x%x\n", config->info.size);
 
 	/* DDR INIT SEQUENCE */
