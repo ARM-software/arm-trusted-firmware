@@ -209,6 +209,65 @@ Submitting Changes
       revert your patches and ask you to resubmit a reworked version of them or
       they may ask you to provide a fix-up patch.
 
+Add Build Configurations
+------------------------
+
+-  TF-A uses Jenkins tool for Continuous Integration and testing activities.
+   Various CI Jobs are deployed which run tests on every patch before being
+   merged. So each of your patches go through a series of checks before they
+   get merged on to the master branch.
+
+-  ``Coverity Scan analysis`` is one of the tests we perform on our source code
+   at regular intervals. We maintain a build script ``tf-cov-make`` which contains the
+   build configurations of various platforms in order to cover the entire source
+   code being analysed by Coverity.
+
+-  When you submit your patches for review containing new source files, please
+   ensure to include them for the ``Coverity Scan analysis`` by adding the
+   respective build configurations in the ``tf-cov-make`` build script.
+
+-  In this section you find the details on how to append your new build
+   configurations for Coverity Scan analysis:
+
+#. We maintain a separate repository named `tf-a-ci-scripts repository`_
+   for placing all the test scripts which will be executed by the CI Jobs.
+
+#. In this repository, ``tf-cov-make`` script is located at
+   ``tf-a-ci-scripts/script/tf-coverity/tf-cov-make``
+
+#. Edit `tf-cov-make`_ script by appending all the possible build configurations with
+   the specific ``build-flags`` relevant to your platform, so that newly added
+   source files get built and analysed by Coverity.
+
+#. For better understanding follow the below specified examples listed in the
+   ``tf-cov-make`` script.
+
+.. code:: c
+
+    Example 1:
+    #Intel
+    make PLAT=stratix10 $(common_flags) all
+    make PLAT=agilex $(common_flags) all
+
+-  In the above example there are two different SoCs ``stratix`` and ``agilex``
+   under the Intel platform and the build configurations has been added suitably
+   to include most of their source files.
+
+.. code:: c
+
+    Example 2:
+    #Hikey
+    make PLAT=hikey $(common_flags) ${TBB_OPTIONS} ENABLE_PMF=1 all
+    make PLAT=hikey960 $(common_flags) ${TBB_OPTIONS} all
+    make PLAT=poplar $(common_flags) all
+
+-  In this case for ``Hikey`` boards additional ``build-flags`` has been included
+   along with the ``commom_flags`` to cover most of the files relevant to it.
+
+-  Similar to this you can still find many other different build configurations
+   of various other platforms listed in the ``tf-cov-make`` script. Kindly refer
+   them and append your build configurations respectively.
+
 Binary Components
 -----------------
 
@@ -228,7 +287,7 @@ Binary Components
 
 --------------
 
-*Copyright (c) 2013-2020, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.*
 
 .. _Conventional Commits: https://www.conventionalcommits.org/en/v1.0.0
 .. _developer.trustedfirmware.org: https://developer.trustedfirmware.org
@@ -243,3 +302,5 @@ Binary Components
 .. _Trusted Firmware binary repository: https://review.trustedfirmware.org/admin/repos/tf-binaries
 .. _tf-binaries-readme: https://git.trustedfirmware.org/tf-binaries.git/tree/readme.rst
 .. _TF-A mailing list: https://lists.trustedfirmware.org/mailman/listinfo/tf-a
+.. _tf-a-ci-scripts repository: https://git.trustedfirmware.org/ci/tf-a-ci-scripts.git/
+.. _tf-cov-make: https://git.trustedfirmware.org/ci/tf-a-ci-scripts.git/tree/script/tf-coverity/tf-cov-make
