@@ -698,7 +698,7 @@ static int stm32mp1_clk_get_gated_id(unsigned long id)
 		}
 	}
 
-	ERROR("%s: clk id %d not found\n", __func__, (uint32_t)id);
+	ERROR("%s: clk id %lu not found\n", __func__, id);
 
 	return -EINVAL;
 }
@@ -1113,7 +1113,7 @@ void __stm32mp1_clk_enable(unsigned long id, bool secure)
 
 	i = stm32mp1_clk_get_gated_id(id);
 	if (i < 0) {
-		ERROR("Clock %d can't be enabled\n", (uint32_t)id);
+		ERROR("Clock %lu can't be enabled\n", id);
 		panic();
 	}
 
@@ -1141,7 +1141,7 @@ void __stm32mp1_clk_disable(unsigned long id, bool secure)
 
 	i = stm32mp1_clk_get_gated_id(id);
 	if (i < 0) {
-		ERROR("Clock %d can't be disabled\n", (uint32_t)id);
+		ERROR("Clock %lu can't be disabled\n", id);
 		panic();
 	}
 
