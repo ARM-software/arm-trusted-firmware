@@ -13,7 +13,6 @@ PLAT_INCLUDE_BASE		:= $(MARVELL_PLAT_INCLUDE_BASE)/$(PLAT_FAMILY)
 PLAT_COMMON_BASE		:= $(PLAT_FAMILY_BASE)/common
 MARVELL_DRV_BASE		:= drivers/marvell
 MARVELL_COMMON_BASE		:= $(MARVELL_PLAT_BASE)/common
-HANDLE_EA_EL3_FIRST		:= 1
 
 include plat/marvell/marvell.mk
 
@@ -53,7 +52,6 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				$(PLAT_COMMON_BASE)/dram_win.c		\
 				$(PLAT_COMMON_BASE)/io_addr_dec.c	\
 				$(PLAT_COMMON_BASE)/marvell_plat_config.c     \
-				$(PLAT_COMMON_BASE)/a3700_ea.c		\
 				$(PLAT_FAMILY_BASE)/$(PLAT)/plat_bl31_setup.c \
 				$(MARVELL_COMMON_BASE)/marvell_cci.c	\
 				$(MARVELL_COMMON_BASE)/marvell_ddr_info.c	\
@@ -62,6 +60,10 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a53.S		\
 				drivers/arm/cci/cci.c			\
 				$(PLAT_COMMON_BASE)/a3700_sip_svc.c	\
 				$(MARVELL_DRV)
+
+ifeq ($(HANDLE_EA_EL3_FIRST),1)
+BL31_SOURCES		+=	$(PLAT_COMMON_BASE)/a3700_ea.c
+endif
 
 ifeq ($(CM3_SYSTEM_RESET),1)
 BL31_SOURCES		+=	$(PLAT_COMMON_BASE)/cm3_system_reset.c
