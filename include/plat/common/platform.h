@@ -104,6 +104,8 @@ int plat_ic_has_interrupt_type(unsigned int type);
 void plat_ic_set_interrupt_type(unsigned int id, unsigned int type);
 void plat_ic_set_interrupt_priority(unsigned int id, unsigned int priority);
 void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target);
+void plat_ic_raise_ns_sgi(int sgi_num, u_register_t target);
+void plat_ic_raise_s_el1_sgi(int sgi_num, u_register_t target);
 void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
 		u_register_t mpidr);
 void plat_ic_set_interrupt_pending(unsigned int id);

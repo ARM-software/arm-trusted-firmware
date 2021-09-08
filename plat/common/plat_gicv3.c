@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Portions copyright (c) 2021-2022, ProvenRun S.A.S. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -39,6 +40,8 @@
 #pragma weak plat_ic_set_interrupt_priority
 #pragma weak plat_ic_set_interrupt_type
 #pragma weak plat_ic_raise_el3_sgi
+#pragma weak plat_ic_raise_ns_sgi
+#pragma weak plat_ic_raise_s_el1_sgi
 #pragma weak plat_ic_set_spi_routing
 #pragma weak plat_ic_set_interrupt_pending
 #pragma weak plat_ic_clear_interrupt_pending
@@ -242,7 +245,31 @@ void plat_ic_raise_el3_sgi(int sgi_num, u_register_t target)
 	assert(plat_ic_get_interrupt_type((unsigned int)sgi_num) ==
 					  INTR_TYPE_EL3);
 
-	gicv3_raise_secure_g0_sgi((unsigned int)sgi_num, target);
+	gicv3_raise_sgi((unsigned int)sgi_num, GICV3_G0, target);
+}
+
+void plat_ic_raise_ns_sgi(int sgi_num, u_register_t target)
+{
+	/* Target must be a valid MPIDR in the system */
+	assert(plat_core_pos_by_mpidr(target) >= 0);
+
+	/* Verify that this is a non-secure SGI */
+	assert(plat_ic_get_interrupt_type((unsigned int)sgi_num) ==
+					  INTR_TYPE_NS);
+
+	gicv3_raise_sgi((unsigned int)sgi_num, GICV3_G1NS, target);
+}
+
+void plat_ic_raise_s_el1_sgi(int sgi_num, u_register_t target)
+{
+	/* Target must be a valid MPIDR in the system */
+	assert(plat_core_pos_by_mpidr(target) >= 0);
+
+	/* Verify that this is a secure EL1 SGI */
+	assert(plat_ic_get_interrupt_type((unsigned int)sgi_num) ==
+					  INTR_TYPE_S_EL1);
+
+	gicv3_raise_sgi((unsigned int)sgi_num, GICV3_G1S, target);
 }
 
 void plat_ic_set_spi_routing(unsigned int id, unsigned int routing_mode,
