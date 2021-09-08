@@ -1,0 +1,55 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR BSD-3-Clause)
+/*
+ * Copyright (c) 2022, STMicroelectronics - All Rights Reserved
+ */
+
+#include <common/tbbr/tbbr_img_def.h>
+#include <dt-bindings/soc/stm32mp13-tzc400.h>
+
+#include <platform_def.h>
+
+#ifndef DDR_SIZE
+#error "DDR_SIZE is not defined"
+#endif
+
+#define DDR_NS_BASE	STM32MP_DDR_BASE
+#define DDR_SEC_SIZE	0x01e00000
+#define DDR_SEC_BASE	(STM32MP_DDR_BASE + (DDR_SIZE - DDR_SEC_SIZE))
+#define DDR_SHARE_SIZE	0x00200000
+#define DDR_SHARE_BASE	(DDR_SEC_BASE - DDR_SHARE_SIZE)
+#define DDR_NS_SIZE	(DDR_SHARE_BASE - DDR_NS_BASE)
+
+/dts-v1/;
+
+/ {
+	dtb-registry {
+		compatible = "fconf,dyn_cfg-dtb_registry";
+
+		hw-config {
+			load-address = <0x0 STM32MP_HW_CONFIG_BASE>;
+			max-size = <STM32MP_HW_CONFIG_MAX_SIZE>;
+			id = <HW_CONFIG_ID>;
+		};
+
+		nt_fw {
+			load-address = <0x0 STM32MP_BL33_BASE>;
+			max-size = <STM32MP_BL33_MAX_SIZE>;
+			id = <BL33_IMAGE_ID>;
+		};
+
+		tos_fw {
+			load-address = <0x0 DDR_SEC_BASE>;
+			max-size = <DDR_SEC_SIZE>;
+			id = <BL32_IMAGE_ID>;
+		};
+	};
+
+	st-mem-firewall {
+		compatible = "st,mem-firewall";
+		memory-ranges = <
+			DDR_NS_BASE DDR_NS_SIZE TZC_REGION_S_NONE TZC_REGION_NSEC_ALL_ACCESS_RDWR
+			DDR_SHARE_BASE DDR_SHARE_SIZE TZC_REGION_S_NONE
+			TZC_REGION_ACCESS_RDWR(STM32MP1_TZC_A7_ID)
+			DDR_SEC_BASE DDR_SEC_SIZE TZC_REGION_S_RDWR 0>;
+	};
+};
