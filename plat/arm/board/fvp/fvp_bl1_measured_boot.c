@@ -14,9 +14,9 @@ static uint8_t event_log[PLAT_ARM_EVENT_LOG_MAX_SIZE];
 
 /* FVP table with platform specific image IDs, names and PCRs */
 const event_log_metadata_t fvp_event_log_metadata[] = {
-	{ FW_CONFIG_ID, FW_CONFIG_STRING, PCR_0 },
-	{ TB_FW_CONFIG_ID, TB_FW_CONFIG_STRING, PCR_0 },
-	{ BL2_IMAGE_ID, BL2_STRING, PCR_0 },
+	{ FW_CONFIG_ID, EVLOG_FW_CONFIG_STRING, PCR_0 },
+	{ TB_FW_CONFIG_ID, EVLOG_TB_FW_CONFIG_STRING, PCR_0 },
+	{ BL2_IMAGE_ID, EVLOG_BL2_STRING, PCR_0 },
 	{ INVALID_ID, NULL, (unsigned int)(-1) }	/* Terminator */
 };
 
