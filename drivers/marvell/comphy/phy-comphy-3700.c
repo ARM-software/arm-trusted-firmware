@@ -135,7 +135,7 @@ static void mvebu_a3700_comphy_set_phy_selector(uint8_t comphy_index,
 		break;
 
 	case (COMPHY_SGMII_MODE):
-	case (COMPHY_HS_SGMII_MODE):
+	case (COMPHY_2500BASEX_MODE):
 		if (comphy_index == COMPHY_LANE0)
 			reg &= ~COMPHY_SELECTOR_USB3_GBE1_SEL_BIT;
 		else if (comphy_index == COMPHY_LANE1)
@@ -183,7 +183,7 @@ error:
  * with COMPHY_USB3D_MODE or COMPHY_USB3H_MODE. (The usb3 phy initialization
  * code does not differentiate between these modes.)
  * Also it returns COMPHY_SGMII_MODE even if the phy was configures with
- * COMPHY_HS_SGMII_MODE. (The sgmii phy initialization code does differentiate
+ * COMPHY_2500BASEX_MODE. (The sgmii phy initialization code does differentiate
  * between these modes, but it is irrelevant when powering the phy off.)
  */
 static int mvebu_a3700_comphy_get_mode(uint8_t comphy_index)
@@ -401,8 +401,8 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 		/* SGMII 1G, SerDes speed 1.25G */
 		data |= SD_SPEED_1_25_G << GEN_RX_SEL_OFFSET;
 		data |= SD_SPEED_1_25_G << GEN_TX_SEL_OFFSET;
-	} else if (mode == COMPHY_HS_SGMII_MODE) {
-		/* HS SGMII (2.5G), SerDes speed 3.125G */
+	} else if (mode == COMPHY_2500BASEX_MODE) {
+		/* 2500Base-X, SerDes speed 3.125G */
 		data |= SD_SPEED_2_5_G << GEN_RX_SEL_OFFSET;
 		data |= SD_SPEED_2_5_G << GEN_TX_SEL_OFFSET;
 	} else {
@@ -479,7 +479,7 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 	 * 25 MHz the default values stored in PHY registers are OK.
 	 */
 	debug("Running C-DPI phy init %s mode\n",
-	      mode == COMPHY_HS_SGMII_MODE ? "2G5" : "1G");
+	      mode == COMPHY_2500BASEX_MODE ? "2G5" : "1G");
 	if (get_ref_clk() == 40)
 		comphy_sgmii_phy_init(comphy_index, mode, sd_ip_addr);
 
@@ -883,7 +883,7 @@ int mvebu_3700_comphy_power_on(uint8_t comphy_index, uint32_t comphy_mode)
 						       comphy_mode);
 		break;
 	case(COMPHY_SGMII_MODE):
-	case(COMPHY_HS_SGMII_MODE):
+	case(COMPHY_2500BASEX_MODE):
 		ret = mvebu_a3700_comphy_sgmii_power_on(comphy_index,
 							comphy_mode);
 		break;
@@ -960,7 +960,7 @@ int mvebu_3700_comphy_power_off(uint8_t comphy_index, uint32_t comphy_mode)
 
 	switch (mode) {
 	case(COMPHY_SGMII_MODE):
-	case(COMPHY_HS_SGMII_MODE):
+	case(COMPHY_2500BASEX_MODE):
 		err = mvebu_a3700_comphy_sgmii_power_off(comphy_index);
 		break;
 	case (COMPHY_USB3_MODE):
