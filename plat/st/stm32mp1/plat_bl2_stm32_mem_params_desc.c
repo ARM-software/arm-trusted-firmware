@@ -75,37 +75,7 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		.next_handoff_image_id = INVALID_IMAGE_ID,
 	},
 #endif /* AARCH32_SP_OPTEE */
-	/* Fill HW_CONFIG related information if it exists */
-	{
-		.image_id = HW_CONFIG_ID,
-		SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
-				      VERSION_2, entry_point_info_t,
-				      NON_SECURE | NON_EXECUTABLE),
-		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
-				      VERSION_2, image_info_t,
-				      0U),
 
-		.image_info.image_base = STM32MP_HW_CONFIG_BASE,
-		.image_info.image_max_size =
-			PLAT_STM32MP_NS_IMAGE_OFFSET - STM32MP_HW_CONFIG_BASE,
-
-		.next_handoff_image_id = INVALID_IMAGE_ID,
-	},
-#if !defined(AARCH32_SP_OPTEE)
-	{
-		.image_id = TOS_FW_CONFIG_ID,
-		SET_STATIC_PARAM_HEAD(ep_info, PARAM_IMAGE_BINARY,
-				      VERSION_2, entry_point_info_t,
-				      SECURE | NON_EXECUTABLE),
-		SET_STATIC_PARAM_HEAD(image_info, PARAM_IMAGE_BINARY,
-				      VERSION_2, image_info_t,
-				      0U),
-
-		.image_info.image_base = STM32MP_BL32_DTB_BASE,
-		.image_info.image_max_size = STM32MP_BL32_DTB_SIZE,
-		.next_handoff_image_id = INVALID_IMAGE_ID,
-	},
-#endif
 	/* Fill BL33 related information */
 	{
 		.image_id = BL33_IMAGE_ID,

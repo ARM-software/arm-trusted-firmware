@@ -76,6 +76,7 @@ bool stm32mp_lock_available(void)
 	return (read_sctlr() & c_m_bits) == c_m_bits;
 }
 
+#if STM32MP_USE_STM32IMAGE
 int stm32mp_check_header(boot_api_image_header_t *header, uintptr_t buffer)
 {
 	uint32_t i;
@@ -109,6 +110,7 @@ int stm32mp_check_header(boot_api_image_header_t *header, uintptr_t buffer)
 
 	return 0;
 }
+#endif /* STM32MP_USE_STM32IMAGE */
 
 int stm32mp_map_ddr_non_cacheable(void)
 {

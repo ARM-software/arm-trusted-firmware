@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -47,25 +47,24 @@ typedef struct optee_header {
 
 /*******************************************************************************
  * Check if it is a valid tee header
- * Return 1 if valid
- * Return 0 if invalid
+ * Return true if valid
+ * Return false if invalid
  ******************************************************************************/
-static inline int tee_validate_header(optee_header_t *header)
+static bool tee_validate_header(optee_header_t *header)
 {
-	int valid = 0;
-
 	if ((header->magic == TEE_MAGIC_NUM_OPTEE) &&
 		(header->version == 2u) &&
 		(header->nb_images > 0u) &&
 		(header->nb_images <= OPTEE_MAX_NUM_IMAGES)) {
-		valid = 1;
+		return true;
 	}
 
-	else {
-		WARN("Not a known TEE, use default loading options.\n");
-	}
+	return false;
+}
 
-	return valid;
+bool optee_header_is_valid(uintptr_t header_base)
+{
+	return tee_validate_header((optee_header_t *)header_base);
 }
 
 /*******************************************************************************
