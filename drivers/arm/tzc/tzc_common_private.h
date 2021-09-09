@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -87,6 +87,27 @@
 				(u_register_t)region_no) +		\
 			TZC_##macro_name##_REGION_ID_ACCESS_0_OFFSET,	\
 			val);						\
+	}
+
+/*
+ * It is used to modify the filters status for a defined region.
+ */
+#define DEFINE_TZC_COMMON_UPDATE_FILTERS(fn_name, macro_name)		\
+	static inline void _tzc##fn_name##_update_filters(		\
+						uintptr_t base,		\
+						unsigned int region_no,	\
+						unsigned int nbfilters, \
+						unsigned int filters)	\
+	{								\
+		uint32_t filters_mask = GENMASK(nbfilters - 1U, 0);	\
+									\
+		mmio_clrsetbits_32(base +				\
+			TZC_REGION_OFFSET(				\
+				TZC_##macro_name##_REGION_SIZE,		\
+				region_no) +				\
+			TZC_##macro_name##_REGION_ATTR_0_OFFSET,	\
+			filters_mask << TZC_REGION_ATTR_F_EN_SHIFT,	\
+			filters << TZC_REGION_ATTR_F_EN_SHIFT);		\
 	}
 
 /*

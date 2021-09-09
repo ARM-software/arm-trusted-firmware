@@ -68,6 +68,7 @@ DEFINE_TZC_COMMON_WRITE_REGION_BASE(400, 400)
 DEFINE_TZC_COMMON_WRITE_REGION_TOP(400, 400)
 DEFINE_TZC_COMMON_WRITE_REGION_ATTRIBUTES(400, 400)
 DEFINE_TZC_COMMON_WRITE_REGION_ID_ACCESS(400, 400)
+DEFINE_TZC_COMMON_UPDATE_FILTERS(400, 400)
 DEFINE_TZC_COMMON_CONFIGURE_REGION0(400)
 DEFINE_TZC_COMMON_CONFIGURE_REGION(400)
 
@@ -269,6 +270,15 @@ void tzc400_configure_region(unsigned int filters,
 	_tzc400_configure_region(tzc400.base, filters, region, region_base,
 						region_top,
 						sec_attr, nsaid_permissions);
+}
+
+void tzc400_update_filters(unsigned int region, unsigned int filters)
+{
+	/* Do range checks on filters and regions. */
+	assert(((filters >> tzc400.num_filters) == 0U) &&
+	       (region < tzc400.num_regions));
+
+	_tzc400_update_filters(tzc400.base, region, tzc400.num_filters, filters);
 }
 
 void tzc400_enable_filters(void)
