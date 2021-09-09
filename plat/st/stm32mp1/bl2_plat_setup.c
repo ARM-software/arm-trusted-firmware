@@ -15,6 +15,7 @@
 #include <common/desc_image_load.h>
 #include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
+#include <drivers/mmc.h>
 #include <drivers/st/bsec.h>
 #include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32_iwdg.h>
@@ -394,6 +395,19 @@ int bl2_plat_handle_post_image_load(unsigned int image_id)
 		/* Do nothing in default case */
 		break;
 	}
+
+#if STM32MP_SDMMC || STM32MP_EMMC
+	/*
+	 * Invalidate remaining data read from MMC but not flushed by load_image_flush().
+	 * We take the worst case which is 2 MMC blocks.
+	 */
+	if ((image_id != FW_CONFIG_ID) &&
+	    ((bl_mem_params->image_info.h.attr & IMAGE_ATTRIB_SKIP_LOADING) == 0U)) {
+		inv_dcache_range(bl_mem_params->image_info.image_base +
+				 bl_mem_params->image_info.image_size,
+				 2U * MMC_BLOCK_SIZE);
+	}
+#endif /* STM32MP_SDMMC || STM32MP_EMMC */
 
 	return err;
 }
