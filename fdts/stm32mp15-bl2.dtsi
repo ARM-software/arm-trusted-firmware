@@ -27,4 +27,25 @@
 			/delete-node/ rtc-out2-rmp-pins-0;
 		};
 	};
+
+#if !STM32MP_USE_STM32IMAGE
+	/*
+	 * UUID's here are UUID RFC 4122 compliant meaning fieds are stored in
+	 * network order (big endian)
+	 */
+
+	st-io_policies {
+		fip-handles {
+			compatible = "st,io-fip-handle";
+			fw_cfg_uuid = "5807e16a-8459-47be-8ed5-648e8dddab0e";
+			bl32_uuid = "05d0e189-53dc-1347-8d2b-500a4b7a3e38";
+			bl32_extra1_uuid = "0b70c29b-2a5a-7840-9f65-0a5682738288";
+			bl32_extra2_uuid = "8ea87bb1-cfa2-3f4d-85fd-e7bba50220d9";
+			bl33_uuid = "d6d0eea7-fcea-d54b-9782-9934f234b6e4";
+			hw_cfg_uuid = "08b8f1d9-c9cf-9349-a962-6fbc6b7265cc";
+			tos_fw_cfg_uuid = "26257c1a-dbc6-7f47-8d96-c4c4b0248021";
+			nt_fw_cfg_uuid = "28da9815-93e8-7e44-ac66-1aaf801550f9";
+		};
+	};
+#endif /* !STM32MP_USE_STM32IMAGE */
 };
