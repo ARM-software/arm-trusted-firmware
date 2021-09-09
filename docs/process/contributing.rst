@@ -242,7 +242,7 @@ Add Build Configurations
 #. For better understanding follow the below specified examples listed in the
    ``tf-cov-make`` script.
 
-.. code:: c
+.. code:: shell
 
     Example 1:
     #Intel
@@ -253,7 +253,7 @@ Add Build Configurations
    under the Intel platform and the build configurations has been added suitably
    to include most of their source files.
 
-.. code:: c
+.. code:: shell
 
     Example 2:
     #Hikey
