@@ -64,18 +64,53 @@
  *   value == 0x0, the soc code does not support this feature
  *   value != 0x0, the soc code supports this feature
  */
+#ifndef SOC_CORE_RELEASE
 #define SOC_CORE_RELEASE      0x1
+#endif
+
+#ifndef SOC_CORE_RESTART
 #define SOC_CORE_RESTART      0x1
+#endif
+
+#ifndef SOC_CORE_OFF
 #define SOC_CORE_OFF          0x1
+#endif
+
+#ifndef SOC_CORE_STANDBY
 #define SOC_CORE_STANDBY      0x1
+#endif
+
+#ifndef SOC_CORE_PWR_DWN
 #define SOC_CORE_PWR_DWN      0x1
+#endif
+
+#ifndef SOC_CLUSTER_STANDBY
 #define SOC_CLUSTER_STANDBY   0x1
+#endif
+
+#ifndef SOC_CLUSTER_PWR_DWN
 #define SOC_CLUSTER_PWR_DWN   0x1
+#endif
+
+#ifndef SOC_SYSTEM_STANDBY
 #define SOC_SYSTEM_STANDBY    0x1
+#endif
+
+#ifndef SOC_SYSTEM_PWR_DWN
 #define SOC_SYSTEM_PWR_DWN    0x1
+#endif
+
+#ifndef SOC_SYSTEM_OFF
 #define SOC_SYSTEM_OFF        0x1
+#endif
+
+#ifndef SOC_SYSTEM_RESET
 #define SOC_SYSTEM_RESET      0x1
+#endif
+
+#ifndef SOC_SYSTEM_RESET2
 #define SOC_SYSTEM_RESET2     0x1
+#endif
 
 #ifndef __ASSEMBLER__
 
