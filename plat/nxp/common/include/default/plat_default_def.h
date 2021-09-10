@@ -40,8 +40,12 @@
 #define NXP_NS_DRAM_ADDR	NXP_DRAM0_ADDR
 #endif
 
-/* 64M is reserved for Secure memory
- */
+/* 1 MB is reserved for dma of sd */
+#ifndef NXP_SD_BLOCK_BUF_SIZE
+#define NXP_SD_BLOCK_BUF_SIZE	(1 * 1024 * 1024)
+#endif
+
+/* 64MB is reserved for Secure memory */
 #ifndef NXP_SECURE_DRAM_SIZE
 #define NXP_SECURE_DRAM_SIZE	(64 * 1024 * 1024)
 #endif
@@ -57,18 +61,22 @@
 				(NXP_SECURE_DRAM_SIZE + NXP_SP_SHRD_DRAM_SIZE))
 #endif
 
+#ifndef NXP_SD_BLOCK_BUF_ADDR
+#define NXP_SD_BLOCK_BUF_ADDR	(NXP_NS_DRAM_ADDR)
+#endif
+
 #ifndef NXP_SECURE_DRAM_ADDR
 #ifdef TEST_BL31
 #define NXP_SECURE_DRAM_ADDR 0
 #else
 #define NXP_SECURE_DRAM_ADDR	(NXP_NS_DRAM_ADDR + PLAT_DEF_DRAM0_SIZE - \
-				(NXP_SECURE_DRAM_SIZE  + NXP_SP_SHRD_DRAM_SIZE))
+				(NXP_SECURE_DRAM_SIZE + NXP_SP_SHRD_DRAM_SIZE))
 #endif
 #endif
 
 #ifndef NXP_SP_SHRD_DRAM_ADDR
-#define NXP_SP_SHRD_DRAM_ADDR	(NXP_NS_DRAM_ADDR + PLAT_DEF_DRAM0_SIZE \
-				- NXP_SP_SHRD_DRAM_SIZE)
+#define NXP_SP_SHRD_DRAM_ADDR	(NXP_NS_DRAM_ADDR + PLAT_DEF_DRAM0_SIZE - \
+				NXP_SP_SHRD_DRAM_SIZE)
 #endif
 
 #ifndef BL31_BASE
