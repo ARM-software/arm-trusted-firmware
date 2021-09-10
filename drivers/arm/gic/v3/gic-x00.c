@@ -16,15 +16,13 @@
 #include <assert.h>
 
 #include <arch_helpers.h>
+#include <drivers/arm/arm_gicv3_common.h>
 #include <drivers/arm/gicv3.h>
 
 #include "gicv3_private.h"
 
 /* GIC-600 specific register offsets */
 #define GICR_PWRR			0x24U
-#define IIDR_MODEL_ARM_GIC_600		U(0x0200043b)
-#define IIDR_MODEL_ARM_GIC_600AE	U(0x0300043b)
-#define IIDR_MODEL_ARM_GIC_CLAYTON	U(0x0400043b)
 
 /* GICR_PWRR fields */
 #define PWRR_RDPD_SHIFT			0
@@ -46,7 +44,7 @@
 
 #if GICV3_SUPPORT_GIC600
 
-/* GIC-600/Clayton specific accessor functions */
+/* GIC-600/700 specific accessor functions */
 static void gicr_write_pwrr(uintptr_t base, unsigned int val)
 {
 	mmio_write_32(base + GICR_PWRR, val);
@@ -123,12 +121,12 @@ static bool gicv3_redists_need_power_mgmt(uintptr_t gicr_base)
 	uint32_t reg = mmio_read_32(gicr_base + GICR_IIDR);
 
 	/*
-	 * The Arm GIC-600 and GIC-Clayton models have their redistributors
+	 * The Arm GIC-600 and GIC-700 models have their redistributors
 	 * powered down at reset.
 	 */
 	return (((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_600) ||
 		((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_600AE) ||
-		((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_CLAYTON));
+		((reg & IIDR_MODEL_MASK) == IIDR_MODEL_ARM_GIC_700));
 }
 
 #endif	/* GICV3_SUPPORT_GIC600 */

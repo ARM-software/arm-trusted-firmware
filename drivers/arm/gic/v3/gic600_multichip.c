@@ -11,6 +11,7 @@
 #include <assert.h>
 
 #include <common/debug.h>
+#include <drivers/arm/arm_gicv3_common.h>
 #include <drivers/arm/gic600_multichip.h>
 #include <drivers/arm/gicv3.h>
 
@@ -73,6 +74,7 @@ static void set_gicd_chipr_n(uintptr_t base,
 				unsigned int spi_id_max)
 {
 	unsigned int spi_block_min, spi_blocks;
+	unsigned int gicd_iidr_val = gicd_read_iidr(base);
 	uint64_t chipr_n_val;
 
 	/*
@@ -100,8 +102,24 @@ static void set_gicd_chipr_n(uintptr_t base,
 	spi_block_min = SPI_BLOCK_MIN_VALUE(spi_id_min);
 	spi_blocks    = SPI_BLOCKS_VALUE(spi_id_min, spi_id_max);
 
-	chipr_n_val = (GICD_CHIPR_VALUE(chip_addr, spi_block_min, spi_blocks)) |
-		GICD_CHIPRx_SOCKET_STATE;
+	switch ((gicd_iidr_val & IIDR_MODEL_MASK)) {
+	case IIDR_MODEL_ARM_GIC_600:
+		chipr_n_val = GICD_CHIPR_VALUE_GIC_600(chip_addr,
+						       spi_block_min,
+						       spi_blocks);
+		break;
+	case IIDR_MODEL_ARM_GIC_700:
+		chipr_n_val = GICD_CHIPR_VALUE_GIC_700(chip_addr,
+						       spi_block_min,
+						       spi_blocks);
+		break;
+	default:
+		ERROR("Unsupported GIC model 0x%x for multichip setup.\n",
+		      gicd_iidr_val);
+		panic();
+		break;
+	}
+	chipr_n_val |= GICD_CHIPRx_SOCKET_STATE;
 
 	/*
 	 * Wait for DCHIPR.PUP to be zero before commencing writes to

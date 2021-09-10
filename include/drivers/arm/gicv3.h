@@ -153,11 +153,8 @@
 /*******************************************************************************
  * Common GIC Redistributor interface registers & constants
  ******************************************************************************/
-#if GIC_ENABLE_V4_EXTN
-#define GICR_PCPUBASE_SHIFT	0x12
-#else
-#define GICR_PCPUBASE_SHIFT	0x11
-#endif
+#define GICR_V4_PCPUBASE_SHIFT	0x12
+#define GICR_V3_PCPUBASE_SHIFT	0x11
 #define GICR_SGIBASE_OFFSET	U(65536)	/* 64 KB */
 #define GICR_CTLR		U(0x0)
 #define GICR_IIDR		U(0x04)
@@ -212,12 +209,14 @@
 #define TYPER_AFF_VAL_SHIFT	32
 #define TYPER_PROC_NUM_SHIFT	8
 #define TYPER_LAST_SHIFT	4
+#define TYPER_VLPI_SHIFT	1
 
 #define TYPER_AFF_VAL_MASK	U(0xffffffff)
 #define TYPER_PROC_NUM_MASK	U(0xffff)
 #define TYPER_LAST_MASK		U(0x1)
 
 #define TYPER_LAST_BIT		BIT_32(TYPER_LAST_SHIFT)
+#define TYPER_VLPI_BIT		BIT_32(TYPER_VLPI_SHIFT)
 
 #define TYPER_PPI_NUM_SHIFT	U(27)
 #define TYPER_PPI_NUM_MASK	U(0x1f)
@@ -311,6 +310,19 @@
 #include <common/interrupt_props.h>
 #include <drivers/arm/gic_common.h>
 #include <lib/utils_def.h>
+
+static inline uintptr_t gicv3_redist_size(uint64_t typer_val)
+{
+#if GIC_ENABLE_V4_EXTN
+	if ((typer_val & TYPER_VLPI_BIT) != 0U) {
+		return 1U << GICR_V4_PCPUBASE_SHIFT;
+	} else {
+		return 1U << GICR_V3_PCPUBASE_SHIFT;
+	}
+#else
+	return 1U << GICR_V3_PCPUBASE_SHIFT;
+#endif
+}
 
 static inline bool gicv3_is_intr_id_special_identifier(unsigned int id)
 {

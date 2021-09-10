@@ -27,17 +27,11 @@
 #define GICD_CHIPSR_RTS_SHIFT		4
 #define GICD_DCHIPR_RT_OWNER_SHIFT	4
 
-/*
- * If GIC v4 extension is enabled, then use SPI macros specific to GIC-Clayton.
- * Other shifts and mask remains same between GIC-600 and GIC-Clayton.
- */
-#if GIC_ENABLE_V4_EXTN
-#define GICD_CHIPRx_SPI_BLOCK_MIN_SHIFT	9
-#define GICD_CHIPRx_SPI_BLOCKS_SHIFT	3
-#else
-#define GICD_CHIPRx_SPI_BLOCK_MIN_SHIFT	10
-#define GICD_CHIPRx_SPI_BLOCKS_SHIFT	5
-#endif
+/* Other shifts and masks remain the same between GIC-600 and GIC-700. */
+#define GIC_700_SPI_BLOCK_MIN_SHIFT	9
+#define GIC_700_SPI_BLOCKS_SHIFT	3
+#define GIC_600_SPI_BLOCK_MIN_SHIFT	10
+#define GIC_600_SPI_BLOCKS_SHIFT	5
 
 #define GICD_CHIPSR_RTS_STATE_DISCONNECTED	U(0)
 #define GICD_CHIPSR_RTS_STATE_UPDATING		U(1)
@@ -59,10 +53,14 @@
 #define SPI_BLOCKS_VALUE(spi_id_min, spi_id_max) \
 			(((spi_id_max) - (spi_id_min) + 1) / \
 			GIC600_SPI_ID_MIN)
-#define GICD_CHIPR_VALUE(chip_addr, spi_block_min, spi_blocks) \
+#define GICD_CHIPR_VALUE_GIC_700(chip_addr, spi_block_min, spi_blocks) \
 			(((chip_addr) << GICD_CHIPRx_ADDR_SHIFT) | \
-			((spi_block_min) << GICD_CHIPRx_SPI_BLOCK_MIN_SHIFT) | \
-			((spi_blocks) << GICD_CHIPRx_SPI_BLOCKS_SHIFT))
+			((spi_block_min) << GIC_700_SPI_BLOCK_MIN_SHIFT) | \
+			((spi_blocks) << GIC_700_SPI_BLOCKS_SHIFT))
+#define GICD_CHIPR_VALUE_GIC_600(chip_addr, spi_block_min, spi_blocks) \
+			(((chip_addr) << GICD_CHIPRx_ADDR_SHIFT) | \
+			((spi_block_min) << GIC_600_SPI_BLOCK_MIN_SHIFT) | \
+			((spi_blocks) << GIC_600_SPI_BLOCKS_SHIFT))
 
 /*
  * Multichip data assertion macros
