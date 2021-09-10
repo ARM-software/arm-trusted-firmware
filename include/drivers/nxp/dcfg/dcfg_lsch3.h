@@ -74,4 +74,7 @@
 #define DCFG_BOOTLOCPTRH_OFFSET			0x404
 #define DCFG_COREDISABLEDSR_OFFSET		0x990
 
+/* Reset module bit field */
+#define RSTCR_RESET_REQ         0x2
+
 #endif /*	DCFG_LSCH3_H	*/
