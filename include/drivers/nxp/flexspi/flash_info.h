@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BSD-3-Clause
 /*
- *  Copyright 2020 NXP
+ *  Copyright 2020-2021 NXP
  */
 
 /**
@@ -48,6 +48,16 @@
 #define F_PAGE_256			0x100U
 #define F_SECTOR_4K			0x1000U
 #define F_FLASH_SIZE_BYTES		0x4000000U
+#define F_SECTOR_ERASE_SZ		F_SECTOR_128K
+#ifdef CONFIG_FSPI_4K_ERASE
+#define F_SECTOR_ERASE_SZ		F_SECTOR_4K
+#endif
+
+#elif defined(CONFIG_MT35XU02G)
+#define F_SECTOR_128K			0x20000U
+#define F_PAGE_256			0x100U
+#define F_SECTOR_4K			0x1000U
+#define F_FLASH_SIZE_BYTES		0x10000000U
 #define F_SECTOR_ERASE_SZ		F_SECTOR_128K
 #ifdef CONFIG_FSPI_4K_ERASE
 #define F_SECTOR_ERASE_SZ		F_SECTOR_4K
