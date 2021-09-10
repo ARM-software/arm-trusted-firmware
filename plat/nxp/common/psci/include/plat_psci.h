@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2021 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -7,6 +7,8 @@
 
 #ifndef PLAT_PSCI_H
 #define PLAT_PSCI_H
+#include <cortex_a53.h>
+#include <cortex_a72.h>
 
  /* core abort current op */
 #define CORE_ABORT_OP     0x1

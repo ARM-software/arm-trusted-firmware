@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2021 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -234,7 +234,7 @@ func _psci_cpu_prep_off
 	msr DAIFSet, #0xF
 
 	/* read cpuectlr and save current value */
-	mrs   x4, CORTEX_A72_ECTLR_EL1
+	mrs   x4, CPUECTLR_EL1
 	mov   x1, #CPUECTLR_DATA
 	mov   x2, x4
 	mov   x0, x10
@@ -242,7 +242,7 @@ func _psci_cpu_prep_off
 
 	/* remove the core from coherency */
 	bic   x4, x4, #CPUECTLR_SMPEN_MASK
-	msr   CORTEX_A72_ECTLR_EL1, x4
+	msr   CPUECTLR_EL1, x4
 
 	/* save scr_el3 */
 	mov  x0, x10
@@ -339,7 +339,7 @@ func _psci_wakeup
 	mov   x1, #CPUECTLR_DATA
 	bl    _getCoreData
 	orr   x0, x0, #CPUECTLR_SMPEN_MASK
-	msr   CORTEX_A72_ECTLR_EL1, x0
+	msr   CPUECTLR_EL1, x0
 
 	/* x4 = core mask */
 
@@ -563,7 +563,7 @@ func _psci_core_prep_pwrdn
 	/* save cpuectlr */
 	mov  x0, x6
 	mov  x1, #CPUECTLR_DATA
-	mrs  x2, CORTEX_A72_ECTLR_EL1
+	mrs  x2, CPUECTLR_EL1
 	bl   _setCoreData
 
 	/* x6 = core mask */
@@ -640,7 +640,7 @@ func _psci_core_exit_pwrdn
 	bl   _getCoreData
 	/* make sure smp is set */
 	orr  x0, x0, #CPUECTLR_SMPEN_MASK
-	msr  CORTEX_A72_ECTLR_EL1, x0
+	msr  CPUECTLR_EL1, x0
 
 	/* x5 = core mask */
 
@@ -780,13 +780,13 @@ func _psci_clstr_prep_pwrdn
 	/* save cpuectlr */
 	mov  x0, x6
 	mov  x1, #CPUECTLR_DATA
-	mrs  x2, CORTEX_A72_ECTLR_EL1
+	mrs  x2, CPUECTLR_EL1
 	mov  x4, x2
 	bl   _setCoreData
 
 	/* remove core from coherency */
 	bic   x4, x4, #CPUECTLR_SMPEN_MASK
-	msr   CORTEX_A72_ECTLR_EL1, x4
+	msr   CPUECTLR_EL1, x4
 
 	/* x6 = core mask */
 
@@ -844,7 +844,7 @@ func _psci_clstr_exit_pwrdn
 	bl   _getCoreData
 	/* make sure smp is set */
 	orr  x0, x0, #CPUECTLR_SMPEN_MASK
-	msr  CORTEX_A72_ECTLR_EL1, x0
+	msr  CPUECTLR_EL1, x0
 
 	/* x4 = core mask */
 
@@ -985,13 +985,13 @@ func _psci_sys_prep_pwrdn
 	/* save cpuectlr */
 	mov  x0, x6
 	mov  x1, #CPUECTLR_DATA
-	mrs  x2, CORTEX_A72_ECTLR_EL1
+	mrs  x2, CPUECTLR_EL1
 	mov  x4, x2
 	bl   _setCoreData
 
 	/* remove core from coherency */
 	bic   x4, x4, #CPUECTLR_SMPEN_MASK
-	msr   CORTEX_A72_ECTLR_EL1, x4
+	msr   CPUECTLR_EL1, x4
 
 	/* x6 = core mask */
 
@@ -1071,7 +1071,7 @@ func _psci_sys_exit_pwrdn
 
 	/* make sure smp is set */
 	orr  x0, x0, #CPUECTLR_SMPEN_MASK
-	msr  CORTEX_A72_ECTLR_EL1, x0
+	msr  CPUECTLR_EL1, x0
 
 	/* x4 = core mask */
 
