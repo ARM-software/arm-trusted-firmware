@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2017-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: GPL-2.0+ OR BSD-3-Clause
  */
@@ -353,6 +353,7 @@ struct stm32mp1_ddrphy {
 #define DDRPHYC_PIR_DRAMRST			BIT(5)
 #define DDRPHYC_PIR_DRAMINIT			BIT(6)
 #define DDRPHYC_PIR_QSTRN			BIT(7)
+#define DDRPHYC_PIR_RVTRN			BIT(8)
 #define DDRPHYC_PIR_ICPC			BIT(16)
 #define DDRPHYC_PIR_ZCALBYP			BIT(30)
 #define DDRPHYC_PIR_INITSTEPS_MASK		GENMASK(31, 7)
