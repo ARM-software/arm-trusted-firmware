@@ -21,6 +21,7 @@
 #include <qti_plat.h>
 #include <qti_secure_io_cfg.h>
 #include <qtiseclib_interface.h>
+
 /*
  * SIP service - SMC function IDs for SiP Service queries
  *
@@ -29,7 +30,7 @@
 #define	QTI_SIP_SVC_UID_ID				U(0x0200ff01)
 /*							0x8200ff02 is reserved*/
 #define	QTI_SIP_SVC_VERSION_ID				U(0x0200ff03)
-
+#define QTI_SIP_SVC_AVAILABLE_ID			U(0x02000601)
 /*
  * Syscall's to allow Non Secure world accessing peripheral/IO memory
  * those are secure/proteced BUT not required to be secure.
@@ -81,6 +82,22 @@ static bool qti_is_secure_io_access_allowed(u_register_t addr)
 	}
 
 	return false;
+}
+
+static bool qti_check_syscall_availability(u_register_t smc_fid)
+{
+	switch (smc_fid) {
+	case QTI_SIP_SVC_CALL_COUNT_ID:
+	case QTI_SIP_SVC_UID_ID:
+	case QTI_SIP_SVC_VERSION_ID:
+	case QTI_SIP_SVC_AVAILABLE_ID:
+	case QTI_SIP_SVC_SECURE_IO_READ_ID:
+	case QTI_SIP_SVC_SECURE_IO_WRITE_ID:
+	case QTI_SIP_SVC_MEM_ASSIGN_ID:
+		return true;
+	default:
+		return false;
+	}
 }
 
 bool qti_mem_assign_validate_param(memprot_info_t *mem_info,
@@ -313,6 +330,18 @@ static uintptr_t qti_sip_handler(uint32_t smc_fid,
 			/* Return the version of current implementation */
 			SMC_RET2(handle, QTI_SIP_SVC_VERSION_MAJOR,
 				 QTI_SIP_SVC_VERSION_MINOR);
+			break;
+		}
+	case QTI_SIP_SVC_AVAILABLE_ID:
+		{
+			if (x1 != 1) {
+				SMC_RET1(handle, QTI_SIP_INVALID_PARAM);
+			}
+			if (qti_check_syscall_availability(x2) == true) {
+				SMC_RET2(handle, QTI_SIP_SUCCESS, 1);
+			} else {
+				SMC_RET2(handle, QTI_SIP_SUCCESS, 0);
+			}
 			break;
 		}
 	case QTI_SIP_SVC_SECURE_IO_READ_ID:
