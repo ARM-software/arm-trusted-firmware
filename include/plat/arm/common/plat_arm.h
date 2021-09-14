@@ -250,9 +250,8 @@ void arm_bl1_set_mbedtls_heap(void);
 int arm_get_mbedtls_heap(void **heap_addr, size_t *heap_size);
 
 #if MEASURED_BOOT
-int arm_set_tos_fw_info(uintptr_t config_base, uintptr_t log_addr,
-			size_t log_size);
-int arm_set_nt_fw_info(uintptr_t config_base,
+int arm_set_tos_fw_info(uintptr_t log_addr, size_t log_size);
+int arm_set_nt_fw_info(
 /*
  * Currently OP-TEE does not support reading DTBs from Secure memory
  * and this option should be removed when feature is supported.

@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #include <common/debug.h>
+#include <common/tbbr/tbbr_img_def.h>
 #include <drivers/measured_boot/event_log/tcg.h>
 
 /*
@@ -59,18 +60,7 @@ typedef struct {
 	unsigned int id;
 	const char *name;
 	unsigned int pcr;
-} image_data_t;
-
-typedef struct {
-	const image_data_t *images_data;
-	int (*set_nt_fw_info)(uintptr_t config_base,
-#ifdef SPD_opteed
-				uintptr_t log_addr,
-#endif
-				size_t log_size, uintptr_t *ns_log_addr);
-	int (*set_tos_fw_info)(uintptr_t config_base, uintptr_t log_addr,
-				size_t log_size);
-} measured_boot_data_t;
+} event_log_metadata_t;
 
 #define	ID_EVENT_SIZE	(sizeof(id_event_headers_t) + \
 			(sizeof(id_event_algorithm_size_t) * HASH_ALG_COUNT) + \
@@ -88,12 +78,12 @@ typedef struct {
 			sizeof(event2_data_t))
 
 /* Functions' declarations */
-void event_log_init(void);
-int event_log_finalise(uint8_t **log_addr, size_t *log_size);
+void event_log_init(uint8_t *event_log_start, uint8_t *event_log_finish);
+void event_log_write_header(void);
 void dump_event_log(uint8_t *log_addr, size_t log_size);
-const measured_boot_data_t *plat_get_measured_boot_data(void);
+const event_log_metadata_t *plat_event_log_get_metadata(void);
 int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 				 uint32_t data_id);
-void event_log_record(const uint8_t *hash, const image_data_t *image_ptr);
+size_t event_log_get_cur_size(uint8_t *event_log_start);
 
 #endif /* EVENT_LOG_H */

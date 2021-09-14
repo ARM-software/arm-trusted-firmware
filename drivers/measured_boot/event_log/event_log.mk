@@ -25,8 +25,6 @@ else
     TCG_DIGEST_SIZE		:=	32U
 endif
 
-# Event Log length in bytes
-EVENT_LOG_SIZE			:= 1024
 
 # Set definitions for mbed TLS library and Measured Boot driver
 $(eval $(call add_defines,\
@@ -34,7 +32,6 @@ $(eval $(call add_defines,\
         MBEDTLS_MD_ID \
         TPM_ALG_ID \
         TCG_DIGEST_SIZE \
-        EVENT_LOG_SIZE \
         EVENT_LOG_LEVEL \
 )))
 

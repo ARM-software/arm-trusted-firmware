@@ -17,22 +17,14 @@
 
 #include <plat/common/platform.h>
 
-/* Event Log data */
-static uint8_t event_log[EVENT_LOG_SIZE];
+/* Running Event Log Pointer */
+static uint8_t *log_ptr;
 
-/* End of Event Log */
-#define	EVENT_LOG_END	((uintptr_t)event_log + sizeof(event_log) - 1U)
+/* Pointer to the first byte past end of the Event Log buffer */
+static uintptr_t log_end;
 
-CASSERT(sizeof(event_log) >= LOG_MIN_SIZE, assert_event_log_size);
-
-/* Pointer in event_log[] */
-static uint8_t *log_ptr = event_log;
-
-/* Pointer to measured_boot_data_t */
-const static measured_boot_data_t *plat_data_ptr;
-
-static uintptr_t tos_fw_config_base;
-static uintptr_t nt_fw_config_base;
+/* Pointer to event_log_metadata_t */
+static const event_log_metadata_t *plat_metadata_ptr;
 
 /* TCG_EfiSpecIdEvent */
 static const id_event_headers_t id_event_header = {
@@ -82,25 +74,28 @@ static const event2_header_t locality_event_header = {
 /*
  * Record a measurement as a TCG_PCR_EVENT2 event
  *
- * @param[in] hash	Pointer to hash data of TCG_DIGEST_SIZE bytes
- * @param[in] image_ptr	Pointer to image_data_t structure
+ * @param[in] hash		Pointer to hash data of TCG_DIGEST_SIZE bytes
+ * @param[in] metadata_ptr	Pointer to event_log_metadata_t structure
  *
  * There must be room for storing this new event into the event log buffer.
  */
-void event_log_record(const uint8_t *hash, const image_data_t *image_ptr)
+static void event_log_record(const uint8_t *hash,
+			     const event_log_metadata_t *metadata_ptr)
 {
 	void *ptr = log_ptr;
 	uint32_t name_len;
 
-	assert(image_ptr != NULL);
-	assert(image_ptr->name != NULL);
 	assert(hash != NULL);
+	assert(metadata_ptr != NULL);
+	assert(metadata_ptr->name != NULL);
+	/* event_log_init() must have been called prior to this. */
+	assert(log_ptr != NULL);
 
-	name_len = (uint32_t)strlen(image_ptr->name) + 1U;
+	name_len = (uint32_t)strlen(metadata_ptr->name) + 1U;
 
 	/* Check for space in Event Log buffer */
-	assert(((uintptr_t)ptr + (uint32_t)EVENT2_HDR_SIZE + name_len) <=
-	       EVENT_LOG_END);
+	assert(((uintptr_t)ptr + (uint32_t)EVENT2_HDR_SIZE + name_len) <
+	       log_end);
 
 	/*
 	 * As per TCG specifications, firmware components that are measured
@@ -108,7 +103,7 @@ void event_log_record(const uint8_t *hash, const image_data_t *image_ptr)
 	 * EV_POST_CODE.
 	 */
 	/* TCG_PCR_EVENT2.PCRIndex */
-	((event2_header_t *)ptr)->pcr_index = image_ptr->pcr;
+	((event2_header_t *)ptr)->pcr_index = metadata_ptr->pcr;
 
 	/* TCG_PCR_EVENT2.EventType */
 	((event2_header_t *)ptr)->event_type = EV_POST_CODE;
@@ -136,7 +131,7 @@ void event_log_record(const uint8_t *hash, const image_data_t *image_ptr)
 
 	/* Copy event data to TCG_PCR_EVENT2.Event */
 	(void)memcpy((void *)(((event2_data_t *)ptr)->event),
-			(const void *)image_ptr->name, name_len);
+			(const void *)metadata_ptr->name, name_len);
 
 	/* End of event data */
 	log_ptr = (uint8_t *)((uintptr_t)ptr +
@@ -144,18 +139,38 @@ void event_log_record(const uint8_t *hash, const image_data_t *image_ptr)
 }
 
 /*
- * Init Event Log
+ * Initialise Event Log global variables, used during the recording
+ * of various payload measurements into the Event Log buffer
  *
- * Initialises Event Log by writing Specification ID and
- * Startup Locality events.
+ * @param[in] event_log_start		Base address of Event Log buffer
+ * @param[in] event_log_finish		End address of Event Log buffer,
+ * 					it is a first byte past end of the
+ * 					buffer
  */
-void event_log_init(void)
+void event_log_init(uint8_t *event_log_start, uint8_t *event_log_finish)
+{
+	assert(event_log_start != NULL);
+	assert(event_log_finish > event_log_start);
+
+	log_ptr = event_log_start;
+	log_end = (uintptr_t)event_log_finish;
+
+	/* Get pointer to platform's event_log_metadata_t structure */
+	plat_metadata_ptr = plat_event_log_get_metadata();
+	assert(plat_metadata_ptr != NULL);
+}
+
+/*
+ * Initialises Event Log by writing Specification ID and
+ * Startup Locality events
+ */
+void event_log_write_header(void)
 {
 	const char locality_signature[] = TCG_STARTUP_LOCALITY_SIGNATURE;
-	void *ptr = event_log;
+	void *ptr = log_ptr;
 
-	/* Get pointer to platform's measured_boot_data_t structure */
-	plat_data_ptr = plat_get_measured_boot_data();
+	/* event_log_init() must have been called prior to this. */
+	assert(log_ptr != NULL);
 
 	/*
 	 * Add Specification ID Event first
@@ -213,9 +228,7 @@ void event_log_init(void)
 	 * the platform's boot firmware
 	 */
 	((startup_locality_event_t *)ptr)->startup_locality = 0U;
-	ptr = (uint8_t *)((uintptr_t)ptr + sizeof(startup_locality_event_t));
-
-	log_ptr = (uint8_t *)ptr;
+	log_ptr = (uint8_t *)((uintptr_t)ptr + sizeof(startup_locality_event_t));
 }
 
 /*
@@ -232,23 +245,16 @@ void event_log_init(void)
 int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 				 uint32_t data_id)
 {
-	const image_data_t *data_ptr = plat_data_ptr->images_data;
 	unsigned char hash_data[MBEDTLS_MD_MAX_SIZE];
 	int rc;
+	const event_log_metadata_t *metadata_ptr = plat_metadata_ptr;
 
 	/* Get the metadata associated with this image. */
-	while ((data_ptr->id != INVALID_ID) && (data_ptr->id != data_id)) {
-		data_ptr++;
+	while ((metadata_ptr->id != INVALID_ID) &&
+		(metadata_ptr->id != data_id)) {
+		metadata_ptr++;
 	}
-	assert(data_ptr->id != INVALID_ID);
-
-	if (data_id == TOS_FW_CONFIG_ID) {
-		tos_fw_config_base = data_base;
-	} else if (data_id == NT_FW_CONFIG_ID) {
-		nt_fw_config_base = data_base;
-	} else {
-		/* No action */
-	}
+	assert(metadata_ptr->id != INVALID_ID);
 
 	/* Calculate hash */
 	rc = crypto_mod_calc_hash((unsigned int)MBEDTLS_MD_ID,
@@ -257,97 +263,22 @@ int event_log_measure_and_record(uintptr_t data_base, uint32_t data_size,
 		return rc;
 	}
 
-	event_log_record(hash_data, data_ptr);
+	event_log_record(hash_data, metadata_ptr);
 
 	return 0;
 }
 
 /*
- * Finalise Event Log
+ * Get current Event Log buffer size i.e. used space of Event Log buffer
  *
- * @param[out] log_addr	Pointer to return Event Log address
- * @param[out] log_size	Pointer to return Event Log size
- * @return:
- *	0 = success
- *    < 0 = error code
+ * @param[in]  event_log_start		Base Pointer to Event Log buffer
+ *
+ * @return: current Size of Event Log buffer
  */
-int event_log_finalise(uint8_t **log_addr, size_t *log_size)
+size_t event_log_get_cur_size(uint8_t *event_log_start)
 {
-	/* Event Log size */
-	size_t num_bytes = (uintptr_t)log_ptr - (uintptr_t)event_log;
-	int rc;
+	assert(event_log_start != NULL);
+	assert(log_ptr >= event_log_start);
 
-	assert(log_addr != NULL);
-	assert(log_size != NULL);
-
-	if (nt_fw_config_base == 0UL) {
-		ERROR("%s(): %s_FW_CONFIG not loaded\n", __func__, "NT");
-		return -ENOENT;
-	}
-
-	/*
-	 * Set Event Log data in NT_FW_CONFIG and
-	 * get Event Log address in Non-Secure memory
-	 */
-	if (plat_data_ptr->set_nt_fw_info != NULL) {
-
-		/* Event Log address in Non-Secure memory */
-		uintptr_t ns_log_addr;
-
-		rc = plat_data_ptr->set_nt_fw_info(
-				nt_fw_config_base,
-#ifdef SPD_opteed
-				(uintptr_t)event_log,
-#endif
-				num_bytes, &ns_log_addr);
-		if (rc != 0) {
-			ERROR("%s(): Unable to update %s_FW_CONFIG\n",
-						__func__, "NT");
-			return rc;
-		}
-
-		/* Copy Event Log to Non-secure memory */
-		(void)memcpy((void *)ns_log_addr, (const void *)event_log,
-				num_bytes);
-
-		/* Ensure that the Event Log is visible in Non-secure memory */
-		flush_dcache_range(ns_log_addr, num_bytes);
-
-		/* Return Event Log address in Non-Secure memory */
-		*log_addr = (uint8_t *)ns_log_addr;
-
-	} else {
-		INFO("%s(): set_%s_fw_info not set\n", __func__, "nt");
-
-		/* Return Event Log address in Secure memory */
-		*log_addr = event_log;
-	}
-
-	if (tos_fw_config_base != 0UL) {
-		if (plat_data_ptr->set_tos_fw_info != NULL) {
-
-			/* Set Event Log data in TOS_FW_CONFIG */
-			rc = plat_data_ptr->set_tos_fw_info(
-						tos_fw_config_base,
-						(uintptr_t)event_log,
-						num_bytes);
-			if (rc != 0) {
-				ERROR("%s(): Unable to update %s_FW_CONFIG\n",
-						__func__, "TOS");
-				return rc;
-			}
-		} else {
-			INFO("%s(): set_%s_fw_info not set\n", __func__, "tos");
-		}
-	} else {
-		INFO("%s(): %s_FW_CONFIG not loaded\n", __func__, "TOS");
-	}
-
-	/* Ensure that the Event Log is visible in Secure memory */
-	flush_dcache_range((uintptr_t)event_log, num_bytes);
-
-	/* Return Event Log size */
-	*log_size = num_bytes;
-
-	return 0;
+	return (size_t)((uintptr_t)log_ptr - (uintptr_t)event_log_start);
 }

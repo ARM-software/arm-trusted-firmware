@@ -205,13 +205,19 @@ static int arm_set_event_log_info(uintptr_t config_base,
  *	0 = success
  *    < 0 = error
  */
-int arm_set_tos_fw_info(uintptr_t config_base, uintptr_t log_addr,
-			size_t log_size)
+int arm_set_tos_fw_info(uintptr_t log_addr, size_t log_size)
 {
+	uintptr_t config_base;
+	const bl_mem_params_node_t *cfg_mem_params;
 	int err;
 
-	assert(config_base != 0UL);
 	assert(log_addr != 0UL);
+
+	/* Get the config load address and size of TOS_FW_CONFIG */
+	cfg_mem_params = get_bl_mem_params_node(TOS_FW_CONFIG_ID);
+	assert(cfg_mem_params != NULL);
+
+	config_base = cfg_mem_params->image_info.image_base;
 
 	/* Write the Event Log address and its size in the DTB */
 	err = arm_set_event_log_info(config_base,
@@ -237,22 +243,24 @@ int arm_set_tos_fw_info(uintptr_t config_base, uintptr_t log_addr,
  *	0 = success
  *    < 0 = error
  */
-int arm_set_nt_fw_info(uintptr_t config_base,
+int arm_set_nt_fw_info(
 #ifdef SPD_opteed
 			uintptr_t log_addr,
 #endif
 			size_t log_size, uintptr_t *ns_log_addr)
 {
+	uintptr_t config_base;
 	uintptr_t ns_addr;
 	const bl_mem_params_node_t *cfg_mem_params;
 	int err;
 
-	assert(config_base != 0UL);
 	assert(ns_log_addr != NULL);
 
 	/* Get the config load address and size from NT_FW_CONFIG */
 	cfg_mem_params = get_bl_mem_params_node(NT_FW_CONFIG_ID);
 	assert(cfg_mem_params != NULL);
+
+	config_base = cfg_mem_params->image_info.image_base;
 
 	/* Calculate Event Log address in Non-secure memory */
 	ns_addr = cfg_mem_params->image_info.image_base +

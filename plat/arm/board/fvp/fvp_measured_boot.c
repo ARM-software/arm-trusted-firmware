@@ -1,21 +1,19 @@
 /*
- * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
+ * Copyright (c) 2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <assert.h>
 #include <stdint.h>
 
-#include <common/desc_image_load.h>
 #include <drivers/measured_boot/event_log/event_log.h>
-
 #include <plat/arm/common/plat_arm.h>
-#include <plat/common/platform.h>
+
+/* Event Log data */
+static uint8_t event_log[PLAT_ARM_EVENT_LOG_MAX_SIZE];
 
 /* FVP table with platform specific image IDs, names and PCRs */
-static const image_data_t fvp_images_data[] = {
-	{ BL2_IMAGE_ID, BL2_STRING, PCR_0 },		/* Reserved for BL2 */
+const event_log_metadata_t fvp_event_log_metadata[] = {
 	{ BL31_IMAGE_ID, BL31_STRING, PCR_0 },
 	{ BL32_IMAGE_ID, BL32_STRING, PCR_0 },
 	{ BL32_EXTRA1_IMAGE_ID, BL32_EXTRA1_IMAGE_STRING, PCR_0 },
@@ -29,42 +27,66 @@ static const image_data_t fvp_images_data[] = {
 	{ INVALID_ID, NULL, (unsigned int)(-1) }	/* Terminator */
 };
 
-static const measured_boot_data_t fvp_measured_boot_data = {
-	fvp_images_data,
-	arm_set_nt_fw_info,
-	arm_set_tos_fw_info
-};
-
-/*
- * Function retuns pointer to FVP plat_measured_boot_data_t structure
- */
-const measured_boot_data_t *plat_get_measured_boot_data(void)
+const event_log_metadata_t *plat_event_log_get_metadata(void)
 {
-	return &fvp_measured_boot_data;
+	return fvp_event_log_metadata;
 }
 
 void bl2_plat_mboot_init(void)
 {
-	event_log_init();
+	event_log_init(event_log, event_log + sizeof(event_log));
+	event_log_write_header();
 }
 
 void bl2_plat_mboot_finish(void)
 {
-	uint8_t *log_addr;
-	size_t log_size;
 	int rc;
 
-	rc = event_log_finalise(&log_addr, &log_size);
+	/* Event Log address in Non-Secure memory */
+	uintptr_t ns_log_addr;
+
+	/* Event Log filled size */
+	size_t event_log_cur_size;
+
+	event_log_cur_size = event_log_get_cur_size(event_log);
+
+	rc = arm_set_nt_fw_info(
+#ifdef SPD_opteed
+			    (uintptr_t)event_log,
+#endif
+			    event_log_cur_size, &ns_log_addr);
 	if (rc != 0) {
+		ERROR("%s(): Unable to update %s_FW_CONFIG\n",
+		      __func__, "NT");
 		/*
 		 * It is a fatal error because on FVP secure world software
 		 * assumes that a valid event log exists and will use it to
-		 * record the measurements into the fTPM
+		 * record the measurements into the fTPM.
+		 * Note: In FVP platform, OP-TEE uses nt_fw_config to get the
+		 * secure Event Log buffer address.
 		 */
 		panic();
 	}
 
-	dump_event_log(log_addr, log_size);
+	/* Copy Event Log to Non-secure memory */
+	(void)memcpy((void *)ns_log_addr, (const void *)event_log,
+		     event_log_cur_size);
+
+	/* Ensure that the Event Log is visible in Non-secure memory */
+	flush_dcache_range(ns_log_addr, event_log_cur_size);
+
+#if defined(SPD_tspd) || defined(SPD_spmd)
+	/* Set Event Log data in TOS_FW_CONFIG */
+	rc = arm_set_tos_fw_info((uintptr_t)event_log,
+				 event_log_cur_size);
+	if (rc != 0) {
+		ERROR("%s(): Unable to update %s_FW_CONFIG\n",
+		      __func__, "TOS");
+		panic();
+	}
+#endif
+
+	dump_event_log(event_log, event_log_cur_size);
 }
 
 int plat_mboot_measure_image(unsigned int image_id)
