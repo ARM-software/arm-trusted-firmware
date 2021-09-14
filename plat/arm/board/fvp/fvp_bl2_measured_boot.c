@@ -27,11 +27,6 @@ const event_log_metadata_t fvp_event_log_metadata[] = {
 	{ INVALID_ID, NULL, (unsigned int)(-1) }	/* Terminator */
 };
 
-const event_log_metadata_t *plat_event_log_get_metadata(void)
-{
-	return fvp_event_log_metadata;
-}
-
 void bl2_plat_mboot_init(void)
 {
 	event_log_init(event_log, event_log + sizeof(event_log));
@@ -87,28 +82,4 @@ void bl2_plat_mboot_finish(void)
 #endif
 
 	dump_event_log(event_log, event_log_cur_size);
-}
-
-int plat_mboot_measure_image(unsigned int image_id)
-{
-	const bl_mem_params_node_t *bl_mem_params =
-		get_bl_mem_params_node(image_id);
-
-	assert(bl_mem_params != NULL);
-
-	image_info_t info = bl_mem_params->image_info;
-	int err;
-
-	if ((info.h.attr & IMAGE_ATTRIB_SKIP_LOADING) == 0U) {
-		/* Calculate image hash and record data in Event Log */
-		err = event_log_measure_record(info.image_base,
-					       info.image_size, image_id);
-		if (err != 0) {
-			ERROR("%s%s image id %u (%i)\n",
-			      "BL2: Failed to ", "record", image_id, err);
-			return err;
-		}
-	}
-
-	return 0;
 }

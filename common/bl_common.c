@@ -203,7 +203,6 @@ static int load_auth_image_recursive(unsigned int image_id,
 	}
 
 	if (is_parent_image == 0) {
-#if IMAGE_BL2
 		/*
 		 * Measure the image.
 		 * We do not measure its parents because these only play a role
@@ -212,11 +211,11 @@ static int load_auth_image_recursive(unsigned int image_id,
 		 * TODO: Change this code if we change our minds about measuring
 		 * certificates.
 		 */
-		rc = plat_mboot_measure_image(image_id);
+		rc = plat_mboot_measure_image(image_id, image_data);
 		if (rc != 0) {
 			return rc;
 		}
-#endif
+
 		/*
 		 * Flush the image to main memory so that it can be executed
 		 * later by any CPU, regardless of cache and MMU state. This
