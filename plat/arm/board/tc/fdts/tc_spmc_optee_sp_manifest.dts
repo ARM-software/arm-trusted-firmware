@@ -36,7 +36,7 @@
 #ifdef TS_SP_FW_CONFIG
 		vm2 {
 			is_ffa_partition;
-			debug_name = "secure-storage";
+			debug_name = "internal-trusted-storage";
 			load_address = <0xfee00000>;
 			vcpu_count = <1>;
 			mem_size = <2097152>; /* 2MB TZC DRAM */

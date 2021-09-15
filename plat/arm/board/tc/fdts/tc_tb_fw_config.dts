@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <lib/libc/cdefs.h>
+
 /dts-v1/;
 
 / {
@@ -27,8 +29,11 @@
 
 	secure-partitions {
 		compatible = "arm,sp";
+#ifdef ARM_BL2_SP_LIST_DTS
+	#include __XSTRING(ARM_BL2_SP_LIST_DTS)
+#else
 #ifdef TS_SP_FW_CONFIG
-		secure-storage {
+		internal-trusted-storage {
 		       uuid = "dc1eef48-b17a-4ccf-ac8b-dfcff7711b14";
 		       load-address = <0xfee00000>;
 		};
@@ -60,5 +65,6 @@
 			load-address = <0xfe200000>;
 		};
 #endif
+#endif /* ARM_BL2_SP_LIST_DTS */
 	};
 };
