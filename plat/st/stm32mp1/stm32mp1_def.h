@@ -68,6 +68,7 @@
  ******************************************************************************/
 #define STM32MP_ROM_BASE		U(0x00000000)
 #define STM32MP_ROM_SIZE		U(0x00020000)
+#define STM32MP_ROM_SIZE_2MB_ALIGNED	U(0x00200000)
 
 #define STM32MP_SYSRAM_BASE		U(0x2FFC0000)
 #define STM32MP_SYSRAM_SIZE		U(0x00040000)
