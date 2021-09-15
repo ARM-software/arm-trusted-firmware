@@ -31,6 +31,7 @@
 #define VPPSYS1_BASE            (IO_PHYS + 0x04f00000)
 #define VDOSYS0_BASE            (IO_PHYS + 0x0C01A000)
 #define VDOSYS1_BASE            (IO_PHYS + 0x0C100000)
+#define DVFSRC_BASE             (IO_PHYS + 0x00012000)
 
 /*******************************************************************************
  * DP/eDP related constants
@@ -63,6 +64,12 @@
  * PMIC related constants
  ******************************************************************************/
 #define PMIC_WRAP_BASE			(IO_PHYS + 0x00024000)
+
+/*******************************************************************************
+ * EMI MPU related constants
+ ******************************************************************************/
+#define EMI_MPU_BASE		(IO_PHYS + 0x00226000)
+#define SUB_EMI_MPU_BASE	(IO_PHYS + 0x00225000)
 
 /*******************************************************************************
  * System counter frequency related constants
