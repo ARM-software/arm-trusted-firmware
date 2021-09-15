@@ -110,10 +110,13 @@ Partition Properties
    - Specifies which messaging methods are supported by the partition, set bit
      means the feature is supported, clear bit - not supported:
 
-      - Bit[0]: support for receiving direct message requests
-      - Bit[1]: support for sending direct messages
-      - Bit[2]: support for indirect messaging
-      - Bit[3]: support for managed exit
+      - Bit[0]: partition can receive direct requests if set
+      - Bit[1]: partition can send direct requests if set
+      - Bit[2]: partition can send and receive indirect messages
+
+- managed-exit
+   - value type: <empty>
+   - Specifies if managed exit is supported.
 
 - has-primary-scheduler
    - value type: <empty>
