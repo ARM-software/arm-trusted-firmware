@@ -60,8 +60,8 @@ You can find additional definitions in the `Arm Glossary`_.
    FDT
       Flattened Device Tree
 
-   FFA
-      Firmware Framework for A-class processors
+   FF-A
+      Firmware Framework for Arm A-profile
 
    FIP
       Firmware Image Package
