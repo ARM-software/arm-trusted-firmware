@@ -38,7 +38,7 @@ BL31_SOURCES		:=	${MORELLO_CPU_SOURCES}			\
 				${MORELLO_BASE}/morello_security.c	\
 				drivers/arm/css/sds/sds.c
 
-FDT_SOURCES		+=	fdts/morello-fvp.dts
+FDT_SOURCES		+=	fdts/morello-${TARGET_PLATFORM}.dts
 
 # TF-A not required to load the SCP Images
 override CSS_LOAD_SCP_IMAGES		:=	0
