@@ -12,7 +12,7 @@
 #include <libfdt.h>
 #include <plat/arm/common/fconf_ethosn_getter.h>
 
-struct ethosn_config_t ethosn_config;
+struct ethosn_config_t ethosn_config = {.num_cores = 0};
 
 static uint8_t fdt_node_get_status(const void *fdt, int node)
 {
@@ -33,74 +33,86 @@ static uint8_t fdt_node_get_status(const void *fdt, int node)
 int fconf_populate_ethosn_config(uintptr_t config)
 {
 	int ethosn_node;
-	int sub_node;
-	uint8_t ethosn_status;
-	uint32_t core_count = 0U;
-	uint32_t core_addr_idx = 0U;
 	const void *hw_conf_dtb = (const void *)config;
 
 	/* Find offset to node with 'ethosn' compatible property */
-	ethosn_node = fdt_node_offset_by_compatible(hw_conf_dtb, -1, "ethosn");
-	if (ethosn_node < 0) {
+	INFO("Probing Arm Ethos-N NPU\n");
+	uint32_t total_core_count = 0U;
+
+	fdt_for_each_compatible_node(hw_conf_dtb, ethosn_node, "ethosn") {
+		int sub_node;
+		uint8_t ethosn_status;
+		uint32_t device_core_count = 0U;
+
+		/* If the Arm Ethos-N NPU is disabled the core check can be skipped */
+		ethosn_status = fdt_node_get_status(hw_conf_dtb, ethosn_node);
+		if (ethosn_status == ETHOSN_STATUS_DISABLED) {
+			continue;
+		}
+
+		fdt_for_each_subnode(sub_node, hw_conf_dtb, ethosn_node) {
+			int err;
+			uintptr_t core_addr;
+			uint8_t core_status;
+
+			if (total_core_count >= ETHOSN_CORE_NUM_MAX) {
+				ERROR("FCONF: Reached max number of Arm Ethos-N NPU cores\n");
+				return -FDT_ERR_BADSTRUCTURE;
+			}
+
+			/* Check that the sub node is "ethosn-core" compatible */
+			if (fdt_node_check_compatible(hw_conf_dtb,
+						      sub_node,
+						      "ethosn-core") != 0) {
+				/* Ignore incompatible sub node */
+				continue;
+			}
+
+			core_status = fdt_node_get_status(hw_conf_dtb, sub_node);
+			if (core_status == ETHOSN_STATUS_DISABLED) {
+				continue;
+			}
+
+			err = fdt_get_reg_props_by_index(hw_conf_dtb,
+							 ethosn_node,
+							 device_core_count,
+							 &core_addr,
+							 NULL);
+			if (err < 0) {
+				ERROR(
+				"FCONF: Failed to read reg property for Arm Ethos-N NPU core %u\n",
+						device_core_count);
+				return err;
+			}
+
+			INFO("NPU core probed at address 0x%lx\n", core_addr);
+			ethosn_config.core[total_core_count].addr = core_addr;
+			total_core_count++;
+			device_core_count++;
+		}
+
+		if ((sub_node < 0) && (sub_node != -FDT_ERR_NOTFOUND)) {
+			ERROR("FCONF: Failed to parse sub nodes\n");
+			return -FDT_ERR_BADSTRUCTURE;
+		}
+
+		if (device_core_count == 0U) {
+			ERROR(
+			"FCONF: Enabled Arm Ethos-N NPU device must have at least one enabled core\n");
+			return -FDT_ERR_BADSTRUCTURE;
+		}
+	}
+
+	if (total_core_count == 0U) {
 		ERROR("FCONF: Can't find 'ethosn' compatible node in dtb\n");
-		return ethosn_node;
+		return -FDT_ERR_BADSTRUCTURE;
 	}
 
-	/* If the Arm Ethos-N NPU is disabled the core check can be skipped */
-	ethosn_status = fdt_node_get_status(hw_conf_dtb, ethosn_node);
-	if (ethosn_status == ETHOSN_STATUS_DISABLED) {
-		return 0;
-	}
+	ethosn_config.num_cores = total_core_count;
 
-	fdt_for_each_subnode(sub_node, hw_conf_dtb, ethosn_node) {
-		int err;
-		uintptr_t addr;
-		uint8_t status;
-
-		/* Check that the sub node is "ethosn-core" compatible */
-		if (fdt_node_check_compatible(hw_conf_dtb, sub_node,
-					      "ethosn-core") != 0) {
-			/* Ignore incompatible sub node */
-			continue;
-		}
-
-		/* Including disabled cores */
-		if (core_addr_idx >= ETHOSN_CORE_NUM_MAX) {
-			ERROR("FCONF: Reached max number of Arm Ethos-N NPU cores\n");
-			return -1;
-		}
-
-		status = fdt_node_get_status(hw_conf_dtb, ethosn_node);
-		if (status == ETHOSN_STATUS_DISABLED) {
-			++core_addr_idx;
-			continue;
-		}
-
-		err = fdt_get_reg_props_by_index(hw_conf_dtb, ethosn_node,
-						 core_addr_idx, &addr, NULL);
-		if (err < 0) {
-			ERROR("FCONF: Failed to read reg property for Arm Ethos-N NPU core %u\n",
-			      core_addr_idx);
-			return err;
-		}
-
-		ethosn_config.core_addr[core_count++] = addr;
-		++core_addr_idx;
-	}
-
-	if ((sub_node < 0) && (sub_node != -FDT_ERR_NOTFOUND)) {
-		ERROR("FCONF: Failed to parse sub nodes\n");
-		return sub_node;
-	}
-
-	/* The Arm Ethos-N NPU can't be used if no cores were found */
-	if (core_count == 0) {
-		ERROR("FCONF: No Arm Ethos-N NPU cores found\n");
-		return -1;
-	}
-
-	ethosn_config.num_cores = core_count;
-	ethosn_config.status = ethosn_status;
+	INFO("%d NPU core%s probed\n",
+	     ethosn_config.num_cores,
+	     ethosn_config.num_cores > 1 ? "s" : "");
 
 	return 0;
 }

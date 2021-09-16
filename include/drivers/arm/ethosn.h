@@ -38,8 +38,8 @@
 #define is_ethosn_fid(_fid) (((_fid) & ETHOSN_FID_MASK) == ETHOSN_FID_VALUE)
 
 /* Service version  */
-#define ETHOSN_VERSION_MAJOR U(0)
-#define ETHOSN_VERSION_MINOR U(1)
+#define ETHOSN_VERSION_MAJOR U(1)
+#define ETHOSN_VERSION_MINOR U(0)
 
 /* Return codes for function calls */
 #define ETHOSN_SUCCESS			 0
@@ -47,10 +47,10 @@
 /* -2 Reserved for NOT_REQUIRED */
 /* -3 Reserved for INVALID_PARAMETER */
 #define ETHOSN_FAILURE			-4
-#define ETHOSN_CORE_IDX_OUT_OF_RANGE	-5
+#define ETHOSN_UNKNOWN_CORE_ADDRESS	-5
 
 uintptr_t ethosn_smc_handler(uint32_t smc_fid,
-			     u_register_t core_idx,
+			     u_register_t core_addr,
 			     u_register_t x2,
 			     u_register_t x3,
 			     u_register_t x4,
