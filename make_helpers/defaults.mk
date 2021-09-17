@@ -355,3 +355,24 @@ NR_OF_IMAGES_IN_FW_BANK		:= 1
 
 # Disable Firmware update support by default
 PSA_FWU_SUPPORT			:= 0
+
+# By default, disable access of trace buffer control registers from NS
+# lower ELs  i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused
+# if FEAT_TRBE is implemented.
+# Note FEAT_TRBE is only supported on AArch64 - therefore do not enable in
+# AArch32.
+ifneq (${ARCH},aarch32)
+    ENABLE_TRBE_FOR_NS		:= 0
+else
+    override ENABLE_TRBE_FOR_NS	:= 0
+endif
+
+# By default, disable access of trace system registers from NS lower
+# ELs  i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused if
+# system register trace is implemented.
+ENABLE_SYS_REG_TRACE_FOR_NS	:= 0
+
+# By default, disable trace filter control registers access to NS
+# lower ELs, i.e. NS-EL2, or NS-EL1 if NS-EL2 implemented but unused
+# if FEAT_TRF is implemented.
+ENABLE_TRF_FOR_NS		:= 0
