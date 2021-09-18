@@ -291,6 +291,11 @@ void tzc400_enable_filters(void)
 	for (filter = 0U; filter < tzc400.num_filters; filter++) {
 		state = _tzc400_get_gate_keeper(tzc400.base, filter);
 		if (state != 0U) {
+			/* Filter 0 is special and cannot be disabled.
+			 * So here we allow it being already enabled. */
+			if (filter == 0U) {
+				continue;
+			}
 			/*
 			 * The TZC filter is already configured. Changing the
 			 * programmer's view in an active system can cause
@@ -312,14 +317,17 @@ void tzc400_enable_filters(void)
 void tzc400_disable_filters(void)
 {
 	unsigned int filter;
+	unsigned int state;
+	unsigned int start = 0U;
 
 	assert(tzc400.base != 0U);
 
-	/*
-	 * We don't do the same state check as above as the Gatekeepers are
-	 * disabled after reset.
-	 */
-	for (filter = 0; filter < tzc400.num_filters; filter++)
+	/* Filter 0 is special and cannot be disabled. */
+	state = _tzc400_get_gate_keeper(tzc400.base, 0);
+	if (state != 0U) {
+		start++;
+	}
+	for (filter = start; filter < tzc400.num_filters; filter++)
 		_tzc400_set_gate_keeper(tzc400.base, filter, 0);
 }
 
