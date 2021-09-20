@@ -213,7 +213,7 @@
 
 /* NOR Flash */
 
-#define PLAT_ARM_FIP_BASE					UL(0x08131000)
+#define PLAT_ARM_FIP_BASE					UL(0x081EF000)
 #define PLAT_ARM_FIP_MAX_SIZE					UL(0x1ff000)  /* 1.996 MB */
 
 #define PLAT_ARM_NVM_BASE					V2M_FLASH0_BASE
