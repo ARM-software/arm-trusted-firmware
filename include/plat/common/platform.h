@@ -213,12 +213,17 @@ void bl2_plat_get_hash(void *data);
 
 void bl2_plat_mboot_init(void);
 void bl2_plat_mboot_finish(void);
+int plat_mboot_measure_image(unsigned int image_id);
 #else
 static inline void bl2_plat_mboot_init(void)
 {
 }
 static inline void bl2_plat_mboot_finish(void)
 {
+}
+static inline int plat_mboot_measure_image(unsigned int image_id __unused)
+{
+	return 0;
 }
 #endif /* MEASURED_BOOT */
 
