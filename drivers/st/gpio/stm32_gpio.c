@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2021, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2022, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -8,10 +8,6 @@
 #include <errno.h>
 #include <stdbool.h>
 
-#include <libfdt.h>
-
-#include <platform_def.h>
-
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <drivers/clk.h>
@@ -19,12 +15,19 @@
 #include <drivers/st/stm32mp_clkfunc.h>
 #include <lib/mmio.h>
 #include <lib/utils_def.h>
+#include <libfdt.h>
+
+#include <platform_def.h>
 
 #define DT_GPIO_BANK_SHIFT	12
 #define DT_GPIO_BANK_MASK	GENMASK(16, 12)
 #define DT_GPIO_PIN_SHIFT	8
 #define DT_GPIO_PIN_MASK	GENMASK(11, 8)
 #define DT_GPIO_MODE_MASK	GENMASK(7, 0)
+
+static void set_gpio(uint32_t bank, uint32_t pin, uint32_t mode, uint32_t type,
+		     uint32_t speed, uint32_t pull, uint32_t alternate,
+		     uint8_t status);
 
 /*******************************************************************************
  * This function gets GPIO bank node in DT.
@@ -100,6 +103,7 @@ static int dt_set_gpio_config(void *fdt, int node, uint8_t status)
 		uint32_t pin;
 		uint32_t mode;
 		uint32_t alternate = GPIO_ALTERNATE_(0);
+		uint32_t type;
 		int bank_node;
 		int clk;
 
@@ -129,7 +133,9 @@ static int dt_set_gpio_config(void *fdt, int node, uint8_t status)
 		}
 
 		if (fdt_getprop(fdt, node, "drive-open-drain", NULL) != NULL) {
-			mode |= GPIO_OPEN_DRAIN;
+			type = GPIO_TYPE_OPEN_DRAIN;
+		} else {
+			type = GPIO_TYPE_PUSH_PULL;
 		}
 
 		bank_node = ckeck_gpio_bank(fdt, bank, pinctrl_node);
@@ -146,7 +152,7 @@ static int dt_set_gpio_config(void *fdt, int node, uint8_t status)
 		/* Platform knows the clock: assert it is okay */
 		assert((unsigned long)clk == stm32_get_gpio_bank_clock(bank));
 
-		set_gpio(bank, pin, mode, speed, pull, alternate, status);
+		set_gpio(bank, pin, mode, type, speed, pull, alternate, status);
 	}
 
 	return 0;
@@ -160,7 +166,7 @@ static int dt_set_gpio_config(void *fdt, int node, uint8_t status)
 int dt_set_pinctrl_config(int node)
 {
 	const fdt32_t *cuint;
-	int lenp = 0;
+	int lenp;
 	uint32_t i;
 	uint8_t status;
 	void *fdt;
@@ -201,8 +207,9 @@ int dt_set_pinctrl_config(int node)
 	return 0;
 }
 
-void set_gpio(uint32_t bank, uint32_t pin, uint32_t mode, uint32_t speed,
-	      uint32_t pull, uint32_t alternate, uint8_t status)
+static void set_gpio(uint32_t bank, uint32_t pin, uint32_t mode, uint32_t type,
+		     uint32_t speed, uint32_t pull, uint32_t alternate,
+		     uint8_t status)
 {
 	uintptr_t base = stm32_get_gpio_bank_base(bank);
 	unsigned long clock = stm32_get_gpio_bank_clock(bank);
@@ -211,41 +218,38 @@ void set_gpio(uint32_t bank, uint32_t pin, uint32_t mode, uint32_t speed,
 
 	clk_enable(clock);
 
-	mmio_clrbits_32(base + GPIO_MODE_OFFSET,
-			((uint32_t)GPIO_MODE_MASK << (pin << 1)));
-	mmio_setbits_32(base + GPIO_MODE_OFFSET,
-			(mode & ~GPIO_OPEN_DRAIN) << (pin << 1));
+	mmio_clrsetbits_32(base + GPIO_MODE_OFFSET,
+			   (uint32_t)GPIO_MODE_MASK << (pin << 1),
+			   mode << (pin << 1));
 
-	if ((mode & GPIO_OPEN_DRAIN) != 0U) {
-		mmio_setbits_32(base + GPIO_TYPE_OFFSET, BIT(pin));
-	} else {
-		mmio_clrbits_32(base + GPIO_TYPE_OFFSET, BIT(pin));
-	}
+	mmio_clrsetbits_32(base + GPIO_TYPE_OFFSET,
+			   (uint32_t)GPIO_TYPE_MASK << pin,
+			   type << pin);
 
-	mmio_clrbits_32(base + GPIO_SPEED_OFFSET,
-			((uint32_t)GPIO_SPEED_MASK << (pin << 1)));
-	mmio_setbits_32(base + GPIO_SPEED_OFFSET, speed << (pin << 1));
+	mmio_clrsetbits_32(base + GPIO_SPEED_OFFSET,
+			   (uint32_t)GPIO_SPEED_MASK << (pin << 1),
+			   speed << (pin << 1));
 
-	mmio_clrbits_32(base + GPIO_PUPD_OFFSET,
-			((uint32_t)GPIO_PULL_MASK << (pin << 1)));
-	mmio_setbits_32(base + GPIO_PUPD_OFFSET, pull << (pin << 1));
+	mmio_clrsetbits_32(base + GPIO_PUPD_OFFSET,
+			   (uint32_t)GPIO_PULL_MASK << (pin << 1),
+			   pull << (pin << 1));
 
 	if (pin < GPIO_ALT_LOWER_LIMIT) {
-		mmio_clrbits_32(base + GPIO_AFRL_OFFSET,
-				((uint32_t)GPIO_ALTERNATE_MASK << (pin << 2)));
-		mmio_setbits_32(base + GPIO_AFRL_OFFSET,
-				alternate << (pin << 2));
+		mmio_clrsetbits_32(base + GPIO_AFRL_OFFSET,
+				   (uint32_t)GPIO_ALTERNATE_MASK << (pin << 2),
+				   alternate << (pin << 2));
 	} else {
-		mmio_clrbits_32(base + GPIO_AFRH_OFFSET,
-				((uint32_t)GPIO_ALTERNATE_MASK <<
-				 ((pin - GPIO_ALT_LOWER_LIMIT) << 2)));
-		mmio_setbits_32(base + GPIO_AFRH_OFFSET,
-				alternate << ((pin - GPIO_ALT_LOWER_LIMIT) <<
-					      2));
+		size_t shift = (pin - GPIO_ALT_LOWER_LIMIT) << 2;
+
+		mmio_clrsetbits_32(base + GPIO_AFRH_OFFSET,
+				   (uint32_t)GPIO_ALTERNATE_MASK << shift,
+				   alternate << shift);
 	}
 
 	VERBOSE("GPIO %u mode set to 0x%x\n", bank,
 		mmio_read_32(base + GPIO_MODE_OFFSET));
+	VERBOSE("GPIO %u type set to 0x%x\n", bank,
+		mmio_read_32(base + GPIO_TYPE_OFFSET));
 	VERBOSE("GPIO %u speed set to 0x%x\n", bank,
 		mmio_read_32(base + GPIO_SPEED_OFFSET));
 	VERBOSE("GPIO %u mode pull to 0x%x\n", bank,
@@ -287,7 +291,7 @@ void set_gpio_secure_cfg(uint32_t bank, uint32_t pin, bool secure)
 
 void set_gpio_reset_cfg(uint32_t bank, uint32_t pin)
 {
-	set_gpio(bank, pin, GPIO_MODE_ANALOG, GPIO_SPEED_LOW,
-		 GPIO_NO_PULL, GPIO_ALTERNATE_(0), DT_DISABLED);
+	set_gpio(bank, pin, GPIO_MODE_ANALOG, GPIO_TYPE_PUSH_PULL,
+		 GPIO_SPEED_LOW, GPIO_NO_PULL, GPIO_ALTERNATE_(0), DT_DISABLED);
 	set_gpio_secure_cfg(bank, pin, stm32_gpio_is_secure_at_reset(bank));
 }
