@@ -13,6 +13,7 @@
 #define GPIO_TYPE_OFFSET	U(0x04)
 #define GPIO_SPEED_OFFSET	U(0x08)
 #define GPIO_PUPD_OFFSET	U(0x0C)
+#define GPIO_OD_OFFSET		U(0x14)
 #define GPIO_BSRR_OFFSET	U(0x18)
 #define GPIO_AFRL_OFFSET	U(0x20)
 #define GPIO_AFRH_OFFSET	U(0x24)
@@ -46,6 +47,10 @@
 #define GPIO_PULL_UP		U(0x01)
 #define GPIO_PULL_DOWN		U(0x02)
 #define GPIO_PULL_MASK		U(0x03)
+
+#define GPIO_OD_OUTPUT_LOW	U(0x00)
+#define GPIO_OD_OUTPUT_HIGH	U(0x01)
+#define GPIO_OD_MASK		U(0x01)
 
 #ifndef __ASSEMBLER__
 #include <stdint.h>

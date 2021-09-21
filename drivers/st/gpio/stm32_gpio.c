@@ -26,8 +26,8 @@
 #define DT_GPIO_MODE_MASK	GENMASK(7, 0)
 
 static void set_gpio(uint32_t bank, uint32_t pin, uint32_t mode, uint32_t type,
-		     uint32_t speed, uint32_t pull, uint32_t alternate,
-		     uint8_t status);
+		     uint32_t speed, uint32_t pull, uint32_t od,
+		     uint32_t alternate, uint8_t status);
 
 /*******************************************************************************
  * This function gets GPIO bank node in DT.
@@ -104,6 +104,7 @@ static int dt_set_gpio_config(void *fdt, int node, uint8_t status)
 		uint32_t mode;
 		uint32_t alternate = GPIO_ALTERNATE_(0);
 		uint32_t type;
+		uint32_t od = GPIO_OD_OUTPUT_LOW;
 		int bank_node;
 		int clk;
 
@@ -138,6 +139,20 @@ static int dt_set_gpio_config(void *fdt, int node, uint8_t status)
 			type = GPIO_TYPE_PUSH_PULL;
 		}
 
+		if (fdt_getprop(fdt, node, "output-high", NULL) != NULL) {
+			if (mode == GPIO_MODE_INPUT) {
+				mode = GPIO_MODE_OUTPUT;
+				od = GPIO_OD_OUTPUT_HIGH;
+			}
+		}
+
+		if (fdt_getprop(fdt, node, "output-low", NULL) != NULL) {
+			if (mode == GPIO_MODE_INPUT) {
+				mode = GPIO_MODE_OUTPUT;
+				od = GPIO_OD_OUTPUT_LOW;
+			}
+		}
+
 		bank_node = ckeck_gpio_bank(fdt, bank, pinctrl_node);
 		if (bank_node == 0) {
 			ERROR("PINCTRL inconsistent in DT\n");
@@ -152,7 +167,7 @@ static int dt_set_gpio_config(void *fdt, int node, uint8_t status)
 		/* Platform knows the clock: assert it is okay */
 		assert((unsigned long)clk == stm32_get_gpio_bank_clock(bank));
 
-		set_gpio(bank, pin, mode, type, speed, pull, alternate, status);
+		set_gpio(bank, pin, mode, type, speed, pull, od, alternate, status);
 	}
 
 	return 0;
@@ -208,8 +223,8 @@ int dt_set_pinctrl_config(int node)
 }
 
 static void set_gpio(uint32_t bank, uint32_t pin, uint32_t mode, uint32_t type,
-		     uint32_t speed, uint32_t pull, uint32_t alternate,
-		     uint8_t status)
+		     uint32_t speed, uint32_t pull, uint32_t od,
+		     uint32_t alternate, uint8_t status)
 {
 	uintptr_t base = stm32_get_gpio_bank_base(bank);
 	unsigned long clock = stm32_get_gpio_bank_clock(bank);
@@ -246,6 +261,10 @@ static void set_gpio(uint32_t bank, uint32_t pin, uint32_t mode, uint32_t type,
 				   alternate << shift);
 	}
 
+	mmio_clrsetbits_32(base + GPIO_OD_OFFSET,
+			   (uint32_t)GPIO_OD_MASK << pin,
+			   od << pin);
+
 	VERBOSE("GPIO %u mode set to 0x%x\n", bank,
 		mmio_read_32(base + GPIO_MODE_OFFSET));
 	VERBOSE("GPIO %u type set to 0x%x\n", bank,
@@ -258,6 +277,8 @@ static void set_gpio(uint32_t bank, uint32_t pin, uint32_t mode, uint32_t type,
 		mmio_read_32(base + GPIO_AFRL_OFFSET));
 	VERBOSE("GPIO %u mode alternate high to 0x%x\n", bank,
 		mmio_read_32(base + GPIO_AFRH_OFFSET));
+	VERBOSE("GPIO %u output data set to 0x%x\n", bank,
+		mmio_read_32(base + GPIO_OD_OFFSET));
 
 	clk_disable(clock);
 
@@ -292,6 +313,7 @@ void set_gpio_secure_cfg(uint32_t bank, uint32_t pin, bool secure)
 void set_gpio_reset_cfg(uint32_t bank, uint32_t pin)
 {
 	set_gpio(bank, pin, GPIO_MODE_ANALOG, GPIO_TYPE_PUSH_PULL,
-		 GPIO_SPEED_LOW, GPIO_NO_PULL, GPIO_ALTERNATE_(0), DT_DISABLED);
+		 GPIO_SPEED_LOW, GPIO_NO_PULL, GPIO_OD_OUTPUT_LOW,
+		 GPIO_ALTERNATE_(0), DT_DISABLED);
 	set_gpio_secure_cfg(bank, pin, stm32_gpio_is_secure_at_reset(bank));
 }
