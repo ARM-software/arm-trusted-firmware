@@ -281,3 +281,8 @@ uintptr_t stm32_get_bkpr_boot_mode_addr(void)
 {
 	return tamp_bkpr(BKPR_BOOT_MODE);
 }
+
+uintptr_t stm32_ddrdbg_get_base(void)
+{
+	return DDRDBG_BASE;
+}
