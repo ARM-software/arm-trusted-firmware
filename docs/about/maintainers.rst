@@ -535,7 +535,10 @@ QTI platform port
 ^^^^^^^^^^^^^^^^^
 :|M|: Saurabh Gorecha <sgorecha@codeaurora.org>
 :|G|: `sgorecha`_
-:|M|: Debasish Mandal <dmandal@codeaurora.org>
+:|M|: Lachit Patel <lpatel@codeaurora.org>
+:|G|: `lachitp`_
+:|M|: Sreevyshanavi Kare <skare@codeaurora.org>
+:|G|: `sreekare`_
 :|M|: QTI TF Maintainers <qti.trustedfirmware.maintainers@codeaurora.org>
 :|F|: docs/plat/qti.rst
 :|F|: plat/qti/
@@ -732,6 +735,7 @@ Threat Model
 .. _jenswi-linaro: https://github.com/jenswi-linaro
 .. _jwerner-chromium: https://github.com/jwerner-chromium
 .. _kostapr: https://github.com/kostapr
+.. _lachitp: https://github.com/lachitp
 .. _ldts: https://github.com/ldts
 .. _marex: https://github.com/marex
 .. _masahir0y: https://github.com/masahir0y
@@ -750,6 +754,7 @@ Threat Model
 .. _shawnguo2: https://github.com/shawnguo2
 .. _smaeul: https://github.com/smaeul
 .. _soby-mathew: https://github.com/soby-mathew
+.. _sreekare: https://github.com/sreekare
 .. _thloh85-intel: https://github.com/thloh85-intel
 .. _thomas-arm: https://github.com/thomas-arm
 .. _TonyXie06: https://github.com/TonyXie06

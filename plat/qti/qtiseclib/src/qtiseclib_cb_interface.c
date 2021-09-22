@@ -132,6 +132,10 @@ void qtiseclib_cb_get_ns_ctx(qtiseclib_dbg_a64_ctxt_regs_type *qti_ns_ctx)
 	void *ctx;
 
 	ctx = cm_get_context(NON_SECURE);
+	if (ctx) {
+		/* nothing to be done w/o ns context */
+		return;
+	}
 
 	qti_ns_ctx->spsr_el3 =
 	    read_ctx_reg(get_el3state_ctx(ctx), CTX_SPSR_EL3);
