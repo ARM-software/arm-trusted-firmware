@@ -875,6 +875,8 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	case FFA_MEM_RETRIEVE_RESP:
 	case FFA_MEM_RELINQUISH:
 	case FFA_MEM_RECLAIM:
+	case FFA_MEM_FRAG_TX:
+	case FFA_MEM_FRAG_RX:
 	case FFA_SUCCESS_SMC32:
 	case FFA_SUCCESS_SMC64:
 		/*
