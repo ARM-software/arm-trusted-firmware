@@ -919,10 +919,9 @@ static int mvebu_a3700_comphy_usb3_power_off(void)
 	return 0;
 }
 
-static int mvebu_a3700_comphy_sata_power_off(uint32_t comphy_mode)
+static int mvebu_a3700_comphy_sata_power_off(void)
 {
 	uintptr_t comphy_indir_regs = COMPHY_INDIRECT_REG;
-	int mode = COMPHY_GET_MODE(comphy_mode);
 	uint32_t offset;
 
 	debug_enter();
@@ -930,12 +929,12 @@ static int mvebu_a3700_comphy_sata_power_off(uint32_t comphy_mode)
 	/* Set phy isolation mode */
 	offset = COMPHY_ISOLATION_CTRL_REG + SATAPHY_LANE2_REG_BASE_OFFSET;
 	comphy_set_indirect(comphy_indir_regs, offset, PHY_ISOLATE_MODE,
-			    PHY_ISOLATE_MODE, mode);
+			    PHY_ISOLATE_MODE, COMPHY_SATA_MODE);
 
 	/* Power off PLL, Tx, Rx */
 	offset = COMPHY_POWER_PLL_CTRL + SATAPHY_LANE2_REG_BASE_OFFSET;
 	comphy_set_indirect(comphy_indir_regs, offset, 0,
-			    PU_PLL_BIT | PU_RX_BIT | PU_TX_BIT, mode);
+			    PU_PLL_BIT | PU_RX_BIT | PU_TX_BIT, COMPHY_SATA_MODE);
 
 	debug_exit();
 
@@ -968,7 +967,7 @@ int mvebu_3700_comphy_power_off(uint8_t comphy_index, uint32_t comphy_mode)
 		err = mvebu_a3700_comphy_usb3_power_off();
 		break;
 	case (COMPHY_SATA_MODE):
-		err = mvebu_a3700_comphy_sata_power_off(comphy_mode);
+		err = mvebu_a3700_comphy_sata_power_off();
 		break;
 
 	default:
