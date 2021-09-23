@@ -255,8 +255,7 @@ static void comphy_usb3_set_direct(uintptr_t addr, uint32_t reg_offset,
 	reg_set16((reg_offset * PHY_SHFT(USB3) + addr), data, mask);
 }
 
-static void comphy_sgmii_phy_init(uint32_t comphy_index, uint32_t mode,
-				  uintptr_t sd_ip_addr)
+static void comphy_sgmii_phy_init(uintptr_t sd_ip_addr, bool is_1gbps)
 {
 	const int fix_arr_sz = ARRAY_SIZE(sgmii_phy_init_fix);
 	int addr, fix_idx;
@@ -271,8 +270,7 @@ static void comphy_sgmii_phy_init(uint32_t comphy_index, uint32_t mode,
 		 * comparison to 3.125 Gbps values. These register values are
 		 * stored in "sgmii_phy_init_fix" array.
 		 */
-		if ((mode != COMPHY_SGMII_MODE) &&
-		    (sgmii_phy_init_fix[fix_idx].addr == addr)) {
+		if (!is_1gbps && sgmii_phy_init_fix[fix_idx].addr == addr) {
 			/* Use new value */
 			val = sgmii_phy_init_fix[fix_idx].value;
 			if (fix_idx < fix_arr_sz)
@@ -491,7 +489,7 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 	debug("Running C-DPI phy init %s mode\n",
 	      mode == COMPHY_2500BASEX_MODE ? "2G5" : "1G");
 	if (get_ref_clk() == 40)
-		comphy_sgmii_phy_init(comphy_index, mode, sd_ip_addr);
+		comphy_sgmii_phy_init(sd_ip_addr, mode != COMPHY_2500BASEX_MODE);
 
 	/*
 	 * 14. [Simulation Only] should not be used for real chip.
