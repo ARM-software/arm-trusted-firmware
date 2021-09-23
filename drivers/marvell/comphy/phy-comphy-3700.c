@@ -118,7 +118,7 @@ static uint16_t sgmii_phy_init[512] = {
 };
 
 /* PHY selector configures with corresponding modes */
-static void mvebu_a3700_comphy_set_phy_selector(uint8_t comphy_index,
+static int mvebu_a3700_comphy_set_phy_selector(uint8_t comphy_index,
 						uint32_t comphy_mode)
 {
 	uint32_t reg;
@@ -168,9 +168,10 @@ static void mvebu_a3700_comphy_set_phy_selector(uint8_t comphy_index,
 	}
 
 	mmio_write_32(MVEBU_COMPHY_REG_BASE + COMPHY_SELECTOR_PHY_REG, reg);
-	return;
+	return 0;
 error:
 	ERROR("COMPHY[%d] mode[%d] is invalid\n", comphy_index, mode);
+	return -EINVAL;
 }
 
 /*
@@ -286,7 +287,7 @@ static void comphy_sgmii_phy_init(uintptr_t sd_ip_addr, bool is_1gbps)
 static int mvebu_a3700_comphy_sata_power_on(uint8_t comphy_index,
 					    uint32_t comphy_mode)
 {
-	int ret = 0;
+	int ret;
 	uint32_t offset, data = 0, ref_clk;
 	uintptr_t comphy_indir_regs = COMPHY_INDIRECT_REG;
 	int invert = COMPHY_GET_POLARITY_INVERT(comphy_mode);
@@ -294,7 +295,10 @@ static int mvebu_a3700_comphy_sata_power_on(uint8_t comphy_index,
 	debug_enter();
 
 	/* Configure phy selector for SATA */
-	mvebu_a3700_comphy_set_phy_selector(comphy_index, comphy_mode);
+	ret = mvebu_a3700_comphy_set_phy_selector(comphy_index, comphy_mode);
+	if (ret) {
+		return ret;
+	}
 
 	/* Clear phy isolation mode to make it work in normal mode */
 	offset =  COMPHY_ISOLATION_CTRL_REG + SATAPHY_LANE2_REG_BASE_OFFSET;
@@ -354,16 +358,19 @@ static int mvebu_a3700_comphy_sata_power_on(uint8_t comphy_index,
 				   COMPHY_LANE2_INDIR_DATA_OFFSET,
 				   PLL_READY_TX_BIT, PLL_READY_TX_BIT,
 				   COMPHY_PLL_TIMEOUT, REG_32BIT);
+	if (ret) {
+		return -ETIMEDOUT;
+	}
 
 	debug_exit();
 
-	return ret;
+	return 0;
 }
 
 static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 					     uint32_t comphy_mode)
 {
-	int ret = 0;
+	int ret;
 	uint32_t mask, data;
 	uintptr_t offset;
 	uintptr_t sd_ip_addr;
@@ -373,7 +380,10 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 	debug_enter();
 
 	/* Set selector */
-	mvebu_a3700_comphy_set_phy_selector(comphy_index, comphy_mode);
+	ret = mvebu_a3700_comphy_set_phy_selector(comphy_index, comphy_mode);
+	if (ret) {
+		return ret;
+	}
 
 	/* Serdes IP Base address
 	 * COMPHY Lane0 -- USB3/GBE1
@@ -534,8 +544,10 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 				   PHY_PLL_READY_TX_BIT | PHY_PLL_READY_RX_BIT,
 				   PHY_PLL_READY_TX_BIT | PHY_PLL_READY_RX_BIT,
 				   COMPHY_PLL_TIMEOUT, REG_32BIT);
-	if (ret)
+	if (ret) {
 		ERROR("Failed to lock PLL for SGMII PHY %d\n", comphy_index);
+		return -ETIMEDOUT;
+	}
 
 	/*
 	 * 19. Set COMPHY input port PIN_TX_IDLE=0
@@ -558,25 +570,27 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 				   PHY_PLL_READY_TX_BIT | PHY_PLL_READY_RX_BIT,
 				   PHY_PLL_READY_TX_BIT | PHY_PLL_READY_RX_BIT,
 				   COMPHY_PLL_TIMEOUT, REG_32BIT);
-	if (ret)
+	if (ret) {
 		ERROR("Failed to lock PLL for SGMII PHY %d\n", comphy_index);
-
+		return -ETIMEDOUT;
+	}
 
 	ret = polling_with_timeout(MVEBU_COMPHY_REG_BASE +
 				   COMPHY_PHY_STATUS_OFFSET(comphy_index),
 				   PHY_RX_INIT_DONE_BIT, PHY_RX_INIT_DONE_BIT,
 				   COMPHY_PLL_TIMEOUT, REG_32BIT);
-	if (ret)
+	if (ret) {
 		ERROR("Failed to init RX of SGMII PHY %d\n", comphy_index);
+		return -ETIMEDOUT;
+	}
 
 	debug_exit();
 
-	return ret;
+	return 0;
 }
 
 static int mvebu_a3700_comphy_sgmii_power_off(uint8_t comphy_index)
 {
-	int ret = 0;
 	uintptr_t offset;
 	uint32_t mask, data;
 
@@ -589,13 +603,13 @@ static int mvebu_a3700_comphy_sgmii_power_off(uint8_t comphy_index)
 
 	debug_exit();
 
-	return ret;
+	return 0;
 }
 
 static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 					    uint32_t comphy_mode)
 {
-	int ret = 0;
+	int ret;
 	uintptr_t reg_base = 0;
 	uintptr_t addr;
 	uint32_t mask, data, cfg, ref_clk;
@@ -606,7 +620,10 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 	debug_enter();
 
 	/* Set phy seclector */
-	mvebu_a3700_comphy_set_phy_selector(comphy_index, comphy_mode);
+	ret = mvebu_a3700_comphy_set_phy_selector(comphy_index, comphy_mode);
+	if (ret) {
+		return ret;
+	}
 
 	/* Set usb3 reg access func, Lane2 is indirect access */
 	if (comphy_index == COMPHY_LANE2) {
@@ -778,12 +795,14 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 					   TXDCLK_PCLK_EN, TXDCLK_PCLK_EN,
 					   COMPHY_PLL_TIMEOUT, REG_16BIT);
 	}
-	if (ret)
+	if (ret) {
 		ERROR("Failed to lock USB3 PLL\n");
+		return -ETIMEDOUT;
+	}
 
 	debug_exit();
 
-	return ret;
+	return 0;
 }
 
 static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
@@ -869,12 +888,14 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 	ret = polling_with_timeout(LANE_STATUS1_ADDR(PCIE) + COMPHY_SD_ADDR,
 				   TXDCLK_PCLK_EN, TXDCLK_PCLK_EN,
 				   COMPHY_PLL_TIMEOUT, REG_16BIT);
-	if (ret)
+	if (ret) {
 		ERROR("Failed to lock PCIE PLL\n");
+		return -ETIMEDOUT;
+	}
 
 	debug_exit();
 
-	return ret;
+	return 0;
 }
 
 int mvebu_3700_comphy_power_on(uint8_t comphy_index, uint32_t comphy_mode)
