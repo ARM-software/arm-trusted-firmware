@@ -364,7 +364,8 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 					     uint32_t comphy_mode)
 {
 	int ret = 0;
-	uint32_t mask, data, offset;
+	uint32_t mask, data;
+	uintptr_t offset;
 	uintptr_t sd_ip_addr;
 	int mode = COMPHY_GET_MODE(comphy_mode);
 	int invert = COMPHY_GET_POLARITY_INVERT(comphy_mode);
@@ -576,7 +577,8 @@ static int mvebu_a3700_comphy_sgmii_power_on(uint8_t comphy_index,
 static int mvebu_a3700_comphy_sgmii_power_off(uint8_t comphy_index)
 {
 	int ret = 0;
-	uint32_t mask, data, offset;
+	uintptr_t offset;
+	uint32_t mask, data;
 
 	debug_enter();
 
@@ -595,7 +597,8 @@ static int mvebu_a3700_comphy_usb3_power_on(uint8_t comphy_index,
 {
 	int ret = 0;
 	uintptr_t reg_base = 0;
-	uint32_t mask, data, addr, cfg, ref_clk;
+	uintptr_t addr;
+	uint32_t mask, data, cfg, ref_clk;
 	void (*usb3_reg_set)(uintptr_t addr, uint32_t reg_offset, uint16_t data,
 			     uint16_t mask);
 	int invert = COMPHY_GET_POLARITY_INVERT(comphy_mode);
