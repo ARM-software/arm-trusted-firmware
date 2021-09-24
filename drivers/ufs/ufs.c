@@ -34,6 +34,9 @@ int ufshc_send_uic_cmd(uintptr_t base, uic_cmd_t *cmd)
 {
 	unsigned int data;
 
+	if (base == 0 || cmd == NULL)
+		return -EINVAL;
+
 	data = mmio_read_32(base + HCS);
 	if ((data & HCS_UCRDY) == 0)
 		return -EBUSY;
@@ -54,9 +57,13 @@ int ufshc_dme_get(unsigned int attr, unsigned int idx, unsigned int *val)
 {
 	uintptr_t base;
 	unsigned int data;
-	int retries;
+	int result, retries;
+	uic_cmd_t cmd;
 
-	assert((ufs_params.reg_base != 0) && (val != NULL));
+	assert(ufs_params.reg_base != 0);
+
+	if (val == NULL)
+		return -EINVAL;
 
 	base = ufs_params.reg_base;
 	for (retries = 0; retries < 100; retries++) {
@@ -68,19 +75,20 @@ int ufshc_dme_get(unsigned int attr, unsigned int idx, unsigned int *val)
 	if (retries >= 100)
 		return -EBUSY;
 
-	mmio_write_32(base + IS, ~0);
-	mmio_write_32(base + UCMDARG1, (attr << 16) | GEN_SELECTOR_IDX(idx));
-	mmio_write_32(base + UCMDARG2, 0);
-	mmio_write_32(base + UCMDARG3, 0);
-	mmio_write_32(base + UICCMD, DME_GET);
-	do {
+	cmd.arg1 = (attr << 16) | GEN_SELECTOR_IDX(idx);
+	cmd.arg2 = 0;
+	cmd.arg3 = 0;
+	cmd.op = DME_GET;
+	for (retries = 0; retries < UFS_UIC_COMMAND_RETRIES; ++retries) {
+		result = ufshc_send_uic_cmd(base, &cmd);
+		if (result == 0)
+			break;
 		data = mmio_read_32(base + IS);
 		if (data & UFS_INT_UE)
 			return -EINVAL;
-	} while ((data & UFS_INT_UCCS) == 0);
-	mmio_write_32(base + IS, UFS_INT_UCCS);
-	data = mmio_read_32(base + UCMDARG2) & CONFIG_RESULT_CODE_MASK;
-	assert(data == 0);
+	}
+	if (retries >= UFS_UIC_COMMAND_RETRIES)
+		return -EIO;
 
 	*val = mmio_read_32(base + UCMDARG3);
 	return 0;
@@ -90,26 +98,28 @@ int ufshc_dme_set(unsigned int attr, unsigned int idx, unsigned int val)
 {
 	uintptr_t base;
 	unsigned int data;
+	int result, retries;
+	uic_cmd_t cmd;
 
 	assert((ufs_params.reg_base != 0));
 
 	base = ufs_params.reg_base;
-	data = mmio_read_32(base + HCS);
-	if ((data & HCS_UCRDY) == 0)
-		return -EBUSY;
-	mmio_write_32(base + IS, ~0);
-	mmio_write_32(base + UCMDARG1, (attr << 16) | GEN_SELECTOR_IDX(idx));
-	mmio_write_32(base + UCMDARG2, 0);
-	mmio_write_32(base + UCMDARG3, val);
-	mmio_write_32(base + UICCMD, DME_SET);
-	do {
+	cmd.arg1 = (attr << 16) | GEN_SELECTOR_IDX(idx);
+	cmd.arg2 = 0;
+	cmd.arg3 = val;
+	cmd.op = DME_SET;
+
+	for (retries = 0; retries < UFS_UIC_COMMAND_RETRIES; ++retries) {
+		result = ufshc_send_uic_cmd(base, &cmd);
+		if (result == 0)
+			break;
 		data = mmio_read_32(base + IS);
 		if (data & UFS_INT_UE)
 			return -EINVAL;
-	} while ((data & UFS_INT_UCCS) == 0);
-	mmio_write_32(base + IS, UFS_INT_UCCS);
-	data = mmio_read_32(base + UCMDARG2) & CONFIG_RESULT_CODE_MASK;
-	assert(data == 0);
+	}
+	if (retries >= UFS_UIC_COMMAND_RETRIES)
+		return -EIO;
+
 	return 0;
 }
 
