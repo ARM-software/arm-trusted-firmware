@@ -465,13 +465,17 @@ int spm_vcorefs_get_vcore(unsigned int gear)
 	switch (gear) {
 	case 3:
 		ret_val = vcore_opp_0_uv;
+		break;
 	case 2:
 		ret_val = vcore_opp_1_uv;
+		break;
 	case 1:
 		ret_val = vcore_opp_2_uv;
+		break;
 	case 0:
 	default:
 		ret_val = vcore_opp_3_uv;
+		break;
 	}
 	return ret_val;
 }
