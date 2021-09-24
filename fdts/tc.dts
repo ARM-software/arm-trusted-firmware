@@ -220,6 +220,11 @@
 			compatible = "restricted-dma-pool";
 			reg = <0x00000000 0xf8e00000 0 0x00200000>;
 		};
+
+		fwu_mm@0xfca00000 {
+			reg = <0x00000000 0xfca00000 0 0x00400000>;
+			no-map;
+		};
 	};
 
 	psci {

@@ -41,6 +41,10 @@
 		       uuid = "d9df52d5-16a2-4bb2-9aa4-d26d3b84e8c0";
 		       load-address = <0xfec00000>;
 		};
+		firmware-update {
+		       uuid = "6823a838-1b06-470e-9774-0cce8bfb53fd";
+		       load-address = <0xfde00000>;
+		};
 #endif
 #if OPTEE_SP_FW_CONFIG
 		op-tee {

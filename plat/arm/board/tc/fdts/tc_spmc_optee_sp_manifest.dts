@@ -12,6 +12,6 @@
 	vm1 {
 		debug_name = "op-tee";
 		load_address = <0xfd280000>;
-		mem_size = <26738688>; /* 25MB TZC DRAM */
+		mem_size = <0xb00000>; /* 11MB TZC DRAM */
 	};
 };
