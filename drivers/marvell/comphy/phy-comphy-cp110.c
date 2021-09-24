@@ -1730,11 +1730,13 @@ static int mvebu_cp110_comphy_pcie_power_on(uint64_t comphy_base,
 				HPIPE_LANE_STATUS1_REG;
 			data = HPIPE_LANE_STATUS1_PCLK_EN_MASK;
 			mask = data;
-			ret = polling_with_timeout(addr, data, mask,
+			data = polling_with_timeout(addr, data, mask,
 						   PLL_LOCK_TIMEOUT,
 						   REG_32BIT);
-			if (ret)
+			if (data) {
 				ERROR("Failed to lock PCIE PLL\n");
+				ret = -ETIMEDOUT;
+			}
 		}
 	}
 
