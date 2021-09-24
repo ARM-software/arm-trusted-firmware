@@ -75,14 +75,14 @@ out:
  ******************************************************************************/
 static void spmd_cpu_on_finish_handler(u_register_t unused)
 {
-	entry_point_info_t *spmc_ep_info = spmd_spmc_ep_info_get();
 	spmd_spm_core_context_t *ctx = spmd_get_context();
 	unsigned int linear_id = plat_my_core_pos();
+	el3_state_t *el3_state;
+	uintptr_t entry_point;
 	uint64_t rc;
 
 	assert(ctx != NULL);
 	assert(ctx->state != SPMC_STATE_ON);
-	assert(spmc_ep_info != NULL);
 
 	spin_lock(&g_spmd_pm.lock);
 
@@ -92,14 +92,20 @@ static void spmd_cpu_on_finish_handler(u_register_t unused)
 	 * primary core address for booting secondary cores.
 	 */
 	if (g_spmd_pm.secondary_ep_locked == true) {
-		spmc_ep_info->pc = g_spmd_pm.secondary_ep;
+		/*
+		 * The CPU context has already been initialized at boot time
+		 * (in spmd_spmc_init by a call to cm_setup_context). Adjust
+		 * below the target core entry point based on the address
+		 * passed to by FFA_SECONDARY_EP_REGISTER.
+		 */
+		entry_point = g_spmd_pm.secondary_ep;
+		el3_state = get_el3state_ctx(&ctx->cpu_ctx);
+		write_ctx_reg(el3_state, CTX_ELR_EL3, entry_point);
 	}
 
 	spin_unlock(&g_spmd_pm.lock);
 
-	cm_setup_context(&ctx->cpu_ctx, spmc_ep_info);
-
-	/* Mark CPU as initiating ON operation */
+	/* Mark CPU as initiating ON operation. */
 	ctx->state = SPMC_STATE_ON_PENDING;
 
 	rc = spmd_spm_core_sync_entry(ctx);

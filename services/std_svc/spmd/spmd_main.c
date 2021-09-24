@@ -65,14 +65,6 @@ spmd_spm_core_context_t *spmd_get_context(void)
 }
 
 /*******************************************************************************
- * SPM Core entry point information get helper.
- ******************************************************************************/
-entry_point_info_t *spmd_spmc_ep_info_get(void)
-{
-	return spmc_ep_info;
-}
-
-/*******************************************************************************
  * SPM Core ID getter.
  ******************************************************************************/
 uint16_t spmd_spmc_id_get(void)
@@ -156,18 +148,11 @@ static int32_t spmd_init(void)
 {
 	spmd_spm_core_context_t *ctx = spmd_get_context();
 	uint64_t rc;
-	unsigned int linear_id = plat_my_core_pos();
-	unsigned int core_id;
 
 	VERBOSE("SPM Core init start.\n");
-	ctx->state = SPMC_STATE_ON_PENDING;
 
-	/* Set the SPMC context state on other CPUs to OFF */
-	for (core_id = 0U; core_id < PLATFORM_CORE_COUNT; core_id++) {
-		if (core_id != linear_id) {
-			spm_core_context[core_id].state = SPMC_STATE_OFF;
-		}
-	}
+	/* Primary boot core enters the SPMC for initialization. */
+	ctx->state = SPMC_STATE_ON_PENDING;
 
 	rc = spmd_spm_core_sync_entry(ctx);
 	if (rc != 0ULL) {
@@ -187,7 +172,8 @@ static int32_t spmd_init(void)
  ******************************************************************************/
 static int spmd_spmc_init(void *pm_addr)
 {
-	spmd_spm_core_context_t *spm_ctx = spmd_get_context();
+	cpu_context_t *cpu_ctx;
+	unsigned int core_id;
 	uint32_t ep_attr;
 	int rc;
 
@@ -280,19 +266,29 @@ static int spmd_spmc_init(void *pm_addr)
 					     DISABLE_ALL_EXCEPTIONS);
 	}
 
-	/* Initialise SPM Core context with this entry point information */
-	cm_setup_context(&spm_ctx->cpu_ctx, spmc_ep_info);
+	/* Set an initial SPMC context state for all cores. */
+	for (core_id = 0U; core_id < PLATFORM_CORE_COUNT; core_id++) {
+		spm_core_context[core_id].state = SPMC_STATE_OFF;
 
-	/* Reuse PSCI affinity states to mark this SPMC context as off */
-	spm_ctx->state = AFF_STATE_OFF;
+		/* Setup an initial cpu context for the SPMC. */
+		cpu_ctx = &spm_core_context[core_id].cpu_ctx;
+		cm_setup_context(cpu_ctx, spmc_ep_info);
 
-	INFO("SPM Core setup done.\n");
+		/*
+		 * Pass the core linear ID to the SPMC through x4.
+		 * (TF-A implementation defined behavior helping
+		 * a legacy TOS migration to adopt FF-A).
+		 */
+		write_ctx_reg(get_gpregs_ctx(cpu_ctx), CTX_GPREG_X4, core_id);
+	}
 
 	/* Register power management hooks with PSCI */
 	psci_register_spd_pm_hook(&spmd_pm);
 
 	/* Register init function for deferred init. */
 	bl31_register_bl32_init(&spmd_init);
+
+	INFO("SPM Core setup done.\n");
 
 	return 0;
 }
