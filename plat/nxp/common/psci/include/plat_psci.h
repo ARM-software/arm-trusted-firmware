@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2021 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -7,6 +7,8 @@
 
 #ifndef PLAT_PSCI_H
 #define PLAT_PSCI_H
+#include <cortex_a53.h>
+#include <cortex_a72.h>
 
  /* core abort current op */
 #define CORE_ABORT_OP     0x1
@@ -55,6 +57,7 @@
 #define  CPUECTLR_RET_SET       0x2
 #define  CPUECTLR_TIMER_MASK    0x7
 #define  CPUECTLR_TIMER_8TICKS  0x2
+#define  CPUECTLR_TIMER_2TICKS  0x1
 #define  SCR_IRQ_MASK           0x2
 #define  SCR_FIQ_MASK           0x4
 
@@ -62,18 +65,53 @@
  *   value == 0x0, the soc code does not support this feature
  *   value != 0x0, the soc code supports this feature
  */
+#ifndef SOC_CORE_RELEASE
 #define SOC_CORE_RELEASE      0x1
+#endif
+
+#ifndef SOC_CORE_RESTART
 #define SOC_CORE_RESTART      0x1
+#endif
+
+#ifndef SOC_CORE_OFF
 #define SOC_CORE_OFF          0x1
+#endif
+
+#ifndef SOC_CORE_STANDBY
 #define SOC_CORE_STANDBY      0x1
+#endif
+
+#ifndef SOC_CORE_PWR_DWN
 #define SOC_CORE_PWR_DWN      0x1
+#endif
+
+#ifndef SOC_CLUSTER_STANDBY
 #define SOC_CLUSTER_STANDBY   0x1
+#endif
+
+#ifndef SOC_CLUSTER_PWR_DWN
 #define SOC_CLUSTER_PWR_DWN   0x1
+#endif
+
+#ifndef SOC_SYSTEM_STANDBY
 #define SOC_SYSTEM_STANDBY    0x1
+#endif
+
+#ifndef SOC_SYSTEM_PWR_DWN
 #define SOC_SYSTEM_PWR_DWN    0x1
+#endif
+
+#ifndef SOC_SYSTEM_OFF
 #define SOC_SYSTEM_OFF        0x1
+#endif
+
+#ifndef SOC_SYSTEM_RESET
 #define SOC_SYSTEM_RESET      0x1
+#endif
+
+#ifndef SOC_SYSTEM_RESET2
 #define SOC_SYSTEM_RESET2     0x1
+#endif
 
 #ifndef __ASSEMBLER__
 

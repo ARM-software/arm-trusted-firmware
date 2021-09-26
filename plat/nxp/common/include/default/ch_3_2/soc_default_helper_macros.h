@@ -39,6 +39,10 @@
 
 #endif /* NXP_RESET_ADDR */
 
+/* secmon register offsets and bitfields */
+#define SECMON_HPCOMR_OFFSET	0x4
+#define SECMON_HPCOMR_NPSWAEN	0x80000000
+
 /* Secure-Register-File register offsets and bit masks */
 #ifdef NXP_RST_ADDR
 /* Register Offset */

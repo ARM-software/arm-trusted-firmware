@@ -23,6 +23,9 @@
 /* MMU 500 soc.c*/
 #define NXP_SMMU_ADDR			0x05000000
 
+/* CCI400 base address */
+#define NXP_CCI_ADDR			0x04090000
+
 #define NXP_SNVS_ADDR			0x01E90000
 
 #define NXP_DCFG_ADDR			0x01E00000
@@ -81,4 +84,5 @@
 #define NXP_CCN_HNI_ADDR		0x04080000
 #define NXP_CCN_HN_F_0_ADDR		0x04200000
 
+#define NXP_EPU_ADDR			0x700060000
 #endif	/*	SOC_DEFAULT_BASE_ADDR_H		*/

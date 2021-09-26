@@ -5,22 +5,62 @@ NXP SoCs - Overview
 
 The QorIQ family of ARM based SoCs that are supported on TF-A are:
 
-1. LX2160ARDB:
-        Platform Name:
+1. LX2160A
 
-        a. lx2160ardb (Board details can be fetched from the link: `lx2160ardb`_)
+- SoC Overview:
 
+The LX2160A multicore processor, the highest-performance member of the
+Layerscape family, combines FinFET process technology's low power and
+sixteen Arm® Cortex®-A72 cores with datapath acceleration optimized for
+L2/3 packet processing, together with security offload, robust traffic
+management and quality of service.
+
+Details about LX2160A can be found at `lx2160a`_.
+
+- LX2160ARDB Board:
+
+The LX2160A reference design board provides a comprehensive platform
+that enables design and evaluation of the LX2160A or LX2162A processors. It
+comes preloaded with a board support package (BSP) based on a standard Linux
+kernel.
+
+Board details can be fetched from the link: `lx2160ardb`_.
+
+2. LS1028A
+
+- SoC Overview:
+
+The Layerscape LS1028A applications processor for industrial and
+automotive includes a time-sensitive networking (TSN) -enabled Ethernet
+switch and Ethernet controllers to support converged IT and OT networks.
+Two powerful 64-bit Arm®v8 cores support real-time processing for
+industrial control and virtual machines for edge computing in the IoT.
+The integrated GPU and LCD controller enable Human-Machine Interface
+(HMI) systems with next-generation interfaces.
+
+Details about LS1028A can be found at `ls1028a`_.
+
+- LS1028ARDB Boards:
+
+The LS1028A reference design board (RDB) is a computing, evaluation,
+and development platform that supports industrial IoT applications, human
+machine interface solutions, and industrial networking.
+
+Details about LS1028A RDB board can be found at `ls1028ardb`_.
 
 Table of supported boot-modes by each platform & platform that needs FIP-DDR:
 -----------------------------------------------------------------------------
 
-+---+-----------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
-|   |     BOOT_MODE-->|  sd   |  qspi  |  nor  | nand  | emmc  | flexspi_nor | flexspi_nand | fip_ddr needed  |
-|   |                 |       |        |       |       |       |             |              |                 |
-|   |     PLAT        |       |        |       |       |       |             |              |                 |
-+===+=================+=======+========+=======+=======+=======+=============+==============+=================+
-| 1.| lx2160ardb      |  yes  |        |       |       |  yes  |   yes       |              |       yes       |
-+---+-----------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
++---------------------+---------------------------------------------------------------------+-----------------+
+|                     |                            BOOT_MODE                                |                 |
+|       PLAT          +-------+--------+-------+-------+-------+-------------+--------------+ fip_ddr_needed  |
+|                     |  sd   |  qspi  |  nor  | nand  | emmc  | flexspi_nor | flexspi_nand |                 |
++=====================+=======+========+=======+=======+=======+=============+==============+=================+
+|     lx2160ardb      |  yes  |        |       |       |  yes  |   yes       |              |       yes       |
++---------------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
+|     ls1028ardb      |  yes  |        |       |       |  yes  |   yes       |              |       no        |
++---------------------+-------+--------+-------+-------+-------+-------------+--------------+-----------------+
+
 
 Boot Sequence
 -------------
@@ -54,6 +94,32 @@ Boot Sequence with FIP-DDR
 + EL3     BootROM --> BL2 -----> BL31 ---------------/
 +
 
+DDR Memory Layout
+--------------------------
+
+NXP Platforms divide DRAM into banks:
+
+- DRAM0 Bank:  Maximum size of this bank is fixed to 2GB, DRAM0 size is defined in platform_def.h if it is less than 2GB.
+
+- DRAM1 ~ DRAMn Bank:  Greater than 2GB belongs to DRAM1 and following banks, and size of DRAMn Bank varies for one platform to others.
+
+The following diagram is default DRAM0 memory layout in which secure memory is at top of DRAM0.
+
+::
+
+  high  +---------------------------------------------+
+        |                                             |
+        |   Secure EL1 Payload Shared Memory (2 MB)   |
+        |                                             |
+        +---------------------------------------------+
+        |                                             |
+        |            Secure Memory (64 MB)            |
+        |                                             |
+        +---------------------------------------------+
+        |                                             |
+        |             Non Secure Memory               |
+        |                                             |
+  low   +---------------------------------------------+
 
 How to build
 =============
@@ -228,5 +294,8 @@ For TBBR, the binary name changes:
 Refer `nxp-ls-tbbr.rst`_ for detailed user steps.
 
 
+.. _lx2160a: https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/layerscape-processors/layerscape-lx2160a-lx2120a-lx2080a-processors:LX2160A
 .. _lx2160ardb: https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/layerscape-communication-process/layerscape-lx2160a-multicore-communications-processor:LX2160A
+.. _ls1028a: https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/layerscape-processors/layerscape-1028a-applications-processor:LS1028A
+.. _ls1028ardb: https://www.nxp.com/design/qoriq-developer-resources/layerscape-ls1028a-reference-design-board:LS1028ARDB
 .. _nxp-ls-tbbr.rst: ./nxp-ls-tbbr.rst
