@@ -1,0 +1,107 @@
+#
+# Copyright 2017-2021 NXP
+#
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#
+#------------------------------------------------------------------------------
+#
+# This file contains the basic architecture definitions that drive the build
+#
+# -----------------------------------------------------------------------------
+
+CORE_TYPE	:=	a53
+
+CACHE_LINE	:=	6
+
+# set to GIC400 or GIC500
+GIC		:=	GIC400
+
+# set to CCI400 or CCN504 or CCN508
+INTERCONNECT	:=	CCI400
+
+# indicate layerscape chassis level - set to 3=LSCH3 or 2=LSCH2
+CHASSIS		:=	2
+
+# TZC IP Details TZC used is TZC380 or TZC400
+TZC_ID		:=	TZC380
+
+# CONSOLE Details available is NS16550 or PL011
+CONSOLE		:=	NS16550
+
+# Select the DDR PHY generation to be used
+PLAT_DDR_PHY	:=      PHY_GEN1
+
+PHYS_SYS	:=	64
+
+# ddr controller - set to MMDC or NXP
+DDRCNTLR	:=	NXP
+
+# ddr phy - set to NXP or SNPS
+DDRPHY		:=	NXP
+
+# Area of OCRAM reserved by ROM code
+NXP_ROM_RSVD	:=	0x5900
+
+# Max Size of CSF header. Required to define BL2 TEXT LIMIT in soc.def
+# Input to CST create_hdr_esbc tool
+CSF_HDR_SZ	:=	0x3000
+
+# In IMAGE_BL2, compile time flag for handling Cache coherency
+# with CAAM for BL2 running from OCRAM
+SEC_MEM_NON_COHERENT	:=	yes
+
+# OCRAM MAP
+OCRAM_START_ADDR	:=	0x10000000
+OCRAM_SIZE		:=	0x20000
+
+# BL2 binary is placed at  start of OCRAM.
+# Also used by create_pbl.mk.
+BL2_BASE		:=	0x10000000
+
+# After BL2 bin, OCRAM is used by ROM Code:
+# (OCRAM_START_ADDR + BL2_BIN_SIZE) ->  (NXP_ROM_RSVD - 1)
+
+# After ROM Code, OCRAM is used by CSF header.
+# (OCRAM_START_ADDR + BL2_TEXT_LIMIT + NXP_ROM_RSVD) -> (CSF_HDR_SZ - 1)
+
+# BL2_HDR_LOC has to be (OCRAM_START_ADDR + OCRAM_SIZE - NXP_ROM_RSVD - CSF_HDR_SZ)
+# This value should be greater than BL2_TEXT_LIMIT
+# Input to CST create_hdr_isbc tool
+BL2_HDR_LOC_HDR		?=	$(shell echo $$(( $(OCRAM_START_ADDR) + $(OCRAM_SIZE) - $(NXP_ROM_RSVD) - $(CSF_HDR_SZ))))
+# Covert to HEX to be used by create_pbl.mk
+BL2_HDR_LOC		:=	$$(echo "obase=16; ${BL2_HDR_LOC_HDR}" | bc)
+
+# Core Errata
+ERRATA_A53_855873	:=	1
+ERRATA_A53_1530924	:=	1
+
+# SoC ERRATAS to be enabled
+ERRATA_SOC_A008850	:=	1
+ERRATA_SOC_A010539	:=	1
+ERRATA_SOC_A009660	:=	1
+
+# DDR Errata
+ERRATA_DDR_A009663	:=	1
+ERRATA_DDR_A009942	:=	1
+
+# enable dynamic memory mapping
+PLAT_XLAT_TABLES_DYNAMIC :=	1
+
+# Define Endianness of each module
+NXP_GUR_ENDIANNESS	:=	BE
+NXP_DDR_ENDIANNESS	:=	BE
+NXP_SEC_ENDIANNESS	:=	BE
+NXP_SFP_ENDIANNESS	:=	BE
+NXP_SNVS_ENDIANNESS	:=	BE
+NXP_ESDHC_ENDIANNESS	:=	BE
+NXP_QSPI_ENDIANNESS	:=	BE
+NXP_FSPI_ENDIANNESS	:=	BE
+NXP_SCFG_ENDIANNESS	:=	BE
+NXP_GPIO_ENDIANNESS	:=	BE
+NXP_IFC_ENDIANNESS	:=	BE
+
+NXP_SFP_VER		:=	3_2
+
+# OCRAM ECC Enabled
+OCRAM_ECC_EN		:=	yes
