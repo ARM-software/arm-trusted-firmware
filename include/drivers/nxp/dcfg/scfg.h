@@ -44,7 +44,7 @@
 #define scfg_clrbits32(a, v)	mmio_clrbits_32((uintptr_t)(a), v)
 #define scfg_clrsetbits32(a, clear, set)	\
 				mmio_clrsetbits_32((uintptr_t)(a), clear, set)
-#elif defined(NXP_GUR_LE)
+#elif defined(NXP_SCFG_LE)
 #define scfg_in32(a)		mmio_read_32((uintptr_t)(a))
 #define scfg_out32(a, v)	mmio_write_32((uintptr_t)(a), v)
 #define scfg_setbits32(a, v)	mmio_setbits_32((uintptr_t)(a), v)
