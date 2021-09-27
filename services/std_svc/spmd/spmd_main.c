@@ -616,9 +616,19 @@ uint64_t spmd_smc_handler(uint32_t smc_fid,
 	case FFA_RXTX_MAP_SMC64:
 	case FFA_RXTX_UNMAP:
 	case FFA_PARTITION_INFO_GET:
+#if MAKE_FFA_VERSION(1, 1) <= FFA_VERSION_COMPILED
+	case FFA_NOTIFICATION_BITMAP_CREATE:
+	case FFA_NOTIFICATION_BITMAP_DESTROY:
+	case FFA_NOTIFICATION_BIND:
+	case FFA_NOTIFICATION_UNBIND:
+	case FFA_NOTIFICATION_SET:
+	case FFA_NOTIFICATION_GET:
+	case FFA_NOTIFICATION_INFO_GET:
+	case FFA_NOTIFICATION_INFO_GET_SMC64:
+#endif
 		/*
-		 * Should not be allowed to forward FFA_PARTITION_INFO_GET
-		 * from Secure world to Normal world
+		 * Above calls should not be forwarded from Secure world to
+		 * Normal world.
 		 *
 		 * Fall through to forward the call to the other world
 		 */
