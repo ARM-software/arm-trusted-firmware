@@ -326,7 +326,7 @@ static int prog_ospr1(struct fuse_hdr_t *fuse_hdr,
 		      struct sfp_ccsr_regs_t *sfp_ccsr_regs)
 {
 	int ret;
-	uint32_t mask;
+	uint32_t mask = 0;
 
 #ifdef NXP_SFP_VER_3_4
 	if (((fuse_hdr->flags >> FLAG_MC_SHIFT) & 0x1) != 0) {
