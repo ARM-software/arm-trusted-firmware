@@ -112,3 +112,8 @@ endif
 ifneq (${PLAT_XLAT_TABLES_DYNAMIC},)
 $(eval $(call add_define,PLAT_XLAT_TABLES_DYNAMIC))
 endif
+
+ifeq (${OCRAM_ECC_EN},yes)
+$(eval $(call add_define,CONFIG_OCRAM_ECC_EN))
+include ${PLAT_COMMON_PATH}/ocram/ocram.mk
+endif
