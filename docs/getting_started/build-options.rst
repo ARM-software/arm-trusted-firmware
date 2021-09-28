@@ -235,6 +235,10 @@ Common build options
    builds, but this behaviour can be overridden in each platform's Makefile or
    in the build command line.
 
+-  ``ENABLE_FEAT_HCX``: This option sets the bit SCR_EL3.HXEn in EL3 to allow
+   access to HCRX_EL2 (extended hypervisor control register) from EL2 as well as
+   adding HCRX_EL2 to the EL2 context save/restore operations.
+
 -  ``ENABLE_LTO``: Boolean option to enable Link Time Optimization (LTO)
    support in GCC for TF-A. This option is currently only supported for
    AArch64. Default is 0.

@@ -112,6 +112,14 @@ void cm_setup_context(cpu_context_t *ctx, const entry_point_info_t *ep)
 	if (EP_GET_ST(ep->h.attr) != 0U)
 		scr_el3 |= SCR_ST_BIT;
 
+	/*
+	 * If FEAT_HCX is enabled, enable access to HCRX_EL2 by setting
+	 * SCR_EL3.HXEn.
+	 */
+#if ENABLE_FEAT_HCX
+	scr_el3 |= SCR_HXEn_BIT;
+#endif
+
 #if RAS_TRAP_LOWER_EL_ERR_ACCESS
 	/*
 	 * SCR_EL3.TERR: Trap Error record accesses. Accesses to the RAS ERR

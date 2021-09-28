@@ -281,6 +281,11 @@
 #define ID_AA64MMFR1_EL1_VHE_SHIFT		U(8)
 #define ID_AA64MMFR1_EL1_VHE_MASK		ULL(0xf)
 
+#define ID_AA64MMFR1_EL1_HCX_SHIFT              U(40)
+#define ID_AA64MMFR1_EL1_HCX_MASK               ULL(0xf)
+#define ID_AA64MMFR1_EL1_HCX_SUPPORTED          ULL(0x1)
+#define ID_AA64MMFR1_EL1_HCX_NOT_SUPPORTED      ULL(0x0)
+
 /* ID_AA64MMFR2_EL1 definitions */
 #define ID_AA64MMFR2_EL1		S3_0_C0_C7_2
 
@@ -429,6 +434,7 @@
 #define SCR_RES1_BITS		((U(1) << 4) | (U(1) << 5))
 #define SCR_TWEDEL_SHIFT	U(30)
 #define SCR_TWEDEL_MASK		ULL(0xf)
+#define SCR_HXEn_BIT            (UL(1) << 38)
 #define SCR_AMVOFFEN_BIT	(UL(1) << 35)
 #define SCR_TWEDEn_BIT		(UL(1) << 29)
 #define SCR_ECVEN_BIT		(UL(1) << 28)
@@ -1142,6 +1148,16 @@
 #define TFSR_EL1		S3_0_C5_C6_0
 #define RGSR_EL1		S3_0_C1_C0_5
 #define GCR_EL1			S3_0_C1_C0_6
+
+/*******************************************************************************
+ * FEAT_HCX - Extended Hypervisor Configuration Register
+ ******************************************************************************/
+#define HCRX_EL2                S3_4_C1_C2_2
+#define HCRX_EL2_FGTnXS_BIT     (UL(1) << 4)
+#define HCRX_EL2_FnXS_BIT       (UL(1) << 3)
+#define HCRX_EL2_EnASR_BIT      (UL(1) << 2)
+#define HCRX_EL2_EnALS_BIT      (UL(1) << 1)
+#define HCRX_EL2_EnAS0_BIT      (UL(1) << 0)
 
 /*******************************************************************************
  * Definitions for DynamicIQ Shared Unit registers

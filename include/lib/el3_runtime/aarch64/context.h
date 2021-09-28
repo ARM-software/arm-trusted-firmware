@@ -228,6 +228,10 @@
 
 // Starting with Armv8.5
 #define CTX_SCXTNUM_EL2		U(0x1e0)
+
+// Register for FEAT_HCX
+#define CTX_HCRX_EL2            U(0x1e8)
+
 /* Align to the next 16 byte boundary */
 #define CTX_EL2_SYSREGS_END	U(0x1f0)
 
