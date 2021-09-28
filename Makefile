@@ -1185,6 +1185,8 @@ $(eval $(call MAKE_LIB,c))
 
 # Expand build macros for the different images
 ifeq (${NEED_BL1},yes)
+BL1_SOURCES := $(sort ${BL1_SOURCES})
+
 $(eval $(call MAKE_BL,bl1))
 endif
 
