@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  *
@@ -16,7 +16,7 @@
 	/* Properties */
 	description = "op-tee";
 	ffa-version = <0x00010000>; /* 31:16 - Major, 15:0 - Minor */
-	uuid = <0x486178e0 0xe7f811e3 0xbc5e0002 0xa5d5c51b>;
+	uuid = <0xe0786148 0xe311f8e7 0x02005ebc 0x1bc5d5a5>;
 	id = <1>;
 	execution-ctx-count = <8>;
 	exception-level = <2>; /* S-EL1 */
@@ -25,8 +25,9 @@
 	entrypoint-offset = <0x1000>;
 	xlat-granule = <0>; /* 4KiB */
 	boot-order = <0>;
-	messaging-method = <3>; /* Direct messaging only */
-	run-time-model = <1>; /* Run to completion */
+	messaging-method = <0x3>; /* Direct request/response supported. */
+	managed-exit;
+	run-time-model = <1>; /* SP pre-emptible. */
 
 	/* Boot protocol */
 	gp-register-num = <0x0>;

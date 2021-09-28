@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# Copyright (c) 2020, Arm Limited. All rights reserved.
+# Copyright (c) 2020-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
@@ -110,24 +110,36 @@ with open(gen_file, 'w') as out_file:
         Extract uuid from partition manifest
         """
         pm_file = open(dts)
-        uuid_key = "uuid"
-
         for line in pm_file:
-            if uuid_key in line:
-                uuid_hex = re.findall(r'\<(.+?)\>', line)[0];
+            if "uuid" in line:
+                # re.findall returns a list of string tuples.
+                # uuid_hex is the first item in this list representing the four
+                # uuid hex integers from the manifest uuid field. The heading
+                # '0x' of the hexadecimal representation is stripped out.
+                # e.g. uuid = <0x1e67b5b4 0xe14f904a 0x13fb1fb8 0xcbdae1da>;
+                # uuid_hex = ('1e67b5b4', 'e14f904a', '13fb1fb8', 'cbdae1da')
+                uuid_hex = re.findall(r'0x([0-9a-f]+) 0x([0-9a-f]+) 0x([0-9a-f]+) 0x([0-9a-f]+)', line)[0];
 
-        # PM has uuid in format 0xABC... 0x... 0x... 0x...
-        # Get rid of '0x' and spaces and convert to string of hex digits
-        uuid_hex = uuid_hex.replace('0x','').replace(' ','')
-        # make UUID from a string of hex digits
-        uuid_std = uuid.UUID(uuid_hex)
-        # convert UUID to a string of hex digits in standard form
-        uuid_std = str(uuid_std)
+        # uuid_hex is a list of four hex string values
+        if len(uuid_hex) != 4:
+            print("ERROR: malformed UUID")
+            exit(-1)
+
+        # The uuid field in SP manifest is the little endian representation
+        # mapped to arguments as described in SMCCC section 5.3.
+        # Convert each unsigned integer value to a big endian representation
+        # required by fiptool.
+        y=list(map(bytearray.fromhex, uuid_hex))
+        z=(int.from_bytes(y[0], byteorder='little', signed=False),
+        int.from_bytes(y[1], byteorder='little', signed=False),
+        int.from_bytes(y[2], byteorder='little', signed=False),
+        int.from_bytes(y[3], byteorder='little', signed=False))
+        uuid_std = uuid.UUID(f'{z[0]:04x}{z[1]:04x}{z[2]:04x}{z[3]:04x}')
 
         """
         Append FIP_ARGS
         """
-        out_file.write("FIP_ARGS += --blob uuid=" + uuid_std + ",file=" + dst + "\n")
+        out_file.write("FIP_ARGS += --blob uuid=" + str(uuid_std) + ",file=" + dst + "\n")
 
         """
         Append CRT_ARGS
