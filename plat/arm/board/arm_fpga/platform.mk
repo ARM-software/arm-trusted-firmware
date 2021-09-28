@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+include common/fdt_wrappers.mk
 include lib/libfdt/libfdt.mk
 
 RESET_TO_BL31 := 1
@@ -104,8 +105,7 @@ PLAT_INCLUDES		:=	-Iplat/arm/board/arm_fpga/include
 
 PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/arm_fpga/${ARCH}/fpga_helpers.S
 
-BL31_SOURCES		+=	common/fdt_wrappers.c				\
-				common/fdt_fixup.c				\
+BL31_SOURCES		+=	common/fdt_fixup.c				\
 				drivers/delay_timer/delay_timer.c		\
 				drivers/delay_timer/generic_delay_timer.c	\
 				drivers/arm/pl011/${ARCH}/pl011_console.S	\
@@ -116,6 +116,8 @@ BL31_SOURCES		+=	common/fdt_wrappers.c				\
 				plat/arm/board/arm_fpga/fpga_bl31_setup.c		\
 				${FPGA_CPU_LIBS}				\
 				${FPGA_GIC_SOURCES}
+
+BL31_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 
 $(eval $(call MAKE_S,$(BUILD_PLAT),plat/arm/board/arm_fpga/rom_trampoline.S,bl31))
 $(eval $(call MAKE_S,$(BUILD_PLAT),plat/arm/board/arm_fpga/kernel_trampoline.S,bl31))

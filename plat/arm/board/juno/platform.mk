@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+include common/fdt_wrappers.mk
+
 # Include GICv2 driver files
 include drivers/arm/gic/v2/gicv2.mk
 
@@ -83,7 +85,6 @@ BL31_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c		\
 				lib/cpus/aarch64/cortex_a57.S		\
 				lib/cpus/aarch64/cortex_a72.S		\
 				lib/utils/mem_region.c			\
-				common/fdt_wrappers.c			\
 				lib/fconf/fconf.c			\
 				lib/fconf/fconf_dyn_cfg_getter.c	\
 				plat/arm/board/juno/juno_bl31_setup.c	\
@@ -93,6 +94,8 @@ BL31_SOURCES		+=	drivers/cfi/v2m/v2m_flash.c		\
 				${JUNO_GIC_SOURCES}			\
 				${JUNO_INTERCONNECT_SOURCES}		\
 				${JUNO_SECURITY_SOURCES}
+
+BL31_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 
 ifeq (${CSS_USE_SCMI_SDS_DRIVER},1)
 BL1_SOURCES		+=	drivers/arm/css/sds/sds.c

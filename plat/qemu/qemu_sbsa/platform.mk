@@ -1,8 +1,10 @@
 #
-# Copyright (c) 2019-2020, Linaro Limited and Contributors. All rights reserved.
+# Copyright (c) 2019-2021, Linaro Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
+
+include common/fdt_wrappers.mk
 
 CRASH_REPORTING	:=	1
 
@@ -86,8 +88,10 @@ BL31_SOURCES		+=	lib/cpus/aarch64/cortex_a57.S			\
 				${PLAT_QEMU_COMMON_PATH}/aarch64/plat_helpers.S	\
 				${PLAT_QEMU_COMMON_PATH}/qemu_bl31_setup.c	\
 				common/fdt_fixup.c				\
-				common/fdt_wrappers.c				\
 				${QEMU_GIC_SOURCES}
+
+BL31_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
+
 ifeq (${SPM_MM},1)
 	BL31_SOURCES		+=	${PLAT_QEMU_COMMON_PATH}/qemu_spm.c
 endif

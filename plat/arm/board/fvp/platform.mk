@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+include common/fdt_wrappers.mk
+
 # Use the GICv3 driver on the FVP by default
 FVP_USE_GIC_DRIVER	:= FVP_GICV3
 
@@ -228,10 +230,11 @@ BL31_SOURCES		+=	drivers/arm/fvp/fvp_pwrc.c			\
 # Support for fconf in BL31
 # Added separately from the above list for better readability
 ifeq ($(filter 1,${BL2_AT_EL3} ${RESET_TO_BL31}),)
-BL31_SOURCES		+=	common/fdt_wrappers.c				\
-				lib/fconf/fconf.c				\
+BL31_SOURCES		+=	lib/fconf/fconf.c				\
 				lib/fconf/fconf_dyn_cfg_getter.c		\
 				plat/arm/board/fvp/fconf/fconf_hw_config_getter.c
+
+BL31_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 
 ifeq (${SEC_INT_DESC_IN_FCONF},1)
 BL31_SOURCES		+=	plat/arm/common/fconf/fconf_sec_intr_config.c

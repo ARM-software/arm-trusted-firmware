@@ -3,6 +3,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+include common/fdt_wrappers.mk
+
 ifeq ($(filter ${TARGET_PLATFORM}, 0 1),)
         $(error TARGET_PLATFORM must be 0 or 1)
 endif
@@ -91,12 +93,13 @@ BL31_SOURCES		+=	${INTERCONNECT_SOURCES}	\
 				${ENT_GIC_SOURCES}			\
 				${TC_BASE}/tc_bl31_setup.c	\
 				${TC_BASE}/tc_topology.c	\
-				common/fdt_wrappers.c			\
 				lib/fconf/fconf.c			\
 				lib/fconf/fconf_dyn_cfg_getter.c	\
 				drivers/cfi/v2m/v2m_flash.c		\
 				lib/utils/mem_region.c			\
 				plat/arm/common/arm_nor_psci_mem_protect.c
+
+BL31_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 
 # Add the FDT_SOURCES and options for Dynamic Config
 FDT_SOURCES		+=	${TC_BASE}/fdts/${PLAT}_fw_config.dts	\

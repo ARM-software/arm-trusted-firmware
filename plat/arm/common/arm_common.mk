@@ -4,6 +4,8 @@
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
+include common/fdt_wrappers.mk
+
 ifeq (${ARCH}, aarch64)
   # On ARM standard platorms, the TSP can execute from Trusted SRAM, Trusted
   # DRAM (if available) or the TZC secured area of DRAM.
@@ -261,8 +263,9 @@ include lib/libfdt/libfdt.mk
 
 DYN_CFG_SOURCES		+=	plat/arm/common/arm_dyn_cfg.c		\
 				plat/arm/common/arm_dyn_cfg_helpers.c	\
-				common/fdt_wrappers.c			\
 				common/uuid.c
+
+DYN_CFG_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 
 BL1_SOURCES		+=	${DYN_CFG_SOURCES}
 BL2_SOURCES		+=	${DYN_CFG_SOURCES}
@@ -343,10 +346,10 @@ endif
 
 ifeq (${SPD},spmd)
 BL31_SOURCES		+=	plat/common/plat_spmd_manifest.c	\
-				common/fdt_wrappers.c			\
 				common/uuid.c				\
 				${LIBFDT_SRCS}
 
+BL31_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
 endif
 
 ifneq (${TRUSTED_BOARD_BOOT},0)

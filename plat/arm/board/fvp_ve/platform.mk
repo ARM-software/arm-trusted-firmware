@@ -1,8 +1,10 @@
 #
-# Copyright (c) 2019-2020, Arm Limited. All rights reserved.
+# Copyright (c) 2019-2021, Arm Limited. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
+
+include common/fdt_wrappers.mk
 
 ifdef ARM_CORTEX_A5
 # Use the SP804 timer instead of the generic one
@@ -129,6 +131,6 @@ include lib/fconf/fconf.mk
 include lib/libfdt/libfdt.mk
 
 DYN_CFG_SOURCES		+=	plat/arm/common/arm_dyn_cfg.c		\
-				plat/arm/common/arm_dyn_cfg_helpers.c	\
-				common/fdt_wrappers.c
+				plat/arm/common/arm_dyn_cfg_helpers.c
 
+DYN_CFG_SOURCES		+=	${FDT_WRAPPERS_SOURCES}
