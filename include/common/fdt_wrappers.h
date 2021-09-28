@@ -41,6 +41,9 @@ int fdt_get_stdout_node_offset(const void *dtb);
 uint64_t fdtw_translate_address(const void *dtb, int bus_node,
 				uint64_t base_address);
 
+int fdtw_for_each_cpu(const void *fdt,
+		      int (*callback)(const void *dtb, int node, uintptr_t mpidr));
+
 static inline uint32_t fdt_blob_size(const void *dtb)
 {
 	const uint32_t *dtb_header = dtb;
