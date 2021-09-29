@@ -160,6 +160,34 @@ func check_errata_2017096
 	b       cpu_rev_var_ls
 endfunc check_errata_2017096
 
+
+/* ---------------------------------------------------------------------
+ * Errata Workaround for Cortex-A710 Erratum 2083908.
+ * This applies to revision r2p0 of Cortex-A710 and is still open.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x17
+ * ---------------------------------------------------------------------
+ */
+func errata_a710_2083908_wa
+	/* Compare x0 against revision r2p0 */
+	mov	x17, x30
+	bl	check_errata_2083908
+	cbz	x0, 1f
+	mrs	x1, CORTEX_A710_CPUACTLR5_EL1
+	orr	x1, x1, CORTEX_A710_CPUACTLR5_EL1_BIT_13
+	msr	CORTEX_A710_CPUACTLR5_EL1, x1
+1:
+	ret	x17
+endfunc errata_a710_2083908_wa
+
+func check_errata_2083908
+	/* Applies to r2p0 */
+	mov	x1, #CPU_REV(2, 0)
+	mov	x2, #CPU_REV(2, 0)
+	b	cpu_rev_var_range
+endfunc check_errata_2083908
+
 	/* ----------------------------------------------------
 	 * HW will do the cache maintenance while powering down
 	 * ----------------------------------------------------
@@ -194,6 +222,7 @@ func cortex_a710_errata_report
 	report_errata ERRATA_A710_2081180, cortex_a710, 2081180
 	report_errata ERRATA_A710_2055002, cortex_a710, 2055002
 	report_errata ERRATA_A710_2017096, cortex_a710, 2017096
+	report_errata ERRATA_A710_2083908, cortex_a710, 2083908
 
 	ldp	x8, x30, [sp], #16
 	ret
@@ -225,8 +254,13 @@ func cortex_a710_reset_func
 #endif
 
 #if ERRATA_A710_2017096
-	mov     x0, x18
-	bl      errata_a710_2017096_wa
+	mov	x0, x18
+	bl	errata_a710_2017096_wa
+#endif
+
+#if ERRATA_A710_2083908
+	mov	x0, x18
+	bl	errata_a710_2083908_wa
 #endif
 	isb
 	ret	x19

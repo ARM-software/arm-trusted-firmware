@@ -13,7 +13,7 @@
  * CPU Extended Control register specific definitions
  ******************************************************************************/
 #define CORTEX_A710_CPUECTLR_EL1				S3_0_C15_C1_4
-#define CORTEX_A710_CPUECTLR_EL1_PFSTIDIS_BIT                   (ULL(1) << 8)
+#define CORTEX_A710_CPUECTLR_EL1_PFSTIDIS_BIT			(ULL(1) << 8)
 
 /*******************************************************************************
  * CPU Power Control register specific definitions
@@ -25,6 +25,12 @@
  * CPU Auxiliary Control register specific definitions.
  ******************************************************************************/
 #define CORTEX_A710_CPUACTLR_EL1 				S3_0_C15_C1_0
-#define CORTEX_A710_CPUACTLR_EL1_BIT_46 			(ULL(1) << 46)
+#define CORTEX_A710_CPUACTLR_EL1_BIT_46			(ULL(1) << 46)
+
+/*******************************************************************************
+ * CPU Auxiliary Control register specific definitions.
+ ******************************************************************************/
+#define CORTEX_A710_CPUACTLR5_EL1				S3_0_C15_C8_0
+#define CORTEX_A710_CPUACTLR5_EL1_BIT_13			(ULL(1) << 13)
 
 #endif /* CORTEX_A710_H */
