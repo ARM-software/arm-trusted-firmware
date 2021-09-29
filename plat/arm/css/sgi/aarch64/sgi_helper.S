@@ -9,6 +9,8 @@
 #include <platform_def.h>
 #include <cortex_a75.h>
 #include <neoverse_n1.h>
+#include <neoverse_v1.h>
+#include <neoverse_n2.h>
 #include <cpu_macros.S>
 
 	.globl	plat_arm_calc_core_pos
@@ -66,6 +68,8 @@ endfunc plat_arm_calc_core_pos
 func plat_reset_handler
 	jump_if_cpu_midr CORTEX_A75_MIDR, A75
 	jump_if_cpu_midr NEOVERSE_N1_MIDR, N1
+	jump_if_cpu_midr NEOVERSE_V1_MIDR, V1
+	jump_if_cpu_midr NEOVERSE_N2_MIDR, N2
 	ret
 
 	/* -----------------------------------------------------
@@ -83,6 +87,20 @@ N1:
 	mrs	x0, NEOVERSE_N1_CPUPWRCTLR_EL1
 	bic	x0, x0, #NEOVERSE_N1_CORE_PWRDN_EN_MASK
 	msr	NEOVERSE_N1_CPUPWRCTLR_EL1, x0
+	isb
+	ret
+
+V1:
+	mrs	x0, NEOVERSE_V1_CPUPWRCTLR_EL1
+	bic	x0, x0, #NEOVERSE_V1_CPUPWRCTLR_EL1_CORE_PWRDN_BIT
+	msr	NEOVERSE_V1_CPUPWRCTLR_EL1, x0
+	isb
+	ret
+
+N2:
+	mrs	x0, NEOVERSE_N2_CPUPWRCTLR_EL1
+	bic	x0, x0, #NEOVERSE_N2_CORE_PWRDN_EN_BIT
+	msr	NEOVERSE_N2_CPUPWRCTLR_EL1, x0
 	isb
 	ret
 endfunc plat_reset_handler
