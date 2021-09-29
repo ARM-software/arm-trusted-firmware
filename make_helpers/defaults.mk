@@ -32,6 +32,9 @@ BASE_COMMIT			:= origin/master
 # Execute BL2 at EL3
 BL2_AT_EL3			:= 0
 
+# Only use SP packages if SP layout JSON is defined
+BL2_ENABLE_SP_LOAD		:= 0
+
 # BL2 image is stored in XIP memory, for now, this option is only supported
 # when BL2_AT_EL3 is 1.
 BL2_IN_XIP_MEM			:= 0

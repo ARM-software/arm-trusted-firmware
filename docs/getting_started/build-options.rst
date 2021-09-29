@@ -55,6 +55,9 @@ Common build options
 -  ``BL2_AT_EL3``: This is an optional build option that enables the use of
    BL2 at EL3 execution level.
 
+-  ``BL2_ENABLE_SP_LOAD``: Boolean option to enable loading SP packages from the
+   FIP. Automatically enabled if ``SP_LAYOUT_FILE`` is provided.
+
 -  ``BL2_IN_XIP_MEM``: In some use-cases BL2 will be stored in eXecute In Place
    (XIP) memory, like BL1. In these use-cases, it is necessary to initialize
    the RW sections in RAM, while leaving the RO sections in place. This option
