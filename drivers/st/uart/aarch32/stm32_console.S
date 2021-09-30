@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2018-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -45,7 +45,12 @@ func console_stm32_core_init
 	/* Check the input base address */
 	cmp	r0, #0
 	beq	core_init_fail
-#if defined(IMAGE_BL2)
+#if !defined(IMAGE_BL2)
+	/* Skip UART initialization if it is already enabled */
+	ldr	r3, [r0, #USART_CR1]
+	ands	r3, r3, #USART_CR1_UE
+	bne	1f
+#endif /* IMAGE_BL2 */
 	/* Check baud rate and uart clock for sanity */
 	cmp	r1, #0
 	beq	core_init_fail
@@ -78,7 +83,7 @@ teack_loop:
 	ldr	r3, [r0, #USART_ISR]
 	tst	r3, #USART_ISR_TEACK
 	beq	teack_loop
-#endif /* IMAGE_BL2 */
+1:
 	mov	r0, #1
 	bx	lr
 core_init_fail:
