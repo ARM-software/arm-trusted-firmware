@@ -68,7 +68,9 @@ $(if ${NON_TRUSTED_WORLD_KEY},$(eval $(call CERT_ADD_CMD_OPT,${NON_TRUSTED_WORLD
 
 # Add the BL2 CoT (image cert)
 ifeq (${BL2_AT_EL3}, 0)
+ifneq (${PLAT},fvp_r)
 $(eval $(call TOOL_ADD_PAYLOAD,${BUILD_PLAT}/tb_fw.crt,--tb-fw-cert))
+endif
 endif
 
 # Add the SCP_BL2 CoT (key cert + img cert)

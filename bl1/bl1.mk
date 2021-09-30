@@ -1,15 +1,17 @@
 #
-# Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
 
-BL1_SOURCES		+=	bl1/bl1_main.c				\
-				bl1/${ARCH}/bl1_arch_setup.c		\
+ifneq (${PLAT},fvp_r)
+BL1_SOURCES		+=	bl1/${ARCH}/bl1_arch_setup.c		\
 				bl1/${ARCH}/bl1_context_mgmt.c		\
 				bl1/${ARCH}/bl1_entrypoint.S		\
 				bl1/${ARCH}/bl1_exceptions.S		\
-				lib/cpus/${ARCH}/cpu_helpers.S		\
+				bl1/bl1_main.c
+endif
+BL1_SOURCES		+=	lib/cpus/${ARCH}/cpu_helpers.S		\
 				lib/cpus/errata_report.c		\
 				lib/el3_runtime/${ARCH}/context_mgmt.c	\
 				plat/common/plat_bl1_common.c		\

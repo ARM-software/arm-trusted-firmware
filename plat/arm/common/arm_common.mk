@@ -206,12 +206,16 @@ PLAT_BL_COMMON_SOURCES	+=	plat/arm/common/${ARCH}/arm_helpers.S		\
 				plat/arm/common/arm_console.c
 
 ifeq (${ARM_XLAT_TABLES_LIB_V1}, 1)
-PLAT_BL_COMMON_SOURCES	+=	lib/xlat_tables/xlat_tables_common.c		\
+PLAT_BL_COMMON_SOURCES 	+=	lib/xlat_tables/xlat_tables_common.c	      \
 				lib/xlat_tables/${ARCH}/xlat_tables.c
 else
+ifeq (${XLAT_MPU_LIB_V1}, 1)
+include lib/xlat_mpu/xlat_mpu.mk
+PLAT_BL_COMMON_SOURCES	+=	${XLAT_MPU_LIB_V1_SRCS}
+else
 include lib/xlat_tables_v2/xlat_tables.mk
-
-PLAT_BL_COMMON_SOURCES	+=	${XLAT_TABLES_LIB_SRCS}
+PLAT_BL_COMMON_SOURCES	+=      ${XLAT_TABLES_LIB_SRCS}
+endif
 endif
 
 ARM_IO_SOURCES		+=	plat/arm/common/arm_io_storage.c		\
@@ -351,8 +355,13 @@ ifneq (${TRUSTED_BOARD_BOOT},0)
 
     # Include the selected chain of trust sources.
     ifeq (${COT},tbbr)
-	BL1_SOURCES     +=      drivers/auth/tbbr/tbbr_cot_common.c		\
+        ifeq (${PLAT},fvp_r)
+            BL1_SOURCES	+=	drivers/auth/tbbr/tbbr_cot_common.c		\
+				drivers/auth/tbbr/tbbr_cot_bl1_r64.c
+        else
+            BL1_SOURCES	+=	drivers/auth/tbbr/tbbr_cot_common.c		\
 				drivers/auth/tbbr/tbbr_cot_bl1.c
+        endif
         ifneq (${COT_DESC_IN_DTB},0)
             BL2_SOURCES	+=	lib/fconf/fconf_cot_getter.c
         else

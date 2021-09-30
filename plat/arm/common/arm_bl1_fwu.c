@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -15,6 +15,8 @@
 #include <lib/utils.h>
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
+
+#pragma weak bl1_plat_get_image_desc
 
 /* Struct to keep track of usable memory */
 typedef struct bl1_mem_info {

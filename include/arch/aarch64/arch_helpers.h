@@ -233,8 +233,10 @@ void dcsw_op_all(u_register_t op_type);
 
 void disable_mmu_el1(void);
 void disable_mmu_el3(void);
+void disable_mpu_el2(void);
 void disable_mmu_icache_el1(void);
 void disable_mmu_icache_el3(void);
+void disable_mpu_icache_el2(void);
 
 /*******************************************************************************
  * Misc. accessor prototypes
