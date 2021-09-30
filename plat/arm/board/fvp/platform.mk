@@ -138,7 +138,8 @@ else
 					lib/cpus/aarch64/cortex_demeter.S	\
 					lib/cpus/aarch64/cortex_a65.S		\
 					lib/cpus/aarch64/cortex_a65ae.S		\
-					lib/cpus/aarch64/cortex_a78c.S
+					lib/cpus/aarch64/cortex_a78c.S		\
+					lib/cpus/aarch64/cortex_hayes.S
 	endif
 	# AArch64/AArch32 cores
 	FVP_CPU_LIBS	+=	lib/cpus/aarch64/cortex_a55.S		\
