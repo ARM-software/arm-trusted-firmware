@@ -123,21 +123,50 @@ int ufshc_dme_set(unsigned int attr, unsigned int idx, unsigned int val)
 	return 0;
 }
 
-static void ufshc_reset(uintptr_t base)
+static int ufshc_hce_enable(uintptr_t base)
 {
 	unsigned int data;
+	int retries;
 
 	/* Enable Host Controller */
 	mmio_write_32(base + HCE, HCE_ENABLE);
+
 	/* Wait until basic initialization sequence completed */
-	do {
+	for (retries = 0; retries < HCE_ENABLE_INNER_RETRIES; ++retries) {
 		data = mmio_read_32(base + HCE);
-	} while ((data & HCE_ENABLE) == 0);
+		if (data & HCE_ENABLE) {
+			break;
+		}
+		udelay(HCE_ENABLE_TIMEOUT_US);
+	}
+	if (retries >= HCE_ENABLE_INNER_RETRIES) {
+		return -ETIMEDOUT;
+	}
+
+	return 0;
+}
+
+static int ufshc_reset(uintptr_t base)
+{
+	unsigned int data;
+	int retries, result;
+
+	for (retries = 0; retries < HCE_ENABLE_OUTER_RETRIES; ++retries) {
+		result = ufshc_hce_enable(base);
+		if (result == 0) {
+			break;
+		}
+	}
+	if (retries >= HCE_ENABLE_OUTER_RETRIES) {
+		return -EIO;
+	}
 
 	/* Enable Interrupts */
 	data = UFS_INT_UCCS | UFS_INT_ULSS | UFS_INT_UE | UFS_INT_UTPES |
 	       UFS_INT_DFES | UFS_INT_HCFES | UFS_INT_SBFES;
 	mmio_write_32(base + IE, data);
+
+	return 0;
 }
 
 static int ufshc_link_startup(uintptr_t base)
@@ -782,7 +811,8 @@ int ufs_init(const ufs_ops_t *ops, ufs_params_t *params)
 		assert((ops != NULL) && (ops->phy_init != NULL) &&
 		       (ops->phy_set_pwr_mode != NULL));
 
-		ufshc_reset(ufs_params.reg_base);
+		result = ufshc_reset(ufs_params.reg_base);
+		assert(result == 0);
 		ops->phy_init(&ufs_params);
 		result = ufshc_link_startup(ufs_params.reg_base);
 		assert(result == 0);
