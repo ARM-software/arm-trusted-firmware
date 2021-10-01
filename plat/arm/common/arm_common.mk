@@ -52,9 +52,10 @@ $(eval $(call assert_boolean,ARM_RECOM_STATE_ID_ENC))
 $(eval $(call add_define,ARM_RECOM_STATE_ID_ENC))
 
 # Process ARM_DISABLE_TRUSTED_WDOG flag
-# By default, Trusted Watchdog is always enabled unless SPIN_ON_BL1_EXIT is set
+# By default, Trusted Watchdog is always enabled unless
+# SPIN_ON_BL1_EXIT or ENABLE_RME is set
 ARM_DISABLE_TRUSTED_WDOG	:=	0
-ifeq (${SPIN_ON_BL1_EXIT}, 1)
+ifneq ($(filter 1,${SPIN_ON_BL1_EXIT} ${ENABLE_RME}),)
 ARM_DISABLE_TRUSTED_WDOG	:=	1
 endif
 $(eval $(call assert_boolean,ARM_DISABLE_TRUSTED_WDOG))
