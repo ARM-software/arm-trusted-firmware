@@ -51,7 +51,7 @@ QTI_BL31_SOURCES	:=	$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_helpers.S	\
 				$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_kryo4_silver.S	\
 				$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_kryo4_gold.S	\
 				$(QTI_PLAT_PATH)/common/src/$(ARCH)/qti_uart_console.S	\
-				$(QTI_PLAT_PATH)/common/src/pm8998.c			\
+				$(QTI_PLAT_PATH)/common/src/pm_ps_hold.c			\
 				$(QTI_PLAT_PATH)/common/src/qti_stack_protector.c	\
 				$(QTI_PLAT_PATH)/common/src/qti_common.c		\
 				$(QTI_PLAT_PATH)/common/src/qti_bl31_setup.c		\

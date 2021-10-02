@@ -14,11 +14,9 @@
  * include other part numbers like PM6150.
  */
 
-#define PON_PS_HOLD_RESET_CTL		0x85a
 #define RESET_TYPE_WARM_RESET		1
 #define RESET_TYPE_SHUTDOWN		4
 
-#define PON_PS_HOLD_RESET_CTL2		0x85b
 #define S2_RESET_EN			BIT(7)
 
 static void configure_ps_hold(uint32_t reset_type)

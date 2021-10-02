@@ -190,5 +190,10 @@
 #define QTI_SOC_REVISION_REG			0x1FC8000
 #define QTI_SOC_REVISION_MASK			U(0xFFFF)
 /*----------------------------------------------------------------------------*/
+/* LC PON register offsets */
+/*----------------------------------------------------------------------------*/
+#define PON_PS_HOLD_RESET_CTL			0x85a
+#define PON_PS_HOLD_RESET_CTL2			0x85b
+/*----------------------------------------------------------------------------*/
 
 #endif /* PLATFORM_DEF_H */
