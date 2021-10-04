@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 2018-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
-
-#include <platform_def.h>
 
 #include <common/debug.h>
 #include <drivers/io/io_block.h>
@@ -14,26 +12,30 @@
 #include <drivers/io/io_fip.h>
 #include <drivers/io/io_memmap.h>
 #include <drivers/mmc.h>
+#include <lib/utils_def.h>
+#include <tbbr_img_def.h>
 #include <tools_share/firmware_image_package.h>
+
+#include <platform_def.h>
 
 static const io_dev_connector_t *fip_dev_con;
 static uintptr_t fip_dev_handle;
 
-#ifndef IMX7_FIP_MMAP
+#ifndef IMX_FIP_MMAP
 static const io_dev_connector_t *mmc_dev_con;
 static uintptr_t mmc_dev_handle;
 
 static const io_block_spec_t mmc_fip_spec = {
-	.offset = IMX7_FIP_MMC_BASE,
-	.length = IMX7_FIP_SIZE
+	.offset = IMX_FIP_MMC_BASE,
+	.length = IMX_FIP_SIZE
 };
 
 static const io_block_dev_spec_t mmc_dev_spec = {
 	/* It's used as temp buffer in block driver. */
 	.buffer		= {
-		.offset	= IMX7_FIP_BASE,
+		.offset	= IMX_FIP_BASE,
 		/* do we need a new value? */
-		.length = IMX7_FIP_SIZE
+		.length = IMX_FIP_SIZE
 	},
 	.ops		= {
 		.read	= mmc_read_blocks,
@@ -49,12 +51,17 @@ static const io_dev_connector_t *memmap_dev_con;
 static uintptr_t memmap_dev_handle;
 
 static const io_block_spec_t fip_block_spec = {
-	.offset = IMX7_FIP_BASE,
-	.length = IMX7_FIP_SIZE
+	.offset = IMX_FIP_BASE,
+	.length = IMX_FIP_SIZE
 };
 static int open_memmap(const uintptr_t spec);
 #endif
+
 static int open_fip(const uintptr_t spec);
+
+static const io_uuid_spec_t bl31_uuid_spec = {
+	.uuid = UUID_EL3_RUNTIME_FIRMWARE_BL31,
+};
 
 static const io_uuid_spec_t bl32_uuid_spec = {
 	.uuid = UUID_SECURE_PAYLOAD_BL32,
@@ -81,12 +88,20 @@ static const io_uuid_spec_t trusted_key_cert_uuid_spec = {
 	.uuid = UUID_TRUSTED_KEY_CERT,
 };
 
+static const io_uuid_spec_t soc_fw_key_cert_uuid_spec = {
+	.uuid = UUID_SOC_FW_KEY_CERT,
+};
+
 static const io_uuid_spec_t tos_fw_key_cert_uuid_spec = {
 	.uuid = UUID_TRUSTED_OS_FW_KEY_CERT,
 };
 
 static const io_uuid_spec_t tos_fw_cert_uuid_spec = {
 	.uuid = UUID_TRUSTED_OS_FW_CONTENT_CERT,
+};
+
+static const io_uuid_spec_t soc_fw_content_cert_uuid_spec = {
+	.uuid = UUID_SOC_FW_CONTENT_CERT,
 };
 
 static const io_uuid_spec_t nt_fw_key_cert_uuid_spec = {
@@ -106,7 +121,7 @@ struct plat_io_policy {
 };
 
 static const struct plat_io_policy policies[] = {
-#ifndef IMX7_FIP_MMAP
+#ifndef IMX_FIP_MMAP
 	[FIP_IMAGE_ID] = {
 		&mmc_dev_handle,
 		(uintptr_t)&mmc_fip_spec,
@@ -119,6 +134,11 @@ static const struct plat_io_policy policies[] = {
 		open_memmap
 	},
 #endif
+	[BL31_IMAGE_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&bl31_uuid_spec,
+		open_fip
+	},
 	[BL32_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&bl32_uuid_spec,
@@ -145,6 +165,11 @@ static const struct plat_io_policy policies[] = {
 		(uintptr_t)&tb_fw_cert_uuid_spec,
 		open_fip
 	},
+	[SOC_FW_KEY_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&soc_fw_key_cert_uuid_spec,
+		open_fip
+	},
 	[TRUSTED_KEY_CERT_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&trusted_key_cert_uuid_spec,
@@ -158,6 +183,11 @@ static const struct plat_io_policy policies[] = {
 	[NON_TRUSTED_FW_KEY_CERT_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&nt_fw_key_cert_uuid_spec,
+		open_fip
+	},
+	[SOC_FW_CONTENT_CERT_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&soc_fw_content_cert_uuid_spec,
 		open_fip
 	},
 	[TRUSTED_OS_FW_CONTENT_CERT_ID] = {
@@ -190,7 +220,7 @@ static int open_fip(const uintptr_t spec)
 	return result;
 }
 
-#ifndef IMX7_FIP_MMAP
+#ifndef IMX_FIP_MMAP
 static int open_mmc(const uintptr_t spec)
 {
 	int result;
@@ -199,8 +229,9 @@ static int open_mmc(const uintptr_t spec)
 	result = io_dev_init(mmc_dev_handle, (uintptr_t)NULL);
 	if (result == 0) {
 		result = io_open(mmc_dev_handle, spec, &local_handle);
-		if (result == 0)
+		if (result == 0) {
 			io_close(local_handle);
+		}
 	}
 	return result;
 }
@@ -240,11 +271,11 @@ int plat_get_image_source(unsigned int image_id, uintptr_t *dev_handle,
 	return result;
 }
 
-void plat_imx7_io_setup(void)
+void plat_imx_io_setup(void)
 {
 	int result __unused;
 
-#ifndef IMX7_FIP_MMAP
+#ifndef IMX_FIP_MMAP
 	result = register_io_dev_block(&mmc_dev_con);
 	assert(result == 0);
 
@@ -259,8 +290,8 @@ void plat_imx7_io_setup(void)
 	result = io_dev_open(memmap_dev_con, (uintptr_t)NULL,
 			     &memmap_dev_handle);
 	assert(result == 0);
-
 #endif
+
 	result = register_io_dev_fip(&fip_dev_con);
 	assert(result == 0);
 

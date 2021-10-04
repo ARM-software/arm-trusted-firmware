@@ -1,34 +1,36 @@
 /*
- * Copyright 2017-2021 NXP
- * Copyright 2021 Arm
+ * Copyright 2021 NXP
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <assert.h>
+#include <stdbool.h>
 
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
+#include <common/tbbr/tbbr_img_def.h>
 #include <context.h>
+#include <drivers/arm/tzc380.h>
 #include <drivers/console.h>
 #include <drivers/generic_delay_timer.h>
 #include <drivers/mmc.h>
+#include <lib/el3_runtime/context_mgmt.h>
 #include <lib/mmio.h>
 #include <lib/optee_utils.h>
-#include <lib/utils.h>
-#include <stdbool.h>
-#include <tbbr_img_def.h>
+#include <lib/xlat_tables/xlat_tables_v2.h>
 
+#include <imx8m_caam.h>
+#include "imx8mp_private.h"
 #include <imx_aipstz.h>
-#include <imx_csu.h>
+#include <imx_rdc.h>
 #include <imx_uart.h>
-#include <imx_usdhc.h>
 #include <plat/common/platform.h>
+#include <plat_imx8.h>
+#include <platform_def.h>
 
-#include "imx8mm_private.h"
-#include "platform_def.h"
 
 static const struct aipstz_cfg aipstz[] = {
 	{IMX_AIPSTZ1, 0x77777777, 0x77777777, .opacr = {0x0, 0x0, 0x0, 0x0, 0x0}, },
@@ -38,43 +40,17 @@ static const struct aipstz_cfg aipstz[] = {
 	{0},
 };
 
-static void imx8mm_usdhc_setup(void)
+void bl2_el3_early_platform_setup(u_register_t arg0, u_register_t arg1,
+		u_register_t arg2, u_register_t arg3)
 {
-	imx_usdhc_params_t params;
-	struct mmc_device_info info;
-
-	params.reg_base = PLAT_IMX8MM_BOOT_MMC_BASE;
-	/*
-	   The imx8mm SD Card Speed modes for USDHC2
-	   +--------------+--------------------+--------------+--------------+
-	   |Bus Speed Mode|Max. Clock Frequency|Max. Bus Speed|Signal Voltage|
-	   +--------------+--------------------+--------------+--------------+
-	   |Default Speed | 25 MHz             | 12.5 MB/s    | 3.3V         |
-	   |High Speed    | 50 MHz             | 25 MB/s      | 3.3V         |
-	   +--------------+--------------------+--------------+--------------+
-
-	   We pick 50 Mhz here for High Speed access.
-	*/
-	params.clk_rate = 50000000;
-	params.bus_width = MMC_BUS_WIDTH_1;
-	params.flags = 0;
-	info.mmc_dev_type = MMC_IS_SD;
-	info.ocr_voltage = OCR_3_3_3_4 | OCR_3_2_3_3;
-	imx_usdhc_init(&params, &info);
-}
-
-void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
-				  u_register_t arg3, u_register_t arg4)
-{
-	int i;
 	static console_t console;
+	unsigned int i;
 
-	/* enable CSU NS access permission */
-	for (i = 0; i < MAX_CSU_NUM; i++) {
-		mmio_write_32(IMX_CSU_BASE + i * 4, CSU_CSL_OPEN_ACCESS);
+	/* Enable CSU NS access permission */
+	for (i = 0U; i < 64; i++) {
+		mmio_write_32(IMX_CSU_BASE + i * 4, 0x00ff00ff);
 	}
 
-	/* config the aips access permission */
 	imx_aipstz_init(aipstz);
 
 	console_imx_uart_register(IMX_BOOT_UART_BASE, IMX_BOOT_UART_CLK_IN_HZ,
@@ -83,9 +59,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 	generic_delay_timer_init();
 
 	/* select the CKIL source to 32K OSC */
-	mmio_write_32(0x30360124, 0x1);
-
-	imx8mm_usdhc_setup();
+	mmio_write_32(IMX_ANAMIX_BASE + ANAMIX_MISC_CTL, 0x1);
 
 	/* Open handles to a FIP image */
 	plat_imx_io_setup();
