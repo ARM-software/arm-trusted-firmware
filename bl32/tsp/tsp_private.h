@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -7,28 +7,22 @@
 #ifndef TSP_PRIVATE_H
 #define TSP_PRIVATE_H
 
-/* Definitions to help the assembler access the SMC/ERET args structure */
-#define TSP_ARGS_SIZE		0x40
-#define TSP_ARG0		0x0
-#define TSP_ARG1		0x8
-#define TSP_ARG2		0x10
-#define TSP_ARG3		0x18
-#define TSP_ARG4		0x20
-#define TSP_ARG5		0x28
-#define TSP_ARG6		0x30
-#define TSP_ARG7		0x38
-#define TSP_ARGS_END		0x40
-
+/*******************************************************************************
+ * The TSP memory footprint starts at address BL32_BASE and ends with the
+ * linker symbol __BL32_END__. Use these addresses to compute the TSP image
+ * size.
+ ******************************************************************************/
+#define BL32_TOTAL_LIMIT BL32_END
+#define BL32_TOTAL_SIZE (BL32_TOTAL_LIMIT - (unsigned long) BL32_BASE)
 
 #ifndef __ASSEMBLER__
 
 #include <stdint.h>
 
-#include <platform_def.h> /* For CACHE_WRITEBACK_GRANULE */
-
 #include <bl32/tsp/tsp.h>
 #include <lib/cassert.h>
 #include <lib/spinlock.h>
+#include <smccc_helpers.h>
 
 typedef struct work_statistics {
 	/* Number of s-el1 interrupts on this cpu */
@@ -47,23 +41,22 @@ typedef struct work_statistics {
 	uint32_t cpu_resume_count;	/* Number of cpu resume requests */
 } __aligned(CACHE_WRITEBACK_GRANULE) work_statistics_t;
 
-typedef struct tsp_args {
-	uint64_t _regs[TSP_ARGS_END >> 3];
-} __aligned(CACHE_WRITEBACK_GRANULE) tsp_args_t;
-
 /* Macros to access members of the above structure using their offsets */
 #define read_sp_arg(args, offset)	((args)->_regs[offset >> 3])
 #define write_sp_arg(args, offset, val) (((args)->_regs[offset >> 3])	\
 					 = val)
-/*
- * Ensure that the assembler's view of the size of the tsp_args is the
- * same as the compilers
- */
-CASSERT(TSP_ARGS_SIZE == sizeof(tsp_args_t), assert_sp_args_size_mismatch);
 
 uint128_t tsp_get_magic(void);
 
-tsp_args_t *tsp_cpu_resume_main(uint64_t max_off_pwrlvl,
+smc_args_t *set_smc_args(uint64_t arg0,
+			 uint64_t arg1,
+			 uint64_t arg2,
+			 uint64_t arg3,
+			 uint64_t arg4,
+			 uint64_t arg5,
+			 uint64_t arg6,
+			 uint64_t arg7);
+smc_args_t *tsp_cpu_resume_main(uint64_t max_off_pwrlvl,
 				uint64_t arg1,
 				uint64_t arg2,
 				uint64_t arg3,
@@ -71,7 +64,7 @@ tsp_args_t *tsp_cpu_resume_main(uint64_t max_off_pwrlvl,
 				uint64_t arg5,
 				uint64_t arg6,
 				uint64_t arg7);
-tsp_args_t *tsp_cpu_suspend_main(uint64_t arg0,
+smc_args_t *tsp_cpu_suspend_main(uint64_t arg0,
 				 uint64_t arg1,
 				 uint64_t arg2,
 				 uint64_t arg3,
@@ -79,8 +72,8 @@ tsp_args_t *tsp_cpu_suspend_main(uint64_t arg0,
 				 uint64_t arg5,
 				 uint64_t arg6,
 				 uint64_t arg7);
-tsp_args_t *tsp_cpu_on_main(void);
-tsp_args_t *tsp_cpu_off_main(uint64_t arg0,
+smc_args_t *tsp_cpu_on_main(void);
+smc_args_t *tsp_cpu_off_main(uint64_t arg0,
 			     uint64_t arg1,
 			     uint64_t arg2,
 			     uint64_t arg3,
@@ -111,7 +104,7 @@ extern tsp_vectors_t tsp_vector_table;
 int32_t tsp_common_int_handler(void);
 int32_t tsp_handle_preemption(void);
 
-tsp_args_t *tsp_abort_smc_handler(uint64_t func,
+smc_args_t *tsp_abort_smc_handler(uint64_t func,
 				  uint64_t arg1,
 				  uint64_t arg2,
 				  uint64_t arg3,
@@ -120,25 +113,25 @@ tsp_args_t *tsp_abort_smc_handler(uint64_t func,
 				  uint64_t arg6,
 				  uint64_t arg7);
 
-tsp_args_t *tsp_smc_handler(uint64_t func,
-			       uint64_t arg1,
-			       uint64_t arg2,
-			       uint64_t arg3,
-			       uint64_t arg4,
-			       uint64_t arg5,
-			       uint64_t arg6,
-			       uint64_t arg7);
+smc_args_t *tsp_smc_handler(uint64_t func,
+			    uint64_t arg1,
+			    uint64_t arg2,
+			    uint64_t arg3,
+			    uint64_t arg4,
+			    uint64_t arg5,
+			    uint64_t arg6,
+			    uint64_t arg7);
 
-tsp_args_t *tsp_system_reset_main(uint64_t arg0,
-				uint64_t arg1,
-				uint64_t arg2,
-				uint64_t arg3,
-				uint64_t arg4,
-				uint64_t arg5,
-				uint64_t arg6,
-				uint64_t arg7);
+smc_args_t *tsp_system_reset_main(uint64_t arg0,
+				  uint64_t arg1,
+				  uint64_t arg2,
+				  uint64_t arg3,
+				  uint64_t arg4,
+				  uint64_t arg5,
+				  uint64_t arg6,
+				  uint64_t arg7);
 
-tsp_args_t *tsp_system_off_main(uint64_t arg0,
+smc_args_t *tsp_system_off_main(uint64_t arg0,
 				uint64_t arg1,
 				uint64_t arg2,
 				uint64_t arg3,

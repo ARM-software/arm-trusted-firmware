@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,12 +10,16 @@
 #include <asm_macros.S>
 #include <bl32/tsp/tsp.h>
 #include <lib/xlat_tables/xlat_tables_defs.h>
+#include <smccc_helpers.h>
 
 #include "../tsp_private.h"
 
 
 	.globl	tsp_entrypoint
 	.globl  tsp_vector_table
+#if SPMC_AT_EL3
+	.globl tsp_cpu_on_entry
+#endif
 
 
 
@@ -25,10 +29,10 @@
 	 * ---------------------------------------------
 	 */
 	.macro restore_args_call_smc
-	ldp	x6, x7, [x0, #TSP_ARG6]
-	ldp	x4, x5, [x0, #TSP_ARG4]
-	ldp	x2, x3, [x0, #TSP_ARG2]
-	ldp	x0, x1, [x0, #TSP_ARG0]
+	ldp	x6, x7, [x0, #SMC_ARG6]
+	ldp	x4, x5, [x0, #SMC_ARG4]
+	ldp	x2, x3, [x0, #SMC_ARG2]
+	ldp	x0, x1, [x0, #SMC_ARG0]
 	smc	#0
 	.endm
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2022, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -91,8 +91,18 @@ int32_t tsp_common_int_handler(void)
 	id = plat_ic_get_pending_interrupt_id();
 
 	/* TSP can only handle the secure physical timer interrupt */
-	if (id != TSP_IRQ_SEC_PHY_TIMER)
+	if (id != TSP_IRQ_SEC_PHY_TIMER) {
+#if SPMC_AT_EL3
+		/*
+		 * With the EL3 FF-A SPMC we expect only Timer secure interrupt to fire in
+		 * the TSP, so panic if any other interrupt does.
+		 */
+		ERROR("Unexpected interrupt id %u\n", id);
+		panic();
+#else
 		return tsp_handle_preemption();
+#endif
+	}
 
 	/*
 	 * Acknowledge and handle the secure timer interrupt. Also sanity check
@@ -105,13 +115,9 @@ int32_t tsp_common_int_handler(void)
 
 	/* Update the statistics and print some messages */
 	tsp_stats[linear_id].sel1_intr_count++;
-#if LOG_LEVEL >= LOG_LEVEL_VERBOSE
-	spin_lock(&console_lock);
 	VERBOSE("TSP: cpu 0x%lx handled S-EL1 interrupt %d\n",
 	       read_mpidr(), id);
 	VERBOSE("TSP: cpu 0x%lx: %d S-EL1 requests\n",
 	     read_mpidr(), tsp_stats[linear_id].sel1_intr_count);
-	spin_unlock(&console_lock);
-#endif
 	return 0;
 }
