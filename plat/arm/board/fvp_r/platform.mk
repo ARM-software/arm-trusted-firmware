@@ -11,6 +11,7 @@ ARCH	:= aarch64
 override NEED_BL2	:= no
 override NEED_BL2U	:= no
 override NEED_BL31	:= no
+NEED_BL32		:= no
 
 override CTX_INCLUDE_AARCH32_REGS	:=	0
 
@@ -56,70 +57,90 @@ else
 $(error "Incorrect CCN driver chosen on FVP_R port")
 endif
 
+include plat/arm/board/common/board_common.mk
+include plat/arm/common/arm_common.mk
+
 PLAT_INCLUDES		:=	-Iplat/arm/board/fvp_r/include
 
-PLAT_BL_COMMON_SOURCES	:=	plat/arm/board/fvp_r/fvp_r_common.c
-
-FVP_R_CPU_LIBS		:=	lib/cpus/${ARCH}/aem_generic.S
-
-# select a different set of CPU files, depending on whether we compile for
-# hardware assisted coherency cores or not
-ifeq (${HW_ASSISTED_COHERENCY}, 0)
-# Cores used without DSU
-#	FVP_R_CPU_LIBS	+=	lib/cpus/aarch64/fvp_r.S
-else
-# Cores used with DSU only
-#	FVP_R_CPU_LIBS	+=	lib/cpus/aarch64/fvp_r.S
-endif
-
-BL1_SOURCES		+=	drivers/arm/sp805/sp805.c			\
-				drivers/delay_timer/delay_timer.c		\
-				drivers/io/io_semihosting.c			\
-				lib/semihosting/semihosting.c			\
-				lib/semihosting/${ARCH}/semihosting_call.S	\
-				plat/arm/board/fvp_r/fvp_r_bl1_arch_setup.c	\
-				plat/arm/board/fvp_r/fvp_r_bl1_setup.c		\
+FVP_R_BL_COMMON_SOURCES	:=	plat/arm/board/fvp_r/fvp_r_common.c		\
 				plat/arm/board/fvp_r/fvp_r_context_mgmt.c	\
+				plat/arm/board/fvp_r/fvp_r_context.S		\
+				plat/arm/board/fvp_r/fvp_r_debug.S		\
 				plat/arm/board/fvp_r/fvp_r_err.c		\
+				plat/arm/board/fvp_r/fvp_r_helpers.S		\
+				plat/arm/board/fvp_r/fvp_r_misc_helpers.S	\
+				plat/arm/board/fvp_r/fvp_r_pauth_helpers.S
+
+FVP_R_BL1_SOURCES	:=	plat/arm/board/fvp_r/fvp_r_bl1_arch_setup.c	\
+				plat/arm/board/fvp_r/fvp_r_bl1_setup.c		\
 				plat/arm/board/fvp_r/fvp_r_io_storage.c		\
 				plat/arm/board/fvp_r/fvp_r_bl1_context_mgmt.c	\
 				plat/arm/board/fvp_r/fvp_r_bl1_entrypoint.S	\
 				plat/arm/board/fvp_r/fvp_r_bl1_exceptions.S	\
-				plat/arm/board/fvp_r/fvp_r_bl1_main.c		\
-				plat/arm/board/fvp_r/fvp_r_context.S		\
-				plat/arm/board/fvp_r/fvp_r_debug.S		\
-				plat/arm/board/fvp_r/fvp_r_helpers.S		\
-				plat/arm/board/fvp_r/fvp_r_misc_helpers.S	\
-				plat/arm/board/fvp_r/fvp_r_pauth_helpers.S	\
-				${FVP_R_CPU_LIBS}				\
-				${FVP_R_INTERCONNECT_SOURCES}
+				plat/arm/board/fvp_r/fvp_r_bl1_main.c
+
+FVP_R_CPU_LIBS		:=	lib/cpus/${ARCH}/aem_generic.S
+
+FVP_R_DYNC_CFG_SOURCES	:=	common/fdt_wrappers.c				\
+				common/uuid.c					\
+				plat/arm/common/arm_dyn_cfg.c			\
+				plat/arm/common/arm_dyn_cfg_helpers.c
+
+ifeq (${TRUSTED_BOARD_BOOT},1)
+FVP_R_AUTH_SOURCES	:=	drivers/auth/auth_mod.c				\
+				drivers/auth/crypto_mod.c			\
+				drivers/auth/img_parser_mod.c			\
+				lib/fconf/fconf_tbbr_getter.c			\
+				bl1/tbbr/tbbr_img_desc.c			\
+				plat/arm/common/arm_bl1_fwu.c			\
+				plat/common/tbbr/plat_tbbr.c			\
+				drivers/auth/tbbr/tbbr_cot_bl1_r64.c		\
+				drivers/auth/tbbr/tbbr_cot_common.c		\
+				plat/arm/board/common/board_arm_trusted_boot.c	\
+				plat/arm/board/common/rotpk/arm_dev_rotpk.S	\
+				plat/arm/board/fvp_r/fvp_r_trusted_boot.c
+
+FVP_R_BL1_SOURCES	+=	${MBEDTLS_SOURCES}				\
+				${FVP_R_AUTH_SOURCES}
+endif
 
 ifeq (${USE_SP804_TIMER},1)
-BL1_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
+FVP_R_BL_COMMON_SOURCES		+=	drivers/arm/sp804/sp804_delay_timer.c
 else
-BL1_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c
+FVP_R_BL_COMMON_SOURCES		+=	drivers/delay_timer/generic_delay_timer.c
 endif
 
 # Enable Activity Monitor Unit extensions by default
 ENABLE_AMU			:=	1
 
 ifneq (${ENABLE_STACK_PROTECTOR},0)
-PLAT_BL_COMMON_SOURCES	+=	plat/arm/board/fvp_r/fvp_r_stack_protector.c
+FVP_R_BL_COMMON_SOURCES	+=	plat/arm/board/fvp_r/fvp_r_stack_protector.c
 endif
 
-NEED_BL32 := no
-
-ifneq (${BL2_AT_EL3}, 0)
-    override BL1_SOURCES =
-endif
-
-include plat/arm/board/common/board_common.mk
-include plat/arm/common/arm_common.mk
-
-ifeq (${TRUSTED_BOARD_BOOT}, 1)
-BL1_SOURCES		+=	plat/arm/board/fvp_r/fvp_r_trusted_boot.c
-
-# FVP being a development platform, enable capability to disable Authentication
-# dynamically if TRUSTED_BOARD_BOOT is set.
-DYN_DISABLE_AUTH	:=	1
-endif
+override BL1_SOURCES	:=	drivers/arm/sp805/sp805.c			\
+				drivers/cfi/v2m/v2m_flash.c			\
+				drivers/delay_timer/delay_timer.c		\
+				drivers/io/io_fip.c				\
+				drivers/io/io_memmap.c				\
+				drivers/io/io_storage.c				\
+				drivers/io/io_semihosting.c			\
+				lib/cpus/aarch64/cpu_helpers.S			\
+				lib/cpus/errata_report.c			\
+				lib/cpus/aarch64/dsu_helpers.S			\
+				lib/el3_runtime/aarch64/context.S		\
+				lib/el3_runtime/aarch64/context_mgmt.c		\
+				lib/fconf/fconf.c				\
+				lib/fconf/fconf_dyn_cfg_getter.c		\
+				lib/semihosting/semihosting.c			\
+				lib/semihosting/${ARCH}/semihosting_call.S	\
+				plat/arm/common/arm_bl1_setup.c			\
+				plat/arm/common/arm_err.c			\
+				plat/arm/common/arm_io_storage.c		\
+				plat/arm/common/fconf/arm_fconf_io.c		\
+				plat/common/plat_bl1_common.c			\
+				plat/common/aarch64/platform_up_stack.S		\
+				${FVP_R_BL1_SOURCES}				\
+				${FVP_R_BL_COMMON_SOURCES}			\
+				${FVP_R_CPU_LIBS}				\
+				${FVP_R_DYNC_CFG_SOURCES}			\
+				${FVP_R_INTERCONNECT_SOURCES}
