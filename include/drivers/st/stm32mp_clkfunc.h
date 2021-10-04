@@ -19,7 +19,6 @@ uint32_t fdt_osc_read_uint32_default(enum stm32mp_osc_id osc_id,
 				     const char *prop_name,
 				     uint32_t dflt_value);
 
-int fdt_get_rcc_node(void *fdt);
 int fdt_rcc_read_uint32_array(const char *prop_name, uint32_t count,
 			      uint32_t *array);
 int fdt_rcc_subnode_offset(const char *name);
