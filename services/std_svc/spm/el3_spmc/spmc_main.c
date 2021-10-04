@@ -10,6 +10,7 @@
 #include <arch_helpers.h>
 #include <bl31/bl31.h>
 #include <bl31/ehf.h>
+#include <bl31/interrupt_mgmt.h>
 #include <common/debug.h>
 #include <common/fdt_wrappers.h>
 #include <common/runtime_svc.h>
@@ -44,6 +45,11 @@ static struct secure_partition_desc sp_desc[SECURE_PARTITION_COUNT];
  * properties when the SPMC supports indirect messaging.
  */
 static struct ns_endpoint_desc ns_ep_desc[NS_PARTITION_COUNT];
+
+static uint64_t spmc_sp_interrupt_handler(uint32_t id,
+					  uint32_t flags,
+					  void *handle,
+					  void *cookie);
 
 /*
  * Helper function to obtain the array storing the EL3
@@ -1015,6 +1021,7 @@ static uint64_t ffa_features_handler(uint32_t smc_fid,
 	/* Supported features from both worlds. */
 	case FFA_ERROR:
 	case FFA_SUCCESS_SMC32:
+	case FFA_INTERRUPT:
 	case FFA_ID_GET:
 	case FFA_FEATURES:
 	case FFA_VERSION:
@@ -1639,6 +1646,7 @@ void spmc_populate_attrs(spmc_manifest_attribute_t *spmc_attrs)
 int32_t spmc_setup(void)
 {
 	int32_t ret;
+	uint32_t flags;
 
 	/* Initialize endpoint descriptors */
 	initalize_sp_descs();
@@ -1667,6 +1675,21 @@ int32_t spmc_setup(void)
 
 	/* Register power management hooks with PSCI */
 	psci_register_spd_pm_hook(&spmc_pm);
+
+	/*
+	 * Register an interrupt handler for S-EL1 interrupts
+	 * when generated during code executing in the
+	 * non-secure state.
+	 */
+	flags = 0;
+	set_interrupt_rm_flag(flags, NON_SECURE);
+	ret = register_interrupt_type_handler(INTR_TYPE_S_EL1,
+					      spmc_sp_interrupt_handler,
+					      flags);
+	if (ret != 0) {
+		ERROR("Failed to register interrupt handler! (%d)\n", ret);
+		panic();
+	}
 
 	/* Register init function for deferred init.  */
 	bl31_register_bl32_init(&sp_init);
@@ -1752,4 +1775,57 @@ uint64_t spmc_smc_handler(uint32_t smc_fid,
 		break;
 	}
 	return spmc_ffa_error_return(handle, FFA_ERROR_NOT_SUPPORTED);
+}
+
+/*******************************************************************************
+ * This function is the handler registered for S-EL1 interrupts by the SPMC. It
+ * validates the interrupt and upon success arranges entry into the SP for
+ * handling the interrupt.
+ ******************************************************************************/
+static uint64_t spmc_sp_interrupt_handler(uint32_t id,
+					  uint32_t flags,
+					  void *handle,
+					  void *cookie)
+{
+	struct secure_partition_desc *sp = spmc_get_current_sp_ctx();
+	struct sp_exec_ctx *ec;
+	uint32_t linear_id = plat_my_core_pos();
+
+	/* Sanity check for a NULL pointer dereference. */
+	assert(sp != NULL);
+
+	/* Check the security state when the exception was generated. */
+	assert(get_interrupt_src_ss(flags) == NON_SECURE);
+
+	/* Panic if not an S-EL1 Partition. */
+	if (sp->runtime_el != S_EL1) {
+		ERROR("Interrupt received for a non S-EL1 SP on core%u.\n",
+		      linear_id);
+		panic();
+	}
+
+	/* Obtain a reference to the SP execution context. */
+	ec = spmc_get_sp_ec(sp);
+
+	/* Ensure that the execution context is in waiting state else panic. */
+	if (ec->rt_state != RT_STATE_WAITING) {
+		ERROR("SP EC on core%u is not waiting (%u), it is (%u).\n",
+		      linear_id, RT_STATE_WAITING, ec->rt_state);
+		panic();
+	}
+
+	/* Update the runtime model and state of the partition. */
+	ec->rt_model = RT_MODEL_INTR;
+	ec->rt_state = RT_STATE_RUNNING;
+
+	VERBOSE("SP (0x%x) interrupt start on core%u.\n", sp->sp_id, linear_id);
+
+	/*
+	 * Forward the interrupt to the S-EL1 SP. The interrupt ID is not
+	 * populated as the SP can determine this by itself.
+	 */
+	return spmd_smc_switch_state(FFA_INTERRUPT, false,
+				     FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+				     FFA_PARAM_MBZ, FFA_PARAM_MBZ,
+				     handle);
 }
