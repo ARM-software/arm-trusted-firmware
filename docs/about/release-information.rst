@@ -46,7 +46,7 @@ depending on project requirement and partner feedback.
 +-----------------+---------------------------+------------------------------+
 | v2.5            | 3rd week of May '21       | 5th week of Apr '21          |
 +-----------------+---------------------------+------------------------------+
-| v2.6            | 4th week of Oct '21       | 1st week of Oct '21          |
+| v2.6            | 4th week of Nov '21       | 2nd week of Nov '21          |
 +-----------------+---------------------------+------------------------------+
 
 Removal of Deprecated Interfaces
