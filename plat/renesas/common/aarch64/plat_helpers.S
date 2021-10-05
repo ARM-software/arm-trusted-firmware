@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
- * Copyright (c) 2015-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -284,7 +284,11 @@ func plat_crash_console_putc
 	str	x3, [sp, #-16]!
 	str	x4, [sp, #-16]!
 	str	x5, [sp, #-16]!
+	str	x6, [sp, #-16]!
+	str	x7, [sp, #-16]!
 	bl	console_rcar_putc
+	ldr	x7, [sp], #16
+	ldr	x6, [sp], #16
 	ldr	x5, [sp], #16
 	ldr	x4, [sp], #16
 	ldr	x3, [sp], #16

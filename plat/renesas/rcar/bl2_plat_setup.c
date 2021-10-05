@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2020, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2018-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -261,9 +261,6 @@ void bl2_plat_flush_bl31_params(void)
 		goto tlb;
 
 	if (product == PRR_PRODUCT_H3 && PRR_PRODUCT_20 > cut)
-		goto tlb;
-
-	if (product == PRR_PRODUCT_D3)
 		goto tlb;
 
 	/* Disable MFIS write protection */
@@ -708,6 +705,7 @@ static void bl2_advertise_dram_size(uint32_t product)
 		[4] = 0x600000000ULL,
 		[6] = 0x700000000ULL,
 	};
+	uint32_t cut = mmio_read_32(RCAR_PRR) & PRR_CUT_MASK;
 
 	switch (product) {
 	case PRR_PRODUCT_H3:
@@ -733,15 +731,21 @@ static void bl2_advertise_dram_size(uint32_t product)
 		break;
 
 	case PRR_PRODUCT_M3:
+		if (cut < PRR_PRODUCT_30) {
 #if (RCAR_GEN3_ULCB == 1)
-		/* 2GB(1GBx2 2ch split) */
-		dram_config[1] = 0x40000000ULL;
-		dram_config[5] = 0x40000000ULL;
+			/* 2GB(1GBx2 2ch split) */
+			dram_config[1] = 0x40000000ULL;
+			dram_config[5] = 0x40000000ULL;
 #else
-		/* 4GB(2GBx2 2ch split) */
-		dram_config[1] = 0x80000000ULL;
-		dram_config[5] = 0x80000000ULL;
+			/* 4GB(2GBx2 2ch split) */
+			dram_config[1] = 0x80000000ULL;
+			dram_config[5] = 0x80000000ULL;
 #endif
+		} else {
+			/* 8GB(2GBx4 2ch split) */
+			dram_config[1] = 0x100000000ULL;
+			dram_config[5] = 0x100000000ULL;
+		}
 		break;
 
 	case PRR_PRODUCT_M3N:
@@ -897,6 +901,14 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 				str,
 				(reg & RCAR_MINOR_MASK) + RCAR_M3_MINOR_OFFSET);
 		}
+	} else if (product == PRR_PRODUCT_D3) {
+		if (RCAR_D3_CUT_VER10 == (reg & PRR_CUT_MASK)) {
+			NOTICE("BL2: PRR is R-Car %s Ver.1.0\n", str);
+		} else  if (RCAR_D3_CUT_VER11 == (reg & PRR_CUT_MASK)) {
+			NOTICE("BL2: PRR is R-Car %s Ver.1.1\n", str);
+		} else {
+			NOTICE("BL2: PRR is R-Car %s Ver.X.X\n", str);
+		}
 	} else {
 		major = (reg & RCAR_MAJOR_MASK) >> RCAR_MAJOR_SHIFT;
 		major = major + RCAR_MAJOR_OFFSET;
@@ -904,7 +916,7 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 		NOTICE("BL2: PRR is R-Car %s Ver.%d.%d\n", str, major, minor);
 	}
 
-	if (product == PRR_PRODUCT_E3) {
+	if (PRR_PRODUCT_E3 == product || PRR_PRODUCT_D3 == product) {
 		reg = mmio_read_32(RCAR_MODEMR);
 		sscg = reg & RCAR_SSCG_MASK;
 		str = sscg == RCAR_SSCG_ENABLE ? sscg_on : sscg_off;
@@ -968,10 +980,6 @@ void bl2_el3_early_platform_setup(u_register_t arg1, u_register_t arg2,
 		str = boot_emmc25x1;
 		break;
 	case MODEMR_BOOT_DEV_EMMC_50X8:
-#if RCAR_LSI == RCAR_D3
-		ERROR("BL2: Failed to Initialize. eMMC is not supported.\n");
-		panic();
-#endif
 		str = boot_emmc50x8;
 		break;
 	default:

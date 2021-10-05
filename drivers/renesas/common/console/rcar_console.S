@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019, Renesas Electronics Corporation. All rights reserved.
+ * Copyright (c) 2018-2021, Renesas Electronics Corporation. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -63,7 +63,7 @@ endfunc console_rcar_register
 	 * ---------------------------------------------
 	 */
 func console_rcar_init
-	mov	w0, #0
+	mov	w0, #1
 	ret
 endfunc console_rcar_init
 

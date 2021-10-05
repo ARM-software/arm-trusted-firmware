@@ -148,9 +148,13 @@
 #define RCAR_PWRER5		U(0xE61801D4)	/* shutoff/resume error */
 #define RCAR_SYSCISR		U(0xE6180004)	/* Interrupt status     */
 #define RCAR_SYSCISCR		U(0xE6180008)	/* Interrupt stat clear */
+#define RCAR_SYSCEXTMASK	U(0xE61802F8)	/* External Request Mask */
+						/* H3/H3-N, M3 v3.0, M3-N, E3 */
 /* Product register */
 #define RCAR_PRR			U(0xFFF00044)
 #define RCAR_M3_CUT_VER11		U(0x00000010)	/* M3 Ver.1.1/Ver.1.2 */
+#define RCAR_D3_CUT_VER10		U(0x00000000)	/* D3 Ver.1.0 */
+#define RCAR_D3_CUT_VER11		U(0x00000010)	/* D3 Ver.1.1 */
 #define RCAR_MAJOR_MASK			U(0x000000F0)
 #define RCAR_MINOR_MASK			U(0x0000000F)
 #define PRR_PRODUCT_SHIFT		U(8)

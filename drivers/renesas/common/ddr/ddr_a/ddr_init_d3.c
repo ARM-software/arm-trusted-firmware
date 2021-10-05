@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2019, Renesas Electronics Corporation.
+ * Copyright (c) 2015-2021, Renesas Electronics Corporation.
  * All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
@@ -11,7 +11,11 @@
 #include "rcar_def.h"
 #include "../ddr_regs.h"
 
-#define RCAR_DDR_VERSION	"rev.0.01"
+#define RCAR_DDR_VERSION	"rev.0.02"
+
+/* Average periodic refresh interval[ns]. Support 3900,7800 */
+#define REFRESH_RATE  3900
+
 
 #if RCAR_LSI != RCAR_D3
 #error "Don't have DDR initialize routine."
@@ -44,7 +48,7 @@ static void init_ddr_d3_1866(void)
 	mmio_write_32(DBSC_DBTR16, 0x09210507);
 	mmio_write_32(DBSC_DBTR17, 0x040E0000);
 	mmio_write_32(DBSC_DBTR18, 0x00000200);
-	mmio_write_32(DBSC_DBTR19, 0x012B004B);
+	mmio_write_32(DBSC_DBTR19, 0x0129004B);
 	mmio_write_32(DBSC_DBTR20, 0x020000FB);
 	mmio_write_32(DBSC_DBTR21, 0x00040004);
 	mmio_write_32(DBSC_DBBL, 0x00000000);
@@ -54,8 +58,8 @@ static void init_ddr_d3_1866(void)
 	mmio_write_32(DBSC_DBDFICNT_0, 0x00000010);
 	mmio_write_32(DBSC_DBBCAMDIS, 0x00000001);
 	mmio_write_32(DBSC_DBSCHRW1, 0x00000046);
-	mmio_write_32(DBSC_SCFCTST0, 0x0D020D04);
-	mmio_write_32(DBSC_SCFCTST1, 0x0306040C);
+	mmio_write_32(DBSC_SCFCTST0, 0x0C050B03);
+	mmio_write_32(DBSC_SCFCTST1, 0x0305030C);
 
 	mmio_write_32(DBSC_DBPDLK_0, 0x0000A55A);
 	mmio_write_32(DBSC_DBCMD, 0x01000001);
@@ -101,7 +105,9 @@ static void init_ddr_d3_1866(void)
 		;
 
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000004);
-	mmio_write_32(DBSC_DBPDRGD_0, 0x0A206F89);
+	mmio_write_32(DBSC_DBPDRGD_0,
+		(uint32_t) (REFRESH_RATE * 928 / 125) - 400
+			+ 0x0A300000);
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000022);
 	mmio_write_32(DBSC_DBPDRGD_0, 0x1000040B);
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000023);
@@ -117,7 +123,11 @@ static void init_ddr_d3_1866(void)
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000028);
 	mmio_write_32(DBSC_DBPDRGD_0, 0x00000046);
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000029);
-	mmio_write_32(DBSC_DBPDRGD_0, 0x000000A0);
+	if (REFRESH_RATE > 3900) {
+		mmio_write_32(DBSC_DBPDRGD_0, 0x00000020);
+	} else {
+		mmio_write_32(DBSC_DBPDRGD_0, 0x000000A0);
+	}
 	mmio_write_32(DBSC_DBPDRGA_0, 0x0000002C);
 	mmio_write_32(DBSC_DBPDRGD_0, 0x81003047);
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000020);
@@ -225,7 +235,9 @@ static void init_ddr_d3_1866(void)
 
 	mmio_write_32(DBSC_DBPDRGA_0, 0x000000AF);
 	r2 = mmio_read_32(DBSC_DBPDRGD_0);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000AF);
 	mmio_write_32(DBSC_DBPDRGD_0, ((r2 + 0x1) & 0xFF) | (r2 & 0xFFFFFF00));
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000CF);
 	mmio_write_32(DBSC_DBPDRGA_0, 0x000000CF);
 	r2 = mmio_read_32(DBSC_DBPDRGD_0);
 	mmio_write_32(DBSC_DBPDRGD_0, ((r2 + 0x1) & 0xFF) | (r2 & 0xFFFFFF00));
@@ -296,8 +308,10 @@ static void init_ddr_d3_1866(void)
 	mmio_write_32(DBSC_DBPDRGD_0, 0x0024643E);
 
 	mmio_write_32(DBSC_DBBUS0CNF1, 0x00000010);
-	mmio_write_32(DBSC_DBCALCNF, 0x0100401B);
-	mmio_write_32(DBSC_DBRFCNF1, 0x00080E23);
+	mmio_write_32(DBSC_DBCALCNF,
+		(uint32_t) (64000000 / REFRESH_RATE) + 0x01000000);
+	mmio_write_32(DBSC_DBRFCNF1,
+		(uint32_t) (REFRESH_RATE * 116 / 125) + 0x00080000);
 	mmio_write_32(DBSC_DBRFCNF2, 0x00010000);
 	mmio_write_32(DBSC_DBDFICUPDCNF, 0x40100001);
 	mmio_write_32(DBSC_DBRFEN, 0x00000001);
@@ -346,6 +360,19 @@ static void init_ddr_d3_1600(void)
 {
 	uint32_t i, r2, r3, r5, r6, r7, r12;
 
+	mmio_write_32(CPG_CPGWPR, 0x5A5AFFFF);
+	mmio_write_32(CPG_CPGWPCR, 0xA5A50000);
+
+	mmio_write_32(CPG_SRCR4, 0x20000000);
+
+	mmio_write_32(0xE61500DC, 0xe2200000);
+	while (!(mmio_read_32(CPG_PLLECR) & BIT(11)))
+		;
+
+	mmio_write_32(CPG_SRSTCLR4, 0x20000000);
+
+	mmio_write_32(CPG_CPGWPCR, 0xA5A50001);
+
 	mmio_write_32(DBSC_DBSYSCNT0, 0x00001234);
 	mmio_write_32(DBSC_DBKIND, 0x00000007);
 	mmio_write_32(DBSC_DBMEMCONF_0_0, 0x0f030a01);
@@ -363,14 +390,14 @@ static void init_ddr_d3_1600(void)
 	mmio_write_32(DBSC_DBTR10, 0x0000000C);
 	mmio_write_32(DBSC_DBTR11, 0x0000000A);
 	mmio_write_32(DBSC_DBTR12, 0x00120012);
-	mmio_write_32(DBSC_DBTR13, 0x000000D0);
+	mmio_write_32(DBSC_DBTR13, 0x000000CE);
 	mmio_write_32(DBSC_DBTR14, 0x00140005);
 	mmio_write_32(DBSC_DBTR15, 0x00050004);
 	mmio_write_32(DBSC_DBTR16, 0x071F0305);
 	mmio_write_32(DBSC_DBTR17, 0x040C0000);
 	mmio_write_32(DBSC_DBTR18, 0x00000200);
 	mmio_write_32(DBSC_DBTR19, 0x01000040);
-	mmio_write_32(DBSC_DBTR20, 0x020000D8);
+	mmio_write_32(DBSC_DBTR20, 0x020000D6);
 	mmio_write_32(DBSC_DBTR21, 0x00040004);
 	mmio_write_32(DBSC_DBBL, 0x00000000);
 	mmio_write_32(DBSC_DBODT0, 0x00000001);
@@ -379,8 +406,8 @@ static void init_ddr_d3_1600(void)
 	mmio_write_32(DBSC_DBDFICNT_0, 0x00000010);
 	mmio_write_32(DBSC_DBBCAMDIS, 0x00000001);
 	mmio_write_32(DBSC_DBSCHRW1, 0x00000046);
-	mmio_write_32(DBSC_SCFCTST0, 0x0D020C04);
-	mmio_write_32(DBSC_SCFCTST1, 0x0305040C);
+	mmio_write_32(DBSC_SCFCTST0, 0x0D050B03);
+	mmio_write_32(DBSC_SCFCTST1, 0x0306030C);
 
 	mmio_write_32(DBSC_DBPDLK_0, 0x0000A55A);
 	mmio_write_32(DBSC_DBCMD, 0x01000001);
@@ -426,13 +453,14 @@ static void init_ddr_d3_1600(void)
 		;
 
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000004);
-	mmio_write_32(DBSC_DBPDRGD_0, 0x08C05FF0);
+	mmio_write_32(DBSC_DBPDRGD_0,
+		(uint32_t) (REFRESH_RATE * 792 / 125) - 400 + 0x08B00000);
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000022);
 	mmio_write_32(DBSC_DBPDRGD_0, 0x1000040B);
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000023);
 	mmio_write_32(DBSC_DBPDRGD_0, 0x2D9C0B66);
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000024);
-	mmio_write_32(DBSC_DBPDRGD_0, 0x2A88C400);
+	mmio_write_32(DBSC_DBPDRGD_0, 0x2A88B400);
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000025);
 	mmio_write_32(DBSC_DBPDRGD_0, 0x30005200);
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000026);
@@ -442,7 +470,11 @@ static void init_ddr_d3_1600(void)
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000028);
 	mmio_write_32(DBSC_DBPDRGD_0, 0x00000046);
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000029);
-	mmio_write_32(DBSC_DBPDRGD_0, 0x00000098);
+	if (REFRESH_RATE > 3900) {
+		mmio_write_32(DBSC_DBPDRGD_0, 0x00000018);
+	} else {
+		mmio_write_32(DBSC_DBPDRGD_0, 0x00000098);
+	}
 	mmio_write_32(DBSC_DBPDRGA_0, 0x0000002C);
 	mmio_write_32(DBSC_DBPDRGD_0, 0x81003047);
 	mmio_write_32(DBSC_DBPDRGA_0, 0x00000020);
@@ -549,9 +581,11 @@ static void init_ddr_d3_1600(void)
 
 	mmio_write_32(DBSC_DBPDRGA_0, 0x000000AF);
 	r2 = mmio_read_32(DBSC_DBPDRGD_0);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000AF);
 	mmio_write_32(DBSC_DBPDRGD_0, ((r2 + 0x1) & 0xFF) | (r2 & 0xFFFFFF00));
 	mmio_write_32(DBSC_DBPDRGA_0, 0x000000CF);
 	r2 = mmio_read_32(DBSC_DBPDRGD_0);
+	mmio_write_32(DBSC_DBPDRGA_0, 0x000000CF);
 	mmio_write_32(DBSC_DBPDRGD_0, ((r2 + 0x1) & 0xFF) | (r2 & 0xFFFFFF00));
 
 	mmio_write_32(DBSC_DBPDRGA_0, 0x000000A0);
@@ -620,8 +654,10 @@ static void init_ddr_d3_1600(void)
 	mmio_write_32(DBSC_DBPDRGD_0, 0x0024643E);
 
 	mmio_write_32(DBSC_DBBUS0CNF1, 0x00000010);
-	mmio_write_32(DBSC_DBCALCNF, 0x0100401B);
-	mmio_write_32(DBSC_DBRFCNF1, 0x00080C30);
+	mmio_write_32(DBSC_DBCALCNF,
+		(uint32_t) (64000000 / REFRESH_RATE) + 0x01000000);
+	mmio_write_32(DBSC_DBRFCNF1,
+		(uint32_t) (REFRESH_RATE * 99 / 125) + 0x00080000);
 	mmio_write_32(DBSC_DBRFCNF2, 0x00010000);
 	mmio_write_32(DBSC_DBDFICUPDCNF, 0x40100001);
 	mmio_write_32(DBSC_DBRFEN, 0x00000001);
@@ -693,7 +729,7 @@ int32_t rcar_dram_init(void)
 		ddr_mbps = 1600;
 	}
 
-	NOTICE("BL2: DDR%d\n", ddr_mbps);
+	NOTICE("BL2: DDR%d(%s)\n", ddr_mbps, RCAR_DDR_VERSION);
 
 	return 0;
 }
