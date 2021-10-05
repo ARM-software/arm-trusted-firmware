@@ -14,7 +14,7 @@
 #define hw_config__ethosn_config_getter(prop) ethosn_config.prop
 #define hw_config__ethosn_core_addr_getter(idx) __extension__ ({	\
 	assert(idx < ethosn_config.num_cores);				\
-	ethosn_config.core_addr[idx];					\
+	ethosn_config.core[idx].addr;					\
 })
 
 #define ETHOSN_STATUS_DISABLED U(0)
@@ -22,10 +22,13 @@
 
 #define ETHOSN_CORE_NUM_MAX U(64)
 
+struct ethosn_core_t {
+	uint64_t addr;
+};
+
 struct ethosn_config_t {
-	uint8_t status;
 	uint32_t num_cores;
-	uint64_t core_addr[ETHOSN_CORE_NUM_MAX];
+	struct ethosn_core_t core[ETHOSN_CORE_NUM_MAX];
 };
 
 int fconf_populate_arm_ethosn(uintptr_t config);

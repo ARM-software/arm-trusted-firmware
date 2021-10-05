@@ -48,4 +48,9 @@ static inline uint32_t fdt_blob_size(const void *dtb)
 	return fdt32_to_cpu(dtb_header[1]);
 }
 
+#define fdt_for_each_compatible_node(dtb, node, compatible_str)       \
+for (node = fdt_node_offset_by_compatible(dtb, -1, compatible_str);   \
+     node >= 0;                                                       \
+     node = fdt_node_offset_by_compatible(dtb, node, compatible_str))
+
 #endif /* FDT_WRAPPERS_H */

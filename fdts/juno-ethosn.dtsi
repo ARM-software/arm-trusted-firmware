@@ -4,19 +4,21 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+/*
+ * For examples of multi-core and multi-device NPU, refer to the examples given in the
+ * Arm Ethos-N NPU driver stack.
+ * https://github.com/ARM-software/ethos-n-driver-stack
+ */
+
 / {
 	#address-cells = <2>;
 	#size-cells = <2>;
 
-	ethosn: ethosn@6f300000 {
+	ethosn0: ethosn@6f300000 {
 		compatible = "ethosn";
 		reg = <0 0x6f300000 0 0x00100000>;
 		status = "okay";
 
-		/*
-		 * Single-core NPU. For multi-core NPU, additional core nodes
-		 * and reg values must be added.
-		 */
 		core0 {
 			compatible = "ethosn-core";
 			status = "okay";
