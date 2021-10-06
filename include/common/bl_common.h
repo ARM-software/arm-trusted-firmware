@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -126,6 +126,8 @@ IMPORT_SYM(uintptr_t, __BL31_START__,		BL31_START);
 IMPORT_SYM(uintptr_t, __BL31_END__,		BL31_END);
 #elif defined(IMAGE_BL32)
 IMPORT_SYM(uintptr_t, __BL32_END__,		BL32_END);
+#elif defined(IMAGE_RMM)
+IMPORT_SYM(uintptr_t, __RMM_END__,		RMM_END);
 #endif /* IMAGE_BLX */
 
 /* The following symbols are only exported from the BL2 at EL3 linker script. */

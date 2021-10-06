@@ -39,6 +39,23 @@ size_t xlat_arch_get_max_supported_granule_size(void)
 	return PAGE_SIZE_4KB;
 }
 
+/*
+ * Determine the physical address space encoded in the 'attr' parameter.
+ *
+ * The physical address will fall into one of two spaces; secure or
+ * nonsecure.
+ */
+uint32_t xlat_arch_get_pas(uint32_t attr)
+{
+	uint32_t pas = MT_PAS(attr);
+
+	if (pas == MT_NS) {
+		return LOWER_ATTRS(NS);
+	} else { /* MT_SECURE */
+		return 0U;
+	}
+}
+
 #if ENABLE_ASSERTIONS
 unsigned long long xlat_arch_get_max_supported_pa(void)
 {

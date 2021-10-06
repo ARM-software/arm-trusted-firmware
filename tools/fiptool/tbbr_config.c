@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2016-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -66,6 +66,11 @@ toc_entry_t toc_entries[] = {
 		.name = "Non-Trusted Firmware BL33",
 		.uuid = UUID_NON_TRUSTED_FIRMWARE_BL33,
 		.cmdline_name = "nt-fw"
+	},
+	{
+		.name = "Realm Monitor Management Firmware",
+		.uuid = UUID_REALM_MONITOR_MGMT_FIRMWARE,
+		.cmdline_name = "rmm-fw"
 	},
 	/* Dynamic Configs */
 	{

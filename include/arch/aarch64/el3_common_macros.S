@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -87,6 +87,13 @@
 	 * do so.
 	 */
 	orr	x0, x0, #(SCR_API_BIT | SCR_APK_BIT)
+#endif
+#if ENABLE_RME
+	/*
+	 * TODO: Settting the EEL2 bit to allow EL3 access to secure only registers
+	 * in context management. This will need to be refactored.
+	 */
+	orr	x0, x0, #SCR_EEL2_BIT
 #endif
 	msr	scr_el3, x0
 
@@ -365,6 +372,7 @@
 	msr	vbar_el3, x0
 	isb
 
+#if !(defined(IMAGE_BL2) && ENABLE_RME)
 	/* ---------------------------------------------------------------------
 	 * It is a cold boot.
 	 * Perform any processor specific actions upon reset e.g. cache, TLB
@@ -372,6 +380,7 @@
 	 * ---------------------------------------------------------------------
 	 */
 	bl	reset_handler
+#endif
 
 	el3_arch_init_common
 
@@ -414,7 +423,8 @@
 	 * ---------------------------------------------------------------------
 	 */
 	.if \_init_c_runtime
-#if defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3 && BL2_INV_DCACHE)
+#if defined(IMAGE_BL31) || (defined(IMAGE_BL2) && \
+	((BL2_AT_EL3 && BL2_INV_DCACHE) || ENABLE_RME))
 		/* -------------------------------------------------------------
 		 * Invalidate the RW memory used by the BL31 image. This
 		 * includes the data and NOBITS sections. This is done to

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -25,7 +25,11 @@ SECTIONS
 #if SEPARATE_CODE_AND_RODATA
     .text . : {
         __TEXT_START__ = .;
+#if ENABLE_RME
+        *bl2_rme_entrypoint.o(.text*)
+#else /* ENABLE_RME */
         *bl2_entrypoint.o(.text*)
+#endif /* ENABLE_RME */
         *(SORT_BY_ALIGNMENT(.text*))
         *(.vectors)
         . = ALIGN(PAGE_SIZE);

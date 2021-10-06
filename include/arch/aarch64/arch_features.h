@@ -123,4 +123,15 @@ static inline bool is_feat_hcx_present(void)
 		ID_AA64MMFR1_EL1_HCX_MASK) == ID_AA64MMFR1_EL1_HCX_SUPPORTED);
 }
 
+static inline unsigned int get_armv9_2_feat_rme_support(void)
+{
+	/*
+	 * Return the RME version, zero if not supported.  This function can be
+	 * used as both an integer value for the RME version or compared to zero
+	 * to detect RME presence.
+	 */
+	return (unsigned int)(read_id_aa64pfr0_el1() >>
+		ID_AA64PFR0_FEAT_RME_SHIFT) & ID_AA64PFR0_FEAT_RME_MASK;
+}
+
 #endif /* ARCH_FEATURES_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -16,6 +16,7 @@
 
 /* Following contains the cpu context pointers. */
 static void *bl1_cpu_context_ptr[2];
+entry_point_info_t *bl2_ep_info;
 
 
 void *cm_get_context(uint32_t security_state)
@@ -30,6 +31,40 @@ void cm_set_context(void *context, uint32_t security_state)
 	bl1_cpu_context_ptr[security_state] = context;
 }
 
+#if ENABLE_RME
+/*******************************************************************************
+ * This function prepares the entry point information to run BL2 in Root world,
+ * i.e. EL3, for the case when FEAT_RME is enabled.
+ ******************************************************************************/
+void bl1_prepare_next_image(unsigned int image_id)
+{
+	image_desc_t *bl2_desc;
+
+	assert(image_id == BL2_IMAGE_ID);
+
+	/* Get the image descriptor. */
+	bl2_desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
+	assert(bl2_desc != NULL);
+
+	/* Get the entry point info. */
+	bl2_ep_info = &bl2_desc->ep_info;
+
+	bl2_ep_info->spsr = (uint32_t)SPSR_64(MODE_EL3, MODE_SP_ELX,
+						DISABLE_ALL_EXCEPTIONS);
+
+	/*
+	 * Flush cache since bl2_ep_info is accessed after MMU is disabled
+	 * before jumping to BL2.
+	 */
+	flush_dcache_range((uintptr_t)bl2_ep_info, sizeof(entry_point_info_t));
+
+	/* Indicate that image is in execution state. */
+	bl2_desc->state = IMAGE_STATE_EXECUTED;
+
+	/* Print debug info and flush the console before running BL2. */
+	print_entry_point_info(bl2_ep_info);
+}
+#else
 /*******************************************************************************
  * This function prepares the context for Secure/Normal world images.
  * Normal world images are transitioned to EL2(if supported) else EL1.
@@ -93,3 +128,4 @@ void bl1_prepare_next_image(unsigned int image_id)
 
 	print_entry_point_info(next_bl_ep);
 }
+#endif /* ENABLE_RME */

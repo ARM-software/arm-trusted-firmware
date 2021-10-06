@@ -1,13 +1,15 @@
 /*
- * Copyright (c) 2013-2019, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 #include <arch.h>
+#include <common/bl_common.h>
 #include <el3_common_macros.S>
 
 	.globl	bl1_entrypoint
+	.globl	bl1_run_bl2_in_root
 
 
 	/* -----------------------------------------------------
@@ -66,5 +68,41 @@ func bl1_entrypoint
 	 * Do the transition to next boot image.
 	 * --------------------------------------------------
 	 */
+#if ENABLE_RME
+	b	bl1_run_bl2_in_root
+#else
 	b	el3_exit
+#endif
 endfunc bl1_entrypoint
+
+	/* -----------------------------------------------------
+	 * void bl1_run_bl2_in_root();
+	 * This function runs BL2 in root/EL3 when RME is enabled.
+	 * -----------------------------------------------------
+	 */
+
+func bl1_run_bl2_in_root
+	/* read bl2_ep_info */
+	adrp	x20, bl2_ep_info
+	add	x20, x20, :lo12:bl2_ep_info
+	ldr	x20, [x20]
+
+	/* ---------------------------------------------
+	 * MMU needs to be disabled because BL2 executes
+	 * in EL3. It will initialize the address space
+	 * according to its own requirements.
+	 * ---------------------------------------------
+	 */
+	bl	disable_mmu_icache_el3
+	tlbi	alle3
+
+	ldp	x0, x1, [x20, #ENTRY_POINT_INFO_PC_OFFSET]
+	msr	elr_el3, x0
+	msr	spsr_el3, x1
+
+	ldp	x6, x7, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x30)]
+	ldp	x4, x5, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x20)]
+	ldp	x2, x3, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x10)]
+	ldp	x0, x1, [x20, #(ENTRY_POINT_INFO_ARGS_OFFSET + 0x0)]
+	exception_return
+endfunc bl1_run_bl2_in_root

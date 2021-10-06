@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2018, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2014-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -71,6 +71,13 @@
 /* Compound attributes for most common usages */
 #define MT_CODE			(MT_MEMORY | MT_RO | MT_EXECUTE)
 #define MT_RO_DATA		(MT_MEMORY | MT_RO | MT_EXECUTE_NEVER)
+
+/* Memory type for EL3 regions */
+#if ENABLE_RME
+#error FEAT_RME requires version 2 of the Translation Tables Library
+#else
+#define EL3_PAS			MT_SECURE
+#endif
 
 /*
  * Structure for specifying a single region of memory.

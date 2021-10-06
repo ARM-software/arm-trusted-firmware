@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -125,11 +125,14 @@ uint64_t xlat_desc(const xlat_ctx_t *ctx, uint32_t attr,
 	 * faults aren't managed.
 	 */
 	desc |= LOWER_ATTRS(ACCESS_FLAG);
+
+	/* Determine the physical address space this region belongs to. */
+	desc |= xlat_arch_get_pas(attr);
+
 	/*
-	 * Deduce other fields of the descriptor based on the MT_NS and MT_RW
-	 * memory region attributes.
+	 * Deduce other fields of the descriptor based on the MT_RW memory
+	 * region attributes.
 	 */
-	desc |= ((attr & MT_NS) != 0U) ? LOWER_ATTRS(NS) : 0U;
 	desc |= ((attr & MT_RW) != 0U) ? LOWER_ATTRS(AP_RW) : LOWER_ATTRS(AP_RO);
 
 	/*

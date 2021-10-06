@@ -111,6 +111,13 @@ ifeq ($(SMC_PCI_SUPPORT),1)
 BL31_SOURCES		+=	services/std_svc/pci_svc.c
 endif
 
+ifeq (${ENABLE_RME},1)
+include lib/gpt_rme/gpt_rme.mk
+
+BL31_SOURCES		+=	${GPT_LIB_SRCS}					\
+				${RMMD_SOURCES}
+endif
+
 BL31_LINKERFILE		:=	bl31/bl31.ld.S
 
 # Flag used to indicate if Crash reporting via console should be included

@@ -182,6 +182,11 @@
 #define ID_AA64PFR0_CSV2_SHIFT	U(56)
 #define ID_AA64PFR0_CSV2_MASK	ULL(0xf)
 #define ID_AA64PFR0_CSV2_LENGTH	U(4)
+#define ID_AA64PFR0_FEAT_RME_SHIFT		U(52)
+#define ID_AA64PFR0_FEAT_RME_MASK		ULL(0xf)
+#define ID_AA64PFR0_FEAT_RME_LENGTH		U(4)
+#define ID_AA64PFR0_FEAT_RME_NOT_SUPPORTED	U(0)
+#define ID_AA64PFR0_FEAT_RME_V1			U(1)
 
 /* Exception level handling */
 #define EL_IMPL_NONE		ULL(0)
@@ -432,6 +437,9 @@
 
 /* SCR definitions */
 #define SCR_RES1_BITS		((U(1) << 4) | (U(1) << 5))
+#define SCR_NSE_SHIFT		U(62)
+#define SCR_NSE_BIT		(ULL(1) << SCR_NSE_SHIFT)
+#define SCR_GPF_BIT		(UL(1) << 48)
 #define SCR_TWEDEL_SHIFT	U(30)
 #define SCR_TWEDEL_MASK		ULL(0xf)
 #define SCR_HXEn_BIT            (UL(1) << 38)
@@ -440,6 +448,7 @@
 #define SCR_ECVEN_BIT		(UL(1) << 28)
 #define SCR_FGTEN_BIT		(UL(1) << 27)
 #define SCR_ATA_BIT		(UL(1) << 26)
+#define SCR_EnSCXT_BIT		(UL(1) << 25)
 #define SCR_FIEN_BIT		(UL(1) << 21)
 #define SCR_EEL2_BIT		(UL(1) << 18)
 #define SCR_API_BIT		(UL(1) << 17)
@@ -601,6 +610,7 @@
 #define SPSR_M_MASK		U(0x1)
 #define SPSR_M_AARCH64		U(0x0)
 #define SPSR_M_AARCH32		U(0x1)
+#define SPSR_M_EL2H		U(0x9)
 
 #define SPSR_EL_SHIFT		U(2)
 #define SPSR_EL_WIDTH		U(2)
@@ -1091,6 +1101,12 @@
 #define AMEVCNTVOFF1D_EL2	S3_4_C13_C11_5
 #define AMEVCNTVOFF1E_EL2	S3_4_C13_C11_6
 #define AMEVCNTVOFF1F_EL2	S3_4_C13_C11_7
+
+/*******************************************************************************
+ * Realm management extension register definitions
+ ******************************************************************************/
+#define GPCCR_EL3			S3_6_C2_C1_6
+#define GPTBR_EL3			S3_6_C2_C1_4
 
 /*******************************************************************************
  * RAS system registers

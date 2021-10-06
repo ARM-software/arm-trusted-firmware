@@ -271,6 +271,10 @@ Common build options
    be enabled. If ``ENABLE_PMF`` is set, the residency statistics are tracked in
    software.
 
+- ``ENABLE_RME``: Boolean option to enable support for the ARMv9 Realm
+   Management Extension. Default value is 0. This is currently an experimental
+   feature.
+
 -  ``ENABLE_RUNTIME_INSTRUMENTATION``: Boolean option to enable runtime
    instrumentation which injects timestamp collection points into TF-A to
    allow runtime performance to be measured. Currently, only PSCI is

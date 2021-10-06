@@ -109,6 +109,16 @@ Exception Handling Framework (EHF)
 :|G|: `john-powell-arm`_
 :|F|: bl31/ehf.c
 
+Realm Management Extension (RME)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+:|M|: Bipin Ravi <bipin.ravi@arm.com>
+:|G|: `bipinravi-arm`_
+:|M|: Mark Dykes <mark.dykes@arm.com>
+:|G|: `mardyk01`_
+:|M|: John Powell <John.Powell@arm.com>
+:|G|: `john-powell-arm`_
+:|M|: Zelalem Aweke <Zelalem.Aweke@arm.com>
+:|G|: `zelalem-aweke`_
 
 Drivers, Libraries and Framework Code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

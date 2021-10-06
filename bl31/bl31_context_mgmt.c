@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -19,9 +19,9 @@
  ******************************************************************************/
 void *cm_get_context(uint32_t security_state)
 {
-	assert(security_state <= NON_SECURE);
+	assert(sec_state_is_valid(security_state));
 
-	return get_cpu_data(cpu_context[security_state]);
+	return get_cpu_data(cpu_context[get_cpu_context_index(security_state)]);
 }
 
 /*******************************************************************************
@@ -30,9 +30,10 @@ void *cm_get_context(uint32_t security_state)
  ******************************************************************************/
 void cm_set_context(void *context, uint32_t security_state)
 {
-	assert(security_state <= NON_SECURE);
+	assert(sec_state_is_valid(security_state));
 
-	set_cpu_data(cpu_context[security_state], context);
+	set_cpu_data(cpu_context[get_cpu_context_index(security_state)],
+			context);
 }
 
 /*******************************************************************************
@@ -46,7 +47,8 @@ void *cm_get_context_by_index(unsigned int cpu_idx,
 {
 	assert(sec_state_is_valid(security_state));
 
-	return get_cpu_data_by_index(cpu_idx, cpu_context[security_state]);
+	return get_cpu_data_by_index(cpu_idx,
+			cpu_context[get_cpu_context_index(security_state)]);
 }
 
 /*******************************************************************************
@@ -58,5 +60,7 @@ void cm_set_context_by_index(unsigned int cpu_idx, void *context,
 {
 	assert(sec_state_is_valid(security_state));
 
-	set_cpu_data_by_index(cpu_idx, cpu_context[security_state], context);
+	set_cpu_data_by_index(cpu_idx,
+			cpu_context[get_cpu_context_index(security_state)],
+			context);
 }

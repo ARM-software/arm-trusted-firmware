@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+# Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
 #
@@ -98,41 +98,41 @@ $(if $(word $(2), $($(1))),\
 endef
 
 # IMG_LINKERFILE defines the linker script corresponding to a BL stage
-#   $(1) = BL stage (1, 2, 2u, 31, 32)
+#   $(1) = BL stage
 define IMG_LINKERFILE
-    ${BUILD_DIR}/bl$(1).ld
+    ${BUILD_DIR}/$(1).ld
 endef
 
 # IMG_MAPFILE defines the output file describing the memory map corresponding
 # to a BL stage
-#   $(1) = BL stage (1, 2, 2u, 31, 32)
+#   $(1) = BL stage
 define IMG_MAPFILE
-    ${BUILD_DIR}/bl$(1).map
+    ${BUILD_DIR}/$(1).map
 endef
 
 # IMG_ELF defines the elf file corresponding to a BL stage
-#   $(1) = BL stage (1, 2, 2u, 31, 32)
+#   $(1) = BL stage
 define IMG_ELF
-    ${BUILD_DIR}/bl$(1).elf
+    ${BUILD_DIR}/$(1).elf
 endef
 
 # IMG_DUMP defines the symbols dump file corresponding to a BL stage
-#   $(1) = BL stage (1, 2, 2u, 31, 32)
+#   $(1) = BL stage
 define IMG_DUMP
-    ${BUILD_DIR}/bl$(1).dump
+    ${BUILD_DIR}/$(1).dump
 endef
 
 # IMG_BIN defines the default image file corresponding to a BL stage
-#   $(1) = BL stage (1, 2, 2u, 31, 32)
+#   $(1) = BL stage
 define IMG_BIN
-    ${BUILD_PLAT}/bl$(1).bin
+    ${BUILD_PLAT}/$(1).bin
 endef
 
 # IMG_ENC_BIN defines the default encrypted image file corresponding to a
 # BL stage
-#   $(1) = BL stage (2, 30, 31, 32, 33)
+#   $(1) = BL stage
 define IMG_ENC_BIN
-    ${BUILD_PLAT}/bl$(1)_enc.bin
+    ${BUILD_PLAT}/$(1)_enc.bin
 endef
 
 # ENCRYPT_FW invokes enctool to encrypt firmware binary
@@ -294,15 +294,15 @@ endef
 # MAKE_C builds a C source file and generates the dependency file
 #   $(1) = output directory
 #   $(2) = source file (%.c)
-#   $(3) = BL stage (1, 2, 2u, 31, 32)
+#   $(3) = BL stage
 define MAKE_C
 
 $(eval OBJ := $(1)/$(patsubst %.c,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
-$(eval BL_CPPFLAGS := $(BL$(call uppercase,$(3))_CPPFLAGS) -DIMAGE_BL$(call uppercase,$(3)))
-$(eval BL_CFLAGS := $(BL$(call uppercase,$(3))_CFLAGS))
+$(eval BL_CPPFLAGS := $($(call uppercase,$(3))_CPPFLAGS) -DIMAGE_$(call uppercase,$(3)))
+$(eval BL_CFLAGS := $($(call uppercase,$(3))_CFLAGS))
 
-$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
+$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $(3)_dirs
 	$$(ECHO) "  CC      $$<"
 	$$(Q)$$(CC) $$(LTO_CFLAGS) $$(TF_CFLAGS) $$(CFLAGS) $(BL_CPPFLAGS) $(BL_CFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
@@ -314,15 +314,15 @@ endef
 # MAKE_S builds an assembly source file and generates the dependency file
 #   $(1) = output directory
 #   $(2) = assembly file (%.S)
-#   $(3) = BL stage (1, 2, 2u, 31, 32)
+#   $(3) = BL stage
 define MAKE_S
 
 $(eval OBJ := $(1)/$(patsubst %.S,%.o,$(notdir $(2))))
 $(eval DEP := $(patsubst %.o,%.d,$(OBJ)))
-$(eval BL_CPPFLAGS := $(BL$(call uppercase,$(3))_CPPFLAGS) -DIMAGE_BL$(call uppercase,$(3)))
-$(eval BL_ASFLAGS := $(BL$(call uppercase,$(3))_ASFLAGS))
+$(eval BL_CPPFLAGS := $($(call uppercase,$(3))_CPPFLAGS) -DIMAGE_$(call uppercase,$(3)))
+$(eval BL_ASFLAGS := $($(call uppercase,$(3))_ASFLAGS))
 
-$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
+$(OBJ): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $(3)_dirs
 	$$(ECHO) "  AS      $$<"
 	$$(Q)$$(AS) $$(ASFLAGS) $(BL_CPPFLAGS) $(BL_ASFLAGS) $(MAKE_DEP) -c $$< -o $$@
 
@@ -334,13 +334,13 @@ endef
 # MAKE_LD generate the linker script using the C preprocessor
 #   $(1) = output linker script
 #   $(2) = input template
-#   $(3) = BL stage (1, 2, 2u, 31, 32)
+#   $(3) = BL stage
 define MAKE_LD
 
 $(eval DEP := $(1).d)
-$(eval BL_CPPFLAGS := $(BL$(call uppercase,$(3))_CPPFLAGS) -DIMAGE_BL$(call uppercase,$(3)))
+$(eval BL_CPPFLAGS := $($(call uppercase,$(3))_CPPFLAGS) -DIMAGE_$(call uppercase,$(3)))
 
-$(1): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | bl$(3)_dirs
+$(1): $(2) $(filter-out %.d,$(MAKEFILE_LIST)) | $(3)_dirs
 	$$(ECHO) "  PP      $$<"
 	$$(Q)$$(CPP) $$(CPPFLAGS) $(BL_CPPFLAGS) $(TF_CFLAGS_$(ARCH)) -P -x assembler-with-cpp -D__LINKER__ $(MAKE_DEP) -o $$@ $$<
 
@@ -368,7 +368,7 @@ endef
 # MAKE_OBJS builds both C and assembly source files
 #   $(1) = output directory
 #   $(2) = list of source files (both C and assembly)
-#   $(3) = BL stage (1, 2, 2u, 31, 32)
+#   $(3) = BL stage
 define MAKE_OBJS
         $(eval C_OBJS := $(filter %.c,$(2)))
         $(eval REMAIN := $(filter-out %.c,$(2)))
@@ -445,13 +445,13 @@ endef
 
 # MAKE_BL macro defines the targets and options to build each BL image.
 # Arguments:
-#   $(1) = BL stage (1, 2, 2u, 31, 32)
+#   $(1) = BL stage
 #   $(2) = FIP command line option (if empty, image will not be included in the FIP)
 #   $(3) = FIP prefix (optional) (if FWU_, target is fwu_fip instead of fip)
 #   $(4) = BL encryption flag (optional) (0, 1)
 define MAKE_BL
-        $(eval BUILD_DIR  := ${BUILD_PLAT}/bl$(1))
-        $(eval BL_SOURCES := $(BL$(call uppercase,$(1))_SOURCES))
+        $(eval BUILD_DIR  := ${BUILD_PLAT}/$(1))
+        $(eval BL_SOURCES := $($(call uppercase,$(1))_SOURCES))
         $(eval SOURCES    := $(BL_SOURCES) $(BL_COMMON_SOURCES) $(PLAT_BL_COMMON_SOURCES))
         $(eval OBJS       := $(addprefix $(BUILD_DIR)/,$(call SOURCES_TO_OBJS,$(SOURCES))))
         $(eval LINKERFILE := $(call IMG_LINKERFILE,$(1)))
@@ -460,8 +460,8 @@ define MAKE_BL
         $(eval DUMP       := $(call IMG_DUMP,$(1)))
         $(eval BIN        := $(call IMG_BIN,$(1)))
         $(eval ENC_BIN    := $(call IMG_ENC_BIN,$(1)))
-        $(eval BL_LINKERFILE := $(BL$(call uppercase,$(1))_LINKERFILE))
-        $(eval BL_LIBS    := $(BL$(call uppercase,$(1))_LIBS))
+        $(eval BL_LINKERFILE := $($(call uppercase,$(1))_LINKERFILE))
+        $(eval BL_LIBS    := $($(call uppercase,$(1))_LIBS))
         # We use sort only to get a list of unique object directory names.
         # ordering is not relevant but sort removes duplicates.
         $(eval TEMP_OBJ_DIRS := $(sort $(dir ${OBJS} ${LINKERFILE})))
@@ -475,21 +475,21 @@ $(eval $(call MAKE_PREREQ_DIR,${BUILD_DIR},${BUILD_PLAT}))
 
 $(eval $(foreach objd,${OBJ_DIRS},$(call MAKE_PREREQ_DIR,${objd},${BUILD_DIR})))
 
-.PHONY : bl${1}_dirs
+.PHONY : ${1}_dirs
 
 # We use order-only prerequisites to ensure that directories are created,
 # but do not cause re-builds every time a file is written.
-bl${1}_dirs: | ${OBJ_DIRS}
+${1}_dirs: | ${OBJ_DIRS}
 
 $(eval $(call MAKE_OBJS,$(BUILD_DIR),$(SOURCES),$(1)))
 $(eval $(call MAKE_LD,$(LINKERFILE),$(BL_LINKERFILE),$(1)))
-$(eval BL_LDFLAGS := $(BL$(call uppercase,$(1))_LDFLAGS))
+$(eval BL_LDFLAGS := $($(call uppercase,$(1))_LDFLAGS))
 
 ifeq ($(USE_ROMLIB),1)
 $(ELF): romlib.bin
 endif
 
-$(ELF): $(OBJS) $(LINKERFILE) | bl$(1)_dirs libraries $(BL_LIBS)
+$(ELF): $(OBJS) $(LINKERFILE) | $(1)_dirs libraries $(BL_LIBS)
 	$$(ECHO) "  LD      $$@"
 ifdef MAKE_BUILD_STRINGS
 	$(call MAKE_BUILD_STRINGS, $(BUILD_DIR)/build_message.o)
@@ -499,10 +499,10 @@ else
 		$$(CC) $$(TF_CFLAGS) $$(CFLAGS) -xc -c - -o $(BUILD_DIR)/build_message.o
 endif
 ifneq ($(findstring armlink,$(notdir $(LD))),)
-	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) --entry=bl${1}_entrypoint \
+	$$(Q)$$(LD) -o $$@ $$(TF_LDFLAGS) $$(LDFLAGS) $(BL_LDFLAGS) --entry=${1}_entrypoint \
 		--predefine="-D__LINKER__=$(__LINKER__)" \
 		--predefine="-DTF_CFLAGS=$(TF_CFLAGS)" \
-		--map --list="$(MAPFILE)" --scatter=${PLAT_DIR}/scat/bl${1}.scat \
+		--map --list="$(MAPFILE)" --scatter=${PLAT_DIR}/scat/${1}.scat \
 		$(LDPATHS) $(LIBWRAPPER) $(LDLIBS) $(BL_LIBS) \
 		$(BUILD_DIR)/build_message.o $(OBJS)
 else ifneq ($(findstring gcc,$(notdir $(LD))),)
@@ -531,21 +531,21 @@ $(BIN): $(ELF)
 	@echo "Built $$@ successfully"
 	@${ECHO_BLANK_LINE}
 
-.PHONY: bl$(1)
+.PHONY: $(1)
 ifeq ($(DISABLE_BIN_GENERATION),1)
-bl$(1): $(ELF) $(DUMP)
+$(1): $(ELF) $(DUMP)
 else
-bl$(1): $(BIN) $(DUMP)
+$(1): $(BIN) $(DUMP)
 endif
 
-all: bl$(1)
+all: $(1)
 
 ifeq ($(4),1)
 $(call ENCRYPT_FW,$(BIN),$(ENC_BIN))
-$(if $(2),$(call TOOL_ADD_IMG_PAYLOAD,bl$(1),$(BIN),--$(2),$(ENC_BIN),$(3), \
+$(if $(2),$(call TOOL_ADD_IMG_PAYLOAD,$(1),$(BIN),--$(2),$(ENC_BIN),$(3), \
 		$(ENC_BIN)))
 else
-$(if $(2),$(call TOOL_ADD_IMG_PAYLOAD,bl$(1),$(BIN),--$(2),$(BIN),$(3)))
+$(if $(2),$(call TOOL_ADD_IMG_PAYLOAD,$(1),$(BIN),--$(2),$(BIN),$(3)))
 endif
 
 endef

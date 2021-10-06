@@ -9,6 +9,7 @@
 
 #include <platform_def.h>
 
+#include <arch_features.h>
 #include <arch_helpers.h>
 #include <common/bl_common.h>
 #include <common/debug.h>
@@ -17,10 +18,16 @@
 #include <drivers/partition/partition.h>
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
+#if ENABLE_RME
+#include <lib/gpt_rme/gpt_rme.h>
+#endif /* ENABLE_RME */
 #ifdef SPD_opteed
 #include <lib/optee_utils.h>
 #endif
 #include <lib/utils.h>
+#if ENABLE_RME
+#include <plat/arm/common/arm_pas_def.h>
+#endif /* ENABLE_RME */
 #include <plat/arm/common/plat_arm.h>
 #include <plat/common/platform.h>
 
@@ -45,11 +52,17 @@ CASSERT(BL2_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl2_base_overflows);
 #pragma weak bl2_plat_get_hash
 #endif
 
+#if ENABLE_RME
+#define MAP_BL2_TOTAL		MAP_REGION_FLAT(			\
+					bl2_tzram_layout.total_base,	\
+					bl2_tzram_layout.total_size,	\
+					MT_MEMORY | MT_RW | MT_ROOT)
+#else
 #define MAP_BL2_TOTAL		MAP_REGION_FLAT(			\
 					bl2_tzram_layout.total_base,	\
 					bl2_tzram_layout.total_size,	\
 					MT_MEMORY | MT_RW | MT_SECURE)
-
+#endif /* ENABLE_RME */
 
 #pragma weak arm_bl2_plat_handle_post_image_load
 
@@ -105,8 +118,10 @@ void bl2_plat_preload_setup(void)
  */
 void arm_bl2_platform_setup(void)
 {
+#if !ENABLE_RME
 	/* Initialize the secure environment */
 	plat_arm_security_setup();
+#endif
 
 #if defined(PLAT_ARM_MEM_PROT_ADDR)
 	arm_nor_psci_do_static_mem_protect();
@@ -118,9 +133,54 @@ void bl2_platform_setup(void)
 	arm_bl2_platform_setup();
 }
 
+#if ENABLE_RME
+
+static void arm_bl2_plat_gpt_setup(void)
+{
+	/*
+	 * The GPT library might modify the gpt regions structure to optimize
+	 * the layout, so the array cannot be constant.
+	 */
+	pas_region_t pas_regions[] = {
+		ARM_PAS_KERNEL,
+		ARM_PAS_SECURE,
+		ARM_PAS_REALM,
+		ARM_PAS_EL3_DRAM,
+		ARM_PAS_GPTS
+	};
+
+	/* Initialize entire protected space to GPT_GPI_ANY. */
+	if (gpt_init_l0_tables(GPCCR_PPS_4GB, ARM_L0_GPT_ADDR_BASE,
+		ARM_L0_GPT_SIZE) < 0) {
+		ERROR("gpt_init_l0_tables() failed!\n");
+		panic();
+	}
+
+	/* Carve out defined PAS ranges. */
+	if (gpt_init_pas_l1_tables(GPCCR_PGS_4K,
+				   ARM_L1_GPT_ADDR_BASE,
+				   ARM_L1_GPT_SIZE,
+				   pas_regions,
+				   (unsigned int)(sizeof(pas_regions) /
+				   sizeof(pas_region_t))) < 0) {
+		ERROR("gpt_init_pas_l1_tables() failed!\n");
+		panic();
+	}
+
+	INFO("Enabling Granule Protection Checks\n");
+	if (gpt_enable() < 0) {
+		ERROR("gpt_enable() failed!\n");
+		panic();
+	}
+}
+
+#endif /* ENABLE_RME */
+
 /*******************************************************************************
- * Perform the very early platform specific architectural setup here. At the
- * moment this is only initializes the mmu in a quick and dirty way.
+ * Perform the very early platform specific architectural setup here.
+ * When RME is enabled the secure environment is initialised before
+ * initialising and enabling Granule Protection.
+ * This function initialises the MMU in a quick and dirty way.
  ******************************************************************************/
 void arm_bl2_plat_arch_setup(void)
 {
@@ -143,13 +203,29 @@ void arm_bl2_plat_arch_setup(void)
 		ARM_MAP_BL_COHERENT_RAM,
 #endif
 		ARM_MAP_BL_CONFIG_REGION,
+#if ENABLE_RME
+		ARM_MAP_L0_GPT_REGION,
+#endif
 		{0}
 	};
 
+#if ENABLE_RME
+	/* Initialise the secure environment */
+	plat_arm_security_setup();
+#endif
 	setup_page_tables(bl_regions, plat_arm_get_mmap());
 
 #ifdef __aarch64__
+#if ENABLE_RME
+	/* BL2 runs in EL3 when RME enabled. */
+	assert(get_armv9_2_feat_rme_support() != 0U);
+	enable_mmu_el3(0);
+
+	/* Initialise and enable granule protection after MMU. */
+	arm_bl2_plat_gpt_setup();
+#else
 	enable_mmu_el1(0);
+#endif
 #else
 	enable_mmu_svc_mon(0);
 #endif

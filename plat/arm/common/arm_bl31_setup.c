@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -13,6 +13,9 @@
 #include <drivers/console.h>
 #include <lib/debugfs.h>
 #include <lib/extensions/ras.h>
+#if ENABLE_RME
+#include <lib/gpt_rme/gpt_rme.h>
+#endif
 #include <lib/mmio.h>
 #include <lib/xlat_tables/xlat_tables_compat.h>
 #include <plat/arm/common/plat_arm.h>
@@ -25,6 +28,9 @@
  */
 static entry_point_info_t bl32_image_ep_info;
 static entry_point_info_t bl33_image_ep_info;
+#if ENABLE_RME
+static entry_point_info_t rmm_image_ep_info;
+#endif
 
 #if !RESET_TO_BL31
 /*
@@ -43,7 +49,7 @@ CASSERT(BL31_BASE >= ARM_FW_CONFIG_LIMIT, assert_bl31_base_overflows);
 #define MAP_BL31_TOTAL		MAP_REGION_FLAT(			\
 					BL31_START,			\
 					BL31_END - BL31_START,		\
-					MT_MEMORY | MT_RW | MT_SECURE)
+					MT_MEMORY | MT_RW | EL3_PAS)
 #if RECLAIM_INIT_CODE
 IMPORT_SYM(unsigned long, __INIT_CODE_START__, BL_INIT_CODE_BASE);
 IMPORT_SYM(unsigned long, __INIT_CODE_END__, BL_CODE_END_UNALIGNED);
@@ -58,7 +64,7 @@ IMPORT_SYM(unsigned long, __STACKS_END__, BL_STACKS_END_UNALIGNED);
 					BL_INIT_CODE_BASE,		\
 					BL_INIT_CODE_END		\
 						- BL_INIT_CODE_BASE,	\
-					MT_CODE | MT_SECURE)
+					MT_CODE | EL3_PAS)
 #endif
 
 #if SEPARATE_NOBITS_REGION
@@ -66,7 +72,7 @@ IMPORT_SYM(unsigned long, __STACKS_END__, BL_STACKS_END_UNALIGNED);
 					BL31_NOBITS_BASE,		\
 					BL31_NOBITS_LIMIT 		\
 						- BL31_NOBITS_BASE,	\
-					MT_MEMORY | MT_RW | MT_SECURE)
+					MT_MEMORY | MT_RW | EL3_PAS)
 
 #endif
 /*******************************************************************************
@@ -80,8 +86,18 @@ struct entry_point_info *bl31_plat_get_next_image_ep_info(uint32_t type)
 	entry_point_info_t *next_image_info;
 
 	assert(sec_state_is_valid(type));
-	next_image_info = (type == NON_SECURE)
-			? &bl33_image_ep_info : &bl32_image_ep_info;
+	if (type == NON_SECURE) {
+		next_image_info = &bl33_image_ep_info;
+	}
+#if ENABLE_RME
+	else if (type == REALM) {
+		next_image_info = &rmm_image_ep_info;
+	}
+#endif
+	else {
+		next_image_info = &bl32_image_ep_info;
+	}
+
 	/*
 	 * None of the images on the ARM development platforms can have 0x0
 	 * as the entrypoint
@@ -169,21 +185,31 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	bl_params_node_t *bl_params = params_from_bl2->head;
 
 	/*
-	 * Copy BL33 and BL32 (if present), entry point information.
+	 * Copy BL33, BL32 and RMM (if present), entry point information.
 	 * They are stored in Secure RAM, in BL2's address space.
 	 */
 	while (bl_params != NULL) {
-		if (bl_params->image_id == BL32_IMAGE_ID)
+		if (bl_params->image_id == BL32_IMAGE_ID) {
 			bl32_image_ep_info = *bl_params->ep_info;
-
-		if (bl_params->image_id == BL33_IMAGE_ID)
+		}
+#if ENABLE_RME
+		else if (bl_params->image_id == RMM_IMAGE_ID) {
+			rmm_image_ep_info = *bl_params->ep_info;
+		}
+#endif
+		else if (bl_params->image_id == BL33_IMAGE_ID) {
 			bl33_image_ep_info = *bl_params->ep_info;
+		}
 
 		bl_params = bl_params->next_params_info;
 	}
 
 	if (bl33_image_ep_info.pc == 0U)
 		panic();
+#if ENABLE_RME
+	if (rmm_image_ep_info.pc == 0U)
+		panic();
+#endif
 #endif /* RESET_TO_BL31 */
 
 # if ARM_LINUX_KERNEL_AS_BL33
@@ -193,7 +219,11 @@ void __init arm_bl31_early_platform_setup(void *from_bl2, uintptr_t soc_fw_confi
 	 * tree blob (DTB) in x0, while x1-x3 are reserved for future use and
 	 * must be 0.
 	 */
+#if RESET_TO_BL31
 	bl33_image_ep_info.args.arg0 = (u_register_t)ARM_PRELOADED_DTB_BASE;
+#else
+	bl33_image_ep_info.args.arg0 = (u_register_t)hw_config;
+#endif
 	bl33_image_ep_info.args.arg1 = 0U;
 	bl33_image_ep_info.args.arg2 = 0U;
 	bl33_image_ep_info.args.arg3 = 0U;
@@ -355,6 +385,9 @@ void __init arm_bl31_plat_arch_setup(void)
 {
 	const mmap_region_t bl_regions[] = {
 		MAP_BL31_TOTAL,
+#if ENABLE_RME
+		ARM_MAP_L0_GPT_REGION,
+#endif
 #if RECLAIM_INIT_CODE
 		MAP_BL_INIT_CODE,
 #endif
@@ -375,6 +408,19 @@ void __init arm_bl31_plat_arch_setup(void)
 	setup_page_tables(bl_regions, plat_arm_get_mmap());
 
 	enable_mmu_el3(0);
+
+#if ENABLE_RME
+	/*
+	 * Initialise Granule Protection library and enable GPC for the primary
+	 * processor. The tables have already been initialized by a previous BL
+	 * stage, so there is no need to provide any PAS here. This function
+	 * sets up pointers to those tables.
+	 */
+	if (gpt_runtime_init() < 0) {
+		ERROR("gpt_runtime_init() failed!\n");
+		panic();
+	}
+#endif /* ENABLE_RME */
 
 	arm_setup_romlib();
 }

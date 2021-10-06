@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2017-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -95,7 +95,23 @@ static void xlat_desc_print(const xlat_ctx_t *ctx, uint64_t desc)
 			  ? "-USER" : "-PRIV");
 	}
 
+#if ENABLE_RME
+	switch (desc & LOWER_ATTRS(EL3_S1_NSE | NS)) {
+	case 0ULL:
+		printf("-S");
+		break;
+	case LOWER_ATTRS(NS):
+		printf("-NS");
+		break;
+	case LOWER_ATTRS(EL3_S1_NSE):
+		printf("-RT");
+		break;
+	default: /* LOWER_ATTRS(EL3_S1_NSE | NS) */
+		printf("-RL");
+	}
+#else
 	printf(((LOWER_ATTRS(NS) & desc) != 0ULL) ? "-NS" : "-S");
+#endif
 
 #ifdef __aarch64__
 	/* Check Guarded Page bit */

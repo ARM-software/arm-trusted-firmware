@@ -15,6 +15,7 @@
 	.globl	zero_normalmem
 	.globl	zeromem
 	.globl	memcpy16
+	.globl	gpt_tlbi_by_pa
 
 	.globl	disable_mmu_el1
 	.globl	disable_mmu_el3
@@ -162,7 +163,8 @@ func zeromem_dczva
 	 * Check for M bit (MMU enabled) of the current SCTLR_EL(1|3)
 	 * register value and panic if the MMU is disabled.
 	 */
-#if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && BL2_AT_EL3)
+#if defined(IMAGE_BL1) || defined(IMAGE_BL31) || (defined(IMAGE_BL2) && \
+	(BL2_AT_EL3 || ENABLE_RME))
 	mrs	tmp1, sctlr_el3
 #else
 	mrs	tmp1, sctlr_el1
@@ -592,3 +594,20 @@ func fixup_gdt_reloc
 	b.lo	1b
 	ret
 endfunc fixup_gdt_reloc
+
+/*
+ * TODO: Currently only supports size of 4KB,
+ * support other sizes as well.
+ */
+func gpt_tlbi_by_pa
+#if ENABLE_ASSERTIONS
+	cmp	x1, #PAGE_SIZE_4KB
+	ASM_ASSERT(eq)
+	tst	x0, #(PAGE_SIZE_MASK)
+	ASM_ASSERT(eq)
+#endif
+	lsr	x0, x0, #FOUR_KB_SHIFT	/* 4KB size encoding is zero */
+	sys	#6, c8, c4, #3, x0 	/* TLBI RPAOS, <Xt> */
+	dsb	sy
+	ret
+endfunc gpt_tlbi_by_pa

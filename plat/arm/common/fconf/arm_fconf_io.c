@@ -67,6 +67,7 @@ const io_uuid_spec_t arm_uuid_spec[MAX_NUMBER_IDS] = {
 	[SOC_FW_CONFIG_ID] = {UUID_SOC_FW_CONFIG},
 	[TOS_FW_CONFIG_ID] = {UUID_TOS_FW_CONFIG},
 	[NT_FW_CONFIG_ID] = {UUID_NT_FW_CONFIG},
+	[RMM_IMAGE_ID] = {UUID_REALM_MONITOR_MGMT_FIRMWARE},
 #endif /* ARM_IO_IN_DTB */
 #if TRUSTED_BOARD_BOOT
 	[TRUSTED_BOOT_FW_CERT_ID] = {UUID_TRUSTED_BOOT_FW_CERT},
@@ -160,6 +161,11 @@ struct plat_io_policy policies[MAX_NUMBER_IDS] = {
 	[BL33_IMAGE_ID] = {
 		&fip_dev_handle,
 		(uintptr_t)&arm_uuid_spec[BL33_IMAGE_ID],
+		open_fip
+	},
+	[RMM_IMAGE_ID] = {
+		&fip_dev_handle,
+		(uintptr_t)&arm_uuid_spec[RMM_IMAGE_ID],
 		open_fip
 	},
 	[HW_CONFIG_ID] = {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -24,11 +24,23 @@
 #define ENTRY_POINT_INFO_ARGS_OFFSET	U(0x14)
 #endif
 
-/* Security state of the image. */
-#define EP_SECURITY_MASK	UL(0x1)
+/*
+ * Security state of the image. Bit 0 and
+ * bit 5 are used to determine the security
+ * state of the image as follows:
+ *
+ * ---------------------------------
+ *  Bit 5 | Bit 0 | Security state
+ * ---------------------------------
+ *   0        0      EP_SECURE
+ *   0        1      EP_NON_SECURE
+ *   1        1      EP_REALM
+ */
+#define EP_SECURITY_MASK	UL(0x21)
 #define EP_SECURITY_SHIFT	UL(0)
 #define EP_SECURE		UL(0x0)
 #define EP_NON_SECURE		UL(0x1)
+#define EP_REALM		UL(0x21)
 
 /* Endianness of the image. */
 #define EP_EE_MASK		U(0x2)
