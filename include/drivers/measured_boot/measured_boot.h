@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, Arm Limited. All rights reserved.
+ * Copyright (c) 2020-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -10,9 +10,6 @@
 #include <stdint.h>
 
 #include <drivers/measured_boot/event_log.h>
-
-/* Platform specific table of image IDs, names and PCRs */
-extern const image_data_t images_data[];
 
 /* Functions' declarations */
 void measured_boot_init(void);
