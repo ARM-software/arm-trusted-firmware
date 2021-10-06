@@ -442,6 +442,8 @@ DEFINE_SYSREG_RW_FUNCS(cntp_cval_el0)
 DEFINE_SYSREG_READ_FUNC(cntpct_el0)
 DEFINE_SYSREG_RW_FUNCS(cnthctl_el2)
 
+DEFINE_SYSREG_RW_FUNCS(vtcr_el2)
+
 #define get_cntp_ctl_enable(x)  (((x) >> CNTP_CTL_ENABLE_SHIFT) & \
 					CNTP_CTL_ENABLE_MASK)
 #define get_cntp_ctl_imask(x)   (((x) >> CNTP_CTL_IMASK_SHIFT) & \

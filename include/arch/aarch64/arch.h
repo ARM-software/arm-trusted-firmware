@@ -576,6 +576,10 @@
 #define CPTR_EL2_TZ_BIT		(U(1) << 8)
 #define CPTR_EL2_RESET_VAL	CPTR_EL2_RES1
 
+/* VTCR_EL2 definitions */
+#define VTCR_RESET_VAL         U(0x0)
+#define VTCR_EL2_MSA           (U(1) << 31)
+
 /* CPSR/SPSR definitions */
 #define DAIF_FIQ_BIT		(U(1) << 0)
 #define DAIF_IRQ_BIT		(U(1) << 1)
