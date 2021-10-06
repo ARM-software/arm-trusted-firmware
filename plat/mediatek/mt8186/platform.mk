@@ -8,6 +8,7 @@ MTK_PLAT     := plat/mediatek
 MTK_PLAT_SOC := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
+                 -I${MTK_PLAT}/common/drivers/timer/              \
                  -I${MTK_PLAT_SOC}/drivers/emi_mpu/               \
                  -I${MTK_PLAT_SOC}/include/
 
@@ -28,6 +29,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 plat/common/plat_gicv3.c                              \
                 ${MTK_PLAT}/common/mtk_plat_common.c                  \
                 ${MTK_PLAT}/common/params_setup.c                     \
+                ${MTK_PLAT}/common/drivers/timer/mt_timer.c           \
                 ${MTK_PLAT_SOC}/aarch64/platform_common.c             \
                 ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                 ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \

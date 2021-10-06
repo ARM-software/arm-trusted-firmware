@@ -16,6 +16,7 @@
 
 /* Platform Includes */
 #include <emi_mpu.h>
+#include <mt_timer.h>
 #include <plat_params.h>
 #include <plat_private.h>
 
@@ -80,6 +81,7 @@ void bl31_early_platform_setup2(u_register_t arg0, u_register_t arg1,
  ******************************************************************************/
 void bl31_platform_setup(void)
 {
+	mt_systimer_init();
 	emi_mpu_init();
 }
 
