@@ -776,10 +776,16 @@ endif
 # Process platform overrideable behaviour
 ################################################################################
 
-# Using BL2 implies that a BL33 image also needs to be supplied for the FIP and
-# Certificate generation tools. This flag can be overridden by the platform.
+ifdef BL1_SOURCES
+NEED_BL1 := yes
+endif
+
 ifdef BL2_SOURCES
-        ifdef EL3_PAYLOAD_BASE
+	NEED_BL2 := yes
+
+	# Using BL2 implies that a BL33 image also needs to be supplied for the FIP and
+	# Certificate generation tools. This flag can be overridden by the platform.
+	ifdef EL3_PAYLOAD_BASE
                 # If booting an EL3 payload there is no need for a BL33 image
                 # in the FIP file.
                 NEED_BL33		:=	no
@@ -792,6 +798,10 @@ ifdef BL2_SOURCES
                         NEED_BL33		?=	yes
                 endif
         endif
+endif
+
+ifdef BL2U_SOURCES
+NEED_BL2U := yes
 endif
 
 # If SCP_BL2 is given, we always want FIP to include it.
@@ -829,6 +839,10 @@ endif
 
 ifneq (${FIP_ALIGN},0)
 FIP_ARGS += --align ${FIP_ALIGN}
+endif
+
+ifdef FDT_SOURCES
+NEED_FDT := yes
 endif
 
 ################################################################################
@@ -874,29 +888,21 @@ DOCS_PATH		?=	docs
 ################################################################################
 # Include BL specific makefiles
 ################################################################################
-ifdef BL1_SOURCES
-NEED_BL1 := yes
+
+ifeq (${NEED_BL1},yes)
 include bl1/bl1.mk
 endif
 
-ifdef BL2_SOURCES
-NEED_BL2 := yes
+ifeq (${NEED_BL2},yes)
 include bl2/bl2.mk
 endif
 
-ifdef BL2U_SOURCES
-NEED_BL2U := yes
+ifeq (${NEED_BL2U},yes)
 include bl2u/bl2u.mk
 endif
 
 ifeq (${NEED_BL31},yes)
-ifdef BL31_SOURCES
 include bl31/bl31.mk
-endif
-endif
-
-ifdef FDT_SOURCES
-NEED_FDT := yes
 endif
 
 ################################################################################
