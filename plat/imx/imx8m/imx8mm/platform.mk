@@ -8,10 +8,13 @@ PLAT_INCLUDES		:=	-Iplat/imx/common/include		\
 				-Iplat/imx/imx8m/include		\
 				-Iplat/imx/imx8m/imx8mm/include		\
 				-Idrivers/imx/usdhc			\
-				-Iinclude/common/tbbr
+				-Iinclude/common/tbbr			\
+				-Iinclude/lib/libfdt
 
 # Include GICv3 driver files
 include drivers/arm/gic/v3/gicv3.mk
+
+include lib/libfdt/libfdt.mk
 
 IMX_GIC_SOURCES		:=	${GICV3_SOURCES}			\
 				plat/common/plat_gicv3.c		\
@@ -43,6 +46,7 @@ BL31_SOURCES		+=	plat/imx/common/imx8_helpers.S			\
 
 ifeq (${NEED_BL2},yes)
 BL2_SOURCES		+=	common/desc_image_load.c			\
+				common/fdt_wrappers.c				\
 				plat/imx/common/imx8_helpers.S			\
 				plat/imx/common/imx_uart_console.S		\
 				plat/imx/imx8m/imx8mm/imx8mm_bl2_el3_setup.c	\
@@ -148,3 +152,14 @@ $(eval $(call add_define,IMX_BOOT_UART_BASE))
 
 EL3_EXCEPTION_HANDLING := 1
 SDEI_SUPPORT := 1
+
+ifeq (${MEASURED_BOOT},1)
+    MEASURED_BOOT_MK := drivers/measured_boot/event_log/event_log.mk
+    $(info Including ${MEASURED_BOOT_MK})
+    include ${MEASURED_BOOT_MK}
+
+BL2_SOURCES		+=	plat/imx/imx8m/imx8m_measured_boot.c	\
+				plat/imx/imx8m/imx8m_dyn_cfg_helpers.c	\
+				${EVENT_LOG_SOURCES}
+
+endif
