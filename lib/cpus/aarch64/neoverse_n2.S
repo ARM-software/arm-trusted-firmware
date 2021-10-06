@@ -184,6 +184,34 @@ func check_errata_2138956
 endfunc check_errata_2138956
 
 /* --------------------------------------------------
+ * Errata Workaround for Neoverse N2 Erratum 2242415.
+ * This applies to revision r0p0 of Neoverse N2. it is still open.
+ * Inputs:
+ * x0: variant[4:7] and revision[0:3] of current cpu.
+ * Shall clobber: x0-x1, x17
+ * --------------------------------------------------
+ */
+func errata_n2_2242415_wa
+	/* Check revision. */
+	mov	x17, x30
+	bl	check_errata_2242415
+	cbz	x0, 1f
+
+	/* Apply instruction patching sequence */
+	mrs	x1, NEOVERSE_N2_CPUACTLR_EL1
+	orr	x1, x1, NEOVERSE_N2_CPUACTLR_EL1_BIT_22
+	msr	NEOVERSE_N2_CPUACTLR_EL1, x1
+1:
+	ret	x17
+endfunc errata_n2_2242415_wa
+
+func check_errata_2242415
+	/* Applies to r0p0 */
+	mov	x1, #0x00
+	b	cpu_rev_var_ls
+endfunc check_errata_2242415
+
+/* --------------------------------------------------
  * Errata Workaround for Neoverse N2 Erratum 2138953.
  * This applies to revision r0p0 of Neoverse N2. it is still open.
  * Inputs:
@@ -258,6 +286,11 @@ func neoverse_n2_reset_func
 	bl	errata_n2_2138953_wa
 #endif
 
+#if ERRATA_N2_2242415
+	mov	x0, x18
+	bl	errata_n2_2242415_wa
+#endif
+
 #if ENABLE_AMU
 	/* Make sure accesses from EL0/EL1 and EL2 are not trapped to EL3 */
 	mrs	x0, cptr_el3
@@ -324,6 +357,7 @@ func neoverse_n2_errata_report
 	report_errata ERRATA_N2_2189731, neoverse_n2, 2189731
 	report_errata ERRATA_N2_2138956, neoverse_n2, 2138956
 	report_errata ERRATA_N2_2138953, neoverse_n2, 2138953
+	report_errata ERRATA_N2_2242415, neoverse_n2, 2242415
 
 	ldp	x8, x30, [sp], #16
 	ret
