@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include <common/debug.h>
 #include <lib/psci/psci.h>
 
 static const plat_psci_ops_t plat_psci_ops = {

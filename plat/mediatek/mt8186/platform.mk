@@ -10,6 +10,7 @@ MTK_PLAT_SOC := ${MTK_PLAT}/${PLAT}
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
                  -I${MTK_PLAT}/common/drivers/timer/              \
                  -I${MTK_PLAT_SOC}/drivers/emi_mpu/               \
+                 -I${MTK_PLAT_SOC}/drivers/pmic/                  \
                  -I${MTK_PLAT_SOC}/include/
 
 include drivers/arm/gic/v3/gicv3.mk
@@ -29,6 +30,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 lib/cpus/aarch64/cortex_a55.S                         \
                 lib/cpus/aarch64/cortex_a76.S                         \
                 plat/common/plat_gicv3.c                              \
+                ${MTK_PLAT}/common/drivers/pmic_wrap/pmic_wrap_init.c \
                 ${MTK_PLAT}/common/mtk_plat_common.c                  \
                 ${MTK_PLAT}/common/params_setup.c                     \
                 ${MTK_PLAT}/common/drivers/timer/mt_timer.c           \
@@ -36,6 +38,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                 ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \
                 ${MTK_PLAT_SOC}/drivers/emi_mpu/emi_mpu.c             \
+                ${MTK_PLAT_SOC}/drivers/pmic/pmic.c                   \
                 ${MTK_PLAT_SOC}/plat_pm.c                             \
                 ${MTK_PLAT_SOC}/plat_topology.c
 
