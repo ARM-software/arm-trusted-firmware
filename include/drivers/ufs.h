@@ -258,6 +258,9 @@
 /* maximum number of retries for a general UIC command  */
 #define UFS_UIC_COMMAND_RETRIES		3
 
+/* maximum number of link-startup retries */
+#define DME_LINKSTARTUP_RETRIES		10
+
 #define HCE_ENABLE_OUTER_RETRIES	3
 #define HCE_ENABLE_INNER_RETRIES	50
 #define HCE_ENABLE_TIMEOUT_US		100

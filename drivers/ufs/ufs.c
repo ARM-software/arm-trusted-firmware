@@ -169,18 +169,30 @@ static int ufshc_reset(uintptr_t base)
 	return 0;
 }
 
-static int ufshc_link_startup(uintptr_t base)
+static int ufshc_dme_link_startup(uintptr_t base)
 {
 	uic_cmd_t cmd;
+
+	memset(&cmd, 0, sizeof(cmd));
+	cmd.op = DME_LINKSTARTUP;
+	return ufshc_send_uic_cmd(base, &cmd);
+}
+
+static int ufshc_link_startup(uintptr_t base)
+{
 	int data, result;
 	int retries;
 
-	for (retries = 10; retries > 0; retries--) {
-		memset(&cmd, 0, sizeof(cmd));
-		cmd.op = DME_LINKSTARTUP;
-		result = ufshc_send_uic_cmd(base, &cmd);
-		if (result != 0)
+	for (retries = DME_LINKSTARTUP_RETRIES; retries > 0; retries--) {
+		result = ufshc_dme_link_startup(base);
+		if (result != 0) {
+			/* Reset controller before trying again */
+			result = ufshc_reset(base);
+			if (result != 0) {
+				return result;
+			}
 			continue;
+		}
 		while ((mmio_read_32(base + HCS) & HCS_DP) == 0)
 			;
 		data = mmio_read_32(base + IS);
