@@ -149,7 +149,7 @@ int sspm_alive_show(void)
 
 	while (sspm_ipi_recv_non_blocking(IPI_ID_PLATFORM,
 					  &ipi_data,
-					  sizeof(ipi_data))
+					  sizeof(ipi_data) / sizeof(uint32_t))
 					  && count) {
 		mdelay(100);
 		count--;

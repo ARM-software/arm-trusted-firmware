@@ -541,11 +541,9 @@ void mt_cirq_flush(void)
 
 void mt_cirq_sw_reset(void)
 {
-#ifdef CIRQ_NEED_SW_RESET
 	uint32_t st;
 
 	st = mmio_read_32(CIRQ_CON);
 	st |= (CIRQ_SW_RESET << CIRQ_CON_SW_RST_BITS);
 	mmio_write_32(CIRQ_CON, st);
-#endif
 }
