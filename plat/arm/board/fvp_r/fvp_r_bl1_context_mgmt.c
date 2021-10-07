@@ -15,7 +15,7 @@
 #include <plat/common/platform.h>
 
 
-void cm_prepare_el2_exit(uint32_t security_state);
+void cm_prepare_el2_exit(void);
 
 /* Following contains the cpu context pointers. */
 static void *bl1_cpu_context_ptr[2];
@@ -80,6 +80,9 @@ void bl1_prepare_next_image(unsigned int image_id)
 
 	/* Allow platform to make change */
 	bl1_plat_set_ep_info(image_id, next_bl_ep);
+
+	/* Prepare context for the next EL */
+	cm_prepare_el2_exit();
 
 	/* Indicate that image is in execution state. */
 	desc->state = IMAGE_STATE_EXECUTED;

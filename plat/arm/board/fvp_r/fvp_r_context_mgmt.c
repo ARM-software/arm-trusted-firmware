@@ -4,25 +4,50 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#include <lib/el3_runtime/context_mgmt.h>
-#include <lib/el3_runtime/pubsub_events.h>
+#include <arch_helpers.h>
 
-#include <platform_def.h>
-
-
-/*******************************************************************************
- * File contains EL2 equivalents of EL3 functions from
- * .../lib/el3_runtime/aarch64/context_mgmt.c
- ******************************************************************************/
-
-/*******************************************************************************
- * Prepare the CPU system registers for first entry into secure or normal world
- *
- * The majority of the work needed is only for switching to non-secure, which
- * is not available on v8-R64 cores, so this function is very simple.
- ******************************************************************************/
-void cm_prepare_el2_exit(uint32_t security_state)
+/************************************************************
+ * For R-class everything is in secure world.
+ * Prepare the CPU system registers for first entry into EL1
+ ************************************************************/
+void cm_prepare_el2_exit(void)
 {
-	cm_el1_sysregs_context_restore(security_state);
-	cm_set_next_eret_context(security_state);
+	uint64_t hcr_el2 = 0U;
+
+	/*
+	 * The use of ARMv8.3 pointer authentication (PAuth) is governed
+	 * by fields in HCR_EL2, which trigger a 'trap to EL2' if not
+	 * enabled. This register initialized at boot up, update PAuth
+	 * bits.
+	 *
+	 * HCR_API_BIT: Set to one to disable traps to EL2 if lower ELs
+	 * access PAuth registers
+	 *
+	 * HCR_APK_BIT: Set to one to disable traps to EL2 if lower ELs
+	 * access PAuth instructions
+	 */
+	hcr_el2 = read_hcr_el2();
+	write_hcr_el2(hcr_el2 | HCR_API_BIT | HCR_APK_BIT);
+
+	/*
+	 * Initialise CNTHCTL_EL2. All fields are architecturally UNKNOWN
+	 * on reset and are set to zero except for field(s) listed below.
+	 *
+	 * CNTHCTL_EL2.EL1PCEN: Set to one to disable traps to EL2
+	 * if lower ELs accesses to the physical timer registers.
+	 *
+	 * CNTHCTL_EL2.EL1PCTEN: Set to one to disable traps to EL2
+	 * if lower ELs access to the physical counter registers.
+	 */
+	write_cnthctl_el2(CNTHCTL_RESET_VAL | EL1PCEN_BIT | EL1PCTEN_BIT);
+
+	/*
+	 * On Armv8-R, the EL1&0 memory system architecture is configurable
+	 * as a VMSA or PMSA. All the fields architecturally UNKNOWN on reset
+	* and are set to zero except for field listed below.
+	*
+	* VCTR_EL2.MSA: Set to one to ensure the VMSA is enabled so that
+	* rich OS can boot.
+	*/
+	write_vtcr_el2(VTCR_RESET_VAL | VTCR_EL2_MSA);
 }
