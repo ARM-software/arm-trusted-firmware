@@ -58,6 +58,7 @@ There are several build options:
             - a3700        - A3720 DB, EspressoBin and Turris MOX
             - a70x0
             - a70x0_amc    - AMC board
+            - a70x0_mochabin - Globalscale MOCHAbin
             - a80x0
             - a80x0_mcbin  - MacchiatoBin
             - a80x0_puzzle - IEI Puzzle-M801
@@ -150,6 +151,16 @@ A7K/8K/CN913x specific build options:
         Specify path to the MSS fimware image binary which will run on Cortex-M3 coprocessor.
         It is available in Marvell binaries-marvell git repository. Required when ``MSS_SUPPORT=1``.
 
+Globalscale MOCHAbin specific build options:
+
+- DDR_TOPOLOGY
+
+        The DDR topology map index/name, default is 0.
+
+        Supported Options:
+            -    0 - DDR4 1CS 2GB
+            -    1 - DDR4 1CS 4GB
+            -    2 - DDR4 2CS 8GB
 
 Armada37x0 specific build options:
 
