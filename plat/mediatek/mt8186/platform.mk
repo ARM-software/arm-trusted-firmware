@@ -8,11 +8,13 @@ MTK_PLAT     := plat/mediatek
 MTK_PLAT_SOC := ${MTK_PLAT}/${PLAT}
 
 PLAT_INCLUDES := -I${MTK_PLAT}/common/                            \
+                 -I${MTK_PLAT}/common/drivers/gic600/             \
                  -I${MTK_PLAT}/common/drivers/timer/              \
                  -I${MTK_PLAT_SOC}/drivers/emi_mpu/               \
                  -I${MTK_PLAT_SOC}/drivers/pmic/                  \
                  -I${MTK_PLAT_SOC}/include/
 
+GICV3_SUPPORT_GIC600        :=      1
 include drivers/arm/gic/v3/gicv3.mk
 include lib/xlat_tables_v2/xlat_tables.mk
 
@@ -30,6 +32,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 lib/cpus/aarch64/cortex_a55.S                         \
                 lib/cpus/aarch64/cortex_a76.S                         \
                 plat/common/plat_gicv3.c                              \
+                ${MTK_PLAT}/common/drivers/gic600/mt_gic_v3.c         \
                 ${MTK_PLAT}/common/drivers/pmic_wrap/pmic_wrap_init.c \
                 ${MTK_PLAT}/common/mtk_plat_common.c                  \
                 ${MTK_PLAT}/common/mtk_sip_svc.c                      \

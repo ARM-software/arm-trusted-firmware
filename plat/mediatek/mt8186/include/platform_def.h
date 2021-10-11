@@ -40,6 +40,13 @@
 #define EMI_MPU_BASE		(IO_PHYS + 0x0021B000)
 
 /*******************************************************************************
+ * GIC-600 & interrupt handling related constants
+ ******************************************************************************/
+/* Base MTK_platform compatible GIC memory map */
+#define BASE_GICD_BASE			MT_GIC_BASE
+#define MT_GIC_RDIST_BASE		(MT_GIC_BASE + 0x40000)
+
+/*******************************************************************************
  * System counter frequency related constants
  ******************************************************************************/
 #define SYS_COUNTER_FREQ_IN_TICKS	13000000
