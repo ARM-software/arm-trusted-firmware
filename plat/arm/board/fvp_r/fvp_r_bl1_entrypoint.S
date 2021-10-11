@@ -43,14 +43,6 @@ func bl1_entrypoint
 	 */
 	bl	bl1_setup
 
-#if ENABLE_PAUTH
-	/* --------------------------------------------------------------------
-	 * Program APIAKey_EL1 and enable pointer authentication.
-	 * --------------------------------------------------------------------
-	 */
-	bl	pauth_init_enable_el2
-#endif /* ENABLE_PAUTH */
-
 	/* --------------------------------------------------------------------
 	 * Initialize platform and jump to our c-entry point
 	 * for this type of reset.
@@ -84,15 +76,6 @@ func bl1_run_next_image
 	 * ---------------------------------------------
 	 */
 	bl	clear_all_mpu_regions
-
-#if ENABLE_PAUTH
-	/* ---------------------------------------------
-	 * Disable pointer authentication before jumping
-	 * to next boot image.
-	 * ---------------------------------------------
-	 */
-	bl	pauth_disable_el2
-#endif /* ENABLE_PAUTH */
 
 	/* --------------------------------------------------
 	 * Do the transition to next boot image.

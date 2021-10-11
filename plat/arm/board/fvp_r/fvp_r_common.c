@@ -11,7 +11,6 @@
 #include <common/debug.h>
 
 #include <drivers/arm/cci.h>
-#include <drivers/arm/ccn.h>
 #include <drivers/arm/gicv2.h>
 #include <drivers/arm/sp804_delay_timer.h>
 #include <drivers/generic_delay_timer.h>
@@ -80,7 +79,6 @@ const mmap_region_t plat_arm_mmap[] = {
 
 ARM_CASSERT_MMAP
 
-#if FVP_R_INTERCONNECT_DRIVER != FVP_R_CCN
 static const int fvp_cci400_map[] = {
 	PLAT_FVP_R_CCI400_CLUS0_SL_PORT,
 	PLAT_FVP_R_CCI400_CLUS1_SL_PORT,
@@ -103,7 +101,6 @@ static unsigned int get_interconnect_master(void)
 	assert(master < FVP_R_CLUSTER_COUNT);
 	return master;
 }
-#endif
 
 /*******************************************************************************
  * Initialize the platform config for future decision making
@@ -198,14 +195,6 @@ void __init fvp_config_setup(void)
 
 void __init fvp_interconnect_init(void)
 {
-#if FVP_R_INTERCONNECT_DRIVER == FVP_R_CCN
-	if (ccn_get_part0_id(PLAT_ARM_CCN_BASE) != CCN_502_PART0_ID) {
-		ERROR("Unrecognized CCN variant detected. Only CCN-502 is supported");
-		panic();
-	}
-
-	plat_arm_interconnect_init();
-#else
 	uintptr_t cci_base = 0U;
 	const int *cci_map = NULL;
 	unsigned int map_size = 0U;
@@ -226,14 +215,10 @@ void __init fvp_interconnect_init(void)
 	assert(cci_base != 0U);
 	assert(cci_map != NULL);
 	cci_init(cci_base, cci_map, map_size);
-#endif
 }
 
 void fvp_interconnect_enable(void)
 {
-#if FVP_R_INTERCONNECT_DRIVER == FVP_R_CCN
-	plat_arm_interconnect_enter_coherency();
-#else
 	unsigned int master;
 
 	if ((arm_config.flags & (ARM_CONFIG_FVP_HAS_CCI400 |
@@ -241,14 +226,10 @@ void fvp_interconnect_enable(void)
 		master = get_interconnect_master();
 		cci_enable_snoop_dvm_reqs(master);
 	}
-#endif
 }
 
 void fvp_interconnect_disable(void)
 {
-#if FVP_R_INTERCONNECT_DRIVER == FVP_R_CCN
-	plat_arm_interconnect_exit_coherency();
-#else
 	unsigned int master;
 
 	if ((arm_config.flags & (ARM_CONFIG_FVP_HAS_CCI400 |
@@ -256,7 +237,6 @@ void fvp_interconnect_disable(void)
 		master = get_interconnect_master();
 		cci_disable_snoop_dvm_reqs(master);
 	}
-#endif
 }
 
 #if TRUSTED_BOARD_BOOT

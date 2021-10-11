@@ -16,7 +16,6 @@
 	.globl	plat_secondary_cold_boot_setup
 	.globl	plat_get_my_entrypoint
 	.globl	plat_is_my_cpu_primary
-	.globl	plat_arm_calc_core_pos
 
 	/* -----------------------------------------------------
 	 * void plat_secondary_cold_boot_setup (void);
@@ -127,40 +126,3 @@ func plat_is_my_cpu_primary
 	cset	w0, eq
 	ret
 endfunc plat_is_my_cpu_primary
-
-	/* ---------------------------------------------------------------------
-	 * unsigned int plat_arm_calc_core_pos(u_register_t mpidr)
-	 *
-	 * Function to calculate the core position on FVP_R.
-	 *
-	 * (ClusterId * FVP_R_MAX_CPUS_PER_CLUSTER * FVP_R_MAX_PE_PER_CPU) +
-	 * (CPUId * FVP_R_MAX_PE_PER_CPU) +
-	 * ThreadId
-	 *
-	 * which can be simplified as:
-	 *
-	 * ((ClusterId * FVP_R_MAX_CPUS_PER_CLUSTER + CPUId) * FVP_R_MAX_PE_PER_CPU)
-	 * + ThreadId
-	 * ---------------------------------------------------------------------
-	 */
-func plat_arm_calc_core_pos
-	/*
-	 * Check for MT bit in MPIDR. If not set, shift MPIDR to left to make it
-	 * look as if in a multi-threaded implementation.
-	 */
-	tst	x0, #MPIDR_MT_MASK
-	lsl	x3, x0, #MPIDR_AFFINITY_BITS
-	csel	x3, x3, x0, eq
-
-	/* Extract individual affinity fields from MPIDR */
-	ubfx	x0, x3, #MPIDR_AFF0_SHIFT, #MPIDR_AFFINITY_BITS
-	ubfx	x1, x3, #MPIDR_AFF1_SHIFT, #MPIDR_AFFINITY_BITS
-	ubfx	x2, x3, #MPIDR_AFF2_SHIFT, #MPIDR_AFFINITY_BITS
-
-	/* Compute linear position */
-	mov	x4, #FVP_R_MAX_CPUS_PER_CLUSTER
-	madd	x1, x2, x4, x1
-	mov	x5, #FVP_R_MAX_PE_PER_CPU
-	madd	x0, x1, x5, x0
-	ret
-endfunc plat_arm_calc_core_pos

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2021, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -82,10 +82,6 @@
 	 * Initialise MDCR_EL2, setting all fields rather than relying on
 	 * hw. Some fields are architecturally UNKNOWN on reset.
 	 *
-	 * MDCR_EL2.SDD: Set to one to disable AArch64 Secure self-hosted
-	 *  debug. Debug exceptions, other than Breakpoint Instruction
-	 *  exceptions, are disabled from all ELs in Secure state.
-	 *
 	 * MDCR_EL2.TDOSA: Set to zero so that EL2 and EL2 System register
 	 *  access to the powerdown debug registers do not trap to EL2.
 	 *
@@ -97,17 +93,7 @@
 	 *  register accesses to all Performance Monitors registers do not trap
 	 *  to EL2.
 	 *
-	 * MDCR_EL2.SCCD: Set to one so that cycle counting by PMCCNTR_EL0
-	 *  is prohibited in Secure state. This bit is RES0 in versions of the
-	 *  architecture with FEAT_PMUv3p5 not implemented, setting it to 1
-	 *  doesn't have any effect on them.
-	 *
-	 * MDCR_EL2.MCCD: Set to one so that cycle counting by PMCCNTR_EL0
-	 *  is prohibited in EL2. This bit is RES0 in versions of the
-	 *  architecture with FEAT_PMUv3p7 not implemented, setting it to 1
-	 *  doesn't have any effect on them.
-	 *
-	 * MDCR_EL2.SPME: Set to zero so that event counting by the program-
+	 * MDCR_EL2.HPMD: Set to zero so that event counting by the program-
 	 *  mable counters PMEVCNTR<n>_EL0 is prohibited in Secure state. If
 	 *  ARMv8.2 Debug is not implemented this bit does not have any effect
 	 *  on the counters unless there is support for the implementation
@@ -115,9 +101,9 @@
 	 *  ExternalSecureNoninvasiveDebugEnabled().
 	 * ---------------------------------------------------------------------
 	 */
-	mov_imm	x0, ((MDCR_EL2_RESET_VAL | MDCR_SDD_BIT | \
-		      MDCR_SPD32(MDCR_SPD32_DISABLE) | MDCR_SCCD_BIT | \
-		      MDCR_MCCD_BIT) & ~(MDCR_SPME_BIT | MDCR_TDOSA_BIT | \
+	mov_imm	x0, ((MDCR_EL2_RESET_VAL | \
+		      MDCR_SPD32(MDCR_SPD32_DISABLE)) \
+		      & ~(MDCR_EL2_HPMD | MDCR_TDOSA_BIT | \
 		      MDCR_TDA_BIT | MDCR_TPM_BIT))
 
 	msr	mdcr_el2, x0
@@ -125,17 +111,6 @@
 	/* ---------------------------------------------------------------------
 	 * Initialise PMCR_EL0 setting all fields rather than relying
 	 * on hw. Some fields are architecturally UNKNOWN on reset.
-	 *
-	 * PMCR_EL0.LP: Set to one so that event counter overflow, that
-	 *  is recorded in PMOVSCLR_EL0[0-30], occurs on the increment
-	 *  that changes PMEVCNTR<n>_EL0[63] from 1 to 0, when ARMv8.5-PMU
-	 *  is implemented. This bit is RES0 in versions of the architecture
-	 *  earlier than ARMv8.5, setting it to 1 doesn't have any effect
-	 *  on them.
-	 *
-	 * PMCR_EL0.LC: Set to one so that cycle counter overflow, that
-	 *  is recorded in PMOVSCLR_EL0[31], occurs on the increment
-	 *  that changes PMCCNTR_EL0[63] from 1 to 0.
 	 *
 	 * PMCR_EL0.DP: Set to one so that the cycle counter,
 	 *  PMCCNTR_EL0 does not count when event counting is prohibited.
@@ -146,8 +121,7 @@
 	 *  counts on every clock cycle.
 	 * ---------------------------------------------------------------------
 	 */
-	mov_imm	x0, ((PMCR_EL0_RESET_VAL | PMCR_EL0_LP_BIT | \
-		      PMCR_EL0_LC_BIT | PMCR_EL0_DP_BIT) & \
+	mov_imm	x0, ((PMCR_EL0_RESET_VAL | PMCR_EL0_DP_BIT) & \
 		    ~(PMCR_EL0_X_BIT | PMCR_EL0_D_BIT))
 
 	msr	pmcr_el0, x0

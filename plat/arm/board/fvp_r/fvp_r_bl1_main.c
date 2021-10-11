@@ -25,6 +25,8 @@
 #include <platform_def.h>
 
 
+void cm_prepare_el2_exit(void);
+
 void bl1_run_next_image(const struct entry_point_info *bl_ep_info);
 
 /*******************************************************************************
@@ -38,13 +40,6 @@ void bl1_transfer_bl33(void)
 
 	/* Get the image id of next image to load and run. */
 	image_id = bl1_plat_get_next_image_id();
-
-#if ENABLE_PAUTH
-	/*
-	 * Disable pointer authentication before running next boot image
-	 */
-	pauth_disable_el2();
-#endif /* ENABLE_PAUTH */
 
 #if !ARM_DISABLE_TRUSTED_WDOG
 	/* Disable watchdog before leaving BL1 */
@@ -96,12 +91,6 @@ void bl1_load_bl33(void)
 	NOTICE("BL1: Booting BL33\n");
 }
 
-static void bl1_load_bl2(void);
-
-#if ENABLE_PAUTH
-uint64_t bl1_apiakey[2];
-#endif
-
 /*******************************************************************************
  * Helper utility to calculate the BL2 memory layout taking into consideration
  * the BL1 RW data assuming that it is at the top of the memory layout.
@@ -124,6 +113,53 @@ void bl1_calc_bl2_mem_layout(const meminfo_t *bl1_mem_layout,
 }
 
 /*******************************************************************************
+ * This function prepares for entry to BL33
+ ******************************************************************************/
+void bl1_prepare_next_image(unsigned int image_id)
+{
+	unsigned int mode = MODE_EL1;
+	image_desc_t *desc;
+	entry_point_info_t *next_bl_ep;
+
+#if CTX_INCLUDE_AARCH32_REGS
+	/*
+	 * Ensure that the build flag to save AArch32 system registers in CPU
+	 * context is not set for AArch64-only platforms.
+	 */
+	if (el_implemented(1) == EL_IMPL_A64ONLY) {
+		ERROR("EL1 supports AArch64-only. Please set build flag %s",
+				"CTX_INCLUDE_AARCH32_REGS = 0\n");
+		panic();
+	}
+#endif
+
+	/* Get the image descriptor. */
+	desc = bl1_plat_get_image_desc(image_id);
+	assert(desc != NULL);
+
+	/* Get the entry point info. */
+	next_bl_ep = &desc->ep_info;
+
+	/* FVP-R is only secure */
+	assert(GET_SECURITY_STATE(next_bl_ep->h.attr) == SECURE);
+
+	/* Prepare the SPSR for the next BL image. */
+	next_bl_ep->spsr = (uint32_t)SPSR_64((uint64_t) mode,
+		(uint64_t)MODE_SP_ELX, DISABLE_ALL_EXCEPTIONS);
+
+	/* Allow platform to make change */
+	bl1_plat_set_ep_info(image_id, next_bl_ep);
+
+	/* Prepare context for the next EL */
+	cm_prepare_el2_exit();
+
+	/* Indicate that image is in execution state. */
+	desc->state = IMAGE_STATE_EXECUTED;
+
+	print_entry_point_info(next_bl_ep);
+}
+
+/*******************************************************************************
  * Setup function for BL1.
  ******************************************************************************/
 void bl1_setup(void)
@@ -133,14 +169,6 @@ void bl1_setup(void)
 
 	/* Perform late platform-specific setup */
 	bl1_plat_arch_setup();
-
-#if CTX_INCLUDE_PAUTH_REGS
-	/*
-	 * Assert that the ARMv8.3-PAuth registers are present or an access
-	 * fault will be triggered when they are being saved or restored.
-	 */
-	assert(is_armv8_3_pauth_present());
-#endif /* CTX_INCLUDE_PAUTH_REGS */
 }
 
 /*******************************************************************************
@@ -199,12 +227,6 @@ void bl1_main(void)
 	/* Perform platform setup in BL1. */
 	bl1_platform_setup();
 
-#if ENABLE_PAUTH
-	/* Store APIAKey_EL1 key */
-	bl1_apiakey[0] = read_apiakeylo_el1();
-	bl1_apiakey[1] = read_apiakeyhi_el1();
-#endif /* ENABLE_PAUTH */
-
 	/* Get the image id of next image to load and run. */
 	image_id = bl1_plat_get_next_image_id();
 
@@ -212,9 +234,7 @@ void bl1_main(void)
 	 * We currently interpret any image id other than
 	 * BL2_IMAGE_ID as the start of firmware update.
 	 */
-	if (image_id == BL2_IMAGE_ID) {
-		bl1_load_bl2();
-	} else if (image_id == BL33_IMAGE_ID) {
+	if (image_id == BL33_IMAGE_ID) {
 		bl1_load_bl33();
 	} else {
 		NOTICE("BL1-FWU: *******FWU Process Started*******\n");
@@ -225,48 +245,6 @@ void bl1_main(void)
 	console_flush();
 
 	bl1_transfer_bl33();
-}
-
-/*******************************************************************************
- * This function locates and loads the BL2 raw binary image in the trusted SRAM.
- * Called by the primary cpu after a cold boot.
- * TODO: Add support for alternative image load mechanism e.g using virtio/elf
- * loader etc.
- ******************************************************************************/
-static void bl1_load_bl2(void)
-{
-	image_desc_t *desc;
-	image_info_t *info;
-	int err;
-
-	/* Get the image descriptor */
-	desc = bl1_plat_get_image_desc(BL2_IMAGE_ID);
-	assert(desc != NULL);
-
-	/* Get the image info */
-	info = &desc->image_info;
-	INFO("BL1: Loading BL2\n");
-
-	err = bl1_plat_handle_pre_image_load(BL2_IMAGE_ID);
-	if (err != 0) {
-		ERROR("Failure in pre image load handling of BL2 (%d)\n", err);
-		plat_error_handler(err);
-	}
-
-	err = load_auth_image(BL2_IMAGE_ID, info);
-	if (err != 0) {
-		ERROR("Failed to load BL2 firmware.\n");
-		plat_error_handler(err);
-	}
-
-	/* Allow platform to handle image information. */
-	err = bl1_plat_handle_post_image_load(BL2_IMAGE_ID);
-	if (err != 0) {
-		ERROR("Failure in post image load handling of BL2 (%d)\n", err);
-		plat_error_handler(err);
-	}
-
-	NOTICE("BL1: Booting BL2\n");
 }
 
 /*******************************************************************************

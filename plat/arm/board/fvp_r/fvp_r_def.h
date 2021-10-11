@@ -9,28 +9,18 @@
 
 #include <lib/utils_def.h>
 
-#ifndef FVP_R_CLUSTER_COUNT
-#error "FVP_R_CLUSTER_COUNT is not set in makefile"
-#endif
-
-#ifndef FVP_R_MAX_CPUS_PER_CLUSTER
-#error "FVP_R_MAX_CPUS_PER_CLUSTER is not set in makefile"
-#endif
-
-#ifndef FVP_R_MAX_PE_PER_CPU
-#error "FVP_R_MAX_PE_PER_CPU is not set in makefile"
-#endif
-
-#define FVP_R_PRIMARY_CPU			0x0
-
-/* Defines for the Interconnect build selection */
-#define FVP_R_CCI			1
-#define FVP_R_CCN			2
+/******************************************************************************
+ * FVP-R topology constants
+ *****************************************************************************/
+#define FVP_R_CLUSTER_COUNT		2
+#define FVP_R_MAX_CPUS_PER_CLUSTER	4
+#define FVP_R_MAX_PE_PER_CPU		1
+#define FVP_R_PRIMARY_CPU		0x0
 
 /******************************************************************************
  * Definition of platform soc id
  *****************************************************************************/
-#define FVP_R_SOC_ID      0
+#define FVP_R_SOC_ID			0
 
 /*******************************************************************************
  * FVP_R memory map related constants

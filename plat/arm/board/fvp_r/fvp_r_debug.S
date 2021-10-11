@@ -41,6 +41,7 @@ el2_panic:
 
 _panic_handler:
 	/* Pass to plat_panic_handler the address from where el2_panic was
-	 * called, not the address of the call from el2_panic. */
+	 * called, not the address of the call from el2_panic.
+	 */
 	mov	x30, x6
 	b	plat_panic_handler
