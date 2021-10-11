@@ -117,9 +117,9 @@ BL31_SOURCES		+=	common/fdt_wrappers.c				\
 				${FPGA_CPU_LIBS}				\
 				${FPGA_GIC_SOURCES}
 
-$(eval $(call MAKE_S,$(BUILD_PLAT),plat/arm/board/arm_fpga/rom_trampoline.S,31))
-$(eval $(call MAKE_S,$(BUILD_PLAT),plat/arm/board/arm_fpga/kernel_trampoline.S,31))
-$(eval $(call MAKE_LD,$(BUILD_PLAT)/build_axf.ld,plat/arm/board/arm_fpga/build_axf.ld.S,31))
+$(eval $(call MAKE_S,$(BUILD_PLAT),plat/arm/board/arm_fpga/rom_trampoline.S,bl31))
+$(eval $(call MAKE_S,$(BUILD_PLAT),plat/arm/board/arm_fpga/kernel_trampoline.S,bl31))
+$(eval $(call MAKE_LD,$(BUILD_PLAT)/build_axf.ld,plat/arm/board/arm_fpga/build_axf.ld.S,bl31))
 
 bl31.axf: bl31 dtbs ${BUILD_PLAT}/rom_trampoline.o ${BUILD_PLAT}/kernel_trampoline.o ${BUILD_PLAT}/build_axf.ld
 	$(ECHO) "  LD      $@"
