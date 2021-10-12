@@ -38,6 +38,7 @@ BL31_SOURCES += common/desc_image_load.c                              \
                 ${MTK_PLAT}/common/mtk_sip_svc.c                      \
                 ${MTK_PLAT}/common/params_setup.c                     \
                 ${MTK_PLAT}/common/drivers/timer/mt_timer.c           \
+                ${MTK_PLAT}/common/mtk_cirq.c           	      \
                 ${MTK_PLAT_SOC}/aarch64/platform_common.c             \
                 ${MTK_PLAT_SOC}/aarch64/plat_helpers.S                \
                 ${MTK_PLAT_SOC}/bl31_plat_setup.c                     \

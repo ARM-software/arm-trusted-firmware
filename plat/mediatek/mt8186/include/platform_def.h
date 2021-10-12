@@ -46,6 +46,11 @@
 #define BASE_GICD_BASE			MT_GIC_BASE
 #define MT_GIC_RDIST_BASE		(MT_GIC_BASE + 0x40000)
 
+#define SYS_CIRQ_BASE			(IO_PHYS + 0x204000)
+#define CIRQ_REG_NUM			11
+#define CIRQ_IRQ_NUM			326
+#define CIRQ_SPI_START			64
+#define MD_WDT_IRQ_BIT_ID		107
 /*******************************************************************************
  * System counter frequency related constants
  ******************************************************************************/
