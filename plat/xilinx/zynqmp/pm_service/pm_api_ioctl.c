@@ -618,6 +618,7 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 				unsigned int *value)
 {
 	enum pm_ret_status ret;
+	uint32_t payload[PAYLOAD_ARG_CNT];
 
 	switch (ioctl_id) {
 	case IOCTL_GET_RPU_OPER_MODE:
@@ -677,12 +678,11 @@ enum pm_ret_status pm_api_ioctl(enum pm_node_id nid,
 	case IOCTL_AFI:
 		ret = pm_ioctl_afi(arg1, arg2);
 		break;
-	case IOCTL_SET_FEATURE_CONFIG:
-	case IOCTL_GET_FEATURE_CONFIG:
-		ret = pm_feature_config(ioctl_id, arg1, arg2, value);
-		break;
 	default:
-		ret = PM_RET_ERROR_NOTSUPPORTED;
+		/* Send request to the PMU */
+		PM_PACK_PAYLOAD5(payload, PM_IOCTL, nid, ioctl_id, arg1, arg2);
+
+		ret = pm_ipi_send_sync(primary_proc, payload, value, 1);
 		break;
 	}
 

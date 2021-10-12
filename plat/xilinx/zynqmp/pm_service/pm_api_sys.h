@@ -33,6 +33,38 @@ enum pm_register_access_id {
 	CONFIG_REG_READ,
 };
 
+/**
+ * Assigning of argument values into array elements.
+ */
+#define PM_PACK_PAYLOAD1(pl, arg0) {	\
+	pl[0] = (uint32_t)(arg0);	\
+}
+
+#define PM_PACK_PAYLOAD2(pl, arg0, arg1) {	\
+	pl[1] = (uint32_t)(arg1);		\
+	PM_PACK_PAYLOAD1(pl, arg0);		\
+}
+
+#define PM_PACK_PAYLOAD3(pl, arg0, arg1, arg2) {	\
+	pl[2] = (uint32_t)(arg2);			\
+	PM_PACK_PAYLOAD2(pl, arg0, arg1);		\
+}
+
+#define PM_PACK_PAYLOAD4(pl, arg0, arg1, arg2, arg3) {	\
+	pl[3] = (uint32_t)(arg3);			\
+	PM_PACK_PAYLOAD3(pl, arg0, arg1, arg2);		\
+}
+
+#define PM_PACK_PAYLOAD5(pl, arg0, arg1, arg2, arg3, arg4) {	\
+	pl[4] = (uint32_t)(arg4);				\
+	PM_PACK_PAYLOAD4(pl, arg0, arg1, arg2, arg3);		\
+}
+
+#define PM_PACK_PAYLOAD6(pl, arg0, arg1, arg2, arg3, arg4, arg5) {	\
+	pl[5] = (uint32_t)(arg5);					\
+	PM_PACK_PAYLOAD5(pl, arg0, arg1, arg2, arg3, arg4);		\
+}
+
 /**********************************************************
  * System-level API function declarations
  **********************************************************/

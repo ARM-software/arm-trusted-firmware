@@ -49,9 +49,6 @@ enum {
 	IOCTL_AIE_ISR_CLEAR = 24,
 	/* Register SGI to ATF */
 	IOCTL_REGISTER_SGI = 25,
-	/* Runtime feature configuration */
-	IOCTL_SET_FEATURE_CONFIG = 26,
-	IOCTL_GET_FEATURE_CONFIG = 27,
 };
 
 //RPU operation mode

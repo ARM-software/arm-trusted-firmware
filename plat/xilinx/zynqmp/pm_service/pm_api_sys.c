@@ -33,38 +33,6 @@ unsigned int pm_get_shutdown_scope(void)
 	return pm_shutdown_scope;
 }
 
-/**
- * Assigning of argument values into array elements.
- */
-#define PM_PACK_PAYLOAD1(pl, arg0) {	\
-	pl[0] = (uint32_t)(arg0);	\
-}
-
-#define PM_PACK_PAYLOAD2(pl, arg0, arg1) {	\
-	pl[1] = (uint32_t)(arg1);		\
-	PM_PACK_PAYLOAD1(pl, arg0);		\
-}
-
-#define PM_PACK_PAYLOAD3(pl, arg0, arg1, arg2) {	\
-	pl[2] = (uint32_t)(arg2);			\
-	PM_PACK_PAYLOAD2(pl, arg0, arg1);		\
-}
-
-#define PM_PACK_PAYLOAD4(pl, arg0, arg1, arg2, arg3) {	\
-	pl[3] = (uint32_t)(arg3);			\
-	PM_PACK_PAYLOAD3(pl, arg0, arg1, arg2);		\
-}
-
-#define PM_PACK_PAYLOAD5(pl, arg0, arg1, arg2, arg3, arg4) {	\
-	pl[4] = (uint32_t)(arg4);				\
-	PM_PACK_PAYLOAD4(pl, arg0, arg1, arg2, arg3);		\
-}
-
-#define PM_PACK_PAYLOAD6(pl, arg0, arg1, arg2, arg3, arg4, arg5) {	\
-	pl[5] = (uint32_t)(arg5);					\
-	PM_PACK_PAYLOAD5(pl, arg0, arg1, arg2, arg3, arg4);		\
-}
-
 #define EM_PACK_PAYLOAD1(pl, arg0) {	\
 	pl[0] = (uint16_t)(0xE) << 16 | (uint16_t)arg0;	\
 }
@@ -1647,37 +1615,4 @@ enum pm_ret_status em_send_errors(unsigned int *value)
 	/* Send request to the PMU */
 	EM_PACK_PAYLOAD1(payload, EM_SEND_ERRORS);
 	return pm_ipi_send_sync(primary_proc, payload, value, 1);
-}
-
-/**
- * pm_feature_config() - feature configuration at runtime
- *
- * This function is used to send IPI request to PMUFW to configure feature
- * at runtime. The feature can be enable or disable as well as the feature
- * can be configure at runtime using an IOCTL call.
- *
- * @ioctl_id	The ioctl id for the feature configuration
- * @config_id	The config id of the feature to be configured
- * @value	The value to be configured
- * @response	Return to reference pointer
- *
- * @return      Returns 0 on success or error value on failure
- */
-enum pm_ret_status pm_feature_config(unsigned int ioctl_id,
-				     unsigned int config_id,
-				     unsigned int value,
-				     unsigned int *response)
-{
-	uint32_t payload[PAYLOAD_ARG_CNT];
-
-	/* Send request to the PMU */
-	PM_PACK_PAYLOAD5(payload, PM_IOCTL, 0, ioctl_id, config_id, value);
-
-	if (ioctl_id == IOCTL_GET_FEATURE_CONFIG) {
-		return pm_ipi_send_sync(primary_proc, payload, response, 1);
-	} else if (ioctl_id == IOCTL_SET_FEATURE_CONFIG) {
-		return pm_ipi_send_sync(primary_proc, payload, NULL, 0);
-	} else {
-		return PM_RET_ERROR_ARGS;
-	}
 }
