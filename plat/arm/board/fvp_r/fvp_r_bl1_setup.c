@@ -140,7 +140,6 @@ void plat_arm_secure_wdt_stop(void)
  */
 void arm_bl1_platform_setup(void)
 {
-	image_desc_t *desc;
 	uint32_t fw_config_max_size;
 
 	/* Initialise the IO layer and register platform IO devices */
@@ -157,8 +156,7 @@ void arm_bl1_platform_setup(void)
 	fw_config_max_size = ARM_FW_CONFIG_LIMIT - ARM_FW_CONFIG_BASE;
 	set_config_info(ARM_FW_CONFIG_BASE, fw_config_max_size, FW_CONFIG_ID);
 
-	desc = bl1_plat_get_image_desc(BL33_IMAGE_ID);
-	assert(desc != NULL);
+	assert(bl1_plat_get_image_desc(BL33_IMAGE_ID) != NULL);
 
 	/*
 	 * Allow access to the System counter timer module and program
