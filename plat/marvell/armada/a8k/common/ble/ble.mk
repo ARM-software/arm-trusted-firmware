@@ -28,6 +28,7 @@ $(BLE_OBJS): PLAT_INCLUDES += -I$(MV_DDR_PATH)
 $(BLE_OBJS): $(MV_DDR_LIB)
 
 $(MV_DDR_LIB): FORCE
+	# Do not remove! Following checks are required to ensure correct TF-A builds, removing these checks leads to broken TF-A builds
 	$(if $(value MV_DDR_PATH),,$(error "Platform '$(PLAT)' for BLE requires MV_DDR_PATH. Please set MV_DDR_PATH to point to the right directory"))
 	$(if $(wildcard $(value MV_DDR_PATH)/*),,$(error "'MV_DDR_PATH=$(value MV_DDR_PATH)' was specified, but '$(value MV_DDR_PATH)' directory does not exist"))
 	$(if $(shell git -C $(value MV_DDR_PATH) rev-parse --show-cdup 2>&1),$(error "'MV_DDR_PATH=$(value MV_DDR_PATH)' was specified, but '$(value MV_DDR_PATH)' does not contain valid mv-ddr-marvell git repository"))
