@@ -117,11 +117,13 @@ typedef enum {
 /******************************************************************************/
 
 /*
+ * Width of the L0 index field.
+ *
  * If S is greater than or equal to T then there is a single L0 region covering
  * the entire protected space so there is no L0 index, so the width (and the
  * derivative mask value) are both zero.  If we don't specifically handle this
  * special case we'll get a negative width value which does not make sense and
- * could cause a lot of problems.
+ * would cause problems.
  */
 #define GPT_L0_IDX_WIDTH(_t)		(((_t) > GPT_S_VAL) ? \
 					((_t) - GPT_S_VAL) : (0U))
@@ -129,9 +131,16 @@ typedef enum {
 /* Bit shift for the L0 index field in a PA. */
 #define GPT_L0_IDX_SHIFT		(GPT_S_VAL)
 
-/* Mask for the L0 index field, must be shifted. */
-#define GPT_L0_IDX_MASK(_t)		(0xFFFFFFFFFFFFFFFFUL >> \
-					(64U - (GPT_L0_IDX_WIDTH(_t))))
+/*
+ * Mask for the L0 index field, must be shifted.
+ *
+ * The value 0x3FFFFF is 22 bits wide which is the maximum possible width of the
+ * L0 index within a physical address. This is calculated by
+ * ((t_max - 1) - s_min + 1) where t_max is 52 for 4PB, the largest PPS, and
+ * s_min is 30 for 1GB, the smallest L0GPTSZ.
+ */
+#define GPT_L0_IDX_MASK(_t)		(0x3FFFFFUL >> (22U - \
+					(GPT_L0_IDX_WIDTH(_t))))
 
 /* Total number of L0 regions. */
 #define GPT_L0_REGION_COUNT(_t)		((GPT_L0_IDX_MASK(_t)) + 1U)
@@ -146,15 +155,28 @@ typedef enum {
 /* L1 address attribute macros                                                */
 /******************************************************************************/
 
-/* Width of the L1 index field. */
+/*
+ * Width of the L1 index field.
+ *
+ * This field does not have a special case to handle widths less than zero like
+ * the L0 index field above since all valid combinations of PGS (p) and L0GPTSZ
+ * (s) will result in a positive width value.
+ */
 #define GPT_L1_IDX_WIDTH(_p)		((GPT_S_VAL - 1U) - ((_p) + 3U))
 
 /* Bit shift for the L1 index field. */
 #define GPT_L1_IDX_SHIFT(_p)		((_p) + 4U)
 
-/* Mask for the L1 index field, must be shifted. */
-#define GPT_L1_IDX_MASK(_p)		(0xFFFFFFFFFFFFFFFFUL >> \
-					(64U - (GPT_L1_IDX_WIDTH(_p))))
+/*
+ * Mask for the L1 index field, must be shifted.
+ *
+ * The value 0x7FFFFF is 23 bits wide and is the maximum possible width of the
+ * L1 index within a physical address. It is calculated by
+ * ((s_max - 1) - (p_min + 4) + 1) where s_max is 39 for 512gb, the largest
+ * L0GPTSZ, and p_min is 12 for 4KB granules, the smallest PGS.
+ */
+#define GPT_L1_IDX_MASK(_p)		(0x7FFFFFUL >> (23U - \
+					(GPT_L1_IDX_WIDTH(_p))))
 
 /* Bit shift for the index of the L1 GPI in a PA. */
 #define GPT_L1_GPI_IDX_SHIFT(_p)	(_p)
