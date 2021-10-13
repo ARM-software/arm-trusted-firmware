@@ -476,4 +476,48 @@
 		};
 	};
 
+	ete0 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU0>;
+	};
+
+	ete1 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU1>;
+	};
+
+	ete2 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU2>;
+	};
+
+	ete3 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU3>;
+	};
+
+	ete4 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU4>;
+	};
+
+	ete5 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU5>;
+	};
+
+	ete6 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU6>;
+	};
+
+	ete7 {
+		compatible = "arm,embedded-trace-extension";
+		cpu = <&CPU7>;
+	};
+
+	trbe0 {
+		compatible = "arm,trace-buffer-extension";
+		interrupts = <1 2 4>;
+	};
 };
