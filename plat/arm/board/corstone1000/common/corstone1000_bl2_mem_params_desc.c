@@ -71,13 +71,12 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		.image_id = BL33_IMAGE_ID,
 		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
 			VERSION_2, entry_point_info_t, NON_SECURE | EXECUTABLE),
-		.ep_info.pc = PLAT_ARM_NS_IMAGE_BASE,
+		.ep_info.pc = BL33_BASE,
 
 		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
 			VERSION_2, image_info_t, 0),
-		.image_info.image_base = PLAT_ARM_NS_IMAGE_BASE,
-		.image_info.image_max_size = ARM_DRAM1_BASE + ARM_DRAM1_SIZE
-			- PLAT_ARM_NS_IMAGE_BASE,
+		.image_info.image_base = BL33_BASE,
+		.image_info.image_max_size = BL33_LIMIT - BL33_BASE,
 
 		.next_handoff_image_id = INVALID_IMAGE_ID,
 	},
