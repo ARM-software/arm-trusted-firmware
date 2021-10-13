@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, Arm Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -9,9 +9,6 @@
 #include <common/debug.h>
 #include <common/desc_image_load.h>
 #include <drivers/arm/sp804_delay_timer.h>
-#if MEASURED_BOOT
-#include <drivers/measured_boot/measured_boot.h>
-#endif
 #include <lib/fconf/fconf.h>
 #include <lib/fconf/fconf_dyn_cfg_getter.h>
 
@@ -73,45 +70,3 @@ struct bl_params *plat_get_next_bl_params(void)
 
 	return arm_bl_params;
 }
-#if MEASURED_BOOT
-static int fvp_bl2_plat_handle_post_image_load(unsigned int image_id)
-{
-	const bl_mem_params_node_t *bl_mem_params =
-				get_bl_mem_params_node(image_id);
-
-	assert(bl_mem_params != NULL);
-
-	image_info_t info = bl_mem_params->image_info;
-	int err;
-
-	if ((info.h.attr & IMAGE_ATTRIB_SKIP_LOADING) == 0U) {
-		/* Calculate image hash and record data in Event Log */
-		err = tpm_record_measurement(info.image_base,
-					     info.image_size, image_id);
-		if (err != 0) {
-			ERROR("%s%s image id %u (%i)\n",
-				"BL2: Failed to ", "record", image_id, err);
-			return err;
-		}
-	}
-
-	err = arm_bl2_handle_post_image_load(image_id);
-	if (err != 0) {
-		ERROR("%s%s image id %u (%i)\n",
-			"BL2: Failed to ", "handle", image_id, err);
-	}
-
-	return err;
-}
-
-int arm_bl2_plat_handle_post_image_load(unsigned int image_id)
-{
-	int err = fvp_bl2_plat_handle_post_image_load(image_id);
-
-	if (err != 0) {
-		ERROR("%s() returns %i\n", __func__, err);
-	}
-
-	return err;
-}
-#endif	/* MEASURED_BOOT */

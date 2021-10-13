@@ -406,7 +406,7 @@ ifeq (${RECLAIM_INIT_CODE}, 1)
 endif
 
 ifeq (${MEASURED_BOOT},1)
-    MEASURED_BOOT_MK := drivers/measured_boot/measured_boot.mk
+    MEASURED_BOOT_MK := drivers/measured_boot/event_log/event_log.mk
     $(info Including ${MEASURED_BOOT_MK})
     include ${MEASURED_BOOT_MK}
 endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2020, ARM Limited and Contributors. All rights reserved.
+ * Copyright (c) 2013-2021, ARM Limited and Contributors. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -126,6 +126,9 @@ void bl1_main(void)
 	auth_mod_init();
 #endif /* TRUSTED_BOARD_BOOT */
 
+	/* Initialize the measured boot */
+	bl1_plat_mboot_init();
+
 	/* Perform platform setup in BL1. */
 	bl1_platform_setup();
 
@@ -146,6 +149,9 @@ void bl1_main(void)
 		bl1_load_bl2();
 	else
 		NOTICE("BL1-FWU: *******FWU Process Started*******\n");
+
+	/* Teardown the measured boot driver */
+	bl1_plat_mboot_finish();
 
 	bl1_prepare_next_image(image_id);
 

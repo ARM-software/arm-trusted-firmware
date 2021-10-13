@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include <common/debug.h>
-#include <drivers/measured_boot/event_log.h>
+#include <drivers/measured_boot/event_log/event_log.h>
 
 #if LOG_LEVEL >= EVENT_LOG_LEVEL
 

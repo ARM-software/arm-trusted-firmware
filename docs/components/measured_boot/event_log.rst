@@ -9,7 +9,7 @@ Dynamic configuration for Event Log
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Measured Boot driver expects a *tpm_event_log* node with the following field
-in 'nt_fw_config' and 'tsp_fw_config' DTS files:
+in 'tb_fw_config', 'nt_fw_config' and 'tsp_fw_config' DTS files:
 
 - compatible [mandatory]
    - value type: <string>

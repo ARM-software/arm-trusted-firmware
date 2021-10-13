@@ -341,4 +341,9 @@
 #define PLAT_VIRT_ADDR_SPACE_SIZE	(1ULL << 32)
 #endif
 
+/*
+ * Maximum size of Event Log buffer used in Measured Boot Event Log driver
+ */
+#define	PLAT_ARM_EVENT_LOG_MAX_SIZE		UL(0x400)
+
 #endif /* PLATFORM_DEF_H */

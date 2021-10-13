@@ -15,9 +15,6 @@
 #include <drivers/auth/auth_mod.h>
 #include <drivers/console.h>
 #include <drivers/fwu/fwu.h>
-#if MEASURED_BOOT
-#include <drivers/measured_boot/measured_boot.h>
-#endif
 #include <lib/extensions/pauth.h>
 #include <plat/common/platform.h>
 
@@ -95,13 +92,10 @@ void bl2_main(void)
 #if TRUSTED_BOARD_BOOT
 	/* Initialize authentication module */
 	auth_mod_init();
-
-#if MEASURED_BOOT
-	/* Initialize measured boot module */
-	measured_boot_init();
-
-#endif /* MEASURED_BOOT */
 #endif /* TRUSTED_BOARD_BOOT */
+
+	/* Initialize the Measured Boot backend */
+	bl2_plat_mboot_init();
 
 	/* Initialize boot source */
 	bl2_plat_preload_setup();
@@ -109,10 +103,8 @@ void bl2_main(void)
 	/* Load the subsequent bootloader images. */
 	next_bl_ep_info = bl2_load_images();
 
-#if MEASURED_BOOT
-	/* Finalize measured boot */
-	measured_boot_finish();
-#endif /* MEASURED_BOOT */
+	/* Teardown the Measured Boot backend */
+	bl2_plat_mboot_finish();
 
 #if !BL2_AT_EL3 && !ENABLE_RME
 #ifndef __aarch64__

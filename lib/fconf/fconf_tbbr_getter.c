@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020, ARM Limited. All rights reserved.
+ * Copyright (c) 2019-2021, Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -71,26 +71,13 @@ int fconf_populate_tbbr_dyn_config(uintptr_t config)
 	}
 	tbbr_dyn_config.mbedtls_heap_size = val32;
 
-#if MEASURED_BOOT
-	/* Retrieve BL2 hash data details from the DTB */
-	err = fdtw_read_bytes(dtb, node, "bl2_hash_data", TCG_DIGEST_SIZE,
-				&tbbr_dyn_config.bl2_hash_data);
-	if (err < 0) {
-		ERROR("FCONF: Read %s failed for '%s'\n",
-				"bytes", "bl2_hash_data");
-		return err;
-	}
-#endif
 	VERBOSE("%s%s%s %d\n", "FCONF: `tbbr.", "disable_auth",
 		"` cell found with value =", tbbr_dyn_config.disable_auth);
 	VERBOSE("%s%s%s %p\n", "FCONF: `tbbr.", "mbedtls_heap_addr",
 		"` cell found with value =", tbbr_dyn_config.mbedtls_heap_addr);
 	VERBOSE("%s%s%s %zu\n", "FCONF: `tbbr.", "mbedtls_heap_size",
 		"` cell found with value =", tbbr_dyn_config.mbedtls_heap_size);
-#if MEASURED_BOOT
-	VERBOSE("%s%s%s %p\n", "FCONF: `tbbr.", "bl2_hash_data",
-		"` array found at address =", tbbr_dyn_config.bl2_hash_data);
-#endif
+
 	return 0;
 }
 
