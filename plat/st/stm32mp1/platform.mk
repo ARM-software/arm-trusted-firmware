@@ -323,7 +323,7 @@ ${BUILD_PLAT}/stm32mp1-%.o: ${BUILD_PLAT}/fdts/%-bl2.dtb plat/st/stm32mp1/stm32m
 		-c plat/st/stm32mp1/stm32mp1.S -o $@
 endif
 
-$(eval $(call MAKE_LD,${STM32_TF_LINKERFILE},plat/st/stm32mp1/stm32mp1.ld.S,2))
+$(eval $(call MAKE_LD,${STM32_TF_LINKERFILE},plat/st/stm32mp1/stm32mp1.ld.S,bl2))
 
 tf-a-%.elf: stm32mp1-%.o ${STM32_TF_LINKERFILE}
 	@echo "  LDS     $<"
