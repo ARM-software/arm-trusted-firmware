@@ -467,12 +467,12 @@ static const uint8_t fmc_parents[] = {
 	_ACLK, _PLL3_R, _PLL4_P, _CK_PER
 };
 
-static const uint8_t ass_parents[] = {
-	_HSI, _HSE, _PLL2
+static const uint8_t axiss_parents[] = {
+	_HSI, _HSE, _PLL2_P
 };
 
-static const uint8_t mss_parents[] = {
-	_HSI, _HSE, _CSI, _PLL3
+static const uint8_t mcuss_parents[] = {
+	_HSI, _HSE, _CSI, _PLL3_P
 };
 
 static const uint8_t usbphy_parents[] = {
@@ -514,8 +514,8 @@ static const struct stm32mp1_clk_sel stm32mp1_clk_sel[_PARENT_SEL_NB] = {
 	_CLK_PARENT_SEL(SDMMC3, RCC_SDMMC3CKSELR, sdmmc3_parents),
 	_CLK_PARENT_SEL(QSPI, RCC_QSPICKSELR, qspi_parents),
 	_CLK_PARENT_SEL(FMC, RCC_FMCCKSELR, fmc_parents),
-	_CLK_PARENT_SEL(AXIS, RCC_ASSCKSELR, ass_parents),
-	_CLK_PARENT_SEL(MCUS, RCC_MSSCKSELR, mss_parents),
+	_CLK_PARENT_SEL(AXIS, RCC_ASSCKSELR, axiss_parents),
+	_CLK_PARENT_SEL(MCUS, RCC_MSSCKSELR, mcuss_parents),
 	_CLK_PARENT_SEL(USBPHY, RCC_USBCKSELR, usbphy_parents),
 	_CLK_PARENT_SEL(USBO, RCC_USBCKSELR, usbo_parents),
 };
