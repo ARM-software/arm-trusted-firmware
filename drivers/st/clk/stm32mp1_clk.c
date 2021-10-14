@@ -1091,6 +1091,10 @@ static bool clock_is_always_on(unsigned long id)
 	case PLL3_P:
 	case PLL3_Q:
 	case PLL3_R:
+	case CK_AXI:
+	case CK_MPU:
+	case CK_MCU:
+	case RTC:
 		return true;
 	default:
 		return false;

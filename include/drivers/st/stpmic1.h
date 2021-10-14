@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2019, STMicroelectronics - All Rights Reserved
+ * Copyright (c) 2016-2021, STMicroelectronics - All Rights Reserved
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
@@ -86,15 +86,15 @@
 #define ITSOURCE4_REG			0xB3U
 
 /* Registers masks */
-#define LDO_VOLTAGE_MASK		0x7CU
-#define BUCK_VOLTAGE_MASK		0xFCU
+#define LDO_VOLTAGE_MASK		GENMASK(6, 2)
+#define BUCK_VOLTAGE_MASK		GENMASK(7, 2)
 #define LDO_BUCK_VOLTAGE_SHIFT		2
-#define LDO_BUCK_ENABLE_MASK		0x01U
-#define LDO_BUCK_HPLP_ENABLE_MASK	0x02U
+#define LDO_BUCK_ENABLE_MASK		BIT(0)
+#define LDO_BUCK_HPLP_ENABLE_MASK	BIT(1)
 #define LDO_BUCK_HPLP_SHIFT		1
-#define LDO_BUCK_RANK_MASK		0x01U
-#define LDO_BUCK_RESET_MASK		0x01U
-#define LDO_BUCK_PULL_DOWN_MASK		0x03U
+#define LDO_BUCK_RANK_MASK		BIT(0)
+#define LDO_BUCK_RESET_MASK		BIT(0)
+#define LDO_BUCK_PULL_DOWN_MASK		GENMASK(1, 0)
 
 /* Pull down register */
 #define BUCK1_PULL_DOWN_SHIFT		0
@@ -135,12 +135,12 @@
 /* Main PMIC VINLOW Control Register (VIN_CONTROL_REGC DMSC) */
 #define SWIN_DETECTOR_ENABLED		BIT(7)
 #define SWOUT_DETECTOR_ENABLED          BIT(6)
-#define VINLOW_HYST_MASK		0x3
+#define VINLOW_HYST_MASK		GENMASK(1, 0)
 #define VINLOW_HYST_SHIFT		4
-#define VINLOW_THRESHOLD_MASK		0x7
+#define VINLOW_THRESHOLD_MASK		GENMASK(2, 0)
 #define VINLOW_THRESHOLD_SHIFT		1
-#define VINLOW_ENABLED			0x01
-#define VINLOW_CTRL_REG_MASK		0xFF
+#define VINLOW_ENABLED			BIT(0)
+#define VINLOW_CTRL_REG_MASK		GENMASK(7, 0)
 
 /* USB Control Register */
 #define BOOST_OVP_DISABLED		BIT(7)
