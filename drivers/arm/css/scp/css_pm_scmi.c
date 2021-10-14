@@ -357,7 +357,7 @@ void __init plat_arm_pwrc_setup(void)
 	unsigned int composite_id, idx;
 
 	for (idx = 0; idx < PLAT_ARM_SCMI_CHANNEL_COUNT; idx++) {
-		INFO("Initializing driver on Channel %d\n", idx);
+		INFO("Initializing SCMI driver on channel %d\n", idx);
 
 		scmi_channels[idx].info = plat_css_get_scmi_info(idx);
 		scmi_channels[idx].lock = ARM_SCMI_LOCK_GET_INSTANCE;
