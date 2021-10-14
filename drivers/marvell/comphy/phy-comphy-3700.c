@@ -815,6 +815,12 @@ static int mvebu_a3700_comphy_pcie_power_on(uint8_t comphy_index,
 
 	debug_enter();
 
+	/* Configure phy selector for PCIe */
+	ret = mvebu_a3700_comphy_set_phy_selector(comphy_index, comphy_mode);
+	if (ret) {
+		return ret;
+	}
+
 	/* 1. Enable max PLL. */
 	reg_set16(LANE_CFG1_ADDR(PCIE) + COMPHY_SD_ADDR,
 		  USE_MAX_PLL_RATE_EN, USE_MAX_PLL_RATE_EN);
