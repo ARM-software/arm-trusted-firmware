@@ -14,7 +14,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: configure
+
+    - name: Set up Linux environment
+      run: sudo apt install gcc-aarch64-linux-gnu
+    - name: build
       run: |
            export CROSS_COMPILE=/usr/bin/aarch64-linux-gnu-
            make PLAT=rpi3 RPI3_PRELOADED_DTB_BASE=0x10000 PRELOADED_BL33_BASE=0x30000 SUPPORT_VFP=1 RPI3_USE_UEFI_MAP=1 DEBUG=0 fip all
