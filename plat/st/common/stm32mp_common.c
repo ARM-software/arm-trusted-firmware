@@ -17,6 +17,8 @@
 #include <plat/common/platform.h>
 #include <services/arm_arch_svc.h>
 
+#define HEADER_VERSION_MAJOR_MASK	GENMASK(23, 16)
+
 uintptr_t plat_get_ns_image_entrypoint(void)
 {
 	return BL33_BASE;
@@ -93,7 +95,8 @@ int stm32mp_check_header(boot_api_image_header_t *header, uintptr_t buffer)
 		return -EINVAL;
 	}
 
-	if (header->header_version != BOOT_API_HEADER_VERSION) {
+	if ((header->header_version & HEADER_VERSION_MAJOR_MASK) !=
+	    (BOOT_API_HEADER_VERSION & HEADER_VERSION_MAJOR_MASK)) {
 		ERROR("Header version\n");
 		return -EINVAL;
 	}
