@@ -121,6 +121,8 @@ void sp_min_early_platform_setup2(u_register_t arg0, u_register_t arg1,
 	uintptr_t dt_addr = arg1;
 #endif
 
+	stm32mp_setup_early_console();
+
 	/* Imprecise aborts can be masked in NonSecure */
 	write_scr(read_scr() | SCR_AW_BIT);
 
