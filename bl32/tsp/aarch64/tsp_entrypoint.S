@@ -100,11 +100,27 @@ func tsp_entrypoint _align=3
 	 * sections. This is done to safeguard against
 	 * possible corruption of this memory by dirty
 	 * cache lines in a system cache as a result of
-	 * use by an earlier boot loader stage.
+	 * use by an earlier boot loader stage. If PIE
+	 * is enabled however, RO sections including the
+	 * GOT may be modified during pie fixup.
+	 * Therefore, to be on the safe side, invalidate
+	 * the entire image region if PIE is enabled.
 	 * ---------------------------------------------
 	 */
-	adr	x0, __RW_START__
-	adr	x1, __RW_END__
+#if ENABLE_PIE
+#if SEPARATE_CODE_AND_RODATA
+	adrp	x0, __TEXT_START__
+	add	x0, x0, :lo12:__TEXT_START__
+#else
+	adrp	x0, __RO_START__
+	add	x0, x0, :lo12:__RO_START__
+#endif /* SEPARATE_CODE_AND_RODATA */
+#else
+	adrp	x0, __RW_START__
+	add	x0, x0, :lo12:__RW_START__
+#endif /* ENABLE_PIE */
+	adrp	x1, __RW_END__
+	add     x1, x1, :lo12:__RW_END__
 	sub	x1, x1, x0
 	bl	inv_dcache_range
 
