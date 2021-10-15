@@ -34,6 +34,7 @@ int dt_set_stdout_pinctrl(void);
 void dt_fill_device_info(struct dt_node_info *info, int node);
 int dt_get_node(struct dt_node_info *info, int offset, const char *compat);
 int dt_get_stdout_uart_info(struct dt_node_info *info);
+int dt_match_instance_by_compatible(const char *compatible, uintptr_t address);
 uint32_t dt_get_ddr_size(void);
 uint32_t dt_get_pwr_vdd_voltage(void);
 const char *dt_get_board_model(void);

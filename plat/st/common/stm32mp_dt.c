@@ -204,6 +204,33 @@ int dt_get_stdout_uart_info(struct dt_node_info *info)
 }
 
 /*******************************************************************************
+ * This function returns the node offset matching compatible string in the DT,
+ * and also matching the reg property with the given address.
+ * Returns value on success, and error value on failure.
+ ******************************************************************************/
+int dt_match_instance_by_compatible(const char *compatible, uintptr_t address)
+{
+	int node;
+
+	fdt_for_each_compatible_node(fdt, node, compatible) {
+		const fdt32_t *cuint;
+
+		assert(fdt_get_node_parent_address_cells(node) == 1);
+
+		cuint = fdt_getprop(fdt, node, "reg", NULL);
+		if (cuint == NULL) {
+			continue;
+		}
+
+		if ((uintptr_t)fdt32_to_cpu(*cuint) == address) {
+			return node;
+		}
+	}
+
+	return -FDT_ERR_NOTFOUND;
+}
+
+/*******************************************************************************
  * This function gets DDR size information from the DT.
  * Returns value in bytes on success, and 0 on failure.
  ******************************************************************************/

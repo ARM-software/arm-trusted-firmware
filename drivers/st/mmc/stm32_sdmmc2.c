@@ -628,6 +628,7 @@ static int stm32_sdmmc2_dt_get_config(void)
 	int sdmmc_node;
 	void *fdt = NULL;
 	const fdt32_t *cuint;
+	struct dt_node_info dt_info;
 
 	if (fdt_get_address(&fdt) == 0) {
 		return -FDT_ERR_NOTFOUND;
@@ -637,27 +638,14 @@ static int stm32_sdmmc2_dt_get_config(void)
 		return -FDT_ERR_NOTFOUND;
 	}
 
-	sdmmc_node = fdt_node_offset_by_compatible(fdt, -1, DT_SDMMC2_COMPAT);
-
-	while (sdmmc_node != -FDT_ERR_NOTFOUND) {
-		cuint = fdt_getprop(fdt, sdmmc_node, "reg", NULL);
-		if (cuint == NULL) {
-			continue;
-		}
-
-		if (fdt32_to_cpu(*cuint) == sdmmc2_params.reg_base) {
-			break;
-		}
-
-		sdmmc_node = fdt_node_offset_by_compatible(fdt, sdmmc_node,
-							   DT_SDMMC2_COMPAT);
-	}
-
+	sdmmc_node = dt_match_instance_by_compatible(DT_SDMMC2_COMPAT,
+						     sdmmc2_params.reg_base);
 	if (sdmmc_node == -FDT_ERR_NOTFOUND) {
 		return -FDT_ERR_NOTFOUND;
 	}
 
-	if (fdt_get_status(sdmmc_node) == DT_DISABLED) {
+	dt_fill_device_info(&dt_info, sdmmc_node);
+	if (dt_info.status == DT_DISABLED) {
 		return -FDT_ERR_NOTFOUND;
 	}
 
@@ -665,21 +653,8 @@ static int stm32_sdmmc2_dt_get_config(void)
 		return -FDT_ERR_BADVALUE;
 	}
 
-	cuint = fdt_getprop(fdt, sdmmc_node, "clocks", NULL);
-	if (cuint == NULL) {
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	cuint++;
-	sdmmc2_params.clock_id = fdt32_to_cpu(*cuint);
-
-	cuint = fdt_getprop(fdt, sdmmc_node, "resets", NULL);
-	if (cuint == NULL) {
-		return -FDT_ERR_NOTFOUND;
-	}
-
-	cuint++;
-	sdmmc2_params.reset_id = fdt32_to_cpu(*cuint);
+	sdmmc2_params.clock_id = dt_info.clock;
+	sdmmc2_params.reset_id = dt_info.reset;
 
 	if ((fdt_getprop(fdt, sdmmc_node, "st,use-ckin", NULL)) != NULL) {
 		sdmmc2_params.pin_ckin = SDMMC_CLKCR_SELCLKRX_0;
