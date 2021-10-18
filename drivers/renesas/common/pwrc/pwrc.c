@@ -776,14 +776,14 @@ void rcar_pwrc_code_copy_to_system_ram(void)
 	memcpy((void *)sram.base, code.base, code.len);
 	flush_dcache_range((uint64_t) sram.base, code.len);
 
+	attr = MT_MEMORY | MT_RO | MT_SECURE | MT_EXECUTE;
+	ret = xlat_change_mem_attributes(sram.base, sram.len, attr);
+	assert(ret == 0);
+
 	/* Invalidate instruction cache */
 	plat_invalidate_icache();
 	dsb();
 	isb();
-
-	attr = MT_MEMORY | MT_RO | MT_SECURE | MT_EXECUTE;
-	ret = xlat_change_mem_attributes(sram.base, sram.len, attr);
-	assert(ret == 0);
 }
 
 uint32_t rcar_pwrc_get_cluster(void)
