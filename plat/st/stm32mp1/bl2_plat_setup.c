@@ -18,6 +18,7 @@
 #include <drivers/mmc.h>
 #include <drivers/st/bsec.h>
 #include <drivers/st/stm32_iwdg.h>
+#include <drivers/st/stm32_uart.h>
 #include <drivers/st/stm32mp_pmic.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_pwr.h>
@@ -229,6 +230,16 @@ void bl2_el3_plat_arch_setup(void)
 
 	generic_delay_timer_init();
 
+#if STM32MP_UART_PROGRAMMER
+	/* Disable programmer UART before changing clock tree */
+	if (boot_context->boot_interface_selected ==
+	    BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_UART) {
+		uintptr_t uart_prog_addr =
+			get_uart_address(boot_context->boot_interface_instance);
+
+		stm32_uart_stop(uart_prog_addr);
+	}
+#endif
 	if (stm32mp1_clk_probe() < 0) {
 		panic();
 	}

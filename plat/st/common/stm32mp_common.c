@@ -161,6 +161,8 @@ int stm32mp_uart_console_setup(void)
 	unsigned int console_flags;
 	uint32_t clk_rate;
 	int result;
+	uint32_t boot_itf __unused;
+	uint32_t boot_instance __unused;
 
 	result = dt_get_stdout_uart_info(&dt_uart_info);
 
@@ -170,6 +172,15 @@ int stm32mp_uart_console_setup(void)
 	    (dt_uart_info.reset < 0)) {
 		return -ENODEV;
 	}
+
+#if STM32MP_UART_PROGRAMMER || !defined(IMAGE_BL2)
+	stm32_get_boot_interface(&boot_itf, &boot_instance);
+
+	if ((boot_itf == BOOT_API_CTX_BOOT_INTERFACE_SEL_SERIAL_UART) &&
+	    (get_uart_address(boot_instance) == dt_uart_info.base)) {
+		return -EACCES;
+	}
+#endif
 
 #if defined(IMAGE_BL2)
 	if (dt_set_stdout_pinctrl() != 0) {

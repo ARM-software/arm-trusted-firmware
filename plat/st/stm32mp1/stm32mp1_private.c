@@ -167,7 +167,7 @@ int stm32_get_gpio_bank_pinctrl_node(void *fdt, unsigned int bank)
 	}
 }
 
-#if STM32MP_UART_PROGRAMMER
+#if STM32MP_UART_PROGRAMMER || !defined(IMAGE_BL2)
 /*
  * UART Management
  */
