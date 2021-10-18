@@ -250,7 +250,8 @@ int __init psci_setup(const psci_lib_args_t *lib_args)
 		psci_caps |=  define_psci_cap(PSCI_CPU_ON_AARCH64);
 	if ((psci_plat_pm_ops->pwr_domain_suspend != NULL) &&
 	    (psci_plat_pm_ops->pwr_domain_suspend_finish != NULL)) {
-		psci_caps |=  define_psci_cap(PSCI_CPU_SUSPEND_AARCH64);
+		if (psci_plat_pm_ops->validate_power_state != NULL)
+			psci_caps |=  define_psci_cap(PSCI_CPU_SUSPEND_AARCH64);
 		if (psci_plat_pm_ops->get_sys_suspend_power_state != NULL)
 			psci_caps |=  define_psci_cap(PSCI_SYSTEM_SUSPEND_AARCH64);
 	}
