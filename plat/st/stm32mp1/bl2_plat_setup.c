@@ -14,14 +14,11 @@
 #include <common/bl_common.h>
 #include <common/debug.h>
 #include <common/desc_image_load.h>
-#include <drivers/delay_timer.h>
 #include <drivers/generic_delay_timer.h>
 #include <drivers/mmc.h>
 #include <drivers/st/bsec.h>
-#include <drivers/st/stm32_console.h>
 #include <drivers/st/stm32_iwdg.h>
 #include <drivers/st/stm32mp_pmic.h>
-#include <drivers/st/stm32mp_reset.h>
 #include <drivers/st/stm32mp1_clk.h>
 #include <drivers/st/stm32mp1_pwr.h>
 #include <drivers/st/stm32mp1_ram.h>
@@ -34,9 +31,6 @@
 
 #include <stm32mp1_dbgmcu.h>
 
-#define RESET_TIMEOUT_US_1MS		1000U
-
-static console_t console;
 static struct stm32mp_auth_ops stm32mp1_auth_ops;
 
 static void print_reset_reason(void)
@@ -166,11 +160,9 @@ void bl2_platform_setup(void)
 void bl2_el3_plat_arch_setup(void)
 {
 	int32_t result;
-	struct dt_node_info dt_uart_info;
 	const char *board_model;
 	boot_api_context_t *boot_context =
 		(boot_api_context_t *)stm32mp_get_boot_ctx_address();
-	uint32_t clk_rate;
 	uintptr_t pwr_base;
 	uintptr_t rcc_base;
 
@@ -255,44 +247,9 @@ void bl2_el3_plat_arch_setup(void)
 	stm32mp1_deconfigure_uart_pins();
 #endif
 
-	result = dt_get_stdout_uart_info(&dt_uart_info);
-
-	if ((result <= 0) ||
-	    (dt_uart_info.status == 0U) ||
-	    (dt_uart_info.clock < 0) ||
-	    (dt_uart_info.reset < 0)) {
+	if (stm32mp_uart_console_setup() != 0) {
 		goto skip_console_init;
 	}
-
-	if (dt_set_stdout_pinctrl() != 0) {
-		goto skip_console_init;
-	}
-
-	stm32mp_clk_enable((unsigned long)dt_uart_info.clock);
-
-	if (stm32mp_reset_assert((uint32_t)dt_uart_info.reset,
-				 RESET_TIMEOUT_US_1MS) != 0) {
-		panic();
-	}
-
-	udelay(2);
-
-	if (stm32mp_reset_deassert((uint32_t)dt_uart_info.reset,
-				   RESET_TIMEOUT_US_1MS) != 0) {
-		panic();
-	}
-
-	mdelay(1);
-
-	clk_rate = stm32mp_clk_get_rate((unsigned long)dt_uart_info.clock);
-
-	if (console_stm32_register(dt_uart_info.base, clk_rate,
-				   STM32MP_UART_BAUDRATE, &console) == 0) {
-		panic();
-	}
-
-	console_set_scope(&console, CONSOLE_FLAG_BOOT |
-			  CONSOLE_FLAG_CRASH | CONSOLE_FLAG_TRANSLATE_CRLF);
 
 	stm32mp_print_cpuinfo();
 
