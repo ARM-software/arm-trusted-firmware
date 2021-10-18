@@ -205,10 +205,27 @@ static void reset_uart(uint32_t reset)
 }
 #endif
 
+static void set_console(uintptr_t base, uint32_t clk_rate)
+{
+	unsigned int console_flags;
+
+	if (console_stm32_register(base, clk_rate,
+				   STM32MP_UART_BAUDRATE, &console) == 0) {
+		panic();
+	}
+
+	console_flags = CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH |
+			CONSOLE_FLAG_TRANSLATE_CRLF;
+#if !defined(IMAGE_BL2) && defined(DEBUG)
+	console_flags |= CONSOLE_FLAG_RUNTIME;
+#endif
+
+	console_set_scope(&console, console_flags);
+}
+
 int stm32mp_uart_console_setup(void)
 {
 	struct dt_node_info dt_uart_info;
-	unsigned int console_flags;
 	uint32_t clk_rate = 0U;
 	int result;
 	uint32_t boot_itf __unused;
@@ -249,20 +266,18 @@ int stm32mp_uart_console_setup(void)
 	clk_rate = clk_get_rate((unsigned long)dt_uart_info.clock);
 #endif
 
-	if (console_stm32_register(dt_uart_info.base, clk_rate,
-				   STM32MP_UART_BAUDRATE, &console) == 0) {
-		panic();
-	}
-
-	console_flags = CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH |
-			CONSOLE_FLAG_TRANSLATE_CRLF;
-#if !defined(IMAGE_BL2) && defined(DEBUG)
-	console_flags |= CONSOLE_FLAG_RUNTIME;
-#endif
-	console_set_scope(&console, console_flags);
+	set_console(dt_uart_info.base, clk_rate);
 
 	return 0;
 }
+
+#if STM32MP_EARLY_CONSOLE
+void stm32mp_setup_early_console(void)
+{
+	plat_crash_console_init();
+	set_console(STM32MP_DEBUG_USART_BASE, STM32MP_DEBUG_USART_CLK_FRQ);
+}
+#endif /* STM32MP_EARLY_CONSOLE */
 
 /*****************************************************************************
  * plat_is_smccc_feature_available() - This function checks whether SMCCC
