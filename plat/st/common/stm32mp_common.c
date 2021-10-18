@@ -134,6 +134,7 @@ int stm32mp_unmap_ddr(void)
 					   STM32MP_DDR_MAX_SIZE);
 }
 
+#if  defined(IMAGE_BL2)
 static void reset_uart(uint32_t reset)
 {
 	int ret;
@@ -152,6 +153,7 @@ static void reset_uart(uint32_t reset)
 
 	mdelay(1);
 }
+#endif
 
 int stm32mp_uart_console_setup(void)
 {
@@ -169,13 +171,17 @@ int stm32mp_uart_console_setup(void)
 		return -ENODEV;
 	}
 
+#if defined(IMAGE_BL2)
 	if (dt_set_stdout_pinctrl() != 0) {
 		return -ENODEV;
 	}
+#endif
 
 	stm32mp_clk_enable((unsigned long)dt_uart_info.clock);
 
+#if defined(IMAGE_BL2)
 	reset_uart((uint32_t)dt_uart_info.reset);
+#endif
 
 	clk_rate = stm32mp_clk_get_rate((unsigned long)dt_uart_info.clock);
 
@@ -186,6 +192,9 @@ int stm32mp_uart_console_setup(void)
 
 	console_flags = CONSOLE_FLAG_BOOT | CONSOLE_FLAG_CRASH |
 			CONSOLE_FLAG_TRANSLATE_CRLF;
+#if !defined(IMAGE_BL2) && defined(DEBUG)
+	console_flags |= CONSOLE_FLAG_RUNTIME;
+#endif
 	console_set_scope(&console, console_flags);
 
 	return 0;
