@@ -53,6 +53,9 @@ uint32_t stm32_iwdg_shadow_update(uint32_t iwdg_inst, uint32_t flags);
 uintptr_t get_uart_address(uint32_t instance_nb);
 #endif
 
+/* Setup the UART console */
+int stm32mp_uart_console_setup(void);
+
 /*
  * Platform util functions for the GPIO driver
  * @bank: Target GPIO bank ID as per DT bindings
