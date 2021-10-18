@@ -16,6 +16,9 @@
 #include <lib/xlat_tables/xlat_tables_v2.h>
 #include <ls_interconnect.h>
 #include <mmio.h>
+#ifdef POLICY_FUSE_PROVISION
+#include <nxp_gpio.h>
+#endif
 #if TRUSTED_BOARD_BOOT
 #include <nxp_smmu.h>
 #endif
@@ -81,6 +84,15 @@ unsigned int plat_get_syscnt_freq2(void)
 }
 
 #ifdef IMAGE_BL2
+
+#ifdef POLICY_FUSE_PROVISION
+static gpio_init_info_t gpio_init_data = {
+	.gpio1_base_addr = NXP_GPIO1_ADDR,
+	.gpio2_base_addr = NXP_GPIO2_ADDR,
+	.gpio3_base_addr = NXP_GPIO3_ADDR,
+};
+#endif
+
 void soc_preload_setup(void)
 {
 }

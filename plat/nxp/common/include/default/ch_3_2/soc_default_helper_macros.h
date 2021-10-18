@@ -79,4 +79,9 @@
 #define ENABLE_WUO			0x10
 #endif /* NXP_CCN_ADDR */
 
+#define DCFG_SBEESR2_ADDR		0x00100534
+#define DCFG_MBEESR2_ADDR		0x00100544
+/* SBEESR and MBEESR bit mask */
+#define OCRAM_EESR_MASK			0x00000008
+
 #endif	/*	SOC_DEFAULT_HELPER_MACROS_H	*/
