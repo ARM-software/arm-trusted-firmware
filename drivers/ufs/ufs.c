@@ -34,6 +34,9 @@ int ufshc_send_uic_cmd(uintptr_t base, uic_cmd_t *cmd)
 {
 	unsigned int data;
 
+	if (base == 0 || cmd == NULL)
+		return -EINVAL;
+
 	data = mmio_read_32(base + HCS);
 	if ((data & HCS_UCRDY) == 0)
 		return -EBUSY;
@@ -54,9 +57,13 @@ int ufshc_dme_get(unsigned int attr, unsigned int idx, unsigned int *val)
 {
 	uintptr_t base;
 	unsigned int data;
-	int retries;
+	int result, retries;
+	uic_cmd_t cmd;
 
-	assert((ufs_params.reg_base != 0) && (val != NULL));
+	assert(ufs_params.reg_base != 0);
+
+	if (val == NULL)
+		return -EINVAL;
 
 	base = ufs_params.reg_base;
 	for (retries = 0; retries < 100; retries++) {
@@ -68,19 +75,20 @@ int ufshc_dme_get(unsigned int attr, unsigned int idx, unsigned int *val)
 	if (retries >= 100)
 		return -EBUSY;
 
-	mmio_write_32(base + IS, ~0);
-	mmio_write_32(base + UCMDARG1, (attr << 16) | GEN_SELECTOR_IDX(idx));
-	mmio_write_32(base + UCMDARG2, 0);
-	mmio_write_32(base + UCMDARG3, 0);
-	mmio_write_32(base + UICCMD, DME_GET);
-	do {
+	cmd.arg1 = (attr << 16) | GEN_SELECTOR_IDX(idx);
+	cmd.arg2 = 0;
+	cmd.arg3 = 0;
+	cmd.op = DME_GET;
+	for (retries = 0; retries < UFS_UIC_COMMAND_RETRIES; ++retries) {
+		result = ufshc_send_uic_cmd(base, &cmd);
+		if (result == 0)
+			break;
 		data = mmio_read_32(base + IS);
 		if (data & UFS_INT_UE)
 			return -EINVAL;
-	} while ((data & UFS_INT_UCCS) == 0);
-	mmio_write_32(base + IS, UFS_INT_UCCS);
-	data = mmio_read_32(base + UCMDARG2) & CONFIG_RESULT_CODE_MASK;
-	assert(data == 0);
+	}
+	if (retries >= UFS_UIC_COMMAND_RETRIES)
+		return -EIO;
 
 	*val = mmio_read_32(base + UCMDARG3);
 	return 0;
@@ -90,58 +98,101 @@ int ufshc_dme_set(unsigned int attr, unsigned int idx, unsigned int val)
 {
 	uintptr_t base;
 	unsigned int data;
+	int result, retries;
+	uic_cmd_t cmd;
 
 	assert((ufs_params.reg_base != 0));
 
 	base = ufs_params.reg_base;
-	data = mmio_read_32(base + HCS);
-	if ((data & HCS_UCRDY) == 0)
-		return -EBUSY;
-	mmio_write_32(base + IS, ~0);
-	mmio_write_32(base + UCMDARG1, (attr << 16) | GEN_SELECTOR_IDX(idx));
-	mmio_write_32(base + UCMDARG2, 0);
-	mmio_write_32(base + UCMDARG3, val);
-	mmio_write_32(base + UICCMD, DME_SET);
-	do {
+	cmd.arg1 = (attr << 16) | GEN_SELECTOR_IDX(idx);
+	cmd.arg2 = 0;
+	cmd.arg3 = val;
+	cmd.op = DME_SET;
+
+	for (retries = 0; retries < UFS_UIC_COMMAND_RETRIES; ++retries) {
+		result = ufshc_send_uic_cmd(base, &cmd);
+		if (result == 0)
+			break;
 		data = mmio_read_32(base + IS);
 		if (data & UFS_INT_UE)
 			return -EINVAL;
-	} while ((data & UFS_INT_UCCS) == 0);
-	mmio_write_32(base + IS, UFS_INT_UCCS);
-	data = mmio_read_32(base + UCMDARG2) & CONFIG_RESULT_CODE_MASK;
-	assert(data == 0);
+	}
+	if (retries >= UFS_UIC_COMMAND_RETRIES)
+		return -EIO;
+
 	return 0;
 }
 
-static void ufshc_reset(uintptr_t base)
+static int ufshc_hce_enable(uintptr_t base)
 {
 	unsigned int data;
+	int retries;
 
 	/* Enable Host Controller */
 	mmio_write_32(base + HCE, HCE_ENABLE);
+
 	/* Wait until basic initialization sequence completed */
-	do {
+	for (retries = 0; retries < HCE_ENABLE_INNER_RETRIES; ++retries) {
 		data = mmio_read_32(base + HCE);
-	} while ((data & HCE_ENABLE) == 0);
+		if (data & HCE_ENABLE) {
+			break;
+		}
+		udelay(HCE_ENABLE_TIMEOUT_US);
+	}
+	if (retries >= HCE_ENABLE_INNER_RETRIES) {
+		return -ETIMEDOUT;
+	}
+
+	return 0;
+}
+
+static int ufshc_reset(uintptr_t base)
+{
+	unsigned int data;
+	int retries, result;
+
+	for (retries = 0; retries < HCE_ENABLE_OUTER_RETRIES; ++retries) {
+		result = ufshc_hce_enable(base);
+		if (result == 0) {
+			break;
+		}
+	}
+	if (retries >= HCE_ENABLE_OUTER_RETRIES) {
+		return -EIO;
+	}
 
 	/* Enable Interrupts */
 	data = UFS_INT_UCCS | UFS_INT_ULSS | UFS_INT_UE | UFS_INT_UTPES |
 	       UFS_INT_DFES | UFS_INT_HCFES | UFS_INT_SBFES;
 	mmio_write_32(base + IE, data);
+
+	return 0;
+}
+
+static int ufshc_dme_link_startup(uintptr_t base)
+{
+	uic_cmd_t cmd;
+
+	memset(&cmd, 0, sizeof(cmd));
+	cmd.op = DME_LINKSTARTUP;
+	return ufshc_send_uic_cmd(base, &cmd);
 }
 
 static int ufshc_link_startup(uintptr_t base)
 {
-	uic_cmd_t cmd;
 	int data, result;
 	int retries;
 
-	for (retries = 10; retries > 0; retries--) {
-		memset(&cmd, 0, sizeof(cmd));
-		cmd.op = DME_LINKSTARTUP;
-		result = ufshc_send_uic_cmd(base, &cmd);
-		if (result != 0)
+	for (retries = DME_LINKSTARTUP_RETRIES; retries > 0; retries--) {
+		result = ufshc_dme_link_startup(base);
+		if (result != 0) {
+			/* Reset controller before trying again */
+			result = ufshc_reset(base);
+			if (result != 0) {
+				return result;
+			}
 			continue;
+		}
 		while ((mmio_read_32(base + HCS) & HCS_DP) == 0)
 			;
 		data = mmio_read_32(base + IS);
@@ -772,7 +823,8 @@ int ufs_init(const ufs_ops_t *ops, ufs_params_t *params)
 		assert((ops != NULL) && (ops->phy_init != NULL) &&
 		       (ops->phy_set_pwr_mode != NULL));
 
-		ufshc_reset(ufs_params.reg_base);
+		result = ufshc_reset(ufs_params.reg_base);
+		assert(result == 0);
 		ops->phy_init(&ufs_params);
 		result = ufshc_link_startup(ufs_params.reg_base);
 		assert(result == 0);
