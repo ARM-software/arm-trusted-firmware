@@ -420,15 +420,20 @@ void stm32mp_print_boardinfo(void)
 /* Return true when SoC provides a single Cortex-A7 core, and false otherwise */
 bool stm32mp_is_single_core(void)
 {
+	bool single_core = false;
+
 	switch (get_part_number()) {
 	case STM32MP151A_PART_NB:
 	case STM32MP151C_PART_NB:
 	case STM32MP151D_PART_NB:
 	case STM32MP151F_PART_NB:
-		return true;
+		single_core = true;
+		break;
 	default:
-		return false;
+		break;
 	}
+
+	return single_core;
 }
 
 /* Return true when device is in closed state */
