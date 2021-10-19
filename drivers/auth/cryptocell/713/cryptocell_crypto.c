@@ -13,6 +13,7 @@
 #include <drivers/auth/crypto_mod.h>
 
 #include <mbedtls/oid.h>
+#include <mbedtls/x509.h>
 
 #define LIB_NAME		"CryptoCell 713 SBROM"
 #define RSA_SALT_LEN		32
