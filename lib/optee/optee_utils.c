@@ -82,11 +82,14 @@ static int parse_optee_image(image_info_t *image_info,
 	init_size = image->size;
 
 	/*
-	 * -1 indicates loader decided address; take our pre-mapped area
-	 * for current image since arm-tf could not allocate memory dynamically
+	 * image->load_addr_hi & image->load_addr_lo set to UINT32_MAX indicate
+	 * loader decided address; take our pre-mapped area for current image
+	 * since arm-tf could not allocate memory dynamically
 	 */
-	if (init_load_addr == -1)
+	if ((image->load_addr_hi == UINT32_MAX) &&
+	    (image->load_addr_lo == UINT32_MAX)) {
 		init_load_addr = image_info->image_base;
+	}
 
 	/* Check that the default end address doesn't overflow */
 	if (check_uptr_overflow(image_info->image_base,
@@ -138,7 +141,8 @@ int parse_optee_header(entry_point_info_t *header_ep,
 
 {
 	optee_header_t *header;
-	int num, ret;
+	uint32_t num;
+	int ret;
 
 	assert(header_ep);
 	header = (optee_header_t *)header_ep->pc;
@@ -181,7 +185,7 @@ int parse_optee_header(entry_point_info_t *header_ep,
 	}
 
 	/* Parse OPTEE image */
-	for (num = 0; num < header->nb_images; num++) {
+	for (num = 0U; num < header->nb_images; num++) {
 		if (header->optee_image_list[num].image_id ==
 				OPTEE_PAGER_IMAGE_ID) {
 			ret = parse_optee_image(pager_image_info,
