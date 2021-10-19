@@ -271,4 +271,71 @@ static inline bool ffa_is_normal_world_id(uint16_t id)
 	return !ffa_is_secure_world_id(id);
 }
 
+
+/******************************************************************************
+ * Boot information protocol as per the FF-A v1.1 spec.
+ *****************************************************************************/
+#define FFA_INIT_DESC_SIGNATURE			0x00000FFA
+
+/* Boot information type. */
+#define FFA_BOOT_INFO_TYPE_STD			U(0x0)
+#define FFA_BOOT_INFO_TYPE_IMPL			U(0x1)
+
+#define FFA_BOOT_INFO_TYPE_MASK			U(0x1)
+#define FFA_BOOT_INFO_TYPE_SHIFT		U(0x7)
+#define FFA_BOOT_INFO_TYPE(type)		\
+	(((type) & FFA_BOOT_INFO_TYPE_MASK)	\
+	<< FFA_BOOT_INFO_TYPE_SHIFT)
+
+/* Boot information identifier. */
+#define FFA_BOOT_INFO_TYPE_ID_FDT		U(0x0)
+#define FFA_BOOT_INFO_TYPE_ID_HOB		U(0x1)
+
+#define FFA_BOOT_INFO_TYPE_ID_MASK		U(0x3F)
+#define FFA_BOOT_INFO_TYPE_ID_SHIFT		U(0x0)
+#define FFA_BOOT_INFO_TYPE_ID(type)		\
+	(((type) & FFA_BOOT_INFO_TYPE_ID_MASK)	\
+	<< FFA_BOOT_INFO_TYPE_ID_SHIFT)
+
+/* Format of Flags Name field. */
+#define FFA_BOOT_INFO_FLAG_NAME_STRING		U(0x0)
+#define FFA_BOOT_INFO_FLAG_NAME_UUID		U(0x1)
+
+#define FFA_BOOT_INFO_FLAG_NAME_MASK		U(0x3)
+#define FFA_BOOT_INFO_FLAG_NAME_SHIFT		U(0x0)
+#define FFA_BOOT_INFO_FLAG_NAME(type)		\
+	(((type) & FFA_BOOT_INFO_FLAG_NAME_MASK)\
+	<< FFA_BOOT_INFO_FLAG_NAME_SHIFT)
+
+/* Format of Flags Contents field. */
+#define FFA_BOOT_INFO_FLAG_CONTENT_ADR		U(0x0)
+#define FFA_BOOT_INFO_FLAG_CONTENT_VAL		U(0x1)
+
+#define FFA_BOOT_INFO_FLAG_CONTENT_MASK		U(0x1)
+#define FFA_BOOT_INFO_FLAG_CONTENT_SHIFT	U(0x2)
+#define FFA_BOOT_INFO_FLAG_CONTENT(content)		\
+	(((content) & FFA_BOOT_INFO_FLAG_CONTENT_MASK)	\
+	<< FFA_BOOT_INFO_FLAG_CONTENT_SHIFT)
+
+/* Boot information descriptor. */
+struct ffa_boot_info_desc {
+	uint8_t name[16];
+	uint8_t type;
+	uint8_t reserved;
+	uint16_t flags;
+	uint32_t size_boot_info;
+	uint64_t content;
+};
+
+/* Boot information header. */
+struct ffa_boot_info_header {
+	uint32_t signature; /* 0xFFA */
+	uint32_t version;
+	uint32_t size_boot_info_blob;
+	uint32_t size_boot_info_desc;
+	uint32_t count_boot_info_desc;
+	uint32_t offset_boot_info_desc;
+	uint64_t reserved;
+};
+
 #endif /* FFA_SVC_H */

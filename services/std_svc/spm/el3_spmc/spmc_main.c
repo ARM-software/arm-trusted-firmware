@@ -1336,7 +1336,8 @@ static uint64_t ffa_sec_ep_register_handler(uint32_t smc_fid,
  ******************************************************************************/
 static int sp_manifest_parse(void *sp_manifest, int offset,
 			     struct secure_partition_desc *sp,
-			     entry_point_info_t *ep_info)
+			     entry_point_info_t *ep_info,
+			     int32_t *boot_info_reg)
 {
 	int32_t ret, node;
 	uint32_t config_32;
@@ -1453,6 +1454,20 @@ static int sp_manifest_parse(void *sp_manifest, int offset,
 		sp->pwr_mgmt_msgs = config_32;
 	}
 
+	ret = fdt_read_uint32(sp_manifest, node,
+			      "gp-register-num", &config_32);
+	if (ret != 0) {
+		WARN("Missing boot information register.\n");
+	} else {
+		/* Check if a register number between 0-3 is specified. */
+		if (config_32 < 4) {
+			*boot_info_reg = config_32;
+		} else {
+			WARN("Incorrect boot information register (%u).\n",
+			     config_32);
+		}
+	}
+
 	return 0;
 }
 
@@ -1468,7 +1483,7 @@ static int find_and_prepare_sp_context(void)
 	uintptr_t manifest_base;
 	uintptr_t manifest_base_align;
 	entry_point_info_t *next_image_ep_info;
-	int32_t ret;
+	int32_t ret, boot_info_reg = -1;
 	struct secure_partition_desc *sp;
 
 	next_image_ep_info = bl31_plat_get_next_image_ep_info(SECURE);
@@ -1527,7 +1542,8 @@ static int find_and_prepare_sp_context(void)
 		       SECURE | EP_ST_ENABLE);
 
 	/* Parse the SP manifest. */
-	ret = sp_manifest_parse(sp_manifest, ret, sp, next_image_ep_info);
+	ret = sp_manifest_parse(sp_manifest, ret, sp, next_image_ep_info,
+				&boot_info_reg);
 	if (ret != 0) {
 		ERROR("Error in Secure Partition manifest parsing.\n");
 		return ret;
@@ -1540,7 +1556,7 @@ static int find_and_prepare_sp_context(void)
 	}
 
 	/* Perform any common initialisation. */
-	spmc_sp_common_setup(sp, next_image_ep_info);
+	spmc_sp_common_setup(sp, next_image_ep_info, boot_info_reg);
 
 	/* Perform any initialisation specific to S-EL1 SPs. */
 	spmc_el1_sp_setup(sp, next_image_ep_info);

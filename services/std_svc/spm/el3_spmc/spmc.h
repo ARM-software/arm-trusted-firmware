@@ -225,7 +225,8 @@ extern const spd_pm_ops_t spmc_pm;
 
 /* Setup Function for different SP types. */
 void spmc_sp_common_setup(struct secure_partition_desc *sp,
-			  entry_point_info_t *ep_info);
+			  entry_point_info_t *ep_info,
+			  int32_t boot_info_reg);
 void spmc_el1_sp_setup(struct secure_partition_desc *sp,
 		       entry_point_info_t *ep_info);
 void spmc_sp_common_ep_commit(struct secure_partition_desc *sp,
