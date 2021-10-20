@@ -142,6 +142,22 @@ struct iomuxc_section iomuxc_sections[IOMUXC_SECTION_NUM] = {
 };
 static uint32_t iomuxc_ctx[258];
 
+#define PORTS_NUM		3U
+void apd_io_pad_off(void)
+{
+	unsigned int i, j;
+
+	/* off the PTD/E/F, need to be customized based on actual user case */
+	for (i = 0; i < PORTS_NUM; i++) {
+		for (j = 0; j < iomuxc_sections[i].reg_num; j++) {
+			mmio_write_32(iomuxc_sections[i].offset + j * 4, 0);
+		}
+	}
+
+	/* disable the PTD compensation */
+	mmio_write_32(IMX_SIM1_BASE + 0x48, 0x800);
+}
+
 void iomuxc_save(void)
 {
 	unsigned int i, j;
@@ -152,6 +168,8 @@ void iomuxc_save(void)
 			iomuxc_ctx[index++] = mmio_read_32(iomuxc_sections[i].offset + j * 4);
 		}
 	}
+
+	apd_io_pad_off();
 }
 
 void iomuxc_restore(void)
